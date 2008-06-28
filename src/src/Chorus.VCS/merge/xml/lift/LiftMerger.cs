@@ -9,7 +9,13 @@ using Chorus.merge.xml.generic;
 namespace Chorus.merge.xml.lift
 {
 	/// <summary>
-	/// This is to be used be version control systems to do an intelligent 3-way merge of lift files
+	/// This is used by version control systems to do an intelligent 3-way merge of lift files.
+	///
+	/// This class is lift-specific.  It walks through each entry, applying a merger
+	/// (which is currenlty, normally, something that uses the Chorus xmlMerger).
+	///
+	/// TODO: A confusing part here is the mix of levels we got from how this was built historically:
+	/// file, lexentry, ultimately generic.  Each level seems to have some strategies.
 	/// </summary>
 	public class LiftMerger
 	{
@@ -22,8 +28,10 @@ namespace Chorus.merge.xml.lift
 		private readonly XmlDocument _ancestorDom;
 		private IMergeStrategy _mergingStrategy;
 
+
 		public LiftMerger(IMergeStrategy mergeStrategy, string ourLiftPath, string theirLiftPath, string ancestorLiftPath)
 		{
+
 			_ourLift = File.ReadAllText(ourLiftPath);
 			_theirLift =  File.ReadAllText(theirLiftPath);
 			_ancestorLift = File.ReadAllText(ancestorLiftPath);
@@ -34,6 +42,9 @@ namespace Chorus.merge.xml.lift
 			_mergingStrategy = mergeStrategy;
 		}
 
+		/// <summary>
+		/// Used by tests, which prefer to give us raw contents rather than paths
+		/// </summary>
 		public LiftMerger(string ourLiftContents, string theirLiftContents, string ancestorLiftContents, IMergeStrategy mergeStrategy)
 		{
 			_ourLift = ourLiftContents;

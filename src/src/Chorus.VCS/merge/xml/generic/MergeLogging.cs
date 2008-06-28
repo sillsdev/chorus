@@ -24,22 +24,22 @@ namespace Chorus.merge.xml.generic
 		}
 	}
 
-	public class DifferenceReport
+	public class MergeReport
 	{
 		public string _result;
 	}
 
-	public interface IDifferenceReportMaker
+	public interface IMergeReportMaker
 	{
-		DifferenceReport GetReport();
+		MergeReport GetReport();
 	}
 
-	public class DefaultDifferenceReportMaker : IDifferenceReportMaker
+	public class DefaultMergeReportMaker : IMergeReportMaker
 	{
 
-		public DifferenceReport GetReport()
+		public MergeReport GetReport()
 		{
-			return new DifferenceReport();
+			return new MergeReport();
 		}
 
 	}

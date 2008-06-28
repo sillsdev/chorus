@@ -101,7 +101,7 @@ namespace Chorus.merge.xml.generic
 						//todo: should we add what they modified?
 						//needs a test first
 
-						//until then, this is a conflict  <-- todo
+						//until then, this is a conflict
 						_logger.RegisterConflict(new RemovedVsEditedAttributeConflict(theirAttr.Name, null, theirAttr.Value, ancestorAttr.Value, _mergeStrategies));
 						continue;
 					}

@@ -1,13 +1,17 @@
-using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Xml;
 using Chorus.merge.xml.generic;
 
 namespace Chorus.merge.xml.generic
 {
+	/// <summary>
+	/// each element-type can have custom merging code
+	/// </summary>
 	public class MergeStrategies
 	{
+		/// <summary>
+		/// the list of custom strategies that have been installed
+		/// </summary>
 		public Dictionary<string, ElementStrategy> _elementStrategies = new Dictionary<string, ElementStrategy>();
 
 		public MergeStrategies()
@@ -52,22 +56,29 @@ namespace Chorus.merge.xml.generic
 			return GetElementStrategy(element)._mergePartnerFinder;
 		}
 
-//        private IDifferenceReportMaker GetDifferenceReportMaker(XmlNode element)
+//        private IMergeReportMaker GetDifferenceReportMaker(XmlNode element)
 //        {
 //            ElementStrategy strategy;
 //            if (!this._mergeStrategies._elementStrategies.TryGetValue(element.Name, out strategy))
 //            {
-//                return new DefaultDifferenceReportMaker();
+//                return new DefaultMergeReportMaker();
 //            }
-//            return strategy._differenceReportMaker;
+//            return strategy.mergeReportMaker;
 //        }
 
 	}
 
 	public class ElementStrategy
 	{
+		/// <summary>
+		/// Given a node in "ours" that we want to merge with "theirs", how do we identify the one in "theirs"?
+		/// </summary>
 		public IFindNodeToMerge _mergePartnerFinder;
-		public IDifferenceReportMaker _differenceReportMaker;
+
+		/// <summary>
+		/// Used to make element-type-specific reporting
+		/// </summary>
+		public IMergeReportMaker mergeReportMaker;
 
 		public static ElementStrategy CreateForKeyedElement(string keyAttributeName)
 		{

@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Xml;
 using Chorus.merge.xml.generic;
 
@@ -13,6 +11,9 @@ namespace Chorus.merge.xml.lift
 		public EntryMerger()
 		{
 			_entryMerger = new XmlMerger();
+
+			//now customize the XmlMerger with LIFT-specific info
+
 			AddKeyedElementType("entry", "id");
 			AddKeyedElementType("sense", "id");
 			AddKeyedElementType("form", "lang");
