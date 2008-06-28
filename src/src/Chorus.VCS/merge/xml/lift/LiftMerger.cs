@@ -15,7 +15,10 @@ namespace Chorus.merge.xml.lift
 	/// (which is currenlty, normally, something that uses the Chorus xmlMerger).
 	///
 	/// TODO: A confusing part here is the mix of levels we got from how this was built historically:
-	/// file, lexentry, ultimately generic.  Each level seems to have some strategies.
+	/// file, lexentry, ultimately the chorus xml merger on the parts of the lexentry.  Each level seems to have some strategies.
+	/// I (JH) wonder if we could move more down to the generic level.
+	///
+	/// Eventually, we may want a non-dom way to handle the top level, in which case having this class would be handy.
 	/// </summary>
 	public class LiftMerger
 	{

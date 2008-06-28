@@ -7,6 +7,9 @@ using NUnit.Framework;
 
 namespace Chorus.Tests.merge.xml.lift
 {
+	/// <summary>
+	/// NB: this uses dummy strategies because the tests are not testing if the internals of the entries are merged
+	/// </summary>
 	[TestFixture]
 	public class FileLevelMergeTests
 	{

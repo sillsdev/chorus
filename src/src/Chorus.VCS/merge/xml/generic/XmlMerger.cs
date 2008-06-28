@@ -79,12 +79,19 @@ namespace Chorus.merge.xml.generic
 			return attrs;
 		}
 
+		private XmlAttribute GetAttributeOrNull(XmlNode node, string name)
+		{
+			if (node == null)
+				return null;
+			return node.Attributes.GetNamedItem(name) as XmlAttribute;
+		}
+
 		private void MergeAttributes(ref XmlNode ours, XmlNode theirs, XmlNode ancestor)
 		{
 			foreach (XmlAttribute theirAttr in GetAttrs(theirs))
 			{
-				XmlAttribute ourAttr = ours.Attributes.GetNamedItem(theirAttr.Name) as XmlAttribute;
-				XmlAttribute ancestorAttr = ancestor.Attributes.GetNamedItem(theirAttr.Name) as XmlAttribute;
+				XmlAttribute ourAttr = GetAttributeOrNull(ours, theirAttr.Name);
+				XmlAttribute ancestorAttr = GetAttributeOrNull(ancestor, theirAttr.Name);
 
 				if (ourAttr == null)
 				{
@@ -150,8 +157,8 @@ namespace Chorus.merge.xml.generic
 			foreach (XmlAttribute ourAttr in GetAttrs(ours))
 			{
 
-				XmlAttribute theirAttr = theirs.Attributes.GetNamedItem(ourAttr.Name) as XmlAttribute;
-				XmlAttribute ancestorAttr = ancestor.Attributes.GetNamedItem(ourAttr.Name) as XmlAttribute;
+				XmlAttribute theirAttr = GetAttributeOrNull(theirs, ourAttr.Name);
+				XmlAttribute ancestorAttr = GetAttributeOrNull(ancestor,ourAttr.Name);
 
 				if (theirAttr == null && ancestorAttr != null)
 				{

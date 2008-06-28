@@ -6,6 +6,9 @@ namespace Chorus.merge.xml.generic
 {
 	public interface IFindNodeToMerge
 	{
+		/// <summary>
+		/// Should return null if parentToSearchIn is null
+		/// </summary>
 		XmlNode GetNodeToMerge(XmlNode nodeToMatch, XmlNode parentToSearchIn);
 	}
 
@@ -21,8 +24,11 @@ namespace Chorus.merge.xml.generic
 
 		public XmlNode GetNodeToMerge(XmlNode nodeToMatch, XmlNode parentToSearchIn)
 		{
+			if (parentToSearchIn == null)
+				return null;
+
 			string key = XmlUtilities.GetOptionalAttributeString(nodeToMatch, _keyAttribute);
-			if (string.IsNullOrEmpty(key))
+			if (string.IsNullOrEmpty(key) || parentToSearchIn == null)
 			{
 				return null;
 			}
@@ -40,6 +46,9 @@ namespace Chorus.merge.xml.generic
 	{
 		public XmlNode GetNodeToMerge(XmlNode nodeToMatch, XmlNode parentToSearchIn)
 		{
+			if (parentToSearchIn == null)
+				return null;
+
 			return parentToSearchIn.SelectSingleNode(nodeToMatch.Name);
 		}
 	}
@@ -48,6 +57,9 @@ namespace Chorus.merge.xml.generic
 	{
 		public XmlNode GetNodeToMerge(XmlNode nodeToMatch, XmlNode parentToSearchIn)
 		{
+			if (parentToSearchIn == null)
+				return null;
+
 			//match any exact xml matches, including all the children
 
 			foreach (XmlNode node in parentToSearchIn.ChildNodes)
@@ -69,6 +81,9 @@ namespace Chorus.merge.xml.generic
 
 		public XmlNode GetNodeToMerge(XmlNode nodeToMatch, XmlNode parentToSearchIn)
 		{
+			if (parentToSearchIn == null)
+				return null;
+
 			//just match first text we find
 
 			foreach (XmlNode node in parentToSearchIn.ChildNodes)
