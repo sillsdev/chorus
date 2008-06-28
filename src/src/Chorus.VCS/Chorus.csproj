@@ -1,0 +1,139 @@
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+  <PropertyGroup>
+	<Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+	<Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+	<ProductVersion>8.0.50727</ProductVersion>
+	<SchemaVersion>2.0</SchemaVersion>
+	<ProjectGuid>{94245366-8F1E-475C-810D-FE89BB3948E0}</ProjectGuid>
+	<OutputType>WinExe</OutputType>
+	<AppDesignerFolder>Properties</AppDesignerFolder>
+	<RootNamespace>Chorus</RootNamespace>
+	<AssemblyName>Chorus</AssemblyName>
+	<StartupObject>Chorus.UI.MainWindow</StartupObject>
+	<FileUpgradeFlags>
+	</FileUpgradeFlags>
+	<OldToolsVersion>2.0</OldToolsVersion>
+	<UpgradeBackupLocation>
+	</UpgradeBackupLocation>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+	<DebugSymbols>true</DebugSymbols>
+	<DebugType>full</DebugType>
+	<Optimize>false</Optimize>
+	<OutputPath>..\..\output\Debug\</OutputPath>
+	<DefineConstants>DEBUG;TRACE</DefineConstants>
+	<ErrorReport>prompt</ErrorReport>
+	<WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+	<DebugType>pdbonly</DebugType>
+	<Optimize>true</Optimize>
+	<OutputPath>bin\Release\</OutputPath>
+	<DefineConstants>TRACE</DefineConstants>
+	<ErrorReport>prompt</ErrorReport>
+	<WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+	<Reference Include="System" />
+	<Reference Include="System.Data" />
+	<Reference Include="System.Drawing" />
+	<Reference Include="System.Windows.Forms" />
+	<Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+	<Compile Include="merge\MergeDispatcher.cs" />
+	<Compile Include="merge\xml\generic\DropTheirsMergeStrategy.cs" />
+	<Compile Include="merge\xml\generic\PoorMansMergeStrategy.cs" />
+	<Compile Include="Utilities\ExecutionResult.cs" />
+	<Compile Include="Utilities\Other.cs" />
+	<Compile Include="Utilities\ProcessStream.cs" />
+	<Compile Include="Utilities\Progress.cs" />
+	<Compile Include="Utilities\ShortTermEnvironmentalVariable.cs" />
+	<Compile Include="Utilities\TempFile.cs" />
+	<Compile Include="VcsDrivers\Git\GitRepository.cs" />
+	<Compile Include="VcsDrivers\Mercurial\HgPartialMergeRepository.cs" />
+	<Compile Include="VcsDrivers\Mercurial\HgRepository.cs" />
+	<Compile Include="merge\text\TextMerger.cs" />
+	<Compile Include="merge\xml\generic\Conflict.cs" />
+	<Compile Include="merge\xml\generic\DifferenceLog.cs" />
+	<Compile Include="merge\xml\generic\ElementStrategy.cs" />
+	<Compile Include="merge\xml\generic\FindNodeToMerge.cs" />
+	<Compile Include="merge\xml\generic\IMergeStrategy.cs" />
+	<Compile Include="merge\xml\lift\EntryMerger.cs" />
+	<Compile Include="merge\xml\lift\LiftMerger.cs" />
+	<Compile Include="merge\xml\generic\XmlUtilities.cs" />
+	<Compile Include="merge\xml\generic\xmldiff\DiffConfiguration.cs" />
+	<Compile Include="merge\xml\generic\xmldiff\Difference.cs" />
+	<Compile Include="merge\xml\generic\xmldiff\Differences.cs" />
+	<Compile Include="merge\xml\generic\xmldiff\DifferenceType.cs" />
+	<Compile Include="merge\xml\generic\xmldiff\DiffResult.cs" />
+	<Compile Include="merge\xml\generic\xmldiff\XmlDiff.cs" />
+	<Compile Include="merge\xml\generic\xmldiff\XmlInput.cs" />
+	<Compile Include="merge\xml\generic\XmlMerger.cs" />
+	<Compile Include="Properties\AssemblyInfo.cs" />
+	<Compile Include="VcsDrivers\Mercurial\RevisionDescriptor.cs" />
+	<Compile Include="sync\SyncManager.cs" />
+	<Compile Include="UI\MainWindow.cs">
+	  <SubType>Form</SubType>
+	</Compile>
+	<Compile Include="UI\MainWindow.Designer.cs">
+	  <DependentUpon>MainWindow.cs</DependentUpon>
+	</Compile>
+	<Compile Include="UI\SettingsPanel.cs">
+	  <SubType>UserControl</SubType>
+	</Compile>
+	<Compile Include="UI\SettingsPanel.Designer.cs">
+	  <DependentUpon>SettingsPanel.cs</DependentUpon>
+	</Compile>
+	<Compile Include="UI\SetupPanel.cs">
+	  <SubType>UserControl</SubType>
+	</Compile>
+	<Compile Include="UI\SetupPanel.Designer.cs">
+	  <DependentUpon>SetupPanel.cs</DependentUpon>
+	</Compile>
+	<Compile Include="UI\SyncPanel.cs">
+	  <SubType>UserControl</SubType>
+	</Compile>
+	<Compile Include="UI\SyncPanel.Designer.cs">
+	  <DependentUpon>SyncPanel.cs</DependentUpon>
+	</Compile>
+	<Compile Include="VcsDrivers\Mercurial\WrapShellCallRunner.cs" />
+  </ItemGroup>
+  <ItemGroup>
+	<EmbeddedResource Include="UI\MainWindow.resx">
+	  <SubType>Designer</SubType>
+	  <DependentUpon>MainWindow.cs</DependentUpon>
+	</EmbeddedResource>
+	<EmbeddedResource Include="UI\SettingsPanel.resx">
+	  <SubType>Designer</SubType>
+	  <DependentUpon>SettingsPanel.cs</DependentUpon>
+	</EmbeddedResource>
+	<EmbeddedResource Include="UI\SetupPanel.resx">
+	  <SubType>Designer</SubType>
+	  <DependentUpon>SetupPanel.cs</DependentUpon>
+	</EmbeddedResource>
+	<EmbeddedResource Include="UI\SyncPanel.resx">
+	  <SubType>Designer</SubType>
+	  <DependentUpon>SyncPanel.cs</DependentUpon>
+	</EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+	<Content Include="UI\SetupPanel.htm">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</Content>
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
+	   Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+  <PropertyGroup>
+	<PostBuildEvent>mkdir $(OutDir)\diff3
+mkdir $(OutDir)\diff3\bin
+copy $(OutDir)..\..\lib\diff3\bin\*.* $(OutDir)\diff3\bin\
+</PostBuildEvent>
+  </PropertyGroup>
+</Project>
