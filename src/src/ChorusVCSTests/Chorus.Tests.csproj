@@ -49,6 +49,7 @@
 	<Compile Include="merge\xml\lift\MultiTextMergingTests.cs" />
 	<Compile Include="merge\xml\lift\PoorMansMergingStrategyTests.cs" />
 	<Compile Include="merge\xml\lift\SenseMergingTests.cs" />
+	<Compile Include="sync\RepositorySourceTests.cs" />
 	<Compile Include="sync\SyncManagerTests.cs" />
 	<Compile Include="UI\SyncPanelModelTests.cs" />
 	<Compile Include="utilities\ChorusDiff3Tests.cs" />

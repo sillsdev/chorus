@@ -24,7 +24,7 @@ namespace Chorus.UI
 			_model = new SyncPanelModel(syncContext, _progress);
 
 			_syncTargets.Items.Clear();
-			foreach (RepositoryDescriptor descriptor in _model.RepositoriesToList)
+			foreach (RepositorySource descriptor in _model.RepositoriesToList)
 			{
 				_syncTargets.Items.Add(descriptor, _model.RepositoriesToTry.Contains(descriptor) );
 			}
@@ -48,7 +48,7 @@ namespace Chorus.UI
 		private void _syncTargets_ItemCheck(object sender, ItemCheckEventArgs e)
 		{
 			 _model.RepositoriesToTry.Clear();
-			foreach (RepositoryDescriptor descriptor in _syncTargets.CheckedItems)
+			foreach (RepositorySource descriptor in _syncTargets.CheckedItems)
 			{
 				_model.RepositoriesToTry.Add(descriptor);
 			}

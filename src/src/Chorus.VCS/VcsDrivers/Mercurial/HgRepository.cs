@@ -46,13 +46,13 @@ namespace Chorus.VcsDrivers.Mercurial
 			}
 		}
 
-		public void TryToPull(RepositoryDescriptor repoInfo, IProgress progress, SyncResults results)
+		public void TryToPull(string resolvedUri, string sourceName, IProgress progress, SyncResults results)
 		{
-			HgRepository repo = new HgRepository(repoInfo.URI, progress, repoInfo.RepoName);
+			HgRepository repo = new HgRepository(resolvedUri, progress, sourceName);
 			PullFromRepository(repo, false);
 		}
 
-		public void Push(RepositoryDescriptor targetRepoInfo, IProgress progress, SyncResults results)
+		public void Push(RepositorySource targetRepoInfo, IProgress progress, SyncResults results)
 		{
 			using (new ConsoleProgress("{0} pushing to {1}", _userName, targetRepoInfo.URI))
 			{
@@ -408,5 +408,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		{
 			Execute("clone", null, PathWithQuotes + " " + SurroundWithQuotes(path));
 		}
+
+
 	}
 }

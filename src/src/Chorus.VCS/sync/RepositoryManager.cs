@@ -15,12 +15,17 @@ namespace Chorus.sync
 		private readonly ApplicationSyncContext _appContext;
 
 
-		private List<RepositoryDescriptor> _knownRepositories=new List<RepositoryDescriptor>();
+		private List<RepositorySource> _knownRepositories=new List<RepositorySource>();
 
-		public List<RepositoryDescriptor> KnownRepositories
+		public List<RepositorySource> KnownRepositories
 		{
 			get { return _knownRepositories; }
 			set { _knownRepositories = value; }
+		}
+
+		public string RepoProjectName
+		{
+			get { return Path.GetFileNameWithoutExtension(_localRepositoryPath); }
 		}
 
 		/// <summary>
@@ -74,7 +79,7 @@ namespace Chorus.sync
 			progress.WriteStatus(_appContext.User.Id + " Checking In...");
 			repo.AddAndCheckinFiles(_appContext.Project.IncludePatterns, _appContext.Project.ExcludePatterns, options.CheckinDescription);
 
-			List<RepositoryDescriptor> repositoriesToTry = options.RepositoriesToTry;
+			List<RepositorySource> repositoriesToTry = options.RepositoriesToTry;
 
 			//if the client didn't specify any, try them all
 			if(repositoriesToTry==null || repositoriesToTry.Count == 0)
@@ -83,9 +88,16 @@ namespace Chorus.sync
 			if (options.DoPullFromOthers)
 			{
 				progress.WriteStatus("Pulling...");
-				foreach (RepositoryDescriptor otherRepo in repositoriesToTry)
+				foreach (RepositorySource repoDescriptor in repositoriesToTry)
 				{
-					repo.TryToPull(otherRepo, progress, results);
+					if (repoDescriptor.CanConnect(RepoProjectName, progress))
+					{
+						repo.TryToPull(repoDescriptor.ResolveUri(RepoProjectName, progress), repoDescriptor.SourceName, progress, results);
+					}
+					else
+					{
+						progress.WriteMessage("Could not connect to {0} at {1} for pulling", repoDescriptor.SourceName, repoDescriptor.URI);
+					}
 				}
 			}
 
@@ -94,11 +106,24 @@ namespace Chorus.sync
 				progress.WriteStatus("Merging...");
 				repo.MergeHeads(progress, results);
 
-				foreach (RepositoryDescriptor otherRepo in repositoriesToTry)
+				foreach (RepositorySource repoDescriptor in repositoriesToTry)
 				{
-					if (!otherRepo.ReadOnly)
+					if (!repoDescriptor.ReadOnly)
 					{
-						repo.Push(otherRepo, progress, results);
+						string resolvedUri;
+						if (repoDescriptor.ShouldCreateClone(RepoProjectName, progress, out resolvedUri))
+						{
+							MakeClone(resolvedUri, true, progress);
+						}
+
+						if (repoDescriptor.CanConnect(RepoProjectName, progress))
+						{
+							repo.Push(repoDescriptor, progress, results);
+						}
+						else
+						{
+							progress.WriteMessage("Could not connect to {0} at {1} for pushing", repoDescriptor.SourceName, repoDescriptor.URI);
+						}
 					}
 				}
 			}
@@ -128,16 +153,21 @@ namespace Chorus.sync
 			_localRepositoryPath = localRepositoryPath;
 			_appContext = appContext;
 
-			KnownRepositories.Add(new RepositoryDescriptor("UsbKey", "UsbKey", false));
+			KnownRepositories.Add(RepositorySource.Create("UsbKey", "UsbKey", false));
 		}
 
 
-		public void MakeClone(string path, IProgress progress)
+		public void MakeClone(string path, bool alsoDoCheckout, IProgress progress)
 		{
 			HgRepository local = new HgRepository(_localRepositoryPath, progress, _appContext.User.Id);
 			using (new ConsoleProgress("Creating repository clone to {0}", path))
 			{
 				local.Clone(path);
+				if(alsoDoCheckout)
+				{
+					HgRepository clone = new HgRepository(path, progress, _appContext.User.Id);
+					clone.Update();
+				}
 			}
 		}
 	}

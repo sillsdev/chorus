@@ -11,8 +11,8 @@ namespace Chorus.UI
 	{
 		private readonly ApplicationSyncContext _context;
 		private readonly IProgress _progress;
-		public List<RepositoryDescriptor> RepositoriesToTry = new List<RepositoryDescriptor>();
-		public IList<RepositoryDescriptor> RepositoriesToList;
+		public List<RepositorySource> RepositoriesToTry = new List<RepositorySource>();
+		public IList<RepositorySource> RepositoriesToList;
 
 		public  SyncPanelModel(ApplicationSyncContext syncContext, IProgress progress)
 		{

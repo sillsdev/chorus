@@ -21,17 +21,15 @@ namespace Chorus.Tests.UI
 				Directory.Delete(_pathToTestRoot, true);
 			Directory.CreateDirectory(_pathToTestRoot);
 
-			string bobPath = Path.Combine(_pathToTestRoot, "Bob");
-			Directory.CreateDirectory(bobPath);
 
-			string pathToText = Path.Combine(bobPath, "foo.txt");
+			string pathToText = Path.Combine(_pathToTestRoot, "foo.txt");
 			File.WriteAllText(pathToText, "version one of my pretend txt");
 
-			RepositoryManager.MakeRepositoryForTest(bobPath);
+			RepositoryManager.MakeRepositoryForTest(_pathToTestRoot);
 
 			ApplicationSyncContext applicationSyncContext=new ApplicationSyncContext();
 			applicationSyncContext.Project.IncludePatterns.Add(pathToText);
-			applicationSyncContext.Project.TopPath = bobPath;
+			applicationSyncContext.Project.TopPath = _pathToTestRoot;
 
 			_progress = new StringBuilderProgress();
 			_model = new SyncPanelModel(applicationSyncContext, _progress);

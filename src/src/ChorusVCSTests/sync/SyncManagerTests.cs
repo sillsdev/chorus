@@ -101,7 +101,7 @@ namespace Chorus.Tests.sync
 			string usbPath = Path.Combine(_pathToTestRoot, "USB-A");
 			bobSetup.SetupClone(usbPath, "USBA");
 
-			RepositoryDescriptor usbRepo = new RepositoryDescriptor(usbPath, "USBA", false);
+			RepositorySource usbRepo = RepositorySource.Create(usbPath, "USBA", false);
 			SyncManager bob = bobSetup.GetManager();
 			bob.KnownRepositories.Add(usbRepo);
 
@@ -169,7 +169,7 @@ namespace Chorus.Tests.sync
 			bobSetup.SetupClone(usbPath, "USBA");
 			SyncManager usb = SyncManager.FromChildPath(usbPath, progress, "USBA");
 
-			RepositoryDescriptor usbRepo = new RepositoryDescriptor(usbPath, "USBA", false);
+			RepositorySource usbRepo = RepositorySource.Create(usbPath, "USBA", false);
 			SyncManager bob =  bobSetup.GetManager();
 			bob.KnownRepositories.Add(usbRepo);
 
@@ -187,7 +187,7 @@ namespace Chorus.Tests.sync
 			bob.SyncNow(bobSetup._projectDescriptor, bobOptions);
 
 			SyncManager sally = SyncManager.FromChildPath(sallyRoot, progress,"sally");
-			sally.KnownRepositories.Add(new RepositoryDescriptor(usbRepo.URI, usbRepo.RepoName, false));
+			sally.KnownRepositories.Add(RepositorySource.Create(usbRepo.URI, usbRepo.SourceName, false));
 
 			//now she modifies a file
 			File.WriteAllText(Path.Combine(sallyRoot, "lexicon/foo.txt"), "Sally was here");
@@ -236,7 +236,7 @@ namespace Chorus.Tests.sync
 			bobSetup.GetManager().SyncNow(bobSetup._projectDescriptor, bobOptions);
 
 			SyncManager sally = SyncManager.FromChildPath(sallyRoot, progress, "sally");
-			sally.KnownRepositories.Add(new RepositoryDescriptor(bobSetup._languageProjectPath, "bob", false));
+			sally.KnownRepositories.Add(RepositorySource.Create(bobSetup._languageProjectPath, "bob", false));
 
 			//now she modifies a file
 			string sallyPathToLift = Path.Combine(sallyRoot, "lexicon/foo.lift");

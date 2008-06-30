@@ -21,13 +21,10 @@ namespace Chorus.merge
 						//todo: we don't know how to handle this file type, so pick one and report a conflict
 						Console.Error.WriteLine("ChorusMerge doesn't know how to merge files of type" + Path.GetExtension(order.pathToOurs));
 						return -1;
-						break;
 					case ".lift":
 						return MergeLiftFiles(order);
-						break;
 					case ".txt":
 						return MergeTextFiles(order);
-						break;
 				}
 			}
 			catch (Exception e)
@@ -46,7 +43,6 @@ namespace Chorus.merge
 			{
 				default:
 					throw new ArgumentException("The Lift merger cannot handle the requested conflict handling mode");
-					break;
 				case MergeOrder.ConflictHandlingMode.WeWin:
 
 					merger = new LiftMerger(new EntryMerger(), order.pathToOurs, order.pathToTheirs, order.pathToCommonAncestor);

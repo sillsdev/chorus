@@ -13,11 +13,11 @@ namespace Chorus.sync
 	{
 		private string _localRepositoryPath;
 		private string _userName;
-		private List<RepositoryDescriptor> _knownRepositories=new List<RepositoryDescriptor>();
+		private List<RepositorySource> _knownRepositories=new List<RepositorySource>();
 		static internal string LocationToMakeRepositoryDuringTest=null;//enchance: introduce resolver delegate
 		private IProgress _progress;
 
-		public List<RepositoryDescriptor> KnownRepositories
+		public List<RepositorySource> KnownRepositories
 		{
 			get { return _knownRepositories; }
 			set { _knownRepositories = value; }
@@ -81,6 +81,10 @@ namespace Chorus.sync
 			}
 			return dirPath;
 		}*/
+		public string RepoProjectName
+		{
+			get { return Path.GetFileNameWithoutExtension(_localRepositoryPath); }
+		}
 
 		public SyncResults SyncNow(ProjectDescriptor projectDescriptor, SyncOptions options)
 		{
@@ -94,9 +98,9 @@ namespace Chorus.sync
 			if (options.DoPullFromOthers)
 			{
 				_progress.WriteStatus("Pulling...");
-				foreach (RepositoryDescriptor otherRepo in KnownRepositories)
+				foreach (RepositorySource repoDescriptor in KnownRepositories)
 				{
-					repo.TryToPull(otherRepo, _progress, results);
+					repo.TryToPull(repoDescriptor.ResolveUri(RepoProjectName, _progress), repoDescriptor.SourceName, _progress, results);
 				}
 			}
 
@@ -105,7 +109,7 @@ namespace Chorus.sync
 				_progress.WriteStatus("Merging...");
 				repo.MergeHeads(_progress, results);
 
-				foreach (RepositoryDescriptor otherRepo in KnownRepositories)
+				foreach (RepositorySource otherRepo in KnownRepositories)
 				{
 					if (!otherRepo.ReadOnly)
 					{
@@ -185,7 +189,7 @@ namespace Chorus.sync
 		private bool _doPullFromOthers;
 		private bool _doMergeWithOthers;
 		private string _checkinDescription;
-		public List<RepositoryDescriptor> RepositoriesToTry;
+		public List<RepositorySource> RepositoriesToTry=new List<RepositorySource>();
 
 		public SyncOptions()
 		{
@@ -238,50 +242,7 @@ namespace Chorus.sync
 		}
 	}
 
-	public class RepositoryDescriptor
-	{
-		private string _uri;
-		private string _repoName;
 
-		/// <summary>
-		/// THis will be false for, say, usb-keys or shared internet repos
-		/// but true for other people on LANs (maybe?)
-		/// </summary>
-		private bool _readOnly;
-
-		public RepositoryDescriptor(string uri, string repoName, bool readOnly)
-		{
-			URI = uri;
-			_repoName = repoName;
-			ReadOnly = readOnly;
-		}
-
-		public string URI
-		{
-			get { return _uri; }
-			set { _uri = value; }
-		}
-
-
-		/// <summary>
-		/// In the case of a repo sitting on the user's machine, this will be a person's name.
-		/// It might also be the name of the web-based repo, or the name of the USB key.
-		/// </summary>
-		public string RepoName
-		{
-			get { return _repoName; }
-		}
-
-		/// <summary>
-		/// THis will be false for, say, usb-keys or shared internet repos
-		/// but true for other people on LANs (maybe?)
-		/// </summary>
-		public bool ReadOnly
-		{
-			get { return _readOnly; }
-			set { _readOnly = value; }
-		}
-	}
 
 	public class SyncResults
 	{
