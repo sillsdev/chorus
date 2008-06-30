@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using Chorus.sync;
@@ -8,25 +9,34 @@ namespace Chorus.UI
 {
 	internal class SyncPanelModel
 	{
-		private string _logText;
-		private SyncManager _syncManager;
-		private readonly ApplicationSyncContext _syncContext;
+		private readonly ApplicationSyncContext _context;
 		private readonly IProgress _progress;
-		private SyncResults _syncResults;
+		public List<RepositoryDescriptor> RepositoriesToTry = new List<RepositoryDescriptor>();
+		public IList<RepositoryDescriptor> RepositoriesToList;
 
 		public  SyncPanelModel(ApplicationSyncContext syncContext, IProgress progress)
 		{
-			_syncContext = syncContext;
+			_context = syncContext;
 			_progress = progress;
+
+			RepositoryManager manager = RepositoryManager.FromContext(_context);
+			RepositoriesToList= manager.KnownRepositories;
+			RepositoriesToTry.AddRange(RepositoriesToList);
+		}
+
+		public bool EnableSync
+		{
+			get { return RepositoriesToTry.Count > 0; }
 		}
 
 		public void Sync()
 		{
-			RepositoryManager manager = RepositoryManager.FromAppContext(_syncContext);
+			RepositoryManager manager = RepositoryManager.FromContext(_context);
 
 			SyncOptions options = new SyncOptions();
 			options.DoPullFromOthers = false;
 			options.DoMergeWithOthers = false;
+			options.RepositoriesToTry = RepositoriesToTry;
 
 			manager.SyncNow(options, _progress);
 		}

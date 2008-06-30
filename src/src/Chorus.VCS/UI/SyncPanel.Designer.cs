@@ -92,6 +92,7 @@ namespace Chorus.UI
 			this._syncTargets.Name = "_syncTargets";
 			this._syncTargets.Size = new System.Drawing.Size(105, 79);
 			this._syncTargets.TabIndex = 1;
+			this._syncTargets.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this._syncTargets_ItemCheck);
 			//
 			// label2
 			//

@@ -43,5 +43,27 @@ namespace Chorus.Tests.UI
 			_model.Sync();
 			Assert.IsNotEmpty(_progress.Text);
 		}
+
+		[Test]
+		public void InitiallyHasUsbTarget()
+		{
+			Assert.AreEqual("UsbKey",_model.RepositoriesToTry[0].URI);
+		}
+
+		[Test]
+		public void NoTargetsChosen_SyncDisabled()
+		{
+			_model.RepositoriesToTry.Clear();
+			Assert.IsFalse(_model.EnableSync);
+		}
+
+		[Test]
+		public void TargetsChosen_SyncEnabled()
+		{
+			_model.RepositoriesToTry.Add(_model.RepositoriesToList[0]);
+			Assert.IsTrue(_model.EnableSync);
+		}
+
+
 	}
 }

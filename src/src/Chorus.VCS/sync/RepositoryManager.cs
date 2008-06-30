@@ -27,7 +27,7 @@ namespace Chorus.sync
 		///
 		/// </summary>
 		/// <returns>if null, the user canceled</returns>
-		public static RepositoryManager FromAppContext(ApplicationSyncContext syncContext)
+		public static RepositoryManager FromContext(ApplicationSyncContext syncContext)
 		{
 			if (!Directory.Exists(syncContext.Project.TopPath) && !File.Exists(syncContext.Project.TopPath))
 			{
@@ -74,10 +74,16 @@ namespace Chorus.sync
 			progress.WriteStatus(_appContext.User.Id + " Checking In...");
 			repo.AddAndCheckinFiles(_appContext.Project.IncludePatterns, _appContext.Project.ExcludePatterns, options.CheckinDescription);
 
+			List<RepositoryDescriptor> repositoriesToTry = options.RepositoriesToTry;
+
+			//if the client didn't specify any, try them all
+			if(repositoriesToTry==null || repositoriesToTry.Count == 0)
+				repositoriesToTry = KnownRepositories;
+
 			if (options.DoPullFromOthers)
 			{
 				progress.WriteStatus("Pulling...");
-				foreach (RepositoryDescriptor otherRepo in KnownRepositories)
+				foreach (RepositoryDescriptor otherRepo in repositoriesToTry)
 				{
 					repo.TryToPull(otherRepo, progress, results);
 				}
@@ -88,7 +94,7 @@ namespace Chorus.sync
 				progress.WriteStatus("Merging...");
 				repo.MergeHeads(progress, results);
 
-				foreach (RepositoryDescriptor otherRepo in KnownRepositories)
+				foreach (RepositoryDescriptor otherRepo in repositoriesToTry)
 				{
 					if (!otherRepo.ReadOnly)
 					{
@@ -121,6 +127,8 @@ namespace Chorus.sync
 		{
 			_localRepositoryPath = localRepositoryPath;
 			_appContext = appContext;
+
+			KnownRepositories.Add(new RepositoryDescriptor("UsbKey", "UsbKey", false));
 		}
 
 

@@ -185,6 +185,7 @@ namespace Chorus.sync
 		private bool _doPullFromOthers;
 		private bool _doMergeWithOthers;
 		private string _checkinDescription;
+		public List<RepositoryDescriptor> RepositoriesToTry;
 
 		public SyncOptions()
 		{
@@ -248,10 +249,10 @@ namespace Chorus.sync
 		/// </summary>
 		private bool _readOnly;
 
-		public RepositoryDescriptor(string uri, string userName, bool readOnly)
+		public RepositoryDescriptor(string uri, string repoName, bool readOnly)
 		{
 			URI = uri;
-			_repoName = userName;
+			_repoName = repoName;
 			ReadOnly = readOnly;
 		}
 

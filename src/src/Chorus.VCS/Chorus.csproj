@@ -59,7 +59,7 @@
 	<Compile Include="merge\MergeDispatcher.cs" />
 	<Compile Include="merge\xml\generic\DropTheirsMergeStrategy.cs" />
 	<Compile Include="merge\xml\generic\PoorMansMergeStrategy.cs" />
-	<Compile Include="sync\Repository.cs" />
+	<Compile Include="sync\RepositoryManager.cs" />
 	<Compile Include="UI\HistoryPanel.cs">
 	  <SubType>UserControl</SubType>
 	</Compile>
