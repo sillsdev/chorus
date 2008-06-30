@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using System.Text;
 
 namespace Chorus.Utilities
 {
@@ -23,10 +24,10 @@ namespace Chorus.Utilities
 			indent++;
 		}
 
-		public void WriteStatus(string mesage, params object[] args)
+		public void WriteStatus(string message, params object[] args)
 		{
 			Debug.Write("                          ".Substring(0, indent*2));
-			Debug.WriteLine(string.Format(mesage, args));
+			Debug.WriteLine(string.Format(message, args));
 		}
 
 		public void WriteMessage(string message, params object[] args)
@@ -52,5 +53,48 @@ namespace Chorus.Utilities
 
 
 
+	}
+
+
+	public class StringBuilderProgress : IProgress
+	{
+		private StringBuilder _builder = new StringBuilder();
+		public int indent = 0;
+
+		public StringBuilderProgress()
+		{
+		}
+
+		public StringBuilderProgress(string mesage, params string[] args)
+		{
+			WriteStatus(mesage, args);
+			indent++;
+		}
+
+		public string Text
+		{
+			get { return _builder.ToString(); }
+		}
+
+		public void WriteStatus(string message, params object[] args)
+		{
+			_builder.Append("                          ".Substring(0, indent * 2));
+			_builder.AppendFormat(message+Environment.NewLine, args);
+		}
+
+		public void WriteMessage(string message, params object[] args)
+		{
+			WriteStatus(message, args);
+		}
+
+		public void WriteWarning(string message, params object[] args)
+		{
+			WriteStatus(message, args);
+		}
+
+		public void Clear()
+		{
+			_builder = new StringBuilder();
+		}
 	}
 }

@@ -49,10 +49,10 @@ namespace Chorus.merge
 					break;
 				case MergeOrder.ConflictHandlingMode.WeWin:
 
-					   merger= new LiftMerger(new DropTheirsMergeStrategy(), order.pathToOurs, order.pathToTheirs, order.pathToCommonAncestor);
+					merger = new LiftMerger(new EntryMerger(), order.pathToOurs, order.pathToTheirs, order.pathToCommonAncestor);
 					break;
 				case MergeOrder.ConflictHandlingMode.TheyWin:
-					merger = new LiftMerger(new DropTheirsMergeStrategy(), order.pathToTheirs, order.pathToOurs, order.pathToCommonAncestor);
+					merger = new LiftMerger(new EntryMerger(), order.pathToTheirs, order.pathToOurs, order.pathToCommonAncestor);
 					break;
 			}
 

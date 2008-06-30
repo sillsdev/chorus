@@ -14,7 +14,7 @@ namespace Chorus.sync
 		private string _localRepositoryPath;
 		private string _userName;
 		private List<RepositoryDescriptor> _knownRepositories=new List<RepositoryDescriptor>();
-		static internal string _locationToMakeRepositoryDuringTest=null;
+		static internal string LocationToMakeRepositoryDuringTest=null;//enchance: introduce resolver delegate
 		private IProgress _progress;
 
 		public List<RepositoryDescriptor> KnownRepositories
@@ -46,7 +46,7 @@ namespace Chorus.sync
 			}
 			else
 			{
-				string newRepositoryPath = _locationToMakeRepositoryDuringTest;
+				string newRepositoryPath = LocationToMakeRepositoryDuringTest;
 				if (string.IsNullOrEmpty(newRepositoryPath))
 				{
 					newRepositoryPath = AskUserForNewRepositoryPath(startingPath);
@@ -82,14 +82,14 @@ namespace Chorus.sync
 			return dirPath;
 		}*/
 
-		public SyncResults SyncNow(ProjectSyncInfo projectInfo, SyncOptions options)
+		public SyncResults SyncNow(ProjectDescriptor projectDescriptor, SyncOptions options)
 		{
 			SyncResults results = new SyncResults();
 
 			HgRepository repo = new HgRepository(_localRepositoryPath,_progress, _userName);
 
 			_progress.WriteStatus(_userName + " Checking In...");
-			repo.AddAndCheckinFiles(projectInfo.IncludePatterns, projectInfo.ExcludePatterns, options.CheckinDescription);
+			repo.AddAndCheckinFiles(projectDescriptor.IncludePatterns, projectDescriptor.ExcludePatterns, options.CheckinDescription);
 
 			if (options.DoPullFromOthers)
 			{
@@ -152,10 +152,11 @@ namespace Chorus.sync
 		}
 	}
 
-	public class ProjectSyncInfo
+	public class ProjectDescriptor
 	{
 		private List<string> _includePatterns=new List<string>();
 		private List<string> _excludePatterns=new List<string>();
+		public string TopPath;
 
 		/// <summary>
 		/// File Patterns to Add to the repository, unless excluded by ExcludePatterns
@@ -211,10 +212,35 @@ namespace Chorus.sync
 		}
 	}
 
+	/// <summary>
+	/// This is what the calling application knows; it doesn't know the full picture of this user's repository
+	/// (like what other apps there are, what other projects theres are), but it knows about one project, and
+	/// perhaps what the user's name is.
+	/// </summary>
+	public class ApplicationSyncContext
+	{
+		public ProjectDescriptor Project=new ProjectDescriptor();
+		public UserDescriptor User=new UserDescriptor("unknown");
+	}
+
+	/// <summary>
+	/// Right now this is just a name, but it could grow to have either more info about the user or
+	/// parameters relevant to syncing as this user.
+	/// </summary>
+	public class UserDescriptor
+	{
+		public string Id;
+
+		public UserDescriptor(string id)
+		{
+			Id = id;
+		}
+	}
+
 	public class RepositoryDescriptor
 	{
 		private string _uri;
-		private string _userName;
+		private string _repoName;
 
 		/// <summary>
 		/// THis will be false for, say, usb-keys or shared internet repos
@@ -225,7 +251,7 @@ namespace Chorus.sync
 		public RepositoryDescriptor(string uri, string userName, bool readOnly)
 		{
 			URI = uri;
-			_userName = userName;
+			_repoName = userName;
 			ReadOnly = readOnly;
 		}
 
@@ -235,9 +261,14 @@ namespace Chorus.sync
 			set { _uri = value; }
 		}
 
-		public string UserName
+
+		/// <summary>
+		/// In the case of a repo sitting on the user's machine, this will be a person's name.
+		/// It might also be the name of the web-based repo, or the name of the USB key.
+		/// </summary>
+		public string RepoName
 		{
-			get { return _userName; }
+			get { return _repoName; }
 		}
 
 		/// <summary>

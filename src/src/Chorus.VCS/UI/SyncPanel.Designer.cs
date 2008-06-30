@@ -28,25 +28,26 @@ namespace Chorus.UI
 		/// </summary>
 		private void InitializeComponent()
 		{
-			this.syncButton = new System.Windows.Forms.Button();
+			this._syncButton = new System.Windows.Forms.Button();
 			this.splitContainer1 = new System.Windows.Forms.SplitContainer();
 			this.label1 = new System.Windows.Forms.Label();
 			this._syncTargets = new System.Windows.Forms.CheckedListBox();
 			this.label2 = new System.Windows.Forms.Label();
-			this.richTextBox1 = new System.Windows.Forms.RichTextBox();
+			this._logBox = new System.Windows.Forms.RichTextBox();
 			this.splitContainer1.Panel1.SuspendLayout();
 			this.splitContainer1.Panel2.SuspendLayout();
 			this.splitContainer1.SuspendLayout();
 			this.SuspendLayout();
 			//
-			// syncButton
+			// _syncButton
 			//
-			this.syncButton.Location = new System.Drawing.Point(10, 13);
-			this.syncButton.Name = "syncButton";
-			this.syncButton.Size = new System.Drawing.Size(75, 23);
-			this.syncButton.TabIndex = 0;
-			this.syncButton.Text = "Sync Now";
-			this.syncButton.UseVisualStyleBackColor = true;
+			this._syncButton.Location = new System.Drawing.Point(407, 18);
+			this._syncButton.Name = "_syncButton";
+			this._syncButton.Size = new System.Drawing.Size(75, 23);
+			this._syncButton.TabIndex = 0;
+			this._syncButton.Text = "Sync Now";
+			this._syncButton.UseVisualStyleBackColor = true;
+			this._syncButton.Click += new System.EventHandler(this.syncButton_Click);
 			//
 			// splitContainer1
 			//
@@ -64,7 +65,7 @@ namespace Chorus.UI
 			// splitContainer1.Panel2
 			//
 			this.splitContainer1.Panel2.Controls.Add(this.label2);
-			this.splitContainer1.Panel2.Controls.Add(this.richTextBox1);
+			this.splitContainer1.Panel2.Controls.Add(this._logBox);
 			this.splitContainer1.Size = new System.Drawing.Size(485, 270);
 			this.splitContainer1.SplitterDistance = 104;
 			this.splitContainer1.TabIndex = 1;
@@ -101,23 +102,22 @@ namespace Chorus.UI
 			this.label2.TabIndex = 2;
 			this.label2.Text = "Log";
 			//
-			// richTextBox1
+			// _logBox
 			//
-			this.richTextBox1.Location = new System.Drawing.Point(0, 33);
-			this.richTextBox1.Name = "richTextBox1";
-			this.richTextBox1.Size = new System.Drawing.Size(371, 255);
-			this.richTextBox1.TabIndex = 0;
-			this.richTextBox1.Text = "";
+			this._logBox.Location = new System.Drawing.Point(0, 33);
+			this._logBox.Name = "_logBox";
+			this._logBox.Size = new System.Drawing.Size(371, 255);
+			this._logBox.TabIndex = 0;
+			this._logBox.Text = "";
 			//
 			// SyncPanel
 			//
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.Controls.Add(this.splitContainer1);
-			this.Controls.Add(this.syncButton);
+			this.Controls.Add(this._syncButton);
 			this.Name = "SyncPanel";
 			this.Size = new System.Drawing.Size(491, 329);
-			this.Load += new System.EventHandler(this.SyncPanel_Load);
 			this.splitContainer1.Panel1.ResumeLayout(false);
 			this.splitContainer1.Panel1.PerformLayout();
 			this.splitContainer1.Panel2.ResumeLayout(false);
@@ -129,9 +129,9 @@ namespace Chorus.UI
 
 		#endregion
 
-		private System.Windows.Forms.Button syncButton;
+		private System.Windows.Forms.Button _syncButton;
 		private System.Windows.Forms.SplitContainer splitContainer1;
-		private System.Windows.Forms.RichTextBox richTextBox1;
+		private System.Windows.Forms.RichTextBox _logBox;
 		private System.Windows.Forms.Label label1;
 		private System.Windows.Forms.CheckedListBox _syncTargets;
 		private System.Windows.Forms.Label label2;

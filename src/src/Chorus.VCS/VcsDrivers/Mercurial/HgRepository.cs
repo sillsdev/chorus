@@ -48,7 +48,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		public void TryToPull(RepositoryDescriptor repoInfo, IProgress progress, SyncResults results)
 		{
-			HgRepository repo = new HgRepository(repoInfo.URI, progress, repoInfo.UserName);
+			HgRepository repo = new HgRepository(repoInfo.URI, progress, repoInfo.RepoName);
 			PullFromRepository(repo, false);
 		}
 

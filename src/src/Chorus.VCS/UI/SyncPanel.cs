@@ -1,24 +1,43 @@
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Data;
-using System.Text;
 using System.Windows.Forms;
+using Chorus.sync;
+using Chorus.Utilities;
 
 namespace Chorus.UI
 {
 	public partial class SyncPanel : UserControl
 	{
+		private SyncPanelModel _model;
+		private StringBuilderProgress _progress;
+
 		public SyncPanel()
 		{
 			InitializeComponent();
-			_syncTargets.SetItemChecked(0, true);
+			UpdateDisplay();
 		}
 
-		private void SyncPanel_Load(object sender, EventArgs e)
-		{
 
+		public void Init(ApplicationSyncContext syncContext)
+		{
+			_progress = new StringBuilderProgress();
+
+			_model = new SyncPanelModel(syncContext, _progress);
+
+			UpdateDisplay();
+		}
+
+		private void UpdateDisplay()
+		{
+			_syncButton.Enabled = _model !=null;
+			_syncTargets.Enabled = _model != null;
+		}
+
+		private void syncButton_Click(object sender, EventArgs e)
+		{
+			_progress.Clear();
+			_logBox.Text = "Syncing...";
+			_model.Sync();
+			_logBox.Text = _progress.Text;
 		}
 	}
 }

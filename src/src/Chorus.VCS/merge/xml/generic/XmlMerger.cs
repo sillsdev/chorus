@@ -9,6 +9,7 @@ namespace Chorus.merge.xml.generic
 	{
 		private XmlNode _mergedNode;
 		private IList<IConflict> _conflicts;
+		//enhance: add list of changed entries to speed up import into db backends
 
 		public MergeResult()
 		{

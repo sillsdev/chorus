@@ -6,8 +6,6 @@ namespace Chorus.Tests.merge.xml.lift
 	[TestFixture]
 	public class SenseMergingTests
 	{
-
-
 		[Test]
 		public void EachHasNewSense_BothSensesCoveyed()
 		{
