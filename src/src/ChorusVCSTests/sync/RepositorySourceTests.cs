@@ -8,8 +8,8 @@ namespace Chorus.Tests.sync
 	[TestFixture]
 	public class RepositorySourceTests
 	{
+		private ProjectFolderConfiguration _project;
 		private StringBuilderProgress _progress;
-		private ApplicationSyncContext _applicationSyncContext;
 		private string _pathToTestRoot;
 		private string _pathToProjectRoot;
 
@@ -28,9 +28,8 @@ namespace Chorus.Tests.sync
 
 			RepositoryManager.MakeRepositoryForTest(_pathToProjectRoot);
 
-			_applicationSyncContext = new ApplicationSyncContext();
-			_applicationSyncContext.Project.IncludePatterns.Add(pathToText);
-			_applicationSyncContext.Project.TopPath = _pathToProjectRoot;
+			_project.IncludePatterns.Add(pathToText);
+			_project.FolderPath = _pathToProjectRoot;
 
 			_progress = new StringBuilderProgress();
 		}
@@ -50,7 +49,7 @@ namespace Chorus.Tests.sync
 		[Test]
 		public void SyncNow_OnlyBlankFauxUsbAvailable_UsbGetsClone()
 		{
-			RepositoryManager manager = RepositoryManager.FromContext(_applicationSyncContext);
+			RepositoryManager manager = RepositoryManager.FromContext(_project);
 
 			string pathToFauxUsbRoot = Path.Combine(_pathToTestRoot, "usb");
 			Directory.CreateDirectory(pathToFauxUsbRoot);
@@ -72,7 +71,7 @@ namespace Chorus.Tests.sync
 		public void SyncNow_AlreadySetupFauxUsbAvailable_UsbGetsSync()
 		{
 			SyncOptions options = new SyncOptions();
-			RepositoryManager manager = RepositoryManager.FromContext(_applicationSyncContext);
+			RepositoryManager manager = RepositoryManager.FromContext(_project);
 			manager.SyncNow(options, _progress);
 
 			string pathToFauxUsbRoot = Path.Combine(_pathToTestRoot, "usb");

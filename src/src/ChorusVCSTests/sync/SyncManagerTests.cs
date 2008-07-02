@@ -26,7 +26,7 @@ namespace Chorus.Tests.sync
 		{
 			public string _lexiconProjectPath;
 			public  string _languageProjectPath;
-			public ProjectDescriptor _projectDescriptor;
+			public ProjectFolderConfiguration _projectFolderConfiguration;
 			public string _pathToLift;
 			private ConsoleProgress _progress;
 			public string _pathToText;
@@ -56,9 +56,9 @@ namespace Chorus.Tests.sync
 				Directory.CreateDirectory(cachePath);
 				File.WriteAllText(Path.Combine(cachePath, "cache.txt"), "Some cache stuff");
 
-				_projectDescriptor = new ProjectDescriptor();
-				_projectDescriptor.IncludePatterns.Add(_lexiconProjectPath);
-				_projectDescriptor.ExcludePatterns.Add("**/cache");
+				_projectFolderConfiguration = new ProjectFolderConfiguration(languageProjectPath);
+				_projectFolderConfiguration.IncludePatterns.Add(_lexiconProjectPath);
+				_projectFolderConfiguration.ExcludePatterns.Add("**/cache");
 
 				SyncOptions options = new SyncOptions();
 				options.DoPullFromOthers = false;
@@ -68,7 +68,7 @@ namespace Chorus.Tests.sync
 				SyncManager.LocationToMakeRepositoryDuringTest = languageProjectPath;
 
 				SyncManager bobManager = SyncManager.FromChildPath(_lexiconProjectPath, progress, "bob");
-				SyncResults results = bobManager.SyncNow(_projectDescriptor, options);
+				SyncResults results = bobManager.SyncNow(_projectFolderConfiguration, options);
 			}
 
 			public void ChangeTextFile()
@@ -77,7 +77,7 @@ namespace Chorus.Tests.sync
 				options.CheckinDescription = "a change to foo.txt";
 				string bobsFooTextPath = Path.Combine(_lexiconProjectPath, "foo.txt");
 				File.WriteAllText(bobsFooTextPath, "version two of my pretend txt");
-				GetManager().SyncNow(_projectDescriptor, options);
+				GetManager().SyncNow(_projectFolderConfiguration, options);
 			}
 
 			public void SetupClone(string path, string name)
@@ -106,7 +106,7 @@ namespace Chorus.Tests.sync
 			bob.KnownRepositories.Add(usbRepo);
 
 			//now stick a new file over in the "usb", so we can see if it comes back to us
-			ProjectDescriptor usbProject = new ProjectDescriptor();
+			ProjectFolderConfiguration usbProject = new ProjectFolderConfiguration(usbPath);
 			File.WriteAllText(Path.Combine(usbPath, "incoming.txt"), "this would be a file coming in");
 			SyncOptions options = new SyncOptions();
 			options.CheckinDescription = "adding a file to the usb for some reason";
@@ -119,7 +119,7 @@ namespace Chorus.Tests.sync
 			options.DoPullFromOthers = true;
 			options.DoMergeWithOthers = false;
 			options.CheckinDescription = "test getting new file from usb";
-			bob.SyncNow(bobSetup._projectDescriptor, options);
+			bob.SyncNow(bobSetup._projectFolderConfiguration, options);
 			Assert.IsTrue(File.Exists(Path.Combine(bobSetup._languageProjectPath, "incoming.txt")));
 		}
 
@@ -184,14 +184,14 @@ namespace Chorus.Tests.sync
 			bobOptions.CheckinDescription = "changed my mind";
 			bobOptions.DoMergeWithOthers = false; // pretend the usb key isn't there
 			bobOptions.DoPullFromOthers = false; // pretend the usb key isn't there
-			bob.SyncNow(bobSetup._projectDescriptor, bobOptions);
+			bob.SyncNow(bobSetup._projectFolderConfiguration, bobOptions);
 
 			SyncManager sally = SyncManager.FromChildPath(sallyRoot, progress,"sally");
 			sally.KnownRepositories.Add(RepositorySource.Create(usbRepo.URI, usbRepo.SourceName, false));
 
 			//now she modifies a file
 			File.WriteAllText(Path.Combine(sallyRoot, "lexicon/foo.txt"), "Sally was here");
-			ProjectDescriptor sallyProject = new ProjectDescriptor();
+			ProjectFolderConfiguration sallyProject = new ProjectFolderConfiguration(sallyRoot);
 			SyncOptions sallyOptions = new SyncOptions();
 			sallyOptions.CheckinDescription = "making sally's mark on foo.txt";
 			sallyOptions.DoPullFromOthers = false;
@@ -209,7 +209,7 @@ namespace Chorus.Tests.sync
 			bobOptions.CheckinDescription = "Getting from sally, i hope";
 			bobOptions.DoPullFromOthers = true;
 			bobOptions.DoMergeWithOthers = true;
-			bob.SyncNow(bobSetup._projectDescriptor, bobOptions);
+			bob.SyncNow(bobSetup._projectFolderConfiguration, bobOptions);
 
 
 			Assert.AreEqual("Sally was here", File.ReadAllText(bobSetup._pathToText));
@@ -233,7 +233,7 @@ namespace Chorus.Tests.sync
 			bobOptions.CheckinDescription = "added 'dog'";
 			bobOptions.DoMergeWithOthers = false; // just want a fast checkin
 			bobOptions.DoPullFromOthers = false; // just want a fast checkin
-			bobSetup.GetManager().SyncNow(bobSetup._projectDescriptor, bobOptions);
+			bobSetup.GetManager().SyncNow(bobSetup._projectFolderConfiguration, bobOptions);
 
 			SyncManager sally = SyncManager.FromChildPath(sallyRoot, progress, "sally");
 			sally.KnownRepositories.Add(RepositorySource.Create(bobSetup._languageProjectPath, "bob", false));
@@ -241,7 +241,7 @@ namespace Chorus.Tests.sync
 			//now she modifies a file
 			string sallyPathToLift = Path.Combine(sallyRoot, "lexicon/foo.lift");
 			File.WriteAllText(sallyPathToLift, "<lift version='0.12'><entry id='cat'><lexical-unit><form lang='en'><text>cat</text></form></lexical-unit></entry></lift>");
-			ProjectDescriptor sallyProject = new ProjectDescriptor();
+			ProjectFolderConfiguration sallyProject = new ProjectFolderConfiguration(sallyRoot);
 			SyncOptions sallyOptions = new SyncOptions();
 			sallyOptions.CheckinDescription = "adding cat";
 			sallyOptions.DoPullFromOthers = true;

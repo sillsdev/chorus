@@ -86,14 +86,14 @@ namespace Chorus.sync
 			get { return Path.GetFileNameWithoutExtension(_localRepositoryPath); }
 		}
 
-		public SyncResults SyncNow(ProjectDescriptor projectDescriptor, SyncOptions options)
+		public SyncResults SyncNow(ProjectFolderConfiguration projectFolderConfiguration, SyncOptions options)
 		{
 			SyncResults results = new SyncResults();
 
 			HgRepository repo = new HgRepository(_localRepositoryPath,_progress, _userName);
 
 			_progress.WriteStatus(_userName + " Checking In...");
-			repo.AddAndCheckinFiles(projectDescriptor.IncludePatterns, projectDescriptor.ExcludePatterns, options.CheckinDescription);
+			repo.AddAndCheckinFiles(projectFolderConfiguration.IncludePatterns, projectFolderConfiguration.ExcludePatterns, options.CheckinDescription);
 
 			if (options.DoPullFromOthers)
 			{
@@ -113,7 +113,8 @@ namespace Chorus.sync
 				{
 					if (!otherRepo.ReadOnly)
 					{
-						repo.Push(otherRepo, _progress, results);
+						repo.Push(otherRepo.ResolveUri(RepoProjectName, _progress), _progress, results);
+
 					}
 				}
 			}
@@ -156,77 +157,16 @@ namespace Chorus.sync
 		}
 	}
 
-	public class ProjectDescriptor
-	{
-		private List<string> _includePatterns=new List<string>();
-		private List<string> _excludePatterns=new List<string>();
-		public string TopPath;
-
-		/// <summary>
-		/// File Patterns to Add to the repository, unless excluded by ExcludePatterns
-		/// </summary>
-		/// <example>"LP/*.*"  include all files under the lp directory</example>
-		/// <example>"**/*.Lift"  include all lift files, whereever they are found</example>
-		public List<string> IncludePatterns
-		{
-			get { return _includePatterns; }
-		}
-
-		/// <summary>
-		/// If includePatterns are also specified, these are applied after them.
-		/// </summary>
-		/// <example>"**/*.bak" </example>
-		/// <example>"**/cache" any directory named 'cache'</example>
-		public List<string> ExcludePatterns
-		{
-			get { return _excludePatterns; }
-			set { _excludePatterns = value; }
-		}
-	}
-
-	public class SyncOptions
-	{
-		private bool _doPullFromOthers;
-		private bool _doMergeWithOthers;
-		private string _checkinDescription;
-		public List<RepositorySource> RepositoriesToTry=new List<RepositorySource>();
-
-		public SyncOptions()
-		{
-			_doPullFromOthers = true;
-			_doMergeWithOthers = true;
-			_checkinDescription = "missing checking description";
-		}
-
-		public bool DoPullFromOthers
-		{
-			get { return _doPullFromOthers; }
-			set { _doPullFromOthers = value; }
-		}
-
-		public bool DoMergeWithOthers
-		{
-			get { return _doMergeWithOthers; }
-			set { _doMergeWithOthers = value; }
-		}
-
-		public string CheckinDescription
-		{
-			get { return _checkinDescription; }
-			set { _checkinDescription = value; }
-		}
-	}
-
 	/// <summary>
 	/// This is what the calling application knows; it doesn't know the full picture of this user's repository
 	/// (like what other apps there are, what other projects theres are), but it knows about one project, and
 	/// perhaps what the user's name is.
 	/// </summary>
-	public class ApplicationSyncContext
-	{
-		public ProjectDescriptor Project=new ProjectDescriptor();
-		public UserDescriptor User=new UserDescriptor("unknown");
-	}
+//    public class ApplicationSyncContext
+//    {
+//        public ProjectFolderConfiguration Project=new ProjectFolderConfiguration();
+//        public UserDescriptor User=new UserDescriptor("unknown");
+//    }
 
 	/// <summary>
 	/// Right now this is just a name, but it could grow to have either more info about the user or

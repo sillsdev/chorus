@@ -8,7 +8,9 @@ namespace Chorus.UI
 	public partial class SyncPanel : UserControl
 	{
 		private SyncPanelModel _model;
-		private StringBuilderProgress _progress;
+		private TextBoxProgress _progress;
+		private ProjectFolderConfiguration _project;
+		private String _userName="anonymous";
 
 		public SyncPanel()
 		{
@@ -16,20 +18,21 @@ namespace Chorus.UI
 			UpdateDisplay();
 		}
 
-
-		public void Init(ApplicationSyncContext syncContext)
+		public ProjectFolderConfiguration ProjectFolderConfig
 		{
-			_progress = new StringBuilderProgress();
-
-			_model = new SyncPanelModel(syncContext, _progress);
-
-			_syncTargets.Items.Clear();
-			foreach (RepositorySource descriptor in _model.RepositoriesToList)
-			{
-				_syncTargets.Items.Add(descriptor, _model.RepositoriesToTry.Contains(descriptor) );
-			}
-			UpdateDisplay();
+			get { return _project; }
+			set { _project = value; }
 		}
+
+		/// <summary>
+		/// most client apps won't have anything to put in here, that's ok
+		/// </summary>
+		public string UserName
+		{
+			get { return _userName; }
+			set { _userName = value; }
+		}
+
 
 		private void UpdateDisplay()
 		{
@@ -39,18 +42,47 @@ namespace Chorus.UI
 
 		private void syncButton_Click(object sender, EventArgs e)
 		{
-			_progress.Clear();
-			_logBox.Text = "Syncing...";
+			_logBox.Text = "";
+			_logBox.Text = "Syncing..."+Environment.NewLine;
+			Cursor.Current = Cursors.WaitCursor;
 			_model.Sync();
-			_logBox.Text = _progress.Text;
+			Cursor.Current = Cursors.Default;
 		}
 
 		private void _syncTargets_ItemCheck(object sender, ItemCheckEventArgs e)
 		{
-			 _model.RepositoriesToTry.Clear();
-			foreach (RepositorySource descriptor in _syncTargets.CheckedItems)
+			//this is awkward because at the time of this event, the change hasn't yet been reflected in the CheckItems
+//             _model.RepositoriesToTry.Clear();
+//            foreach (RepositorySource descriptor in _syncTargets.CheckedItems)
+//            {
+//                _model.RepositoriesToTry.Add(descriptor);
+//            }
+
+			RepositorySource repositorySource = (RepositorySource) _syncTargets.Items[e.Index];
+			if(e.NewValue == CheckState.Unchecked)
 			{
-				_model.RepositoriesToTry.Add(descriptor);
+				_model.RepositoriesToTry.Remove(repositorySource);
+			}
+			else
+			{
+				if (!_model.RepositoriesToTry.Contains(repositorySource))
+				{
+					_model.RepositoriesToTry.Add(repositorySource);
+				}
+			}
+			UpdateDisplay();
+		}
+
+		private void SyncPanel_Load(object sender, EventArgs e)
+		{
+			_progress = new TextBoxProgress(_logBox);
+
+			_model = new SyncPanelModel(_project, UserName, _progress);
+
+			_syncTargets.Items.Clear();
+			foreach (RepositorySource descriptor in _model.RepositoriesToList)
+			{
+				_syncTargets.Items.Add(descriptor, _model.RepositoriesToTry.Contains(descriptor));
 			}
 			UpdateDisplay();
 		}

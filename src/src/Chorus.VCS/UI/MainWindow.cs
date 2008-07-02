@@ -3,8 +3,11 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Text;
 using System.Windows.Forms;
+using Chorus.sync;
+using Chorus.Utilities;
 
 namespace Chorus.UI
 {
@@ -13,17 +16,23 @@ namespace Chorus.UI
 		[STAThread]
 		static void Main(string[] args)
 		{
-			Application.Run(new MainWindow());
+			 string settingsPath =null;
+			if(args.Length > 0)
+			{
+				settingsPath = args[0];
+			}
+			Application.Run(new MainWindow(settingsPath));
 		}
 
 		public MainWindow()
 		{
 			InitializeComponent();
 		}
-
-		private void MainWindow_Load(object sender, EventArgs e)
+		public MainWindow(string settingsPath)
 		{
-
+			InitializeComponent();
+			_syncPanel.ProjectFolderConfig = new ProjectFolderConfiguration(Path.GetDirectoryName(settingsPath));
 		}
+
 	}
 }

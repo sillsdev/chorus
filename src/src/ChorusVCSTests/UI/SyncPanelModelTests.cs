@@ -12,6 +12,8 @@ namespace Chorus.Tests.UI
 		private string _pathToTestRoot;
 		private SyncPanelModel _model;
 		private StringBuilderProgress _progress;
+		private ProjectFolderConfiguration _project;
+		private string _userId="";
 
 		[SetUp]
 		public void Setup()
@@ -27,12 +29,13 @@ namespace Chorus.Tests.UI
 
 			RepositoryManager.MakeRepositoryForTest(_pathToTestRoot);
 
-			ApplicationSyncContext applicationSyncContext=new ApplicationSyncContext();
-			applicationSyncContext.Project.IncludePatterns.Add(pathToText);
-			applicationSyncContext.Project.TopPath = _pathToTestRoot;
+			_project = new ProjectFolderConfiguration(_pathToTestRoot);
+			_project.FolderPath = _pathToTestRoot;
+			_project.IncludePatterns.Add(pathToText);
+			_project.FolderPath = _pathToTestRoot;
 
 			_progress = new StringBuilderProgress();
-			_model = new SyncPanelModel(applicationSyncContext, _progress);
+			_model = new SyncPanelModel(_project, _userId, _progress);
 		}
 
 		[Test]
@@ -48,12 +51,7 @@ namespace Chorus.Tests.UI
 			Assert.AreEqual("UsbKey",_model.RepositoriesToTry[0].URI);
 		}
 
-		[Test]
-		public void NoTargetsChosen_SyncDisabled()
-		{
-			_model.RepositoriesToTry.Clear();
-			Assert.IsFalse(_model.EnableSync);
-		}
+
 
 		[Test]
 		public void TargetsChosen_SyncEnabled()

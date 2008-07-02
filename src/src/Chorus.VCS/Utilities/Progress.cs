@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.Text;
+using System.Windows.Forms;
 
 namespace Chorus.Utilities
 {
@@ -56,19 +57,31 @@ namespace Chorus.Utilities
 	}
 
 
-	public class StringBuilderProgress : IProgress
+	public class TextBoxProgress : GenericProgress
 	{
-		private StringBuilder _builder = new StringBuilder();
-		public int indent = 0;
+		private RichTextBox _box;
 
-		public StringBuilderProgress()
+		public TextBoxProgress(RichTextBox box)
 		{
+			_box = box;
+			_box.Multiline = true;
 		}
 
-		public StringBuilderProgress(string mesage, params string[] args)
+		public override void WriteStatus(string message, params object[] args)
 		{
-			WriteStatus(mesage, args);
-			indent++;
+			_box.Text += "                          ".Substring(0, indent * 2);
+			_box.Text += String.Format(message + Environment.NewLine, args);
+		}
+	}
+
+	public class StringBuilderProgress : GenericProgress
+	{
+		private StringBuilder _builder = new StringBuilder();
+
+		public override void WriteStatus(string message, params object[] args)
+		{
+			_builder.Append("                          ".Substring(0, indent * 2));
+			_builder.AppendFormat(message+Environment.NewLine, args);
 		}
 
 		public string Text
@@ -76,11 +89,22 @@ namespace Chorus.Utilities
 			get { return _builder.ToString(); }
 		}
 
-		public void WriteStatus(string message, params object[] args)
+		public void Clear()
 		{
-			_builder.Append("                          ".Substring(0, indent * 2));
-			_builder.AppendFormat(message+Environment.NewLine, args);
+			_builder = new StringBuilder();
 		}
+	}
+
+
+	public abstract class GenericProgress : IProgress
+	{
+		public int indent = 0;
+
+		public GenericProgress()
+		{
+		}
+
+		public abstract void WriteStatus(string message, params object[] args);
 
 		public void WriteMessage(string message, params object[] args)
 		{
@@ -92,9 +116,5 @@ namespace Chorus.Utilities
 			WriteStatus(message, args);
 		}
 
-		public void Clear()
-		{
-			_builder = new StringBuilder();
-		}
 	}
 }

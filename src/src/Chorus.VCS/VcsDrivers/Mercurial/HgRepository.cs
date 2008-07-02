@@ -52,17 +52,25 @@ namespace Chorus.VcsDrivers.Mercurial
 			PullFromRepository(repo, false);
 		}
 
-		public void Push(RepositorySource targetRepoInfo, IProgress progress, SyncResults results)
+		public void Push(string targetUri, IProgress progress, SyncResults results)
 		{
-			using (new ConsoleProgress("{0} pushing to {1}", _userName, targetRepoInfo.URI))
+			using (new ConsoleProgress("{0} pushing to {1}", _userName, targetUri))
 			{
 				try
 				{
-					Execute("push", _pathToRepository, SurroundWithQuotes(targetRepoInfo.URI));
+					Execute("push", _pathToRepository, SurroundWithQuotes(targetUri));
 				}
 				catch (Exception err)
 				{
-					_progress.WriteWarning("Could not push to " + targetRepoInfo.URI + Environment.NewLine+err.Message);
+					_progress.WriteWarning("Could not push to " + targetUri + Environment.NewLine + err.Message);
+				}
+				try
+				{
+					Execute("update", targetUri); // for usb keys and other local repositories
+				}
+				catch (Exception err)
+				{
+					_progress.WriteWarning("Could not update the actual files after a pull at " + targetUri + Environment.NewLine + err.Message);
 				}
 			}
 		}

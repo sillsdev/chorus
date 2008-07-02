@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using Chorus.Utilities;
 
@@ -18,12 +19,16 @@ namespace Chorus.sync
 
 		public static RepositorySource Create(string uri, string repoName, bool readOnly)
 		{
-			if(uri=="UsbKey")
+			if (uri == "UsbKey")
 			{
 				return new UsbKeyRepositorySource(uri, repoName, readOnly);
 			}
+			if (Directory.Exists(uri))
+			{
+				return new FilePathRepositorySource(uri, repoName, readOnly);
+			}
 			else
-				throw new ArgumentException("RepositorySource doesn't understand that kind of uri yet");
+				throw new ArgumentException("RepositorySource recognize this kind of uri (" + uri + ")");
 		}
 
 		protected RepositorySource(string uri, string repoName, bool readOnly)
@@ -39,6 +44,11 @@ namespace Chorus.sync
 			set { _uri = value; }
 		}
 
+
+		public override string ToString()
+		{
+			return _uri;
+		}
 
 		/// <summary>
 		/// In the case of a repo sitting on the user's machine, this will be a person's name.
@@ -66,10 +76,28 @@ namespace Chorus.sync
 			return _uri;// review: haven't decided yet if the uri contain the actual repo name. if not, needs to be added here
 		}
 
-		public virtual bool ShouldCreateClone(string name, IProgress progress, out string resolvedUriToCreateAt)
+		/// <summary>
+		/// used with usb source
+		/// </summary>
+		/// <returns></returns>
+		public virtual List<string> GetPossibleCloneUris(string name, IProgress progress)
 		{
-			resolvedUriToCreateAt = null;
-			return false;
+			return null;
+		}
+	}
+
+	public class FilePathRepositorySource : RepositorySource
+	{
+
+		public FilePathRepositorySource(string uri, string repoName, bool readOnly)
+			: base(uri, repoName, readOnly)
+		{
+
+		}
+
+		public override bool CanConnect(string repoName, IProgress progress)
+		{
+			return Directory.Exists(_uri);
 		}
 	}
 
@@ -81,6 +109,11 @@ namespace Chorus.sync
 			: base(uri, repoName, readOnly)
 		{
 
+		}
+
+		public override string ToString()
+		{
+			return "Usb Key";
 		}
 
 		/// <summary>
@@ -110,45 +143,38 @@ namespace Chorus.sync
 			return null;
 		}
 
-		public override bool ShouldCreateClone(string repoName, IProgress progress, out string resolvedUriToCreateAt)
+		public override List<string> GetPossibleCloneUris(string repoName, IProgress progress)
 		{
-			resolvedUriToCreateAt = null;
+			progress.WriteStatus("Looking for usb keys to recieve clone...");
+			List<string>  urisToTryCreationAt = new List<string>();
 
 			if (PathToPretendUsbKeyForTesting != null)
 			{
-				resolvedUriToCreateAt = Path.Combine(PathToPretendUsbKeyForTesting, repoName);
-				return !Directory.Exists(resolvedUriToCreateAt);
-			}
+				string path = Path.Combine(PathToPretendUsbKeyForTesting, repoName);
+				Debug.Assert(Directory.Exists(path));
 
-			if (CanConnect(repoName, progress))
-				return false;
+				urisToTryCreationAt.Add(path);
+				return urisToTryCreationAt;
+			}
 
 			List<DriveInfo> drives = Chorus.Utilities.UsbUtilities.GetLogicalUsbDisks();
 
 			if (drives.Count == 0)
-				return false;
+				return null;
 
 			// didn't find an existing one, so just create on on the first usb key we can
 			foreach (DriveInfo drive in drives)
 			{
-				try
-				{
-					progress.WriteMessage("Creating repository on {0}", drive.Name);
-					resolvedUriToCreateAt = Path.Combine(drive.RootDirectory.FullName, repoName);
-
-				}
-				catch (Exception error)
-				{
-					progress.WriteMessage("Failed to create repository there.  {0}", error.Message);
-				}
+				urisToTryCreationAt.Add(Path.Combine(drive.RootDirectory.FullName, repoName));
 			}
-			return false;
+			return urisToTryCreationAt;
 		}
 
 
 
 		public override bool CanConnect(string repoName, IProgress progress)
 		{
+			progress.WriteStatus("Looking for usb keys with existing repositories...");
 			return ResolveUri(repoName, progress) != null;
 		}
 

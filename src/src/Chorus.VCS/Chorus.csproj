@@ -60,8 +60,10 @@
 	<Compile Include="merge\MergeDispatcher.cs" />
 	<Compile Include="merge\xml\generic\DropTheirsMergeStrategy.cs" />
 	<Compile Include="merge\xml\generic\PoorMansMergeStrategy.cs" />
+	<Compile Include="sync\ProjectFolderConfiguration.cs" />
 	<Compile Include="sync\RepositoryManager.cs" />
 	<Compile Include="sync\RepositorySource.cs" />
+	<Compile Include="sync\SyncOptions.cs" />
 	<Compile Include="UI\HistoryPanel.cs">
 	  <SubType>UserControl</SubType>
 	</Compile>
@@ -147,6 +149,9 @@
 	</EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+	<Content Include="UI\finished.wav">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</Content>
 	<Content Include="UI\SetupPanel.htm">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</Content>
