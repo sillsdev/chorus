@@ -70,6 +70,7 @@
 	<Compile Include="UI\HistoryPanel.Designer.cs">
 	  <DependentUpon>HistoryPanel.cs</DependentUpon>
 	</Compile>
+	<Compile Include="UI\HistoryPanelModel.cs" />
 	<Compile Include="UI\SyncPanelModel.cs" />
 	<Compile Include="Utilities\ExecutionResult.cs" />
 	<Compile Include="Utilities\Other.cs" />

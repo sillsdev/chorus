@@ -179,7 +179,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		private bool MergeUserHeadWithStub(RevisionDescriptor head, RevisionDescriptor stub)
 		{
-			using (new ConsoleProgress("MergeUserHeadWithStub of {0} with the changeset: {1} {2}", head._revision, stub._name, stub._revision))
+			using (new ConsoleProgress("MergeUserHeadWithStub of {0} with the changeset: {1} {2}", head._revision, stub.UserId, stub._revision))
 			{
 				using (new ShortTermEnvironmentalVariable(MergeDispatcher.MergeOrder.kConflictHandlingModeEnvVarName, MergeDispatcher.MergeOrder.ConflictHandlingMode.WeWin.ToString()))
 				{
@@ -193,7 +193,7 @@ namespace Chorus.VcsDrivers.Mercurial
 					}
 					else
 					{
-						Commit(false, "Checking in after merge with stub {0}, {1}.", stub._revision, stub._comment);
+						Commit(false, "Checking in after merge with stub {0}, {1}.", stub._revision, stub.Summary);
 						return true;
 					}
 				}
@@ -202,7 +202,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		private bool SyncWithChangeSet(RevisionDescriptor myHead, RevisionDescriptor theirChangeSet)
 		{
-			using (new ConsoleProgress("SyncWithChangeSet of {0} with the changeset: {1} {2}", _userName, theirChangeSet._name, theirChangeSet._revision))
+			using (new ConsoleProgress("SyncWithChangeSet of {0} with the changeset: {1} {2}", _userName, theirChangeSet.UserId, theirChangeSet._revision))
 			{
 
 				try
@@ -227,7 +227,7 @@ namespace Chorus.VcsDrivers.Mercurial
 							{
 								_progress.WriteMessage("Nothing to merge, updating instead to revision {0}.", theirChangeSet._revision);
 								Update(theirChangeSet._revision);//REVIEW
-								Commit(false, "!!! not expected to get in {0}:{1}.", theirChangeSet._name,
+								Commit(false, "!!! not expected to get in {0}:{1}.", theirChangeSet.UserId,
 									   theirChangeSet._revision);
 								return false;
 							}
@@ -245,7 +245,7 @@ namespace Chorus.VcsDrivers.Mercurial
 								//merger program, it can just apply the changes.
 
 								_progress.WriteMessage("Did trivial merge.");
-								Commit(false, "Checking in after no-conflicts merge with rev {0}, {1}.", theirChangeSet._revision, theirChangeSet._comment );
+								Commit(false, "Checking in after no-conflicts merge with rev {0}, {1}.", theirChangeSet._revision, theirChangeSet.Summary );
 								return true;
 							}
 						}
@@ -254,7 +254,7 @@ namespace Chorus.VcsDrivers.Mercurial
 					{
 						if (expected.Message.Contains("nothing to merge"))
 						{
-							Commit(false, "*** not expected to get in {0}:{1}.", theirChangeSet._name, theirChangeSet._revision);
+							Commit(false, "*** not expected to get in {0}:{1}.", theirChangeSet.UserId, theirChangeSet._revision);
 							return false;
 						}
 
@@ -267,7 +267,7 @@ namespace Chorus.VcsDrivers.Mercurial
 					_progress.WriteMessage("Tree just before partial-merge stuff:");
 					_progress.WriteMessage(GetTextFromQuery(_pathToRepository, "glog"));
 
-					Commit(false, "LCD Merge between {0} and {1}", _userName, theirChangeSet._name);
+					Commit(false, "LCD Merge between {0} and {1}", _userName, theirChangeSet.UserId);
 
 					//we get this far when our chorusMerge was really called
 					Debug.Assert(File.Exists(PathToMergeFilePathsFile));
@@ -303,10 +303,10 @@ namespace Chorus.VcsDrivers.Mercurial
 		{
 			using (new ConsoleProgress("Adding their partial merge to their branch"))
 			{
-				Branch(theirChangeSet._name + " stub from " + _userName);//review: need "-f" to force?
+				Branch(theirChangeSet.UserId + " stub from " + _userName);//review: need "-f" to force?
 				File.Copy(theirPartial, Path.Combine(_pathToRepository, targetPath), true);
 				File.Delete(theirPartial);
-				Commit(false, "({0} partial from {1})", theirChangeSet._name, _userName);
+				Commit(false, "({0} partial from {1})", theirChangeSet.UserId, _userName);
 			}
 			using (new ConsoleProgress("Going back to our head"))
 			{
@@ -318,7 +318,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			{
 				File.Copy(ourPartial, targetPath, true);
 				File.Delete(ourPartial);
-				Commit(true, "(new {0} after partial-merg with {1})", _userName, theirChangeSet._name);
+				Commit(true, "(new {0} after partial-merg with {1})", _userName, theirChangeSet.UserId);
 			}
 		}
 
@@ -333,7 +333,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		/// </summary>
 		private bool HeadIsAStub(RevisionDescriptor theirHead)
 		{
-			return theirHead._comment.Contains("(" + _userName + " partial");
+			return theirHead.Summary.Contains("(" + _userName + " partial");
 		}
 	}
 }

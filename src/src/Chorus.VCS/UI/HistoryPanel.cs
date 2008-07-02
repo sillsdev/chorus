@@ -44,7 +44,7 @@ namespace Chorus.UI
 		private void HistoryPanel_Load(object sender, EventArgs e)
 		{
 
-			_model = new HistoryPanelModel(_project, UserName, null);
+			_model = new HistoryPanelModel(_project, null);
 
 		}
 	}

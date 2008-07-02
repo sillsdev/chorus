@@ -222,6 +222,13 @@ namespace Chorus.sync
 				}
 			}
 		}
+
+		public List<RevisionDescriptor> GetHistoryItems(IProgress progress)
+		{
+			HgRepository local = new HgRepository(_localRepositoryPath, progress, _userId);
+
+			return local.GetHistoryItems();
+		}
 	}
 
 

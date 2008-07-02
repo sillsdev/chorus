@@ -4,18 +4,23 @@ namespace Chorus.VcsDrivers.Mercurial
 {
 	public class RevisionDescriptor
 	{
-		public string _name;
+		public string UserId;
 		public string _revision;
 		public string _hash;
-		public string _comment;
+		public string Summary;
 		public string _tag;
+		public string DateString;
+
+		public RevisionDescriptor()
+		 {
+		 }
 
 		public RevisionDescriptor(string name, string revision, string hash, string comment)
 		{
-			_name = name;
+			UserId = name;
 			_revision = revision;
 			_hash = hash;
-			_comment = comment;
+			Summary = comment;
 			_tag = "";
 		}
 
@@ -57,7 +62,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		public bool IsMatchingStub(RevisionDescriptor stub)
 		{
-			return stub._comment.Contains(string.Format("({0} partial from", _name));
+			return stub.Summary.Contains(string.Format("({0} partial from", UserId));
 		}
 	}
 }

@@ -403,11 +403,11 @@ namespace Chorus.VcsDrivers.Mercurial
 			{
 				if (head._revision == myHead._revision)
 				{
-					_progress.WriteMessage("  ME {0} {1} {2}", head._name, head._revision, head._comment);
+					_progress.WriteMessage("  ME {0} {1} {2}", head.UserId, head._revision, head.Summary);
 				}
 				else
 				{
-					_progress.WriteMessage("      {0} {1} {2}", head._name, head._revision, head._comment);
+					_progress.WriteMessage("      {0} {1} {2}", head.UserId, head._revision, head.Summary);
 				}
 			}
 		}
@@ -418,5 +418,50 @@ namespace Chorus.VcsDrivers.Mercurial
 		}
 
 
+		public List<RevisionDescriptor> GetHistoryItems()
+		{
+			/*
+				changeset:   0:7ee3570760cd
+				tag:         tip
+				user:        hattonjohn@gmail.com
+				date:        Wed Jul 02 16:40:26 2008 -0600
+				summary:     bob: first one
+			 */
+			List < RevisionDescriptor >  items = new List<RevisionDescriptor>();
+
+			string result = GetTextFromQuery(_pathToRepository, "log");
+			TextReader reader = new StringReader(result);
+			string line = reader.ReadLine();
+
+			RevisionDescriptor item = null;
+			while(line !=null)
+			{
+				string[] parts = line.Split(':');
+				switch (parts[0])
+				{
+					default:
+						break;
+					case "changeset":
+						 item = new RevisionDescriptor();
+						 items.Add(item);
+						item._hash = parts[1]+":"+parts[2];
+						break;
+
+					case "user":
+						item.UserId = parts[1];
+						break;
+
+					case "date":
+						item.DateString = parts[1];
+						break;
+
+					case "summary":
+						item.Summary = parts[1];
+						break;
+				}
+				line = reader.ReadLine();
+			}
+			return items;
+		}
 	}
 }

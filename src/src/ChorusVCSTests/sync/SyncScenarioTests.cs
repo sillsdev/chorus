@@ -9,7 +9,7 @@ using NUnit.Framework;
 namespace Chorus.Tests.sync
 {
 	[TestFixture]
-	public class RepositoryManagerTests
+	public class SyncScenarioTests
 	{
 		private string _pathToTestRoot;
 
