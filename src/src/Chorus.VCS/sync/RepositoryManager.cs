@@ -28,11 +28,15 @@ namespace Chorus.sync
 			get { return Path.GetFileNameWithoutExtension(_localRepositoryPath); }
 		}
 
+		public static RepositoryManager FromRootOrChildFolder(ProjectFolderConfiguration project)
+		{
+			return FromRootOrChildFolder(project, null);
+		}
+
 		/// <summary>
 		///
 		/// </summary>
-		/// <returns>if null, the user canceled</returns>
-		public static RepositoryManager FromContext(ProjectFolderConfiguration project)
+		public static RepositoryManager FromRootOrChildFolder(ProjectFolderConfiguration project, string userId)
 		{
 
 			if (!Directory.Exists(project.FolderPath) && !File.Exists(project.FolderPath))
@@ -48,7 +52,7 @@ namespace Chorus.sync
 			string root = HgRepository.GetRepositoryRoot(startingPath);
 			if (!string.IsNullOrEmpty(root))
 			{
-				return new RepositoryManager(root, project);
+				return new RepositoryManager(root, project, userId);
 			}
 			else
 			{
@@ -64,11 +68,11 @@ namespace Chorus.sync
 				if (!string.IsNullOrEmpty(startingPath) && Directory.Exists(newRepositoryPath))
 				{
 					HgRepository.CreateRepositoryInExistingDir(newRepositoryPath);
-					return new RepositoryManager(newRepositoryPath, project);
+					return new RepositoryManager(newRepositoryPath, project, userId);
 				}
 				else
 				{
-					return null;//user canceled
+					return null;
 				}
 			}
 		}
@@ -190,9 +194,14 @@ namespace Chorus.sync
 		}
 
 
-
 		public RepositoryManager(string localRepositoryPath, ProjectFolderConfiguration project)
+			: this(localRepositoryPath, project, null)
 		{
+		}
+
+		public RepositoryManager(string localRepositoryPath, ProjectFolderConfiguration project, string userId)
+		{
+			_userId = userId;
 			_project = project;
 			_localRepositoryPath = localRepositoryPath;
 
@@ -215,4 +224,8 @@ namespace Chorus.sync
 		}
 	}
 
+
+	public class SyncResults
+	{
+	}
 }

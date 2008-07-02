@@ -49,7 +49,7 @@ namespace Chorus.Tests.sync
 		[Test]
 		public void SyncNow_OnlyBlankFauxUsbAvailable_UsbGetsClone()
 		{
-			RepositoryManager manager = RepositoryManager.FromContext(_project);
+			RepositoryManager manager = RepositoryManager.FromRootOrChildFolder(_project);
 
 			string pathToFauxUsbRoot = Path.Combine(_pathToTestRoot, "usb");
 			Directory.CreateDirectory(pathToFauxUsbRoot);
@@ -71,7 +71,7 @@ namespace Chorus.Tests.sync
 		public void SyncNow_AlreadySetupFauxUsbAvailable_UsbGetsSync()
 		{
 			SyncOptions options = new SyncOptions();
-			RepositoryManager manager = RepositoryManager.FromContext(_project);
+			RepositoryManager manager = RepositoryManager.FromRootOrChildFolder(_project);
 			manager.SyncNow(options, _progress);
 
 			string pathToFauxUsbRoot = Path.Combine(_pathToTestRoot, "usb");

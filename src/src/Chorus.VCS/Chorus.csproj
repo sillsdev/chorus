@@ -100,7 +100,6 @@
 	<Compile Include="merge\xml\generic\XmlMerger.cs" />
 	<Compile Include="Properties\AssemblyInfo.cs" />
 	<Compile Include="VcsDrivers\Mercurial\RevisionDescriptor.cs" />
-	<Compile Include="sync\SyncManager.cs" />
 	<Compile Include="UI\MainWindow.cs">
 	  <SubType>Form</SubType>
 	</Compile>

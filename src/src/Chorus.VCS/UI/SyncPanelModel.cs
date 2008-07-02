@@ -20,7 +20,7 @@ namespace Chorus.UI
 			_project = project;
 			_progress = progress;
 
-			RepositoryManager manager = RepositoryManager.FromContext(_project);
+			RepositoryManager manager = RepositoryManager.FromRootOrChildFolder(_project);
 			RepositoriesToList= manager.KnownRepositories;
 			RepositoriesToTry.AddRange(RepositoriesToList);
 		}
@@ -35,7 +35,7 @@ namespace Chorus.UI
 
 		public void Sync()
 		{
-			RepositoryManager manager = RepositoryManager.FromContext(_project);
+			RepositoryManager manager = RepositoryManager.FromRootOrChildFolder(_project);
 
 			SyncOptions options = new SyncOptions();
 			options.DoPullFromOthers = true;
