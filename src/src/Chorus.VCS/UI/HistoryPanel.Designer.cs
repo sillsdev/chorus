@@ -48,6 +48,7 @@
 			this.Controls.Add(this.textBox1);
 			this.Name = "HistoryPanel";
 			this.Size = new System.Drawing.Size(470, 362);
+			this.Load += new System.EventHandler(this.HistoryPanel_Load);
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
