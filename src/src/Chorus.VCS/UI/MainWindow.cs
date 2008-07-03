@@ -21,6 +21,12 @@ namespace Chorus.UI
 			{
 				settingsPath = args[0];
 			}
+//            string s = RepositoryManager.GetEnvironmentReadinessMessage("en");
+//            if(!string.IsNullOrEmpty(s))
+//            {
+//                MessageBox.Show(s, "Chorus", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+//                return;
+//            }
 			Application.Run(new MainWindow(settingsPath));
 		}
 

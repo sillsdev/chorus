@@ -15,6 +15,23 @@ namespace Chorus.VcsDrivers.Mercurial
 		protected readonly string _userName;
 		protected IProgress _progress;
 
+		public static string GetEnvironmentReadinessMessage(string messageLanguageId)
+		{
+			ProcessStartInfo startInfo = new ProcessStartInfo();
+			startInfo.FileName = "hg";
+			startInfo.Arguments = "version";
+			startInfo.CreateNoWindow = true;
+			startInfo.UseShellExecute = false;
+			try
+			{
+				System.Diagnostics.Process.Start(startInfo);
+			}
+			catch(Exception error)
+			{
+				 return "Sorry, this feature requires the Mercurial version control system.  It must be installed and part of the PATH environment variable.  Windows users can download and install TortoiseHg";
+			}
+			return null;
+		}
 
 		protected RevisionDescriptor GetMyHead()
 		{

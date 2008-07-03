@@ -83,6 +83,11 @@ namespace Chorus.sync
 			HgRepository.SetUserId(newRepositoryPath, userId);
 		}
 
+		public static string GetEnvironmentReadinessMessage(string messageLanguageId)
+		{
+			return HgRepository.GetEnvironmentReadinessMessage(messageLanguageId);
+		}
+
 
 		public SyncResults SyncNow(SyncOptions options, IProgress progress)
 		{
@@ -229,6 +234,17 @@ namespace Chorus.sync
 			HgRepository local = new HgRepository(_localRepositoryPath, progress, _userId);
 
 			return local.GetHistoryItems();
+		}
+
+		public static bool CheckEnvironmentAndShowMessageIfAppropriate(string messageLanguageId)
+		{
+			string s = RepositoryManager.GetEnvironmentReadinessMessage(messageLanguageId);
+			if (!string.IsNullOrEmpty(s))
+			{
+					MessageBox.Show(s, "Chorus", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+					return false;
+			 }
+			return true;
 		}
 	}
 

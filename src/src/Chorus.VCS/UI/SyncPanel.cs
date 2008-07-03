@@ -75,6 +75,17 @@ namespace Chorus.UI
 
 		private void SyncPanel_Load(object sender, EventArgs e)
 		{
+			if (DesignMode)
+				return;
+
+			string message = RepositoryManager.GetEnvironmentReadinessMessage("en");
+			if (!string.IsNullOrEmpty(message))
+			{
+				_logBox.ForeColor = System.Drawing.Color.Red;
+				_logBox.Text = message;
+				return;
+			}
+
 			_progress = new TextBoxProgress(_logBox);
 
 			_model = new SyncPanelModel(_project, UserName, _progress);
