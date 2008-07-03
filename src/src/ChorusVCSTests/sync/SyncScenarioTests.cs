@@ -65,7 +65,7 @@ namespace Chorus.Tests.sync
 				options.DoMergeWithOthers = false;
 				options.CheckinDescription = "initial";
 
-				RepositoryManager.MakeRepositoryForTest(languageProjectPath);
+				RepositoryManager.MakeRepositoryForTest(languageProjectPath, "bob");
 
 				//SyncManager bobManager = SyncManager.FromChildPath(_lexiconProjectPath, progress, "bob");
 				SyncResults results = GetManager().SyncNow(options,progress);

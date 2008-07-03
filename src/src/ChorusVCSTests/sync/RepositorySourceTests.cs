@@ -26,7 +26,7 @@ namespace Chorus.Tests.sync
 
 			string pathToText = WriteTestFile("version one");
 
-			RepositoryManager.MakeRepositoryForTest(_pathToProjectRoot);
+			RepositoryManager.MakeRepositoryForTest(_pathToProjectRoot, "bob");
 
 			_project.IncludePatterns.Add(pathToText);
 			_project.FolderPath = _pathToProjectRoot;

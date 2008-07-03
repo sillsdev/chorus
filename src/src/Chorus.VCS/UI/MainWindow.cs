@@ -32,6 +32,7 @@ namespace Chorus.UI
 		{
 			InitializeComponent();
 			_syncPanel.ProjectFolderConfig = new ProjectFolderConfiguration(Path.GetDirectoryName(settingsPath));
+			_historyPanel.ProjectFolderConfig = _syncPanel.ProjectFolderConfig;
 		}
 
 	}

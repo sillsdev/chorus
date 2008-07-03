@@ -28,24 +28,39 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
-			this.textBox1 = new System.Windows.Forms.TextBox();
+			this._historyText = new System.Windows.Forms.TextBox();
+			this._loadButton = new System.Windows.Forms.Button();
 			this.SuspendLayout();
 			//
-			// textBox1
+			// _historyText
 			//
-			this.textBox1.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.textBox1.Location = new System.Drawing.Point(0, 0);
-			this.textBox1.Multiline = true;
-			this.textBox1.Name = "textBox1";
-			this.textBox1.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-			this.textBox1.Size = new System.Drawing.Size(470, 362);
-			this.textBox1.TabIndex = 0;
+			this._historyText.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+						| System.Windows.Forms.AnchorStyles.Left)
+						| System.Windows.Forms.AnchorStyles.Right)));
+			this._historyText.Location = new System.Drawing.Point(3, 67);
+			this._historyText.Multiline = true;
+			this._historyText.Name = "_historyText";
+			this._historyText.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+			this._historyText.Size = new System.Drawing.Size(470, 292);
+			this._historyText.TabIndex = 0;
+			//
+			// _loadButton
+			//
+			this._loadButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this._loadButton.Location = new System.Drawing.Point(392, 15);
+			this._loadButton.Name = "_loadButton";
+			this._loadButton.Size = new System.Drawing.Size(75, 23);
+			this._loadButton.TabIndex = 1;
+			this._loadButton.Text = "Get History";
+			this._loadButton.UseVisualStyleBackColor = true;
+			this._loadButton.Click += new System.EventHandler(this._loadButton_Click);
 			//
 			// HistoryPanel
 			//
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.Controls.Add(this.textBox1);
+			this.Controls.Add(this._loadButton);
+			this.Controls.Add(this._historyText);
 			this.Name = "HistoryPanel";
 			this.Size = new System.Drawing.Size(470, 362);
 			this.Load += new System.EventHandler(this.HistoryPanel_Load);
@@ -56,7 +71,8 @@
 
 		#endregion
 
-		private System.Windows.Forms.TextBox textBox1;
+		private System.Windows.Forms.TextBox _historyText;
+		private System.Windows.Forms.Button _loadButton;
 
 	}
 }

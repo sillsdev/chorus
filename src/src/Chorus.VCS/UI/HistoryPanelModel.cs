@@ -15,7 +15,6 @@ namespace Chorus.UI
 		{
 			_project = project;
 			_progress = progress;
-			throw new NotImplementedException();
 		}
 
 		public List<RevisionDescriptor> GetHistoryItems()

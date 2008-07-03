@@ -29,7 +29,7 @@ namespace Chorus.Tests.sync
 			_pathToText = Path.Combine(_pathToTestRoot, "foo.txt");
 			File.WriteAllText(_pathToText, "version one of my pretend txt");
 
-			RepositoryManager.MakeRepositoryForTest(_pathToTestRoot);
+			RepositoryManager.MakeRepositoryForTest(_pathToTestRoot, "bob");
 
 			_project = new ProjectFolderConfiguration(_pathToTestRoot);
 			_project.FolderPath = _pathToTestRoot;

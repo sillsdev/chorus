@@ -77,9 +77,10 @@ namespace Chorus.sync
 			}
 		}
 
-		internal static void MakeRepositoryForTest(string newRepositoryPath)
+		internal static void MakeRepositoryForTest(string newRepositoryPath, string userId)
 		{
 			HgRepository.CreateRepositoryInExistingDir(newRepositoryPath);
+			HgRepository.SetUserId(newRepositoryPath, userId);
 		}
 
 

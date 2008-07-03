@@ -36,8 +36,10 @@ namespace Chorus.UI
 			this.settingsPanel2 = new Chorus.UI.SettingsPanel();
 			this.tabPage3 = new System.Windows.Forms.TabPage();
 			this.setupPanel1 = new Chorus.UI.SetupPanel();
+			this._historyPanel = new Chorus.UI.HistoryPanel();
 			this.tabControl1.SuspendLayout();
 			this.tabPage1.SuspendLayout();
+			this.tabPage2.SuspendLayout();
 			this.tabPage4.SuspendLayout();
 			this.tabPage3.SuspendLayout();
 			this.SuspendLayout();
@@ -72,11 +74,14 @@ namespace Chorus.UI
 			this._syncPanel.Dock = System.Windows.Forms.DockStyle.Fill;
 			this._syncPanel.Location = new System.Drawing.Point(3, 3);
 			this._syncPanel.Name = "_syncPanel";
+			this._syncPanel.ProjectFolderConfig = null;
 			this._syncPanel.Size = new System.Drawing.Size(501, 342);
 			this._syncPanel.TabIndex = 0;
+			this._syncPanel.UserName = "anonymous";
 			//
 			// tabPage2
 			//
+			this.tabPage2.Controls.Add(this._historyPanel);
 			this.tabPage2.Location = new System.Drawing.Point(4, 22);
 			this.tabPage2.Name = "tabPage2";
 			this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
@@ -126,6 +131,16 @@ namespace Chorus.UI
 			this.setupPanel1.Size = new System.Drawing.Size(507, 348);
 			this.setupPanel1.TabIndex = 0;
 			//
+			// _historyPanel
+			//
+			this._historyPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+			this._historyPanel.Location = new System.Drawing.Point(3, 3);
+			this._historyPanel.Name = "_historyPanel";
+			this._historyPanel.ProjectFolderConfig = null;
+			this._historyPanel.Size = new System.Drawing.Size(501, 342);
+			this._historyPanel.TabIndex = 0;
+			this._historyPanel.UserName = "anonymous";
+			//
 			// MainWindow
 			//
 			this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
@@ -137,6 +152,7 @@ namespace Chorus.UI
 			this.Text = "Chorus";
 			this.tabControl1.ResumeLayout(false);
 			this.tabPage1.ResumeLayout(false);
+			this.tabPage2.ResumeLayout(false);
 			this.tabPage4.ResumeLayout(false);
 			this.tabPage3.ResumeLayout(false);
 			this.ResumeLayout(false);
@@ -153,5 +169,6 @@ namespace Chorus.UI
 		private SetupPanel setupPanel1;
 		private System.Windows.Forms.TabPage tabPage4;
 		private SettingsPanel settingsPanel2;
+		private HistoryPanel _historyPanel;
 	}
 }

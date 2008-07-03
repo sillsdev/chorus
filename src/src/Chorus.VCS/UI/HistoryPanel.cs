@@ -6,6 +6,7 @@ using System.Data;
 using System.Text;
 using System.Windows.Forms;
 using Chorus.sync;
+using Chorus.VcsDrivers.Mercurial;
 
 namespace Chorus.UI
 {
@@ -46,6 +47,17 @@ namespace Chorus.UI
 
 			_model = new HistoryPanelModel(_project, null);
 
+		}
+
+		private void _loadButton_Click(object sender, EventArgs e)
+		{
+			Cursor.Current = Cursors.WaitCursor;
+			_historyText.Text = "";
+			foreach (RevisionDescriptor item in _model.GetHistoryItems())
+			{
+				_historyText.Text += String.Format("{0}, {1}, {2}\r\n", item.DateString, item.UserId, item.Summary);
+			}
+			Cursor.Current = Cursors.Default;
 		}
 	}
 }

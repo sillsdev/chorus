@@ -165,7 +165,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			message = string.Format(message, args);
 			using (new ConsoleProgress("{0} committing with comment: {1}", _userName, message))
 			{
-				ExecutionResult result = Execute("ci", _pathToRepository, "-m " + SurroundWithQuotes(_userName + ": " + message));
+				ExecutionResult result = Execute("ci", _pathToRepository, "-m " + SurroundWithQuotes(message));
 				_progress.WriteMessage(result.StandardOutput);
 			}
 		}
@@ -433,35 +433,47 @@ namespace Chorus.VcsDrivers.Mercurial
 			TextReader reader = new StringReader(result);
 			string line = reader.ReadLine();
 
+
 			RevisionDescriptor item = null;
 			while(line !=null)
 			{
-				string[] parts = line.Split(':');
-				switch (parts[0])
+				int colonIndex = line.IndexOf(":");
+				if(colonIndex >0 )
 				{
-					default:
-						break;
-					case "changeset":
-						 item = new RevisionDescriptor();
-						 items.Add(item);
-						item._hash = parts[1]+":"+parts[2];
-						break;
+					string label = line.Substring(0, colonIndex);
+					string value = line.Substring(colonIndex + 1).Trim();
+					switch (label)
+					{
+						default:
+							break;
+						case "changeset":
+							item = new RevisionDescriptor();
+							items.Add(item);
+							item._hash = value;
+							break;
 
-					case "user":
-						item.UserId = parts[1];
-						break;
+						case "user":
+							item.UserId = value;
+							break;
 
-					case "date":
-						item.DateString = parts[1];
-						break;
+						case "date":
+							item.DateString = value;
+							break;
 
-					case "summary":
-						item.Summary = parts[1];
-						break;
+						case "summary":
+							item.Summary = value;
+							break;
+					}
 				}
 				line = reader.ReadLine();
 			}
 			return items;
+		}
+
+		public static void SetUserId(string path, string userId)
+		{
+			Execute("config", path, "--local ui.username " + userId);
+
 		}
 	}
 }
