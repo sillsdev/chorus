@@ -10,8 +10,8 @@ namespace Chorus.VcsDrivers.Mercurial
 {
 	public class HgPartialMerge : HgRepository
 	{
-		public HgPartialMerge(string pathToRepository, string userName)
-			: base(pathToRepository, new ConsoleProgress(), userName)
+		public HgPartialMerge(string pathToRepository)
+			: base(pathToRepository, new ConsoleProgress())
 		{
 		}
 
@@ -34,7 +34,9 @@ namespace Chorus.VcsDrivers.Mercurial
 				Execute("init", null, SurroundWithQuotes(repositoryPath));
 				SetupPerson(repositoryPath, userName);
 
-				HgPartialMerge repo = new HgPartialMerge(repositoryPath, userName);
+				HgPartialMerge repo = new HgPartialMerge(repositoryPath);
+				HgRepository.SetUserId(repositoryPath, userName);
+
 				repo.AddFake();
 				return repo;
 			}
@@ -78,7 +80,8 @@ namespace Chorus.VcsDrivers.Mercurial
 			{
 				Execute("clone", null, sourceRepo.PathWithQuotes + " " + SurroundWithQuotes(repositoryPath));
 				SetupPerson(repositoryPath, newPersonName);
-				HgPartialMerge repository = new HgPartialMerge(repositoryPath, newPersonName);
+				HgPartialMerge repository = new HgPartialMerge(repositoryPath);
+				HgRepository.SetUserId(repositoryPath, newPersonName);
 				repository.AddFake();
 				return repository;
 			}

@@ -12,7 +12,6 @@ namespace Chorus.sync
 	public class RepositoryManager
 	{
 		private string _localRepositoryPath;
-		private string _userId="anonymous";
 		private ProjectFolderConfiguration _project;
 
 		private List<RepositorySource> _knownRepositories=new List<RepositorySource>();
@@ -28,15 +27,11 @@ namespace Chorus.sync
 			get { return Path.GetFileNameWithoutExtension(_localRepositoryPath); }
 		}
 
-		public static RepositoryManager FromRootOrChildFolder(ProjectFolderConfiguration project)
-		{
-			return FromRootOrChildFolder(project, null);
-		}
 
 		/// <summary>
 		///
 		/// </summary>
-		public static RepositoryManager FromRootOrChildFolder(ProjectFolderConfiguration project, string userId)
+		public static RepositoryManager FromRootOrChildFolder(ProjectFolderConfiguration project)
 		{
 
 			if (!Directory.Exists(project.FolderPath) && !File.Exists(project.FolderPath))
@@ -52,7 +47,7 @@ namespace Chorus.sync
 			string root = HgRepository.GetRepositoryRoot(startingPath);
 			if (!string.IsNullOrEmpty(root))
 			{
-				return new RepositoryManager(root, project, userId);
+				return new RepositoryManager(root, project);
 			}
 			else
 			{
@@ -68,7 +63,9 @@ namespace Chorus.sync
 				if (!string.IsNullOrEmpty(startingPath) && Directory.Exists(newRepositoryPath))
 				{
 					HgRepository.CreateRepositoryInExistingDir(newRepositoryPath);
-					return new RepositoryManager(newRepositoryPath, project, userId);
+					//review: Machine name would be more accurate, but most people have, like "Compaq" as their machine name
+					HgRepository.SetUserId(newRepositoryPath, System.Environment.UserName);
+					return new RepositoryManager(newRepositoryPath, project);
 				}
 				else
 				{
@@ -93,9 +90,9 @@ namespace Chorus.sync
 		{
 			SyncResults results = new SyncResults();
 
-			HgRepository repo = new HgRepository(_localRepositoryPath,progress, _userId);
+			HgRepository repo = new HgRepository(_localRepositoryPath,progress);
 
-			progress.WriteStatus(_userId+ " Checking In...");
+			progress.WriteStatus("Checking In...");
 			repo.AddAndCheckinFiles(_project.IncludePatterns, _project.ExcludePatterns, options.CheckinDescription);
 
 			List<RepositorySource> repositoriesToTry = options.RepositoriesToTry;
@@ -113,7 +110,7 @@ namespace Chorus.sync
 					string resolvedUri = repoDescriptor.ResolveUri(RepoProjectName, progress);
 					if (repoDescriptor.CanConnect(RepoProjectName, progress))
 					{
-						repo.TryToPull(resolvedUri, repoDescriptor.SourceName, progress, results);
+						repo.TryToPull(resolvedUri);
 					}
 					else
 					{
@@ -176,9 +173,9 @@ namespace Chorus.sync
 						progress.WriteStatus("Done.");
 						return uri;
 					}
-					catch (Exception)
+					catch (Exception error)
 					{
-						progress.WriteMessage("Could not create clone at {1}", uri);
+						progress.WriteMessage("Could not create clone at {0}: {1}", uri, error.Message);
 						continue;
 					}
 				}
@@ -201,13 +198,12 @@ namespace Chorus.sync
 
 
 		public RepositoryManager(string localRepositoryPath, ProjectFolderConfiguration project)
-			: this(localRepositoryPath, project, null)
+			: this(localRepositoryPath, project, System.Environment.UserName)
 		{
 		}
 
 		public RepositoryManager(string localRepositoryPath, ProjectFolderConfiguration project, string userId)
 		{
-			_userId = userId;
 			_project = project;
 			_localRepositoryPath = localRepositoryPath;
 
@@ -217,13 +213,14 @@ namespace Chorus.sync
 
 		public void MakeClone(string path, bool alsoDoCheckout, IProgress progress)
 		{
-			HgRepository local = new HgRepository(_localRepositoryPath, progress,_userId);
+			HgRepository local = new HgRepository(_localRepositoryPath, progress);
 			using (new ConsoleProgress("Creating repository clone at {0}", path))
 			{
 				local.Clone(path);
 				if(alsoDoCheckout)
 				{
-					HgRepository clone = new HgRepository(path, progress, _userId);
+				   // string userIdForCLone = string.Empty; /* don't assume it's this user... a repo on a usb key probably shouldn't have a user default */
+					HgRepository clone = new HgRepository(path, progress);
 					clone.Update();
 				}
 			}
@@ -231,7 +228,7 @@ namespace Chorus.sync
 
 		public List<RevisionDescriptor> GetHistoryItems(IProgress progress)
 		{
-			HgRepository local = new HgRepository(_localRepositoryPath, progress, _userId);
+			HgRepository local = new HgRepository(_localRepositoryPath, progress);
 
 			return local.GetHistoryItems();
 		}
@@ -245,6 +242,11 @@ namespace Chorus.sync
 					return false;
 			 }
 			return true;
+		}
+
+		public void SetUserId(string userId)
+		{
+				HgRepository.SetUserId(_localRepositoryPath, userId);
 		}
 	}
 

@@ -27,7 +27,7 @@ namespace Chorus.Tests.sync
 			string pathToText = WriteTestFile("version one");
 
 			RepositoryManager.MakeRepositoryForTest(_pathToProjectRoot, "bob");
-
+			_project = new ProjectFolderConfiguration(_pathToProjectRoot);
 			_project.IncludePatterns.Add(pathToText);
 			_project.FolderPath = _pathToProjectRoot;
 
@@ -82,8 +82,8 @@ namespace Chorus.Tests.sync
 
 
 			options.RepositoriesToTry.Add(usbSource);
-			manager.MakeClone(usbSource.ResolveUri("foo project", _progress), true, _progress);
 			string dir = Path.Combine(pathToFauxUsbRoot, "foo project");
+			manager.MakeClone(dir, true, _progress);
 			string contents = File.ReadAllText(Path.Combine(dir, "foo.txt"));
 			Assert.AreEqual("version one", contents);
 			WriteTestFile("version two");

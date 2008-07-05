@@ -46,11 +46,11 @@ namespace Chorus.VcsDrivers.Mercurial
 		}
 
 
-		public HgRepository(string pathToRepository, IProgress progress, string userName /*todo: figure this out from the repo*/)
+		public HgRepository(string pathToRepository, IProgress progress)
 		{
 			_pathToRepository = pathToRepository;
 			_progress = progress;
-			_userName = userName; //todo: figure out the user name from the repo
+			_userName = GetUserIdInUse();
 		}
 
 		static protected void SetupPerson(string pathToRepository, string userName)
@@ -63,9 +63,9 @@ namespace Chorus.VcsDrivers.Mercurial
 			}
 		}
 
-		public void TryToPull(string resolvedUri, string sourceName, IProgress progress, SyncResults results)
+		public void TryToPull(string resolvedUri)
 		{
-			HgRepository repo = new HgRepository(resolvedUri, progress, sourceName);
+			HgRepository repo = new HgRepository(resolvedUri, _progress);
 			PullFromRepository(repo, false);
 		}
 
@@ -491,6 +491,11 @@ namespace Chorus.VcsDrivers.Mercurial
 		{
 			Execute("config", path, "--local ui.username " + userId);
 
+		}
+
+		public string GetUserIdInUse()
+		{
+			return GetTextFromQuery(_pathToRepository, "showconfig ui.username").Trim();
 		}
 	}
 }

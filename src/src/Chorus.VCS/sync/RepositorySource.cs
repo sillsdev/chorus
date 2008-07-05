@@ -151,7 +151,7 @@ namespace Chorus.sync
 			if (PathToPretendUsbKeyForTesting != null)
 			{
 				string path = Path.Combine(PathToPretendUsbKeyForTesting, repoName);
-				Debug.Assert(Directory.Exists(path));
+		   //     Debug.Assert(Directory.Exists(path));
 
 				urisToTryCreationAt.Add(path);
 				return urisToTryCreationAt;
@@ -175,7 +175,8 @@ namespace Chorus.sync
 		public override bool CanConnect(string repoName, IProgress progress)
 		{
 			progress.WriteStatus("Looking for usb keys with existing repositories...");
-			return ResolveUri(repoName, progress) != null;
+			string path= ResolveUri(repoName, progress);
+			return (path != null) && Directory.Exists(path);
 		}
 
 

@@ -88,7 +88,9 @@ namespace Chorus.Tests.sync
 			public RepositoryManager GetManager()
 			{
 				ProjectFolderConfiguration project = new ProjectFolderConfiguration(_lexiconProjectPath);
-				return RepositoryManager.FromRootOrChildFolder(project, "bob");
+				RepositoryManager repo= RepositoryManager.FromRootOrChildFolder(project);
+				repo.SetUserId("bob");
+				return repo;
 			}
 		}
 
@@ -111,7 +113,8 @@ namespace Chorus.Tests.sync
 			File.WriteAllText(Path.Combine(usbPath, "incoming.txt"), "this would be a file coming in");
 			SyncOptions options = new SyncOptions();
 			options.CheckinDescription = "adding a file to the usb for some reason";
-			RepositoryManager usbManager = RepositoryManager.FromRootOrChildFolder(usbProject, "usba");
+			RepositoryManager usbManager = RepositoryManager.FromRootOrChildFolder(usbProject);
+			usbManager.SetUserId("usba");
 			usbManager.SyncNow(options,progress);
 
 
@@ -169,7 +172,7 @@ namespace Chorus.Tests.sync
 			bobSetup.ChangeTextFile();
 			string usbPath = Path.Combine(_pathToTestRoot, "USB-A");
 			bobSetup.SetupClone(usbPath, "USBA");
-			RepositoryManager usb = RepositoryManager.FromRootOrChildFolder(bobSetup._projectFolderConfiguration,"usba");
+			RepositoryManager usb = RepositoryManager.FromRootOrChildFolder(bobSetup._projectFolderConfiguration);
 
 			RepositorySource usbRepo = RepositorySource.Create(usbPath, "USBA", false);
 			RepositoryManager bob =  bobSetup.GetManager();
@@ -190,7 +193,8 @@ namespace Chorus.Tests.sync
 			bob.SyncNow(bobOptions, progress);
 
 			ProjectFolderConfiguration sallyProject = new ProjectFolderConfiguration(sallyRoot);
-			RepositoryManager sally = RepositoryManager.FromRootOrChildFolder(sallyProject, "sally");
+			RepositoryManager sally = RepositoryManager.FromRootOrChildFolder(sallyProject);
+			sally.SetUserId("sally");
 			sally.KnownRepositories.Add(RepositorySource.Create(usbRepo.URI, usbRepo.SourceName, false));
 
 			//now she modifies a file
@@ -241,7 +245,8 @@ namespace Chorus.Tests.sync
 			bobSetup.GetManager().SyncNow(bobOptions, progress);
 
 			ProjectFolderConfiguration sallyProject = new ProjectFolderConfiguration(sallyRoot);
-			RepositoryManager sally = RepositoryManager.FromRootOrChildFolder(sallyProject, "sally");
+			RepositoryManager sally = RepositoryManager.FromRootOrChildFolder(sallyProject);
+			sally.SetUserId("sally");
 			sally.KnownRepositories.Add(RepositorySource.Create(bobSetup._languageProjectPath, "bob", false));
 
 			//now she modifies a file
