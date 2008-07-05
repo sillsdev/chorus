@@ -10,6 +10,7 @@ namespace Chorus.sync
 	{
 		protected string _uri;
 		private string _sourceLabel;
+		public enum HardWiredSources{UsbKey};
 
 		/// <summary>
 		/// THis will be false for, say, usb-keys or shared internet repos
@@ -26,16 +27,25 @@ namespace Chorus.sync
 		/// <returns></returns>
 		public static RepositorySource Create(string uri, string sourceName, bool readOnly)
 		{
-			if (uri == "UsbKey")
-			{
-				return new UsbKeyRepositorySource(uri, sourceName, readOnly);
-			}
+			//TODO: network protocols
+
 			if (Directory.Exists(uri))
 			{
 				return new FilePathRepositorySource(uri, sourceName, readOnly);
 			}
 			else
-				throw new ArgumentException("RepositorySource recognize this kind of uri (" + uri + ")");
+				throw new ArgumentException("RepositorySource does not recognize this kind of uri (" + uri + ")");
+		}
+
+		public static RepositorySource Create(HardWiredSources hardWiredSource, string sourceName, bool readOnly)
+		{
+			switch (hardWiredSource)
+			{
+				case HardWiredSources.UsbKey:
+					return new UsbKeyRepositorySource(HardWiredSources.UsbKey.ToString(), sourceName, readOnly);
+				default:
+					throw new ArgumentException("RepositorySource does not recognize this kind of source (" + HardWiredSources.UsbKey.ToString() + ")");
+			}
 		}
 
 		protected RepositorySource(string uri, string sourceLabel, bool readOnly)
@@ -74,11 +84,7 @@ namespace Chorus.sync
 
 		public abstract string PotentialRepoUri(string repoName, IProgress progress);
 
-		/// <summary>
-		/// used with usb source
-		/// </summary>
-		/// <returns></returns>
-		public virtual List<string> GetPossibleCloneUris(string name, IProgress progress)
+		 public virtual List<string> GetPossibleCloneUris(string name, IProgress progress)
 		{
 			return null;
 		}
@@ -108,11 +114,43 @@ namespace Chorus.sync
 		{
 			return Directory.Exists(PotentialRepoUri(repoName, progress));
 		}
+
+		public override List<string> GetPossibleCloneUris(string repoName, IProgress progress)
+		{
+			return new List<string>(new string[]{PotentialRepoUri(repoName, progress)});
+		}
 	}
 
 	public class UsbKeyRepositorySource : RepositorySource
 	{
-		internal string PathToPretendUsbKeyForTesting;
+		private static string _rootDirForAllSourcesDuringUnitTest;
+
+		/// <summary>
+		/// also creates the directory
+		/// </summary>
+		/// <param name="pathToRootForAllSources"></param>
+		static public void SetRootDirForAllSourcesDuringUnitTest(string pathToRootForAllSources)
+		{
+			 _rootDirForAllSourcesDuringUnitTest = pathToRootForAllSources;
+			Directory.CreateDirectory(RootDirForUsbSourceDuringUnitTest);
+		}
+		static public string RootDirForUsbSourceDuringUnitTest
+		{
+			get
+			{
+				if(_rootDirForAllSourcesDuringUnitTest ==null)
+					return null;
+					return Path.Combine(_rootDirForAllSourcesDuringUnitTest, "usb");
+			}
+		}
+
+//        private string RootDirForUsbSourceDuringUnitTest
+//        {
+//            get {
+//                if(_rootDirForAllSourcesDuringUnitTest ==null)
+//                    return null;
+//                return
+//        }
 
 		public UsbKeyRepositorySource(string uri, string sourceLabel, bool readOnly)
 			: base(uri, sourceLabel, readOnly)
@@ -127,9 +165,9 @@ namespace Chorus.sync
 		/// <returns>null if can't find a usb key</returns>
 		public override string PotentialRepoUri(string repoName, IProgress progress)
 		{
-			if (PathToPretendUsbKeyForTesting != null)
+			if (RootDirForUsbSourceDuringUnitTest != null)
 			{
-				return Path.Combine(PathToPretendUsbKeyForTesting, repoName);
+				return Path.Combine(RootDirForUsbSourceDuringUnitTest, repoName);
 			}
 
 			List<DriveInfo> drives = Chorus.Utilities.UsbUtilities.GetLogicalUsbDisks();
@@ -153,9 +191,9 @@ namespace Chorus.sync
 			progress.WriteStatus("Looking for usb keys to recieve clone...");
 			List<string>  urisToTryCreationAt = new List<string>();
 
-			if (PathToPretendUsbKeyForTesting != null)
+			if (RootDirForUsbSourceDuringUnitTest != null)
 			{
-				string path = Path.Combine(PathToPretendUsbKeyForTesting, repoName);
+				string path = Path.Combine(RootDirForUsbSourceDuringUnitTest, repoName);
 		   //     Debug.Assert(Directory.Exists(path));
 
 				urisToTryCreationAt.Add(path);

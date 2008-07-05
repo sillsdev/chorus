@@ -32,6 +32,8 @@ namespace Chorus.Tests.sync
 			_project.FolderPath = _pathToProjectRoot;
 
 			_progress = new StringBuilderProgress();
+
+			UsbKeyRepositorySource.SetRootDirForAllSourcesDuringUnitTest(_pathToTestRoot);
 		}
 
 		private string WriteTestFile(string contents)
@@ -50,19 +52,14 @@ namespace Chorus.Tests.sync
 		public void SyncNow_OnlyABlankFauxUsbAvailable_UsbGetsClone()
 		{
 			RepositoryManager manager = RepositoryManager.FromRootOrChildFolder(_project);
-
-			string pathToFauxUsbRoot = Path.Combine(_pathToTestRoot, "usb");
-			Directory.CreateDirectory(pathToFauxUsbRoot);
-
-			UsbKeyRepositorySource usbSource = manager.KnownRepositorySources[0] as UsbKeyRepositorySource;
-			usbSource.PathToPretendUsbKeyForTesting=pathToFauxUsbRoot;
 			SyncOptions options = new SyncOptions();
-			options.RepositorySourcesToTry.Add(usbSource);
+			options.DoMergeWithOthers = true;
+			options.RepositorySourcesToTry.Add(manager.UsbSource);
 
 			WriteTestFile("version two");
 
 			manager.SyncNow(options, _progress);
-			string dir = Path.Combine(pathToFauxUsbRoot, "foo project");
+			string dir = Path.Combine(UsbKeyRepositorySource.RootDirForUsbSourceDuringUnitTest, "foo project");
 			Assert.IsTrue(Directory.Exists(dir));
 
 		}
@@ -74,15 +71,16 @@ namespace Chorus.Tests.sync
 			RepositoryManager manager = RepositoryManager.FromRootOrChildFolder(_project);
 			manager.SyncNow(options, _progress);
 
-			string pathToFauxUsbRoot = Path.Combine(_pathToTestRoot, "usb");
-			Directory.CreateDirectory(pathToFauxUsbRoot);
 
-			UsbKeyRepositorySource usbSource = manager.KnownRepositorySources[0] as UsbKeyRepositorySource;
-			usbSource.PathToPretendUsbKeyForTesting = pathToFauxUsbRoot;
+//            string pathToFauxUsbRoot = Path.Combine(_pathToTestRoot, "usb");
+//            Directory.CreateDirectory(pathToFauxUsbRoot);
+
+//            UsbKeyRepositorySource usbSource = manager.KnownRepositorySources[0] as UsbKeyRepositorySource;
+//            usbSource.PathToPretendUsbKeyForTesting = pathToFauxUsbRoot;
 
 
-			options.RepositorySourcesToTry.Add(usbSource);
-			string dir = Path.Combine(pathToFauxUsbRoot, "foo project");
+			options.RepositorySourcesToTry.Add(manager.UsbSource);
+			string dir = Path.Combine(UsbKeyRepositorySource.RootDirForUsbSourceDuringUnitTest, "foo project");
 			manager.MakeClone(dir, true, _progress);
 			string contents = File.ReadAllText(Path.Combine(dir, "foo.txt"));
 			Assert.AreEqual("version one", contents);

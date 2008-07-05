@@ -27,6 +27,11 @@ namespace Chorus.sync
 			get { return Path.GetFileNameWithoutExtension(_localRepositoryPath); }
 		}
 
+		public RepositorySource UsbSource
+		{
+			get { return KnownRepositorySources[0] as UsbKeyRepositorySource; }
+		}
+
 
 		/// <summary>
 		///
@@ -95,7 +100,7 @@ namespace Chorus.sync
 			progress.WriteStatus("Checking In...");
 			repo.AddAndCheckinFiles(_project.IncludePatterns, _project.ExcludePatterns, options.CheckinDescription);
 
-			List<RepositorySource> repositoriesToTry = options.RepositorySourcesToTry;
+			List<RepositorySource> sourcesToTry = options.RepositorySourcesToTry;
 
 			//if the client didn't specify any, try them all
 //            no, don't do that.  It's reasonable to just be doing a local checkin
@@ -105,16 +110,16 @@ namespace Chorus.sync
 			if (options.DoPullFromOthers)
 			{
 				progress.WriteStatus("Pulling...");
-				foreach (RepositorySource repoDescriptor in repositoriesToTry)
+				foreach (RepositorySource source in sourcesToTry)
 				{
-					string resolvedUri = repoDescriptor.PotentialRepoUri(RepoProjectName, progress);
-					if (repoDescriptor.CanConnect(RepoProjectName, progress))
+					string resolvedUri = source.PotentialRepoUri(RepoProjectName, progress);
+					if (source.CanConnect(RepoProjectName, progress))
 					{
 						repo.TryToPull(resolvedUri);
 					}
 					else
 					{
-						progress.WriteMessage("Could not connect to {0} at {1} for pulling", RepoProjectName, resolvedUri);
+						progress.WriteMessage("Could not connect to {0} at {1} for pulling", source.SourceLabel, resolvedUri);
 					}
 				}
 			}
@@ -124,7 +129,7 @@ namespace Chorus.sync
 				progress.WriteStatus("Merging...");
 				repo.MergeHeads(progress, results);
 
-				foreach (RepositorySource repoDescriptor in repositoriesToTry)
+				foreach (RepositorySource repoDescriptor in sourcesToTry)
 				{
 					if (!repoDescriptor.ReadOnly)
 					{
@@ -207,7 +212,7 @@ namespace Chorus.sync
 			_project = project;
 			_localRepositoryPath = localRepositoryPath;
 
-			KnownRepositorySources.Add(RepositorySource.Create("UsbKey", "UsbKey", false));
+			KnownRepositorySources.Add(RepositorySource.Create(RepositorySource.HardWiredSources.UsbKey, "UsbKey", false));
 		}
 
 
