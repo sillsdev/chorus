@@ -29,21 +29,23 @@ namespace Chorus.Tests.sync
 			public ProjectFolderConfiguration _projectFolderConfiguration;
 			public string _pathToLift;
 			private ConsoleProgress _progress;
-			public string _pathToText;
+			public string PathToText;
+			public string BobSourcePath;
+			public const string ProjectFolderName= "LP";
 
 			public BobSetup(ConsoleProgress progress, string pathToTestRoot)
 			{
 				_progress = progress;
-				string bobPath = Path.Combine(pathToTestRoot, "Bob");
-				Directory.CreateDirectory(bobPath);
-				string languageProjectPath = Path.Combine(bobPath, "LP");
+				BobSourcePath = Path.Combine(pathToTestRoot, "Bob");
+				Directory.CreateDirectory(BobSourcePath);
+				string languageProjectPath = Path.Combine(BobSourcePath, ProjectFolderName);
 				Directory.CreateDirectory(languageProjectPath);
 				_languageProjectPath = languageProjectPath;
 				_lexiconProjectPath = Path.Combine(_languageProjectPath, "lexicon");
 				Directory.CreateDirectory(_lexiconProjectPath);
 
-				_pathToText = Path.Combine(_lexiconProjectPath, "foo.txt");
-				File.WriteAllText(_pathToText, "version one of my pretend txt");
+				PathToText = Path.Combine(_lexiconProjectPath, "foo.txt");
+				File.WriteAllText(PathToText, "version one of my pretend txt");
 
 				_pathToLift = Path.Combine(_lexiconProjectPath, "foo.lift");
 				File.WriteAllText(_pathToLift, "<lift version='0.12'></lift>");
@@ -80,9 +82,13 @@ namespace Chorus.Tests.sync
 				GetManager().SyncNow(options,_progress);
 			}
 
-			public void SetupClone(string path, string name)
+			/// <summary>
+			///
+			/// </summary>
+			/// <param name="sourcePath">does not inclue the project folder dir</param>
+			public string SetupClone(string sourcePath)
 			{
-				GetManager().MakeClone(path, true, _progress);
+				return GetManager().MakeClone(Path.Combine(sourcePath, BobSetup.ProjectFolderName), true, _progress);
 			}
 
 			public RepositoryManager GetManager()
@@ -94,6 +100,18 @@ namespace Chorus.Tests.sync
 			}
 		}
 
+//        [Test]
+//        public void CloneShouldHaveSameDirectoryName()
+//        {
+//            ConsoleProgress progress = new ConsoleProgress();
+//            BobSetup bobSetup = new BobSetup(progress, _pathToTestRoot);
+//
+//            RepositoryManager repo = RepositoryManager.FromRootOrChildFolder(bobSetup._projectFolderConfiguration);
+//            string usbPath = Path.Combine(_pathToTestRoot, "USB-A");
+//            repo.MakeClone(usbPath, false, progress);
+//            Assert.IsTrue(Directory.Exists(Path.Combine(usbPath, BobSetup.ProjectFolderName)));
+//        }
+
 		[Test]
 		public void CanGetNewFileFromAnotherRep()
 		{
@@ -102,16 +120,17 @@ namespace Chorus.Tests.sync
 
 			bobSetup.ChangeTextFile();
 			string usbPath = Path.Combine(_pathToTestRoot, "USB-A");
-			bobSetup.SetupClone(usbPath, "USBA");
+			Directory.CreateDirectory(usbPath);
+			bobSetup.SetupClone(usbPath);
 
-			RepositorySource usbRepo = RepositorySource.Create(usbPath, "USBA", false);
+			RepositorySource otherDirSource = RepositorySource.Create(usbPath, "USBA", false);
 			RepositoryManager bob = bobSetup.GetManager();
-			bob.KnownRepositories.Add(usbRepo);
+			bob.KnownRepositorySources.Add(otherDirSource);
 
 			//now stick a new file over in the "usb", so we can see if it comes back to us
-			ProjectFolderConfiguration usbProject = new ProjectFolderConfiguration(usbPath);
-			File.WriteAllText(Path.Combine(usbPath, "incoming.txt"), "this would be a file coming in");
+			File.WriteAllText(Path.Combine(otherDirSource.PotentialRepoUri(BobSetup.ProjectFolderName, progress), "incoming.txt"), "this would be a file coming in");
 			SyncOptions options = new SyncOptions();
+			ProjectFolderConfiguration usbProject = new ProjectFolderConfiguration(Path.Combine(usbPath, BobSetup.ProjectFolderName));
 			options.CheckinDescription = "adding a file to the usb for some reason";
 			RepositoryManager usbManager = RepositoryManager.FromRootOrChildFolder(usbProject);
 			usbManager.SetUserId("usba");
@@ -123,7 +142,7 @@ namespace Chorus.Tests.sync
 			options.DoPullFromOthers = true;
 			options.DoMergeWithOthers = false;
 			options.CheckinDescription = "test getting new file from usb";
-			options.RepositoriesToTry.AddRange(bob.KnownRepositories);
+			options.RepositorySourcesToTry.Add(otherDirSource);
 			bob.SyncNow(options, progress);
 			Assert.IsTrue(File.Exists(Path.Combine(bobSetup._languageProjectPath, "incoming.txt")));
 		}
@@ -170,45 +189,42 @@ namespace Chorus.Tests.sync
 			BobSetup bobSetup = new BobSetup(progress, _pathToTestRoot);
 
 			bobSetup.ChangeTextFile();
-			string usbPath = Path.Combine(_pathToTestRoot, "USB-A");
-			bobSetup.SetupClone(usbPath, "USBA");
-			RepositoryManager usb = RepositoryManager.FromRootOrChildFolder(bobSetup._projectFolderConfiguration);
+			string usbSourcePath = Path.Combine(_pathToTestRoot, "USB-A");
+			Directory.CreateDirectory(usbSourcePath);
+			string usbProjectPath = bobSetup.SetupClone(usbSourcePath);
+			RepositoryManager usbRepo = RepositoryManager.FromRootOrChildFolder(new ProjectFolderConfiguration(usbProjectPath));
 
-			RepositorySource usbRepo = RepositorySource.Create(usbPath, "USBA", false);
-			RepositoryManager bob =  bobSetup.GetManager();
-			bob.KnownRepositories.Add(usbRepo);
+			RepositoryManager bobRepo =  bobSetup.GetManager();
 
-			//Sally gets the usb and starts a repository
-			string sallyRoot = Path.Combine(_pathToTestRoot, "sally");
-			usb.MakeClone(sallyRoot, true, progress);
+			//Sally gets the usb and uses it to clone herself a repository
+			string sallySourcePath = Path.Combine(_pathToTestRoot, "sally");
+			Directory.CreateDirectory(sallySourcePath);
+			string sallyRepoPath = usbRepo.MakeClone(Path.Combine(sallySourcePath, BobSetup.ProjectFolderName), true, progress);
 
 			//Now bob sets up the conflict
 
-			File.WriteAllText(bobSetup._pathToText, "Bob's new idea");
+			File.WriteAllText(bobSetup.PathToText, "Bob's new idea");
 			SyncOptions bobOptions = new SyncOptions();
 			bobOptions.CheckinDescription = "changed my mind";
 			bobOptions.DoMergeWithOthers = false; // pretend the usb key isn't there
 			bobOptions.DoPullFromOthers = false; // pretend the usb key isn't there
-			bobOptions.RepositoriesToTry.AddRange(bob.KnownRepositories);
-			bob.SyncNow(bobOptions, progress);
+			RepositorySource usbSource = RepositorySource.Create(usbSourcePath, "usba source", false);
+			bobOptions.RepositorySourcesToTry.Add(usbSource);
+			bobRepo.SyncNow(bobOptions, progress);
 
-			ProjectFolderConfiguration sallyProject = new ProjectFolderConfiguration(sallyRoot);
+			ProjectFolderConfiguration sallyProject = new ProjectFolderConfiguration(sallyRepoPath);
 			RepositoryManager sally = RepositoryManager.FromRootOrChildFolder(sallyProject);
 			sally.SetUserId("sally");
-			sally.KnownRepositories.Add(RepositorySource.Create(usbRepo.URI, usbRepo.SourceName, false));
 
 			//now she modifies a file
-			File.WriteAllText(Path.Combine(sallyRoot, "lexicon/foo.txt"), "Sally was here");
+			File.WriteAllText(Path.Combine(sallyRepoPath, "lexicon/foo.txt"), "Sally was here");
+
+			//and syncs, which pushes back to the usb key
 			SyncOptions sallyOptions = new SyncOptions();
 			sallyOptions.CheckinDescription = "making sally's mark on foo.txt";
-			sallyOptions.DoPullFromOthers = false;
-			sallyOptions.DoMergeWithOthers = false;
-			sally.SyncNow(sallyOptions, progress);
-
-			//now she syncs again with the usb key
+			 sallyOptions.RepositorySourcesToTry.Add(usbSource);
 			sallyOptions.DoPullFromOthers = true;
 			sallyOptions.DoMergeWithOthers = true;
-			sallyOptions.RepositoriesToTry.AddRange(sally.KnownRepositories);
 			sally.SyncNow(sallyOptions, progress);
 
 			//bob still doesn't have direct access to sally's repo... it's in some other city
@@ -217,11 +233,10 @@ namespace Chorus.Tests.sync
 			bobOptions.CheckinDescription = "Getting from sally, i hope";
 			bobOptions.DoPullFromOthers = true;
 			bobOptions.DoMergeWithOthers = true;
-			bobOptions.RepositoriesToTry.AddRange(bob.KnownRepositories);
-			bob.SyncNow(bobOptions, progress);
+			bobRepo.SyncNow(bobOptions, progress);
 
 
-			Assert.AreEqual("Sally was here", File.ReadAllText(bobSetup._pathToText));
+			Assert.AreEqual("Sally was here", File.ReadAllText(bobSetup.PathToText));
 
 		}
 
@@ -233,10 +248,16 @@ namespace Chorus.Tests.sync
 
 			bobSetup.ChangeTextFile();
 
-			//Sally gets the usb and starts a repository
-			string sallyRoot = Path.Combine(_pathToTestRoot, "sally");
-			bobSetup.SetupClone(sallyRoot,"sally");
+			//Ok, this is unrealistic, but we just clone Bob onto Sally
+			string sallyMachineRoot = Path.Combine(_pathToTestRoot, "sally");
+			Directory.CreateDirectory(sallyMachineRoot);
+			string sallyProjectRoot = bobSetup.SetupClone(sallyMachineRoot);
+			ProjectFolderConfiguration sallyProject = new ProjectFolderConfiguration(sallyProjectRoot);
+			RepositoryManager sallyRepo = RepositoryManager.FromRootOrChildFolder(sallyProject);
+			sallyRepo.SetUserId("sally");
 
+
+			// bob makes a change and syncs
 			File.WriteAllText(bobSetup._pathToLift, "<lift version='0.12'><entry id='dog'><lexical-unit><form lang='en'><text>dog</text></form></lexical-unit></entry></lift>");
 			SyncOptions bobOptions = new SyncOptions();
 			bobOptions.CheckinDescription = "added 'dog'";
@@ -244,20 +265,18 @@ namespace Chorus.Tests.sync
 			bobOptions.DoPullFromOthers = false; // just want a fast checkin
 			bobSetup.GetManager().SyncNow(bobOptions, progress);
 
-			ProjectFolderConfiguration sallyProject = new ProjectFolderConfiguration(sallyRoot);
-			RepositoryManager sally = RepositoryManager.FromRootOrChildFolder(sallyProject);
-			sally.SetUserId("sally");
-			sally.KnownRepositories.Add(RepositorySource.Create(bobSetup._languageProjectPath, "bob", false));
 
-			//now she modifies a file
-			string sallyPathToLift = Path.Combine(sallyRoot, "lexicon/foo.lift");
+			//now Sally modifies the original file, not having seen Bob's changes yet
+			string sallyPathToLift = Path.Combine(sallyProject.FolderPath, "lexicon/foo.lift");
 			File.WriteAllText(sallyPathToLift, "<lift version='0.12'><entry id='cat'><lexical-unit><form lang='en'><text>cat</text></form></lexical-unit></entry></lift>");
+
+			//Salyy syncs, pulling in Bob's change, and encountering a need to merge (no conflicts)
 			SyncOptions sallyOptions = new SyncOptions();
 			sallyOptions.CheckinDescription = "adding cat";
 			sallyOptions.DoPullFromOthers = true;
 			sallyOptions.DoMergeWithOthers = true;
-			sallyOptions.RepositoriesToTry.AddRange(sally.KnownRepositories);
-			sally.SyncNow(sallyOptions, progress);
+			sallyOptions.RepositorySourcesToTry.Add(RepositorySource.Create(bobSetup.BobSourcePath, "bob's machine", false));
+			sallyRepo.SyncNow(sallyOptions, progress);
 
 			Debug.WriteLine(File.ReadAllText(bobSetup._pathToLift));
 			string contents = File.ReadAllText(sallyPathToLift);

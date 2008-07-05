@@ -52,10 +52,10 @@ namespace Chorus.UI
 		private void _syncTargets_ItemCheck(object sender, ItemCheckEventArgs e)
 		{
 			//this is awkward because at the time of this event, the change hasn't yet been reflected in the CheckItems
-//             _model.RepositoriesToTry.Clear();
+//             _model.RepositorySourcesToTry.Clear();
 //            foreach (RepositorySource descriptor in _syncTargets.CheckedItems)
 //            {
-//                _model.RepositoriesToTry.Add(descriptor);
+//                _model.RepositorySourcesToTry.Add(descriptor);
 //            }
 
 			RepositorySource repositorySource = (RepositorySource) _syncTargets.Items[e.Index];

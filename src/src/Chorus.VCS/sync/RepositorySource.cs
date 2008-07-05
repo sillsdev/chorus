@@ -9,7 +9,7 @@ namespace Chorus.sync
 	public abstract class RepositorySource
 	{
 		protected string _uri;
-		private string _sourceName;
+		private string _sourceLabel;
 
 		/// <summary>
 		/// THis will be false for, say, usb-keys or shared internet repos
@@ -17,24 +17,31 @@ namespace Chorus.sync
 		/// </summary>
 		private bool _readOnly;
 
-		public static RepositorySource Create(string uri, string repoName, bool readOnly)
+		/// <summary>
+		///
+		/// </summary>
+		/// <param name="uri">examples: http://sil.org/chorus, c:\work, UsbKey, //GregSmith/public/language projects</param>
+		/// <param name="sourceName">examples: SIL Language Depot, My Machine, USB Key, Greg</param>
+		/// <param name="readOnly">normally false for local repositories (usb, hard drive) and true for other people's repositories</param>
+		/// <returns></returns>
+		public static RepositorySource Create(string uri, string sourceName, bool readOnly)
 		{
 			if (uri == "UsbKey")
 			{
-				return new UsbKeyRepositorySource(uri, repoName, readOnly);
+				return new UsbKeyRepositorySource(uri, sourceName, readOnly);
 			}
 			if (Directory.Exists(uri))
 			{
-				return new FilePathRepositorySource(uri, repoName, readOnly);
+				return new FilePathRepositorySource(uri, sourceName, readOnly);
 			}
 			else
 				throw new ArgumentException("RepositorySource recognize this kind of uri (" + uri + ")");
 		}
 
-		protected RepositorySource(string uri, string repoName, bool readOnly)
+		protected RepositorySource(string uri, string sourceLabel, bool readOnly)
 		{
 			URI = uri;
-			_sourceName = repoName;
+			_sourceLabel = sourceLabel;
 			ReadOnly = readOnly;
 		}
 
@@ -44,19 +51,13 @@ namespace Chorus.sync
 			set { _uri = value; }
 		}
 
-
-		public override string ToString()
-		{
-			return _uri;
-		}
-
 		/// <summary>
 		/// In the case of a repo sitting on the user's machine, this will be a person's name.
 		/// It might also be the name of the web-based repo
 		/// </summary>
-		public string SourceName
+		public string SourceLabel
 		{
-			get { return _sourceName; }
+			get { return _sourceLabel; }
 		}
 
 		/// <summary>
@@ -71,10 +72,7 @@ namespace Chorus.sync
 
 		public abstract bool CanConnect(string repoName, IProgress progress);
 
-		public virtual string ResolveUri(string name, IProgress progress)
-		{
-			return _uri;// review: haven't decided yet if the uri contain the actual repo name. if not, needs to be added here
-		}
+		public abstract string PotentialRepoUri(string repoName, IProgress progress);
 
 		/// <summary>
 		/// used with usb source
@@ -84,20 +82,31 @@ namespace Chorus.sync
 		{
 			return null;
 		}
+
+
+		public override string ToString()
+		{
+			return SourceLabel;
+		}
 	}
 
 	public class FilePathRepositorySource : RepositorySource
 	{
 
-		public FilePathRepositorySource(string uri, string repoName, bool readOnly)
-			: base(uri, repoName, readOnly)
+		public FilePathRepositorySource(string uri, string sourceLabel, bool readOnly)
+			: base(uri, sourceLabel, readOnly)
 		{
 
 		}
 
+		public override string PotentialRepoUri(string repoName, IProgress progress)
+		{
+			return Path.Combine(_uri, repoName);
+		}
+
 		public override bool CanConnect(string repoName, IProgress progress)
 		{
-			return Directory.Exists(_uri);
+			return Directory.Exists(PotentialRepoUri(repoName, progress));
 		}
 	}
 
@@ -105,22 +114,18 @@ namespace Chorus.sync
 	{
 		internal string PathToPretendUsbKeyForTesting;
 
-		public UsbKeyRepositorySource(string uri, string repoName, bool readOnly)
-			: base(uri, repoName, readOnly)
+		public UsbKeyRepositorySource(string uri, string sourceLabel, bool readOnly)
+			: base(uri, sourceLabel, readOnly)
 		{
 
 		}
 
-		public override string ToString()
-		{
-			return "Usb Key";
-		}
 
 		/// <summary>
 		/// Get a path to use with the version control
 		/// </summary>
 		/// <returns>null if can't find a usb key</returns>
-		public override string ResolveUri(string repoName, IProgress progress)
+		public override string PotentialRepoUri(string repoName, IProgress progress)
 		{
 			if (PathToPretendUsbKeyForTesting != null)
 			{
@@ -175,7 +180,7 @@ namespace Chorus.sync
 		public override bool CanConnect(string repoName, IProgress progress)
 		{
 			progress.WriteStatus("Looking for usb keys with existing repositories...");
-			string path= ResolveUri(repoName, progress);
+			string path= PotentialRepoUri(repoName, progress);
 			return (path != null) && Directory.Exists(path);
 		}
 

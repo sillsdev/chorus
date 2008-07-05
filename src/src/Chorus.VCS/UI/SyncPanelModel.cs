@@ -22,7 +22,7 @@ namespace Chorus.UI
 			_progress = progress;
 
 			RepositoryManager manager = RepositoryManager.FromRootOrChildFolder(_project);
-			RepositoriesToList= manager.KnownRepositories;
+			RepositoriesToList= manager.KnownRepositorySources;
 			RepositoriesToTry.AddRange(RepositoriesToList);
 		}
 
@@ -30,7 +30,7 @@ namespace Chorus.UI
 		{
 			get {
 				return true; //because "checking in" locally is still worth doing
-				//return RepositoriesToTry.Count > 0;
+				//return RepositorySourcesToTry.Count > 0;
 			}
 		}
 
@@ -41,7 +41,7 @@ namespace Chorus.UI
 			SyncOptions options = new SyncOptions();
 			options.DoPullFromOthers = true;
 			options.DoMergeWithOthers = true;
-			options.RepositoriesToTry = RepositoriesToTry;
+			options.RepositorySourcesToTry = RepositoriesToTry;
 
 			manager.SyncNow(options, _progress);
 			SoundPlayer player = new SoundPlayer(@"C:\chorus\src\sounds\finished.wav");

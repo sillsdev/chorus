@@ -179,6 +179,16 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		public virtual void Commit(bool forceCreationOfChangeSet, string message, params object[] args)
 		{
+			//enhance: this is normally going to be redundant, as we always use the same branch.
+			//but it does it set the first time, and handles the case where the user's account changes (either
+			//because they've logged in as a different user, or changed the name of a their account.
+
+			//NB: I (JH) and not yet even clear we need branches, and it makes reading the tree somewhat confusing
+			//If Bob merges with Sally, his new "tip" can very well be labelled "Sally".
+
+			//disabled because then Update failed to get the latest, if it was the other user's branch
+			//      Branch(_userName);
+
 			message = string.Format(message, args);
 			using (new ConsoleProgress("{0} committing with comment: {1}", _userName, message))
 			{

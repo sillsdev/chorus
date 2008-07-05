@@ -57,6 +57,13 @@ namespace Chorus.VcsDrivers.Mercurial
 			{
 				UpdateFake();
 			}
+
+			//enhance: this is normally going to be redundant, as we always use the same branch.
+			//but it does it set the first time, and handles the case where the user's account changes (either
+			//because they've logged in as a different user, or changed the name of a their account.
+
+			Branch(_userName);
+
 			message = string.Format(message, args);
 			using (new ConsoleProgress("{0} committing with comment: {1}", _userName, message))
 			{

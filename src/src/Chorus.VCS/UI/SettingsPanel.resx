@@ -117,9 +117,6 @@
   <resheader name="writer">
 	<value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="label2.Text" xml:space="preserve">
-	<value>You can have multiple USB keys (flash drives) to sync with. Insert one and then click this button.  This only needs to be done to the drive once.  After that, if it is found during a sync, the key will participate in the sync, both recording your latest work and delivering all the teams work that has been synced with this key.</value>
-  </data>
   <data name="label3.Text" xml:space="preserve">
 	<value>When two or more people edit the same field, this is called a 'conflict'. When conflicts occur, Chorus must choose which value to keep, and which to drop. The dropped value is recorded and added to the repository, so that someone on the team can review and act upon it later. Unless you check this button, Chorus will choose to drop this user's work when he syncs and there are incoming conflicts. </value>
   </data>

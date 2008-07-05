@@ -47,17 +47,17 @@ namespace Chorus.Tests.sync
 //        }
 
 		[Test]
-		public void SyncNow_OnlyBlankFauxUsbAvailable_UsbGetsClone()
+		public void SyncNow_OnlyABlankFauxUsbAvailable_UsbGetsClone()
 		{
 			RepositoryManager manager = RepositoryManager.FromRootOrChildFolder(_project);
 
 			string pathToFauxUsbRoot = Path.Combine(_pathToTestRoot, "usb");
 			Directory.CreateDirectory(pathToFauxUsbRoot);
 
-			UsbKeyRepositorySource usbSource = manager.KnownRepositories[0] as UsbKeyRepositorySource;
+			UsbKeyRepositorySource usbSource = manager.KnownRepositorySources[0] as UsbKeyRepositorySource;
 			usbSource.PathToPretendUsbKeyForTesting=pathToFauxUsbRoot;
 			SyncOptions options = new SyncOptions();
-			options.RepositoriesToTry.Add(usbSource);
+			options.RepositorySourcesToTry.Add(usbSource);
 
 			WriteTestFile("version two");
 
@@ -77,11 +77,11 @@ namespace Chorus.Tests.sync
 			string pathToFauxUsbRoot = Path.Combine(_pathToTestRoot, "usb");
 			Directory.CreateDirectory(pathToFauxUsbRoot);
 
-			UsbKeyRepositorySource usbSource = manager.KnownRepositories[0] as UsbKeyRepositorySource;
+			UsbKeyRepositorySource usbSource = manager.KnownRepositorySources[0] as UsbKeyRepositorySource;
 			usbSource.PathToPretendUsbKeyForTesting = pathToFauxUsbRoot;
 
 
-			options.RepositoriesToTry.Add(usbSource);
+			options.RepositorySourcesToTry.Add(usbSource);
 			string dir = Path.Combine(pathToFauxUsbRoot, "foo project");
 			manager.MakeClone(dir, true, _progress);
 			string contents = File.ReadAllText(Path.Combine(dir, "foo.txt"));
@@ -90,6 +90,29 @@ namespace Chorus.Tests.sync
 			manager.SyncNow(options, _progress);
 			contents = File.ReadAllText(Path.Combine(dir, "foo.txt"));
 			Assert.AreEqual("version two", contents);
+		}
+
+		/// <summary>
+		/// Here, we're testing the scenario where the user specifies a backup location, like an sd card at z:\
+		/// </summary>
+		[Test]
+		public void FileSource_NotSetupBefore_GetsClone()
+		{
+			RepositoryManager manager = RepositoryManager.FromRootOrChildFolder(_project);
+
+			string pathToBackupFolder = Path.Combine(_pathToTestRoot, "backup");
+			Directory.CreateDirectory(pathToBackupFolder);
+
+			FilePathRepositorySource source = new FilePathRepositorySource(pathToBackupFolder, "SD Backup Card" , false);
+			SyncOptions options = new SyncOptions();
+			options.RepositorySourcesToTry.Add(source);
+
+			WriteTestFile("version two");
+
+			manager.SyncNow(options, _progress);
+			string dir = Path.Combine(pathToBackupFolder, "foo project");
+			Assert.IsTrue(Directory.Exists(dir));
+
 		}
 	}
 }

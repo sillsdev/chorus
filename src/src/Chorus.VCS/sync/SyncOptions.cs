@@ -7,7 +7,7 @@ namespace Chorus.sync
 		private bool _doPullFromOthers;
 		private bool _doMergeWithOthers;
 		private string _checkinDescription;
-		public List<RepositorySource> RepositoriesToTry=new List<RepositorySource>();
+		public List<RepositorySource> RepositorySourcesToTry=new List<RepositorySource>();
 
 		public SyncOptions()
 		{

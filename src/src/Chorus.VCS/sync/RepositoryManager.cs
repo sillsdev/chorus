@@ -14,12 +14,12 @@ namespace Chorus.sync
 		private string _localRepositoryPath;
 		private ProjectFolderConfiguration _project;
 
-		private List<RepositorySource> _knownRepositories=new List<RepositorySource>();
+		private List<RepositorySource> _knownRepositorySources=new List<RepositorySource>();
 
-		public List<RepositorySource> KnownRepositories
+		public List<RepositorySource> KnownRepositorySources
 		{
-			get { return _knownRepositories; }
-			set { _knownRepositories = value; }
+			get { return _knownRepositorySources; }
+			set { _knownRepositorySources = value; }
 		}
 
 		public string RepoProjectName
@@ -95,26 +95,26 @@ namespace Chorus.sync
 			progress.WriteStatus("Checking In...");
 			repo.AddAndCheckinFiles(_project.IncludePatterns, _project.ExcludePatterns, options.CheckinDescription);
 
-			List<RepositorySource> repositoriesToTry = options.RepositoriesToTry;
+			List<RepositorySource> repositoriesToTry = options.RepositorySourcesToTry;
 
 			//if the client didn't specify any, try them all
 //            no, don't do that.  It's reasonable to just be doing a local checkin
 //            if(repositoriesToTry==null || repositoriesToTry.Count == 0)
-//                repositoriesToTry = KnownRepositories;
+//                repositoriesToTry = KnownRepositorySources;
 
 			if (options.DoPullFromOthers)
 			{
 				progress.WriteStatus("Pulling...");
 				foreach (RepositorySource repoDescriptor in repositoriesToTry)
 				{
-					string resolvedUri = repoDescriptor.ResolveUri(RepoProjectName, progress);
+					string resolvedUri = repoDescriptor.PotentialRepoUri(RepoProjectName, progress);
 					if (repoDescriptor.CanConnect(RepoProjectName, progress))
 					{
 						repo.TryToPull(resolvedUri);
 					}
 					else
 					{
-						progress.WriteMessage("Could not connect to {0} at {1} for pulling", repoDescriptor.SourceName, resolvedUri);
+						progress.WriteMessage("Could not connect to {0} at {1} for pulling", RepoProjectName, resolvedUri);
 					}
 				}
 			}
@@ -128,10 +128,10 @@ namespace Chorus.sync
 				{
 					if (!repoDescriptor.ReadOnly)
 					{
-						string resolvedUri = repoDescriptor.ResolveUri(RepoProjectName, progress);
+						string resolvedUri = repoDescriptor.PotentialRepoUri(RepoProjectName, progress);
 						if (repoDescriptor.CanConnect(RepoProjectName, progress))
 						{
-							progress.WriteMessage("Pushing local repository to {0}", repoDescriptor.SourceName);
+							progress.WriteMessage("Pushing local repository to {0} at {1}", RepoProjectName, resolvedUri);
 							repo.Push(resolvedUri, progress, results);
 						}
 						else
@@ -159,7 +159,7 @@ namespace Chorus.sync
 			if (possibleRepoCloneUris == null)
 			{
 				progress.WriteMessage("No Uris available for cloning to {0}",
-									  repoDescriptor.SourceName);
+									  repoDescriptor.SourceLabel);
 				return null;
 			}
 			else
@@ -168,7 +168,7 @@ namespace Chorus.sync
 				{
 					try
 					{
-						progress.WriteStatus("Making repository on {0} at {1}...", repoDescriptor.SourceName, uri);
+						progress.WriteStatus("Making repository on {0} at {1}...", repoDescriptor.SourceLabel, uri);
 						MakeClone(uri, true, progress);
 						progress.WriteStatus("Done.");
 						return uri;
@@ -207,22 +207,32 @@ namespace Chorus.sync
 			_project = project;
 			_localRepositoryPath = localRepositoryPath;
 
-			KnownRepositories.Add(RepositorySource.Create("UsbKey", "UsbKey", false));
+			KnownRepositorySources.Add(RepositorySource.Create("UsbKey", "UsbKey", false));
 		}
 
 
-		public void MakeClone(string path, bool alsoDoCheckout, IProgress progress)
+		public string MakeClone(string newDirectory, bool alsoDoCheckout, IProgress progress)
 		{
-			HgRepository local = new HgRepository(_localRepositoryPath, progress);
-			using (new ConsoleProgress("Creating repository clone at {0}", path))
+			if (Directory.Exists(newDirectory))
 			{
-				local.Clone(path);
+				throw new ArgumentException(String.Format("The newDirectory must not already exist ({0})", newDirectory));
+			}
+			string parent = Directory.GetParent(newDirectory).FullName;
+			if (!Directory.Exists(parent))
+			{
+				throw new ArgumentException(String.Format("The parent of the given newDirectory must already exist ({0})", parent));
+			}
+			HgRepository local = new HgRepository(_localRepositoryPath, progress);
+			using (new ConsoleProgress("Creating repository clone at {0}", newDirectory))
+			{
+				local.Clone(newDirectory);
 				if(alsoDoCheckout)
 				{
 				   // string userIdForCLone = string.Empty; /* don't assume it's this user... a repo on a usb key probably shouldn't have a user default */
-					HgRepository clone = new HgRepository(path, progress);
+					HgRepository clone = new HgRepository(newDirectory, progress);
 					clone.Update();
 				}
+				return newDirectory;
 			}
 		}
 

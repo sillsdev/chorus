@@ -33,8 +33,6 @@ namespace Chorus.UI
 			this.checkBox2 = new System.Windows.Forms.CheckBox();
 			this.textBox2 = new System.Windows.Forms.TextBox();
 			this.label1 = new System.Windows.Forms.Label();
-			this.button1 = new System.Windows.Forms.Button();
-			this.label2 = new System.Windows.Forms.Label();
 			this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
 			this.label3 = new System.Windows.Forms.Label();
 			this.label4 = new System.Windows.Forms.Label();
@@ -60,7 +58,7 @@ namespace Chorus.UI
 			//
 			this.checkBox2.AutoSize = true;
 			this.checkBox2.Enabled = false;
-			this.checkBox2.Location = new System.Drawing.Point(13, 255);
+			this.checkBox2.Location = new System.Drawing.Point(13, 242);
 			this.checkBox2.Name = "checkBox2";
 			this.checkBox2.Padding = new System.Windows.Forms.Padding(0, 10, 0, 0);
 			this.checkBox2.Size = new System.Drawing.Size(233, 27);
@@ -71,7 +69,7 @@ namespace Chorus.UI
 			// textBox2
 			//
 			this.textBox2.Enabled = false;
-			this.textBox2.Location = new System.Drawing.Point(13, 331);
+			this.textBox2.Location = new System.Drawing.Point(13, 318);
 			this.textBox2.Multiline = true;
 			this.textBox2.Name = "textBox2";
 			this.textBox2.Size = new System.Drawing.Size(239, 78);
@@ -80,32 +78,12 @@ namespace Chorus.UI
 			// label1
 			//
 			this.label1.AutoSize = true;
-			this.label1.Location = new System.Drawing.Point(13, 285);
+			this.label1.Location = new System.Drawing.Point(13, 272);
 			this.label1.Name = "label1";
 			this.label1.Padding = new System.Windows.Forms.Padding(0, 30, 0, 0);
 			this.label1.Size = new System.Drawing.Size(295, 43);
 			this.label1.TabIndex = 4;
 			this.label1.Text = "Places to look for other repositories to sync with (one per line)";
-			//
-			// button1
-			//
-			this.button1.Enabled = false;
-			this.button1.Location = new System.Drawing.Point(13, 487);
-			this.button1.Name = "button1";
-			this.button1.Size = new System.Drawing.Size(253, 23);
-			this.button1.TabIndex = 5;
-			this.button1.Text = "Prepare USB Flash Drive to serve this repository";
-			this.button1.UseVisualStyleBackColor = true;
-			//
-			// label2
-			//
-			this.label2.AutoSize = true;
-			this.label2.Location = new System.Drawing.Point(13, 412);
-			this.label2.Name = "label2";
-			this.label2.Padding = new System.Windows.Forms.Padding(0, 20, 0, 0);
-			this.label2.Size = new System.Drawing.Size(462, 72);
-			this.label2.TabIndex = 4;
-			this.label2.Text = resources.GetString("label2.Text");
 			//
 			// tableLayoutPanel1
 			//
@@ -114,12 +92,10 @@ namespace Chorus.UI
 			this.tableLayoutPanel1.ColumnCount = 1;
 			this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
 			this.tableLayoutPanel1.Controls.Add(this.checkBox1, 0, 2);
-			this.tableLayoutPanel1.Controls.Add(this.button1, 0, 8);
 			this.tableLayoutPanel1.Controls.Add(this.checkBox2, 0, 4);
 			this.tableLayoutPanel1.Controls.Add(this.label3, 0, 3);
 			this.tableLayoutPanel1.Controls.Add(this.textBox2, 0, 6);
 			this.tableLayoutPanel1.Controls.Add(this.label1, 0, 5);
-			this.tableLayoutPanel1.Controls.Add(this.label2, 0, 7);
 			this.tableLayoutPanel1.Controls.Add(this.label4, 0, 1);
 			this.tableLayoutPanel1.Controls.Add(this.flowLayoutPanel1, 0, 0);
 			this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -146,7 +122,7 @@ namespace Chorus.UI
 			this.label3.Location = new System.Drawing.Point(13, 157);
 			this.label3.Name = "label3";
 			this.label3.Padding = new System.Windows.Forms.Padding(0, 30, 0, 0);
-			this.label3.Size = new System.Drawing.Size(447, 95);
+			this.label3.Size = new System.Drawing.Size(479, 82);
 			this.label3.TabIndex = 4;
 			this.label3.Text = resources.GetString("label3.Text");
 			//
@@ -156,7 +132,7 @@ namespace Chorus.UI
 			this.label4.Location = new System.Drawing.Point(13, 42);
 			this.label4.Name = "label4";
 			this.label4.Padding = new System.Windows.Forms.Padding(0, 30, 0, 10);
-			this.label4.Size = new System.Drawing.Size(456, 92);
+			this.label4.Size = new System.Drawing.Size(476, 92);
 			this.label4.TabIndex = 4;
 			this.label4.Text = resources.GetString("label4.Text");
 			//
@@ -168,7 +144,7 @@ namespace Chorus.UI
 			this.flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.flowLayoutPanel1.Location = new System.Drawing.Point(13, 13);
 			this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-			this.flowLayoutPanel1.Size = new System.Drawing.Size(462, 26);
+			this.flowLayoutPanel1.Size = new System.Drawing.Size(479, 26);
 			this.flowLayoutPanel1.TabIndex = 6;
 			//
 			// label5
@@ -210,8 +186,6 @@ namespace Chorus.UI
 		private System.Windows.Forms.CheckBox checkBox2;
 		private System.Windows.Forms.TextBox textBox2;
 		private System.Windows.Forms.Label label1;
-		private System.Windows.Forms.Button button1;
-		private System.Windows.Forms.Label label2;
 		private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
 		private System.Windows.Forms.Label label3;
 		private System.Windows.Forms.Label label4;
