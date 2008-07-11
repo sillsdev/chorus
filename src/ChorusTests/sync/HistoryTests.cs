@@ -51,7 +51,11 @@ namespace Chorus.Tests.sync
 		public void AfterSyncingTwoTimes_CorrectHistory()
 		{
 			RepositoryManager repo = new RepositoryManager(_project.FolderPath, _project, "bob");
-			SyncOptions options = new SyncOptions { DoPullFromOthers = false, DoMergeWithOthers = false, CheckinDescription = "first one", DoPushToLocalSources = false};
+			SyncOptions options = new SyncOptions();
+			options.DoPullFromOthers = false;
+			options.DoMergeWithOthers = false;
+			options.CheckinDescription = "first one";
+			options.DoPushToLocalSources = false;
 
 			repo.SyncNow(options, _progress);
 			File.WriteAllText(_pathToText, "version two of my pretend txt");
