@@ -62,12 +62,15 @@ namespace Chorus.Tests.merge.xml
 		public void TextElement_OneAdded()
 		{
 			CheckBothWaysNoConflicts("<r><t>hello</t></r>", "<r/>", "<r/>",
+									 "r[count(t)=1]",
 									 "r/t[text()='hello']");
 
 			CheckBothWaysNoConflicts("<r><t>hello</t></r>", "<r><t/></r>", "<r/>",
+									 "r[count(t)=1]",
 									 "r/t[text()='hello']");
 
 			CheckBothWaysNoConflicts("<r><t>hello</t></r>", "<r><t/></r>", "<r><t/></r>",
+									 "r[count(t)=1]",
 									 "r/t[text()='hello']");
 		}
 
@@ -138,9 +141,16 @@ namespace Chorus.Tests.merge.xml
 								</b>
 							</a>";
 
-			CheckBothWaysNoConflicts(red, blue, ancestor,
+			// blue wins
+			MergeResult r = CheckOneWay(blue, red, ancestor,
 									 "a/b[@key='one']/c[text()='first']",
 									 "a/b[@key='two']/c[text()='second']");
+			Assert.AreEqual(typeof(AmbiguousInsertConflict), r.Conflicts[0].GetType());
+			// red wins (they will be in a different order, but we don't care which)
+			MergeResult r2 = CheckOneWay(red, blue, ancestor,
+									 "a/b[@key='one']/c[text()='first']",
+									 "a/b[@key='two']/c[text()='second']");
+			Assert.AreEqual(typeof(AmbiguousInsertConflict), r2.Conflicts[0].GetType());
 		}
 
 		[Test]
@@ -189,11 +199,15 @@ namespace Chorus.Tests.merge.xml
 									 "a/b[@key='one']/c[text()='first']");
 		}
 
+		// JohnT: changed <c> elements to <t>. Otherwise, since c expects a key, <c/> does not 'correspond'
+		// to <c>first</c>, and the merger tries to insert both, and we get an ambiguous insert exception.
+		// Review JohnH(JohnT): should the FindByKeyAttribute also allow a secondary match on a keyless
+		// empty element?
 		[Test]
 		public void OnePutTextContentInPreviouslyElement()
 		{
 			string red = @"<a>
-								<b key='one'><c/></b>
+								<b key='one'><t/></b>
 							</a>";
 
 			string ancestor = red;
@@ -201,12 +215,12 @@ namespace Chorus.Tests.merge.xml
 
 			string blue = @"<a>
 								<b key='one'>
-									<c>first</c>
+									<t>first</t>
 								</b>
 							</a>";
 
 			CheckBothWaysNoConflicts(red, blue, ancestor,
-									 "a/b[@key='one']/c[text()='first']");
+									 "a/b[@key='one']/t[text()='first']");
 		}
 
 		[Test]
@@ -357,12 +371,514 @@ namespace Chorus.Tests.merge.xml
 								</b>
 							</a>";
 
-			CheckBothWaysNoConflicts(red, blue, ancestor,
+			// blue wins
+			MergeResult r = CheckOneWay(blue, red, ancestor,
 									 "a[count(b)='1']",
 									 "a/b[count(c)='3']",
 									 "a/b[@key='one']/c[text()='first']",
 									 "a/b[@key='one']/c[text()='second']",
 									 "a/b[@key='one']/c[text()='third']");
+			Assert.AreEqual(typeof(AmbiguousInsertConflict), r.Conflicts[0].GetType());
+			// red wins (they will be in a different order, but we don't care which)
+			MergeResult r2 = CheckOneWay(red, blue, ancestor,
+									 "a[count(b)='1']",
+									 "a/b[count(c)='3']",
+									 "a/b[@key='one']/c[text()='first']",
+									 "a/b[@key='one']/c[text()='second']",
+									 "a/b[@key='one']/c[text()='third']");
+			Assert.AreEqual(typeof(AmbiguousInsertConflict), r2.Conflicts[0].GetType());
+		}
+
+		[Test]
+		public void InsertInMiddleInOrder()
+		{
+			string ancestor = @"<a>
+								<b key='one'>
+									<c key='x'>first</c>
+									<c key='y'>second</c>
+							   </b>
+							</a>";
+
+			string red = ancestor;
+
+
+			string blue = @"<a>
+								<b key='one'>
+									<c key='x'>first</c>
+									<c key='z'>third</c>
+									<c key='y'>second</c>
+							   </b>
+							</a>";
+
+			CheckBothWaysNoConflicts(blue, red, ancestor,
+									 "a[count(b)='1']",
+									 "a/b[count(c)='3']",
+									 "a/b[@key='one']/c[1][@key='x' and text()='first']",
+									 "a/b[@key='one']/c[2][@key='z' and text()='third']",
+									 "a/b[@key='one']/c[3][@key='y' and text()='second']");
+
+		}
+		[Test]
+		public void InsertAtStartInOrder()
+		{
+			string ancestor = @"<a>
+								<b key='one'>
+									<c key='x'>first</c>
+									<c key='y'>second</c>
+							   </b>
+							</a>";
+
+			string red = ancestor;
+
+
+			string blue = @"<a>
+								<b key='one'>
+									<c key='z'>third</c>
+								   <c key='x'>first</c>
+									 <c key='y'>second</c>
+							   </b>
+							</a>";
+
+			CheckBothWaysNoConflicts(blue, red, ancestor,
+									 "a[count(b)='1']",
+									 "a/b[count(c)='3']",
+									 "a/b[@key='one']/c[1][@key='z' and text()='third']",
+									 "a/b[@key='one']/c[2][@key='x' and text()='first']",
+									 "a/b[@key='one']/c[3][@key='y' and text()='second']");
+
+		}
+
+		[Test]
+		public void InsertAtEndInOrder()
+		{
+			string ancestor = @"<a>
+								<b key='one'>
+									<c key='x'>first</c>
+									<c key='y'>second</c>
+							   </b>
+							</a>";
+
+			string red = ancestor;
+
+
+			string blue = @"<a>
+								<b key='one'>
+								   <c key='x'>first</c>
+									 <c key='y'>second</c>
+									<c key='z'>third</c>
+							   </b>
+							</a>";
+
+			CheckBothWaysNoConflicts(blue, red, ancestor,
+									 "a[count(b)='1']",
+									 "a/b[count(c)='3']",
+									 "a/b[@key='one']/c[1][@key='x' and text()='first']",
+									 "a/b[@key='one']/c[2][@key='y' and text()='second']",
+									 "a/b[@key='one']/c[3][@key='z' and text()='third']");
+		}
+
+		/// <summary>
+		/// Red deletes two adjacent items; blue inserts a new item between them. Output should show the missing
+		/// items deleted and the new one inserted in the right place.
+		/// </summary>
+		[Test]
+		public void DeleteNeighborsAndInsertInOrder()
+		{
+			string ancestor = @"<a>
+								<b key='one'>
+									<c key='a'>first</c>
+									<c key='b'>second</c>
+									<c key='c'>third</c>
+									<c key='d'>fourth</c>
+							   </b>
+							</a>";
+
+			string red = @"<a>
+								<b key='one'>
+									<c key='a'>first</c>
+									<c key='d'>fourth</c>
+							   </b>
+							</a>";
+
+
+			string blue = @"<a>
+								<b key='one'>
+									<c key='a'>first</c>
+									<c key='b'>second</c>
+									<c key='z'>extra</c>
+									<c key='c'>third</c>
+									<c key='d'>fourth</c>
+							   </b>
+							</a>";
+
+			CheckBothWaysNoConflicts(blue, red, ancestor,
+									 "a[count(b)='1']",
+									 "a/b[count(c)='3']",
+									 "a/b[@key='one']/c[1][@key='a' and text()='first']",
+									 "a/b[@key='one']/c[2][@key='z' and text()='extra']",
+									 "a/b[@key='one']/c[3][@key='d' and text()='fourth']");
+		}
+		/// <summary>
+		/// Red inserted at the start, blue at the end. Both should be in the right place.
+		/// </summary>
+		[Test]
+		public void BothInsertedStartEndInOrder()
+		{
+			string ancestor = @"<a>
+								<b key='one'>
+									<c key='a'>first</c>
+									<c key='b'>second</c>
+									<c key='c'>third</c>
+							   </b>
+							</a>";
+
+			string red = @"<a>
+								<b key='one'>
+									<c key='r'>red</c>
+									<c key='a'>first</c>
+									<c key='b'>second</c>
+									<c key='c'>third</c>
+							   </b>
+							</a>";
+
+
+			string blue = @"<a>
+								<b key='one'>
+									<c key='a'>first</c>
+									<c key='b'>second</c>
+									<c key='c'>third</c>
+									<c key='bl'>blue</c>
+							   </b>
+							</a>";
+
+			CheckBothWaysNoConflicts(blue, red, ancestor,
+									 "a[count(b)='1']",
+									 "a/b[count(c)='5']",
+									 "a/b[@key='one']/c[1][@key='r' and text()='red']",
+									 "a/b[@key='one']/c[2][@key='a' and text()='first']",
+									 "a/b[@key='one']/c[3][@key='b' and text()='second']",
+									 "a/b[@key='one']/c[4][@key='c' and text()='third']",
+									 "a/b[@key='one']/c[5][@key='bl' and text()='blue']");
+		}
+		/// <summary>
+		/// Red moved two items and changed one of them, and blue inserted something between them.
+		/// </summary>
+		[Test]
+		public void ReorderModifyAndInsert()
+		{
+			string ancestor = @"<a>
+								<b key='one'>
+									<c key='a'>first</c>
+									<c key='b'>second</c>
+									<c key='c'>third</c>
+									<c key='d'>fourth</c>
+									<c key='e'>fifth</c>
+							   </b>
+							</a>";
+
+			string red = @"<a>
+								<b key='one'>
+									<c key='a'>first</c>
+									<c key='d'>red</c>
+									<c key='e'>fifth</c>
+									<c key='b'>second</c>
+									<c key='c'>third</c>
+							   </b>
+							</a>";
+
+
+			string blue = @"<a>
+								<b key='one'>
+									<c key='a'>first</c>
+									<c key='b'>second</c>
+									<c key='c'>third</c>
+									<c key='d'>fourth</c>
+									<c key='z'>extra</c>
+									<c key='e'>fifth</c>
+							   </b>
+							</a>";
+
+			CheckBothWaysNoConflicts(blue, red, ancestor,
+									 "a[count(b)='1']",
+									 "a/b[count(c)='6']",
+									 "a/b[@key='one']/c[1][@key='a' and text()='first']",
+									 "a/b[@key='one']/c[2][@key='d' and text()='red']",
+									 "a/b[@key='one']/c[3][@key='z' and text()='extra']",
+									 "a/b[@key='one']/c[4][@key='e' and text()='fifth']",
+									 "a/b[@key='one']/c[5][@key='b' and text()='second']",
+									 "a/b[@key='one']/c[6][@key='c' and text()='third']");
+		}
+
+		/// <summary>
+		/// Red deleted an item, and blue modified it. Either way we get a conflict report. Red wins should
+		/// show it deleted, blue wins should show it modified.
+		/// </summary>
+		[Test]
+		public void ElementDeleteAndModifyConflict()
+		{
+			string ancestor = @"<a>
+								<b key='one'>
+									<c key='x'>first</c>
+									<c key='y'>second</c>
+							   </b>
+							</a>";
+
+			string red = @"<a>
+								<b key='one'>
+									<c key='x'>first</c>
+							   </b>
+							</a>";
+
+
+			string blue = @"<a>
+								<b key='one'>
+									<c key='x'>first</c>
+									<c key='y'>blue</c>
+							   </b>
+							</a>";
+
+			// blue wins
+			MergeResult r = CheckOneWay(blue, red, ancestor,
+									"a[count(b)='1']",
+									"a/b[count(c)='2']",
+									"a/b[@key='one']/c[1][@key='x' and text()='first']",
+									"a/b[@key='one']/c[2][@key='y' and text()='blue']");
+			Assert.AreEqual(typeof(RemovedVsEditedElementConflict), r.Conflicts[0].GetType());
+			// red wins
+			MergeResult r2 = CheckOneWay(red, blue, ancestor,
+									 "a[count(b)='1']",
+									 "a/b[count(c)='1']",
+									 "a/b[@key='one']/c[1][@key='x' and text()='first']");
+			Assert.AreEqual(typeof(RemovedVsEditedElementConflict), r2.Conflicts[0].GetType());
+		}
+
+		/// <summary>
+		/// Both re-orderd things differently.
+		/// </summary>
+		[Test]
+		public void ConflictingReorder()
+		{
+			string ancestor = @"<a>
+								<b key='one'>
+									<c key='a'>first</c>
+									<c key='b'>second</c>
+									<c key='c'>third</c>
+									<c key='d'>fourth</c>
+									<c key='e'>fifth</c>
+							   </b>
+							</a>";
+
+			string red = @"<a>
+								<b key='one'>
+									<c key='a'>first</c>
+									<c key='e'>fifth</c>
+									<c key='b'>second</c>
+									<c key='c'>third</c>
+									<c key='d'>fourth</c>
+							   </b>
+							</a>";
+
+
+			string blue = @"<a>
+								<b key='one'>
+									<c key='a'>first</c>
+									<c key='b'>second</c>
+									<c key='c'>third</c>
+									<c key='e'>fifth</c>
+									<c key='d'>fourth</c>
+							   </b>
+							</a>";
+
+			// blue wins
+			MergeResult r = CheckOneWay(blue, red, ancestor,
+									 "a[count(b)='1']",
+									 "a/b[count(c)='5']",
+									 "a/b[@key='one']/c[1][@key='a' and text()='first']",
+									 "a/b[@key='one']/c[2][@key='b' and text()='second']",
+									 "a/b[@key='one']/c[3][@key='c' and text()='third']",
+									 "a/b[@key='one']/c[4][@key='e' and text()='fifth']",
+									 "a/b[@key='one']/c[5][@key='d' and text()='fourth']");
+			Assert.AreEqual(typeof(BothReorderedElementConflict), r.Conflicts[0].GetType());
+			// red wins
+			MergeResult r2 = CheckOneWay(red, blue, ancestor,
+									 "a[count(b)='1']",
+									 "a/b[count(c)='5']",
+									 "a/b[@key='one']/c[1][@key='a' and text()='first']",
+									 "a/b[@key='one']/c[2][@key='e' and text()='fifth']",
+									 "a/b[@key='one']/c[3][@key='b' and text()='second']",
+									 "a/b[@key='one']/c[4][@key='c' and text()='third']",
+									 "a/b[@key='one']/c[5][@key='d' and text()='fourth']");
+			Assert.AreEqual(typeof(BothReorderedElementConflict), r2.Conflicts[0].GetType());
+		}
+
+		/// <summary>
+		/// Both re-ordered things the same way; blue also edited.
+		/// </summary>
+		[Test]
+		public void BothSameReorder()
+		{
+			string ancestor =
+				@"<a>
+						<b key='one'>
+							<c key='a'>first</c>
+							<c key='b'>second</c>
+							<c key='c'>third</c>
+							<c key='d'>fourth</c>
+							<c key='e'>fifth</c>
+					   </b>
+					</a>";
+
+			string red =
+				@"<a>
+						<b key='one'>
+							<c key='a'>first</c>
+							<c key='e'>fifth</c>
+							<c key='b'>second</c>
+							<c key='c'>third</c>
+							<c key='d'>fourth</c>
+					   </b>
+					</a>";
+
+
+			string blue =
+				@"<a>
+						<b key='one'>
+							<c key='a'>first</c>
+							<c key='e'>blue</c>
+							<c key='b'>second</c>
+							<c key='c'>third</c>
+							<c key='d'>fourth</c>
+					   </b>
+					</a>";
+			CheckBothWaysNoConflicts(blue, red, ancestor,
+									 "a[count(b)='1']",
+									 "a/b[count(c)='5']",
+									 "a/b[@key='one']/c[1][@key='a' and text()='first']",
+									 "a/b[@key='one']/c[2][@key='e' and text()='blue']",
+									 "a/b[@key='one']/c[3][@key='b' and text()='second']",
+									 "a/b[@key='one']/c[4][@key='c' and text()='third']",
+									 "a/b[@key='one']/c[5][@key='d' and text()='fourth']");
+		}
+
+		/// <summary>
+		/// Test inserting different things at the same spot. Arguably this is a less serious conflict
+		/// than many others, as all of both inserts happens; but we don't know what the order should be.
+		///
+		/// It is therefore somewhat arbitrary 'their' insert comes before 'ours'. I just made the test
+		/// conform to the current implementation plan.
+		/// </summary>
+		[Test]
+		public void DifferentInsertsAtSamePlaceConflict()
+		{
+			string ancestor = @"<a>
+								<b key='one'>
+									<c key='x'>first</c>
+									<c key='y'>second</c>
+							   </b>
+							</a>";
+
+			string red = @"<a>
+								<b key='one'>
+									<c key='x'>first</c>
+									<c key='r'>red</c>
+									<c key='y'>second</c>
+							   </b>
+							</a>";
+
+
+			string blue = @"<a>
+								<b key='one'>
+									<c key='x'>first</c>
+									<c key='b'>blue</c>
+									<c key='y'>second</c>
+							   </b>
+							</a>";
+
+			// blue wins
+			MergeResult r = CheckOneWay(blue, red, ancestor,
+									 "a[count(b)='1']",
+									 "a/b[count(c)='4']",
+									 "a/b[@key='one']/c[1][@key='x' and text()='first']",
+									 "a/b[@key='one']/c[2][@key='r' and text()='red']",
+									 "a/b[@key='one']/c[3][@key='b' and text()='blue']",
+									 "a/b[@key='one']/c[4][@key='y' and text()='second']");
+			Assert.AreEqual(typeof(AmbiguousInsertConflict), r.Conflicts[0].GetType());
+			// red wins
+			MergeResult r2 = CheckOneWay(red, blue, ancestor,
+									 "a[count(b)='1']",
+									 "a/b[count(c)='4']",
+									 "a/b[@key='one']/c[1][@key='x' and text()='first']",
+									 "a/b[@key='one']/c[2][@key='b' and text()='blue']",
+									 "a/b[@key='one']/c[3][@key='r' and text()='red']",
+									 "a/b[@key='one']/c[4][@key='y' and text()='second']");
+			Assert.AreEqual(typeof(AmbiguousInsertConflict), r2.Conflicts[0].GetType());
+		}
+
+		/// <summary>
+		/// This one is subtle. Red re-ordered fourth before second. Blue inserted something after fourth.
+		/// Since only red re-ordered things, red's order basically wins. But we don't really know whether
+		/// to insert 'z' after 'e' or before 'e', since those are no longer the same position.
+		/// Arbitrarily, after 'd' currently wins out.
+		/// </summary>
+		[Test]
+		public void AmbiguousInsertWhenOtherReordered()
+		{
+			string ancestor = @"<a>
+								<b key='one'>
+									<c key='a'>first</c>
+									<c key='b'>second</c>
+									<c key='c'>third</c>
+									<c key='d'>fourth</c>
+									<c key='e'>fifth</c>
+							   </b>
+							</a>";
+
+			string red = @"<a>
+								<b key='one'>
+									<c key='a'>first</c>
+									<c key='d'>fourth</c>
+									<c key='b'>second</c>
+									<c key='c'>third</c>
+									<c key='e'>fifth</c>
+							   </b>
+							</a>";
+
+
+			string blue = @"<a>
+								<b key='one'>
+									<c key='a'>first</c>
+									<c key='b'>second</c>
+									<c key='c'>third</c>
+									<c key='d'>fourth</c>
+									<c key='z'>blue</c>
+									<c key='e'>fifth</c>
+							   </b>
+							</a>";
+
+			// blue wins
+			MergeResult r = CheckOneWay(blue, red, ancestor,
+									 "a[count(b)='1']",
+									 "a/b[count(c)='6']",
+									 "a/b[@key='one']/c[1][@key='a' and text()='first']",
+									 "a/b[@key='one']/c[2][@key='d' and text()='fourth']",
+									 "a/b[@key='one']/c[3][@key='z' and text()='blue']",
+									 "a/b[@key='one']/c[4][@key='b' and text()='second']",
+									 "a/b[@key='one']/c[5][@key='c' and text()='third']",
+									 "a/b[@key='one']/c[6][@key='e' and text()='fifth']"
+									 );
+			Assert.AreEqual(typeof(AmbiguousInsertReorderConflict), r.Conflicts[0].GetType());
+			// red wins
+			MergeResult r2 = CheckOneWay(red, blue, ancestor,
+										 "a[count(b)='1']",
+										 "a/b[count(c)='6']",
+										 "a/b[@key='one']/c[1][@key='a' and text()='first']",
+										 "a/b[@key='one']/c[2][@key='d' and text()='fourth']",
+										 "a/b[@key='one']/c[3][@key='z' and text()='blue']",
+										 "a/b[@key='one']/c[4][@key='b' and text()='second']",
+										 "a/b[@key='one']/c[5][@key='c' and text()='third']",
+										 "a/b[@key='one']/c[6][@key='e' and text()='fifth']"
+				);
+			Assert.AreEqual(typeof(AmbiguousInsertReorderConflict), r2.Conflicts[0].GetType());
 		}
 	}
 }

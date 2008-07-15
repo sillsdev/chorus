@@ -175,7 +175,7 @@ namespace Chorus.merge.xml.generic
 			}
 		}
 
-		private void MergeTextNodes(ref XmlNode ours, XmlNode theirs, XmlNode ancestor)
+		internal void MergeTextNodes(ref XmlNode ours, XmlNode theirs, XmlNode ancestor)
 		{
 			if (ours.InnerText.Trim() == theirs.InnerText.Trim())
 			{
@@ -214,7 +214,12 @@ namespace Chorus.merge.xml.generic
 					return;
 				}
 				else
-				{   //both edited it. Keep ours.
+				{
+					// We know: ours is different from theirs; ours is not empty; ours is different from ancestor;
+					// theirs is not empty.
+					if (theirs.InnerText == ancestor.InnerText)
+						return; // we edited it, they did not, keep ours.
+					//both edited it. Keep ours, but report conflict.
 					_logger.RegisterConflict(new BothEdittedTextConflict(ours, theirs, ancestor, _mergeStrategies));
 					return;
 				}
@@ -227,97 +232,7 @@ namespace Chorus.merge.xml.generic
 
 		private void MergeChildren(ref XmlNode ours, XmlNode theirs, XmlNode ancestor)
 		{
-			foreach (XmlNode theirChild in theirs.ChildNodes)
-			{
-
-				if(theirChild.NodeType != XmlNodeType.Element && (theirChild.NodeType != XmlNodeType.Text))
-				{
-					if (theirChild.NodeType == XmlNodeType.Whitespace)
-					{
-						continue;
-					}
-					Debug.Fail("We don't know how to merge this type of child: "+theirChild.NodeType.ToString());
-					continue; //we don't know about merging other kinds of things
-				}
-
-
-				IFindNodeToMerge finder = _mergeStrategies.GetMergePartnerFinder(theirChild);
-				XmlNode ourChild = finder.GetNodeToMerge(theirChild, ours);
-				XmlNode ancestorChild = finder.GetNodeToMerge(theirChild, ancestor);
-
-
-				if (theirChild.NodeType == XmlNodeType.Text)
-				{
-					MergeTextNodes(ref ourChild, theirChild, ancestorChild);
-					continue;
-				}
-
-				if (ourChild == null)
-				{
-					if (ancestorChild == null)
-					{
-						ours.AppendChild(XmlUtilities.GetDocumentNodeFromRawXml(theirChild.OuterXml, ours.OwnerDocument));
-					}
-					else if (XmlUtilities.AreXmlElementsEqual(ancestorChild, theirChild))
-					{
-						continue; // we deleted it, they didn't touch it
-					}
-					else //we deleted it, but at the same time, they changed it
-					{
-						_logger.RegisterConflict(new RemovedVsEditedElementConflict(theirChild.Name, null, theirChild, ancestorChild, _mergeStrategies));
-						continue;
-					}
-				}
-				else if ((ancestorChild!=null) && XmlUtilities.AreXmlElementsEqual(ourChild, ancestorChild))
-				{
-					if (XmlUtilities.AreXmlElementsEqual(ourChild, theirChild))
-					{
-						//nothing to do
-						continue;
-					}
-					else //theirs is new
-					{
-						MergeInner(ref ourChild, theirChild, ancestorChild);
-					}
-				}
-				else
-				{
-					MergeInner(ref ourChild, theirChild, ancestorChild);
-				}
-			}
-
-			// deal with their deletions (elements and text)
-			foreach (XmlNode ourChild in ours.ChildNodes)
-			{
-				if (ourChild.NodeType != XmlNodeType.Element && ourChild.NodeType != XmlNodeType.Text)
-				{
-					continue;
-				}
-				IFindNodeToMerge finder = _mergeStrategies.GetMergePartnerFinder(ourChild);
-				XmlNode ancestorChild = finder.GetNodeToMerge(ourChild, ancestor);
-				XmlNode theirChild = finder.GetNodeToMerge(ourChild, theirs);
-
-				if (theirChild == null && ancestorChild != null)
-				{
-					if (XmlUtilities.AreXmlElementsEqual(ourChild, ancestorChild))
-					{
-						ours.RemoveChild(ourChild);
-					}
-					else
-					{
-						if (ourChild.NodeType == XmlNodeType.Element)
-						{
-							_logger.RegisterConflict(
-								new RemovedVsEditedElementConflict(ourChild.Name, ourChild, null, ancestorChild, _mergeStrategies));
-						}
-						else
-						{
-							_logger.RegisterConflict(
-								new RemovedVsEdittedTextConflict(ourChild, null, ancestorChild, _mergeStrategies));
-						}
-					}
-				}
-			}
+			new MergeChildrenMethod(ours, theirs, ancestor, this).Run();
 		}
 
 

@@ -59,36 +59,37 @@ namespace Chorus.merge.xml.lift
 		}
 	}
 
-	public class FindMatchingExampleTranslation : IFindNodeToMerge
-	{
-		public XmlNode GetNodeToMerge(XmlNode nodeToMatch, XmlNode parentToSearchIn)
-		{
-			//todo: this may choke with multiples of the same type!
+	// JohnT: not currently used, and not updated to new interface.
+	//public class FindMatchingExampleTranslation : IFindNodeToMerge
+	//{
+	//    public XmlNode GetNodeToMerge(XmlNode nodeToMatch, XmlNode parentToSearchIn)
+	//    {
+	//        //todo: this may choke with multiples of the same type!
 
-			//enhance... if we could rely on creation date + type, that'd help, but if
-			// it was automatically done, multiple could come in with the same datetime
+	//        //enhance... if we could rely on creation date + type, that'd help, but if
+	//        // it was automatically done, multiple could come in with the same datetime
 
-			string type = XmlUtilities.GetOptionalAttributeString(nodeToMatch, "type");
-			string xpath;
-			if (string.IsNullOrEmpty(type))
-			{
-				xpath = String.Format("translation[not(@type)]");
-			}
-			else
-			{
-				xpath = string.Format("translation[@type='{0}']", type);
-			}
-			XmlNode n= parentToSearchIn.SelectSingleNode(xpath);
-			if (n != null)
-			{
-				return n;
-			}
-			else
-			{
-				//enhance: can we find one with a matching multitext? Maybe one guy just changed the type.
-				return null;
-			}
-		}
+	//        string type = XmlUtilities.GetOptionalAttributeString(nodeToMatch, "type");
+	//        string xpath;
+	//        if (string.IsNullOrEmpty(type))
+	//        {
+	//            xpath = String.Format("translation[not(@type)]");
+	//        }
+	//        else
+	//        {
+	//            xpath = string.Format("translation[@type='{0}']", type);
+	//        }
+	//        XmlNode n= parentToSearchIn.SelectSingleNode(xpath);
+	//        if (n != null)
+	//        {
+	//            return n;
+	//        }
+	//        else
+	//        {
+	//            //enhance: can we find one with a matching multitext? Maybe one guy just changed the type.
+	//            return null;
+	//        }
+	//    }
 
-	}
+	//}
 }

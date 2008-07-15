@@ -192,4 +192,56 @@ namespace Chorus.merge.xml.generic
 			}
 		}
 	}
+
+	internal class BothReorderedElementConflict : ElementConflict
+	{
+		public BothReorderedElementConflict(string elementName, XmlNode ourElement, XmlNode theirElement, XmlNode ancestorElement, MergeStrategies mergeStrategies)
+			: base(elementName, ourElement, theirElement, ancestorElement, mergeStrategies)
+		{
+		}
+
+		public override string ConflictTypeHumanName
+		{
+			get { return "Both Reordered Conflict"; }
+		}
+
+		public override string WhatHappened
+		{
+			get { return "Since we last synchronized, you and they both reordered the children of this element in different ways"; }
+		}
+	}
+
+	internal class AmbiguousInsertConflict : ElementConflict
+	{
+		public AmbiguousInsertConflict(string elementName, XmlNode ourElement, XmlNode theirElement, XmlNode ancestorElement, MergeStrategies mergeStrategies) : base(elementName, ourElement, theirElement, ancestorElement, mergeStrategies)
+		{
+		}
+
+		public override string ConflictTypeHumanName
+		{
+			get { return "Ambiguous Insert Warning"; }
+		}
+
+		public override string WhatHappened
+		{
+			get { return "Since we last synchronized, you and they both inserted material in this element in the same place. We cannot be sure of the correct order for the inserted material."; }
+		}
+	}
+	internal class AmbiguousInsertReorderConflict : ElementConflict
+	{
+		public AmbiguousInsertReorderConflict(string elementName, XmlNode ourElement, XmlNode theirElement, XmlNode ancestorElement, MergeStrategies mergeStrategies)
+			: base(elementName, ourElement, theirElement, ancestorElement, mergeStrategies)
+		{
+		}
+
+		public override string ConflictTypeHumanName
+		{
+			get { return "Ambiguous Insert Reorder Warning"; }
+		}
+
+		public override string WhatHappened
+		{
+			get { return "Since we last synchronized, someone inserted material in this element, but the other user re-ordered things. We cannot be sure of the correct position for the inserted material."; }
+		}
+	}
 }
