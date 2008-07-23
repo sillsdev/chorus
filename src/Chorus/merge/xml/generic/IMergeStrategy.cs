@@ -8,6 +8,6 @@ namespace Chorus.merge.xml.generic
 	/// </summary>
 	public interface IMergeStrategy
 	{
-		string MakeMergedEntry(XmlNode ourEntry, XmlNode theirEntry, XmlNode commonEntry);
+		string MakeMergedEntry(IMergeEventListener eventListener, XmlNode ourEntry, XmlNode theirEntry, XmlNode commonEntry);
 	}
 }

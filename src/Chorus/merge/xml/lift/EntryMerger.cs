@@ -52,10 +52,10 @@ namespace Chorus.merge.xml.lift
 			return strategy;
 		}
 
-		public string MakeMergedEntry(XmlNode ourEntry, XmlNode theirEntry, XmlNode commonEntry)
+		public string MakeMergedEntry(IMergeEventListener listener, XmlNode ourEntry, XmlNode theirEntry, XmlNode commonEntry)
 		{
-			MergeResult r = _entryMerger.Merge(ourEntry, theirEntry, commonEntry);
-			return r.MergedNode.OuterXml;
+			XmlNode n = _entryMerger.Merge(listener, ourEntry, theirEntry, commonEntry);
+			return n.OuterXml;
 		}
 	}
 

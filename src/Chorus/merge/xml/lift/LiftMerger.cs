@@ -30,6 +30,7 @@ namespace Chorus.merge.xml.lift
 		private readonly XmlDocument _theirDom;
 		private readonly XmlDocument _ancestorDom;
 		private IMergeStrategy _mergingStrategy;
+		public IMergeEventListener EventListener;
 
 
 		public LiftMerger(IMergeStrategy mergeStrategy, string ourLiftPath, string theirLiftPath, string ancestorLiftPath)
@@ -110,7 +111,7 @@ namespace Chorus.merge.xml.lift
 			else
 			{
 				XmlNode commonEntry = FindEntry(_ancestorDom, id);
-				writer.WriteRaw(_mergingStrategy.MakeMergedEntry(ourEntry, theirEntry, commonEntry));
+				writer.WriteRaw(_mergingStrategy.MakeMergedEntry(this.EventListener, ourEntry, theirEntry, commonEntry));
 			}
 			_processedIds.Add(id);
 		}

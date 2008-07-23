@@ -5,13 +5,13 @@ using Chorus.merge.xml.generic;
 
 namespace Chorus.merge.xml.generic
 {
-	public class MergeResult
+	public class NodeMergeResult : IMergeEventListener
 	{
 		private XmlNode _mergedNode;
 		private IList<IConflict> _conflicts;
 		//enhance: add list of changed entries to speed up import into db backends
 
-		public MergeResult()
+		public NodeMergeResult()
 		{
 			_conflicts = new List<IConflict>();
 		}
@@ -30,11 +30,16 @@ namespace Chorus.merge.xml.generic
 			get { return _conflicts; }
 			set { _conflicts = value; }
 		}
+
+		public void ConflictOccurred(IConflict conflict)
+		{
+			_conflicts.Add(conflict);
+		}
 	}
 
 	public class XmlMerger
 	{
-		public IMergeLogger _logger;
+		public IMergeEventListener _eventListener;
 		public MergeStrategies _mergeStrategies;
 
 		public XmlMerger()
@@ -43,13 +48,32 @@ namespace Chorus.merge.xml.generic
 
 		}
 
-		public MergeResult Merge(XmlNode ours, XmlNode theirs, XmlNode ancestor)
+
+		/// <summary>
+		/// use for tests
+		/// </summary>
+		/// <param name="ours"></param>
+		/// <param name="theirs"></param>
+		/// <param name="ancestor"></param>
+		/// <returns></returns>
+		public NodeMergeResult Merge(XmlNode ours, XmlNode theirs, XmlNode ancestor)
 		{
-			MergeResult result = new MergeResult();
-			_logger = new MergeLogger(result.Conflicts);
+			NodeMergeResult result = new NodeMergeResult();
+			DispatchingMergeEventListener dispatcher= new DispatchingMergeEventListener();
+			dispatcher.AddEventListener(result);
+			_eventListener = dispatcher;
 			MergeInner(ref ours, theirs, ancestor);
 			result.MergedNode = ours;
 			return result;
+		}
+
+		//review: don't know if this is going to want the result or not
+
+		public XmlNode Merge(IMergeEventListener eventListener, XmlNode ours, XmlNode theirs, XmlNode ancestor)
+		{
+			_eventListener = eventListener;
+			MergeInner(ref ours, theirs, ancestor);
+			return ours;
 		}
 
 		public void MergeInner(ref XmlNode ours, XmlNode theirs, XmlNode ancestor)
@@ -58,7 +82,7 @@ namespace Chorus.merge.xml.generic
 			MergeChildren(ref ours,theirs,ancestor);
 		}
 
-		public MergeResult Merge(string ours, string theirs, string ancestor)
+		public NodeMergeResult Merge(string ours, string theirs, string ancestor)
 		{
 			XmlDocument doc = new XmlDocument();
 			XmlNode ourNode = XmlUtilities.GetDocumentNodeFromRawXml(ours, doc);
@@ -110,7 +134,7 @@ namespace Chorus.merge.xml.generic
 						//needs a test first
 
 						//until then, this is a conflict
-						_logger.RegisterConflict(new RemovedVsEditedAttributeConflict(theirAttr.Name, null, theirAttr.Value, ancestorAttr.Value, _mergeStrategies));
+						_eventListener.ConflictOccurred(new RemovedVsEditedAttributeConflict(theirAttr.Name, null, theirAttr.Value, ancestorAttr.Value, _mergeStrategies));
 						continue;
 					}
 				}
@@ -123,7 +147,7 @@ namespace Chorus.merge.xml.generic
 					}
 					else
 					{
-						_logger.RegisterConflict(new BothEdittedAttributeConflict(theirAttr.Name, ourAttr.Value, theirAttr.Value, null,  _mergeStrategies));
+						_eventListener.ConflictOccurred(new BothEdittedAttributeConflict(theirAttr.Name, ourAttr.Value, theirAttr.Value, null,  _mergeStrategies));
 					}
 				}
 				else if (ancestorAttr.Value == ourAttr.Value)
@@ -150,7 +174,7 @@ namespace Chorus.merge.xml.generic
 				}
 				else
 				{
-					_logger.RegisterConflict(new BothEdittedAttributeConflict(theirAttr.Name, ourAttr.Value, theirAttr.Value, ancestorAttr.Value, _mergeStrategies));
+					_eventListener.ConflictOccurred(new BothEdittedAttributeConflict(theirAttr.Name, ourAttr.Value, theirAttr.Value, ancestorAttr.Value, _mergeStrategies));
 				}
 			}
 
@@ -169,7 +193,7 @@ namespace Chorus.merge.xml.generic
 					}
 					else
 					{
-						_logger.RegisterConflict(new RemovedVsEditedAttributeConflict(ourAttr.Name, ourAttr.Value, null, ancestorAttr.Value, _mergeStrategies));
+						_eventListener.ConflictOccurred(new RemovedVsEditedAttributeConflict(ourAttr.Name, ourAttr.Value, null, ancestorAttr.Value, _mergeStrategies));
 					}
 				}
 			}
@@ -198,7 +222,7 @@ namespace Chorus.merge.xml.generic
 					else
 					{
 						//they edited it. Keep our removal.
-						_logger.RegisterConflict(new RemovedVsEdittedTextConflict(ours, theirs, ancestor, _mergeStrategies));
+						_eventListener.ConflictOccurred(new RemovedVsEdittedTextConflict(ours, theirs, ancestor, _mergeStrategies));
 						return;
 					}
 				}
@@ -210,7 +234,7 @@ namespace Chorus.merge.xml.generic
 				if (theirs.InnerText == null || string.IsNullOrEmpty(theirs.InnerText.Trim()))
 				{
 					//we edited, they deleted it. Keep ours.
-					_logger.RegisterConflict(new RemovedVsEdittedTextConflict(ours, theirs, ancestor, _mergeStrategies));
+					_eventListener.ConflictOccurred(new RemovedVsEdittedTextConflict(ours, theirs, ancestor, _mergeStrategies));
 					return;
 				}
 				else
@@ -220,7 +244,7 @@ namespace Chorus.merge.xml.generic
 					if (theirs.InnerText == ancestor.InnerText)
 						return; // we edited it, they did not, keep ours.
 					//both edited it. Keep ours, but report conflict.
-					_logger.RegisterConflict(new BothEdittedTextConflict(ours, theirs, ancestor, _mergeStrategies));
+					_eventListener.ConflictOccurred(new BothEdittedTextConflict(ours, theirs, ancestor, _mergeStrategies));
 					return;
 				}
 			}

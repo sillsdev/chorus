@@ -10,7 +10,7 @@ namespace Chorus.merge.xml.generic
 	/// </summary>
 	public class PoorMansMergeStrategy : IMergeStrategy
 	{
-		public string MakeMergedEntry(XmlNode ourEntry, XmlNode theirEntry, XmlNode unusedCommonEntry)
+		public string MakeMergedEntry(IMergeEventListener listener, XmlNode ourEntry, XmlNode theirEntry, XmlNode unusedCommonEntry)
 		{
 			XmlNode mergeNoteFieldNode = ourEntry.OwnerDocument.CreateElement("field");
 			LiftMerger.AddAttribute(mergeNoteFieldNode, "type", "mergeConflict");

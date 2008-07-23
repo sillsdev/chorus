@@ -1,5 +1,6 @@
 using System;
 using Chorus.merge;
+using Chorus.merge.xml.generic;
 
 namespace ChorusMerge
 {
@@ -16,7 +17,20 @@ namespace ChorusMerge
 		{
 			try
 			{
-				MergeDispatcher.MergeOrder order = new MergeDispatcher.MergeOrder(args[0], args[1], args[2]);
+				 MergeOrder.ConflictHandlingMode mode = MergeOrder.ConflictHandlingMode.WeWin;
+
+				//we have to get this argument out of the environment variables because we have not control of the arguments
+				//the dvcs system is going to use to call us. So whoever invokes the dvcs needs to set this variable ahead of time
+				string modeString = Environment.GetEnvironmentVariable(MergeOrder.kConflictHandlingModeEnvVarName);
+				if (!string.IsNullOrEmpty(modeString))
+				{
+
+					mode =
+						(MergeOrder.ConflictHandlingMode)
+						Enum.Parse(typeof (MergeOrder.ConflictHandlingMode), modeString);
+				}
+
+				MergeOrder order = new MergeOrder(mode, args[0], args[1], args[2]);
 				return MergeDispatcher.Go(order);
 			}
 			catch (Exception e)

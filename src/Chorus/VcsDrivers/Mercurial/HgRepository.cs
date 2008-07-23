@@ -355,7 +355,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			ExecutionResult result = null;
 			using (new ShortTermEnvironmentalVariable("HGMERGE", Path.Combine(Other.DirectoryOfExecutingAssembly, "ChorusMerge.exe")))
 			{
-				using (new ShortTermEnvironmentalVariable(MergeDispatcher.MergeOrder.kConflictHandlingModeEnvVarName, MergeDispatcher.MergeOrder.ConflictHandlingMode.TheyWin.ToString()))
+				using (new ShortTermEnvironmentalVariable(MergeOrder.kConflictHandlingModeEnvVarName, MergeOrder.ConflictHandlingMode.TheyWin.ToString()))
 
 				{
 					result = Execute(true, "merge", _pathToRepository, "-r", theirHead._revision);

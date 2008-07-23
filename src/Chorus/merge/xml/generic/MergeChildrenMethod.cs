@@ -54,7 +54,7 @@ namespace Chorus.merge.xml.generic
 					if (ancestorOursOrderer.OrderIsDifferent)
 					{
 						// stick with our orderer (we win), but report conflict.
-						_merger._logger.RegisterConflict(new BothReorderedElementConflict(_ours.Name, _ours,
+						_merger._eventListener.ConflictOccurred(new BothReorderedElementConflict(_ours.Name, _ours,
 							_theirs, _ancestor, _merger._mergeStrategies));
 					}
 					else
@@ -69,12 +69,12 @@ namespace Chorus.merge.xml.generic
 			if (!resultOrderer.OrderIsConsistent ||
 				(resultOrderer.OrderIsDifferent && resultOrderer.OrderIsAmbiguous))
 			{
-				_merger._logger.RegisterConflict(new AmbiguousInsertReorderConflict(_ours.Name, _ours,
+				_merger._eventListener.ConflictOccurred(new AmbiguousInsertReorderConflict(_ours.Name, _ours,
 					_theirs, _ancestor, _merger._mergeStrategies));
 			}
 			else if (resultOrderer.OrderIsAmbiguous)
 			{
-				_merger._logger.RegisterConflict(new AmbiguousInsertConflict(_ours.Name, _ours,
+				_merger._eventListener.ConflictOccurred(new AmbiguousInsertConflict(_ours.Name, _ours,
 					_theirs, _ancestor, _merger._mergeStrategies));
 			}
 
@@ -152,7 +152,7 @@ namespace Chorus.merge.xml.generic
 			//            }
 			//            else //we deleted it, but at the same time, they changed it
 			//            {
-			//                _merger._logger.RegisterConflict(new RemovedVsEditedElementConflict(theirChild.Name, null,
+			//                _merger.EventListener.ConflictOccurred(new RemovedVsEditedElementConflict(theirChild.Name, null,
 			//                    theirChild, ancestorChild, _merger._mergeStrategies));
 			//                continue;
 			//            }
@@ -196,13 +196,13 @@ namespace Chorus.merge.xml.generic
 			//        {
 			//            if (ourChild.NodeType == XmlNodeType.Element)
 			//            {
-			//                _merger._logger.RegisterConflict(
+			//                _merger.EventListener.ConflictOccurred(
 			//                    new RemovedVsEditedElementConflict(ourChild.Name, ourChild, null, ancestorChild,
 			//                    _merger._mergeStrategies));
 			//            }
 			//            else
 			//            {
-			//                _merger._logger.RegisterConflict(
+			//                _merger.EventListener.ConflictOccurred(
 			//                    new RemovedVsEdittedTextConflict(ourChild, null, ancestorChild, _merger._mergeStrategies));
 			//            }
 			//        }
@@ -258,7 +258,7 @@ namespace Chorus.merge.xml.generic
 						if (!XmlUtilities.AreXmlElementsEqual(ancestorChild, theirChild))
 						{
 							// We deleted, they modified, report conflict.
-							_merger._logger.RegisterConflict(new RemovedVsEditedElementConflict(theirChild.Name, null,
+							_merger._eventListener.ConflictOccurred(new RemovedVsEditedElementConflict(theirChild.Name, null,
 																								theirChild, ancestorChild,
 																								_merger._mergeStrategies));
 						}
@@ -281,13 +281,13 @@ namespace Chorus.merge.xml.generic
 						// We changed it, ignore their deletion and report conflict.
 						if (ourChild.NodeType == XmlNodeType.Element)
 						{
-							_merger._logger.RegisterConflict(
+							_merger._eventListener.ConflictOccurred(
 								new RemovedVsEditedElementConflict(ourChild.Name, ourChild, null, ancestorChild,
 																   _merger._mergeStrategies));
 						}
 						else
 						{
-							_merger._logger.RegisterConflict(
+							_merger._eventListener.ConflictOccurred(
 								new RemovedVsEdittedTextConflict(ourChild, null, ancestorChild, _merger._mergeStrategies));
 						}
 					}

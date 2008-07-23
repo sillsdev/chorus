@@ -1,46 +1,102 @@
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Xml;
 using Chorus.merge.xml.generic;
 
 namespace Chorus.merge.xml.generic
 {
-	public interface IMergeLogger
+	public interface IMergeEventListener
 	{
-		void RegisterConflict(IConflict conflict);
+		void ConflictOccurred(IConflict conflict);
 	}
 
-	public class MergeLogger : IMergeLogger
+	public class DispatchingMergeEventListener : IMergeEventListener
 	{
-		private readonly IList<IConflict> _conflicts;
+		private List<IMergeEventListener> _listeners = new List<IMergeEventListener>();
 
-		public MergeLogger(IList<IConflict> conflicts)
+		public void AddEventListener(IMergeEventListener listener)
 		{
-			_conflicts = conflicts;
+			_listeners.Add(listener);
 		}
 
-		public void RegisterConflict(IConflict conflict)
+		public void ConflictOccurred(IConflict conflict)
 		{
-			_conflicts.Add(conflict);
+			foreach (IMergeEventListener listener in _listeners)
+			{
+				listener.ConflictOccurred(conflict);
+			}
 		}
 	}
 
-	public class MergeReport
+	public class HumanLogMergeEventListener : IMergeEventListener, IDisposable
 	{
-		public string _result;
-	}
+		private StreamWriter _stream;
 
-	public interface IMergeReportMaker
-	{
-		MergeReport GetReport();
-	}
-
-	public class DefaultMergeReportMaker : IMergeReportMaker
-	{
-
-		public MergeReport GetReport()
+		public HumanLogMergeEventListener(string path)
 		{
-			return new MergeReport();
+			_stream = File.CreateText(path);
+		}
+		public void ConflictOccurred(IConflict conflict)
+		{
+			_stream.WriteLine(conflict.GetFullHumanReadableDescription());
 		}
 
+		public void Dispose()
+		{
+			_stream.Close();
+		}
 	}
+
+
+	public class XmlLogMergeEventListener : IMergeEventListener, IDisposable
+	{
+		private XmlWriter _writer;
+
+		public XmlLogMergeEventListener(string path)
+		{
+			_writer = XmlWriter.Create(path);
+			_writer.WriteStartDocument();
+			_writer.WriteStartElement("conflicts");
+		}
+		public void ConflictOccurred(IConflict conflict)
+		{
+			_writer.WriteStartElement("conflict");
+			_writer.WriteAttributeString("type", string.Empty, conflict.ConflictTypeHumanName);
+			_writer.WriteString(conflict.GetFullHumanReadableDescription());
+			_writer.WriteEndElement();
+		}
+
+		public void Dispose()
+		{
+			_writer.WriteEndDocument();
+			_writer.Close();
+		}
+	}
+
+
+//    public class MergeReport : IMergeEventListener
+//    {
+//        private List<IConflict> _conflicts=new List<IConflict>();
+//        //private string _result;
+//        public void ConflictOccurred(IConflict conflict)
+//        {
+//            _conflicts.Add(conflict);
+//        }
+//    }
+
+//    public interface IMergeReportMaker
+//    {
+//        MergeReport GetReport();
+//    }
+
+//    public class DefaultMergeReportMaker : IMergeReportMaker
+//    {
+//
+//        public MergeReport GetReport()
+//        {
+//            return new MergeReport();
+//        }
+//
+//    }
 }

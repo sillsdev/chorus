@@ -3,7 +3,7 @@ using Chorus.merge.xml.generic;
 using Chorus.Tests.merge.xml;
 using NUnit.Framework;
 
-namespace Chorus.Tests.merge.xml
+namespace Chorus.Tests.merge.xml.generic
 {
 	[TestFixture]
 	public class XmlMergerTests
@@ -25,14 +25,14 @@ namespace Chorus.Tests.merge.xml
 
 		private void CheckBothWaysNoConflicts(string red, string blue, string ancestor, params string[] xpaths)
 		{
-			MergeResult r = CheckOneWay(red, blue, ancestor, xpaths);
+			NodeMergeResult r = CheckOneWay(red, blue, ancestor, xpaths);
 			AssertNoConflicts(r);
 
 			r = CheckOneWay(blue, red, ancestor, xpaths);
 			AssertNoConflicts(r);
 		}
 
-		private static void AssertNoConflicts(MergeResult r)
+		private static void AssertNoConflicts(NodeMergeResult r)
 		{
 			if (r.Conflicts.Count > 0)
 			{
@@ -44,13 +44,13 @@ namespace Chorus.Tests.merge.xml
 			Assert.AreEqual(0, r.Conflicts.Count, "There were unexpected conflicts.");
 		}
 
-		private MergeResult CheckOneWay(string ours, string theirs, string ancestor, params string[] xpaths)
+		private NodeMergeResult CheckOneWay(string ours, string theirs, string ancestor, params string[] xpaths)
 		{
 			XmlMerger m = new XmlMerger();
 			m._mergeStrategies._elementStrategies.Add("a", ElementStrategy.CreateForKeyedElement("key"));
 			m._mergeStrategies._elementStrategies.Add("b", ElementStrategy.CreateForKeyedElement("key"));
 			m._mergeStrategies._elementStrategies.Add("c", ElementStrategy.CreateForKeyedElement("key"));
-			MergeResult result = m.Merge(ours, theirs, ancestor);
+			NodeMergeResult result = m.Merge(ours, theirs, ancestor);
 			foreach (string xpath in xpaths)
 			{
 				XmlTestHelper.AssertXPathMatchesExactlyOne(result.MergedNode, xpath);
@@ -104,7 +104,7 @@ namespace Chorus.Tests.merge.xml
 			string theirs = @"<t>theirs</t>";
 
 			XmlMerger m = new XmlMerger();
-			MergeResult result = m.Merge(ours, theirs, ancestor);
+			NodeMergeResult result = m.Merge(ours, theirs, ancestor);
 			XmlTestHelper.AssertXPathMatchesExactlyOne(result.MergedNode, "t[text()='mine']");
 			Assert.AreEqual(typeof (BothEdittedTextConflict), result.Conflicts[0].GetType());
 		}
@@ -117,7 +117,7 @@ namespace Chorus.Tests.merge.xml
 			string theirs = @"<t></t>";
 
 			XmlMerger m = new XmlMerger();
-			MergeResult result = m.Merge(ours, theirs, ancestor);
+			NodeMergeResult result = m.Merge(ours, theirs, ancestor);
 			XmlTestHelper.AssertXPathMatchesExactlyOne(result.MergedNode, "t[text()='mine']");
 
 			Assert.AreEqual(typeof(RemovedVsEdittedTextConflict), result.Conflicts[0].GetType());
@@ -142,14 +142,14 @@ namespace Chorus.Tests.merge.xml
 							</a>";
 
 			// blue wins
-			MergeResult r = CheckOneWay(blue, red, ancestor,
-									 "a/b[@key='one']/c[text()='first']",
-									 "a/b[@key='two']/c[text()='second']");
+			NodeMergeResult r = CheckOneWay(blue, red, ancestor,
+										"a/b[@key='one']/c[text()='first']",
+										"a/b[@key='two']/c[text()='second']");
 			Assert.AreEqual(typeof(AmbiguousInsertConflict), r.Conflicts[0].GetType());
 			// red wins (they will be in a different order, but we don't care which)
-			MergeResult r2 = CheckOneWay(red, blue, ancestor,
-									 "a/b[@key='one']/c[text()='first']",
-									 "a/b[@key='two']/c[text()='second']");
+			NodeMergeResult r2 = CheckOneWay(red, blue, ancestor,
+										 "a/b[@key='one']/c[text()='first']",
+										 "a/b[@key='two']/c[text()='second']");
 			Assert.AreEqual(typeof(AmbiguousInsertConflict), r2.Conflicts[0].GetType());
 		}
 
@@ -280,7 +280,7 @@ namespace Chorus.Tests.merge.xml
 			string red = @"<a one='r'/>";
 			string blue = @"<a one='b'/>";
 
-			MergeResult r = CheckOneWay(blue, red, ancestor, "a[@one='b']");
+			NodeMergeResult r = CheckOneWay(blue, red, ancestor, "a[@one='b']");
 			Assert.AreEqual(typeof(BothEdittedAttributeConflict), r.Conflicts[0].GetType());
 
 			r =CheckOneWay(red, blue, ancestor, "a[@one='r']");
@@ -372,20 +372,20 @@ namespace Chorus.Tests.merge.xml
 							</a>";
 
 			// blue wins
-			MergeResult r = CheckOneWay(blue, red, ancestor,
-									 "a[count(b)='1']",
-									 "a/b[count(c)='3']",
-									 "a/b[@key='one']/c[text()='first']",
-									 "a/b[@key='one']/c[text()='second']",
-									 "a/b[@key='one']/c[text()='third']");
+			NodeMergeResult r = CheckOneWay(blue, red, ancestor,
+										"a[count(b)='1']",
+										"a/b[count(c)='3']",
+										"a/b[@key='one']/c[text()='first']",
+										"a/b[@key='one']/c[text()='second']",
+										"a/b[@key='one']/c[text()='third']");
 			Assert.AreEqual(typeof(AmbiguousInsertConflict), r.Conflicts[0].GetType());
 			// red wins (they will be in a different order, but we don't care which)
-			MergeResult r2 = CheckOneWay(red, blue, ancestor,
-									 "a[count(b)='1']",
-									 "a/b[count(c)='3']",
-									 "a/b[@key='one']/c[text()='first']",
-									 "a/b[@key='one']/c[text()='second']",
-									 "a/b[@key='one']/c[text()='third']");
+			NodeMergeResult r2 = CheckOneWay(red, blue, ancestor,
+										 "a[count(b)='1']",
+										 "a/b[count(c)='3']",
+										 "a/b[@key='one']/c[text()='first']",
+										 "a/b[@key='one']/c[text()='second']",
+										 "a/b[@key='one']/c[text()='third']");
 			Assert.AreEqual(typeof(AmbiguousInsertConflict), r2.Conflicts[0].GetType());
 		}
 
@@ -638,17 +638,17 @@ namespace Chorus.Tests.merge.xml
 							</a>";
 
 			// blue wins
-			MergeResult r = CheckOneWay(blue, red, ancestor,
-									"a[count(b)='1']",
-									"a/b[count(c)='2']",
-									"a/b[@key='one']/c[1][@key='x' and text()='first']",
-									"a/b[@key='one']/c[2][@key='y' and text()='blue']");
+			NodeMergeResult r = CheckOneWay(blue, red, ancestor,
+										"a[count(b)='1']",
+										"a/b[count(c)='2']",
+										"a/b[@key='one']/c[1][@key='x' and text()='first']",
+										"a/b[@key='one']/c[2][@key='y' and text()='blue']");
 			Assert.AreEqual(typeof(RemovedVsEditedElementConflict), r.Conflicts[0].GetType());
 			// red wins
-			MergeResult r2 = CheckOneWay(red, blue, ancestor,
-									 "a[count(b)='1']",
-									 "a/b[count(c)='1']",
-									 "a/b[@key='one']/c[1][@key='x' and text()='first']");
+			NodeMergeResult r2 = CheckOneWay(red, blue, ancestor,
+										 "a[count(b)='1']",
+										 "a/b[count(c)='1']",
+										 "a/b[@key='one']/c[1][@key='x' and text()='first']");
 			Assert.AreEqual(typeof(RemovedVsEditedElementConflict), r2.Conflicts[0].GetType());
 		}
 
@@ -690,24 +690,24 @@ namespace Chorus.Tests.merge.xml
 							</a>";
 
 			// blue wins
-			MergeResult r = CheckOneWay(blue, red, ancestor,
-									 "a[count(b)='1']",
-									 "a/b[count(c)='5']",
-									 "a/b[@key='one']/c[1][@key='a' and text()='first']",
-									 "a/b[@key='one']/c[2][@key='b' and text()='second']",
-									 "a/b[@key='one']/c[3][@key='c' and text()='third']",
-									 "a/b[@key='one']/c[4][@key='e' and text()='fifth']",
-									 "a/b[@key='one']/c[5][@key='d' and text()='fourth']");
+			NodeMergeResult r = CheckOneWay(blue, red, ancestor,
+										"a[count(b)='1']",
+										"a/b[count(c)='5']",
+										"a/b[@key='one']/c[1][@key='a' and text()='first']",
+										"a/b[@key='one']/c[2][@key='b' and text()='second']",
+										"a/b[@key='one']/c[3][@key='c' and text()='third']",
+										"a/b[@key='one']/c[4][@key='e' and text()='fifth']",
+										"a/b[@key='one']/c[5][@key='d' and text()='fourth']");
 			Assert.AreEqual(typeof(BothReorderedElementConflict), r.Conflicts[0].GetType());
 			// red wins
-			MergeResult r2 = CheckOneWay(red, blue, ancestor,
-									 "a[count(b)='1']",
-									 "a/b[count(c)='5']",
-									 "a/b[@key='one']/c[1][@key='a' and text()='first']",
-									 "a/b[@key='one']/c[2][@key='e' and text()='fifth']",
-									 "a/b[@key='one']/c[3][@key='b' and text()='second']",
-									 "a/b[@key='one']/c[4][@key='c' and text()='third']",
-									 "a/b[@key='one']/c[5][@key='d' and text()='fourth']");
+			NodeMergeResult r2 = CheckOneWay(red, blue, ancestor,
+										 "a[count(b)='1']",
+										 "a/b[count(c)='5']",
+										 "a/b[@key='one']/c[1][@key='a' and text()='first']",
+										 "a/b[@key='one']/c[2][@key='e' and text()='fifth']",
+										 "a/b[@key='one']/c[3][@key='b' and text()='second']",
+										 "a/b[@key='one']/c[4][@key='c' and text()='third']",
+										 "a/b[@key='one']/c[5][@key='d' and text()='fourth']");
 			Assert.AreEqual(typeof(BothReorderedElementConflict), r2.Conflicts[0].GetType());
 		}
 
@@ -795,22 +795,22 @@ namespace Chorus.Tests.merge.xml
 							</a>";
 
 			// blue wins
-			MergeResult r = CheckOneWay(blue, red, ancestor,
-									 "a[count(b)='1']",
-									 "a/b[count(c)='4']",
-									 "a/b[@key='one']/c[1][@key='x' and text()='first']",
-									 "a/b[@key='one']/c[2][@key='r' and text()='red']",
-									 "a/b[@key='one']/c[3][@key='b' and text()='blue']",
-									 "a/b[@key='one']/c[4][@key='y' and text()='second']");
+			NodeMergeResult r = CheckOneWay(blue, red, ancestor,
+										"a[count(b)='1']",
+										"a/b[count(c)='4']",
+										"a/b[@key='one']/c[1][@key='x' and text()='first']",
+										"a/b[@key='one']/c[2][@key='r' and text()='red']",
+										"a/b[@key='one']/c[3][@key='b' and text()='blue']",
+										"a/b[@key='one']/c[4][@key='y' and text()='second']");
 			Assert.AreEqual(typeof(AmbiguousInsertConflict), r.Conflicts[0].GetType());
 			// red wins
-			MergeResult r2 = CheckOneWay(red, blue, ancestor,
-									 "a[count(b)='1']",
-									 "a/b[count(c)='4']",
-									 "a/b[@key='one']/c[1][@key='x' and text()='first']",
-									 "a/b[@key='one']/c[2][@key='b' and text()='blue']",
-									 "a/b[@key='one']/c[3][@key='r' and text()='red']",
-									 "a/b[@key='one']/c[4][@key='y' and text()='second']");
+			NodeMergeResult r2 = CheckOneWay(red, blue, ancestor,
+										 "a[count(b)='1']",
+										 "a/b[count(c)='4']",
+										 "a/b[@key='one']/c[1][@key='x' and text()='first']",
+										 "a/b[@key='one']/c[2][@key='b' and text()='blue']",
+										 "a/b[@key='one']/c[3][@key='r' and text()='red']",
+										 "a/b[@key='one']/c[4][@key='y' and text()='second']");
 			Assert.AreEqual(typeof(AmbiguousInsertConflict), r2.Conflicts[0].GetType());
 		}
 
@@ -856,19 +856,19 @@ namespace Chorus.Tests.merge.xml
 							</a>";
 
 			// blue wins
-			MergeResult r = CheckOneWay(blue, red, ancestor,
-									 "a[count(b)='1']",
-									 "a/b[count(c)='6']",
-									 "a/b[@key='one']/c[1][@key='a' and text()='first']",
-									 "a/b[@key='one']/c[2][@key='d' and text()='fourth']",
-									 "a/b[@key='one']/c[3][@key='z' and text()='blue']",
-									 "a/b[@key='one']/c[4][@key='b' and text()='second']",
-									 "a/b[@key='one']/c[5][@key='c' and text()='third']",
-									 "a/b[@key='one']/c[6][@key='e' and text()='fifth']"
-									 );
+			NodeMergeResult r = CheckOneWay(blue, red, ancestor,
+										"a[count(b)='1']",
+										"a/b[count(c)='6']",
+										"a/b[@key='one']/c[1][@key='a' and text()='first']",
+										"a/b[@key='one']/c[2][@key='d' and text()='fourth']",
+										"a/b[@key='one']/c[3][@key='z' and text()='blue']",
+										"a/b[@key='one']/c[4][@key='b' and text()='second']",
+										"a/b[@key='one']/c[5][@key='c' and text()='third']",
+										"a/b[@key='one']/c[6][@key='e' and text()='fifth']"
+				);
 			Assert.AreEqual(typeof(AmbiguousInsertReorderConflict), r.Conflicts[0].GetType());
 			// red wins
-			MergeResult r2 = CheckOneWay(red, blue, ancestor,
+			NodeMergeResult r2 = CheckOneWay(red, blue, ancestor,
 										 "a[count(b)='1']",
 										 "a/b[count(c)='6']",
 										 "a/b[@key='one']/c[1][@key='a' and text()='first']",

@@ -191,7 +191,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		{
 			using (new ConsoleProgress("MergeUserHeadWithStub of {0} with the changeset: {1} {2}", head._revision, stub.UserId, stub._revision))
 			{
-				using (new ShortTermEnvironmentalVariable(MergeDispatcher.MergeOrder.kConflictHandlingModeEnvVarName, MergeDispatcher.MergeOrder.ConflictHandlingMode.WeWin.ToString()))
+				using (new ShortTermEnvironmentalVariable(MergeOrder.kConflictHandlingModeEnvVarName, MergeOrder.ConflictHandlingMode.WeWin.ToString()))
 				{
 					Update(head._revision);
 					ExecutionResult result =
@@ -226,7 +226,7 @@ namespace Chorus.VcsDrivers.Mercurial
 					try
 					{
 						ExecutionResult result;
-						using (new ShortTermEnvironmentalVariable(MergeDispatcher.MergeOrder.kConflictHandlingModeEnvVarName, MergeDispatcher.MergeOrder.ConflictHandlingMode.LcdPlusPartials.ToString()))
+						using (new ShortTermEnvironmentalVariable(MergeOrder.kConflictHandlingModeEnvVarName, MergeOrder.ConflictHandlingMode.LcdPlusPartials.ToString()))
 						{
 							result =
 								Execute(true, "merge", _pathToRepository, "-r", theirChangeSet._revision);

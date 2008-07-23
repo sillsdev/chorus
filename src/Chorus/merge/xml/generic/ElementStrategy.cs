@@ -78,7 +78,7 @@ namespace Chorus.merge.xml.generic
 		/// <summary>
 		/// Used to make element-type-specific reporting
 		/// </summary>
-		public IMergeReportMaker mergeReportMaker;
+		//public IMergeReportMaker mergeReportMaker;
 
 		public static ElementStrategy CreateForKeyedElement(string keyAttributeName)
 		{

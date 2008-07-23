@@ -9,7 +9,7 @@ namespace Chorus.merge.xml.generic
 	/// </summary>
 	public class DropTheirsMergeStrategy : IMergeStrategy
 	{
-		public string MakeMergedEntry(XmlNode ourEntry, XmlNode theirEntry, XmlNode unusedCommonEntry)
+		public string MakeMergedEntry(IMergeEventListener listener, XmlNode ourEntry, XmlNode theirEntry, XmlNode unusedCommonEntry)
 		{
 			return ourEntry.OuterXml;
 		}
