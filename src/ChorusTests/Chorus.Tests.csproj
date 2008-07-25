@@ -42,6 +42,7 @@
 	<Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+	<Compile Include="merge\GroupOfConflictingFiles.cs" />
 	<Compile Include="merge\xml\generic\xmldiff\XmlDiffTests.cs" />
 	<Compile Include="merge\xml\generic\XmlMergerTests.cs" />
 	<Compile Include="merge\xml\generic\XmlTestHelper.cs" />
@@ -51,6 +52,7 @@
 	<Compile Include="merge\xml\lift\SenseMergingTests.cs" />
 	<Compile Include="merge\MergeDispatcherTests.cs" />
 	<Compile Include="sync\FilePathRepositorySourceTests.cs" />
+	<Compile Include="sync\ConflictFileTests.cs" />
 	<Compile Include="sync\SyncScenarioTests.cs" />
 	<Compile Include="sync\UsbRepositorySourceTests.cs" />
 	<Compile Include="sync\HistoryTests.cs" />

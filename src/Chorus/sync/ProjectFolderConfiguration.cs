@@ -17,7 +17,7 @@ namespace Chorus.sync
 		/// File Patterns to Add to the repository, unless excluded by ExcludePatterns
 		/// </summary>
 		/// <example>"LP/*.*"  include all files under the lp directory</example>
-		/// <example>"**/*.Lift"  include all lift files, whereever they are found</example>
+		/// <example>"**.lift"  include all lift files, whereever they are found</example>
 		public List<string> IncludePatterns
 		{
 			get { return _includePatterns; }

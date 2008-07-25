@@ -12,6 +12,22 @@ namespace Chorus.Utilities
 		void WriteWarning(string message, params object[] args);
 	}
 
+	public class NullProgress : IProgress
+	{
+		public void WriteStatus(string message, params object[] args)
+		{
+
+		}
+
+		public void WriteMessage(string message, params object[] args)
+		{
+		}
+
+		public void WriteWarning(string message, params object[] args)
+		{
+		}
+	}
+
 	public class ConsoleProgress : IProgress, IDisposable
 	{
 		public static int indent = 0;

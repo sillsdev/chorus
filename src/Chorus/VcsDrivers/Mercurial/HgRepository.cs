@@ -385,6 +385,10 @@ namespace Chorus.VcsDrivers.Mercurial
 				string p = Path.Combine(this._pathToRepository, pattern);
 				args.Append(" -I " + SurroundWithQuotes(p));
 			}
+
+			args.Append(" -I " + SurroundWithQuotes(Path.Combine(this._pathToRepository,"**.conflicts.xml")));
+			args.Append(" -I " + SurroundWithQuotes(Path.Combine(this._pathToRepository, "**.conflicts.txt")));
+
 			foreach (string pattern in excludePatterns)
 			{
 				//this fails:   hg add -R "E:\Users\John\AppData\Local\Temp\ChorusTest"  -X "**/cache"
@@ -393,7 +397,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				args.Append(" -X " + SurroundWithQuotes(p));
 			}
 
-			using (new ConsoleProgress("Adding files to be tracked."))
+			using (new ConsoleProgress("Adding files to be tracked ({0}",args.ToString()))
 			{
 				Execute("add", _pathToRepository, args.ToString());
 			}
@@ -506,6 +510,12 @@ namespace Chorus.VcsDrivers.Mercurial
 		public string GetUserIdInUse()
 		{
 			return GetTextFromQuery(_pathToRepository, "showconfig ui.username").Trim();
+		}
+
+		public bool GetFileExistsInRepo(string subPath)
+		{
+			string result = GetTextFromQuery(_pathToRepository, "locate " + subPath);
+			return !String.IsNullOrEmpty(result.Trim());
 		}
 	}
 }

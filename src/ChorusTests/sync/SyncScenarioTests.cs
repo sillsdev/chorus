@@ -291,8 +291,6 @@ namespace Chorus.Tests.sync
 		}
 
 
-
-
 		private void AssertTestFile(HgPartialMerge repo, int line, string expectedContents)
 		{
 			Debug.WriteLine("Checking that " + repo.UserName + " has '" + expectedContents + "' in line " + line);

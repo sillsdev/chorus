@@ -53,6 +53,11 @@ namespace Chorus.merge.xml.generic
 	{
 		private XmlWriter _writer;
 
+		static public string GetXmlConflictFilePath(string baseXmlFile)
+		{
+			return baseXmlFile + ".conflicts.xml";
+		}
+
 		public XmlLogMergeEventListener(string path)
 		{
 			_writer = XmlWriter.Create(path);

@@ -1,5 +1,7 @@
 using System;
+using System.Diagnostics;
 using System.IO;
+using System.Windows.Forms;
 using Chorus.merge.xml.generic;
 using Chorus.merge.xml.lift;
 using Chorus.Utilities;
@@ -14,7 +16,6 @@ namespace Chorus.merge
 		{
 			try
 			{
-				//Debug.Fail("ehlo");
 				switch (Path.GetExtension(order.pathToOurs))
 				{
 					default:
@@ -38,11 +39,11 @@ namespace Chorus.merge
 		private static int MergeLiftFiles(MergeOrder order)
 		{
 			DispatchingMergeEventListener d = new DispatchingMergeEventListener();
-
+			Debug.Fail("hello");
 			//review: where should these really go?
 			string dir = Path.GetDirectoryName(order.pathToOurs);
-			using(HumanLogMergeEventListener humanListener = new HumanLogMergeEventListener(Path.Combine(dir, "changeThis.lift.conflicts.txt")))
-			using (XmlLogMergeEventListener xmlListener = new XmlLogMergeEventListener(Path.Combine(dir, "changeThis.lift.conflicts.xml")))
+			using(HumanLogMergeEventListener humanListener = new HumanLogMergeEventListener(order.pathToOurs+".conflicts.txt"))
+			using (XmlLogMergeEventListener xmlListener = new XmlLogMergeEventListener(order.pathToOurs+".conflicts.xml"))
 			{
 				d.AddEventListener(humanListener);
 				d.AddEventListener(xmlListener);
@@ -63,6 +64,7 @@ namespace Chorus.merge
 					case MergeOrder.ConflictHandlingMode.TheyWin:
 						merger = new LiftMerger(new EntryMerger(), order.pathToTheirs, order.pathToOurs,
 												order.pathToCommonAncestor);
+						merger.EventListener = order.EventListener;
 						break;
 				}
 

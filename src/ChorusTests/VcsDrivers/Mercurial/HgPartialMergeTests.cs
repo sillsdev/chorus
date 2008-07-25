@@ -178,9 +178,9 @@ This is the end of the test file
 ");
 
 /*@"This is a test file
-I am here to provide Sync
+I am here to provide sync
 adj
-and final Sync data
+and final sync data
 the end");
 			*/
 			bob.AddAndCheckinFile(filePath);

@@ -34,6 +34,17 @@ namespace Chorus.Utilities
 			File.WriteAllText(_path, liftContents);
 		}
 
+		private TempLiftFile()
+		{
+		}
+		public static TempLiftFile TrackExisting(string path)
+		{
+			Debug.Assert(File.Exists(path));
+			TempLiftFile t= new TempLiftFile();
+			t._path = path;
+			return t;
+		}
+
 	}
 
 
@@ -110,32 +121,54 @@ namespace Chorus.Utilities
 
 	public class TempFolder : IDisposable
 	{
-		private readonly string _folderPath;
+		private string _path;
 
-		public TempFolder(string testName)
+		private TempFolder()
 		{
-			_folderPath = Path.Combine(Path.GetTempPath(), testName);
-			if (Directory.Exists(_folderPath))
-			{
-				TestUtilities.DeleteFolderThatMayBeInUse(_folderPath);
-			}
-			Directory.CreateDirectory(_folderPath);
+
+		}
+		static public TempFolder TrackExisting(string path)
+		{
+			Debug.Assert(Directory.Exists(path));
+			TempFolder f = new TempFolder();
+			f._path = path;
+			return f;
 		}
 
-		public string FolderPath
+		public TempFolder(string name)
 		{
-			get { return _folderPath; }
+			_path = System.IO.Path.Combine(System.IO.Path.GetTempPath(), name);
+			if (Directory.Exists(_path))
+			{
+				TestUtilities.DeleteFolderThatMayBeInUse(_path);
+			}
+			Directory.CreateDirectory(_path);
+		}
+
+		public TempFolder(TempFolder parent, string name)
+		{
+			_path = parent.Combine(name);
+			if (Directory.Exists(_path))
+			{
+				TestUtilities.DeleteFolderThatMayBeInUse(_path);
+			}
+			Directory.CreateDirectory(_path);
+		}
+
+		public string Path
+		{
+			get { return _path; }
 		}
 
 		public void Dispose()
 		{
-			TestUtilities.DeleteFolderThatMayBeInUse(_folderPath);
+			TestUtilities.DeleteFolderThatMayBeInUse(_path);
 		}
 
 		public string GetPathForNewTempFile(bool doCreateTheFile)
 		{
-			string s = Path.GetRandomFileName();
-			s = Path.Combine(_folderPath, s);
+			string s = System.IO.Path.GetRandomFileName();
+			s = System.IO.Path.Combine(_path, s);
 			if (doCreateTheFile)
 			{
 				File.Create(s).Close();
@@ -145,8 +178,8 @@ namespace Chorus.Utilities
 
 		public TempFile GetNewTempFile(bool doCreateTheFile)
 		{
-			string s = Path.GetRandomFileName();
-			s = Path.Combine(_folderPath, s);
+			string s = System.IO.Path.GetRandomFileName();
+			s = System.IO.Path.Combine(_path, s);
 			if (doCreateTheFile)
 			{
 				File.Create(s).Close();
@@ -155,7 +188,7 @@ namespace Chorus.Utilities
 		}
 		public string Combine(string innerFileName)
 		{
-			return Path.Combine(_folderPath, innerFileName);
+			return System.IO.Path.Combine(_path, innerFileName);
 		}
 	}
 

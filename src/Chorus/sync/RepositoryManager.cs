@@ -127,7 +127,10 @@ namespace Chorus.sync
 			if (options.DoMergeWithOthers)
 			{
 				progress.WriteStatus("Merging...");
-				repo.MergeHeads(progress, results);
+				repo.MergeHeads(progress, results);//this may generate conflict files
+				// in case of a merge, we want these merged version + updated/created conflict files to go right back into
+				// the repository
+				repo.AddAndCheckinFiles(_project.IncludePatterns, _project.ExcludePatterns, options.CheckinDescription);
 
 			}
 
@@ -220,6 +223,10 @@ namespace Chorus.sync
 		}
 
 
+		/// <summary>
+		///
+		/// </summary>
+		 /// <returns>path to clone</returns>
 		public string MakeClone(string newDirectory, bool alsoDoCheckout, IProgress progress)
 		{
 			if (Directory.Exists(newDirectory))
@@ -265,12 +272,32 @@ namespace Chorus.sync
 
 		public void SetUserId(string userId)
 		{
-				HgRepository.SetUserId(_localRepositoryPath, userId);
+		   HgRepository.SetUserId(_localRepositoryPath, userId);
+		}
+
+		public bool GetFileExistsInRepo(string fullPath)
+		{
+			if (fullPath.IndexOf(_localRepositoryPath) < 0)
+			{
+				throw new ArgumentException(
+					string.Format("GetFileExistsInRepo() requies the argument {0} be a child of the root {1}",
+					fullPath,
+					_localRepositoryPath));
+
+			}
+			HgRepository local = new HgRepository(_localRepositoryPath, new NullProgress());
+			string subPath= fullPath.Replace(_localRepositoryPath, "");
+			if (subPath.StartsWith(Path.DirectorySeparatorChar.ToString()))
+			{
+				subPath = subPath.Remove(0,1);
+			}
+			return local.GetFileExistsInRepo(subPath);
 		}
 	}
 
 
 	public class SyncResults
 	{
+
 	}
 }
