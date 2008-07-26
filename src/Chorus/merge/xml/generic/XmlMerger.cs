@@ -39,7 +39,7 @@ namespace Chorus.merge.xml.generic
 
 	public class XmlMerger
 	{
-		public IMergeEventListener _eventListener;
+		public IMergeEventListener _eventListener = new NullMergeEventListener();
 		public MergeStrategies _mergeStrategies;
 
 		public XmlMerger()

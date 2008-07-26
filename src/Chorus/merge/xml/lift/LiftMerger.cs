@@ -30,7 +30,7 @@ namespace Chorus.merge.xml.lift
 		private readonly XmlDocument _theirDom;
 		private readonly XmlDocument _ancestorDom;
 		private IMergeStrategy _mergingStrategy;
-		public IMergeEventListener EventListener;
+		public IMergeEventListener EventListener = new NullMergeEventListener();
 
 
 		public LiftMerger(IMergeStrategy mergeStrategy, string ourLiftPath, string theirLiftPath, string ancestorLiftPath)

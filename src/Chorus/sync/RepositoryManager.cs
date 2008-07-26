@@ -127,11 +127,19 @@ namespace Chorus.sync
 			if (options.DoMergeWithOthers)
 			{
 				progress.WriteStatus("Merging...");
-				repo.MergeHeads(progress, results);//this may generate conflict files
+				IList<string> peopleWeMergedWith = repo.MergeHeads(progress, results);//this may generate conflict files
 				// in case of a merge, we want these merged version + updated/created conflict files to go right back into
 				// the repository
-				repo.AddAndCheckinFiles(_project.IncludePatterns, _project.ExcludePatterns, options.CheckinDescription);
-
+				if (peopleWeMergedWith.Count > 0)
+				{
+					string message = "Merged with ";
+					foreach (string id in peopleWeMergedWith)
+					{
+						message += id + ", ";
+					}
+					message = message.Remove(message.Length - 2); //chop off the trailing comma
+					repo.AddAndCheckinFiles(_project.IncludePatterns, _project.ExcludePatterns, message);
+				}
 			}
 
 			if(options.DoPushToLocalSources)

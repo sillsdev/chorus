@@ -34,6 +34,14 @@ namespace Chorus.Utilities
 			File.WriteAllText(_path, liftContents);
 		}
 
+		public TempLiftFile(string fileName, TempFolder parentFolder, string xmlOfEntries, string claimedLiftVersion)
+			: base(false)
+		{
+			_path = parentFolder.Combine(fileName);
+
+			string liftContents = string.Format("<?xml version='1.0' encoding='utf-8'?><lift version='{0}'>{1}</lift>", claimedLiftVersion, xmlOfEntries);
+			File.WriteAllText(_path, liftContents);
+		}
 		private TempLiftFile()
 		{
 		}
@@ -116,6 +124,13 @@ namespace Chorus.Utilities
 		public static TempFile TrackExisting(string path)
 		{
 			return new TempFile(path, false);
+		}
+
+		public static TempFile CreateAndGetPathButDontMakeTheFile()
+		{
+			TempFile t = new TempFile();
+			File.Delete(t.Path);
+			return t;
 		}
 	}
 

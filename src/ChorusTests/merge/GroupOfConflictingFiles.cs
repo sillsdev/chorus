@@ -25,24 +25,15 @@ namespace Chorus.Tests.merge
 					 </entry>";
 			string bob = ancestor.Replace("original", "bob says");
 			string sally = ancestor.Replace("original", "sally says");
-			AncestorFile = new TempLiftFile(Folder, ancestor, "0.12");
-			BobFile = new TempLiftFile(Folder, bob, "0.12");
-			SallyFile = new TempLiftFile(Folder, sally, "0.12");
+			AncestorFile = new TempLiftFile("ancestor.lift", Folder, ancestor, "0.12");
+			BobFile = new TempLiftFile("bob.lift", Folder, bob, "0.12");
+			SallyFile = new TempLiftFile("sally.lift", Folder, sally, "0.12");
 		}
 
-		public string TextConflictsPath
-		{
-			get
-			{
-				return this.Folder.Combine("changeThis.lift.conflicts.txt");
-			}
-		}
 
-		public string XmlConflictsPath
+		public string BobTextConflictsPath
 		{
-			get {
-				return this.Folder.Combine("changeThis.lift.conflicts.xml");
-			}
+			get { return Folder.Combine("bob.lift.conflicts.txt"); }
 		}
 
 		public void Dispose()

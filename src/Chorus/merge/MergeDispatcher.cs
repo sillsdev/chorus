@@ -39,7 +39,7 @@ namespace Chorus.merge
 		private static int MergeLiftFiles(MergeOrder order)
 		{
 			DispatchingMergeEventListener d = new DispatchingMergeEventListener();
-			Debug.Fail("hello");
+			//Debug.Fail("hello");
 			//review: where should these really go?
 			string dir = Path.GetDirectoryName(order.pathToOurs);
 			using(HumanLogMergeEventListener humanListener = new HumanLogMergeEventListener(order.pathToOurs+".conflicts.txt"))

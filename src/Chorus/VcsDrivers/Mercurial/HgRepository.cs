@@ -331,23 +331,31 @@ namespace Chorus.VcsDrivers.Mercurial
 		}
 
 
-
-		public void MergeHeads(IProgress progress, SyncResults results)
+		/// <summary>
+		/// note: intentionally does not commit afterwards
+		/// </summary>
+		/// <param name="progress"></param>
+		/// <param name="results"></param>
+		public IList<string> MergeHeads(IProgress progress, SyncResults results)
 		{
+			List<string> peopleWeMergedWith= new List<string>();
 			RevisionDescriptor rev= GetMyHead();
 
-			bool didMerge = false;
 			List<RevisionDescriptor> heads = GetHeads();
 			RevisionDescriptor myHead = GetMyHead();
 			foreach (RevisionDescriptor theirHead in heads)
 			{
 				if (theirHead._revision != myHead._revision)
 				{
-					didMerge |= MergeTwoChangeSets(myHead, theirHead);
+					bool didMerge = MergeTwoChangeSets(myHead, theirHead);
+					if (didMerge)
+					{
+						peopleWeMergedWith.Add(theirHead.UserId);
+					}
 				}
 			}
 
-			Commit(false, "Merged.");
+			return peopleWeMergedWith;
 		}
 
 		private bool MergeTwoChangeSets(RevisionDescriptor head, RevisionDescriptor theirHead)

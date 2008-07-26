@@ -94,7 +94,9 @@ namespace Chorus.Tests.sync
 			public RepositoryManager GetManager()
 			{
 				ProjectFolderConfiguration project = new ProjectFolderConfiguration(_lexiconProjectPath);
-				RepositoryManager repo= RepositoryManager.FromRootOrChildFolder(project);
+				project.IncludePatterns.Add("**.txt");
+				 project.IncludePatterns.Add("**.lift");
+			   RepositoryManager repo= RepositoryManager.FromRootOrChildFolder(project);
 				repo.SetUserId("bob");
 				return repo;
 			}
@@ -131,6 +133,7 @@ namespace Chorus.Tests.sync
 			File.WriteAllText(Path.Combine(otherDirSource.PotentialRepoUri(BobSetup.ProjectFolderName, progress), "incoming.txt"), "this would be a file coming in");
 			SyncOptions options = new SyncOptions();
 			ProjectFolderConfiguration usbProject = new ProjectFolderConfiguration(Path.Combine(usbPath, BobSetup.ProjectFolderName));
+			usbProject.IncludePatterns.Add("**.txt");
 			options.CheckinDescription = "adding a file to the usb for some reason";
 			RepositoryManager usbManager = RepositoryManager.FromRootOrChildFolder(usbProject);
 			usbManager.SetUserId("usba");
@@ -215,6 +218,8 @@ namespace Chorus.Tests.sync
 			bobRepo.SyncNow(bobOptions, progress);
 
 			ProjectFolderConfiguration sallyProject = new ProjectFolderConfiguration(sallyRepoPath);
+			sallyProject.IncludePatterns.Add("**.txt");
+
 			RepositoryManager sally = RepositoryManager.FromRootOrChildFolder(sallyProject);
 			sally.SetUserId("sally");
 
@@ -252,11 +257,15 @@ namespace Chorus.Tests.sync
 
 			bobSetup.ChangeTextFile();
 
+
 			//Ok, this is unrealistic, but we just clone Bob onto Sally
 			string sallyMachineRoot = Path.Combine(_pathToTestRoot, "sally");
 			Directory.CreateDirectory(sallyMachineRoot);
 			string sallyProjectRoot = bobSetup.SetupClone(sallyMachineRoot);
 			ProjectFolderConfiguration sallyProject = new ProjectFolderConfiguration(sallyProjectRoot);
+			sallyProject.IncludePatterns.Add("**.txt");
+			sallyProject.IncludePatterns.Add("**.lift");
+
 			RepositoryManager sallyRepo = RepositoryManager.FromRootOrChildFolder(sallyProject);
 			sallyRepo.SetUserId("sally");
 

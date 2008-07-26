@@ -16,10 +16,8 @@ namespace Chorus.Tests.merge
 				MergeOrder order = new MergeOrder(MergeOrder.ConflictHandlingMode.TheyWin, group.BobFile.Path, group.AncestorFile.Path, group.SallyFile.Path);
 				MergeDispatcher.Go(order);
 
-				Assert.IsTrue(File.Exists(group.TextConflictsPath));
-				Assert.IsTrue(File.Exists(group.XmlConflictsPath));
-				Assert.AreNotEqual(string.Empty, File.ReadAllText(group.TextConflictsPath));
-				Assert.AreNotEqual(string.Empty, File.ReadAllText(group.XmlConflictsPath));
+				Assert.IsTrue(File.Exists(group.BobTextConflictsPath));
+				Assert.AreNotEqual(string.Empty, File.ReadAllText(group.BobTextConflictsPath));
 			}
 		}
 

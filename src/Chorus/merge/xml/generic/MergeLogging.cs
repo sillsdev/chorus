@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Xml;
 using Chorus.merge.xml.generic;
@@ -9,6 +10,14 @@ namespace Chorus.merge.xml.generic
 	public interface IMergeEventListener
 	{
 		void ConflictOccurred(IConflict conflict);
+	}
+
+	public class NullMergeEventListener : IMergeEventListener
+	{
+		public void ConflictOccurred(IConflict conflict)
+		{
+
+		}
 	}
 
 	public class DispatchingMergeEventListener : IMergeEventListener
@@ -52,6 +61,9 @@ namespace Chorus.merge.xml.generic
 	public class XmlLogMergeEventListener : IMergeEventListener, IDisposable
 	{
 		private XmlWriter _writer;
+		private bool _modifyingExistingFile;
+		private XmlDocument _xmlDoc;
+		private string _path;
 
 		static public string GetXmlConflictFilePath(string baseXmlFile)
 		{
@@ -60,9 +72,28 @@ namespace Chorus.merge.xml.generic
 
 		public XmlLogMergeEventListener(string path)
 		{
-			_writer = XmlWriter.Create(path);
-			_writer.WriteStartDocument();
-			_writer.WriteStartElement("conflicts");
+			_path = path;
+
+			try
+			{
+				if (!File.Exists(path))
+				{
+					XmlDocument doc = new XmlDocument();
+					doc.LoadXml("<conflicts/>");
+					doc.Save(path);
+				 }
+			}
+			catch (Exception error)
+			{
+				Debug.Fail("Something went wrong trying to create a blank onflict file :"+error.Message);
+				//todo log that the xml was the wrong format
+			}
+
+			_xmlDoc = new XmlDocument();
+			_xmlDoc.Load(path);
+			_writer = _xmlDoc.CreateNavigator().SelectSingleNode("conflicts").AppendChild();
+					this._modifyingExistingFile = true;
+
 		}
 		public void ConflictOccurred(IConflict conflict)
 		{
@@ -74,8 +105,8 @@ namespace Chorus.merge.xml.generic
 
 		public void Dispose()
 		{
-			_writer.WriteEndDocument();
 			_writer.Close();
+			_xmlDoc.Save(_path);
 		}
 	}
 

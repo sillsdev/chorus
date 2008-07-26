@@ -49,7 +49,12 @@ namespace Chorus.VcsDrivers.Mercurial
 			foreach (Dictionary<string, string> d in rawChangeSets)
 			{
 				string[] revisionParts = d["changeset"].Split(':');
-				RevisionDescriptor revision = new RevisionDescriptor(d["user"], revisionParts[0], /*revisionParts[1]*/"unknown", d["summary"]);
+				string summary = string.Empty;
+				if (d.ContainsKey("summary"))
+				{
+					summary = d["summary"];
+				}
+				RevisionDescriptor revision = new RevisionDescriptor(d["user"], revisionParts[0], /*revisionParts[1]*/"unknown", summary);
 				if(d.ContainsKey("tag"))
 				{
 					revision._tag = d["tag"];
