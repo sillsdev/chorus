@@ -67,7 +67,7 @@ namespace Chorus.merge.xml.generic
 
 		static public string GetXmlConflictFilePath(string baseXmlFile)
 		{
-			return baseXmlFile + ".conflicts.xml";
+			return baseXmlFile + ".conflicts";
 		}
 
 		public XmlLogMergeEventListener(string path)

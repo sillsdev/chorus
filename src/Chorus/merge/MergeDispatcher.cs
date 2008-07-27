@@ -24,6 +24,8 @@ namespace Chorus.merge
 						return -1;
 					case ".lift":
 						return MergeLiftFiles(order);
+					case ".conflicts":
+						return MergeConflictFiles(order);
 					case ".txt":
 						return MergeTextFiles(order);
 				}
@@ -36,6 +38,21 @@ namespace Chorus.merge
 			}
 		}
 
+		private static int MergeConflictFiles(MergeOrder order)
+		{
+			XmlMerger merger  = new XmlMerger();
+			try
+			{
+				NodeMergeResult r = merger.MergeFiles(order.pathToOurs, order.pathToTheirs, order.pathToCommonAncestor);
+				File.WriteAllText(order.pathToOurs, r.MergedNode.OuterXml);
+			}
+			catch (Exception error)
+			{
+				return -1;
+			}
+			return 0;
+		}
+
 		private static int MergeLiftFiles(MergeOrder order)
 		{
 			DispatchingMergeEventListener d = new DispatchingMergeEventListener();
@@ -43,7 +60,7 @@ namespace Chorus.merge
 			//review: where should these really go?
 			string dir = Path.GetDirectoryName(order.pathToOurs);
 			using(HumanLogMergeEventListener humanListener = new HumanLogMergeEventListener(order.pathToOurs+".conflicts.txt"))
-			using (XmlLogMergeEventListener xmlListener = new XmlLogMergeEventListener(order.pathToOurs+".conflicts.xml"))
+			using (XmlLogMergeEventListener xmlListener = new XmlLogMergeEventListener(order.pathToOurs+".conflicts"))
 			{
 				d.AddEventListener(humanListener);
 				d.AddEventListener(xmlListener);

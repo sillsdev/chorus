@@ -82,16 +82,33 @@ namespace Chorus.merge.xml.generic
 			MergeChildren(ref ours,theirs,ancestor);
 		}
 
-		public NodeMergeResult Merge(string ours, string theirs, string ancestor)
+		public NodeMergeResult Merge(string ourXml, string theirXml, string ancestorXml)
 		{
 			XmlDocument doc = new XmlDocument();
-			XmlNode ourNode = XmlUtilities.GetDocumentNodeFromRawXml(ours, doc);
-			XmlNode theirNode = XmlUtilities.GetDocumentNodeFromRawXml(theirs, doc);
-			XmlNode ancestorNode = XmlUtilities.GetDocumentNodeFromRawXml(ancestor, doc);
+			XmlNode ourNode = XmlUtilities.GetDocumentNodeFromRawXml(ourXml, doc);
+			XmlNode theirNode = XmlUtilities.GetDocumentNodeFromRawXml(theirXml, doc);
+			XmlNode ancestorNode = XmlUtilities.GetDocumentNodeFromRawXml(ancestorXml, doc);
 
 			return Merge(ourNode, theirNode, ancestorNode);
 		}
 
+		public NodeMergeResult MergeFiles(string ourPath, string theirPath, string ancestorPath)
+		{
+			XmlDocument ourDoc = new XmlDocument();
+			ourDoc.Load(ourPath);
+			XmlNode ourNode = ourDoc.DocumentElement;
+
+			XmlDocument theirDoc = new XmlDocument();
+			theirDoc.Load(theirPath);
+			XmlNode theirNode = theirDoc.DocumentElement;
+
+			XmlDocument ancestorDoc = new XmlDocument();
+			ancestorDoc.Load(ancestorPath);
+			XmlNode ancestorNode = ancestorDoc.DocumentElement;
+
+
+			return Merge(ourNode, theirNode, ancestorNode);
+		}
 
 		private static List<XmlAttribute> GetAttrs(XmlNode node)
 		{

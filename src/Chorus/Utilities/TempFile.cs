@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Threading;
+using System.Xml;
 
 namespace Chorus.Utilities
 {
@@ -131,6 +132,17 @@ namespace Chorus.Utilities
 			TempFile t = new TempFile();
 			File.Delete(t.Path);
 			return t;
+		}
+
+		public static TempFile CreateXmlFileWithContents(string fileName, TempFolder folder, string xmlBody)
+		{
+			string path = folder.Combine(fileName);
+			using (XmlWriter x = XmlWriter.Create(path))
+			{
+				x.WriteStartDocument();
+				x.WriteRaw(xmlBody);
+			}
+			return new TempFile(path, true);
 		}
 	}
 

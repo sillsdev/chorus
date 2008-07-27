@@ -394,7 +394,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				args.Append(" -I " + SurroundWithQuotes(p));
 			}
 
-			args.Append(" -I " + SurroundWithQuotes(Path.Combine(this._pathToRepository,"**.conflicts.xml")));
+			args.Append(" -I " + SurroundWithQuotes(Path.Combine(this._pathToRepository,"**.conflicts")));
 			args.Append(" -I " + SurroundWithQuotes(Path.Combine(this._pathToRepository, "**.conflicts.txt")));
 
 			foreach (string pattern in excludePatterns)

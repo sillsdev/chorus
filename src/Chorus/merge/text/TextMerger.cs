@@ -74,7 +74,7 @@ namespace ChorusMerge
 			}
 
 
-			return 0; //REVIEW. In what situtations might we fail?
+			return 0; //REVIEW. In what situations might we fail?
 		}
 
 		private static void ReadLines(string merge, StreamWriter ourPartial, StreamWriter lcd, StreamWriter theirPartial)

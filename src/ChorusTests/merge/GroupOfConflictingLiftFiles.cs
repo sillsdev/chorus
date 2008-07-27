@@ -5,14 +5,14 @@ using Chorus.Utilities;
 
 namespace Chorus.Tests.merge
 {
-	internal class GroupOfConflictingFiles : IDisposable
+	internal class GroupOfConflictingLiftFiles : IDisposable
 	{
 		public TempLiftFile BobFile;
 		public TempLiftFile SallyFile;
 		public TempLiftFile AncestorFile;
 		public TempFolder Folder;
 
-		public GroupOfConflictingFiles()
+		public GroupOfConflictingLiftFiles()
 		{
 			Folder = new TempFolder("ChorusTest");
 
