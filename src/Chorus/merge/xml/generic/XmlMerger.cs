@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Xml;
 using Chorus.merge.xml.generic;
 
@@ -102,10 +103,13 @@ namespace Chorus.merge.xml.generic
 			theirDoc.Load(theirPath);
 			XmlNode theirNode = theirDoc.DocumentElement;
 
-			XmlDocument ancestorDoc = new XmlDocument();
-			ancestorDoc.Load(ancestorPath);
-			XmlNode ancestorNode = ancestorDoc.DocumentElement;
-
+			XmlNode ancestorNode = null;
+			if (File.Exists(ancestorPath)) // it's possible for the file to be created independently by each user, with no common ancestor
+			{
+				XmlDocument ancestorDoc = new XmlDocument();
+				ancestorDoc.Load(ancestorPath);
+				ancestorNode = ancestorDoc.DocumentElement;
+			}
 
 			return Merge(ourNode, theirNode, ancestorNode);
 		}

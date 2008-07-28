@@ -22,7 +22,7 @@ namespace Chorus.Tests.merge
 			}
 		}
 
-		[Test, Ignore("not yet")]
+		[Test]
 		public void MergeConflictFiles_AncestorExistsButNoConflicts()
 		{
 			using (
@@ -40,20 +40,27 @@ namespace Chorus.Tests.merge
 				Assert.AreEqual(2, doc.SelectNodes("conflicts/conflict").Count);
 
 			}
-
-
 		}
 
-		[Test, Ignore("HOW TO TEST THIS?  WILL THIS EVEN WORK?")]
+		[Test]
 		public void MergeConflictFiles_AncestorDidNotExist()
 		{
 
+			using (
+				GroupOfConflictFiles group = new GroupOfConflictFiles("",
+																	  "<conflicts><conflict guid='bobGuid'/></conflicts>",
+																	  "<conflicts><conflict guid='sallyGuid'/></conflicts>")
+				)
+			{
+				MergeOrder order = new MergeOrder(MergeOrder.ConflictHandlingMode.WeWin, group.BobFile.Path,
+												  string.Empty, group.SallyFile.Path);
+				MergeDispatcher.Go(order);
 
-		}
+				XmlDocument doc = new XmlDocument();
+				doc.Load(group.BobFile.Path);
+				Assert.AreEqual(2, doc.SelectNodes("conflicts/conflict").Count);
 
-			[Test, Ignore("not yet")]
-		public void NoConflictFileB4_NoConflicts_HaveConflictFileAfter()
-		{
+			}
 		}
 	}
 }
