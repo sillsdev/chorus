@@ -64,6 +64,7 @@ namespace Chorus.merge.xml.generic
 		private bool _modifyingExistingFile;
 		private XmlDocument _xmlDoc;
 		private string _path;
+		static public string TimeFormatNoTimeZone = "yyyy-MM-ddTHH:mm:ssZ";
 
 		static public string GetXmlConflictFilePath(string baseXmlFile)
 		{
@@ -99,6 +100,8 @@ namespace Chorus.merge.xml.generic
 		{
 			_writer.WriteStartElement("conflict");
 			_writer.WriteAttributeString("type", string.Empty, conflict.ConflictTypeHumanName);
+			_writer.WriteAttributeString("guid", string.Empty, conflict.Guid.ToString());
+			_writer.WriteAttributeString("date", string.Empty, DateTime.UtcNow.ToString(TimeFormatNoTimeZone));
 			_writer.WriteString(conflict.GetFullHumanReadableDescription());
 			_writer.WriteEndElement();
 		}

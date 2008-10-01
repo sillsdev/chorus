@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Xml;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
@@ -66,6 +67,8 @@ namespace Chorus.Tests.merge
 
 	public class DummyConflict: IConflict
 	{
+		private Guid _guid = Guid.NewGuid();
+
 		public string GetFullHumanReadableDescription()
 		{
 			return "hello";
@@ -74,6 +77,11 @@ namespace Chorus.Tests.merge
 		public string ConflictTypeHumanName
 		{
 			get { return "dummy"; }
+		}
+
+		public Guid Guid
+		{
+			get { return _guid; }
 		}
 	}
 }

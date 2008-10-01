@@ -12,6 +12,8 @@ namespace Chorus.merge.xml.generic
 		{
 			get;
 		}
+
+		Guid  Guid { get; }
 	}
 
 	public abstract class AttributeConflict : IConflict
@@ -21,6 +23,7 @@ namespace Chorus.merge.xml.generic
 		protected readonly string _theirValue;
 		protected readonly string _ancestorValue;
 		protected readonly MergeStrategies _mergeStrategies;
+		private Guid _guid = Guid.NewGuid();
 
 		public AttributeConflict(string attributeName, string ourValue, string theirValue, string ancestorValue, MergeStrategies mergeStrategies)
 		{
@@ -61,6 +64,11 @@ namespace Chorus.merge.xml.generic
 		public abstract string ConflictTypeHumanName
 		{
 			get;
+		}
+
+		public Guid Guid
+		{
+			get { return _guid; }
 		}
 	}
 
@@ -127,6 +135,7 @@ namespace Chorus.merge.xml.generic
 		protected readonly XmlNode _theirElement;
 		protected readonly XmlNode _ancestorElement;
 		protected readonly MergeStrategies _mergeStrategies;
+		private Guid _guid = Guid.NewGuid();
 
 		public ElementConflict(string elementName, XmlNode ourElement, XmlNode theirElement, XmlNode ancestorElement,
 							   MergeStrategies mergeStrategies)
@@ -154,6 +163,10 @@ namespace Chorus.merge.xml.generic
 
 
 
+		public Guid Guid
+		{
+			get { return _guid; }
+		}
 
 		public abstract string ConflictTypeHumanName
 		{
