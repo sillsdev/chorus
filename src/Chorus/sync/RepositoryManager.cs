@@ -24,7 +24,8 @@ namespace Chorus.sync
 
 		public string RepoProjectName
 		{
-			get { return Path.GetFileNameWithoutExtension(_localRepositoryPath); }
+		   //get { return Path.GetFileNameWithoutExtension(_localRepositoryPath); }
+			get { return Path.GetFileNameWithoutExtension(_localRepositoryPath)+Path.GetExtension(_localRepositoryPath); }
 		}
 
 		public RepositorySource UsbSource
