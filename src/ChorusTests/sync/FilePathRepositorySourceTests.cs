@@ -24,7 +24,8 @@ namespace Chorus.Tests.sync
 				Directory.Delete(_pathToTestRoot, true);
 			Directory.CreateDirectory(_pathToTestRoot);
 
-			_pathToProjectRoot = Path.Combine(_pathToTestRoot, "foo project");
+			//nb: the ".2" here is significant; there was an issue where anything after a "." got stripped
+			_pathToProjectRoot = Path.Combine(_pathToTestRoot, "foo project.2");
 			Directory.CreateDirectory(_pathToProjectRoot);
 
 			string pathToText = WriteTestFile("version one");
@@ -50,13 +51,24 @@ namespace Chorus.Tests.sync
 			return pathToText;
 		}
 
+		[Test]//regression
+		public void SourceHasDotInName_IsNotLost()
+		{
+			using(TempFolder f = new TempFolder("SourceHasDotInName_IsNotLost.x.y"))
+			{
+				RepositoryManager m = new RepositoryManager(f.Path,new ProjectFolderConfiguration("blah"));
+
+				Assert.AreEqual("SourceHasDotInName_IsNotLost.x.y",m.RepoProjectName);
+			}
+		}
+
 
 		[Test]
 		public void SyncNow_BackupAlreadySetUp_GetsSync()
 		{
 			SyncOptions options = new SyncOptions();
 			_manager.SyncNow(options, _progress);
-			string projectDirOnBackup = Path.Combine(_pathToBackupFolder, "foo project");
+			string projectDirOnBackup = Path.Combine(_pathToBackupFolder, "foo project.2");
 			_manager.MakeClone(projectDirOnBackup, true, _progress);
 
 			string contents = File.ReadAllText(Path.Combine(projectDirOnBackup, "foo.txt"));
@@ -67,6 +79,21 @@ namespace Chorus.Tests.sync
 			_manager.SyncNow(options, _progress);
 			contents = File.ReadAllText(Path.Combine(projectDirOnBackup, "foo.txt"));
 			Assert.AreEqual("version two", contents);
+		}
+
+		[Test]
+		public void SyncNow_FileMissing_GetsRemoved()
+		{
+			SyncOptions options = new SyncOptions();
+			_manager.SyncNow(options, _progress);
+
+			string path = Path.Combine(_pathToProjectRoot, "foo.txt");
+			Assert.IsTrue(File.Exists(path));
+			_manager.SyncNow(options, _progress);
+			File.Delete(path);
+			_manager.SyncNow(options, _progress);
+
+			Assert.IsFalse(File.Exists(path));
 		}
 
 		/// <summary>
@@ -81,7 +108,7 @@ namespace Chorus.Tests.sync
 		   // WriteTestFile("version two");
 
 			_manager.SyncNow(options, _progress);
-			string dir = Path.Combine(_pathToBackupFolder, "foo project");
+			string dir = Path.Combine(_pathToBackupFolder, "foo project.2");
 			Assert.IsTrue(Directory.Exists(dir));
 		}
 	}

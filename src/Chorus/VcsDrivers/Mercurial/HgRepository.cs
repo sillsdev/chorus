@@ -394,7 +394,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				args.Append(" -I " + SurroundWithQuotes(p));
 			}
 
-			args.Append(" -I " + SurroundWithQuotes(Path.Combine(this._pathToRepository,"**.conflicts")));
+			args.Append(" -I " + SurroundWithQuotes(Path.Combine(this._pathToRepository, "**.conflicts")));
 			args.Append(" -I " + SurroundWithQuotes(Path.Combine(this._pathToRepository, "**.conflicts.txt")));
 
 			foreach (string pattern in excludePatterns)
@@ -405,7 +405,17 @@ namespace Chorus.VcsDrivers.Mercurial
 				args.Append(" -X " + SurroundWithQuotes(p));
 			}
 
-			using (new ConsoleProgress("Adding files to be tracked ({0}",args.ToString()))
+			//enhance: what happens if something is covered by the exclusion pattern that was previously added?  Will the old
+			// version just be stuck on the head?
+
+			if (GetIsAtLeastOneMissingFileInWorkingDir())
+			{
+				using (new ConsoleProgress("At least one file was removed from the working directory.  Telling Hg to record the deletion."))
+				{
+					Execute("rm -A", _pathToRepository);
+				}
+			}
+			using (new ConsoleProgress("Adding files to be tracked ({0}", args.ToString()))
 			{
 				Execute("add", _pathToRepository, args.ToString());
 			}
@@ -523,6 +533,11 @@ namespace Chorus.VcsDrivers.Mercurial
 		public bool GetFileExistsInRepo(string subPath)
 		{
 			string result = GetTextFromQuery(_pathToRepository, "locate " + subPath);
+			return !String.IsNullOrEmpty(result.Trim());
+		}
+		public bool GetIsAtLeastOneMissingFileInWorkingDir()
+		{
+			string result = GetTextFromQuery(_pathToRepository, "status -d ");
 			return !String.IsNullOrEmpty(result.Trim());
 		}
 	}
