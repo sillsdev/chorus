@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Xml;
@@ -35,7 +36,7 @@ namespace Chorus.merge.xml.lift
 
 		public LiftMerger(IMergeStrategy mergeStrategy, string ourLiftPath, string theirLiftPath, string ancestorLiftPath)
 		{
-
+			_ourLiftPath = ourLiftPath;
 			_ourLift = File.ReadAllText(ourLiftPath);
 			_theirLift =  File.ReadAllText(theirLiftPath);
 			_ancestorLift = File.ReadAllText(ancestorLiftPath);
@@ -44,6 +45,10 @@ namespace Chorus.merge.xml.lift
 			_ancestorDom = new XmlDocument();
 
 			_mergingStrategy = mergeStrategy;
+
+//            string path = Path.Combine(System.Environment.GetEnvironmentVariable("temp"),
+//                           @"chorusMergeOrder" + Path.GetFileName(_ourLiftPath) + ".txt");
+//            File.WriteAllText(path, "Merging OURS\r\n" + _ourLift + "\r\n----------THEIRS\r\n" + _theirLift + "\r\n----------ANCESTOR\r\n" + _ancestorLift);
 		}
 
 		/// <summary>
@@ -63,13 +68,26 @@ namespace Chorus.merge.xml.lift
 
 		public string GetMergedLift()
 		{
+//            string path = Path.Combine(System.Environment.GetEnvironmentVariable("temp"),
+//                                    @"chorusMergeResult" + Path.GetFileName(_ourLiftPath) + ".txt");
+//
+//            File.WriteAllText(path, "ENter GetMergedLift()");
+
 			_ourDom.LoadXml(_ourLift);
 			_theirDom.LoadXml(_theirLift);
 			_ancestorDom.LoadXml(_ancestorLift);
 
-			StringBuilder builder = new StringBuilder();
-			using (XmlWriter writer = XmlWriter.Create(builder))
+
+			Encoding utf8NoBom = new UTF8Encoding(false);
+			XmlWriterSettings settings = new XmlWriterSettings();
+			settings.Encoding = utf8NoBom;//the lack of a bom is probably no big deal either way
+
+			//this, rather than a string builder, is needed to avoid utf-16 coming out
+			MemoryStream memoryStream = new MemoryStream();
+
+			using (XmlWriter writer = XmlWriter.Create(memoryStream, settings))
 			{
+
 				WriteStartOfLiftElement( writer);
 				foreach (XmlNode e in _ourDom.SelectNodes("lift/entry"))
 				{
@@ -88,12 +106,23 @@ namespace Chorus.merge.xml.lift
 				writer.WriteEndElement();
 
 			}
-			return builder.ToString();
+			string xmlString = Encoding.UTF8.GetString(memoryStream.GetBuffer());
+ //           File.WriteAllText(path, xmlString);
+
+			return xmlString;
 		}
 
 		private static XmlNode FindEntry(XmlNode doc, string id)
 		{
-			return doc.SelectSingleNode("lift/entry[@id='"+id+"']");
+#if DEBUG
+			//Debug.Fail("attach");
+			string s = System.Environment.GetEnvironmentVariable("InduceChorusFailure");
+			if(s!=null && s=="LiftMerger.FindEntry")
+			{
+				throw new Exception("Exception Induced By InduceChorusFailure Environment Variable");
+			}
+#endif
+				return doc.SelectSingleNode("lift/entry[@id=\""+id+"\"]");
 		}
 
 		private void ProcessEntry(XmlWriter writer, XmlNode ourEntry)
@@ -129,6 +158,7 @@ namespace Chorus.merge.xml.lift
 		}
 
 		static public string LiftTimeFormatNoTimeZone = "yyyy-MM-ddTHH:mm:ssZ";
+		private string _ourLiftPath;
 
 
 		internal static void AddDateCreatedAttribute(XmlNode elementNode)
