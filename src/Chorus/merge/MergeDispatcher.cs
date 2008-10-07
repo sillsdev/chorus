@@ -21,7 +21,7 @@ namespace Chorus.merge
 					default:
 						//todo: we don't know how to handle this file type, so pick one and report a conflict
 						Console.Error.WriteLine("ChorusMerge doesn't know how to merge files of type" + Path.GetExtension(order.pathToOurs));
-						return -1;
+						return 1; //DON'T USE -1! HG SWALLOWS IT
 					case ".lift":
 						return MergeLiftFiles(order);
 					case ".conflicts":
@@ -34,7 +34,7 @@ namespace Chorus.merge
 			{
 				Console.Error.WriteLine("ChorusMerge Error: " + e.Message);
 				Console.Error.WriteLine(e.StackTrace);
-				return -1;
+				return 1;
 			}
 		}
 
@@ -48,7 +48,7 @@ namespace Chorus.merge
 			}
 			catch (Exception error)
 			{
-				return -1;
+				return 1;
 			}
 			return 0;
 		}

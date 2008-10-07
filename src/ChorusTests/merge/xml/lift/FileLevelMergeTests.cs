@@ -78,6 +78,14 @@ namespace Chorus.Tests.merge.xml.lift
 
 
 
+		[Test]
+		public void ResultIsUtf8()
+		{
+			LiftMerger merger = new LiftMerger(this._ours, this._theirs, this._ancestor,
+											   new DropTheirsMergeStrategy());
+			string result = merger.GetMergedLift();
+			Assert.IsTrue(result.ToLower().Contains("utf-8"));
+		}
 
 		[Test]
 		public void NewEntryFromUs_Conveyed()

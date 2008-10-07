@@ -1,4 +1,6 @@
 using System;
+using System.Diagnostics;
+using System.IO;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
 
@@ -17,6 +19,19 @@ namespace ChorusMerge
 		{
 			try
 			{
+
+				//Debug.Fail("attach now");
+
+//                string path = Path.Combine(System.Environment.GetEnvironmentVariable("temp"),
+//               @"chorusMergeArgs.txt");
+//                string argcontents = "";
+//                foreach (string s in args)
+//                {
+//                    argcontents += s+", ";
+//                }
+//                File.AppendAllText(path, argcontents);
+
+
 				 MergeOrder.ConflictHandlingMode mode = MergeOrder.ConflictHandlingMode.WeWin;
 
 				//we have to get this argument out of the environment variables because we have not control of the arguments
