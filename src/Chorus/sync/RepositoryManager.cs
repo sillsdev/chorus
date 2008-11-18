@@ -91,6 +91,12 @@ namespace Chorus.sync
 			return HgRepository.GetEnvironmentReadinessMessage(messageLanguageId);
 		}
 
+		public static IDisposable CreateDvcsMissingSimulation()
+		{
+			return new Chorus.VcsDrivers.Mercurial.HgMissingSimulation();
+		}
+
+
 
 		public SyncResults SyncNow(SyncOptions options, IProgress progress)
 		{

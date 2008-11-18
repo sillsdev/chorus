@@ -1,12 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual Studio 2008
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WrapShellCall", "WrapShellCall\WrapShellCall.csproj", "{581768BD-502E-471B-9F00-8FCD7EE58B15}"
-	ProjectSection(WebsiteProperties) = preProject
-		Debug.AspNetCompiler.Debug = "True"
-		Release.AspNetCompiler.Debug = "False"
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChorusMerge", "ChorusMerge\ChorusMerge.csproj", "{1264E294-F719-491C-863A-703CB48385D8}"
 	ProjectSection(WebsiteProperties) = preProject
 		Debug.AspNetCompiler.Debug = "True"
@@ -29,10 +23,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{581768BD-502E-471B-9F00-8FCD7EE58B15}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{581768BD-502E-471B-9F00-8FCD7EE58B15}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{581768BD-502E-471B-9F00-8FCD7EE58B15}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{581768BD-502E-471B-9F00-8FCD7EE58B15}.Release|Any CPU.Build.0 = Release|Any CPU
 		{1264E294-F719-491C-863A-703CB48385D8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{1264E294-F719-491C-863A-703CB48385D8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1264E294-F719-491C-863A-703CB48385D8}.Release|Any CPU.ActiveCfg = Release|Any CPU

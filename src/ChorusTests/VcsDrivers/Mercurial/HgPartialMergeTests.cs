@@ -25,14 +25,6 @@ namespace Chorus.Tests.VcsDrivers.Mercurial
 
 
 		[Test]
-		public void GetVersion()
-		{
-			ExecutionResult result =  WrapShellCallRunner.Run("hg version");
-			Console.WriteLine(result.StandardOutput);
-			Console.WriteLine(result.StandardError);
-		}
-
-		[Test]
 		public void LoneUserCanModifyAndCheckIn()
 		{
 			string filePath;

@@ -39,6 +39,17 @@ namespace Chorus.Tests.sync
 			_progress = new StringBuilderProgress();
 		}
 
+		[Test, ExpectedException(typeof(ApplicationException))]
+		public void GetHistory_NoHg_GetException()
+		{
+			using (RepositoryManager.CreateDvcsMissingSimulation())
+			{
+				RepositoryManager repo = new RepositoryManager(_project.FolderPath, _project, "bob");
+				List<RevisionDescriptor> items = repo.GetHistoryItems(_progress);
+				Assert.AreEqual(0, items.Count);
+			}
+		}
+
 		[Test]
 		public void BeforeAnySyncing_EmptyHistory()
 		{

@@ -2,7 +2,7 @@
   <PropertyGroup>
 	<Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
 	<Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-	<ProductVersion>8.0.50727</ProductVersion>
+	<ProductVersion>9.0.30729</ProductVersion>
 	<SchemaVersion>2.0</SchemaVersion>
 	<ProjectGuid>{94245366-8F1E-475C-810D-FE89BB3948E0}</ProjectGuid>
 	<OutputType>WinExe</OutputType>
@@ -82,6 +82,7 @@
 	<Compile Include="Utilities\TempFile.cs" />
 	<Compile Include="Utilities\UsbUtilities.cs" />
 	<Compile Include="VcsDrivers\Git\GitRepository.cs" />
+	<Compile Include="VcsDrivers\Mercurial\HgMissingSimulation .cs" />
 	<Compile Include="VcsDrivers\Mercurial\HgPartialMergeRepository.cs" />
 	<Compile Include="VcsDrivers\Mercurial\HgRepository.cs" />
 	<Compile Include="merge\text\TextMerger.cs" />
@@ -127,7 +128,7 @@
 	<Compile Include="UI\SyncPanel.Designer.cs">
 	  <DependentUpon>SyncPanel.cs</DependentUpon>
 	</Compile>
-	<Compile Include="VcsDrivers\Mercurial\WrapShellCallRunner.cs" />
+	<Compile Include="VcsDrivers\Mercurial\HgRunner.cs" />
   </ItemGroup>
   <ItemGroup>
 	<EmbeddedResource Include="UI\HistoryPanel.resx">

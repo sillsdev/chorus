@@ -244,7 +244,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		{
 			//    _progress.WriteMessage("hg "+command);
 
-			return WrapShellCallRunner.Run("hg " + command, fromDirectory);
+			return HgRunner.Run("hg " + command, fromDirectory);
 		}
 
 		protected static ExecutionResult ExecuteErrorsOk(string command)

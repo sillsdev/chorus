@@ -116,6 +116,7 @@ namespace Chorus.merge.xml.lift
 		{
 #if DEBUG
 			//Debug.Fail("attach");
+
 			string s = System.Environment.GetEnvironmentVariable("InduceChorusFailure");
 			if(s!=null && s=="LiftMerger.FindEntry")
 			{

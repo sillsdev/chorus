@@ -14,6 +14,7 @@ namespace Chorus.merge
 	{
 		static public int Go(MergeOrder order)
 		{
+			//Debug.Fail("Use this break to attach to ChorusMerge.exe so you can step into this code, which is called by Hg");
 			try
 			{
 				switch (Path.GetExtension(order.pathToOurs))
