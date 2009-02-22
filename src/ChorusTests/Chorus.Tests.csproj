@@ -42,6 +42,7 @@
 	<Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+	<Compile Include="merge\xml\ConflictXmlRecordRetrievalTests.cs" />
 	<Compile Include="merge\GroupOfConflictFiles.cs" />
 	<Compile Include="merge\XmlLogMergeEventListenerTests.cs" />
 	<Compile Include="merge\GroupOfConflictingLiftFiles.cs" />
@@ -54,16 +55,17 @@
 	<Compile Include="merge\xml\lift\SenseMergingTests.cs" />
 	<Compile Include="merge\MergeDispatcherTests.cs" />
 	<Compile Include="sync\FilePathRepositorySourceTests.cs" />
-	<Compile Include="sync\ConflictFileTests.cs" />
+	<Compile Include="sync\ConflictFileSyncTests.cs" />
 	<Compile Include="sync\SyncScenarioTests.cs" />
 	<Compile Include="sync\UsbRepositorySourceTests.cs" />
-	<Compile Include="sync\HistoryTests.cs" />
+	<Compile Include="VcsDrivers\Mercurial\HistoryTests.cs" />
 	<Compile Include="sync\UserWithFiles.cs" />
 	<Compile Include="UI\HistoryPanelModelTests.cs" />
 	<Compile Include="UI\SyncPanelModelTests.cs" />
 	<Compile Include="utilities\ChorusDiff3Tests.cs" />
 	<Compile Include="VcsDrivers\Mercurial\HgPartialMergeTests.cs" />
 	<Compile Include="Properties\AssemblyInfo.cs" />
+	<Compile Include="VcsDrivers\Mercurial\RetrieveVersionTests.cs" />
   </ItemGroup>
   <ItemGroup>
 	<ProjectReference Include="..\Chorus\Chorus.csproj">

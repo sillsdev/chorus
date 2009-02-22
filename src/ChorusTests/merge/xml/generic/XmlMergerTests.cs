@@ -1,4 +1,5 @@
 using System;
+using Chorus.merge;
 using Chorus.merge.xml.generic;
 using Chorus.Tests.merge.xml;
 using NUnit.Framework;
@@ -9,7 +10,7 @@ namespace Chorus.Tests.merge.xml.generic
 	public class XmlMergerTests
 	{
 		[Test]
-		public void OneAddedNewMulticElement()
+		public void OneAddedNewChildElement()
 		{
 			string red = @"<a/>";
 			string ancestor = red;
@@ -46,10 +47,10 @@ namespace Chorus.Tests.merge.xml.generic
 
 		private NodeMergeResult CheckOneWay(string ours, string theirs, string ancestor, params string[] xpaths)
 		{
-			XmlMerger m = new XmlMerger();
-			m._mergeStrategies._elementStrategies.Add("a", ElementStrategy.CreateForKeyedElement("key"));
-			m._mergeStrategies._elementStrategies.Add("b", ElementStrategy.CreateForKeyedElement("key"));
-			m._mergeStrategies._elementStrategies.Add("c", ElementStrategy.CreateForKeyedElement("key"));
+			XmlMerger m = new XmlMerger(new NullMergeSituation());
+			m.MergeStrategies._elementStrategies.Add("a", ElementStrategy.CreateForKeyedElement("key"));
+			m.MergeStrategies._elementStrategies.Add("b", ElementStrategy.CreateForKeyedElement("key"));
+			m.MergeStrategies._elementStrategies.Add("c", ElementStrategy.CreateForKeyedElement("key"));
 			NodeMergeResult result = m.Merge(ours, theirs, ancestor);
 			foreach (string xpath in xpaths)
 			{
@@ -103,7 +104,7 @@ namespace Chorus.Tests.merge.xml.generic
 			string ours = @"<t>mine</t>";
 			string theirs = @"<t>theirs</t>";
 
-			XmlMerger m = new XmlMerger();
+			XmlMerger m = new XmlMerger(new NullMergeSituation());
 			NodeMergeResult result = m.Merge(ours, theirs, ancestor);
 			XmlTestHelper.AssertXPathMatchesExactlyOne(result.MergedNode, "t[text()='mine']");
 			Assert.AreEqual(typeof (BothEdittedTextConflict), result.Conflicts[0].GetType());
@@ -116,7 +117,7 @@ namespace Chorus.Tests.merge.xml.generic
 			string ours = @"<t>mine</t>";
 			string theirs = @"<t></t>";
 
-			XmlMerger m = new XmlMerger();
+			XmlMerger m = new XmlMerger(new NullMergeSituation());
 			NodeMergeResult result = m.Merge(ours, theirs, ancestor);
 			XmlTestHelper.AssertXPathMatchesExactlyOne(result.MergedNode, "t[text()='mine']");
 

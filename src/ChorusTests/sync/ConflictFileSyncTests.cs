@@ -6,7 +6,7 @@ using NUnit.Framework;
 namespace Chorus.Tests.merge
 {
 	[TestFixture]
-	public class ConflictFileTests
+	public class ConflictFileSyncTests
 	{
 		[Test]
 		public void ConflictFileIsCheckedIn()

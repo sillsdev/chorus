@@ -11,7 +11,7 @@ namespace ChorusMerge
 	/// It will dispatch to file-format-specific mergers.  Note that
 	/// we can't control the argument list or get more arguments, so
 	/// anything beyond the 3 files must be specified in environment variables.
-	/// See MergeOrder for a description of those variables and their possible.
+	/// See MergeOrder and MergeSituation for a description of those variables and their possible values.
 	/// </summary>
 	class Program
 	{
@@ -19,33 +19,7 @@ namespace ChorusMerge
 		{
 			try
 			{
-
-				//Debug.Fail("attach now");
-
-//                string path = Path.Combine(System.Environment.GetEnvironmentVariable("temp"),
-//               @"chorusMergeArgs.txt");
-//                string argcontents = "";
-//                foreach (string s in args)
-//                {
-//                    argcontents += s+", ";
-//                }
-//                File.AppendAllText(path, argcontents);
-
-
-				 MergeOrder.ConflictHandlingMode mode = MergeOrder.ConflictHandlingMode.WeWin;
-
-				//we have to get this argument out of the environment variables because we have not control of the arguments
-				//the dvcs system is going to use to call us. So whoever invokes the dvcs needs to set this variable ahead of time
-				string modeString = Environment.GetEnvironmentVariable(MergeOrder.kConflictHandlingModeEnvVarName);
-				if (!string.IsNullOrEmpty(modeString))
-				{
-
-					mode =
-						(MergeOrder.ConflictHandlingMode)
-						Enum.Parse(typeof (MergeOrder.ConflictHandlingMode), modeString);
-				}
-
-				MergeOrder order = new MergeOrder(mode, args[0], args[1], args[2]);
+				MergeOrder order = MergeOrder.CreateUsingEnvironmentVariables(args[0], args[1], args[2]);
 				return MergeDispatcher.Go(order);
 			}
 			catch (Exception e)

@@ -7,7 +7,7 @@ using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
 using NUnit.Framework;
 
-namespace Chorus.Tests.sync
+namespace Chorus.Tests.VcsDrivers.Mercurial
 {
 	[TestFixture]
 	public class HistoryTests
@@ -51,7 +51,7 @@ namespace Chorus.Tests.sync
 		}
 
 		[Test]
-		public void BeforeAnySyncing_EmptyHistory()
+		public void GetHistoryItems_BeforeAnySyncing_EmptyHistory()
 		{
 			RepositoryManager repo = new RepositoryManager(_project.FolderPath, _project, "bob");
 			List<RevisionDescriptor> items = repo.GetHistoryItems(_progress);
@@ -59,7 +59,7 @@ namespace Chorus.Tests.sync
 		}
 
 		[Test]
-		public void AfterSyncingTwoTimes_CorrectHistory()
+		public void GetHistoryItems_AfterSyncingTwoTimes_CorrectHistory()
 		{
 			RepositoryManager repo = new RepositoryManager(_project.FolderPath, _project, "bob");
 			SyncOptions options = new SyncOptions();

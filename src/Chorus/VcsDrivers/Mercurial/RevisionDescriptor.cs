@@ -1,27 +1,36 @@
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace Chorus.VcsDrivers.Mercurial
 {
 	public class RevisionDescriptor
 	{
-		public string UserId;
-		public string _revision;
-		public string _hash;
-		public string Summary;
-		public string _tag;
-		public string DateString;
+		public string UserId { get; set; }
+		public string Revision { get; set; }
+		public string Hash{ get; set;}
+		public string Summary { get; set; }
+		public string Tag{ get; set;}
+		public string DateString { get; set; }
 
 		public RevisionDescriptor()
 		 {
 		 }
 
+		public void SetRevisionAndHashFromCombinedDescriptor(string descriptor)
+		{
+			string[] parts = descriptor.Split(new char[] { ':' });
+			Debug.Assert(parts.Length == 2);
+			Hash = parts[1];
+			Revision = parts[0];
+		}
+
 		public RevisionDescriptor(string name, string revision, string hash, string comment)
 		{
 			UserId = name;
-			_revision = revision;
-			_hash = hash;
+			Revision = revision;
+			Hash = hash;
 			Summary = comment;
-			_tag = "";
+			Tag = "";
 		}
 
 		public static List<RevisionDescriptor>  GetRevisionsFromQueryOutput(string result)
@@ -57,7 +66,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				RevisionDescriptor revision = new RevisionDescriptor(d["user"], revisionParts[0], /*revisionParts[1]*/"unknown", summary);
 				if(d.ContainsKey("tag"))
 				{
-					revision._tag = d["tag"];
+					revision.Tag = d["tag"];
 				}
 				revisions.Add(revision);
 

@@ -58,10 +58,15 @@
   </ItemGroup>
   <ItemGroup>
 	<Compile Include="merge\MergeDispatcher.cs" />
+	<Compile Include="merge\MergeOrder.cs" />
 	<Compile Include="merge\xml\generic\DropTheirsMergeStrategy.cs" />
+	<Compile Include="merge\IConflict.cs" />
 	<Compile Include="merge\xml\generic\MergeChildrenMethod.cs" />
+	<Compile Include="merge\MergeSituation.cs" />
 	<Compile Include="merge\xml\generic\MergeSort.cs" />
 	<Compile Include="merge\xml\generic\PoorMansMergeStrategy.cs" />
+	<Compile Include="retrieval\IRetrieveFile.cs" />
+	<Compile Include="retrieval\LiftEntryRetriever.cs" />
 	<Compile Include="sync\ProjectFolderConfiguration.cs" />
 	<Compile Include="sync\RepositoryManager.cs" />
 	<Compile Include="sync\RepositorySource.cs" />

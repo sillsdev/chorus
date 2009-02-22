@@ -54,8 +54,8 @@ namespace Chorus.merge.xml.generic
 					if (ancestorOursOrderer.OrderIsDifferent)
 					{
 						// stick with our orderer (we win), but report conflict.
-						_merger._eventListener.ConflictOccurred(new BothReorderedElementConflict(_ours.Name, _ours,
-							_theirs, _ancestor, _merger._mergeStrategies));
+						_merger.EventListener.ConflictOccurred(new BothReorderedElementConflict(_ours.Name, _ours,
+							_theirs, _ancestor, _merger.MergeSituation, _merger.MergeStrategies));
 					}
 					else
 					{
@@ -69,13 +69,13 @@ namespace Chorus.merge.xml.generic
 			if (!resultOrderer.OrderIsConsistent ||
 				(resultOrderer.OrderIsDifferent && resultOrderer.OrderIsAmbiguous))
 			{
-				_merger._eventListener.ConflictOccurred(new AmbiguousInsertReorderConflict(_ours.Name, _ours,
-					_theirs, _ancestor, _merger._mergeStrategies));
+				_merger.EventListener.ConflictOccurred(new AmbiguousInsertReorderConflict(_ours.Name, _ours,
+					_theirs, _ancestor, _merger.MergeSituation, _merger.MergeStrategies));
 			}
 			else if (resultOrderer.OrderIsAmbiguous)
 			{
-				_merger._eventListener.ConflictOccurred(new AmbiguousInsertConflict(_ours.Name, _ours,
-					_theirs, _ancestor, _merger._mergeStrategies));
+				_merger.EventListener.ConflictOccurred(new AmbiguousInsertConflict(_ours.Name, _ours,
+					_theirs, _ancestor, _merger.MergeSituation, _merger.MergeStrategies));
 			}
 
 			List<XmlNode> newChildren = resultOrderer.GetResultList();
@@ -129,7 +129,7 @@ namespace Chorus.merge.xml.generic
 
 
 
-			//        IFindNodeToMerge finder = _merger._mergeStrategies.GetMergePartnerFinder(theirChild);
+			//        IFindNodeToMerge finder = _merger.MergeSituation.GetMergePartnerFinder(theirChild);
 			//        XmlNode ourChild = finder.GetNodeToMerge(theirChild, _ours);
 			//        XmlNode ancestorChild = finder.GetNodeToMerge(theirChild, _ancestor);
 
@@ -153,7 +153,7 @@ namespace Chorus.merge.xml.generic
 			//            else //we deleted it, but at the same time, they changed it
 			//            {
 			//                _merger.EventListener.ConflictOccurred(new RemovedVsEditedElementConflict(theirChild.Name, null,
-			//                    theirChild, ancestorChild, _merger._mergeStrategies));
+			//                    theirChild, ancestorChild, _merger.MergeSituation));
 			//                continue;
 			//            }
 			//        }
@@ -182,7 +182,7 @@ namespace Chorus.merge.xml.generic
 			//    {
 			//        continue;
 			//    }
-			//    IFindNodeToMerge finder = _merger._mergeStrategies.GetMergePartnerFinder(ourChild);
+			//    IFindNodeToMerge finder = _merger.MergeSituation.GetMergePartnerFinder(ourChild);
 			//    XmlNode ancestorChild = finder.GetNodeToMerge(ourChild, _ancestor);
 			//    XmlNode theirChild = finder.GetNodeToMerge(ourChild, _theirs);
 
@@ -198,12 +198,12 @@ namespace Chorus.merge.xml.generic
 			//            {
 			//                _merger.EventListener.ConflictOccurred(
 			//                    new RemovedVsEditedElementConflict(ourChild.Name, ourChild, null, ancestorChild,
-			//                    _merger._mergeStrategies));
+			//                    _merger.MergeSituation));
 			//            }
 			//            else
 			//            {
 			//                _merger.EventListener.ConflictOccurred(
-			//                    new RemovedVsEdittedTextConflict(ourChild, null, ancestorChild, _merger._mergeStrategies));
+			//                    new RemovedVsEdittedTextConflict(ourChild, null, ancestorChild, _merger.MergeSituation));
 			//            }
 			//        }
 			//    }
@@ -225,7 +225,7 @@ namespace Chorus.merge.xml.generic
 
 		private XmlNode FindMatchingNode(XmlNode node, XmlNode otherParent)
 		{
-			IFindNodeToMerge finder = _merger._mergeStrategies.GetMergePartnerFinder(node);
+			IFindNodeToMerge finder = _merger.MergeStrategies.GetMergePartnerFinder(node);
 			return finder.GetNodeToMerge(node, otherParent);
 		}
 
@@ -241,7 +241,7 @@ namespace Chorus.merge.xml.generic
 			List<XmlNode> loopSource = new List<XmlNode>(_ancestorKeepers);
 			foreach (XmlNode ancestorChild in loopSource)
 			{
-				IFindNodeToMerge finder = _merger._mergeStrategies.GetMergePartnerFinder(ancestorChild);
+				IFindNodeToMerge finder = _merger.MergeStrategies.GetMergePartnerFinder(ancestorChild);
 				XmlNode ourChild = finder.GetNodeToMerge(ancestorChild, _ours);
 				XmlNode theirChild = finder.GetNodeToMerge(ancestorChild, _theirs);
 
@@ -258,9 +258,10 @@ namespace Chorus.merge.xml.generic
 						if (!XmlUtilities.AreXmlElementsEqual(ancestorChild, theirChild))
 						{
 							// We deleted, they modified, report conflict.
-							_merger._eventListener.ConflictOccurred(new RemovedVsEditedElementConflict(theirChild.Name, null,
+							_merger.EventListener.ConflictOccurred(new RemovedVsEditedElementConflict(theirChild.Name, null,
 																								theirChild, ancestorChild,
-																								_merger._mergeStrategies));
+																								_merger.MergeSituation,
+																								_merger.MergeStrategies));
 						}
 						// In any case, we deleted it, forget it existed.
 						_ancestorKeepers.Remove(ancestorChild);
@@ -281,14 +282,14 @@ namespace Chorus.merge.xml.generic
 						// We changed it, ignore their deletion and report conflict.
 						if (ourChild.NodeType == XmlNodeType.Element)
 						{
-							_merger._eventListener.ConflictOccurred(
+							_merger.EventListener.ConflictOccurred(
 								new RemovedVsEditedElementConflict(ourChild.Name, ourChild, null, ancestorChild,
-																   _merger._mergeStrategies));
+																   _merger.MergeSituation, _merger.MergeStrategies));
 						}
 						else
 						{
-							_merger._eventListener.ConflictOccurred(
-								new RemovedVsEdittedTextConflict(ourChild, null, ancestorChild, _merger._mergeStrategies));
+							_merger.EventListener.ConflictOccurred(
+								new RemovedVsEdittedTextConflict(ourChild, null, ancestorChild, _merger.MergeSituation));
 						}
 					}
 				}
@@ -561,7 +562,7 @@ namespace Chorus.merge.xml.generic
 			for (int iPrimary = startPrimaryRange; iPrimary < limPrimaryRange; iPrimary++)
 			{
 				XmlNode ourChild = _primary[iPrimary];
-				IFindNodeToMerge finder = _merger._mergeStrategies.GetMergePartnerFinder(ourChild);
+				IFindNodeToMerge finder = _merger.MergeStrategies.GetMergePartnerFinder(ourChild);
 				IFindPossibleNodeToMerge possibleFinder = finder as IFindPossibleNodeToMerge;
 				if (possibleFinder == null)
 					continue;

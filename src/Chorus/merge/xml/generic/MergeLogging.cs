@@ -10,11 +10,17 @@ namespace Chorus.merge.xml.generic
 	public interface IMergeEventListener
 	{
 		void ConflictOccurred(IConflict conflict);
+		void EnteringContext(string context);
 	}
 
 	public class NullMergeEventListener : IMergeEventListener
 	{
 		public void ConflictOccurred(IConflict conflict)
+		{
+
+		}
+
+		public void EnteringContext(string context)
 		{
 
 		}
@@ -36,6 +42,14 @@ namespace Chorus.merge.xml.generic
 				listener.ConflictOccurred(conflict);
 			}
 		}
+
+		public void EnteringContext(string context)
+		{
+			 foreach (IMergeEventListener listener in _listeners)
+			{
+				listener.EnteringContext(context);
+			}
+		}
 	}
 
 	public class HumanLogMergeEventListener : IMergeEventListener, IDisposable
@@ -51,13 +65,20 @@ namespace Chorus.merge.xml.generic
 			_stream.WriteLine(conflict.GetFullHumanReadableDescription());
 		}
 
+		public void EnteringContext(string context)
+		{
+
+		}
+
 		public void Dispose()
 		{
 			_stream.Close();
 		}
 	}
 
-
+	/// <summary>
+	/// Note, the conflict log is kept in xml, but that doesn't mean this is only for merging xml documents.
+	/// </summary>
 	public class XmlLogMergeEventListener : IMergeEventListener, IDisposable
 	{
 		private XmlWriter _writer;
@@ -65,6 +86,11 @@ namespace Chorus.merge.xml.generic
 		private XmlDocument _xmlDoc;
 		private string _path;
 		static public string TimeFormatNoTimeZone = "yyyy-MM-ddTHH:mm:ssZ";
+
+		/// <summary>
+		/// used for finding the context in the orginal file of any conflicts which may occur inside the element
+		/// </summary>
+		private string _context=string.Empty;
 
 		static public string GetXmlConflictFilePath(string baseXmlFile)
 		{
@@ -102,8 +128,14 @@ namespace Chorus.merge.xml.generic
 			_writer.WriteAttributeString("type", string.Empty, conflict.ConflictTypeHumanName);
 			_writer.WriteAttributeString("guid", string.Empty, conflict.Guid.ToString());
 			_writer.WriteAttributeString("date", string.Empty, DateTime.UtcNow.ToString(TimeFormatNoTimeZone));
+			_writer.WriteAttributeString("context", string.Empty, _context);
 			_writer.WriteString(conflict.GetFullHumanReadableDescription());
 			_writer.WriteEndElement();
+		}
+
+		public void EnteringContext(string context)
+		{
+			_context = context;
 		}
 
 		public void Dispose()

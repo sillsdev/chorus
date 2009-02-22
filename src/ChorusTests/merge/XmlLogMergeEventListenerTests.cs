@@ -3,6 +3,7 @@ using System.IO;
 using System.Xml;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
+using Chorus.retrieval;
 using Chorus.Utilities;
 using NUnit.Framework;
 
@@ -69,6 +70,11 @@ namespace Chorus.Tests.merge
 	{
 		private Guid _guid = Guid.NewGuid();
 
+		public void SetContextDescriptor(string contextDescriptor)
+		{
+			throw new System.NotImplementedException();
+		}
+
 		public string GetFullHumanReadableDescription()
 		{
 			return "hello";
@@ -83,5 +89,11 @@ namespace Chorus.Tests.merge
 		{
 			get { return _guid; }
 		}
+
+		public string GetRawDataFromConflictVersion(IRetrieveFile fileRetriever, ThreeWayMergeSources.Source mergeSource, string recordLevel)
+		{
+			throw new System.NotImplementedException();
+		}
+
 	}
 }

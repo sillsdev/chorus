@@ -141,9 +141,9 @@ namespace Chorus.Tests.VcsDrivers.Mercurial
 			ChangeTestFileAndCheckin(bob, "data.txt", 7, "noun");
 			AssertLineOfFile(filePath, 7, "noun");
 
-			using (TempFile f = new TempFile())
+			using (TempFile f = TempFile.TrackExisting(bob.RetrieveHistoricalVersionOfFile("data.txt", "1")))
 			{
-				bob.GetRevisionOfFile("data.txt", "1", f.Path);
+			  //  bob.GetRevisionOfFile("data.txt", "1", f.Path);
 				AssertLineOfFile(f.Path, 7, "adj"); //the original value
 			}
 		}

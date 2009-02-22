@@ -1,3 +1,4 @@
+using Chorus.merge;
 using Chorus.merge.xml.lift;
 using NUnit.Framework;
 
@@ -34,7 +35,7 @@ namespace Chorus.Tests.merge.xml.lift
 					<lift version='0.10' producer='WeSay 1.0.0.0'>
 						<entry id='test'/>
 					</lift>";
-			LiftMerger merger = new LiftMerger(ours, theirs, ancestor, new EntryMerger());
+			LiftMerger merger = new LiftMerger(ours, theirs, ancestor, new EntryMerger(new NullMergeSituation()));
 			string result = merger.GetMergedLift();
 			XmlTestHelper.AssertXPathMatchesExactlyOne(result, "lift/entry[@id='test']");
 			XmlTestHelper.AssertXPathMatchesExactlyOne(result, "lift/entry[@id='test' and sense[@id='123']/gloss/text='ourSense']");

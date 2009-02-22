@@ -4,17 +4,34 @@ using Chorus.merge.xml.generic;
 
 namespace Chorus.merge.xml.lift
 {
+	public class LexEntryContextGenerator :IGenerateContextDescriptor
+	{
+		public string GenerateContextDescriptor(string mergeElement)
+		{
+			var doc = new XmlDocument();
+			doc.LoadXml(mergeElement);
+			var node = doc.FirstChild.Attributes.GetNamedItem("guid");
+			if(node==null)
+			{
+				throw new ApplicationException("Could not get guid attribute out of "+mergeElement);
+			}
+			return String.Format("lift/entry[@guid='{0}]'", node.Value);
+		}
+	}
+
 	public class EntryMerger : IMergeStrategy
 	{
 		private XmlMerger _entryMerger;
 
-		public EntryMerger()
+		public EntryMerger(MergeSituation mergeSituation)
 		{
-			_entryMerger = new XmlMerger();
+			_entryMerger = new XmlMerger(mergeSituation);
 
 			//now customize the XmlMerger with LIFT-specific info
 
-			AddKeyedElementType("entry", "id");
+			var elementStrategy =AddKeyedElementType("entry", "id");
+			elementStrategy.ContextDescriptorGenerator = new LexEntryContextGenerator();
+
 			AddKeyedElementType("sense", "id");
 			AddKeyedElementType("form", "lang");
 			AddKeyedElementType("field", "type");
@@ -39,16 +56,16 @@ namespace Chorus.merge.xml.lift
 		private ElementStrategy AddKeyedElementType(string name, string attribute)
 		{
 			ElementStrategy strategy = new ElementStrategy();
-			strategy._mergePartnerFinder = new FindByKeyAttribute(attribute);
-			_entryMerger._mergeStrategies.SetStrategy(name, strategy);
+			strategy.MergePartnerFinder = new FindByKeyAttribute(attribute);
+			_entryMerger.MergeStrategies.SetStrategy(name, strategy);
 			return strategy;
 		}
 
 		private ElementStrategy AddSingletonElementType(string name)
 		{
 			ElementStrategy strategy = new ElementStrategy();
-			strategy._mergePartnerFinder = new FindFirstElementWithSameName();
-			_entryMerger._mergeStrategies.SetStrategy(name, strategy);
+			strategy.MergePartnerFinder = new FindFirstElementWithSameName();
+			_entryMerger.MergeStrategies.SetStrategy(name, strategy);
 			return strategy;
 		}
 

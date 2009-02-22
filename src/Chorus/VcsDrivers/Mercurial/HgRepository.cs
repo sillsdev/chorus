@@ -3,13 +3,15 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
+using Chorus.retrieval;
 using Chorus.sync;
 using Chorus.Utilities;
 using Chorus.merge;
 
 namespace Chorus.VcsDrivers.Mercurial
 {
-	public class HgRepository
+
+	public class HgRepository : IRetrieveFile
 	{
 		protected readonly string _pathToRepository;
 		protected readonly string _userName;
@@ -228,13 +230,14 @@ namespace Chorus.VcsDrivers.Mercurial
 			ExecutionResult result = ExecuteErrorsOk(b.ToString());
 			if (0 != result.ExitCode && !failureIsOk)
 			{
+				var details = "\r\n" + "hg Command was " + "\r\n" +  b.ToString();
 				if (!string.IsNullOrEmpty(result.StandardError))
 				{
-					throw new ApplicationException(result.StandardError);
+					throw new ApplicationException(result.StandardError + details);
 				}
 				else
 				{
-					throw new ApplicationException("Got return value " + result.ExitCode);
+					throw new ApplicationException("Got return value " + result.ExitCode + details);
 				}
 			}
 			return result;
@@ -316,14 +319,14 @@ namespace Chorus.VcsDrivers.Mercurial
 			}
 		}
 
-		public void GetRevisionOfFile(string fileRelativePath, string revision, string fullOutputPath)
-		{
-			//for "hg cat" (surprisingly), the relative path isn't relative to the start of the repo, but to the current
-			// directory.
-			string absolutePathToFile = SurroundWithQuotes(Path.Combine(_pathToRepository, fileRelativePath));
-
-			Execute("cat", _pathToRepository, "-o ",fullOutputPath," -r ",revision,absolutePathToFile);
-		}
+//        public void GetRevisionOfFile(string fileRelativePath, string revision, string fullOutputPath)
+//        {
+//            //for "hg cat" (surprisingly), the relative path isn't relative to the start of the repo, but to the current
+//            // directory.
+//            string absolutePathToFile = SurroundWithQuotes(Path.Combine(_pathToRepository, fileRelativePath));
+//
+//            Execute("cat", _pathToRepository, "-o ",fullOutputPath," -r ",revision,absolutePathToFile);
+//        }
 
 		public static void CreateRepositoryInExistingDir(string path)
 		{
@@ -345,7 +348,10 @@ namespace Chorus.VcsDrivers.Mercurial
 			RevisionDescriptor myHead = GetMyHead();
 			foreach (RevisionDescriptor theirHead in heads)
 			{
-				if (theirHead._revision != myHead._revision)
+				MergeSituation.PushRevisionsToEnvironmentVariables(myHead.Revision, theirHead.Revision);
+
+				MergeOrder.PushToEnvironmentVariables(_pathToRepository);
+				if (theirHead.Revision != myHead.Revision)
 				{
 					bool didMerge = MergeTwoChangeSets(myHead, theirHead);
 					if (didMerge)
@@ -363,10 +369,10 @@ namespace Chorus.VcsDrivers.Mercurial
 			ExecutionResult result = null;
 			using (new ShortTermEnvironmentalVariable("HGMERGE", Path.Combine(Other.DirectoryOfExecutingAssembly, "ChorusMerge.exe")))
 			{
-				using (new ShortTermEnvironmentalVariable(MergeOrder.kConflictHandlingModeEnvVarName, MergeOrder.ConflictHandlingMode.TheyWin.ToString()))
+				using (new ShortTermEnvironmentalVariable(MergeOrder.kConflictHandlingModeEnvVarName, MergeOrder.ConflictHandlingModeChoices.TheyWin.ToString()))
 
 				{
-					result = Execute(true, "merge", _pathToRepository, "-r", theirHead._revision);
+					result = Execute(true, "merge", _pathToRepository, "-r", theirHead.Revision);
 				}
 			}
 			if (result.ExitCode != 0)
@@ -450,13 +456,13 @@ namespace Chorus.VcsDrivers.Mercurial
 			_progress.WriteMessage("Current Heads:");
 			foreach (RevisionDescriptor head in heads)
 			{
-				if (head._revision == myHead._revision)
+				if (head.Revision == myHead.Revision)
 				{
-					_progress.WriteMessage("  ME {0} {1} {2}", head.UserId, head._revision, head.Summary);
+					_progress.WriteMessage("  ME {0} {1} {2}", head.UserId, head.Revision, head.Summary);
 				}
 				else
 				{
-					_progress.WriteMessage("      {0} {1} {2}", head.UserId, head._revision, head.Summary);
+					_progress.WriteMessage("      {0} {1} {2}", head.UserId, head.Revision, head.Summary);
 				}
 			}
 		}
@@ -498,7 +504,7 @@ namespace Chorus.VcsDrivers.Mercurial
 						case "changeset":
 							item = new RevisionDescriptor();
 							items.Add(item);
-							item._hash = value;
+							item.SetRevisionAndHashFromCombinedDescriptor(value);
 							break;
 
 						case "user":
@@ -539,6 +545,23 @@ namespace Chorus.VcsDrivers.Mercurial
 		{
 			string result = GetTextFromQuery(_pathToRepository, "status -d ");
 			return !String.IsNullOrEmpty(result.Trim());
+		}
+
+		/// <summary>
+		///  From IRetrieveFile
+		/// </summary>
+		/// <returns>path to a temp file. caller is responsible for deleting the file.</returns>
+		public string RetrieveHistoricalVersionOfFile(string relativePath, string hash)
+		{
+			var f = new TempFile();
+
+			var cmd = string.Format("cat -o \"{0}\" -r {1} \"{2}\"", f.Path, hash, relativePath);
+			ExecutionResult result = ExecuteErrorsOk(cmd, _pathToRepository);
+			if(!string.IsNullOrEmpty(result.StandardError.Trim()))
+			{
+				throw new ApplicationException(String.Format("Could not retrieve version {0} of {1}. Mercurial said: {2}", hash, relativePath, result.StandardError));
+			}
+			return f.Path;
 		}
 	}
 }

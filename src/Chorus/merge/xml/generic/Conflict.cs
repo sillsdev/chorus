@@ -2,19 +2,30 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
+using Chorus.retrieval;
+using Chorus.Utilities;
 
 namespace Chorus.merge.xml.generic
 {
-	public interface IConflict
-	{
-		string GetFullHumanReadableDescription();
-		string ConflictTypeHumanName
-		{
-			get;
-		}
+//
+//    public class ConflictFactory
+//    {
+//        private readonly MergeSituation _mergeSituation;
+//
+//        public ConflictFactory(MergeSituation mergeSituation)
+//        {
+//            _mergeSituation = mergeSituation;
+//        }
+//
+//        public T Create<T>()
+//            where T:IConflict, new()
+//        {
+//            T conflict = new T();
+//            conflict.MergeSituation = _mergeSituation;
+//            return conflict;
+//        }
+//    }
 
-		Guid  Guid { get; }
-	}
 
 	public abstract class AttributeConflict : IConflict
 	{
@@ -22,16 +33,17 @@ namespace Chorus.merge.xml.generic
 		protected readonly string _ourValue;
 		protected readonly string _theirValue;
 		protected readonly string _ancestorValue;
-		protected readonly MergeStrategies _mergeStrategies;
+		protected readonly MergeSituation _mergeSituation;
 		private Guid _guid = Guid.NewGuid();
+		private string _xpathToContextElement;
 
-		public AttributeConflict(string attributeName, string ourValue, string theirValue, string ancestorValue, MergeStrategies mergeStrategies)
+		public AttributeConflict(string attributeName, string ourValue, string theirValue, string ancestorValue, MergeSituation mergeSituation)
 		{
 			_attributeName = attributeName;
 			_ourValue = ourValue;
 			_theirValue = theirValue;
 			_ancestorValue = ancestorValue;
-			_mergeStrategies = mergeStrategies;
+			_mergeSituation = mergeSituation;
 		}
 
 		public string AttributeDescription
@@ -53,6 +65,12 @@ namespace Chorus.merge.xml.generic
 									 ancestor, ours, theirs);
 			}
 		}
+
+		public void SetContextDescriptor(string contextDescriptor)
+		{
+			_xpathToContextElement = contextDescriptor;
+		}
+
 		public virtual string GetFullHumanReadableDescription()
 		{
 			return string.Format("{0} ({1}): {2}", ConflictTypeHumanName, AttributeDescription, WhatHappened);
@@ -70,12 +88,43 @@ namespace Chorus.merge.xml.generic
 		{
 			get { return _guid; }
 		}
+
+		public string GetRawDataFromConflictVersion(IRetrieveFile fileRetriever, ThreeWayMergeSources.Source mergeSource, string recordLevel)
+		{
+			string revision=null;
+		   // string elementId = null;
+			switch (mergeSource)
+			{
+				case ThreeWayMergeSources.Source.Ancestor:
+					throw new ApplicationException("Ancestor retrieval not implemented yet.");
+				case ThreeWayMergeSources.Source.UserX:
+					revision = _mergeSituation.UserXRevision;
+				 //   elementId = _userXElementId;
+					break;
+				case ThreeWayMergeSources.Source.UserY:
+					revision = _mergeSituation.UserYRevision;
+				 //    elementId = _userYElementId;
+				   break;
+
+			}
+			using(var f = TempFile.TrackExisting(fileRetriever.RetrieveHistoricalVersionOfFile(_mergeSituation.PathToFileInRepository, revision)))
+			{
+				var doc = new XmlDocument();
+				doc.Load(f.Path);
+				var element = doc.SelectSingleNode(_xpathToContextElement);
+				if(element == null)
+				{
+					throw new ApplicationException("Could not find the element specified by the context, " + _xpathToContextElement);
+				}
+				return element.OuterXml;
+			}
+		}
 	}
 
 	public class RemovedVsEditedAttributeConflict : AttributeConflict
 	{
-		public RemovedVsEditedAttributeConflict(string attributeName, string ourValue, string theirValue, string ancestorValue, MergeStrategies mergeStrategies)
-			: base(attributeName, ourValue, theirValue, ancestorValue, mergeStrategies)
+		public RemovedVsEditedAttributeConflict(string attributeName, string ourValue, string theirValue, string ancestorValue, MergeSituation mergeSituation)
+			: base(attributeName, ourValue, theirValue, ancestorValue, mergeSituation)
 		{
 		}
 		public override string ConflictTypeHumanName
@@ -86,8 +135,8 @@ namespace Chorus.merge.xml.generic
 
 	internal class BothEdittedAttributeConflict : AttributeConflict
 	{
-		public BothEdittedAttributeConflict(string attributeName, string ourValue, string theirValue, string ancestorValue, MergeStrategies mergeStrategies)
-			: base(attributeName, ourValue, theirValue, ancestorValue, mergeStrategies)
+		public BothEdittedAttributeConflict(string attributeName, string ourValue, string theirValue, string ancestorValue, MergeSituation mergeSituation)
+			: base(attributeName, ourValue, theirValue, ancestorValue, mergeSituation)
 		{
 		}
 
@@ -99,10 +148,10 @@ namespace Chorus.merge.xml.generic
 
 	internal class BothEdittedTextConflict : AttributeConflict
 	{
-		public BothEdittedTextConflict(XmlNode ours, XmlNode theirs, XmlNode ancestor, MergeStrategies mergeStrategies)
+		public BothEdittedTextConflict(XmlNode ours, XmlNode theirs, XmlNode ancestor, MergeSituation mergeSituation)
 			: base("text", ours.InnerText, theirs.InnerText,
 				   ancestor == null ? string.Empty : ancestor.InnerText,
-				   mergeStrategies)
+				   mergeSituation)
 		{
 		}
 
@@ -114,11 +163,11 @@ namespace Chorus.merge.xml.generic
 
 	public class RemovedVsEdittedTextConflict : AttributeConflict
 	{
-		public RemovedVsEdittedTextConflict(XmlNode ours, XmlNode theirs, XmlNode ancestor, MergeStrategies mergeStrategies)
+		public RemovedVsEdittedTextConflict(XmlNode ours, XmlNode theirs, XmlNode ancestor, MergeSituation mergeSituation)
 			: base("text", ours == null ? string.Empty : ours.InnerText,
 				   theirs == null ? string.Empty : theirs.InnerText,
 				   ancestor.InnerText,
-				   mergeStrategies)
+				   mergeSituation)
 		{
 		}
 
@@ -134,20 +183,27 @@ namespace Chorus.merge.xml.generic
 		protected readonly XmlNode _ourElement;
 		protected readonly XmlNode _theirElement;
 		protected readonly XmlNode _ancestorElement;
-		protected readonly MergeStrategies _mergeStrategies;
+		protected readonly  MergeSituation _mergeSituation;
 		private Guid _guid = Guid.NewGuid();
+		private MergeStrategies _mergeStrategies;
+		private string _xpathToContextElement;
 
 		public ElementConflict(string elementName, XmlNode ourElement, XmlNode theirElement, XmlNode ancestorElement,
-							   MergeStrategies mergeStrategies)
+							   MergeSituation mergeSituation, MergeStrategies mergeStrategies)
 		{
 			_elementName = elementName;
 			_ourElement = ourElement;
 			_theirElement = theirElement;
 			_ancestorElement = ancestorElement;
 			_mergeStrategies = mergeStrategies;
+			_mergeSituation = mergeSituation;
 		}
 
 
+		public void SetContextDescriptor(string contextDescriptor)
+		{
+			_xpathToContextElement = contextDescriptor;
+		}
 
 		public virtual string GetFullHumanReadableDescription()
 		{
@@ -168,6 +224,13 @@ namespace Chorus.merge.xml.generic
 			get { return _guid; }
 		}
 
+		public string GetRawDataFromConflictVersion(IRetrieveFile fileRetriever, ThreeWayMergeSources.Source mergeSource, string recordLevel)
+		{
+			//fileRetriever.RetrieveHistoricalVersionOfFile(_file, userSources[]);
+			return null;
+		}
+
+
 		public abstract string ConflictTypeHumanName
 		{
 			get;
@@ -180,8 +243,9 @@ namespace Chorus.merge.xml.generic
 
 	internal class RemovedVsEditedElementConflict : ElementConflict
 	{
-		public RemovedVsEditedElementConflict(string elementName, XmlNode ourElement, XmlNode theirElement, XmlNode ancestorElement, MergeStrategies mergeStrategies)
-			: base(elementName, ourElement, theirElement, ancestorElement, mergeStrategies)
+		public RemovedVsEditedElementConflict(string elementName, XmlNode ourElement, XmlNode theirElement,
+			XmlNode ancestorElement, MergeSituation mergeSituation, MergeStrategies mergeStrategies)
+			: base(elementName, ourElement, theirElement, ancestorElement, mergeSituation, mergeStrategies)
 		{
 		}
 
@@ -208,8 +272,9 @@ namespace Chorus.merge.xml.generic
 
 	internal class BothReorderedElementConflict : ElementConflict
 	{
-		public BothReorderedElementConflict(string elementName, XmlNode ourElement, XmlNode theirElement, XmlNode ancestorElement, MergeStrategies mergeStrategies)
-			: base(elementName, ourElement, theirElement, ancestorElement, mergeStrategies)
+		public BothReorderedElementConflict(string elementName, XmlNode ourElement, XmlNode theirElement,
+			XmlNode ancestorElement, MergeSituation mergeSituation, MergeStrategies mergeStrategies)
+			: base(elementName, ourElement, theirElement, ancestorElement, mergeSituation, mergeStrategies)
 		{
 		}
 
@@ -226,7 +291,9 @@ namespace Chorus.merge.xml.generic
 
 	internal class AmbiguousInsertConflict : ElementConflict
 	{
-		public AmbiguousInsertConflict(string elementName, XmlNode ourElement, XmlNode theirElement, XmlNode ancestorElement, MergeStrategies mergeStrategies) : base(elementName, ourElement, theirElement, ancestorElement, mergeStrategies)
+		public AmbiguousInsertConflict(string elementName, XmlNode ourElement, XmlNode theirElement,
+			XmlNode ancestorElement, MergeSituation mergeSituation, MergeStrategies mergeStrategies)
+			: base(elementName, ourElement, theirElement, ancestorElement, mergeSituation, mergeStrategies)
 		{
 		}
 
@@ -242,8 +309,9 @@ namespace Chorus.merge.xml.generic
 	}
 	internal class AmbiguousInsertReorderConflict : ElementConflict
 	{
-		public AmbiguousInsertReorderConflict(string elementName, XmlNode ourElement, XmlNode theirElement, XmlNode ancestorElement, MergeStrategies mergeStrategies)
-			: base(elementName, ourElement, theirElement, ancestorElement, mergeStrategies)
+		public AmbiguousInsertReorderConflict(string elementName, XmlNode ourElement, XmlNode theirElement,
+			XmlNode ancestorElement, MergeSituation mergeSituation, MergeStrategies mergeStrategies)
+			: base(elementName, ourElement, theirElement, ancestorElement, mergeSituation, mergeStrategies)
 		{
 		}
 

@@ -14,7 +14,9 @@ namespace Chorus.Tests.merge
 		{
 			using (GroupOfConflictingLiftFiles group = new GroupOfConflictingLiftFiles())
 			{
-				MergeOrder order = new MergeOrder(MergeOrder.ConflictHandlingMode.TheyWin, group.BobFile.Path, group.AncestorFile.Path, group.SallyFile.Path);
+				var situation = new NullMergeSituation();
+				MergeOrder order = new MergeOrder(MergeOrder.ConflictHandlingModeChoices.TheyWin, group.BobFile.Path,
+					group.AncestorFile.Path, group.SallyFile.Path,situation);
 				MergeDispatcher.Go(order);
 
 				Assert.IsTrue(File.Exists(group.BobTextConflictsPath));
@@ -31,8 +33,8 @@ namespace Chorus.Tests.merge
 																	  "<conflicts><conflict guid='sallyGuid'/></conflicts>")
 				)
 			{
-				MergeOrder order = new MergeOrder(MergeOrder.ConflictHandlingMode.WeWin, group.BobFile.Path,
-												  group.AncestorFile.Path, group.SallyFile.Path);
+				MergeOrder order = new MergeOrder(MergeOrder.ConflictHandlingModeChoices.WeWin, group.BobFile.Path,
+												  group.AncestorFile.Path, group.SallyFile.Path, new NullMergeSituation());
 				MergeDispatcher.Go(order);
 
 				XmlDocument doc = new XmlDocument();
@@ -52,8 +54,8 @@ namespace Chorus.Tests.merge
 																	  "<conflicts><conflict guid='sallyGuid'/></conflicts>")
 				)
 			{
-				MergeOrder order = new MergeOrder(MergeOrder.ConflictHandlingMode.WeWin, group.BobFile.Path,
-												  string.Empty, group.SallyFile.Path);
+				MergeOrder order = new MergeOrder(MergeOrder.ConflictHandlingModeChoices.WeWin, group.BobFile.Path,
+												  string.Empty, group.SallyFile.Path, new NullMergeSituation());
 				MergeDispatcher.Go(order);
 
 				XmlDocument doc = new XmlDocument();

@@ -41,7 +41,7 @@ namespace Chorus.merge
 
 		private static int MergeConflictFiles(MergeOrder order)
 		{
-			XmlMerger merger  = new XmlMerger();
+			XmlMerger merger  = new XmlMerger(order.MergeSituation);
 			try
 			{
 				NodeMergeResult r = merger.MergeFiles(order.pathToOurs, order.pathToTheirs, order.pathToCommonAncestor);
@@ -69,18 +69,18 @@ namespace Chorus.merge
 
 				//;  Debug.Fail("hello");
 				Chorus.merge.xml.lift.LiftMerger merger;
-				switch (order.conflictHandlingMode)
+				switch (order.ConflictHandlingMode)
 				{
 					default:
 						throw new ArgumentException("The Lift merger cannot handle the requested conflict handling mode");
-					case MergeOrder.ConflictHandlingMode.WeWin:
+					case MergeOrder.ConflictHandlingModeChoices.WeWin:
 
-						merger = new LiftMerger(new EntryMerger(), order.pathToOurs, order.pathToTheirs,
+						merger = new LiftMerger(new EntryMerger(order.MergeSituation), order.pathToOurs, order.pathToTheirs,
 												order.pathToCommonAncestor);
 						merger.EventListener = order.EventListener;
 						break;
-					case MergeOrder.ConflictHandlingMode.TheyWin:
-						merger = new LiftMerger(new EntryMerger(), order.pathToTheirs, order.pathToOurs,
+					case MergeOrder.ConflictHandlingModeChoices.TheyWin:
+						merger = new LiftMerger(new EntryMerger(order.MergeSituation), order.pathToTheirs, order.pathToOurs,
 												order.pathToCommonAncestor);
 						merger.EventListener = order.EventListener;
 						break;
@@ -114,19 +114,19 @@ namespace Chorus.merge
 					f.Close();
 					f.Dispose();
 
-					switch (order.conflictHandlingMode)
+					switch (order.ConflictHandlingMode)
 					{
-						case MergeOrder.ConflictHandlingMode.WeWin:
+						case MergeOrder.ConflictHandlingModeChoices.WeWin:
 							File.Copy(ourPartial.Path, order.pathToOurs, true);
 							ourPartial.Dispose();
 							theirPartial.Dispose();
 							break;
-						case MergeOrder.ConflictHandlingMode.TheyWin:
+						case MergeOrder.ConflictHandlingModeChoices.TheyWin:
 							File.Copy(theirPartial.Path, order.pathToOurs, true);
 							ourPartial.Dispose();
 							theirPartial.Dispose();
 							break;
-						case MergeOrder.ConflictHandlingMode.LcdPlusPartials:
+						case MergeOrder.ConflictHandlingModeChoices.LcdPlusPartials:
 							//Make the result of the merge be the LCD (It's critical that the calling process
 							//will be following this up RIGHT AWAY by appending the partials to their respective
 							//branches! Otherwise conflicting changes will be lost to both parties.
@@ -140,39 +140,6 @@ namespace Chorus.merge
 				}
 				return code;
 			}
-		}
-	}
-
-	public class MergeOrder
-	{
-		public const string kConflictHandlingModeEnvVarName = "ChorusConflictHandlingMode";
-		public string pathToOurs;
-		public string pathToCommonAncestor;
-		public string pathToTheirs;
-
-		/// <summary>
-		/// If the LcdPlusPartials is specified, the merger must
-		/// produce 3 files:  LeastCommonDenominator,
-		/// OurPartial, and TheirPartial files.
-		///
-		/// The LCD one is returned as the result of the merge, the paths to all three
-		/// are appended to a special file that the Chorus syncing method can later read.
-		/// It is then the Chorus syncing methods job to take the two partials and insert
-		/// them into the repository history.
-		/// </summary>
-		public enum ConflictHandlingMode { WeWin, TheyWin, LcdPlusPartials }
-
-		public ConflictHandlingMode conflictHandlingMode;
-		public IMergeEventListener EventListener;
-
-
-		public MergeOrder(ConflictHandlingMode mode, string pathToOurs, string pathToCommon, string pathToTheirs)
-		{
-			this.pathToOurs = pathToOurs;
-			this.pathToTheirs = pathToTheirs;
-			pathToCommonAncestor = pathToCommon;
-
-			conflictHandlingMode = mode;
 		}
 	}
 }

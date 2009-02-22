@@ -107,6 +107,7 @@ namespace Chorus.Utilities
 			return 1;
 		}
 
+		[System.Diagnostics.DebuggerStepThrough]
 		public int Stop()
 		{
 			try { StandardOutputReader.Abort(); }
