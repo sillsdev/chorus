@@ -212,6 +212,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		{
 			return Execute(false, cmd, repositoryPath, rest);
 		}
+
 		protected static ExecutionResult Execute(bool failureIsOk, string cmd, string repositoryPath, params string[] rest)
 		{
 			StringBuilder b = new StringBuilder();
@@ -220,6 +221,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			{
 				b.Append("-R " + SurroundWithQuotes(repositoryPath) + " ");
 			}
+
 			foreach (string s in rest)
 			{
 				b.Append(s + " ");
@@ -228,13 +230,14 @@ namespace Chorus.VcsDrivers.Mercurial
 			ExecutionResult result = ExecuteErrorsOk(b.ToString());
 			if (0 != result.ExitCode && !failureIsOk)
 			{
+				var details = "\r\n" + "hg Command was " + "\r\n" + b.ToString();
 				if (!string.IsNullOrEmpty(result.StandardError))
 				{
-					throw new ApplicationException(result.StandardError);
+					throw new ApplicationException(result.StandardError + details);
 				}
 				else
 				{
-					throw new ApplicationException("Got return value " + result.ExitCode);
+					throw new ApplicationException("Got return value " + result.ExitCode + details);
 				}
 			}
 			return result;
