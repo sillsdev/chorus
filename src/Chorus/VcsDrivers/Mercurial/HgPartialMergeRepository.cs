@@ -36,9 +36,8 @@ namespace Chorus.VcsDrivers.Mercurial
 
 				HgPartialMerge repo = new HgPartialMerge(repositoryPath);
 				HgRepository.SetUserId(repositoryPath, userName);
-
-				repo.AddFake();
-				return repo;
+					 repo.AddFake();
+				 return repo;
 			}
 		}
 

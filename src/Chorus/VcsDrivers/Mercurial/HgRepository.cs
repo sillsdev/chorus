@@ -57,9 +57,10 @@ namespace Chorus.VcsDrivers.Mercurial
 		{
 			using (new ConsoleProgress("setting name and branch"))
 			{
-				Execute("config", pathToRepository, "--local ui.username " + userName);
-				Execute("branch", pathToRepository, userName);
-
+				using (new ShortTermEnvironmentalVariable("HGUSER", userName))
+				{
+					Execute("branch", pathToRepository, userName);
+				}
 			}
 		}
 
@@ -521,7 +522,8 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		public static void SetUserId(string path, string userId)
 		{
-			Execute("config", path, "--local ui.username " + userId);
+			Environment.SetEnvironmentVariable("hguser", userId);
+		 //   Execute("config", path, "--local ui.username " + userId);
 
 		}
 
