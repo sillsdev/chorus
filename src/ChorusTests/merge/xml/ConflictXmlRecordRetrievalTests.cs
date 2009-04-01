@@ -35,7 +35,7 @@ namespace Chorus.Tests.merge
 			Assert.AreEqual("<test>x</test>", result);
 		}
 
-	   todo
+	   todo in  progres
 	   /*where was I...
 		* I was implementing a way to record in the conflict an xpath that would retrieve the record in the future.
 		* The idea was to tell the EventListener.EnteringContext when new element levels were reached.
