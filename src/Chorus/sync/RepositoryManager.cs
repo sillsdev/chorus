@@ -274,6 +274,11 @@ namespace Chorus.sync
 			return local.GetHistoryItems();
 		}
 
+		/// <summary>
+		///
+		/// </summary>
+		/// <param name="messageLanguageId"></param>
+		/// <returns>false if the environment is not set up correctly</returns>
 		public static bool CheckEnvironmentAndShowMessageIfAppropriate(string messageLanguageId)
 		{
 			string s = RepositoryManager.GetEnvironmentReadinessMessage(messageLanguageId);
