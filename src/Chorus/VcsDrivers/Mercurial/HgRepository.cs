@@ -59,9 +59,10 @@ namespace Chorus.VcsDrivers.Mercurial
 		{
 			using (new ConsoleProgress("setting name and branch"))
 			{
-				Execute("config", pathToRepository, "--local ui.username " + userName);
-				Execute("branch", pathToRepository, userName);
-
+				using (new ShortTermEnvironmentalVariable("HGUSER", userName))
+				{
+					Execute("branch", pathToRepository, userName);
+				}
 			}
 		}
 
@@ -164,6 +165,12 @@ namespace Chorus.VcsDrivers.Mercurial
 			Debug.Assert(string.IsNullOrEmpty(result.StandardError), result.StandardError);
 			return result.StandardOutput;
 		}
+		protected static string GetTextFromQuery(string s)
+		{
+			ExecutionResult result = ExecuteErrorsOk(s);
+			Debug.Assert(string.IsNullOrEmpty(result.StandardError), result.StandardError);
+			return result.StandardOutput;
+		}
 
 		public void AddAndCheckinFile(string filePath)
 		{
@@ -231,6 +238,16 @@ namespace Chorus.VcsDrivers.Mercurial
 			if (0 != result.ExitCode && !failureIsOk)
 			{
 				var details = "\r\n" + "hg Command was " + "\r\n" +  b.ToString();
+				try
+				{
+					details += "\r\nhg version was \r\n" + GetTextFromQuery("version");
+				}
+				catch (Exception)
+				{
+					details += "\r\nCould not get HG VERSION";
+
+				}
+
 				if (!string.IsNullOrEmpty(result.StandardError))
 				{
 					throw new ApplicationException(result.StandardError + details);
@@ -527,7 +544,8 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		public static void SetUserId(string path, string userId)
 		{
-			Execute("config", path, "--local ui.username " + userId);
+		  Environment.SetEnvironmentVariable("hguser", userId);
+		  //defunct Execute("config", path, "--local ui.username " + userId);
 
 		}
 

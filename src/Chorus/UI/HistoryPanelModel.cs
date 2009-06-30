@@ -19,6 +19,8 @@ namespace Chorus.UI
 
 		public List<RevisionDescriptor> GetHistoryItems()
 		{
+			if(!RepositoryManager.CheckEnvironmentAndShowMessageIfAppropriate("en"))
+				return new List<RevisionDescriptor>();
 			RepositoryManager manager = RepositoryManager.FromRootOrChildFolder(_project);
 			return manager.GetHistoryItems(_progress);
 		}
