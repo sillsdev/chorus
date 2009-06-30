@@ -8,7 +8,8 @@ namespace Chorus.merge
 	{
 		//store a descriptor that can be used later to find the element again, as when reviewing conflict.
 		//for xml files, this context descriptor can be an xpath that returns the element
-		void SetContextDescriptor(string contextDescriptor);
+	   // void SetContextDescriptor(string contextDescriptor);
+		string XPathOrOtherDescriptorOfConflictingElement { get; set; }
 
 		string GetFullHumanReadableDescription();
 		string ConflictTypeHumanName

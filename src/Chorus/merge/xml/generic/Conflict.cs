@@ -35,7 +35,7 @@ namespace Chorus.merge.xml.generic
 		protected readonly string _ancestorValue;
 		protected readonly MergeSituation _mergeSituation;
 		private Guid _guid = Guid.NewGuid();
-		private string _xpathToContextElement;
+		public string XPathOrOtherDescriptorOfConflictingElement { get; set; }
 
 		public AttributeConflict(string attributeName, string ourValue, string theirValue, string ancestorValue, MergeSituation mergeSituation)
 		{
@@ -66,10 +66,7 @@ namespace Chorus.merge.xml.generic
 			}
 		}
 
-		public void SetContextDescriptor(string contextDescriptor)
-		{
-			_xpathToContextElement = contextDescriptor;
-		}
+
 
 		public virtual string GetFullHumanReadableDescription()
 		{
@@ -111,10 +108,10 @@ namespace Chorus.merge.xml.generic
 			{
 				var doc = new XmlDocument();
 				doc.Load(f.Path);
-				var element = doc.SelectSingleNode(_xpathToContextElement);
+				var element = doc.SelectSingleNode(XPathOrOtherDescriptorOfConflictingElement);
 				if(element == null)
 				{
-					throw new ApplicationException("Could not find the element specified by the context, " + _xpathToContextElement);
+					throw new ApplicationException("Could not find the element specified by the context, " + XPathOrOtherDescriptorOfConflictingElement);
 				}
 				return element.OuterXml;
 			}
@@ -186,7 +183,7 @@ namespace Chorus.merge.xml.generic
 		protected readonly  MergeSituation _mergeSituation;
 		private Guid _guid = Guid.NewGuid();
 		private MergeStrategies _mergeStrategies;
-		private string _xpathToContextElement;
+		public string XPathOrOtherDescriptorOfConflictingElement { get; set; }
 
 		public ElementConflict(string elementName, XmlNode ourElement, XmlNode theirElement, XmlNode ancestorElement,
 							   MergeSituation mergeSituation, MergeStrategies mergeStrategies)
@@ -202,7 +199,7 @@ namespace Chorus.merge.xml.generic
 
 		public void SetContextDescriptor(string contextDescriptor)
 		{
-			_xpathToContextElement = contextDescriptor;
+			XPathOrOtherDescriptorOfConflictingElement = contextDescriptor;
 		}
 
 		public virtual string GetFullHumanReadableDescription()

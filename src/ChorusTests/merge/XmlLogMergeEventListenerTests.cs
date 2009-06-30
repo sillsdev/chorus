@@ -70,10 +70,6 @@ namespace Chorus.Tests.merge
 	{
 		private Guid _guid = Guid.NewGuid();
 
-		public void SetContextDescriptor(string contextDescriptor)
-		{
-			throw new System.NotImplementedException();
-		}
 
 		public string GetFullHumanReadableDescription()
 		{
@@ -88,6 +84,11 @@ namespace Chorus.Tests.merge
 		public Guid Guid
 		{
 			get { return _guid; }
+		}
+
+		public string XPathOrOtherDescriptorOfConflictingElement
+		{
+			get; set;
 		}
 
 		public string GetRawDataFromConflictVersion(IRetrieveFile fileRetriever, ThreeWayMergeSources.Source mergeSource, string recordLevel)

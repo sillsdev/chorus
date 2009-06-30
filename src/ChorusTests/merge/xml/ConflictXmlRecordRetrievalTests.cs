@@ -5,8 +5,9 @@ using System.Xml;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
 using Chorus.retrieval;
-using Chorus.Utilities;
 using NUnit.Framework;
+using Palaso.TestUtilities;
+using TempFile=Chorus.Utilities.TempFile;
 
 namespace Chorus.Tests.merge
 {
@@ -29,19 +30,20 @@ namespace Chorus.Tests.merge
 			  docY.SelectSingleNode("doc/test"),
 			  docA.SelectSingleNode("doc/test"),
 			  situation);
-			conflict.SetContextDescriptor("2");
+			conflict.XPathOrOtherDescriptorOfConflictingElement = "//test[@id='2']";
 			var retriever = new DummyXmlRetriever(docA,docX, docY);
 			var result = conflict.GetRawDataFromConflictVersion(retriever, ThreeWayMergeSources.Source.UserX, "test");
-			Assert.AreEqual("<test>x</test>", result);
+			Assert.AreEqual("<test id=\"2\">x</test>", result);
 		}
 
-	   todo in  progres
+	 //  todo in  progress
 	   /*where was I...
 		* I was implementing a way to record in the conflict an xpath that would retrieve the record in the future.
 		* The idea was to tell the EventListener.EnteringContext when new element levels were reached.
 		* Currently , the merger must talk to the strategy to see if it can generate the xpath, and then it tells
 		* the listener. The listener then pushes this context into the conflict when it is notified (a bit lame).
 		* We don't yet depersist this context.
+		*/
 
 	}
    class DummyXmlRetriever : IRetrieveFile
