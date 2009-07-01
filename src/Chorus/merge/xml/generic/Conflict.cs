@@ -34,7 +34,7 @@ namespace Chorus.merge.xml.generic
 	public abstract class Conflict
 	{
 		protected Guid _guid = Guid.NewGuid();
-		public string XPathOrOtherDescriptorOfConflictingElement { get; set; }
+		public string PathToUnitOfConflict { get; set; }
 		protected readonly MergeSituation _mergeSituation;
 
 		protected Conflict(MergeSituation situation)
@@ -100,7 +100,7 @@ namespace Chorus.merge.xml.generic
 			get { return _guid; }
 		}
 
-		public string GetRawDataFromConflictVersion(IRetrieveFile fileRetriever, ThreeWayMergeSources.Source mergeSource, string recordLevel)
+		public string GetConflictingRecordOutOfSourceControl(IRetrieveFile fileRetriever, ThreeWayMergeSources.Source mergeSource)
 		{
 			string revision=null;
 		   // string elementId = null;
@@ -122,10 +122,10 @@ namespace Chorus.merge.xml.generic
 			{
 				var doc = new XmlDocument();
 				doc.Load(f.Path);
-				var element = doc.SelectSingleNode(XPathOrOtherDescriptorOfConflictingElement);
+				var element = doc.SelectSingleNode(PathToUnitOfConflict);
 				if(element == null)
 				{
-					throw new ApplicationException("Could not find the element specified by the context, " + XPathOrOtherDescriptorOfConflictingElement);
+					throw new ApplicationException("Could not find the element specified by the context, " + PathToUnitOfConflict);
 				}
 				return element.OuterXml;
 			}
@@ -227,7 +227,7 @@ namespace Chorus.merge.xml.generic
 			get { return _guid; }
 		}
 
-		public string GetRawDataFromConflictVersion(IRetrieveFile fileRetriever, ThreeWayMergeSources.Source mergeSource, string recordLevel)
+		public string GetConflictingRecordOutOfSourceControl(IRetrieveFile fileRetriever, ThreeWayMergeSources.Source mergeSource)
 		{
 			//fileRetriever.RetrieveHistoricalVersionOfFile(_file, userSources[]);
 			return null;

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Xml;
-using Chorus.merge.xml.generic;
 
 namespace Chorus.merge.xml.generic
 {
@@ -14,9 +13,12 @@ namespace Chorus.merge.xml.generic
 		 /// <summary>
 		/// In order to be able to store in the conflict enough information to later retrieve the conflicting
 		/// data, someone must call this when new element levels were reached.
-		/// The listener then pushes this context into the conflict when it is notified (a bit lame).
+		/// Then when a conflict occurs, the listener pushes this context into the conflict and (at least
+		/// in the case of the xmllistener as of june2009) writes out the conflict with this context in the
+		/// xml record of the conflict.  Later, a UI handling conflicts can retrieve this info in order
+		/// to reconstruct exact what and where the conflict was.
 		/// </summary>
-		/// <param name="context"></param>
+		/// <param name="context">an xpath, line number, whatever works for reconstructing the situation at a later date</param>
 		void EnteringContext(string context);
 	}
 
@@ -136,7 +138,7 @@ namespace Chorus.merge.xml.generic
 			_writer.WriteAttributeString("guid", string.Empty, conflict.Guid.ToString());
 			_writer.WriteAttributeString("date", string.Empty, DateTime.UtcNow.ToString(TimeFormatNoTimeZone));
 			_writer.WriteAttributeString("context", string.Empty, _context);
-			conflict.XPathOrOtherDescriptorOfConflictingElement = _context;
+			conflict.PathToUnitOfConflict = _context;
 			_writer.WriteString(conflict.GetFullHumanReadableDescription());
 			_writer.WriteEndElement();
 		}

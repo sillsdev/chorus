@@ -1,4 +1,4 @@
-﻿namespace Chorus.UI
+﻿namespace Baton.HistoryPanel
 {
 	partial class HistoryPanel
 	{
@@ -35,8 +35,8 @@
 			// _historyText
 			//
 			this._historyText.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-						| System.Windows.Forms.AnchorStyles.Left)
-						| System.Windows.Forms.AnchorStyles.Right)));
+																			  | System.Windows.Forms.AnchorStyles.Left)
+																			 | System.Windows.Forms.AnchorStyles.Right)));
 			this._historyText.Location = new System.Drawing.Point(3, 67);
 			this._historyText.Multiline = true;
 			this._historyText.Name = "_historyText";

@@ -66,8 +66,6 @@
 	<Compile Include="sync\UsbRepositorySourceTests.cs" />
 	<Compile Include="VcsDrivers\Mercurial\HistoryTests.cs" />
 	<Compile Include="sync\UserWithFiles.cs" />
-	<Compile Include="UI\HistoryPanelModelTests.cs" />
-	<Compile Include="UI\SyncPanelModelTests.cs" />
 	<Compile Include="utilities\ChorusDiff3Tests.cs" />
 	<Compile Include="VcsDrivers\Mercurial\HgPartialMergeTests.cs" />
 	<Compile Include="Properties\AssemblyInfo.cs" />

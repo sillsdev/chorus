@@ -4,7 +4,7 @@ using Chorus.sync;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
 
-namespace Chorus.UI
+namespace Baton.HistoryPanel
 {
 	internal class HistoryPanelModel
 	{

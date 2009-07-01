@@ -7,8 +7,9 @@ namespace Chorus.merge
 	public interface IConflict
 	{
 		//store a descriptor that can be used later to find the element again, as when reviewing conflict.
-		//for xml files, this context descriptor can be an xpath which returns the element
-		string XPathOrOtherDescriptorOfConflictingElement { get; set; }
+		//for xml files, this would be an xpath which returns the element which you'd use to
+		//show the difference to the user
+		string PathToUnitOfConflict { get; set; }
 
 		string GetFullHumanReadableDescription();
 		string ConflictTypeHumanName
@@ -18,7 +19,7 @@ namespace Chorus.merge
 
 		Guid  Guid { get; }
 
-		string GetRawDataFromConflictVersion(IRetrieveFile fileRetriever, ThreeWayMergeSources.Source mergeSource, string recordLevel);
+		string GetConflictingRecordOutOfSourceControl(IRetrieveFile fileRetriever, ThreeWayMergeSources.Source mergeSource);
 	}
 
 	public class ThreeWayMergeSources

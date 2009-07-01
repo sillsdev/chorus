@@ -4,7 +4,7 @@ using Chorus.UI;
 using Chorus.Utilities;
 using NUnit.Framework;
 
-namespace Chorus.Tests.UI
+namespace Baton.Tests
 {
 	[TestFixture]
 	public class SyncPanelModelTests

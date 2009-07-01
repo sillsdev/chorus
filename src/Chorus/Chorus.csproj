@@ -9,7 +9,8 @@
 	<AppDesignerFolder>Properties</AppDesignerFolder>
 	<RootNamespace>Chorus</RootNamespace>
 	<AssemblyName>Chorus</AssemblyName>
-	<StartupObject>Chorus.UI.MainWindow</StartupObject>
+	<StartupObject>
+	</StartupObject>
 	<FileUpgradeFlags>
 	</FileUpgradeFlags>
 	<OldToolsVersion>2.0</OldToolsVersion>
@@ -65,20 +66,13 @@
 	<Compile Include="merge\MergeSituation.cs" />
 	<Compile Include="merge\xml\generic\MergeSort.cs" />
 	<Compile Include="merge\xml\generic\PoorMansMergeStrategy.cs" />
+	<Compile Include="Program.cs" />
 	<Compile Include="retrieval\IRetrieveFile.cs" />
 	<Compile Include="retrieval\LiftEntryRetriever.cs" />
 	<Compile Include="sync\ProjectFolderConfiguration.cs" />
 	<Compile Include="sync\RepositoryManager.cs" />
 	<Compile Include="sync\RepositorySource.cs" />
 	<Compile Include="sync\SyncOptions.cs" />
-	<Compile Include="UI\HistoryPanel.cs">
-	  <SubType>UserControl</SubType>
-	</Compile>
-	<Compile Include="UI\HistoryPanel.Designer.cs">
-	  <DependentUpon>HistoryPanel.cs</DependentUpon>
-	</Compile>
-	<Compile Include="UI\HistoryPanelModel.cs" />
-	<Compile Include="UI\SyncPanelModel.cs" />
 	<Compile Include="Utilities\ExecutionResult.cs" />
 	<Compile Include="Utilities\Other.cs" />
 	<Compile Include="Utilities\ProcessStream.cs" />
@@ -109,61 +103,7 @@
 	<Compile Include="merge\xml\generic\XmlMerger.cs" />
 	<Compile Include="Properties\AssemblyInfo.cs" />
 	<Compile Include="VcsDrivers\Mercurial\RevisionDescriptor.cs" />
-	<Compile Include="UI\MainWindow.cs">
-	  <SubType>Form</SubType>
-	</Compile>
-	<Compile Include="UI\MainWindow.Designer.cs">
-	  <DependentUpon>MainWindow.cs</DependentUpon>
-	</Compile>
-	<Compile Include="UI\SettingsPanel.cs">
-	  <SubType>UserControl</SubType>
-	</Compile>
-	<Compile Include="UI\SettingsPanel.Designer.cs">
-	  <DependentUpon>SettingsPanel.cs</DependentUpon>
-	</Compile>
-	<Compile Include="UI\SetupPanel.cs">
-	  <SubType>UserControl</SubType>
-	</Compile>
-	<Compile Include="UI\SetupPanel.Designer.cs">
-	  <DependentUpon>SetupPanel.cs</DependentUpon>
-	</Compile>
-	<Compile Include="UI\SyncPanel.cs">
-	  <SubType>UserControl</SubType>
-	</Compile>
-	<Compile Include="UI\SyncPanel.Designer.cs">
-	  <DependentUpon>SyncPanel.cs</DependentUpon>
-	</Compile>
 	<Compile Include="VcsDrivers\Mercurial\HgRunner.cs" />
-  </ItemGroup>
-  <ItemGroup>
-	<EmbeddedResource Include="UI\HistoryPanel.resx">
-	  <DependentUpon>HistoryPanel.cs</DependentUpon>
-	  <SubType>Designer</SubType>
-	</EmbeddedResource>
-	<EmbeddedResource Include="UI\MainWindow.resx">
-	  <SubType>Designer</SubType>
-	  <DependentUpon>MainWindow.cs</DependentUpon>
-	</EmbeddedResource>
-	<EmbeddedResource Include="UI\SettingsPanel.resx">
-	  <SubType>Designer</SubType>
-	  <DependentUpon>SettingsPanel.cs</DependentUpon>
-	</EmbeddedResource>
-	<EmbeddedResource Include="UI\SetupPanel.resx">
-	  <SubType>Designer</SubType>
-	  <DependentUpon>SetupPanel.cs</DependentUpon>
-	</EmbeddedResource>
-	<EmbeddedResource Include="UI\SyncPanel.resx">
-	  <SubType>Designer</SubType>
-	  <DependentUpon>SyncPanel.cs</DependentUpon>
-	</EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-	<Content Include="UI\finished.wav">
-	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	</Content>
-	<Content Include="UI\SetupPanel.htm">
-	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	</Content>
   </ItemGroup>
   <ItemGroup>
 	<BootstrapperPackage Include="Microsoft.Net.Framework.2.0">

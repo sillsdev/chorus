@@ -30,9 +30,9 @@ namespace Chorus.Tests.merge
 			  docY.SelectSingleNode("doc/test"),
 			  docA.SelectSingleNode("doc/test"),
 			  situation);
-			conflict.XPathOrOtherDescriptorOfConflictingElement = "//test[@id='2']";
+			conflict.PathToUnitOfConflict = "//test[@id='2']";
 			var retriever = new DummyXmlRetriever(docA,docX, docY);
-			var result = conflict.GetRawDataFromConflictVersion(retriever, ThreeWayMergeSources.Source.UserX, "test");
+			var result = conflict.GetConflictingRecordOutOfSourceControl(retriever, ThreeWayMergeSources.Source.UserX);
 			Assert.AreEqual("<test id=\"2\">x</test>", result);
 		}
 	}

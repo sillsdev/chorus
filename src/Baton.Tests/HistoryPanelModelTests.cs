@@ -1,12 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using Baton.HistoryPanel;
 using Chorus.sync;
-using Chorus.UI;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
 using NUnit.Framework;
 
-namespace Chorus.Tests.UI
+namespace Baton.Tests
 {
 	[TestFixture]
 	public class HistoryPanelModelTests
@@ -46,6 +46,6 @@ namespace Chorus.Tests.UI
 		{
 			List<RevisionDescriptor> items = _model.GetHistoryItems();
 			Assert.AreEqual(0, items.Count);
-		 }
+		}
 	}
 }

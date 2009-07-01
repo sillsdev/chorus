@@ -86,12 +86,12 @@ namespace Chorus.Tests.merge
 			get { return _guid; }
 		}
 
-		public string XPathOrOtherDescriptorOfConflictingElement
+		public string PathToUnitOfConflict
 		{
 			get; set;
 		}
 
-		public string GetRawDataFromConflictVersion(IRetrieveFile fileRetriever, ThreeWayMergeSources.Source mergeSource, string recordLevel)
+		public string GetConflictingRecordOutOfSourceControl(IRetrieveFile fileRetriever, ThreeWayMergeSources.Source mergeSource)
 		{
 			throw new System.NotImplementedException();
 		}

@@ -8,11 +8,11 @@ using System.Windows.Forms;
 using Chorus.sync;
 using Chorus.VcsDrivers.Mercurial;
 
-namespace Chorus.UI
+namespace Baton.HistoryPanel
 {
 	public partial class HistoryPanel : UserControl
 	{
-	  private HistoryPanelModel _model;
+		private HistoryPanelModel _model;
 		private ProjectFolderConfiguration _project;
 		private String _userName="anonymous";
 

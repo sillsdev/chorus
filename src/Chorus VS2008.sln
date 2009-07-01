@@ -17,6 +17,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chorus", "Chorus\Chorus.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chorus.Tests", "ChorusTests\Chorus.Tests.csproj", "{F9671F8B-8556-44EA-81A7-C236D871B471}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Baton", "Baton\Baton.csproj", "{9DA5A655-1881-4BE1-81BA-256E47CF7537}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Baton.Tests", "Baton.Tests\Baton.Tests.csproj", "{887A58D6-E5C5-4BA1-9C9B-41C6E8F0B915}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +43,14 @@ Global
 		{F9671F8B-8556-44EA-81A7-C236D871B471}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F9671F8B-8556-44EA-81A7-C236D871B471}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F9671F8B-8556-44EA-81A7-C236D871B471}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9DA5A655-1881-4BE1-81BA-256E47CF7537}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9DA5A655-1881-4BE1-81BA-256E47CF7537}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9DA5A655-1881-4BE1-81BA-256E47CF7537}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9DA5A655-1881-4BE1-81BA-256E47CF7537}.Release|Any CPU.Build.0 = Release|Any CPU
+		{887A58D6-E5C5-4BA1-9C9B-41C6E8F0B915}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{887A58D6-E5C5-4BA1-9C9B-41C6E8F0B915}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{887A58D6-E5C5-4BA1-9C9B-41C6E8F0B915}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{887A58D6-E5C5-4BA1-9C9B-41C6E8F0B915}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
