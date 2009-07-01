@@ -1,4 +1,8 @@
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using Chorus.merge;
+using Chorus.merge.xml.generic;
 using Chorus.merge.xml.lift;
 using NUnit.Framework;
 
@@ -12,7 +16,7 @@ namespace Chorus.Tests.merge.xml.lift
 		{
 			string ours = @"<?xml version='1.0' encoding='utf-8'?>
 					<lift version='0.10' producer='WeSay 1.0.0.0'>
-						<entry id='test'>
+						<entry id='test'  guid='F169EB3D-16F2-4eb0-91AA-FDB91636F8F6'>
 							<sense id='123'>
 								 <gloss lang='a'>
 									<text>ourSense</text>
@@ -23,7 +27,7 @@ namespace Chorus.Tests.merge.xml.lift
 
 			string theirs = @"<?xml version='1.0' encoding='utf-8'?>
 					<lift version='0.10' producer='WeSay 1.0.0.0'>
-						<entry id='test'>
+						<entry id='test'  guid='F169EB3D-16F2-4eb0-91AA-FDB91636F8F6'>
 							<sense id='456'>
 								 <gloss lang='a'>
 									<text>theirSense</text>
@@ -33,13 +37,96 @@ namespace Chorus.Tests.merge.xml.lift
 					</lift>";
 			string ancestor = @"<?xml version='1.0' encoding='utf-8'?>
 					<lift version='0.10' producer='WeSay 1.0.0.0'>
-						<entry id='test'/>
+						<entry id='test'  guid='F169EB3D-16F2-4eb0-91AA-FDB91636F8F6' />
 					</lift>";
 			LiftMerger merger = new LiftMerger(ours, theirs, ancestor, new EntryMerger(new NullMergeSituation()));
+			var listener = new ListenerForUnitTests();
+			merger.EventListener = listener;
 			string result = merger.GetMergedLift();
+			//this doesn't seem particular relevant, but senses are, in fact, ordered, so there is some ambiguity here
+			Assert.AreEqual(typeof(AmbiguousInsertConflict), listener.Conflicts[0].GetType());
+
 			XmlTestHelper.AssertXPathMatchesExactlyOne(result, "lift/entry[@id='test']");
 			XmlTestHelper.AssertXPathMatchesExactlyOne(result, "lift/entry[@id='test' and sense[@id='123']/gloss/text='ourSense']");
 			XmlTestHelper.AssertXPathMatchesExactlyOne(result, "lift/entry[@id='test' and sense[@id='456']/gloss/text='theirSense']");
+		}
+
+		[Test]
+		public void GetMergedLift_ConflictingGlosses_ListenerIsNotifiedOfBothEdittedConflict()
+		{
+			string ours = @"<?xml version='1.0' encoding='utf-8'?>
+					<lift version='0.10' producer='WeSay 1.0.0.0'>
+						<entry id='test'  guid='F169EB3D-16F2-4eb0-91AA-FDB91636F8F6'>
+							<sense id='123'>
+								 <gloss lang='a'>
+									<text>ourSense</text>
+								 </gloss>
+							 </sense>
+						</entry>
+					</lift>";
+
+			string theirs = @"<?xml version='1.0' encoding='utf-8'?>
+					<lift version='0.10' producer='WeSay 1.0.0.0'>
+						<entry id='test'  guid='F169EB3D-16F2-4eb0-91AA-FDB91636F8F6'>
+							<sense id='123'>
+								 <gloss lang='a'>
+									<text>theirSense</text>
+								 </gloss>
+							 </sense>
+						</entry>
+					</lift>";
+			string ancestor = @"<?xml version='1.0' encoding='utf-8'?>
+					<lift version='0.10' producer='WeSay 1.0.0.0'>
+						<entry id='test'  guid='F169EB3D-16F2-4eb0-91AA-FDB91636F8F6'>
+							<sense id='123'>
+								 <gloss lang='a'>
+									<text>original</text>
+								 </gloss>
+							 </sense>
+						</entry>
+					</lift>";
+			LiftMerger merger = new LiftMerger(ours, theirs, ancestor, new EntryMerger(new NullMergeSituation()));
+			var listener = new ListenerForUnitTests();
+			merger.EventListener = listener;
+			string result = merger.GetMergedLift();
+			Assert.AreEqual(1, listener.Conflicts.Count);
+			var conflict = listener.Conflicts[0];
+			AssertConflictType<BothEdittedTextConflict>(conflict);
+			var expectedContext = "lift/entry[@guid='F169EB3D-16F2-4eb0-91AA-FDB91636F8F6']";
+			Assert.AreEqual(expectedContext, listener.Contexts[0], "the listener wasn't give the expected context");
+		}
+
+		private void AssertConflictType<TConflictType>(IConflict conflict)
+		{
+			Assert.AreEqual(typeof(TConflictType), conflict.GetType(), conflict.ToString());
+		}
+	}
+
+	public class ListenerForUnitTests : IMergeEventListener
+	{
+		public List<IConflict> Conflicts = new List<IConflict>();
+		public List<string> Contexts = new List<string>();
+
+		public void ConflictOccurred(IConflict conflict)
+		{
+			Conflicts.Add(conflict);
+		}
+
+		public void EnteringContext(string context)
+		{
+			Contexts.Add(context);
+		}
+		public void AssertExpectedCount(int count)
+		{
+			if (count != Conflicts.Count)
+			{
+				Debug.WriteLine("***Got these conflicts:");
+				foreach (var conflict in Conflicts)
+				{
+					Debug.WriteLine("    "+conflict.ToString());
+				}
+				Assert.AreEqual(count, Conflicts.Count,"Unexpected Conflict Count");
+			}
 		}
 	}
 }

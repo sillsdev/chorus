@@ -25,7 +25,7 @@ namespace Chorus.Tests.merge
 
 		public UserWithFiles(string userName)
 		{
-			string entriesXml = @"<entry id='one'>
+			string entriesXml = @"<entry id='one' guid='F169EB3D-16F2-4eb0-91AA-FDB91636F8F6'>
 						<lexical-unit>
 							<form lang='a'>
 								<text>original</text>

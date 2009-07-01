@@ -48,9 +48,9 @@ namespace Chorus.Tests.merge.xml.generic
 		private NodeMergeResult CheckOneWay(string ours, string theirs, string ancestor, params string[] xpaths)
 		{
 			XmlMerger m = new XmlMerger(new NullMergeSituation());
-			m.MergeStrategies._elementStrategies.Add("a", ElementStrategy.CreateForKeyedElement("key"));
-			m.MergeStrategies._elementStrategies.Add("b", ElementStrategy.CreateForKeyedElement("key"));
-			m.MergeStrategies._elementStrategies.Add("c", ElementStrategy.CreateForKeyedElement("key"));
+			m.MergeStrategies.ElementStrategies.Add("a", ElementStrategy.CreateForKeyedElement("key", true));
+			m.MergeStrategies.ElementStrategies.Add("b", ElementStrategy.CreateForKeyedElement("key", true));
+			m.MergeStrategies.ElementStrategies.Add("c", ElementStrategy.CreateForKeyedElement("key", true));
 			NodeMergeResult result = m.Merge(ours, theirs, ancestor);
 			foreach (string xpath in xpaths)
 			{

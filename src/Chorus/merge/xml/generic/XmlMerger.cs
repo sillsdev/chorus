@@ -132,7 +132,7 @@ namespace Chorus.merge.xml.generic
 			return attrs;
 		}
 
-		private XmlAttribute GetAttributeOrNull(XmlNode node, string name)
+		private static XmlAttribute GetAttributeOrNull(XmlNode node, string name)
 		{
 			if (node == null)
 				return null;
@@ -269,7 +269,7 @@ namespace Chorus.merge.xml.generic
 				{
 					// We know: ours is different from theirs; ours is not empty; ours is different from ancestor;
 					// theirs is not empty.
-					if (theirs.InnerText == ancestor.InnerText)
+					if (ancestor!=null && theirs.InnerText == ancestor.InnerText)
 						return; // we edited it, they did not, keep ours.
 					//both edited it. Keep ours, but report conflict.
 					EventListener.ConflictOccurred(new BothEdittedTextConflict(ours, theirs, ancestor, MergeSituation));
@@ -287,11 +287,14 @@ namespace Chorus.merge.xml.generic
 			//is this a level of the xml file that would consitute the minimal unit conflict-understanding
 			//from a user perspecitve?
 			//e.g., in a dictionary, this is the lexical entry.  In a text, it might be  a paragraph.
-			var gen = MergeStrategies.GetElementStrategy(ours).ContextDescriptorGenerator;
-			if(gen!=null)
+			var generator = MergeStrategies.GetElementStrategy(ours).ContextDescriptorGenerator;
+			if(generator!=null)
 			{
-				var context = gen.GenerateContextDescriptor(ours.OuterXml);
-				EventListener.EnteringContext(context);
+				//review: question: does this not get called at levels below the entry?
+				//this would seem to fail at, say, a sense. I'm confused. (JH 30june09)
+
+				var xpath = generator.GenerateContextDescriptor(ours.OuterXml);
+				EventListener.EnteringContext(xpath);
 			}
 
 			new MergeChildrenMethod(ours, theirs, ancestor, this).Run();

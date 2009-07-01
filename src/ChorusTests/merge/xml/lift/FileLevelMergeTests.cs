@@ -32,6 +32,13 @@ namespace Chorus.Tests.merge.xml.lift
 							</lexical-unit>
 						 </entry>
 						<entry id='doomedByOther'/>
+						<entry id='brewingConflict'>
+							<sense>
+								 <gloss lang='a'>
+									<text>us</text>
+								 </gloss>
+							</sense>
+						</entry>
 					</lift>";
 
 			this._theirs = @"<?xml version='1.0' encoding='utf-8'?>
@@ -52,10 +59,10 @@ namespace Chorus.Tests.merge.xml.lift
 						 </entry>
 						<entry id='doomedByUs'/>
 
-						<entry id='newSensesCollision'>
+						<entry id='brewingConflict'>
 							<sense>
 								 <gloss lang='a'>
-									<text></text>
+									<text>them</text>
 								 </gloss>
 							 </sense>
 						</entry>
@@ -65,12 +72,12 @@ namespace Chorus.Tests.merge.xml.lift
 					<lift version='0.10' producer='WeSay 1.0.0.0'>
 						<entry id='doomedByOther'/>
 						<entry id='doomedByUs'/>
-						<entry id='newSensesCollision'>
+						<entry id='brewingConflict'>
 							<sense>
 								 <gloss lang='a'>
-									<text></text>
+									<text>original</text>
 								 </gloss>
-							 </sense>
+							</sense>
 						</entry>
 					</lift>";
 		}

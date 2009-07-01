@@ -16,7 +16,7 @@ namespace Chorus.Tests.merge
 		{
 			Folder = new TempFolder("ChorusTest");
 
-			string ancestor = @"<entry id='one'>
+			string ancestor = @"<entry id='one' guid='F169EB3D-16F2-4eb0-91AA-FDB91636F8F6'>
 						<lexical-unit>
 							<form lang='a'>
 								<text>original</text>

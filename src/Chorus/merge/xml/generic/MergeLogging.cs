@@ -10,6 +10,13 @@ namespace Chorus.merge.xml.generic
 	public interface IMergeEventListener
 	{
 		void ConflictOccurred(IConflict conflict);
+
+		 /// <summary>
+		/// In order to be able to store in the conflict enough information to later retrieve the conflicting
+		/// data, someone must call this when new element levels were reached.
+		/// The listener then pushes this context into the conflict when it is notified (a bit lame).
+		/// </summary>
+		/// <param name="context"></param>
 		void EnteringContext(string context);
 	}
 
@@ -129,6 +136,7 @@ namespace Chorus.merge.xml.generic
 			_writer.WriteAttributeString("guid", string.Empty, conflict.Guid.ToString());
 			_writer.WriteAttributeString("date", string.Empty, DateTime.UtcNow.ToString(TimeFormatNoTimeZone));
 			_writer.WriteAttributeString("context", string.Empty, _context);
+			conflict.XPathOrOtherDescriptorOfConflictingElement = _context;
 			_writer.WriteString(conflict.GetFullHumanReadableDescription());
 			_writer.WriteEndElement();
 		}

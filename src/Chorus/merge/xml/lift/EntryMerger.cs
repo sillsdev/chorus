@@ -11,11 +11,17 @@ namespace Chorus.merge.xml.lift
 			var doc = new XmlDocument();
 			doc.LoadXml(mergeElement);
 			var node = doc.FirstChild.Attributes.GetNamedItem("guid");
-			if(node==null)
+			if(node!=null)
 			{
-				throw new ApplicationException("Could not get guid attribute out of "+mergeElement);
+				return String.Format("lift/entry[@guid='{0}']", node.Value);
 			}
-			return String.Format("lift/entry[@guid='{0}]'", node.Value);
+			node = doc.FirstChild.Attributes.GetNamedItem("id");
+			if(node!=null)
+			{
+				return String.Format("lift/entry[@id='{0}']", node.Value);
+			}
+			throw new ApplicationException("Could not get guid or id attribute out of "+mergeElement);
+
 		}
 	}
 
@@ -29,13 +35,15 @@ namespace Chorus.merge.xml.lift
 
 			//now customize the XmlMerger with LIFT-specific info
 
-			var elementStrategy =AddKeyedElementType("entry", "id");
+			var elementStrategy =AddKeyedElementType("entry", "id", false);
 			elementStrategy.ContextDescriptorGenerator = new LexEntryContextGenerator();
 
-			AddKeyedElementType("sense", "id");
-			AddKeyedElementType("form", "lang");
-			AddKeyedElementType("field", "type");
+			AddKeyedElementType("sense", "id", true);
+			AddKeyedElementType("form", "lang", false);
+			AddKeyedElementType("gloss", "lang", false);
+			AddKeyedElementType("field", "type", false);
 
+			AddSingletonElementType("text");
 			AddSingletonElementType("grammatical-info");
 			AddSingletonElementType("lexical-unit" );
 			AddSingletonElementType("citation" );
@@ -53,9 +61,9 @@ namespace Chorus.merge.xml.lift
 
 		}
 
-		private ElementStrategy AddKeyedElementType(string name, string attribute)
+		private ElementStrategy AddKeyedElementType(string name, string attribute, bool orderOfTheseIsRelevant)
 		{
-			ElementStrategy strategy = new ElementStrategy();
+			ElementStrategy strategy = new ElementStrategy(orderOfTheseIsRelevant);
 			strategy.MergePartnerFinder = new FindByKeyAttribute(attribute);
 			_entryMerger.MergeStrategies.SetStrategy(name, strategy);
 			return strategy;
@@ -63,7 +71,7 @@ namespace Chorus.merge.xml.lift
 
 		private ElementStrategy AddSingletonElementType(string name)
 		{
-			ElementStrategy strategy = new ElementStrategy();
+			ElementStrategy strategy = new ElementStrategy(false);
 			strategy.MergePartnerFinder = new FindFirstElementWithSameName();
 			_entryMerger.MergeStrategies.SetStrategy(name, strategy);
 			return strategy;

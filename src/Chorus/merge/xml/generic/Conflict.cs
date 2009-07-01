@@ -7,6 +7,11 @@ using Chorus.Utilities;
 
 namespace Chorus.merge.xml.generic
 {
+	/* Merge conflicts are dealt with automatically, and a record of the conflict is added to a conflicts
+	 * file.  Later, a history UI can retrieve these records to show the user what happened and allow
+	 * them to change the automatic decision.
+	 */
+
 //
 //    public class ConflictFactory
 //    {
@@ -26,24 +31,33 @@ namespace Chorus.merge.xml.generic
 //        }
 //    }
 
+	public abstract class Conflict
+	{
+		protected Guid _guid = Guid.NewGuid();
+		public string XPathOrOtherDescriptorOfConflictingElement { get; set; }
+		protected readonly MergeSituation _mergeSituation;
 
-	public abstract class AttributeConflict : IConflict
+		protected Conflict(MergeSituation situation)
+		{
+			_mergeSituation = situation;
+		}
+
+	}
+
+	public abstract class AttributeConflict : Conflict, IConflict
 	{
 		protected readonly string _attributeName;
 		protected readonly string _ourValue;
 		protected readonly string _theirValue;
 		protected readonly string _ancestorValue;
-		protected readonly MergeSituation _mergeSituation;
-		private Guid _guid = Guid.NewGuid();
-		public string XPathOrOtherDescriptorOfConflictingElement { get; set; }
 
 		public AttributeConflict(string attributeName, string ourValue, string theirValue, string ancestorValue, MergeSituation mergeSituation)
+			:base(mergeSituation)
 		{
 			_attributeName = attributeName;
 			_ourValue = ourValue;
 			_theirValue = theirValue;
 			_ancestorValue = ancestorValue;
-			_mergeSituation = mergeSituation;
 		}
 
 		public string AttributeDescription
@@ -174,33 +188,25 @@ namespace Chorus.merge.xml.generic
 		}
 	}
 
-	public abstract class ElementConflict : IConflict
+	public abstract class ElementConflict : Conflict, IConflict
 	{
 		protected readonly string _elementName;
 		protected readonly XmlNode _ourElement;
 		protected readonly XmlNode _theirElement;
 		protected readonly XmlNode _ancestorElement;
-		protected readonly  MergeSituation _mergeSituation;
-		private Guid _guid = Guid.NewGuid();
 		private MergeStrategies _mergeStrategies;
-		public string XPathOrOtherDescriptorOfConflictingElement { get; set; }
 
 		public ElementConflict(string elementName, XmlNode ourElement, XmlNode theirElement, XmlNode ancestorElement,
 							   MergeSituation mergeSituation, MergeStrategies mergeStrategies)
+			: base(mergeSituation)
 		{
 			_elementName = elementName;
 			_ourElement = ourElement;
 			_theirElement = theirElement;
 			_ancestorElement = ancestorElement;
 			_mergeStrategies = mergeStrategies;
-			_mergeSituation = mergeSituation;
 		}
 
-
-		public void SetContextDescriptor(string contextDescriptor)
-		{
-			XPathOrOtherDescriptorOfConflictingElement = contextDescriptor;
-		}
 
 		public virtual string GetFullHumanReadableDescription()
 		{
@@ -302,6 +308,10 @@ namespace Chorus.merge.xml.generic
 		public override string WhatHappened
 		{
 			get { return "Since we last synchronized, you and they both inserted material in this element in the same place. We cannot be sure of the correct order for the inserted material."; }
+		}
+		public override string ToString()
+		{
+			return GetType().ToString() + ":" + _elementName+" (or lower?)";
 		}
 	}
 	internal class AmbiguousInsertReorderConflict : ElementConflict

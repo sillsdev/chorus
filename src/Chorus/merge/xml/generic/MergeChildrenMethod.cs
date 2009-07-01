@@ -25,6 +25,9 @@ namespace Chorus.merge.xml.generic
 			_merger = merger;
 		}
 
+		/// <summary>
+		/// Merges the children into the "ours" xmlnode, and uses the merger's listener to publish what happened
+		/// </summary>
 		public void Run()
 		{
 			// Initialise lists of keepers to current ancestorChildren, ourChildren, theirChildren
@@ -557,8 +560,10 @@ namespace Chorus.merge.xml.generic
 			if (limOtherRange - startOtherRange <= 0)
 				return; // no objects that might correspond
 			List<XmlNode> possibleMatches = new List<XmlNode>(limOtherRange - startOtherRange);
+
 			for (int i = startOtherRange; i < limOtherRange; i++)
 				possibleMatches.Add(_positions[i].Other);
+
 			for (int iPrimary = startPrimaryRange; iPrimary < limPrimaryRange; iPrimary++)
 			{
 				XmlNode ourChild = _primary[iPrimary];
@@ -650,8 +655,14 @@ namespace Chorus.merge.xml.generic
 			if (_primary.Count == 0)
 				return false;
 			foreach (PositionRecord pr in _positions)
-				if (pr.OrderIsAmbiguous(_primary.Count))
+			{
+				//REVIEW JT (johnH): Can you decide if this is sufficient or if there is a better approach?
+				var strategy = _merger.MergeStrategies.GetElementStrategy(pr._other);
+				var bypassAmbiguityStuff = (strategy != null && !strategy.OrderIsRelevant);
+
+				if (!bypassAmbiguityStuff && pr.OrderIsAmbiguous(_primary.Count))
 					return true;
+			}
 			return false;
 		}
 
