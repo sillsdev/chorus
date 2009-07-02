@@ -47,9 +47,9 @@ namespace Baton.Settings
 			//
 			this.checkBox1.AutoSize = true;
 			this.checkBox1.Enabled = false;
-			this.checkBox1.Location = new System.Drawing.Point(13, 137);
+			this.checkBox1.Location = new System.Drawing.Point(13, 45);
 			this.checkBox1.Name = "checkBox1";
-			this.checkBox1.Size = new System.Drawing.Size(195, 17);
+			this.checkBox1.Size = new System.Drawing.Size(195, 1);
 			this.checkBox1.TabIndex = 1;
 			this.checkBox1.Text = "This is a protected master repository";
 			this.checkBox1.UseVisualStyleBackColor = true;
@@ -58,10 +58,10 @@ namespace Baton.Settings
 			//
 			this.checkBox2.AutoSize = true;
 			this.checkBox2.Enabled = false;
-			this.checkBox2.Location = new System.Drawing.Point(13, 242);
+			this.checkBox2.Location = new System.Drawing.Point(13, 45);
 			this.checkBox2.Name = "checkBox2";
 			this.checkBox2.Padding = new System.Windows.Forms.Padding(0, 10, 0, 0);
-			this.checkBox2.Size = new System.Drawing.Size(233, 27);
+			this.checkBox2.Size = new System.Drawing.Size(233, 1);
 			this.checkBox2.TabIndex = 1;
 			this.checkBox2.Text = "Assert this user in case of incoming conflicts";
 			this.checkBox2.UseVisualStyleBackColor = true;
@@ -69,7 +69,7 @@ namespace Baton.Settings
 			// textBox2
 			//
 			this.textBox2.Enabled = false;
-			this.textBox2.Location = new System.Drawing.Point(13, 318);
+			this.textBox2.Location = new System.Drawing.Point(13, 88);
 			this.textBox2.Multiline = true;
 			this.textBox2.Name = "textBox2";
 			this.textBox2.Size = new System.Drawing.Size(239, 78);
@@ -78,7 +78,7 @@ namespace Baton.Settings
 			// label1
 			//
 			this.label1.AutoSize = true;
-			this.label1.Location = new System.Drawing.Point(13, 272);
+			this.label1.Location = new System.Drawing.Point(13, 42);
 			this.label1.Name = "label1";
 			this.label1.Padding = new System.Windows.Forms.Padding(0, 30, 0, 0);
 			this.label1.Size = new System.Drawing.Size(295, 43);
@@ -104,25 +104,24 @@ namespace Baton.Settings
 			this.tableLayoutPanel1.Padding = new System.Windows.Forms.Padding(10);
 			this.tableLayoutPanel1.RowCount = 9;
 			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
+			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 0F));
+			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 0F));
+			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 0F));
+			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 0F));
 			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
 			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
 			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
 			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
-			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
-			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
-			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
-			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
-			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
 			this.tableLayoutPanel1.Size = new System.Drawing.Size(505, 473);
 			this.tableLayoutPanel1.TabIndex = 7;
 			//
 			// label3
 			//
 			this.label3.AutoSize = true;
-			this.label3.Location = new System.Drawing.Point(13, 157);
+			this.label3.Location = new System.Drawing.Point(13, 42);
 			this.label3.Name = "label3";
 			this.label3.Padding = new System.Windows.Forms.Padding(0, 30, 0, 0);
-			this.label3.Size = new System.Drawing.Size(479, 82);
+			this.label3.Size = new System.Drawing.Size(479, 1);
 			this.label3.TabIndex = 4;
 			this.label3.Text = resources.GetString("label3.Text");
 			//
@@ -132,7 +131,7 @@ namespace Baton.Settings
 			this.label4.Location = new System.Drawing.Point(13, 42);
 			this.label4.Name = "label4";
 			this.label4.Padding = new System.Windows.Forms.Padding(0, 30, 0, 10);
-			this.label4.Size = new System.Drawing.Size(476, 92);
+			this.label4.Size = new System.Drawing.Size(476, 1);
 			this.label4.TabIndex = 4;
 			this.label4.Text = resources.GetString("label4.Text");
 			//

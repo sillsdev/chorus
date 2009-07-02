@@ -35,7 +35,8 @@ namespace Baton.Tests
 			_project.FolderPath = _pathToTestRoot;
 
 			_progress = new StringBuilderProgress();
-			_model = new SyncPanelModel(_project, _userId, _progress);
+			_model = new SyncPanelModel(RepositoryManager.FromRootOrChildFolder(_project));
+			_model.ProgressDisplay = _progress;
 		}
 
 		[Test]

@@ -35,19 +35,19 @@
 			// _historyText
 			//
 			this._historyText.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-																			  | System.Windows.Forms.AnchorStyles.Left)
-																			 | System.Windows.Forms.AnchorStyles.Right)));
-			this._historyText.Location = new System.Drawing.Point(3, 67);
+						| System.Windows.Forms.AnchorStyles.Left)
+						| System.Windows.Forms.AnchorStyles.Right)));
+			this._historyText.Location = new System.Drawing.Point(3, 32);
 			this._historyText.Multiline = true;
 			this._historyText.Name = "_historyText";
 			this._historyText.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-			this._historyText.Size = new System.Drawing.Size(470, 292);
+			this._historyText.Size = new System.Drawing.Size(470, 327);
 			this._historyText.TabIndex = 0;
 			//
 			// _loadButton
 			//
 			this._loadButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this._loadButton.Location = new System.Drawing.Point(392, 15);
+			this._loadButton.Location = new System.Drawing.Point(392, 3);
 			this._loadButton.Name = "_loadButton";
 			this._loadButton.Size = new System.Drawing.Size(75, 23);
 			this._loadButton.TabIndex = 1;

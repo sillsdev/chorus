@@ -51,22 +51,40 @@
   </ItemGroup>
   <ItemGroup>
 	<Compile Include="Bootstrapper.cs" />
-	<Compile Include="HistoryPanel\HistoryPanel.cs">
+	<Compile Include="Review\ChangedRecordControl\ChangedRecordView.cs">
 	  <SubType>UserControl</SubType>
 	</Compile>
-	<Compile Include="HistoryPanel\HistoryPanel.Designer.cs">
+	<Compile Include="Review\ChangedRecordControl\ChangedRecordView.Designer.cs">
+	  <DependentUpon>ChangedRecordView.cs</DependentUpon>
+	</Compile>
+	<Compile Include="Review\ChangedRecordsList\ChangedRecordListView.cs">
+	  <SubType>UserControl</SubType>
+	</Compile>
+	<Compile Include="Review\ChangedRecordsList\ChangedRecordListView.Designer.cs">
+	  <DependentUpon>ChangedRecordListView.cs</DependentUpon>
+	</Compile>
+	<Compile Include="Review\HistoryPanel.cs">
+	  <SubType>UserControl</SubType>
+	</Compile>
+	<Compile Include="Review\HistoryPanel.Designer.cs">
 	  <DependentUpon>HistoryPanel.cs</DependentUpon>
 	</Compile>
-	<Compile Include="HistoryPanel\HistoryPanelModel.cs" />
-	<Compile Include="Shell.cs">
-	  <SubType>Form</SubType>
+	<Compile Include="Review\HistoryPanelModel.cs" />
+	<Compile Include="Review\ReviewPage.cs">
+	  <SubType>UserControl</SubType>
 	</Compile>
-	<Compile Include="Shell.Designer.cs">
-	  <DependentUpon>Shell.cs</DependentUpon>
+	<Compile Include="Review\ReviewPage.Designer.cs">
+	  <DependentUpon>ReviewPage.cs</DependentUpon>
 	</Compile>
 	<Compile Include="Program.cs" />
 	<Compile Include="Properties\AssemblyInfo.cs" />
-	<EmbeddedResource Include="HistoryPanel\HistoryPanel.resx">
+	<EmbeddedResource Include="Review\ChangedRecordControl\ChangedRecordView.resx">
+	  <DependentUpon>ChangedRecordView.cs</DependentUpon>
+	</EmbeddedResource>
+	<EmbeddedResource Include="Review\ChangedRecordsList\ChangedRecordListView.resx">
+	  <DependentUpon>ChangedRecordListView.cs</DependentUpon>
+	</EmbeddedResource>
+	<EmbeddedResource Include="Review\HistoryPanel.resx">
 	  <DependentUpon>HistoryPanel.cs</DependentUpon>
 	  <SubType>Designer</SubType>
 	</EmbeddedResource>
@@ -75,8 +93,8 @@
 	  <LastGenOutput>Resources.Designer.cs</LastGenOutput>
 	  <SubType>Designer</SubType>
 	</EmbeddedResource>
-	<EmbeddedResource Include="Deprecated\MainWindow.resx">
-	  <DependentUpon>MainWindow.cs</DependentUpon>
+	<EmbeddedResource Include="Shell.resx">
+	  <DependentUpon>Shell.cs</DependentUpon>
 	  <SubType>Designer</SubType>
 	</EmbeddedResource>
 	<EmbeddedResource Include="Settings\SettingsPanel.resx">
@@ -105,11 +123,11 @@
 	  <DependentUpon>Settings.settings</DependentUpon>
 	  <DesignTimeSharedInput>True</DesignTimeSharedInput>
 	</Compile>
-	<Compile Include="Deprecated\MainWindow.cs">
+	<Compile Include="Shell.cs">
 	  <SubType>Form</SubType>
 	</Compile>
-	<Compile Include="Deprecated\MainWindow.Designer.cs">
-	  <DependentUpon>MainWindow.cs</DependentUpon>
+	<Compile Include="Shell.Designer.cs">
+	  <DependentUpon>Shell.cs</DependentUpon>
 	</Compile>
 	<Compile Include="Settings\SettingsPanel.cs">
 	  <SubType>UserControl</SubType>
@@ -141,7 +159,7 @@
 	<Content Include="SyncPanel\finished.wav">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</Content>
-	<Content Include="SyncPanel\SetupPanel.htm">
+	<Content Include="Settings\SetupPanel.htm">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</Content>
   </ItemGroup>

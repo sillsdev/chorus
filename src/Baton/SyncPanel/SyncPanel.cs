@@ -8,21 +8,15 @@ namespace Chorus.UI
 	public partial class SyncPanel : UserControl
 	{
 		private SyncPanelModel _model;
-		private TextBoxProgress _progress;
-		private ProjectFolderConfiguration _project;
 		private String _userName="anonymous";
 
-		public SyncPanel()
+		public SyncPanel(SyncPanelModel model)
 		{
+			_model = model;
 			InitializeComponent();
 			UpdateDisplay();
 		}
 
-		public ProjectFolderConfiguration ProjectFolderConfig
-		{
-			get { return _project; }
-			set { _project = value; }
-		}
 
 		/// <summary>
 		/// most client apps won't have anything to put in here, that's ok
@@ -86,9 +80,8 @@ namespace Chorus.UI
 				return;
 			}
 
-			_progress = new TextBoxProgress(_logBox);
+			_model.ProgressDisplay = new TextBoxProgress(_logBox);
 
-			_model = new SyncPanelModel(_project, UserName, _progress);
 
 			_syncTargets.Items.Clear();
 			foreach (RepositorySource descriptor in _model.RepositoriesToList)

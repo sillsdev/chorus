@@ -1,4 +1,7 @@
-﻿namespace Baton
+using Baton.Settings;
+using Chorus.UI;
+
+namespace Baton
 {
 	partial class Shell
 	{
@@ -28,11 +31,48 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
-			this.components = new System.ComponentModel.Container();
-			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.Text = "Form1";
+			this._tabControl = new System.Windows.Forms.TabControl();
+			this.tabPage1 = new System.Windows.Forms.TabPage();
+			this._tabControl.SuspendLayout();
+			this.SuspendLayout();
+			//
+			// _tabControl
+			//
+			this._tabControl.Controls.Add(this.tabPage1);
+			this._tabControl.Dock = System.Windows.Forms.DockStyle.Fill;
+			this._tabControl.Location = new System.Drawing.Point(0, 0);
+			this._tabControl.Name = "_tabControl";
+			this._tabControl.SelectedIndex = 0;
+			this._tabControl.Size = new System.Drawing.Size(856, 520);
+			this._tabControl.TabIndex = 0;
+			//
+			// tabPage1
+			//
+			this.tabPage1.Location = new System.Drawing.Point(4, 22);
+			this.tabPage1.Name = "tabPage1";
+			this.tabPage1.Size = new System.Drawing.Size(848, 494);
+			this.tabPage1.TabIndex = 0;
+			this.tabPage1.Text = "dummy";
+			this.tabPage1.UseVisualStyleBackColor = true;
+			//
+			// Shell
+			//
+			this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
+			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
+			this.ClientSize = new System.Drawing.Size(856, 520);
+			this.Controls.Add(this._tabControl);
+			this.Name = "Shell";
+			this.ShowIcon = false;
+			this.Text = "Chorus";
+			this._tabControl.ResumeLayout(false);
+			this.ResumeLayout(false);
+
 		}
 
 		#endregion
+
+		private System.Windows.Forms.TabControl _tabControl;
+		private System.Windows.Forms.TabPage tabPage1;
+
 	}
 }

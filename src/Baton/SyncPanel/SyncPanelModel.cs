@@ -9,20 +9,18 @@ using Chorus.Utilities;
 
 namespace Chorus.UI
 {
-	internal class SyncPanelModel
+	public class SyncPanelModel
 	{
-		private readonly ProjectFolderConfiguration _project;
-		private readonly IProgress _progress;
+		private readonly RepositoryManager _repositoryManager;
 		public List<RepositorySource> RepositoriesToTry = new List<RepositorySource>();
 		public IList<RepositorySource> RepositoriesToList;
+		public IProgress ProgressDisplay{get; set;}
 
-		public  SyncPanelModel(ProjectFolderConfiguration project, string userName, IProgress progress)
+		public SyncPanelModel(RepositoryManager repositoryManager)
 		{
-			_project = project;
-			_progress = progress;
+			_repositoryManager = repositoryManager;
 
-			RepositoryManager manager = RepositoryManager.FromRootOrChildFolder(_project);
-			RepositoriesToList= manager.KnownRepositorySources;
+			RepositoriesToList= _repositoryManager.KnownRepositorySources;
 			RepositoriesToTry.AddRange(RepositoriesToList);
 		}
 
@@ -34,16 +32,15 @@ namespace Chorus.UI
 			}
 		}
 
+
 		public void Sync()
 		{
-			RepositoryManager manager = RepositoryManager.FromRootOrChildFolder(_project);
-
 			SyncOptions options = new SyncOptions();
 			options.DoPullFromOthers = true;
 			options.DoMergeWithOthers = true;
 			options.RepositorySourcesToTry = RepositoriesToTry;
 
-			manager.SyncNow(options, _progress);
+			_repositoryManager.SyncNow(options, ProgressDisplay);
 			//SoundPlayer player = new SoundPlayer(@"C:\chorus\src\sounds\finished.wav");
 			//player.Play();
 		}
