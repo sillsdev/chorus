@@ -38,7 +38,8 @@ namespace Baton.Tests
 			_project.FolderPath = _pathToTestRoot;
 
 			_progress = new StringBuilderProgress();
-			_model = new HistoryPanelModel(_project, _progress);
+			_model = new HistoryPanelModel(RepositoryManager.FromRootOrChildFolder(_project), null);
+			_model.ProgressDisplay = _progress;
 		}
 
 		[Test]
