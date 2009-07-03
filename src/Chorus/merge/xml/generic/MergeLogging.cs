@@ -10,7 +10,9 @@ namespace Chorus.merge.xml.generic
 	{
 		void ConflictOccurred(IConflict conflict);
 
-		 /// <summary>
+		void ChangeOccurred(IChangeReport change);
+
+		/// <summary>
 		/// In order to be able to store in the conflict enough information to later retrieve the conflicting
 		/// data, someone must call this when new element levels were reached.
 		/// Then when a conflict occurs, the listener pushes this context into the conflict and (at least
@@ -25,6 +27,11 @@ namespace Chorus.merge.xml.generic
 	public class NullMergeEventListener : IMergeEventListener
 	{
 		public void ConflictOccurred(IConflict conflict)
+		{
+
+		}
+
+		public void ChangeOccurred(IChangeReport change)
 		{
 
 		}
@@ -52,6 +59,14 @@ namespace Chorus.merge.xml.generic
 			}
 		}
 
+		public void ChangeOccurred(IChangeReport change)
+		{
+			 foreach (IMergeEventListener listener in _listeners)
+			{
+				listener.ChangeOccurred(change);
+			}
+		}
+
 		public void EnteringContext(string context)
 		{
 			 foreach (IMergeEventListener listener in _listeners)
@@ -74,6 +89,11 @@ namespace Chorus.merge.xml.generic
 			_stream.WriteLine(conflict.GetFullHumanReadableDescription());
 		}
 
+		public void ChangeOccurred(IChangeReport change)
+		{
+			_stream.WriteLine(change.ToString());
+		}
+
 		public void EnteringContext(string context)
 		{
 
@@ -91,7 +111,6 @@ namespace Chorus.merge.xml.generic
 	public class XmlLogMergeEventListener : IMergeEventListener, IDisposable
 	{
 		private XmlWriter _writer;
-		private bool _modifyingExistingFile;
 		private XmlDocument _xmlDoc;
 		private string _path;
 		static public string TimeFormatNoTimeZone = "yyyy-MM-ddTHH:mm:ssZ";
@@ -128,8 +147,6 @@ namespace Chorus.merge.xml.generic
 			_xmlDoc = new XmlDocument();
 			_xmlDoc.Load(path);
 			_writer = _xmlDoc.CreateNavigator().SelectSingleNode("conflicts").AppendChild();
-					this._modifyingExistingFile = true;
-
 		}
 		public void ConflictOccurred(IConflict conflict)
 		{
@@ -141,6 +158,19 @@ namespace Chorus.merge.xml.generic
 			conflict.PathToUnitOfConflict = _context;
 			_writer.WriteString(conflict.GetFullHumanReadableDescription());
 			_writer.WriteEndElement();
+		}
+
+		public void ChangeOccurred(IChangeReport change)
+		{
+			_writer.WriteStartElement("change");
+			_writer.WriteAttributeString("type", string.Empty, change.HumanNameOfChangeType);
+			_writer.WriteAttributeString("guid", string.Empty, change.Guid.ToString());
+			_writer.WriteAttributeString("date", string.Empty, DateTime.UtcNow.ToString(TimeFormatNoTimeZone));
+			_writer.WriteAttributeString("context", string.Empty, _context);
+			//change.PathToUnitOfConflict = _context;
+			_writer.WriteString(change.GetFullHumanReadableDescription());
+			_writer.WriteEndElement();
+
 		}
 
 		public void EnteringContext(string context)

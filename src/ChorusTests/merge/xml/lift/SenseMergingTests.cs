@@ -1,9 +1,8 @@
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
 using Chorus.merge.xml.lift;
+using Chorus.Tests.merge.xml.generic;
 using NUnit.Framework;
 
 namespace Chorus.Tests.merge.xml.lift
@@ -99,34 +98,6 @@ namespace Chorus.Tests.merge.xml.lift
 		private void AssertConflictType<TConflictType>(IConflict conflict)
 		{
 			Assert.AreEqual(typeof(TConflictType), conflict.GetType(), conflict.ToString());
-		}
-	}
-
-	public class ListenerForUnitTests : IMergeEventListener
-	{
-		public List<IConflict> Conflicts = new List<IConflict>();
-		public List<string> Contexts = new List<string>();
-
-		public void ConflictOccurred(IConflict conflict)
-		{
-			Conflicts.Add(conflict);
-		}
-
-		public void EnteringContext(string context)
-		{
-			Contexts.Add(context);
-		}
-		public void AssertExpectedCount(int count)
-		{
-			if (count != Conflicts.Count)
-			{
-				Debug.WriteLine("***Got these conflicts:");
-				foreach (var conflict in Conflicts)
-				{
-					Debug.WriteLine("    "+conflict.ToString());
-				}
-				Assert.AreEqual(count, Conflicts.Count,"Unexpected Conflict Count");
-			}
 		}
 	}
 }

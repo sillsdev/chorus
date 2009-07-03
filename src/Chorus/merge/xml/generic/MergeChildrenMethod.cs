@@ -17,6 +17,15 @@ namespace Chorus.merge.xml.generic
 		private List<XmlNode> _theirKeepers = new List<XmlNode>();
 		private List<XmlNode> _ancestorKeepers = new List<XmlNode>();
 
+
+		/// <summary>
+		/// Use this one for a diff of one xml node against another
+		/// </summary>
+		 public MergeChildrenMethod(XmlNode after, XmlNode before, XmlMerger merger)
+			:this(after, before, before, merger)
+		{
+		}
+
 		public MergeChildrenMethod(XmlNode ours, XmlNode theirs, XmlNode ancestor, XmlMerger merger)
 		{
 			_ours = ours;
@@ -83,21 +92,31 @@ namespace Chorus.merge.xml.generic
 
 			List<XmlNode> newChildren = resultOrderer.GetResultList();
 
+
+
 			// Merge corresponding nodes.
 			for (int i = 0; i < newChildren.Count; i++)
 			{
 				XmlNode ourChild = newChildren[i];
 				XmlNode theirChild;
+				XmlNode ancestorChild = FindMatchingNode(ourChild, _ancestor);
 				if (resultOrderer.Correspondences.TryGetValue(ourChild, out theirChild)
 					&& !XmlUtilities.AreXmlElementsEqual(ourChild, theirChild))
 				{
 					// There's a corresponding node and it isn't the same as ours...
-					XmlNode ancestorChild = FindMatchingNode(ourChild, _ancestor);
 					if (theirChild.NodeType == XmlNodeType.Text)
 						_merger.MergeTextNodes(ref ourChild, theirChild, ancestorChild);
 					else
 						_merger.MergeInner(ref ourChild, theirChild, ancestorChild);
 					newChildren[i] = ourChild;
+				}
+				else
+				{
+					//Review JohnT (jh): Is this the correct interpretation?
+					if (ancestorChild==null)
+					{
+						_merger.EventListener.ChangeOccurred(new AdditionChangeReport(ourChild));
+					}
 				}
 			}
 
@@ -250,6 +269,8 @@ namespace Chorus.merge.xml.generic
 
 				if (ourChild == null)
 				{
+					_merger.EventListener.ChangeOccurred(new DeletionChangeReport(ancestorChild));
+
 					// We deleted it.
 					if (theirChild == null)
 					{

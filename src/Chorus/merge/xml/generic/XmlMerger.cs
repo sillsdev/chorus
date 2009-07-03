@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -9,12 +10,13 @@ namespace Chorus.merge.xml.generic
 	public class NodeMergeResult : IMergeEventListener
 	{
 		private XmlNode _mergedNode;
-		private IList<IConflict> _conflicts;
-		//enhance: add list of changed entries to speed up import into db backends
+		public IList<IConflict> Conflicts{get;set;}
+		public IList<IChangeReport> Changes { get; set; }
 
 		public NodeMergeResult()
 		{
-			_conflicts = new List<IConflict>();
+			Conflicts = new List<IConflict>();
+			Changes = new List<IChangeReport>();
 		}
 
 		public XmlNode MergedNode
@@ -26,15 +28,16 @@ namespace Chorus.merge.xml.generic
 			internal set { _mergedNode = value; }
 		}
 
-		public IList<IConflict> Conflicts
-		{
-			get { return _conflicts; }
-			set { _conflicts = value; }
-		}
+
 
 		public void ConflictOccurred(IConflict conflict)
 		{
-			_conflicts.Add(conflict);
+			Conflicts.Add(conflict);
+		}
+
+		public void ChangeOccurred(IChangeReport change)
+		{
+			Changes.Add(change);
 		}
 
 		public void EnteringContext(string context)
@@ -229,6 +232,7 @@ namespace Chorus.merge.xml.generic
 
 		internal void MergeTextNodes(ref XmlNode ours, XmlNode theirs, XmlNode ancestor)
 		{
+
 			if (ours.InnerText.Trim() == theirs.InnerText.Trim())
 			{
 				return; // we agree
@@ -259,6 +263,8 @@ namespace Chorus.merge.xml.generic
 			{
 				//we're not empty, we edited it, and we don't equal theirs
 
+				EventListener.ChangeOccurred(new TextEditChangeReport(SafelyGetStringTextNode(ancestor), SafelyGetStringTextNode(ours)));
+
 				if (theirs.InnerText == null || string.IsNullOrEmpty(theirs.InnerText.Trim()))
 				{
 					//we edited, they deleted it. Keep ours.
@@ -280,6 +286,13 @@ namespace Chorus.merge.xml.generic
 			{
 				ours.InnerText = theirs.InnerText;
 			}
+		}
+
+		private static string SafelyGetStringTextNode(XmlNode node)
+		{
+			if(node==null || node.InnerText==null)
+				return String.Empty;
+			return node.InnerText.Trim();
 		}
 
 		private void MergeChildren(ref XmlNode ours, XmlNode theirs, XmlNode ancestor)

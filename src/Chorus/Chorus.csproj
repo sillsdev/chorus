@@ -58,6 +58,7 @@
 	<Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+	<Compile Include="merge\IChangeReport.cs" />
 	<Compile Include="merge\MergeDispatcher.cs" />
 	<Compile Include="merge\MergeOrder.cs" />
 	<Compile Include="merge\xml\generic\DropTheirsMergeStrategy.cs" />

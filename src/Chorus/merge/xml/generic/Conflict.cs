@@ -42,6 +42,11 @@ namespace Chorus.merge.xml.generic
 			_mergeSituation = situation;
 		}
 
+		public Guid Guid
+		{
+			get { return _guid; }
+		}
+
 	}
 
 	public abstract class AttributeConflict : Conflict, IConflict
@@ -93,11 +98,6 @@ namespace Chorus.merge.xml.generic
 		public abstract string ConflictTypeHumanName
 		{
 			get;
-		}
-
-		public Guid Guid
-		{
-			get { return _guid; }
 		}
 
 		public string GetConflictingRecordOutOfSourceControl(IRetrieveFile fileRetriever, ThreeWayMergeSources.Source mergeSource)
@@ -220,12 +220,6 @@ namespace Chorus.merge.xml.generic
 			return string.Format("{0} ({1}): {2}", ConflictTypeHumanName, _mergeStrategies.GetElementStrategy(element).GetHumanDescription(element), WhatHappened);
 		}
 
-
-
-		public Guid Guid
-		{
-			get { return _guid; }
-		}
 
 		public string GetConflictingRecordOutOfSourceControl(IRetrieveFile fileRetriever, ThreeWayMergeSources.Source mergeSource)
 		{

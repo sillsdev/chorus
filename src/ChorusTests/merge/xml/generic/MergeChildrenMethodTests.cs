@@ -3,7 +3,6 @@ using System.Xml;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
 using Chorus.Tests.merge.xml;
-using Chorus.Tests.merge.xml.lift;
 using NUnit.Framework;
 
 namespace Chorus.Tests.merge.xml.generic
@@ -48,7 +47,7 @@ namespace Chorus.Tests.merge.xml.generic
 												 GetNode(ancestors,xpathToElementsToMerge),
 												 merger);
 			method.Run();
-			 listener.AssertExpectedCount(1);
+			 listener.AssertExpectedConflictCount(1);
 		   var conflict = listener.Conflicts[0];
 			Assert.AreEqual(typeof(TConflictType), conflict.GetType());
 		}
@@ -63,7 +62,7 @@ namespace Chorus.Tests.merge.xml.generic
 												 GetNode(ancestors, xpathToElementsToMerge),
 												 merger);
 			method.Run();
-			listener.AssertExpectedCount(0);
+			listener.AssertExpectedConflictCount(0);
 		}
 
 		[Test]
