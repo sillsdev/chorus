@@ -58,6 +58,7 @@
 	<Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+	<Compile Include="Utilities\Guard.cs" />
 	<Compile Include="merge\IChangeReport.cs" />
 	<Compile Include="merge\MergeDispatcher.cs" />
 	<Compile Include="merge\MergeOrder.cs" />
@@ -68,8 +69,10 @@
 	<Compile Include="merge\xml\generic\MergeSort.cs" />
 	<Compile Include="merge\xml\generic\PoorMansMergeStrategy.cs" />
 	<Compile Include="Program.cs" />
+	<Compile Include="retrieval\ChorusRevision.cs" />
 	<Compile Include="retrieval\IRetrieveFile.cs" />
 	<Compile Include="retrieval\LiftEntryRetriever.cs" />
+	<Compile Include="retrieval\RevisionInfoProvider.cs" />
 	<Compile Include="sync\ProjectFolderConfiguration.cs" />
 	<Compile Include="sync\RepositoryManager.cs" />
 	<Compile Include="sync\RepositorySource.cs" />
@@ -91,7 +94,7 @@
 	<Compile Include="merge\xml\generic\ElementStrategy.cs" />
 	<Compile Include="merge\xml\generic\FindNodeToMerge.cs" />
 	<Compile Include="merge\xml\generic\IMergeStrategy.cs" />
-	<Compile Include="merge\xml\lift\EntryMerger.cs" />
+	<Compile Include="merge\xml\lift\LiftEntryMergingStrategy.cs" />
 	<Compile Include="merge\xml\lift\LiftMerger.cs" />
 	<Compile Include="merge\xml\generic\XmlUtilities.cs" />
 	<Compile Include="merge\xml\generic\xmldiff\DiffConfiguration.cs" />
@@ -103,7 +106,7 @@
 	<Compile Include="merge\xml\generic\xmldiff\XmlInput.cs" />
 	<Compile Include="merge\xml\generic\XmlMerger.cs" />
 	<Compile Include="Properties\AssemblyInfo.cs" />
-	<Compile Include="VcsDrivers\Mercurial\RevisionDescriptor.cs" />
+	<Compile Include="VcsDrivers\Mercurial\Revision.cs" />
 	<Compile Include="VcsDrivers\Mercurial\HgRunner.cs" />
   </ItemGroup>
   <ItemGroup>

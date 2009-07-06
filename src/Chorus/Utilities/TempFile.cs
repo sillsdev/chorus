@@ -61,6 +61,15 @@ namespace Chorus.Utilities
 	{
 		protected string _path;
 
+		public static TempFile CreateWithExtension(string extension)
+		{
+			if(extension[0]!='.')
+				extension = "." + extension;
+
+			var path = System.IO.Path.GetTempFileName().Replace(".tmp", extension);
+			return  new TempFile(path, false);
+		}
+
 		public TempFile()
 		{
 			_path = System.IO.Path.GetTempFileName();

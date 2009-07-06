@@ -4,7 +4,6 @@ using Baton.Review;
 using Chorus.sync;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
-using Palaso.Misc;
 
 namespace Baton.HistoryPanel
 {
@@ -21,15 +20,15 @@ namespace Baton.HistoryPanel
 			_revisionSelectedEvent = revisionSelectedEvent;
 		}
 
-		public List<RevisionDescriptor> GetHistoryItems()
+		public List<Revision> GetHistoryItems()
 		{
 			Guard.AgainstNull(ProgressDisplay, "ProgressDisplay");
 			if (!RepositoryManager.CheckEnvironmentAndShowMessageIfAppropriate("en"))
-				return new List<RevisionDescriptor>();
-			return _repositoryManager.GetHistoryItems(ProgressDisplay);
+				return new List<Revision>();
+			return _repositoryManager.GetAllRevisions(ProgressDisplay);
 		}
 
-		public void SelectedRevisionChanged(RevisionDescriptor descriptor)
+		public void SelectedRevisionChanged(Revision descriptor)
 		{
 			if (_revisionSelectedEvent!=null)
 				_revisionSelectedEvent.Raise(descriptor);

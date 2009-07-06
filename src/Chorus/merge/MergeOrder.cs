@@ -26,7 +26,9 @@ namespace Chorus.merge
 		/// It is then the Chorus syncing methods job to take the two partials and insert
 		/// them into the repository history.
 		/// </summary>
-		public enum ConflictHandlingModeChoices { WeWin, TheyWin, LcdPlusPartials }
+		public enum ConflictHandlingModeChoices { WeWin, TheyWin, LcdPlusPartials,
+			DifferenceOnly
+		}
 
 		public ConflictHandlingModeChoices ConflictHandlingMode{ get; set;}
 		public IMergeEventListener EventListener{ get; set;}
@@ -67,6 +69,16 @@ namespace Chorus.merge
 		public static void PushToEnvironmentVariables(string pathToRepository)
 		{
 			Environment.SetEnvironmentVariable(kPathToRepository, pathToRepository);
+		}
+
+		/// <summary>
+		/// Factory used when we don't actually want to merge, we just want to diff between a parent and child.
+		/// The diff is accessed by setting up the listener and, well, listening to the diffs.
+		/// </summary>
+		public static MergeOrder CreateForDiff(string parentPath, string childPath, IMergeEventListener listener)
+		{
+			return new MergeOrder(ConflictHandlingModeChoices.DifferenceOnly, childPath, parentPath, parentPath, new NullMergeSituation())
+						{EventListener = listener};
 		}
 	}
 }

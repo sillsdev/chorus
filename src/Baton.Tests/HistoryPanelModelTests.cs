@@ -45,7 +45,7 @@ namespace Baton.Tests
 		[Test]
 		public void BeforeAnySyncing_EmptyHistory()
 		{
-			List<RevisionDescriptor> items = _model.GetHistoryItems();
+			List<Revision> items = _model.GetHistoryItems();
 			Assert.AreEqual(0, items.Count);
 		}
 	}

@@ -65,12 +65,13 @@
 	<Compile Include="Review\ChangedRecordControl\ChangedRecordView.Designer.cs">
 	  <DependentUpon>ChangedRecordView.cs</DependentUpon>
 	</Compile>
-	<Compile Include="Review\ChangedRecordsList\ChangedRecordListView.cs">
+	<Compile Include="Review\RevisionChanges\RevisionChangesView.cs">
 	  <SubType>UserControl</SubType>
 	</Compile>
-	<Compile Include="Review\ChangedRecordsList\ChangedRecordListView.Designer.cs">
-	  <DependentUpon>ChangedRecordListView.cs</DependentUpon>
+	<Compile Include="Review\RevisionChanges\ChangedRecordListView.Designer.cs">
+	  <DependentUpon>RevisionChangesView.cs</DependentUpon>
 	</Compile>
+	<Compile Include="Review\RevisionChanges\RevisionChangesModel.cs" />
 	<Compile Include="Review\HistoryPanel.cs">
 	  <SubType>UserControl</SubType>
 	</Compile>
@@ -89,9 +90,6 @@
 	<EmbeddedResource Include="Review\ChangedRecordControl\ChangedRecordView.resx">
 	  <DependentUpon>ChangedRecordView.cs</DependentUpon>
 	</EmbeddedResource>
-	<EmbeddedResource Include="Review\ChangedRecordsList\ChangedRecordListView.resx">
-	  <DependentUpon>ChangedRecordListView.cs</DependentUpon>
-	</EmbeddedResource>
 	<EmbeddedResource Include="Review\HistoryPanel.resx">
 	  <DependentUpon>HistoryPanel.cs</DependentUpon>
 	  <SubType>Designer</SubType>
@@ -100,6 +98,9 @@
 	  <Generator>ResXFileCodeGenerator</Generator>
 	  <LastGenOutput>Resources.Designer.cs</LastGenOutput>
 	  <SubType>Designer</SubType>
+	</EmbeddedResource>
+	<EmbeddedResource Include="Review\RevisionChanges\RevisionChangesView.resx">
+	  <DependentUpon>RevisionChangesView.cs</DependentUpon>
 	</EmbeddedResource>
 	<EmbeddedResource Include="Shell.resx">
 	  <DependentUpon>Shell.cs</DependentUpon>

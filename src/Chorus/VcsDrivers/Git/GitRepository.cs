@@ -19,7 +19,7 @@ namespace Chorus
 //            {
 //                string result = GetTextFromQuery(_pathToRepository, "identify -nib");
 //                string[] parts = result.Split(new char[] {' ','(',')'}, StringSplitOptions.RemoveEmptyEntries);
-//                RevisionDescriptor descriptor = new RevisionDescriptor(parts[2],parts[1], parts[0], "unknown");
+//                Revision descriptor = new Revision(parts[2],parts[1], parts[0], "unknown");
 //
 //                return descriptor;
 //            }
@@ -130,13 +130,13 @@ namespace Chorus
 //                    if (parts.Length < 2)
 //                        continue;
 //                    string[] revisionParts = parts[1].Split(':');
-//                    branches.Add(new RevisionDescriptor(parts[0], revisionParts[0], revisionParts[1], "unknown"));
+//                    branches.Add(new Revision(parts[0], revisionParts[0], revisionParts[1], "unknown"));
 				}
 				return branches;
 			}
 		}
 
-//        private RevisionDescriptor GetTip()
+//        private Revision GetTip()
 //        {
 //            return GetRevisionsFromQuery("tip")[0];
 //        }

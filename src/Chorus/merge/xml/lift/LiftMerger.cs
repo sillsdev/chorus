@@ -112,6 +112,38 @@ namespace Chorus.merge.xml.lift
 			return xmlString;
 		}
 
+
+		public void Do2WayDiffOfLift()
+		{
+			_ourDom.LoadXml(_ourLift);
+			_theirDom.LoadXml(_ancestorLift);//nb: putting the ancestor in there is intentional
+			_ancestorDom.LoadXml(_ancestorLift);
+
+			//NB: we dont' actually have any interest in writing anything,
+			//but for now, this lets us reuse the merger code
+
+			using(MemoryStream memoryStream = new MemoryStream())
+			using (XmlWriter writer = XmlWriter.Create(memoryStream))
+			{
+				WriteStartOfLiftElement(writer);
+
+				foreach (XmlNode e in _ourDom.SelectNodes("lift/entry"))
+				{
+						ProcessEntry(writer, e);
+				}
+
+				//now detect any deleted elements
+				foreach (XmlNode e in _ancestorDom.SelectNodes("lift/entry"))
+				{
+					if (!_processedIds.Contains(GetId(e)))
+					{
+						EventListener.ChangeOccurred(new DeletionChangeReport(e));
+					}
+				}
+				writer.WriteEndElement();
+			}
+		}
+
 		private static XmlNode FindEntry(XmlNode doc, string id)
 		{
 #if DEBUG
@@ -130,17 +162,27 @@ namespace Chorus.merge.xml.lift
 		{
 			string id = GetId(ourEntry);
 			XmlNode theirEntry = FindEntry(_theirDom, id);
-			if (theirEntry == null)
+			if (theirEntry == null) //it's new
 			{
+				//enchance: we know this at this point only in the 2-way diff mode
+				EventListener.ChangeOccurred(new AdditionChangeReport(ourEntry));
+
+
 				ProcessEntryWeKnowDoesntNeedMerging(ourEntry, id, writer);
 			}
-			else if (AreTheSame(ourEntry, theirEntry))
+			else if (AreTheSame(ourEntry, theirEntry))//unchanged or both made same change
 			{
 				writer.WriteRaw(ourEntry.OuterXml);
 			}
-			else
+			else //one or both changed
 			{
+				if (!string.IsNullOrEmpty(XmlUtilities.GetOptionalAttributeString(ourEntry, "dateDeleted")))
+				{
+					EventListener.ChangeOccurred(new DeletionChangeReport(ourEntry));
+				}
+
 				XmlNode commonEntry = FindEntry(_ancestorDom, id);
+
 				writer.WriteRaw(_mergingStrategy.MakeMergedEntry(this.EventListener, ourEntry, theirEntry, commonEntry));
 			}
 			_processedIds.Add(id);

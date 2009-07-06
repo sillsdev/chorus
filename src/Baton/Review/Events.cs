@@ -26,7 +26,7 @@ namespace Baton.Review
 		}
 	}
 
-	public class RevisionSelectedEvent : Event<RevisionDescriptor>
+	public class RevisionSelectedEvent : Event<Revision>
 	{ }
 
 	public class ChangedRecordSelectedEvent : Event<IChangeReport>

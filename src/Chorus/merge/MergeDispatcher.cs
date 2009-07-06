@@ -24,7 +24,17 @@ namespace Chorus.merge
 						Console.Error.WriteLine("ChorusMerge doesn't know how to merge files of type" + Path.GetExtension(order.pathToOurs));
 						return 1; //DON'T USE -1! HG SWALLOWS IT
 					case ".lift":
-						return MergeLiftFiles(order);
+						//TODO: this is a hack
+						if (order.ConflictHandlingMode == MergeOrder.ConflictHandlingModeChoices.DifferenceOnly)
+						{
+							DiffLiftFiles(order);
+							return 0;//review
+						}
+						else
+						{
+							return MergeLiftFiles(order);
+						}
+						break;
 					case ".conflicts":
 						return MergeConflictFiles(order);
 					case ".txt":
@@ -37,6 +47,14 @@ namespace Chorus.merge
 				Console.Error.WriteLine(e.StackTrace);
 				return 1;
 			}
+		}
+
+		private static void DiffLiftFiles(MergeOrder order)
+		{
+			var merger = new LiftMerger(new LiftEntryMergingStrategy(order.MergeSituation), order.pathToOurs, order.pathToTheirs,
+						order.pathToCommonAncestor);
+			merger.EventListener = order.EventListener;
+			merger.Do2WayDiffOfLift();
 		}
 
 		private static int MergeConflictFiles(MergeOrder order)
@@ -56,16 +74,17 @@ namespace Chorus.merge
 
 		private static int MergeLiftFiles(MergeOrder order)
 		{
-			DispatchingMergeEventListener d = new DispatchingMergeEventListener();
+			DispatchingMergeEventListener listenerDispatcher = new DispatchingMergeEventListener();
+
 			//Debug.Fail("hello");
 			//review: where should these really go?
 			string dir = Path.GetDirectoryName(order.pathToOurs);
 			using(HumanLogMergeEventListener humanListener = new HumanLogMergeEventListener(order.pathToOurs+".conflicts.txt"))
 			using (XmlLogMergeEventListener xmlListener = new XmlLogMergeEventListener(order.pathToOurs+".conflicts"))
 			{
-				d.AddEventListener(humanListener);
-				d.AddEventListener(xmlListener);
-				order.EventListener = d;
+				listenerDispatcher.AddEventListener(humanListener);
+				listenerDispatcher.AddEventListener(xmlListener);
+				order.EventListener = listenerDispatcher;
 
 				//;  Debug.Fail("hello");
 				Chorus.merge.xml.lift.LiftMerger merger;
@@ -75,16 +94,15 @@ namespace Chorus.merge
 						throw new ArgumentException("The Lift merger cannot handle the requested conflict handling mode");
 					case MergeOrder.ConflictHandlingModeChoices.WeWin:
 
-						merger = new LiftMerger(new EntryMerger(order.MergeSituation), order.pathToOurs, order.pathToTheirs,
+						merger = new LiftMerger(new LiftEntryMergingStrategy(order.MergeSituation), order.pathToOurs, order.pathToTheirs,
 												order.pathToCommonAncestor);
-						merger.EventListener = order.EventListener;
 						break;
 					case MergeOrder.ConflictHandlingModeChoices.TheyWin:
-						merger = new LiftMerger(new EntryMerger(order.MergeSituation), order.pathToTheirs, order.pathToOurs,
+						merger = new LiftMerger(new LiftEntryMergingStrategy(order.MergeSituation), order.pathToTheirs, order.pathToOurs,
 												order.pathToCommonAncestor);
-						merger.EventListener = order.EventListener;
 						break;
 				}
+				merger.EventListener = order.EventListener;
 
 				string newContents = merger.GetMergedLift();
 				File.WriteAllText(order.pathToOurs, newContents);

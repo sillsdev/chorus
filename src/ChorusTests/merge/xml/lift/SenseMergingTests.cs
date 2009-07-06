@@ -38,7 +38,7 @@ namespace Chorus.Tests.merge.xml.lift
 					<lift version='0.10' producer='WeSay 1.0.0.0'>
 						<entry id='test'  guid='F169EB3D-16F2-4eb0-91AA-FDB91636F8F6' />
 					</lift>";
-			LiftMerger merger = new LiftMerger(ours, theirs, ancestor, new EntryMerger(new NullMergeSituation()));
+			LiftMerger merger = new LiftMerger(ours, theirs, ancestor, new LiftEntryMergingStrategy(new NullMergeSituation()));
 			var listener = new ListenerForUnitTests();
 			merger.EventListener = listener;
 			string result = merger.GetMergedLift();
@@ -84,7 +84,7 @@ namespace Chorus.Tests.merge.xml.lift
 							 </sense>
 						</entry>
 					</lift>";
-			LiftMerger merger = new LiftMerger(ours, theirs, ancestor, new EntryMerger(new NullMergeSituation()));
+			LiftMerger merger = new LiftMerger(ours, theirs, ancestor, new LiftEntryMergingStrategy(new NullMergeSituation()));
 			var listener = new ListenerForUnitTests();
 			merger.EventListener = listener;
 			string result = merger.GetMergedLift();

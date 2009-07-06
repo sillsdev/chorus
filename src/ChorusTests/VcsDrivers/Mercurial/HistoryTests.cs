@@ -6,6 +6,7 @@ using Chorus.sync;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
 using NUnit.Framework;
+using System.Linq;
 
 namespace Chorus.Tests.VcsDrivers.Mercurial
 {
@@ -45,21 +46,21 @@ namespace Chorus.Tests.VcsDrivers.Mercurial
 			using (RepositoryManager.CreateDvcsMissingSimulation())
 			{
 				RepositoryManager repo = new RepositoryManager(_project.FolderPath, _project, "bob");
-				List<RevisionDescriptor> items = repo.GetHistoryItems(_progress);
+				List<Revision> items = repo.GetAllRevisions(_progress);
 				Assert.AreEqual(0, items.Count);
 			}
 		}
 
 		[Test]
-		public void GetHistoryItems_BeforeAnySyncing_EmptyHistory()
+		public void GetAllRevisionss_BeforeAnySyncing_EmptyHistory()
 		{
 			RepositoryManager repo = new RepositoryManager(_project.FolderPath, _project, "bob");
-			List<RevisionDescriptor> items = repo.GetHistoryItems(_progress);
+			List<Revision> items = repo.GetAllRevisions(_progress);
 			Assert.AreEqual(0, items.Count);
 		}
 
 		[Test]
-		public void GetHistoryItems_AfterSyncingTwoTimes_CorrectHistory()
+		public void GetAllRevisionss_AfterSyncingTwoTimes_CorrectHistory()
 		{
 			RepositoryManager repo = new RepositoryManager(_project.FolderPath, _project, "bob");
 			SyncOptions options = new SyncOptions();
@@ -73,7 +74,7 @@ namespace Chorus.Tests.VcsDrivers.Mercurial
 			options.CheckinDescription = "second one";
 			repo.SyncNow(options, _progress);
 
-			List<RevisionDescriptor> items = repo.GetHistoryItems(_progress);
+			List<Revision> items = repo.GetAllRevisions(_progress);
 			Assert.AreEqual(2, items.Count);
 			Assert.AreEqual("bob", items[0].UserId);
 			Assert.AreEqual("second one", items[0].Summary);
@@ -81,5 +82,6 @@ namespace Chorus.Tests.VcsDrivers.Mercurial
 			Assert.AreEqual("bob", items[1].UserId);
 			Assert.AreEqual("first one", items[1].Summary);
 		}
+
 	}
 }

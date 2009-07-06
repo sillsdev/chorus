@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -35,13 +36,13 @@ namespace Chorus.VcsDrivers.Mercurial
 			return null;
 		}
 
-		protected RevisionDescriptor GetMyHead()
+		protected Revision GetMyHead()
 		{
 			using (new ConsoleProgress("Getting real head of {0}", _userName))
 			{
 				string result = GetTextFromQuery(_pathToRepository, "identify -nib");
 				string[] parts = result.Split(new char[] {' ','(',')'}, StringSplitOptions.RemoveEmptyEntries);
-				RevisionDescriptor descriptor = new RevisionDescriptor(parts[2],parts[1], parts[0], "unknown");
+				Revision descriptor = new Revision(this, parts[2],parts[1], parts[0], "unknown");
 
 				return descriptor;
 			}
@@ -115,7 +116,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		}
 
 
-		private List<RevisionDescriptor> GetBranches()
+		private List<Revision> GetBranches()
 		{
 			string what= "branches";
 			using (new ConsoleProgress("Getting {0} of {1}", what, _userName))
@@ -123,7 +124,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				string result = GetTextFromQuery(_pathToRepository, what);
 
 				string[] lines = result.Split('\n');
-				List<RevisionDescriptor> branches = new List<RevisionDescriptor>();
+				List<Revision> branches = new List<Revision>();
 				foreach (string line in lines)
 				{
 					if (line.Trim() == "")
@@ -133,29 +134,23 @@ namespace Chorus.VcsDrivers.Mercurial
 					if (parts.Length < 2)
 						continue;
 					string[] revisionParts = parts[1].Split(':');
-					branches.Add(new RevisionDescriptor(parts[0], revisionParts[0], revisionParts[1], "unknown"));
+					branches.Add(new Revision(this, parts[0], revisionParts[0], revisionParts[1], "unknown"));
 				}
 				return branches;
 			}
 		}
 
-		private RevisionDescriptor GetTip()
+		private Revision GetTip()
 		{
 			return GetRevisionsFromQuery("tip")[0];
 		}
 
-		protected List<RevisionDescriptor> GetHeads()
+		protected List<Revision> GetHeads()
 		{
 			using (new ConsoleProgress("Getting heads of {0}", _userName))
 			{
 				return GetRevisionsFromQuery("heads");
 			}
-		}
-
-		private List<RevisionDescriptor> GetRevisionsFromQuery(string query)
-		{
-			string result = GetTextFromQuery(_pathToRepository, query);
-			return RevisionDescriptor.GetRevisionsFromQueryOutput(result);
 		}
 
 
@@ -168,6 +163,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		protected static string GetTextFromQuery(string s)
 		{
 			ExecutionResult result = ExecuteErrorsOk(s);
+			//TODO: we need a way to get this kind of error back the devs for debugging
 			Debug.Assert(string.IsNullOrEmpty(result.StandardError), result.StandardError);
 			return result.StandardOutput;
 		}
@@ -359,16 +355,16 @@ namespace Chorus.VcsDrivers.Mercurial
 		public IList<string> MergeHeads(IProgress progress, SyncResults results)
 		{
 			List<string> peopleWeMergedWith= new List<string>();
-			RevisionDescriptor rev= GetMyHead();
+			Revision rev= GetMyHead();
 
-			List<RevisionDescriptor> heads = GetHeads();
-			RevisionDescriptor myHead = GetMyHead();
-			foreach (RevisionDescriptor theirHead in heads)
+			List<Revision> heads = GetHeads();
+			Revision myHead = GetMyHead();
+			foreach (Revision theirHead in heads)
 			{
-				MergeSituation.PushRevisionsToEnvironmentVariables(myHead.Revision, theirHead.Revision);
+				MergeSituation.PushRevisionsToEnvironmentVariables(myHead.LocalRevisionNumber, theirHead.LocalRevisionNumber);
 
 				MergeOrder.PushToEnvironmentVariables(_pathToRepository);
-				if (theirHead.Revision != myHead.Revision)
+				if (theirHead.LocalRevisionNumber != myHead.LocalRevisionNumber)
 				{
 					bool didMerge = MergeTwoChangeSets(myHead, theirHead);
 					if (didMerge)
@@ -381,7 +377,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			return peopleWeMergedWith;
 		}
 
-		private bool MergeTwoChangeSets(RevisionDescriptor head, RevisionDescriptor theirHead)
+		private bool MergeTwoChangeSets(Revision head, Revision theirHead)
 		{
 			ExecutionResult result = null;
 			using (new ShortTermEnvironmentalVariable("HGMERGE", Path.Combine(Other.DirectoryOfExecutingAssembly, "ChorusMerge.exe")))
@@ -389,7 +385,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				using (new ShortTermEnvironmentalVariable(MergeOrder.kConflictHandlingModeEnvVarName, MergeOrder.ConflictHandlingModeChoices.TheyWin.ToString()))
 
 				{
-					result = Execute(true, "merge", _pathToRepository, "-r", theirHead.Revision);
+					result = Execute(true, "merge", _pathToRepository, "-r", theirHead.LocalRevisionNumber);
 				}
 			}
 			if (result.ExitCode != 0)
@@ -468,18 +464,18 @@ namespace Chorus.VcsDrivers.Mercurial
 		}
 
 
-		private void PrintHeads(List<RevisionDescriptor> heads, RevisionDescriptor myHead)
+		private void PrintHeads(List<Revision> heads, Revision myHead)
 		{
 			_progress.WriteMessage("Current Heads:");
-			foreach (RevisionDescriptor head in heads)
+			foreach (Revision head in heads)
 			{
-				if (head.Revision == myHead.Revision)
+				if (head.LocalRevisionNumber == myHead.LocalRevisionNumber)
 				{
-					_progress.WriteMessage("  ME {0} {1} {2}", head.UserId, head.Revision, head.Summary);
+					_progress.WriteMessage("  ME {0} {1} {2}", head.UserId, head.LocalRevisionNumber, head.Summary);
 				}
 				else
 				{
-					_progress.WriteMessage("      {0} {1} {2}", head.UserId, head.Revision, head.Summary);
+					_progress.WriteMessage("      {0} {1} {2}", head.UserId, head.LocalRevisionNumber, head.Summary);
 				}
 			}
 		}
@@ -489,8 +485,54 @@ namespace Chorus.VcsDrivers.Mercurial
 			Execute("clone", null, PathWithQuotes + " " + SurroundWithQuotes(path));
 		}
 
+		private List<Revision> GetRevisionsFromQuery(string query)
+		{
+			string result = GetTextFromQuery(_pathToRepository, query);
+			return GetRevisionsFromQueryResultText(result);
+		}
 
-		public List<RevisionDescriptor> GetHistoryItems()
+ /*       private static List<Revision> GetRevisionsFromQueryOutput(string result)
+		{
+			//Debug.WriteLine(result);
+			string[] lines = result.Split('\n');
+			List<Dictionary<string, string>> rawChangeSets = new List<Dictionary<string, string>>();
+			Dictionary<string, string> rawChangeSet = null;
+			foreach (string line in lines)
+			{
+				if (line.StartsWith("changeset:"))
+				{
+					rawChangeSet = new Dictionary<string, string>();
+					rawChangeSets.Add(rawChangeSet);
+				}
+				string[] parts = line.Split(new char[] { ':' });
+				if (parts.Length < 2)
+					continue;
+				//join all but the first back together
+				string contents = string.Join(":", parts, 1, parts.Length - 1);
+				rawChangeSet[parts[0].Trim()] = contents.Trim();
+			}
+
+			List<Revision> revisions = new List<Revision>();
+			foreach (Dictionary<string, string> d in rawChangeSets)
+			{
+				string[] revisionParts = d["changeset"].Split(':');
+				string summary = string.Empty;
+				if (d.ContainsKey("summary"))
+				{
+					summary = d["summary"];
+				}
+				Revision revision = new Revision(d["user"], revisionParts[0], /*revisionParts[1]/"unknown", summary);
+				if (d.ContainsKey("tag"))
+				{
+					revision.Tag = d["tag"];
+				}
+				revisions.Add(revision);
+
+			}
+			return revisions;
+		}
+*/
+		public List<Revision> GetAllRevisions()
 		{
 			/*
 				changeset:   0:7ee3570760cd
@@ -499,14 +541,19 @@ namespace Chorus.VcsDrivers.Mercurial
 				date:        Wed Jul 02 16:40:26 2008 -0600
 				summary:     bob: first one
 			 */
-			List < RevisionDescriptor >  items = new List<RevisionDescriptor>();
 
 			string result = GetTextFromQuery(_pathToRepository, "log");
-			TextReader reader = new StringReader(result);
+			return GetRevisionsFromQueryResultText(result);
+		}
+
+		public List<Revision> GetRevisionsFromQueryResultText(string queryResultText)
+		{
+			TextReader reader = new StringReader(queryResultText);
 			string line = reader.ReadLine();
 
 
-			RevisionDescriptor item = null;
+			List<Revision> items = new List<Revision>();
+			Revision item = null;
 			while(line !=null)
 			{
 				int colonIndex = line.IndexOf(":");
@@ -519,7 +566,7 @@ namespace Chorus.VcsDrivers.Mercurial
 						default:
 							break;
 						case "changeset":
-							item = new RevisionDescriptor();
+							item = new Revision(this);
 							items.Add(item);
 							item.SetRevisionAndHashFromCombinedDescriptor(value);
 							break;
@@ -534,6 +581,10 @@ namespace Chorus.VcsDrivers.Mercurial
 
 						case "summary":
 							item.Summary = value;
+							break;
+
+						case "tag":
+							item.Tag = value;
 							break;
 					}
 				}
@@ -569,17 +620,97 @@ namespace Chorus.VcsDrivers.Mercurial
 		///  From IRetrieveFile
 		/// </summary>
 		/// <returns>path to a temp file. caller is responsible for deleting the file.</returns>
-		public string RetrieveHistoricalVersionOfFile(string relativePath, string hash)
+		public string RetrieveHistoricalVersionOfFile(string relativePath, string revOrHash)
 		{
-			var f = new TempFile();
+			Guard.Against(string.IsNullOrEmpty(revOrHash), "The revision cannot be empty (note: the first revision has an empty string for its parent revision");
+			var f =  TempFile.CreateWithExtension(Path.GetExtension(relativePath));
 
-			var cmd = string.Format("cat -o \"{0}\" -r {1} \"{2}\"", f.Path, hash, relativePath);
+			var cmd = string.Format("cat -o \"{0}\" -r {1} \"{2}\"", f.Path, revOrHash, relativePath);
 			ExecutionResult result = ExecuteErrorsOk(cmd, _pathToRepository);
 			if(!string.IsNullOrEmpty(result.StandardError.Trim()))
 			{
-				throw new ApplicationException(String.Format("Could not retrieve version {0} of {1}. Mercurial said: {2}", hash, relativePath, result.StandardError));
+				throw new ApplicationException(String.Format("Could not retrieve version {0} of {1}. Mercurial said: {2}", revOrHash, relativePath, result.StandardError));
 			}
 			return f.Path;
+		}
+
+		public IEnumerable<FileInRevision> GetFilesInRevision(Revision revision)
+		{
+			var query =  "status --rev "+GetRevisionRangeForSingleRevisionDiff(revision);
+			var result = GetTextFromQuery(_pathToRepository,query);
+			string[] lines = result.Split('\n');
+			var revisions = new List<FileInRevision>();
+			foreach (string line in lines)
+			{
+				if (line.Trim() == "")
+					continue;
+				var actionLetter = line[0];
+				var action = ParseActionLetter(actionLetter);
+
+				//if this is the first rev in the whole repo, then the only way to list the fils
+				//is to include the "clean" ones.  Better to represent that as an Add
+				if (action == FileInRevision.Action.NoChanges)
+					action = FileInRevision.Action.Added;
+
+				revisions.Add(new FileInRevision(line.Substring(2), action));
+			}
+
+			return revisions;
+		}
+
+		private string GetRevisionRangeForSingleRevisionDiff(Revision revision)
+		{
+			var parent = GetLocalNumberForParentOfRevision(revision.LocalRevisionNumber);
+			if (parent == string.Empty)
+				return string.Format("{0} -A", revision.LocalRevisionNumber);
+			else
+				return string.Format("{0}:{1}", parent, revision.LocalRevisionNumber);
+		}
+
+		public string GetLocalNumberForParentOfRevision(string localRevisionNumber)
+		{
+
+			var result = GetTextFromQuery(_pathToRepository,"hg parent -y -r " + localRevisionNumber + " --template {rev}");
+			return result.Trim();
+		}
+
+		private static FileInRevision.Action ParseActionLetter(char actionLetter)
+		{
+		   switch (actionLetter)
+				{
+					case 'A':
+						return FileInRevision.Action.Added;
+						break;
+					case 'M':
+						return FileInRevision.Action.Modified;
+						break;
+					case 'D':
+						return FileInRevision.Action.Deleted;
+						break;
+					case 'C':
+						return FileInRevision.Action.NoChanges;
+						break;
+					default:
+						return FileInRevision.Action.Unknown;
+				}
+		}
+	}
+
+	public class FileInRevision
+	{
+		private readonly Action _action;
+
+		public enum Action
+		{
+			Added, Deleted, Modified,
+			Unknown,
+			NoChanges
+		}
+		public string RelativePath { get; private set; }
+		public FileInRevision(string relativePath, Action action)
+		{
+			_action = action;
+			RelativePath = relativePath;
 		}
 	}
 }

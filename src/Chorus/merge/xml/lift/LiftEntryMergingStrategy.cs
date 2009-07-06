@@ -25,11 +25,11 @@ namespace Chorus.merge.xml.lift
 		}
 	}
 
-	public class EntryMerger : IMergeStrategy
+	public class LiftEntryMergingStrategy : IMergeStrategy
 	{
 		private XmlMerger _entryMerger;
 
-		public EntryMerger(MergeSituation mergeSituation)
+		public LiftEntryMergingStrategy(MergeSituation mergeSituation)
 		{
 			_entryMerger = new XmlMerger(mergeSituation);
 

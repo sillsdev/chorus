@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Chorus.merge;
@@ -50,6 +51,11 @@ namespace Chorus.Tests.merge.xml.generic
 				}
 				Assert.AreEqual(count, Changes.Count,"Unexpected Change Count");
 			}
+		}
+
+		public void AssertFirstChangeType<TExpected>()
+		{
+			Assert.AreEqual(typeof(TExpected), Changes[0].GetType());
 		}
 	}
 }

@@ -139,11 +139,11 @@ namespace Chorus.VcsDrivers.Mercurial
 		private bool MergeUserHeads()
 		{
 			bool didMerge = false;
-			List<RevisionDescriptor> heads = GetHeads();
-			RevisionDescriptor myHead = GetMyHead();
-			foreach (RevisionDescriptor theirHead in heads)
+			List<Revision> heads = GetHeads();
+			Revision myHead = GetMyHead();
+			foreach (Revision theirHead in heads)
 			{
-				if (theirHead.Revision != myHead.Revision && !HeadIsAStub(theirHead))
+				if (theirHead.LocalRevisionNumber != myHead.LocalRevisionNumber && !HeadIsAStub(theirHead))
 				{
 					didMerge |= SyncWithChangeSet(myHead, theirHead);
 				}
@@ -153,10 +153,10 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		class RevisionStubPair
 		{
-			public RevisionDescriptor _primary;
-			public RevisionDescriptor _stub;
+			public Revision _primary;
+			public Revision _stub;
 
-			public RevisionStubPair(RevisionDescriptor primary, RevisionDescriptor stub)
+			public RevisionStubPair(Revision primary, Revision stub)
 			{
 				_primary = primary;
 				_stub = stub;
@@ -166,12 +166,12 @@ namespace Chorus.VcsDrivers.Mercurial
 		private List<RevisionStubPair> GetOutstandingStubPairs()
 		{
 			List<RevisionStubPair> pairs = new List<RevisionStubPair>();
-			List<RevisionDescriptor> heads = GetHeads();
-			foreach (RevisionDescriptor primary in heads)
+			List<Revision> heads = GetHeads();
+			foreach (Revision primary in heads)
 			{
 				if (!HeadIsAStub(primary))
 				{
-					foreach (RevisionDescriptor possibleStub in heads)
+					foreach (Revision possibleStub in heads)
 					{
 						if (primary.IsMatchingStub(possibleStub))
 						{
@@ -186,15 +186,15 @@ namespace Chorus.VcsDrivers.Mercurial
 
 
 
-		private bool MergeUserHeadWithStub(RevisionDescriptor head, RevisionDescriptor stub)
+		private bool MergeUserHeadWithStub(Revision head, Revision stub)
 		{
-			using (new ConsoleProgress("MergeUserHeadWithStub of {0} with the changeset: {1} {2}", head.Revision, stub.UserId, stub.Revision))
+			using (new ConsoleProgress("MergeUserHeadWithStub of {0} with the changeset: {1} {2}", head.LocalRevisionNumber, stub.UserId, stub.LocalRevisionNumber))
 			{
 				using (new ShortTermEnvironmentalVariable(MergeOrder.kConflictHandlingModeEnvVarName, MergeOrder.ConflictHandlingModeChoices.WeWin.ToString()))
 				{
-					Update(head.Revision);
+					Update(head.LocalRevisionNumber);
 					ExecutionResult result =
-						Execute(true, "merge", _pathToRepository, "-r", stub.Revision);
+						Execute(true, "merge", _pathToRepository, "-r", stub.LocalRevisionNumber);
 
 					if (result.ExitCode != 0)
 					{
@@ -202,16 +202,16 @@ namespace Chorus.VcsDrivers.Mercurial
 					}
 					else
 					{
-						Commit(false, "Checking in after merge with stub {0}, {1}.", stub.Revision, stub.Summary);
+						Commit(false, "Checking in after merge with stub {0}, {1}.", stub.LocalRevisionNumber, stub.Summary);
 						return true;
 					}
 				}
 			}
 		}
 
-		private bool SyncWithChangeSet(RevisionDescriptor myHead, RevisionDescriptor theirChangeSet)
+		private bool SyncWithChangeSet(Revision myHead, Revision theirChangeSet)
 		{
-			using (new ConsoleProgress("SyncWithChangeSet of {0} with the changeset: {1} {2}", _userName, theirChangeSet.UserId, theirChangeSet.Revision))
+			using (new ConsoleProgress("SyncWithChangeSet of {0} with the changeset: {1} {2}", _userName, theirChangeSet.UserId, theirChangeSet.LocalRevisionNumber))
 			{
 
 				try
@@ -228,16 +228,16 @@ namespace Chorus.VcsDrivers.Mercurial
 						using (new ShortTermEnvironmentalVariable(MergeOrder.kConflictHandlingModeEnvVarName, MergeOrder.ConflictHandlingModeChoices.LcdPlusPartials.ToString()))
 						{
 							result =
-								Execute(true, "merge", _pathToRepository, "-r", theirChangeSet.Revision);
+								Execute(true, "merge", _pathToRepository, "-r", theirChangeSet.LocalRevisionNumber);
 						}
 						if (result.ExitCode != 0)
 						{
 							if (result.StandardError.Contains("nothing to merge"))
 							{
-								_progress.WriteMessage("Nothing to merge, updating instead to revision {0}.", theirChangeSet.Revision);
-								Update(theirChangeSet.Revision);//REVIEW
+								_progress.WriteMessage("Nothing to merge, updating instead to revision {0}.", theirChangeSet.LocalRevisionNumber);
+								Update(theirChangeSet.LocalRevisionNumber);//REVIEW
 								Commit(false, "!!! not expected to get in {0}:{1}.", theirChangeSet.UserId,
-									   theirChangeSet.Revision);
+									   theirChangeSet.LocalRevisionNumber);
 								return false;
 							}
 							else
@@ -254,7 +254,7 @@ namespace Chorus.VcsDrivers.Mercurial
 								//merger program, it can just apply the changes.
 
 								_progress.WriteMessage("Did trivial merge.");
-								Commit(false, "Checking in after no-conflicts merge with rev {0}, {1}.", theirChangeSet.Revision, theirChangeSet.Summary );
+								Commit(false, "Checking in after no-conflicts merge with rev {0}, {1}.", theirChangeSet.LocalRevisionNumber, theirChangeSet.Summary );
 								return true;
 							}
 						}
@@ -263,7 +263,7 @@ namespace Chorus.VcsDrivers.Mercurial
 					{
 						if (expected.Message.Contains("nothing to merge"))
 						{
-							Commit(false, "*** not expected to get in {0}:{1}.", theirChangeSet.UserId, theirChangeSet.Revision);
+							Commit(false, "*** not expected to get in {0}:{1}.", theirChangeSet.UserId, theirChangeSet.LocalRevisionNumber);
 							return false;
 						}
 
@@ -290,7 +290,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			}
 		}
 
-		private void DoPartialMerge(RevisionDescriptor theirChangeSet, RevisionDescriptor myHead)
+		private void DoPartialMerge(Revision theirChangeSet, Revision myHead)
 		{
 
 			foreach (string fileSet in File.ReadAllLines(PathToMergeFilePathsFile))
@@ -307,7 +307,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		/// special "stub" or "partial" branch for them, which is unique to us (a team's
 		/// repository is likely to have one stub branch for each pairing of team members).
 		/// </summary>
-		private void AddPartialMergeFiles(RevisionDescriptor myHead, RevisionDescriptor theirChangeSet,
+		private void AddPartialMergeFiles(Revision myHead, Revision theirChangeSet,
 										  string targetPath, string ourPartial, string theirPartial)
 		{
 			using (new ConsoleProgress("Adding their partial merge to their branch"))
@@ -319,7 +319,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			}
 			using (new ConsoleProgress("Going back to our head"))
 			{
-				Update(myHead.Revision);
+				Update(myHead.LocalRevisionNumber);
 			}
 
 			//NOTE: THIS must not be allowed to be ignored as a "nothing"; hg wants to do that
@@ -340,7 +340,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		/// Tell us if this head is a the "stub"/"parital" change created by some other user
 		/// for us to merge with when we see it, before doing any other merging.
 		/// </summary>
-		private bool HeadIsAStub(RevisionDescriptor theirHead)
+		private bool HeadIsAStub(Revision theirHead)
 		{
 			return theirHead.Summary.Contains("(" + _userName + " partial");
 		}

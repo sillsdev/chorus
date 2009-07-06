@@ -2,11 +2,14 @@
 using Autofac.Builder;
 using Baton.HistoryPanel;
 using Baton.HistoryPanel.ChangedRecordControl;
-using Baton.HistoryPanel.ChangedRecordsList;
 using Baton.Review;
+using Baton.Review.RevisionChanges;
 using Baton.Settings;
+using Chorus.retrieval;
 using Chorus.sync;
 using Chorus.UI;
+using Chorus.Utilities;
+using Chorus.VcsDrivers.Mercurial;
 
 namespace Baton
 {
@@ -26,8 +29,10 @@ namespace Baton
 			builder.Register<ProjectFolderConfiguration>(
 				c => new ProjectFolderConfiguration(_settingsPath));
 
+			builder.Register<IProgress>(new NullProgress());
 			builder.Register<RepositoryManager>(c => Chorus.sync.RepositoryManager.FromRootOrChildFolder(
 																c.Resolve<ProjectFolderConfiguration>()));
+			builder.Register<HgRepository>(c=> c.Resolve<RepositoryManager>().GetRepository(c.Resolve<IProgress>()));
 
 			RegisterSyncStuff(builder);
 			RegisterReviewStuff(builder);
@@ -56,8 +61,10 @@ namespace Baton
 
 		private void RegisterReviewStuff(ContainerBuilder builder)
 		{
+			builder.Register<RevisionInfoProvider>();
+			builder.Register<RevisionChangesModel>();
 			builder.Register<ReviewPage>();
-			builder.Register<ChangedRecordListView>();
+			builder.Register<RevisionChangesView>();
 			builder.Register<ChangedRecordView>();
 
 			//review-related events

@@ -52,7 +52,7 @@ namespace Baton.HistoryPanel
 			Cursor.Current = Cursors.WaitCursor;
 			_historyList.Items.Clear();
 			List<ListViewItem> rows = new List<ListViewItem>();
-			foreach (RevisionDescriptor rev in _model.GetHistoryItems())
+			foreach (Revision rev in _model.GetHistoryItems())
 			{
 				var dateString = rev.DateString;
 				DateTime when;
@@ -82,10 +82,10 @@ namespace Baton.HistoryPanel
 
 		private void _historyList_SelectedIndexChanged(object sender, EventArgs e)
 		{
-			RevisionDescriptor rev = null;
+			Revision rev = null;
 			if( _historyList.SelectedItems.Count == 1)
 			{
-				rev = _historyList.SelectedItems[0].Tag as RevisionDescriptor;
+				rev = _historyList.SelectedItems[0].Tag as Revision;
 			}
 			_model.SelectedRevisionChanged(rev);
 		}

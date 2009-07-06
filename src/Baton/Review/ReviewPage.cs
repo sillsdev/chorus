@@ -6,23 +6,23 @@ using System.Data;
 using System.Text;
 using System.Windows.Forms;
 using Baton.HistoryPanel.ChangedRecordControl;
-using Baton.HistoryPanel.ChangedRecordsList;
+using Baton.Review.RevisionChanges;
 
 namespace Baton.HistoryPanel
 {
 	public partial class ReviewPage : UserControl
 	{
 
-		 public ReviewPage(HistoryPanel historyPanel, ChangedRecordListView changedRecordListView, ChangedRecordView changedRecordView)
+		 public ReviewPage(HistoryPanel historyPanel, RevisionChangesView revisionChangesView, ChangedRecordView changedRecordView)
 		{
 			InitializeComponent();
 			SuspendLayout();
 			var lowerContainer = new SplitContainer();
 			lowerContainer.Orientation = Orientation.Vertical;
 			 lowerContainer.Dock = DockStyle.Fill;
-			 changedRecordListView.Dock = DockStyle.Fill;
+			 revisionChangesView.Dock = DockStyle.Fill;
 			 changedRecordView.Dock = DockStyle.Fill;
-			lowerContainer.Panel1.Controls.Add(changedRecordListView);
+			lowerContainer.Panel1.Controls.Add(revisionChangesView);
 			lowerContainer.Panel2.Controls.Add(changedRecordView);
 
 			var verticalContainer = new SplitContainer();

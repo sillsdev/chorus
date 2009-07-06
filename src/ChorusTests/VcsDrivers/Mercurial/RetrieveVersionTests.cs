@@ -13,7 +13,7 @@ namespace Chorus.Tests.VcsDrivers.Mercurial
 		private TempFolder _testRoot;
 		private TempFile _tempFile;
 		private HgRepository _repo;
-		private List<RevisionDescriptor> _changesets;
+		private List<Revision> _changesets;
 
 		[SetUp]
 		public void Setup()
@@ -32,7 +32,7 @@ namespace Chorus.Tests.VcsDrivers.Mercurial
 				_repo.AddAndCheckinFile(_tempFile.Path);
 				_repo.Commit(true, "changed to two");
 
-			_changesets = _repo.GetHistoryItems();
+			_changesets = _repo.GetAllRevisions();
 			Assert.AreEqual(2, _changesets.Count);
 		}
 
@@ -74,5 +74,7 @@ namespace Chorus.Tests.VcsDrivers.Mercurial
 			Assert.IsNull(
 				TempFile.TrackExisting(_repo.RetrieveHistoricalVersionOfFile("bogus.txt", _changesets[0].Hash)));
 		}
+
+
 	}
 }

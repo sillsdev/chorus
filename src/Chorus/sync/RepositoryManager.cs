@@ -267,11 +267,11 @@ namespace Chorus.sync
 			}
 		}
 
-		public List<RevisionDescriptor> GetHistoryItems(IProgress progress)
+		public List<Revision> GetAllRevisions(IProgress progress)
 		{
 			HgRepository local = new HgRepository(_localRepositoryPath, progress);
 
-			return local.GetHistoryItems();
+			return local.GetAllRevisions();
 		}
 
 		/// <summary>
@@ -312,6 +312,11 @@ namespace Chorus.sync
 				subPath = subPath.Remove(0,1);
 			}
 			return local.GetFileExistsInRepo(subPath);
+		}
+
+		public HgRepository GetRepository(IProgress progress)
+		{
+			return new HgRepository(_localRepositoryPath, progress);
 		}
 	}
 
