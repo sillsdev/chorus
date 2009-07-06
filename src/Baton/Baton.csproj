@@ -68,7 +68,7 @@
 	<Compile Include="Review\RevisionChanges\RevisionChangesView.cs">
 	  <SubType>UserControl</SubType>
 	</Compile>
-	<Compile Include="Review\RevisionChanges\ChangedRecordListView.Designer.cs">
+	<Compile Include="Review\RevisionChanges\RevisionChangesView.Designer.cs">
 	  <DependentUpon>RevisionChangesView.cs</DependentUpon>
 	</Compile>
 	<Compile Include="Review\RevisionChanges\RevisionChangesModel.cs" />

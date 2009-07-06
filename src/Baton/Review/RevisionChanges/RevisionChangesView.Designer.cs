@@ -1,6 +1,6 @@
-﻿namespace Baton.HistoryPanel.ChangedRecordsList
+﻿namespace Baton.Review.RevisionChanges
 {
-	partial class ChangedRecordListView
+	partial class RevisionChangesView
 	{
 		/// <summary>
 		/// Required designer variable.
@@ -55,17 +55,19 @@
 			// columnHeader1
 			//
 			this.columnHeader1.Text = "Item";
+			this.columnHeader1.Width = 98;
 			//
 			// columnHeader2
 			//
 			this.columnHeader2.Text = "Action";
+			this.columnHeader2.Width = 112;
 			//
-			// ChangedRecordListView
+			// RevisionChangesView
 			//
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.Controls.Add(this.listView1);
-			this.Name = "ChangedRecordListView";
+			this.Name = "RevisionChangesView";
 			this.ResumeLayout(false);
 
 		}
