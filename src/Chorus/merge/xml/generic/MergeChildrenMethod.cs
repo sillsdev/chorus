@@ -115,7 +115,7 @@ namespace Chorus.merge.xml.generic
 					//Review JohnT (jh): Is this the correct interpretation?
 					if (ancestorChild==null)
 					{
-						_merger.EventListener.ChangeOccurred(new XmlAdditionChangeReport(ourChild));
+						_merger.EventListener.ChangeOccurred(new XmlAdditionChangeReport(_merger.MergeSituation.PathToFileInRepository, ourChild));
 					}
 				}
 			}
@@ -269,7 +269,7 @@ namespace Chorus.merge.xml.generic
 
 				if (ourChild == null)
 				{
-					_merger.EventListener.ChangeOccurred(new XmlDeletionChangeReport(ancestorChild));
+					_merger.EventListener.ChangeOccurred(new XmlDeletionChangeReport(_merger.MergeSituation.PathToFileInRepository, ancestorChild));
 
 					// We deleted it.
 					if (theirChild == null)

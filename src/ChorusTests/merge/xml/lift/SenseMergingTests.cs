@@ -1,4 +1,5 @@
 using System;
+using Chorus.FileTypeHanders.lift;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
 using Chorus.merge.xml.lift;

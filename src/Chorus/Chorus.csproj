@@ -62,8 +62,13 @@
 	<Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-	<Compile Include="merge\xml\lift\LiftDiffer.cs" />
-	<Compile Include="merge\xml\lift\LiftUtils.cs" />
+	<Compile Include="FileTypeHanders\IChangePresenter.cs" />
+	<Compile Include="FileTypeHanders\IChorusFileTypeHandler.cs" />
+	<Compile Include="FileTypeHanders\lift\LexEntryContextGenerator.cs" />
+	<Compile Include="FileTypeHanders\lift\LiftChangePresenter.cs" />
+	<Compile Include="FileTypeHanders\lift\LiftFileHandler.cs" />
+	<Compile Include="FileTypeHanders\lift\LiftDiffer.cs" />
+	<Compile Include="FileTypeHanders\lift\LiftUtils.cs" />
 	<Compile Include="Utilities\Guard.cs" />
 	<Compile Include="merge\IChangeReport.cs" />
 	<Compile Include="merge\MergeDispatcher.cs" />
@@ -100,8 +105,8 @@
 	<Compile Include="merge\xml\generic\ElementStrategy.cs" />
 	<Compile Include="merge\xml\generic\FindNodeToMerge.cs" />
 	<Compile Include="merge\xml\generic\IMergeStrategy.cs" />
-	<Compile Include="merge\xml\lift\LiftEntryMergingStrategy.cs" />
-	<Compile Include="merge\xml\lift\LiftMerger.cs" />
+	<Compile Include="FileTypeHanders\lift\LiftEntryMergingStrategy.cs" />
+	<Compile Include="FileTypeHanders\lift\LiftMerger.cs" />
 	<Compile Include="merge\xml\generic\XmlUtilities.cs" />
 	<Compile Include="merge\xml\generic\xmldiff\DiffConfiguration.cs" />
 	<Compile Include="merge\xml\generic\xmldiff\Difference.cs" />

@@ -1,6 +1,5 @@
 ﻿using System;
-
-using Chorus.merge.xml.lift;
+using Chorus.FileTypeHanders.lift;
 using NUnit.Framework;
 
 namespace Chorus.Tests.merge.xml.lift

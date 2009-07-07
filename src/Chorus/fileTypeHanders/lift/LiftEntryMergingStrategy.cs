@@ -1,30 +1,9 @@
-using System;
 using System.Xml;
+using Chorus.merge;
 using Chorus.merge.xml.generic;
 
-namespace Chorus.merge.xml.lift
+namespace Chorus.FileTypeHanders.lift
 {
-	public class LexEntryContextGenerator :IGenerateContextDescriptor
-	{
-		public string GenerateContextDescriptor(string mergeElement)
-		{
-			var doc = new XmlDocument();
-			doc.LoadXml(mergeElement);
-			var node = doc.FirstChild.Attributes.GetNamedItem("guid");
-			if(node!=null)
-			{
-				return String.Format("lift/entry[@guid='{0}']", node.Value);
-			}
-			node = doc.FirstChild.Attributes.GetNamedItem("id");
-			if(node!=null)
-			{
-				return String.Format("lift/entry[@id='{0}']", node.Value);
-			}
-			throw new ApplicationException("Could not get guid or id attribute out of "+mergeElement);
-
-		}
-	}
-
 	public class LiftEntryMergingStrategy : IMergeStrategy
 	{
 		private XmlMerger _entryMerger;
@@ -83,38 +62,4 @@ namespace Chorus.merge.xml.lift
 			return n.OuterXml;
 		}
 	}
-
-	// JohnT: not currently used, and not updated to new interface.
-	//public class FindMatchingExampleTranslation : IFindNodeToMerge
-	//{
-	//    public XmlNode GetNodeToMerge(XmlNode nodeToMatch, XmlNode parentToSearchIn)
-	//    {
-	//        //todo: this may choke with multiples of the same type!
-
-	//        //enhance... if we could rely on creation date + type, that'd help, but if
-	//        // it was automatically done, multiple could come in with the same datetime
-
-	//        string type = XmlUtilities.GetOptionalAttributeString(nodeToMatch, "type");
-	//        string xpath;
-	//        if (string.IsNullOrEmpty(type))
-	//        {
-	//            xpath = String.Format("translation[not(@type)]");
-	//        }
-	//        else
-	//        {
-	//            xpath = string.Format("translation[@type='{0}']", type);
-	//        }
-	//        XmlNode n= parentToSearchIn.SelectSingleNode(xpath);
-	//        if (n != null)
-	//        {
-	//            return n;
-	//        }
-	//        else
-	//        {
-	//            //enhance: can we find one with a matching multitext? Maybe one guy just changed the type.
-	//            return null;
-	//        }
-	//    }
-
-	//}
 }

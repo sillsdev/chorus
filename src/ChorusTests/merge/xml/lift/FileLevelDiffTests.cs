@@ -27,7 +27,7 @@ namespace Chorus.Tests.merge.xml.lift
 						<entry id='old2'/>
 					</lift>";
 			var listener = new ListenerForUnitTests();
-			var differ =  Lift2WayDiffer.CreateFromStrings(new DropTheirsMergeStrategy(), child, parent, listener);
+			var differ =  Lift2WayDiffer.CreateFromStrings(new DropTheirsMergeStrategy(), parent, child, listener);
 			differ.ReportDifferencesToListener();
 			listener.AssertExpectedChangesCount(1);
 			listener.AssertFirstChangeType<XmlAdditionChangeReport>();
@@ -46,7 +46,7 @@ namespace Chorus.Tests.merge.xml.lift
 						<entry id='old2'/>
 					</lift>";
 			var listener = new ListenerForUnitTests();
-			var differ =  Lift2WayDiffer.CreateFromStrings(new DropTheirsMergeStrategy(), child, parent, listener);
+			var differ =  Lift2WayDiffer.CreateFromStrings(new DropTheirsMergeStrategy(), parent, child, listener);
 			differ.ReportDifferencesToListener();
 			listener.AssertExpectedChangesCount(1);
 			listener.AssertFirstChangeType<XmlDeletionChangeReport>();
@@ -66,7 +66,7 @@ namespace Chorus.Tests.merge.xml.lift
 						<entry id='old2'/>
 					</lift>";
 			var listener = new ListenerForUnitTests();
-			var differ = Lift2WayDiffer.CreateFromStrings(new DropTheirsMergeStrategy(), child, parent, listener);
+			var differ = Lift2WayDiffer.CreateFromStrings(new DropTheirsMergeStrategy(), parent, child, listener);
 			differ.ReportDifferencesToListener();
 			listener.AssertExpectedChangesCount(1);
 			listener.AssertFirstChangeType<XmlDeletionChangeReport>();

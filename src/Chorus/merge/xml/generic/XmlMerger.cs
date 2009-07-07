@@ -263,7 +263,7 @@ namespace Chorus.merge.xml.generic
 			{
 				//we're not empty, we edited it, and we don't equal theirs
 
-				EventListener.ChangeOccurred(new TextEditChangeReport(SafelyGetStringTextNode(ancestor), SafelyGetStringTextNode(ours)));
+				EventListener.ChangeOccurred(new TextEditChangeReport(this.MergeSituation.PathToFileInRepository, SafelyGetStringTextNode(ancestor), SafelyGetStringTextNode(ours)));
 
 				if (theirs.InnerText == null || string.IsNullOrEmpty(theirs.InnerText.Trim()))
 				{

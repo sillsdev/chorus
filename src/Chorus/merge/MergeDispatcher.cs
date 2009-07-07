@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Windows.Forms;
+using Chorus.FileTypeHanders.lift;
 using Chorus.merge.xml.generic;
 using Chorus.merge.xml.lift;
 using Chorus.Utilities;
@@ -24,16 +25,7 @@ namespace Chorus.merge
 						Console.Error.WriteLine("ChorusMerge doesn't know how to merge files of type" + Path.GetExtension(order.pathToOurs));
 						return 1; //DON'T USE -1! HG SWALLOWS IT
 					case ".lift":
-						//TODO: this is a hack
-						if (order.ConflictHandlingMode == MergeOrder.ConflictHandlingModeChoices.DifferenceOnly)
-						{
-							DiffLiftFiles(order);
-							return 0;//review
-						}
-						else
-						{
 							return MergeLiftFiles(order);
-						}
 						break;
 					case ".conflicts":
 						return MergeConflictFiles(order);
@@ -51,7 +43,7 @@ namespace Chorus.merge
 
 		private static void DiffLiftFiles(MergeOrder order)
 		{
-			var differ =  Lift2WayDiffer.CreateFromFiles(new LiftEntryMergingStrategy(order.MergeSituation), order.pathToOurs, order.pathToCommonAncestor, order.EventListener);
+			var differ =  Lift2WayDiffer.CreateFromFiles(new LiftEntryMergingStrategy(order.MergeSituation), order.pathToCommonAncestor, order.pathToOurs, order.EventListener);
 			differ.ReportDifferencesToListener();
 		}
 

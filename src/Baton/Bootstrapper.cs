@@ -1,10 +1,12 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using Autofac.Builder;
 using Baton.HistoryPanel;
 using Baton.HistoryPanel.ChangedRecordControl;
 using Baton.Review;
 using Baton.Review.RevisionChanges;
 using Baton.Settings;
+using Chorus.FileTypeHanders;
 using Chorus.retrieval;
 using Chorus.sync;
 using Chorus.UI;
@@ -33,6 +35,10 @@ namespace Baton
 			builder.Register<RepositoryManager>(c => Chorus.sync.RepositoryManager.FromRootOrChildFolder(
 																c.Resolve<ProjectFolderConfiguration>()));
 			builder.Register<HgRepository>(c=> c.Resolve<RepositoryManager>().GetRepository(c.Resolve<IProgress>()));
+
+			var fileTypeHandlers = new List<IChorusFileTypeHandler>();
+			fileTypeHandlers.Add(new LiftFileHandler());
+			builder.Register(fileTypeHandlers);
 
 			RegisterSyncStuff(builder);
 			RegisterReviewStuff(builder);

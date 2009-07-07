@@ -22,13 +22,11 @@ namespace Chorus.merge.xml.lift
 		private IMergeEventListener EventListener;
 		private IMergeStrategy _mergingStrategy;
 
-		public static Lift2WayDiffer CreateFromFiles(IMergeStrategy mergeStrategy, string ourLiftPath, string ancestorLiftPath,
-									  IMergeEventListener eventListener)
+		public static Lift2WayDiffer CreateFromFiles(IMergeStrategy mergeStrategy, string ancestorLiftPath, string ourLiftPath, IMergeEventListener eventListener)
 		{
 			return new Lift2WayDiffer(mergeStrategy,File.ReadAllText(ourLiftPath), File.ReadAllText(ancestorLiftPath), eventListener);
 		}
-		public static Lift2WayDiffer CreateFromStrings(IMergeStrategy mergeStrategy, string childXml, string parentXml,
-									  IMergeEventListener eventListener)
+		public static Lift2WayDiffer CreateFromStrings(IMergeStrategy mergeStrategy, string parentXml, string childXml, IMergeEventListener eventListener)
 		{
 			return new Lift2WayDiffer(mergeStrategy, childXml, parentXml, eventListener);
 		}
@@ -58,7 +56,7 @@ namespace Chorus.merge.xml.lift
 			{
 				if (!_processedIds.Contains(LiftUtils.GetId(e)))
 				{
-					EventListener.ChangeOccurred(new XmlDeletionChangeReport(e));
+					EventListener.ChangeOccurred(new XmlDeletionChangeReport("hackFixThis.lift", e));
 				}
 			}
 		}
@@ -69,7 +67,7 @@ namespace Chorus.merge.xml.lift
 			XmlNode parent = LiftUtils.FindEntry(_parentDom, id);
 			if (parent == null) //it's new
 			{
-				EventListener.ChangeOccurred(new XmlAdditionChangeReport(child));
+				EventListener.ChangeOccurred(new XmlAdditionChangeReport("hackFixThis.lift", child));
 			}
 			else if (LiftUtils.AreTheSame(child, parent))//unchanged or both made same change
 			{
@@ -78,7 +76,7 @@ namespace Chorus.merge.xml.lift
 			{
 				if (!string.IsNullOrEmpty(XmlUtilities.GetOptionalAttributeString(child, "dateDeleted")))
 				{
-					EventListener.ChangeOccurred(new XmlDeletionChangeReport(child));
+					EventListener.ChangeOccurred(new XmlDeletionChangeReport("hackFixThis.lift", child));
 				}
 				else
 				{
@@ -88,7 +86,7 @@ namespace Chorus.merge.xml.lift
 					//enhance: we can skip this and just say "something changed in this entry",
 					//until we really *need* the details (if ever), and have a way to call this then
 					//_mergingStrategy.MakeMergedEntry(this.EventListener, child, parent, parent);
-					EventListener.ChangeOccurred(new XmlChangedRecordReport(parent,child));
+					EventListener.ChangeOccurred(new XmlChangedRecordReport("hackFixThis.lift", parent,child));
 				}
 			}
 			_processedIds.Add(id);

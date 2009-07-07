@@ -15,6 +15,7 @@ namespace Chorus.merge
 		Guid  Guid { get; }
 		string GetFullHumanReadableDescription();
 		string ActionLabel { get; }
+		string PathToFile { get; }
 	}
 	public interface IXmlChangeReport
 	{
@@ -26,6 +27,11 @@ namespace Chorus.merge
 	{
 		protected Guid _guid = Guid.NewGuid();
 
+		protected ChangeReport(string pathToFile)
+		{
+			PathToFile = pathToFile;
+		}
+
 		public Guid Guid
 		{
 			get { return _guid; }
@@ -36,6 +42,10 @@ namespace Chorus.merge
 			get { return GetType().ToString(); }
 		}
 
+		public string PathToFile
+		{
+			get; protected set;
+		}
 
 
 		public override string ToString()
@@ -53,7 +63,8 @@ namespace Chorus.merge
 	{
 		private readonly string _label;
 
-		public DummyChangeReport(string label)
+		public DummyChangeReport(string pathToFile, string label)
+			: base(pathToFile)
 		{
 			_label = label;
 		}
@@ -66,7 +77,8 @@ namespace Chorus.merge
 	{
 		private readonly XmlNode _addedElement;
 
-		public XmlAdditionChangeReport(XmlNode addedElement)
+		public XmlAdditionChangeReport(string pathToFile, XmlNode addedElement)
+			:base(pathToFile)
 		{
 			_addedElement = addedElement;
 		}
@@ -95,7 +107,8 @@ namespace Chorus.merge
 	{
 		private readonly XmlNode _deletedNode;
 
-		public XmlDeletionChangeReport(XmlNode deletedNode)
+		public XmlDeletionChangeReport(string pathToFile, XmlNode deletedNode)
+			: base(pathToFile)
 		{
 			_deletedNode = deletedNode;
 		}
@@ -124,7 +137,8 @@ namespace Chorus.merge
 		private readonly string _before;
 		private readonly string _after;
 
-		public TextEditChangeReport(string before, string after)
+		public TextEditChangeReport(string pathToFile, string before, string after)
+			: base(pathToFile)
 		{
 			_before = before;
 			_after = after;
@@ -150,7 +164,8 @@ namespace Chorus.merge
 		private readonly XmlNode _parent;
 		private readonly XmlNode _child;
 
-		public XmlChangedRecordReport(XmlNode parent, XmlNode child)
+		public XmlChangedRecordReport(string pathToFile, XmlNode parent, XmlNode child)
+			: base(pathToFile)
 		{
 			_parent = parent;
 			_child = child;

@@ -65,7 +65,6 @@
 	<Compile Include="Review\ChangedRecordControl\ChangedRecordView.Designer.cs">
 	  <DependentUpon>ChangedRecordView.cs</DependentUpon>
 	</Compile>
-	<Compile Include="Review\ChangePresentation\ChangePresenter.cs" />
 	<Compile Include="Review\RevisionChanges\RevisionChangesView.cs">
 	  <SubType>UserControl</SubType>
 	</Compile>
@@ -173,6 +172,9 @@
 	<Content Include="Settings\SetupPanel.htm">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</Content>
+  </ItemGroup>
+  <ItemGroup>
+	<Folder Include="Review\ChangePresentation\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Windows.Forms;
 using System.Xml;
-using Baton.Review.ChangePresentation;
+using Chorus.FileTypeHanders;
 using Chorus.merge;
 
 namespace Baton.Review.RevisionChanges
@@ -26,7 +26,7 @@ namespace Baton.Review.RevisionChanges
 			{
 				foreach (var report in _model.ChangeReports)
 				{
-					IChangePresenter presenter = ChangePresenterFactory.GetChangePresenter(report);
+					IChangePresenter presenter = _model.GetChangePresenterForDataType(report);
 					var row = new ListViewItem(new string[] {presenter.GetDataLabel(), presenter.GetActionLabel()});
 					items.Add(row);
 				}
@@ -34,6 +34,7 @@ namespace Baton.Review.RevisionChanges
 				listView1.Items.AddRange(items.ToArray());
 			}
 		}
+
 
 		private void listView1_SelectedIndexChanged(object sender, EventArgs e)
 		{

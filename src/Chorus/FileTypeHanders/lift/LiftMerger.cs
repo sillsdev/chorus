@@ -164,7 +164,7 @@ namespace Chorus.merge.xml.lift
 			if (theirEntry == null) //it's new
 			{
 				//enchance: we know this at this point only in the 2-way diff mode
-				EventListener.ChangeOccurred(new XmlAdditionChangeReport(ourEntry));
+				EventListener.ChangeOccurred(new XmlAdditionChangeReport("hackFixThis.lift", ourEntry));
 
 
 				ProcessEntryWeKnowDoesntNeedMerging(ourEntry, id, writer);
@@ -177,7 +177,7 @@ namespace Chorus.merge.xml.lift
 			{
 				if (!LiftUtils.GetIsMarkedAsDeleted(ourEntry))
 				{
-					EventListener.ChangeOccurred(new XmlDeletionChangeReport(ourEntry));
+					EventListener.ChangeOccurred(new XmlDeletionChangeReport("hackFixThis.lift", ourEntry));
 				}
 
 				XmlNode commonEntry = FindEntry(_ancestorDom, id);
