@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
+using System.Xml;
+using Baton.Review.ChangePresentation;
 using Chorus.merge;
 
 namespace Baton.Review.RevisionChanges
@@ -24,7 +26,8 @@ namespace Baton.Review.RevisionChanges
 			{
 				foreach (var report in _model.ChangeReports)
 				{
-					var row = new ListViewItem(report.ToString());
+					IChangePresenter presenter = ChangePresenterFactory.GetChangePresenter(report);
+					var row = new ListViewItem(new string[] {presenter.GetDataLabel(), presenter.GetActionLabel()});
 					items.Add(row);
 				}
 
@@ -52,4 +55,5 @@ namespace Baton.Review.RevisionChanges
 			}
 		}
 	}
+
 }

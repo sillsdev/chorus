@@ -65,6 +65,7 @@
 	<Compile Include="Review\ChangedRecordControl\ChangedRecordView.Designer.cs">
 	  <DependentUpon>ChangedRecordView.cs</DependentUpon>
 	</Compile>
+	<Compile Include="Review\ChangePresentation\ChangePresenter.cs" />
 	<Compile Include="Review\RevisionChanges\RevisionChangesView.cs">
 	  <SubType>UserControl</SubType>
 	</Compile>

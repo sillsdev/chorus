@@ -163,7 +163,7 @@ namespace Chorus.merge.xml.generic
 		public void ChangeOccurred(IChangeReport change)
 		{
 			_writer.WriteStartElement("change");
-			_writer.WriteAttributeString("type", string.Empty, change.HumanNameOfChangeType);
+			_writer.WriteAttributeString("type", string.Empty, change.ActionLabel);
 			_writer.WriteAttributeString("guid", string.Empty, change.Guid.ToString());
 			_writer.WriteAttributeString("date", string.Empty, DateTime.UtcNow.ToString(TimeFormatNoTimeZone));
 			_writer.WriteAttributeString("context", string.Empty, _context);

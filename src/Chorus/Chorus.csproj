@@ -50,6 +50,10 @@
 	<WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+	<Reference Include="LinqBridge, Version=1.0.0.0, Culture=neutral, PublicKeyToken=c2b14eb747628076, processorArchitecture=MSIL">
+	  <SpecificVersion>False</SpecificVersion>
+	  <HintPath>..\..\lib\LinqBridge.dll</HintPath>
+	</Reference>
 	<Reference Include="System" />
 	<Reference Include="System.Data" />
 	<Reference Include="System.Drawing" />
@@ -58,6 +62,8 @@
 	<Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+	<Compile Include="merge\xml\lift\LiftDiffer.cs" />
+	<Compile Include="merge\xml\lift\LiftUtils.cs" />
 	<Compile Include="Utilities\Guard.cs" />
 	<Compile Include="merge\IChangeReport.cs" />
 	<Compile Include="merge\MergeDispatcher.cs" />
@@ -72,7 +78,7 @@
 	<Compile Include="retrieval\ChorusRevision.cs" />
 	<Compile Include="retrieval\IRetrieveFile.cs" />
 	<Compile Include="retrieval\LiftEntryRetriever.cs" />
-	<Compile Include="retrieval\RevisionInfoProvider.cs" />
+	<Compile Include="retrieval\RevisionInspector.cs" />
 	<Compile Include="sync\ProjectFolderConfiguration.cs" />
 	<Compile Include="sync\RepositoryManager.cs" />
 	<Compile Include="sync\RepositorySource.cs" />

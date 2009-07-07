@@ -11,14 +11,14 @@ namespace Baton.Review.RevisionChanges
 {
 	public class RevisionChangesModel
 	{
-		private readonly RevisionInfoProvider _revisionInfoProvider;
+		private readonly RevisionInspector _revisionInspector;
 		private readonly ChangedRecordSelectedEvent _changedRecordSelectedEventToRaise;
 		internal event EventHandler UpdateDisplay;
 		public IEnumerable<IChangeReport> Changes { get; private set; }
 
-		public RevisionChangesModel(RevisionInfoProvider revisionInfoProvider,ChangedRecordSelectedEvent changedRecordSelectedEventToRaise, RevisionSelectedEvent revisionSelectedEventToSubscribeTo)
+		public RevisionChangesModel(RevisionInspector revisionInspector,ChangedRecordSelectedEvent changedRecordSelectedEventToRaise, RevisionSelectedEvent revisionSelectedEventToSubscribeTo)
 		{
-			_revisionInfoProvider = revisionInfoProvider;
+			_revisionInspector = revisionInspector;
 			_changedRecordSelectedEventToRaise = changedRecordSelectedEventToRaise;
 			revisionSelectedEventToSubscribeTo.Subscribe(SetRevision);
 
@@ -29,7 +29,7 @@ namespace Baton.Review.RevisionChanges
 			Cursor.Current = Cursors.WaitCursor;
 			if (descriptor != null)
 			{
-				Changes = _revisionInfoProvider.GetChangeRecords(descriptor);
+				Changes = _revisionInspector.GetChangeRecords(descriptor);
 			}
 			else
 			{

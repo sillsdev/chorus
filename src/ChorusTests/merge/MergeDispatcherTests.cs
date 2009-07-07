@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Xml;
 using Chorus.merge;
+using Chorus.merge.xml.generic;
 using Chorus.Utilities;
 using NUnit.Framework;
 
@@ -39,7 +40,7 @@ namespace Chorus.Tests.merge
 
 				XmlDocument doc = new XmlDocument();
 				doc.Load(group.BobFile.Path);
-				Assert.AreEqual(2, doc.SelectNodes("conflicts/conflict").Count);
+				Assert.AreEqual(2, doc.SafeSelectNodes("conflicts/conflict").Count);
 
 			}
 		}

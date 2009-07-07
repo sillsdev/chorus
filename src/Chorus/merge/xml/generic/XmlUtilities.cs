@@ -1,5 +1,6 @@
 using System;
 using System.CodeDom.Compiler;
+using System.Collections;
 using System.IO;
 using System.Reflection;
 using System.Text;
@@ -10,6 +11,39 @@ using Chorus.merge.xml.generic.xmldiff;
 
 namespace Chorus.merge.xml.generic
 {
+	public class NullXMlNodeList : XmlNodeList
+	{
+		public override XmlNode Item(int index)
+		{
+			throw new ArgumentOutOfRangeException();
+		}
+
+		public override IEnumerator GetEnumerator()
+		{
+			yield return null;
+		}
+
+		public override int Count
+		{
+			get { return 0; }
+		}
+	}
+
+	public static class XmlNodeExtensions
+	{
+		/// <summary>
+		/// this is safe to use with foreach, unlike SelectNodes
+		/// </summary>
+		public static XmlNodeList SafeSelectNodes(this XmlNode node, string path)
+		{
+			var x = node.SelectNodes(path);
+			if (x == null)
+				return new NullXMlNodeList();
+			return x;
+		}
+
+	}
+
 	public class XmlUtilities
 	{
 

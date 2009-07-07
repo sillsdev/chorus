@@ -29,7 +29,7 @@ namespace Chorus.Tests.merge
 				}
 				XmlDocument doc = new XmlDocument();
 				doc.Load(logFile.Path);
-				Assert.AreEqual(4, doc.SelectNodes("conflicts/conflict").Count);
+				Assert.AreEqual(4, doc.SafeSelectNodes("conflicts/conflict").Count);
 			}
 		}
 

@@ -18,7 +18,7 @@ namespace Chorus.Tests.merge.xml.generic
 			string ancestor = @"<a/>";
 
 			XmlMerger merger = new XmlMerger(new NullMergeSituation());
-			TestCompare<AdditionChangeReport>(merger, ours, ancestor,"//a");
+			TestCompare<XmlAdditionChangeReport>(merger, ours, ancestor,"//a");
 		}
 
 		[Test]
@@ -61,7 +61,7 @@ namespace Chorus.Tests.merge.xml.generic
 			string ancestor = @"<a><b/></a>";
 
 			XmlMerger merger = new XmlMerger(new NullMergeSituation());
-			TestCompare<DeletionChangeReport>(merger, ours, ancestor, "//a");
+			TestCompare<XmlDeletionChangeReport>(merger, ours, ancestor, "//a");
 		}
 
 		private void TestCompare<TChangeReport>(XmlMerger merger, string ours, string ancestors, string xpathToElementsToMerge)

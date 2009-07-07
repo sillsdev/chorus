@@ -1,24 +1,23 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
-using System.Xml;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
-using Chorus.merge.xml.lift;
-using Chorus.sync;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
 
 namespace Chorus.retrieval
 {
-	public class RevisionInfoProvider : IMergeEventListener
+	/// <summary>
+	/// Works with the merge/diff system to give details on what was done in the revision
+	/// </summary>
+	public class RevisionInspector : IMergeEventListener
 	{
 		private readonly HgRepository _repository;
 
 		public IProgress ProgressIndicator { get; set; }
 
-		public RevisionInfoProvider(HgRepository repository)
+		public RevisionInspector(HgRepository repository)
 		{
 			_repository = repository;
 			ProgressIndicator = new NullProgress();
@@ -26,6 +25,7 @@ namespace Chorus.retrieval
 
 		public IEnumerable<IChangeReport> GetChangeRecords(Revision revision)
 		{
+			Changes.Clear();
 			if (!revision.HasParentRevision)
 			{
 				return new List<IChangeReport>(new IChangeReport[]{new DummyChangeReport("Initial Checkin")});
@@ -61,6 +61,7 @@ namespace Chorus.retrieval
 
 		public void ChangeOccurred(IChangeReport change)
 		{
+			Debug.WriteLine(change);
 			Changes.Add(change);
 		}
 

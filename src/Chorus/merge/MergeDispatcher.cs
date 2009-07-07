@@ -51,10 +51,8 @@ namespace Chorus.merge
 
 		private static void DiffLiftFiles(MergeOrder order)
 		{
-			var merger = new LiftMerger(new LiftEntryMergingStrategy(order.MergeSituation), order.pathToOurs, order.pathToTheirs,
-						order.pathToCommonAncestor);
-			merger.EventListener = order.EventListener;
-			merger.Do2WayDiffOfLift();
+			var differ =  Lift2WayDiffer.CreateFromFiles(new LiftEntryMergingStrategy(order.MergeSituation), order.pathToOurs, order.pathToCommonAncestor, order.EventListener);
+			differ.ReportDifferencesToListener();
 		}
 
 		private static int MergeConflictFiles(MergeOrder order)

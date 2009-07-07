@@ -26,13 +26,11 @@ namespace Chorus.Tests.merge.xml.lift
 						<entry id='old1'/>
 						<entry id='old2'/>
 					</lift>";
-			LiftMerger merger = new LiftMerger(child, null, parent,
-											   new DropTheirsMergeStrategy());
 			var listener = new ListenerForUnitTests();
-			merger.EventListener = listener;
-			merger.Do2WayDiffOfLift();
+			var differ =  Lift2WayDiffer.CreateFromStrings(new DropTheirsMergeStrategy(), child, parent, listener);
+			differ.ReportDifferencesToListener();
 			listener.AssertExpectedChangesCount(1);
-			listener.AssertFirstChangeType<AdditionChangeReport>();
+			listener.AssertFirstChangeType<XmlAdditionChangeReport>();
 		}
 
 		[Test]
@@ -47,13 +45,11 @@ namespace Chorus.Tests.merge.xml.lift
 						<entry id='old1'/>
 						<entry id='old2'/>
 					</lift>";
-			LiftMerger merger = new LiftMerger(child, null, parent,
-											   new DropTheirsMergeStrategy());
 			var listener = new ListenerForUnitTests();
-			merger.EventListener = listener;
-			merger.Do2WayDiffOfLift();
+			var differ =  Lift2WayDiffer.CreateFromStrings(new DropTheirsMergeStrategy(), child, parent, listener);
+			differ.ReportDifferencesToListener();
 			listener.AssertExpectedChangesCount(1);
-			listener.AssertFirstChangeType<DeletionChangeReport>();
+			listener.AssertFirstChangeType<XmlDeletionChangeReport>();
 		}
 
 		[Test]
@@ -69,13 +65,11 @@ namespace Chorus.Tests.merge.xml.lift
 						<entry id='old1'/>
 						<entry id='old2'/>
 					</lift>";
-			LiftMerger merger = new LiftMerger(child, null, parent,
-											   new DropTheirsMergeStrategy());
 			var listener = new ListenerForUnitTests();
-			merger.EventListener = listener;
-			merger.Do2WayDiffOfLift();
+			var differ = Lift2WayDiffer.CreateFromStrings(new DropTheirsMergeStrategy(), child, parent, listener);
+			differ.ReportDifferencesToListener();
 			listener.AssertExpectedChangesCount(1);
-			listener.AssertFirstChangeType<DeletionChangeReport>();
+			listener.AssertFirstChangeType<XmlDeletionChangeReport>();
 		}
 	}
 }

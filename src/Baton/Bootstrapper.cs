@@ -61,7 +61,7 @@ namespace Baton
 
 		private void RegisterReviewStuff(ContainerBuilder builder)
 		{
-			builder.Register<RevisionInfoProvider>();
+			builder.Register<RevisionInspector>();
 			builder.Register<RevisionChangesModel>();
 			builder.Register<ReviewPage>();
 			builder.Register<RevisionChangesView>();

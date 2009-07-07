@@ -36,7 +36,6 @@ namespace Chorus.merge.xml.lift
 
 		public LiftMerger(IMergeStrategy mergeStrategy, string ourLiftPath, string theirLiftPath, string ancestorLiftPath)
 		{
-			_ourLiftPath = ourLiftPath;
 			_ourLift = File.ReadAllText(ourLiftPath);
 			_theirLift =  File.ReadAllText(theirLiftPath);
 			_ancestorLift = File.ReadAllText(ancestorLiftPath);
@@ -89,15 +88,15 @@ namespace Chorus.merge.xml.lift
 			{
 
 				WriteStartOfLiftElement( writer);
-				foreach (XmlNode e in _ourDom.SelectNodes("lift/entry"))
+				foreach (XmlNode e in _ourDom.SafeSelectNodes("lift/entry"))
 				{
 					ProcessEntry(writer, e);
 				}
 
 				//now process any remaining elements in "theirs"
-				foreach (XmlNode e in _theirDom.SelectNodes("lift/entry"))
+				foreach (XmlNode e in _theirDom.SafeSelectNodes("lift/entry"))
 				{
-					string id = GetId(e);
+					string id = LiftUtils.GetId(e);
 					if (!_processedIds.Contains(id))
 					{
 						ProcessEntryWeKnowDoesntNeedMerging(e, id, writer);
@@ -113,36 +112,36 @@ namespace Chorus.merge.xml.lift
 		}
 
 
-		public void Do2WayDiffOfLift()
-		{
-			_ourDom.LoadXml(_ourLift);
-			_theirDom.LoadXml(_ancestorLift);//nb: putting the ancestor in there is intentional
-			_ancestorDom.LoadXml(_ancestorLift);
-
-			//NB: we dont' actually have any interest in writing anything,
-			//but for now, this lets us reuse the merger code
-
-			using(MemoryStream memoryStream = new MemoryStream())
-			using (XmlWriter writer = XmlWriter.Create(memoryStream))
-			{
-				WriteStartOfLiftElement(writer);
-
-				foreach (XmlNode e in _ourDom.SelectNodes("lift/entry"))
-				{
-						ProcessEntry(writer, e);
-				}
-
-				//now detect any deleted elements
-				foreach (XmlNode e in _ancestorDom.SelectNodes("lift/entry"))
-				{
-					if (!_processedIds.Contains(GetId(e)))
-					{
-						EventListener.ChangeOccurred(new DeletionChangeReport(e));
-					}
-				}
-				writer.WriteEndElement();
-			}
-		}
+//        public void Do2WayDiffOfLift()
+//        {
+//            _ourDom.LoadXml(_ourLift);
+//            _theirDom.LoadXml(_ancestorLift);//nb: putting the ancestor in there is intentional
+//            _ancestorDom.LoadXml(_ancestorLift);
+//
+//            //NB: we dont' actually have any interest in writing anything,
+//            //but for now, this lets us reuse the merger code
+//
+//            using(MemoryStream memoryStream = new MemoryStream())
+//            using (XmlWriter writer = XmlWriter.Create(memoryStream))
+//            {
+//                WriteStartOfLiftElement(writer);
+//
+//                foreach (XmlNode e in _ourDom.SelectNodes("lift/entry"))
+//                {
+//                        ProcessEntry(writer, e);
+//                }
+//
+//                //now detect any deleted elements
+//                foreach (XmlNode e in _ancestorDom.SelectNodes("lift/entry"))
+//                {
+//                    if (!_processedIds.Contains(LiftUtils.GetId(e)))
+//                    {
+//                        EventListener.ChangeOccurred(new XmlDeletionChangeReport(e));
+//                    }
+//                }
+//                writer.WriteEndElement();
+//            }
+//        }
 
 		private static XmlNode FindEntry(XmlNode doc, string id)
 		{
@@ -160,12 +159,12 @@ namespace Chorus.merge.xml.lift
 
 		private void ProcessEntry(XmlWriter writer, XmlNode ourEntry)
 		{
-			string id = GetId(ourEntry);
+			string id = LiftUtils.GetId(ourEntry);
 			XmlNode theirEntry = FindEntry(_theirDom, id);
 			if (theirEntry == null) //it's new
 			{
 				//enchance: we know this at this point only in the 2-way diff mode
-				EventListener.ChangeOccurred(new AdditionChangeReport(ourEntry));
+				EventListener.ChangeOccurred(new XmlAdditionChangeReport(ourEntry));
 
 
 				ProcessEntryWeKnowDoesntNeedMerging(ourEntry, id, writer);
@@ -176,9 +175,9 @@ namespace Chorus.merge.xml.lift
 			}
 			else //one or both changed
 			{
-				if (!string.IsNullOrEmpty(XmlUtilities.GetOptionalAttributeString(ourEntry, "dateDeleted")))
+				if (!LiftUtils.GetIsMarkedAsDeleted(ourEntry))
 				{
-					EventListener.ChangeOccurred(new DeletionChangeReport(ourEntry));
+					EventListener.ChangeOccurred(new XmlDeletionChangeReport(ourEntry));
 				}
 
 				XmlNode commonEntry = FindEntry(_ancestorDom, id);
@@ -187,6 +186,7 @@ namespace Chorus.merge.xml.lift
 			}
 			_processedIds.Add(id);
 		}
+
 
 		private void ProcessEntryWeKnowDoesntNeedMerging(XmlNode entry, string id, XmlWriter writer)
 		{
@@ -200,13 +200,11 @@ namespace Chorus.merge.xml.lift
 			}
 		}
 
-		static public string LiftTimeFormatNoTimeZone = "yyyy-MM-ddTHH:mm:ssZ";
-		private string _ourLiftPath;
 
 
 		internal static void AddDateCreatedAttribute(XmlNode elementNode)
 		{
-			AddAttribute(elementNode, "dateCreated", DateTime.Now.ToString(LiftTimeFormatNoTimeZone));
+			AddAttribute(elementNode, "dateCreated", DateTime.Now.ToString(LiftUtils.LiftTimeFormatNoTimeZone));
 		}
 
 		internal static void AddAttribute(XmlNode element, string name, string value)
@@ -219,20 +217,14 @@ namespace Chorus.merge.xml.lift
 		private static bool AreTheSame(XmlNode ourEntry, XmlNode theirEntry)
 		{
 			//for now...
-			if (GetModifiedDate(theirEntry) == GetModifiedDate(ourEntry)
-				&& !(GetModifiedDate(theirEntry) == default(DateTime)))
+			if (LiftUtils.GetModifiedDate(theirEntry) == LiftUtils.GetModifiedDate(ourEntry)
+				&& !(LiftUtils.GetModifiedDate(theirEntry) == default(DateTime)))
 				return true;
 
 			return XmlUtilities.AreXmlElementsEqual(ourEntry.OuterXml, theirEntry.OuterXml);
 		}
 
-		private static DateTime GetModifiedDate(XmlNode entry)
-		{
-			XmlAttribute d = entry.Attributes["dateModified"];
-			if (d == null)
-				return default(DateTime); //review
-			return DateTime.Parse(d.Value);
-		}
+
 
 		private void WriteStartOfLiftElement(XmlWriter writer)
 		{
@@ -245,9 +237,5 @@ namespace Chorus.merge.xml.lift
 			}
 		}
 
-		private static string GetId(XmlNode e)
-		{
-			return e.Attributes["id"].Value;
-		}
 	}
 }
