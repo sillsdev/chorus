@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using Baton.HistoryPanel;
+using Baton.Review.RevisionsInRepository;
 using Chorus.sync;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
@@ -12,7 +12,7 @@ namespace Baton.Tests
 	public class HistoryPanelModelTests
 	{
 		private string _pathToTestRoot;
-		private HistoryPanelModel _model;
+		private RevisionInRepositoryModel _model;
 		private StringBuilderProgress _progress;
 		private ProjectFolderConfiguration _project;
 
@@ -38,7 +38,7 @@ namespace Baton.Tests
 			_project.FolderPath = _pathToTestRoot;
 
 			_progress = new StringBuilderProgress();
-			_model = new HistoryPanelModel(RepositoryManager.FromRootOrChildFolder(_project), null);
+			_model = new RevisionInRepositoryModel(RepositoryManager.FromRootOrChildFolder(_project), null);
 			_model.ProgressDisplay = _progress;
 		}
 

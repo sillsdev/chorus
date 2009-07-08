@@ -2,9 +2,9 @@
 using System.IO;
 using Autofac.Builder;
 using Baton.HistoryPanel;
-using Baton.HistoryPanel.ChangedRecordControl;
-using Baton.Review;
+using Baton.Review.ChangedReport;
 using Baton.Review.RevisionChanges;
+using Baton.Review.RevisionsInRepository;
 using Baton.Settings;
 using Chorus.FileTypeHanders;
 using Chorus.retrieval;
@@ -69,17 +69,17 @@ namespace Baton
 		private void RegisterReviewStuff(ContainerBuilder builder)
 		{
 			builder.Register<RevisionInspector>();
-			builder.Register<RevisionChangesModel>();
+			builder.Register<ChangesInRevisionModel>();
 			builder.Register<ReviewPage>();
-			builder.Register<RevisionChangesView>();
-			builder.Register<ChangedRecordView>();
+			builder.Register<ChangesInRevisionView>();
+			builder.Register<ChangeReportView>();
 
 			//review-related events
 			builder.Register<Review.RevisionSelectedEvent>();
 			builder.Register<Review.ChangedRecordSelectedEvent>();
 
-			builder.Register<HistoryPanel.HistoryPanelModel>();
-			builder.Register<HistoryPanel.HistoryPanel>();
+			builder.Register<RevisionInRepositoryModel>();
+			builder.Register<RevisionsInRepositoryView>();
 		}
 	}
 }

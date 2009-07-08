@@ -10,7 +10,7 @@ using Chorus.VcsDrivers.Mercurial;
 
 namespace Baton.Review.RevisionChanges
 {
-	public class RevisionChangesModel
+	public class ChangesInRevisionModel
 	{
 		private readonly RevisionInspector _revisionInspector;
 		private readonly ChangedRecordSelectedEvent _changedRecordSelectedEventToRaise;
@@ -18,7 +18,7 @@ namespace Baton.Review.RevisionChanges
 		internal event EventHandler UpdateDisplay;
 		public IEnumerable<IChangeReport> Changes { get; private set; }
 
-		public RevisionChangesModel(RevisionInspector revisionInspector,
+		public ChangesInRevisionModel(RevisionInspector revisionInspector,
 			ChangedRecordSelectedEvent changedRecordSelectedEventToRaise,
 			RevisionSelectedEvent revisionSelectedEventToSubscribeTo,
 			 ChorusFileTypeHandlerCollection fileHandlers)

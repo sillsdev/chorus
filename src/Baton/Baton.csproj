@@ -59,26 +59,26 @@
   </ItemGroup>
   <ItemGroup>
 	<Compile Include="Bootstrapper.cs" />
-	<Compile Include="Review\ChangedRecordControl\ChangedRecordView.cs">
+	<Compile Include="Review\ChangedReport\ChangeReportView.cs">
 	  <SubType>UserControl</SubType>
 	</Compile>
-	<Compile Include="Review\ChangedRecordControl\ChangedRecordView.Designer.cs">
-	  <DependentUpon>ChangedRecordView.cs</DependentUpon>
+	<Compile Include="Review\ChangedReport\ChangeReportView.Designer.cs">
+	  <DependentUpon>ChangeReportView.cs</DependentUpon>
 	</Compile>
-	<Compile Include="Review\RevisionChanges\RevisionChangesView.cs">
+	<Compile Include="Review\ChangesInRevision\ChangesInRevisionView.cs">
 	  <SubType>UserControl</SubType>
 	</Compile>
-	<Compile Include="Review\RevisionChanges\RevisionChangesView.Designer.cs">
-	  <DependentUpon>RevisionChangesView.cs</DependentUpon>
+	<Compile Include="Review\ChangesInRevision\ChangesInRevisionView.Designer.cs">
+	  <DependentUpon>ChangesInRevisionView.cs</DependentUpon>
 	</Compile>
-	<Compile Include="Review\RevisionChanges\RevisionChangesModel.cs" />
-	<Compile Include="Review\HistoryPanel.cs">
+	<Compile Include="Review\ChangesInRevision\ChangesInRevisionModel.cs" />
+	<Compile Include="Review\RevisionsInRepository\RevisionsInRepositoryView.cs">
 	  <SubType>UserControl</SubType>
 	</Compile>
-	<Compile Include="Review\HistoryPanel.Designer.cs">
-	  <DependentUpon>HistoryPanel.cs</DependentUpon>
+	<Compile Include="Review\RevisionsInRepository\RevisionsInRepositoryView.Designer.cs">
+	  <DependentUpon>RevisionsInRepositoryView.cs</DependentUpon>
 	</Compile>
-	<Compile Include="Review\HistoryPanelModel.cs" />
+	<Compile Include="Review\RevisionsInRepository\RevisionInRepositoryModel.cs" />
 	<Compile Include="Review\ReviewPage.cs">
 	  <SubType>UserControl</SubType>
 	</Compile>
@@ -87,11 +87,11 @@
 	</Compile>
 	<Compile Include="Program.cs" />
 	<Compile Include="Properties\AssemblyInfo.cs" />
-	<EmbeddedResource Include="Review\ChangedRecordControl\ChangedRecordView.resx">
-	  <DependentUpon>ChangedRecordView.cs</DependentUpon>
+	<EmbeddedResource Include="Review\ChangedReport\ChangeReportView.resx">
+	  <DependentUpon>ChangeReportView.cs</DependentUpon>
 	</EmbeddedResource>
-	<EmbeddedResource Include="Review\HistoryPanel.resx">
-	  <DependentUpon>HistoryPanel.cs</DependentUpon>
+	<EmbeddedResource Include="Review\RevisionsInRepository\RevisionsInRepositoryView.resx">
+	  <DependentUpon>RevisionsInRepositoryView.cs</DependentUpon>
 	  <SubType>Designer</SubType>
 	</EmbeddedResource>
 	<EmbeddedResource Include="Properties\Resources.resx">
@@ -99,8 +99,8 @@
 	  <LastGenOutput>Resources.Designer.cs</LastGenOutput>
 	  <SubType>Designer</SubType>
 	</EmbeddedResource>
-	<EmbeddedResource Include="Review\RevisionChanges\RevisionChangesView.resx">
-	  <DependentUpon>RevisionChangesView.cs</DependentUpon>
+	<EmbeddedResource Include="Review\ChangesInRevision\ChangesInRevisionView.resx">
+	  <DependentUpon>ChangesInRevisionView.cs</DependentUpon>
 	</EmbeddedResource>
 	<EmbeddedResource Include="Shell.resx">
 	  <DependentUpon>Shell.cs</DependentUpon>
@@ -172,9 +172,6 @@
 	<Content Include="Settings\SetupPanel.htm">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</Content>
-  </ItemGroup>
-  <ItemGroup>
-	<Folder Include="Review\ChangePresentation\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.

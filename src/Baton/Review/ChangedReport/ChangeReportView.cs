@@ -1,18 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Data;
-using System.IO;
-using System.Text;
+﻿using System.IO;
 using System.Windows.Forms;
 using Chorus.merge;
 
-namespace Baton.HistoryPanel.ChangedRecordControl
+namespace Baton.Review.ChangedReport
 {
-	public partial class ChangedRecordView : UserControl
+	public partial class ChangeReportView : UserControl
 	{
-		public ChangedRecordView(Review.ChangedRecordSelectedEvent changedRecordSelectedEvent)
+		public ChangeReportView(Review.ChangedRecordSelectedEvent changedRecordSelectedEvent)
 		{
 			InitializeComponent();
 			changedRecordSelectedEvent.Subscribe(r=>Load(r));
@@ -22,14 +16,14 @@ namespace Baton.HistoryPanel.ChangedRecordControl
 		private void webBrowser1_Navigated(object sender, WebBrowserNavigatedEventArgs e)
 		{
 			//didn't work, 'cuase is't actually still being held by the browser
-		  //  File.Delete(e.Url.AbsoluteUri.Replace(@"file:///", string.Empty));
+			//  File.Delete(e.Url.AbsoluteUri.Replace(@"file:///", string.Empty));
 		}
 
 		public void Load(IChangeReport report)
 		{
 			if (report == null)
 			{
-			   // _changeDescriptionRenderer.Navigate(string.Empty);
+				// _changeDescriptionRenderer.Navigate(string.Empty);
 			}
 			else
 			{

@@ -7,11 +7,11 @@ using Chorus.merge;
 
 namespace Baton.Review.RevisionChanges
 {
-	public partial class RevisionChangesView : UserControl
+	public partial class ChangesInRevisionView : UserControl
 	{
-		private readonly RevisionChangesModel _model;
+		private readonly ChangesInRevisionModel _model;
 
-		public RevisionChangesView(RevisionChangesModel model)
+		public ChangesInRevisionView(ChangesInRevisionModel model)
 		{
 			InitializeComponent();
 			_model = model;

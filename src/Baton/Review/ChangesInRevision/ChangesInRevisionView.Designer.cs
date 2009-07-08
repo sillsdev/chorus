@@ -1,6 +1,6 @@
 ﻿namespace Baton.Review.RevisionChanges
 {
-	partial class RevisionChangesView
+	partial class ChangesInRevisionView
 	{
 		/// <summary>
 		/// Required designer variable.
@@ -62,12 +62,12 @@
 			this.columnHeader2.Text = "Action";
 			this.columnHeader2.Width = 112;
 			//
-			// RevisionChangesView
+			// ChangesInRevisionView
 			//
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.Controls.Add(this.listView1);
-			this.Name = "RevisionChangesView";
+			this.Name = "ChangesInRevisionView";
 			this.ResumeLayout(false);
 
 		}

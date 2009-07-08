@@ -1,6 +1,6 @@
-﻿namespace Baton.HistoryPanel
+﻿namespace Baton.Review.RevisionsInRepository
 {
-	partial class HistoryPanel
+	partial class RevisionsInRepositoryView
 	{
 		/// <summary>
 		/// Required designer variable.
@@ -49,12 +49,12 @@
 			// _historyList
 			//
 			this._historyList.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-						| System.Windows.Forms.AnchorStyles.Left)
-						| System.Windows.Forms.AnchorStyles.Right)));
+																			  | System.Windows.Forms.AnchorStyles.Left)
+																			 | System.Windows.Forms.AnchorStyles.Right)));
 			this._historyList.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-			this.columnHeader1,
-			this.columnHeader2,
-			this.columnHeader3});
+																						   this.columnHeader1,
+																						   this.columnHeader2,
+																						   this.columnHeader3});
 			this._historyList.FullRowSelect = true;
 			this._historyList.HideSelection = false;
 			this._historyList.Location = new System.Drawing.Point(3, 35);
@@ -81,13 +81,13 @@
 			this.columnHeader3.Text = "Action";
 			this.columnHeader3.Width = 300;
 			//
-			// HistoryPanel
+			// RevisionsInRepositoryView
 			//
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.Controls.Add(this._historyList);
 			this.Controls.Add(this._loadButton);
-			this.Name = "HistoryPanel";
+			this.Name = "RevisionsInRepositoryView";
 			this.Size = new System.Drawing.Size(470, 362);
 			this.VisibleChanged += new System.EventHandler(this.HistoryPanel_VisibleChanged);
 			this.ResumeLayout(false);
