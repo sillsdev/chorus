@@ -1,25 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Data;
 using System.Globalization;
-using System.Text;
-using System.Threading;
 using System.Windows.Forms;
 using Chorus.sync;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
 
-namespace Baton.HistoryPanel
+namespace Baton.Review.RevisionsInRepository
 {
-	public partial class HistoryPanel : UserControl
+	public partial class RevisionsInRepositoryView : UserControl
 	{
-		private HistoryPanelModel _model;
+		private RevisionInRepositoryModel _model;
 		private ProjectFolderConfiguration _project;
 		private String _userName="anonymous";
 
-		public HistoryPanel(HistoryPanelModel model)
+		public RevisionsInRepositoryView(RevisionInRepositoryModel model)
 		{
 			_model = model;
 			_model.ProgressDisplay = new NullProgress();
@@ -62,7 +57,7 @@ namespace Baton.HistoryPanel
 				//nor if it is going to do it on all machines, or will someday
 				//change.
 				if (DateTime.TryParseExact(dateString, "ddd MMM dd HH':'mm':'ss yyyy zzz",
-									null, DateTimeStyles.AssumeUniversal, out when))
+										   null, DateTimeStyles.AssumeUniversal, out when))
 				{
 					when = when.ToLocalTime();
 					dateString = when.ToShortDateString()+" "+when.ToShortTimeString();
@@ -98,6 +93,4 @@ namespace Baton.HistoryPanel
 			}
 		}
 	}
-
-
 }

@@ -1,19 +1,18 @@
 using System;
 using System.Collections.Generic;
-using Baton.Review;
 using Chorus.sync;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
 
-namespace Baton.HistoryPanel
+namespace Baton.Review.RevisionsInRepository
 {
-	public class HistoryPanelModel
+	public class RevisionInRepositoryModel
 	{
 		private readonly RepositoryManager _repositoryManager;
 		private readonly RevisionSelectedEvent _revisionSelectedEvent;
 		public IProgress ProgressDisplay { get; set; }
 
-		public HistoryPanelModel(RepositoryManager repositoryManager, RevisionSelectedEvent revisionSelectedEvent)
+		public RevisionInRepositoryModel(RepositoryManager repositoryManager, RevisionSelectedEvent revisionSelectedEvent)
 		{
 			Guard.AgainstNull(repositoryManager, "repositoryManager");
 			_repositoryManager = repositoryManager;
