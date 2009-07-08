@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using Chorus.FileTypeHanders.lift;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
@@ -9,25 +10,57 @@ using Chorus.Utilities;
 
 namespace Chorus.FileTypeHanders
 {
-	public class LiftFileHandler : IChorusFileTypeHandler, IMergeEventListener
+	public class LiftFileHandler : IChorusFileTypeHandler
 	{
 		public bool CanHandleFile(string pathToFile)
 		{
 			return (System.IO.Path.GetExtension(pathToFile) == ".lift");
 		}
 
-		public int Merge(MergeOrder mergeOrder)
+		public void Do3WayMerge(MergeOrder mergeOrder)
 		{
-			throw new NotImplementedException();
+			DispatchingMergeEventListener listenerDispatcher = new DispatchingMergeEventListener();
+
+			//Debug.Fail("hello");
+			//review: where should these really go?
+			string dir = Path.GetDirectoryName(mergeOrder.pathToOurs);
+			using (HumanLogMergeEventListener humanListener = new HumanLogMergeEventListener(mergeOrder.pathToOurs + ".conflicts.txt"))
+			using (XmlLogMergeEventListener xmlListener = new XmlLogMergeEventListener(mergeOrder.pathToOurs + ".conflicts"))
+			{
+				listenerDispatcher.AddEventListener(humanListener);
+				listenerDispatcher.AddEventListener(xmlListener);
+				mergeOrder.EventListener = listenerDispatcher;
+
+				//;  Debug.Fail("hello");
+				LiftMerger merger;
+				switch (mergeOrder.ConflictHandlingMode)
+				{
+					default:
+						throw new ArgumentException("The Lift merger cannot handle the requested conflict handling mode");
+					case MergeOrder.ConflictHandlingModeChoices.WeWin:
+
+						merger = new LiftMerger(new LiftEntryMergingStrategy(mergeOrder.MergeSituation), mergeOrder.pathToOurs, mergeOrder.pathToTheirs,
+												mergeOrder.pathToCommonAncestor);
+						break;
+					case MergeOrder.ConflictHandlingModeChoices.TheyWin:
+						merger = new LiftMerger(new LiftEntryMergingStrategy(mergeOrder.MergeSituation), mergeOrder.pathToTheirs, mergeOrder.pathToOurs,
+												mergeOrder.pathToCommonAncestor);
+						break;
+				}
+				merger.EventListener = mergeOrder.EventListener;
+
+				string newContents = merger.GetMergedLift();
+				File.WriteAllText(mergeOrder.pathToOurs, newContents);
+			}
 		}
 
 		public IEnumerable<IChangeReport> Find2WayDifferences(string pathToParent, string pathToChild)
 		{
-			Changes.Clear();
+			var listener = new ChangeAndConflictAccumulator();
 			var strat = new LiftEntryMergingStrategy(new NullMergeSituation());
-			var differ = Lift2WayDiffer.CreateFromFiles(strat, pathToParent, pathToChild, this);
+			var differ = Lift2WayDiffer.CreateFromFiles(strat, pathToParent, pathToChild, listener);
 			differ.ReportDifferencesToListener();
-			return Changes;
+			return listener.Changes;
 		}
 
 		public IChangePresenter GetChangePresenter(IChangeReport report)
@@ -35,28 +68,5 @@ namespace Chorus.FileTypeHanders
 			Guard.Against(report.GetType() == typeof(IXmlChangeReport), "Expecting a IXmlChangeReport");
 			return new LiftChangePresenter(report as IXmlChangeReport);
 		}
-
-		#region IMergeEventListener
-
-		public List<IConflict> Conflicts = new List<IConflict>();
-		public List<IChangeReport> Changes = new List<IChangeReport>();
-		public List<string> Contexts = new List<string>();
-
-		public void ConflictOccurred(IConflict conflict)
-		{
-			Conflicts.Add(conflict);
-		}
-
-		public void ChangeOccurred(IChangeReport change)
-		{
-			//Debug.WriteLine(change);
-			Changes.Add(change);
-		}
-
-		public void EnteringContext(string context)
-		{
-			Contexts.Add(context);
-		}
-		#endregion
 	}
 }

@@ -36,9 +36,8 @@ namespace Baton
 																c.Resolve<ProjectFolderConfiguration>()));
 			builder.Register<HgRepository>(c=> c.Resolve<RepositoryManager>().GetRepository(c.Resolve<IProgress>()));
 
-			var fileTypeHandlers = new List<IChorusFileTypeHandler>();
-			fileTypeHandlers.Add(new LiftFileHandler());
-			builder.Register(fileTypeHandlers);
+
+			builder.Register(ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers());
 
 			RegisterSyncStuff(builder);
 			RegisterReviewStuff(builder);
@@ -54,6 +53,8 @@ namespace Baton
 
 			return shell;
 		}
+
+
 
 		private void RegisterSettingsStuff(ContainerBuilder builder)
 		{

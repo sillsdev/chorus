@@ -5,7 +5,7 @@ using System.IO;
 using System.Text;
 using Chorus.Utilities;
 
-namespace ChorusMerge
+namespace Chorus.merge.text
 {
 	/// <summary>
 	/// Do a 3-way Merge of a text file, producing least-common-denominator and 2 partial merge files
@@ -37,7 +37,7 @@ namespace ChorusMerge
 			normal
 		}
 
-		public static int Merge(string common, string ours, string theirs,
+		public static void Merge(string common, string ours, string theirs,
 								 string lcdOutputPath, string ourPartialOutputPath, string theirPartialOutputPath)
 		{
 			string merge = GetRawMerge(ours, common, theirs);
@@ -72,14 +72,11 @@ namespace ChorusMerge
 					lcd.Dispose();
 				}
 			}
-
-
-			return 0; //REVIEW. In what situations might we fail?
 		}
 
 		private static void ReadLines(string merge, StreamWriter ourPartial, StreamWriter lcd, StreamWriter theirPartial)
 		{
-		   // Debug.Fail("break");
+			// Debug.Fail("break");
 			StringReader r = new StringReader(merge);
 			string line = null;
 			State state = State.normal;
@@ -111,7 +108,7 @@ namespace ChorusMerge
 						line = line.Substring(0, startOfSep);
 						useNextTimeAround = "=======";
 					}
-					 startOfSep = line.IndexOf(">>>>>>>");
+					startOfSep = line.IndexOf(">>>>>>>");
 					if (startOfSep > 0)
 					{
 						line = line.Substring(0, startOfSep);

@@ -3,7 +3,7 @@ using Chorus.FileTypeHanders;
 using Chorus.merge;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
-
+using System.Linq;
 namespace Chorus.retrieval
 {
 	/// <summary>
@@ -12,14 +12,14 @@ namespace Chorus.retrieval
 	public class RevisionInspector
 	{
 		private readonly HgRepository _repository;
-		private readonly List<IChorusFileTypeHandler> _fileTypeHandlers;
+		private readonly ChorusFileTypeHandlerCollection _fileHandlerCollection;
 
 		public IProgress ProgressIndicator { get; set; }
 
-		public RevisionInspector(HgRepository repository, List<IChorusFileTypeHandler> fileTypeHandlers)
+		public RevisionInspector(HgRepository repository, ChorusFileTypeHandlerCollection fileHandlerCollection)
 		{
 			_repository = repository;
-			_fileTypeHandlers = fileTypeHandlers;
+			_fileHandlerCollection = fileHandlerCollection;
 			ProgressIndicator = new NullProgress();
 		}
 
@@ -35,23 +35,22 @@ namespace Chorus.retrieval
 			var parentRev = revision.GetParentLocalNumber();
 			foreach (var fileInRevision in _repository.GetFilesInRevision(revision))
 			{
-				foreach (var handler in _fileTypeHandlers)
-				{
+				var handler = _fileHandlerCollection.GetHandler(fileInRevision.RelativePath);
 					//find, for example, a handler that can handle .lift dictionary, or a .wav sound file
-					if (handler.CanHandleFile(fileInRevision.RelativePath))
-					{
-						var parentFileInRevision = new FileInRevision(parentRev, fileInRevision.RelativePath, fileInRevision.ActionThatHappened);
+				if (handler.CanHandleFile(fileInRevision.RelativePath))
+				{
+					var parentFileInRevision = new FileInRevision(parentRev, fileInRevision.RelativePath,
+																  fileInRevision.ActionThatHappened);
 
-						//pull the files out of the repository so we can read them
-						using (var targetFile = fileInRevision.CreateTempFile(_repository))
-						using (var parentFile = parentFileInRevision.CreateTempFile(_repository))
-						{
-							//run the differ which the handler provides, adding the changes to the cumulative
-							//list we are gathering for this hole revision
-							changes.AddRange(handler.Find2WayDifferences(parentFile.Path, targetFile.Path));
-						}
-						break; //only the first handler gets a shot at it
+					//pull the files out of the repository so we can read them
+					using (var targetFile = fileInRevision.CreateTempFile(_repository))
+					using (var parentFile = parentFileInRevision.CreateTempFile(_repository))
+					{
+						//run the differ which the handler provides, adding the changes to the cumulative
+						//list we are gathering for this hole revision
+						changes.AddRange(handler.Find2WayDifferences(parentFile.Path, targetFile.Path));
 					}
+
 				}
 			}
 			return changes;

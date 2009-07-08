@@ -14,18 +14,18 @@ namespace Baton.Review.RevisionChanges
 	{
 		private readonly RevisionInspector _revisionInspector;
 		private readonly ChangedRecordSelectedEvent _changedRecordSelectedEventToRaise;
-		private readonly List<IChorusFileTypeHandler> _fileTypeHandlers;
+		private readonly ChorusFileTypeHandlerCollection _fileHandlers;
 		internal event EventHandler UpdateDisplay;
 		public IEnumerable<IChangeReport> Changes { get; private set; }
 
 		public RevisionChangesModel(RevisionInspector revisionInspector,
 			ChangedRecordSelectedEvent changedRecordSelectedEventToRaise,
 			RevisionSelectedEvent revisionSelectedEventToSubscribeTo,
-			List<IChorusFileTypeHandler> fileTypeHandlers)
+			 ChorusFileTypeHandlerCollection fileHandlers)
 		{
 			_revisionInspector = revisionInspector;
 			_changedRecordSelectedEventToRaise = changedRecordSelectedEventToRaise;
-			_fileTypeHandlers = fileTypeHandlers;
+			_fileHandlers = fileHandlers;
 			revisionSelectedEventToSubscribeTo.Subscribe(SetRevision);
 
 		}
@@ -63,14 +63,8 @@ namespace Baton.Review.RevisionChanges
 
 		public IChangePresenter GetChangePresenterForDataType(IChangeReport report)
 		{
-			foreach (var handler in _fileTypeHandlers)
-			{
-				if (handler.CanHandleFile(report.PathToFile))
-				{
-					return handler.GetChangePresenter(report);
-				}
-			}
-			return new DefaultChangePresenter(report);
-		}
+			var handler = _fileHandlers.GetHandler(report.PathToFile);
+			return handler.GetChangePresenter(report);
+		 }
 	}
 }

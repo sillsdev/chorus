@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using Chorus.FileTypeHanders;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
 
@@ -20,7 +21,15 @@ namespace ChorusMerge
 			try
 			{
 				MergeOrder order = MergeOrder.CreateUsingEnvironmentVariables(args[0], args[1], args[2]);
-				return MergeDispatcher.Go(order);
+				var handlers = ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers();
+				var handler = handlers.GetHandler(order.pathToOurs);
+				if (handler is DefaultFileTypeHandler)
+				{
+					//todo: we don't know how to handle this file type, so pick one and report a conflict
+					Console.Error.WriteLine("ChorusMerge doesn't know how to merge files of type" + Path.GetExtension(order.pathToOurs));
+					return 1;
+				}
+				handler.Do3WayMerge(order);
 			}
 			catch (Exception e)
 			{
@@ -28,6 +37,7 @@ namespace ChorusMerge
 				Console.Error.WriteLine(e.StackTrace);
 				return 1;
 			}
+			return 0;//no error
 		}
 	}
 }

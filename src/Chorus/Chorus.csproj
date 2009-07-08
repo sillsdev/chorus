@@ -62,8 +62,12 @@
 	<Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+	<Compile Include="FileTypeHanders\ConflictFileTypeHandler.cs" />
+	<Compile Include="FileTypeHanders\TextFileTypeHandler.cs" />
+	<Compile Include="FileTypeHanders\DefaultFileTypeHandler.cs" />
 	<Compile Include="FileTypeHanders\IChangePresenter.cs" />
 	<Compile Include="FileTypeHanders\IChorusFileTypeHandler.cs" />
+	<Compile Include="merge\ChangeAndConflictAccumulator.cs" />
 	<Compile Include="FileTypeHanders\lift\LexEntryContextGenerator.cs" />
 	<Compile Include="FileTypeHanders\lift\LiftChangePresenter.cs" />
 	<Compile Include="FileTypeHanders\lift\LiftFileHandler.cs" />
@@ -71,7 +75,6 @@
 	<Compile Include="FileTypeHanders\lift\LiftUtils.cs" />
 	<Compile Include="Utilities\Guard.cs" />
 	<Compile Include="merge\IChangeReport.cs" />
-	<Compile Include="merge\MergeDispatcher.cs" />
 	<Compile Include="merge\MergeOrder.cs" />
 	<Compile Include="merge\xml\generic\DropTheirsMergeStrategy.cs" />
 	<Compile Include="merge\IConflict.cs" />
