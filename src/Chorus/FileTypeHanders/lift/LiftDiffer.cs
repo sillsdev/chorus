@@ -67,7 +67,12 @@ namespace Chorus.merge.xml.lift
 			XmlNode parent = LiftUtils.FindEntry(_parentDom, id);
 			if (parent == null) //it's new
 			{
-				EventListener.ChangeOccurred(new XmlAdditionChangeReport("hackFixThis.lift", child));
+				//it's possible to create and entry, delete it, then checkin, leave us with this
+				//spurious deletion messages
+				if (string.IsNullOrEmpty(XmlUtilities.GetOptionalAttributeString(child, "dateDeleted")))
+				{
+					EventListener.ChangeOccurred(new XmlAdditionChangeReport("hackFixThis.lift", child));
+				}
 			}
 			else if (LiftUtils.AreTheSame(child, parent))//unchanged or both made same change
 			{

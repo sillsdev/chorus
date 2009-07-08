@@ -1,13 +1,17 @@
 ﻿using System.IO;
 using System.Windows.Forms;
+using Chorus.FileTypeHanders;
 using Chorus.merge;
 
 namespace Baton.Review.ChangedReport
 {
 	public partial class ChangeReportView : UserControl
 	{
-		public ChangeReportView(Review.ChangedRecordSelectedEvent changedRecordSelectedEvent)
+		private readonly ChorusFileTypeHandlerCollection _handlers;
+
+		public ChangeReportView(ChorusFileTypeHandlerCollection handlers, Review.ChangedRecordSelectedEvent changedRecordSelectedEvent)
 		{
+			_handlers = handlers;
 			InitializeComponent();
 			changedRecordSelectedEvent.Subscribe(r=>Load(r));
 			_changeDescriptionRenderer.Navigated += webBrowser1_Navigated;
@@ -23,12 +27,13 @@ namespace Baton.Review.ChangedReport
 		{
 			if (report == null)
 			{
-				// _changeDescriptionRenderer.Navigate(string.Empty);
+			   _changeDescriptionRenderer.Navigate(string.Empty);
 			}
 			else
 			{
+				var presenter = _handlers.GetHandler(report.PathToFile).GetChangePresenter(report);
 				var path = Path.GetTempFileName();
-				File.WriteAllText(path, report.ToString()+" "+path);
+				File.WriteAllText(path, presenter.GetHtml());
 				this._changeDescriptionRenderer.Navigate(path);
 			}
 		}

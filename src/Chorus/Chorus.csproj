@@ -92,6 +92,7 @@
 	<Compile Include="sync\RepositorySource.cs" />
 	<Compile Include="sync\SyncOptions.cs" />
 	<Compile Include="Utilities\ExecutionResult.cs" />
+	<Compile Include="Utilities\MergeEngine.cs" />
 	<Compile Include="Utilities\Other.cs" />
 	<Compile Include="Utilities\ProcessStream.cs" />
 	<Compile Include="Utilities\Progress.cs" />

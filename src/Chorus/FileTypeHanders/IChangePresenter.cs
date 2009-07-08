@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using Chorus.merge;
 
@@ -12,6 +13,7 @@ namespace Chorus.FileTypeHanders
 	{
 		string GetDataLabel();
 		string GetActionLabel();
+		string GetHtml();
 	}
 
 	public class DefaultChangePresenter : IChangePresenter
@@ -32,24 +34,10 @@ namespace Chorus.FileTypeHanders
 		{
 			return _report.ActionLabel;
 		}
-	}
 
-  /*  /// <summary>
-	/// Find a change presenter which understands this kind of data, or get a default one.
-	/// </summary>
-	public class ChangePresenterFactory
-	{
-		public static IChangePresenter GetChangePresenter(IChangeReport report)
+		public string GetHtml()
 		{
-			//nb: we will eventually need file name/extension info
-
-			IXmlChangeReport r = report as IXmlChangeReport;
-			if (r == null)
-				return new DefaultChangePresenter(report);
-			if ((r.ChildNode != null && r.ChildNode.Name == "entry")
-				|| (r.ParentNode != null && r.ParentNode.Name == "entry"))
-				return new LiftChangePresenter(r);
-			return new DefaultChangePresenter(report);
+			return string.Format("<p>File: {0}</p><p>Action: {1}</p><p>Data: {2}</p>", Path.GetFileName(_report.PathToFile), GetActionLabel(), GetDataLabel());
 		}
-	}*/
+	}
 }

@@ -34,7 +34,8 @@ namespace Chorus.merge.xml.lift
 		{
 			//for now...
 			if (GetModifiedDate(theirEntry) == GetModifiedDate(ourEntry)
-				&& !(GetModifiedDate(theirEntry) == default(DateTime)))
+				&& !(GetModifiedDate(theirEntry) == default(DateTime))
+				&& !GetIsMarkedAsDeleted(ourEntry))
 				return true;
 
 			return XmlUtilities.AreXmlElementsEqual(ourEntry.OuterXml, theirEntry.OuterXml);

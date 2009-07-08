@@ -200,22 +200,29 @@ namespace Chorus.merge.xml.generic.xmldiff
 				controlAttrValue = _controlReader.Value;
 				testAttrValue = _testReader.Value;
 
-				if (!String.Equals(controlAttrName, testAttrName))
-				{
-					DifferenceFound(DifferenceType.ATTR_SEQUENCE_ID, result);
 
-					if (!_testReader.MoveToAttribute(controlAttrName))
+
+					if (!String.Equals(controlAttrName, testAttrName))
 					{
-						DifferenceFound(DifferenceType.ATTR_NAME_NOT_FOUND_ID, result);
+						DifferenceFound(DifferenceType.ATTR_SEQUENCE_ID, result);
+
+						if (!_testReader.MoveToAttribute(controlAttrName))
+						{
+							DifferenceFound(DifferenceType.ATTR_NAME_NOT_FOUND_ID, result);
+						}
+						testAttrValue = _testReader.Value;
 					}
-					testAttrValue = _testReader.Value;
-				}
 
-				if (!String.Equals(controlAttrValue, testAttrValue))
+				//Hatton hack for LIFT: this is just not enough reason to tell the user there  was a change,
+				//since it's basically a bug in the LIFT edittor, if it's the only change, and this diff
+				//framework doesn't report *what* changed, so we can't filter it out later.
+				if (!string.Equals(controlAttrName, "dateModified"))
 				{
-					DifferenceFound(DifferenceType.ATTR_VALUE_ID, result);
+				   if (!String.Equals(controlAttrValue, testAttrValue))
+					{
+						DifferenceFound(DifferenceType.ATTR_VALUE_ID, result);
+					}
 				}
-
 				_controlReader.MoveToNextAttribute();
 				_testReader.MoveToNextAttribute();
 			}

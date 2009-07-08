@@ -28,10 +28,19 @@ namespace Baton.Review.RevisionChanges
 				{
 					IChangePresenter presenter = _model.GetChangePresenterForDataType(report);
 					var row = new ListViewItem(new string[] {presenter.GetDataLabel(), presenter.GetActionLabel()});
+					row.Tag = report;
 					items.Add(row);
 				}
 
 				listView1.Items.AddRange(items.ToArray());
+				if (items.Count > 0)
+				{   //select the first one if there is one
+					listView1.Items[0].Selected = true;
+				}
+				else
+				{   //nothing to show, cuase the detail pain to clear also
+					_model.SelectedChangeChanged(null);
+				}
 			}
 		}
 
