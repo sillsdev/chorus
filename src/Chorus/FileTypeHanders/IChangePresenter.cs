@@ -14,6 +14,7 @@ namespace Chorus.FileTypeHanders
 		string GetDataLabel();
 		string GetActionLabel();
 		string GetHtml();
+		string GetTypeLabel();
 	}
 
 	public class DefaultChangePresenter : IChangePresenter
@@ -27,7 +28,7 @@ namespace Chorus.FileTypeHanders
 
 		public string GetDataLabel()
 		{
-			return "N/A";
+			return Path.GetFileName(_report.PathToFile);
 		}
 
 		public string GetActionLabel()
@@ -37,7 +38,12 @@ namespace Chorus.FileTypeHanders
 
 		public string GetHtml()
 		{
-			return string.Format("<p>File: {0}</p><p>Action: {1}</p><p>Data: {2}</p>", Path.GetFileName(_report.PathToFile), GetActionLabel(), GetDataLabel());
+			return string.Format("<html><p>The file: '{0}' was {1}.</p></html>", Path.GetFileName(_report.PathToFile), GetActionLabel().ToLower());
+		}
+
+		public string GetTypeLabel()
+		{
+			return "--";
 		}
 	}
 }

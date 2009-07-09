@@ -4,12 +4,13 @@ using System.IO;
 using Chorus.merge;
 using Chorus.merge.text;
 using Chorus.Utilities;
+using Chorus.VcsDrivers.Mercurial;
 
 namespace Chorus.FileTypeHanders
 {
 	public class TextFileTypeHandler : IChorusFileTypeHandler
 	{
-		public bool CanHandleFile(string pathToFile)
+		public bool CanDiffFile(string pathToFile)
 		{
 			return (Path.GetExtension(pathToFile) == ".txt");
 		}
@@ -64,7 +65,7 @@ namespace Chorus.FileTypeHanders
 			}
 		}
 
-		public IEnumerable<IChangeReport> Find2WayDifferences(string pathToParent, string pathToChild)
+		public IEnumerable<IChangeReport> Find2WayDifferences(FileInRevision fileInRevision, string pathToParent, string pathToChild)
 		{
 			throw new NotImplementedException(string.Format("The TextFileTypeHandler does not yet do diffs"));
 		}
@@ -73,5 +74,13 @@ namespace Chorus.FileTypeHanders
 		{
 			return new DefaultChangePresenter(report);
 		}
+
+
+
+		public IEnumerable<IChangeReport> DescribeInitialContents(FileInRevision fileInRevision, TempFile file)
+		{
+			return new IChangeReport[] { new DefaultChangeReport(fileInRevision.RelativePath, "Initial") };
+		}
+
 	}
 }

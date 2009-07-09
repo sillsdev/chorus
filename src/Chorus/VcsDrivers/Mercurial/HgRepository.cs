@@ -645,6 +645,8 @@ namespace Chorus.VcsDrivers.Mercurial
 				if (line.Trim() == "")
 					continue;
 				var actionLetter = line[0];
+				if(actionLetter == '?') //this means it wasn't actually committed, like maybe ignored?
+					continue;
 				var action = ParseActionLetter(actionLetter);
 
 				//if this is the first rev in the whole repo, then the only way to list the fils

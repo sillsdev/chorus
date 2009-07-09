@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using Chorus.merge;
+using Chorus.Utilities;
+using Chorus.VcsDrivers.Mercurial;
 
 namespace Chorus.FileTypeHanders
 {
@@ -9,7 +11,7 @@ namespace Chorus.FileTypeHanders
 	/// </summary>
 	public class DefaultFileTypeHandler : IChorusFileTypeHandler
 	{
-		public bool CanHandleFile(string pathToFile)
+		public bool CanDiffFile(string pathToFile)
 		{
 			return false;
 		}
@@ -19,7 +21,7 @@ namespace Chorus.FileTypeHanders
 			throw new ApplicationException(string.Format("Chorus could not find a handler to merge files like '{0}'", mergeOrder.pathToOurs));
 		}
 
-		public IEnumerable<IChangeReport> Find2WayDifferences(string pathToParent, string pathToChild)
+		public IEnumerable<IChangeReport> Find2WayDifferences(FileInRevision fileInRevision, string pathToParent, string pathToChild)
 		{
 			throw new ApplicationException(string.Format("Chorus could not find a handler to diff files like '{0}'", pathToChild));
 		}
@@ -28,5 +30,14 @@ namespace Chorus.FileTypeHanders
 		{
 			return new DefaultChangePresenter(report);
 		}
+
+
+
+
+		public IEnumerable<IChangeReport> DescribeInitialContents(FileInRevision fileInRevision, TempFile file)
+		{
+			return new IChangeReport[] { new DefaultChangeReport(fileInRevision.RelativePath, "Initial") };
+		}
+
 	}
 }

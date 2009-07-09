@@ -33,12 +33,14 @@
 			//
 			// _changeDescriptionRenderer
 			//
+			this._changeDescriptionRenderer.AllowWebBrowserDrop = false;
 			this._changeDescriptionRenderer.Dock = System.Windows.Forms.DockStyle.Fill;
 			this._changeDescriptionRenderer.Location = new System.Drawing.Point(0, 0);
 			this._changeDescriptionRenderer.MinimumSize = new System.Drawing.Size(20, 20);
 			this._changeDescriptionRenderer.Name = "_changeDescriptionRenderer";
 			this._changeDescriptionRenderer.Size = new System.Drawing.Size(150, 150);
 			this._changeDescriptionRenderer.TabIndex = 0;
+			this._changeDescriptionRenderer.WebBrowserShortcutsEnabled = false;
 			//
 			// ChangeReportView
 			//

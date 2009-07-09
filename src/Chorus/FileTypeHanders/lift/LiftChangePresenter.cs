@@ -23,12 +23,22 @@ namespace Chorus.FileTypeHanders.lift
 
 		public string GetDataLabel()
 		{
-			//Enhance: this is just a lexeme form, not the headword
+			//Enhance: this is just a lexeme form, not the headword, and not any other part of the lift file
 			var nodes = FirstNonNullNode.SelectNodes("lexical-unit/form/text");
 			if (nodes == null || nodes.Count == 0)
 				return "??";
 			return nodes[0].InnerText;
 
+		}
+
+		public string GetTypeLabel()
+		{
+			if(FirstNonNullNode.Name == "entry")
+				return "lift entry";
+			else
+			{
+				return "?";
+			}
 		}
 
 		public string GetHtml()

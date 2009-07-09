@@ -23,6 +23,12 @@ namespace Baton.HistoryPanel
 			 lowerContainer.Dock = DockStyle.Fill;
 			 changesInRevisionView.Dock = DockStyle.Fill;
 			 changeReportView.Dock = DockStyle.Fill;
+
+			 var group = new GroupBox();
+			 group.Text = "Changes in Revision";
+			 group.Controls.Add(lowerContainer);
+			 group.Dock = DockStyle.Fill;
+
 			lowerContainer.Panel1.Controls.Add(changesInRevisionView);
 			lowerContainer.Panel2.Controls.Add(changeReportView);
 
@@ -30,7 +36,7 @@ namespace Baton.HistoryPanel
 			 verticalContainer.Orientation = Orientation.Horizontal;
 			 revisionsInRepositoryView.Dock = DockStyle.Fill;
 			verticalContainer.Panel1.Controls.Add(revisionsInRepositoryView);
-			verticalContainer.Panel2.Controls.Add(lowerContainer);
+			verticalContainer.Panel2.Controls.Add(group);
 			 verticalContainer.Dock = DockStyle.Fill;
 			 Controls.Add(verticalContainer);
 			ResumeLayout();

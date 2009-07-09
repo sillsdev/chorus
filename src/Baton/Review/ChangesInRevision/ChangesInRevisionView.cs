@@ -27,7 +27,7 @@ namespace Baton.Review.RevisionChanges
 				foreach (var report in _model.ChangeReports)
 				{
 					IChangePresenter presenter = _model.GetChangePresenterForDataType(report);
-					var row = new ListViewItem(new string[] {presenter.GetDataLabel(), presenter.GetActionLabel()});
+					var row = new ListViewItem(new string[] {presenter.GetTypeLabel(), presenter.GetDataLabel(), presenter.GetActionLabel()});
 					row.Tag = report;
 					items.Add(row);
 				}

@@ -1,29 +1,31 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
+using Chorus.FileTypeHanders.lift;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
+using Chorus.merge.xml.lift;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
 
 namespace Chorus.FileTypeHanders
 {
-	public class ConflictFileTypeHandler : IChorusFileTypeHandler
+	public class WeSayConfigFileHandler : IChorusFileTypeHandler
 	{
 		public bool CanDiffFile(string pathToFile)
 		{
-			return (System.IO.Path.GetExtension(pathToFile) == ".conflicts");
+			return (System.IO.Path.GetExtension(pathToFile).ToLower() == ".wesayconfig");
 		}
 
-		public void Do3WayMerge(MergeOrder order)
+		public void Do3WayMerge(MergeOrder mergeOrder)
 		{
-			XmlMerger merger  = new XmlMerger(order.MergeSituation);
-			NodeMergeResult r = merger.MergeFiles(order.pathToOurs, order.pathToTheirs, order.pathToCommonAncestor);
-			File.WriteAllText(order.pathToOurs, r.MergedNode.OuterXml);
+			throw new NotImplementedException();
 		}
+
 		public IEnumerable<IChangeReport> Find2WayDifferences(FileInRevision fileInRevision, string pathToParent, string pathToChild)
 		{
-			throw new NotImplementedException(string.Format("The ConflictFileTypeHandler does not yet do diffs"));
+			return new IChangeReport[] {new DefaultChangeReport(fileInRevision.RelativePath,"Editted")};
 		}
 
 		public IChangePresenter GetChangePresenter(IChangeReport report)
@@ -32,10 +34,10 @@ namespace Chorus.FileTypeHanders
 		}
 
 
-
 		public IEnumerable<IChangeReport> DescribeInitialContents(FileInRevision fileInRevision, TempFile file)
 		{
-			return new IChangeReport[]{new DefaultChangeReport(fileInRevision.RelativePath, "Initial")};
+			return new IChangeReport[] { new DefaultChangeReport(fileInRevision.RelativePath, "Initial") };
 		}
+
 	}
 }

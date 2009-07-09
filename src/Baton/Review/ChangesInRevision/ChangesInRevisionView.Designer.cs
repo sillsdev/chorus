@@ -33,11 +33,13 @@
 			this.listView1 = new System.Windows.Forms.ListView();
 			this.columnHeader1 = new System.Windows.Forms.ColumnHeader();
 			this.columnHeader2 = new System.Windows.Forms.ColumnHeader();
+			this.columnHeader3 = new System.Windows.Forms.ColumnHeader();
 			this.SuspendLayout();
 			//
 			// listView1
 			//
 			this.listView1.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+			this.columnHeader3,
 			this.columnHeader1,
 			this.columnHeader2});
 			this.listView1.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -56,13 +58,20 @@
 			//
 			// columnHeader1
 			//
+			this.columnHeader1.DisplayIndex = 0;
 			this.columnHeader1.Text = "Item";
 			this.columnHeader1.Width = 98;
 			//
 			// columnHeader2
 			//
+			this.columnHeader2.DisplayIndex = 1;
 			this.columnHeader2.Text = "Action";
 			this.columnHeader2.Width = 112;
+			//
+			// columnHeader3
+			//
+			this.columnHeader3.DisplayIndex = 2;
+			this.columnHeader3.Text = "Type";
 			//
 			// ChangesInRevisionView
 			//
@@ -79,6 +88,7 @@
 		private System.Windows.Forms.ListView listView1;
 		private System.Windows.Forms.ColumnHeader columnHeader1;
 		private System.Windows.Forms.ColumnHeader columnHeader2;
+		private System.Windows.Forms.ColumnHeader columnHeader3;
 
 	}
 }

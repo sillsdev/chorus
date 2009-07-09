@@ -59,11 +59,11 @@ namespace Chorus.merge
 		}
 	}
 
-	public class DummyChangeReport : ChangeReport
+	public class DefaultChangeReport : ChangeReport
 	{
 		private readonly string _label;
 
-		public DummyChangeReport(string pathToFile, string label)
+		public DefaultChangeReport(string pathToFile, string label)
 			: base(pathToFile)
 		{
 			_label = label;
@@ -173,7 +173,7 @@ namespace Chorus.merge
 
 		public override string ActionLabel
 		{
-			get { return _child.Name +" Changed"; }
+			get { return "Change"; }
 		}
 
 		public XmlNode ParentNode

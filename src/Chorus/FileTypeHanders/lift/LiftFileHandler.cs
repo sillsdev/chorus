@@ -7,12 +7,13 @@ using Chorus.merge;
 using Chorus.merge.xml.generic;
 using Chorus.merge.xml.lift;
 using Chorus.Utilities;
+using Chorus.VcsDrivers.Mercurial;
 
 namespace Chorus.FileTypeHanders
 {
 	public class LiftFileHandler : IChorusFileTypeHandler
 	{
-		public bool CanHandleFile(string pathToFile)
+		public bool CanDiffFile(string pathToFile)
 		{
 			return (System.IO.Path.GetExtension(pathToFile) == ".lift");
 		}
@@ -54,7 +55,7 @@ namespace Chorus.FileTypeHanders
 			}
 		}
 
-		public IEnumerable<IChangeReport> Find2WayDifferences(string pathToParent, string pathToChild)
+		public IEnumerable<IChangeReport> Find2WayDifferences(FileInRevision fileInRevision, string pathToParent, string pathToChild)
 		{
 			var listener = new ChangeAndConflictAccumulator();
 			var strat = new LiftEntryMergingStrategy(new NullMergeSituation());
@@ -65,8 +66,21 @@ namespace Chorus.FileTypeHanders
 
 		public IChangePresenter GetChangePresenter(IChangeReport report)
 		{
-			Guard.Against(report.GetType() == typeof(IXmlChangeReport), "Expecting a IXmlChangeReport");
-			return new LiftChangePresenter(report as IXmlChangeReport);
+			if ((report as IXmlChangeReport) != null)
+			{
+				return new LiftChangePresenter(report as IXmlChangeReport);
+			}
+			else
+			{
+				return new DefaultChangePresenter(report);
+			}
 		}
+
+
+		public IEnumerable<IChangeReport> DescribeInitialContents(FileInRevision fileInRevision, TempFile file)
+		{
+			return new IChangeReport[] { new DefaultChangeReport(fileInRevision.RelativePath, "Initial") };
+		}
+
 	}
 }
