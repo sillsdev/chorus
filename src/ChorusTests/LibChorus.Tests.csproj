@@ -79,9 +79,9 @@
 	<Compile Include="VcsDrivers\Mercurial\RetrieveVersionTests.cs" />
   </ItemGroup>
   <ItemGroup>
-	<ProjectReference Include="..\Chorus\Chorus.csproj">
+	<ProjectReference Include="..\Chorus\LibChorus.csproj">
 	  <Project>{94245366-8F1E-475C-810D-FE89BB3948E0}</Project>
-	  <Name>Chorus</Name>
+	  <Name>LibChorus</Name>
 	</ProjectReference>
 	<ProjectReference Include="..\ChorusMerge\ChorusMerge.csproj">
 	  <Project>{1264E294-F719-491C-863A-703CB48385D8}</Project>

@@ -9,7 +9,7 @@
 	<OutputType>WinExe</OutputType>
 	<AppDesignerFolder>Properties</AppDesignerFolder>
 	<RootNamespace>Baton</RootNamespace>
-	<AssemblyName>Baton</AssemblyName>
+	<AssemblyName>Chorus</AssemblyName>
 	<TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
 	<FileAlignment>512</FileAlignment>
 	<TargetFrameworkSubset>
@@ -162,9 +162,9 @@
 	<Compile Include="SyncPanel\SyncPanelModel.cs" />
   </ItemGroup>
   <ItemGroup>
-	<ProjectReference Include="..\Chorus\Chorus.csproj">
+	<ProjectReference Include="..\Chorus\LibChorus.csproj">
 	  <Project>{94245366-8F1E-475C-810D-FE89BB3948E0}</Project>
-	  <Name>Chorus</Name>
+	  <Name>LibChorus</Name>
 	</ProjectReference>
   </ItemGroup>
   <ItemGroup>
