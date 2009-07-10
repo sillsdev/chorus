@@ -269,7 +269,7 @@ namespace Chorus.merge.xml.generic
 
 				if (ourChild == null)
 				{
-					_merger.EventListener.ChangeOccurred(new XmlDeletionChangeReport(_merger.MergeSituation.PathToFileInRepository, ancestorChild));
+					_merger.EventListener.ChangeOccurred(new XmlDeletionChangeReport(_merger.MergeSituation.PathToFileInRepository, ancestorChild, ourChild));
 
 					// We deleted it.
 					if (theirChild == null)

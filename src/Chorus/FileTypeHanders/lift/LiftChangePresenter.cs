@@ -26,7 +26,18 @@ namespace Chorus.FileTypeHanders.lift
 			//Enhance: this is just a lexeme form, not the headword, and not any other part of the lift file
 			var nodes = FirstNonNullNode.SelectNodes("lexical-unit/form/text");
 			if (nodes == null || nodes.Count == 0)
+			{
+				//if the child was marked as deleted, we actually need to look to the parent node
+				if (_report.ParentNode != null)
+				{
+					nodes = _report.ParentNode.SelectNodes("lexical-unit/form/text");
+				}
+			}
+			if (nodes == null || nodes.Count == 0)
+			{
 				return "??";
+			}
+
 			return nodes[0].InnerText;
 
 		}

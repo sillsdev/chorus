@@ -10,7 +10,7 @@ namespace Chorus.merge.xml.lift
 
 		public static bool GetIsMarkedAsDeleted(XmlNode entry)
 		{
-			return string.IsNullOrEmpty(XmlUtilities.GetOptionalAttributeString(entry, "dateDeleted"));
+			return !string.IsNullOrEmpty(XmlUtilities.GetOptionalAttributeString(entry, "dateDeleted"));
 		}
 
 		public static string GetId(XmlNode e)

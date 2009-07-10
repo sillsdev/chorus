@@ -85,7 +85,7 @@ namespace Chorus.merge
 
 		public override string ActionLabel
 		{
-			get { return "Addition"; }
+			get { return "Added"; }
 		}
 		public override string GetFullHumanReadableDescription()
 		{
@@ -105,31 +105,37 @@ namespace Chorus.merge
 
 	public class XmlDeletionChangeReport : ChangeReport, IXmlChangeReport
 	{
+		private readonly XmlNode _parentNode;
+		private readonly XmlNode _childNode;
 		private readonly XmlNode _deletedNode;
 
-		public XmlDeletionChangeReport(string pathToFile, XmlNode deletedNode)
+		public XmlDeletionChangeReport(string pathToFile, XmlNode parentNode, XmlNode childNode)
 			: base(pathToFile)
 		{
-			_deletedNode = deletedNode;
+			_parentNode = parentNode;
+			_childNode = childNode;
 		}
 
 		public override string ActionLabel
 		{
-			get { return "Deletion"; }
+			get { return "Deleted"; }
 		}
 		public override string GetFullHumanReadableDescription()
 		{
-			return string.Format("Deleted a <{0}>", _deletedNode.Name);
+			return string.Format("Deleted a <{0}>", _parentNode.Name);
 		}
 
 		public XmlNode ParentNode
 		{
-			get { return _deletedNode; }
+			get { return _parentNode; }
 		}
 
+		/// <summary>
+		/// yes, we may have a child, if it's still there, just marked as deleted
+		/// </summary>
 		public XmlNode ChildNode
 		{
-			get { return null; }
+			get { return _childNode; }
 		}
 	}
 	public class TextEditChangeReport : ChangeReport

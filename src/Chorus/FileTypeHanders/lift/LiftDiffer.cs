@@ -51,12 +51,12 @@ namespace Chorus.merge.xml.lift
 				ProcessEntry(e);
 			}
 
-			//now detect any deleted elements
-			foreach (XmlNode e in _parentDom.SafeSelectNodes("lift/entry"))
+			//now detect any removed (not just marked as deleted) elements
+			foreach (XmlNode parentNode in _parentDom.SafeSelectNodes("lift/entry"))
 			{
-				if (!_processedIds.Contains(LiftUtils.GetId(e)))
+				if (!_processedIds.Contains(LiftUtils.GetId(parentNode)))
 				{
-					EventListener.ChangeOccurred(new XmlDeletionChangeReport("hackFixThis.lift", e));
+					EventListener.ChangeOccurred(new XmlDeletionChangeReport("hackFixThis.lift", parentNode, null));
 				}
 			}
 		}
@@ -81,7 +81,7 @@ namespace Chorus.merge.xml.lift
 			{
 				if (!string.IsNullOrEmpty(XmlUtilities.GetOptionalAttributeString(child, "dateDeleted")))
 				{
-					EventListener.ChangeOccurred(new XmlDeletionChangeReport("hackFixThis.lift", child));
+					EventListener.ChangeOccurred(new XmlDeletionChangeReport("hackFixThis.lift", parent, child));
 				}
 				else
 				{

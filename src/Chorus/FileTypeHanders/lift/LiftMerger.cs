@@ -177,7 +177,7 @@ namespace Chorus.merge.xml.lift
 			{
 				if (!LiftUtils.GetIsMarkedAsDeleted(ourEntry))
 				{
-					EventListener.ChangeOccurred(new XmlDeletionChangeReport("hackFixThis.lift", ourEntry));
+					EventListener.ChangeOccurred(new XmlDeletionChangeReport("hackFixThis.lift",  FindEntry(_ancestorDom, id), ourEntry));
 				}
 
 				XmlNode commonEntry = FindEntry(_ancestorDom, id);
