@@ -36,7 +36,7 @@ namespace Chorus.Tests.VcsDrivers.Mercurial
 					Assert.AreEqual(1, revisions.Count);
 					var files = repo.GetFilesInRevision(revisions[0]);
 					Assert.AreEqual(1, files.Count());
-					Assert.AreEqual(Path.GetFileName(f.Path), files.First().RelativePath);
+					Assert.AreEqual(Path.GetFileName(f.Path), files.First().FullPath);
 				}
 		}
 
@@ -61,7 +61,7 @@ namespace Chorus.Tests.VcsDrivers.Mercurial
 					Assert.AreEqual(2, revisions.Count);
 					var files = repo.GetFilesInRevision(revisions[0]);
 					Assert.AreEqual(1, files.Count());
-					Assert.AreEqual(Path.GetFileName(f.Path), files.First().RelativePath);
+					Assert.AreEqual(Path.GetFileName(f.Path), files.First().FullPath);
 				}
 			}
 		}

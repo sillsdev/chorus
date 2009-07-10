@@ -78,7 +78,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Diagnostics;
 
-namespace Rainbow.MergeEngine
+namespace Rainbow.HtmlDiffEngine
 {
 
 	#region Data types

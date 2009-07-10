@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Chorus.FileTypeHanders.lift;
 using Chorus.merge;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
@@ -9,6 +10,8 @@ namespace Chorus.FileTypeHanders
 	public interface IChorusFileTypeHandler
 	{
 		bool CanDiffFile(string pathToFile);
+		bool CanMergeFile(string pathToFile);
+		bool CanPresentFile(string pathToFile);
 
 		/// <summary>
 		/// Do a 3-file merge, placing the result over the "ours" file and returning an error status
@@ -43,6 +46,8 @@ namespace Chorus.FileTypeHanders
 			fileTypeHandlers.Handlers.Add(new TextFileTypeHandler());
 			fileTypeHandlers.Handlers.Add(new ConflictFileTypeHandler());
 			fileTypeHandlers.Handlers.Add(new WeSayConfigFileHandler());
+			fileTypeHandlers.Handlers.Add(new AudioFileTypeHandler());
+			fileTypeHandlers.Handlers.Add(new ImageFileTypeHandler());
 
 			//NB: never add the Default handler
 			return fileTypeHandlers;
@@ -52,9 +57,27 @@ namespace Chorus.FileTypeHanders
 		{
 			Handlers = new List<IChorusFileTypeHandler>();
 		}
-		public IChorusFileTypeHandler GetHandler(string path)
+		public IChorusFileTypeHandler GetHandlerForMerging(string path)
+		{
+			var handler = Handlers.FirstOrDefault(h => h.CanMergeFile(path));
+			if (handler == null)
+			{
+				return new DefaultFileTypeHandler();
+			}
+			return handler;
+		}
+		public IChorusFileTypeHandler GetHandlerForDiff(string path)
 		{
 			var handler = Handlers.FirstOrDefault(h => h.CanDiffFile(path));
+			if (handler == null)
+			{
+				return new DefaultFileTypeHandler();
+			}
+			return handler;
+		}
+		public IChorusFileTypeHandler GetHandlerForPresentation(string path)
+		{
+			var handler = Handlers.FirstOrDefault(h => h.CanPresentFile(path));
 			if (handler == null)
 			{
 				return new DefaultFileTypeHandler();

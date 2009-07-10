@@ -654,7 +654,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				if (action == FileInRevision.Action.NoChanges)
 					action = FileInRevision.Action.Added;
 
-				revisions.Add(new FileInRevision(revision.LocalRevisionNumber, line.Substring(2), action));
+				revisions.Add(new FileInRevision(revision.LocalRevisionNumber, Path.Combine(PathToRepo, line.Substring(2)), action));
 			}
 
 			return revisions;
@@ -709,12 +709,12 @@ namespace Chorus.VcsDrivers.Mercurial
 			Unknown,
 			NoChanges
 		}
-		public string RelativePath { get; private set; }
-		public FileInRevision(string revisionNumber, string relativePath, Action action)
+		public string FullPath { get; private set; }
+		public FileInRevision(string revisionNumber, string fullPath, Action action)
 		{
 			_revisionNumber = revisionNumber;
 			ActionThatHappened = action;
-			RelativePath = relativePath;
+			FullPath = fullPath;
 		}
 
 		/// <summary>
@@ -723,7 +723,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		/// <returns>An IDisposable TempFile</returns>
 		public TempFile CreateTempFile(HgRepository repository)
 		{
-			var path = repository.RetrieveHistoricalVersionOfFile(RelativePath, _revisionNumber);
+			var path = repository.RetrieveHistoricalVersionOfFile(FullPath, _revisionNumber);
 			return TempFile.TrackExisting(path);
 		}
 	}

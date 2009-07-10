@@ -18,6 +18,16 @@ namespace Chorus.FileTypeHanders
 			return (System.IO.Path.GetExtension(pathToFile) == ".lift");
 		}
 
+		public bool CanMergeFile(string pathToFile)
+		{
+			return CanDiffFile(pathToFile);
+		}
+
+		public bool CanPresentFile(string pathToFile)
+		{
+			return CanDiffFile(pathToFile);
+		}
+
 		public void Do3WayMerge(MergeOrder mergeOrder)
 		{
 			DispatchingMergeEventListener listenerDispatcher = new DispatchingMergeEventListener();
@@ -79,7 +89,7 @@ namespace Chorus.FileTypeHanders
 
 		public IEnumerable<IChangeReport> DescribeInitialContents(FileInRevision fileInRevision, TempFile file)
 		{
-			return new IChangeReport[] { new DefaultChangeReport(fileInRevision.RelativePath, "Initial") };
+			return new IChangeReport[] { new DefaultChangeReport(fileInRevision.FullPath, "Added") };
 		}
 
 	}

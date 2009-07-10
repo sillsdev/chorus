@@ -22,7 +22,7 @@ namespace ChorusMerge
 			{
 				MergeOrder order = MergeOrder.CreateUsingEnvironmentVariables(args[0], args[1], args[2]);
 				var handlers = ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers();
-				var handler = handlers.GetHandler(order.pathToOurs);
+				var handler = handlers.GetHandlerForMerging(order.pathToOurs);
 				if (handler is DefaultFileTypeHandler)
 				{
 					//todo: we don't know how to handle this file type, so pick one and report a conflict

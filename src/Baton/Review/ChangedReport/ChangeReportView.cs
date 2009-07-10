@@ -31,7 +31,7 @@ namespace Baton.Review.ChangedReport
 			}
 			else
 			{
-				var presenter = _handlers.GetHandler(report.PathToFile).GetChangePresenter(report);
+				var presenter = _handlers.GetHandlerForPresentation(report.PathToFile).GetChangePresenter(report);
 				var path = Path.GetTempFileName();
 				File.WriteAllText(path, presenter.GetHtml());
 				this._changeDescriptionRenderer.Navigate(path);

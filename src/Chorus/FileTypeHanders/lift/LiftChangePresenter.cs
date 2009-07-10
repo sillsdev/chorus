@@ -68,7 +68,7 @@ namespace Chorus.FileTypeHanders.lift
 //                var m = new Rainbow.MergeEngine.Merger(r.ParentNode.InnerXml.Replace("<", "&lt;"), r.ChildNode.InnerXml.Replace("<", "&lt;"));
 				var original = XmlUtilities.GetXmlForShowingInHtml("<entry>" + r.ParentNode.InnerXml + "</entry>");
 				var modified = XmlUtilities.GetXmlForShowingInHtml("<entry>" + r.ChildNode.InnerXml + "</entry>");
-				var m = new Rainbow.MergeEngine.Merger(original, modified);
+				var m = new Rainbow.HtmlDiffEngine.Merger(original, modified);
 				var html = m.merge().Replace("&lt;entry>", "&lt;entry ...&gt;");
 			   builder.Append(html);
 

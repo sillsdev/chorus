@@ -12,7 +12,17 @@ namespace Chorus.FileTypeHanders
 	{
 		public bool CanDiffFile(string pathToFile)
 		{
+			return false;//todo
+		}
+
+		public bool CanMergeFile(string pathToFile)
+		{
 			return (Path.GetExtension(pathToFile) == ".txt");
+		}
+
+		public bool CanPresentFile(string pathToFile)
+		{
+			return false;//todo
 		}
 
 		public void Do3WayMerge(MergeOrder order)
@@ -79,7 +89,7 @@ namespace Chorus.FileTypeHanders
 
 		public IEnumerable<IChangeReport> DescribeInitialContents(FileInRevision fileInRevision, TempFile file)
 		{
-			return new IChangeReport[] { new DefaultChangeReport(fileInRevision.RelativePath, "Initial") };
+			return new IChangeReport[] { new DefaultChangeReport(fileInRevision.FullPath, "Added") };
 		}
 
 	}

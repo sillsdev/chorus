@@ -65,7 +65,7 @@ namespace Chorus.Tests.sync
 				SyncOptions options = new SyncOptions();
 				options.DoPullFromOthers = false;
 				options.DoMergeWithOthers = false;
-				options.CheckinDescription = "initial";
+				options.CheckinDescription = "Added";
 
 				RepositoryManager.MakeRepositoryForTest(languageProjectPath, "bob");
 

@@ -1,15 +1,14 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using Chorus.merge;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
+using System.Linq;
 
 namespace Chorus.FileTypeHanders
 {
-	/// <summary>
-	/// This is the handler of last resort.
-	/// </summary>
-	public class DefaultFileTypeHandler : IChorusFileTypeHandler
+	public class AudioFileTypeHandler : IChorusFileTypeHandler
 	{
 		public bool CanDiffFile(string pathToFile)
 		{
@@ -23,7 +22,8 @@ namespace Chorus.FileTypeHanders
 
 		public bool CanPresentFile(string pathToFile)
 		{
-			return true;
+			var ext = Path.GetExtension(pathToFile);
+			return ((new string[] {".wav",".mp3"}.Contains(ext)));
 		}
 
 		public void Do3WayMerge(MergeOrder mergeOrder)
@@ -38,7 +38,7 @@ namespace Chorus.FileTypeHanders
 
 		public IChangePresenter GetChangePresenter(IChangeReport report)
 		{
-			return new DefaultChangePresenter(report);
+			return new AudioChangePresenter(report);
 		}
 
 
@@ -49,5 +49,35 @@ namespace Chorus.FileTypeHanders
 			return new IChangeReport[] { new DefaultChangeReport(fileInRevision.FullPath, "Added") };
 		}
 
+	}
+
+	public class AudioChangePresenter : IChangePresenter
+	{
+		private readonly IChangeReport _report;
+
+		public AudioChangePresenter(IChangeReport report)
+		{
+			_report = report;
+		}
+
+		public string GetDataLabel()
+		{
+			return Path.GetFileName(_report.PathToFile);
+		}
+
+		public string GetActionLabel()
+		{
+			return _report.ActionLabel;
+		}
+
+		public string GetHtml()
+		{
+			return string.Format("<html><a href=\"file:///{0}\">Play Sound</a></html>", _report.PathToFile);
+		}
+
+		public string GetTypeLabel()
+		{
+			return "Sound";
+		}
 	}
 }

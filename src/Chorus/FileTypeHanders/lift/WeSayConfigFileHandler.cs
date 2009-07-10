@@ -9,13 +9,24 @@ using Chorus.merge.xml.lift;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
 
-namespace Chorus.FileTypeHanders
+namespace Chorus.FileTypeHanders.lift
 {
 	public class WeSayConfigFileHandler : IChorusFileTypeHandler
 	{
 		public bool CanDiffFile(string pathToFile)
 		{
+			return false;
+		}
+
+		public bool CanMergeFile(string pathToFile)
+		{
+			return false;
+		}
+
+		public bool CanPresentFile(string pathToFile)
+		{
 			return (System.IO.Path.GetExtension(pathToFile).ToLower() == ".wesayconfig");
+
 		}
 
 		public void Do3WayMerge(MergeOrder mergeOrder)
@@ -25,7 +36,7 @@ namespace Chorus.FileTypeHanders
 
 		public IEnumerable<IChangeReport> Find2WayDifferences(FileInRevision fileInRevision, string pathToParent, string pathToChild)
 		{
-			return new IChangeReport[] {new DefaultChangeReport(fileInRevision.RelativePath,"Editted")};
+			return new IChangeReport[] {new DefaultChangeReport(fileInRevision.FullPath,"Editted")};
 		}
 
 		public IChangePresenter GetChangePresenter(IChangeReport report)
@@ -36,7 +47,7 @@ namespace Chorus.FileTypeHanders
 
 		public IEnumerable<IChangeReport> DescribeInitialContents(FileInRevision fileInRevision, TempFile file)
 		{
-			return new IChangeReport[] { new DefaultChangeReport(fileInRevision.RelativePath, "Initial") };
+			return new IChangeReport[] { new DefaultChangeReport(fileInRevision.FullPath, "Added") };
 		}
 
 	}

@@ -63,7 +63,7 @@ namespace Baton.Review.RevisionChanges
 
 		public IChangePresenter GetChangePresenterForDataType(IChangeReport report)
 		{
-			var handler = _fileHandlers.GetHandler(report.PathToFile);
+			var handler = _fileHandlers.GetHandlerForPresentation(report.PathToFile);
 			return handler.GetChangePresenter(report);
 		 }
 	}

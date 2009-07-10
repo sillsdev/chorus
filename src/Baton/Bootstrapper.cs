@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using Autofac;
 using Autofac.Builder;
 using Baton.HistoryPanel;
 using Baton.Review.ChangedReport;
@@ -15,16 +17,17 @@ using Chorus.VcsDrivers.Mercurial;
 
 namespace Baton
 {
-	public class BootStrapper
+	public class BootStrapper :IDisposable
 	{
 		private readonly string _settingsPath;
+		private IContainer _container;
 
 		public BootStrapper(string settingsPath)
 		{
 			_settingsPath = settingsPath;
 		}
 
-		public Shell CreateShell()
+		public Shell CreateShell(BrowseForRepositoryEvent browseForRepositoryEvent)
 		{
 			var builder = new Autofac.Builder.ContainerBuilder();
 
@@ -36,6 +39,7 @@ namespace Baton
 																c.Resolve<ProjectFolderConfiguration>()));
 			builder.Register<HgRepository>(c=> c.Resolve<RepositoryManager>().GetRepository(c.Resolve<IProgress>()));
 
+			builder.Register<BrowseForRepositoryEvent>(browseForRepositoryEvent).SingletonScoped();
 
 			builder.Register(ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers());
 
@@ -45,11 +49,11 @@ namespace Baton
 
 			builder.Register<Shell>();
 
-			var container = builder.Build();
-			var shell= container.Resolve<Shell>();
+			_container = builder.Build();
+			var shell= _container.Resolve<Shell>();
 
-			shell.AddPage("Review", container.Resolve<ReviewPage>());
-			shell.AddPage("Settings", container.Resolve<SettingsPanel>());
+			shell.AddPage("Review", _container.Resolve<ReviewPage>());
+			shell.AddPage("Settings", _container.Resolve<SettingsPanel>());
 
 			return shell;
 		}
@@ -80,6 +84,11 @@ namespace Baton
 
 			builder.Register<RevisionInRepositoryModel>();
 			builder.Register<RevisionsInRepositoryView>();
+		}
+
+		public void Dispose()
+		{
+			_container.Dispose();
 		}
 	}
 }

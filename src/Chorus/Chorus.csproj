@@ -63,6 +63,8 @@
   </ItemGroup>
   <ItemGroup>
 	<Compile Include="FileTypeHanders\ConflictFileTypeHandler.cs" />
+	<Compile Include="FileTypeHanders\AudioFileTypeHandler.cs" />
+	<Compile Include="FileTypeHanders\ImageFileTypeHandler.cs" />
 	<Compile Include="FileTypeHanders\lift\WeSayConfigFileHandler.cs" />
 	<Compile Include="FileTypeHanders\TextFileTypeHandler.cs" />
 	<Compile Include="FileTypeHanders\DefaultFileTypeHandler.cs" />
@@ -93,7 +95,7 @@
 	<Compile Include="sync\RepositorySource.cs" />
 	<Compile Include="sync\SyncOptions.cs" />
 	<Compile Include="Utilities\ExecutionResult.cs" />
-	<Compile Include="Utilities\MergeEngine.cs" />
+	<Compile Include="Utilities\HtmlDiffEngine.cs" />
 	<Compile Include="Utilities\Other.cs" />
 	<Compile Include="Utilities\ProcessStream.cs" />
 	<Compile Include="Utilities\Progress.cs" />

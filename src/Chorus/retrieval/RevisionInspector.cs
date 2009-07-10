@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using Chorus.FileTypeHanders;
 using Chorus.merge;
 using Chorus.Utilities;
@@ -42,13 +43,13 @@ namespace Chorus.retrieval
 
 				foreach (var fileInRevision in _repository.GetFilesInRevision(revision))
 				{
-					var handler = _fileHandlerCollection.GetHandler(fileInRevision.RelativePath);
+					var handler = _fileHandlerCollection.GetHandlerForDiff(fileInRevision.FullPath);
 					//find, for example, a handler that can handle .lift dictionary, or a .wav sound file
-					if (handler.CanDiffFile(fileInRevision.RelativePath))
+					if (handler.CanDiffFile(fileInRevision.FullPath))
 					{
 						if (parentRev != null)
 						{
-							var parentFileInRevision = new FileInRevision(parentRev, fileInRevision.RelativePath,
+							var parentFileInRevision = new FileInRevision(parentRev, Path.Combine(_repository.PathToRepo, fileInRevision.FullPath),
 																		  fileInRevision.ActionThatHappened);
 
 							//pull the files out of the repository so we can read them
@@ -73,13 +74,13 @@ namespace Chorus.retrieval
 						switch (fileInRevision.ActionThatHappened)
 						{
 							case FileInRevision.Action.Added:
-								changes.Add(new DefaultChangeReport(fileInRevision.RelativePath, "Added"));
+								changes.Add(new DefaultChangeReport(fileInRevision.FullPath, "Added"));
 								break;
 							case FileInRevision.Action.Modified:
-								changes.Add(new DefaultChangeReport(fileInRevision.RelativePath, "Changed"));
+								changes.Add(new DefaultChangeReport(fileInRevision.FullPath, "Changed"));
 								break;
 							case FileInRevision.Action.Deleted:
-								changes.Add(new DefaultChangeReport(fileInRevision.RelativePath, "Deleted"));
+								changes.Add(new DefaultChangeReport(fileInRevision.FullPath, "Deleted"));
 								break;
 							default:
 								Debug.Fail("Found unexpected FileInRevision Action.");
