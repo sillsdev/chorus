@@ -14,13 +14,14 @@ namespace Chorus.sync
 		private string _localRepositoryPath;
 		private ProjectFolderConfiguration _project;
 
-		private List<RepositorySource> _knownRepositorySources=new List<RepositorySource>();
+		private List<RepositorySource> _extraRepositorySources=new List<RepositorySource>();
 
-		public List<RepositorySource> KnownRepositorySources
+		public List<RepositorySource> ExtraRepositorySources
 		{
-			get { return _knownRepositorySources; }
-			set { _knownRepositorySources = value; }
+			get { return _extraRepositorySources; }
+			set { _extraRepositorySources = value; }
 		}
+
 
 		public string RepoProjectName
 		{
@@ -30,7 +31,7 @@ namespace Chorus.sync
 
 		public RepositorySource UsbSource
 		{
-			get { return KnownRepositorySources[0] as UsbKeyRepositorySource; }
+			get { return ExtraRepositorySources[0] as UsbKeyRepositorySource; }
 		}
 
 
@@ -112,7 +113,7 @@ namespace Chorus.sync
 			//if the client didn't specify any, try them all
 //            no, don't do that.  It's reasonable to just be doing a local checkin
 //            if(repositoriesToTry==null || repositoriesToTry.Count == 0)
-//                repositoriesToTry = KnownRepositorySources;
+//                repositoriesToTry = ExtraRepositorySources;
 
 			if (options.DoPullFromOthers)
 			{
@@ -234,7 +235,7 @@ namespace Chorus.sync
 			_project = project;
 			_localRepositoryPath = localRepositoryPath;
 
-			KnownRepositorySources.Add(RepositorySource.Create(RepositorySource.HardWiredSources.UsbKey, "UsbKey", false));
+			ExtraRepositorySources.Add(RepositorySource.Create(RepositorySource.HardWiredSources.UsbKey, "UsbKey", false));
 		}
 
 

@@ -20,7 +20,7 @@ namespace Chorus.UI
 		{
 			_repositoryManager = repositoryManager;
 
-			RepositoriesToList= _repositoryManager.KnownRepositorySources;
+			RepositoriesToList= _repositoryManager.ExtraRepositorySources;
 			RepositoriesToTry.AddRange(RepositoriesToList);
 		}
 

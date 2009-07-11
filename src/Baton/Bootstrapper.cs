@@ -43,6 +43,9 @@ namespace Baton
 
 			builder.Register(ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers());
 
+			builder.Register<SyncPanel>();
+			builder.Register<SyncPanelModel>();
+
 			RegisterSyncStuff(builder);
 			RegisterReviewStuff(builder);
 			RegisterSettingsStuff(builder);
@@ -53,6 +56,7 @@ namespace Baton
 			var shell= _container.Resolve<Shell>();
 
 			shell.AddPage("Review", _container.Resolve<ReviewPage>());
+			shell.AddPage("Sync", _container.Resolve<SyncPanel>());
 			shell.AddPage("Settings", _container.Resolve<SettingsPanel>());
 
 			return shell;

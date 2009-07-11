@@ -27,14 +27,16 @@ namespace Chorus.sync
 		/// <returns></returns>
 		public static RepositorySource Create(string uri, string sourceName, bool readOnly)
 		{
-			//TODO: network protocols
 
-			if (Directory.Exists(uri))
+			if (uri.Trim().StartsWith("http"))
+			{
+				return new HttpRepositorySource(uri, sourceName, readOnly);
+			}
+			else
 			{
 				return new FilePathRepositorySource(uri, sourceName, readOnly);
 			}
-			else
-				throw new ArgumentException("RepositorySource does not recognize this kind of uri (" + uri + ")");
+
 		}
 
 		public static RepositorySource Create(HardWiredSources hardWiredSource, string sourceName, bool readOnly)
@@ -93,6 +95,31 @@ namespace Chorus.sync
 		public override string ToString()
 		{
 			return SourceLabel;
+		}
+	}
+
+	public class HttpRepositorySource : RepositorySource
+	{
+
+		public HttpRepositorySource(string uri, string sourceLabel, bool readOnly)
+			: base(uri, sourceLabel, readOnly)
+		{
+
+		}
+
+		public override string PotentialRepoUri(string repoName, IProgress progress)
+		{
+			return Path.Combine(_uri, repoName);
+		}
+
+		public override bool CanConnect(string repoName, IProgress progress)
+		{
+			return false;//todo
+		}
+
+		public override List<string> GetPossibleCloneUris(string repoName, IProgress progress)
+		{
+			return new List<string>(new string[] { PotentialRepoUri(repoName, progress) });
 		}
 	}
 

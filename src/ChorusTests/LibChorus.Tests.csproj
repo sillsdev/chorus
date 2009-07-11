@@ -70,6 +70,7 @@
 	<Compile Include="sync\ConflictFileSyncTests.cs" />
 	<Compile Include="sync\SyncScenarioTests.cs" />
 	<Compile Include="sync\UsbRepositorySourceTests.cs" />
+	<Compile Include="VcsDrivers\Mercurial\HgSettingsTests.cs" />
 	<Compile Include="VcsDrivers\Mercurial\FileInRevisionTests.cs" />
 	<Compile Include="VcsDrivers\Mercurial\HistoryTests.cs" />
 	<Compile Include="sync\UserWithFiles.cs" />

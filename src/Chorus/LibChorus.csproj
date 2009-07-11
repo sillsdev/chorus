@@ -103,6 +103,7 @@
 	<Compile Include="Utilities\TempFile.cs" />
 	<Compile Include="Utilities\UsbUtilities.cs" />
 	<Compile Include="VcsDrivers\Git\GitRepository.cs" />
+	<Compile Include="VcsDrivers\Mercurial\FileInRevision.cs" />
 	<Compile Include="VcsDrivers\Mercurial\HgMissingSimulation .cs" />
 	<Compile Include="VcsDrivers\Mercurial\HgPartialMergeRepository.cs" />
 	<Compile Include="VcsDrivers\Mercurial\HgRepository.cs" />

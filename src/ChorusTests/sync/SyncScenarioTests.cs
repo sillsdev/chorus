@@ -127,7 +127,7 @@ namespace Chorus.Tests.sync
 
 			RepositorySource otherDirSource = RepositorySource.Create(usbPath, "USBA", false);
 			RepositoryManager bob = bobSetup.GetManager();
-			bob.KnownRepositorySources.Add(otherDirSource);
+			bob.ExtraRepositorySources.Add(otherDirSource);
 
 			//now stick a new file over in the "usb", so we can see if it comes back to us
 			File.WriteAllText(Path.Combine(otherDirSource.PotentialRepoUri(BobSetup.ProjectFolderName, progress), "incoming.txt"), "this would be a file coming in");

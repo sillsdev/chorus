@@ -696,35 +696,20 @@ namespace Chorus.VcsDrivers.Mercurial
 						return FileInRevision.Action.Unknown;
 				}
 		}
-	}
 
-	public class FileInRevision
-	{
-		private readonly string _revisionNumber;
-		public Action ActionThatHappened { get; private set; }
-
-		public enum Action
+		public IEnumerable<RepositorySource> GetKnownRepositorySources()
 		{
-			Added, Deleted, Modified,
-			Unknown,
-			NoChanges
-		}
-		public string FullPath { get; private set; }
-		public FileInRevision(string revisionNumber, string fullPath, Action action)
-		{
-			_revisionNumber = revisionNumber;
-			ActionThatHappened = action;
-			FullPath = fullPath;
-		}
-
-		/// <summary>
-		/// Make sure to dispose of this
-		/// </summary>
-		/// <returns>An IDisposable TempFile</returns>
-		public TempFile CreateTempFile(HgRepository repository)
-		{
-			var path = repository.RetrieveHistoricalVersionOfFile(FullPath, _revisionNumber);
-			return TempFile.TrackExisting(path);
+			//TODO: we actually only one the ones in the repo, but this
+			//will give us global ones as well
+			var r =GetTextFromQuery(_pathToRepository, "paths");
+			var lines = r.Split('\n');
+			foreach (var line in lines)
+			{
+				var parts = line.Split('=');
+				if(parts.Length != 2)
+					continue;
+				yield return RepositorySource.Create(parts[1].Trim(), parts[0].Trim(), false/* we don't really know */);
+			}
 		}
 	}
 }
