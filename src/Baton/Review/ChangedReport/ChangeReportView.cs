@@ -20,7 +20,7 @@ namespace Baton.Review.ChangedReport
 		private void webBrowser1_Navigated(object sender, WebBrowserNavigatedEventArgs e)
 		{
 			//didn't work, 'cuase is't actually still being held by the browser
-			//  File.Delete(e.Url.AbsoluteUri.Replace(@"file:///", string.Empty));
+			//  File.Delete(e.URI.AbsoluteUri.Replace(@"file:///", string.Empty));
 		}
 
 		public void Load(IChangeReport report)

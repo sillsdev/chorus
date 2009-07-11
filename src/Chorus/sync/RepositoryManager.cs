@@ -14,13 +14,23 @@ namespace Chorus.sync
 		private string _localRepositoryPath;
 		private ProjectFolderConfiguration _project;
 
-		private List<RepositorySource> _extraRepositorySources=new List<RepositorySource>();
+		public List<RepositorySource> ExtraRepositorySources { get; private set; }
 
-		public List<RepositorySource> ExtraRepositorySources
+
+		//--- nb: THIS SECTION IS UP IN THE AIR... I had started out one way a year ago
+		// with these "repo sources", which didn't include that full path. Nice for things
+		// like usb.  But now I'm  moving towards something simpler... with alias from the
+		//hg contorl file, perhaps with wildcards we might introduce, if needed?  Or just
+		// that set plus some special ones, like usb and language forge.
+		public List<RepositorySource> GetPotentialSources(IProgress progress)
 		{
-			get { return _extraRepositorySources; }
-			set { _extraRepositorySources = value; }
+			var list = new List<RepositorySource>();
+			list.AddRange(ExtraRepositorySources);
+			var repo = GetRepository(progress);
+			list.AddRange(repo.GetKnownPeerRepositories());
+			return list;
 		}
+
 
 
 		public string RepoProjectName
@@ -31,7 +41,15 @@ namespace Chorus.sync
 
 		public RepositorySource UsbSource
 		{
-			get { return ExtraRepositorySources[0] as UsbKeyRepositorySource; }
+			get
+			{
+				foreach (var source in ExtraRepositorySources)
+				{
+					if(source as UsbKeyRepositorySource !=null)
+						return source;
+				}
+				return null;
+			}
 		}
 
 
@@ -117,17 +135,17 @@ namespace Chorus.sync
 
 			if (options.DoPullFromOthers)
 			{
-				progress.WriteStatus("Pulling...");
 				foreach (RepositorySource source in sourcesToTry)
 				{
 					string resolvedUri = source.PotentialRepoUri(RepoProjectName, progress);
 					if (source.CanConnect(RepoProjectName, progress))
 					{
+						progress.WriteStatus("Trying to Pull from {0}({1})...", source.Name, source.URI);
 						repo.TryToPull(resolvedUri);
 					}
 					else
 					{
-						progress.WriteMessage("Could not connect to {0} at {1} for pulling", source.SourceLabel, resolvedUri);
+						progress.WriteMessage("Could not connect to {0} at {1} for pulling", source.Name, resolvedUri);
 					}
 				}
 			}
@@ -187,7 +205,7 @@ namespace Chorus.sync
 			if (possibleRepoCloneUris == null)
 			{
 				progress.WriteMessage("No Uris available for cloning to {0}",
-									  repoDescriptor.SourceLabel);
+									  repoDescriptor.Name);
 				return null;
 			}
 			else
@@ -196,7 +214,7 @@ namespace Chorus.sync
 				{
 					try
 					{
-						progress.WriteStatus("Making repository on {0} at {1}...", repoDescriptor.SourceLabel, uri);
+						progress.WriteStatus("Making repository on {0} at {1}...", repoDescriptor.Name, uri);
 						MakeClone(uri, true, progress);
 						progress.WriteStatus("Done.");
 						return uri;
@@ -234,7 +252,7 @@ namespace Chorus.sync
 		{
 			_project = project;
 			_localRepositoryPath = localRepositoryPath;
-
+			ExtraRepositorySources = new List<RepositorySource>();
 			ExtraRepositorySources.Add(RepositorySource.Create(RepositorySource.HardWiredSources.UsbKey, "UsbKey", false));
 		}
 
@@ -319,6 +337,8 @@ namespace Chorus.sync
 		{
 			return new HgRepository(_localRepositoryPath, progress);
 		}
+
+
 	}
 
 

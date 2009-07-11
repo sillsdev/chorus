@@ -1,8 +1,10 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using Chorus.sync;
 using Chorus.UI;
 using Chorus.Utilities;
 using NUnit.Framework;
+using System.Linq;
 
 namespace Baton.Tests
 {
@@ -14,6 +16,7 @@ namespace Baton.Tests
 		private StringBuilderProgress _progress;
 		private ProjectFolderConfiguration _project;
 		private string _userId="";
+		private RepositoryManager _repositoryManager;
 
 		[SetUp]
 		public void Setup()
@@ -35,7 +38,8 @@ namespace Baton.Tests
 			_project.FolderPath = _pathToTestRoot;
 
 			_progress = new StringBuilderProgress();
-			_model = new SyncPanelModel(RepositoryManager.FromRootOrChildFolder(_project));
+			_repositoryManager = RepositoryManager.FromRootOrChildFolder(_project);
+			_model = new SyncPanelModel(_repositoryManager);
 			_model.ProgressDisplay = _progress;
 		}
 
@@ -49,18 +53,16 @@ namespace Baton.Tests
 		[Test]
 		public void InitiallyHasUsbTarget()
 		{
-			Assert.AreEqual("UsbKey",_model.RepositoriesToTry[0].URI);
+			Assert.IsNotNull(_model.GetRepositoriesToList().First(r => r.URI == "UsbKey"));
 		}
 
 
 
 		[Test]
-		public void TargetsChosen_SyncEnabled()
+		public void GetRepositoriesToList_NoRepositoriesKnown_GivesEmptyList()
 		{
-			_model.RepositoriesToTry.Add(_model.RepositoriesToList[0]);
-			Assert.IsTrue(_model.EnableSync);
+			_repositoryManager.ExtraRepositorySources.Clear();
+			Assert.AreEqual(0, _model.GetRepositoriesToList().Count);
 		}
-
-
 	}
 }

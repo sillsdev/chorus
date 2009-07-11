@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 
 namespace Chorus.VcsDrivers.Mercurial
 {
@@ -13,11 +15,11 @@ namespace Chorus.VcsDrivers.Mercurial
 		public string DateString { get; set; }
 
 		/// <summary>
-		/// The very first revision has no parent
+		/// The very first revision has no parent, most have 1, merges have 2
 		/// </summary>
-		public bool HasParentRevision
+		public bool HasAtLeastOneParent
 		{
-			get { return !string.IsNullOrEmpty(GetParentLocalNumber()); }
+			get { return GetLocalNumbersOfParents().Count() > 0; }
 		}
 
 		public Revision(HgRepository repository)
@@ -47,9 +49,9 @@ namespace Chorus.VcsDrivers.Mercurial
 			return stub.Summary.Contains(string.Format("({0} partial from", UserId));
 		}
 
-		public string GetParentLocalNumber()
+		public IEnumerable<string> GetLocalNumbersOfParents()
 		{
-			return _repository.GetLocalNumberForParentOfRevision(this.LocalRevisionNumber);
+			return _repository.GetParentsOfRevision(this.LocalRevisionNumber);
 		}
 	}
 }

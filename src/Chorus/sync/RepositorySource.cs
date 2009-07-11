@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Windows.Forms;
 using Chorus.Utilities;
 
 namespace Chorus.sync
@@ -67,7 +68,7 @@ namespace Chorus.sync
 		/// In the case of a repo sitting on the user's machine, this will be a person's name.
 		/// It might also be the name of the web-based repo
 		/// </summary>
-		public string SourceLabel
+		public string Name
 		{
 			get { return _sourceLabel; }
 		}
@@ -82,6 +83,11 @@ namespace Chorus.sync
 			set { _readOnly = value; }
 		}
 
+		/// <summary>
+		/// Does the user want us to try to sync with this one?
+		/// </summary>
+		public bool Enabled { get; set; }
+
 		public abstract bool CanConnect(string repoName, IProgress progress);
 
 		public abstract string PotentialRepoUri(string repoName, IProgress progress);
@@ -94,7 +100,7 @@ namespace Chorus.sync
 
 		public override string ToString()
 		{
-			return SourceLabel;
+			return Name;
 		}
 	}
 
@@ -109,7 +115,7 @@ namespace Chorus.sync
 
 		public override string PotentialRepoUri(string repoName, IProgress progress)
 		{
-			return Path.Combine(_uri, repoName);
+			return _uri.Replace("%repoName%", repoName);
 		}
 
 		public override bool CanConnect(string repoName, IProgress progress)
@@ -134,7 +140,8 @@ namespace Chorus.sync
 
 		public override string PotentialRepoUri(string repoName, IProgress progress)
 		{
-			return Path.Combine(_uri, repoName);
+			return _uri.Replace("%repoName%", repoName);
+//            return Path.Combine(_uri, repoName);
 		}
 
 		public override bool CanConnect(string repoName, IProgress progress)

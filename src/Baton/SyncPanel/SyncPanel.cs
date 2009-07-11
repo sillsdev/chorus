@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Windows.Forms;
 using Chorus.sync;
 using Chorus.Utilities;
@@ -53,17 +54,7 @@ namespace Chorus.UI
 //            }
 
 			RepositorySource repositorySource = (RepositorySource) _syncTargets.Items[e.Index];
-			if(e.NewValue == CheckState.Unchecked)
-			{
-				_model.RepositoriesToTry.Remove(repositorySource);
-			}
-			else
-			{
-				if (!_model.RepositoriesToTry.Contains(repositorySource))
-				{
-					_model.RepositoriesToTry.Add(repositorySource);
-				}
-			}
+			repositorySource.Enabled = (e.NewValue == CheckState.Checked);
 			UpdateDisplay();
 		}
 
@@ -84,9 +75,9 @@ namespace Chorus.UI
 
 
 			_syncTargets.Items.Clear();
-			foreach (RepositorySource descriptor in _model.RepositoriesToList)
+			foreach (var descriptor in _model.GetRepositoriesToList())
 			{
-				_syncTargets.Items.Add(descriptor, _model.RepositoriesToTry.Contains(descriptor));
+				_syncTargets.Items.Add(descriptor, descriptor.Enabled);
 			}
 			UpdateDisplay();
 		}

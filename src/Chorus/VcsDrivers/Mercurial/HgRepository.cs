@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -98,7 +99,8 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		protected void PullFromRepository(HgRepository otherRepo,bool throwIfCannot)
 		{
-			using (new ConsoleProgress("{0} pulling from {1}", _userName,otherRepo.Name))
+			_progress.WriteStatus("{0} pulling from {1}", _userName,otherRepo.Name);
+			//using (new ConsoleProgress("{0} pulling from {1}", _userName,otherRepo.Name))
 			{
 				try
 				{
@@ -636,7 +638,19 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		public IEnumerable<FileInRevision> GetFilesInRevision(Revision revision)
 		{
-			var query =  "status --rev "+GetRevisionRangeForSingleRevisionDiff(revision);
+			 List<FileInRevision> files = new List<FileInRevision>();
+			//nb: there can be 2 parents, and at the moment, I don't know how to figure
+			//out what changed except by comparing this to each revision (seems dumb)
+			foreach (var r in GetRevisionRangeForSingleRevisionDiff(revision))
+			{
+				var query = "status --rev " + r;
+				files.AddRange(GetFilesChangedBetweenTwoRevisions(revision, query));
+			}
+			return files;
+		}
+
+		private List<FileInRevision> GetFilesChangedBetweenTwoRevisions(Revision revision, string query)
+		{
 			var result = GetTextFromQuery(_pathToRepository,query);
 			string[] lines = result.Split('\n');
 			var revisions = new List<FileInRevision>();
@@ -656,24 +670,31 @@ namespace Chorus.VcsDrivers.Mercurial
 
 				revisions.Add(new FileInRevision(revision.LocalRevisionNumber, Path.Combine(PathToRepo, line.Substring(2)), action));
 			}
-
 			return revisions;
 		}
 
-		private string GetRevisionRangeForSingleRevisionDiff(Revision revision)
+		private IEnumerable<string> GetRevisionRangeForSingleRevisionDiff(Revision revision)
 		{
-			var parent = GetLocalNumberForParentOfRevision(revision.LocalRevisionNumber);
-			if (parent == string.Empty)
-				return string.Format("{0} -A", revision.LocalRevisionNumber);
-			else
-				return string.Format("{0}:{1}", parent, revision.LocalRevisionNumber);
+			var parents = GetParentsOfRevision(revision.LocalRevisionNumber);
+			if (parents.Count() == 0)
+				yield return string.Format("{0} -A", revision.LocalRevisionNumber);
+
+			foreach (var parent in parents)
+			{
+			   yield return string.Format("{0}:{1}", parent, revision.LocalRevisionNumber);
+			}
 		}
 
-		public string GetLocalNumberForParentOfRevision(string localRevisionNumber)
+		public IEnumerable<string> GetParentsOfRevision(string localRevisionNumber)
 		{
 
-			var result = GetTextFromQuery(_pathToRepository,"hg parent -y -r " + localRevisionNumber + " --template {rev}");
-			return result.Trim();
+			var result = GetTextFromQuery(_pathToRepository,"hg log -r " + localRevisionNumber + " --template {parents}");
+			var tuples = result.Split(' ');
+			foreach (var tuple in tuples)
+			{
+				if(tuple.Contains(':'))
+					yield return tuple.Split(':')[1];
+			}
 		}
 
 		private static FileInRevision.Action ParseActionLetter(char actionLetter)
@@ -697,7 +718,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				}
 		}
 
-		public IEnumerable<RepositorySource> GetKnownRepositorySources()
+		public IEnumerable<RepositorySource> GetKnownPeerRepositories()
 		{
 			//TODO: we actually only one the ones in the repo, but this
 			//will give us global ones as well
@@ -708,8 +729,20 @@ namespace Chorus.VcsDrivers.Mercurial
 				var parts = line.Split('=');
 				if(parts.Length != 2)
 					continue;
-				yield return RepositorySource.Create(parts[1].Trim(), parts[0].Trim(), false/* we don't really know */);
+				yield return RepositorySource.Create(parts[1].Trim(), parts[0].Trim(), false);
 			}
+		}
+	}
+
+	public class RepositoryAddress
+	{
+		public string Name { get; set; }
+		public string URI { get; set; }
+
+		public RepositoryAddress(string name, string uri)
+		{
+			Name = name;
+			URI = uri;
 		}
 	}
 }

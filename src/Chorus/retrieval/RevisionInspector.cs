@@ -29,15 +29,20 @@ namespace Chorus.retrieval
 		{
 			var changes = new List<IChangeReport>();
 
-			string parentRev = null;
-			if (revision.HasParentRevision)
+			if (!revision.HasAtLeastOneParent)
 			{
-				parentRev = revision.GetParentLocalNumber();
+				foreach (var fileInRevision in _repository.GetFilesInRevision(revision))
+				{
+					CollectChangesInFile(fileInRevision, null, changes);
+				}
 			}
 
-			foreach (var fileInRevision in _repository.GetFilesInRevision(revision))
+			else foreach (var parentRev in revision.GetLocalNumbersOfParents())
 			{
-				CollectChangesInFile(fileInRevision, parentRev, changes);
+				foreach (var fileInRevision in _repository.GetFilesInRevision(revision))
+				{
+					CollectChangesInFile(fileInRevision, parentRev, changes);
+				}
 			}
 
 			return changes;

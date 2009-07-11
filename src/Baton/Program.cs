@@ -47,6 +47,9 @@ namespace Baton
 			   return; //give up
 		   }
 
+
+			Baton.Properties.Settings.Default.PathToRepository = pathToRepository;
+			Baton.Properties.Settings.Default.Save();
 			new Runner().Run(pathToRepository);
 
 			Baton.Properties.Settings.Default.Save();
