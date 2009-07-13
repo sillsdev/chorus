@@ -66,8 +66,9 @@
 	<Compile Include="merge\xml\lift\MultiTextMergingTests.cs" />
 	<Compile Include="merge\xml\lift\PoorMansMergingStrategyTests.cs" />
 	<Compile Include="merge\xml\lift\SenseMergingTests.cs" />
-	<Compile Include="sync\FilePathRepositorySourceTests.cs" />
+	<Compile Include="sync\RepositoryManager.FileBasedTests.cs" />
 	<Compile Include="sync\ConflictFileSyncTests.cs" />
+	<Compile Include="sync\RepositoryManager.BadSituationTests.cs" />
 	<Compile Include="sync\SyncScenarioTests.cs" />
 	<Compile Include="sync\UsbRepositorySourceTests.cs" />
 	<Compile Include="VcsDrivers\Mercurial\HgSettingsTests.cs" />

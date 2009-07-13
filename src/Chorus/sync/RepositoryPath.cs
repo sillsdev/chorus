@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
-using System.Windows.Forms;
 using Chorus.Utilities;
 
 namespace Chorus.sync
@@ -17,8 +15,13 @@ namespace Chorus.sync
 		public const string RepositoryNameVariable = "%repoName%";
 
 		protected string _uri;
-		private string _sourceLabel;
-		public enum HardWiredSources{UsbKey};
+		/// <summary>
+		/// In the case of a repo sitting on the user's machine, this will be a person's name.
+		/// It might also be the name of the web-based repo. It also gets the "alias" name, in the case of hg.
+		/// </summary>
+		public string Name{get;set;}
+
+		public enum HardWiredSources { UsbKey };
 
 		/// <summary>
 		/// THis will be false for, say, usb-keys or shared internet repos
@@ -30,38 +33,38 @@ namespace Chorus.sync
 		///
 		/// </summary>
 		/// <param name="uri">examples: http://sil.org/chorus, c:\work, UsbKey, //GregSmith/public/language projects</param>
-		/// <param name="sourceName">examples: SIL Language Depot, My Machine, USB Key, Greg</param>
+		/// <param name="name">examples: SIL Language Depot, My Machine, USB Key, Greg</param>
 		/// <param name="readOnly">normally false for local repositories (usb, hard drive) and true for other people's repositories</param>
 		/// <returns></returns>
-		public static RepositoryPath Create(string uri, string sourceName, bool readOnly)
+		public static RepositoryPath Create(string uri, string name, bool readOnly)
 		{
 
 			if (uri.Trim().StartsWith("http"))
 			{
-				return new HttpRepositorySource(uri, sourceName, readOnly);
+				return new HttpRepositoryPath(uri, name, readOnly);
 			}
 			else
 			{
-				return new FilePathRepositorySource(uri, sourceName, readOnly);
+				return new DirectoryRepositorySource(uri, name, readOnly);
 			}
 
 		}
 
-		public static RepositoryPath Create(HardWiredSources hardWiredSource, string sourceName, bool readOnly)
+		public static RepositoryPath Create(HardWiredSources hardWiredSource, string name, bool readOnly)
 		{
 			switch (hardWiredSource)
 			{
 				case HardWiredSources.UsbKey:
-					return new UsbKeyRepositorySource(HardWiredSources.UsbKey.ToString(), sourceName, readOnly);
+					return new UsbKeyRepositorySource(HardWiredSources.UsbKey.ToString(), name, readOnly);
 				default:
 					throw new ArgumentException("RepositoryPath does not recognize this kind of source (" + HardWiredSources.UsbKey.ToString() + ")");
 			}
 		}
 
-		protected RepositoryPath(string uri, string sourceLabel, bool readOnly)
+		protected RepositoryPath(string uri, string name, bool readOnly)
 		{
 			URI = uri;
-			_sourceLabel = sourceLabel;
+			Name = name;
 			ReadOnly = readOnly;
 		}
 
@@ -71,14 +74,7 @@ namespace Chorus.sync
 			set { _uri = value; }
 		}
 
-		/// <summary>
-		/// In the case of a repo sitting on the user's machine, this will be a person's name.
-		/// It might also be the name of the web-based repo
-		/// </summary>
-		public string Name
-		{
-			get { return _sourceLabel; }
-		}
+
 
 		/// <summary>
 		/// THis will be false for, say, usb-keys or shared internet repos
@@ -97,6 +93,9 @@ namespace Chorus.sync
 
 		public abstract bool CanConnect(string repoName, IProgress progress);
 
+		/// <summary>
+		/// Gets what the uri of the named repository would be, on this source. I.e., gets the full path.
+		/// </summary>
 		public abstract string PotentialRepoUri(string repoName, IProgress progress);
 
 		 public virtual List<string> GetPossibleCloneUris(string name, IProgress progress)
@@ -111,14 +110,17 @@ namespace Chorus.sync
 		}
 	}
 
-	public class HttpRepositorySource : RepositoryPath
+	public class HttpRepositoryPath : RepositoryPath
 	{
-		public HttpRepositorySource(string uri, string sourceLabel, bool readOnly)
-			: base(uri, sourceLabel, readOnly)
+		public HttpRepositoryPath(string uri, string name, bool readOnly)
+			: base(uri, name, readOnly)
 		{
 
 		}
 
+		/// <summary>
+		/// Gets what the uri of the named repository would be, on this source. I.e., gets the full path.
+		/// </summary>
 		public override string PotentialRepoUri(string repoName, IProgress progress)
 		{
 			return _uri.Replace(RepositoryNameVariable, repoName);
@@ -135,18 +137,21 @@ namespace Chorus.sync
 		}
 	}
 
-	public class FilePathRepositorySource : RepositoryPath
+	public class DirectoryRepositorySource : RepositoryPath
 	{
 
-		public FilePathRepositorySource(string uri, string sourceLabel, bool readOnly)
+		public DirectoryRepositorySource(string uri, string sourceLabel, bool readOnly)
 			: base(uri, sourceLabel, readOnly)
 		{
 
 		}
 
+		/// <summary>
+		/// Gets what the uri of the named repository would be, on this source. I.e., gets the full path.
+		/// </summary>
 		public override string PotentialRepoUri(string repoName, IProgress progress)
 		{
-			return _uri.Replace("%repoName%", repoName);
+			return _uri.Replace(RepositoryNameVariable, repoName);
 		}
 
 		public override bool CanConnect(string repoName, IProgress progress)

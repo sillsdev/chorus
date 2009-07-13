@@ -1,15 +1,16 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using Chorus.merge.xml.generic;
 using Chorus.sync;
-using Chorus.Tests.merge;
 using Chorus.Utilities;
 using NUnit.Framework;
 
 namespace Chorus.Tests.sync
 {
+	/// <summary>
+	/// Review: what's the unifying idea here?
+	/// </summary>
 	[TestFixture]
-	public class FilePathRepositorySourceTests
+	public class FilePathRepositoryTests
 	{
 		private ProjectFolderConfiguration _project;
 		private StringBuilderProgress _progress;
@@ -17,7 +18,7 @@ namespace Chorus.Tests.sync
 		private string _pathToProjectRoot;
 		private RepositoryManager _manager;
 		private string _pathToBackupFolder;
-		private FilePathRepositorySource _filePathSource;
+		private DirectoryRepositorySource _directorySource;
 
 		[SetUp]
 		public void Setup()
@@ -43,7 +44,7 @@ namespace Chorus.Tests.sync
 			_manager = RepositoryManager.FromRootOrChildFolder(_project);
 			_pathToBackupFolder = Path.Combine(_pathToTestRoot, "backup");
 			Directory.CreateDirectory(_pathToBackupFolder);
-			_filePathSource = new FilePathRepositorySource(Path.Combine(_pathToBackupFolder,"%repoName%"), "SD Backup Card", false);
+			_directorySource = new DirectoryRepositorySource(Path.Combine(_pathToBackupFolder,RepositoryPath.RepositoryNameVariable), "SD Backup Card", false);
 
 		}
 
@@ -52,17 +53,6 @@ namespace Chorus.Tests.sync
 			string pathToText = Path.Combine(_pathToProjectRoot, "foo.txt");
 			File.WriteAllText(pathToText, contents);
 			return pathToText;
-		}
-
-		[Test]//regression
-		public void SourceHasDotInName_IsNotLost()
-		{
-			using(TempFolder f = new TempFolder("SourceHasDotInName_IsNotLost.x.y"))
-			{
-				RepositoryManager m = new RepositoryManager(f.Path,new ProjectFolderConfiguration("blah"));
-
-				Assert.AreEqual("SourceHasDotInName_IsNotLost.x.y",m.RepoProjectName);
-			}
 		}
 
 
@@ -78,7 +68,7 @@ namespace Chorus.Tests.sync
 			Assert.AreEqual("version one", contents);
 			WriteTestFile("version two");
 
-			options.RepositorySourcesToTry.Add(_filePathSource);
+			options.RepositorySourcesToTry.Add(_directorySource);
 			_manager.SyncNow(options, _progress);
 			contents = File.ReadAllText(Path.Combine(projectDirOnBackup, "foo.txt"));
 			Assert.AreEqual("version two", contents);
@@ -106,7 +96,7 @@ namespace Chorus.Tests.sync
 		public void SyncNow_NotSetupBefore_GetsClone()
 		{
 			SyncOptions options = new SyncOptions();
-			options.RepositorySourcesToTry.Add(_filePathSource);
+			options.RepositorySourcesToTry.Add(_directorySource);
 
 		   // WriteTestFile("version two");
 
@@ -115,42 +105,5 @@ namespace Chorus.Tests.sync
 			Assert.IsTrue(Directory.Exists(dir));
 		}
 
-	}
-
-	/// <summary>
-	/// I don't know what to call this.... it's about what happens when things go bad, want to make
-	/// sure nothing is lost.  And I don't want the big Setup() above
-	/// </summary>
-	[TestFixture]
-	public class RepositoryManagerTests
-	{
-		[Test]
-		public void Sync_ExceptionInMergeCode_GetExceptionAndMergeDoesntHappen()
-		{
-			using (UserWithFiles bob = new UserWithFiles("bob"))
-			{
-				using (UserWithFiles sally = new UserWithFiles("sally", bob))
-				{
-					bob.ReplaceSomething("bobWasHere");
-					bob.Checkin();
-					sally.ReplaceSomething("sallyWasHere");
-					using (new ShortTermEnvironmentalVariable("InduceChorusFailure", "LiftMerger.FindEntry"))
-					{
-						Exception goterror=null;
-						try
-						{
-							sally.CheckinAndPullAndMerge(bob);
-						}
-						catch (Exception error)
-						{
-							goterror = error;
-						}
-						Assert.IsNotNull(goterror);
-						Assert.IsTrue(goterror.Message.Contains("InduceChorusFailure"));
-					}
-					Assert.IsTrue(File.ReadAllText(sally._liftFile.Path).Contains("sallyWasHere"));
-				}
-			}
-		}
 	}
 }
