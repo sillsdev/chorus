@@ -14,7 +14,7 @@ namespace Chorus.sync
 		private string _localRepositoryPath;
 		private ProjectFolderConfiguration _project;
 
-		public List<RepositorySource> ExtraRepositorySources { get; private set; }
+		public List<RepositoryPath> ExtraRepositorySources { get; private set; }
 
 
 		//--- nb: THIS SECTION IS UP IN THE AIR... I had started out one way a year ago
@@ -22,9 +22,9 @@ namespace Chorus.sync
 		// like usb.  But now I'm  moving towards something simpler... with alias from the
 		//hg contorl file, perhaps with wildcards we might introduce, if needed?  Or just
 		// that set plus some special ones, like usb and language forge.
-		public List<RepositorySource> GetPotentialSources(IProgress progress)
+		public List<RepositoryPath> GetPotentialSources(IProgress progress)
 		{
-			var list = new List<RepositorySource>();
+			var list = new List<RepositoryPath>();
 			list.AddRange(ExtraRepositorySources);
 			var repo = GetRepository(progress);
 			list.AddRange(repo.GetKnownPeerRepositories());
@@ -39,7 +39,7 @@ namespace Chorus.sync
 			get { return Path.GetFileNameWithoutExtension(_localRepositoryPath)+Path.GetExtension(_localRepositoryPath); }
 		}
 
-		public RepositorySource UsbSource
+		public RepositoryPath UsbPath
 		{
 			get
 			{
@@ -126,7 +126,7 @@ namespace Chorus.sync
 			progress.WriteStatus("Checking In...");
 			repo.AddAndCheckinFiles(_project.IncludePatterns, _project.ExcludePatterns, options.CheckinDescription);
 
-			List<RepositorySource> sourcesToTry = options.RepositorySourcesToTry;
+			List<RepositoryPath> sourcesToTry = options.RepositorySourcesToTry;
 
 			//if the client didn't specify any, try them all
 //            no, don't do that.  It's reasonable to just be doing a local checkin
@@ -135,7 +135,7 @@ namespace Chorus.sync
 
 			if (options.DoPullFromOthers)
 			{
-				foreach (RepositorySource source in sourcesToTry)
+				foreach (RepositoryPath source in sourcesToTry)
 				{
 					string resolvedUri = source.PotentialRepoUri(RepoProjectName, progress);
 					if (source.CanConnect(RepoProjectName, progress))
@@ -170,7 +170,7 @@ namespace Chorus.sync
 
 			if(options.DoPushToLocalSources)
 			{
-				foreach (RepositorySource repoDescriptor in sourcesToTry)
+				foreach (RepositoryPath repoDescriptor in sourcesToTry)
 				{
 					if (!repoDescriptor.ReadOnly)
 					{
@@ -199,7 +199,7 @@ namespace Chorus.sync
 		/// <param name="progress"></param>
 		/// <param name="repoDescriptor"></param>
 		/// <returns>the uri of a successful clone</returns>
-		private string TryToMakeCloneForSource(IProgress progress, RepositorySource repoDescriptor)
+		private string TryToMakeCloneForSource(IProgress progress, RepositoryPath repoDescriptor)
 		{
 			List<string> possibleRepoCloneUris = repoDescriptor.GetPossibleCloneUris(RepoProjectName, progress);
 			if (possibleRepoCloneUris == null)
@@ -252,8 +252,8 @@ namespace Chorus.sync
 		{
 			_project = project;
 			_localRepositoryPath = localRepositoryPath;
-			ExtraRepositorySources = new List<RepositorySource>();
-			ExtraRepositorySources.Add(RepositorySource.Create(RepositorySource.HardWiredSources.UsbKey, "UsbKey", false));
+			ExtraRepositorySources = new List<RepositoryPath>();
+			ExtraRepositorySources.Add(RepositoryPath.Create(RepositoryPath.HardWiredSources.UsbKey, "UsbKey", false));
 		}
 
 

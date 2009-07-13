@@ -723,7 +723,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				}
 		}
 
-		public IEnumerable<RepositorySource> GetKnownPeerRepositories()
+		public IEnumerable<RepositoryPath> GetKnownPeerRepositories()
 		{
 			//TODO: we actually only one the ones in the repo, but this
 			//will give us global ones as well
@@ -734,7 +734,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				var parts = line.Split('=');
 				if(parts.Length != 2)
 					continue;
-				yield return RepositorySource.Create(parts[1].Trim(), parts[0].Trim(), false);
+				yield return RepositoryPath.Create(parts[1].Trim(), parts[0].Trim(), false);
 			}
 		}
 	}

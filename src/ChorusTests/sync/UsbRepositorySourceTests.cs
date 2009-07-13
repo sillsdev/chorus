@@ -54,7 +54,7 @@ namespace Chorus.Tests.sync
 			SyncOptions options = new SyncOptions();
 			options.DoMergeWithOthers = true;
 			options.DoPushToLocalSources = true;
-			options.RepositorySourcesToTry.Add(manager.UsbSource);
+			options.RepositorySourcesToTry.Add(manager.UsbPath);
 
 			WriteTestFile("version two");
 
@@ -71,7 +71,7 @@ namespace Chorus.Tests.sync
 			RepositoryManager manager = RepositoryManager.FromRootOrChildFolder(_project);
 			manager.SyncNow(options, _progress);
 
-			options.RepositorySourcesToTry.Add(manager.UsbSource);
+			options.RepositorySourcesToTry.Add(manager.UsbPath);
 			string dir = Path.Combine(UsbKeyRepositorySource.RootDirForUsbSourceDuringUnitTest, "foo project");
 			manager.MakeClone(dir, true, _progress);
 			string contents = File.ReadAllText(Path.Combine(dir, "foo.txt"));

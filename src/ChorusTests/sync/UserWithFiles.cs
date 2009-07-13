@@ -20,7 +20,7 @@ namespace Chorus.Tests.merge
 		public TempFolder _projectFolder;
 		public TempLiftFile _liftFile;
 		public RepositoryManager Repo;
-		public RepositorySource RepoSource;
+		public RepositoryPath RepoPath;
 
 
 		public UserWithFiles(string userName)
@@ -52,7 +52,7 @@ namespace Chorus.Tests.merge
 			_project.IncludePatterns.Add(_liftFile.Path);
 			_project.FolderPath = _projectFolder.Path;
 
-			RepoSource = RepositorySource.Create(_projectFolder.Path, userName, false);
+			RepoPath = RepositoryPath.Create(_projectFolder.Path, userName, false);
 			Repo = RepositoryManager.FromRootOrChildFolder(_project);
 		}
 
@@ -87,7 +87,7 @@ namespace Chorus.Tests.merge
 			options.DoPullFromOthers = true;
 			options.DoPushToLocalSources = false;
 
-			options.RepositorySourcesToTry.Add(syncWithUser.RepoSource);
+			options.RepositorySourcesToTry.Add(syncWithUser.RepoPath);
 			Repo.SyncNow(options, _progress);
 		}
 

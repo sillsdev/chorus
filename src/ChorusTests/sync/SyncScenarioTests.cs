@@ -130,12 +130,12 @@ namespace Chorus.Tests.sync
 			Directory.CreateDirectory(usbPath);
 			bobSetup.SetupClone(usbPath);
 
-			RepositorySource otherDirSource = RepositorySource.Create(Path.Combine(usbPath,"%repoName%"), "USBA", false);
+			RepositoryPath otherDirPath = RepositoryPath.Create(Path.Combine(usbPath,"%repoName%"), "USBA", false);
 			RepositoryManager bob = bobSetup.GetManager();
-			bob.ExtraRepositorySources.Add(otherDirSource);
+			bob.ExtraRepositorySources.Add(otherDirPath);
 
 			//now stick a new file over in the "usb", so we can see if it comes back to us
-			File.WriteAllText(Path.Combine(otherDirSource.PotentialRepoUri(BobSetup.ProjectFolderName, progress), "incoming.txt"), "this would be a file coming in");
+			File.WriteAllText(Path.Combine(otherDirPath.PotentialRepoUri(BobSetup.ProjectFolderName, progress), "incoming.txt"), "this would be a file coming in");
 			SyncOptions options = new SyncOptions();
 			ProjectFolderConfiguration usbProject = new ProjectFolderConfiguration(Path.Combine(usbPath, BobSetup.ProjectFolderName));
 			usbProject.IncludePatterns.Add("**.txt");
@@ -151,7 +151,7 @@ namespace Chorus.Tests.sync
 			options.DoMergeWithOthers = false;
 			options.DoPushToLocalSources = false;
 			options.CheckinDescription = "test getting new file from usb";
-			options.RepositorySourcesToTry.Add(otherDirSource);
+			options.RepositorySourcesToTry.Add(otherDirPath);
 			bob.SyncNow(options, progress);
 			Assert.IsTrue(File.Exists(Path.Combine(bobSetup._languageProjectPath, "incoming.txt")));
 		}
@@ -218,8 +218,8 @@ namespace Chorus.Tests.sync
 			bobOptions.DoMergeWithOthers = false; // pretend the usb key isn't there
 			bobOptions.DoPullFromOthers = false; // pretend the usb key isn't there
 			bobOptions.DoPushToLocalSources = false;
-			RepositorySource usbSource = RepositorySource.Create(Path.Combine(usbSourcePath, "%repoName%"), "usba source", false);
-			bobOptions.RepositorySourcesToTry.Add(usbSource);
+			RepositoryPath usbPath = RepositoryPath.Create(Path.Combine(usbSourcePath, "%repoName%"), "usba source", false);
+			bobOptions.RepositorySourcesToTry.Add(usbPath);
 			bobRepo.SyncNow(bobOptions, progress);
 
 			ProjectFolderConfiguration sallyProject = new ProjectFolderConfiguration(sallyRepoPath);
@@ -234,7 +234,7 @@ namespace Chorus.Tests.sync
 			//and syncs, which pushes back to the usb key
 			SyncOptions sallyOptions = new SyncOptions();
 			sallyOptions.CheckinDescription = "making sally's mark on foo.txt";
-			 sallyOptions.RepositorySourcesToTry.Add(usbSource);
+			 sallyOptions.RepositorySourcesToTry.Add(usbPath);
 			sallyOptions.DoPullFromOthers = true;
 			sallyOptions.DoMergeWithOthers = true;
 			sallyOptions.DoPushToLocalSources = true;
@@ -295,7 +295,7 @@ namespace Chorus.Tests.sync
 			sallyOptions.DoPullFromOthers = true;
 			sallyOptions.DoPushToLocalSources = true;
 			sallyOptions.DoMergeWithOthers = true;
-			sallyOptions.RepositorySourcesToTry.Add(RepositorySource.Create(bobSetup.BobProjectPath, "bob's machine", false));
+			sallyOptions.RepositorySourcesToTry.Add(RepositoryPath.Create(bobSetup.BobProjectPath, "bob's machine", false));
 			sallyRepo.SyncNow(sallyOptions, progress);
 
 			Debug.WriteLine(File.ReadAllText(bobSetup._pathToLift));

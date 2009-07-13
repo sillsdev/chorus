@@ -7,8 +7,15 @@ using Chorus.Utilities;
 
 namespace Chorus.sync
 {
-	public abstract class RepositorySource
+	public abstract class RepositoryPath
 	{
+		/// <summary>
+		/// This can be used in place of the project name, so that path can be specified which will work
+		/// with multiple projects.  For example, you could specify a backup location like this:
+		/// Path.Combine("e:/chorusBackups/", RepositoryNameVariable), which would become e:/chorusBackups/%repoName%.
+		/// </summary>
+		public const string RepositoryNameVariable = "%repoName%";
+
 		protected string _uri;
 		private string _sourceLabel;
 		public enum HardWiredSources{UsbKey};
@@ -26,7 +33,7 @@ namespace Chorus.sync
 		/// <param name="sourceName">examples: SIL Language Depot, My Machine, USB Key, Greg</param>
 		/// <param name="readOnly">normally false for local repositories (usb, hard drive) and true for other people's repositories</param>
 		/// <returns></returns>
-		public static RepositorySource Create(string uri, string sourceName, bool readOnly)
+		public static RepositoryPath Create(string uri, string sourceName, bool readOnly)
 		{
 
 			if (uri.Trim().StartsWith("http"))
@@ -40,18 +47,18 @@ namespace Chorus.sync
 
 		}
 
-		public static RepositorySource Create(HardWiredSources hardWiredSource, string sourceName, bool readOnly)
+		public static RepositoryPath Create(HardWiredSources hardWiredSource, string sourceName, bool readOnly)
 		{
 			switch (hardWiredSource)
 			{
 				case HardWiredSources.UsbKey:
 					return new UsbKeyRepositorySource(HardWiredSources.UsbKey.ToString(), sourceName, readOnly);
 				default:
-					throw new ArgumentException("RepositorySource does not recognize this kind of source (" + HardWiredSources.UsbKey.ToString() + ")");
+					throw new ArgumentException("RepositoryPath does not recognize this kind of source (" + HardWiredSources.UsbKey.ToString() + ")");
 			}
 		}
 
-		protected RepositorySource(string uri, string sourceLabel, bool readOnly)
+		protected RepositoryPath(string uri, string sourceLabel, bool readOnly)
 		{
 			URI = uri;
 			_sourceLabel = sourceLabel;
@@ -104,9 +111,8 @@ namespace Chorus.sync
 		}
 	}
 
-	public class HttpRepositorySource : RepositorySource
+	public class HttpRepositorySource : RepositoryPath
 	{
-
 		public HttpRepositorySource(string uri, string sourceLabel, bool readOnly)
 			: base(uri, sourceLabel, readOnly)
 		{
@@ -115,7 +121,7 @@ namespace Chorus.sync
 
 		public override string PotentialRepoUri(string repoName, IProgress progress)
 		{
-			return _uri.Replace("%repoName%", repoName);
+			return _uri.Replace(RepositoryNameVariable, repoName);
 		}
 
 		public override bool CanConnect(string repoName, IProgress progress)
@@ -129,7 +135,7 @@ namespace Chorus.sync
 		}
 	}
 
-	public class FilePathRepositorySource : RepositorySource
+	public class FilePathRepositorySource : RepositoryPath
 	{
 
 		public FilePathRepositorySource(string uri, string sourceLabel, bool readOnly)
@@ -154,16 +160,8 @@ namespace Chorus.sync
 		}
 	}
 
-	public class FilePathToParentRepositorySource : FilePathRepositorySource
-	{
-		public FilePathToParentRepositorySource(string uri, string sourceLabel, bool readOnly)
-			: base(Path.Combine(uri,"%repoName%"), sourceLabel, readOnly)
-		{
-		}
 
-	}
-
-	public class UsbKeyRepositorySource : RepositorySource
+	public class UsbKeyRepositorySource : RepositoryPath
 	{
 		private static string _rootDirForAllSourcesDuringUnitTest;
 

@@ -93,7 +93,7 @@
 	<Compile Include="retrieval\RevisionInspector.cs" />
 	<Compile Include="sync\ProjectFolderConfiguration.cs" />
 	<Compile Include="sync\RepositoryManager.cs" />
-	<Compile Include="sync\RepositorySource.cs" />
+	<Compile Include="sync\RepositoryPath.cs" />
 	<Compile Include="sync\SyncOptions.cs" />
 	<Compile Include="Utilities\ExecutionResult.cs" />
 	<Compile Include="Utilities\HtmlDiffEngine.cs" />

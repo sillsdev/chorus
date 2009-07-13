@@ -15,7 +15,7 @@ namespace Chorus.UI
 	{
 		private readonly RepositoryManager _repositoryManager;
 		public IProgress ProgressDisplay{get; set;}
-		private List<RepositorySource> _repositorySources;
+		private List<RepositoryPath> _repositorySources;
 
 		public SyncPanelModel(RepositoryManager repositoryManager)
 		{
@@ -31,7 +31,7 @@ namespace Chorus.UI
 			}
 		}
 
-		public List<RepositorySource> GetRepositoriesToList()
+		public List<RepositoryPath> GetRepositoriesToList()
 		{
 			//nb: at the moment, we can't just get it new each time, because it stores the
 			//enabled state of the check boxes
