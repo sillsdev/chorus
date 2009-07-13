@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
+using System.Xml;
+using Chorus.FileTypeHanders.lift;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
 using Chorus.Utilities;
@@ -12,7 +15,7 @@ namespace Chorus.FileTypeHanders
 	{
 		public bool CanDiffFile(string pathToFile)
 		{
-			return false;
+			return CanMergeFile(pathToFile);
 		}
 
 		public bool CanMergeFile(string pathToFile)
@@ -22,7 +25,7 @@ namespace Chorus.FileTypeHanders
 
 		public bool CanPresentFile(string pathToFile)
 		{
-			return false;
+			return CanDiffFile(pathToFile);
 		}
 
 		public void Do3WayMerge(MergeOrder order)
@@ -33,19 +36,75 @@ namespace Chorus.FileTypeHanders
 		}
 		public IEnumerable<IChangeReport> Find2WayDifferences(FileInRevision fileInRevision, string pathToParent, string pathToChild)
 		{
-			throw new NotImplementedException(string.Format("The ConflictFileTypeHandler does not yet do diffs"));
+			var listener = new ChangeAndConflictAccumulator();
+			var differ = ConflictDiffer.CreateFromFiles(pathToParent, pathToChild, listener);
+			differ.ReportDifferencesToListener();
+			return listener.Changes;
 		}
 
 		public IChangePresenter GetChangePresenter(IChangeReport report)
 		{
-			return new DefaultChangePresenter(report);
+			if ((report as IXmlChangeReport) != null)
+			{
+				return new ConflictPresenter(report as IXmlChangeReport);
+			}
+			else
+			{
+				return new DefaultChangePresenter(report);
+			}
 		}
 
 
 
 		public IEnumerable<IChangeReport> DescribeInitialContents(FileInRevision fileInRevision, TempFile file)
 		{
-			return new IChangeReport[]{new DefaultChangeReport(fileInRevision.FullPath, "Added")};
+			var dom = new XmlDocument();
+			dom.Load(file.Path);
+
+
+			foreach (XmlNode e in dom.SafeSelectNodes("conflicts/conflict"))
+			{
+				yield return new XmlAdditionChangeReport(fileInRevision.FullPath, e);
+			}
+		}
+	}
+
+	public class ConflictPresenter : IChangePresenter
+	{
+		private readonly IXmlChangeReport _report;
+
+		public ConflictPresenter(IXmlChangeReport report)
+		{
+			_report = report;
+		}
+
+		public string GetDataLabel()
+		{
+			return "todo";
+		}
+
+		public string GetActionLabel()
+		{
+			return XmlUtilities.GetStringAttribute(_report.ChildNode, "type");
+		}
+
+		public string GetHtml()
+		{
+			var builder = new StringBuilder();
+			builder.Append("<html>");
+			if (_report is XmlAdditionChangeReport)
+			{
+				var r = _report as XmlAdditionChangeReport;
+				builder.AppendFormat("<p>{0}</p>", _report.ChildNode.InnerText);
+			}
+
+			builder.Append("</html>");
+			return builder.ToString();
+		}
+
+		public string GetTypeLabel()
+		{
+			return "conflict";
 		}
 	}
 }

@@ -52,7 +52,7 @@ namespace Chorus.Tests.merge
 			_project.IncludePatterns.Add(_liftFile.Path);
 			_project.FolderPath = _projectFolder.Path;
 
-			RepoSource = RepositorySource.Create(_rootFolder.Path, userName, false);//notice, does not include the actual project folder that is the repo itself
+			RepoSource = RepositorySource.Create(_projectFolder.Path, userName, false);
 			Repo = RepositoryManager.FromRootOrChildFolder(_project);
 		}
 

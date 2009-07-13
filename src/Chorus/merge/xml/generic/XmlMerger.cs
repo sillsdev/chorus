@@ -205,7 +205,14 @@ namespace Chorus.merge.xml.generic
 				}
 				else
 				{
-					EventListener.ConflictOccurred(new BothEdittedAttributeConflict(theirAttr.Name, ourAttr.Value, theirAttr.Value, ancestorAttr.Value, MergeSituation));
+					var strat = this.MergeStrategies.GetElementStrategy(ours);
+//                    if (strat == null || !strat.AttributesToIgnoreForMerging.Contains(ourAttr.Name))
+					{
+						EventListener.ConflictOccurred(new BothEdittedAttributeConflict(theirAttr.Name, ourAttr.Value,
+																						theirAttr.Value,
+																						ancestorAttr.Value,
+																						MergeSituation));
+					}
 				}
 			}
 

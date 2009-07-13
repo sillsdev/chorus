@@ -65,6 +65,7 @@
 	<Compile Include="FileTypeHanders\ConflictFileTypeHandler.cs" />
 	<Compile Include="FileTypeHanders\AudioFileTypeHandler.cs" />
 	<Compile Include="FileTypeHanders\ImageFileTypeHandler.cs" />
+	<Compile Include="FileTypeHanders\ConflictDiffer.cs" />
 	<Compile Include="FileTypeHanders\lift\WeSayConfigFileHandler.cs" />
 	<Compile Include="FileTypeHanders\TextFileTypeHandler.cs" />
 	<Compile Include="FileTypeHanders\DefaultFileTypeHandler.cs" />

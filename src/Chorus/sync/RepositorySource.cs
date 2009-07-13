@@ -141,7 +141,6 @@ namespace Chorus.sync
 		public override string PotentialRepoUri(string repoName, IProgress progress)
 		{
 			return _uri.Replace("%repoName%", repoName);
-//            return Path.Combine(_uri, repoName);
 		}
 
 		public override bool CanConnect(string repoName, IProgress progress)
@@ -153,6 +152,15 @@ namespace Chorus.sync
 		{
 			return new List<string>(new string[]{PotentialRepoUri(repoName, progress)});
 		}
+	}
+
+	public class FilePathToParentRepositorySource : FilePathRepositorySource
+	{
+		public FilePathToParentRepositorySource(string uri, string sourceLabel, bool readOnly)
+			: base(Path.Combine(uri,"%repoName%"), sourceLabel, readOnly)
+		{
+		}
+
 	}
 
 	public class UsbKeyRepositorySource : RepositorySource

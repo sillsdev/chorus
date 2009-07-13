@@ -16,7 +16,8 @@ namespace Chorus.Tests.VcsDrivers.Mercurial
 
 
 		/// <summary>
-		/// What's special here is that, with mercurial, we don't ask for a range
+		/// What's special here is that, with mercurial, if the revision has no
+		/// parent, we don't ask for a range
 		/// e.g. --rev 34:35, nor --rev 35:35.  We have to ask for --rev 35
 		/// </summary>
 		[Test]
@@ -36,7 +37,7 @@ namespace Chorus.Tests.VcsDrivers.Mercurial
 					Assert.AreEqual(1, revisions.Count);
 					var files = repo.GetFilesInRevision(revisions[0]);
 					Assert.AreEqual(1, files.Count());
-					Assert.AreEqual(Path.GetFileName(f.Path), files.First().FullPath);
+					Assert.AreEqual(f.Path, files.First().FullPath);
 				}
 		}
 
@@ -61,7 +62,7 @@ namespace Chorus.Tests.VcsDrivers.Mercurial
 					Assert.AreEqual(2, revisions.Count);
 					var files = repo.GetFilesInRevision(revisions[0]);
 					Assert.AreEqual(1, files.Count());
-					Assert.AreEqual(Path.GetFileName(f.Path), files.First().FullPath);
+					Assert.AreEqual(f.Path, files.First().FullPath);
 				}
 			}
 		}

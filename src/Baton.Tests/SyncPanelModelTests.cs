@@ -62,6 +62,8 @@ namespace Baton.Tests
 		public void GetRepositoriesToList_NoRepositoriesKnown_GivesEmptyList()
 		{
 			_repositoryManager.ExtraRepositorySources.Clear();
+			_model = new SyncPanelModel(_repositoryManager);
+			_model.ProgressDisplay = _progress;
 			Assert.AreEqual(0, _model.GetRepositoriesToList().Count);
 		}
 	}

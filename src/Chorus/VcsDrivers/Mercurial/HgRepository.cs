@@ -641,13 +641,24 @@ namespace Chorus.VcsDrivers.Mercurial
 			 List<FileInRevision> files = new List<FileInRevision>();
 			//nb: there can be 2 parents, and at the moment, I don't know how to figure
 			//out what changed except by comparing this to each revision (seems dumb)
-			foreach (var r in GetRevisionRangeForSingleRevisionDiff(revision))
+			var revisionRanges = GetRevisionRangesFoDiffingARevision(revision);
+			foreach (var r in revisionRanges)
 			{
 				var query = "status --rev " + r;
-				files.AddRange(GetFilesChangedBetweenTwoRevisions(revision, query));
+				foreach (var file in GetFilesChangedBetweenTwoRevisions(revision, query))
+				{
+					//only add if we don't already have it, from comparing with another parent
+					if (null == files.FirstOrDefault(f => f.FullPath == file.FullPath))
+					{
+						files.Add(file);
+					}
+				}
 			}
+
 			return files;
 		}
+
+
 
 		private List<FileInRevision> GetFilesChangedBetweenTwoRevisions(Revision revision, string query)
 		{
@@ -673,7 +684,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			return revisions;
 		}
 
-		private IEnumerable<string> GetRevisionRangeForSingleRevisionDiff(Revision revision)
+		private IEnumerable<string> GetRevisionRangesFoDiffingARevision(Revision revision)
 		{
 			var parents = GetParentsOfRevision(revision.LocalRevisionNumber);
 			if (parents.Count() == 0)
@@ -687,14 +698,8 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		public IEnumerable<string> GetParentsOfRevision(string localRevisionNumber)
 		{
-
-			var result = GetTextFromQuery(_pathToRepository,"hg log -r " + localRevisionNumber + " --template {parents}");
-			var tuples = result.Split(' ');
-			foreach (var tuple in tuples)
-			{
-				if(tuple.Contains(':'))
-					yield return tuple.Split(':')[1];
-			}
+			return from x in  GetRevisionsFromQuery("parent -r " + localRevisionNumber)
+				   select x.LocalRevisionNumber;
 		}
 
 		private static FileInRevision.Action ParseActionLetter(char actionLetter)

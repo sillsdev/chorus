@@ -31,17 +31,26 @@ namespace Chorus.retrieval
 
 			if (!revision.HasAtLeastOneParent)
 			{
+				//describe the contents of the initial checkin
 				foreach (var fileInRevision in _repository.GetFilesInRevision(revision))
 				{
 					CollectChangesInFile(fileInRevision, null, changes);
 				}
 			}
 
-			else foreach (var parentRev in revision.GetLocalNumbersOfParents())
+			else
 			{
-				foreach (var fileInRevision in _repository.GetFilesInRevision(revision))
+				var parentRevs = revision.GetLocalNumbersOfParents();
+				foreach (var parentRev in parentRevs)
 				{
-					CollectChangesInFile(fileInRevision, parentRev, changes);
+					foreach (var fileInRevision in _repository.GetFilesInRevision(revision))
+					{
+						CollectChangesInFile(fileInRevision, parentRev, changes);
+					}
+				}
+				if (parentRevs.Count() > 1)
+				{
+					changes=FilterOutChangesWeDontWantReportAgain(changes);
 				}
 			}
 
@@ -49,13 +58,33 @@ namespace Chorus.retrieval
 
 		}
 
+		/// <summary>
+		/// After a merge, the definition of a "change" gets more complicated.  In a sense, there are
+		/// no new changes. At the moment, our algorithm is just to discard any changes that are not
+		/// conflict reports.
+		/// </summary>
+		private List<IChangeReport> FilterOutChangesWeDontWantReportAgain(List<IChangeReport> reports)
+		{
+			var changes = new List<IChangeReport>();
+			foreach (var report in reports)
+			{
+				var handler = _fileHandlerCollection.GetHandlerForDiff(report.PathToFile);
+				if(handler.GetType()==typeof(ConflictFileTypeHandler))
+				{
+					changes.Add(report);
+				}
+			}
+
+			return new List<IChangeReport>(changes.Distinct());//don't let the same change (like a new conflict) be reported twice
+		}
+
 		private void CollectChangesInFile(FileInRevision fileInRevision, string parentRev, List<IChangeReport> changes)
 		{
 			var handler = _fileHandlerCollection.GetHandlerForDiff(fileInRevision.FullPath);
 			//find, for example, a handler that can handle .lift dictionary, or a .wav sound file
-			if (handler.CanDiffFile(fileInRevision.FullPath))
+			if (handler.CanDiffFile(fileInRevision.FullPath))//review: isn't that just asking again?
 			{
-				if (parentRev != null)
+				if (parentRev != null && fileInRevision.ActionThatHappened == FileInRevision.Action.Modified)
 				{
 					var parentFileInRevision = new FileInRevision(parentRev, Path.Combine(_repository.PathToRepo, fileInRevision.FullPath),
 																  fileInRevision.ActionThatHappened);

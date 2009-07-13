@@ -15,6 +15,8 @@ namespace Chorus.FileTypeHanders.lift
 			//now customize the XmlMerger with LIFT-specific info
 
 			var elementStrategy =AddKeyedElementType("entry", "id", false);
+			elementStrategy.AttributesToIgnoreForMerging.Add("dateModified");
+
 			elementStrategy.ContextDescriptorGenerator = new LexEntryContextGenerator();
 
 			AddKeyedElementType("sense", "id", true);

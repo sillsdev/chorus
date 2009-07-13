@@ -27,6 +27,18 @@ namespace Chorus.merge
 	{
 		protected Guid _guid = Guid.NewGuid();
 
+//        public override bool Equals(object obj)
+//        {
+//            if(GetType() != obj.GetType())
+//                return false;
+//            IChangeReport other = obj as IChangeReport;
+//            return PathToFile == other.PathToFile
+//                && ActionLabel == other.ActionLabel;  //don't compare guids!
+//        }
+//        public override int GetHashCode()
+//        {
+//            return PathToFile.GetHashCode() + ActionLabel.GetHashCode();
+//        }
 		protected ChangeReport(string pathToFile)
 		{
 			PathToFile = pathToFile;

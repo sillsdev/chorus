@@ -73,6 +73,11 @@ namespace Chorus.Tests.sync
 				SyncResults results = GetManager().SyncNow(options,progress);
 			}
 
+			public string BobProjectPath
+			{
+				get { return Path.Combine(BobSourcePath, "%repoName%"); }
+			}
+
 			public void ChangeTextFile()
 			{
 				SyncOptions options = new SyncOptions();
@@ -125,7 +130,7 @@ namespace Chorus.Tests.sync
 			Directory.CreateDirectory(usbPath);
 			bobSetup.SetupClone(usbPath);
 
-			RepositorySource otherDirSource = RepositorySource.Create(usbPath, "USBA", false);
+			RepositorySource otherDirSource = RepositorySource.Create(Path.Combine(usbPath,"%repoName%"), "USBA", false);
 			RepositoryManager bob = bobSetup.GetManager();
 			bob.ExtraRepositorySources.Add(otherDirSource);
 
@@ -213,7 +218,7 @@ namespace Chorus.Tests.sync
 			bobOptions.DoMergeWithOthers = false; // pretend the usb key isn't there
 			bobOptions.DoPullFromOthers = false; // pretend the usb key isn't there
 			bobOptions.DoPushToLocalSources = false;
-			RepositorySource usbSource = RepositorySource.Create(usbSourcePath, "usba source", false);
+			RepositorySource usbSource = RepositorySource.Create(Path.Combine(usbSourcePath, "%repoName%"), "usba source", false);
 			bobOptions.RepositorySourcesToTry.Add(usbSource);
 			bobRepo.SyncNow(bobOptions, progress);
 
@@ -290,7 +295,7 @@ namespace Chorus.Tests.sync
 			sallyOptions.DoPullFromOthers = true;
 			sallyOptions.DoPushToLocalSources = true;
 			sallyOptions.DoMergeWithOthers = true;
-			sallyOptions.RepositorySourcesToTry.Add(RepositorySource.Create(bobSetup.BobSourcePath, "bob's machine", false));
+			sallyOptions.RepositorySourcesToTry.Add(RepositorySource.Create(bobSetup.BobProjectPath, "bob's machine", false));
 			sallyRepo.SyncNow(sallyOptions, progress);
 
 			Debug.WriteLine(File.ReadAllText(bobSetup._pathToLift));

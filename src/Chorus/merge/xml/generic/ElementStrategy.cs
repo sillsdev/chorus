@@ -85,6 +85,7 @@ namespace Chorus.merge.xml.generic
 		public  ElementStrategy(bool orderIsRelevant)
 		{
 			OrderIsRelevant = orderIsRelevant;
+			AttributesToIgnoreForMerging = new List<string>();
 		}
 
 
@@ -92,6 +93,8 @@ namespace Chorus.merge.xml.generic
 		/// Is the order of this element among its peers relevant (this says nothing about its children)
 		/// </summary>
 		public bool OrderIsRelevant { get; set; }
+
+		public List<string> AttributesToIgnoreForMerging{get; private set;}
 
 		public static ElementStrategy CreateForKeyedElement(string keyAttributeName, bool orderIsRelevant)
 		{
@@ -119,6 +122,7 @@ namespace Chorus.merge.xml.generic
 //        {
 //            return null;
 //        }
+
 	}
 
 	//Given an element (however that is defined for a given file type (e.g. xml element for xml files)...
