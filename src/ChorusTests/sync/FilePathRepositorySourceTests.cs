@@ -17,7 +17,7 @@ namespace Chorus.Tests.sync
 		private string _pathToProjectRoot;
 		private RepositoryManager _manager;
 		private string _pathToBackupFolder;
-		private FilePathToParentRepositorySource _filePathSource;
+		private FilePathRepositorySource _filePathSource;
 
 		[SetUp]
 		public void Setup()
@@ -43,7 +43,7 @@ namespace Chorus.Tests.sync
 			_manager = RepositoryManager.FromRootOrChildFolder(_project);
 			_pathToBackupFolder = Path.Combine(_pathToTestRoot, "backup");
 			Directory.CreateDirectory(_pathToBackupFolder);
-			_filePathSource = new FilePathToParentRepositorySource(_pathToBackupFolder, "SD Backup Card", false);
+			_filePathSource = new FilePathRepositorySource(Path.Combine(_pathToBackupFolder,"%repoName%"), "SD Backup Card", false);
 
 		}
 
