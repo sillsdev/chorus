@@ -9,6 +9,7 @@ using Chorus.retrieval;
 using Chorus.sync;
 using Chorus.Utilities;
 using Chorus.merge;
+using Nini.Ini;
 
 namespace Chorus.VcsDrivers.Mercurial
 {
@@ -725,17 +726,79 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		public IEnumerable<RepositoryPath> GetKnownPeerRepositories()
 		{
-			//TODO: we actually only one the ones in the repo, but this
-			//will give us global ones as well
-			var r =GetTextFromQuery(_pathToRepository, "paths");
-			var lines = r.Split('\n');
-			foreach (var line in lines)
+//            //TODO: we actually only one the ones in the repo, but this
+//            //will give us global ones as well
+//            var r =GetTextFromQuery(_pathToRepository, "paths");
+//            var lines = r.Split('\n');
+//            foreach (var line in lines)
+//            {
+//                var parts = line.Split('=');
+//                if(parts.Length != 2)
+//                    continue;
+//                yield return RepositoryPath.Create(parts[1].Trim(), parts[0].Trim(), false);
+//            }
+
+			var section = GetHgrcDoc().Sections.GetOrCreate("paths");
+			foreach (var name in section.GetKeys())
 			{
-				var parts = line.Split('=');
-				if(parts.Length != 2)
-					continue;
-				yield return RepositoryPath.Create(parts[1].Trim(), parts[0].Trim(), false);
+				var uri = section.GetValue(name);
+				yield return RepositoryPath.Create(uri, name, false);
 			}
+		}
+
+
+		/// <summary>
+		/// TODO: sort out this vs. the UserName property
+		/// </summary>
+		/// <returns></returns>
+		public string GetUserNameFromIni(IProgress progress)
+		{
+			try
+			{
+				var doc = GetHgrcDoc();
+				return doc.Sections["ui"].GetValue("username");
+			}
+			catch (Exception error)
+			{
+				progress.WriteWarning("Could not retrieve the user name from the hgrc ini file: "+ error.Message);
+				return string.Empty;
+			}
+		}
+
+		private IniDocument GetHgrcDoc()
+		{
+			var p = Path.Combine(Path.Combine(_pathToRepository, ".hg"), "hgrc");
+			if (!File.Exists(p))
+			{
+				File.WriteAllText(p,"");
+			}
+			return new Nini.Ini.IniDocument(p, IniFileType.MercurialStyle);
+		}
+
+		public void SetUserNameInIni(string name, IProgress progress)
+		{
+			try
+			{
+				var doc = GetHgrcDoc();
+				doc.Sections.GetOrCreate("ui").Set("username",name);
+				doc.Save();
+			}
+			catch (Exception error)
+			{
+				progress.WriteWarning("Could not set the user name from the hgrc ini file: " + error.Message);
+			}
+		}
+
+		public void SetKnownPeerAddresses(List<RepositoryAddress> addresses)
+		{
+			var doc = GetHgrcDoc();
+			doc.Sections.Remove("paths");//clear it out
+			var section = doc.Sections.GetOrCreate("paths");
+			foreach (var address in addresses)
+			{
+				section.Set(address.Name, address.URI);
+			}
+			doc.Save();
 		}
 	}
 

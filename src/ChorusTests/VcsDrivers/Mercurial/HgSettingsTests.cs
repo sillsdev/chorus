@@ -48,5 +48,77 @@ two = http://foo.com");
 				Assert.AreEqual(@"two", sources.Last().Name);
 			}
 		}
+
+		[Test]
+		public void GetUserName_NameInLocalReop_GetsName()
+		{
+			using (var setup = new EmptyRepositoryForTests())
+			{
+				setup.WriteIniContents(@"[ui]
+username = joe
+");
+				var repository = setup.Repo.GetRepository(new StringBuilderProgress());
+				Assert.AreEqual("joe", repository.GetUserNameFromIni(new NullProgress()));
+			}
+		}
+		[Test]
+		public void GetUserName_EmptyHgrc_ReturnsEmpty()
+		{
+			using (var setup = new EmptyRepositoryForTests())
+			{
+				setup.WriteIniContents(@"");
+				var repository = setup.Repo.GetRepository(new StringBuilderProgress());
+				Assert.AreEqual(string.Empty, repository.GetUserNameFromIni(new NullProgress()));
+			}
+		}
+		[Test]
+		public void GetUserName_NoHgrcYet_ReturnsEmpty()
+		{
+			using (var setup = new EmptyRepositoryForTests())
+			{
+				setup.EnsureNoHgrcExists();
+				var repository = setup.Repo.GetRepository(new StringBuilderProgress());
+				Assert.AreEqual(string.Empty, repository.GetUserNameFromIni(new NullProgress()));
+			}
+		}
+		[Test]
+		public void SetUserNameInIni_SetsName()
+		{
+			using (var setup = new EmptyRepositoryForTests())
+			{
+				setup.EnsureNoHgrcExists();
+				var repository = setup.Repo.GetRepository(new StringBuilderProgress());
+				repository.SetUserNameInIni("bill", new NullProgress());
+				Assert.AreEqual("bill", repository.GetUserNameFromIni(new NullProgress()));
+
+				//this time, the hgrc does exist
+				repository.SetUserNameInIni("sue", new NullProgress());
+				Assert.AreEqual("sue", repository.GetUserNameFromIni(new NullProgress()));
+			}
+		}
+		[Test]
+		public void SetAddresses()
+		{
+			using (var setup = new EmptyRepositoryForTests())
+			{
+				setup.EnsureNoHgrcExists();
+				var repository = setup.Repo.GetRepository(new StringBuilderProgress());
+				var x = new RepositoryAddress("one", @"c:\one");
+				var y = new RepositoryAddress("two", @"http://two.org");
+				repository.SetKnownPeerAddresses(new List<RepositoryAddress>(new RepositoryAddress[]{x,y}));
+				Assert.AreEqual(2, repository.GetKnownPeerRepositories().Count());
+				Assert.AreEqual(x.Name, repository.GetKnownPeerRepositories().First().Name);
+				Assert.AreEqual(x.URI, repository.GetKnownPeerRepositories().First().URI);
+				Assert.AreEqual(y.Name, repository.GetKnownPeerRepositories().ToArray()[1].Name);
+				Assert.AreEqual(y.URI, repository.GetKnownPeerRepositories().ToArray()[1].URI);
+
+				var z = new RepositoryAddress("three", @"http://three.org");
+				//this time, the hgrc does exist
+				repository.SetKnownPeerAddresses(new List<RepositoryAddress>(new RepositoryAddress[]{z}));
+				Assert.AreEqual(1, repository.GetKnownPeerRepositories().Count());
+				Assert.AreEqual(z.Name, repository.GetKnownPeerRepositories().First().Name);
+				Assert.AreEqual(z.URI, repository.GetKnownPeerRepositories().First().URI);
+			}
+		}
 	}
 }

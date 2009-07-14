@@ -108,8 +108,8 @@
 	  <DependentUpon>Shell.cs</DependentUpon>
 	  <SubType>Designer</SubType>
 	</EmbeddedResource>
-	<EmbeddedResource Include="Settings\SettingsPanel.resx">
-	  <DependentUpon>SettingsPanel.cs</DependentUpon>
+	<EmbeddedResource Include="Settings\SettingsView.resx">
+	  <DependentUpon>SettingsView.cs</DependentUpon>
 	  <SubType>Designer</SubType>
 	</EmbeddedResource>
 	<EmbeddedResource Include="Settings\SetupPanel.resx">
@@ -135,17 +135,18 @@
 	  <DesignTimeSharedInput>True</DesignTimeSharedInput>
 	</Compile>
 	<Compile Include="Review\Events.cs" />
+	<Compile Include="Settings\SettingsModel.cs" />
 	<Compile Include="Shell.cs">
 	  <SubType>Form</SubType>
 	</Compile>
 	<Compile Include="Shell.Designer.cs">
 	  <DependentUpon>Shell.cs</DependentUpon>
 	</Compile>
-	<Compile Include="Settings\SettingsPanel.cs">
+	<Compile Include="Settings\SettingsView.cs">
 	  <SubType>UserControl</SubType>
 	</Compile>
-	<Compile Include="Settings\SettingsPanel.Designer.cs">
-	  <DependentUpon>SettingsPanel.cs</DependentUpon>
+	<Compile Include="Settings\SettingsView.Designer.cs">
+	  <DependentUpon>SettingsView.cs</DependentUpon>
 	</Compile>
 	<Compile Include="Settings\SetupPanel.cs">
 	  <SubType>UserControl</SubType>

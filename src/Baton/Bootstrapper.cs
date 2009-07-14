@@ -57,7 +57,7 @@ namespace Baton
 
 			shell.AddPage("Review", _container.Resolve<ReviewPage>());
 			shell.AddPage("Sync", _container.Resolve<SyncPanel>());
-			shell.AddPage("Settings", _container.Resolve<SettingsPanel>());
+			shell.AddPage("Settings", _container.Resolve<SettingsView>());
 
 			return shell;
 		}
@@ -66,7 +66,8 @@ namespace Baton
 
 		private void RegisterSettingsStuff(ContainerBuilder builder)
 		{
-			builder.Register<SettingsPanel>();
+			builder.Register<SettingsModel>();
+			builder.Register<SettingsView>();
 		}
 
 		private void RegisterSyncStuff(ContainerBuilder builder)

@@ -12,7 +12,7 @@ namespace Chorus.Tests.merge
 	/// Any test doing high-level testing such that this is useful should expressly Not be interested in details of the files,
 	/// so no methods are provided to control the contents of the files.
 	/// </remarks>
-	internal class UserWithFiles :IDisposable
+	public class UserWithFiles :IDisposable
 	{
 		private ProjectFolderConfiguration _project;
 		private StringBuilderProgress _progress = new StringBuilderProgress();
@@ -100,6 +100,19 @@ namespace Chorus.Tests.merge
 			options.DoPushToLocalSources = false;
 
 			Repo.SyncNow(options, _progress);
+		}
+
+		public void WriteIniContents(string s)
+		{
+			var p = Path.Combine(Path.Combine(_project.FolderPath, ".hg"), "hgrc");
+			File.WriteAllText(p, s);
+		}
+
+		public void EnsureNoHgrcExists()
+		{
+			var p = Path.Combine(Path.Combine(_project.FolderPath, ".hg"), "hgrc");
+			if(File.Exists(p))
+				File.Delete(p);
 		}
 	}
 }

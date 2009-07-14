@@ -97,6 +97,15 @@
 	<Compile Include="sync\SyncOptions.cs" />
 	<Compile Include="Utilities\ExecutionResult.cs" />
 	<Compile Include="Utilities\HtmlDiffEngine.cs" />
+	<Compile Include="Utilities\ini\IniDocument.cs" />
+	<Compile Include="Utilities\ini\IniException.cs" />
+	<Compile Include="Utilities\ini\IniItem.cs" />
+	<Compile Include="Utilities\ini\IniReader.cs" />
+	<Compile Include="Utilities\ini\IniSection.cs" />
+	<Compile Include="Utilities\ini\IniSectionCollection.cs" />
+	<Compile Include="Utilities\ini\IniWriter.cs" />
+	<Compile Include="Utilities\ini\OrderedList.cs" />
+	<Compile Include="Utilities\ini\OrderedListEnumerator.cs" />
 	<Compile Include="Utilities\Other.cs" />
 	<Compile Include="Utilities\ProcessStream.cs" />
 	<Compile Include="Utilities\Progress.cs" />

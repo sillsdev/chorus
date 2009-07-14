@@ -17,11 +17,7 @@ namespace Chorus.sync
 		public List<RepositoryPath> ExtraRepositorySources { get; private set; }
 
 
-		//--- nb: THIS SECTION IS UP IN THE AIR... I had started out one way a year ago
-		// with these "repo sources", which didn't include that full path. Nice for things
-		// like usb.  But now I'm  moving towards something simpler... with alias from the
-		//hg contorl file, perhaps with wildcards we might introduce, if needed?  Or just
-		// that set plus some special ones, like usb and language forge.
+
 		public List<RepositoryPath> GetPotentialSources(IProgress progress)
 		{
 			var list = new List<RepositoryPath>();
