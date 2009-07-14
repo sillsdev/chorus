@@ -8,13 +8,17 @@ namespace Chorus.sync
 	public abstract class RepositoryPath
 	{
 		/// <summary>
+		/// Can be a file path or an http address
+		/// </summary>
+		public string URI { get; set; }
+
+		/// <summary>
 		/// This can be used in place of the project name, so that path can be specified which will work
 		/// with multiple projects.  For example, you could specify a backup location like this:
 		/// Path.Combine("e:/chorusBackups/", RepositoryNameVariable), which would become e:/chorusBackups/%repoName%.
 		/// </summary>
 		public const string RepositoryNameVariable = "%repoName%";
 
-		protected string _uri;
 		/// <summary>
 		/// In the case of a repo sitting on the user's machine, this will be a person's name.
 		/// It might also be the name of the web-based repo. It also gets the "alias" name, in the case of hg.
@@ -68,12 +72,6 @@ namespace Chorus.sync
 			ReadOnly = readOnly;
 		}
 
-		public string URI
-		{
-			get { return _uri; }
-			set { _uri = value; }
-		}
-
 
 
 		/// <summary>
@@ -123,7 +121,7 @@ namespace Chorus.sync
 		/// </summary>
 		public override string PotentialRepoUri(string repoName, IProgress progress)
 		{
-			return _uri.Replace(RepositoryNameVariable, repoName);
+			return URI.Replace(RepositoryNameVariable, repoName);
 		}
 
 		public override bool CanConnect(string repoName, IProgress progress)
@@ -151,7 +149,7 @@ namespace Chorus.sync
 		/// </summary>
 		public override string PotentialRepoUri(string repoName, IProgress progress)
 		{
-			return _uri.Replace(RepositoryNameVariable, repoName);
+			return URI.Replace(RepositoryNameVariable, repoName);
 		}
 
 		public override bool CanConnect(string repoName, IProgress progress)

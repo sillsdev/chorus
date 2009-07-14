@@ -1,8 +1,11 @@
 using System;
 using System.Xml;
+using Chorus.FileTypeHanders.lift;
+using Chorus.merge;
 using Chorus.merge.xml.generic;
 using Chorus.merge.xml.lift;
 using Chorus.Tests.merge.xml;
+using Chorus.Tests.merge.xml.generic;
 using NUnit.Framework;
 
 namespace Chorus.Tests.merge.xml.lift
@@ -149,6 +152,57 @@ namespace Chorus.Tests.merge.xml.lift
 											   new PoorMansMergeStrategy()); // maybe shouldn't trust "dropTheirs" on this?
 			string result = merger.GetMergedLift();
 			XmlTestHelper.AssertXPathMatchesExactlyOne(result, "lift[not(entry/@id='doomedByUs')]");
+		}
+
+		[Test]
+		public void OnlyModificationDateChanged_NoConflictOrRecordedChange()
+		{
+			string template = @"<?xml version='1.0' encoding='utf-8'?>
+					<lift version='0.10' producer='WeSay 1.0.0.0'>
+						<entry id='blah' guid='blah' dateModified='theDate'/>
+					</lift>";
+
+			LiftMerger merger = new LiftMerger(template.Replace("theDate", "2009-07-08T01:47:02Z"),
+				template.Replace("theDate", "2009-07-09T01:47:03Z"),
+				template.Replace("theDate", "2009-07-09T01:47:04Z"),
+				new LiftEntryMergingStrategy(new NullMergeSituation()));
+
+			var listener = new ListenerForUnitTests();
+			merger.EventListener = listener;
+
+			string result = merger.GetMergedLift();
+			Assert.AreEqual(0, listener.Conflicts.Count);
+			Assert.AreEqual(0, listener.Changes.Count);
+		}
+
+		[Test]
+		public void Merge_RealConflictPlusModDateConflict_ModDateNotReportedAsConflict()
+		{
+			const string template = @"<?xml version='1.0' encoding='utf-8'?>
+					<lift version='0.10' producer='WeSay 1.0.0.0'>
+						<entry id='blah' guid='blah' dateModified='theDate'>
+						   <lexical-unit>
+								<form lang='a'>
+									<text>theForm</text>
+								</form>
+							</lexical-unit>
+						</entry>
+					</lift>";
+
+			LiftMerger merger = new LiftMerger(
+				template.Replace("theDate", "2009-07-08T01:47:02Z").Replace("theForm", "1"),
+				template.Replace("theDate", "2009-07-09T01:47:03Z").Replace("theForm", "2"),
+				template.Replace("theDate", "2009-07-09T01:47:04Z").Replace("theForm", "3"),
+				new LiftEntryMergingStrategy(new NullMergeSituation()));
+
+			var listener = new ListenerForUnitTests();
+			merger.EventListener = listener;
+
+			string result = merger.GetMergedLift();
+			Assert.AreEqual(1, listener.Conflicts.Count);
+			listener.AssertFirstConflictType<BothEdittedTextConflict>();
+			listener.AssertExpectedConflictCount(1);
+			listener.AssertExpectedChangesCount(1);
 		}
 
 		[Test, Ignore("Not implemented")]

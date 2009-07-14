@@ -57,5 +57,9 @@ namespace Chorus.Tests.merge.xml.generic
 		{
 			Assert.AreEqual(typeof(TExpected), Changes[0].GetType());
 		}
+		public void AssertFirstConflictType<TExpected>()
+		{
+			Assert.AreEqual(typeof(TExpected), Conflicts[0].GetType());
+		}
 	}
 }

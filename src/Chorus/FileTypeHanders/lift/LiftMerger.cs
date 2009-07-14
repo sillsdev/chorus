@@ -175,10 +175,13 @@ namespace Chorus.merge.xml.lift
 			}
 			else //one or both changed
 			{
-				if (!LiftUtils.GetIsMarkedAsDeleted(ourEntry))
+
+				/* TODO: put this back after figuring out the exact situation it was for an adding a unit test
+				 if (!LiftUtils.GetIsMarkedAsDeleted(ourEntry))
 				{
-					EventListener.ChangeOccurred(new XmlDeletionChangeReport("hackFixThis.lift",  FindEntry(_ancestorDom, id), ourEntry));
+					EventListener.ChangeOccurred(new XmlChangedRecordReport("hackFixThis.lift",  FindEntry(_ancestorDom, id), ourEntry));
 				}
+				 */
 
 				XmlNode commonEntry = FindEntry(_ancestorDom, id);
 
@@ -216,7 +219,7 @@ namespace Chorus.merge.xml.lift
 
 		private static bool AreTheSame(XmlNode ourEntry, XmlNode theirEntry)
 		{
-			//for now...
+			//review: why do we need to actually parse these dates?  Could we just do a string comparison?
 			if (LiftUtils.GetModifiedDate(theirEntry) == LiftUtils.GetModifiedDate(ourEntry)
 				&& !(LiftUtils.GetModifiedDate(theirEntry) == default(DateTime)))
 				return true;
