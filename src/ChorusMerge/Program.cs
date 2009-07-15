@@ -23,13 +23,17 @@ namespace ChorusMerge
 				MergeOrder order = MergeOrder.CreateUsingEnvironmentVariables(args[0], args[1], args[2]);
 				var handlers = ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers();
 				var handler = handlers.GetHandlerForMerging(order.pathToOurs);
-				if (handler is DefaultFileTypeHandler)
+
+				//DispatchingMergeEventListener listenerDispatcher = new DispatchingMergeEventListener();
+				//using (HumanLogMergeEventListener humanListener = new HumanLogMergeEventListener(order.pathToOurs + ".conflicts.txt"))
+				using (XmlLogMergeEventListener xmlListener = new XmlLogMergeEventListener(order.pathToOurs + ".conflicts"))
 				{
-					//todo: we don't know how to handle this file type, so pick one and report a conflict
-					Console.Error.WriteLine("ChorusMerge doesn't know how to merge files of type" + Path.GetExtension(order.pathToOurs));
-					return 1;
+//                    listenerDispatcher.AddEventListener(humanListener);
+//                    listenerDispatcher.AddEventListener(xmlListener);
+					order.EventListener = xmlListener;
+
+					handler.Do3WayMerge(order);
 				}
-				handler.Do3WayMerge(order);
 			}
 			catch (Exception e)
 			{

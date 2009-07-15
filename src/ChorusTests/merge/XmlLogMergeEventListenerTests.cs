@@ -71,6 +71,11 @@ namespace Chorus.Tests.merge
 		private Guid _guid = Guid.NewGuid();
 
 
+		public Guid ConflictTypeGuid
+		{
+			get { throw new NotImplementedException(); }
+		}
+
 		public string GetFullHumanReadableDescription()
 		{
 			return "hello";

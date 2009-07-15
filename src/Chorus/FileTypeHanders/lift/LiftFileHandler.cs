@@ -30,17 +30,13 @@ namespace Chorus.FileTypeHanders
 
 		public void Do3WayMerge(MergeOrder mergeOrder)
 		{
-			DispatchingMergeEventListener listenerDispatcher = new DispatchingMergeEventListener();
-
-			//Debug.Fail("hello");
-			//review: where should these really go?
-			string dir = Path.GetDirectoryName(mergeOrder.pathToOurs);
-			using (HumanLogMergeEventListener humanListener = new HumanLogMergeEventListener(mergeOrder.pathToOurs + ".conflicts.txt"))
-			using (XmlLogMergeEventListener xmlListener = new XmlLogMergeEventListener(mergeOrder.pathToOurs + ".conflicts"))
-			{
-				listenerDispatcher.AddEventListener(humanListener);
-				listenerDispatcher.AddEventListener(xmlListener);
-				mergeOrder.EventListener = listenerDispatcher;
+//            DispatchingMergeEventListener listenerDispatcher = new DispatchingMergeEventListener();
+//            using (HumanLogMergeEventListener humanListener = new HumanLogMergeEventListener(mergeOrder.pathToOurs + ".conflicts.txt"))
+//            using (XmlLogMergeEventListener xmlListener = new XmlLogMergeEventListener(mergeOrder.pathToOurs + ".conflicts"))
+//            {
+//                listenerDispatcher.AddEventListener(humanListener);
+//                listenerDispatcher.AddEventListener(xmlListener);
+//                mergeOrder.EventListener = listenerDispatcher;
 
 				//;  Debug.Fail("hello");
 				LiftMerger merger;
@@ -62,7 +58,7 @@ namespace Chorus.FileTypeHanders
 
 				string newContents = merger.GetMergedLift();
 				File.WriteAllText(mergeOrder.pathToOurs, newContents);
-			}
+//            }
 		}
 
 		public IEnumerable<IChangeReport> Find2WayDifferences(FileInRevision fileInRevision, string pathToParent, string pathToChild)

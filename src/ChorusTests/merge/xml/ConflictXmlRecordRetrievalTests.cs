@@ -25,7 +25,7 @@ namespace Chorus.Tests.merge
 			docX.LoadXml(@"<doc><test id='2'>x</test></doc>");
 			var docY = new XmlDocument();
 			docY.LoadXml(@"<doc><test id='2'>y</test></doc>");
-			var situation = new MergeSituation("ARelativePath", "x1", "y1");
+			var situation = new MergeSituation("ARelativePath", "x", "x1", "y", "y1");
 			var conflict = new BothEdittedTextConflict(docX.SelectSingleNode("doc/test"),
 			  docY.SelectSingleNode("doc/test"),
 			  docA.SelectSingleNode("doc/test"),

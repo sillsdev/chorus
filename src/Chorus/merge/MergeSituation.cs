@@ -9,7 +9,7 @@ namespace Chorus.merge
 	public class NullMergeSituation: MergeSituation
 	{
 		public NullMergeSituation()
-			: base(null, null, null)
+			: base(null, null, null, null, null)
 		{
 		}
 	}
@@ -20,6 +20,8 @@ namespace Chorus.merge
 	public class MergeSituation
 	{
 		//we don't have access to this yet: public const string kAncestorRevision = "ChorusAncestorRevision";
+		public const string kUserXId= "ChorusUserXId";
+		public const string kUserYId = "ChorusUserYId";
 		public const string kUserXRevision = "ChorusUserXRevision";
 		public const string kUserYRevision = "ChorusUserYRevision";
 		//public const string kPathToFileInRepository = "ChorusPathToFileInRepository";
@@ -29,15 +31,19 @@ namespace Chorus.merge
 		/// </summary>
 		public string PathToFileInRepository{ get; set;}
 	   //we don't have access to this yet: public string AncestorRevision { get; set; }
+		public string UserXId { get; set; }
+		public string UserYId { get; set; }
 		public string UserXRevision { get; set; }
 		public string UserYRevision { get; set; }
 
 
 
 
-		public MergeSituation(string relativePathToFile, string userXRevision, string userYRevision/*, string ancestorRevision*/)
+		public MergeSituation(string relativePathToFile, string userXId, string userXRevision, string userYId, string userYRevision/*, string ancestorRevision*/)
 		{
 			PathToFileInRepository = relativePathToFile;
+			UserXId = userXId;
+			UserYId = userYId;
 			UserYRevision = userYRevision;
 			UserXRevision = userXRevision;
 			//we don't have access to this yet:   AncestorRevision = ancestorRevision;
@@ -49,10 +55,12 @@ namespace Chorus.merge
 			//for the conflict record, so that we can later look up exactly what were the 3 inputs at the time of merging.
 		   //string pathToFileInRepository = Environment.GetEnvironmentVariable(MergeSituation.kPathToFileInRepository);
 			//we don't have access to this yet: string ancestorRevision = Environment.GetEnvironmentVariable(MergeSituation.kAncestorRevision);
+			string userXId = Environment.GetEnvironmentVariable(MergeSituation.kUserXId);
+			string userYId = Environment.GetEnvironmentVariable(MergeSituation.kUserYId);
 			string userXRevision = Environment.GetEnvironmentVariable(MergeSituation.kUserXRevision);
 			string userYRevision = Environment.GetEnvironmentVariable(MergeSituation.kUserYRevision);
 
-			return new MergeSituation( pathToFileInRepository, userXRevision,
+			return new MergeSituation( pathToFileInRepository, userXId, userXRevision, userYId,
 									  userYRevision/*, ancestorRevision*/);
 
 		}
@@ -63,10 +71,13 @@ namespace Chorus.merge
 		/// </summary>
 		/// <param name="userXRevision"></param>
 		/// <param name="userYRevision"></param>
-		public static void PushRevisionsToEnvironmentVariables(string userXRevision, string userYRevision)
+		public static void PushRevisionsToEnvironmentVariables(string userXId, string userXRevision, string userYId, string userYRevision)
 		{
-			Environment.SetEnvironmentVariable(kUserXRevision, userYRevision);
-			Environment.SetEnvironmentVariable(kUserYRevision, userXRevision);
+			Environment.SetEnvironmentVariable(kUserXId, userXId);
+			Environment.SetEnvironmentVariable(kUserXRevision, userXRevision);
+
+			Environment.SetEnvironmentVariable(kUserYId, userYId);
+			Environment.SetEnvironmentVariable(kUserYRevision, userYRevision);
 		}
 
 

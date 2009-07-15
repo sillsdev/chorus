@@ -34,9 +34,9 @@ namespace Chorus.merge.xml.generic
 		/// <summary>
 		/// this is safe to use with foreach, unlike SelectNodes
 		/// </summary>
-		public static XmlNodeList SafeSelectNodes(this XmlNode node, string path)
+		public static XmlNodeList SafeSelectNodes(this XmlNode node, string path, params object[] args)
 		{
-			var x = node.SelectNodes(path);
+			var x = node.SelectNodes(string.Format(path,args));
 			if (x == null)
 				return new NullXMlNodeList();
 			return x;

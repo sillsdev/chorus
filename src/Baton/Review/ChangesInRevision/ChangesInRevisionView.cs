@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Windows.Forms;
 using System.Xml;
 using Chorus.FileTypeHanders;
@@ -13,6 +14,7 @@ namespace Baton.Review.RevisionChanges
 
 		public ChangesInRevisionView(ChangesInRevisionModel model)
 		{
+			this.Font = SystemFonts.MessageBoxFont;
 			InitializeComponent();
 			_model = model;
 			_model.UpdateDisplay += OnUpdateDisplay;

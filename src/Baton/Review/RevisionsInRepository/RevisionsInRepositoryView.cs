@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Globalization;
 using System.Windows.Forms;
 using Chorus.sync;
@@ -16,6 +17,7 @@ namespace Baton.Review.RevisionsInRepository
 
 		public RevisionsInRepositoryView(RevisionInRepositoryModel model)
 		{
+			this.Font = SystemFonts.MessageBoxFont;
 			_model = model;
 			_model.ProgressDisplay = new NullProgress();
 			InitializeComponent();

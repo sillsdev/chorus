@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using Chorus.merge;
 using Chorus.sync;
 using Chorus.Tests.merge;
 using Chorus.Utilities;
@@ -30,9 +31,9 @@ namespace Chorus.Tests.sync
 		[Test]
 		public void Sync_ExceptionInMergeCode_GetExceptionAndMergeDoesntHappen()
 		{
-			using (RepositoryWithFilesSetup bob = new RepositoryWithFilesSetup("bob"))
+			using (RepositoryWithFilesSetup bob = RepositoryWithFilesSetup.CreateWithLiftFile("bob"))
 			{
-				using (RepositoryWithFilesSetup sally = new RepositoryWithFilesSetup("sally", bob))
+				using (RepositoryWithFilesSetup sally = RepositoryWithFilesSetup.CreateByCloning("sally", bob))
 				{
 					bob.ReplaceSomething("bobWasHere");
 					bob.Checkin();
@@ -51,8 +52,37 @@ namespace Chorus.Tests.sync
 						Assert.IsNotNull(goterror);
 						Assert.IsTrue(goterror.Message.Contains("InduceChorusFailure"));
 					}
-					Assert.IsTrue(File.ReadAllText(sally._liftFile.Path).Contains("sallyWasHere"));
+					Assert.IsTrue(File.ReadAllText(sally.UserFile.Path).Contains("sallyWasHere"));
+
+					sally.AssertSingleHead();
+					bob.AssertSingleHead();
+
 				}
+			}
+		}
+		[Test]
+		public void Sync_BothChangedBinaryFile_FailureReportedOneChosenSingleHead()
+		{
+			using (RepositoryWithFilesSetup bob = new RepositoryWithFilesSetup("bob", "test.a9a", "original"))
+			{
+				using (RepositoryWithFilesSetup sally = RepositoryWithFilesSetup.CreateByCloning("sally", bob))
+				{
+					bob.ReplaceSomething("bobWasHere");
+					bob.Checkin();
+					sally.ReplaceSomething("sallyWasHere");
+
+					//now we have a merge of a file type that don't know hoow to merge
+					sally.CheckinAndPullAndMerge(bob);
+
+					sally.AssertSingleHead();
+					bob.AssertSingleHead();
+
+					//sally.AssertSingleConflict(c => c.GetType == typeof (UnmergableFileTypeConflict));
+					sally.AssertSingleConflictType<UnmergableFileTypeConflict>();
+
+					Assert.IsTrue(File.ReadAllText(sally.UserFile.Path).Contains("sallyWasHere"));
+				}
+
 			}
 		}
 	}

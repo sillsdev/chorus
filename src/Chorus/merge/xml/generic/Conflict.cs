@@ -36,11 +36,14 @@ namespace Chorus.merge.xml.generic
 		protected Guid _guid = Guid.NewGuid();
 		public string PathToUnitOfConflict { get; set; }
 		protected readonly MergeSituation _mergeSituation;
+		private readonly string _guidForThisConflictType;
 
 		protected Conflict(MergeSituation situation)
 		{
 			_mergeSituation = situation;
 		}
+
+
 
 		public Guid Guid
 		{
@@ -132,7 +135,8 @@ namespace Chorus.merge.xml.generic
 		}
 	}
 
-	public class RemovedVsEditedAttributeConflict : AttributeConflict
+	[TypeGuid("B11ABA8C-DFB9-4E37-AF35-8AFDB86F00B7")]
+	sealed public class RemovedVsEditedAttributeConflict : AttributeConflict
 	{
 		public RemovedVsEditedAttributeConflict(string attributeName, string ourValue, string theirValue, string ancestorValue, MergeSituation mergeSituation)
 			: base(attributeName, ourValue, theirValue, ancestorValue, mergeSituation)
@@ -144,7 +148,8 @@ namespace Chorus.merge.xml.generic
 		}
 	}
 
-	internal class BothEdittedAttributeConflict : AttributeConflict
+	[TypeGuid("5BBDF4F6-953A-4F79-BDCD-0B1F733DA4AB")]
+	sealed public class BothEdittedAttributeConflict : AttributeConflict
 	{
 		public BothEdittedAttributeConflict(string attributeName, string ourValue, string theirValue, string ancestorValue, MergeSituation mergeSituation)
 			: base(attributeName, ourValue, theirValue, ancestorValue, mergeSituation)
@@ -157,7 +162,8 @@ namespace Chorus.merge.xml.generic
 		}
 	}
 
-	internal class BothEdittedTextConflict : AttributeConflict
+	[TypeGuid("0507DE36-13A3-449D-8302-48F5213BD92E")]
+	sealed public class BothEdittedTextConflict : AttributeConflict
 	{
 		public BothEdittedTextConflict(XmlNode ours, XmlNode theirs, XmlNode ancestor, MergeSituation mergeSituation)
 			: base("text", ours.InnerText, theirs.InnerText,
@@ -172,7 +178,8 @@ namespace Chorus.merge.xml.generic
 		}
 	}
 
-	public class RemovedVsEdittedTextConflict : AttributeConflict
+	[TypeGuid("E1CCC59B-46E5-4D24-A1B1-5B621A0F8870")]
+	sealed public class RemovedVsEdittedTextConflict : AttributeConflict
 	{
 		public RemovedVsEdittedTextConflict(XmlNode ours, XmlNode theirs, XmlNode ancestor, MergeSituation mergeSituation)
 			: base("text", ours == null ? string.Empty : ours.InnerText,
@@ -188,6 +195,7 @@ namespace Chorus.merge.xml.generic
 		}
 	}
 
+	[TypeGuid("DC5D3236-9372-4965-9E34-386182675A5C")]
 	public abstract class ElementConflict : Conflict, IConflict
 	{
 		protected readonly string _elementName;
@@ -238,6 +246,7 @@ namespace Chorus.merge.xml.generic
 		}
 	}
 
+	[TypeGuid("56F9C347-C4FA-48F4-8028-729F3CFF48EF")]
 	internal class RemovedVsEditedElementConflict : ElementConflict
 	{
 		public RemovedVsEditedElementConflict(string elementName, XmlNode ourElement, XmlNode theirElement,
@@ -267,6 +276,7 @@ namespace Chorus.merge.xml.generic
 		}
 	}
 
+	[TypeGuid("14262878-270A-4E27-BA5F-7D232B979D6B")]
 	internal class BothReorderedElementConflict : ElementConflict
 	{
 		public BothReorderedElementConflict(string elementName, XmlNode ourElement, XmlNode theirElement,
@@ -286,6 +296,7 @@ namespace Chorus.merge.xml.generic
 		}
 	}
 
+	[TypeGuid("B77C0D86-2368-4380-B2E4-7943F3E7553C")]
 	internal class AmbiguousInsertConflict : ElementConflict
 	{
 		public AmbiguousInsertConflict(string elementName, XmlNode ourElement, XmlNode theirElement,
@@ -308,6 +319,8 @@ namespace Chorus.merge.xml.generic
 			return GetType().ToString() + ":" + _elementName+" (or lower?)";
 		}
 	}
+
+	[TypeGuid("A5CE68F5-ED0D-4732-BAA8-A04A99ED35B3")]
 	internal class AmbiguousInsertReorderConflict : ElementConflict
 	{
 		public AmbiguousInsertReorderConflict(string elementName, XmlNode ourElement, XmlNode theirElement,

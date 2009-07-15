@@ -151,7 +151,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			return rev;
 		}
 
-		protected List<Revision> GetHeads()
+		public List<Revision> GetHeads()
 		{
 			using (new ConsoleProgress("Getting heads of {0}", _userName))
 			{
@@ -367,7 +367,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			Revision myHead = GetMyHead();
 			foreach (Revision theirHead in heads)
 			{
-				MergeSituation.PushRevisionsToEnvironmentVariables(myHead.LocalRevisionNumber, theirHead.LocalRevisionNumber);
+				MergeSituation.PushRevisionsToEnvironmentVariables(myHead.UserId, myHead.LocalRevisionNumber, theirHead.UserId, theirHead.LocalRevisionNumber);
 
 				MergeOrder.PushToEnvironmentVariables(_pathToRepository);
 				if (theirHead.LocalRevisionNumber != myHead.LocalRevisionNumber)
@@ -400,6 +400,11 @@ namespace Chorus.VcsDrivers.Mercurial
 				{
 //                    _progress.WriteMessage("Nothing to merge, updating instead to revision {0}.", theirChangeSet._revision);
 //                    Update(theirChangeSet._revision);//REVIEW
+					return false;
+				}
+				else if (result.StandardError.Contains("doesn't know how to merge files"))
+				{
+					_progress.WriteWarning("Error: " + result.StandardError);
 					return false;
 				}
 				else
@@ -716,7 +721,10 @@ namespace Chorus.VcsDrivers.Mercurial
 					case 'M':
 						return FileInRevision.Action.Modified;
 						break;
-					case 'D':
+					case 'R':
+						return FileInRevision.Action.Deleted;
+						break;
+					case '!':
 						return FileInRevision.Action.Deleted;
 						break;
 					case 'C':

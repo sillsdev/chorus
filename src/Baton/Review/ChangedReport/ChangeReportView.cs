@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Drawing;
+using System.IO;
 using System.Windows.Forms;
 using Chorus.FileTypeHanders;
 using Chorus.merge;
@@ -11,8 +12,10 @@ namespace Baton.Review.ChangedReport
 
 		public ChangeReportView(ChorusFileTypeHandlerCollection handlers, Review.ChangedRecordSelectedEvent changedRecordSelectedEvent)
 		{
+			this.Font = SystemFonts.MessageBoxFont;
 			_handlers = handlers;
 			InitializeComponent();
+			_changeDescriptionRenderer.Font = SystemFonts.MessageBoxFont;
 			changedRecordSelectedEvent.Subscribe(r=>Load(r));
 			_changeDescriptionRenderer.Navigated += webBrowser1_Navigated;
 		}

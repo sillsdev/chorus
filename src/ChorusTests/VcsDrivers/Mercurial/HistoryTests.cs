@@ -87,7 +87,7 @@ namespace Chorus.Tests.VcsDrivers.Mercurial
 		[Test]
 		public void GetTip_BeforeAnySyncing_EmptyString()
 		{
-			using (var repo = new EmptyRepositoryForTests())
+			using (var repo = new EmptyRepositorySetup())
 			{
 				Assert.IsNull(repo.Repo.GetRepository(_progress).GetTip());
 			}
@@ -96,9 +96,9 @@ namespace Chorus.Tests.VcsDrivers.Mercurial
 		[Test]
 		public void GetTip_AfterSyncing_GetTip()
 		{
-			using (var repo = new RepositoryWithFilesSetup("dontMatter"))
+			using (var repo = new RepositoryWithFilesSetup("dontMatter", "foo.txt", ""))
 			{
-				Assert.AreEqual("0", repo.Repo.GetRepository(_progress).GetTip().LocalRevisionNumber);
+				Assert.AreEqual("0", repo.RepoMan.GetRepository(_progress).GetTip().LocalRevisionNumber);
 			}
 		}
 	}

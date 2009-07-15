@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Xml;
+using System.Linq;
 
 namespace Chorus.merge.xml.generic
 {
@@ -151,6 +152,10 @@ namespace Chorus.merge.xml.generic
 		public void ConflictOccurred(IConflict conflict)
 		{
 			_writer.WriteStartElement("conflict");
+			TypeGuidAttribute attribute =
+				conflict.GetType().GetCustomAttributes(true).FirstOrDefault(
+					a => a.GetType() == typeof (TypeGuidAttribute)) as TypeGuidAttribute;
+			_writer.WriteAttributeString("typeGuid", string.Empty, attribute.GuidString);
 			_writer.WriteAttributeString("type", string.Empty, conflict.ConflictTypeHumanName);
 			_writer.WriteAttributeString("guid", string.Empty, conflict.Guid.ToString());
 			_writer.WriteAttributeString("date", string.Empty, DateTime.UtcNow.ToString(TimeFormatNoTimeZone));
