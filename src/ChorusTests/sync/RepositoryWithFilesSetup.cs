@@ -12,7 +12,7 @@ namespace Chorus.Tests.merge
 	/// Any test doing high-level testing such that this is useful should expressly Not be interested in details of the files,
 	/// so no methods are provided to control the contents of the files.
 	/// </remarks>
-	public class UserWithFiles :IDisposable
+	public class RepositoryWithFilesSetup :IDisposable
 	{
 		private ProjectFolderConfiguration _project;
 		private StringBuilderProgress _progress = new StringBuilderProgress();
@@ -23,7 +23,7 @@ namespace Chorus.Tests.merge
 		public RepositoryPath RepoPath;
 
 
-		public UserWithFiles(string userName)
+		public RepositoryWithFilesSetup(string userName)
 		{
 			string entriesXml = @"<entry id='one' guid='F169EB3D-16F2-4eb0-91AA-FDB91636F8F6'>
 						<lexical-unit>
@@ -56,7 +56,7 @@ namespace Chorus.Tests.merge
 			Repo = RepositoryManager.FromRootOrChildFolder(_project);
 		}
 
-		public UserWithFiles(string userName, UserWithFiles cloneFromUser)
+		public RepositoryWithFilesSetup(string userName, RepositoryWithFilesSetup cloneFromUser)
 		{
 			_rootFolder = new TempFolder("ChorusTest-"+userName);
 			string pathToProject = _rootFolder.Combine(Path.GetFileName(cloneFromUser._projectFolder.Path));
@@ -80,7 +80,7 @@ namespace Chorus.Tests.merge
 			File.WriteAllText(_liftFile.Path, File.ReadAllText(_liftFile.Path).Replace("original", replacement));
 		}
 
-		public void CheckinAndPullAndMerge(UserWithFiles syncWithUser)
+		public void CheckinAndPullAndMerge(RepositoryWithFilesSetup syncWithUser)
 		{
 			SyncOptions options = new SyncOptions();
 			options.DoMergeWithOthers = true;

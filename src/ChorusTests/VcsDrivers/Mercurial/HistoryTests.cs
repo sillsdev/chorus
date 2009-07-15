@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using Chorus.sync;
+using Chorus.Tests.merge;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
 using NUnit.Framework;
@@ -83,5 +84,22 @@ namespace Chorus.Tests.VcsDrivers.Mercurial
 			Assert.AreEqual("first one", items[1].Summary);
 		}
 
+		[Test]
+		public void GetTip_BeforeAnySyncing_EmptyString()
+		{
+			using (var repo = new EmptyRepositoryForTests())
+			{
+				Assert.IsNull(repo.Repo.GetRepository(_progress).GetTip());
+			}
+		}
+
+		[Test]
+		public void GetTip_AfterSyncing_GetTip()
+		{
+			using (var repo = new RepositoryWithFilesSetup("dontMatter"))
+			{
+				Assert.AreEqual("0", repo.Repo.GetRepository(_progress).GetTip().LocalRevisionNumber);
+			}
+		}
 	}
 }

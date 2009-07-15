@@ -61,6 +61,7 @@ namespace Baton
 			//
 			// toolStrip1
 			//
+			this.toolStrip1.BackColor = System.Drawing.SystemColors.GradientInactiveCaption;
 			this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
 			this.OpenRepositoryButton});
 			this.toolStrip1.Location = new System.Drawing.Point(0, 0);
@@ -87,8 +88,8 @@ namespace Baton
 			this.ClientSize = new System.Drawing.Size(856, 520);
 			this.Controls.Add(this._tabControl);
 			this.Controls.Add(this.toolStrip1);
+			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
 			this.Name = "Shell";
-			this.ShowIcon = false;
 			this.Text = "Chorus";
 			this._tabControl.ResumeLayout(false);
 			this.toolStrip1.ResumeLayout(false);

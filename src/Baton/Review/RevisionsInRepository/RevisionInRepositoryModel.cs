@@ -10,6 +10,7 @@ namespace Baton.Review.RevisionsInRepository
 	{
 		private readonly RepositoryManager _repositoryManager;
 		private readonly RevisionSelectedEvent _revisionSelectedEvent;
+		private string _currentTipRev;
 		public IProgress ProgressDisplay { get; set; }
 
 		public RevisionInRepositoryModel(RepositoryManager repositoryManager, RevisionSelectedEvent revisionSelectedEvent)
@@ -24,6 +25,12 @@ namespace Baton.Review.RevisionsInRepository
 			Guard.AgainstNull(ProgressDisplay, "ProgressDisplay");
 			if (!RepositoryManager.CheckEnvironmentAndShowMessageIfAppropriate("en"))
 				return new List<Revision>();
+
+			var tip = _repositoryManager.GetRepository(ProgressDisplay).GetTip();
+			if (tip != null)
+			{
+				_currentTipRev = tip.LocalRevisionNumber;
+			}
 			return _repositoryManager.GetAllRevisions(ProgressDisplay);
 		}
 
@@ -31,6 +38,20 @@ namespace Baton.Review.RevisionsInRepository
 		{
 			if (_revisionSelectedEvent!=null)
 				_revisionSelectedEvent.Raise(descriptor);
+		}
+
+		public bool GetNeedRefresh()
+		{
+			try
+			{
+				var s = _repositoryManager.GetRepository(ProgressDisplay).GetTip().LocalRevisionNumber;
+				return s != _currentTipRev;
+			}
+			catch (Exception)
+			{
+				return false;
+				throw;
+			}
 		}
 	}
 }

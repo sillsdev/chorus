@@ -56,7 +56,7 @@ namespace Baton
 			var shell= _container.Resolve<Shell>();
 
 			shell.AddPage("Review", _container.Resolve<ReviewPage>());
-			shell.AddPage("Sync", _container.Resolve<SyncPanel>());
+			shell.AddPage("Send/Receive", _container.Resolve<SyncPanel>());
 			shell.AddPage("Settings", _container.Resolve<SettingsView>());
 
 			return shell;

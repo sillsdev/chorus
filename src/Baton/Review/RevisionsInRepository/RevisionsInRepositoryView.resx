@@ -117,4 +117,30 @@
   <resheader name="writer">
 	<value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <assembly alias="System.Drawing" name="System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+  <data name="_loadButton.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+	<value>
+		iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAAFzUkdCAK7O
+		HOkAAAAEZ0FNQQAAsY8L/GEFAAAAGXRFWHRTb2Z0d2FyZQB3d3cuaW5rc2NhcGUub3Jnm+48GgAAAshJ
+		REFUOE9tU11Ik2EUtkiozAq6qairuqlu06nZRUR0kf2ARYFEdaFu/kBJpUZYlNGISsOkpCSN7dtMzVnm
+		GJpOsWymVpviTF2i22zOiTW/reb2nZ73cxtjdPGwd+95z3Oe85zzxRBRTAh7MxXbU2SqFyk5KktittKT
+		LFPZcG7HfToQG/W2GHcbw8kJmYoTSVLOIy3X+8o0JlJ3/yB1l4Uqmofo3F3doiRbuYCEM4wkIUuRhTMB
+		G0QCHHYlyzj+fqOJqt+PU23HBLV8tlGnyUH9E/M0PLVAncYZOlLYxEOZ/uClei9I/MhbLxJA6jNZuT5Q
+		8PQDpeaqCUGCdP/ZO1p3bduoYLb+ojH7b5r46Sa5ajDwyTzL4n9BEC8SQLr7wMV6Ss2rExDgEbgCbAEO
+		Jcm4gQtyHT8w5qQpJ0/2eY8IvPMhHicSoH+WuCR91FuNXu0I7Igy7DxT1TvioI9mJ03P8SDgGMHakAf+
+		tOK3JVerv+w5fbttEwIrIyazCgp7yhq++mZQmbWyrIBbwrs1IYL4yIpR1WuY44cvN/5JK2zyiihq8gan
+		sDpEwAwRggjglznMKujYbgCb/4NtrFC4BZuLJ5vLQ1b091w7EpBIuUm2KNHKShTDWwuqBpKDRdYtm4iZ
+		sr56RpxkGJ1lC8LU5ES1EpeQpXTkVRoepN/QdgdbiBUJ4HyAETB3rVDSZbTT0WINjxH24WFicNlyUnPr
+		XMevt7IRChKp0hduAS4H2LJUvhkSJh2L4sL0j7uorNEopBVpeFRewqYSIOzPryPcMRJ1mAAKhIxSrRdr
+		OnTsWvNiS980Gb7PUfu3GdIYpqmmw0LyeiPdUg7Sw9cmQkG2bLsjTSQkVwSlnpRkc/Onbr5zl3KD9KTV
+		TFW6MbrXYKL8x91+9sHBs4yQP6EpvATjiojlicX/dMjsgA8OJPhwtu7LVb3C/c5Ic/8BQVqGDn3IwFMA
+		AAAASUVORK5CYII=
+</value>
+  </data>
+  <metadata name="toolTip1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+	<value>104, 6</value>
+  </metadata>
+  <metadata name="timer1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+	<value>17, 6</value>
+  </metadata>
 </root>

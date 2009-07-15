@@ -15,6 +15,7 @@
 	<TargetFrameworkSubset>
 	</TargetFrameworkSubset>
 	<StartupObject>Baton.Program</StartupObject>
+	<ApplicationIcon>chorus.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
 	<DebugSymbols>true</DebugSymbols>
@@ -91,6 +92,9 @@
 	<Compile Include="Properties\AssemblyInfo.cs" />
 	<EmbeddedResource Include="Review\ChangedReport\ChangeReportView.resx">
 	  <DependentUpon>ChangeReportView.cs</DependentUpon>
+	</EmbeddedResource>
+	<EmbeddedResource Include="Review\ReviewPage.resx">
+	  <DependentUpon>ReviewPage.cs</DependentUpon>
 	</EmbeddedResource>
 	<EmbeddedResource Include="Review\RevisionsInRepository\RevisionsInRepositoryView.resx">
 	  <DependentUpon>RevisionsInRepositoryView.cs</DependentUpon>
@@ -169,6 +173,7 @@
 	</ProjectReference>
   </ItemGroup>
   <ItemGroup>
+	<Content Include="chorus.ico" />
 	<Content Include="SyncPanel\finished.wav">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</Content>

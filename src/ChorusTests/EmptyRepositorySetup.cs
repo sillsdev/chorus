@@ -8,7 +8,7 @@ namespace Chorus.Tests
 	/// <summary>
 	/// Provides temporary directories and repositories.
 	/// </summary>
-	public class EmptyRepositoryForTests :IDisposable
+	public class EmptyRepositorySetup :IDisposable
 	{
 		private StringBuilderProgress _progress = new StringBuilderProgress();
 		public TempFolder RootFolder;
@@ -17,7 +17,7 @@ namespace Chorus.Tests
 		public RepositoryPath RepoPath;
 
 
-		public EmptyRepositoryForTests()
+		public EmptyRepositorySetup()
 		{
 
 			var userName = "Dan";

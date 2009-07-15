@@ -87,9 +87,23 @@ namespace Baton.Review.RevisionsInRepository
 
 		private void HistoryPanel_VisibleChanged(object sender, EventArgs e)
 		{
-			if (Visible && _historyList.Items.Count == 0)
+			timer1.Enabled = this.Visible;
+//            if (Visible && _historyList.Items.Count == 0)
+//            {
+//                _loadButton_Click(null, null);
+//            }
+		}
+
+		private void timer1_Tick(object sender, EventArgs e)
+		{
+			if (this.Visible)
 			{
-				_loadButton_Click(null, null);
+				if (_model.GetNeedRefresh())
+				{
+					_loadButton_Click(this,null);
+					//enhance, check after app itself is reactivated, or work in background.  It  is noticeably slow.
+					timer1.Enabled = false;//don't check again so long as we're visible
+				}
 			}
 		}
 	}

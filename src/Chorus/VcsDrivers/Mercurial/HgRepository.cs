@@ -89,7 +89,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				}
 				try
 				{
-					Execute("update", targetUri); // for usb keys and other local repositories
+					Execute("update", targetUri, "-C"); // for usb keys and other local repositories
 				}
 				catch (Exception err)
 				{
@@ -143,9 +143,12 @@ namespace Chorus.VcsDrivers.Mercurial
 			}
 		}
 
-		private Revision GetTip()
+		public Revision GetTip()
 		{
-			return GetRevisionsFromQuery("tip")[0];
+			var rev= GetRevisionsFromQuery("tip").FirstOrDefault();
+			if(rev==null || rev.LocalRevisionNumber == "-1")
+				return null;
+			return rev;
 		}
 
 		protected List<Revision> GetHeads()
@@ -323,7 +326,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		{
 			using (new ConsoleProgress("{0} updating",_userName))
 			{
-				Execute("update", _pathToRepository);
+				Execute("update", _pathToRepository, "-C");
 			}
 		}
 
@@ -800,6 +803,8 @@ namespace Chorus.VcsDrivers.Mercurial
 			}
 			doc.Save();
 		}
+
+
 	}
 
 	public class RepositoryAddress

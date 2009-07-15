@@ -52,7 +52,7 @@ two = http://foo.com");
 		[Test]
 		public void GetUserName_NameInLocalReop_GetsName()
 		{
-			using (var setup = new EmptyRepositoryForTests())
+			using (var setup = new EmptyRepositorySetup
 			{
 				setup.WriteIniContents(@"[ui]
 username = joe
@@ -64,7 +64,7 @@ username = joe
 		[Test]
 		public void GetUserName_EmptyHgrc_ReturnsEmpty()
 		{
-			using (var setup = new EmptyRepositoryForTests())
+			using (var setup = new EmptyRepositorySetup
 			{
 				setup.WriteIniContents(@"");
 				var repository = setup.Repo.GetRepository(new StringBuilderProgress());
@@ -74,7 +74,7 @@ username = joe
 		[Test]
 		public void GetUserName_NoHgrcYet_ReturnsEmpty()
 		{
-			using (var setup = new EmptyRepositoryForTests())
+			using (var setup = new EmptyRepositorySetup
 			{
 				setup.EnsureNoHgrcExists();
 				var repository = setup.Repo.GetRepository(new StringBuilderProgress());
@@ -84,7 +84,7 @@ username = joe
 		[Test]
 		public void SetUserNameInIni_SetsName()
 		{
-			using (var setup = new EmptyRepositoryForTests())
+			using (var setup = new EmptyRepositorySetup
 			{
 				setup.EnsureNoHgrcExists();
 				var repository = setup.Repo.GetRepository(new StringBuilderProgress());
@@ -99,7 +99,7 @@ username = joe
 		[Test]
 		public void SetAddresses()
 		{
-			using (var setup = new EmptyRepositoryForTests())
+			using (var setup = new EmptyRepositorySetup
 			{
 				setup.EnsureNoHgrcExists();
 				var repository = setup.Repo.GetRepository(new StringBuilderProgress());

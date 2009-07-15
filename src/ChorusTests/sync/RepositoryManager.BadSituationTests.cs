@@ -30,9 +30,9 @@ namespace Chorus.Tests.sync
 		[Test]
 		public void Sync_ExceptionInMergeCode_GetExceptionAndMergeDoesntHappen()
 		{
-			using (UserWithFiles bob = new UserWithFiles("bob"))
+			using (RepositoryWithFilesSetup bob = new RepositoryWithFilesSetup("bob"))
 			{
-				using (UserWithFiles sally = new UserWithFiles("sally", bob))
+				using (RepositoryWithFilesSetup sally = new RepositoryWithFilesSetup("sally", bob))
 				{
 					bob.ReplaceSomething("bobWasHere");
 					bob.Checkin();
