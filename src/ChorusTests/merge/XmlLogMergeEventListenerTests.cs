@@ -29,7 +29,7 @@ namespace Chorus.Tests.merge
 				}
 				XmlDocument doc = new XmlDocument();
 				doc.Load(logFile.Path);
-				Assert.AreEqual(4, doc.SafeSelectNodes("conflicts/conflict").Count);
+				Assert.AreEqual(4, doc.SafeSelectNodes("conflicts/DummyConflict").Count);
 			}
 		}
 
@@ -45,7 +45,7 @@ namespace Chorus.Tests.merge
 				}
 				XmlDocument doc = new XmlDocument();
 				doc.Load(logFile.Path);
-				Assert.AreEqual(2, doc.SelectNodes("conflicts/conflict").Count);
+				Assert.AreEqual(2, doc.SelectNodes("conflicts/DummyConflict").Count);
 			}
 		}
 
@@ -70,10 +70,12 @@ namespace Chorus.Tests.merge
 	{
 		private Guid _guid = Guid.NewGuid();
 
+		public string RelativeFilePath { get; set; }
 
-		public Guid ConflictTypeGuid
+		public string Context
 		{
-			get { throw new NotImplementedException(); }
+			get { return string.Empty; }
+			set { ; }
 		}
 
 		public string GetFullHumanReadableDescription()
@@ -101,5 +103,9 @@ namespace Chorus.Tests.merge
 			throw new System.NotImplementedException();
 		}
 
+		public void WriteAsXml(XmlWriter writer)
+		{
+			writer.WriteElementString("conflict", string.Empty, "Dummy");
+		}
 	}
 }

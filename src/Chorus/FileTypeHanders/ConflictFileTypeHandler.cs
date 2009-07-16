@@ -31,7 +31,7 @@ namespace Chorus.FileTypeHanders
 		public void Do3WayMerge(MergeOrder order)
 		{
 			XmlMerger merger  = new XmlMerger(order.MergeSituation);
-			NodeMergeResult r = merger.MergeFiles(order.pathToOurs, order.pathToTheirs, order.pathToCommonAncestor);
+			var r = merger.MergeFiles(order.pathToOurs, order.pathToTheirs, order.pathToCommonAncestor);
 			File.WriteAllText(order.pathToOurs, r.MergedNode.OuterXml);
 		}
 		public IEnumerable<IChangeReport> Find2WayDifferences(FileInRevision fileInRevision, string pathToParent, string pathToChild)
@@ -80,7 +80,7 @@ namespace Chorus.FileTypeHanders
 
 		public string GetDataLabel()
 		{
-			return "todo";
+			return "conflict";
 		}
 
 		public string GetActionLabel()
@@ -95,7 +95,7 @@ namespace Chorus.FileTypeHanders
 			if (_report is XmlAdditionChangeReport)
 			{
 				var r = _report as XmlAdditionChangeReport;
-				builder.AppendFormat("<p>{0}</p>", _report.ChildNode.InnerText);
+				builder.AppendFormat("<p>{0}</p>", XmlUtilities.GetXmlForShowingInHtml(_report.ChildNode.OuterXml));
 			}
 
 			builder.Append("</html>");

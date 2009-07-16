@@ -1,19 +1,22 @@
 using System;
 using System.IO;
 using System.Text;
+using System.Xml;
 using Chorus.merge.xml.generic;
 using Chorus.retrieval;
 
 namespace Chorus.merge
 {
+
 	public interface IConflict
 	{
 		//store a descriptor that can be used later to find the element again, as when reviewing conflict.
 		//for xml files, this would be an xpath which returns the element which you'd use to
 		//show the difference to the user
 		string PathToUnitOfConflict { get; set; }
+		string RelativeFilePath { get; }
 
-
+		string Context { get; set; }
 		string GetFullHumanReadableDescription();
 		string ConflictTypeHumanName
 		{
@@ -23,6 +26,7 @@ namespace Chorus.merge
 		Guid  Guid { get; }
 
 		string GetConflictingRecordOutOfSourceControl(IRetrieveFile fileRetriever, ThreeWayMergeSources.Source mergeSource);
+		void WriteAsXml(XmlWriter writer);
 	}
 
 	public class TypeGuidAttribute : Attribute
@@ -35,31 +39,35 @@ namespace Chorus.merge
 	}
 
 	[TypeGuid("18C7E1A2-2F69-442F-9057-6B3AC9833675")]
-	public class UnmergableFileTypeConflict :Conflict, IConflict
+	public class UnmergableFileTypeConflict :Conflict
 	{
-		private MergeOrder _order;
+		public MergeOrder.ConflictHandlingModeChoices _conflictHandlingMode;
 
+		public UnmergableFileTypeConflict()
+		{
+
+		}
 		public UnmergableFileTypeConflict(MergeOrder order)
 			: base(order.MergeSituation)
 		{
-			_order = order;
+			_conflictHandlingMode = order.ConflictHandlingMode;
 		}
 
 
-		public string GetFullHumanReadableDescription()
+		public override string GetFullHumanReadableDescription()
 		{
 			var b = new StringBuilder();
 			b.AppendFormat("Chorus did not have the ability to merge both user's version of the file {0}", _mergeSituation.PathToFileInRepository);
 			b.AppendLine();
-			string winnerId = (_order.ConflictHandlingMode == MergeOrder.ConflictHandlingModeChoices.TheyWin)
+			string winnerId = (_conflictHandlingMode == MergeOrder.ConflictHandlingModeChoices.TheyWin)
 								  ?
-									  _order.MergeSituation.UserYId
-								  : _order.MergeSituation.UserXId;
+									 _mergeSituation.UserYId
+								  :_mergeSituation.UserXId;
 
-			string loserId = (_order.ConflictHandlingMode != MergeOrder.ConflictHandlingModeChoices.TheyWin)
+			string loserId = (_conflictHandlingMode != MergeOrder.ConflictHandlingModeChoices.TheyWin)
 								  ?
-									  _order.MergeSituation.UserYId
-								  : _order.MergeSituation.UserXId;
+									 _mergeSituation.UserYId
+								  :_mergeSituation.UserXId;
 
 			b.AppendFormat("The merger gave both users the copy from '{0}'.", winnerId);
 			b.AppendLine();
@@ -67,12 +75,12 @@ namespace Chorus.merge
 			return b.ToString();
 		}
 
-		public string ConflictTypeHumanName
+		public override string ConflictTypeHumanName
 		{
 			get { return "Merge Failure"; }
 		}
 
-		public string GetConflictingRecordOutOfSourceControl(IRetrieveFile fileRetriever, ThreeWayMergeSources.Source mergeSource)
+		public override string GetConflictingRecordOutOfSourceControl(IRetrieveFile fileRetriever, ThreeWayMergeSources.Source mergeSource)
 		{
 			throw new NotImplementedException();
 		}

@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Xml;
+using System.Xml.Serialization;
 using Chorus.retrieval;
 using Chorus.Utilities;
 
@@ -31,22 +33,60 @@ namespace Chorus.merge.xml.generic
 //        }
 //    }
 
-	public abstract class Conflict
+	public abstract class Conflict :IConflict
 	{
+		static public string TimeFormatNoTimeZone = "yyyy-MM-ddTHH:mm:ssZ";
+
 		protected Guid _guid = Guid.NewGuid();
 		public string PathToUnitOfConflict { get; set; }
+		public string RelativeFilePath { get { return _mergeSituation.PathToFileInRepository; } }
+
+		public abstract string GetFullHumanReadableDescription();
+		public abstract string ConflictTypeHumanName { get; }
 		protected readonly MergeSituation _mergeSituation;
 
+		//for xmlserialization
+		public Conflict()
+		{
+
+		}
 		protected Conflict(MergeSituation situation)
 		{
 			_mergeSituation = situation;
 		}
 
 
+		public string Context {get;set;}
 
 		public Guid Guid
 		{
 			get { return _guid; }
+		}
+
+		public abstract string GetConflictingRecordOutOfSourceControl(IRetrieveFile fileRetriever, ThreeWayMergeSources.Source mergeSource);
+
+		public void WriteAsXml(XmlWriter writer)
+		{
+			writer.WriteStartElement("conflict");
+			TypeGuidAttribute attribute =
+				GetType().GetCustomAttributes(true).FirstOrDefault(
+					a => a.GetType() == typeof (TypeGuidAttribute)) as TypeGuidAttribute;
+			Guard.AgainstNull(attribute,
+							  "The Conflict type " + GetType().ToString() + " needs a guid attribute");
+			writer.WriteAttributeString("typeGuid", string.Empty, attribute.GuidString);
+			writer.WriteAttributeString("class", string.Empty, this.GetType().FullName);
+			writer.WriteAttributeString("relativeFilePath", string.Empty, RelativeFilePath);
+			writer.WriteAttributeString("pathToUnitOfConflict", string.Empty, PathToUnitOfConflict);
+			writer.WriteAttributeString("type", string.Empty, ConflictTypeHumanName);
+			writer.WriteAttributeString("guid", string.Empty, Guid.ToString());
+			writer.WriteAttributeString("date", string.Empty, DateTime.UtcNow.ToString(TimeFormatNoTimeZone));
+			writer.WriteAttributeString("context", string.Empty, Context);
+
+			writer.WriteString(GetFullHumanReadableDescription());
+
+			_mergeSituation.WriteAsXml(writer);
+
+			writer.WriteEndElement();
 		}
 
 	}
@@ -89,7 +129,7 @@ namespace Chorus.merge.xml.generic
 
 
 
-		public virtual string GetFullHumanReadableDescription()
+		public override string GetFullHumanReadableDescription()
 		{
 			return string.Format("{0} ({1}): {2}", ConflictTypeHumanName, AttributeDescription, WhatHappened);
 		}
@@ -97,12 +137,9 @@ namespace Chorus.merge.xml.generic
 		{
 			return string.Format("<conflict type='{0}'/>", this.GetType().Name);
 		}
-		public abstract string ConflictTypeHumanName
-		{
-			get;
-		}
 
-		public string GetConflictingRecordOutOfSourceControl(IRetrieveFile fileRetriever, ThreeWayMergeSources.Source mergeSource)
+
+		public override string GetConflictingRecordOutOfSourceControl(IRetrieveFile fileRetriever, ThreeWayMergeSources.Source mergeSource)
 		{
 			string revision=null;
 		   // string elementId = null;
@@ -215,7 +252,7 @@ namespace Chorus.merge.xml.generic
 		}
 
 
-		public virtual string GetFullHumanReadableDescription()
+		public override string GetFullHumanReadableDescription()
 		{
 			//enhance: this is a bit of a hack to pick some element that isn't null
 			XmlNode element = _ourElement == null ? _ancestorElement : _ourElement;
@@ -228,17 +265,13 @@ namespace Chorus.merge.xml.generic
 		}
 
 
-		public string GetConflictingRecordOutOfSourceControl(IRetrieveFile fileRetriever, ThreeWayMergeSources.Source mergeSource)
+		public override string GetConflictingRecordOutOfSourceControl(IRetrieveFile fileRetriever, ThreeWayMergeSources.Source mergeSource)
 		{
 			//fileRetriever.RetrieveHistoricalVersionOfFile(_file, userSources[]);
 			return null;
 		}
 
 
-		public abstract string ConflictTypeHumanName
-		{
-			get;
-		}
 		public abstract string WhatHappened
 		{
 			get;
@@ -327,6 +360,8 @@ namespace Chorus.merge.xml.generic
 			: base(elementName, ourElement, theirElement, ancestorElement, mergeSituation, mergeStrategies)
 		{
 		}
+
+
 
 		public override string ConflictTypeHumanName
 		{

@@ -7,44 +7,10 @@ using Chorus.merge.xml.generic;
 
 namespace Chorus.merge.xml.generic
 {
-	public class NodeMergeResult : IMergeEventListener
-	{
-		private XmlNode _mergedNode;
-		public IList<IConflict> Conflicts{get;set;}
-		public IList<IChangeReport> Changes { get; set; }
-
-		public NodeMergeResult()
+	 public class NodeMergeResult : ChangeAndConflictAccumulator
 		{
-			Conflicts = new List<IConflict>();
-			Changes = new List<IChangeReport>();
+				public XmlNode MergedNode { get; internal set; }
 		}
-
-		public XmlNode MergedNode
-		{
-			get
-			{
-				return _mergedNode;
-			}
-			internal set { _mergedNode = value; }
-		}
-
-
-
-		public void ConflictOccurred(IConflict conflict)
-		{
-			Conflicts.Add(conflict);
-		}
-
-		public void ChangeOccurred(IChangeReport change)
-		{
-			Changes.Add(change);
-		}
-
-		public void EnteringContext(string context)
-		{
-
-		}
-	}
 
 	public class XmlMerger
 	{
@@ -69,7 +35,7 @@ namespace Chorus.merge.xml.generic
 		/// <returns></returns>
 		public NodeMergeResult Merge(XmlNode ours, XmlNode theirs, XmlNode ancestor)
 		{
-			NodeMergeResult result = new NodeMergeResult();
+			var result = new NodeMergeResult();
 			DispatchingMergeEventListener dispatcher= new DispatchingMergeEventListener();
 			dispatcher.AddEventListener(result);
 			EventListener = dispatcher;

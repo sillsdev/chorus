@@ -1,4 +1,7 @@
 using System;
+using System.IO;
+using System.Text;
+using System.Xml;
 using Chorus.merge.xml.generic;
 
 namespace Chorus.merge
@@ -37,7 +40,16 @@ namespace Chorus.merge
 		public string UserYRevision { get; set; }
 
 
-
+		public void WriteAsXml(XmlWriter writer)
+		{
+			writer.WriteStartElement("MergeSituation");
+			writer.WriteAttributeString("userXId", UserXId);
+			writer.WriteAttributeString("userYId", UserYId);
+			writer.WriteAttributeString("userXRevision", UserXRevision);
+			writer.WriteAttributeString("userYRevision", UserYRevision);
+			writer.WriteAttributeString("path", PathToFileInRepository);
+			writer.WriteEndElement();
+		}
 
 		public MergeSituation(string relativePathToFile, string userXId, string userXRevision, string userYId, string userYRevision/*, string ancestorRevision*/)
 		{
@@ -79,6 +91,14 @@ namespace Chorus.merge
 			Environment.SetEnvironmentVariable(kUserYId, userYId);
 			Environment.SetEnvironmentVariable(kUserYRevision, userYRevision);
 		}
+//
+//        public void WriteXml(XmlWriter writer)
+//        {
+//            writer.WriteStartElement("MergeSituation");
+//            writer.WriteAttributeString("PathToFileInRepository",this.PathToFileInRepository);
+//            writer.WriteEndElement();
+//        }
+
 
 
 	}

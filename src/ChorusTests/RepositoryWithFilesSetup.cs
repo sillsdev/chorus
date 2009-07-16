@@ -162,11 +162,11 @@ namespace Chorus.Tests.merge
 
 			XmlDocument doc = new XmlDocument();
 			doc.Load(xmlConflictFile);
-			Assert.AreEqual(1, doc.SafeSelectNodes("conflicts/conflict").Count);
-			Assert.AreEqual(1, doc.SafeSelectNodes("conflicts/conflict").Count);
-			var x = typeof (TConflict).GetCustomAttributes(true);
-			var y = x[0] as TypeGuidAttribute;
-			Assert.AreEqual(1, doc.SafeSelectNodes("conflicts/conflict[@typeGuid='{0}']", y.GuidString).Count);
+			Assert.AreEqual(1, doc.SafeSelectNodes("conflicts/"+typeof(TConflict).Name).Count);
+
+//            var x = typeof (TConflict).GetCustomAttributes(true);
+//            var y = x[0] as TypeGuidAttribute;
+//            Assert.AreEqual(1, doc.SafeSelectNodes("conflicts/conflict[@typeGuid='{0}']", y.GuidString).Count);
 
 		}
 

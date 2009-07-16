@@ -3,7 +3,7 @@ using Chorus.merge.xml.generic;
 
 namespace Chorus.merge
 {
-	internal class ChangeAndConflictAccumulator : IMergeEventListener
+	public class ChangeAndConflictAccumulator : IMergeEventListener
 	{
 
 		public List<IConflict> Conflicts = new List<IConflict>();
