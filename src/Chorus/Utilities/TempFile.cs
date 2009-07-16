@@ -46,7 +46,7 @@ namespace Chorus.Utilities
 		private TempLiftFile()
 		{
 		}
-		public static TempLiftFile TrackExisting(string path)
+		public static new TempLiftFile TrackExisting(string path)
 		{
 			Debug.Assert(File.Exists(path));
 			TempLiftFile t= new TempLiftFile();

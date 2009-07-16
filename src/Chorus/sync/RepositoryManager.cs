@@ -6,6 +6,7 @@ using System.Text;
 using System.Windows.Forms;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
+using System.Linq;
 
 namespace Chorus.sync
 {
@@ -84,8 +85,11 @@ namespace Chorus.sync
 				if (!string.IsNullOrEmpty(startingPath) && Directory.Exists(newRepositoryPath))
 				{
 					HgRepository.CreateRepositoryInExistingDir(newRepositoryPath);
+
 					//review: Machine name would be more accurate, but most people have, like "Compaq" as their machine name
-					HgRepository.SetUserId(newRepositoryPath, System.Environment.UserName);
+					//but in any case, this is just a default until they set the name explicity
+					var hg = new HgRepository(newRepositoryPath, new NullProgress());
+					hg.SetUserNameInIni(System.Environment.UserName, new NullProgress());
 					return new RepositoryManager(newRepositoryPath, project);
 				}
 				else
@@ -98,7 +102,8 @@ namespace Chorus.sync
 		internal static void MakeRepositoryForTest(string newRepositoryPath, string userId)
 		{
 			HgRepository.CreateRepositoryInExistingDir(newRepositoryPath);
-			HgRepository.SetUserId(newRepositoryPath, userId);
+			var hg = new HgRepository(newRepositoryPath, new NullProgress());
+			hg.SetUserNameInIni(userId, new NullProgress());
 		}
 
 		public static string GetEnvironmentReadinessMessage(string messageLanguageId)
@@ -119,9 +124,11 @@ namespace Chorus.sync
 
 			HgRepository repo = new HgRepository(_localRepositoryPath,progress);
 
+
 			progress.WriteStatus("Checking In...");
 			repo.AddAndCheckinFiles(_project.IncludePatterns, _project.ExcludePatterns, options.CheckinDescription);
 
+			var tipBeforeSync = repo.GetTip();
 			List<RepositoryPath> sourcesToTry = options.RepositorySourcesToTry;
 
 			//if the client didn't specify any, try them all
@@ -149,18 +156,14 @@ namespace Chorus.sync
 			if (options.DoMergeWithOthers)
 			{
 				progress.WriteStatus("Merging...");
-				IList<string> peopleWeMergedWith = repo.MergeHeads(progress, results);//this may generate conflict files
-				// in case of a merge, we want these merged version + updated/created conflict files to go right back into
-				// the repository
+
+				IList<string> peopleWeMergedWith = repo.MergeHeads(progress, results);
+
+				//that merge may have generated conflict files, and we want these merged
+				//version + updated/created conflict files to go right back into the repository
 				if (peopleWeMergedWith.Count > 0)
 				{
-					string message = "Merged with ";
-					foreach (string id in peopleWeMergedWith)
-					{
-						message += id + ", ";
-					}
-					message = message.Remove(message.Length - 2); //chop off the trailing comma
-					repo.AddAndCheckinFiles(_project.IncludePatterns, _project.ExcludePatterns, message);
+					repo.AddAndCheckinFiles(_project.IncludePatterns, _project.ExcludePatterns, GetMergeCommitSummary(peopleWeMergedWith));
 				}
 			}
 
@@ -184,9 +187,56 @@ namespace Chorus.sync
 					}
 				}
 			}
-			repo.Update();// REVIEW
+			UpdateToTheDescendantRevision(repo, tipBeforeSync);
 			progress.WriteStatus("Done.");
 			return results;
+		}
+
+		/// <summary>
+		/// If everything got merged, then this is trivial. But in case of a merge failure,
+		/// the "tip" might be the other guy's unmergable data (mabye because he has a newer
+		/// version of some application than we do) We don't want to switch to that!
+		///
+		/// So if there are more than one head out there, we update to the one that is a descendant
+		/// of our latest checkin (which in the simple merge failure case is the the checkin itself,
+		/// but in a 3-or-more source scenario could be the result of a merge with a more cooperative
+		/// revision).
+		/// </summary>
+		private void UpdateToTheDescendantRevision(HgRepository repository, Revision parent)
+		{
+			var heads = repository.GetHeads();
+			if (heads.Count == 1)
+			{
+				repository.Update(); //update to the tip
+				return;
+			}
+			if (heads.Any(h => h.Number.Hash == parent.Number.Hash))
+			{
+				return; // our revision is still a head, so nothing to do
+			}
+
+			//TODO: I think this "direct descendant" limitation won't be enough
+			//  when there are more than 2 people merging and there's a failure
+			foreach (var head in heads)
+			{
+				if (head.IsDirectDescendantOf(parent))
+				{
+					repository.Update(head.Number.Hash);
+					return;
+				}
+			}
+			throw new ApplicationException("Could not find a head to update to.");
+		}
+
+		private string GetMergeCommitSummary(IList<string> peopleWeMergedWith)
+		{
+			var message  = "Merged with ";
+			foreach (string id in peopleWeMergedWith)
+			{
+				message += id + ", ";
+			}
+			return message.Remove(message.Length - 2); //chop off the trailing comma
+
 		}
 
 		/// <summary>
@@ -307,7 +357,8 @@ namespace Chorus.sync
 
 		public void SetUserId(string userId)
 		{
-		   HgRepository.SetUserId(_localRepositoryPath, userId);
+			GetRepository(new NullProgress()).SetUserNameInIni(userId, new NullProgress());
+//           HgRepository.SetUserId(_localRepositoryPath, userId);
 		}
 
 		public bool GetFileExistsInRepo(string fullPath)

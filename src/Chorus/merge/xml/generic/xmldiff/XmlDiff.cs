@@ -57,7 +57,9 @@ namespace Chorus.merge.xml.generic.xmldiff
 
 			if (_diffConfiguration.UseValidatingParser)
 			{
+#pragma warning disable 612,618
 				XmlValidatingReader validatingReader = new XmlValidatingReader(xmlReader);
+#pragma warning restore 612,618
 				return validatingReader;
 			}
 

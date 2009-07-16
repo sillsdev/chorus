@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Xml;
 using System.Linq;
+using Chorus.Utilities;
 
 namespace Chorus.merge.xml.generic
 {
@@ -155,6 +156,7 @@ namespace Chorus.merge.xml.generic
 			TypeGuidAttribute attribute =
 				conflict.GetType().GetCustomAttributes(true).FirstOrDefault(
 					a => a.GetType() == typeof (TypeGuidAttribute)) as TypeGuidAttribute;
+			Guard.AgainstNull(attribute, "The Conflict type "+conflict.GetType().ToString()+" needs a guid attribute");
 			_writer.WriteAttributeString("typeGuid", string.Empty, attribute.GuidString);
 			_writer.WriteAttributeString("type", string.Empty, conflict.ConflictTypeHumanName);
 			_writer.WriteAttributeString("guid", string.Empty, conflict.Guid.ToString());

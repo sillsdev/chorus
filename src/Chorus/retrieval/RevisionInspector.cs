@@ -40,12 +40,12 @@ namespace Chorus.retrieval
 
 			else
 			{
-				var parentRevs = revision.GetLocalNumbersOfParents();
-				foreach (var parentRev in parentRevs)
+				IEnumerable<RevisionNumber> parentRevs = revision.GetLocalNumbersOfParents();
+				foreach (RevisionNumber parentRev in parentRevs)
 				{
 					foreach (var fileInRevision in _repository.GetFilesInRevision(revision))
 					{
-						CollectChangesInFile(fileInRevision, parentRev, changes);
+						CollectChangesInFile(fileInRevision, parentRev.LocalRevisionNumber, changes);
 					}
 				}
 				if (parentRevs.Count() > 1)

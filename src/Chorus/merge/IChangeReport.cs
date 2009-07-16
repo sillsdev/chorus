@@ -119,7 +119,7 @@ namespace Chorus.merge
 	{
 		private readonly XmlNode _parentNode;
 		private readonly XmlNode _childNode;
-		private readonly XmlNode _deletedNode;
+	  //  private readonly XmlNode _deletedNode;
 
 		public XmlDeletionChangeReport(string pathToFile, XmlNode parentNode, XmlNode childNode)
 			: base(pathToFile)

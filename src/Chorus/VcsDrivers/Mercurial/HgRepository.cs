@@ -31,7 +31,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			{
 				System.Diagnostics.Process.Start(startInfo);
 			}
-			catch(Exception error)
+			catch(Exception)
 			{
 				 return "Sorry, this feature requires the Mercurial version control system.  It must be installed and part of the PATH environment variable.  Windows users can download and install TortoiseHg";
 			}
@@ -146,7 +146,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		public Revision GetTip()
 		{
 			var rev= GetRevisionsFromQuery("tip").FirstOrDefault();
-			if(rev==null || rev.LocalRevisionNumber == "-1")
+			if(rev==null || rev.Number.LocalRevisionNumber == "-1")
 				return null;
 			return rev;
 		}
@@ -361,21 +361,20 @@ namespace Chorus.VcsDrivers.Mercurial
 		public IList<string> MergeHeads(IProgress progress, SyncResults results)
 		{
 			List<string> peopleWeMergedWith= new List<string>();
-			Revision rev= GetMyHead();
 
 			List<Revision> heads = GetHeads();
 			Revision myHead = GetMyHead();
-			foreach (Revision theirHead in heads)
+			foreach (Revision head in heads)
 			{
-				MergeSituation.PushRevisionsToEnvironmentVariables(myHead.UserId, myHead.LocalRevisionNumber, theirHead.UserId, theirHead.LocalRevisionNumber);
+				MergeSituation.PushRevisionsToEnvironmentVariables(myHead.UserId, myHead.Number.LocalRevisionNumber, head.UserId, head.Number.LocalRevisionNumber);
 
 				MergeOrder.PushToEnvironmentVariables(_pathToRepository);
-				if (theirHead.LocalRevisionNumber != myHead.LocalRevisionNumber)
+				if (head.Number.LocalRevisionNumber != myHead.Number.LocalRevisionNumber)
 				{
-					bool didMerge = MergeTwoChangeSets(myHead, theirHead);
+					bool didMerge = MergeTwoChangeSets(myHead, head);
 					if (didMerge)
 					{
-						peopleWeMergedWith.Add(theirHead.UserId);
+						peopleWeMergedWith.Add(head.UserId);
 					}
 				}
 			}
@@ -391,7 +390,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				using (new ShortTermEnvironmentalVariable(MergeOrder.kConflictHandlingModeEnvVarName, MergeOrder.ConflictHandlingModeChoices.TheyWin.ToString()))
 
 				{
-					result = Execute(true, "merge", _pathToRepository, "-r", theirHead.LocalRevisionNumber);
+					result = Execute(true, "merge", _pathToRepository, "-r", theirHead.Number.LocalRevisionNumber);
 				}
 			}
 			if (result.ExitCode != 0)
@@ -402,14 +401,10 @@ namespace Chorus.VcsDrivers.Mercurial
 //                    Update(theirChangeSet._revision);//REVIEW
 					return false;
 				}
-				else if (result.StandardError.Contains("doesn't know how to merge files"))
-				{
-					_progress.WriteWarning("Error: " + result.StandardError);
-					return false;
-				}
 				else
 				{
-					throw new ApplicationException(result.StandardError);
+					_progress.WriteError(result.StandardError);
+					return false;
 				}
 			}
 			return true;
@@ -480,13 +475,13 @@ namespace Chorus.VcsDrivers.Mercurial
 			_progress.WriteMessage("Current Heads:");
 			foreach (Revision head in heads)
 			{
-				if (head.LocalRevisionNumber == myHead.LocalRevisionNumber)
+				if (head.Number.LocalRevisionNumber == myHead.Number.LocalRevisionNumber)
 				{
-					_progress.WriteMessage("  ME {0} {1} {2}", head.UserId, head.LocalRevisionNumber, head.Summary);
+					_progress.WriteMessage("  ME {0} {1} {2}", head.UserId, head.Number.LocalRevisionNumber, head.Summary);
 				}
 				else
 				{
-					_progress.WriteMessage("      {0} {1} {2}", head.UserId, head.LocalRevisionNumber, head.Summary);
+					_progress.WriteMessage("      {0} {1} {2}", head.UserId, head.Number.LocalRevisionNumber, head.Summary);
 				}
 			}
 		}
@@ -581,6 +576,9 @@ namespace Chorus.VcsDrivers.Mercurial
 							items.Add(item);
 							item.SetRevisionAndHashFromCombinedDescriptor(value);
 							break;
+						case "parent":
+							item.AddParentFromCombinedNumberAndHash(value);
+							break;
 
 						case "user":
 							item.UserId = value;
@@ -604,16 +602,29 @@ namespace Chorus.VcsDrivers.Mercurial
 			return items;
 		}
 
+		/// <summary>
+		/// If we checked in now, which revision would be the parent?
+		/// </summary>
+		public Revision GetRevisionWorkingSetIsBasedOn()
+		{
+			return GetRevisionsFromQuery("parents").FirstOrDefault();
+		}
+
+		[Obsolete("Use the non-static member instead... this is just here for the old partial merger")]
 		public static void SetUserId(string path, string userId)
 		{
-		  Environment.SetEnvironmentVariable("hguser", userId);
+			var hg = new HgRepository(path, new NullProgress());
+			hg.SetUserNameInIni(userId, new NullProgress());
+		  //Environment.SetEnvironmentVariable("hguser", userId);
 		  //defunct Execute("config", path, "--local ui.username " + userId);
 
 		}
 
 		public string GetUserIdInUse()
 		{
-			return GetTextFromQuery(_pathToRepository, "showconfig ui.username").Trim();
+			return GetUserNameFromIni(_progress);
+//this gave the global name, we want the name associated with this repository
+			//return GetTextFromQuery(_pathToRepository, "showconfig ui.username").Trim();
 		}
 
 		public bool GetFileExistsInRepo(string subPath)
@@ -688,27 +699,27 @@ namespace Chorus.VcsDrivers.Mercurial
 				if (action == FileInRevision.Action.NoChanges)
 					action = FileInRevision.Action.Added;
 
-				revisions.Add(new FileInRevision(revision.LocalRevisionNumber, Path.Combine(PathToRepo, line.Substring(2)), action));
+				revisions.Add(new FileInRevision(revision.Number.LocalRevisionNumber, Path.Combine(PathToRepo, line.Substring(2)), action));
 			}
 			return revisions;
 		}
 
 		private IEnumerable<string> GetRevisionRangesFoDiffingARevision(Revision revision)
 		{
-			var parents = GetParentsOfRevision(revision.LocalRevisionNumber);
+			var parents = GetParentsOfRevision(revision.Number.LocalRevisionNumber);
 			if (parents.Count() == 0)
-				yield return string.Format("{0} -A", revision.LocalRevisionNumber);
+				yield return string.Format("{0} -A", revision.Number.LocalRevisionNumber);
 
 			foreach (var parent in parents)
 			{
-			   yield return string.Format("{0}:{1}", parent, revision.LocalRevisionNumber);
+			   yield return string.Format("{0}:{1}", parent, revision.Number.LocalRevisionNumber);
 			}
 		}
 
 		public IEnumerable<string> GetParentsOfRevision(string localRevisionNumber)
 		{
 			return from x in  GetRevisionsFromQuery("parent -r " + localRevisionNumber)
-				   select x.LocalRevisionNumber;
+				   select x.Number.LocalRevisionNumber;
 		}
 
 		private static FileInRevision.Action ParseActionLetter(char actionLetter)
@@ -717,19 +728,14 @@ namespace Chorus.VcsDrivers.Mercurial
 				{
 					case 'A':
 						return FileInRevision.Action.Added;
-						break;
 					case 'M':
 						return FileInRevision.Action.Modified;
-						break;
 					case 'R':
 						return FileInRevision.Action.Deleted;
-						break;
 					case '!':
 						return FileInRevision.Action.Deleted;
-						break;
 					case 'C':
 						return FileInRevision.Action.NoChanges;
-						break;
 					default:
 						return FileInRevision.Action.Unknown;
 				}
@@ -813,6 +819,10 @@ namespace Chorus.VcsDrivers.Mercurial
 		}
 
 
+		public Revision GetRevision(string numberOrHash)
+		{
+			return GetRevisionsFromQuery("log --rev " + numberOrHash).FirstOrDefault();
+		}
 	}
 
 	public class RepositoryAddress

@@ -47,13 +47,13 @@ namespace Chorus.Tests.VcsDrivers.Mercurial
 		public void RetrieveHistoricalVersionOfFile_GetsCorrectContentsOfText()
 		{
 
-				using (var temp = TempFile.TrackExisting(_repo.RetrieveHistoricalVersionOfFile(Path.GetFileName(_tempFile.Path), _changesets[1].Hash)))
+				using (var temp = TempFile.TrackExisting(_repo.RetrieveHistoricalVersionOfFile(Path.GetFileName(_tempFile.Path), _changesets[1].Number.Hash)))
 				{
 					var contents = File.ReadAllText(temp.Path);
 					Assert.AreEqual("one", contents);
 				}
 
-				using (var temp = TempFile.TrackExisting(_repo.RetrieveHistoricalVersionOfFile(Path.GetFileName(_tempFile.Path), _changesets[0].Hash)))
+				using (var temp = TempFile.TrackExisting(_repo.RetrieveHistoricalVersionOfFile(Path.GetFileName(_tempFile.Path), _changesets[0].Number.Hash)))
 				{
 					var contents = File.ReadAllText(temp.Path);
 					Assert.AreEqual("two", contents);
@@ -72,7 +72,7 @@ namespace Chorus.Tests.VcsDrivers.Mercurial
 		public void RetrieveHistoricalVersionOfFile_BogusFile_Throws()
 		{
 			Assert.IsNull(
-				TempFile.TrackExisting(_repo.RetrieveHistoricalVersionOfFile("bogus.txt", _changesets[0].Hash)));
+				TempFile.TrackExisting(_repo.RetrieveHistoricalVersionOfFile("bogus.txt", _changesets[0].Number.Hash)));
 		}
 
 

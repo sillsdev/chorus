@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Chorus.merge;
 using Chorus.Utilities;
 
 namespace Chorus.Tests.merge
 {
-	internal class GroupOfConflictingLiftFiles : IDisposable
+	public class GroupOfConflictingLiftFiles : IDisposable
 	{
 		public TempLiftFile BobFile;
 		public TempLiftFile SallyFile;
@@ -33,7 +34,7 @@ namespace Chorus.Tests.merge
 
 		public string BobTextConflictsPath
 		{
-			get { return Folder.Combine("bob.lift.conflicts.txt"); }
+			get { return Folder.Combine("bob.lift.conflicts"); }
 		}
 
 		public void Dispose()
@@ -42,5 +43,7 @@ namespace Chorus.Tests.merge
 			BobFile.Dispose();
 			SallyFile.Dispose();
 		}
+
+
 	}
 }

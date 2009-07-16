@@ -41,6 +41,7 @@ namespace Chorus.merge
 			pathToCommonAncestor = pathToCommon;
 
 			ConflictHandlingMode = mode;
+			EventListener = new NullMergeEventListener();//client can put something useful in if it needs one
 		}
 
 		public static MergeOrder CreateUsingEnvironmentVariables(string pathToOurs, string pathToCommon,  string pathToTheirs )

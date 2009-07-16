@@ -30,7 +30,7 @@ namespace Chorus.FileTypeHanders
 
 		public void Do3WayMerge(MergeOrder mergeOrder)
 		{
-			Debug.Fail("john");
+		  //  Debug.Fail("john");
 			Guard.AgainstNull(mergeOrder, "mergeOrder");
 			mergeOrder.EventListener.ConflictOccurred(new UnmergableFileTypeConflict(mergeOrder));
 			switch (mergeOrder.ConflictHandlingMode)

@@ -29,7 +29,7 @@ namespace Baton.Review.RevisionsInRepository
 			var tip = _repositoryManager.GetRepository(ProgressDisplay).GetTip();
 			if (tip != null)
 			{
-				_currentTipRev = tip.LocalRevisionNumber;
+				_currentTipRev = tip.Number.LocalRevisionNumber;
 			}
 			return _repositoryManager.GetAllRevisions(ProgressDisplay);
 		}
@@ -44,7 +44,7 @@ namespace Baton.Review.RevisionsInRepository
 		{
 			try
 			{
-				var s = _repositoryManager.GetRepository(ProgressDisplay).GetTip().LocalRevisionNumber;
+				var s = _repositoryManager.GetRepository(ProgressDisplay).GetTip().Number.LocalRevisionNumber;
 				return s != _currentTipRev;
 			}
 			catch (Exception)

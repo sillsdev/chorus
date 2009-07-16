@@ -35,7 +35,9 @@ namespace Chorus.VcsDrivers.Mercurial
 				SetupPerson(repositoryPath, userName);
 
 				HgPartialMerge repo = new HgPartialMerge(repositoryPath);
+#pragma warning disable 612,618
 				HgRepository.SetUserId(repositoryPath, userName);
+#pragma warning restore 612,618
 					 repo.AddFake();
 				 return repo;
 			}
@@ -87,7 +89,9 @@ namespace Chorus.VcsDrivers.Mercurial
 				Execute("clone", null, sourceRepo.PathWithQuotes + " " + SurroundWithQuotes(repositoryPath));
 				SetupPerson(repositoryPath, newPersonName);
 				HgPartialMerge repository = new HgPartialMerge(repositoryPath);
+#pragma warning disable 612,618
 				HgRepository.SetUserId(repositoryPath, newPersonName);
+#pragma warning restore 612,618
 				repository.AddFake();
 				return repository;
 			}
@@ -143,7 +147,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			Revision myHead = GetMyHead();
 			foreach (Revision theirHead in heads)
 			{
-				if (theirHead.LocalRevisionNumber != myHead.LocalRevisionNumber && !HeadIsAStub(theirHead))
+				if (theirHead.Number.LocalRevisionNumber != myHead.Number.LocalRevisionNumber && !HeadIsAStub(theirHead))
 				{
 					didMerge |= SyncWithChangeSet(myHead, theirHead);
 				}
@@ -188,13 +192,13 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		private bool MergeUserHeadWithStub(Revision head, Revision stub)
 		{
-			using (new ConsoleProgress("MergeUserHeadWithStub of {0} with the changeset: {1} {2}", head.LocalRevisionNumber, stub.UserId, stub.LocalRevisionNumber))
+			using (new ConsoleProgress("MergeUserHeadWithStub of {0} with the changeset: {1} {2}", head.Number.LocalRevisionNumber, stub.UserId, stub.Number.LocalRevisionNumber))
 			{
 				using (new ShortTermEnvironmentalVariable(MergeOrder.kConflictHandlingModeEnvVarName, MergeOrder.ConflictHandlingModeChoices.WeWin.ToString()))
 				{
-					Update(head.LocalRevisionNumber);
+					Update(head.Number.LocalRevisionNumber);
 					ExecutionResult result =
-						Execute(true, "merge", _pathToRepository, "-r", stub.LocalRevisionNumber);
+						Execute(true, "merge", _pathToRepository, "-r", stub.Number.LocalRevisionNumber);
 
 					if (result.ExitCode != 0)
 					{
@@ -202,7 +206,7 @@ namespace Chorus.VcsDrivers.Mercurial
 					}
 					else
 					{
-						Commit(false, "Checking in after merge with stub {0}, {1}.", stub.LocalRevisionNumber, stub.Summary);
+						Commit(false, "Checking in after merge with stub {0}, {1}.", stub.Number.LocalRevisionNumber, stub.Summary);
 						return true;
 					}
 				}
@@ -211,7 +215,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		private bool SyncWithChangeSet(Revision myHead, Revision theirChangeSet)
 		{
-			using (new ConsoleProgress("SyncWithChangeSet of {0} with the changeset: {1} {2}", _userName, theirChangeSet.UserId, theirChangeSet.LocalRevisionNumber))
+			using (new ConsoleProgress("SyncWithChangeSet of {0} with the changeset: {1} {2}", _userName, theirChangeSet.UserId, theirChangeSet.Number.LocalRevisionNumber))
 			{
 
 				try
@@ -228,16 +232,16 @@ namespace Chorus.VcsDrivers.Mercurial
 						using (new ShortTermEnvironmentalVariable(MergeOrder.kConflictHandlingModeEnvVarName, MergeOrder.ConflictHandlingModeChoices.LcdPlusPartials.ToString()))
 						{
 							result =
-								Execute(true, "merge", _pathToRepository, "-r", theirChangeSet.LocalRevisionNumber);
+								Execute(true, "merge", _pathToRepository, "-r", theirChangeSet.Number.LocalRevisionNumber);
 						}
 						if (result.ExitCode != 0)
 						{
 							if (result.StandardError.Contains("nothing to merge"))
 							{
-								_progress.WriteMessage("Nothing to merge, updating instead to revision {0}.", theirChangeSet.LocalRevisionNumber);
-								Update(theirChangeSet.LocalRevisionNumber);//REVIEW
+								_progress.WriteMessage("Nothing to merge, updating instead to revision {0}.", theirChangeSet.Number.LocalRevisionNumber);
+								Update(theirChangeSet.Number.LocalRevisionNumber);//REVIEW
 								Commit(false, "!!! not expected to get in {0}:{1}.", theirChangeSet.UserId,
-									   theirChangeSet.LocalRevisionNumber);
+									   theirChangeSet.Number.LocalRevisionNumber);
 								return false;
 							}
 							else
@@ -254,7 +258,7 @@ namespace Chorus.VcsDrivers.Mercurial
 								//merger program, it can just apply the changes.
 
 								_progress.WriteMessage("Did trivial merge.");
-								Commit(false, "Checking in after no-conflicts merge with rev {0}, {1}.", theirChangeSet.LocalRevisionNumber, theirChangeSet.Summary );
+								Commit(false, "Checking in after no-conflicts merge with rev {0}, {1}.", theirChangeSet.Number.LocalRevisionNumber, theirChangeSet.Summary );
 								return true;
 							}
 						}
@@ -263,7 +267,7 @@ namespace Chorus.VcsDrivers.Mercurial
 					{
 						if (expected.Message.Contains("nothing to merge"))
 						{
-							Commit(false, "*** not expected to get in {0}:{1}.", theirChangeSet.UserId, theirChangeSet.LocalRevisionNumber);
+							Commit(false, "*** not expected to get in {0}:{1}.", theirChangeSet.UserId, theirChangeSet.Number.LocalRevisionNumber);
 							return false;
 						}
 
@@ -319,7 +323,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			}
 			using (new ConsoleProgress("Going back to our head"))
 			{
-				Update(myHead.LocalRevisionNumber);
+				Update(myHead.Number.LocalRevisionNumber);
 			}
 
 			//NOTE: THIS must not be allowed to be ignored as a "nothing"; hg wants to do that

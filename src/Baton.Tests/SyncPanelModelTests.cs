@@ -15,7 +15,6 @@ namespace Baton.Tests
 		private SyncPanelModel _model;
 		private StringBuilderProgress _progress;
 		private ProjectFolderConfiguration _project;
-		private string _userId="";
 		private RepositoryManager _repositoryManager;
 
 		[SetUp]

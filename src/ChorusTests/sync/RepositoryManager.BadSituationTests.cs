@@ -29,7 +29,7 @@ namespace Chorus.Tests.sync
 
 
 		[Test]
-		public void Sync_ExceptionInMergeCode_GetExceptionAndMergeDoesntHappen()
+		public void Sync_ExceptionInMergeCode_LeftWith2HeadsAndErrorOutputToProgress()
 		{
 			using (RepositoryWithFilesSetup bob = RepositoryWithFilesSetup.CreateWithLiftFile("bob"))
 			{
@@ -40,23 +40,23 @@ namespace Chorus.Tests.sync
 					sally.ReplaceSomething("sallyWasHere");
 					using (new ShortTermEnvironmentalVariable("InduceChorusFailure", "LiftMerger.FindEntry"))
 					{
-						Exception goterror=null;
-						try
-						{
-							sally.CheckinAndPullAndMerge(bob);
-						}
-						catch (Exception error)
-						{
-							goterror = error;
-						}
-						Assert.IsNotNull(goterror);
-						Assert.IsTrue(goterror.Message.Contains("InduceChorusFailure"));
+						sally.CheckinAndPullAndMerge(bob);
 					}
+					Assert.IsTrue(sally.ProgressString.Contains("InduceChorusFailure"));
+
+				   sally.AssertHeadCount(2);
+					//ok, Bob's the tip, but...
+					Assert.AreEqual("bob", sally.Repository.GetTip().UserId);
+					//make sure we didn't move up to that tip, because we weren't able to merge with it
+					var currentRevision = sally.GetRepository().GetRevisionWorkingSetIsBasedOn();
+					Assert.AreEqual("sally",  sally.GetRepository().GetRevision(currentRevision.Number.Hash).UserId);
 					Assert.IsTrue(File.ReadAllText(sally.UserFile.Path).Contains("sallyWasHere"));
 
-					sally.AssertSingleHead();
-					bob.AssertSingleHead();
+					//and over at Bob's house, it's as if Sally had never connected
 
+					bob.AssertHeadCount(1);
+					Assert.AreEqual("bob", bob.Repository.GetTip().UserId);
+					Assert.IsTrue(File.ReadAllText(bob.UserFile.Path).Contains("bobWasHere"));
 				}
 			}
 		}
@@ -71,7 +71,7 @@ namespace Chorus.Tests.sync
 					bob.Checkin();
 					sally.ReplaceSomething("sallyWasHere");
 
-					//now we have a merge of a file type that don't know hoow to merge
+					//now we have a merge of a file type that don't know how to merge
 					sally.CheckinAndPullAndMerge(bob);
 
 					sally.AssertSingleHead();
@@ -80,7 +80,9 @@ namespace Chorus.Tests.sync
 					//sally.AssertSingleConflict(c => c.GetType == typeof (UnmergableFileTypeConflict));
 					sally.AssertSingleConflictType<UnmergableFileTypeConflict>();
 
-					Assert.IsTrue(File.ReadAllText(sally.UserFile.Path).Contains("sallyWasHere"));
+					//nb: this is bob becuase the conflict handling mode is (at the time of this test
+					//writing) set to TheyWin.
+					Assert.IsTrue(File.ReadAllText(sally.UserFile.Path).Contains("bobWasHere"));
 				}
 
 			}

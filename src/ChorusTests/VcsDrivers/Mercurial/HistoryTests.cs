@@ -89,7 +89,7 @@ namespace Chorus.Tests.VcsDrivers.Mercurial
 		{
 			using (var repo = new EmptyRepositorySetup())
 			{
-				Assert.IsNull(repo.Repo.GetRepository(_progress).GetTip());
+				Assert.IsNull(repo.RepoMan.GetRepository(_progress).GetTip());
 			}
 		}
 
@@ -98,7 +98,7 @@ namespace Chorus.Tests.VcsDrivers.Mercurial
 		{
 			using (var repo = new RepositoryWithFilesSetup("dontMatter", "foo.txt", ""))
 			{
-				Assert.AreEqual("0", repo.RepoMan.GetRepository(_progress).GetTip().LocalRevisionNumber);
+				Assert.AreEqual("0", repo.RepoMan.GetRepository(_progress).GetTip().Number.LocalRevisionNumber);
 			}
 		}
 	}

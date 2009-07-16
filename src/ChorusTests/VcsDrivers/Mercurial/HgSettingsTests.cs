@@ -57,7 +57,7 @@ two = http://foo.com");
 				setup.WriteIniContents(@"[ui]
 username = joe
 ");
-				var repository = setup.Repo.GetRepository(new StringBuilderProgress());
+				var repository = setup.RepoMan.GetRepository(new StringBuilderProgress());
 				Assert.AreEqual("joe", repository.GetUserNameFromIni(new NullProgress()));
 			}
 		}
@@ -67,7 +67,7 @@ username = joe
 			using (var setup = new EmptyRepositorySetup())
 			{
 				setup.WriteIniContents(@"");
-				var repository = setup.Repo.GetRepository(new StringBuilderProgress());
+				var repository = setup.RepoMan.GetRepository(new StringBuilderProgress());
 				Assert.AreEqual(string.Empty, repository.GetUserNameFromIni(new NullProgress()));
 			}
 		}
@@ -77,7 +77,7 @@ username = joe
 			using (var setup = new EmptyRepositorySetup())
 			{
 				setup.EnsureNoHgrcExists();
-				var repository = setup.Repo.GetRepository(new StringBuilderProgress());
+				var repository = setup.RepoMan.GetRepository(new StringBuilderProgress());
 				Assert.AreEqual(string.Empty, repository.GetUserNameFromIni(new NullProgress()));
 			}
 		}
@@ -87,7 +87,7 @@ username = joe
 			using (var setup = new EmptyRepositorySetup())
 			{
 				setup.EnsureNoHgrcExists();
-				var repository = setup.Repo.GetRepository(new StringBuilderProgress());
+				var repository = setup.RepoMan.GetRepository(new StringBuilderProgress());
 				repository.SetUserNameInIni("bill", new NullProgress());
 				Assert.AreEqual("bill", repository.GetUserNameFromIni(new NullProgress()));
 
@@ -102,7 +102,7 @@ username = joe
 			using (var setup = new EmptyRepositorySetup())
 			{
 				setup.EnsureNoHgrcExists();
-				var repository = setup.Repo.GetRepository(new StringBuilderProgress());
+				var repository = setup.RepoMan.GetRepository(new StringBuilderProgress());
 				var x = new RepositoryAddress("one", @"c:\one");
 				var y = new RepositoryAddress("two", @"http://two.org");
 				repository.SetKnownPeerAddresses(new List<RepositoryAddress>(new RepositoryAddress[]{x,y}));

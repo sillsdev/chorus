@@ -5,6 +5,7 @@ using Chorus.merge;
 using Chorus.merge.xml.generic;
 using Chorus.sync;
 using Chorus.Utilities;
+using Chorus.VcsDrivers.Mercurial;
 using NUnit.Framework;
 
 namespace Chorus.Tests.merge
@@ -19,7 +20,8 @@ namespace Chorus.Tests.merge
 	public class RepositoryWithFilesSetup :IDisposable
 	{
 		private ProjectFolderConfiguration _project;
-		public IProgress Progress = new ConsoleProgress();// new StringBuilderProgress();
+		private static readonly StringBuilderProgress _stringProgress = new StringBuilderProgress();
+		public IProgress Progress = new MultiProgress(new IProgress[] { new ConsoleProgress(), _stringProgress });
 		public TempFolder RootFolder;
 		public TempFolder ProjectFolder;
 		public TempFile UserFile;
@@ -37,6 +39,14 @@ namespace Chorus.Tests.merge
 					 </entry>";
 		   string liftContents = string.Format("<?xml version='1.0' encoding='utf-8'?><lift version='{0}'>{1}</lift>", "0.00", entriesXml);
 			return new RepositoryWithFilesSetup(userName, "test.lift", liftContents);
+		}
+		public string ProgressString
+		{
+			get { return _stringProgress.Text; }
+		}
+		public HgRepository Repository
+		{
+			get { return RepoMan.GetRepository(new NullProgress()); }
 		}
 
 		public RepositoryWithFilesSetup(string userName, string fileName, string fileContents)
@@ -80,6 +90,7 @@ namespace Chorus.Tests.merge
 
 			RepoPath = RepositoryPath.Create(ProjectFolder.Path, userName, false);
 			RepoMan = RepositoryManager.FromRootOrChildFolder(_project);
+			RepoMan.GetRepository(Progress).SetUserNameInIni(userName,Progress);
 		}
 
 		public void Dispose()
@@ -135,6 +146,12 @@ namespace Chorus.Tests.merge
 			Assert.AreEqual(1, actual, "There should be on only one head, but there are "+actual.ToString());
 		}
 
+		public void AssertHeadCount(int count)
+		{
+			var actual = RepoMan.GetRepository(Progress).GetHeads().Count;
+			Assert.AreEqual(count, actual, "Wrong number of heads");
+		}
+
 // this would be cool, but we don't yet de-persist the conflicts        public void AssertSingleConflict(Func<IConflict, bool> assertion)
 
 		public void AssertSingleConflictType<TConflict>()
@@ -151,6 +168,11 @@ namespace Chorus.Tests.merge
 			var y = x[0] as TypeGuidAttribute;
 			Assert.AreEqual(1, doc.SafeSelectNodes("conflicts/conflict[@typeGuid='{0}']", y.GuidString).Count);
 
+		}
+
+		public HgRepository GetRepository()
+		{
+			return RepoMan.GetRepository(Progress);
 		}
 	}
 

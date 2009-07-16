@@ -65,7 +65,7 @@ namespace Chorus.Tests.merge
 
 	}
 
-
+	[TypeGuid("18C7E1A2-2F69-442F-9057-6B3AC9833675")]
 	public class DummyConflict: IConflict
 	{
 		private Guid _guid = Guid.NewGuid();

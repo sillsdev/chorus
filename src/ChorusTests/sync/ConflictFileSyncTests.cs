@@ -73,22 +73,6 @@ namespace Chorus.Tests.sync
 			}
 		}
 
-		/// <summary>
-		/// Review: maybe this belongs in a different test fixture... it is a refugee from a removed class
-		/// </summary>
-		[Test]
-		public void NoConflictFileB4_ConflictsEncountered_HaveConflictFileAfter()
-		{
-			using (GroupOfConflictingLiftFiles group = new GroupOfConflictingLiftFiles())
-			{
-				var situation = new NullMergeSituation();
-				MergeOrder order = new MergeOrder(MergeOrder.ConflictHandlingModeChoices.TheyWin, group.BobFile.Path,
-												  group.AncestorFile.Path, group.SallyFile.Path, situation);
-				new LiftFileHandler().Do3WayMerge(order);
 
-				Assert.IsTrue(File.Exists(group.BobTextConflictsPath));
-				Assert.AreNotEqual(string.Empty, File.ReadAllText(group.BobTextConflictsPath));
-			}
-		}
 	}
 }

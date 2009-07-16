@@ -72,10 +72,11 @@
 	<Compile Include="sync\RepositoryManager.BadSituationTests.cs" />
 	<Compile Include="sync\SyncScenarioTests.cs" />
 	<Compile Include="sync\UsbRepositorySourceTests.cs" />
+	<Compile Include="VcsDrivers\Mercurial\HgWrappingTests.cs" />
 	<Compile Include="VcsDrivers\Mercurial\HgSettingsTests.cs" />
 	<Compile Include="VcsDrivers\Mercurial\FileInRevisionTests.cs" />
 	<Compile Include="VcsDrivers\Mercurial\HistoryTests.cs" />
-	<Compile Include="sync\RepositoryWithFilesSetup.cs" />
+	<Compile Include="RepositoryWithFilesSetup.cs" />
 	<Compile Include="utilities\ChorusDiff3Tests.cs" />
 	<Compile Include="VcsDrivers\Mercurial\HgPartialMergeTests.cs" />
 	<Compile Include="Properties\AssemblyInfo.cs" />

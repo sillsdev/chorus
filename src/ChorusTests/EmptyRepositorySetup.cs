@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using Chorus.sync;
 using Chorus.Utilities;
+using Chorus.VcsDrivers.Mercurial;
 
 namespace Chorus.Tests
 {
@@ -13,7 +14,7 @@ namespace Chorus.Tests
 		private StringBuilderProgress _progress = new StringBuilderProgress();
 		public TempFolder RootFolder;
 		public TempFolder ProjectFolder;
-		public RepositoryManager Repo;
+		public RepositoryManager RepoMan;
 		public RepositoryPath RepoPath;
 
 
@@ -27,11 +28,14 @@ namespace Chorus.Tests
 
 			RepositoryManager.MakeRepositoryForTest(ProjectFolder.Path, userName);
 			var projectFolderConfig = new ProjectFolderConfiguration(ProjectFolder.Path);
-			Repo = RepositoryManager.FromRootOrChildFolder(projectFolderConfig);
+			RepoMan = RepositoryManager.FromRootOrChildFolder(projectFolderConfig);
 		}
 
 
-
+		public HgRepository Repository
+		{
+			get { return RepoMan.GetRepository(new NullProgress()); }
+		}
 		public void Dispose()
 		{
 			ProjectFolder.Dispose();
@@ -52,6 +56,13 @@ namespace Chorus.Tests
 		{
 			if (File.Exists(PathToHgrc))
 				File.Delete(PathToHgrc);
+		}
+
+		public void AddAndCheckinFile(string fileName, string contents)
+		{
+			var p = ProjectFolder.Combine(fileName);
+			File.WriteAllText(p, contents);
+			Repository.AddAndCheckinFile(p);
 		}
 	}
 }

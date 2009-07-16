@@ -16,7 +16,7 @@ namespace Baton.Review.ChangedReport
 			_handlers = handlers;
 			InitializeComponent();
 			_changeDescriptionRenderer.Font = SystemFonts.MessageBoxFont;
-			changedRecordSelectedEvent.Subscribe(r=>Load(r));
+			changedRecordSelectedEvent.Subscribe(r=>LoadReport(r));
 			_changeDescriptionRenderer.Navigated += webBrowser1_Navigated;
 		}
 
@@ -26,7 +26,7 @@ namespace Baton.Review.ChangedReport
 			//  File.Delete(e.URI.AbsoluteUri.Replace(@"file:///", string.Empty));
 		}
 
-		public void Load(IChangeReport report)
+		public void LoadReport(IChangeReport report)
 		{
 			if (report == null)
 			{

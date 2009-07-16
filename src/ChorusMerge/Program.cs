@@ -8,18 +8,20 @@ using Chorus.merge.xml.generic;
 namespace ChorusMerge
 {
 	/// <summary>
+	/// arguments are: {pathToOurs,  pathToCommon,   pathToTheirs}
 	/// This is used as the starting point for all merging using Chorus.
 	/// It will dispatch to file-format-specific mergers.  Note that
 	/// we can't control the argument list or get more arguments, so
 	/// anything beyond the 3 files must be specified in environment variables.
 	/// See MergeOrder and MergeSituation for a description of those variables and their possible values.
 	/// </summary>
-	class Program
+	public class Program
 	{
-		static int Main(string[] args)
+		public static int Main(string[] args)
 		{
 			try
 			{
+			   // Debug.Fail("hello");
 				MergeOrder order = MergeOrder.CreateUsingEnvironmentVariables(args[0], args[1], args[2]);
 				var handlers = ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers();
 				var handler = handlers.GetHandlerForMerging(order.pathToOurs);

@@ -36,7 +36,6 @@ namespace Chorus.merge.xml.generic
 		protected Guid _guid = Guid.NewGuid();
 		public string PathToUnitOfConflict { get; set; }
 		protected readonly MergeSituation _mergeSituation;
-		private readonly string _guidForThisConflictType;
 
 		protected Conflict(MergeSituation situation)
 		{

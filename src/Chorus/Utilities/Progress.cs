@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 using System.Windows.Forms;
@@ -10,6 +11,7 @@ namespace Chorus.Utilities
 		void WriteStatus(string message, params object[] args);
 		void WriteMessage(string message, params object[] args);
 		void WriteWarning(string message, params object[] args);
+		void WriteError(string message, params object[] args);
 	}
 
 	public class NullProgress : IProgress
@@ -25,6 +27,63 @@ namespace Chorus.Utilities
 
 		public void WriteWarning(string message, params object[] args)
 		{
+		}
+
+		public void WriteError(string message, params object[] args)
+		{
+
+		}
+	}
+
+	public class MultiProgress : IProgress, IDisposable
+	{
+		private readonly IEnumerable<IProgress> _progressHandlers;
+
+		public MultiProgress(IEnumerable<IProgress> progressHandlers)
+		{
+			_progressHandlers = progressHandlers;
+		}
+
+		public void WriteStatus(string message, params object[] args)
+		{
+			foreach (var handler in _progressHandlers)
+			{
+				handler.WriteStatus(message, args);
+			}
+		}
+
+		public void WriteMessage(string message, params object[] args)
+		{
+			foreach (var handler in _progressHandlers)
+			{
+				handler.WriteMessage(message, args);
+			}
+		}
+
+		public void WriteWarning(string message, params object[] args)
+		{
+			foreach (var handler in _progressHandlers)
+			{
+				handler.WriteWarning(message, args);
+			}
+		}
+
+		public void WriteError(string message, params object[] args)
+		{
+			foreach (var handler in _progressHandlers)
+			{
+				handler.WriteError(message, args);
+			}
+		}
+
+		public void Dispose()
+		{
+			foreach (var handler in _progressHandlers)
+			{
+				var d = handler as IDisposable;
+				if(d!=null)
+					d.Dispose();
+			}
 		}
 	}
 
@@ -57,6 +116,12 @@ namespace Chorus.Utilities
 		public void WriteWarning(string message, params object[] args)
 		{
 			WriteStatus(message, args);
+		}
+
+		public void WriteError(string message, params object[] args)
+		{
+			WriteStatus("Error: "+ message, args);
+
 		}
 
 		///<summary>
@@ -132,5 +197,9 @@ namespace Chorus.Utilities
 			WriteStatus(message, args);
 		}
 
+		public void WriteError(string message, params object[] args)
+		{
+			WriteStatus("Error:" + message, args);
+		}
 	}
 }
