@@ -38,6 +38,7 @@
 			this.timer1 = new System.Windows.Forms.Timer(this.components);
 			this.label3 = new System.Windows.Forms.Label();
 			this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
+			this.imageList1 = new System.Windows.Forms.ImageList(this.components);
 			this.SuspendLayout();
 			//
 			// _loadButton
@@ -71,6 +72,7 @@
 			this._historyList.MultiSelect = false;
 			this._historyList.Name = "_historyList";
 			this._historyList.Size = new System.Drawing.Size(464, 279);
+			this._historyList.SmallImageList = this.imageList1;
 			this._historyList.TabIndex = 2;
 			this._historyList.UseCompatibleStateImageBehavior = false;
 			this._historyList.View = System.Windows.Forms.View.Details;
@@ -107,6 +109,12 @@
 			this.label3.TabIndex = 4;
 			this.label3.Text = "Review Project Changes";
 			//
+			// imageList1
+			//
+			this.imageList1.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imageList1.ImageStream")));
+			this.imageList1.TransparentColor = System.Drawing.Color.Transparent;
+			this.imageList1.Images.SetKeyName(0, "MergeConflict");
+			//
 			// RevisionsInRepositoryView
 			//
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -133,6 +141,7 @@
 		private System.Windows.Forms.Timer timer1;
 		private System.Windows.Forms.Label label3;
 		private System.Windows.Forms.ToolTip toolTip1;
+		private System.Windows.Forms.ImageList imageList1;
 
 	}
 }

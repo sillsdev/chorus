@@ -19,7 +19,7 @@ namespace Chorus.Tests.merge
 	/// </remarks>
 	public class RepositoryWithFilesSetup :IDisposable
 	{
-		private ProjectFolderConfiguration _project;
+		public ProjectFolderConfiguration ProjectConfiguration;
 		private static readonly StringBuilderProgress _stringProgress = new StringBuilderProgress();
 		public IProgress Progress = new MultiProgress(new IProgress[] { new ConsoleProgress(), _stringProgress });
 		public TempFolder RootFolder;
@@ -84,12 +84,12 @@ namespace Chorus.Tests.merge
 		}
 		private void Init(string userName)
 		{
-			_project = new ProjectFolderConfiguration(ProjectFolder.Path);
-			_project.IncludePatterns.Add(UserFile.Path);
-			_project.FolderPath = ProjectFolder.Path;
+			ProjectConfiguration = new ProjectFolderConfiguration(ProjectFolder.Path);
+			ProjectConfiguration.IncludePatterns.Add(UserFile.Path);
+			ProjectConfiguration.FolderPath = ProjectFolder.Path;
 
 			RepoPath = RepositoryPath.Create(ProjectFolder.Path, userName, false);
-			RepoMan = RepositoryManager.FromRootOrChildFolder(_project);
+			RepoMan = RepositoryManager.FromRootOrChildFolder(ProjectConfiguration);
 			RepoMan.GetRepository(Progress).SetUserNameInIni(userName,Progress);
 		}
 
@@ -129,13 +129,13 @@ namespace Chorus.Tests.merge
 
 		public void WriteIniContents(string s)
 		{
-			var p = Path.Combine(Path.Combine(_project.FolderPath, ".hg"), "hgrc");
+			var p = Path.Combine(Path.Combine(ProjectConfiguration.FolderPath, ".hg"), "hgrc");
 			File.WriteAllText(p, s);
 		}
 
 		public void EnsureNoHgrcExists()
 		{
-			var p = Path.Combine(Path.Combine(_project.FolderPath, ".hg"), "hgrc");
+			var p = Path.Combine(Path.Combine(ProjectConfiguration.FolderPath, ".hg"), "hgrc");
 			if(File.Exists(p))
 				File.Delete(p);
 		}
@@ -173,6 +173,21 @@ namespace Chorus.Tests.merge
 		public HgRepository GetRepository()
 		{
 			return RepoMan.GetRepository(Progress);
+		}
+
+		public void AssertNoErrorsReported()
+		{
+			Assert.IsFalse(ProgressString.ToLower().Contains("error"));
+		}
+
+		public void AssertFileExists(string relativePath)
+		{
+			Assert.IsTrue(File.Exists(ProjectFolder.Combine(relativePath)));
+		}
+
+		public void AssertFileContents(string relativePath, string expectedContents)
+		{
+			Assert.AreEqual(expectedContents,File.ReadAllText(ProjectFolder.Combine(relativePath)));
 		}
 	}
 

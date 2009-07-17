@@ -66,6 +66,8 @@ namespace Baton.Review.RevisionsInRepository
 				}
 
 				var viewItem = new ListViewItem(new string[] {dateString, rev.UserId, rev.Summary});
+				if(rev.Summary.ToLower().Contains("conflict"))
+					viewItem.ImageKey = "MergeConflict";
 				viewItem.Tag = rev;
 				rows.Add(viewItem);
 			}
