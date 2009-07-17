@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using System.Xml;
 using Chorus.FileTypeHanders.lift;
 using Chorus.merge;
@@ -11,6 +10,10 @@ using Chorus.VcsDrivers.Mercurial;
 
 namespace Chorus.FileTypeHanders
 {
+	/// <summary>
+	/// The key thing to understand here is that the conflict file only *grows*... it doesn't get editted
+	/// normally.  So the only changes we're interested in are *additions* of conflict reports to the file.
+	/// </summary>
 	public class ConflictFileTypeHandler : IChorusFileTypeHandler
 	{
 		public bool CanDiffFile(string pathToFile)
@@ -66,46 +69,6 @@ namespace Chorus.FileTypeHanders
 			{
 				yield return new XmlAdditionChangeReport(fileInRevision.FullPath, e);
 			}
-		}
-	}
-
-	public class ConflictPresenter : IChangePresenter
-	{
-		private readonly IXmlChangeReport _report;
-
-		public ConflictPresenter(IXmlChangeReport report)
-		{
-			_report = report;
-		}
-
-		public string GetDataLabel()
-		{
-			return "conflict";
-		}
-
-		public string GetActionLabel()
-		{
-			return XmlUtilities.GetStringAttribute(_report.ChildNode, "type");
-		}
-
-		public string GetHtml()
-		{
-			var builder = new StringBuilder();
-			builder.Append("<html>");
-			if (_report is XmlAdditionChangeReport)
-			{
-				var r = _report as XmlAdditionChangeReport;
-				IConflict conflict = Conflict.CreateFromXml(r.ChildNode);
-				builder.AppendFormat("<p>{0}</p>", XmlUtilities.GetXmlForShowingInHtml(_report.ChildNode.OuterXml));
-			}
-
-			builder.Append("</html>");
-			return builder.ToString();
-		}
-
-		public string GetTypeLabel()
-		{
-			return "conflict";
 		}
 	}
 }

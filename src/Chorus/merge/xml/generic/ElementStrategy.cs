@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.Remoting.Contexts;
 using System.Xml;
 using Chorus.merge.xml.generic;
 
@@ -137,6 +138,39 @@ namespace Chorus.merge.xml.generic
 	//which would want a line number, not the contents of the line.
 	public interface IGenerateContextDescriptor
 	{
-		string GenerateContextDescriptor(string mergeElement);
+		ContextDescriptor GenerateContextDescriptor(string mergeElement);
+	}
+
+	public class ContextDescriptor
+	{
+		/// <summary>
+		/// Something at the right level to show in a list view, e.g. a lexical entry or chapter/verse
+		/// </summary>
+		public string PathToUserUnderstandableElement { get; set; }
+
+		/// <summary>
+		/// Like, what you would use to refer to the PathToUserUnderstandableElement, e.g. ("dog", or "M5:3")
+		/// </summary>
+		public string DataLabel { get; set; }
+
+		public ContextDescriptor(string dataLabel, string path)
+		{
+			DataLabel = dataLabel;
+			PathToUserUnderstandableElement = path;
+		}
+
+		public static ContextDescriptor CreateFromXml(XmlNode xmlRepresentation)
+		{
+			var path = xmlRepresentation.GetOptionalStringAttribute("contextPath", "missing");
+			var label = xmlRepresentation.GetOptionalStringAttribute("contextDataLabel", "missing");
+
+			return new ContextDescriptor(label, path);
+		}
+
+		public void WriteAttributes(XmlWriter writer)
+		{
+			writer.WriteAttributeString("contextPath", string.Empty, PathToUserUnderstandableElement);
+			writer.WriteAttributeString("contextDataLabel", string.Empty, DataLabel);
+		}
 	}
 }

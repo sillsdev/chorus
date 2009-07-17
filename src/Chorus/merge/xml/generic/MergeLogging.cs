@@ -17,7 +17,7 @@ namespace Chorus.merge.xml.generic
 		/// to reconstruct exact what and where the conflict was.
 		/// </summary>
 		/// <param name="context">an xpath, line number, whatever works for reconstructing the situation at a later date</param>
-		void EnteringContext(string context);
+		void EnteringContext(ContextDescriptor context);
 	}
 
 	public class NullMergeEventListener : IMergeEventListener
@@ -32,7 +32,7 @@ namespace Chorus.merge.xml.generic
 
 		}
 
-		public void EnteringContext(string context)
+		public void EnteringContext(ContextDescriptor context)
 		{
 
 		}
@@ -63,7 +63,7 @@ namespace Chorus.merge.xml.generic
 			}
 		}
 
-		public void EnteringContext(string context)
+		public void EnteringContext(ContextDescriptor context)
 		{
 			 foreach (IMergeEventListener listener in _listeners)
 			{

@@ -72,9 +72,9 @@ namespace Chorus.Tests.merge
 
 		public string RelativeFilePath { get; set; }
 
-		public string Context
+		public ContextDescriptor Context
 		{
-			get { return string.Empty; }
+			get { return null; }
 			set { ; }
 		}
 

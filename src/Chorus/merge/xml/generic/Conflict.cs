@@ -38,29 +38,30 @@ namespace Chorus.merge.xml.generic
 	{
 		static public string TimeFormatNoTimeZone = "yyyy-MM-ddTHH:mm:ssZ";
 
+	   // protected string _shortDataDescription;
 		protected Guid _guid = Guid.NewGuid();
-		public string PathToUnitOfConflict { get; set; }
+	   // public string PathToUnitOfConflict { get; set; }
 		public string RelativeFilePath { get { return _mergeSituation.PathToFileInRepository; } }
 
 		public abstract string GetFullHumanReadableDescription();
 		public abstract string ConflictTypeHumanName { get; }
 		protected readonly MergeSituation _mergeSituation;
-		public string Context {get;set;}
+		public ContextDescriptor Context { get; set; }
 
 
 		public Conflict(XmlNode xmlRepresentation)
 		{
 			_mergeSituation =  MergeSituation.FromXml(xmlRepresentation.SafeSelectNodes("MergeSituation")[0]);
 			_guid = new Guid(xmlRepresentation.GetOptionalStringAttribute("guid", string.Empty));
-			PathToUnitOfConflict = xmlRepresentation.GetOptionalStringAttribute("pathToUnitOfConflict", string.Empty);
-			Context = xmlRepresentation.GetOptionalStringAttribute("context", "missing");
+			//PathToUnitOfConflict = xmlRepresentation.GetOptionalStringAttribute("pathToUnitOfConflict", string.Empty);
+			Context  = ContextDescriptor.CreateFromXml(xmlRepresentation);
+		   // _shortDataDescription = xmlRepresentation.GetOptionalStringAttribute("shortElementDescription", string.Empty);
 	   }
 
 
 		protected Conflict(MergeSituation situation)
 		{
 			_mergeSituation = situation;
-			Context = string.Empty;
 		}
 
 		public Guid Guid
@@ -87,11 +88,16 @@ namespace Chorus.merge.xml.generic
 			writer.WriteAttributeString("typeGuid", string.Empty, GetTypeGuid());
 			writer.WriteAttributeString("class", string.Empty, this.GetType().FullName);
 			writer.WriteAttributeString("relativeFilePath", string.Empty, RelativeFilePath);
-			writer.WriteAttributeString("pathToUnitOfConflict", string.Empty, PathToUnitOfConflict);
+			//writer.WriteAttributeString("pathToUnitOfConflict", string.Empty, PathToUnitOfConflict);
 			writer.WriteAttributeString("type", string.Empty, ConflictTypeHumanName);
 			writer.WriteAttributeString("guid", string.Empty, Guid.ToString());
 			writer.WriteAttributeString("date", string.Empty, DateTime.UtcNow.ToString(TimeFormatNoTimeZone));
-			writer.WriteAttributeString("context", string.Empty, Context);
+		  //  writer.WriteAttributeString("shortDataDescription", _shortDataDescription);
+
+			if (Context != null)
+			{
+				Context.WriteAttributes(writer);
+			}
 		}
 
 		private string GetTypeGuid()
@@ -161,9 +167,9 @@ namespace Chorus.merge.xml.generic
 			get { return string.Empty; }
 		}
 
-		public string Context
+		public ContextDescriptor Context
 		{
-			get { return "Unreadable Conflict"; }
+			get { return new ContextDescriptor("??",string.Empty); }
 			set { ; }
 		}
 
@@ -280,10 +286,10 @@ namespace Chorus.merge.xml.generic
 			{
 				var doc = new XmlDocument();
 				doc.Load(f.Path);
-				var element = doc.SelectSingleNode(PathToUnitOfConflict);
+				var element = doc.SelectSingleNode(Context.PathToUserUnderstandableElement);
 				if(element == null)
 				{
-					throw new ApplicationException("Could not find the element specified by the context, " + PathToUnitOfConflict);
+					throw new ApplicationException("Could not find the element specified by the context, " + Context.PathToUserUnderstandableElement);
 				}
 				return element.OuterXml;
 			}
@@ -368,7 +374,6 @@ namespace Chorus.merge.xml.generic
 //        protected readonly XmlNode _ourElement;
 //        protected readonly XmlNode _theirElement;
 //        protected readonly XmlNode _ancestorElement;
-		private string _shortElementDescription;
 
 		public ElementConflict(string elementName, XmlNode ourElement, XmlNode theirElement, XmlNode ancestorElement,
 							   MergeSituation mergeSituation, IElementDescriber elementDescriber)
@@ -380,12 +385,11 @@ namespace Chorus.merge.xml.generic
 //            _ancestorElement = ancestorElement;
 
 			//nb: we need to make use of the describer now, because it won't make it through the xml serialization/deserialization
-			_shortElementDescription = elementDescriber.GetHumanDescription(ourElement);
+			//_shortDataDescription = elementDescriber.GetHumanDescription(ourElement);
 		}
 
 		public ElementConflict(XmlNode xmlRepresentation):base(xmlRepresentation)
 		{
-			_shortElementDescription = xmlRepresentation.GetOptionalStringAttribute("shortElementDescription", "unknown");
 		}
 
 		public override string GetFullHumanReadableDescription()
@@ -397,7 +401,7 @@ namespace Chorus.merge.xml.generic
 //                element = _theirElement;
 //            }
 
-			return string.Format("{0} ({1}): {2}", ConflictTypeHumanName, _shortElementDescription, WhatHappened);
+			return string.Format("{0} ({1}): {2}", ConflictTypeHumanName, Context.DataLabel, WhatHappened);
 		}
 
 
@@ -416,7 +420,6 @@ namespace Chorus.merge.xml.generic
 		protected override void WriteAttributes(XmlWriter writer)
 		{
 			base.WriteAttributes(writer);
-			writer.WriteAttributeString("shortElementDescription", _shortElementDescription);
 		}
 	}
 

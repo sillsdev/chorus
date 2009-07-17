@@ -20,14 +20,15 @@ namespace Chorus.Tests.merge.xml.generic
 				GetNodeFromString("<a>theirs</a>"),
 				GetNodeFromString("<a>ancestor</a>"),
 				mergesituation);
+			c.Context = new ContextDescriptor("testLabel", "testPath");
 			string desc = c.GetFullHumanReadableDescription();
-			string context = c.Context;
 
 			var xml = WriteConflictXml(c);
 			var regurgitated = Conflict.CreateFromXml(GetNodeFromString(xml));
 			Assert.AreEqual("path", regurgitated.RelativeFilePath);
 			Assert.AreEqual(desc, regurgitated.GetFullHumanReadableDescription());
-			Assert.AreEqual(context, regurgitated.Context);
+		   Assert.AreEqual(c.Context.PathToUserUnderstandableElement, regurgitated.Context.PathToUserUnderstandableElement);
+		   Assert.AreEqual(c.Context.DataLabel, regurgitated.Context.DataLabel);
 		}
 		[Test]
 		public void RemovedVsEditedElementConflict_RoundtripThroughXml()
@@ -38,14 +39,15 @@ namespace Chorus.Tests.merge.xml.generic
 				GetNodeFromString("<a>theirs</a>"),
 				GetNodeFromString("<a>ancestor</a>"),
 				mergesituation, new ElementStrategy(false));
+			c.Context = new ContextDescriptor("testLabel", "testPath");
 			string desc = c.GetFullHumanReadableDescription();
-			string context = c.Context;
 
 			var xml = WriteConflictXml(c);
 			var regurgitated = Conflict.CreateFromXml(GetNodeFromString(xml));
 			Assert.AreEqual("path", regurgitated.RelativeFilePath);
 			Assert.AreEqual(desc, regurgitated.GetFullHumanReadableDescription());
-			Assert.AreEqual(context, regurgitated.Context);
+			Assert.AreEqual(c.Context.PathToUserUnderstandableElement, regurgitated.Context.PathToUserUnderstandableElement);
+			Assert.AreEqual(c.Context.DataLabel, regurgitated.Context.DataLabel);
 		}
 		private string WriteConflictXml(IConflict c)
 		{

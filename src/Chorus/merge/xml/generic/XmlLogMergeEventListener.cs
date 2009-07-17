@@ -22,7 +22,7 @@ namespace Chorus.merge.xml.generic
 		/// <summary>
 		/// used for finding the context in the orginal file of any conflicts which may occur inside the element
 		/// </summary>
-		private string _context=string.Empty;
+		private ContextDescriptor _context;
 
 		static public string GetXmlConflictFilePath(string baseXmlFile)
 		{
@@ -68,7 +68,7 @@ namespace Chorus.merge.xml.generic
 //            doc.LoadXml(builder.ToString());
 //            _writer.WriteElementString(conflict.GetType().Name.ToString(), doc.FirstChild.InnerXml);
 
-
+			conflict.Context = this._context;
 			conflict.WriteAsXml(_writer);
 		}
 
@@ -78,14 +78,16 @@ namespace Chorus.merge.xml.generic
 			_writer.WriteAttributeString("type", string.Empty, change.ActionLabel);
 			_writer.WriteAttributeString("guid", string.Empty, change.Guid.ToString());
 			_writer.WriteAttributeString("date", string.Empty, DateTime.UtcNow.ToString(TimeFormatNoTimeZone));
-			_writer.WriteAttributeString("context", string.Empty, _context);
-			//change.PathToUnitOfConflict = _context;
+			if (_context != null)
+			{
+				_context.WriteAttributes(_writer);
+			}
 			_writer.WriteString(change.GetFullHumanReadableDescription());
 			_writer.WriteEndElement();
 
 		}
 
-		public void EnteringContext(string context)
+		public void EnteringContext(ContextDescriptor context)
 		{
 			_context = context;
 		}

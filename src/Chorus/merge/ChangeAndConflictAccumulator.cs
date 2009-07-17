@@ -8,7 +8,7 @@ namespace Chorus.merge
 
 		public List<IConflict> Conflicts = new List<IConflict>();
 		public List<IChangeReport> Changes = new List<IChangeReport>();
-		public List<string> Contexts = new List<string>();
+		public List<ContextDescriptor> Contexts = new List<ContextDescriptor>();
 
 		public void ConflictOccurred(IConflict conflict)
 		{
@@ -21,7 +21,7 @@ namespace Chorus.merge
 			Changes.Add(change);
 		}
 
-		public void EnteringContext(string context)
+		public void EnteringContext(ContextDescriptor context)
 		{
 			Contexts.Add(context);
 		}

@@ -21,7 +21,7 @@ namespace Chorus.merge.xml.generic
 			_stream.WriteLine(change.ToString());
 		}
 
-		public void EnteringContext(string context)
+		public void EnteringContext(ContextDescriptor context)
 		{
 
 		}

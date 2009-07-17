@@ -13,10 +13,10 @@ namespace Chorus.merge
 		//store a descriptor that can be used later to find the element again, as when reviewing conflict.
 		//for xml files, this would be an xpath which returns the element which you'd use to
 		//show the difference to the user
-		string PathToUnitOfConflict { get; set; }
+   //     string PathToUnitOfConflict { get; set; }
 		string RelativeFilePath { get; }
 
-		string Context { get; set; }
+		ContextDescriptor Context { get; set; }
 		string GetFullHumanReadableDescription();
 		string ConflictTypeHumanName
 		{
