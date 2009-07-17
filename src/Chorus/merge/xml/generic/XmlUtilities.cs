@@ -42,6 +42,24 @@ namespace Chorus.merge.xml.generic
 			return x;
 		}
 
+		public static string GetStringAttribute(this XmlNode node, string attr)
+		{
+			try
+			{
+				return node.Attributes[attr].Value;
+			}
+			catch (NullReferenceException)
+			{
+				throw new XmlFormatException(string.Format("Expected a '{0}' attribute on {1}.", attr, node.OuterXml));
+			}
+		}
+		public static string GetOptionalStringAttribute(this XmlNode node, string attributeName, string defaultValue)
+		{
+			XmlAttribute attr = node.Attributes[attributeName];
+			if (attr == null)
+				return defaultValue;
+			return attr.Value;
+		}
 	}
 
 	public class XmlUtilities

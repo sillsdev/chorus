@@ -20,8 +20,8 @@ namespace Chorus.Tests.merge
 	public class RepositoryWithFilesSetup :IDisposable
 	{
 		public ProjectFolderConfiguration ProjectConfiguration;
-		private static readonly StringBuilderProgress _stringProgress = new StringBuilderProgress();
-		public IProgress Progress = new MultiProgress(new IProgress[] { new ConsoleProgress(), _stringProgress });
+		private StringBuilderProgress _stringProgress = new StringBuilderProgress();
+		public IProgress Progress;
 		public TempFolder RootFolder;
 		public TempFolder ProjectFolder;
 		public TempFile UserFile;
@@ -51,6 +51,7 @@ namespace Chorus.Tests.merge
 
 		public RepositoryWithFilesSetup(string userName, string fileName, string fileContents)
 		{
+			Progress = new MultiProgress(new IProgress[] { new ConsoleProgress(), _stringProgress });
 			RootFolder = new TempFolder("ChorusTest-"+userName);
 			ProjectFolder = new TempFolder(RootFolder, "foo project");
 			var p = ProjectFolder.Combine(fileName);
@@ -73,6 +74,7 @@ namespace Chorus.Tests.merge
 
 		private RepositoryWithFilesSetup(string userName, RepositoryWithFilesSetup cloneFromUser)
 		{
+			Progress= new MultiProgress(new IProgress[] { new ConsoleProgress(), _stringProgress });
 			RootFolder = new TempFolder("ChorusTest-"+userName);
 			string pathToProject = RootFolder.Combine(Path.GetFileName(cloneFromUser.ProjectFolder.Path));
 			cloneFromUser.RepoMan.MakeClone(pathToProject, true, Progress);
@@ -162,7 +164,7 @@ namespace Chorus.Tests.merge
 
 			XmlDocument doc = new XmlDocument();
 			doc.Load(xmlConflictFile);
-			Assert.AreEqual(1, doc.SafeSelectNodes("conflicts/"+typeof(TConflict).Name).Count);
+			Assert.AreEqual(1, doc.SafeSelectNodes("conflicts/conflict").Count);
 
 //            var x = typeof (TConflict).GetCustomAttributes(true);
 //            var y = x[0] as TypeGuidAttribute;

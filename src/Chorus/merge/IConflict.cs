@@ -43,10 +43,7 @@ namespace Chorus.merge
 	{
 		public MergeOrder.ConflictHandlingModeChoices _conflictHandlingMode;
 
-		public UnmergableFileTypeConflict()
-		{
 
-		}
 		public UnmergableFileTypeConflict(MergeOrder order)
 			: base(order.MergeSituation)
 		{

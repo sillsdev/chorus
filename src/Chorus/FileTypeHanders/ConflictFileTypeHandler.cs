@@ -95,6 +95,7 @@ namespace Chorus.FileTypeHanders
 			if (_report is XmlAdditionChangeReport)
 			{
 				var r = _report as XmlAdditionChangeReport;
+				IConflict conflict = Conflict.CreateFromXml(r.ChildNode);
 				builder.AppendFormat("<p>{0}</p>", XmlUtilities.GetXmlForShowingInHtml(_report.ChildNode.OuterXml));
 			}
 

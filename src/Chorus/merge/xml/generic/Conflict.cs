@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
+using Autofac;
 using Chorus.retrieval;
 using Chorus.Utilities;
 
@@ -44,19 +45,23 @@ namespace Chorus.merge.xml.generic
 		public abstract string GetFullHumanReadableDescription();
 		public abstract string ConflictTypeHumanName { get; }
 		protected readonly MergeSituation _mergeSituation;
+		public string Context {get;set;}
 
-		//for xmlserialization
-		public Conflict()
+
+		public Conflict(XmlNode xmlRepresentation)
 		{
+			_mergeSituation =  MergeSituation.FromXml(xmlRepresentation.SafeSelectNodes("MergeSituation")[0]);
+			_guid = new Guid(xmlRepresentation.GetOptionalStringAttribute("guid", string.Empty));
+			PathToUnitOfConflict = xmlRepresentation.GetOptionalStringAttribute("pathToUnitOfConflict", string.Empty);
+			Context = xmlRepresentation.GetOptionalStringAttribute("context", "missing");
+	   }
 
-		}
+
 		protected Conflict(MergeSituation situation)
 		{
 			_mergeSituation = situation;
+			Context = string.Empty;
 		}
-
-
-		public string Context {get;set;}
 
 		public Guid Guid
 		{
@@ -68,19 +73,7 @@ namespace Chorus.merge.xml.generic
 		public void WriteAsXml(XmlWriter writer)
 		{
 			writer.WriteStartElement("conflict");
-			TypeGuidAttribute attribute =
-				GetType().GetCustomAttributes(true).FirstOrDefault(
-					a => a.GetType() == typeof (TypeGuidAttribute)) as TypeGuidAttribute;
-			Guard.AgainstNull(attribute,
-							  "The Conflict type " + GetType().ToString() + " needs a guid attribute");
-			writer.WriteAttributeString("typeGuid", string.Empty, attribute.GuidString);
-			writer.WriteAttributeString("class", string.Empty, this.GetType().FullName);
-			writer.WriteAttributeString("relativeFilePath", string.Empty, RelativeFilePath);
-			writer.WriteAttributeString("pathToUnitOfConflict", string.Empty, PathToUnitOfConflict);
-			writer.WriteAttributeString("type", string.Empty, ConflictTypeHumanName);
-			writer.WriteAttributeString("guid", string.Empty, Guid.ToString());
-			writer.WriteAttributeString("date", string.Empty, DateTime.UtcNow.ToString(TimeFormatNoTimeZone));
-			writer.WriteAttributeString("context", string.Empty, Context);
+			WriteAttributes(writer);
 
 			writer.WriteString(GetFullHumanReadableDescription());
 
@@ -89,6 +82,115 @@ namespace Chorus.merge.xml.generic
 			writer.WriteEndElement();
 		}
 
+		protected virtual void WriteAttributes(XmlWriter writer)
+		{
+			writer.WriteAttributeString("typeGuid", string.Empty, GetTypeGuid());
+			writer.WriteAttributeString("class", string.Empty, this.GetType().FullName);
+			writer.WriteAttributeString("relativeFilePath", string.Empty, RelativeFilePath);
+			writer.WriteAttributeString("pathToUnitOfConflict", string.Empty, PathToUnitOfConflict);
+			writer.WriteAttributeString("type", string.Empty, ConflictTypeHumanName);
+			writer.WriteAttributeString("guid", string.Empty, Guid.ToString());
+			writer.WriteAttributeString("date", string.Empty, DateTime.UtcNow.ToString(TimeFormatNoTimeZone));
+			writer.WriteAttributeString("context", string.Empty, Context);
+		}
+
+		private string GetTypeGuid()
+		{
+			return GetTypeGuid(GetType());
+		}
+
+		public static string GetTypeGuid(Type t)
+		{
+			var attribute = t.GetCustomAttributes(true).FirstOrDefault(
+					   a => a.GetType() == typeof(TypeGuidAttribute)) as TypeGuidAttribute;
+
+			Guard.AgainstNull(attribute,
+				  "The Conflict type " + t.ToString() + " needs a guid attribute");
+
+			return attribute.GuidString;
+		}
+		public static IConflict CreateFromXml(XmlNode conflictNode)
+		{
+			try
+			{
+
+			var builder = new Autofac.Builder.ContainerBuilder();
+
+			Register<RemovedVsEditedElementConflict>(builder);
+			Register<AmbiguousInsertConflict>(builder);
+			Register<AmbiguousInsertReorderConflict>(builder);
+			Register<BothEdittedAttributeConflict>(builder);
+			Register<BothEdittedTextConflict>(builder);
+			Register<BothReorderedElementConflict>(builder);
+			Register<RemovedVsEditedElementConflict>(builder);
+			Register<RemovedVsEditedAttributeConflict>(builder);
+			Register<RemovedVsEdittedTextConflict>(builder);
+
+			var container = builder.Build();
+
+			var typeGuid = conflictNode.GetStringAttribute("typeGuid");
+			return container.Resolve<IConflict>(typeGuid, new Parameter[]{new TypedParameter(typeof(XmlNode),conflictNode)});
+			}
+			catch (Exception)
+			{
+				return new UnreadableConflict(conflictNode);
+			}
+		}
+
+
+		private static void Register<T>(Autofac.Builder.ContainerBuilder builder)
+		{
+			builder.Register<T>().Named(GetTypeGuid(typeof(T)));
+		}
+	}
+
+	public class UnreadableConflict : IConflict
+	{
+		public UnreadableConflict(XmlNode node)
+		{
+		}
+
+		public string PathToUnitOfConflict
+		{
+			get { return string.Empty; }
+			set { ; }
+		}
+
+		public string RelativeFilePath
+		{
+			get { return string.Empty; }
+		}
+
+		public string Context
+		{
+			get { return "Unreadable Conflict"; }
+			set { ; }
+		}
+
+		public string GetFullHumanReadableDescription()
+		{
+			return "Unreadable Conflict";
+		}
+
+		public string ConflictTypeHumanName
+		{
+			get { return "Unreadable Conflict"; }
+		}
+
+		public Guid Guid
+		{
+			get { throw new NotImplementedException(); }
+		}
+
+		public string GetConflictingRecordOutOfSourceControl(IRetrieveFile fileRetriever, ThreeWayMergeSources.Source mergeSource)
+		{
+			throw new NotImplementedException();
+		}
+
+		public void WriteAsXml(XmlWriter writer)
+		{
+			throw new NotImplementedException();
+		}
 	}
 
 	public abstract class AttributeConflict : Conflict, IConflict
@@ -107,6 +209,23 @@ namespace Chorus.merge.xml.generic
 			_ancestorValue = ancestorValue;
 		}
 
+		public AttributeConflict(XmlNode xmlRepresentation):base(xmlRepresentation)
+		{
+			_attributeName = xmlRepresentation.GetOptionalStringAttribute("attributeName", "unknown");
+			_ourValue = xmlRepresentation.GetOptionalStringAttribute("ourValue", string.Empty);
+			_theirValue = xmlRepresentation.GetOptionalStringAttribute("theirValue", string.Empty);
+			_ancestorValue = xmlRepresentation.GetOptionalStringAttribute("ancestorValue", string.Empty);
+		}
+
+		protected override void WriteAttributes(XmlWriter writer)
+		{
+			base.WriteAttributes(writer);
+			writer.WriteAttributeString("attributeName", _attributeName);
+			writer.WriteAttributeString("ourValue", _ourValue);
+			writer.WriteAttributeString("theirValue", _theirValue);
+			writer.WriteAttributeString("ancestorValue", _ancestorValue);
+		}
+
 		public string AttributeDescription
 		{
 			get
@@ -122,7 +241,7 @@ namespace Chorus.merge.xml.generic
 				string ancestor = string.IsNullOrEmpty(_ancestorValue) ? "<didn't exist>" : _ancestorValue;
 				string ours = string.IsNullOrEmpty(_ourValue) ? "<removed>" : _ourValue;
 				string theirs = string.IsNullOrEmpty(_theirValue) ? "<removed>" : _theirValue;
-				return string.Format("When we last synchronized, the value was {0}. Since then, we changed it to {1}, while they changed it to {2}.",
+				return string.Format("When they last synchronized, the value was {0}. Since then, one changed it to {1}, while the other changed it to {2}.",
 									 ancestor, ours, theirs);
 			}
 		}
@@ -208,6 +327,11 @@ namespace Chorus.merge.xml.generic
 		{
 		}
 
+		public BothEdittedTextConflict(XmlNode xmlRepresentation):base(xmlRepresentation)
+		{
+
+		}
+
 		public override string ConflictTypeHumanName
 		{
 			get { return string.Format("Both Edited Text Field Conflict"); }
@@ -225,6 +349,12 @@ namespace Chorus.merge.xml.generic
 		{
 		}
 
+
+		public RemovedVsEdittedTextConflict(XmlNode xmlRepresentation):base(xmlRepresentation)
+		{
+
+		}
+
 		public override string ConflictTypeHumanName
 		{
 			get { return string.Format("Both Edited Text Field Conflict"); }
@@ -235,33 +365,39 @@ namespace Chorus.merge.xml.generic
 	public abstract class ElementConflict : Conflict, IConflict
 	{
 		protected readonly string _elementName;
-		protected readonly XmlNode _ourElement;
-		protected readonly XmlNode _theirElement;
-		protected readonly XmlNode _ancestorElement;
-		private MergeStrategies _mergeStrategies;
+//        protected readonly XmlNode _ourElement;
+//        protected readonly XmlNode _theirElement;
+//        protected readonly XmlNode _ancestorElement;
+		private string _shortElementDescription;
 
 		public ElementConflict(string elementName, XmlNode ourElement, XmlNode theirElement, XmlNode ancestorElement,
-							   MergeSituation mergeSituation, MergeStrategies mergeStrategies)
+							   MergeSituation mergeSituation, IElementDescriber elementDescriber)
 			: base(mergeSituation)
 		{
 			_elementName = elementName;
-			_ourElement = ourElement;
-			_theirElement = theirElement;
-			_ancestorElement = ancestorElement;
-			_mergeStrategies = mergeStrategies;
+//            _ourElement = ourElement;
+//            _theirElement = theirElement;
+//            _ancestorElement = ancestorElement;
+
+			//nb: we need to make use of the describer now, because it won't make it through the xml serialization/deserialization
+			_shortElementDescription = elementDescriber.GetHumanDescription(ourElement);
 		}
 
+		public ElementConflict(XmlNode xmlRepresentation):base(xmlRepresentation)
+		{
+			_shortElementDescription = xmlRepresentation.GetOptionalStringAttribute("shortElementDescription", "unknown");
+		}
 
 		public override string GetFullHumanReadableDescription()
 		{
 			//enhance: this is a bit of a hack to pick some element that isn't null
-			XmlNode element = _ourElement == null ? _ancestorElement : _ourElement;
-			if(element == null)
-			{
-				element = _theirElement;
-			}
+//            XmlNode element = _ourElement == null ? _ancestorElement : _ourElement;
+//            if(element == null)
+//            {
+//                element = _theirElement;
+//            }
 
-			return string.Format("{0} ({1}): {2}", ConflictTypeHumanName, _mergeStrategies.GetElementStrategy(element).GetHumanDescription(element), WhatHappened);
+			return string.Format("{0} ({1}): {2}", ConflictTypeHumanName, _shortElementDescription, WhatHappened);
 		}
 
 
@@ -276,17 +412,28 @@ namespace Chorus.merge.xml.generic
 		{
 			get;
 		}
+
+		protected override void WriteAttributes(XmlWriter writer)
+		{
+			base.WriteAttributes(writer);
+			writer.WriteAttributeString("shortElementDescription", _shortElementDescription);
+		}
 	}
 
 	[TypeGuid("56F9C347-C4FA-48F4-8028-729F3CFF48EF")]
 	internal class RemovedVsEditedElementConflict : ElementConflict
 	{
 		public RemovedVsEditedElementConflict(string elementName, XmlNode ourElement, XmlNode theirElement,
-			XmlNode ancestorElement, MergeSituation mergeSituation, MergeStrategies mergeStrategies)
-			: base(elementName, ourElement, theirElement, ancestorElement, mergeSituation, mergeStrategies)
+			XmlNode ancestorElement, MergeSituation mergeSituation, IElementDescriber elementDescriber)
+			: base(elementName, ourElement, theirElement, ancestorElement, mergeSituation, elementDescriber)
 		{
 		}
 
+
+		public RemovedVsEditedElementConflict(XmlNode xmlRepresentation):base(xmlRepresentation)
+		{
+
+		}
 		public override string ConflictTypeHumanName
 		{
 			get { return "Removed Vs Edited Element Conflict"; }
@@ -296,14 +443,15 @@ namespace Chorus.merge.xml.generic
 		{
 			get
 			{
-				if (_theirElement == null)
-				{
-					return "Since we last synchronized, they deleted this element, while you or the program you were using edited it.";
-				}
-				else
-				{
-					return "Since we last synchronized, you deleted this element, while they or the program they were using edited it.";
-				}
+//                if (_theirElement == null)
+//                {
+//                    return "Since we last synchronized, they deleted this element, while you or the program you were using edited it.";
+//                }
+//                else
+//                {
+//                    return "Since we last synchronized, you deleted this element, while they or the program they were using edited it.";
+//                }
+				return "One user deleted this element, while another edited it.";
 			}
 		}
 	}
@@ -312,11 +460,15 @@ namespace Chorus.merge.xml.generic
 	internal class BothReorderedElementConflict : ElementConflict
 	{
 		public BothReorderedElementConflict(string elementName, XmlNode ourElement, XmlNode theirElement,
-			XmlNode ancestorElement, MergeSituation mergeSituation, MergeStrategies mergeStrategies)
-			: base(elementName, ourElement, theirElement, ancestorElement, mergeSituation, mergeStrategies)
+			XmlNode ancestorElement, MergeSituation mergeSituation, IElementDescriber elementDescriber)
+			: base(elementName, ourElement, theirElement, ancestorElement, mergeSituation, elementDescriber)
 		{
 		}
 
+		public BothReorderedElementConflict(XmlNode xmlRepresentation):base(xmlRepresentation)
+		{
+
+		}
 		public override string ConflictTypeHumanName
 		{
 			get { return "Both Reordered Conflict"; }
@@ -332,11 +484,15 @@ namespace Chorus.merge.xml.generic
 	internal class AmbiguousInsertConflict : ElementConflict
 	{
 		public AmbiguousInsertConflict(string elementName, XmlNode ourElement, XmlNode theirElement,
-			XmlNode ancestorElement, MergeSituation mergeSituation, MergeStrategies mergeStrategies)
-			: base(elementName, ourElement, theirElement, ancestorElement, mergeSituation, mergeStrategies)
+			XmlNode ancestorElement, MergeSituation mergeSituation, IElementDescriber elementDescriber)
+			: base(elementName, ourElement, theirElement, ancestorElement, mergeSituation, elementDescriber)
 		{
 		}
 
+		public AmbiguousInsertConflict(XmlNode xmlRepresentation):base(xmlRepresentation)
+		{
+
+		}
 		public override string ConflictTypeHumanName
 		{
 			get { return "Ambiguous Insert Warning"; }
@@ -356,11 +512,16 @@ namespace Chorus.merge.xml.generic
 	internal class AmbiguousInsertReorderConflict : ElementConflict
 	{
 		public AmbiguousInsertReorderConflict(string elementName, XmlNode ourElement, XmlNode theirElement,
-			XmlNode ancestorElement, MergeSituation mergeSituation, MergeStrategies mergeStrategies)
-			: base(elementName, ourElement, theirElement, ancestorElement, mergeSituation, mergeStrategies)
+			XmlNode ancestorElement, MergeSituation mergeSituation, IElementDescriber elementDescriber)
+			: base(elementName, ourElement, theirElement, ancestorElement, mergeSituation, elementDescriber)
 		{
 		}
 
+		public AmbiguousInsertReorderConflict(XmlNode xmlRepresentation)
+			: base(xmlRepresentation)
+		{
+
+		}
 
 
 		public override string ConflictTypeHumanName

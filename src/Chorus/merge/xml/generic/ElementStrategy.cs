@@ -70,7 +70,7 @@ namespace Chorus.merge.xml.generic
 
 	}
 
-	public class ElementStrategy
+	public class ElementStrategy : IElementDescriber
 	{
 		/// <summary>
 		/// Given a node in "ours" that we want to merge with "theirs", how do we identify the one in "theirs"?
@@ -123,6 +123,11 @@ namespace Chorus.merge.xml.generic
 //            return null;
 //        }
 
+	}
+
+	public interface IElementDescriber
+	{
+		string GetHumanDescription(XmlNode element);
 	}
 
 	//Given an element (however that is defined for a given file type (e.g. xml element for xml files)...

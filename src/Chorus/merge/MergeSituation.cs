@@ -100,6 +100,13 @@ namespace Chorus.merge
 //        }
 
 
-
+		public static MergeSituation FromXml(XmlNode node)
+		{
+			return new MergeSituation(node.GetStringAttribute("path"),
+				node.GetStringAttribute("userXId"),
+				node.GetStringAttribute("userXRevision"),
+				node.GetStringAttribute("userYId"),
+				node.GetStringAttribute("userYRevision") );
+		}
 	}
 }

@@ -54,6 +54,7 @@
 	<Compile Include="merge\GroupOfConflictFiles.cs" />
 	<Compile Include="merge\XmlLogMergeEventListenerTests.cs" />
 	<Compile Include="merge\GroupOfConflictingLiftFiles.cs" />
+	<Compile Include="merge\xml\generic\ConflictIOTest.cs" />
 	<Compile Include="merge\xml\generic\MergeChildrenMethodTests.cs" />
 	<Compile Include="merge\xml\generic\MergeChildrenMethod_DiffOnlyTests.cs" />
 	<Compile Include="merge\xml\generic\xmldiff\XmlDiffTests.cs" />
