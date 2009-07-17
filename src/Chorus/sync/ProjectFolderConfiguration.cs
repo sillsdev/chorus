@@ -11,6 +11,8 @@ namespace Chorus.sync
 		public ProjectFolderConfiguration(string folderPath)
 		{
 			FolderPath = folderPath;
+
+			_excludePatterns.Add("*.chorusRescue");
 		}
 
 		/// <summary>
@@ -31,7 +33,7 @@ namespace Chorus.sync
 		public List<string> ExcludePatterns
 		{
 			get { return _excludePatterns; }
-			set { _excludePatterns = value; }
+		 //   set { _excludePatterns = value; }
 		}
 
 		public string FolderPath

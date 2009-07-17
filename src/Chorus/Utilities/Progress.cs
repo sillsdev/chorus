@@ -115,7 +115,7 @@ namespace Chorus.Utilities
 
 		public void WriteWarning(string message, params object[] args)
 		{
-			WriteStatus(message, args);
+			WriteStatus("Warning: "+ message, args);
 		}
 
 		public void WriteError(string message, params object[] args)

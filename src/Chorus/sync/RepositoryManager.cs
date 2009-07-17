@@ -155,15 +155,13 @@ namespace Chorus.sync
 
 			if (options.DoMergeWithOthers)
 			{
-				progress.WriteStatus("Merging...");
-
 				IList<string> peopleWeMergedWith = repo.MergeHeads(progress, results);
 
 				//that merge may have generated conflict files, and we want these merged
 				//version + updated/created conflict files to go right back into the repository
 				if (peopleWeMergedWith.Count > 0)
 				{
-					repo.AddAndCheckinFiles(_project.IncludePatterns, _project.ExcludePatterns, GetMergeCommitSummary(peopleWeMergedWith));
+					repo.AddAndCheckinFiles(_project.IncludePatterns, _project.ExcludePatterns, GetMergeCommitSummary(peopleWeMergedWith, repo));
 				}
 			}
 
@@ -228,14 +226,20 @@ namespace Chorus.sync
 			throw new ApplicationException("Could not find a head to update to.");
 		}
 
-		private string GetMergeCommitSummary(IList<string> peopleWeMergedWith)
+		private string GetMergeCommitSummary(IList<string> peopleWeMergedWith, HgRepository repository)
 		{
 			var message  = "Merged with ";
 			foreach (string id in peopleWeMergedWith)
 			{
 				message += id + ", ";
 			}
-			return message.Remove(message.Length - 2); //chop off the trailing comma
+			message= message.Remove(message.Length - 2); //chop off the trailing comma
+
+			if (repository.GetChangedFiles().Any(s => s.EndsWith(".conflicts")))
+			{
+				message = message + " (conflicts)";
+			}
+			return message;
 
 		}
 
@@ -336,7 +340,8 @@ namespace Chorus.sync
 		{
 			HgRepository local = new HgRepository(_localRepositoryPath, progress);
 
-			return local.GetAllRevisions();
+			var revs= local.GetAllRevisions();
+			return revs;
 		}
 
 		/// <summary>

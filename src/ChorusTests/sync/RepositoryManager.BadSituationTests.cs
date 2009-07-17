@@ -87,5 +87,74 @@ namespace Chorus.Tests.sync
 
 			}
 		}
+
+
+		[Test]
+		public void Sync_TheyHaveAFileWhichWeAlsoEditedButHavenotCheckedIn_OursIsRenamedToSafetyAndWeGetTheirs()
+		{
+			using (RepositoryWithFilesSetup bob = new RepositoryWithFilesSetup("bob", "test.a9a", "original"))
+			{
+				using (RepositoryWithFilesSetup sally = RepositoryWithFilesSetup.CreateByCloning("sally", bob))
+				{
+					File.WriteAllText(bob.ProjectFolder.Combine("problem.txt"), "bobs problem");
+					bob.ProjectConfiguration.IncludePatterns.Add("problem.txt");
+					bob.Checkin();
+					sally.ReplaceSomething("sallyWasHere");
+					File.WriteAllText(sally.ProjectFolder.Combine("problem.txt"), "sally's problem");
+					//notice, we don't alter the include patter on sally, so this doesn't get checked in
+					// on her side
+
+					sally.CheckinAndPullAndMerge(bob);
+
+					sally.AssertNoErrorsReported();
+
+					var rescueFiles = Directory.GetFiles(sally.ProjectFolder.Path, "*.chorusRescue");
+					Assert.AreEqual(1, rescueFiles.Length);
+					Assert.AreEqual("sally's problem", File.ReadAllText(rescueFiles[0]));
+					sally.AssertFileContents("problem.txt", "bobs problem");
+				}
+
+			}
+		}
+
+		/// <summary>
+		/// the diff here with the previous test is that while sally is still the one who is the driver
+		/// (she dose the merge and push to bob), this time we follow up with bob doing a sync, which
+		/// is essentially just a pull and update, to make sure that at that point the system renames
+		/// his offending file (which Sally's chorus would have know way of knowing about, since it's
+		/// not in his repository).
+		/// </summary>
+		[Test]
+		public void Sync_WeHaveAFileWhichTheyAlsoEditedButHavenotCheckedIn_TheirsIsRenamedToSafetyAndTheyGetOurs()
+		{
+			using (RepositoryWithFilesSetup bob = new RepositoryWithFilesSetup("bob", "test.a9a", "original"))
+			{
+				using (RepositoryWithFilesSetup sally = RepositoryWithFilesSetup.CreateByCloning("sally", bob))
+				{
+					File.WriteAllText(bob.ProjectFolder.Combine("problem.txt"), "bob's problem");
+					//notice, we don't alter the include pattern on bob, so this doesn't get checked in
+					// on his side
+					bob.Checkin();
+
+					sally.ReplaceSomething("sallyWasHere");
+					File.WriteAllText(sally.ProjectFolder.Combine("problem.txt"), "sally's problem");
+					sally.ProjectConfiguration.IncludePatterns.Add("problem.txt");
+
+					sally.CheckinAndPullAndMerge(bob);
+					sally.AssertNoErrorsReported();
+
+					//ok, so the problem is now lurking in bob's repo, but it doesn't hit him until
+					//he does at least an update
+
+					bob.CheckinAndPullAndMerge(sally);
+
+					var rescueFiles = Directory.GetFiles(bob.ProjectFolder.Path, "*.chorusRescue");
+					Assert.AreEqual(1, rescueFiles.Length);
+					Assert.AreEqual("bob's problem", File.ReadAllText(rescueFiles[0]));
+					sally.AssertFileContents("problem.txt", "sally's problem");
+				}
+
+			}
+		}
 	}
 }

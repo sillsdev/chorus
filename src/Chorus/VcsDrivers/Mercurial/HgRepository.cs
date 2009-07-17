@@ -371,6 +371,8 @@ namespace Chorus.VcsDrivers.Mercurial
 				MergeOrder.PushToEnvironmentVariables(_pathToRepository);
 				if (head.Number.LocalRevisionNumber != myHead.Number.LocalRevisionNumber)
 				{
+					progress.WriteStatus("Merging with {0}...", head.UserId);
+					RemoveMergeObstacles(myHead, head);
 					bool didMerge = MergeTwoChangeSets(myHead, head);
 					if (didMerge)
 					{
@@ -381,6 +383,46 @@ namespace Chorus.VcsDrivers.Mercurial
 
 			return peopleWeMergedWith;
 		}
+
+		 /// <summary>
+		/// There may be more, but for now: take care of the case where one guy has a file not
+		/// modified (and not checked in), and the other guy is going to hammer it (with a remove
+		/// or change).
+		/// </summary>
+		private void RemoveMergeObstacles(Revision rev1, Revision rev2)
+		{
+			 var files = GetFilesInRevisionFromQuery(rev1 /*this param is bogus*/, "status -ru --rev " + rev2.Number.LocalRevisionNumber);
+			 foreach (var file in files)
+			 {
+				 if (file.ActionThatHappened == FileInRevision.Action.Unknown)
+				 {
+					 if (files.Any(f => f.FullPath == file.FullPath))
+					 {
+						 //string newPath=string.Empty;
+//                         foreach (var suffix in new string[] {"", ".1", ".2", ".3", ".4", ".5" })
+//                         {
+//                             newPath = file.FullPath + suffix + ".chorusRescue";//intentionally changing the extension, so it won't get checked in
+//                             try
+//                             {
+//                                 File.Move(file.FullPath, newPath);
+//                                 break;
+//                             }
+//                             catch (Exception error)
+//                             {
+//                                 _progress.WriteWarning("Could not copy {0} to {1}", file.FullPath, newPath);
+//                             }
+//                             ///arggghhh... they're all in use *and locked*!  try a random name
+//                             File.Move(file.FullPath, Path.GetRandomFileName()+".chorusRescue");
+//                         }
+						 var newPath = file.FullPath+"-"+Path.GetRandomFileName() + ".chorusRescue";
+						 File.Move(file.FullPath, newPath);
+						 _progress.WriteWarning("Renamed {0} to {1} because it is not part of {2}'s repository but it is part of {3}'s, and this would otherwise prevent a merge.", file.FullPath, Path.GetFileName(newPath), rev1.UserId, rev2.UserId);
+					 }
+				 }
+			 }
+		}
+
+
 
 		private bool MergeTwoChangeSets(Revision head, Revision theirHead)
 		{
@@ -665,12 +707,13 @@ namespace Chorus.VcsDrivers.Mercurial
 			foreach (var r in revisionRanges)
 			{
 				var query = "status --rev " + r;
-				foreach (var file in GetFilesChangedBetweenTwoRevisions(revision, query))
+				foreach (var file in GetFilesInRevisionFromQuery(revision, query))
 				{
 					//only add if we don't already have it, from comparing with another parent
 					if (null == files.FirstOrDefault(f => f.FullPath == file.FullPath))
 					{
-						files.Add(file);
+						if(file.ActionThatHappened != FileInRevision.Action.Unknown)
+							files.Add(file);
 					}
 				}
 			}
@@ -680,7 +723,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 
 
-		private List<FileInRevision> GetFilesChangedBetweenTwoRevisions(Revision revision, string query)
+		private List<FileInRevision> GetFilesInRevisionFromQuery(Revision revisionToAssignToResultingFIRs, string query)
 		{
 			var result = GetTextFromQuery(_pathToRepository,query);
 			string[] lines = result.Split('\n');
@@ -690,8 +733,8 @@ namespace Chorus.VcsDrivers.Mercurial
 				if (line.Trim() == "")
 					continue;
 				var actionLetter = line[0];
-				if(actionLetter == '?') //this means it wasn't actually committed, like maybe ignored?
-					continue;
+ //               if(actionLetter == '?') //this means it wasn't actually committed, like maybe ignored?
+   //                 continue;
 				var action = ParseActionLetter(actionLetter);
 
 				//if this is the first rev in the whole repo, then the only way to list the fils
@@ -699,7 +742,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				if (action == FileInRevision.Action.NoChanges)
 					action = FileInRevision.Action.Added;
 
-				revisions.Add(new FileInRevision(revision.Number.LocalRevisionNumber, Path.Combine(PathToRepo, line.Substring(2)), action));
+				revisions.Add(new FileInRevision(revisionToAssignToResultingFIRs.Number.LocalRevisionNumber, Path.Combine(PathToRepo, line.Substring(2)), action));
 			}
 			return revisions;
 		}
