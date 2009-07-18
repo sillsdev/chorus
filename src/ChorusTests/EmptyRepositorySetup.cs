@@ -3,6 +3,7 @@ using System.IO;
 using Chorus.sync;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
+using NUnit.Framework;
 
 namespace Chorus.Tests
 {
@@ -16,6 +17,7 @@ namespace Chorus.Tests
 		public TempFolder ProjectFolder;
 		public RepositoryManager RepoMan;
 		public RepositoryPath RepoPath;
+		public ProjectFolderConfiguration ProjectFolderConfig;
 
 
 		public EmptyRepositorySetup()
@@ -27,8 +29,8 @@ namespace Chorus.Tests
 			ProjectFolder = new TempFolder(RootFolder, "foo project");
 
 			RepositoryManager.MakeRepositoryForTest(ProjectFolder.Path, userName);
-			var projectFolderConfig = new ProjectFolderConfiguration(ProjectFolder.Path);
-			RepoMan = RepositoryManager.FromRootOrChildFolder(projectFolderConfig);
+			ProjectFolderConfig = new ProjectFolderConfiguration(ProjectFolder.Path);
+			RepoMan = RepositoryManager.FromRootOrChildFolder(ProjectFolderConfig);
 		}
 
 
@@ -63,6 +65,30 @@ namespace Chorus.Tests
 			var p = ProjectFolder.Combine(fileName);
 			File.WriteAllText(p, contents);
 			Repository.AddAndCheckinFile(p);
+		}
+
+		public void AddAndCheckIn()
+		{
+			SyncOptions options = new SyncOptions();
+			options.DoMergeWithOthers = false;
+			options.DoPullFromOthers = false;
+			options.DoPushToLocalSources = false;
+
+			RepoMan.SyncNow(options, _progress);
+		}
+		public void AssertFileExistsRelativeToRoot(string relativePath)
+		{
+			Assert.IsTrue(File.Exists(RootFolder.Combine(relativePath)));
+		}
+
+		public void AssertFileExistsInRepository(string pathRelativeToRepositoryRoot)
+		{
+			Assert.IsTrue(Repository.GetFileExistsInRepo(pathRelativeToRepositoryRoot));
+		}
+
+		public void AssertFileDoesNotExistInRepository(string pathRelativeToRepositoryRoot)
+		{
+			Assert.IsFalse(Repository.GetFileExistsInRepo(pathRelativeToRepositoryRoot));
 		}
 	}
 }

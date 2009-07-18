@@ -73,6 +73,7 @@
 	<Compile Include="sync\RepositoryManager.BadSituationTests.cs" />
 	<Compile Include="sync\SyncScenarioTests.cs" />
 	<Compile Include="sync\UsbRepositorySourceTests.cs" />
+	<Compile Include="VcsDrivers\Mercurial\IncludeExcludeTests.cs" />
 	<Compile Include="VcsDrivers\Mercurial\HgWrappingTests.cs" />
 	<Compile Include="VcsDrivers\Mercurial\HgSettingsTests.cs" />
 	<Compile Include="VcsDrivers\Mercurial\FileInRevisionTests.cs" />
