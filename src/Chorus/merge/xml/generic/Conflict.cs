@@ -41,17 +41,17 @@ namespace Chorus.merge.xml.generic
 	   // protected string _shortDataDescription;
 		protected Guid _guid = Guid.NewGuid();
 	   // public string PathToUnitOfConflict { get; set; }
-		public string RelativeFilePath { get { return _mergeSituation.PathToFileInRepository; } }
+		public string RelativeFilePath { get { return Situation.PathToFileInRepository; } }
 
 		public abstract string GetFullHumanReadableDescription();
 		public abstract string ConflictTypeHumanName { get; }
-		protected readonly MergeSituation _mergeSituation;
+		public MergeSituation Situation{get;set;}
 		public ContextDescriptor Context { get; set; }
 
 
 		public Conflict(XmlNode xmlRepresentation)
 		{
-			_mergeSituation =  MergeSituation.FromXml(xmlRepresentation.SafeSelectNodes("MergeSituation")[0]);
+			Situation =  MergeSituation.FromXml(xmlRepresentation.SafeSelectNodes("MergeSituation")[0]);
 			_guid = new Guid(xmlRepresentation.GetOptionalStringAttribute("guid", string.Empty));
 			//PathToUnitOfConflict = xmlRepresentation.GetOptionalStringAttribute("pathToUnitOfConflict", string.Empty);
 			Context  = ContextDescriptor.CreateFromXml(xmlRepresentation);
@@ -61,7 +61,7 @@ namespace Chorus.merge.xml.generic
 
 		protected Conflict(MergeSituation situation)
 		{
-			_mergeSituation = situation;
+			Situation = situation;
 		}
 
 		public Guid Guid
@@ -78,7 +78,7 @@ namespace Chorus.merge.xml.generic
 
 			writer.WriteString(GetFullHumanReadableDescription());
 
-			_mergeSituation.WriteAsXml(writer);
+			Situation.WriteAsXml(writer);
 
 			writer.WriteEndElement();
 		}
@@ -188,6 +188,12 @@ namespace Chorus.merge.xml.generic
 			get { throw new NotImplementedException(); }
 		}
 
+		public MergeSituation Situation
+		{
+			get { return new NullMergeSituation(); }
+			set { }
+		}
+
 		public string GetConflictingRecordOutOfSourceControl(IRetrieveFile fileRetriever, ThreeWayMergeSources.Source mergeSource)
 		{
 			throw new NotImplementedException();
@@ -273,16 +279,16 @@ namespace Chorus.merge.xml.generic
 				case ThreeWayMergeSources.Source.Ancestor:
 					throw new ApplicationException("Ancestor retrieval not implemented yet.");
 				case ThreeWayMergeSources.Source.UserX:
-					revision = _mergeSituation.UserXRevision;
+					revision = Situation.UserXRevision;
 				 //   elementId = _userXElementId;
 					break;
 				case ThreeWayMergeSources.Source.UserY:
-					revision = _mergeSituation.UserYRevision;
+					revision = Situation.UserYRevision;
 				 //    elementId = _userYElementId;
 				   break;
 
 			}
-			using(var f = TempFile.TrackExisting(fileRetriever.RetrieveHistoricalVersionOfFile(_mergeSituation.PathToFileInRepository, revision)))
+			using(var f = TempFile.TrackExisting(fileRetriever.RetrieveHistoricalVersionOfFile(Situation.PathToFileInRepository, revision)))
 			{
 				var doc = new XmlDocument();
 				doc.Load(f.Path);

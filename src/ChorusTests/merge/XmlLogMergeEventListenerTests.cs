@@ -93,6 +93,12 @@ namespace Chorus.Tests.merge
 			get { return _guid; }
 		}
 
+		public MergeSituation Situation
+		{
+			get { return new NullMergeSituation(); }
+			set { throw new NotImplementedException(); }
+		}
+
 		public string PathToUnitOfConflict
 		{
 			get; set;

@@ -19,7 +19,7 @@ namespace Chorus.Tests.sync
 				using (RepositoryWithFilesSetup sally = RepositoryWithFilesSetup.CreateByCloning("sally", bob))
 				{
 					bob.ReplaceSomething("bob");
-					bob.Checkin();
+					bob.AddAndCheckIn();
 					sally.ReplaceSomething("sally");
 					sally.CheckinAndPullAndMerge(bob);
 

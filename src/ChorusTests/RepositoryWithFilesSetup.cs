@@ -119,7 +119,7 @@ namespace Chorus.Tests.merge
 		}
 
 
-		public void Checkin()
+		public void AddAndCheckIn()
 		{
 			SyncOptions options = new SyncOptions();
 			options.DoMergeWithOthers = false;

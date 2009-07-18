@@ -36,7 +36,7 @@ namespace Chorus.Tests.sync
 				using (RepositoryWithFilesSetup sally = RepositoryWithFilesSetup.CreateByCloning("sally", bob))
 				{
 					bob.ReplaceSomething("bobWasHere");
-					bob.Checkin();
+					bob.AddAndCheckIn();
 					sally.ReplaceSomething("sallyWasHere");
 					using (new ShortTermEnvironmentalVariable("InduceChorusFailure", "LiftMerger.FindEntry"))
 					{
@@ -68,7 +68,7 @@ namespace Chorus.Tests.sync
 				using (RepositoryWithFilesSetup sally = RepositoryWithFilesSetup.CreateByCloning("sally", bob))
 				{
 					bob.ReplaceSomething("bobWasHere");
-					bob.Checkin();
+					bob.AddAndCheckIn();
 					sally.ReplaceSomething("sallyWasHere");
 
 					//now we have a merge of a file type that don't know how to merge
@@ -98,7 +98,7 @@ namespace Chorus.Tests.sync
 				{
 					File.WriteAllText(bob.ProjectFolder.Combine("problem.txt"), "bobs problem");
 					bob.ProjectConfiguration.IncludePatterns.Add("problem.txt");
-					bob.Checkin();
+					bob.AddAndCheckIn();
 					sally.ReplaceSomething("sallyWasHere");
 					File.WriteAllText(sally.ProjectFolder.Combine("problem.txt"), "sally's problem");
 					//notice, we don't alter the include patter on sally, so this doesn't get checked in
@@ -134,7 +134,7 @@ namespace Chorus.Tests.sync
 					File.WriteAllText(bob.ProjectFolder.Combine("problem.txt"), "bob's problem");
 					//notice, we don't alter the include pattern on bob, so this doesn't get checked in
 					// on his side
-					bob.Checkin();
+					bob.AddAndCheckIn();
 
 					sally.ReplaceSomething("sallyWasHere");
 					File.WriteAllText(sally.ProjectFolder.Combine("problem.txt"), "sally's problem");

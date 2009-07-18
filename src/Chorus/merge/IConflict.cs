@@ -24,6 +24,7 @@ namespace Chorus.merge
 		}
 
 		Guid  Guid { get; }
+		MergeSituation Situation { get; set; }
 
 		string GetConflictingRecordOutOfSourceControl(IRetrieveFile fileRetriever, ThreeWayMergeSources.Source mergeSource);
 		void WriteAsXml(XmlWriter writer);
@@ -54,17 +55,17 @@ namespace Chorus.merge
 		public override string GetFullHumanReadableDescription()
 		{
 			var b = new StringBuilder();
-			b.AppendFormat("Chorus did not have the ability to merge both user's version of the file {0}", _mergeSituation.PathToFileInRepository);
+			b.AppendFormat("Chorus did not have the ability to merge both user's version of the file {0}", Situation.PathToFileInRepository);
 			b.AppendLine();
 			string winnerId = (_conflictHandlingMode == MergeOrder.ConflictHandlingModeChoices.TheyWin)
 								  ?
-									 _mergeSituation.UserYId
-								  :_mergeSituation.UserXId;
+									 Situation.UserYId
+								  :Situation.UserXId;
 
 			string loserId = (_conflictHandlingMode != MergeOrder.ConflictHandlingModeChoices.TheyWin)
 								  ?
-									 _mergeSituation.UserYId
-								  :_mergeSituation.UserXId;
+									 Situation.UserYId
+								  :Situation.UserXId;
 
 			b.AppendFormat("The merger gave both users the copy from '{0}'.", winnerId);
 			b.AppendLine();

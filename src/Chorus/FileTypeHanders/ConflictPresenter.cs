@@ -28,7 +28,7 @@ namespace Chorus.FileTypeHanders
 
 		public string GetDataLabel()
 		{
-			return "data";
+			return _conflict.Context.DataLabel;
 		}
 
 		public string GetActionLabel()
@@ -42,7 +42,13 @@ namespace Chorus.FileTypeHanders
 			builder.Append("<html>");
 			if (_report is XmlAdditionChangeReport)
 			{
-				builder.AppendFormat("<p>{0}</p>", XmlUtilities.GetXmlForShowingInHtml(_report.ChildNode.OuterXml));
+				builder.AppendFormat(
+					"<p>{0} and {1} both editted {2} in the file {3} in a way that could not be automatically merged.</p>",
+					_conflict.Situation.UserXId,  _conflict.Situation.UserYId, _conflict.Context.DataLabel,_conflict.RelativeFilePath);
+
+				builder.AppendFormat("<p></p>");
+
+			   // XmlUtilities.GetXmlForShowingInHtml(_report.ChildNode.OuterXml));
 			}
 
 			builder.Append("</html>");

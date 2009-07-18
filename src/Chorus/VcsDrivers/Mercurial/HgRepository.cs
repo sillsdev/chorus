@@ -463,6 +463,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 			args.Append(" -I " + SurroundWithQuotes(Path.Combine(this._pathToRepository, "**.conflicts")));
 			args.Append(" -I " + SurroundWithQuotes(Path.Combine(this._pathToRepository, "**.conflicts.txt")));
+			args.Append(" -X " + SurroundWithQuotes(Path.Combine(this._pathToRepository, "**.chorusRescue")));
 
 			foreach (string pattern in excludePatterns)
 			{
@@ -473,7 +474,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			}
 
 			//enhance: what happens if something is covered by the exclusion pattern that was previously added?  Will the old
-			// version just be stuck on the head?
+			// version just be stuck on the head? NB: to remove a file from the checkin but not delete it, do "hg remove -Af"
 
 			if (GetIsAtLeastOneMissingFileInWorkingDir())
 			{

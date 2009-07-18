@@ -12,7 +12,6 @@ namespace Chorus.sync
 		{
 			FolderPath = folderPath;
 
-			_excludePatterns.Add("*.chorusRescue");
 		}
 
 		/// <summary>
@@ -26,7 +25,7 @@ namespace Chorus.sync
 		}
 
 		/// <summary>
-		/// If includePatterns are also specified, these are applied after them.
+		/// NB: These take precedence over any includePatterns.
 		/// </summary>
 		/// <example>"**/*.bak" </example>
 		/// <example>"**/cache" any directory named 'cache'</example>
