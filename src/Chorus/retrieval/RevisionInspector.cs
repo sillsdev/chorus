@@ -94,7 +94,7 @@ namespace Chorus.retrieval
 					using (var parentFile = parentFileInRevision.CreateTempFile(_repository))
 					{
 						//run the differ which the handler provides, adding the changes to the cumulative
-						//list we are gathering for this hole revision
+						//list we are gathering for this whole revision
 						changes.AddRange(handler.Find2WayDifferences(fileInRevision, parentFile.Path, targetFile.Path));
 					}
 				}

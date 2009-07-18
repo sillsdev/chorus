@@ -34,7 +34,7 @@ namespace Chorus.merge.xml.generic
 //        }
 //    }
 
-	public abstract class Conflict :IConflict
+	public abstract class Conflict :IConflict, IEquatable<Conflict>
 	{
 		static public string TimeFormatNoTimeZone = "yyyy-MM-ddTHH:mm:ssZ";
 
@@ -62,6 +62,13 @@ namespace Chorus.merge.xml.generic
 		protected Conflict(MergeSituation situation)
 		{
 			Situation = situation;
+		}
+
+		public override bool Equals(object obj)
+		{
+			IConflict otherGuy = obj as IConflict;
+			return _guid == otherGuy.Guid;
+//            return base.Equals(obj);
 		}
 
 		public Guid Guid
@@ -147,6 +154,21 @@ namespace Chorus.merge.xml.generic
 		private static void Register<T>(Autofac.Builder.ContainerBuilder builder)
 		{
 			builder.Register<T>().Named(GetTypeGuid(typeof(T)));
+		}
+
+		public bool Equals(Conflict other)
+		{
+			if (ReferenceEquals(null, other)) return false;
+			if (ReferenceEquals(this, other)) return true;
+			return other._guid.Equals(_guid);
+		}
+
+		public override int GetHashCode()
+		{
+		   unchecked
+			{
+				return _guid.GetHashCode();
+			}
 		}
 	}
 

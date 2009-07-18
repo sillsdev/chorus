@@ -38,17 +38,18 @@ namespace Chorus.VcsDrivers.Mercurial
 			return null;
 		}
 
-		protected Revision GetMyHead()
-		{
-			using (new ConsoleProgress("Getting real head of {0}", _userName))
-			{
-				string result = GetTextFromQuery(_pathToRepository, "identify -nib");
-				string[] parts = result.Split(new char[] {' ','(',')'}, StringSplitOptions.RemoveEmptyEntries);
-				Revision descriptor = new Revision(this, parts[2],parts[1], parts[0], "unknown");
-
-				return descriptor;
-			}
-		}
+//        protected Revision GetMyHead()
+//        {
+//            using (new ConsoleProgress("Getting real head of {0}", _userName))
+//            {
+////                string result = GetTextFromQuery(_pathToRepository, "identify -nib");
+////                string[] parts = result.Split(new char[] {' ','(',')'}, StringSplitOptions.RemoveEmptyEntries);
+////                Revision descriptor = new Revision(this, parts[2],parts[1], parts[0], "unknown");
+//
+//
+//                return descriptor;
+//            }
+//        }
 
 
 		public HgRepository(string pathToRepository, IProgress progress)
@@ -363,7 +364,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			List<string> peopleWeMergedWith= new List<string>();
 
 			List<Revision> heads = GetHeads();
-			Revision myHead = GetMyHead();
+			Revision myHead = GetRevisionWorkingSetIsBasedOn();
 			foreach (Revision head in heads)
 			{
 				MergeSituation.PushRevisionsToEnvironmentVariables(myHead.UserId, myHead.Number.LocalRevisionNumber, head.UserId, head.Number.LocalRevisionNumber);
@@ -817,6 +818,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			try
 			{
 				var doc = GetHgrcDoc();
+				var x = doc.Sections["ui"].GetValue("username");
 				return doc.Sections["ui"].GetValue("username");
 			}
 			catch (Exception error)

@@ -144,7 +144,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		{
 			bool didMerge = false;
 			List<Revision> heads = GetHeads();
-			Revision myHead = GetMyHead();
+			Revision myHead = GetRevisionWorkingSetIsBasedOn();
 			foreach (Revision theirHead in heads)
 			{
 				if (theirHead.Number.LocalRevisionNumber != myHead.Number.LocalRevisionNumber && !HeadIsAStub(theirHead))
@@ -284,7 +284,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 					//we get this far when our chorusMerge was really called
 					Debug.Assert(File.Exists(PathToMergeFilePathsFile));
-					DoPartialMerge(theirChangeSet, GetMyHead() /*note, this is the new, lcd-containing head*/);
+					DoPartialMerge(theirChangeSet, GetRevisionWorkingSetIsBasedOn() /*note, this is the new, lcd-containing head*/);
 					return true;
 				}
 				finally

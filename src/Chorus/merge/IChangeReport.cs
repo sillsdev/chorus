@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Text;
 using System.Xml;
 
+using Chorus.merge.xml.generic;
+
 namespace Chorus.merge
 {
 	/// <summary>
@@ -60,6 +62,7 @@ namespace Chorus.merge
 		}
 
 
+
 		public override string ToString()
 		{
 			return GetFullHumanReadableDescription();
@@ -69,6 +72,7 @@ namespace Chorus.merge
 		{
 			return ActionLabel;
 		}
+
 	}
 
 	public class DefaultChangeReport : ChangeReport
@@ -112,6 +116,29 @@ namespace Chorus.merge
 		public XmlNode ChildNode
 		{
 			get { return _addedElement; }
+		}
+
+		public override int GetHashCode()
+		{
+			var guid = _addedElement.GetOptionalStringAttribute("guid",string.Empty);
+			if(guid!=string.Empty)
+				return guid.GetHashCode();
+			return base.GetHashCode();
+		}
+		public override bool Equals(object obj)
+		{
+			var guid = _addedElement.GetOptionalStringAttribute("guid",string.Empty);
+			if(guid==string.Empty)
+				return base.Equals(obj);
+
+			XmlAdditionChangeReport r = obj as XmlAdditionChangeReport;
+			if(r==null)
+				return false;
+			var otherGuid = r._addedElement.GetOptionalStringAttribute("guid",string.Empty);
+			if (guid == string.Empty)
+				return base.Equals(obj);
+
+			return guid.Equals(otherGuid);
 		}
 	}
 
