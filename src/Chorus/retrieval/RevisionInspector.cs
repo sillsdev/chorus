@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -28,6 +29,9 @@ namespace Chorus.retrieval
 		public IEnumerable<IChangeReport> GetChangeRecords(Revision revision)
 		{
 			var changes = new List<IChangeReport>();
+
+			revision.EnsureParentRevisionInfo();
+
 
 			if (!revision.HasAtLeastOneParent)
 			{
@@ -100,9 +104,17 @@ namespace Chorus.retrieval
 				}
 				else
 				{
-					using (var targetFile = fileInRevision.CreateTempFile(_repository))
+					try
 					{
-						changes.AddRange(handler.DescribeInitialContents(fileInRevision, targetFile));
+						using (var targetFile = fileInRevision.CreateTempFile(_repository))
+						{
+							changes.AddRange(handler.DescribeInitialContents(fileInRevision, targetFile));
+						}
+					}
+					catch (Exception error)
+					{
+						changes.Add(new DefaultChangeReport(fileInRevision.FullPath,
+															"Error retrieving historical version. "+error.Message));
 					}
 				}
 			}

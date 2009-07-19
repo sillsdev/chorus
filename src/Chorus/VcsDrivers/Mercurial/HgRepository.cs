@@ -753,7 +753,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		{
 			var parents = GetParentsOfRevision(revision.Number.LocalRevisionNumber);
 			if (parents.Count() == 0)
-				yield return string.Format("{0} -A", revision.Number.LocalRevisionNumber);
+				yield return string.Format("{0}:{0} -A", revision.Number.LocalRevisionNumber);
 
 			foreach (var parent in parents)
 			{
@@ -765,6 +765,12 @@ namespace Chorus.VcsDrivers.Mercurial
 		{
 			return from x in  GetRevisionsFromQuery("parent -r " + localRevisionNumber)
 				   select x.Number.LocalRevisionNumber;
+		}
+
+		public IEnumerable<RevisionNumber> GetParentsRevisionNumbers(string localRevisionNumber)
+		{
+			return from x in GetRevisionsFromQuery("parent -r " + localRevisionNumber)
+				   select x.Number;
 		}
 
 		private static FileInRevision.Action ParseActionLetter(char actionLetter)

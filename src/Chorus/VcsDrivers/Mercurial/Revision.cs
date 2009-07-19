@@ -64,6 +64,20 @@ namespace Chorus.VcsDrivers.Mercurial
 			//TODO: this is only checking direct descendant
 			return Parents.Any(p => p.Hash == revision.Number.Hash);
 		}
+
+	 /// <summary>
+		/// I can't for the life of me get hg to indicate parentage in the "hg log" (even with templates
+		/// asking for parents), if the revision is not the result of a merge.  And yet, it's expensive
+		/// to ask again for every single one.  So as a hack, for now, this  can be called on a revision
+		/// where we really need to know the parent.
+		/// </summary>
+		public void EnsureParentRevisionInfo()
+		{
+			if (this.Parents.Count == 0)
+			{
+				Parents.AddRange(_repository.GetParentsRevisionNumbers(this.Number.LocalRevisionNumber));
+			}
+		}
 	}
 
 	public class RevisionNumber
