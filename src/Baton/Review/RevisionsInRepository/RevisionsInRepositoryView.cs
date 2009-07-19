@@ -65,9 +65,16 @@ namespace Baton.Review.RevisionsInRepository
 					dateString = when.ToShortDateString()+" "+when.ToShortTimeString();
 				}
 
-				var viewItem = new ListViewItem(new string[] {dateString, rev.UserId, rev.Summary});
-				if(rev.Summary.ToLower().Contains("conflict"))
-					viewItem.ImageKey = "MergeConflict";
+				var viewItem = new ListViewItem(new string[] {dateString, rev.UserId, GetDescriptionForListView(rev)});
+				if (rev.Summary.ToLower().Contains("conflict"))
+					viewItem.ImageKey = "Warning";
+				else if (rev.Parents.Count > 1)
+					viewItem.ImageKey = "Merge";
+				else
+				{
+					var appName = rev.Summary.Substring(1, rev.Summary.IndexOf(':')-1);
+					viewItem.ImageKey = appName;
+				}
 				viewItem.Tag = rev;
 				rows.Add(viewItem);
 			}
@@ -77,6 +84,14 @@ namespace Baton.Review.RevisionsInRepository
 				_historyList.Items[0].Selected = true;
 			}
 			Cursor.Current = Cursors.Default;
+		}
+
+		private string GetDescriptionForListView(Revision rev)
+		{
+			var s = rev.Summary.Substring(rev.Summary.IndexOf(']')+1).Trim();
+			if(s=="auto")
+				return string.Empty;
+			return s;
 		}
 
 		private void _historyList_SelectedIndexChanged(object sender, EventArgs e)

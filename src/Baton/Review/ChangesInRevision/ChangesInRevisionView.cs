@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Windows.Forms;
 using System.Xml;
 using Chorus.FileTypeHanders;
@@ -31,6 +32,7 @@ namespace Baton.Review.RevisionChanges
 					IChangePresenter presenter = _model.GetChangePresenterForDataType(report);
 					var row = new ListViewItem(new string[] {presenter.GetTypeLabel(), presenter.GetDataLabel(), presenter.GetActionLabel()});
 					row.Tag = report;
+					row.ImageKey = presenter.GetIconName();
 					items.Add(row);
 				}
 

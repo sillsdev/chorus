@@ -74,7 +74,11 @@ namespace Chorus.merge.xml.generic
 
 		public void ChangeOccurred(IChangeReport change)
 		{
-			_writer.WriteStartElement("change");
+			/*
+			 * at this time, we aren't using these, and they mess with our simple-minded
+			 * "conflicting merge" detector, which just sees if the conflicts file was updated.
+			 */
+/*            _writer.WriteStartElement("change");
 			_writer.WriteAttributeString("type", string.Empty, change.ActionLabel);
 			_writer.WriteAttributeString("guid", string.Empty, change.Guid.ToString());
 			_writer.WriteAttributeString("date", string.Empty, DateTime.UtcNow.ToString(TimeFormatNoTimeZone));
@@ -84,7 +88,7 @@ namespace Chorus.merge.xml.generic
 			}
 			_writer.WriteString(change.GetFullHumanReadableDescription());
 			_writer.WriteEndElement();
-
+			*/
 		}
 
 		public void EnteringContext(ContextDescriptor context)

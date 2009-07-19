@@ -15,6 +15,7 @@ namespace Chorus.FileTypeHanders
 		string GetActionLabel();
 		string GetHtml();
 		string GetTypeLabel();
+		string GetIconName();
 	}
 
 	public class DefaultChangePresenter : IChangePresenter
@@ -44,6 +45,11 @@ namespace Chorus.FileTypeHanders
 		public string GetTypeLabel()
 		{
 			return "--";
+		}
+
+		public virtual string GetIconName()
+		{
+			return "file";
 		}
 	}
 }

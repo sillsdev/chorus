@@ -52,6 +52,11 @@ namespace Chorus.FileTypeHanders.lift
 			}
 		}
 
+		public string GetIconName()
+		{
+			return "wesay";
+		}
+
 		public string GetHtml()
 		{
 			var builder = new StringBuilder();

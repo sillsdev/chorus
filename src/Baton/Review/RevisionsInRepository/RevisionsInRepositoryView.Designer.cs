@@ -35,10 +35,10 @@
 			this.columnHeader1 = new System.Windows.Forms.ColumnHeader();
 			this.columnHeader2 = new System.Windows.Forms.ColumnHeader();
 			this.columnHeader3 = new System.Windows.Forms.ColumnHeader();
+			this.imageList1 = new System.Windows.Forms.ImageList(this.components);
 			this.timer1 = new System.Windows.Forms.Timer(this.components);
 			this.label3 = new System.Windows.Forms.Label();
 			this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
-			this.imageList1 = new System.Windows.Forms.ImageList(this.components);
 			this.SuspendLayout();
 			//
 			// _loadButton
@@ -50,7 +50,7 @@
 			this._loadButton.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
 			this._loadButton.Location = new System.Drawing.Point(400, 1);
 			this._loadButton.Name = "_loadButton";
-			this._loadButton.Size = new System.Drawing.Size(65, 43);
+			this._loadButton.Size = new System.Drawing.Size(65, 29);
 			this._loadButton.TabIndex = 1;
 			this.toolTip1.SetToolTip(this._loadButton, "Reload the history");
 			this._loadButton.UseVisualStyleBackColor = true;
@@ -68,10 +68,10 @@
 			this._historyList.FullRowSelect = true;
 			this._historyList.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
 			this._historyList.HideSelection = false;
-			this._historyList.Location = new System.Drawing.Point(3, 50);
+			this._historyList.Location = new System.Drawing.Point(3, 32);
 			this._historyList.MultiSelect = false;
 			this._historyList.Name = "_historyList";
-			this._historyList.Size = new System.Drawing.Size(464, 279);
+			this._historyList.Size = new System.Drawing.Size(464, 297);
 			this._historyList.SmallImageList = this.imageList1;
 			this._historyList.TabIndex = 2;
 			this._historyList.UseCompatibleStateImageBehavior = false;
@@ -93,6 +93,15 @@
 			this.columnHeader3.Text = "Action";
 			this.columnHeader3.Width = 300;
 			//
+			// imageList1
+			//
+			this.imageList1.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imageList1.ImageStream")));
+			this.imageList1.TransparentColor = System.Drawing.Color.Transparent;
+			this.imageList1.Images.SetKeyName(0, "Merge");
+			this.imageList1.Images.SetKeyName(1, "WeSay");
+			this.imageList1.Images.SetKeyName(2, "WeSay Configuration Tool");
+			this.imageList1.Images.SetKeyName(3, "Warning");
+			//
 			// timer1
 			//
 			this.timer1.Interval = 2000;
@@ -103,17 +112,11 @@
 			this.label3.AutoSize = true;
 			this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.label3.ForeColor = System.Drawing.Color.Black;
-			this.label3.Location = new System.Drawing.Point(3, 9);
+			this.label3.Location = new System.Drawing.Point(3, 5);
 			this.label3.Name = "label3";
 			this.label3.Size = new System.Drawing.Size(181, 20);
 			this.label3.TabIndex = 4;
 			this.label3.Text = "Review Project Changes";
-			//
-			// imageList1
-			//
-			this.imageList1.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imageList1.ImageStream")));
-			this.imageList1.TransparentColor = System.Drawing.Color.Transparent;
-			this.imageList1.Images.SetKeyName(0, "MergeConflict");
 			//
 			// RevisionsInRepositoryView
 			//

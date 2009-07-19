@@ -79,5 +79,10 @@ namespace Chorus.FileTypeHanders
 		{
 			return "Sound";
 		}
+
+		public string GetIconName()
+		{
+			return "sound";
+		}
 	}
 }

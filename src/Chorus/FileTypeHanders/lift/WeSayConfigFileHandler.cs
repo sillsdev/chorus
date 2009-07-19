@@ -41,7 +41,7 @@ namespace Chorus.FileTypeHanders.lift
 
 		public IChangePresenter GetChangePresenter(IChangeReport report)
 		{
-			return new DefaultChangePresenter(report);
+			return new WeSayConfigChangePresenter(report);
 		}
 
 
@@ -50,5 +50,19 @@ namespace Chorus.FileTypeHanders.lift
 			return new IChangeReport[] { new DefaultChangeReport(fileInRevision.FullPath, "Added") };
 		}
 
+	}
+
+	public class WeSayConfigChangePresenter : DefaultChangePresenter
+	{
+		public WeSayConfigChangePresenter(IChangeReport report):base(report)
+		{
+		}
+
+
+
+		public override string GetIconName()
+		{
+			return "wesayConfig";
+		}
 	}
 }

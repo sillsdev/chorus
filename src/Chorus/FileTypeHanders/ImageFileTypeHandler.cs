@@ -88,5 +88,10 @@ namespace Chorus.FileTypeHanders
 		{
 			return "Image";
 		}
+
+		public string GetIconName()
+		{
+			return "image";
+		}
 	}
 }

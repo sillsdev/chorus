@@ -1,3 +1,4 @@
+using System;
 using System.Text;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
@@ -58,6 +59,11 @@ namespace Chorus.FileTypeHanders
 		public string GetTypeLabel()
 		{
 			return "conflict";
+		}
+
+		public string GetIconName()
+		{
+			return "warning";
 		}
 	}
 }
