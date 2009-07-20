@@ -50,13 +50,12 @@ namespace Chorus.UI
 		{
 			//this is awkward because at the time of this event, the change hasn't yet been reflected in the CheckItems
 //             _model.RepositorySourcesToTry.Clear();
-//            foreach (RepositoryPath descriptor in _syncTargets.CheckedItems)
+//            foreach (RepositoryAddress descriptor in _syncTargets.CheckedItems)
 //            {
 //                _model.RepositorySourcesToTry.Add(descriptor);
 //            }
 
-			RepositoryPath repositoryPath = (RepositoryPath) _syncTargets.Items[e.Index];
-			repositoryPath.Enabled = (e.NewValue == CheckState.Checked);
+			_model.PathEnabledChanged(_syncTargets.Items[e.Index] as RepositoryAddress, e.NewValue);
 			UpdateDisplay();
 		}
 

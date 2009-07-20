@@ -21,7 +21,7 @@ namespace ChorusMerge
 		{
 			try
 			{
-			   // Debug.Fail("hello");
+			   //Debug.Fail("hello");
 				MergeOrder order = MergeOrder.CreateUsingEnvironmentVariables(args[0], args[1], args[2]);
 				var handlers = ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers();
 				var handler = handlers.GetHandlerForMerging(order.pathToOurs);

@@ -15,7 +15,7 @@ namespace Chorus.UI
 	{
 		private readonly RepositoryManager _repositoryManager;
 		public IProgress ProgressDisplay{get; set;}
-		private List<RepositoryPath> _repositorySources;
+		private List<RepositoryAddress> _repositorySources;
 
 		public SyncPanelModel(RepositoryManager repositoryManager)
 		{
@@ -31,7 +31,7 @@ namespace Chorus.UI
 			}
 		}
 
-		public List<RepositoryPath> GetRepositoriesToList()
+		public List<RepositoryAddress> GetRepositoriesToList()
 		{
 			//nb: at the moment, we can't just get it new each time, because it stores the
 			//enabled state of the check boxes
@@ -51,5 +51,13 @@ namespace Chorus.UI
 			//player.Play();
 		}
 
+		public void PathEnabledChanged(RepositoryAddress address, CheckState state)
+		{
+			address.Enabled = (state == CheckState.Checked);
+
+			//NB: we may someday decide to distinguish between this chorus-app context of "what
+			//I did last time and the hgrc default which effect applications (e.g. wesay)
+			_repositoryManager.GetRepository(new NullProgress()).SetIsOneDefaultSyncAddresses(address, address.Enabled);
+		}
 	}
 }

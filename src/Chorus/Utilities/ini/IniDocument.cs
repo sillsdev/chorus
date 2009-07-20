@@ -264,7 +264,7 @@ namespace Nini.Ini
 				break;
 			case IniFileType.MercurialStyle:
 				result.AcceptCommentAfterKey = false;
-				result.SetCommentDelimiters(new char[] { ';', '#' });
+				result.SetCommentDelimiters(new char[] { '#', ';'});
 				result.SetAssignDelimiters(new char[] { '=', ':' });
 				break;
 			case IniFileType.SambaStyle:

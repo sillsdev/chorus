@@ -32,7 +32,7 @@ namespace Baton.Settings
 		public string GetAddresses()
 		{
 			var b = new StringBuilder();
-			foreach (var repo in _repository.GetKnownPeerRepositories())
+			foreach (var repo in _repository.GetRepositoryPathsInHgrc())
 			{
 				b.AppendLine(repo.Name + " = " + repo.URI);
 			}
@@ -48,10 +48,10 @@ namespace Baton.Settings
 				var parts = line.Split('=');
 				if(parts.Length != 2)
 					continue;
-				aliases.Add(new RepositoryAddress(parts[0].Trim(), parts[1].Trim()));
+				aliases.Add( RepositoryAddress.Create(parts[0].Trim(), parts[1].Trim()));
 			}
 
-			_repository.SetKnownPeerAddresses(aliases);
+			_repository.SetKnownRepositoryAddresses(aliases);
 		}
 	}
 }

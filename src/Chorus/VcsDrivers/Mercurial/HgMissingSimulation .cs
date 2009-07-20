@@ -13,8 +13,10 @@ namespace Chorus.VcsDrivers.Mercurial
 		{
 			_originalPath = System.Environment.GetEnvironmentVariable("PATH");
 			//this is just for testing, hence nothing fancy...
-			Environment.SetEnvironmentVariable("PATH", _originalPath.Replace(@"Hg", "HgHideMe"));
-			Environment.SetEnvironmentVariable("PATH", _originalPath.Replace(@"Mercurial", "MercurialHideMe"));
+			Environment.SetEnvironmentVariable("PATH", _originalPath.Replace(@"TortoiseHg", "XTortoiseHg"));
+			Environment.SetEnvironmentVariable("PATH", _originalPath.Replace(@"Hg", "XHg"));
+			Environment.SetEnvironmentVariable("PATH", _originalPath.Replace(@"Mercurial", "XMercurial"));
+			var check = System.Environment.GetEnvironmentVariable("PATH");
 		}
 
 		public void Dispose()

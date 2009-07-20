@@ -792,25 +792,13 @@ namespace Chorus.VcsDrivers.Mercurial
 				}
 		}
 
-		public IEnumerable<RepositoryPath> GetKnownPeerRepositories()
+		public IEnumerable<RepositoryAddress> GetRepositoryPathsInHgrc()
 		{
-//            //TODO: we actually only one the ones in the repo, but this
-//            //will give us global ones as well
-//            var r =GetTextFromQuery(_pathToRepository, "paths");
-//            var lines = r.Split('\n');
-//            foreach (var line in lines)
-//            {
-//                var parts = line.Split('=');
-//                if(parts.Length != 2)
-//                    continue;
-//                yield return RepositoryPath.Create(parts[1].Trim(), parts[0].Trim(), false);
-//            }
-
 			var section = GetHgrcDoc().Sections.GetOrCreate("paths");
 			foreach (var name in section.GetKeys())
 			{
 				var uri = section.GetValue(name);
-				yield return RepositoryPath.Create(uri, name, false);
+				yield return RepositoryAddress.Create(name, uri, false);
 			}
 		}
 
@@ -858,7 +846,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			}
 		}
 
-		public void SetKnownPeerAddresses(List<RepositoryAddress> addresses)
+		public void SetKnownRepositoryAddresses(List<RepositoryAddress> addresses)
 		{
 			var doc = GetHgrcDoc();
 			doc.Sections.Remove("paths");//clear it out
@@ -875,17 +863,61 @@ namespace Chorus.VcsDrivers.Mercurial
 		{
 			return GetRevisionsFromQuery("log --rev " + numberOrHash).FirstOrDefault();
 		}
-	}
 
-	public class RepositoryAddress
-	{
-		public string Name { get; set; }
-		public string URI { get; set; }
-
-		public RepositoryAddress(string name, string uri)
+		/// <summary>
+		/// this is a chorus-specific concept, that there are 0 or more repositories
+		/// which we always try to sync with
+		/// </summary>
+		public void SetDefaultSyncRepositoryAliases(IEnumerable<string> aliases)
 		{
-			Name = name;
-			URI = uri;
+			var doc = GetHgrcDoc();
+			doc.Sections.Remove("ChorusDefaultRepositories");//clear it out
+			IniSection section = GetDefaultRepositoriesSection(doc);
+			foreach (var alias in aliases)
+			{
+				section.Set(alias, string.Empty); //so we'll have "LanguageForge =", which is weird, but it's the hgrc style
+			}
+			doc.Save();
+
+		}
+
+		private IniSection GetDefaultRepositoriesSection(IniDocument doc)
+		{
+			var section = doc.Sections.GetOrCreate("ChorusDefaultRepositories");
+			section.Comment  ="Used by chorus to track which repositories should always be checked.  To enable a path, enter it in the [paths] section, e.g. fiz='http://fis.com/fooproject', then in this section, just add 'fiz='";
+			return section;
+		}
+
+		public List<RepositoryAddress> GetDefaultSyncAddresses()
+		{
+			var list = new List<RepositoryAddress>();
+			var doc = GetHgrcDoc();
+			var section = GetDefaultRepositoriesSection(doc);
+			var aliases = section.GetKeys();
+			foreach (var path in GetRepositoryPathsInHgrc())
+			{
+				if (aliases.Contains<string>(path.Name))
+				{
+					list.Add(path);
+				}
+			}
+			return list;
+		}
+
+		public void SetIsOneDefaultSyncAddresses(RepositoryAddress address, bool doInclude)
+		{
+			var doc = GetHgrcDoc();
+			var section = GetDefaultRepositoriesSection(doc);
+			if (doInclude)
+			{
+				section.Set(address.Name,string.Empty);
+			}
+			else
+			{
+				section.Remove(address.Name);
+			}
+			doc.Save();
 		}
 	}
+
 }

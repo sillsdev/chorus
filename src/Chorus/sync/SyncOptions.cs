@@ -4,7 +4,7 @@ namespace Chorus.sync
 {
 	public class SyncOptions
 	{
-		public List<RepositoryPath> RepositorySourcesToTry=new List<RepositoryPath>();
+		public List<RepositoryAddress> RepositorySourcesToTry=new List<RepositoryAddress>();
 
 		public SyncOptions()
 		{

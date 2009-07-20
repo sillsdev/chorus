@@ -50,6 +50,7 @@ namespace Nini.Ini
 		public string Comment
 		{
 			get { return comment; }
+			set { comment = value; } //hatton
 		}
 
 		/// <include file='IniSection.xml' path='//Property[@name="ItemCount"]/docs/*' />

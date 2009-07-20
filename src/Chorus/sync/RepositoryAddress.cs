@@ -5,7 +5,7 @@ using Chorus.Utilities;
 
 namespace Chorus.sync
 {
-	public abstract class RepositoryPath
+	public abstract class RepositoryAddress
 	{
 		/// <summary>
 		/// Can be a file path or an http address
@@ -33,6 +33,12 @@ namespace Chorus.sync
 		/// </summary>
 		private bool _readOnly;
 
+
+		public static RepositoryAddress Create(string name,string uri)
+		{
+			return Create(name,uri, false);
+		}
+
 		/// <summary>
 		///
 		/// </summary>
@@ -40,32 +46,32 @@ namespace Chorus.sync
 		/// <param name="name">examples: SIL Language Depot, My Machine, USB Key, Greg</param>
 		/// <param name="readOnly">normally false for local repositories (usb, hard drive) and true for other people's repositories</param>
 		/// <returns></returns>
-		public static RepositoryPath Create(string uri, string name, bool readOnly)
+		public static RepositoryAddress Create(string name, string uri, bool readOnly)
 		{
 
 			if (uri.Trim().StartsWith("http"))
 			{
-				return new HttpRepositoryPath(uri, name, readOnly);
+				return new HttpRepositoryPath(name, uri, readOnly);
 			}
 			else
 			{
-				return new DirectoryRepositorySource(uri, name, readOnly);
+				return new DirectoryRepositorySource(name, uri, readOnly);
 			}
 
 		}
 
-		public static RepositoryPath Create(HardWiredSources hardWiredSource, string name, bool readOnly)
+		public static RepositoryAddress Create(HardWiredSources hardWiredSource, string name, bool readOnly)
 		{
 			switch (hardWiredSource)
 			{
 				case HardWiredSources.UsbKey:
 					return new UsbKeyRepositorySource(HardWiredSources.UsbKey.ToString(), name, readOnly);
 				default:
-					throw new ArgumentException("RepositoryPath does not recognize this kind of source (" + HardWiredSources.UsbKey.ToString() + ")");
+					throw new ArgumentException("RepositoryAddress does not recognize this kind of source (" + HardWiredSources.UsbKey.ToString() + ")");
 			}
 		}
 
-		protected RepositoryPath(string uri, string name, bool readOnly)
+		protected RepositoryAddress(string name, string uri, bool readOnly)
 		{
 			URI = uri;
 			Name = name;
@@ -108,10 +114,10 @@ namespace Chorus.sync
 		}
 	}
 
-	public class HttpRepositoryPath : RepositoryPath
+	public class HttpRepositoryPath : RepositoryAddress
 	{
-		public HttpRepositoryPath(string uri, string name, bool readOnly)
-			: base(uri, name, readOnly)
+		public HttpRepositoryPath(string name, string uri, bool readOnly)
+			: base(name, uri, readOnly)
 		{
 
 		}
@@ -135,11 +141,11 @@ namespace Chorus.sync
 		}
 	}
 
-	public class DirectoryRepositorySource : RepositoryPath
+	public class DirectoryRepositorySource : RepositoryAddress
 	{
 
-		public DirectoryRepositorySource(string uri, string sourceLabel, bool readOnly)
-			: base(uri, sourceLabel, readOnly)
+		public DirectoryRepositorySource(string name, string uri, bool readOnly)
+			: base(name, uri, readOnly)
 		{
 
 		}
@@ -164,7 +170,7 @@ namespace Chorus.sync
 	}
 
 
-	public class UsbKeyRepositorySource : RepositoryPath
+	public class UsbKeyRepositorySource : RepositoryAddress
 	{
 		private static string _rootDirForAllSourcesDuringUnitTest;
 

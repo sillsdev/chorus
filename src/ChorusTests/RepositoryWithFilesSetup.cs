@@ -26,7 +26,7 @@ namespace Chorus.Tests.merge
 		public TempFolder ProjectFolder;
 		public TempFile UserFile;
 		public RepositoryManager RepoMan;
-		public RepositoryPath RepoPath;
+		public RepositoryAddress RepoPath;
 
 		public static RepositoryWithFilesSetup CreateWithLiftFile(string userName)
 		{
@@ -90,7 +90,7 @@ namespace Chorus.Tests.merge
 			ProjectConfiguration.IncludePatterns.Add(UserFile.Path);
 			ProjectConfiguration.FolderPath = ProjectFolder.Path;
 
-			RepoPath = RepositoryPath.Create(ProjectFolder.Path, userName, false);
+			RepoPath = RepositoryAddress.Create(userName, ProjectFolder.Path, false);
 			RepoMan = RepositoryManager.FromRootOrChildFolder(ProjectConfiguration);
 			RepoMan.GetRepository(Progress).SetUserNameInIni(userName,Progress);
 		}

@@ -16,7 +16,7 @@ namespace Chorus.Tests
 		public TempFolder RootFolder;
 		public TempFolder ProjectFolder;
 		public RepositoryManager RepoMan;
-		public RepositoryPath RepoPath;
+		public RepositoryAddress RepoPath;
 		public ProjectFolderConfiguration ProjectFolderConfig;
 
 
