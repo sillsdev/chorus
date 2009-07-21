@@ -74,7 +74,7 @@ namespace Chorus.FileTypeHanders
 		{
 			if (style == "normal")
 			{
-				return string.Format("<html><a href=\"file:///{0}\">Play Sound</a></html>", _report.PathToFile);
+				return string.Format("<html><a href=\"playaudio:file:///{0}\">Play Sound</a></html>", _report.PathToFile);
 			}
 			else
 			{

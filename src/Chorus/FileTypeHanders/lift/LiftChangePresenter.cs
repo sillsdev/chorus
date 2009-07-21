@@ -74,6 +74,8 @@ span.fieldLabel {color: 'gray'; font-size: x-small;}
 
 div.entry {color: 'blue';font-size: x-small;}
 
+td {font-size: x-small;}
+
 span.en {
 color: 'green';
 }
@@ -93,11 +95,6 @@ color: 'purple';
 			if (_report is XmlAdditionChangeReport)
 			{
 				var r = _report as XmlAdditionChangeReport;
- //               builder.AppendFormat("<html><p>Added the entry: {0}</p>", GetDataLabel());
-
-//                builder.AppendFormat("<p><pre>{0}</pre></p>", XmlUtilities.GetXmlForShowingInHtml(r.ChildNode.OuterXml));
-   //             builder.AppendFormat(GetHtmlForEntry(r.ChildNode));
-
 				switch (style)
 				{
 					case "normal":
@@ -170,17 +167,32 @@ color: 'purple';
 		{
 			var b = new StringBuilder();
 
-			b.AppendLine("<div class='entry'>");
+			b.AppendLine("<div class='entry'><table>");
+
 			var lexicalUnitNode = entry.SelectSingleNode("lexical-unit");
 			if (lexicalUnitNode != null)
 			{
-				AddMultiTextHtml(b, 0, "LexemeForm", lexicalUnitNode);
+				AddMultiTextHtml(b,  "lexeme form", lexicalUnitNode);
 			}
-				foreach (XmlNode node in entry.SafeSelectNodes("sense"))
-				{
-					AddSense(b, 0, node);
-				}
-			b.AppendLine("</div>");
+			foreach (XmlNode node in entry.SafeSelectNodes("citation"))
+			{
+				AddMultiTextHtml(b,  "citation form", node);
+			}
+
+			foreach (XmlNode field in entry.SafeSelectNodes("field"))
+			{
+				var label = field.GetStringAttribute("type");
+				AddMultiTextHtml(b,  label, field);
+			}
+			foreach (XmlNode note in entry.SafeSelectNodes("note"))
+			{
+				AddMultiTextHtml(b, "note", note);
+			}
+			foreach (XmlNode node in entry.SafeSelectNodes("sense"))
+			{
+				AddSense(b, 0, node);
+			}
+			b.AppendLine("</table></div>");
 			return b.ToString();
 		}
 
@@ -196,36 +208,72 @@ color: 'purple';
 
 		private static void AddSense(StringBuilder builder, int indentLevel, XmlNode senseNode)
 		{
-			builder.Append("<span class='fieldLabel'>Sense</span>");
+			builder.Append("<tr><td><span class='fieldLabel'>Sense</span></td>");
 			var pos = senseNode.SelectSingleNode("grammatical-info");
 			if (pos != null)
 			{
-				builder.AppendFormat("<span id='pos'>&nbsp;{0}</span>" + Environment.NewLine, pos.GetStringAttribute("value"));
+				builder.AppendFormat("<td><span id='pos'>&nbsp;{0}</span></td>" + Environment.NewLine, pos.GetStringAttribute("value"));
 			}
-			builder.Append("<br/>");
+			builder.Append("</tr>");
 
 			foreach (XmlNode def in senseNode.SafeSelectNodes("definition"))
 			{
-				AddMultiTextHtml(builder, 1 + indentLevel, "Definition", def);
+				AddMultiTextHtml(builder,  "definition", def);
+			}
+			foreach (XmlNode gloss in senseNode.SafeSelectNodes("gloss"))
+			{
+				AddSingleFormHtml(gloss, builder, "gloss");
 			}
 			foreach (XmlNode example in senseNode.SafeSelectNodes("example"))
 			{
-				AddMultiTextHtml(builder, 1 + indentLevel, "Example", example);
+				AddMultiTextHtml(builder, "example", example);
 				foreach (XmlNode trans in example.SafeSelectNodes("translation"))
 				{
-					AddMultiTextHtml(builder, 2 + indentLevel, "Translation", trans);
+					AddMultiTextHtml(builder,  "translation", trans);
 				}
+			}
+			foreach (XmlNode field in senseNode.SafeSelectNodes("field"))
+			{
+				var label = field.GetStringAttribute("type");
+				AddMultiTextHtml(builder, label, field);
+			}
+			foreach (XmlNode node in senseNode.SafeSelectNodes("illustration"))
+			{
+				builder.AppendFormat("<tr><td><span class='fieldLabel'>illustration</span></td><td>(an image)</td>");
+			}
+			foreach (XmlNode trait in senseNode.SafeSelectNodes("trait"))
+			{
+				var label = trait.GetStringAttribute("name");
+				var traitValue = trait.GetStringAttribute("value");
+				builder.AppendFormat("<tr><td><span class='fieldLabel'>{0}</span></td><td>{1}</td>", label, traitValue);
+			}
+			foreach (XmlNode note in senseNode.SafeSelectNodes("note"))
+			{
+				AddMultiTextHtml(builder,  "note", note);
 			}
 		}
 
-		private static void AddMultiTextHtml(StringBuilder b, int indentLevel, string label, XmlNode node)
+		private static void AddMultiTextHtml(StringBuilder b,  string label, XmlNode node)
 		{
-			string indent = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;".Substring(0, indentLevel * 6 * 4);
 			foreach (XmlNode formNode in node.SafeSelectNodes("form"))
 			{
-				b.AppendFormat("{0}<span class='fieldLabel'>{1}</span><span class='langid'>{2}</span>: <span class='{2}'>{3}</span><br/>" + Environment.NewLine, indent, label, formNode.GetStringAttribute("lang"), formNode.InnerText);
+				AddSingleFormHtml(formNode, b, label);
 			}
 
+		}
+
+		private static void AddSingleFormHtml(XmlNode node, StringBuilder builder, string label)
+		{
+			var lang = node.GetStringAttribute("lang");
+			builder.AppendFormat("<tr><td><span class='fieldLabel'>{0}</span><span class='langid'>{1}</span></td>", label, lang);
+			if (node.InnerText.Trim().EndsWith(".wav"))
+			{
+				builder.AppendFormat("<td>(a sound file)</td></tr>");
+			}
+			else
+			{
+				builder.AppendFormat("<td><span class='{0}'>{1}</span><br/></td></tr>", lang, node.InnerText);
+			}
 		}
 	}
 }

@@ -48,6 +48,7 @@
 			this._normalChangeDescriptionRenderer.Size = new System.Drawing.Size(136, 118);
 			this._normalChangeDescriptionRenderer.TabIndex = 0;
 			this._normalChangeDescriptionRenderer.WebBrowserShortcutsEnabled = false;
+			this._normalChangeDescriptionRenderer.Navigating += new System.Windows.Forms.WebBrowserNavigatingEventHandler(this._normalChangeDescriptionRenderer_Navigating);
 			//
 			// tabControl1
 			//

@@ -1,5 +1,6 @@
 ﻿using System.Drawing;
 using System.IO;
+using System.Media;
 using System.Windows.Forms;
 using Chorus.FileTypeHanders;
 using Chorus.merge;
@@ -52,6 +53,19 @@ namespace Baton.Review.ChangedReport
 					this.tabControl1.TabPages.Remove(tabPageRaw);
 				}
 			}
+		}
+
+		private void _normalChangeDescriptionRenderer_Navigating(object sender, WebBrowserNavigatingEventArgs e)
+		{
+			if (e.Url.Scheme == "playaudio")
+			{
+				e.Cancel = true;
+
+				string url = e.Url.LocalPath;
+				var player = new SoundPlayer(e.Url.LocalPath);
+				player.Play();
+			}
+
 		}
 	}
 }
