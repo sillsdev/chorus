@@ -37,23 +37,32 @@ namespace Chorus.FileTypeHanders
 			return XmlUtilities.GetStringAttribute(_report.ChildNode, "type");
 		}
 
-		public string GetHtml()
+		public string GetHtml(string style)
 		{
-			var builder = new StringBuilder();
-			builder.Append("<html>");
-			if (_report is XmlAdditionChangeReport)
+			if (style == "Normal")
 			{
-				builder.AppendFormat(
-					"<p>{0} and {1} both editted {2} in the file {3} in a way that could not be automatically merged.</p>",
-					_conflict.Situation.UserXId,  _conflict.Situation.UserYId, _conflict.Context.DataLabel,_conflict.RelativeFilePath);
+				var builder = new StringBuilder();
+				builder.Append("<html>");
+				if (_report is XmlAdditionChangeReport)
+				{
+					builder.AppendFormat(
+						"<p>{0} and {1} both editted {2} in the file {3} in a way that could not be automatically merged.</p>",
+						_conflict.Situation.UserXId, _conflict.Situation.UserYId, _conflict.Context.DataLabel,
+						_conflict.RelativeFilePath);
 
-				builder.AppendFormat("<p></p>");
+					builder.AppendFormat("<p></p>");
 
-			   // XmlUtilities.GetXmlForShowingInHtml(_report.ChildNode.OuterXml));
+					// XmlUtilities.GetXmlForShowingInHtml(_report.ChildNode.OuterXml));
+				}
+
+				builder.Append("</html>");
+				return builder.ToString();
+			}
+			else
+			{
+				return string.Empty;
 			}
 
-			builder.Append("</html>");
-			return builder.ToString();
 		}
 
 		public string GetTypeLabel()

@@ -46,6 +46,7 @@ namespace Baton.Settings
 			this._repositoryAliases.Name = "_repositoryAliases";
 			this._repositoryAliases.Size = new System.Drawing.Size(324, 78);
 			this._repositoryAliases.TabIndex = 3;
+			this._repositoryAliases.Leave += new System.EventHandler(this._repositoryAliases_Leave);
 			this._repositoryAliases.Validating += new System.ComponentModel.CancelEventHandler(this.OnRepositoryAliases_Validating);
 			//
 			// label2

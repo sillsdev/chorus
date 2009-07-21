@@ -57,46 +57,132 @@ namespace Chorus.FileTypeHanders.lift
 			return "wesay";
 		}
 
-		public string GetHtml()
+
+		public string GetHtml(string style)
 		{
 			var builder = new StringBuilder();
-			builder.Append("<html>");
+			builder.Append("<html><head>");
+			builder.Append(@"<style type='text/css'><!--
+
+BODY { font-family: verdana,arial,helvetica,sans-serif; }
+
+span.langid {color: 'gray'; font-size: xx-small;position: relative;
+	top: 0.3em;
+}
+
+span.fieldLabel {color: 'gray'; font-size: x-small;}
+
+div.entry {color: 'blue';}
+
+span.en {
+color: 'green';
+}
+span.es {
+color: 'green';
+}
+span.fr {
+color: 'green';
+}
+span.tpi {
+color: 'purple';
+}
+
+--></style>");
+
+			builder.Append("</head>");
 			if (_report is XmlAdditionChangeReport)
 			{
 				var r = _report as XmlAdditionChangeReport;
-				builder.AppendFormat("<html><p>Added the entry: {0}</p>", GetDataLabel());
+ //               builder.AppendFormat("<html><p>Added the entry: {0}</p>", GetDataLabel());
 
-				builder.AppendFormat("<p><pre>{0}</pre></p>", XmlUtilities.GetXmlForShowingInHtml(r.ChildNode.OuterXml));
+//                builder.AppendFormat("<p><pre>{0}</pre></p>", XmlUtilities.GetXmlForShowingInHtml(r.ChildNode.OuterXml));
+   //             builder.AppendFormat(GetHtmlForEntry(r.ChildNode));
+
+				switch (style)
+				{
+					case "normal":
+						builder.Append(GetHtmlForEntry(r.ChildNode));
+						break;
+					case "raw":
+						builder.AppendFormat("<p><pre>{0}</pre></p>",
+								XmlUtilities.GetXmlForShowingInHtml(r.ParentNode.OuterXml));
+						break;
+					default:
+						return string.Empty;
+				}
+
 			}
 			else if (_report is XmlDeletionChangeReport)
 			{
 				var r = _report as XmlDeletionChangeReport;
-				builder.AppendFormat("<html><p>Deleted the entry: {0}</p>", GetDataLabel());
-
-				builder.Append("<h3>Deleted Entry</h3>");
-				builder.AppendFormat("<p><pre>{0}</pre></p>", XmlUtilities.GetXmlForShowingInHtml(r.ParentNode.OuterXml));
+				 builder.Append("Deleted the following lexicon entry:</br>");
+			   switch (style)
+				{
+					case "normal":
+						builder.Append(GetHtmlForEntry(r.ParentNode));
+						break;
+					case "raw":
+						builder.AppendFormat("<p><pre>{0}</pre></p>",
+								XmlUtilities.GetXmlForShowingInHtml(r.ParentNode.OuterXml));
+						break;
+					default:
+						return string.Empty;
+				}
 			}
 			else if (_report is XmlChangedRecordReport)
 			{
-				var r = _report as XmlChangedRecordReport;
-				builder.AppendFormat("<html><p>Changed the entry: {0}</p>", GetDataLabel());
-
-//                var m = new Rainbow.MergeEngine.Merger(r.ParentNode.InnerXml.Replace("<", "&lt;"), r.ChildNode.InnerXml.Replace("<", "&lt;"));
-				var original = XmlUtilities.GetXmlForShowingInHtml("<entry>" + r.ParentNode.InnerXml + "</entry>");
-				var modified = XmlUtilities.GetXmlForShowingInHtml("<entry>" + r.ChildNode.InnerXml + "</entry>");
-				var m = new Rainbow.HtmlDiffEngine.Merger(original, modified);
-				var html = m.merge().Replace("&lt;entry>", "&lt;entry ...&gt;");
-			   builder.Append(html);
-
-				builder.Append("<h3>From</h3>");
-				builder.AppendFormat("<p><pre>{0}</pre></p>", XmlUtilities.GetXmlForShowingInHtml(r.ParentNode.OuterXml));
-				builder.Append("<h3>To</h3>");
-				builder.AppendFormat("<p><pre>{0}</pre></p>", XmlUtilities.GetXmlForShowingInHtml(r.ChildNode.OuterXml));
+				GetHtmlForChange(style, builder);
 			}
 			builder.Append("</html>");
 			return builder.ToString();
 		}
 
+		private void GetHtmlForChange(string style, StringBuilder builder)
+		{
+			var r = _report as XmlChangedRecordReport;
+			switch (style.ToLower())
+			{
+				case "normal":
+
+					var original = GetHtmlForEntry(r.ParentNode);
+						// XmlUtilities.GetXmlForShowingInHtml("<entry>" + r.ParentNode.InnerXml + "</entry>");
+					var modified = GetHtmlForEntry(r.ChildNode);
+						// XmlUtilities.GetXmlForShowingInHtml("<entry>" + r.ChildNode.InnerXml + "</entry>");
+					var m = new Rainbow.HtmlDiffEngine.Merger(original, modified);
+					builder.Append(m.merge());
+					break;
+
+				case "raw":
+
+					builder.Append("<h3>From</h3>");
+					builder.AppendFormat("<p><pre>{0}</pre></p>",
+										 XmlUtilities.GetXmlForShowingInHtml(r.ParentNode.OuterXml));
+					builder.Append("<h3>To</h3>");
+					builder.AppendFormat("<p><pre>{0}</pre></p>",
+										 XmlUtilities.GetXmlForShowingInHtml(r.ChildNode.OuterXml));
+					break;
+				default:
+					break;
+			}
+		}
+
+		public static string GetHtmlForEntry(XmlNode entry)
+		{
+			var b = new StringBuilder();
+
+			b.AppendLine("<div class='entry'>");
+			var lexicalUnitNode = entry.SelectSingleNode("lexical-unit");
+			if (lexicalUnitNode != null)
+			{
+				AddMultiTextHtml(b, 0, "LexemeForm", lexicalUnitNode);
+			}
+				foreach (XmlNode node in entry.SafeSelectNodes("sense"))
+				{
+					AddSense(b, 0, node);
+				}
+			b.AppendLine("</div>");
+			return b.ToString();
+		}
 
 		private XmlNode FirstNonNullNode
 		{
@@ -106,6 +192,40 @@ namespace Chorus.FileTypeHanders.lift
 					return _report.ParentNode;
 				return _report.ChildNode;
 			}
+		}
+
+		private static void AddSense(StringBuilder builder, int indentLevel, XmlNode senseNode)
+		{
+			builder.Append("<span class='fieldLabel'>Sense</span>");
+			var pos = senseNode.SelectSingleNode("grammatical-info");
+			if (pos != null)
+			{
+				builder.AppendFormat("<span id='pos'>&nbsp;{0}</span>" + Environment.NewLine, pos.GetStringAttribute("value"));
+			}
+			builder.Append("<br/>");
+
+			foreach (XmlNode def in senseNode.SafeSelectNodes("definition"))
+			{
+				AddMultiTextHtml(builder, 1 + indentLevel, "Definition", def);
+			}
+			foreach (XmlNode example in senseNode.SafeSelectNodes("example"))
+			{
+				AddMultiTextHtml(builder, 1 + indentLevel, "Example", example);
+				foreach (XmlNode trans in example.SafeSelectNodes("translation"))
+				{
+					AddMultiTextHtml(builder, 2 + indentLevel, "Translation", trans);
+				}
+			}
+		}
+
+		private static void AddMultiTextHtml(StringBuilder b, int indentLevel, string label, XmlNode node)
+		{
+			string indent = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;".Substring(0, indentLevel * 6 * 4);
+			foreach (XmlNode formNode in node.SafeSelectNodes("form"))
+			{
+				b.AppendFormat("{0}<span class='fieldLabel'>{1}</span><span class='langid'>{2}</span>: <span class='{2}'>{3}</span><br/>" + Environment.NewLine, indent, label, formNode.GetStringAttribute("lang"), formNode.InnerText);
+			}
+
 		}
 	}
 }

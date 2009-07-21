@@ -72,17 +72,27 @@ namespace Chorus.FileTypeHanders
 			return _report.ActionLabel;
 		}
 
-		public string GetHtml()
+		public string GetHtml(string style)
 		{
-			string path = _report.PathToFile;
-			if (Path.GetExtension(path) == ".tif") // IE can't show tifs
+			if (style == "Normal")
 			{
-				var image = Image.FromFile(_report.PathToFile);
-				path = Path.GetTempFileName() + ".bmp";//enhance... this leaks disk space, albeit in the temp folder
-				image.Save(path, ImageFormat.Bmp);
+				string path = _report.PathToFile;
+				if (Path.GetExtension(path) == ".tif") // IE can't show tifs
+				{
+					var image = Image.FromFile(_report.PathToFile);
+					path = Path.GetTempFileName() + ".bmp";
+						//enhance... this leaks disk space, albeit in the temp folder
+					image.Save(path, ImageFormat.Bmp);
+				}
+				return string.Format("<html><img src=\"file:///{0}\" width=100/></html>", path);
 			}
-			return string.Format("<html><img src=\"file:///{0}\" width=100/></html>", path);
+			else
+			{
+				return string.Empty;
+			}
+
 		}
+
 
 		public string GetTypeLabel()
 		{

@@ -49,6 +49,7 @@
 	<Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+	<Compile Include="LiftChangePresenterTests.cs" />
 	<Compile Include="SettingsModelTests.cs" />
 	<Compile Include="Properties\AssemblyInfo.cs" />
 	<Compile Include="HistoryPanelModelTests.cs" />

@@ -15,9 +15,9 @@ namespace Baton.Review.ChangedReport
 			this.Font = SystemFonts.MessageBoxFont;
 			_handlers = handlers;
 			InitializeComponent();
-			_changeDescriptionRenderer.Font = SystemFonts.MessageBoxFont;
+			_normalChangeDescriptionRenderer.Font = SystemFonts.MessageBoxFont;
 			changedRecordSelectedEvent.Subscribe(r=>LoadReport(r));
-			_changeDescriptionRenderer.Navigated += webBrowser1_Navigated;
+			_normalChangeDescriptionRenderer.Navigated += webBrowser1_Navigated;
 		}
 
 		private void webBrowser1_Navigated(object sender, WebBrowserNavigatedEventArgs e)
@@ -30,14 +30,27 @@ namespace Baton.Review.ChangedReport
 		{
 			if (report == null)
 			{
-			   _changeDescriptionRenderer.Navigate(string.Empty);
+			   _normalChangeDescriptionRenderer.Navigate(string.Empty);
 			}
 			else
 			{
 				var presenter = _handlers.GetHandlerForPresentation(report.PathToFile).GetChangePresenter(report);
 				var path = Path.GetTempFileName();
-				File.WriteAllText(path, presenter.GetHtml());
-				this._changeDescriptionRenderer.Navigate(path);
+				File.WriteAllText(path, presenter.GetHtml("normal"));
+				this._normalChangeDescriptionRenderer.Navigate(path);
+				path = Path.GetTempFileName();
+				var contents = presenter.GetHtml("raw");
+				if (!string.IsNullOrEmpty(contents))
+				{
+					if(!tabControl1.TabPages.Contains(tabPageRaw))
+						this.tabControl1.TabPages.Add(tabPageRaw);
+					File.WriteAllText(path, contents);
+					this._rawChangeDescriptionRenderer.Navigate(path);
+				}
+				else
+				{
+					this.tabControl1.TabPages.Remove(tabPageRaw);
+				}
 			}
 		}
 	}

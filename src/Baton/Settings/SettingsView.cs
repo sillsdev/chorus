@@ -52,7 +52,18 @@ namespace Baton.Settings
 			{
 				MessageBox.Show("There was a problem with the format of the repositories list.");
 				e.Cancel = true;
-				throw;
+			}
+		}
+
+		private void _repositoryAliases_Leave(object sender, EventArgs e)
+		{
+			try
+			{
+				_model.SetAddresses(_repositoryAliases.Text, _progress);
+			}
+			catch (Exception)
+			{
+				MessageBox.Show("There was a problem with the format of the repositories list.");
 			}
 		}
 	}

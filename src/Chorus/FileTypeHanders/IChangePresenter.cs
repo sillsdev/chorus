@@ -13,7 +13,7 @@ namespace Chorus.FileTypeHanders
 	{
 		string GetDataLabel();
 		string GetActionLabel();
-		string GetHtml();
+		string GetHtml(string style);
 		string GetTypeLabel();
 		string GetIconName();
 	}
@@ -37,10 +37,16 @@ namespace Chorus.FileTypeHanders
 			return _report.ActionLabel;
 		}
 
-		public string GetHtml()
+		public string GetHtml(string style)
 		{
-			return string.Format("<html><p>The file: '{0}' was {1}.</p></html>", Path.GetFileName(_report.PathToFile), GetActionLabel().ToLower());
+			if(style=="normal")
+				return string.Format("<html><p>The file: '{0}' was {1}.</p></html>", Path.GetFileName(_report.PathToFile), GetActionLabel().ToLower());
+			else
+			{
+				return string.Empty;
+			}
 		}
+
 
 		public string GetTypeLabel()
 		{

@@ -70,9 +70,17 @@ namespace Chorus.FileTypeHanders
 			return _report.ActionLabel;
 		}
 
-		public string GetHtml()
+		public string GetHtml(string style)
 		{
-			return string.Format("<html><a href=\"file:///{0}\">Play Sound</a></html>", _report.PathToFile);
+			if (style == "normal")
+			{
+				return string.Format("<html><a href=\"file:///{0}\">Play Sound</a></html>", _report.PathToFile);
+			}
+			else
+			{
+				return string.Empty;
+			}
+
 		}
 
 		public string GetTypeLabel()
