@@ -74,7 +74,7 @@ namespace Chorus.FileTypeHanders
 
 		public string GetHtml(string style)
 		{
-			if (style == "Normal")
+			if (style == "normal")
 			{
 				string path = _report.PathToFile;
 				if (Path.GetExtension(path) == ".tif") // IE can't show tifs

@@ -72,7 +72,7 @@ span.langid {color: 'gray'; font-size: xx-small;position: relative;
 
 span.fieldLabel {color: 'gray'; font-size: x-small;}
 
-div.entry {color: 'blue';}
+div.entry {color: 'blue';font-size: x-small;}
 
 span.en {
 color: 'green';
@@ -105,7 +105,7 @@ color: 'purple';
 						break;
 					case "raw":
 						builder.AppendFormat("<p><pre>{0}</pre></p>",
-								XmlUtilities.GetXmlForShowingInHtml(r.ParentNode.OuterXml));
+								XmlUtilities.GetXmlForShowingInHtml(r.ChildNode.OuterXml));
 						break;
 					default:
 						return string.Empty;
@@ -115,7 +115,7 @@ color: 'purple';
 			else if (_report is XmlDeletionChangeReport)
 			{
 				var r = _report as XmlDeletionChangeReport;
-				 builder.Append("Deleted the following lexicon entry:</br>");
+				 builder.Append("Deleted the following lexicon entry:<p/>");
 			   switch (style)
 				{
 					case "normal":

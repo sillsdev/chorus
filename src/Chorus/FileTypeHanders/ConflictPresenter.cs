@@ -39,7 +39,7 @@ namespace Chorus.FileTypeHanders
 
 		public string GetHtml(string style)
 		{
-			if (style == "Normal")
+			if (style == "normal")
 			{
 				var builder = new StringBuilder();
 				builder.Append("<html>");
