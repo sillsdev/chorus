@@ -135,7 +135,7 @@ namespace Chorus.Tests.sync
 			bob.ExtraRepositorySources.Add(otherDirPath);
 
 			//now stick a new file over in the "usb", so we can see if it comes back to us
-			File.WriteAllText(Path.Combine(otherDirPath.PotentialRepoUri(BobSetup.ProjectFolderName, progress), "incoming.txt"), "this would be a file coming in");
+			File.WriteAllText(Path.Combine(otherDirPath.GetPotentialRepoUri(BobSetup.ProjectFolderName, progress), "incoming.txt"), "this would be a file coming in");
 			SyncOptions options = new SyncOptions();
 			ProjectFolderConfiguration usbProject = new ProjectFolderConfiguration(Path.Combine(usbPath, BobSetup.ProjectFolderName));
 			usbProject.IncludePatterns.Add("**.txt");

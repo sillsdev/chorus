@@ -25,10 +25,10 @@ namespace Chorus.sync
 			list.AddRange(ExtraRepositorySources);
 			var repo = GetRepository(progress);
 			list.AddRange(repo.GetRepositoryPathsInHgrc());
-			var defaults =repo.GetDefaultSyncAddresses();
+			var defaultSyncAliases = repo.GetDefaultSyncAliases();
 			foreach (var path in list)
 			{
-				path.Enabled = defaults.Any(p => p.Name == path.Name);
+				path.Enabled = defaultSyncAliases.Contains(path.Name);
 			}
 
 			return list;
@@ -146,8 +146,8 @@ namespace Chorus.sync
 			{
 				foreach (RepositoryAddress source in sourcesToTry)
 				{
-					string resolvedUri = source.PotentialRepoUri(RepoProjectName, progress);
-					if (source.CanConnect(RepoProjectName, progress))
+					string resolvedUri = source.GetPotentialRepoUri(RepoProjectName, progress);
+					if (source.CanConnect(repo, RepoProjectName, progress))
 					{
 						progress.WriteStatus("Trying to Pull from {0}({1})...", source.Name, source.URI);
 						repo.TryToPull(resolvedUri);
@@ -177,13 +177,13 @@ namespace Chorus.sync
 				{
 					if (!repoDescriptor.ReadOnly)
 					{
-						string resolvedUri = repoDescriptor.PotentialRepoUri(RepoProjectName, progress);
-						if (repoDescriptor.CanConnect(RepoProjectName, progress))
+						string resolvedUri = repoDescriptor.GetPotentialRepoUri(RepoProjectName, progress);
+						if (repoDescriptor.CanConnect(repo, RepoProjectName, progress))
 						{
 							progress.WriteMessage("Pushing local repository to {0} at {1}", RepoProjectName, resolvedUri);
 							repo.Push(resolvedUri, progress, results);
 						}
-						else
+						else if(repoDescriptor is DirectoryRepositorySource || repoDescriptor is UsbKeyRepositorySource)
 						{
 							TryToMakeCloneForSource(progress, repoDescriptor);
 							//nb: no need to push if we just made a clone

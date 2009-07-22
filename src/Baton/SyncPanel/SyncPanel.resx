@@ -121,7 +121,7 @@
   <data name="_syncButton.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
 	<value>
 		iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
-		YQUAAAAJcEhZcwAADdUAAA3VAT3WWPEAAAAGYktHRAD/AP8A/6C9p5MAAAAHdElNRQfWAQsOAC2tk4pc
+		YQUAAAAJcEhZcwAADdQAAA3UAe+RuhUAAAAGYktHRAD/AP8A/6C9p5MAAAAHdElNRQfWAQsOAC2tk4pc
 		AAABLklEQVQ4T2NgQAIKXu0uQPwfig2Q5QiyYZpnbT7/Zd2hW6QZAtM8c+PF1/61W/9n9u/9v+3EPeIM
 		gWnuXnb6hWfF5v/IeOPRu4QNAfl32trTr2oXnPwPwjADYPyDFx6DDcEZBrBAU/XrghvgXrEezDaNngRz
 		wX8xozQ4xmqYMsyA8o3/3So2/G9YdPy/sk/H/9DKDSgYZBBJBkQ3bf6vGzLlv37wtP8RDVvBrsBpQOWs
@@ -161,4 +161,7 @@
 		oP9scC2Bz1HD68QHhAWxl7AneHsyfG1L7CDeJl4wZqb/As+df4zjz4QeAAAAAElFTkSuQmCC
 </value>
   </data>
+  <metadata name="timer1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+	<value>17, 17</value>
+  </metadata>
 </root>

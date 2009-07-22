@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Chorus.Utilities;
+using Chorus.VcsDrivers.Mercurial;
 
 namespace Chorus.sync
 {
@@ -15,9 +16,9 @@ namespace Chorus.sync
 		/// <summary>
 		/// This can be used in place of the project name, so that path can be specified which will work
 		/// with multiple projects.  For example, you could specify a backup location like this:
-		/// Path.Combine("e:/chorusBackups/", RepositoryNameVariable), which would become e:/chorusBackups/%repoName%.
+		/// Path.Combine("e:/chorusBackups/", RepositoryNameVariable), which would become e:/chorusBackups/%projectName%.
 		/// </summary>
-		public const string RepositoryNameVariable = "%repoName%";
+		public const string RepositoryNameVariable = "%projectName%";
 
 		/// <summary>
 		/// In the case of a repo sitting on the user's machine, this will be a person's name.
@@ -95,12 +96,12 @@ namespace Chorus.sync
 		/// </summary>
 		public bool Enabled { get; set; }
 
-		public abstract bool CanConnect(string repoName, IProgress progress);
+		public abstract bool CanConnect(HgRepository localRepository, string projectName, IProgress progress);
 
 		/// <summary>
 		/// Gets what the uri of the named repository would be, on this source. I.e., gets the full path.
 		/// </summary>
-		public abstract string PotentialRepoUri(string repoName, IProgress progress);
+		public abstract string GetPotentialRepoUri(string projectName, IProgress progress);
 
 		 public virtual List<string> GetPossibleCloneUris(string name, IProgress progress)
 		{
@@ -125,19 +126,21 @@ namespace Chorus.sync
 		/// <summary>
 		/// Gets what the uri of the named repository would be, on this source. I.e., gets the full path.
 		/// </summary>
-		public override string PotentialRepoUri(string repoName, IProgress progress)
+		public override string GetPotentialRepoUri(string projectName, IProgress progress)
 		{
-			return URI.Replace(RepositoryNameVariable, repoName);
+			return URI.Replace(RepositoryNameVariable, projectName);
 		}
 
-		public override bool CanConnect(string repoName, IProgress progress)
+		public override bool CanConnect(HgRepository localRepository, string projectName, IProgress progress)
 		{
-			return false;//todo
+			//review: i don't know how long this is going to cut it...
+			// we really want to know more, like is that repo actually related to us?
+			return localRepository.GetCanConnectToRemote(GetPotentialRepoUri(projectName, progress), progress);
 		}
 
-		public override List<string> GetPossibleCloneUris(string repoName, IProgress progress)
+		public override List<string> GetPossibleCloneUris(string projectName, IProgress progress)
 		{
-			return new List<string>(new string[] { PotentialRepoUri(repoName, progress) });
+			return new List<string>(new string[] { GetPotentialRepoUri(projectName, progress) });
 		}
 	}
 
@@ -153,19 +156,24 @@ namespace Chorus.sync
 		/// <summary>
 		/// Gets what the uri of the named repository would be, on this source. I.e., gets the full path.
 		/// </summary>
-		public override string PotentialRepoUri(string repoName, IProgress progress)
+		public override string GetPotentialRepoUri(string projectName, IProgress progress)
 		{
-			return URI.Replace(RepositoryNameVariable, repoName);
+			return URI.Replace(RepositoryNameVariable, projectName);
 		}
 
-		public override bool CanConnect(string repoName, IProgress progress)
+		public override bool CanConnect(HgRepository localRepository, string projectName, IProgress progress)
 		{
-			return Directory.Exists(PotentialRepoUri(repoName, progress));
+			var path = GetPotentialRepoUri(projectName, progress);
+			if (this.URI.StartsWith(@"\\"))
+			{
+				progress.WriteStatus("Checking to see if we can connect with {0}...", path);
+			}
+			return Directory.Exists(path);
 		}
 
-		public override List<string> GetPossibleCloneUris(string repoName, IProgress progress)
+		public override List<string> GetPossibleCloneUris(string projectName, IProgress progress)
 		{
-			return new List<string>(new string[]{PotentialRepoUri(repoName, progress)});
+			return new List<string>(new string[]{GetPotentialRepoUri(projectName, progress)});
 		}
 	}
 
@@ -212,11 +220,11 @@ namespace Chorus.sync
 		/// Get a path to use with the version control
 		/// </summary>
 		/// <returns>null if can't find a usb key</returns>
-		public override string PotentialRepoUri(string repoName, IProgress progress)
+		public override string GetPotentialRepoUri(string projectName, IProgress progress)
 		{
 			if (RootDirForUsbSourceDuringUnitTest != null)
 			{
-				return Path.Combine(RootDirForUsbSourceDuringUnitTest, repoName);
+				return Path.Combine(RootDirForUsbSourceDuringUnitTest, projectName);
 			}
 
 			List<DriveInfo> drives = Chorus.Utilities.UsbUtilities.GetLogicalUsbDisks();
@@ -226,7 +234,7 @@ namespace Chorus.sync
 			//first try to find this repository on one of the usb keys
 			foreach (DriveInfo drive in drives)
 			{
-				string pathOnUsb = Path.Combine(drive.RootDirectory.FullName, repoName);
+				string pathOnUsb = Path.Combine(drive.RootDirectory.FullName, projectName);
 				if (Directory.Exists(pathOnUsb))
 				{
 					return pathOnUsb;
@@ -235,14 +243,14 @@ namespace Chorus.sync
 			return null;
 		}
 
-		public override List<string> GetPossibleCloneUris(string repoName, IProgress progress)
+		public override List<string> GetPossibleCloneUris(string projectName, IProgress progress)
 		{
 			progress.WriteStatus("Looking for usb keys to recieve clone...");
 			List<string>  urisToTryCreationAt = new List<string>();
 
 			if (RootDirForUsbSourceDuringUnitTest != null)
 			{
-				string path = Path.Combine(RootDirForUsbSourceDuringUnitTest, repoName);
+				string path = Path.Combine(RootDirForUsbSourceDuringUnitTest, projectName);
 		   //     Debug.Assert(Directory.Exists(path));
 
 				urisToTryCreationAt.Add(path);
@@ -257,17 +265,17 @@ namespace Chorus.sync
 			// didn't find an existing one, so just create on on the first usb key we can
 			foreach (DriveInfo drive in drives)
 			{
-				urisToTryCreationAt.Add(Path.Combine(drive.RootDirectory.FullName, repoName));
+				urisToTryCreationAt.Add(Path.Combine(drive.RootDirectory.FullName, projectName));
 			}
 			return urisToTryCreationAt;
 		}
 
 
 
-		public override bool CanConnect(string repoName, IProgress progress)
+		public override bool CanConnect(HgRepository localRepository, string projectName, IProgress progress)
 		{
 			progress.WriteStatus("Looking for usb keys with existing repositories...");
-			string path= PotentialRepoUri(repoName, progress);
+			string path= GetPotentialRepoUri(projectName, progress);
 			return (path != null) && Directory.Exists(path);
 		}
 

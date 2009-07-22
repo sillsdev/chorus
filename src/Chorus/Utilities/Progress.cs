@@ -148,10 +148,22 @@ namespace Chorus.Utilities
 			_box.Multiline = true;
 		}
 
+
 		public override void WriteStatus(string message, params object[] args)
 		{
-			_box.Text += "                          ".Substring(0, indent * 2);
-			_box.Text += String.Format(message + Environment.NewLine, args);
+
+		  //  if (_box.InvokeRequired)
+			_box.Invoke(new Action( ()=>
+			{
+				_box.Text += "                          ".Substring(0, indent * 2);
+				_box.Text += String.Format(message + Environment.NewLine, args);
+			}));
+
+//            _box.Invoke(new Action<TextBox, int>((box, indentX) =>
+//            {
+//                box.Text += "                          ".Substring(0, indentX * 2);
+//                box.Text += String.Format(message + Environment.NewLine, args);
+//            }), _box, indent);
 		}
 	}
 

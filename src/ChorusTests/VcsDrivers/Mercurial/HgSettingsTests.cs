@@ -134,11 +134,11 @@ username = joe
 				repository.SetKnownRepositoryAddresses(new List<RepositoryAddress>(new RepositoryAddress[] { x, y,z }));
 
 				repository.SetDefaultSyncRepositoryAliases(new string[] {"one", "three"});
-				Assert.AreEqual(2, repository.GetDefaultSyncAddresses().Count());
+				Assert.AreEqual(2, repository.GetDefaultSyncAliases().Count());
 
 
 				repository.SetDefaultSyncRepositoryAliases(new string[] { "two" });
-				Assert.AreEqual(1, repository.GetDefaultSyncAddresses().Count());
+				Assert.AreEqual(1, repository.GetDefaultSyncAliases().Count());
 			}
 		}
 	}

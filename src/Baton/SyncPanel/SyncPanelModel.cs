@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Media;
 using System.Text;
+using System.Threading;
 using System.Windows.Forms;
 using Chorus.sync;
 using Chorus.Utilities;
@@ -16,40 +18,55 @@ namespace Chorus.UI
 		private readonly RepositoryManager _repositoryManager;
 		public IProgress ProgressDisplay{get; set;}
 		private List<RepositoryAddress> _repositorySources;
+		private BackgroundWorker _backgroundWorker;
 
 		public SyncPanelModel(RepositoryManager repositoryManager)
 		{
 			_repositoryManager = repositoryManager;
-			_repositorySources = _repositoryManager.GetPotentialSources(new NullProgress());
+			 _backgroundWorker = new BackgroundWorker();
+			_backgroundWorker.DoWork += new DoWorkEventHandler(worker_DoWork);
+			//_backgroundWorker.RunWorkerCompleted +=(()=>this.EnableSync = true);
+
 		}
 
 		public bool EnableSync
 		{
-			get {
-				return true; //because "checking in" locally is still worth doing
-				//return RepositorySourcesToTry.Count > 0;
-			}
+			get { return !_backgroundWorker.IsBusy; }
 		}
 
 		public List<RepositoryAddress> GetRepositoriesToList()
 		{
 			//nb: at the moment, we can't just get it new each time, because it stores the
 			//enabled state of the check boxes
-			return _repositorySources;
+		   return _repositoryManager.GetPotentialSources(new NullProgress());
+//            return _repositorySources;
 		}
 
 		public void Sync()
 		{
+			if(_backgroundWorker.IsBusy)
+				return;
+
 			SyncOptions options = new SyncOptions();
 			options.CheckinDescription = "[chorus] sync";
 			options.DoPullFromOthers = true;
 			options.DoMergeWithOthers = true;
 			options.RepositorySourcesToTry.AddRange(GetRepositoriesToList().Where(r=>r.Enabled));
 
-			_repositoryManager.SyncNow(options, ProgressDisplay);
+
+		   _backgroundWorker.RunWorkerAsync(new object[] { _repositoryManager, options, ProgressDisplay });
+
+
+			//_repositoryManager.SyncNow(options, ProgressDisplay);
 			//SoundPlayer player = new SoundPlayer(@"C:\chorus\src\sounds\finished.wav");
 			//player.Play();
 		}
+		 static void worker_DoWork(object sender, DoWorkEventArgs e)
+		 {
+			 object[] args = e.Argument as object[];
+			 RepositoryManager repoManager = args[0] as RepositoryManager;
+			 e.Result =  repoManager.SyncNow(args[1] as SyncOptions, args[2] as IProgress);
+		 }
 
 		public void PathEnabledChanged(RepositoryAddress address, CheckState state)
 		{

@@ -35,6 +35,11 @@ namespace Chorus.UI
 		{
 			_syncButton.Enabled = _model != null && _model.EnableSync;
 			_syncTargets.Enabled = _model != null;
+
+			if (_syncButton.Enabled)
+			{
+				timer1.Enabled = false;
+			}
 		}
 
 		private void syncButton_Click(object sender, EventArgs e)
@@ -42,6 +47,7 @@ namespace Chorus.UI
 			_logBox.Text = "";
 			_logBox.Text = "Syncing..."+Environment.NewLine;
 			Cursor.Current = Cursors.WaitCursor;
+			timer1.Enabled = true;
 			_model.Sync();
 			Cursor.Current = Cursors.Default;
 		}
@@ -74,7 +80,19 @@ namespace Chorus.UI
 
 			_model.ProgressDisplay = new TextBoxProgress(_logBox);
 
+			LoadChoices();
+		}
 
+		private void SyncPanel_VisibleChanged(object sender, EventArgs e)
+		{
+			if(!this.Visible )
+				return;
+
+			LoadChoices();
+		}
+
+		private void LoadChoices()
+		{
 			_syncTargets.Items.Clear();
 			foreach (var descriptor in _model.GetRepositoriesToList())
 			{
@@ -83,6 +101,9 @@ namespace Chorus.UI
 			UpdateDisplay();
 		}
 
-
+		private void timer1_Tick(object sender, EventArgs e)
+		{
+			UpdateDisplay();
+		}
 	}
 }

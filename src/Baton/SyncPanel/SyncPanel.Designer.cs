@@ -28,6 +28,7 @@ namespace Chorus.UI
 		/// </summary>
 		private void InitializeComponent()
 		{
+			this.components = new System.ComponentModel.Container();
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SyncPanel));
 			this._syncButton = new System.Windows.Forms.Button();
 			this.label3 = new System.Windows.Forms.Label();
@@ -36,6 +37,7 @@ namespace Chorus.UI
 			this.label1 = new System.Windows.Forms.Label();
 			this.label2 = new System.Windows.Forms.Label();
 			this.pictureBox2 = new System.Windows.Forms.PictureBox();
+			this.timer1 = new System.Windows.Forms.Timer(this.components);
 			((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
 			this.SuspendLayout();
 			//
@@ -113,6 +115,10 @@ namespace Chorus.UI
 			this.pictureBox2.TabIndex = 8;
 			this.pictureBox2.TabStop = false;
 			//
+			// timer1
+			//
+			this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
+			//
 			// SyncPanel
 			//
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -128,6 +134,7 @@ namespace Chorus.UI
 			this.Name = "SyncPanel";
 			this.Size = new System.Drawing.Size(464, 454);
 			this.Load += new System.EventHandler(this.SyncPanel_Load);
+			this.VisibleChanged += new System.EventHandler(this.SyncPanel_VisibleChanged);
 			((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
 			this.ResumeLayout(false);
 			this.PerformLayout();
@@ -143,5 +150,6 @@ namespace Chorus.UI
 		private System.Windows.Forms.Label label1;
 		private System.Windows.Forms.Label label2;
 		private System.Windows.Forms.PictureBox pictureBox2;
+		private System.Windows.Forms.Timer timer1;
 	}
 }

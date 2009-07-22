@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 using Chorus.sync;
 using Chorus.UI;
 using Chorus.Utilities;
@@ -46,6 +47,8 @@ namespace Baton.Tests
 		public void AfterSyncLogNotEmpty()
 		{
 			_model.Sync();
+			while(!_model.EnableSync)
+				Thread.Sleep(100);
 			Assert.IsNotEmpty(_progress.Text);
 		}
 

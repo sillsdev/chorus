@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
+using System.Text.RegularExpressions;
 using Chorus.retrieval;
 using Chorus.sync;
 using Chorus.Utilities;
@@ -56,6 +57,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		{
 			_pathToRepository = pathToRepository;
 			_progress = progress;
+
 			_userName = GetUserIdInUse();
 		}
 
@@ -88,15 +90,25 @@ namespace Chorus.VcsDrivers.Mercurial
 				{
 					_progress.WriteWarning("Could not push to " + targetUri + Environment.NewLine + err.Message);
 				}
-				try
+
+				if (GetIsLocalUri(targetUri))
 				{
-					Execute("update", targetUri, "-C"); // for usb keys and other local repositories
-				}
-				catch (Exception err)
-				{
-					_progress.WriteWarning("Could not update the actual files after a pull at " + targetUri + Environment.NewLine + err.Message);
+					try
+					{
+						Execute("update", targetUri, "-C"); // for usb keys and other local repositories
+					}
+					catch (Exception err)
+					{
+						_progress.WriteWarning("Could not update the actual files after a pushing to " + targetUri +
+											   Environment.NewLine + err.Message);
+					}
 				}
 			}
+		}
+
+		private bool GetIsLocalUri(string uri)
+		{
+			return !(uri.StartsWith("http") || uri.StartsWith("ssh"));
 		}
 
 		protected void PullFromRepository(HgRepository otherRepo,bool throwIfCannot)
@@ -666,9 +678,24 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		public string GetUserIdInUse()
 		{
-			return GetUserNameFromIni(_progress);
-//this gave the global name, we want the name associated with this repository
-			//return GetTextFromQuery(_pathToRepository, "showconfig ui.username").Trim();
+			if (GetIsLocalUri(_pathToRepository))
+			{
+				return GetUserNameFromIni(_progress);
+				//this gave the global name, we want the name associated with this repository
+				//return GetTextFromQuery(_pathToRepository, "showconfig ui.username").Trim();
+			}
+			else
+			{
+				return GetUriStrippedOfUserAccountInfo(_pathToRepository);
+			}
+		}
+
+		private string GetUriStrippedOfUserAccountInfo(string repository)
+		{
+			 //enhance: make it handle ssh's
+			Regex x = new Regex("(http://)(.+@)*(.+)");
+			var s = x.Replace(repository, @"$1$3");
+			return s;
 		}
 
 		public bool GetFileExistsInRepo(string subPath)
@@ -887,21 +914,29 @@ namespace Chorus.VcsDrivers.Mercurial
 			section.Comment  ="Used by chorus to track which repositories should always be checked.  To enable a path, enter it in the [paths] section, e.g. fiz='http://fis.com/fooproject', then in this section, just add 'fiz='";
 			return section;
 		}
+//
+//        public List<RepositoryAddress> GetDefaultSyncAddresses()
+//        {
+//            var list = new List<RepositoryAddress>();
+//            var doc = GetHgrcDoc();
+//            var section = GetDefaultRepositoriesSection(doc);
+//            var aliases = section.GetKeys();
+//            foreach (var path in GetRepositoryPathsInHgrc())
+//            {
+//                if (aliases.Contains<string>(path.Name))
+//                {
+//                    list.Add(path);
+//                }
+//            }
+//            return list;
+//        }
 
-		public List<RepositoryAddress> GetDefaultSyncAddresses()
+		public List<string> GetDefaultSyncAliases()
 		{
 			var list = new List<RepositoryAddress>();
 			var doc = GetHgrcDoc();
 			var section = GetDefaultRepositoriesSection(doc);
-			var aliases = section.GetKeys();
-			foreach (var path in GetRepositoryPathsInHgrc())
-			{
-				if (aliases.Contains<string>(path.Name))
-				{
-					list.Add(path);
-				}
-			}
-			return list;
+			return new List<string>(section.GetKeys());
 		}
 
 		public void SetIsOneDefaultSyncAddresses(RepositoryAddress address, bool doInclude)
@@ -917,6 +952,19 @@ namespace Chorus.VcsDrivers.Mercurial
 				section.Remove(address.Name);
 			}
 			doc.Save();
+		}
+
+		public bool GetCanConnectToRemote(string uri, IProgress progress)
+		{
+			progress.WriteMessage("Trying to connect to {0}...", uri);
+			 ExecutionResult result = ExecuteErrorsOk(string.Format("incoming -l 1 {0}", SurroundWithQuotes(uri)), _pathToRepository);
+
+			 if (!string.IsNullOrEmpty(result.StandardError))
+			 {
+				 progress.WriteError(result.StandardError);
+				 return false;
+			 }
+			return true;
 		}
 	}
 

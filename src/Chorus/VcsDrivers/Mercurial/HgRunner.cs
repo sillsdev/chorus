@@ -4,6 +4,7 @@ using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Threading;
 using Chorus.Utilities;
 
 namespace Chorus.VcsDrivers.Mercurial
@@ -40,7 +41,8 @@ namespace Chorus.VcsDrivers.Mercurial
 			return result;
 		}
 #else
-		 public static ExecutionResult Run(string commandLine, string fromDirectory)
+
+		public static ExecutionResult Run(string commandLine, string fromDirectory)
 		{
 			ExecutionResult result = new ExecutionResult();
 			Process p = new Process();
@@ -48,37 +50,37 @@ namespace Chorus.VcsDrivers.Mercurial
 			p.StartInfo.RedirectStandardOutput = true;
 			p.StartInfo.UseShellExecute = false;
 			p.StartInfo.CreateNoWindow = true;
-			 p.StartInfo.WorkingDirectory = fromDirectory;
+			p.StartInfo.WorkingDirectory = fromDirectory;
 			p.StartInfo.FileName = "hg";
 			p.StartInfo.Arguments = commandLine.Replace("hg ", ""); //we don't want the whole command line for this test
 
 			try
 			{p.Start();}
-			 catch(Win32Exception error)
-			 {
-				 const int ERROR_FILE_NOT_FOUND = 2;
+			catch(Win32Exception error)
+			{
+				const int ERROR_FILE_NOT_FOUND = 2;
 
-				 if (error.NativeErrorCode == ERROR_FILE_NOT_FOUND)
-				 {
-					 string msg = HgRepository.GetEnvironmentReadinessMessage("en");
-					 if(!string.IsNullOrEmpty(msg))
+				if (error.NativeErrorCode == ERROR_FILE_NOT_FOUND)
+				{
+					string msg = HgRepository.GetEnvironmentReadinessMessage("en");
+					if(!string.IsNullOrEmpty(msg))
 						throw new ApplicationException(msg);
-					 else
-					 {
-						 throw error;
-					 }
-				 }
-				 else
-				 {
-					 throw error;
-				 }
-			 }
-			 ProcessStream processStream = new ProcessStream();
+					else
+					{
+						throw error;
+					}
+				}
+				else
+				{
+					throw error;
+				}
+			}
+			ProcessStream processStream = new ProcessStream();
 			processStream.Read(ref p);
 			p.WaitForExit();
-			 result.StandardOutput = processStream.StandardOutput;
-			 result.StandardError = processStream.StandardError;
-			 result.ExitCode = p.ExitCode;
+			result.StandardOutput = processStream.StandardOutput;
+			result.StandardError = processStream.StandardError;
+			result.ExitCode = p.ExitCode;
 			return result;
 		}
 #endif
