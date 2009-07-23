@@ -64,5 +64,12 @@ namespace Chorus.Tests.VcsDrivers.Mercurial
 				Assert.IsNotNull(setup.Repository.GetRevision("0"));
 			}
 		}
+
+		[Test, Ignore("I'm too lazy at the moment to set up the test conditions")]
+		public void GetCommonAncestorOfRevisions_Have3rdAsCommon_Get3rd()
+		{
+
+		}
+
 	}
 }

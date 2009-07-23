@@ -23,10 +23,15 @@ namespace Chorus.merge
 			get;
 		}
 
+		string WinnerId
+		{
+			get;
+		}
 		Guid  Guid { get; }
 		MergeSituation Situation { get; set; }
+		string RevisionWhereMergeWasCheckedIn { get;  }
 
-		string GetConflictingRecordOutOfSourceControl(IRetrieveFile fileRetriever, ThreeWayMergeSources.Source mergeSource);
+		string GetConflictingRecordOutOfSourceControl(IRetrieveFileVersionsFromRepository fileRetriever, ThreeWayMergeSources.Source mergeSource);
 		void WriteAsXml(XmlWriter writer);
 	}
 
@@ -42,13 +47,9 @@ namespace Chorus.merge
 	[TypeGuid("18C7E1A2-2F69-442F-9057-6B3AC9833675")]
 	public class UnmergableFileTypeConflict :Conflict
 	{
-		public MergeOrder.ConflictHandlingModeChoices _conflictHandlingMode;
-
-
-		public UnmergableFileTypeConflict(MergeOrder order)
-			: base(order.MergeSituation)
+		public UnmergableFileTypeConflict(MergeSituation situation )
+			: base(situation)
 		{
-			_conflictHandlingMode = order.ConflictHandlingMode;
 		}
 
 
@@ -57,28 +58,26 @@ namespace Chorus.merge
 			var b = new StringBuilder();
 			b.AppendFormat("Chorus did not have the ability to merge both user's version of the file {0}", Situation.PathToFileInRepository);
 			b.AppendLine();
-			string winnerId = (_conflictHandlingMode == MergeOrder.ConflictHandlingModeChoices.TheyWin)
+
+			string loserId = (Situation.ConflictHandlingMode != MergeOrder.ConflictHandlingModeChoices.TheyWin)
 								  ?
 									 Situation.UserYId
 								  :Situation.UserXId;
 
-			string loserId = (_conflictHandlingMode != MergeOrder.ConflictHandlingModeChoices.TheyWin)
-								  ?
-									 Situation.UserYId
-								  :Situation.UserXId;
-
-			b.AppendFormat("The merger gave both users the copy from '{0}'.", winnerId);
+			b.AppendFormat("The merger gave both users the copy from '{0}'.", WinnerId);
 			b.AppendLine();
 			b.AppendFormat("The version from '{0}' is not lost; it is available in the Chorus repository", loserId);
 			return b.ToString();
 		}
+
+
 
 		public override string ConflictTypeHumanName
 		{
 			get { return "Merge Failure"; }
 		}
 
-		public override string GetConflictingRecordOutOfSourceControl(IRetrieveFile fileRetriever, ThreeWayMergeSources.Source mergeSource)
+		public override string GetConflictingRecordOutOfSourceControl(IRetrieveFileVersionsFromRepository fileRetriever, ThreeWayMergeSources.Source mergeSource)
 		{
 			throw new NotImplementedException();
 		}

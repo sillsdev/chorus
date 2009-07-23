@@ -95,7 +95,7 @@
 	<Compile Include="merge\xml\generic\PoorMansMergeStrategy.cs" />
 	<Compile Include="Program.cs" />
 	<Compile Include="retrieval\ChorusRevision.cs" />
-	<Compile Include="retrieval\IRetrieveFile.cs" />
+	<Compile Include="retrieval\IRetrieveFileVersionsFromRepository.cs" />
 	<Compile Include="retrieval\LiftEntryRetriever.cs" />
 	<Compile Include="retrieval\RevisionInspector.cs" />
 	<Compile Include="sync\ProjectFolderConfiguration.cs" />

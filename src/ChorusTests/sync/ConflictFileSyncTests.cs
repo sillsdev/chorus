@@ -42,7 +42,7 @@ namespace Chorus.Tests.sync
 																	  "<conflicts><conflict guid='sallyGuid'/></conflicts>")
 				)
 			{
-				MergeOrder order = new MergeOrder(MergeOrder.ConflictHandlingModeChoices.WeWin, group.BobFile.Path,
+				MergeOrder order = new MergeOrder(group.BobFile.Path,
 												  string.Empty, group.SallyFile.Path, new NullMergeSituation());
 				new ConflictFileTypeHandler().Do3WayMerge(order);
 
@@ -62,7 +62,7 @@ namespace Chorus.Tests.sync
 																	  "<conflicts><conflict guid='sallyGuid'/></conflicts>")
 				)
 			{
-				MergeOrder order = new MergeOrder(MergeOrder.ConflictHandlingModeChoices.WeWin, group.BobFile.Path,
+				MergeOrder order = new MergeOrder( group.BobFile.Path,
 												  group.AncestorFile.Path, group.SallyFile.Path, new NullMergeSituation());
 				new ConflictFileTypeHandler().Do3WayMerge(order);
 

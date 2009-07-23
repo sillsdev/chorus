@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using Chorus.merge;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
@@ -36,7 +37,7 @@ namespace Chorus.FileTypeHanders
 			throw new ApplicationException(string.Format("Chorus could not find a handler to diff files like '{0}'", pathToChild));
 		}
 
-		public IChangePresenter GetChangePresenter(IChangeReport report)
+		public IChangePresenter GetChangePresenter(IChangeReport report, HgRepository repository)
 		{
 			return new AudioChangePresenter(report);
 		}
@@ -70,17 +71,20 @@ namespace Chorus.FileTypeHanders
 			return _report.ActionLabel;
 		}
 
-		public string GetHtml(string style)
+		public string GetHtml(string style, string styleSheet)
 		{
+			var builder = new StringBuilder();
+			builder.Append("<html><head>" + styleSheet + "</head>");
 			if (style == "normal")
 			{
-				return string.Format("<html><a href=\"playaudio:file:///{0}\">Play Sound</a></html>", _report.PathToFile);
+				builder.AppendFormat("<a href=\"playaudio:file:///{0}\">Play Sound</a>", _report.PathToFile);
 			}
 			else
 			{
 				return string.Empty;
 			}
-
+			builder.Append("</html>");
+			return builder.ToString();
 		}
 
 		public string GetTypeLabel()

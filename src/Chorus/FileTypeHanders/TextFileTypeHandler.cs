@@ -48,7 +48,7 @@ namespace Chorus.FileTypeHanders
 //                f.Close();
 //                f.Dispose();
 
-				switch (order.ConflictHandlingMode)
+				switch (order.MergeSituation.ConflictHandlingMode)
 				{
 					case MergeOrder.ConflictHandlingModeChoices.WeWin:
 						File.Copy(ourPartial.Path, order.pathToOurs, true);
@@ -80,7 +80,7 @@ namespace Chorus.FileTypeHanders
 			throw new NotImplementedException(string.Format("The TextFileTypeHandler does not yet do diffs"));
 		}
 
-		public IChangePresenter GetChangePresenter(IChangeReport report)
+		public IChangePresenter GetChangePresenter(IChangeReport report, HgRepository repository)
 		{
 			return new DefaultChangePresenter(report);
 		}

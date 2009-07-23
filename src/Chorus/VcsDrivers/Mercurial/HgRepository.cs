@@ -15,7 +15,7 @@ using Nini.Ini;
 namespace Chorus.VcsDrivers.Mercurial
 {
 
-	public class HgRepository : IRetrieveFile
+	public class HgRepository : IRetrieveFileVersionsFromRepository
 	{
 		protected readonly string _pathToRepository;
 		protected readonly string _userName;
@@ -710,7 +710,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		}
 
 		/// <summary>
-		///  From IRetrieveFile
+		///  From IRetrieveFileVersionsFromRepository
 		/// </summary>
 		/// <returns>path to a temp file. caller is responsible for deleting the file.</returns>
 		public string RetrieveHistoricalVersionOfFile(string relativePath, string revOrHash)
@@ -725,6 +725,12 @@ namespace Chorus.VcsDrivers.Mercurial
 				throw new ApplicationException(String.Format("Could not retrieve version {0} of {1}. Mercurial said: {2}", revOrHash, relativePath, result.StandardError));
 			}
 			return f.Path;
+		}
+
+		public string GetCommonAncestorOfRevisions(string rev1, string rev2)
+		{
+			var result = GetTextFromQuery(_pathToRepository, "debugancestor " + rev1 + " " + rev2);
+			return new RevisionNumber(result).LocalRevisionNumber;
 		}
 
 		public IEnumerable<FileInRevision> GetFilesInRevision(Revision revision)

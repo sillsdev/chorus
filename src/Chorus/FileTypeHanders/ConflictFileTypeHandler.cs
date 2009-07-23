@@ -45,11 +45,11 @@ namespace Chorus.FileTypeHanders
 			return listener.Changes;
 		}
 
-		public IChangePresenter GetChangePresenter(IChangeReport report)
+		public IChangePresenter GetChangePresenter(IChangeReport report, HgRepository repository)
 		{
 			if ((report as IXmlChangeReport) != null)
 			{
-				return new ConflictPresenter(report as IXmlChangeReport);
+				return new ConflictPresenter(report as IXmlChangeReport, repository);
 			}
 			else
 			{

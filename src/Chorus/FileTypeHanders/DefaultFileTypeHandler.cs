@@ -32,8 +32,8 @@ namespace Chorus.FileTypeHanders
 		{
 		  //  Debug.Fail("john");
 			Guard.AgainstNull(mergeOrder, "mergeOrder");
-			mergeOrder.EventListener.ConflictOccurred(new UnmergableFileTypeConflict(mergeOrder));
-			switch (mergeOrder.ConflictHandlingMode)
+			mergeOrder.EventListener.ConflictOccurred(new UnmergableFileTypeConflict(mergeOrder.MergeSituation));
+			switch (mergeOrder.MergeSituation.ConflictHandlingMode)
 			{
 				default: // just leave our file there
 					break;
@@ -52,7 +52,7 @@ namespace Chorus.FileTypeHanders
 			throw new ApplicationException(string.Format("Chorus could not find a handler to diff files like '{0}'", pathToChild));
 		}
 
-		public IChangePresenter GetChangePresenter(IChangeReport report)
+		public IChangePresenter GetChangePresenter(IChangeReport report, HgRepository repository)
 		{
 			return new DefaultChangePresenter(report);
 		}

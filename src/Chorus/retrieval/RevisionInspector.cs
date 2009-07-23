@@ -14,14 +14,14 @@ namespace Chorus.retrieval
 	/// </summary>
 	public class RevisionInspector
 	{
-		private readonly HgRepository _repository;
+		public  HgRepository Repository{get;private set;}
 		private readonly ChorusFileTypeHandlerCollection _fileHandlerCollection;
 
 		public IProgress ProgressIndicator { get; set; }
 
 		public RevisionInspector(HgRepository repository, ChorusFileTypeHandlerCollection fileHandlerCollection)
 		{
-			_repository = repository;
+			Repository = repository;
 			_fileHandlerCollection = fileHandlerCollection;
 			ProgressIndicator = new NullProgress();
 		}
@@ -36,7 +36,7 @@ namespace Chorus.retrieval
 			if (!revision.HasAtLeastOneParent)
 			{
 				//describe the contents of the initial checkin
-				foreach (var fileInRevision in _repository.GetFilesInRevision(revision))
+				foreach (var fileInRevision in Repository.GetFilesInRevision(revision))
 				{
 					CollectChangesInFile(fileInRevision, null, changes);
 				}
@@ -47,7 +47,7 @@ namespace Chorus.retrieval
 				IEnumerable<RevisionNumber> parentRevs = revision.GetLocalNumbersOfParents();
 				foreach (RevisionNumber parentRev in parentRevs)
 				{
-					foreach (var fileInRevision in _repository.GetFilesInRevision(revision))
+					foreach (var fileInRevision in Repository.GetFilesInRevision(revision))
 					{
 						CollectChangesInFile(fileInRevision, parentRev.LocalRevisionNumber, changes);
 					}
@@ -90,12 +90,12 @@ namespace Chorus.retrieval
 			{
 				if (parentRev != null && fileInRevision.ActionThatHappened == FileInRevision.Action.Modified)
 				{
-					var parentFileInRevision = new FileInRevision(parentRev, Path.Combine(_repository.PathToRepo, fileInRevision.FullPath),
+					var parentFileInRevision = new FileInRevision(parentRev, Path.Combine(Repository.PathToRepo, fileInRevision.FullPath),
 																  fileInRevision.ActionThatHappened);
 
 					//pull the files out of the repository so we can read them
-					using (var targetFile = fileInRevision.CreateTempFile(_repository))
-					using (var parentFile = parentFileInRevision.CreateTempFile(_repository))
+					using (var targetFile = fileInRevision.CreateTempFile(Repository))
+					using (var parentFile = parentFileInRevision.CreateTempFile(Repository))
 					{
 						//run the differ which the handler provides, adding the changes to the cumulative
 						//list we are gathering for this whole revision
@@ -106,7 +106,7 @@ namespace Chorus.retrieval
 				{
 					try
 					{
-						using (var targetFile = fileInRevision.CreateTempFile(_repository))
+						using (var targetFile = fileInRevision.CreateTempFile(Repository))
 						{
 							changes.AddRange(handler.DescribeInitialContents(fileInRevision, targetFile));
 						}

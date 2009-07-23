@@ -40,7 +40,7 @@ namespace Chorus.FileTypeHanders
 
 				//;  Debug.Fail("hello");
 				LiftMerger merger;
-				switch (mergeOrder.ConflictHandlingMode)
+				switch (mergeOrder.MergeSituation.ConflictHandlingMode)
 				{
 					default:
 						throw new ArgumentException("The Lift merger cannot handle the requested conflict handling mode");
@@ -70,7 +70,7 @@ namespace Chorus.FileTypeHanders
 			return listener.Changes;
 		}
 
-		public IChangePresenter GetChangePresenter(IChangeReport report)
+		public IChangePresenter GetChangePresenter(IChangeReport report, HgRepository repository)
 		{
 			if ((report as IXmlChangeReport) != null)
 			{

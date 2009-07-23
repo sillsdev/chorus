@@ -46,8 +46,9 @@ namespace Chorus.merge.xml.generic
 		public abstract string GetFullHumanReadableDescription();
 		public abstract string ConflictTypeHumanName { get; }
 		public MergeSituation Situation{get;set;}
-		public ContextDescriptor Context { get; set; }
+		public string RevisionWhereMergeWasCheckedIn { get;private set;}
 
+		public ContextDescriptor Context { get; set; }
 
 		public Conflict(XmlNode xmlRepresentation)
 		{
@@ -76,7 +77,7 @@ namespace Chorus.merge.xml.generic
 			get { return _guid; }
 		}
 
-		public abstract string GetConflictingRecordOutOfSourceControl(IRetrieveFile fileRetriever, ThreeWayMergeSources.Source mergeSource);
+		public abstract string GetConflictingRecordOutOfSourceControl(IRetrieveFileVersionsFromRepository fileRetriever, ThreeWayMergeSources.Source mergeSource);
 
 		public void WriteAsXml(XmlWriter writer)
 		{
@@ -122,6 +123,18 @@ namespace Chorus.merge.xml.generic
 
 			return attribute.GuidString;
 		}
+
+		public string WinnerId
+		{
+			get
+			{
+				return (this.Situation.ConflictHandlingMode == MergeOrder.ConflictHandlingModeChoices.TheyWin)
+						   ?
+							   Situation.UserYId
+						   : Situation.UserXId;
+			}
+		}
+
 		public static IConflict CreateFromXml(XmlNode conflictNode)
 		{
 			try
@@ -205,6 +218,11 @@ namespace Chorus.merge.xml.generic
 			get { return "Unreadable Conflict"; }
 		}
 
+		public string WinnerId
+		{
+			get {   return string.Empty;}
+		}
+
 		public Guid Guid
 		{
 			get { throw new NotImplementedException(); }
@@ -216,7 +234,7 @@ namespace Chorus.merge.xml.generic
 			set { }
 		}
 
-		public string GetConflictingRecordOutOfSourceControl(IRetrieveFile fileRetriever, ThreeWayMergeSources.Source mergeSource)
+		public string GetConflictingRecordOutOfSourceControl(IRetrieveFileVersionsFromRepository fileRetriever, ThreeWayMergeSources.Source mergeSource)
 		{
 			throw new NotImplementedException();
 		}
@@ -234,7 +252,7 @@ namespace Chorus.merge.xml.generic
 		protected readonly string _theirValue;
 		protected readonly string _ancestorValue;
 
-		public AttributeConflict(string attributeName, string ourValue, string theirValue, string ancestorValue, MergeSituation mergeSituation)
+		public AttributeConflict(string attributeName, string ourValue, string theirValue, string ancestorValue,MergeSituation mergeSituation)
 			:base(mergeSituation)
 		{
 			_attributeName = attributeName;
@@ -292,14 +310,15 @@ namespace Chorus.merge.xml.generic
 		}
 
 
-		public override string GetConflictingRecordOutOfSourceControl(IRetrieveFile fileRetriever, ThreeWayMergeSources.Source mergeSource)
+		public override string GetConflictingRecordOutOfSourceControl(IRetrieveFileVersionsFromRepository fileRetriever, ThreeWayMergeSources.Source mergeSource)
 		{
 			string revision=null;
 		   // string elementId = null;
 			switch (mergeSource)
 			{
 				case ThreeWayMergeSources.Source.Ancestor:
-					throw new ApplicationException("Ancestor retrieval not implemented yet.");
+					revision =fileRetriever.GetCommonAncestorOfRevisions(this.Situation.UserXRevision, Situation.UserYRevision);
+					break;
 				case ThreeWayMergeSources.Source.UserX:
 					revision = Situation.UserXRevision;
 				 //   elementId = _userXElementId;
@@ -327,7 +346,7 @@ namespace Chorus.merge.xml.generic
 	[TypeGuid("B11ABA8C-DFB9-4E37-AF35-8AFDB86F00B7")]
 	sealed public class RemovedVsEditedAttributeConflict : AttributeConflict
 	{
-		public RemovedVsEditedAttributeConflict(string attributeName, string ourValue, string theirValue, string ancestorValue, MergeSituation mergeSituation)
+		public RemovedVsEditedAttributeConflict(string attributeName, string ourValue, string theirValue, string ancestorValue,MergeSituation mergeSituation)
 			: base(attributeName, ourValue, theirValue, ancestorValue, mergeSituation)
 		{
 		}
@@ -340,7 +359,7 @@ namespace Chorus.merge.xml.generic
 	[TypeGuid("5BBDF4F6-953A-4F79-BDCD-0B1F733DA4AB")]
 	sealed public class BothEdittedAttributeConflict : AttributeConflict
 	{
-		public BothEdittedAttributeConflict(string attributeName, string ourValue, string theirValue, string ancestorValue, MergeSituation mergeSituation)
+		public BothEdittedAttributeConflict(string attributeName, string ourValue, string theirValue, string ancestorValue,MergeSituation mergeSituation)
 			: base(attributeName, ourValue, theirValue, ancestorValue, mergeSituation)
 		{
 		}
@@ -354,7 +373,7 @@ namespace Chorus.merge.xml.generic
 	[TypeGuid("0507DE36-13A3-449D-8302-48F5213BD92E")]
 	sealed public class BothEdittedTextConflict : AttributeConflict
 	{
-		public BothEdittedTextConflict(XmlNode ours, XmlNode theirs, XmlNode ancestor, MergeSituation mergeSituation)
+		public BothEdittedTextConflict(XmlNode ours, XmlNode theirs, XmlNode ancestor,MergeSituation mergeSituation)
 			: base("text", ours.InnerText, theirs.InnerText,
 				   ancestor == null ? string.Empty : ancestor.InnerText,
 				   mergeSituation)
@@ -375,7 +394,7 @@ namespace Chorus.merge.xml.generic
 	[TypeGuid("E1CCC59B-46E5-4D24-A1B1-5B621A0F8870")]
 	sealed public class RemovedVsEdittedTextConflict : AttributeConflict
 	{
-		public RemovedVsEdittedTextConflict(XmlNode ours, XmlNode theirs, XmlNode ancestor, MergeSituation mergeSituation)
+		public RemovedVsEdittedTextConflict(XmlNode ours, XmlNode theirs, XmlNode ancestor,MergeSituation mergeSituation)
 			: base("text", ours == null ? string.Empty : ours.InnerText,
 				   theirs == null ? string.Empty : theirs.InnerText,
 				   ancestor.InnerText,
@@ -404,7 +423,7 @@ namespace Chorus.merge.xml.generic
 //        protected readonly XmlNode _ancestorElement;
 
 		public ElementConflict(string elementName, XmlNode ourElement, XmlNode theirElement, XmlNode ancestorElement,
-							   MergeSituation mergeSituation, IElementDescriber elementDescriber)
+							  MergeSituation mergeSituation, IElementDescriber elementDescriber)
 			: base(mergeSituation)
 		{
 			_elementName = elementName;
@@ -433,7 +452,7 @@ namespace Chorus.merge.xml.generic
 		}
 
 
-		public override string GetConflictingRecordOutOfSourceControl(IRetrieveFile fileRetriever, ThreeWayMergeSources.Source mergeSource)
+		public override string GetConflictingRecordOutOfSourceControl(IRetrieveFileVersionsFromRepository fileRetriever, ThreeWayMergeSources.Source mergeSource)
 		{
 			//fileRetriever.RetrieveHistoricalVersionOfFile(_file, userSources[]);
 			return null;
@@ -455,7 +474,7 @@ namespace Chorus.merge.xml.generic
 	internal class RemovedVsEditedElementConflict : ElementConflict
 	{
 		public RemovedVsEditedElementConflict(string elementName, XmlNode ourElement, XmlNode theirElement,
-			XmlNode ancestorElement, MergeSituation mergeSituation, IElementDescriber elementDescriber)
+			XmlNode ancestorElement,MergeSituation mergeSituation, IElementDescriber elementDescriber)
 			: base(elementName, ourElement, theirElement, ancestorElement, mergeSituation, elementDescriber)
 		{
 		}
@@ -491,7 +510,7 @@ namespace Chorus.merge.xml.generic
 	internal class BothReorderedElementConflict : ElementConflict
 	{
 		public BothReorderedElementConflict(string elementName, XmlNode ourElement, XmlNode theirElement,
-			XmlNode ancestorElement, MergeSituation mergeSituation, IElementDescriber elementDescriber)
+			XmlNode ancestorElement,MergeSituation mergeSituation, IElementDescriber elementDescriber)
 			: base(elementName, ourElement, theirElement, ancestorElement, mergeSituation, elementDescriber)
 		{
 		}
@@ -515,7 +534,7 @@ namespace Chorus.merge.xml.generic
 	internal class AmbiguousInsertConflict : ElementConflict
 	{
 		public AmbiguousInsertConflict(string elementName, XmlNode ourElement, XmlNode theirElement,
-			XmlNode ancestorElement, MergeSituation mergeSituation, IElementDescriber elementDescriber)
+			XmlNode ancestorElement,MergeSituation mergeSituation, IElementDescriber elementDescriber)
 			: base(elementName, ourElement, theirElement, ancestorElement, mergeSituation, elementDescriber)
 		{
 		}
@@ -543,7 +562,7 @@ namespace Chorus.merge.xml.generic
 	internal class AmbiguousInsertReorderConflict : ElementConflict
 	{
 		public AmbiguousInsertReorderConflict(string elementName, XmlNode ourElement, XmlNode theirElement,
-			XmlNode ancestorElement, MergeSituation mergeSituation, IElementDescriber elementDescriber)
+			XmlNode ancestorElement,MergeSituation mergeSituation, IElementDescriber elementDescriber)
 			: base(elementName, ourElement, theirElement, ancestorElement, mergeSituation, elementDescriber)
 		{
 		}

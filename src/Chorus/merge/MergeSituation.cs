@@ -12,7 +12,7 @@ namespace Chorus.merge
 	public class NullMergeSituation: MergeSituation
 	{
 		public NullMergeSituation()
-			: base(null, null, null, null, null)
+			: base(null, null, null, null, null,MergeOrder.ConflictHandlingModeChoices.WeWin)
 		{
 		}
 	}
@@ -22,6 +22,8 @@ namespace Chorus.merge
 	/// </summary>
 	public class MergeSituation
 	{
+		public MergeOrder.ConflictHandlingModeChoices ConflictHandlingMode { get; private set; }
+
 		//we don't have access to this yet: public const string kAncestorRevision = "ChorusAncestorRevision";
 		public const string kUserXId= "ChorusUserXId";
 		public const string kUserYId = "ChorusUserYId";
@@ -48,11 +50,17 @@ namespace Chorus.merge
 			writer.WriteAttributeString("userXRevision", UserXRevision);
 			writer.WriteAttributeString("userYRevision", UserYRevision);
 			writer.WriteAttributeString("path", PathToFileInRepository);
+			writer.WriteAttributeString("conflictHandlingMode", string.Empty, ConflictHandlingMode.ToString());
 			writer.WriteEndElement();
 		}
 
-		public MergeSituation(string relativePathToFile, string userXId, string userXRevision, string userYId, string userYRevision/*, string ancestorRevision*/)
+		public MergeSituation(string relativePathToFile, string userXId, string userXRevision, string userYId, string userYRevision, MergeOrder.ConflictHandlingModeChoices conflictHandlingMode)
 		{
+			ConflictHandlingMode = conflictHandlingMode;
+
+			if (relativePathToFile != null)
+				relativePathToFile = relativePathToFile.Trim(new[] { Path.DirectorySeparatorChar });
+
 			PathToFileInRepository = relativePathToFile;
 			UserXId = userXId;
 			UserYId = userYId;
@@ -63,6 +71,19 @@ namespace Chorus.merge
 
 		public static MergeSituation CreateFromEnvironmentVariables(string pathToFileInRepository)
 		{
+			var mode = MergeOrder.ConflictHandlingModeChoices.WeWin;
+
+			//we have to get this argument out of the environment variables because we have not control of the arguments
+			//the dvcs system is going to use to call us. So whoever invokes the dvcs needs to set this variable ahead of time
+			string modeString = Environment.GetEnvironmentVariable(MergeOrder.kConflictHandlingModeEnvVarName);
+			if (!string.IsNullOrEmpty(modeString))
+			{
+
+				mode =
+					(MergeOrder.ConflictHandlingModeChoices)
+					Enum.Parse(typeof(MergeOrder.ConflictHandlingModeChoices), modeString);
+			}
+
 			//NB: these aren't needed to do the merge; we're given the actual 3 files.  But they are needed
 			//for the conflict record, so that we can later look up exactly what were the 3 inputs at the time of merging.
 		   //string pathToFileInRepository = Environment.GetEnvironmentVariable(MergeSituation.kPathToFileInRepository);
@@ -73,7 +94,7 @@ namespace Chorus.merge
 			string userYRevision = Environment.GetEnvironmentVariable(MergeSituation.kUserYRevision);
 
 			return new MergeSituation( pathToFileInRepository, userXId, userXRevision, userYId,
-									  userYRevision/*, ancestorRevision*/);
+									  userYRevision, mode);
 
 		}
 
@@ -102,11 +123,16 @@ namespace Chorus.merge
 
 		public static MergeSituation FromXml(XmlNode node)
 		{
+			var mode = (MergeOrder.ConflictHandlingModeChoices)Enum.Parse(typeof(MergeOrder.ConflictHandlingModeChoices),
+								   node.GetOptionalStringAttribute("conflictHandlingMode",
+																				string.Empty));
+
 			return new MergeSituation(node.GetStringAttribute("path"),
 				node.GetStringAttribute("userXId"),
 				node.GetStringAttribute("userXRevision"),
 				node.GetStringAttribute("userYId"),
-				node.GetStringAttribute("userYRevision") );
+				node.GetStringAttribute("userYRevision"),
+				mode);
 		}
 	}
 }

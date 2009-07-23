@@ -16,7 +16,6 @@ namespace Baton.Tests
 		[Test]
 		public void TESTNAME()
 		{
-			string entryXml;
 			var r = GetHtml(@"
   <entry id='grisim_8bbee099-1a7e-44a2-99fc-fbbc6ad20894' dateCreated='2009-07-09T12:45:33Z' dateModified='2009-07-18T06:42:07Z' guid='8bbee099-1a7e-44a2-99fc-fbbc6ad20894'>
 	<lexical-unit>

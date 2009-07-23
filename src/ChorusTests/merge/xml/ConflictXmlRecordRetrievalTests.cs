@@ -25,7 +25,7 @@ namespace Chorus.Tests.merge
 			docX.LoadXml(@"<doc><test id='2'>x</test></doc>");
 			var docY = new XmlDocument();
 			docY.LoadXml(@"<doc><test id='2'>y</test></doc>");
-			var situation = new MergeSituation("ARelativePath", "x", "x1", "y", "y1");
+			var situation = new MergeSituation("ARelativePath", "x", "x1", "y", "y1",MergeOrder.ConflictHandlingModeChoices.WeWin);
 			var conflict = new BothEdittedTextConflict(docX.SelectSingleNode("doc/test"),
 			  docY.SelectSingleNode("doc/test"),
 			  docA.SelectSingleNode("doc/test"),
@@ -36,7 +36,7 @@ namespace Chorus.Tests.merge
 			Assert.AreEqual("<test id=\"2\">x</test>", result);
 		}
 	}
-   class DummyXmlRetriever : IRetrieveFile
+   class DummyXmlRetriever : IRetrieveFileVersionsFromRepository
    {
 	   private readonly XmlDocument _docA;
 	   private readonly XmlDocument _docX;
@@ -63,13 +63,23 @@ namespace Chorus.Tests.merge
 				   return null;
 		   }
 	   }
+
+	   public string GetCommonAncestorOfRevisions(string rev1, string rev2)
+	   {
+		   return "a1";
+	   }
    }
 
-   class DummyRetriever : IRetrieveFile
+   class DummyRetriever : IRetrieveFileVersionsFromRepository
    {
 	   public string RetrieveHistoricalVersionOfFile(string relativePath, string versionDescriptor)
 	   {
 		   return new TempFile(new string[] { "one", "two", "three" }).Path;
+	   }
+
+	   public string GetCommonAncestorOfRevisions(string rev1, string rev2)
+	   {
+		   return "a1";
 	   }
    }
 }

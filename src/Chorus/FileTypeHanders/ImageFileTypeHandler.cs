@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Text;
 using Chorus.merge;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
@@ -38,7 +39,7 @@ namespace Chorus.FileTypeHanders
 			throw new ApplicationException(string.Format("Chorus could not find a handler to diff files like '{0}'", pathToChild));
 		}
 
-		public IChangePresenter GetChangePresenter(IChangeReport report)
+		public IChangePresenter GetChangePresenter(IChangeReport report, HgRepository repository)
 		{
 			return new ImageChangePresenter(report);
 		}
@@ -72,8 +73,10 @@ namespace Chorus.FileTypeHanders
 			return _report.ActionLabel;
 		}
 
-		public string GetHtml(string style)
+		public string GetHtml(string style, string styleSheet)
 		{
+			var builder = new StringBuilder();
+			builder.Append("<html><head>" + styleSheet + "</head>");
 			if (style == "normal")
 			{
 				string path = _report.PathToFile;
@@ -81,15 +84,17 @@ namespace Chorus.FileTypeHanders
 				{
 					var image = Image.FromFile(_report.PathToFile);
 					path = Path.GetTempFileName() + ".bmp";
-						//enhance... this leaks disk space, albeit in the temp folder
+					//enhance... this leaks disk space, albeit in the temp folder
 					image.Save(path, ImageFormat.Bmp);
 				}
-				return string.Format("<html><img src=\"file:///{0}\" width=100/></html>", path);
+				builder.AppendFormat("<img src=\"file:///{0}\" width=100/>", path);
 			}
 			else
 			{
 				return string.Empty;
 			}
+			builder.Append("</html>");
+			return builder.ToString();
 
 		}
 

@@ -50,7 +50,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		public IEnumerable<RevisionNumber> GetLocalNumbersOfParents()
 		{
 			return Parents;
-//            return _repository.GetParentsOfRevision(this.Number.LocalRevisionNumber);
+//            return Repository.GetParentsOfRevision(this.Number.LocalRevisionNumber);
 		}
 
 		public void AddParentFromCombinedNumberAndHash(string descriptor)
@@ -91,7 +91,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		{
 			string[] parts = combinedNumberAndHash.Split(new char[] { ':' });
 			Debug.Assert(parts.Length == 2);
-			Hash = parts[1];
+			Hash = parts[1].Trim();
 			LocalRevisionNumber = parts[0];
 
 		}

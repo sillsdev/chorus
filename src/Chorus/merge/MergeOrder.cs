@@ -28,11 +28,11 @@ namespace Chorus.merge
 		/// </summary>
 		public enum ConflictHandlingModeChoices { WeWin, TheyWin, LcdPlusPartials}
 
-		public ConflictHandlingModeChoices ConflictHandlingMode{ get; set;}
+	  //  public ConflictHandlingModeChoices ConflictHandlingMode{ get; set;}
 		public IMergeEventListener EventListener{ get; set;}
 
 
-		public MergeOrder(ConflictHandlingModeChoices mode, string pathToOurs, string pathToCommon, string pathToTheirs,
+		public MergeOrder( string pathToOurs, string pathToCommon, string pathToTheirs,
 			MergeSituation situation)
 		{
 			this.pathToOurs = pathToOurs;
@@ -40,29 +40,17 @@ namespace Chorus.merge
 			MergeSituation = situation;
 			pathToCommonAncestor = pathToCommon;
 
-			ConflictHandlingMode = mode;
+		 //   ConflictHandlingMode = mode;
 			EventListener = new NullMergeEventListener();//client can put something useful in if it needs one
 		}
 
 		public static MergeOrder CreateUsingEnvironmentVariables(string pathToOurs, string pathToCommon,  string pathToTheirs )
 		{
-			MergeOrder.ConflictHandlingModeChoices mode = MergeOrder.ConflictHandlingModeChoices.WeWin;
-
-			//we have to get this argument out of the environment variables because we have not control of the arguments
-			//the dvcs system is going to use to call us. So whoever invokes the dvcs needs to set this variable ahead of time
-			string modeString = Environment.GetEnvironmentVariable(MergeOrder.kConflictHandlingModeEnvVarName);
-			if (!string.IsNullOrEmpty(modeString))
-			{
-
-				mode =
-					(MergeOrder.ConflictHandlingModeChoices)
-					Enum.Parse(typeof(MergeOrder.ConflictHandlingModeChoices), modeString);
-			}
 			string pathToRepository = Environment.GetEnvironmentVariable(MergeOrder.kPathToRepository);
 
-			string pathInRepository = pathToOurs.Replace(pathToRepository, "");//REVIEW
+			string pathInRepository = pathToOurs.Replace(pathToRepository, "").Trim(new[]{Path.DirectorySeparatorChar});//REVIEW
 
-			return new MergeOrder(mode, pathToOurs,pathToCommon, pathToTheirs , MergeSituation.CreateFromEnvironmentVariables(pathInRepository));
+			return new MergeOrder(pathToOurs,pathToCommon, pathToTheirs , MergeSituation.CreateFromEnvironmentVariables(pathInRepository));
 		}
 
 		public static void PushToEnvironmentVariables(string pathToRepository)

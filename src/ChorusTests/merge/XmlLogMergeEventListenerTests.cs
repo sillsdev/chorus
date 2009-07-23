@@ -88,6 +88,11 @@ namespace Chorus.Tests.merge
 			get { return "dummy"; }
 		}
 
+		public string WinnerId
+		{
+			get { return null; }
+		}
+
 		public Guid Guid
 		{
 			get { return _guid; }
@@ -104,7 +109,7 @@ namespace Chorus.Tests.merge
 			get; set;
 		}
 
-		public string GetConflictingRecordOutOfSourceControl(IRetrieveFile fileRetriever, ThreeWayMergeSources.Source mergeSource)
+		public string GetConflictingRecordOutOfSourceControl(IRetrieveFileVersionsFromRepository fileRetriever, ThreeWayMergeSources.Source mergeSource)
 		{
 			throw new System.NotImplementedException();
 		}

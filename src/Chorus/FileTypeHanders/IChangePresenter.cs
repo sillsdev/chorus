@@ -13,7 +13,7 @@ namespace Chorus.FileTypeHanders
 	{
 		string GetDataLabel();
 		string GetActionLabel();
-		string GetHtml(string style);
+		string GetHtml(string style, string styleSheet);
 		string GetTypeLabel();
 		string GetIconName();
 	}
@@ -37,7 +37,7 @@ namespace Chorus.FileTypeHanders
 			return _report.ActionLabel;
 		}
 
-		public string GetHtml(string style)
+		public string GetHtml(string style, string styleSheet)
 		{
 			if(style=="normal")
 				return string.Format("<html><p>The file: '{0}' was {1}.</p></html>", Path.GetFileName(_report.PathToFile), GetActionLabel().ToLower());

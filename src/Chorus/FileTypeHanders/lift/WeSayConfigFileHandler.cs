@@ -39,7 +39,7 @@ namespace Chorus.FileTypeHanders.lift
 			return new IChangeReport[] {new DefaultChangeReport(fileInRevision.FullPath,"Editted")};
 		}
 
-		public IChangePresenter GetChangePresenter(IChangeReport report)
+		public IChangePresenter GetChangePresenter(IChangeReport report, HgRepository repository)
 		{
 			return new WeSayConfigChangePresenter(report);
 		}

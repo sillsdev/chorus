@@ -17,7 +17,6 @@ namespace Chorus.UI
 	{
 		private readonly RepositoryManager _repositoryManager;
 		public IProgress ProgressDisplay{get; set;}
-		private List<RepositoryAddress> _repositorySources;
 		private BackgroundWorker _backgroundWorker;
 
 		public SyncPanelModel(RepositoryManager repositoryManager)

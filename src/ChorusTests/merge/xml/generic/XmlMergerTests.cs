@@ -104,7 +104,7 @@ namespace Chorus.Tests.merge.xml.generic
 			string ours = @"<t>mine</t>";
 			string theirs = @"<t>theirs</t>";
 
-			XmlMerger m = new XmlMerger(new MergeSituation("pretendPath", "userX", "XRev","userY", "YRev"));
+			XmlMerger m = new XmlMerger(new MergeSituation("pretendPath", "userX", "XRev","userY", "YRev", MergeOrder.ConflictHandlingModeChoices.WeWin));
 			var result = m.Merge(ours, theirs, ancestor);
 			XmlTestHelper.AssertXPathMatchesExactlyOne(result.MergedNode, "t[text()='mine']");
 			Assert.AreEqual("pretendPath", result.Conflicts[0].RelativeFilePath);

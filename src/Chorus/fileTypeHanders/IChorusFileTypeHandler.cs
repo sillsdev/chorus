@@ -21,7 +21,7 @@ namespace Chorus.FileTypeHanders
 		void Do3WayMerge(merge.MergeOrder mergeOrder);
 
 		IEnumerable<IChangeReport> Find2WayDifferences(FileInRevision fileInRevision, string pathToParent, string pathToChild);
-		IChangePresenter GetChangePresenter(IChangeReport report);
+		IChangePresenter GetChangePresenter(IChangeReport report, HgRepository repository);
 
 
 		/// <summary>

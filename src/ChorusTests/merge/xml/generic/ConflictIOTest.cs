@@ -14,7 +14,7 @@ namespace Chorus.Tests.merge.xml.generic
 		[Test]
 		public void BothEdittedTextConflict_RoundtripThroughXml()
 		{
-			MergeSituation mergesituation = new MergeSituation("path", "x", "1", "y", "2");
+			MergeSituation mergesituation = new MergeSituation("path", "x", "1", "y", "2", MergeOrder.ConflictHandlingModeChoices.TheyWin);
 			var c = new BothEdittedTextConflict(
 				GetNodeFromString("<a>ours</a>"),
 				GetNodeFromString("<a>theirs</a>"),
@@ -33,7 +33,7 @@ namespace Chorus.Tests.merge.xml.generic
 		[Test]
 		public void RemovedVsEditedElementConflict_RoundtripThroughXml()
 		{
-			MergeSituation mergesituation = new MergeSituation("path", "x", "1", "y", "2");
+			MergeSituation mergesituation = new MergeSituation("path", "x", "1", "y", "2", MergeOrder.ConflictHandlingModeChoices.TheyWin);
 			var c = new RemovedVsEditedElementConflict("testElement",
 				GetNodeFromString("<a>ours</a>"),
 				GetNodeFromString("<a>theirs</a>"),

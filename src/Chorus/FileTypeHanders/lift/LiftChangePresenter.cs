@@ -58,40 +58,11 @@ namespace Chorus.FileTypeHanders.lift
 		}
 
 
-		public string GetHtml(string style)
+		public string GetHtml(string style, string styleSheet)
 		{
 			var builder = new StringBuilder();
-			builder.Append("<html><head>");
-			builder.Append(@"<style type='text/css'><!--
+			builder.Append("<html><head>"+styleSheet+"</head>");
 
-BODY { font-family: verdana,arial,helvetica,sans-serif; }
-
-span.langid {color: 'gray'; font-size: xx-small;position: relative;
-	top: 0.3em;
-}
-
-span.fieldLabel {color: 'gray'; font-size: x-small;}
-
-div.entry {color: 'blue';font-size: x-small;}
-
-td {font-size: x-small;}
-
-span.en {
-color: 'green';
-}
-span.es {
-color: 'green';
-}
-span.fr {
-color: 'green';
-}
-span.tpi {
-color: 'purple';
-}
-
---></style>");
-
-			builder.Append("</head>");
 			if (_report is XmlAdditionChangeReport)
 			{
 				var r = _report as XmlAdditionChangeReport;
