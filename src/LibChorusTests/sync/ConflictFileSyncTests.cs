@@ -25,7 +25,7 @@ namespace Chorus.Tests.sync
 
 					string xmlConflictFile = XmlLogMergeEventListener.GetXmlConflictFilePath(sally.UserFile.Path);
 					Assert.IsTrue(File.Exists(xmlConflictFile), "Conflict file should have been in working set");
-					Assert.IsTrue(sally.RepoMan.GetFileExistsInRepo(xmlConflictFile),"Conflict file should have been in repository");
+					Assert.IsTrue(sally.RepoMan.Repository.GetFileIsInRepositoryFromFullPath(xmlConflictFile),"Conflict file should have been in repository");
 
 				}
 			}

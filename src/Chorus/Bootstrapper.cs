@@ -37,7 +37,7 @@ namespace Baton
 			builder.Register<IProgress>(new NullProgress());
 			builder.Register<RepositoryManager>(c => Chorus.sync.RepositoryManager.FromRootOrChildFolder(
 																c.Resolve<ProjectFolderConfiguration>()));
-			builder.Register<HgRepository>(c=> c.Resolve<RepositoryManager>().GetRepository(c.Resolve<IProgress>()));
+			builder.Register<HgRepository>(c=> c.Resolve<RepositoryManager>().Repository);
 
 			builder.Register<BrowseForRepositoryEvent>(browseForRepositoryEvent).SingletonScoped();
 

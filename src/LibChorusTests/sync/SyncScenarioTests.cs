@@ -102,7 +102,7 @@ namespace Chorus.Tests.sync
 				project.IncludePatterns.Add("**.txt");
 				 project.IncludePatterns.Add("**.lift");
 			   RepositoryManager repo= RepositoryManager.FromRootOrChildFolder(project);
-				repo.SetUserId("bob");
+				repo.Repository.SetUserNameInIni("bob", new NullProgress());
 				return repo;
 			}
 		}
@@ -141,7 +141,7 @@ namespace Chorus.Tests.sync
 			usbProject.IncludePatterns.Add("**.txt");
 			options.CheckinDescription = "adding a file to the usb for some reason";
 			RepositoryManager usbManager = RepositoryManager.FromRootOrChildFolder(usbProject);
-			usbManager.SetUserId("usba");
+			usbManager.Repository.SetUserNameInIni("usba", new NullProgress());
 			usbManager.SyncNow(options,progress);
 
 
@@ -226,7 +226,7 @@ namespace Chorus.Tests.sync
 			sallyProject.IncludePatterns.Add("**.txt");
 
 			RepositoryManager sally = RepositoryManager.FromRootOrChildFolder(sallyProject);
-			sally.SetUserId("sally");
+			sally.Repository.SetUserNameInIni("sally", new NullProgress());
 
 			//now she modifies a file
 			File.WriteAllText(Path.Combine(sallyRepoPath, "lexicon/foo.txt"), "Sally was here");
@@ -272,7 +272,7 @@ namespace Chorus.Tests.sync
 			sallyProject.IncludePatterns.Add("**.lift");
 
 			RepositoryManager sallyRepo = RepositoryManager.FromRootOrChildFolder(sallyProject);
-			sallyRepo.SetUserId("sally");
+			sallyRepo.Repository.SetUserNameInIni("sally", new NullProgress());
 
 
 			// bob makes a change and syncs

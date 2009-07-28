@@ -73,7 +73,7 @@ namespace Chorus.UI
 
 			//NB: we may someday decide to distinguish between this chorus-app context of "what
 			//I did last time and the hgrc default which effect applications (e.g. wesay)
-			_repositoryManager.GetRepository(new NullProgress()).SetIsOneDefaultSyncAddresses(address, address.Enabled);
+			_repositoryManager.Repository.SetIsOneDefaultSyncAddresses(address, address.Enabled);
 		}
 	}
 }

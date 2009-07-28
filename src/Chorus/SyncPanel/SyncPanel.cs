@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using Chorus.sync;
 using Chorus.Utilities;
+using Chorus.VcsDrivers.Mercurial;
 
 namespace Chorus.UI
 {
@@ -70,7 +71,7 @@ namespace Chorus.UI
 			if (DesignMode)
 				return;
 
-			string message = RepositoryManager.GetEnvironmentReadinessMessage("en");
+			string message = HgRepository.GetEnvironmentReadinessMessage("en");
 			if (!string.IsNullOrEmpty(message))
 			{
 				_logBox.ForeColor = System.Drawing.Color.Red;

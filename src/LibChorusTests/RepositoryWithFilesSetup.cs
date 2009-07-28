@@ -46,7 +46,7 @@ namespace Chorus.Tests.merge
 		}
 		public HgRepository Repository
 		{
-			get { return RepoMan.GetRepository(new NullProgress()); }
+			get { return RepoMan.Repository; }
 		}
 
 		public RepositoryWithFilesSetup(string userName, string fileName, string fileContents)
@@ -92,7 +92,7 @@ namespace Chorus.Tests.merge
 
 			RepoPath = RepositoryAddress.Create(userName, ProjectFolder.Path, false);
 			RepoMan = RepositoryManager.FromRootOrChildFolder(ProjectConfiguration);
-			RepoMan.GetRepository(Progress).SetUserNameInIni(userName,Progress);
+			RepoMan.Repository.SetUserNameInIni(userName,Progress);
 		}
 
 		public void Dispose()
@@ -144,13 +144,13 @@ namespace Chorus.Tests.merge
 
 		public void AssertSingleHead()
 		{
-			var actual = RepoMan.GetRepository(Progress).GetHeads().Count;
+			var actual = RepoMan.Repository.GetHeads().Count;
 			Assert.AreEqual(1, actual, "There should be on only one head, but there are "+actual.ToString());
 		}
 
 		public void AssertHeadCount(int count)
 		{
-			var actual = RepoMan.GetRepository(Progress).GetHeads().Count;
+			var actual = RepoMan.Repository.GetHeads().Count;
 			Assert.AreEqual(count, actual, "Wrong number of heads");
 		}
 
@@ -160,7 +160,7 @@ namespace Chorus.Tests.merge
 		{
 			string xmlConflictFile = XmlLogMergeEventListener.GetXmlConflictFilePath(UserFile.Path);
 			Assert.IsTrue(File.Exists(xmlConflictFile), "Conflict file should have been in working set");
-			Assert.IsTrue(RepoMan.GetFileExistsInRepo(xmlConflictFile), "Conflict file should have been in repository");
+			Assert.IsTrue(RepoMan.Repository.GetFileIsInRepositoryFromFullPath(xmlConflictFile), "Conflict file should have been in repository");
 
 			XmlDocument doc = new XmlDocument();
 			doc.Load(xmlConflictFile);
@@ -174,7 +174,7 @@ namespace Chorus.Tests.merge
 
 		public HgRepository GetRepository()
 		{
-			return RepoMan.GetRepository(Progress);
+			return RepoMan.Repository;
 		}
 
 		public void AssertNoErrorsReported()

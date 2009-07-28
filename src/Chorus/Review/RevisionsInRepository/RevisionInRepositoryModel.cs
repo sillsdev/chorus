@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Windows.Forms;
 using Chorus.sync;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
@@ -8,30 +9,33 @@ namespace Baton.Review.RevisionsInRepository
 {
 	public class RevisionInRepositoryModel
 	{
-		private readonly RepositoryManager _repositoryManager;
+		private readonly HgRepository _repository;
 		private readonly RevisionSelectedEvent _revisionSelectedEvent;
 		private string _currentTipRev;
 		public IProgress ProgressDisplay { get; set; }
 
-		public RevisionInRepositoryModel(RepositoryManager repositoryManager, RevisionSelectedEvent revisionSelectedEvent)
+		public RevisionInRepositoryModel(HgRepository repository, RevisionSelectedEvent revisionSelectedEvent)
 		{
-			Guard.AgainstNull(repositoryManager, "repositoryManager");
-			_repositoryManager = repositoryManager;
+			Guard.AgainstNull(repository, "repository");
+			_repository = repository;
 			_revisionSelectedEvent = revisionSelectedEvent;
 		}
 
 		public List<Revision> GetHistoryItems()
 		{
 			Guard.AgainstNull(ProgressDisplay, "ProgressDisplay");
-			if (!RepositoryManager.CheckEnvironmentAndShowMessageIfAppropriate("en"))
+			var msg = HgRepository.GetEnvironmentReadinessMessage("en");
+			if (!string.IsNullOrEmpty(msg))
+			{
+				MessageBox.Show(msg, "Chorus", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
 				return new List<Revision>();
-
-			var tip = _repositoryManager.GetRepository(ProgressDisplay).GetTip();
+			}
+			var tip = _repository.GetTip();
 			if (tip != null)
 			{
 				_currentTipRev = tip.Number.LocalRevisionNumber;
 			}
-			return _repositoryManager.GetAllRevisions(ProgressDisplay);
+			return _repository.GetAllRevisions();
 		}
 
 		public void SelectedRevisionChanged(Revision descriptor)
@@ -44,13 +48,12 @@ namespace Baton.Review.RevisionsInRepository
 		{
 			try
 			{
-				var s = _repositoryManager.GetRepository(ProgressDisplay).GetTip().Number.LocalRevisionNumber;
+				var s = _repository.GetTip().Number.LocalRevisionNumber;
 				return s != _currentTipRev;
 			}
 			catch (Exception)
 			{
 				return false;
-				throw;
 			}
 		}
 	}

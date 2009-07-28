@@ -1,8 +1,6 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using System.Windows.Forms;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
@@ -17,13 +15,25 @@ namespace Chorus.sync
 
 		public List<RepositoryAddress> ExtraRepositorySources { get; private set; }
 
+		public RepositoryManager(string localRepositoryPath, ProjectFolderConfiguration project)
+			: this(localRepositoryPath, project, System.Environment.UserName)
+		{
+		}
+
+		public RepositoryManager(string localRepositoryPath, ProjectFolderConfiguration project, string userId)
+		{
+			_project = project;
+			_localRepositoryPath = localRepositoryPath;
+			ExtraRepositorySources = new List<RepositoryAddress>();
+			ExtraRepositorySources.Add(RepositoryAddress.Create(RepositoryAddress.HardWiredSources.UsbKey, "UsbKey", false));
+		}
 
 
 		public List<RepositoryAddress> GetPotentialSources(IProgress progress)
 		{
 			var list = new List<RepositoryAddress>();
 			list.AddRange(ExtraRepositorySources);
-			var repo = GetRepository(progress);
+			var repo = Repository;
 			list.AddRange(repo.GetRepositoryPathsInHgrc());
 			var defaultSyncAliases = repo.GetDefaultSyncAliases();
 			foreach (var path in list)
@@ -38,7 +48,6 @@ namespace Chorus.sync
 
 		public string RepoProjectName
 		{
-		   //get { return Path.GetFileNameWithoutExtension(_localRepositoryPath); }
 			get { return Path.GetFileNameWithoutExtension(_localRepositoryPath)+Path.GetExtension(_localRepositoryPath); }
 		}
 
@@ -110,11 +119,6 @@ namespace Chorus.sync
 			HgRepository.CreateRepositoryInExistingDir(newRepositoryPath);
 			var hg = new HgRepository(newRepositoryPath, new NullProgress());
 			hg.SetUserNameInIni(userId, new NullProgress());
-		}
-
-		public static string GetEnvironmentReadinessMessage(string messageLanguageId)
-		{
-			return HgRepository.GetEnvironmentReadinessMessage(messageLanguageId);
 		}
 
 		public static IDisposable CreateDvcsMissingSimulation()
@@ -299,19 +303,6 @@ namespace Chorus.sync
 		}
 
 
-		public RepositoryManager(string localRepositoryPath, ProjectFolderConfiguration project)
-			: this(localRepositoryPath, project, System.Environment.UserName)
-		{
-		}
-
-		public RepositoryManager(string localRepositoryPath, ProjectFolderConfiguration project, string userId)
-		{
-			_project = project;
-			_localRepositoryPath = localRepositoryPath;
-			ExtraRepositorySources = new List<RepositoryAddress>();
-			ExtraRepositorySources.Add(RepositoryAddress.Create(RepositoryAddress.HardWiredSources.UsbKey, "UsbKey", false));
-		}
-
 
 		/// <summary>
 		///
@@ -342,61 +333,10 @@ namespace Chorus.sync
 			}
 		}
 
-		public List<Revision> GetAllRevisions(IProgress progress)
+		public HgRepository Repository
 		{
-			HgRepository local = new HgRepository(_localRepositoryPath, progress);
-
-			var revs= local.GetAllRevisions();
-			return revs;
+			get { return new HgRepository(_localRepositoryPath, new NullProgress()); }
 		}
-
-		/// <summary>
-		///
-		/// </summary>
-		/// <param name="messageLanguageId"></param>
-		/// <returns>false if the environment is not set up correctly</returns>
-		public static bool CheckEnvironmentAndShowMessageIfAppropriate(string messageLanguageId)
-		{
-			string s = RepositoryManager.GetEnvironmentReadinessMessage(messageLanguageId);
-			if (!string.IsNullOrEmpty(s))
-			{
-					MessageBox.Show(s, "Chorus", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
-					return false;
-			 }
-			return true;
-		}
-
-		public void SetUserId(string userId)
-		{
-			GetRepository(new NullProgress()).SetUserNameInIni(userId, new NullProgress());
-//           HgRepository.SetUserId(_localRepositoryPath, userId);
-		}
-
-		public bool GetFileExistsInRepo(string fullPath)
-		{
-			if (fullPath.IndexOf(_localRepositoryPath) < 0)
-			{
-				throw new ArgumentException(
-					string.Format("GetFileExistsInRepo() requies the argument {0} be a child of the root {1}",
-					fullPath,
-					_localRepositoryPath));
-
-			}
-			HgRepository local = new HgRepository(_localRepositoryPath, new NullProgress());
-			string subPath= fullPath.Replace(_localRepositoryPath, "");
-			if (subPath.StartsWith(Path.DirectorySeparatorChar.ToString()))
-			{
-				subPath = subPath.Remove(0,1);
-			}
-			return local.GetFileExistsInRepo(subPath);
-		}
-
-		public HgRepository GetRepository(IProgress progress)
-		{
-			return new HgRepository(_localRepositoryPath, progress);
-		}
-
-
 	}
 
 

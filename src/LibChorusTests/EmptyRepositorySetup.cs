@@ -36,7 +36,7 @@ namespace Chorus.Tests
 
 		public HgRepository Repository
 		{
-			get { return RepoMan.GetRepository(new NullProgress()); }
+			get { return RepoMan.Repository; }
 		}
 		public void Dispose()
 		{

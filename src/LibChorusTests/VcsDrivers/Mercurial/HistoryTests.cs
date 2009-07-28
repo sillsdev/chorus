@@ -47,7 +47,7 @@ namespace Chorus.Tests.VcsDrivers.Mercurial
 			using (RepositoryManager.CreateDvcsMissingSimulation())
 			{
 				RepositoryManager repo = new RepositoryManager(_project.FolderPath, _project, "bob");
-				List<Revision> items = repo.GetAllRevisions(_progress);
+				List<Revision> items = repo.Repository.GetAllRevisions();
 				Assert.AreEqual(0, items.Count);
 			}
 		}
@@ -56,7 +56,7 @@ namespace Chorus.Tests.VcsDrivers.Mercurial
 		public void GetAllRevisionss_BeforeAnySyncing_EmptyHistory()
 		{
 			RepositoryManager repo = new RepositoryManager(_project.FolderPath, _project, "bob");
-			List<Revision> items = repo.GetAllRevisions(_progress);
+			List<Revision> items = repo.Repository.GetAllRevisions();
 			Assert.AreEqual(0, items.Count);
 		}
 
@@ -75,7 +75,7 @@ namespace Chorus.Tests.VcsDrivers.Mercurial
 			options.CheckinDescription = "second one";
 			repo.SyncNow(options, _progress);
 
-			List<Revision> items = repo.GetAllRevisions(_progress);
+			List<Revision> items = repo.Repository.GetAllRevisions();
 			Assert.AreEqual(2, items.Count);
 			Assert.AreEqual("bob", items[0].UserId);
 			Assert.AreEqual("second one", items[0].Summary);
@@ -89,7 +89,7 @@ namespace Chorus.Tests.VcsDrivers.Mercurial
 		{
 			using (var repo = new EmptyRepositorySetup())
 			{
-				Assert.IsNull(repo.RepoMan.GetRepository(_progress).GetTip());
+				Assert.IsNull(repo.RepoMan.Repository.GetTip());
 			}
 		}
 
@@ -98,7 +98,7 @@ namespace Chorus.Tests.VcsDrivers.Mercurial
 		{
 			using (var repo = new RepositoryWithFilesSetup("dontMatter", "foo.txt", ""))
 			{
-				Assert.AreEqual("0", repo.RepoMan.GetRepository(_progress).GetTip().Number.LocalRevisionNumber);
+				Assert.AreEqual("0", repo.RepoMan.Repository.GetTip().Number.LocalRevisionNumber);
 			}
 		}
 	}

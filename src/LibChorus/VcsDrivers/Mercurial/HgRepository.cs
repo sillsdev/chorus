@@ -61,6 +61,24 @@ namespace Chorus.VcsDrivers.Mercurial
 			_userName = GetUserIdInUse();
 		}
 
+		public bool GetFileIsInRepositoryFromFullPath(string fullPath)
+		{
+			if (fullPath.IndexOf(_pathToRepository) < 0)
+			{
+				throw new ArgumentException(
+					string.Format("GetFileIsInRepositoryFromFullPath() requies the argument {0} be a child of the root {1}",
+					fullPath,
+					_pathToRepository));
+
+			}
+			string subPath = fullPath.Replace(_pathToRepository, "");
+			if (subPath.StartsWith(Path.DirectorySeparatorChar.ToString()))
+			{
+				subPath = subPath.Remove(0, 1);
+			}
+			return GetFileExistsInRepo(subPath);
+		}
+
 		static protected void SetupPerson(string pathToRepository, string userName)
 		{
 			using (new ConsoleProgress("setting name and branch"))
