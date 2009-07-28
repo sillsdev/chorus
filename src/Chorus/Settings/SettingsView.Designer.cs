@@ -1,3 +1,5 @@
+using System;
+
 namespace Baton.Settings
 {
 	partial class SettingsView
@@ -41,10 +43,13 @@ namespace Baton.Settings
 			//
 			// _repositoryAliases
 			//
+			this._repositoryAliases.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+						| System.Windows.Forms.AnchorStyles.Left)
+						| System.Windows.Forms.AnchorStyles.Right)));
 			this._repositoryAliases.Location = new System.Drawing.Point(61, 153);
 			this._repositoryAliases.Multiline = true;
 			this._repositoryAliases.Name = "_repositoryAliases";
-			this._repositoryAliases.Size = new System.Drawing.Size(324, 78);
+			this._repositoryAliases.Size = new System.Drawing.Size(334, 78);
 			this._repositoryAliases.TabIndex = 3;
 			this._repositoryAliases.Leave += new System.EventHandler(this._repositoryAliases_Leave);
 			this._repositoryAliases.Validating += new System.ComponentModel.CancelEventHandler(this.OnRepositoryAliases_Validating);
@@ -54,11 +59,11 @@ namespace Baton.Settings
 			this.label2.AutoSize = true;
 			this.label2.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.label2.Location = new System.Drawing.Point(58, 245);
+			this.label2.MaximumSize = new System.Drawing.Size(370, 0);
 			this.label2.Name = "label2";
-			this.label2.Size = new System.Drawing.Size(209, 39);
+			this.label2.Size = new System.Drawing.Size(368, 117);
 			this.label2.TabIndex = 7;
-			this.label2.Text = "The pattern is \"name = address\", e.g.:\r\nsuzie = g:/LanguageProjects/TokPisin\r\nsil" +
-				" = http://languageforge.org/TokPisin";
+			this.label2.Text = resources.GetString("label2.Text");
 			//
 			// label5
 			//

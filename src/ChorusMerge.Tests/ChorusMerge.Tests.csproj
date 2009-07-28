@@ -50,11 +50,11 @@
 	  <Project>{1264E294-F719-491C-863A-703CB48385D8}</Project>
 	  <Name>ChorusMerge</Name>
 	</ProjectReference>
-	<ProjectReference Include="..\ChorusTests\LibChorus.Tests.csproj">
+	<ProjectReference Include="..\LibChorusTests\LibChorus.Tests.csproj">
 	  <Project>{F9671F8B-8556-44EA-81A7-C236D871B471}</Project>
 	  <Name>LibChorus.Tests</Name>
 	</ProjectReference>
-	<ProjectReference Include="..\Chorus\LibChorus.csproj">
+	<ProjectReference Include="..\LibChorus\LibChorus.csproj">
 	  <Project>{94245366-8F1E-475C-810D-FE89BB3948E0}</Project>
 	  <Name>LibChorus</Name>
 	</ProjectReference>

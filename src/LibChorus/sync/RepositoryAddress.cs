@@ -16,9 +16,9 @@ namespace Chorus.sync
 		/// <summary>
 		/// This can be used in place of the project name, so that path can be specified which will work
 		/// with multiple projects.  For example, you could specify a backup location like this:
-		/// Path.Combine("e:/chorusBackups/", RepositoryNameVariable), which would become e:/chorusBackups/%projectName%.
+		/// Path.Combine("e:/chorusBackups/", ProjectNameVariable), which would become e:/chorusBackups/%projectName%.
 		/// </summary>
-		public const string RepositoryNameVariable = "%projectName%";
+		public const string ProjectNameVariable = "%projectName%";
 
 		/// <summary>
 		/// In the case of a repo sitting on the user's machine, this will be a person's name.
@@ -128,7 +128,7 @@ namespace Chorus.sync
 		/// </summary>
 		public override string GetPotentialRepoUri(string projectName, IProgress progress)
 		{
-			return URI.Replace(RepositoryNameVariable, projectName);
+			return URI.Replace(ProjectNameVariable, projectName);
 		}
 
 		public override bool CanConnect(HgRepository localRepository, string projectName, IProgress progress)
@@ -158,7 +158,7 @@ namespace Chorus.sync
 		/// </summary>
 		public override string GetPotentialRepoUri(string projectName, IProgress progress)
 		{
-			return URI.Replace(RepositoryNameVariable, projectName);
+			return URI.Replace(ProjectNameVariable, projectName);
 		}
 
 		public override bool CanConnect(HgRepository localRepository, string projectName, IProgress progress)

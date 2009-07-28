@@ -109,6 +109,11 @@ namespace Chorus.Tests.merge
 			get; set;
 		}
 
+		public string RevisionWhereMergeWasCheckedIn
+		{
+			get { return string.Empty; }
+		}
+
 		public string GetConflictingRecordOutOfSourceControl(IRetrieveFileVersionsFromRepository fileRetriever, ThreeWayMergeSources.Source mergeSource)
 		{
 			throw new System.NotImplementedException();

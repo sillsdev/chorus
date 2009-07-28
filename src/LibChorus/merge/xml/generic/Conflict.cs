@@ -234,6 +234,12 @@ namespace Chorus.merge.xml.generic
 			set { }
 		}
 
+		public string RevisionWhereMergeWasCheckedIn
+		{
+			get {
+				return string.Empty;}
+		}
+
 		public string GetConflictingRecordOutOfSourceControl(IRetrieveFileVersionsFromRepository fileRetriever, ThreeWayMergeSources.Source mergeSource)
 		{
 			throw new NotImplementedException();

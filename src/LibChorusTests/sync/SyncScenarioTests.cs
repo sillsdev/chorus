@@ -75,7 +75,7 @@ namespace Chorus.Tests.sync
 
 			public string BobProjectPath
 			{
-				get { return Path.Combine(BobSourcePath, RepositoryAddress.RepositoryNameVariable); }
+				get { return Path.Combine(BobSourcePath, RepositoryAddress.ProjectNameVariable); }
 			}
 
 			public void ChangeTextFile()
@@ -130,7 +130,7 @@ namespace Chorus.Tests.sync
 			Directory.CreateDirectory(usbPath);
 			bobSetup.SetupClone(usbPath);
 
-			RepositoryAddress otherDirPath = RepositoryAddress.Create("USBA", Path.Combine(usbPath, RepositoryAddress.RepositoryNameVariable), false);
+			RepositoryAddress otherDirPath = RepositoryAddress.Create("USBA", Path.Combine(usbPath, RepositoryAddress.ProjectNameVariable), false);
 			RepositoryManager bob = bobSetup.GetManager();
 			bob.ExtraRepositorySources.Add(otherDirPath);
 
@@ -218,7 +218,7 @@ namespace Chorus.Tests.sync
 			bobOptions.DoMergeWithOthers = false; // pretend the usb key isn't there
 			bobOptions.DoPullFromOthers = false; // pretend the usb key isn't there
 			bobOptions.DoPushToLocalSources = false;
-			RepositoryAddress usbPath = RepositoryAddress.Create( "usba source", Path.Combine(usbSourcePath, RepositoryAddress.RepositoryNameVariable),false);
+			RepositoryAddress usbPath = RepositoryAddress.Create( "usba source", Path.Combine(usbSourcePath, RepositoryAddress.ProjectNameVariable),false);
 			bobOptions.RepositorySourcesToTry.Add(usbPath);
 			bobRepo.SyncNow(bobOptions, progress);
 
