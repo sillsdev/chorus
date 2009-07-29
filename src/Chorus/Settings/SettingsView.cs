@@ -1,10 +1,8 @@
 using System;
-using System.Drawing;
-using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using Chorus.Utilities;
 
-namespace Baton.Settings
+namespace Chorus.Settings
 {
 	public partial class SettingsView : UserControl
 	{

@@ -7,7 +7,7 @@ using System.Xml;
 using Chorus.FileTypeHanders;
 using Chorus.merge;
 
-namespace Baton.Review.RevisionChanges
+namespace Chorus.Review.ChangesInRevision
 {
 	public partial class ChangesInRevisionView : UserControl
 	{
@@ -69,5 +69,4 @@ namespace Baton.Review.RevisionChanges
 			}
 		}
 	}
-
 }

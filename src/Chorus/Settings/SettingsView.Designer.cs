@@ -1,6 +1,6 @@
 using System;
 
-namespace Baton.Settings
+namespace Chorus.Settings
 {
 	partial class SettingsView
 	{
@@ -44,8 +44,8 @@ namespace Baton.Settings
 			// _repositoryAliases
 			//
 			this._repositoryAliases.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-						| System.Windows.Forms.AnchorStyles.Left)
-						| System.Windows.Forms.AnchorStyles.Right)));
+																					| System.Windows.Forms.AnchorStyles.Left)
+																				   | System.Windows.Forms.AnchorStyles.Right)));
 			this._repositoryAliases.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this._repositoryAliases.Location = new System.Drawing.Point(61, 153);
 			this._repositoryAliases.Multiline = true;

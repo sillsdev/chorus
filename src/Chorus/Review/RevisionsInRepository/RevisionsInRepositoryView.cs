@@ -7,7 +7,7 @@ using Chorus.sync;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
 
-namespace Baton.Review.RevisionsInRepository
+namespace Chorus.Review.RevisionsInRepository
 {
 	public partial class RevisionsInRepositoryView : UserControl
 	{

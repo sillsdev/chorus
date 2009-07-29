@@ -3,19 +3,19 @@ using System.Collections.Generic;
 using System.IO;
 using Autofac;
 using Autofac.Builder;
-using Baton.HistoryPanel;
-using Baton.Review.ChangedReport;
-using Baton.Review.RevisionChanges;
-using Baton.Review.RevisionsInRepository;
-using Baton.Settings;
 using Chorus.FileTypeHanders;
 using Chorus.retrieval;
+using Chorus.Review;
+using Chorus.Review.ChangedReport;
+using Chorus.Review.ChangesInRevision;
+using Chorus.Review.RevisionsInRepository;
+using Chorus.Settings;
 using Chorus.sync;
-using Chorus.UI;
+using Chorus.SyncPanel;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
 
-namespace Baton
+namespace Chorus
 {
 	public class BootStrapper :IDisposable
 	{
@@ -36,14 +36,14 @@ namespace Baton
 
 			builder.Register<IProgress>(new NullProgress());
 			builder.Register<Synchronizer>(c => Chorus.sync.Synchronizer.FromProjectConfiguration(
-																c.Resolve<ProjectFolderConfiguration>(), new NullProgress()));
+													c.Resolve<ProjectFolderConfiguration>(), new NullProgress()));
 			builder.Register<HgRepository>(c => HgRepository.CreateOrLocate(_settingsPath, new NullProgress()));
 
 			builder.Register<BrowseForRepositoryEvent>(browseForRepositoryEvent).SingletonScoped();
 
 			builder.Register(ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers());
 
-			builder.Register<SyncPanel>();
+			builder.Register<SyncPanel.SyncPanel>();
 			builder.Register<SyncPanelModel>();
 
 			RegisterSyncStuff(builder);
@@ -56,7 +56,7 @@ namespace Baton
 			var shell= _container.Resolve<Shell>();
 
 			shell.AddPage("Review", _container.Resolve<ReviewPage>());
-			shell.AddPage("Send/Receive", _container.Resolve<SyncPanel>());
+			shell.AddPage("Send/Receive", _container.Resolve<SyncPanel.SyncPanel>());
 			shell.AddPage("Settings", _container.Resolve<SettingsView>());
 
 			return shell;
@@ -84,8 +84,8 @@ namespace Baton
 			builder.Register<ChangeReportView>();
 
 			//review-related events
-			builder.Register<Review.RevisionSelectedEvent>();
-			builder.Register<Review.ChangedRecordSelectedEvent>();
+			builder.Register<RevisionSelectedEvent>();
+			builder.Register<ChangedRecordSelectedEvent>();
 
 			builder.Register<RevisionInRepositoryModel>();
 			builder.Register<RevisionsInRepositoryView>();

@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using Baton.Settings;
 using Chorus.sync;
 using Chorus.Tests.merge;
-using Chorus.UI;
 using Chorus.Utilities;
 using NUnit.Framework;
 using System.Linq;

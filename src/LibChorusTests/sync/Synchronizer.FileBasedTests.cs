@@ -1,5 +1,4 @@
 ﻿using System.IO;
-using Chorus.merge.xml.generic;
 using Chorus.sync;
 using Chorus.Utilities;
 using NUnit.Framework;
@@ -10,7 +9,7 @@ namespace Chorus.Tests.sync
 	/// Review: what's the unifying idea here?
 	/// </summary>
 	[TestFixture]
-	public class FilePathRepositoryTests
+	public class Synchronizer_FileBasedTests
 	{
 		private ProjectFolderConfiguration _project;
 		private StringBuilderProgress _progress;

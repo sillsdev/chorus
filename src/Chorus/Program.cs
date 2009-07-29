@@ -3,7 +3,7 @@ using System.IO;
 using System.Windows.Forms;
 using Chorus.VcsDrivers.Mercurial;
 
-namespace Baton
+namespace Chorus
 {
 	static class Program
 	{
@@ -33,26 +33,26 @@ namespace Baton
 
 			if (string.IsNullOrEmpty(pathToRepository) || !Directory.Exists(pathToRepository))
 			{
-			   //do we have a valid path from last time?
-				pathToRepository = Baton.Properties.Settings.Default.PathToRepository;
+				//do we have a valid path from last time?
+				pathToRepository = Properties.Settings.Default.PathToRepository;
 			}
 
-		   if (string.IsNullOrEmpty(pathToRepository) || !Directory.Exists(pathToRepository))
-		   {
-			//can they find a repository for us?
-			   pathToRepository = Runner.BrowseForRepository();
-		   }
-		   if (string.IsNullOrEmpty(pathToRepository) || !Directory.Exists(pathToRepository))
-		   {
-			   return; //give up
-		   }
+			if (string.IsNullOrEmpty(pathToRepository) || !Directory.Exists(pathToRepository))
+			{
+				//can they find a repository for us?
+				pathToRepository = Runner.BrowseForRepository();
+			}
+			if (string.IsNullOrEmpty(pathToRepository) || !Directory.Exists(pathToRepository))
+			{
+				return; //give up
+			}
 
 
-			Baton.Properties.Settings.Default.PathToRepository = pathToRepository;
-			Baton.Properties.Settings.Default.Save();
+			Properties.Settings.Default.PathToRepository = pathToRepository;
+			Properties.Settings.Default.Save();
 			new Runner().Run(pathToRepository);
 
-			Baton.Properties.Settings.Default.Save();
+			Properties.Settings.Default.Save();
 		}
 
 
@@ -74,24 +74,21 @@ namespace Baton
 				var s = BrowseForRepository();
 				if (!string.IsNullOrEmpty(s) && Directory.Exists(s))
 				{
-					Baton.Properties.Settings.Default.PathToRepository = s;
-					Baton.Properties.Settings.Default.Save();
+					Properties.Settings.Default.PathToRepository = s;
+					Properties.Settings.Default.Save();
 					Application.Restart();
 				}
 			}
 
 			public static string BrowseForRepository()
 			{
-					var dlg = new FolderBrowserDialog();
-					dlg.Description = "Select a chorus-enabled project to open:";
-					dlg.ShowNewFolderButton = false;
-					if (DialogResult.OK != dlg.ShowDialog())
-						return null;
-					return dlg.SelectedPath;
-				}
+				var dlg = new FolderBrowserDialog();
+				dlg.Description = "Select a chorus-enabled project to open:";
+				dlg.ShowNewFolderButton = false;
+				if (DialogResult.OK != dlg.ShowDialog())
+					return null;
+				return dlg.SelectedPath;
 			}
 		}
-
-
-
 	}
+}

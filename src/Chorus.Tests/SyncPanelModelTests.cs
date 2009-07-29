@@ -2,8 +2,8 @@
 using System.IO;
 using System.Threading;
 using Chorus.sync;
+using Chorus.SyncPanel;
 using Chorus.Tests;
-using Chorus.UI;
 using Chorus.Utilities;
 using NUnit.Framework;
 using System.Linq;
@@ -62,12 +62,12 @@ namespace Baton.Tests
 
 
 		[Test]
-		public void GetRepositoriesToList_NoRepositoriesKnown_GivesEmptyList()
+		public void GetRepositoriesToList_NoRepositoriesKnown_GivesUsbAndDepot()
 		{
 			_synchronizer.ExtraRepositorySources.Clear();
 			_model = new SyncPanelModel(_project);
 			_model.ProgressDisplay = _progress;
-			Assert.AreEqual(0, _model.GetRepositoriesToList().Count);
+			Assert.AreEqual(2, _model.GetRepositoriesToList().Count);
 		}
 	}
 }

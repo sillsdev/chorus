@@ -5,7 +5,7 @@ using Chorus.sync;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
 
-namespace Baton.Settings
+namespace Chorus.Settings
 {
 	public class SettingsModel
 	{

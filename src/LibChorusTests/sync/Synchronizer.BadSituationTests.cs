@@ -13,7 +13,7 @@ namespace Chorus.Tests.sync
 	/// sure nothing is lost.
 	/// </summary>
 	[TestFixture]
-	public class RepositoryManagerBadSituationTests
+	public class SynchronizerBadSituationTests
 	{
 
 		[Test]//regression

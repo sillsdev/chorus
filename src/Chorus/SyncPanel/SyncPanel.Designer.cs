@@ -1,4 +1,4 @@
-namespace Chorus.UI
+namespace Chorus.SyncPanel
 {
 	partial class SyncPanel
 	{
@@ -70,8 +70,8 @@ namespace Chorus.UI
 			// _logBox
 			//
 			this._logBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-						| System.Windows.Forms.AnchorStyles.Left)
-						| System.Windows.Forms.AnchorStyles.Right)));
+																		 | System.Windows.Forms.AnchorStyles.Left)
+																		| System.Windows.Forms.AnchorStyles.Right)));
 			this._logBox.Location = new System.Drawing.Point(72, 209);
 			this._logBox.Name = "_logBox";
 			this._logBox.Size = new System.Drawing.Size(366, 180);
@@ -81,10 +81,10 @@ namespace Chorus.UI
 			// _syncTargets
 			//
 			this._syncTargets.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-						| System.Windows.Forms.AnchorStyles.Right)));
+																			 | System.Windows.Forms.AnchorStyles.Right)));
 			this._syncTargets.FormattingEnabled = true;
 			this._syncTargets.Items.AddRange(new object[] {
-			"USB Drive"});
+															  "USB Drive"});
 			this._syncTargets.Location = new System.Drawing.Point(72, 95);
 			this._syncTargets.MinimumSize = new System.Drawing.Size(105, 79);
 			this._syncTargets.Name = "_syncTargets";

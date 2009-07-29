@@ -1,4 +1,4 @@
-namespace Baton.Settings
+namespace Chorus.Settings
 {
 	partial class SetupPanel
 	{

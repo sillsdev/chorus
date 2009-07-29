@@ -1,7 +1,7 @@
 using System.Windows.Forms;
 using Chorus.VcsDrivers.Mercurial;
 
-namespace Baton
+namespace Chorus
 {
 	public partial class Shell : Form
 	{
@@ -14,7 +14,7 @@ namespace Baton
 			InitializeComponent();
 			Text = Application.ProductName + " "+Application.ProductVersion +" - "+ repository.PathToRepo;
 			_tabControl.TabPages.Clear();
-		 }
+		}
 
 		public void AddPage(string label,Control form)
 		{

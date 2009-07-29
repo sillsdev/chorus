@@ -8,13 +8,13 @@
 	<ProjectGuid>{9DA5A655-1881-4BE1-81BA-256E47CF7537}</ProjectGuid>
 	<OutputType>WinExe</OutputType>
 	<AppDesignerFolder>Properties</AppDesignerFolder>
-	<RootNamespace>Baton</RootNamespace>
+	<RootNamespace>Chorus</RootNamespace>
 	<AssemblyName>Chorus</AssemblyName>
 	<TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
 	<FileAlignment>512</FileAlignment>
 	<TargetFrameworkSubset>
 	</TargetFrameworkSubset>
-	<StartupObject>Baton.Program</StartupObject>
+	<StartupObject>Chorus.Program</StartupObject>
 	<ApplicationIcon>chorus.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">

@@ -7,7 +7,7 @@ using Chorus.FileTypeHanders;
 using Chorus.merge;
 using Chorus.retrieval;
 
-namespace Baton.Review.ChangedReport
+namespace Chorus.Review.ChangedReport
 {
 	public partial class ChangeReportView : UserControl
 	{
@@ -15,7 +15,7 @@ namespace Baton.Review.ChangedReport
 		private readonly RevisionInspector _revisionInspector;
 		private string _styleSheet;
 
-		public ChangeReportView(ChorusFileTypeHandlerCollection handlers, Review.ChangedRecordSelectedEvent changedRecordSelectedEvent, RevisionInspector revisionInspector)
+		public ChangeReportView(ChorusFileTypeHandlerCollection handlers, ChangedRecordSelectedEvent changedRecordSelectedEvent, RevisionInspector revisionInspector)
 		{
 			this.Font = SystemFonts.MessageBoxFont;
 			_handlers = handlers;
@@ -65,7 +65,7 @@ color: 'purple';
 		{
 			if (report == null)
 			{
-			   _normalChangeDescriptionRenderer.Navigate(string.Empty);
+				_normalChangeDescriptionRenderer.Navigate(string.Empty);
 			}
 			else
 			{
@@ -77,7 +77,7 @@ color: 'purple';
 				string contents;
 				try
 				{
-				  contents = presenter.GetHtml("raw", _styleSheet);
+					contents = presenter.GetHtml("raw", _styleSheet);
 				}
 				catch (Exception error)
 				{

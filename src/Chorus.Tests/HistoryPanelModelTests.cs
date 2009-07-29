@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using Baton.Review.RevisionsInRepository;
+using Chorus.Review.RevisionsInRepository;
 using Chorus.sync;
 using Chorus.Tests;
 using Chorus.Utilities;

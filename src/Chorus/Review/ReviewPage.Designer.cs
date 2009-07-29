@@ -1,4 +1,4 @@
-﻿namespace Baton.HistoryPanel
+﻿namespace Chorus.Review
 {
 	partial class ReviewPage
 	{

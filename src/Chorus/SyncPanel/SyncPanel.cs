@@ -6,7 +6,7 @@ using Chorus.sync;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
 
-namespace Chorus.UI
+namespace Chorus.SyncPanel
 {
 	public partial class SyncPanel : UserControl
 	{

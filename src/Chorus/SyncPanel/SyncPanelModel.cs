@@ -1,14 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel;
-using System.IO;
 using System.Media;
 using System.Windows.Forms;
 using Chorus.sync;
 using Chorus.Utilities;
 using System.Linq;
-using Chorus.VcsDrivers.Mercurial;
 
-namespace Chorus.UI
+namespace Chorus.SyncPanel
 {
 	public class SyncPanelModel
 	{
@@ -19,7 +17,7 @@ namespace Chorus.UI
 		public SyncPanelModel(ProjectFolderConfiguration projectFolderConfiguration)
 		{
 			_synchronizer = Synchronizer.FromProjectConfiguration(projectFolderConfiguration, new NullProgress());
-			 _backgroundWorker = new BackgroundWorker();
+			_backgroundWorker = new BackgroundWorker();
 			_backgroundWorker.DoWork += new DoWorkEventHandler(worker_DoWork);
 			//_backgroundWorker.RunWorkerCompleted +=(()=>this.EnableSync = true);
 
@@ -34,7 +32,7 @@ namespace Chorus.UI
 		{
 			//nb: at the moment, we can't just get it new each time, because it stores the
 			//enabled state of the check boxes
-		   return _synchronizer.GetPotentialSynchronizationSources(new NullProgress());
+			return _synchronizer.GetPotentialSynchronizationSources(new NullProgress());
 //            return _repositorySources;
 		}
 
@@ -50,17 +48,17 @@ namespace Chorus.UI
 			options.RepositorySourcesToTry.AddRange(GetRepositoriesToList().Where(r=>r.Enabled));
 
 
-		   _backgroundWorker.RunWorkerAsync(new object[] { _synchronizer, options, ProgressDisplay });
-		 }
-		 static void worker_DoWork(object sender, DoWorkEventArgs e)
-		 {
-			 object[] args = e.Argument as object[];
-			 Synchronizer synchronizer = args[0] as Synchronizer;
-			 e.Result =  synchronizer.SyncNow(args[1] as SyncOptions, args[2] as IProgress);
-			 SoundPlayer player = new SoundPlayer(Baton.Properties.Resources.finished);
-			 player.Play();
+			_backgroundWorker.RunWorkerAsync(new object[] { _synchronizer, options, ProgressDisplay });
+		}
+		static void worker_DoWork(object sender, DoWorkEventArgs e)
+		{
+			object[] args = e.Argument as object[];
+			Synchronizer synchronizer = args[0] as Synchronizer;
+			e.Result =  synchronizer.SyncNow(args[1] as SyncOptions, args[2] as IProgress);
+			SoundPlayer player = new SoundPlayer(Properties.Resources.finished);
+			player.Play();
 
-		 }
+		}
 
 		public void PathEnabledChanged(RepositoryAddress address, CheckState state)
 		{

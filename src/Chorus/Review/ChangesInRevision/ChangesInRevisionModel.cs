@@ -8,7 +8,7 @@ using Chorus.merge;
 using Chorus.retrieval;
 using Chorus.VcsDrivers.Mercurial;
 
-namespace Baton.Review.RevisionChanges
+namespace Chorus.Review.ChangesInRevision
 {
 	public class ChangesInRevisionModel
 	{
@@ -19,9 +19,9 @@ namespace Baton.Review.RevisionChanges
 		public IEnumerable<IChangeReport> Changes { get; private set; }
 
 		public ChangesInRevisionModel(RevisionInspector revisionInspector,
-			ChangedRecordSelectedEvent changedRecordSelectedEventToRaise,
-			RevisionSelectedEvent revisionSelectedEventToSubscribeTo,
-			 ChorusFileTypeHandlerCollection fileHandlers)
+									  ChangedRecordSelectedEvent changedRecordSelectedEventToRaise,
+									  RevisionSelectedEvent revisionSelectedEventToSubscribeTo,
+									  ChorusFileTypeHandlerCollection fileHandlers)
 		{
 			_revisionInspector = revisionInspector;
 			_changedRecordSelectedEventToRaise = changedRecordSelectedEventToRaise;
@@ -57,7 +57,7 @@ namespace Baton.Review.RevisionChanges
 		{
 			if (_changedRecordSelectedEventToRaise != null)
 			{
-			   _changedRecordSelectedEventToRaise.Raise(report);
+				_changedRecordSelectedEventToRaise.Raise(report);
 			}
 		}
 
@@ -65,6 +65,6 @@ namespace Baton.Review.RevisionChanges
 		{
 			var handler = _fileHandlers.GetHandlerForPresentation(report.PathToFile);
 			return handler.GetChangePresenter(report, _revisionInspector.Repository);
-		 }
+		}
 	}
 }

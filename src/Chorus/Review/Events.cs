@@ -2,7 +2,7 @@
 using Chorus.merge;
 using Chorus.VcsDrivers.Mercurial;
 
-namespace Baton.Review
+namespace Chorus.Review
 {
 	public class RevisionSelectedEvent : Event<Revision>
 	{ }

@@ -1,30 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Data;
-using System.Text;
-using System.Windows.Forms;
-using Baton.Review.ChangedReport;
-using Baton.Review.RevisionChanges;
-using Baton.Review.RevisionsInRepository;
+﻿using System.Windows.Forms;
+using Chorus.Review.ChangedReport;
+using Chorus.Review.ChangesInRevision;
+using Chorus.Review.RevisionsInRepository;
 
-namespace Baton.HistoryPanel
+namespace Chorus.Review
 {
 	public partial class ReviewPage : UserControl
 	{
 
-		 public ReviewPage(RevisionsInRepositoryView revisionsInRepositoryView, ChangesInRevisionView changesInRevisionView, ChangeReportView changeReportView)
+		public ReviewPage(RevisionsInRepositoryView revisionsInRepositoryView, ChangesInRevisionView changesInRevisionView, ChangeReportView changeReportView)
 		{
 			InitializeComponent();
 
 			SuspendLayout();
-			 this.Padding = new Padding(20, 20,20,20);
+			this.Padding = new Padding(20, 20,20,20);
 			var lowerContainer = new SplitContainer();
 			lowerContainer.Orientation = Orientation.Vertical;
-			 lowerContainer.Dock = DockStyle.Fill;
-			 changesInRevisionView.Dock = DockStyle.Fill;
-			 changeReportView.Dock = DockStyle.Fill;
+			lowerContainer.Dock = DockStyle.Fill;
+			changesInRevisionView.Dock = DockStyle.Fill;
+			changeReportView.Dock = DockStyle.Fill;
 
 //             var group = new GroupBox();
 //             group.Text = "Changes in Revision";
@@ -36,12 +30,12 @@ namespace Baton.HistoryPanel
 
 
 			var verticalContainer = new SplitContainer();
-			 verticalContainer.Orientation = Orientation.Horizontal;
-			 revisionsInRepositoryView.Dock = DockStyle.Fill;
+			verticalContainer.Orientation = Orientation.Horizontal;
+			revisionsInRepositoryView.Dock = DockStyle.Fill;
 			verticalContainer.Panel1.Controls.Add(revisionsInRepositoryView);
 			verticalContainer.Panel2.Controls.Add(lowerContainer);
-			 verticalContainer.Dock = DockStyle.Fill;
-			 Controls.Add(verticalContainer);
+			verticalContainer.Dock = DockStyle.Fill;
+			Controls.Add(verticalContainer);
 			ResumeLayout();
 		}
 	}

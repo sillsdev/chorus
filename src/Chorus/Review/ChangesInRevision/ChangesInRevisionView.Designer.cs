@@ -1,4 +1,4 @@
-﻿namespace Baton.Review.RevisionChanges
+﻿namespace Chorus.Review.ChangesInRevision
 {
 	partial class ChangesInRevisionView
 	{
@@ -40,9 +40,9 @@
 			// listView1
 			//
 			this.listView1.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-			this.columnHeader3,
-			this.columnHeader1,
-			this.columnHeader2});
+																						this.columnHeader3,
+																						this.columnHeader1,
+																						this.columnHeader2});
 			this.listView1.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.listView1.FullRowSelect = true;
 			this.listView1.HideSelection = false;

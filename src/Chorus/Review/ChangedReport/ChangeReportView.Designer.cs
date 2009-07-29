@@ -1,4 +1,4 @@
-﻿namespace Baton.Review.ChangedReport
+﻿namespace Chorus.Review.ChangedReport
 {
 	partial class ChangeReportView
 	{

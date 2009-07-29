@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Baton
+namespace Chorus
 {
 	public class Event<TPayload>
 	{
