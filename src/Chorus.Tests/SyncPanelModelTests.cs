@@ -2,6 +2,7 @@
 using System.IO;
 using System.Threading;
 using Chorus.sync;
+using Chorus.Tests;
 using Chorus.UI;
 using Chorus.Utilities;
 using NUnit.Framework;
@@ -16,7 +17,7 @@ namespace Baton.Tests
 		private SyncPanelModel _model;
 		private StringBuilderProgress _progress;
 		private ProjectFolderConfiguration _project;
-		private RepositoryManager _repositoryManager;
+		private Synchronizer _synchronizer;
 
 		[SetUp]
 		public void Setup()
@@ -30,7 +31,7 @@ namespace Baton.Tests
 			string pathToText = Path.Combine(_pathToTestRoot, "foo.txt");
 			File.WriteAllText(pathToText, "version one of my pretend txt");
 
-			RepositoryManager.MakeRepositoryForTest(_pathToTestRoot, "bob");
+			EmptyRepositorySetup.MakeRepositoryForTest(_pathToTestRoot, "bob");
 
 			_project = new ProjectFolderConfiguration(_pathToTestRoot);
 			_project.FolderPath = _pathToTestRoot;
@@ -38,8 +39,8 @@ namespace Baton.Tests
 			_project.FolderPath = _pathToTestRoot;
 
 			_progress = new StringBuilderProgress();
-			_repositoryManager = RepositoryManager.FromRootOrChildFolder(_project);
-			_model = new SyncPanelModel(_repositoryManager);
+			_synchronizer = Synchronizer.FromProjectConfiguration(_project, new NullProgress());
+			_model = new SyncPanelModel(_project);
 			_model.ProgressDisplay = _progress;
 		}
 
@@ -63,8 +64,8 @@ namespace Baton.Tests
 		[Test]
 		public void GetRepositoriesToList_NoRepositoriesKnown_GivesEmptyList()
 		{
-			_repositoryManager.ExtraRepositorySources.Clear();
-			_model = new SyncPanelModel(_repositoryManager);
+			_synchronizer.ExtraRepositorySources.Clear();
+			_model = new SyncPanelModel(_project);
 			_model.ProgressDisplay = _progress;
 			Assert.AreEqual(0, _model.GetRepositoriesToList().Count);
 		}

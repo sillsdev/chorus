@@ -31,7 +31,7 @@ namespace Chorus.Tests.VcsDrivers.Mercurial
 			_pathToText = Path.Combine(_pathToTestRoot, "foo.txt");
 			File.WriteAllText(_pathToText, "version one of my pretend txt");
 
-			RepositoryManager.MakeRepositoryForTest(_pathToTestRoot, "bob");
+			EmptyRepositorySetup.MakeRepositoryForTest(_pathToTestRoot, "bob");
 
 			_project = new ProjectFolderConfiguration(_pathToTestRoot);
 			_project.FolderPath = _pathToTestRoot;
@@ -44,9 +44,9 @@ namespace Chorus.Tests.VcsDrivers.Mercurial
 		[Test, ExpectedException(typeof(ApplicationException))]
 		public void GetHistory_NoHg_GetException()
 		{
-			using (RepositoryManager.CreateDvcsMissingSimulation())
+			using (new Chorus.VcsDrivers.Mercurial.HgMissingSimulation())
 			{
-				RepositoryManager repo = new RepositoryManager(_project.FolderPath, _project, "bob");
+				Synchronizer repo = new Synchronizer(_project.FolderPath, _project);
 				List<Revision> items = repo.Repository.GetAllRevisions();
 				Assert.AreEqual(0, items.Count);
 			}
@@ -55,7 +55,7 @@ namespace Chorus.Tests.VcsDrivers.Mercurial
 		[Test]
 		public void GetAllRevisionss_BeforeAnySyncing_EmptyHistory()
 		{
-			RepositoryManager repo = new RepositoryManager(_project.FolderPath, _project, "bob");
+			Synchronizer repo = new Synchronizer(_project.FolderPath, _project);
 			List<Revision> items = repo.Repository.GetAllRevisions();
 			Assert.AreEqual(0, items.Count);
 		}
@@ -63,7 +63,7 @@ namespace Chorus.Tests.VcsDrivers.Mercurial
 		[Test]
 		public void GetAllRevisionss_AfterSyncingTwoTimes_CorrectHistory()
 		{
-			RepositoryManager repo = new RepositoryManager(_project.FolderPath, _project, "bob");
+			Synchronizer repo = new Synchronizer(_project.FolderPath, _project);
 			SyncOptions options = new SyncOptions();
 			options.DoPullFromOthers = false;
 			options.DoMergeWithOthers = false;
@@ -89,7 +89,7 @@ namespace Chorus.Tests.VcsDrivers.Mercurial
 		{
 			using (var repo = new EmptyRepositorySetup())
 			{
-				Assert.IsNull(repo.RepoMan.Repository.GetTip());
+				Assert.IsNull(repo.Synchronizer.Repository.GetTip());
 			}
 		}
 
@@ -98,7 +98,7 @@ namespace Chorus.Tests.VcsDrivers.Mercurial
 		{
 			using (var repo = new RepositoryWithFilesSetup("dontMatter", "foo.txt", ""))
 			{
-				Assert.AreEqual("0", repo.RepoMan.Repository.GetTip().Number.LocalRevisionNumber);
+				Assert.AreEqual("0", repo.Synchronizer.Repository.GetTip().Number.LocalRevisionNumber);
 			}
 		}
 	}

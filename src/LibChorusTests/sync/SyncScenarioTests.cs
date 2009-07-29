@@ -67,7 +67,7 @@ namespace Chorus.Tests.sync
 				options.DoMergeWithOthers = false;
 				options.CheckinDescription = "Added";
 
-				RepositoryManager.MakeRepositoryForTest(languageProjectPath, "bob");
+				EmptyRepositorySetup.MakeRepositoryForTest(languageProjectPath, "bob");
 
 				//SyncManager bobManager = SyncManager.FromChildPath(_lexiconProjectPath, progress, "bob");
 				SyncResults results = GetManager().SyncNow(options,progress);
@@ -96,12 +96,12 @@ namespace Chorus.Tests.sync
 				return GetManager().MakeClone(Path.Combine(sourcePath, BobSetup.ProjectFolderName), true, _progress);
 			}
 
-			public RepositoryManager GetManager()
+			public Synchronizer GetManager()
 			{
 				ProjectFolderConfiguration project = new ProjectFolderConfiguration(_lexiconProjectPath);
 				project.IncludePatterns.Add("**.txt");
 				 project.IncludePatterns.Add("**.lift");
-			   RepositoryManager repo= RepositoryManager.FromRootOrChildFolder(project);
+			   Synchronizer repo= Synchronizer.FromProjectConfiguration(project, new NullProgress());
 				repo.Repository.SetUserNameInIni("bob", new NullProgress());
 				return repo;
 			}
@@ -113,7 +113,7 @@ namespace Chorus.Tests.sync
 //            ConsoleProgress progress = new ConsoleProgress();
 //            BobSetup bobSetup = new BobSetup(progress, _pathToTestRoot);
 //
-//            RepositoryManager repo = RepositoryManager.FromRootOrChildFolder(bobSetup._projectFolderConfiguration);
+//            Synchronizer repo = Synchronizer.FromProjectConfiguration(bobSetup._projectFolderConfiguration);
 //            string usbPath = Path.Combine(_pathToTestRoot, "USB-A");
 //            repo.MakeClone(usbPath, false, progress);
 //            Assert.IsTrue(Directory.Exists(Path.Combine(usbPath, BobSetup.ProjectFolderName)));
@@ -131,7 +131,7 @@ namespace Chorus.Tests.sync
 			bobSetup.SetupClone(usbPath);
 
 			RepositoryAddress otherDirPath = RepositoryAddress.Create("USBA", Path.Combine(usbPath, RepositoryAddress.ProjectNameVariable), false);
-			RepositoryManager bob = bobSetup.GetManager();
+			Synchronizer bob = bobSetup.GetManager();
 			bob.ExtraRepositorySources.Add(otherDirPath);
 
 			//now stick a new file over in the "usb", so we can see if it comes back to us
@@ -140,9 +140,9 @@ namespace Chorus.Tests.sync
 			ProjectFolderConfiguration usbProject = new ProjectFolderConfiguration(Path.Combine(usbPath, BobSetup.ProjectFolderName));
 			usbProject.IncludePatterns.Add("**.txt");
 			options.CheckinDescription = "adding a file to the usb for some reason";
-			RepositoryManager usbManager = RepositoryManager.FromRootOrChildFolder(usbProject);
-			usbManager.Repository.SetUserNameInIni("usba", new NullProgress());
-			usbManager.SyncNow(options,progress);
+			var synchronizer = Synchronizer.FromProjectConfiguration(usbProject, new NullProgress());
+			synchronizer.Repository.SetUserNameInIni("usba", new NullProgress());
+			synchronizer.SyncNow(options, progress);
 
 
 			//now we should get that file
@@ -201,9 +201,9 @@ namespace Chorus.Tests.sync
 			string usbSourcePath = Path.Combine(_pathToTestRoot, "USB-A");
 			Directory.CreateDirectory(usbSourcePath);
 			string usbProjectPath = bobSetup.SetupClone(usbSourcePath);
-			RepositoryManager usbRepo = RepositoryManager.FromRootOrChildFolder(new ProjectFolderConfiguration(usbProjectPath));
+			Synchronizer usbRepo = Synchronizer.FromProjectConfiguration(new ProjectFolderConfiguration(usbProjectPath), new NullProgress());
 
-			RepositoryManager bobRepo =  bobSetup.GetManager();
+			Synchronizer bobSynchronizer =  bobSetup.GetManager();
 
 			//Sally gets the usb and uses it to clone herself a repository
 			string sallySourcePath = Path.Combine(_pathToTestRoot, "sally");
@@ -220,13 +220,13 @@ namespace Chorus.Tests.sync
 			bobOptions.DoPushToLocalSources = false;
 			RepositoryAddress usbPath = RepositoryAddress.Create( "usba source", Path.Combine(usbSourcePath, RepositoryAddress.ProjectNameVariable),false);
 			bobOptions.RepositorySourcesToTry.Add(usbPath);
-			bobRepo.SyncNow(bobOptions, progress);
+			bobSynchronizer.SyncNow(bobOptions, progress);
 
 			ProjectFolderConfiguration sallyProject = new ProjectFolderConfiguration(sallyRepoPath);
 			sallyProject.IncludePatterns.Add("**.txt");
 
-			RepositoryManager sally = RepositoryManager.FromRootOrChildFolder(sallyProject);
-			sally.Repository.SetUserNameInIni("sally", new NullProgress());
+			Synchronizer sallySynchronizer = Synchronizer.FromProjectConfiguration(sallyProject, new NullProgress());
+			sallySynchronizer.Repository.SetUserNameInIni("sally", new NullProgress());
 
 			//now she modifies a file
 			File.WriteAllText(Path.Combine(sallyRepoPath, "lexicon/foo.txt"), "Sally was here");
@@ -238,7 +238,7 @@ namespace Chorus.Tests.sync
 			sallyOptions.DoPullFromOthers = true;
 			sallyOptions.DoMergeWithOthers = true;
 			sallyOptions.DoPushToLocalSources = true;
-			sally.SyncNow(sallyOptions, progress);
+			sallySynchronizer.SyncNow(sallyOptions, progress);
 
 			//bob still doesn't have direct access to sally's repo... it's in some other city
 			// but now the usb comes back to him
@@ -247,7 +247,7 @@ namespace Chorus.Tests.sync
 			bobOptions.DoPullFromOthers = true;
 			bobOptions.DoPushToLocalSources = true;
 			bobOptions.DoMergeWithOthers = true;
-			bobRepo.SyncNow(bobOptions, progress);
+			bobSynchronizer.SyncNow(bobOptions, progress);
 
 
 			Assert.AreEqual("Sally was here", File.ReadAllText(bobSetup.PathToText));
@@ -271,8 +271,8 @@ namespace Chorus.Tests.sync
 			sallyProject.IncludePatterns.Add("**.txt");
 			sallyProject.IncludePatterns.Add("**.lift");
 
-			RepositoryManager sallyRepo = RepositoryManager.FromRootOrChildFolder(sallyProject);
-			sallyRepo.Repository.SetUserNameInIni("sally", new NullProgress());
+			var repository = HgRepository.CreateOrLocate(sallyProject.FolderPath, new NullProgress());
+			repository.SetUserNameInIni("sally", new NullProgress());
 
 
 			// bob makes a change and syncs
@@ -296,7 +296,9 @@ namespace Chorus.Tests.sync
 			sallyOptions.DoPushToLocalSources = true;
 			sallyOptions.DoMergeWithOthers = true;
 			sallyOptions.RepositorySourcesToTry.Add(RepositoryAddress.Create("bob's machine", bobSetup.BobProjectPath, false));
-			sallyRepo.SyncNow(sallyOptions, progress);
+
+			var synchronizer = Synchronizer.FromProjectConfiguration(sallyProject, progress);
+			synchronizer.SyncNow(sallyOptions, progress);
 
 			Debug.WriteLine(File.ReadAllText(bobSetup._pathToLift));
 			string contents = File.ReadAllText(sallyPathToLift);

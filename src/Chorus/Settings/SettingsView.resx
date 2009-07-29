@@ -121,7 +121,7 @@
 	<value>The pattern is: alias = address.  So, to point at a shared folder on a local network, doing something like:
 suzie = \\SUZIE-PC\TokPisin
 
-For an internet server, if you plan to pushing new data, include your name and password like this:
+For an internet server, if you plan to push new data, include your name and password like this:
 depot = http://Joe_Smith:mypassword@public.languagedepot.org/TPI
 
 For a free internet repository, see http://public.languagedepot.org</value>

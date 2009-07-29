@@ -15,7 +15,7 @@ namespace Chorus.Tests
 		private StringBuilderProgress _progress = new StringBuilderProgress();
 		public TempFolder RootFolder;
 		public TempFolder ProjectFolder;
-		public RepositoryManager RepoMan;
+		public Synchronizer Synchronizer;
 		public RepositoryAddress RepoPath;
 		public ProjectFolderConfiguration ProjectFolderConfig;
 
@@ -28,15 +28,15 @@ namespace Chorus.Tests
 			RootFolder = new TempFolder("ChorusTest-"+userName);
 			ProjectFolder = new TempFolder(RootFolder, "foo project");
 
-			RepositoryManager.MakeRepositoryForTest(ProjectFolder.Path, userName);
+			EmptyRepositorySetup.MakeRepositoryForTest(ProjectFolder.Path, userName);
 			ProjectFolderConfig = new ProjectFolderConfiguration(ProjectFolder.Path);
-			RepoMan = RepositoryManager.FromRootOrChildFolder(ProjectFolderConfig);
+			Synchronizer = Synchronizer.FromProjectConfiguration(ProjectFolderConfig, new NullProgress());
 		}
 
 
 		public HgRepository Repository
 		{
-			get { return RepoMan.Repository; }
+			get { return new HgRepository(ProjectFolderConfig.FolderPath, _progress); }
 		}
 		public void Dispose()
 		{
@@ -74,7 +74,7 @@ namespace Chorus.Tests
 			options.DoPullFromOthers = false;
 			options.DoPushToLocalSources = false;
 
-			RepoMan.SyncNow(options, _progress);
+			Synchronizer.SyncNow(options, _progress);
 		}
 		public void AssertFileExistsRelativeToRoot(string relativePath)
 		{
@@ -89,6 +89,13 @@ namespace Chorus.Tests
 		public void AssertFileDoesNotExistInRepository(string pathRelativeToRepositoryRoot)
 		{
 			Assert.IsFalse(Repository.GetFileExistsInRepo(pathRelativeToRepositoryRoot));
+		}
+
+		public static void MakeRepositoryForTest(string newRepositoryPath, string userId)
+		{
+			HgRepository.CreateRepositoryInExistingDir(newRepositoryPath);
+			var hg = new HgRepository(newRepositoryPath, new NullProgress());
+			hg.SetUserNameInIni(userId, new NullProgress());
 		}
 	}
 }

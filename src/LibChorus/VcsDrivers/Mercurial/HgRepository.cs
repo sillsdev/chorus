@@ -39,6 +39,57 @@ namespace Chorus.VcsDrivers.Mercurial
 			return null;
 		}
 
+
+		/// <summary>
+		/// Given a file path or directory path, first try to find an existing repository at this
+		/// location or in one of its parents.  If not found, create one at this location.
+		/// </summary>
+		/// <returns></returns>
+		public static HgRepository CreateOrLocate(string startingPointForPathSearch, IProgress progress)
+		{
+
+			if (!Directory.Exists(startingPointForPathSearch) && !File.Exists(startingPointForPathSearch))
+			{
+				throw new ArgumentException("File or directory wasn't found", startingPointForPathSearch);
+			}
+			if (!Directory.Exists(startingPointForPathSearch)) // if it's a file... we need a directory
+			{
+				startingPointForPathSearch = Path.GetDirectoryName(startingPointForPathSearch);
+			}
+
+			string root = GetRepositoryRoot(startingPointForPathSearch);
+			if (!string.IsNullOrEmpty(root))
+			{
+				return new HgRepository(root, progress);
+			}
+			else
+			{
+				/*
+				 I'm leaning away from this intervention at the moment.
+					string newRepositoryPath = AskUserForNewRepositoryPath(startingPath);
+
+				 Let's see how far we can get by just silently creating it, and leave it to the future
+				 or user documentation/training to know to set up a repository at the level they want.
+				*/
+				string newRepositoryPath = startingPointForPathSearch;
+
+				if (!string.IsNullOrEmpty(startingPointForPathSearch) && Directory.Exists(newRepositoryPath))
+				{
+					CreateRepositoryInExistingDir(newRepositoryPath);
+
+					//review: Machine name would be more accurate, but most people have, like "Compaq" as their machine name
+					//but in any case, this is just a default until they set the name explicity
+					var hg = new HgRepository(newRepositoryPath, new NullProgress());
+					hg.SetUserNameInIni(System.Environment.UserName, new NullProgress());
+					return new HgRepository(newRepositoryPath, progress);
+				}
+				else
+				{
+					return null;
+				}
+			}
+		}
+
 //        protected Revision GetMyHead()
 //        {
 //            using (new ConsoleProgress("Getting real head of {0}", _userName))
@@ -996,6 +1047,8 @@ namespace Chorus.VcsDrivers.Mercurial
 			 }
 			return true;
 		}
+
+
 	}
 
 }

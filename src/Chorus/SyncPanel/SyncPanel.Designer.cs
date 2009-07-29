@@ -43,6 +43,7 @@ namespace Chorus.UI
 			//
 			// _syncButton
 			//
+			this._syncButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
 			this._syncButton.Image = ((System.Drawing.Image)(resources.GetObject("_syncButton.Image")));
 			this._syncButton.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
 			this._syncButton.Location = new System.Drawing.Point(330, 21);
@@ -68,8 +69,9 @@ namespace Chorus.UI
 			//
 			// _logBox
 			//
-			this._logBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-						| System.Windows.Forms.AnchorStyles.Left)));
+			this._logBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+						| System.Windows.Forms.AnchorStyles.Left)
+						| System.Windows.Forms.AnchorStyles.Right)));
 			this._logBox.Location = new System.Drawing.Point(72, 209);
 			this._logBox.Name = "_logBox";
 			this._logBox.Size = new System.Drawing.Size(366, 180);
@@ -78,6 +80,8 @@ namespace Chorus.UI
 			//
 			// _syncTargets
 			//
+			this._syncTargets.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+						| System.Windows.Forms.AnchorStyles.Right)));
 			this._syncTargets.FormattingEnabled = true;
 			this._syncTargets.Items.AddRange(new object[] {
 			"USB Drive"});

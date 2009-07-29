@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Text;
 using Chorus.FileTypeHanders.lift;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
@@ -34,27 +35,27 @@ namespace Chorus.FileTypeHanders.lift
 			throw new NotImplementedException();
 		}
 
-		public IEnumerable<IChangeReport> Find2WayDifferences(FileInRevision fileInRevision, string pathToParent, string pathToChild)
+		public IEnumerable<IChangeReport> Find2WayDifferences(FileInRevision child, FileInRevision parent, HgRepository repository)
 		{
-			return new IChangeReport[] {new DefaultChangeReport(fileInRevision.FullPath,"Editted")};
+			return new IChangeReport[] {new DefaultChangeReport(parent, child,"Editted")};
 		}
 
 		public IChangePresenter GetChangePresenter(IChangeReport report, HgRepository repository)
 		{
-			return new WeSayConfigChangePresenter(report);
+			return new WeSayConfigChangePresenter(report, repository);
 		}
 
 
 		public IEnumerable<IChangeReport> DescribeInitialContents(FileInRevision fileInRevision, TempFile file)
 		{
-			return new IChangeReport[] { new DefaultChangeReport(fileInRevision.FullPath, "Added") };
+			return new IChangeReport[] { new DefaultChangeReport(fileInRevision, "Added") };
 		}
 
 	}
 
 	public class WeSayConfigChangePresenter : DefaultChangePresenter
 	{
-		public WeSayConfigChangePresenter(IChangeReport report):base(report)
+		public WeSayConfigChangePresenter(IChangeReport report, HgRepository repository):base(report, repository)
 		{
 		}
 
@@ -62,7 +63,37 @@ namespace Chorus.FileTypeHanders.lift
 
 		public override string GetIconName()
 		{
-			return "wesayConfig";
+			return "WesayConfig";
 		}
+		public override string GetHtml(string style, string styleSheet)
+		{
+			var builder = new StringBuilder();
+			builder.Append("<html><head>" + styleSheet + "</head><body>");
+
+			if (style == "normal")
+				builder.AppendFormat("The configuration file for the WeSay project was editted.  This tool cannot present what changed in a friendly way.  However a 'raw' view of the changes is available.");
+			else
+			{
+				AppendAddRawDiffOfFiles(builder);
+			}
+
+			builder.Append("</body></html>");
+			return builder.ToString();
+		}
+
+//        public string GetHtml(string style, string styleSheet)
+//        {
+//            var builder = new StringBuilder();
+//            builder.Append("<html><head>" + styleSheet + "</head>");
+//
+//
+//            else if (_report is XmlChangedRecordReport)
+//            {
+//                GetHtmlForChange(style, builder);
+//            }
+//            builder.Append("</html>");
+//            return builder.ToString();
+//        }
+
 	}
 }

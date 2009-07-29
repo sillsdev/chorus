@@ -73,7 +73,9 @@ namespace Baton.Review.RevisionsInRepository
 				else
 				{
 					var appName = rev.Summary.Substring(1, rev.Summary.IndexOf(':')-1);
-					viewItem.ImageKey = appName;
+					//temp hack... the app has now been fixed to not include this
+					appName = appName.Replace("0.5", "");
+					viewItem.ImageKey = appName.Trim();
 				}
 				viewItem.Tag = rev;
 				rows.Add(viewItem);

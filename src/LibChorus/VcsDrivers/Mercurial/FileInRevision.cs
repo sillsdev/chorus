@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using Chorus.Utilities;
 
 namespace Chorus.VcsDrivers.Mercurial
@@ -12,7 +13,8 @@ namespace Chorus.VcsDrivers.Mercurial
 		{
 			Added, Deleted, Modified,
 			Unknown,
-			NoChanges
+			NoChanges,
+			Parent
 		}
 		public string FullPath { get; private set; }
 		public FileInRevision(string revisionNumber, string fullPath, Action action)
@@ -32,5 +34,25 @@ namespace Chorus.VcsDrivers.Mercurial
 			return TempFile.TrackExisting(path);
 		}
 
+		public string GetFileContents(HgRepository repository)
+		{
+			var path = repository.RetrieveHistoricalVersionOfFile(FullPath, _revisionNumber);
+			try
+			{
+				return File.ReadAllText(path);
+			}
+			finally
+			{
+				 File.Delete(path);
+			}
+		}
+	}
+
+	public class FileInUnknownRevision : FileInRevision
+	{
+		public FileInUnknownRevision(string fullPath, Action action):base(string.Empty, fullPath, action)
+		{
+
+		}
 	}
 }

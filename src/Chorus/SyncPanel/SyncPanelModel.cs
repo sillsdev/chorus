@@ -1,27 +1,24 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Media;
-using System.Text;
-using System.Threading;
 using System.Windows.Forms;
 using Chorus.sync;
 using Chorus.Utilities;
-using Chorus.VcsDrivers.Mercurial;
 using System.Linq;
+using Chorus.VcsDrivers.Mercurial;
 
 namespace Chorus.UI
 {
 	public class SyncPanelModel
 	{
-		private readonly RepositoryManager _repositoryManager;
+		private readonly Synchronizer _synchronizer;
 		public IProgress ProgressDisplay{get; set;}
 		private BackgroundWorker _backgroundWorker;
 
-		public SyncPanelModel(RepositoryManager repositoryManager)
+		public SyncPanelModel(ProjectFolderConfiguration projectFolderConfiguration)
 		{
-			_repositoryManager = repositoryManager;
+			_synchronizer = Synchronizer.FromProjectConfiguration(projectFolderConfiguration, new NullProgress());
 			 _backgroundWorker = new BackgroundWorker();
 			_backgroundWorker.DoWork += new DoWorkEventHandler(worker_DoWork);
 			//_backgroundWorker.RunWorkerCompleted +=(()=>this.EnableSync = true);
@@ -37,7 +34,7 @@ namespace Chorus.UI
 		{
 			//nb: at the moment, we can't just get it new each time, because it stores the
 			//enabled state of the check boxes
-		   return _repositoryManager.GetPotentialSources(new NullProgress());
+		   return _synchronizer.GetPotentialSynchronizationSources(new NullProgress());
 //            return _repositorySources;
 		}
 
@@ -53,18 +50,16 @@ namespace Chorus.UI
 			options.RepositorySourcesToTry.AddRange(GetRepositoriesToList().Where(r=>r.Enabled));
 
 
-		   _backgroundWorker.RunWorkerAsync(new object[] { _repositoryManager, options, ProgressDisplay });
-
-
-			//_repositoryManager.SyncNow(options, ProgressDisplay);
-			//SoundPlayer player = new SoundPlayer(@"C:\chorus\src\sounds\finished.wav");
-			//player.Play();
-		}
+		   _backgroundWorker.RunWorkerAsync(new object[] { _synchronizer, options, ProgressDisplay });
+		 }
 		 static void worker_DoWork(object sender, DoWorkEventArgs e)
 		 {
 			 object[] args = e.Argument as object[];
-			 RepositoryManager repoManager = args[0] as RepositoryManager;
-			 e.Result =  repoManager.SyncNow(args[1] as SyncOptions, args[2] as IProgress);
+			 Synchronizer synchronizer = args[0] as Synchronizer;
+			 e.Result =  synchronizer.SyncNow(args[1] as SyncOptions, args[2] as IProgress);
+			 SoundPlayer player = new SoundPlayer(Baton.Properties.Resources.finished);
+			 player.Play();
+
 		 }
 
 		public void PathEnabledChanged(RepositoryAddress address, CheckState state)
@@ -73,7 +68,7 @@ namespace Chorus.UI
 
 			//NB: we may someday decide to distinguish between this chorus-app context of "what
 			//I did last time and the hgrc default which effect applications (e.g. wesay)
-			_repositoryManager.Repository.SetIsOneDefaultSyncAddresses(address, address.Enabled);
+			_synchronizer.Repository.SetIsOneDefaultSyncAddresses(address, address.Enabled);
 		}
 	}
 }

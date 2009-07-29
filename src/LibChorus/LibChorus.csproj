@@ -99,7 +99,7 @@
 	<Compile Include="retrieval\LiftEntryRetriever.cs" />
 	<Compile Include="retrieval\RevisionInspector.cs" />
 	<Compile Include="sync\ProjectFolderConfiguration.cs" />
-	<Compile Include="sync\RepositoryManager.cs" />
+	<Compile Include="sync\Synchronizer.cs" />
 	<Compile Include="sync\RepositoryAddress.cs" />
 	<Compile Include="sync\SyncOptions.cs" />
 	<Compile Include="Utilities\ExecutionResult.cs" />

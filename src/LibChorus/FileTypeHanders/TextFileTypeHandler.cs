@@ -69,27 +69,27 @@ namespace Chorus.FileTypeHanders
 						break;
 					default:
 						throw new ArgumentException(
-							"The text merge dispatcher does not understand this conflictHandlingMode");
+							"The text merge dispatcher does not understand this conflictHandlingMode:"+ order.MergeSituation.ConflictHandlingMode.ToString());
 				}
 
 			}
 		}
 
-		public IEnumerable<IChangeReport> Find2WayDifferences(FileInRevision fileInRevision, string pathToParent, string pathToChild)
+		public IEnumerable<IChangeReport> Find2WayDifferences(FileInRevision parent, FileInRevision child, HgRepository repository)
 		{
-			throw new NotImplementedException(string.Format("The TextFileTypeHandler does not yet do diffs"));
+			yield return new DefaultChangeReport(parent, child, "Changed");
 		}
 
 		public IChangePresenter GetChangePresenter(IChangeReport report, HgRepository repository)
 		{
-			return new DefaultChangePresenter(report);
+			return new DefaultChangePresenter(report, repository);
 		}
 
 
 
 		public IEnumerable<IChangeReport> DescribeInitialContents(FileInRevision fileInRevision, TempFile file)
 		{
-			return new IChangeReport[] { new DefaultChangeReport(fileInRevision.FullPath, "Added") };
+			return new IChangeReport[] { new DefaultChangeReport(fileInRevision, "Added") };
 		}
 
 	}

@@ -47,14 +47,15 @@ namespace Chorus.FileTypeHanders
 
 		}
 
-		public IEnumerable<IChangeReport> Find2WayDifferences(FileInRevision fileInRevision, string pathToParent, string pathToChild)
+		public IEnumerable<IChangeReport> Find2WayDifferences(FileInRevision parent, FileInRevision child, HgRepository repository)
 		{
-			throw new ApplicationException(string.Format("Chorus could not find a handler to diff files like '{0}'", pathToChild));
+			throw new ApplicationException(string.Format("Chorus could not find a handler to diff files like '{0}'", child.FullPath));
 		}
+
 
 		public IChangePresenter GetChangePresenter(IChangeReport report, HgRepository repository)
 		{
-			return new DefaultChangePresenter(report);
+			return new DefaultChangePresenter(report, repository);
 		}
 
 
@@ -62,7 +63,7 @@ namespace Chorus.FileTypeHanders
 
 		public IEnumerable<IChangeReport> DescribeInitialContents(FileInRevision fileInRevision, TempFile file)
 		{
-			return new IChangeReport[] { new DefaultChangeReport(fileInRevision.FullPath, "Added") };
+			return new IChangeReport[] { new DefaultChangeReport(fileInRevision, "Added") };
 		}
 
 	}

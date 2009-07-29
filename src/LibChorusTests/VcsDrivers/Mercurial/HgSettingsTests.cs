@@ -18,14 +18,14 @@ namespace Chorus.Tests.VcsDrivers.Mercurial
 	public class HgSettingsTests
 	{
 
-		[Test] public void GetKnownRepositories_NoneKnown_GivesEmptyList()
+		[Test] public void GetKnownRepositories_NoneKnown_GivesOnlyLanguageDepo()
 		{
 			using (var testRoot = new TempFolder("ChorusHgSettingsTest"))
 			{
 				HgRepository.CreateRepositoryInExistingDir(testRoot.Path);
 				var repo = new HgRepository(testRoot.Path, new NullProgress());
 				var sources = repo.GetRepositoryPathsInHgrc();
-				Assert.AreEqual(0, sources.Count());
+				Assert.AreEqual(1, sources.Count());
 			}
 		}
 
@@ -57,7 +57,7 @@ two = http://foo.com");
 				setup.WriteIniContents(@"[ui]
 username = joe
 ");
-				var repository = setup.RepoMan.Repository;
+				var repository = setup.Synchronizer.Repository;
 				Assert.AreEqual("joe", repository.GetUserNameFromIni(new NullProgress()));
 			}
 		}
@@ -67,7 +67,7 @@ username = joe
 			using (var setup = new EmptyRepositorySetup())
 			{
 				setup.WriteIniContents(@"");
-				var repository = setup.RepoMan.Repository;
+				var repository = setup.Synchronizer.Repository;
 				Assert.AreEqual(string.Empty, repository.GetUserNameFromIni(new NullProgress()));
 			}
 		}
@@ -77,7 +77,7 @@ username = joe
 			using (var setup = new EmptyRepositorySetup())
 			{
 				setup.EnsureNoHgrcExists();
-				var repository = setup.RepoMan.Repository;
+				var repository = setup.Synchronizer.Repository;
 				Assert.AreEqual(string.Empty, repository.GetUserNameFromIni(new NullProgress()));
 			}
 		}
@@ -87,7 +87,7 @@ username = joe
 			using (var setup = new EmptyRepositorySetup())
 			{
 				setup.EnsureNoHgrcExists();
-				var repository = setup.RepoMan.Repository;
+				var repository = setup.Synchronizer.Repository;
 				repository.SetUserNameInIni("bill", new NullProgress());
 				Assert.AreEqual("bill", repository.GetUserNameFromIni(new NullProgress()));
 
@@ -102,7 +102,7 @@ username = joe
 			using (var setup = new EmptyRepositorySetup())
 			{
 				setup.EnsureNoHgrcExists();
-				var repository = setup.RepoMan.Repository;
+				var repository = setup.Synchronizer.Repository;
 				var x = RepositoryAddress.Create("one", @"c:\one");
 				var y = RepositoryAddress.Create("two", @"http://two.org");
 				repository.SetKnownRepositoryAddresses(new List<RepositoryAddress>(new RepositoryAddress[]{x,y}));
@@ -127,7 +127,7 @@ username = joe
 			using (var setup = new EmptyRepositorySetup())
 			{
 				setup.EnsureNoHgrcExists();
-				var repository = setup.RepoMan.Repository;
+				var repository = setup.Synchronizer.Repository;
 				var x =  RepositoryAddress.Create("one", @"c:\one");
 				var y = RepositoryAddress.Create("two", @"http://two.org");
 				var z = RepositoryAddress.Create("three", @"http://three.org");

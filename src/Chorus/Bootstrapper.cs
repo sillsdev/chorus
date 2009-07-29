@@ -35,9 +35,9 @@ namespace Baton
 				c => new ProjectFolderConfiguration(_settingsPath));
 
 			builder.Register<IProgress>(new NullProgress());
-			builder.Register<RepositoryManager>(c => Chorus.sync.RepositoryManager.FromRootOrChildFolder(
-																c.Resolve<ProjectFolderConfiguration>()));
-			builder.Register<HgRepository>(c=> c.Resolve<RepositoryManager>().Repository);
+			builder.Register<Synchronizer>(c => Chorus.sync.Synchronizer.FromProjectConfiguration(
+																c.Resolve<ProjectFolderConfiguration>(), new NullProgress()));
+			builder.Register<HgRepository>(c => HgRepository.CreateOrLocate(_settingsPath, new NullProgress()));
 
 			builder.Register<BrowseForRepositoryEvent>(browseForRepositoryEvent).SingletonScoped();
 

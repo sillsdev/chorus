@@ -46,6 +46,7 @@ namespace Baton.Settings
 			this._repositoryAliases.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
 						| System.Windows.Forms.AnchorStyles.Left)
 						| System.Windows.Forms.AnchorStyles.Right)));
+			this._repositoryAliases.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this._repositoryAliases.Location = new System.Drawing.Point(61, 153);
 			this._repositoryAliases.Multiline = true;
 			this._repositoryAliases.Name = "_repositoryAliases";
@@ -56,6 +57,7 @@ namespace Baton.Settings
 			//
 			// label2
 			//
+			this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
 			this.label2.AutoSize = true;
 			this.label2.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.label2.Location = new System.Drawing.Point(58, 245);
@@ -77,9 +79,10 @@ namespace Baton.Settings
 			//
 			// _userName
 			//
+			this._userName.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this._userName.Location = new System.Drawing.Point(139, 67);
 			this._userName.Name = "_userName";
-			this._userName.Size = new System.Drawing.Size(101, 20);
+			this._userName.Size = new System.Drawing.Size(101, 23);
 			this._userName.TabIndex = 8;
 			this._userName.Validating += new System.ComponentModel.CancelEventHandler(this.OnUserName_Validating);
 			//

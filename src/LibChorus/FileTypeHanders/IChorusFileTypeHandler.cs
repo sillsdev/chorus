@@ -20,7 +20,7 @@ namespace Chorus.FileTypeHanders
 		/// The must not have any UI, no interaction with the user.</remarks>
 		void Do3WayMerge(merge.MergeOrder mergeOrder);
 
-		IEnumerable<IChangeReport> Find2WayDifferences(FileInRevision fileInRevision, string pathToParent, string pathToChild);
+		IEnumerable<IChangeReport> Find2WayDifferences(FileInRevision parent, FileInRevision child, HgRepository repository);
 		IChangePresenter GetChangePresenter(IChangeReport report, HgRepository repository);
 
 

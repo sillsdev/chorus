@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Text;
 using System.Xml;
 using System.Collections;
+using Chorus.VcsDrivers.Mercurial;
 
 namespace Chorus.merge.xml.generic
 {

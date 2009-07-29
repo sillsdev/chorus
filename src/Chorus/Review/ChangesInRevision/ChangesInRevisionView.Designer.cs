@@ -49,7 +49,7 @@
 			this.listView1.Location = new System.Drawing.Point(0, 0);
 			this.listView1.MultiSelect = false;
 			this.listView1.Name = "listView1";
-			this.listView1.Size = new System.Drawing.Size(284, 150);
+			this.listView1.Size = new System.Drawing.Size(327, 150);
 			this.listView1.SmallImageList = this.imageList1;
 			this.listView1.StateImageList = this.imageList1;
 			this.listView1.TabIndex = 1;
@@ -60,6 +60,7 @@
 			// columnHeader3
 			//
 			this.columnHeader3.Text = "Type";
+			this.columnHeader3.Width = 111;
 			//
 			// columnHeader1
 			//
@@ -78,9 +79,9 @@
 			this.imageList1.Images.SetKeyName(0, "image");
 			this.imageList1.Images.SetKeyName(1, "sound");
 			this.imageList1.Images.SetKeyName(2, "file");
-			this.imageList1.Images.SetKeyName(3, "wesayconfig");
+			this.imageList1.Images.SetKeyName(3, "WesayConfig");
 			this.imageList1.Images.SetKeyName(4, "WeSay");
-			this.imageList1.Images.SetKeyName(5, "warning16x16.png");
+			this.imageList1.Images.SetKeyName(5, "conflict");
 			//
 			// ChangesInRevisionView
 			//
@@ -88,7 +89,7 @@
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.Controls.Add(this.listView1);
 			this.Name = "ChangesInRevisionView";
-			this.Size = new System.Drawing.Size(284, 150);
+			this.Size = new System.Drawing.Size(327, 150);
 			this.ResumeLayout(false);
 
 		}

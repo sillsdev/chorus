@@ -25,7 +25,7 @@ namespace Chorus.Tests.merge
 		public TempFolder RootFolder;
 		public TempFolder ProjectFolder;
 		public TempFile UserFile;
-		public RepositoryManager RepoMan;
+		public Synchronizer Synchronizer;
 		public RepositoryAddress RepoPath;
 
 		public static RepositoryWithFilesSetup CreateWithLiftFile(string userName)
@@ -46,7 +46,7 @@ namespace Chorus.Tests.merge
 		}
 		public HgRepository Repository
 		{
-			get { return RepoMan.Repository; }
+			get { return Synchronizer.Repository; }
 		}
 
 		public RepositoryWithFilesSetup(string userName, string fileName, string fileContents)
@@ -58,13 +58,13 @@ namespace Chorus.Tests.merge
 			File.WriteAllText(p, fileContents);
 			UserFile = TempFile.TrackExisting(p);
 
-			RepositoryManager.MakeRepositoryForTest(ProjectFolder.Path, userName);
+			EmptyRepositorySetup.MakeRepositoryForTest(ProjectFolder.Path, userName);
 			Init(userName);
 			SyncOptions options = new SyncOptions();
 			options.DoMergeWithOthers = false;
 			options.DoPullFromOthers = false;
 			options.DoPushToLocalSources = false;
-			RepoMan.SyncNow(options, Progress);
+			Synchronizer.SyncNow(options, Progress);
 		}
 
 		public static RepositoryWithFilesSetup CreateByCloning(string userName, RepositoryWithFilesSetup cloneFromUser)
@@ -77,7 +77,7 @@ namespace Chorus.Tests.merge
 			Progress= new MultiProgress(new IProgress[] { new ConsoleProgress(), _stringProgress });
 			RootFolder = new TempFolder("ChorusTest-"+userName);
 			string pathToProject = RootFolder.Combine(Path.GetFileName(cloneFromUser.ProjectFolder.Path));
-			cloneFromUser.RepoMan.MakeClone(pathToProject, true, Progress);
+			cloneFromUser.Synchronizer.MakeClone(pathToProject, true, Progress);
 			ProjectFolder = TempFolder.TrackExisting(RootFolder.Combine("foo project"));
 			string pathToOurLiftFile = ProjectFolder.Combine(Path.GetFileName(cloneFromUser.UserFile.Path));
 			UserFile = TempFile.TrackExisting(pathToOurLiftFile);
@@ -91,8 +91,8 @@ namespace Chorus.Tests.merge
 			ProjectConfiguration.FolderPath = ProjectFolder.Path;
 
 			RepoPath = RepositoryAddress.Create(userName, ProjectFolder.Path, false);
-			RepoMan = RepositoryManager.FromRootOrChildFolder(ProjectConfiguration);
-			RepoMan.Repository.SetUserNameInIni(userName,Progress);
+			Synchronizer = Synchronizer.FromProjectConfiguration(ProjectConfiguration, new NullProgress());
+			Synchronizer.Repository.SetUserNameInIni(userName,Progress);
 		}
 
 		public void Dispose()
@@ -115,7 +115,7 @@ namespace Chorus.Tests.merge
 			options.DoPushToLocalSources = false;
 
 			options.RepositorySourcesToTry.Add(syncWithUser.RepoPath);
-			RepoMan.SyncNow(options, Progress);
+			Synchronizer.SyncNow(options, Progress);
 		}
 
 
@@ -126,7 +126,7 @@ namespace Chorus.Tests.merge
 			options.DoPullFromOthers = false;
 			options.DoPushToLocalSources = false;
 
-			RepoMan.SyncNow(options, Progress);
+			Synchronizer.SyncNow(options, Progress);
 		}
 
 		public void WriteIniContents(string s)
@@ -144,13 +144,13 @@ namespace Chorus.Tests.merge
 
 		public void AssertSingleHead()
 		{
-			var actual = RepoMan.Repository.GetHeads().Count;
+			var actual = Synchronizer.Repository.GetHeads().Count;
 			Assert.AreEqual(1, actual, "There should be on only one head, but there are "+actual.ToString());
 		}
 
 		public void AssertHeadCount(int count)
 		{
-			var actual = RepoMan.Repository.GetHeads().Count;
+			var actual = Synchronizer.Repository.GetHeads().Count;
 			Assert.AreEqual(count, actual, "Wrong number of heads");
 		}
 
@@ -160,7 +160,7 @@ namespace Chorus.Tests.merge
 		{
 			string xmlConflictFile = XmlLogMergeEventListener.GetXmlConflictFilePath(UserFile.Path);
 			Assert.IsTrue(File.Exists(xmlConflictFile), "Conflict file should have been in working set");
-			Assert.IsTrue(RepoMan.Repository.GetFileIsInRepositoryFromFullPath(xmlConflictFile), "Conflict file should have been in repository");
+			Assert.IsTrue(Synchronizer.Repository.GetFileIsInRepositoryFromFullPath(xmlConflictFile), "Conflict file should have been in repository");
 
 			XmlDocument doc = new XmlDocument();
 			doc.Load(xmlConflictFile);
@@ -174,7 +174,7 @@ namespace Chorus.Tests.merge
 
 		public HgRepository GetRepository()
 		{
-			return RepoMan.Repository;
+			return Synchronizer.Repository;
 		}
 
 		public void AssertNoErrorsReported()

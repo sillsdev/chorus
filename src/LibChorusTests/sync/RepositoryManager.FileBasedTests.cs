@@ -16,7 +16,7 @@ namespace Chorus.Tests.sync
 		private StringBuilderProgress _progress;
 		private string _pathToTestRoot;
 		private string _pathToProjectRoot;
-		private RepositoryManager _manager;
+		private Synchronizer _manager;
 		private string _pathToBackupFolder;
 		private DirectoryRepositorySource _directorySource;
 
@@ -34,14 +34,14 @@ namespace Chorus.Tests.sync
 
 			string pathToText = WriteTestFile("version one");
 
-			RepositoryManager.MakeRepositoryForTest(_pathToProjectRoot, "bob");
+			EmptyRepositorySetup.MakeRepositoryForTest(_pathToProjectRoot, "bob");
 			_project = new ProjectFolderConfiguration(_pathToProjectRoot);
 			_project.IncludePatterns.Add(pathToText);
 			_project.FolderPath = _pathToProjectRoot;
 
 			_progress = new StringBuilderProgress();
 
-			_manager = RepositoryManager.FromRootOrChildFolder(_project);
+			_manager = Synchronizer.FromProjectConfiguration(_project, new NullProgress());
 			_pathToBackupFolder = Path.Combine(_pathToTestRoot, "backup");
 			Directory.CreateDirectory(_pathToBackupFolder);
 			_directorySource = new DirectoryRepositorySource("SD Backup Card", Path.Combine(_pathToBackupFolder,RepositoryAddress.ProjectNameVariable), false);

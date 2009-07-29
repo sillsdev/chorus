@@ -123,16 +123,29 @@ namespace Chorus.merge
 
 		public static MergeSituation FromXml(XmlNode node)
 		{
-			var mode = (MergeOrder.ConflictHandlingModeChoices)Enum.Parse(typeof(MergeOrder.ConflictHandlingModeChoices),
-								   node.GetOptionalStringAttribute("conflictHandlingMode",
-																				string.Empty));
+			var modeLabel = node.GetOptionalStringAttribute("conflictHandlingMode",
+															string.Empty);
+
+			MergeOrder.ConflictHandlingModeChoices mode;
+
+			try
+			{
+				mode =
+					(MergeOrder.ConflictHandlingModeChoices)
+					Enum.Parse(typeof (MergeOrder.ConflictHandlingModeChoices),
+							   modeLabel);
+			}
+			catch (Exception)
+			{
+				mode = MergeOrder.ConflictHandlingModeChoices.Unknown;
+			}
 
 			return new MergeSituation(node.GetStringAttribute("path"),
-				node.GetStringAttribute("userXId"),
-				node.GetStringAttribute("userXRevision"),
-				node.GetStringAttribute("userYId"),
-				node.GetStringAttribute("userYRevision"),
-				mode);
+									  node.GetStringAttribute("userXId"),
+									  node.GetStringAttribute("userXRevision"),
+									  node.GetStringAttribute("userYId"),
+									  node.GetStringAttribute("userYRevision"),
+									  mode);
 		}
 	}
 }

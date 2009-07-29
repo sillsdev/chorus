@@ -61,13 +61,15 @@ namespace Chorus.FileTypeHanders
 //            }
 		}
 
-		public IEnumerable<IChangeReport> Find2WayDifferences(FileInRevision fileInRevision, string pathToParent, string pathToChild)
+		public IEnumerable<IChangeReport> Find2WayDifferences(FileInRevision child, FileInRevision parent, HgRepository repository)
 		{
 			var listener = new ChangeAndConflictAccumulator();
 			var strat = new LiftEntryMergingStrategy(new NullMergeSituation());
-			var differ = Lift2WayDiffer.CreateFromFiles(strat, pathToParent, pathToChild, listener);
-			differ.ReportDifferencesToListener();
-			return listener.Changes;
+
+			//pull the files out of the repository so we can read them
+				var differ = Lift2WayDiffer.CreateFromFileInRevision(strat, parent, child, listener, repository);
+				differ.ReportDifferencesToListener();
+				return listener.Changes;
 		}
 
 		public IChangePresenter GetChangePresenter(IChangeReport report, HgRepository repository)
@@ -78,14 +80,14 @@ namespace Chorus.FileTypeHanders
 			}
 			else
 			{
-				return new DefaultChangePresenter(report);
+				return new DefaultChangePresenter(report, repository);
 			}
 		}
 
 
 		public IEnumerable<IChangeReport> DescribeInitialContents(FileInRevision fileInRevision, TempFile file)
 		{
-			return new IChangeReport[] { new DefaultChangeReport(fileInRevision.FullPath, "Added") };
+			return new IChangeReport[] { new DefaultChangeReport(fileInRevision, "Added") };
 		}
 
 	}

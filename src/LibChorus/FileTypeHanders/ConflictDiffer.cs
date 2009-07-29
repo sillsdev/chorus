@@ -53,14 +53,14 @@ namespace Chorus.FileTypeHanders
 			XmlNode parent = FindMatch(_parentDom, id);
 			if (parent == null) //it's new
 			{
-				EventListener.ChangeOccurred(new XmlAdditionChangeReport("hackFixThis.conflicts", child));
+				EventListener.ChangeOccurred(new XmlAdditionChangeReport(string.Empty, child));
 			}
 			else if (XmlUtilities.AreXmlElementsEqual(child.OuterXml, parent.OuterXml))//unchanged or both made same change
 			{
 			}
 			else //one or both changed
 			{
-				EventListener.ChangeOccurred(new XmlChangedRecordReport("hackFixThis.conflicts", parent,child));
+				EventListener.ChangeOccurred(new XmlChangedRecordReport(null, null, parent,child));
 			}
 			_processedIds.Add(id);
 		}

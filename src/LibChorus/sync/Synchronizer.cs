@@ -8,19 +8,18 @@ using System.Linq;
 
 namespace Chorus.sync
 {
-	public class RepositoryManager
+	/// <summary>
+	/// Provides for synchronizing chorus repositories
+	/// </summary>
+	public class Synchronizer
 	{
 		private string _localRepositoryPath;
 		private ProjectFolderConfiguration _project;
 
 		public List<RepositoryAddress> ExtraRepositorySources { get; private set; }
 
-		public RepositoryManager(string localRepositoryPath, ProjectFolderConfiguration project)
-			: this(localRepositoryPath, project, System.Environment.UserName)
-		{
-		}
 
-		public RepositoryManager(string localRepositoryPath, ProjectFolderConfiguration project, string userId)
+		public Synchronizer(string localRepositoryPath, ProjectFolderConfiguration project)
 		{
 			_project = project;
 			_localRepositoryPath = localRepositoryPath;
@@ -29,7 +28,15 @@ namespace Chorus.sync
 		}
 
 
-		public List<RepositoryAddress> GetPotentialSources(IProgress progress)
+
+		public static Synchronizer FromProjectConfiguration(ProjectFolderConfiguration project, IProgress progress)
+		{
+			var hg = HgRepository.CreateOrLocate(project.FolderPath, progress);
+			return new Synchronizer(hg.PathToRepo, project);
+
+		}
+
+		public List<RepositoryAddress> GetPotentialSynchronizationSources(IProgress progress)
 		{
 			var list = new List<RepositoryAddress>();
 			list.AddRange(ExtraRepositorySources);
@@ -43,7 +50,6 @@ namespace Chorus.sync
 
 			return list;
 		}
-
 
 
 		public string RepoProjectName
@@ -63,69 +69,6 @@ namespace Chorus.sync
 				return null;
 			}
 		}
-
-
-		/// <summary>
-		///
-		/// </summary>
-		public static RepositoryManager FromRootOrChildFolder(ProjectFolderConfiguration project)
-		{
-
-			if (!Directory.Exists(project.FolderPath) && !File.Exists(project.FolderPath))
-			{
-				throw new ArgumentException("File or directory wasn't found", project.FolderPath);
-			}
-			string startingPath = project.FolderPath;
-			if (!Directory.Exists(startingPath)) // if it's a file... we need a directory
-			{
-				startingPath = Path.GetDirectoryName(startingPath);
-			}
-
-			string root = HgRepository.GetRepositoryRoot(startingPath);
-			if (!string.IsNullOrEmpty(root))
-			{
-				return new RepositoryManager(root, project);
-			}
-			else
-			{
-				/*
-				 I'm leaning away from this intervention at the moment.
-					string newRepositoryPath = AskUserForNewRepositoryPath(startingPath);
-
-				 Let's see how far we can get by just silently creating it, and leave it to the future
-				 or user documentation/training to know to set up a repository at the level they want.
-				*/
-				string newRepositoryPath = project.FolderPath;
-
-				if (!string.IsNullOrEmpty(startingPath) && Directory.Exists(newRepositoryPath))
-				{
-					HgRepository.CreateRepositoryInExistingDir(newRepositoryPath);
-
-					//review: Machine name would be more accurate, but most people have, like "Compaq" as their machine name
-					//but in any case, this is just a default until they set the name explicity
-					var hg = new HgRepository(newRepositoryPath, new NullProgress());
-					hg.SetUserNameInIni(System.Environment.UserName, new NullProgress());
-					return new RepositoryManager(newRepositoryPath, project);
-				}
-				else
-				{
-					return null;
-				}
-			}
-		}
-
-		internal static void MakeRepositoryForTest(string newRepositoryPath, string userId)
-		{
-			HgRepository.CreateRepositoryInExistingDir(newRepositoryPath);
-			var hg = new HgRepository(newRepositoryPath, new NullProgress());
-			hg.SetUserNameInIni(userId, new NullProgress());
-		}
-
-		public static IDisposable CreateDvcsMissingSimulation()
-		{
-			return new Chorus.VcsDrivers.Mercurial.HgMissingSimulation();
-		}
-
 
 
 		public SyncResults SyncNow(SyncOptions options, IProgress progress)
@@ -337,6 +280,8 @@ namespace Chorus.sync
 		{
 			get { return new HgRepository(_localRepositoryPath, new NullProgress()); }
 		}
+
+
 	}
 
 

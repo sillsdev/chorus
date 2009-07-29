@@ -91,6 +91,7 @@ namespace Baton
 			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
 			this.Name = "Shell";
 			this.Text = "Chorus";
+			this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
 			this._tabControl.ResumeLayout(false);
 			this.toolStrip1.ResumeLayout(false);
 			this.toolStrip1.PerformLayout();

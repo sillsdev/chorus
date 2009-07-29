@@ -29,7 +29,7 @@ namespace Chorus.Tests.sync
 
 			string pathToText = WriteTestFile("version one");
 
-			RepositoryManager.MakeRepositoryForTest(_pathToProjectRoot, "bob");
+			EmptyRepositorySetup.MakeRepositoryForTest(_pathToProjectRoot, "bob");
 			_project = new ProjectFolderConfiguration(_pathToProjectRoot);
 			_project.IncludePatterns.Add(pathToText);
 			_project.FolderPath = _pathToProjectRoot;
@@ -50,7 +50,7 @@ namespace Chorus.Tests.sync
 		[Test]
 		public void SyncNow_OnlyABlankFauxUsbAvailable_UsbGetsClone()
 		{
-			RepositoryManager manager = RepositoryManager.FromRootOrChildFolder(_project);
+			Synchronizer manager = Synchronizer.FromProjectConfiguration(_project, new NullProgress());
 			SyncOptions options = new SyncOptions();
 			options.DoMergeWithOthers = true;
 			options.DoPushToLocalSources = true;
@@ -68,7 +68,7 @@ namespace Chorus.Tests.sync
 		public void SyncNow_AlreadySetupFauxUsbAvailable_UsbGetsSync()
 		{
 			SyncOptions options = new SyncOptions();
-			RepositoryManager manager = RepositoryManager.FromRootOrChildFolder(_project);
+			Synchronizer manager = Synchronizer.FromProjectConfiguration(_project, new NullProgress());
 			manager.SyncNow(options, _progress);
 
 			options.RepositorySourcesToTry.Add(manager.UsbPath);

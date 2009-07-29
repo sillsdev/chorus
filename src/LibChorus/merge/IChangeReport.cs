@@ -4,6 +4,7 @@ using System.Text;
 using System.Xml;
 
 using Chorus.merge.xml.generic;
+using Chorus.VcsDrivers.Mercurial;
 
 namespace Chorus.merge
 {
@@ -27,6 +28,8 @@ namespace Chorus.merge
 
 	public abstract class ChangeReport : IChangeReport
 	{
+		public FileInRevision ChildFileInRevision { get; private set; }
+		public FileInRevision ParentFileInRevision { get; private set; }
 		protected Guid _guid = Guid.NewGuid();
 
 //        public override bool Equals(object obj)
@@ -41,11 +44,17 @@ namespace Chorus.merge
 //        {
 //            return PathToFile.GetHashCode() + ActionLabel.GetHashCode();
 //        }
-		protected ChangeReport(string pathToFile)
-		{
-			PathToFile = pathToFile;
-		}
 
+
+//        protected ChangeReport(FileInRevision fileInRevision)
+//        {
+//            ChildFileInRevision = fileInRevision;
+//        }
+		protected ChangeReport(FileInRevision parent, FileInRevision child)
+		{
+			ChildFileInRevision = child;
+			ParentFileInRevision = parent;
+		}
 		public Guid Guid
 		{
 			get { return _guid; }
@@ -58,8 +67,14 @@ namespace Chorus.merge
 
 		public string PathToFile
 		{
-			get; protected set;
-		}
+			get
+			{
+				if(null== ChildFileInRevision)
+					return null;
+				else
+					return ChildFileInRevision.FullPath;
+			}
+		 }
 
 
 
@@ -79,11 +94,18 @@ namespace Chorus.merge
 	{
 		private readonly string _label;
 
-		public DefaultChangeReport(string pathToFile, string label)
-			: base(pathToFile)
+		public DefaultChangeReport(FileInRevision initial, string label)
+			: base(null, initial)
 		{
 			_label = label;
 		}
+
+		public DefaultChangeReport(FileInRevision parent, FileInRevision child, string label)
+			: base(parent, child)
+		{
+			_label = label;
+		}
+
 		public override string ActionLabel
 		{
 			get { return _label; }
@@ -93,8 +115,15 @@ namespace Chorus.merge
 	{
 		private readonly XmlNode _addedElement;
 
-		public XmlAdditionChangeReport(string pathToFile, XmlNode addedElement)
-			:base(pathToFile)
+		public XmlAdditionChangeReport(FileInRevision fileInRevision, XmlNode addedElement)
+			:base(null, fileInRevision)
+		{
+			_addedElement = addedElement;
+		}
+
+		//when merging, the eventual revision is unknown
+		public XmlAdditionChangeReport(string fullPath, XmlNode addedElement)
+			: base(null, new FileInUnknownRevision(fullPath, FileInRevision.Action.Modified))
 		{
 			_addedElement = addedElement;
 		}
@@ -148,11 +177,17 @@ namespace Chorus.merge
 		private readonly XmlNode _childNode;
 	  //  private readonly XmlNode _deletedNode;
 
-		public XmlDeletionChangeReport(string pathToFile, XmlNode parentNode, XmlNode childNode)
-			: base(pathToFile)
+		public XmlDeletionChangeReport(FileInRevision fileInRevision, XmlNode parentNode, XmlNode childNode)
+			: base(null, fileInRevision)
 		{
 			_parentNode = parentNode;
 			_childNode = childNode;
+		}
+
+				//when merging, the eventual revision is unknown
+		public XmlDeletionChangeReport(string fullPath, XmlNode parentNode, XmlNode childNode)
+			: this(new FileInUnknownRevision(fullPath, FileInRevision.Action.Modified), parentNode,  childNode)
+		{
 		}
 
 		public override string ActionLabel
@@ -182,11 +217,18 @@ namespace Chorus.merge
 		private readonly string _before;
 		private readonly string _after;
 
-		public TextEditChangeReport(string pathToFile, string before, string after)
-			: base(pathToFile)
+		public TextEditChangeReport(FileInRevision fileInRevision, string before, string after)
+			: base(null, fileInRevision)
 		{
 			_before = before;
 			_after = after;
+		}
+
+				//when merging, the eventual revision is unknown
+		public TextEditChangeReport(string fullPath,  string before, string after)
+			: this(new FileInUnknownRevision(fullPath, FileInRevision.Action.Modified), before,after )
+		{
+
 		}
 
 		public override string ActionLabel
@@ -209,8 +251,8 @@ namespace Chorus.merge
 		private readonly XmlNode _parent;
 		private readonly XmlNode _child;
 
-		public XmlChangedRecordReport(string pathToFile, XmlNode parent, XmlNode child)
-			: base(pathToFile)
+		public XmlChangedRecordReport(FileInRevision parentFileInRevision, FileInRevision childFileInRevision, XmlNode parent, XmlNode child)
+			: base(parentFileInRevision, childFileInRevision)
 		{
 			_parent = parent;
 			_child = child;

@@ -2,6 +2,7 @@
 using System.IO;
 using Baton.Review.RevisionsInRepository;
 using Chorus.sync;
+using Chorus.Tests;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
 using NUnit.Framework;
@@ -30,7 +31,7 @@ namespace Baton.Tests
 			string pathToText = Path.Combine(_pathToTestRoot, "foo.txt");
 			File.WriteAllText(pathToText, "version one of my pretend txt");
 
-			RepositoryManager.MakeRepositoryForTest(_pathToTestRoot, "bob");
+			EmptyRepositorySetup.MakeRepositoryForTest(_pathToTestRoot, "bob");
 
 			_project = new ProjectFolderConfiguration(_pathToTestRoot);
 			_project.FolderPath = _pathToTestRoot;
@@ -38,7 +39,7 @@ namespace Baton.Tests
 			_project.FolderPath = _pathToTestRoot;
 
 			_progress = new StringBuilderProgress();
-			_model = new RevisionInRepositoryModel(RepositoryManager.FromRootOrChildFolder(_project), null);
+			_model = new RevisionInRepositoryModel(HgRepository.CreateOrLocate(_project.FolderPath, new NullProgress()), null);
 			_model.ProgressDisplay = _progress;
 		}
 

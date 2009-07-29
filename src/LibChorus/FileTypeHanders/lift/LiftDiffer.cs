@@ -1,11 +1,9 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
-using System.Text;
 using System.Xml;
 using Chorus.merge.xml.generic;
+using Chorus.VcsDrivers.Mercurial;
 
 
 namespace Chorus.merge.xml.lift
@@ -16,15 +14,17 @@ namespace Chorus.merge.xml.lift
 	/// </summary>
 	public class Lift2WayDiffer
 	{
+		private readonly FileInRevision _parentFileInRevision;
+		private readonly FileInRevision _childFileInRevision;
 		private readonly List<string> _processedIds = new List<string>();
 		private readonly XmlDocument _childDom;
 		private readonly XmlDocument _parentDom;
 		private IMergeEventListener EventListener;
 		private IMergeStrategy _mergingStrategy;
 
-		public static Lift2WayDiffer CreateFromFiles(IMergeStrategy mergeStrategy, string ancestorLiftPath, string ourLiftPath, IMergeEventListener eventListener)
+		public static Lift2WayDiffer CreateFromFileInRevision(IMergeStrategy mergeStrategy, FileInRevision parent, FileInRevision child, IMergeEventListener eventListener, HgRepository repository)
 		{
-			return new Lift2WayDiffer(mergeStrategy,File.ReadAllText(ourLiftPath), File.ReadAllText(ancestorLiftPath), eventListener);
+			return new Lift2WayDiffer(mergeStrategy, child.GetFileContents(repository), parent.GetFileContents(repository), eventListener, parent, child);
 		}
 		public static Lift2WayDiffer CreateFromStrings(IMergeStrategy mergeStrategy, string parentXml, string childXml, IMergeEventListener eventListener)
 		{
@@ -44,6 +44,13 @@ namespace Chorus.merge.xml.lift
 
 		}
 
+		private Lift2WayDiffer(IMergeStrategy mergeStrategy, string childXml, string parentXml, IMergeEventListener listener, FileInRevision parentFileInRevision, FileInRevision childFileInRevision)
+			:this(mergeStrategy, childXml, parentXml, listener)
+		{
+			_parentFileInRevision = parentFileInRevision;
+			_childFileInRevision = childFileInRevision;
+		}
+
 		public void ReportDifferencesToListener()
 		{
 			foreach (XmlNode e in _childDom.SafeSelectNodes("lift/entry"))
@@ -56,7 +63,7 @@ namespace Chorus.merge.xml.lift
 			{
 				if (!_processedIds.Contains(LiftUtils.GetId(parentNode)))
 				{
-					EventListener.ChangeOccurred(new XmlDeletionChangeReport("hackFixThis.lift", parentNode, null));
+					EventListener.ChangeOccurred(new XmlDeletionChangeReport(_parentFileInRevision, parentNode, null));
 				}
 			}
 		}
@@ -71,7 +78,7 @@ namespace Chorus.merge.xml.lift
 				//spurious deletion messages
 				if (string.IsNullOrEmpty(XmlUtilities.GetOptionalAttributeString(child, "dateDeleted")))
 				{
-					EventListener.ChangeOccurred(new XmlAdditionChangeReport("hackFixThis.lift", child));
+					EventListener.ChangeOccurred(new XmlAdditionChangeReport(_childFileInRevision, child));
 				}
 			}
 			else if (LiftUtils.AreTheSame(child, parent))//unchanged or both made same change
@@ -81,7 +88,7 @@ namespace Chorus.merge.xml.lift
 			{
 				if (!string.IsNullOrEmpty(XmlUtilities.GetOptionalAttributeString(child, "dateDeleted")))
 				{
-					EventListener.ChangeOccurred(new XmlDeletionChangeReport("hackFixThis.lift", parent, child));
+					EventListener.ChangeOccurred(new XmlDeletionChangeReport(_parentFileInRevision, parent, child));
 				}
 				else
 				{
@@ -91,7 +98,7 @@ namespace Chorus.merge.xml.lift
 					//enhance: we can skip this and just say "something changed in this entry",
 					//until we really *need* the details (if ever), and have a way to call this then
 					//_mergingStrategy.MakeMergedEntry(this.EventListener, child, parent, parent);
-					EventListener.ChangeOccurred(new XmlChangedRecordReport("hackFixThis.lift", parent,child));
+					EventListener.ChangeOccurred(new XmlChangedRecordReport(_parentFileInRevision, _childFileInRevision, parent,child));
 				}
 			}
 			_processedIds.Add(id);

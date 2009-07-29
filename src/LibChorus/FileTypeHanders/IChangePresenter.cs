@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using Chorus.merge;
+using Chorus.merge.xml.generic;
+using Chorus.VcsDrivers.Mercurial;
 
 namespace Chorus.FileTypeHanders
 {
@@ -21,10 +23,12 @@ namespace Chorus.FileTypeHanders
 	public class DefaultChangePresenter : IChangePresenter
 	{
 		private readonly IChangeReport _report;
+		private readonly HgRepository _repository;
 
-		public DefaultChangePresenter(IChangeReport report)
+		public DefaultChangePresenter(IChangeReport report, HgRepository repository)
 		{
 			_report = report;
+			_repository = repository;
 		}
 
 		public string GetDataLabel()
@@ -37,13 +41,33 @@ namespace Chorus.FileTypeHanders
 			return _report.ActionLabel;
 		}
 
-		public string GetHtml(string style, string styleSheet)
+		public virtual string GetHtml(string style, string styleSheet)
 		{
+			var builder = new StringBuilder();
+			builder.Append("<html><head>" + styleSheet + "</head><body>");
+
 			if(style=="normal")
-				return string.Format("<html><p>The file: '{0}' was {1}.</p></html>", Path.GetFileName(_report.PathToFile), GetActionLabel().ToLower());
+				builder.AppendFormat("<p>The file: '{0}' was {1}.</p>", Path.GetFileName(_report.PathToFile), GetActionLabel().ToLower());
 			else
 			{
-				return string.Empty;
+				AppendAddRawDiffOfFiles(builder);
+			}
+
+			builder.Append("</body></html>");
+			return builder.ToString();
+		}
+
+		protected void AppendAddRawDiffOfFiles(StringBuilder builder)
+		{
+			builder.AppendFormat("<p>The file: '{0}' was {1}.</p>", Path.GetFileName(_report.PathToFile), GetActionLabel().ToLower());
+
+			var r = _report as DefaultChangeReport;
+			if (r != null)
+			{
+				var original = XmlUtilities.GetXmlForShowingInHtml(r.ParentFileInRevision.GetFileContents(_repository));
+				var modified = XmlUtilities.GetXmlForShowingInHtml(r.ChildFileInRevision.GetFileContents(_repository));
+				var m = new Rainbow.HtmlDiffEngine.Merger(original, modified);
+				builder.Append(m.merge());
 			}
 		}
 

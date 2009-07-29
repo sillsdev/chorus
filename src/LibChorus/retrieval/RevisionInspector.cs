@@ -49,6 +49,9 @@ namespace Chorus.retrieval
 				{
 					foreach (var fileInRevision in Repository.GetFilesInRevision(revision))
 					{
+//                        var parentFileInRevision = new FileInRevision(parentRev.LocalRevisionNumber,
+//                                                                      fileInRevision.FullPath,
+//                                                                      FileInRevision.Action.Parent);
 						CollectChangesInFile(fileInRevision, parentRev.LocalRevisionNumber, changes);
 					}
 				}
@@ -94,12 +97,12 @@ namespace Chorus.retrieval
 																  fileInRevision.ActionThatHappened);
 
 					//pull the files out of the repository so we can read them
-					using (var targetFile = fileInRevision.CreateTempFile(Repository))
-					using (var parentFile = parentFileInRevision.CreateTempFile(Repository))
+//                    using (var targetFile = fileInRevision.CreateTempFile(Repository))
+//                    using (var parentFile = parentFileInRevision.CreateTempFile(Repository))
 					{
 						//run the differ which the handler provides, adding the changes to the cumulative
 						//list we are gathering for this whole revision
-						changes.AddRange(handler.Find2WayDifferences(fileInRevision, parentFile.Path, targetFile.Path));
+						changes.AddRange(handler.Find2WayDifferences(parentFileInRevision, fileInRevision, Repository));
 					}
 				}
 				else
@@ -113,7 +116,7 @@ namespace Chorus.retrieval
 					}
 					catch (Exception error)
 					{
-						changes.Add(new DefaultChangeReport(fileInRevision.FullPath,
+						changes.Add(new DefaultChangeReport(fileInRevision,
 															"Error retrieving historical version. "+error.Message));
 					}
 				}
@@ -123,13 +126,15 @@ namespace Chorus.retrieval
 				switch (fileInRevision.ActionThatHappened)
 				{
 					case FileInRevision.Action.Added:
-						changes.Add(new DefaultChangeReport(fileInRevision.FullPath, "Added"));
+						changes.Add(new DefaultChangeReport(fileInRevision, "Added"));
 						break;
 					case FileInRevision.Action.Modified:
-						changes.Add(new DefaultChangeReport(fileInRevision.FullPath, "Changed"));
+						var parentFileInRevision = new FileInRevision(parentRev, Path.Combine(Repository.PathToRepo, fileInRevision.FullPath),
+																	  FileInRevision.Action.Parent);
+						changes.Add(new DefaultChangeReport(parentFileInRevision, fileInRevision, "Changed"));
 						break;
 					case FileInRevision.Action.Deleted:
-						changes.Add(new DefaultChangeReport(fileInRevision.FullPath, "Deleted"));
+						changes.Add(new DefaultChangeReport(fileInRevision, "Deleted"));
 						break;
 					default:
 						Debug.Fail("Found unexpected FileInRevision Action.");

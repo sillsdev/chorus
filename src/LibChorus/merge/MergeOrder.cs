@@ -26,7 +26,7 @@ namespace Chorus.merge
 		/// It is then the Chorus syncing methods job to take the two partials and insert
 		/// them into the repository history.
 		/// </summary>
-		public enum ConflictHandlingModeChoices { WeWin, TheyWin, LcdPlusPartials}
+		public enum ConflictHandlingModeChoices {Unknown, WeWin, TheyWin, LcdPlusPartials}
 
 	  //  public ConflictHandlingModeChoices ConflictHandlingMode{ get; set;}
 		public IMergeEventListener EventListener{ get; set;}

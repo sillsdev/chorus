@@ -80,10 +80,20 @@ namespace Chorus.FileTypeHanders
 				var userYVersion = _conflict.GetConflictingRecordOutOfSourceControl(_fileRetriever, ThreeWayMergeSources.Source.UserY);
 				builder.Append(XmlUtilities.GetXmlForShowingInHtml(userYVersion));
 				builder.AppendFormat("</p><h3>Resulting version</h3>", _conflict.Situation.UserYId);
-				var resulting = _fileRetriever.RetrieveHistoricalVersionOfFile(_conflict.RelativeFilePath,
-																			   _conflict.RevisionWhereMergeWasCheckedIn);
-				builder.Append(XmlUtilities.GetXmlForShowingInHtml(resulting));
+
+				try
+				{
+					var resulting = _fileRetriever.RetrieveHistoricalVersionOfFile(_conflict.RelativeFilePath,
+																				   _conflict.
+																					   RevisionWhereMergeWasCheckedIn);
+					builder.Append(XmlUtilities.GetXmlForShowingInHtml(resulting));
+				}
+				catch (Exception error)
+				{
+					builder.Append("Could not retrieve the file. The error was: "+error.Message);
+				}
 			}
+
 			builder.Append("</html>");
 			return builder.ToString();
 
@@ -96,7 +106,7 @@ namespace Chorus.FileTypeHanders
 
 		public string GetIconName()
 		{
-			return "warning";
+			return "conflict";
 		}
 	}
 }

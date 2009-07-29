@@ -37,12 +37,19 @@ namespace Chorus.FileTypeHanders
 			var r = merger.MergeFiles(order.pathToOurs, order.pathToTheirs, order.pathToCommonAncestor);
 			File.WriteAllText(order.pathToOurs, r.MergedNode.OuterXml);
 		}
-		public IEnumerable<IChangeReport> Find2WayDifferences(FileInRevision fileInRevision, string pathToParent, string pathToChild)
+
+		public IEnumerable<IChangeReport> Find2WayDifferences(FileInRevision parent, FileInRevision child, HgRepository repository)
 		{
 			var listener = new ChangeAndConflictAccumulator();
-			var differ = ConflictDiffer.CreateFromFiles(pathToParent, pathToChild, listener);
-			differ.ReportDifferencesToListener();
-			return listener.Changes;
+						//pull the files out of the repository so we can read them
+			using (var childFile = child.CreateTempFile(repository))
+			using (var parentFile = parent.CreateTempFile(repository))
+			{
+
+				var differ = ConflictDiffer.CreateFromFiles(parentFile.Path, childFile.Path, listener);
+				differ.ReportDifferencesToListener();
+				return listener.Changes;
+			}
 		}
 
 		public IChangePresenter GetChangePresenter(IChangeReport report, HgRepository repository)
@@ -53,7 +60,7 @@ namespace Chorus.FileTypeHanders
 			}
 			else
 			{
-				return new DefaultChangePresenter(report);
+				return new DefaultChangePresenter(report, repository);
 			}
 		}
 
@@ -67,7 +74,7 @@ namespace Chorus.FileTypeHanders
 
 			foreach (XmlNode e in dom.SafeSelectNodes("conflicts/conflict"))
 			{
-				yield return new XmlAdditionChangeReport(fileInRevision.FullPath, e);
+				yield return new XmlAdditionChangeReport(fileInRevision, e);
 			}
 		}
 	}
