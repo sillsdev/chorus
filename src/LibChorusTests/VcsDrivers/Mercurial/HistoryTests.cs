@@ -31,7 +31,7 @@ namespace Chorus.Tests.VcsDrivers.Mercurial
 			_pathToText = Path.Combine(_pathToTestRoot, "foo.txt");
 			File.WriteAllText(_pathToText, "version one of my pretend txt");
 
-			EmptyRepositorySetup.MakeRepositoryForTest(_pathToTestRoot, "bob");
+			RepositorySetup.MakeRepositoryForTest(_pathToTestRoot, "bob");
 
 			_project = new ProjectFolderConfiguration(_pathToTestRoot);
 			_project.FolderPath = _pathToTestRoot;
@@ -87,7 +87,7 @@ namespace Chorus.Tests.VcsDrivers.Mercurial
 		[Test]
 		public void GetTip_BeforeAnySyncing_EmptyString()
 		{
-			using (var repo = new EmptyRepositorySetup("Dan"))
+			using (var repo = new RepositorySetup("Dan"))
 			{
 				Assert.IsNull(repo.Synchronizer.Repository.GetTip());
 			}

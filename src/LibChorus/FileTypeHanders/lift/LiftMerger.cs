@@ -6,6 +6,7 @@ using System.Text;
 using System.Xml;
 using Chorus.FileTypeHanders.xml;
 using Chorus.merge.xml.generic;
+using Chorus.Utilities;
 
 
 namespace Chorus.merge.xml.lift
@@ -146,16 +147,8 @@ namespace Chorus.merge.xml.lift
 
 		private static XmlNode FindEntry(XmlNode doc, string id)
 		{
-#if DEBUG
-			//Debug.Fail("attach");
-
-			string s = System.Environment.GetEnvironmentVariable("InduceChorusFailure");
-			if(s!=null && s=="LiftMerger.FindEntry")
-			{
-				throw new Exception("Exception Induced By InduceChorusFailure Environment Variable");
-			}
-#endif
-				return doc.SelectSingleNode("lift/entry[@id=\""+id+"\"]");
+			FailureSimulator.ThrowIfTestRequestsItThrowNow("LiftMerger.FindEntry");
+			return doc.SelectSingleNode("lift/entry[@id=\""+id+"\"]");
 		}
 
 		private void ProcessEntry(XmlWriter writer, XmlNode ourEntry)

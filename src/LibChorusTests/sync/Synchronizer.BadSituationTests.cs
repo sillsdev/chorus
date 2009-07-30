@@ -38,7 +38,7 @@ namespace Chorus.Tests.sync
 					bob.ReplaceSomething("bobWasHere");
 					bob.AddAndCheckIn();
 					sally.ReplaceSomething("sallyWasHere");
-					using (new ShortTermEnvironmentalVariable("InduceChorusFailure", "LiftMerger.FindEntry"))
+					using (new FailureSimulator("LiftMerger.FindEntry"))
 					{
 						sally.CheckinAndPullAndMerge(bob);
 					}
@@ -65,15 +65,15 @@ namespace Chorus.Tests.sync
 		[Test]
 		public void Sync_ExceptionInMergeCode_MergeIsLeftInLimbo_TransactionIsCancelled()
 		{
-			using (var bob = new EmptyRepositorySetup("bob"))
+			using (var bob = new RepositorySetup("bob"))
 			{
 				bob.ProjectFolderConfig.IncludePatterns.Add("*.txt");
 				bob.AddAndCheckinFile("one.txt", "hello");
 				bob.AddAndCheckinFile("two.txt", "bye");
-				using (var sally = new EmptyRepositorySetup("sally", bob))
+				using (var sally = new RepositorySetup("sally", bob))
 				{
 					bob.AddAndCheckinFile("one.txt", "hello-bob");
-					using (new ShortTermEnvironmentalVariable("InduceChorusFailure", "TextMerger"))
+					using (new FailureSimulator("TextMerger"))
 					{
 						sally.AddAndCheckinFile("one.txt", "hello-sally");
 					}

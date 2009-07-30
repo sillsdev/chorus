@@ -92,6 +92,7 @@
 	<Compile Include="FileTypeHanders\xml\XmlDeletionChangeReport.cs" />
 	<Compile Include="merge\xml\generic\HumanLogMergeEventListener.cs" />
 	<Compile Include="merge\xml\generic\XmlLogMergeEventListener.cs" />
+	<Compile Include="Utilities\FailureSimulator.cs" />
 	<Compile Include="Utilities\Guard.cs" />
 	<Compile Include="merge\IChangeReport.cs" />
 	<Compile Include="merge\MergeOrder.cs" />

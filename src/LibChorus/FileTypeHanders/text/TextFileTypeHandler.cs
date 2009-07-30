@@ -28,6 +28,8 @@ namespace Chorus.FileTypeHanders
 
 		public void Do3WayMerge(MergeOrder order)
 		{
+			FailureSimulator.ThrowIfTestRequestsItThrowNow("TextMerger");
+
 			//TODO: this is not yet going to deal with conflicts at all!
 			var contents = GetRawMerge(order.pathToOurs, order.pathToCommonAncestor, order.pathToTheirs);
 			File.WriteAllText(order.pathToOurs, contents);

@@ -58,7 +58,7 @@ namespace Chorus.Tests.merge
 			File.WriteAllText(p, fileContents);
 			UserFile = TempFile.TrackExisting(p);
 
-			EmptyRepositorySetup.MakeRepositoryForTest(ProjectFolder.Path, userName);
+			RepositorySetup.MakeRepositoryForTest(ProjectFolder.Path, userName);
 			Init(userName);
 			SyncOptions options = new SyncOptions();
 			options.DoMergeWithOthers = false;

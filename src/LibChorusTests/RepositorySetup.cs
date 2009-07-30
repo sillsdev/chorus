@@ -10,7 +10,7 @@ namespace Chorus.Tests
 	/// <summary>
 	/// Provides temporary directories and repositories.
 	/// </summary>
-	public class EmptyRepositorySetup :IDisposable
+	public class RepositorySetup :IDisposable
 	{
 		private StringBuilderProgress _progress = new StringBuilderProgress();
 		public TempFolder RootFolder;
@@ -20,12 +20,12 @@ namespace Chorus.Tests
 		public ProjectFolderConfiguration ProjectFolderConfig;
 
 
-		public EmptyRepositorySetup(string userName)
+		public RepositorySetup(string userName)
 		{
 			RootFolder = new TempFolder("ChorusTest-"+userName);
 			ProjectFolder = new TempFolder(RootFolder, ProjectName);
 
-			EmptyRepositorySetup.MakeRepositoryForTest(ProjectFolder.Path, userName);
+			RepositorySetup.MakeRepositoryForTest(ProjectFolder.Path, userName);
 			ProjectFolderConfig = new ProjectFolderConfiguration(ProjectFolder.Path);
 			Synchronizer = Synchronizer.FromProjectConfiguration(ProjectFolderConfig, new NullProgress());
 		}
@@ -95,7 +95,7 @@ namespace Chorus.Tests
 			hg.SetUserNameInIni(userId, new NullProgress());
 		}
 
-		public EmptyRepositorySetup(string cloneName, EmptyRepositorySetup sourceToClone)
+		public RepositorySetup(string cloneName, RepositorySetup sourceToClone)
 		{
 			RootFolder = new TempFolder("ChorusTest-" + cloneName);
 			 string pathToProject = RootFolder.Combine(ProjectName);

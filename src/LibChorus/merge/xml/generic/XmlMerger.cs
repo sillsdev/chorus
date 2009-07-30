@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Xml;
+using Chorus.FileTypeHanders;
 using Chorus.merge.xml.generic;
 
 namespace Chorus.merge.xml.generic
