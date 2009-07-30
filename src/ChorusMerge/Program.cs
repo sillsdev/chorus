@@ -1,52 +1,41 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using Chorus.FileTypeHanders;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
 
 namespace ChorusMerge
 {
 	/// <summary>
+	/// arguments are: {pathToOurs,  pathToCommon,   pathToTheirs}
 	/// This is used as the starting point for all merging using Chorus.
 	/// It will dispatch to file-format-specific mergers.  Note that
 	/// we can't control the argument list or get more arguments, so
 	/// anything beyond the 3 files must be specified in environment variables.
-	/// See MergeOrder for a description of those variables and their possible.
+	/// See MergeOrder and MergeSituation for a description of those variables and their possible values.
 	/// </summary>
-	class Program
+	public class Program
 	{
-		static int Main(string[] args)
+		public static int Main(string[] args)
 		{
 			try
 			{
+			   //Debug.Fail("hello");
+				MergeOrder order = MergeOrder.CreateUsingEnvironmentVariables(args[0], args[1], args[2]);
+				var handlers = ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers();
+				var handler = handlers.GetHandlerForMerging(order.pathToOurs);
 
-				//Debug.Fail("attach now");
-
-//                string path = Path.Combine(System.Environment.GetEnvironmentVariable("temp"),
-//               @"chorusMergeArgs.txt");
-//                string argcontents = "";
-//                foreach (string s in args)
-//                {
-//                    argcontents += s+", ";
-//                }
-//                File.AppendAllText(path, argcontents);
-
-
-				 MergeOrder.ConflictHandlingMode mode = MergeOrder.ConflictHandlingMode.WeWin;
-
-				//we have to get this argument out of the environment variables because we have not control of the arguments
-				//the dvcs system is going to use to call us. So whoever invokes the dvcs needs to set this variable ahead of time
-				string modeString = Environment.GetEnvironmentVariable(MergeOrder.kConflictHandlingModeEnvVarName);
-				if (!string.IsNullOrEmpty(modeString))
+				//DispatchingMergeEventListener listenerDispatcher = new DispatchingMergeEventListener();
+				//using (HumanLogMergeEventListener humanListener = new HumanLogMergeEventListener(order.pathToOurs + ".conflicts.txt"))
+				using (XmlLogMergeEventListener xmlListener = new XmlLogMergeEventListener(order.pathToOurs + ".conflicts"))
 				{
+//                    listenerDispatcher.AddEventListener(humanListener);
+//                    listenerDispatcher.AddEventListener(xmlListener);
+					order.EventListener = xmlListener;
 
-					mode =
-						(MergeOrder.ConflictHandlingMode)
-						Enum.Parse(typeof (MergeOrder.ConflictHandlingMode), modeString);
+					handler.Do3WayMerge(order);
 				}
-
-				MergeOrder order = new MergeOrder(mode, args[0], args[1], args[2]);
-				return MergeDispatcher.Go(order);
 			}
 			catch (Exception e)
 			{
@@ -54,6 +43,7 @@ namespace ChorusMerge
 				Console.Error.WriteLine(e.StackTrace);
 				return 1;
 			}
+			return 0;//no error
 		}
 	}
 }

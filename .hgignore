@@ -1,0 +1,11 @@
+syntax: glob
+CopyToWeSay.bat
+glob:output/
+glob:obj/
+glob:_Resharper*
+glob:Debug/
+glob:_ReSharper.Chorus VS2008/
+glob:*.suo
+glob:*.user
+glob:CopyToWeSayDev.bat
+glob:lib/Palaso.TestUtilities.pdb
