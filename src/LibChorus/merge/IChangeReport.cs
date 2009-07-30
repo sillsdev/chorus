@@ -224,7 +224,15 @@ namespace Chorus.merge
 			_after = after;
 		}
 
-				//when merging, the eventual revision is unknown
+		public TextEditChangeReport(FileInRevision parent, FileInRevision child,  string before, string after)
+			: base(parent,child)
+		{
+			_before = before;
+			_after = after;
+		}
+
+
+		//when merging, the eventual revision is unknown
 		public TextEditChangeReport(string fullPath,  string before, string after)
 			: this(new FileInUnknownRevision(fullPath, FileInRevision.Action.Modified), before,after )
 		{
@@ -233,7 +241,7 @@ namespace Chorus.merge
 
 		public override string ActionLabel
 		{
-			get { return "Text Edit"; }
+			get { return "Edited"; }
 		}
 
 		public override string GetFullHumanReadableDescription()

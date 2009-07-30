@@ -13,7 +13,7 @@ namespace Chorus.Tests.VcsDrivers.Mercurial
 		[Test]
 		public void NoPatternsSpecified_FileIsNotAdded()
 		{
-			using (var setup = new EmptyRepositorySetup())
+			using (var setup = new EmptyRepositorySetup("Dan"))
 			{
 				var path = setup.ProjectFolder.Combine("test.1w1");
 				File.WriteAllText(path, "hello");
@@ -28,7 +28,7 @@ namespace Chorus.Tests.VcsDrivers.Mercurial
 		[Test]
 		public void StarDotExtensionPatternSpecified_FileAdded()
 		{
-			using (var setup = new EmptyRepositorySetup())
+			using (var setup = new EmptyRepositorySetup("Dan"))
 			{
 				var path = setup.ProjectFolder.Combine("test.1w1");
 				File.WriteAllText(path, "hello");
@@ -43,7 +43,7 @@ namespace Chorus.Tests.VcsDrivers.Mercurial
 		[Test]
 		public void IncludeAllButExcludeOne_FileNotAdded()
 		{
-			using (var setup = new EmptyRepositorySetup())
+			using (var setup = new EmptyRepositorySetup("Dan"))
 			{
 				var path = setup.ProjectFolder.Combine("test.1w1");
 				File.WriteAllText(path, "hello");

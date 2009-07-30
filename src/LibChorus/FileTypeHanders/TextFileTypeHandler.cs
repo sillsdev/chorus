@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
+using System.Text;
 using Chorus.merge;
 using Chorus.merge.text;
 using Chorus.Utilities;
@@ -12,7 +14,7 @@ namespace Chorus.FileTypeHanders
 	{
 		public bool CanDiffFile(string pathToFile)
 		{
-			return false;//todo
+			return (Path.GetExtension(pathToFile) == ".txt");
 		}
 
 		public bool CanMergeFile(string pathToFile)
@@ -22,66 +24,56 @@ namespace Chorus.FileTypeHanders
 
 		public bool CanPresentFile(string pathToFile)
 		{
-			return false;//todo
+			return CanMergeFile(pathToFile);
 		}
 
 		public void Do3WayMerge(MergeOrder order)
 		{
-			using (TempFile lcd = new TempFile()) //this one gets used, not left for the caller
+			//TODO: this is not yet going to deal with conflicts at all!
+			var contents = GetRawMerge(order.pathToOurs, order.pathToCommonAncestor, order.pathToTheirs);
+			File.WriteAllText(order.pathToOurs, contents);
+		}
+
+
+		public static string GetRawMerge(string oursPath, string commonPath, string theirPath)
+		{
+			return RunProcess("diff3/bin/diff3.exe", "-m " + oursPath + " " + commonPath + " " + theirPath);
+		}
+
+
+		public static string RunProcess(string filePath, string arguments)
+		{
+			Process p = new Process();
+			p.StartInfo.UseShellExecute = false;
+			p.StartInfo.RedirectStandardError = true;
+			p.StartInfo.RedirectStandardOutput = true;
+
+			//NB: there is a post-build step in this project which copies the diff3 folder into the output
+			p.StartInfo.FileName = filePath;
+			p.StartInfo.Arguments = arguments;
+			p.StartInfo.CreateNoWindow = true;
+			p.Start();
+			p.WaitForExit();
+			ExecutionResult result = new ExecutionResult(p);
+			if (result.ExitCode == 2)//0 and 1 are ok
 			{
-				TempFile ourPartial = new TempFile();
-				TempFile theirPartial = new TempFile();
-				// Debug.Fail("hi");
-
-				//Debug.Fail("(Not really a failure) chorus merge : "+pathToOurs);
-				TextMerger.Merge(order.pathToCommonAncestor, order.pathToOurs, order.pathToTheirs,
-											 lcd.Path, ourPartial.Path,
-											 theirPartial.Path);
-
-//  this was for partial merging
-//                // insert a single comma-delimited line
-//                //listing {user's path, path to ourPartial, paht to theirPartial}
-//                StreamWriter f = File.AppendText(Path.Combine(Path.GetTempPath(), "chorusMergePaths.txt"));
-//                f.Write(order.pathToOurs);
-//                f.Write("," + ourPartial.Path);
-//                f.WriteLine("," + theirPartial.Path);
-//                f.Close();
-//                f.Dispose();
-
-				switch (order.MergeSituation.ConflictHandlingMode)
-				{
-					case MergeOrder.ConflictHandlingModeChoices.WeWin:
-						File.Copy(ourPartial.Path, order.pathToOurs, true);
-						ourPartial.Dispose();
-						theirPartial.Dispose();
-						break;
-					case MergeOrder.ConflictHandlingModeChoices.TheyWin:
-						File.Copy(theirPartial.Path, order.pathToOurs, true);
-						ourPartial.Dispose();
-						theirPartial.Dispose();
-						break;
-					case MergeOrder.ConflictHandlingModeChoices.LcdPlusPartials:
-						//Make the result of the merge be the LCD (It's critical that the calling process
-						//will be following this up RIGHT AWAY by appending the partials to their respective
-						//branches! Otherwise conflicting changes will be lost to both parties.
-						File.Copy(lcd.Path, order.pathToOurs, true);
-						//leave the other two temp files for the caller to work with and delete
-						break;
-					default:
-						throw new ArgumentException(
-							"The text merge dispatcher does not understand this conflictHandlingMode:"+ order.MergeSituation.ConflictHandlingMode.ToString());
-				}
-
+				throw new ApplicationException("Got error " + result.ExitCode + " " + result.StandardOutput + " " + result.StandardError);
 			}
+			Debug.WriteLine(result.StandardOutput);
+			return result.StandardOutput;
 		}
 
 		public IEnumerable<IChangeReport> Find2WayDifferences(FileInRevision parent, FileInRevision child, HgRepository repository)
 		{
-			yield return new DefaultChangeReport(parent, child, "Changed");
+			yield return new TextEditChangeReport(parent, child, parent.GetFileContents(repository), child.GetFileContents(repository));
 		}
 
 		public IChangePresenter GetChangePresenter(IChangeReport report, HgRepository repository)
 		{
+			if (report is TextEditChangeReport)
+			{
+				return new TextEditChangePresenter(report as TextEditChangeReport, repository);
+			}
 			return new DefaultChangePresenter(report, repository);
 		}
 
@@ -92,5 +84,87 @@ namespace Chorus.FileTypeHanders
 			return new IChangeReport[] { new DefaultChangeReport(fileInRevision, "Added") };
 		}
 
+	}
+
+
+	public class TextEditChangePresenter : IChangePresenter
+	{
+		private readonly TextEditChangeReport _report;
+		private readonly HgRepository _repository;
+
+		public TextEditChangePresenter(TextEditChangeReport report, HgRepository repository)
+		{
+			_report = report;
+			_repository = repository;
+		}
+
+		public string GetDataLabel()
+		{
+			return Path.GetFileName(_report.PathToFile);
+		}
+
+		public string GetActionLabel()
+		{
+			return _report.ActionLabel;
+		}
+
+		public virtual string GetHtml(string style, string styleSheet)
+		{
+			var builder = new StringBuilder();
+			builder.Append("<html><head>" + styleSheet + "</head><body>");
+
+			if (style == "normal")
+				builder.AppendFormat("<p>The file: '{0}' was {1}.</p>", Path.GetFileName(_report.PathToFile), GetActionLabel().ToLower());
+			else
+			{
+				AppendRawDiffOfFiles(builder);
+			}
+
+			builder.Append("</body></html>");
+			return builder.ToString();
+		}
+
+		protected void AppendRawDiffOfFiles(StringBuilder builder)
+		{
+			builder.AppendFormat("<p>The file: '{0}' was {1}.</p>", Path.GetFileName(_report.PathToFile), GetActionLabel().ToLower());
+
+			try
+			{
+				AppendDiffOfTextFile(builder, _report);
+			}
+			catch (Exception error)
+			{
+				builder.Append("Could not retrieve or diff the file: " + error.Message);
+			}
+
+		}
+
+		private void AppendDiffOfTextFile(StringBuilder builder, TextEditChangeReport r)
+		{
+			var modified = r.ChildFileInRevision.GetFileContents(_repository);
+
+			if (r.ParentFileInRevision != null) // will be null when this file was just added
+			{
+				var original = r.ParentFileInRevision.GetFileContents(_repository);
+				var m = new Rainbow.HtmlDiffEngine.Merger(original, modified);
+				builder.Append(m.merge());
+			}
+			else
+			{
+				builder.Append(modified);
+			}
+		}
+
+
+
+		public string GetTypeLabel()
+		{
+			return "--";
+		}
+
+		public virtual string GetIconName()
+		{
+			return "file";
+		}
 	}
 }

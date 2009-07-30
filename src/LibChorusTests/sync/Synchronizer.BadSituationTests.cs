@@ -60,6 +60,28 @@ namespace Chorus.Tests.sync
 				}
 			}
 		}
+
+
+		[Test]
+		public void Sync_ExceptionInMergeCode_MergeIsLeftInLimbo_TransactionIsCancelled()
+		{
+			using (var bob = new EmptyRepositorySetup("bob"))
+			{
+				bob.ProjectFolderConfig.IncludePatterns.Add("*.txt");
+				bob.AddAndCheckinFile("one.txt", "hello");
+				bob.AddAndCheckinFile("two.txt", "bye");
+				using (var sally = new EmptyRepositorySetup("sally", bob))
+				{
+					bob.AddAndCheckinFile("one.txt", "hello-bob");
+					using (new ShortTermEnvironmentalVariable("InduceChorusFailure", "TextMerger"))
+					{
+						sally.AddAndCheckinFile("one.txt", "hello-sally");
+					}
+
+				}
+			}
+		}
+
 		[Test]
 		public void Sync_BothChangedBinaryFile_FailureReportedOneChosenSingleHead()
 		{

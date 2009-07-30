@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace Chorus.sync
@@ -39,6 +40,16 @@ namespace Chorus.sync
 		{
 			get { return _folderPath; }
 			set { _folderPath = value; }
+		}
+
+		public ProjectFolderConfiguration Clone()
+		{
+			var clone = new ProjectFolderConfiguration(this._folderPath);
+			clone.IncludePatterns.Clear();
+			clone.IncludePatterns.AddRange(_includePatterns);
+			clone.ExcludePatterns.Clear();
+			clone.ExcludePatterns.AddRange(_excludePatterns);
+			return clone;
 		}
 	}
 }

@@ -74,7 +74,7 @@ namespace Chorus.FileTypeHanders.lift
 				builder.AppendFormat("The configuration file for the WeSay project was editted.  This tool cannot present what changed in a friendly way.  However a 'raw' view of the changes is available.");
 			else
 			{
-				AppendAddRawDiffOfFiles(builder);
+				AppendRawDiffOfFiles(builder);
 			}
 
 			builder.Append("</body></html>");

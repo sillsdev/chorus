@@ -50,7 +50,7 @@ namespace Chorus.Tests.VcsDrivers.Mercurial
 		[Test]
 		public void GetRevision_RevisionDoesntExist_GivesNull()
 		{
-			using (var setup = new EmptyRepositorySetup())
+			using (var setup = new EmptyRepositorySetup("Dan"))
 			{
 				Assert.IsNull(setup.Repository.GetRevision("1"));
 			}
@@ -58,7 +58,7 @@ namespace Chorus.Tests.VcsDrivers.Mercurial
 		[Test]
 		public void GetRevision_RevisionDoesExist_Ok()
 		{
-			using (var setup = new EmptyRepositorySetup())
+			using (var setup = new EmptyRepositorySetup("Dan"))
 			{
 				setup.AddAndCheckinFile("test.txt", "hello");
 				Assert.IsNotNull(setup.Repository.GetRevision("0"));

@@ -180,8 +180,8 @@ namespace Chorus.merge.xml.generic
 		 {
 			 XmlDocument doc = new XmlDocument();
 
-			 try
-			 {
+//             try
+//             {
 				 // Load the unformatted XML text string into an instance
 				 // of the XML Document Object Model (DOM)
 				 doc.LoadXml(xml);
@@ -203,11 +203,11 @@ namespace Chorus.merge.xml.generic
 				 StreamReader sr = new StreamReader(ms);
 				 // return the formatted string to caller
 				 return sr.ReadToEnd();
-			 }
-			 catch (Exception ex)
-			 {
-				 return ex.Message;
-			 }
+//             }
+//             catch (Exception ex)
+//             {
+//                 return ex.Message;
+//             }
 		 }
 	  }
 	}

@@ -20,13 +20,10 @@ namespace Chorus.Tests
 		public ProjectFolderConfiguration ProjectFolderConfig;
 
 
-		public EmptyRepositorySetup()
+		public EmptyRepositorySetup(string userName)
 		{
-
-			var userName = "Dan";
-
 			RootFolder = new TempFolder("ChorusTest-"+userName);
-			ProjectFolder = new TempFolder(RootFolder, "foo project");
+			ProjectFolder = new TempFolder(RootFolder, ProjectName);
 
 			EmptyRepositorySetup.MakeRepositoryForTest(ProjectFolder.Path, userName);
 			ProjectFolderConfig = new ProjectFolderConfiguration(ProjectFolder.Path);
@@ -96,6 +93,22 @@ namespace Chorus.Tests
 			HgRepository.CreateRepositoryInExistingDir(newRepositoryPath);
 			var hg = new HgRepository(newRepositoryPath, new NullProgress());
 			hg.SetUserNameInIni(userId, new NullProgress());
+		}
+
+		public EmptyRepositorySetup(string cloneName, EmptyRepositorySetup sourceToClone)
+		{
+			RootFolder = new TempFolder("ChorusTest-" + cloneName);
+			 string pathToProject = RootFolder.Combine(ProjectName);
+		   ProjectFolderConfig = sourceToClone.ProjectFolderConfig.Clone();
+		   ProjectFolderConfig.FolderPath = pathToProject;
+
+			sourceToClone.Synchronizer.MakeClone(pathToProject, true, _progress);
+			ProjectFolder = TempFolder.TrackExisting(RootFolder.Combine(ProjectName));
+		}
+
+		private static string ProjectName
+		{
+			get { return "foo project"; }
 		}
 	}
 }

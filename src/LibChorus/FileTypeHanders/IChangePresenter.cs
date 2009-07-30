@@ -50,24 +50,69 @@ namespace Chorus.FileTypeHanders
 				builder.AppendFormat("<p>The file: '{0}' was {1}.</p>", Path.GetFileName(_report.PathToFile), GetActionLabel().ToLower());
 			else
 			{
-				AppendAddRawDiffOfFiles(builder);
+				AppendRawDiffOfFiles(builder);
 			}
 
 			builder.Append("</body></html>");
 			return builder.ToString();
 		}
 
-		protected void AppendAddRawDiffOfFiles(StringBuilder builder)
+		protected void AppendRawDiffOfFiles(StringBuilder builder)
 		{
 			builder.AppendFormat("<p>The file: '{0}' was {1}.</p>", Path.GetFileName(_report.PathToFile), GetActionLabel().ToLower());
 
 			var r = _report as DefaultChangeReport;
 			if (r != null)
 			{
-				var original = XmlUtilities.GetXmlForShowingInHtml(r.ParentFileInRevision.GetFileContents(_repository));
-				var modified = XmlUtilities.GetXmlForShowingInHtml(r.ChildFileInRevision.GetFileContents(_repository));
+				try
+				{
+					AppendDiffOfXmlFile(builder, r);
+				}
+				catch (Exception)
+				{
+					try
+					{
+						AppendDiffOfUnknownFile(builder, r);
+					}
+					catch (Exception error)
+					{
+						builder.Append("Could not retrieve or diff the file: " + error.Message);
+					}
+				}
+			}
+		}
+
+		private void AppendDiffOfUnknownFile(StringBuilder builder, DefaultChangeReport r)
+		{
+			var modified =r.ChildFileInRevision.GetFileContents(_repository);
+
+			if (r.ParentFileInRevision != null) // will be null when this file was just added
+			{
+				var original =r.ParentFileInRevision.GetFileContents(_repository);
 				var m = new Rainbow.HtmlDiffEngine.Merger(original, modified);
 				builder.Append(m.merge());
+			}
+			else
+			{
+				builder.Append(modified);
+			}
+		}
+
+		private void AppendDiffOfXmlFile(StringBuilder builder, DefaultChangeReport r)
+		{
+			var modified =
+				XmlUtilities.GetXmlForShowingInHtml(r.ChildFileInRevision.GetFileContents(_repository));
+
+			if (r.ParentFileInRevision != null) // will be null when this file was just added
+			{
+				var original =
+					XmlUtilities.GetXmlForShowingInHtml(r.ParentFileInRevision.GetFileContents(_repository));
+				var m = new Rainbow.HtmlDiffEngine.Merger(original, modified);
+				builder.Append(m.merge());
+			}
+			else
+			{
+				builder.Append(modified);
 			}
 		}
 

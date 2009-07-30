@@ -52,7 +52,7 @@ two = http://foo.com");
 		[Test]
 		public void GetUserName_NameInLocalReop_GetsName()
 		{
-			using (var setup = new EmptyRepositorySetup())
+			using (var setup = new EmptyRepositorySetup("Dan"))
 			{
 				setup.WriteIniContents(@"[ui]
 username = joe
@@ -64,7 +64,7 @@ username = joe
 		[Test]
 		public void GetUserName_EmptyHgrc_ReturnsEmpty()
 		{
-			using (var setup = new EmptyRepositorySetup())
+			using (var setup = new EmptyRepositorySetup("Dan"))
 			{
 				setup.WriteIniContents(@"");
 				var repository = setup.Synchronizer.Repository;
@@ -74,7 +74,7 @@ username = joe
 		[Test]
 		public void GetUserName_NoHgrcYet_ReturnsEmpty()
 		{
-			using (var setup = new EmptyRepositorySetup())
+			using (var setup = new EmptyRepositorySetup("Dan"))
 			{
 				setup.EnsureNoHgrcExists();
 				var repository = setup.Synchronizer.Repository;
@@ -84,7 +84,7 @@ username = joe
 		[Test]
 		public void SetUserNameInIni_SetsName()
 		{
-			using (var setup = new EmptyRepositorySetup())
+			using (var setup = new EmptyRepositorySetup("Dan"))
 			{
 				setup.EnsureNoHgrcExists();
 				var repository = setup.Synchronizer.Repository;
@@ -99,7 +99,7 @@ username = joe
 		[Test]
 		public void SetRepositoryAliases()
 		{
-			using (var setup = new EmptyRepositorySetup())
+			using (var setup = new EmptyRepositorySetup("Dan"))
 			{
 				setup.EnsureNoHgrcExists();
 				var repository = setup.Synchronizer.Repository;
@@ -124,7 +124,7 @@ username = joe
 		[Test]
 		public void SetAndGetDefaultSyncRepositories()
 		{
-			using (var setup = new EmptyRepositorySetup())
+			using (var setup = new EmptyRepositorySetup("Dan"))
 			{
 				setup.EnsureNoHgrcExists();
 				var repository = setup.Synchronizer.Repository;

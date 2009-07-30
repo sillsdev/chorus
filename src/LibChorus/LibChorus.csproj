@@ -124,7 +124,7 @@
 	<Compile Include="VcsDrivers\Mercurial\HgMissingSimulation .cs" />
 	<Compile Include="VcsDrivers\Mercurial\HgPartialMergeRepository.cs" />
 	<Compile Include="VcsDrivers\Mercurial\HgRepository.cs" />
-	<Compile Include="merge\text\TextMerger.cs" />
+	<Compile Include="merge\text\PartialTextMerger.cs" />
 	<Compile Include="merge\xml\generic\Conflict.cs" />
 	<Compile Include="merge\xml\generic\MergeLogging.cs" />
 	<Compile Include="merge\xml\generic\ElementStrategy.cs" />

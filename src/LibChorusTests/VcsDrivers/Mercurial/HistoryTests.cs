@@ -87,7 +87,7 @@ namespace Chorus.Tests.VcsDrivers.Mercurial
 		[Test]
 		public void GetTip_BeforeAnySyncing_EmptyString()
 		{
-			using (var repo = new EmptyRepositorySetup())
+			using (var repo = new EmptyRepositorySetup("Dan"))
 			{
 				Assert.IsNull(repo.Synchronizer.Repository.GetTip());
 			}

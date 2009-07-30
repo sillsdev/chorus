@@ -72,10 +72,22 @@ namespace Chorus.Review.RevisionsInRepository
 					viewItem.ImageKey = "Merge";
 				else
 				{
-					var appName = rev.Summary.Substring(1, rev.Summary.IndexOf(':')-1);
+					var colonLocation = rev.Summary.IndexOf(':');
+					string appName = rev.Summary;
+					if (colonLocation > 0)
+					{
+						appName = appName.Substring(0, colonLocation );
+					}
+					var bracketLocation = appName.IndexOf(']');
+					if (bracketLocation > 0)
+					{
+						appName = appName.Substring(0, bracketLocation);
+					}
+					appName = appName.Trim(new char[] { '[' });
 					//temp hack... the app has now been fixed to not include this
-					appName = appName.Replace("0.5", "");
-					viewItem.ImageKey = appName.Trim();
+						appName = appName.Replace("0.5", "");
+						viewItem.ImageKey = appName.Trim();
+
 				}
 				viewItem.Tag = rev;
 				rows.Add(viewItem);

@@ -59,12 +59,12 @@
 			// _historyList
 			//
 			this._historyList.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-																			  | System.Windows.Forms.AnchorStyles.Left)
-																			 | System.Windows.Forms.AnchorStyles.Right)));
+						| System.Windows.Forms.AnchorStyles.Left)
+						| System.Windows.Forms.AnchorStyles.Right)));
 			this._historyList.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-																						   this.columnHeader1,
-																						   this.columnHeader2,
-																						   this.columnHeader3});
+			this.columnHeader1,
+			this.columnHeader2,
+			this.columnHeader3});
 			this._historyList.FullRowSelect = true;
 			this._historyList.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
 			this._historyList.HideSelection = false;
@@ -101,6 +101,7 @@
 			this.imageList1.Images.SetKeyName(1, "WeSay");
 			this.imageList1.Images.SetKeyName(2, "WeSay Configuration Tool");
 			this.imageList1.Images.SetKeyName(3, "Warning");
+			this.imageList1.Images.SetKeyName(4, "chorus");
 			//
 			// timer1
 			//

@@ -10,7 +10,7 @@ namespace Chorus.merge.text
 	/// <summary>
 	/// Do a 3-way Merge of a text file, producing least-common-denominator and 2 partial merge files
 	/// </summary>
-	public class TextMerger
+	public class PartialTextMerger
 	{
 		public static string GetVersion()
 		{
