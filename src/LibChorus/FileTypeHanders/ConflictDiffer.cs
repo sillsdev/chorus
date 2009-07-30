@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Xml;
-using Chorus.merge;
+using Chorus.FileTypeHanders.xml;
 using Chorus.merge.xml.generic;
 using Chorus.merge.xml.lift;
 

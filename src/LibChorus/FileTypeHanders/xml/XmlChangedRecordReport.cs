@@ -1,7 +1,8 @@
 using System.Xml;
+using Chorus.merge;
 using Chorus.VcsDrivers.Mercurial;
 
-namespace Chorus.merge
+namespace Chorus.FileTypeHanders.xml
 {
 	/// <summary>
 	/// THis may only be useful for quick, high-level identification that an entry changed,

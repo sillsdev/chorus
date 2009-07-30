@@ -1,4 +1,4 @@
-using Chorus.merge;
+using Chorus.FileTypeHanders.xml;
 using Chorus.merge.xml.generic;
 using Chorus.merge.xml.lift;
 using Chorus.Tests.merge.xml.generic;

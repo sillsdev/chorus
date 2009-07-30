@@ -1,8 +1,9 @@
 using System.Xml;
+using Chorus.merge;
 using Chorus.merge.xml.generic;
 using Chorus.VcsDrivers.Mercurial;
 
-namespace Chorus.merge
+namespace Chorus.FileTypeHanders.xml
 {
 	public class XmlAdditionChangeReport : ChangeReport, IXmlChangeReport
 	{

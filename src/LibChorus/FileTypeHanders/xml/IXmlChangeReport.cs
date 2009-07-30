@@ -1,6 +1,6 @@
 using System.Xml;
 
-namespace Chorus.merge
+namespace Chorus.FileTypeHanders.xml
 {
 	public interface IXmlChangeReport
 	{

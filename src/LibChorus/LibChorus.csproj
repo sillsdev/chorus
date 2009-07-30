@@ -66,13 +66,17 @@
 	<Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+	<Compile Include="FileTypeHanders\audio\AudioChangePresenter.cs" />
 	<Compile Include="FileTypeHanders\ConflictFileTypeHandler.cs" />
-	<Compile Include="FileTypeHanders\AudioFileTypeHandler.cs" />
+	<Compile Include="FileTypeHanders\audio\AudioFileTypeHandler.cs" />
 	<Compile Include="FileTypeHanders\ConflictPresenter.cs" />
-	<Compile Include="FileTypeHanders\ImageFileTypeHandler.cs" />
+	<Compile Include="FileTypeHanders\image\ImageChangePresenter.cs" />
+	<Compile Include="FileTypeHanders\image\ImageFileTypeHandler.cs" />
 	<Compile Include="FileTypeHanders\ConflictDiffer.cs" />
 	<Compile Include="FileTypeHanders\lift\WeSayConfigFileHandler.cs" />
-	<Compile Include="FileTypeHanders\TextFileTypeHandler.cs" />
+	<Compile Include="FileTypeHanders\text\TextEditChangePresenter.cs" />
+	<Compile Include="FileTypeHanders\text\TextEditChangeReport.cs" />
+	<Compile Include="FileTypeHanders\text\TextFileTypeHandler.cs" />
 	<Compile Include="FileTypeHanders\DefaultFileTypeHandler.cs" />
 	<Compile Include="FileTypeHanders\IChangePresenter.cs" />
 	<Compile Include="FileTypeHanders\IChorusFileTypeHandler.cs" />
@@ -82,6 +86,10 @@
 	<Compile Include="FileTypeHanders\lift\LiftFileHandler.cs" />
 	<Compile Include="FileTypeHanders\lift\LiftDiffer.cs" />
 	<Compile Include="FileTypeHanders\lift\LiftUtils.cs" />
+	<Compile Include="FileTypeHanders\xml\IXmlChangeReport.cs" />
+	<Compile Include="FileTypeHanders\xml\XmlAdditionChangeReport.cs" />
+	<Compile Include="FileTypeHanders\xml\XmlChangedRecordReport.cs" />
+	<Compile Include="FileTypeHanders\xml\XmlDeletionChangeReport.cs" />
 	<Compile Include="merge\xml\generic\HumanLogMergeEventListener.cs" />
 	<Compile Include="merge\xml\generic\XmlLogMergeEventListener.cs" />
 	<Compile Include="Utilities\Guard.cs" />

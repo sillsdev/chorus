@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Chorus.FileTypeHanders.audio;
+using Chorus.FileTypeHanders.image;
 using Chorus.FileTypeHanders.lift;
 using Chorus.merge;
 using Chorus.Utilities;

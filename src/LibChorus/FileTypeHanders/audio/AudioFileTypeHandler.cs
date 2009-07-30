@@ -1,13 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using Chorus.merge;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
 using System.Linq;
 
-namespace Chorus.FileTypeHanders
+namespace Chorus.FileTypeHanders.audio
 {
 	public class AudioFileTypeHandler : IChorusFileTypeHandler
 	{
@@ -52,51 +51,5 @@ namespace Chorus.FileTypeHanders
 			return new IChangeReport[] { new DefaultChangeReport(fileInRevision, "Added") };
 		}
 
-	}
-
-	public class AudioChangePresenter : IChangePresenter
-	{
-		private readonly IChangeReport _report;
-
-		public AudioChangePresenter(IChangeReport report)
-		{
-			_report = report;
-		}
-
-		public string GetDataLabel()
-		{
-			return Path.GetFileName(_report.PathToFile);
-		}
-
-		public string GetActionLabel()
-		{
-			return _report.ActionLabel;
-		}
-
-		public string GetHtml(string style, string styleSheet)
-		{
-			var builder = new StringBuilder();
-			builder.Append("<html><head>" + styleSheet + "</head>");
-			if (style == "normal")
-			{
-				builder.AppendFormat("<a href=\"playaudio:file:///{0}\">Play Sound</a>", _report.PathToFile);
-			}
-			else
-			{
-				return string.Empty;
-			}
-			builder.Append("</html>");
-			return builder.ToString();
-		}
-
-		public string GetTypeLabel()
-		{
-			return "Sound";
-		}
-
-		public string GetIconName()
-		{
-			return "sound";
-		}
 	}
 }
