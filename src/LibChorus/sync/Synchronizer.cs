@@ -4,6 +4,7 @@ using System.IO;
 using System.Windows.Forms;
 using Chorus.merge;
 using Chorus.Utilities;
+using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using System.Linq;
 
@@ -130,7 +131,7 @@ namespace Chorus.sync
 						if (repoDescriptor.CanConnect(repo, RepoProjectName, progress))
 						{
 							progress.WriteMessage("Pushing local repository to {0} at {1}", RepoProjectName, resolvedUri);
-							repo.Push(resolvedUri, progress, results);
+							repo.Push(resolvedUri, progress);
 						}
 						else if(repoDescriptor is DirectoryRepositorySource || repoDescriptor is UsbKeyRepositorySource)
 						{

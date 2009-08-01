@@ -5,6 +5,7 @@ using Chorus.merge;
 using Chorus.merge.xml.generic;
 using Chorus.sync;
 using Chorus.Utilities;
+using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using NUnit.Framework;
 

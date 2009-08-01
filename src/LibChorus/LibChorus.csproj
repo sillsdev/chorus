@@ -104,13 +104,12 @@
 	<Compile Include="merge\xml\generic\MergeSort.cs" />
 	<Compile Include="merge\xml\generic\PoorMansMergeStrategy.cs" />
 	<Compile Include="Program.cs" />
-	<Compile Include="retrieval\ChorusRevision.cs" />
-	<Compile Include="retrieval\IRetrieveFileVersionsFromRepository.cs" />
+	<Compile Include="VcsDrivers\IRetrieveFileVersionsFromRepository.cs" />
 	<Compile Include="retrieval\LiftEntryRetriever.cs" />
 	<Compile Include="retrieval\RevisionInspector.cs" />
 	<Compile Include="sync\ProjectFolderConfiguration.cs" />
 	<Compile Include="sync\Synchronizer.cs" />
-	<Compile Include="sync\RepositoryAddress.cs" />
+	<Compile Include="VcsDrivers\RepositoryAddress.cs" />
 	<Compile Include="sync\SyncOptions.cs" />
 	<Compile Include="Utilities\ExecutionResult.cs" />
 	<Compile Include="Utilities\HtmlDiffEngine.cs" />

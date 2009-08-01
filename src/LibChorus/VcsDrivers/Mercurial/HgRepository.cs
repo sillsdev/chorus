@@ -1,15 +1,11 @@
 using System;
 using System.Linq;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
-using Chorus.retrieval;
-using Chorus.sync;
 using Chorus.Utilities;
-using Chorus.merge;
 using Nini.Ini;
 
 namespace Chorus.VcsDrivers.Mercurial
@@ -148,7 +144,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			PullFromRepository(repo, false);
 		}
 
-		public void Push(string targetUri, IProgress progress, SyncResults results)
+		public void Push(string targetUri, IProgress progress)
 		{
 			using (new ConsoleProgress("{0} pushing to {1}", _userName, targetUri))
 			{

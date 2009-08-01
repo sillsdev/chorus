@@ -5,8 +5,8 @@ using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
 using Autofac;
-using Chorus.retrieval;
 using Chorus.Utilities;
+using Chorus.VcsDrivers;
 
 namespace Chorus.merge.xml.generic
 {

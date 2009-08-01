@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Chorus.retrieval
+namespace Chorus.VcsDrivers
 {
 	public interface IRetrieveFileVersionsFromRepository
 	{

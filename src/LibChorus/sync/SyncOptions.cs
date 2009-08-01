@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Chorus.VcsDrivers;
 
 namespace Chorus.sync
 {

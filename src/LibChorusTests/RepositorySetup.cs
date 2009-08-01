@@ -3,6 +3,7 @@ using System.IO;
 using Chorus.sync;
 using Chorus.Tests.merge;
 using Chorus.Utilities;
+using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using NUnit.Framework;
 

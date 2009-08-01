@@ -3,7 +3,7 @@ using System.Text;
 using Chorus.FileTypeHanders.xml;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
-using Chorus.retrieval;
+using Chorus.VcsDrivers;
 
 namespace Chorus.FileTypeHanders
 {

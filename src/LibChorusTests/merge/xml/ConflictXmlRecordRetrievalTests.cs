@@ -4,7 +4,7 @@ using System.Text;
 using System.Xml;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
-using Chorus.retrieval;
+using Chorus.VcsDrivers;
 using NUnit.Framework;
 using Palaso.TestUtilities;
 using TempFile=Chorus.Utilities.TempFile;

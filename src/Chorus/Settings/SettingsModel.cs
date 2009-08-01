@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using Chorus.sync;
 using Chorus.Utilities;
+using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 
 namespace Chorus.Settings

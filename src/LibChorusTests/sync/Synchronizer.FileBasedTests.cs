@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using Chorus.sync;
 using Chorus.Utilities;
+using Chorus.VcsDrivers;
 using NUnit.Framework;
 
 namespace Chorus.Tests.sync

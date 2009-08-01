@@ -4,7 +4,7 @@ using System.IO;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
 
-namespace Chorus.sync
+namespace Chorus.VcsDrivers
 {
 	public abstract class RepositoryAddress
 	{
@@ -103,7 +103,7 @@ namespace Chorus.sync
 		/// </summary>
 		public abstract string GetPotentialRepoUri(string projectName, IProgress progress);
 
-		 public virtual List<string> GetPossibleCloneUris(string name, IProgress progress)
+		public virtual List<string> GetPossibleCloneUris(string name, IProgress progress)
 		{
 			return null;
 		}
@@ -177,7 +177,6 @@ namespace Chorus.sync
 		}
 	}
 
-
 	public class UsbKeyRepositorySource : RepositoryAddress
 	{
 		private static string _rootDirForAllSourcesDuringUnitTest;
@@ -188,7 +187,7 @@ namespace Chorus.sync
 		/// <param name="pathToRootForAllSources"></param>
 		static public void SetRootDirForAllSourcesDuringUnitTest(string pathToRootForAllSources)
 		{
-			 _rootDirForAllSourcesDuringUnitTest = pathToRootForAllSources;
+			_rootDirForAllSourcesDuringUnitTest = pathToRootForAllSources;
 			Directory.CreateDirectory(RootDirForUsbSourceDuringUnitTest);
 		}
 		static public string RootDirForUsbSourceDuringUnitTest
@@ -197,7 +196,7 @@ namespace Chorus.sync
 			{
 				if(_rootDirForAllSourcesDuringUnitTest ==null)
 					return null;
-					return Path.Combine(_rootDirForAllSourcesDuringUnitTest, "usb");
+				return Path.Combine(_rootDirForAllSourcesDuringUnitTest, "usb");
 			}
 		}
 
@@ -251,7 +250,7 @@ namespace Chorus.sync
 			if (RootDirForUsbSourceDuringUnitTest != null)
 			{
 				string path = Path.Combine(RootDirForUsbSourceDuringUnitTest, projectName);
-		   //     Debug.Assert(Directory.Exists(path));
+				//     Debug.Assert(Directory.Exists(path));
 
 				urisToTryCreationAt.Add(path);
 				return urisToTryCreationAt;

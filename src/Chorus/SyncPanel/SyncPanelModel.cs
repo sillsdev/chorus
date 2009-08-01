@@ -5,6 +5,7 @@ using System.Windows.Forms;
 using Chorus.sync;
 using Chorus.Utilities;
 using System.Linq;
+using Chorus.VcsDrivers;
 
 namespace Chorus.SyncPanel
 {

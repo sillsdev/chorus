@@ -3,8 +3,8 @@ using System.IO;
 using System.Xml;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
-using Chorus.retrieval;
 using Chorus.Utilities;
+using Chorus.VcsDrivers;
 using NUnit.Framework;
 
 namespace Chorus.Tests.merge
