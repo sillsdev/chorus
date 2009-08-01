@@ -89,7 +89,7 @@ namespace Chorus.Tests.VcsDrivers.Mercurial
 		{
 			using (var repo = new RepositorySetup("Dan"))
 			{
-				Assert.IsNull(repo.Synchronizer.Repository.GetTip());
+				Assert.IsNull(repo.CreateSynchronizer().Repository.GetTip());
 			}
 		}
 

@@ -4,6 +4,7 @@ using Chorus.merge;
 using Chorus.sync;
 using Chorus.Tests.merge;
 using Chorus.Utilities;
+using Chorus.VcsDrivers.Mercurial;
 using NUnit.Framework;
 
 namespace Chorus.Tests.sync
@@ -63,21 +64,49 @@ namespace Chorus.Tests.sync
 
 
 		[Test]
-		public void Sync_ExceptionInMergeCode_MergeIsLeftInLimbo_TransactionIsCancelled()
+		public void Sync_FileLockedForWritingDuringUpdate_GetUpdatedFileOnceLockIsGone()
 		{
+			HgRunner.TimeoutSecondsOverrideForUnitTests = 1;
+
+		   using (var bob = new RepositorySetup("bob"))
+			{
+				bob.ProjectFolderConfig.IncludePatterns.Add("*.txt");
+				bob.AddAndCheckinFile("one.txt", "hello");
+				using (var sally = new RepositorySetup("sally", bob))
+				{
+					bob.AddAndCheckinFile("one.txt", "hello-bob");
+					using (sally.GetFileLockForWriting("one.txt"))
+					{
+						Assert.IsFalse(sally.CheckinAndPullAndMerge(bob).Succeeded);
+					 sally.AssertFileContents("one.txt", "hello");
+				   }
+					sally.AssertSingleHead();
+
+					//ok, now whatever was holding that file is done with it, and we try again
+
+					Assert.IsTrue(sally.CheckinAndPullAndMerge(bob).Succeeded);
+					sally.AssertFileContents("one.txt", "hello-bob");
+				}
+			}
+		}
+
+		[Test]
+		public void Sync_FileLockedForReadingDuringMerge_LeftWithSingleHead()
+		{
+			HgRunner.TimeoutSecondsOverrideForUnitTests = 1;
 			using (var bob = new RepositorySetup("bob"))
 			{
 				bob.ProjectFolderConfig.IncludePatterns.Add("*.txt");
 				bob.AddAndCheckinFile("one.txt", "hello");
-				bob.AddAndCheckinFile("two.txt", "bye");
 				using (var sally = new RepositorySetup("sally", bob))
 				{
 					bob.AddAndCheckinFile("one.txt", "hello-bob");
-					using (new FailureSimulator("TextMerger"))
+					using (sally.GetFileLockForReading("one.txt"))
 					{
-						sally.AddAndCheckinFile("one.txt", "hello-sally");
+						sally.CheckinAndPullAndMerge(bob);
 					}
-
+					sally.AssertSingleHead();
+			//TODO: what else should the system do about it?
 				}
 			}
 		}

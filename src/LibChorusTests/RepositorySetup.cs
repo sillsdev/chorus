@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using Chorus.sync;
+using Chorus.Tests.merge;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
 using NUnit.Framework;
@@ -12,22 +13,53 @@ namespace Chorus.Tests
 	/// </summary>
 	public class RepositorySetup :IDisposable
 	{
-		private StringBuilderProgress _progress = new StringBuilderProgress();
+		private readonly StringBuilderProgress _stringBuilderProgress = new StringBuilderProgress();
+		private IProgress _progress;
 		public TempFolder RootFolder;
 		public TempFolder ProjectFolder;
-		public Synchronizer Synchronizer;
-		public RepositoryAddress RepoPath;
 		public ProjectFolderConfiguration ProjectFolderConfig;
 
+		private void Init(string name)
+		{
+			_progress = new MultiProgress(new IProgress[] { new ConsoleProgress(), _stringBuilderProgress });
+			RootFolder = new TempFolder("ChorusTest-" + name);
+		}
 
 		public RepositorySetup(string userName)
 		{
-			RootFolder = new TempFolder("ChorusTest-"+userName);
+			Init(userName);
+
 			ProjectFolder = new TempFolder(RootFolder, ProjectName);
 
 			RepositorySetup.MakeRepositoryForTest(ProjectFolder.Path, userName);
 			ProjectFolderConfig = new ProjectFolderConfiguration(ProjectFolder.Path);
-			Synchronizer = Synchronizer.FromProjectConfiguration(ProjectFolderConfig, new NullProgress());
+
+		}
+
+
+		public RepositorySetup(string cloneName, RepositorySetup sourceToClone)
+		{
+			Init(cloneName);
+			string pathToProject = RootFolder.Combine(ProjectName);
+			ProjectFolderConfig = sourceToClone.ProjectFolderConfig.Clone();
+			ProjectFolderConfig.FolderPath = pathToProject;
+
+			sourceToClone.CreateSynchronizer().MakeClone(pathToProject, true, _progress);
+			ProjectFolder = TempFolder.TrackExisting(RootFolder.Combine(ProjectName));
+
+			var hg = new HgRepository(pathToProject, new NullProgress());
+			hg.SetUserNameInIni(cloneName, new NullProgress());
+
+		}
+
+		public string GetProgressString()
+		{
+			return _stringBuilderProgress.ToString();
+		}
+
+		public Synchronizer CreateSynchronizer()
+		{
+			return Synchronizer.FromProjectConfiguration(ProjectFolderConfig, new NullProgress());
 		}
 
 
@@ -71,8 +103,27 @@ namespace Chorus.Tests
 			options.DoPullFromOthers = false;
 			options.DoPushToLocalSources = false;
 
-			Synchronizer.SyncNow(options, _progress);
+			CreateSynchronizer().SyncNow(options, _progress);
 		}
+
+		public SyncResults CheckinAndPullAndMerge(RepositorySetup otherUser)
+		{
+			SyncOptions options = new SyncOptions();
+			options.DoMergeWithOthers = true;
+			options.DoPullFromOthers = true;
+			options.DoPushToLocalSources = true;
+
+			options.RepositorySourcesToTry.Add(otherUser.GetRepositoryAddress());
+			return CreateSynchronizer().SyncNow(options, _progress);
+		}
+
+		public RepositoryAddress GetRepositoryAddress()
+		{
+			var x =   RepositoryAddress.Create("unknownname", ProjectFolder.Path, false);
+			x.Enabled = true;
+			return x;
+		}
+
 		public void AssertFileExistsRelativeToRoot(string relativePath)
 		{
 			Assert.IsTrue(File.Exists(RootFolder.Combine(relativePath)));
@@ -95,20 +146,43 @@ namespace Chorus.Tests
 			hg.SetUserNameInIni(userId, new NullProgress());
 		}
 
-		public RepositorySetup(string cloneName, RepositorySetup sourceToClone)
-		{
-			RootFolder = new TempFolder("ChorusTest-" + cloneName);
-			 string pathToProject = RootFolder.Combine(ProjectName);
-		   ProjectFolderConfig = sourceToClone.ProjectFolderConfig.Clone();
-		   ProjectFolderConfig.FolderPath = pathToProject;
-
-			sourceToClone.Synchronizer.MakeClone(pathToProject, true, _progress);
-			ProjectFolder = TempFolder.TrackExisting(RootFolder.Combine(ProjectName));
-		}
 
 		private static string ProjectName
 		{
 			get { return "foo project"; }
 		}
+
+		public IDisposable GetFileLockForReading(string localPath)
+		{
+			return new StreamWriter(ProjectFolder.Combine(localPath));
+		}
+		public IDisposable GetFileLockForWriting(string localPath)
+		{
+			return new StreamReader(ProjectFolder.Combine(localPath));
+		}
+
+
+		public void AssertSingleHead()
+		{
+			var actual = Repository.GetHeads().Count;
+			Assert.AreEqual(1, actual, "There should be on only one head, but there are " + actual.ToString());
+		}
+
+		public void AssertHeadCount(int count)
+		{
+			var actual = Repository.GetHeads().Count;
+			Assert.AreEqual(count, actual, "Wrong number of heads");
+		}
+
+		public void AssertFileExists(string relativePath)
+		{
+			Assert.IsTrue(File.Exists(ProjectFolder.Combine(relativePath)));
+		}
+
+		public void AssertFileContents(string relativePath, string expectedContents)
+		{
+			Assert.AreEqual(expectedContents, File.ReadAllText(ProjectFolder.Combine(relativePath)));
+		}
 	}
+
 }

@@ -57,7 +57,7 @@ two = http://foo.com");
 				setup.WriteIniContents(@"[ui]
 username = joe
 ");
-				var repository = setup.Synchronizer.Repository;
+				var repository = setup.CreateSynchronizer().Repository;
 				Assert.AreEqual("joe", repository.GetUserNameFromIni(new NullProgress()));
 			}
 		}
@@ -67,7 +67,7 @@ username = joe
 			using (var setup = new RepositorySetup("Dan"))
 			{
 				setup.WriteIniContents(@"");
-				var repository = setup.Synchronizer.Repository;
+				var repository = setup.CreateSynchronizer().Repository;
 				Assert.AreEqual(string.Empty, repository.GetUserNameFromIni(new NullProgress()));
 			}
 		}
@@ -77,7 +77,7 @@ username = joe
 			using (var setup = new RepositorySetup("Dan"))
 			{
 				setup.EnsureNoHgrcExists();
-				var repository = setup.Synchronizer.Repository;
+				var repository = setup.CreateSynchronizer().Repository;
 				Assert.AreEqual(string.Empty, repository.GetUserNameFromIni(new NullProgress()));
 			}
 		}
@@ -87,7 +87,7 @@ username = joe
 			using (var setup = new RepositorySetup("Dan"))
 			{
 				setup.EnsureNoHgrcExists();
-				var repository = setup.Synchronizer.Repository;
+				var repository = setup.CreateSynchronizer().Repository;
 				repository.SetUserNameInIni("bill", new NullProgress());
 				Assert.AreEqual("bill", repository.GetUserNameFromIni(new NullProgress()));
 
@@ -102,7 +102,7 @@ username = joe
 			using (var setup = new RepositorySetup("Dan"))
 			{
 				setup.EnsureNoHgrcExists();
-				var repository = setup.Synchronizer.Repository;
+				var repository = setup.CreateSynchronizer().Repository;
 				var x = RepositoryAddress.Create("one", @"c:\one");
 				var y = RepositoryAddress.Create("two", @"http://two.org");
 				repository.SetKnownRepositoryAddresses(new List<RepositoryAddress>(new RepositoryAddress[]{x,y}));
@@ -127,7 +127,7 @@ username = joe
 			using (var setup = new RepositorySetup("Dan"))
 			{
 				setup.EnsureNoHgrcExists();
-				var repository = setup.Synchronizer.Repository;
+				var repository = setup.CreateSynchronizer().Repository;
 				var x =  RepositoryAddress.Create("one", @"c:\one");
 				var y = RepositoryAddress.Create("two", @"http://two.org");
 				var z = RepositoryAddress.Create("three", @"http://three.org");

@@ -92,6 +92,7 @@
 	<Compile Include="FileTypeHanders\xml\XmlDeletionChangeReport.cs" />
 	<Compile Include="merge\xml\generic\HumanLogMergeEventListener.cs" />
 	<Compile Include="merge\xml\generic\XmlLogMergeEventListener.cs" />
+	<Compile Include="Utilities\ProcessOutputReader.cs" />
 	<Compile Include="Utilities\FailureSimulator.cs" />
 	<Compile Include="Utilities\Guard.cs" />
 	<Compile Include="merge\IChangeReport.cs" />
@@ -131,7 +132,6 @@
 	<Compile Include="VcsDrivers\Git\GitRepository.cs" />
 	<Compile Include="VcsDrivers\Mercurial\FileInRevision.cs" />
 	<Compile Include="VcsDrivers\Mercurial\HgMissingSimulation .cs" />
-	<Compile Include="VcsDrivers\Mercurial\HgPartialMergeRepository.cs" />
 	<Compile Include="VcsDrivers\Mercurial\HgRepository.cs" />
 	<Compile Include="merge\text\PartialTextMerger.cs" />
 	<Compile Include="merge\xml\generic\Conflict.cs" />

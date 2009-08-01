@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Windows.Forms;
+using Chorus.merge;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
 using System.Linq;
@@ -77,6 +78,7 @@ namespace Chorus.sync
 
 			HgRepository repo = new HgRepository(_localRepositoryPath,progress);
 
+			repo.RecoverIfNeeded(progress);
 
 			progress.WriteStatus("Checking In...");
 			repo.AddAndCheckinFiles(_project.IncludePatterns, _project.ExcludePatterns, options.CheckinDescription);
@@ -108,7 +110,7 @@ namespace Chorus.sync
 
 			if (options.DoMergeWithOthers)
 			{
-				IList<string> peopleWeMergedWith = repo.MergeHeads(progress, results);
+				IList<string> peopleWeMergedWith = MergeHeads(progress, results);
 
 				//that merge may have generated conflict files, and we want these merged
 				//version + updated/created conflict files to go right back into the repository
@@ -138,7 +140,15 @@ namespace Chorus.sync
 					}
 				}
 			}
-			UpdateToTheDescendantRevision(repo, tipBeforeSync);
+			try
+			{
+				UpdateToTheDescendantRevision(repo, tipBeforeSync);
+			}
+			catch (Exception error)
+			{
+				progress.WriteError("The command timed out.  Details: " + error.Message);
+				results.Succeeded = false;
+			}
 			progress.WriteStatus("Done.");
 			return results;
 		}
@@ -282,11 +292,84 @@ namespace Chorus.sync
 		}
 
 
+
+		/// <summary>
+		/// note: intentionally does not commit afterwards
+		/// </summary>
+		/// <param name="progress"></param>
+		/// <param name="results"></param>
+		public IList<string> MergeHeads(IProgress progress, SyncResults results)
+		{
+			List<string> peopleWeMergedWith = new List<string>();
+
+			List<Revision> heads = Repository.GetHeads();
+			Revision myHead = Repository.GetRevisionWorkingSetIsBasedOn();
+			foreach (Revision head in heads)
+			{
+				MergeSituation.PushRevisionsToEnvironmentVariables(myHead.UserId, myHead.Number.LocalRevisionNumber, head.UserId, head.Number.LocalRevisionNumber);
+
+				MergeOrder.PushToEnvironmentVariables(_localRepositoryPath);
+				if (head.Number.LocalRevisionNumber != myHead.Number.LocalRevisionNumber)
+				{
+					progress.WriteStatus("Merging with {0}...", head.UserId);
+					RemoveMergeObstacles(myHead, head, progress);
+					bool didMerge = MergeTwoChangeSets(myHead, head);
+					if (didMerge)
+					{
+						peopleWeMergedWith.Add(head.UserId);
+					}
+				}
+			}
+
+			return peopleWeMergedWith;
+		}
+
+		/// <summary>
+		/// There may be more, but for now: take care of the case where one guy has a file not
+		/// modified (and not checked in), and the other guy is going to hammer it (with a remove
+		/// or change).
+		/// </summary>
+		private void RemoveMergeObstacles(Revision rev1, Revision rev2, IProgress progress)
+		{
+			//todo: push down to hgrepository
+			var files = Repository.GetFilesInRevisionFromQuery(rev1 /*this param is bogus*/, "status -ru --rev " + rev2.Number.LocalRevisionNumber);
+
+			foreach (var file in files)
+			{
+				if (file.ActionThatHappened == FileInRevision.Action.Unknown)
+				{
+					if (files.Any(f => f.FullPath == file.FullPath))
+					{
+						 var newPath = file.FullPath + "-" + Path.GetRandomFileName() + ".chorusRescue";
+						File.Move(file.FullPath, newPath);
+						progress.WriteWarning("Renamed {0} to {1} because it is not part of {2}'s repository but it is part of {3}'s, and this would otherwise prevent a merge.", file.FullPath, Path.GetFileName(newPath), rev1.UserId, rev2.UserId);
+					}
+				}
+			}
+		}
+
+
+
+		private bool MergeTwoChangeSets(Revision head, Revision theirHead)
+		{
+			using (new ShortTermEnvironmentalVariable("HGMERGE", Path.Combine(Other.DirectoryOfExecutingAssembly, "ChorusMerge.exe")))
+			{
+				using (new ShortTermEnvironmentalVariable(MergeOrder.kConflictHandlingModeEnvVarName, MergeOrder.ConflictHandlingModeChoices.TheyWin.ToString()))
+				{
+					return Repository.Merge(_localRepositoryPath, theirHead.Number.LocalRevisionNumber);
+				}
+			}
+		}
 	}
 
 
 	public class SyncResults
 	{
+		public bool Succeeded { get; set; }
 
+		public SyncResults()
+		{
+			Succeeded = true;
+		}
 	}
 }

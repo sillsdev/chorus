@@ -6,6 +6,9 @@ using System.Threading;
 
 namespace Chorus.Utilities
 {
+	/// <summary>
+	/// This is class originally from  SeemabK (seemabk@yahoo.com).  It has been enhanced for chorus.
+	/// </summary>
 	public class ProcessStream
 	{
 		/*
@@ -38,17 +41,19 @@ namespace Chorus.Utilities
 
 		private Thread StandardOutputReader;
 		private Thread StandardErrorReader;
-		private static Process RunProcess;
+		private static Process _srunningProcess;
 
-		private string _StandardOutput = "";
+		private string _standardOutput = "";
 		public string StandardOutput
 		{
-			get { return _StandardOutput; }
+			get { return _standardOutput; }
 		}
-		private string _StandardError = "";
+		private string _standardError = "";
+		public const int kTimedOut = 99;
+
 		public string StandardError
 		{
-			get { return _StandardError; }
+			get { return _standardError; }
 		}
 
 		public ProcessStream()
@@ -56,53 +61,63 @@ namespace Chorus.Utilities
 			Init();
 		}
 
-		public int Read(ref Process process)
+		public int Read(ref Process process, int secondsBeforeTimeOut)
 		{
-			try
-			{
+//            try
+//            {
 				Init();
-				RunProcess = process;
+				_srunningProcess = process;
 
-				if (RunProcess.StartInfo.RedirectStandardOutput)
+				if (_srunningProcess.StartInfo.RedirectStandardOutput)
 				{
 					StandardOutputReader = new Thread(new ThreadStart(ReadStandardOutput));
 					StandardOutputReader.Start();
 				}
-				if (RunProcess.StartInfo.RedirectStandardError)
+				if (_srunningProcess.StartInfo.RedirectStandardError)
 				{
 					StandardErrorReader = new Thread(new ThreadStart(ReadStandardError));
 					StandardErrorReader.Start();
 				}
 
-				//RunProcess.WaitForExit();
+				//_srunningProcess.WaitForExit();
 				if (StandardOutputReader != null)
-					StandardOutputReader.Join();
+				{
+					if (!StandardOutputReader.Join(new TimeSpan(0, 0, 0, secondsBeforeTimeOut)))
+					{
+						return kTimedOut;
+					}
+				}
 				if (StandardErrorReader != null)
-					StandardErrorReader.Join();
-			}
-			catch
-			{ }
+				{
+					if (!StandardErrorReader.Join(new TimeSpan(0, 0, 0, secondsBeforeTimeOut)))
+					{
+						return kTimedOut;
+					}
+				}
+//            }
+//            catch
+//            { }
 
 			return 1;
 		}
 
 		private void ReadStandardOutput()
 		{
-			if (RunProcess != null)
-				_StandardOutput = RunProcess.StandardOutput.ReadToEnd();
+			if (_srunningProcess != null)
+				_standardOutput = _srunningProcess.StandardOutput.ReadToEnd();
 		}
 
 		private void ReadStandardError()
 		{
-			if (RunProcess != null)
-				_StandardError = RunProcess.StandardError.ReadToEnd();
+			if (_srunningProcess != null)
+				_standardError = _srunningProcess.StandardError.ReadToEnd();
 		}
 
 		private int Init()
 		{
-			_StandardError = "";
-			_StandardOutput = "";
-			RunProcess = null;
+			_standardError = "";
+			_standardOutput = "";
+			_srunningProcess = null;
 			Stop();
 			return 1;
 		}

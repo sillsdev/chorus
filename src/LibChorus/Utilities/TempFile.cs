@@ -153,6 +153,12 @@ namespace Chorus.Utilities
 			}
 			return new TempFile(path, true);
 		}
+
+		public static TempFile CreateAt(string path, string contents)
+		{
+			File.WriteAllText(path, contents);
+			return TempFile.TrackExisting(path);
+		}
 	}
 
 	public class TempFolder : IDisposable
@@ -222,9 +228,15 @@ namespace Chorus.Utilities
 			}
 			return TempFile.TrackExisting(s);
 		}
-		public string Combine(string innerFileName)
+
+		public string Combine(params string[] partsOfThePath)
 		{
-			return System.IO.Path.Combine(_path, innerFileName);
+			string result = _path;
+			foreach (var s in partsOfThePath)
+			{
+				 result = System.IO.Path.Combine(result, s);
+			}
+			return result;
 		}
 	}
 

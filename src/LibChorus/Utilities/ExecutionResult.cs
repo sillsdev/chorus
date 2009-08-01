@@ -7,6 +7,7 @@ namespace Chorus.Utilities
 		public int ExitCode;
 		public string StandardError;
 		public string StandardOutput;
+		public bool DidTimeOut { get { return ExitCode == ProcessOutputReader.kTimedOut; } }
 
 		public ExecutionResult()
 		{
@@ -15,7 +16,7 @@ namespace Chorus.Utilities
 		public ExecutionResult(Process proc)
 		{
 			ProcessStream ps = new ProcessStream();
-			ps.Read(ref proc);
+			ps.Read(ref proc, 30);
 			StandardOutput = ps.StandardOutput;
 			StandardError = ps.StandardError;
 			ExitCode = proc.ExitCode;

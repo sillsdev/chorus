@@ -11,9 +11,11 @@ namespace Chorus.VcsDrivers.Mercurial
 {
 	public class HgRunner
 	{
+		public static int TimeoutSecondsOverrideForUnitTests = 10000;
+
 		public static ExecutionResult Run(string commandLine)
 		{
-			return Run(commandLine, null);
+			return Run(commandLine, null, 30);
 		}
 
 #if UseWrapShellCall
@@ -42,20 +44,20 @@ namespace Chorus.VcsDrivers.Mercurial
 		}
 #else
 
-		public static ExecutionResult Run(string commandLine, string fromDirectory)
+		public static ExecutionResult Run(string commandLine, string fromDirectory, int secondsBeforeTimeOut)
 		{
 			ExecutionResult result = new ExecutionResult();
-			Process p = new Process();
-			p.StartInfo.RedirectStandardError = true;
-			p.StartInfo.RedirectStandardOutput = true;
-			p.StartInfo.UseShellExecute = false;
-			p.StartInfo.CreateNoWindow = true;
-			p.StartInfo.WorkingDirectory = fromDirectory;
-			p.StartInfo.FileName = "hg";
-			p.StartInfo.Arguments = commandLine.Replace("hg ", ""); //we don't want the whole command line for this test
+			Process process = new Process();
+			process.StartInfo.RedirectStandardError = true;
+			process.StartInfo.RedirectStandardOutput = true;
+			process.StartInfo.UseShellExecute = false;
+			process.StartInfo.CreateNoWindow = true;
+			process.StartInfo.WorkingDirectory = fromDirectory;
+			process.StartInfo.FileName = "hg";
+			process.StartInfo.Arguments = commandLine.Replace("hg ", ""); //we don't want the whole command line for this test
 
 			try
-			{p.Start();}
+			{process.Start();}
 			catch(Win32Exception error)
 			{
 				const int ERROR_FILE_NOT_FOUND = 2;
@@ -75,12 +77,28 @@ namespace Chorus.VcsDrivers.Mercurial
 					throw error;
 				}
 			}
-			ProcessStream processStream = new ProcessStream();
-			processStream.Read(ref p);
-			p.WaitForExit();
-			result.StandardOutput = processStream.StandardOutput;
-			result.StandardError = processStream.StandardError;
-			result.ExitCode = p.ExitCode;
+			var processReader = new ProcessOutputReader();
+			if(secondsBeforeTimeOut > TimeoutSecondsOverrideForUnitTests)
+				secondsBeforeTimeOut = TimeoutSecondsOverrideForUnitTests;
+
+			bool timedOut = false;
+			if (!processReader.Read(ref process, secondsBeforeTimeOut))
+			{
+				timedOut = true;
+				process.Kill();
+			}
+			result.StandardOutput = processReader.StandardOutput;
+			result.StandardError = processReader.StandardError;
+
+			if (timedOut)
+			{
+				result.StandardError += Environment.NewLine + "Timed Out after waiting " + secondsBeforeTimeOut + " seconds.";
+				result.ExitCode = ProcessStream.kTimedOut;
+			}
+			else
+			{
+				result.ExitCode = process.ExitCode;
+			}
 			return result;
 		}
 #endif

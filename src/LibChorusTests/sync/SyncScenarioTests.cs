@@ -44,7 +44,7 @@ namespace Chorus.Tests.sync
 				_lexiconProjectPath = Path.Combine(_languageProjectPath, "lexicon");
 				Directory.CreateDirectory(_lexiconProjectPath);
 
-				PathToText = Path.Combine(_lexiconProjectPath, "foo.txt");
+				PathToText = Path.Combine(_lexiconProjectPath, "foo.abc");
 				File.WriteAllText(PathToText, "version one of my pretend txt");
 
 				_pathToLift = Path.Combine(_lexiconProjectPath, "foo.lift");
@@ -56,7 +56,7 @@ namespace Chorus.Tests.sync
 
 				string cachePath = Path.Combine(_lexiconProjectPath, "cache");
 				Directory.CreateDirectory(cachePath);
-				File.WriteAllText(Path.Combine(cachePath, "cache.txt"), "Some cache stuff");
+				File.WriteAllText(Path.Combine(cachePath, "cache.abc"), "Some cache stuff");
 
 				_projectFolderConfiguration = new ProjectFolderConfiguration(languageProjectPath);
 				_projectFolderConfiguration.IncludePatterns.Add(_lexiconProjectPath);
@@ -81,8 +81,8 @@ namespace Chorus.Tests.sync
 			public void ChangeTextFile()
 			{
 				SyncOptions options = new SyncOptions();
-				options.CheckinDescription = "a change to foo.txt";
-				string bobsFooTextPath = Path.Combine(_lexiconProjectPath, "foo.txt");
+				options.CheckinDescription = "a change to foo.abc";
+				string bobsFooTextPath = Path.Combine(_lexiconProjectPath, "foo.abc");
 				File.WriteAllText(bobsFooTextPath, "version two of my pretend txt");
 				GetManager().SyncNow(options,_progress);
 			}
@@ -99,7 +99,7 @@ namespace Chorus.Tests.sync
 			public Synchronizer GetManager()
 			{
 				ProjectFolderConfiguration project = new ProjectFolderConfiguration(_lexiconProjectPath);
-				project.IncludePatterns.Add("**.txt");
+				project.IncludePatterns.Add("**.abc");
 				 project.IncludePatterns.Add("**.lift");
 			   Synchronizer repo= Synchronizer.FromProjectConfiguration(project, new NullProgress());
 				repo.Repository.SetUserNameInIni("bob", new NullProgress());
@@ -135,10 +135,10 @@ namespace Chorus.Tests.sync
 			bob.ExtraRepositorySources.Add(otherDirPath);
 
 			//now stick a new file over in the "usb", so we can see if it comes back to us
-			File.WriteAllText(Path.Combine(otherDirPath.GetPotentialRepoUri(BobSetup.ProjectFolderName, progress), "incoming.txt"), "this would be a file coming in");
+			File.WriteAllText(Path.Combine(otherDirPath.GetPotentialRepoUri(BobSetup.ProjectFolderName, progress), "incoming.abc"), "this would be a file coming in");
 			SyncOptions options = new SyncOptions();
 			ProjectFolderConfiguration usbProject = new ProjectFolderConfiguration(Path.Combine(usbPath, BobSetup.ProjectFolderName));
-			usbProject.IncludePatterns.Add("**.txt");
+			usbProject.IncludePatterns.Add("**.abc");
 			options.CheckinDescription = "adding a file to the usb for some reason";
 			var synchronizer = Synchronizer.FromProjectConfiguration(usbProject, new NullProgress());
 			synchronizer.Repository.SetUserNameInIni("usba", new NullProgress());
@@ -153,7 +153,7 @@ namespace Chorus.Tests.sync
 			options.CheckinDescription = "test getting new file from usb";
 			options.RepositorySourcesToTry.Add(otherDirPath);
 			bob.SyncNow(options, progress);
-			Assert.IsTrue(File.Exists(Path.Combine(bobSetup._languageProjectPath, "incoming.txt")));
+			Assert.IsTrue(File.Exists(Path.Combine(bobSetup._languageProjectPath, "incoming.abc")));
 		}
 
 #if forscreenshot
@@ -223,17 +223,17 @@ namespace Chorus.Tests.sync
 			bobSynchronizer.SyncNow(bobOptions, progress);
 
 			ProjectFolderConfiguration sallyProject = new ProjectFolderConfiguration(sallyRepoPath);
-			sallyProject.IncludePatterns.Add("**.txt");
+			sallyProject.IncludePatterns.Add("**.abc");
 
 			Synchronizer sallySynchronizer = Synchronizer.FromProjectConfiguration(sallyProject, new NullProgress());
 			sallySynchronizer.Repository.SetUserNameInIni("sally", new NullProgress());
 
 			//now she modifies a file
-			File.WriteAllText(Path.Combine(sallyRepoPath, "lexicon/foo.txt"), "Sally was here");
+			File.WriteAllText(Path.Combine(sallyRepoPath, "lexicon/foo.abc"), "Sally was here");
 
 			//and syncs, which pushes back to the usb key
 			SyncOptions sallyOptions = new SyncOptions();
-			sallyOptions.CheckinDescription = "making sally's mark on foo.txt";
+			sallyOptions.CheckinDescription = "making sally's mark on foo.abc";
 			 sallyOptions.RepositorySourcesToTry.Add(usbPath);
 			sallyOptions.DoPullFromOthers = true;
 			sallyOptions.DoMergeWithOthers = true;
@@ -268,7 +268,7 @@ namespace Chorus.Tests.sync
 			Directory.CreateDirectory(sallyMachineRoot);
 			string sallyProjectRoot = bobSetup.SetupClone(sallyMachineRoot);
 			ProjectFolderConfiguration sallyProject = new ProjectFolderConfiguration(sallyProjectRoot);
-			sallyProject.IncludePatterns.Add("**.txt");
+			sallyProject.IncludePatterns.Add("**.abc");
 			sallyProject.IncludePatterns.Add("**.lift");
 
 			var repository = HgRepository.CreateOrLocate(sallyProject.FolderPath, new NullProgress());
@@ -307,34 +307,29 @@ namespace Chorus.Tests.sync
 		}
 
 
-		private void AssertTestFile(HgPartialMerge repo, int line, string expectedContents)
-		{
-			Debug.WriteLine("Checking that " + repo.UserName + " has '" + expectedContents + "' in line " + line);
-			AssertLineOfFile(repo.GetFilePath("data.txt"), line, expectedContents);
-		}
 
 		public void AssertLineOfFile(string filePath, int lineNumber1Based, string shouldEqual)
 		{
 			string[] lines = File.ReadAllLines(filePath);
 			Assert.AreEqual(shouldEqual, lines[lineNumber1Based - 1]);
 		}
-
-		public void ChangeTestFileAndCheckin(HgPartialMerge repo, string fileName, int lineNumber1Based, string newText)
-		{
-			Debug.WriteLine(repo.UserName+" changing line "+lineNumber1Based +" to "+ newText);
-			string[] lines = File.ReadAllLines(repo.GetFilePath(fileName));
-			lines[lineNumber1Based-1] = newText;
-			using (StreamWriter stream = File.CreateText(repo.GetFilePath(fileName)))
-			{
-				foreach (string line in lines)
-				{
-					stream.Write(line + System.Environment.NewLine);
-				}
-				stream.Close();
-			}
-
-			repo.Commit(false, "Change line " + lineNumber1Based + " of " + fileName /*repo.GetFilePath(fileName)*/ + " to " + newText);
-		}
+//
+//        public void ChangeTestFileAndCheckin(HgPartialMerge repo, string fileName, int lineNumber1Based, string newText)
+//        {
+//            Debug.WriteLine(repo.UserName+" changing line "+lineNumber1Based +" to "+ newText);
+//            string[] lines = File.ReadAllLines(repo.GetFilePath(fileName));
+//            lines[lineNumber1Based-1] = newText;
+//            using (StreamWriter stream = File.CreateText(repo.GetFilePath(fileName)))
+//            {
+//                foreach (string line in lines)
+//                {
+//                    stream.Write(line + System.Environment.NewLine);
+//                }
+//                stream.Close();
+//            }
+//
+//            repo.Commit(false, "Change line " + lineNumber1Based + " of " + fileName /*repo.GetFilePath(fileName)*/ + " to " + newText);
+//        }
 
 	}
 }

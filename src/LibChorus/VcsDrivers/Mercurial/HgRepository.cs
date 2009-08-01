@@ -20,6 +20,8 @@ namespace Chorus.VcsDrivers.Mercurial
 		protected readonly string _pathToRepository;
 		protected readonly string _userName;
 		protected IProgress _progress;
+		private int _secondsBeforeTimeoutOnLocalOperation = 30;
+		private int _secondsBeforeTimeoutOnRemoteOperation = 180;
 
 		public static string GetEnvironmentReadinessMessage(string messageLanguageId)
 		{
@@ -47,7 +49,6 @@ namespace Chorus.VcsDrivers.Mercurial
 		/// <returns></returns>
 		public static HgRepository CreateOrLocate(string startingPointForPathSearch, IProgress progress)
 		{
-
 			if (!Directory.Exists(startingPointForPathSearch) && !File.Exists(startingPointForPathSearch))
 			{
 				throw new ArgumentException("File or directory wasn't found", startingPointForPathSearch);
@@ -57,7 +58,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				startingPointForPathSearch = Path.GetDirectoryName(startingPointForPathSearch);
 			}
 
-			string root = GetRepositoryRoot(startingPointForPathSearch);
+			string root = GetRepositoryRoot(startingPointForPathSearch, ExecuteErrorsOk("root", startingPointForPathSearch, 10));
 			if (!string.IsNullOrEmpty(root))
 			{
 				return new HgRepository(root, progress);
@@ -130,13 +131,13 @@ namespace Chorus.VcsDrivers.Mercurial
 			return GetFileExistsInRepo(subPath);
 		}
 
-		static protected void SetupPerson(string pathToRepository, string userName)
+		protected  void SetupPerson(string pathToRepository, string userName)
 		{
 			using (new ConsoleProgress("setting name and branch"))
 			{
 				using (new ShortTermEnvironmentalVariable("HGUSER", userName))
 				{
-					Execute("branch", pathToRepository, userName);
+					Execute("branch", pathToRepository, _secondsBeforeTimeoutOnLocalOperation, userName);
 				}
 			}
 		}
@@ -153,7 +154,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			{
 				try
 				{
-					Execute("push", _pathToRepository, SurroundWithQuotes(targetUri));
+					Execute("push", _pathToRepository, _secondsBeforeTimeoutOnLocalOperation, SurroundWithQuotes(targetUri));
 				}
 				catch (Exception err)
 				{
@@ -164,7 +165,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				{
 					try
 					{
-						Execute("update", targetUri, "-C"); // for usb keys and other local repositories
+						Execute("update", targetUri, _secondsBeforeTimeoutOnLocalOperation, "-C"); // for usb keys and other local repositories
 					}
 					catch (Exception err)
 					{
@@ -187,7 +188,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			{
 				try
 				{
-					Execute("pull", _pathToRepository, otherRepo.PathWithQuotes);
+					Execute("pull", _pathToRepository, _secondsBeforeTimeoutOnRemoteOperation, otherRepo.PathWithQuotes);
 				}
 				catch (Exception err)
 				{
@@ -242,15 +243,15 @@ namespace Chorus.VcsDrivers.Mercurial
 		}
 
 
-		protected static string GetTextFromQuery(string repositoryPath, string s)
+		protected string GetTextFromQuery(string repositoryPath, string s)
 		{
-			ExecutionResult result= ExecuteErrorsOk(s + " -R " + SurroundWithQuotes(repositoryPath));
-			Debug.Assert(string.IsNullOrEmpty(result.StandardError), result.StandardError);
+			ExecutionResult result= ExecuteErrorsOk(s + " -R " + SurroundWithQuotes(repositoryPath), _secondsBeforeTimeoutOnLocalOperation);
+		   // Debug.Assert(string.IsNullOrEmpty(result.StandardError), result.StandardError);
 			return result.StandardOutput;
 		}
-		protected static string GetTextFromQuery(string s)
+		protected static string GetTextFromQuery(string query, int secondsBeforeTimeoutOnLocalOperation)
 		{
-			ExecutionResult result = ExecuteErrorsOk(s);
+			ExecutionResult result = ExecuteErrorsOk(query, secondsBeforeTimeoutOnLocalOperation);
 			//TODO: we need a way to get this kind of error back the devs for debugging
 			Debug.Assert(string.IsNullOrEmpty(result.StandardError), result.StandardError);
 			return result.StandardOutput;
@@ -266,7 +267,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		{
 			using (new ConsoleProgress("Adding {0} to the files that are tracked for {1}: ", Path.GetFileName(filePath), _userName))
 			{
-				Execute("add", _pathToRepository, SurroundWithQuotes(filePath));
+				Execute("add", _pathToRepository, _secondsBeforeTimeoutOnLocalOperation, SurroundWithQuotes(filePath));
 			}
 		}
 
@@ -285,7 +286,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			message = string.Format(message, args);
 			using (new ConsoleProgress("{0} committing with comment: {1}", _userName, message))
 			{
-				ExecutionResult result = Execute("ci", _pathToRepository, "-m " + SurroundWithQuotes(message));
+				ExecutionResult result = Execute("ci", _pathToRepository, _secondsBeforeTimeoutOnLocalOperation, "-m " + SurroundWithQuotes(message));
 				_progress.WriteMessage(result.StandardOutput);
 			}
 		}
@@ -297,15 +298,21 @@ namespace Chorus.VcsDrivers.Mercurial
 		{
 			using (new ConsoleProgress("{0} changing working dir to branch: {1}", _userName, branchName))
 			{
-				Execute("branch -f ", _pathToRepository, SurroundWithQuotes(branchName));
+				Execute("branch -f ", _pathToRepository, _secondsBeforeTimeoutOnLocalOperation, SurroundWithQuotes(branchName));
 			}
 		}
 
-		protected static ExecutionResult Execute(string cmd, string repositoryPath, params string[] rest)
+		protected static ExecutionResult Execute(string cmd, string repositoryPath, int secondsBeforeTimeout, params string[] rest)
 		{
-			return Execute(false, cmd, repositoryPath, rest);
+			return Execute(false, cmd, repositoryPath, secondsBeforeTimeout, rest);
 		}
-		protected static ExecutionResult Execute(bool failureIsOk, string cmd, string repositoryPath, params string[] rest)
+
+		/// <summary>
+		///
+		/// </summary>
+		/// <exception cref="System.TimeoutException"/>
+		/// <returns></returns>
+		protected static ExecutionResult Execute(bool failureIsOk, string cmd, string repositoryPath, int secondsBeforeTimeout, params string[] rest)
 		{
 			StringBuilder b = new StringBuilder();
 			b.Append(cmd + " ");
@@ -318,19 +325,20 @@ namespace Chorus.VcsDrivers.Mercurial
 				b.Append(s + " ");
 			}
 
-			ExecutionResult result = ExecuteErrorsOk(b.ToString());
+			ExecutionResult result = ExecuteErrorsOk(b.ToString(), secondsBeforeTimeout);
 			if (0 != result.ExitCode && !failureIsOk)
 			{
-				var details = "\r\n" + "hg Command was " + "\r\n" +  b.ToString();
+				var details = "\r\n" + "hg Command was " + "\r\n" + b.ToString();
 				try
 				{
-					details += "\r\nhg version was \r\n" + GetTextFromQuery("version");
+					details += "\r\nhg version was \r\n" + GetTextFromQuery("version", secondsBeforeTimeout);
 				}
 				catch (Exception)
 				{
 					details += "\r\nCould not get HG VERSION";
 
 				}
+
 
 				if (!string.IsNullOrEmpty(result.StandardError))
 				{
@@ -344,16 +352,21 @@ namespace Chorus.VcsDrivers.Mercurial
 			return result;
 		}
 
-		protected static ExecutionResult ExecuteErrorsOk(string command, string fromDirectory)
+		/// <exception cref="System.TimeoutException"/>
+		protected static ExecutionResult ExecuteErrorsOk(string command, string fromDirectory, int secondsBeforeTimeout)
 		{
-			//    _progress.WriteMessage("hg "+command);
-
-			return HgRunner.Run("hg " + command, fromDirectory);
+		   var result =  HgRunner.Run("hg " + command, fromDirectory, secondsBeforeTimeout);
+		   if (result.DidTimeOut)
+			{
+				throw new TimeoutException(result.StandardError);
+			}
+			return result;
 		}
 
-		protected static ExecutionResult ExecuteErrorsOk(string command)
+		/// <exception cref="System.TimeoutException"/>
+		protected static ExecutionResult ExecuteErrorsOk(string command, int secondsBeforeTimeout)
 		{
-			return ExecuteErrorsOk(command, null);
+			return ExecuteErrorsOk(command, null, secondsBeforeTimeout);
 		}
 
 
@@ -392,7 +405,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		public List<string> GetChangedFiles()
 		{
-			ExecutionResult result= Execute("status", _pathToRepository);
+			ExecutionResult result= Execute("status", _pathToRepository, _secondsBeforeTimeoutOnLocalOperation);
 			string[] lines = result.StandardOutput.Split('\n');
 			List<string> files = new List<string>();
 			foreach (string line in lines)
@@ -408,7 +421,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		{
 			using (new ConsoleProgress("{0} updating",_userName))
 			{
-				Execute("update", _pathToRepository, "-C");
+				Execute("update", _pathToRepository, _secondsBeforeTimeoutOnLocalOperation, "-C");
 			}
 		}
 
@@ -416,7 +429,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		{
 			using (new ConsoleProgress("{0} updating (making working directory contain) revision {1}", _userName, revision))
 			{
-				Execute("update", _pathToRepository, "-r", revision, "-C");
+				Execute("update", _pathToRepository, _secondsBeforeTimeoutOnLocalOperation, "-r", revision, "-C");
 			}
 		}
 
@@ -431,127 +444,28 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		public static void CreateRepositoryInExistingDir(string path)
 		{
-			Execute("init", null, SurroundWithQuotes(path));
+			Execute("init", null, 20, SurroundWithQuotes(path));
 		}
 
-
-		/// <summary>
-		/// note: intentionally does not commit afterwards
-		/// </summary>
-		/// <param name="progress"></param>
-		/// <param name="results"></param>
-		public IList<string> MergeHeads(IProgress progress, SyncResults results)
-		{
-			List<string> peopleWeMergedWith= new List<string>();
-
-			List<Revision> heads = GetHeads();
-			Revision myHead = GetRevisionWorkingSetIsBasedOn();
-			foreach (Revision head in heads)
-			{
-				MergeSituation.PushRevisionsToEnvironmentVariables(myHead.UserId, myHead.Number.LocalRevisionNumber, head.UserId, head.Number.LocalRevisionNumber);
-
-				MergeOrder.PushToEnvironmentVariables(_pathToRepository);
-				if (head.Number.LocalRevisionNumber != myHead.Number.LocalRevisionNumber)
-				{
-					progress.WriteStatus("Merging with {0}...", head.UserId);
-					RemoveMergeObstacles(myHead, head);
-					bool didMerge = MergeTwoChangeSets(myHead, head);
-					if (didMerge)
-					{
-						peopleWeMergedWith.Add(head.UserId);
-					}
-				}
-			}
-
-			return peopleWeMergedWith;
-		}
-
-		 /// <summary>
-		/// There may be more, but for now: take care of the case where one guy has a file not
-		/// modified (and not checked in), and the other guy is going to hammer it (with a remove
-		/// or change).
-		/// </summary>
-		private void RemoveMergeObstacles(Revision rev1, Revision rev2)
-		{
-			 var files = GetFilesInRevisionFromQuery(rev1 /*this param is bogus*/, "status -ru --rev " + rev2.Number.LocalRevisionNumber);
-			 foreach (var file in files)
-			 {
-				 if (file.ActionThatHappened == FileInRevision.Action.Unknown)
-				 {
-					 if (files.Any(f => f.FullPath == file.FullPath))
-					 {
-						 //string newPath=string.Empty;
-//                         foreach (var suffix in new string[] {"", ".1", ".2", ".3", ".4", ".5" })
-//                         {
-//                             newPath = file.FullPath + suffix + ".chorusRescue";//intentionally changing the extension, so it won't get checked in
-//                             try
-//                             {
-//                                 File.Move(file.FullPath, newPath);
-//                                 break;
-//                             }
-//                             catch (Exception error)
-//                             {
-//                                 _progress.WriteWarning("Could not copy {0} to {1}", file.FullPath, newPath);
-//                             }
-//                             ///arggghhh... they're all in use *and locked*!  try a random name
-//                             File.Move(file.FullPath, Path.GetRandomFileName()+".chorusRescue");
-//                         }
-						 var newPath = file.FullPath+"-"+Path.GetRandomFileName() + ".chorusRescue";
-						 File.Move(file.FullPath, newPath);
-						 _progress.WriteWarning("Renamed {0} to {1} because it is not part of {2}'s repository but it is part of {3}'s, and this would otherwise prevent a merge.", file.FullPath, Path.GetFileName(newPath), rev1.UserId, rev2.UserId);
-					 }
-				 }
-			 }
-		}
-
-
-
-		private bool MergeTwoChangeSets(Revision head, Revision theirHead)
-		{
-			ExecutionResult result = null;
-			using (new ShortTermEnvironmentalVariable("HGMERGE", Path.Combine(Other.DirectoryOfExecutingAssembly, "ChorusMerge.exe")))
-			{
-				using (new ShortTermEnvironmentalVariable(MergeOrder.kConflictHandlingModeEnvVarName, MergeOrder.ConflictHandlingModeChoices.TheyWin.ToString()))
-
-				{
-					result = Execute(true, "merge", _pathToRepository, "-r", theirHead.Number.LocalRevisionNumber);
-				}
-			}
-			if (result.ExitCode != 0)
-			{
-				if (result.StandardError.Contains("nothing to merge"))
-				{
-//                    _progress.WriteMessage("Nothing to merge, updating instead to revision {0}.", theirChangeSet._revision);
-//                    Update(theirChangeSet._revision);//REVIEW
-					return false;
-				}
-				else
-				{
-					_progress.WriteError(result.StandardError);
-					return false;
-				}
-			}
-			return true;
-		}
 
 		public void AddAndCheckinFiles(List<string> includePatterns, List<string> excludePatterns, string message)
 		{
 			StringBuilder args = new StringBuilder();
 			foreach (string pattern in includePatterns)
 			{
-				string p = Path.Combine(this._pathToRepository, pattern);
+				string p = Path.Combine(_pathToRepository, pattern);
 				args.Append(" -I " + SurroundWithQuotes(p));
 			}
 
-			args.Append(" -I " + SurroundWithQuotes(Path.Combine(this._pathToRepository, "**.conflicts")));
-			args.Append(" -I " + SurroundWithQuotes(Path.Combine(this._pathToRepository, "**.conflicts.txt")));
-			args.Append(" -X " + SurroundWithQuotes(Path.Combine(this._pathToRepository, "**.chorusRescue")));
+			args.Append(" -I " + SurroundWithQuotes(Path.Combine(_pathToRepository, "**.conflicts")));
+			args.Append(" -I " + SurroundWithQuotes(Path.Combine(_pathToRepository, "**.conflicts.txt")));
+			args.Append(" -X " + SurroundWithQuotes(Path.Combine(_pathToRepository, "**.chorusRescue")));
 
 			foreach (string pattern in excludePatterns)
 			{
 				//this fails:   hg add -R "E:\Users\John\AppData\Local\Temp\ChorusTest"  -X "**/cache"
 				//but this works  -X "E:\Users\John\AppData\Local\Temp\ChorusTest/**/cache"
-				string p = Path.Combine(this._pathToRepository, pattern);
+				string p = Path.Combine(_pathToRepository, pattern);
 				args.Append(" -X " + SurroundWithQuotes(p));
 			}
 
@@ -562,12 +476,12 @@ namespace Chorus.VcsDrivers.Mercurial
 			{
 				using (new ConsoleProgress("At least one file was removed from the working directory.  Telling Hg to record the deletion."))
 				{
-					Execute("rm -A", _pathToRepository);
+					Execute("rm -A", _pathToRepository, _secondsBeforeTimeoutOnLocalOperation);
 				}
 			}
 			using (new ConsoleProgress("Adding files to be tracked ({0}", args.ToString()))
 			{
-				Execute("add", _pathToRepository, args.ToString());
+				Execute("add", _pathToRepository, _secondsBeforeTimeoutOnLocalOperation, args.ToString());
 			}
 			using (new ConsoleProgress("Committing \"{0}\"", message))
 			{
@@ -575,13 +489,13 @@ namespace Chorus.VcsDrivers.Mercurial
 			}
 		}
 
-		public static string GetRepositoryRoot(string directoryPath)
+		public static string GetRepositoryRoot(string directoryPath, ExecutionResult secondsBeforeTimeout)
 		{
 //            string old = Directory.GetCurrentDirectory();
 //            try
 //            {
 			// Directory.SetCurrentDirectory(directoryPath);
-			ExecutionResult result = ExecuteErrorsOk("root", directoryPath);
+			ExecutionResult result = secondsBeforeTimeout;
 			if (result.ExitCode == 0)
 			{
 				return result.StandardOutput.Trim();
@@ -613,7 +527,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		public void Clone(string path)
 		{
-			Execute("clone", null, PathWithQuotes + " " + SurroundWithQuotes(path));
+			Execute("clone", null, _secondsBeforeTimeoutOnLocalOperation, PathWithQuotes + " " + SurroundWithQuotes(path));
 		}
 
 		private List<Revision> GetRevisionsFromQuery(string query)
@@ -692,12 +606,12 @@ namespace Chorus.VcsDrivers.Mercurial
 				{
 					string label = line.Substring(0, colonIndex);
 					string value = line.Substring(colonIndex + 1).Trim();
+					item = new Revision(this);
 					switch (label)
 					{
 						default:
 							break;
 						case "changeset":
-							item = new Revision(this);
 							items.Add(item);
 							item.SetRevisionAndHashFromCombinedDescriptor(value);
 							break;
@@ -788,7 +702,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			var f =  TempFile.CreateWithExtension(Path.GetExtension(relativePath));
 
 			var cmd = string.Format("cat -o \"{0}\" -r {1} \"{2}\"", f.Path, revOrHash, relativePath);
-			ExecutionResult result = ExecuteErrorsOk(cmd, _pathToRepository);
+			ExecutionResult result = ExecuteErrorsOk(cmd, _pathToRepository, _secondsBeforeTimeoutOnLocalOperation);
 			if(!string.IsNullOrEmpty(result.StandardError.Trim()))
 			{
 				throw new ApplicationException(String.Format("Could not retrieve version {0} of {1}. Mercurial said: {2}", revOrHash, relativePath, result.StandardError));
@@ -827,7 +741,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 
 
-		private List<FileInRevision> GetFilesInRevisionFromQuery(Revision revisionToAssignToResultingFIRs, string query)
+		public List<FileInRevision> GetFilesInRevisionFromQuery(Revision revisionToAssignToResultingFIRs, string query)
 		{
 			var result = GetTextFromQuery(_pathToRepository,query);
 			string[] lines = result.Split('\n');
@@ -920,8 +834,13 @@ namespace Chorus.VcsDrivers.Mercurial
 			try
 			{
 				var doc = GetHgrcDoc();
-				var x = doc.Sections["ui"].GetValue("username");
-				return doc.Sections["ui"].GetValue("username");
+				var section = doc.Sections["ui"];
+				if(section!=null && section.Contains("username"))
+					return section.GetValue("username");
+				else
+				{
+					return string.Empty;
+				}
 			}
 			catch (Exception error)
 			{
@@ -945,9 +864,15 @@ namespace Chorus.VcsDrivers.Mercurial
 			try
 			{
 				var doc = GetHgrcDoc();
-				doc.Sections.GetOrCreate("ui").Set("username",name);
+				doc.Sections.GetOrCreate("ui").Set("username", name);
 				doc.Save();
 			}
+			catch (IOException e)
+			{
+				progress.WriteError("Could not set the user name from the hgrc ini file: " + e.Message);
+				throw new TimeoutException(e.Message, e);//review... this keeps things simpler, but for a lack of precision
+			}
+
 			catch (Exception error)
 			{
 				progress.WriteWarning("Could not set the user name from the hgrc ini file: " + error.Message);
@@ -1038,7 +963,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		public bool GetCanConnectToRemote(string uri, IProgress progress)
 		{
 			progress.WriteMessage("Trying to connect to {0}...", uri);
-			 ExecutionResult result = ExecuteErrorsOk(string.Format("incoming -l 1 {0}", SurroundWithQuotes(uri)), _pathToRepository);
+			 ExecutionResult result = ExecuteErrorsOk(string.Format("incoming -l 1 {0}", SurroundWithQuotes(uri)), _pathToRepository, _secondsBeforeTimeoutOnLocalOperation);
 
 			 if (!string.IsNullOrEmpty(result.StandardError))
 			 {
@@ -1049,6 +974,43 @@ namespace Chorus.VcsDrivers.Mercurial
 		}
 
 
+		public void RecoverIfNeeded(IProgress progress)
+		{
+			var result = Execute(true, "recover", _pathToRepository, _secondsBeforeTimeoutOnLocalOperation);
+			if (result.StandardError.StartsWith("no interrupted"))
+			{
+				return;
+			}
+
+			if (!string.IsNullOrEmpty(result.StandardError))
+			{
+				progress.WriteError(result.StandardError);
+			}
+			if (!string.IsNullOrEmpty(result.StandardOutput))
+			{
+				progress.WriteWarning("Recovered: "+result.StandardOutput);
+			}
+
+		}
+
+		public bool Merge(string localRepositoryPath, string revisionNumber)
+		{
+			var result =  Execute(true, "merge", _pathToRepository, _secondsBeforeTimeoutOnLocalOperation, "-r", revisionNumber);
+
+			if (result.ExitCode != 0)
+			{
+				if (result.StandardError.Contains("nothing to merge"))
+				{
+					return false;
+				}
+				else
+				{
+					_progress.WriteError(result.StandardError);
+					return false;
+				}
+			}
+			return true;
+		}
 	}
 
 }

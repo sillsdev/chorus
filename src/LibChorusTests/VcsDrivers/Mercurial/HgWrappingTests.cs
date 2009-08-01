@@ -1,3 +1,6 @@
+using System;
+using System.Diagnostics;
+using System.IO;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
 using NUnit.Framework;
@@ -65,10 +68,100 @@ namespace Chorus.Tests.VcsDrivers.Mercurial
 			}
 		}
 
+		[Test, ExpectedException(typeof(TimeoutException))]
+		public void AddAndCheckinFile_WLockExists_GetTimeoutException()
+		{
+			HgRunner.TimeoutSecondsOverrideForUnitTests = 1;
+			using (var setup = new HgSetup())
+			using (setup.GetWLock())
+			{
+				setup.Repository.AddAndCheckinFile(setup.Root.GetNewTempFile(true).Path);
+			}
+		}
+
+
+		[Test, ExpectedException(typeof(TimeoutException))]
+		public void Commit_WLockExists_GetTimeoutException()
+		{
+			HgRunner.TimeoutSecondsOverrideForUnitTests = 1;
+			using (var setup = new HgSetup())
+			using (setup.GetWLock())
+			{
+				setup.Repository.Commit(false, "test");
+			}
+		}
+
+		[Test, ExpectedException(typeof(TimeoutException))]
+		public void Pull_FileIsLocked_GetTimeoutException()
+		{
+			HgRunner.TimeoutSecondsOverrideForUnitTests = 1;
+			using (var setup = new HgSetup())
+			using (setup.GetWLock())
+			{
+				var path = setup.Root.GetNewTempFile(true).Path;
+				setup.Repository.AddAndCheckinFile(path);
+				using (new StreamWriter(path))
+				{
+					setup.Repository.Update();
+				}
+			}
+		}
+
+		[Test, ExpectedException(typeof(TimeoutException))]
+		public void SetUserNameInIni_HgrcIsOpenFromAnotherProcess_GetTimeoutException()
+		{
+			HgRunner.TimeoutSecondsOverrideForUnitTests = 1;
+			using (var setup = new HgSetup())
+			{
+				setup.Repository.SetUserNameInIni("me", new NullProgress());
+				using (new StreamWriter(setup.Root.Combine(".hg", "hgrc")))
+				{
+					setup.Repository.SetUserNameInIni("otherme", new NullProgress());
+				}
+			}
+		}
+
 		[Test, Ignore("I'm too lazy at the moment to set up the test conditions")]
 		public void GetCommonAncestorOfRevisions_Have3rdAsCommon_Get3rd()
 		{
 
+		}
+//
+//        [Test]
+//        public void GetTip_NoRepository_GivesError()
+//        {
+//            var progress = new StringBuilderProgress();
+//            var hg = new HgRepository(Path.GetTempPath(), progress);
+//            hg.GetTip();
+//            Assert.IsTrue(progress.Text.Contains("Error"));
+//        }
+	}
+
+	public class HgSetup  :IDisposable
+	{
+		public TempFolder Root;
+		public HgRepository Repository;
+
+		public HgSetup()
+		{
+			Root = new TempFolder("ChorusHgWrappingTest");
+			HgRepository.CreateRepositoryInExistingDir(Root.Path);
+			Repository = new HgRepository(Root.Path, new NullProgress());
+		}
+
+		public void Dispose()
+		{
+			Root.Dispose();
+
+		}
+
+		public IDisposable GetWLock()
+		{
+			return TempFile.CreateAt(Root.Combine(".hg", "wlock"), "blah");
+		}
+		public IDisposable GetLock()
+		{
+			return TempFile.CreateAt(Root.Combine(".hg", "store", "lock"), "blah");
 		}
 
 	}
