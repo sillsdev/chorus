@@ -54,7 +54,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				startingPointForPathSearch = Path.GetDirectoryName(startingPointForPathSearch);
 			}
 
-			string root = GetRepositoryRoot(startingPointForPathSearch, ExecuteErrorsOk("root", startingPointForPathSearch, 10));
+			string root = GetRepositoryRoot(startingPointForPathSearch, ExecuteErrorsOk("root", startingPointForPathSearch, 100));
 			if (!string.IsNullOrEmpty(root))
 			{
 				return new HgRepository(root, progress);
@@ -243,6 +243,9 @@ namespace Chorus.VcsDrivers.Mercurial
 		{
 			ExecutionResult result= ExecuteErrorsOk(s + " -R " + SurroundWithQuotes(repositoryPath), _secondsBeforeTimeoutOnLocalOperation);
 		   // Debug.Assert(string.IsNullOrEmpty(result.StandardError), result.StandardError);
+
+			_progress.WriteVerbose(result.StandardOutput);
+			_progress.WriteVerbose(result.StandardError);
 			return result.StandardOutput;
 		}
 		protected static string GetTextFromQuery(string query, int secondsBeforeTimeoutOnLocalOperation)
@@ -602,12 +605,12 @@ namespace Chorus.VcsDrivers.Mercurial
 				{
 					string label = line.Substring(0, colonIndex);
 					string value = line.Substring(colonIndex + 1).Trim();
-					item = new Revision(this);
 					switch (label)
 					{
 						default:
 							break;
 						case "changeset":
+							item = new Revision(this);
 							items.Add(item);
 							item.SetRevisionAndHashFromCombinedDescriptor(value);
 							break;

@@ -12,6 +12,7 @@ namespace Chorus.Utilities
 		void WriteMessage(string message, params object[] args);
 		void WriteWarning(string message, params object[] args);
 		void WriteError(string message, params object[] args);
+		void WriteVerbose(string message, params object[] args);
 	}
 
 	public class NullProgress : IProgress
@@ -30,6 +31,11 @@ namespace Chorus.Utilities
 		}
 
 		public void WriteError(string message, params object[] args)
+		{
+
+		}
+
+		public void WriteVerbose(string message, params object[] args)
 		{
 
 		}
@@ -73,6 +79,14 @@ namespace Chorus.Utilities
 			foreach (var handler in _progressHandlers)
 			{
 				handler.WriteError(message, args);
+			}
+		}
+
+		public void WriteVerbose(string message, params object[] args)
+		{
+			foreach (var handler in _progressHandlers)
+			{
+				handler.WriteVerbose(message, args);
 			}
 		}
 
@@ -121,6 +135,12 @@ namespace Chorus.Utilities
 		public void WriteError(string message, params object[] args)
 		{
 			WriteStatus("Error: "+ message, args);
+
+		}
+
+		public void WriteVerbose(string message, params object[] args)
+		{
+			WriteStatus("^ "+ message, args);
 
 		}
 
@@ -212,6 +232,12 @@ namespace Chorus.Utilities
 		public void WriteError(string message, params object[] args)
 		{
 			WriteStatus("Error:" + message, args);
+		}
+
+		public void WriteVerbose(string message, params object[] args)
+		{
+			WriteStatus("^ "+message, args);
+
 		}
 	}
 }

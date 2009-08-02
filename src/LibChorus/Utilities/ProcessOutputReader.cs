@@ -5,13 +5,15 @@ using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Threading;
+using System.Windows.Forms;
+using ThreadState=System.Threading.ThreadState;
 
 namespace Chorus.Utilities
 {
 	public class ProcessOutputReader
 	{
-		private BackgroundWorker _outputReader;
-		private BackgroundWorker _errorReader;
+		private Thread _outputReader;
+		private Thread _errorReader;
 
 		private string _standardOutput = "";
 		public string StandardOutput
@@ -34,59 +36,52 @@ namespace Chorus.Utilities
 		/// <returns>true if the process completed before the timeout</returns>
 		public bool Read(ref Process process, int secondsBeforeTimeOut)
 		{
+			var outputReaderArgs = new ReaderArgs() {Proc = process, Reader = process.StandardOutput};
 			if (process.StartInfo.RedirectStandardOutput)
 			{
-				_outputReader = new BackgroundWorker();
-				_outputReader.WorkerReportsProgress = true;
-				_outputReader.WorkerSupportsCancellation = true;
-				_outputReader.DoWork += ReadStream;
-				_outputReader.ProgressChanged += OnOutputReaderProgressChanged;
-				var args = new ReaderArgs() {Proc = process, Reader = process.StandardOutput};
-				_outputReader.RunWorkerCompleted += new RunWorkerCompletedEventHandler(_outputReader_RunWorkerCompleted);
-				_outputReader.RunWorkerAsync(args);
+				_outputReader = new Thread(new ParameterizedThreadStart(ReadStream));
+				_outputReader.Start(outputReaderArgs);
 			}
-			if (process.StartInfo.RedirectStandardError)
+		   var errorReaderArgs = new ReaderArgs() { Proc = process, Reader = process.StandardError };
+		   if (process.StartInfo.RedirectStandardError)
 			{
-				_errorReader = new BackgroundWorker();
-				_errorReader.WorkerReportsProgress = true;
-				_errorReader.WorkerSupportsCancellation = true;
-				_errorReader.DoWork += ReadStream;
-				_errorReader.ProgressChanged += OnErrorReaderProgressChanged;
-				var args = new ReaderArgs() { Proc = process, Reader = process.StandardError };
-				_errorReader.RunWorkerCompleted += new RunWorkerCompletedEventHandler(_errorReader_RunWorkerCompleted);
-				_errorReader.RunWorkerAsync(args);
+				_errorReader = new Thread(new ParameterizedThreadStart(ReadStream));
+				_errorReader.Start(errorReaderArgs);
 			}
 
 			var end = DateTime.Now.AddSeconds(secondsBeforeTimeOut);
-			while (_outputReader.IsBusy || (_errorReader != null && _errorReader.IsBusy))
+			while (_outputReader.ThreadState == ThreadState.Running || (_errorReader != null && _errorReader.ThreadState == ThreadState.Running))
 			{
 				Thread.Sleep(100);
 				if (DateTime.Now > end)
 				{
-					if(_outputReader!=null)         //review: do these matter?
-						_outputReader.CancelAsync();
+					if (_outputReader != null)
+						_outputReader.Abort();
 					if (_errorReader != null)
-						_errorReader.CancelAsync();
+						_errorReader.Abort();
 					return false;
 				}
 			}
-
+			_standardOutput = outputReaderArgs.Results;
+			_standardError = errorReaderArgs.Results;
 
 			return true;
 
 		}
 
-		void _errorReader_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
-		{
-			if(!e.Cancelled)
-			 _standardError = e.Result as string;
-		}
+		//can't use this: that only gets called reliably if you have an application doevents going
+//        void _errorReader_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+//        {
+//            if(!e.Cancelled)
+//             _standardError = e.Result as string;
+//        }
 
-		void _outputReader_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
-		{
-			if(!e.Cancelled)
-				_standardOutput = e.Result as string;
-		}
+		//can't use this: that only gets called reliably if you have an application doevents going
+//        void _outputReader_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+//        {
+//            if(!e.Cancelled)
+//                _standardOutput = e.Result as string;
+//        }
 
 		void OnOutputReaderProgressChanged(object sender, ProgressChangedEventArgs e)
 		{
@@ -113,11 +108,11 @@ namespace Chorus.Utilities
 //            _standardError += ((string)(e.UserState)).Trim();
 		}
 
-		private void ReadStream(object sender, DoWorkEventArgs e)
+		private void ReadStream(object args)
 		{
 			StringBuilder result= new StringBuilder();
-			BackgroundWorker worker = (BackgroundWorker)sender;
-			var readerArgs = e.Argument as ReaderArgs;
+			//BackgroundWorker worker = (BackgroundWorker)sender;
+			var readerArgs = args as ReaderArgs;
 
 			var reader = readerArgs.Reader;
 			do
@@ -128,16 +123,18 @@ namespace Chorus.Utilities
 				   result.AppendLine(s.Trim());
 //                   worker.ReportProgress(0, s);
 			  }
-			} while (!worker.CancellationPending && !reader.EndOfStream);// && !readerArgs.Proc.HasExited);
+			} while (!reader.EndOfStream);// && !readerArgs.Proc.HasExited);
 
 
-			if (worker.CancellationPending)
+//            if (worker.CancellationPending)
+//            {
+//                e.Cancel = true;
+//            }
+//            else
 			{
-				e.Cancel = true;
-			}
-			else
-			{
-				e.Result = result.ToString().Replace("\r\n", "\n");
+				//this system doesn't work reliably if you have no UI pump: e.Result = result.ToString().Replace("\r\n", "\n");
+				readerArgs.Results = result.ToString().Replace("\r\n", "\n");
+
 			}
 		}
 	}
@@ -146,5 +143,6 @@ namespace Chorus.Utilities
 	{
 		public StreamReader Reader;
 		public Process Proc;
+		public string Results;
 	}
 }
