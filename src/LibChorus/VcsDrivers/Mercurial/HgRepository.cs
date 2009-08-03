@@ -76,8 +76,8 @@ namespace Chorus.VcsDrivers.Mercurial
 
 					//review: Machine name would be more accurate, but most people have, like "Compaq" as their machine name
 					//but in any case, this is just a default until they set the name explicity
-					var hg = new HgRepository(newRepositoryPath, new NullProgress());
-					hg.SetUserNameInIni(System.Environment.UserName, new NullProgress());
+					var hg = new HgRepository(newRepositoryPath, progress);
+					hg.SetUserNameInIni(System.Environment.UserName, progress);
 					return new HgRepository(newRepositoryPath, progress);
 				}
 				else
@@ -129,12 +129,10 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		protected  void SetupPerson(string pathToRepository, string userName)
 		{
-			using (new ConsoleProgress("setting name and branch"))
+			_progress.WriteVerbose("setting name and branch");
+			using (new ShortTermEnvironmentalVariable("HGUSER", userName))
 			{
-				using (new ShortTermEnvironmentalVariable("HGUSER", userName))
-				{
-					Execute("branch", pathToRepository, _secondsBeforeTimeoutOnLocalOperation, userName);
-				}
+				Execute("branch", pathToRepository, _secondsBeforeTimeoutOnLocalOperation, userName);
 			}
 		}
 
@@ -146,8 +144,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		public void Push(string targetUri, IProgress progress)
 		{
-			using (new ConsoleProgress("{0} pushing to {1}", _userName, targetUri))
-			{
+			_progress.WriteStatus("{0} pushing to {1}", _userName, targetUri);
 				try
 				{
 					Execute("push", _pathToRepository, _secondsBeforeTimeoutOnLocalOperation, SurroundWithQuotes(targetUri));
@@ -169,7 +166,6 @@ namespace Chorus.VcsDrivers.Mercurial
 											   Environment.NewLine + err.Message);
 					}
 				}
-			}
 		}
 
 		private bool GetIsLocalUri(string uri)
@@ -180,7 +176,6 @@ namespace Chorus.VcsDrivers.Mercurial
 		protected void PullFromRepository(HgRepository otherRepo,bool throwIfCannot)
 		{
 			_progress.WriteStatus("{0} pulling from {1}", _userName,otherRepo.Name);
-			//using (new ConsoleProgress("{0} pulling from {1}", _userName,otherRepo.Name))
 			{
 				try
 				{
@@ -200,26 +195,24 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		private List<Revision> GetBranches()
 		{
-			string what= "branches";
-			using (new ConsoleProgress("Getting {0} of {1}", what, _userName))
+			string what = "branches";
+			_progress.WriteVerbose("Getting {0} of {1}", what, _userName);
+			string result = GetTextFromQuery(_pathToRepository, what);
+
+			string[] lines = result.Split('\n');
+			List<Revision> branches = new List<Revision>();
+			foreach (string line in lines)
 			{
-				string result = GetTextFromQuery(_pathToRepository, what);
+				if (line.Trim() == "")
+					continue;
 
-				string[] lines = result.Split('\n');
-				List<Revision> branches = new List<Revision>();
-				foreach (string line in lines)
-				{
-					if (line.Trim() == "")
-						continue;
-
-					string[] parts = line.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-					if (parts.Length < 2)
-						continue;
-					string[] revisionParts = parts[1].Split(':');
-					branches.Add(new Revision(this, parts[0], revisionParts[0], revisionParts[1], "unknown"));
-				}
-				return branches;
+				string[] parts = line.Split(new char[] {' '}, StringSplitOptions.RemoveEmptyEntries);
+				if (parts.Length < 2)
+					continue;
+				string[] revisionParts = parts[1].Split(':');
+				branches.Add(new Revision(this, parts[0], revisionParts[0], revisionParts[1], "unknown"));
 			}
+			return branches;
 		}
 
 		public Revision GetTip()
@@ -232,10 +225,8 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		public List<Revision> GetHeads()
 		{
-			using (new ConsoleProgress("Getting heads of {0}", _userName))
-			{
-				return GetRevisionsFromQuery("heads");
-			}
+			_progress.WriteVerbose("Getting heads of {0}", _userName);
+			return GetRevisionsFromQuery("heads");
 		}
 
 
@@ -264,10 +255,9 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		private void TrackFile(string filePath)
 		{
-			using (new ConsoleProgress("Adding {0} to the files that are tracked for {1}: ", Path.GetFileName(filePath), _userName))
-			{
-				Execute("add", _pathToRepository, _secondsBeforeTimeoutOnLocalOperation, SurroundWithQuotes(filePath));
-			}
+			_progress.WriteVerbose("Adding {0} to the files that are tracked for {1}: ", Path.GetFileName(filePath),
+								   _userName);
+			Execute("add", _pathToRepository, _secondsBeforeTimeoutOnLocalOperation, SurroundWithQuotes(filePath));
 		}
 
 		public virtual void Commit(bool forceCreationOfChangeSet, string message, params object[] args)
@@ -283,11 +273,9 @@ namespace Chorus.VcsDrivers.Mercurial
 			//      Branch(_userName);
 
 			message = string.Format(message, args);
-			using (new ConsoleProgress("{0} committing with comment: {1}", _userName, message))
-			{
-				ExecutionResult result = Execute("ci", _pathToRepository, _secondsBeforeTimeoutOnLocalOperation, "-m " + SurroundWithQuotes(message));
-				_progress.WriteMessage(result.StandardOutput);
-			}
+			_progress.WriteVerbose("{0} committing with comment: {1}", _userName, message);
+			ExecutionResult result = Execute("ci", _pathToRepository, _secondsBeforeTimeoutOnLocalOperation, "-m " + SurroundWithQuotes(message));
+			_progress.WriteMessage(result.StandardOutput);
 		}
 
 
@@ -295,10 +283,8 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		public void Branch(string branchName)
 		{
-			using (new ConsoleProgress("{0} changing working dir to branch: {1}", _userName, branchName))
-			{
-				Execute("branch -f ", _pathToRepository, _secondsBeforeTimeoutOnLocalOperation, SurroundWithQuotes(branchName));
-			}
+			_progress.WriteVerbose("{0} changing working dir to branch: {1}", _userName, branchName);
+			Execute("branch -f ", _pathToRepository, _secondsBeforeTimeoutOnLocalOperation, SurroundWithQuotes(branchName));
 		}
 
 		protected static ExecutionResult Execute(string cmd, string repositoryPath, int secondsBeforeTimeout, params string[] rest)
@@ -327,14 +313,17 @@ namespace Chorus.VcsDrivers.Mercurial
 			ExecutionResult result = ExecuteErrorsOk(b.ToString(), secondsBeforeTimeout);
 			if (0 != result.ExitCode && !failureIsOk)
 			{
-				var details = "\r\n" + "hg Command was " + "\r\n" + b.ToString();
+				var details = Environment.NewLine + "hg Command was " + Environment.NewLine + b.ToString();
 				try
 				{
-					details += "\r\nhg version was \r\n" + GetTextFromQuery("version", secondsBeforeTimeout);
+					var versionInfo = GetTextFromQuery("version", secondsBeforeTimeout);
+					//trim the verbose copyright stuff
+					versionInfo = versionInfo.Substring(0, versionInfo.IndexOf("Copyright"));
+					details +=  Environment.NewLine+"hg version is: " + versionInfo;
 				}
 				catch (Exception)
 				{
-					details += "\r\nCould not get HG VERSION";
+					details +=  Environment.NewLine+"Could not get HG VERSION";
 
 				}
 
@@ -418,18 +407,14 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		public void Update()
 		{
-			using (new ConsoleProgress("{0} updating",_userName))
-			{
-				Execute("update", _pathToRepository, _secondsBeforeTimeoutOnLocalOperation, "-C");
-			}
+			_progress.WriteVerbose("{0} updating", _userName);
+			Execute("update", _pathToRepository, _secondsBeforeTimeoutOnLocalOperation, "-C");
 		}
 
 		public void Update(string revision)
 		{
-			using (new ConsoleProgress("{0} updating (making working directory contain) revision {1}", _userName, revision))
-			{
+			_progress.WriteVerbose("{0} updating (making working directory contain) revision {1}", _userName, revision);
 				Execute("update", _pathToRepository, _secondsBeforeTimeoutOnLocalOperation, "-r", revision, "-C");
-			}
 		}
 
 //        public void GetRevisionOfFile(string fileRelativePath, string revision, string fullOutputPath)
@@ -473,19 +458,17 @@ namespace Chorus.VcsDrivers.Mercurial
 
 			if (GetIsAtLeastOneMissingFileInWorkingDir())
 			{
-				using (new ConsoleProgress("At least one file was removed from the working directory.  Telling Hg to record the deletion."))
-				{
-					Execute("rm -A", _pathToRepository, _secondsBeforeTimeoutOnLocalOperation);
-				}
+				_progress.WriteVerbose(
+					"At least one file was removed from the working directory.  Telling Hg to record the deletion.");
+
+				Execute("rm -A", _pathToRepository, _secondsBeforeTimeoutOnLocalOperation);
 			}
-			using (new ConsoleProgress("Adding files to be tracked ({0}", args.ToString()))
-			{
-				Execute("add", _pathToRepository, _secondsBeforeTimeoutOnLocalOperation, args.ToString());
-			}
-			using (new ConsoleProgress("Committing \"{0}\"", message))
-			{
-				Commit(false, message);
-			}
+
+			_progress.WriteVerbose("Adding files to be tracked ({0}", args.ToString());
+			Execute("add", _pathToRepository, _secondsBeforeTimeoutOnLocalOperation, args.ToString());
+
+			_progress.WriteVerbose("Committing \"{0}\"", message);
+			Commit(false, message);
 		}
 
 		public static string GetRepositoryRoot(string directoryPath, ExecutionResult secondsBeforeTimeout)
@@ -515,11 +498,11 @@ namespace Chorus.VcsDrivers.Mercurial
 			{
 				if (head.Number.LocalRevisionNumber == myHead.Number.LocalRevisionNumber)
 				{
-					_progress.WriteMessage("  ME {0} {1} {2}", head.UserId, head.Number.LocalRevisionNumber, head.Summary);
+					_progress.WriteVerbose("  ME {0} {1} {2}", head.UserId, head.Number.LocalRevisionNumber, head.Summary);
 				}
 				else
 				{
-					_progress.WriteMessage("      {0} {1} {2}", head.UserId, head.Number.LocalRevisionNumber, head.Summary);
+					_progress.WriteVerbose("      {0} {1} {2}", head.UserId, head.Number.LocalRevisionNumber, head.Summary);
 				}
 			}
 		}
@@ -535,47 +518,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			return GetRevisionsFromQueryResultText(result);
 		}
 
- /*       private static List<Revision> GetRevisionsFromQueryOutput(string result)
-		{
-			//Debug.WriteLine(result);
-			string[] lines = result.Split('\n');
-			List<Dictionary<string, string>> rawChangeSets = new List<Dictionary<string, string>>();
-			Dictionary<string, string> rawChangeSet = null;
-			foreach (string line in lines)
-			{
-				if (line.StartsWith("changeset:"))
-				{
-					rawChangeSet = new Dictionary<string, string>();
-					rawChangeSets.Add(rawChangeSet);
-				}
-				string[] parts = line.Split(new char[] { ':' });
-				if (parts.Length < 2)
-					continue;
-				//join all but the first back together
-				string contents = string.Join(":", parts, 1, parts.Length - 1);
-				rawChangeSet[parts[0].Trim()] = contents.Trim();
-			}
 
-			List<Revision> revisions = new List<Revision>();
-			foreach (Dictionary<string, string> d in rawChangeSets)
-			{
-				string[] revisionParts = d["changeset"].Split(':');
-				string summary = string.Empty;
-				if (d.ContainsKey("summary"))
-				{
-					summary = d["summary"];
-				}
-				Revision revision = new Revision(d["user"], revisionParts[0], /*revisionParts[1]/"unknown", summary);
-				if (d.ContainsKey("tag"))
-				{
-					revision.Tag = d["tag"];
-				}
-				revisions.Add(revision);
-
-			}
-			return revisions;
-		}
-*/
 		public List<Revision> GetAllRevisions()
 		{
 			/*

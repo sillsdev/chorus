@@ -17,6 +17,7 @@ namespace Chorus.sync
 	{
 		private string _localRepositoryPath;
 		private ProjectFolderConfiguration _project;
+		private IProgress _progress;
 
 		public List<RepositoryAddress> ExtraRepositorySources { get; private set; }
 
@@ -40,6 +41,7 @@ namespace Chorus.sync
 
 		public List<RepositoryAddress> GetPotentialSynchronizationSources(IProgress progress)
 		{
+			_progress = progress;
 			var list = new List<RepositoryAddress>();
 			list.AddRange(ExtraRepositorySources);
 			var repo = Repository;
@@ -75,6 +77,7 @@ namespace Chorus.sync
 
 		public SyncResults SyncNow(SyncOptions options, IProgress progress)
 		{
+			_progress = progress;
 			SyncResults results = new SyncResults();
 
 			HgRepository repo = new HgRepository(_localRepositoryPath,progress);
@@ -264,6 +267,7 @@ namespace Chorus.sync
 		 /// <returns>path to clone</returns>
 		public string MakeClone(string newDirectory, bool alsoDoCheckout, IProgress progress)
 		{
+			_progress = progress;
 			if (Directory.Exists(newDirectory))
 			{
 				throw new ArgumentException(String.Format("The newDirectory must not already exist ({0})", newDirectory));
@@ -289,7 +293,7 @@ namespace Chorus.sync
 
 		public HgRepository Repository
 		{
-			get { return new HgRepository(_localRepositoryPath, new NullProgress()); }
+			get { return new HgRepository(_localRepositoryPath, _progress); }
 		}
 
 
@@ -299,7 +303,7 @@ namespace Chorus.sync
 		/// </summary>
 		/// <param name="progress"></param>
 		/// <param name="results"></param>
-		public IList<string> MergeHeads(IProgress progress, SyncResults results)
+		private IList<string> MergeHeads(IProgress progress, SyncResults results)
 		{
 			List<string> peopleWeMergedWith = new List<string>();
 
@@ -360,6 +364,11 @@ namespace Chorus.sync
 					return Repository.Merge(_localRepositoryPath, theirHead.Number.LocalRevisionNumber);
 				}
 			}
+		}
+
+		public void SetIsOneDefaultSyncAddresses(RepositoryAddress address, bool enabled)
+		{
+			Repository.SetIsOneDefaultSyncAddresses(address, enabled);
 		}
 	}
 

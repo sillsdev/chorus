@@ -140,7 +140,11 @@ namespace Chorus.Utilities
 
 		public void WriteVerbose(string message, params object[] args)
 		{
-			WriteStatus("^ "+ message, args);
+			var lines = String.Format(message, args);
+			foreach (var line in lines.Split('\n'))
+			{
+				WriteStatus(": " + line);
+			}
 
 		}
 
