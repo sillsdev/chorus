@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 
@@ -24,7 +25,7 @@ namespace Chorus.Utilities
 			if(File.Exists(GetTriggerIndicatorPath(desiredFailureLocation)))
 				File.Delete(GetTriggerIndicatorPath(desiredFailureLocation));
 
-			//nb: can't just us a static, because this is potentially communicating across processes
+			//nb: can't just use a static, because this is potentially communicating across processes
 			Environment.SetEnvironmentVariable(InducechorusFailureTriggered, string.Empty);
 		}
 
@@ -54,7 +55,15 @@ namespace Chorus.Utilities
 			{
 				throw new ApplicationException("FailureSimulator was not tiggered: "+ _desiredFailureLocation );
 			}
-			File.Delete(GetTriggerIndicatorPath(_desiredFailureLocation));
+			try
+			{
+				File.Delete(GetTriggerIndicatorPath(_desiredFailureLocation));
+
+			}
+			catch (IOException e)
+			{
+				Debug.WriteLine("Could not delete the file used to indicate that the failure was successfully induced: "+ e.Message);
+			}
 		}
 	}
 }

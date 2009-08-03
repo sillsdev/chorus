@@ -28,6 +28,7 @@ namespace Chorus.Tests.merge
 		public TempFile UserFile;
 		public Synchronizer Synchronizer;
 		public RepositoryAddress RepoPath;
+		private HgRepository _repository;
 
 		public static RepositoryWithFilesSetup CreateWithLiftFile(string userName)
 		{
@@ -47,7 +48,7 @@ namespace Chorus.Tests.merge
 		}
 		public HgRepository Repository
 		{
-			get { return Synchronizer.Repository; }
+			get { return _repository; }
 		}
 
 		public RepositoryWithFilesSetup(string userName, string fileName, string fileContents)
@@ -90,6 +91,7 @@ namespace Chorus.Tests.merge
 			ProjectConfiguration = new ProjectFolderConfiguration(ProjectFolder.Path);
 			ProjectConfiguration.IncludePatterns.Add(UserFile.Path);
 			ProjectConfiguration.FolderPath = ProjectFolder.Path;
+			_repository = new HgRepository(ProjectFolder.Path,Progress);
 
 			RepoPath = RepositoryAddress.Create(userName, ProjectFolder.Path, false);
 			Synchronizer = Synchronizer.FromProjectConfiguration(ProjectConfiguration, new NullProgress());

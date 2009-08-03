@@ -144,13 +144,10 @@ namespace Chorus.Tests.VcsDrivers.Mercurial
 		public HgRepository Repository;
 		private ConsoleProgress _progress;
 
-		[SetUp]
-		public void Setup()
-		{
-			_progress = new ConsoleProgress();
-		}
+
 		public HgSetup()
 		{
+			_progress = new ConsoleProgress();
 			Root = new TempFolder("ChorusHgWrappingTest");
 			HgRepository.CreateRepositoryInExistingDir(Root.Path,_progress);
 			Repository = new HgRepository(Root.Path, new NullProgress());

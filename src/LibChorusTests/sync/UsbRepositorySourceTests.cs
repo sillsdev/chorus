@@ -20,6 +20,7 @@ namespace Chorus.Tests.sync
 		[SetUp]
 		public void Setup()
 		{
+			_progress = new StringBuilderProgress();
 			_pathToTestRoot = Path.Combine(Path.GetTempPath(), "ChorusTest");
 			if (Directory.Exists(_pathToTestRoot))
 				Directory.Delete(_pathToTestRoot, true);
@@ -35,7 +36,6 @@ namespace Chorus.Tests.sync
 			_project.IncludePatterns.Add(pathToText);
 			_project.FolderPath = _pathToProjectRoot;
 
-			_progress = new StringBuilderProgress();
 
 			UsbKeyRepositorySource.SetRootDirForAllSourcesDuringUnitTest(_pathToTestRoot);
 		}
