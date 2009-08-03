@@ -32,7 +32,7 @@ namespace Chorus.Tests
 
 			ProjectFolder = new TempFolder(RootFolder, ProjectName);
 
-			RepositorySetup.MakeRepositoryForTest(ProjectFolder.Path, userName);
+			RepositorySetup.MakeRepositoryForTest(ProjectFolder.Path, userName,_progress);
 			ProjectFolderConfig = new ProjectFolderConfiguration(ProjectFolder.Path);
 
 		}
@@ -140,9 +140,9 @@ namespace Chorus.Tests
 			Assert.IsFalse(Repository.GetFileExistsInRepo(pathRelativeToRepositoryRoot));
 		}
 
-		public static void MakeRepositoryForTest(string newRepositoryPath, string userId)
+		public static void MakeRepositoryForTest(string newRepositoryPath, string userId, IProgress progress)
 		{
-			HgRepository.CreateRepositoryInExistingDir(newRepositoryPath);
+			HgRepository.CreateRepositoryInExistingDir(newRepositoryPath,progress);
 			var hg = new HgRepository(newRepositoryPath, new NullProgress());
 			hg.SetUserNameInIni(userId, new NullProgress());
 		}

@@ -14,15 +14,17 @@ namespace Chorus.Tests.VcsDrivers.Mercurial
 		private TempFile _tempFile;
 		private HgRepository _repo;
 		private List<Revision> _changesets;
+		private ConsoleProgress _progress;
 
 		[SetUp]
 		public void Setup()
 		{
+			_progress = new ConsoleProgress();
 			_testRoot = new TempFolder("ChorusRetrieveTest");
 			_tempFile = new TempFile(_testRoot);
 				File.WriteAllText(_tempFile.Path,"one");
 
-				Chorus.VcsDrivers.Mercurial.HgRepository.CreateRepositoryInExistingDir(_testRoot.Path);
+				Chorus.VcsDrivers.Mercurial.HgRepository.CreateRepositoryInExistingDir(_testRoot.Path,_progress);
 			_repo = new Chorus.VcsDrivers.Mercurial.HgRepository(_testRoot.Path, new NullProgress());
 			_repo.AddAndCheckinFile(_tempFile.Path);
 				_repo.Commit(true, "initial");

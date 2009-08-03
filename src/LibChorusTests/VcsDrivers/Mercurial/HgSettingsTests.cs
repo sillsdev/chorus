@@ -17,13 +17,20 @@ namespace Chorus.Tests.VcsDrivers.Mercurial
 	[TestFixture]
 	public class HgSettingsTests
 	{
+		private ConsoleProgress _progress;
+
+		[SetUp]
+		public void Setup()
+		{
+			_progress = new ConsoleProgress();
+		}
 
 		[Test] public void GetKnownRepositories_NoneKnown_GivesOnlyLanguageDepo()
 		{
 			using (var testRoot = new TempFolder("ChorusHgSettingsTest"))
 			{
-				HgRepository.CreateRepositoryInExistingDir(testRoot.Path);
-				var repo = new HgRepository(testRoot.Path, new NullProgress());
+				HgRepository.CreateRepositoryInExistingDir(testRoot.Path, _progress);
+				var repo = new HgRepository(testRoot.Path, _progress);
 				var sources = repo.GetRepositoryPathsInHgrc();
 				Assert.AreEqual(1, sources.Count());
 			}
@@ -34,7 +41,7 @@ namespace Chorus.Tests.VcsDrivers.Mercurial
 		{
 			using (var testRoot = new TempFolder("ChorusHgSettingsTest"))
 			{
-				HgRepository.CreateRepositoryInExistingDir(testRoot.Path);
+				HgRepository.CreateRepositoryInExistingDir(testRoot.Path, _progress);
 				File.WriteAllText(testRoot.Combine(Path.Combine(".hg","hgrc")), @"
 [paths]
 one = c:\intentionally bogus

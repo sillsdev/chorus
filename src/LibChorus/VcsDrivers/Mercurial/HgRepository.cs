@@ -54,7 +54,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				startingPointForPathSearch = Path.GetDirectoryName(startingPointForPathSearch);
 			}
 
-			string root = GetRepositoryRoot(startingPointForPathSearch, ExecuteErrorsOk("root", startingPointForPathSearch, 100));
+			string root = GetRepositoryRoot(startingPointForPathSearch, ExecuteErrorsOk("root", startingPointForPathSearch, 100, progress));
 			if (!string.IsNullOrEmpty(root))
 			{
 				return new HgRepository(root, progress);
@@ -72,7 +72,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 				if (!string.IsNullOrEmpty(startingPointForPathSearch) && Directory.Exists(newRepositoryPath))
 				{
-					CreateRepositoryInExistingDir(newRepositoryPath);
+					CreateRepositoryInExistingDir(newRepositoryPath, progress);
 
 					//review: Machine name would be more accurate, but most people have, like "Compaq" as their machine name
 					//but in any case, this is just a default until they set the name explicity
@@ -132,7 +132,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			_progress.WriteVerbose("setting name and branch");
 			using (new ShortTermEnvironmentalVariable("HGUSER", userName))
 			{
-				Execute("branch", pathToRepository, _secondsBeforeTimeoutOnLocalOperation, userName);
+				Execute(pathToRepository, _secondsBeforeTimeoutOnLocalOperation, _progress, "branch", userName);
 			}
 		}
 
@@ -147,7 +147,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			_progress.WriteStatus("{0} pushing to {1}", _userName, targetUri);
 				try
 				{
-					Execute("push", _pathToRepository, _secondsBeforeTimeoutOnLocalOperation, SurroundWithQuotes(targetUri));
+					Execute(_pathToRepository, _secondsBeforeTimeoutOnLocalOperation, _progress, "push", SurroundWithQuotes(targetUri));
 				}
 				catch (Exception err)
 				{
@@ -158,7 +158,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				{
 					try
 					{
-						Execute("update", targetUri, _secondsBeforeTimeoutOnLocalOperation, "-C"); // for usb keys and other local repositories
+						Execute(targetUri, _secondsBeforeTimeoutOnLocalOperation, _progress, "update", "-C"); // for usb keys and other local repositories
 					}
 					catch (Exception err)
 					{
@@ -179,7 +179,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			{
 				try
 				{
-					Execute("pull", _pathToRepository, _secondsBeforeTimeoutOnRemoteOperation, otherRepo.PathWithQuotes);
+					Execute(_pathToRepository, _secondsBeforeTimeoutOnRemoteOperation, _progress, "pull", otherRepo.PathWithQuotes);
 				}
 				catch (Exception err)
 				{
@@ -232,16 +232,18 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		protected string GetTextFromQuery(string repositoryPath, string s)
 		{
-			ExecutionResult result= ExecuteErrorsOk(s + " -R " + SurroundWithQuotes(repositoryPath), _secondsBeforeTimeoutOnLocalOperation);
+			ExecutionResult result= ExecuteErrorsOk(s + " -R " + SurroundWithQuotes(repositoryPath), _secondsBeforeTimeoutOnLocalOperation, _progress);
 		   // Debug.Assert(string.IsNullOrEmpty(result.StandardError), result.StandardError);
 
-			_progress.WriteVerbose(result.StandardOutput);
-			_progress.WriteVerbose(result.StandardError);
+			if(!string.IsNullOrEmpty(result.StandardOutput))
+				_progress.WriteVerbose(result.StandardOutput.Trim());
+			if (!string.IsNullOrEmpty(result.StandardError))
+				_progress.WriteVerbose(result.StandardError.Trim());
 			return result.StandardOutput;
 		}
-		protected static string GetTextFromQuery(string query, int secondsBeforeTimeoutOnLocalOperation)
+		protected static string GetTextFromQuery(string query, int secondsBeforeTimeoutOnLocalOperation, IProgress progress)
 		{
-			ExecutionResult result = ExecuteErrorsOk(query, secondsBeforeTimeoutOnLocalOperation);
+			ExecutionResult result = ExecuteErrorsOk(query, secondsBeforeTimeoutOnLocalOperation, progress);
 			//TODO: we need a way to get this kind of error back the devs for debugging
 			Debug.Assert(string.IsNullOrEmpty(result.StandardError), result.StandardError);
 			return result.StandardOutput;
@@ -257,7 +259,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		{
 			_progress.WriteVerbose("Adding {0} to the files that are tracked for {1}: ", Path.GetFileName(filePath),
 								   _userName);
-			Execute("add", _pathToRepository, _secondsBeforeTimeoutOnLocalOperation, SurroundWithQuotes(filePath));
+			Execute(_pathToRepository, _secondsBeforeTimeoutOnLocalOperation, _progress, "add", SurroundWithQuotes(filePath));
 		}
 
 		public virtual void Commit(bool forceCreationOfChangeSet, string message, params object[] args)
@@ -274,7 +276,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 			message = string.Format(message, args);
 			_progress.WriteVerbose("{0} committing with comment: {1}", _userName, message);
-			ExecutionResult result = Execute("ci", _pathToRepository, _secondsBeforeTimeoutOnLocalOperation, "-m " + SurroundWithQuotes(message));
+			ExecutionResult result = Execute(_pathToRepository, _secondsBeforeTimeoutOnLocalOperation, _progress, "ci", "-m " + SurroundWithQuotes(message));
 			_progress.WriteMessage(result.StandardOutput);
 		}
 
@@ -284,12 +286,12 @@ namespace Chorus.VcsDrivers.Mercurial
 		public void Branch(string branchName)
 		{
 			_progress.WriteVerbose("{0} changing working dir to branch: {1}", _userName, branchName);
-			Execute("branch -f ", _pathToRepository, _secondsBeforeTimeoutOnLocalOperation, SurroundWithQuotes(branchName));
+			Execute(_pathToRepository, _secondsBeforeTimeoutOnLocalOperation, _progress, "branch -f ", SurroundWithQuotes(branchName));
 		}
 
-		protected static ExecutionResult Execute(string cmd, string repositoryPath, int secondsBeforeTimeout, params string[] rest)
+		protected static ExecutionResult Execute(string repositoryPath, int secondsBeforeTimeout, IProgress progress, string cmd, params string[] rest)
 		{
-			return Execute(false, cmd, repositoryPath, secondsBeforeTimeout, rest);
+			return Execute(false, repositoryPath, secondsBeforeTimeout, progress, cmd, rest);
 		}
 
 		/// <summary>
@@ -297,7 +299,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		/// </summary>
 		/// <exception cref="System.TimeoutException"/>
 		/// <returns></returns>
-		protected static ExecutionResult Execute(bool failureIsOk, string cmd, string repositoryPath, int secondsBeforeTimeout, params string[] rest)
+		protected static ExecutionResult Execute(bool failureIsOk, string repositoryPath, int secondsBeforeTimeout, IProgress progress, string cmd, params string[] rest)
 		{
 			StringBuilder b = new StringBuilder();
 			b.Append(cmd + " ");
@@ -310,13 +312,13 @@ namespace Chorus.VcsDrivers.Mercurial
 				b.Append(s + " ");
 			}
 
-			ExecutionResult result = ExecuteErrorsOk(b.ToString(), secondsBeforeTimeout);
+			ExecutionResult result = ExecuteErrorsOk(b.ToString(), secondsBeforeTimeout, progress);
 			if (0 != result.ExitCode && !failureIsOk)
 			{
 				var details = Environment.NewLine + "hg Command was " + Environment.NewLine + b.ToString();
 				try
 				{
-					var versionInfo = GetTextFromQuery("version", secondsBeforeTimeout);
+					var versionInfo = GetTextFromQuery("version", secondsBeforeTimeout,progress);
 					//trim the verbose copyright stuff
 					versionInfo = versionInfo.Substring(0, versionInfo.IndexOf("Copyright"));
 					details +=  Environment.NewLine+"hg version is: " + versionInfo;
@@ -341,8 +343,9 @@ namespace Chorus.VcsDrivers.Mercurial
 		}
 
 		/// <exception cref="System.TimeoutException"/>
-		protected static ExecutionResult ExecuteErrorsOk(string command, string fromDirectory, int secondsBeforeTimeout)
+		protected static ExecutionResult ExecuteErrorsOk(string command, string fromDirectory, int secondsBeforeTimeout, IProgress progress)
 		{
+			progress.WriteVerbose("Executing: " +command);
 		   var result =  HgRunner.Run("hg " + command, fromDirectory, secondsBeforeTimeout);
 		   if (result.DidTimeOut)
 			{
@@ -352,9 +355,9 @@ namespace Chorus.VcsDrivers.Mercurial
 		}
 
 		/// <exception cref="System.TimeoutException"/>
-		protected static ExecutionResult ExecuteErrorsOk(string command, int secondsBeforeTimeout)
+		protected static ExecutionResult ExecuteErrorsOk(string command, int secondsBeforeTimeout, IProgress progress)
 		{
-			return ExecuteErrorsOk(command, null, secondsBeforeTimeout);
+			return ExecuteErrorsOk(command, null, secondsBeforeTimeout, progress);
 		}
 
 
@@ -393,7 +396,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		public List<string> GetChangedFiles()
 		{
-			ExecutionResult result= Execute("status", _pathToRepository, _secondsBeforeTimeoutOnLocalOperation);
+			ExecutionResult result= Execute(_pathToRepository, _secondsBeforeTimeoutOnLocalOperation, _progress, "status");
 			string[] lines = result.StandardOutput.Split('\n');
 			List<string> files = new List<string>();
 			foreach (string line in lines)
@@ -408,13 +411,13 @@ namespace Chorus.VcsDrivers.Mercurial
 		public void Update()
 		{
 			_progress.WriteVerbose("{0} updating", _userName);
-			Execute("update", _pathToRepository, _secondsBeforeTimeoutOnLocalOperation, "-C");
+			Execute(_pathToRepository, _secondsBeforeTimeoutOnLocalOperation, _progress, "update", "-C");
 		}
 
 		public void Update(string revision)
 		{
 			_progress.WriteVerbose("{0} updating (making working directory contain) revision {1}", _userName, revision);
-				Execute("update", _pathToRepository, _secondsBeforeTimeoutOnLocalOperation, "-r", revision, "-C");
+				Execute(_pathToRepository, _secondsBeforeTimeoutOnLocalOperation, _progress, "update", "-r", revision, "-C");
 		}
 
 //        public void GetRevisionOfFile(string fileRelativePath, string revision, string fullOutputPath)
@@ -426,9 +429,9 @@ namespace Chorus.VcsDrivers.Mercurial
 //            Execute("cat", _pathToRepository, "-o ",fullOutputPath," -r ",revision,absolutePathToFile);
 //        }
 
-		public static void CreateRepositoryInExistingDir(string path)
+		public static void CreateRepositoryInExistingDir(string path, IProgress progress)
 		{
-			Execute("init", null, 20, SurroundWithQuotes(path));
+			Execute(null, 20, progress, "init", SurroundWithQuotes(path));
 		}
 
 
@@ -461,11 +464,11 @@ namespace Chorus.VcsDrivers.Mercurial
 				_progress.WriteVerbose(
 					"At least one file was removed from the working directory.  Telling Hg to record the deletion.");
 
-				Execute("rm -A", _pathToRepository, _secondsBeforeTimeoutOnLocalOperation);
+				Execute(_pathToRepository, _secondsBeforeTimeoutOnLocalOperation, _progress, "rm -A");
 			}
 
 			_progress.WriteVerbose("Adding files to be tracked ({0}", args.ToString());
-			Execute("add", _pathToRepository, _secondsBeforeTimeoutOnLocalOperation, args.ToString());
+			Execute(_pathToRepository, _secondsBeforeTimeoutOnLocalOperation, _progress, "add", args.ToString());
 
 			_progress.WriteVerbose("Committing \"{0}\"", message);
 			Commit(false, message);
@@ -509,7 +512,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		public void Clone(string path)
 		{
-			Execute("clone", null, _secondsBeforeTimeoutOnLocalOperation, PathWithQuotes + " " + SurroundWithQuotes(path));
+			Execute(null, _secondsBeforeTimeoutOnLocalOperation, _progress, "clone", PathWithQuotes + " " + SurroundWithQuotes(path));
 		}
 
 		private List<Revision> GetRevisionsFromQuery(string query)
@@ -644,7 +647,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			var f =  TempFile.CreateWithExtension(Path.GetExtension(relativePath));
 
 			var cmd = string.Format("cat -o \"{0}\" -r {1} \"{2}\"", f.Path, revOrHash, relativePath);
-			ExecutionResult result = ExecuteErrorsOk(cmd, _pathToRepository, _secondsBeforeTimeoutOnLocalOperation);
+			ExecutionResult result = ExecuteErrorsOk(cmd, _pathToRepository, _secondsBeforeTimeoutOnLocalOperation, _progress);
 			if(!string.IsNullOrEmpty(result.StandardError.Trim()))
 			{
 				throw new ApplicationException(String.Format("Could not retrieve version {0} of {1}. Mercurial said: {2}", revOrHash, relativePath, result.StandardError));
@@ -905,7 +908,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		public bool GetCanConnectToRemote(string uri, IProgress progress)
 		{
 			progress.WriteMessage("Trying to connect to {0}...", uri);
-			 ExecutionResult result = ExecuteErrorsOk(string.Format("incoming -l 1 {0}", SurroundWithQuotes(uri)), _pathToRepository, _secondsBeforeTimeoutOnLocalOperation);
+			 ExecutionResult result = ExecuteErrorsOk(string.Format("incoming -l 1 {0}", SurroundWithQuotes(uri)), _pathToRepository, _secondsBeforeTimeoutOnLocalOperation, _progress);
 
 			 if (!string.IsNullOrEmpty(result.StandardError))
 			 {
@@ -918,7 +921,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		public void RecoverIfNeeded(IProgress progress)
 		{
-			var result = Execute(true, "recover", _pathToRepository, _secondsBeforeTimeoutOnLocalOperation);
+			var result = Execute(true, _pathToRepository, _secondsBeforeTimeoutOnLocalOperation, _progress, "recover");
 			if (result.StandardError.StartsWith("no interrupted"))
 			{
 				return;
@@ -937,7 +940,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		public bool Merge(string localRepositoryPath, string revisionNumber)
 		{
-			var result =  Execute(true, "merge", _pathToRepository, _secondsBeforeTimeoutOnLocalOperation, "-r", revisionNumber);
+			var result =  Execute(true, _pathToRepository, _secondsBeforeTimeoutOnLocalOperation, _progress, "merge", "-r", revisionNumber);
 
 			if (result.ExitCode != 0)
 			{

@@ -91,7 +91,7 @@ namespace Chorus.Tests.sync
 		}
 
 		[Test]
-		public void Sync_FileLockedForReadingDuringMerge_LeftWithSingleHead()
+		public void Sync_FileLockedForReadingDuringMerge_LeftWithMultipleHeads()
 		{
 			HgRunner.TimeoutSecondsOverrideForUnitTests = 1;
 			using (var bob = new RepositorySetup("bob"))
@@ -105,8 +105,7 @@ namespace Chorus.Tests.sync
 					{
 						sally.CheckinAndPullAndMerge(bob);
 					}
-					sally.AssertSingleHead();
-			//TODO: what else should the system do about it?
+					sally.AssertHeadCount(2);
 				}
 			}
 		}

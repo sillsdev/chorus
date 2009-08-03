@@ -38,6 +38,7 @@ namespace Chorus.SyncPanel
 			this.label2 = new System.Windows.Forms.Label();
 			this.pictureBox2 = new System.Windows.Forms.PictureBox();
 			this.timer1 = new System.Windows.Forms.Timer(this.components);
+			this._showVerboseLog = new System.Windows.Forms.CheckBox();
 			((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
 			this.SuspendLayout();
 			//
@@ -70,21 +71,21 @@ namespace Chorus.SyncPanel
 			// _logBox
 			//
 			this._logBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-																		 | System.Windows.Forms.AnchorStyles.Left)
-																		| System.Windows.Forms.AnchorStyles.Right)));
+						| System.Windows.Forms.AnchorStyles.Left)
+						| System.Windows.Forms.AnchorStyles.Right)));
 			this._logBox.Location = new System.Drawing.Point(72, 209);
 			this._logBox.Name = "_logBox";
-			this._logBox.Size = new System.Drawing.Size(366, 180);
+			this._logBox.Size = new System.Drawing.Size(366, 188);
 			this._logBox.TabIndex = 4;
 			this._logBox.Text = "";
 			//
 			// _syncTargets
 			//
 			this._syncTargets.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-																			 | System.Windows.Forms.AnchorStyles.Right)));
+						| System.Windows.Forms.AnchorStyles.Right)));
 			this._syncTargets.FormattingEnabled = true;
 			this._syncTargets.Items.AddRange(new object[] {
-															  "USB Drive"});
+			"USB Drive"});
 			this._syncTargets.Location = new System.Drawing.Point(72, 95);
 			this._syncTargets.MinimumSize = new System.Drawing.Size(105, 79);
 			this._syncTargets.Name = "_syncTargets";
@@ -123,11 +124,23 @@ namespace Chorus.SyncPanel
 			//
 			this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
 			//
+			// _showVerboseLog
+			//
+			this._showVerboseLog.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+			this._showVerboseLog.AutoSize = true;
+			this._showVerboseLog.Location = new System.Drawing.Point(72, 423);
+			this._showVerboseLog.Name = "_showVerboseLog";
+			this._showVerboseLog.Size = new System.Drawing.Size(158, 17);
+			this._showVerboseLog.TabIndex = 9;
+			this._showVerboseLog.Text = "Show diagnostic information";
+			this._showVerboseLog.UseVisualStyleBackColor = true;
+			//
 			// SyncPanel
 			//
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.BackColor = System.Drawing.SystemColors.GradientInactiveCaption;
+			this.Controls.Add(this._showVerboseLog);
 			this.Controls.Add(this.pictureBox2);
 			this.Controls.Add(this.label2);
 			this.Controls.Add(this.label1);
@@ -155,5 +168,6 @@ namespace Chorus.SyncPanel
 		private System.Windows.Forms.Label label2;
 		private System.Windows.Forms.PictureBox pictureBox2;
 		private System.Windows.Forms.Timer timer1;
+		private System.Windows.Forms.CheckBox _showVerboseLog;
 	}
 }

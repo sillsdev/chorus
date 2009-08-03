@@ -49,6 +49,7 @@ namespace Chorus.SyncPanel
 			_logBox.Text = "Syncing..."+Environment.NewLine;
 			Cursor.Current = Cursors.WaitCursor;
 			timer1.Enabled = true;
+			_model.ProgressDisplay.ShowVerbose = _showVerboseLog.Checked;
 			_model.Sync();
 			Cursor.Current = Cursors.Default;
 		}

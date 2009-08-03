@@ -14,11 +14,12 @@ namespace Chorus.Tests.VcsDrivers.Mercurial
 	[TestFixture]
 	public class HgWrappingTests
 	{
+		private ConsoleProgress _progress;
 
 		[SetUp]
 		public void Setup()
 		{
-
+			_progress = new ConsoleProgress();
 		}
 
 		[Test]
@@ -26,7 +27,7 @@ namespace Chorus.Tests.VcsDrivers.Mercurial
 		{
 			using (var testRoot = new TempFolder("ChorusHgWrappingTest"))
 			{
-				HgRepository.CreateRepositoryInExistingDir(testRoot.Path);
+				HgRepository.CreateRepositoryInExistingDir(testRoot.Path, _progress);
 				var repo = new HgRepository(testRoot.Path, new NullProgress());
 				var rev = repo.GetRevisionWorkingSetIsBasedOn();
 				Assert.IsNull(rev);
@@ -38,7 +39,7 @@ namespace Chorus.Tests.VcsDrivers.Mercurial
 		{
 			using (var testRoot = new TempFolder("ChorusHgWrappingTest"))
 			{
-				HgRepository.CreateRepositoryInExistingDir(testRoot.Path);
+				HgRepository.CreateRepositoryInExistingDir(testRoot.Path, _progress);
 				var repo = new HgRepository(testRoot.Path, new NullProgress());
 				using(var f = testRoot.GetNewTempFile(true))
 				{
@@ -141,11 +142,17 @@ namespace Chorus.Tests.VcsDrivers.Mercurial
 	{
 		public TempFolder Root;
 		public HgRepository Repository;
+		private ConsoleProgress _progress;
 
+		[SetUp]
+		public void Setup()
+		{
+			_progress = new ConsoleProgress();
+		}
 		public HgSetup()
 		{
 			Root = new TempFolder("ChorusHgWrappingTest");
-			HgRepository.CreateRepositoryInExistingDir(Root.Path);
+			HgRepository.CreateRepositoryInExistingDir(Root.Path,_progress);
 			Repository = new HgRepository(Root.Path, new NullProgress());
 		}
 

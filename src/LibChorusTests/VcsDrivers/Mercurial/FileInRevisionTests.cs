@@ -14,7 +14,13 @@ namespace Chorus.Tests.VcsDrivers.Mercurial
 	public class FilesInRevisionTests
 	{
 
+		private ConsoleProgress _progress;
 
+		[SetUp]
+		public void Setup()
+		{
+			_progress = new ConsoleProgress();
+		}
 		/// <summary>
 		/// What's special here is that, with mercurial, if the revision has no
 		/// parent, we don't ask for a range
@@ -28,7 +34,7 @@ namespace Chorus.Tests.VcsDrivers.Mercurial
 				{
 					File.WriteAllText(f.Path, "one");
 
-					HgRepository.CreateRepositoryInExistingDir(testRoot.Path);
+					HgRepository.CreateRepositoryInExistingDir(testRoot.Path,_progress);
 					var repo = new HgRepository(testRoot.Path, new NullProgress());
 
 					repo.AddAndCheckinFile(f.Path);
@@ -50,7 +56,7 @@ namespace Chorus.Tests.VcsDrivers.Mercurial
 				File.WriteAllText(temp, "one");
 				using (var f = TempFile.TrackExisting(temp))
 				{
-					HgRepository.CreateRepositoryInExistingDir(testRoot.Path);
+					HgRepository.CreateRepositoryInExistingDir(testRoot.Path,_progress);
 					var repo = new HgRepository(testRoot.Path, new NullProgress());
 
 					repo.AddAndCheckinFile(f.Path);

@@ -30,7 +30,7 @@ namespace Chorus.Tests.sync
 
 			string pathToText = WriteTestFile("version one");
 
-			RepositorySetup.MakeRepositoryForTest(_pathToProjectRoot, "bob");
+			RepositorySetup.MakeRepositoryForTest(_pathToProjectRoot, "bob",_progress);
 			_project = new ProjectFolderConfiguration(_pathToProjectRoot);
 			_project.IncludePatterns.Add(pathToText);
 			_project.FolderPath = _pathToProjectRoot;

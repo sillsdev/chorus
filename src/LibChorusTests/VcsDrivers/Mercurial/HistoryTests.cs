@@ -31,7 +31,7 @@ namespace Chorus.Tests.VcsDrivers.Mercurial
 			_pathToText = Path.Combine(_pathToTestRoot, "foo.txt");
 			File.WriteAllText(_pathToText, "version one of my pretend txt");
 
-			RepositorySetup.MakeRepositoryForTest(_pathToTestRoot, "bob");
+			RepositorySetup.MakeRepositoryForTest(_pathToTestRoot, "bob",_progress);
 
 			_project = new ProjectFolderConfiguration(_pathToTestRoot);
 			_project.FolderPath = _pathToTestRoot;

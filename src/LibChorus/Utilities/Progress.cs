@@ -13,6 +13,7 @@ namespace Chorus.Utilities
 		void WriteWarning(string message, params object[] args);
 		void WriteError(string message, params object[] args);
 		void WriteVerbose(string message, params object[] args);
+		bool ShowVerbose {set; }
 	}
 
 	public class NullProgress : IProgress
@@ -38,6 +39,12 @@ namespace Chorus.Utilities
 		public void WriteVerbose(string message, params object[] args)
 		{
 
+		}
+
+		public bool ShowVerbose
+		{
+			get { return false; }
+			set {  }
 		}
 	}
 
@@ -90,6 +97,17 @@ namespace Chorus.Utilities
 			}
 		}
 
+		public bool ShowVerbose
+		{
+			set
+			{
+				foreach (var handler in _progressHandlers)
+				{
+					handler.ShowVerbose = value;
+				}
+			}
+		}
+
 		public void Dispose()
 		{
 			foreach (var handler in _progressHandlers)
@@ -104,6 +122,8 @@ namespace Chorus.Utilities
 	public class ConsoleProgress : IProgress, IDisposable
 	{
 		public static int indent = 0;
+		private bool _verbose;
+
 		public ConsoleProgress()
 		{
 		}
@@ -140,12 +160,19 @@ namespace Chorus.Utilities
 
 		public void WriteVerbose(string message, params object[] args)
 		{
+			if(!_verbose)
+				return;
 			var lines = String.Format(message, args);
 			foreach (var line in lines.Split('\n'))
 			{
 				WriteStatus(": " + line);
 			}
 
+		}
+
+		public bool ShowVerbose
+		{
+			set { _verbose = value; }
 		}
 
 		///<summary>
@@ -216,6 +243,7 @@ namespace Chorus.Utilities
 	public abstract class GenericProgress : IProgress
 	{
 		public int indent = 0;
+		private bool _verbose;
 
 		public GenericProgress()
 		{
@@ -240,8 +268,19 @@ namespace Chorus.Utilities
 
 		public void WriteVerbose(string message, params object[] args)
 		{
-			WriteStatus("^ "+message, args);
+			if(!_verbose)
+				return;
+			var lines = String.Format(message, args);
+			foreach (var line in lines.Split('\n'))
+			{
+				WriteStatus(": " + line);
+			}
 
+		}
+
+		public bool ShowVerbose
+		{
+			set { _verbose = value; }
 		}
 	}
 }
