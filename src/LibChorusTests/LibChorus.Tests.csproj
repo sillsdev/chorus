@@ -67,6 +67,7 @@
 	<Compile Include="merge\xml\lift\MultiTextMergingTests.cs" />
 	<Compile Include="merge\xml\lift\PoorMansMergingStrategyTests.cs" />
 	<Compile Include="merge\xml\lift\SenseMergingTests.cs" />
+	<Compile Include="merge\xml\ourStory\FileLevelMergeTests.cs" />
 	<Compile Include="RepositorySetup.cs" />
 	<Compile Include="sync\Synchronizer.FileBasedTests.cs" />
 	<Compile Include="sync\ConflictFileSyncTests.cs" />

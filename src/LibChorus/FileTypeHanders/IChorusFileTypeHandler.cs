@@ -3,6 +3,7 @@ using System.Linq;
 using Chorus.FileTypeHanders.audio;
 using Chorus.FileTypeHanders.image;
 using Chorus.FileTypeHanders.lift;
+using Chorus.FileTypeHanders.oneStory;
 using Chorus.merge;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
@@ -45,6 +46,7 @@ namespace Chorus.FileTypeHanders
 		{
 			var fileTypeHandlers = new ChorusFileTypeHandlerCollection();
 			fileTypeHandlers.Handlers.Add(new LiftFileHandler());
+			fileTypeHandlers.Handlers.Add(new OneStoryFileHandler());
 			fileTypeHandlers.Handlers.Add(new TextFileTypeHandler());
 			fileTypeHandlers.Handlers.Add(new ConflictFileTypeHandler());
 			fileTypeHandlers.Handlers.Add(new WeSayConfigFileHandler());

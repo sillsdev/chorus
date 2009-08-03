@@ -67,7 +67,7 @@ namespace Chorus.SyncPanel
 
 			//NB: we may someday decide to distinguish between this chorus-app context of "what
 			//I did last time and the hgrc default which effect applications (e.g. wesay)
-			_synchronizer.Repository.SetIsOneDefaultSyncAddresses(address, address.Enabled);
+			_synchronizer.SetIsOneDefaultSyncAddresses(address, address.Enabled);
 		}
 	}
 }
