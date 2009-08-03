@@ -18,7 +18,7 @@ namespace Chorus.merge
 
 		ContextDescriptor Context { get; set; }
 		string GetFullHumanReadableDescription();
-		string ConflictTypeHumanName
+		string Description
 		{
 			get;
 		}
@@ -72,7 +72,7 @@ namespace Chorus.merge
 
 
 
-		public override string ConflictTypeHumanName
+		public override string Description
 		{
 			get { return "Merge Failure"; }
 		}

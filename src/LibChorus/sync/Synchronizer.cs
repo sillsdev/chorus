@@ -82,7 +82,13 @@ namespace Chorus.sync
 
 			HgRepository repo = new HgRepository(_localRepositoryPath,progress);
 
-			repo.RecoverIfNeeded(progress);
+			repo.RecoverIfNeeded();
+			if (!repo.RemoveOldLocks())
+			{
+				progress.WriteError("Synchronization abandoned for now.  Try again after restarting the computer.");
+				results.Succeeded = false;
+				return results;
+			}
 
 			progress.WriteStatus("Checking In...");
 			repo.AddAndCheckinFiles(_project.IncludePatterns, _project.ExcludePatterns, options.CheckinDescription);
@@ -264,7 +270,7 @@ namespace Chorus.sync
 		/// <summary>
 		///
 		/// </summary>
-		 /// <returns>path to clone</returns>
+		 /// <returns>path to clone, or empty if it failed</returns>
 		public string MakeClone(string newDirectory, bool alsoDoCheckout, IProgress progress)
 		{
 			_progress = progress;
@@ -278,6 +284,13 @@ namespace Chorus.sync
 				throw new ArgumentException(String.Format("The parent of the given newDirectory must already exist ({0})", parent));
 			}
 			HgRepository local = new HgRepository(_localRepositoryPath, progress);
+
+			if (!local.RemoveOldLocks())
+			{
+				progress.WriteError("Chorus could not create the clone at this time.  Try again after restarting the computer.");
+				return string.Empty;
+			}
+
 			using (new ConsoleProgress("Creating repository clone at {0}", newDirectory))
 			{
 				local.Clone(newDirectory);

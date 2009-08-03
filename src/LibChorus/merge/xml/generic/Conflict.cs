@@ -44,7 +44,7 @@ namespace Chorus.merge.xml.generic
 		public string RelativeFilePath { get { return Situation.PathToFileInRepository; } }
 
 		public abstract string GetFullHumanReadableDescription();
-		public abstract string ConflictTypeHumanName { get; }
+		public abstract string Description { get; }
 		public MergeSituation Situation{get;set;}
 		public string RevisionWhereMergeWasCheckedIn { get;private set;}
 
@@ -97,7 +97,7 @@ namespace Chorus.merge.xml.generic
 			writer.WriteAttributeString("class", string.Empty, this.GetType().FullName);
 			writer.WriteAttributeString("relativeFilePath", string.Empty, RelativeFilePath);
 			//writer.WriteAttributeString("pathToUnitOfConflict", string.Empty, PathToUnitOfConflict);
-			writer.WriteAttributeString("type", string.Empty, ConflictTypeHumanName);
+			writer.WriteAttributeString("type", string.Empty, Description);
 			writer.WriteAttributeString("guid", string.Empty, Guid.ToString());
 			writer.WriteAttributeString("date", string.Empty, DateTime.UtcNow.ToString(TimeFormatNoTimeZone));
 		  //  writer.WriteAttributeString("shortDataDescription", _shortDataDescription);
@@ -151,6 +151,7 @@ namespace Chorus.merge.xml.generic
 			Register<RemovedVsEditedElementConflict>(builder);
 			Register<RemovedVsEditedAttributeConflict>(builder);
 			Register<RemovedVsEdittedTextConflict>(builder);
+			Register<BothEdittedDifferentPartsOfDependentPiecesOfDataWarning>(builder);
 
 			var container = builder.Build();
 
@@ -213,7 +214,7 @@ namespace Chorus.merge.xml.generic
 			return "Unreadable Conflict";
 		}
 
-		public string ConflictTypeHumanName
+		public string Description
 		{
 			get { return "Unreadable Conflict"; }
 		}
@@ -308,7 +309,7 @@ namespace Chorus.merge.xml.generic
 
 		public override string GetFullHumanReadableDescription()
 		{
-			return string.Format("{0} ({1}): {2}", ConflictTypeHumanName, AttributeDescription, WhatHappened);
+			return string.Format("{0} ({1}): {2}", Description, AttributeDescription, WhatHappened);
 		}
 		public virtual string GetXmlOfConflict()
 		{
@@ -356,7 +357,7 @@ namespace Chorus.merge.xml.generic
 			: base(attributeName, ourValue, theirValue, ancestorValue, mergeSituation)
 		{
 		}
-		public override string ConflictTypeHumanName
+		public override string Description
 		{
 			get { return string.Format("Removed Vs Edited Attribute Conflict"); }
 		}
@@ -370,7 +371,7 @@ namespace Chorus.merge.xml.generic
 		{
 		}
 
-		public override string ConflictTypeHumanName
+		public override string Description
 		{
 			get { return string.Format("Both Edited Attribute Conflict"); }
 		}
@@ -391,7 +392,7 @@ namespace Chorus.merge.xml.generic
 
 		}
 
-		public override string ConflictTypeHumanName
+		public override string Description
 		{
 			get { return string.Format("Both Edited Text Field Conflict"); }
 		}
@@ -414,7 +415,7 @@ namespace Chorus.merge.xml.generic
 
 		}
 
-		public override string ConflictTypeHumanName
+		public override string Description
 		{
 			get { return string.Format("Both Edited Text Field Conflict"); }
 		}
@@ -424,21 +425,13 @@ namespace Chorus.merge.xml.generic
 	public abstract class ElementConflict : Conflict, IConflict
 	{
 		protected readonly string _elementName;
-//        protected readonly XmlNode _ourElement;
-//        protected readonly XmlNode _theirElement;
-//        protected readonly XmlNode _ancestorElement;
+
 
 		public ElementConflict(string elementName, XmlNode ourElement, XmlNode theirElement, XmlNode ancestorElement,
 							  MergeSituation mergeSituation, IElementDescriber elementDescriber)
 			: base(mergeSituation)
 		{
 			_elementName = elementName;
-//            _ourElement = ourElement;
-//            _theirElement = theirElement;
-//            _ancestorElement = ancestorElement;
-
-			//nb: we need to make use of the describer now, because it won't make it through the xml serialization/deserialization
-			//_shortDataDescription = elementDescriber.GetHumanDescription(ourElement);
 		}
 
 		public ElementConflict(XmlNode xmlRepresentation):base(xmlRepresentation)
@@ -447,14 +440,7 @@ namespace Chorus.merge.xml.generic
 
 		public override string GetFullHumanReadableDescription()
 		{
-			//enhance: this is a bit of a hack to pick some element that isn't null
-//            XmlNode element = _ourElement == null ? _ancestorElement : _ourElement;
-//            if(element == null)
-//            {
-//                element = _theirElement;
-//            }
-
-			return string.Format("{0} ({1}): {2}", ConflictTypeHumanName, Context.DataLabel, WhatHappened);
+			return string.Format("{0} ({1}): {2}", Description, Context.DataLabel, WhatHappened);
 		}
 
 
@@ -470,10 +456,6 @@ namespace Chorus.merge.xml.generic
 			get;
 		}
 
-		protected override void WriteAttributes(XmlWriter writer)
-		{
-			base.WriteAttributes(writer);
-		}
 	}
 
 	[TypeGuid("56F9C347-C4FA-48F4-8028-729F3CFF48EF")]
@@ -490,7 +472,7 @@ namespace Chorus.merge.xml.generic
 		{
 
 		}
-		public override string ConflictTypeHumanName
+		public override string Description
 		{
 			get { return "Removed Vs Edited Element Conflict"; }
 		}
@@ -499,14 +481,6 @@ namespace Chorus.merge.xml.generic
 		{
 			get
 			{
-//                if (_theirElement == null)
-//                {
-//                    return "Since we last synchronized, they deleted this element, while you or the program you were using edited it.";
-//                }
-//                else
-//                {
-//                    return "Since we last synchronized, you deleted this element, while they or the program they were using edited it.";
-//                }
 				return "One user deleted this element, while another edited it.";
 			}
 		}
@@ -525,7 +499,7 @@ namespace Chorus.merge.xml.generic
 		{
 
 		}
-		public override string ConflictTypeHumanName
+		public override string Description
 		{
 			get { return "Both Reordered Conflict"; }
 		}
@@ -549,7 +523,7 @@ namespace Chorus.merge.xml.generic
 		{
 
 		}
-		public override string ConflictTypeHumanName
+		public override string Description
 		{
 			get { return "Ambiguous Insert Warning"; }
 		}
@@ -580,7 +554,7 @@ namespace Chorus.merge.xml.generic
 		}
 
 
-		public override string ConflictTypeHumanName
+		public override string Description
 		{
 			get { return "Ambiguous Insert Reorder Warning"; }
 		}
@@ -588,6 +562,40 @@ namespace Chorus.merge.xml.generic
 		public override string WhatHappened
 		{
 			get { return "Since we last synchronized, someone inserted material in this element, but the other user re-ordered things. We cannot be sure of the correct position for the inserted material."; }
+		}
+	}
+
+	/// <summary>
+	/// Used when, say, one guy adds a translation of an the example sentence,
+	/// but meanwhile the other guy changed the example sentence, so the translation is
+	/// suspect.  This could be a "warning", if we had such a thing.
+	/// </summary>
+	[TypeGuid("71636317-A94F-4814-8665-1D0F83DF388F")]
+	internal class BothEdittedDifferentPartsOfDependentPiecesOfDataWarning : ElementConflict
+	{
+		public BothEdittedDifferentPartsOfDependentPiecesOfDataWarning(string elementName, XmlNode ourElement, XmlNode theirElement,
+			XmlNode ancestorElement, MergeSituation mergeSituation, IElementDescriber elementDescriber)
+			: base(elementName, ourElement, theirElement, ancestorElement, mergeSituation, elementDescriber)
+		{
+		}
+
+		public BothEdittedDifferentPartsOfDependentPiecesOfDataWarning(XmlNode xmlRepresentation)
+			: base(xmlRepresentation)
+		{
+
+		}
+
+
+		public override string Description
+		{
+			get { return "Both Editted Different Parts Of Dependent Pieces Of Data Warning"; }
+		}
+
+		public override string WhatHappened
+		{
+			get {
+				return
+					"Since we last synchronized, someone editted one part of this element, while the other editted another part. Since these two pieces of data are thought to be dependent on each other, someone needs to verify that the resulting merge is ok."; }
 		}
 	}
 }

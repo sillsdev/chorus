@@ -17,7 +17,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		protected readonly string _userName;
 		protected IProgress _progress;
 		private int _secondsBeforeTimeoutOnLocalOperation = 30;
-		private int _secondsBeforeTimeoutOnRemoteOperation = 180;
+		private int _secondsBeforeTimeoutOnRemoteOperation = 20*60;
 
 		public static string GetEnvironmentReadinessMessage(string messageLanguageId)
 		{
@@ -919,7 +919,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		}
 
 
-		public void RecoverIfNeeded(IProgress progress)
+		public void RecoverIfNeeded()
 		{
 			var result = Execute(true, _pathToRepository, _secondsBeforeTimeoutOnLocalOperation, _progress, "recover");
 			if (result.StandardError.StartsWith("no interrupted"))
@@ -929,11 +929,11 @@ namespace Chorus.VcsDrivers.Mercurial
 
 			if (!string.IsNullOrEmpty(result.StandardError))
 			{
-				progress.WriteError(result.StandardError);
+				_progress.WriteError(result.StandardError);
 			}
 			if (!string.IsNullOrEmpty(result.StandardOutput))
 			{
-				progress.WriteWarning("Recovered: "+result.StandardOutput);
+				_progress.WriteWarning("Recovered: "+result.StandardOutput);
 			}
 
 		}
@@ -954,6 +954,57 @@ namespace Chorus.VcsDrivers.Mercurial
 					return false;
 				}
 			}
+			return true;
+		}
+
+		/// <summary>
+		/// Attempts to remove lock and wlocks if it looks safe to do so
+		/// </summary>
+		/// <returns></returns>
+		public bool RemoveOldLocks()
+		{
+			return RemoveOldLocks("hg.exe");
+		}
+
+		/// <summary>
+		/// Used by tests, which can't easily make hg be running
+		/// </summary>
+		/// <param name="processNameToMatch">the process to look for, instead of "hg.exe"</param>
+		/// <returns></returns>
+		public bool RemoveOldLocks(string processNameToMatch)
+		{
+			var wlockPath = Path.Combine(Path.Combine(_pathToRepository, ".hg"), "wlock");
+			if (!RemoveOldLockFile(processNameToMatch, wlockPath ))
+				return false;
+
+			var lockPath = Path.Combine(_pathToRepository, ".hg");
+			lockPath = Path.Combine(lockPath, "store");
+			lockPath = Path.Combine(lockPath, "lock");
+			return RemoveOldLockFile(processNameToMatch, lockPath);
+		}
+		private bool RemoveOldLockFile(string processNameToMatch, string pathToLock)
+		{
+			if (File.Exists(pathToLock))
+			{
+				_progress.WriteWarning("There is a lock at {0}...", pathToLock);
+				var hgIsRunning = System.Diagnostics.Process.GetProcessesByName(processNameToMatch).Length > 0;
+				if (hgIsRunning)
+				{
+					_progress.WriteError("There is at last one {0} running, so {1} cannot be removed.  You may need to restart the computer.", processNameToMatch, Path.GetFileName(pathToLock));
+					return false;
+				}
+				try
+				{
+					File.Delete(pathToLock);
+					_progress.WriteWarning("Lock safely removed.");
+				}
+				catch (Exception)
+				{
+					_progress.WriteError("The file {0} could not be removed.  You may need to restart the computer.", Path.GetFileName(pathToLock));
+					return false;
+				}
+			}
+
 			return true;
 		}
 	}

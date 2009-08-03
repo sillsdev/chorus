@@ -23,6 +23,69 @@ namespace Chorus.Tests.VcsDrivers.Mercurial
 		}
 
 		[Test]
+		public void RemoveOldLocks_NoLocks_ReturnsTrue()
+		{
+			using (var setup = new HgSetup())
+			{
+				Assert.IsTrue(setup.Repository.RemoveOldLocks());
+			}
+		}
+
+		[Test]
+		public void RemoveOldLocks_WLockButNotRunningHg_LockRemoved()
+		{
+			using (var setup = new HgSetup())
+			{
+				var file = TempFile.CreateAt(setup.Root.Combine(".hg", "wlock"), "blah");
+				Assert.IsTrue(setup.Repository.RemoveOldLocks());
+				Assert.IsFalse(File.Exists(file.Path));
+			}
+		}
+
+		[Test]
+		public void RemoveOldLocks_WLockAndLockButNotRunningHg_BothLocksRemoved()
+		{
+			using (var setup = new HgSetup())
+			{
+				var file1 = TempFile.CreateAt(setup.Root.Combine(".hg", "wlock"), "blah");
+				var file2 = TempFile.CreateAt(setup.Root.Combine(".hg", "store","lock"), "blah");
+				Assert.IsTrue(setup.Repository.RemoveOldLocks());
+				Assert.IsFalse(File.Exists(file1.Path));
+				Assert.IsFalse(File.Exists(file2.Path));
+			}
+		}
+
+		[Test]
+		public void RemoveOldLocks_WLockAndHgIsRunning_ReturnsFalse()
+		{
+			using (var setup = new HgSetup())
+			{
+				//we have to pretent to be hg
+				var ourName =System.Diagnostics.Process.GetCurrentProcess().ProcessName;
+
+				var file = TempFile.CreateAt(setup.Root.Combine(".hg", "wlock"), "blah");
+
+				Assert.IsFalse(setup.Repository.RemoveOldLocks(ourName));
+				file.Dispose();
+			}
+		}
+
+		[Test]
+		public void RemoveOldLocks_LockAndHgIsRunning_ReturnsFalse()
+		{
+			using (var setup = new HgSetup())
+			{
+				//we have to pretent to be hg
+				var ourName = System.Diagnostics.Process.GetCurrentProcess().ProcessName;
+
+				var file = TempFile.CreateAt(setup.Root.Combine(".hg", "store", "lock"), "blah");
+
+				Assert.IsFalse(setup.Repository.RemoveOldLocks(ourName));
+				file.Dispose();
+			}
+		}
+
+		[Test]
 		public void GetRevisionWorkingSetIsBasedOn_NoCheckinsYet_GivesNull()
 		{
 			using (var testRoot = new TempFolder("ChorusHgWrappingTest"))

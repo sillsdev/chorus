@@ -98,7 +98,7 @@ namespace Chorus.Tests.merge.xml.lift
 
 		private void AssertConflictType<TConflictType>(IConflict conflict)
 		{
-			Assert.AreEqual(typeof(TConflictType), conflict.GetType(), conflict.ToString());
+				Assert.AreEqual(typeof(TConflictType), conflict.GetType(), conflict.ToString());
 		}
 	}
 }

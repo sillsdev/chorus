@@ -10,12 +10,18 @@ namespace Chorus.Tests.merge.xml.generic
 	public class ListenerForUnitTests : IMergeEventListener
 	{
 		public List<IConflict> Conflicts = new List<IConflict>();
+		public List<IConflict> Warnings = new List<IConflict>();
 		public List<IChangeReport> Changes = new List<IChangeReport>();
 		public List<ContextDescriptor> Contexts = new List<ContextDescriptor>();
 
 		public void ConflictOccurred(IConflict conflict)
 		{
 			Conflicts.Add(conflict);
+		}
+
+		public void WarningOccurred(IConflict warning)
+		{
+			Warnings.Add(warning);
 		}
 
 		public void ChangeOccurred(IChangeReport change)

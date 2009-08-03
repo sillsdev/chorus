@@ -1,11 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Text;
 using System.Xml;
 using System.Collections;
 using Chorus.FileTypeHanders.xml;
-using Chorus.VcsDrivers.Mercurial;
 
 namespace Chorus.merge.xml.generic
 {

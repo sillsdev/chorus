@@ -258,7 +258,7 @@ namespace Chorus.Utilities
 
 		public void WriteWarning(string message, params object[] args)
 		{
-			WriteStatus(message, args);
+			WriteStatus("Warning: "+message, args);
 		}
 
 		public void WriteError(string message, params object[] args)
@@ -273,6 +273,7 @@ namespace Chorus.Utilities
 			var lines = String.Format(message, args);
 			foreach (var line in lines.Split('\n'))
 			{
+
 				WriteStatus(": " + line);
 			}
 

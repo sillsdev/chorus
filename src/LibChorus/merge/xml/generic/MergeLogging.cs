@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace Chorus.merge.xml.generic
@@ -5,6 +6,7 @@ namespace Chorus.merge.xml.generic
 	public interface IMergeEventListener
 	{
 		void ConflictOccurred(IConflict conflict);
+		void WarningOccurred(IConflict warning);
 
 		void ChangeOccurred(IChangeReport change);
 
@@ -23,6 +25,11 @@ namespace Chorus.merge.xml.generic
 	public class NullMergeEventListener : IMergeEventListener
 	{
 		public void ConflictOccurred(IConflict conflict)
+		{
+
+		}
+
+		public void WarningOccurred(IConflict conflict)
 		{
 
 		}
@@ -52,6 +59,14 @@ namespace Chorus.merge.xml.generic
 			foreach (IMergeEventListener listener in _listeners)
 			{
 				listener.ConflictOccurred(conflict);
+			}
+		}
+
+		public void WarningOccurred(IConflict conflict)
+		{
+			 foreach (IMergeEventListener listener in _listeners)
+			{
+				listener.WarningOccurred(conflict);
 			}
 		}
 

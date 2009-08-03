@@ -54,22 +54,14 @@ namespace Chorus.merge.xml.generic
 		}
 		public void ConflictOccurred(IConflict conflict)
 		{
-//            //this hacky business is about using a serializer when it doesn't own the whole document...
-//            //we're just using it to make xml for one element, which it doesn't like to do.
-//            StringBuilder builder = new StringBuilder();
-//            using (StringWriter sw = new StringWriter(builder))
-//            {
-//                var x = new XmlSerializer(conflict.GetType());
-//                var fragmentWriter = new XmlFragmentWriter(sw);
-//                x.Serialize(fragmentWriter, conflict);
-//                fragmentWriter.Close();
-//            }
-//            var doc = new XmlDocument();
-//            doc.LoadXml(builder.ToString());
-//            _writer.WriteElementString(conflict.GetType().Name.ToString(), doc.FirstChild.InnerXml);
-
-			conflict.Context = this._context;
+			conflict.Context = _context;
 			conflict.WriteAsXml(_writer);
+		}
+
+		public void WarningOccurred(IConflict warning)
+		{
+			warning.Context = _context;
+			warning.WriteAsXml(_writer);
 		}
 
 		public void ChangeOccurred(IChangeReport change)

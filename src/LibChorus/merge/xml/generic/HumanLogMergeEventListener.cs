@@ -16,6 +16,11 @@ namespace Chorus.merge.xml.generic
 			_stream.WriteLine(conflict.GetFullHumanReadableDescription());
 		}
 
+		public void WarningOccurred(IConflict warning)
+		{
+			_stream.WriteLine("warning: "+warning.GetFullHumanReadableDescription());
+		}
+
 		public void ChangeOccurred(IChangeReport change)
 		{
 			_stream.WriteLine(change.ToString());

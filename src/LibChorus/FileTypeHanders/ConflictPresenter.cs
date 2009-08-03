@@ -67,7 +67,7 @@ namespace Chorus.FileTypeHanders
 					_conflict.Situation.UserXId, _conflict.Situation.UserYId, _conflict.Context.DataLabel, _conflict.WinnerId);
 
 				builder.AppendFormat(
-					"The kind of conflict was: {0}", _conflict.ConflictTypeHumanName);
+					"The kind of conflict was: {0}", _conflict.Description);
 				//                var m = new Rainbow.HtmlDiffEngine.Merger(original, modified);
 //                builder.Append(m.merge());
 

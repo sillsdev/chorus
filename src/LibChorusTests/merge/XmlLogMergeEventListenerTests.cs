@@ -83,7 +83,7 @@ namespace Chorus.Tests.merge
 			return "hello";
 		}
 
-		public string ConflictTypeHumanName
+		public string Description
 		{
 			get { return "dummy"; }
 		}
