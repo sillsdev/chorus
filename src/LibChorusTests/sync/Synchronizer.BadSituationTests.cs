@@ -64,6 +64,43 @@ namespace Chorus.Tests.sync
 
 
 		[Test]
+		public void Sync_MergeFailure_NoneOfTheOtherGuysFilesMakeItIntoWorkingDirectory()
+		{
+			using (var bob = new RepositorySetup("bob"))
+			{
+				bob.ProjectFolderConfig.IncludePatterns.Add("*.txt");
+				bob.AddAndCheckinFile("aaa.txt", "apple");
+				bob.AddAndCheckinFile("bbb.txt", "bread");
+				bob.AddAndCheckinFile("zzz.txt", "zoo");
+				using (var sally = new RepositorySetup("sally", bob))
+				{
+					bob.AddAndCheckinFile("aaa.txt", "bob-apple");
+					bob.AddAndCheckinFile("bbb.txt", "bob-bread");
+					bob.AddAndCheckinFile("zzz.txt", "bob-zoo");
+				   using (new FailureSimulator("TextMerger-bbb.txt"))
+					{
+						sally.AddAndCheckinFile("aaa.txt", "sally-apple");
+						sally.AddAndCheckinFile("bbb.txt", "sally-bread");
+						sally.AddAndCheckinFile("zzz.txt", "sally-zipper");
+						Assert.IsFalse(sally.CheckinAndPullAndMerge(bob).Succeeded);
+
+					   //make sure we ended up on Sally's revision, even though Bob's are newer
+						var currentRevision = sally.Repository.GetRevisionWorkingSetIsBasedOn();
+						Assert.AreEqual("sally", sally.Repository.GetRevision(currentRevision.Number.Hash).UserId);
+
+					   //sally should see no changes, because it should all be rolled back
+						sally.AssertFileContents("aaa.txt", "sally-apple");
+						sally.AssertFileContents("bbb.txt", "sally-bread");
+						sally.AssertFileContents("zzz.txt", "sally-zipper");
+
+//                        sally.AssertSingleHead();
+						Assert.IsFalse(sally.GetProgressString().Contains("creates new remote heads"));
+					}
+				}
+			}
+		}
+
+		[Test]
 		public void Sync_FileLockedForWritingDuringUpdate_GetUpdatedFileOnceLockIsGone()
 		{
 			HgRunner.TimeoutSecondsOverrideForUnitTests = 1;

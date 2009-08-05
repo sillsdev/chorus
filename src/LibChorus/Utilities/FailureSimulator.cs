@@ -29,7 +29,7 @@ namespace Chorus.Utilities
 			Environment.SetEnvironmentVariable(InducechorusFailureTriggered, string.Empty);
 		}
 
-		public static void ThrowIfTestRequestsItThrowNow(string name)
+		public static void IfTestRequestsItThrowNow(string name)
 		{
 #if DEBUG
 			string s = System.Environment.GetEnvironmentVariable(Inducechorusfailure);

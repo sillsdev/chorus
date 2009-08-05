@@ -13,10 +13,7 @@ namespace Chorus.VcsDrivers.Mercurial
 	{
 		public static int TimeoutSecondsOverrideForUnitTests = 10000;
 
-		public static ExecutionResult Run(string commandLine)
-		{
-			return Run(commandLine, null, 30);
-		}
+
 
 #if UseWrapShellCall
 		public static ExecutionResult Run(string commandLine, string fromDirectory)

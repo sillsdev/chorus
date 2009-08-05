@@ -13,15 +13,13 @@ namespace Chorus.SyncPanel
 	{
 		private readonly Synchronizer _synchronizer;
 		public IProgress ProgressDisplay{get; set;}
-		private BackgroundWorker _backgroundWorker;
+		private readonly BackgroundWorker _backgroundWorker;
 
 		public SyncPanelModel(ProjectFolderConfiguration projectFolderConfiguration)
 		{
 			_synchronizer = Synchronizer.FromProjectConfiguration(projectFolderConfiguration, new NullProgress());
 			_backgroundWorker = new BackgroundWorker();
-			_backgroundWorker.DoWork += new DoWorkEventHandler(worker_DoWork);
-			//_backgroundWorker.RunWorkerCompleted +=(()=>this.EnableSync = true);
-
+			_backgroundWorker.DoWork += worker_DoWork;
 		}
 
 		public bool EnableSync
@@ -34,7 +32,6 @@ namespace Chorus.SyncPanel
 			//nb: at the moment, we can't just get it new each time, because it stores the
 			//enabled state of the check boxes
 			return _synchronizer.GetPotentialSynchronizationSources(new NullProgress());
-//            return _repositorySources;
 		}
 
 		public void Sync()
@@ -48,7 +45,6 @@ namespace Chorus.SyncPanel
 			options.DoMergeWithOthers = true;
 			options.RepositorySourcesToTry.AddRange(GetRepositoriesToList().Where(r=>r.Enabled));
 
-
 			_backgroundWorker.RunWorkerAsync(new object[] { _synchronizer, options, ProgressDisplay });
 		}
 		static void worker_DoWork(object sender, DoWorkEventArgs e)
@@ -58,7 +54,6 @@ namespace Chorus.SyncPanel
 			e.Result =  synchronizer.SyncNow(args[1] as SyncOptions, args[2] as IProgress);
 			SoundPlayer player = new SoundPlayer(Properties.Resources.finished);
 			player.Play();
-
 		}
 
 		public void PathEnabledChanged(RepositoryAddress address, CheckState state)
@@ -66,8 +61,8 @@ namespace Chorus.SyncPanel
 			address.Enabled = (state == CheckState.Checked);
 
 			//NB: we may someday decide to distinguish between this chorus-app context of "what
-			//I did last time and the hgrc default which effect applications (e.g. wesay)
-			_synchronizer.SetIsOneDefaultSyncAddresses(address, address.Enabled);
+			//repos I used last time" and the hgrc default which effect applications (e.g. wesay)
+			_synchronizer.SetIsOneOfDefaultSyncAddresses(address, address.Enabled);
 		}
 	}
 }

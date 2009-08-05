@@ -120,13 +120,21 @@ namespace Chorus.sync
 
 			if (options.DoMergeWithOthers)
 			{
-				IList<string> peopleWeMergedWith = MergeHeads(progress, results);
-
-				//that merge may have generated conflict files, and we want these merged
-				//version + updated/created conflict files to go right back into the repository
-				if (peopleWeMergedWith.Count > 0)
+				try
 				{
+					var peopleWeMergedWith = MergeHeads(progress, results);
+					//that merge may have generated conflict files, and we want these merged
+					//version + updated/created conflict files to go right back into the repository
 					repo.AddAndCheckinFiles(_project.IncludePatterns, _project.ExcludePatterns, GetMergeCommitSummary(peopleWeMergedWith, repo));
+				}
+				catch (Exception e)
+				{
+					//rollback
+					UpdateToTheDescendantRevision(repo, tipBeforeSync);
+					//repo.RollbackWorkingDirectoryToRevision();
+
+					results.Succeeded = false;
+					return results;
 				}
 			}
 
@@ -181,22 +189,23 @@ namespace Chorus.sync
 				repository.Update(); //update to the tip
 				return;
 			}
-			if (heads.Any(h => h.Number.Hash == parent.Number.Hash))
-			{
-				return; // our revision is still a head, so nothing to do
-			}
+			//if (heads.Any(h => h.Number.Hash == parent.Number.Hash))
+			//{
+				//return; // our revision is still a head, so nothing to do
+			//}
 
 			//TODO: I think this "direct descendant" limitation won't be enough
 			//  when there are more than 2 people merging and there's a failure
 			foreach (var head in heads)
 			{
-				if (head.IsDirectDescendantOf(parent))
+				if (parent.Number.Hash == head.Number.Hash || head.IsDirectDescendantOf(parent))
 				{
-					repository.Update(head.Number.Hash);
+					repository.RollbackWorkingDirectoryToRevision(head.Number.LocalRevisionNumber);
 					return;
 				}
 			}
-			throw new ApplicationException("Could not find a head to update to.");
+			//don't know if this would ever happen, but it's better than stayin in limbo
+			_progress.WriteError("Unexpected drop back to previous-tip");
 		}
 
 		private string GetMergeCommitSummary(IList<string> peopleWeMergedWith, HgRepository repository)
@@ -316,7 +325,8 @@ namespace Chorus.sync
 		/// </summary>
 		/// <param name="progress"></param>
 		/// <param name="results"></param>
-		private IList<string> MergeHeads(IProgress progress, SyncResults results)
+		/// <returns>A list of people that actually needed merging with.  Throws exception if there is an error.</returns>
+		private List<string> MergeHeads(IProgress progress, SyncResults results)
 		{
 			List<string> peopleWeMergedWith = new List<string>();
 
@@ -338,7 +348,6 @@ namespace Chorus.sync
 					}
 				}
 			}
-
 			return peopleWeMergedWith;
 		}
 
@@ -367,7 +376,7 @@ namespace Chorus.sync
 		}
 
 
-
+		/// <returns>false if nothing needed to be merged, true if the merge was done. Throws exception if there is an error.</returns>
 		private bool MergeTwoChangeSets(Revision head, Revision theirHead)
 		{
 			using (new ShortTermEnvironmentalVariable("HGMERGE", Path.Combine(Other.DirectoryOfExecutingAssembly, "ChorusMerge.exe")))
@@ -379,7 +388,7 @@ namespace Chorus.sync
 			}
 		}
 
-		public void SetIsOneDefaultSyncAddresses(RepositoryAddress address, bool enabled)
+		public void SetIsOneOfDefaultSyncAddresses(RepositoryAddress address, bool enabled)
 		{
 			Repository.SetIsOneDefaultSyncAddresses(address, enabled);
 		}

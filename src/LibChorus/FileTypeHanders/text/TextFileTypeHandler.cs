@@ -2,16 +2,22 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.InteropServices;
+using System.Text;
 using Chorus.merge;
 using Chorus.merge.text;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
 
+
 namespace Chorus.FileTypeHanders
 {
+
+
 	public class TextFileTypeHandler : IChorusFileTypeHandler
 	{
-		public bool CanDiffFile(string pathToFile)
+
+	 public bool CanDiffFile(string pathToFile)
 		{
 			return (Path.GetExtension(pathToFile) == ".txt");
 		}
@@ -28,7 +34,12 @@ namespace Chorus.FileTypeHanders
 
 		public void Do3WayMerge(MergeOrder order)
 		{
-			FailureSimulator.ThrowIfTestRequestsItThrowNow("TextMerger");
+		   // Debug.Fail("hello");
+			FailureSimulator.IfTestRequestsItThrowNow("TextMerger");
+
+			//trigger on a particular file name
+			FailureSimulator.IfTestRequestsItThrowNow("TextMerger-"+Path.GetFileName(order.pathToOurs));
+
 
 			//TODO: this is not yet going to deal with conflicts at all!
 			var contents = GetRawMerge(order.pathToOurs, order.pathToCommonAncestor, order.pathToTheirs);
@@ -38,9 +49,17 @@ namespace Chorus.FileTypeHanders
 
 		public static string GetRawMerge(string oursPath, string commonPath, string theirPath)
 		{
-			return RunProcess("diff3/bin/diff3.exe", "-m " + oursPath + " " + commonPath + " " + theirPath);
+			//NB: surrounding with quotes didn't cut it to get past paths with spaces
+
+			return RunProcess("diff3/bin/diff3.exe", "-m " + LongToShortConverter.GetShortPath(oursPath) + " " +
+				LongToShortConverter.GetShortPath(commonPath) + " " +
+				LongToShortConverter.GetShortPath(theirPath));
 		}
 
+		protected static string SurroundWithQuotes(string path)
+		{
+			return "\"" + path + "\"";
+		}
 
 		public static string RunProcess(string filePath, string arguments)
 		{
@@ -85,5 +104,36 @@ namespace Chorus.FileTypeHanders
 			return new IChangeReport[] { new DefaultChangeReport(fileInRevision, "Added") };
 		}
 
+	}
+
+	//Todo: not gonna work in Linux
+	class LongToShortConverter
+	{
+		[DllImport("kernel32.dll", CharSet = CharSet.Auto)]
+
+		public static extern int GetShortPathName(
+
+				 [MarshalAs(UnmanagedType.LPTStr)]
+
+				   string path,
+
+				 [MarshalAs(UnmanagedType.LPTStr)]
+
+				   StringBuilder shortPath,
+
+				 int shortPathLength
+
+				 );
+
+
+
+		public static string GetShortPath(string path)
+		{
+
+			StringBuilder shortPath = new StringBuilder(255);
+
+			GetShortPathName(path, shortPath, shortPath.Capacity);
+			return shortPath.ToString();
+		}
 	}
 }

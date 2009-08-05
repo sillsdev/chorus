@@ -1,7 +1,6 @@
 using System;
 using System.IO;
 using Chorus.sync;
-using Chorus.Tests.merge;
 using Chorus.Utilities;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
@@ -22,7 +21,7 @@ namespace Chorus.Tests
 
 		private void Init(string name)
 		{
-			_progress = new MultiProgress(new IProgress[] { new ConsoleProgress(), _stringBuilderProgress });
+			_progress = new MultiProgress(new IProgress[] { new ConsoleProgress(){ShowVerbose=true}, _stringBuilderProgress });
 			RootFolder = new TempFolder("ChorusTest-" + name);
 		}
 
@@ -150,7 +149,7 @@ namespace Chorus.Tests
 
 		private static string ProjectName
 		{
-			get { return "foo project"; }
+			get { return "foo project"; }//nb: important that it have a space, as this helps catch failure to enclose in quotes
 		}
 
 		public IDisposable GetFileLockForReading(string localPath)

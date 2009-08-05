@@ -16,7 +16,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		protected readonly string _pathToRepository;
 		protected readonly string _userName;
 		protected IProgress _progress;
-		private int _secondsBeforeTimeoutOnLocalOperation = 30;
+		private int _secondsBeforeTimeoutOnLocalOperation = 300;
 		private int _secondsBeforeTimeoutOnRemoteOperation = 20*60;
 
 		public static string GetEnvironmentReadinessMessage(string messageLanguageId)
@@ -351,7 +351,15 @@ namespace Chorus.VcsDrivers.Mercurial
 			{
 				throw new TimeoutException(result.StandardError);
 			}
-			return result;
+		   if (!string.IsNullOrEmpty(result.StandardError))
+		   {
+			   progress.WriteVerbose("standerr: " + result.StandardError);//not necessarily and *error*, down this deep
+		   }
+		   if (!string.IsNullOrEmpty(result.StandardOutput))
+		   {
+			   progress.WriteVerbose("standout: " + result.StandardOutput);//not necessarily and *error*, down this deep
+		   }
+		   return result;
 		}
 
 		/// <exception cref="System.TimeoutException"/>
@@ -938,6 +946,13 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		}
 
+		/// <summary>
+		///
+		/// </summary>
+		/// <exception cref="ApplicationException"/>
+		/// <param name="localRepositoryPath"></param>
+		/// <param name="revisionNumber"></param>
+		/// <returns>false if nothing needed to be merged, true if the merge was done. Throws exception if there is an error.</returns>
 		public bool Merge(string localRepositoryPath, string revisionNumber)
 		{
 			var result =  Execute(true, _pathToRepository, _secondsBeforeTimeoutOnLocalOperation, _progress, "merge", "-r", revisionNumber);
@@ -951,7 +966,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				else
 				{
 					_progress.WriteError(result.StandardError);
-					return false;
+					throw new ApplicationException(result.StandardError);
 				}
 			}
 			return true;
@@ -1006,6 +1021,15 @@ namespace Chorus.VcsDrivers.Mercurial
 			}
 
 			return true;
+		}
+
+		public void RollbackWorkingDirectoryToLastCheckin()
+		{
+			Execute(false, _pathToRepository, 30, _progress, "update --clean");
+		}
+		public void RollbackWorkingDirectoryToRevision(string revision)
+		{
+			Execute(false, _pathToRepository, 30, _progress, "update --clean --rev " +revision);
 		}
 	}
 

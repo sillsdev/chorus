@@ -147,7 +147,7 @@ namespace Chorus.merge.xml.lift
 
 		private static XmlNode FindEntry(XmlNode doc, string id)
 		{
-			FailureSimulator.ThrowIfTestRequestsItThrowNow("LiftMerger.FindEntry");
+			FailureSimulator.IfTestRequestsItThrowNow("LiftMerger.FindEntry");
 			return doc.SelectSingleNode("lift/entry[@id=\""+id+"\"]");
 		}
 

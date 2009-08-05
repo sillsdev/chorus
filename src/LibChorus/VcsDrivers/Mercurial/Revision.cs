@@ -61,6 +61,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		public bool IsDirectDescendantOf(Revision revision)
 		{
+			EnsureParentRevisionInfo();
 			//TODO: this is only checking direct descendant
 			return Parents.Any(p => p.Hash == revision.Number.Hash);
 		}
