@@ -7,7 +7,7 @@ using Chorus.Utilities;
 using NUnit.Framework;
 using System.Linq;
 
-namespace Baton.Tests
+namespace Chorus.Tests
 {
 	[TestFixture]
 	public class SettingsModelTests

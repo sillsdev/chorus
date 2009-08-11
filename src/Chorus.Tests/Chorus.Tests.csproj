@@ -8,8 +8,8 @@
 	<ProjectGuid>{887A58D6-E5C5-4BA1-9C9B-41C6E8F0B915}</ProjectGuid>
 	<OutputType>Library</OutputType>
 	<AppDesignerFolder>Properties</AppDesignerFolder>
-	<RootNamespace>Baton.Tests</RootNamespace>
-	<AssemblyName>Baton.Tests</AssemblyName>
+	<RootNamespace>Chorus.Tests</RootNamespace>
+	<AssemblyName>Chorus.Tests</AssemblyName>
 	<TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
 	<FileAlignment>512</FileAlignment>
   </PropertyGroup>

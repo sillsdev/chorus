@@ -2,12 +2,11 @@
 using System.IO;
 using Chorus.Review.RevisionsInRepository;
 using Chorus.sync;
-using Chorus.Tests;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
 using NUnit.Framework;
 
-namespace Baton.Tests
+namespace Chorus.Tests
 {
 	[TestFixture]
 	public class HistoryPanelModelTests
