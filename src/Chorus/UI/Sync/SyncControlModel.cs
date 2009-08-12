@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Media;
 using System.Windows.Forms;
@@ -7,24 +8,30 @@ using Chorus.Utilities;
 using System.Linq;
 using Chorus.VcsDrivers;
 
-namespace Chorus.SyncPanel
+namespace Chorus.UI.Sync
 {
-	public class SyncPanelModel
+	public class SyncControlModel
 	{
 		private readonly Synchronizer _synchronizer;
 		public IProgress ProgressDisplay{get; set;}
 		private readonly BackgroundWorker _backgroundWorker;
 
-		public SyncPanelModel(ProjectFolderConfiguration projectFolderConfiguration)
+		public SyncControlModel(ProjectFolderConfiguration projectFolderConfiguration)
 		{
 			_synchronizer = Synchronizer.FromProjectConfiguration(projectFolderConfiguration, new NullProgress());
 			_backgroundWorker = new BackgroundWorker();
+			_backgroundWorker.WorkerSupportsCancellation = true;
 			_backgroundWorker.DoWork += worker_DoWork;
 		}
 
 		public bool EnableSync
 		{
 			get { return !_backgroundWorker.IsBusy; }
+		}
+
+		public bool EnableCancel
+		{
+			get { return _backgroundWorker.IsBusy; }
 		}
 
 		public List<RepositoryAddress> GetRepositoriesToList()
@@ -36,21 +43,37 @@ namespace Chorus.SyncPanel
 
 		public void Sync()
 		{
-			if(_backgroundWorker.IsBusy)
-				return;
+			lock (this)
+			{
+				if(_backgroundWorker.IsBusy)
+					return;
 
-			SyncOptions options = new SyncOptions();
-			options.CheckinDescription = "[chorus] sync";
-			options.DoPullFromOthers = true;
-			options.DoMergeWithOthers = true;
-			options.RepositorySourcesToTry.AddRange(GetRepositoriesToList().Where(r=>r.Enabled));
+				SyncOptions options = new SyncOptions();
+				options.CheckinDescription = "[chorus] sync";
+				options.DoPullFromOthers = true;
+				options.DoMergeWithOthers = true;
+				options.RepositorySourcesToTry.AddRange(GetRepositoriesToList().Where(r => r.Enabled));
 
-			_backgroundWorker.RunWorkerAsync(new object[] { _synchronizer, options, ProgressDisplay });
+				_backgroundWorker.RunWorkerAsync(new object[] {_synchronizer, options, ProgressDisplay});
+			}
 		}
+
+		public void Cancel()
+		{
+			lock (this)
+			{
+				if(!_backgroundWorker.IsBusy)
+					return;
+
+				_backgroundWorker.CancelAsync();
+			}
+		}
+
 		static void worker_DoWork(object sender, DoWorkEventArgs e)
 		{
 			object[] args = e.Argument as object[];
 			Synchronizer synchronizer = args[0] as Synchronizer;
+			synchronizer.BackgroundWorkerArguments =  e;
 			e.Result =  synchronizer.SyncNow(args[1] as SyncOptions, args[2] as IProgress);
 			SoundPlayer player = new SoundPlayer(Properties.Resources.finished);
 			player.Play();

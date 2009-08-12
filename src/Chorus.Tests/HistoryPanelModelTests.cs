@@ -6,7 +6,7 @@ using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
 using NUnit.Framework;
 
-namespace Chorus.Tests
+namespace LibChorus.Tests
 {
 	[TestFixture]
 	public class HistoryPanelModelTests
@@ -21,6 +21,7 @@ namespace Chorus.Tests
 		[SetUp]
 		public void Setup()
 		{
+			_progress = new StringBuilderProgress();
 			_pathToTestRoot = Path.Combine(Path.GetTempPath(), "ChorusTest");
 			if (Directory.Exists(_pathToTestRoot))
 				Directory.Delete(_pathToTestRoot, true);
@@ -37,7 +38,6 @@ namespace Chorus.Tests
 			_project.IncludePatterns.Add(pathToText);
 			_project.FolderPath = _pathToTestRoot;
 
-			_progress = new StringBuilderProgress();
 			_model = new RevisionInRepositoryModel(HgRepository.CreateOrLocate(_project.FolderPath, new NullProgress()), null);
 			_model.ProgressDisplay = _progress;
 		}

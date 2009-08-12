@@ -4,7 +4,7 @@ using NUnit.Framework;
 
 /* From http://xmlunit.sourceforge.net/ */
 
-namespace Chorus.Tests.merge.xml.generic.xmldiff
+namespace LibChorus.Tests.merge.xml.generic.xmldiff
 {
 	[TestFixture]
 	public class XmlDiffTests {

@@ -9,7 +9,7 @@ using NUnit.Framework;
 using Palaso.TestUtilities;
 using TempFile=Chorus.Utilities.TempFile;
 
-namespace Chorus.Tests.merge
+namespace LibChorus.Tests.merge
 {
 
 

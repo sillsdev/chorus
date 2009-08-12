@@ -4,7 +4,7 @@ using System.Text;
 using Chorus.merge;
 using Chorus.Utilities;
 
-namespace Chorus.Tests.merge
+namespace LibChorus.Tests.merge
 {
 	public class GroupOfConflictingLiftFiles : IDisposable
 	{

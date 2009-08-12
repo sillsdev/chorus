@@ -11,7 +11,7 @@ using Chorus.Review.ChangesInRevision;
 using Chorus.Review.RevisionsInRepository;
 using Chorus.Settings;
 using Chorus.sync;
-using Chorus.SyncPanel;
+using Chorus.UI.Sync;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
 
@@ -43,8 +43,8 @@ namespace Chorus
 
 			builder.Register(ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers());
 
-			builder.Register<SyncPanel.SyncPanel>();
-			builder.Register<SyncPanelModel>();
+			builder.Register<SyncPanel>();
+			builder.Register<SyncControlModel>();
 
 			RegisterSyncStuff(builder);
 			RegisterReviewStuff(builder);
@@ -56,7 +56,7 @@ namespace Chorus
 			var shell= _container.Resolve<Shell>();
 
 			shell.AddPage("Review", _container.Resolve<ReviewPage>());
-			shell.AddPage("Send/Receive", _container.Resolve<SyncPanel.SyncPanel>());
+			shell.AddPage("Send/Receive", _container.Resolve<SyncPanel>());
 			shell.AddPage("Settings", _container.Resolve<SettingsView>());
 
 			return shell;
@@ -72,7 +72,7 @@ namespace Chorus
 
 		private void RegisterSyncStuff(ContainerBuilder builder)
 		{
-			builder.Register<SyncPanelModel>();
+			builder.Register<SyncControlModel>();
 		}
 
 		private void RegisterReviewStuff(ContainerBuilder builder)

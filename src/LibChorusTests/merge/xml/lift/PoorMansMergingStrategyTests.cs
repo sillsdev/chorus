@@ -1,6 +1,6 @@
 using Chorus.merge.xml.generic;
 using Chorus.merge.xml.lift;
-using Chorus.Tests.merge.xml;
+using LibChorus.Tests.merge.xml;
 using NUnit.Framework;
 
 namespace LiftIO.Tests.Merging

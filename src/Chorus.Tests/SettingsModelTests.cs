@@ -2,12 +2,11 @@
 using System.Collections.Generic;
 using System.IO;
 using Chorus.sync;
-using Chorus.Tests.merge;
 using Chorus.Utilities;
 using NUnit.Framework;
 using System.Linq;
 
-namespace Chorus.Tests
+namespace LibChorus.Tests
 {
 	[TestFixture]
 	public class SettingsModelTests

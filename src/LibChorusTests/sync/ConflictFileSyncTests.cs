@@ -3,10 +3,10 @@ using System.Xml;
 using Chorus.FileTypeHanders;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
-using Chorus.Tests.merge;
+using LibChorus.Tests.merge;
 using NUnit.Framework;
 
-namespace Chorus.Tests.sync
+namespace LibChorus.Tests.sync
 {
 	[TestFixture]
 	public class ConflictFileSyncTests

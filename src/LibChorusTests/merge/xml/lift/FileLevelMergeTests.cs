@@ -4,11 +4,11 @@ using Chorus.FileTypeHanders.lift;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
 using Chorus.merge.xml.lift;
-using Chorus.Tests.merge.xml;
-using Chorus.Tests.merge.xml.generic;
+using LibChorus.Tests.merge.xml;
+using LibChorus.Tests.merge.xml.generic;
 using NUnit.Framework;
 
-namespace Chorus.Tests.merge.xml.lift
+namespace LibChorus.Tests.merge.xml.lift
 {
 	/// <summary>
 	/// NB: this uses dummy strategies because the tests are not testing if the internals of the entries are merged

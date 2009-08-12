@@ -5,7 +5,7 @@ using Chorus.merge;
 using NUnit.Framework;
 using Palaso.TestUtilities;
 
-namespace Chorus.Tests.merge.xml.ourStory
+namespace LibChorus.Tests.merge.xml.ourStory
 {
 	[TestFixture]
 	public class FileLevelMergeTests

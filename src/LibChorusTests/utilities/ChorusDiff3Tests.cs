@@ -8,7 +8,7 @@ using Chorus.Utilities;
 using ChorusMerge;
 using NUnit.Framework;
 
-namespace Chorus.Tests.utilities
+namespace LibChorus.Tests.utilities
 {
 #if PartialIsAlive
 	[TestFixture]

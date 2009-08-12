@@ -5,7 +5,7 @@ using System.Text;
 using System.Xml;
 using NUnit.Framework;
 
-namespace Chorus.Tests.merge.xml
+namespace LibChorus.Tests.merge.xml
 {
 	public class XmlTestHelper
 	{

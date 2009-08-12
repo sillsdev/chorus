@@ -4,7 +4,7 @@ using System.IO;
 using System.Text;
 using Chorus.FileTypeHanders;
 using Chorus.merge;
-using Chorus.Tests.merge;
+using LibChorus.Tests.merge;
 using Chorus.Utilities;
 using NUnit.Framework;
 

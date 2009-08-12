@@ -4,7 +4,7 @@ using Chorus.Utilities;
 using Chorus.VcsDrivers;
 using NUnit.Framework;
 
-namespace Chorus.Tests.sync
+namespace LibChorus.Tests.sync
 {
 	/// <summary>
 	/// Review: what's the unifying idea here?

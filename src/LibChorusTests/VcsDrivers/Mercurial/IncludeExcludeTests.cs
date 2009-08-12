@@ -5,7 +5,7 @@ using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
 using NUnit.Framework;
 
-namespace Chorus.Tests.VcsDrivers.Mercurial
+namespace LibChorus.Tests.VcsDrivers.Mercurial
 {
 	[TestFixture]
 	public class IncludeExcludeTests

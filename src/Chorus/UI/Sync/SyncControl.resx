@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!--
 	Microsoft ResX Schema
@@ -117,8 +117,20 @@
   <resheader name="writer">
 	<value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="finished" type="System.Resources.ResXFileRef, System.Windows.Forms">
-	<value>..\UI\Sync\finished.wav;System.IO.MemoryStream, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  <assembly alias="System.Drawing" name="System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+  <data name="_syncButton.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+	<value>
+		iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
+		YQUAAAAJcEhZcwAADdAAAA3QARBsPQcAAAAGYktHRAD/AP8A/6C9p5MAAAAHdElNRQfWAQsOAC2tk4pc
+		AAABLklEQVQ4T2NgQAIKXu0uQPwfig2Q5QiyYZpnbT7/Zd2hW6QZAtM8c+PF1/61W/9n9u/9v+3EPeIM
+		gWnuXnb6hWfF5v/IeOPRu4QNAfl32trTr2oXnPwPwjADYPyDFx6DDcEZBrBAU/XrghvgXrEezDaNngRz
+		wX8xozQ4xmqYMsyA8o3/3So2/G9YdPy/sk/H/9DKDSgYZBBJBkQ3bf6vGzLlv37wtP8RDVvBrsBpQOWs
+		o/+RMchVJBkA0oCOQbbqhkz+rx8yA+wCcaALRPSTwRhnwIIkV++/CdYAwiDNMANA/JIJO14RMsAApGDa
+		hotwzTBD0tt3vIC6wAVv8gYqAhsyZ8ul/+45S/8bR8z+Xz7twGuiNMNMhhkyac3Z/5Uz9n0hSTO6IWRp
+		JpiFgQoASUwjO3/xCe4AAAAASUVORK5CYII=
+</value>
   </data>
+  <metadata name="timer1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+	<value>17, 17</value>
+  </metadata>
 </root>

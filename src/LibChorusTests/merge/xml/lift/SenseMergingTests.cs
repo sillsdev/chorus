@@ -3,10 +3,10 @@ using Chorus.FileTypeHanders.lift;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
 using Chorus.merge.xml.lift;
-using Chorus.Tests.merge.xml.generic;
+using LibChorus.Tests.merge.xml.generic;
 using NUnit.Framework;
 
-namespace Chorus.Tests.merge.xml.lift
+namespace LibChorus.Tests.merge.xml.lift
 {
 	[TestFixture]
 	public class SenseMergingTests

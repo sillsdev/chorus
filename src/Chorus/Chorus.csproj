@@ -61,42 +61,42 @@
   </ItemGroup>
   <ItemGroup>
 	<Compile Include="Bootstrapper.cs" />
-	<Compile Include="Review\ChangedReport\ChangeReportView.cs">
+	<Compile Include="UI\Review\ChangedReport\ChangeReportView.cs">
 	  <SubType>UserControl</SubType>
 	</Compile>
-	<Compile Include="Review\ChangedReport\ChangeReportView.Designer.cs">
+	<Compile Include="UI\Review\ChangedReport\ChangeReportView.Designer.cs">
 	  <DependentUpon>ChangeReportView.cs</DependentUpon>
 	</Compile>
-	<Compile Include="Review\ChangesInRevision\ChangesInRevisionView.cs">
+	<Compile Include="UI\Review\ChangesInRevision\ChangesInRevisionView.cs">
 	  <SubType>UserControl</SubType>
 	</Compile>
-	<Compile Include="Review\ChangesInRevision\ChangesInRevisionView.Designer.cs">
+	<Compile Include="UI\Review\ChangesInRevision\ChangesInRevisionView.Designer.cs">
 	  <DependentUpon>ChangesInRevisionView.cs</DependentUpon>
 	</Compile>
-	<Compile Include="Review\ChangesInRevision\ChangesInRevisionModel.cs" />
+	<Compile Include="UI\Review\ChangesInRevision\ChangesInRevisionModel.cs" />
 	<Compile Include="Event.cs" />
-	<Compile Include="Review\RevisionsInRepository\RevisionsInRepositoryView.cs">
+	<Compile Include="UI\Review\RevisionsInRepository\RevisionsInRepositoryView.cs">
 	  <SubType>UserControl</SubType>
 	</Compile>
-	<Compile Include="Review\RevisionsInRepository\RevisionsInRepositoryView.Designer.cs">
+	<Compile Include="UI\Review\RevisionsInRepository\RevisionsInRepositoryView.Designer.cs">
 	  <DependentUpon>RevisionsInRepositoryView.cs</DependentUpon>
 	</Compile>
-	<Compile Include="Review\RevisionsInRepository\RevisionInRepositoryModel.cs" />
-	<Compile Include="Review\ReviewPage.cs">
+	<Compile Include="UI\Review\RevisionsInRepository\RevisionInRepositoryModel.cs" />
+	<Compile Include="UI\Review\ReviewPage.cs">
 	  <SubType>UserControl</SubType>
 	</Compile>
-	<Compile Include="Review\ReviewPage.Designer.cs">
+	<Compile Include="UI\Review\ReviewPage.Designer.cs">
 	  <DependentUpon>ReviewPage.cs</DependentUpon>
 	</Compile>
 	<Compile Include="Program.cs" />
 	<Compile Include="Properties\AssemblyInfo.cs" />
-	<EmbeddedResource Include="Review\ChangedReport\ChangeReportView.resx">
+	<EmbeddedResource Include="UI\Review\ChangedReport\ChangeReportView.resx">
 	  <DependentUpon>ChangeReportView.cs</DependentUpon>
 	</EmbeddedResource>
-	<EmbeddedResource Include="Review\ReviewPage.resx">
+	<EmbeddedResource Include="UI\Review\ReviewPage.resx">
 	  <DependentUpon>ReviewPage.cs</DependentUpon>
 	</EmbeddedResource>
-	<EmbeddedResource Include="Review\RevisionsInRepository\RevisionsInRepositoryView.resx">
+	<EmbeddedResource Include="UI\Review\RevisionsInRepository\RevisionsInRepositoryView.resx">
 	  <DependentUpon>RevisionsInRepositoryView.cs</DependentUpon>
 	  <SubType>Designer</SubType>
 	</EmbeddedResource>
@@ -105,22 +105,22 @@
 	  <LastGenOutput>Resources.Designer.cs</LastGenOutput>
 	  <SubType>Designer</SubType>
 	</EmbeddedResource>
-	<EmbeddedResource Include="Review\ChangesInRevision\ChangesInRevisionView.resx">
+	<EmbeddedResource Include="UI\Review\ChangesInRevision\ChangesInRevisionView.resx">
 	  <DependentUpon>ChangesInRevisionView.cs</DependentUpon>
 	</EmbeddedResource>
 	<EmbeddedResource Include="Shell.resx">
 	  <DependentUpon>Shell.cs</DependentUpon>
 	  <SubType>Designer</SubType>
 	</EmbeddedResource>
-	<EmbeddedResource Include="Settings\SettingsView.resx">
+	<EmbeddedResource Include="UI\Settings\SettingsView.resx">
 	  <DependentUpon>SettingsView.cs</DependentUpon>
 	  <SubType>Designer</SubType>
 	</EmbeddedResource>
-	<EmbeddedResource Include="Settings\SetupPanel.resx">
+	<EmbeddedResource Include="UI\Settings\SetupPanel.resx">
 	  <DependentUpon>SetupPanel.cs</DependentUpon>
 	  <SubType>Designer</SubType>
 	</EmbeddedResource>
-	<EmbeddedResource Include="SyncPanel\SyncPanel.resx">
+	<EmbeddedResource Include="UI\Sync\SyncPanel.resx">
 	  <DependentUpon>SyncPanel.cs</DependentUpon>
 	  <SubType>Designer</SubType>
 	</EmbeddedResource>
@@ -139,33 +139,45 @@
 	  <DependentUpon>Settings.settings</DependentUpon>
 	  <DesignTimeSharedInput>True</DesignTimeSharedInput>
 	</Compile>
-	<Compile Include="Review\Events.cs" />
-	<Compile Include="Settings\SettingsModel.cs" />
+	<Compile Include="UI\Review\Events.cs" />
+	<Compile Include="UI\Settings\SettingsModel.cs" />
 	<Compile Include="Shell.cs">
 	  <SubType>Form</SubType>
 	</Compile>
 	<Compile Include="Shell.Designer.cs">
 	  <DependentUpon>Shell.cs</DependentUpon>
 	</Compile>
-	<Compile Include="Settings\SettingsView.cs">
+	<Compile Include="UI\Settings\SettingsView.cs">
 	  <SubType>UserControl</SubType>
 	</Compile>
-	<Compile Include="Settings\SettingsView.Designer.cs">
+	<Compile Include="UI\Settings\SettingsView.Designer.cs">
 	  <DependentUpon>SettingsView.cs</DependentUpon>
 	</Compile>
-	<Compile Include="Settings\SetupPanel.cs">
+	<Compile Include="UI\Settings\SetupPanel.cs">
 	  <SubType>UserControl</SubType>
 	</Compile>
-	<Compile Include="Settings\SetupPanel.Designer.cs">
+	<Compile Include="UI\Settings\SetupPanel.Designer.cs">
 	  <DependentUpon>SetupPanel.cs</DependentUpon>
 	</Compile>
-	<Compile Include="SyncPanel\SyncPanel.cs">
+	<Compile Include="UI\Sync\SyncControl.cs">
 	  <SubType>UserControl</SubType>
 	</Compile>
-	<Compile Include="SyncPanel\SyncPanel.Designer.cs">
+	<Compile Include="UI\Sync\SyncControl.Designer.cs">
+	  <DependentUpon>SyncControl.cs</DependentUpon>
+	</Compile>
+	<Compile Include="UI\Sync\SyncDialog.cs">
+	  <SubType>Form</SubType>
+	</Compile>
+	<Compile Include="UI\Sync\SyncDialog.Designer.cs">
+	  <DependentUpon>SyncDialog.cs</DependentUpon>
+	</Compile>
+	<Compile Include="UI\Sync\SyncPanel.cs">
+	  <SubType>UserControl</SubType>
+	</Compile>
+	<Compile Include="UI\Sync\SyncPanel.Designer.cs">
 	  <DependentUpon>SyncPanel.cs</DependentUpon>
 	</Compile>
-	<Compile Include="SyncPanel\SyncPanelModel.cs" />
+	<Compile Include="UI\Sync\SyncControlModel.cs" />
   </ItemGroup>
   <ItemGroup>
 	<ProjectReference Include="..\LibChorus\LibChorus.csproj">
@@ -175,10 +187,16 @@
   </ItemGroup>
   <ItemGroup>
 	<Content Include="chorus.ico" />
-	<EmbeddedResource Include="SyncPanel\finished.wav">
+	<EmbeddedResource Include="UI\Sync\finished.wav">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</EmbeddedResource>
-	<Content Include="Settings\SetupPanel.htm">
+	<EmbeddedResource Include="UI\Sync\SyncControl.resx">
+	  <DependentUpon>SyncControl.cs</DependentUpon>
+	</EmbeddedResource>
+	<EmbeddedResource Include="UI\Sync\SyncDialog.resx">
+	  <DependentUpon>SyncDialog.cs</DependentUpon>
+	</EmbeddedResource>
+	<Content Include="UI\Settings\SetupPanel.htm">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</Content>
   </ItemGroup>

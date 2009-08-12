@@ -2,7 +2,7 @@
 using Chorus.FileTypeHanders.lift;
 using NUnit.Framework;
 
-namespace Chorus.Tests.merge.xml.lift
+namespace LibChorus.Tests.merge.xml.lift
 {
 	[TestFixture]
 	public class LexEntryContextGeneratorTests

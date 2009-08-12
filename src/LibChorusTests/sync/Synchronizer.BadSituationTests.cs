@@ -2,12 +2,12 @@ using System;
 using System.IO;
 using Chorus.merge;
 using Chorus.sync;
-using Chorus.Tests.merge;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
+using LibChorus.Tests.merge;
 using NUnit.Framework;
 
-namespace Chorus.Tests.sync
+namespace LibChorus.Tests.sync
 {
 	/// <summary>
 	/// I don't know what to call this.... it's about what happens when things go bad, want to make

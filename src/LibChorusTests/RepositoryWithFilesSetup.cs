@@ -9,7 +9,7 @@ using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using NUnit.Framework;
 
-namespace Chorus.Tests.merge
+namespace LibChorus.Tests.merge
 {
 	/// <summary>
 	/// Provides temporary directories,files, and repositories.  Provides operations on them, to simulate a user.

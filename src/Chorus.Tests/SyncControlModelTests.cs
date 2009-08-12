@@ -2,18 +2,18 @@
 using System.IO;
 using System.Threading;
 using Chorus.sync;
-using Chorus.SyncPanel;
+using Chorus.UI.Sync;
 using Chorus.Utilities;
 using NUnit.Framework;
 using System.Linq;
 
-namespace Chorus.Tests
+namespace LibChorus.Tests
 {
 	[TestFixture]
-	public class SyncPanelModelTests
+	public class SyncControlModelTests
 	{
 		private string _pathToTestRoot;
-		private SyncPanelModel _model;
+		private SyncControlModel _model;
 		private StringBuilderProgress _progress;
 		private ProjectFolderConfiguration _project;
 		private Synchronizer _synchronizer;
@@ -21,6 +21,7 @@ namespace Chorus.Tests
 		[SetUp]
 		public void Setup()
 		{
+			_progress = new StringBuilderProgress();
 			_pathToTestRoot = Path.Combine(Path.GetTempPath(), "ChorusTest");
 			if (Directory.Exists(_pathToTestRoot))
 				Directory.Delete(_pathToTestRoot, true);
@@ -37,9 +38,8 @@ namespace Chorus.Tests
 			_project.IncludePatterns.Add(pathToText);
 			_project.FolderPath = _pathToTestRoot;
 
-			_progress = new StringBuilderProgress();
 			_synchronizer = Synchronizer.FromProjectConfiguration(_project, new NullProgress());
-			_model = new SyncPanelModel(_project);
+			_model = new SyncControlModel(_project);
 			_model.ProgressDisplay = _progress;
 		}
 
@@ -64,7 +64,7 @@ namespace Chorus.Tests
 		public void GetRepositoriesToList_NoRepositoriesKnown_GivesUsbAndDepot()
 		{
 			_synchronizer.ExtraRepositorySources.Clear();
-			_model = new SyncPanelModel(_project);
+			_model = new SyncControlModel(_project);
 			_model.ProgressDisplay = _progress;
 			Assert.AreEqual(2, _model.GetRepositoriesToList().Count);
 		}

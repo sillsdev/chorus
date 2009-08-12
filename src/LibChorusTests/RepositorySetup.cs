@@ -6,7 +6,7 @@ using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using NUnit.Framework;
 
-namespace Chorus.Tests
+namespace LibChorus.Tests
 {
 	/// <summary>
 	/// Provides temporary directories and repositories.

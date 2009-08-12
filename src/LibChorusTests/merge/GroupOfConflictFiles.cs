@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using Chorus.Utilities;
 
-namespace Chorus.Tests.merge
+namespace LibChorus.Tests.merge
 {
 	internal class GroupOfConflictFiles : IDisposable
 	{

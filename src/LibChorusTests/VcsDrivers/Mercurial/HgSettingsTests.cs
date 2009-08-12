@@ -8,7 +8,7 @@ using Chorus.VcsDrivers.Mercurial;
 using NUnit.Framework;
 using System.Linq;
 
-namespace Chorus.Tests.VcsDrivers.Mercurial
+namespace LibChorus.Tests.VcsDrivers.Mercurial
 {
 	/// <summary>
 	/// Mercurial has repository and global settings.  This fixture is for testing

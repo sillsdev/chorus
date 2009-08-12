@@ -8,7 +8,7 @@ using Chorus.merge;
 using Chorus.merge.xml.generic;
 using NUnit.Framework;
 
-namespace Chorus.Tests.merge.xml.generic
+namespace LibChorus.Tests.merge.xml.generic
 {
 	[TestFixture]
 	public class MergeChildrenMethod_DiffOnlyTests

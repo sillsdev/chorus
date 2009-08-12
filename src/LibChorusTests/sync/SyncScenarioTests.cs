@@ -7,7 +7,7 @@ using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using NUnit.Framework;
 
-namespace Chorus.Tests.sync
+namespace LibChorus.Tests.sync
 {
 	[TestFixture]
 	public class SyncScenarioTests

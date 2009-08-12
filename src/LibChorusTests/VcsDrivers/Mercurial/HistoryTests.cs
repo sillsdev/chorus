@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using Chorus.sync;
-using Chorus.Tests.merge;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
+using LibChorus.Tests.merge;
 using NUnit.Framework;
 using System.Linq;
 
-namespace Chorus.Tests.VcsDrivers.Mercurial
+namespace LibChorus.Tests.VcsDrivers.Mercurial
 {
 	[TestFixture]
 	public class HistoryTests

@@ -2,10 +2,10 @@ using System;
 using System.Xml;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
-using Chorus.Tests.merge.xml;
+using LibChorus.Tests.merge.xml;
 using NUnit.Framework;
 
-namespace Chorus.Tests.merge.xml.generic
+namespace LibChorus.Tests.merge.xml.generic
 {
 	/// <summary>
 	/// NB: the original TDD tests were done up on the XmlMerger (which uses the MergeMethod),

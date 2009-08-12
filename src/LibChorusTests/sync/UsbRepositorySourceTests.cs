@@ -4,7 +4,7 @@ using Chorus.Utilities;
 using Chorus.VcsDrivers;
 using NUnit.Framework;
 
-namespace Chorus.Tests.sync
+namespace LibChorus.Tests.sync
 {
 	/// <summary>
 	/// These tests (at least any that are not manual-only) should not actually require a usb key

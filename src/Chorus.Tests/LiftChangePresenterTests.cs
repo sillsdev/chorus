@@ -8,7 +8,7 @@ using Chorus.FileTypeHanders.lift;
 using Chorus.merge.xml.generic;
 using NUnit.Framework;
 
-namespace Chorus.Tests
+namespace LibChorus.Tests
 {
 	[TestFixture]
 	public class LiftChangePresenterTests

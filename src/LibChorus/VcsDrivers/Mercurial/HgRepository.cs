@@ -1013,10 +1013,23 @@ namespace Chorus.VcsDrivers.Mercurial
 					File.Delete(pathToLock);
 					_progress.WriteWarning("Lock safely removed.");
 				}
-				catch (Exception)
+				catch (Exception error)
 				{
-					_progress.WriteError("The file {0} could not be removed.  You may need to restart the computer.", Path.GetFileName(pathToLock));
-					return false;
+					try
+					{
+						var dest = Path.GetTempFileName();
+						File.Delete(dest);
+						File.Move(pathToLock, dest);
+						 _progress.WriteWarning("Lock could not be deleted, but was moved to temp directory.");
+					}
+					catch (Exception e)
+					{
+						_progress.WriteError(
+							"The file {0} could not be removed.  You may need to restart the computer.",
+							Path.GetFileName(pathToLock));
+						_progress.WriteError(error.Message);
+						return false;
+					}
 				}
 			}
 

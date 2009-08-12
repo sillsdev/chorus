@@ -7,7 +7,7 @@ using Chorus.Utilities;
 using Chorus.VcsDrivers;
 using NUnit.Framework;
 
-namespace Chorus.Tests.merge
+namespace LibChorus.Tests.merge
 {
 	[TestFixture]
 	public class XmlLogMergeEventListenerTests

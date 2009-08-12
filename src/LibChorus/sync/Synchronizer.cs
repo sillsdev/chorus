@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Windows.Forms;
 using Chorus.merge;
@@ -74,6 +75,16 @@ namespace Chorus.sync
 			}
 		}
 
+		private bool ShouldCancel(ref SyncResults results)
+		{
+			if (BackgroundWorkerArguments != null && BackgroundWorkerArguments.Cancel)
+			{
+				_progress.WriteWarning("User cancelled operation.");
+				results.Succeeded = false;//enhance: switch to success/cancelled/errors or something
+				return true;
+			}
+			return false;
+		}
 
 		public SyncResults SyncNow(SyncOptions options, IProgress progress)
 		{
@@ -105,6 +116,8 @@ namespace Chorus.sync
 			{
 				foreach (RepositoryAddress source in sourcesToTry)
 				{
+					if (ShouldCancel(ref results)){return results;}
+
 					string resolvedUri = source.GetPotentialRepoUri(RepoProjectName, progress);
 					if (source.CanConnect(repo, RepoProjectName, progress))
 					{
@@ -142,6 +155,8 @@ namespace Chorus.sync
 			{
 				foreach (RepositoryAddress repoDescriptor in sourcesToTry)
 				{
+					if (ShouldCancel(ref results)) { return results; }
+
 					if (!repoDescriptor.ReadOnly)
 					{
 						string resolvedUri = repoDescriptor.GetPotentialRepoUri(RepoProjectName, progress);
@@ -318,6 +333,7 @@ namespace Chorus.sync
 			get { return new HgRepository(_localRepositoryPath, _progress); }
 		}
 
+		public DoWorkEventArgs BackgroundWorkerArguments { get; set; }
 
 
 		/// <summary>
