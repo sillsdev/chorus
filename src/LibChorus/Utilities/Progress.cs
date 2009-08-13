@@ -50,11 +50,11 @@ namespace Chorus.Utilities
 
 	public class MultiProgress : IProgress, IDisposable
 	{
-		private readonly IEnumerable<IProgress> _progressHandlers;
+		private readonly List<IProgress> _progressHandlers=new List<IProgress>();
 
 		public MultiProgress(IEnumerable<IProgress> progressHandlers)
 		{
-			_progressHandlers = progressHandlers;
+			_progressHandlers.AddRange(progressHandlers);
 		}
 
 		public void WriteStatus(string message, params object[] args)
@@ -99,7 +99,7 @@ namespace Chorus.Utilities
 
 		public bool ShowVerbose
 		{
-			set
+			set //review: the best policy isn't completely clear here
 			{
 				foreach (var handler in _progressHandlers)
 				{
@@ -116,6 +116,11 @@ namespace Chorus.Utilities
 				if(d!=null)
 					d.Dispose();
 			}
+		}
+
+		public void Add(IProgress progress)
+		{
+			_progressHandlers.Add(progress);
 		}
 	}
 
@@ -239,6 +244,49 @@ namespace Chorus.Utilities
 		}
 	}
 
+	public class StatusProgress : IProgress
+	{
+
+		public string LastStatus { get; private set; }
+		public string LastWarning { get; private set; }
+		public string LastError { get; private set; }
+
+		public bool WarningEncountered { get { return !string.IsNullOrEmpty(LastWarning); } }
+		public bool ErrorEncountered { get { return !string.IsNullOrEmpty(LastError); } }
+
+
+	   public  void WriteStatus(string message, params object[] args)
+		{
+			LastStatus = string.Format(message, args);
+		}
+		public void WriteWarning(string message, params object[] args)
+		{
+			LastWarning = string.Format(message, args);
+		}
+
+		public void WriteError(string message, params object[] args)
+		{
+			LastError = string.Format(message, args);
+		}
+
+		public void WriteMessage(string message, params object[] args)
+		{
+		}
+
+		public void WriteVerbose(string message, params object[] args)
+		{
+		}
+
+		public bool ShowVerbose
+		{
+			set {  }
+		}
+
+		public void Clear()
+		{
+			LastError = LastWarning =LastStatus = string.Empty;
+		}
+	}
 
 	public abstract class GenericProgress : IProgress
 	{

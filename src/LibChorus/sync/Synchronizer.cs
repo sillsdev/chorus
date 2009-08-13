@@ -16,6 +16,9 @@ namespace Chorus.sync
 	/// </summary>
 	public class Synchronizer
 	{
+		private DoWorkEventArgs _backgroundWorkerArguments;
+		private BackgroundWorker _backgroundWorker;
+
 		private string _localRepositoryPath;
 		private ProjectFolderConfiguration _project;
 		private IProgress _progress;
@@ -77,13 +80,22 @@ namespace Chorus.sync
 
 		private bool ShouldCancel(ref SyncResults results)
 		{
-			if (BackgroundWorkerArguments != null && BackgroundWorkerArguments.Cancel)
+			if (_backgroundWorker != null && _backgroundWorker.CancellationPending)
 			{
 				_progress.WriteWarning("User cancelled operation.");
+				_progress.WriteStatus("Cancelled.");
 				results.Succeeded = false;//enhance: switch to success/cancelled/errors or something
+				_backgroundWorkerArguments.Cancel = true;
 				return true;
 			}
 			return false;
+		}
+
+		public SyncResults SyncNow(BackgroundWorker backgroundWorker, DoWorkEventArgs args, SyncOptions options, IProgress progress)
+		{
+			_backgroundWorker = backgroundWorker;
+			_backgroundWorkerArguments = args;
+			return SyncNow(options, progress);
 		}
 
 		public SyncResults SyncNow(SyncOptions options, IProgress progress)
@@ -112,6 +124,9 @@ namespace Chorus.sync
 //            if(repositoriesToTry==null || repositoriesToTry.Count == 0)
 //                repositoriesToTry = ExtraRepositorySources;
 
+			//this just saves us from trying to connect twice to the same repo that is, for example, no there.
+			Dictionary<RepositoryAddress, bool> didConnect= new Dictionary<RepositoryAddress, bool>();
+
 			if (options.DoPullFromOthers)
 			{
 				foreach (RepositoryAddress source in sourcesToTry)
@@ -119,14 +134,18 @@ namespace Chorus.sync
 					if (ShouldCancel(ref results)){return results;}
 
 					string resolvedUri = source.GetPotentialRepoUri(RepoProjectName, progress);
-					if (source.CanConnect(repo, RepoProjectName, progress))
+
+					progress.WriteStatus("Connecting to {0}...", source.Name);
+					var canConnect = source.CanConnect(repo, RepoProjectName, progress);
+					didConnect.Add(source,canConnect);
+					if (canConnect)
 					{
 						progress.WriteStatus("Trying to Pull from {0}({1})...", source.Name, source.URI);
 						repo.TryToPull(resolvedUri);
 					}
 					else
 					{
-						progress.WriteMessage("Could not connect to {0} at {1} for pulling", source.Name, resolvedUri);
+						progress.WriteWarning("Could not connect to {0} at {1} for pulling", source.Name, resolvedUri);
 					}
 				}
 			}
@@ -138,7 +157,8 @@ namespace Chorus.sync
 					var peopleWeMergedWith = MergeHeads(progress, results);
 					//that merge may have generated conflict files, and we want these merged
 					//version + updated/created conflict files to go right back into the repository
-					repo.AddAndCheckinFiles(_project.IncludePatterns, _project.ExcludePatterns, GetMergeCommitSummary(peopleWeMergedWith, repo));
+					if(peopleWeMergedWith.Count > 0)
+						repo.AddAndCheckinFiles(_project.IncludePatterns, _project.ExcludePatterns, GetMergeCommitSummary(peopleWeMergedWith, repo));
 				}
 				catch (Exception e)
 				{
@@ -153,23 +173,33 @@ namespace Chorus.sync
 
 			if(options.DoPushToLocalSources)
 			{
-				foreach (RepositoryAddress repoDescriptor in sourcesToTry)
+				foreach (RepositoryAddress address in sourcesToTry)
 				{
 					if (ShouldCancel(ref results)) { return results; }
 
-					if (!repoDescriptor.ReadOnly)
+					if (!address.ReadOnly)
 					{
-						string resolvedUri = repoDescriptor.GetPotentialRepoUri(RepoProjectName, progress);
-						if (repoDescriptor.CanConnect(repo, RepoProjectName, progress))
+						string resolvedUri = address.GetPotentialRepoUri(RepoProjectName, progress);
+						bool canConnect;
+						if (didConnect.ContainsKey(address))
 						{
-							progress.WriteMessage("Pushing local repository to {0} at {1}", RepoProjectName, resolvedUri);
-							repo.Push(resolvedUri, progress);
+							canConnect = didConnect[address];
 						}
-						else if(repoDescriptor is DirectoryRepositorySource || repoDescriptor is UsbKeyRepositorySource)
+						else
 						{
-							TryToMakeCloneForSource(progress, repoDescriptor);
-							//nb: no need to push if we just made a clone
+							canConnect = address.CanConnect(repo, RepoProjectName, progress);
+							didConnect.Add(address, canConnect);
 						}
+						if (canConnect)
+							{
+								progress.WriteMessage("Pushing local repository to {0} at {1}", RepoProjectName, resolvedUri);
+								repo.Push(resolvedUri, progress);
+							}
+							else if (address is DirectoryRepositorySource || address is UsbKeyRepositorySource)
+							{
+								TryToMakeCloneForSource(progress, address);
+								//nb: no need to push if we just made a clone
+							}
 					}
 				}
 			}
@@ -333,7 +363,6 @@ namespace Chorus.sync
 			get { return new HgRepository(_localRepositoryPath, _progress); }
 		}
 
-		public DoWorkEventArgs BackgroundWorkerArguments { get; set; }
 
 
 		/// <summary>
@@ -348,6 +377,9 @@ namespace Chorus.sync
 
 			List<Revision> heads = Repository.GetHeads();
 			Revision myHead = Repository.GetRevisionWorkingSetIsBasedOn();
+			if (myHead == default(Revision))
+				return peopleWeMergedWith;
+
 			foreach (Revision head in heads)
 			{
 				MergeSituation.PushRevisionsToEnvironmentVariables(myHead.UserId, myHead.Number.LocalRevisionNumber, head.UserId, head.Number.LocalRevisionNumber);

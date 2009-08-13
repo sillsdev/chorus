@@ -196,6 +196,8 @@
 	<EmbeddedResource Include="UI\Sync\SyncDialog.resx">
 	  <DependentUpon>SyncDialog.cs</DependentUpon>
 	</EmbeddedResource>
+	<None Include="Resources\error.wav" />
+	<None Include="Resources\warning.wav" />
 	<Content Include="UI\Settings\SetupPanel.htm">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</Content>

@@ -39,15 +39,15 @@ namespace LibChorus.Tests
 			_project.FolderPath = _pathToTestRoot;
 
 			_synchronizer = Synchronizer.FromProjectConfiguration(_project, new NullProgress());
-			_model = new SyncControlModel(_project);
-			_model.ProgressDisplay = _progress;
+			_model = new SyncControlModel(_project, SyncUIFeatures.Everything);
+			_model.AddProgressDisplay(_progress);
 		}
 
 		[Test]
 		public void AfterSyncLogNotEmpty()
 		{
 			_model.Sync();
-			while(!_model.EnableSync)
+			while(!_model.EnableSendReceive)
 				Thread.Sleep(100);
 			Assert.IsNotEmpty(_progress.Text);
 		}
@@ -64,8 +64,8 @@ namespace LibChorus.Tests
 		public void GetRepositoriesToList_NoRepositoriesKnown_GivesUsbAndDepot()
 		{
 			_synchronizer.ExtraRepositorySources.Clear();
-			_model = new SyncControlModel(_project);
-			_model.ProgressDisplay = _progress;
+			_model = new SyncControlModel(_project, SyncUIFeatures.Everything);
+			_model.AddProgressDisplay(_progress);
 			Assert.AreEqual(2, _model.GetRepositoriesToList().Count);
 		}
 	}

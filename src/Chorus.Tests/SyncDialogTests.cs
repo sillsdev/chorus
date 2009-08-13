@@ -13,14 +13,44 @@ namespace LibChorus.Tests
 	public class SyncDialogTests
 	{
 		[Test, Ignore("Run by hand only")]
-		public void LaunchDialog()
+		public void LaunchDialog_LazyWithAdvancedUI()
 		{
 			var setup = new RepositorySetup("pedro");
 			{
 				Application.EnableVisualStyles();
-				var dlg = new SyncDialog(setup.ProjectFolderConfig);
+				var dlg = new SyncDialog(setup.ProjectFolderConfig,
+					SyncUIDialogBehaviors.Lazy,
+					SyncUIFeatures.Everything);
 				dlg.ShowDialog();
 
+			}
+		}
+
+		[Test, Ignore("Run by hand only")]
+		public void LaunchDialog_MinimalUI()
+		{
+			var setup = new RepositorySetup("pedro");
+			{
+				Application.EnableVisualStyles();
+				var dlg = new SyncDialog(setup.ProjectFolderConfig,
+				   SyncUIDialogBehaviors.StartImmediately,
+				   SyncUIFeatures.Minimal);
+
+				dlg.ShowDialog();
+			}
+		}
+
+		[Test]
+		public void LaunchDialog_AutoWithMinimalUI()
+		{
+			var setup = new RepositorySetup("pedro");
+			{
+				Application.EnableVisualStyles();
+				var dlg = new SyncDialog(setup.ProjectFolderConfig,
+				   SyncUIDialogBehaviors.StartImmediatelyAndCloseIfSuccessful,
+				   SyncUIFeatures.Minimal);
+
+				dlg.ShowDialog();
 			}
 		}
 	}

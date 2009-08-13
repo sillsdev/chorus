@@ -15,13 +15,23 @@ namespace Chorus.UI.Sync
 	{
 		private SyncControlModel _model;
 		private String _userName="anonymous";
+		private int _desiredHeight;
+		private TextBoxProgress _textBoxProgress;
+		private bool _didSync=false;
 		public event EventHandler CloseButtonClicked;
+
 
 		public SyncControl()
 		{
 			this.Font = SystemFonts.MessageBoxFont;
 			InitializeComponent();
 			_tabControl.TabPages.Remove(_tasksTab);
+			DesiredHeight = 320;
+			_successIcon.Left = _warningIcon.Left;
+			 _cancelButton.Top = _sendReceiveButton.Top;
+		   _closeButton.Bounds = _cancelButton.Bounds;
+			progressBar1.Visible = false;
+			_statusText.Visible = false;
 
 		}
 		public SyncControl(SyncControlModel model)
@@ -30,6 +40,7 @@ namespace Chorus.UI.Sync
 			Model = model;
 			UpdateDisplay();
 		}
+
 
 
 		/// <summary>
@@ -44,8 +55,24 @@ namespace Chorus.UI.Sync
 		public SyncControlModel Model
 		{
 			get { return _model; }
-			set { _model = value;
-				UpdateDisplay();}
+			set
+			{
+				_model = value;
+				if(_model ==null)
+					return;
+				_model.SynchronizeOver += new EventHandler(_model_SynchronizeOver);
+				UpdateDisplay();
+			}
+		}
+
+		void _model_SynchronizeOver(object sender, EventArgs e)
+		{
+				Cursor.Current = Cursors.Default;
+				progressBar1.MarqueeAnimationSpeed = 0;
+				progressBar1.Style = ProgressBarStyle.Continuous;
+				progressBar1.Maximum = 100;
+				progressBar1.Value = progressBar1.Maximum;
+			_didSync = true;
 		}
 
 
@@ -53,27 +80,21 @@ namespace Chorus.UI.Sync
 		{
 			if (_model == null)
 				return;
-			_syncButton.Enabled = Model != null && Model.EnableSync;
-			if (_model.EnableCancel)
-			{
-				_cancelOrCloseButton.Text = "&Cancel";
-			}
-			else if (CloseButtonClicked!=null)
-			{
-				_cancelOrCloseButton.Text = "&Close";
-			}
-			if (_model.EnableSync)
-			{
-				Cursor.Current = Cursors.Default;
-				progressBar1.MarqueeAnimationSpeed = 0;
-			}
+			_sendReceiveButton.Visible =  Model.EnableSendReceive;
+			_cancelButton.Visible =  Model.EnableCancel;
+			_successIcon.Visible = _didSync  && !(Model.StatusProgress.WarningEncountered || Model.StatusProgress.ErrorEncountered);
+			_warningIcon.Visible = (Model.StatusProgress.WarningEncountered || Model.StatusProgress.ErrorEncountered);
+			_closeButton.Visible = Model.EnableClose;
+			progressBar1.Visible = Model.SynchronizingNow;// || _didSync;
+			_statusText.Visible = progressBar1.Visible || _didSync;
+			_statusText.Text = Model.StatusProgress.LastStatus;
 
 			_syncTargets.Enabled = Model != null;
-
-			if (_syncButton.Enabled)
-			{
-				timer1.Enabled = false;
-			}
+//
+//            if (_sendReceiveButton.Enabled)
+//            {
+//                timer1.Enabled = false;
+//            }
 		}
 
 
@@ -96,6 +117,32 @@ namespace Chorus.UI.Sync
 			if (DesignMode)
 				return;
 
+			if (!_model.ShowTabs)
+			{
+				_tabControl.Visible = false;
+				DesiredHeight = _tabControl.Top;
+			}
+			else
+			{
+				if (!_model.HasFeature(SyncUIFeatures.RepositoryChooser))
+				{
+					_tabControl.TabPages.Remove(_chooseTargetsTab);
+				}
+				if (!_model.HasFeature(SyncUIFeatures.TaskList))
+				{
+					_tabControl.TabPages.Remove(_tasksTab);
+				}
+				if (!_model.HasFeature(SyncUIFeatures.Log))
+				{
+					_tabControl.TabPages.Remove(_logTab);
+				}
+			}
+
+			if (!_model.ShowSyncButton)
+			{
+				_sendReceiveButton.Visible = false;
+			}
+
 			string message = HgRepository.GetEnvironmentReadinessMessage("en");
 			if (!string.IsNullOrEmpty(message))
 			{
@@ -104,9 +151,19 @@ namespace Chorus.UI.Sync
 				return;
 			}
 
-			Model.ProgressDisplay = new TextBoxProgress(_logBox);
+			_textBoxProgress = new TextBoxProgress(_logBox);
+			Model.AddProgressDisplay(_textBoxProgress);
 
 			LoadChoices();
+		}
+
+		/// <summary>
+		/// this is a hack because of my problems with doing anything fancy with winforms sizing
+		/// </summary>
+		public int DesiredHeight
+		{
+			get { return _desiredHeight; }
+			set { _desiredHeight = value;}
 		}
 
 		private void OnRepositoryChoicesVisibleChanged(object sender, EventArgs e)
@@ -129,7 +186,7 @@ namespace Chorus.UI.Sync
 
 		private void _logTab_Resize(object sender, EventArgs e)
 		{
-			_logBox.Height = _logTab.Height - 30;
+		   // _logBox.Height = 30;// _logTab.Height - 60;
 		}
 
 		private void _syncButton_Click(object sender, EventArgs e)
@@ -145,27 +202,38 @@ namespace Chorus.UI.Sync
 
 		public void Synchronize()
 		{
+			_didSync = false;
+
 			progressBar1.Style = ProgressBarStyle.Marquee;
 			progressBar1.MarqueeAnimationSpeed = 50;
 			_logBox.Text = "";
 			_logBox.Text = "Syncing..." + Environment.NewLine;
 			Cursor.Current = Cursors.WaitCursor;
 			timer1.Enabled = true;
-			Model.ProgressDisplay.ShowVerbose = _showVerboseLog.Checked;
+			_textBoxProgress.ShowVerbose = _showVerboseLog.Checked;
 			Model.Sync();
 		}
 
-		private void _cancelOrCloseButton_Click(object sender, EventArgs e)
+		private void OnCancelButton_Click(object sender, EventArgs e)
 		{
 			if (_model.EnableCancel)
 			{
 				_model.Cancel();
-				return;
 			}
-			if (CloseButtonClicked != null)
+		 }
+
+		private void OnCloseButton_Click(object sender, EventArgs e)
+		{
+		   if (CloseButtonClicked != null)
 			{
 				CloseButtonClicked.Invoke(this, null);
 			}
+
+		}
+
+		private void SyncControl_Resize(object sender, EventArgs e)
+		{
+			_statusText.MaximumSize = new Size(_sendReceiveButton.Left - 20, 0);
 		}
 	}
 }

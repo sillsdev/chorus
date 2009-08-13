@@ -60,9 +60,21 @@ namespace Chorus.Properties {
 			}
 		}
 
+		internal static System.IO.UnmanagedMemoryStream error {
+			get {
+				return ResourceManager.GetStream("error", resourceCulture);
+			}
+		}
+
 		internal static System.IO.UnmanagedMemoryStream finished {
 			get {
 				return ResourceManager.GetStream("finished", resourceCulture);
+			}
+		}
+
+		internal static System.IO.UnmanagedMemoryStream warning {
+			get {
+				return ResourceManager.GetStream("warning", resourceCulture);
 			}
 		}
 	}

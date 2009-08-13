@@ -16,7 +16,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		protected readonly string _pathToRepository;
 		protected readonly string _userName;
 		protected IProgress _progress;
-		private int _secondsBeforeTimeoutOnLocalOperation = 300;
+		private int _secondsBeforeTimeoutOnLocalOperation = 60;
 		private int _secondsBeforeTimeoutOnRemoteOperation = 20*60;
 
 		public static string GetEnvironmentReadinessMessage(string messageLanguageId)
@@ -768,7 +768,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			{
 				yield return
 					RepositoryAddress.Create("languageDepot",
-											 "hg-public.languagedepot.org/REPLACE_WITH_ETHNOLOGUE_CODE");
+											 "http://hg-public.languagedepot.org/REPLACE_WITH_ETHNOLOGUE_CODE");
 			}
 			foreach (var name in section.GetKeys())
 			{
@@ -915,12 +915,12 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		public bool GetCanConnectToRemote(string uri, IProgress progress)
 		{
-			progress.WriteMessage("Trying to connect to {0}...", uri);
+			progress.WriteVerbose("Trying to connect to {0}...", uri);
 			 ExecutionResult result = ExecuteErrorsOk(string.Format("incoming -l 1 {0}", SurroundWithQuotes(uri)), _pathToRepository, _secondsBeforeTimeoutOnLocalOperation, _progress);
 
 			 if (!string.IsNullOrEmpty(result.StandardError))
 			 {
-				 progress.WriteError(result.StandardError);
+				 progress.WriteVerbose(result.StandardError);
 				 return false;
 			 }
 			return true;
