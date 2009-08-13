@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Threading;
 using System.Windows.Forms;
 using Chorus.sync;
+using Chorus.Utilities;
 
 namespace Chorus.UI.Sync
 {
@@ -17,27 +18,33 @@ namespace Chorus.UI.Sync
 		   // CancelButton =  _syncControl._cancelOrCloseButton;
 
 			_syncControl.Model.SynchronizeOver += new EventHandler(_syncControl_SynchronizeOver);
+
+			//we don't want clients digging down this deeply, so we present it as one of our properties
+			FinalStatus = _syncControl.Model.StatusProgress;
+		}
+
+		public SyncOptions SyncOptions
+		{ get { return _syncControl.Model.SyncOptions; }
 		}
 
 		void _syncControl_SynchronizeOver(object sender, EventArgs e)
 		{
-			if (Behavior == SyncUIDialogBehaviors.StartImmediatelyAndCloseIfSuccessful)
+			if (Behavior == SyncUIDialogBehaviors.StartImmediatelyAndCloseWhenFinished)
 			{
 				_closeWhenDoneTimer.Enabled = true;
 			}
 		}
 
-		public SyncUIDialogBehaviors Behavior{ get;private set;}
-
-		public SyncControlModel Model
+		public StatusProgress FinalStatus
 		{
-			get { return _syncControl.Model; }
+			get;
+			private set;
 		}
-
+		public SyncUIDialogBehaviors Behavior{ get;private set;}
 
 		private void SyncDialog_Shown(object sender, System.EventArgs e)
 		{
-			if (Behavior == SyncUIDialogBehaviors.StartImmediately || Behavior == SyncUIDialogBehaviors.StartImmediatelyAndCloseIfSuccessful)
+			if (Behavior == SyncUIDialogBehaviors.StartImmediately || Behavior == SyncUIDialogBehaviors.StartImmediatelyAndCloseWhenFinished)
 			{
 				_syncControl.Synchronize();
 			}
@@ -66,6 +73,6 @@ namespace Chorus.UI.Sync
 	{
 		Lazy=0,
 		StartImmediately,
-		StartImmediatelyAndCloseIfSuccessful
+		StartImmediatelyAndCloseWhenFinished
 	} ;
 }

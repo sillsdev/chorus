@@ -204,6 +204,16 @@ namespace Chorus.UI.Sync
 		{
 			_didSync = false;
 
+			//show something useful during the sync (ok to leave it on the log tab, but not any config ones)
+			if (_tabControl.Visible && _tabControl.SelectedTab != _logTab && _tabControl.TabPages.Contains(_tasksTab))
+			{
+				_tabControl.SelectedTab = _tasksTab;
+			}
+			else if (_tabControl.Visible && _tabControl.TabPages.Contains(_logTab))
+			{
+				_tabControl.SelectedTab = _logTab;
+			}
+
 			progressBar1.Style = ProgressBarStyle.Marquee;
 			progressBar1.MarqueeAnimationSpeed = 50;
 			_logBox.Text = "";

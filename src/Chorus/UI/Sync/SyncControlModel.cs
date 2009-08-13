@@ -17,6 +17,7 @@ namespace Chorus.UI.Sync
 		private readonly BackgroundWorker _backgroundWorker;
 		public event EventHandler SynchronizeOver;
 		private readonly MultiProgress _progress;
+		private SyncOptions _syncOptions;
 		public StatusProgress StatusProgress { get; private set; }
 
 		public SyncControlModel(ProjectFolderConfiguration projectFolderConfiguration, SyncUIFeatures uiFeatureFlags)
@@ -29,33 +30,43 @@ namespace Chorus.UI.Sync
 			_backgroundWorker.WorkerSupportsCancellation = true;
 			_backgroundWorker.RunWorkerCompleted += new RunWorkerCompletedEventHandler(_backgroundWorker_RunWorkerCompleted);
 			_backgroundWorker.DoWork += worker_DoWork;
+
+			//clients will normally change these
+			SyncOptions = new SyncOptions();
+			SyncOptions.CheckinDescription = "[+"+Application.ProductName+"] sync";
+			SyncOptions.DoPullFromOthers = true;
+			SyncOptions.DoMergeWithOthers = true;
+			SyncOptions.RepositorySourcesToTry.AddRange(GetRepositoriesToList().Where(r => r.Enabled));
 		}
 
 		void _backgroundWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
 		{
 			if (SynchronizeOver != null)
 			{
-				if (HasFeature(SyncUIFeatures.PlaySounds))
+				UnmanagedMemoryStream stream=null;
+				if (this.StatusProgress.ErrorEncountered)
 				{
-					UnmanagedMemoryStream stream;
-					if (this.StatusProgress.ErrorEncountered)
-					{
-						stream = Properties.Resources.error;
-					}
-					else if (this.StatusProgress.WarningEncountered)
-					{
-						stream = Properties.Resources.warning;
-					}
-					else
-					{
+					stream = Properties.Resources.error;
+				}
+				else if (this.StatusProgress.WarningEncountered)
+				{
+					stream = Properties.Resources.warning;
+				}
+				else
+				{
+					if (HasFeature(SyncUIFeatures.PlaySoundIfSuccessful))
 						stream = Properties.Resources.finished;
-					}
+				}
 
+				if (stream != null)
+				{
 					using (SoundPlayer player = new SoundPlayer(stream))
 					{
 						player.Play();
 					}
+					stream.Dispose();
 				}
+
 				SynchronizeOver.Invoke(this, null);
 			}
 		}
@@ -96,6 +107,12 @@ namespace Chorus.UI.Sync
 			get { return _backgroundWorker.IsBusy; }
 		}
 
+		public SyncOptions SyncOptions
+		{
+			get { return _syncOptions; }
+			set { _syncOptions = value; }
+		}
+
 
 		public bool HasFeature(SyncUIFeatures feature)
 		{
@@ -115,14 +132,13 @@ namespace Chorus.UI.Sync
 			{
 				if(_backgroundWorker.IsBusy)
 					return;
-				StatusProgress.Clear();
-				SyncOptions options = new SyncOptions();
-				options.CheckinDescription = "[chorus] sync";
-				options.DoPullFromOthers = true;
-				options.DoMergeWithOthers = true;
-				options.RepositorySourcesToTry.AddRange(GetRepositoriesToList().Where(r => r.Enabled));
+				foreach (var address in GetRepositoriesToList().Where(r => !r.Enabled))
+				{
+					 SyncOptions.RepositorySourcesToTry.Remove(address);
+				}
+				SyncOptions.RepositorySourcesToTry.AddRange(GetRepositoriesToList().Where(r => r.Enabled));
 
-				_backgroundWorker.RunWorkerAsync(new object[] {_synchronizer, options, _progress});
+				_backgroundWorker.RunWorkerAsync(new object[] {_synchronizer, SyncOptions, _progress});
 			}
 		}
 
@@ -167,7 +183,7 @@ namespace Chorus.UI.Sync
 		TaskList=4,
 		Log = 8,
 		RepositoryChooser = 16,
-		PlaySounds = 32,
+		PlaySoundIfSuccessful = 32,
 		Everything = 0xFFFF
 	}
 }

@@ -5,6 +5,7 @@ using System.Text;
 using System.Windows.Forms;
 using Chorus.sync;
 using Chorus.UI.Sync;
+using Chorus.VcsDrivers;
 using NUnit.Framework;
 
 namespace LibChorus.Tests
@@ -18,13 +19,18 @@ namespace LibChorus.Tests
 			var setup = new RepositorySetup("pedro");
 			{
 				Application.EnableVisualStyles();
-				var dlg = new SyncDialog(setup.ProjectFolderConfig,
+
+				using (var dlg = new SyncDialog(setup.ProjectFolderConfig,
 					SyncUIDialogBehaviors.Lazy,
-					SyncUIFeatures.Everything);
-				dlg.ShowDialog();
+					SyncUIFeatures.Everything))
+				{
+				//    dlg.SyncOptions.RepositorySourcesToTry.Add(RepositoryAddress.Create("bogus", @"z:/"));
+					dlg.ShowDialog();
+				}
 
 			}
 		}
+
 
 		[Test, Ignore("Run by hand only")]
 		public void LaunchDialog_MinimalUI()
@@ -47,11 +53,28 @@ namespace LibChorus.Tests
 			{
 				Application.EnableVisualStyles();
 				var dlg = new SyncDialog(setup.ProjectFolderConfig,
-				   SyncUIDialogBehaviors.StartImmediatelyAndCloseIfSuccessful,
+				   SyncUIDialogBehaviors.StartImmediatelyAndCloseWhenFinished,
 				   SyncUIFeatures.Minimal);
 
 				dlg.ShowDialog();
 			}
+		}
+
+		[Test]
+		public void LaunchDialog_BogusTarget_AdmitsError()
+		{
+			var setup = new RepositorySetup("pedro");
+			{
+				Application.EnableVisualStyles();
+				using (var dlg = new SyncDialog(setup.ProjectFolderConfig,
+				   SyncUIDialogBehaviors.StartImmediatelyAndCloseWhenFinished,
+				   SyncUIFeatures.Minimal))
+				{
+					dlg.SyncOptions.RepositorySourcesToTry.Add(RepositoryAddress.Create("bogus", @"z:/"));
+					dlg.ShowDialog();
+					Assert.IsTrue(dlg.FinalStatus.WarningEncountered);
+				}
+ }
 		}
 	}
 }
