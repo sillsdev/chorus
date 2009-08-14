@@ -12,7 +12,7 @@ namespace Chorus.UI.Sync
 		{
 			this.Font = SystemFonts.MessageBoxFont;
 			_syncControl = new SyncControl(model);
-			_syncControl.Location= new Point(25, 100);
+			_syncControl.Location= new Point(25, 40);
 			_syncControl.Anchor = AnchorStyles.Top | AnchorStyles.Left;
 
 

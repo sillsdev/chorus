@@ -60,21 +60,35 @@ namespace Chorus.Properties {
 			}
 		}
 
-		internal static System.IO.UnmanagedMemoryStream error {
+		internal static System.Drawing.Bitmap chorus32x32 {
 			get {
-				return ResourceManager.GetStream("error", resourceCulture);
+				object obj = ResourceManager.GetObject("chorus32x32", resourceCulture);
+				return ((System.Drawing.Bitmap)(obj));
 			}
 		}
 
-		internal static System.IO.UnmanagedMemoryStream finished {
+		internal static System.IO.UnmanagedMemoryStream errorSound {
 			get {
-				return ResourceManager.GetStream("finished", resourceCulture);
+				return ResourceManager.GetStream("errorSound", resourceCulture);
 			}
 		}
 
-		internal static System.IO.UnmanagedMemoryStream warning {
+		internal static System.IO.UnmanagedMemoryStream finishedSound {
 			get {
-				return ResourceManager.GetStream("warning", resourceCulture);
+				return ResourceManager.GetStream("finishedSound", resourceCulture);
+			}
+		}
+
+		internal static System.Drawing.Bitmap warningImage {
+			get {
+				object obj = ResourceManager.GetObject("warningImage", resourceCulture);
+				return ((System.Drawing.Bitmap)(obj));
+			}
+		}
+
+		internal static System.IO.UnmanagedMemoryStream warningSound {
+			get {
+				return ResourceManager.GetStream("warningSound", resourceCulture);
 			}
 		}
 	}

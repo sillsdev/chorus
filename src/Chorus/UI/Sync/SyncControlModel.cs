@@ -46,16 +46,16 @@ namespace Chorus.UI.Sync
 				UnmanagedMemoryStream stream=null;
 				if (this.StatusProgress.ErrorEncountered)
 				{
-					stream = Properties.Resources.error;
+					stream = Properties.Resources.errorSound;
 				}
 				else if (this.StatusProgress.WarningEncountered)
 				{
-					stream = Properties.Resources.warning;
+					stream = Properties.Resources.warningSound;
 				}
 				else
 				{
 					if (HasFeature(SyncUIFeatures.PlaySoundIfSuccessful))
-						stream = Properties.Resources.finished;
+						stream = Properties.Resources.finishedSound;
 				}
 
 				if (stream != null)
@@ -134,7 +134,7 @@ namespace Chorus.UI.Sync
 					return;
 				foreach (var address in GetRepositoriesToList().Where(r => !r.Enabled))
 				{
-					 SyncOptions.RepositorySourcesToTry.Remove(address);
+					 SyncOptions.RepositorySourcesToTry.RemoveAll(x=>x.URI == address.URI);
 				}
 				SyncOptions.RepositorySourcesToTry.AddRange(GetRepositoriesToList().Where(r => r.Enabled));
 

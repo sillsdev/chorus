@@ -61,6 +61,12 @@
   </ItemGroup>
   <ItemGroup>
 	<Compile Include="Bootstrapper.cs" />
+	<Compile Include="UI\Misc\ReadinessPanel.cs">
+	  <SubType>UserControl</SubType>
+	</Compile>
+	<Compile Include="UI\Misc\ReadinessPanel.Designer.cs">
+	  <DependentUpon>ReadinessPanel.cs</DependentUpon>
+	</Compile>
 	<Compile Include="UI\Review\ChangedReport\ChangeReportView.cs">
 	  <SubType>UserControl</SubType>
 	</Compile>
@@ -187,6 +193,9 @@
   </ItemGroup>
   <ItemGroup>
 	<Content Include="chorus.ico" />
+	<EmbeddedResource Include="UI\Misc\ReadinessPanel.resx">
+	  <DependentUpon>ReadinessPanel.cs</DependentUpon>
+	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Sync\finished.wav">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</EmbeddedResource>
@@ -197,7 +206,9 @@
 	  <DependentUpon>SyncDialog.cs</DependentUpon>
 	</EmbeddedResource>
 	<None Include="Resources\error.wav" />
+	<None Include="Resources\chorus32x32.png" />
 	<None Include="Resources\warning.wav" />
+	<None Include="Resources\warning.png" />
 	<Content Include="UI\Settings\SetupPanel.htm">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</Content>

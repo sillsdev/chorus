@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!--
 	Microsoft ResX Schema
@@ -117,20 +117,4 @@
   <resheader name="writer">
 	<value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="errorSound" type="System.Resources.ResXFileRef, System.Windows.Forms">
-	<value>..\Resources\error.wav;System.IO.MemoryStream, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="chorus32x32" type="System.Resources.ResXFileRef, System.Windows.Forms">
-	<value>..\Resources\chorus32x32.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="finishedSound" type="System.Resources.ResXFileRef, System.Windows.Forms">
-	<value>..\UI\Sync\finished.wav;System.IO.MemoryStream, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="warningSound" type="System.Resources.ResXFileRef, System.Windows.Forms">
-	<value>..\Resources\warning.wav;System.IO.MemoryStream, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="warningImage" type="System.Resources.ResXFileRef, System.Windows.Forms">
-	<value>..\Resources\warning.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
 </root>
