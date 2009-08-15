@@ -62,7 +62,7 @@ namespace Chorus.UI.Sync
 
 		private void SyncDialog_Load(object sender, EventArgs e)
 		{
-			this.ClientSize = new Size( 490, _syncControl.DesiredHeight +40);
+			this.ClientSize = new Size( 490, _syncControl.DesiredHeight+10);
 
 		}
 
