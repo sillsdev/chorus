@@ -37,6 +37,9 @@
 				<include name="nunit.framework.dll" />
 				<include name="Palaso.TestUtilities.dll" />
 				<include name="LibChorus.dll" />
+				<include name="LibChorus.Tests.dll" />
+				<include name="Chorus.exe" />
+				<include name="System.Windows.Forms.dll" />
 			</references>
 			<resources prefix="${build.namespace}" basedir="${build.namespace.dir}" dynamicprefix="true">
 				<include name="${build.namespace.dir}/**/*.resources" />

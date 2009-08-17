@@ -35,8 +35,10 @@
 			</sources>
 			<references basedir="${project.output.dir}">
 				<include name="nunit.framework.dll" />
+				<include name="Palaso.dll" />
 				<include name="Palaso.TestUtilities.dll" />
 				<include name="LibChorus.dll" />
+				<include name="ChorusMerge.exe" />
 			</references>
 			<resources prefix="${build.namespace}" basedir="${build.namespace.dir}" dynamicprefix="true">
 				<include name="${build.namespace.dir}/**/*.resources" />
