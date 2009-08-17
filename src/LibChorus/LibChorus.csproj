@@ -40,6 +40,11 @@
 	<DefineConstants>DEBUG;TRACE</DefineConstants>
 	<ErrorReport>prompt</ErrorReport>
 	<WarningLevel>4</WarningLevel>
+	<OutputType>Library</OutputType>
+	<AssemblyName>LibChorus</AssemblyName>
+	<RootNamespace>Chorus</RootNamespace>
+	<AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+	<CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
 	<DebugType>pdbonly</DebugType>
@@ -48,6 +53,12 @@
 	<DefineConstants>TRACE</DefineConstants>
 	<ErrorReport>prompt</ErrorReport>
 	<WarningLevel>4</WarningLevel>
+	<OutputType>Library</OutputType>
+	<AssemblyName>LibChorus</AssemblyName>
+	<DebugSymbols>true</DebugSymbols>
+	<RootNamespace>Chorus</RootNamespace>
+	<AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+	<CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
   </PropertyGroup>
   <ItemGroup>
 	<Reference Include="Autofac, Version=1.3.2.449, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
@@ -127,7 +138,6 @@
 	<Compile Include="Utilities\Progress.cs" />
 	<Compile Include="Utilities\ShortTermEnvironmentalVariable.cs" />
 	<Compile Include="Utilities\TempFile.cs" />
-	<Compile Include="Utilities\UsbUtilities.cs" />
 	<Compile Include="VcsDrivers\Git\GitRepository.cs" />
 	<Compile Include="VcsDrivers\Mercurial\FileInRevision.cs" />
 	<Compile Include="VcsDrivers\Mercurial\HgMissingSimulation .cs" />
@@ -152,6 +162,9 @@
 	<Compile Include="Properties\AssemblyInfo.cs" />
 	<Compile Include="VcsDrivers\Mercurial\Revision.cs" />
 	<Compile Include="VcsDrivers\Mercurial\HgRunner.cs" />
+	<Compile Include="Utilities\UsbDrive\UsbDriveInfo.cs" />
+	<Compile Include="Utilities\UsbDrive\UsbDriveInfoLinux.cs" />
+	<Compile Include="Utilities\UsbDrive\UsbDriveInfoWindows.cs" />
   </ItemGroup>
   <ItemGroup>
 	<BootstrapperPackage Include="Microsoft.Net.Framework.2.0">
@@ -183,5 +196,7 @@
 mkdir $(OutDir)\diff3\bin
 copy $(OutDir)..\..\lib\diff3\bin\*.* $(OutDir)\diff3\bin\
 </PostBuildEvent>
+	<ProjectGuid>{94245366-8F1E-475C-810D-FE89BB3948E0}</ProjectGuid>
+	<RootNamespace>Chorus</RootNamespace>
   </PropertyGroup>
 </Project>

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Chorus.Utilities;
+using Chorus.Utilities.UsbDrive;
 using Chorus.VcsDrivers.Mercurial;
 
 namespace Chorus.VcsDrivers
@@ -226,12 +227,12 @@ namespace Chorus.VcsDrivers
 				return Path.Combine(RootDirForUsbSourceDuringUnitTest, projectName);
 			}
 
-			List<DriveInfo> drives = Chorus.Utilities.UsbUtilities.GetLogicalUsbDisks();
+			var drives = Chorus.Utilities.UsbDrive.UsbDriveInfo.GetDrives();
 			if (drives.Count == 0)
 				return null;
 
 			//first try to find this repository on one of the usb keys
-			foreach (DriveInfo drive in drives)
+			foreach (var drive in drives)
 			{
 				string pathOnUsb = Path.Combine(drive.RootDirectory.FullName, projectName);
 				if (Directory.Exists(pathOnUsb))
@@ -256,13 +257,13 @@ namespace Chorus.VcsDrivers
 				return urisToTryCreationAt;
 			}
 
-			List<DriveInfo> drives = Chorus.Utilities.UsbUtilities.GetLogicalUsbDisks();
+			var drives = Chorus.Utilities.UsbDrive.UsbDriveInfo.GetDrives();
 
 			if (drives.Count == 0)
 				return null;
 
 			// didn't find an existing one, so just create on on the first usb key we can
-			foreach (DriveInfo drive in drives)
+			foreach (var drive in drives)
 			{
 				urisToTryCreationAt.Add(Path.Combine(drive.RootDirectory.FullName, projectName));
 			}

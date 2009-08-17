@@ -9,3 +9,4 @@ glob:*.suo
 glob:*.user
 glob:CopyToWeSayDev.bat
 glob:lib/Palaso.TestUtilities.pdb
+glob:*~
