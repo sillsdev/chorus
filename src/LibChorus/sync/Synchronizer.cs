@@ -298,7 +298,7 @@ namespace Chorus.sync
 					}
 					catch (Exception error)
 					{
-						progress.WriteError("Could not create clone at {0}: {1}", uri, error.Message);
+						 progress.WriteError("Could not create clone at {0}: {1}", uri, error.Message);
 						continue;
 					}
 				}
@@ -330,12 +330,12 @@ namespace Chorus.sync
 			_progress = progress;
 			if (Directory.Exists(newDirectory))
 			{
-				throw new ArgumentException(String.Format("The newDirectory must not already exist ({0})", newDirectory));
+				throw new ArgumentException(String.Format("The directory must not already exist ({0})", newDirectory));
 			}
 			string parent = Directory.GetParent(newDirectory).FullName;
 			if (!Directory.Exists(parent))
 			{
-				throw new ArgumentException(String.Format("The parent of the given newDirectory must already exist ({0})", parent));
+				throw new ArgumentException(String.Format("The parent of the given directory must already exist ({0})", parent));
 			}
 			HgRepository local = new HgRepository(_localRepositoryPath, progress);
 
