@@ -35,13 +35,17 @@ namespace Chorus.UI.Sync
 		}
 
 
-		void _syncControl_SynchronizeOver(object sender, EventArgs e)
+		void _syncControl_SynchronizeOver(object syncResults, EventArgs e)
 		{
 			if (Behavior == SyncUIDialogBehaviors.StartImmediatelyAndCloseWhenFinished)
 			{
 				_closeWhenDoneTimer.Enabled = true;
 			}
+			this.DialogResult = System.Windows.Forms.DialogResult.OK;
+			this.SyncResult = syncResults as SyncResults;
 		}
+
+		public SyncResults SyncResult{get;private set;}
 
 		public StatusProgress FinalStatus
 		{

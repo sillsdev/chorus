@@ -67,7 +67,8 @@ namespace Chorus.UI.Sync
 					stream.Dispose();
 				}
 
-				SynchronizeOver.Invoke(this, null);
+				var synchResults = e.Result as SyncResults;
+				SynchronizeOver.Invoke(synchResults, null);
 			}
 		}
 
