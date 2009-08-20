@@ -14,7 +14,7 @@ namespace Chorus.VcsDrivers.Mercurial
 	public class HgRepository : IRetrieveFileVersionsFromRepository
 	{
 		protected readonly string _pathToRepository;
-		protected readonly string _userName;
+		protected  string _userName;
 		protected IProgress _progress;
 		private int _secondsBeforeTimeoutOnLocalOperation = 60;
 		private int _secondsBeforeTimeoutOnRemoteOperation = 20*60;
@@ -137,22 +137,24 @@ namespace Chorus.VcsDrivers.Mercurial
 		}
 
 		/// <returns>true if changes were received</returns>
-		public bool TryToPull(string resolvedUri)
+		public bool TryToPull(string repositoryLabel, string resolvedUri)
 		{
 			HgRepository repo = new HgRepository(resolvedUri, _progress);
+			repo.UserName = repositoryLabel;
 			return PullFromRepository(repo, false);
 		}
 
-		public void Push(string targetUri, IProgress progress)
+		public void Push(RepositoryAddress address, string targetUri, IProgress progress)
 		{
-			_progress.WriteStatus("{0} pushing to {1}", _userName, targetUri);
-				try
+			   _progress.WriteStatus("Sending changes to {0}", address.GetFullName(targetUri));
+			   _progress.WriteVerbose("({0} is {1})", address.GetFullName(targetUri), targetUri);
+			   try
 				{
 					Execute(_pathToRepository, _secondsBeforeTimeoutOnLocalOperation, _progress, "push", SurroundWithQuotes(targetUri));
 				}
 				catch (Exception err)
 				{
-					_progress.WriteWarning("Could not push to " + targetUri + Environment.NewLine + err.Message);
+					_progress.WriteWarning("Could not send to " + targetUri + Environment.NewLine + err.Message);
 				}
 
 				if (GetIsLocalUri(targetUri))
@@ -180,13 +182,18 @@ namespace Chorus.VcsDrivers.Mercurial
 		/// <returns>true if the pull happend and changes were pulled in</returns>
 		protected bool PullFromRepository(HgRepository otherRepo,bool throwIfCannot)
 		{
-			_progress.WriteStatus("{0} pulling from {1}", _userName,otherRepo.Name);
+			_progress.WriteStatus("Receiving any changes from {0}", otherRepo.Name);
+			_progress.WriteVerbose("({0} is {1})", otherRepo.Name, otherRepo._pathToRepository);
 			{
 				try
 				{
 					var tip = GetTip();
 					Execute(_pathToRepository, _secondsBeforeTimeoutOnRemoteOperation, _progress, "pull", otherRepo.PathWithQuotes);
-					return tip.Number.Hash != GetTip().Number.Hash; //review... I believe you can't pull without getting a new tip
+
+					var newTip = GetTip();
+					if(tip==null)
+						return newTip != null;
+					return tip.Number.Hash != newTip.Number.Hash; //review... I believe you can't pull without getting a new tip
 				}
 				catch (Exception err)
 				{
@@ -194,7 +201,7 @@ namespace Chorus.VcsDrivers.Mercurial
 					{
 						throw err;
 					}
-					_progress.WriteWarning("Could not pull from " + otherRepo.Name);
+					_progress.WriteWarning("Could not receive from " + otherRepo.Name);
 					return false;
 				}
 			}
@@ -285,7 +292,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			message = string.Format(message, args);
 			_progress.WriteVerbose("{0} committing with comment: {1}", _userName, message);
 			ExecutionResult result = Execute(_pathToRepository, _secondsBeforeTimeoutOnLocalOperation, _progress, "ci", "-m " + SurroundWithQuotes(message));
-			_progress.WriteMessage(result.StandardOutput);
+			_progress.WriteVerbose(result.StandardOutput);
 		}
 
 
@@ -398,6 +405,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		public string UserName
 		{
 			get { return _userName; }
+			set { _userName = value; }
 		}
 
 		private string Name
@@ -775,7 +783,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			if (section.GetKeys().Count() == 0)
 			{
 				yield return
-					RepositoryAddress.Create("languageDepot",
+					RepositoryAddress.Create("LanguageDepot",
 											 "http://hg-public.languagedepot.org/REPLACE_WITH_ETHNOLOGUE_CODE");
 			}
 			foreach (var name in section.GetKeys())

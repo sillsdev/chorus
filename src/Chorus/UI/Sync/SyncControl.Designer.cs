@@ -43,11 +43,12 @@
 			this.progressBar1 = new System.Windows.Forms.ProgressBar();
 			this._cancelButton = new System.Windows.Forms.Button();
 			this._sendReceiveButton = new System.Windows.Forms.Button();
-			this.timer1 = new System.Windows.Forms.Timer(this.components);
+			this._updateDisplayTimer = new System.Windows.Forms.Timer(this.components);
 			this._warningIcon = new System.Windows.Forms.PictureBox();
 			this._successIcon = new System.Windows.Forms.PictureBox();
 			this._closeButton = new System.Windows.Forms.Button();
 			this._statusText = new System.Windows.Forms.Label();
+			this._showCancelButtonTimer = new System.Windows.Forms.Timer(this.components);
 			this._tabControl.SuspendLayout();
 			this._chooseTargetsTab.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
@@ -204,9 +205,9 @@
 			this._sendReceiveButton.UseVisualStyleBackColor = true;
 			this._sendReceiveButton.Click += new System.EventHandler(this._syncButton_Click);
 			//
-			// timer1
+			// _updateDisplayTimer
 			//
-			this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
+			this._updateDisplayTimer.Tick += new System.EventHandler(this.timer1_Tick);
 			//
 			// _warningIcon
 			//
@@ -247,6 +248,12 @@
 			this._statusText.Size = new System.Drawing.Size(248, 26);
 			this._statusText.TabIndex = 16;
 			this._statusText.Text = "This is very long right now to help me in positioning it.";
+			//
+			// _showCancelButtonTimer
+			//
+			this._showCancelButtonTimer.Enabled = true;
+			this._showCancelButtonTimer.Interval = 10000;
+			this._showCancelButtonTimer.Tick += new System.EventHandler(this._showCancelButtonTimer_Tick);
 			//
 			// SyncControl
 			//
@@ -291,7 +298,7 @@
 		private System.Windows.Forms.CheckedListBox _syncTargets;
 		private System.Windows.Forms.ProgressBar progressBar1;
 		private System.Windows.Forms.Button _sendReceiveButton;
-		private System.Windows.Forms.Timer timer1;
+		private System.Windows.Forms.Timer _updateDisplayTimer;
 		public System.Windows.Forms.Button _cancelButton;
 		private System.Windows.Forms.PictureBox _warningIcon;
 		private System.Windows.Forms.PictureBox _successIcon;
@@ -299,5 +306,6 @@
 		private System.Windows.Forms.Label _statusText;
 		private System.Windows.Forms.PictureBox pictureBox2;
 		private System.Windows.Forms.Label label1;
+		private System.Windows.Forms.Timer _showCancelButtonTimer;
 	}
 }

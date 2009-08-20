@@ -146,7 +146,8 @@ namespace Chorus.UI.Sync
 					{
 						SyncOptions.RepositorySourcesToTry.RemoveAll(x => x.URI == address.URI);
 					}
-					SyncOptions.RepositorySourcesToTry.AddRange(GetRepositoriesToList().Where(r => r.Enabled));
+
+					SyncOptions.RepositorySourcesToTry.AddRange(GetRepositoriesToList().Where(r => r.Enabled && !SyncOptions.RepositorySourcesToTry.Any(x=>x.URI ==r.URI)));
 				}
 				_backgroundWorker.RunWorkerAsync(new object[] {_synchronizer, SyncOptions, _progress});
 			}

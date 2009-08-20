@@ -25,6 +25,7 @@ namespace Chorus.UI.Sync
 		{
 			this.Font = SystemFonts.MessageBoxFont;
 			InitializeComponent();
+			_cancelButton.Visible = false;
 			_tabControl.TabPages.Remove(_tasksTab);
 			DesiredHeight = 320;
 			_successIcon.Left = _warningIcon.Left;
@@ -81,7 +82,7 @@ namespace Chorus.UI.Sync
 			if (_model == null)
 				return;
 			_sendReceiveButton.Visible =  Model.EnableSendReceive;
-			_cancelButton.Visible =  Model.EnableCancel;
+			_cancelButton.Visible =  Model.EnableCancel && !_showCancelButtonTimer.Enabled;
 			_successIcon.Visible = _didSync  && !(Model.StatusProgress.WarningEncountered || Model.StatusProgress.ErrorEncountered);
 			_warningIcon.Visible = (Model.StatusProgress.WarningEncountered || Model.StatusProgress.ErrorEncountered);
 			_closeButton.Visible = Model.EnableClose;
@@ -176,6 +177,9 @@ namespace Chorus.UI.Sync
 
 		private void LoadChoices()
 		{
+			if(Model==null)
+				return;//design-time in another control
+
 			_syncTargets.Items.Clear();
 			foreach (var descriptor in Model.GetRepositoriesToList())
 			{
@@ -226,7 +230,7 @@ namespace Chorus.UI.Sync
 			_logBox.Text = "";
 			_logBox.Text = "Syncing..." + Environment.NewLine;
 			Cursor.Current = Cursors.WaitCursor;
-			timer1.Enabled = true;
+			_updateDisplayTimer.Enabled = true;
 			_textBoxProgress.ShowVerbose = _showVerboseLog.Checked;
 			Model.Sync(useTargetsAsSpecifiedInSyncOptions);
 		}
@@ -251,6 +255,11 @@ namespace Chorus.UI.Sync
 		private void SyncControl_Resize(object sender, EventArgs e)
 		{
 			_statusText.MaximumSize = new Size(_sendReceiveButton.Left - 20, 0);
+		}
+
+		private void _showCancelButtonTimer_Tick(object sender, EventArgs e)
+		{
+			_showCancelButtonTimer.Enabled = false;
 		}
 	}
 }

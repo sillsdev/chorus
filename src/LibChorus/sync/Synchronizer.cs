@@ -31,7 +31,7 @@ namespace Chorus.sync
 			_project = project;
 			_localRepositoryPath = localRepositoryPath;
 			ExtraRepositorySources = new List<RepositoryAddress>();
-			ExtraRepositorySources.Add(RepositoryAddress.Create(RepositoryAddress.HardWiredSources.UsbKey, "UsbKey", false));
+			ExtraRepositorySources.Add(RepositoryAddress.Create(RepositoryAddress.HardWiredSources.UsbKey, "USB flash drive", false));
 		}
 
 
@@ -113,7 +113,7 @@ namespace Chorus.sync
 				return results;
 			}
 
-			progress.WriteStatus("Checking In...");
+			progress.WriteStatus("Storing changes in local repository...");
 			repo.AddAndCheckinFiles(_project.IncludePatterns, _project.ExcludePatterns, options.CheckinDescription);
 
 			var tipBeforeSync = repo.GetTip();
@@ -135,20 +135,45 @@ namespace Chorus.sync
 
 					string resolvedUri = source.GetPotentialRepoUri(RepoProjectName, progress);
 
-					progress.WriteStatus("Connecting to {0}...", source.Name);
+					if (source is UsbKeyRepositorySource)
+					{
+						progress.WriteStatus("Looking for USB flash drives...");
+						var potential = source.GetPotentialRepoUri(RepoProjectName, progress);
+						if (null ==potential)
+						{
+							progress.WriteWarning("None found");
+						}
+						else if (string.Empty == potential)
+						{
+							progress.WriteMessage("Did not find existing project on any USB key.");
+						}
+					}
+					else
+					{
+						progress.WriteStatus("Connecting to {0}...", source.Name);
+					}
 					var canConnect = source.CanConnect(repo, RepoProjectName, progress);
-					didConnect.Add(source,canConnect);
+					if (!didConnect.ContainsKey(source))
+					{
+						didConnect.Add(source, canConnect);
+					}
 					if (canConnect)
 					{
-						progress.WriteStatus("Trying to Pull from {0}({1})...", source.Name, source.URI);
-						if (repo.TryToPull(resolvedUri))
+						if (repo.TryToPull(source.Name,  resolvedUri))
 						{
 							results.DidGetChangesFromOthers = true; //nb, don't set it to false just because one source didn't have anything new
 						}
 					}
 					else
 					{
-						progress.WriteWarning("Could not connect to {0} at {1} for pulling", source.Name, resolvedUri);
+						if (source is UsbKeyRepositorySource)
+						{
+						   //already informed them, above
+						}
+						else
+						{
+							progress.WriteWarning("Could not connect to {0} at {1} for pulling", source.Name, resolvedUri);
+						}
 					}
 				}
 			}
@@ -195,8 +220,7 @@ namespace Chorus.sync
 						}
 						if (canConnect)
 							{
-								progress.WriteMessage("Pushing local repository to {0} at {1}", RepoProjectName, resolvedUri);
-								repo.Push(resolvedUri, progress);
+								repo.Push(address, resolvedUri, progress);
 							}
 							else if (address is DirectoryRepositorySource || address is UsbKeyRepositorySource)
 							{
@@ -215,7 +239,7 @@ namespace Chorus.sync
 				progress.WriteError("The command timed out.  Details: " + error.Message);
 				results.Succeeded = false;
 			}
-			progress.WriteStatus("Done.");
+			progress.WriteStatus("Done");
 			return results;
 		}
 
@@ -294,14 +318,14 @@ namespace Chorus.sync
 				{
 					try
 					{
-						progress.WriteStatus("Making repository on {0} at {1}...", repoDescriptor.Name, uri);
+						progress.WriteStatus("Copying repository to {0}...", repoDescriptor.GetFullName(uri));
+						progress.WriteVerbose("({0})", uri);
 						MakeClone(uri, true, progress);
-						progress.WriteStatus("Done.");
 						return uri;
 					}
 					catch (Exception error)
 					{
-						 progress.WriteError("Could not create clone at {0}: {1}", uri, error.Message);
+						 progress.WriteError("Could not create repository on {0}: {1}", uri, error.Message);
 						continue;
 					}
 				}

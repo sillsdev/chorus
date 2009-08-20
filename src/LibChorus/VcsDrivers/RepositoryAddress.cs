@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using Chorus.Utilities;
 using Chorus.Utilities.UsbDrive;
@@ -67,7 +68,7 @@ namespace Chorus.VcsDrivers
 			switch (hardWiredSource)
 			{
 				case HardWiredSources.UsbKey:
-					return new UsbKeyRepositorySource(HardWiredSources.UsbKey.ToString(), name, readOnly);
+					return new UsbKeyRepositorySource(name, HardWiredSources.UsbKey.ToString(), readOnly);
 				default:
 					throw new ArgumentException("RepositoryAddress does not recognize this kind of source (" + HardWiredSources.UsbKey.ToString() + ")");
 			}
@@ -111,6 +112,11 @@ namespace Chorus.VcsDrivers
 
 
 		public override string ToString()
+		{
+			return Name;
+		}
+
+		public virtual string GetFullName(string uri)
 		{
 			return Name;
 		}
@@ -209,12 +215,23 @@ namespace Chorus.VcsDrivers
 //                return
 //        }
 
-		public UsbKeyRepositorySource(string uri, string sourceLabel, bool readOnly)
-			: base(uri, sourceLabel, readOnly)
+		public UsbKeyRepositorySource(string sourceLabel, string uri, bool readOnly)
+			: base(sourceLabel, uri, readOnly)
 		{
 
 		}
 
+		public override string GetFullName(string address)
+		{
+			var root = Path.GetPathRoot(address);
+			foreach (DriveInfo drive in DriveInfo.GetDrives())
+			{
+				if(drive.RootDirectory.Name == root)
+					return Name + "(" +  drive.VolumeLabel + ")";
+			}
+			Debug.Fail("Why didn't we find the drive?");
+			return Name;
+	   }
 
 		/// <summary>
 		/// Get a path to use with the version control
@@ -235,17 +252,18 @@ namespace Chorus.VcsDrivers
 			foreach (var drive in drives)
 			{
 				string pathOnUsb = Path.Combine(drive.RootDirectory.FullName, projectName);
+
 				if (Directory.Exists(pathOnUsb))
 				{
 					return pathOnUsb;
 				}
 			}
-			return null;
+			return string.Empty;
 		}
 
 		public override List<string> GetPossibleCloneUris(string projectName, IProgress progress)
 		{
-			progress.WriteStatus("Looking for usb keys to recieve clone...");
+			progress.WriteVerbose("Looking for USB flash drives to recieve clone...");
 			List<string>  urisToTryCreationAt = new List<string>();
 
 			if (RootDirForUsbSourceDuringUnitTest != null)
@@ -274,7 +292,7 @@ namespace Chorus.VcsDrivers
 
 		public override bool CanConnect(HgRepository localRepository, string projectName, IProgress progress)
 		{
-			progress.WriteStatus("Looking for usb keys with existing repositories...");
+		   // progress.WriteStatus("Looking for USB flash drives with existing repositories...");
 			string path= GetPotentialRepoUri(projectName, progress);
 			return (path != null) && Directory.Exists(path);
 		}
