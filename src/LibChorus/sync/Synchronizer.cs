@@ -271,7 +271,7 @@ namespace Chorus.sync
 		}
 
 		/// <summary>
-		/// used for usb sources
+		/// used for local sources (usb, sd media, etc)
 		/// </summary>
 		/// <param name="progress"></param>
 		/// <param name="repoDescriptor"></param>
@@ -298,7 +298,7 @@ namespace Chorus.sync
 					}
 					catch (Exception error)
 					{
-						progress.WriteMessage("Could not create clone at {0}: {1}", uri, error.Message);
+						progress.WriteError("Could not create clone at {0}: {1}", uri, error.Message);
 						continue;
 					}
 				}
