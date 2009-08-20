@@ -141,7 +141,10 @@ namespace Chorus.sync
 					if (canConnect)
 					{
 						progress.WriteStatus("Trying to Pull from {0}({1})...", source.Name, source.URI);
-						repo.TryToPull(resolvedUri);
+						if (repo.TryToPull(resolvedUri))
+						{
+							results.DidGetChangesFromOthers = true; //nb, don't set it to false just because one source didn't have anything new
+						}
 					}
 					else
 					{
@@ -447,9 +450,15 @@ namespace Chorus.sync
 	{
 		public bool Succeeded { get; set; }
 
+		/// <summary>
+		/// If if this is true, the client app needs to restart or read in the new stuff
+		/// </summary>
+		public bool DidGetChangesFromOthers { get; set; }
+
 		public SyncResults()
 		{
 			Succeeded = true;
+			DidGetChangesFromOthers = false;
 		}
 	}
 }

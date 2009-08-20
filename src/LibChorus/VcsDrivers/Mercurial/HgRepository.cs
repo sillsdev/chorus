@@ -136,10 +136,11 @@ namespace Chorus.VcsDrivers.Mercurial
 			}
 		}
 
-		public void TryToPull(string resolvedUri)
+		/// <returns>true if changes were received</returns>
+		public bool TryToPull(string resolvedUri)
 		{
 			HgRepository repo = new HgRepository(resolvedUri, _progress);
-			PullFromRepository(repo, false);
+			return PullFromRepository(repo, false);
 		}
 
 		public void Push(string targetUri, IProgress progress)
@@ -173,13 +174,19 @@ namespace Chorus.VcsDrivers.Mercurial
 			return !(uri.StartsWith("http") || uri.StartsWith("ssh"));
 		}
 
-		protected void PullFromRepository(HgRepository otherRepo,bool throwIfCannot)
+		/// <summary>
+		/// Pull from the given repository
+		/// </summary>
+		/// <returns>true if the pull happend and changes were pulled in</returns>
+		protected bool PullFromRepository(HgRepository otherRepo,bool throwIfCannot)
 		{
 			_progress.WriteStatus("{0} pulling from {1}", _userName,otherRepo.Name);
 			{
 				try
 				{
+					var tip = GetTip();
 					Execute(_pathToRepository, _secondsBeforeTimeoutOnRemoteOperation, _progress, "pull", otherRepo.PathWithQuotes);
+					return tip.Number.Hash != GetTip().Number.Hash; //review... I believe you can't pull without getting a new tip
 				}
 				catch (Exception err)
 				{
@@ -188,6 +195,7 @@ namespace Chorus.VcsDrivers.Mercurial
 						throw err;
 					}
 					_progress.WriteWarning("Could not pull from " + otherRepo.Name);
+					return false;
 				}
 			}
 		}
