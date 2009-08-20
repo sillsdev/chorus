@@ -46,7 +46,7 @@ namespace LibChorus.Tests
 		[Test]
 		public void AfterSyncLogNotEmpty()
 		{
-			_model.Sync();
+			_model.Sync(false);
 			while(!_model.EnableSendReceive)
 				Thread.Sleep(100);
 			Assert.IsNotEmpty(_progress.Text);

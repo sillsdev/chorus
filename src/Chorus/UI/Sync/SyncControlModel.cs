@@ -126,18 +126,27 @@ namespace Chorus.UI.Sync
 			return _synchronizer.GetPotentialSynchronizationSources(new NullProgress());
 		}
 
-		public void Sync()
+		/// <summary>
+		/// Sync
+		/// </summary>
+		/// <param name="useTargetsAsSpecifiedInSyncOptions">This is a bit of a hack
+		/// until I figure out something better... it will be true for cases where
+		/// the app is just doing a backup..., false were we want to sync to whatever
+		/// sites the user has indicated</param>
+		public void Sync(bool useTargetsAsSpecifiedInSyncOptions)
 		{
 			lock (this)
 			{
 				if(_backgroundWorker.IsBusy)
 					return;
-				foreach (var address in GetRepositoriesToList().Where(r => !r.Enabled))
+				if (!useTargetsAsSpecifiedInSyncOptions)
 				{
-					 SyncOptions.RepositorySourcesToTry.RemoveAll(x=>x.URI == address.URI);
+					foreach (var address in GetRepositoriesToList().Where(r => !r.Enabled))
+					{
+						SyncOptions.RepositorySourcesToTry.RemoveAll(x => x.URI == address.URI);
+					}
+					SyncOptions.RepositorySourcesToTry.AddRange(GetRepositoriesToList().Where(r => r.Enabled));
 				}
-				SyncOptions.RepositorySourcesToTry.AddRange(GetRepositoriesToList().Where(r => r.Enabled));
-
 				_backgroundWorker.RunWorkerAsync(new object[] {_synchronizer, SyncOptions, _progress});
 			}
 		}

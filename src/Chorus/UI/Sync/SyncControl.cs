@@ -191,7 +191,7 @@ namespace Chorus.UI.Sync
 
 		private void _syncButton_Click(object sender, EventArgs e)
 		{
-			Synchronize();
+			Synchronize(false);
 		}
 
 		private void timer1_Tick(object sender, EventArgs e)
@@ -200,7 +200,14 @@ namespace Chorus.UI.Sync
 		}
 
 
-		public void Synchronize()
+		/// <summary>
+		/// Sync
+		/// </summary>
+		/// <param name="useTargetsAsSpecifiedInSyncOptions">This is a bit of a hack
+		/// until I figure out something better... it will be true for cases where
+		/// the app is just doing a backup..., false were we want to sync to whatever
+		/// sites the user has indicated</param>
+		public void Synchronize(bool useTargetsAsSpecifiedInSyncOptions)
 		{
 			_didSync = false;
 
@@ -221,7 +228,7 @@ namespace Chorus.UI.Sync
 			Cursor.Current = Cursors.WaitCursor;
 			timer1.Enabled = true;
 			_textBoxProgress.ShowVerbose = _showVerboseLog.Checked;
-			Model.Sync();
+			Model.Sync(useTargetsAsSpecifiedInSyncOptions);
 		}
 
 		private void OnCancelButton_Click(object sender, EventArgs e)

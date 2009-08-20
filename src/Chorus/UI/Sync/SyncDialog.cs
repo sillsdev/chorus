@@ -9,7 +9,9 @@ namespace Chorus.UI.Sync
 {
 	public partial class SyncDialog : Form
 	{
-		public SyncDialog(ProjectFolderConfiguration projectFolderConfiguration, SyncUIDialogBehaviors behavior, SyncUIFeatures uiFeatureFlags)
+
+		public SyncDialog(ProjectFolderConfiguration projectFolderConfiguration,
+			SyncUIDialogBehaviors behavior, SyncUIFeatures uiFeatureFlags)
 		{
 			InitializeComponent();
 			Behavior = behavior;
@@ -21,11 +23,17 @@ namespace Chorus.UI.Sync
 
 			//we don't want clients digging down this deeply, so we present it as one of our properties
 			FinalStatus = _syncControl.Model.StatusProgress;
+
+			//set the default based on whether this looks like a backup or local commit operation
+			UseTargetsAsSpecifiedInSyncOptions = (Behavior == SyncUIDialogBehaviors.StartImmediately ||
+												  Behavior == SyncUIDialogBehaviors.StartImmediatelyAndCloseWhenFinished);
+
 		}
 
 		public SyncOptions SyncOptions
 		{ get { return _syncControl.Model.SyncOptions; }
 		}
+
 
 		void _syncControl_SynchronizeOver(object sender, EventArgs e)
 		{
@@ -46,9 +54,16 @@ namespace Chorus.UI.Sync
 		{
 			if (Behavior == SyncUIDialogBehaviors.StartImmediately || Behavior == SyncUIDialogBehaviors.StartImmediatelyAndCloseWhenFinished)
 			{
-				_syncControl.Synchronize();
+				_syncControl.Synchronize(UseTargetsAsSpecifiedInSyncOptions);
 			}
 		}
+
+
+		/// <summary>
+		/// Set this to true when simpling doing a backup...,
+		/// false were we want to sync to whatever sites the user has indicated</param>
+		/// </summary>
+	   public bool UseTargetsAsSpecifiedInSyncOptions { get; set; }
 
 		private void _syncControl_CloseButtonClicked(object sender, System.EventArgs e)
 		{
