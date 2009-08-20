@@ -209,9 +209,6 @@
 	<EmbeddedResource Include="UI\Misc\ReadinessPanel.resx">
 	  <DependentUpon>ReadinessPanel.cs</DependentUpon>
 	</EmbeddedResource>
-	<EmbeddedResource Include="UI\Sync\finished.wav">
-	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Sync\SyncControl.resx">
 	  <DependentUpon>SyncControl.cs</DependentUpon>
 	</EmbeddedResource>

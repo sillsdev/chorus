@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Management;
+using Chorus.Utilities.UsbDrive;
 
 namespace Chorus.Utilties.UsbDrive
 {
