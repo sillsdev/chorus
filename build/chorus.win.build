@@ -1,4 +1,4 @@
-<project name="Palaso Build" default="build">
+<project name="Chorus Build" default="build">
 	<property name="configuration" value="release"/>
 	<property name="nant.settings.currentframework" value="net-2.0" />
 
@@ -9,23 +9,9 @@
 				<include name="../**/obj/**" />
 				<include name="../output/**" />
 				<include name="../release/output/*" />
+				<excude name="../.hg" />
 			</fileset>
 		</delete>
-	</target>
-
-	<target name="revision_svn">
-		<property name="svn.info.log" value="svninfo.txt"/>
-		<exec
-			program="svn.exe"
-			basedir="C:\Program Files\Subversion\bin"
-			commandline="info http://code.wesay.org/Palaso/trunk/Palaso"
-			output="${svn.info.log}"
-		/>
-		<loadfile property="svn.head.revision" file="${svn.info.log}" />
-		<regex pattern="^Revision: (?'revision'.*)$" input="${svn.head.revision}" options="Multiline" />
-		<property name="revision" value="${string::trim(revision)}" />
-		<echo message="Revision: ${revision}" />
-		<delete file="${svn.info.log}" />
 	</target>
 
 	<target name="revision_teamcityhg">
@@ -50,6 +36,7 @@
 			<in>
 				<items>
 					<include name="../**/AssemblyInfo.cs" />
+					<exclude name="../lib" />
 				</items>
 			</in>
 			<do>
@@ -90,15 +77,13 @@
 	<target name="rebuild" depends="clean, build" />
 
 	<target name="build.solution" depends="assemblyinfo">
-		<solution configuration="${configuration}" solutionfile="../palaso.sln">
+		<solution configuration="${configuration}" solutionfile="../src/Chorus VS2008.sln">
 		</solution>
-		<property name="expected.output" value="../output/${configuration}/Palaso.dll"/>
+		<property name="expected.output" value="../output/${configuration}/LibChorus.dll"/>
 		<fail unless="${file::exists(expected.output)}">Output file doesn't exist in ${expected.output}</fail>
-		<property name="expected.output" value="../output/${configuration}/Palaso.Media.dll"/>
+		<property name="expected.output" value="../output/${configuration}/ChorusMerge.exe"/>
 		<fail unless="${file::exists(expected.output)}">Output file doesn't exist in ${expected.output}</fail>
-		<property name="expected.output" value="../output/${configuration}/Palaso.Services.dll"/>
-		<fail unless="${file::exists(expected.output)}">Output file doesn't exist in ${expected.output}</fail>
-		<property name="expected.output" value="../output/${configuration}/PalasoUIWindowsForms.dll"/>
+		<property name="expected.output" value="../output/${configuration}/Chorus.exe"/>
 		<fail unless="${file::exists(expected.output)}">Output file doesn't exist in ${expected.output}</fail>
 	</target>
 
@@ -111,10 +96,6 @@
 		  </assemblies>
 		  <categories>
 			<exclude name="MouseSensitive"/>
-			<exclude name="Windows IME"/>
-			<exclude name="Scim"/>
-			<exclude name="Keyman6"/>
-			<exclude name="Keyman7"/>
 			<exclude name="RequiresUSB"/>
 		  </categories>
 			</test>
