@@ -4,7 +4,7 @@ using System.IO;
 using System.Management;
 using Chorus.Utilities.UsbDrive;
 
-namespace Chorus.Utilties.UsbDrive
+namespace Chorus.Utilities.UsbDrive
 {
 	internal class UsbDriveInfoWindows : UsbDriveInfo
 	{

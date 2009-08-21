@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using Chorus.Utilties.UsbDrive;
 
 namespace Chorus.Utilities.UsbDrive
 {
-	[CLSCompliant (false)]
+	//[CLSCompliant (false)]
 	public abstract class UsbDriveInfo
 	{
 		public abstract bool IsReady
