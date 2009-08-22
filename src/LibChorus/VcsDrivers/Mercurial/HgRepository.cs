@@ -538,6 +538,10 @@ namespace Chorus.VcsDrivers.Mercurial
 		{
 			Execute(null, _secondsBeforeTimeoutOnLocalOperation, _progress, "clone", PathWithQuotes + " " + SurroundWithQuotes(path));
 		}
+		public void CloneLocal(string path)
+		{
+			Execute(null, _secondsBeforeTimeoutOnLocalOperation, _progress, "clone --uncompressed", PathWithQuotes + " " + SurroundWithQuotes(path));
+		}
 
 		private List<Revision> GetRevisionsFromQuery(string query)
 		{
