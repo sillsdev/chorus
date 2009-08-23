@@ -41,9 +41,18 @@ namespace Chorus.Utilties.UsbDrive
 			}
 		}
 
-		public new static List<UsbDriveInfo> GetDrives()
+		public override ulong TotalFreeSpace
 		{
-			List<UsbDriveInfo> drives = new List<UsbDriveInfo>();
+			get
+			{
+				//We use a ulong because that's what linux uses
+				return (ulong)_driveInfo.TotalFreeSpace;
+			}
+		}
+
+		public new static List<IUsbDriveInfo> GetDrives()
+		{
+			List<IUsbDriveInfo> drives = new List<IUsbDriveInfo>();
 			using (ManagementObjectSearcher driveSearcher =
 				new ManagementObjectSearcher(
 					"SELECT Caption, DeviceID FROM Win32_DiskDrive WHERE InterfaceType='USB'")

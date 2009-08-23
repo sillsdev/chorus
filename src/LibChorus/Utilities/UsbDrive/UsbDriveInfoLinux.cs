@@ -7,7 +7,7 @@ using org.freedesktop.DBus;
 
 namespace Chorus.Utilities.UsbDrive
 {
-	internal class UsbDriveInfoLinux:UsbDriveInfo
+	internal class UsbDriveInfoLinux:IUsbDriveInfo
 	{
 		private HalDevice _volumeDevice;
 
@@ -33,6 +33,13 @@ namespace Chorus.Utilities.UsbDrive
 		public override ulong TotalSize
 		{
 			get { return TryGetDevicePropertyInteger(_volumeDevice, "volume.size"); }
+		}
+
+		public override ulong TotalFreeSpace
+		{
+
+			get { throw new NotImplementedException("TODO: figure out how to get free space info on linux"); }
+
 		}
 
 		private static string TryGetDevicePropertyString(HalDevice device, string propertyName)
@@ -68,9 +75,9 @@ namespace Chorus.Utilities.UsbDrive
 			return 0;
 		}
 
-		public new static List<UsbDriveInfo> GetDrives()
+		public new static List<IUsbDriveInfo> GetDrives()
 		{
-			List<UsbDriveInfo> drives = new List<UsbDriveInfo>();
+			List<IUsbDriveInfo> drives = new List<IUsbDriveInfo>();
 			Connection conn =  Bus.System;
 
 			ObjectPath halManagerPath = new ObjectPath("/org/freedesktop/Hal/Manager");
