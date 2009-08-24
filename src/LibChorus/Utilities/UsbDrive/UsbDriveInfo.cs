@@ -1,7 +1,6 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
-using Chorus.Utilties.UsbDrive;
 
 namespace Chorus.Utilities.UsbDrive
 {

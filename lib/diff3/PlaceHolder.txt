@@ -1,0 +1,1 @@
+An file to keep teamcity happy about copying the files in the bin folder.

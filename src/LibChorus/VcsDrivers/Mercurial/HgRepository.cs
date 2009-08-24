@@ -1042,7 +1042,7 @@ namespace Chorus.VcsDrivers.Mercurial
 						File.Move(pathToLock, dest);
 						 _progress.WriteWarning("Lock could not be deleted, but was moved to temp directory.");
 					}
-					catch (Exception e)
+					catch (Exception)
 					{
 						_progress.WriteError(
 							"The file {0} could not be removed.  You may need to restart the computer.",

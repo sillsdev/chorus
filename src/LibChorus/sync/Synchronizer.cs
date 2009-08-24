@@ -188,7 +188,7 @@ namespace Chorus.sync
 					if(peopleWeMergedWith.Count > 0)
 						repo.AddAndCheckinFiles(_project.IncludePatterns, _project.ExcludePatterns, GetMergeCommitSummary(peopleWeMergedWith, repo));
 				}
-				catch (Exception e)
+				catch (Exception)
 				{
 					//rollback
 					UpdateToTheDescendantRevision(repo, tipBeforeSync);

@@ -14,8 +14,6 @@ namespace Chorus.clone
 	/// </summary>
 	public class CloneFromUsb
 	{
-		public event EventHandler LoadList;
-
 		public CloneFromUsb()
 		{
 			DriveInfoRetriever = new RetrieveUsbDriveInfo();
