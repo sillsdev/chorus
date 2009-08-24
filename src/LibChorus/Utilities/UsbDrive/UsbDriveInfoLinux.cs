@@ -7,7 +7,7 @@ using org.freedesktop.DBus;
 
 namespace Chorus.Utilities.UsbDrive
 {
-	internal class UsbDriveInfoLinux:IUsbDriveInfo
+	internal class UsbDriveInfoLinux : UsbDriveInfo
 	{
 		private HalDevice _volumeDevice;
 
