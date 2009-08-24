@@ -13,27 +13,27 @@ using System.Linq;
 
 namespace Chorus.UI.Clone
 {
-	public partial class GetCloneDialog : Form
+	public partial class GetCloneFromUsbDialog : Form
 	{
 		private readonly string _parentDirectoryToPutCloneIn;
-		private Cloner _model;
+		private CloneFromUsb _model;
 		private IProgress _progress;
 		private enum State { LookingForUsb, FoundUsbButNoProjects, WaitingForUserSelection, MakingClone, Success, Error }
 
 		private State _state;
 		private string _failureMessage;
 
-		public GetCloneDialog(string parentDirectoryToPutCloneIn)
+		public GetCloneFromUsbDialog(string parentDirectoryToPutCloneIn)
 		{
 			_parentDirectoryToPutCloneIn = parentDirectoryToPutCloneIn;
 			Font = SystemFonts.MessageBoxFont;
 
 			InitializeComponent();
-			_model = new Cloner();
+			_model = new CloneFromUsb();
 			UpdateDisplay(State.LookingForUsb);
 			_progress = new TextBoxProgress(_progressLog);
 		}
-		public Cloner Model { get { return _model; } }
+		public CloneFromUsb Model { get { return _model; } }
 
 		private void UpdateDisplay(State newState)
 		{

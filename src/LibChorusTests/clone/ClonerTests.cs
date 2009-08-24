@@ -19,7 +19,7 @@ namespace Chorus.Tests
 			using(var repo = new RepositorySetup("source"))
 			using (var f = new TempFolder("clonetest"))
 			{
-				var model = new Cloner();
+				var model = new CloneFromUsb();
 				var progress = new ConsoleProgress();
 				progress.ShowVerbose = true;
 				model.MakeClone(repo.ProjectFolder.Path, f.Path, progress);
@@ -33,7 +33,7 @@ namespace Chorus.Tests
 			using (var repo = new RepositorySetup("source"))
 			using (var f = new TempFolder("clonetest"))
 			{
-				var model = new Cloner();
+				var model = new CloneFromUsb();
 				var progress = new ConsoleProgress();
 				progress.ShowVerbose = true;
 				Directory.CreateDirectory(f.Combine(RepositorySetup.ProjectName));
@@ -44,7 +44,7 @@ namespace Chorus.Tests
 		[Test]
 		public void GetDirectoriesWithMecurialRepos_NoDrivesFound_ReturnsEmptyList()
 		{
-				var model = new Cloner();
+				var model = new CloneFromUsb();
 				var drives = new List<IUsbDriveInfo>();
 				model.DriveInfoRetriever = new RetrieveUsbDriveInfoForTests(drives);
 				Assert.AreEqual(0, model.GetDirectoriesWithMecurialRepos().Count());
@@ -56,7 +56,7 @@ namespace Chorus.Tests
 			using (var usb = new TempFolder("clonetestUsb"))
 			{
 				Directory.CreateDirectory(usb.Combine("tests"));
-				var model = new Cloner();
+				var model = new CloneFromUsb();
 				var drives = new List<IUsbDriveInfo>();
 				drives.Add(new UsbDriveInfoForTests(usb.Path));
 				model.DriveInfoRetriever = new RetrieveUsbDriveInfoForTests(drives);
@@ -71,7 +71,7 @@ namespace Chorus.Tests
 			{
 				Directory.CreateDirectory(usb.Combine("test"));
 				Directory.CreateDirectory(usb.Combine("testrepo",".hg"));
-				var model = new Cloner();
+				var model = new CloneFromUsb();
 				var drives = new List<IUsbDriveInfo>();
 				drives.Add(new UsbDriveInfoForTests(usb.Path));
 				model.DriveInfoRetriever = new RetrieveUsbDriveInfoForTests(drives);
@@ -90,7 +90,7 @@ namespace Chorus.Tests
 				Directory.CreateDirectory(usb.Combine("test1", ".hg"));
 				Directory.CreateDirectory(usb.Combine("testSKIP"));
 				Directory.CreateDirectory(usb.Combine("testSKIP", ".hg"));
-				var model = new Cloner();
+				var model = new CloneFromUsb();
 				var drives = new List<IUsbDriveInfo>();
 				drives.Add(new UsbDriveInfoForTests(usb.Path));
 				model.DriveInfoRetriever = new RetrieveUsbDriveInfoForTests(drives);
@@ -107,7 +107,7 @@ namespace Chorus.Tests
 			{
 				Directory.CreateDirectory(usb1.Combine("a", "repo1", ".hg"));
 				Directory.CreateDirectory(usb2.Combine("a", "repo2", ".hg"));
-				var model = new Cloner();
+				var model = new CloneFromUsb();
 				var drives = new List<IUsbDriveInfo>();
 				drives.Add(new UsbDriveInfoForTests(usb1.Path));
 				drives.Add(new UsbDriveInfoForTests(usb2.Path));

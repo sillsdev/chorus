@@ -17,7 +17,7 @@ namespace LibChorus.Tests
 		{
 			using (var f = new TempFolder("clonetest"))
 			{
-				using (var dlg = new GetCloneDialog(f.Path))
+				using (var dlg = new GetCloneFromUsbDialog(f.Path))
 				{
 					dlg.Model.ProjectFilter = dir => !dir.Contains("Shared Paratext Projects");
 					if(DialogResult.OK != dlg.ShowDialog())
@@ -38,7 +38,7 @@ namespace LibChorus.Tests
 				//ok, the point here is that we already haved something called "repo1"
 				Directory.CreateDirectory(targetComputer.Combine("repo1"));
 
-				using (var dlg = new GetCloneDialog(targetComputer.Path))
+				using (var dlg = new GetCloneFromUsbDialog(targetComputer.Path))
 				{
 					var drives = new List<IUsbDriveInfo>();
 					drives.Add(new UsbDriveInfoForTests(usb.Path));

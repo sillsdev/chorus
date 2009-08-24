@@ -12,11 +12,11 @@ namespace Chorus.clone
 	/// Use this class to make an initial clone from a USB drive or Internet repository.
 	/// Note, most clients can instead use the GetCloneDialog in Chorus.exe.
 	/// </summary>
-	public class Cloner
+	public class CloneFromUsb
 	{
 		public event EventHandler LoadList;
 
-		public Cloner()
+		public CloneFromUsb()
 		{
 			DriveInfoRetriever = new RetrieveUsbDriveInfo();
 		}

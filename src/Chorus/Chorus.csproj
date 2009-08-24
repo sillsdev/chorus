@@ -74,11 +74,11 @@
   </ItemGroup>
   <ItemGroup>
 	<Compile Include="Bootstrapper.cs" />
-	<Compile Include="UI\Clone\GetCloneDialog.cs">
+	<Compile Include="UI\Clone\GetCloneFromUsbDialog.cs">
 	  <SubType>Form</SubType>
 	</Compile>
-	<Compile Include="UI\Clone\GetCloneDialog.Designer.cs">
-	  <DependentUpon>GetCloneDialog.cs</DependentUpon>
+	<Compile Include="UI\Clone\GetCloneFromUsbDialog.Designer.cs">
+	  <DependentUpon>GetCloneFromUsbDialog.cs</DependentUpon>
 	</Compile>
 	<Compile Include="UI\Misc\ReadinessPanel.cs">
 	  <SubType>UserControl</SubType>
@@ -212,8 +212,8 @@
   </ItemGroup>
   <ItemGroup>
 	<Content Include="chorus.ico" />
-	<EmbeddedResource Include="UI\Clone\GetCloneDialog.resx">
-	  <DependentUpon>GetCloneDialog.cs</DependentUpon>
+	<EmbeddedResource Include="UI\Clone\GetCloneFromUsbDialog.resx">
+	  <DependentUpon>GetCloneFromUsbDialog.cs</DependentUpon>
 	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Misc\ReadinessPanel.resx">
 	  <DependentUpon>ReadinessPanel.cs</DependentUpon>
