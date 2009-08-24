@@ -153,15 +153,15 @@
 	</target>
 
 	<target name="test" depends="build-only">
-		<call target="test-noservices-only"/>
+		<call target="test-only-with-fail"/>
 	</target>
 
-	<target name="test-only-old" depends="make-output-dir, set-build-config, set-runtime-config">
+	<target name="test-only-no-fail" depends="make-output-dir, set-build-config, set-runtime-config">
 		<!-- Run tests the first time without stopping the build under on failing tests because we want to be able to see ALL failing tests in the log.
 		The downside to this is that TeamCity will show a passing build even with failing tests-->
 
 		<echo message="*********************************************************************"/>
-		<echo message="******                  Begin Test run!	                    ********"/>
+		<echo message="******                  Begin Test Run 	                    ********"/>
 		<echo message="*********************************************************************"/>
 
 		<foreach item="File" property="filename">
@@ -178,23 +178,20 @@
 					<include name="${filename}" />
 				</assemblies>
 				<categories>
-					<exclude name="MouseSensitive"/>
-					<exclude name="Windows IME"/>
-					<exclude name="Keyman6"/>
-					<exclude name="Keyman7"/>
-					<exclude name="Scim"/>
 					<exclude name="Mono Known Issue"/>
 				</categories>
 				</test>
-			</nunit2>
+				</nunit2>
 			</do>
-			</foreach>
+		</foreach>
+	</target>
 
+	<target name="test-only-with-fail" depends="make-output-dir, set-build-config, set-runtime-config">
 		<echo message="*********************************************************************"/>
-		<echo message="******                  End Test run!                        ********"/>
+		<echo message="******                  Test With Fail                       ********"/>
 		<echo message="*********************************************************************"/>
 
-<!-- Run the tests a second time, failing as soon as possible. We do this so that TeamCity indicates a failed build on failing tests-->
+		<!-- Run the tests a second time, failing as soon as possible. We do this so that TeamCity indicates a failed build on failing tests-->
 		<nunit2 haltonfailure="true" failonerror="true">
 			<formatter type="Plain" usefile="false" />
 			<test>
@@ -202,73 +199,10 @@
 				<include name="${project.output.dir}/*.Tests.dll" />
 			</assemblies>
 			<categories>
-				<exclude name="MouseSensitive"/>
-				<exclude name="Windows IME"/>
-						<exclude name="Keyman6"/>
-						<exclude name="Keyman7"/>
-				<exclude name="Scim"/>
 				<exclude name="Mono Known Issue"/>
 			</categories>
 			</test>
 		</nunit2>
-	</target>
-
-	<target name="test-noservices-only" depends="make-output-dir, set-build-config, set-runtime-config">
-		<!-- Run tests the first time without stopping the build under on failing tests because we want to be able to see ALL failing tests in the log.
-		The downside to this is that TeamCity will show a passing build even with failing tests-->
-
-		<echo message="*******************************************************************"/>
-		<echo message="******                  Begin Test Run                       ******"/>
-		<echo message="*******************************************************************"/>
-		<echo message="Warning: Palaso.Service is currently not tested under mono."/>
-
-		<nunit2 haltonfailure="false" failonerror="true">
-			<formatter type="Plain"/>
-			<test>
-			<assemblies>
-				<include name="${project.output.dir}/*.Tests.dll" />
-				<exclude name="${project.output.dir}/Palaso.Services*.dll" />
-			</assemblies>
-			<categories>
-				<exclude name="MouseSensitive"/>
-				<exclude name="Windows IME"/>
-				<exclude name="Keyman6"/>
-				<exclude name="Keyman7"/>
-				<exclude name="Scim"/>
-				<exclude name="KnownMonoIssue"/>
-				<exclude name="RequiresUSB"/>
-			</categories>
-			</test>
-		</nunit2>
-	</target>
-
-	<target name="test-teamcity" depends="build">
-		<call target="test-teamcity-only"/>
-	</target>
-
-	<target name="test-teamcity-only" depends="make-output-dir, set-build-config, set-runtime-config">
-		<!-- Run tests the first time without stopping the build under on failing tests because we want to be able to see ALL failing tests in the log.
-		The downside to this is that TeamCity will show a passing build even with failing tests-->
-
-		<echo message="*******************************************************************"/>
-		<echo message="******                  Begin Test Run                       ******"/>
-		<echo message="*******************************************************************"/>
-		<echo message="Warning: Palaso.Service is currently not tested under mono."/>
-
-		<path id="project.testfiles">
-			<pathelement file="${project.output.dir}/Palaso.Tests.dll" />
-		</path>
-
-		<property name="teamcity.dotnet.nunitlauncher" value="${environment::get-variable('teamcity.dotnet.nunitlauncher')}" />
-		<exec program="mono">
-			<arg value="/home/mono/buildAgent/plugins/dotnetPlugin/bin/${teamcity.dotnet.nunitlauncher}" />
-			<arg value="v2.0" />
-			<arg value="x86" />
-			<arg value="NUnit-2.4.7" />
-			<arg>
-				<path refid="project.testfiles" />
-			</arg>
-		</exec>
 	</target>
 
 	<target name="installerpre" depends="version">
