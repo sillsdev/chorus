@@ -61,7 +61,6 @@
 	<Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-	<Compile Include="CloneModelTests.cs" />
 	<Compile Include="GetCloneDialogTests.cs" />
 	<Compile Include="LiftChangePresenterTests.cs" />
 	<Compile Include="SettingsModelTests.cs" />

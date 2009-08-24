@@ -80,7 +80,6 @@
 	<Compile Include="UI\Clone\GetCloneDialog.Designer.cs">
 	  <DependentUpon>GetCloneDialog.cs</DependentUpon>
 	</Compile>
-	<Compile Include="UI\Clone\GetCloneModel.cs" />
 	<Compile Include="UI\Misc\ReadinessPanel.cs">
 	  <SubType>UserControl</SubType>
 	</Compile>

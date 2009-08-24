@@ -6,16 +6,18 @@ using Chorus.Utilities;
 using Chorus.Utilities.UsbDrive;
 using Chorus.VcsDrivers.Mercurial;
 
-namespace Chorus.UI.Clone
+namespace Chorus.clone
 {
-	public class GetCloneModel
+	/// <summary>
+	/// Use this class to make an initial clone from a USB drive or Internet repository.
+	/// Note, most clients can instead use the GetCloneDialog in Chorus.exe.
+	/// </summary>
+	public class Cloner
 	{
-		private readonly string _parentDirectoryToPutCloneIn;
 		public event EventHandler LoadList;
 
-		public GetCloneModel(string parentDirectoryToPutCloneIn)
+		public Cloner()
 		{
-			_parentDirectoryToPutCloneIn = parentDirectoryToPutCloneIn;
 			DriveInfoRetriever = new RetrieveUsbDriveInfo();
 		}
 
@@ -23,6 +25,11 @@ namespace Chorus.UI.Clone
 		/// Use this to insert an artificial drive info system for unit tests
 		/// </summary>
 		public IRetrieveUsbDriveInfo DriveInfoRetriever { get; set; }
+
+		public bool GetHaveOneOrMoreUsbDrives()
+		{
+			return DriveInfoRetriever.GetDrives().Count > 0;
+		}
 
 		public IEnumerable<string> GetDirectoriesWithMecurialRepos()
 		{
@@ -49,13 +56,16 @@ namespace Chorus.UI.Clone
 
 		}
 
-		public string GetClone(string sourcePath, IProgress progress)
+		public string MakeClone(string sourcePath, string parentDirectoryToPutCloneIn, IProgress progress)
 		{
+			var target = Path.Combine(parentDirectoryToPutCloneIn, Path.GetFileName(sourcePath));
+			if(Directory.Exists(target))
+				throw new ApplicationException("Cannot clone onto an existing directory ("+target+")");
+
 			var repo = new HgRepository(sourcePath, progress);
 
-			var path = Path.Combine(_parentDirectoryToPutCloneIn, Path.GetFileName(sourcePath));
-			repo.Clone(path);
-			return path;
+			repo.Clone(target);
+			return target;
 		}
 
 	}

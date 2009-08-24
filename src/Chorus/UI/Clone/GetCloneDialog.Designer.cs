@@ -31,14 +31,17 @@
 			this.components = new System.ComponentModel.Container();
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(GetCloneDialog));
 			this.listView1 = new System.Windows.Forms.ListView();
-			this._cancelButton = new System.Windows.Forms.Button();
-			this._okButton = new System.Windows.Forms.Button();
-			this._statusLabel = new System.Windows.Forms.Label();
-			this.imageList1 = new System.Windows.Forms.ImageList(this.components);
 			this.columnHeader1 = new System.Windows.Forms.ColumnHeader();
 			this.columnHeader2 = new System.Windows.Forms.ColumnHeader();
+			this.imageList1 = new System.Windows.Forms.ImageList(this.components);
+			this._cancelButton = new System.Windows.Forms.Button();
+			this._okButton = new System.Windows.Forms.Button();
 			this._progressLog = new System.Windows.Forms.RichTextBox();
 			this._copyToComputerButton = new System.Windows.Forms.Button();
+			this._statusImages = new System.Windows.Forms.ImageList(this.components);
+			this._statusImage = new System.Windows.Forms.Button();
+			this._lookingForUsbTimer = new System.Windows.Forms.Timer(this.components);
+			this._statusLabel = new System.Windows.Forms.TextBox();
 			this.SuspendLayout();
 			//
 			// listView1
@@ -61,6 +64,23 @@
 			this.listView1.UseCompatibleStateImageBehavior = false;
 			this.listView1.View = System.Windows.Forms.View.Details;
 			this.listView1.SelectedIndexChanged += new System.EventHandler(this.listView1_SelectedIndexChanged);
+			this.listView1.DoubleClick += new System.EventHandler(this.OnMakeCloneClick);
+			//
+			// columnHeader1
+			//
+			this.columnHeader1.Text = "Name";
+			this.columnHeader1.Width = 170;
+			//
+			// columnHeader2
+			//
+			this.columnHeader2.Text = "Modified Date";
+			this.columnHeader2.Width = 120;
+			//
+			// imageList1
+			//
+			this.imageList1.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imageList1.ImageStream")));
+			this.imageList1.TransparentColor = System.Drawing.Color.Transparent;
+			this.imageList1.Images.SetKeyName(0, "chorus.ico");
 			//
 			// _cancelButton
 			//
@@ -85,32 +105,6 @@
 			this._okButton.UseVisualStyleBackColor = true;
 			this._okButton.Click += new System.EventHandler(this._okButton_Click);
 			//
-			// _statusLabel
-			//
-			this._statusLabel.AutoSize = true;
-			this._statusLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this._statusLabel.Location = new System.Drawing.Point(12, 13);
-			this._statusLabel.Name = "_statusLabel";
-			this._statusLabel.Size = new System.Drawing.Size(205, 17);
-			this._statusLabel.TabIndex = 3;
-			this._statusLabel.Text = "Looking for USB Flash Drives...";
-			//
-			// imageList1
-			//
-			this.imageList1.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imageList1.ImageStream")));
-			this.imageList1.TransparentColor = System.Drawing.Color.Transparent;
-			this.imageList1.Images.SetKeyName(0, "chorus.ico");
-			//
-			// columnHeader1
-			//
-			this.columnHeader1.Text = "Name";
-			this.columnHeader1.Width = 170;
-			//
-			// columnHeader2
-			//
-			this.columnHeader2.Text = "Modified Date";
-			this.columnHeader2.Width = 120;
-			//
 			// _progressLog
 			//
 			this._progressLog.Location = new System.Drawing.Point(15, 34);
@@ -128,7 +122,47 @@
 			this._copyToComputerButton.TabIndex = 5;
 			this._copyToComputerButton.Text = "&Copy To Computer";
 			this._copyToComputerButton.UseVisualStyleBackColor = true;
-			this._copyToComputerButton.Click += new System.EventHandler(this._copyToComputerButton_Click);
+			this._copyToComputerButton.Click += new System.EventHandler(this.OnMakeCloneClick);
+			//
+			// _statusImages
+			//
+			this._statusImages.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("_statusImages.ImageStream")));
+			this._statusImages.TransparentColor = System.Drawing.Color.Transparent;
+			this._statusImages.Images.SetKeyName(0, "UsbDriveNotFound");
+			this._statusImages.Images.SetKeyName(1, "Success");
+			this._statusImages.Images.SetKeyName(2, "Error");
+			//
+			// _statusImage
+			//
+			this._statusImage.FlatAppearance.BorderSize = 0;
+			this._statusImage.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			this._statusImage.ImageKey = "UsbDriveNotFound";
+			this._statusImage.ImageList = this._statusImages;
+			this._statusImage.Location = new System.Drawing.Point(8, 7);
+			this._statusImage.Name = "_statusImage";
+			this._statusImage.Size = new System.Drawing.Size(50, 36);
+			this._statusImage.TabIndex = 17;
+			this._statusImage.UseVisualStyleBackColor = true;
+			//
+			// _lookingForUsbTimer
+			//
+			this._lookingForUsbTimer.Interval = 500;
+			this._lookingForUsbTimer.Tick += new System.EventHandler(this._lookingForUsbTimer_Tick);
+			//
+			// _statusLabel
+			//
+			this._statusLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+						| System.Windows.Forms.AnchorStyles.Left)
+						| System.Windows.Forms.AnchorStyles.Right)));
+			this._statusLabel.BackColor = System.Drawing.SystemColors.Control;
+			this._statusLabel.BorderStyle = System.Windows.Forms.BorderStyle.None;
+			this._statusLabel.Location = new System.Drawing.Point(65, 7);
+			this._statusLabel.Multiline = true;
+			this._statusLabel.Name = "_statusLabel";
+			this._statusLabel.ReadOnly = true;
+			this._statusLabel.Size = new System.Drawing.Size(228, 205);
+			this._statusLabel.TabIndex = 18;
+			this._statusLabel.Text = "Status text";
 			//
 			// GetCloneDialog
 			//
@@ -137,15 +171,17 @@
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.CancelButton = this._cancelButton;
 			this.ClientSize = new System.Drawing.Size(306, 262);
+			this.Controls.Add(this._statusImage);
 			this.Controls.Add(this._copyToComputerButton);
 			this.Controls.Add(this._progressLog);
-			this.Controls.Add(this._statusLabel);
 			this.Controls.Add(this._okButton);
 			this.Controls.Add(this._cancelButton);
 			this.Controls.Add(this.listView1);
+			this.Controls.Add(this._statusLabel);
 			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
 			this.MaximizeBox = false;
 			this.MinimizeBox = false;
+			this.MinimumSize = new System.Drawing.Size(322, 300);
 			this.Name = "GetCloneDialog";
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
 			this.Text = "Get Project From USB Flash Drive";
@@ -160,11 +196,14 @@
 		private System.Windows.Forms.ListView listView1;
 		private System.Windows.Forms.Button _cancelButton;
 		private System.Windows.Forms.Button _okButton;
-		private System.Windows.Forms.Label _statusLabel;
 		private System.Windows.Forms.ImageList imageList1;
 		private System.Windows.Forms.ColumnHeader columnHeader1;
 		private System.Windows.Forms.ColumnHeader columnHeader2;
 		private System.Windows.Forms.RichTextBox _progressLog;
 		private System.Windows.Forms.Button _copyToComputerButton;
+		private System.Windows.Forms.ImageList _statusImages;
+		private System.Windows.Forms.Button _statusImage;
+		private System.Windows.Forms.Timer _lookingForUsbTimer;
+		private System.Windows.Forms.TextBox _statusLabel;
 	}
 }
