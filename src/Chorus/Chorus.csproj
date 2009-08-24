@@ -66,6 +66,12 @@
   </ItemGroup>
   <ItemGroup>
 	<Compile Include="Bootstrapper.cs" />
+	<Compile Include="UI\Clone\GetCloneDialog.cs">
+	  <SubType>Form</SubType>
+	</Compile>
+	<Compile Include="UI\Clone\GetCloneDialog.Designer.cs">
+	  <DependentUpon>GetCloneDialog.cs</DependentUpon>
+	</Compile>
 	<Compile Include="UI\Misc\ReadinessPanel.cs">
 	  <SubType>UserControl</SubType>
 	</Compile>
@@ -201,6 +207,9 @@
   </ItemGroup>
   <ItemGroup>
 	<Content Include="chorus.ico" />
+	<EmbeddedResource Include="UI\Clone\GetCloneDialog.resx">
+	  <DependentUpon>GetCloneDialog.cs</DependentUpon>
+	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Misc\ReadinessPanel.resx">
 	  <DependentUpon>ReadinessPanel.cs</DependentUpon>
 	  <SubType>Designer</SubType>

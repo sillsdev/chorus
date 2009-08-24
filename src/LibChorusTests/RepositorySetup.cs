@@ -147,7 +147,7 @@ namespace LibChorus.Tests
 		}
 
 
-		private static string ProjectName
+		public static string ProjectName
 		{
 			get { return "foo project"; }//nb: important that it have a space, as this helps catch failure to enclose in quotes
 		}

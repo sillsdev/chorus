@@ -61,6 +61,7 @@
 	<Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+	<Compile Include="clone\ClonerTests.cs" />
 	<Compile Include="merge\xml\ConflictXmlRecordRetrievalTests.cs" />
 	<Compile Include="merge\GroupOfConflictFiles.cs" />
 	<Compile Include="merge\XmlLogMergeEventListenerTests.cs" />
