@@ -9,7 +9,7 @@
 				<include name="../**/obj/**" />
 				<include name="../output/**" />
 				<include name="../release/output/*" />
-				<excude name="../.hg" />
+				<exclude name="../.hg" />
 			</fileset>
 		</delete>
 	</target>
