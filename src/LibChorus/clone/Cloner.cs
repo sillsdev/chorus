@@ -26,6 +26,13 @@ namespace Chorus.clone
 		/// </summary>
 		public IRetrieveUsbDriveInfo DriveInfoRetriever { get; set; }
 
+		/// <summary>
+		/// Use this to inject a custom filter, so that the only projects that can be chosen are ones
+		/// you application is prepared to open.  The delegate is given the path to each mercurial project.
+		/// </summary>
+		public Func<string, bool> ProjectFilter = path => true;
+
+
 		public bool GetHaveOneOrMoreUsbDrives()
 		{
 			return DriveInfoRetriever.GetDrives().Count > 0;
@@ -37,15 +44,15 @@ namespace Chorus.clone
 			{
 				foreach (var dir in Directory.GetDirectories(drive.RootDirectory.FullName))
 				{
-					if (Directory.Exists(Path.Combine(dir, ".hg")))
+					if (Directory.Exists(Path.Combine(dir, ".hg")) && ProjectFilter(dir))
 					{
-						yield return dir;
+							yield return dir;
 					}
 					else //we'll look just at the next level down
 					{
 						foreach (var subdir in Directory.GetDirectories(dir))
 						{
-							if (Directory.Exists(Path.Combine(subdir, ".hg")))
+							if (Directory.Exists(Path.Combine(subdir, ".hg")) && ProjectFilter(subdir))
 							{
 								yield return subdir;
 							}

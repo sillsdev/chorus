@@ -13,15 +13,15 @@ namespace LibChorus.Tests
 	public class GetCLoneDialogTests
 	{
 		[Test, Ignore("Run by hand only")]
-		public void LaunchDialog_LiveTest()
+		public void LaunchDialog_LiveTest_FilterOutParatext()
 		{
 			using (var f = new TempFolder("clonetest"))
 			{
 				using (var dlg = new GetCloneDialog(f.Path))
 				{
+					dlg.Model.ProjectFilter = dir => !dir.Contains("Shared Paratext Projects");
 					if(DialogResult.OK != dlg.ShowDialog())
 						return;
-					//var repo = new HgRepository(dlg.PathToNewProject, new NullProgress());
 				}
 			}
 		}

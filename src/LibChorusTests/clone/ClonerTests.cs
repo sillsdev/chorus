@@ -80,6 +80,25 @@ namespace Chorus.Tests
 			}
 		}
 
+
+		[Test]
+		public void GetDirectoriesWithMecurialRepos_TwoRepos_ReturnsOnlyUnfilteredPath()
+		{
+			using (var usb = new TempFolder("clonetestUsb"))
+			{
+				Directory.CreateDirectory(usb.Combine("test1"));
+				Directory.CreateDirectory(usb.Combine("test1", ".hg"));
+				Directory.CreateDirectory(usb.Combine("testSKIP"));
+				Directory.CreateDirectory(usb.Combine("testSKIP", ".hg"));
+				var model = new Cloner();
+				var drives = new List<IUsbDriveInfo>();
+				drives.Add(new UsbDriveInfoForTests(usb.Path));
+				model.DriveInfoRetriever = new RetrieveUsbDriveInfoForTests(drives);
+				model.ProjectFilter = path => !path.Contains("SKIP");
+				Assert.AreEqual(1, model.GetDirectoriesWithMecurialRepos().Count());
+			}
+		}
+
 		[Test]
 		public void GetDirectoriesWithMecurialRepos_TwoDrivesEachWithRepo2Deep_FindsAllRepos()
 		{

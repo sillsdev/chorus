@@ -32,7 +32,6 @@ namespace Chorus.UI.Clone
 			_model = new Cloner();
 			UpdateDisplay(State.LookingForUsb);
 			_progress = new TextBoxProgress(_progressLog);
-
 		}
 		public Cloner Model { get { return _model; } }
 

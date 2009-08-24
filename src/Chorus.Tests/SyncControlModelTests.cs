@@ -1,13 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using Chorus.sync;
 using Chorus.UI.Sync;
 using Chorus.Utilities;
+using LibChorus.Tests;
 using NUnit.Framework;
-using System.Linq;
 
-namespace LibChorus.Tests
+namespace Chorus.Tests
 {
 	[TestFixture]
 	public class SyncControlModelTests
@@ -55,8 +56,9 @@ namespace LibChorus.Tests
 		[Test]
 		public void InitiallyHasUsbTarget()
 		{
-			Assert.IsNotNull(_model.GetRepositoriesToList().First(r => r.URI == "UsbKey"));
-		}
+			Assert.IsNotNull(_model.GetRepositoriesToList()[0].URI == "UsbKey");
+			// Assert.IsNotNull(_model.GetRepositoriesToList().Any(r => r.URI == "UsbKey"));
+	   }
 
 
 
