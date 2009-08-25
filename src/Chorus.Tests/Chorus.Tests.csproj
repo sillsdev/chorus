@@ -65,7 +65,8 @@
 	<Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-	<Compile Include="GetCloneDialogTests.cs" />
+	<Compile Include="GetCloneFromInternetDialogTests.cs" />
+	<Compile Include="GetCloneFromUsbDialogTests.cs" />
 	<Compile Include="LiftChangePresenterTests.cs" />
 	<Compile Include="SettingsModelTests.cs" />
 	<Compile Include="Properties\AssemblyInfo.cs" />

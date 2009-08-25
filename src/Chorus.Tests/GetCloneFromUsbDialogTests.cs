@@ -10,7 +10,7 @@ using NUnit.Framework;
 namespace LibChorus.Tests
 {
 	[TestFixture]
-	public class GetCLoneDialogTests
+	public class GetCloneFromUsbDialogTests
 	{
 		[Test, Ignore("Run by hand only")]
 		public void LaunchDialog_LiveTest_FilterOutParatext()

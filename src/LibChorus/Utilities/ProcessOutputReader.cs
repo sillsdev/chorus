@@ -21,6 +21,7 @@ namespace Chorus.Utilities
 			get { return _standardOutput; }
 		}
 		private string _standardError = "";
+		public const int kCancelled = 98;
 		public const int kTimedOut = 99;
 
 		public string StandardError
@@ -33,8 +34,8 @@ namespace Chorus.Utilities
 		/// </summary>
 		/// <param name="process"></param>
 		/// <param name="secondsBeforeTimeOut"></param>
-		/// <returns>true if the process completed before the timeout</returns>
-		public bool Read(ref Process process, int secondsBeforeTimeOut)
+		/// <returns>true if the process completed before the timeout or cancellation</returns>
+		public bool Read(ref Process process, int secondsBeforeTimeOut, IProgress progress)
 		{
 			var outputReaderArgs = new ReaderArgs() {Proc = process, Reader = process.StandardOutput};
 			if (process.StartInfo.RedirectStandardOutput)
@@ -52,6 +53,9 @@ namespace Chorus.Utilities
 			var end = DateTime.Now.AddSeconds(secondsBeforeTimeOut);
 			while (_outputReader.ThreadState == ThreadState.Running || (_errorReader != null && _errorReader.ThreadState == ThreadState.Running))
 			{
+				if(progress.CancelRequested)
+					return false;
+
 				Thread.Sleep(100);
 				if (DateTime.Now > end)
 				{

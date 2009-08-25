@@ -41,7 +41,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		}
 #else
 
-		public static ExecutionResult Run(string commandLine, string fromDirectory, int secondsBeforeTimeOut)
+		public static ExecutionResult Run(string commandLine, string fromDirectory, int secondsBeforeTimeOut, IProgress progress)
 		{
 			ExecutionResult result = new ExecutionResult();
 			Process process = new Process();
@@ -79,9 +79,9 @@ namespace Chorus.VcsDrivers.Mercurial
 				secondsBeforeTimeOut = TimeoutSecondsOverrideForUnitTests;
 
 			bool timedOut = false;
-			if (!processReader.Read(ref process, secondsBeforeTimeOut))
+			if (!processReader.Read(ref process, secondsBeforeTimeOut, progress))
 			{
-				timedOut = true;
+				timedOut = !progress.CancelRequested;
 				process.Kill();
 			}
 			result.StandardOutput = processReader.StandardOutput;
@@ -91,6 +91,12 @@ namespace Chorus.VcsDrivers.Mercurial
 			{
 				result.StandardError += Environment.NewLine + "Timed Out after waiting " + secondsBeforeTimeOut + " seconds.";
 				result.ExitCode = ProcessStream.kTimedOut;
+			}
+
+			else if (progress.CancelRequested)
+			{
+				result.StandardError += Environment.NewLine + "User Cancelled.";
+				result.ExitCode = ProcessStream.kCancelled;
 			}
 			else
 			{

@@ -50,6 +50,7 @@ namespace Chorus.Utilities
 		}
 		private string _standardError = "";
 		public const int kTimedOut = 99;
+		public const int kCancelled = 98;
 
 		public string StandardError
 		{

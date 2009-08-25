@@ -3,7 +3,7 @@
   <PropertyGroup>
 	<Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
 	<Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-	<ProductVersion>9.0.21022</ProductVersion>
+	<ProductVersion>9.0.30729</ProductVersion>
 	<SchemaVersion>2.0</SchemaVersion>
 	<ProjectGuid>{9DA5A655-1881-4BE1-81BA-256E47CF7537}</ProjectGuid>
 	<OutputType>WinExe</OutputType>
@@ -66,6 +66,18 @@
   </ItemGroup>
   <ItemGroup>
 	<Compile Include="Bootstrapper.cs" />
+	<Compile Include="UI\Clone\InternetRepositoryInfoControl.cs">
+	  <SubType>UserControl</SubType>
+	</Compile>
+	<Compile Include="UI\Clone\InternetRepositoryInfoControl.Designer.cs">
+	  <DependentUpon>InternetRepositoryInfoControl.cs</DependentUpon>
+	</Compile>
+	<Compile Include="UI\Clone\GetCloneFromInternetDialog.cs">
+	  <SubType>Form</SubType>
+	</Compile>
+	<Compile Include="UI\Clone\GetCloneFromInternetDialog.Designer.cs">
+	  <DependentUpon>GetCloneFromInternetDialog.cs</DependentUpon>
+	</Compile>
 	<Compile Include="UI\Clone\GetCloneFromUsbDialog.cs">
 	  <SubType>Form</SubType>
 	</Compile>
@@ -207,6 +219,12 @@
   </ItemGroup>
   <ItemGroup>
 	<Content Include="chorus.ico" />
+	<EmbeddedResource Include="UI\Clone\InternetRepositoryInfoControl.resx">
+	  <DependentUpon>InternetRepositoryInfoControl.cs</DependentUpon>
+	</EmbeddedResource>
+	<EmbeddedResource Include="UI\Clone\GetCloneFromInternetDialog.resx">
+	  <DependentUpon>GetCloneFromInternetDialog.cs</DependentUpon>
+	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Clone\GetCloneFromUsbDialog.resx">
 	  <DependentUpon>GetCloneFromUsbDialog.cs</DependentUpon>
 	</EmbeddedResource>

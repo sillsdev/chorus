@@ -361,7 +361,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		protected static ExecutionResult ExecuteErrorsOk(string command, string fromDirectory, int secondsBeforeTimeout, IProgress progress)
 		{
 			progress.WriteVerbose("Executing: " +command);
-		   var result =  HgRunner.Run("hg " + command, fromDirectory, secondsBeforeTimeout);
+		   var result =  HgRunner.Run("hg " + command, fromDirectory, secondsBeforeTimeout, progress);
 		   if (result.DidTimeOut)
 			{
 				throw new TimeoutException(result.StandardError);
@@ -534,13 +534,18 @@ namespace Chorus.VcsDrivers.Mercurial
 			}
 		}
 
-		public void Clone(string path)
+
+		/// <summary>
+		/// will throw exception in case of error
+		/// </summary>
+		public static void Clone(string sourceURI, string targetPath, IProgress progress)
 		{
-			Execute(null, _secondsBeforeTimeoutOnLocalOperation, _progress, "clone", PathWithQuotes + " " + SurroundWithQuotes(path));
+			  Execute(null, int.MaxValue, progress, "clone", SurroundWithQuotes(sourceURI) + " " + SurroundWithQuotes(targetPath));
 		}
-		public void CloneLocal(string path)
+
+		public void CloneLocal(string targetPath)
 		{
-			Execute(null, _secondsBeforeTimeoutOnLocalOperation, _progress, "clone --uncompressed", PathWithQuotes + " " + SurroundWithQuotes(path));
+			Execute(null, _secondsBeforeTimeoutOnLocalOperation, _progress, "clone --uncompressed", PathWithQuotes + " " + SurroundWithQuotes(targetPath));
 		}
 
 		private List<Revision> GetRevisionsFromQuery(string query)

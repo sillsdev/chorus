@@ -14,6 +14,7 @@ namespace Chorus.Utilities
 		void WriteError(string message, params object[] args);
 		void WriteVerbose(string message, params object[] args);
 		bool ShowVerbose {set; }
+		bool CancelRequested { get;  set; }
 	}
 
 	public class NullProgress : IProgress
@@ -46,15 +47,37 @@ namespace Chorus.Utilities
 			get { return false; }
 			set {  }
 		}
+
+		public bool CancelRequested { get; set; }
 	}
 
 	public class MultiProgress : IProgress, IDisposable
 	{
 		private readonly List<IProgress> _progressHandlers=new List<IProgress>();
+		private bool _cancelRequested;
 
 		public MultiProgress(IEnumerable<IProgress> progressHandlers)
 		{
 			_progressHandlers.AddRange(progressHandlers);
+		}
+
+
+		public bool CancelRequested
+		{
+
+			get
+			{
+				foreach (var handler in _progressHandlers)
+				{
+					if (handler.CancelRequested)
+						return true;
+				}
+				return _cancelRequested;
+			}
+			set
+			{
+				_cancelRequested = value;
+			}
 		}
 
 		public void WriteStatus(string message, params object[] args)
@@ -180,6 +203,8 @@ namespace Chorus.Utilities
 			set { _verbose = value; }
 		}
 
+		public bool CancelRequested { get; set; }
+
 		///<summary>
 		///Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
 		///</summary>
@@ -207,14 +232,19 @@ namespace Chorus.Utilities
 
 		public override void WriteStatus(string message, params object[] args)
 		{
-
-		  //  if (_box.InvokeRequired)
-			_box.Invoke(new Action( ()=>
+			try
 			{
-				_box.Text += "                          ".Substring(0, indent * 2);
-				_box.Text += String.Format(message + Environment.NewLine, args);
-			}));
+			 // if (_box.InvokeRequired)
+				_box.Invoke(new Action( ()=>
+				{
+					_box.Text += "                          ".Substring(0, indent * 2);
+					_box.Text += String.Format(message + Environment.NewLine, args);
+				}));
+			}
+			catch (Exception)
+			{
 
+			}
 //            _box.Invoke(new Action<TextBox, int>((box, indentX) =>
 //            {
 //                box.Text += "                          ".Substring(0, indentX * 2);
@@ -250,7 +280,7 @@ namespace Chorus.Utilities
 		public string LastStatus { get; private set; }
 		public string LastWarning { get; private set; }
 		public string LastError { get; private set; }
-
+		public bool CancelRequested { get; set; }
 		public bool WarningEncountered { get { return !string.IsNullOrEmpty(LastWarning); } }
 		public bool ErrorEncountered { get { return !string.IsNullOrEmpty(LastError); } }
 
@@ -296,7 +326,7 @@ namespace Chorus.Utilities
 		public GenericProgress()
 		{
 		}
-
+		public bool CancelRequested { get; set; }
 		public abstract void WriteStatus(string message, params object[] args);
 
 		public void WriteMessage(string message, params object[] args)

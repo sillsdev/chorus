@@ -69,7 +69,7 @@ namespace Chorus.clone
 
 			var repo = new HgRepository(sourcePath, progress);
 
-			repo.Clone(target);
+			repo.CloneLocal(target);
 			return target;
 		}
 

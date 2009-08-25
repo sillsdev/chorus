@@ -374,7 +374,7 @@ namespace Chorus.sync
 
 			using (new ConsoleProgress("Creating repository clone at {0}", newDirectory))
 			{
-				local.Clone(newDirectory);
+				local.CloneLocal(newDirectory);
 				if(alsoDoCheckout)
 				{
 				   // string userIdForCLone = string.Empty; /* don't assume it's this user... a repo on a usb key probably shouldn't have a user default */
