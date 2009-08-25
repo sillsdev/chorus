@@ -24,7 +24,9 @@
 				<foreach item="Folder" property="build.namespace.dir.current">
 						<in>
 								<items>
-										<include name="${build.namespace.dir}/**/*.resx" />
+										<include name="${build.namespace.dir}/**" />
+										<exclude name="${build.namespace.dir}/Resources" />
+										<exclude name="${build.namespace.dir}/UI" />
 								</items>
 						</in>
 						<do>

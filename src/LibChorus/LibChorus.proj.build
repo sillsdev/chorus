@@ -18,16 +18,14 @@
 				<copy todir="${build.namespace.dir}" >
 						<fileset basedir=".">
 								<include name="Resources/**/*" />
-								<include name="**/*.wav" />
-								<include name="**/*.png" />
-								<include name="**/*.ico" />
 						</fileset>
 				</copy>
 
 				<foreach item="Folder" property="build.namespace.dir.current">
 						<in>
 								<items>
-										<include name="${build.namespace.dir}/**/*.resx" />
+										<include name="${build.namespace.dir}/**" />
+										<exclude name="${build.namespace.dir}/Resources" />
 								</items>
 						</in>
 						<do>
