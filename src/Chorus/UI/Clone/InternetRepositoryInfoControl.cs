@@ -16,19 +16,29 @@ namespace Chorus.UI.Clone
 
 		private void UpdateDisplay()
 		{
-			_downloadButton.Enabled = HaveGoodUrl && HaveGoodTargetLocation;
+			var haveGoodUrl = HaveGoodUrl;
+			_downloadButton.Enabled = haveGoodUrl && TargetLocationIsUnused && HaveWellFormedTargetLocation;
 
-			_warningImage.Visible =_targetInfoLabel.Visible = _localFolderName.Enabled = HaveGoodUrl;
+			_targetInfoLabel.Visible = _localFolderName.Enabled = HaveGoodUrl;
+			_sourcetWarningImage.Visible = !haveGoodUrl;
 
-			if (!HaveGoodTargetLocation)
+			if (haveGoodUrl)
 			{
-				_warningImage.Visible = true;
-				_targetInfoLabel.Text = string.Format("There is a already a project with that name at {0}", TargetDestination);
-			}
-			else
-			{
-				_warningImage.Visible = false;
-				_targetInfoLabel.Text = string.Format("Project will be downloaded to {0}", TargetDestination);
+				_targetWarningImage.Visible = !TargetLocationIsUnused || !HaveWellFormedTargetLocation;
+				if (!TargetLocationIsUnused)
+				{
+					_targetInfoLabel.Text = string.Format("There is a already a project with that name at {0}",
+														  TargetDestination);
+				}
+				else if (!HaveWellFormedTargetLocation)
+				{
+					_targetInfoLabel.Text = string.Format("That name contains characters which are not allowed.");
+				}
+				else
+				{
+					_targetWarningImage.Visible = false;
+					_targetInfoLabel.Text = string.Format("Project will be downloaded to {0}", TargetDestination);
+				}
 			}
 		}
 
@@ -45,22 +55,39 @@ namespace Chorus.UI.Clone
 		{
 			get
 			{
-				var last = _urlBox.Text.LastIndexOf('/');
-				if (last > 0)
-				{
-					return _urlBox.Text.Substring(last + 1);
-				}
-				return string.Empty;
+				if (!HaveGoodUrl)
+					return string.Empty;
+				var uri = new Uri(_urlBox.Text);
+				return uri.PathAndQuery.Trim('/').Replace('/', '-').Replace('?', '-').Replace('*', '-').Replace('\\', '-');
 			}
 		}
 		public bool ReadForDownload
 		{
-			get { return HaveGoodUrl && HaveGoodTargetLocation; }
+			get { return HaveGoodUrl && TargetLocationIsUnused && HaveWellFormedTargetLocation; }
 		}
 
-		protected bool HaveGoodTargetLocation
+		protected bool TargetLocationIsUnused
 		{
-			get { return Directory.Exists(_parentDirectoryToPutCloneIn) && !Directory.Exists(TargetDestination); }
+			get
+			{
+				try
+				{
+					return Directory.Exists(_parentDirectoryToPutCloneIn) &&
+						   !Directory.Exists(TargetDestination);
+				}
+				catch(Exception)
+				{
+					return false;
+				}
+			}
+		}
+
+		protected bool HaveWellFormedTargetLocation
+		{
+			get
+			{
+				return (_localFolderName.Text.LastIndexOfAny(Path.GetInvalidFileNameChars()) == -1);
+			}
 		}
 
 		public string TargetDestination
@@ -70,7 +97,20 @@ namespace Chorus.UI.Clone
 
 		protected bool HaveGoodUrl
 		{
-			get { return !string.IsNullOrEmpty(_urlBox.Text); }
+			get
+			{
+				try
+				{
+					var uri = new Uri(_urlBox.Text);
+					return uri.Scheme =="http" &&
+						   Uri.IsWellFormedUriString(_urlBox.Text, UriKind.Absolute) &&
+						   !string.IsNullOrEmpty(uri.PathAndQuery.Trim('/'));
+				}
+				catch(Exception)
+				{
+					return false;
+				}
+			}
 		}
 
 		private void AccountInfo_Load(object sender, EventArgs e)

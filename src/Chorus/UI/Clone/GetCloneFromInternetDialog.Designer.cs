@@ -36,9 +36,10 @@
 			this._statusImages = new System.Windows.Forms.ImageList(this.components);
 			this._statusImage = new System.Windows.Forms.Button();
 			this._statusLabel = new System.Windows.Forms.TextBox();
-			this._showVerboseLog = new System.Windows.Forms.CheckBox();
 			this._progressBar = new System.Windows.Forms.ProgressBar();
 			this._cancelTaskButton = new System.Windows.Forms.Button();
+			this._progressLogVerbose = new System.Windows.Forms.RichTextBox();
+			this._showVerboseLink = new System.Windows.Forms.LinkLabel();
 			this.SuspendLayout();
 			//
 			// _cancelButton
@@ -101,36 +102,29 @@
 						| System.Windows.Forms.AnchorStyles.Right)));
 			this._statusLabel.BackColor = System.Drawing.SystemColors.Control;
 			this._statusLabel.BorderStyle = System.Windows.Forms.BorderStyle.None;
-			this._statusLabel.Location = new System.Drawing.Point(65, 7);
+			this._statusLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this._statusLabel.Location = new System.Drawing.Point(58, 12);
 			this._statusLabel.Multiline = true;
 			this._statusLabel.Name = "_statusLabel";
 			this._statusLabel.ReadOnly = true;
-			this._statusLabel.Size = new System.Drawing.Size(228, 65);
+			this._statusLabel.Size = new System.Drawing.Size(228, 60);
 			this._statusLabel.TabIndex = 18;
 			this._statusLabel.Text = "Status text";
 			//
-			// _showVerboseLog
-			//
-			this._showVerboseLog.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this._showVerboseLog.AutoSize = true;
-			this._showVerboseLog.Location = new System.Drawing.Point(15, 204);
-			this._showVerboseLog.Name = "_showVerboseLog";
-			this._showVerboseLog.Size = new System.Drawing.Size(158, 17);
-			this._showVerboseLog.TabIndex = 20;
-			this._showVerboseLog.Text = "Show diagnostic information";
-			this._showVerboseLog.UseVisualStyleBackColor = true;
-			//
 			// _progressBar
 			//
-			this._progressBar.Location = new System.Drawing.Point(15, 49);
+			this._progressBar.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+						| System.Windows.Forms.AnchorStyles.Right)));
+			this._progressBar.Location = new System.Drawing.Point(15, 48);
 			this._progressBar.Name = "_progressBar";
-			this._progressBar.Size = new System.Drawing.Size(278, 13);
-			this._progressBar.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
+			this._progressBar.Size = new System.Drawing.Size(199, 13);
+			this._progressBar.Style = System.Windows.Forms.ProgressBarStyle.Marquee;
 			this._progressBar.TabIndex = 21;
 			//
 			// _cancelTaskButton
 			//
-			this._cancelTaskButton.Location = new System.Drawing.Point(219, 12);
+			this._cancelTaskButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this._cancelTaskButton.Location = new System.Drawing.Point(218, 43);
 			this._cancelTaskButton.Name = "_cancelTaskButton";
 			this._cancelTaskButton.Size = new System.Drawing.Size(75, 23);
 			this._cancelTaskButton.TabIndex = 23;
@@ -138,15 +132,39 @@
 			this._cancelTaskButton.UseVisualStyleBackColor = true;
 			this._cancelTaskButton.Click += new System.EventHandler(this.button2_Click);
 			//
+			// _progressLogVerbose
+			//
+			this._progressLogVerbose.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+						| System.Windows.Forms.AnchorStyles.Left)
+						| System.Windows.Forms.AnchorStyles.Right)));
+			this._progressLogVerbose.Location = new System.Drawing.Point(26, 72);
+			this._progressLogVerbose.Name = "_progressLogVerbose";
+			this._progressLogVerbose.Size = new System.Drawing.Size(278, 120);
+			this._progressLogVerbose.TabIndex = 24;
+			this._progressLogVerbose.Text = "";
+			//
+			// _showVerboseLink
+			//
+			this._showVerboseLink.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+			this._showVerboseLink.AutoSize = true;
+			this._showVerboseLink.Location = new System.Drawing.Point(12, 227);
+			this._showVerboseLink.Name = "_showVerboseLink";
+			this._showVerboseLink.Size = new System.Drawing.Size(69, 13);
+			this._showVerboseLink.TabIndex = 25;
+			this._showVerboseLink.TabStop = true;
+			this._showVerboseLink.Text = "Show Details";
+			this._showVerboseLink.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this._showVerboseLink_LinkClicked);
+			//
 			// GetCloneFromInternetDialog
 			//
 			this.AcceptButton = this._okButton;
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(306, 262);
+			this.Controls.Add(this._showVerboseLink);
+			this.Controls.Add(this._progressLogVerbose);
 			this.Controls.Add(this._cancelTaskButton);
 			this.Controls.Add(this._progressBar);
-			this.Controls.Add(this._showVerboseLog);
 			this.Controls.Add(this._statusImage);
 			this.Controls.Add(this._progressLog);
 			this.Controls.Add(this._okButton);
@@ -173,8 +191,9 @@
 		private System.Windows.Forms.ImageList _statusImages;
 		private System.Windows.Forms.Button _statusImage;
 		private System.Windows.Forms.TextBox _statusLabel;
-		private System.Windows.Forms.CheckBox _showVerboseLog;
 		private System.Windows.Forms.ProgressBar _progressBar;
 		private System.Windows.Forms.Button _cancelTaskButton;
+		private System.Windows.Forms.RichTextBox _progressLogVerbose;
+		private System.Windows.Forms.LinkLabel _showVerboseLink;
 	}
 }

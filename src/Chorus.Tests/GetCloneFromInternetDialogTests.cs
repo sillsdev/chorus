@@ -12,10 +12,35 @@ namespace LibChorus.Tests
 	[TestFixture]
 	public class GetCloneFromInterentDialogTests
 	{
-
+		[SetUp]
+		public void Setup()
+		{
+			Application.EnableVisualStyles();//make progress bar work correctly
+		}
 
 		[Test, Ignore("Run by hand only")]
-		public void LaunchDialog()
+		public void LaunchDialog_GoodAddress()
+		{
+			Launch("http://hg-public.languagedepot.org/tpi");
+		}
+
+		[Test, Ignore("Run by hand only")]
+		public void LaunchDialog_IllFormedAddress()//gives abort: repository htt://a73fsz.org/tpi not found!
+		{
+			Launch("htt://a73fsz.org/tpi");
+		}
+		[Test, Ignore("Run by hand only")]
+		public void LaunchDialog_BogusAddress()//(in Ukarumpa) gives : HTTP Error 502: Proxy Error ( The host was not found. )
+		{
+			Launch("http://a73fsz.org/tpi");
+		}
+		[Test, Ignore("Run by hand only")]
+		public void LaunchDialog_ProjectWontbeFound()//gives HTTP Error 404: Not Found
+		{
+			Launch("http://hg-public.languagedepot.org/NOTHERE");
+		}
+
+		private void Launch(string url)
 		{
 			using (var targetComputer = new TempFolder("clonetest-targetComputer"))
 			using (var usb = new TempFolder("clonetest-Usb"))
@@ -28,13 +53,16 @@ namespace LibChorus.Tests
 
 				using (var dlg = new GetCloneFromInternetDialog(targetComputer.Path))
 				{
-					dlg.URL = "http://hg-public.languagedepot.org/tpi";
+
+					dlg.URL = url;
 
 					if (DialogResult.OK != dlg.ShowDialog())
 						return;
 				}
 			}
 		}
+
+		//http://hg-projects.palaso.org/chorusdemo
 
 
 	}

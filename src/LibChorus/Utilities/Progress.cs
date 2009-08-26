@@ -312,6 +312,16 @@ namespace Chorus.Utilities
 			set {  }
 		}
 
+		public bool WasCancelled
+		{
+			get
+			{
+				if(LastWarning!=null)
+					return LastWarning.ToLower().Contains("cancelled");
+				return false;
+			}//improve: this is pretty flimsy
+		}
+
 		public void Clear()
 		{
 			LastError = LastWarning =LastStatus = string.Empty;

@@ -35,8 +35,10 @@
 			this.label3 = new System.Windows.Forms.Label();
 			this._downloadButton = new System.Windows.Forms.Button();
 			this._targetInfoLabel = new System.Windows.Forms.TextBox();
-			this._warningImage = new System.Windows.Forms.PictureBox();
-			((System.ComponentModel.ISupportInitialize)(this._warningImage)).BeginInit();
+			this._targetWarningImage = new System.Windows.Forms.PictureBox();
+			this._sourcetWarningImage = new System.Windows.Forms.PictureBox();
+			((System.ComponentModel.ISupportInitialize)(this._targetWarningImage)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this._sourcetWarningImage)).BeginInit();
 			this.SuspendLayout();
 			//
 			// label1
@@ -54,9 +56,9 @@
 			this.label2.ForeColor = System.Drawing.SystemColors.ControlText;
 			this.label2.Location = new System.Drawing.Point(70, 62);
 			this.label2.Name = "label2";
-			this.label2.Size = new System.Drawing.Size(204, 13);
+			this.label2.Size = new System.Drawing.Size(235, 13);
 			this.label2.TabIndex = 1;
-			this.label2.Text = "Example: hg-public.languagedepot.org/tpi";
+			this.label2.Text = "Example: http://hg-public.languagedepot.org/tpi";
 			//
 			// _urlBox
 			//
@@ -64,6 +66,7 @@
 			this._urlBox.Name = "_urlBox";
 			this._urlBox.Size = new System.Drawing.Size(219, 20);
 			this._urlBox.TabIndex = 0;
+			this._urlBox.Text = "http://";
 			this._urlBox.TextChanged += new System.EventHandler(this._urlBox_TextChanged);
 			//
 			// _localFolderName
@@ -108,21 +111,34 @@
 			this._targetInfoLabel.TabIndex = 19;
 			this._targetInfoLabel.Text = "Info about target";
 			//
-			// _warningImage
+			// _targetWarningImage
 			//
-			this._warningImage.Image = global::Chorus.Properties.Resources.warningImage;
-			this._warningImage.Location = new System.Drawing.Point(16, 148);
-			this._warningImage.Name = "_warningImage";
-			this._warningImage.Size = new System.Drawing.Size(26, 31);
-			this._warningImage.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-			this._warningImage.TabIndex = 20;
-			this._warningImage.TabStop = false;
+			this._targetWarningImage.Image = global::Chorus.Properties.Resources.warningImage;
+			this._targetWarningImage.Location = new System.Drawing.Point(16, 148);
+			this._targetWarningImage.Name = "_targetWarningImage";
+			this._targetWarningImage.Size = new System.Drawing.Size(26, 31);
+			this._targetWarningImage.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+			this._targetWarningImage.TabIndex = 20;
+			this._targetWarningImage.TabStop = false;
+			this._targetWarningImage.Visible = false;
+			//
+			// _sourcetWarningImage
+			//
+			this._sourcetWarningImage.Image = global::Chorus.Properties.Resources.warningImage;
+			this._sourcetWarningImage.Location = new System.Drawing.Point(41, 39);
+			this._sourcetWarningImage.Name = "_sourcetWarningImage";
+			this._sourcetWarningImage.Size = new System.Drawing.Size(26, 31);
+			this._sourcetWarningImage.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+			this._sourcetWarningImage.TabIndex = 21;
+			this._sourcetWarningImage.TabStop = false;
+			this._sourcetWarningImage.Visible = false;
 			//
 			// InternetRepositoryInfoControl
 			//
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.Controls.Add(this._warningImage);
+			this.Controls.Add(this._sourcetWarningImage);
+			this.Controls.Add(this._targetWarningImage);
 			this.Controls.Add(this._targetInfoLabel);
 			this.Controls.Add(this._downloadButton);
 			this.Controls.Add(this.label3);
@@ -133,7 +149,8 @@
 			this.Name = "InternetRepositoryInfoControl";
 			this.Size = new System.Drawing.Size(370, 278);
 			this.Load += new System.EventHandler(this.AccountInfo_Load);
-			((System.ComponentModel.ISupportInitialize)(this._warningImage)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this._targetWarningImage)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this._sourcetWarningImage)).EndInit();
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -148,6 +165,7 @@
 		private System.Windows.Forms.Label label3;
 		public System.Windows.Forms.Button _downloadButton;
 		private System.Windows.Forms.TextBox _targetInfoLabel;
-		private System.Windows.Forms.PictureBox _warningImage;
+		private System.Windows.Forms.PictureBox _targetWarningImage;
+		private System.Windows.Forms.PictureBox _sourcetWarningImage;
 	}
 }

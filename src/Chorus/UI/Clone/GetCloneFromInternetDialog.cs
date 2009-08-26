@@ -21,7 +21,9 @@ namespace Chorus.UI.Clone
 		private CloneFromUsb _model;
 		private IProgress _progress;
 		private readonly BackgroundWorker _backgroundWorker;
-		private enum State { AskingUserForURL, MakingClone, Success, Error }
+		private enum State { AskingUserForURL, MakingClone, Success, Error,
+		Cancelled
+		}
 
 		private InternetRepositoryInfoControl _sourceAndTargetControl;
 		private StatusProgress _statusProgress;
@@ -41,15 +43,15 @@ namespace Chorus.UI.Clone
 			_backgroundWorker.DoWork += new DoWorkEventHandler(_backgroundWorker_DoWork);
 
 			_statusProgress = new StatusProgress();
-			_progress = new MultiProgress(new IProgress[]{new TextBoxProgress(_progressLog), _statusProgress});
-
-			_progress.ShowVerbose = true;
-			_showVerboseLog.Checked = true;
+			var verboseProgress = new TextBoxProgress(_progressLogVerbose);
+			verboseProgress.ShowVerbose = true;
+			_progress = new MultiProgress(new IProgress[]{new TextBoxProgress(_progressLog), verboseProgress, _statusProgress});
 
 			_sourceAndTargetControl = new InternetRepositoryInfoControl(parentDirectoryToPutCloneIn);
 			_sourceAndTargetControl.Bounds = new Rectangle(0, 0, Width, Height);
 			_sourceAndTargetControl.Dock = DockStyle.Fill;
 			this.Controls.Add(_sourceAndTargetControl);
+			_progressLogVerbose.Visible = false;
 			_sourceAndTargetControl._downloadButton.Click+=new EventHandler(OnDownloadClick);
 		}
 
@@ -57,7 +59,9 @@ namespace Chorus.UI.Clone
 		{
 			if (_statusProgress.ErrorEncountered)
 				UpdateDisplay(State.Error);
-			else
+			else if (_statusProgress.WasCancelled)
+				 UpdateDisplay(State.Cancelled);
+		   else
 				UpdateDisplay(State.Success);
 		}
 
@@ -97,7 +101,7 @@ namespace Chorus.UI.Clone
 					_progressLog.Visible = false;
 					_okButton.Visible = false;
 					_progressBar.Visible = false;
-					_showVerboseLog.Visible = false;
+					_showVerboseLink.Visible = false;
 					_sourceAndTargetControl.Visible = true;
 					_cancelTaskButton.Visible = false;
 
@@ -107,11 +111,12 @@ namespace Chorus.UI.Clone
 					_statusImage.Visible = false;
 					_progressBar.Visible = true;
 					_progressBar.Style = ProgressBarStyle.Marquee;
+					_progressBar.MarqueeAnimationSpeed = 50;
 					_statusLabel.Visible = true;
 					_statusLabel.Text = "Copying project";
+					_statusLabel.Left = _progressBar.Left;
 					_progressLog.Visible = true;
-					_showVerboseLog.Visible = true;
-					_progress.ShowVerbose = _showVerboseLog.Checked;
+					_showVerboseLink.Visible = true;
 					_cancelTaskButton.Visible = true;
 					_cancelButton.Enabled = false;
 					break;
@@ -128,11 +133,13 @@ namespace Chorus.UI.Clone
 					_statusLabel.Text = string.Format("Finished copying {0} to this computer at {1}", Path.GetFileName(_sourceAndTargetControl.TargetDestination), _parentDirectoryToPutCloneIn);
 					_okButton.Visible = true;
 					_cancelButton.Enabled = false;
-					_showVerboseLog.Visible = true;
+					_showVerboseLink.Visible = true;
 					_progressLog.Visible = true;
 					break;
 				case State.Error:
 					_cancelButton.Enabled = true;
+					_cancelButton.Text = "Close";
+					_cancelButton.Select();
 					_cancelTaskButton.Visible = false;
 					_statusLabel.Visible = true;
 					_statusLabel.Text = "Failed.";
@@ -141,9 +148,18 @@ namespace Chorus.UI.Clone
 					_statusLabel.Left = _statusImage.Right + 10;
 					_statusImage.ImageKey = "Error";
 					_statusImage.Visible = true;
-					_statusLabel.Text = _failureMessage;
-					_showVerboseLog.Visible = true;
-					_progressLog.Visible = true;
+					_showVerboseLink.Visible = true;
+					break;
+				case State.Cancelled:
+					_cancelButton.Enabled = true;
+					_cancelTaskButton.Visible = false;
+					_statusLabel.Visible = true;
+					_statusLabel.Text = "Cancelled.";
+					_progressBar.Visible = false;
+					_sourceAndTargetControl.Visible = false;
+					_statusLabel.Left =  _progressBar.Left;
+					_statusImage.Visible = false;
+					_showVerboseLink.Visible = true;
 					break;
 				default:
 					throw new ArgumentOutOfRangeException();
@@ -168,22 +184,8 @@ namespace Chorus.UI.Clone
 
 		private void _cancelButton_Click(object sender, EventArgs e)
 		{
-			if (_state == State.MakingClone)
-			{
-//                lock (this)
-//                {
-//                    if (!_backgroundWorker.IsBusy)
-//                        return;
-//
-//                    _backgroundWorker.CancelAsync();//the hg call will know nothing of this
-//                    _progress.CancelRequested = true; //but it will be monitoring this
-//                }
-			}
-			else
-			{
 				DialogResult = DialogResult.Cancel;
 				Close();
-			}
 		}
 
 		private void OnDownloadClick(object sender, EventArgs e)
@@ -218,6 +220,14 @@ namespace Chorus.UI.Clone
 					_progress.CancelRequested = true; //but it will be monitoring this
 				}
 			}
+		}
+
+		private void _showVerboseLink_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+		{
+			_progressLog.Visible = false;
+			_progressLogVerbose.Bounds = _progressLog.Bounds;
+			_progressLogVerbose.Visible = true;
+			_showVerboseLink.Enabled = false;
 		}
 	}
 }

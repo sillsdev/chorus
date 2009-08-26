@@ -328,6 +328,11 @@ namespace Chorus.VcsDrivers.Mercurial
 			}
 
 			ExecutionResult result = ExecuteErrorsOk(b.ToString(), secondsBeforeTimeout, progress);
+			if (ProcessOutputReader.kCancelled == result.ExitCode)
+			{
+				progress.WriteWarning("User Cancelled");
+				return result;
+			}
 			if (0 != result.ExitCode && !failureIsOk)
 			{
 				var details = Environment.NewLine + "hg Command was " + Environment.NewLine + b.ToString();
@@ -540,7 +545,26 @@ namespace Chorus.VcsDrivers.Mercurial
 		/// </summary>
 		public static void Clone(string sourceURI, string targetPath, IProgress progress)
 		{
-			  Execute(null, int.MaxValue, progress, "clone", SurroundWithQuotes(sourceURI) + " " + SurroundWithQuotes(targetPath));
+			progress.WriteStatus("Getting project...");
+			try
+			{
+				Execute(null, int.MaxValue, progress, "clone", SurroundWithQuotes(sourceURI) + " " + SurroundWithQuotes(targetPath));
+
+			}
+			catch (Exception error)
+			{
+				if (error.Message.Contains("502"))
+				{
+					var x = new Uri(sourceURI);
+					progress.WriteMessage("Check that the name {0} is correct", x.Host);
+				}
+				else if (error.Message.Contains("404"))
+				{
+					var x = new Uri(sourceURI);
+					progress.WriteMessage("Check that {0} really hosts a project labelled '{1}'", x.Host, x.PathAndQuery.Trim('/'));
+				}
+				throw error;
+			}
 		}
 
 		public void CloneLocal(string targetPath)
