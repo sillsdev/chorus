@@ -66,11 +66,11 @@
   </ItemGroup>
   <ItemGroup>
 	<Compile Include="Bootstrapper.cs" />
-	<Compile Include="UI\Clone\InternetRepositoryInfoControl.cs">
+	<Compile Include="UI\Clone\InternetCloneInstructionsControl.cs">
 	  <SubType>UserControl</SubType>
 	</Compile>
-	<Compile Include="UI\Clone\InternetRepositoryInfoControl.Designer.cs">
-	  <DependentUpon>InternetRepositoryInfoControl.cs</DependentUpon>
+	<Compile Include="UI\Clone\InternetCloneInstructionsControl.Designer.cs">
+	  <DependentUpon>InternetCloneInstructionsControl.cs</DependentUpon>
 	</Compile>
 	<Compile Include="UI\Clone\GetCloneFromInternetDialog.cs">
 	  <SubType>Form</SubType>
@@ -219,8 +219,8 @@
   </ItemGroup>
   <ItemGroup>
 	<Content Include="chorus.ico" />
-	<EmbeddedResource Include="UI\Clone\InternetRepositoryInfoControl.resx">
-	  <DependentUpon>InternetRepositoryInfoControl.cs</DependentUpon>
+	<EmbeddedResource Include="UI\Clone\InternetCloneInstructionsControl.resx">
+	  <DependentUpon>InternetCloneInstructionsControl.cs</DependentUpon>
 	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Clone\GetCloneFromInternetDialog.resx">
 	  <DependentUpon>GetCloneFromInternetDialog.cs</DependentUpon>

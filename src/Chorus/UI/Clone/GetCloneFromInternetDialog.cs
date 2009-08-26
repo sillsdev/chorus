@@ -25,7 +25,7 @@ namespace Chorus.UI.Clone
 		Cancelled
 		}
 
-		private InternetRepositoryInfoControl _sourceAndTargetControl;
+		private InternetCloneInstructionsControl _internetCloneInstructionsControl;
 		private StatusProgress _statusProgress;
 		private State _state;
 		private string _failureMessage;
@@ -47,12 +47,12 @@ namespace Chorus.UI.Clone
 			verboseProgress.ShowVerbose = true;
 			_progress = new MultiProgress(new IProgress[]{new TextBoxProgress(_progressLog), verboseProgress, _statusProgress});
 
-			_sourceAndTargetControl = new InternetRepositoryInfoControl(parentDirectoryToPutCloneIn);
-			_sourceAndTargetControl.Bounds = new Rectangle(0, 0, Width, Height);
-			_sourceAndTargetControl.Dock = DockStyle.Fill;
-			this.Controls.Add(_sourceAndTargetControl);
+			_internetCloneInstructionsControl = new InternetCloneInstructionsControl(parentDirectoryToPutCloneIn);
+			_internetCloneInstructionsControl.Bounds = new Rectangle(0, 0, Width, Height);
+			_internetCloneInstructionsControl.Dock = DockStyle.Fill;
+			this.Controls.Add(_internetCloneInstructionsControl);
 			_progressLogVerbose.Visible = false;
-			_sourceAndTargetControl._downloadButton.Click+=new EventHandler(OnDownloadClick);
+			_internetCloneInstructionsControl._downloadButton.Click+=new EventHandler(OnDownloadClick);
 		}
 
 		private void _backgroundWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
@@ -60,9 +60,29 @@ namespace Chorus.UI.Clone
 			if (_statusProgress.ErrorEncountered)
 				UpdateDisplay(State.Error);
 			else if (_statusProgress.WasCancelled)
-				 UpdateDisplay(State.Cancelled);
-		   else
-				UpdateDisplay(State.Success);
+				UpdateDisplay(State.Cancelled);
+			else
+			{
+				try
+				{
+					var repo = new HgRepository(_internetCloneInstructionsControl.TargetDestination, _progress);
+					var name = new Uri(_internetCloneInstructionsControl.URL).Host;
+					if (name.ToLower().Contains("languagedepot"))
+						name = "LanguageDepot";
+
+					var address = RepositoryAddress.Create(name,_internetCloneInstructionsControl.URL);
+
+					//this will also remove the "default" one that hg puts in, which we don't really want.
+					repo.SetKnownRepositoryAddresses(new[] {address});
+					repo.SetIsOneDefaultSyncAddresses( address, true);
+					UpdateDisplay(State.Success);
+				}
+				catch (Exception error)
+				{
+					_progress.WriteError(error.Message);
+					UpdateDisplay(State.Error);
+				}
+			}
 		}
 
 		void _backgroundWorker_DoWork(object sender, DoWorkEventArgs e)
@@ -102,18 +122,18 @@ namespace Chorus.UI.Clone
 					_okButton.Visible = false;
 					_progressBar.Visible = false;
 					_showVerboseLink.Visible = false;
-					_sourceAndTargetControl.Visible = true;
+					_internetCloneInstructionsControl.Visible = true;
 					_cancelTaskButton.Visible = false;
 
 					break;
 				case State.MakingClone:
-					_sourceAndTargetControl.Visible = false;
+					_internetCloneInstructionsControl.Visible = false;
 					_statusImage.Visible = false;
 					_progressBar.Visible = true;
 					_progressBar.Style = ProgressBarStyle.Marquee;
 					_progressBar.MarqueeAnimationSpeed = 50;
 					_statusLabel.Visible = true;
-					_statusLabel.Text = "Copying project";
+					_statusLabel.Text = "Getting project...";
 					_statusLabel.Left = _progressBar.Left;
 					_progressLog.Visible = true;
 					_showVerboseLink.Visible = true;
@@ -126,11 +146,11 @@ namespace Chorus.UI.Clone
 					_statusLabel.Visible = true;
 					_statusLabel.Text = "Done.";
 					_progressBar.Visible = false;
-					_sourceAndTargetControl.Visible = false;
+					_internetCloneInstructionsControl.Visible = false;
 					_statusLabel.Left = _statusImage.Right + 10;
 					_statusImage.Visible = true;
 					_statusImage.ImageKey="Success";
-					_statusLabel.Text = string.Format("Finished copying {0} to this computer at {1}", Path.GetFileName(_sourceAndTargetControl.TargetDestination), _parentDirectoryToPutCloneIn);
+					_statusLabel.Text = string.Format("Finished");
 					_okButton.Visible = true;
 					_cancelButton.Enabled = false;
 					_showVerboseLink.Visible = true;
@@ -144,7 +164,7 @@ namespace Chorus.UI.Clone
 					_statusLabel.Visible = true;
 					_statusLabel.Text = "Failed.";
 					_progressBar.Visible = false;
-					_sourceAndTargetControl.Visible = false;
+					_internetCloneInstructionsControl.Visible = false;
 					_statusLabel.Left = _statusImage.Right + 10;
 					_statusImage.ImageKey = "Error";
 					_statusImage.Visible = true;
@@ -156,7 +176,7 @@ namespace Chorus.UI.Clone
 					_statusLabel.Visible = true;
 					_statusLabel.Text = "Cancelled.";
 					_progressBar.Visible = false;
-					_sourceAndTargetControl.Visible = false;
+					_internetCloneInstructionsControl.Visible = false;
 					_statusLabel.Left =  _progressBar.Left;
 					_statusImage.Visible = false;
 					_showVerboseLink.Visible = true;
@@ -179,7 +199,7 @@ namespace Chorus.UI.Clone
 
 		public string PathToNewProject
 		{
-			get { return _sourceAndTargetControl.TargetDestination; }
+			get { return _internetCloneInstructionsControl.TargetDestination; }
 		}
 
 		private void _cancelButton_Click(object sender, EventArgs e)
@@ -203,8 +223,8 @@ namespace Chorus.UI.Clone
 
 		public string URL
 		{
-			get { return _sourceAndTargetControl.URL; }
-			set { _sourceAndTargetControl.URL = value; }
+			get { return _internetCloneInstructionsControl.URL; }
+			set { _internetCloneInstructionsControl.URL = value; }
 		}
 
 		private void button2_Click(object sender, EventArgs e)

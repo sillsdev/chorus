@@ -4,11 +4,11 @@ using System.Windows.Forms;
 
 namespace Chorus.UI.Clone
 {
-	public partial class InternetRepositoryInfoControl : UserControl
+	public partial class InternetCloneInstructionsControl : UserControl
 	{
 		private readonly string _parentDirectoryToPutCloneIn;
 
-		public InternetRepositoryInfoControl(string parentDirectoryToPutCloneIn)
+		public InternetCloneInstructionsControl(string parentDirectoryToPutCloneIn)
 		{
 			_parentDirectoryToPutCloneIn = parentDirectoryToPutCloneIn;
 			InitializeComponent();
@@ -122,6 +122,11 @@ namespace Chorus.UI.Clone
 		{
 		   _localFolderName.Text = NameOfProjectOnRepository;
 			UpdateDisplay();
+		}
+
+		private void _downloadButton_Click(object sender, EventArgs e)
+		{
+
 		}
 	}
 }

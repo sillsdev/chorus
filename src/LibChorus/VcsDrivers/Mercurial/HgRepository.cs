@@ -541,7 +541,9 @@ namespace Chorus.VcsDrivers.Mercurial
 
 
 		/// <summary>
-		/// will throw exception in case of error
+		/// Will throw exception in case of error.
+		/// Will never time out.
+		/// Will honor state of the progress.CancelRequested property
 		/// </summary>
 		public static void Clone(string sourceURI, string targetPath, IProgress progress)
 		{
@@ -549,7 +551,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			try
 			{
 				Execute(null, int.MaxValue, progress, "clone", SurroundWithQuotes(sourceURI) + " " + SurroundWithQuotes(targetPath));
-
+				progress.WriteStatus("Finished copying to this computer at {0}", targetPath);
 			}
 			catch (Exception error)
 			{
@@ -881,7 +883,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			}
 		}
 
-		public void SetKnownRepositoryAddresses(List<RepositoryAddress> addresses)
+		public void SetKnownRepositoryAddresses(IEnumerable<RepositoryAddress> addresses)
 		{
 			var doc = GetHgrcDoc();
 			doc.Sections.Remove("paths");//clear it out

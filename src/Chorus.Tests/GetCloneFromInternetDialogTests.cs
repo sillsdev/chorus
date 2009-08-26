@@ -19,9 +19,15 @@ namespace LibChorus.Tests
 		}
 
 		[Test, Ignore("Run by hand only")]
-		public void LaunchDialog_GoodAddress()
+		public void LaunchDialog_GoodAddressLargeRepot()
 		{
 			Launch("http://hg-public.languagedepot.org/tpi");
+		}
+
+		[Test, Ignore("Run by hand only")]
+		public void LaunchDialog_GoodAddressSmallRepot()
+		{
+			Launch("http://hg.palaso.org/chorusdemo");
 		}
 
 		[Test, Ignore("Run by hand only")]
@@ -61,8 +67,6 @@ namespace LibChorus.Tests
 				}
 			}
 		}
-
-		//http://hg-projects.palaso.org/chorusdemo
 
 
 	}

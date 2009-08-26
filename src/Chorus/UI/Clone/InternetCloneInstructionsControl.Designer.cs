@@ -1,6 +1,6 @@
 ﻿namespace Chorus.UI.Clone
 {
-	partial class InternetRepositoryInfoControl
+	partial class InternetCloneInstructionsControl
 	{
 		/// <summary>
 		/// Required designer variable.
@@ -54,7 +54,7 @@
 			//
 			this.label2.AutoSize = true;
 			this.label2.ForeColor = System.Drawing.SystemColors.ControlText;
-			this.label2.Location = new System.Drawing.Point(70, 62);
+			this.label2.Location = new System.Drawing.Point(48, 62);
 			this.label2.Name = "label2";
 			this.label2.Size = new System.Drawing.Size(235, 13);
 			this.label2.TabIndex = 1;
@@ -62,7 +62,7 @@
 			//
 			// _urlBox
 			//
-			this._urlBox.Location = new System.Drawing.Point(73, 39);
+			this._urlBox.Location = new System.Drawing.Point(48, 39);
 			this._urlBox.Name = "_urlBox";
 			this._urlBox.Size = new System.Drawing.Size(219, 20);
 			this._urlBox.TabIndex = 0;
@@ -71,7 +71,7 @@
 			//
 			// _localFolderName
 			//
-			this._localFolderName.Location = new System.Drawing.Point(73, 122);
+			this._localFolderName.Location = new System.Drawing.Point(51, 122);
 			this._localFolderName.Name = "_localFolderName";
 			this._localFolderName.Size = new System.Drawing.Size(219, 20);
 			this._localFolderName.TabIndex = 1;
@@ -95,6 +95,7 @@
 			this._downloadButton.TabIndex = 2;
 			this._downloadButton.Text = "&Download";
 			this._downloadButton.UseVisualStyleBackColor = true;
+			this._downloadButton.Click += new System.EventHandler(this._downloadButton_Click);
 			//
 			// _targetInfoLabel
 			//
@@ -103,7 +104,7 @@
 						| System.Windows.Forms.AnchorStyles.Right)));
 			this._targetInfoLabel.BackColor = System.Drawing.SystemColors.Control;
 			this._targetInfoLabel.BorderStyle = System.Windows.Forms.BorderStyle.None;
-			this._targetInfoLabel.Location = new System.Drawing.Point(48, 148);
+			this._targetInfoLabel.Location = new System.Drawing.Point(51, 148);
 			this._targetInfoLabel.Multiline = true;
 			this._targetInfoLabel.Name = "_targetInfoLabel";
 			this._targetInfoLabel.ReadOnly = true;
@@ -114,9 +115,9 @@
 			// _targetWarningImage
 			//
 			this._targetWarningImage.Image = global::Chorus.Properties.Resources.warningImage;
-			this._targetWarningImage.Location = new System.Drawing.Point(16, 148);
+			this._targetWarningImage.Location = new System.Drawing.Point(16, 117);
 			this._targetWarningImage.Name = "_targetWarningImage";
-			this._targetWarningImage.Size = new System.Drawing.Size(26, 31);
+			this._targetWarningImage.Size = new System.Drawing.Size(26, 33);
 			this._targetWarningImage.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
 			this._targetWarningImage.TabIndex = 20;
 			this._targetWarningImage.TabStop = false;
@@ -125,7 +126,7 @@
 			// _sourcetWarningImage
 			//
 			this._sourcetWarningImage.Image = global::Chorus.Properties.Resources.warningImage;
-			this._sourcetWarningImage.Location = new System.Drawing.Point(41, 39);
+			this._sourcetWarningImage.Location = new System.Drawing.Point(16, 35);
 			this._sourcetWarningImage.Name = "_sourcetWarningImage";
 			this._sourcetWarningImage.Size = new System.Drawing.Size(26, 31);
 			this._sourcetWarningImage.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
