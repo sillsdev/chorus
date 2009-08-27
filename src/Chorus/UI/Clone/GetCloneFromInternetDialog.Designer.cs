@@ -46,7 +46,7 @@
 			//
 			this._cancelButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
 			this._cancelButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-			this._cancelButton.Location = new System.Drawing.Point(218, 227);
+			this._cancelButton.Location = new System.Drawing.Point(306, 227);
 			this._cancelButton.Name = "_cancelButton";
 			this._cancelButton.Size = new System.Drawing.Size(75, 23);
 			this._cancelButton.TabIndex = 1;
@@ -57,7 +57,7 @@
 			// _okButton
 			//
 			this._okButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-			this._okButton.Location = new System.Drawing.Point(127, 227);
+			this._okButton.Location = new System.Drawing.Point(215, 227);
 			this._okButton.Name = "_okButton";
 			this._okButton.Size = new System.Drawing.Size(75, 23);
 			this._okButton.TabIndex = 2;
@@ -72,7 +72,7 @@
 						| System.Windows.Forms.AnchorStyles.Right)));
 			this._progressLog.Location = new System.Drawing.Point(15, 78);
 			this._progressLog.Name = "_progressLog";
-			this._progressLog.Size = new System.Drawing.Size(278, 120);
+			this._progressLog.Size = new System.Drawing.Size(366, 120);
 			this._progressLog.TabIndex = 4;
 			this._progressLog.Text = "";
 			//
@@ -107,7 +107,7 @@
 			this._statusLabel.Multiline = true;
 			this._statusLabel.Name = "_statusLabel";
 			this._statusLabel.ReadOnly = true;
-			this._statusLabel.Size = new System.Drawing.Size(228, 60);
+			this._statusLabel.Size = new System.Drawing.Size(316, 60);
 			this._statusLabel.TabIndex = 18;
 			this._statusLabel.Text = "Status text";
 			//
@@ -117,14 +117,14 @@
 						| System.Windows.Forms.AnchorStyles.Right)));
 			this._progressBar.Location = new System.Drawing.Point(15, 48);
 			this._progressBar.Name = "_progressBar";
-			this._progressBar.Size = new System.Drawing.Size(199, 13);
+			this._progressBar.Size = new System.Drawing.Size(287, 13);
 			this._progressBar.Style = System.Windows.Forms.ProgressBarStyle.Marquee;
 			this._progressBar.TabIndex = 21;
 			//
 			// _cancelTaskButton
 			//
 			this._cancelTaskButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this._cancelTaskButton.Location = new System.Drawing.Point(218, 43);
+			this._cancelTaskButton.Location = new System.Drawing.Point(306, 43);
 			this._cancelTaskButton.Name = "_cancelTaskButton";
 			this._cancelTaskButton.Size = new System.Drawing.Size(75, 23);
 			this._cancelTaskButton.TabIndex = 23;
@@ -139,7 +139,7 @@
 						| System.Windows.Forms.AnchorStyles.Right)));
 			this._progressLogVerbose.Location = new System.Drawing.Point(26, 72);
 			this._progressLogVerbose.Name = "_progressLogVerbose";
-			this._progressLogVerbose.Size = new System.Drawing.Size(278, 120);
+			this._progressLogVerbose.Size = new System.Drawing.Size(366, 120);
 			this._progressLogVerbose.TabIndex = 24;
 			this._progressLogVerbose.Text = "";
 			//
@@ -160,7 +160,7 @@
 			this.AcceptButton = this._okButton;
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(306, 262);
+			this.ClientSize = new System.Drawing.Size(394, 262);
 			this.Controls.Add(this._showVerboseLink);
 			this.Controls.Add(this._progressLogVerbose);
 			this.Controls.Add(this._cancelTaskButton);

@@ -64,7 +64,7 @@
 			//
 			this._urlBox.Location = new System.Drawing.Point(48, 39);
 			this._urlBox.Name = "_urlBox";
-			this._urlBox.Size = new System.Drawing.Size(219, 20);
+			this._urlBox.Size = new System.Drawing.Size(307, 20);
 			this._urlBox.TabIndex = 0;
 			this._urlBox.Text = "http://";
 			this._urlBox.TextChanged += new System.EventHandler(this._urlBox_TextChanged);
@@ -73,7 +73,7 @@
 			//
 			this._localFolderName.Location = new System.Drawing.Point(51, 122);
 			this._localFolderName.Name = "_localFolderName";
-			this._localFolderName.Size = new System.Drawing.Size(219, 20);
+			this._localFolderName.Size = new System.Drawing.Size(144, 20);
 			this._localFolderName.TabIndex = 1;
 			this._localFolderName.TextChanged += new System.EventHandler(this.OnLocalNameChanged);
 			//
@@ -134,7 +134,7 @@
 			this._sourcetWarningImage.TabStop = false;
 			this._sourcetWarningImage.Visible = false;
 			//
-			// InternetRepositoryInfoControl
+			// InternetCloneInstructionsControl
 			//
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -147,7 +147,7 @@
 			this.Controls.Add(this._urlBox);
 			this.Controls.Add(this.label2);
 			this.Controls.Add(this.label1);
-			this.Name = "InternetRepositoryInfoControl";
+			this.Name = "InternetCloneInstructionsControl";
 			this.Size = new System.Drawing.Size(370, 278);
 			this.Load += new System.EventHandler(this.AccountInfo_Load);
 			((System.ComponentModel.ISupportInitialize)(this._targetWarningImage)).EndInit();
