@@ -28,6 +28,9 @@ namespace Chorus.UI.Sync
 			UseTargetsAsSpecifiedInSyncOptions = (Behavior == SyncUIDialogBehaviors.StartImmediately ||
 												  Behavior == SyncUIDialogBehaviors.StartImmediatelyAndCloseWhenFinished);
 
+			//in case the user cancels before the sync and the client doesn't check to see if the result is null
+			SyncResult = new SyncResults();
+			SyncResult.Succeeded = false;
 		}
 
 		public SyncOptions SyncOptions

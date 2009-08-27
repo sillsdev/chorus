@@ -114,7 +114,19 @@ namespace Chorus.sync
 			}
 
 			progress.WriteStatus("Storing changes in local repository...");
-			repo.AddAndCheckinFiles(_project.IncludePatterns, _project.ExcludePatterns, options.CheckinDescription);
+
+			try
+			{
+				repo.AddAndCheckinFiles(_project.IncludePatterns, _project.ExcludePatterns, options.CheckinDescription);
+			}
+			catch (Exception error)
+			{
+				progress.WriteError(error.Message);
+				results.Succeeded = false;
+				results.DidGetChangesFromOthers = false;
+				results.ErrorEncountered = error;
+				return results;
+			}
 
 			var tipBeforeSync = repo.GetTip();
 			List<RepositoryAddress> sourcesToTry = options.RepositorySourcesToTry;
@@ -238,6 +250,8 @@ namespace Chorus.sync
 			{
 				progress.WriteError("The command timed out.  Details: " + error.Message);
 				results.Succeeded = false;
+				results.ErrorEncountered = error;
+				results.DidGetChangesFromOthers = false;
 			}
 			progress.WriteStatus("Done");
 			return results;
@@ -478,6 +492,11 @@ namespace Chorus.sync
 		/// If if this is true, the client app needs to restart or read in the new stuff
 		/// </summary>
 		public bool DidGetChangesFromOthers { get; set; }
+
+		public Exception ErrorEncountered
+		{
+			get; set;
+		}
 
 		public SyncResults()
 		{
