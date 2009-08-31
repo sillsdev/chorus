@@ -152,13 +152,14 @@ namespace Chorus.merge.xml.generic
 			Register<RemovedVsEditedAttributeConflict>(builder);
 			Register<RemovedVsEdittedTextConflict>(builder);
 			Register<BothEdittedDifferentPartsOfDependentPiecesOfDataWarning>(builder);
+			Register<UnmergableFileTypeConflict>(builder);
 
 			var container = builder.Build();
 
 			var typeGuid = conflictNode.GetStringAttribute("typeGuid");
 			return container.Resolve<IConflict>(typeGuid, new Parameter[]{new TypedParameter(typeof(XmlNode),conflictNode)});
 			}
-			catch (Exception)
+			catch (Exception error)
 			{
 				return new UnreadableConflict(conflictNode);
 			}
@@ -186,10 +187,16 @@ namespace Chorus.merge.xml.generic
 		}
 	}
 
+	/// <summary>
+	/// this exists for presentation only, in the case where we couldn't deserialize the conflict record
+	/// </summary>
 	public class UnreadableConflict : IConflict
 	{
+		public XmlNode ConflictNode { get; private set; }
+
 		public UnreadableConflict(XmlNode node)
 		{
+			ConflictNode = node;
 		}
 
 		public string PathToUnitOfConflict
@@ -226,7 +233,7 @@ namespace Chorus.merge.xml.generic
 
 		public Guid Guid
 		{
-			get { throw new NotImplementedException(); }
+			get { return new Guid(ConflictNode.GetOptionalStringAttribute("guid", string.Empty)); }
 		}
 
 		public MergeSituation Situation
@@ -243,12 +250,12 @@ namespace Chorus.merge.xml.generic
 
 		public string GetConflictingRecordOutOfSourceControl(IRetrieveFileVersionsFromRepository fileRetriever, ThreeWayMergeSources.Source mergeSource)
 		{
-			throw new NotImplementedException();
+			throw new NotImplementedException("Unable to retrieve from source control.");
 		}
 
 		public void WriteAsXml(XmlWriter writer)
 		{
-			throw new NotImplementedException();
+			throw new NotImplementedException("UnreadableConflict is not intended to be ever saved");
 		}
 	}
 
@@ -588,7 +595,7 @@ namespace Chorus.merge.xml.generic
 
 		public override string Description
 		{
-			get { return "Both Editted Different Parts Of Dependent Pieces Of Data Warning"; }
+			get { return "Both Edited Different Parts Of Dependent Pieces Of Data Warning"; }
 		}
 
 		public override string WhatHappened

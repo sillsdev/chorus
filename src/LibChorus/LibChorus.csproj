@@ -103,6 +103,7 @@
 	<Compile Include="FileTypeHanders\xml\XmlAdditionChangeReport.cs" />
 	<Compile Include="FileTypeHanders\xml\XmlChangedRecordReport.cs" />
 	<Compile Include="FileTypeHanders\xml\XmlDeletionChangeReport.cs" />
+	<Compile Include="merge\UnmergableFileTypeConflict.cs" />
 	<Compile Include="merge\xml\generic\HumanLogMergeEventListener.cs" />
 	<Compile Include="merge\xml\generic\XmlLogMergeEventListener.cs" />
 	<Compile Include="Utilities\ProcessOutputReader.cs" />

@@ -423,7 +423,8 @@ namespace Chorus.sync
 
 			foreach (Revision head in heads)
 			{
-				MergeSituation.PushRevisionsToEnvironmentVariables(myHead.UserId, myHead.Number.LocalRevisionNumber, head.UserId, head.Number.LocalRevisionNumber);
+				//this is for posterity, on other people's machines, so use the hashes instead of local numbers
+				MergeSituation.PushRevisionsToEnvironmentVariables(myHead.UserId, myHead.Number.Hash, head.UserId, head.Number.Hash);
 
 				MergeOrder.PushToEnvironmentVariables(_localRepositoryPath);
 				if (head.Number.LocalRevisionNumber != myHead.Number.LocalRevisionNumber)

@@ -35,7 +35,7 @@ namespace Chorus.FileTypeHanders.lift
 			throw new NotImplementedException();
 		}
 
-		public IEnumerable<IChangeReport> Find2WayDifferences(FileInRevision child, FileInRevision parent, HgRepository repository)
+		public IEnumerable<IChangeReport> Find2WayDifferences(FileInRevision parent, FileInRevision child, HgRepository repository)
 		{
 			return new IChangeReport[] {new DefaultChangeReport(parent, child,"Editted")};
 		}

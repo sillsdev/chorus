@@ -83,7 +83,7 @@ namespace Chorus.Review.RevisionsInRepository
 					{
 						appName = appName.Substring(0, bracketLocation);
 					}
-					appName = appName.Trim(new char[] { '[' });
+					appName = appName.Trim(new char[] { '[','+' }); // there was a bug in chorus that introduced the +
 					//temp hack... the app has now been fixed to not include this
 						appName = appName.Replace("0.5", "");
 						viewItem.ImageKey = appName.Trim();

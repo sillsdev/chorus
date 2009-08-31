@@ -47,10 +47,18 @@ namespace Chorus.FileTypeHanders
 			builder.Append("<html><head>"+styleSheet +"</head>");
 			if (style == "normal")
 			{
-				if (_report is XmlAdditionChangeReport)
+				if (_conflict is UnreadableConflict)
+				{
+					builder.Append(((UnreadableConflict)_conflict).ConflictNode.OuterXml);
+				}
+				else if (_conflict is UnmergableFileTypeConflict)
+				{
+					builder.Append(((UnmergableFileTypeConflict)_conflict).GetFullHumanReadableDescription());
+				}
+				else if (_report is XmlAdditionChangeReport)
 				{
 					builder.AppendFormat(
-						"<p>{0} and {1} both editted {2} in the file {3} in a way that could not be automatically merged.</p>",
+						"<p>{0} and {1} both edited {2} in the file {3} in a way that could not be automatically merged.</p>",
 						_conflict.Situation.UserXId, _conflict.Situation.UserYId, _conflict.Context.DataLabel,
 						_conflict.RelativeFilePath);
 
@@ -62,36 +70,54 @@ namespace Chorus.FileTypeHanders
 			}
 			else
 			{
-				builder.AppendFormat(
-					"{0} and {1} both editted {2} in a way that could not be merged. Where they conflicted, {3}'s version was kept.<br/>",
-					_conflict.Situation.UserXId, _conflict.Situation.UserYId, _conflict.Context.DataLabel, _conflict.WinnerId);
-
-				builder.AppendFormat(
-					"The kind of conflict was: {0}", _conflict.Description);
-				//                var m = new Rainbow.HtmlDiffEngine.Merger(original, modified);
-//                builder.Append(m.merge());
-
-				builder.AppendFormat("<h3>Original Record</h3>");
-			   var ancestor = _conflict.GetConflictingRecordOutOfSourceControl(_fileRetriever, ThreeWayMergeSources.Source.Ancestor);
-				builder.Append(XmlUtilities.GetXmlForShowingInHtml(ancestor));
-				builder.AppendFormat("<h3>{0}'s version</h3>", _conflict.Situation.UserXId);
-				var userXVersion = _conflict.GetConflictingRecordOutOfSourceControl(_fileRetriever, ThreeWayMergeSources.Source.UserX);
-				builder.Append(XmlUtilities.GetXmlForShowingInHtml(userXVersion));
-				builder.AppendFormat("</p><h3>{0}'s version</h3>", _conflict.Situation.UserYId);
-				var userYVersion = _conflict.GetConflictingRecordOutOfSourceControl(_fileRetriever, ThreeWayMergeSources.Source.UserY);
-				builder.Append(XmlUtilities.GetXmlForShowingInHtml(userYVersion));
-				builder.AppendFormat("</p><h3>Resulting version</h3>", _conflict.Situation.UserYId);
-
-				try
+				if (_conflict is UnreadableConflict)
 				{
-					var resulting = _fileRetriever.RetrieveHistoricalVersionOfFile(_conflict.RelativeFilePath,
-																				   _conflict.
-																					   RevisionWhereMergeWasCheckedIn);
-					builder.Append(XmlUtilities.GetXmlForShowingInHtml(resulting));
+					builder.Append(((UnreadableConflict) _conflict).ConflictNode.OuterXml);
 				}
-				catch (Exception error)
+				else if (_conflict is UnmergableFileTypeConflict)
 				{
-					builder.Append("Could not retrieve the file. The error was: "+error.Message);
+					builder.Append(((UnmergableFileTypeConflict) _conflict).GetFullHumanReadableDescription());
+				}
+				else
+				{
+
+					builder.AppendFormat(
+						"{0} and {1} both edited {2} in a way that could not be merged. Where they conflicted, {3}'s version was kept.<br/>",
+						_conflict.Situation.UserXId, _conflict.Situation.UserYId, _conflict.Context.DataLabel,
+						_conflict.WinnerId);
+
+					builder.AppendFormat(
+						"The kind of conflict was: {0}", _conflict.Description);
+					//                var m = new Rainbow.HtmlDiffEngine.Merger(original, modified);
+					//                builder.Append(m.merge());
+
+					builder.AppendFormat("<h3>Original Record</h3>");
+					var ancestor = _conflict.GetConflictingRecordOutOfSourceControl(_fileRetriever,
+																					ThreeWayMergeSources.Source.Ancestor);
+					builder.Append(XmlUtilities.GetXmlForShowingInHtml(ancestor));
+					builder.AppendFormat("<h3>{0}'s version</h3>", _conflict.Situation.UserXId);
+					var userXVersion = _conflict.GetConflictingRecordOutOfSourceControl(_fileRetriever,
+																						ThreeWayMergeSources.Source.
+																							UserX);
+					builder.Append(XmlUtilities.GetXmlForShowingInHtml(userXVersion));
+					builder.AppendFormat("</p><h3>{0}'s version</h3>", _conflict.Situation.UserYId);
+					var userYVersion = _conflict.GetConflictingRecordOutOfSourceControl(_fileRetriever,
+																						ThreeWayMergeSources.Source.
+																							UserY);
+					builder.Append(XmlUtilities.GetXmlForShowingInHtml(userYVersion));
+					builder.AppendFormat("</p><h3>Resulting version</h3>", _conflict.Situation.UserYId);
+
+					try
+					{
+						var resulting = _fileRetriever.RetrieveHistoricalVersionOfFile(_conflict.RelativeFilePath,
+																					   _conflict.
+																						   RevisionWhereMergeWasCheckedIn);
+						builder.Append(XmlUtilities.GetXmlForShowingInHtml(resulting));
+					}
+					catch (Exception error)
+					{
+						builder.Append("Could not retrieve the file. The error was: " + error.Message);
+					}
 				}
 			}
 

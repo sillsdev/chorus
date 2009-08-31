@@ -33,7 +33,7 @@ namespace Chorus.UI.Sync
 
 			//clients will normally change these
 			SyncOptions = new SyncOptions();
-			SyncOptions.CheckinDescription = "[+"+Application.ProductName+"] sync";
+			SyncOptions.CheckinDescription = "["+Application.ProductName+"] sync";
 			SyncOptions.DoPullFromOthers = true;
 			SyncOptions.DoMergeWithOthers = true;
 			SyncOptions.RepositorySourcesToTry.AddRange(GetRepositoriesToList().Where(r => r.Enabled));

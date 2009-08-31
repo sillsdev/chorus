@@ -60,7 +60,7 @@ namespace Chorus.FileTypeHanders
 //            }
 		}
 
-		public IEnumerable<IChangeReport> Find2WayDifferences(FileInRevision child, FileInRevision parent, HgRepository repository)
+		public IEnumerable<IChangeReport> Find2WayDifferences(FileInRevision parent, FileInRevision child, HgRepository repository)
 		{
 			var listener = new ChangeAndConflictAccumulator();
 			var strat = new LiftEntryMergingStrategy(new NullMergeSituation());
