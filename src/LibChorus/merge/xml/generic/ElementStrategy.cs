@@ -1,8 +1,5 @@
-using System;
 using System.Collections.Generic;
-using System.Runtime.Remoting.Contexts;
 using System.Xml;
-using Chorus.merge.xml.generic;
 
 namespace Chorus.merge.xml.generic
 {

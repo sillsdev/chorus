@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Chorus.FileTypeHanders.adaptIt;
 using Chorus.FileTypeHanders.audio;
 using Chorus.FileTypeHanders.image;
 using Chorus.FileTypeHanders.lift;
@@ -47,6 +48,7 @@ namespace Chorus.FileTypeHanders
 			var fileTypeHandlers = new ChorusFileTypeHandlerCollection();
 			fileTypeHandlers.Handlers.Add(new LiftFileHandler());
 			fileTypeHandlers.Handlers.Add(new OneStoryFileHandler());
+			fileTypeHandlers.Handlers.Add(new AdaptItFileHandler());
 			fileTypeHandlers.Handlers.Add(new TextFileTypeHandler());
 			fileTypeHandlers.Handlers.Add(new ConflictFileTypeHandler());
 			fileTypeHandlers.Handlers.Add(new WeSayConfigFileHandler());

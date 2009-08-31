@@ -78,6 +78,7 @@
   </ItemGroup>
   <ItemGroup>
 	<Compile Include="clone\CloneFromUsb.cs" />
+	<Compile Include="FileTypeHanders\adaptIt\AdaptItHandler.cs" />
 	<Compile Include="FileTypeHanders\audio\AudioChangePresenter.cs" />
 	<Compile Include="FileTypeHanders\ConflictFileTypeHandler.cs" />
 	<Compile Include="FileTypeHanders\audio\AudioFileTypeHandler.cs" />

@@ -338,6 +338,10 @@ namespace Chorus.merge.xml.generic
 					{
 						continue;
 					}
+					if (child.NodeType == XmlNodeType.Comment)
+					{
+						continue;
+					}
 					Debug.Fail("We don't know how to merge this type of child: " + child.NodeType.ToString());
 					continue; //we don't know about merging other kinds of things
 				}
