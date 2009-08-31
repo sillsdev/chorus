@@ -3,7 +3,7 @@ using System.IO;
 using System.Windows.Forms;
 using Other=Chorus.Utilities.Other;
 
-namespace Chorus.Settings
+namespace Chorus.UI.Settings
 {
 	public partial class SetupPanel : UserControl
 	{

@@ -1,15 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.IO;
 using System.Media;
-using System.Text;
 using System.Windows.Forms;
 using Chorus.clone;
 using Chorus.Utilities;
-using System.Linq;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 

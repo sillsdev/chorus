@@ -1,4 +1,4 @@
-﻿namespace Chorus.Review.RevisionsInRepository
+﻿namespace Chorus.UI.Review.RevisionsInRepository
 {
 	partial class RevisionsInRepositoryView
 	{
@@ -59,12 +59,12 @@
 			// _historyList
 			//
 			this._historyList.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-						| System.Windows.Forms.AnchorStyles.Left)
-						| System.Windows.Forms.AnchorStyles.Right)));
+																			  | System.Windows.Forms.AnchorStyles.Left)
+																			 | System.Windows.Forms.AnchorStyles.Right)));
 			this._historyList.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-			this.columnHeader1,
-			this.columnHeader2,
-			this.columnHeader3});
+																						   this.columnHeader1,
+																						   this.columnHeader2,
+																						   this.columnHeader3});
 			this._historyList.FullRowSelect = true;
 			this._historyList.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
 			this._historyList.HideSelection = false;

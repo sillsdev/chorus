@@ -2,7 +2,7 @@ using System;
 using System.Windows.Forms;
 using Chorus.Utilities;
 
-namespace Chorus.Settings
+namespace Chorus.UI.Settings
 {
 	public partial class SettingsView : UserControl
 	{

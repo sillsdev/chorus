@@ -1,9 +1,9 @@
 ﻿using System.Windows.Forms;
-using Chorus.Review.ChangedReport;
-using Chorus.Review.ChangesInRevision;
-using Chorus.Review.RevisionsInRepository;
+using Chorus.UI.Review.ChangedReport;
+using Chorus.UI.Review.ChangesInRevision;
+using Chorus.UI.Review.RevisionsInRepository;
 
-namespace Chorus.Review
+namespace Chorus.UI.Review
 {
 	public partial class ReviewPage : UserControl
 	{

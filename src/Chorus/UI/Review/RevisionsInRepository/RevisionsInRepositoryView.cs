@@ -4,10 +4,11 @@ using System.Drawing;
 using System.Globalization;
 using System.Windows.Forms;
 using Chorus.sync;
+using Chorus.UI.Review.RevisionsInRepository;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
 
-namespace Chorus.Review.RevisionsInRepository
+namespace Chorus.UI.Review.RevisionsInRepository
 {
 	public partial class RevisionsInRepositoryView : UserControl
 	{
@@ -85,8 +86,8 @@ namespace Chorus.Review.RevisionsInRepository
 					}
 					appName = appName.Trim(new char[] { '[','+' }); // there was a bug in chorus that introduced the +
 					//temp hack... the app has now been fixed to not include this
-						appName = appName.Replace("0.5", "");
-						viewItem.ImageKey = appName.Trim();
+					appName = appName.Replace("0.5", "");
+					viewItem.ImageKey = appName.Trim();
 
 				}
 				viewItem.Tag = rev;

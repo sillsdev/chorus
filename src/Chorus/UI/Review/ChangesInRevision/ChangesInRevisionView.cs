@@ -7,7 +7,7 @@ using System.Xml;
 using Chorus.FileTypeHanders;
 using Chorus.merge;
 
-namespace Chorus.Review.ChangesInRevision
+namespace Chorus.UI.Review.ChangesInRevision
 {
 	public partial class ChangesInRevisionView : UserControl
 	{

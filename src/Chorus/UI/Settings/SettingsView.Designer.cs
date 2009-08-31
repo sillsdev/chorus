@@ -1,6 +1,6 @@
 using System;
 
-namespace Chorus.Settings
+namespace Chorus.UI.Settings
 {
 	partial class SettingsView
 	{

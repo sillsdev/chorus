@@ -1,4 +1,4 @@
-﻿namespace Chorus.Review.ChangedReport
+﻿namespace Chorus.UI.Review.ChangedReport
 {
 	partial class ChangeReportView
 	{

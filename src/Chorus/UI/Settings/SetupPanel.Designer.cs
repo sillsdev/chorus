@@ -1,4 +1,4 @@
-namespace Chorus.Settings
+namespace Chorus.UI.Settings
 {
 	partial class SetupPanel
 	{

@@ -5,7 +5,7 @@ using Chorus.Utilities;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 
-namespace Chorus.Settings
+namespace Chorus.UI.Settings
 {
 	public class SettingsModel
 	{

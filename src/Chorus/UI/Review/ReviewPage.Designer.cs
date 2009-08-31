@@ -1,4 +1,4 @@
-﻿namespace Chorus.Review
+﻿namespace Chorus.UI.Review
 {
 	partial class ReviewPage
 	{

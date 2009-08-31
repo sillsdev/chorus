@@ -6,9 +6,10 @@ using System.Windows.Forms;
 using Chorus.FileTypeHanders;
 using Chorus.merge;
 using Chorus.retrieval;
+using Chorus.UI.Review;
 using Chorus.VcsDrivers.Mercurial;
 
-namespace Chorus.Review.ChangesInRevision
+namespace Chorus.UI.Review.ChangesInRevision
 {
 	public class ChangesInRevisionModel
 	{

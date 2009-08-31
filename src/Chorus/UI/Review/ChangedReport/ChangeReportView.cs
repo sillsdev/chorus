@@ -7,7 +7,7 @@ using Chorus.FileTypeHanders;
 using Chorus.merge;
 using Chorus.retrieval;
 
-namespace Chorus.Review.ChangedReport
+namespace Chorus.UI.Review.ChangedReport
 {
 	public partial class ChangeReportView : UserControl
 	{

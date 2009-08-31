@@ -2,10 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
 using Chorus.sync;
+using Chorus.UI.Review;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
 
-namespace Chorus.Review.RevisionsInRepository
+namespace Chorus.UI.Review.RevisionsInRepository
 {
 	public class RevisionInRepositoryModel
 	{

@@ -2,7 +2,7 @@
 using Chorus.merge;
 using Chorus.VcsDrivers.Mercurial;
 
-namespace Chorus.Review
+namespace Chorus.UI.Review
 {
 	public class RevisionSelectedEvent : Event<Revision>
 	{ }

@@ -1,12 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using Chorus.Review.RevisionsInRepository;
 using Chorus.sync;
+using Chorus.UI.Review.RevisionsInRepository;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
+using LibChorus.Tests;
 using NUnit.Framework;
 
-namespace LibChorus.Tests
+namespace Chorus.Tests
 {
 	[TestFixture]
 	public class HistoryPanelModelTests
