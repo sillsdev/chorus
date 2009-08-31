@@ -38,7 +38,7 @@
 						</do>
 				</foreach>
 
-		<csc target="library"
+		<csc target="exe"
 			output="${project.output.dir}/ChorusMerge.exe"
 			doc="${project.output.dir}/doc/ChorusMerge.xml"
 			debug="${build.debug}"

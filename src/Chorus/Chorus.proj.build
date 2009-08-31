@@ -39,7 +39,7 @@
 						</do>
 				</foreach>
 
-		<csc target="library"
+		<csc target="winexe"
 			output="${project.output.dir}/Chorus.exe"
 			doc="${project.output.dir}/doc/Chorus.xml"
 			debug="${build.debug}"
