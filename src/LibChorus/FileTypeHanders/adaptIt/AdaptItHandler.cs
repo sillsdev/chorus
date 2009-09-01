@@ -52,7 +52,6 @@ namespace Chorus.FileTypeHanders.adaptIt
 		{
 			merger.MergeStrategies.SetStrategy("AdaptItKnowledgeBase", ElementStrategy.CreateSingletonElement());
 			merger.MergeStrategies.SetStrategy("KB", ElementStrategy.CreateSingletonElement());
-//            merger.MergeStrategies.SetStrategy("KB", ElementStrategy.CreateForKeyedElement("tgtName", false));
 
 			//BOB, please review all these. Are the listed attributes really unique?
 			merger.MergeStrategies.SetStrategy("MAP", ElementStrategy.CreateForKeyedElement("mn", false));
@@ -60,13 +59,12 @@ namespace Chorus.FileTypeHanders.adaptIt
 			//review: is it ok to ignore @f?
 			merger.MergeStrategies.SetStrategy("TU", ElementStrategy.CreateForKeyedElement("k", false));
 
-			//review: is it ok to ignore @n?
-			//review: is order relevant?
-			merger.MergeStrategies.SetStrategy("RS", ElementStrategy.CreateForKeyedElement("a", false));
 
+			var elementStrategy = ElementStrategy.CreateForKeyedElement("a", false);
+			elementStrategy.AttributesToIgnoreForMerging.Add("n");
+			merger.MergeStrategies.SetStrategy("RS", elementStrategy);
 
-
-			//todo anchors, TestQuestions, Retellings,ConsultantNotes, CoachNotes
+			//Banana leaves are great for covering food in a mumu.  But the gorgor leaf is better than that of a banana for cooking manget.
 		}
 
 		public IEnumerable<IChangeReport> Find2WayDifferences(FileInRevision parent, FileInRevision child, HgRepository repository)

@@ -27,19 +27,23 @@ namespace Chorus.merge.xml.generic
 		}
 
 
-		/// <summary>
-		/// use for tests
-		/// </summary>
-		/// <param name="ours"></param>
-		/// <param name="theirs"></param>
-		/// <param name="ancestor"></param>
-		/// <returns></returns>
 		public NodeMergeResult Merge(XmlNode ours, XmlNode theirs, XmlNode ancestor)
 		{
 			var result = new NodeMergeResult();
-			DispatchingMergeEventListener dispatcher= new DispatchingMergeEventListener();
-			dispatcher.AddEventListener(result);
-			EventListener = dispatcher;
+			if (EventListener != null && EventListener is DispatchingMergeEventListener)
+			{
+				((DispatchingMergeEventListener)EventListener).AddEventListener(result);
+			}
+			else
+			{
+				DispatchingMergeEventListener dispatcher = new DispatchingMergeEventListener();
+				dispatcher.AddEventListener(result);
+				if (EventListener != null)
+				{
+					dispatcher.AddEventListener(EventListener);
+				}
+				EventListener = dispatcher;
+			}
 			MergeInner(ref ours, theirs, ancestor);
 			result.MergedNode = ours;
 			return result;

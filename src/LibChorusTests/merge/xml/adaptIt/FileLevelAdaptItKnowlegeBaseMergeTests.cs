@@ -3,6 +3,7 @@ using System.Xml;
 using Chorus.FileTypeHanders.adaptIt;
 using Chorus.merge;
 using Chorus.Utilities;
+using LibChorus.Tests.merge.xml.generic;
 using NUnit.Framework;
 using Palaso.TestUtilities;
 
@@ -12,6 +13,7 @@ namespace LibChorus.Tests.merge.xml.adaptIt
 	public class FileLevelAdaptItKnowlegeBaseMergeTests
 	{
 		private string _ancestor;
+		private ListenerForUnitTests _eventListener;
 
 		[SetUp]
 		public void Setup()
@@ -80,6 +82,18 @@ namespace LibChorus.Tests.merge.xml.adaptIt
 				Assert.IsFalse(handler.CanMergeFile(path));
 			}
 		}
+
+//        [Test]
+//        public void TEMP_namespaceIssue()
+//        {
+//            var dom = new XmlDocument();
+//            dom.LoadXml(_ancestor);
+//
+//            XmlNamespaceManager namespaceManager = new XmlNamespaceManager(dom.NameTable);
+//            var def = namespaceManager.GetNamespacesInScope(XmlNamespaceScope.Local);
+//            dom.SelectNodes("MAP", namespaceManager);
+//
+//        }
 
 		[Test]
 		public void Do3WayMerge_NoChanges_NothingDuplicated()
@@ -150,6 +164,20 @@ namespace LibChorus.Tests.merge.xml.adaptIt
 		}
 
 		[Test]
+		public void Do3WayMerge_BothIncreasedTheCountOnAnRS_PickOneAndNoConflictsReported()
+		{
+			var ourContent = _ancestor.Replace("<RS n='1' a='boo'/",
+											  "<RS n='3' a='boo'/>");
+			var theirContent = _ancestor.Replace("<RS n='1' a='boo'/>",
+											   "<RS n='5' a='boo'/>");
+
+			var result = DoMerge(ourContent, theirContent);
+			AssertThatXmlIn.String(result).HasSpecifiedNumberOfMatchesForXpath("//RS[@a='boo']", 1);
+			AssertThatXmlIn.String(result).HasSpecifiedNumberOfMatchesForXpath("//RS[@a='boo' and @n='3']", 1);
+			_eventListener.AssertExpectedConflictCount(0);
+		}
+
+		[Test]
 		public void Do3WayMerge_OneAddedAPhraseTheOtherRemovedADifferentPhrase_GotAllChanges()
 		{
 			var ourContent = _ancestor.Replace("<MAP mn='1'>",
@@ -181,7 +209,8 @@ namespace LibChorus.Tests.merge.xml.adaptIt
 				var handler = new AdaptItFileHandler();
 				var situation = new NullMergeSituation();
 				var mergeOrder = new MergeOrder(ours.Path, ancestor.Path, theirs.Path, situation);
-
+				_eventListener = new ListenerForUnitTests();
+				mergeOrder.EventListener = _eventListener;
 				handler.Do3WayMerge(mergeOrder);
 				result = File.ReadAllText(ours.Path);
 			}
