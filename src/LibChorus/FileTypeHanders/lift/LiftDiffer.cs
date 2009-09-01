@@ -25,14 +25,14 @@ namespace Chorus.merge.xml.lift
 
 		public static Lift2WayDiffer CreateFromFileInRevision(IMergeStrategy mergeStrategy, FileInRevision parent, FileInRevision child, IMergeEventListener eventListener, HgRepository repository)
 		{
-			return new Lift2WayDiffer(mergeStrategy, child.GetFileContents(repository), parent.GetFileContents(repository), eventListener, parent, child);
+			return new Lift2WayDiffer(mergeStrategy, parent.GetFileContents(repository), child.GetFileContents(repository), eventListener, parent, child);
 		}
 		public static Lift2WayDiffer CreateFromStrings(IMergeStrategy mergeStrategy, string parentXml, string childXml, IMergeEventListener eventListener)
 		{
-			return new Lift2WayDiffer(mergeStrategy, childXml, parentXml, eventListener);
+			return new Lift2WayDiffer(mergeStrategy, parentXml, childXml, eventListener);
 		}
 
-		private Lift2WayDiffer(IMergeStrategy mergeStrategy, string childXml, string parentXml,IMergeEventListener eventListener)
+		private Lift2WayDiffer(IMergeStrategy mergeStrategy, string parentXml, string childXml,IMergeEventListener eventListener)
 		{
 			_childDom = new XmlDocument();
 			_parentDom = new XmlDocument();
@@ -45,8 +45,8 @@ namespace Chorus.merge.xml.lift
 
 		}
 
-		private Lift2WayDiffer(IMergeStrategy mergeStrategy, string childXml, string parentXml, IMergeEventListener listener, FileInRevision parentFileInRevision, FileInRevision childFileInRevision)
-			:this(mergeStrategy, childXml, parentXml, listener)
+		private Lift2WayDiffer(IMergeStrategy mergeStrategy, string parentXml, string childXml , IMergeEventListener listener, FileInRevision parentFileInRevision, FileInRevision childFileInRevision)
+			:this(mergeStrategy,parentXml, childXml, listener)
 		{
 			_parentFileInRevision = parentFileInRevision;
 			_childFileInRevision = childFileInRevision;
