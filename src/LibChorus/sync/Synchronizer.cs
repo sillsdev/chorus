@@ -200,11 +200,13 @@ namespace Chorus.sync
 					if(peopleWeMergedWith.Count > 0)
 						repo.AddAndCheckinFiles(_project.IncludePatterns, _project.ExcludePatterns, GetMergeCommitSummary(peopleWeMergedWith, repo));
 				}
-				catch (Exception)
+				catch (Exception error)
 				{
+					_progress.WriteError(error.Message);
+					_progress.WriteError("Unable to complete the send/receive.  You can try restarting the computer, but you may need expert help to fix this problem.");
+
 					//rollback
 					UpdateToTheDescendantRevision(repo, tipBeforeSync);
-					//repo.RollbackWorkingDirectoryToRevision();
 
 					results.Succeeded = false;
 					return results;
@@ -448,18 +450,45 @@ namespace Chorus.sync
 		/// </summary>
 		private void RemoveMergeObstacles(Revision rev1, Revision rev2, IProgress progress)
 		{
+			/* this has proved a bit hard to get right.
+			 * when a file is in a recently brought in changeset, and also local (but untracked), status --rev ___ lists the file twice:
+			 *
+			 * >hg status --rev 14
+			 * R test.txt
+			 * ? test.txt
+			 *
+			 */
+
 			//todo: push down to hgrepository
 			var files = Repository.GetFilesInRevisionFromQuery(rev1 /*this param is bogus*/, "status -ru --rev " + rev2.Number.LocalRevisionNumber);
 
 			foreach (var file in files)
 			{
-				if (file.ActionThatHappened == FileInRevision.Action.Unknown)
+				if (file.ActionThatHappened == FileInRevision.Action.Deleted)// listed with 'R'
 				{
-					if (files.Any(f => f.FullPath == file.FullPath))
+					//is it also listed as unknown?
+					if (files.Any(f => f.FullPath == file.FullPath && f.ActionThatHappened == FileInRevision.Action.Unknown))
 					{
-						 var newPath = file.FullPath + "-" + Path.GetRandomFileName() + ".chorusRescue";
-						File.Move(file.FullPath, newPath);
-						progress.WriteWarning("Renamed {0} to {1} because it is not part of {2}'s repository but it is part of {3}'s, and this would otherwise prevent a merge.", file.FullPath, Path.GetFileName(newPath), rev1.UserId, rev2.UserId);
+						try
+						{
+							var newPath = file.FullPath + "-" + Path.GetRandomFileName() + ".chorusRescue";
+
+							progress.WriteWarning(
+								"Renamed {0} to {1} because it is not part of {2}'s repository but it is part of {3}'s, and this would otherwise prevent a merge.",
+								file.FullPath, Path.GetFileName(newPath), rev1.UserId, rev2.UserId);
+
+							if (!File.Exists(file.FullPath))
+							{
+								progress.WriteError("The file marked for rescuing didn't actually exist.  Please report this bug in Chorus.");
+								continue;
+							}
+							File.Move(file.FullPath, newPath);
+						}
+						catch (Exception error)
+						{
+							progress.WriteError("Could not move the file. Error was: {0}", error.Message);
+							throw error;
+						}
 					}
 				}
 			}

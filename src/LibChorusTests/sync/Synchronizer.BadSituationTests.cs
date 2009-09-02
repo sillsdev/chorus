@@ -205,6 +205,30 @@ namespace LibChorus.Tests.sync
 		}
 
 		/// <summary>
+		/// regression test, for situation where RemoveMergeObstacles was over-zealou
+		/// </summary>
+		[Test]
+		public void Sync_WeHaveUntrackedFile_NotRenamed()
+		{
+			using (RepositoryWithFilesSetup bob = new RepositoryWithFilesSetup("bob", "test.a9a", "original"))
+			{
+				using (RepositoryWithFilesSetup sally = RepositoryWithFilesSetup.CreateByCloning("sally", bob))
+				{
+					File.WriteAllText(bob.ProjectFolder.Combine("somethingNew.txt"), "blah");
+					bob.ProjectConfiguration.IncludePatterns.Add("somethingNew.txt");
+					bob.AddAndCheckIn();
+					sally.ReplaceSomething("sallyWasHere");
+					File.WriteAllText(sally.ProjectFolder.Combine("untracked.txt"), "foo");
+					sally.CheckinAndPullAndMerge(bob);
+
+					sally.AssertNoErrorsReported();
+
+					var rescueFiles = Directory.GetFiles(sally.ProjectFolder.Path, "*.chorusRescue");
+					Assert.AreEqual(0, rescueFiles.Length);
+				}
+
+			}
+		}/// <summary>
 		/// the diff here with the previous test is that while sally is still the one who is the driver
 		/// (she dose the merge and push to bob), this time we follow up with bob doing a sync, which
 		/// is essentially just a pull and update, to make sure that at that point the system renames
