@@ -66,6 +66,10 @@ namespace Chorus.Utilities
 					return false;
 				}
 			}
+			// See http://www.wesay.org/issues/browse/WS-14948
+			// The output reader threads may exit slightly prior to the application closing.
+			// So we wait for the exit to be confirmed.
+			process.WaitForExit(1000);
 			_standardOutput = outputReaderArgs.Results;
 			_standardError = errorReaderArgs.Results;
 
