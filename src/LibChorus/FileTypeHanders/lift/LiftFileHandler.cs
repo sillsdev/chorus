@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using Chorus.FileTypeHanders.lift;
 using Chorus.FileTypeHanders.xml;
@@ -56,7 +57,15 @@ namespace Chorus.FileTypeHanders
 				merger.EventListener = mergeOrder.EventListener;
 
 				string newContents = merger.GetMergedLift();
+				if(newContents.IndexOf('\0') !=-1)
+				{
+					throw new ApplicationException("Merged XML had a null! This is very serious... please report it to the developers." );
+				}
+
 				File.WriteAllText(mergeOrder.pathToOurs, newContents);
+
+
+
 //            }
 		}
 

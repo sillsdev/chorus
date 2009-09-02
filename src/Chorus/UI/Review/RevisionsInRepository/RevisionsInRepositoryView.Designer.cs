@@ -59,12 +59,12 @@
 			// _historyList
 			//
 			this._historyList.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-																			  | System.Windows.Forms.AnchorStyles.Left)
-																			 | System.Windows.Forms.AnchorStyles.Right)));
+						| System.Windows.Forms.AnchorStyles.Left)
+						| System.Windows.Forms.AnchorStyles.Right)));
 			this._historyList.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-																						   this.columnHeader1,
-																						   this.columnHeader2,
-																						   this.columnHeader3});
+			this.columnHeader1,
+			this.columnHeader2,
+			this.columnHeader3});
 			this._historyList.FullRowSelect = true;
 			this._historyList.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
 			this._historyList.HideSelection = false;
@@ -81,12 +81,12 @@
 			// columnHeader1
 			//
 			this.columnHeader1.Text = "Date";
-			this.columnHeader1.Width = 95;
+			this.columnHeader1.Width = 124;
 			//
 			// columnHeader2
 			//
 			this.columnHeader2.Text = "Person";
-			this.columnHeader2.Width = 88;
+			this.columnHeader2.Width = 118;
 			//
 			// columnHeader3
 			//

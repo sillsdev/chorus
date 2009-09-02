@@ -1,6 +1,9 @@
 using System;
 using System.IO;
+using System.Text;
+using System.Xml;
 using Chorus.merge;
+using Chorus.merge.xml.lift;
 using Chorus.sync;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
@@ -267,5 +270,22 @@ namespace LibChorus.Tests.sync
 
 			}
 		}
+
+//        [Test, Ignore("by hand only")]
+//        public void TryingToReproduceNullsAtEndOfFile()
+//        {
+//            using (MemoryStream memoryStream = new MemoryStream())
+//            {
+//                memoryStream.Write(new byte[]{60},0,1 );
+//                string xmlString = Encoding.UTF8.GetString(memoryStream.ToArray());
+//                Assert.IsFalse(xmlString.Contains("\0"));
+//
+//                xmlString = Encoding.UTF8.GetString(memoryStream.GetBuffer(), 0, (int)memoryStream.Position);
+//                Assert.IsFalse(xmlString.Contains("\0"));
+//
+//                xmlString = Encoding.UTF8.GetString(memoryStream.GetBuffer());
+//                Assert.IsFalse(xmlString.Contains("\0"));
+//            }
+//        }
 	}
 }

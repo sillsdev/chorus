@@ -84,33 +84,33 @@ namespace Chorus.merge.xml.lift
 			settings.Encoding = utf8NoBom;//the lack of a bom is probably no big deal either way
 
 			//this, rather than a string builder, is needed to avoid utf-16 coming out
-			MemoryStream memoryStream = new MemoryStream();
-
-			using (XmlWriter writer = XmlWriter.Create(memoryStream, settings))
+			using (MemoryStream memoryStream = new MemoryStream())
 			{
-
-				WriteStartOfLiftElement( writer);
-				foreach (XmlNode e in _ourDom.SafeSelectNodes("lift/entry"))
+				using (XmlWriter writer = XmlWriter.Create(memoryStream, settings))
 				{
-					ProcessEntry(writer, e);
-				}
-
-				//now process any remaining elements in "theirs"
-				foreach (XmlNode e in _theirDom.SafeSelectNodes("lift/entry"))
-				{
-					string id = LiftUtils.GetId(e);
-					if (!_processedIds.Contains(id))
+					WriteStartOfLiftElement(writer);
+					foreach (XmlNode e in _ourDom.SafeSelectNodes("lift/entry"))
 					{
-						ProcessEntryWeKnowDoesntNeedMerging(e, id, writer);
+						ProcessEntry(writer, e);
 					}
+
+					//now process any remaining elements in "theirs"
+					foreach (XmlNode e in _theirDom.SafeSelectNodes("lift/entry"))
+					{
+						string id = LiftUtils.GetId(e);
+						if (!_processedIds.Contains(id))
+						{
+							ProcessEntryWeKnowDoesntNeedMerging(e, id, writer);
+						}
+					}
+					writer.WriteEndElement();
+					writer.Close();
 				}
-				writer.WriteEndElement();
 
+				//don't use GetBuffer()!!! it pads the results with nulls:  return Encoding.UTF8.GetString(memoryStream.ToArray());
+				//this works but doubles the ram use: return Encoding.UTF8.GetString(memoryStream.ToArray());
+				return Encoding.UTF8.GetString(memoryStream.GetBuffer(), 0, (int)memoryStream.Position);
 			}
-			string xmlString = Encoding.UTF8.GetString(memoryStream.GetBuffer());
- //           File.WriteAllText(path, xmlString);
-
-			return xmlString;
 		}
 
 

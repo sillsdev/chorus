@@ -21,7 +21,6 @@ namespace Chorus.merge.xml.lift
 		private readonly XmlDocument _childDom;
 		private readonly XmlDocument _parentDom;
 		private IMergeEventListener EventListener;
-		private IMergeStrategy _mergingStrategy;
 
 		public static Lift2WayDiffer CreateFromFileInRevision(IMergeStrategy mergeStrategy, FileInRevision parent, FileInRevision child, IMergeEventListener eventListener, HgRepository repository)
 		{
@@ -41,8 +40,6 @@ namespace Chorus.merge.xml.lift
 			_parentDom.LoadXml(parentXml);
 
 			EventListener = eventListener;
-			_mergingStrategy = mergeStrategy;
-
 		}
 
 		private Lift2WayDiffer(IMergeStrategy mergeStrategy, string parentXml, string childXml , IMergeEventListener listener, FileInRevision parentFileInRevision, FileInRevision childFileInRevision)
