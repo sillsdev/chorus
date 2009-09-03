@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://web.resource.org/cc/"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xml:space="preserve"
+   version="1.0"
+   id="layer1"
+   width="400pt"
+   height="400pt"
+   viewBox="0 0 75 75"
+   sodipodi:version="0.32"
+   inkscape:version="0.45"
+   sodipodi:docname="Speaker_Icon_gray.svg"
+   inkscape:output_extension="org.inkscape.output.svg.inkscape"
+   sodipodi:docbase="c:\dev\chorus\artwork"
+   sodipodi:modified="true"><defs
+   id="defs3649">
+
+
+</defs><sodipodi:namedview
+   inkscape:window-height="575"
+   inkscape:window-width="765"
+   inkscape:pageshadow="2"
+   inkscape:pageopacity="0.0"
+   guidetolerance="10.0"
+   gridtolerance="10.0"
+   objecttolerance="10.0"
+   borderopacity="1.0"
+   bordercolor="#666666"
+   pagecolor="#ffffff"
+   id="base"
+   inkscape:zoom="0.047125"
+   inkscape:cx="1465.593"
+   inkscape:cy="-532.23388"
+   inkscape:window-x="175"
+   inkscape:window-y="499"
+   inkscape:current-layer="layer1" /><metadata
+   id="metadata1"><rdf:RDF><cc:Work
+	   rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type
+		 rdf:resource="http://purl.org/dc/dcmitype/StillImage" /></cc:Work></rdf:RDF></metadata><path
+   style="fill:none;stroke:#75507b;stroke-width:8.67021465;stroke-linecap:round"
+   d="M 12.350944,51.859414 C 16.809068,47.831309 19.427551,43.091521 19.427551,37.999143 C 19.427551,32.823498 16.737424,28.014753 12.1545,23.947616"
+   id="path1" /><path
+   style="fill:none;stroke:#75507b;stroke-width:8.67021465;stroke-linecap:round"
+   d="M 28.422377,14.788102 C 36.961914,21.275224 42.020926,29.30411 42.020926,37.999143 C 42.020926,46.61351 37.049736,54.572139 28.644243,61.026734"
+   id="path2" /><path
+   style="fill:none;stroke:#75507b;stroke-width:8.67021465;stroke-linecap:round"
+   d="M 43.740389,69.529209 C 55.912985,60.856294 63.19528,49.909114 63.19528,38.000444 C 63.19528,26.008507 55.818229,14.994972 43.506967,6.2960356"
+   id="path3646" />
+</svg>
