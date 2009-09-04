@@ -487,7 +487,7 @@ namespace Chorus.sync
 						catch (Exception error)
 						{
 							progress.WriteError("Could not move the file. Error was: {0}", error.Message);
-							throw error;
+							throw;
 						}
 					}
 				}
@@ -498,7 +498,12 @@ namespace Chorus.sync
 		/// <returns>false if nothing needed to be merged, true if the merge was done. Throws exception if there is an error.</returns>
 		private bool MergeTwoChangeSets(Revision head, Revision theirHead)
 		{
-			using (new ShortTermEnvironmentalVariable("HGMERGE", Path.Combine(Other.DirectoryOfExecutingAssembly, "ChorusMerge.exe")))
+#if MONO
+			string chorusMergeFilePath = Path.Combine(Other.DirectoryOfExecutingAssembly, "chorusmerge");
+#else
+			string chorusMergeFilePath = Path.Combine(Other.DirectoryOfExecutingAssembly, "ChorusMerge.exe");
+#endif
+			using (new ShortTermEnvironmentalVariable("HGMERGE", chorusMergeFilePath))
 			{
 				using (new ShortTermEnvironmentalVariable(MergeOrder.kConflictHandlingModeEnvVarName, MergeOrder.ConflictHandlingModeChoices.TheyWin.ToString()))
 				{
