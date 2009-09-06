@@ -165,6 +165,15 @@ namespace Chorus.UI.Clone
 			if (string.IsNullOrEmpty(SelectedPath))
 				return;
 
+			if (!Directory.Exists(_parentDirectoryToPutCloneIn))
+			{
+				MessageBox.Show(
+					string.Format(
+						@"Sorry, the calling program told Chorus to place the new project inside {0}, but that directory does not exist.",
+						_parentDirectoryToPutCloneIn), "Problem", MessageBoxButtons.OK, MessageBoxIcon.Stop);
+				return;
+			}
+
 			var target = Path.Combine(_parentDirectoryToPutCloneIn, Path.GetFileName(SelectedPath));
 			if (Directory.Exists(target))
 			{
