@@ -3,6 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using Chorus.Utilities;
@@ -1094,6 +1095,82 @@ namespace Chorus.VcsDrivers.Mercurial
 		public void RollbackWorkingDirectoryToRevision(string revision)
 		{
 			Execute(false, _pathToRepository, 30, _progress, "update --clean --rev " +revision);
+		}
+
+		public void GetDiagnosticInformation(IProgress progress)
+		{
+			progress.WriteStatus("Gathering data...");
+			progress.WriteMessage(GetTextFromQuery("version", 30, progress));
+			progress.WriteMessage("---------------------------------------------------");
+
+			progress.WriteMessage("path = " + _pathToRepository);
+
+			try
+			{
+				progress.WriteMessage("Client = " + Assembly.GetEntryAssembly().FullName);
+				progress.WriteMessage("Chorus = " + Assembly.GetExecutingAssembly().FullName);
+			}
+			catch (Exception)
+			{
+				progress.WriteWarning("Could not get all assembly info.");
+			}
+
+			progress.WriteMessage("---------------------------------------------------");
+			progress.WriteMessage("heads:");
+			progress.WriteMessage(GetTextFromQuery("heads", 30, progress));
+
+			progress.WriteMessage("---------------------------------------------------");
+
+			progress.WriteMessage("status:");
+			progress.WriteMessage(GetTextFromQuery("status", 30, progress));
+
+			progress.WriteMessage("---------------------------------------------------");
+
+			progress.WriteMessage("Log of last 100 changesets:");
+			try
+			{   //use glog if it is installd and enabled
+				progress.WriteMessage(GetTextFromQuery("glog -l 100", 30, progress));
+			}
+			catch (Exception)
+			{
+				progress.WriteMessage(GetTextFromQuery("log -l 100", 30, progress));
+			}
+			progress.WriteMessage("---------------------------------------------------");
+
+			progress.WriteMessage("config:");
+			progress.WriteMessage(GetTextFromQuery("showconfig", 30, progress));
+			progress.WriteMessage("---------------------------------------------------");
+
+			progress.WriteMessage("manifest:");
+			progress.WriteMessage(GetTextFromQuery("manifest", 30, progress));
+			progress.WriteMessage("---------------------------------------------------");
+
+
+			progress.WriteMessage(".hgignore");
+			try
+			{
+				progress.WriteMessage(File.ReadAllText(Path.Combine(_pathToRepository, ".hgignore")));
+			}
+			catch (Exception error)
+			{
+				progress.WriteMessage("No .hgignore found");
+			}
+			progress.WriteMessage("---------------------------------------------------");
+
+			progress.WriteMessage("hgrc");
+			try
+			{
+				progress.WriteMessage(File.ReadAllText(Path.Combine(Path.Combine(_pathToRepository,".hg"), "hgrc")));
+			}
+			catch (Exception error)
+			{
+				progress.WriteMessage("No .hg/hgrc found");
+			}
+
+			progress.WriteStatus("Validating Repository... (this can take a long time)");
+			progress.WriteMessage(GetTextFromQuery("verify", 60*60, _progress));
+
+			progress.WriteStatus("Done.");
 		}
 	}
 

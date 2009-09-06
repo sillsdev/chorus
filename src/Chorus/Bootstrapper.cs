@@ -6,6 +6,7 @@ using Autofac.Builder;
 using Chorus.FileTypeHanders;
 using Chorus.retrieval;
 using Chorus.sync;
+using Chorus.UI.Misc;
 using Chorus.UI.Review;
 using Chorus.UI.Review.ChangedReport;
 using Chorus.UI.Review.ChangesInRevision;
@@ -47,6 +48,7 @@ namespace Chorus
 
 			builder.Register<SyncPanel>();
 			builder.Register<SyncControlModel>();
+			builder.Register<TroubleshootingView>();
 
 			RegisterSyncStuff(builder);
 			RegisterReviewStuff(builder);
@@ -60,6 +62,7 @@ namespace Chorus
 			shell.AddPage("Review", _container.Resolve<ReviewPage>());
 			shell.AddPage("Send/Receive", _container.Resolve<SyncPanel>());
 			shell.AddPage("Settings", _container.Resolve<SettingsView>());
+			shell.AddPage("Troubleshooting", _container.Resolve<TroubleshootingView>());
 
 			return shell;
 		}

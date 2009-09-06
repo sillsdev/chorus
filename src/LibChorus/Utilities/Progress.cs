@@ -218,6 +218,60 @@ namespace Chorus.Utilities
 
 	}
 
+	/// <summary>
+	/// Just conveys status, not all messages
+	/// </summary>
+	public class LabelStatus : IProgress
+	{
+		private Label _box;
+
+		public LabelStatus(Label box)
+		{
+			_box = box;
+		}
+
+		public bool ShowVerbose
+		{
+			set { }
+		}
+		public bool CancelRequested { get; set; }
+
+
+		public void WriteStatus(string message, params object[] args)
+		{
+			try
+			{
+				_box.Invoke(new Action(() =>
+				{
+					_box.Text = String.Format(message + Environment.NewLine, args);
+				}));
+			}
+			catch (Exception)
+			{
+
+			}
+		}
+
+		public void WriteMessage(string message, params object[] args)
+		{
+
+		}
+
+		public void WriteWarning(string message, params object[] args)
+		{
+		}
+
+		public void WriteError(string message, params object[] args)
+		{
+			WriteStatus(message,args);
+		}
+
+		public void WriteVerbose(string message, params object[] args)
+		{
+
+		}
+
+	}
 
 	public class TextBoxProgress : GenericProgress
 	{
@@ -230,7 +284,7 @@ namespace Chorus.Utilities
 		}
 
 
-		public override void WriteStatus(string message, params object[] args)
+		public override void WriteMessage(string message, params object[] args)
 		{
 			try
 			{
@@ -257,7 +311,7 @@ namespace Chorus.Utilities
 	{
 		private StringBuilder _builder = new StringBuilder();
 
-		public override void WriteStatus(string message, params object[] args)
+		public override void WriteMessage(string message, params object[] args)
 		{
 			_builder.Append("                          ".Substring(0, indent * 2));
 			_builder.AppendFormat(message+Environment.NewLine, args);
@@ -337,21 +391,21 @@ namespace Chorus.Utilities
 		{
 		}
 		public bool CancelRequested { get; set; }
-		public abstract void WriteStatus(string message, params object[] args);
+		public abstract void WriteMessage(string message, params object[] args);
 
-		public void WriteMessage(string message, params object[] args)
+		public void WriteStatus(string message, params object[] args)
 		{
-			WriteStatus(message, args);
+			WriteMessage(message, args);
 		}
 
 		public void WriteWarning(string message, params object[] args)
 		{
-			WriteStatus("Warning: "+message, args);
+			WriteMessage("Warning: " + message, args);
 		}
 
 		public void WriteError(string message, params object[] args)
 		{
-			WriteStatus("Error:" + message, args);
+			WriteMessage("Error:" + message, args);
 		}
 
 		public void WriteVerbose(string message, params object[] args)
@@ -362,7 +416,7 @@ namespace Chorus.Utilities
 			foreach (var line in lines.Split('\n'))
 			{
 
-				WriteStatus(": " + line);
+				WriteMessage(": " + line);
 			}
 
 		}
