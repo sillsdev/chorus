@@ -25,7 +25,13 @@ namespace Chorus.UI.Clone
 			if (haveGoodUrl)
 			{
 				_targetWarningImage.Visible = !TargetLocationIsUnused || !HaveWellFormedTargetLocation;
-				if (!TargetLocationIsUnused)
+
+				if (!Directory.Exists(_parentDirectoryToPutCloneIn))
+				{
+					_targetInfoLabel.Text = string.Format("The directory {0} doesn't exist, but should have been created by the application.",
+														  _parentDirectoryToPutCloneIn);
+				}
+				else if (!TargetLocationIsUnused)
 				{
 					_targetInfoLabel.Text = string.Format("There is a already a project with that name at {0}",
 														  TargetDestination);

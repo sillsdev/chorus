@@ -138,10 +138,10 @@
 			//
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			this.Controls.Add(this._downloadButton);
 			this.Controls.Add(this._sourcetWarningImage);
 			this.Controls.Add(this._targetWarningImage);
 			this.Controls.Add(this._targetInfoLabel);
-			this.Controls.Add(this._downloadButton);
 			this.Controls.Add(this.label3);
 			this.Controls.Add(this._localFolderName);
 			this.Controls.Add(this._urlBox);
