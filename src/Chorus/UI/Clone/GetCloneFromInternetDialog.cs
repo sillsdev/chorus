@@ -28,8 +28,9 @@ namespace Chorus.UI.Clone
 		public GetCloneFromInternetDialog(string parentDirectoryToPutCloneIn)
 		{
 			_parentDirectoryToPutCloneIn = parentDirectoryToPutCloneIn;
+#if !MONO
 			Font = SystemFonts.MessageBoxFont;
-
+#endif
 			InitializeComponent();
 
 			_backgroundWorker = new BackgroundWorker();
@@ -43,11 +44,11 @@ namespace Chorus.UI.Clone
 			_progress = new MultiProgress(new IProgress[]{new TextBoxProgress(_progressLog), verboseProgress, _statusProgress});
 
 			_internetCloneInstructionsControl = new InternetCloneInstructionsControl(parentDirectoryToPutCloneIn);
-			_internetCloneInstructionsControl.Bounds = new Rectangle(0, 0, Width, Height);
-			_internetCloneInstructionsControl.Dock = DockStyle.Fill;
+			_internetCloneInstructionsControl.AutoSize = true;
+			_internetCloneInstructionsControl.Anchor = (AnchorStyles.Bottom | AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right);
+			_internetCloneInstructionsControl._downloadButton.Click+=new EventHandler(OnDownloadClick);
 			this.Controls.Add(_internetCloneInstructionsControl);
 			_progressLogVerbose.Visible = false;
-			_internetCloneInstructionsControl._downloadButton.Click+=new EventHandler(OnDownloadClick);
 		}
 
 		private void _backgroundWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)

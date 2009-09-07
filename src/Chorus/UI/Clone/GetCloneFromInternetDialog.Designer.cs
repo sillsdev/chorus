@@ -158,8 +158,8 @@
 			// GetCloneFromInternetDialog
 			//
 			this.AcceptButton = this._okButton;
-			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+//            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+//            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(394, 262);
 			this.Controls.Add(this._showVerboseLink);
 			this.Controls.Add(this._progressLogVerbose);

@@ -89,7 +89,7 @@
 			// _downloadButton
 			//
 			this._downloadButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this._downloadButton.Location = new System.Drawing.Point(16, 239);
+			this._downloadButton.Location = new System.Drawing.Point(16, 227);
 			this._downloadButton.Name = "_downloadButton";
 			this._downloadButton.Size = new System.Drawing.Size(75, 23);
 			this._downloadButton.TabIndex = 2;
@@ -136,8 +136,6 @@
 			//
 			// InternetCloneInstructionsControl
 			//
-			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.Controls.Add(this._downloadButton);
 			this.Controls.Add(this._sourcetWarningImage);
 			this.Controls.Add(this._targetWarningImage);
@@ -148,7 +146,7 @@
 			this.Controls.Add(this.label2);
 			this.Controls.Add(this.label1);
 			this.Name = "InternetCloneInstructionsControl";
-			this.Size = new System.Drawing.Size(370, 278);
+			this.Size = new System.Drawing.Size(370, 300);
 			this.Load += new System.EventHandler(this.AccountInfo_Load);
 			((System.ComponentModel.ISupportInitialize)(this._targetWarningImage)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this._sourcetWarningImage)).EndInit();
