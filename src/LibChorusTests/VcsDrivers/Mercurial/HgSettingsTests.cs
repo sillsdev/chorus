@@ -25,14 +25,14 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			_progress = new ConsoleProgress();
 		}
 
-		[Test] public void GetKnownRepositories_NoneKnown_GivesOnlyLanguageDepo()
+		[Test] public void GetKnownRepositories_NoneKnown_GivesNone()
 		{
 			using (var testRoot = new TempFolder("ChorusHgSettingsTest"))
 			{
 				HgRepository.CreateRepositoryInExistingDir(testRoot.Path, _progress);
 				var repo = new HgRepository(testRoot.Path, _progress);
 				var sources = repo.GetRepositoryPathsInHgrc();
-				Assert.AreEqual(1, sources.Count());
+				Assert.AreEqual(0, sources.Count());
 			}
 		}
 
