@@ -117,15 +117,6 @@
   <resheader name="writer">
 	<value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="label2.Text" xml:space="preserve">
-	<value>The pattern is: alias = address.  So, to point at a shared folder on a local network, doing something like:
-suzie = \\SUZIE-PC\TokPisin
-
-For an internet server, if you plan to push new data, include your name and password like this:
-depot = http://Joe_Smith:mypassword@public.languagedepot.org/TPI
-
-For a free internet repository, see http://public.languagedepot.org</value>
-  </data>
   <assembly alias="System.Drawing" name="System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
   <data name="pictureBox2.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
 	<value>
@@ -157,5 +148,14 @@ For a free internet repository, see http://public.languagedepot.org</value>
 		BUrLInKbdnUIOFVT+b4udBARPGAgBPdpXDmF4dUNBax64Xm6f8/W1lZB62CJB18PeueBtbV1E/Xhwyvv
 		oP9scC2Bz1HD68QHhAWxl7AneHsyfG1L7CDeJl4wZqb/As+df4zjz4QeAAAAAElFTkSuQmCC
 </value>
+  </data>
+  <data name="betterLabel1.Text" xml:space="preserve">
+	<value>The pattern is: alias = address.  So, to point at a shared folder on a local network, doing something like:
+suzie = \\SUZIE-PC\TokPisin
+
+For an internet server, if you plan to push new data, include your name and password like this:
+depot = http://JoeSmith:mypassword@public.languagedepot.org/TPI
+
+For a free internet repository, see http://public.languagedepot.org</value>
   </data>
 </root>

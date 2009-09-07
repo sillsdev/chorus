@@ -1,6 +1,6 @@
 ﻿namespace Chorus.UI.Misc
 {
-	partial class TroubleShootingView
+	partial class TroubleshootingView
 	{
 		/// <summary>
 		/// Required designer variable.
@@ -28,67 +28,67 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
-			this.textBox1 = new System.Windows.Forms.TextBox();
 			this._runDiagnosticsButton = new System.Windows.Forms.Button();
-			this._emailLink = new System.Windows.Forms.LinkLabel();
 			this._copyLink = new System.Windows.Forms.LinkLabel();
+			this._outputBox = new System.Windows.Forms.RichTextBox();
+			this._statusLabel = new System.Windows.Forms.Label();
 			this.SuspendLayout();
-			//
-			// textBox1
-			//
-			this.textBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-						| System.Windows.Forms.AnchorStyles.Left)
-						| System.Windows.Forms.AnchorStyles.Right)));
-			this.textBox1.BackColor = System.Drawing.Color.White;
-			this.textBox1.Location = new System.Drawing.Point(15, 61);
-			this.textBox1.Multiline = true;
-			this.textBox1.Name = "textBox1";
-			this.textBox1.ReadOnly = true;
-			this.textBox1.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-			this.textBox1.Size = new System.Drawing.Size(458, 336);
-			this.textBox1.TabIndex = 0;
 			//
 			// _runDiagnosticsButton
 			//
 			this._runDiagnosticsButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this._runDiagnosticsButton.Location = new System.Drawing.Point(295, 22);
+			this._runDiagnosticsButton.Location = new System.Drawing.Point(371, 22);
 			this._runDiagnosticsButton.Name = "_runDiagnosticsButton";
-			this._runDiagnosticsButton.Size = new System.Drawing.Size(178, 23);
+			this._runDiagnosticsButton.Size = new System.Drawing.Size(102, 23);
 			this._runDiagnosticsButton.TabIndex = 1;
 			this._runDiagnosticsButton.Text = "Run Diagnostics";
 			this._runDiagnosticsButton.UseVisualStyleBackColor = true;
-			//
-			// _emailLink
-			//
-			this._emailLink.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this._emailLink.AutoSize = true;
-			this._emailLink.Location = new System.Drawing.Point(12, 414);
-			this._emailLink.Name = "_emailLink";
-			this._emailLink.Size = new System.Drawing.Size(89, 13);
-			this._emailLink.TabIndex = 2;
-			this._emailLink.TabStop = true;
-			this._emailLink.Text = "email to someone";
+			this._runDiagnosticsButton.Click += new System.EventHandler(this._runDiagnosticsButton_Click);
 			//
 			// _copyLink
 			//
 			this._copyLink.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
 			this._copyLink.AutoSize = true;
-			this._copyLink.Location = new System.Drawing.Point(198, 414);
+			this._copyLink.Location = new System.Drawing.Point(12, 412);
 			this._copyLink.Name = "_copyLink";
 			this._copyLink.Size = new System.Drawing.Size(88, 13);
 			this._copyLink.TabIndex = 2;
 			this._copyLink.TabStop = true;
 			this._copyLink.Text = "copy to clipboard";
+			this._copyLink.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this._copyLink_LinkClicked);
 			//
-			// DiagnosticsPanel
+			// _outputBox
+			//
+			this._outputBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+						| System.Windows.Forms.AnchorStyles.Left)
+						| System.Windows.Forms.AnchorStyles.Right)));
+			this._outputBox.Location = new System.Drawing.Point(15, 70);
+			this._outputBox.Name = "_outputBox";
+			this._outputBox.ReadOnly = true;
+			this._outputBox.Size = new System.Drawing.Size(458, 319);
+			this._outputBox.TabIndex = 3;
+			this._outputBox.TabStop = false;
+			this._outputBox.Text = "";
+			//
+			// _statusLabel
+			//
+			this._statusLabel.AutoSize = true;
+			this._statusLabel.Location = new System.Drawing.Point(12, 22);
+			this._statusLabel.Name = "_statusLabel";
+			this._statusLabel.Size = new System.Drawing.Size(35, 13);
+			this._statusLabel.TabIndex = 4;
+			this._statusLabel.Text = "label1";
+			//
+			// TroubleshootingView
 			//
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			this.BackColor = System.Drawing.SystemColors.GradientInactiveCaption;
+			this.Controls.Add(this._statusLabel);
+			this.Controls.Add(this._outputBox);
 			this.Controls.Add(this._copyLink);
-			this.Controls.Add(this._emailLink);
 			this.Controls.Add(this._runDiagnosticsButton);
-			this.Controls.Add(this.textBox1);
-			this.Name = "DiagnosticsPanel";
+			this.Name = "TroubleshootingView";
 			this.Size = new System.Drawing.Size(489, 444);
 			this.ResumeLayout(false);
 			this.PerformLayout();
@@ -97,9 +97,9 @@
 
 		#endregion
 
-		private System.Windows.Forms.TextBox textBox1;
 		private System.Windows.Forms.Button _runDiagnosticsButton;
-		private System.Windows.Forms.LinkLabel _emailLink;
 		private System.Windows.Forms.LinkLabel _copyLink;
+		private System.Windows.Forms.RichTextBox _outputBox;
+		private System.Windows.Forms.Label _statusLabel;
 	}
 }

@@ -195,12 +195,11 @@
 			//
 			this._sendReceiveButton.Image = ((System.Drawing.Image)(resources.GetObject("_sendReceiveButton.Image")));
 			this._sendReceiveButton.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-			this._sendReceiveButton.Location = new System.Drawing.Point(374, 2);
+			this._sendReceiveButton.Location = new System.Drawing.Point(373, 2);
 			this._sendReceiveButton.Name = "_sendReceiveButton";
 			this._sendReceiveButton.Size = new System.Drawing.Size(108, 38);
 			this._sendReceiveButton.TabIndex = 14;
 			this._sendReceiveButton.Text = "Send/Recieve";
-			this._sendReceiveButton.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
 			this._sendReceiveButton.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
 			this._sendReceiveButton.UseVisualStyleBackColor = true;
 			this._sendReceiveButton.Click += new System.EventHandler(this._syncButton_Click);

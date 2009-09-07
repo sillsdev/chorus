@@ -46,9 +46,9 @@ namespace Chorus.UI.Settings
 			{
 				_model.SetAddresses(_repositoryAliases.Text, _progress);
 			}
-			catch (Exception)
+			catch (Exception error)
 			{
-				MessageBox.Show("There was a problem with the format of the repositories list.");
+				MessageBox.Show("Chorus encounterd a problem while trying to store these addresses:\r\n" + error.Message, "Chorus settings problem", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 				e.Cancel = true;
 			}
 		}
@@ -59,9 +59,9 @@ namespace Chorus.UI.Settings
 			{
 				_model.SetAddresses(_repositoryAliases.Text, _progress);
 			}
-			catch (Exception)
+			catch (Exception error)
 			{
-				MessageBox.Show("There was a problem with the format of the repositories list.");
+				MessageBox.Show("Chorus encounterd a problem while trying to store these addresses:\r\n" + error.Message, "Chorus settings problem", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 			}
 		}
 	}
