@@ -816,12 +816,12 @@ namespace Chorus.VcsDrivers.Mercurial
 		public IEnumerable<RepositoryAddress> GetRepositoryPathsInHgrc()
 		{
 			var section = GetHgrcDoc().Sections.GetOrCreate("paths");
-			if (section.GetKeys().Count() == 0)
-			{
-				yield return
-					RepositoryAddress.Create("LanguageDepot",
-											 "http://hg-public.languagedepot.org/REPLACE_WITH_ETHNOLOGUE_CODE");
-			}
+//I repent            if (section.GetKeys().Count() == 0)
+//            {
+//                yield return
+//                    RepositoryAddress.Create("LanguageDepot",
+//                                             "http://hg-public.languagedepot.org/REPLACE_WITH_ETHNOLOGUE_CODE");
+//            }
 			foreach (var name in section.GetKeys())
 			{
 				var uri = section.GetValue(name);
