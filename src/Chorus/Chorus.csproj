@@ -66,6 +66,12 @@
   </ItemGroup>
   <ItemGroup>
 	<Compile Include="Bootstrapper.cs" />
+	<Compile Include="UI\BetterLabel.cs">
+	  <SubType>Component</SubType>
+	</Compile>
+	<Compile Include="UI\BetterLabel.designer.cs">
+	  <DependentUpon>BetterLabel.cs</DependentUpon>
+	</Compile>
 	<Compile Include="UI\Clone\InternetCloneInstructionsControl.cs">
 	  <SubType>UserControl</SubType>
 	</Compile>
@@ -225,6 +231,9 @@
   </ItemGroup>
   <ItemGroup>
 	<Content Include="chorus.ico" />
+	<EmbeddedResource Include="UI\BetterLabel.resx">
+	  <DependentUpon>BetterLabel.cs</DependentUpon>
+	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Clone\InternetCloneInstructionsControl.resx">
 	  <DependentUpon>InternetCloneInstructionsControl.cs</DependentUpon>
 	  <SubType>Designer</SubType>

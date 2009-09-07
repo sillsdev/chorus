@@ -44,9 +44,14 @@ namespace Chorus.UI.Clone
 			_progress = new MultiProgress(new IProgress[]{new TextBoxProgress(_progressLog), verboseProgress, _statusProgress});
 
 			_internetCloneInstructionsControl = new InternetCloneInstructionsControl(parentDirectoryToPutCloneIn);
-			_internetCloneInstructionsControl.AutoSize = true;
+		//	_internetCloneInstructionsControl.AutoSize = true;
 			_internetCloneInstructionsControl.Anchor = (AnchorStyles.Bottom | AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right);
 			_internetCloneInstructionsControl._downloadButton.Click+=new EventHandler(OnDownloadClick);
+			this.MinimumSize = new Size(_internetCloneInstructionsControl.MinimumSize.Width+20, _internetCloneInstructionsControl.MinimumSize.Height+20);
+			if (_internetCloneInstructionsControl.Bottom +30> Bottom)
+			{
+				this.Size = new Size(this.Width,_internetCloneInstructionsControl.Bottom + 30);
+			}
 			this.Controls.Add(_internetCloneInstructionsControl);
 			_progressLogVerbose.Visible = false;
 		}
@@ -119,7 +124,8 @@ namespace Chorus.UI.Clone
 					_progressBar.Visible = false;
 					_showVerboseLink.Visible = false;
 					_internetCloneInstructionsControl.Visible = true;
-					_cancelTaskButton.Visible = false;
+					 _cancelButton.Enabled = true;
+				   _cancelTaskButton.Visible = false;
 
 					break;
 				case State.MakingClone:

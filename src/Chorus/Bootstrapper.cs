@@ -48,7 +48,7 @@ namespace Chorus
 
 			builder.Register<SyncPanel>();
 			builder.Register<SyncControlModel>();
-			builder.Register<TroubleshootingView>();
+			builder.Register<TroubleShootingView>();
 
 			RegisterSyncStuff(builder);
 			RegisterReviewStuff(builder);
@@ -62,7 +62,7 @@ namespace Chorus
 			shell.AddPage("Review", _container.Resolve<ReviewPage>());
 			shell.AddPage("Send/Receive", _container.Resolve<SyncPanel>());
 			shell.AddPage("Settings", _container.Resolve<SettingsView>());
-			shell.AddPage("Troubleshooting", _container.Resolve<TroubleshootingView>());
+			shell.AddPage("Troubleshooting", _container.Resolve<TroubleShootingView>());
 
 			return shell;
 		}
