@@ -94,6 +94,7 @@
 	<Compile Include="FileTypeHanders\DefaultFileTypeHandler.cs" />
 	<Compile Include="FileTypeHanders\IChangePresenter.cs" />
 	<Compile Include="FileTypeHanders\IChorusFileTypeHandler.cs" />
+	<Compile Include="FileTypeHanders\xml\ErrorDeterminingChangeReport.cs" />
 	<Compile Include="merge\ChangeAndConflictAccumulator.cs" />
 	<Compile Include="FileTypeHanders\lift\LexEntryContextGenerator.cs" />
 	<Compile Include="FileTypeHanders\lift\LiftChangePresenter.cs" />

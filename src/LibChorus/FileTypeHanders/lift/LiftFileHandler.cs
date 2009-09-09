@@ -76,7 +76,13 @@ namespace Chorus.FileTypeHanders
 
 			//pull the files out of the repository so we can read them
 				var differ = Lift2WayDiffer.CreateFromFileInRevision(strat, parent, child, listener, repository);
-				differ.ReportDifferencesToListener();
+				try
+				{
+					differ.ReportDifferencesToListener();
+				}
+				catch (Exception e)
+				{ }
+
 				return listener.Changes;
 		}
 
@@ -85,6 +91,10 @@ namespace Chorus.FileTypeHanders
 			if ((report as IXmlChangeReport) != null)
 			{
 				return new LiftChangePresenter(report as IXmlChangeReport);
+			}
+			else if (report is ErrorDeterminingChangeReport)
+			{
+				return (IChangePresenter)report;
 			}
 			else
 			{

@@ -15,7 +15,7 @@ namespace Chorus.merge.xml.lift
 
 		public static string GetId(XmlNode e)
 		{
-			return e.Attributes["id"].Value;
+			return e.GetStringAttribute("id");
 		}
 
 		public static DateTime GetModifiedDate(XmlNode entry)

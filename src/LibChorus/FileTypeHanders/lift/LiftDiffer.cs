@@ -51,20 +51,42 @@ namespace Chorus.merge.xml.lift
 
 		public void ReportDifferencesToListener()
 		{
-			foreach (XmlNode e in _childDom.SafeSelectNodes("lift/entry"))
+			foreach (XmlNode childNode in _childDom.SafeSelectNodes("lift/entry"))
 			{
-				ProcessEntry(e);
+				try
+				{
+					ProcessEntry(childNode);
+				}
+				catch (Exception error)
+				{
+					EventListener.ChangeOccurred(new ErrorDeterminingChangeReport(_parentFileInRevision,
+																				  _childFileInRevision, null, childNode,
+																				  error));
+				}
 			}
 
 			//now detect any removed (not just marked as deleted) elements
 			foreach (XmlNode parentNode in _parentDom.SafeSelectNodes("lift/entry"))
 			{
-				if (!_processedIds.Contains(LiftUtils.GetId(parentNode)))
+				try
 				{
-					EventListener.ChangeOccurred(new XmlDeletionChangeReport(_parentFileInRevision, parentNode, null));
+					if (!_processedIds.Contains(LiftUtils.GetId(parentNode)))
+					{
+						EventListener.ChangeOccurred(new XmlDeletionChangeReport(_parentFileInRevision, parentNode,
+																				 null));
+					}
+				}
+				catch (Exception error)
+				{
+					EventListener.ChangeOccurred(new ErrorDeterminingChangeReport(_parentFileInRevision,
+																				  _childFileInRevision,
+																				  parentNode,
+																				  null,
+																				  error));
 				}
 			}
 		}
+
 
 		private void ProcessEntry(XmlNode child)
 		{
