@@ -128,7 +128,7 @@ namespace Chorus.sync
 				return results;
 			}
 
-			var tipBeforeSync = repo.GetTip();
+			var workingRevBeforeSync = repo.GetRevisionWorkingSetIsBasedOn();
 			List<RepositoryAddress> sourcesToTry = options.RepositorySourcesToTry;
 
 			//if the client didn't specify any, try them all
@@ -194,11 +194,7 @@ namespace Chorus.sync
 			{
 				try
 				{
-					var peopleWeMergedWith = MergeHeads(progress, results);
-					//that merge may have generated conflict files, and we want these merged
-					//version + updated/created conflict files to go right back into the repository
-					if(peopleWeMergedWith.Count > 0)
-						repo.AddAndCheckinFiles(_project.IncludePatterns, _project.ExcludePatterns, GetMergeCommitSummary(peopleWeMergedWith, repo));
+					MergeHeads(progress, results);
 				}
 				catch (Exception error)
 				{
@@ -206,7 +202,7 @@ namespace Chorus.sync
 					_progress.WriteError("Unable to complete the send/receive.  You can try restarting the computer, but you may need expert help to fix this problem.");
 
 					//rollback
-					UpdateToTheDescendantRevision(repo, tipBeforeSync);
+					UpdateToTheDescendantRevision(repo, workingRevBeforeSync);
 
 					results.Succeeded = false;
 					return results;
@@ -246,7 +242,7 @@ namespace Chorus.sync
 			}
 			try
 			{
-				UpdateToTheDescendantRevision(repo, tipBeforeSync);
+				UpdateToTheDescendantRevision(repo, workingRevBeforeSync);
 			}
 			catch (Exception error)
 			{
@@ -296,14 +292,9 @@ namespace Chorus.sync
 			_progress.WriteError("Unexpected drop back to previous-tip");
 		}
 
-		private string GetMergeCommitSummary(IList<string> peopleWeMergedWith, HgRepository repository)
+		private string GetMergeCommitSummary(string personMergedWith, HgRepository repository)
 		{
-			var message  = "Merged with ";
-			foreach (string id in peopleWeMergedWith)
-			{
-				message += id + ", ";
-			}
-			message= message.Remove(message.Length - 2); //chop off the trailing comma
+			var message  = "Merged with "+ personMergedWith;
 
 			if (repository.GetChangedFiles().Any(s => s.EndsWith(".conflicts")))
 			{
@@ -437,6 +428,10 @@ namespace Chorus.sync
 					if (didMerge)
 					{
 						peopleWeMergedWith.Add(head.UserId);
+						//that merge may have generated conflict files, and we want these merged
+						//version + updated/created conflict files to go right back into the repository
+						Repository.AddAndCheckinFiles(_project.IncludePatterns, _project.ExcludePatterns, GetMergeCommitSummary(head.UserId, Repository));
+
 					}
 				}
 			}

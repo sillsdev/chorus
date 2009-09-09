@@ -183,6 +183,16 @@ namespace LibChorus.Tests
 		{
 			Assert.AreEqual(expectedContents, File.ReadAllText(ProjectFolder.Combine(relativePath)));
 		}
+
+		/// <summary>
+		/// Obviously, don't leave this in a unit test... it's only for debugging
+		/// </summary>
+		public void ShowInTortoise()
+		{
+			var start = new System.Diagnostics.ProcessStartInfo("hgtk", "log");
+			start.WorkingDirectory = ProjectFolder.Path;
+			System.Diagnostics.Process.Start(start);
+		}
 	}
 
 }

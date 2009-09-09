@@ -110,7 +110,12 @@ namespace LibChorus.Tests.merge
 			File.WriteAllText(UserFile.Path, File.ReadAllText(UserFile.Path).Replace("original", replacement));
 		}
 
-		public void CheckinAndPullAndMerge(RepositoryWithFilesSetup syncWithUser)
+		public void WriteNewContentsToTestFile(string replacement)
+		{
+			File.WriteAllText(UserFile.Path, replacement);
+		}
+
+		public SyncResults CheckinAndPullAndMerge(RepositoryWithFilesSetup syncWithUser)
 		{
 			SyncOptions options = new SyncOptions();
 			options.DoMergeWithOthers = true;
@@ -118,7 +123,7 @@ namespace LibChorus.Tests.merge
 			options.DoPushToLocalSources = false;
 
 			options.RepositorySourcesToTry.Add(syncWithUser.RepoPath);
-			Synchronizer.SyncNow(options, Progress);
+			return Synchronizer.SyncNow(options, Progress);
 		}
 
 
@@ -193,6 +198,16 @@ namespace LibChorus.Tests.merge
 		public void AssertFileContents(string relativePath, string expectedContents)
 		{
 			Assert.AreEqual(expectedContents,File.ReadAllText(ProjectFolder.Combine(relativePath)));
+		}
+
+		/// <summary>
+		/// Obviously, don't leave this in a unit test... it's only for debugging
+		/// </summary>
+		public void ShowInTortoise()
+		{
+			var start = new System.Diagnostics.ProcessStartInfo("hgtk", "log");
+			start.WorkingDirectory = ProjectFolder.Path;
+			System.Diagnostics.Process.Start(start);
 		}
 	}
 

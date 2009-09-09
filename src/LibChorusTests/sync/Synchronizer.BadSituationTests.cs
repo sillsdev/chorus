@@ -96,10 +96,51 @@ namespace LibChorus.Tests.sync
 						sally.AssertFileContents("bbb.txt", "sally-bread");
 						sally.AssertFileContents("zzz.txt", "sally-zipper");
 
-//                        sally.AssertSingleHead();
+//                        sally.ShowInTortoise();
+					   sally.AssertHeadCount(2);
 						Assert.IsFalse(sally.GetProgressString().Contains("creates new remote heads"));
 					}
 				}
+			}
+		}
+
+
+		/// <summary>
+		/// regression test: there was a bug (found before we released) where on rollback
+		/// we were going to the tip, which if this was the *second* attempt, could be the other guy's work!
+		/// </summary>
+		[Test]
+		public void Sync_RepeatedMergeFailure_WeAreLeftOnOurOwnWorkingDefault()
+		{
+			using (var bob = new RepositoryWithFilesSetup("bob", "test.txt", "hello"))
+			using (var sally = RepositoryWithFilesSetup.CreateByCloning("sally",bob))
+			using (new FailureSimulator("TextMerger-test.txt"))
+			{
+				bob.WriteNewContentsToTestFile("bobWasHere");
+				bob.AddAndCheckIn();
+				sally.WriteNewContentsToTestFile("sallyWasHere");
+				var result = sally.CheckinAndPullAndMerge(bob);
+				Assert.IsFalse(result.Succeeded);
+
+				//make sure we ended up on Sally's revision, even though Bob's are newer
+				var currentRevision = sally.Repository.GetRevisionWorkingSetIsBasedOn();
+				Assert.AreEqual("sally", sally.Repository.GetRevision(currentRevision.Number.Hash).UserId);
+
+				//Now do it again
+
+				bob.WriteNewContentsToTestFile("bobWasHere2");
+				bob.AddAndCheckIn();
+				Assert.AreEqual("bob", sally.Repository.GetTip().UserId,"if bob's not the tip, we're not testing the right situation");
+
+				result = sally.CheckinAndPullAndMerge(bob);
+				Assert.IsFalse(result.Succeeded);
+				result = sally.CheckinAndPullAndMerge(bob);
+
+				Assert.AreEqual("sally",sally.Repository.GetRevisionWorkingSetIsBasedOn().UserId);
+
+
+				//sally.ShowInTortoise();
+
 			}
 		}
 
@@ -229,9 +270,56 @@ namespace LibChorus.Tests.sync
 					var rescueFiles = Directory.GetFiles(sally.ProjectFolder.Path, "*.chorusRescue");
 					Assert.AreEqual(0, rescueFiles.Length);
 				}
-
 			}
-		}/// <summary>
+		}
+
+		/// <summary>
+		/// regression test (WS-14964), where the user had actually acquired 6 heads that needed to be merged.
+		/// </summary>
+		[Test]
+		public void Sync_MergeWhenThereIsMoreThanOneHeadToMergeWith_MergesBoth()
+		{
+			using (RepositoryWithFilesSetup bob = new RepositoryWithFilesSetup("bob", "test.a9a", "original"))
+			using (RepositoryWithFilesSetup sally = RepositoryWithFilesSetup.CreateByCloning("sally", bob))
+			{
+				var tip = sally.Repository.GetTip();
+				sally.ReplaceSomething("forbranch1");
+				sally.AddAndCheckIn();
+				 sally.Repository.Update(tip.Number.Hash);
+
+				sally.Repository.Branch("branch1");
+				sally.ReplaceSomething("forbranch1");
+				sally.AddAndCheckIn();
+				 sally.Repository.Update(tip.Number.Hash);
+
+			   sally.Repository.Branch("branch2");
+				sally.ReplaceSomething("forbranch2");
+				sally.AddAndCheckIn();
+				sally.Repository.Update(tip.Number.Hash);
+
+				sally.Repository.Branch("branch3");
+				sally.ReplaceSomething("forbranch3");
+				sally.AddAndCheckIn();
+				sally.Repository.Update(tip.Number.Hash);
+
+				sally.AssertHeadCount(4);
+
+				bob.ReplaceSomething("bobWasHere");
+				bob.AddAndCheckIn();
+				sally.ReplaceSomething("sallyWasHere");
+				sally.CheckinAndPullAndMerge(bob);
+
+				sally.AssertNoErrorsReported();
+
+				var rescueFiles = Directory.GetFiles(sally.ProjectFolder.Path, "*.chorusRescue");
+				Assert.AreEqual(0, rescueFiles.Length);
+
+				sally.AssertHeadCount(1);
+			}
+
+		}
+
+		/// <summary>
 		/// the diff here with the previous test is that while sally is still the one who is the driver
 		/// (she dose the merge and push to bob), this time we follow up with bob doing a sync, which
 		/// is essentially just a pull and update, to make sure that at that point the system renames
