@@ -113,6 +113,8 @@ namespace Chorus.sync
 				return results;
 			}
 
+			UpdateHgrc(repo);
+
 			progress.WriteStatus("Storing changes in local repository...");
 
 			try
@@ -256,6 +258,20 @@ namespace Chorus.sync
 		}
 
 		/// <summary>
+		/// put anything in the hgrc that chorus requires
+		/// todo: kinda lame to do it every time, but when is better?
+		/// </summary>
+		private void UpdateHgrc(HgRepository repository)
+		{
+			string[] names = new string[] {
+				"hgext.graphlog", //for more easily readable diagnostic logs
+				"convert" //for catostrophic repair in case of repo corruption
+				//"win32text"  eventually
+				};
+			repository.EnsureTheseExtensionAreEnabled(names, _progress);
+		}
+
+		/// <summary>
 		/// If everything got merged, then this is trivial. But in case of a merge failure,
 		/// the "tip" might be the other guy's unmergable data (mabye because he has a newer
 		/// version of some application than we do) We don't want to switch to that!
@@ -339,21 +355,6 @@ namespace Chorus.sync
 			}
 			return null;
 		}
-
-
-		private static string AskUserForNewRepositoryPath(string pathToDirectory)
-		{
-			System.Windows.Forms.FolderBrowserDialog dlg = new FolderBrowserDialog();
-			dlg.SelectedPath =pathToDirectory;
-			dlg.ShowNewFolderButton = false;
-			dlg.Description = "Select the folder to be the parent of the Chorus repository.";
-			if(dlg.ShowDialog() != DialogResult.OK)
-				return null;
-			//todo: make sure the folder they chose is a parent of this
-			return dlg.SelectedPath;
-		}
-
-
 
 		/// <summary>
 		///

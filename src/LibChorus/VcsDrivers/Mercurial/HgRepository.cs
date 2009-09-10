@@ -950,6 +950,29 @@ namespace Chorus.VcsDrivers.Mercurial
 			return new List<string>(section.GetKeys());
 		}
 
+		public void EnsureTheseExtensionAreEnabled(string[] extensionNames, IProgress progress)
+		{
+			var doc = GetHgrcDoc();
+			var section = doc.Sections.GetOrCreate("extensions");
+			foreach (var name in extensionNames)
+			{
+				//NB: if ever we get to setting values, checking for existence won't be enough to get the right new value!
+				if (!section.GetKeys().Contains(name))
+				{
+					_progress.WriteMessage("Adding extension to project configuration: {0}", name);
+					section.Set(name, string.Empty);
+				}
+			}
+			doc.Save();
+		}
+
+		public IEnumerable<string> GetEnabledExtension()
+		{
+			var doc = GetHgrcDoc();
+			var section = doc.Sections.GetOrCreate("extensions");
+			return section.GetKeys();
+		}
+
 		public void SetIsOneDefaultSyncAddresses(RepositoryAddress address, bool doInclude)
 		{
 			var doc = GetHgrcDoc();

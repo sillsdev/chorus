@@ -3,6 +3,7 @@ using Chorus.sync;
 using Chorus.Utilities;
 using Chorus.VcsDrivers;
 using NUnit.Framework;
+using System.Linq;
 
 namespace LibChorus.Tests.sync
 {
@@ -103,6 +104,20 @@ namespace LibChorus.Tests.sync
 			_manager.SyncNow(options, _progress);
 			string dir = Path.Combine(_pathToBackupFolder, "foo project.2");
 			Assert.IsTrue(Directory.Exists(dir));
+		}
+
+		[Test]
+		public void SyncNow_SetsUpHgrc()
+		{
+			using (var setup = new RepositorySetup("Dan"))
+			{
+				//it's fine if this stops being true, but hten we need to fix the rest of this test
+				Assert.AreEqual(0, setup.Repository.GetEnabledExtension().Count());
+
+			   setup.AddAndCheckIn();
+			   Assert.Contains("hgext.graphlog", setup.Repository.GetEnabledExtension().ToArray());
+			   Assert.Contains("convert", setup.Repository.GetEnabledExtension().ToArray());
+			}
 		}
 
 	}

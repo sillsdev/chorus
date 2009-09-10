@@ -148,5 +148,39 @@ username = joe
 				Assert.AreEqual(1, repository.GetDefaultSyncAliases().Count());
 			}
 		}
+
+		[Test]
+		public void EnsureTheseExtensionAreEnabled_noExistingExtensions_AddsThem()
+		{
+			using (var setup = new RepositorySetup("Dan"))
+			{
+				setup.EnsureNoHgrcExists();
+				var repository = setup.CreateSynchronizer().Repository;
+				repository.EnsureTheseExtensionAreEnabled(new string[] { "a","b" }, setup.Progress);
+				Assert.AreEqual("a", repository.GetEnabledExtension().First());
+				Assert.AreEqual("b", repository.GetEnabledExtension().ToArray()[1]);
+			}
+		}
+
+		[Test]
+		public void EnsureTheseExtensionAreEnabled_someOthersEnabledAlready_StayEnabled()
+		{
+			using (var testRoot = new TempFolder("ChorusHgSettingsTest"))
+			{
+				HgRepository.CreateRepositoryInExistingDir(testRoot.Path, _progress);
+				var repository = new HgRepository(testRoot.Path, new NullProgress());
+				File.WriteAllText(testRoot.Combine(Path.Combine(".hg", "hgrc")), @"
+[extensions]
+a =
+x =
+");
+
+				repository.EnsureTheseExtensionAreEnabled(new string[] { "a", "b" }, new ConsoleProgress());
+				Assert.AreEqual(3, repository.GetEnabledExtension().Count());
+				Assert.AreEqual("a", repository.GetEnabledExtension().ToArray()[0]);
+				Assert.AreEqual("x", repository.GetEnabledExtension().ToArray()[1]);
+				Assert.AreEqual("b", repository.GetEnabledExtension().ToArray()[2]);
+			}
+		}
 	}
 }

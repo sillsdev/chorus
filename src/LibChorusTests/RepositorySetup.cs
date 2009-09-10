@@ -21,7 +21,7 @@ namespace LibChorus.Tests
 
 		private void Init(string name)
 		{
-			_progress = new MultiProgress(new IProgress[] { new ConsoleProgress(){ShowVerbose=true}, _stringBuilderProgress });
+			Progress = new MultiProgress(new IProgress[] { new ConsoleProgress(){ShowVerbose=true}, _stringBuilderProgress });
 			RootFolder = new TempFolder("ChorusTest-" + name);
 		}
 
@@ -31,7 +31,7 @@ namespace LibChorus.Tests
 
 			ProjectFolder = new TempFolder(RootFolder, ProjectName);
 
-			RepositorySetup.MakeRepositoryForTest(ProjectFolder.Path, userName,_progress);
+			RepositorySetup.MakeRepositoryForTest(ProjectFolder.Path, userName,Progress);
 			ProjectFolderConfig = new ProjectFolderConfiguration(ProjectFolder.Path);
 
 		}
@@ -44,7 +44,7 @@ namespace LibChorus.Tests
 			ProjectFolderConfig = sourceToClone.ProjectFolderConfig.Clone();
 			ProjectFolderConfig.FolderPath = pathToProject;
 
-			sourceToClone.CreateSynchronizer().MakeClone(pathToProject, true, _progress);
+			sourceToClone.CreateSynchronizer().MakeClone(pathToProject, true, Progress);
 			ProjectFolder = TempFolder.TrackExisting(RootFolder.Combine(ProjectName));
 
 			var hg = new HgRepository(pathToProject, new NullProgress());
@@ -65,7 +65,7 @@ namespace LibChorus.Tests
 
 		public HgRepository Repository
 		{
-			get { return new HgRepository(ProjectFolderConfig.FolderPath, _progress); }
+			get { return new HgRepository(ProjectFolderConfig.FolderPath, Progress); }
 		}
 		public void Dispose()
 		{
@@ -103,7 +103,7 @@ namespace LibChorus.Tests
 			options.DoPullFromOthers = false;
 			options.DoPushToLocalSources = false;
 
-			CreateSynchronizer().SyncNow(options, _progress);
+			CreateSynchronizer().SyncNow(options, Progress);
 		}
 
 		public SyncResults CheckinAndPullAndMerge(RepositorySetup otherUser)
@@ -114,7 +114,7 @@ namespace LibChorus.Tests
 			options.DoPushToLocalSources = true;
 
 			options.RepositorySourcesToTry.Add(otherUser.GetRepositoryAddress());
-			return CreateSynchronizer().SyncNow(options, _progress);
+			return CreateSynchronizer().SyncNow(options, Progress);
 		}
 
 		public RepositoryAddress GetRepositoryAddress()
@@ -150,6 +150,12 @@ namespace LibChorus.Tests
 		public static string ProjectName
 		{
 			get { return "foo project"; }//nb: important that it have a space, as this helps catch failure to enclose in quotes
+		}
+
+		public IProgress Progress
+		{
+			get { return _progress; }
+			set { _progress = value; }
 		}
 
 		public IDisposable GetFileLockForReading(string localPath)
