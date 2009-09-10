@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Windows.Forms;
 using Chorus.VcsDrivers.Mercurial;
@@ -74,6 +75,11 @@ namespace Chorus
 				var s = BrowseForRepository();
 				if (!string.IsNullOrEmpty(s) && Directory.Exists(s))
 				{
+					//NB: if this was run from a Visual Studio debug session, these settings
+					//are going to be saved in a different place, so on
+					//restart, we won't really open the one we wanted.
+					//We'll instead open the last project that was opened when
+					//running outside of Visual Studio.
 					Properties.Settings.Default.PathToRepository = s;
 					Properties.Settings.Default.Save();
 					Application.Restart();
