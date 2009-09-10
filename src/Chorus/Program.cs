@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Reflection;
 using System.Windows.Forms;
 using Chorus.VcsDrivers.Mercurial;
 
@@ -16,6 +17,8 @@ namespace Chorus
 		{
 			Application.EnableVisualStyles();
 			Application.SetCompatibleTextRenderingDefault(false);
+
+			SetUpErrorHandling();
 
 			//is mercurial set up?
 			var s = HgRepository.GetEnvironmentReadinessMessage("en");
@@ -54,6 +57,26 @@ namespace Chorus
 			new Runner().Run(pathToRepository);
 
 			Properties.Settings.Default.Save();
+		}
+
+		private static void SetUpErrorHandling()
+		{
+			/* until we decide to require palaso.dll, we can at least make use of it if it happens
+			 * to be there (as it is with WeSay)
+			 */
+			try
+			{
+				Assembly asm = Assembly.LoadFrom("Palaso.dll");
+				Type errorReportType = asm.GetType("Palaso.Reporting.ErrorReport");
+				PropertyInfo emailAddress = errorReportType.GetProperty("EmailAddress");
+				emailAddress.SetValue(null,"issues@wesay.org",null);
+				errorReportType.GetMethod("AddStandardProperties").Invoke(null, null);
+				asm.GetType("Palaso.Reporting.ExceptionHandler").GetMethod("Init").Invoke(null, null);
+			}
+			catch(Exception)
+			{
+				//ah well
+			}
 		}
 
 
