@@ -179,9 +179,15 @@ namespace Nini.Ini
 		/// <include file='IniDocument.xml' path='//Method[@name="SavePath"]/docs/*' />
 		public void Save (string filePath)
 		{
-			StreamWriter writer = new StreamWriter (filePath);
-			Save (writer);
-			writer.Close ();
+			//hatton rewrote this to use a temp file so the real one is safe from errors during write
+			var dir = Path.GetDirectoryName(filePath);
+			var tempPath = Path.Combine(dir, Path.GetFileName(filePath) + ".tmp");
+			using (StreamWriter writer = new StreamWriter(tempPath))
+			{
+				Save(writer);
+				writer.Close();
+			}
+			File.Replace(tempPath, filePath, null);
 		}
 
 		//added by hatton for Chorus
