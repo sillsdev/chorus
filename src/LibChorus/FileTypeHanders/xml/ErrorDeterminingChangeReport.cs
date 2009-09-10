@@ -62,12 +62,12 @@ namespace Chorus.FileTypeHanders.xml
 
 		public string GetTypeLabel()
 		{
-			return string.Empty;
+			return "error";
 		}
 
 		public string GetIconName()
 		{
-			return string.Empty;
+			return "error";
 		}
 		#endregion
 	}

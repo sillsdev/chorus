@@ -40,9 +40,9 @@
 			// listView1
 			//
 			this.listView1.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-																						this.columnHeader3,
-																						this.columnHeader1,
-																						this.columnHeader2});
+			this.columnHeader3,
+			this.columnHeader1,
+			this.columnHeader2});
 			this.listView1.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.listView1.FullRowSelect = true;
 			this.listView1.HideSelection = false;
@@ -82,6 +82,7 @@
 			this.imageList1.Images.SetKeyName(3, "WesayConfig");
 			this.imageList1.Images.SetKeyName(4, "WeSay");
 			this.imageList1.Images.SetKeyName(5, "conflict");
+			this.imageList1.Images.SetKeyName(6, "error");
 			//
 			// ChangesInRevisionView
 			//

@@ -71,6 +71,7 @@
 			this._historyList.Location = new System.Drawing.Point(3, 32);
 			this._historyList.MultiSelect = false;
 			this._historyList.Name = "_historyList";
+			this._historyList.ShowItemToolTips = true;
 			this._historyList.Size = new System.Drawing.Size(464, 297);
 			this._historyList.SmallImageList = this.imageList1;
 			this._historyList.TabIndex = 2;

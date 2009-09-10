@@ -91,6 +91,7 @@ namespace Chorus.UI.Review.RevisionsInRepository
 
 				}
 				viewItem.Tag = rev;
+				viewItem.ToolTipText = rev.Number.LocalRevisionNumber + ": " + rev.Number.Hash;
 				rows.Add(viewItem);
 			}
 			_historyList.Items.AddRange(rows.ToArray());
