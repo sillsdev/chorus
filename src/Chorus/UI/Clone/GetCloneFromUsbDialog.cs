@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using System.IO;
 using System.Media;
-using System.Text;
 using System.Windows.Forms;
 using Chorus.clone;
 using Chorus.Utilities;
@@ -31,7 +27,7 @@ namespace Chorus.UI.Clone
 			InitializeComponent();
 			_model = new CloneFromUsb();
 			UpdateDisplay(State.LookingForUsb);
-			_progress = new TextBoxProgress(_progressLog);
+			_progress = _logBox;
 		}
 		public CloneFromUsb Model { get { return _model; } }
 
@@ -44,7 +40,7 @@ namespace Chorus.UI.Clone
 					_statusLabel.Text = "Please insert a USB Flash Drive..." ;
 					_statusImage.Visible   =true;
 					_statusImage.ImageIndex  =0;
-					_progressLog.Visible = false;
+					_logBox.Visible = false;
 					_okButton.Visible = false;
 					listView1.Visible = false;
 					break;
@@ -67,9 +63,9 @@ namespace Chorus.UI.Clone
 					_statusLabel.Text = "Copying project";
 					listView1.Visible = false;
 
-					_progressLog.Location = listView1.Location;
-					_progressLog.Bounds = listView1.Bounds;
-					_progressLog.Visible = true;
+					_logBox.Location = listView1.Location;
+					_logBox.Bounds = listView1.Bounds;
+					_logBox.Visible = true;
 					//_progress.ShowVerbose = true;
 					break;
 				case State.Success:
@@ -79,14 +75,14 @@ namespace Chorus.UI.Clone
 					_statusLabel.Text = string.Format("Finished copying {0} to this computer at {1}", Path.GetFileName(SelectedPath), _parentDirectoryToPutCloneIn);
 					_okButton.Visible = true;
 					_cancelButton.Enabled = false;
-					_progressLog.Visible = false;
+					_logBox.Visible = false;
 					break;
 				case State.Error:
 					_statusLabel.Left = _statusImage.Right + 10;
 					_statusImage.ImageKey = "Error";
 					_statusImage.Visible = true;
 					_statusLabel.Text = _failureMessage;
-					_progressLog.Visible = true;
+					_logBox.Visible = true;
 					break;
 				default:
 					throw new ArgumentOutOfRangeException();

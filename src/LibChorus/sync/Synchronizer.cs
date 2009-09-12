@@ -155,11 +155,11 @@ namespace Chorus.sync
 						var potential = source.GetPotentialRepoUri(RepoProjectName, progress);
 						if (null ==potential)
 						{
-							progress.WriteWarning("None found");
+							progress.WriteWarning("No USB flash drive found");
 						}
 						else if (string.Empty == potential)
 						{
-							progress.WriteMessage("Did not find existing project on any USB key.");
+							progress.WriteMessage("Did not find existing project on any USB flash drive.");
 						}
 					}
 					else

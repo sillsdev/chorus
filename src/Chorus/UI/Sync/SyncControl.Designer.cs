@@ -32,30 +32,29 @@
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SyncControl));
 			this._tabControl = new System.Windows.Forms.TabControl();
 			this._chooseTargetsTab = new System.Windows.Forms.TabPage();
-			this.pictureBox2 = new System.Windows.Forms.PictureBox();
 			this.label1 = new System.Windows.Forms.Label();
 			this._syncTargets = new System.Windows.Forms.CheckedListBox();
 			this._tasksTab = new System.Windows.Forms.TabPage();
 			this._tasksListView = new System.Windows.Forms.ListView();
 			this._logTab = new System.Windows.Forms.TabPage();
-			this._showVerboseLog = new System.Windows.Forms.CheckBox();
-			this._logBox = new System.Windows.Forms.RichTextBox();
 			this.progressBar1 = new System.Windows.Forms.ProgressBar();
 			this._cancelButton = new System.Windows.Forms.Button();
-			this._sendReceiveButton = new System.Windows.Forms.Button();
 			this._updateDisplayTimer = new System.Windows.Forms.Timer(this.components);
-			this._warningIcon = new System.Windows.Forms.PictureBox();
-			this._successIcon = new System.Windows.Forms.PictureBox();
 			this._closeButton = new System.Windows.Forms.Button();
 			this._statusText = new System.Windows.Forms.Label();
 			this._showCancelButtonTimer = new System.Windows.Forms.Timer(this.components);
+			this._successIcon = new System.Windows.Forms.PictureBox();
+			this._warningIcon = new System.Windows.Forms.PictureBox();
+			this.pictureBox2 = new System.Windows.Forms.PictureBox();
+			this._sendReceiveButton = new System.Windows.Forms.Button();
+			this._logBox = new Chorus.UI.Misc.LogBox();
 			this._tabControl.SuspendLayout();
 			this._chooseTargetsTab.SuspendLayout();
-			((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
 			this._tasksTab.SuspendLayout();
 			this._logTab.SuspendLayout();
-			((System.ComponentModel.ISupportInitialize)(this._warningIcon)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this._successIcon)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this._warningIcon)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
 			this.SuspendLayout();
 			//
 			// _tabControl
@@ -83,15 +82,6 @@
 			this._chooseTargetsTab.TabIndex = 2;
 			this._chooseTargetsTab.Text = "Choose Respositories";
 			this._chooseTargetsTab.UseVisualStyleBackColor = true;
-			//
-			// pictureBox2
-			//
-			this.pictureBox2.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox2.Image")));
-			this.pictureBox2.Location = new System.Drawing.Point(5, 0);
-			this.pictureBox2.Name = "pictureBox2";
-			this.pictureBox2.Size = new System.Drawing.Size(40, 36);
-			this.pictureBox2.TabIndex = 10;
-			this.pictureBox2.TabStop = false;
 			//
 			// label1
 			//
@@ -139,7 +129,6 @@
 			//
 			// _logTab
 			//
-			this._logTab.Controls.Add(this._showVerboseLog);
 			this._logTab.Controls.Add(this._logBox);
 			this._logTab.Location = new System.Drawing.Point(4, 22);
 			this._logTab.Name = "_logTab";
@@ -149,29 +138,6 @@
 			this._logTab.Text = "Log";
 			this._logTab.UseVisualStyleBackColor = true;
 			this._logTab.Resize += new System.EventHandler(this._logTab_Resize);
-			//
-			// _showVerboseLog
-			//
-			this._showVerboseLog.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this._showVerboseLog.AutoSize = true;
-			this._showVerboseLog.Location = new System.Drawing.Point(6, 199);
-			this._showVerboseLog.Name = "_showVerboseLog";
-			this._showVerboseLog.Size = new System.Drawing.Size(158, 17);
-			this._showVerboseLog.TabIndex = 10;
-			this._showVerboseLog.Text = "Show diagnostic information";
-			this._showVerboseLog.UseVisualStyleBackColor = true;
-			//
-			// _logBox
-			//
-			this._logBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-						| System.Windows.Forms.AnchorStyles.Left)
-						| System.Windows.Forms.AnchorStyles.Right)));
-			this._logBox.Location = new System.Drawing.Point(3, 3);
-			this._logBox.Name = "_logBox";
-			this._logBox.Size = new System.Drawing.Size(472, 179);
-			this._logBox.TabIndex = 0;
-			this._logBox.Text = "";
-			this._logBox.WordWrap = false;
 			//
 			// progressBar1
 			//
@@ -191,42 +157,9 @@
 			this._cancelButton.UseVisualStyleBackColor = true;
 			this._cancelButton.Click += new System.EventHandler(this.OnCancelButton_Click);
 			//
-			// _sendReceiveButton
-			//
-			this._sendReceiveButton.Image = ((System.Drawing.Image)(resources.GetObject("_sendReceiveButton.Image")));
-			this._sendReceiveButton.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-			this._sendReceiveButton.Location = new System.Drawing.Point(373, 2);
-			this._sendReceiveButton.Name = "_sendReceiveButton";
-			this._sendReceiveButton.Size = new System.Drawing.Size(108, 38);
-			this._sendReceiveButton.TabIndex = 14;
-			this._sendReceiveButton.Text = "Send/receive";
-			this._sendReceiveButton.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
-			this._sendReceiveButton.UseVisualStyleBackColor = true;
-			this._sendReceiveButton.Click += new System.EventHandler(this._syncButton_Click);
-			//
 			// _updateDisplayTimer
 			//
 			this._updateDisplayTimer.Tick += new System.EventHandler(this.timer1_Tick);
-			//
-			// _warningIcon
-			//
-			this._warningIcon.Image = ((System.Drawing.Image)(resources.GetObject("_warningIcon.Image")));
-			this._warningIcon.Location = new System.Drawing.Point(10, 4);
-			this._warningIcon.Name = "_warningIcon";
-			this._warningIcon.Size = new System.Drawing.Size(32, 30);
-			this._warningIcon.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-			this._warningIcon.TabIndex = 15;
-			this._warningIcon.TabStop = false;
-			//
-			// _successIcon
-			//
-			this._successIcon.Image = ((System.Drawing.Image)(resources.GetObject("_successIcon.Image")));
-			this._successIcon.Location = new System.Drawing.Point(10, 5);
-			this._successIcon.Name = "_successIcon";
-			this._successIcon.Size = new System.Drawing.Size(32, 30);
-			this._successIcon.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-			this._successIcon.TabIndex = 15;
-			this._successIcon.TabStop = false;
 			//
 			// _closeButton
 			//
@@ -254,6 +187,56 @@
 			this._showCancelButtonTimer.Interval = 10000;
 			this._showCancelButtonTimer.Tick += new System.EventHandler(this._showCancelButtonTimer_Tick);
 			//
+			// _successIcon
+			//
+			this._successIcon.Image = ((System.Drawing.Image)(resources.GetObject("_successIcon.Image")));
+			this._successIcon.Location = new System.Drawing.Point(10, 5);
+			this._successIcon.Name = "_successIcon";
+			this._successIcon.Size = new System.Drawing.Size(32, 30);
+			this._successIcon.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+			this._successIcon.TabIndex = 15;
+			this._successIcon.TabStop = false;
+			//
+			// _warningIcon
+			//
+			this._warningIcon.Image = ((System.Drawing.Image)(resources.GetObject("_warningIcon.Image")));
+			this._warningIcon.Location = new System.Drawing.Point(10, 4);
+			this._warningIcon.Name = "_warningIcon";
+			this._warningIcon.Size = new System.Drawing.Size(32, 30);
+			this._warningIcon.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+			this._warningIcon.TabIndex = 15;
+			this._warningIcon.TabStop = false;
+			//
+			// pictureBox2
+			//
+			this.pictureBox2.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox2.Image")));
+			this.pictureBox2.Location = new System.Drawing.Point(5, 0);
+			this.pictureBox2.Name = "pictureBox2";
+			this.pictureBox2.Size = new System.Drawing.Size(40, 36);
+			this.pictureBox2.TabIndex = 10;
+			this.pictureBox2.TabStop = false;
+			//
+			// _sendReceiveButton
+			//
+			this._sendReceiveButton.Image = ((System.Drawing.Image)(resources.GetObject("_sendReceiveButton.Image")));
+			this._sendReceiveButton.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			this._sendReceiveButton.Location = new System.Drawing.Point(373, 2);
+			this._sendReceiveButton.Name = "_sendReceiveButton";
+			this._sendReceiveButton.Size = new System.Drawing.Size(108, 38);
+			this._sendReceiveButton.TabIndex = 14;
+			this._sendReceiveButton.Text = "Send/receive";
+			this._sendReceiveButton.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
+			this._sendReceiveButton.UseVisualStyleBackColor = true;
+			this._sendReceiveButton.Click += new System.EventHandler(this._syncButton_Click);
+			//
+			// _logBox
+			//
+			this._logBox.Dock = System.Windows.Forms.DockStyle.Fill;
+			this._logBox.Location = new System.Drawing.Point(3, 3);
+			this._logBox.Name = "_logBox";
+			this._logBox.Size = new System.Drawing.Size(472, 216);
+			this._logBox.TabIndex = 0;
+			//
 			// SyncControl
 			//
 			this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
@@ -274,12 +257,11 @@
 			this._tabControl.ResumeLayout(false);
 			this._chooseTargetsTab.ResumeLayout(false);
 			this._chooseTargetsTab.PerformLayout();
-			((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
 			this._tasksTab.ResumeLayout(false);
 			this._logTab.ResumeLayout(false);
-			this._logTab.PerformLayout();
-			((System.ComponentModel.ISupportInitialize)(this._warningIcon)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this._successIcon)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this._warningIcon)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -291,8 +273,6 @@
 		private System.Windows.Forms.TabPage _tasksTab;
 		private System.Windows.Forms.ListView _tasksListView;
 		private System.Windows.Forms.TabPage _logTab;
-		private System.Windows.Forms.CheckBox _showVerboseLog;
-		private System.Windows.Forms.RichTextBox _logBox;
 		private System.Windows.Forms.TabPage _chooseTargetsTab;
 		private System.Windows.Forms.CheckedListBox _syncTargets;
 		private System.Windows.Forms.ProgressBar progressBar1;
@@ -306,5 +286,6 @@
 		private System.Windows.Forms.PictureBox pictureBox2;
 		private System.Windows.Forms.Label label1;
 		private System.Windows.Forms.Timer _showCancelButtonTimer;
+		private Chorus.UI.Misc.LogBox _logBox;
 	}
 }

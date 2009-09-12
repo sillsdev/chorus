@@ -1187,11 +1187,19 @@ namespace Chorus.VcsDrivers.Mercurial
 			}
 			catch (Exception error)
 			{
-				progress.WriteMessage("No .hg/hgrc found");
+				progress.WriteError("No .hg/hgrc found");
 			}
 
 			progress.WriteStatus("Validating Repository... (this can take a long time)");
-			progress.WriteMessage(GetTextFromQuery("verify", 60*60, _progress));
+			var result = GetTextFromQuery("verify", 60*60, _progress);
+			if(result.ToLower().Contains("error"))
+			{
+				progress.WriteError(result);
+			}
+			else
+			{
+				progress.WriteMessage(result);
+			}
 
 			progress.WriteStatus("Done.");
 		}

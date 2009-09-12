@@ -12,7 +12,6 @@ namespace Chorus.UI.Clone
 {
 	public partial class GetCloneFromInternetDialog : Form
 	{
-		private readonly string _parentDirectoryToPutCloneIn;
 		private CloneFromUsb _model;
 		private IProgress _progress;
 		private readonly BackgroundWorker _backgroundWorker;
@@ -23,14 +22,12 @@ namespace Chorus.UI.Clone
 		private InternetCloneInstructionsControl _internetCloneInstructionsControl;
 		private StatusProgress _statusProgress;
 		private State _state;
-		private string _failureMessage;
 
 		public GetCloneFromInternetDialog(string parentDirectoryToPutCloneIn)
 		{
-			_parentDirectoryToPutCloneIn = parentDirectoryToPutCloneIn;
-#if !MONO
+//#if !MONO
 			Font = SystemFonts.MessageBoxFont;
-#endif
+//#endif
 			InitializeComponent();
 
 			_backgroundWorker = new BackgroundWorker();
@@ -39,9 +36,7 @@ namespace Chorus.UI.Clone
 			_backgroundWorker.DoWork += new DoWorkEventHandler(_backgroundWorker_DoWork);
 
 			_statusProgress = new StatusProgress();
-			var verboseProgress = new TextBoxProgress(_progressLogVerbose);
-			verboseProgress.ShowVerbose = true;
-			_progress = new MultiProgress(new IProgress[]{new TextBoxProgress(_progressLog), verboseProgress, _statusProgress});
+			_progress = new MultiProgress(new IProgress[]{_logBox, _statusProgress});
 
 			_internetCloneInstructionsControl = new InternetCloneInstructionsControl(parentDirectoryToPutCloneIn);
 		//	_internetCloneInstructionsControl.AutoSize = true;
@@ -53,7 +48,6 @@ namespace Chorus.UI.Clone
 				this.Size = new Size(this.Width,_internetCloneInstructionsControl.Bottom + 30);
 			}
 			this.Controls.Add(_internetCloneInstructionsControl);
-			_progressLogVerbose.Visible = false;
 		}
 
 		private void _backgroundWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
@@ -105,7 +99,6 @@ namespace Chorus.UI.Clone
 				{
 					player.Play();
 				}
-				_failureMessage = error.Message;
 			}
 		}
 
@@ -119,10 +112,9 @@ namespace Chorus.UI.Clone
 				case State.AskingUserForURL:
 					_statusLabel.Visible = false;
 					_statusImage.Visible   =false;
-					_progressLog.Visible = false;
+					_logBox.Visible = false;
 					_okButton.Visible = false;
 					_progressBar.Visible = false;
-					_showVerboseLink.Visible = false;
 					_internetCloneInstructionsControl.Visible = true;
 					 _cancelButton.Enabled = true;
 				   _cancelTaskButton.Visible = false;
@@ -137,8 +129,7 @@ namespace Chorus.UI.Clone
 					_statusLabel.Visible = true;
 					_statusLabel.Text = "Getting project...";
 					_statusLabel.Left = _progressBar.Left;
-					_progressLog.Visible = true;
-					_showVerboseLink.Visible = true;
+					_logBox.Visible = true;
 					_cancelTaskButton.Visible = true;
 					_cancelButton.Enabled = false;
 					break;
@@ -155,8 +146,7 @@ namespace Chorus.UI.Clone
 					_statusLabel.Text = string.Format("Finished");
 					_okButton.Visible = true;
 					_cancelButton.Enabled = false;
-					_showVerboseLink.Visible = true;
-					_progressLog.Visible = true;
+					_logBox.Visible = true;
 					break;
 				case State.Error:
 					_cancelButton.Enabled = true;
@@ -170,7 +160,6 @@ namespace Chorus.UI.Clone
 					_statusLabel.Left = _statusImage.Right + 10;
 					_statusImage.ImageKey = "Error";
 					_statusImage.Visible = true;
-					_showVerboseLink.Visible = true;
 					break;
 				case State.Cancelled:
 					_cancelButton.Enabled = true;
@@ -181,7 +170,6 @@ namespace Chorus.UI.Clone
 					_internetCloneInstructionsControl.Visible = false;
 					_statusLabel.Left =  _progressBar.Left;
 					_statusImage.Visible = false;
-					_showVerboseLink.Visible = true;
 					break;
 				default:
 					throw new ArgumentOutOfRangeException();
@@ -244,12 +232,5 @@ namespace Chorus.UI.Clone
 			}
 		}
 
-		private void _showVerboseLink_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-		{
-			_progressLog.Visible = false;
-			_progressLogVerbose.Bounds = _progressLog.Bounds;
-			_progressLogVerbose.Visible = true;
-			_showVerboseLink.Enabled = false;
-		}
 	}
 }

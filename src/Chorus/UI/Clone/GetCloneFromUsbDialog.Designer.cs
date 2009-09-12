@@ -36,12 +36,12 @@
 			this.imageList1 = new System.Windows.Forms.ImageList(this.components);
 			this._cancelButton = new System.Windows.Forms.Button();
 			this._okButton = new System.Windows.Forms.Button();
-			this._progressLog = new System.Windows.Forms.RichTextBox();
 			this._copyToComputerButton = new System.Windows.Forms.Button();
 			this._statusImages = new System.Windows.Forms.ImageList(this.components);
 			this._statusImage = new System.Windows.Forms.Button();
 			this._lookingForUsbTimer = new System.Windows.Forms.Timer(this.components);
 			this._statusLabel = new System.Windows.Forms.TextBox();
+			this._logBox = new Chorus.UI.Misc.LogBox();
 			this.SuspendLayout();
 			//
 			// listView1
@@ -105,14 +105,6 @@
 			this._okButton.UseVisualStyleBackColor = true;
 			this._okButton.Click += new System.EventHandler(this._okButton_Click);
 			//
-			// _progressLog
-			//
-			this._progressLog.Location = new System.Drawing.Point(15, 34);
-			this._progressLog.Name = "_progressLog";
-			this._progressLog.Size = new System.Drawing.Size(100, 96);
-			this._progressLog.TabIndex = 4;
-			this._progressLog.Text = "";
-			//
 			// _copyToComputerButton
 			//
 			this._copyToComputerButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
@@ -164,6 +156,13 @@
 			this._statusLabel.TabIndex = 18;
 			this._statusLabel.Text = "Status text";
 			//
+			// _logBox
+			//
+			this._logBox.Location = new System.Drawing.Point(78, 29);
+			this._logBox.Name = "_logBox";
+			this._logBox.Size = new System.Drawing.Size(231, 150);
+			this._logBox.TabIndex = 19;
+			//
 			// GetCloneFromUsbDialog
 			//
 			this.AcceptButton = this._okButton;
@@ -171,9 +170,9 @@
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.CancelButton = this._cancelButton;
 			this.ClientSize = new System.Drawing.Size(306, 262);
+			this.Controls.Add(this._logBox);
 			this.Controls.Add(this._statusImage);
 			this.Controls.Add(this._copyToComputerButton);
-			this.Controls.Add(this._progressLog);
 			this.Controls.Add(this._okButton);
 			this.Controls.Add(this._cancelButton);
 			this.Controls.Add(this.listView1);
@@ -199,11 +198,11 @@
 		private System.Windows.Forms.ImageList imageList1;
 		private System.Windows.Forms.ColumnHeader columnHeader1;
 		private System.Windows.Forms.ColumnHeader columnHeader2;
-		private System.Windows.Forms.RichTextBox _progressLog;
 		private System.Windows.Forms.Button _copyToComputerButton;
 		private System.Windows.Forms.ImageList _statusImages;
 		private System.Windows.Forms.Button _statusImage;
 		private System.Windows.Forms.Timer _lookingForUsbTimer;
 		private System.Windows.Forms.TextBox _statusLabel;
+		private Chorus.UI.Misc.LogBox _logBox;
 	}
 }

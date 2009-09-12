@@ -1,11 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Drawing;
-using System.Data;
-using System.Text;
 using System.Windows.Forms;
-using Chorus.Utilities;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 
@@ -16,7 +11,6 @@ namespace Chorus.UI.Sync
 		private SyncControlModel _model;
 		private String _userName="anonymous";
 		private int _desiredHeight;
-		private TextBoxProgress _textBoxProgress;
 		private bool _didSync=false;
 		public event EventHandler CloseButtonClicked;
 
@@ -147,13 +141,11 @@ namespace Chorus.UI.Sync
 			string message = HgRepository.GetEnvironmentReadinessMessage("en");
 			if (!string.IsNullOrEmpty(message))
 			{
-				_logBox.ForeColor = System.Drawing.Color.Red;
-				_logBox.Text = message;
+				this._logBox.WriteError(message);
 				return;
 			}
 
-			_textBoxProgress = new TextBoxProgress(_logBox);
-			Model.AddProgressDisplay(_textBoxProgress);
+			Model.AddProgressDisplay(_logBox);
 
 			LoadChoices();
 		}
@@ -227,11 +219,10 @@ namespace Chorus.UI.Sync
 
 			progressBar1.Style = ProgressBarStyle.Marquee;
 			progressBar1.MarqueeAnimationSpeed = 50;
-			_logBox.Text = "";
-			_logBox.Text = "Syncing..." + Environment.NewLine;
+			_logBox.Clear();
+			_logBox.WriteStatus("Syncing...");
 			Cursor.Current = Cursors.WaitCursor;
 			_updateDisplayTimer.Enabled = true;
-			_textBoxProgress.ShowVerbose = _showVerboseLog.Checked;
 			Model.Sync(useTargetsAsSpecifiedInSyncOptions);
 		}
 
