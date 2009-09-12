@@ -199,7 +199,7 @@
 			this._sendReceiveButton.Name = "_sendReceiveButton";
 			this._sendReceiveButton.Size = new System.Drawing.Size(108, 38);
 			this._sendReceiveButton.TabIndex = 14;
-			this._sendReceiveButton.Text = "Send/Recieve";
+			this._sendReceiveButton.Text = "Send/receive";
 			this._sendReceiveButton.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
 			this._sendReceiveButton.UseVisualStyleBackColor = true;
 			this._sendReceiveButton.Click += new System.EventHandler(this._syncButton_Click);

@@ -263,7 +263,7 @@ namespace Chorus.VcsDrivers
 
 		public override List<string> GetPossibleCloneUris(string projectName, IProgress progress)
 		{
-			progress.WriteVerbose("Looking for USB flash drives to recieve clone...");
+			progress.WriteVerbose("Looking for USB flash drives to receive clone...");
 			List<string>  urisToTryCreationAt = new List<string>();
 
 			if (RootDirForUsbSourceDuringUnitTest != null)

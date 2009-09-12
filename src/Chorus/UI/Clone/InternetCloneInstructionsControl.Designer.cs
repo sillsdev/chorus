@@ -140,7 +140,7 @@
 			this.betterLabel1.Size = new System.Drawing.Size(366, 49);
 			this.betterLabel1.TabIndex = 25;
 			this.betterLabel1.TabStop = false;
-			this.betterLabel1.Text = "Example:\r\nhttp://joe_smith:mypassword@hg-public.languagedepot.org/tpi";
+			this.betterLabel1.Text = "Example:\r\nhttp://joeSmith:mypassword@hg-public.languagedepot.org/tpi";
 			//
 			// _targetInfoLabel
 			//

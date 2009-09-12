@@ -154,7 +154,7 @@
 suzie = \\SUZIE-PC\TokPisin
 
 For an internet server, if you plan to push new data, include your name and password like this:
-depot = http://JoeSmith:mypassword@public.languagedepot.org/TPI
+depot = http://JoeSmith:mypassword@hg-public.languagedepot.org/tpi
 
 For a free internet repository, see http://public.languagedepot.org</value>
   </data>

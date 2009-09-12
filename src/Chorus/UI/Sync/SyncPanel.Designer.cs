@@ -42,7 +42,7 @@ namespace Chorus.UI.Sync
 			this.label3.Name = "label3";
 			this.label3.Size = new System.Drawing.Size(229, 20);
 			this.label3.TabIndex = 3;
-			this.label3.Text = "Send/Recieve Project Changes";
+			this.label3.Text = "Send/receive Project Changes";
 			//
 			// timer1
 			//
