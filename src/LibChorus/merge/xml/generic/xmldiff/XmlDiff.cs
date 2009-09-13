@@ -93,7 +93,9 @@ namespace Chorus.merge.xml.generic.xmldiff
 			}
 			catch (FlowControlException e)
 			{
-				Console.Out.WriteLine(e.Message);
+				//what is this? it's how this class stops looking for more differences,
+				//by throwing this exception, making us jump back up here.
+				//Console.Out.WriteLine(e.Message);
 			}
 		}
 

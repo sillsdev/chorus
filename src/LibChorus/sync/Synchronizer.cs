@@ -400,12 +400,7 @@ namespace Chorus.sync
 
 
 
-		/// <summary>
-		/// note: intentionally does not commit afterwards
-		/// </summary>
-		/// <param name="progress"></param>
-		/// <param name="results"></param>
-		/// <returns>A list of people that actually needed merging with.  Throws exception if there is an error.</returns>
+		  /// <returns>A list of people that actually needed merging with.  Throws exception if there is an error.</returns>
 		private List<string> MergeHeads(IProgress progress, SyncResults results)
 		{
 			List<string> peopleWeMergedWith = new List<string>();
