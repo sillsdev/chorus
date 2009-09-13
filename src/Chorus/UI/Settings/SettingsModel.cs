@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Windows.Forms;
 using Chorus.Utilities;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
+using System.Linq;
 
 namespace Chorus.UI.Settings
 {
@@ -41,6 +43,7 @@ namespace Chorus.UI.Settings
 
 		public void SetAddresses(string text, IProgress progress)
 		{
+			var oldPaths = _repository.GetRepositoryPathsInHgrc();
 			var aliases = new List<RepositoryAddress>();
 			var lines = text.Split('\n');
 			foreach (var line in lines)
@@ -51,6 +54,11 @@ namespace Chorus.UI.Settings
 				aliases.Add( RepositoryAddress.Create(parts[0].Trim(), parts[1].Trim()));
 			}
 
+			if (oldPaths.Count() > 0 && aliases.Count() == 0)
+			{
+				MessageBox.Show(
+					"Repository Paths is being cleared.  If you did that on purpose, fine.  If not, please report this to issues@wesay.org (we're trying to track down a bug).");
+			}
 			_repository.SetKnownRepositoryAddresses(aliases);
 		}
 	}
