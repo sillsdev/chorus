@@ -21,7 +21,10 @@ namespace ChorusMerge
 		{
 			try
 			{
-			  // Debug.Fail("hello");
+				//this was originally put here to test if console writes were making it out to the linux log or not
+				Console.WriteLine("ChorusMerge({0}, {1}, {2}", args[0], args[1], args[2]);
+
+				// Debug.Fail("hello");
 				MergeOrder order = MergeOrder.CreateUsingEnvironmentVariables(args[0], args[1], args[2]);
 				var handlers = ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers();
 				var handler = handlers.GetHandlerForMerging(order.pathToOurs);
