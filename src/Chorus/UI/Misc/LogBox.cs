@@ -85,6 +85,17 @@ namespace Chorus.UI.Misc
 		{
 			_verboseBox.Visible = _showDetails.Checked;
 			_box.Visible = !_showDetails.Checked;
+
+#if MONO  //mono (2.0?) doesn't update the size of the box when invisible, apparently
+			if (_showDetails.Checked)
+			{
+				_verboseBox.Bounds = _box.Bounds;
+			}
+			else
+			{
+				_box.Bounds = _verboseBox.Bounds;
+			}
+#endif
 		}
 
 		private void _copyToClipboardLink_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
