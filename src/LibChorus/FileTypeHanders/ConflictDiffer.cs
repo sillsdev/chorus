@@ -13,13 +13,14 @@ namespace Chorus.FileTypeHanders
 		private readonly List<string> _processedIds = new List<string>();
 		private readonly XmlDocument _childDom;
 		private readonly XmlDocument _parentDom;
+		private readonly string _fullPath;
 		private IMergeEventListener EventListener;
 
 		public static ConflictDiffer CreateFromFiles(string ancestorLiftPath, string ourLiftPath, IMergeEventListener eventListener)
 		{
-			return new ConflictDiffer(File.ReadAllText(ourLiftPath), File.ReadAllText(ancestorLiftPath), eventListener);
+			return new ConflictDiffer(ourLiftPath, File.ReadAllText(ourLiftPath), File.ReadAllText(ancestorLiftPath), eventListener);
 		}
-		private ConflictDiffer(string childXml, string parentXml, IMergeEventListener eventListener)
+		private ConflictDiffer(string fullPath, string childXml, string parentXml, IMergeEventListener eventListener)
 		{
 			_childDom = new XmlDocument();
 			_parentDom = new XmlDocument();
@@ -27,6 +28,7 @@ namespace Chorus.FileTypeHanders
 			_childDom.LoadXml(childXml);
 			_parentDom.LoadXml(parentXml);
 
+			_fullPath = fullPath;
 			EventListener = eventListener;
 		}
 
@@ -53,7 +55,7 @@ namespace Chorus.FileTypeHanders
 			XmlNode parent = FindMatch(_parentDom, id);
 			if (parent == null) //it's new
 			{
-				EventListener.ChangeOccurred(new XmlAdditionChangeReport(string.Empty, child));
+				EventListener.ChangeOccurred(new XmlAdditionChangeReport(_fullPath, child));
 			}
 			else if (XmlUtilities.AreXmlElementsEqual(child.OuterXml, parent.OuterXml))//unchanged or both made same change
 			{

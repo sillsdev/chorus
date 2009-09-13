@@ -1142,6 +1142,11 @@ namespace Chorus.VcsDrivers.Mercurial
 			progress.WriteMessage("heads:");
 			progress.WriteMessage(GetTextFromQuery("heads", 30, progress));
 
+			if (GetHeads().Count()> 1)
+			{
+				progress.WriteError("This project has some 'changesets' which have not been merged together. If this is still true after Send/Receive, then you will need expert help to get things merging again.");
+			}
+
 			progress.WriteMessage("---------------------------------------------------");
 
 			progress.WriteMessage("status:");
