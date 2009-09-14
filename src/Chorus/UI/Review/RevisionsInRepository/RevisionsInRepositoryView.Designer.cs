@@ -54,7 +54,7 @@
 			this._loadButton.TabIndex = 1;
 			this.toolTip1.SetToolTip(this._loadButton, "Reload the history");
 			this._loadButton.UseVisualStyleBackColor = true;
-			this._loadButton.Click += new System.EventHandler(this._loadButton_Click);
+			this._loadButton.Click += new System.EventHandler(this.OnRefresh);
 			//
 			// _historyList
 			//
@@ -106,7 +106,7 @@
 			//
 			// timer1
 			//
-			this.timer1.Interval = 2000;
+			this.timer1.Interval = 500;
 			this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
 			//
 			// label3
@@ -130,7 +130,8 @@
 			this.Controls.Add(this._loadButton);
 			this.Name = "RevisionsInRepositoryView";
 			this.Size = new System.Drawing.Size(470, 348);
-			this.VisibleChanged += new System.EventHandler(this.HistoryPanel_VisibleChanged);
+			this.Load += new System.EventHandler(this.StartRefreshTimer);
+			this.VisibleChanged += new System.EventHandler(this.StartRefreshTimer);
 			this.ResumeLayout(false);
 			this.PerformLayout();
 

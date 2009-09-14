@@ -45,7 +45,7 @@ namespace Chorus.UI.Review.RevisionsInRepository
 		{
 		}
 
-		private void _loadButton_Click(object sender, EventArgs e)
+		public void RefreshRevisions()
 		{
 			Cursor.Current = Cursors.WaitCursor;
 			_historyList.Items.Clear();
@@ -120,12 +120,12 @@ namespace Chorus.UI.Review.RevisionsInRepository
 			_model.SelectedRevisionChanged(rev);
 		}
 
-		private void HistoryPanel_VisibleChanged(object sender, EventArgs e)
+		private void StartRefreshTimer(object sender, EventArgs e)
 		{
 			timer1.Enabled = this.Visible;
 //            if (Visible && _historyList.Items.Count == 0)
 //            {
-//                _loadButton_Click(null, null);
+//                Refresh(null, null);
 //            }
 		}
 
@@ -135,11 +135,17 @@ namespace Chorus.UI.Review.RevisionsInRepository
 			{
 				if (_model.GetNeedRefresh())
 				{
-					_loadButton_Click(this,null);
+					RefreshRevisions();
 					//enhance, check after app itself is reactivated, or work in background.  It  is noticeably slow.
 					timer1.Enabled = false;//don't check again so long as we're visible
 				}
 			}
 		}
+	   private void OnRefresh(object sender, EventArgs e)
+		{
+		   RefreshRevisions();
+		}
+
+
 	}
 }

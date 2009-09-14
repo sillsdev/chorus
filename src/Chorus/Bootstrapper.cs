@@ -2,57 +2,29 @@
 using System.Collections.Generic;
 using System.IO;
 using Autofac;
-using Autofac.Builder;
-using Chorus.FileTypeHanders;
-using Chorus.retrieval;
-using Chorus.sync;
 using Chorus.UI.Misc;
 using Chorus.UI.Review;
-using Chorus.UI.Review.ChangedReport;
-using Chorus.UI.Review.ChangesInRevision;
-using Chorus.UI.Review.RevisionsInRepository;
 using Chorus.UI.Settings;
 using Chorus.UI.Sync;
-using Chorus.Utilities;
-using Chorus.VcsDrivers.Mercurial;
 
 namespace Chorus
 {
 	public class BootStrapper :IDisposable
 	{
-		private readonly string _settingsPath;
+		private readonly string _projectPath;
 		private IContainer _container;
 
-		public BootStrapper(string settingsPath)
+		public BootStrapper(string projectPath)
 		{
-			_settingsPath = settingsPath;
+			_projectPath = projectPath;
 		}
 
 		public Shell CreateShell(BrowseForRepositoryEvent browseForRepositoryEvent)
 		{
 			var builder = new Autofac.Builder.ContainerBuilder();
 
-			builder.Register<ProjectFolderConfiguration>(
-				c => new ProjectFolderConfiguration(_settingsPath));
-
-			builder.Register<IProgress>(new NullProgress());
-			builder.Register<Synchronizer>(c => Chorus.sync.Synchronizer.FromProjectConfiguration(
-													c.Resolve<ProjectFolderConfiguration>(), new NullProgress()));
-			builder.Register<HgRepository>(c => HgRepository.CreateOrLocate(_settingsPath, new NullProgress()));
-
-			builder.Register<SyncUIFeatures>(SyncUIFeatures.Everything).SingletonScoped();
-
+			ChorusUIComponentsInjector.Inject(builder, _projectPath);
 			builder.Register<BrowseForRepositoryEvent>(browseForRepositoryEvent).SingletonScoped();
-
-			builder.Register(ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers());
-
-			builder.Register<SyncPanel>();
-			builder.Register<SyncControlModel>();
-			builder.Register<Chorus.UI.Misc.TroubleshootingView>();
-
-			RegisterSyncStuff(builder);
-			RegisterReviewStuff(builder);
-			RegisterSettingsStuff(builder);
 
 			builder.Register<Shell>();
 
@@ -68,33 +40,6 @@ namespace Chorus
 		}
 
 
-
-		private void RegisterSettingsStuff(ContainerBuilder builder)
-		{
-			builder.Register<SettingsModel>();
-			builder.Register<SettingsView>();
-		}
-
-		private void RegisterSyncStuff(ContainerBuilder builder)
-		{
-			builder.Register<SyncControlModel>();
-		}
-
-		private void RegisterReviewStuff(ContainerBuilder builder)
-		{
-			builder.Register<RevisionInspector>();
-			builder.Register<ChangesInRevisionModel>();
-			builder.Register<ReviewPage>();
-			builder.Register<ChangesInRevisionView>();
-			builder.Register<ChangeReportView>();
-
-			//review-related events
-			builder.Register<RevisionSelectedEvent>();
-			builder.Register<ChangedRecordSelectedEvent>();
-
-			builder.Register<RevisionInRepositoryModel>();
-			builder.Register<RevisionsInRepositoryView>();
-		}
 
 		public void Dispose()
 		{

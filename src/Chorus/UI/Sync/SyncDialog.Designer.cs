@@ -36,7 +36,7 @@
 			//
 			// _closeWhenDoneTimer
 			//
-			this._closeWhenDoneTimer.Interval = 1000;
+			this._closeWhenDoneTimer.Interval = 500;
 			this._closeWhenDoneTimer.Tick += new System.EventHandler(this._closeWhenDoneTimer_Tick);
 			//
 			// _syncControl
