@@ -16,6 +16,7 @@ namespace Chorus.merge
 		string GetFullHumanReadableDescription();
 		string ActionLabel { get; }
 		string PathToFile { get; }
+		string UrlOfItem { get; }
 	}
 
 	public abstract class ChangeReport : IChangeReport
@@ -68,6 +69,10 @@ namespace Chorus.merge
 			}
 		 }
 
+		public virtual string UrlOfItem
+		{
+			get { return string.Empty; }
+		}
 
 
 		public override string ToString()

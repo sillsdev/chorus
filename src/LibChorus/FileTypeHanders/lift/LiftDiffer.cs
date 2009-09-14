@@ -91,14 +91,16 @@ namespace Chorus.merge.xml.lift
 		private void ProcessEntry(XmlNode child)
 		{
 			string id = LiftUtils.GetId(child);
-			XmlNode parent = LiftUtils.FindEntry(_parentDom, id);
+			XmlNode parent = LiftUtils.FindEntryById(_parentDom, id);
+			string url = LiftUtils.GetUrl(child, Path.GetFileName(_childFileInRevision.FullPath));
+
 			if (parent == null) //it's new
 			{
 				//it's possible to create and entry, delete it, then checkin, leave us with this
 				//spurious deletion messages
 				if (string.IsNullOrEmpty(XmlUtilities.GetOptionalAttributeString(child, "dateDeleted")))
 				{
-					EventListener.ChangeOccurred(new XmlAdditionChangeReport(_childFileInRevision, child));
+					EventListener.ChangeOccurred(new XmlAdditionChangeReport(_childFileInRevision, child, url));
 				}
 			}
 			else if (LiftUtils.AreTheSame(child, parent))//unchanged or both made same change
@@ -118,10 +120,12 @@ namespace Chorus.merge.xml.lift
 					//enhance: we can skip this and just say "something changed in this entry",
 					//until we really *need* the details (if ever), and have a way to call this then
 					//_mergingStrategy.MakeMergedEntry(this.EventListener, child, parent, parent);
-					EventListener.ChangeOccurred(new XmlChangedRecordReport(_parentFileInRevision, _childFileInRevision, parent,child));
+					EventListener.ChangeOccurred(new XmlChangedRecordReport(_parentFileInRevision, _childFileInRevision, parent,child, url));
 				}
 			}
 			_processedIds.Add(id);
 		}
+
+
 	}
 }

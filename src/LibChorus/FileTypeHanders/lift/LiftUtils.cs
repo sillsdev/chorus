@@ -15,7 +15,12 @@ namespace Chorus.merge.xml.lift
 
 		public static string GetId(XmlNode e)
 		{
-			return e.GetStringAttribute("id");
+			return e.GetOptionalStringAttribute("id", string.Empty);
+		}
+
+		public static string GetGuid(XmlNode e)
+		{
+			return e.GetOptionalStringAttribute("guid", string.Empty);
 		}
 
 		public static DateTime GetModifiedDate(XmlNode entry)
@@ -26,9 +31,28 @@ namespace Chorus.merge.xml.lift
 			return DateTime.Parse(d.Value);
 		}
 
-		public static XmlNode FindEntry(XmlNode doc, string id)
+		public static string GetUrl(XmlNode entryNode, string fileName)
+		{
+			string url = "lift://" + fileName + "/navigate?type=entry&";
+			if (!string.IsNullOrEmpty(LiftUtils.GetGuid(entryNode)))
+			{
+				url += "guid=" + LiftUtils.GetGuid(entryNode) + "&";
+			}
+			if (!string.IsNullOrEmpty(LiftUtils.GetId(entryNode)))
+			{
+				url += "id=" + LiftUtils.GetId(entryNode) + "&";
+			}
+			url = url.Trim('&');
+			return url;
+		}
+
+		public static XmlNode FindEntryById(XmlNode doc, string id)
 		{
 				return doc.SelectSingleNode("lift/entry[@id=\""+id+"\"]");
+		}
+		public static XmlNode FindEntryByGuid(XmlNode doc, string guid)
+		{
+				return doc.SelectSingleNode("lift/entry[@guid=\""+guid+"\"]");
 		}
 		public static bool AreTheSame(XmlNode ourEntry, XmlNode theirEntry)
 		{

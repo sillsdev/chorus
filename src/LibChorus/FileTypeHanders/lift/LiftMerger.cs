@@ -147,7 +147,7 @@ namespace Chorus.merge.xml.lift
 
 		private static XmlNode FindEntry(XmlNode doc, string id)
 		{
-			FailureSimulator.IfTestRequestsItThrowNow("LiftMerger.FindEntry");
+			FailureSimulator.IfTestRequestsItThrowNow("LiftMerger.FindEntryById");
 			return doc.SelectSingleNode("lift/entry[@id=\""+id+"\"]");
 		}
 
@@ -173,7 +173,7 @@ namespace Chorus.merge.xml.lift
 				/* TODO: put this back after figuring out the exact situation it was for an adding a unit test
 				 if (!LiftUtils.GetIsMarkedAsDeleted(ourEntry))
 				{
-					EventListener.ChangeOccurred(new XmlChangedRecordReport("hackFixThis.lift",  FindEntry(_ancestorDom, id), ourEntry));
+					EventListener.ChangeOccurred(new XmlChangedRecordReport("hackFixThis.lift",  FindEntryById(_ancestorDom, id), ourEntry));
 				}
 				 */
 

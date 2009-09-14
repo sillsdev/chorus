@@ -34,7 +34,7 @@ namespace ChorusMerge.Tests
 		{
 			using (var group = new GroupOfConflictingLiftFiles())
 			{
-				using (new FailureSimulator("LiftMerger.FindEntry"))
+				using (new FailureSimulator("LiftMerger.FindEntryById"))
 				{
 					Assert.AreEqual(1, DoMerge(group));
 				}

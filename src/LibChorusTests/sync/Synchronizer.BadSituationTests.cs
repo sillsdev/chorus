@@ -42,7 +42,7 @@ namespace LibChorus.Tests.sync
 					bob.ReplaceSomething("bobWasHere");
 					bob.AddAndCheckIn();
 					sally.ReplaceSomething("sallyWasHere");
-					using (new FailureSimulator("LiftMerger.FindEntry"))
+					using (new FailureSimulator("LiftMerger.FindEntryById"))
 					{
 						sally.CheckinAndPullAndMerge(bob);
 					}

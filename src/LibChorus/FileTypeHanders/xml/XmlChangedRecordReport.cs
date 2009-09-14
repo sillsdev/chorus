@@ -12,12 +12,28 @@ namespace Chorus.FileTypeHanders.xml
 	{
 		private readonly XmlNode _parent;
 		private readonly XmlNode _child;
+		private readonly string _url;
 
 		public XmlChangedRecordReport(FileInRevision parentFileInRevision, FileInRevision childFileInRevision, XmlNode parent, XmlNode child)
+			: this(parentFileInRevision,childFileInRevision, parent,child, string.Empty)
+		{
+			_parent = parent;
+			_child = child;
+		}
+		public XmlChangedRecordReport(FileInRevision parentFileInRevision, FileInRevision childFileInRevision, XmlNode parent, XmlNode child,string url)
 			: base(parentFileInRevision, childFileInRevision)
 		{
 			_parent = parent;
 			_child = child;
+			_url = url;
+		}
+
+		public override string UrlOfItem
+		{
+			get
+			{
+				return _url;
+			}
 		}
 
 		public override string ActionLabel

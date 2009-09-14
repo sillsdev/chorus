@@ -8,6 +8,7 @@ namespace Chorus.FileTypeHanders.xml
 	public class XmlAdditionChangeReport : ChangeReport, IXmlChangeReport
 	{
 		private readonly XmlNode _addedElement;
+		private readonly string _url;
 
 		public XmlAdditionChangeReport(FileInRevision fileInRevision, XmlNode addedElement)
 			:base(null, fileInRevision)
@@ -15,11 +16,27 @@ namespace Chorus.FileTypeHanders.xml
 			_addedElement = addedElement;
 		}
 
+		public XmlAdditionChangeReport(FileInRevision fileInRevision, XmlNode addedElement, string url)
+			: base(null, fileInRevision)
+		{
+			_addedElement = addedElement;
+			_url = url;
+		}
+
+
 		//when merging, the eventual revision is unknown
 		public XmlAdditionChangeReport(string fullPath, XmlNode addedElement)
 			: base(null, new FileInUnknownRevision(fullPath, FileInRevision.Action.Modified))
 		{
 			_addedElement = addedElement;
+		}
+
+		public override string UrlOfItem
+		{
+			get
+			{
+				return _url;
+			}
 		}
 
 		public override string ActionLabel
