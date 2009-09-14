@@ -68,5 +68,16 @@ namespace Chorus.UI.Review.ChangesInRevision
 				}
 			}
 		}
+
+		private void listView1_DoubleClick(object sender, EventArgs e)
+		{
+			if(CurrentRecord == null)
+				return;
+
+			if(string.IsNullOrEmpty(CurrentRecord.UrlOfItem))
+				return;
+
+			_model.NavigationRequested(CurrentRecord.UrlOfItem);
+		}
 	}
 }

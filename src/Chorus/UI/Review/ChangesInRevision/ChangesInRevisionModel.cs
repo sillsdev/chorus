@@ -15,17 +15,20 @@ namespace Chorus.UI.Review.ChangesInRevision
 	{
 		private readonly RevisionInspector _revisionInspector;
 		private readonly ChangedRecordSelectedEvent _changedRecordSelectedEventToRaise;
+		private readonly NavigateToRecordEvent _navigateToRecordEvent;
 		private readonly ChorusFileTypeHandlerCollection _fileHandlers;
 		internal event EventHandler UpdateDisplay;
 		public IEnumerable<IChangeReport> Changes { get; private set; }
 
 		public ChangesInRevisionModel(RevisionInspector revisionInspector,
 									  ChangedRecordSelectedEvent changedRecordSelectedEventToRaise,
-									  RevisionSelectedEvent revisionSelectedEventToSubscribeTo,
+									   NavigateToRecordEvent navigateToRecordEventToRaise,
+									 RevisionSelectedEvent revisionSelectedEventToSubscribeTo,
 									  ChorusFileTypeHandlerCollection fileHandlers)
 		{
 			_revisionInspector = revisionInspector;
 			_changedRecordSelectedEventToRaise = changedRecordSelectedEventToRaise;
+			_navigateToRecordEvent = navigateToRecordEventToRaise;
 			_fileHandlers = fileHandlers;
 			revisionSelectedEventToSubscribeTo.Subscribe(SetRevision);
 
@@ -59,6 +62,14 @@ namespace Chorus.UI.Review.ChangesInRevision
 			if (_changedRecordSelectedEventToRaise != null)
 			{
 				_changedRecordSelectedEventToRaise.Raise(report);
+			}
+		}
+
+		public void NavigationRequested(string url)
+		{
+			if (_navigateToRecordEvent != null)
+			{
+				_navigateToRecordEvent.Raise(url);
 			}
 		}
 

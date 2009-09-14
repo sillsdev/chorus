@@ -9,4 +9,7 @@ namespace Chorus.UI.Review
 
 	public class ChangedRecordSelectedEvent : Event<IChangeReport>
 	{ }
+
+	public class NavigateToRecordEvent : Event<string>
+	{ }
 }

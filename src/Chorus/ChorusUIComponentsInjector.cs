@@ -22,6 +22,8 @@ namespace Chorus
 			builder.Register<ProjectFolderConfiguration>(
 				c => new ProjectFolderConfiguration(projectPath));
 
+			builder.Register<NavigateToRecordEvent>();
+
 			builder.Register<IProgress>(new NullProgress());
 			builder.Register<Synchronizer>(c => Chorus.sync.Synchronizer.FromProjectConfiguration(
 													c.Resolve<ProjectFolderConfiguration>(), new NullProgress()));
