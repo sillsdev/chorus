@@ -104,6 +104,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		public HgRepository(string pathToRepository, IProgress progress)
 		{
+			Guard.AgainstNull(progress, "progress");
 			_pathToRepository = pathToRepository;
 			_progress = progress;
 
@@ -950,7 +951,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			return new List<string>(section.GetKeys());
 		}
 
-		public void EnsureTheseExtensionAreEnabled(string[] extensionNames, IProgress progress)
+		public void EnsureTheseExtensionAreEnabled(string[] extensionNames)
 		{
 			var doc = GetHgrcDoc();
 			var section = doc.Sections.GetOrCreate("extensions");

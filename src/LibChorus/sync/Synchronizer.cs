@@ -26,8 +26,9 @@ namespace Chorus.sync
 		public List<RepositoryAddress> ExtraRepositorySources { get; private set; }
 
 
-		public Synchronizer(string localRepositoryPath, ProjectFolderConfiguration project)
+		public Synchronizer(string localRepositoryPath, ProjectFolderConfiguration project, IProgress progress)
 		{
+			_progress = progress;
 			_project = project;
 			_localRepositoryPath = localRepositoryPath;
 			ExtraRepositorySources = new List<RepositoryAddress>();
@@ -39,13 +40,12 @@ namespace Chorus.sync
 		public static Synchronizer FromProjectConfiguration(ProjectFolderConfiguration project, IProgress progress)
 		{
 			var hg = HgRepository.CreateOrLocate(project.FolderPath, progress);
-			return new Synchronizer(hg.PathToRepo, project);
+			return new Synchronizer(hg.PathToRepo, project, progress);
 
 		}
 
-		public List<RepositoryAddress> GetPotentialSynchronizationSources(IProgress progress)
+		public List<RepositoryAddress> GetPotentialSynchronizationSources()
 		{
-			_progress = progress;
 			var list = new List<RepositoryAddress>();
 			list.AddRange(ExtraRepositorySources);
 			var repo = Repository;
@@ -91,31 +91,30 @@ namespace Chorus.sync
 			return false;
 		}
 
-		public SyncResults SyncNow(BackgroundWorker backgroundWorker, DoWorkEventArgs args, SyncOptions options, IProgress progress)
+		public SyncResults SyncNow(BackgroundWorker backgroundWorker, DoWorkEventArgs args, SyncOptions options)
 		{
 			_backgroundWorker = backgroundWorker;
 			_backgroundWorkerArguments = args;
-			return SyncNow(options, progress);
+			return SyncNow(options);
 		}
 
-		public SyncResults SyncNow(SyncOptions options, IProgress progress)
+		public SyncResults SyncNow(SyncOptions options)
 		{
-			_progress = progress;
 			SyncResults results = new SyncResults();
 
-			HgRepository repo = new HgRepository(_localRepositoryPath,progress);
+			HgRepository repo = new HgRepository(_localRepositoryPath,_progress);
 
 			repo.RecoverIfNeeded();
 			if (!repo.RemoveOldLocks())
 			{
-				progress.WriteError("Synchronization abandoned for now.  Try again after restarting the computer.");
+				_progress.WriteError("Synchronization abandoned for now.  Try again after restarting the computer.");
 				results.Succeeded = false;
 				return results;
 			}
 
 			UpdateHgrc(repo);
 
-			progress.WriteStatus("Storing changes in local repository...");
+			_progress.WriteStatus("Storing changes in local repository...");
 
 			try
 			{
@@ -123,7 +122,7 @@ namespace Chorus.sync
 			}
 			catch (Exception error)
 			{
-				progress.WriteError(error.Message);
+				_progress.WriteError(error.Message);
 				results.Succeeded = false;
 				results.DidGetChangesFromOthers = false;
 				results.ErrorEncountered = error;
@@ -147,26 +146,26 @@ namespace Chorus.sync
 				{
 					if (ShouldCancel(ref results)){return results;}
 
-					string resolvedUri = source.GetPotentialRepoUri(RepoProjectName, progress);
+					string resolvedUri = source.GetPotentialRepoUri(RepoProjectName, _progress);
 
 					if (source is UsbKeyRepositorySource)
 					{
-						progress.WriteStatus("Looking for USB flash drives...");
-						var potential = source.GetPotentialRepoUri(RepoProjectName, progress);
+						_progress.WriteStatus("Looking for USB flash drives...");
+						var potential = source.GetPotentialRepoUri(RepoProjectName, _progress);
 						if (null ==potential)
 						{
-							progress.WriteWarning("No USB flash drive found");
+							_progress.WriteWarning("No USB flash drive found");
 						}
 						else if (string.Empty == potential)
 						{
-							progress.WriteMessage("Did not find existing project on any USB flash drive.");
+							_progress.WriteMessage("Did not find existing project on any USB flash drive.");
 						}
 					}
 					else
 					{
-						progress.WriteStatus("Connecting to {0}...", source.Name);
+						_progress.WriteStatus("Connecting to {0}...", source.Name);
 					}
-					var canConnect = source.CanConnect(repo, RepoProjectName, progress);
+					var canConnect = source.CanConnect(repo, RepoProjectName, _progress);
 					if (!didConnect.ContainsKey(source))
 					{
 						didConnect.Add(source, canConnect);
@@ -186,7 +185,7 @@ namespace Chorus.sync
 						}
 						else
 						{
-							progress.WriteWarning("Could not connect to {0} at {1} for pulling", source.Name, resolvedUri);
+							_progress.WriteWarning("Could not connect to {0} at {1} for pulling", source.Name, resolvedUri);
 						}
 					}
 				}
@@ -196,7 +195,7 @@ namespace Chorus.sync
 			{
 				try
 				{
-					MergeHeads(progress, results);
+					MergeHeads(results);
 				}
 				catch (Exception error)
 				{
@@ -219,7 +218,7 @@ namespace Chorus.sync
 
 					if (!address.ReadOnly)
 					{
-						string resolvedUri = address.GetPotentialRepoUri(RepoProjectName, progress);
+						string resolvedUri = address.GetPotentialRepoUri(RepoProjectName, _progress);
 						bool canConnect;
 						if (didConnect.ContainsKey(address))
 						{
@@ -227,16 +226,16 @@ namespace Chorus.sync
 						}
 						else
 						{
-							canConnect = address.CanConnect(repo, RepoProjectName, progress);
+							canConnect = address.CanConnect(repo, RepoProjectName, _progress);
 							didConnect.Add(address, canConnect);
 						}
 						if (canConnect)
 							{
-								repo.Push(address, resolvedUri, progress);
+								repo.Push(address, resolvedUri, _progress);
 							}
 							else if (address is DirectoryRepositorySource || address is UsbKeyRepositorySource)
 							{
-								TryToMakeCloneForSource(progress, address);
+								TryToMakeCloneForSource(address);
 								//nb: no need to push if we just made a clone
 							}
 					}
@@ -248,12 +247,12 @@ namespace Chorus.sync
 			}
 			catch (Exception error)
 			{
-				progress.WriteError("The command timed out.  Details: " + error.Message);
+				_progress.WriteError("The command timed out.  Details: " + error.Message);
 				results.Succeeded = false;
 				results.ErrorEncountered = error;
 				results.DidGetChangesFromOthers = false;
 			}
-			progress.WriteStatus("Done");
+			_progress.WriteStatus("Done");
 			return results;
 		}
 
@@ -268,7 +267,7 @@ namespace Chorus.sync
 				"convert" //for catostrophic repair in case of repo corruption
 				//"win32text"  eventually
 				};
-			repository.EnsureTheseExtensionAreEnabled(names, _progress);
+			repository.EnsureTheseExtensionAreEnabled(names);
 		}
 
 		/// <summary>
@@ -323,15 +322,15 @@ namespace Chorus.sync
 		/// <summary>
 		/// used for local sources (usb, sd media, etc)
 		/// </summary>
-		/// <param name="progress"></param>
+		/// <param name="_progress"></param>
 		/// <param name="repoDescriptor"></param>
 		/// <returns>the uri of a successful clone</returns>
-		private string TryToMakeCloneForSource(IProgress progress, RepositoryAddress repoDescriptor)
+		private string TryToMakeCloneForSource(RepositoryAddress repoDescriptor)
 		{
-			List<string> possibleRepoCloneUris = repoDescriptor.GetPossibleCloneUris(RepoProjectName, progress);
+			List<string> possibleRepoCloneUris = repoDescriptor.GetPossibleCloneUris(RepoProjectName, _progress);
 			if (possibleRepoCloneUris == null)
 			{
-				progress.WriteMessage("No Uris available for cloning to {0}",
+				_progress.WriteMessage("No Uris available for cloning to {0}",
 									  repoDescriptor.Name);
 				return null;
 			}
@@ -341,14 +340,14 @@ namespace Chorus.sync
 				{
 					try
 					{
-						progress.WriteStatus("Copying repository to {0}...", repoDescriptor.GetFullName(uri));
-						progress.WriteVerbose("({0})", uri);
-						MakeClone(uri, true, progress);
+						_progress.WriteStatus("Copying repository to {0}...", repoDescriptor.GetFullName(uri));
+						_progress.WriteVerbose("({0})", uri);
+						MakeClone(uri, true);
 						return uri;
 					}
 					catch (Exception error)
 					{
-						 progress.WriteError("Could not create repository on {0}: {1}", uri, error.Message);
+						 _progress.WriteError("Could not create repository on {0}: {1}", uri, error.Message);
 						continue;
 					}
 				}
@@ -360,9 +359,9 @@ namespace Chorus.sync
 		///
 		/// </summary>
 		 /// <returns>path to clone, or empty if it failed</returns>
-		public string MakeClone(string newDirectory, bool alsoDoCheckout, IProgress progress)
+		public string MakeClone(string newDirectory, bool alsoDoCheckout)
 		{
-			_progress = progress;
+			_progress = _progress;
 			if (Directory.Exists(newDirectory))
 			{
 				throw new ArgumentException(String.Format("The directory must not already exist ({0})", newDirectory));
@@ -372,11 +371,11 @@ namespace Chorus.sync
 			{
 				throw new ArgumentException(String.Format("The parent of the given directory must already exist ({0})", parent));
 			}
-			HgRepository local = new HgRepository(_localRepositoryPath, progress);
+			HgRepository local = new HgRepository(_localRepositoryPath, _progress);
 
 			if (!local.RemoveOldLocks())
 			{
-				progress.WriteError("Chorus could not create the clone at this time.  Try again after restarting the computer.");
+				_progress.WriteError("Chorus could not create the clone at this time.  Try again after restarting the computer.");
 				return string.Empty;
 			}
 
@@ -386,7 +385,7 @@ namespace Chorus.sync
 				if(alsoDoCheckout)
 				{
 				   // string userIdForCLone = string.Empty; /* don't assume it's this user... a repo on a usb key probably shouldn't have a user default */
-					HgRepository clone = new HgRepository(newDirectory, progress);
+					HgRepository clone = new HgRepository(newDirectory, _progress);
 					clone.Update();
 				}
 				return newDirectory;
@@ -401,7 +400,7 @@ namespace Chorus.sync
 
 
 		  /// <returns>A list of people that actually needed merging with.  Throws exception if there is an error.</returns>
-		private List<string> MergeHeads(IProgress progress, SyncResults results)
+		private List<string> MergeHeads(SyncResults results)
 		{
 			List<string> peopleWeMergedWith = new List<string>();
 
@@ -418,8 +417,8 @@ namespace Chorus.sync
 				MergeOrder.PushToEnvironmentVariables(_localRepositoryPath);
 				if (head.Number.LocalRevisionNumber != myHead.Number.LocalRevisionNumber)
 				{
-					progress.WriteStatus("Merging with {0}...", head.UserId);
-					RemoveMergeObstacles(myHead, head, progress);
+					_progress.WriteStatus("Merging with {0}...", head.UserId);
+					RemoveMergeObstacles(myHead, head);
 					bool didMerge = MergeTwoChangeSets(myHead, head);
 					if (didMerge)
 					{
@@ -439,7 +438,7 @@ namespace Chorus.sync
 		/// modified (and not checked in), and the other guy is going to hammer it (with a remove
 		/// or change).
 		/// </summary>
-		private void RemoveMergeObstacles(Revision rev1, Revision rev2, IProgress progress)
+		private void RemoveMergeObstacles(Revision rev1, Revision rev2)
 		{
 			/* this has proved a bit hard to get right.
 			 * when a file is in a recently brought in changeset, and also local (but untracked), status --rev ___ lists the file twice:
@@ -464,20 +463,20 @@ namespace Chorus.sync
 						{
 							var newPath = file.FullPath + "-" + Path.GetRandomFileName() + ".chorusRescue";
 
-							progress.WriteWarning(
+							_progress.WriteWarning(
 								"Renamed {0} to {1} because it is not part of {2}'s repository but it is part of {3}'s, and this would otherwise prevent a merge.",
 								file.FullPath, Path.GetFileName(newPath), rev1.UserId, rev2.UserId);
 
 							if (!File.Exists(file.FullPath))
 							{
-								progress.WriteError("The file marked for rescuing didn't actually exist.  Please report this bug in Chorus.");
+								_progress.WriteError("The file marked for rescuing didn't actually exist.  Please report this bug in Chorus.");
 								continue;
 							}
 							File.Move(file.FullPath, newPath);
 						}
 						catch (Exception error)
 						{
-							progress.WriteError("Could not move the file. Error was: {0}", error.Message);
+							_progress.WriteError("Could not move the file. Error was: {0}", error.Message);
 							throw;
 						}
 					}

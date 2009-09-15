@@ -71,7 +71,7 @@ namespace LibChorus.Tests.sync
 				RepositorySetup.MakeRepositoryForTest(languageProjectPath, "bob",_progress);
 
 				//SyncManager bobManager = SyncManager.FromChildPath(_lexiconProjectPath, progress, "bob");
-				SyncResults results = GetManager().SyncNow(options,progress);
+				SyncResults results = GetSynchronizer().SyncNow(options);
 			}
 
 			public string BobProjectPath
@@ -85,7 +85,7 @@ namespace LibChorus.Tests.sync
 				options.CheckinDescription = "a change to foo.abc";
 				string bobsFooTextPath = Path.Combine(_lexiconProjectPath, "foo.abc");
 				File.WriteAllText(bobsFooTextPath, "version two of my pretend txt");
-				GetManager().SyncNow(options,_progress);
+				GetSynchronizer().SyncNow(options);
 			}
 
 			/// <summary>
@@ -94,16 +94,16 @@ namespace LibChorus.Tests.sync
 			/// <param name="sourcePath">does not inclue the project folder dir</param>
 			public string SetupClone(string sourcePath)
 			{
-				return GetManager().MakeClone(Path.Combine(sourcePath, BobSetup.ProjectFolderName), true, _progress);
+				return GetSynchronizer().MakeClone(Path.Combine(sourcePath, BobSetup.ProjectFolderName), true);
 			}
 
-			public Synchronizer GetManager()
+			public Synchronizer GetSynchronizer()
 			{
 				ProjectFolderConfiguration project = new ProjectFolderConfiguration(_lexiconProjectPath);
 				project.IncludePatterns.Add("**.abc");
 				 project.IncludePatterns.Add("**.lift");
-			   Synchronizer repo= Synchronizer.FromProjectConfiguration(project, new NullProgress());
-				repo.Repository.SetUserNameInIni("bob", new NullProgress());
+			   Synchronizer repo= Synchronizer.FromProjectConfiguration(project, _progress);
+				repo.Repository.SetUserNameInIni("bob", _progress);
 				return repo;
 			}
 		}
@@ -132,7 +132,7 @@ namespace LibChorus.Tests.sync
 			bobSetup.SetupClone(usbPath);
 
 			RepositoryAddress otherDirPath = RepositoryAddress.Create("USBA", Path.Combine(usbPath, RepositoryAddress.ProjectNameVariable), false);
-			Synchronizer bob = bobSetup.GetManager();
+			Synchronizer bob = bobSetup.GetSynchronizer();
 			bob.ExtraRepositorySources.Add(otherDirPath);
 
 			//now stick a new file over in the "usb", so we can see if it comes back to us
@@ -141,9 +141,9 @@ namespace LibChorus.Tests.sync
 			ProjectFolderConfiguration usbProject = new ProjectFolderConfiguration(Path.Combine(usbPath, BobSetup.ProjectFolderName));
 			usbProject.IncludePatterns.Add("**.abc");
 			options.CheckinDescription = "adding a file to the usb for some reason";
-			var synchronizer = Synchronizer.FromProjectConfiguration(usbProject, new NullProgress());
-			synchronizer.Repository.SetUserNameInIni("usba", new NullProgress());
-			synchronizer.SyncNow(options, progress);
+			var synchronizer = Synchronizer.FromProjectConfiguration(usbProject, progress);
+			synchronizer.Repository.SetUserNameInIni("usba", progress);
+			synchronizer.SyncNow(options);
 
 
 			//now we should get that file
@@ -153,7 +153,7 @@ namespace LibChorus.Tests.sync
 			options.DoPushToLocalSources = false;
 			options.CheckinDescription = "test getting new file from usb";
 			options.RepositorySourcesToTry.Add(otherDirPath);
-			bob.SyncNow(options, progress);
+			bob.SyncNow(options);
 			Assert.IsTrue(File.Exists(Path.Combine(bobSetup._languageProjectPath, "incoming.abc")));
 		}
 
@@ -202,14 +202,14 @@ namespace LibChorus.Tests.sync
 			string usbSourcePath = Path.Combine(_pathToTestRoot, "USB-A");
 			Directory.CreateDirectory(usbSourcePath);
 			string usbProjectPath = bobSetup.SetupClone(usbSourcePath);
-			Synchronizer usbRepo = Synchronizer.FromProjectConfiguration(new ProjectFolderConfiguration(usbProjectPath), new NullProgress());
+			Synchronizer usbRepo = Synchronizer.FromProjectConfiguration(new ProjectFolderConfiguration(usbProjectPath), progress);
 
-			Synchronizer bobSynchronizer =  bobSetup.GetManager();
+			Synchronizer bobSynchronizer =  bobSetup.GetSynchronizer();
 
 			//Sally gets the usb and uses it to clone herself a repository
 			string sallySourcePath = Path.Combine(_pathToTestRoot, "sally");
 			Directory.CreateDirectory(sallySourcePath);
-			string sallyRepoPath = usbRepo.MakeClone(Path.Combine(sallySourcePath, BobSetup.ProjectFolderName), true, progress);
+			string sallyRepoPath = usbRepo.MakeClone(Path.Combine(sallySourcePath, BobSetup.ProjectFolderName), true);
 
 			//Now bob sets up the conflict
 
@@ -221,12 +221,12 @@ namespace LibChorus.Tests.sync
 			bobOptions.DoPushToLocalSources = false;
 			RepositoryAddress usbPath = RepositoryAddress.Create( "usba source", Path.Combine(usbSourcePath, RepositoryAddress.ProjectNameVariable),false);
 			bobOptions.RepositorySourcesToTry.Add(usbPath);
-			bobSynchronizer.SyncNow(bobOptions, progress);
+			bobSynchronizer.SyncNow(bobOptions);
 
 			ProjectFolderConfiguration sallyProject = new ProjectFolderConfiguration(sallyRepoPath);
 			sallyProject.IncludePatterns.Add("**.abc");
 
-			Synchronizer sallySynchronizer = Synchronizer.FromProjectConfiguration(sallyProject, new NullProgress());
+			Synchronizer sallySynchronizer = Synchronizer.FromProjectConfiguration(sallyProject, progress);
 			sallySynchronizer.Repository.SetUserNameInIni("sally", new NullProgress());
 
 			//now she modifies a file
@@ -239,7 +239,7 @@ namespace LibChorus.Tests.sync
 			sallyOptions.DoPullFromOthers = true;
 			sallyOptions.DoMergeWithOthers = true;
 			sallyOptions.DoPushToLocalSources = true;
-			sallySynchronizer.SyncNow(sallyOptions, progress);
+			sallySynchronizer.SyncNow(sallyOptions);
 
 			//bob still doesn't have direct access to sally's repo... it's in some other city
 			// but now the usb comes back to him
@@ -248,7 +248,7 @@ namespace LibChorus.Tests.sync
 			bobOptions.DoPullFromOthers = true;
 			bobOptions.DoPushToLocalSources = true;
 			bobOptions.DoMergeWithOthers = true;
-			bobSynchronizer.SyncNow(bobOptions, progress);
+			bobSynchronizer.SyncNow(bobOptions);
 
 
 			Assert.AreEqual("Sally was here", File.ReadAllText(bobSetup.PathToText));
@@ -272,8 +272,8 @@ namespace LibChorus.Tests.sync
 			sallyProject.IncludePatterns.Add("**.abc");
 			sallyProject.IncludePatterns.Add("**.lift");
 
-			var repository = HgRepository.CreateOrLocate(sallyProject.FolderPath, new NullProgress());
-			repository.SetUserNameInIni("sally", new NullProgress());
+			var repository = HgRepository.CreateOrLocate(sallyProject.FolderPath, progress);
+			repository.SetUserNameInIni("sally",progress);
 
 
 			// bob makes a change and syncs
@@ -283,7 +283,7 @@ namespace LibChorus.Tests.sync
 			bobOptions.DoMergeWithOthers = false; // just want a fast checkin
 			bobOptions.DoPushToLocalSources = false; // just want a fast checkin
 			bobOptions.DoPullFromOthers = false; // just want a fast checkin
-			bobSetup.GetManager().SyncNow(bobOptions, progress);
+			bobSetup.GetSynchronizer().SyncNow(bobOptions);
 
 
 			//now Sally modifies the original file, not having seen Bob's changes yet
@@ -299,7 +299,7 @@ namespace LibChorus.Tests.sync
 			sallyOptions.RepositorySourcesToTry.Add(RepositoryAddress.Create("bob's machine", bobSetup.BobProjectPath, false));
 
 			var synchronizer = Synchronizer.FromProjectConfiguration(sallyProject, progress);
-			synchronizer.SyncNow(sallyOptions, progress);
+			synchronizer.SyncNow(sallyOptions);
 
 			Debug.WriteLine(File.ReadAllText(bobSetup._pathToLift));
 			string contents = File.ReadAllText(sallyPathToLift);

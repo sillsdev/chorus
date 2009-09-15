@@ -92,7 +92,12 @@ namespace Chorus.merge.xml.lift
 		{
 			string id = LiftUtils.GetId(child);
 			XmlNode parent = LiftUtils.FindEntryById(_parentDom, id);
-			string url = LiftUtils.GetUrl(child, Path.GetFileName(_childFileInRevision.FullPath));
+			string path = string.Empty;
+			if (_childFileInRevision != null && !string.IsNullOrEmpty(_childFileInRevision.FullPath))
+			{
+				path = Path.GetFileName(_childFileInRevision.FullPath);
+			}
+			string url = LiftUtils.GetUrl(child, path);
 
 			if (parent == null) //it's new
 			{

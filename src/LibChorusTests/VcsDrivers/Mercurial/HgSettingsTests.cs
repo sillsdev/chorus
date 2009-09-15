@@ -46,7 +46,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 [paths]
 one = c:\intentionally bogus
 two = http://foo.com");
-				var repo = new HgRepository(testRoot.Path, new NullProgress());
+				var repo = new HgRepository(testRoot.Path, _progress);
 				var sources = repo.GetRepositoryPathsInHgrc();
 				Assert.AreEqual(2, sources.Count());
 				Assert.AreEqual(@"c:\intentionally bogus" ,sources.First().URI);
@@ -65,7 +65,7 @@ two = http://foo.com");
 username = joe
 ");
 				var repository = setup.CreateSynchronizer().Repository;
-				Assert.AreEqual("joe", repository.GetUserNameFromIni(new NullProgress()));
+				Assert.AreEqual("joe", repository.GetUserNameFromIni(_progress));
 			}
 		}
 		[Test]
@@ -75,7 +75,7 @@ username = joe
 			{
 				setup.WriteIniContents(@"");
 				var repository = setup.CreateSynchronizer().Repository;
-				Assert.AreEqual(string.Empty, repository.GetUserNameFromIni(new NullProgress()));
+				Assert.AreEqual(string.Empty, repository.GetUserNameFromIni(_progress));
 			}
 		}
 		[Test]
@@ -85,7 +85,7 @@ username = joe
 			{
 				setup.EnsureNoHgrcExists();
 				var repository = setup.CreateSynchronizer().Repository;
-				Assert.AreEqual(string.Empty, repository.GetUserNameFromIni(new NullProgress()));
+				Assert.AreEqual(string.Empty, repository.GetUserNameFromIni(_progress));
 			}
 		}
 		[Test]
@@ -95,12 +95,12 @@ username = joe
 			{
 				setup.EnsureNoHgrcExists();
 				var repository = setup.CreateSynchronizer().Repository;
-				repository.SetUserNameInIni("bill", new NullProgress());
-				Assert.AreEqual("bill", repository.GetUserNameFromIni(new NullProgress()));
+				repository.SetUserNameInIni("bill", _progress);
+				Assert.AreEqual("bill", repository.GetUserNameFromIni(_progress));
 
 				//this time, the hgrc does exist
-				repository.SetUserNameInIni("sue", new NullProgress());
-				Assert.AreEqual("sue", repository.GetUserNameFromIni(new NullProgress()));
+				repository.SetUserNameInIni("sue", _progress);
+				Assert.AreEqual("sue", repository.GetUserNameFromIni(_progress));
 			}
 		}
 		[Test]
@@ -155,10 +155,10 @@ username = joe
 			using (var setup = new RepositorySetup("Dan"))
 			{
 				setup.EnsureNoHgrcExists();
-				var repository = setup.CreateSynchronizer().Repository;
-				repository.EnsureTheseExtensionAreEnabled(new string[] { "a","b" }, setup.Progress);
-				Assert.AreEqual("a", repository.GetEnabledExtension().First());
-				Assert.AreEqual("b", repository.GetEnabledExtension().ToArray()[1]);
+
+				setup.Repository.EnsureTheseExtensionAreEnabled(new string[] { "a","b" });
+				Assert.AreEqual("a", setup.Repository.GetEnabledExtension().First());
+				Assert.AreEqual("b", setup.Repository.GetEnabledExtension().ToArray()[1]);
 			}
 		}
 
@@ -168,14 +168,14 @@ username = joe
 			using (var testRoot = new TempFolder("ChorusHgSettingsTest"))
 			{
 				HgRepository.CreateRepositoryInExistingDir(testRoot.Path, _progress);
-				var repository = new HgRepository(testRoot.Path, new NullProgress());
+				var repository = new HgRepository(testRoot.Path, new ConsoleProgress());
 				File.WriteAllText(testRoot.Combine(Path.Combine(".hg", "hgrc")), @"
 [extensions]
 a =
 x =
 ");
 
-				repository.EnsureTheseExtensionAreEnabled(new string[] { "a", "b" }, new ConsoleProgress());
+				repository.EnsureTheseExtensionAreEnabled(new string[] { "a", "b" });
 				Assert.AreEqual(3, repository.GetEnabledExtension().Count());
 				Assert.AreEqual("a", repository.GetEnabledExtension().ToArray()[0]);
 				Assert.AreEqual("x", repository.GetEnabledExtension().ToArray()[1]);

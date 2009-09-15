@@ -25,7 +25,7 @@ namespace Chorus.UI.Sync
 			StatusProgress = new StatusProgress();
 			_progress = new MultiProgress(new[] { StatusProgress });
 			Features = uiFeatureFlags;
-			_synchronizer = Synchronizer.FromProjectConfiguration(projectFolderConfiguration, new NullProgress());
+			_synchronizer = Synchronizer.FromProjectConfiguration(projectFolderConfiguration, _progress);
 			_backgroundWorker = new BackgroundWorker();
 			_backgroundWorker.WorkerSupportsCancellation = true;
 			_backgroundWorker.RunWorkerCompleted += new RunWorkerCompletedEventHandler(_backgroundWorker_RunWorkerCompleted);
@@ -124,7 +124,7 @@ namespace Chorus.UI.Sync
 		{
 			//nb: at the moment, we can't just get it new each time, because it stores the
 			//enabled state of the check boxes
-			return _synchronizer.GetPotentialSynchronizationSources(new NullProgress());
+			return _synchronizer.GetPotentialSynchronizationSources();
 		}
 
 		/// <summary>
@@ -168,7 +168,7 @@ namespace Chorus.UI.Sync
 		{
 			object[] args = e.Argument as object[];
 			Synchronizer synchronizer = args[0] as Synchronizer;
-			e.Result =  synchronizer.SyncNow(sender as BackgroundWorker, e, args[1] as SyncOptions, args[2] as IProgress);
+			e.Result =  synchronizer.SyncNow(sender as BackgroundWorker, e, args[1] as SyncOptions);
 		}
 
 		public void PathEnabledChanged(RepositoryAddress address, CheckState state)

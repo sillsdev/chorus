@@ -66,7 +66,7 @@ namespace LibChorus.Tests.merge
 			options.DoMergeWithOthers = false;
 			options.DoPullFromOthers = false;
 			options.DoPushToLocalSources = false;
-			Synchronizer.SyncNow(options, Progress);
+			Synchronizer.SyncNow(options);
 		}
 
 		public static RepositoryWithFilesSetup CreateByCloning(string userName, RepositoryWithFilesSetup cloneFromUser)
@@ -79,7 +79,7 @@ namespace LibChorus.Tests.merge
 			Progress= new MultiProgress(new IProgress[] { new ConsoleProgress(), _stringProgress });
 			RootFolder = new TempFolder("ChorusTest-"+userName);
 			string pathToProject = RootFolder.Combine(Path.GetFileName(cloneFromUser.ProjectFolder.Path));
-			cloneFromUser.Synchronizer.MakeClone(pathToProject, true, Progress);
+			cloneFromUser.Synchronizer.MakeClone(pathToProject, true);
 			ProjectFolder = TempFolder.TrackExisting(RootFolder.Combine("foo project"));
 			string pathToOurLiftFile = ProjectFolder.Combine(Path.GetFileName(cloneFromUser.UserFile.Path));
 			UserFile = TempFile.TrackExisting(pathToOurLiftFile);
@@ -94,7 +94,7 @@ namespace LibChorus.Tests.merge
 			_repository = new HgRepository(ProjectFolder.Path,Progress);
 
 			RepoPath = RepositoryAddress.Create(userName, ProjectFolder.Path, false);
-			Synchronizer = Synchronizer.FromProjectConfiguration(ProjectConfiguration, new NullProgress());
+			Synchronizer = Synchronizer.FromProjectConfiguration(ProjectConfiguration, Progress);
 			Synchronizer.Repository.SetUserNameInIni(userName,Progress);
 		}
 
@@ -123,7 +123,7 @@ namespace LibChorus.Tests.merge
 			options.DoPushToLocalSources = false;
 
 			options.RepositorySourcesToTry.Add(syncWithUser.RepoPath);
-			return Synchronizer.SyncNow(options, Progress);
+			return Synchronizer.SyncNow(options);
 		}
 
 
@@ -134,7 +134,7 @@ namespace LibChorus.Tests.merge
 			options.DoPullFromOthers = false;
 			options.DoPushToLocalSources = false;
 
-			Synchronizer.SyncNow(options, Progress);
+			Synchronizer.SyncNow(options);
 		}
 
 		public void WriteIniContents(string s)

@@ -63,12 +63,12 @@ namespace Chorus.Tests
 
 
 		[Test]
-		public void GetRepositoriesToList_NoRepositoriesKnown_GivesUsbAndDepot()
+		public void GetRepositoriesToList_NoRepositoriesKnown_GivesUsb()
 		{
 			_synchronizer.ExtraRepositorySources.Clear();
 			_model = new SyncControlModel(_project, SyncUIFeatures.Everything);
 			_model.AddProgressDisplay(_progress);
-			Assert.AreEqual(2, _model.GetRepositoriesToList().Count);
+			Assert.AreEqual(1, _model.GetRepositoriesToList().Count);
 		}
 	}
 }

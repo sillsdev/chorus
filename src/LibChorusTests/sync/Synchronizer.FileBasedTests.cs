@@ -17,7 +17,7 @@ namespace LibChorus.Tests.sync
 		private StringBuilderProgress _progress;
 		private string _pathToTestRoot;
 		private string _pathToProjectRoot;
-		private Synchronizer _manager;
+		private Synchronizer _synchronizer;
 		private string _pathToBackupFolder;
 		private DirectoryRepositorySource _directorySource;
 
@@ -42,7 +42,7 @@ namespace LibChorus.Tests.sync
 			_project.FolderPath = _pathToProjectRoot;
 
 
-			_manager = Synchronizer.FromProjectConfiguration(_project, new NullProgress());
+			_synchronizer = Synchronizer.FromProjectConfiguration(_project, _progress);
 			_pathToBackupFolder = Path.Combine(_pathToTestRoot, "backup");
 			Directory.CreateDirectory(_pathToBackupFolder);
 			_directorySource = new DirectoryRepositorySource("SD Backup Card", Path.Combine(_pathToBackupFolder,RepositoryAddress.ProjectNameVariable), false);
@@ -61,16 +61,16 @@ namespace LibChorus.Tests.sync
 		public void SyncNow_BackupAlreadySetUp_GetsSync()
 		{
 			SyncOptions options = new SyncOptions();
-			_manager.SyncNow(options, _progress);
+			_synchronizer.SyncNow(options);
 			string projectDirOnBackup = Path.Combine(_pathToBackupFolder, "foo project.2");
-			_manager.MakeClone(projectDirOnBackup, true, _progress);
+			_synchronizer.MakeClone(projectDirOnBackup, true);
 
 			string contents = File.ReadAllText(Path.Combine(projectDirOnBackup, "foo.txt"));
 			Assert.AreEqual("version one", contents);
 			WriteTestFile("version two");
 
 			options.RepositorySourcesToTry.Add(_directorySource);
-			_manager.SyncNow(options, _progress);
+			_synchronizer.SyncNow(options);
 			contents = File.ReadAllText(Path.Combine(projectDirOnBackup, "foo.txt"));
 			Assert.AreEqual("version two", contents);
 		}
@@ -79,13 +79,13 @@ namespace LibChorus.Tests.sync
 		public void SyncNow_FileMissing_GetsRemoved()
 		{
 			SyncOptions options = new SyncOptions();
-			_manager.SyncNow(options, _progress);
+			_synchronizer.SyncNow(options);
 
 			string path = Path.Combine(_pathToProjectRoot, "foo.txt");
 			Assert.IsTrue(File.Exists(path));
-			_manager.SyncNow(options, _progress);
+			_synchronizer.SyncNow(options);
 			File.Delete(path);
-			_manager.SyncNow(options, _progress);
+			_synchronizer.SyncNow(options);
 
 			Assert.IsFalse(File.Exists(path));
 		}
@@ -101,7 +101,7 @@ namespace LibChorus.Tests.sync
 
 		   // WriteTestFile("version two");
 
-			_manager.SyncNow(options, _progress);
+			_synchronizer.SyncNow(options);
 			string dir = Path.Combine(_pathToBackupFolder, "foo project.2");
 			Assert.IsTrue(Directory.Exists(dir));
 		}

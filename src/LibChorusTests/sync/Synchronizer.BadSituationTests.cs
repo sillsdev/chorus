@@ -25,7 +25,7 @@ namespace LibChorus.Tests.sync
 		{
 			using (TempFolder f = new TempFolder("SourceHasDotInName_IsNotLost.x.y"))
 			{
-				Synchronizer m = new Synchronizer(f.Path, new ProjectFolderConfiguration("blah"));
+				Synchronizer m = new Synchronizer(f.Path, new ProjectFolderConfiguration("blah"), new ConsoleProgress());
 
 				Assert.AreEqual("SourceHasDotInName_IsNotLost.x.y", m.RepoProjectName);
 			}

@@ -63,17 +63,17 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		[Test]
 		public void GetAllRevisionss_AfterSyncingTwoTimes_CorrectHistory()
 		{
-			Synchronizer setup = new Synchronizer(_project.FolderPath, _project);
+			Synchronizer setup = new Synchronizer(_project.FolderPath, _project, _progress);
 			SyncOptions options = new SyncOptions();
 			options.DoPullFromOthers = false;
 			options.DoMergeWithOthers = false;
 			options.CheckinDescription = "first one";
 			options.DoPushToLocalSources = false;
 
-			setup.SyncNow(options, _progress);
+			setup.SyncNow(options);
 			File.WriteAllText(_pathToText, "version two of my pretend txt");
 			options.CheckinDescription = "second one";
-			setup.SyncNow(options, _progress);
+			setup.SyncNow(options);
 
 			List<Revision> items = _repository.GetAllRevisions();
 			Assert.AreEqual(2, items.Count);

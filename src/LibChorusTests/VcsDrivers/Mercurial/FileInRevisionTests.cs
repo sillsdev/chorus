@@ -35,7 +35,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 					File.WriteAllText(f.Path, "one");
 
 					HgRepository.CreateRepositoryInExistingDir(testRoot.Path,_progress);
-					var repo = new HgRepository(testRoot.Path, new NullProgress());
+					var repo = new HgRepository(testRoot.Path, _progress);
 
 					repo.AddAndCheckinFile(f.Path);
 					repo.Commit(true, "initial");
@@ -57,7 +57,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				using (var f = TempFile.TrackExisting(temp))
 				{
 					HgRepository.CreateRepositoryInExistingDir(testRoot.Path,_progress);
-					var repo = new HgRepository(testRoot.Path, new NullProgress());
+					var repo = new HgRepository(testRoot.Path, _progress);
 
 					repo.AddAndCheckinFile(f.Path);
 					repo.Commit(true, "initial");

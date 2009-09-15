@@ -51,15 +51,15 @@ namespace LibChorus.Tests.sync
 		[Test]
 		public void SyncNow_OnlyABlankFauxUsbAvailable_UsbGetsClone()
 		{
-			Synchronizer manager = Synchronizer.FromProjectConfiguration(_project, new NullProgress());
+			Synchronizer synchronizer = Synchronizer.FromProjectConfiguration(_project, _progress);
 			SyncOptions options = new SyncOptions();
 			options.DoMergeWithOthers = true;
 			options.DoPushToLocalSources = true;
-			options.RepositorySourcesToTry.Add(manager.UsbPath);
+			options.RepositorySourcesToTry.Add(synchronizer.UsbPath);
 
 			WriteTestFile("version two");
 
-			manager.SyncNow(options, _progress);
+			synchronizer.SyncNow(options);
 			string dir = Path.Combine(UsbKeyRepositorySource.RootDirForUsbSourceDuringUnitTest, "foo project");
 			Assert.IsTrue(Directory.Exists(dir));
 
@@ -69,16 +69,16 @@ namespace LibChorus.Tests.sync
 		public void SyncNow_AlreadySetupFauxUsbAvailable_UsbGetsSync()
 		{
 			SyncOptions options = new SyncOptions();
-			Synchronizer manager = Synchronizer.FromProjectConfiguration(_project, new NullProgress());
-			manager.SyncNow(options, _progress);
+			Synchronizer manager = Synchronizer.FromProjectConfiguration(_project, _progress);
+			manager.SyncNow(options);
 
 			options.RepositorySourcesToTry.Add(manager.UsbPath);
 			string dir = Path.Combine(UsbKeyRepositorySource.RootDirForUsbSourceDuringUnitTest, "foo project");
-			manager.MakeClone(dir, true, _progress);
+			manager.MakeClone(dir, true);
 			string contents = File.ReadAllText(Path.Combine(dir, "foo.txt"));
 			Assert.AreEqual("version one", contents);
 			WriteTestFile("version two");
-			manager.SyncNow(options, _progress);
+			manager.SyncNow(options);
 			contents = File.ReadAllText(Path.Combine(dir, "foo.txt"));
 			Assert.AreEqual("version two", contents);
 		}
