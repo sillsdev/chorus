@@ -33,7 +33,7 @@ namespace Chorus.merge.xml.lift
 
 		public static string GetUrl(XmlNode entryNode, string fileName)
 		{
-			string url = "lift://" + fileName + "/navigate?type=entry&";
+			string url = string.Format("lift://navigate/file={0}?type=entry&", fileName);
 			if (!string.IsNullOrEmpty(LiftUtils.GetGuid(entryNode)))
 			{
 				url += "guid=" + LiftUtils.GetGuid(entryNode) + "&";
