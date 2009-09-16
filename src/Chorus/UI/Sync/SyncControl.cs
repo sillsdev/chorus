@@ -218,7 +218,11 @@ namespace Chorus.UI.Sync
 			}
 
 			progressBar1.Style = ProgressBarStyle.Marquee;
+#if MONO
+			progressBar1.MarqueeAnimationSpeed = 3000;
+#else
 			progressBar1.MarqueeAnimationSpeed = 50;
+#endif
 			_logBox.Clear();
 			_logBox.WriteStatus("Syncing...");
 			Cursor.Current = Cursors.WaitCursor;

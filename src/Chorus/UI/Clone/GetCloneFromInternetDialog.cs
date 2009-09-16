@@ -125,7 +125,11 @@ namespace Chorus.UI.Clone
 					_statusImage.Visible = false;
 					_progressBar.Visible = true;
 					_progressBar.Style = ProgressBarStyle.Marquee;
+#if MONO
+					_progressBar.MarqueeAnimationSpeed = 3000;
+#else
 					_progressBar.MarqueeAnimationSpeed = 50;
+#endif
 					_statusLabel.Visible = true;
 					_statusLabel.Text = "Getting project...";
 					_statusLabel.Left = _progressBar.Left;
