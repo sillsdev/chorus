@@ -32,11 +32,13 @@
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SyncControl));
 			this._tabControl = new System.Windows.Forms.TabControl();
 			this._chooseTargetsTab = new System.Windows.Forms.TabPage();
+			this.pictureBox2 = new System.Windows.Forms.PictureBox();
 			this.label1 = new System.Windows.Forms.Label();
 			this._syncTargets = new System.Windows.Forms.CheckedListBox();
 			this._tasksTab = new System.Windows.Forms.TabPage();
 			this._tasksListView = new System.Windows.Forms.ListView();
 			this._logTab = new System.Windows.Forms.TabPage();
+			this._logBox = new Chorus.UI.Misc.LogBox();
 			this.progressBar1 = new System.Windows.Forms.ProgressBar();
 			this._cancelButton = new System.Windows.Forms.Button();
 			this._updateDisplayTimer = new System.Windows.Forms.Timer(this.components);
@@ -45,16 +47,14 @@
 			this._showCancelButtonTimer = new System.Windows.Forms.Timer(this.components);
 			this._successIcon = new System.Windows.Forms.PictureBox();
 			this._warningIcon = new System.Windows.Forms.PictureBox();
-			this.pictureBox2 = new System.Windows.Forms.PictureBox();
 			this._sendReceiveButton = new System.Windows.Forms.Button();
-			this._logBox = new Chorus.UI.Misc.LogBox();
 			this._tabControl.SuspendLayout();
 			this._chooseTargetsTab.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
 			this._tasksTab.SuspendLayout();
 			this._logTab.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this._successIcon)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this._warningIcon)).BeginInit();
-			((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
 			this.SuspendLayout();
 			//
 			// _tabControl
@@ -82,6 +82,15 @@
 			this._chooseTargetsTab.TabIndex = 2;
 			this._chooseTargetsTab.Text = "Choose Respositories";
 			this._chooseTargetsTab.UseVisualStyleBackColor = true;
+			//
+			// pictureBox2
+			//
+			this.pictureBox2.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox2.Image")));
+			this.pictureBox2.Location = new System.Drawing.Point(5, 0);
+			this.pictureBox2.Name = "pictureBox2";
+			this.pictureBox2.Size = new System.Drawing.Size(40, 36);
+			this.pictureBox2.TabIndex = 10;
+			this.pictureBox2.TabStop = false;
 			//
 			// label1
 			//
@@ -139,6 +148,15 @@
 			this._logTab.UseVisualStyleBackColor = true;
 			this._logTab.Resize += new System.EventHandler(this._logTab_Resize);
 			//
+			// _logBox
+			//
+			this._logBox.CancelRequested = false;
+			this._logBox.Dock = System.Windows.Forms.DockStyle.Fill;
+			this._logBox.Location = new System.Drawing.Point(3, 3);
+			this._logBox.Name = "_logBox";
+			this._logBox.Size = new System.Drawing.Size(472, 216);
+			this._logBox.TabIndex = 0;
+			//
 			// progressBar1
 			//
 			this.progressBar1.Location = new System.Drawing.Point(55, 30);
@@ -159,7 +177,8 @@
 			//
 			// _updateDisplayTimer
 			//
-			this._updateDisplayTimer.Tick += new System.EventHandler(this.timer1_Tick);
+			this._updateDisplayTimer.Interval = 300;
+			this._updateDisplayTimer.Tick += new System.EventHandler(this.OnUpdateDisplayTimerTick);
 			//
 			// _closeButton
 			//
@@ -207,15 +226,6 @@
 			this._warningIcon.TabIndex = 15;
 			this._warningIcon.TabStop = false;
 			//
-			// pictureBox2
-			//
-			this.pictureBox2.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox2.Image")));
-			this.pictureBox2.Location = new System.Drawing.Point(5, 0);
-			this.pictureBox2.Name = "pictureBox2";
-			this.pictureBox2.Size = new System.Drawing.Size(40, 36);
-			this.pictureBox2.TabIndex = 10;
-			this.pictureBox2.TabStop = false;
-			//
 			// _sendReceiveButton
 			//
 			this._sendReceiveButton.Image = ((System.Drawing.Image)(resources.GetObject("_sendReceiveButton.Image")));
@@ -228,14 +238,6 @@
 			this._sendReceiveButton.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
 			this._sendReceiveButton.UseVisualStyleBackColor = true;
 			this._sendReceiveButton.Click += new System.EventHandler(this._syncButton_Click);
-			//
-			// _logBox
-			//
-			this._logBox.Dock = System.Windows.Forms.DockStyle.Fill;
-			this._logBox.Location = new System.Drawing.Point(3, 3);
-			this._logBox.Name = "_logBox";
-			this._logBox.Size = new System.Drawing.Size(472, 216);
-			this._logBox.TabIndex = 0;
 			//
 			// SyncControl
 			//
@@ -257,11 +259,11 @@
 			this._tabControl.ResumeLayout(false);
 			this._chooseTargetsTab.ResumeLayout(false);
 			this._chooseTargetsTab.PerformLayout();
+			((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
 			this._tasksTab.ResumeLayout(false);
 			this._logTab.ResumeLayout(false);
 			((System.ComponentModel.ISupportInitialize)(this._successIcon)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this._warningIcon)).EndInit();
-			((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
 			this.ResumeLayout(false);
 			this.PerformLayout();
 

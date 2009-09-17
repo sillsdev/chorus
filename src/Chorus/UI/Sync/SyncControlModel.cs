@@ -77,7 +77,7 @@ namespace Chorus.UI.Sync
 
 		public bool EnableSendReceive
 		{
-			get { return HasFeature(SyncUIFeatures.SendReceiveButton) && !_backgroundWorker.IsBusy; }
+			get { return !EnableClose && HasFeature(SyncUIFeatures.SendReceiveButton) && !_backgroundWorker.IsBusy; }
 		}
 
 		public bool EnableCancel
@@ -95,13 +95,10 @@ namespace Chorus.UI.Sync
 
 		public bool ShowSyncButton
 		{
-			get { return HasFeature(SyncUIFeatures.SendReceiveButton); }
+			get { return !EnableClose && HasFeature(SyncUIFeatures.SendReceiveButton); }
 		}
 
-		public bool EnableClose
-		{
-			get { return false; }
-		}
+		public bool EnableClose{get;set;}
 
 		public bool SynchronizingNow
 		{

@@ -45,6 +45,8 @@ namespace Chorus.UI.Sync
 				_closeWhenDoneTimer.Enabled = true;
 			}
 	   //this makes it close right away!    this.DialogResult = System.Windows.Forms.DialogResult.OK;
+
+			_syncControl.Model.EnableClose = true;
 			this.SyncResult = syncResults as SyncResults;
 		}
 

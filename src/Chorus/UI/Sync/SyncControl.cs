@@ -27,6 +27,7 @@ namespace Chorus.UI.Sync
 		   _closeButton.Bounds = _cancelButton.Bounds;
 			progressBar1.Visible = false;
 			_statusText.Visible = false;
+			_updateDisplayTimer.Enabled = true;
 
 		}
 		public SyncControl(SyncControlModel model)
@@ -190,7 +191,7 @@ namespace Chorus.UI.Sync
 			Synchronize(false);
 		}
 
-		private void timer1_Tick(object sender, EventArgs e)
+		private void OnUpdateDisplayTimerTick(object sender, EventArgs e)
 		{
 			UpdateDisplay();
 		}
@@ -226,7 +227,6 @@ namespace Chorus.UI.Sync
 			_logBox.Clear();
 			_logBox.WriteStatus("Syncing...");
 			Cursor.Current = Cursors.WaitCursor;
-			_updateDisplayTimer.Enabled = true;
 			Model.Sync(useTargetsAsSpecifiedInSyncOptions);
 		}
 
