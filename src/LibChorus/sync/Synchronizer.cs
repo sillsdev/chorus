@@ -493,7 +493,7 @@ namespace Chorus.sync
 #else
 			string chorusMergeFilePath = Path.Combine(Other.DirectoryOfExecutingAssembly, "ChorusMerge.exe");
 #endif
-			using (new ShortTermEnvironmentalVariable("HGMERGE", chorusMergeFilePath))
+			using (new ShortTermEnvironmentalVariable("HGMERGE", '"'+chorusMergeFilePath+'"'))
 			{
 				using (new ShortTermEnvironmentalVariable(MergeOrder.kConflictHandlingModeEnvVarName, MergeOrder.ConflictHandlingModeChoices.TheyWin.ToString()))
 				{
