@@ -8,6 +8,7 @@ namespace Chorus.UI.Settings
 	{
 		private readonly SettingsModel _model;
 		private IProgress _progress = new NullProgress();
+		private bool _didLoad;
 
 		public SettingsView(SettingsModel model)
 		{
@@ -17,6 +18,7 @@ namespace Chorus.UI.Settings
 
 		protected override void OnLoad(System.EventArgs e)
 		{
+			_didLoad = true;// trying to track down WS-14977
 			base.OnLoad(e);
 			if(_model==null)
 				return;
@@ -44,6 +46,11 @@ namespace Chorus.UI.Settings
 		{
 			try
 			{
+				if (!_didLoad && _repositoryAliases.Text.IndexOf("=" ) <0)
+				{
+					MessageBox.Show("Please report to issues@wesay.org: mono is calling validate() on SettingsView which was never loaded");
+					return;
+				}
 				_model.SetAddresses(_repositoryAliases.Text, _progress);
 			}
 			catch (Exception error)
@@ -55,6 +62,11 @@ namespace Chorus.UI.Settings
 
 		private void _repositoryAliases_Leave(object sender, EventArgs e)
 		{
+			if (!_didLoad && _repositoryAliases.Text.IndexOf("=") < 0)
+			{
+				MessageBox.Show("Please report to issues@wesay.org: mono is calling leave() on SettingsView which was never loaded");
+				return;
+			}
 			try
 			{
 				_model.SetAddresses(_repositoryAliases.Text, _progress);

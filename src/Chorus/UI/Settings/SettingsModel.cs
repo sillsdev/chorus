@@ -56,8 +56,11 @@ namespace Chorus.UI.Settings
 
 			if (oldPaths.Count() > 0 && aliases.Count() == 0)
 			{
-				MessageBox.Show(
-					"Repository Paths is being cleared.  If you did that on purpose, fine.  If not, please report this to issues@wesay.org (we're trying to track down a bug).");
+				var response = MessageBox.Show(
+					"Repository Paths is being cleared.  If you did that on purpose, fine, click 'Yes'.  If not, please click 'No' and report this to issues@wesay.org (we're trying to track down a bug).",
+					"Pleaes confirm", MessageBoxButtons.YesNo);
+				if(response == DialogResult.No)
+					return;
 			}
 			_repository.SetKnownRepositoryAddresses(aliases);
 		}
