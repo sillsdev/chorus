@@ -89,8 +89,16 @@ namespace Chorus.UI.Sync
 		{
 			get {
 				return HasFeature(SyncUIFeatures.Log) ||
-					!HasFeature(SyncUIFeatures.SimpleRepositoryChooserInsteadOfAdvanced) ||
+					ShowAdvancedSelector ||
 					HasFeature(SyncUIFeatures.TaskList); }
+		}
+		private bool ShowAdvancedSelector
+		{
+			get
+			{
+				return !HasFeature(SyncUIFeatures.SimpleRepositoryChooserInsteadOfAdvanced)
+					   && !HasFeature(SyncUIFeatures.Minimal);
+			}
 		}
 
 		public bool ShowSyncButton

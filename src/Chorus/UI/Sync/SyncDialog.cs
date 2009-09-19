@@ -62,7 +62,10 @@ namespace Chorus.UI.Sync
 			}
 	   //this makes it close right away!    this.DialogResult = System.Windows.Forms.DialogResult.OK;
 
-			_syncControl.Model.EnableClose = true;
+			if ((Behavior & SyncUIDialogBehaviors.StartImmediatelyAndCloseWhenFinished) != SyncUIDialogBehaviors.StartImmediatelyAndCloseWhenFinished)
+			{//don't show close if we're going to auto-close
+				_syncControl.Model.EnableClose = true;
+			}
 			this.SyncResult = syncResults as SyncResults;
 		}
 

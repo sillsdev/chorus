@@ -125,7 +125,8 @@ namespace Chorus.UI.Sync
 			}
 			else
 			{
-				if (_model.HasFeature(SyncUIFeatures.SimpleRepositoryChooserInsteadOfAdvanced))
+				if (_model.HasFeature(SyncUIFeatures.SimpleRepositoryChooserInsteadOfAdvanced)
+					|| _model.HasFeature(SyncUIFeatures.Minimal))
 				{
 					_tabControl.TabPages.Remove(_chooseTargetsTab);
 				}
