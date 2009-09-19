@@ -14,22 +14,53 @@ namespace LibChorus.Tests
 	public class SyncDialogTests
 	{
 		[Test, Ignore("Run by hand only")]
-		public void ShowSyncStartControl()
+		public void ShowSyncStartControl_NoPaths()
 		{
 			var setup = new RepositorySetup("pedro");
 			{
+				var c = new SyncStartControl() {Repository = setup.Repository};
+				var f = new Form();
+				c.Dock = DockStyle.Fill;
+				f.Controls.Add(c);
+				Application.Run(f);
+			}
+		}
 
-				using (var c = new SyncStartControl(setup.Repository))
+		[Test, Ignore("Run by hand only")]
+		public void ShowSyncStartControl_InternetAndNetworkPaths()
+		{
+			var setup = new RepositorySetup("pedro");
+			{
+				setup.Repository.SetKnownRepositoryAddresses(new RepositoryAddress[]
 				{
-					var f = new Form();
-					c.Dock = DockStyle.Fill;
-					f.Controls.Add(c);
-					Application.Run(f);
+					RepositoryAddress.Create("language depot", "http://hg-public.languagedepot.org"),
+					RepositoryAddress.Create("joe's mac", "//suzie-pc/shared")
+				});
+				var c = new SyncStartControl() { Repository = setup.Repository };
+				var f = new Form();
+				c.Dock = DockStyle.Fill;
+				f.Controls.Add(c);
+				Application.Run(f);
+			}
+		}
+
+		[Test, Ignore("Run by hand only")]
+		public void LaunchDialog_LazyWithNormalUI()
+		{
+			var setup = new RepositorySetup("pedro");
+			{
+				Application.EnableVisualStyles();
+
+				using (var dlg = new SyncDialog(setup.ProjectFolderConfig,
+					SyncUIDialogBehaviors.Lazy,
+					SyncUIFeatures.NormalRecommended))
+				{
+				//    dlg.SyncOptions.RepositorySourcesToTry.Add(RepositoryAddress.Create("bogus", @"z:/"));
+					dlg.ShowDialog();
 				}
 
 			}
 		}
-
 		[Test, Ignore("Run by hand only")]
 		public void LaunchDialog_LazyWithAdvancedUI()
 		{
@@ -39,7 +70,7 @@ namespace LibChorus.Tests
 
 				using (var dlg = new SyncDialog(setup.ProjectFolderConfig,
 					SyncUIDialogBehaviors.Lazy,
-					SyncUIFeatures.Everything))
+					SyncUIFeatures.Advanced))
 				{
 				//    dlg.SyncOptions.RepositorySourcesToTry.Add(RepositoryAddress.Create("bogus", @"z:/"));
 					dlg.ShowDialog();
@@ -47,7 +78,6 @@ namespace LibChorus.Tests
 
 			}
 		}
-
 
 		[Test, Ignore("Run by hand only")]
 		public void LaunchDialog_MinimalUI()

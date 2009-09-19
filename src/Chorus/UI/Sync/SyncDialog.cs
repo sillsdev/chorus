@@ -4,6 +4,8 @@ using System.Threading;
 using System.Windows.Forms;
 using Chorus.sync;
 using Chorus.Utilities;
+using Chorus.VcsDrivers;
+using Chorus.VcsDrivers.Mercurial;
 
 namespace Chorus.UI.Sync
 {
@@ -29,8 +31,22 @@ namespace Chorus.UI.Sync
 												  Behavior == SyncUIDialogBehaviors.StartImmediatelyAndCloseWhenFinished);
 
 			//in case the user cancels before the sync and the client doesn't check to see if the result is null
-			SyncResult = new SyncResults();
-			SyncResult.Succeeded = false;
+			if ((uiFeatureFlags & SyncUIFeatures.SimpleRepositoryChooserInsteadOfAdvanced) == SyncUIFeatures.SimpleRepositoryChooserInsteadOfAdvanced)
+			{
+				SyncResult = new SyncResults();
+				SyncResult.Succeeded = false;
+
+				_syncStartControl1.Repository = HgRepository.CreateOrLocate(projectFolderConfiguration.FolderPath,
+																			new NullProgress());
+				_syncStartControl1.Visible = true;
+				_syncControl.Visible = false;
+			}
+			else
+			{
+				_syncStartControl1.Visible = false;
+				_syncControl.Visible = true;
+			}
+
 		}
 
 		public SyncOptions SyncOptions
@@ -90,6 +106,14 @@ namespace Chorus.UI.Sync
 
 		}
 
+		private void _syncStartControl1_RepositoryChosen(object sender, EventArgs e)
+		{
+			_syncStartControl1.Visible = false;
+			_syncControl.Visible = true;
+			_syncControl.Model.SyncOptions.RepositorySourcesToTry.Clear();
+			_syncControl.Model.SyncOptions.RepositorySourcesToTry.Add(sender as RepositoryAddress);
+			_syncControl.Synchronize(true);
+		}
 
 	}
 

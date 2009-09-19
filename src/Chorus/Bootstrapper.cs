@@ -24,6 +24,10 @@ namespace Chorus
 			var builder = new Autofac.Builder.ContainerBuilder();
 
 			ChorusUIComponentsInjector.Inject(builder, _projectPath);
+
+			//override this one
+			builder.Register<SyncUIFeatures>(SyncUIFeatures.Advanced).SingletonScoped();
+
 			builder.Register<BrowseForRepositoryEvent>(browseForRepositoryEvent).SingletonScoped();
 
 			builder.Register<Shell>();

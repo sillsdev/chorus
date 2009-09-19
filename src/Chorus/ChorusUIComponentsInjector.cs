@@ -29,7 +29,7 @@ namespace Chorus
 													c.Resolve<ProjectFolderConfiguration>(), new NullProgress()));
 			builder.Register<HgRepository>(c => HgRepository.CreateOrLocate(projectPath, new NullProgress()));
 
-			builder.Register<SyncUIFeatures>(SyncUIFeatures.Everything).SingletonScoped();
+			builder.Register<SyncUIFeatures>(SyncUIFeatures.NormalRecommended).SingletonScoped();
 
 
 			builder.Register(ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers());

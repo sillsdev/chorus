@@ -24,7 +24,7 @@ namespace Chorus.UI.Sync
 			DesiredHeight = 320;
 			_successIcon.Left = _warningIcon.Left;
 			// _cancelButton.Top = _sendReceiveButton.Top;
-		   _closeButton.Bounds = _cancelButton.Bounds;
+		   _closeButton.Bounds = _sendReceiveButton.Bounds;
 			progressBar1.Visible = false;
 			_statusText.Visible = false;
 			_updateDisplayTimer.Enabled = true;
@@ -81,6 +81,11 @@ namespace Chorus.UI.Sync
 			_successIcon.Visible = _didSync  && !(Model.StatusProgress.WarningEncountered || Model.StatusProgress.ErrorEncountered);
 			_warningIcon.Visible = (Model.StatusProgress.WarningEncountered || Model.StatusProgress.ErrorEncountered);
 			_closeButton.Visible = Model.EnableClose;
+			if (_closeButton.Visible && Parent!=null && (Parent is Form))
+			{
+				((Form) Parent).AcceptButton = _closeButton;
+				((Form) Parent).CancelButton = _closeButton;
+			}
 			progressBar1.Visible = Model.SynchronizingNow;// || _didSync;
 			_statusText.Visible = progressBar1.Visible || _didSync;
 			_statusText.Text = Model.StatusProgress.LastStatus;
@@ -120,7 +125,7 @@ namespace Chorus.UI.Sync
 			}
 			else
 			{
-				if (!_model.HasFeature(SyncUIFeatures.RepositoryChooser))
+				if (_model.HasFeature(SyncUIFeatures.SimpleRepositoryChooserInsteadOfAdvanced))
 				{
 					_tabControl.TabPages.Remove(_chooseTargetsTab);
 				}

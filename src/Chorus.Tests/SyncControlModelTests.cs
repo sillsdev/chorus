@@ -40,7 +40,7 @@ namespace Chorus.Tests
 			_project.FolderPath = _pathToTestRoot;
 
 			_synchronizer = Synchronizer.FromProjectConfiguration(_project, new NullProgress());
-			_model = new SyncControlModel(_project, SyncUIFeatures.Everything);
+			_model = new SyncControlModel(_project, SyncUIFeatures.Advanced);
 			_model.AddProgressDisplay(_progress);
 		}
 
@@ -66,7 +66,7 @@ namespace Chorus.Tests
 		public void GetRepositoriesToList_NoRepositoriesKnown_GivesUsb()
 		{
 			_synchronizer.ExtraRepositorySources.Clear();
-			_model = new SyncControlModel(_project, SyncUIFeatures.Everything);
+			_model = new SyncControlModel(_project, SyncUIFeatures.Advanced);
 			_model.AddProgressDisplay(_progress);
 			Assert.AreEqual(1, _model.GetRepositoriesToList().Count);
 		}

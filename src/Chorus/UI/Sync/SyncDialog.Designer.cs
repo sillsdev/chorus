@@ -32,6 +32,7 @@
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SyncDialog));
 			this._closeWhenDoneTimer = new System.Windows.Forms.Timer(this.components);
 			this._syncControl = new Chorus.UI.Sync.SyncControl();
+			this._syncStartControl1 = new Chorus.UI.Sync.SyncStartControl();
 			this.SuspendLayout();
 			//
 			// _closeWhenDoneTimer
@@ -54,7 +55,16 @@
 			this._syncControl.Size = new System.Drawing.Size(521, 327);
 			this._syncControl.TabIndex = 0;
 			this._syncControl.UserName = "anonymous";
+			this._syncControl.Visible = false;
 			this._syncControl.CloseButtonClicked += new System.EventHandler(this._syncControl_CloseButtonClicked);
+			//
+			// _syncStartControl1
+			//
+			this._syncStartControl1.Location = new System.Drawing.Point(12, 10);
+			this._syncStartControl1.Name = "_syncStartControl1";
+			this._syncStartControl1.Size = new System.Drawing.Size(331, 302);
+			this._syncStartControl1.TabIndex = 1;
+			this._syncStartControl1.RepositoryChosen += new System.EventHandler(this._syncStartControl1_RepositoryChosen);
 			//
 			// SyncDialog
 			//
@@ -62,6 +72,7 @@
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
 			this.BackColor = System.Drawing.SystemColors.GradientInactiveCaption;
 			this.ClientSize = new System.Drawing.Size(523, 336);
+			this.Controls.Add(this._syncStartControl1);
 			this.Controls.Add(this._syncControl);
 			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
 			this.Margin = new System.Windows.Forms.Padding(48, 22, 48, 22);
@@ -80,6 +91,7 @@
 
 		private SyncControl _syncControl;
 		private System.Windows.Forms.Timer _closeWhenDoneTimer;
+		private SyncStartControl _syncStartControl1;
 
 	}
 }

@@ -89,7 +89,7 @@ namespace Chorus.UI.Sync
 		{
 			get {
 				return HasFeature(SyncUIFeatures.Log) ||
-					HasFeature(SyncUIFeatures.RepositoryChooser) ||
+					!HasFeature(SyncUIFeatures.SimpleRepositoryChooserInsteadOfAdvanced) ||
 					HasFeature(SyncUIFeatures.TaskList); }
 		}
 
@@ -190,8 +190,9 @@ namespace Chorus.UI.Sync
 		SendReceiveButton=2,
 		TaskList=4,
 		Log = 8,
-		RepositoryChooser = 16,
+		SimpleRepositoryChooserInsteadOfAdvanced = 16,
 		PlaySoundIfSuccessful = 32,
-		Everything = 0xFFFF
+		NormalRecommended = 0xFFFF - (SendReceiveButton),
+		Advanced = 0xFFFF - (SimpleRepositoryChooserInsteadOfAdvanced)
 	}
 }

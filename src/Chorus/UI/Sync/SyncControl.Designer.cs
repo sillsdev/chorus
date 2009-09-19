@@ -182,9 +182,9 @@
 			//
 			// _closeButton
 			//
-			this._closeButton.Location = new System.Drawing.Point(259, 38);
+			this._closeButton.Location = new System.Drawing.Point(259, 30);
 			this._closeButton.Name = "_closeButton";
-			this._closeButton.Size = new System.Drawing.Size(108, 23);
+			this._closeButton.Size = new System.Drawing.Size(108, 31);
 			this._closeButton.TabIndex = 17;
 			this._closeButton.Text = "&Close";
 			this._closeButton.UseVisualStyleBackColor = true;

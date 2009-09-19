@@ -28,6 +28,8 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
+			this.components = new System.ComponentModel.Container();
+			this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
 			this.SuspendLayout();
 			//
 			// BetterLabel
@@ -46,5 +48,7 @@
 		}
 
 		#endregion
+
+		private System.Windows.Forms.ToolTip toolTip1;
 	}
 }

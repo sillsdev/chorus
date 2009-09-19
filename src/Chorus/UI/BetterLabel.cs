@@ -37,6 +37,9 @@ namespace Chorus.UI
 		{
 			  //this is apparently dangerous to do in the constructor
 			Font = SystemFonts.MessageBoxFont;
+
+			//in case we can't see it all, provide it as a tooltip
+			toolTip1.SetToolTip(this, this.Text);
 		}
 
 	}
