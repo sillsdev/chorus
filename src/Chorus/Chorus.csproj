@@ -229,6 +229,12 @@
 	  <DependentUpon>SyncPanel.cs</DependentUpon>
 	</Compile>
 	<Compile Include="UI\Sync\SyncControlModel.cs" />
+	<Compile Include="UI\Sync\SyncStartControl.cs">
+	  <SubType>UserControl</SubType>
+	</Compile>
+	<Compile Include="UI\Sync\SyncStartControl.Designer.cs">
+	  <DependentUpon>SyncStartControl.cs</DependentUpon>
+	</Compile>
   </ItemGroup>
   <ItemGroup>
 	<ProjectReference Include="..\LibChorus\LibChorus.csproj">
@@ -271,10 +277,21 @@
 	  <DependentUpon>SyncDialog.cs</DependentUpon>
 	  <SubType>Designer</SubType>
 	</EmbeddedResource>
+	<EmbeddedResource Include="UI\Sync\SyncStartControl.resx">
+	  <DependentUpon>SyncStartControl.cs</DependentUpon>
+	</EmbeddedResource>
 	<None Include="Resources\error.wav" />
 	<None Include="Resources\chorus32x32.png" />
+	<None Include="Resources\networkFolder58x64" />
 	<None Include="Resources\warning.wav" />
 	<None Include="Resources\warning.png" />
+	<None Include="Resources\Usb64x64.png" />
+	<None Include="Resources\internet59x64.png" />
+	<None Include="Resources\networkFolder58x64.png" />
+	<None Include="Resources\send-receive small.png" />
+	<None Include="Resources\internet29x32.png" />
+	<None Include="Resources\networkFolder29x32.png" />
+	<None Include="Resources\Usb32x28.png" />
 	<Content Include="UI\Settings\SetupPanel.htm">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</Content>

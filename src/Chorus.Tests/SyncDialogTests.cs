@@ -14,6 +14,23 @@ namespace LibChorus.Tests
 	public class SyncDialogTests
 	{
 		[Test, Ignore("Run by hand only")]
+		public void ShowSyncStartControl()
+		{
+			var setup = new RepositorySetup("pedro");
+			{
+
+				using (var c = new SyncStartControl(setup.Repository))
+				{
+					var f = new Form();
+					c.Dock = DockStyle.Fill;
+					f.Controls.Add(c);
+					Application.Run(f);
+				}
+
+			}
+		}
+
+		[Test, Ignore("Run by hand only")]
 		public void LaunchDialog_LazyWithAdvancedUI()
 		{
 			var setup = new RepositorySetup("pedro");

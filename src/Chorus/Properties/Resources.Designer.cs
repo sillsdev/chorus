@@ -79,6 +79,55 @@ namespace Chorus.Properties {
 			}
 		}
 
+		internal static System.Drawing.Bitmap internet29x32 {
+			get {
+				object obj = ResourceManager.GetObject("internet29x32", resourceCulture);
+				return ((System.Drawing.Bitmap)(obj));
+			}
+		}
+
+		internal static System.Drawing.Bitmap internet59x64 {
+			get {
+				object obj = ResourceManager.GetObject("internet59x64", resourceCulture);
+				return ((System.Drawing.Bitmap)(obj));
+			}
+		}
+
+		internal static System.Drawing.Bitmap networkFolder29x32 {
+			get {
+				object obj = ResourceManager.GetObject("networkFolder29x32", resourceCulture);
+				return ((System.Drawing.Bitmap)(obj));
+			}
+		}
+
+		internal static System.Drawing.Bitmap networkFolder58x64 {
+			get {
+				object obj = ResourceManager.GetObject("networkFolder58x64", resourceCulture);
+				return ((System.Drawing.Bitmap)(obj));
+			}
+		}
+
+		internal static System.Drawing.Bitmap send_receive_small {
+			get {
+				object obj = ResourceManager.GetObject("send_receive_small", resourceCulture);
+				return ((System.Drawing.Bitmap)(obj));
+			}
+		}
+
+		internal static System.Drawing.Bitmap Usb32x28 {
+			get {
+				object obj = ResourceManager.GetObject("Usb32x28", resourceCulture);
+				return ((System.Drawing.Bitmap)(obj));
+			}
+		}
+
+		internal static System.Drawing.Bitmap Usb64x64 {
+			get {
+				object obj = ResourceManager.GetObject("Usb64x64", resourceCulture);
+				return ((System.Drawing.Bitmap)(obj));
+			}
+		}
+
 		internal static System.Drawing.Bitmap warningImage {
 			get {
 				object obj = ResourceManager.GetObject("warningImage", resourceCulture);
