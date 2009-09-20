@@ -97,6 +97,12 @@
 	<Compile Include="UI\Misc\LogBox.Designer.cs">
 	  <DependentUpon>LogBox.cs</DependentUpon>
 	</Compile>
+	<Compile Include="UI\Misc\ReadinessDialog.cs">
+	  <SubType>Form</SubType>
+	</Compile>
+	<Compile Include="UI\Misc\ReadinessDialog.Designer.cs">
+	  <DependentUpon>ReadinessDialog.cs</DependentUpon>
+	</Compile>
 	<Compile Include="UI\Misc\TroubleshootingView.cs">
 	  <SubType>UserControl</SubType>
 	</Compile>
@@ -261,6 +267,9 @@
 	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Misc\LogBox.resx">
 	  <DependentUpon>LogBox.cs</DependentUpon>
+	</EmbeddedResource>
+	<EmbeddedResource Include="UI\Misc\ReadinessDialog.resx">
+	  <DependentUpon>ReadinessDialog.cs</DependentUpon>
 	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Misc\TroubleshootingView.resx">
 	  <DependentUpon>TroubleshootingView.cs</DependentUpon>
