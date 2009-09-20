@@ -1,4 +1,6 @@
-﻿namespace Chorus.UI.Sync
+﻿using System;
+
+namespace Chorus.UI.Sync
 {
 	partial class SyncDialog
 	{
@@ -62,9 +64,10 @@
 			//
 			this._syncStartControl1.Location = new System.Drawing.Point(12, 10);
 			this._syncStartControl1.Name = "_syncStartControl1";
+			this._syncStartControl1.Repository = null;
 			this._syncStartControl1.Size = new System.Drawing.Size(331, 302);
 			this._syncStartControl1.TabIndex = 1;
-			this._syncStartControl1.RepositoryChosen += new System.EventHandler(this._syncStartControl1_RepositoryChosen);
+			this._syncStartControl1.RepositoryChosen += new EventHandler<SyncStartArgs>(this._syncStartControl1_RepositoryChosen);
 			//
 			// SyncDialog
 			//

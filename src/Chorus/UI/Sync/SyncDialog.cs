@@ -109,14 +109,20 @@ namespace Chorus.UI.Sync
 
 		}
 
-		private void _syncStartControl1_RepositoryChosen(object sender, EventArgs e)
+		private void _syncStartControl1_RepositoryChosen(object sender, SyncStartArgs args)
 		{
 			_syncStartControl1.Visible = false;
 			_syncControl.Visible = true;
 			_syncControl.Model.SyncOptions.RepositorySourcesToTry.Clear();
-			_syncControl.Model.SyncOptions.RepositorySourcesToTry.Add(sender as RepositoryAddress);
+			_syncControl.Model.SyncOptions.RepositorySourcesToTry.Add(args.Address);
+			if(!string.IsNullOrEmpty(args.ComittMessage))
+			{
+				_syncControl.Model.SyncOptions.CheckinDescription = args.ComittMessage;
+			}
 			_syncControl.Synchronize(true);
 		}
+
+
 
 	}
 

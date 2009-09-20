@@ -15,13 +15,12 @@ namespace Chorus.UI.Sync
 	internal partial class SyncStartControl : UserControl
 	{
 		private HgRepository _repository;
-		public event EventHandler RepositoryChosen;
+		public event EventHandler<SyncStartArgs> RepositoryChosen;
 
 		//designer only
 		public SyncStartControl()
 		{
 			InitializeComponent();
-			_updateDisplayTimer.Enabled = false;
 		}
 
 
@@ -31,8 +30,10 @@ namespace Chorus.UI.Sync
 			set
 			{
 				_repository = value;
-				_updateDisplayTimer.Enabled = true;
-
+				if (_repository != null)
+				{
+					_updateDisplayTimer.Enabled = true;
+				}
 			}
 		}
 
@@ -85,7 +86,7 @@ namespace Chorus.UI.Sync
 			_useSharedFolderButton.Enabled = address != null;
 			if (address == null)
 			{
-				_sharedFolderLabel.Text = "This project is not yet associated with an shared folder";
+				_sharedFolderLabel.Text = "This project is not yet associated with a shared folder";
 			}
 			else
 			{
@@ -136,7 +137,8 @@ namespace Chorus.UI.Sync
 		{
 			if (RepositoryChosen != null)
 			{
-				RepositoryChosen.Invoke(RepositoryAddress.Create(RepositoryAddress.HardWiredSources.UsbKey, "USB flash drive", false), null);
+				var address = RepositoryAddress.Create(RepositoryAddress.HardWiredSources.UsbKey, "USB flash drive", false);
+				RepositoryChosen.Invoke(this, new SyncStartArgs(address, _commitMessageText.Text));
 			}
 		}
 
@@ -144,7 +146,7 @@ namespace Chorus.UI.Sync
 		{
 			if (RepositoryChosen != null)
 			{
-				RepositoryChosen.Invoke(GetDefaultNetworkAddress<HttpRepositoryPath>(),null);
+				RepositoryChosen.Invoke(this, new SyncStartArgs(GetDefaultNetworkAddress<HttpRepositoryPath>(), _commitMessageText.Text));
 			}
 
 		}
@@ -153,10 +155,29 @@ namespace Chorus.UI.Sync
 		{
 			if (RepositoryChosen != null)
 			{
-				RepositoryChosen.Invoke(GetDefaultNetworkAddress<DirectoryRepositorySource>(), null);
+				var address = GetDefaultNetworkAddress<DirectoryRepositorySource>();
+				RepositoryChosen.Invoke(this, new SyncStartArgs(address, _commitMessageText.Text));
 			}
+		}
+
+		private void tableLayoutPanel1_Paint(object sender, PaintEventArgs e)
+		{
 
 		}
+
+		private void SyncStartControl_Load(object sender, EventArgs e)
+		{
+		}
+	}
+	public class SyncStartArgs : EventArgs
+	{
+		public SyncStartArgs(RepositoryAddress address, string comittMessage)
+		{
+			Address = address;
+			ComittMessage = comittMessage;
+		}
+		public RepositoryAddress Address;
+		public string ComittMessage;
 	}
 
 }
