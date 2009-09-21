@@ -130,6 +130,8 @@ namespace Chorus.sync
 			}
 
 			var workingRevBeforeSync = repo.GetRevisionWorkingSetIsBasedOn();
+			_progress.WriteVerbose("Got workingRevBeforeSync.");//trying to pin down WS-14981 send/receive hangs
+
 			List<RepositoryAddress> sourcesToTry = options.RepositorySourcesToTry;
 
 			//if the client didn't specify any, try them all

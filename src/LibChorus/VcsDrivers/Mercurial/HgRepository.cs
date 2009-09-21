@@ -605,8 +605,10 @@ namespace Chorus.VcsDrivers.Mercurial
 
 			List<Revision> items = new List<Revision>();
 			Revision item = null;
-			while(line !=null)
+			int infiniteLoopChecker = 100;//trying to pin down WS-14981 send/receive hangs
+			while(line !=null && infiniteLoopChecker>1)
 			{
+				infiniteLoopChecker--;
 				int colonIndex = line.IndexOf(":");
 				if(colonIndex >0 )
 				{
