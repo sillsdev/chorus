@@ -1039,11 +1039,24 @@ namespace Chorus.VcsDrivers.Mercurial
 			{
 				if (result.StandardError.Contains("nothing to merge"))
 				{
+					if (!string.IsNullOrEmpty(result.StandardOutput))
+					{
+						_progress.WriteVerbose(result.StandardOutput);
+					}
+					if (!string.IsNullOrEmpty(result.StandardError))
+					{
+						_progress.WriteVerbose(result.StandardError);
+					}
 					return false;
 				}
 				else
 				{
 					_progress.WriteError(result.StandardError);
+					if (!string.IsNullOrEmpty(result.StandardOutput))
+					{
+						_progress.WriteError("Also had this in the standard output:");
+						_progress.WriteError(result.StandardOutput);
+					}
 					throw new ApplicationException(result.StandardError);
 				}
 			}
