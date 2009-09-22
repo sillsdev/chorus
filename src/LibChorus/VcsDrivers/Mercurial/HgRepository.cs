@@ -6,6 +6,7 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Windows.Forms;
 using Chorus.Utilities;
 using Nini.Ini;
 
@@ -606,8 +607,8 @@ namespace Chorus.VcsDrivers.Mercurial
 			List<Revision> items = new List<Revision>();
 			Revision item = null;
 #if MONO
-			int infiniteLoopChecker = 100;//trying to pin down WS-14981 send/receive hangs
-			while(line !=null && infiniteLoopChecker>1)
+			int infiniteLoopChecker = 0;//trying to pin down WS-14981 send/receive hangs
+			while(line !=null && infiniteLoopChecker<100)
 #endif
 			while (line != null)
 			{
@@ -620,7 +621,7 @@ namespace Chorus.VcsDrivers.Mercurial
 					{
 						default:
 #if MONO
-							infiniteLoopChecker--;
+							infiniteLoopChecker++;
 #endif
 							break;
 						case "changeset":
@@ -628,6 +629,9 @@ namespace Chorus.VcsDrivers.Mercurial
 							items.Add(item);
 							item.SetRevisionAndHashFromCombinedDescriptor(value);
 							break;
+#if MONO
+							infiniteLoopChecker=0;
+#endif
 						case "parent":
 							item.AddParentFromCombinedNumberAndHash(value);
 							break;
@@ -651,6 +655,13 @@ namespace Chorus.VcsDrivers.Mercurial
 				}
 				line = reader.ReadLine();
 			}
+
+#if MONO
+	if(infiniteLoopChecker >99)
+	{
+	   _progress.WriteMessage("Had to break out of infinite loop in GetRevisionsFromQueryResultText(). See WS-14981: 'send/receive hangs'.");
+	}
+#endif
 			return items;
 		}
 
