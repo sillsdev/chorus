@@ -159,6 +159,8 @@ namespace Chorus.UI.Sync
 #if MONO
 			_tabControl.Refresh();
 			_logTab.Refresh();
+			_logBox.Refresh();
+			MessageBox.Show("refreshing");
 #endif
 		}
 

@@ -48,7 +48,7 @@ namespace Chorus.UI.Settings
 			{
 				if (!_didLoad && _repositoryAliases.Text.IndexOf("=" ) <0)
 				{
-					MessageBox.Show("Please report to issues@wesay.org: mono is calling validate() on SettingsView which was never loaded");
+					//avoid mono bug where it calls validate on stuff it never loaded.
 					return;
 				}
 				_model.SetAddresses(_repositoryAliases.Text, _progress);
