@@ -167,12 +167,13 @@
 			//
 			// _cancelButton
 			//
-			this._cancelButton.Location = new System.Drawing.Point(374, 2);
+			this._cancelButton.BackColor = System.Drawing.SystemColors.ButtonFace;
+			this._cancelButton.Location = new System.Drawing.Point(378, 30);
 			this._cancelButton.Name = "_cancelButton";
 			this._cancelButton.Size = new System.Drawing.Size(108, 23);
 			this._cancelButton.TabIndex = 12;
 			this._cancelButton.Text = "&Cancel";
-			this._cancelButton.UseVisualStyleBackColor = true;
+			this._cancelButton.UseVisualStyleBackColor = false;
 			this._cancelButton.Click += new System.EventHandler(this.OnCancelButton_Click);
 			//
 			// _updateDisplayTimer
@@ -182,12 +183,13 @@
 			//
 			// _closeButton
 			//
+			this._closeButton.BackColor = System.Drawing.SystemColors.ButtonFace;
 			this._closeButton.Location = new System.Drawing.Point(259, 30);
 			this._closeButton.Name = "_closeButton";
 			this._closeButton.Size = new System.Drawing.Size(108, 31);
 			this._closeButton.TabIndex = 17;
 			this._closeButton.Text = "&Close";
-			this._closeButton.UseVisualStyleBackColor = true;
+			this._closeButton.UseVisualStyleBackColor = false;
 			this._closeButton.Click += new System.EventHandler(this.OnCloseButton_Click);
 			//
 			// _statusText
@@ -228,15 +230,16 @@
 			//
 			// _sendReceiveButton
 			//
+			this._sendReceiveButton.BackColor = System.Drawing.SystemColors.ButtonFace;
 			this._sendReceiveButton.Image = ((System.Drawing.Image)(resources.GetObject("_sendReceiveButton.Image")));
 			this._sendReceiveButton.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
 			this._sendReceiveButton.Location = new System.Drawing.Point(373, 2);
 			this._sendReceiveButton.Name = "_sendReceiveButton";
 			this._sendReceiveButton.Size = new System.Drawing.Size(108, 38);
 			this._sendReceiveButton.TabIndex = 14;
-			this._sendReceiveButton.Text = "Send/receive";
+			this._sendReceiveButton.Text = "Send/Receive";
 			this._sendReceiveButton.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
-			this._sendReceiveButton.UseVisualStyleBackColor = true;
+			this._sendReceiveButton.UseVisualStyleBackColor = false;
 			this._sendReceiveButton.Click += new System.EventHandler(this._syncButton_Click);
 			//
 			// SyncControl

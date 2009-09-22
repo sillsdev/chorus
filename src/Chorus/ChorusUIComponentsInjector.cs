@@ -1,3 +1,4 @@
+using System;
 using Autofac.Builder;
 using Chorus.FileTypeHanders;
 using Chorus.retrieval;
@@ -17,10 +18,10 @@ namespace Chorus
 	//autofac container, if that's what they user.
 	public static class ChorusUIComponentsInjector
 	{
-		public static void Inject(ContainerBuilder builder, string projectPath)
+		public static void Inject(ContainerBuilder builder, string projectPath, SyncUIFeatures syncDialogFeatures)
 		{
 			builder.Register<ProjectFolderConfiguration>(
-				c => new ProjectFolderConfiguration(projectPath));
+			   c => new ProjectFolderConfiguration(projectPath));
 
 			builder.Register<NavigateToRecordEvent>();
 
@@ -29,7 +30,10 @@ namespace Chorus
 													c.Resolve<ProjectFolderConfiguration>(), new NullProgress()));
 			builder.Register<HgRepository>(c => HgRepository.CreateOrLocate(projectPath, new NullProgress()));
 
-			builder.Register<SyncUIFeatures>(SyncUIFeatures.NormalRecommended).SingletonScoped();
+
+			//this is a sad hack... I don't know how to simly override the default using the container,
+			//which I'd rather do, and just leave this to pushing in the "normal"
+			builder.Register<SyncUIFeatures>(syncDialogFeatures).SingletonScoped();
 
 
 			builder.Register(ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers());
@@ -41,6 +45,11 @@ namespace Chorus
 			RegisterSyncStuff(builder);
 			RegisterReviewStuff(builder);
 			RegisterSettingsStuff(builder);
+		}
+
+		public static void Inject(ContainerBuilder builder, string projectPath)
+		{
+			Inject(builder, projectPath, SyncUIFeatures.NormalRecommended);
 		}
 
 
@@ -70,5 +79,7 @@ namespace Chorus
 			builder.Register<RevisionInRepositoryModel>();
 			builder.Register<RevisionsInRepositoryView>();
 		}
+
+
 	}
 }

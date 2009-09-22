@@ -126,7 +126,7 @@ namespace Chorus.UI.Sync
 			else
 			{
 				if (_model.HasFeature(SyncUIFeatures.SimpleRepositoryChooserInsteadOfAdvanced)
-					|| _model.HasFeature(SyncUIFeatures.Minimal))
+					|| _model.Features == SyncUIFeatures.Minimal)
 				{
 					_tabControl.TabPages.Remove(_chooseTargetsTab);
 				}
@@ -155,6 +155,11 @@ namespace Chorus.UI.Sync
 			Model.AddProgressDisplay(_logBox);
 
 			LoadChoices();
+
+#if MONO
+			_tabControl.Refresh();
+			_logTab.Refresh();
+#endif
 		}
 
 		/// <summary>

@@ -605,10 +605,12 @@ namespace Chorus.VcsDrivers.Mercurial
 
 			List<Revision> items = new List<Revision>();
 			Revision item = null;
+#if MONO
 			int infiniteLoopChecker = 100;//trying to pin down WS-14981 send/receive hangs
 			while(line !=null && infiniteLoopChecker>1)
+#endif
+			while (line != null)
 			{
-				infiniteLoopChecker--;
 				int colonIndex = line.IndexOf(":");
 				if(colonIndex >0 )
 				{
@@ -617,6 +619,9 @@ namespace Chorus.VcsDrivers.Mercurial
 					switch (label)
 					{
 						default:
+#if MONO
+							infiniteLoopChecker--;
+#endif
 							break;
 						case "changeset":
 							item = new Revision(this);
