@@ -114,11 +114,12 @@ namespace Chorus.Utilities.UsbDrive
 				{
 					return false;
 				}
-				foreach (var d in DriveInfo.GetDrives())
-				{
-					if(d.RootDirectory.FullName == rootDirectory && d.DriveType != DriveType.Removable)
-						return false;
-				}
+//            good idea, but seems to rule out real ones, too!
+//              foreach (var d in DriveInfo.GetDrives())
+//                {
+//                    if(d.RootDirectory.FullName == rootDirectory && d.DriveType != DriveType.Removable)
+//                        return false;
+//                }
 			return true;
 		}
 
