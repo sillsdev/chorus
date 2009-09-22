@@ -41,12 +41,18 @@ namespace Chorus.clone
 		{
 			foreach (var drive in DriveInfoRetriever.GetDrives())
 			{
-#if MONO
-				if(drive.RootDirectory.FullName.Trim() == "/.")
+#if MONO  // bug in our usb-finding code is returning the root directory
+//                if(drive.RootDirectory.FullName.Trim() == "/.")
+//                {
+//                    continue;
+//                }
+				foreach (var d in DriveInfo.GetDrives())
 				{
-					continue; // bug in our usb-finding code is returning the root directory
+					if(d.RootDirectory == drive.RootDirectory && d.DriveType != DriveType.Removable)
+						continue;
 				}
 #endif
+
 				string[] directories = new string[0];
 				try
 				{ // this is all complicated because the yield can't be inside the try/catch

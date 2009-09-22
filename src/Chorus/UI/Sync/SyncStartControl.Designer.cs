@@ -34,12 +34,12 @@
 			this._useUSBButton = new System.Windows.Forms.Button();
 			this._updateDisplayTimer = new System.Windows.Forms.Timer(this.components);
 			this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
-			this._commitMessageText = new System.Windows.Forms.TextBox();
-			this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
 			this._usbStatusLabel = new Chorus.UI.BetterLabel();
 			this._internetStatusLabel = new Chorus.UI.BetterLabel();
 			this._sharedFolderLabel = new Chorus.UI.BetterLabel();
 			this.betterLabel2 = new Chorus.UI.BetterLabel();
+			this._commitMessageText = new System.Windows.Forms.TextBox();
+			this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
 			this.tableLayoutPanel1.SuspendLayout();
 			this.SuspendLayout();
 			//
@@ -120,15 +120,6 @@
 			this.tableLayoutPanel1.TabIndex = 2;
 			this.tableLayoutPanel1.Paint += new System.Windows.Forms.PaintEventHandler(this.tableLayoutPanel1_Paint);
 			//
-			// _commitMessageText
-			//
-			this._commitMessageText.Dock = System.Windows.Forms.DockStyle.Fill;
-			this._commitMessageText.Location = new System.Drawing.Point(3, 258);
-			this._commitMessageText.Multiline = true;
-			this._commitMessageText.Name = "_commitMessageText";
-			this._commitMessageText.Size = new System.Drawing.Size(324, 41);
-			this._commitMessageText.TabIndex = 4;
-			//
 			// _usbStatusLabel
 			//
 			this._usbStatusLabel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
@@ -140,7 +131,7 @@
 			this._usbStatusLabel.Multiline = true;
 			this._usbStatusLabel.Name = "_usbStatusLabel";
 			this._usbStatusLabel.ReadOnly = true;
-			this._usbStatusLabel.Size = new System.Drawing.Size(324, 14);
+			this._usbStatusLabel.Size = new System.Drawing.Size(324, 24);
 			this._usbStatusLabel.TabIndex = 1;
 			this._usbStatusLabel.TabStop = false;
 			this._usbStatusLabel.Text = "Checking...";
@@ -156,7 +147,7 @@
 			this._internetStatusLabel.Multiline = true;
 			this._internetStatusLabel.Name = "_internetStatusLabel";
 			this._internetStatusLabel.ReadOnly = true;
-			this._internetStatusLabel.Size = new System.Drawing.Size(324, 14);
+			this._internetStatusLabel.Size = new System.Drawing.Size(324, 24);
 			this._internetStatusLabel.TabIndex = 1;
 			this._internetStatusLabel.TabStop = false;
 			this._internetStatusLabel.Text = "Checking...";
@@ -172,7 +163,7 @@
 			this._sharedFolderLabel.Multiline = true;
 			this._sharedFolderLabel.Name = "_sharedFolderLabel";
 			this._sharedFolderLabel.ReadOnly = true;
-			this._sharedFolderLabel.Size = new System.Drawing.Size(324, 14);
+			this._sharedFolderLabel.Size = new System.Drawing.Size(324, 23);
 			this._sharedFolderLabel.TabIndex = 1;
 			this._sharedFolderLabel.TabStop = false;
 			this._sharedFolderLabel.Text = "Checking...";
@@ -183,14 +174,23 @@
 						| System.Windows.Forms.AnchorStyles.Right)));
 			this.betterLabel2.BorderStyle = System.Windows.Forms.BorderStyle.None;
 			this.betterLabel2.Font = new System.Drawing.Font("Segoe UI", 9F);
-			this.betterLabel2.Location = new System.Drawing.Point(3, 238);
+			this.betterLabel2.Location = new System.Drawing.Point(3, 228);
 			this.betterLabel2.Multiline = true;
 			this.betterLabel2.Name = "betterLabel2";
 			this.betterLabel2.ReadOnly = true;
-			this.betterLabel2.Size = new System.Drawing.Size(324, 14);
+			this.betterLabel2.Size = new System.Drawing.Size(324, 24);
 			this.betterLabel2.TabIndex = 3;
 			this.betterLabel2.TabStop = false;
 			this.betterLabel2.Text = "Label this point in the project history (Optional) :";
+			//
+			// _commitMessageText
+			//
+			this._commitMessageText.Dock = System.Windows.Forms.DockStyle.Fill;
+			this._commitMessageText.Location = new System.Drawing.Point(3, 258);
+			this._commitMessageText.Multiline = true;
+			this._commitMessageText.Name = "_commitMessageText";
+			this._commitMessageText.Size = new System.Drawing.Size(324, 41);
+			this._commitMessageText.TabIndex = 4;
 			//
 			// SyncStartControl
 			//

@@ -125,7 +125,7 @@ namespace Chorus.UI.Sync
 			}
 			else
 			{
-  #if !MONO
+  //#if !MONO
 				if (_model.HasFeature(SyncUIFeatures.SimpleRepositoryChooserInsteadOfAdvanced)
 					|| _model.Features == SyncUIFeatures.Minimal)
 				{
@@ -139,7 +139,7 @@ namespace Chorus.UI.Sync
 				{
 					_tabControl.TabPages.Remove(_logTab);
 				}
-#endif
+//#endif
 			}
 
 			if (!_model.ShowSyncButton)
@@ -164,7 +164,7 @@ namespace Chorus.UI.Sync
 			_tabControl.Refresh();
 			_logTab.Refresh();
 			_logBox.Refresh();
-			MessageBox.Show("inval/refreshed");
+		//    MessageBox.Show("inval/refreshed");
 #endif
 		}
 
