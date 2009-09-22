@@ -95,13 +95,31 @@ namespace Chorus.Utilities.UsbDrive
 					UsbDriveInfoLinux deviceInfo = new UsbDriveInfoLinux();
 					deviceInfo._volumeDevice = volumeDevice;
 					//This emulates Windows behavior
-					if (deviceInfo.IsReady)
+					if (deviceInfo.IsReady && LooksLikeUSBDrive(deviceInfo.RootDirectory.FullName))
 					{
 						drives.Add(deviceInfo);
 					}
 				}
 			}
 			return drives;
+		}
+
+		private static bool LooksLikeUSBDrive(string rootDirectory) // bug in our usb-finding code is returning the root directory on xubuntu with sd card
+		{
+				if(rootDirectory.Trim() == "/.")
+				{
+					return false;
+				}
+				if(rootDirectory.Trim() == "/")
+				{
+					return false;
+				}
+				foreach (var d in DriveInfo.GetDrives())
+				{
+					if(d.RootDirectory.FullName == rootDirectory && d.DriveType != DriveType.Removable)
+						return false;
+				}
+			return true;
 		}
 
 		private static bool DeviceIsOnUsbBus(Connection conn, string halNameOnDbus, HalDevice device)

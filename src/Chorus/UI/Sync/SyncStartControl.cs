@@ -43,30 +43,9 @@ namespace Chorus.UI.Sync
 			UpdateDisplay();
 		}
 
-		private bool LooksLikeUSBDrive(DriveInfo info)
-		{
-#if MONO  // bug in our usb-finding code is returning the root directory on xubuntu with sd card
-
-				if(info.RootDirectory.FullName.Trim() == "/.")
-				{
-					return false;
-				}
-				if(info.RootDirectory.FullName.Trim() == "/")
-				{
-					return false;
-				}
-				foreach (var d in DriveInfo.GetDrives())
-				{
-					if(d.RootDirectory == info.RootDirectory && d.DriveType != DriveType.Removable)
-						return false;
-				}
-#endif
-			return true;
-		}
-
 		private void UpdateDisplay()
 		{
-			var drives = GetUsbDriveInfo().Where(d=>LooksLikeUSBDrive(d));
+			var drives = GetUsbDriveInfo();
 
 			if (drives.Count()==0)
 			{
