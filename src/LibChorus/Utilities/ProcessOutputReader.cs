@@ -56,7 +56,7 @@ namespace Chorus.Utilities
 				if(progress.CancelRequested)
 					return false;
 
-				Thread.Sleep(100);
+				Thread.Sleep(500);
 				if (DateTime.Now > end)
 				{
 					if (_outputReader != null)
@@ -69,7 +69,7 @@ namespace Chorus.Utilities
 			// See http://www.wesay.org/issues/browse/WS-14948
 			// The output reader threads may exit slightly prior to the application closing.
 			// So we wait for the exit to be confirmed.
-			process.WaitForExit(1000);
+			process.WaitForExit(5000);//hatton moved up to 5 seconds (from 1) in sep 09, wondering if this was the cause of so many abandoned locks
 			_standardOutput = outputReaderArgs.Results;
 			_standardError = errorReaderArgs.Results;
 

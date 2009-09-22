@@ -51,10 +51,12 @@ namespace Chorus.VcsDrivers.Mercurial
 			process.StartInfo.CreateNoWindow = true;
 			process.StartInfo.WorkingDirectory = fromDirectory;
 			process.StartInfo.FileName = "hg";
-			process.StartInfo.Arguments = commandLine.Replace("hg ", ""); //we don't want the whole command line for this test
+			process.StartInfo.Arguments = commandLine.Replace("hg ", ""); //we don't want the whole command line, just the args portion
 
 			try
-			{process.Start();}
+			{
+				process.Start();
+			}
 			catch(Win32Exception error)
 			{
 				const int ERROR_FILE_NOT_FOUND = 2;
