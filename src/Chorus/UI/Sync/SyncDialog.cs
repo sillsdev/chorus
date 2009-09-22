@@ -113,6 +113,9 @@ namespace Chorus.UI.Sync
 		{
 			_syncStartControl1.Visible = false;
 			_syncControl.Visible = true;
+#if MONO
+			_syncControl.Refresh();
+#endif
 			_syncControl.Model.SyncOptions.RepositorySourcesToTry.Clear();
 			_syncControl.Model.SyncOptions.RepositorySourcesToTry.Add(args.Address);
 			if(!string.IsNullOrEmpty(args.ComittMessage))

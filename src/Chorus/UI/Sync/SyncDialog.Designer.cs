@@ -62,12 +62,15 @@ namespace Chorus.UI.Sync
 			//
 			// _syncStartControl1
 			//
+			this._syncStartControl1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+						| System.Windows.Forms.AnchorStyles.Right)));
 			this._syncStartControl1.Location = new System.Drawing.Point(12, 10);
 			this._syncStartControl1.Name = "_syncStartControl1";
 			this._syncStartControl1.Repository = null;
-			this._syncStartControl1.Size = new System.Drawing.Size(331, 302);
+			this._syncStartControl1.Size = new System.Drawing.Size(489, 302);
 			this._syncStartControl1.TabIndex = 1;
-			this._syncStartControl1.RepositoryChosen += new EventHandler<SyncStartArgs>(this._syncStartControl1_RepositoryChosen);
+			this._syncStartControl1.Visible = false;
+			this._syncStartControl1.RepositoryChosen += new System.EventHandler<Chorus.UI.Sync.SyncStartArgs>(this._syncStartControl1_RepositoryChosen);
 			//
 			// SyncDialog
 			//

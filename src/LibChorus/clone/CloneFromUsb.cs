@@ -41,6 +41,12 @@ namespace Chorus.clone
 		{
 			foreach (var drive in DriveInfoRetriever.GetDrives())
 			{
+#if MONO
+				if(drive.RootDirectory.FullName.Trim() == "/.")
+				{
+					continue; // bug in our usb-finding code is returning the root directory
+				}
+#endif
 				string[] directories = new string[0];
 				try
 				{ // this is all complicated because the yield can't be inside the try/catch
@@ -49,7 +55,7 @@ namespace Chorus.clone
 				catch (Exception error)
 				{
 					MessageBox.Show(
-						string.Format("Error while looking at usb drive.  The drive root was {0}. The error was: {1}",
+						string.Format("Error while looking at USB flash drive.  The drive root was {0}. The error was: {1}",
 									  drive.RootDirectory.FullName, error.Message), "Error", MessageBoxButtons.OK,
 						MessageBoxIcon.Error);
 				}

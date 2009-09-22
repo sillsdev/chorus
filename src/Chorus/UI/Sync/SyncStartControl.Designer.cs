@@ -45,33 +45,36 @@
 			//
 			// _useSharedFolderButton
 			//
+			this._useSharedFolderButton.BackColor = System.Drawing.Color.White;
 			this._useSharedFolderButton.Enabled = false;
 			this._useSharedFolderButton.Image = global::Chorus.Properties.Resources.networkFolder29x32;
 			this._useSharedFolderButton.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-			this._useSharedFolderButton.Location = new System.Drawing.Point(3, 207);
+			this._useSharedFolderButton.Location = new System.Drawing.Point(3, 203);
 			this._useSharedFolderButton.Name = "_useSharedFolderButton";
 			this._useSharedFolderButton.Size = new System.Drawing.Size(167, 39);
 			this._useSharedFolderButton.TabIndex = 0;
 			this._useSharedFolderButton.Text = "&Shared Network Folder";
 			this._useSharedFolderButton.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
-			this._useSharedFolderButton.UseVisualStyleBackColor = true;
+			this._useSharedFolderButton.UseVisualStyleBackColor = false;
 			this._useSharedFolderButton.Click += new System.EventHandler(this._useSharedFolderButton_Click);
 			//
 			// _useInternetButton
 			//
+			this._useInternetButton.BackColor = System.Drawing.Color.White;
 			this._useInternetButton.Image = global::Chorus.Properties.Resources.internet29x32;
 			this._useInternetButton.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-			this._useInternetButton.Location = new System.Drawing.Point(3, 105);
+			this._useInternetButton.Location = new System.Drawing.Point(3, 103);
 			this._useInternetButton.Name = "_useInternetButton";
 			this._useInternetButton.Size = new System.Drawing.Size(167, 39);
 			this._useInternetButton.TabIndex = 0;
 			this._useInternetButton.Text = "&Internet";
 			this._useInternetButton.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
-			this._useInternetButton.UseVisualStyleBackColor = true;
+			this._useInternetButton.UseVisualStyleBackColor = false;
 			this._useInternetButton.Click += new System.EventHandler(this._useInternetButton_Click);
 			//
 			// _useUSBButton
 			//
+			this._useUSBButton.BackColor = System.Drawing.Color.White;
 			this._useUSBButton.Image = global::Chorus.Properties.Resources.Usb32x28;
 			this._useUSBButton.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
 			this._useUSBButton.Location = new System.Drawing.Point(3, 3);
@@ -80,7 +83,7 @@
 			this._useUSBButton.TabIndex = 0;
 			this._useUSBButton.Text = "&USB Flash Drive";
 			this._useUSBButton.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
-			this._useUSBButton.UseVisualStyleBackColor = true;
+			this._useUSBButton.UseVisualStyleBackColor = false;
 			this._useUSBButton.Click += new System.EventHandler(this._useUSBButton_Click);
 			//
 			// _updateDisplayTimer
@@ -110,7 +113,7 @@
 			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 16.66667F));
 			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 16.66667F));
 			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 16.66667F));
-			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
 			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
 			this.tableLayoutPanel1.Size = new System.Drawing.Size(330, 370);
 			this.tableLayoutPanel1.TabIndex = 2;
@@ -123,7 +126,7 @@
 			this._usbStatusLabel.BorderStyle = System.Windows.Forms.BorderStyle.None;
 			this._usbStatusLabel.Font = new System.Drawing.Font("Segoe UI", 9F);
 			this._usbStatusLabel.ForeColor = System.Drawing.Color.DimGray;
-			this._usbStatusLabel.Location = new System.Drawing.Point(3, 54);
+			this._usbStatusLabel.Location = new System.Drawing.Point(3, 53);
 			this._usbStatusLabel.Multiline = true;
 			this._usbStatusLabel.Name = "_usbStatusLabel";
 			this._usbStatusLabel.ReadOnly = true;
@@ -139,7 +142,7 @@
 			this._internetStatusLabel.BorderStyle = System.Windows.Forms.BorderStyle.None;
 			this._internetStatusLabel.Font = new System.Drawing.Font("Segoe UI", 9F);
 			this._internetStatusLabel.ForeColor = System.Drawing.Color.DimGray;
-			this._internetStatusLabel.Location = new System.Drawing.Point(3, 156);
+			this._internetStatusLabel.Location = new System.Drawing.Point(3, 153);
 			this._internetStatusLabel.Multiline = true;
 			this._internetStatusLabel.Name = "_internetStatusLabel";
 			this._internetStatusLabel.ReadOnly = true;
@@ -155,7 +158,7 @@
 			this._sharedFolderLabel.BorderStyle = System.Windows.Forms.BorderStyle.None;
 			this._sharedFolderLabel.Font = new System.Drawing.Font("Segoe UI", 9F);
 			this._sharedFolderLabel.ForeColor = System.Drawing.Color.DimGray;
-			this._sharedFolderLabel.Location = new System.Drawing.Point(3, 258);
+			this._sharedFolderLabel.Location = new System.Drawing.Point(3, 253);
 			this._sharedFolderLabel.Multiline = true;
 			this._sharedFolderLabel.Name = "_sharedFolderLabel";
 			this._sharedFolderLabel.ReadOnly = true;
@@ -170,7 +173,7 @@
 						| System.Windows.Forms.AnchorStyles.Right)));
 			this.betterLabel2.BorderStyle = System.Windows.Forms.BorderStyle.None;
 			this.betterLabel2.Font = new System.Drawing.Font("Segoe UI", 9F);
-			this.betterLabel2.Location = new System.Drawing.Point(3, 309);
+			this.betterLabel2.Location = new System.Drawing.Point(3, 303);
 			this.betterLabel2.Multiline = true;
 			this.betterLabel2.Name = "betterLabel2";
 			this.betterLabel2.ReadOnly = true;
@@ -182,10 +185,10 @@
 			// _commitMessageText
 			//
 			this._commitMessageText.Dock = System.Windows.Forms.DockStyle.Fill;
-			this._commitMessageText.Location = new System.Drawing.Point(3, 329);
+			this._commitMessageText.Location = new System.Drawing.Point(3, 333);
 			this._commitMessageText.Multiline = true;
 			this._commitMessageText.Name = "_commitMessageText";
-			this._commitMessageText.Size = new System.Drawing.Size(324, 38);
+			this._commitMessageText.Size = new System.Drawing.Size(324, 34);
 			this._commitMessageText.TabIndex = 4;
 			//
 			// SyncStartControl
