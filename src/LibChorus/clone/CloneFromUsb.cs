@@ -41,11 +41,15 @@ namespace Chorus.clone
 		{
 			foreach (var drive in DriveInfoRetriever.GetDrives())
 			{
-#if MONO  // bug in our usb-finding code is returning the root directory
-//                if(drive.RootDirectory.FullName.Trim() == "/.")
-//                {
-//                    continue;
-//                }
+#if MONO  // bug in our usb-finding code is returning the root directory on xubuntu with sd card
+				if(drive.RootDirectory.FullName.Trim() == "/")
+				{
+					continue;
+				}
+				if(drive.RootDirectory.FullName.Trim() == "/.")
+				{
+					continue;
+				}
 				foreach (var d in DriveInfo.GetDrives())
 				{
 					if(d.RootDirectory == drive.RootDirectory && d.DriveType != DriveType.Removable)

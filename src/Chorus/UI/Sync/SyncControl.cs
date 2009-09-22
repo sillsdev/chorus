@@ -125,12 +125,13 @@ namespace Chorus.UI.Sync
 			}
 			else
 			{
-  //#if !MONO
+ #if !MONO  // in mono 2.0, the log tab is forever empty if we do this
 				if (_model.HasFeature(SyncUIFeatures.SimpleRepositoryChooserInsteadOfAdvanced)
 					|| _model.Features == SyncUIFeatures.Minimal)
 				{
 					_tabControl.TabPages.Remove(_chooseTargetsTab);
 				}
+ #endif
 				if (!_model.HasFeature(SyncUIFeatures.TaskList))
 				{
 					_tabControl.TabPages.Remove(_tasksTab);
@@ -139,7 +140,7 @@ namespace Chorus.UI.Sync
 				{
 					_tabControl.TabPages.Remove(_logTab);
 				}
-//#endif
+
 			}
 
 			if (!_model.ShowSyncButton)
