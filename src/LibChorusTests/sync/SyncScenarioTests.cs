@@ -10,6 +10,7 @@ using NUnit.Framework;
 namespace LibChorus.Tests.sync
 {
 	[TestFixture]
+	[Category("Sync")]
 	public class SyncScenarioTests
 	{
 		private string _pathToTestRoot;

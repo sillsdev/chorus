@@ -11,6 +11,7 @@ namespace LibChorus.Tests.sync
 	/// Review: what's the unifying idea here?
 	/// </summary>
 	[TestFixture]
+	[Category("Sync")]
 	public class Synchronizer_FileBasedTests
 	{
 		private ProjectFolderConfiguration _project;

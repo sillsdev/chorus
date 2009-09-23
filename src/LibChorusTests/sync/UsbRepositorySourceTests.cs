@@ -10,6 +10,7 @@ namespace LibChorus.Tests.sync
 	/// These tests (at least any that are not manual-only) should not actually require a usb key
 	/// </summary>
 	[TestFixture]
+	[Category("Sync")]
 	public class UsbRepositorySourceTests
 	{
 		private ProjectFolderConfiguration _project;

@@ -1,3 +1,4 @@
+using System;
 ﻿using System.IO;
 using System.Xml;
 using Chorus.FileTypeHanders;
@@ -9,6 +10,7 @@ using NUnit.Framework;
 namespace LibChorus.Tests.sync
 {
 	[TestFixture]
+	[Category("Sync")]
 	public class ConflictFileSyncTests
 	{
 		[Test]
@@ -24,6 +26,7 @@ namespace LibChorus.Tests.sync
 					sally.CheckinAndPullAndMerge(bob);
 
 					string xmlConflictFile = XmlLogMergeEventListener.GetXmlConflictFilePath(sally.UserFile.Path);
+					Console.WriteLine("xmlConflictFile '{0}'", xmlConflictFile);
 					Assert.IsTrue(File.Exists(xmlConflictFile), "Conflict file should have been in working set");
 					Assert.IsTrue(sally.Synchronizer.Repository.GetFileIsInRepositoryFromFullPath(xmlConflictFile),"Conflict file should have been in repository");
 

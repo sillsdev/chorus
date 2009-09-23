@@ -17,6 +17,7 @@ namespace LibChorus.Tests.sync
 	/// sure nothing is lost.
 	/// </summary>
 	[TestFixture]
+	[Category("Sync")]
 	public class SynchronizerBadSituationTests
 	{
 

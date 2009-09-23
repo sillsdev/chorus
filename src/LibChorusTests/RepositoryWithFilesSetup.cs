@@ -56,6 +56,7 @@ namespace LibChorus.Tests.merge
 			Progress = new MultiProgress(new IProgress[] { new ConsoleProgress(), _stringProgress });
 			RootFolder = new TempFolder("ChorusTest-"+userName);
 			ProjectFolder = new TempFolder(RootFolder, "foo project");
+			Console.WriteLine("TestRepository Created: {0}", RootFolder.Path);
 			var p = ProjectFolder.Combine(fileName);
 			File.WriteAllText(p, fileContents);
 			UserFile = TempFile.TrackExisting(p);
@@ -78,6 +79,7 @@ namespace LibChorus.Tests.merge
 		{
 			Progress= new MultiProgress(new IProgress[] { new ConsoleProgress(), _stringProgress });
 			RootFolder = new TempFolder("ChorusTest-"+userName);
+			Console.WriteLine("TestRepository Cloned: {0}", RootFolder.Path);
 			string pathToProject = RootFolder.Combine(Path.GetFileName(cloneFromUser.ProjectFolder.Path));
 			cloneFromUser.Synchronizer.MakeClone(pathToProject, true);
 			ProjectFolder = TempFolder.TrackExisting(RootFolder.Combine("foo project"));
@@ -100,10 +102,20 @@ namespace LibChorus.Tests.merge
 
 		public void Dispose()
 		{
-			UserFile.Dispose();
-			ProjectFolder.Dispose();
-			RootFolder.Dispose();
+			if (DoNotDispose)
+			{
+				Console.WriteLine("TestRepository not deleted in {0}", RootFolder.Path);
+			}
+			else
+			{
+				Console.WriteLine("TestRepository deleted {0}", RootFolder.Path);
+				UserFile.Dispose();
+				ProjectFolder.Dispose();
+				RootFolder.Dispose();
+			}
 		}
+
+		public bool DoNotDispose { get; set; }
 
 		public void ReplaceSomething(string replacement)
 		{

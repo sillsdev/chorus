@@ -164,8 +164,13 @@ namespace Chorus.Utilities
 
 		public void WriteStatus(string message, params object[] args)
 		{
+#if MONO
+			Console.Write("                          ".Substring(0, indent*2));
+			Console.WriteLine(string.Format(message, args));
+#else
 			Debug.Write("                          ".Substring(0, indent*2));
 			Debug.WriteLine(string.Format(message, args));
+#endif
 		}
 
 		public void WriteMessage(string message, params object[] args)
