@@ -1,5 +1,5 @@
 using System;
-﻿using System.IO;
+using System.IO;
 using System.Xml;
 using Chorus.FileTypeHanders;
 using Chorus.merge;
