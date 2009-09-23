@@ -57,14 +57,14 @@
 						| System.Windows.Forms.AnchorStyles.Right)));
 			this._urlBox.Location = new System.Drawing.Point(48, 39);
 			this._urlBox.Name = "_urlBox";
-			this._urlBox.Size = new System.Drawing.Size(369, 20);
+			this._urlBox.Size = new System.Drawing.Size(373, 20);
 			this._urlBox.TabIndex = 0;
 			this._urlBox.Text = "http://";
 			this._urlBox.TextChanged += new System.EventHandler(this._urlBox_TextChanged);
 			//
 			// _localFolderName
 			//
-			this._localFolderName.Location = new System.Drawing.Point(51, 138);
+			this._localFolderName.Location = new System.Drawing.Point(51, 150);
 			this._localFolderName.Name = "_localFolderName";
 			this._localFolderName.Size = new System.Drawing.Size(144, 20);
 			this._localFolderName.TabIndex = 1;
@@ -73,7 +73,7 @@
 			// label3
 			//
 			this.label3.AutoSize = true;
-			this.label3.Location = new System.Drawing.Point(13, 117);
+			this.label3.Location = new System.Drawing.Point(13, 129);
 			this.label3.Name = "label3";
 			this.label3.Size = new System.Drawing.Size(248, 13);
 			this.label3.TabIndex = 4;
@@ -84,7 +84,7 @@
 			this._downloadButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
 			this._downloadButton.Location = new System.Drawing.Point(16, 257);
 			this._downloadButton.Name = "_downloadButton";
-			this._downloadButton.Size = new System.Drawing.Size(75, 23);
+			this._downloadButton.Size = new System.Drawing.Size(94, 23);
 			this._downloadButton.TabIndex = 2;
 			this._downloadButton.Text = "&Download";
 			this._downloadButton.UseVisualStyleBackColor = true;
@@ -93,7 +93,7 @@
 			// _targetWarningImage
 			//
 			this._targetWarningImage.Image = global::Chorus.Properties.Resources.warningImage;
-			this._targetWarningImage.Location = new System.Drawing.Point(16, 133);
+			this._targetWarningImage.Location = new System.Drawing.Point(16, 145);
 			this._targetWarningImage.Name = "_targetWarningImage";
 			this._targetWarningImage.Size = new System.Drawing.Size(26, 33);
 			this._targetWarningImage.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
@@ -117,7 +117,7 @@
 			this.linkLabel1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
 			this.linkLabel1.AutoSize = true;
 			this.linkLabel1.LinkArea = new System.Windows.Forms.LinkArea(6, 30);
-			this.linkLabel1.Location = new System.Drawing.Point(97, 261);
+			this.linkLabel1.Location = new System.Drawing.Point(135, 261);
 			this.linkLabel1.Name = "linkLabel1";
 			this.linkLabel1.Size = new System.Drawing.Size(156, 17);
 			this.linkLabel1.TabIndex = 24;
@@ -137,7 +137,7 @@
 			this.betterLabel1.Multiline = true;
 			this.betterLabel1.Name = "betterLabel1";
 			this.betterLabel1.ReadOnly = true;
-			this.betterLabel1.Size = new System.Drawing.Size(366, 49);
+			this.betterLabel1.Size = new System.Drawing.Size(370, 66);
 			this.betterLabel1.TabIndex = 25;
 			this.betterLabel1.TabStop = false;
 			this.betterLabel1.Text = "Example:\r\nhttp://joeSmith:mypassword@hg-public.languagedepot.org/tpi";
@@ -149,11 +149,11 @@
 			this._targetInfoLabel.BackColor = System.Drawing.SystemColors.Control;
 			this._targetInfoLabel.BorderStyle = System.Windows.Forms.BorderStyle.None;
 			this._targetInfoLabel.Font = new System.Drawing.Font("Segoe UI", 9F);
-			this._targetInfoLabel.Location = new System.Drawing.Point(51, 164);
+			this._targetInfoLabel.Location = new System.Drawing.Point(51, 176);
 			this._targetInfoLabel.Multiline = true;
 			this._targetInfoLabel.Name = "_targetInfoLabel";
 			this._targetInfoLabel.ReadOnly = true;
-			this._targetInfoLabel.Size = new System.Drawing.Size(366, 49);
+			this._targetInfoLabel.Size = new System.Drawing.Size(371, 64);
 			this._targetInfoLabel.TabIndex = 25;
 			this._targetInfoLabel.TabStop = false;
 			this._targetInfoLabel.Text = "runtime info";

@@ -64,7 +64,7 @@
 			//
 			this._copyToClipboardLink.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
 			this._copyToClipboardLink.AutoSize = true;
-			this._copyToClipboardLink.Location = new System.Drawing.Point(122, 130);
+			this._copyToClipboardLink.Location = new System.Drawing.Point(107, 130);
 			this._copyToClipboardLink.Name = "_copyToClipboardLink";
 			this._copyToClipboardLink.Size = new System.Drawing.Size(89, 13);
 			this._copyToClipboardLink.TabIndex = 2;
