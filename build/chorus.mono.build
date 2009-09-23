@@ -34,8 +34,8 @@
 		<include name="ChorusMerge/ChorusMerge.proj.build" />
 		<include name="Chorus/Chorus.proj.build" />
 		<include name="LibChorusTests/LibChorus.Tests.proj.build" />
-		<exclude name="ChorusMerge.Tests/ChorusMerge.Tests.proj.build" />
-		<exclude name="Chorus.Tests/Chorus.Tests.proj.build" />
+		<include name="ChorusMerge.Tests/ChorusMerge.Tests.proj.build" />
+		<include name="Chorus.Tests/Chorus.Tests.proj.build" />
 	</fileset>
 
 	<target name="clean" description="Delete all previously compiled binaries.">
