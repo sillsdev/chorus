@@ -51,7 +51,7 @@ namespace Chorus.UI.Settings
 			this._repositoryAliases.Multiline = true;
 			this._repositoryAliases.Name = "_repositoryAliases";
 			this._repositoryAliases.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-			this._repositoryAliases.Size = new System.Drawing.Size(426, 90);
+			this._repositoryAliases.Size = new System.Drawing.Size(426, 67);
 			this._repositoryAliases.TabIndex = 3;
 			this._repositoryAliases.Leave += new System.EventHandler(this._repositoryAliases_Leave);
 			this._repositoryAliases.Validating += new System.ComponentModel.CancelEventHandler(this.OnRepositoryAliases_Validating);
@@ -112,11 +112,11 @@ namespace Chorus.UI.Settings
 			this.betterLabel1.BackColor = System.Drawing.Color.DarkRed;
 			this.betterLabel1.BorderStyle = System.Windows.Forms.BorderStyle.None;
 			this.betterLabel1.Font = new System.Drawing.Font("Segoe UI", 9F);
-			this.betterLabel1.Location = new System.Drawing.Point(61, 249);
+			this.betterLabel1.Location = new System.Drawing.Point(61, 226);
 			this.betterLabel1.Multiline = true;
 			this.betterLabel1.Name = "betterLabel1";
 			this.betterLabel1.ReadOnly = true;
-			this.betterLabel1.Size = new System.Drawing.Size(426, 189);
+			this.betterLabel1.Size = new System.Drawing.Size(426, 175);
 			this.betterLabel1.TabIndex = 14;
 			this.betterLabel1.TabStop = false;
 			this.betterLabel1.Text = resources.GetString("betterLabel1.Text");

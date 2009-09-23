@@ -883,6 +883,26 @@ namespace Chorus.VcsDrivers.Mercurial
 			return new Nini.Ini.IniDocument(p, IniFileType.MercurialStyle);
 		}
 
+		private IniDocument GetMercurialIni()
+		{
+#if MONO
+			var p = "~/.hgrc";
+#else
+			//NB: they're talking about moving this (but to WORSE place, my documents/mercurial)
+			var profile = Environment.GetEnvironmentVariable("USERPROFILE");
+			if (profile == null)
+			{
+				throw new ApplicationException("The %USERPROFILE% environment variable on this machine is not set.");
+			}
+			var p = Path.Combine(profile, "mercurial.ini");
+#endif
+			if (!File.Exists(p))
+			{
+				File.WriteAllText(p, "");
+			}
+			return new Nini.Ini.IniDocument(p, IniFileType.MercurialStyle);
+		}
+
 		public void SetUserNameInIni(string name, IProgress progress)
 		{
 			try
@@ -1240,6 +1260,39 @@ namespace Chorus.VcsDrivers.Mercurial
 
 			progress.WriteStatus("Done.");
 		}
+
+
+		public void SetGlobalProxyInfo(ProxySpec proxy)
+		{
+			var doc = GetMercurialIni();
+			var section = doc.Sections.GetOrCreate("http_proxy");
+			section.Set("host", proxy.Host);
+			section.Set("passwd", proxy.Password);
+			section.Set("user", proxy.UserName);
+			section.Set("no", proxy.BypassList);
+			doc.Save();
+
+		}
+
+		public ProxySpec GetGlobalProxyInfo()
+		{
+			var doc = GetMercurialIni();
+			var section = doc.Sections.GetOrCreate("http_proxy");
+			var proxy = new ProxySpec();
+			proxy.Host = section.GetValue("host");
+			proxy.Password = section.GetValue("passwd");
+			proxy.UserName = section.GetValue("user");
+			proxy.BypassList = section.GetValue("no");
+			return proxy;
+		}
 	}
 
+	public class ProxySpec
+	{
+		public string Host { get; set; }
+		public string Port { get; set; }
+		public string UserName { get; set; }
+		public string Password { get; set; }
+		public string BypassList { get; set; }
+	}
 }

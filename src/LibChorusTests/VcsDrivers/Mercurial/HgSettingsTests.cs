@@ -103,6 +103,21 @@ username = joe
 				Assert.AreEqual("sue", repository.GetUserNameFromIni(_progress));
 			}
 		}
+
+		[Test]
+		public void SetGlobalProxyInfo_TODO()
+		{
+			///this test will have to wait until we have a way to *not* use the global mercurial.ini/.hgrc
+			/// of this machine
+		}
+		[Test]
+		public void GetGlobalProxyInfo_TODO()
+		{
+			///this test will have to wait until we have a way to *not* use the global mercurial.ini/.hgrc
+			/// of this machine
+		}
+
+
 		[Test]
 		public void SetRepositoryAliases()
 		{
