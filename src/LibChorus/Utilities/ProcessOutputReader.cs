@@ -56,7 +56,7 @@ namespace Chorus.Utilities
 				if(progress.CancelRequested)
 					return false;
 
-				Thread.Sleep(500);
+				Thread.Sleep(100);
 				if (DateTime.Now > end)
 				{
 					if (_outputReader != null)
