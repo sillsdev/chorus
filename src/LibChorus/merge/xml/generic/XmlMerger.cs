@@ -124,7 +124,8 @@ namespace Chorus.merge.xml.generic
 				{
 					if (ancestorAttr == null)
 					{
-						ours.Attributes.Append(theirAttr);
+						var importedAttribute = (XmlAttribute)ours.OwnerDocument.ImportNode(theirAttr, true);
+						ours.Attributes.Append(importedAttribute);
 					}
 					else if (ancestorAttr.Value == theirAttr.Value)
 					{
