@@ -43,7 +43,11 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			_repository = new HgRepository(_project.FolderPath, _progress);
 		}
 
+
 		[Test, ExpectedException(typeof(ApplicationException))]
+#if MONO
+		[Ignore]
+#endif
 		public void GetHistory_NoHg_GetException()
 		{
 			using (new Chorus.VcsDrivers.Mercurial.HgMissingSimulation())
