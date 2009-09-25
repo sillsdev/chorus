@@ -146,11 +146,14 @@ namespace LibChorus.Tests.sync
 		}
 
 		[Test]
+#if MONO
+		[Ignore] // I (CP) can't get MONO to get an exclusive lock for write. See RepositorySetup::GetFileLockForWriting
+#endif
 		public void Sync_FileLockedForWritingDuringUpdate_GetUpdatedFileOnceLockIsGone()
 		{
 			HgRunner.TimeoutSecondsOverrideForUnitTests = 1;
 
-		   using (var bob = new RepositorySetup("bob"))
+			using (var bob = new RepositorySetup("bob"))
 			{
 				bob.ProjectFolderConfig.IncludePatterns.Add("*.txt");
 				bob.AddAndCheckinFile("one.txt", "hello");
@@ -159,14 +162,15 @@ namespace LibChorus.Tests.sync
 					bob.AddAndCheckinFile("one.txt", "hello-bob");
 					using (sally.GetFileLockForWriting("one.txt"))
 					{
-						Assert.IsFalse(sally.CheckinAndPullAndMerge(bob).Succeeded);
-					 sally.AssertFileContents("one.txt", "hello");
-				   }
+						// Note: Mono succeeds here
+						Assert.IsFalse(sally.CheckinAndPullAndMerge(bob).Succeeded, "CheckinAndPullAndMerge should have failed");
+						sally.AssertFileContents("one.txt", "hello");
+					}
 					sally.AssertSingleHead();
 
 					//ok, now whatever was holding that file is done with it, and we try again
 
-					Assert.IsTrue(sally.CheckinAndPullAndMerge(bob).Succeeded);
+					Assert.IsTrue(sally.CheckinAndPullAndMerge(bob).Succeeded, "ChecinAndPullAndMerge(bob) should have succeeded");
 					sally.AssertFileContents("one.txt", "hello-bob");
 				}
 			}

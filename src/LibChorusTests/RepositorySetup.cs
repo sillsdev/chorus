@@ -164,7 +164,18 @@ namespace LibChorus.Tests
 		}
 		public IDisposable GetFileLockForWriting(string localPath)
 		{
+#if MONO
+			// This doesn't work.  A mono bug perhaps? (CP)
+			FileStream f = new FileStream(ProjectFolder.Combine(localPath), FileMode.Open, FileAccess.ReadWrite, FileShare.Read);
+			// This didn't work either
+			//f.Lock(0, f.Length - 1);
+			//FileStream f = new FileStream(ProjectFolder.Combine(localPath), FileMode.Open, FileAccess.Write, FileShare.None);
+			// This locked the file, but also deleted it (as expected) which isn't what the test expects
+			//FileStream f = new FileStream(ProjectFolder.Combine(localPath), FileMode.Create, FileAccess.Write, FileShare.None);
+			return f;
+#else
 			return new StreamReader(ProjectFolder.Combine(localPath));
+#endif
 		}
 
 
