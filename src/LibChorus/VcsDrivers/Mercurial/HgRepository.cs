@@ -3,6 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Net.NetworkInformation;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -1027,17 +1028,34 @@ namespace Chorus.VcsDrivers.Mercurial
 			doc.Save();
 		}
 
+		/// <summary>
+		/// Warning: this use of "incomin" takes just as long as a pull, according to the hg mailing list
+		/// </summary>
+		/// <param name="uri"></param>
+		/// <param name="progress"></param>
+		/// <returns></returns>
 		public bool GetCanConnectToRemote(string uri, IProgress progress)
 		{
-			progress.WriteVerbose("Trying to connect to {0}...", uri);
-			 ExecutionResult result = ExecuteErrorsOk(string.Format("incoming -l 1 {0}", SurroundWithQuotes(uri)), _pathToRepository, _secondsBeforeTimeoutOnLocalOperation, _progress);
 
-			 if (!string.IsNullOrEmpty(result.StandardError))
-			 {
-				 progress.WriteVerbose(result.StandardError);
-				 return false;
-			 }
-			return true;
+			//this may be just as slow as a pull
+			//    ExecutionResult result = ExecuteErrorsOk(string.Format("incoming -l 1 {0}", SurroundWithQuotes(uri)), _pathToRepository, _secondsBeforeTimeoutOnLocalOperation, _progress);
+			//so we're going to just ping
+
+			var ping = new System.Net.NetworkInformation.Ping();
+			try
+			{
+				//strip everything but the host name
+				Uri uriObject;
+				if (!Uri.TryCreate(uri, UriKind.Absolute, out uriObject))
+					return false;
+
+				progress.WriteVerbose("Pinging {0}...", uriObject.Host);
+				return ping.Send(uriObject.Host).Status == IPStatus.Success;
+			}
+			catch (Exception)
+			{
+				return false;
+			}
 		}
 
 
