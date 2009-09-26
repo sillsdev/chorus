@@ -1041,7 +1041,6 @@ namespace Chorus.VcsDrivers.Mercurial
 			//    ExecutionResult result = ExecuteErrorsOk(string.Format("incoming -l 1 {0}", SurroundWithQuotes(uri)), _pathToRepository, _secondsBeforeTimeoutOnLocalOperation, _progress);
 			//so we're going to just ping
 
-			var ping = new System.Net.NetworkInformation.Ping();
 			try
 			{
 				//strip everything but the host name
@@ -1050,7 +1049,12 @@ namespace Chorus.VcsDrivers.Mercurial
 					return false;
 
 				progress.WriteVerbose("Pinging {0}...", uriObject.Host);
-				return ping.Send(uriObject.Host).Status == IPStatus.Success;
+				using (var ping = new System.Net.NetworkInformation.Ping())
+				{
+					var result = ping.Send(uriObject.Host, 3000);//arbitrary... what's a reasonable wait?
+					_progress.WriteVerbose("Ping took {0} milliseconds", result.RoundtripTime);
+					return result.Status == IPStatus.Success;
+				}
 			}
 			catch (Exception)
 			{
