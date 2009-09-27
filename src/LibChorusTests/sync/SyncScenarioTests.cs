@@ -151,7 +151,7 @@ namespace LibChorus.Tests.sync
 
 			options.DoPullFromOthers = true;
 			options.DoMergeWithOthers = false;
-			options.DoPushToLocalSources = false;
+			options.DoSendToOthers = false;
 			options.CheckinDescription = "test getting new file from usb";
 			options.RepositorySourcesToTry.Add(otherDirPath);
 			bob.SyncNow(options);
@@ -219,7 +219,7 @@ namespace LibChorus.Tests.sync
 			bobOptions.CheckinDescription = "changed my mind";
 			bobOptions.DoMergeWithOthers = false; // pretend the usb key isn't there
 			bobOptions.DoPullFromOthers = false; // pretend the usb key isn't there
-			bobOptions.DoPushToLocalSources = false;
+			bobOptions.DoSendToOthers = false;
 			RepositoryAddress usbPath = RepositoryAddress.Create( "usba source", Path.Combine(usbSourcePath, RepositoryAddress.ProjectNameVariable),false);
 			bobOptions.RepositorySourcesToTry.Add(usbPath);
 			bobSynchronizer.SyncNow(bobOptions);
@@ -239,7 +239,7 @@ namespace LibChorus.Tests.sync
 			 sallyOptions.RepositorySourcesToTry.Add(usbPath);
 			sallyOptions.DoPullFromOthers = true;
 			sallyOptions.DoMergeWithOthers = true;
-			sallyOptions.DoPushToLocalSources = true;
+			sallyOptions.DoSendToOthers = true;
 			sallySynchronizer.SyncNow(sallyOptions);
 
 			//bob still doesn't have direct access to sally's repo... it's in some other city
@@ -247,7 +247,7 @@ namespace LibChorus.Tests.sync
 			// SyncOptions bobOptions = new SyncOptions();
 			bobOptions.CheckinDescription = "Getting from sally, i hope";
 			bobOptions.DoPullFromOthers = true;
-			bobOptions.DoPushToLocalSources = true;
+			bobOptions.DoSendToOthers = true;
 			bobOptions.DoMergeWithOthers = true;
 			bobSynchronizer.SyncNow(bobOptions);
 
@@ -282,7 +282,7 @@ namespace LibChorus.Tests.sync
 			SyncOptions bobOptions = new SyncOptions();
 			bobOptions.CheckinDescription = "added 'dog'";
 			bobOptions.DoMergeWithOthers = false; // just want a fast checkin
-			bobOptions.DoPushToLocalSources = false; // just want a fast checkin
+			bobOptions.DoSendToOthers = false; // just want a fast checkin
 			bobOptions.DoPullFromOthers = false; // just want a fast checkin
 			bobSetup.GetSynchronizer().SyncNow(bobOptions);
 
@@ -295,7 +295,7 @@ namespace LibChorus.Tests.sync
 			SyncOptions sallyOptions = new SyncOptions();
 			sallyOptions.CheckinDescription = "adding cat";
 			sallyOptions.DoPullFromOthers = true;
-			sallyOptions.DoPushToLocalSources = true;
+			sallyOptions.DoSendToOthers = true;
 			sallyOptions.DoMergeWithOthers = true;
 			sallyOptions.RepositorySourcesToTry.Add(RepositoryAddress.Create("bob's machine", bobSetup.BobProjectPath, false));
 

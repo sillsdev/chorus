@@ -69,7 +69,7 @@ namespace Chorus.Utilities
 			// See http://www.wesay.org/issues/browse/WS-14948
 			// The output reader threads may exit slightly prior to the application closing.
 			// So we wait for the exit to be confirmed.
-			process.WaitForExit(1000);//hatton moved up to 5 seconds (from 1) in sep 09, wondering if this was the cause of so many abandoned locks
+			process.WaitForExit(1000);
 			_standardOutput = outputReaderArgs.Results;
 			_standardError = errorReaderArgs.Results;
 

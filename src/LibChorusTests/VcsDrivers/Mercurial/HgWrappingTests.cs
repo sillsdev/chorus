@@ -65,7 +65,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 
 				var file = TempFile.CreateAt(setup.Root.Combine(".hg", "wlock"), "blah");
 
-				Assert.IsFalse(setup.Repository.RemoveOldLocks(ourName));
+				Assert.IsFalse(setup.Repository.RemoveOldLocks(ourName, true));
 				file.Dispose();
 			}
 		}
@@ -80,7 +80,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 
 				var file = TempFile.CreateAt(setup.Root.Combine(".hg", "store", "lock"), "blah");
 
-				Assert.IsFalse(setup.Repository.RemoveOldLocks(ourName));
+				Assert.IsFalse(setup.Repository.RemoveOldLocks(ourName, true));
 				file.Dispose();
 			}
 		}

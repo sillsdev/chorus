@@ -69,6 +69,10 @@ namespace LibChorus.Tests
 		}
 		public void Dispose()
 		{
+			if (Repository != null)
+			{
+				Assert.IsFalse(Repository.GetHasLocks(), "A lock was left over, after the test.");
+			}
 			ProjectFolder.Dispose();
 			RootFolder.Dispose();
 		}
@@ -101,7 +105,7 @@ namespace LibChorus.Tests
 			SyncOptions options = new SyncOptions();
 			options.DoMergeWithOthers = false;
 			options.DoPullFromOthers = false;
-			options.DoPushToLocalSources = false;
+			options.DoSendToOthers = false;
 
 			CreateSynchronizer().SyncNow(options);
 		}
@@ -111,7 +115,7 @@ namespace LibChorus.Tests
 			SyncOptions options = new SyncOptions();
 			options.DoMergeWithOthers = true;
 			options.DoPullFromOthers = true;
-			options.DoPushToLocalSources = true;
+			options.DoSendToOthers = true;
 
 			options.RepositorySourcesToTry.Add(otherUser.GetRepositoryAddress());
 			return CreateSynchronizer().SyncNow(options);

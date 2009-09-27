@@ -66,7 +66,7 @@ namespace LibChorus.Tests.merge
 			SyncOptions options = new SyncOptions();
 			options.DoMergeWithOthers = false;
 			options.DoPullFromOthers = false;
-			options.DoPushToLocalSources = false;
+			options.DoSendToOthers = false;
 			Synchronizer.SyncNow(options);
 		}
 
@@ -102,6 +102,11 @@ namespace LibChorus.Tests.merge
 
 		public void Dispose()
 		{
+			if (Repository != null)
+			{
+				Assert.IsFalse(Repository.GetHasLocks(), "A lock was left over, after the test.");
+			}
+
 			if (DoNotDispose)
 			{
 				Console.WriteLine("TestRepository not deleted in {0}", RootFolder.Path);
@@ -132,7 +137,7 @@ namespace LibChorus.Tests.merge
 			SyncOptions options = new SyncOptions();
 			options.DoMergeWithOthers = true;
 			options.DoPullFromOthers = true;
-			options.DoPushToLocalSources = false;
+			options.DoSendToOthers = false;
 
 			options.RepositorySourcesToTry.Add(syncWithUser.RepoPath);
 			return Synchronizer.SyncNow(options);
@@ -144,7 +149,7 @@ namespace LibChorus.Tests.merge
 			SyncOptions options = new SyncOptions();
 			options.DoMergeWithOthers = false;
 			options.DoPullFromOthers = false;
-			options.DoPushToLocalSources = false;
+			options.DoSendToOthers = false;
 
 			Synchronizer.SyncNow(options);
 		}

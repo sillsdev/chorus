@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Windows.Forms;
 using Chorus.merge;
@@ -104,13 +105,13 @@ namespace Chorus.sync
 
 			HgRepository repo = new HgRepository(_localRepositoryPath,_progress);
 
-			repo.RecoverIfNeeded();
 			if (!repo.RemoveOldLocks())
 			{
 				_progress.WriteError("Synchronization abandoned for now.  Try again after restarting the computer.");
 				results.Succeeded = false;
 				return results;
 			}
+			repo.RecoverIfNeeded();
 
 			UpdateHgrc(repo);
 
@@ -140,7 +141,7 @@ namespace Chorus.sync
 //                repositoriesToTry = ExtraRepositorySources;
 
 			//this just saves us from trying to connect twice to the same repo that is, for example, no there.
-			Dictionary<RepositoryAddress, bool> didConnect= new Dictionary<RepositoryAddress, bool>();
+			Dictionary<RepositoryAddress, bool> connectionAttempt= new Dictionary<RepositoryAddress, bool>();
 
 			if (options.DoPullFromOthers)
 			{
@@ -168,9 +169,9 @@ namespace Chorus.sync
 						_progress.WriteStatus("Connecting to {0}...", source.Name);
 					}
 					var canConnect = source.CanConnect(repo, RepoProjectName, _progress);
-					if (!didConnect.ContainsKey(source))
+					if (!connectionAttempt.ContainsKey(source))
 					{
-						didConnect.Add(source, canConnect);
+						connectionAttempt.Add(source, canConnect);
 					}
 					if (canConnect)
 					{
@@ -212,7 +213,7 @@ namespace Chorus.sync
 				}
 			}
 
-			if(options.DoPushToLocalSources)
+			if(options.DoSendToOthers)
 			{
 				foreach (RepositoryAddress address in sourcesToTry)
 				{
@@ -222,24 +223,32 @@ namespace Chorus.sync
 					{
 						string resolvedUri = address.GetPotentialRepoUri(RepoProjectName, _progress);
 						bool canConnect;
-						if (didConnect.ContainsKey(address))
+						if (connectionAttempt.ContainsKey(address))
 						{
-							canConnect = didConnect[address];
+							canConnect = connectionAttempt[address];
 						}
 						else
 						{
 							canConnect = address.CanConnect(repo, RepoProjectName, _progress);
-							didConnect.Add(address, canConnect);
+							connectionAttempt.Add(address, canConnect);
 						}
 						if (canConnect)
+						{
+							repo.Push(address, resolvedUri, _progress);
+
+							//for usb, it's safe and desireable to do an update (bring into the directory
+							//  the latest files from the repo) for LAN, it could be... for now we assume it is
+							if (address is UsbKeyRepositorySource || address is DirectoryRepositorySource)
 							{
-								repo.Push(address, resolvedUri, _progress);
+								var otherRepo = new HgRepository(resolvedUri, _progress);
+								otherRepo.Update();
 							}
-							else if (address is DirectoryRepositorySource || address is UsbKeyRepositorySource)
-							{
-								TryToMakeCloneForSource(address);
-								//nb: no need to push if we just made a clone
-							}
+						}
+						else if (address is DirectoryRepositorySource || address is UsbKeyRepositorySource)
+						{
+							TryToMakeCloneForSource(address);
+							//nb: no need to push if we just made a clone
+						}
 					}
 				}
 			}
@@ -254,6 +263,9 @@ namespace Chorus.sync
 				results.ErrorEncountered = error;
 				results.DidGetChangesFromOthers = false;
 			}
+
+		  //  Debug.Assert(!repo.GetHasLocks(), "A lock was left over, after the sync.");
+
 			_progress.WriteStatus("Done");
 			return results;
 		}

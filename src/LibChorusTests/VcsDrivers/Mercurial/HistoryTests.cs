@@ -72,7 +72,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			options.DoPullFromOthers = false;
 			options.DoMergeWithOthers = false;
 			options.CheckinDescription = "first one";
-			options.DoPushToLocalSources = false;
+			options.DoSendToOthers = false;
 
 			setup.SyncNow(options);
 			File.WriteAllText(_pathToText, "version two of my pretend txt");

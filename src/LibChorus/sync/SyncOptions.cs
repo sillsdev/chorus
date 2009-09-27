@@ -11,8 +11,9 @@ namespace Chorus.sync
 		{
 			DoPullFromOthers = true;
 			DoMergeWithOthers = true;
-			DoPushToLocalSources = true;
+			DoSendToOthers = true;
 			CheckinDescription = "missing checkin description";
+
 		}
 
 		/// <summary>
@@ -29,8 +30,8 @@ namespace Chorus.sync
 
 		/// <summary>
 		/// Push differences to, for example, usb keys, second hard drives, or sd cards that are
-		/// specified in the "RepositorySourcesToTry"
+		/// specified in the "RepositorySourcesToTry".
 		/// </summary>
-		public bool DoPushToLocalSources { get; set; }
+		public bool DoSendToOthers { get; set; }
 	}
 }

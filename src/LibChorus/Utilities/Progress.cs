@@ -198,7 +198,7 @@ namespace Chorus.Utilities
 			var lines = String.Format(message, args);
 			foreach (var line in lines.Split('\n'))
 			{
-				WriteStatus(": " + line);
+				WriteStatus("    " + line);
 			}
 
 		}
@@ -421,7 +421,7 @@ namespace Chorus.Utilities
 			foreach (var line in lines.Split('\n'))
 			{
 
-				WriteMessage(": " + line);
+				WriteMessage("   " + line);
 			}
 
 		}

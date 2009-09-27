@@ -1,7 +1,9 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using Chorus.sync;
 using Chorus.Utilities;
 using Chorus.VcsDrivers;
+using Chorus.VcsDrivers.Mercurial;
 using NUnit.Framework;
 
 namespace LibChorus.Tests.sync
@@ -14,14 +16,14 @@ namespace LibChorus.Tests.sync
 	public class UsbRepositorySourceTests
 	{
 		private ProjectFolderConfiguration _project;
-		private StringBuilderProgress _progress;
+		private IProgress _progress;
 		private string _pathToTestRoot;
 		private string _pathToProjectRoot;
 
 		[SetUp]
 		public void Setup()
 		{
-			_progress = new StringBuilderProgress();
+			_progress = new ConsoleProgress();
 			_pathToTestRoot = Path.Combine(Path.GetTempPath(), "ChorusTest");
 			if (Directory.Exists(_pathToTestRoot))
 				Directory.Delete(_pathToTestRoot, true);
@@ -55,7 +57,7 @@ namespace LibChorus.Tests.sync
 			Synchronizer synchronizer = Synchronizer.FromProjectConfiguration(_project, _progress);
 			SyncOptions options = new SyncOptions();
 			options.DoMergeWithOthers = true;
-			options.DoPushToLocalSources = true;
+			options.DoSendToOthers = true;
 			options.RepositorySourcesToTry.Add(synchronizer.UsbPath);
 
 			WriteTestFile("version two");
@@ -70,18 +72,25 @@ namespace LibChorus.Tests.sync
 		public void SyncNow_AlreadySetupFauxUsbAvailable_UsbGetsSync()
 		{
 			SyncOptions options = new SyncOptions();
-			Synchronizer manager = Synchronizer.FromProjectConfiguration(_project, _progress);
-			manager.SyncNow(options);
+			Synchronizer synchronizer = Synchronizer.FromProjectConfiguration(_project, _progress);
+			synchronizer.SyncNow(options);
 
-			options.RepositorySourcesToTry.Add(manager.UsbPath);
-			string dir = Path.Combine(UsbKeyRepositorySource.RootDirForUsbSourceDuringUnitTest, "foo project");
-			manager.MakeClone(dir, true);
-			string contents = File.ReadAllText(Path.Combine(dir, "foo.txt"));
+			options.RepositorySourcesToTry.Add(synchronizer.UsbPath);
+			string usbDirectory = Path.Combine(UsbKeyRepositorySource.RootDirForUsbSourceDuringUnitTest, "foo project");
+			synchronizer.MakeClone(usbDirectory, true);
+			string contents = File.ReadAllText(Path.Combine(usbDirectory, "foo.txt"));
 			Assert.AreEqual("version one", contents);
 			WriteTestFile("version two");
-			manager.SyncNow(options);
-			contents = File.ReadAllText(Path.Combine(dir, "foo.txt"));
+			//_progress.ShowVerbose = true;
+			options.CheckinDescription = "Changing to two";
+			synchronizer.SyncNow(options);
+			var usb = new HgRepository(usbDirectory, _progress);
+			Assert.AreEqual("Changing to two", usb.GetTip().Summary);
+
+			//did it update too (which we should do with usb, unless we switch to leave them as "bare" .hgs)?
+			contents = File.ReadAllText(Path.Combine(usbDirectory, "foo.txt"));
 			Assert.AreEqual("version two", contents);
+
 		}
 	}
 }
