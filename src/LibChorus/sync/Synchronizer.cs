@@ -279,18 +279,19 @@ namespace Chorus.sync
 		private void UpdateHgrc(HgRepository repository)
 		{
 			string[] names = new string[] {
-				"hgext.win32text", //for converting line endings on windows machines
+			   "hgext.win32text", //for converting line endings on windows machines
 				"hgext.graphlog", //for more easily readable diagnostic logs
 				"convert" //for catastrophic repair in case of repo corruption
 				};
 			repository.EnsureTheseExtensionAreEnabled(names);
 
+
 			//TODO: give all injected handlers a shot at this (holdup is how to wire the collection of handlers into
 			//  SYnchronizer, since it is build with a factor method).
 
 			List<string> extensions = new List<string>();
-
-			IChorusFileTypeHandler handler = new ConflictFileTypeHandler();
+			IChorusFileTypeHandler handler;
+			 handler = new ConflictFileTypeHandler();
 			extensions.AddRange(handler.GetExtensionsOfKnownTextFileTypes());
 
 			handler = new LiftFileHandler();

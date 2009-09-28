@@ -1386,14 +1386,13 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		public void SetupEndOfLineConversion(IEnumerable<string> extensionsOfKnownTextFileTypes)
 		{
-			//.txt = dumbencode:
 			var doc = GetHgrcDoc();
 			doc.Sections.Remove("encode");//clear it out
 			var section = doc.Sections.GetOrCreate("encode");
 			foreach (string extension in extensionsOfKnownTextFileTypes)
 			{
 				string ext = extension.TrimStart(new char[] {'.'});
-				section.Set("**."+ext, "dumbencode");
+				section.Set("**."+ext, "dumbencode:");
 			}
 			doc.Save();
 		}
