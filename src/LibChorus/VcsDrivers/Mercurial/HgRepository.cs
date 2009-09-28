@@ -1073,12 +1073,47 @@ namespace Chorus.VcsDrivers.Mercurial
 				if (!Uri.TryCreate(uri, UriKind.Absolute, out uriObject))
 					return false;
 
+				if (!System.Net.NetworkInformation.NetworkInterface.GetIsNetworkAvailable())
+				{
+					progress.WriteWarning("This machine does not have a live network connection.");
+					return false;
+				}
+
 				progress.WriteVerbose("Pinging {0}...", uriObject.Host);
 				using (var ping = new System.Net.NetworkInformation.Ping())
 				{
 					var result = ping.Send(uriObject.Host, 3000);//arbitrary... what's a reasonable wait?
-					_progress.WriteVerbose("Ping took {0} milliseconds", result.RoundtripTime);
-					return result.Status == IPStatus.Success;
+					if (result.Status == IPStatus.Success)
+					{
+						_progress.WriteVerbose("Ping took {0} milliseconds", result.RoundtripTime);
+						return true;
+					}
+					_progress.WriteVerbose("Ping failed. Trying google.com...");
+
+					//ok, at least in Ukarumpa, sometimes pings just are impossible.  Determine if that's what's going on by pinging google
+					result = ping.Send("google.com", 3000);
+					if (result.Status != IPStatus.Success)
+					{
+						progress.WriteVerbose("Ping to google failed, too.");
+						if (System.Net.Dns.GetHostAddresses(uriObject.Host).Count() > 0)
+						{
+							progress.WriteVerbose(
+								"Did resolve the host name, so it's worth trying to use hg to connect... some places block ping.");
+							return true;
+						}
+						progress.WriteVerbose("Could not resolve the host name '{0}'.", uriObject.Host);
+						return false;
+					}
+
+					if (System.Net.Dns.GetHostAddresses(uriObject.Host).Count() > 0)
+					{
+						progress.WriteStatus(
+							"Chorus could ping google, and did get IP address for {0}, but could not ping it, so it could be that the server is temporarily unavailable.", uriObject.Host);
+						return true;
+					}
+
+					progress.WriteError("Please check the spelling of address {0}.  Chorus could not resolve it to an IP address.", uriObject.Host);
+					return false; // assume the network is ok, but the hg server is inaccessible
 				}
 			}
 			catch (Exception)
