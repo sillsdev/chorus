@@ -31,9 +31,10 @@ namespace Chorus.merge.xml.lift
 			return DateTime.Parse(d.Value);
 		}
 
-		public static string GetUrl(XmlNode entryNode, string fileName)
+		public static string GetUrl(XmlNode entryNode, string fileNameUnescaped)
 		{
-			string url = string.Format("lift://navigate/file={0}?type=entry&", fileName);
+			fileNameUnescaped = Uri.EscapeDataString(fileNameUnescaped);
+			string url = string.Format("lift://{0}?type=entry&", fileNameUnescaped);
 			if (!string.IsNullOrEmpty(LiftUtils.GetGuid(entryNode)))
 			{
 				url += "guid=" + LiftUtils.GetGuid(entryNode) + "&";
