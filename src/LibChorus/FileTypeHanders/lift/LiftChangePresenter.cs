@@ -106,6 +106,11 @@ namespace Chorus.FileTypeHanders.lift
 			return builder.ToString();
 		}
 
+		private static XmlNode GetFormNodeForReferencedEntry(XmlDocument dom, string entryId)
+		{
+			return dom.SelectSingleNode("//entry[@id=\"" + entryId + "\"]/lexical-unit");
+		}
+
 		private void GetHtmlForChange(string style, StringBuilder builder)
 		{
 			var r = _report as XmlChangedRecordReport;
@@ -150,7 +155,19 @@ namespace Chorus.FileTypeHanders.lift
 			{
 				AddMultiTextHtml(b,  "citation form", node);
 			}
+			foreach (XmlNode field in entry.SafeSelectNodes("relation"))
+			{
+				var type = field.GetStringAttribute("type");
+				var id = field.GetStringAttribute("ref");
 
+				var formNode = GetFormNodeForReferencedEntry(entry.OwnerDocument, id);
+				if (null==formNode)
+				{
+					b.AppendFormat("Could not locate {0}", id);
+					continue;
+				}
+				AddMultiTextHtml(b, type, formNode);
+			}
 			foreach (XmlNode field in entry.SafeSelectNodes("field"))
 			{
 				var label = field.GetStringAttribute("type");
