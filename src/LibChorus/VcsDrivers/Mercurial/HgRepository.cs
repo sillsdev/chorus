@@ -712,7 +712,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		{
 			if (GetIsLocalUri(_pathToRepository))
 			{
-				return GetUserNameFromIni(_progress);
+				return GetUserNameFromIni(_progress, Environment.UserName.Replace(" ", ""));
 				//this gave the global name, we want the name associated with this repository
 				//return GetTextFromQuery(_pathToRepository, "showconfig ui.username").Trim();
 			}
@@ -878,7 +878,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		/// TODO: sort out this vs. the UserName property
 		/// </summary>
 		/// <returns></returns>
-		public string GetUserNameFromIni(IProgress progress)
+		public string GetUserNameFromIni(IProgress progress, string defaultName)
 		{
 			try
 			{
@@ -891,10 +891,10 @@ namespace Chorus.VcsDrivers.Mercurial
 					return string.Empty;
 				}
 			}
-			catch (Exception error)
+			catch (Exception)
 			{
-				progress.WriteWarning("Could not retrieve the user name from the hgrc ini file: "+ error.Message);
-				return string.Empty;
+				progress.WriteStatus("Could determine user name, will use {0}", defaultName);
+				return defaultName;
 			}
 		}
 

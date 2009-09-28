@@ -28,7 +28,7 @@ namespace Chorus.UI.Settings
 
 		public string GetUserName(IProgress progress)
 		{
-			return _repository.GetUserNameFromIni(progress);
+			return _repository.GetUserNameFromIni(progress, Environment.UserName.Replace(" ",""));
 		}
 
 		public string GetAddresses()

@@ -65,7 +65,7 @@ two = http://foo.com");
 username = joe
 ");
 				var repository = setup.CreateSynchronizer().Repository;
-				Assert.AreEqual("joe", repository.GetUserNameFromIni(_progress));
+				Assert.AreEqual("joe", repository.GetUserNameFromIni(_progress, "anonymous"));
 			}
 		}
 		[Test]
@@ -75,7 +75,7 @@ username = joe
 			{
 				setup.WriteIniContents(@"");
 				var repository = setup.CreateSynchronizer().Repository;
-				Assert.AreEqual(string.Empty, repository.GetUserNameFromIni(_progress));
+				Assert.AreEqual(string.Empty, repository.GetUserNameFromIni(_progress, "anonymous"));
 			}
 		}
 		[Test]
@@ -85,7 +85,7 @@ username = joe
 			{
 				setup.EnsureNoHgrcExists();
 				var repository = setup.CreateSynchronizer().Repository;
-				Assert.AreEqual(string.Empty, repository.GetUserNameFromIni(_progress));
+				Assert.AreEqual(string.Empty, repository.GetUserNameFromIni(_progress, "anonymous"));
 			}
 		}
 		[Test]
@@ -96,11 +96,11 @@ username = joe
 				setup.EnsureNoHgrcExists();
 				var repository = setup.CreateSynchronizer().Repository;
 				repository.SetUserNameInIni("bill", _progress);
-				Assert.AreEqual("bill", repository.GetUserNameFromIni(_progress));
+				Assert.AreEqual("bill", repository.GetUserNameFromIni(_progress, "anonymous"));
 
 				//this time, the hgrc does exist
 				repository.SetUserNameInIni("sue", _progress);
-				Assert.AreEqual("sue", repository.GetUserNameFromIni(_progress));
+				Assert.AreEqual("sue", repository.GetUserNameFromIni(_progress, "anonymous"));
 			}
 		}
 
