@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -108,5 +109,9 @@ namespace Chorus.FileTypeHanders
 			return new IChangeReport[] { new DefaultChangeReport(fileInRevision, "Added") };
 		}
 
+		public IEnumerable<string> GetExtensionsOfKnownTextFileTypes()
+		{
+			yield return "lift";
+		}
 	}
 }

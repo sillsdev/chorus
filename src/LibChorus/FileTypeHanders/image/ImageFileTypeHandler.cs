@@ -51,5 +51,9 @@ namespace Chorus.FileTypeHanders.image
 			return new IChangeReport[] { new DefaultChangeReport(fileInRevision, "Added") };
 		}
 
+		public IEnumerable<string> GetExtensionsOfKnownTextFileTypes()
+		{
+			yield break;
+		}
 	}
 }

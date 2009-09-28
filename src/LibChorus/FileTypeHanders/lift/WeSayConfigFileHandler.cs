@@ -51,6 +51,12 @@ namespace Chorus.FileTypeHanders.lift
 			return new IChangeReport[] { new DefaultChangeReport(fileInRevision, "Added") };
 		}
 
+		public IEnumerable<string> GetExtensionsOfKnownTextFileTypes()
+		{
+			yield return "WeSayConfig";
+			yield return "xml";
+			yield return "css";
+		}
 	}
 
 	public class WeSayConfigChangePresenter : DefaultChangePresenter

@@ -78,5 +78,10 @@ namespace Chorus.FileTypeHanders
 				yield return new XmlAdditionChangeReport(fileInRevision, e);
 			}
 		}
+
+		public IEnumerable<string> GetExtensionsOfKnownTextFileTypes()
+		{
+			yield return ".conflicts";
+		}
 	}
 }

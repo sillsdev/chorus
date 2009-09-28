@@ -86,5 +86,10 @@ namespace Chorus.FileTypeHanders.oneStory
 			//this is never called because we said we don't present diffs; review is handled some other way
 			throw new NotImplementedException();
 		}
+
+		public IEnumerable<string> GetExtensionsOfKnownTextFileTypes()
+		{
+			yield return "onestory";
+		}
 	}
 }

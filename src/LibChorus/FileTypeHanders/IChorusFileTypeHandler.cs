@@ -33,6 +33,8 @@ namespace Chorus.FileTypeHanders
 		/// hanlder might list any the words that were already in the dictionary when it was first checked in.
 		/// </summary>
 		IEnumerable<IChangeReport> DescribeInitialContents(FileInRevision fileInRevision,TempFile file);
+
+		IEnumerable<string> GetExtensionsOfKnownTextFileTypes();
 	}
 
 	public class ChorusFileTypeHandlerCollection

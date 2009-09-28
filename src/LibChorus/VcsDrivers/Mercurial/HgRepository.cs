@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Linq;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -684,7 +685,7 @@ namespace Chorus.VcsDrivers.Mercurial
 #if MONO
 	if(infiniteLoopChecker >99)
 	{
-	   _progress.WriteMessage("Had to break out of infinite loop in GetRevisionsFromQueryResultText(). See WS-14981: 'send/receive hangs'.");
+	   _progress.WriteWarning("Had to break out of infinite loop in GetRevisionsFromQueryResultText(). See WS-14981: 'send/receive hangs'.");
 	}
 #endif
 			return items;
@@ -1381,6 +1382,20 @@ namespace Chorus.VcsDrivers.Mercurial
 			{
 				return GetTextFromQuery("log -G");
 			}
+		}
+
+		public void SetupEndOfLineConversion(IEnumerable<string> extensionsOfKnownTextFileTypes)
+		{
+			//.txt = dumbencode:
+			var doc = GetHgrcDoc();
+			doc.Sections.Remove("encode");//clear it out
+			var section = doc.Sections.GetOrCreate("encode");
+			foreach (string extension in extensionsOfKnownTextFileTypes)
+			{
+				string ext = extension.TrimStart(new char[] {'.'});
+				section.Set("**."+ext, "dumbencode");
+			}
+			doc.Save();
 		}
 	}
 
