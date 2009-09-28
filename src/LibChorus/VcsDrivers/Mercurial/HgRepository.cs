@@ -1194,7 +1194,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		/// <returns></returns>
 		public bool RemoveOldLocks()
 		{
-			return RemoveOldLocks("hg.exe", true);
+			return RemoveOldLocks("hg.exe", false);
 		}
 
 
