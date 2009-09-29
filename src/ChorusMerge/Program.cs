@@ -30,8 +30,8 @@ namespace ChorusMerge
 				var handler = handlers.GetHandlerForMerging(order.pathToOurs);
 
 				//DispatchingMergeEventListener listenerDispatcher = new DispatchingMergeEventListener();
-				//using (HumanLogMergeEventListener humanListener = new HumanLogMergeEventListener(order.pathToOurs + ".conflicts.txt"))
-				using (XmlLogMergeEventListener xmlListener = new XmlLogMergeEventListener(order.pathToOurs + ".conflicts"))
+				//using (HumanLogMergeEventListener humanListener = new HumanLogMergeEventListener(order.pathToOurs + ".ChorusML.txt"))
+				using (ChorusMLMergeEventListener xmlListener = new ChorusMLMergeEventListener(order.pathToOurs + ".ChorusML"))
 				{
 //                    listenerDispatcher.AddEventListener(humanListener);
 //                    listenerDispatcher.AddEventListener(xmlListener);

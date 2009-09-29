@@ -81,7 +81,7 @@ namespace Chorus.merge.xml.generic
 
 		public void WriteAsXml(XmlWriter writer)
 		{
-			writer.WriteStartElement("conflict");
+			writer.WriteStartElement("annotation");
 			WriteAttributes(writer);
 
 			writer.WriteString(GetFullHumanReadableDescription());
@@ -320,7 +320,7 @@ namespace Chorus.merge.xml.generic
 		}
 		public virtual string GetXmlOfConflict()
 		{
-			return string.Format("<conflict type='{0}'/>", this.GetType().Name);
+			return string.Format("<annotation type='{0}'/>", this.GetType().Name);
 		}
 
 

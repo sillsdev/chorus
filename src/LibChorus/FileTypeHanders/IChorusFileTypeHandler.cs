@@ -52,7 +52,7 @@ namespace Chorus.FileTypeHanders
 			fileTypeHandlers.Handlers.Add(new OneStoryFileHandler());
 			fileTypeHandlers.Handlers.Add(new AdaptItFileHandler());
 			fileTypeHandlers.Handlers.Add(new TextFileTypeHandler());
-			fileTypeHandlers.Handlers.Add(new ConflictFileTypeHandler());
+			fileTypeHandlers.Handlers.Add(new ChorusMLFileHandler());
 			fileTypeHandlers.Handlers.Add(new WeSayConfigFileHandler());
 			fileTypeHandlers.Handlers.Add(new AudioFileTypeHandler());
 			fileTypeHandlers.Handlers.Add(new ImageFileTypeHandler());

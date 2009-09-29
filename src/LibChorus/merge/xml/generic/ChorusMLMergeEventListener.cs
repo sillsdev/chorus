@@ -1,18 +1,15 @@
 using System;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Xml;
-using System.Xml.Serialization;
-using Chorus.Utilities;
 
 namespace Chorus.merge.xml.generic
 {
 	/// <summary>
-	/// Note, the conflict log is kept in xml, but that doesn't mean this is only for merging xml documents.
+	/// Adds conflicts and any other things that need to be part of the official history
+	/// to the ChorusML file which corresponds to the file being merged (e.g.,  foo.lift has a foo.lift.ChorusML)
 	/// </summary>
-	public class XmlLogMergeEventListener : IMergeEventListener, IDisposable
+	public class ChorusMLMergeEventListener : IMergeEventListener, IDisposable
 	{
 		private XmlWriter _writer;
 		private XmlDocument _xmlDoc;
@@ -26,10 +23,10 @@ namespace Chorus.merge.xml.generic
 
 		static public string GetXmlConflictFilePath(string baseXmlFile)
 		{
-			return baseXmlFile + ".conflicts";
+			return baseXmlFile + ".ChorusML";
 		}
 
-		public XmlLogMergeEventListener(string path)
+		public ChorusMLMergeEventListener(string path)
 		{
 			_path = path;
 
@@ -38,19 +35,19 @@ namespace Chorus.merge.xml.generic
 				if (!File.Exists(path))
 				{
 					XmlDocument doc = new XmlDocument();
-					doc.LoadXml("<conflicts/>");
+					doc.LoadXml("<markup/>");
 					doc.Save(path);
 				}
 			}
 			catch (Exception error)
 			{
-				Debug.Fail("Something went wrong trying to create a blank onflict file :"+error.Message);
+				Debug.Fail("Something went wrong trying to create a blank ChorusML file :"+error.Message);
 				//todo log that the xml was the wrong format
 			}
 
 			_xmlDoc = new XmlDocument();
 			_xmlDoc.Load(path);
-			_writer = _xmlDoc.CreateNavigator().SelectSingleNode("conflicts").AppendChild();
+			_writer = _xmlDoc.CreateNavigator().SelectSingleNode("markup").AppendChild();
 		}
 		public void ConflictOccurred(IConflict conflict)
 		{
@@ -66,21 +63,6 @@ namespace Chorus.merge.xml.generic
 
 		public void ChangeOccurred(IChangeReport change)
 		{
-			/*
-			 * at this time, we aren't using these, and they mess with our simple-minded
-			 * "conflicting merge" detector, which just sees if the conflicts file was updated.
-			 */
-/*            _writer.WriteStartElement("change");
-			_writer.WriteAttributeString("type", string.Empty, change.ActionLabel);
-			_writer.WriteAttributeString("guid", string.Empty, change.Guid.ToString());
-			_writer.WriteAttributeString("date", string.Empty, DateTime.UtcNow.ToString(TimeFormatNoTimeZone));
-			if (_context != null)
-			{
-				_context.WriteAttributes(_writer);
-			}
-			_writer.WriteString(change.GetFullHumanReadableDescription());
-			_writer.WriteEndElement();
-			*/
 		}
 
 		public void EnteringContext(ContextDescriptor context)

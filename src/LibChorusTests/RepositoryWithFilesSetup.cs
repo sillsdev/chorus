@@ -179,21 +179,16 @@ namespace LibChorus.Tests.merge
 			Assert.AreEqual(count, actual, "Wrong number of heads");
 		}
 
-// this would be cool, but we don't yet de-persist the conflicts        public void AssertSingleConflict(Func<IConflict, bool> assertion)
 
 		public void AssertSingleConflictType<TConflict>()
 		{
-			string xmlConflictFile = XmlLogMergeEventListener.GetXmlConflictFilePath(UserFile.Path);
-			Assert.IsTrue(File.Exists(xmlConflictFile), "Conflict file should have been in working set");
-			Assert.IsTrue(Synchronizer.Repository.GetFileIsInRepositoryFromFullPath(xmlConflictFile), "Conflict file should have been in repository");
+			string cmlFile = ChorusMLMergeEventListener.GetXmlConflictFilePath(UserFile.Path);
+			Assert.IsTrue(File.Exists(cmlFile), "ChorusML file should have been in working set");
+			Assert.IsTrue(Synchronizer.Repository.GetFileIsInRepositoryFromFullPath(cmlFile), "Conflict file should have been in repository");
 
 			XmlDocument doc = new XmlDocument();
-			doc.Load(xmlConflictFile);
-			Assert.AreEqual(1, doc.SafeSelectNodes("conflicts/conflict").Count);
-
-//            var x = typeof (TConflict).GetCustomAttributes(true);
-//            var y = x[0] as TypeGuidAttribute;
-//            Assert.AreEqual(1, doc.SafeSelectNodes("conflicts/conflict[@typeGuid='{0}']", y.GuidString).Count);
+			doc.Load(cmlFile);
+			Assert.AreEqual(1, doc.SafeSelectNodes("markup/annotation").Count);
 
 		}
 

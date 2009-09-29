@@ -291,7 +291,7 @@ namespace Chorus.sync
 
 			List<string> extensions = new List<string>();
 			IChorusFileTypeHandler handler;
-			 handler = new ConflictFileTypeHandler();
+			 handler = new ChorusMLFileHandler();
 			extensions.AddRange(handler.GetExtensionsOfKnownTextFileTypes());
 
 			handler = new LiftFileHandler();
@@ -347,7 +347,7 @@ namespace Chorus.sync
 		{
 			var message  = "Merged with "+ personMergedWith;
 
-			if (repository.GetChangedFiles().Any(s => s.EndsWith(".conflicts")))
+			if (repository.GetChangedFiles().Any(s => s.EndsWith(".ChorusML")))
 			{
 				message = message + " (conflicts)";
 			}

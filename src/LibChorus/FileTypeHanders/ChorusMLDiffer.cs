@@ -8,7 +8,7 @@ using Chorus.merge.xml.lift;
 
 namespace Chorus.FileTypeHanders
 {
-	public class ConflictDiffer
+	public class ChorusMLDiffer
 	{
 		private readonly List<string> _processedIds = new List<string>();
 		private readonly XmlDocument _childDom;
@@ -16,11 +16,11 @@ namespace Chorus.FileTypeHanders
 		private readonly string _fullPath;
 		private IMergeEventListener EventListener;
 
-		public static ConflictDiffer CreateFromFiles(string ancestorLiftPath, string ourLiftPath, IMergeEventListener eventListener)
+		public static ChorusMLDiffer CreateFromFiles(string ancestorLiftPath, string ourLiftPath, IMergeEventListener eventListener)
 		{
-			return new ConflictDiffer(ourLiftPath, File.ReadAllText(ourLiftPath), File.ReadAllText(ancestorLiftPath), eventListener);
+			return new ChorusMLDiffer(ourLiftPath, File.ReadAllText(ourLiftPath), File.ReadAllText(ancestorLiftPath), eventListener);
 		}
-		private ConflictDiffer(string fullPath, string childXml, string parentXml, IMergeEventListener eventListener)
+		private ChorusMLDiffer(string fullPath, string childXml, string parentXml, IMergeEventListener eventListener)
 		{
 			_childDom = new XmlDocument();
 			_parentDom = new XmlDocument();
@@ -34,13 +34,13 @@ namespace Chorus.FileTypeHanders
 
 		public void ReportDifferencesToListener()
 		{
-			foreach (XmlNode e in _childDom.SafeSelectNodes("conflicts/conflict"))
+			foreach (XmlNode e in _childDom.SafeSelectNodes("markup/annotation"))
 			{
 				ProcessEntry(e);
 			}
 
 			//now detect any removed (not just marked as deleted) elements
-			//            foreach (XmlNode parentNode in _parentDom.SafeSelectNodes("conflicts/conflict"))
+			//            foreach (XmlNode parentNode in _parentDom.SafeSelectNodes("markup/annotation"))
 //            {
 //                if (!_processedIds.Contains(LiftUtils.GetId(parentNode)))
 //                {
@@ -73,7 +73,7 @@ namespace Chorus.FileTypeHanders
 		}
 		public static XmlNode FindMatch(XmlNode doc, string guid)
 		{
-			return doc.SelectSingleNode("conflicts/conflict[@guid=\"" + guid + "\"]");
+			return doc.SelectSingleNode("markup/annotation[@guid=\"" + guid + "\"]");
 		}
 	}
 }
