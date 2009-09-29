@@ -120,7 +120,7 @@ namespace Chorus.UI.Sync
 			_syncControl.Model.SyncOptions.RepositorySourcesToTry.Add(args.Address);
 			if(!string.IsNullOrEmpty(args.ComittMessage))
 			{
-				_syncControl.Model.SyncOptions.CheckinDescription = args.ComittMessage;
+				_syncControl.Model.SyncOptions.CheckinDescription += " "+ args.ComittMessage;
 			}
 			_syncControl.Synchronize(true);
 		}
