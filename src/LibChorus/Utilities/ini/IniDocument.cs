@@ -11,6 +11,7 @@
 using System;
 using System.IO;
 using System.Collections;
+using System.Windows.Forms;
 
 
 namespace Nini.Ini
@@ -191,9 +192,22 @@ namespace Nini.Ini
 		}
 
 		//added by hatton for Chorus
-		public void Save()
+		public void SaveAndThrowIfCannot()
 		{
 			Save(_filePath);
+		}
+		public bool SaveAndGiveMessageIfCannot()
+		{
+			try
+			{
+				Save(_filePath);
+				return true;
+			}
+			catch (Exception e)
+			{
+				MessageBox.Show("There was a problem saving mercurial settings to "+_filePath+". "+Environment.NewLine+e.Message,"Error", MessageBoxButtons.OK,MessageBoxIcon.Warning);
+				return false;
+			}
 		}
 
 		/// <include file='IniDocument.xml' path='//Method[@name="SaveStream"]/docs/*' />

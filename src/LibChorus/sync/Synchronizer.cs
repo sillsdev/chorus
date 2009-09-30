@@ -115,7 +115,16 @@ namespace Chorus.sync
 			}
 			repo.RecoverIfNeeded();
 
-			UpdateHgrc(repo);
+			try
+			{
+				UpdateHgrc(repo);
+			}
+			catch (Exception error)
+			{
+				_progress.WriteError("Could not prepare the mercurial settings.\r\n{0}", error.Message);
+				results.Succeeded = false;
+				return results;
+			}
 
 			_progress.WriteStatus("Storing changes in local repository...");
 

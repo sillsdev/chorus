@@ -45,6 +45,9 @@ namespace Chorus.UI.Sync
 
 		private void UpdateDisplay()
 		{
+			try
+			{
+
 			var drives = GetUsbDriveInfo();
 
 			if (drives.Count()==0)
@@ -97,6 +100,12 @@ namespace Chorus.UI.Sync
 			{
 				_sharedFolderLabel.Text = address.Name ;
 				toolTip1.SetToolTip(_useSharedFolderButton, address.URI);
+			}
+			}
+			catch (Exception error)
+			{
+				MessageBox.Show(error.Message);//todo: when we add palaso, use that to do the reporting
+				_updateDisplayTimer.Enabled = false;//stop trying
 			}
 		}
 

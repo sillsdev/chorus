@@ -935,7 +935,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			{
 				var doc = GetHgrcDoc();
 				doc.Sections.GetOrCreate("ui").Set("username", name);
-				doc.Save();
+				doc.SaveAndGiveMessageIfCannot();
 			}
 			catch (IOException e)
 			{
@@ -958,7 +958,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			{
 				section.Set(address.Name, address.URI);
 			}
-			doc.Save();
+			doc.SaveAndGiveMessageIfCannot();
 		}
 
 
@@ -980,7 +980,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			{
 				section.Set(alias, string.Empty); //so we'll have "LanguageForge =", which is weird, but it's the hgrc style
 			}
-			doc.Save();
+			doc.SaveAndGiveMessageIfCannot();
 
 		}
 
@@ -1028,7 +1028,7 @@ namespace Chorus.VcsDrivers.Mercurial
 					section.Set(name, string.Empty);
 				}
 			}
-			doc.Save();
+			doc.SaveAndThrowIfCannot();
 		}
 
 		public IEnumerable<string> GetEnabledExtension()
@@ -1050,7 +1050,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			{
 				section.Remove(address.Name);
 			}
-			doc.Save();
+			doc.SaveAndGiveMessageIfCannot();
 		}
 
 		/// <summary>
@@ -1391,7 +1391,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			section.Set("passwd", proxy.Password);
 			section.Set("user", proxy.UserName);
 			section.Set("no", proxy.BypassList);
-			doc.Save();
+			doc.SaveAndGiveMessageIfCannot();
 
 		}
 
@@ -1429,7 +1429,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				string ext = extension.TrimStart(new char[] {'.'});
 				section.Set("**."+ext, "dumbencode:");
 			}
-			doc.Save();
+			doc.SaveAndThrowIfCannot();
 		}
 	}
 

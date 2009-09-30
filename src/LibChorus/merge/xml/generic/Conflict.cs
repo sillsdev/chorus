@@ -82,12 +82,20 @@ namespace Chorus.merge.xml.generic
 		public void WriteAsXml(XmlWriter writer)
 		{
 			writer.WriteStartElement("annotation");
-			WriteAttributes(writer);
-
+			writer.WriteStartElement("message");
+			writer.WriteAttributeString("author", string.Empty, "merger");
+			writer.WriteAttributeString("status", string.Empty, "open");
+			writer.WriteAttributeString("guid", string.Empty, Guid.ToString());
+			writer.WriteAttributeString("date", string.Empty, DateTime.UtcNow.ToString(TimeFormatNoTimeZone));
 			writer.WriteString(GetFullHumanReadableDescription());
+
+			writer.WriteStartElement("data");
+			WriteAttributes(writer);
 
 			Situation.WriteAsXml(writer);
 
+			writer.WriteEndElement();
+			writer.WriteEndElement();
 			writer.WriteEndElement();
 		}
 
