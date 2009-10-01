@@ -2,31 +2,33 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Xml;
+using Chorus.Utilities;
 
 namespace Chorus.merge.xml.generic
 {
 	/// <summary>
 	/// Adds conflicts and any other things that need to be part of the official history
-	/// to the ChorusML file which corresponds to the file being merged (e.g.,  foo.lift has a foo.lift.ChorusML)
+	/// to the ChorusNotes file which corresponds to the file being merged (e.g.,  foo.lift has a foo.lift.ChorusNotes)
 	/// </summary>
-	public class ChorusMLMergeEventListener : IMergeEventListener, IDisposable
+	public class ChorusNotesMergeEventListener : IMergeEventListener, IDisposable
 	{
 		private XmlWriter _writer;
 		private XmlDocument _xmlDoc;
 		private string _path;
 		static public string TimeFormatNoTimeZone = "yyyy-MM-ddTHH:mm:ssZ";
+		private const int FormatVersionNumber = 0;
 
 		/// <summary>
 		/// used for finding the context in the orginal file of any conflicts which may occur inside the element
 		/// </summary>
-		private ContextDescriptor _context;
+		private ContextDescriptor _context = new NullContextDescriptor();
 
 		static public string GetXmlConflictFilePath(string baseXmlFile)
 		{
-			return baseXmlFile + ".ChorusML";
+			return baseXmlFile + ".ChorusNotes";
 		}
 
-		public ChorusMLMergeEventListener(string path)
+		public ChorusNotesMergeEventListener(string path)
 		{
 			_path = path;
 
@@ -35,22 +37,23 @@ namespace Chorus.merge.xml.generic
 				if (!File.Exists(path))
 				{
 					XmlDocument doc = new XmlDocument();
-					doc.LoadXml("<markup/>");
+					doc.LoadXml(string.Format("<notes version='{0}'/>", FormatVersionNumber.ToString()));
 					doc.Save(path);
 				}
 			}
 			catch (Exception error)
 			{
-				Debug.Fail("Something went wrong trying to create a blank ChorusML file :"+error.Message);
+				Debug.Fail("Something went wrong trying to create a blank ChorusNotes file :"+error.Message);
 				//todo log that the xml was the wrong format
 			}
 
 			_xmlDoc = new XmlDocument();
 			_xmlDoc.Load(path);
-			_writer = _xmlDoc.CreateNavigator().SelectSingleNode("markup").AppendChild();
+			_writer = _xmlDoc.CreateNavigator().SelectSingleNode("notes").AppendChild();
 		}
 		public void ConflictOccurred(IConflict conflict)
 		{
+			Guard.AgainstNull(_context, "_context");
 			conflict.Context = _context;
 			conflict.WriteAsXml(_writer);
 		}

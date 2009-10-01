@@ -80,12 +80,12 @@
 	<Compile Include="clone\CloneFromUsb.cs" />
 	<Compile Include="FileTypeHanders\adaptIt\AdaptItHandler.cs" />
 	<Compile Include="FileTypeHanders\audio\AudioChangePresenter.cs" />
-	<Compile Include="FileTypeHanders\ChorusMLFileHandler.cs" />
+	<Compile Include="FileTypeHanders\ChorusNotesFileHandler.cs" />
 	<Compile Include="FileTypeHanders\audio\AudioFileTypeHandler.cs" />
 	<Compile Include="FileTypeHanders\ConflictPresenter.cs" />
 	<Compile Include="FileTypeHanders\image\ImageChangePresenter.cs" />
 	<Compile Include="FileTypeHanders\image\ImageFileTypeHandler.cs" />
-	<Compile Include="FileTypeHanders\ChorusMLDiffer.cs" />
+	<Compile Include="FileTypeHanders\ChorusNotesDiffer.cs" />
 	<Compile Include="FileTypeHanders\lift\WeSayConfigFileHandler.cs" />
 	<Compile Include="FileTypeHanders\oneStory\OneStoryFileHandler.cs" />
 	<Compile Include="FileTypeHanders\text\TextEditChangePresenter.cs" />
@@ -107,7 +107,7 @@
 	<Compile Include="FileTypeHanders\xml\XmlDeletionChangeReport.cs" />
 	<Compile Include="merge\UnmergableFileTypeConflict.cs" />
 	<Compile Include="merge\xml\generic\HumanLogMergeEventListener.cs" />
-	<Compile Include="merge\xml\generic\ChorusMLMergeEventListener.cs" />
+	<Compile Include="merge\xml\generic\ChorusNotesMergeEventListener.cs" />
 	<Compile Include="Utilities\ProcessOutputReader.cs" />
 	<Compile Include="Utilities\FailureSimulator.cs" />
 	<Compile Include="Utilities\Guard.cs" />

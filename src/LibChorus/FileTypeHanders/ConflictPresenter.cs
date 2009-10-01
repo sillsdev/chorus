@@ -27,7 +27,22 @@ namespace Chorus.FileTypeHanders
 			}
 			else
 			{
-				_conflict = Conflict.CreateFromXml(_report.ChildNode);
+				if (_report.ChildNode.Name == "conflict") // old style situation, only on Tok Pisin before Oct 2009
+				{
+					_conflict = Conflict.CreateFromXml(_report.ChildNode);
+				}
+				else
+				{
+					var conflictNode = _report.ChildNode.SelectSingleNode("data/conflict");
+					if (conflictNode != null)
+					{
+						_conflict = Conflict.CreateFromXml(conflictNode);
+					}
+					else
+					{
+						_conflict = new UnreadableConflict(_report.ChildNode);
+					}
+				}
 			}
 		}
 
@@ -38,7 +53,12 @@ namespace Chorus.FileTypeHanders
 
 		public string GetActionLabel()
 		{
-			return XmlUtilities.GetStringAttribute(_report.ChildNode, "type");
+			var label = _report.ChildNode.GetOptionalStringAttribute("class", string.Empty);//the annotation class
+			if (label == string.Empty)
+			{   //handle pre-oct09 TokPisin experiment format, which had the conflict in their own file, not wrapped in annotations
+				label = _report.ChildNode.GetOptionalStringAttribute("type", string.Empty);
+			}
+			return label;
 		}
 
 		public string GetHtml(string style, string styleSheet)

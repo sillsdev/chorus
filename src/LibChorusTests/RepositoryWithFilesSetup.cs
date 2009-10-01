@@ -182,13 +182,13 @@ namespace LibChorus.Tests.merge
 
 		public void AssertSingleConflictType<TConflict>()
 		{
-			string cmlFile = ChorusMLMergeEventListener.GetXmlConflictFilePath(UserFile.Path);
-			Assert.IsTrue(File.Exists(cmlFile), "ChorusML file should have been in working set");
+			string cmlFile = ChorusNotesMergeEventListener.GetXmlConflictFilePath(UserFile.Path);
+			Assert.IsTrue(File.Exists(cmlFile), "ChorusNotes file should have been in working set");
 			Assert.IsTrue(Synchronizer.Repository.GetFileIsInRepositoryFromFullPath(cmlFile), "Conflict file should have been in repository");
 
 			XmlDocument doc = new XmlDocument();
 			doc.Load(cmlFile);
-			Assert.AreEqual(1, doc.SafeSelectNodes("markup/annotation").Count);
+			Assert.AreEqual(1, doc.SafeSelectNodes("notes/annotation").Count);
 
 		}
 

@@ -11,22 +11,16 @@ namespace LibChorus.Tests.merge.xml.lift
 		public void GenerateContextDescriptor_EntryHasGuid_XPathUsesGuid()
 		{
 			var x = new LexEntryContextGenerator();
-			var descriptor = x.GenerateContextDescriptor("<entry id='fooid' guid='pretendGuid'/>");
-			Assert.AreEqual(@"lift/entry[@guid='pretendGuid']", descriptor.PathToUserUnderstandableElement);
+			var descriptor = x.GenerateContextDescriptor("<entry id='fooid' guid='pretendGuid'/>", "blah.lift");
+			Assert.AreEqual(@"lift://blah.lift?type=entry&guid=pretendGuid&id=fooid", descriptor.PathToUserUnderstandableElement);
 			Assert.AreEqual(string.Empty, descriptor.DataLabel);
 		}
 		[Test]
 		public void GenerateContextDescriptor_EntryHasNoGuid_XPathUsesId()
 		{
 			var x = new LexEntryContextGenerator();
-			var descriptor = x.GenerateContextDescriptor("<entry id='fooid'/>");
-			Assert.AreEqual(@"lift/entry[@id='fooid']", descriptor.PathToUserUnderstandableElement);
-		}
-		[Test, ExpectedException(typeof(ApplicationException))]
-		public void GenerateContextDescriptor_EntryHasNoGuidOrId_Throws()
-		{
-			var x = new LexEntryContextGenerator();
-			var descriptor = x.GenerateContextDescriptor("<entry/>");
+			var descriptor = x.GenerateContextDescriptor("<entry id='fooid'/>", "blah.lift");
+			Assert.AreEqual(@"lift://blah.lift?type=entry&id=fooid", descriptor.PathToUserUnderstandableElement);
 		}
 	}
 }

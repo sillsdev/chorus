@@ -17,19 +17,19 @@ namespace LibChorus.Tests.merge
 		{
 			using (TempFile logFile = TempFile.CreateAndGetPathButDontMakeTheFile())
 			{
-				using (ChorusMLMergeEventListener log = new ChorusMLMergeEventListener(logFile.Path))
+				using (ChorusNotesMergeEventListener log = new ChorusNotesMergeEventListener(logFile.Path))
 				{
 					log.ConflictOccurred(new DummyConflict());
 					log.ConflictOccurred(new DummyConflict());
 				}
-				using (ChorusMLMergeEventListener log2 = new ChorusMLMergeEventListener(logFile.Path))
+				using (ChorusNotesMergeEventListener log2 = new ChorusNotesMergeEventListener(logFile.Path))
 				{
 					log2.ConflictOccurred(new DummyConflict());
 					log2.ConflictOccurred(new DummyConflict());
 				}
 				XmlDocument doc = new XmlDocument();
 				doc.Load(logFile.Path);
-				Assert.AreEqual(4, doc.SafeSelectNodes("markup/annotation").Count);
+				Assert.AreEqual(4, doc.SafeSelectNodes("notes/annotation").Count);
 			}
 		}
 
@@ -38,14 +38,14 @@ namespace LibChorus.Tests.merge
 		{
 			using (TempFile logFile =  TempFile.CreateAndGetPathButDontMakeTheFile())
 			{
-				using(ChorusMLMergeEventListener log = new ChorusMLMergeEventListener(logFile.Path))
+				using(ChorusNotesMergeEventListener log = new ChorusNotesMergeEventListener(logFile.Path))
 				{
 					log.ConflictOccurred(new DummyConflict());
 					log.ConflictOccurred(new DummyConflict());
 				}
 				XmlDocument doc = new XmlDocument();
 				doc.Load(logFile.Path);
-				Assert.AreEqual(2, doc.SelectNodes("markup/annotation").Count);
+				Assert.AreEqual(2, doc.SelectNodes("notes/annotation").Count);
 			}
 		}
 
@@ -54,12 +54,12 @@ namespace LibChorus.Tests.merge
 		{
 			using (TempFile logFile = TempFile.CreateAndGetPathButDontMakeTheFile())
 			{
-				using (ChorusMLMergeEventListener log = new ChorusMLMergeEventListener(logFile.Path))
+				using (ChorusNotesMergeEventListener log = new ChorusNotesMergeEventListener(logFile.Path))
 				{
 				 }
 				XmlDocument doc = new XmlDocument();
 				doc.Load(logFile.Path);
-				Assert.AreEqual(1, doc.SelectNodes("markup").Count);
+				Assert.AreEqual(1, doc.SelectNodes("notes").Count);
 			}
 		}
 

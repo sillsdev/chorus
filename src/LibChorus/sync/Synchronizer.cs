@@ -300,7 +300,7 @@ namespace Chorus.sync
 
 			List<string> extensions = new List<string>();
 			IChorusFileTypeHandler handler;
-			 handler = new ChorusMLFileHandler();
+			 handler = new ChorusNotesFileHandler();
 			extensions.AddRange(handler.GetExtensionsOfKnownTextFileTypes());
 
 			handler = new LiftFileHandler();
@@ -354,14 +354,7 @@ namespace Chorus.sync
 
 		private string GetMergeCommitSummary(string personMergedWith, HgRepository repository)
 		{
-			var message  = "Merged with "+ personMergedWith;
-
-			if (repository.GetChangedFiles().Any(s => s.EndsWith(".ChorusML")))
-			{
-				message = message + " (conflicts)";
-			}
-			return message;
-
+			return "Merged with "+ personMergedWith;
 		}
 
 		/// <summary>

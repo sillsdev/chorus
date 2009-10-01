@@ -501,8 +501,8 @@ namespace Chorus.VcsDrivers.Mercurial
 				args.Append(" -I " + SurroundWithQuotes(p));
 			}
 
-			args.Append(" -I " + SurroundWithQuotes(Path.Combine(_pathToRepository, "**.ChorusML")));
-			args.Append(" -I " + SurroundWithQuotes(Path.Combine(_pathToRepository, "**.ChorusML.txt")));
+			args.Append(" -I " + SurroundWithQuotes(Path.Combine(_pathToRepository, "**.ChorusNotes")));
+			args.Append(" -I " + SurroundWithQuotes(Path.Combine(_pathToRepository, "**.ChorusNotes.txt")));
 			args.Append(" -X " + SurroundWithQuotes(Path.Combine(_pathToRepository, "**.chorusRescue")));
 
 			foreach (string pattern in excludePatterns)

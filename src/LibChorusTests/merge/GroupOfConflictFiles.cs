@@ -15,9 +15,9 @@ namespace LibChorus.Tests.merge
 		public GroupOfConflictFiles(string ancestor, string bob, string sally)
 		{
 			Folder = new TempFolder("ChorusTest");
-			AncestorFile =  TempFile.CreateXmlFileWithContents("ancestor.lift.ChorusML", Folder, ancestor);
-			BobFile =  TempFile.CreateXmlFileWithContents("bob.lift.ChorusML", Folder, bob);
-			SallyFile = TempFile.CreateXmlFileWithContents("sally.lift.ChorusML", Folder, sally);
+			AncestorFile =  TempFile.CreateXmlFileWithContents("ancestor.lift.ChorusNotes", Folder, ancestor);
+			BobFile =  TempFile.CreateXmlFileWithContents("bob.lift.ChorusNotes", Folder, bob);
+			SallyFile = TempFile.CreateXmlFileWithContents("sally.lift.ChorusNotes", Folder, sally);
 		}
 
 

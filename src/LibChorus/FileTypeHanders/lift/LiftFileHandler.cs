@@ -32,8 +32,8 @@ namespace Chorus.FileTypeHanders
 		public void Do3WayMerge(MergeOrder mergeOrder)
 		{
 //            DispatchingMergeEventListener listenerDispatcher = new DispatchingMergeEventListener();
-//            using (HumanLogMergeEventListener humanListener = new HumanLogMergeEventListener(mergeOrder.pathToOurs + ".ChorusML.txt"))
-//            using (ChorusMLMergeEventListener xmlListener = new ChorusMLMergeEventListener(mergeOrder.pathToOurs + ".ChorusML"))
+//            using (HumanLogMergeEventListener humanListener = new HumanLogMergeEventListener(mergeOrder.pathToOurs + ".ChorusNotes.txt"))
+//            using (ChorusNotesMergeEventListener xmlListener = new ChorusNotesMergeEventListener(mergeOrder.pathToOurs + ".ChorusNotes"))
 //            {
 //                listenerDispatcher.AddEventListener(humanListener);
 //                listenerDispatcher.AddEventListener(xmlListener);

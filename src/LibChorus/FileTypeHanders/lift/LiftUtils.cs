@@ -22,6 +22,10 @@ namespace Chorus.merge.xml.lift
 		{
 			return e.GetOptionalStringAttribute("guid", string.Empty);
 		}
+		public static string GetFormForEntry(XmlNode e)
+		{
+			return e.SelectTextPortion("lexical-unit/form/text");
+		}
 
 		public static DateTime GetModifiedDate(XmlNode entry)
 		{
@@ -33,15 +37,25 @@ namespace Chorus.merge.xml.lift
 
 		public static string GetUrl(XmlNode entryNode, string fileNameUnescaped)
 		{
-			fileNameUnescaped = Uri.EscapeDataString(fileNameUnescaped);
+			fileNameUnescaped = fileNameUnescaped==null?"unknown": Uri.EscapeDataString(fileNameUnescaped);
 			string url = string.Format("lift://{0}?type=entry&", fileNameUnescaped);
-			if (!string.IsNullOrEmpty(LiftUtils.GetGuid(entryNode)))
+
+			var guid = LiftUtils.GetGuid(entryNode);
+			if (!string.IsNullOrEmpty(guid))
 			{
-				url += "guid=" + LiftUtils.GetGuid(entryNode) + "&";
+				url += "guid=" + guid + "&";
 			}
-			if (!string.IsNullOrEmpty(LiftUtils.GetId(entryNode)))
+
+			var id = LiftUtils.GetId(entryNode);
+			if (!string.IsNullOrEmpty(id))
 			{
-				url += "id=" + LiftUtils.GetId(entryNode) + "&";
+				url += "id=" + id + "&";
+			}
+
+			var form = LiftUtils.GetFormForEntry(entryNode);
+			if (!string.IsNullOrEmpty(form))
+			{
+				url += "form=" + form + "&";
 			}
 			url = url.Trim('&');
 			return url;

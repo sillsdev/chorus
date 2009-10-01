@@ -34,7 +34,7 @@ namespace LibChorus.Tests.merge
 
 		public string BobTextConflictsPath
 		{
-			get { return Folder.Combine("bob.lift.ChorusML"); }
+			get { return Folder.Combine("bob.lift.ChorusNotes"); }
 		}
 
 		public void Dispose()

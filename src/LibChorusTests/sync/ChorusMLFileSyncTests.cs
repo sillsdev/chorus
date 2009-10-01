@@ -11,7 +11,7 @@ namespace LibChorus.Tests.sync
 {
 	[TestFixture]
 	[Category("Sync")]
-	public class ChorusMLFileSyncTests
+	public class ChorusNotesFileSyncTests
 	{
 		[Test]
 		public void ConflictFileIsCheckedIn()
@@ -25,7 +25,7 @@ namespace LibChorus.Tests.sync
 					sally.ReplaceSomething("sally");
 					sally.CheckinAndPullAndMerge(bob);
 
-					string xmlConflictFile = ChorusMLMergeEventListener.GetXmlConflictFilePath(sally.UserFile.Path);
+					string xmlConflictFile = ChorusNotesMergeEventListener.GetXmlConflictFilePath(sally.UserFile.Path);
 					Console.WriteLine("xmlConflictFile '{0}'", xmlConflictFile);
 					Assert.IsTrue(File.Exists(xmlConflictFile), "Conflict file should have been in working set");
 					Assert.IsTrue(sally.Synchronizer.Repository.GetFileIsInRepositoryFromFullPath(xmlConflictFile),"Conflict file should have been in repository");
@@ -41,17 +41,17 @@ namespace LibChorus.Tests.sync
 
 			using (
 				GroupOfConflictFiles group = new GroupOfConflictFiles("",
-																	  "<markup><annotation guid='bobGuid'/></markup>",
-																	  "<markup><annotation guid='sallyGuid'/></markup>")
+																	  "<notes><annotation guid='bobGuid'/></notes>",
+																	  "<notes><annotation guid='sallyGuid'/></notes>")
 				)
 			{
 				MergeOrder order = new MergeOrder(group.BobFile.Path,
 												  string.Empty, group.SallyFile.Path, new NullMergeSituation());
-				new ChorusMLFileHandler().Do3WayMerge(order);
+				new ChorusNotesFileHandler().Do3WayMerge(order);
 
 				XmlDocument doc = new XmlDocument();
 				doc.Load(group.BobFile.Path);
-				Assert.AreEqual(2, doc.SelectNodes("markup/annotation").Count);
+				Assert.AreEqual(2, doc.SelectNodes("notes/annotation").Count);
 
 			}
 		}
@@ -60,18 +60,18 @@ namespace LibChorus.Tests.sync
 		public void MergeConflictFiles_AncestorExistsButNoConflicts()
 		{
 			using (
-				GroupOfConflictFiles group = new GroupOfConflictFiles("<markup/>",
-																	  "<markup><annotation guid='bobGuid'/></markup>",
-																	  "<markup><annotation guid='sallyGuid'/></markup>")
+				GroupOfConflictFiles group = new GroupOfConflictFiles("<notes/>",
+																	  "<notes><annotation guid='bobGuid'/></notes>",
+																	  "<notes><annotation guid='sallyGuid'/></notes>")
 				)
 			{
 				MergeOrder order = new MergeOrder( group.BobFile.Path,
 												  group.AncestorFile.Path, group.SallyFile.Path, new NullMergeSituation());
-				new ChorusMLFileHandler().Do3WayMerge(order);
+				new ChorusNotesFileHandler().Do3WayMerge(order);
 
 				XmlDocument doc = new XmlDocument();
 				doc.Load(group.BobFile.Path);
-				Assert.AreEqual(2, doc.SafeSelectNodes("markup/annotation").Count);
+				Assert.AreEqual(2, doc.SafeSelectNodes("notes/annotation").Count);
 
 			}
 		}

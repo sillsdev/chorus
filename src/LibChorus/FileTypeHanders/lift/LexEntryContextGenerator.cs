@@ -1,12 +1,21 @@
 using System;
+using System.IO;
 using System.Xml;
 using Chorus.merge.xml.generic;
+using Chorus.merge.xml.lift;
 
 namespace Chorus.FileTypeHanders.lift
 {
 	public class LexEntryContextGenerator :IGenerateContextDescriptor
 	{
-		public ContextDescriptor GenerateContextDescriptor(string mergeElement)
+		public ContextDescriptor GenerateContextDescriptor(string mergeElement, string filePath)
+		{
+			var doc = new XmlDocument();
+			doc.LoadXml(mergeElement);
+			var label = doc.SelectTextPortion("entry/lexical-unit/form/text");
+			return new ContextDescriptor(label, LiftUtils.GetUrl(doc.FirstChild, Path.GetFileName(filePath)));
+		}
+		/*        public ContextDescriptor GenerateContextDescriptor(string mergeElement)
 		{
 			var doc = new XmlDocument();
 			doc.LoadXml(mergeElement);
@@ -23,6 +32,6 @@ namespace Chorus.FileTypeHanders.lift
 			}
 			throw new ApplicationException("Could not get guid or id attribute out of "+mergeElement);
 
-		}
+		}*/
 	}
 }
