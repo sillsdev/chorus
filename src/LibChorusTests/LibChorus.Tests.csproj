@@ -59,6 +59,9 @@
 	</Reference>
 	<Reference Include="System.Data" />
 	<Reference Include="System.Xml" />
+	<Reference Include="System.Xml.Linq">
+	  <RequiredTargetFramework>3.5</RequiredTargetFramework>
+	</Reference>
   </ItemGroup>
   <ItemGroup>
 	<Compile Include="clone\ClonerTests.cs" />
@@ -83,6 +86,8 @@
 	<Compile Include="merge\xml\lift\PoorMansMergingStrategyTests.cs" />
 	<Compile Include="merge\xml\lift\SenseMergingTests.cs" />
 	<Compile Include="merge\xml\ourStory\FileLevelMergeTests.cs" />
+	<Compile Include="notes\AnnotationTests.cs" />
+	<Compile Include="notes\MessageTests.cs" />
 	<Compile Include="notes\NotesRepositoryTests.cs" />
 	<Compile Include="RepositorySetup.cs" />
 	<Compile Include="sync\Synchronizer.FileBasedTests.cs" />
