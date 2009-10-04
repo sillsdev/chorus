@@ -4,6 +4,7 @@ using System.Web;
 using System.Xml;
 using System.Linq;
 using System.Xml.Linq;
+using System.Xml.XPath;
 
 namespace Chorus.notes
 {
@@ -11,6 +12,7 @@ namespace Chorus.notes
 	{
 		private XDocument _doc;
 		private static int kCurrentVersion=0;
+
 
 		public static NotesRepository FromFile(string path)
 		{
@@ -62,7 +64,7 @@ namespace Chorus.notes
 
 		}
 
-		public IEnumerable<Annotation> GetAll()
+		public IEnumerable<Annotation> GetAllAnnotations()
 		{
 			return from a in _doc.Root.Elements() select new Annotation(a);
 		}
@@ -74,15 +76,33 @@ namespace Chorus.notes
 				   select new Annotation(a);
 		}
 
+		public void SaveAs(string path)
+		{
+			_doc.Save(path);
+		}
+
+		public Annotation AddAnnotation(string annotationClss, string refUrl)
+		{
+			var annotation = new Annotation(annotationClss, refUrl);
+			_doc.Root.Add(annotation.Element);
+			return annotation;
+		}
 	}
 
 	public class Annotation
 	{
+		static public string TimeFormatNoTimeZone = "yyyy-MM-ddTHH:mm:ssZ";
 		private readonly XElement _element;
 
 		public Annotation(XElement element)
 		{
 			_element = element;
+		}
+
+		public Annotation(string annotationClass, string refUrl)
+		{
+			var s = string.Format("<annotation class='{0}' ref='{1}' guid='{2}'/>", annotationClass,refUrl, System.Guid.NewGuid().ToString());
+			_element = XElement.Parse(s);
 		}
 
 		public string Class
@@ -102,14 +122,25 @@ namespace Chorus.notes
 
 		public static string GetStatusOfLastMessage(XElement annotation)
 		{
-			var x = annotation.Elements("message");
-			if (x == null)
-				return string.Empty;
-			var y = x.Last();
-			if (y == null)
-				return string.Empty;
-			var v = y.Attribute("status");
-			return v == null ? string.Empty : v.Value;
+			XElement last = LastMessage(annotation);
+			return last == null ? string.Empty : last.Attribute("status").Value;
+//            var x = annotation.Elements("message");
+//            if (x == null)
+//                return string.Empty;
+//            var y = x.Last();
+//            if (y == null)
+//                return string.Empty;
+//            var v = y.Attribute("status");
+//            return v == null ? string.Empty : v.Value;
+		}
+
+		private static XElement LastMessage(XElement annotation)
+		{
+			return annotation.XPathSelectElements("message[@status]").LastOrDefault();
+		}
+		private  XElement LastMessage()
+		{
+			return LastMessage(_element);
 		}
 
 		public IEnumerable<Message> Messages
@@ -118,6 +149,26 @@ namespace Chorus.notes
 			{
 				return from msg in _element.Elements("message") select new Message(msg);
 			}
+		}
+
+		public XElement Element
+		{
+			get { return _element; }
+		}
+
+		public Message AddMessage(string author, string status, string contents)
+		{
+			var m = new Message(author, status, contents);
+//            XElement last = LastMessage();
+//            if (last == null)
+//            {
+				_element.Add(m.Element);
+//            }
+//            else
+//            {
+//                last.AddAfterSelf(m.Element);
+//            }
+			return m;
 		}
 	}
 
@@ -128,6 +179,13 @@ namespace Chorus.notes
 		public Message(XElement element)
 		{
 			_element = element;
+		}
+
+		public Message(string author, string status, string contents)
+		{
+			var s = String.Format("<message author='{0}' status ='{1}' date='{2}'>{3}</message>",
+				author, status, DateTime.Now.ToString(Annotation.TimeFormatNoTimeZone), contents);
+			_element = XElement.Parse(s);
 		}
 
 		public string Guid
@@ -162,6 +220,11 @@ namespace Chorus.notes
 			   // return HttpUtility.HtmlDecode(text.ToString()); <-- this works too
 				return text.Value;
 			}
+		}
+
+		public XElement Element
+		{
+			get { return _element; }
 		}
 	}
 

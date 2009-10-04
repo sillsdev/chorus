@@ -40,5 +40,29 @@ namespace LibChorus.Tests.notes
 			Assert.AreEqual(2, a.Messages.Count());
 		}
 
+
+		[Test]
+		public void AddMessage_Had0_Has1()
+		{
+			var a = new Annotation(XElement.Parse(@"<annotation ref='pretend' class='foo' guid='123'>
+			</annotation>"));
+			var m = a.AddMessage("joe", "closed", string.Empty);
+			Assert.AreEqual(1, a.Messages.Count());
+		}
+
+		[Test]
+		public void AddMessage_Had1_Has2InCorrectOrder()
+		{
+			var a = new Annotation(XElement.Parse(@"<annotation ref='pretend' class='foo' guid='123'>
+			<message guid='123' status='open'/></annotation>"));
+
+			var m  = a.AddMessage("joe", "closed", string.Empty);
+
+			Assert.AreEqual(2, a.Messages.Count());
+			Assert.AreEqual("open", a.Messages.First().Status);
+			Assert.AreEqual("closed", a.Messages.ToArray()[1].Status );
+		}
+
+
 	}
 }
