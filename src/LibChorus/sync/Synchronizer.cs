@@ -232,33 +232,45 @@ namespace Chorus.sync
 
 					if (!address.ReadOnly)
 					{
-						string resolvedUri = address.GetPotentialRepoUri(RepoProjectName, _progress);
-						bool canConnect;
-						if (connectionAttempt.ContainsKey(address))
+						try
 						{
-							canConnect = connectionAttempt[address];
-						}
-						else
-						{
-							canConnect = address.CanConnect(repo, RepoProjectName, _progress);
-							connectionAttempt.Add(address, canConnect);
-						}
-						if (canConnect)
-						{
-							repo.Push(address, resolvedUri, _progress);
+							string resolvedUri = address.GetPotentialRepoUri(RepoProjectName, _progress);
 
-							//for usb, it's safe and desireable to do an update (bring into the directory
-							//  the latest files from the repo) for LAN, it could be... for now we assume it is
-							if (address is UsbKeyRepositorySource || address is DirectoryRepositorySource)
+							bool canConnect;
+							if (connectionAttempt.ContainsKey(address))
 							{
-								var otherRepo = new HgRepository(resolvedUri, _progress);
-								otherRepo.Update();
+								canConnect = connectionAttempt[address];
+							}
+							else
+							{
+								canConnect = address.CanConnect(repo, RepoProjectName, _progress);
+								connectionAttempt.Add(address, canConnect);
+							}
+							if (canConnect)
+							{
+								repo.Push(address, resolvedUri, _progress);
+
+								//for usb, it's safe and desireable to do an update (bring into the directory
+								//  the latest files from the repo) for LAN, it could be... for now we assume it is
+								if (address is UsbKeyRepositorySource || address is DirectoryRepositorySource)
+								{
+									var otherRepo = new HgRepository(resolvedUri, _progress);
+									otherRepo.Update();
+								}
+							}
+							else if (address is DirectoryRepositorySource || address is UsbKeyRepositorySource)
+							{
+								TryToMakeCloneForSource(address);
+								//nb: no need to push if we just made a clone
 							}
 						}
-						else if (address is DirectoryRepositorySource || address is UsbKeyRepositorySource)
+						catch (Exception error)
 						{
-							TryToMakeCloneForSource(address);
-							//nb: no need to push if we just made a clone
+							_progress.WriteError("Could to send to {0}({1}). Details: {2}", address.Name, address.URI, error.Message);
+							//review: at the moment, this will keep trying the other people... so is that only a partial failure?
+							results.Succeeded = false;
+							results.ErrorEncountered = error;
+							return results;
 						}
 					}
 				}
@@ -269,7 +281,7 @@ namespace Chorus.sync
 			}
 			catch (Exception error)
 			{
-				_progress.WriteError("The command timed out.  Details: " + error.Message);
+				_progress.WriteError("Could not update.  Details: " + error.Message);
 				results.Succeeded = false;
 				results.ErrorEncountered = error;
 				results.DidGetChangesFromOthers = false;
