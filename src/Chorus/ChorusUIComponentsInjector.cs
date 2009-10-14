@@ -45,6 +45,11 @@ namespace Chorus
 			RegisterSyncStuff(builder);
 			RegisterReviewStuff(builder);
 			RegisterSettingsStuff(builder);
+
+			builder.Register<Chorus.UI.Notes.NotesInProjectModel>();
+			builder.Register<Chorus.UI.Notes.NotesInProjectView>();
+			builder.Register<Chorus.UI.Notes.AnnotationView>();
+			builder.Register<Chorus.UI.Notes.NotesPage>();
 		}
 
 		public static void Inject(ContainerBuilder builder, string projectPath)

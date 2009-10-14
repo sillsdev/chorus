@@ -131,6 +131,12 @@ namespace Chorus.Utilities
 			_path = existingPath;
 		}
 
+		public TempFile(TempFolder parentFolder, string name, string contents)
+		{
+			_path = parentFolder.Combine(name);
+			File.WriteAllText(_path, contents);
+		}
+
 		public static TempFile TrackExisting(string path)
 		{
 			return new TempFile(path, false);

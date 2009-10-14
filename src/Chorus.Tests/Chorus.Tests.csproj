@@ -61,6 +61,7 @@
 	<Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+	<Compile Include="notes\NotesInProjectModelTests.cs" />
 	<Compile Include="GetCloneFromInternetDialogTests.cs" />
 	<Compile Include="GetCloneFromUsbDialogTests.cs" />
 	<Compile Include="LiftChangePresenterTests.cs" />

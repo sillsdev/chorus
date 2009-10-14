@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Web;
+using System.Windows.Forms;
 using System.Xml;
 using System.Linq;
 using System.Xml.Linq;
@@ -12,6 +13,7 @@ namespace Chorus.notes
 	{
 		private XDocument _doc;
 		private static int kCurrentVersion=0;
+		public static string FileExtension = "ChorusNotes";
 
 
 		public static NotesRepository FromFile(string path)
@@ -156,19 +158,34 @@ namespace Chorus.notes
 			get { return _element; }
 		}
 
+		public string Status
+		{
+			get
+			{
+				var last = LastMessage();
+				return last == null ? string.Empty : last.GetAttributeValue("status");
+			}
+		}
+
 		public Message AddMessage(string author, string status, string contents)
 		{
 			var m = new Message(author, status, contents);
-//            XElement last = LastMessage();
-//            if (last == null)
-//            {
-				_element.Add(m.Element);
-//            }
-//            else
-//            {
-//                last.AddAfterSelf(m.Element);
-//            }
+			_element.Add(m.Element);
 			return m;
+		}
+
+		public string GetLabel(string defaultIfCannotGetIt)
+		{
+			try
+			{
+				var parse = System.Web.HttpUtility.ParseQueryString(Ref);
+				var label = parse.GetValues("label").FirstOrDefault();
+				return string.IsNullOrEmpty(label) ? defaultIfCannotGetIt : label;
+			}
+			catch (Exception)
+			{
+				return defaultIfCannotGetIt;
+			}
 		}
 	}
 
@@ -225,6 +242,11 @@ namespace Chorus.notes
 		public XElement Element
 		{
 			get { return _element; }
+		}
+
+		public string GetAuthor(string defaultValue)
+		{
+			return Author.OrDefault(defaultValue);
 		}
 	}
 
@@ -298,5 +320,15 @@ namespace Chorus.notes
 		}
 		#endregion
 
+	}
+
+	public static class ObjectExtensions
+	{
+		public static string OrDefault(this object s, string defaultIfNullOrMissing)
+		{
+			if (s == null)
+				return defaultIfNullOrMissing;
+			return ((string)s) == string.Empty ? defaultIfNullOrMissing : (string)s;
+		}
 	}
 }

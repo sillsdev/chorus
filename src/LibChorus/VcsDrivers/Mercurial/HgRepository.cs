@@ -146,7 +146,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		public bool TryToPull(string repositoryLabel, string resolvedUri)
 		{
 			HgRepository repo = new HgRepository(resolvedUri, _progress);
-			repo.UserName = repositoryLabel;
+			_userName = repositoryLabel;
 			return PullFromRepository(repo, false);
 		}
 
@@ -434,11 +434,6 @@ namespace Chorus.VcsDrivers.Mercurial
 			get { return _pathToRepository; }
 		}
 
-		public string UserName
-		{
-			get { return _userName; }
-			set { _userName = value; }
-		}
 
 		private string Name
 		{
@@ -719,7 +714,28 @@ namespace Chorus.VcsDrivers.Mercurial
 			}
 			else
 			{
-				return GetUriStrippedOfUserAccountInfo(_pathToRepository);
+				return GetUriStrippedOfUserAccountInfo(_pathToRepository);//review... should we do this or just use teh environment user?
+			}
+		}
+
+
+		public string GetUserNameFromIni(IProgress progress, string defaultName)
+		{
+			try
+			{
+				var doc = GetHgrcDoc();
+				var section = doc.Sections["ui"];
+				if (section != null && section.Contains("username"))
+					return section.GetValue("username");
+				else
+				{
+					return string.Empty;
+				}
+			}
+			catch (Exception)
+			{
+				progress.WriteStatus("Could determine user name, will use {0}", defaultName);
+				return defaultName;
 			}
 		}
 
@@ -875,29 +891,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		}
 
 
-		/// <summary>
-		/// TODO: sort out this vs. the UserName property
-		/// </summary>
-		/// <returns></returns>
-		public string GetUserNameFromIni(IProgress progress, string defaultName)
-		{
-			try
-			{
-				var doc = GetHgrcDoc();
-				var section = doc.Sections["ui"];
-				if(section!=null && section.Contains("username"))
-					return section.GetValue("username");
-				else
-				{
-					return string.Empty;
-				}
-			}
-			catch (Exception)
-			{
-				progress.WriteStatus("Could determine user name, will use {0}", defaultName);
-				return defaultName;
-			}
-		}
+
 
 		private IniDocument GetHgrcDoc()
 		{

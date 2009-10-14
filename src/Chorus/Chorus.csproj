@@ -121,6 +121,12 @@
 	<Compile Include="UI\Misc\ReadinessPanel.Designer.cs">
 	  <DependentUpon>ReadinessPanel.cs</DependentUpon>
 	</Compile>
+	<Compile Include="UI\Notes\NotesPage.cs">
+	  <SubType>UserControl</SubType>
+	</Compile>
+	<Compile Include="UI\Notes\NotesPage.Designer.cs">
+	  <DependentUpon>NotesPage.cs</DependentUpon>
+	</Compile>
 	<Compile Include="UI\Review\ChangedReport\ChangeReportView.cs">
 	  <SubType>UserControl</SubType>
 	</Compile>
@@ -135,6 +141,19 @@
 	</Compile>
 	<Compile Include="UI\Review\ChangesInRevision\ChangesInRevisionModel.cs" />
 	<Compile Include="Event.cs" />
+	<Compile Include="UI\Notes\AnnotationView.cs">
+	  <SubType>UserControl</SubType>
+	</Compile>
+	<Compile Include="UI\Notes\AnnotationView.Designer.cs">
+	  <DependentUpon>AnnotationView.cs</DependentUpon>
+	</Compile>
+	<Compile Include="UI\Notes\NotesInProjectModel.cs" />
+	<Compile Include="UI\Notes\NotesInProjectView.cs">
+	  <SubType>UserControl</SubType>
+	</Compile>
+	<Compile Include="UI\Notes\NotesInProjectView.Designer.cs">
+	  <DependentUpon>NotesInProjectView.cs</DependentUpon>
+	</Compile>
 	<Compile Include="UI\Review\RevisionsInRepository\RevisionsInRepositoryView.cs">
 	  <SubType>UserControl</SubType>
 	</Compile>
@@ -285,6 +304,17 @@
 	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Misc\ReadinessPanel.resx">
 	  <DependentUpon>ReadinessPanel.cs</DependentUpon>
+	  <SubType>Designer</SubType>
+	</EmbeddedResource>
+	<EmbeddedResource Include="UI\Notes\AnnotationView.resx">
+	  <DependentUpon>AnnotationView.cs</DependentUpon>
+	</EmbeddedResource>
+	<EmbeddedResource Include="UI\Notes\NotesInProjectView.resx">
+	  <DependentUpon>NotesInProjectView.cs</DependentUpon>
+	  <SubType>Designer</SubType>
+	</EmbeddedResource>
+	<EmbeddedResource Include="UI\Notes\NotesPage.resx">
+	  <DependentUpon>NotesPage.cs</DependentUpon>
 	  <SubType>Designer</SubType>
 	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Sync\SyncControl.resx">

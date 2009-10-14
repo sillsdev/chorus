@@ -81,5 +81,12 @@ namespace Chorus.merge.xml.lift
 		}
 
 
+		public static string GetUrl(XmlNode child, string unescaped, string label)
+		{
+			var x = GetUrl(child, unescaped);
+			if(string.IsNullOrEmpty(label))
+				return x;
+			return x + "&label=" + Uri.EscapeDataString(label);
+		}
 	}
 }

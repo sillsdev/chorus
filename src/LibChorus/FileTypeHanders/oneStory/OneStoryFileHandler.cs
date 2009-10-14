@@ -44,7 +44,7 @@ namespace Chorus.FileTypeHanders.oneStory
 
 			//this handles the meta data
 			merger.MergeStrategies.SetStrategy("Members", ElementStrategy.CreateSingletonElement());
-			merger.MergeStrategies.SetStrategy("Members", ElementStrategy.CreateForKeyedElement("memberKey", false));
+			merger.MergeStrategies.SetStrategy("Member", ElementStrategy.CreateForKeyedElement("memberKey", false));
 			merger.MergeStrategies.SetStrategy("Fonts", ElementStrategy.CreateSingletonElement());
 			merger.MergeStrategies.SetStrategy("VernacularFont", ElementStrategy.CreateSingletonElement());
 			merger.MergeStrategies.SetStrategy("NationalBTFont", ElementStrategy.CreateSingletonElement());

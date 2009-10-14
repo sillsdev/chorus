@@ -13,7 +13,7 @@ namespace Chorus.FileTypeHanders.lift
 			var doc = new XmlDocument();
 			doc.LoadXml(mergeElement);
 			var label = doc.SelectTextPortion("entry/lexical-unit/form/text");
-			return new ContextDescriptor(label, LiftUtils.GetUrl(doc.FirstChild, Path.GetFileName(filePath)));
+			return new ContextDescriptor(label, LiftUtils.GetUrl(doc.FirstChild, Path.GetFileName(filePath), label));
 		}
 		/*        public ContextDescriptor GenerateContextDescriptor(string mergeElement)
 		{
