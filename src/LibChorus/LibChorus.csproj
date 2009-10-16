@@ -49,7 +49,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
 	<DebugType>pdbonly</DebugType>
 	<Optimize>true</Optimize>
-	<OutputPath>bin\Release\</OutputPath>
+	<OutputPath>..\..\output\Release\</OutputPath>
 	<DefineConstants>TRACE</DefineConstants>
 	<ErrorReport>prompt</ErrorReport>
 	<WarningLevel>4</WarningLevel>
@@ -196,9 +196,9 @@
   </Target>
   -->
   <PropertyGroup>
-	<PostBuildEvent>mkdir $(OutDir)\diff3
-mkdir $(OutDir)\diff3\bin
-copy $(OutDir)..\..\lib\diff3\bin\*.* $(OutDir)\diff3\bin\
+	<PostBuildEvent>mkdir $(OutDir)diff3
+mkdir $(OutDir)diff3\bin
+copy $(OutDir)..\..\lib\diff3\bin\*.* $(OutDir)diff3\bin\
 </PostBuildEvent>
 	<ProjectGuid>{94245366-8F1E-475C-810D-FE89BB3948E0}</ProjectGuid>
 	<RootNamespace>Chorus</RootNamespace>
