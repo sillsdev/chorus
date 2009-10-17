@@ -110,6 +110,11 @@ namespace Chorus.VcsDrivers.Mercurial
 		{
 			Guard.AgainstNull(progress, "progress");
 			_pathToRepository = pathToRepository;
+
+			// make sure it exists
+			if (GetIsLocalUri(_pathToRepository) && !Directory.Exists(_pathToRepository))
+				Directory.CreateDirectory(_pathToRepository);
+
 			_progress = progress;
 
 			_userName = GetUserIdInUse();
@@ -347,7 +352,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			}
 			if (0 != result.ExitCode && !failureIsOk)
 			{
-				var details = Environment.NewLine + "hg Command was " + Environment.NewLine + b.ToString();
+					var details = Environment.NewLine + "hg Command was " + Environment.NewLine + b.ToString();
 				try
 				{
 					var versionInfo = GetTextFromQuery("version", secondsBeforeTimeout);
@@ -883,28 +888,40 @@ namespace Chorus.VcsDrivers.Mercurial
 		{
 			try
 			{
-				var doc = GetHgrcDoc();
-				var section = doc.Sections["ui"];
-				if(section!=null && section.Contains("username"))
-					return section.GetValue("username");
-				else
+				var p = GetPathToHgrc();
+				if (File.Exists(p))
 				{
-					return string.Empty;
+					var doc = GetHgrcDoc();
+					var section = doc.Sections["ui"];
+					if ((section != null) && section.Contains("username"))
+						return section.GetValue("username");
 				}
+
+				return string.Empty;
 			}
 			catch (Exception)
 			{
-				progress.WriteStatus("Could determine user name, will use {0}", defaultName);
+				progress.WriteStatus("Couldn't determine user name, will use {0}", defaultName);
 				return defaultName;
 			}
 		}
 
+		internal string GetPathToHgrc()
+		{
+			var d = Path.Combine(_pathToRepository, ".hg");
+			return Path.Combine(d, "hgrc");
+		}
+
 		private IniDocument GetHgrcDoc()
 		{
-			var p = Path.Combine(Path.Combine(_pathToRepository, ".hg"), "hgrc");
+			var p = GetPathToHgrc();
 			if (!File.Exists(p))
 			{
-				File.WriteAllText(p,"");
+				string d = Path.GetDirectoryName(p);
+				if (!Directory.Exists(d))
+					throw new ApplicationException("There is no repository at " + d);
+
+				File.WriteAllText(p, "");
 			}
 			return new Nini.Ini.IniDocument(p, IniFileType.MercurialStyle);
 		}
