@@ -19,6 +19,11 @@ namespace Chorus.FileTypeHanders
 			return (System.IO.Path.GetExtension(pathToFile) == ".lift");
 		}
 
+		public bool CanValidateFile(string pathToFile)
+		{
+			return CanDiffFile(pathToFile);
+		}
+
 		public bool CanMergeFile(string pathToFile)
 		{
 			return CanDiffFile(pathToFile);
@@ -101,6 +106,11 @@ namespace Chorus.FileTypeHanders
 			{
 				return new DefaultChangePresenter(report, repository);
 			}
+		}
+
+		public bool GetFileIsValid(string pathToFile, IProgress progress)
+		{
+			return true;
 		}
 
 

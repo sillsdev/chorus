@@ -25,6 +25,7 @@ namespace Chorus.sync
 		private string _localRepositoryPath;
 		private ProjectFolderConfiguration _project;
 		private IProgress _progress;
+		private ChorusFileTypeHandlerCollection _handlers;
 
 		public List<RepositoryAddress> ExtraRepositorySources { get; private set; }
 
@@ -34,6 +35,7 @@ namespace Chorus.sync
 			_progress = progress;
 			_project = project;
 			_localRepositoryPath = localRepositoryPath;
+			_handlers = ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers();
 			ExtraRepositorySources = new List<RepositoryAddress>();
 			ExtraRepositorySources.Add(RepositoryAddress.Create(RepositoryAddress.HardWiredSources.UsbKey, "USB flash drive", false));
 		}
@@ -285,23 +287,12 @@ namespace Chorus.sync
 				};
 			repository.EnsureTheseExtensionAreEnabled(names);
 
-
-			//TODO: give all injected handlers a shot at this (holdup is how to wire the collection of handlers into
-			//  SYnchronizer, since it is build with a factor method).
-
 			List<string> extensions = new List<string>();
-			IChorusFileTypeHandler handler;
-			 handler = new ConflictFileTypeHandler();
-			extensions.AddRange(handler.GetExtensionsOfKnownTextFileTypes());
 
-			handler = new LiftFileHandler();
-			extensions.AddRange(handler.GetExtensionsOfKnownTextFileTypes());
-
-			handler = new TextFileTypeHandler();
-			extensions.AddRange(handler.GetExtensionsOfKnownTextFileTypes());
-
-			handler = new WeSayConfigFileHandler();
-			extensions.AddRange(handler.GetExtensionsOfKnownTextFileTypes());
+			foreach (var handler in  _handlers.Handers)
+			{
+				extensions.AddRange(handler.GetExtensionsOfKnownTextFileTypes());
+			}
 
 			repository.SetupEndOfLineConversion(extensions.Distinct());
 		}
@@ -467,6 +458,8 @@ namespace Chorus.sync
 				if (didMerge)
 				{
 					peopleWeMergedWith.Add(head.UserId);
+
+					ValidateModifiedFiles();
 					//that merge may have generated conflict files, and we want these merged
 					//version + updated/created conflict files to go right back into the repository
 					Repository.AddAndCheckinFiles(_project.IncludePatterns, _project.ExcludePatterns,
@@ -524,6 +517,21 @@ namespace Chorus.sync
 							throw;
 						}
 					}
+				}
+			}
+		}
+
+		private void ValidateModifiedFiles()
+		{
+			var files = Repository.GetFilesInRevisionFromQuery(null, "status");
+
+			foreach (var file in files)
+			{
+				if (file.ActionThatHappened == FileInRevision.Action.Modified
+					|| file.ActionThatHappened == FileInRevision.Action.Added)
+				{
+
+					_progress.WriteVerbose("Validating {0}", file);
 				}
 			}
 		}

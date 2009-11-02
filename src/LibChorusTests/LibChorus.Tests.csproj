@@ -62,6 +62,7 @@
   </ItemGroup>
   <ItemGroup>
 	<Compile Include="clone\ClonerTests.cs" />
+	<Compile Include="FileHandlers\ChorusTestFileHanderTests.cs" />
 	<Compile Include="merge\xml\adaptIt\FileLevelAdaptItKnowlegeBaseMergeTests.cs" />
 	<Compile Include="merge\xml\ConflictXmlRecordRetrievalTests.cs" />
 	<Compile Include="merge\GroupOfConflictFiles.cs" />

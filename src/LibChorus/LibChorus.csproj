@@ -89,6 +89,7 @@
 	<Compile Include="FileTypeHanders\lift\WeSayConfigFileHandler.cs" />
 	<Compile Include="FileTypeHanders\oneStory\OneStoryFileHandler.cs" />
 	<Compile Include="FileTypeHanders\OurWord\OurWordFileHandler.cs" />
+	<Compile Include="FileTypeHanders\test\ChorusTestFileHandler.cs" />
 	<Compile Include="FileTypeHanders\text\TextEditChangePresenter.cs" />
 	<Compile Include="FileTypeHanders\text\TextEditChangeReport.cs" />
 	<Compile Include="FileTypeHanders\text\TextFileTypeHandler.cs" />

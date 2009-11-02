@@ -7,9 +7,9 @@ using Chorus.merge.xml.generic;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
 
-namespace Chorus.FileTypeHanders.OurWordFileHandler
+namespace Chorus.FileTypeHanders.test
 {
-	public class OurWordFileHandler : IChorusFileTypeHandler
+	public class ChorusTestFileHandler : IChorusFileTypeHandler
 	{
 		public bool CanDiffFile(string pathToFile)
 		{
@@ -18,7 +18,7 @@ namespace Chorus.FileTypeHanders.OurWordFileHandler
 
 		public bool CanMergeFile(string pathToFile)
 		{
-			return Path.GetExtension(pathToFile).ToLower() == ".otrans";
+			return false;
 		}
 
 		public bool CanPresentFile(string pathToFile)
@@ -28,19 +28,20 @@ namespace Chorus.FileTypeHanders.OurWordFileHandler
 
 		public bool CanValidateFile(string pathToFile)
 		{
-			return false;
+			return Path.GetExtension(pathToFile)==".chorusTest";
 		}
 		public bool GetFileIsValid(string pathToFile, IProgress progress)
 		{
-			throw new NotImplementedException();
+			return !File.ReadAllText(pathToFile).Contains("invalid");
+		}
+		public static string GetInvalidContents()
+		{
+			return "invalid";
 		}
 
 		public void Do3WayMerge(MergeOrder mergeOrder)
 		{
-			Assembly asm = Assembly.LoadFrom("OurWordMerger.dll");
-			Type mergerType = asm.GetType("OurWord.Merger");
-			MethodInfo  mergeMethod = mergerType.GetMethod("Merge");
-			mergeMethod.Invoke(null, new object[]{mergeOrder});
+			throw new NotImplementedException();
 		}
 
 
@@ -64,7 +65,7 @@ namespace Chorus.FileTypeHanders.OurWordFileHandler
 
 		public IEnumerable<string> GetExtensionsOfKnownTextFileTypes()
 		{
-			yield return "onestory";
+			yield return "chorusTest";
 		}
 	}
 }

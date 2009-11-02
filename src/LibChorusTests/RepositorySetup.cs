@@ -250,6 +250,16 @@ namespace LibChorus.Tests
 			revision.EnsureParentRevisionInfo();
 			 Assert.AreEqual(originalTip.Number.LocalRevisionNumber, revision.Parents[0].LocalRevisionNumber, "Should have moved back to original tip.");
 		}
+
+		public void AssertLocalRevisionNumber(int localNumber)
+		{
+			Assert.AreEqual(localNumber.ToString(), Repository.GetRevisionWorkingSetIsBasedOn().Number.LocalRevisionNumber);
+		}
+
+		public void AssertRevisionHasTag(int localRevisionNumber, string tag)
+		{
+			Assert.AreEqual(tag, Repository.GetRevision(localRevisionNumber.ToString()).Tag);
+		}
 	}
 
 }

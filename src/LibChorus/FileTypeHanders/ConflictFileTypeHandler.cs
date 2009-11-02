@@ -32,6 +32,16 @@ namespace Chorus.FileTypeHanders
 			return CanDiffFile(pathToFile);
 		}
 
+
+		public bool CanValidateFile(string pathToFile)
+		{
+			return false;
+		}
+		public bool GetFileIsValid(string pathToFile, IProgress progress)
+		{
+			throw new NotImplementedException();
+		}
+
 		public void Do3WayMerge(MergeOrder order)
 		{
 			XmlMerger merger  = new XmlMerger(order.MergeSituation);

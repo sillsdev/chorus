@@ -27,6 +27,14 @@ namespace Chorus.FileTypeHanders
 		{
 			return true;
 		}
+		public bool CanValidateFile(string pathToFile)
+		{
+			return false;
+		}
+		public bool GetFileIsValid(string pathToFile, IProgress progress)
+		{
+			throw new NotImplementedException();
+		}
 
 		public void Do3WayMerge(MergeOrder mergeOrder)
 		{

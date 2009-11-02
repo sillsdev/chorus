@@ -26,6 +26,15 @@ namespace Chorus.FileTypeHanders.image
 			return ((new string[] { ".tif", ".jpg", ".png", ".bmp" }.Contains(ext)));
 		}
 
+		public bool CanValidateFile(string pathToFile)
+		{
+			return false;
+		}
+		public bool GetFileIsValid(string pathToFile, IProgress progress)
+		{
+			throw new NotImplementedException();
+		}
+
 		public void Do3WayMerge(MergeOrder mergeOrder)
 		{
 			throw new ApplicationException(string.Format("Chorus could not find a handler to merge files like '{0}'", mergeOrder.pathToOurs));
@@ -42,7 +51,6 @@ namespace Chorus.FileTypeHanders.image
 		{
 			return new ImageChangePresenter(report);
 		}
-
 
 
 

@@ -1,4 +1,5 @@
 using System.IO;
+using Chorus.FileTypeHanders.test;
 using Chorus.merge;
 using Chorus.sync;
 using Chorus.Utilities;
@@ -337,13 +338,25 @@ namespace LibChorus.Tests.sync
 
 				bob.CheckinAndPullAndMerge(null);
 
-				Assert.AreEqual("goodGuy", bob.Repository.GetTip().Summary);
-				Assert.AreEqual("3", bob.Repository.GetRevisionWorkingSetIsBasedOn().Number.LocalRevisionNumber);
+				Assert.AreEqual("goodGuy", bob.Repository.GetRevisionWorkingSetIsBasedOn().Summary);
+				bob.AssertLocalRevisionNumber(3);
 				bob.AssertHeadCount(2);
 			}
 		}
 
 
+		[Test]
+		public void Sync_ModifiedFileIsInvalid_ForkAndRollbackAndTag()
+		{
+			using (var bob = new RepositorySetup("bob"))
+			{
+				bob.AddAndCheckinFile("test.chorusTest", "original");
+				bob.AddAndCheckinFile("test.chorusTest", ChorusTestFileHandler.GetInvalidContents());
+				bob.AssertHeadCount(2);             //forked
+				bob.AssertLocalRevisionNumber(0);   //rolled back
+				bob.AssertRevisionHasTag(1, "reject");   //tagged
+			}
+		}
 
 
 		/// <summary>
