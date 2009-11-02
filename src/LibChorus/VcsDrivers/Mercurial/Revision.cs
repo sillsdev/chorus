@@ -79,6 +79,11 @@ namespace Chorus.VcsDrivers.Mercurial
 				Parents.AddRange(_repository.GetParentsRevisionNumbers(this.Number.LocalRevisionNumber));
 			}
 		}
+
+		public bool GetMatchesLocalOrHash(string localOrHash)
+		{
+			return Number.Hash == localOrHash || Number.LocalRevisionNumber == localOrHash;
+		}
 	}
 
 	public class RevisionNumber

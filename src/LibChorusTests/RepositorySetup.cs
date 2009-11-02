@@ -121,6 +121,10 @@ namespace LibChorus.Tests
 
 			CreateSynchronizer().SyncNow(options);
 		}
+		public SyncResults CheckinAndPullAndMerge()
+		{
+			return CheckinAndPullAndMerge(null);
+		}
 
 		public SyncResults CheckinAndPullAndMerge(RepositorySetup otherUser)
 		{

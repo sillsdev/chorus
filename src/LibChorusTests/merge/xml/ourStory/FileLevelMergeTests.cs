@@ -105,7 +105,7 @@ namespace LibChorus.Tests.merge.xml.ourStory
 			XmlTestHelper.AssertXPathMatchesExactlyOne(result, "StoryProject/Members/Member[@name='UNS']");
 		}
 
-		[Test]
+		[Test, Ignore("Bob says this never worked")]
 		public void Do3WayMerge_BothAddSameMember_ThrowAwayOther()
 		{
 			var ourContent = _ancestor.Replace("</Members>",

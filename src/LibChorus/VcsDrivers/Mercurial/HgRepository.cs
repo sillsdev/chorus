@@ -1453,24 +1453,44 @@ namespace Chorus.VcsDrivers.Mercurial
 		}
 
 		/// <summary>
-		/// Does a backout of the specified revision, and merges it into the current head, if necessary. The repo is left in a committed state
-		/// on a child of the previous head.
+		/// Does a backout of the specified revision, which must be the head of its branch
+		/// (this simplifies things, because we don't have to worry about non-trivial merging of the
+		/// backout changeset).
+		/// Afterwards, the current head will be the backout revision.
 		/// </summary>
-		public void BackoutAndCommit(string revisionNumber, string changeSetSummary)
+		/// <returns>The local revision # of the backout changeset (which will always be tip)</returns>
+		public string BackoutHead(string revisionNumber, string changeSetSummary)
 		{
 			if (GetHasOneOrMoreChangeSets())
 			{
+				Guard.Against(!GetIsHead(revisionNumber), "BackoutHead() requires that the specified revision be a head, because this is the only scenario which is handled and unit-tested.");
+
+				var previousRevisionOfWorkingDir = GetRevisionWorkingSetIsBasedOn();
+
+				Update(revisionNumber);//move over to this branch, if necessary
+
 				using (var messageFile = new TempFile(changeSetSummary))
 				{
 					Execute(false, _secondsBeforeTimeoutOnLocalOperation,
 							string.Format("backout -r {0} --logfile \"{1}\"", revisionNumber, messageFile.Path));
 				}
+				//if we were not backing out the "current" revision, move back over to it.
+				if (!previousRevisionOfWorkingDir.GetMatchesLocalOrHash(revisionNumber))
+				{
+					Update(previousRevisionOfWorkingDir.Number.Hash);
+				}
+				return GetTip().Number.LocalRevisionNumber;
 			}
 			else //hg cannot "backout" the very first revision
 			{
 				//it's not clear what I should do
 				throw new ApplicationException("Cannot backout the very first changeset.");
 			}
+		}
+
+		private bool GetIsHead(string localOrHashNumber)
+		{
+			return GetHeads().Any(h => h.Number.LocalRevisionNumber == localOrHashNumber || h.Number.Hash == localOrHashNumber);
 		}
 
 		private bool GetHasOneOrMoreChangeSets()

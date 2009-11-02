@@ -1,18 +1,20 @@
 using System;
+using System.Diagnostics;
+using System.IO;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
 using NUnit.Framework;
 
 namespace LibChorus.Tests.VcsDrivers.Mercurial
 {
-	public class HgSetup  :IDisposable
+	public class HgTestSetup  :IDisposable
 	{
 		public TempFolder Root;
 		public HgRepository Repository;
 		private ConsoleProgress _progress;
 
 
-		public HgSetup()
+		public HgTestSetup()
 		{
 			_progress = new ConsoleProgress();
 			Root = new TempFolder("ChorusHgWrappingTest");
@@ -54,6 +56,17 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		public void AssertCommitMessageOfRevision(string localNumber, string expectedCommitMessage)
 		{
 		   Assert.AreEqual(expectedCommitMessage, Repository.GetRevision(localNumber).Summary);
+		}
+
+		public void ChangeAndCheckinFile(string path, string contents)
+		{
+			File.WriteAllText(path, contents);
+			Repository.Commit(false, "{0}-->{1}", Path.GetFileName(path), contents);
+		}
+
+		public void WriteLogToConsole()
+		{
+			Debug.WriteLine(Repository.GetLog(-1));
 		}
 	}
 }

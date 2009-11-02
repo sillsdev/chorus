@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.IO;
 using Chorus.FileTypeHanders.test;
 using Chorus.merge;
@@ -346,15 +347,29 @@ namespace LibChorus.Tests.sync
 
 
 		[Test]
-		public void Sync_ModifiedFileIsInvalid_ForkAndRollbackAndTag()
+		public void Sync_ModifiedFileIsInvalid_CheckedInButThenBackedOut()
 		{
+			/*
+				@  changeset:   2
+				|  summary:     [Backout due to validation Failure]
+				|
+				o  changeset:   1
+				|  summary:     missing checkin description
+				|
+				o  changeset:   0
+				summary:     Add test.chorusTest
+			 */
 			using (var bob = new RepositorySetup("bob"))
 			{
 				bob.AddAndCheckinFile("test.chorusTest", "original");
-				bob.AddAndCheckinFile("test.chorusTest", ChorusTestFileHandler.GetInvalidContents());
-				bob.AssertHeadCount(2);             //forked
-				bob.AssertLocalRevisionNumber(0);   //rolled back
-				bob.AssertRevisionHasTag(1, "reject");   //tagged
+				bob.AssertLocalRevisionNumber(0);
+				bob.ChangeFile("test.chorusTest", ChorusTestFileHandler.GetInvalidContents());
+				bob.CheckinAndPullAndMerge();
+				bob.AssertLocalRevisionNumber(2);
+				bob.AssertHeadCount(1);
+				bob.AssertLocalRevisionNumber(int.Parse(bob.Repository.GetTip().Number.LocalRevisionNumber));
+				Debug.WriteLine(bob.Repository.GetLog(-1));
+
 			}
 		}
 

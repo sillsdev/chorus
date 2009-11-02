@@ -76,7 +76,7 @@ namespace Chorus.sync
 		{
 			if (_validationResult.Length == 0)
 				return;
-			_repository.BackoutAndCommit(_repository.GetRevisionWorkingSetIsBasedOn().Number.LocalRevisionNumber, "[Backout due to validation Failure]\r\n"+_validationResult);
+			_repository.BackoutHead(_repository.GetRevisionWorkingSetIsBasedOn().Number.LocalRevisionNumber, "[Backout due to validation failure]\r\n"+_validationResult);
 		}
 	}
 }
