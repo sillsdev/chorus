@@ -802,7 +802,8 @@ namespace Chorus.VcsDrivers.Mercurial
 				if (action == FileInRevision.Action.NoChanges)
 					action = FileInRevision.Action.Added;
 
-				revisions.Add(new FileInRevision(revisionToAssignToResultingFIRs.Number.LocalRevisionNumber, Path.Combine(PathToRepo, line.Substring(2)), action));
+				string revToAssign= revisionToAssignToResultingFIRs == null ? "-1": revisionToAssignToResultingFIRs.Number.LocalRevisionNumber;
+				revisions.Add(new FileInRevision(revToAssign, Path.Combine(PathToRepo, line.Substring(2)), action));
 			}
 			return revisions;
 		}
@@ -1441,14 +1442,40 @@ namespace Chorus.VcsDrivers.Mercurial
 		/// </summary>
 		/// <param name="number"></param>
 		/// <param name="tag"></param>
-		public void TagRevision(string number, string tag)
+		public void TagRevision(string revisionNumber, string tag)
 		{
-			Execute(false, _secondsBeforeTimeoutOnLocalOperation, "tag -r " + number + " \"" + tag + "\"");
+			Execute(false, _secondsBeforeTimeoutOnLocalOperation, "tag -r " + revisionNumber + " \"" + tag + "\"");
 		}
 
 		protected static string SurroundWithQuotes(string path)
 		{
 			return "\"" + path + "\"";
+		}
+
+		/// <summary>
+		/// Does a backout of the specified revision, and merges it into the current head, if necessary. The repo is left in a committed state
+		/// on a child of the previous head.
+		/// </summary>
+		public void BackoutAndCommit(string revisionNumber, string changeSetSummary)
+		{
+			if (GetHasOneOrMoreChangeSets())
+			{
+				using (var messageFile = new TempFile(changeSetSummary))
+				{
+					Execute(false, _secondsBeforeTimeoutOnLocalOperation,
+							string.Format("backout -r {0} --logfile \"{1}\"", revisionNumber, messageFile.Path));
+				}
+			}
+			else //hg cannot "backout" the very first revision
+			{
+				//it's not clear what I should do
+				throw new ApplicationException("Cannot backout the very first changeset.");
+			}
+		}
+
+		private bool GetHasOneOrMoreChangeSets()
+		{
+			return GetTip() != null;
 		}
 	}
 

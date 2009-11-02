@@ -30,9 +30,11 @@ namespace Chorus.FileTypeHanders.test
 		{
 			return Path.GetExtension(pathToFile)==".chorusTest";
 		}
-		public bool GetFileIsValid(string pathToFile, IProgress progress)
+		public string ValidateFile(string pathToFile, IProgress progress)
 		{
-			return !File.ReadAllText(pathToFile).Contains("invalid");
+			if (File.ReadAllText(pathToFile).Contains("invalid"))
+				return "Failed to validate because it contained the word 'invalid'.";
+			return null;
 		}
 		public static string GetInvalidContents()
 		{

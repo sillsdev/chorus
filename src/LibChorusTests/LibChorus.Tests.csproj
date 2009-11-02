@@ -85,11 +85,13 @@
 	<Compile Include="merge\xml\lift\SenseMergingTests.cs" />
 	<Compile Include="merge\xml\ourStory\FileLevelMergeTests.cs" />
 	<Compile Include="RepositorySetup.cs" />
+	<Compile Include="sync\CommitCopTests.cs" />
 	<Compile Include="sync\Synchronizer.FileBasedTests.cs" />
 	<Compile Include="sync\ConflictFileSyncTests.cs" />
 	<Compile Include="sync\Synchronizer.BadSituationTests.cs" />
 	<Compile Include="sync\SyncScenarioTests.cs" />
 	<Compile Include="sync\UsbRepositorySourceTests.cs" />
+	<Compile Include="VcsDrivers\Mercurial\HgSetup.cs" />
 	<Compile Include="VcsDrivers\Mercurial\IncludeExcludeTests.cs" />
 	<Compile Include="VcsDrivers\Mercurial\HgWrappingTests.cs" />
 	<Compile Include="VcsDrivers\Mercurial\HgSettingsTests.cs" />

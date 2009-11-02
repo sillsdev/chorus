@@ -459,12 +459,14 @@ namespace Chorus.sync
 				{
 					peopleWeMergedWith.Add(head.UserId);
 
-					ValidateModifiedFiles();
-					//that merge may have generated conflict files, and we want these merged
-					//version + updated/created conflict files to go right back into the repository
-					Repository.AddAndCheckinFiles(_project.IncludePatterns, _project.ExcludePatterns,
-												  GetMergeCommitSummary(head.UserId, Repository));
+					using(var commitCop = new CommitCop(Repository, _handlers, _progress))
+					{
+						//that merge may have generated conflict files, and we want these merged
+						//version + updated/created conflict files to go right back into the repository
+						Repository.AddAndCheckinFiles(_project.IncludePatterns, _project.ExcludePatterns,
+													  GetMergeCommitSummary(head.UserId, Repository));
 
+					}
 				}
 			}
 			  return peopleWeMergedWith;
@@ -521,20 +523,6 @@ namespace Chorus.sync
 			}
 		}
 
-		private void ValidateModifiedFiles()
-		{
-			var files = Repository.GetFilesInRevisionFromQuery(null, "status");
-
-			foreach (var file in files)
-			{
-				if (file.ActionThatHappened == FileInRevision.Action.Modified
-					|| file.ActionThatHappened == FileInRevision.Action.Added)
-				{
-
-					_progress.WriteVerbose("Validating {0}", file);
-				}
-			}
-		}
 
 
 		/// <returns>false if nothing needed to be merged, true if the merge was done. Throws exception if there is an error.</returns>

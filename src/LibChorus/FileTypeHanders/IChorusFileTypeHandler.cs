@@ -29,7 +29,10 @@ namespace Chorus.FileTypeHanders
 		IEnumerable<IChangeReport> Find2WayDifferences(FileInRevision parent, FileInRevision child, HgRepository repository);
 		IChangePresenter GetChangePresenter(IChangeReport report, HgRepository repository);
 
-		bool GetFileIsValid(string pathToFile, IProgress progress);
+		/// <summary>
+		/// return null if valid, otherwise nice verbose description of what went wrong
+		/// </summary>
+		string ValidateFile(string pathToFile, IProgress progress);
 
 		/// <summary>
 		/// This is like a diff, but for when the file is first checked in.  So, for example, a dictionary
@@ -66,6 +69,14 @@ namespace Chorus.FileTypeHanders
 			return fileTypeHandlers;
 		}
 
+		public static ChorusFileTypeHandlerCollection CreateWithTestHandlerOnly()
+		{
+			var fileTypeHandlers = new ChorusFileTypeHandlerCollection();
+			fileTypeHandlers.HandersList.Add(new ChorusTestFileHandler());
+
+			//NB: never add the Default handler
+			return fileTypeHandlers;
+		}
 		private ChorusFileTypeHandlerCollection()
 		{
 			HandersList = new List<IChorusFileTypeHandler>();

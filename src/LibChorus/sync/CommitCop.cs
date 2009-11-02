@@ -1,0 +1,74 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using Chorus.FileTypeHanders;
+using Chorus.Utilities;
+using Chorus.VcsDrivers.Mercurial;
+
+namespace Chorus.sync
+{
+	/// <summary>
+	/// Use this class to bracket a Commit.  Currently, it will validate any added/modified files it can,
+	/// and if they are invalid, it will backout the commit and leave a record what failed so that support
+	/// personel/developers can have easy access to the problem file.
+	/// </summary>
+	/// <example>
+	///   using(var commitCop = new CommitCop(_repository, _progress))
+	///    {
+	///          Repository.AddAndCheckinFiles(...);
+	///    }
+	/// </example>
+	public class CommitCop:IDisposable
+	{
+		private readonly HgRepository _repository;
+		private readonly ChorusFileTypeHandlerCollection _handlerCollection;
+		private readonly IProgress _progress;
+		private string _validationResult;
+
+		public CommitCop(HgRepository repository, ChorusFileTypeHandlerCollection handlers, IProgress progress)
+		{
+			_repository = repository;
+			_handlerCollection = handlers;
+			_progress = progress;
+			ValidateModifiedFiles();
+		}
+
+		public string ValidationResult { get { return _validationResult; } }
+
+		private void ValidateModifiedFiles()
+		{
+			var files = _repository.GetFilesInRevisionFromQuery(null, "status");
+			var builder = new StringBuilder();
+
+			foreach (var file in files)
+			{
+				if (file.ActionThatHappened == FileInRevision.Action.Modified
+					|| file.ActionThatHappened == FileInRevision.Action.Added)
+				{
+					foreach (var handler in _handlerCollection.Handers)
+					{
+						if (handler.CanValidateFile(file.FullPath))
+						{
+							_progress.WriteVerbose("Validating {0}", file);
+							var result =handler.ValidateFile(file.FullPath, _progress);
+							if (!string.IsNullOrEmpty(result))
+							{
+								builder.AppendFormat("Validation failed on {0}\r\n", file.FullPath);
+								builder.Append(result+"\r\n");
+							}
+							break;
+						}
+					}
+				}
+			}
+			_validationResult = builder.ToString();
+		}
+
+		public void Dispose()
+		{
+			if (_validationResult.Length == 0)
+				return;
+			_repository.BackoutAndCommit(_repository.GetRevisionWorkingSetIsBasedOn().Number.LocalRevisionNumber, "[Backout due to validation Failure]\r\n"+_validationResult);
+		}
+	}
+}

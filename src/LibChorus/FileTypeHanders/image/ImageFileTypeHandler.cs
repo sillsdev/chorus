@@ -30,7 +30,7 @@ namespace Chorus.FileTypeHanders.image
 		{
 			return false;
 		}
-		public bool GetFileIsValid(string pathToFile, IProgress progress)
+		public string ValidateFile(string pathToFile, IProgress progress)
 		{
 			throw new NotImplementedException();
 		}

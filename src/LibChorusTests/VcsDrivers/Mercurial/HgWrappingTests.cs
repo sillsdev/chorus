@@ -185,11 +185,43 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			}
 		}
 
-		[Test, Ignore("I'm too lazy at the moment to set up the test conditions")]
+		[Test, Ignore("I'm too lazy at the moment to figure out how to set up the test conditions")]
 		public void GetCommonAncestorOfRevisions_Have3rdAsCommon_Get3rd()
 		{
 
 		}
+
+		/// <summary>
+		/// This is a special boundary case because hg backout fails with "cannot backout a change with no parents"
+		/// </summary>
+		[Test, ExpectedException(typeof(ApplicationException))]
+		public void BackoutAndCommit_FirstChangeSetInTheRepo_Throws()
+		{
+			using (var setup = new HgSetup())
+			{
+				var path = setup.Root.GetNewTempFile(true).Path;
+				setup.Repository.AddAndCheckinFile(path);
+				setup.Repository.BackoutAndCommit("0", "testing");
+			}
+		}
+
+		[Test]
+		public void BackoutAndCommit_UsesCommitMessage()
+		{
+			using (var setup = new HgSetup())
+			{
+				var path = setup.Root.GetNewTempFile(true).Path;
+				setup.Repository.AddAndCheckinFile(path);
+				File.WriteAllText(path,"2");
+				setup.Repository.AddAndCheckinFile(path);
+				setup.Repository.BackoutAndCommit("1", "testing");
+				setup.AssertLocalNumberOfTip("2");
+				setup.AssertHeadOfWorkingDirNumber("2");
+				setup.AssertHeadCount(1);
+				setup.AssertCommitMessageOfRevision("2","testing");
+			}
+		}
+
 //
 //        [Test]
 //        public void GetTip_NoRepository_GivesError()
@@ -199,37 +231,5 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 //            hg.GetTip();
 //            Assert.IsTrue(progress.Text.Contains("Error"));
 //        }
-	}
-
-	public class HgSetup  :IDisposable
-	{
-		public TempFolder Root;
-		public HgRepository Repository;
-		private ConsoleProgress _progress;
-
-
-		public HgSetup()
-		{
-			_progress = new ConsoleProgress();
-			Root = new TempFolder("ChorusHgWrappingTest");
-			HgRepository.CreateRepositoryInExistingDir(Root.Path,_progress);
-			Repository = new HgRepository(Root.Path, new NullProgress());
-		}
-
-		public void Dispose()
-		{
-			Root.Dispose();
-
-		}
-
-		public IDisposable GetWLock()
-		{
-			return TempFile.CreateAt(Root.Combine(".hg", "wlock"), "blah");
-		}
-		public IDisposable GetLock()
-		{
-			return TempFile.CreateAt(Root.Combine(".hg", "store", "lock"), "blah");
-		}
-
 	}
 }

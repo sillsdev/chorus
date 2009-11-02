@@ -108,9 +108,9 @@ namespace Chorus.FileTypeHanders
 			}
 		}
 
-		public bool GetFileIsValid(string pathToFile, IProgress progress)
+		public string ValidateFile(string pathToFile, IProgress progress)
 		{
-			return true;
+			return null;
 		}
 
 
