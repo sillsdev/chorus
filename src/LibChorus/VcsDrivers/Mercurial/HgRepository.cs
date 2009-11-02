@@ -421,10 +421,7 @@ namespace Chorus.VcsDrivers.Mercurial
 //        }
 
 
-		protected static string SurroundWithQuotes(string path)
-		{
-			return "\"" + path + "\"";
-		}
+
 
 		public string PathWithQuotes
 		{
@@ -1447,6 +1444,21 @@ namespace Chorus.VcsDrivers.Mercurial
 				section.Set("**."+ext, "dumbencode:");
 			}
 			doc.Save();
+		}
+
+		/// <summary>
+		/// NB: this adds a new changeset
+		/// </summary>
+		/// <param name="number"></param>
+		/// <param name="tag"></param>
+		public void TagRevision(string number, string tag)
+		{
+			Execute(false, _secondsBeforeTimeoutOnLocalOperation, "tag -r " + number + " \"" + tag + "\"");
+		}
+
+		protected static string SurroundWithQuotes(string path)
+		{
+			return "\"" + path + "\"";
 		}
 	}
 

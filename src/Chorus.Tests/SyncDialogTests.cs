@@ -55,12 +55,26 @@ namespace LibChorus.Tests
 					SyncUIDialogBehaviors.Lazy,
 					SyncUIFeatures.NormalRecommended))
 				{
-				//    dlg.SyncOptions.RepositorySourcesToTry.Add(RepositoryAddress.Create("bogus", @"z:/"));
 					dlg.ShowDialog();
 				}
 
 			}
 		}
+
+		[Test, Ignore("Run by hand only")]
+		public void MinimalCodeToLaunchSendReceiveUI()
+		{
+			var projectConfig = new ProjectFolderConfiguration("c:\\TokPisin");
+			projectConfig.IncludePatterns.Add("*.lift");
+
+			using (var dlg = new SyncDialog(projectConfig,
+					SyncUIDialogBehaviors.Lazy,
+					SyncUIFeatures.NormalRecommended))
+			{
+				dlg.ShowDialog();
+			}
+		}
+
 		[Test, Ignore("Run by hand only")]
 		public void LaunchDialog_LazyWithAdvancedUI()
 		{

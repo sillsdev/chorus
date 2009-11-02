@@ -100,6 +100,18 @@ namespace LibChorus.Tests
 			Repository.AddAndCheckinFile(p);
 		}
 
+		public void ChangeFile(string fileName, string contents)
+		{
+			var p = ProjectFolder.Combine(fileName);
+			File.WriteAllText(p, contents);
+		}
+	   public void ChangeFileAndCommit(string fileName, string contents, string message)
+		{
+			var p = ProjectFolder.Combine(fileName);
+			File.WriteAllText(p, contents);
+		   Repository.Commit(false,message);
+		}
+
 		public void AddAndCheckIn()
 		{
 			SyncOptions options = new SyncOptions();
@@ -117,7 +129,8 @@ namespace LibChorus.Tests
 			options.DoPullFromOthers = true;
 			options.DoSendToOthers = true;
 
-			options.RepositorySourcesToTry.Add(otherUser.GetRepositoryAddress());
+			if(otherUser!=null)
+				options.RepositorySourcesToTry.Add(otherUser.GetRepositoryAddress());
 			return CreateSynchronizer().SyncNow(options);
 		}
 
@@ -213,6 +226,29 @@ namespace LibChorus.Tests
 			var start = new System.Diagnostics.ProcessStartInfo("hgtk", "log");
 			start.WorkingDirectory = ProjectFolder.Path;
 			System.Diagnostics.Process.Start(start);
+		}
+
+				   /// <summary>
+		/// not called "CreateReject*Branch* because we're not naming it (but it is, technically, a branch)
+		/// </summary>
+		public void CreateRejectForkAndComeBack()
+		{
+			var originalTip = Repository.GetTip();
+			ChangeFile("test.txt", "bad");
+			var options = new SyncOptions()
+							  {DoMergeWithOthers = true, DoPullFromOthers = true, DoSendToOthers = true};
+			var synchronizer = CreateSynchronizer();
+			synchronizer.SyncNow(options);
+			var badRev = Repository.GetTip();
+
+			//notice that we're putting changeset which does the tagging over on the original branch
+			Repository.RollbackWorkingDirectoryToRevision(originalTip.Number.Hash);
+			Repository.TagRevision(badRev.Number.Hash, "reject");// this adds a new changeset
+			synchronizer.SyncNow(options);
+
+			Revision revision = Repository.GetRevisionWorkingSetIsBasedOn();
+			revision.EnsureParentRevisionInfo();
+			 Assert.AreEqual(originalTip.Number.LocalRevisionNumber, revision.Parents[0].LocalRevisionNumber, "Should have moved back to original tip.");
 		}
 	}
 

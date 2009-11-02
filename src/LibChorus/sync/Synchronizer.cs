@@ -133,7 +133,7 @@ namespace Chorus.sync
 			}
 
 			var workingRevBeforeSync = repo.GetRevisionWorkingSetIsBasedOn();
-			_progress.WriteVerbose("Got workingRevBeforeSync.");//trying to pin down WS-14981 send/receive hangs
+			//_progress.WriteVerbose("Got workingRevBeforeSync.");//trying to pin down WS-14981 send/receive hangs
 
 			List<RepositoryAddress> sourcesToTry = options.RepositorySourcesToTry;
 
@@ -335,12 +335,15 @@ namespace Chorus.sync
 			{
 				if (parent.Number.Hash == head.Number.Hash || head.IsDirectDescendantOf(parent))
 				{
+//                    if(head.Tag == "reject")
+//                        continue;
+
 					repository.RollbackWorkingDirectoryToRevision(head.Number.LocalRevisionNumber);
 					return;
 				}
 			}
-			//don't know if this would ever happen, but it's better than stayin in limbo
-			_progress.WriteError("Unexpected drop back to previous-tip");
+
+			_progress.WriteWarning("Staying at previous-tip (unusual)");
 		}
 
 		private string GetMergeCommitSummary(string personMergedWith, HgRepository repository)
@@ -447,26 +450,31 @@ namespace Chorus.sync
 
 			foreach (Revision head in heads)
 			{
+				if (head.Number.LocalRevisionNumber == myHead.Number.LocalRevisionNumber)
+					continue;
+
+				if (head.Tag == "reject")
+					continue;
+
 				//this is for posterity, on other people's machines, so use the hashes instead of local numbers
-				MergeSituation.PushRevisionsToEnvironmentVariables(myHead.UserId, myHead.Number.Hash, head.UserId, head.Number.Hash);
+				MergeSituation.PushRevisionsToEnvironmentVariables(myHead.UserId, myHead.Number.Hash, head.UserId,
+																   head.Number.Hash);
 
 				MergeOrder.PushToEnvironmentVariables(_localRepositoryPath);
-				if (head.Number.LocalRevisionNumber != myHead.Number.LocalRevisionNumber)
+				_progress.WriteStatus("Merging with {0}...", head.UserId);
+				RemoveMergeObstacles(myHead, head);
+				bool didMerge = MergeTwoChangeSets(myHead, head);
+				if (didMerge)
 				{
-					_progress.WriteStatus("Merging with {0}...", head.UserId);
-					RemoveMergeObstacles(myHead, head);
-					bool didMerge = MergeTwoChangeSets(myHead, head);
-					if (didMerge)
-					{
-						peopleWeMergedWith.Add(head.UserId);
-						//that merge may have generated conflict files, and we want these merged
-						//version + updated/created conflict files to go right back into the repository
-						Repository.AddAndCheckinFiles(_project.IncludePatterns, _project.ExcludePatterns, GetMergeCommitSummary(head.UserId, Repository));
+					peopleWeMergedWith.Add(head.UserId);
+					//that merge may have generated conflict files, and we want these merged
+					//version + updated/created conflict files to go right back into the repository
+					Repository.AddAndCheckinFiles(_project.IncludePatterns, _project.ExcludePatterns,
+												  GetMergeCommitSummary(head.UserId, Repository));
 
-					}
 				}
 			}
-			return peopleWeMergedWith;
+			  return peopleWeMergedWith;
 		}
 
 		/// <summary>

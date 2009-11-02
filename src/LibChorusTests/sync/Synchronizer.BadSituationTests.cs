@@ -1,9 +1,5 @@
-using System;
 using System.IO;
-using System.Text;
-using System.Xml;
 using Chorus.merge;
-using Chorus.merge.xml.lift;
 using Chorus.sync;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
@@ -325,6 +321,32 @@ namespace LibChorus.Tests.sync
 		}
 
 		/// <summary>
+		/// The scenario here, as of 2 Nov 09, is that someone has manually tagged a branch as bad.
+		/// </summary>
+		[Test]
+		public void Sync_ExistingRejectChangeSet_NotMergedIn()
+		{
+			using (var bob = new RepositorySetup("bob"))
+			{
+				bob.AddAndCheckinFile("test.txt", "original");
+
+				bob.CreateRejectForkAndComeBack();
+
+				bob.ChangeFileAndCommit("test.txt", "ok", "goodGuy"); //move on so we have two distinct branches
+				bob.AssertHeadCount(2);
+
+				bob.CheckinAndPullAndMerge(null);
+
+				Assert.AreEqual("goodGuy", bob.Repository.GetTip().Summary);
+				Assert.AreEqual("3", bob.Repository.GetRevisionWorkingSetIsBasedOn().Number.LocalRevisionNumber);
+				bob.AssertHeadCount(2);
+			}
+		}
+
+
+
+
+		/// <summary>
 		/// the diff here with the previous test is that while sally is still the one who is the driver
 		/// (she dose the merge and push to bob), this time we follow up with bob doing a sync, which
 		/// is essentially just a pull and update, to make sure that at that point the system renames
@@ -380,5 +402,8 @@ namespace LibChorus.Tests.sync
 //                Assert.IsFalse(xmlString.Contains("\0"));
 //            }
 //        }
+
+
+
 	}
 }
