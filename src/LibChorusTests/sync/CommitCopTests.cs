@@ -55,7 +55,6 @@ namespace LibChorus.Tests.sync
 				bob.AssertHeadCount(1);
 				bob.AssertLocalRevisionNumber(2);
 				bob.AssertFileContents("test.chorusTest", "hello");
-				bob.ShowInTortoise();
 			}
 		}
 	}

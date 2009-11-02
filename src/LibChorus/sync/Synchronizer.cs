@@ -123,7 +123,18 @@ namespace Chorus.sync
 
 			try
 			{
-				repo.AddAndCheckinFiles(_project.IncludePatterns, _project.ExcludePatterns, options.CheckinDescription);
+				using (var commitCop = new CommitCop(Repository, _handlers, _progress))
+				{
+					repo.AddAndCheckinFiles(_project.IncludePatterns, _project.ExcludePatterns, options.CheckinDescription);
+
+					if (!string.IsNullOrEmpty(commitCop.ValidationResult))
+					{
+						_progress.WriteError("The changed data did not pass validation tests. Your project will be moved back to the last Send/Receive before this problem occurred, so that you can keep working.  Please notify whoever provides you with computer support.");
+						results.Succeeded = false;
+						results.DidGetChangesFromOthers = false;
+						return results;
+					}
+				}
 			}
 			catch (Exception error)
 			{
@@ -459,14 +470,10 @@ namespace Chorus.sync
 				{
 					peopleWeMergedWith.Add(head.UserId);
 
-					using(var commitCop = new CommitCop(Repository, _handlers, _progress))
-					{
-						//that merge may have generated conflict files, and we want these merged
-						//version + updated/created conflict files to go right back into the repository
-						Repository.AddAndCheckinFiles(_project.IncludePatterns, _project.ExcludePatterns,
-													  GetMergeCommitSummary(head.UserId, Repository));
-
-					}
+					//that merge may have generated conflict files, and we want these merged
+					//version + updated/created conflict files to go right back into the repository
+					Repository.AddAndCheckinFiles(_project.IncludePatterns, _project.ExcludePatterns,
+												  GetMergeCommitSummary(head.UserId, Repository));
 				}
 			}
 			  return peopleWeMergedWith;
