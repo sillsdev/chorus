@@ -122,6 +122,7 @@
 	<Compile Include="merge\MergeSituation.cs" />
 	<Compile Include="merge\xml\generic\MergeSort.cs" />
 	<Compile Include="merge\xml\generic\PoorMansMergeStrategy.cs" />
+	<Compile Include="Utilities\XmlValidation.cs" />
 	<Compile Include="VcsDrivers\IRetrieveFileVersionsFromRepository.cs" />
 	<Compile Include="retrieval\LiftEntryRetriever.cs" />
 	<Compile Include="retrieval\RevisionInspector.cs" />
@@ -140,7 +141,7 @@
 	<Compile Include="Utilities\ini\IniWriter.cs" />
 	<Compile Include="Utilities\ini\OrderedList.cs" />
 	<Compile Include="Utilities\ini\OrderedListEnumerator.cs" />
-	<Compile Include="Utilities\Other.cs" />
+	<Compile Include="Utilities\ExecutionEnvironment.cs" />
 	<Compile Include="Utilities\ProcessStream.cs" />
 	<Compile Include="Utilities\Progress.cs" />
 	<Compile Include="Utilities\ShortTermEnvironmentalVariable.cs" />
