@@ -538,7 +538,7 @@ namespace Chorus.sync
 		private bool MergeTwoChangeSets(Revision head, Revision theirHead)
 		{
 #if MONO
-			string chorusMergeFilePath = Path.Combine(Other.DirectoryOfExecutingAssembly, "chorusmerge");
+			string chorusMergeFilePath = Path.Combine(ExecutionEnvironment.DirectoryOfExecutingAssembly, "chorusmerge");
 #else
 			string chorusMergeFilePath = Path.Combine(ExecutionEnvironment.DirectoryOfExecutingAssembly, "ChorusMerge.exe");
 #endif
