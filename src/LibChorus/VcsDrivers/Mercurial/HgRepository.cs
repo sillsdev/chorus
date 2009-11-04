@@ -654,6 +654,10 @@ namespace Chorus.VcsDrivers.Mercurial
 							item.AddParentFromCombinedNumberAndHash(value);
 							break;
 
+						case "branch":
+							item.Branch = value;
+							break;
+
 						case "user":
 							item.UserId = value;
 							break;

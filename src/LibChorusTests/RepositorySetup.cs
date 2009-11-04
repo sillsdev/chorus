@@ -247,7 +247,7 @@ namespace LibChorus.Tests
 
 			//notice that we're putting changeset which does the tagging over on the original branch
 			Repository.RollbackWorkingDirectoryToRevision(originalTip.Number.Hash);
-			Repository.TagRevision(badRev.Number.Hash, "reject");// this adds a new changeset
+			Repository.TagRevision(badRev.Number.Hash, Synchronizer.RejectTagSubstring);// this adds a new changeset
 			synchronizer.SyncNow(options);
 
 			Revision revision = Repository.GetRevisionWorkingSetIsBasedOn();
@@ -264,6 +264,42 @@ namespace LibChorus.Tests
 		{
 			Assert.AreEqual(tag, Repository.GetRevision(localRevisionNumber.ToString()).Tag);
 		}
+
+		public void ChangeFileOnNamedBranchAndComeBack(string fileName, string contents, string branchName)
+		{
+			string previousRevisionNumber = Repository.GetRevisionWorkingSetIsBasedOn().Number.LocalRevisionNumber;
+			Repository.Branch(branchName);
+			ChangeFileAndCommit(fileName, contents, "Created by ChangeFileOnNamedBranchAndComeBack()");
+			Repository.Update(previousRevisionNumber);//go back
+		}
+
+		public BookMark CreateBookmarkHere()
+		{
+			return new BookMark(Repository);
+		}
+
+
 	}
 
+	public class BookMark
+	{
+		private readonly HgRepository _repository;
+		private Revision _revision;
+
+		public BookMark(HgRepository repository)
+		{
+			_repository = repository;
+			_revision = _repository.GetRevisionWorkingSetIsBasedOn();
+		}
+
+		public void Go()
+		{
+			_repository.Update(_revision.Number.Hash);
+		}
+
+		public void AssertRepoIsAtThisPoint()
+		{
+			Assert.AreEqual(_revision.Number.Hash, _repository.GetRevisionWorkingSetIsBasedOn().Number.Hash);
+		}
+	}
 }

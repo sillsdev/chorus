@@ -290,17 +290,14 @@ namespace LibChorus.Tests.sync
 				sally.AddAndCheckIn();
 				 sally.Repository.Update(tip.Number.Hash);
 
-				sally.Repository.Branch("branch1");
 				sally.ReplaceSomething("forbranch1");
 				sally.AddAndCheckIn();
 				 sally.Repository.Update(tip.Number.Hash);
 
-			   sally.Repository.Branch("branch2");
 				sally.ReplaceSomething("forbranch2");
 				sally.AddAndCheckIn();
 				sally.Repository.Update(tip.Number.Hash);
 
-				sally.Repository.Branch("branch3");
 				sally.ReplaceSomething("forbranch3");
 				sally.AddAndCheckIn();
 				sally.Repository.Update(tip.Number.Hash);

@@ -26,6 +26,7 @@ namespace Chorus.sync
 		private ProjectFolderConfiguration _project;
 		private IProgress _progress;
 		private ChorusFileTypeHandlerCollection _handlers;
+		public static readonly string RejectTagSubstring = "[reject]";
 
 		public List<RepositoryAddress> ExtraRepositorySources { get; private set; }
 
@@ -337,9 +338,6 @@ namespace Chorus.sync
 			{
 				if (parent.Number.Hash == head.Number.Hash || head.IsDirectDescendantOf(parent))
 				{
-//                    if(head.Tag == "reject")
-//                        continue;
-
 					repository.RollbackWorkingDirectoryToRevision(head.Number.LocalRevisionNumber);
 					return;
 				}
@@ -439,8 +437,7 @@ namespace Chorus.sync
 		}
 
 
-
-		  /// <returns>A list of people that actually needed merging with.  Throws exception if there is an error.</returns>
+		/// <returns>A list of people that actually needed merging with.  Throws exception if there is an error.</returns>
 		private List<string> MergeHeads(SyncResults results)
 		{
 			List<string> peopleWeMergedWith = new List<string>();
@@ -455,7 +452,12 @@ namespace Chorus.sync
 				if (head.Number.LocalRevisionNumber == myHead.Number.LocalRevisionNumber)
 					continue;
 
-				if (head.Tag == "reject")
+				if (head.Tag.Contains(RejectTagSubstring))
+					continue;
+
+				//note: what we're checking here is actualy the *name* of the branch... obviously
+				//they are different branches, or merge would not be needed.
+				if (head.Branch != myHead.Branch)//Chorus policy is to only auto-merge on branches with same name
 					continue;
 
 				//this is for posterity, on other people's machines, so use the hashes instead of local numbers

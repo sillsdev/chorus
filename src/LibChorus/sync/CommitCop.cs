@@ -61,6 +61,7 @@ namespace Chorus.sync
 							var result =handler.ValidateFile(file.FullPath, _progress);
 							if (!string.IsNullOrEmpty(result))
 							{
+								_progress.WriteVerbose("Validation Failed: {0}", result);
 								builder.AppendFormat("Validation failed on {0}\r\n", file.FullPath);
 								builder.Append(result+"\r\n");
 							}
