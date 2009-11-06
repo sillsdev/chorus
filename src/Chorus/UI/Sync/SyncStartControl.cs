@@ -88,36 +88,33 @@ namespace Chorus.UI.Sync
 
 		private void UpdateUsbDriveSituation()
 		{
-			lock (usbDriveLocator)
+			if (usbDriveLocator.UsbDrives.Count() == 0)
 			{
-				if (usbDriveLocator.UsbDrives.Count() == 0)
+				_useUSBButton.Enabled = false;
+				_usbStatusLabel.Text = "First insert a USB flash drive";
+			}
+			else if (usbDriveLocator.UsbDrives.Count() > 1)
+			{
+				_useUSBButton.Enabled = false;
+				_usbStatusLabel.Text = "More than one USB drive detected. Please remove one.";
+			}
+			else
+			{
+				_useUSBButton.Enabled = true;
+				try
 				{
-					_useUSBButton.Enabled = false;
-					_usbStatusLabel.Text = "First insert a USB flash drive";
-				}
-				else if (usbDriveLocator.UsbDrives.Count() > 1)
-				{
-					_useUSBButton.Enabled = false;
-					_usbStatusLabel.Text = "More than one USB flash drive detected. Please remove one.";
-				}
-				else
-				{
-					_useUSBButton.Enabled = true;
-					try
-					{
-						var first = usbDriveLocator.UsbDrives.First();
+					var first = usbDriveLocator.UsbDrives.First();
 #if !MONO
-						_usbStatusLabel.Text = first.RootDirectory + " " + first.VolumeLabel + " (" +
-											   Math.Floor(first.TotalFreeSpace/1024000.0) + " Megs Free Space)";
+					_usbStatusLabel.Text = first.RootDirectory + " " + first.VolumeLabel + " (" +
+										   Math.Floor(first.TotalFreeSpace/1024000.0) + " Megs Free Space)";
 #else
-					_usbStatusLabel.Text = first.VolumeLabel;
-						//RootDir & volume label are the same on linux.  TotalFreeSpace is, like, maxint or something in mono 2.0
+				_usbStatusLabel.Text = first.VolumeLabel;
+					//RootDir & volume label are the same on linux.  TotalFreeSpace is, like, maxint or something in mono 2.0
 #endif
-					}
-					catch (Exception error)
-					{
-						_usbStatusLabel.Text = error.Message;
-					}
+				}
+				catch (Exception error)
+				{
+					_usbStatusLabel.Text = error.Message;
 				}
 			}
 		}
