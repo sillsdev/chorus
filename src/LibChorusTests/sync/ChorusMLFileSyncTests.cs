@@ -25,10 +25,10 @@ namespace LibChorus.Tests.sync
 					sally.ReplaceSomething("sally");
 					sally.CheckinAndPullAndMerge(bob);
 
-					string xmlConflictFile = ChorusNotesMergeEventListener.GetXmlConflictFilePath(sally.UserFile.Path);
-					Console.WriteLine("xmlConflictFile '{0}'", xmlConflictFile);
-					Assert.IsTrue(File.Exists(xmlConflictFile), "Conflict file should have been in working set");
-					Assert.IsTrue(sally.Synchronizer.Repository.GetFileIsInRepositoryFromFullPath(xmlConflictFile),"Conflict file should have been in repository");
+					string notesFile = ChorusNotesMergeEventListener.GetChorusNotesFilePath(sally.UserFile.Path);
+					Console.WriteLine("notesFile '{0}'", notesFile);
+					Assert.IsTrue(File.Exists(notesFile), "Conflict file should have been in working set");
+					Assert.IsTrue(sally.Synchronizer.Repository.GetFileIsInRepositoryFromFullPath(notesFile),"Notes file should have been added to repository");
 
 				}
 			}

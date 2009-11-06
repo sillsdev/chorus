@@ -25,6 +25,15 @@ namespace Chorus.FileTypeHanders.oneStory
 			return false;
 		}
 
+		public bool CanValidateFile(string pathToFile)
+		{
+			return false;
+		}
+		public string ValidateFile(string pathToFile, IProgress progress)
+		{
+			throw new NotImplementedException();
+		}
+
 		public void Do3WayMerge(MergeOrder mergeOrder)
 		{
 			var merger = new XmlMerger(mergeOrder.MergeSituation);
@@ -37,36 +46,66 @@ namespace Chorus.FileTypeHanders.oneStory
 
 		private void SetupElementStrategies(XmlMerger merger)
 		{
-			//this is all you need if people will only edit different stories, and no meta data
 			merger.MergeStrategies.SetStrategy("StoryProject", ElementStrategy.CreateSingletonElement());
-			merger.MergeStrategies.SetStrategy("stories", ElementStrategy.CreateSingletonElement());
-			merger.MergeStrategies.SetStrategy("story", ElementStrategy.CreateForKeyedElement("guid", false));
 
 			//this handles the meta data
 			merger.MergeStrategies.SetStrategy("Members", ElementStrategy.CreateSingletonElement());
 			merger.MergeStrategies.SetStrategy("Member", ElementStrategy.CreateForKeyedElement("memberKey", false));
-			merger.MergeStrategies.SetStrategy("Fonts", ElementStrategy.CreateSingletonElement());
-			merger.MergeStrategies.SetStrategy("VernacularFont", ElementStrategy.CreateSingletonElement());
-			merger.MergeStrategies.SetStrategy("NationalBTFont", ElementStrategy.CreateSingletonElement());
-			merger.MergeStrategies.SetStrategy("InternationalBTFont", ElementStrategy.CreateSingletonElement());
 
-			//the rest is used only if the same story was editted by two or more people at the same time
+			merger.MergeStrategies.SetStrategy("Languages", ElementStrategy.CreateSingletonElement());
+			merger.MergeStrategies.SetStrategy("VernacularLang", ElementStrategy.CreateSingletonElement());
+			merger.MergeStrategies.SetStrategy("NationalBTLang", ElementStrategy.CreateSingletonElement());
+			merger.MergeStrategies.SetStrategy("InternationalBTLang", ElementStrategy.CreateSingletonElement());
+
+			// story sets and stories
+			merger.MergeStrategies.SetStrategy("stories", ElementStrategy.CreateForKeyedElement("SetName", true));
+			merger.MergeStrategies.SetStrategy("story", ElementStrategy.CreateForKeyedElement("guid", true));
+
+			// the rest is used only if the same story was editted by two or more people at the same time
+			//  not supposed to happen, but let's be safer
 			merger.MergeStrategies.SetStrategy("CraftingInfo", ElementStrategy.CreateSingletonElement());
 			merger.MergeStrategies.SetStrategy("StoryCrafter", ElementStrategy.CreateSingletonElement());
 			merger.MergeStrategies.SetStrategy("StoryPurpose", ElementStrategy.CreateSingletonElement());
+			merger.MergeStrategies.SetStrategy("ResourcesUsed", ElementStrategy.CreateSingletonElement());
 			merger.MergeStrategies.SetStrategy("BackTranslator", ElementStrategy.CreateSingletonElement());
 			merger.MergeStrategies.SetStrategy("Tests", ElementStrategy.CreateSingletonElement());
-
-			merger.MergeStrategies.SetStrategy("edits", ElementStrategy.CreateSingletonElement());
-			merger.MergeStrategies.SetStrategy("edit", ElementStrategy.CreateForKeyedElement("editKey", false));
+			merger.MergeStrategies.SetStrategy("Test", ElementStrategy.CreateForKeyedElement("memberID", false));
 
 			merger.MergeStrategies.SetStrategy("verses", ElementStrategy.CreateSingletonElement());
 			merger.MergeStrategies.SetStrategy("verse", ElementStrategy.CreateForKeyedElement("guid", true));
-			merger.MergeStrategies.SetStrategy("Vernacular", ElementStrategy.CreateForKeyedElement("lang", false));
-			merger.MergeStrategies.SetStrategy("NationalBT", ElementStrategy.CreateForKeyedElement("lang", false));
-			merger.MergeStrategies.SetStrategy("InternationalBT", ElementStrategy.CreateForKeyedElement("lang", false));
+			merger.MergeStrategies.SetStrategy("Vernacular", ElementStrategy.CreateSingletonElement());
+			merger.MergeStrategies.SetStrategy("NationalBT", ElementStrategy.CreateSingletonElement());
+			merger.MergeStrategies.SetStrategy("InternationalBT", ElementStrategy.CreateSingletonElement());
 
-			//todo anchors, TestQuestions, Retellings,ConsultantNotes, CoachNotes
+			merger.MergeStrategies.SetStrategy("anchors", ElementStrategy.CreateSingletonElement());
+			merger.MergeStrategies.SetStrategy("anchor", ElementStrategy.CreateForKeyedElement("jumpTarget", true));
+			merger.MergeStrategies.SetStrategy("toolTip", ElementStrategy.CreateSingletonElement());
+			merger.MergeStrategies.SetStrategy("exegeticalHelps", ElementStrategy.CreateSingletonElement());
+			// there can be multiple exegeticalHelp elements, but a) their order doesn't matter and b) they don't need a key
+			//  I think if I left this uncommented, then it would only allow one and if another user added one, it
+			//  would just replace the one that's there... (i.e. I think that's what ElementStrategy.CreateSingletonElement
+			//  means, so... commenting out):
+			// merger.MergeStrategies.SetStrategy("exegeticalHelp", ElementStrategy.CreateSingletonElement());
+
+			merger.MergeStrategies.SetStrategy("TestQuestions", ElementStrategy.CreateSingletonElement());
+			merger.MergeStrategies.SetStrategy("TestQuestion", ElementStrategy.CreateForKeyedElement("guid", true));
+			merger.MergeStrategies.SetStrategy("TQVernacular", ElementStrategy.CreateSingletonElement());
+			merger.MergeStrategies.SetStrategy("TQNationalBT", ElementStrategy.CreateSingletonElement());
+			merger.MergeStrategies.SetStrategy("TQInternationalBT", ElementStrategy.CreateSingletonElement());
+
+			merger.MergeStrategies.SetStrategy("Answers", ElementStrategy.CreateSingletonElement());
+			merger.MergeStrategies.SetStrategy("answer", ElementStrategy.CreateForKeyedElement("memberID", true));
+
+			merger.MergeStrategies.SetStrategy("Retellings", ElementStrategy.CreateSingletonElement());
+			merger.MergeStrategies.SetStrategy("Retelling", ElementStrategy.CreateForKeyedElement("memberID", true));
+
+			merger.MergeStrategies.SetStrategy("ConsultantNotes", ElementStrategy.CreateSingletonElement());
+			merger.MergeStrategies.SetStrategy("ConsultantConversation", ElementStrategy.CreateForKeyedElement("guid", true));
+			merger.MergeStrategies.SetStrategy("ConsultantNote", ElementStrategy.CreateForKeyedElement("guid", true));
+
+			merger.MergeStrategies.SetStrategy("CoachNotes", ElementStrategy.CreateSingletonElement());
+			merger.MergeStrategies.SetStrategy("CoachConversation", ElementStrategy.CreateForKeyedElement("guid", true));
+			merger.MergeStrategies.SetStrategy("CoachNote", ElementStrategy.CreateForKeyedElement("guid", true));
 		}
 
 		public IEnumerable<IChangeReport> Find2WayDifferences(FileInRevision parent, FileInRevision child, HgRepository repository)

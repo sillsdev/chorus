@@ -33,7 +33,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
 	<DebugType>pdbonly</DebugType>
 	<Optimize>true</Optimize>
-	<OutputPath>bin\Release\</OutputPath>
+	<OutputPath>..\..\output\Release\</OutputPath>
 	<DefineConstants>TRACE</DefineConstants>
 	<ErrorReport>prompt</ErrorReport>
 	<WarningLevel>4</WarningLevel>
@@ -65,6 +65,7 @@
   </ItemGroup>
   <ItemGroup>
 	<Compile Include="clone\ClonerTests.cs" />
+	<Compile Include="FileHandlers\ChorusTestFileHanderTests.cs" />
 	<Compile Include="merge\xml\adaptIt\FileLevelAdaptItKnowlegeBaseMergeTests.cs" />
 	<Compile Include="merge\xml\ConflictXmlRecordRetrievalTests.cs" />
 	<Compile Include="merge\GroupOfConflictFiles.cs" />
@@ -85,16 +86,20 @@
 	<Compile Include="merge\xml\lift\MultiTextMergingTests.cs" />
 	<Compile Include="merge\xml\lift\PoorMansMergingStrategyTests.cs" />
 	<Compile Include="merge\xml\lift\SenseMergingTests.cs" />
+	<Compile Include="merge\xml\lift\ValidationTests.cs" />
 	<Compile Include="merge\xml\ourStory\FileLevelMergeTests.cs" />
 	<Compile Include="notes\AnnotationTests.cs" />
 	<Compile Include="notes\MessageTests.cs" />
 	<Compile Include="notes\NotesRepositoryTests.cs" />
 	<Compile Include="RepositorySetup.cs" />
+	<Compile Include="sync\CommitCopTests.cs" />
+	<Compile Include="sync\RevisionMergeBehaviorTests.cs" />
 	<Compile Include="sync\Synchronizer.FileBasedTests.cs" />
 	<Compile Include="sync\ChorusMLFileSyncTests.cs" />
 	<Compile Include="sync\Synchronizer.BadSituationTests.cs" />
 	<Compile Include="sync\SyncScenarioTests.cs" />
 	<Compile Include="sync\UsbRepositorySourceTests.cs" />
+	<Compile Include="VcsDrivers\Mercurial\HgTestSetup.cs" />
 	<Compile Include="VcsDrivers\Mercurial\IncludeExcludeTests.cs" />
 	<Compile Include="VcsDrivers\Mercurial\HgWrappingTests.cs" />
 	<Compile Include="VcsDrivers\Mercurial\HgSettingsTests.cs" />

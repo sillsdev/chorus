@@ -23,7 +23,7 @@ namespace Chorus.merge.xml.generic
 		/// </summary>
 		private ContextDescriptor _context = new NullContextDescriptor();
 
-		static public string GetXmlConflictFilePath(string baseXmlFile)
+		static public string GetChorusNotesFilePath(string baseXmlFile)
 		{
 			return baseXmlFile + ".ChorusNotes";
 		}

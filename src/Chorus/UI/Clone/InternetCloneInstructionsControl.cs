@@ -78,8 +78,13 @@ namespace Chorus.UI.Clone
 			{
 				try
 				{
+					// the target location is "unused" if either the Target Destination doesn't exist OR
+					//  if it has nothing in it (I tried Clone once and it failed because the repo spec
+					//  was wrong, but since it had created the Target Destination folder, it wouldn't
+					//  try again-rde)
 					return Directory.Exists(_parentDirectoryToPutCloneIn) &&
-						   !Directory.Exists(TargetDestination);
+						   (!Directory.Exists(TargetDestination)
+						   || (Directory.GetFiles(TargetDestination, "*.*", SearchOption.AllDirectories).Length == 0));
 				}
 				catch(Exception)
 				{

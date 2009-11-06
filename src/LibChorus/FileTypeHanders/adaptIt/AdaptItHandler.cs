@@ -26,7 +26,7 @@ namespace Chorus.FileTypeHanders.adaptIt
 				for (int i = 0; i < 10; i++)
 				{
 					var line = reader.ReadLine();
-					if (line!=null && line.Contains("<AdaptItKnowledgeBase"))
+					if (line != null && line.Contains("<KB docVersion"))
 						return true;
 				}
 			}
@@ -36,6 +36,14 @@ namespace Chorus.FileTypeHanders.adaptIt
 		public bool CanPresentFile(string pathToFile)
 		{
 			return false;
+		}
+		public bool CanValidateFile(string pathToFile)
+		{
+			return false;
+		}
+		public string ValidateFile(string pathToFile, IProgress progress)
+		{
+			throw new NotImplementedException();
 		}
 
 		public void Do3WayMerge(MergeOrder mergeOrder)
@@ -50,17 +58,24 @@ namespace Chorus.FileTypeHanders.adaptIt
 
 		private void SetupElementStrategies(XmlMerger merger)
 		{
-			merger.MergeStrategies.SetStrategy("AdaptItKnowledgeBase", ElementStrategy.CreateSingletonElement());
+			// new versions of AI no longer use this element
+			//  merger.MergeStrategies.SetStrategy("AdaptItKnowledgeBase", ElementStrategy.CreateSingletonElement());
 			merger.MergeStrategies.SetStrategy("KB", ElementStrategy.CreateSingletonElement());
 
-			//BOB, please review all these. Are the listed attributes really unique?
-			merger.MergeStrategies.SetStrategy("MAP", ElementStrategy.CreateForKeyedElement("mn", false));
+			// Are the listed attributes really unique? rde: yes and their order is probably crucial
+			merger.MergeStrategies.SetStrategy("MAP", ElementStrategy.CreateForKeyedElement("mn", true));
 
-			//review: is it ok to ignore @f?
+			// review: is it ok to ignore @f? rde: I'm not sure what you mean by "ignore", but it seems that
+			//  if someone changes @f, it should be changed
 			merger.MergeStrategies.SetStrategy("TU", ElementStrategy.CreateForKeyedElement("k", false));
 
-
-			var elementStrategy = ElementStrategy.CreateForKeyedElement("a", false);
+			// ... whereas for RS@a, if there's a conflict, just pick one or the other is fine (if there
+			//  were the ability, what we'd want to do is add the differentials from the ancestor--e.g.
+			//  if ancestor has 1 and 'mine' is 3 (I've added 2 occurrences of this interpretation) and
+			//  theirs is 2 (they've added 1 new occurrence of this interpretation), then make it 4
+			//  =1 + 2 + 1. This is what we're really want to do, but otherwise, it isn't a big deal
+			//  as far as AI or other users are concerned).
+			var elementStrategy = ElementStrategy.CreateForKeyedElement("a", true);
 			elementStrategy.AttributesToIgnoreForMerging.Add("n");
 			merger.MergeStrategies.SetStrategy("RS", elementStrategy);
 

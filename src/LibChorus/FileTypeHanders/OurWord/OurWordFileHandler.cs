@@ -1,14 +1,15 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using Chorus.merge;
+using Chorus.merge.xml.generic;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
-using System.Linq;
 
-namespace Chorus.FileTypeHanders.audio
+namespace Chorus.FileTypeHanders.OurWordFileHandler
 {
-	public class AudioFileTypeHandler : IChorusFileTypeHandler
+	public class OurWordFileHandler : IChorusFileTypeHandler
 	{
 		public bool CanDiffFile(string pathToFile)
 		{
@@ -17,13 +18,12 @@ namespace Chorus.FileTypeHanders.audio
 
 		public bool CanMergeFile(string pathToFile)
 		{
-			return false;
+			return Path.GetExtension(pathToFile).ToLower() == ".otrans";
 		}
 
 		public bool CanPresentFile(string pathToFile)
 		{
-			var ext = Path.GetExtension(pathToFile);
-			return ((new string[] {".wav",".mp3"}.Contains(ext)));
+			return false;
 		}
 
 		public bool CanValidateFile(string pathToFile)
@@ -37,32 +37,34 @@ namespace Chorus.FileTypeHanders.audio
 
 		public void Do3WayMerge(MergeOrder mergeOrder)
 		{
-			throw new ApplicationException(string.Format("Chorus could not find a handler to merge files like '{0}'", mergeOrder.pathToOurs));
+			Assembly asm = Assembly.LoadFrom("OurWordMerger.dll");
+			Type mergerType = asm.GetType("OurWord.Merger");
+			MethodInfo  mergeMethod = mergerType.GetMethod("Merge");
+			mergeMethod.Invoke(null, new object[]{mergeOrder});
 		}
+
 
 		public IEnumerable<IChangeReport> Find2WayDifferences(FileInRevision parent, FileInRevision child, HgRepository repository)
 		{
-			throw new ApplicationException(string.Format("Chorus could not find a handler to diff files like '{0}'", child.FullPath));
-
+			//this is never called because we said we don't do diffs yet; review is handled some other way
+			throw new NotImplementedException();
 		}
-
 
 		public IChangePresenter GetChangePresenter(IChangeReport report, HgRepository repository)
 		{
-			return new AudioChangePresenter(report);
+			//this is never called because we said we don't present diffs; review is handled some other way
+			throw new NotImplementedException();
 		}
-
-
-
 
 		public IEnumerable<IChangeReport> DescribeInitialContents(FileInRevision fileInRevision, TempFile file)
 		{
-			return new IChangeReport[] { new DefaultChangeReport(fileInRevision, "Added") };
+			//this is never called because we said we don't present diffs; review is handled some other way
+			throw new NotImplementedException();
 		}
 
 		public IEnumerable<string> GetExtensionsOfKnownTextFileTypes()
 		{
-			yield break;
+			yield return "onestory";
 		}
 	}
 }

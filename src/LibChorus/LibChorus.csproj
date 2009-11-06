@@ -50,7 +50,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
 	<DebugType>pdbonly</DebugType>
 	<Optimize>true</Optimize>
-	<OutputPath>bin\Release\</OutputPath>
+	<OutputPath>..\..\output\Release\</OutputPath>
 	<DefineConstants>TRACE</DefineConstants>
 	<ErrorReport>prompt</ErrorReport>
 	<WarningLevel>4</WarningLevel>
@@ -95,6 +95,8 @@
 	<Compile Include="FileTypeHanders\ChorusNotesDiffer.cs" />
 	<Compile Include="FileTypeHanders\lift\WeSayConfigFileHandler.cs" />
 	<Compile Include="FileTypeHanders\oneStory\OneStoryFileHandler.cs" />
+	<Compile Include="FileTypeHanders\OurWord\OurWordFileHandler.cs" />
+	<Compile Include="FileTypeHanders\test\ChorusTestFileHandler.cs" />
 	<Compile Include="FileTypeHanders\text\TextEditChangePresenter.cs" />
 	<Compile Include="FileTypeHanders\text\TextEditChangeReport.cs" />
 	<Compile Include="FileTypeHanders\text\TextFileTypeHandler.cs" />
@@ -117,6 +119,7 @@
 	<Compile Include="merge\xml\generic\ChorusNotesMergeEventListener.cs" />
 	<Compile Include="notes\ChorusNotesUser.cs" />
 	<Compile Include="notes\NotesRepository.cs" />
+	<Compile Include="sync\CommitCop.cs" />
 	<Compile Include="Utilities\ProcessOutputReader.cs" />
 	<Compile Include="Utilities\FailureSimulator.cs" />
 	<Compile Include="Utilities\Guard.cs" />
@@ -128,6 +131,7 @@
 	<Compile Include="merge\MergeSituation.cs" />
 	<Compile Include="merge\xml\generic\MergeSort.cs" />
 	<Compile Include="merge\xml\generic\PoorMansMergeStrategy.cs" />
+	<Compile Include="Utilities\XmlValidation.cs" />
 	<Compile Include="VcsDrivers\IRetrieveFileVersionsFromRepository.cs" />
 	<Compile Include="retrieval\LiftEntryRetriever.cs" />
 	<Compile Include="retrieval\RevisionInspector.cs" />
@@ -146,7 +150,7 @@
 	<Compile Include="Utilities\ini\IniWriter.cs" />
 	<Compile Include="Utilities\ini\OrderedList.cs" />
 	<Compile Include="Utilities\ini\OrderedListEnumerator.cs" />
-	<Compile Include="Utilities\Other.cs" />
+	<Compile Include="Utilities\ExecutionEnvironment.cs" />
 	<Compile Include="Utilities\ProcessStream.cs" />
 	<Compile Include="Utilities\Progress.cs" />
 	<Compile Include="Utilities\ShortTermEnvironmentalVariable.cs" />
@@ -205,9 +209,9 @@
   </Target>
   -->
   <PropertyGroup>
-	<PostBuildEvent>mkdir $(OutDir)\diff3
-mkdir $(OutDir)\diff3\bin
-copy $(OutDir)..\..\lib\diff3\bin\*.* $(OutDir)\diff3\bin\
+	<PostBuildEvent>mkdir $(OutDir)diff3
+mkdir $(OutDir)diff3\bin
+copy $(OutDir)..\..\lib\diff3\bin\*.* $(OutDir)diff3\bin\
 </PostBuildEvent>
 	<ProjectGuid>{94245366-8F1E-475C-810D-FE89BB3948E0}</ProjectGuid>
 	<RootNamespace>Chorus</RootNamespace>

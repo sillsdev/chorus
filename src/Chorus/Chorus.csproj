@@ -266,6 +266,12 @@
 	<Compile Include="UI\Sync\SyncStartControl.Designer.cs">
 	  <DependentUpon>SyncStartControl.cs</DependentUpon>
 	</Compile>
+	<Compile Include="UI\UsbDriveLocator.cs">
+	  <SubType>Component</SubType>
+	</Compile>
+	<Compile Include="UI\UsbDriveLocator.Designer.cs">
+	  <DependentUpon>UsbDriveLocator.cs</DependentUpon>
+	</Compile>
   </ItemGroup>
   <ItemGroup>
 	<ProjectReference Include="..\LibChorus\LibChorus.csproj">
