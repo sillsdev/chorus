@@ -50,7 +50,10 @@ namespace Chorus.FileTypeHanders.oneStory
 
 			// story sets and stories
 			merger.MergeStrategies.SetStrategy("stories", ElementStrategy.CreateForKeyedElement("SetName", true));
-			merger.MergeStrategies.SetStrategy("story", ElementStrategy.CreateForKeyedElement("guid", true));
+
+			var elementStrategyStory = ElementStrategy.CreateForKeyedElement("guid", true);
+			elementStrategyStory.AttributesToIgnoreForMerging.Add("stageDateTimeStamp");
+			merger.MergeStrategies.SetStrategy("story", elementStrategyStory);
 
 			// the rest is used only if the same story was editted by two or more people at the same time
 			//  not supposed to happen, but let's be safer
@@ -92,11 +95,17 @@ namespace Chorus.FileTypeHanders.oneStory
 
 			merger.MergeStrategies.SetStrategy("ConsultantNotes", ElementStrategy.CreateSingletonElement());
 			merger.MergeStrategies.SetStrategy("ConsultantConversation", ElementStrategy.CreateForKeyedElement("guid", true));
-			merger.MergeStrategies.SetStrategy("ConsultantNote", ElementStrategy.CreateForKeyedElement("guid", true));
+
+			var elementStrategyConNote = ElementStrategy.CreateForKeyedElement("guid", true);
+			elementStrategyConNote.AttributesToIgnoreForMerging.Add("timeStamp");
+			merger.MergeStrategies.SetStrategy("ConsultantNote", elementStrategyConNote);
 
 			merger.MergeStrategies.SetStrategy("CoachNotes", ElementStrategy.CreateSingletonElement());
 			merger.MergeStrategies.SetStrategy("CoachConversation", ElementStrategy.CreateForKeyedElement("guid", true));
-			merger.MergeStrategies.SetStrategy("CoachNote", ElementStrategy.CreateForKeyedElement("guid", true));
+
+			var elementStrategyCoaNote = ElementStrategy.CreateForKeyedElement("guid", true);
+			elementStrategyCoaNote.AttributesToIgnoreForMerging.Add("timeStamp");
+			merger.MergeStrategies.SetStrategy("CoachNote", elementStrategyCoaNote);
 		}
 
 		public IEnumerable<IChangeReport> Find2WayDifferences(FileInRevision parent, FileInRevision child, HgRepository repository)
