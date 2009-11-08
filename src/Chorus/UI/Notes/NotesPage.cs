@@ -13,19 +13,17 @@ namespace Chorus.UI.Notes
 
 			SuspendLayout();
 			this.Padding = new Padding(20, 20,20,20);
-			var lowerContainer = new SplitContainer();
-			lowerContainer.Orientation = Orientation.Vertical;
-			lowerContainer.Dock = DockStyle.Fill;
+			annotationView.Padding=new Padding(0,50,0,0);
 			annotationView.Dock = DockStyle.Fill;
+			notesInProjectView.Width = 300;
 
 	  //todo: don't need this splitter
-			lowerContainer.Panel1.Controls.Add(annotationView);
 
 			var verticalContainer = new SplitContainer();
-			verticalContainer.Orientation = Orientation.Horizontal;
+			verticalContainer.Orientation = Orientation.Vertical;
 			notesInProjectView.Dock = DockStyle.Fill;
 			verticalContainer.Panel1.Controls.Add(notesInProjectView);
-			verticalContainer.Panel2.Controls.Add(lowerContainer);
+			verticalContainer.Panel2.Controls.Add(annotationView);
 			verticalContainer.Dock = DockStyle.Fill;
 			Controls.Add(verticalContainer);
 			ResumeLayout();
