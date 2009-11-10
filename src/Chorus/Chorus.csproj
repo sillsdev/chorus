@@ -48,7 +48,7 @@
 	<ApplicationIcon>chorus.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
-	<Reference Include="Autofac, Version=1.3.2.449, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
+	<Reference Include="Autofac, Version=1.4.4.561, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
 	  <SpecificVersion>False</SpecificVersion>
 	  <HintPath>..\..\lib\net2.0\Autofac.dll</HintPath>
 	</Reference>
@@ -126,6 +126,12 @@
 	</Compile>
 	<Compile Include="UI\Notes\NotesPage.Designer.cs">
 	  <DependentUpon>NotesPage.cs</DependentUpon>
+	</Compile>
+	<Compile Include="UI\Notes\SearchBox.cs">
+	  <SubType>UserControl</SubType>
+	</Compile>
+	<Compile Include="UI\Notes\SearchBox.Designer.cs">
+	  <DependentUpon>SearchBox.cs</DependentUpon>
 	</Compile>
 	<Compile Include="UI\Review\ChangedReport\ChangeReportView.cs">
 	  <SubType>UserControl</SubType>
@@ -323,6 +329,9 @@
 	  <DependentUpon>NotesPage.cs</DependentUpon>
 	  <SubType>Designer</SubType>
 	</EmbeddedResource>
+	<EmbeddedResource Include="UI\Notes\SearchBox.resx">
+	  <DependentUpon>SearchBox.cs</DependentUpon>
+	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Sync\SyncControl.resx">
 	  <DependentUpon>SyncControl.cs</DependentUpon>
 	  <SubType>Designer</SubType>
@@ -346,6 +355,7 @@
 	<None Include="Resources\internet29x32.png" />
 	<None Include="Resources\networkFolder29x32.png" />
 	<None Include="Resources\Usb32x28.png" />
+	<None Include="Resources\search18x18.png" />
 	<Content Include="UI\Settings\SetupPanel.htm">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</Content>
