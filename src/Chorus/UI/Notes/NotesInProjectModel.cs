@@ -4,21 +4,22 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Windows.Forms;
 using Chorus.notes;
 using Chorus.sync;
-using Message=Chorus.notes.Message;
+using Chorus.VcsDrivers.Mercurial;
 
 namespace Chorus.UI.Notes
 {
 	public class NotesInProjectModel
 	{
 		private readonly ChorusNotesUser _currentUser;
+		private readonly AnnotationSelectedEvent _annotationSelectedEvent;
 		private List<NotesRepository> _repositories=new List<NotesRepository>();
 
-		public NotesInProjectModel(ChorusNotesUser currentUser, ProjectFolderConfiguration projectFolderConfiguration)
+		public NotesInProjectModel(ChorusNotesUser currentUser, ProjectFolderConfiguration projectFolderConfiguration, AnnotationSelectedEvent annotationSelectedEventToRaise)
 		{
 			_currentUser = currentUser;
+			_annotationSelectedEvent = annotationSelectedEventToRaise;
 			foreach (var path in GetChorusNotesFilePaths(projectFolderConfiguration.FolderPath))
 			{
 				_repositories.Add(NotesRepository.FromFile(path));
@@ -56,27 +57,11 @@ namespace Chorus.UI.Notes
 		{
 			listMessage.ParentAnnotation.AddMessage(_currentUser.Name, "closed", string.Empty);
 		}
-	}
 
-	public class ListMessage
-	{
-		public Annotation ParentAnnotation { get; private set; }
-		public Message Message { get; private set; }
-
-		public ListMessage(Annotation parentAnnotation, Message message)
+		public void SelectedAnnotationChanged(ListMessage descriptor)
 		{
-			ParentAnnotation = parentAnnotation;
-			Message = message;
-		}
-
-		public ListViewItem GetListViewItem()
-		{
-			var i = new ListViewItem(ParentAnnotation.Class);
-			i.Tag = this;
-			i.SubItems.Add(Message.Date.ToShortDateString());
-			i.SubItems.Add(ParentAnnotation.GetLabel("unknown"));
-			i.SubItems.Add(Message.GetAuthor("unknown"));
-			return i;
+			if (_annotationSelectedEvent != null)
+				_annotationSelectedEvent.Raise(descriptor);
 		}
 	}
 }

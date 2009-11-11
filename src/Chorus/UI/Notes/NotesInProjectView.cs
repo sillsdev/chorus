@@ -45,7 +45,10 @@ namespace Chorus.UI.Notes
 
 		private void OnSelectedIndexChanged(object sender, EventArgs e)
 		{
-
+			if (_messageListView.SelectedItems.Count > 0)
+			{
+				_model.SelectedAnnotationChanged(_messageListView.SelectedItems[0].Tag as ListMessage);
+			}
 		}
 
 		private void OnLoad(object sender, EventArgs e)

@@ -121,6 +121,8 @@
 	<Compile Include="UI\Misc\ReadinessPanel.Designer.cs">
 	  <DependentUpon>ReadinessPanel.cs</DependentUpon>
 	</Compile>
+	<Compile Include="UI\Notes\Events.cs" />
+	<Compile Include="UI\Notes\ListMessage.cs" />
 	<Compile Include="UI\Notes\NotesPage.cs">
 	  <SubType>UserControl</SubType>
 	</Compile>

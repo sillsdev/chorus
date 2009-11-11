@@ -4,6 +4,7 @@ using Chorus.FileTypeHanders;
 using Chorus.retrieval;
 using Chorus.sync;
 using Chorus.UI.Misc;
+using Chorus.UI.Notes;
 using Chorus.UI.Review;
 using Chorus.UI.Review.ChangedReport;
 using Chorus.UI.Review.ChangesInRevision;
@@ -90,6 +91,8 @@ namespace Chorus
 
 			builder.Register<RevisionInRepositoryModel>();
 			builder.Register<RevisionsInRepositoryView>();
+
+			builder.Register<AnnotationSelectedEvent>();
 		}
 
 		private static Shell CreateShell(string projectPath, Autofac.Builder.ContainerBuilder builder)
