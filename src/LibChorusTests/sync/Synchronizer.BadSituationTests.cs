@@ -1,9 +1,7 @@
-using System;
+using System.Diagnostics;
 using System.IO;
-using System.Text;
-using System.Xml;
+using Chorus.FileTypeHanders.test;
 using Chorus.merge;
-using Chorus.merge.xml.lift;
 using Chorus.sync;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
@@ -292,17 +290,14 @@ namespace LibChorus.Tests.sync
 				sally.AddAndCheckIn();
 				 sally.Repository.Update(tip.Number.Hash);
 
-				sally.Repository.Branch("branch1");
 				sally.ReplaceSomething("forbranch1");
 				sally.AddAndCheckIn();
 				 sally.Repository.Update(tip.Number.Hash);
 
-			   sally.Repository.Branch("branch2");
 				sally.ReplaceSomething("forbranch2");
 				sally.AddAndCheckIn();
 				sally.Repository.Update(tip.Number.Hash);
 
-				sally.Repository.Branch("branch3");
 				sally.ReplaceSomething("forbranch3");
 				sally.AddAndCheckIn();
 				sally.Repository.Update(tip.Number.Hash);
@@ -323,6 +318,58 @@ namespace LibChorus.Tests.sync
 			}
 
 		}
+
+		/// <summary>
+		/// The scenario here, as of 2 Nov 09, is that someone has manually tagged a branch as bad.
+		/// </summary>
+		[Test]
+		public void Sync_ExistingRejectChangeSet_NotMergedIn()
+		{
+			using (var bob = new RepositorySetup("bob"))
+			{
+				bob.AddAndCheckinFile("test.txt", "original");
+
+				bob.CreateRejectForkAndComeBack();
+
+				bob.ChangeFileAndCommit("test.txt", "ok", "goodGuy"); //move on so we have two distinct branches
+				bob.AssertHeadCount(2);
+
+				bob.CheckinAndPullAndMerge(null);
+
+				Assert.AreEqual("goodGuy", bob.Repository.GetRevisionWorkingSetIsBasedOn().Summary);
+				bob.AssertLocalRevisionNumber(3);
+				bob.AssertHeadCount(2);
+			}
+		}
+
+
+		[Test]
+		public void Sync_ModifiedFileIsInvalid_CheckedInButThenBackedOut()
+		{
+			/*
+				@  changeset:   2
+				|  summary:     [Backout due to validation Failure]
+				|
+				o  changeset:   1
+				|  summary:     missing checkin description
+				|
+				o  changeset:   0
+				summary:     Add test.chorusTest
+			 */
+			using (var bob = new RepositorySetup("bob"))
+			{
+				bob.AddAndCheckinFile("test.chorusTest", "original");
+				bob.AssertLocalRevisionNumber(0);
+				bob.ChangeFile("test.chorusTest", ChorusTestFileHandler.GetInvalidContents());
+				bob.CheckinAndPullAndMerge();
+				bob.AssertLocalRevisionNumber(2);
+				bob.AssertHeadCount(1);
+				bob.AssertLocalRevisionNumber(int.Parse(bob.Repository.GetTip().Number.LocalRevisionNumber));
+				Debug.WriteLine(bob.Repository.GetLog(-1));
+
+			}
+		}
+
 
 		/// <summary>
 		/// the diff here with the previous test is that while sally is still the one who is the driver
@@ -380,5 +427,8 @@ namespace LibChorus.Tests.sync
 //                Assert.IsFalse(xmlString.Contains("\0"));
 //            }
 //        }
+
+
+
 	}
 }

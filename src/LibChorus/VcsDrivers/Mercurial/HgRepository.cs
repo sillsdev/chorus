@@ -296,16 +296,6 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		public virtual void Commit(bool forceCreationOfChangeSet, string message, params object[] args)
 		{
-			//enhance: this is normally going to be redundant, as we always use the same branch.
-			//but it does it set the first time, and handles the case where the user's account changes (either
-			//because they've logged in as a different user, or changed the name of a their account.
-
-			//NB: I (JH) and not yet even clear we need branches, and it makes reading the tree somewhat confusing
-			//If Bob merges with Sally, his new "tip" can very well be labelled "Sally".
-
-			//disabled because then Update failed to get the latest, if it was the other user's branch
-			//      Branch(_userName);
-
 			message = string.Format(message, args);
 			_progress.WriteVerbose("{0} committing with comment: {1}", _userName, message);
 			ExecutionResult result = Execute(_secondsBeforeTimeoutOnLocalOperation, "ci", "-m " + SurroundWithQuotes(message));
@@ -421,10 +411,7 @@ namespace Chorus.VcsDrivers.Mercurial
 //        }
 
 
-		protected static string SurroundWithQuotes(string path)
-		{
-			return "\"" + path + "\"";
-		}
+
 
 		public string PathWithQuotes
 		{
@@ -667,6 +654,10 @@ namespace Chorus.VcsDrivers.Mercurial
 							item.AddParentFromCombinedNumberAndHash(value);
 							break;
 
+						case "branch":
+							item.Branch = value;
+							break;
+
 						case "user":
 							item.UserId = value;
 							break;
@@ -815,7 +806,8 @@ namespace Chorus.VcsDrivers.Mercurial
 				if (action == FileInRevision.Action.NoChanges)
 					action = FileInRevision.Action.Added;
 
-				revisions.Add(new FileInRevision(revisionToAssignToResultingFIRs.Number.LocalRevisionNumber, Path.Combine(PathToRepo, line.Substring(2)), action));
+				string revToAssign= revisionToAssignToResultingFIRs == null ? "-1": revisionToAssignToResultingFIRs.Number.LocalRevisionNumber;
+				revisions.Add(new FileInRevision(revToAssign, Path.Combine(PathToRepo, line.Substring(2)), action));
 			}
 			return revisions;
 		}
@@ -919,7 +911,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			{
 				string d = Path.GetDirectoryName(p);
 				if (!Directory.Exists(d))
-					Directory.CreateDirectory(d);
+					throw new ApplicationException("There is no repository at " + d);
 
 				File.WriteAllText(p, "");
 			}
@@ -1447,6 +1439,67 @@ namespace Chorus.VcsDrivers.Mercurial
 				section.Set("**."+ext, "dumbencode:");
 			}
 			doc.Save();
+		}
+
+		/// <summary>
+		/// NB: this adds a new changeset
+		/// </summary>
+		/// <param name="number"></param>
+		/// <param name="tag"></param>
+		public void TagRevision(string revisionNumber, string tag)
+		{
+			Execute(false, _secondsBeforeTimeoutOnLocalOperation, "tag -r " + revisionNumber + " \"" + tag + "\"");
+		}
+
+		protected static string SurroundWithQuotes(string path)
+		{
+			return "\"" + path + "\"";
+		}
+
+		/// <summary>
+		/// Does a backout of the specified revision, which must be the head of its branch
+		/// (this simplifies things, because we don't have to worry about non-trivial merging of the
+		/// backout changeset).
+		/// Afterwards, the current head will be the backout revision.
+		/// </summary>
+		/// <returns>The local revision # of the backout changeset (which will always be tip)</returns>
+		public string BackoutHead(string revisionNumber, string changeSetSummary)
+		{
+			if (GetHasOneOrMoreChangeSets())
+			{
+				Guard.Against(!GetIsHead(revisionNumber), "BackoutHead() requires that the specified revision be a head, because this is the only scenario which is handled and unit-tested.");
+
+				var previousRevisionOfWorkingDir = GetRevisionWorkingSetIsBasedOn();
+
+				Update(revisionNumber);//move over to this branch, if necessary
+
+				using (var messageFile = new TempFile(changeSetSummary))
+				{
+					Execute(false, _secondsBeforeTimeoutOnLocalOperation,
+							string.Format("backout -r {0} --logfile \"{1}\"", revisionNumber, messageFile.Path));
+				}
+				//if we were not backing out the "current" revision, move back over to it.
+				if (!previousRevisionOfWorkingDir.GetMatchesLocalOrHash(revisionNumber))
+				{
+					Update(previousRevisionOfWorkingDir.Number.Hash);
+				}
+				return GetTip().Number.LocalRevisionNumber;
+			}
+			else //hg cannot "backout" the very first revision
+			{
+				//it's not clear what I should do
+				throw new ApplicationException("Cannot backout the very first changeset.");
+			}
+		}
+
+		private bool GetIsHead(string localOrHashNumber)
+		{
+			return GetHeads().Any(h => h.Number.LocalRevisionNumber == localOrHashNumber || h.Number.Hash == localOrHashNumber);
+		}
+
+		private bool GetHasOneOrMoreChangeSets()
+		{
+			return GetTip() != null;
 		}
 	}
 

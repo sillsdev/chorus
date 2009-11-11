@@ -25,6 +25,8 @@ namespace Chorus.sync
 		private string _localRepositoryPath;
 		private ProjectFolderConfiguration _project;
 		private IProgress _progress;
+		private ChorusFileTypeHandlerCollection _handlers;
+		public static readonly string RejectTagSubstring = "[reject]";
 
 		public List<RepositoryAddress> ExtraRepositorySources { get; private set; }
 
@@ -34,6 +36,7 @@ namespace Chorus.sync
 			_progress = progress;
 			_project = project;
 			_localRepositoryPath = localRepositoryPath;
+			_handlers = ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers();
 			ExtraRepositorySources = new List<RepositoryAddress>();
 			ExtraRepositorySources.Add(RepositoryAddress.Create(RepositoryAddress.HardWiredSources.UsbKey, "USB flash drive", false));
 		}
@@ -121,7 +124,18 @@ namespace Chorus.sync
 
 			try
 			{
-				repo.AddAndCheckinFiles(_project.IncludePatterns, _project.ExcludePatterns, options.CheckinDescription);
+				using (var commitCop = new CommitCop(Repository, _handlers, _progress))
+				{
+					repo.AddAndCheckinFiles(_project.IncludePatterns, _project.ExcludePatterns, options.CheckinDescription);
+
+					if (!string.IsNullOrEmpty(commitCop.ValidationResult))
+					{
+						_progress.WriteError("The changed data did not pass validation tests. Your project will be moved back to the last Send/Receive before this problem occurred, so that you can keep working.  Please notify whoever provides you with computer support.");
+						results.Succeeded = false;
+						results.DidGetChangesFromOthers = false;
+						return results;
+					}
+				}
 			}
 			catch (Exception error)
 			{
@@ -133,7 +147,7 @@ namespace Chorus.sync
 			}
 
 			var workingRevBeforeSync = repo.GetRevisionWorkingSetIsBasedOn();
-			_progress.WriteVerbose("Got workingRevBeforeSync.");//trying to pin down WS-14981 send/receive hangs
+			//_progress.WriteVerbose("Got workingRevBeforeSync.");//trying to pin down WS-14981 send/receive hangs
 
 			List<RepositoryAddress> sourcesToTry = options.RepositorySourcesToTry;
 
@@ -285,23 +299,12 @@ namespace Chorus.sync
 				};
 			repository.EnsureTheseExtensionAreEnabled(names);
 
-
-			//TODO: give all injected handlers a shot at this (holdup is how to wire the collection of handlers into
-			//  SYnchronizer, since it is build with a factor method).
-
 			List<string> extensions = new List<string>();
-			IChorusFileTypeHandler handler;
-			 handler = new ConflictFileTypeHandler();
-			extensions.AddRange(handler.GetExtensionsOfKnownTextFileTypes());
 
-			handler = new LiftFileHandler();
-			extensions.AddRange(handler.GetExtensionsOfKnownTextFileTypes());
-
-			handler = new TextFileTypeHandler();
-			extensions.AddRange(handler.GetExtensionsOfKnownTextFileTypes());
-
-			handler = new WeSayConfigFileHandler();
-			extensions.AddRange(handler.GetExtensionsOfKnownTextFileTypes());
+			foreach (var handler in  _handlers.Handers)
+			{
+				extensions.AddRange(handler.GetExtensionsOfKnownTextFileTypes());
+			}
 
 			repository.SetupEndOfLineConversion(extensions.Distinct());
 		}
@@ -339,8 +342,8 @@ namespace Chorus.sync
 					return;
 				}
 			}
-			//don't know if this would ever happen, but it's better than stayin in limbo
-			_progress.WriteError("Unexpected drop back to previous-tip");
+
+			_progress.WriteWarning("Staying at previous-tip (unusual)");
 		}
 
 		private string GetMergeCommitSummary(string personMergedWith, HgRepository repository)
@@ -434,8 +437,7 @@ namespace Chorus.sync
 		}
 
 
-
-		  /// <returns>A list of people that actually needed merging with.  Throws exception if there is an error.</returns>
+		/// <returns>A list of people that actually needed merging with.  Throws exception if there is an error.</returns>
 		private List<string> MergeHeads(SyncResults results)
 		{
 			List<string> peopleWeMergedWith = new List<string>();
@@ -447,26 +449,36 @@ namespace Chorus.sync
 
 			foreach (Revision head in heads)
 			{
+				if (head.Number.LocalRevisionNumber == myHead.Number.LocalRevisionNumber)
+					continue;
+
+				if (head.Tag.Contains(RejectTagSubstring))
+					continue;
+
+				//note: what we're checking here is actualy the *name* of the branch... obviously
+				//they are different branches, or merge would not be needed.
+				if (head.Branch != myHead.Branch)//Chorus policy is to only auto-merge on branches with same name
+					continue;
+
 				//this is for posterity, on other people's machines, so use the hashes instead of local numbers
-				MergeSituation.PushRevisionsToEnvironmentVariables(myHead.UserId, myHead.Number.Hash, head.UserId, head.Number.Hash);
+				MergeSituation.PushRevisionsToEnvironmentVariables(myHead.UserId, myHead.Number.Hash, head.UserId,
+																   head.Number.Hash);
 
 				MergeOrder.PushToEnvironmentVariables(_localRepositoryPath);
-				if (head.Number.LocalRevisionNumber != myHead.Number.LocalRevisionNumber)
+				_progress.WriteStatus("Merging with {0}...", head.UserId);
+				RemoveMergeObstacles(myHead, head);
+				bool didMerge = MergeTwoChangeSets(myHead, head);
+				if (didMerge)
 				{
-					_progress.WriteStatus("Merging with {0}...", head.UserId);
-					RemoveMergeObstacles(myHead, head);
-					bool didMerge = MergeTwoChangeSets(myHead, head);
-					if (didMerge)
-					{
-						peopleWeMergedWith.Add(head.UserId);
-						//that merge may have generated conflict files, and we want these merged
-						//version + updated/created conflict files to go right back into the repository
-						Repository.AddAndCheckinFiles(_project.IncludePatterns, _project.ExcludePatterns, GetMergeCommitSummary(head.UserId, Repository));
+					peopleWeMergedWith.Add(head.UserId);
 
-					}
+					//that merge may have generated conflict files, and we want these merged
+					//version + updated/created conflict files to go right back into the repository
+					Repository.AddAndCheckinFiles(_project.IncludePatterns, _project.ExcludePatterns,
+												  GetMergeCommitSummary(head.UserId, Repository));
 				}
 			}
-			return peopleWeMergedWith;
+			  return peopleWeMergedWith;
 		}
 
 		/// <summary>
@@ -521,13 +533,14 @@ namespace Chorus.sync
 		}
 
 
+
 		/// <returns>false if nothing needed to be merged, true if the merge was done. Throws exception if there is an error.</returns>
 		private bool MergeTwoChangeSets(Revision head, Revision theirHead)
 		{
 #if MONO
-			string chorusMergeFilePath = Path.Combine(Other.DirectoryOfExecutingAssembly, "chorusmerge");
+			string chorusMergeFilePath = Path.Combine(ExecutionEnvironment.DirectoryOfExecutingAssembly, "chorusmerge");
 #else
-			string chorusMergeFilePath = Path.Combine(Other.DirectoryOfExecutingAssembly, "ChorusMerge.exe");
+			string chorusMergeFilePath = Path.Combine(ExecutionEnvironment.DirectoryOfExecutingAssembly, "ChorusMerge.exe");
 #endif
 			using (new ShortTermEnvironmentalVariable("HGMERGE", '"'+chorusMergeFilePath+'"'))
 			{

@@ -31,6 +31,7 @@
 	<IsWebBootstrapper>false</IsWebBootstrapper>
 	<UseApplicationTrust>false</UseApplicationTrust>
 	<BootstrapperEnabled>true</BootstrapperEnabled>
+	<TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
 	<DebugSymbols>true</DebugSymbols>
@@ -65,11 +66,10 @@
 	  <SpecificVersion>False</SpecificVersion>
 	  <HintPath>..\..\lib\net2.0\Autofac.dll</HintPath>
 	</Reference>
-	<Reference Include="LinqBridge, Version=1.0.0.0, Culture=neutral, PublicKeyToken=c2b14eb747628076, processorArchitecture=MSIL">
-	  <SpecificVersion>False</SpecificVersion>
-	  <HintPath>..\..\lib\net2.0\LinqBridge.dll</HintPath>
-	</Reference>
 	<Reference Include="System" />
+	<Reference Include="System.Core">
+	  <RequiredTargetFramework>3.5</RequiredTargetFramework>
+	</Reference>
 	<Reference Include="System.Data" />
 	<Reference Include="System.Drawing" />
 	<Reference Include="System.Management" />
@@ -88,6 +88,8 @@
 	<Compile Include="FileTypeHanders\ConflictDiffer.cs" />
 	<Compile Include="FileTypeHanders\lift\WeSayConfigFileHandler.cs" />
 	<Compile Include="FileTypeHanders\oneStory\OneStoryFileHandler.cs" />
+	<Compile Include="FileTypeHanders\OurWord\OurWordFileHandler.cs" />
+	<Compile Include="FileTypeHanders\test\ChorusTestFileHandler.cs" />
 	<Compile Include="FileTypeHanders\text\TextEditChangePresenter.cs" />
 	<Compile Include="FileTypeHanders\text\TextEditChangeReport.cs" />
 	<Compile Include="FileTypeHanders\text\TextFileTypeHandler.cs" />
@@ -108,6 +110,7 @@
 	<Compile Include="merge\UnmergableFileTypeConflict.cs" />
 	<Compile Include="merge\xml\generic\HumanLogMergeEventListener.cs" />
 	<Compile Include="merge\xml\generic\XmlLogMergeEventListener.cs" />
+	<Compile Include="sync\CommitCop.cs" />
 	<Compile Include="Utilities\ProcessOutputReader.cs" />
 	<Compile Include="Utilities\FailureSimulator.cs" />
 	<Compile Include="Utilities\Guard.cs" />
@@ -119,6 +122,7 @@
 	<Compile Include="merge\MergeSituation.cs" />
 	<Compile Include="merge\xml\generic\MergeSort.cs" />
 	<Compile Include="merge\xml\generic\PoorMansMergeStrategy.cs" />
+	<Compile Include="Utilities\XmlValidation.cs" />
 	<Compile Include="VcsDrivers\IRetrieveFileVersionsFromRepository.cs" />
 	<Compile Include="retrieval\LiftEntryRetriever.cs" />
 	<Compile Include="retrieval\RevisionInspector.cs" />
@@ -137,7 +141,7 @@
 	<Compile Include="Utilities\ini\IniWriter.cs" />
 	<Compile Include="Utilities\ini\OrderedList.cs" />
 	<Compile Include="Utilities\ini\OrderedListEnumerator.cs" />
-	<Compile Include="Utilities\Other.cs" />
+	<Compile Include="Utilities\ExecutionEnvironment.cs" />
 	<Compile Include="Utilities\ProcessStream.cs" />
 	<Compile Include="Utilities\Progress.cs" />
 	<Compile Include="Utilities\ShortTermEnvironmentalVariable.cs" />

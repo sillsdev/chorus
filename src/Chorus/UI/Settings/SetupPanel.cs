@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 using System.Windows.Forms;
-using Other=Chorus.Utilities.Other;
+using Chorus.Utilities;
 
 namespace Chorus.UI.Settings
 {
@@ -14,7 +14,7 @@ namespace Chorus.UI.Settings
 
 		private void SetupPanel_Load(object sender, EventArgs e)
 		{
-			string path = Path.Combine(Other.DirectoryOfExecutingAssembly, "UI/SetupPanel.htm");
+			string path = Path.Combine(ExecutionEnvironment.DirectoryOfExecutingAssembly, "UI/SetupPanel.htm");
 			webBrowser1.Document.Write(File.ReadAllText(path));
 			// webBrowser1.DocumentText = File.ReadAllText(path);
 			//    webBrowser1.Refresh();
