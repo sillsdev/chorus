@@ -21,6 +21,8 @@ namespace Chorus.UI.Notes
 			splitContainer1.Panel1.Controls.Add(notesInProjectView);
 			splitContainer1.Panel2.Controls.Add(annotationView);
 			ResumeLayout();
+
+
 		}
 	}
 }

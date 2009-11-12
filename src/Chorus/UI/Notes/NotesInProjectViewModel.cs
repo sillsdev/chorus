@@ -10,16 +10,16 @@ using Chorus.VcsDrivers.Mercurial;
 
 namespace Chorus.UI.Notes
 {
-	public class NotesInProjectModel
+	public class NotesInProjectViewModel
 	{
 		private readonly ChorusNotesUser _currentUser;
-		private readonly AnnotationSelectedEvent _annotationSelectedEvent;
+		private readonly MessageSelectedEvent _messageSelectedEvent;
 		private List<NotesRepository> _repositories=new List<NotesRepository>();
 
-		public NotesInProjectModel(ChorusNotesUser currentUser, ProjectFolderConfiguration projectFolderConfiguration, AnnotationSelectedEvent annotationSelectedEventToRaise)
+		public NotesInProjectViewModel(ChorusNotesUser currentUser, ProjectFolderConfiguration projectFolderConfiguration, MessageSelectedEvent messageSelectedEventToRaise)
 		{
 			_currentUser = currentUser;
-			_annotationSelectedEvent = annotationSelectedEventToRaise;
+			_messageSelectedEvent = messageSelectedEventToRaise;
 			foreach (var path in GetChorusNotesFilePaths(projectFolderConfiguration.FolderPath))
 			{
 				_repositories.Add(NotesRepository.FromFile(path));
@@ -58,10 +58,10 @@ namespace Chorus.UI.Notes
 			listMessage.ParentAnnotation.AddMessage(_currentUser.Name, "closed", string.Empty);
 		}
 
-		public void SelectedAnnotationChanged(ListMessage descriptor)
+		public void SelectedMessageChanged(ListMessage listMessage)
 		{
-			if (_annotationSelectedEvent != null)
-				_annotationSelectedEvent.Raise(descriptor);
+			if (_messageSelectedEvent != null)
+				_messageSelectedEvent.Raise(listMessage.ParentAnnotation, listMessage.Message);
 		}
 	}
 }

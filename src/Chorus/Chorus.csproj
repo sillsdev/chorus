@@ -121,6 +121,7 @@
 	<Compile Include="UI\Misc\ReadinessPanel.Designer.cs">
 	  <DependentUpon>ReadinessPanel.cs</DependentUpon>
 	</Compile>
+	<Compile Include="UI\Notes\AnnotationViewModel.cs" />
 	<Compile Include="UI\Notes\Events.cs" />
 	<Compile Include="UI\Notes\ListMessage.cs" />
 	<Compile Include="UI\Notes\NotesPage.cs">
@@ -135,6 +136,7 @@
 	<Compile Include="UI\Notes\SearchBox.Designer.cs">
 	  <DependentUpon>SearchBox.cs</DependentUpon>
 	</Compile>
+	<Compile Include="UI\Notes\Html\StyleSheet.cs" />
 	<Compile Include="UI\Review\ChangedReport\ChangeReportView.cs">
 	  <SubType>UserControl</SubType>
 	</Compile>
@@ -155,7 +157,7 @@
 	<Compile Include="UI\Notes\AnnotationView.Designer.cs">
 	  <DependentUpon>AnnotationView.cs</DependentUpon>
 	</Compile>
-	<Compile Include="UI\Notes\NotesInProjectModel.cs" />
+	<Compile Include="UI\Notes\NotesInProjectViewModel.cs" />
 	<Compile Include="UI\Notes\NotesInProjectView.cs">
 	  <SubType>UserControl</SubType>
 	</Compile>
@@ -358,9 +360,30 @@
 	<None Include="Resources\networkFolder29x32.png" />
 	<None Include="Resources\Usb32x28.png" />
 	<None Include="Resources\search18x18.png" />
+	<Content Include="UI\Notes\Html\bl.gif">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</Content>
+	<Content Include="UI\Notes\Html\br.gif">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</Content>
+	<Content Include="UI\Notes\Html\dot.gif">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</Content>
+	<Content Include="UI\Notes\Html\StyleSheet.css">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</Content>
 	<Content Include="UI\Settings\SetupPanel.htm">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</Content>
+	<Content Include="UI\Notes\Html\tl.gif">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</Content>
+	<Content Include="UI\Notes\Html\tr.gif">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</Content>
+  </ItemGroup>
+  <ItemGroup>
+	<Folder Include="UI\NewFolder1\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.

@@ -27,7 +27,7 @@ namespace Chorus.Tests.notes
 			using (var folder = new TempFolder("NotesModelTests"))
 			{
 				ProjectFolderConfiguration project = new ProjectFolderConfiguration(folder.Path);
-				var m = new NotesInProjectModel(TheUser, project);
+				var m = new NotesInProjectViewModel(TheUser, project, new MessageSelectedEvent());
 				Assert.AreEqual(0, m.GetMessages().Count());
 			}
 		}
@@ -46,7 +46,7 @@ namespace Chorus.Tests.notes
 			using (new TempFile(subfolder, "two." + NotesRepository.FileExtension, "<notes  version='0'><annotation><message/></annotation></notes>"))
 			{
 				ProjectFolderConfiguration project = new ProjectFolderConfiguration(folder.Path);
-				var m = new NotesInProjectModel(TheUser, project);
+				var m = new NotesInProjectViewModel(TheUser, project, new MessageSelectedEvent());
 				Assert.AreEqual(2, m.GetMessages().Count());
 			}
 		}

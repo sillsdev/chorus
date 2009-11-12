@@ -3,6 +3,7 @@ using Autofac.Builder;
 using Chorus.FileTypeHanders;
 using Chorus.retrieval;
 using Chorus.sync;
+using Chorus.UI;
 using Chorus.UI.Misc;
 using Chorus.UI.Notes;
 using Chorus.UI.Review;
@@ -53,10 +54,12 @@ namespace Chorus
 			RegisterReviewStuff(builder);
 			RegisterSettingsStuff(builder);
 
-			builder.Register<Chorus.UI.Notes.NotesInProjectModel>();
+			builder.Register<Chorus.UI.Notes.NotesInProjectViewModel>();
 			builder.Register<Chorus.UI.Notes.NotesInProjectView>();
 			builder.Register<Chorus.UI.Notes.AnnotationView>();
+			builder.Register<Chorus.UI.Notes.AnnotationViewModel>();
 			builder.Register<Chorus.UI.Notes.NotesPage>();
+			builder.Register<StyleSheet>(c =>  StyleSheet.CreateFromDisk());
 		}
 
 		public static void Inject(ContainerBuilder builder, string projectPath)
@@ -92,7 +95,7 @@ namespace Chorus
 			builder.Register<RevisionInRepositoryModel>();
 			builder.Register<RevisionsInRepositoryView>();
 
-			builder.Register<AnnotationSelectedEvent>();
+			builder.Register<MessageSelectedEvent>();
 		}
 
 		private static Shell CreateShell(string projectPath, Autofac.Builder.ContainerBuilder builder)
