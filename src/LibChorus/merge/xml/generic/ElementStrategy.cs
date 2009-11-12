@@ -15,7 +15,7 @@ namespace Chorus.merge.xml.generic
 
 		public MergeStrategies()
 		{
-			 ElementStrategies= new Dictionary<string, ElementStrategy>();
+			ElementStrategies = new Dictionary<string, ElementStrategy>();
 			ElementStrategy s = new ElementStrategy(true);//review: this says the default is to consder order relevant
 			s.MergePartnerFinder = new FindTextDumb();
 			this.SetStrategy("_"+XmlNodeType.Text, s);

@@ -5,6 +5,7 @@ using Chorus.FileTypeHanders.audio;
 using Chorus.FileTypeHanders.image;
 using Chorus.FileTypeHanders.lift;
 using Chorus.FileTypeHanders.oneStory;
+using Chorus.FileTypeHanders.OurWord;
 using Chorus.merge;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
@@ -56,6 +57,7 @@ namespace Chorus.FileTypeHanders
 			fileTypeHandlers.Handlers.Add(new WeSayConfigFileHandler());
 			fileTypeHandlers.Handlers.Add(new AudioFileTypeHandler());
 			fileTypeHandlers.Handlers.Add(new ImageFileTypeHandler());
+			fileTypeHandlers.Handlers.Add(new OurWordFileHandler());
 
 			//NB: never add the Default handler
 			return fileTypeHandlers;

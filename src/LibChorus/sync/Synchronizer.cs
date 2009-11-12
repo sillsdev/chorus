@@ -6,6 +6,7 @@ using System.IO;
 using System.Windows.Forms;
 using Chorus.FileTypeHanders;
 using Chorus.FileTypeHanders.lift;
+using Chorus.FileTypeHanders.OurWord;
 using Chorus.merge;
 using Chorus.Utilities;
 using Chorus.VcsDrivers;
@@ -301,6 +302,9 @@ namespace Chorus.sync
 			extensions.AddRange(handler.GetExtensionsOfKnownTextFileTypes());
 
 			handler = new WeSayConfigFileHandler();
+			extensions.AddRange(handler.GetExtensionsOfKnownTextFileTypes());
+
+			handler = new OurWordFileHandler();
 			extensions.AddRange(handler.GetExtensionsOfKnownTextFileTypes());
 
 			repository.SetupEndOfLineConversion(extensions.Distinct());
