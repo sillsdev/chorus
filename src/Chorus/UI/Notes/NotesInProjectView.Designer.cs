@@ -33,20 +33,22 @@ namespace Chorus.UI.Notes
 			this.components = new System.ComponentModel.Container();
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(NotesInProjectView));
 			this._messageListView = new System.Windows.Forms.ListView();
-			this.columnHeader4 = new System.Windows.Forms.ColumnHeader();
-			this.columnHeader1 = new System.Windows.Forms.ColumnHeader();
-			this.columnHeader2 = new System.Windows.Forms.ColumnHeader();
+			this.classColumn = new System.Windows.Forms.ColumnHeader();
+			this.date = new System.Windows.Forms.ColumnHeader();
+			this.label = new System.Windows.Forms.ColumnHeader();
 			this.imageList1 = new System.Windows.Forms.ImageList(this.components);
 			this.timer1 = new System.Windows.Forms.Timer(this.components);
 			this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
+			this.author = new System.Windows.Forms.ColumnHeader();
 			this.SuspendLayout();
 			//
 			// _messageListView
 			//
 			this._messageListView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-			this.columnHeader4,
-			this.columnHeader1,
-			this.columnHeader2});
+			this.classColumn,
+			this.date,
+			this.author,
+			this.label});
 			this._messageListView.Dock = System.Windows.Forms.DockStyle.Fill;
 			this._messageListView.FullRowSelect = true;
 			this._messageListView.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
@@ -62,19 +64,20 @@ namespace Chorus.UI.Notes
 			this._messageListView.View = System.Windows.Forms.View.Details;
 			this._messageListView.SelectedIndexChanged += new System.EventHandler(this.OnSelectedIndexChanged);
 			//
-			// columnHeader4
+			// classColumn
 			//
-			this.columnHeader4.Text = "Class";
+			this.classColumn.Text = "Class";
+			this.classColumn.Width = 72;
 			//
-			// columnHeader1
+			// date
 			//
-			this.columnHeader1.Text = "Date";
-			this.columnHeader1.Width = 124;
+			this.date.Text = "Date";
+			this.date.Width = 86;
 			//
-			// columnHeader2
+			// label
 			//
-			this.columnHeader2.Text = "Label";
-			this.columnHeader2.Width = 118;
+			this.label.Text = "Label";
+			this.label.Width = 118;
 			//
 			// imageList1
 			//
@@ -89,6 +92,10 @@ namespace Chorus.UI.Notes
 			// timer1
 			//
 			this.timer1.Interval = 500;
+			//
+			// author
+			//
+			this.author.Text = "Author";
 			//
 			// NotesInProjectView
 			//
@@ -106,12 +113,13 @@ namespace Chorus.UI.Notes
 		#endregion
 
 		private System.Windows.Forms.ListView _messageListView;
-		private System.Windows.Forms.ColumnHeader columnHeader1;
-		private System.Windows.Forms.ColumnHeader columnHeader2;
+		private System.Windows.Forms.ColumnHeader date;
+		private System.Windows.Forms.ColumnHeader label;
 		private System.Windows.Forms.Timer timer1;
 		private System.Windows.Forms.ToolTip toolTip1;
 		private System.Windows.Forms.ImageList imageList1;
-		private System.Windows.Forms.ColumnHeader columnHeader4;
+		private System.Windows.Forms.ColumnHeader classColumn;
+		private System.Windows.Forms.ColumnHeader author;
 
 	}
 }

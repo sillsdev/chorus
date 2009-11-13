@@ -4,6 +4,9 @@ using Message=Chorus.notes.Message;
 
 namespace Chorus.UI.Notes
 {
+	/// <summary>
+	/// Just helps get <message/>'s  in a ListView
+	/// </summary>
 	public class ListMessage
 	{
 		public Annotation ParentAnnotation { get; private set; }
@@ -20,8 +23,8 @@ namespace Chorus.UI.Notes
 			var i = new ListViewItem(ParentAnnotation.Class);
 			i.Tag = this;
 			i.SubItems.Add(Message.Date.ToShortDateString());
-			i.SubItems.Add(ParentAnnotation.GetLabel("unknown"));
-			i.SubItems.Add(Message.GetAuthor("unknown"));
+			i.SubItems.Add(Message.GetAuthor("?"));
+			i.SubItems.Add(ParentAnnotation.GetLabelFromRef(""));
 			return i;
 		}
 	}

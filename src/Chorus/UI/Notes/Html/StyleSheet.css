@@ -7,7 +7,12 @@ hr {border: 1px solid #DCDCDC}
 div.AnnotationHeader {color: gray; font-size: x-small; margin-bottom:10px}
 span.sender {color: Black; font-weight: bold}
 span.when {color:Gray}
+span.status {color: Black; font-weight: bold}
+#span.statusChangeNotice {font-style: italic}
 
+div.messageContents{margin-top:10px}
+div.message{margin-top:9px; font-size:larger}
+div.message.statusChange{font-style: italic; margin-top:6px}
 
 # rounded borders CAN'T GET THIS STUFF TO WORK IN THE EMBEDDED BROWSER BUT IT'S OK IN IE and FIREFOX
 

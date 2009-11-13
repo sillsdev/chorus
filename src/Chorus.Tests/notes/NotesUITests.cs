@@ -20,16 +20,16 @@ namespace Chorus.Tests.notes
 			using (var folder = new TempFolder("NotesModelTests"))
 			using (new TempFile(folder, "one." + NotesRepository.FileExtension,
 				@"<notes version='0'>
-					<annotation ref='somwhere://foo' class='testClass'>
+					<annotation ref='somwhere://foo' class='todo'>
 						<message guid='123' author='john' status='open' date='2009-07-18T23:53:04Z'>
-							Hello from john.
+							Suzie, is this ok?
 						</message>
 						<message guid='222' author='suzie' status='closed' date='2009-09-19T23:53:04Z'>
-							bye from suzie.
+							It's fine.
 						</message>
 					</annotation>
 					</notes>"))
-			using (new TempFile(folder, "two." + NotesRepository.FileExtension, "<notes  version='0'><annotation><message guid='1234' author='pedro' status='closed' date='2009-09-28T11:11:11Z'/></annotation></notes>"))
+			using (new TempFile(folder, "two." + NotesRepository.FileExtension, "<notes  version='0'><annotation class='mergeConflict'><message guid='1234' author='merger' status='open' date='2009-09-28T11:11:11Z'>Some description of hte conflict</message></annotation></notes>"))
 			{
 				var messageSelected = new MessageSelectedEvent();
 				ProjectFolderConfiguration projectConfig = new ProjectFolderConfiguration(folder.Path);
