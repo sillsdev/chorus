@@ -42,7 +42,7 @@ namespace ChorusMerge
 			}
 			catch (Exception e)
 			{
-				Console.Error.WriteLine("ChorusMerge Error: "+e.Message);
+				Console.Error.WriteLine("ChorusMerge Error: " + e.Message);
 				Console.Error.WriteLine(e.StackTrace);
 				return 1;
 			}

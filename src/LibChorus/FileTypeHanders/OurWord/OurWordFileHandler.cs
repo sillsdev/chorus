@@ -13,12 +13,12 @@ namespace Chorus.FileTypeHanders.OurWord
 	{
 		static MethodInfo RetrieveRemoteMethod(string remoteMethodName)
 		{
-			var chorusAssembly = Assembly.GetExecutingAssembly();
-			var chorusPath = chorusAssembly.Location;
-			var runtimeFolder = Path.GetDirectoryName(chorusPath);
-			var ourWordPath = runtimeFolder + Path.DirectorySeparatorChar + "OurWordData.dll";
+			var ourWordPath = Path.Combine(
+				Other.DirectoryOfExecutingAssembly, "OurWordData.dll");
 			var ourWordAssembly = Assembly.LoadFrom(ourWordPath);
+
 			var mergerType = ourWordAssembly.GetType("OurWordData.DataModel.Merger");
+
 			return mergerType.GetMethod(remoteMethodName);
 		}
 
