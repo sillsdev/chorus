@@ -68,6 +68,7 @@ namespace Chorus.FileTypeHanders.oneStory
 			//  not supposed to happen, but let's be safer
 			merger.MergeStrategies.SetStrategy("CraftingInfo", ElementStrategy.CreateSingletonElement());
 			merger.MergeStrategies.SetStrategy("StoryCrafter", ElementStrategy.CreateSingletonElement());
+			merger.MergeStrategies.SetStrategy("ProjectFacilitator", ElementStrategy.CreateSingletonElement());
 			merger.MergeStrategies.SetStrategy("StoryPurpose", ElementStrategy.CreateSingletonElement());
 			merger.MergeStrategies.SetStrategy("ResourcesUsed", ElementStrategy.CreateSingletonElement());
 			merger.MergeStrategies.SetStrategy("BackTranslator", ElementStrategy.CreateSingletonElement());
