@@ -45,6 +45,28 @@ namespace LibChorus.Tests
 		}
 
 		[Test, Ignore("Run by hand only")]
+		public void LaunchDialog_ExampleForBob()
+		{
+			var setup = new RepositorySetup("pedro");
+			{
+				Application.EnableVisualStyles();
+
+				setup.Repository.SetKnownRepositoryAddresses(new RepositoryAddress[]
+				{
+					RepositoryAddress.Create("language depot", "http://pedro:mypassword@hg-public.languagedepot.org"),
+				});
+				setup.Repository.SetDefaultSyncRepositoryAliases(new[] {"language depot"});
+
+				using (var dlg = new SyncDialog(setup.ProjectFolderConfig,
+				   SyncUIDialogBehaviors.StartImmediatelyAndCloseWhenFinished,
+				   SyncUIFeatures.Minimal))
+				{
+					dlg.ShowDialog();
+				}
+			}
+		}
+
+		[Test, Ignore("Run by hand only")]
 		public void LaunchDialog_LazyWithNormalUI()
 		{
 			var setup = new RepositorySetup("pedro");
@@ -55,12 +77,26 @@ namespace LibChorus.Tests
 					SyncUIDialogBehaviors.Lazy,
 					SyncUIFeatures.NormalRecommended))
 				{
-				//    dlg.SyncOptions.RepositorySourcesToTry.Add(RepositoryAddress.Create("bogus", @"z:/"));
 					dlg.ShowDialog();
 				}
 
 			}
 		}
+
+		[Test, Ignore("Run by hand only")]
+		public void MinimalCodeToLaunchSendReceiveUI()
+		{
+			var projectConfig = new ProjectFolderConfiguration("c:\\TokPisin");
+			projectConfig.IncludePatterns.Add("*.lift");
+
+			using (var dlg = new SyncDialog(projectConfig,
+					SyncUIDialogBehaviors.Lazy,
+					SyncUIFeatures.NormalRecommended))
+			{
+				dlg.ShowDialog();
+			}
+		}
+
 		[Test, Ignore("Run by hand only")]
 		public void LaunchDialog_LazyWithAdvancedUI()
 		{

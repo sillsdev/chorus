@@ -147,12 +147,14 @@ namespace Chorus.UI.Sync
 					return;
 				if (!useTargetsAsSpecifiedInSyncOptions)
 				{
-					foreach (var address in GetRepositoriesToList().Where(r => !r.Enabled))
-					{
-						SyncOptions.RepositorySourcesToTry.RemoveAll(x => x.URI == address.URI);
-					}
+//                    foreach (var address in GetRepositoriesToList().Where(r => !r.Enabled))
+//                    {
+//                        SyncOptions.RepositorySourcesToTry.RemoveAll(x => x.URI == address.URI);
+//                    }
+				   // SyncOptions.RepositorySourcesToTry.AddRange(GetRepositoriesToList().Where(r => r.Enabled && !SyncOptions.RepositorySourcesToTry.Any(x=>x.URI ==r.URI)));
+					SyncOptions.RepositorySourcesToTry.Clear();
+					SyncOptions.RepositorySourcesToTry.AddRange(GetRepositoriesToList().Where(r => r.Enabled ));
 
-					SyncOptions.RepositorySourcesToTry.AddRange(GetRepositoriesToList().Where(r => r.Enabled && !SyncOptions.RepositorySourcesToTry.Any(x=>x.URI ==r.URI)));
 				}
 				_backgroundWorker.RunWorkerAsync(new object[] {_synchronizer, SyncOptions, _progress});
 			}

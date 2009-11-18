@@ -25,6 +25,15 @@ namespace Chorus.FileTypeHanders.oneStory
 			return false;
 		}
 
+		public bool CanValidateFile(string pathToFile)
+		{
+			return false;
+		}
+		public string ValidateFile(string pathToFile, IProgress progress)
+		{
+			throw new NotImplementedException();
+		}
+
 		public void Do3WayMerge(MergeOrder mergeOrder)
 		{
 			var merger = new XmlMerger(mergeOrder.MergeSituation);

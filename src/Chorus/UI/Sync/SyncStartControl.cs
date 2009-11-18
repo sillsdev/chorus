@@ -5,6 +5,7 @@ using System.Drawing;
 using System.Data;
 using System.IO;
 using System.Text;
+using System.Threading;
 using System.Windows.Forms;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
@@ -45,47 +46,14 @@ namespace Chorus.UI.Sync
 
 		private void UpdateDisplay()
 		{
-			var drives = GetUsbDriveInfo();
+			UpdateUsbDriveSituation();
+			UpdateInternetSituation();
+			UpdateLocalNetworkSituation();
+		}
 
-			if (drives.Count()==0)
-			{
-				_useUSBButton.Enabled = false;
-				_usbStatusLabel.Text = "First insert a USB flash drive";
-			}
-			else if (drives.Count() > 1)
-			{
-				_useUSBButton.Enabled = false;
-				_usbStatusLabel.Text = "More than one USB flash drive detected. Please remove one.";
-			}
-			else
-			{
-				_useUSBButton.Enabled = true;
-				try
-				{
-					var first = drives.First();
-#if !MONO
-					_usbStatusLabel.Text = first.RootDirectory + " " + first.VolumeLabel + " (" + Math.Floor(first.TotalFreeSpace/1024000.0)+" Megs Free Space)";
-#else
-					_usbStatusLabel.Text = first.VolumeLabel;//RootDir & volume label are the same on linux.  TotalFreeSpace is, like, maxint or something in mono 2.0
-#endif
-				}
-				catch(Exception error   )
-				{
-					_usbStatusLabel.Text = error.Message;
-				}
-			}
-			var address = GetDefaultNetworkAddress<HttpRepositoryPath>();
-			_useInternetButton.Enabled = address != null;
-			if (address==null)
-			{
-				_internetStatusLabel.Text = "This project is not yet associated with an internet server";
-			}
-			else
-			{
-				_internetStatusLabel.Text = address.Name;
-				toolTip1.SetToolTip(_useInternetButton, address.URI);
-				//enhance: which one will be used if I click this?
-			}
+		private void UpdateLocalNetworkSituation()
+		{
+			RepositoryAddress address;
 
 			address = GetDefaultNetworkAddress<DirectoryRepositorySource>();
 			_useSharedFolderButton.Enabled = address != null;
@@ -100,22 +68,58 @@ namespace Chorus.UI.Sync
 			}
 		}
 
-		private IEnumerable<DriveInfo> GetUsbDriveInfo()
+		private void UpdateInternetSituation()
 		{
-			var info = new Chorus.Utilities.UsbDrive.RetrieveUsbDriveInfo();
-			var drives = info.GetDrives();
-			if (drives.Count > 0)
+			var address = GetDefaultNetworkAddress<HttpRepositoryPath>();
+			_useInternetButton.Enabled = address != null;
+			if (address==null)
 			{
-				foreach (var drive in System.IO.DriveInfo.GetDrives())
+				_internetStatusLabel.Text = "This project is not yet associated with an internet server";
+			}
+			else
+			{
+				_internetStatusLabel.Text = address.Name;
+				toolTip1.SetToolTip(_useInternetButton, address.URI);
+				//enhance: which one will be used if I click this?
+			}
+		}
+
+
+
+		private void UpdateUsbDriveSituation()
+		{
+			if (usbDriveLocator.UsbDrives.Count() == 0)
+			{
+				_useUSBButton.Enabled = false;
+				_usbStatusLabel.Text = "First insert a USB flash drive";
+			}
+			else if (usbDriveLocator.UsbDrives.Count() > 1)
+			{
+				_useUSBButton.Enabled = false;
+				_usbStatusLabel.Text = "More than one USB drive detected. Please remove one.";
+			}
+			else
+			{
+				_useUSBButton.Enabled = true;
+				try
 				{
-					if (drive.RootDirectory.FullName == drives[0].RootDirectory.FullName)
-					{
-						yield return drive;
-					}
+					var first = usbDriveLocator.UsbDrives.First();
+#if !MONO
+					_usbStatusLabel.Text = first.RootDirectory + " " + first.VolumeLabel + " (" +
+										   Math.Floor(first.TotalFreeSpace/1024000.0) + " Megs Free Space)";
+#else
+				_usbStatusLabel.Text = first.VolumeLabel;
+					//RootDir & volume label are the same on linux.  TotalFreeSpace is, like, maxint or something in mono 2.0
+#endif
+				}
+				catch (Exception error)
+				{
+					_usbStatusLabel.Text = error.Message;
 				}
 			}
-			//MessageBox.Show("There was a problem getting USB drive information.","Error", MessageBoxButtons.OK,MessageBoxIcon.Warning);
 		}
+
+
 
 		private RepositoryAddress GetDefaultNetworkAddress<T>()
 		{
@@ -172,6 +176,7 @@ namespace Chorus.UI.Sync
 
 		private void SyncStartControl_Load(object sender, EventArgs e)
 		{
+
 		}
 	}
 	public class SyncStartArgs : EventArgs

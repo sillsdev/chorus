@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
-using Chorus.FileTypeHanders;
+﻿using System.IO;
 using Chorus.merge;
 using LibChorus.Tests.merge;
 using Chorus.Utilities;

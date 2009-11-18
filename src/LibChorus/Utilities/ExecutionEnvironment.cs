@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Chorus.Utilities
 {
-	public class Other
+	public class ExecutionEnvironment
 	{
 		public static string DirectoryOfExecutingAssembly
 		{

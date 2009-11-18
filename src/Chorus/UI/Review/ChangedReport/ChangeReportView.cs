@@ -6,20 +6,21 @@ using System.Windows.Forms;
 using Chorus.FileTypeHanders;
 using Chorus.merge;
 using Chorus.retrieval;
+using Chorus.VcsDrivers.Mercurial;
 
 namespace Chorus.UI.Review.ChangedReport
 {
 	public partial class ChangeReportView : UserControl
 	{
 		private readonly ChorusFileTypeHandlerCollection _handlers;
-		private readonly RevisionInspector _revisionInspector;
+		private readonly HgRepository _repository;
 		private string _styleSheet;
 
-		public ChangeReportView(ChorusFileTypeHandlerCollection handlers, ChangedRecordSelectedEvent changedRecordSelectedEvent, RevisionInspector revisionInspector)
+		public ChangeReportView(ChorusFileTypeHandlerCollection handlers, ChangedRecordSelectedEvent changedRecordSelectedEvent, HgRepository repository)
 		{
 			this.Font = SystemFonts.MessageBoxFont;
 			_handlers = handlers;
-			_revisionInspector = revisionInspector;
+			_repository = repository;
 			InitializeComponent();
 			_normalChangeDescriptionRenderer.Font = SystemFonts.MessageBoxFont;
 			changedRecordSelectedEvent.Subscribe(r=>LoadReport(r));
@@ -69,7 +70,7 @@ color: 'purple';
 			}
 			else
 			{
-				var presenter = _handlers.GetHandlerForPresentation(report.PathToFile).GetChangePresenter(report, _revisionInspector.Repository);
+				var presenter = _handlers.GetHandlerForPresentation(report.PathToFile).GetChangePresenter(report, _repository);
 				var path = Path.GetTempFileName();
 				File.WriteAllText(path, presenter.GetHtml("normal", _styleSheet));
 				this._normalChangeDescriptionRenderer.Navigate(path);

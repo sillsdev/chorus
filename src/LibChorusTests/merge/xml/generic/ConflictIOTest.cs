@@ -24,7 +24,8 @@ namespace LibChorus.Tests.merge.xml.generic
 			string desc = c.GetFullHumanReadableDescription();
 
 			var xml = WriteConflictXml(c);
-			var regurgitated = Conflict.CreateFromXml(GetNodeFromString(xml));
+			var conflictNode = GetNodeFromString(xml).SelectSingleNode("message/data");
+			var regurgitated = Conflict.CreateFromXml(conflictNode);
 			Assert.AreEqual("path", regurgitated.RelativeFilePath);
 			Assert.AreEqual(desc, regurgitated.GetFullHumanReadableDescription());
 		   Assert.AreEqual(c.Context.PathToUserUnderstandableElement, regurgitated.Context.PathToUserUnderstandableElement);
@@ -43,7 +44,8 @@ namespace LibChorus.Tests.merge.xml.generic
 			string desc = c.GetFullHumanReadableDescription();
 
 			var xml = WriteConflictXml(c);
-			var regurgitated = Conflict.CreateFromXml(GetNodeFromString(xml));
+			var conflictNode = GetNodeFromString(xml).SelectSingleNode("message/data");
+			var regurgitated = Conflict.CreateFromXml(conflictNode);
 			Assert.AreEqual("path", regurgitated.RelativeFilePath);
 			Assert.AreEqual(desc, regurgitated.GetFullHumanReadableDescription());
 			Assert.AreEqual(c.Context.PathToUserUnderstandableElement, regurgitated.Context.PathToUserUnderstandableElement);

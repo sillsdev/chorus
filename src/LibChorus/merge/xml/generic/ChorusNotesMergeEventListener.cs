@@ -1,35 +1,34 @@
 using System;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Xml;
-using System.Xml.Serialization;
 using Chorus.Utilities;
 
 namespace Chorus.merge.xml.generic
 {
 	/// <summary>
-	/// Note, the conflict log is kept in xml, but that doesn't mean this is only for merging xml documents.
+	/// Adds conflicts and any other things that need to be part of the official history
+	/// to the ChorusNotes file which corresponds to the file being merged (e.g.,  foo.lift has a foo.lift.ChorusNotes)
 	/// </summary>
-	public class XmlLogMergeEventListener : IMergeEventListener, IDisposable
+	public class ChorusNotesMergeEventListener : IMergeEventListener, IDisposable
 	{
 		private XmlWriter _writer;
 		private XmlDocument _xmlDoc;
 		private string _path;
 		static public string TimeFormatNoTimeZone = "yyyy-MM-ddTHH:mm:ssZ";
+		private const int FormatVersionNumber = 0;
 
 		/// <summary>
 		/// used for finding the context in the orginal file of any conflicts which may occur inside the element
 		/// </summary>
-		private ContextDescriptor _context;
+		private ContextDescriptor _context = new NullContextDescriptor();
 
-		static public string GetXmlConflictFilePath(string baseXmlFile)
+		static public string GetChorusNotesFilePath(string baseXmlFile)
 		{
-			return baseXmlFile + ".conflicts";
+			return baseXmlFile + ".ChorusNotes";
 		}
 
-		public XmlLogMergeEventListener(string path)
+		public ChorusNotesMergeEventListener(string path)
 		{
 			_path = path;
 
@@ -38,22 +37,23 @@ namespace Chorus.merge.xml.generic
 				if (!File.Exists(path))
 				{
 					XmlDocument doc = new XmlDocument();
-					doc.LoadXml("<conflicts/>");
+					doc.LoadXml(string.Format("<notes version='{0}'/>", FormatVersionNumber.ToString()));
 					doc.Save(path);
 				}
 			}
 			catch (Exception error)
 			{
-				Debug.Fail("Something went wrong trying to create a blank onflict file :"+error.Message);
+				Debug.Fail("Something went wrong trying to create a blank ChorusNotes file :"+error.Message);
 				//todo log that the xml was the wrong format
 			}
 
 			_xmlDoc = new XmlDocument();
 			_xmlDoc.Load(path);
-			_writer = _xmlDoc.CreateNavigator().SelectSingleNode("conflicts").AppendChild();
+			_writer = _xmlDoc.CreateNavigator().SelectSingleNode("notes").AppendChild();
 		}
 		public void ConflictOccurred(IConflict conflict)
 		{
+			Guard.AgainstNull(_context, "_context");
 			conflict.Context = _context;
 			conflict.WriteAsXml(_writer);
 		}
@@ -66,21 +66,6 @@ namespace Chorus.merge.xml.generic
 
 		public void ChangeOccurred(IChangeReport change)
 		{
-			/*
-			 * at this time, we aren't using these, and they mess with our simple-minded
-			 * "conflicting merge" detector, which just sees if the conflicts file was updated.
-			 */
-/*            _writer.WriteStartElement("change");
-			_writer.WriteAttributeString("type", string.Empty, change.ActionLabel);
-			_writer.WriteAttributeString("guid", string.Empty, change.Guid.ToString());
-			_writer.WriteAttributeString("date", string.Empty, DateTime.UtcNow.ToString(TimeFormatNoTimeZone));
-			if (_context != null)
-			{
-				_context.WriteAttributes(_writer);
-			}
-			_writer.WriteString(change.GetFullHumanReadableDescription());
-			_writer.WriteEndElement();
-			*/
 		}
 
 		public void EnteringContext(ContextDescriptor context)

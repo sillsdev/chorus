@@ -5,6 +5,7 @@ using Chorus.FileTypeHanders.audio;
 using Chorus.FileTypeHanders.image;
 using Chorus.FileTypeHanders.lift;
 using Chorus.FileTypeHanders.oneStory;
+using Chorus.FileTypeHanders.test;
 using Chorus.merge;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
@@ -16,6 +17,7 @@ namespace Chorus.FileTypeHanders
 		bool CanDiffFile(string pathToFile);
 		bool CanMergeFile(string pathToFile);
 		bool CanPresentFile(string pathToFile);
+		bool CanValidateFile(string pathToFile);
 
 		/// <summary>
 		/// Do a 3-file merge, placing the result over the "ours" file and returning an error status
@@ -27,10 +29,14 @@ namespace Chorus.FileTypeHanders
 		IEnumerable<IChangeReport> Find2WayDifferences(FileInRevision parent, FileInRevision child, HgRepository repository);
 		IChangePresenter GetChangePresenter(IChangeReport report, HgRepository repository);
 
+		/// <summary>
+		/// return null if valid, otherwise nice verbose description of what went wrong
+		/// </summary>
+		string ValidateFile(string pathToFile, IProgress progress);
 
 		/// <summary>
 		/// This is like a diff, but for when the file is first checked in.  So, for example, a dictionary
-		/// hanlder might list any the words that were already in the dictionary when it was first checked in.
+		/// handler might list any the words that were already in the dictionary when it was first checked in.
 		/// </summary>
 		IEnumerable<IChangeReport> DescribeInitialContents(FileInRevision fileInRevision,TempFile file);
 
@@ -39,35 +45,45 @@ namespace Chorus.FileTypeHanders
 
 	public class ChorusFileTypeHandlerCollection
 	{
-		public List<IChorusFileTypeHandler> Handlers { get; private set; }
+		private List<IChorusFileTypeHandler> HandersList { get; set; }
+		public IEnumerable<IChorusFileTypeHandler> Handers { get { return HandersList; } }
 
 		/// <summary>
-		/// THis will eventually done using MEF or some other dynamic way of finding available handlers
+		/// THis will eventually done using MEF or some other dynamic way of finding available HandersList
 		/// </summary>
 		/// <returns></returns>
 		public static ChorusFileTypeHandlerCollection CreateWithInstalledHandlers()
 		{
 			var fileTypeHandlers = new ChorusFileTypeHandlerCollection();
-			fileTypeHandlers.Handlers.Add(new LiftFileHandler());
-			fileTypeHandlers.Handlers.Add(new OneStoryFileHandler());
-			fileTypeHandlers.Handlers.Add(new AdaptItFileHandler());
-			fileTypeHandlers.Handlers.Add(new TextFileTypeHandler());
-			fileTypeHandlers.Handlers.Add(new ConflictFileTypeHandler());
-			fileTypeHandlers.Handlers.Add(new WeSayConfigFileHandler());
-			fileTypeHandlers.Handlers.Add(new AudioFileTypeHandler());
-			fileTypeHandlers.Handlers.Add(new ImageFileTypeHandler());
+			fileTypeHandlers.HandersList.Add(new LiftFileHandler());
+			fileTypeHandlers.HandersList.Add(new OneStoryFileHandler());
+			fileTypeHandlers.HandersList.Add(new AdaptItFileHandler());
+			fileTypeHandlers.HandersList.Add(new TextFileTypeHandler());
+			fileTypeHandlers.HandersList.Add(new ChorusNotesFileHandler());
+			fileTypeHandlers.HandersList.Add(new WeSayConfigFileHandler());
+			fileTypeHandlers.HandersList.Add(new AudioFileTypeHandler());
+			fileTypeHandlers.HandersList.Add(new ImageFileTypeHandler());
+			fileTypeHandlers.HandersList.Add(new ChorusTestFileHandler());
 
 			//NB: never add the Default handler
 			return fileTypeHandlers;
 		}
 
+		public static ChorusFileTypeHandlerCollection CreateWithTestHandlerOnly()
+		{
+			var fileTypeHandlers = new ChorusFileTypeHandlerCollection();
+			fileTypeHandlers.HandersList.Add(new ChorusTestFileHandler());
+
+			//NB: never add the Default handler
+			return fileTypeHandlers;
+		}
 		private ChorusFileTypeHandlerCollection()
 		{
-			Handlers = new List<IChorusFileTypeHandler>();
+			HandersList = new List<IChorusFileTypeHandler>();
 		}
 		public IChorusFileTypeHandler GetHandlerForMerging(string path)
 		{
-			var handler = Handlers.FirstOrDefault(h => h.CanMergeFile(path));
+			var handler = HandersList.FirstOrDefault(h => h.CanMergeFile(path));
 			if (handler == null)
 			{
 				return new DefaultFileTypeHandler();
@@ -76,7 +92,7 @@ namespace Chorus.FileTypeHanders
 		}
 		public IChorusFileTypeHandler GetHandlerForDiff(string path)
 		{
-			var handler = Handlers.FirstOrDefault(h => h.CanDiffFile(path));
+			var handler = HandersList.FirstOrDefault(h => h.CanDiffFile(path));
 			if (handler == null)
 			{
 				return new DefaultFileTypeHandler();
@@ -85,7 +101,7 @@ namespace Chorus.FileTypeHanders
 		}
 		public IChorusFileTypeHandler GetHandlerForPresentation(string path)
 		{
-			var handler = Handlers.FirstOrDefault(h => h.CanPresentFile(path));
+			var handler = HandersList.FirstOrDefault(h => h.CanPresentFile(path));
 			if (handler == null)
 			{
 				return new DefaultFileTypeHandler();
