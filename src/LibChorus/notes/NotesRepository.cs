@@ -174,7 +174,7 @@ namespace Chorus.notes
 			return m;
 		}
 
-		public string GetLabel(string defaultIfCannotGetIt)
+		public string GetLabelFromRef(string defaultIfCannotGetIt)
 		{
 			try
 			{
