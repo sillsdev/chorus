@@ -1,12 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
-using System.Windows.Forms;
 using Chorus.FileTypeHanders;
-using Chorus.FileTypeHanders.lift;
-using Chorus.FileTypeHanders.OurWord;
 using Chorus.merge;
 using Chorus.Utilities;
 using Chorus.VcsDrivers;
@@ -108,28 +104,160 @@ namespace Chorus.sync
 		public SyncResults SyncNow(SyncOptions options)
 		{
 			SyncResults results = new SyncResults();
-
 			HgRepository repo = new HgRepository(_localRepositoryPath,_progress);
 
+			if(!RemoveLocks(repo, results))
+				return results;
+
+			repo.RecoverFromInterruptedTransactionIfNeeded();
+
+			if(!UpdateHgrcSettingsFile(repo, results))
+				return results;
+
+			if(!DoCommit(results, options))
+				return results;
+
+			var workingRevBeforeSync = repo.GetRevisionWorkingSetIsBasedOn();
+			List<RepositoryAddress> sourcesToTry = options.RepositorySourcesToTry;
+			//this just saves us from trying to connect twice to the same repo that is, for example, no there.
+			Dictionary<RepositoryAddress, bool> connectionAttempts= new Dictionary<RepositoryAddress, bool>();
+
+			if (options.DoPullFromOthers)
+			{
+				if(!PullFromOthers(repo, ref results, sourcesToTry, connectionAttempts))
+					return results;
+			}
+
+			if (options.DoMergeWithOthers)
+			{
+				if(!MergeHeads(results))
+				{
+					UpdateToTheDescendantRevision(results, repo, workingRevBeforeSync); //rollback
+					return results;
+				}
+			}
+
+			if(options.DoSendToOthers)
+			{
+				if(!SendToOthers(repo, ref results, sourcesToTry, connectionAttempts))
+					return results;
+			}
+
+
+			 if(!UpdateToTheDescendantRevision(results, repo, workingRevBeforeSync))
+				 return results;
+
+
+		  //  Debug.Assert(!repo.GetHasLocks(), "A lock was left over, after the sync.");
+
+			_progress.WriteStatus("Done");
+			return results;
+		}
+
+		private bool SendToOthers(HgRepository repo, ref SyncResults results, List<RepositoryAddress> sourcesToTry, Dictionary<RepositoryAddress, bool> connectionAttempt)
+		{
+			foreach (RepositoryAddress address in sourcesToTry)
+			{
+				if (ShouldCancel(ref results))
+				{
+					return false;
+				}
+
+				if (!address.ReadOnly)
+				{
+					if (!SendToOneOther(results, address, connectionAttempt, repo))
+						return false;
+				}
+			}
+			return true;
+		}
+
+		private bool SendToOneOther(SyncResults results, RepositoryAddress address, Dictionary<RepositoryAddress, bool> connectionAttempt, HgRepository repo)
+		{
+			try
+			{
+				string resolvedUri = address.GetPotentialRepoUri(RepoProjectName, _progress);
+
+				bool canConnect;
+				if (connectionAttempt.ContainsKey(address))
+				{
+					canConnect = connectionAttempt[address];
+				}
+				else
+				{
+					canConnect = address.CanConnect(repo, RepoProjectName, _progress);
+					connectionAttempt.Add(address, canConnect);
+				}
+				if (canConnect)
+				{
+					repo.Push(address, resolvedUri, _progress);
+
+					//for usb, it's safe and desireable to do an update (bring into the directory
+					//  the latest files from the repo) for LAN, it could be... for now we assume it is
+					if (address is UsbKeyRepositorySource || address is DirectoryRepositorySource)
+					{
+						var otherRepo = new HgRepository(resolvedUri, _progress);
+						otherRepo.Update();
+					}
+				}
+				else if (address is DirectoryRepositorySource || address is UsbKeyRepositorySource)
+				{
+					TryToMakeCloneForSource(address);
+					//nb: no need to push if we just made a clone
+				}
+			}
+			catch (Exception error)
+			{
+				_progress.WriteError("Could to send to {0}({1}). Details: {2}", address.Name, address.URI, error.Message);
+				//review: at the moment, this will keep trying the other people... so is that only a partial failure?
+				results.Succeeded = false;
+				results.ErrorEncountered = error;
+				return false;
+			}
+			return true;
+		}
+
+		private bool PullFromOthers(HgRepository repo, ref SyncResults results, List<RepositoryAddress> sourcesToTry, Dictionary<RepositoryAddress, bool> connectionAttempt)
+		{
+			foreach (RepositoryAddress source in sourcesToTry)
+			{
+				if (ShouldCancel(ref results))
+				{
+					return false;
+				}
+				PullFromSource(repo, results, source, connectionAttempt);
+			}
+			return true;
+		}
+
+		private bool RemoveLocks(HgRepository repo, SyncResults results)
+		{
 			if (!repo.RemoveOldLocks())
 			{
 				_progress.WriteError("Synchronization abandoned for now.  Try again after restarting the computer.");
 				results.Succeeded = false;
-				return results;
+				return false;
 			}
-			repo.RecoverIfNeeded();
+			return true;
+		}
 
+		private bool UpdateHgrcSettingsFile(HgRepository repo, SyncResults results)
+		{
 			try
 			{
-			UpdateHgrc(repo);
+				UpdateHgrc(repo);
+				return true;
 			}
 			catch (Exception error)
 			{
 				_progress.WriteError("Could not prepare the mercurial settings.\r\n{0}", error.Message);
 				results.Succeeded = false;
-				return results;
+				return false;
 			}
+		}
 
+		private bool DoCommit(SyncResults results, SyncOptions options)
+		{
 			_progress.WriteStatus("Storing changes in local repository...");
 
 			try
@@ -140,11 +268,12 @@ namespace Chorus.sync
 
 					if (!string.IsNullOrEmpty(commitCop.ValidationResult))
 					{
-						_progress.WriteError("The changed data did not pass validation tests. Your project will be moved back to the last Send/Receive before this problem occurred, so that you can keep working.  Please notify whoever provides you with computer support.");
+						_progress.WriteError(
+							"The changed data did not pass validation tests. Your project will be moved back to the last Send/Receive before this problem occurred, so that you can keep working.  Please notify whoever provides you with computer support.");
 						results.Succeeded = false;
 						results.DidGetChangesFromOthers = false;
-						return results;
-			}
+						return false;
+					}
 				}
 			}
 			catch (Exception error)
@@ -153,159 +282,55 @@ namespace Chorus.sync
 				results.Succeeded = false;
 				results.DidGetChangesFromOthers = false;
 				results.ErrorEncountered = error;
-				return results;
+				return false;
 			}
+			return true;
+		}
 
-			var workingRevBeforeSync = repo.GetRevisionWorkingSetIsBasedOn();
-			//_progress.WriteVerbose("Got workingRevBeforeSync.");//trying to pin down WS-14981 send/receive hangs
+		private void PullFromSource(HgRepository repo, SyncResults results, RepositoryAddress source, Dictionary<RepositoryAddress, bool> connectionAttempt)
+		{
+			string resolvedUri = source.GetPotentialRepoUri(RepoProjectName, _progress);
 
-			List<RepositoryAddress> sourcesToTry = options.RepositorySourcesToTry;
-
-			//if the client didn't specify any, try them all
-//            no, don't do that.  It's reasonable to just be doing a local checkin
-//            if(repositoriesToTry==null || repositoriesToTry.Count == 0)
-//                repositoriesToTry = ExtraRepositorySources;
-
-			//this just saves us from trying to connect twice to the same repo that is, for example, no there.
-			Dictionary<RepositoryAddress, bool> connectionAttempt= new Dictionary<RepositoryAddress, bool>();
-
-			if (options.DoPullFromOthers)
+			if (source is UsbKeyRepositorySource)
 			{
-				foreach (RepositoryAddress source in sourcesToTry)
+				_progress.WriteStatus("Looking for USB flash drives...");
+				var potential = source.GetPotentialRepoUri(RepoProjectName, _progress);
+				if (null ==potential)
 				{
-					if (ShouldCancel(ref results)){return results;}
-
-					string resolvedUri = source.GetPotentialRepoUri(RepoProjectName, _progress);
-
-					if (source is UsbKeyRepositorySource)
-					{
-						_progress.WriteStatus("Looking for USB flash drives...");
-						var potential = source.GetPotentialRepoUri(RepoProjectName, _progress);
-						if (null ==potential)
-						{
-							_progress.WriteWarning("No USB flash drive found");
-						}
-						else if (string.Empty == potential)
-						{
-							_progress.WriteMessage("Did not find existing project on any USB flash drive.");
-						}
-					}
-					else
-					{
-						_progress.WriteStatus("Connecting to {0}...", source.Name);
-					}
-					var canConnect = source.CanConnect(repo, RepoProjectName, _progress);
-					if (!connectionAttempt.ContainsKey(source))
-					{
-						connectionAttempt.Add(source, canConnect);
-					}
-					if (canConnect)
-					{
-						if (repo.TryToPull(source.Name,  resolvedUri))
-						{
-							results.DidGetChangesFromOthers = true; //nb, don't set it to false just because one source didn't have anything new
-						}
-					}
-					else
-					{
-						if (source is UsbKeyRepositorySource)
-						{
-						   //already informed them, above
-						}
-						else
-						{
-							_progress.WriteWarning("Could not connect to {0} at {1} for pulling", source.Name, resolvedUri);
-						}
-					}
+					_progress.WriteWarning("No USB flash drive found");
+				}
+				else if (string.Empty == potential)
+				{
+					_progress.WriteMessage("Did not find existing project on any USB flash drive.");
 				}
 			}
-
-			if (options.DoMergeWithOthers)
+			else
 			{
-				try
+				_progress.WriteStatus("Connecting to {0}...", source.Name);
+			}
+			var canConnect = source.CanConnect(repo, RepoProjectName, _progress);
+			if (!connectionAttempt.ContainsKey(source))
+			{
+				connectionAttempt.Add(source, canConnect);
+			}
+			if (canConnect)
+			{
+				if (repo.TryToPull(source.Name,  resolvedUri))
 				{
-					MergeHeads(results);
-				}
-				catch (Exception error)
-				{
-					_progress.WriteError(error.Message);
-					_progress.WriteError("Unable to complete the send/receive.  You can try restarting the computer, but you may need expert help to fix this problem.");
-
-					//rollback
-					UpdateToTheDescendantRevision(repo, workingRevBeforeSync);
-
-					results.Succeeded = false;
-					return results;
+					results.DidGetChangesFromOthers = true; //nb, don't set it to false just because one source didn't have anything new
 				}
 			}
-
-			if(options.DoSendToOthers)
+			else
 			{
-				foreach (RepositoryAddress address in sourcesToTry)
+				if (source is UsbKeyRepositorySource)
 				{
-					if (ShouldCancel(ref results)) { return results; }
-
-					if (!address.ReadOnly)
-					{
-						try
-						{
-						string resolvedUri = address.GetPotentialRepoUri(RepoProjectName, _progress);
-
-						bool canConnect;
-						if (connectionAttempt.ContainsKey(address))
-						{
-							canConnect = connectionAttempt[address];
-						}
-						else
-						{
-							canConnect = address.CanConnect(repo, RepoProjectName, _progress);
-							connectionAttempt.Add(address, canConnect);
-						}
-						if (canConnect)
-						{
-							repo.Push(address, resolvedUri, _progress);
-
-							//for usb, it's safe and desireable to do an update (bring into the directory
-							//  the latest files from the repo) for LAN, it could be... for now we assume it is
-							if (address is UsbKeyRepositorySource || address is DirectoryRepositorySource)
-							{
-								var otherRepo = new HgRepository(resolvedUri, _progress);
-								otherRepo.Update();
-							}
-						}
-						else if (address is DirectoryRepositorySource || address is UsbKeyRepositorySource)
-						{
-							TryToMakeCloneForSource(address);
-							//nb: no need to push if we just made a clone
-						}
-					}
-						catch (Exception error)
-						{
-							_progress.WriteError("Could to send to {0}({1}). Details: {2}", address.Name, address.URI, error.Message);
-							//review: at the moment, this will keep trying the other people... so is that only a partial failure?
-							results.Succeeded = false;
-							results.ErrorEncountered = error;
-							return results;
-						}
+					//already informed them, above
+				}
+				else
+				{
+					_progress.WriteWarning("Could not connect to {0} at {1} for pulling", source.Name, resolvedUri);
 				}
 			}
-			}
-			try
-			{
-				UpdateToTheDescendantRevision(repo, workingRevBeforeSync);
-			}
-			catch (Exception error)
-			{
-				_progress.WriteError("Could not update.  Details: " + error.Message);
-				results.Succeeded = false;
-				results.ErrorEncountered = error;
-				results.DidGetChangesFromOthers = false;
-			}
-
-		  //  Debug.Assert(!repo.GetHasLocks(), "A lock was left over, after the sync.");
-
-			_progress.WriteStatus("Done");
-			return results;
 		}
 
 		/// <summary>
@@ -340,31 +365,39 @@ namespace Chorus.sync
 		/// but in a 3-or-more source scenario could be the result of a merge with a more cooperative
 		/// revision).
 		/// </summary>
-		private void UpdateToTheDescendantRevision(HgRepository repository, Revision parent)
+		private bool UpdateToTheDescendantRevision(SyncResults results, HgRepository repository, Revision parent)
 		{
-			var heads = repository.GetHeads();
-			if (heads.Count == 1)
+			try
 			{
-				repository.Update(); //update to the tip
-				return;
-			}
-			//if (heads.Any(h => h.Number.Hash == parent.Number.Hash))
-			//{
-				//return; // our revision is still a head, so nothing to do
-			//}
-
-			//TODO: I think this "direct descendant" limitation won't be enough
-			//  when there are more than 2 people merging and there's a failure
-			foreach (var head in heads)
-			{
-				if (parent.Number.Hash == head.Number.Hash || head.IsDirectDescendantOf(parent))
+				var heads = repository.GetHeads();
+				if (heads.Count == 1)
 				{
-					repository.RollbackWorkingDirectoryToRevision(head.Number.LocalRevisionNumber);
-					return;
+					repository.Update(); //update to the tip
+					return true;
 				}
-			}
 
-			_progress.WriteWarning("Staying at previous-tip (unusual)");
+				//TODO: I think this "direct descendant" limitation won't be enough
+				//  when there are more than 2 people merging and there's a failure
+				foreach (var head in heads)
+				{
+					if (parent.Number.Hash == head.Number.Hash || head.IsDirectDescendantOf(parent))
+					{
+						repository.RollbackWorkingDirectoryToRevision(head.Number.LocalRevisionNumber);
+						return true;
+					}
+				}
+
+				_progress.WriteWarning("Staying at previous-tip (unusual)");
+			}
+			catch (Exception error)
+			{
+				_progress.WriteError("Could not update.  Details: " + error.Message);
+				results.Succeeded = false;
+				results.ErrorEncountered = error;
+				results.DidGetChangesFromOthers = false;
+				return false;
+			}
+			return true;
 		}
 
 		private string GetMergeCommitSummary(string personMergedWith, HgRepository repository)
@@ -451,53 +484,63 @@ namespace Chorus.sync
 		}
 
 
-		  /// <returns>A list of people that actually needed merging with.  Throws exception if there is an error.</returns>
-		private List<string> MergeHeads(SyncResults results)
-		{
-			List<string> peopleWeMergedWith = new List<string>();
+		private bool MergeHeads(SyncResults results)
+		  {
+			  try
+			  {
+				  List<string> peopleWeMergedWith = new List<string>();
 
-			List<Revision> heads = Repository.GetHeads();
-			Revision myHead = Repository.GetRevisionWorkingSetIsBasedOn();
-			if (myHead == default(Revision))
-				return peopleWeMergedWith;
+				  List<Revision> heads = Repository.GetHeads();
+				  Revision myHead = Repository.GetRevisionWorkingSetIsBasedOn();
+				  if (myHead == default(Revision))
+					  return true;
 
-			foreach (Revision head in heads)
-			{
-				if (head.Number.LocalRevisionNumber == myHead.Number.LocalRevisionNumber)
-					continue;
+				  foreach (Revision head in heads)
+				  {
+					  if (head.Number.LocalRevisionNumber == myHead.Number.LocalRevisionNumber)
+						  continue;
 
-				if (head.Tag.Contains(RejectTagSubstring))
-					continue;
+					  if (head.Tag.Contains(RejectTagSubstring))
+						  continue;
 
-				//note: what we're checking here is actualy the *name* of the branch... obviously
-				//they are different branches, or merge would not be needed.
-				if (head.Branch != myHead.Branch)//Chorus policy is to only auto-merge on branches with same name
-					continue;
+					  //note: what we're checking here is actualy the *name* of the branch... obviously
+					  //they are different branches, or merge would not be needed.
+					  if (head.Branch != myHead.Branch) //Chorus policy is to only auto-merge on branches with same name
+						  continue;
 
-				//this is for posterity, on other people's machines, so use the hashes instead of local numbers
-				MergeSituation.PushRevisionsToEnvironmentVariables(myHead.UserId, myHead.Number.Hash, head.UserId,
-																   head.Number.Hash);
+					  //this is for posterity, on other people's machines, so use the hashes instead of local numbers
+					  MergeSituation.PushRevisionsToEnvironmentVariables(myHead.UserId, myHead.Number.Hash, head.UserId,
+																		 head.Number.Hash);
 
-				MergeOrder.PushToEnvironmentVariables(_localRepositoryPath);
-					_progress.WriteStatus("Merging with {0}...", head.UserId);
-					RemoveMergeObstacles(myHead, head);
-					bool didMerge = MergeTwoChangeSets(myHead, head);
-					if (didMerge)
-					{
-						peopleWeMergedWith.Add(head.UserId);
+					  MergeOrder.PushToEnvironmentVariables(_localRepositoryPath);
+					  _progress.WriteStatus("Merging with {0}...", head.UserId);
+					  RemoveMergeObstacles(myHead, head);
+					  bool didMerge = MergeTwoChangeSets(myHead, head);
+					  if (didMerge)
+					  {
+						  peopleWeMergedWith.Add(head.UserId);
 
-					//that merge may have generated notes files where they didn't exist before,
-					//and we want these merged
-					//version + updated/created notes files to go right back into the repository
+						  //that merge may have generated notes files where they didn't exist before,
+						  //and we want these merged
+						  //version + updated/created notes files to go right back into the repository
 
-				  //  args.Append(" -X " + SurroundWithQuotes(Path.Combine(_pathToRepository, "**.ChorusRescuedFile")));
+						  //  args.Append(" -X " + SurroundWithQuotes(Path.Combine(_pathToRepository, "**.ChorusRescuedFile")));
 
 
-					AddAndCommitFiles(GetMergeCommitSummary(head.UserId, Repository));
-					}
-				}
-			  return peopleWeMergedWith;
-			}
+						  AddAndCommitFiles(GetMergeCommitSummary(head.UserId, Repository));
+					  }
+				  }
+			  }
+			  catch (Exception error)
+			  {
+				  _progress.WriteError(error.Message);
+				  _progress.WriteError("Unable to complete the send/receive.  You can try restarting the computer, but you may need expert help to fix this problem.");
+
+				  results.Succeeded = false;
+				  return false;
+			  }
+			return true;
+		  }
 
 		private void AddAndCommitFiles(string summary)
 		{

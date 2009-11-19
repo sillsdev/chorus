@@ -1128,7 +1128,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		}
 
 
-		public void RecoverIfNeeded()
+		public void RecoverFromInterruptedTransactionIfNeeded()
 		{
 			var result = Execute(true, _secondsBeforeTimeoutOnLocalOperation, "recover");
 
