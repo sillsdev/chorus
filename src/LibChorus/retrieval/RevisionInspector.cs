@@ -76,7 +76,7 @@ namespace Chorus.retrieval
 			foreach (var report in reports)
 			{
 				var handler = _fileHandlerCollection.GetHandlerForDiff(report.PathToFile);
-				if(handler.GetType()==typeof(ConflictFileTypeHandler))
+				if(handler.GetType()==typeof(ChorusNotesFileHandler))
 				{
 					changes.Add(report);
 				}

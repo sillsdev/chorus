@@ -3,6 +3,9 @@ using Autofac.Builder;
 using Chorus.FileTypeHanders;
 using Chorus.retrieval;
 using Chorus.sync;
+using Chorus.UI;
+using Chorus.UI.Misc;
+using Chorus.UI.Notes;
 using Chorus.UI.Review;
 using Chorus.UI.Review.ChangedReport;
 using Chorus.UI.Review.ChangesInRevision;
@@ -15,11 +18,16 @@ using Chorus.VcsDrivers.Mercurial;
 namespace Chorus
 {
 	//Both the CHorus app and chorus clients can use this to inject chorus ui stuff into their local
-	//autofac container, if that's what they user.
+	//autofac container, if that's what they use.
 	public static class ChorusUIComponentsInjector
 	{
 		public static void Inject(ContainerBuilder builder, string projectPath, SyncUIFeatures syncDialogFeatures)
 		{
+			//TODO: shouldn't we have people provide the whole project configuration? Otherwise, we have an empty set of
+			//include/exlcude patterns, so new files aren't going to get added.  Maybe if we're going to do that, it
+			//doesn't make sense for this to do the injecting at all... maybe the client should do it.  Similar issue
+			//below, with SyncUIFeatures
+
 			builder.Register<ProjectFolderConfiguration>(
 			   c => new ProjectFolderConfiguration(projectPath));
 
@@ -45,6 +53,13 @@ namespace Chorus
 			RegisterSyncStuff(builder);
 			RegisterReviewStuff(builder);
 			RegisterSettingsStuff(builder);
+
+			builder.Register<Chorus.UI.Notes.NotesInProjectViewModel>();
+			builder.Register<Chorus.UI.Notes.NotesInProjectView>();
+			builder.Register<Chorus.UI.Notes.AnnotationView>();
+			builder.Register<Chorus.UI.Notes.AnnotationViewModel>();
+			builder.Register<Chorus.UI.Notes.NotesPage>();
+			builder.Register<StyleSheet>(c =>  StyleSheet.CreateFromDisk());
 		}
 
 		public static void Inject(ContainerBuilder builder, string projectPath)
@@ -66,6 +81,7 @@ namespace Chorus
 
 		private static void RegisterReviewStuff(ContainerBuilder builder)
 		{
+			builder.Register<IProgress>(new ConsoleProgress( ));
 			builder.Register<RevisionInspector>();
 			builder.Register<ChangesInRevisionModel>();
 			builder.Register<ReviewPage>();
@@ -78,6 +94,32 @@ namespace Chorus
 
 			builder.Register<RevisionInRepositoryModel>();
 			builder.Register<RevisionsInRepositoryView>();
+
+			builder.Register<MessageSelectedEvent>();
+		}
+
+		private static Shell CreateShell(string projectPath, Autofac.Builder.ContainerBuilder builder)
+		{
+			builder.Register<Shell>();
+			builder.Register<ReviewPage>();
+			builder.Register<RevisionsInRepositoryView>();
+			builder.Register<RevisionInRepositoryModel>();
+			builder.Register<ChangesInRevisionModel>();
+			builder.Register<ChangesInRevisionView>();
+			builder.Register<ChangeReportView>();
+			builder.Register<RevisionInspector>();
+
+			builder.Register(c => HgRepository.CreateOrLocate(projectPath, c.Resolve<IProgress>()));
+
+			var container = builder.Build();
+			var shell = container.Resolve<Shell>();
+
+			shell.AddPage("Review", container.Resolve<ReviewPage>());
+			shell.AddPage("Send/Receive", container.Resolve<SyncPanel>());
+			shell.AddPage("Settings", container.Resolve<SettingsView>());
+			shell.AddPage("Troubleshooting", container.Resolve<TroubleshootingView>());
+
+			return shell;
 		}
 
 

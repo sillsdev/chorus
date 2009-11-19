@@ -26,6 +26,15 @@ namespace Chorus.FileTypeHanders.audio
 			return ((new string[] {".wav",".mp3"}.Contains(ext)));
 		}
 
+		public bool CanValidateFile(string pathToFile)
+		{
+			return false;
+		}
+		public string ValidateFile(string pathToFile, IProgress progress)
+		{
+			throw new NotImplementedException();
+		}
+
 		public void Do3WayMerge(MergeOrder mergeOrder)
 		{
 			throw new ApplicationException(string.Format("Chorus could not find a handler to merge files like '{0}'", mergeOrder.pathToOurs));

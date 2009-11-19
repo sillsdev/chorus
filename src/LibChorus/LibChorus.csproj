@@ -31,6 +31,7 @@
 	<IsWebBootstrapper>false</IsWebBootstrapper>
 	<UseApplicationTrust>false</UseApplicationTrust>
 	<BootstrapperEnabled>true</BootstrapperEnabled>
+	<TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
 	<DebugSymbols>true</DebugSymbols>
@@ -49,7 +50,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
 	<DebugType>pdbonly</DebugType>
 	<Optimize>true</Optimize>
-	<OutputPath>bin\Release\</OutputPath>
+	<OutputPath>..\..\output\Release\</OutputPath>
 	<DefineConstants>TRACE</DefineConstants>
 	<ErrorReport>prompt</ErrorReport>
 	<WarningLevel>4</WarningLevel>
@@ -65,30 +66,37 @@
 	  <SpecificVersion>False</SpecificVersion>
 	  <HintPath>..\..\lib\net2.0\Autofac.dll</HintPath>
 	</Reference>
-	<Reference Include="LinqBridge, Version=1.0.0.0, Culture=neutral, PublicKeyToken=c2b14eb747628076, processorArchitecture=MSIL">
-	  <SpecificVersion>False</SpecificVersion>
-	  <HintPath>..\..\lib\net2.0\LinqBridge.dll</HintPath>
-	</Reference>
 	<Reference Include="System" />
+	<Reference Include="System.Core">
+	  <RequiredTargetFramework>3.5</RequiredTargetFramework>
+	</Reference>
 	<Reference Include="System.Data" />
+	<Reference Include="System.Data.Linq">
+	  <RequiredTargetFramework>3.5</RequiredTargetFramework>
+	</Reference>
 	<Reference Include="System.Drawing" />
 	<Reference Include="System.Management" />
+	<Reference Include="System.Web" />
 	<Reference Include="System.Windows.Forms" />
 	<Reference Include="System.Xml" />
+	<Reference Include="System.Xml.Linq">
+	  <RequiredTargetFramework>3.5</RequiredTargetFramework>
+	</Reference>
   </ItemGroup>
   <ItemGroup>
 	<Compile Include="clone\CloneFromUsb.cs" />
 	<Compile Include="FileTypeHanders\adaptIt\AdaptItHandler.cs" />
 	<Compile Include="FileTypeHanders\audio\AudioChangePresenter.cs" />
-	<Compile Include="FileTypeHanders\ConflictFileTypeHandler.cs" />
+	<Compile Include="FileTypeHanders\ChorusNotesFileHandler.cs" />
 	<Compile Include="FileTypeHanders\audio\AudioFileTypeHandler.cs" />
 	<Compile Include="FileTypeHanders\ConflictPresenter.cs" />
 	<Compile Include="FileTypeHanders\image\ImageChangePresenter.cs" />
 	<Compile Include="FileTypeHanders\image\ImageFileTypeHandler.cs" />
-	<Compile Include="FileTypeHanders\ConflictDiffer.cs" />
+	<Compile Include="FileTypeHanders\ChorusNotesDiffer.cs" />
 	<Compile Include="FileTypeHanders\lift\WeSayConfigFileHandler.cs" />
 	<Compile Include="FileTypeHanders\oneStory\OneStoryFileHandler.cs" />
 	<Compile Include="FileTypeHanders\OurWord\OurWordFileHandler.cs" />
+	<Compile Include="FileTypeHanders\test\ChorusTestFileHandler.cs" />
 	<Compile Include="FileTypeHanders\text\TextEditChangePresenter.cs" />
 	<Compile Include="FileTypeHanders\text\TextEditChangeReport.cs" />
 	<Compile Include="FileTypeHanders\text\TextFileTypeHandler.cs" />
@@ -108,7 +116,10 @@
 	<Compile Include="FileTypeHanders\xml\XmlDeletionChangeReport.cs" />
 	<Compile Include="merge\UnmergableFileTypeConflict.cs" />
 	<Compile Include="merge\xml\generic\HumanLogMergeEventListener.cs" />
-	<Compile Include="merge\xml\generic\XmlLogMergeEventListener.cs" />
+	<Compile Include="merge\xml\generic\ChorusNotesMergeEventListener.cs" />
+	<Compile Include="notes\ChorusNotesUser.cs" />
+	<Compile Include="notes\NotesRepository.cs" />
+	<Compile Include="sync\CommitCop.cs" />
 	<Compile Include="Utilities\ProcessOutputReader.cs" />
 	<Compile Include="Utilities\FailureSimulator.cs" />
 	<Compile Include="Utilities\Guard.cs" />
@@ -120,6 +131,7 @@
 	<Compile Include="merge\MergeSituation.cs" />
 	<Compile Include="merge\xml\generic\MergeSort.cs" />
 	<Compile Include="merge\xml\generic\PoorMansMergeStrategy.cs" />
+	<Compile Include="Utilities\XmlValidation.cs" />
 	<Compile Include="VcsDrivers\IRetrieveFileVersionsFromRepository.cs" />
 	<Compile Include="retrieval\LiftEntryRetriever.cs" />
 	<Compile Include="retrieval\RevisionInspector.cs" />
@@ -138,7 +150,7 @@
 	<Compile Include="Utilities\ini\IniWriter.cs" />
 	<Compile Include="Utilities\ini\OrderedList.cs" />
 	<Compile Include="Utilities\ini\OrderedListEnumerator.cs" />
-	<Compile Include="Utilities\Other.cs" />
+	<Compile Include="Utilities\ExecutionEnvironment.cs" />
 	<Compile Include="Utilities\ProcessStream.cs" />
 	<Compile Include="Utilities\Progress.cs" />
 	<Compile Include="Utilities\ShortTermEnvironmentalVariable.cs" />
@@ -197,9 +209,9 @@
   </Target>
   -->
   <PropertyGroup>
-	<PostBuildEvent>mkdir $(OutDir)\diff3
-mkdir $(OutDir)\diff3\bin
-copy $(OutDir)..\..\lib\diff3\bin\*.* $(OutDir)\diff3\bin\
+	<PostBuildEvent>mkdir $(OutDir)diff3
+mkdir $(OutDir)diff3\bin
+copy $(OutDir)..\..\lib\diff3\bin\*.* $(OutDir)diff3\bin\
 </PostBuildEvent>
 	<ProjectGuid>{94245366-8F1E-475C-810D-FE89BB3948E0}</ProjectGuid>
 	<RootNamespace>Chorus</RootNamespace>

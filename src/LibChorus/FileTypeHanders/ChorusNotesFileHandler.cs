@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Xml;
-using Chorus.FileTypeHanders.lift;
 using Chorus.FileTypeHanders.xml;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
@@ -12,10 +11,14 @@ using Chorus.VcsDrivers.Mercurial;
 namespace Chorus.FileTypeHanders
 {
 	/// <summary>
-	/// The key thing to understand here is that the conflict file only *grows*... it doesn't get editted
-	/// normally.  So the only changes we're interested in are *additions* of conflict reports to the file.
+	/// The Chorus Notes file is a "stand-off markup" file of annotations.
+	/// It facilitate workflow of a team working on the target document, such as a dictionary.
+	/// The file name is the target file + ".ChorusNotes".
+	/// ChorusNotes-aware applications will make additions to let the team discuss issues and
+	/// marke the status of things.  In addition, the chorus merger adds annotations when
+	/// it encounters a conflict, so that the team can later review what was done by the merger and make changes.
 	/// </summary>
-	public class ConflictFileTypeHandler : IChorusFileTypeHandler
+	public class ChorusNotesFileHandler : IChorusFileTypeHandler
 	{
 		public bool CanDiffFile(string pathToFile)
 		{
@@ -24,7 +27,7 @@ namespace Chorus.FileTypeHanders
 
 		public bool CanMergeFile(string pathToFile)
 		{
-			return (System.IO.Path.GetExtension(pathToFile) == ".conflicts");
+			return (System.IO.Path.GetExtension(pathToFile) == ".ChorusNotes");
 		}
 
 		public bool CanPresentFile(string pathToFile)
@@ -32,11 +35,30 @@ namespace Chorus.FileTypeHanders
 			return CanDiffFile(pathToFile);
 		}
 
+
+		public bool CanValidateFile(string pathToFile)
+		{
+			return false;
+		}
+		public string ValidateFile(string pathToFile, IProgress progress)
+		{
+			throw new NotImplementedException();
+		}
+
 		public void Do3WayMerge(MergeOrder order)
 		{
 			XmlMerger merger  = new XmlMerger(order.MergeSituation);
+			SetupElementStrategies(merger);
 			var r = merger.MergeFiles(order.pathToOurs, order.pathToTheirs, order.pathToCommonAncestor);
 			File.WriteAllText(order.pathToOurs, r.MergedNode.OuterXml);
+		}
+		private void SetupElementStrategies(XmlMerger merger)
+		{
+			merger.MergeStrategies.SetStrategy("annotation", ElementStrategy.CreateForKeyedElement("guid", false));
+			merger.MergeStrategies.SetStrategy("message", ElementStrategy.CreateForKeyedElement("guid", false));
+			//enhance... it would be efficient if we could tell the merger that a
+			//<message> is _____ (the word that means you can't change it), but this will do for now
+			merger.MergeStrategies.SetStrategy("data", ElementStrategy.CreateSingletonElement());
 		}
 
 		public IEnumerable<IChangeReport> Find2WayDifferences(FileInRevision parent, FileInRevision child, HgRepository repository)
@@ -47,7 +69,7 @@ namespace Chorus.FileTypeHanders
 			using (var parentFile = parent.CreateTempFile(repository))
 			{
 
-				var differ = ConflictDiffer.CreateFromFiles(parentFile.Path, childFile.Path, listener);
+				var differ = ChorusNotesDiffer.CreateFromFiles(parentFile.Path, childFile.Path, listener);
 				differ.ReportDifferencesToListener();
 				return listener.Changes;
 			}
@@ -73,7 +95,7 @@ namespace Chorus.FileTypeHanders
 			dom.Load(file.Path);
 
 
-			foreach (XmlNode e in dom.SafeSelectNodes("conflicts/conflict"))
+			foreach (XmlNode e in dom.SafeSelectNodes("notes/annotation"))
 			{
 				yield return new XmlAdditionChangeReport(fileInRevision, e);
 			}
@@ -81,7 +103,7 @@ namespace Chorus.FileTypeHanders
 
 		public IEnumerable<string> GetExtensionsOfKnownTextFileTypes()
 		{
-			yield return ".conflicts";
+			yield return ".ChorusNotes";
 		}
 	}
 }

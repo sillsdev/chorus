@@ -135,7 +135,7 @@ namespace Chorus.merge.xml.generic
 	//which would want a line number, not the contents of the line.
 	public interface IGenerateContextDescriptor
 	{
-		ContextDescriptor GenerateContextDescriptor(string mergeElement);
+		ContextDescriptor GenerateContextDescriptor(string mergeElement, string filePath);
 	}
 
 	public class ContextDescriptor
@@ -168,6 +168,13 @@ namespace Chorus.merge.xml.generic
 		{
 			writer.WriteAttributeString("contextPath", string.Empty, PathToUserUnderstandableElement);
 			writer.WriteAttributeString("contextDataLabel", string.Empty, DataLabel);
+		}
+	}
+
+	public class NullContextDescriptor : ContextDescriptor
+	{
+		public NullContextDescriptor() : base("unknown", "unknown")
+		{
 		}
 	}
 }

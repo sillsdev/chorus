@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -14,12 +14,20 @@ namespace Chorus.FileTypeHanders.OurWord
 		static MethodInfo RetrieveRemoteMethod(string remoteMethodName)
 		{
 			var ourWordPath = Path.Combine(
-				Other.DirectoryOfExecutingAssembly, "OurWordData.dll");
+				ExecutionEnvironment.DirectoryOfExecutingAssembly, "OurWordData.dll");
 			var ourWordAssembly = Assembly.LoadFrom(ourWordPath);
 
 			var mergerType = ourWordAssembly.GetType("OurWordData.DataModel.Merger");
 
 			return mergerType.GetMethod(remoteMethodName);
+		}
+
+		private bool OurWordAssemblyIsAvailable
+		{
+			get {
+				return File.Exists(Path.Combine(
+									   ExecutionEnvironment.DirectoryOfExecutingAssembly, "OurWordData.dll"));
+			}
 		}
 
 		public bool CanDiffFile(string pathToFile)
@@ -29,6 +37,9 @@ namespace Chorus.FileTypeHanders.OurWord
 
 		public bool CanMergeFile(string pathToFile)
 		{
+			if (!OurWordAssemblyIsAvailable)
+				return false;
+
 			try
 			{
 				var method = RetrieveRemoteMethod("CanMergeFile");
@@ -46,8 +57,18 @@ namespace Chorus.FileTypeHanders.OurWord
 			return false;
 		}
 
+		public bool CanValidateFile(string pathToFile)
+		{
+			return false;
+		}
+
 		public void Do3WayMerge(MergeOrder mergeOrder)
 		{
+			if (!OurWordAssemblyIsAvailable)
+			{
+				throw new ApplicationException("OurWord Dll is not available to do the merge (so this should not have been called).");
+			}
+
 			//Debug.Fail("LibChorus.FileTypeHandlers.OurWord.Do3WayMerge - For debugging.");
 
 			var method = RetrieveRemoteMethod("Do3WayMerge");
@@ -67,6 +88,11 @@ namespace Chorus.FileTypeHanders.OurWord
 			throw new NotImplementedException();
 		}
 
+		public string ValidateFile(string pathToFile, IProgress progress)
+		{
+			throw new NotImplementedException();
+		}
+
 		public IEnumerable<IChangeReport> DescribeInitialContents(FileInRevision fileInRevision, TempFile file)
 		{
 			//this is never called because we said we don't present diffs; review is handled some other way
@@ -75,6 +101,11 @@ namespace Chorus.FileTypeHanders.OurWord
 
 		public IEnumerable<string> GetExtensionsOfKnownTextFileTypes()
 		{
+			if (!OurWordAssemblyIsAvailable)
+			{
+				return new string[] {};
+			}
+
 			try
 			{
 				var method = RetrieveRemoteMethod("GetExtensionsOfKnownTextFileTypes");

@@ -81,13 +81,26 @@ namespace Chorus.merge.xml.generic
 
 		public void WriteAsXml(XmlWriter writer)
 		{
-			writer.WriteStartElement("conflict");
-			WriteAttributes(writer);
-
+			writer.WriteStartElement("annotation");
+			writer.WriteAttributeString("class", string.Empty, "conflict");
+			Guard.AgainstNull(Context,"Context");
+			Guard.AgainstNull(Context.PathToUserUnderstandableElement, "Context.PathToUserUnderstandableElement");
+			writer.WriteAttributeString("ref", Context.PathToUserUnderstandableElement);
+			writer.WriteAttributeString("guid", Guid.NewGuid().ToString()); //nb: this is the guid of the enclosing annotation, not the conflict;
+			writer.WriteStartElement("message");
+			writer.WriteAttributeString("author", string.Empty, "merger");
+			writer.WriteAttributeString("status", string.Empty, "open");
+			writer.WriteAttributeString("guid", string.Empty, Guid.ToString());//nb: ok to have the same guid with the conflict, as they are in 1-1 relation and eventually we'll remove the one on conflict
+			writer.WriteAttributeString("date", string.Empty, DateTime.UtcNow.ToString(TimeFormatNoTimeZone));
 			writer.WriteString(GetFullHumanReadableDescription());
+
+			writer.WriteStartElement("data");
+			WriteAttributes(writer);
 
 			Situation.WriteAsXml(writer);
 
+			writer.WriteEndElement();
+			writer.WriteEndElement();
 			writer.WriteEndElement();
 		}
 
@@ -320,7 +333,7 @@ namespace Chorus.merge.xml.generic
 		}
 		public virtual string GetXmlOfConflict()
 		{
-			return string.Format("<conflict type='{0}'/>", this.GetType().Name);
+			return string.Format("<annotation type='{0}'/>", this.GetType().Name);
 		}
 
 

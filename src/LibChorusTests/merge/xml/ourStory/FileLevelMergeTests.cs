@@ -16,24 +16,32 @@ namespace LibChorus.Tests.merge.xml.ourStory
 		public void Setup()
 		{
 			_ancestor = @"<?xml version='1.0' encoding='utf-8'?>
-					<StoryProject>
-  <stories ProjectLanguage='Foobar'>
-	<story name='one' guid='1108CC4B-E0B7-4227-9645-829082B3F611'>
-	  <verses>
-		<verse guid='8B2A9897-B79E-4b86-ADF9-FC73BD7CAF1E'>
-		  <InternationalBT lang='en'>This is all about one.</InternationalBT>
-		  </verse>
-		</verses>
-	</story>
-	<story name='two' guid='2208CC4B-E0B7-4227-9645-829082B3F622'>
-	  <verses>
-		<verse guid='222A9897-B79E-4b86-ADF9-FC73BD7CAF22'>
-		  <InternationalBT lang='en'>Mostly about two.</InternationalBT>
-		  </verse>
-		</verses>
-	</story>
-  </stories>
-</StoryProject>";
+	<StoryProject ProjectName='Foobar' PanoramaFrontMatter=''>
+	  <Members>
+		<Member name='Browser' memberType='JustLooking' memberKey='2f8b34f9-3098-4ad4-b611-5685a4565845' />
+	  </Members>
+	  <Languages>
+		  <VernacularLang name='Kangri' code='xnr' FontName='Arial Unicode MS' FontSize='12' FontColor='Maroon' SentenceFinalPunct='।' Keyboard='DevRom' />
+		  <NationalBTLang name='Hindi' code='hin' FontName='Arial Unicode MS' FontSize='12' FontColor='Green' SentenceFinalPunct='।' Keyboard='DevRom' />
+		  <InternationalBTLang name='English' code='en' FontName='Times New Roman' FontSize='10' FontColor='Blue' SentenceFinalPunct='.' />
+	  </Languages>
+	  <stories SetName='Stories'>
+		<story name='one' guid='1108CC4B-E0B7-4227-9645-829082B3F611'>
+		  <verses>
+			<verse guid='8B2A9897-B79E-4b86-ADF9-FC73BD7CAF1E'>
+			  <InternationalBT lang='en'>This is all about one.</InternationalBT>
+			  </verse>
+			</verses>
+		</story>
+		<story name='two' guid='2208CC4B-E0B7-4227-9645-829082B3F622'>
+		  <verses>
+			<verse guid='222A9897-B79E-4b86-ADF9-FC73BD7CAF22'>
+			  <InternationalBT lang='en'>Mostly about two.</InternationalBT>
+			  </verse>
+			</verses>
+		</story>
+	  </stories>
+	</StoryProject>";
 		}
 
 
@@ -81,6 +89,59 @@ namespace LibChorus.Tests.merge.xml.ourStory
 			XmlTestHelper.AssertXPathMatchesExactlyOne(result, "StoryProject/stories/story[@name='one']/verses/verse/InternationalBT[text()='new text for one']");
 			XmlTestHelper.AssertXPathMatchesExactlyOne(result, "StoryProject/stories/story[@name='two']/verses/verse/InternationalBT[text()='new text for two']");
 		}
+
+		[Test]
+		public void Do3WayMerge_BothAddMember_GotAllChanges()
+		{
+			var ourContent = _ancestor.Replace("</Members>",
+				"<Member name='Crafter' memberType='Crafter' memberKey='mem-0699a445-75ba-4faf-900e-c7c3d6bc6b1a' /></Members>");
+			var theirContent = _ancestor.Replace("</Members>",
+				"<Member name='UNS' memberType='UNS' memberKey='mem-5ffc70a1-a482-461c-b6cc-7283a2a32960' /></Members>");
+
+			var result = DoMerge(ourContent, theirContent);
+			AssertThatXmlIn.String(result).HasSpecifiedNumberOfMatchesForXpath("StoryProject/Members/Member", 3);
+
+			XmlTestHelper.AssertXPathMatchesExactlyOne(result, "StoryProject/Members/Member[@name='Crafter']");
+			XmlTestHelper.AssertXPathMatchesExactlyOne(result, "StoryProject/Members/Member[@name='UNS']");
+		}
+
+		[Test, Ignore("Bob says this never worked")]
+		public void Do3WayMerge_BothAddSameMember_ThrowAwayOther()
+		{
+			var ourContent = _ancestor.Replace("</Members>",
+				"<Member name='Bill' memberType='Crafter' memberKey='mem-0699a445-75ba-4faf-900e-c7c3d6bc6b1a' /></Members>");
+			var theirContent = _ancestor.Replace("</Members>",
+				"<Member name='Bill' memberType='UNS' memberKey='mem-5ffc70a1-a482-461c-b6cc-7283a2a32960' /></Members>");
+
+			var result = DoMerge(ourContent, theirContent);
+			AssertThatXmlIn.String(result).HasSpecifiedNumberOfMatchesForXpath("StoryProject/Members/Member[@name='Bill']", 1);
+			XmlTestHelper.AssertXPathMatchesExactlyOne(result, "StoryProject/Members/Member[@name='Bill'][@memberType='Crafter']");
+		}
+
+		[Test]
+		public void Do3WayMerge_ChangeMemberName_ThrowAwayOther()
+		{
+			var ourContent = _ancestor;
+			var theirContent = _ancestor.Replace("</Members>",
+				"<Member name='Bill' memberType='UNS' memberKey='mem-5ffc70a1-a482-461c-b6cc-7283a2a32960' /></Members>");
+
+			var result = DoMerge(ourContent, theirContent);
+			XmlTestHelper.AssertXPathMatchesExactlyOne(result, "/StoryProject/Members/Member[@name='Bill'][@memberKey='mem-5ffc70a1-a482-461c-b6cc-7283a2a32960']");
+		}
+
+		[Test]
+		public void Do3WayMerge_BothChangeKeyboard_ThrowAwayOther()
+		{
+			var ourContent = _ancestor.Replace("<VernacularLang name='Kangri' code='xnr' FontName='Arial Unicode MS' FontSize='12' FontColor='Maroon' SentenceFinalPunct='।' Keyboard='DevRom' />",
+				"<VernacularLang name='Kangri' code='xnr' FontName='Arial Unicode MS' FontSize='12' FontColor='Maroon' SentenceFinalPunct='।' Keyboard='Keyman DevRom' />");
+			var theirContent = _ancestor.Replace("<VernacularLang name='Kangri' code='xnr' FontName='Arial Unicode MS' FontSize='12' FontColor='Maroon' SentenceFinalPunct='।' Keyboard='DevRom' />",
+				"<VernacularLang name='Kangri' code='xnr' FontName='Arial Unicode MS' FontSize='12' FontColor='Maroon' SentenceFinalPunct='।' Keyboard='InKey DevRom' />");
+
+			var result = DoMerge(ourContent, theirContent);
+			AssertThatXmlIn.String(result).HasSpecifiedNumberOfMatchesForXpath("//VernacularLang", 1);
+			XmlTestHelper.AssertXPathMatchesExactlyOne(result, "//VernacularLang[@Keyboard='Keyman DevRom']");
+		}
+
 		[Test]
 		public void Do3WayMerge_OneEdittedTheOtherDeletedAStory_GotAllChanges()
 		{

@@ -92,7 +92,7 @@ namespace LibChorus.Tests.merge.xml.lift
 			Assert.AreEqual(1, listener.Conflicts.Count);
 			var conflict = listener.Conflicts[0];
 			AssertConflictType<BothEdittedTextConflict>(conflict);
-			var expectedContext = "lift/entry[@guid='F169EB3D-16F2-4eb0-91AA-FDB91636F8F6']";
+			var expectedContext = "lift://unknown?type=entry&guid=F169EB3D-16F2-4eb0-91AA-FDB91636F8F6&id=test";
 			Assert.AreEqual(expectedContext, listener.Contexts[0].PathToUserUnderstandableElement, "the listener wasn't give the expected context");
 		}
 
