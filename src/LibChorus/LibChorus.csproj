@@ -119,6 +119,7 @@
 	<Compile Include="merge\xml\generic\ChorusNotesMergeEventListener.cs" />
 	<Compile Include="notes\ChorusNotesUser.cs" />
 	<Compile Include="notes\NotesRepository.cs" />
+	<Compile Include="VcsDrivers\Mercurial\HgHighLevel.cs" />
 	<Compile Include="sync\CommitCop.cs" />
 	<Compile Include="Utilities\ProcessOutputReader.cs" />
 	<Compile Include="Utilities\FailureSimulator.cs" />
@@ -131,6 +132,7 @@
 	<Compile Include="merge\MergeSituation.cs" />
 	<Compile Include="merge\xml\generic\MergeSort.cs" />
 	<Compile Include="merge\xml\generic\PoorMansMergeStrategy.cs" />
+	<Compile Include="Utilities\RequireThat.cs" />
 	<Compile Include="Utilities\XmlValidation.cs" />
 	<Compile Include="VcsDrivers\IRetrieveFileVersionsFromRepository.cs" />
 	<Compile Include="retrieval\LiftEntryRetriever.cs" />

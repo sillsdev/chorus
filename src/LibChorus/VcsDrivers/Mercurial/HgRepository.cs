@@ -1146,6 +1146,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			if (!string.IsNullOrEmpty(result.StandardError))
 			{
 				_progress.WriteError(result.StandardError);
+				throw new ApplicationException("Trying to recover, got: "+result.StandardError);
 			}
 			if (!string.IsNullOrEmpty(result.StandardOutput))
 			{

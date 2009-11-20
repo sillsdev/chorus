@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 
 //two of these methods originally from RhinoCommons
 
@@ -29,6 +30,7 @@ namespace Chorus.Utilities
 			throw new InvalidOperationException(message);
 		}
 
+
 		public static void AgainstNull(object value, string valueName)
 		{
 			if (value == null)
@@ -55,6 +57,16 @@ namespace Chorus.Utilities
 			if (assertion == false)
 				return;
 			throw (TException)Activator.CreateInstance(typeof(TException), message);
+		}
+	}
+	public static class Require
+	{
+
+		public static void That(bool assertion, string message)
+		{
+			if (assertion)
+				return;
+			throw new InvalidOperationException(message);
 		}
 	}
 }

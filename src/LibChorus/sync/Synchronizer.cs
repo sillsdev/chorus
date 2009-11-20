@@ -16,53 +16,22 @@ namespace Chorus.sync
 	/// </summary>
 	public class Synchronizer
 	{
+		#region Fields
 		private DoWorkEventArgs _backgroundWorkerArguments;
 		private BackgroundWorker _backgroundWorker;
-
 		private string _localRepositoryPath;
 		private ProjectFolderConfiguration _project;
 		private IProgress _progress;
 		private ChorusFileTypeHandlerCollection _handlers;
 		public static readonly string RejectTagSubstring = "[reject]";
+		#endregion
 
-		public List<RepositoryAddress> ExtraRepositorySources { get; private set; }
+		#region Properties
 
-
-		public Synchronizer(string localRepositoryPath, ProjectFolderConfiguration project, IProgress progress)
+		public HgRepository Repository
 		{
-			_progress = progress;
-			_project = project;
-			_localRepositoryPath = localRepositoryPath;
-			_handlers = ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers();
-			ExtraRepositorySources = new List<RepositoryAddress>();
-			ExtraRepositorySources.Add(RepositoryAddress.Create(RepositoryAddress.HardWiredSources.UsbKey, "USB flash drive", false));
+			get { return new HgRepository(_localRepositoryPath, _progress); }
 		}
-
-
-
-		public static Synchronizer FromProjectConfiguration(ProjectFolderConfiguration project, IProgress progress)
-		{
-			var hg = HgRepository.CreateOrLocate(project.FolderPath, progress);
-			return new Synchronizer(hg.PathToRepo, project, progress);
-
-		}
-
-		public List<RepositoryAddress> GetPotentialSynchronizationSources()
-		{
-			var list = new List<RepositoryAddress>();
-			list.AddRange(ExtraRepositorySources);
-			var repo = Repository;
-			list.AddRange(repo.GetRepositoryPathsInHgrc());
-			var defaultSyncAliases = repo.GetDefaultSyncAliases();
-			foreach (var path in list)
-			{
-				path.Enabled = defaultSyncAliases.Contains(path.Name);
-			}
-
-			return list;
-		}
-
-
 		public string RepoProjectName
 		{
 			get { return Path.GetFileNameWithoutExtension(_localRepositoryPath)+Path.GetExtension(_localRepositoryPath); }
@@ -80,18 +49,93 @@ namespace Chorus.sync
 				return null;
 			}
 		}
+		public List<RepositoryAddress> ExtraRepositorySources { get; private set; }
 
-		private bool ShouldCancel(ref SyncResults results)
+		#endregion
+
+		#region Construction
+	   public Synchronizer(string localRepositoryPath, ProjectFolderConfiguration project, IProgress progress)
 		{
-			if (_backgroundWorker != null && _backgroundWorker.CancellationPending)
+			_progress = progress;
+			_project = project;
+			_localRepositoryPath = localRepositoryPath;
+			_handlers = ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers();
+			ExtraRepositorySources = new List<RepositoryAddress>();
+			ExtraRepositorySources.Add(RepositoryAddress.Create(RepositoryAddress.HardWiredSources.UsbKey, "USB flash drive", false));
+		}
+
+		public static Synchronizer FromProjectConfiguration(ProjectFolderConfiguration project, IProgress progress)
+		{
+			var hg = HgRepository.CreateOrLocate(project.FolderPath, progress);
+			return new Synchronizer(hg.PathToRepo, project, progress);
+
+		}
+
+		#endregion
+
+		#region Public Methods
+
+
+		public SyncResults SyncNow(SyncOptions options)
+		{
+			SyncResults results = new SyncResults();
+			List<RepositoryAddress> sourcesToTry = options.RepositorySourcesToTry;
+			//this just saves us from trying to connect twice to the same repo that is, for example, no there.
+			Dictionary<RepositoryAddress, bool> connectionAttempts = new Dictionary<RepositoryAddress, bool>();
+
+			try
 			{
-				_progress.WriteWarning("User cancelled operation.");
-				_progress.WriteStatus("Cancelled.");
-				results.Succeeded = false;//enhance: switch to success/cancelled/errors or something
-				_backgroundWorkerArguments.Cancel = true;
-				return true;
+				HgRepository repo = new HgRepository(_localRepositoryPath, _progress);
+
+				RemoveLocks(repo);
+				repo.RecoverFromInterruptedTransactionIfNeeded();
+				UpdateHgrcSettingsFile(repo);
+				Commit(options);
+
+				var workingRevBeforeSync = repo.GetRevisionWorkingSetIsBasedOn();
+
+				if (options.DoPullFromOthers)
+				{
+					results.DidGetChangesFromOthers = PullFromOthers(repo, sourcesToTry, connectionAttempts);
+				}
+
+				if (options.DoMergeWithOthers)
+				{
+					MergeHeadsOrRollbackAndThrow(repo, workingRevBeforeSync);
+				}
+
+				if (options.DoSendToOthers)
+				{
+					SendToOthers(repo, sourcesToTry, connectionAttempts);
+				}
+
+				UpdateToTheDescendantRevision(repo, workingRevBeforeSync);
+
+				results.Succeeded = true;
+			   _progress.WriteStatus("Done");
 			}
-			return false;
+			catch (Exception error)
+			{
+				_progress.WriteError(error.Message);
+				results.Succeeded = false;
+				results.ErrorEncountered = error;
+			}
+			return results;
+		}
+
+		public List<RepositoryAddress> GetPotentialSynchronizationSources()
+		{
+			var list = new List<RepositoryAddress>();
+			list.AddRange(ExtraRepositorySources);
+			var repo = Repository;
+			list.AddRange(repo.GetRepositoryPathsInHgrc());
+			var defaultSyncAliases = repo.GetDefaultSyncAliases();
+			foreach (var path in list)
+			{
+				path.Enabled = defaultSyncAliases.Contains(path.Name);
+			}
+
+			return list;
 		}
 
 		public SyncResults SyncNow(BackgroundWorker backgroundWorker, DoWorkEventArgs args, SyncOptions options)
@@ -101,78 +145,40 @@ namespace Chorus.sync
 			return SyncNow(options);
 		}
 
-		public SyncResults SyncNow(SyncOptions options)
+
+	   public void SetIsOneOfDefaultSyncAddresses(RepositoryAddress address, bool enabled)
 		{
-			SyncResults results = new SyncResults();
-			HgRepository repo = new HgRepository(_localRepositoryPath,_progress);
-
-			if(!RemoveLocks(repo, results))
-				return results;
-
-			repo.RecoverFromInterruptedTransactionIfNeeded();
-
-			if(!UpdateHgrcSettingsFile(repo, results))
-				return results;
-
-			if(!DoCommit(results, options))
-				return results;
-
-			var workingRevBeforeSync = repo.GetRevisionWorkingSetIsBasedOn();
-			List<RepositoryAddress> sourcesToTry = options.RepositorySourcesToTry;
-			//this just saves us from trying to connect twice to the same repo that is, for example, no there.
-			Dictionary<RepositoryAddress, bool> connectionAttempts= new Dictionary<RepositoryAddress, bool>();
-
-			if (options.DoPullFromOthers)
-			{
-				if(!PullFromOthers(repo, ref results, sourcesToTry, connectionAttempts))
-					return results;
-			}
-
-			if (options.DoMergeWithOthers)
-			{
-				if(!MergeHeads(results))
-				{
-					UpdateToTheDescendantRevision(results, repo, workingRevBeforeSync); //rollback
-					return results;
-				}
-			}
-
-			if(options.DoSendToOthers)
-			{
-				if(!SendToOthers(repo, ref results, sourcesToTry, connectionAttempts))
-					return results;
-			}
-
-
-			 if(!UpdateToTheDescendantRevision(results, repo, workingRevBeforeSync))
-				 return results;
-
-
-		  //  Debug.Assert(!repo.GetHasLocks(), "A lock was left over, after the sync.");
-
-			_progress.WriteStatus("Done");
-			return results;
+			Repository.SetIsOneDefaultSyncAddresses(address, enabled);
 		}
+		#endregion
 
-		private bool SendToOthers(HgRepository repo, ref SyncResults results, List<RepositoryAddress> sourcesToTry, Dictionary<RepositoryAddress, bool> connectionAttempt)
+	   #region Private Methods
+
+	   private void SendToOthers(HgRepository repo, List<RepositoryAddress> sourcesToTry, Dictionary<RepositoryAddress, bool> connectionAttempt)
 		{
 			foreach (RepositoryAddress address in sourcesToTry)
 			{
-				if (ShouldCancel(ref results))
-				{
-					return false;
-				}
+				ThrowIfCancelPending();
 
 				if (!address.ReadOnly)
 				{
-					if (!SendToOneOther(results, address, connectionAttempt, repo))
-						return false;
+					SendToOneOther(address, connectionAttempt, repo);
 				}
 			}
-			return true;
 		}
 
-		private bool SendToOneOther(SyncResults results, RepositoryAddress address, Dictionary<RepositoryAddress, bool> connectionAttempt, HgRepository repo)
+		private void ThrowIfCancelPending()
+		{
+			if (_backgroundWorker != null && _backgroundWorker.CancellationPending)
+			{
+				_progress.WriteWarning("User cancelled operation.");
+				_progress.WriteStatus("Cancelled.");
+				_backgroundWorkerArguments.Cancel = true;
+				throw new UserCancelledException();
+			}
+		}
+
+		private void SendToOneOther(RepositoryAddress address, Dictionary<RepositoryAddress, bool> connectionAttempt, HgRepository repo)
 		{
 			try
 			{
@@ -208,86 +214,65 @@ namespace Chorus.sync
 			}
 			catch (Exception error)
 			{
-				_progress.WriteError("Could to send to {0}({1}). Details: {2}", address.Name, address.URI, error.Message);
-				//review: at the moment, this will keep trying the other people... so is that only a partial failure?
-				results.Succeeded = false;
-				results.ErrorEncountered = error;
-				return false;
+				throw new ApplicationException(string.Format("Could to send to {0}({1}). Details: {2}", address.Name, address.URI, error.Message));
 			}
-			return true;
 		}
 
-		private bool PullFromOthers(HgRepository repo, ref SyncResults results, List<RepositoryAddress> sourcesToTry, Dictionary<RepositoryAddress, bool> connectionAttempt)
+		/// <returns>true if there were successful pulls</returns>
+		private bool PullFromOthers(HgRepository repo,  List<RepositoryAddress> sourcesToTry, Dictionary<RepositoryAddress, bool> connectionAttempt)
 		{
+			bool didGetFromAtLeastOneSource = false;
 			foreach (RepositoryAddress source in sourcesToTry)
 			{
-				if (ShouldCancel(ref results))
-				{
-					return false;
-				}
-				PullFromSource(repo, results, source, connectionAttempt);
+				ThrowIfCancelPending();
+
+				if(PullFromSource(repo, source, connectionAttempt))
+					didGetFromAtLeastOneSource = true;
 			}
-			return true;
+			return didGetFromAtLeastOneSource;
 		}
 
-		private bool RemoveLocks(HgRepository repo, SyncResults results)
+		private void RemoveLocks(HgRepository repo)
 		{
 			if (!repo.RemoveOldLocks())
 			{
-				_progress.WriteError("Synchronization abandoned for now.  Try again after restarting the computer.");
-				results.Succeeded = false;
-				return false;
+				_progress.WriteError(
+					"Synchronization abandoned for now because of locks.  Try again after restarting the computer.");
+				throw new ApplicationException("Could not remove locks");
 			}
-			return true;
 		}
 
-		private bool UpdateHgrcSettingsFile(HgRepository repo, SyncResults results)
+		private void UpdateHgrcSettingsFile(HgRepository repo)
 		{
 			try
 			{
 				UpdateHgrc(repo);
-				return true;
 			}
 			catch (Exception error)
 			{
 				_progress.WriteError("Could not prepare the mercurial settings.\r\n{0}", error.Message);
-				results.Succeeded = false;
-				return false;
+				throw error;
 			}
 		}
 
-		private bool DoCommit(SyncResults results, SyncOptions options)
+		private void Commit(SyncOptions options)
 		{
 			_progress.WriteStatus("Storing changes in local repository...");
 
-			try
+			using (var commitCop = new CommitCop(Repository, _handlers, _progress))
 			{
-				using (var commitCop = new CommitCop(Repository, _handlers, _progress))
-				{
-					AddAndCommitFiles(options.CheckinDescription);
+				AddAndCommitFiles(options.CheckinDescription);
 
-					if (!string.IsNullOrEmpty(commitCop.ValidationResult))
-					{
-						_progress.WriteError(
-							"The changed data did not pass validation tests. Your project will be moved back to the last Send/Receive before this problem occurred, so that you can keep working.  Please notify whoever provides you with computer support.");
-						results.Succeeded = false;
-						results.DidGetChangesFromOthers = false;
-						return false;
-					}
+				if (!string.IsNullOrEmpty(commitCop.ValidationResult))
+				{
+					throw new ApplicationException( "The changed data did not pass validation tests. Your project will be moved back to the last Send/Receive before this problem occurred, so that you can keep working.  Please notify whoever provides you with computer support. Error was: " + commitCop.ValidationResult);
 				}
 			}
-			catch (Exception error)
-			{
-				_progress.WriteError(error.Message);
-				results.Succeeded = false;
-				results.DidGetChangesFromOthers = false;
-				results.ErrorEncountered = error;
-				return false;
-			}
-			return true;
+
 		}
 
-		private void PullFromSource(HgRepository repo, SyncResults results, RepositoryAddress source, Dictionary<RepositoryAddress, bool> connectionAttempt)
+		/// <returns>true if there was a successful pull</returns>
+		private bool PullFromSource(HgRepository repo, RepositoryAddress source, Dictionary<RepositoryAddress, bool> connectionAttempt)
 		{
 			string resolvedUri = source.GetPotentialRepoUri(RepoProjectName, _progress);
 
@@ -315,10 +300,7 @@ namespace Chorus.sync
 			}
 			if (canConnect)
 			{
-				if (repo.TryToPull(source.Name,  resolvedUri))
-				{
-					results.DidGetChangesFromOthers = true; //nb, don't set it to false just because one source didn't have anything new
-				}
+				return repo.TryToPull(source.Name, resolvedUri);
 			}
 			else
 			{
@@ -331,6 +313,7 @@ namespace Chorus.sync
 					_progress.WriteWarning("Could not connect to {0} at {1} for pulling", source.Name, resolvedUri);
 				}
 			}
+			return false;
 		}
 
 		/// <summary>
@@ -365,7 +348,7 @@ namespace Chorus.sync
 		/// but in a 3-or-more source scenario could be the result of a merge with a more cooperative
 		/// revision).
 		/// </summary>
-		private bool UpdateToTheDescendantRevision(SyncResults results, HgRepository repository, Revision parent)
+		private void UpdateToTheDescendantRevision(HgRepository repository, Revision parent)
 		{
 			try
 			{
@@ -373,7 +356,6 @@ namespace Chorus.sync
 				if (heads.Count == 1)
 				{
 					repository.Update(); //update to the tip
-					return true;
 				}
 
 				//TODO: I think this "direct descendant" limitation won't be enough
@@ -383,7 +365,6 @@ namespace Chorus.sync
 					if (parent.Number.Hash == head.Number.Hash || head.IsDirectDescendantOf(parent))
 					{
 						repository.RollbackWorkingDirectoryToRevision(head.Number.LocalRevisionNumber);
-						return true;
 					}
 				}
 
@@ -391,13 +372,8 @@ namespace Chorus.sync
 			}
 			catch (Exception error)
 			{
-				_progress.WriteError("Could not update.  Details: " + error.Message);
-				results.Succeeded = false;
-				results.ErrorEncountered = error;
-				results.DidGetChangesFromOthers = false;
-				return false;
+				throw new ApplicationException("Could not update.  Details: " + error.Message);
 			}
-			return true;
 		}
 
 		private string GetMergeCommitSummary(string personMergedWith, HgRepository repository)
@@ -408,8 +384,6 @@ namespace Chorus.sync
 		/// <summary>
 		/// used for local sources (usb, sd media, etc)
 		/// </summary>
-		/// <param name="_progress"></param>
-		/// <param name="repoDescriptor"></param>
 		/// <returns>the uri of a successful clone</returns>
 		private string TryToMakeCloneForSource(RepositoryAddress repoDescriptor)
 		{
@@ -428,7 +402,7 @@ namespace Chorus.sync
 					{
 						_progress.WriteStatus("Copying repository to {0}...", repoDescriptor.GetFullName(uri));
 						_progress.WriteVerbose("({0})", uri);
-						MakeClone(uri, true);
+						HgHighLevel.MakeCloneFromLocalToLocal(_localRepositoryPath, uri, true, _progress);
 						return uri;
 					}
 					catch (Exception error)
@@ -441,50 +415,25 @@ namespace Chorus.sync
 			return null;
 		}
 
-		/// <summary>
-		///
-		/// </summary>
-		 /// <returns>path to clone, or empty if it failed</returns>
-		public string MakeClone(string newDirectory, bool alsoDoCheckout)
+
+		#region Merging
+		private void MergeHeadsOrRollbackAndThrow(HgRepository repo, Revision workingRevBeforeSync)
 		{
-			_progress = _progress;
-			if (Directory.Exists(newDirectory))
+			try
 			{
-				throw new ArgumentException(String.Format("The directory must not already exist ({0})", newDirectory));
+				MergeHeads();
 			}
-			string parent = Directory.GetParent(newDirectory).FullName;
-			if (!Directory.Exists(parent))
+			catch (Exception error)
 			{
-				throw new ArgumentException(String.Format("The parent of the given directory must already exist ({0})", parent));
-			}
-			HgRepository local = new HgRepository(_localRepositoryPath, _progress);
-
-			if (!local.RemoveOldLocks())
-			{
-				_progress.WriteError("Chorus could not create the clone at this time.  Try again after restarting the computer.");
-				return string.Empty;
-			}
-
-			using (new ConsoleProgress("Creating repository clone at {0}", newDirectory))
-			{
-				local.CloneLocal(newDirectory);
-				if(alsoDoCheckout)
-				{
-				   // string userIdForCLone = string.Empty; /* don't assume it's this user... a repo on a usb key probably shouldn't have a user default */
-					HgRepository clone = new HgRepository(newDirectory, _progress);
-					clone.Update();
-				}
-				return newDirectory;
+				_progress.WriteError(error.Message);
+				_progress.WriteError("Rolling back...");
+				UpdateToTheDescendantRevision(repo, workingRevBeforeSync); //rollback
+				_progress.WriteError(error.Message);
+				throw;
 			}
 		}
 
-		public HgRepository Repository
-		{
-			get { return new HgRepository(_localRepositoryPath, _progress); }
-		}
-
-
-		private bool MergeHeads(SyncResults results)
+		private void MergeHeads()
 		  {
 			  try
 			  {
@@ -493,7 +442,7 @@ namespace Chorus.sync
 				  List<Revision> heads = Repository.GetHeads();
 				  Revision myHead = Repository.GetRevisionWorkingSetIsBasedOn();
 				  if (myHead == default(Revision))
-					  return true;
+					  return;
 
 				  foreach (Revision head in heads)
 				  {
@@ -533,14 +482,30 @@ namespace Chorus.sync
 			  }
 			  catch (Exception error)
 			  {
-				  _progress.WriteError(error.Message);
-				  _progress.WriteError("Unable to complete the send/receive.  You can try restarting the computer, but you may need expert help to fix this problem.");
-
-				  results.Succeeded = false;
-				  return false;
+				  throw new ApplicationException("Unable to complete the send/receive.  You can try restarting the computer, but you may need expert help to fix this problem. " + error.Message);
 			  }
-			return true;
 		  }
+
+
+		/// <returns>false if nothing needed to be merged, true if the merge was done. Throws exception if there is an error.</returns>
+		private bool MergeTwoChangeSets(Revision head, Revision theirHead)
+		{
+#if MONO
+			string chorusMergeFilePath = Path.Combine(ExecutionEnvironment.DirectoryOfExecutingAssembly, "chorusmerge");
+#else
+			string chorusMergeFilePath = Path.Combine(ExecutionEnvironment.DirectoryOfExecutingAssembly, "ChorusMerge.exe");
+#endif
+			using (new ShortTermEnvironmentalVariable("HGMERGE", '"' + chorusMergeFilePath + '"'))
+			{
+				using (new ShortTermEnvironmentalVariable(MergeOrder.kConflictHandlingModeEnvVarName, MergeOrder.ConflictHandlingModeChoices.TheyWin.ToString()))
+				{
+					return Repository.Merge(_localRepositoryPath, theirHead.Number.LocalRevisionNumber);
+				}
+			}
+		}
+
+
+#endregion
 
 		private void AddAndCommitFiles(string summary)
 		{
@@ -603,28 +568,15 @@ namespace Chorus.sync
 			}
 		}
 
+	   #endregion
 
+	}
 
-		/// <returns>false if nothing needed to be merged, true if the merge was done. Throws exception if there is an error.</returns>
-		private bool MergeTwoChangeSets(Revision head, Revision theirHead)
+	internal class UserCancelledException : ApplicationException
+	{
+		public UserCancelledException():base("User Cancelled")
 		{
-#if MONO
-			string chorusMergeFilePath = Path.Combine(ExecutionEnvironment.DirectoryOfExecutingAssembly, "chorusmerge");
-#else
-			string chorusMergeFilePath = Path.Combine(ExecutionEnvironment.DirectoryOfExecutingAssembly, "ChorusMerge.exe");
-#endif
-			using (new ShortTermEnvironmentalVariable("HGMERGE", '"'+chorusMergeFilePath+'"'))
-			{
-				using (new ShortTermEnvironmentalVariable(MergeOrder.kConflictHandlingModeEnvVarName, MergeOrder.ConflictHandlingModeChoices.TheyWin.ToString()))
-				{
-					return Repository.Merge(_localRepositoryPath, theirHead.Number.LocalRevisionNumber);
-				}
-			}
-		}
 
-		public void SetIsOneOfDefaultSyncAddresses(RepositoryAddress address, bool enabled)
-		{
-			Repository.SetIsOneDefaultSyncAddresses(address, enabled);
 		}
 	}
 

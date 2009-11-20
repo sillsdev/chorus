@@ -2,6 +2,7 @@
 using Chorus.sync;
 using Chorus.Utilities;
 using Chorus.VcsDrivers;
+using Chorus.VcsDrivers.Mercurial;
 using NUnit.Framework;
 using System.Linq;
 
@@ -64,7 +65,8 @@ namespace LibChorus.Tests.sync
 			SyncOptions options = new SyncOptions();
 			_synchronizer.SyncNow(options);
 			string projectDirOnBackup = Path.Combine(_pathToBackupFolder, "foo project.2");
-			_synchronizer.MakeClone(projectDirOnBackup, true);
+			//_synchronizer.MakeClone(projectDirOnBackup, true);
+			HgHighLevel.MakeCloneFromLocalToLocal(_synchronizer.Repository.PathToRepo, projectDirOnBackup, true, _progress);
 
 			string contents = File.ReadAllText(Path.Combine(projectDirOnBackup, "foo.txt"));
 			Assert.AreEqual("version one", contents);
