@@ -1374,20 +1374,28 @@ namespace Chorus.VcsDrivers.Mercurial
 				progress.WriteError("No .hg/hgrc found");
 			}
 
+			CheckIntegrity(progress);
+
+			progress.WriteStatus("Done.");
+		}
+
+		public enum IntegrityResults { Good, Bad }
+
+		public IntegrityResults CheckIntegrity(IProgress progress)
+		{
 			progress.WriteStatus("Validating Repository... (this can take a long time)");
 			var result = GetTextFromQuery("verify", 60 * 60);
 			if (result.ToLower().Contains("error"))
 			{
 				progress.WriteError(result);
+				return IntegrityResults.Bad;
 			}
 			else
 			{
 				progress.WriteMessage(result);
+				return IntegrityResults.Good;
 			}
-
-			progress.WriteStatus("Done.");
 		}
-
 
 		public void SetGlobalProxyInfo(ProxySpec proxy)
 		{

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
+using System.Windows.Forms;
 using Chorus.FileTypeHanders;
 using Chorus.merge;
 using Chorus.Utilities;
@@ -89,7 +90,7 @@ namespace Chorus.sync
 
 				RemoveLocks(repo);
 				repo.RecoverFromInterruptedTransactionIfNeeded();
-				UpdateHgrcSettingsFile(repo);
+				UpdateHgrc(repo);
 				Commit(options);
 
 				var workingRevBeforeSync = repo.GetRevisionWorkingSetIsBasedOn();
@@ -114,6 +115,12 @@ namespace Chorus.sync
 				results.Succeeded = true;
 			   _progress.WriteStatus("Done");
 			}
+			catch (SynchronizationException error)
+			{
+				error.DoNotifications(Repository, _progress);
+				results.Succeeded = false;
+				results.ErrorEncountered = error;
+			}
 			catch (Exception error)
 			{
 				_progress.WriteError(error.Message);
@@ -121,6 +128,13 @@ namespace Chorus.sync
 				results.ErrorEncountered = error;
 			}
 			return results;
+		}
+
+		public SyncResults SyncNow(BackgroundWorker backgroundWorker, DoWorkEventArgs args, SyncOptions options)
+		{
+			_backgroundWorker = backgroundWorker;
+			_backgroundWorkerArguments = args;
+			return SyncNow(options);
 		}
 
 		public List<RepositoryAddress> GetPotentialSynchronizationSources()
@@ -138,12 +152,7 @@ namespace Chorus.sync
 			return list;
 		}
 
-		public SyncResults SyncNow(BackgroundWorker backgroundWorker, DoWorkEventArgs args, SyncOptions options)
-		{
-			_backgroundWorker = backgroundWorker;
-			_backgroundWorkerArguments = args;
-			return SyncNow(options);
-		}
+
 
 
 	   public void SetIsOneOfDefaultSyncAddresses(RepositoryAddress address, bool enabled)
@@ -214,7 +223,7 @@ namespace Chorus.sync
 			}
 			catch (Exception error)
 			{
-				throw new ApplicationException(string.Format("Could to send to {0}({1}). Details: {2}", address.Name, address.URI, error.Message));
+				ExplainAndThrow(error, "Could to send to {0}({1}).", address.Name, address.URI);
 			}
 		}
 
@@ -236,24 +245,10 @@ namespace Chorus.sync
 		{
 			if (!repo.RemoveOldLocks())
 			{
-				_progress.WriteError(
-					"Synchronization abandoned for now because of locks.  Try again after restarting the computer.");
-				throw new ApplicationException("Could not remove locks");
+				throw new SynchronizationException(null, WhatToDo.SuggestRestart, "Synchronization abandoned for now because of file or directory locks.");
 			}
 		}
 
-		private void UpdateHgrcSettingsFile(HgRepository repo)
-		{
-			try
-			{
-				UpdateHgrc(repo);
-			}
-			catch (Exception error)
-			{
-				_progress.WriteError("Could not prepare the mercurial settings.\r\n{0}", error.Message);
-				throw error;
-			}
-		}
 
 		private void Commit(SyncOptions options)
 		{
@@ -322,20 +317,85 @@ namespace Chorus.sync
 		/// </summary>
 		private void UpdateHgrc(HgRepository repository)
 		{
-			string[] names = new string[] {
-			   "hgext.win32text", //for converting line endings on windows machines
-				"hgext.graphlog", //for more easily readable diagnostic logs
-				"convert" //for catastrophic repair in case of repo corruption
-				};
-			repository.EnsureTheseExtensionAreEnabled(names);
-
-			List<string> extensions = new List<string>();
-
-			foreach (var handler in  _handlers.Handers)
+			try
 			{
-				extensions.AddRange(handler.GetExtensionsOfKnownTextFileTypes());
+				string[] names = new string[]
+									 {
+										 "hgext.win32text", //for converting line endings on windows machines
+										 "hgext.graphlog", //for more easily readable diagnostic logs
+										 "convert" //for catastrophic repair in case of repo corruption
+									 };
+				repository.EnsureTheseExtensionAreEnabled(names);
+
+				List<string> extensions = new List<string>();
+
+				foreach (var handler in _handlers.Handers)
+				{
+					extensions.AddRange(handler.GetExtensionsOfKnownTextFileTypes());
+				}
+			}
+			catch (Exception error)
+			{
+				ExplainAndThrow(error, "Could not prepare the mercurial settings");
 			}
 
+		}
+
+		private void ExplainAndThrow(Exception exception, string explanation, params object[] args)
+		{
+			throw new ApplicationException(string.Format(explanation, args), exception);
+		}
+
+		private void ExplainAndThrow(Exception exception, WhatToDo whatToDo, string explanation, params object[] args)
+		{
+			throw new SynchronizationException(exception, whatToDo, string.Format(explanation, args));
+		}
+
+		private enum WhatToDo
+		{
+			Nothing = 0,
+			SuggestRestart = 1,
+			VerifyIntegrity = 2,
+			NeedExpertHelp = 4
+		}
+
+		private class SynchronizationException : ApplicationException
+		{
+			public  WhatToDo WhatToDo { get; set; }
+
+			public SynchronizationException(Exception exception, WhatToDo whatToDo, string explanation, params object[] args)
+				:base(string.Format(explanation, args), exception)
+			{
+				WhatToDo = whatToDo;
+			}
+
+			public void DoNotifications(HgRepository repository, IProgress progress)
+			{
+				progress.WriteError(Message);
+				if (InnerException != null)
+				{
+				   progress.WriteError("Inner Error: " + Message);
+				}
+
+				if ((WhatToDo & WhatToDo.VerifyIntegrity) > 0)
+				{
+					if (HgRepository.IntegrityResults.Bad == repository.CheckIntegrity(progress))
+					{
+						MessageBox.Show(
+							"Bad news: The mecurial repository is damaged.  You will need to seek expert help to resolve this problem.", "Chorus", MessageBoxButtons.OK, MessageBoxIcon.Error);
+						return;//don't suggest anything else
+					}
+				}
+
+				if ((WhatToDo & WhatToDo.SuggestRestart) > 0)
+				{
+					progress.WriteError("The problem might be helped by restarting your computer.");
+				}
+				if ((WhatToDo & WhatToDo.NeedExpertHelp) > 0)
+				{
+					progress.WriteError("You may need expert help.");
+				}
+			}
 		}
 
 		/// <summary>
@@ -372,7 +432,7 @@ namespace Chorus.sync
 			}
 			catch (Exception error)
 			{
-				throw new ApplicationException("Could not update.  Details: " + error.Message);
+				  ExplainAndThrow(error, "Could not update.");
 			}
 		}
 
@@ -407,7 +467,7 @@ namespace Chorus.sync
 					}
 					catch (Exception error)
 					{
-						 _progress.WriteError("Could not create repository on {0}: {1}", uri, error.Message);
+						_progress.WriteError("Could not create repository on {0}. {1}", uri, error.Message);
 						continue;
 					}
 				}
@@ -428,7 +488,6 @@ namespace Chorus.sync
 				_progress.WriteError(error.Message);
 				_progress.WriteError("Rolling back...");
 				UpdateToTheDescendantRevision(repo, workingRevBeforeSync); //rollback
-				_progress.WriteError(error.Message);
 				throw;
 			}
 		}
@@ -482,7 +541,7 @@ namespace Chorus.sync
 			  }
 			  catch (Exception error)
 			  {
-				  throw new ApplicationException("Unable to complete the send/receive.  You can try restarting the computer, but you may need expert help to fix this problem. " + error.Message);
+				  ExplainAndThrow(error,WhatToDo.NeedExpertHelp, "Unable to complete the send/receive.");
 			  }
 		  }
 
