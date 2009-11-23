@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
-using Chorus.notes;
+using Chorus.annotations;
 using Chorus.sync;
 using Chorus.UI.Notes;
 using Chorus.Utilities;
@@ -42,8 +42,8 @@ namespace Chorus.Tests.notes
 		{
 			using (var folder = new TempFolder("NotesModelTests"))
 			using (var subfolder = new TempFolder(folder,"Sub"))
-			using (new TempFile(folder,"one."+NotesRepository.FileExtension, "<notes version='0'><annotation><message/></annotation></notes>"))
-			using (new TempFile(subfolder, "two." + NotesRepository.FileExtension, "<notes  version='0'><annotation><message/></annotation></notes>"))
+			using (new TempFile(folder,"one."+AnnotationRepository.FileExtension, "<notes version='0'><annotation><message/></annotation></notes>"))
+			using (new TempFile(subfolder, "two." + AnnotationRepository.FileExtension, "<notes  version='0'><annotation><message/></annotation></notes>"))
 			{
 				ProjectFolderConfiguration project = new ProjectFolderConfiguration(folder.Path);
 				var m = new NotesInProjectViewModel(TheUser, project, new MessageSelectedEvent());

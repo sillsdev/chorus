@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
+using Chorus.annotations;
 
 namespace Chorus.UI.Notes
 {
@@ -15,6 +16,7 @@ namespace Chorus.UI.Notes
 			_viewModel = model;
 			//       _model.ProgressDisplay = new NullProgress();
 			InitializeComponent();
+			_messageListView.SmallImageList = AnnotationClassFactory.CreateImageListContainingAnnotationImages();
 			UpdateDisplay();
 		}
 
@@ -28,6 +30,7 @@ namespace Chorus.UI.Notes
 			_messageListView.SuspendLayout();
 			_messageListView.Items.Clear();
 			List<ListViewItem> rows = new List<ListViewItem>();
+
 			foreach (var item in _viewModel.GetMessages())
 			{
 				rows.Add(item.GetListViewItem());

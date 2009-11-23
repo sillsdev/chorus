@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Design;
+using System.Drawing;
 using System.Linq;
 using System.Text;
-using Chorus.notes;
-using Message=Chorus.notes.Message;
+using Chorus.annotations;
+using Message=Chorus.annotations.Message;
 
 namespace Chorus.UI.Notes
 {
@@ -19,6 +21,7 @@ namespace Chorus.UI.Notes
 		{
 			_styleSheet = styleSheet;
 			messageSelectedEventToSubscribeTo.Subscribe((annotation, message) => SetAnnotationAndFocussedMessage(annotation,message));
+
 		}
 
 		private void SetAnnotationAndFocussedMessage(Annotation annotation, Message message)
@@ -40,7 +43,21 @@ namespace Chorus.UI.Notes
 			}
 		}
 
-		public string GetHtml()
+		public bool AddButtonEnabled
+		{
+			get { return false; }
+		}
+
+		public string GetNewMessageHtml()
+		{
+			if (_currentAnnotation == null)
+				return string.Empty;
+
+			return "<html><body></body></html>";
+
+		}
+
+		public string GetExistingMessagesHtml()
 		{
 			if(_currentAnnotation == null)
 				return string.Empty;
@@ -49,7 +66,6 @@ namespace Chorus.UI.Notes
 			builder.AppendLine("<html>");
 			builder.AppendFormat("<head>{0}</head>", _styleSheet.TextForInsertingIntoHmtlHeadElement);
 			builder.AppendLine("<body>");
-			builder.AppendFormat("<div class='AnnotationHeader'>Class={0} ref={1} status={2}</div>",_currentAnnotation.Class, _currentAnnotation.Ref, _currentAnnotation.Status);
 
 			string status=string.Empty;
 			foreach (var message in _currentAnnotation.Messages)
@@ -95,6 +111,31 @@ namespace Chorus.UI.Notes
 			builder.AppendLine("</html>");
 
 			return builder.ToString();
+		}
+
+		public bool IsResolved
+		{
+			get { return false; }
+		}
+
+		public bool ResolvedControlShouldBeVisible
+		{
+			get { return false; }
+		}
+
+		public string ClassLabel
+		{
+			get { return _currentAnnotation.ClassName; }
+		}
+
+		public string DetailsText
+		{
+			get { return string.Format("ref={0  } status={1}", _currentAnnotation.Ref, _currentAnnotation.Status); }
+		}
+
+		public Image GetAnnotationLogoImage()
+		{
+			return _currentAnnotation.GetImage(32);
 		}
 	}
 }

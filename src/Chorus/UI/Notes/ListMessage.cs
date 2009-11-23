@@ -1,6 +1,6 @@
 using System.Windows.Forms;
-using Chorus.notes;
-using Message=Chorus.notes.Message;
+using Chorus.annotations;
+using Message=Chorus.annotations.Message;
 
 namespace Chorus.UI.Notes
 {
@@ -20,11 +20,12 @@ namespace Chorus.UI.Notes
 
 		public ListViewItem GetListViewItem()
 		{
-			var i = new ListViewItem(ParentAnnotation.Class);
+			var i = new ListViewItem(ParentAnnotation.ClassName);
 			i.Tag = this;
 			i.SubItems.Add(Message.Date.ToShortDateString());
 			i.SubItems.Add(Message.GetAuthor("?"));
 			i.SubItems.Add(ParentAnnotation.GetLabelFromRef(""));
+			i.ImageKey = ParentAnnotation.ClassName.ToLower();
 			return i;
 		}
 	}

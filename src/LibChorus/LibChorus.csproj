@@ -117,8 +117,16 @@
 	<Compile Include="merge\UnmergableFileTypeConflict.cs" />
 	<Compile Include="merge\xml\generic\HumanLogMergeEventListener.cs" />
 	<Compile Include="merge\xml\generic\ChorusNotesMergeEventListener.cs" />
-	<Compile Include="notes\ChorusNotesUser.cs" />
-	<Compile Include="notes\NotesRepository.cs" />
+	<Compile Include="annotations\Annotation.cs" />
+	<Compile Include="annotations\AnnotationClassFactory.cs" />
+	<Compile Include="annotations\ChorusNotesUser.cs" />
+	<Compile Include="annotations\AnnotationRepository.cs" />
+	<Compile Include="Properties\AnnotationImages.Designer.cs">
+	  <AutoGen>True</AutoGen>
+	  <DesignTime>True</DesignTime>
+	  <DependentUpon>AnnotationImages.resx</DependentUpon>
+	</Compile>
+	<Compile Include="annotations\AnnotationClass.cs" />
 	<Compile Include="VcsDrivers\Mercurial\HgHighLevel.cs" />
 	<Compile Include="sync\CommitCop.cs" />
 	<Compile Include="Utilities\ProcessOutputReader.cs" />
@@ -201,6 +209,54 @@
 	  <ProductName>.NET Framework 3.5</ProductName>
 	  <Install>false</Install>
 	</BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+	<EmbeddedResource Include="Properties\AnnotationImages.resx">
+	  <Generator>PublicResXFileCodeGenerator</Generator>
+	  <LastGenOutput>AnnotationImages.Designer.cs</LastGenOutput>
+	</EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+	<None Include="Resources\Question.ico" />
+  </ItemGroup>
+  <ItemGroup>
+	<None Include="Resources\Information.ico" />
+  </ItemGroup>
+  <ItemGroup>
+	<None Include="Resources\Note.ico" />
+  </ItemGroup>
+  <ItemGroup>
+	<None Include="Resources\approve16x16.png" />
+  </ItemGroup>
+  <ItemGroup>
+	<None Include="Resources\approve32x32.png" />
+  </ItemGroup>
+  <ItemGroup>
+	<None Include="Resources\note16x16.png" />
+  </ItemGroup>
+  <ItemGroup>
+	<None Include="Resources\note32x32.png" />
+  </ItemGroup>
+  <ItemGroup>
+	<None Include="Resources\question16x16.png" />
+  </ItemGroup>
+  <ItemGroup>
+	<None Include="Resources\question32x32.png" />
+  </ItemGroup>
+  <ItemGroup>
+	<None Include="Resources\MergeConflict16x16.png" />
+  </ItemGroup>
+  <ItemGroup>
+	<None Include="Resources\warning16x16.png" />
+  </ItemGroup>
+  <ItemGroup>
+	<None Include="Resources\generic16x16.png" />
+  </ItemGroup>
+  <ItemGroup>
+	<None Include="Resources\generic32x32.png" />
+  </ItemGroup>
+  <ItemGroup>
+	<None Include="Resources\MergeConflic32x32.png" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.

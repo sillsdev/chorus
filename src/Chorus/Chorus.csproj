@@ -360,6 +360,8 @@
 	<None Include="Resources\networkFolder29x32.png" />
 	<None Include="Resources\Usb32x28.png" />
 	<None Include="Resources\search18x18.png" />
+	<None Include="Resources\question32x32.png" />
+	<None Include="Resources\search16x16.png" />
 	<Content Include="UI\Notes\Html\bl.gif">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</Content>
@@ -384,6 +386,7 @@
   </ItemGroup>
   <ItemGroup>
 	<Folder Include="UI\NewFolder1\" />
+	<Folder Include="UI\Tags\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.

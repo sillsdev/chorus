@@ -1,10 +1,10 @@
 ﻿body
 {
+margin-top: 0px;
  font-family: verdana,arial,helvetica,sans-serif; font-size: 12px;
 }
 hr {border: 1px solid #DCDCDC}
 
-div.AnnotationHeader {color: gray; font-size: x-small; margin-bottom:10px}
 span.sender {color: Black; font-weight: bold}
 span.when {color:Gray}
 span.status {color: Black; font-weight: bold}

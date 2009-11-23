@@ -1,7 +1,7 @@
 ﻿using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
-using Chorus.notes;
+using Chorus.annotations;
 using Chorus.sync;
 using Chorus.UI;
 using Chorus.UI.Notes;
@@ -18,9 +18,9 @@ namespace Chorus.Tests.notes
 		public void ShowPage()
 		{
 			using (var folder = new TempFolder("NotesModelTests"))
-			using (new TempFile(folder, "one." + NotesRepository.FileExtension,
+			using (new TempFile(folder, "one." + AnnotationRepository.FileExtension,
 				@"<notes version='0'>
-					<annotation ref='somwhere://foo' class='todo'>
+					<annotation ref='somwhere://foo' class='question'>
 						<message guid='123' author='john' status='open' date='2009-07-18T23:53:04Z'>
 							Suzie, is this ok?
 						</message>
@@ -28,8 +28,13 @@ namespace Chorus.Tests.notes
 							It's fine.
 						</message>
 					</annotation>
-					</notes>"))
-			using (new TempFile(folder, "two." + NotesRepository.FileExtension, "<notes  version='0'><annotation class='mergeConflict'><message guid='1234' author='merger' status='open' date='2009-09-28T11:11:11Z'>Some description of hte conflict</message></annotation></notes>"))
+					<annotation ref='somwhere://foo2' class='note'>
+						<message guid='342' author='john' status='open' date='2009-07-18T23:53:04Z'>
+							This is fun.
+						</message>
+					</annotation>
+				</notes>"))
+			using (new TempFile(folder, "two." + AnnotationRepository.FileExtension, "<notes  version='0'><annotation class='mergeConflict'><message guid='1234' author='merger' status='open' date='2009-09-28T11:11:11Z'>Some description of hte conflict</message></annotation></notes>"))
 			{
 				var messageSelected = new MessageSelectedEvent();
 				ProjectFolderConfiguration projectConfig = new ProjectFolderConfiguration(folder.Path);

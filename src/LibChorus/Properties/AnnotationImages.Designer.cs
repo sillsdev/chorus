@@ -22,24 +22,24 @@ namespace Chorus.Properties {
 	[global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "2.0.0.0")]
 	[global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
 	[global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-	internal class Resources {
+	public class AnnotationImages {
 
 		private static global::System.Resources.ResourceManager resourceMan;
 
 		private static global::System.Globalization.CultureInfo resourceCulture;
 
 		[global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
-		internal Resources() {
+		internal AnnotationImages() {
 		}
 
 		/// <summary>
 		///   Returns the cached ResourceManager instance used by this class.
 		/// </summary>
 		[global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-		internal static global::System.Resources.ResourceManager ResourceManager {
+		public static global::System.Resources.ResourceManager ResourceManager {
 			get {
 				if (object.ReferenceEquals(resourceMan, null)) {
-					global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Chorus.Properties.Resources", typeof(Resources).Assembly);
+					global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Chorus.Properties.AnnotationImages", typeof(AnnotationImages).Assembly);
 					resourceMan = temp;
 				}
 				return resourceMan;
@@ -51,7 +51,7 @@ namespace Chorus.Properties {
 		///   resource lookups using this strongly typed resource class.
 		/// </summary>
 		[global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-		internal static global::System.Globalization.CultureInfo Culture {
+		public static global::System.Globalization.CultureInfo Culture {
 			get {
 				return resourceCulture;
 			}
@@ -60,105 +60,94 @@ namespace Chorus.Properties {
 			}
 		}
 
-		internal static System.Drawing.Bitmap chorus32x32 {
+		public static System.Drawing.Bitmap approve16x16 {
 			get {
-				object obj = ResourceManager.GetObject("chorus32x32", resourceCulture);
+				object obj = ResourceManager.GetObject("approve16x16", resourceCulture);
 				return ((System.Drawing.Bitmap)(obj));
 			}
 		}
 
-		internal static System.IO.UnmanagedMemoryStream errorSound {
+		public static System.Drawing.Bitmap approve32x32 {
 			get {
-				return ResourceManager.GetStream("errorSound", resourceCulture);
-			}
-		}
-
-		internal static System.IO.UnmanagedMemoryStream finishedSound {
-			get {
-				return ResourceManager.GetStream("finishedSound", resourceCulture);
-			}
-		}
-
-		internal static System.Drawing.Bitmap internet29x32 {
-			get {
-				object obj = ResourceManager.GetObject("internet29x32", resourceCulture);
+				object obj = ResourceManager.GetObject("approve32x32", resourceCulture);
 				return ((System.Drawing.Bitmap)(obj));
 			}
 		}
 
-		internal static System.Drawing.Bitmap internet59x64 {
+		public static System.Drawing.Bitmap generic16x16 {
 			get {
-				object obj = ResourceManager.GetObject("internet59x64", resourceCulture);
+				object obj = ResourceManager.GetObject("generic16x16", resourceCulture);
 				return ((System.Drawing.Bitmap)(obj));
 			}
 		}
 
-		internal static System.Drawing.Bitmap networkFolder29x32 {
+		public static System.Drawing.Bitmap generic32x32 {
 			get {
-				object obj = ResourceManager.GetObject("networkFolder29x32", resourceCulture);
+				object obj = ResourceManager.GetObject("generic32x32", resourceCulture);
 				return ((System.Drawing.Bitmap)(obj));
 			}
 		}
 
-		internal static System.Drawing.Bitmap networkFolder58x64 {
+		public static System.Drawing.Bitmap MergeConflic32x32 {
 			get {
-				object obj = ResourceManager.GetObject("networkFolder58x64", resourceCulture);
+				object obj = ResourceManager.GetObject("MergeConflic32x32", resourceCulture);
 				return ((System.Drawing.Bitmap)(obj));
 			}
 		}
 
-		internal static System.Drawing.Bitmap question32x32 {
+		public static System.Drawing.Bitmap MergeConflict16x16 {
+			get {
+				object obj = ResourceManager.GetObject("MergeConflict16x16", resourceCulture);
+				return ((System.Drawing.Bitmap)(obj));
+			}
+		}
+
+		public static System.Drawing.Icon Note {
+			get {
+				object obj = ResourceManager.GetObject("Note", resourceCulture);
+				return ((System.Drawing.Icon)(obj));
+			}
+		}
+
+		public static System.Drawing.Bitmap note16x16 {
+			get {
+				object obj = ResourceManager.GetObject("note16x16", resourceCulture);
+				return ((System.Drawing.Bitmap)(obj));
+			}
+		}
+
+		public static System.Drawing.Bitmap note32x32 {
+			get {
+				object obj = ResourceManager.GetObject("note32x32", resourceCulture);
+				return ((System.Drawing.Bitmap)(obj));
+			}
+		}
+
+		public static System.Drawing.Icon Question {
+			get {
+				object obj = ResourceManager.GetObject("Question", resourceCulture);
+				return ((System.Drawing.Icon)(obj));
+			}
+		}
+
+		public static System.Drawing.Bitmap question16x16 {
+			get {
+				object obj = ResourceManager.GetObject("question16x16", resourceCulture);
+				return ((System.Drawing.Bitmap)(obj));
+			}
+		}
+
+		public static System.Drawing.Bitmap question32x32 {
 			get {
 				object obj = ResourceManager.GetObject("question32x32", resourceCulture);
 				return ((System.Drawing.Bitmap)(obj));
 			}
 		}
 
-		internal static System.Drawing.Bitmap search16x16 {
+		public static System.Drawing.Bitmap warning16x16 {
 			get {
-				object obj = ResourceManager.GetObject("search16x16", resourceCulture);
+				object obj = ResourceManager.GetObject("warning16x16", resourceCulture);
 				return ((System.Drawing.Bitmap)(obj));
-			}
-		}
-
-		internal static System.Drawing.Bitmap search18x18 {
-			get {
-				object obj = ResourceManager.GetObject("search18x18", resourceCulture);
-				return ((System.Drawing.Bitmap)(obj));
-			}
-		}
-
-		internal static System.Drawing.Bitmap send_receive_small {
-			get {
-				object obj = ResourceManager.GetObject("send_receive_small", resourceCulture);
-				return ((System.Drawing.Bitmap)(obj));
-			}
-		}
-
-		internal static System.Drawing.Bitmap Usb32x28 {
-			get {
-				object obj = ResourceManager.GetObject("Usb32x28", resourceCulture);
-				return ((System.Drawing.Bitmap)(obj));
-			}
-		}
-
-		internal static System.Drawing.Bitmap Usb64x64 {
-			get {
-				object obj = ResourceManager.GetObject("Usb64x64", resourceCulture);
-				return ((System.Drawing.Bitmap)(obj));
-			}
-		}
-
-		internal static System.Drawing.Bitmap warningImage {
-			get {
-				object obj = ResourceManager.GetObject("warningImage", resourceCulture);
-				return ((System.Drawing.Bitmap)(obj));
-			}
-		}
-
-		internal static System.IO.UnmanagedMemoryStream warningSound {
-			get {
-				return ResourceManager.GetStream("warningSound", resourceCulture);
 			}
 		}
 	}

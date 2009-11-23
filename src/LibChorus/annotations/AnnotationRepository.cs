@@ -1,32 +1,32 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Web;
 using System.Windows.Forms;
 using System.Xml;
 using System.Linq;
 using System.Xml.Linq;
-using System.Xml.XPath;
 
-namespace Chorus.notes
+namespace Chorus.annotations
 {
-	public class NotesRepository : IDisposable
+	public class AnnotationRepository : IDisposable
 	{
 		private XDocument _doc;
 		private static int kCurrentVersion=0;
 		public static string FileExtension = "ChorusNotes";
 
 
-		public static NotesRepository FromFile(string path)
+		public static AnnotationRepository FromFile(string path)
 		{
 			try
 			{
 				var doc = XDocument.Load(path);
 				ThrowIfVersionTooHigh(doc, path);
-				return new NotesRepository(doc);
+				return new AnnotationRepository(doc);
 			}
 			catch (XmlException error)
 			{
-				throw new NotesFormatException(string.Empty, error);
+				throw new AnnotationFormatException(string.Empty, error);
 			}
 		}
 
@@ -35,27 +35,27 @@ namespace Chorus.notes
 			var version = doc.Element("notes").Attribute("version").Value;
 			if (Int32.Parse(version) > kCurrentVersion)
 			{
-				throw new NotesFormatException(
+				throw new AnnotationFormatException(
 					"The notes file {0} is of a newer version ({1}) than this version of the program supports ({2}).",
 					path, version, kCurrentVersion.ToString());
 			}
 		}
 
-		public static NotesRepository FromString(string contents)
+		public static AnnotationRepository FromString(string contents)
 		{
 			try
 			{
 				XDocument doc = XDocument.Parse(contents);
 				ThrowIfVersionTooHigh(doc, "unknown");
-				return new NotesRepository(doc);
+				return new AnnotationRepository(doc);
 			}
 			catch (XmlException error)
 			{
-				throw new NotesFormatException(string.Empty,error);
+				throw new AnnotationFormatException(string.Empty,error);
 			}
 		}
 
-		public NotesRepository(XDocument doc)
+		public AnnotationRepository(XDocument doc)
 		{
 			_doc = doc;
 
@@ -91,104 +91,6 @@ namespace Chorus.notes
 		}
 	}
 
-	public class Annotation
-	{
-		static public string TimeFormatNoTimeZone = "yyyy-MM-ddTHH:mm:ssZ";
-		private readonly XElement _element;
-
-		public Annotation(XElement element)
-		{
-			_element = element;
-		}
-
-		public Annotation(string annotationClass, string refUrl)
-		{
-			var s = string.Format("<annotation class='{0}' ref='{1}' guid='{2}'/>", annotationClass,refUrl, System.Guid.NewGuid().ToString());
-			_element = XElement.Parse(s);
-		}
-
-		public string Class
-		{
-			get { return _element.GetAttributeValue("class"); }
-		}
-
-		public string Guid
-		{
-			get { return _element.GetAttributeValue("guid"); }
-		}
-
-		public string Ref
-		{
-			get { return _element.GetAttributeValue("ref"); }
-		}
-
-		public static string GetStatusOfLastMessage(XElement annotation)
-		{
-			XElement last = LastMessage(annotation);
-			return last == null ? string.Empty : last.Attribute("status").Value;
-//            var x = annotation.Elements("message");
-//            if (x == null)
-//                return string.Empty;
-//            var y = x.Last();
-//            if (y == null)
-//                return string.Empty;
-//            var v = y.Attribute("status");
-//            return v == null ? string.Empty : v.Value;
-		}
-
-		private static XElement LastMessage(XElement annotation)
-		{
-			return annotation.XPathSelectElements("message[@status]").LastOrDefault();
-		}
-		private  XElement LastMessage()
-		{
-			return LastMessage(_element);
-		}
-
-		public IEnumerable<Message> Messages
-		{
-			get
-			{
-				return from msg in _element.Elements("message") select new Message(msg);
-			}
-		}
-
-		public XElement Element
-		{
-			get { return _element; }
-		}
-
-		public string Status
-		{
-			get
-			{
-				var last = LastMessage();
-				return last == null ? string.Empty : last.GetAttributeValue("status");
-			}
-		}
-
-		public Message AddMessage(string author, string status, string contents)
-		{
-			var m = new Message(author, status, contents);
-			_element.Add(m.Element);
-			return m;
-		}
-
-		public string GetLabelFromRef(string defaultIfCannotGetIt)
-		{
-			try
-			{
-				var parse = System.Web.HttpUtility.ParseQueryString(Ref);
-				var label = parse.GetValues("label").FirstOrDefault();
-				return string.IsNullOrEmpty(label) ? defaultIfCannotGetIt : label;
-			}
-			catch (Exception)
-			{
-				return defaultIfCannotGetIt;
-			}
-		}
-	}
-
 	public class Message
 	{
 		private readonly XElement _element;
@@ -201,7 +103,7 @@ namespace Chorus.notes
 		public Message(string author, string status, string contents)
 		{
 			var s = String.Format("<message author='{0}' status ='{1}' date='{2}'>{3}</message>",
-				author, status, DateTime.Now.ToString(Annotation.TimeFormatNoTimeZone), contents);
+								  author, status, DateTime.Now.ToString(Annotation.TimeFormatNoTimeZone), contents);
 			_element = XElement.Parse(s);
 		}
 
@@ -234,7 +136,7 @@ namespace Chorus.notes
 				var text= _element.Nodes().OfType<XText>().FirstOrDefault();
 				if(text==null)
 					return String.Empty;
-			   // return HttpUtility.HtmlDecode(text.ToString()); <-- this works too
+				// return HttpUtility.HtmlDecode(text.ToString()); <-- this works too
 				return text.Value;
 			}
 		}
@@ -250,21 +152,18 @@ namespace Chorus.notes
 		}
 	}
 
-
-	public class NotesFormatException : ApplicationException
+	public class AnnotationFormatException : ApplicationException
 	{
-		public NotesFormatException(string message, Exception exception)
+		public AnnotationFormatException(string message, Exception exception)
 			: base(message, exception)
 		{
 		}
-		public NotesFormatException(string message, params object[] args)
+		public AnnotationFormatException(string message, params object[] args)
 			: base(string.Format(message, args))
 		{
 		}
 
 	}
-
-
 
 	public static class XElementExtensions
 	{
