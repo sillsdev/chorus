@@ -10,6 +10,7 @@ namespace Chorus.annotations
 			var list = new ImageList();
 			list.Images.Add("question", Chorus.Properties.AnnotationImages.question16x16);
 			list.Images.Add("mergeconflict", Chorus.Properties.AnnotationImages.MergeConflict16x16);
+			list.Images.Add("note", Chorus.Properties.AnnotationImages.note16x16);
 			return list;
 		}
 
@@ -19,6 +20,8 @@ namespace Chorus.annotations
 			{
 				case "question":
 					return new QuestionAnnotationClass();
+				case "note":
+					return new NoteAnnotationClass();
 				case "mergeconflict":
 					return new ConflictAnnotationClass();
 				default:

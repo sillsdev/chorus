@@ -60,6 +60,13 @@ namespace Chorus.Properties {
 			}
 		}
 
+		internal static System.Drawing.Bitmap check16x16 {
+			get {
+				object obj = ResourceManager.GetObject("check16x16", resourceCulture);
+				return ((System.Drawing.Bitmap)(obj));
+			}
+		}
+
 		internal static System.Drawing.Bitmap chorus32x32 {
 			get {
 				object obj = ResourceManager.GetObject("chorus32x32", resourceCulture);
@@ -159,6 +166,27 @@ namespace Chorus.Properties {
 		internal static System.IO.UnmanagedMemoryStream warningSound {
 			get {
 				return ResourceManager.GetStream("warningSound", resourceCulture);
+			}
+		}
+
+		/// <summary>
+		///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-16&quot;?&gt;
+		///&lt;!--
+		/// |
+		/// | XSLT REC Compliant Version of IE5 Default Stylesheet
+		/// |
+		/// | Original version by Jonathan Marsh (jmarsh@xxxxxxxxxxxxx)
+		/// | http://msdn.microsoft.com/xml/samples/defaultss/defaultss.xsl
+		/// |
+		/// | Conversion to XSLT 1.0 REC Syntax by Steve Muench (smuench@xxxxxxxxxx)
+		/// |
+		/// | 14-Mar-2008 George Zabanah Modifications made to the XSLT stylesheet
+		/// |                            to add a little spacing and change default colour
+		/// |                            of na [rest of string was truncated]&quot;;.
+		/// </summary>
+		internal static string XmlToHtml10Basic {
+			get {
+				return ResourceManager.GetString("XmlToHtml10Basic", resourceCulture);
 			}
 		}
 	}

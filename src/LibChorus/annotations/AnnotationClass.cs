@@ -45,6 +45,24 @@ namespace Chorus.annotations
 		public override bool UserCanResolve { get { return true; } }
 	}
 
+
+	public class NoteAnnotationClass : AnnotationClass
+	{
+		public NoteAnnotationClass()
+			: base("Note")
+		{
+		}
+
+		public override Image GetImage(int pixelsOfSquare)
+		{
+			if (pixelsOfSquare <= 16)
+				return Chorus.Properties.AnnotationImages.note16x16;
+			else
+				return Chorus.Properties.AnnotationImages.note32x32;
+		}
+	}
+
+
 	public class ConflictAnnotationClass : AnnotationClass
 	{
 		public ConflictAnnotationClass()

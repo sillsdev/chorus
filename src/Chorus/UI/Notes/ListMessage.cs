@@ -20,12 +20,13 @@ namespace Chorus.UI.Notes
 
 		public ListViewItem GetListViewItem()
 		{
-			var i = new ListViewItem(ParentAnnotation.ClassName);
+			var i = new ListViewItem(ParentAnnotation.GetLabelFromRef(""));
 			i.Tag = this;
-			i.SubItems.Add(Message.Date.ToShortDateString());
 			i.SubItems.Add(Message.GetAuthor("?"));
-			i.SubItems.Add(ParentAnnotation.GetLabelFromRef(""));
+			i.SubItems.Add(Message.Date.ToShortDateString());
 			i.ImageKey = ParentAnnotation.ClassName.ToLower();
+			if(ParentAnnotation.IsClosed)
+				i.StateImageIndex = 0;
 			return i;
 		}
 	}

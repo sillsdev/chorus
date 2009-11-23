@@ -31,6 +31,18 @@ namespace LibChorus.Tests.notes
 			Assert.AreEqual("pretend", a.Ref);
 		}
 
+		[Test]
+		public void GetLabel_RefHasLabel_ReturnsLabel()
+		{
+			Annotation a = CreateAnnotation("<annotation ref='lift://somefile.lift?label=blah&somethingelse=3' class='note' guid='123'/>");
+			Assert.AreEqual("blah", a.GetLabelFromRef("unknown"));
+		}
+
+		private Annotation CreateAnnotation(string contents)
+		{
+			contents = contents.Replace("&", "&amp;");
+			return new Annotation(XElement.Parse(contents));
+		}
 
 		[Test]
 		public void GetMessages()

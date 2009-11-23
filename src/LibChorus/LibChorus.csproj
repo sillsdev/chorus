@@ -84,6 +84,7 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
+	<Compile Include="annotations\Message.cs" />
 	<Compile Include="clone\CloneFromUsb.cs" />
 	<Compile Include="FileTypeHanders\adaptIt\AdaptItHandler.cs" />
 	<Compile Include="FileTypeHanders\audio\AudioChangePresenter.cs" />
@@ -127,6 +128,7 @@
 	  <DependentUpon>AnnotationImages.resx</DependentUpon>
 	</Compile>
 	<Compile Include="annotations\AnnotationClass.cs" />
+	<Compile Include="Utilities\XmlElementExtensions.cs" />
 	<Compile Include="VcsDrivers\Mercurial\HgHighLevel.cs" />
 	<Compile Include="sync\CommitCop.cs" />
 	<Compile Include="Utilities\ProcessOutputReader.cs" />

@@ -68,5 +68,11 @@ namespace Chorus.Utilities
 				return;
 			throw new InvalidOperationException(message);
 		}
+
+		public static void That(bool assertion)
+		{
+		   if(!assertion)
+			   throw new InvalidOperationException();
+		}
 	}
 }

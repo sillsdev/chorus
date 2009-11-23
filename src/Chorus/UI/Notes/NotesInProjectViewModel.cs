@@ -14,6 +14,7 @@ namespace Chorus.UI.Notes
 		private readonly ChorusNotesUser _currentUser;
 		private readonly MessageSelectedEvent _messageSelectedEvent;
 		private List<AnnotationRepository> _repositories=new List<AnnotationRepository>();
+		private string _searchText;
 
 		public NotesInProjectViewModel(ChorusNotesUser currentUser, ProjectFolderConfiguration projectFolderConfiguration, MessageSelectedEvent messageSelectedEventToRaise)
 		{
@@ -46,6 +47,10 @@ namespace Chorus.UI.Notes
 				{
 					foreach (var message in annotation.Messages)
 					{
+						if (string.IsNullOrEmpty(_searchText)
+							|| annotation.Label.StartsWith(_searchText)
+							|| annotation.ClassName.StartsWith(_searchText)
+							|| message.Author.StartsWith(_searchText))
 						yield return new ListMessage(annotation, message);
 					}
 				}
@@ -61,6 +66,11 @@ namespace Chorus.UI.Notes
 		{
 			if (_messageSelectedEvent != null)
 				_messageSelectedEvent.Raise(listMessage.ParentAnnotation, listMessage.Message);
+		}
+
+		public void SearchTextChanged(string searchText)
+		{
+			_searchText = searchText;
 		}
 	}
 }

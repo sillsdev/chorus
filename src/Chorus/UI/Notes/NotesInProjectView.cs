@@ -58,5 +58,11 @@ namespace Chorus.UI.Notes
 		{
 			ReloadMessages();
 		}
+
+		private void searchBox1_SearchTextChanged(object sender, EventArgs e)
+		{
+			_viewModel.SearchTextChanged(sender as string);
+			ReloadMessages();
+		}
 	}
 }

@@ -20,7 +20,7 @@ namespace Chorus.Tests.notes
 			using (var folder = new TempFolder("NotesModelTests"))
 			using (new TempFile(folder, "one." + AnnotationRepository.FileExtension,
 				@"<notes version='0'>
-					<annotation ref='somwhere://foo' class='question'>
+					<annotation ref='somwhere://foo?label=korupsen' class='question'>
 						<message guid='123' author='john' status='open' date='2009-07-18T23:53:04Z'>
 							Suzie, is this ok?
 						</message>
@@ -34,14 +34,14 @@ namespace Chorus.Tests.notes
 						</message>
 					</annotation>
 				</notes>"))
-			using (new TempFile(folder, "two." + AnnotationRepository.FileExtension, "<notes  version='0'><annotation class='mergeConflict'><message guid='1234' author='merger' status='open' date='2009-09-28T11:11:11Z'>Some description of hte conflict</message></annotation></notes>"))
+			using (new TempFile(folder, "two." + AnnotationRepository.FileExtension, "<notes  version='0'><annotation  ref='lift://foo.lift?label=wantok' class='mergeConflict'><message guid='1234' author='merger' status='open' date='2009-09-28T11:11:11Z'>Some description of hte conflict</message></annotation></notes>"))
 			{
 				var messageSelected = new MessageSelectedEvent();
 				ProjectFolderConfiguration projectConfig = new ProjectFolderConfiguration(folder.Path);
 				NotesInProjectViewModel notesInProjectViewModel = new NotesInProjectViewModel(new ChorusNotesUser("Bob"), projectConfig, messageSelected);
 				var notesInProjectView = new NotesInProjectView(notesInProjectViewModel);
 
-				var annotationModel = new AnnotationViewModel(messageSelected, StyleSheet.CreateFromDisk());
+				var annotationModel = new AnnotationViewModel(new ChorusNotesUser("bob"), messageSelected, StyleSheet.CreateFromDisk());
 				AnnotationView annotationView = new AnnotationView(annotationModel);
 				var page = new NotesPage(notesInProjectView, annotationView);
 				page.Dock = DockStyle.Fill;

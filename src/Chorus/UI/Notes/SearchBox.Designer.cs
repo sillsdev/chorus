@@ -28,20 +28,21 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
-			this.textBox1 = new System.Windows.Forms.TextBox();
+			this._searchText = new System.Windows.Forms.TextBox();
 			this.pictureBox1 = new System.Windows.Forms.PictureBox();
 			((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
 			this.SuspendLayout();
 			//
-			// textBox1
+			// _searchText
 			//
-			this.textBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+			this._searchText.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
 						| System.Windows.Forms.AnchorStyles.Right)));
-			this.textBox1.BorderStyle = System.Windows.Forms.BorderStyle.None;
-			this.textBox1.Location = new System.Drawing.Point(7, 1);
-			this.textBox1.Name = "textBox1";
-			this.textBox1.Size = new System.Drawing.Size(188, 13);
-			this.textBox1.TabIndex = 1;
+			this._searchText.BorderStyle = System.Windows.Forms.BorderStyle.None;
+			this._searchText.Location = new System.Drawing.Point(7, 1);
+			this._searchText.Name = "_searchText";
+			this._searchText.Size = new System.Drawing.Size(188, 13);
+			this._searchText.TabIndex = 1;
+			this._searchText.TextChanged += new System.EventHandler(this._searchText_TextChanged);
 			//
 			// pictureBox1
 			//
@@ -59,7 +60,7 @@
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.BackColor = System.Drawing.Color.White;
 			this.Controls.Add(this.pictureBox1);
-			this.Controls.Add(this.textBox1);
+			this.Controls.Add(this._searchText);
 			this.Name = "SearchBox";
 			this.Size = new System.Drawing.Size(224, 19);
 			((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
@@ -71,6 +72,6 @@
 		#endregion
 
 		private System.Windows.Forms.PictureBox pictureBox1;
-		private System.Windows.Forms.TextBox textBox1;
+		private System.Windows.Forms.TextBox _searchText;
 	}
 }
