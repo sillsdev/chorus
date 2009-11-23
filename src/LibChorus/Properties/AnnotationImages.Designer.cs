@@ -102,13 +102,6 @@ namespace Chorus.Properties {
 			}
 		}
 
-		public static System.Drawing.Icon Note {
-			get {
-				object obj = ResourceManager.GetObject("Note", resourceCulture);
-				return ((System.Drawing.Icon)(obj));
-			}
-		}
-
 		public static System.Drawing.Bitmap note16x16 {
 			get {
 				object obj = ResourceManager.GetObject("note16x16", resourceCulture);
@@ -120,13 +113,6 @@ namespace Chorus.Properties {
 			get {
 				object obj = ResourceManager.GetObject("note32x32", resourceCulture);
 				return ((System.Drawing.Bitmap)(obj));
-			}
-		}
-
-		public static System.Drawing.Icon Question {
-			get {
-				object obj = ResourceManager.GetObject("Question", resourceCulture);
-				return ((System.Drawing.Icon)(obj));
 			}
 		}
 

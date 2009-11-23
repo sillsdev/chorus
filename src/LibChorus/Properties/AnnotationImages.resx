@@ -127,17 +127,11 @@
   <data name="MergeConflict16x16" type="System.Resources.ResXFileRef, System.Windows.Forms">
 	<value>..\Resources\MergeConflict16x16.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="Note" type="System.Resources.ResXFileRef, System.Windows.Forms">
-	<value>..\Resources\Note.ico;System.Drawing.Icon, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
   <data name="note16x16" type="System.Resources.ResXFileRef, System.Windows.Forms">
 	<value>..\Resources\note16x16.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="note32x32" type="System.Resources.ResXFileRef, System.Windows.Forms">
 	<value>..\Resources\note32x32.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="Question" type="System.Resources.ResXFileRef, System.Windows.Forms">
-	<value>..\Resources\Question.ico;System.Drawing.Icon, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="question16x16" type="System.Resources.ResXFileRef, System.Windows.Forms">
 	<value>..\Resources\question16x16.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
