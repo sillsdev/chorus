@@ -26,6 +26,7 @@
 								<items>
 										<include name="${build.namespace.dir}/**" />
 										<exclude name="${build.namespace.dir}/Resources" />
+										<exclude name="${build.namespace.dir}" />
 								</items>
 						</in>
 						<do>
