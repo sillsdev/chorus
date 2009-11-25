@@ -6,6 +6,7 @@ using Chorus.sync;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
 using LibChorus.Tests.merge;
+using LibChorus.Tests.VcsDrivers.Mercurial;
 using NUnit.Framework;
 
 namespace LibChorus.Tests.sync
@@ -27,6 +28,23 @@ namespace LibChorus.Tests.sync
 				Synchronizer m = new Synchronizer(f.Path, new ProjectFolderConfiguration("blah"), new ConsoleProgress());
 
 				Assert.AreEqual("SourceHasDotInName_IsNotLost.x.y", m.RepoProjectName);
+			}
+		}
+
+		/// <summary>
+		/// regression of WS-15036
+		/// </summary>
+		[Test]
+		public void Sync_HgrcInUseByOther_FailsGracefully()
+		{
+			HgRunner.TimeoutSecondsOverrideForUnitTests = 1;
+			using (var setup = new RepositorySetup("bob"))
+			{
+				using (new StreamWriter(setup.ProjectFolder.Combine(".hg", "hgrc")))
+				{
+					var results = setup.CheckinAndPullAndMerge();
+					Assert.IsFalse(results.Succeeded);
+				}
 			}
 		}
 

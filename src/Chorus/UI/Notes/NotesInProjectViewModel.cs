@@ -4,9 +4,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using Chorus.notes;
+using Chorus.annotations;
 using Chorus.sync;
-using Chorus.VcsDrivers.Mercurial;
 
 namespace Chorus.UI.Notes
 {
@@ -14,7 +13,8 @@ namespace Chorus.UI.Notes
 	{
 		private readonly ChorusNotesUser _currentUser;
 		private readonly MessageSelectedEvent _messageSelectedEvent;
-		private List<NotesRepository> _repositories=new List<NotesRepository>();
+		private List<AnnotationRepository> _repositories=new List<AnnotationRepository>();
+		private string _searchText;
 
 		public NotesInProjectViewModel(ChorusNotesUser currentUser, ProjectFolderConfiguration projectFolderConfiguration, MessageSelectedEvent messageSelectedEventToRaise)
 		{
@@ -22,13 +22,13 @@ namespace Chorus.UI.Notes
 			_messageSelectedEvent = messageSelectedEventToRaise;
 			foreach (var path in GetChorusNotesFilePaths(projectFolderConfiguration.FolderPath))
 			{
-				_repositories.Add(NotesRepository.FromFile(path));
+				_repositories.Add(AnnotationRepository.FromFile(path));
 			}
 		}
 
 		private IEnumerable<string> GetChorusNotesFilePaths(string path)
 		{
-			return Directory.GetFiles(path, "*." + NotesRepository.FileExtension, SearchOption.AllDirectories);
+			return Directory.GetFiles(path, "*." + AnnotationRepository.FileExtension, SearchOption.AllDirectories);
 		}
 
 		public bool ShowClosedNotes { get; set; }
@@ -47,6 +47,10 @@ namespace Chorus.UI.Notes
 				{
 					foreach (var message in annotation.Messages)
 					{
+						if (string.IsNullOrEmpty(_searchText)
+							|| annotation.Label.StartsWith(_searchText)
+							|| annotation.ClassName.StartsWith(_searchText)
+							|| message.Author.StartsWith(_searchText))
 						yield return new ListMessage(annotation, message);
 					}
 				}
@@ -62,6 +66,11 @@ namespace Chorus.UI.Notes
 		{
 			if (_messageSelectedEvent != null)
 				_messageSelectedEvent.Raise(listMessage.ParentAnnotation, listMessage.Message);
+		}
+
+		public void SearchTextChanged(string searchText)
+		{
+			_searchText = searchText;
 		}
 	}
 }

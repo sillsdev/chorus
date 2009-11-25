@@ -3,7 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Xml;
 using System.Xml.Linq;
-using Chorus.notes;
+using Chorus.annotations;
 using NUnit.Framework;
 
 namespace LibChorus.Tests.notes
@@ -15,7 +15,7 @@ namespace LibChorus.Tests.notes
 		public void Class_HasClass_ReturnsClass()
 		{
 			var a = new Annotation(XElement.Parse("<annotation class='foo' guid='12D388BD-E83D-41AD-BAB3-B7E46D8C13CE'/>"));
-			Assert.AreEqual("foo", a.Class);
+			Assert.AreEqual("foo", a.ClassName);
 		}
 		[Test]
 		public void Guid_HasGuid_ReturnsGuid()
@@ -31,6 +31,18 @@ namespace LibChorus.Tests.notes
 			Assert.AreEqual("pretend", a.Ref);
 		}
 
+		[Test]
+		public void GetLabel_RefHasLabel_ReturnsLabel()
+		{
+			Annotation a = CreateAnnotation("<annotation ref='lift://somefile.lift?label=blah&somethingelse=3' class='note' guid='123'/>");
+			Assert.AreEqual("blah", a.GetLabelFromRef("unknown"));
+		}
+
+		private Annotation CreateAnnotation(string contents)
+		{
+			contents = contents.Replace("&", "&amp;");
+			return new Annotation(XElement.Parse(contents));
+		}
 
 		[Test]
 		public void GetMessages()

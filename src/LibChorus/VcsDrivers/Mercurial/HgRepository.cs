@@ -190,6 +190,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		/// <summary>
 		/// Pull from the given repository
 		/// </summary>
+		/// <exception cref="unknown">Throws if could not connect</exception>
 		/// <returns>true if the pull happend and changes were pulled in</returns>
 		protected bool PullFromRepository(HgRepository otherRepo, bool throwIfCannot)
 		{
@@ -212,8 +213,12 @@ namespace Chorus.VcsDrivers.Mercurial
 					{
 						throw err;
 					}
-					_progress.WriteWarning("Could not receive from " + otherRepo.Name);
-					return false;
+				   _progress.WriteWarning("Could not receive from " + otherRepo.Name);
+				   if(err.Message.Contains("authorization"))
+					{
+						_progress.WriteError("The server rejected the project name, user name, or password.");
+					}
+					throw err;
 				}
 			}
 		}
@@ -323,6 +328,10 @@ namespace Chorus.VcsDrivers.Mercurial
 		/// <returns></returns>
 		protected ExecutionResult Execute(bool failureIsOk, int secondsBeforeTimeout, string cmd, params string[] rest)
 		{
+			if(_progress.CancelRequested)
+			{
+				throw new UserCancelledException();
+			}
 			StringBuilder b = new StringBuilder();
 			b.Append(cmd + " ");
 			if (!string.IsNullOrEmpty(_pathToRepository))
@@ -372,6 +381,11 @@ namespace Chorus.VcsDrivers.Mercurial
 		/// <exception cref="System.TimeoutException"/>
 		protected static ExecutionResult ExecuteErrorsOk(string command, string fromDirectory, int secondsBeforeTimeout, IProgress progress)
 		{
+			if (progress.CancelRequested)
+			{
+				throw new UserCancelledException();
+			}
+
 #if DEBUG
 			if (GetHasLocks(fromDirectory, progress))
 			{
@@ -384,6 +398,10 @@ namespace Chorus.VcsDrivers.Mercurial
 			if (result.DidTimeOut)
 			{
 				throw new TimeoutException(result.StandardError);
+			}
+			if (result.UserCancelled)
+			{
+				throw new UserCancelledException();
 			}
 			if (!string.IsNullOrEmpty(result.StandardError))
 			{
@@ -1128,7 +1146,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		}
 
 
-		public void RecoverIfNeeded()
+		public void RecoverFromInterruptedTransactionIfNeeded()
 		{
 			var result = Execute(true, _secondsBeforeTimeoutOnLocalOperation, "recover");
 
@@ -1146,6 +1164,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			if (!string.IsNullOrEmpty(result.StandardError))
 			{
 				_progress.WriteError(result.StandardError);
+				throw new ApplicationException("Trying to recover, got: "+result.StandardError);
 			}
 			if (!string.IsNullOrEmpty(result.StandardOutput))
 			{
@@ -1373,20 +1392,28 @@ namespace Chorus.VcsDrivers.Mercurial
 				progress.WriteError("No .hg/hgrc found");
 			}
 
+			CheckIntegrity(progress);
+
+			progress.WriteStatus("Done.");
+		}
+
+		public enum IntegrityResults { Good, Bad }
+
+		public IntegrityResults CheckIntegrity(IProgress progress)
+		{
 			progress.WriteStatus("Validating Repository... (this can take a long time)");
 			var result = GetTextFromQuery("verify", 60 * 60);
 			if (result.ToLower().Contains("error"))
 			{
 				progress.WriteError(result);
+				return IntegrityResults.Bad;
 			}
 			else
 			{
 				progress.WriteMessage(result);
+				return IntegrityResults.Good;
 			}
-
-			progress.WriteStatus("Done.");
 		}
-
 
 		public void SetGlobalProxyInfo(ProxySpec proxy)
 		{

@@ -1,10 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using Chorus.sync;
 using Chorus.UI.Sync;
 using Chorus.Utilities;
+using Chorus.VcsDrivers;
 using LibChorus.Tests;
 using NUnit.Framework;
 
@@ -69,6 +71,46 @@ namespace Chorus.Tests
 			_model = new SyncControlModel(_project, SyncUIFeatures.Advanced);
 			_model.AddProgressDisplay(_progress);
 			Assert.AreEqual(1, _model.GetRepositoriesToList().Count);
+		}
+
+		[Test]
+		public void Sync_NonExistantLangDepotProject_ExitsGracefullyWithCorrectErrorResult()
+		{
+			_model = new SyncControlModel(_project, SyncUIFeatures.Minimal);
+			_model.SyncOptions.RepositorySourcesToTry.Add(RepositoryAddress.Create("languageforge", "http://hg-public.languagedepot.org/dummy"));
+			var progress = new ConsoleProgress();
+			_model.AddProgressDisplay(progress);
+			SyncResults results = null;
+			_model.SynchronizeOver += new EventHandler((sender, e) => results = (sender as SyncResults));
+		   _model.Sync(true);
+		   while (results==null)
+			   Thread.Sleep(100);
+			Assert.IsFalse(results.Succeeded);
+			Assert.IsNotNull(results.ErrorEncountered);
+		}
+
+		[Test]
+		public void Sync_Cancelled_ResultsHaveCancelledEqualsTrue()
+		{
+			_model = new SyncControlModel(_project, SyncUIFeatures.Minimal);
+			_model.SyncOptions.RepositorySourcesToTry.Add(RepositoryAddress.Create("languageforge", "http://hg-public.languagedepot.org/dummy"));
+			var progress = new ConsoleProgress();
+			_model.AddProgressDisplay(progress);
+			SyncResults results = null;
+			_model.SynchronizeOver += new EventHandler((sender, e) => results = (sender as SyncResults));
+			_model.Sync(true);
+			Thread.Sleep(100);
+			_model.Cancel();
+			while (results == null)
+				Thread.Sleep(100);
+			Assert.IsFalse(results.Succeeded);
+			Assert.IsTrue(results.Cancelled);
+			Assert.IsNull(results.ErrorEncountered);
+		}
+
+		private void _model_SynchronizeOver(object sender, EventArgs e)
+		{
+			throw new NotImplementedException();
 		}
 	}
 }

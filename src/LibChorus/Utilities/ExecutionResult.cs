@@ -1,3 +1,4 @@
+using System;
 using System.Diagnostics;
 
 namespace Chorus.Utilities
@@ -23,4 +24,14 @@ namespace Chorus.Utilities
 			ExitCode = proc.ExitCode;
 		}
 	}
+
+	public class UserCancelledException : ApplicationException
+	{
+		public UserCancelledException()
+			: base("User Cancelled")
+		{
+
+		}
+	}
+
 }

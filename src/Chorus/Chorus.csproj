@@ -62,6 +62,9 @@
 	<Reference Include="System.Drawing" />
 	<Reference Include="System.Windows.Forms" />
 	<Reference Include="System.Xml" />
+	<Reference Include="System.Xml.Linq">
+	  <RequiredTargetFramework>3.5</RequiredTargetFramework>
+	</Reference>
   </ItemGroup>
   <ItemGroup>
 	<Compile Include="Bootstrapper.cs" />
@@ -120,6 +123,12 @@
 	</Compile>
 	<Compile Include="UI\Misc\ReadinessPanel.Designer.cs">
 	  <DependentUpon>ReadinessPanel.cs</DependentUpon>
+	</Compile>
+	<Compile Include="UI\Notes\AnnotationInspector.cs">
+	  <SubType>Form</SubType>
+	</Compile>
+	<Compile Include="UI\Notes\AnnotationInspector.Designer.cs">
+	  <DependentUpon>AnnotationInspector.cs</DependentUpon>
 	</Compile>
 	<Compile Include="UI\Notes\AnnotationViewModel.cs" />
 	<Compile Include="UI\Notes\Events.cs" />
@@ -322,6 +331,9 @@
 	  <DependentUpon>ReadinessPanel.cs</DependentUpon>
 	  <SubType>Designer</SubType>
 	</EmbeddedResource>
+	<EmbeddedResource Include="UI\Notes\AnnotationInspector.resx">
+	  <DependentUpon>AnnotationInspector.cs</DependentUpon>
+	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Notes\AnnotationView.resx">
 	  <DependentUpon>AnnotationView.cs</DependentUpon>
 	</EmbeddedResource>
@@ -360,6 +372,9 @@
 	<None Include="Resources\networkFolder29x32.png" />
 	<None Include="Resources\Usb32x28.png" />
 	<None Include="Resources\search18x18.png" />
+	<None Include="Resources\question32x32.png" />
+	<None Include="Resources\search16x16.png" />
+	<None Include="Resources\check16x16.png" />
 	<Content Include="UI\Notes\Html\bl.gif">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</Content>
@@ -372,6 +387,8 @@
 	<Content Include="UI\Notes\Html\StyleSheet.css">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</Content>
+	<None Include="UI\Notes\XmlToHtml10Plus.xslt" />
+	<None Include="UI\Notes\XmlToHtml10Basic.xslt" />
 	<Content Include="UI\Settings\SetupPanel.htm">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</Content>
@@ -384,6 +401,7 @@
   </ItemGroup>
   <ItemGroup>
 	<Folder Include="UI\NewFolder1\" />
+	<Folder Include="UI\Tags\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.

@@ -44,12 +44,17 @@ namespace LibChorus.Tests
 			ProjectFolderConfig = sourceToClone.ProjectFolderConfig.Clone();
 			ProjectFolderConfig.FolderPath = pathToProject;
 
-			sourceToClone.CreateSynchronizer().MakeClone(pathToProject, true);
+			sourceToClone.MakeClone(pathToProject);
 			ProjectFolder = TempFolder.TrackExisting(RootFolder.Combine(ProjectName));
 
 			var hg = new HgRepository(pathToProject, Progress);
 			hg.SetUserNameInIni(cloneName, Progress);
 
+		}
+
+		private void MakeClone(string pathToNewRepo)
+		{
+			HgHighLevel.MakeCloneFromLocalToLocal(ProjectFolder.Path, pathToNewRepo, true, Progress);
 		}
 
 		public string GetProgressString()

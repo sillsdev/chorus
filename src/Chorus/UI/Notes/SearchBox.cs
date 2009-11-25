@@ -1,19 +1,21 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Data;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 
 namespace Chorus.UI.Notes
 {
 	public partial class SearchBox : UserControl
 	{
+		public event EventHandler SearchTextChanged;
+
 		public SearchBox()
 		{
 			InitializeComponent();
+		}
+
+		private void _searchText_TextChanged(object sender, EventArgs e)
+		{
+			if(SearchTextChanged !=null)
+				SearchTextChanged.Invoke(this._searchText.Text, new EventArgs());
 		}
 	}
 }

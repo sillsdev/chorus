@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Xml;
-using Chorus.notes;
+using Chorus.annotations;
 using Chorus.Utilities;
 using NUnit.Framework;
 
@@ -15,25 +15,25 @@ namespace LibChorus.Tests.notes
 		[Test, ExpectedException(typeof(FileNotFoundException))]
 		public void FromPath_PathNotFound_Throws()
 		{
-			NotesRepository.FromFile("bogus.xml");
+			AnnotationRepository.FromFile("bogus.xml");
 		}
 
-		[Test, ExpectedException(typeof(NotesFormatException))]
+		[Test, ExpectedException(typeof(AnnotationFormatException))]
 		public void FromString_FormatIsTooNew_Throws()
 		{
-			NotesRepository.FromString("<notes version='99'/>");
+			AnnotationRepository.FromString("<notes version='99'/>");
 		}
 
-		[Test, ExpectedException(typeof(NotesFormatException))]
+		[Test, ExpectedException(typeof(AnnotationFormatException))]
 		public void FromString_FormatIsBadXml_Throws()
 		{
-			NotesRepository.FromString("<notes version='99'>");
+			AnnotationRepository.FromString("<notes version='99'>");
 		}
 
 		[Test]
 		public void GetAll_EmptyDOM_OK()
 		{
-			using (var r = NotesRepository.FromString("<notes version='0'/>"))
+			using (var r = AnnotationRepository.FromString("<notes version='0'/>"))
 			{
 				Assert.AreEqual(0, r.GetAllAnnotations().Count());
 			}
@@ -43,7 +43,7 @@ namespace LibChorus.Tests.notes
 		public void GetAll_Has2_ReturnsBoth()
 		{
 
-			using (var r = NotesRepository.FromString(@"<notes version='0'>
+			using (var r = AnnotationRepository.FromString(@"<notes version='0'>
 	<annotation guid='12D388BD-E83D-41AD-BAB3-B7E46D8C13CE'/>
 	<annotation guid='12D39999-E83D-41AD-BAB3-B7E46D8C13CE'/>
 </notes>"))
@@ -55,7 +55,7 @@ namespace LibChorus.Tests.notes
 		[Test]
 		public void GetByCurrentStatus_UsesTheLastMessage()
 		{
-			using (var r = NotesRepository.FromString(@"<notes version='0'>
+			using (var r = AnnotationRepository.FromString(@"<notes version='0'>
 	<annotation guid='123'><message status='open'/>
 <message status='processing'/> <message status='closed'/>
 </annotation>
@@ -70,7 +70,7 @@ namespace LibChorus.Tests.notes
 		[Test]
 		public void GetByCurrentStatus_NoMessages_ReturnsNone()
 		{
-			using (var r = NotesRepository.FromString(@"<notes version='0'>
+			using (var r = AnnotationRepository.FromString(@"<notes version='0'>
 	<annotation guid='123'/></notes>"))
 			{
 				Assert.AreEqual(0, r.GetByCurrentStatus("open").Count());
@@ -83,13 +83,13 @@ namespace LibChorus.Tests.notes
 			using (var t = new TempFile())
 			{
 				File.Delete(t.Path);
-				using (var r =NotesRepository.FromString(@"<notes version='0'><annotation guid='123'>
+				using (var r =AnnotationRepository.FromString(@"<notes version='0'><annotation guid='123'>
 <message guid='234'>&lt;p&gt;hello</message></annotation></notes>"))
 				{
 					r.SaveAs(t.Path);
 				}
 				Assert.IsTrue(File.Exists(t.Path));
-				using (var x = NotesRepository.FromFile(t.Path))
+				using (var x = AnnotationRepository.FromFile(t.Path))
 				{
 					Assert.AreEqual(1, x.GetAllAnnotations().Count());
 					Assert.AreEqual("<p>hello", x.GetAllAnnotations().First().Messages.First().HtmlText);
@@ -103,16 +103,16 @@ namespace LibChorus.Tests.notes
 			using (var t = new TempFile(@"<notes version='0'><annotation guid='123'>
 <message guid='234'>&lt;p&gt;hello</message></annotation></notes>"))
 			{
-				using (var r = NotesRepository.FromFile(t.Path))
+				using (var r = AnnotationRepository.FromFile(t.Path))
 				{
 					r.AddAnnotation("fooClass", "http://somewhere.org");
 					r.SaveAs(t.Path);
 				}
-				using (var x = NotesRepository.FromFile(t.Path))
+				using (var x = AnnotationRepository.FromFile(t.Path))
 				{
 					Assert.AreEqual(2, x.GetAllAnnotations().Count());
 					Assert.AreEqual("<p>hello", x.GetAllAnnotations().First().Messages.First().HtmlText);
-					Assert.AreEqual("fooClass", x.GetAllAnnotations().ToArray()[1].Class);
+					Assert.AreEqual("fooClass", x.GetAllAnnotations().ToArray()[1].ClassName);
 				}
 			}
 		}

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using Autofac;
-using Chorus.notes;
+using Chorus.annotations;
 using Chorus.UI.Misc;
 using Chorus.UI.Notes;
 using Chorus.UI.Review;

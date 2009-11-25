@@ -28,31 +28,125 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
-			this.webBrowser1 = new System.Windows.Forms.WebBrowser();
+			this._closedCheckBox = new System.Windows.Forms.CheckBox();
+			this._addButton = new System.Windows.Forms.Button();
+			this._newMessage = new System.Windows.Forms.TextBox();
+			this._annotationClassLabel = new System.Windows.Forms.Label();
+			this._annotationLogo = new System.Windows.Forms.PictureBox();
+			this._existingMessagesHtmlView = new System.Windows.Forms.WebBrowser();
+			this._addNewMessageLabel = new Chorus.UI.BetterLabel();
+			((System.ComponentModel.ISupportInitialize)(this._annotationLogo)).BeginInit();
 			this.SuspendLayout();
 			//
-			// webBrowser1
+			// _closedCheckBox
 			//
-			this.webBrowser1.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.webBrowser1.Location = new System.Drawing.Point(0, 0);
-			this.webBrowser1.MinimumSize = new System.Drawing.Size(20, 20);
-			this.webBrowser1.Name = "webBrowser1";
-			this.webBrowser1.Size = new System.Drawing.Size(321, 292);
-			this.webBrowser1.TabIndex = 0;
+			this._closedCheckBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+			this._closedCheckBox.AutoSize = true;
+			this._closedCheckBox.Location = new System.Drawing.Point(3, 386);
+			this._closedCheckBox.Name = "_closedCheckBox";
+			this._closedCheckBox.Size = new System.Drawing.Size(58, 17);
+			this._closedCheckBox.TabIndex = 3;
+			this._closedCheckBox.Text = "Closed";
+			this._closedCheckBox.UseVisualStyleBackColor = true;
+			this._closedCheckBox.CheckedChanged += new System.EventHandler(this.OnClosedCheckBox_CheckedChanged);
+			//
+			// _addButton
+			//
+			this._addButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+			this._addButton.Location = new System.Drawing.Point(231, 386);
+			this._addButton.Name = "_addButton";
+			this._addButton.Size = new System.Drawing.Size(75, 23);
+			this._addButton.TabIndex = 6;
+			this._addButton.Text = "Add";
+			this._addButton.UseVisualStyleBackColor = true;
+			this._addButton.Click += new System.EventHandler(this._addButton_Click);
+			//
+			// _newMessage
+			//
+			this._newMessage.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
+						| System.Windows.Forms.AnchorStyles.Right)));
+			this._newMessage.Location = new System.Drawing.Point(4, 325);
+			this._newMessage.Multiline = true;
+			this._newMessage.Name = "_newMessage";
+			this._newMessage.Size = new System.Drawing.Size(302, 45);
+			this._newMessage.TabIndex = 7;
+			this._newMessage.TextChanged += new System.EventHandler(this._newMessage_TextChanged);
+			//
+			// _annotationClassLabel
+			//
+			this._annotationClassLabel.AutoSize = true;
+			this._annotationClassLabel.Font = new System.Drawing.Font("Segoe UI", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this._annotationClassLabel.Location = new System.Drawing.Point(44, 9);
+			this._annotationClassLabel.Name = "_annotationClassLabel";
+			this._annotationClassLabel.Size = new System.Drawing.Size(86, 25);
+			this._annotationClassLabel.TabIndex = 8;
+			this._annotationClassLabel.Text = "TheClass";
+			//
+			// _annotationLogo
+			//
+			this._annotationLogo.Image = global::Chorus.Properties.Resources.question32x32;
+			this._annotationLogo.Location = new System.Drawing.Point(5, 8);
+			this._annotationLogo.Name = "_annotationLogo";
+			this._annotationLogo.Size = new System.Drawing.Size(32, 32);
+			this._annotationLogo.TabIndex = 1;
+			this._annotationLogo.TabStop = false;
+			this._annotationLogo.DoubleClick += new System.EventHandler(this._annotationLogo_DoubleClick);
+			this._annotationLogo.Paint += new System.Windows.Forms.PaintEventHandler(this._annotationLogo_Paint);
+			//
+			// _existingMessagesHtmlView
+			//
+			this._existingMessagesHtmlView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+						| System.Windows.Forms.AnchorStyles.Left)
+						| System.Windows.Forms.AnchorStyles.Right)));
+			this._existingMessagesHtmlView.Location = new System.Drawing.Point(0, 44);
+			this._existingMessagesHtmlView.MinimumSize = new System.Drawing.Size(20, 20);
+			this._existingMessagesHtmlView.Name = "_existingMessagesHtmlView";
+			this._existingMessagesHtmlView.Size = new System.Drawing.Size(318, 240);
+			this._existingMessagesHtmlView.TabIndex = 0;
+			this._existingMessagesHtmlView.DocumentCompleted += new System.Windows.Forms.WebBrowserDocumentCompletedEventHandler(this._existingMessagesHtmlView_DocumentCompleted);
+			//
+			// _addNewMessageLabel
+			//
+			this._addNewMessageLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+			this._addNewMessageLabel.BorderStyle = System.Windows.Forms.BorderStyle.None;
+			this._addNewMessageLabel.Font = new System.Drawing.Font("Segoe UI", 9F);
+			this._addNewMessageLabel.Location = new System.Drawing.Point(4, 298);
+			this._addNewMessageLabel.Multiline = true;
+			this._addNewMessageLabel.Name = "_addNewMessageLabel";
+			this._addNewMessageLabel.ReadOnly = true;
+			this._addNewMessageLabel.Size = new System.Drawing.Size(293, 20);
+			this._addNewMessageLabel.TabIndex = 5;
+			this._addNewMessageLabel.TabStop = false;
+			this._addNewMessageLabel.Text = "Add new message:";
 			//
 			// AnnotationView
 			//
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.Controls.Add(this.webBrowser1);
+			this.Controls.Add(this._annotationClassLabel);
+			this.Controls.Add(this._newMessage);
+			this.Controls.Add(this._addButton);
+			this.Controls.Add(this._addNewMessageLabel);
+			this.Controls.Add(this._closedCheckBox);
+			this.Controls.Add(this._annotationLogo);
+			this.Controls.Add(this._existingMessagesHtmlView);
 			this.Name = "AnnotationView";
-			this.Size = new System.Drawing.Size(321, 292);
+			this.Size = new System.Drawing.Size(321, 415);
+			this.Load += new System.EventHandler(this.AnnotationView_Load);
+			((System.ComponentModel.ISupportInitialize)(this._annotationLogo)).EndInit();
 			this.ResumeLayout(false);
+			this.PerformLayout();
 
 		}
 
 		#endregion
 
-		private System.Windows.Forms.WebBrowser webBrowser1;
+		private System.Windows.Forms.WebBrowser _existingMessagesHtmlView;
+		private System.Windows.Forms.PictureBox _annotationLogo;
+		private System.Windows.Forms.CheckBox _closedCheckBox;
+		private BetterLabel _addNewMessageLabel;
+		private System.Windows.Forms.Button _addButton;
+		private System.Windows.Forms.TextBox _newMessage;
+		private System.Windows.Forms.Label _annotationClassLabel;
 	}
 }

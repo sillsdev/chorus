@@ -1,46 +1,78 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Design;
+using System.Drawing;
 using System.Linq;
 using System.Text;
-using Chorus.notes;
-using Message=Chorus.notes.Message;
+using System.Windows.Forms;
+using Chorus.annotations;
+using Message=Chorus.annotations.Message;
 
 namespace Chorus.UI.Notes
 {
 	public class AnnotationViewModel
 	{
+		private readonly ChorusNotesUser _user;
 		private readonly StyleSheet _styleSheet;
 		private Annotation _currentAnnotation;
 		private Message _currentFocussedMessage; //this is the part of the annotation in focus
+		private string _newMessageText;
 
-		internal event EventHandler UpdateDisplay;
+		internal event EventHandler UpdateContent;
+		internal event EventHandler UpdateStates;
 
-		public AnnotationViewModel(MessageSelectedEvent messageSelectedEventToSubscribeTo, StyleSheet styleSheet)
+		public AnnotationViewModel(ChorusNotesUser user, MessageSelectedEvent messageSelectedEventToSubscribeTo, StyleSheet styleSheet)
 		{
+			_user = user;
 			_styleSheet = styleSheet;
 			messageSelectedEventToSubscribeTo.Subscribe((annotation, message) => SetAnnotationAndFocussedMessage(annotation,message));
+			NewMessageText = string.Empty;
 		}
 
 		private void SetAnnotationAndFocussedMessage(Annotation annotation, Message message)
 		{
 			_currentAnnotation = annotation;
 			_currentFocussedMessage = message;
-			if (UpdateDisplay != null)
-			{
-				UpdateDisplay.Invoke(this, null);
-			}
+			UpdateContentNow();
 		}
 
-		public ListMessage CurrentAnnotation
+		private void UpdateContentNow()
 		{
-		   // get { return _currentAnnotation; }
-			set
+			if (UpdateContent != null)
 			{
-				//it's fine if this null
+				UpdateContent.Invoke(this, null);
 			}
 		}
 
-		public string GetHtml()
+		private void UpdateStatesNow()
+		{
+			if (UpdateStates != null)
+			{
+				UpdateStates.Invoke(this, null);
+			}
+		}
+
+		public Annotation CurrentAnnotation
+		{
+		   get { return _currentAnnotation; }
+
+		}
+
+		public bool AddButtonEnabled
+		{
+			get { return _currentAnnotation.Status!="closed" && NewMessageText.Length>0; }
+		}
+
+		public string GetNewMessageHtml()
+		{
+			if (_currentAnnotation == null)
+				return string.Empty;
+
+			return "<html><body></body></html>";
+
+		}
+
+		public string GetExistingMessagesHtml()
 		{
 			if(_currentAnnotation == null)
 				return string.Empty;
@@ -49,7 +81,6 @@ namespace Chorus.UI.Notes
 			builder.AppendLine("<html>");
 			builder.AppendFormat("<head>{0}</head>", _styleSheet.TextForInsertingIntoHmtlHeadElement);
 			builder.AppendLine("<body>");
-			builder.AppendFormat("<div class='AnnotationHeader'>Class={0} ref={1} status={2}</div>",_currentAnnotation.Class, _currentAnnotation.Ref, _currentAnnotation.Status);
 
 			string status=string.Empty;
 			foreach (var message in _currentAnnotation.Messages)
@@ -76,7 +107,7 @@ namespace Chorus.UI.Notes
 
 					if (message.Status != status)
 					{
-						if (status != string.Empty && message.Status.ToLower() != "open")//don't show the first status if it's just 'open'
+						if (status != string.Empty || message.Status.ToLower() != "open")//don't show the first status if it's just 'open'
 						{
 							builder.AppendFormat(
 								"<div class='statusChange'>{0} marked the note as <span class='status'>{1}</span>.</div>",
@@ -95,6 +126,65 @@ namespace Chorus.UI.Notes
 			builder.AppendLine("</html>");
 
 			return builder.ToString();
+		}
+
+		public bool IsClosed
+		{
+			get { return _currentAnnotation.Status == "closed";}
+			set
+			{
+				_currentAnnotation.SetStatus(_user.Name, value? "closed":"open");
+				UpdateContentNow();
+			}
+		}
+
+		public bool ResolvedControlShouldBeVisible
+		{
+			get { return _currentAnnotation.CanResolve; }
+		}
+
+		public string ClassLabel
+		{
+			get { return _currentAnnotation.ClassName; }
+		}
+
+		public string DetailsText
+		{
+			get { return string.Format("ref={0  } status={1}", _currentAnnotation.Ref, _currentAnnotation.Status); }
+		}
+
+
+		public bool ShowNewMessageControls
+		{
+			get { return _currentAnnotation.Status != "closed"; }
+		}
+
+		public string NewMessageText
+		{
+			get {
+				return _newMessageText;
+			}
+			set {
+				_newMessageText = value;
+				UpdateStatesNow();
+			}
+		}
+
+		public Image GetAnnotationLogoImage()
+		{
+			return _currentAnnotation.GetImage(32);
+		}
+
+		public void AddNewMessage()
+		{
+			_currentAnnotation.AddMessage(_user.Name, null, NewMessageText);
+			NewMessageText = string.Empty;
+			UpdateContentNow();
+		}
+
+		public string GetAllInfoForMessageBox()
+		{
+			return _currentAnnotation.GetDiagnosticDump();
 		}
 	}
 }

@@ -11,7 +11,7 @@ namespace Chorus.UI.Sync
 		private SyncControlModel _model;
 		private String _userName="anonymous";
 		private int _desiredHeight;
-		private bool _didSync=false;
+		private bool _didAttemptSync=false;
 		public event EventHandler CloseButtonClicked;
 
 
@@ -68,7 +68,7 @@ namespace Chorus.UI.Sync
 				progressBar1.Style = ProgressBarStyle.Continuous;
 				progressBar1.Maximum = 100;
 				progressBar1.Value = progressBar1.Maximum;
-			_didSync = true;
+			_didAttemptSync = true;
 		}
 
 
@@ -76,9 +76,13 @@ namespace Chorus.UI.Sync
 		{
 			if (_model == null)
 				return;
+			if(_model.CancellationPending)
+			{
+				_cancelButton.Text = "Cancelling..";
+			}
 			_sendReceiveButton.Visible =  Model.EnableSendReceive;
 			_cancelButton.Visible =  Model.EnableCancel && !_showCancelButtonTimer.Enabled;
-			_successIcon.Visible = _didSync  && !(Model.StatusProgress.WarningEncountered || Model.StatusProgress.ErrorEncountered);
+			_successIcon.Visible = _didAttemptSync  && !(Model.StatusProgress.WarningEncountered || Model.StatusProgress.ErrorEncountered);
 			_warningIcon.Visible = (Model.StatusProgress.WarningEncountered || Model.StatusProgress.ErrorEncountered);
 			_closeButton.Visible = Model.EnableClose;
 			if (_closeButton.Visible && Parent!=null && (Parent is Form))
@@ -86,8 +90,8 @@ namespace Chorus.UI.Sync
 				((Form) Parent).AcceptButton = _closeButton;
 				((Form) Parent).CancelButton = _closeButton;
 			}
-			progressBar1.Visible = Model.SynchronizingNow;// || _didSync;
-			_statusText.Visible = progressBar1.Visible || _didSync;
+			progressBar1.Visible = Model.SynchronizingNow;// || _didAttemptSync;
+			_statusText.Visible = progressBar1.Visible || _didAttemptSync;
 			_statusText.Text = Model.StatusProgress.LastStatus;
 
 			_syncTargets.Enabled = Model != null;
@@ -224,7 +228,7 @@ namespace Chorus.UI.Sync
 		/// sites the user has indicated</param>
 		public void Synchronize(bool useTargetsAsSpecifiedInSyncOptions)
 		{
-			_didSync = false;
+			_didAttemptSync = false;
 
 			//show something useful during the sync (ok to leave it on the log tab, but not any config ones)
 			if (_tabControl.Visible && _tabControl.SelectedTab != _logTab && _tabControl.TabPages.Contains(_tasksTab))

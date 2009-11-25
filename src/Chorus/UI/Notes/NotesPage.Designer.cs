@@ -28,30 +28,20 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
-			this.searchBox1 = new Chorus.UI.Notes.SearchBox();
 			this.splitContainer1 = new System.Windows.Forms.SplitContainer();
 			this.label3 = new System.Windows.Forms.Label();
 			this.splitContainer1.SuspendLayout();
 			this.SuspendLayout();
-			//
-			// searchBox1
-			//
-			this.searchBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.searchBox1.BackColor = System.Drawing.Color.White;
-			this.searchBox1.Location = new System.Drawing.Point(471, 12);
-			this.searchBox1.Name = "searchBox1";
-			this.searchBox1.Size = new System.Drawing.Size(226, 27);
-			this.searchBox1.TabIndex = 0;
 			//
 			// splitContainer1
 			//
 			this.splitContainer1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
 						| System.Windows.Forms.AnchorStyles.Left)
 						| System.Windows.Forms.AnchorStyles.Right)));
-			this.splitContainer1.Location = new System.Drawing.Point(15, 57);
+			this.splitContainer1.Location = new System.Drawing.Point(15, 31);
 			this.splitContainer1.Name = "splitContainer1";
-			this.splitContainer1.Size = new System.Drawing.Size(682, 198);
-			this.splitContainer1.SplitterDistance = 317;
+			this.splitContainer1.Size = new System.Drawing.Size(777, 418);
+			this.splitContainer1.SplitterDistance = 370;
 			this.splitContainer1.TabIndex = 1;
 			//
 			// label3
@@ -72,9 +62,8 @@
 			this.BackColor = System.Drawing.SystemColors.GradientInactiveCaption;
 			this.Controls.Add(this.label3);
 			this.Controls.Add(this.splitContainer1);
-			this.Controls.Add(this.searchBox1);
 			this.Name = "NotesPage";
-			this.Size = new System.Drawing.Size(715, 269);
+			this.Size = new System.Drawing.Size(810, 463);
 			this.splitContainer1.ResumeLayout(false);
 			this.ResumeLayout(false);
 			this.PerformLayout();
@@ -83,7 +72,6 @@
 
 		#endregion
 
-		private SearchBox searchBox1;
 		private System.Windows.Forms.SplitContainer splitContainer1;
 		private System.Windows.Forms.Label label3;
 	}

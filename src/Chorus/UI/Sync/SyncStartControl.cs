@@ -55,7 +55,17 @@ namespace Chorus.UI.Sync
 		{
 			RepositoryAddress address;
 
-			address = GetDefaultNetworkAddress<DirectoryRepositorySource>();
+			try
+			{
+				address = GetDefaultNetworkAddress<DirectoryRepositorySource>();
+			}
+			catch(Exception error)//probably, hgrc is locked
+			{
+				_useSharedFolderButton.Enabled = false;
+				_sharedFolderLabel.Text = error.Message;
+			   return;
+			}
+
 			_useSharedFolderButton.Enabled = address != null;
 			if (address == null)
 			{
@@ -70,7 +80,18 @@ namespace Chorus.UI.Sync
 
 		private void UpdateInternetSituation()
 		{
-			var address = GetDefaultNetworkAddress<HttpRepositoryPath>();
+			RepositoryAddress address;
+			try
+			{
+				address = GetDefaultNetworkAddress<HttpRepositoryPath>();
+			}
+			catch (Exception error)//probably, hgrc is locked
+			{
+				_useInternetButton.Enabled = false;
+				_internetStatusLabel.Text = error.Message;
+				return;
+			}
+
 			_useInternetButton.Enabled = address != null;
 			if (address==null)
 			{
@@ -120,26 +141,33 @@ namespace Chorus.UI.Sync
 		}
 
 
-
+		/// <exception cref="Exception">This will throw when the hgrc is locked</exception>
 		private RepositoryAddress GetDefaultNetworkAddress<T>()
 		{
-			var paths = Repository.GetRepositoryPathsInHgrc();
-			var networkPaths = paths.Where(p => p is T);
-
-			//none found in the hgrc
-			if(networkPaths.Count()==0)
-				return null;
-
 			//the first one found in the default list
-			var defaultAliases = Repository.GetDefaultSyncAliases();
-			foreach (var path in networkPaths)
+			try
 			{
-				if(defaultAliases.Any(a=> a==path.Name))
-					return path;
-			}
+				var paths = Repository.GetRepositoryPathsInHgrc();
+				var networkPaths = paths.Where(p => p is T);
 
-			//the first one
-			return networkPaths.First();
+				//none found in the hgrc
+				if (networkPaths.Count() == 0) //nb: because of lazy eval, the hgrc lock exception can happen here
+					return null;
+
+
+				var defaultAliases = Repository.GetDefaultSyncAliases();
+
+				foreach (var path in networkPaths)
+				{
+					if (defaultAliases.Any(a => a == path.Name))
+						return path;
+				}
+				return networkPaths.First();
+			}
+			catch (Exception error) //this would happen if the hgrc was locked
+			{
+				throw;
+			}
 		}
 
 		private void _useUSBButton_Click(object sender, EventArgs e)
