@@ -67,6 +67,28 @@ namespace LibChorus.Tests
 		}
 
 		[Test, Ignore("Run by hand only")]
+		public void LaunchDialog_GoodForCancelTesting()
+		{
+			var setup = new RepositorySetup("pedro");
+			{
+				Application.EnableVisualStyles();
+
+				setup.Repository.SetKnownRepositoryAddresses(new RepositoryAddress[]
+				{
+					RepositoryAddress.Create("language depot", "http://automatedtest:testing@hg-public.languagedepot.org/tpi"),
+				});
+				setup.Repository.SetDefaultSyncRepositoryAliases(new[] { "language depot" });
+
+				using (var dlg = new SyncDialog(setup.ProjectFolderConfig,
+				   SyncUIDialogBehaviors.StartImmediately,
+				   SyncUIFeatures.NormalRecommended))
+				{
+					dlg.ShowDialog();
+				}
+			}
+		}
+
+		[Test, Ignore("Run by hand only")]
 		public void LaunchDialog_LazyWithNormalUI()
 		{
 			var setup = new RepositorySetup("pedro");

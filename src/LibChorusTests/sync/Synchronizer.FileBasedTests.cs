@@ -16,7 +16,7 @@ namespace LibChorus.Tests.sync
 	public class Synchronizer_FileBasedTests
 	{
 		private ProjectFolderConfiguration _project;
-		private StringBuilderProgress _progress;
+		private IProgress _progress;
 		private string _pathToTestRoot;
 		private string _pathToProjectRoot;
 		private Synchronizer _synchronizer;
@@ -26,7 +26,7 @@ namespace LibChorus.Tests.sync
 		[SetUp]
 		public void Setup()
 		{
-			_progress = new StringBuilderProgress();
+			_progress = new ConsoleProgress();
 			_pathToTestRoot = Path.Combine(Path.GetTempPath(), "ChorusTest");
 			if (Directory.Exists(_pathToTestRoot))
 				Directory.Delete(_pathToTestRoot, true);
@@ -104,7 +104,7 @@ namespace LibChorus.Tests.sync
 
 		   // WriteTestFile("version two");
 
-			_synchronizer.SyncNow(options);
+			Assert.IsTrue(_synchronizer.SyncNow(options).Succeeded);
 			string dir = Path.Combine(_pathToBackupFolder, "foo project.2");
 			Assert.IsTrue(Directory.Exists(dir));
 		}

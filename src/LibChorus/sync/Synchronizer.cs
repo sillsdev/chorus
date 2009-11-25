@@ -121,9 +121,24 @@ namespace Chorus.sync
 				results.Succeeded = false;
 				results.ErrorEncountered = error;
 			}
+			catch (UserCancelledException error)
+			{
+				results.Succeeded = false;
+				results.Cancelled = true;
+				results.ErrorEncountered = null;
+			}
 			catch (Exception error)
 			{
+				if (error.InnerException != null)
+				{
+					_progress.WriteVerbose("inner exception:");
+					_progress.WriteError(error.Message);
+					_progress.WriteVerbose(error.StackTrace);
+				}
+
 				_progress.WriteError(error.Message);
+				_progress.WriteVerbose(error.StackTrace);
+
 				results.Succeeded = false;
 				results.ErrorEncountered = error;
 			}
@@ -134,22 +149,34 @@ namespace Chorus.sync
 		{
 			_backgroundWorker = backgroundWorker;
 			_backgroundWorkerArguments = args;
-			return SyncNow(options);
+			var r=SyncNow(options);
+			args.Result = r;
+			return r;
 		}
 
 		public List<RepositoryAddress> GetPotentialSynchronizationSources()
 		{
-			var list = new List<RepositoryAddress>();
-			list.AddRange(ExtraRepositorySources);
-			var repo = Repository;
-			list.AddRange(repo.GetRepositoryPathsInHgrc());
-			var defaultSyncAliases = repo.GetDefaultSyncAliases();
-			foreach (var path in list)
+			try
 			{
-				path.Enabled = defaultSyncAliases.Contains(path.Name);
-			}
+				var list = new List<RepositoryAddress>();
+				list.AddRange(ExtraRepositorySources);
+				var repo = Repository;
+				list.AddRange(repo.GetRepositoryPathsInHgrc());
+				var defaultSyncAliases = repo.GetDefaultSyncAliases();
+				foreach (var path in list)
+				{
+					path.Enabled = defaultSyncAliases.Contains(path.Name);
+				}
 
-			return list;
+				return list;
+
+			}
+			catch (Exception error) // we've see an excepption here when the hgrc was open by someone else
+			{
+				_progress.WriteError(error.Message);
+				_progress.WriteVerbose(error.ToString());
+				return new List<RepositoryAddress>();
+			}
 		}
 
 
@@ -174,6 +201,7 @@ namespace Chorus.sync
 					SendToOneOther(address, connectionAttempt, repo);
 				}
 			}
+			ThrowIfCancelPending();
 		}
 
 		private void ThrowIfCancelPending()
@@ -235,14 +263,16 @@ namespace Chorus.sync
 			{
 				ThrowIfCancelPending();
 
-				if(PullFromSource(repo, source, connectionAttempt))
+				if(PullFromOneSource(repo, source, connectionAttempt))
 					didGetFromAtLeastOneSource = true;
+				ThrowIfCancelPending();
 			}
 			return didGetFromAtLeastOneSource;
 		}
 
 		private void RemoveLocks(HgRepository repo)
 		{
+			ThrowIfCancelPending();
 			if (!repo.RemoveOldLocks())
 			{
 				throw new SynchronizationException(null, WhatToDo.SuggestRestart, "Synchronization abandoned for now because of file or directory locks.");
@@ -252,6 +282,7 @@ namespace Chorus.sync
 
 		private void Commit(SyncOptions options)
 		{
+			ThrowIfCancelPending();
 			_progress.WriteStatus("Storing changes in local repository...");
 
 			using (var commitCop = new CommitCop(Repository, _handlers, _progress))
@@ -267,7 +298,7 @@ namespace Chorus.sync
 		}
 
 		/// <returns>true if there was a successful pull</returns>
-		private bool PullFromSource(HgRepository repo, RepositoryAddress source, Dictionary<RepositoryAddress, bool> connectionAttempt)
+		private bool PullFromOneSource(HgRepository repo, RepositoryAddress source, Dictionary<RepositoryAddress, bool> connectionAttempt)
 		{
 			string resolvedUri = source.GetPotentialRepoUri(RepoProjectName, _progress);
 
@@ -295,6 +326,15 @@ namespace Chorus.sync
 			}
 			if (canConnect)
 			{
+				try
+				{
+					ThrowIfCancelPending();
+				}
+				catch(Exception error)
+				{
+					throw new SynchronizationException(error, WhatToDo.CheckSettings, "Error while pulling {0} at {1}", source.Name, resolvedUri);
+				}
+				//NB: this returns false if there was nothing to get.
 				return repo.TryToPull(source.Name, resolvedUri);
 			}
 			else
@@ -302,13 +342,14 @@ namespace Chorus.sync
 				if (source is UsbKeyRepositorySource)
 				{
 					//already informed them, above
+					 return false;
 				}
 				else
 				{
-					_progress.WriteWarning("Could not connect to {0} at {1} for pulling", source.Name, resolvedUri);
+					return false;// this may be fine, even expected
+					//throw new SynchronizationException(null, WhatToDo.CheckAddressAndConnection, "Could not connect to {0} at {1} for pulling", source.Name, resolvedUri);
 				}
 			}
-			return false;
 		}
 
 		/// <summary>
@@ -317,6 +358,7 @@ namespace Chorus.sync
 		/// </summary>
 		private void UpdateHgrc(HgRepository repository)
 		{
+			ThrowIfCancelPending();
 			try
 			{
 				string[] names = new string[]
@@ -351,12 +393,15 @@ namespace Chorus.sync
 			throw new SynchronizationException(exception, whatToDo, string.Format(explanation, args));
 		}
 
+		[Flags]
 		private enum WhatToDo
 		{
 			Nothing = 0,
 			SuggestRestart = 1,
 			VerifyIntegrity = 2,
-			NeedExpertHelp = 4
+			NeedExpertHelp = 4,
+			CheckAddressAndConnection = 8,
+			CheckSettings = 16
 		}
 
 		private class SynchronizationException : ApplicationException
@@ -371,10 +416,31 @@ namespace Chorus.sync
 
 			public void DoNotifications(HgRepository repository, IProgress progress)
 			{
-				progress.WriteError(Message);
+				if(progress.CancelRequested)
+				{
+					progress.WriteWarning("Cancelled.");
+					return;
+				}
 				if (InnerException != null)
 				{
-				   progress.WriteError("Inner Error: " + Message);
+					progress.WriteVerbose("inner exception:");
+					progress.WriteError(Message);
+					progress.WriteVerbose(StackTrace);
+				}
+
+				progress.WriteError(Message);
+				progress.WriteVerbose(StackTrace);
+
+
+				if ((WhatToDo & WhatToDo.CheckAddressAndConnection) > 0)
+				{
+					//todo: seems we could do some of this ourselves, like pinging the destination
+					progress.WriteError("Check your network connection and server address, or try again later.");
+				}
+
+				if ((WhatToDo & WhatToDo.CheckSettings) > 0)
+				{
+					progress.WriteError("Check your server settings, such as project name, user name, and password.");
 				}
 
 				if ((WhatToDo & WhatToDo.VerifyIntegrity) > 0)
@@ -416,6 +482,7 @@ namespace Chorus.sync
 				if (heads.Count == 1)
 				{
 					repository.Update(); //update to the tip
+					return;
 				}
 
 				//TODO: I think this "direct descendant" limitation won't be enough
@@ -425,6 +492,7 @@ namespace Chorus.sync
 					if (parent.Number.Hash == head.Number.Hash || head.IsDirectDescendantOf(parent))
 					{
 						repository.RollbackWorkingDirectoryToRevision(head.Number.LocalRevisionNumber);
+						return;
 					}
 				}
 
@@ -631,13 +699,6 @@ namespace Chorus.sync
 
 	}
 
-	internal class UserCancelledException : ApplicationException
-	{
-		public UserCancelledException():base("User Cancelled")
-		{
-
-		}
-	}
 
 
 	public class SyncResults
@@ -653,6 +714,8 @@ namespace Chorus.sync
 		{
 			get; set;
 		}
+
+		public bool Cancelled { get; set; }
 
 		public SyncResults()
 		{
