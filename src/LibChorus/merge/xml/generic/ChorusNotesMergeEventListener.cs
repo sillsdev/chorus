@@ -55,13 +55,13 @@ namespace Chorus.merge.xml.generic
 		{
 			Guard.AgainstNull(_context, "_context");
 			conflict.Context = _context;
-			conflict.WriteAsXml(_writer);
+			conflict.WriteAsChorusNotesAnnotation(_writer);
 		}
 
 		public void WarningOccurred(IConflict warning)
 		{
 			warning.Context = _context;
-			warning.WriteAsXml(_writer);
+			warning.WriteAsChorusNotesAnnotation(_writer);
 		}
 
 		public void ChangeOccurred(IChangeReport change)

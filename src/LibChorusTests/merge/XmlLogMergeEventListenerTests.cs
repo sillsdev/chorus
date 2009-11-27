@@ -119,7 +119,7 @@ namespace LibChorus.Tests.merge
 			throw new System.NotImplementedException();
 		}
 
-		public void WriteAsXml(XmlWriter writer)
+		public void WriteAsChorusNotesAnnotation(XmlWriter writer)
 		{
 			writer.WriteElementString("annotation", string.Empty, "Dummy");
 		}

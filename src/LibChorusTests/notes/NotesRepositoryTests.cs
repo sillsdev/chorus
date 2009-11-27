@@ -92,7 +92,7 @@ namespace LibChorus.Tests.notes
 				using (var x = AnnotationRepository.FromFile(t.Path))
 				{
 					Assert.AreEqual(1, x.GetAllAnnotations().Count());
-					Assert.AreEqual("<p>hello", x.GetAllAnnotations().First().Messages.First().HtmlText);
+					Assert.AreEqual("<p>hello", x.GetAllAnnotations().First().Messages.First().GetSimpleHtmlText());
 				}
 			}
 		}
@@ -111,7 +111,7 @@ namespace LibChorus.Tests.notes
 				using (var x = AnnotationRepository.FromFile(t.Path))
 				{
 					Assert.AreEqual(2, x.GetAllAnnotations().Count());
-					Assert.AreEqual("<p>hello", x.GetAllAnnotations().First().Messages.First().HtmlText);
+					Assert.AreEqual("<p>hello", x.GetAllAnnotations().First().Messages.First().GetSimpleHtmlText());
 					Assert.AreEqual("fooClass", x.GetAllAnnotations().ToArray()[1].ClassName);
 				}
 			}

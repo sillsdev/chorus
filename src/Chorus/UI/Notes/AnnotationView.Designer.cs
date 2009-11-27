@@ -33,7 +33,7 @@
 			this._newMessage = new System.Windows.Forms.TextBox();
 			this._annotationClassLabel = new System.Windows.Forms.Label();
 			this._annotationLogo = new System.Windows.Forms.PictureBox();
-			this._existingMessagesHtmlView = new System.Windows.Forms.WebBrowser();
+			this._existingMessagesDisplay = new System.Windows.Forms.WebBrowser();
 			this._addNewMessageLabel = new Chorus.UI.BetterLabel();
 			((System.ComponentModel.ISupportInitialize)(this._annotationLogo)).BeginInit();
 			this.SuspendLayout();
@@ -93,17 +93,19 @@
 			this._annotationLogo.DoubleClick += new System.EventHandler(this._annotationLogo_DoubleClick);
 			this._annotationLogo.Paint += new System.Windows.Forms.PaintEventHandler(this._annotationLogo_Paint);
 			//
-			// _existingMessagesHtmlView
+			// _existingMessagesDisplay
 			//
-			this._existingMessagesHtmlView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+			this._existingMessagesDisplay.AllowWebBrowserDrop = false;
+			this._existingMessagesDisplay.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
 						| System.Windows.Forms.AnchorStyles.Left)
 						| System.Windows.Forms.AnchorStyles.Right)));
-			this._existingMessagesHtmlView.Location = new System.Drawing.Point(0, 44);
-			this._existingMessagesHtmlView.MinimumSize = new System.Drawing.Size(20, 20);
-			this._existingMessagesHtmlView.Name = "_existingMessagesHtmlView";
-			this._existingMessagesHtmlView.Size = new System.Drawing.Size(318, 240);
-			this._existingMessagesHtmlView.TabIndex = 0;
-			this._existingMessagesHtmlView.DocumentCompleted += new System.Windows.Forms.WebBrowserDocumentCompletedEventHandler(this._existingMessagesHtmlView_DocumentCompleted);
+			this._existingMessagesDisplay.Location = new System.Drawing.Point(5, 47);
+			this._existingMessagesDisplay.MinimumSize = new System.Drawing.Size(20, 20);
+			this._existingMessagesDisplay.Name = "_existingMessagesDisplay";
+			this._existingMessagesDisplay.Size = new System.Drawing.Size(313, 250);
+			this._existingMessagesDisplay.TabIndex = 9;
+			this._existingMessagesDisplay.WebBrowserShortcutsEnabled = false;
+			this._existingMessagesDisplay.Navigating += new System.Windows.Forms.WebBrowserNavigatingEventHandler(this._existingMessagesDisplay_Navigating);
 			//
 			// _addNewMessageLabel
 			//
@@ -123,13 +125,13 @@
 			//
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			this.Controls.Add(this._existingMessagesDisplay);
 			this.Controls.Add(this._annotationClassLabel);
 			this.Controls.Add(this._newMessage);
 			this.Controls.Add(this._addButton);
 			this.Controls.Add(this._addNewMessageLabel);
 			this.Controls.Add(this._closedCheckBox);
 			this.Controls.Add(this._annotationLogo);
-			this.Controls.Add(this._existingMessagesHtmlView);
 			this.Name = "AnnotationView";
 			this.Size = new System.Drawing.Size(321, 415);
 			this.Load += new System.EventHandler(this.AnnotationView_Load);
@@ -141,12 +143,12 @@
 
 		#endregion
 
-		private System.Windows.Forms.WebBrowser _existingMessagesHtmlView;
 		private System.Windows.Forms.PictureBox _annotationLogo;
 		private System.Windows.Forms.CheckBox _closedCheckBox;
 		private BetterLabel _addNewMessageLabel;
 		private System.Windows.Forms.Button _addButton;
 		private System.Windows.Forms.TextBox _newMessage;
 		private System.Windows.Forms.Label _annotationClassLabel;
+		private System.Windows.Forms.WebBrowser _existingMessagesDisplay;
 	}
 }

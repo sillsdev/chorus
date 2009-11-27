@@ -5,6 +5,19 @@ using Chorus.merge;
 using Chorus.merge.xml.generic;
 using Chorus.VcsDrivers;
 
+/********************
+ *
+ *
+ *
+ * This stuff is defunct. Conflicts now are displayed by the notes system,
+ * not the change presentation system.
+ *
+ * However, I (John) have so burnt ot on this stuff that I haven't moved
+ * the functionality here over to the new system, so it sits her waiting.
+ *
+ *
+ ***************************/
+
 namespace Chorus.FileTypeHanders
 {
 	/// <summary>
@@ -29,14 +42,14 @@ namespace Chorus.FileTypeHanders
 			{
 				if (_report.ChildNode.Name == "conflict") // old style situation, only on Tok Pisin before Oct 2009
 				{
-					_conflict = Conflict.CreateFromXml(_report.ChildNode);
+					_conflict = Conflict.CreateFromConflictElement(_report.ChildNode);
 				}
 				else
 				{
 					var conflictNode = _report.ChildNode.SelectSingleNode("data/conflict");
 					if (conflictNode != null)
 					{
-						_conflict = Conflict.CreateFromXml(conflictNode);
+						_conflict = Conflict.CreateFromConflictElement(conflictNode);
 					}
 					else
 					{

@@ -31,16 +31,6 @@ namespace Chorus.annotations
 			}
 		}
 
-		private static void ThrowIfVersionTooHigh(XDocument doc, string path)
-		{
-			var version = doc.Element("notes").Attribute("version").Value;
-			if (Int32.Parse(version) > kCurrentVersion)
-			{
-				throw new AnnotationFormatException(
-					"The notes file {0} is of a newer version ({1}) than this version of the program supports ({2}).",
-					path, version, kCurrentVersion.ToString());
-			}
-		}
 
 		public static AnnotationRepository FromString(string contents)
 		{
@@ -90,6 +80,18 @@ namespace Chorus.annotations
 			_doc.Root.Add(annotation.Element);
 			return annotation;
 		}
+
+		private static void ThrowIfVersionTooHigh(XDocument doc, string path)
+		{
+			var version = doc.Element("notes").Attribute("version").Value;
+			if (Int32.Parse(version) > kCurrentVersion)
+			{
+				throw new AnnotationFormatException(
+					"The notes file {0} is of a newer version ({1}) than this version of the program supports ({2}).",
+					path, version, kCurrentVersion.ToString());
+			}
+		}
+
 	}
 
 	public class AnnotationFormatException : ApplicationException

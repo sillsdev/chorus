@@ -182,5 +182,9 @@ namespace Chorus.annotations
 
 		public string AnnotationFilePath { get; set; }
 
+		public void SetStatusToClosed(string userName)
+		{
+			SetStatus(userName, "closed");
+		}
 	}
 }

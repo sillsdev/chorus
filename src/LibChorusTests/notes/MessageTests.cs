@@ -47,7 +47,7 @@ namespace LibChorus.Tests.notes
 			var escapedContent = new XElement("test", content).FirstNode.ToString();
 			var msg = new Message(XElement.Parse(@"<message guid='123' author='john' status='open' date='2009-07-18T23:53:04Z'>"
 			+escapedContent+"</message>"));
-			Assert.AreEqual(content, msg.HtmlText);
+			Assert.AreEqual(content, msg.GetSimpleHtmlText());
 		}
 
 		[Test]
@@ -58,7 +58,7 @@ namespace LibChorus.Tests.notes
 			var escapedContent = new XElement("test", content).FirstNode.ToString();
 			var msg = new Message(XElement.Parse(@"<message guid='123' author='john' status='open' date='2009-07-18T23:53:04Z'>"
 			+ escapedContent + "<data>blah</data></message>"));
-			Assert.AreEqual(content, msg.HtmlText);
+			Assert.AreEqual(content, msg.GetSimpleHtmlText());
 		}
 
 		[Test]
@@ -66,7 +66,7 @@ namespace LibChorus.Tests.notes
 		{
 			var msg = new Message(XElement.Parse(@"<message guid='123' author='john' status='open' date='2009-07-18T23:53:04Z'>"
 			+ "<data>blah</data></message>"));
-			Assert.AreEqual(string.Empty, msg.HtmlText);
+			Assert.AreEqual(string.Empty, msg.GetSimpleHtmlText());
 		}
 	}
 

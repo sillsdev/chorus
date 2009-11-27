@@ -1,5 +1,7 @@
 using System;
 using System.Linq;
+using System.Text;
+using System.Xml;
 using System.Xml.Linq;
 using Chorus.Utilities;
 
@@ -44,15 +46,33 @@ namespace Chorus.annotations
 			get { return _element.GetAttributeValue("status"); }
 		}
 
-		public string HtmlText
+		public string GetSimpleHtmlText()
 		{
-			get {
-				var text= _element.Nodes().OfType<XText>().FirstOrDefault();
-				if(text==null)
-					return String.Empty;
-				// return HttpUtility.HtmlDecode(text.ToString()); <-- this works too
-				return text.Value;
+			return GetHtmlText(null);
+		}
+
+		public string GetHtmlText(EmbeddedMessageContentHandlerFactory embeddedMessageContentHandlerFactory)
+		{
+			var b = new StringBuilder();
+			var text = _element.Nodes().OfType<XText>().FirstOrDefault();
+			if (text != null)
+				b.Append(text.Value);
+
+			if (embeddedMessageContentHandlerFactory != null)
+			{
+				var node = _element.Nodes().Where(n => n.NodeType == XmlNodeType.CDATA).FirstOrDefault();
+
+				if (node != null)
+				{
+					string content = (node as XCData).Value;
+					var handler = embeddedMessageContentHandlerFactory.GetHandlerOrDefaultForCData(content);
+					b.AppendLine("<div/>");
+					b.AppendLine(handler.GetHyperLink(content));
+				}
 			}
+
+			return b.ToString();
+
 		}
 
 		public XElement Element
@@ -60,9 +80,12 @@ namespace Chorus.annotations
 			get { return _element; }
 		}
 
+
 		public string GetAuthor(string defaultValue)
 		{
 			return Author.OrDefault(defaultValue);
 		}
 	}
+
+
 }

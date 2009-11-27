@@ -84,6 +84,7 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
+	<Compile Include="annotations\IEmbeddedMessageContentHandler.cs" />
 	<Compile Include="annotations\Message.cs" />
 	<Compile Include="clone\CloneFromUsb.cs" />
 	<Compile Include="FileTypeHanders\adaptIt\AdaptItHandler.cs" />

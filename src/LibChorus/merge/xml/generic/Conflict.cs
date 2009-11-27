@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml;
+using System.Xml.Linq;
 using System.Xml.Serialization;
 using Autofac;
 using Chorus.Utilities;
@@ -79,7 +80,7 @@ namespace Chorus.merge.xml.generic
 
 		public abstract string GetConflictingRecordOutOfSourceControl(IRetrieveFileVersionsFromRepository fileRetriever, ThreeWayMergeSources.Source mergeSource);
 
-		public void WriteAsXml(XmlWriter writer)
+		public void WriteAsChorusNotesAnnotation(XmlWriter writer)
 		{
 			writer.WriteStartElement("annotation");
 			writer.WriteAttributeString("class", string.Empty, "conflict");
@@ -87,6 +88,7 @@ namespace Chorus.merge.xml.generic
 			Guard.AgainstNull(Context.PathToUserUnderstandableElement, "Context.PathToUserUnderstandableElement");
 			writer.WriteAttributeString("ref", Context.PathToUserUnderstandableElement);
 			writer.WriteAttributeString("guid", Guid.NewGuid().ToString()); //nb: this is the guid of the enclosing annotation, not the conflict;
+
 			writer.WriteStartElement("message");
 			writer.WriteAttributeString("author", string.Empty, "merger");
 			writer.WriteAttributeString("status", string.Empty, "open");
@@ -94,12 +96,22 @@ namespace Chorus.merge.xml.generic
 			writer.WriteAttributeString("date", string.Empty, DateTime.UtcNow.ToString(TimeFormatNoTimeZone));
 			writer.WriteString(GetFullHumanReadableDescription());
 
-			writer.WriteStartElement("data");
-			WriteAttributes(writer);
+			//we embedd this xml inside the CDATA section so that it pass a more generic schema without
+			//resorting to the complexities of namespaces
+			var b = new StringBuilder();
+			using (var embeddedWriter = XmlWriter.Create(b))
+			{
+				embeddedWriter.WriteStartElement("conflict");
+				WriteAttributes(embeddedWriter);
 
-			Situation.WriteAsXml(writer);
+				Situation.WriteAsXml(embeddedWriter);
 
-			writer.WriteEndElement();
+				embeddedWriter.WriteEndElement();
+			}
+
+			writer.WriteCData(b.ToString());
+
+
 			writer.WriteEndElement();
 			writer.WriteEndElement();
 		}
@@ -148,7 +160,7 @@ namespace Chorus.merge.xml.generic
 			}
 		}
 
-		public static IConflict CreateFromXml(XmlNode conflictNode)
+		public static IConflict CreateFromConflictElement(XmlNode conflictNode)
 		{
 			try
 			{
@@ -197,6 +209,27 @@ namespace Chorus.merge.xml.generic
 			{
 				return _guid.GetHashCode();
 			}
+		}
+
+		public static IConflict CreateFromChorusNotesAnnotation(string annotationXml)
+		{
+			var dom = new XmlDocument();
+			dom.LoadXml(annotationXml);
+			var msg = dom.SelectSingleNode("//message");
+			return CreateFromConflictElement(GetFirstCDataChild(msg));
+		}
+		private static XmlNode GetFirstCDataChild(XmlNode messageNode)
+		{
+			foreach (XmlNode node in messageNode)
+			{
+				if (node.NodeType == XmlNodeType.CDATA)
+				{
+					XmlDocument x = new XmlDocument();
+					x.LoadXml(node.InnerText);
+					return x.SelectSingleNode("conflict");
+				}
+			}
+			return null;
 		}
 	}
 
@@ -266,7 +299,7 @@ namespace Chorus.merge.xml.generic
 			throw new NotImplementedException("Unable to retrieve from source control.");
 		}
 
-		public void WriteAsXml(XmlWriter writer)
+		public void WriteAsChorusNotesAnnotation(XmlWriter writer)
 		{
 			throw new NotImplementedException("UnreadableConflict is not intended to be ever saved");
 		}

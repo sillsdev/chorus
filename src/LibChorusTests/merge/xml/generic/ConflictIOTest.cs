@@ -3,6 +3,7 @@ using System.Text;
 using System.Xml;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
+using System.Linq;
 using NUnit.Framework;
 
 namespace LibChorus.Tests.merge.xml.generic
@@ -23,9 +24,8 @@ namespace LibChorus.Tests.merge.xml.generic
 			c.Context = new ContextDescriptor("testLabel", "testPath");
 			string desc = c.GetFullHumanReadableDescription();
 
-			var xml = WriteConflictXml(c);
-			var conflictNode = GetNodeFromString(xml).SelectSingleNode("message/data");
-			var regurgitated = Conflict.CreateFromXml(conflictNode);
+			var annotationXml = WriteConflictAnnotation(c);
+			var regurgitated = Conflict.CreateFromChorusNotesAnnotation(annotationXml);
 			Assert.AreEqual("path", regurgitated.RelativeFilePath);
 			Assert.AreEqual(desc, regurgitated.GetFullHumanReadableDescription());
 		   Assert.AreEqual(c.Context.PathToUserUnderstandableElement, regurgitated.Context.PathToUserUnderstandableElement);
@@ -43,22 +43,21 @@ namespace LibChorus.Tests.merge.xml.generic
 			c.Context = new ContextDescriptor("testLabel", "testPath");
 			string desc = c.GetFullHumanReadableDescription();
 
-			var xml = WriteConflictXml(c);
-			var conflictNode = GetNodeFromString(xml).SelectSingleNode("message/data");
-			var regurgitated = Conflict.CreateFromXml(conflictNode);
+			var annotationXml = WriteConflictAnnotation(c);
+			var regurgitated = Conflict.CreateFromChorusNotesAnnotation(annotationXml);
 			Assert.AreEqual("path", regurgitated.RelativeFilePath);
 			Assert.AreEqual(desc, regurgitated.GetFullHumanReadableDescription());
 			Assert.AreEqual(c.Context.PathToUserUnderstandableElement, regurgitated.Context.PathToUserUnderstandableElement);
 			Assert.AreEqual(c.Context.DataLabel, regurgitated.Context.DataLabel);
 		}
-		private string WriteConflictXml(IConflict c)
+		private string WriteConflictAnnotation(IConflict c)
 		{
 			var b = new StringBuilder();
 			using (StringWriter sw = new StringWriter(b))
 			{
 				using (var w = new XmlTextWriter(sw))
 				{
-					c.WriteAsXml(w);
+					c.WriteAsChorusNotesAnnotation(w);
 				}
 			}
 			return b.ToString();
@@ -70,5 +69,6 @@ namespace LibChorus.Tests.merge.xml.generic
 			dom.LoadXml(xml);
 			return dom.FirstChild;
 		}
+
 	}
 }

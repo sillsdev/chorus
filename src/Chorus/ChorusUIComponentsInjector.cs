@@ -1,5 +1,6 @@
 using System;
 using Autofac.Builder;
+using Chorus.annotations;
 using Chorus.FileTypeHanders;
 using Chorus.retrieval;
 using Chorus.sync;
@@ -43,6 +44,7 @@ namespace Chorus
 			//which I'd rather do, and just leave this to pushing in the "normal"
 			builder.Register<SyncUIFeatures>(syncDialogFeatures).SingletonScoped();
 
+			builder.Register(new EmbeddedMessageContentHandlerFactory());
 
 			builder.Register(ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers());
 
