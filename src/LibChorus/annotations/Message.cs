@@ -51,20 +51,29 @@ namespace Chorus.annotations
 			return GetHtmlText(null);
 		}
 
+		public string Text
+		{
+			get
+			{
+				var t = _element.Nodes().OfType<XText>().FirstOrDefault();
+				if (t == null)
+					return string.Empty;
+				return t.Value;
+			}
+		}
+
 		public string GetHtmlText(EmbeddedMessageContentHandlerFactory embeddedMessageContentHandlerFactory)
 		{
 			var b = new StringBuilder();
-			var text = _element.Nodes().OfType<XText>().FirstOrDefault();
-			if (text != null)
-				b.Append(text.Value);
+			b.Append(Text);
 
 			if (embeddedMessageContentHandlerFactory != null)
 			{
-				var node = _element.Nodes().Where(n => n.NodeType == XmlNodeType.CDATA).FirstOrDefault();
+				XCData cdata = _element.Nodes().OfType<XCData>().FirstOrDefault();
 
-				if (node != null)
+				if (cdata != null)
 				{
-					string content = (node as XCData).Value;
+					string content = cdata.Value;
 					var handler = embeddedMessageContentHandlerFactory.GetHandlerOrDefaultForCData(content);
 					b.AppendLine("<div/>");
 					b.AppendLine(handler.GetHyperLink(content));

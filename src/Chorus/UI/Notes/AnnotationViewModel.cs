@@ -186,7 +186,7 @@ namespace Chorus.UI.Notes
 			return _currentAnnotation.GetImage(32);
 		}
 
-		public void AddNewMessage()
+		public void AddButtonClicked()
 		{
 			_currentAnnotation.AddMessage(_user.Name, null, NewMessageText);
 			NewMessageText = string.Empty;

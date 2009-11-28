@@ -79,7 +79,7 @@ namespace Chorus.UI.Notes
 
 		private void _addButton_Click(object sender, EventArgs e)
 		{
-			_model.AddNewMessage();
+			_model.AddButtonClicked();
 			_newMessage.Text = _model.NewMessageText;
 		}
 
