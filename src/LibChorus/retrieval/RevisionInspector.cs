@@ -51,7 +51,7 @@ namespace Chorus.retrieval
 					{
 //                        var parentFileInRevision = new FileInRevision(parentRev.LocalRevisionNumber,
 //                                                                      fileInRevision.FullPath,
-//                                                                      FileInRevision.Action.Parent);
+//                                                                      FileInRevision.Action.ParentRepository);
 						CollectChangesInFile(fileInRevision, parentRev.LocalRevisionNumber, changes);
 					}
 				}

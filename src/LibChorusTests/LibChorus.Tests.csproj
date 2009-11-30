@@ -89,8 +89,10 @@
 	<Compile Include="merge\xml\lift\ValidationTests.cs" />
 	<Compile Include="merge\xml\ourStory\FileLevelMergeTests.cs" />
 	<Compile Include="notes\AnnotationTests.cs" />
+	<Compile Include="notes\AnnotationIndexTests.cs" />
+	<Compile Include="notes\IndexOfOpenConflictsTests.cs" />
 	<Compile Include="notes\MessageTests.cs" />
-	<Compile Include="notes\NotesRepositoryTests.cs" />
+	<Compile Include="notes\AnnotationRepositoryTests.cs" />
 	<Compile Include="RepositorySetup.cs" />
 	<Compile Include="sync\CommitCopTests.cs" />
 	<Compile Include="sync\RevisionMergeBehaviorTests.cs" />
@@ -99,6 +101,7 @@
 	<Compile Include="sync\Synchronizer.BadSituationTests.cs" />
 	<Compile Include="sync\SyncScenarioTests.cs" />
 	<Compile Include="sync\UsbRepositorySourceTests.cs" />
+	<Compile Include="utilities\MultiMapTests.cs" />
 	<Compile Include="VcsDrivers\Mercurial\HgTestSetup.cs" />
 	<Compile Include="VcsDrivers\Mercurial\IncludeExcludeTests.cs" />
 	<Compile Include="VcsDrivers\Mercurial\HgWrappingTests.cs" />

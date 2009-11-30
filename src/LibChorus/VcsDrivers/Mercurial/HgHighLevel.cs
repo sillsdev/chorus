@@ -1,4 +1,5 @@
 ﻿using Chorus.Utilities;
+using Chorus.Utilities.code;
 
 namespace Chorus.VcsDrivers.Mercurial
 {

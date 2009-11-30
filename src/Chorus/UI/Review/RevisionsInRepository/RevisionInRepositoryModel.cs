@@ -4,6 +4,7 @@ using System.Windows.Forms;
 using Chorus.sync;
 using Chorus.UI.Review;
 using Chorus.Utilities;
+using Chorus.Utilities.code;
 using Chorus.VcsDrivers.Mercurial;
 
 namespace Chorus.UI.Review.RevisionsInRepository

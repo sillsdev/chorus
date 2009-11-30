@@ -7,6 +7,7 @@ using System.Xml.Linq;
 using System.Xml.Serialization;
 using Autofac;
 using Chorus.Utilities;
+using Chorus.Utilities.code;
 using Chorus.VcsDrivers;
 
 namespace Chorus.merge.xml.generic

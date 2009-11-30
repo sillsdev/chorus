@@ -51,6 +51,12 @@ namespace LibChorus.Tests.notes
 			<message/><message/></annotation>"));
 			Assert.AreEqual(2, a.Messages.Count());
 		}
+//
+//        [Test]
+//        public void Constructor_StatusIsOpen()
+//        {
+//
+//        }
 
 
 		[Test]

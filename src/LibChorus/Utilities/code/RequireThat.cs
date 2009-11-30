@@ -1,6 +1,6 @@
 using System;
 
-namespace Chorus.Utilities
+namespace Chorus.Utilities.code
 {
 	public static class RequireThat
 	{

@@ -84,6 +84,7 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
+	<Compile Include="annotations\AnnotationIndex.cs" />
 	<Compile Include="annotations\IEmbeddedMessageContentHandler.cs" />
 	<Compile Include="annotations\Message.cs" />
 	<Compile Include="clone\CloneFromUsb.cs" />
@@ -129,12 +130,14 @@
 	  <DependentUpon>AnnotationImages.resx</DependentUpon>
 	</Compile>
 	<Compile Include="annotations\AnnotationClass.cs" />
+	<Compile Include="Utilities\code\DelegateDefinitions.cs" />
+	<Compile Include="Utilities\MultiMap.cs" />
 	<Compile Include="Utilities\XmlElementExtensions.cs" />
 	<Compile Include="VcsDrivers\Mercurial\HgHighLevel.cs" />
 	<Compile Include="sync\CommitCop.cs" />
 	<Compile Include="Utilities\ProcessOutputReader.cs" />
 	<Compile Include="Utilities\FailureSimulator.cs" />
-	<Compile Include="Utilities\Guard.cs" />
+	<Compile Include="Utilities\code\Guard.cs" />
 	<Compile Include="merge\IChangeReport.cs" />
 	<Compile Include="merge\MergeOrder.cs" />
 	<Compile Include="merge\xml\generic\DropTheirsMergeStrategy.cs" />
@@ -143,7 +146,7 @@
 	<Compile Include="merge\MergeSituation.cs" />
 	<Compile Include="merge\xml\generic\MergeSort.cs" />
 	<Compile Include="merge\xml\generic\PoorMansMergeStrategy.cs" />
-	<Compile Include="Utilities\RequireThat.cs" />
+	<Compile Include="Utilities\code\RequireThat.cs" />
 	<Compile Include="Utilities\XmlValidation.cs" />
 	<Compile Include="VcsDrivers\IRetrieveFileVersionsFromRepository.cs" />
 	<Compile Include="retrieval\LiftEntryRetriever.cs" />

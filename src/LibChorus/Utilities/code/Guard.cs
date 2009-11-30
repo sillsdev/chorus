@@ -3,7 +3,7 @@ using System.IO;
 
 //two of these methods originally from RhinoCommons
 
-namespace Chorus.Utilities
+namespace Chorus.Utilities.code
 {
 	/// <summary>
 	/// Helper class for guard statements, which allow prettier
@@ -59,6 +59,7 @@ namespace Chorus.Utilities
 			throw (TException)Activator.CreateInstance(typeof(TException), message);
 		}
 	}
+
 	public static class Require
 	{
 
@@ -71,8 +72,8 @@ namespace Chorus.Utilities
 
 		public static void That(bool assertion)
 		{
-		   if(!assertion)
-			   throw new InvalidOperationException();
+			if(!assertion)
+				throw new InvalidOperationException();
 		}
 	}
 }

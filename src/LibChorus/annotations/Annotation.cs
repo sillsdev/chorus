@@ -24,11 +24,9 @@ namespace Chorus.annotations
 		}
 
 		public Annotation(string annotationClass, string refUrl, string path)
+			:this(XElement.Parse(string.Format("<annotation class='{0}' ref='{1}' guid='{2}'/>", annotationClass,refUrl, System.Guid.NewGuid().ToString())))
 		{
-			AnnotationFilePath = path;
-			var s = string.Format("<annotation class='{0}' ref='{1}' guid='{2}'/>", annotationClass,refUrl, System.Guid.NewGuid().ToString());
-			_element = XElement.Parse(s);
-			_class = AnnotationClassFactory.GetClassOrDefault(ClassName);
+			AnnotationFilePath = path; //TODO: this awkward, and not avail in the XElement constructor
 		}
 
 		public string ClassName

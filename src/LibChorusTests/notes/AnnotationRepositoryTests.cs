@@ -9,8 +9,9 @@ using NUnit.Framework;
 namespace LibChorus.Tests.notes
 {
 	[TestFixture]
-	public class NotesRepositoryTests
+	public class AnnotationRepositoryTests
 	{
+		private IProgress _progress = new ConsoleProgress();
 
 		[Test, ExpectedException(typeof(FileNotFoundException))]
 		public void FromPath_PathNotFound_Throws()
@@ -105,7 +106,8 @@ namespace LibChorus.Tests.notes
 			{
 				using (var r = AnnotationRepository.FromFile(t.Path))
 				{
-					r.AddAnnotation("fooClass", "http://somewhere.org");
+					var an = new Annotation("fooClass", "http://somewhere.org", "somepath");
+					r.AddAnnotation(an);
 					r.SaveAs(t.Path);
 				}
 				using (var x = AnnotationRepository.FromFile(t.Path))
@@ -116,5 +118,88 @@ namespace LibChorus.Tests.notes
 				}
 			}
 		}
+
+		#region IndexHandlingTests
+
+		[Test, ExpectedException(typeof(ApplicationException))]
+		public void AddIndex_AddSamePredicateTwice_Throws()
+		{
+			using (var r = AnnotationRepository.FromString(@"<notes version='0'/>"))
+			{
+				var index1 = new AnnotationIndex("ILikeEverybody", (annotation, guid) => true);
+				r.AddIndex(index1, _progress);
+				var index2 = new AnnotationIndex("ILikeEverybody", (annotation, guid) => true);
+				r.AddIndex(index2, _progress);
+			}
+		}
+
+		[Test]
+		public void AddAnnotation_NotifiesIndices()
+		{
+			using (var r = AnnotationRepository.FromString(@"<notes version='0'/>"))
+			{
+				var index = new TestAnnotationIndex("ILikeEverybody");
+				r.AddIndex(index, _progress);
+
+				r.AddAnnotation(new Annotation("question", "foo://blah.org?id=1", @"c:\pretendPath"));
+				r.AddAnnotation(new Annotation("question", "foo://blah.org?id=1", @"c:\pretendPath"));
+
+				Assert.AreEqual(2, index.Additions);
+				Assert.AreEqual(0, index.Modification);
+			}
+		}
+
+		[Test]
+		public void CloseAnnotation_AnnotationWasAddedDynamically_RepositoryNotifiesIndices()
+		{
+			using (var r = AnnotationRepository.FromString(@"<notes version='0'/>"))
+			{
+				var index = new TestAnnotationIndex("ILikeEverybody");
+				r.AddIndex(index, _progress);
+
+				var annotation = new Annotation("question", "foo://blah.org?id=1", @"c:\pretendPath");
+				r.AddAnnotation(annotation);
+
+				Assert.AreEqual(0, index.Modification);
+				annotation.SetStatus("joe", "closed");
+
+				Assert.AreEqual(1, index.Modification);
+			}
+		}
+
+		[Test]
+		public void CloseAnnotation_AnnotationFromFile_RepositoryNotifiesIndices()
+		{
+			using (var r = AnnotationRepository.FromString(@"<notes version='0'><annotation guid='123'>
+<message guid='234'>&lt;p&gt;hello</message></annotation></notes>"))
+			{
+				var index = new TestAnnotationIndex("ILikeEverybody");
+				r.AddIndex(index, _progress);
+				var annotation = r.GetAllAnnotations().First();
+				annotation.SetStatus("joe", "closed");
+				Assert.AreEqual(1, index.Modification);
+			}
+		}
+		#endregion
 	}
+
+	public class TestAnnotationIndex : AnnotationIndex
+	{
+		public int Additions;
+		public int Modification;
+
+		public TestAnnotationIndex(string name)
+			: base(name, (annotation, guid) => true)
+		{
+		}
+		public override void NotifyOfAddition(Annotation annotation)
+		{
+			Additions++;
+		}
+		public override void NotifyOfModification(Annotation annotation)
+		{
+			Modification++;
+		}
+	}
+
 }

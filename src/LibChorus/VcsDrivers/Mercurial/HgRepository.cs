@@ -11,6 +11,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows.Forms;
 using Chorus.Utilities;
+using Chorus.Utilities.code;
 using Nini.Ini;
 
 namespace Chorus.VcsDrivers.Mercurial

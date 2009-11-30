@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using Chorus.merge;
 using Chorus.Utilities;
+using Chorus.Utilities.code;
 using Chorus.VcsDrivers.Mercurial;
 
 namespace Chorus.FileTypeHanders
