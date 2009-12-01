@@ -63,7 +63,7 @@ namespace LibChorus.Tests.notes
 			{
 				var index = new IndexOfRefsOfQuestionAnnotations();
 				r.AddIndex(index, _progress);
-				Assert.AreEqual(2, index.GetMatchesOfKey("blue").Count());
+				Assert.AreEqual(2, index.GetMatchesByKey("blue").Count());
 			}
 		}
 
@@ -77,7 +77,7 @@ namespace LibChorus.Tests.notes
 			{
 				var index = new IndexOfRefsOfQuestionAnnotations();
 				r.AddIndex(index, _progress);
-				Assert.AreEqual(0, index.GetMatchesOfKey("blue").Count());
+				Assert.AreEqual(0, index.GetMatchesByKey("blue").Count());
 			}
 		}
 
