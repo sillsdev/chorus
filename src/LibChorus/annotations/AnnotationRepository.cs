@@ -16,7 +16,7 @@ namespace Chorus.annotations
 		private readonly string _annotationFilePath;
 		private static int kCurrentVersion=0;
 		public static string FileExtension = "ChorusNotes";
-		private List<AnnotationIndex> _indices = new List<AnnotationIndex>();
+		private List<IAnnotationIndex> _indices = new List<IAnnotationIndex>();
 
 		public static AnnotationRepository FromFile(string path)
 		{
@@ -66,15 +66,15 @@ namespace Chorus.annotations
 
 		}
 
-		public void AddIndex(AnnotationIndex index, IProgress progress)
+		public void AddIndex(IAnnotationIndex index, IProgress progress)
 		{
-			if(_indices.Exists(i => i.Name == index.Name))
+			if (_indices.Exists(i => i.GetType() == index.GetType()))
 			{
 				//harsh, but better to fail fast.
-				throw new ApplicationException("And index with the name "+index.Name +" is already in the repository.");
+				throw new ApplicationException("And index of the type " + index.GetType().ToString() + " is already in the repository.");
 			}
 			_indices.Add(index);
-			index.Initialize(this, progress);
+			index.Initialize(GetAllAnnotations, progress);
 		}
 
 

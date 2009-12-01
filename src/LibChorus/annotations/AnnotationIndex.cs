@@ -8,128 +8,114 @@ namespace Chorus.annotations
 {
 	/// <summary>
 	/// Provides a way to speed-up queries which differ by a single string parameter.
+	/// To use it, we make a concrete subclass, providing two parameters:
+	///     1) where clause: predicate for the class/status of annotations ("filterForObjectsToTrack")
+	///     2) select clause: a delegate which gives us a string to index on, the "key"
+	///
+	/// Then a client can get results in three ways:
+	///     GetAll() will give all the annotations which pass the where clause
+	///     GetMatchesByKey(key) will give all the annotation with that key
+	///     GetMatches(predicate on the key) will give all the annotations with keys that match the predicate
 	/// </summary>
-	public class AnnotationIndex
+	public abstract class AnnotationIndex : IAnnotationIndex
 	{
-		private readonly Func<Annotation, string, bool> _predicate;
-		protected AnnotationRepository _parent;
-
-		public AnnotationIndex(string name, Func<Annotation, string, bool> predicate)
-		{
-			_predicate = predicate;
-			Name = name;
-		}
-		public AnnotationIndex(Func<Annotation, string, bool> predicate)
-		{
-			_predicate = predicate;
-			Name = GetType().ToString();
-		}
-
-		public string Name { get; private set; }
-
-		public virtual void Initialize(AnnotationRepository parent, IProgress progress)
-		{
-			_parent = parent;
-			//TODO: the whole point of htis index is to eventually keep an index, or a cache or something
-			// but this isn't implemented yet.  It would be done here.
-		}
-
-		public virtual void NotifyOfAddition(Annotation annotation)
-		{
-		}
-
-		public virtual void NotifyOfModification(Annotation annotation)
-		{
-		}
-
-		public virtual IEnumerable<Annotation> GetMatches(string parameter, IProgress progress)
-		{
-			Guard.AgainstNull(_parent, "ParentRepository (not initialized yet?)");
-
-			//TODO: the whole point of this class is to eventually just consult our index.
-			return _parent.GetMatches(_predicate, parameter);
-		}
-	}
-
-
-	/// <summary>
-	/// The idea for this one is to keep an index of refs which have open conflicts annotations refering to them
-	/// </summary>
-	public class IndexOfAllOpenConflicts : AnnotationIndex
-	{
-		private MultiMap <string, Annotation> _annotationsByRef;
-		private Func<Annotation, bool> _includeIndexPredicate = (a => a.ClassName == "conflict" && a.Status == "open");
+		private MultiMap<string, Annotation> _keyToObjectsMap;
+		private Func<Annotation, bool> _includeIndexPredicate = (a => true);
 		private Func<Annotation, string> _keyMakingFunction = (a => a.Ref);
 
-		public IndexOfAllOpenConflicts() : base((a,unused)=>a.IsClosed)
+		public AnnotationIndex(Func<Annotation, bool> includeIndexPredicate, Func<Annotation, string> keyMakingFunction)
 		{
-			_annotationsByRef = new MultiMap<string, Annotation>();
+			_keyToObjectsMap = new MultiMap<string, Annotation>();
+			_includeIndexPredicate = includeIndexPredicate;
+			_keyMakingFunction = keyMakingFunction;
 		}
 
-		public override void Initialize(AnnotationRepository parent, IProgress progress)
+		 public virtual void Initialize(Func<IEnumerable<Annotation>> allAnnotationsFunction, IProgress progress)
 		{
-			base.Initialize(parent, progress);
-
-
-			//enhance.... this is working by 2 levels of predicates...
-			//1) get open conflicts
-			//2) the actual query over these
-			//In fact, it's going to be faster to remove the expressiveness of (2) and
-			//keep an actual index from some parameter to 0+ annotations
-			//So we'd take (in the generalized situation) something like the where... select clause.
-			//1) where clause: predicate for the class/status of annotations
-			//2) select clause: a delegate which gives us a string to index on
-			var annotationsThatBelongInIndex = from a in _parent.GetAllAnnotations()
-										  where _includeIndexPredicate(a)
-										  select a;
+			var annotationsThatBelongInIndex = from a in allAnnotationsFunction()
+											   where _includeIndexPredicate(a)
+											   select a;
 
 			foreach (var annotation in annotationsThatBelongInIndex)
 			{
-				_annotationsByRef.Add(_keyMakingFunction(annotation), annotation);
+				_keyToObjectsMap.Add(_keyMakingFunction(annotation), annotation);
 			}
 
 		}
 
-		public override void NotifyOfAddition(Annotation annotation)
+		public void NotifyOfAddition(Annotation annotation)
 		{
-			if(_includeIndexPredicate(annotation))
+			if (_includeIndexPredicate(annotation))
 			{
-				_annotationsByRef.Add(annotation.Ref, annotation);
+				_keyToObjectsMap.Add(annotation.Ref, annotation);
 			}
 		}
 
-		public override void NotifyOfModification(Annotation annotation)
+		public void NotifyOfModification(Annotation annotation)
 		{
 			bool belongsInIndex = _includeIndexPredicate(annotation);
-			if (_annotationsByRef.ContainsKey(_keyMakingFunction(annotation)))
+			if (_keyToObjectsMap.ContainsKey(_keyMakingFunction(annotation)))
 			{
-				if(!belongsInIndex)
+				if (!belongsInIndex)
 				{
-					_annotationsByRef.Remove(_keyMakingFunction(annotation));
+					_keyToObjectsMap.Remove(_keyMakingFunction(annotation));
 				}
 			}
 			else
 			{
-				if(belongsInIndex)
+				if (belongsInIndex)
 				{
-					_annotationsByRef.Add(_keyMakingFunction(annotation), annotation);
+					_keyToObjectsMap.Add(_keyMakingFunction(annotation), annotation);
 				}
 			}
 		}
 
 		public IEnumerable<Annotation> GetMatches(Func<string, bool> predicateOnKey, IProgress progress)
 		{
-			foreach (var x in _annotationsByRef)
+			foreach (var x in _keyToObjectsMap)
 			{
 				//note, we may be applying this predicate to the same key serveral
 				//  times in a row, if that key is used by multiple target values
-				if(predicateOnKey(x.Key))
+				if (predicateOnKey(x.Key))
 					yield return x.Value;
 			}
-	   }
-		public override IEnumerable<Annotation> GetMatches(string key, IProgress progress)
+		}
+		public IEnumerable<Annotation> GetMatchesByKey(string key)
 		{
-			return _annotationsByRef[key];
+			return _keyToObjectsMap[key];
+		}
+
+
+		public IEnumerable<Annotation> GetAll()
+		{
+			foreach (KeyValuePair<string, Annotation> keyValuePair in _keyToObjectsMap)
+			{
+				yield return keyValuePair.Value;
+			}
+		}
+	}
+
+
+	/// <summary>
+	/// This index is for finding open conflicts.  It makes an index of all the refs of them, and then
+	/// provides a way to further query those with a predicate.
+	/// </summary>
+	public class IndexOfAllOpenConflicts : AnnotationIndex
+	{
+		public IndexOfAllOpenConflicts()
+			: base( (a => a.ClassName == "conflict" && a.Status == "open"), // includeIndexPredicate
+					(a => a.Ref))                                           // keyMakingFunction
+		{
+		}
+
+		public IEnumerable<Annotation> GetConflictsWithExactReference(string reference)
+		{
+			return GetMatchesByKey(reference);
+		}
+
+		public IEnumerable<Annotation> GetConflictsWhereReferenceContainsString(string searchString, IProgress progress)
+		{
+			return GetMatches(reference=> reference.Contains(searchString), progress);
 		}
 	}
 }

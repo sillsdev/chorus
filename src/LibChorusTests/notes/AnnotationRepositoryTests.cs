@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Xml;
@@ -122,14 +123,26 @@ namespace LibChorus.Tests.notes
 		#region IndexHandlingTests
 
 		[Test, ExpectedException(typeof(ApplicationException))]
-		public void AddIndex_AddSamePredicateTwice_Throws()
+		public void AddIndex_AddSameIndexTwice_Throws()
 		{
 			using (var r = AnnotationRepository.FromString(@"<notes version='0'/>"))
 			{
-				var index1 = new AnnotationIndex("ILikeEverybody", (annotation, guid) => true);
+				var index1 = new IndexOfAllOpenConflicts();
 				r.AddIndex(index1, _progress);
-				var index2 = new AnnotationIndex("ILikeEverybody", (annotation, guid) => true);
+				var index2 = new IndexOfAllOpenConflicts();
 				r.AddIndex(index2, _progress);
+			}
+		}
+
+		[Test]
+		public void AddIndex_CallInitializeOnIndex()
+		{
+			using (var r = AnnotationRepository.FromString(@"<notes version='0'><annotation guid='123'>
+<message guid='234'>&lt;p&gt;hello</message></annotation></notes>"))
+			{
+				var index = new TestAnnotationIndex();
+				r.AddIndex(index, _progress);
+				Assert.AreEqual(1, index.InitialItems);
 			}
 		}
 
@@ -138,7 +151,7 @@ namespace LibChorus.Tests.notes
 		{
 			using (var r = AnnotationRepository.FromString(@"<notes version='0'/>"))
 			{
-				var index = new TestAnnotationIndex("ILikeEverybody");
+				var index = new TestAnnotationIndex();
 				r.AddIndex(index, _progress);
 
 				r.AddAnnotation(new Annotation("question", "foo://blah.org?id=1", @"c:\pretendPath"));
@@ -154,7 +167,7 @@ namespace LibChorus.Tests.notes
 		{
 			using (var r = AnnotationRepository.FromString(@"<notes version='0'/>"))
 			{
-				var index = new TestAnnotationIndex("ILikeEverybody");
+				var index = new TestAnnotationIndex();
 				r.AddIndex(index, _progress);
 
 				var annotation = new Annotation("question", "foo://blah.org?id=1", @"c:\pretendPath");
@@ -173,7 +186,7 @@ namespace LibChorus.Tests.notes
 			using (var r = AnnotationRepository.FromString(@"<notes version='0'><annotation guid='123'>
 <message guid='234'>&lt;p&gt;hello</message></annotation></notes>"))
 			{
-				var index = new TestAnnotationIndex("ILikeEverybody");
+				var index = new TestAnnotationIndex();
 				r.AddIndex(index, _progress);
 				var annotation = r.GetAllAnnotations().First();
 				annotation.SetStatus("joe", "closed");
@@ -183,20 +196,26 @@ namespace LibChorus.Tests.notes
 		#endregion
 	}
 
-	public class TestAnnotationIndex : AnnotationIndex
+	public class TestAnnotationIndex : IAnnotationIndex
 	{
+		public int InitialItems;
 		public int Additions;
 		public int Modification;
 
-		public TestAnnotationIndex(string name)
-			: base(name, (annotation, guid) => true)
+		public TestAnnotationIndex()
 		{
 		}
-		public override void NotifyOfAddition(Annotation annotation)
+
+		public void Initialize(Func<IEnumerable<Annotation>> allAnnotationsFunction, IProgress progress)
+		{
+			InitialItems = allAnnotationsFunction().Count();
+		}
+
+		public void NotifyOfAddition(Annotation annotation)
 		{
 			Additions++;
 		}
-		public override void NotifyOfModification(Annotation annotation)
+		public void NotifyOfModification(Annotation annotation)
 		{
 			Modification++;
 		}
