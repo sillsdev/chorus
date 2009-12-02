@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Xml;
 
@@ -92,7 +93,17 @@ namespace Chorus.merge.xml.generic
 		/// </summary>
 		public bool OrderIsRelevant { get; set; }
 
+		/// <summary>
+		/// The modified data is often an attribute that is worth ignoring
+		/// </summary>
 		public List<string> AttributesToIgnoreForMerging{get; private set;}
+
+		/// <summary>
+		/// This is performance tweak: if you know that a keyed type element is never changed
+		/// once created (e.g. chorus notes messages), then we can set this to true and not
+		/// bother comparing it to the other guy's.
+		/// </summary>
+		public bool IsImmutable{get;set;}
 
 		public static ElementStrategy CreateForKeyedElement(string keyAttributeName, bool orderIsRelevant)
 		{

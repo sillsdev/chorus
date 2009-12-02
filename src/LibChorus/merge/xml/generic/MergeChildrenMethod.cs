@@ -101,13 +101,15 @@ namespace Chorus.merge.xml.generic
 				XmlNode theirChild;
 				XmlNode ancestorChild = FindMatchingNode(ourChild, _ancestor);
 				if (resultOrderer.Correspondences.TryGetValue(ourChild, out theirChild)
-					&& !XmlUtilities.AreXmlElementsEqual(ourChild, theirChild))
+					&& !ChildrenAreSame(ourChild, theirChild))
 				{
-					// There's a corresponding node and it isn't the same as ours...
-					if (theirChild.NodeType == XmlNodeType.Text)
-						_merger.MergeTextNodes(ref ourChild, theirChild, ancestorChild);
-					else
-						_merger.MergeInner(ref ourChild, theirChild, ancestorChild);
+
+						// There's a corresponding node and it isn't the same as ours...
+						if (theirChild.NodeType == XmlNodeType.Text)
+							_merger.MergeTextNodes(ref ourChild, theirChild, ancestorChild);
+						else
+							_merger.MergeInner(ref ourChild, theirChild, ancestorChild);
+
 					newChildren[i] = ourChild;
 				}
 				else
@@ -231,6 +233,12 @@ namespace Chorus.merge.xml.generic
 			//    }
 			//}
 
+		}
+
+		private bool ChildrenAreSame(XmlNode ourChild, XmlNode theirChild)
+		{
+			return  _merger.MergeStrategies.GetElementStrategy(ourChild).IsImmutable // don't bother comparing
+					|| XmlUtilities.AreXmlElementsEqual(ourChild, theirChild);
 		}
 
 		private Dictionary<XmlNode, XmlNode> MakeCorrespondences(List<XmlNode> primary, List<XmlNode> others, XmlNode otherParent)

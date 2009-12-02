@@ -55,10 +55,9 @@ namespace Chorus.FileTypeHanders
 		private void SetupElementStrategies(XmlMerger merger)
 		{
 			merger.MergeStrategies.SetStrategy("annotation", ElementStrategy.CreateForKeyedElement("guid", false));
-			merger.MergeStrategies.SetStrategy("message", ElementStrategy.CreateForKeyedElement("guid", false));
-			//enhance... it would be efficient if we could tell the merger that a
-			//<message> is _____ (the word that means you can't change it), but this will do for now
-			merger.MergeStrategies.SetStrategy("data", ElementStrategy.CreateSingletonElement());
+			ElementStrategy messageStrategy = ElementStrategy.CreateForKeyedElement("guid", false);
+			messageStrategy.IsImmutable = true;
+			merger.MergeStrategies.SetStrategy("message", messageStrategy);
 		}
 
 		public IEnumerable<IChangeReport> Find2WayDifferences(FileInRevision parent, FileInRevision child, HgRepository repository)
