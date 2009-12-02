@@ -128,9 +128,9 @@ namespace LibChorus.Tests.notes
 			using (var r = AnnotationRepository.FromString(@"<notes version='0'/>"))
 			{
 				var index1 = new IndexOfAllOpenConflicts();
-				r.AddIndex(index1, _progress);
+				r.AddObserver(index1, _progress);
 				var index2 = new IndexOfAllOpenConflicts();
-				r.AddIndex(index2, _progress);
+				r.AddObserver(index2, _progress);
 			}
 		}
 
@@ -141,7 +141,7 @@ namespace LibChorus.Tests.notes
 <message guid='234'>&lt;p&gt;hello</message></annotation></notes>"))
 			{
 				var index = new TestAnnotationIndex();
-				r.AddIndex(index, _progress);
+				r.AddObserver(index, _progress);
 				Assert.AreEqual(1, index.InitialItems);
 			}
 		}
@@ -152,7 +152,7 @@ namespace LibChorus.Tests.notes
 			using (var r = AnnotationRepository.FromString(@"<notes version='0'/>"))
 			{
 				var index = new TestAnnotationIndex();
-				r.AddIndex(index, _progress);
+				r.AddObserver(index, _progress);
 
 				r.AddAnnotation(new Annotation("question", "foo://blah.org?id=1", @"c:\pretendPath"));
 				r.AddAnnotation(new Annotation("question", "foo://blah.org?id=1", @"c:\pretendPath"));
@@ -168,7 +168,7 @@ namespace LibChorus.Tests.notes
 			using (var r = AnnotationRepository.FromString(@"<notes version='0'/>"))
 			{
 				var index = new TestAnnotationIndex();
-				r.AddIndex(index, _progress);
+				r.AddObserver(index, _progress);
 
 				var annotation = new Annotation("question", "foo://blah.org?id=1", @"c:\pretendPath");
 				r.AddAnnotation(annotation);
@@ -187,20 +187,54 @@ namespace LibChorus.Tests.notes
 <message guid='234'>&lt;p&gt;hello</message></annotation></notes>"))
 			{
 				var index = new TestAnnotationIndex();
-				r.AddIndex(index, _progress);
+				r.AddObserver(index, _progress);
 				var annotation = r.GetAllAnnotations().First();
 				annotation.SetStatus("joe", "closed");
 				Assert.AreEqual(1, index.Modification);
 			}
 		}
+
+		[Test]
+		public void Remove_AnnotationWasAddedDynamically_RepositoryNotifiesIndices()
+		{
+			using (var r = AnnotationRepository.FromString(@"<notes version='0'/>"))
+			{
+				var index = new TestAnnotationIndex();
+				r.AddObserver(index, _progress);
+
+				var annotation = new Annotation("question", "foo://blah.org?id=1", @"c:\pretendPath");
+				r.AddAnnotation(annotation);
+
+				Assert.AreEqual(0, index.Deletions);
+				r.Remove(annotation);
+
+				Assert.AreEqual(1, index.Deletions);
+			}
+		}
+
+				[Test]
+		public void Remove_AnnotationFromFile_RepositoryNotifiesIndices()
+		{
+			using (var r = AnnotationRepository.FromString(@"<notes version='0'><annotation guid='123'>
+<message guid='234'>&lt;p&gt;hello</message></annotation></notes>"))
+			{
+				var index = new TestAnnotationIndex();
+				r.AddObserver(index, _progress);
+				var annotation = r.GetAllAnnotations().First();
+				r.Remove(annotation);
+				Assert.AreEqual(1, index.Deletions);
+			}
+		}
+
 		#endregion
 	}
 
-	public class TestAnnotationIndex : IAnnotationIndex
+	public class TestAnnotationIndex : IAnnotationRepositoryObserver
 	{
 		public int InitialItems;
 		public int Additions;
 		public int Modification;
+		public int Deletions;
 
 		public TestAnnotationIndex()
 		{
@@ -218,6 +252,11 @@ namespace LibChorus.Tests.notes
 		public void NotifyOfModification(Annotation annotation)
 		{
 			Modification++;
+		}
+
+		public void NotifyOfDeletion(Annotation annotation)
+		{
+			Deletions++;
 		}
 	}
 

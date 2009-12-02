@@ -18,7 +18,7 @@ namespace LibChorus.Tests.notes
 			using (var r = AnnotationRepository.FromString(@"<notes version='0'/>"))
 			{
 				var index = new IndexOfRefsOfQuestionAnnotations();
-				r.AddIndex(index, _progress);
+				r.AddObserver(index, _progress);
 				Assert.AreEqual(0, index.GetAll().Count());
 			}
 		}
@@ -31,7 +31,7 @@ namespace LibChorus.Tests.notes
 </notes>"))
 			{
 				var index = new IndexOfRefsOfQuestionAnnotations();
-				r.AddIndex(index, _progress);
+				r.AddObserver(index, _progress);
 				Assert.AreEqual(0, index.GetAll().Count());
 			}
 		}
@@ -46,7 +46,7 @@ namespace LibChorus.Tests.notes
 </notes>"))
 			{
 				var index = new IndexOfRefsOfQuestionAnnotations();
-				r.AddIndex(index, _progress);
+				r.AddObserver(index, _progress);
 				Assert.AreEqual(2, index.GetAll().Count());
 			}
 		}
@@ -62,7 +62,7 @@ namespace LibChorus.Tests.notes
 </notes>"))
 			{
 				var index = new IndexOfRefsOfQuestionAnnotations();
-				r.AddIndex(index, _progress);
+				r.AddObserver(index, _progress);
 				Assert.AreEqual(2, index.GetMatchesByKey("blue").Count());
 			}
 		}
@@ -76,7 +76,7 @@ namespace LibChorus.Tests.notes
 </notes>"))
 			{
 				var index = new IndexOfRefsOfQuestionAnnotations();
-				r.AddIndex(index, _progress);
+				r.AddObserver(index, _progress);
 				Assert.AreEqual(0, index.GetMatchesByKey("blue").Count());
 			}
 		}
@@ -88,11 +88,24 @@ namespace LibChorus.Tests.notes
 			using (var r = AnnotationRepository.FromString(@"<notes version='0'/>"))
 			{
 				var index = new IndexOfRefsOfQuestionAnnotations();
-				r.AddIndex(index, _progress);
+				r.AddObserver(index, _progress);
 				Assert.AreEqual(0, index.GetMatches(key=>key.Contains("b"), _progress).Count());
 			}
 		}
 
+
+		[Test]
+		public void GetMatches_PredicateGivesNullForOne_ReturnsIt()
+		{
+			using (var r = AnnotationRepository.FromString(@"<notes version='0'>
+<annotation class='question'/>
+</notes>"))
+			{
+				var index = new IndexOfRefsOfQuestionAnnotations();
+				r.AddObserver(index, _progress);
+				Assert.AreEqual(1, index.GetMatches(key => string.IsNullOrEmpty(key), _progress).Count());
+			}
+		}
 
 		[Test]
 		public void GetMatches_Has2Matches_Returns2()
@@ -105,7 +118,7 @@ namespace LibChorus.Tests.notes
 </notes>"))
 			{
 				var index = new IndexOfRefsOfQuestionAnnotations();
-				r.AddIndex(index, _progress);
+				r.AddObserver(index, _progress);
 				Assert.AreEqual(2, index.GetMatches(key => key.Contains("b"), _progress).Count());
 			}
 		}

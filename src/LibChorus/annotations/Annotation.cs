@@ -184,5 +184,7 @@ namespace Chorus.annotations
 		{
 			SetStatus(userName, "closed");
 		}
+
+
 	}
 }

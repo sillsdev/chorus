@@ -16,7 +16,7 @@ namespace Chorus.annotations
 		private readonly string _annotationFilePath;
 		private static int kCurrentVersion=0;
 		public static string FileExtension = "ChorusNotes";
-		private List<IAnnotationIndex> _indices = new List<IAnnotationIndex>();
+		private List<IAnnotationRepositoryObserver> _observers = new List<IAnnotationRepositoryObserver>();
 
 		public static AnnotationRepository FromFile(string path)
 		{
@@ -66,15 +66,18 @@ namespace Chorus.annotations
 
 		}
 
-		public void AddIndex(IAnnotationIndex index, IProgress progress)
+		/// <summary>
+		/// a typical observer is an index
+		/// </summary>
+		public void AddObserver(IAnnotationRepositoryObserver observer, IProgress progress)
 		{
-			if (_indices.Exists(i => i.GetType() == index.GetType()))
+			if (_observers.Exists(i => i.GetType() == observer.GetType()))
 			{
-				//harsh, but better to fail fast.
-				throw new ApplicationException("And index of the type " + index.GetType().ToString() + " is already in the repository.");
+				//fail fast.
+				throw new ApplicationException("And observer of the type " + observer.GetType().ToString() + " is already in the repository.");
 			}
-			_indices.Add(index);
-			index.Initialize(GetAllAnnotations, progress);
+			_observers.Add(observer);
+			observer.Initialize(GetAllAnnotations, progress);
 		}
 
 
@@ -98,15 +101,19 @@ namespace Chorus.annotations
 		public void AddAnnotation(Annotation annotation)
 		{
 			_doc.Root.Add(annotation.Element);
-			_indices.ForEach(index => index.NotifyOfAddition(annotation));
+			_observers.ForEach(index => index.NotifyOfAddition(annotation));
 			annotation.Element.Changed += new EventHandler<XObjectChangeEventArgs>(AnnotationElement_Changed);
 		}
 
 		void AnnotationElement_Changed(object sender, XObjectChangeEventArgs e)
 		{
+			//nb: the e.ObjectChange arg appears to be about what happened inside the element, not
+			//really what we care about here. So we just say its modified and don't worry about
+			//what it was
+
 			var element = sender as XElement;
 			XElement annotationElement  =element.AncestorsAndSelf("annotation").First();
-			_indices.ForEach(index => index.NotifyOfModification(new Annotation(annotationElement)));
+			_observers.ForEach(index => index.NotifyOfModification(new Annotation(annotationElement)));
 		}
 
 		private static void ThrowIfVersionTooHigh(XDocument doc, string path)
@@ -128,6 +135,12 @@ namespace Chorus.annotations
 		}
 
 
+		public void Remove(Annotation annotation)
+		{
+			annotation.Element.Remove();
+			_observers.ForEach(index => index.NotifyOfDeletion(annotation));
+			annotation.Element.Changed -= new EventHandler<XObjectChangeEventArgs>(AnnotationElement_Changed);
+		}
 	}
 
 	public class AnnotationFormatException : ApplicationException

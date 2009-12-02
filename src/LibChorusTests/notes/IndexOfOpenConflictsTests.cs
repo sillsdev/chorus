@@ -20,7 +20,7 @@ namespace LibChorus.Tests.notes
 			using (var r = AnnotationRepository.FromString(@"<notes version='0'></notes>"))
 			{
 				var index = new IndexOfAllOpenConflicts();
-				r.AddIndex(index, _progress);
+				r.AddObserver(index, _progress);
 				Assert.AreEqual(0, index.GetMatches(rf => rf.Contains("rid=12345"), _progress).Count());
 				var ann = new Annotation("conflict", "blah://blah?rid=12345", "somepath");
 				ann.AddMessage("merger", "open", string.Empty);
@@ -43,7 +43,7 @@ namespace LibChorus.Tests.notes
 				 r.AddAnnotation(ann);
 
 				var index = new IndexOfAllOpenConflicts();
-				r.AddIndex(index, _progress);
+				r.AddObserver(index, _progress);
 				Assert.AreEqual(1, index.GetMatches(rf => rf.Contains("rid=12345"), _progress).Count());
 				Assert.AreEqual(0, index.GetMatches(rf => rf.Contains("rid=333"), _progress).Count());
 				ann.SetStatusToClosed("testman");

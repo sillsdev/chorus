@@ -85,7 +85,7 @@
   </ItemGroup>
   <ItemGroup>
 	<Compile Include="annotations\AnnotationIndex.cs" />
-	<Compile Include="annotations\IAnnotationIndex.cs" />
+	<Compile Include="annotations\IAnnotationRepositoryObserver.cs" />
 	<Compile Include="annotations\IEmbeddedMessageContentHandler.cs" />
 	<Compile Include="annotations\IndexOfAllOpenConflicts.cs" />
 	<Compile Include="annotations\Message.cs" />

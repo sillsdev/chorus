@@ -16,8 +16,11 @@ namespace Chorus.annotations
 	///     GetAll() will give all the annotations which pass the where clause
 	///     GetMatchesByKey(key) will give all the annotation with that key
 	///     GetMatches(predicate on the key) will give all the annotations with keys that match the predicate
+	///
+	/// While it could be used as-is, this is marked "abstract" in order to encourage wrapping
+	/// in concrete indexes which are easier to code to and understand.
 	/// </summary>
-	public abstract class AnnotationIndex : IAnnotationIndex
+	public abstract class AnnotationIndex : IAnnotationRepositoryObserver
 	{
 		private MultiMap<string, Annotation> _keyToObjectsMap;
 		private Func<Annotation, bool> _includeIndexPredicate = (a => true);
@@ -68,6 +71,11 @@ namespace Chorus.annotations
 					_keyToObjectsMap.Add(_keyMakingFunction(annotation), annotation);
 				}
 			}
+		}
+
+		public void NotifyOfDeletion(Annotation annotation)
+		{
+
 		}
 
 		public IEnumerable<Annotation> GetMatches(Func<string, bool> predicateOnKey, IProgress progress)
