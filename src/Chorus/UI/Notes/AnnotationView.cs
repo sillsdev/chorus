@@ -8,6 +8,7 @@ namespace Chorus.UI.Notes
 	public partial class AnnotationView : UserControl
 	{
 		private readonly AnnotationViewModel _model;
+		private bool _waitingOnBrowserToBeReady;
 
 		public AnnotationView(AnnotationViewModel model)
 		{
@@ -15,10 +16,9 @@ namespace Chorus.UI.Notes
 			_model.UpdateContent += OnUpdateContent;
 			_model.UpdateStates += OnUpdateStates;
 			InitializeComponent();
-			this.Visible = false;//wait for an annotation to be selected
-
+			Visible = model.IsVisible;
 			//needs to be primed this way
-			_existingMessagesDisplay.DocumentText = "<html/>";
+			_existingMessagesDisplay.DocumentText = "<html></html>";
 		}
 
 		void OnUpdateContent(object sender, EventArgs e)
@@ -48,7 +48,6 @@ namespace Chorus.UI.Notes
 			_newMessage.Text = _model.NewMessageText;
 			OnUpdateStates(sender,e);
 
-			Visible = true;
 		}
 
 		void OnUpdateStates(object sender, EventArgs e)
@@ -59,11 +58,14 @@ namespace Chorus.UI.Notes
 			_addButton.Visible = _model.ShowNewMessageControls;
 			_newMessage.Visible = _model.ShowNewMessageControls;
 			_addNewMessageLabel.Visible = _model.ShowNewMessageControls;
+			Visible = _model.IsVisible;
 		}
 
 		private void AnnotationView_Load(object sender, EventArgs e)
 		{
-
+			_waitingOnBrowserToBeReady = true;
+//            if(_model.IsVisible)
+//                OnUpdateContent(null,null);
 		}
 
 		private void OnBrower_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e)
@@ -110,6 +112,15 @@ namespace Chorus.UI.Notes
 				return;
 			e.Cancel = true;
 			_model.HandleLinkClicked(e.Url);
+		}
+
+		private void _existingMessagesDisplay_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e)
+		{
+			if(_waitingOnBrowserToBeReady)
+			{
+				_waitingOnBrowserToBeReady = false;
+				OnUpdateContent(null,null);
+			}
 		}
 
 	}

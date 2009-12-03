@@ -56,12 +56,23 @@ namespace Chorus
 			RegisterReviewStuff(builder);
 			RegisterSettingsStuff(builder);
 
+			InjectNotesUI(builder);
+		}
+
+		/// <summary>
+		/// Only call this directly if you're not using the synching stuff (e.g., testing the notes UI)
+		/// </summary>
+		/// <param name="builder"></param>
+		public static void InjectNotesUI(ContainerBuilder builder)
+		{
+			builder.Register<Chorus.annotations.EmbeddedMessageContentHandlerFactory>();
 			builder.Register<Chorus.UI.Notes.NotesInProjectViewModel>();
 			builder.Register<Chorus.UI.Notes.NotesInProjectView>();
 			builder.Register<Chorus.UI.Notes.AnnotationView>();
-			builder.Register<Chorus.UI.Notes.AnnotationViewModel>();
+			builder.Register<Chorus.UI.Notes.AnnotationViewModel>().FactoryScoped();
 			builder.Register<Chorus.UI.Notes.NotesPage>();
 			builder.Register<StyleSheet>(c =>  StyleSheet.CreateFromDisk());
+			builder.RegisterGeneratedFactory<AnnotationViewModel.Factory>();
 		}
 
 		public static void Inject(ContainerBuilder builder, string projectPath)

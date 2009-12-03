@@ -133,6 +133,19 @@
 	<Compile Include="UI\Notes\AnnotationViewModel.cs" />
 	<Compile Include="UI\Notes\Events.cs" />
 	<Compile Include="UI\Notes\ListMessage.cs" />
+	<Compile Include="UI\Notes\Bar\NoteDetailDialog.cs">
+	  <SubType>Form</SubType>
+	</Compile>
+	<Compile Include="UI\Notes\Bar\NoteDetailDialog.Designer.cs">
+	  <DependentUpon>NoteDetailDialog.cs</DependentUpon>
+	</Compile>
+	<Compile Include="UI\Notes\Bar\NotesBarModel.cs" />
+	<Compile Include="UI\Notes\Bar\NotesBarView.cs">
+	  <SubType>UserControl</SubType>
+	</Compile>
+	<Compile Include="UI\Notes\Bar\NotesBarView.Designer.cs">
+	  <DependentUpon>NotesBarView.cs</DependentUpon>
+	</Compile>
 	<Compile Include="UI\Notes\NotesPage.cs">
 	  <SubType>UserControl</SubType>
 	</Compile>
@@ -336,6 +349,12 @@
 	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Notes\AnnotationView.resx">
 	  <DependentUpon>AnnotationView.cs</DependentUpon>
+	</EmbeddedResource>
+	<EmbeddedResource Include="UI\Notes\Bar\NoteDetailDialog.resx">
+	  <DependentUpon>NoteDetailDialog.cs</DependentUpon>
+	</EmbeddedResource>
+	<EmbeddedResource Include="UI\Notes\Bar\NotesBarView.resx">
+	  <DependentUpon>NotesBarView.cs</DependentUpon>
 	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Notes\NotesInProjectView.resx">
 	  <DependentUpon>NotesInProjectView.cs</DependentUpon>

@@ -106,6 +106,7 @@
 			this._existingMessagesDisplay.TabIndex = 9;
 			this._existingMessagesDisplay.WebBrowserShortcutsEnabled = false;
 			this._existingMessagesDisplay.Navigating += new System.Windows.Forms.WebBrowserNavigatingEventHandler(this._existingMessagesDisplay_Navigating);
+			this._existingMessagesDisplay.DocumentCompleted += new System.Windows.Forms.WebBrowserDocumentCompletedEventHandler(this._existingMessagesDisplay_DocumentCompleted);
 			//
 			// _addNewMessageLabel
 			//

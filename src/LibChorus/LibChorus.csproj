@@ -84,6 +84,7 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
+	<Compile Include="annotations\IndexOfAllAnnotationsByKey.cs" />
 	<Compile Include="annotations\AnnotationIndex.cs" />
 	<Compile Include="annotations\IAnnotationRepositoryObserver.cs" />
 	<Compile Include="annotations\IEmbeddedMessageContentHandler.cs" />

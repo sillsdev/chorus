@@ -48,7 +48,7 @@ namespace Chorus.UI.Notes
 					foreach (var message in annotation.Messages)
 					{
 						if (string.IsNullOrEmpty(_searchText)
-							|| annotation.Label.StartsWith(_searchText)
+							|| annotation.LabelOfThingAnnotated.StartsWith(_searchText)
 							|| annotation.ClassName.StartsWith(_searchText)
 							|| message.Author.StartsWith(_searchText))
 						yield return new ListMessage(annotation, message);

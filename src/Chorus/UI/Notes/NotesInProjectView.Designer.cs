@@ -72,7 +72,7 @@ namespace Chorus.UI.Notes
 			//
 			// label
 			//
-			this.label.Text = "Label";
+			this.label.Text = "LabelOfThingAnnotated";
 			this.label.Width = 118;
 			//
 			// date

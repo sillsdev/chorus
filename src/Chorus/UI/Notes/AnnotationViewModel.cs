@@ -10,8 +10,12 @@ using Message=Chorus.annotations.Message;
 
 namespace Chorus.UI.Notes
 {
+
+
 	public class AnnotationViewModel
 	{
+		public delegate AnnotationViewModel Factory(Annotation annotation);//autofac uses this
+
 		private readonly ChorusNotesUser _user;
 		private readonly StyleSheet _styleSheet;
 		private Annotation _currentAnnotation;
@@ -22,7 +26,10 @@ namespace Chorus.UI.Notes
 		internal event EventHandler UpdateContent;
 		internal event EventHandler UpdateStates;
 
-		public AnnotationViewModel(ChorusNotesUser user, MessageSelectedEvent messageSelectedEventToSubscribeTo, StyleSheet styleSheet, EmbeddedMessageContentHandlerFactory embeddedMessageContentHandlerFactory)
+		public AnnotationViewModel(ChorusNotesUser user,
+			MessageSelectedEvent messageSelectedEventToSubscribeTo,
+			StyleSheet styleSheet,
+			EmbeddedMessageContentHandlerFactory embeddedMessageContentHandlerFactory)
 		{
 			_user = user;
 			_embeddedMessageContentHandlerFactory = embeddedMessageContentHandlerFactory;
@@ -30,6 +37,21 @@ namespace Chorus.UI.Notes
 			messageSelectedEventToSubscribeTo.Subscribe((annotation, message) => SetAnnotationAndFocussedMessage(annotation,message));
 			NewMessageText = string.Empty;
 		}
+
+		//TODO: think about or merge these two constructors. this one is for when we're just
+		//showing the control with a single annotation... it isn't tied to a list of messages.
+		public AnnotationViewModel(ChorusNotesUser user,
+		   StyleSheet styleSheet,
+		   EmbeddedMessageContentHandlerFactory embeddedMessageContentHandlerFactory,
+			Annotation annotation)
+		{
+			_user = user;
+			_embeddedMessageContentHandlerFactory = embeddedMessageContentHandlerFactory;
+			_styleSheet = styleSheet;
+			NewMessageText = string.Empty;
+			_currentAnnotation = annotation;
+		}
+
 
 		private void SetAnnotationAndFocussedMessage(Annotation annotation, Message message)
 		{
@@ -93,7 +115,7 @@ namespace Chorus.UI.Notes
 			foreach (var message in _currentAnnotation.Messages)
 			{
 				builder.AppendLine("<hr/>");
-				if (message.Guid == _currentFocussedMessage.Guid) //REVIEW: guid shouldn't be needed
+				if (_currentFocussedMessage!=null && message.Guid == _currentFocussedMessage.Guid) //REVIEW: guid shouldn't be needed
 				{
 					builder.AppendLine("<div class='selected message'>");
 				}
@@ -179,6 +201,11 @@ namespace Chorus.UI.Notes
 				_newMessageText = value;
 				UpdateStatesNow();
 			}
+		}
+
+		public bool IsVisible
+		{//wait for an annotation to be selected
+			get { return _currentAnnotation != null; }
 		}
 
 		public Image GetAnnotationLogoImage()

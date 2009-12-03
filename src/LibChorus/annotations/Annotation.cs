@@ -118,11 +118,21 @@ namespace Chorus.annotations
 			_element.Add(m.Element);
 			return m;
 		}
-		public string Label
+		public string LabelOfThingAnnotated
 		{
 			get { return GetLabelFromRef("?"); }
 		}
 		public string GetLabelFromRef(string defaultIfCannotGetIt)
+		{
+			string name = "label";
+			return GetValueFromQueryStringOfRef(name, defaultIfCannotGetIt);
+		}
+
+		/// <summary>
+		/// get at the value in a URL, which are listed the collection of name=value pairs after the ?
+		/// </summary>
+		/// <example>GetValueFromQueryStringOfRef("id", ""lift://blah.lift?id=fooid") returns "foo"</example>
+		public string GetValueFromQueryStringOfRef(string name, string defaultIfCannotGetIt)
 		{
 			try
 			{
@@ -133,7 +143,8 @@ namespace Chorus.annotations
 				}
 
 				var parse = System.Web.HttpUtility.ParseQueryString(uri.Query);
-				var label = parse.GetValues("label").FirstOrDefault();
+
+				var label = parse.GetValues(name).FirstOrDefault();
 				return string.IsNullOrEmpty(label) ? defaultIfCannotGetIt : label;
 			}
 			catch (Exception)
