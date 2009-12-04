@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using Chorus.annotations;
 using Chorus.sync;
 
@@ -47,14 +45,23 @@ namespace Chorus.UI.Notes
 				{
 					foreach (var message in annotation.Messages)
 					{
-						if (string.IsNullOrEmpty(_searchText)
-							|| annotation.LabelOfThingAnnotated.StartsWith(_searchText)
-							|| annotation.ClassName.StartsWith(_searchText)
-							|| message.Author.StartsWith(_searchText))
-						yield return new ListMessage(annotation, message);
+						if (GetDoesMatch(annotation, message))
+						{
+							yield return new ListMessage(annotation, message);
+						}
 					}
 				}
 			}
+		}
+
+
+
+		private bool GetDoesMatch(Annotation annotation, Message message)
+		{
+			return string.IsNullOrEmpty(_searchText)
+				   || annotation.LabelOfThingAnnotated.StartsWith(_searchText)
+				   || annotation.ClassName.StartsWith(_searchText)
+				   || message.Author.StartsWith(_searchText);
 		}
 
 		public void CloseAnnotation(ListMessage listMessage)
@@ -70,6 +77,11 @@ namespace Chorus.UI.Notes
 
 		public void SearchTextChanged(string searchText)
 		{
+			int result;
+			if(int.TryParse(searchText, out result))
+			{
+				throw new ApplicationException();
+			}
 			_searchText = searchText;
 		}
 	}

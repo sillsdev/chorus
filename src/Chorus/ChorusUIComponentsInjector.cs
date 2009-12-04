@@ -7,6 +7,7 @@ using Chorus.sync;
 using Chorus.UI;
 using Chorus.UI.Misc;
 using Chorus.UI.Notes;
+using Chorus.UI.Notes.Bar;
 using Chorus.UI.Review;
 using Chorus.UI.Review.ChangedReport;
 using Chorus.UI.Review.ChangesInRevision;
@@ -69,10 +70,12 @@ namespace Chorus
 			builder.Register<Chorus.UI.Notes.NotesInProjectViewModel>();
 			builder.Register<Chorus.UI.Notes.NotesInProjectView>();
 			builder.Register<Chorus.UI.Notes.AnnotationView>();
-			builder.Register<Chorus.UI.Notes.AnnotationViewModel>().FactoryScoped();
+			builder.Register<Chorus.UI.Notes.AnnotationEditorModel>().FactoryScoped();
 			builder.Register<Chorus.UI.Notes.NotesPage>();
 			builder.Register<StyleSheet>(c =>  StyleSheet.CreateFromDisk());
-			builder.RegisterGeneratedFactory<AnnotationViewModel.Factory>();
+			builder.RegisterGeneratedFactory<AnnotationEditorModel.Factory>();
+			builder.Register<NotesBarModel>();
+			builder.RegisterGeneratedFactory<NotesBarModel.Factory>();
 		}
 
 		public static void Inject(ContainerBuilder builder, string projectPath)

@@ -34,15 +34,16 @@ namespace Chorus.Tests.notes
 
 		protected ChorusNotesUser TheUser
 		{
-			get; set;
+			get;
+			set;
 		}
 
 		[Test]
 		public void GetMessages_FilesInSubDirs_GetsThemAll()
 		{
 			using (var folder = new TempFolder("NotesModelTests"))
-			using (var subfolder = new TempFolder(folder,"Sub"))
-			using (new TempFile(folder,"one."+AnnotationRepository.FileExtension, "<notes version='0'><annotation><message/></annotation></notes>"))
+			using (var subfolder = new TempFolder(folder, "Sub"))
+			using (new TempFile(folder, "one." + AnnotationRepository.FileExtension, "<notes version='0'><annotation><message/></annotation></notes>"))
 			using (new TempFile(subfolder, "two." + AnnotationRepository.FileExtension, "<notes  version='0'><annotation><message/></annotation></notes>"))
 			{
 				ProjectFolderConfiguration project = new ProjectFolderConfiguration(folder.Path);
@@ -51,5 +52,64 @@ namespace Chorus.Tests.notes
 			}
 		}
 
+		private TempFile CreateNotesFile(TempFolder folder, string contents)
+		{
+			return new TempFile(folder, "one." + AnnotationRepository.FileExtension, "<notes version='0'>" + contents + "</notes>");
+		}
+
+		[Test]
+		public void GetMessages_SearchContainsAuthor_FindsMatches()
+		{
+			using (var folder = new TempFolder("NotesModelTests"))
+			{
+				string contents = "<annotation><message author='john'></message></annotation>";
+				using (CreateNotesFile(folder, contents))
+				{
+					ProjectFolderConfiguration project = new ProjectFolderConfiguration(folder.Path);
+					var m = new NotesInProjectViewModel(TheUser, project, new MessageSelectedEvent());
+					m.SearchTextChanged("john");
+					Assert.AreEqual(1, m.GetMessages().Count());
+				}
+			}
+		}
+		[Test]
+		public void GetMessages_SearchContainsClass_FindsMatches()
+		{
+			using (var folder = new TempFolder("NotesModelTests"))
+			{
+				string contents = @"<annotation class='question'><message author='john'></message></annotation>
+				<annotation class='note'><message author='bob'></message></annotation>";
+				using (CreateNotesFile(folder, contents))
+				{
+					ProjectFolderConfiguration project = new ProjectFolderConfiguration(folder.Path);
+					var m = new NotesInProjectViewModel(TheUser, project, new MessageSelectedEvent());
+					 Assert.AreEqual(2, m.GetMessages().Count(), "should get 2 annotations when search box is empty");
+				   m.SearchTextChanged("ques");
+					Assert.AreEqual(1, m.GetMessages().Count());
+					Assert.AreEqual("john",m.GetMessages().First().Message.Author);
+
+				}
+			}
+		}
+
+		[Test, ExpectedException(typeof(ApplicationException))]
+		public void SearchTextChanged_GaveNumber_ThrowsException()
+		{
+			using (var folder = new TempFolder("NotesModelTests"))
+			{
+				string contents =
+					@"<annotation class='question'><message author='john'></message></annotation>
+				<annotation class='note'><message author='bob'></message></annotation>";
+				using (CreateNotesFile(folder, contents))
+				{
+					ProjectFolderConfiguration project = new ProjectFolderConfiguration(folder.Path);
+					var m = new NotesInProjectViewModel(TheUser, project, new MessageSelectedEvent());
+					m.SearchTextChanged("2");
+				}
+			}
+
+		}
 	}
+
 }
+

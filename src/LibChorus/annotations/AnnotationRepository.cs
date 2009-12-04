@@ -17,6 +17,7 @@ namespace Chorus.annotations
 		private static int kCurrentVersion=0;
 		public static string FileExtension = "ChorusNotes";
 		private List<IAnnotationRepositoryObserver> _observers = new List<IAnnotationRepositoryObserver>();
+		private AnnotationIndex _indexOfAllAnnotationsByKey;
 
 		public static AnnotationRepository FromFile(string path)
 		{

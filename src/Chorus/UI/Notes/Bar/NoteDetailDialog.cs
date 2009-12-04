@@ -12,7 +12,7 @@ namespace Chorus.UI.Notes.Bar
 {
 	public partial class NoteDetailDialog : Form
 	{
-		public NoteDetailDialog(Annotation annotation, AnnotationViewModel.Factory viewModelFactory)
+		public NoteDetailDialog(Annotation annotation, AnnotationEditorModel.Factory viewModelFactory)
 		{
 			InitializeComponent();
 			Text = String.Format("{0} on {1}", annotation.ClassName, annotation.LabelOfThingAnnotated);

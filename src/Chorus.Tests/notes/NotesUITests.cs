@@ -41,15 +41,16 @@ namespace Chorus.Tests.notes
 			var builder = new Autofac.Builder.ContainerBuilder();
 			ChorusUIComponentsInjector.InjectNotesUI(builder);
 			builder.Register<ChorusNotesUser>(c => new ChorusNotesUser("testGuy"));
+			builder.Register<AnnotationRepository>(AnnotationRepository.FromString(contents));
 			var container = builder.Build();
 
-			var repo = AnnotationRepository.FromString(contents);
 			AnnotationIndex index = new IndexOfAllAnnotationsByKey("label");
-			repo.AddObserver(index, new ConsoleProgress());
+			AnnotationRepository.FromString(contents).AddObserver(index, new ConsoleProgress());
 
-			var model = new NotesBarModel(repo, index, "korupsen");
-			var factory = container.Resolve<AnnotationViewModel.Factory>();
-			var view = new NotesBarView(model, factory);
+			var notesBarModelFactory = container.Resolve<NotesBarModel.Factory>();
+
+		   var annotationEditorModelFactory = container.Resolve<AnnotationEditorModel.Factory>();
+			var view = new NotesBarView("korupsen", notesBarModelFactory(index), annotationEditorModelFactory);
 
 			var form = new Form();
 			form.Size = new Size(700, 600);
@@ -105,7 +106,7 @@ namespace Chorus.Tests.notes
 				NotesInProjectViewModel notesInProjectViewModel = new NotesInProjectViewModel(new ChorusNotesUser("Bob"), projectConfig, messageSelected);
 				var notesInProjectView = new NotesInProjectView(notesInProjectViewModel);
 
-				var annotationModel = new AnnotationViewModel(new ChorusNotesUser("bob"), messageSelected, StyleSheet.CreateFromDisk(), new EmbeddedMessageContentHandlerFactory());
+				var annotationModel = new AnnotationEditorModel(new ChorusNotesUser("bob"), messageSelected, StyleSheet.CreateFromDisk(), new EmbeddedMessageContentHandlerFactory());
 				AnnotationView annotationView = new AnnotationView(annotationModel);
 				var page = new NotesPage(notesInProjectView, annotationView);
 				page.Dock = DockStyle.Fill;

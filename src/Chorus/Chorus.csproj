@@ -130,7 +130,7 @@
 	<Compile Include="UI\Notes\AnnotationInspector.Designer.cs">
 	  <DependentUpon>AnnotationInspector.cs</DependentUpon>
 	</Compile>
-	<Compile Include="UI\Notes\AnnotationViewModel.cs" />
+	<Compile Include="UI\Notes\AnnotationEditorModel.cs" />
 	<Compile Include="UI\Notes\Events.cs" />
 	<Compile Include="UI\Notes\ListMessage.cs" />
 	<Compile Include="UI\Notes\Bar\NoteDetailDialog.cs">

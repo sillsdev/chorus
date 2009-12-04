@@ -7,10 +7,10 @@ namespace Chorus.UI.Notes
 {
 	public partial class AnnotationView : UserControl
 	{
-		private readonly AnnotationViewModel _model;
+		private readonly AnnotationEditorModel _model;
 		private bool _waitingOnBrowserToBeReady;
 
-		public AnnotationView(AnnotationViewModel model)
+		public AnnotationView(AnnotationEditorModel model)
 		{
 			_model = model;
 			_model.UpdateContent += OnUpdateContent;

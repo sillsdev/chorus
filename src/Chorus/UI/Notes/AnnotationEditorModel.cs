@@ -12,9 +12,9 @@ namespace Chorus.UI.Notes
 {
 
 
-	public class AnnotationViewModel
+	public class AnnotationEditorModel
 	{
-		public delegate AnnotationViewModel Factory(Annotation annotation);//autofac uses this
+		public delegate AnnotationEditorModel Factory(Annotation annotation);//autofac uses this
 
 		private readonly ChorusNotesUser _user;
 		private readonly StyleSheet _styleSheet;
@@ -26,7 +26,7 @@ namespace Chorus.UI.Notes
 		internal event EventHandler UpdateContent;
 		internal event EventHandler UpdateStates;
 
-		public AnnotationViewModel(ChorusNotesUser user,
+		public AnnotationEditorModel(ChorusNotesUser user,
 			MessageSelectedEvent messageSelectedEventToSubscribeTo,
 			StyleSheet styleSheet,
 			EmbeddedMessageContentHandlerFactory embeddedMessageContentHandlerFactory)
@@ -40,7 +40,7 @@ namespace Chorus.UI.Notes
 
 		//TODO: think about or merge these two constructors. this one is for when we're just
 		//showing the control with a single annotation... it isn't tied to a list of messages.
-		public AnnotationViewModel(ChorusNotesUser user,
+		public AnnotationEditorModel(ChorusNotesUser user,
 		   StyleSheet styleSheet,
 		   EmbeddedMessageContentHandlerFactory embeddedMessageContentHandlerFactory,
 			Annotation annotation)
