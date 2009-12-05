@@ -67,6 +67,7 @@
   </ItemGroup>
   <ItemGroup>
 	<Compile Include="notes\AnnotationModelTests.cs" />
+	<Compile Include="notes\NotesBarModelTests.cs" />
 	<Compile Include="notes\IEmbeddedMessageContentHandler.cs" />
 	<Compile Include="notes\MessageTests.cs" />
 	<Compile Include="notes\NotesInProjectModelTests.cs" />

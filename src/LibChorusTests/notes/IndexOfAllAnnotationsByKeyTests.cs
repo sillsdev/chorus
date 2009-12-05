@@ -17,7 +17,7 @@ namespace LibChorus.Tests.notes
 		[Test]
 		public void GetMatchesByKey_HasTwoMatches_Found()
 		{
-			using (var r = AnnotationRepository.FromString(@"<notes version='0'></notes>"))
+			using (var r = AnnotationRepository.FromString("id", @"<notes version='0'></notes>"))
 			{
 				r.AddAnnotation(new Annotation("foobar", "lift://blah.lift?id=fooid", "somepath"));
 				r.AddAnnotation(new Annotation("question", "lift://blah.lift?id=fooid", "somepath"));
@@ -33,7 +33,7 @@ namespace LibChorus.Tests.notes
 		[Test]
 		public void GetMatchesByKey_HasAnnotationWithoutRef_DoesntCrash()
 		{
-			using (var r = AnnotationRepository.FromString(@"<notes version='0'></notes>"))
+			using (var r = AnnotationRepository.FromString("id", @"<notes version='0'></notes>"))
 			{
 				r.AddAnnotation(new Annotation("question", "lift://blah.lift", "somepath"));
 

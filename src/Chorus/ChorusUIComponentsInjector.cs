@@ -76,6 +76,8 @@ namespace Chorus
 			builder.RegisterGeneratedFactory<AnnotationEditorModel.Factory>();
 			builder.Register<NotesBarModel>();
 			builder.RegisterGeneratedFactory<NotesBarModel.Factory>();
+			builder.Register<NotesBarView>();
+			builder.RegisterGeneratedFactory<NotesBarView.Factory>();
 		}
 
 		public static void Inject(ContainerBuilder builder, string projectPath)

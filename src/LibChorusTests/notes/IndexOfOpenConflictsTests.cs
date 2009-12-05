@@ -17,7 +17,7 @@ namespace LibChorus.Tests.notes
 		[Test]
 		public void GetMatches_AddedAfterIndexInitialization_FoundViaPredicate()
 		{
-			using (var r = AnnotationRepository.FromString(@"<notes version='0'></notes>"))
+			using (var r = AnnotationRepository.FromString("id", @"<notes version='0'></notes>"))
 			{
 				var index = new IndexOfAllOpenConflicts();
 				r.AddObserver(index, _progress);
@@ -36,7 +36,7 @@ namespace LibChorus.Tests.notes
 		[Test]
 		public void GetMatches_AddedBeforeIndexInitialization_FoundViaPredicate()
 		{
-			using (var r = AnnotationRepository.FromString(@"<notes version='0'></notes>"))
+			using (var r = AnnotationRepository.FromString("id", @"<notes version='0'></notes>"))
 			{
 				var ann = new Annotation("conflict", "blah://blah?rid=12345", "somepath");
 				ann.AddMessage("merger", "open", string.Empty);

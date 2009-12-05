@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using Chorus.annotations;
 using Chorus.sync;
+using Chorus.Utilities;
 
 namespace Chorus.UI.Notes
 {
@@ -14,13 +15,13 @@ namespace Chorus.UI.Notes
 		private List<AnnotationRepository> _repositories=new List<AnnotationRepository>();
 		private string _searchText;
 
-		public NotesInProjectViewModel(ChorusNotesUser currentUser, ProjectFolderConfiguration projectFolderConfiguration, MessageSelectedEvent messageSelectedEventToRaise)
+		public NotesInProjectViewModel(string primaryRefParameter, ChorusNotesUser currentUser, ProjectFolderConfiguration projectFolderConfiguration, MessageSelectedEvent messageSelectedEventToRaise, IProgress progress)
 		{
 			_currentUser = currentUser;
 			_messageSelectedEvent = messageSelectedEventToRaise;
 			foreach (var path in GetChorusNotesFilePaths(projectFolderConfiguration.FolderPath))
 			{
-				_repositories.Add(AnnotationRepository.FromFile(path));
+				_repositories.Add(AnnotationRepository.FromFile(primaryRefParameter, path, progress));
 			}
 		}
 

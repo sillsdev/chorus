@@ -15,7 +15,7 @@ namespace LibChorus.Tests.notes
 		[Test]
 		public void GetAll_NoneInIndex_Returns0()
 		{
-			using (var r = AnnotationRepository.FromString(@"<notes version='0'/>"))
+			using (var r = AnnotationRepository.FromString("id", @"<notes version='0'/>"))
 			{
 				var index = new IndexOfRefsOfQuestionAnnotations();
 				r.AddObserver(index, _progress);
@@ -26,7 +26,7 @@ namespace LibChorus.Tests.notes
 		[Test]
 		public void GetAll_0OutOf1MatchFilter_Returns0()
 		{
-			using (var r = AnnotationRepository.FromString(@"<notes version='0'>
+			using (var r = AnnotationRepository.FromString("id", @"<notes version='0'>
 <annotation class='note' ref='black'/>
 </notes>"))
 			{
@@ -39,7 +39,7 @@ namespace LibChorus.Tests.notes
 		[Test]
 		public void GetAll_2OutOf3MatchFilter_Returns2()
 		{
-			using (var r = AnnotationRepository.FromString(@"<notes version='0'>
+			using (var r = AnnotationRepository.FromString("id", @"<notes version='0'>
 <annotation class='question' ref='red'/>
 <annotation class='question' ref='blue'/>
 <annotation class='note' ref='black'/>
@@ -54,7 +54,7 @@ namespace LibChorus.Tests.notes
 		[Test]
 		public void GetMatchesOfKey_ReturnsMatchingItems()
 		{
-			using (var r = AnnotationRepository.FromString(@"<notes version='0'>
+			using (var r = AnnotationRepository.FromString("id", @"<notes version='0'>
 <annotation class='question' ref='red'/>
 <annotation class='question' ref='blue'/>
 <annotation class='question' ref='blue'/>
@@ -70,7 +70,7 @@ namespace LibChorus.Tests.notes
 		[Test]
 		public void GetMatchesOfKey_Has0Matches_ReturnsNone()
 		{
-			using (var r = AnnotationRepository.FromString(@"<notes version='0'>
+			using (var r = AnnotationRepository.FromString("id", @"<notes version='0'>
 <annotation class='question' ref='red'/>
 <annotation class='note' ref='black'/>
 </notes>"))
@@ -85,7 +85,7 @@ namespace LibChorus.Tests.notes
 		[Test]
 		public void GetMatches_Has0Matches_ReturnsNone()
 		{
-			using (var r = AnnotationRepository.FromString(@"<notes version='0'/>"))
+			using (var r = AnnotationRepository.FromString("id", @"<notes version='0'/>"))
 			{
 				var index = new IndexOfRefsOfQuestionAnnotations();
 				r.AddObserver(index, _progress);
@@ -97,7 +97,7 @@ namespace LibChorus.Tests.notes
 		[Test]
 		public void GetMatches_PredicateGivesNullForOne_ReturnsIt()
 		{
-			using (var r = AnnotationRepository.FromString(@"<notes version='0'>
+			using (var r = AnnotationRepository.FromString("id", @"<notes version='0'>
 <annotation class='question'/>
 </notes>"))
 			{
@@ -110,7 +110,7 @@ namespace LibChorus.Tests.notes
 		[Test]
 		public void GetMatches_Has2Matches_Returns2()
 		{
-			using (var r = AnnotationRepository.FromString(@"<notes version='0'>
+			using (var r = AnnotationRepository.FromString("id", @"<notes version='0'>
 <annotation class='question' ref='red'/>
 <annotation class='question' ref='blue'/>
 <annotation class='question' ref='blue'/>

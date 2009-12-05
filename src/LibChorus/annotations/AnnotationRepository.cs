@@ -19,13 +19,13 @@ namespace Chorus.annotations
 		private List<IAnnotationRepositoryObserver> _observers = new List<IAnnotationRepositoryObserver>();
 		private AnnotationIndex _indexOfAllAnnotationsByKey;
 
-		public static AnnotationRepository FromFile(string path)
+		public static AnnotationRepository FromFile(string primaryRefParameter, string path, IProgress progress)
 		{
 			try
 			{
 				var doc = XDocument.Load(path);
 				ThrowIfVersionTooHigh(doc, path);
-				return new AnnotationRepository(doc, path);
+				return new AnnotationRepository(primaryRefParameter, doc, path, progress);
 			}
 			catch (XmlException error)
 			{
@@ -34,13 +34,13 @@ namespace Chorus.annotations
 		}
 
 
-		public static AnnotationRepository FromString(string contents)
+		public static AnnotationRepository FromString(string primaryRefParameter, string contents)
 		{
 			try
 			{
 				XDocument doc = XDocument.Parse(contents);
 				ThrowIfVersionTooHigh(doc, "unknown");
-				return new AnnotationRepository(doc, string.Empty);
+				return new AnnotationRepository(primaryRefParameter, doc, string.Empty, new NullProgress());
 			}
 			catch (XmlException error)
 			{
@@ -48,18 +48,24 @@ namespace Chorus.annotations
 			}
 		}
 
-		public AnnotationRepository(XDocument doc, string path)
+		public AnnotationRepository(string primaryRefParameter, XDocument doc, string path, IProgress progress)
 		{
 			_doc = doc;
 			_annotationFilePath = path;
 
-
-			foreach (var element in _doc.Root.Elements())
+			if (_doc.Root != null)
 			{
-				//nb: this is not going to catch a change to, say a message. The current model
-				// is that the internals of a message never change.
-				element.Changed+=new EventHandler<XObjectChangeEventArgs>(AnnotationElement_Changed);
+				foreach (var element in _doc.Root.Elements())
+				{
+					//nb: this is not going to catch a change to, say a message. The current model
+					// is that the internals of a message never change.
+					element.Changed += new EventHandler<XObjectChangeEventArgs>(AnnotationElement_Changed);
+				}
 			}
+
+			_indexOfAllAnnotationsByKey = new IndexOfAllAnnotationsByKey(primaryRefParameter);
+			AddObserver(_indexOfAllAnnotationsByKey, progress);
+
 		}
 
 		public void Dispose()
@@ -94,9 +100,18 @@ namespace Chorus.annotations
 				   select new Annotation(a);
 		}
 
-		public void SaveAs(string path)
+//        public void SaveAs(string path)
+//        {
+//            _doc.Save(path);
+//        }
+
+		public void Save()
 		{
-			_doc.Save(path);
+			if(string.IsNullOrEmpty(_annotationFilePath))
+			{
+				throw new InvalidOperationException("Cannot save if the repository was created from a string");
+			}
+			_doc.Save(_annotationFilePath);
 		}
 
 		public void AddAnnotation(Annotation annotation)
@@ -141,6 +156,11 @@ namespace Chorus.annotations
 			annotation.Element.Remove();
 			_observers.ForEach(index => index.NotifyOfDeletion(annotation));
 			annotation.Element.Changed -= new EventHandler<XObjectChangeEventArgs>(AnnotationElement_Changed);
+		}
+
+		public IEnumerable<Annotation> GetMatchesByPrimaryRefKey(string key)
+		{
+			return _indexOfAllAnnotationsByKey.GetMatchesByKey(key);
 		}
 	}
 
