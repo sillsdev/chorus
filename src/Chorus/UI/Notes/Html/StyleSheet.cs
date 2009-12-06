@@ -18,10 +18,43 @@ namespace Chorus.UI
 		{
 			get
 			{
-				return string.Format("<style type='text/css'><!-- {0} --></style>", File.ReadAllText(_path));
+				var contents = GetContents();
+				return string.Format("<style type='text/css'><!-- {0} --></style>", contents);
 			}
-
 		}
+
+		private string GetContents()
+		{
+			if (File.Exists(_path))
+			{
+				return File.ReadAllText(_path);
+			}
+			else   //TODO this is a temp hack
+			{
+				return
+					@"body
+{
+margin-top: 0px;
+ font-family: verdana,arial,helvetica,sans-serif; font-size: 12px;
+}
+hr {border: 1px solid #DCDCDC}
+
+span.sender {color: Black; font-weight: bold}
+span.when {color:Gray}
+span.status {color: Black; font-weight: bold}
+#span.statusChangeNotice {font-style: italic}
+
+div.messageContents{margin-top:10px}
+div.message{margin-top:9px; font-size:larger}
+div.message.statusChange{font-style: italic; margin-top:6px}
+
+div.selected {background-color: #FFFACD}
+
+
+";
+			}
+		}
+
 		public static string DirectoryOfTheApplicationExecutable
 		{
 			get
@@ -48,6 +81,7 @@ namespace Chorus.UI
 		public static StyleSheet CreateFromDisk()
 		{
 			string path = DirectoryOfTheApplicationExecutable;
+			//TODO: this only makes sense in the chorus dev environment?
 			foreach (var s in new string[]{"UI","Notes", "Html","StyleSheet.css"})
 			{
 				path = Path.Combine(path, s);

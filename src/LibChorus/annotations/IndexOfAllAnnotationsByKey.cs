@@ -12,10 +12,10 @@ namespace Chorus.annotations
 
 		private static string ExtractKeyOutOfRef(Annotation annotation, string nameOfParameterInRefToIndex)
 		{
-			if(string.IsNullOrEmpty(annotation.Ref))
+			if(string.IsNullOrEmpty(annotation.RefStillEscaped))
 				return string.Empty;
 			return annotation.GetValueFromQueryStringOfRef(nameOfParameterInRefToIndex, string.Empty);
-//            var parse =HttpUtility.ParseQueryString(annotation.Ref);
+//            var parse =HttpUtility.ParseQueryString(annotation.RefStillEscaped);
 //            var values = parse.GetValues(nameOfParameterInRefToIndex);
 //            if(values==null || values.Length == 0)
 //                return string.Empty;

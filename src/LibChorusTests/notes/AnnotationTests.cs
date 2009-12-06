@@ -28,7 +28,7 @@ namespace LibChorus.Tests.notes
 		public void Ref_HasUrl_ReturnsUrl()
 		{
 			var a = new Annotation(XElement.Parse("<annotation ref='pretend' class='foo' guid='123'/>"));
-			Assert.AreEqual("pretend", a.Ref);
+			Assert.AreEqual("pretend", a.RefStillEscaped);
 		}
 
 		[Test]

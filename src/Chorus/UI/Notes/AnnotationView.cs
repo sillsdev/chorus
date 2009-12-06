@@ -9,16 +9,22 @@ namespace Chorus.UI.Notes
 	{
 		private readonly AnnotationEditorModel _model;
 		private bool _waitingOnBrowserToBeReady;
-
-		public AnnotationView(AnnotationEditorModel model)
+		public EventHandler OnClose;
+		public AnnotationView(AnnotationEditorModel model, bool modalDialogMode)
 		{
 			_model = model;
 			_model.UpdateContent += OnUpdateContent;
 			_model.UpdateStates += OnUpdateStates;
 			InitializeComponent();
 			Visible = model.IsVisible;
+			_closeButton.Visible = modalDialogMode;
 			//needs to be primed this way
 			_existingMessagesDisplay.DocumentText = "<html></html>";
+		}
+
+		public Button CloseButton
+		{
+			get { return _closeButton; }
 		}
 
 		void OnUpdateContent(object sender, EventArgs e)
@@ -59,6 +65,8 @@ namespace Chorus.UI.Notes
 			_newMessage.Visible = _model.ShowNewMessageControls;
 			_addNewMessageLabel.Visible = _model.ShowNewMessageControls;
 			Visible = _model.IsVisible;
+
+			_closeButton.Text = _model.CloseButtonText;
 		}
 
 		private void AnnotationView_Load(object sender, EventArgs e)
@@ -88,6 +96,7 @@ namespace Chorus.UI.Notes
 		private void _newMessage_TextChanged(object sender, EventArgs e)
 		{
 			_model.NewMessageText = _newMessage.Text;
+			OnUpdateStates(null,null);
 		}
 
 		private void _annotationLogo_Paint(object sender, PaintEventArgs e)
@@ -120,6 +129,18 @@ namespace Chorus.UI.Notes
 			{
 				_waitingOnBrowserToBeReady = false;
 				OnUpdateContent(null,null);
+			}
+		}
+
+		private void _closeButton_Click(object sender, EventArgs e)
+		{
+			if(_addButton.Enabled )
+			{
+				_addButton_Click(sender, e);
+			}
+			if(OnClose!=null)
+			{
+				OnClose(sender, e);
 			}
 		}
 

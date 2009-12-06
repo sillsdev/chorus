@@ -7,6 +7,7 @@ using System.Xml;
 using System.Linq;
 using System.Xml.Linq;
 using Chorus.Utilities;
+using Chorus.Utilities.code;
 
 namespace Chorus.annotations
 {
@@ -18,11 +19,17 @@ namespace Chorus.annotations
 		public static string FileExtension = "ChorusNotes";
 		private List<IAnnotationRepositoryObserver> _observers = new List<IAnnotationRepositoryObserver>();
 		private AnnotationIndex _indexOfAllAnnotationsByKey;
+		private bool _isDirty;
 
 		public static AnnotationRepository FromFile(string primaryRefParameter, string path, IProgress progress)
 		{
 			try
 			{
+				if(!File.Exists(path))
+				{
+					RequireThat.Directory(Path.GetDirectoryName(path)).Exists();
+					File.WriteAllText(path, string.Format("<notes version='{0}'/>", kCurrentVersion.ToString()));
+				}
 				var doc = XDocument.Load(path);
 				ThrowIfVersionTooHigh(doc, path);
 				return new AnnotationRepository(primaryRefParameter, doc, path, progress);
@@ -105,13 +112,16 @@ namespace Chorus.annotations
 //            _doc.Save(path);
 //        }
 
-		public void Save()
+		public void Save(IProgress progress)
 		{
 			if(string.IsNullOrEmpty(_annotationFilePath))
 			{
 				throw new InvalidOperationException("Cannot save if the repository was created from a string");
 			}
+			progress.WriteStatus("Saving Chorus Notes...");
 			_doc.Save(_annotationFilePath);
+			progress.WriteStatus("");
+			_isDirty = false;
 		}
 
 		public void AddAnnotation(Annotation annotation)
@@ -119,6 +129,7 @@ namespace Chorus.annotations
 			_doc.Root.Add(annotation.Element);
 			_observers.ForEach(index => index.NotifyOfAddition(annotation));
 			annotation.Element.Changed += new EventHandler<XObjectChangeEventArgs>(AnnotationElement_Changed);
+			_isDirty = true;
 		}
 
 		void AnnotationElement_Changed(object sender, XObjectChangeEventArgs e)
@@ -130,6 +141,7 @@ namespace Chorus.annotations
 			var element = sender as XElement;
 			XElement annotationElement  =element.AncestorsAndSelf("annotation").First();
 			_observers.ForEach(index => index.NotifyOfModification(new Annotation(annotationElement)));
+			_isDirty = true;
 		}
 
 		private static void ThrowIfVersionTooHigh(XDocument doc, string path)
@@ -156,11 +168,18 @@ namespace Chorus.annotations
 			annotation.Element.Remove();
 			_observers.ForEach(index => index.NotifyOfDeletion(annotation));
 			annotation.Element.Changed -= new EventHandler<XObjectChangeEventArgs>(AnnotationElement_Changed);
+			_isDirty = true;
 		}
 
 		public IEnumerable<Annotation> GetMatchesByPrimaryRefKey(string key)
 		{
 			return _indexOfAllAnnotationsByKey.GetMatchesByKey(key);
+		}
+
+		public void SaveNowIfNeeded(IProgress progress)
+		{
+			if(_isDirty)
+				Save(progress);
 		}
 	}
 

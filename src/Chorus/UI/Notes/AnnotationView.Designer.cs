@@ -34,6 +34,7 @@
 			this._annotationClassLabel = new System.Windows.Forms.Label();
 			this._annotationLogo = new System.Windows.Forms.PictureBox();
 			this._existingMessagesDisplay = new System.Windows.Forms.WebBrowser();
+			this._closeButton = new System.Windows.Forms.Button();
 			this._addNewMessageLabel = new Chorus.UI.BetterLabel();
 			((System.ComponentModel.ISupportInitialize)(this._annotationLogo)).BeginInit();
 			this.SuspendLayout();
@@ -42,10 +43,10 @@
 			//
 			this._closedCheckBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
 			this._closedCheckBox.AutoSize = true;
-			this._closedCheckBox.Location = new System.Drawing.Point(3, 386);
+			this._closedCheckBox.Location = new System.Drawing.Point(4, 386);
 			this._closedCheckBox.Name = "_closedCheckBox";
 			this._closedCheckBox.Size = new System.Drawing.Size(58, 17);
-			this._closedCheckBox.TabIndex = 3;
+			this._closedCheckBox.TabIndex = 2;
 			this._closedCheckBox.Text = "Closed";
 			this._closedCheckBox.UseVisualStyleBackColor = true;
 			this._closedCheckBox.CheckedChanged += new System.EventHandler(this.OnClosedCheckBox_CheckedChanged);
@@ -53,11 +54,11 @@
 			// _addButton
 			//
 			this._addButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-			this._addButton.Location = new System.Drawing.Point(231, 386);
+			this._addButton.Location = new System.Drawing.Point(255, 325);
 			this._addButton.Name = "_addButton";
-			this._addButton.Size = new System.Drawing.Size(75, 23);
-			this._addButton.TabIndex = 6;
-			this._addButton.Text = "Add";
+			this._addButton.Size = new System.Drawing.Size(63, 45);
+			this._addButton.TabIndex = 1;
+			this._addButton.Text = "&Add";
 			this._addButton.UseVisualStyleBackColor = true;
 			this._addButton.Click += new System.EventHandler(this._addButton_Click);
 			//
@@ -68,8 +69,8 @@
 			this._newMessage.Location = new System.Drawing.Point(4, 325);
 			this._newMessage.Multiline = true;
 			this._newMessage.Name = "_newMessage";
-			this._newMessage.Size = new System.Drawing.Size(302, 45);
-			this._newMessage.TabIndex = 7;
+			this._newMessage.Size = new System.Drawing.Size(248, 45);
+			this._newMessage.TabIndex = 0;
 			this._newMessage.TextChanged += new System.EventHandler(this._newMessage_TextChanged);
 			//
 			// _annotationClassLabel
@@ -108,6 +109,17 @@
 			this._existingMessagesDisplay.Navigating += new System.Windows.Forms.WebBrowserNavigatingEventHandler(this._existingMessagesDisplay_Navigating);
 			this._existingMessagesDisplay.DocumentCompleted += new System.Windows.Forms.WebBrowserDocumentCompletedEventHandler(this._existingMessagesDisplay_DocumentCompleted);
 			//
+			// _closeButton
+			//
+			this._closeButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+			this._closeButton.Location = new System.Drawing.Point(189, 376);
+			this._closeButton.Name = "_closeButton";
+			this._closeButton.Size = new System.Drawing.Size(129, 36);
+			this._closeButton.TabIndex = 1;
+			this._closeButton.Text = "Add && &Close";
+			this._closeButton.UseVisualStyleBackColor = true;
+			this._closeButton.Click += new System.EventHandler(this._closeButton_Click);
+			//
 			// _addNewMessageLabel
 			//
 			this._addNewMessageLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
@@ -129,6 +141,7 @@
 			this.Controls.Add(this._existingMessagesDisplay);
 			this.Controls.Add(this._annotationClassLabel);
 			this.Controls.Add(this._newMessage);
+			this.Controls.Add(this._closeButton);
 			this.Controls.Add(this._addButton);
 			this.Controls.Add(this._addNewMessageLabel);
 			this.Controls.Add(this._closedCheckBox);
@@ -151,5 +164,6 @@
 		private System.Windows.Forms.TextBox _newMessage;
 		private System.Windows.Forms.Label _annotationClassLabel;
 		private System.Windows.Forms.WebBrowser _existingMessagesDisplay;
+		private System.Windows.Forms.Button _closeButton;
 	}
 }

@@ -44,8 +44,8 @@ namespace Chorus.Tests.notes
 				var chorus = new ChorusSystem(folder.Path);
 				var notesSystem = chorus.GetNotesSystem(dataFile.Path, new ConsoleProgress());
 				var view = notesSystem.CreateNotesBarView();
-
-				view.IdOfCurrentAnnotatedObject="korupsen";
+				view.Height = 32;
+				view.SetIdOfCurrentAnnotatedObject("korupsen");
 
 				var form = new Form();
 				form.Size = new Size(700, 600);
@@ -103,7 +103,7 @@ namespace Chorus.Tests.notes
 				var notesInProjectView = new NotesInProjectView(notesInProjectViewModel);
 
 				var annotationModel = new AnnotationEditorModel(new ChorusNotesUser("bob"), messageSelected, StyleSheet.CreateFromDisk(), new EmbeddedMessageContentHandlerFactory());
-				AnnotationView annotationView = new AnnotationView(annotationModel);
+				AnnotationView annotationView = new AnnotationView(annotationModel, false);
 				var page = new NotesPage(notesInProjectView, annotationView);
 				page.Dock = DockStyle.Fill;
 				var form = new Form();

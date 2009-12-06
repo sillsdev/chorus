@@ -13,7 +13,7 @@ namespace Chorus.annotations
 	{
 		public IndexOfAllOpenConflicts()
 			: base( (a => a.ClassName == "conflict" && a.Status == "open"), // includeIndexPredicate
-					(a => a.Ref))                                           // keyMakingFunction
+					(a => a.RefStillEscaped))                                           // keyMakingFunction
 		{
 		}
 

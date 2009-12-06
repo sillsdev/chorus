@@ -183,7 +183,7 @@ namespace Chorus.UI.Notes
 
 		public string DetailsText
 		{
-			get { return string.Format("ref={0  } status={1}", _currentAnnotation.Ref, _currentAnnotation.Status); }
+			get { return string.Format("ref={0  } status={1}", _currentAnnotation.RefStillEscaped, _currentAnnotation.Status); }
 		}
 
 
@@ -206,6 +206,21 @@ namespace Chorus.UI.Notes
 		public bool IsVisible
 		{//wait for an annotation to be selected
 			get { return _currentAnnotation != null; }
+		}
+
+		public string CloseButtonText
+		{
+			get
+			{
+				if (_newMessageText.Length > 0)
+				{
+					return "Add && &Close";
+				}
+				else
+				{
+				   return "&Close";
+				}
+			}
 		}
 
 		public Image GetAnnotationLogoImage()

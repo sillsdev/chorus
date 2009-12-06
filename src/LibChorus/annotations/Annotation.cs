@@ -4,6 +4,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Web;
 using System.Xml;
 using System.Xml.Linq;
 using System.Xml.XPath;
@@ -39,10 +40,25 @@ namespace Chorus.annotations
 			get { return _element.GetAttributeValue("guid"); }
 		}
 
-		public string Ref
+		/// <summary>
+		/// Gets the ref with any reserved characters (e.g. &, <, >) till escaped to be safe in the xml
+		/// </summary>
+		public string RefStillEscaped
 		{
 			get { return _element.GetAttributeValue("ref"); }
 		}
+
+
+		public string RefUnEscaped
+		{
+			get
+			{
+				var value = _element.GetAttributeValue("ref");
+				return Annotation.GetUnEscapedString(value);
+			}
+		}
+
+
 
 		public static string GetStatusOfLastMessage(XElement annotation)
 		{
@@ -137,14 +153,15 @@ namespace Chorus.annotations
 			try
 			{
 				Uri uri;
-				if (!Uri.TryCreate(Ref, UriKind.Absolute, out uri))
+				if (!Uri.TryCreate(RefStillEscaped, UriKind.Absolute, out uri))
 				{
-					throw new ApplicationException("Could not parse the url " + Ref);
+					throw new ApplicationException("Could not parse the url " + RefStillEscaped);
 				}
 
 				var parse = System.Web.HttpUtility.ParseQueryString(uri.Query);
 
-				var label = parse.GetValues(name).FirstOrDefault();
+				var r = parse.GetValues(name);
+				var label = r==null? defaultIfCannotGetIt : r.First();
 				return string.IsNullOrEmpty(label) ? defaultIfCannotGetIt : label;
 			}
 			catch (Exception)
@@ -180,7 +197,7 @@ namespace Chorus.annotations
 			{
 				StringBuilder b = new StringBuilder();
 				b.AppendLine(this.AnnotationFilePath);
-			 //   b.AppendLine(Ref);
+			 //   b.AppendLine(RefStillEscaped);
 				using (XmlWriter x = XmlWriter.Create(b))
 				{
 					this._element.WriteTo(x);
@@ -197,5 +214,17 @@ namespace Chorus.annotations
 		}
 
 
+		public static string GetEscapedString(string s)
+		{
+			string x = HttpUtility.UrlEncode(s);
+			x = x.Replace("'", "%27");
+			return x;
+		}
+
+		public static string GetUnEscapedString(string s)
+		{
+			var x = s.Replace("%27", "'");
+			return HttpUtility.UrlDecode(x);
+		}
 	}
 }

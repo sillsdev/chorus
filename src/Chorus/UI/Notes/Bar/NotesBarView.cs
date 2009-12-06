@@ -8,6 +8,7 @@ using System.Text;
 using System.Windows.Forms;
 using Chorus.annotations;
 using Chorus.UI.Notes.Bar;
+using Chorus.Utilities;
 
 namespace Chorus.UI.Notes
 {
@@ -24,7 +25,6 @@ namespace Chorus.UI.Notes
 		/// <returns></returns>
 		public delegate NotesBarView Factory();//autofac uses this
 
-		private readonly string _key;
 		private readonly NotesBarModel _model;
 		private AnnotationEditorModel.Factory _annotationEditorModelFactory;
 
@@ -37,7 +37,7 @@ namespace Chorus.UI.Notes
 			_annotationEditorModelFactory = annotationViewModelFactory;
 			InitializeComponent();
 			_model.UpdateContent += new EventHandler(OnUpdateContent);
-			ButtonHeight = 32;
+		   // ButtonHeight = 32;
 		}
 
 //        public NotesBarView(NotesBarModel model, AnnotationEditorModel.Factory annotationViewModelFactory)
@@ -49,23 +49,71 @@ namespace Chorus.UI.Notes
 //            ButtonHeight = 32;
 //        }
 
-		protected int ButtonHeight { get; set; }
-		public string IdOfCurrentAnnotatedObject { get; set; }
+	   // public int ButtonHeight { get; set; }
+
+		//this is duplicated on the view so that clients don't have to know/think about
+		//how this control is split into view and model
+		public void SetIdOfCurrentAnnotatedObject(string id)
+		{
+			_model.SetIdOfCurrentAnnotatedObject(id);
+		}
 
 		private void OnUpdateContent(object sender, EventArgs e)
 		{
 			_buttonsPanel.Controls.Clear();
 
-			foreach (var annotation in _model.GetAnnotationsToShow(IdOfCurrentAnnotatedObject))
-			{
-				var b = new Button();
+			AddNoteCreationControl();
 
-				b.Size = new Size(ButtonHeight + 14, ButtonHeight + 14);
-				b.Image = annotation.GetImage(ButtonHeight);
-				b.Tag = annotation;
-				b.Click += new EventHandler(OnExistingAnnotationButtonClick);
-				_buttonsPanel.Controls.Add(b);
+			foreach (var annotation in _model.GetAnnotationsToShow())
+			{
+				AddAnnotationButton(annotation);
 			}
+		}
+
+
+		private Button AddAnnotationButton(Annotation annotation)
+		{
+			var b = new Button();
+
+			b.Size = new Size(ButtonHeight, ButtonHeight);
+			b.Image = annotation.GetImage(ButtonImageHeight);
+			b.Tag = annotation;
+			b.Click += new EventHandler(OnExistingAnnotationButtonClick);
+			_buttonsPanel.Controls.Add(b);
+			return b;
+		}
+
+		protected int ButtonHeight
+		{
+			get { return this.Height-8; }
+		}
+
+		protected int ButtonImageHeight
+		{
+			get
+			{
+				if (ButtonHeight > 35)
+					return 32;
+				else
+				{
+					return 16;
+				}
+			}
+		}
+
+		private void AddNoteCreationControl()
+		{
+			Button b;
+			b = new Button {Text = "*", Size = new Size(ButtonHeight, ButtonHeight)};
+			b.Click += new EventHandler(OnCreateNoteButtonClick);
+			_buttonsPanel.Controls.Add(b);
+		}
+
+		private void OnCreateNoteButtonClick(object sender, EventArgs e)
+		{
+			var newguy = _model.CreateAnnotation();
+			var btn = AddAnnotationButton(newguy);
+			OnExistingAnnotationButtonClick(btn, null);
 		}
 
 		private void OnExistingAnnotationButtonClick(object sender, EventArgs e)
@@ -74,6 +122,7 @@ namespace Chorus.UI.Notes
 			var dlg = new NoteDetailDialog(annotation, _annotationEditorModelFactory);
 			dlg.ShowDialog();
 			OnUpdateContent(null,null);
+			_model.SaveNowIfNeeded(new NullProgress());
 		}
 
 		private void NotesBarView_Load(object sender, EventArgs e)
@@ -81,6 +130,11 @@ namespace Chorus.UI.Notes
 			OnUpdateContent(null,null);
 		}
 
-
+	  /* for now, let's just autosave
+	   * public void SaveNowIfNeeded(IProgress progress)
+		{
+			_model.SaveNowIfNeeded(progress);
+		}
+	   */
 	}
 }

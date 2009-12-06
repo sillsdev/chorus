@@ -24,7 +24,7 @@ namespace Chorus.annotations
 	{
 		private MultiMap<string, Annotation> _keyToObjectsMap;
 		private Func<Annotation, bool> _includeIndexPredicate = (a => true);
-		private Func<Annotation, string> _keyMakingFunction = (a => a.Ref);
+		private Func<Annotation, string> _keyMakingFunction = (a => a.RefStillEscaped);
 
 		public AnnotationIndex(Func<Annotation, bool> includeIndexPredicate, Func<Annotation, string> keyMakingFunction)
 		{
@@ -50,7 +50,7 @@ namespace Chorus.annotations
 		{
 			if (_includeIndexPredicate(annotation))
 			{
-				_keyToObjectsMap.Add(annotation.Ref, annotation);
+				_keyToObjectsMap.Add(_keyMakingFunction(annotation), annotation);
 			}
 		}
 

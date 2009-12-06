@@ -14,7 +14,7 @@ namespace LibChorus.Tests.notes
 	{
 		private IProgress _progress = new ConsoleProgress();
 
-		[Test, ExpectedException(typeof(FileNotFoundException))]
+		[Test, ExpectedException(typeof(ArgumentException))]
 		public void FromPath_ParentDirectoryPathDoesntExist_Throws()
 		{
 			AnnotationRepository.FromFile("id", Path.Combine("blah","bogus.xml"), new ConsoleProgress());
@@ -23,10 +23,11 @@ namespace LibChorus.Tests.notes
 		[Test]
 		public void FromPath_DoesntExistYet_Creates()
 		{
-			using(var f = new TempFile(true))
+			using(var f = new TempFile())
 			{
+				File.Delete(f.Path);
 				var repo = AnnotationRepository.FromFile("id", f.Path, new ConsoleProgress());
-				repo.Save();
+				repo.Save(new ConsoleProgress());
 				Assert.IsTrue(File.Exists(f.Path));
 			}
 		}
@@ -90,13 +91,13 @@ namespace LibChorus.Tests.notes
 			}
 		}
 
-		[Test]
+		[Test, ExpectedException(typeof(InvalidOperationException))]
 		public void Save_AfterCreatingFromString_Throws()
 		{
 			using (var r =AnnotationRepository.FromString("id", @"<notes version='0'><annotation guid='123'>
 <message guid='234'>&lt;p&gt;hello</message></annotation></notes>"))
 			{
-				r.Save();
+				r.Save(new ConsoleProgress());
 			}
 		}
 
@@ -110,7 +111,7 @@ namespace LibChorus.Tests.notes
 				{
 					var an = new Annotation("fooClass", "http://somewhere.org", "somepath");
 					r.AddAnnotation(an);
-					r.Save();
+					r.Save(new ConsoleProgress());
 				}
 				using (var x = AnnotationRepository.FromFile("id", t.Path, new ConsoleProgress()))
 				{

@@ -128,7 +128,7 @@ namespace LibChorus.Tests.notes
 
 	class IndexOfRefsOfQuestionAnnotations : AnnotationIndex
 	{
-		public IndexOfRefsOfQuestionAnnotations() : base(a => a.ClassName == "question", a => a.Ref)
+		public IndexOfRefsOfQuestionAnnotations() : base(a => a.ClassName == "question", a => a.RefStillEscaped)
 		{
 		}
 
