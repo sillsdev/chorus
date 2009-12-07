@@ -27,8 +27,11 @@ namespace Chorus.UI.Notes.Bar
 
 		public void SetIdOfCurrentAnnotatedObject(string key)
 		{
-			_idOfCurrentAnnotatedObject = key;
-			UpdateContentNow();
+			if (key != _idOfCurrentAnnotatedObject)
+			{
+				_idOfCurrentAnnotatedObject = key;
+				UpdateContentNow();
+			}
 		}
 
 		internal event EventHandler UpdateContent;
@@ -67,6 +70,12 @@ namespace Chorus.UI.Notes.Bar
 		public void SaveNowIfNeeded(IProgress progress)
 		{
 			_repository.SaveNowIfNeeded(progress);
+		}
+
+		public void RemoveAnnotation(Annotation annotation)
+		{
+			_repository.Remove(annotation);
+			UpdateContentNow();
 		}
 	}
 }

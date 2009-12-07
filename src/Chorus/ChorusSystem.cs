@@ -70,18 +70,27 @@ namespace Chorus
 		public delegate ChorusNotesSystem Factory(AnnotationRepository repository, string pathToFileBeingAnnotated, IProgress progress);//autofac uses this
 
 		private Autofac.IContainer _container;
+		private readonly AnnotationRepository _repository;
 
 		public ChorusNotesSystem(IContainer parentContainer, AnnotationRepository repository,string pathToFileBeingAnnotated, IProgress progress)
 		{
-			_container = parentContainer.CreateInnerContainer();
-			var builder = new Autofac.Builder.ContainerBuilder();
+			_container = parentContainer;
+			_repository = repository;
+			// _container = parentContainer.CreateInnerContainer();
+//            var builder = new Autofac.Builder.ContainerBuilder();
+//            builder.Register(repository);
+//            builder.Build(_container);
+		   // var model = _container.Resolve<NotesBarModel>();
+//            builder.Register(model);
+//            builder.Build(_container);
 
-			var x = _container.Resolve<NotesBarModel.Factory>()(repository);
+			//var x = _container.Resolve<NotesBarModel.Factory>()(repository);
 		}
 
 		public NotesBarView CreateNotesBarView()
 		{
-			return _container.Resolve<NotesBarView>();
+			var model = _container.Resolve<NotesBarModel.Factory>()(_repository);
+			return new NotesBarView(model, _container.Resolve<AnnotationEditorModel.Factory>());
 		}
 	}
 }

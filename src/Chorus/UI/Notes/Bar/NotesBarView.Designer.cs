@@ -28,7 +28,9 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
+			this.components = new System.ComponentModel.Container();
 			this._buttonsPanel = new System.Windows.Forms.FlowLayoutPanel();
+			this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
 			this.SuspendLayout();
 			//
 			// _buttonsPanel
@@ -54,5 +56,6 @@
 		#endregion
 
 		private System.Windows.Forms.FlowLayoutPanel _buttonsPanel;
+		private System.Windows.Forms.ToolTip toolTip1;
 	}
 }

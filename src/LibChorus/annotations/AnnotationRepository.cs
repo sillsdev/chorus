@@ -88,10 +88,18 @@ namespace Chorus.annotations
 			if (_observers.Exists(i => i.GetType() == observer.GetType()))
 			{
 				//fail fast.
-				throw new ApplicationException("And observer of the type " + observer.GetType().ToString() + " is already in the repository.");
+				throw new ApplicationException("An observer of the type " + observer.GetType().ToString() + " is already in the repository.");
 			}
 			_observers.Add(observer);
 			observer.Initialize(GetAllAnnotations, progress);
+		}
+
+		/// <summary>
+		/// for tests
+		/// </summary>
+		public void ClearObservers()
+		{
+			_observers.Clear();
 		}
 
 
@@ -178,7 +186,7 @@ namespace Chorus.annotations
 
 		public void SaveNowIfNeeded(IProgress progress)
 		{
-			if(_isDirty)
+			if(_isDirty && !string.IsNullOrEmpty(_annotationFilePath))
 				Save(progress);
 		}
 	}

@@ -75,7 +75,10 @@ namespace Chorus.annotations
 
 		public void NotifyOfDeletion(Annotation annotation)
 		{
-
+			if (_keyToObjectsMap.ContainsKey(_keyMakingFunction(annotation)))
+			{
+					_keyToObjectsMap.Remove(_keyMakingFunction(annotation));
+			}
 		}
 
 		public IEnumerable<Annotation> GetMatches(Func<string, bool> predicateOnKey, IProgress progress)

@@ -85,7 +85,7 @@
 			//
 			// _annotationLogo
 			//
-			this._annotationLogo.Image = global::Chorus.Properties.Resources.question32x32;
+			this._annotationLogo.Image = global::Chorus.Properties.Resources.NewNote16x16;
 			this._annotationLogo.Location = new System.Drawing.Point(5, 8);
 			this._annotationLogo.Name = "_annotationLogo";
 			this._annotationLogo.Size = new System.Drawing.Size(32, 32);

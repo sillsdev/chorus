@@ -25,7 +25,7 @@ namespace Chorus.Tests.notes
 			using (var dataFile = new TempFile(folder, "one.txt", "just a pretend file"))
 			using (new TempFile(folder, "one.txt" + AnnotationRepository.FileExtension,
 				@"<notes version='0'>
-					<annotation ref='somwhere://foo?id=korupsen' class='question'>
+					<annotation ref='somwhere://foo?id=x' class='question'>
 						<message guid='123' author='john' status='open' date='2009-07-18T23:53:04Z'>
 							Suzie, is this ok?
 						</message>
@@ -33,28 +33,35 @@ namespace Chorus.Tests.notes
 							It's fine.
 						</message>
 					</annotation>
-					<annotation ref='somwhere://foo?id=korupsen' class='mergeconflict'>
+					<annotation ref='somwhere://foo?id=x' class='mergeconflict'>
 						<message guid='123' author='merger' status='open' date='2009-07-18T23:53:04Z'>
 							some description of the conflict
 						</message>
 					</annotation>
-					<annotation ref='somwhere://foo2' class='note'/>
+					<annotation ref='somwhere://foo2?id=y' class='note'/>
 				</notes>"))
 			{
 				var chorus = new ChorusSystem(folder.Path);
 				var notesSystem = chorus.GetNotesSystem(dataFile.Path, new ConsoleProgress());
 				var view = notesSystem.CreateNotesBarView();
 				view.Height = 32;
-				view.SetIdOfCurrentAnnotatedObject("korupsen");
+				view.SetIdOfCurrentAnnotatedObject("x");
 
+				TextBox b = new TextBox();
+				b.Location = new Point(0, 50);
+				b.Text = "x";
+				b.TextChanged += new EventHandler((s,e)=>view.SetIdOfCurrentAnnotatedObject(b.Text));
 				var form = new Form();
 				form.Size = new Size(700, 600);
 				form.Controls.Add(view);
+				form.Controls.Add(b);
 
 				Application.EnableVisualStyles();
 				Application.Run(form);
 			}
 		}
+
+
 
 		[Test, Ignore("By Hand only")]
 		public void ShowNotesPage()

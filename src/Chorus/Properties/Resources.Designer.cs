@@ -114,9 +114,9 @@ namespace Chorus.Properties {
 			}
 		}
 
-		internal static System.Drawing.Bitmap question32x32 {
+		internal static System.Drawing.Bitmap NewNote16x16 {
 			get {
-				object obj = ResourceManager.GetObject("question32x32", resourceCulture);
+				object obj = ResourceManager.GetObject("NewNote16x16", resourceCulture);
 				return ((System.Drawing.Bitmap)(obj));
 			}
 		}

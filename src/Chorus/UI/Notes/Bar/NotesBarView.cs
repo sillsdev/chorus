@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using Chorus.annotations;
+using Chorus.Properties;
 using Chorus.UI.Notes.Bar;
 using Chorus.Utilities;
 
@@ -60,6 +61,7 @@ namespace Chorus.UI.Notes
 
 		private void OnUpdateContent(object sender, EventArgs e)
 		{
+			SuspendLayout();
 			_buttonsPanel.Controls.Clear();
 
 			AddNoteCreationControl();
@@ -68,6 +70,7 @@ namespace Chorus.UI.Notes
 			{
 				AddAnnotationButton(annotation);
 			}
+			ResumeLayout(false);
 		}
 
 
@@ -78,9 +81,23 @@ namespace Chorus.UI.Notes
 			b.Size = new Size(ButtonHeight, ButtonHeight);
 			b.Image = annotation.GetImage(ButtonImageHeight);
 			b.Tag = annotation;
+			b.FlatStyle = FlatStyle.Flat;
+			b.FlatAppearance.BorderSize = 0;
+
 			b.Click += new EventHandler(OnExistingAnnotationButtonClick);
+			b.Paint += new PaintEventHandler(OnPaintAnnotationButton);
 			_buttonsPanel.Controls.Add(b);
 			return b;
+		}
+
+		void OnPaintAnnotationButton(object sender, PaintEventArgs e)
+		{
+			Button b = (Button) sender;
+			Annotation a = b.Tag as Annotation;
+			if (a.IsClosed)
+			{
+				e.Graphics.DrawImage(Properties.Resources.check16x16, new Rectangle(9, 3, 14, 14));
+			}
 		}
 
 		protected int ButtonHeight
@@ -104,7 +121,11 @@ namespace Chorus.UI.Notes
 		private void AddNoteCreationControl()
 		{
 			Button b;
-			b = new Button {Text = "*", Size = new Size(ButtonHeight, ButtonHeight)};
+			b = new Button {Size = new Size(ButtonHeight, ButtonHeight)};
+			b.Image = Resources.NewNote16x16;
+			b.FlatStyle = FlatStyle.Flat;
+			b.FlatAppearance.BorderSize = 0;
+
 			b.Click += new EventHandler(OnCreateNoteButtonClick);
 			_buttonsPanel.Controls.Add(b);
 		}
@@ -114,6 +135,11 @@ namespace Chorus.UI.Notes
 			var newguy = _model.CreateAnnotation();
 			var btn = AddAnnotationButton(newguy);
 			OnExistingAnnotationButtonClick(btn, null);
+			var annotation = ((Annotation)btn.Tag);
+			if(annotation.Messages.Count()==0)
+			{
+				_model.RemoveAnnotation(annotation);
+			}
 		}
 
 		private void OnExistingAnnotationButtonClick(object sender, EventArgs e)
@@ -129,6 +155,7 @@ namespace Chorus.UI.Notes
 		{
 			OnUpdateContent(null,null);
 		}
+
 
 	  /* for now, let's just autosave
 	   * public void SaveNowIfNeeded(IProgress progress)

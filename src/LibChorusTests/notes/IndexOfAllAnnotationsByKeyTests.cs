@@ -23,7 +23,8 @@ namespace LibChorus.Tests.notes
 				r.AddAnnotation(new Annotation("question", "lift://blah.lift?id=fooid", "somepath"));
 
 				 var index = new IndexOfAllAnnotationsByKey("id");
-				r.AddObserver(index, _progress);
+				 r.ClearObservers();
+				 r.AddObserver(index, _progress);
 				Assert.AreEqual(2, index.GetMatchesByKey("fooid").Count());
 				Assert.AreEqual(0, index.GetMatchesByKey("222").Count());
 			}
@@ -38,6 +39,7 @@ namespace LibChorus.Tests.notes
 				r.AddAnnotation(new Annotation("question", "lift://blah.lift", "somepath"));
 
 				var index = new IndexOfAllAnnotationsByKey("id");
+				r.ClearObservers();
 				r.AddObserver(index, _progress);
 				Assert.AreEqual(0, index.GetMatchesByKey("222").Count());
 			}
