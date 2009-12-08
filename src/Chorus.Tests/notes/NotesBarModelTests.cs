@@ -47,6 +47,7 @@ namespace Chorus.Tests.notes
 		{
 			var repo = AnnotationRepository.FromString("id", "<notes version='0'/>");
 			var model = new NotesBarModel(repo);
+			model.UrlGenerater = key=> string.Format("lift://object?type=entry&amp;id={0}&amp;type=test", key);
 			model.SetIdOfCurrentAnnotatedObject("two'<three&four");
 			model.CreateAnnotation();
 			Assert.IsTrue(repo.GetAllAnnotations().First().RefUnEscaped.Contains("two'<three&four"));

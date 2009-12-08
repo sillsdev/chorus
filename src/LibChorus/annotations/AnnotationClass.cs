@@ -75,7 +75,7 @@ namespace Chorus.annotations
 			if (pixelsOfSquare <= 16)
 				return Chorus.Properties.AnnotationImages.MergeConflict16x16;
 			else
-				return Chorus.Properties.AnnotationImages.MergeConflic32x32;
+				return Chorus.Properties.AnnotationImages.MergeConflict32x32;
 		}
 
 		public override bool UserCanResolve { get { return true; } }

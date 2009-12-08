@@ -88,16 +88,16 @@ namespace Chorus.Properties {
 			}
 		}
 
-		public static System.Drawing.Bitmap MergeConflic32x32 {
+		public static System.Drawing.Bitmap MergeConflict16x16 {
 			get {
-				object obj = ResourceManager.GetObject("MergeConflic32x32", resourceCulture);
+				object obj = ResourceManager.GetObject("MergeConflict16x16", resourceCulture);
 				return ((System.Drawing.Bitmap)(obj));
 			}
 		}
 
-		public static System.Drawing.Bitmap MergeConflict16x16 {
+		public static System.Drawing.Bitmap MergeConflict32x32 {
 			get {
-				object obj = ResourceManager.GetObject("MergeConflict16x16", resourceCulture);
+				object obj = ResourceManager.GetObject("MergeConflict32x32", resourceCulture);
 				return ((System.Drawing.Bitmap)(obj));
 			}
 		}
@@ -126,13 +126,6 @@ namespace Chorus.Properties {
 		public static System.Drawing.Bitmap question32x32 {
 			get {
 				object obj = ResourceManager.GetObject("question32x32", resourceCulture);
-				return ((System.Drawing.Bitmap)(obj));
-			}
-		}
-
-		public static System.Drawing.Bitmap warning16x16 {
-			get {
-				object obj = ResourceManager.GetObject("warning16x16", resourceCulture);
 				return ((System.Drawing.Bitmap)(obj));
 			}
 		}

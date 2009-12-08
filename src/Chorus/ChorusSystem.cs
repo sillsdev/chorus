@@ -12,8 +12,8 @@ namespace Chorus
 {
 	public class ChorusSystem
 	{
-		private IContainer _container;
-		private Dictionary<string, AnnotationRepository> _annotationRepositories = new Dictionary<string, AnnotationRepository>();
+		private readonly IContainer _container;
+		private readonly Dictionary<string, AnnotationRepository> _annotationRepositories = new Dictionary<string, AnnotationRepository>();
 
 		public ChorusSystem(string folderPath)
 		{
@@ -69,6 +69,18 @@ namespace Chorus
 	{
 		public delegate ChorusNotesSystem Factory(AnnotationRepository repository, string pathToFileBeingAnnotated, IProgress progress);//autofac uses this
 
+		public delegate string UrlGenerator(string key);
+
+		/// <summary>
+		/// set this if you want something other than a default, chorus-generated URL for your objects
+		/// note, the key will be "escaped" (made safe for going in a url) for you, so don't make
+		/// your UrlGenerator do that.
+		/// </summary>
+		/// <example>(key) => string.Format("myimages://image?id={0}&amp;type=jpg", key)</example>
+		public UrlGenerator UrlGenerater { get; set; }
+
+		 public static UrlGenerator DefaultGenerator = (key) => string.Format("chorus://object?id={0}", key);
+
 		private Autofac.IContainer _container;
 		private readonly AnnotationRepository _repository;
 
@@ -76,6 +88,8 @@ namespace Chorus
 		{
 			_container = parentContainer;
 			_repository = repository;
+			UrlGenerater = DefaultGenerator;
+
 			// _container = parentContainer.CreateInnerContainer();
 //            var builder = new Autofac.Builder.ContainerBuilder();
 //            builder.Register(repository);
@@ -90,6 +104,7 @@ namespace Chorus
 		public NotesBarView CreateNotesBarView()
 		{
 			var model = _container.Resolve<NotesBarModel.Factory>()(_repository);
+			model.UrlGenerater = UrlGenerater;
 			return new NotesBarView(model, _container.Resolve<AnnotationEditorModel.Factory>());
 		}
 	}

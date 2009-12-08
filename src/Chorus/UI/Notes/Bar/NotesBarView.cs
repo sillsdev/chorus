@@ -83,6 +83,7 @@ namespace Chorus.UI.Notes
 			b.Tag = annotation;
 			b.FlatStyle = FlatStyle.Flat;
 			b.FlatAppearance.BorderSize = 0;
+			toolTip1.SetToolTip(b, annotation.GetTextForToolTip());
 
 			b.Click += new EventHandler(OnExistingAnnotationButtonClick);
 			b.Paint += new PaintEventHandler(OnPaintAnnotationButton);
@@ -125,7 +126,7 @@ namespace Chorus.UI.Notes
 			b.Image = Resources.NewNote16x16;
 			b.FlatStyle = FlatStyle.Flat;
 			b.FlatAppearance.BorderSize = 0;
-
+			toolTip1.SetToolTip(b, "Add new question");
 			b.Click += new EventHandler(OnCreateNoteButtonClick);
 			_buttonsPanel.Controls.Add(b);
 		}

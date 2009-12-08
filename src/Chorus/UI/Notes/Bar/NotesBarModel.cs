@@ -18,13 +18,6 @@ namespace Chorus.UI.Notes.Bar
 		private readonly AnnotationRepository _repository;
 		private string _idOfCurrentAnnotatedObject;
 
-		public delegate string UrlGenerator(string key);
-
-		//set this if you want something other than a default, chorus-generated URL for your objects
-		//note, the key will be "escaped" (made safe for going in a url) for you, so don't make
-		//your UrlGenerator do that.
-		public UrlGenerator UrlGenerater { get; set; }
-
 		public void SetIdOfCurrentAnnotatedObject(string key)
 		{
 			if (key != _idOfCurrentAnnotatedObject)
@@ -39,8 +32,10 @@ namespace Chorus.UI.Notes.Bar
 		public NotesBarModel(AnnotationRepository repository)
 		{
 			_repository = repository;
-			UrlGenerater = (key) => string.Format("chorus://object?id={0}", key);
+			UrlGenerater = ChorusNotesSystem.DefaultGenerator;
 		}
+
+		public ChorusNotesSystem.UrlGenerator UrlGenerater { get; set; }
 
 		public IEnumerable<Annotation> GetAnnotationsToShow()
 		{
@@ -60,7 +55,9 @@ namespace Chorus.UI.Notes.Bar
 		public Annotation CreateAnnotation()
 		{
 			var escapedIdOfCurrentAnnotatedObject = Annotation.GetEscapedString(_idOfCurrentAnnotatedObject);
-			var annotation = new Annotation("question", UrlGenerater(escapedIdOfCurrentAnnotatedObject), "doesntmakesense");
+			var url = UrlGenerater(escapedIdOfCurrentAnnotatedObject);
+		  //  url = Uri.EscapeUriString(url);//change those pesky & inbetween parameters to &amp;, but leave the single quotes alone
+			var annotation = new Annotation("question", url, "doesntmakesense");
 			_repository.AddAnnotation(annotation);
 
 			_repository.SaveNowIfNeeded(new NullProgress());

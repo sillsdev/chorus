@@ -217,6 +217,7 @@ namespace Chorus.annotations
 
 		public static string GetEscapedString(string s)
 		{
+			//review: is this different from URI.EscapeDataString?
 			string x = HttpUtility.UrlEncode(s);
 			x = x.Replace("'", "%27");
 			return x;
@@ -261,6 +262,24 @@ namespace Chorus.annotations
 		public override int GetHashCode()
 		{
 			return (_element != null ? _element.GetHashCode() : 0);
+		}
+
+		public string GetTextForToolTip()
+		{
+			var b = new StringBuilder();
+			b.AppendLine("--"+ClassName+"--");
+			foreach (var message in Messages)
+			{
+				if (message.Text.Trim().Length > 0)
+				{
+					b.AppendLine(message.Author + ": " + message.Text);
+				}
+			}
+			if (IsClosed)
+			{
+				b.AppendLine("This note is closed.");
+			}
+			return b.ToString();
 		}
 	}
 }
