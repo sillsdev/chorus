@@ -15,13 +15,13 @@ namespace Chorus.UI.Notes
 		private List<AnnotationRepository> _repositories=new List<AnnotationRepository>();
 		private string _searchText;
 
-		public NotesInProjectViewModel(string primaryRefParameter, ChorusNotesUser currentUser, ProjectFolderConfiguration projectFolderConfiguration, MessageSelectedEvent messageSelectedEventToRaise, IProgress progress)
+		public NotesInProjectViewModel( ChorusNotesUser currentUser, ProjectFolderConfiguration projectFolderConfiguration, MessageSelectedEvent messageSelectedEventToRaise, IProgress progress)
 		{
 			_currentUser = currentUser;
 			_messageSelectedEvent = messageSelectedEventToRaise;
 			foreach (var path in GetChorusNotesFilePaths(projectFolderConfiguration.FolderPath))
 			{
-				_repositories.Add(AnnotationRepository.FromFile(primaryRefParameter, path, progress));
+				_repositories.Add(AnnotationRepository.FromFile(string.Empty, path, progress));
 			}
 		}
 

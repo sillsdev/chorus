@@ -17,7 +17,8 @@ namespace Chorus.UI.Notes.Bar
 			InitializeComponent();
 			Text = String.Format("{0} on {1}", annotation.ClassName, annotation.LabelOfThingAnnotated);
 			var model = viewModelFactory(annotation);
-			var view = new AnnotationView(model, true);
+			var view = new AnnotationView(model);
+			view.ModalDialogMode = false;
 			view.Dock = DockStyle.Fill;
 			//view.Size  = new Size(Width, Height - 50);
 			Controls.Add(view);

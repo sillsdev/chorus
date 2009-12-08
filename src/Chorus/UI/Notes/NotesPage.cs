@@ -13,6 +13,7 @@ namespace Chorus.UI.Notes
 			this.Font = SystemFonts.MessageBoxFont;
 
 			SuspendLayout();
+			annotationView.ModalDialogMode = false;
 			annotationView.Dock = DockStyle.Fill;
 			annotationView.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
 			splitContainer1.Panel2.Padding = new Padding(3,34,3,3);//drop it below the search box of the other pain

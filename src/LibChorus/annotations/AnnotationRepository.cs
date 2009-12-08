@@ -67,11 +67,25 @@ namespace Chorus.annotations
 					element.Changed += new EventHandler<XObjectChangeEventArgs>(AnnotationElement_Changed);
 				}
 			}
-
-			_indexOfAllAnnotationsByKey = new IndexOfAllAnnotationsByKey(primaryRefParameter);
-			AddObserver(_indexOfAllAnnotationsByKey, progress);
-
+			SetPrimaryRefParameter(primaryRefParameter, progress);
 		}
+
+		/// <summary>
+		/// The repository defaults to using "id" as the parameter to look for in the ref url of an annotation.
+		/// </summary>
+		private void SetPrimaryRefParameter(string primaryRefParameter, IProgress progress)
+		{
+			if (_indexOfAllAnnotationsByKey != null)
+			{
+				_observers.Remove(_indexOfAllAnnotationsByKey);
+			}
+			if(!string.IsNullOrEmpty(primaryRefParameter))
+			{
+				_indexOfAllAnnotationsByKey = new IndexOfAllAnnotationsByKey(primaryRefParameter);
+				AddObserver(_indexOfAllAnnotationsByKey, progress);
+			}
+		}
+
 
 		public void Dispose()
 		{
@@ -171,6 +185,10 @@ namespace Chorus.annotations
 
 		public IEnumerable<Annotation> GetMatchesByPrimaryRefKey(string key)
 		{
+			if(_indexOfAllAnnotationsByKey ==null)
+			{
+				throw new ArgumentException("The index was not created... make sure you specified a non-empty primaryRefParameter");
+			}
 			return _indexOfAllAnnotationsByKey.GetMatchesByKey(key);
 		}
 

@@ -27,7 +27,7 @@ namespace Chorus.Tests.notes
 			using (var folder = new TempFolder("NotesModelTests"))
 			{
 				ProjectFolderConfiguration project = new ProjectFolderConfiguration(folder.Path);
-				var m = new NotesInProjectViewModel("id",TheUser, project, new MessageSelectedEvent(), new ConsoleProgress());
+				var m = new NotesInProjectViewModel(TheUser, project, new MessageSelectedEvent(), new ConsoleProgress());
 				Assert.AreEqual(0, m.GetMessages().Count());
 			}
 		}
@@ -47,7 +47,7 @@ namespace Chorus.Tests.notes
 			using (new TempFile(subfolder, "two." + AnnotationRepository.FileExtension, "<notes  version='0'><annotation><message/></annotation></notes>"))
 			{
 				ProjectFolderConfiguration project = new ProjectFolderConfiguration(folder.Path);
-				var m = new NotesInProjectViewModel("id", TheUser, project, new MessageSelectedEvent(), new ConsoleProgress());
+				var m = new NotesInProjectViewModel(TheUser, project, new MessageSelectedEvent(), new ConsoleProgress());
 				Assert.AreEqual(2, m.GetMessages().Count());
 			}
 		}
@@ -66,7 +66,7 @@ namespace Chorus.Tests.notes
 				using (CreateNotesFile(folder, contents))
 				{
 					ProjectFolderConfiguration project = new ProjectFolderConfiguration(folder.Path);
-					var m = new NotesInProjectViewModel("id", TheUser, project, new MessageSelectedEvent(), new ConsoleProgress());
+					var m = new NotesInProjectViewModel(TheUser, project, new MessageSelectedEvent(), new ConsoleProgress());
 					m.SearchTextChanged("john");
 					Assert.AreEqual(1, m.GetMessages().Count());
 				}
@@ -82,7 +82,7 @@ namespace Chorus.Tests.notes
 				using (CreateNotesFile(folder, contents))
 				{
 					ProjectFolderConfiguration project = new ProjectFolderConfiguration(folder.Path);
-					var m = new NotesInProjectViewModel("id", TheUser, project, new MessageSelectedEvent(), new ConsoleProgress());
+					var m = new NotesInProjectViewModel(TheUser, project, new MessageSelectedEvent(), new ConsoleProgress());
 					 Assert.AreEqual(2, m.GetMessages().Count(), "should get 2 annotations when search box is empty");
 				   m.SearchTextChanged("ques");
 					Assert.AreEqual(1, m.GetMessages().Count());
@@ -103,7 +103,7 @@ namespace Chorus.Tests.notes
 				using (CreateNotesFile(folder, contents))
 				{
 					ProjectFolderConfiguration project = new ProjectFolderConfiguration(folder.Path);
-					var m = new NotesInProjectViewModel("id", TheUser, project, new MessageSelectedEvent(), new ConsoleProgress());
+					var m = new NotesInProjectViewModel(TheUser, project, new MessageSelectedEvent(), new ConsoleProgress());
 					m.SearchTextChanged("2");
 				}
 			}

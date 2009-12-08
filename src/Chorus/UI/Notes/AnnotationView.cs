@@ -10,16 +10,22 @@ namespace Chorus.UI.Notes
 		private readonly AnnotationEditorModel _model;
 		private bool _waitingOnBrowserToBeReady;
 		public EventHandler OnClose;
-		public AnnotationView(AnnotationEditorModel model, bool modalDialogMode)
+		public AnnotationView(AnnotationEditorModel model)
 		{
 			_model = model;
 			_model.UpdateContent += OnUpdateContent;
 			_model.UpdateStates += OnUpdateStates;
 			InitializeComponent();
 			Visible = model.IsVisible;
-			_closeButton.Visible = modalDialogMode;
+			ModalDialogMode = true;
 			//needs to be primed this way
 			_existingMessagesDisplay.DocumentText = "<html></html>";
+		}
+
+		public bool ModalDialogMode
+		{
+			set { _closeButton.Visible = true;}
+			get{return _closeButton.Visible;}
 		}
 
 		public Button CloseButton
