@@ -15,7 +15,7 @@ namespace Chorus.annotations
 	public class Annotation
 	{
 		static public string TimeFormatNoTimeZone = "yyyy-MM-ddTHH:mm:ssZ";
-		private readonly XElement _element;
+		internal readonly XElement _element;
 		private AnnotationClass _class;
 
 		public Annotation(XElement element)
@@ -29,6 +29,7 @@ namespace Chorus.annotations
 		{
 			AnnotationFilePath = path; //TODO: this awkward, and not avail in the XElement constructor
 		}
+
 
 		public string ClassName
 		{
@@ -225,6 +226,41 @@ namespace Chorus.annotations
 		{
 			var x = s.Replace("%27", "'");
 			return HttpUtility.UrlDecode(x);
+		}
+
+		public override bool Equals(object obj)
+		{
+			if (ReferenceEquals(null, obj))
+			{
+				return false;
+			}
+			if (ReferenceEquals(this, obj))
+			{
+				return true;
+			}
+			if (obj.GetType() != typeof(Annotation))
+			{
+				return false;
+			}
+			return Equals((Annotation)obj);
+		}
+
+		public bool Equals(Annotation other)
+		{
+			if (ReferenceEquals(null, other))
+			{
+				return false;
+			}
+			if (ReferenceEquals(this, other))
+			{
+				return true;
+			}
+			return Equals(other._element, _element);
+		}
+
+		public override int GetHashCode()
+		{
+			return (_element != null ? _element.GetHashCode() : 0);
 		}
 	}
 }

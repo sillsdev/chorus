@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Web;
-using System.Windows.Forms;
 using System.Xml;
 using System.Linq;
 using System.Xml.Linq;
@@ -94,14 +92,6 @@ namespace Chorus.annotations
 			observer.Initialize(GetAllAnnotations, progress);
 		}
 
-		/// <summary>
-		/// for tests
-		/// </summary>
-		public void ClearObservers()
-		{
-			_observers.Clear();
-		}
-
 
 		public IEnumerable<Annotation> GetAllAnnotations()
 		{
@@ -173,10 +163,10 @@ namespace Chorus.annotations
 
 		public void Remove(Annotation annotation)
 		{
-			annotation.Element.Remove();
-			_observers.ForEach(index => index.NotifyOfDeletion(annotation));
-			annotation.Element.Changed -= new EventHandler<XObjectChangeEventArgs>(AnnotationElement_Changed);
-			_isDirty = true;
+			 annotation.Element.Changed -= new EventHandler<XObjectChangeEventArgs>(AnnotationElement_Changed);
+			 _observers.ForEach(index => index.NotifyOfDeletion(annotation));
+			 annotation.Element.Remove();
+		   _isDirty = true;
 		}
 
 		public IEnumerable<Annotation> GetMatchesByPrimaryRefKey(string key)

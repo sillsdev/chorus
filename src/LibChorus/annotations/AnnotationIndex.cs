@@ -61,7 +61,7 @@ namespace Chorus.annotations
 			{
 				if (!belongsInIndex)
 				{
-					_keyToObjectsMap.Remove(_keyMakingFunction(annotation));
+					_keyToObjectsMap.RemoveAllItemsWithKey(_keyMakingFunction(annotation));
 				}
 			}
 			else
@@ -75,10 +75,8 @@ namespace Chorus.annotations
 
 		public void NotifyOfDeletion(Annotation annotation)
 		{
-			if (_keyToObjectsMap.ContainsKey(_keyMakingFunction(annotation)))
-			{
-					_keyToObjectsMap.Remove(_keyMakingFunction(annotation));
-			}
+			var key = _keyMakingFunction(annotation);
+			_keyToObjectsMap.RemoveKeyItemPair(key, annotation);
 		}
 
 		public IEnumerable<Annotation> GetMatches(Func<string, bool> predicateOnKey, IProgress progress)

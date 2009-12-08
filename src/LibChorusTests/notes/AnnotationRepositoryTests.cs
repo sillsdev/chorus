@@ -196,6 +196,19 @@ namespace LibChorus.Tests.notes
 			}
 		}
 
+
+		[Test]
+		public void Remove_AnnotationAddedDynamically_RemovesIt()
+		{
+			using (var r = AnnotationRepository.FromString("id", @"<notes version='0'/>"))
+			{
+				var a = new Annotation("question", "blah://blah/?id=foo", "");
+				r.AddAnnotation(a);
+				r.Remove(a);
+				Assert.AreEqual(0, r.GetAllAnnotations().Count(), "should be none left");
+			}
+		}
+
 		[Test]
 		public void Remove_AnnotationWasAddedDynamically_RepositoryNotifiesIndices()
 		{

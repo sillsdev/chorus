@@ -38,7 +38,7 @@ namespace Chorus.UI.Notes
 //            foreach (Control control in _messagesPanel.Controls)
 //            {
 //                //nb: Clear() doesn't dispose, so we have to go through this
-//                _messagesPanel.Controls.Remove(control);
+//                _messagesPanel.Controls.RemoveAllItemsWithKey(control);
 //                var d = control as IDisposable;
 //                if(d!=null)
 //                    d.Dispose();
