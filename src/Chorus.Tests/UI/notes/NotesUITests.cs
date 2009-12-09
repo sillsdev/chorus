@@ -43,12 +43,12 @@ namespace Chorus.Tests.notes
 				var notesSystem = chorus.GetNotesSystem(dataFile.Path, new ConsoleProgress());
 				var view = notesSystem.CreateNotesBarView();
 				view.Height = 32;
-				view.SetIdOfCurrentAnnotatedObject("x");
+				view.SetTargetObject("x");
 
 				TextBox b = new TextBox();
 				b.Location = new Point(0, 50);
 				b.Text = "x";
-				b.TextChanged += new EventHandler((s,e)=>view.SetIdOfCurrentAnnotatedObject(b.Text));
+				b.TextChanged += new EventHandler((s,e)=>view.SetTargetObject(b.Text));
 				var form = new Form();
 				form.Size = new Size(700, 600);
 				form.Controls.Add(view);

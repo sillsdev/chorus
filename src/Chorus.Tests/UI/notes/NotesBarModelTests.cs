@@ -24,7 +24,7 @@ namespace Chorus.Tests.notes
 		{
 			var repo = AnnotationRepository.FromString("id", "<notes version='0'/>");
 			var model = new NotesBarModel(repo);
-			model.SetIdOfCurrentAnnotatedObject("foo3");
+			model.SetTargetObject("foo3");
 			model.CreateAnnotation();
 			Assert.AreEqual(1, repo.GetAllAnnotations().Count());
 			Assert.IsTrue(repo.GetAllAnnotations().First().RefStillEscaped.Contains("id="+"foo3"));
@@ -35,11 +35,12 @@ namespace Chorus.Tests.notes
 		{
 			var repo = AnnotationRepository.FromString("id", "<notes version='0'/>");
 			var model = new NotesBarModel(repo);
-			model.UrlGenerater = key => "foobar:"+key;
-			model.SetIdOfCurrentAnnotatedObject("foo3");
+			model.IdGenerator = (target) => "x"+ target.ToString()+"x";
+			model.UrlGenerator = (target, key) => "foobar:"+ key;
+			model.SetTargetObject("foo3");
 			model.CreateAnnotation();
 			Assert.AreEqual(1, repo.GetAllAnnotations().Count());
-			Assert.AreEqual("foobar:foo3", repo.GetAllAnnotations().First().RefStillEscaped);
+			Assert.AreEqual("foobar:xfoo3x", repo.GetAllAnnotations().First().RefStillEscaped);
 		}
 
 		[Test]
@@ -47,8 +48,9 @@ namespace Chorus.Tests.notes
 		{
 			var repo = AnnotationRepository.FromString("id", "<notes version='0'/>");
 			var model = new NotesBarModel(repo);
-			model.UrlGenerater = key=> string.Format("lift://object?type=entry&amp;id={0}&amp;type=test", key);
-			model.SetIdOfCurrentAnnotatedObject("two'<three&four");
+//            model.UrlGenerator = (target,key)=> string.Format("lift://object?type=entry&amp;id={0}&amp;type=test", key);
+			model.UrlGenerator = (target, key) => string.Format("lift://object?type=entry&id={0}&type=test", key);
+			model.SetTargetObject("two'<three&four");
 			model.CreateAnnotation();
 			Assert.IsTrue(repo.GetAllAnnotations().First().RefUnEscaped.Contains("two'<three&four"));
 		}

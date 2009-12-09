@@ -54,9 +54,9 @@ namespace Chorus.UI.Notes
 
 		//this is duplicated on the view so that clients don't have to know/think about
 		//how this control is split into view and model
-		public void SetIdOfCurrentAnnotatedObject(string id)
+		public void SetTargetObject(object target)
 		{
-			_model.SetIdOfCurrentAnnotatedObject(id);
+			_model.SetTargetObject(target);
 		}
 
 		private void OnUpdateContent(object sender, EventArgs e)

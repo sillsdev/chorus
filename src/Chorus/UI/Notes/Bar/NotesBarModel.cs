@@ -16,13 +16,14 @@ namespace Chorus.UI.Notes.Bar
 		//public delegate NotesBarModel FactoryWithExplicitRepository(AnnotationRepository repository, AnnotationIndex index);//autofac uses this
 
 		private readonly AnnotationRepository _repository;
-		private string _idOfCurrentAnnotatedObject;
+	  //  private string _idOfCurrentAnnotatedObject;
+		private object _targetObject;
 
-		public void SetIdOfCurrentAnnotatedObject(string key)
+		public void SetTargetObject(object target)
 		{
-			if (key != _idOfCurrentAnnotatedObject)
+			if (target != _targetObject)
 			{
-				_idOfCurrentAnnotatedObject = key;
+				_targetObject = target;
 				UpdateContentNow();
 			}
 		}
@@ -32,17 +33,20 @@ namespace Chorus.UI.Notes.Bar
 		public NotesBarModel(AnnotationRepository repository)
 		{
 			_repository = repository;
-			UrlGenerater = ChorusNotesSystem.DefaultGenerator;
+			UrlGenerator = ChorusNotesSystem.DefaultUrlGenerator;
+			IdGenerator = ChorusNotesSystem.DefaultIdGeneratorUsingObjectToStringAsId;
+
 		}
 
-		public ChorusNotesSystem.UrlGenerator UrlGenerater { get; set; }
+		public ChorusNotesSystem.UrlGeneratorFunction UrlGenerator { get; set; }
+		public ChorusNotesSystem.IdGeneratorFunction IdGenerator { get; set; }
 
 		public IEnumerable<Annotation> GetAnnotationsToShow()
 		{
-			if(string.IsNullOrEmpty(_idOfCurrentAnnotatedObject))
+			if (null == _targetObject)
 				return new List<Annotation>();
 
-			return _repository.GetMatchesByPrimaryRefKey(_idOfCurrentAnnotatedObject);
+			return _repository.GetMatchesByPrimaryRefKey(IdGenerator(_targetObject));
 			//todo: add controls for adding new notes, showing closed ones, etc.
 		}
 
@@ -54,9 +58,12 @@ namespace Chorus.UI.Notes.Bar
 
 		public Annotation CreateAnnotation()
 		{
-			var escapedIdOfCurrentAnnotatedObject = Annotation.GetEscapedString(_idOfCurrentAnnotatedObject);
-			var url = UrlGenerater(escapedIdOfCurrentAnnotatedObject);
-		  //  url = Uri.EscapeUriString(url);//change those pesky & inbetween parameters to &amp;, but leave the single quotes alone
+			var id = IdGenerator(_targetObject);
+			//nb: it's intentional and necessary to escape the id so it doesn't corrupt
+			//the parsing of the url query string, even though the entire url will be
+			//escaped again for xml purposes
+			var escapedId = Annotation.GetEscapedUrl(id);
+			var url = UrlGenerator(_targetObject, escapedId);
 			var annotation = new Annotation("question", url, "doesntmakesense");
 			_repository.AddAnnotation(annotation);
 
