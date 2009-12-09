@@ -143,6 +143,25 @@ namespace LibChorus.Tests.merge.xml.ourStory
 		}
 
 		[Test]
+		public void Do3WayMerge_ForceMergeAndMakeSureWeDontLoseIndentation()
+		{
+			var ourContent = _ancestor.Replace("This is all about one.",
+				"new text for one");
+			var theirContent = _ancestor.Replace("Mostly about two.",
+				"new text for two");
+			var result = DoMerge(ourContent, theirContent);
+
+			// I don't know a better way to do this than to do a string identity match
+			var whatTheMergeShouldBe = _ancestor.Replace("This is all about one.",
+				"new text for one").Replace("Mostly about two.",
+				"new text for two");
+
+			if (whatTheMergeShouldBe != result)
+				Assert.Fail("Strings don't match, so we must have trimmed some indentation! This is what the merge result was:{0}{1}{0}{0}This is what it should have been:{0}{2}",
+					System.Environment.NewLine, result, whatTheMergeShouldBe);
+		}
+
+		[Test]
 		public void Do3WayMerge_OneEdittedTheOtherDeletedAStory_GotAllChanges()
 		{
 			var ourContent = _ancestor.Replace("This is all about one.",
