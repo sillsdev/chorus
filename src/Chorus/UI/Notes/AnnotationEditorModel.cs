@@ -16,7 +16,7 @@ namespace Chorus.UI.Notes
 	{
 		public delegate AnnotationEditorModel Factory(Annotation annotation);//autofac uses this
 
-		private readonly ChorusNotesUser _user;
+		private readonly IChorusUser _user;
 		private readonly StyleSheet _styleSheet;
 		private Annotation _currentAnnotation;
 		private Message _currentFocussedMessage; //this is the part of the annotation in focus
@@ -26,7 +26,7 @@ namespace Chorus.UI.Notes
 		internal event EventHandler UpdateContent;
 		internal event EventHandler UpdateStates;
 
-		public AnnotationEditorModel(ChorusNotesUser user,
+		public AnnotationEditorModel(IChorusUser user,
 			MessageSelectedEvent messageSelectedEventToSubscribeTo,
 			StyleSheet styleSheet,
 			EmbeddedMessageContentHandlerFactory embeddedMessageContentHandlerFactory)
@@ -40,7 +40,7 @@ namespace Chorus.UI.Notes
 
 		//TODO: think about or merge these two constructors. this one is for when we're just
 		//showing the control with a single annotation... it isn't tied to a list of messages.
-		public AnnotationEditorModel(ChorusNotesUser user,
+		public AnnotationEditorModel(IChorusUser user,
 		   StyleSheet styleSheet,
 		   EmbeddedMessageContentHandlerFactory embeddedMessageContentHandlerFactory,
 			Annotation annotation)

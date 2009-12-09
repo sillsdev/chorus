@@ -6,6 +6,7 @@ using System.Windows.Forms;
 using Chorus.annotations;
 using Chorus.sync;
 using Chorus.UI.Notes;
+using Chorus.UI.Notes.Browser;
 using Chorus.Utilities;
 using NUnit.Framework;
 
@@ -18,7 +19,7 @@ namespace Chorus.Tests.notes
 		[SetUp]
 		public void Setup()
 		{
-			TheUser = new ChorusNotesUser("joe");
+			TheUser = new ChorusUser("joe");
 		}
 
 		[Test]
@@ -32,7 +33,7 @@ namespace Chorus.Tests.notes
 			}
 		}
 
-		protected ChorusNotesUser TheUser
+		protected ChorusUser TheUser
 		{
 			get;
 			set;

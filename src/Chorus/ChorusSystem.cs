@@ -3,27 +3,44 @@ using System.IO;
 using Autofac;
 using Autofac.Builder;
 using Chorus.annotations;
+using Chorus.sync;
 using Chorus.UI.Notes;
 using Chorus.UI.Notes.Bar;
+using Chorus.UI.Notes.Browser;
 using Chorus.Utilities;
 using Chorus.Utilities.code;
+using Chorus.VcsDrivers.Mercurial;
 
 namespace Chorus
 {
 	public class ChorusSystem
 	{
+		private readonly IChorusUser _user;
 		private readonly IContainer _container;
 		private readonly Dictionary<string, AnnotationRepository> _annotationRepositories = new Dictionary<string, AnnotationRepository>();
 
-		public ChorusSystem(string folderPath)
+		static public ChorusSystem CreateAndGuessUserName(string folderPath)
 		{
+				var hgrepo = HgRepository.CreateOrLocate(folderPath, new NullProgress());
+				var user  =new ChorusUser(hgrepo.GetUserIdInUse());
+				return new ChorusSystem(folderPath, user);
+		}
+
+		public ChorusSystem(string folderPath, IChorusUser user)
+		{
+			_user = user;
 			var builder = new Autofac.Builder.ContainerBuilder();
+
+			builder.Register<ProjectFolderConfiguration>(c => new ProjectFolderConfiguration(folderPath));
+
 			ChorusUIComponentsInjector.InjectNotesUI(builder);
 
 			builder.Register<ChorusNotesSystem>().ContainerScoped();
 			builder.RegisterGeneratedFactory<ChorusNotesSystem.Factory>().ContainerScoped();
-
-			builder.Register<ChorusNotesUser>(c => new ChorusNotesUser("testGuy"));//TODO
+			builder.Register<IChorusUser>(_user);
+			builder.RegisterGeneratedFactory<NotesInProjectView.Factory>().ContainerScoped();
+			builder.RegisterGeneratedFactory<NotesInProjectViewModel.Factory>().ContainerScoped();
+			builder.RegisterGeneratedFactory<NotesBrowserPage.Factory>().ContainerScoped();
 
 		   // builder.Register(new NullProgress());//TODO
 			_container = builder.Build();
@@ -34,15 +51,11 @@ namespace Chorus
 			builder2.Build(_container);
 		}
 
-//        public NotesBarView CreateNotesBarView(string pathToFileToBeAnnotated)
-//        {
-//            return _container.Resolve<NotesBarView.Factory>()();
-//        }
 
 		public ChorusNotesSystem GetNotesSystem(string pathToFileBeingAnnotated, IProgress progress)
 		{
 			Require.That(File.Exists(pathToFileBeingAnnotated));
-			var pathToAnnotationFile = pathToFileBeingAnnotated + AnnotationRepository.FileExtension;
+			var pathToAnnotationFile = pathToFileBeingAnnotated + "."+AnnotationRepository.FileExtension;
 			AnnotationRepository repo;
 			if (!_annotationRepositories.TryGetValue(pathToAnnotationFile, out repo))
 			{
@@ -65,6 +78,8 @@ namespace Chorus
 		}
 	}
 
+
+
 	public class ChorusNotesSystem
 	{
 		public delegate ChorusNotesSystem Factory(AnnotationRepository repository, string pathToFileBeingAnnotated, IProgress progress);//autofac uses this
@@ -81,7 +96,7 @@ namespace Chorus
 
 		 public static UrlGenerator DefaultGenerator = (key) => string.Format("chorus://object?id={0}", key);
 
-		private Autofac.IContainer _container;
+		private readonly Autofac.IContainer _container;
 		private readonly AnnotationRepository _repository;
 
 		public ChorusNotesSystem(IContainer parentContainer, AnnotationRepository repository,string pathToFileBeingAnnotated, IProgress progress)
@@ -89,16 +104,6 @@ namespace Chorus
 			_container = parentContainer;
 			_repository = repository;
 			UrlGenerater = DefaultGenerator;
-
-			// _container = parentContainer.CreateInnerContainer();
-//            var builder = new Autofac.Builder.ContainerBuilder();
-//            builder.Register(repository);
-//            builder.Build(_container);
-		   // var model = _container.Resolve<NotesBarModel>();
-//            builder.Register(model);
-//            builder.Build(_container);
-
-			//var x = _container.Resolve<NotesBarModel.Factory>()(repository);
 		}
 
 		public NotesBarView CreateNotesBarView()
@@ -106,6 +111,11 @@ namespace Chorus
 			var model = _container.Resolve<NotesBarModel.Factory>()(_repository);
 			model.UrlGenerater = UrlGenerater;
 			return new NotesBarView(model, _container.Resolve<AnnotationEditorModel.Factory>());
+		}
+
+		public NotesBrowserPage CreateNotesBrowserPage()
+		{
+			return _container.Resolve<NotesBrowserPage.Factory>()();
 		}
 	}
 }

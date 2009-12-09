@@ -24,7 +24,7 @@ namespace Chorus.UI.Notes
 
 		public bool ModalDialogMode
 		{
-			set { _closeButton.Visible = true;}
+			set { _closeButton.Visible = value;}
 			get{return _closeButton.Visible;}
 		}
 

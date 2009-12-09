@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using Autofac;
-using Chorus.annotations;
 using Chorus.UI.Misc;
-using Chorus.UI.Notes;
+using Chorus.UI.Notes.Browser;
 using Chorus.UI.Review;
 using Chorus.UI.Settings;
 using Chorus.UI.Sync;
@@ -30,7 +29,7 @@ namespace Chorus
 
 			builder.Register<BrowseForRepositoryEvent>(browseForRepositoryEvent).SingletonScoped();
 
-			builder.Register<ChorusNotesUser>(c => new ChorusNotesUser(c.Resolve<HgRepository>().GetUserIdInUse()));
+			builder.Register<ChorusUser>(c => new ChorusUser(c.Resolve<HgRepository>().GetUserIdInUse()));
 
 			builder.Register<Shell>();
 
@@ -38,7 +37,7 @@ namespace Chorus
 			var shell= _container.Resolve<Shell>();
 
 			shell.AddPage("Review", _container.Resolve<ReviewPage>());
-			shell.AddPage("Notes", _container.Resolve<NotesPage>());
+			shell.AddPage("Notes", _container.Resolve<NotesBrowserPage>());
 			shell.AddPage("Send/Receive", _container.Resolve<SyncPanel>());
 			shell.AddPage("Settings", _container.Resolve<SettingsView>());
 			shell.AddPage("Troubleshooting", _container.Resolve<TroubleshootingView>());

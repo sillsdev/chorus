@@ -66,6 +66,7 @@
 	<Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+	<Compile Include="ChorusNotesSystemTests.cs" />
 	<Compile Include="notes\AnnotationModelTests.cs" />
 	<Compile Include="notes\NotesBarModelTests.cs" />
 	<Compile Include="notes\IEmbeddedMessageContentHandler.cs" />

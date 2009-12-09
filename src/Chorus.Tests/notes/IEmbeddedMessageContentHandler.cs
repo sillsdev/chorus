@@ -8,7 +8,7 @@ namespace Chorus.Tests.notes
 	public interface IEmbeddedMessageContentHandler
 	{
 		bool CanHandleContent(string contentXml);
-		Control CreateWinFormsControl(string contentXml, Annotation parentAnnotation, ChorusNotesUser user);
+		Control CreateWinFormsControl(string contentXml, Annotation parentAnnotation, ChorusUser user);
 	}
 
 	public class EmbeddedMessageContentTest : IEmbeddedMessageContentHandler
@@ -26,7 +26,7 @@ namespace Chorus.Tests.notes
 			return contentXml.Contains("embeddedContentTest");
 		}
 
-		public Control CreateWinFormsControl(string contentXml, Annotation parentAnnotation, ChorusNotesUser user)
+		public Control CreateWinFormsControl(string contentXml, Annotation parentAnnotation, ChorusUser user)
 		{
 			var element = XElement.Parse(contentXml);
 			var link = new LinkLabel();
@@ -39,7 +39,7 @@ namespace Chorus.Tests.notes
 		void OnLinkClicked(object sender, EventArgs e)
 		{
 			Annotation a = ((object[])((LinkLabel)sender).Tag)[0] as Annotation;
-			ChorusNotesUser user = ((object[])((LinkLabel)sender).Tag)[1] as ChorusNotesUser;
+			ChorusUser user = ((object[])((LinkLabel)sender).Tag)[1] as ChorusUser;
 			a.SetStatusToClosed(user.Name);
 		}
 	}

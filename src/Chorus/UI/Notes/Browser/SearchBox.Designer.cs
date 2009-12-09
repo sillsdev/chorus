@@ -1,4 +1,4 @@
-﻿namespace Chorus.UI.Notes
+﻿namespace Chorus.UI.Notes.Browser
 {
 	partial class SearchBox
 	{
@@ -36,7 +36,7 @@
 			// _searchText
 			//
 			this._searchText.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-						| System.Windows.Forms.AnchorStyles.Right)));
+																			| System.Windows.Forms.AnchorStyles.Right)));
 			this._searchText.BorderStyle = System.Windows.Forms.BorderStyle.None;
 			this._searchText.Location = new System.Drawing.Point(7, 1);
 			this._searchText.Name = "_searchText";

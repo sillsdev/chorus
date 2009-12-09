@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
 
-namespace Chorus.UI.Notes
+namespace Chorus.UI.Notes.Browser
 {
 	public partial class SearchBox : UserControl
 	{

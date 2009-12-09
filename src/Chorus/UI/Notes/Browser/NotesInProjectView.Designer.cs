@@ -1,6 +1,6 @@
 ﻿using Chorus.UI.Review.RevisionsInRepository;
 
-namespace Chorus.UI.Notes
+namespace Chorus.UI.Notes.Browser
 {
 	partial class NotesInProjectView
 	{
@@ -39,18 +39,18 @@ namespace Chorus.UI.Notes
 			this._stateImageList = new System.Windows.Forms.ImageList(this.components);
 			this.timer1 = new System.Windows.Forms.Timer(this.components);
 			this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
-			this.searchBox1 = new Chorus.UI.Notes.SearchBox();
+			this.searchBox1 = new SearchBox();
 			this.SuspendLayout();
 			//
 			// _messageListView
 			//
 			this._messageListView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-						| System.Windows.Forms.AnchorStyles.Left)
-						| System.Windows.Forms.AnchorStyles.Right)));
+																				  | System.Windows.Forms.AnchorStyles.Left)
+																				 | System.Windows.Forms.AnchorStyles.Right)));
 			this._messageListView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-			this.label,
-			this.author,
-			this.date});
+																							   this.label,
+																							   this.author,
+																							   this.date});
 			this._messageListView.FullRowSelect = true;
 			this._messageListView.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
 			this._messageListView.HideSelection = false;

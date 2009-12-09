@@ -3,11 +3,14 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 using Chorus.annotations;
+using Chorus.Utilities;
 
-namespace Chorus.UI.Notes
+namespace Chorus.UI.Notes.Browser
 {
 	public partial class NotesInProjectView : UserControl
 	{
+		public delegate NotesInProjectView Factory(IProgress progress);//autofac uses this
+
 		private NotesInProjectViewModel _viewModel;
 
 		public NotesInProjectView(NotesInProjectViewModel model)
@@ -18,6 +21,7 @@ namespace Chorus.UI.Notes
 			InitializeComponent();
 			_messageListView.SmallImageList = AnnotationClassFactory.CreateImageListContainingAnnotationImages();
 			UpdateDisplay();
+
 		}
 
 		private void UpdateDisplay()

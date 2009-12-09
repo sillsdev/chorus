@@ -51,7 +51,7 @@ namespace Chorus.Tests.notes
 
 		private AnnotationEditorModel CreateAnnotationModel(MessageSelectedEvent messageSelected)
 		{
-			return new AnnotationEditorModel(new ChorusNotesUser("bob"), messageSelected, StyleSheet.CreateFromDisk(), new EmbeddedMessageContentHandlerFactory());
+			return new AnnotationEditorModel(new ChorusUser("bob"), messageSelected, StyleSheet.CreateFromDisk(), new EmbeddedMessageContentHandlerFactory());
 		}
 
 		private Annotation CreateAnnotation()

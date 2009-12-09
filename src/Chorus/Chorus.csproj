@@ -148,16 +148,16 @@
 	<Compile Include="UI\Notes\Bar\NotesBarView.Designer.cs">
 	  <DependentUpon>NotesBarView.cs</DependentUpon>
 	</Compile>
-	<Compile Include="UI\Notes\NotesPage.cs">
+	<Compile Include="UI\Notes\Browser\NotesBrowserPage.cs">
 	  <SubType>UserControl</SubType>
 	</Compile>
-	<Compile Include="UI\Notes\NotesPage.Designer.cs">
-	  <DependentUpon>NotesPage.cs</DependentUpon>
+	<Compile Include="UI\Notes\Browser\NotesBrowserPage.Designer.cs">
+	  <DependentUpon>NotesBrowserPage.cs</DependentUpon>
 	</Compile>
-	<Compile Include="UI\Notes\SearchBox.cs">
+	<Compile Include="UI\Notes\Browser\SearchBox.cs">
 	  <SubType>UserControl</SubType>
 	</Compile>
-	<Compile Include="UI\Notes\SearchBox.Designer.cs">
+	<Compile Include="UI\Notes\Browser\SearchBox.Designer.cs">
 	  <DependentUpon>SearchBox.cs</DependentUpon>
 	</Compile>
 	<Compile Include="UI\Notes\Html\StyleSheet.cs" />
@@ -181,11 +181,11 @@
 	<Compile Include="UI\Notes\AnnotationView.Designer.cs">
 	  <DependentUpon>AnnotationView.cs</DependentUpon>
 	</Compile>
-	<Compile Include="UI\Notes\NotesInProjectViewModel.cs" />
-	<Compile Include="UI\Notes\NotesInProjectView.cs">
+	<Compile Include="UI\Notes\Browser\NotesInProjectViewModel.cs" />
+	<Compile Include="UI\Notes\Browser\NotesInProjectView.cs">
 	  <SubType>UserControl</SubType>
 	</Compile>
-	<Compile Include="UI\Notes\NotesInProjectView.Designer.cs">
+	<Compile Include="UI\Notes\Browser\NotesInProjectView.Designer.cs">
 	  <DependentUpon>NotesInProjectView.cs</DependentUpon>
 	</Compile>
 	<Compile Include="UI\Review\RevisionsInRepository\RevisionsInRepositoryView.cs">
@@ -358,15 +358,15 @@
 	<EmbeddedResource Include="UI\Notes\Bar\NotesBarView.resx">
 	  <DependentUpon>NotesBarView.cs</DependentUpon>
 	</EmbeddedResource>
-	<EmbeddedResource Include="UI\Notes\NotesInProjectView.resx">
+	<EmbeddedResource Include="UI\Notes\Browser\NotesInProjectView.resx">
 	  <DependentUpon>NotesInProjectView.cs</DependentUpon>
 	  <SubType>Designer</SubType>
 	</EmbeddedResource>
-	<EmbeddedResource Include="UI\Notes\NotesPage.resx">
-	  <DependentUpon>NotesPage.cs</DependentUpon>
+	<EmbeddedResource Include="UI\Notes\Browser\NotesBrowserPage.resx">
+	  <DependentUpon>NotesBrowserPage.cs</DependentUpon>
 	  <SubType>Designer</SubType>
 	</EmbeddedResource>
-	<EmbeddedResource Include="UI\Notes\SearchBox.resx">
+	<EmbeddedResource Include="UI\Notes\Browser\SearchBox.resx">
 	  <DependentUpon>SearchBox.cs</DependentUpon>
 	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Sync\SyncControl.resx">
@@ -420,10 +420,6 @@
 	<Content Include="UI\Notes\Html\tr.gif">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</Content>
-  </ItemGroup>
-  <ItemGroup>
-	<Folder Include="UI\NewFolder1\" />
-	<Folder Include="UI\Tags\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.

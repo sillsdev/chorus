@@ -8,6 +8,7 @@ using Chorus.UI;
 using Chorus.UI.Misc;
 using Chorus.UI.Notes;
 using Chorus.UI.Notes.Bar;
+using Chorus.UI.Notes.Browser;
 using Chorus.UI.Review;
 using Chorus.UI.Review.ChangedReport;
 using Chorus.UI.Review.ChangesInRevision;
@@ -66,12 +67,13 @@ namespace Chorus
 		/// <param name="builder"></param>
 		public static void InjectNotesUI(ContainerBuilder builder)
 		{
+			builder.Register<MessageSelectedEvent>();
 			builder.Register<Chorus.annotations.EmbeddedMessageContentHandlerFactory>();
-			builder.Register<Chorus.UI.Notes.NotesInProjectViewModel>();
-			builder.Register<Chorus.UI.Notes.NotesInProjectView>();
+			builder.Register<NotesInProjectViewModel>();
+			builder.Register<NotesInProjectView>();
 			builder.Register<Chorus.UI.Notes.AnnotationView>();
 			builder.Register<Chorus.UI.Notes.AnnotationEditorModel>().FactoryScoped();
-			builder.Register<Chorus.UI.Notes.NotesPage>();
+			builder.Register<NotesBrowserPage>();
 			builder.Register<StyleSheet>(c =>  StyleSheet.CreateFromDisk());
 			builder.RegisterGeneratedFactory<AnnotationEditorModel.Factory>();
 			builder.Register<NotesBarModel>();
@@ -113,7 +115,6 @@ namespace Chorus
 			builder.Register<RevisionInRepositoryModel>();
 			builder.Register<RevisionsInRepositoryView>();
 
-			builder.Register<MessageSelectedEvent>();
 		}
 
 		private static Shell CreateShell(string projectPath, Autofac.Builder.ContainerBuilder builder)

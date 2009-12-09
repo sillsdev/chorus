@@ -125,7 +125,7 @@
 	<Compile Include="merge\xml\generic\ChorusNotesMergeEventListener.cs" />
 	<Compile Include="annotations\Annotation.cs" />
 	<Compile Include="annotations\AnnotationClassFactory.cs" />
-	<Compile Include="annotations\ChorusNotesUser.cs" />
+	<Compile Include="ChorusUser.cs" />
 	<Compile Include="annotations\AnnotationRepository.cs" />
 	<Compile Include="Properties\AnnotationImages.Designer.cs">
 	  <AutoGen>True</AutoGen>

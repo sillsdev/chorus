@@ -1,16 +1,12 @@
 ﻿using System;
 using System.Drawing;
-using System.IO;
 using System.Windows.Forms;
-using Autofac;
 using Chorus.annotations;
 using Chorus.sync;
 using Chorus.UI;
 using Chorus.UI.Notes;
-using Chorus.UI.Notes.Bar;
-using Chorus.UI.Sync;
+using Chorus.UI.Notes.Browser;
 using Chorus.Utilities;
-using Chorus.VcsDrivers.Mercurial;
 using NUnit.Framework;
 
 namespace Chorus.Tests.notes
@@ -18,6 +14,8 @@ namespace Chorus.Tests.notes
 	[TestFixture]
 	public class NotesUITests
 	{
+
+
 		[Test, Ignore("By Hand only")]
 		public void ShowNotesBar()
 		{
@@ -41,7 +39,7 @@ namespace Chorus.Tests.notes
 					<annotation ref='somwhere://foo2?id=y' class='note'/>
 				</notes>"))
 			{
-				var chorus = new ChorusSystem(folder.Path);
+				var chorus = new ChorusSystem(folder.Path, new ChorusUser("testguy"));
 				var notesSystem = chorus.GetNotesSystem(dataFile.Path, new ConsoleProgress());
 				var view = notesSystem.CreateNotesBarView();
 				view.Height = 32;
@@ -106,13 +104,13 @@ namespace Chorus.Tests.notes
 			{
 				var messageSelected = new MessageSelectedEvent();
 				ProjectFolderConfiguration projectConfig = new ProjectFolderConfiguration(folder.Path);
-				NotesInProjectViewModel notesInProjectViewModel = new NotesInProjectViewModel(new ChorusNotesUser("Bob"), projectConfig, messageSelected,new ConsoleProgress());
-				var notesInProjectView = new NotesInProjectView(notesInProjectViewModel);
+				NotesInProjectViewModel notesInProjectModel = new NotesInProjectViewModel(new ChorusUser("Bob"), projectConfig, messageSelected,new ConsoleProgress());
+				var notesInProjectView = new NotesInProjectView(notesInProjectModel);
 
-				var annotationModel = new AnnotationEditorModel(new ChorusNotesUser("bob"), messageSelected, StyleSheet.CreateFromDisk(), new EmbeddedMessageContentHandlerFactory());
+				var annotationModel = new AnnotationEditorModel(new ChorusUser("bob"), messageSelected, StyleSheet.CreateFromDisk(), new EmbeddedMessageContentHandlerFactory());
 				AnnotationView annotationView = new AnnotationView(annotationModel);
 				annotationView.ModalDialogMode=false;
-				var page = new NotesPage(notesInProjectView, annotationView);
+				var page = new NotesBrowserPage(progress=>notesInProjectModel, annotationView);
 				page.Dock = DockStyle.Fill;
 				var form = new Form();
 				form.Size = new Size(700,600);

@@ -6,18 +6,21 @@ using Chorus.annotations;
 using Chorus.sync;
 using Chorus.Utilities;
 
-namespace Chorus.UI.Notes
+namespace Chorus.UI.Notes.Browser
 {
 	public class NotesInProjectViewModel
 	{
-		private readonly ChorusNotesUser _currentUser;
+		public delegate NotesInProjectViewModel Factory(IProgress progress);//autofac uses this
+
+		private readonly IChorusUser _user;
 		private readonly MessageSelectedEvent _messageSelectedEvent;
 		private List<AnnotationRepository> _repositories=new List<AnnotationRepository>();
 		private string _searchText;
 
-		public NotesInProjectViewModel( ChorusNotesUser currentUser, ProjectFolderConfiguration projectFolderConfiguration, MessageSelectedEvent messageSelectedEventToRaise, IProgress progress)
+		public NotesInProjectViewModel( IChorusUser user, ProjectFolderConfiguration projectFolderConfiguration,
+										MessageSelectedEvent messageSelectedEventToRaise, IProgress progress)
 		{
-			_currentUser = currentUser;
+			_user = user;
 			_messageSelectedEvent = messageSelectedEventToRaise;
 			foreach (var path in GetChorusNotesFilePaths(projectFolderConfiguration.FolderPath))
 			{
@@ -67,7 +70,7 @@ namespace Chorus.UI.Notes
 
 		public void CloseAnnotation(ListMessage listMessage)
 		{
-			listMessage.ParentAnnotation.AddMessage(_currentUser.Name, "closed", string.Empty);
+			listMessage.ParentAnnotation.AddMessage(_user.Name, "closed", string.Empty);
 		}
 
 		public void SelectedMessageChanged(ListMessage listMessage)

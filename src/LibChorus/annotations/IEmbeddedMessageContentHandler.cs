@@ -9,7 +9,7 @@ namespace Chorus.annotations
 	public interface IEmbeddedMessageContentHandler
 	{
 		bool CanHandleContent(string cDataContent);
-	   // Control CreateWinFormsControl(string contentXml, Annotation parentAnnotation, ChorusNotesUser user);
+	   // Control CreateWinFormsControl(string contentXml, Annotation parentAnnotation, ChorusUser user);
 		string GetHyperLink(string cDataContent);
 		bool CanHandleUrl(Uri uri);
 		void HandleUrl(Uri uri);
@@ -129,7 +129,7 @@ namespace Chorus.annotations
 //            return contentXml.Contains("dummy");
 //        }
 //
-//        public Control CreateWinFormsControl(string contentXml, Annotation parentAnnotation, ChorusNotesUser user)
+//        public Control CreateWinFormsControl(string contentXml, Annotation parentAnnotation, ChorusUser user)
 //        {
 //            var element = XElement.Parse(contentXml);
 //            var link = new LinkLabel();
@@ -142,7 +142,7 @@ namespace Chorus.annotations
 //        void OnLinkClicked(object sender, EventArgs e)
 //        {
 //            Annotation a = ((object[])((LinkLabel)sender).Tag)[0] as Annotation;
-//            ChorusNotesUser user = ((object[])((LinkLabel)sender).Tag)[1] as ChorusNotesUser;
+//            ChorusUser user = ((object[])((LinkLabel)sender).Tag)[1] as ChorusUser;
 //            a.SetStatusToClosed(user.Name);
 //        }
 //    }
@@ -154,7 +154,7 @@ namespace Chorus.annotations
 //            return true;
 //        }
 //
-//        public Control CreateWinFormsControl(string contentXml, Annotation parentAnnotation, ChorusNotesUser user)
+//        public Control CreateWinFormsControl(string contentXml, Annotation parentAnnotation, ChorusUser user)
 //        {
 //            var box = new TextBox();
 //            box.Multiline = true;
