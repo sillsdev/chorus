@@ -58,9 +58,9 @@ namespace Chorus.FileTypeHanders.oneStory
 			merger.MergeStrategies.SetStrategy("InternationalBTLang", ElementStrategy.CreateSingletonElement());
 
 			// story sets and stories
-			merger.MergeStrategies.SetStrategy("stories", ElementStrategy.CreateForKeyedElement("SetName", true));
+			merger.MergeStrategies.SetStrategy("stories", ElementStrategy.CreateForKeyedElement("SetName", false));
 
-			var elementStrategyStory = ElementStrategy.CreateForKeyedElement("guid", true);
+			var elementStrategyStory = ElementStrategy.CreateForKeyedElement("guid", false);
 			elementStrategyStory.AttributesToIgnoreForMerging.Add("stageDateTimeStamp");
 			merger.MergeStrategies.SetStrategy("story", elementStrategyStory);
 
@@ -73,7 +73,7 @@ namespace Chorus.FileTypeHanders.oneStory
 			merger.MergeStrategies.SetStrategy("ResourcesUsed", ElementStrategy.CreateSingletonElement());
 			merger.MergeStrategies.SetStrategy("BackTranslator", ElementStrategy.CreateSingletonElement());
 			merger.MergeStrategies.SetStrategy("Tests", ElementStrategy.CreateSingletonElement());
-			merger.MergeStrategies.SetStrategy("Test", ElementStrategy.CreateForKeyedElement("memberID", false));
+			merger.MergeStrategies.SetStrategy("Test", ElementStrategy.CreateForKeyedElement("memberID", true));
 
 			merger.MergeStrategies.SetStrategy("verses", ElementStrategy.CreateSingletonElement());
 			merger.MergeStrategies.SetStrategy("verse", ElementStrategy.CreateForKeyedElement("guid", true));
@@ -82,7 +82,7 @@ namespace Chorus.FileTypeHanders.oneStory
 			merger.MergeStrategies.SetStrategy("InternationalBT", ElementStrategy.CreateSingletonElement());
 
 			merger.MergeStrategies.SetStrategy("anchors", ElementStrategy.CreateSingletonElement());
-			merger.MergeStrategies.SetStrategy("anchor", ElementStrategy.CreateForKeyedElement("jumpTarget", true));
+			merger.MergeStrategies.SetStrategy("anchor", ElementStrategy.CreateForKeyedElement("jumpTarget", false));
 			merger.MergeStrategies.SetStrategy("toolTip", ElementStrategy.CreateSingletonElement());
 			merger.MergeStrategies.SetStrategy("exegeticalHelps", ElementStrategy.CreateSingletonElement());
 			// there can be multiple exegeticalHelp elements, but a) their order doesn't matter and b) they don't need a key
@@ -92,7 +92,7 @@ namespace Chorus.FileTypeHanders.oneStory
 			// merger.MergeStrategies.SetStrategy("exegeticalHelp", ElementStrategy.CreateSingletonElement());
 
 			merger.MergeStrategies.SetStrategy("TestQuestions", ElementStrategy.CreateSingletonElement());
-			merger.MergeStrategies.SetStrategy("TestQuestion", ElementStrategy.CreateForKeyedElement("guid", true));
+			merger.MergeStrategies.SetStrategy("TestQuestion", ElementStrategy.CreateForKeyedElement("guid", false));
 			merger.MergeStrategies.SetStrategy("TQVernacular", ElementStrategy.CreateSingletonElement());
 			merger.MergeStrategies.SetStrategy("TQNationalBT", ElementStrategy.CreateSingletonElement());
 			merger.MergeStrategies.SetStrategy("TQInternationalBT", ElementStrategy.CreateSingletonElement());
