@@ -29,7 +29,7 @@ namespace Chorus
 
 			builder.Register<BrowseForRepositoryEvent>(browseForRepositoryEvent).SingletonScoped();
 
-			builder.Register<ChorusUser>(c => new ChorusUser(c.Resolve<HgRepository>().GetUserIdInUse()));
+			builder.Register<IChorusUser>(c => new ChorusUser(c.Resolve<HgRepository>().GetUserIdInUse()));
 
 			builder.Register<Shell>();
 

@@ -80,6 +80,11 @@ namespace Chorus
 			builder.RegisterGeneratedFactory<NotesBarModel.Factory>();
 			builder.Register<NotesBarView>();
 			builder.RegisterGeneratedFactory<NotesBarView.Factory>();
+
+			builder.RegisterGeneratedFactory<NotesInProjectView.Factory>().ContainerScoped();
+			builder.RegisterGeneratedFactory<NotesInProjectViewModel.Factory>().ContainerScoped();
+			builder.RegisterGeneratedFactory<NotesBrowserPage.Factory>().ContainerScoped();
+
 		}
 
 		public static void Inject(ContainerBuilder builder, string projectPath)

@@ -80,7 +80,7 @@ namespace Chorus
 		}
 
 
-		private class Runner
+		internal class Runner
 		{
 			public void Run(string pathToRepository)
 			{
