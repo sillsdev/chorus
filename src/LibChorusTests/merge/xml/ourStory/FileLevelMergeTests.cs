@@ -142,7 +142,7 @@ namespace LibChorus.Tests.merge.xml.ourStory
 			XmlTestHelper.AssertXPathMatchesExactlyOne(result, "//VernacularLang[@Keyboard='Keyman DevRom']");
 		}
 
-		[Test]
+		[Test, Ignore("This issue and what to do about it are in process")]
 		public void Do3WayMerge_ForceMergeAndMakeSureWeDontLoseIndentation()
 		{
 			var ourContent = _ancestor.Replace("This is all about one.",

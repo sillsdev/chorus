@@ -81,11 +81,6 @@ namespace Chorus.UI.Notes.Browser
 
 		public void SearchTextChanged(string searchText)
 		{
-			int result;
-			if(int.TryParse(searchText, out result))
-			{
-				throw new ApplicationException();
-			}
 			_searchText = searchText;
 		}
 	}
