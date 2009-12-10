@@ -1,5 +1,6 @@
 using System;
 using System.Windows.Forms;
+using Chorus.merge.xml.generic;
 
 namespace Chorus.annotations
 {
@@ -11,8 +12,8 @@ namespace Chorus.annotations
 			list.ColorDepth=ColorDepth.Depth32Bit;
 			list.Images.Add("question", Chorus.Properties.AnnotationImages.question16x16);
 			list.Images.Add("questionClosed", Chorus.Properties.AnnotationImages.question16x16Closed);
-			list.Images.Add("mergeconflict", Chorus.Properties.AnnotationImages.MergeConflict16x16);
-			list.Images.Add("mergeconflictClosed", Chorus.Properties.AnnotationImages.MergeConflict16x16Closed);
+			list.Images.Add(Conflict.ConflictAnnotationClassName, Chorus.Properties.AnnotationImages.MergeConflict16x16);
+			list.Images.Add(Conflict.ConflictAnnotationClassName+"Closed", Chorus.Properties.AnnotationImages.MergeConflict16x16Closed);
 			list.Images.Add("note", Chorus.Properties.AnnotationImages.note16x16);
 			list.Images.Add("noteClosed", Chorus.Properties.AnnotationImages.note16x16);
 			return list;
@@ -26,7 +27,7 @@ namespace Chorus.annotations
 					return new QuestionAnnotationClass();
 				case "note":
 					return new NoteAnnotationClass();
-				case "mergeconflict":
+				case Conflict.ConflictAnnotationClassName:
 					return new ConflictAnnotationClass();
 				default:
 					return new AnnotationClass(name);
