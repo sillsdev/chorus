@@ -17,14 +17,15 @@ namespace Chorus.Tests
 		{
 			using (var folder = new TempFolder("ChorusApplicationTests"))
 			{
-				var t = new Thread(() =>
-									   {
-										   Thread.Sleep(2000);
-										   Application.Exit();
-									   });
-				t.Start();
+				Application.Idle += new EventHandler(Application_Idle);
 				new Program.Runner().Run(folder.Path);
 			}
+		}
+
+		void Application_Idle(object sender, EventArgs e)
+		{
+			Thread.Sleep(100);
+			Application.Exit();
 		}
 	}
 
