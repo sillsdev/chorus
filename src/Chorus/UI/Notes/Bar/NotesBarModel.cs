@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Web;
 using Chorus.annotations;
 using Chorus.Utilities;
 
@@ -10,7 +9,7 @@ namespace Chorus.UI.Notes.Bar
 	{
 		//use this one for apps that have just one file being editted, and thus on notes repository,
 		//which would have been pushed into the container
-		public delegate NotesBarModel Factory(AnnotationRepository repository);//autofac uses this
+		public delegate NotesBarModel Factory(AnnotationRepository repository, ChorusNotesSystem.UrlGeneratorFunction functionToMakeUrlForAnnotation);//autofac uses this
 
 		//use this one in apps that have multipel repositories
 		//public delegate NotesBarModel FactoryWithExplicitRepository(AnnotationRepository repository, AnnotationIndex index);//autofac uses this
@@ -30,15 +29,25 @@ namespace Chorus.UI.Notes.Bar
 
 		internal event EventHandler UpdateContent;
 
-		public NotesBarModel(AnnotationRepository repository)
+		public NotesBarModel(AnnotationRepository repository, ChorusNotesSystem.UrlGeneratorFunction functionToMakeUrlForAnnotation)
 		{
 			_repository = repository;
-			UrlGenerator = ChorusNotesSystem.DefaultUrlGenerator;
+			UrlGenerator = functionToMakeUrlForAnnotation;
 			IdGenerator = ChorusNotesSystem.DefaultIdGeneratorUsingObjectToStringAsId;
-
+		}
+		public NotesBarModel(AnnotationRepository repository)
+			: this(repository, ChorusNotesSystem.DefaultUrlGenerator)
+		{
 		}
 
+		/// <summary>
+		/// Used to make new annotations with a url refelctign the current object/insertion-point/whatever
+		/// </summary>
 		public ChorusNotesSystem.UrlGeneratorFunction UrlGenerator { get; set; }
+
+		/// <summary>
+		/// Used to figure out which existing notes to show
+		/// </summary>
 		public ChorusNotesSystem.IdGeneratorFunction IdGenerator { get; set; }
 
 		public IEnumerable<Annotation> GetAnnotationsToShow()
@@ -63,7 +72,7 @@ namespace Chorus.UI.Notes.Bar
 			//the parsing of the url query string, even though the entire url will be
 			//escaped again for xml purposes
 			var escapedId = Annotation.GetEscapedUrl(id);
-			var url = UrlGenerator(_targetObject, escapedId);
+			var url = UrlGenerator(escapedId);
 			var annotation = new Annotation("question", url, "doesntmakesense");
 			_repository.AddAnnotation(annotation);
 
