@@ -12,7 +12,8 @@ namespace Chorus.Tests
 	[TestFixture]
 	public class ChorusApplicationTests
 	{
-		[Test,  Ignore("Can't get it to close when TeamCity build")]
+		[Test]
+		[Category("HangsOnTC")]
 		public void Launch_CloseAfterAFewSeconds_DoesntCrash()
 		{
 			using (var folder = new TempFolder("ChorusApplicationTests"))
