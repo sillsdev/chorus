@@ -18,7 +18,7 @@ namespace Chorus.UI.Notes
 
 		private readonly IChorusUser _user;
 		private readonly StyleSheet _styleSheet;
-		private Annotation _currentAnnotation;
+		private Annotation _annotation;
 		private Message _currentFocussedMessage; //this is the part of the annotation in focus
 		private string _newMessageText;
 		private EmbeddedMessageContentHandlerFactory _embeddedMessageContentHandlerFactory;
@@ -26,17 +26,7 @@ namespace Chorus.UI.Notes
 		internal event EventHandler UpdateContent;
 		internal event EventHandler UpdateStates;
 
-		public AnnotationEditorModel(IChorusUser user,
-			MessageSelectedEvent messageSelectedEventToSubscribeTo,
-			StyleSheet styleSheet,
-			EmbeddedMessageContentHandlerFactory embeddedMessageContentHandlerFactory)
-		{
-			_user = user;
-			_embeddedMessageContentHandlerFactory = embeddedMessageContentHandlerFactory;
-			_styleSheet = styleSheet;
-			messageSelectedEventToSubscribeTo.Subscribe((annotation, message) => SetAnnotationAndFocussedMessage(annotation,message));
-			NewMessageText = string.Empty;
-		}
+
 
 		//TODO: think about or merge these two constructors. this one is for when we're just
 		//showing the control with a single annotation... it isn't tied to a list of messages.
@@ -49,13 +39,24 @@ namespace Chorus.UI.Notes
 			_embeddedMessageContentHandlerFactory = embeddedMessageContentHandlerFactory;
 			_styleSheet = styleSheet;
 			NewMessageText = string.Empty;
-			_currentAnnotation = annotation;
+			_annotation = annotation;
 		}
 
+		public AnnotationEditorModel(IChorusUser user,
+							MessageSelectedEvent messageSelectedEventToSubscribeTo,
+							StyleSheet styleSheet,
+							EmbeddedMessageContentHandlerFactory embeddedMessageContentHandlerFactory)
+		{
+			_user = user;
+			_embeddedMessageContentHandlerFactory = embeddedMessageContentHandlerFactory;
+			_styleSheet = styleSheet;
+			messageSelectedEventToSubscribeTo.Subscribe((annotation, message) => SetAnnotationAndFocussedMessage(annotation, message));
+			NewMessageText = string.Empty;
+		}
 
 		private void SetAnnotationAndFocussedMessage(Annotation annotation, Message message)
 		{
-			_currentAnnotation = annotation;
+			_annotation = annotation;
 			_currentFocussedMessage = message;
 			UpdateContentNow();
 		}
@@ -76,20 +77,20 @@ namespace Chorus.UI.Notes
 			}
 		}
 
-		public Annotation CurrentAnnotation
+		public Annotation Annotation
 		{
-		   get { return _currentAnnotation; }
+		   get { return _annotation; }
 
 		}
 
 		public bool AddButtonEnabled
 		{
-			get { return _currentAnnotation.Status!="closed" && NewMessageText.Length>0; }
+			get { return _annotation.Status!="closed" && NewMessageText.Length>0; }
 		}
 
 		public string GetNewMessageHtml()
 		{
-			if (_currentAnnotation == null)
+			if (_annotation == null)
 				return string.Empty;
 
 			return "<html><body></body></html>";
@@ -98,12 +99,12 @@ namespace Chorus.UI.Notes
 
 		public IEnumerable<Message> Messages
 		{
-			get { return _currentAnnotation.Messages; }
+			get { return _annotation.Messages; }
 		}
 
 		public string GetExistingMessagesHtml()
 		{
-			if(_currentAnnotation == null)
+			if(_annotation == null)
 				return string.Empty;
 
 			var builder = new StringBuilder();
@@ -112,7 +113,7 @@ namespace Chorus.UI.Notes
 			builder.AppendLine("<body>");
 
 			string status=string.Empty;
-			foreach (var message in _currentAnnotation.Messages)
+			foreach (var message in _annotation.Messages)
 			{
 				builder.AppendLine("<hr/>");
 				if (_currentFocussedMessage!=null && message.Guid == _currentFocussedMessage.Guid) //REVIEW: guid shouldn't be needed
@@ -163,33 +164,33 @@ namespace Chorus.UI.Notes
 
 		public bool IsClosed
 		{
-			get { return _currentAnnotation.Status == "closed";}
+			get { return _annotation.Status == "closed";}
 			set
 			{
-				_currentAnnotation.SetStatus(_user.Name, value? "closed":"open");
+				_annotation.SetStatus(_user.Name, value? "closed":"open");
 				UpdateContentNow();
 			}
 		}
 
 		public bool ResolvedControlShouldBeVisible
 		{
-			get { return _currentAnnotation.CanResolve; }
+			get { return _annotation.CanResolve; }
 		}
 
 		public string ClassLabel
 		{
-			get { return _currentAnnotation.ClassName; }
+			get { return _annotation.ClassName; }
 		}
 
 		public string DetailsText
 		{
-			get { return string.Format("ref={0  } status={1}", _currentAnnotation.RefStillEscaped, _currentAnnotation.Status); }
+			get { return string.Format("ref={0  } status={1}", _annotation.RefStillEscaped, _annotation.Status); }
 		}
 
 
 		public bool ShowNewMessageControls
 		{
-			get { return _currentAnnotation.Status != "closed"; }
+			get { return _annotation.Status != "closed"; }
 		}
 
 		public string NewMessageText
@@ -205,7 +206,7 @@ namespace Chorus.UI.Notes
 
 		public bool IsVisible
 		{//wait for an annotation to be selected
-			get { return _currentAnnotation != null; }
+			get { return _annotation != null; }
 		}
 
 		public string CloseButtonText
@@ -223,21 +224,26 @@ namespace Chorus.UI.Notes
 			}
 		}
 
+		public string AnnotationLabel
+		{
+			get { return _annotation.LabelOfThingAnnotated; }
+		}
+
 		public Image GetAnnotationLogoImage()
 		{
-			return _currentAnnotation.GetImage(32);
+			return _annotation.GetImage(32);
 		}
 
 		public void AddButtonClicked()
 		{
-			_currentAnnotation.AddMessage(_user.Name, null, NewMessageText);
+			_annotation.AddMessage(_user.Name, null, NewMessageText);
 			NewMessageText = string.Empty;
 			UpdateContentNow();
 		}
 
 		public string GetAllInfoForMessageBox()
 		{
-			return _currentAnnotation.GetDiagnosticDump();
+			return _annotation.GetDiagnosticDump();
 		}
 //
 //        public Control GetControlForMessage(Message message)

@@ -25,8 +25,11 @@ namespace Chorus.annotations
 		}
 
 		public Annotation(string annotationClass, string refUrl, string path)
-			:this(XElement.Parse(string.Format("<annotation class='{0}' ref='{1}' guid='{2}'/>", annotationClass,refUrl, System.Guid.NewGuid().ToString())))
 		{
+				refUrl = GetEscapedUrl(refUrl);
+			 _element = XElement.Parse(string.Format("<annotation class='{0}' ref='{1}' guid='{2}'/>", annotationClass,refUrl, System.Guid.NewGuid().ToString()));
+
+			_class = AnnotationClassFactory.GetClassOrDefault(ClassName);
 			AnnotationFilePath = path; //TODO: this awkward, and not avail in the XElement constructor
 		}
 
@@ -55,7 +58,7 @@ namespace Chorus.annotations
 			get
 			{
 				var value = _element.GetAttributeValue("ref");
-				return Annotation.GetUnEscapedString(value);
+				return Annotation.GetUnEscapedUrl(value);
 			}
 		}
 
@@ -215,18 +218,33 @@ namespace Chorus.annotations
 		}
 
 
-		public static string GetEscapedString(string s)
+		public static string GetEscapedUrl(string url)
 		{
-			//review: is this different from URI.EscapeDataString?
-			string x = HttpUtility.UrlEncode(s);
-			x = x.Replace("'", "%27");
-			return x;
+			string xml = url;
+			if (!string.IsNullOrEmpty(xml))
+			{
+				xml = xml.Replace("&", "&amp;");
+				xml = xml.Replace("\"", "&quot;");
+				xml = xml.Replace("'", "&apos;");
+				xml = xml.Replace("<", "&lt;");
+				xml = xml.Replace(">", "&gt;");
+			}
+			return xml;
+
 		}
 
-		public static string GetUnEscapedString(string s)
+		public static string GetUnEscapedUrl(string attributeValue)
 		{
-			var x = s.Replace("%27", "'");
-			return HttpUtility.UrlDecode(x);
+			string url = attributeValue;
+			if (!string.IsNullOrEmpty(url))
+			{
+				url = url.Replace("&apos;", "'");
+				url = url.Replace("&quot;", "\"");
+				url = url.Replace("&amp;", "&");
+				url = url.Replace("&lt;", "<");
+				url = url.Replace("&gt;", ">");
+			}
+			return url;
 		}
 
 		public override bool Equals(object obj)

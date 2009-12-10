@@ -21,7 +21,8 @@ namespace ChorusMerge.Tests
 			{
 				Assert.AreEqual(0, DoMerge(group));
 				Assert.IsTrue(File.Exists(group.BobTextConflictsPath));
-				Assert.AreNotEqual(string.Empty, File.ReadAllText(group.BobTextConflictsPath));
+				var text = File.ReadAllText(group.BobTextConflictsPath);
+				Assert.AreNotEqual(string.Empty, text);
 			}
 		}
 

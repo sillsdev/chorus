@@ -9,7 +9,7 @@ namespace Chorus.UI.Notes.Browser
 	{
 		public delegate NotesBrowserPage Factory();//autofac uses this
 
-		public NotesBrowserPage(NotesInProjectViewModel.Factory notesInProjectViewModelfactory, AnnotationView annotationView)
+		public NotesBrowserPage(NotesInProjectViewModel.Factory notesInProjectViewModelFactory, AnnotationEditorView annotationView)
 		{
 			InitializeComponent();
 			this.Font = SystemFonts.MessageBoxFont;
@@ -21,7 +21,7 @@ namespace Chorus.UI.Notes.Browser
 			annotationView.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
 			splitContainer1.Panel2.Padding = new Padding(3,34,3,3);//drop it below the search box of the other pain
 
-			var notesInProjectModel = notesInProjectViewModelfactory(new NullProgress());
+			var notesInProjectModel = notesInProjectViewModelFactory(new NullProgress());
 			var notesInProjectView = new NotesInProjectView(notesInProjectModel);
 			notesInProjectView.Dock = DockStyle.Fill;
 			splitContainer1.Panel1.Controls.Add(notesInProjectView);

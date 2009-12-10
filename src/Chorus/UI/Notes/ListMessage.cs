@@ -26,7 +26,10 @@ namespace Chorus.UI.Notes
 			i.SubItems.Add(Message.Date.ToShortDateString());
 			i.ImageKey = ParentAnnotation.ClassName.ToLower();
 			if(ParentAnnotation.IsClosed)
-				i.StateImageIndex = 0;
+			{
+				i.ImageKey += "Closed";
+				//i.StateImageIndex = 0;
+			}
 			return i;
 		}
 	}

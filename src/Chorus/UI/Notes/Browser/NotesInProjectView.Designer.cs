@@ -33,24 +33,24 @@ namespace Chorus.UI.Notes.Browser
 			this.components = new System.ComponentModel.Container();
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(NotesInProjectView));
 			this._messageListView = new System.Windows.Forms.ListView();
-			this.author = new System.Windows.Forms.ColumnHeader();
 			this.label = new System.Windows.Forms.ColumnHeader();
+			this.author = new System.Windows.Forms.ColumnHeader();
 			this.date = new System.Windows.Forms.ColumnHeader();
 			this._stateImageList = new System.Windows.Forms.ImageList(this.components);
 			this.timer1 = new System.Windows.Forms.Timer(this.components);
 			this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
-			this.searchBox1 = new SearchBox();
+			this.searchBox1 = new Chorus.UI.Notes.Browser.SearchBox();
 			this.SuspendLayout();
 			//
 			// _messageListView
 			//
 			this._messageListView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-																				  | System.Windows.Forms.AnchorStyles.Left)
-																				 | System.Windows.Forms.AnchorStyles.Right)));
+						| System.Windows.Forms.AnchorStyles.Left)
+						| System.Windows.Forms.AnchorStyles.Right)));
 			this._messageListView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-																							   this.label,
-																							   this.author,
-																							   this.date});
+			this.label,
+			this.author,
+			this.date});
 			this._messageListView.FullRowSelect = true;
 			this._messageListView.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
 			this._messageListView.HideSelection = false;
@@ -59,21 +59,20 @@ namespace Chorus.UI.Notes.Browser
 			this._messageListView.Name = "_messageListView";
 			this._messageListView.ShowItemToolTips = true;
 			this._messageListView.Size = new System.Drawing.Size(470, 321);
-			this._messageListView.StateImageList = this._stateImageList;
 			this._messageListView.TabIndex = 2;
 			this._messageListView.UseCompatibleStateImageBehavior = false;
 			this._messageListView.View = System.Windows.Forms.View.Details;
 			this._messageListView.SelectedIndexChanged += new System.EventHandler(this.OnSelectedIndexChanged);
 			//
+			// label
+			//
+			this.label.Text = "Label";
+			this.label.Width = 118;
+			//
 			// author
 			//
 			this.author.Text = "Author";
 			this.author.Width = 110;
-			//
-			// label
-			//
-			this.label.Text = "LabelOfThingAnnotated";
-			this.label.Width = 118;
 			//
 			// date
 			//

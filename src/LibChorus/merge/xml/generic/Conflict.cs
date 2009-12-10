@@ -42,7 +42,8 @@ namespace Chorus.merge.xml.generic
 
 	   // protected string _shortDataDescription;
 		protected Guid _guid = Guid.NewGuid();
-	   // public string PathToUnitOfConflict { get; set; }
+		public static string ConflictAnnotationClassName="mergeconflict";
+		// public string PathToUnitOfConflict { get; set; }
 		public string RelativeFilePath { get { return Situation.PathToFileInRepository; } }
 
 		public abstract string GetFullHumanReadableDescription();
@@ -84,7 +85,7 @@ namespace Chorus.merge.xml.generic
 		public void WriteAsChorusNotesAnnotation(XmlWriter writer)
 		{
 			writer.WriteStartElement("annotation");
-			writer.WriteAttributeString("class", string.Empty, "conflict");
+			writer.WriteAttributeString("class", string.Empty, Conflict.ConflictAnnotationClassName);
 			Guard.AgainstNull(Context,"Context");
 			Guard.AgainstNull(Context.PathToUserUnderstandableElement, "Context.PathToUserUnderstandableElement");
 			writer.WriteAttributeString("ref", Context.PathToUserUnderstandableElement);

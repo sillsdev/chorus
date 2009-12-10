@@ -1,6 +1,6 @@
 ﻿namespace Chorus.UI.Notes
 {
-	partial class AnnotationView
+	partial class AnnotationEditorView
 	{
 		/// <summary>
 		/// Required designer variable.
@@ -31,7 +31,7 @@
 			this._closedCheckBox = new System.Windows.Forms.CheckBox();
 			this._addButton = new System.Windows.Forms.Button();
 			this._newMessage = new System.Windows.Forms.TextBox();
-			this._annotationClassLabel = new System.Windows.Forms.Label();
+			this._annotationLabel = new System.Windows.Forms.Label();
 			this._annotationLogo = new System.Windows.Forms.PictureBox();
 			this._existingMessagesDisplay = new System.Windows.Forms.WebBrowser();
 			this._closeButton = new System.Windows.Forms.Button();
@@ -73,15 +73,15 @@
 			this._newMessage.TabIndex = 0;
 			this._newMessage.TextChanged += new System.EventHandler(this._newMessage_TextChanged);
 			//
-			// _annotationClassLabel
+			// _annotationLabel
 			//
-			this._annotationClassLabel.AutoSize = true;
-			this._annotationClassLabel.Font = new System.Drawing.Font("Segoe UI", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this._annotationClassLabel.Location = new System.Drawing.Point(44, 9);
-			this._annotationClassLabel.Name = "_annotationClassLabel";
-			this._annotationClassLabel.Size = new System.Drawing.Size(86, 25);
-			this._annotationClassLabel.TabIndex = 8;
-			this._annotationClassLabel.Text = "TheClass";
+			this._annotationLabel.AutoSize = true;
+			this._annotationLabel.Font = new System.Drawing.Font("Segoe UI", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this._annotationLabel.Location = new System.Drawing.Point(44, 9);
+			this._annotationLabel.Name = "_annotationLabel";
+			this._annotationLabel.Size = new System.Drawing.Size(151, 25);
+			this._annotationLabel.TabIndex = 8;
+			this._annotationLabel.Text = "AnnotationLabel";
 			//
 			// _annotationLogo
 			//
@@ -139,7 +139,7 @@
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.Controls.Add(this._existingMessagesDisplay);
-			this.Controls.Add(this._annotationClassLabel);
+			this.Controls.Add(this._annotationLabel);
 			this.Controls.Add(this._newMessage);
 			this.Controls.Add(this._closeButton);
 			this.Controls.Add(this._addButton);
@@ -162,7 +162,7 @@
 		private BetterLabel _addNewMessageLabel;
 		private System.Windows.Forms.Button _addButton;
 		private System.Windows.Forms.TextBox _newMessage;
-		private System.Windows.Forms.Label _annotationClassLabel;
+		private System.Windows.Forms.Label _annotationLabel;
 		private System.Windows.Forms.WebBrowser _existingMessagesDisplay;
 		private System.Windows.Forms.Button _closeButton;
 	}

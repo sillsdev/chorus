@@ -123,9 +123,24 @@ namespace Chorus.Properties {
 			}
 		}
 
+		public static System.Drawing.Bitmap question16x16Closed {
+			get {
+				object obj = ResourceManager.GetObject("question16x16closed", resourceCulture);
+				return ((System.Drawing.Bitmap)(obj));
+			}
+		}
+
 		public static System.Drawing.Bitmap question32x32 {
 			get {
 				object obj = ResourceManager.GetObject("question32x32", resourceCulture);
+				return ((System.Drawing.Bitmap)(obj));
+			}
+		}
+
+		public static System.Drawing.Bitmap MergeConflict16x16Closed
+		{
+			get {
+				object obj = ResourceManager.GetObject("warning16x16Closed", resourceCulture);
 				return ((System.Drawing.Bitmap)(obj));
 			}
 		}

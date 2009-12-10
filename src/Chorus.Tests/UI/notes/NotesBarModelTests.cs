@@ -1,16 +1,5 @@
-﻿using System;
-using System.Drawing;
-using System.IO;
-using System.Windows.Forms;
-using Autofac;
-using Chorus.annotations;
-using Chorus.sync;
-using Chorus.UI;
-using Chorus.UI.Notes;
+﻿using Chorus.annotations;
 using Chorus.UI.Notes.Bar;
-using Chorus.UI.Sync;
-using Chorus.Utilities;
-using Chorus.VcsDrivers.Mercurial;
 using System.Linq;
 using NUnit.Framework;
 
@@ -24,7 +13,7 @@ namespace Chorus.Tests.notes
 		{
 			var repo = AnnotationRepository.FromString("id", "<notes version='0'/>");
 			var model = new NotesBarModel(repo);
-			model.SetIdOfCurrentAnnotatedObject("foo3");
+			model.SetTargetObject("foo3");
 			model.CreateAnnotation();
 			Assert.AreEqual(1, repo.GetAllAnnotations().Count());
 			Assert.IsTrue(repo.GetAllAnnotations().First().RefStillEscaped.Contains("id="+"foo3"));
@@ -35,11 +24,12 @@ namespace Chorus.Tests.notes
 		{
 			var repo = AnnotationRepository.FromString("id", "<notes version='0'/>");
 			var model = new NotesBarModel(repo);
-			model.UrlGenerater = key => "foobar:"+key;
-			model.SetIdOfCurrentAnnotatedObject("foo3");
+			model.IdGenerator = (target) => "x"+ target.ToString()+"x";
+			model.UrlGenerator = (escapedId) => "foobar:" + escapedId;
+			model.SetTargetObject("foo3");
 			model.CreateAnnotation();
 			Assert.AreEqual(1, repo.GetAllAnnotations().Count());
-			Assert.AreEqual("foobar:foo3", repo.GetAllAnnotations().First().RefStillEscaped);
+			Assert.AreEqual("foobar:xfoo3x", repo.GetAllAnnotations().First().RefStillEscaped);
 		}
 
 		[Test]
@@ -47,8 +37,9 @@ namespace Chorus.Tests.notes
 		{
 			var repo = AnnotationRepository.FromString("id", "<notes version='0'/>");
 			var model = new NotesBarModel(repo);
-			model.UrlGenerater = key=> string.Format("lift://object?type=entry&amp;id={0}&amp;type=test", key);
-			model.SetIdOfCurrentAnnotatedObject("two'<three&four");
+//            model.UrlGenerator = (target,key)=> string.Format("lift://object?type=entry&amp;id={0}&amp;type=test", key);
+			model.UrlGenerator = (escapedId) => string.Format("lift://object?type=entry&id={0}&type=test", escapedId);
+			model.SetTargetObject("two'<three&four");
 			model.CreateAnnotation();
 			Assert.IsTrue(repo.GetAllAnnotations().First().RefUnEscaped.Contains("two'<three&four"));
 		}

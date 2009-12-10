@@ -58,8 +58,6 @@ namespace Chorus.UI.Notes.Browser
 			}
 		}
 
-
-
 		private bool GetDoesMatch(Annotation annotation, Message message)
 		{
 			return string.IsNullOrEmpty(_searchText)
@@ -76,16 +74,20 @@ namespace Chorus.UI.Notes.Browser
 		public void SelectedMessageChanged(ListMessage listMessage)
 		{
 			if (_messageSelectedEvent != null)
-				_messageSelectedEvent.Raise(listMessage.ParentAnnotation, listMessage.Message);
+			{
+				if (listMessage == null) //nothing is selected now
+				{
+					_messageSelectedEvent.Raise(null, null);
+				}
+				else
+				{
+					_messageSelectedEvent.Raise(listMessage.ParentAnnotation, listMessage.Message);
+				}
+			}
 		}
 
 		public void SearchTextChanged(string searchText)
 		{
-			int result;
-			if(int.TryParse(searchText, out result))
-			{
-				throw new ApplicationException();
-			}
 			_searchText = searchText;
 		}
 	}

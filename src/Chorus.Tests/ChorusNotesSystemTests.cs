@@ -1,4 +1,6 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Drawing;
+using System.Threading;
 using System.Windows.Forms;
 using Chorus.annotations;
 using Chorus.UI.Notes;
@@ -14,7 +16,7 @@ namespace Chorus.Tests
 		/// This is largely a test of the DI Container setup, since problems there aren't
 		/// found at compile time
 		/// </summary>
-		[Test, Ignore("this is hanging the team city build for some reason")]
+		[Test]
 		public void CanShowNotesBrowserPage()
 		{
 			using (var folder = new TempFolder("ChorusNotesSystemTests"))
@@ -67,9 +69,16 @@ namespace Chorus.Tests
 			var form = new Form();
 			form.Size = new Size(700, 600);
 			form.Controls.Add(control);
-			form.Shown+=((s,e)=>form.Close());
+			Application.Idle += new EventHandler(Application_Idle);
 			Application.EnableVisualStyles();
 			Application.Run(form);
+		}
+
+
+		static void Application_Idle(object sender, EventArgs e)
+		{
+			Thread.Sleep(100);
+			Application.Exit();
 		}
 	}
 }

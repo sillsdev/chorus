@@ -79,7 +79,7 @@ namespace Chorus.annotations
 
 		public bool CanHandleUrl(Uri uri)
 		{
-			return uri.Host == "mergeconflict";
+			return uri.Host == Conflict.ConflictAnnotationClassName;
 		}
 
 		public void HandleUrl(Uri uri)
