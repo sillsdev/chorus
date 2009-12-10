@@ -36,7 +36,7 @@ namespace Chorus.UI.Notes
 		void OnUpdateContent(object sender, EventArgs e)
 		{
 			_annotationLogo.Image = _model.GetAnnotationLogoImage();
-			_annotationClassLabel.Text = _model.ClassLabel;
+			_annotationLabel.Text = _model.AnnotationLabel;
 
 			_existingMessagesDisplay.DocumentText = _model.GetExistingMessagesHtml();
 
@@ -116,7 +116,7 @@ namespace Chorus.UI.Notes
 		private void _annotationLogo_DoubleClick(object sender, EventArgs e)
 		{
 			Cursor.Current = Cursors.WaitCursor;
-			var dlg = new AnnotationInspector(_model.CurrentAnnotation);
+			var dlg = new AnnotationInspector(_model.Annotation);
 			dlg.ShowDialog();
 			Cursor.Current = Cursors.Default;
 		}
