@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Xml.Linq;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
 using Chorus.Utilities;
@@ -41,7 +42,13 @@ namespace Chorus.FileTypeHanders.oneStory
 
 			merger.EventListener = mergeOrder.EventListener;
 			var result = merger.MergeFiles(mergeOrder.pathToOurs, mergeOrder.pathToTheirs, mergeOrder.pathToCommonAncestor);
-			File.WriteAllText(mergeOrder.pathToOurs, result.MergedNode.OuterXml);
+
+			// use linq to write the merged XML out, so it is as much as possible like the format that the OneStory editor
+			//  (which uses linq also) writes out. Do this so we maximally keep indentation the same, so that if you do
+			//  "view changesets" in TortoiseHG (a line-by-line differencer) it will highlight bona fide differences as much
+			//  as possible.
+			XDocument doc = XDocument.Parse(result.MergedNode.OuterXml);
+			doc.Save(mergeOrder.pathToOurs);
 		}
 
 		private void SetupElementStrategies(XmlMerger merger)
