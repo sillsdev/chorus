@@ -92,24 +92,6 @@ namespace Chorus.Tests.notes
 				}
 			}
 		}
-
-		[Test, ExpectedException(typeof(ApplicationException))]
-		public void SearchTextChanged_GaveNumber_ThrowsException()
-		{
-			using (var folder = new TempFolder("NotesModelTests"))
-			{
-				string contents =
-					@"<annotation class='question'><message author='john'></message></annotation>
-				<annotation class='note'><message author='bob'></message></annotation>";
-				using (CreateNotesFile(folder, contents))
-				{
-					ProjectFolderConfiguration project = new ProjectFolderConfiguration(folder.Path);
-					var m = new NotesInProjectViewModel(TheUser, project, new MessageSelectedEvent(), new ConsoleProgress());
-					m.SearchTextChanged("2");
-				}
-			}
-
-		}
 	}
 
 }
