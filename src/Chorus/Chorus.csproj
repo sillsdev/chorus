@@ -176,11 +176,11 @@
 	</Compile>
 	<Compile Include="UI\Review\ChangesInRevision\ChangesInRevisionModel.cs" />
 	<Compile Include="Event.cs" />
-	<Compile Include="UI\Notes\AnnotationView.cs">
+	<Compile Include="UI\Notes\AnnotationEditorView.cs">
 	  <SubType>UserControl</SubType>
 	</Compile>
-	<Compile Include="UI\Notes\AnnotationView.Designer.cs">
-	  <DependentUpon>AnnotationView.cs</DependentUpon>
+	<Compile Include="UI\Notes\AnnotationEditorView.Designer.cs">
+	  <DependentUpon>AnnotationEditorView.cs</DependentUpon>
 	</Compile>
 	<Compile Include="UI\Notes\Browser\NotesInProjectViewModel.cs" />
 	<Compile Include="UI\Notes\Browser\NotesInProjectView.cs">
@@ -350,8 +350,8 @@
 	<EmbeddedResource Include="UI\Notes\AnnotationInspector.resx">
 	  <DependentUpon>AnnotationInspector.cs</DependentUpon>
 	</EmbeddedResource>
-	<EmbeddedResource Include="UI\Notes\AnnotationView.resx">
-	  <DependentUpon>AnnotationView.cs</DependentUpon>
+	<EmbeddedResource Include="UI\Notes\AnnotationEditorView.resx">
+	  <DependentUpon>AnnotationEditorView.cs</DependentUpon>
 	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Notes\Bar\NoteDetailDialog.resx">
 	  <DependentUpon>NoteDetailDialog.cs</DependentUpon>

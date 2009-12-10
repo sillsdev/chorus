@@ -5,12 +5,12 @@ using System.Linq;
 
 namespace Chorus.UI.Notes
 {
-	public partial class AnnotationView : UserControl
+	public partial class AnnotationEditorView : UserControl
 	{
 		private readonly AnnotationEditorModel _model;
 		private bool _waitingOnBrowserToBeReady;
 		public EventHandler OnClose;
-		public AnnotationView(AnnotationEditorModel model)
+		public AnnotationEditorView(AnnotationEditorModel model)
 		{
 			_model = model;
 			_model.UpdateContent += OnUpdateContent;
@@ -35,44 +35,30 @@ namespace Chorus.UI.Notes
 
 		void OnUpdateContent(object sender, EventArgs e)
 		{
-			_annotationLogo.Image = _model.GetAnnotationLogoImage();
-			_annotationLabel.Text = _model.AnnotationLabel;
-
-			_existingMessagesDisplay.DocumentText = _model.GetExistingMessagesHtml();
-
-//            _messagesPanel.SuspendLayout();
-//            foreach (Control control in _messagesPanel.Controls)
-//            {
-//                //nb: Clear() doesn't dispose, so we have to go through this
-//                _messagesPanel.Controls.RemoveAllItemsWithKey(control);
-//                var d = control as IDisposable;
-//                if(d!=null)
-//                    d.Dispose();
-//            }
-//
-//            foreach (var message in _model.Messages)
-//            {
-//                _messagesPanel.Controls.Add(_model.GetControlForMessage(message));
-//            }
-
-//            _messagesPanel.ResumeLayout();
-
-			_newMessage.Text = _model.NewMessageText;
+			if (_model.IsVisible)
+			{
+				_annotationLogo.Image = _model.GetAnnotationLogoImage();
+				_annotationLabel.Text = _model.AnnotationLabel;
+				_existingMessagesDisplay.DocumentText = _model.GetExistingMessagesHtml();
+				_newMessage.Text = _model.NewMessageText;
+			}
 			OnUpdateStates(sender,e);
-
 		}
 
 		void OnUpdateStates(object sender, EventArgs e)
 		{
-			_closedCheckBox.Checked = _model.IsClosed;
-			_closedCheckBox.Visible = _model.ResolvedControlShouldBeVisible;
-			_addButton.Enabled = _model.AddButtonEnabled;
-			_addButton.Visible = _model.ShowNewMessageControls;
-			_newMessage.Visible = _model.ShowNewMessageControls;
-			_addNewMessageLabel.Visible = _model.ShowNewMessageControls;
 			Visible = _model.IsVisible;
+			if (_model.IsVisible)
+			{
+				_closedCheckBox.Checked = _model.IsClosed;
+				_closedCheckBox.Visible = _model.ResolvedControlShouldBeVisible;
+				_addButton.Enabled = _model.AddButtonEnabled;
+				_addButton.Visible = _model.ShowNewMessageControls;
+				_newMessage.Visible = _model.ShowNewMessageControls;
+				_addNewMessageLabel.Visible = _model.ShowNewMessageControls;
 
-			_closeButton.Text = _model.CloseButtonText;
+				_closeButton.Text = _model.CloseButtonText;
+			}
 		}
 
 		private void AnnotationView_Load(object sender, EventArgs e)

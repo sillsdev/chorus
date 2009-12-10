@@ -71,7 +71,7 @@ namespace Chorus
 			builder.Register<Chorus.annotations.EmbeddedMessageContentHandlerFactory>();
 			builder.Register<NotesInProjectViewModel>();
 			builder.Register<NotesInProjectView>();
-			builder.Register<Chorus.UI.Notes.AnnotationView>();
+			builder.Register<Chorus.UI.Notes.AnnotationEditorView>();
 			builder.Register<Chorus.UI.Notes.AnnotationEditorModel>().FactoryScoped();
 			builder.Register<NotesBrowserPage>();
 			builder.Register<StyleSheet>(c =>  StyleSheet.CreateFromDisk());

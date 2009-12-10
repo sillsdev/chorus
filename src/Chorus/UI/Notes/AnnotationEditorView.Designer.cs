@@ -1,6 +1,6 @@
 ﻿namespace Chorus.UI.Notes
 {
-	partial class AnnotationView
+	partial class AnnotationEditorView
 	{
 		/// <summary>
 		/// Required designer variable.

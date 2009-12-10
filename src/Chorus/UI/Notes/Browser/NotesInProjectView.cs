@@ -42,17 +42,18 @@ namespace Chorus.UI.Notes.Browser
 			_messageListView.Items.AddRange(rows.ToArray());
 			_messageListView.ResumeLayout();
 			Cursor.Current = Cursors.Default;
-		}
 
-
-		private void OnRefresh(object sender, EventArgs e)
-		{
-			ReloadMessages();
+			//this leads to hiding the annotationview when nothing is actually selected anymore (because of searching)
+			OnSelectedIndexChanged(null, null);
 		}
 
 		private void OnSelectedIndexChanged(object sender, EventArgs e)
 		{
-			if (_messageListView.SelectedItems.Count > 0)
+			if (_messageListView.SelectedItems.Count == 0)
+			{
+				_viewModel.SelectedMessageChanged(null);
+			}
+			else
 			{
 				_viewModel.SelectedMessageChanged(_messageListView.SelectedItems[0].Tag as ListMessage);
 			}

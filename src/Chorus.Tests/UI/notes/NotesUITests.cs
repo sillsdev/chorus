@@ -105,10 +105,9 @@ namespace Chorus.Tests.notes
 				var messageSelected = new MessageSelectedEvent();
 				ProjectFolderConfiguration projectConfig = new ProjectFolderConfiguration(folder.Path);
 				NotesInProjectViewModel notesInProjectModel = new NotesInProjectViewModel(new ChorusUser("Bob"), projectConfig, messageSelected,new ConsoleProgress());
-				var notesInProjectView = new NotesInProjectView(notesInProjectModel);
 
 				var annotationModel = new AnnotationEditorModel(new ChorusUser("bob"), messageSelected, StyleSheet.CreateFromDisk(), new EmbeddedMessageContentHandlerFactory());
-				AnnotationView annotationView = new AnnotationView(annotationModel);
+				AnnotationEditorView annotationView = new AnnotationEditorView(annotationModel);
 				annotationView.ModalDialogMode=false;
 				var page = new NotesBrowserPage(progress=>notesInProjectModel, annotationView);
 				page.Dock = DockStyle.Fill;
