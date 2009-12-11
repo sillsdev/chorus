@@ -398,6 +398,7 @@
 	<None Include="Resources\search16x16.png" />
 	<None Include="Resources\check16x16.png" />
 	<None Include="Resources\NewNote16x16.png" />
+	<None Include="Resources\check12x12.png" />
 	<Content Include="UI\Notes\Html\bl.gif">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</Content>

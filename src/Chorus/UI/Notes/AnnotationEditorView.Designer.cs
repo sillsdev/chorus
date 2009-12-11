@@ -43,11 +43,13 @@
 			//
 			this._closedCheckBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
 			this._closedCheckBox.AutoSize = true;
-			this._closedCheckBox.Location = new System.Drawing.Point(4, 386);
+			this._closedCheckBox.Image = global::Chorus.Properties.Resources.check12x12;
+			this._closedCheckBox.Location = new System.Drawing.Point(4, 387);
 			this._closedCheckBox.Name = "_closedCheckBox";
-			this._closedCheckBox.Size = new System.Drawing.Size(58, 17);
+			this._closedCheckBox.Size = new System.Drawing.Size(83, 17);
 			this._closedCheckBox.TabIndex = 2;
-			this._closedCheckBox.Text = "Closed";
+			this._closedCheckBox.Text = "&Resolved";
+			this._closedCheckBox.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
 			this._closedCheckBox.UseVisualStyleBackColor = true;
 			this._closedCheckBox.CheckedChanged += new System.EventHandler(this.OnClosedCheckBox_CheckedChanged);
 			//
@@ -116,7 +118,7 @@
 			this._closeButton.Name = "_closeButton";
 			this._closeButton.Size = new System.Drawing.Size(129, 36);
 			this._closeButton.TabIndex = 1;
-			this._closeButton.Text = "Add && &Close";
+			this._closeButton.Text = "Add && &OK";
 			this._closeButton.UseVisualStyleBackColor = true;
 			this._closeButton.Click += new System.EventHandler(this._closeButton_Click);
 			//
@@ -134,7 +136,7 @@
 			this._addNewMessageLabel.TabStop = false;
 			this._addNewMessageLabel.Text = "Add new message:";
 			//
-			// AnnotationView
+			// AnnotationEditorView
 			//
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -146,7 +148,7 @@
 			this.Controls.Add(this._addNewMessageLabel);
 			this.Controls.Add(this._closedCheckBox);
 			this.Controls.Add(this._annotationLogo);
-			this.Name = "AnnotationView";
+			this.Name = "AnnotationEditorView";
 			this.Size = new System.Drawing.Size(321, 415);
 			this.Load += new System.EventHandler(this.AnnotationView_Load);
 			((System.ComponentModel.ISupportInitialize)(this._annotationLogo)).EndInit();

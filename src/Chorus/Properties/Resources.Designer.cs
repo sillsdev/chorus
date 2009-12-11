@@ -60,6 +60,13 @@ namespace Chorus.Properties {
 			}
 		}
 
+		internal static System.Drawing.Bitmap check12x12 {
+			get {
+				object obj = ResourceManager.GetObject("check12x12", resourceCulture);
+				return ((System.Drawing.Bitmap)(obj));
+			}
+		}
+
 		internal static System.Drawing.Bitmap check16x16 {
 			get {
 				object obj = ResourceManager.GetObject("check16x16", resourceCulture);

@@ -118,11 +118,32 @@
 	<value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="search18x18" type="System.Resources.ResXFileRef, System.Windows.Forms">
-	<value>..\Resources\search18x18.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="Usb32x28" type="System.Resources.ResXFileRef, System.Windows.Forms">
+	<value>..\Resources\Usb32x28.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="warningSound" type="System.Resources.ResXFileRef, System.Windows.Forms">
-	<value>..\Resources\warning.wav;System.IO.MemoryStream, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  <data name="warningImage" type="System.Resources.ResXFileRef, System.Windows.Forms">
+	<value>..\Resources\warning.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="networkFolder58x64" type="System.Resources.ResXFileRef, System.Windows.Forms">
+	<value>..\Resources\networkFolder58x64.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="send_receive_small" type="System.Resources.ResXFileRef, System.Windows.Forms">
+	<value>..\Resources\send-receive small.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="check16x16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+	<value>..\Resources\check16x16.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="finishedSound" type="System.Resources.ResXFileRef, System.Windows.Forms">
+	<value>..\Resources\finished.wav;System.IO.MemoryStream, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="internet59x64" type="System.Resources.ResXFileRef, System.Windows.Forms">
+	<value>..\Resources\internet59x64.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="errorSound" type="System.Resources.ResXFileRef, System.Windows.Forms">
+	<value>..\Resources\error.wav;System.IO.MemoryStream, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="XmlToHtml10Basic" type="System.Resources.ResXFileRef, System.Windows.Forms">
+	<value>..\UI\Notes\XmlToHtml10Basic.xslt;System.String, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-16</value>
   </data>
   <data name="search16x16" type="System.Resources.ResXFileRef, System.Windows.Forms">
 	<value>..\Resources\search16x16.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -130,43 +151,25 @@
   <data name="chorus32x32" type="System.Resources.ResXFileRef, System.Windows.Forms">
 	<value>..\Resources\chorus32x32.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="warningImage" type="System.Resources.ResXFileRef, System.Windows.Forms">
-	<value>..\Resources\warning.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="errorSound" type="System.Resources.ResXFileRef, System.Windows.Forms">
-	<value>..\Resources\error.wav;System.IO.MemoryStream, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  <data name="search18x18" type="System.Resources.ResXFileRef, System.Windows.Forms">
+	<value>..\Resources\search18x18.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="Usb64x64" type="System.Resources.ResXFileRef, System.Windows.Forms">
 	<value>..\Resources\Usb64x64.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="send_receive_small" type="System.Resources.ResXFileRef, System.Windows.Forms">
-	<value>..\Resources\send-receive small.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="networkFolder29x32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+	<value>..\Resources\networkFolder29x32.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="internet29x32" type="System.Resources.ResXFileRef, System.Windows.Forms">
 	<value>..\Resources\internet29x32.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="Usb32x28" type="System.Resources.ResXFileRef, System.Windows.Forms">
-	<value>..\Resources\Usb32x28.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="networkFolder58x64" type="System.Resources.ResXFileRef, System.Windows.Forms">
-	<value>..\Resources\networkFolder58x64.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="internet59x64" type="System.Resources.ResXFileRef, System.Windows.Forms">
-	<value>..\Resources\internet59x64.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="networkFolder29x32" type="System.Resources.ResXFileRef, System.Windows.Forms">
-	<value>..\Resources\networkFolder29x32.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="finishedSound" type="System.Resources.ResXFileRef, System.Windows.Forms">
-	<value>..\Resources\finished.wav;System.IO.MemoryStream, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="check16x16" type="System.Resources.ResXFileRef, System.Windows.Forms">
-	<value>..\Resources\check16x16.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="XmlToHtml10Basic" type="System.Resources.ResXFileRef, System.Windows.Forms">
-	<value>..\UI\Notes\XmlToHtml10Basic.xslt;System.String, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-16</value>
+  <data name="warningSound" type="System.Resources.ResXFileRef, System.Windows.Forms">
+	<value>..\Resources\warning.wav;System.IO.MemoryStream, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="NewNote16x16" type="System.Resources.ResXFileRef, System.Windows.Forms">
 	<value>..\Resources\NewNote16x16.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="check12x12" type="System.Resources.ResXFileRef, System.Windows.Forms">
+	<value>..\Resources\check12x12.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
 </root>

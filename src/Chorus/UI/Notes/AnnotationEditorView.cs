@@ -83,6 +83,7 @@ namespace Chorus.UI.Notes
 		{
 			_model.AddButtonClicked();
 			_newMessage.Text = _model.NewMessageText;
+
 		}
 
 		private void _newMessage_TextChanged(object sender, EventArgs e)
@@ -121,6 +122,12 @@ namespace Chorus.UI.Notes
 			{
 				_waitingOnBrowserToBeReady = false;
 				OnUpdateContent(null,null);
+			}
+
+			var c = _existingMessagesDisplay.Document.Body.Children.Count;
+			if (c > 0)
+			{
+				_existingMessagesDisplay.Document.Body.Children[c - 1].ScrollIntoView(false);
 			}
 		}
 

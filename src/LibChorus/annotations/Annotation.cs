@@ -151,7 +151,7 @@ namespace Chorus.annotations
 		/// <summary>
 		/// get at the value in a URL, which are listed the collection of name=value pairs after the ?
 		/// </summary>
-		/// <example>GetValueFromQueryStringOfRef("id", ""lift://blah.lift?id=fooid") returns "foo"</example>
+		/// <example>GetValueFromQueryStringOfRef("id", ""lift://blah.lift?id=foo") returns "foo"</example>
 		public string GetValueFromQueryStringOfRef(string name, string defaultIfCannotGetIt)
 		{
 			try

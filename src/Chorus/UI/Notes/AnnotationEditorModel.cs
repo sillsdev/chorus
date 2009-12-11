@@ -130,7 +130,7 @@ namespace Chorus.UI.Notes
 //                    "<div class='t'><div class='b'><div class='l'><div class='r'><div class='bl'><div class='br'><div class='tl'><div class='tr'>");
 
 
-					builder.AppendFormat("<span class='sender'>{0}</span> <span class='when'> on {1}</span>", message.Author, message.Date.ToLongDateString());
+					builder.AppendFormat("<span class='sender'>{0}</span> <span class='when'> - {1}</span>", message.Author, message.Date.ToLongDateString());
 
 					builder.AppendLine("<div class='messageContents'>");
 					builder.AppendLine(message.GetHtmlText(_embeddedMessageContentHandlerFactory));
@@ -215,11 +215,11 @@ namespace Chorus.UI.Notes
 			{
 				if (_newMessageText.Length > 0)
 				{
-					return "Add && &Close";
+					return "&Add && &OK";
 				}
 				else
 				{
-				   return "&Close";
+				   return "&OK";
 				}
 			}
 		}

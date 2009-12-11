@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Web;
 using System.Linq;
 using System.Windows.Forms;
+using Chorus.merge.xml.generic;
 
 namespace Chorus.annotations
 {
