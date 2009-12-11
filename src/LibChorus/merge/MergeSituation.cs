@@ -25,10 +25,10 @@ namespace Chorus.merge
 		public MergeOrder.ConflictHandlingModeChoices ConflictHandlingMode { get; private set; }
 
 		//we don't have access to this yet: public const string kAncestorRevision = "ChorusAncestorRevision";
-		public const string kUseAlphaId= "ChorusUserAlphaId";
-		public const string kUserBetaId = "ChorusUserBetaId";
-		public const string kUserAlphaRevision = "ChorusUserAlphaRevision";
-		public const string kUserBetaRevision = "ChorusUserBetaRevision";
+		public const string kAlphaUserId= "ChorusUserAlphaId";
+		public const string kBetaUserId = "ChorusUserBetaId";
+		public const string kAlphaUserRevision = "ChorusUserAlphaRevision";
+		public const string kBetaUserRevision = "ChorusUserBetaRevision";
 		//public const string kPathToFileInRepository = "ChorusPathToFileInRepository";
 
 		/// <summary>
@@ -36,51 +36,60 @@ namespace Chorus.merge
 		/// </summary>
 		public string PathToFileInRepository{ get; set;}
 	   //we don't have access to this yet: public string AncestorRevision { get; set; }
-		public string UserAlphaId { get; set; }
-		public string UserBetaId { get; set; }
-		public string UserAlphaRevision { get; set; }
-		public string UserBetaRevision { get; set; }
+
+		/// <summary>
+		/// Here, "alpha" is the guy who wins when there's no better way to decide, and "beta" is the loser.
+		/// </summary>
+		public string AlphaUserId { get; set; }
+		public string BetaUserId { get; set; }
+		public string AlphaUserRevision { get; set; }
+		public string BetaUserRevision { get; set; }
 
 
 		public void WriteAsXml(XmlWriter writer)
 		{
 			writer.WriteStartElement("MergeSituation");
-			writer.WriteAttributeString("userAlphaId", UserAlphaId);
-			writer.WriteAttributeString("userBetaId", UserBetaId);
-			writer.WriteAttributeString("userXRevision", UserAlphaRevision);
-			writer.WriteAttributeString("userYRevision", UserBetaRevision);
+			writer.WriteAttributeString("alphaUserId", AlphaUserId);
+			writer.WriteAttributeString("betaUserId", BetaUserId);
+			writer.WriteAttributeString("alphaUserRevision", AlphaUserRevision);
+			writer.WriteAttributeString("betaUserRevision", BetaUserRevision);
 			writer.WriteAttributeString("path", PathToFileInRepository);
 			writer.WriteAttributeString("conflictHandlingMode", string.Empty, ConflictHandlingMode.ToString());
 			writer.WriteEndElement();
 		}
 
 		public MergeSituation(string relativePathToFile, string firstUserId, string firstUserRevision, string secondUserId, string secondRevision, MergeOrder.ConflictHandlingModeChoices conflictHandlingMode)
+			:this(relativePathToFile, conflictHandlingMode)
 		{
-			ConflictHandlingMode = conflictHandlingMode;
-
-			if (relativePathToFile != null)
-				relativePathToFile = relativePathToFile.Trim(new[] {Path.DirectorySeparatorChar});
-
-			PathToFileInRepository = relativePathToFile;
-
 			switch (conflictHandlingMode)
 			{
 				case MergeOrder.ConflictHandlingModeChoices.TheyWin:
-					UserAlphaId = secondUserId;
-					UserBetaId = firstUserId;
-					UserBetaRevision = firstUserRevision;
-					UserAlphaRevision = secondRevision;
+					AlphaUserId = secondUserId;
+					BetaUserId = firstUserId;
+					BetaUserRevision = firstUserRevision;
+					AlphaUserRevision = secondRevision;
 					break;
 				default:
-					UserAlphaId = firstUserId;
-					UserBetaId = secondUserId;
-					UserBetaRevision = secondRevision;
-					UserAlphaRevision = firstUserRevision;
+					AlphaUserId = firstUserId;
+					BetaUserId = secondUserId;
+					BetaUserRevision = secondRevision;
+					AlphaUserRevision = firstUserRevision;
 					break;
 			}
 
 
 			//we don't have access to this yet:   AncestorRevision = ancestorRevision;
+		}
+
+		//this one is only for deserializing
+		private MergeSituation(string relativePathToFile, MergeOrder.ConflictHandlingModeChoices conflictHandlingMode)
+		{
+			ConflictHandlingMode = conflictHandlingMode;
+
+			if (relativePathToFile != null)
+				relativePathToFile = relativePathToFile.Trim(new[] { Path.DirectorySeparatorChar });
+
+			PathToFileInRepository = relativePathToFile;
 		}
 
 		public static MergeSituation CreateFromEnvironmentVariables(string pathToFileInRepository)
@@ -102,13 +111,13 @@ namespace Chorus.merge
 			//for the conflict record, so that we can later look up exactly what were the 3 inputs at the time of merging.
 		   //string pathToFileInRepository = Environment.GetEnvironmentVariable(MergeSituation.kPathToFileInRepository);
 			//we don't have access to this yet: string ancestorRevision = Environment.GetEnvironmentVariable(MergeSituation.kAncestorRevision);
-			string userAlphaId = Environment.GetEnvironmentVariable(MergeSituation.kUseAlphaId);
-			string userBetaId = Environment.GetEnvironmentVariable(MergeSituation.kUserBetaId);
-			string userXRevision = Environment.GetEnvironmentVariable(MergeSituation.kUserAlphaRevision);
-			string userYRevision = Environment.GetEnvironmentVariable(MergeSituation.kUserBetaRevision);
+			string alphaId = Environment.GetEnvironmentVariable(MergeSituation.kAlphaUserId);
+			string betaId = Environment.GetEnvironmentVariable(MergeSituation.kBetaUserId);
+			string alphaUserRevision = Environment.GetEnvironmentVariable(MergeSituation.kAlphaUserRevision);
+			string betaUserRevision = Environment.GetEnvironmentVariable(MergeSituation.kBetaUserRevision);
 
-			return new MergeSituation( pathToFileInRepository, userAlphaId, userXRevision, userBetaId,
-									  userYRevision, mode);
+			return new MergeSituation( pathToFileInRepository, alphaId, alphaUserRevision, betaId,
+									  betaUserRevision, mode);
 
 		}
 
@@ -116,15 +125,15 @@ namespace Chorus.merge
 		/// this isn't all we want to know, but it's all the guy telling hg to merge two branches knows.
 		/// This is called to put this info into env vars where we can retrieve it once chorus.exe is called by hg
 		/// </summary>
-		/// <param name="userXRevision"></param>
-		/// <param name="userYRevision"></param>
-		public static void PushRevisionsToEnvironmentVariables(string userAlphaId, string userXRevision, string userBetaId, string userYRevision)
+		/// <param name="alphaUserRevision"></param>
+		/// <param name="betaUserRevision"></param>
+		public static void PushRevisionsToEnvironmentVariables(string userAlphaId, string alphaUserRevision, string userBetaId, string betaUserRevision)
 		{
-			Environment.SetEnvironmentVariable(kUseAlphaId, userAlphaId);
-			Environment.SetEnvironmentVariable(kUserAlphaRevision, userXRevision);
+			Environment.SetEnvironmentVariable(kAlphaUserId, userAlphaId);
+			Environment.SetEnvironmentVariable(kAlphaUserRevision, alphaUserRevision);
 
-			Environment.SetEnvironmentVariable(kUserBetaId, userBetaId);
-			Environment.SetEnvironmentVariable(kUserBetaRevision, userYRevision);
+			Environment.SetEnvironmentVariable(kBetaUserId, userBetaId);
+			Environment.SetEnvironmentVariable(kBetaUserRevision, betaUserRevision);
 		}
 //
 //        public void WriteXml(XmlWriter writer)
@@ -154,12 +163,15 @@ namespace Chorus.merge
 				mode = MergeOrder.ConflictHandlingModeChoices.Unknown;
 			}
 
-			return new MergeSituation(node.GetStringAttribute("path"),
-									  node.GetStringAttribute("userAlphaId"),
-									  node.GetStringAttribute("userXRevision"),
-									  node.GetStringAttribute("userBetaId"),
-									  node.GetStringAttribute("userYRevision"),
-									  mode);
+			//Note, we can't use the normal construtor, because it switches who is alpha/beta
+			//depending on the conflict handling mode.  We don't want to switch them again
+			//when we're re-constituting the situation
+			var situation = new MergeSituation(node.GetStringAttribute("path"), mode);
+			situation.AlphaUserId = node.GetStringAttribute("alphaUserId");
+			situation.AlphaUserRevision = node.GetStringAttribute("alphaUserRevision");
+			situation.BetaUserId = node.GetStringAttribute("betaUserId");
+			situation.BetaUserRevision = node.GetStringAttribute("betaUserRevision");
+			return situation;
 		}
 	}
 }

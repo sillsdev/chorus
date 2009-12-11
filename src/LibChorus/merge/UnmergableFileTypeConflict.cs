@@ -29,13 +29,13 @@ namespace Chorus.merge
 
 			string loserId = (Situation.ConflictHandlingMode != MergeOrder.ConflictHandlingModeChoices.TheyWin)
 								 ?
-									 Situation.UserBetaId
-								 :Situation.UserAlphaId;
+									 Situation.BetaUserId
+								 :Situation.AlphaUserId;
 
 			string loserRev = (Situation.ConflictHandlingMode != MergeOrder.ConflictHandlingModeChoices.TheyWin)
 								 ?
-									 Situation.UserBetaRevision
-								 :Situation.UserAlphaRevision;
+									 Situation.BetaUserRevision
+								 :Situation.AlphaUserRevision;
 
 			b.AppendFormat("The merger gave both users the copy from '{0}'.", WinnerId);
 			b.AppendLine();

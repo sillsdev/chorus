@@ -92,7 +92,7 @@ namespace Chorus.FileTypeHanders
 				{
 					builder.AppendFormat(
 						"<p>{0} and {1} both edited {2} in the file {3} in a way that could not be automatically merged.</p>",
-						_conflict.Situation.UserAlphaId, _conflict.Situation.UserBetaId, _conflict.Context.DataLabel,
+						_conflict.Situation.AlphaUserId, _conflict.Situation.BetaUserId, _conflict.Context.DataLabel,
 						_conflict.RelativeFilePath);
 
 					builder.AppendFormat("<p></p>");
@@ -116,7 +116,7 @@ namespace Chorus.FileTypeHanders
 
 					builder.AppendFormat(
 						"{0} and {1} both edited {2} in a way that could not be merged. Where they conflicted, {3}'s version was kept.<br/>",
-						_conflict.Situation.UserAlphaId, _conflict.Situation.UserBetaId, _conflict.Context.DataLabel,
+						_conflict.Situation.AlphaUserId, _conflict.Situation.BetaUserId, _conflict.Context.DataLabel,
 						_conflict.WinnerId);
 
 					builder.AppendFormat(
@@ -128,17 +128,17 @@ namespace Chorus.FileTypeHanders
 					var ancestor = _conflict.GetConflictingRecordOutOfSourceControl(_fileRetriever,
 																					ThreeWayMergeSources.Source.Ancestor);
 					builder.Append(XmlUtilities.GetXmlForShowingInHtml(ancestor));
-					builder.AppendFormat("<h3>{0}'s version</h3>", _conflict.Situation.UserAlphaId);
+					builder.AppendFormat("<h3>{0}'s version</h3>", _conflict.Situation.AlphaUserId);
 					var userXVersion = _conflict.GetConflictingRecordOutOfSourceControl(_fileRetriever,
 																						ThreeWayMergeSources.Source.
 																							UserX);
 					builder.Append(XmlUtilities.GetXmlForShowingInHtml(userXVersion));
-					builder.AppendFormat("</p><h3>{0}'s version</h3>", _conflict.Situation.UserBetaId);
+					builder.AppendFormat("</p><h3>{0}'s version</h3>", _conflict.Situation.BetaUserId);
 					var userYVersion = _conflict.GetConflictingRecordOutOfSourceControl(_fileRetriever,
 																						ThreeWayMergeSources.Source.
 																							UserY);
 					builder.Append(XmlUtilities.GetXmlForShowingInHtml(userYVersion));
-					builder.AppendFormat("</p><h3>Resulting version</h3>", _conflict.Situation.UserBetaId);
+					builder.AppendFormat("</p><h3>Resulting version</h3>", _conflict.Situation.BetaUserId);
 
 					try
 					{

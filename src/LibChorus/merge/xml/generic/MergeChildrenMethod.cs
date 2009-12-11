@@ -68,7 +68,7 @@ namespace Chorus.merge.xml.generic
 						// stick with our orderer (we win), but report conflict.
 						_merger.EventListener.ConflictOccurred(new BothReorderedElementConflict(_ours.Name, _ours,
 							_theirs, _ancestor, _merger.MergeSituation, _merger.MergeStrategies.GetElementStrategy(_ours),
-							_merger.MergeSituation.UserAlphaId));
+							_merger.MergeSituation.AlphaUserId));
 					}
 					else
 					{
@@ -84,13 +84,13 @@ namespace Chorus.merge.xml.generic
 			{
 				_merger.EventListener.ConflictOccurred(new AmbiguousInsertReorderConflict(_ours.Name, _ours,
 					_theirs, _ancestor, _merger.MergeSituation, _merger.MergeStrategies.GetElementStrategy(_ours),
-					_merger.MergeSituation.UserAlphaId));
+					_merger.MergeSituation.AlphaUserId));
 			}
 			else if (resultOrderer.OrderIsAmbiguous)
 			{
 				_merger.EventListener.ConflictOccurred(new AmbiguousInsertConflict(_ours.Name, _ours,
 					_theirs, _ancestor, _merger.MergeSituation, _merger.MergeStrategies.GetElementStrategy(_ours),
-					_merger.MergeSituation.UserAlphaId));
+					_merger.MergeSituation.AlphaUserId));
 			}
 
 			List<XmlNode> newChildren = resultOrderer.GetResultList();
@@ -301,7 +301,7 @@ namespace Chorus.merge.xml.generic
 																	   _merger.MergeSituation,
 																	   _merger.MergeStrategies.
 																		   GetElementStrategy(theirChild),
-																	   _merger.MergeSituation.UserBetaId));
+																	   _merger.MergeSituation.BetaUserId));
 							}
 							else
 							{   //review hatton added dec 2009, was always reporting the element conflict rather than text
@@ -309,7 +309,7 @@ namespace Chorus.merge.xml.generic
 									new RemovedVsEditedTextConflict(null, theirChild,
 																	   ancestorChild,
 																	   _merger.MergeSituation,
-																	   _merger.MergeSituation.UserBetaId));
+																	   _merger.MergeSituation.BetaUserId));
 							}
 							_ancestorKeepers.Remove(ancestorChild);//review hatton added dec 2009, wanting whoever edited it to win (previously "we" always won)
 						}
@@ -337,12 +337,12 @@ namespace Chorus.merge.xml.generic
 						{
 							_merger.EventListener.ConflictOccurred(
 								new RemovedVsEditedElementConflict(ourChild.Name, ourChild, null, ancestorChild,
-																   _merger.MergeSituation, _merger.MergeStrategies.GetElementStrategy(ourChild), _merger.MergeSituation.UserAlphaId));
+																   _merger.MergeSituation, _merger.MergeStrategies.GetElementStrategy(ourChild), _merger.MergeSituation.AlphaUserId));
 						}
 						else
 						{
 							_merger.EventListener.ConflictOccurred(
-								new RemovedVsEditedTextConflict(ourChild, null, ancestorChild, _merger.MergeSituation, _merger.MergeSituation.UserAlphaId));
+								new RemovedVsEditedTextConflict(ourChild, null, ancestorChild, _merger.MergeSituation, _merger.MergeSituation.AlphaUserId));
 						}
 					}
 				}

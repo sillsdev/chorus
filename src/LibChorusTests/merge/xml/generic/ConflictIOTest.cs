@@ -17,8 +17,8 @@ namespace LibChorus.Tests.merge.xml.generic
 		{
 			MergeSituation mergesituation = new MergeSituation("path", "x", "1", "y", "2", MergeOrder.ConflictHandlingModeChoices.TheyWin);
 			var c = new BothEditedTextConflict(
-				GetNodeFromString("<a>ours</a>"),
-				GetNodeFromString("<a>theirs</a>"),
+				GetNodeFromString("<a>y</a>"),      //NB: since "y" is the "alpha-dog" under "TheyWin" policy, it is the 1st parameter
+				GetNodeFromString("<a>x</a>"),
 				GetNodeFromString("<a>ancestor</a>"),
 				mergesituation, "theWinner");
 			c.Context = new ContextDescriptor("testLabel", "testPath");
