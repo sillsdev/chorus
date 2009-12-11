@@ -237,9 +237,6 @@
 	<None Include="Resources\note32x32.png" />
   </ItemGroup>
   <ItemGroup>
-	<None Include="Resources\warning16x16.png" />
-  </ItemGroup>
-  <ItemGroup>
 	<None Include="Resources\generic16x16.png" />
   </ItemGroup>
   <ItemGroup>
@@ -255,13 +252,13 @@
 	<None Include="Resources\mergeConflict32x32.png" />
   </ItemGroup>
   <ItemGroup>
-	<None Include="Resources\mergeConflict16x16.png" />
+	<None Include="Resources\MergeConflict16x16.png" />
   </ItemGroup>
   <ItemGroup>
-	<None Include="Resources\question16x16closed.png" />
+	<None Include="Resources\MergeConflict16x16Closed.png" />
   </ItemGroup>
   <ItemGroup>
-	<None Include="Resources\warning16x16Closed.png" />
+	<None Include="Resources\question16x16Closed.png" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
