@@ -138,7 +138,7 @@ namespace Chorus.merge.xml.generic
 						ours.Attributes.Append(importedAttribute);
 
 						EventListener.ConflictOccurred(new RemovedVsEditedAttributeConflict(theirAttr.Name, null, theirAttr.Value, ancestorAttr.Value, MergeSituation,
-							MergeSituation.UserYId));
+							MergeSituation.UserBetaId));
 						continue;
 					}
 				}
@@ -151,8 +151,8 @@ namespace Chorus.merge.xml.generic
 					}
 					else
 					{
-						EventListener.ConflictOccurred(new BothEdittedAttributeConflict(theirAttr.Name, ourAttr.Value, theirAttr.Value, null,  MergeSituation,
-							MergeSituation.UserXId));
+						EventListener.ConflictOccurred(new BothEditedAttributeConflict(theirAttr.Name, ourAttr.Value, theirAttr.Value, null,  MergeSituation,
+							MergeSituation.UserAlphaId));
 					}
 				}
 				else if (ancestorAttr.Value == ourAttr.Value)
@@ -184,11 +184,11 @@ namespace Chorus.merge.xml.generic
 					//for unit test see Merge_RealConflictPlusModDateConflict_ModDateNotReportedAsConflict()
 					if (strat == null || !strat.AttributesToIgnoreForMerging.Contains(ourAttr.Name))
 					{
-						EventListener.ConflictOccurred(new BothEdittedAttributeConflict(theirAttr.Name, ourAttr.Value,
+						EventListener.ConflictOccurred(new BothEditedAttributeConflict(theirAttr.Name, ourAttr.Value,
 																						theirAttr.Value,
 																						ancestorAttr.Value,
 																						MergeSituation,
-																						MergeSituation.UserXId));
+																						MergeSituation.UserAlphaId));
 					}
 				}
 			}
@@ -208,7 +208,7 @@ namespace Chorus.merge.xml.generic
 					}
 					else
 					{
-						EventListener.ConflictOccurred(new RemovedVsEditedAttributeConflict(ourAttr.Name, ourAttr.Value, null, ancestorAttr.Value, MergeSituation, MergeSituation.UserXId));
+						EventListener.ConflictOccurred(new RemovedVsEditedAttributeConflict(ourAttr.Name, ourAttr.Value, null, ancestorAttr.Value, MergeSituation, MergeSituation.UserAlphaId));
 					}
 				}
 			}
@@ -239,8 +239,8 @@ namespace Chorus.merge.xml.generic
 					{
 						//they edited it. Keep theirs under the principle of least data loss.
 						ours.InnerText = theirs.InnerText;
-						EventListener.ConflictOccurred(new RemovedVsEdittedTextConflict(ours, theirs, ancestor, MergeSituation,
-							MergeSituation.UserYId));
+						EventListener.ConflictOccurred(new RemovedVsEditedTextConflict(ours, theirs, ancestor, MergeSituation,
+							MergeSituation.UserBetaId));
 						return;
 					}
 				}
@@ -254,8 +254,8 @@ namespace Chorus.merge.xml.generic
 				if (theirs.InnerText == null || string.IsNullOrEmpty(theirs.InnerText.Trim()))
 				{
 					//we edited, they deleted it. Keep ours.
-					EventListener.ConflictOccurred(new RemovedVsEdittedTextConflict(ours, theirs, ancestor, MergeSituation,
-						MergeSituation.UserXId));
+					EventListener.ConflictOccurred(new RemovedVsEditedTextConflict(ours, theirs, ancestor, MergeSituation,
+						MergeSituation.UserAlphaId));
 					return;
 				}
 				else
@@ -265,7 +265,7 @@ namespace Chorus.merge.xml.generic
 					if (ancestor!=null && theirs.InnerText == ancestor.InnerText)
 						return; // we edited it, they did not, keep ours.
 					//both edited it. Keep ours, but report conflict.
-					EventListener.ConflictOccurred(new BothEdittedTextConflict(ours, theirs, ancestor, MergeSituation, MergeSituation.UserXId));
+					EventListener.ConflictOccurred(new BothEditedTextConflict(ours, theirs, ancestor, MergeSituation, MergeSituation.UserAlphaId));
 					return;
 				}
 			}

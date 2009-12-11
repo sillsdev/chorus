@@ -200,7 +200,7 @@ namespace LibChorus.Tests.merge.xml.lift
 
 			string result = merger.GetMergedLift();
 			Assert.AreEqual(1, listener.Conflicts.Count);
-			listener.AssertFirstConflictType<BothEdittedTextConflict>();
+			listener.AssertFirstConflictType<BothEditedTextConflict>();
 			listener.AssertExpectedConflictCount(1);
 			listener.AssertExpectedChangesCount(1);
 		}

@@ -166,8 +166,8 @@ namespace Chorus.merge.xml.generic
 			{
 				return (this.Situation.ConflictHandlingMode == MergeOrder.ConflictHandlingModeChoices.TheyWin)
 						   ?
-							   Situation.UserYId
-						   : Situation.UserXId;
+							   Situation.UserBetaId
+						   : Situation.UserAlphaId;
 			}
 		}
 
@@ -181,13 +181,13 @@ namespace Chorus.merge.xml.generic
 			Register<RemovedVsEditedElementConflict>(builder);
 			Register<AmbiguousInsertConflict>(builder);
 			Register<AmbiguousInsertReorderConflict>(builder);
-			Register<BothEdittedAttributeConflict>(builder);
-			Register<BothEdittedTextConflict>(builder);
+			Register<BothEditedAttributeConflict>(builder);
+			Register<BothEditedTextConflict>(builder);
 			Register<BothReorderedElementConflict>(builder);
 			Register<RemovedVsEditedElementConflict>(builder);
 			Register<RemovedVsEditedAttributeConflict>(builder);
-			Register<RemovedVsEdittedTextConflict>(builder);
-			Register<BothEdittedDifferentPartsOfDependentPiecesOfDataWarning>(builder);
+			Register<RemovedVsEditedTextConflict>(builder);
+			Register<BothEditedDifferentPartsOfDependentPiecesOfDataWarning>(builder);
 			Register<UnmergableFileTypeConflict>(builder);
 
 			var container = builder.Build();
@@ -362,11 +362,11 @@ namespace Chorus.merge.xml.generic
 		{
 			get
 			{
-				string ancestor = string.IsNullOrEmpty(_ancestorValue) ? "<didn't exist>" : _ancestorValue;
-				string ours = string.IsNullOrEmpty(_ourValue) ? "<removed>" : _ourValue;
-				string theirs = string.IsNullOrEmpty(_theirValue) ? "<removed>" : _theirValue;
-				return string.Format("When last synchronized, the value was {0}. Then {1} changed it to {2}, while {3} changed it to {4}. ",
-									 ancestor, Situation.UserXId, ours, Situation.UserYId, theirs)+GetWhoWonText();
+				string ancestor = string.IsNullOrEmpty(_ancestorValue) ? "empty" : "'"+_ancestorValue+"'";
+				string ours = string.IsNullOrEmpty(_ourValue) ? "(empty)" : "'"+_ourValue+"'";
+				string theirs = string.IsNullOrEmpty(_theirValue) ? "(empty)" : "'" + _theirValue+"'";
+				return string.Format("{1} changed {0} to {2}, while {3} changed it to {4}. ",
+									 ancestor, Situation.UserAlphaId, ours, Situation.UserBetaId, theirs)+GetWhoWonText();
 			}
 		}
 
@@ -389,14 +389,14 @@ namespace Chorus.merge.xml.generic
 			switch (mergeSource)
 			{
 				case ThreeWayMergeSources.Source.Ancestor:
-					revision =fileRetriever.GetCommonAncestorOfRevisions(this.Situation.UserXRevision, Situation.UserYRevision);
+					revision =fileRetriever.GetCommonAncestorOfRevisions(this.Situation.UserAlphaRevision, Situation.UserBetaRevision);
 					break;
 				case ThreeWayMergeSources.Source.UserX:
-					revision = Situation.UserXRevision;
+					revision = Situation.UserAlphaRevision;
 				 //   elementId = _userXElementId;
 					break;
 				case ThreeWayMergeSources.Source.UserY:
-					revision = Situation.UserYRevision;
+					revision = Situation.UserBetaRevision;
 				 //    elementId = _userYElementId;
 				   break;
 
@@ -429,9 +429,9 @@ namespace Chorus.merge.xml.generic
 	}
 
 	[TypeGuid("5BBDF4F6-953A-4F79-BDCD-0B1F733DA4AB")]
-	sealed public class BothEdittedAttributeConflict : AttributeConflict
+	sealed public class BothEditedAttributeConflict : AttributeConflict
 	{
-		public BothEdittedAttributeConflict(string attributeName, string ourValue, string theirValue, string ancestorValue, MergeSituation mergeSituation, string whoWon)
+		public BothEditedAttributeConflict(string attributeName, string ourValue, string theirValue, string ancestorValue, MergeSituation mergeSituation, string whoWon)
 			: base(attributeName, ourValue, theirValue, ancestorValue, mergeSituation, whoWon)
 		{
 		}
@@ -443,16 +443,16 @@ namespace Chorus.merge.xml.generic
 	}
 
 	[TypeGuid("0507DE36-13A3-449D-8302-48F5213BD92E")]
-	sealed public class BothEdittedTextConflict : AttributeConflict
+	sealed public class BothEditedTextConflict : AttributeConflict
 	{
-		public BothEdittedTextConflict(XmlNode ours, XmlNode theirs, XmlNode ancestor, MergeSituation mergeSituation, string whoWon)
+		public BothEditedTextConflict(XmlNode ours, XmlNode theirs, XmlNode ancestor, MergeSituation mergeSituation, string whoWon)
 			: base("text", ours.InnerText, theirs.InnerText,
 				   ancestor == null ? string.Empty : ancestor.InnerText,
 				   mergeSituation, whoWon)
 		{
 		}
 
-		public BothEdittedTextConflict(XmlNode xmlRepresentation):base(xmlRepresentation)
+		public BothEditedTextConflict(XmlNode xmlRepresentation):base(xmlRepresentation)
 		{
 
 		}
@@ -464,9 +464,9 @@ namespace Chorus.merge.xml.generic
 	}
 
 	[TypeGuid("E1CCC59B-46E5-4D24-A1B1-5B621A0F8870")]
-	sealed public class RemovedVsEdittedTextConflict : AttributeConflict
+	sealed public class RemovedVsEditedTextConflict : AttributeConflict
 	{
-		public RemovedVsEdittedTextConflict(XmlNode ours, XmlNode theirs, XmlNode ancestor,MergeSituation mergeSituation, string whoWon)
+		public RemovedVsEditedTextConflict(XmlNode ours, XmlNode theirs, XmlNode ancestor,MergeSituation mergeSituation, string whoWon)
 			: base("text", ours == null ? string.Empty : ours.InnerText,
 				   theirs == null ? string.Empty : theirs.InnerText,
 				   ancestor.InnerText,
@@ -475,7 +475,7 @@ namespace Chorus.merge.xml.generic
 		}
 
 
-		public RemovedVsEdittedTextConflict(XmlNode xmlRepresentation):base(xmlRepresentation)
+		public RemovedVsEditedTextConflict(XmlNode xmlRepresentation):base(xmlRepresentation)
 		{
 
 		}
@@ -545,7 +545,7 @@ namespace Chorus.merge.xml.generic
 		{
 			get
 			{
-				return string.Format("{0} deleted this element, while {1} edited it. ", Situation.UserXId, Situation.UserYId, _whoWon)+GetWhoWonText();
+				return string.Format("{0} deleted this element, while {1} edited it. ", Situation.UserAlphaId, Situation.UserBetaId, _whoWon)+GetWhoWonText();
 			}
 		}
 
@@ -571,7 +571,9 @@ namespace Chorus.merge.xml.generic
 
 		public override string WhatHappened
 		{
-			get { return "Two people both re-ordered the children of this element in different ways."; }
+			get { return string.Format("{0} and {1} both re-ordered the children of this element in different ways.",
+				Situation.UserAlphaId, Situation.UserBetaId);
+			}
 		}
 	}
 
@@ -595,7 +597,9 @@ namespace Chorus.merge.xml.generic
 
 		public override string WhatHappened
 		{
-			get { return "Two people both inserted material in this element in the same place. The automated merger cannot be sure of the correct order for the inserted material."; }
+			get { return string.Format("{0} and {1} both inserted material in this element in the same place. The automated merger cannot be sure of the correct order for the inserted material.",
+				Situation.UserAlphaId, Situation.UserBetaId);
+			}
 		}
 		public override string ToString()
 		{
@@ -626,7 +630,9 @@ namespace Chorus.merge.xml.generic
 
 		public override string WhatHappened
 		{
-			get { return "Someone inserted material in this element, but the other user re-ordered things. The automated merger cannot be sure of the correct position for the inserted material."; }
+			get { return string.Format("{0} inserted material in this element, but {1} re-ordered things. The automated merger cannot be sure of the correct position for the inserted material.",
+				Situation.UserAlphaId, Situation.UserBetaId);
+			}
 		}
 	}
 
@@ -636,15 +642,15 @@ namespace Chorus.merge.xml.generic
 	/// suspect.  This could be a "warning", if we had such a thing.
 	/// </summary>
 	[TypeGuid("71636317-A94F-4814-8665-1D0F83DF388F")]
-	internal class BothEdittedDifferentPartsOfDependentPiecesOfDataWarning : ElementConflict
+	internal class BothEditedDifferentPartsOfDependentPiecesOfDataWarning : ElementConflict
 	{
-		public BothEdittedDifferentPartsOfDependentPiecesOfDataWarning(string elementName, XmlNode ourElement, XmlNode theirElement,
+		public BothEditedDifferentPartsOfDependentPiecesOfDataWarning(string elementName, XmlNode ourElement, XmlNode theirElement,
 			XmlNode ancestorElement, MergeSituation mergeSituation, IElementDescriber elementDescriber, string whoWon)
 			: base(elementName, ourElement, theirElement, ancestorElement, mergeSituation, elementDescriber, whoWon)
 		{
 		}
 
-		public BothEdittedDifferentPartsOfDependentPiecesOfDataWarning(XmlNode xmlRepresentation)
+		public BothEditedDifferentPartsOfDependentPiecesOfDataWarning(XmlNode xmlRepresentation)
 			: base(xmlRepresentation)
 		{
 
@@ -660,7 +666,8 @@ namespace Chorus.merge.xml.generic
 		{
 			get {
 				return
-					"Someone editted one part of this element, while the other editted another part. Since these two pieces of data are thought to be dependent on each other, someone needs to verify that the resulting merge is ok."; }
+					string.Format("{0} edited one part of this element, while {1} edited another part. Since these two pieces of data are thought to be dependent on each other, someone needs to verify that the resulting merge is ok.",
+					Situation.UserAlphaId, Situation.UserBetaId); }
 		}
 	}
 }

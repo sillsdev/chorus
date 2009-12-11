@@ -7,7 +7,7 @@ namespace Chorus.UI.Notes.Bar
 {
 	public class NotesBarModel
 	{
-		//use this one for apps that have just one file being editted, and thus on notes repository,
+		//use this one for apps that have just one file being edited, and thus on notes repository,
 		//which would have been pushed into the container
 		public delegate NotesBarModel Factory(AnnotationRepository repository, ChorusNotesSystem.UrlGeneratorFunction functionToMakeUrlForAnnotation);//autofac uses this
 

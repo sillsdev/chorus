@@ -78,7 +78,7 @@ namespace LibChorus.Tests.merge.xml.ourStory
 		}
 
 		[Test]
-		public void Do3WayMerge_BothEdittedDifferentStories_GotAllChanges()
+		public void Do3WayMerge_BothEditedDifferentStories_GotAllChanges()
 		{
 			var ourContent = _ancestor.Replace("This is all about one.",
 				"new text for one");
@@ -162,7 +162,7 @@ namespace LibChorus.Tests.merge.xml.ourStory
 		}
 
 		[Test]
-		public void Do3WayMerge_OneEdittedTheOtherDeletedAStory_GotAllChanges()
+		public void Do3WayMerge_OneEditedTheOtherDeletedAStory_GotAllChanges()
 		{
 			var ourContent = _ancestor.Replace("This is all about one.",
 				"new text for one");

@@ -84,7 +84,7 @@ namespace LibChorus.Tests.merge.xml.generic
 		}
 
 		[Test]
-		public void TextElement_OneEditted_NoConflicts()
+		public void TextElement_OneEdited_NoConflicts()
 		{
 			CheckBothWaysNoConflicts("<r><t>after</t></r>", "<r><t>before</t></r>", "<r><t>before</t></r>",
 									 "r/t[contains(text(),'after')]");
@@ -93,7 +93,7 @@ namespace LibChorus.Tests.merge.xml.generic
 
 
 		[Test, Ignore("Not yet. The matcher using xmldiff sees the parent objects as different")]
-		public void TextElement_BothEditted_OuterWhiteSpaceIgnored()
+		public void TextElement_BothEdited_OuterWhiteSpaceIgnored()
 		{
 			CheckBothWaysNoConflicts("<r><t>   flub</t></r>", "<r><t> flub      </t></r>", "<r><t/></r>",
 									 "r/t[contains(text(),'flub')]");
@@ -101,7 +101,7 @@ namespace LibChorus.Tests.merge.xml.generic
 
 
 		[Test]
-		public void TextElement_EachEditted_OursKept_ConflictRegistered()
+		public void TextElement_EachEdited_OursKept_ConflictRegistered()
 		{
 			string ancestor = @"<t>original</t>";
 			string ours = @"<t>mine</t>";
@@ -112,11 +112,11 @@ namespace LibChorus.Tests.merge.xml.generic
 			XmlTestHelper.AssertXPathMatchesExactlyOne(result.MergedNode, "t[text()='mine']");
 			Assert.AreEqual("pretendPath", result.Conflicts[0].RelativeFilePath);
 
-			Assert.AreEqual(typeof (BothEdittedTextConflict), result.Conflicts[0].GetType());
+			Assert.AreEqual(typeof (BothEditedTextConflict), result.Conflicts[0].GetType());
 		}
 
 		[Test]
-		public void TextElement_WeEdittedTheyDeleted_OursKept_ConflictRegistered()
+		public void TextElement_WeEditedTheyDeleted_OursKept_ConflictRegistered()
 		{
 			string ancestor = @"<t>original</t>";
 			string ours = @"<t>mine</t>";
@@ -126,11 +126,11 @@ namespace LibChorus.Tests.merge.xml.generic
 			var result = m.Merge(ours, theirs, ancestor);
 			XmlTestHelper.AssertXPathMatchesExactlyOne(result.MergedNode, "t[text()='mine']");
 
-			Assert.AreEqual(typeof(RemovedVsEdittedTextConflict), result.Conflicts[0].GetType());
+			Assert.AreEqual(typeof(RemovedVsEditedTextConflict), result.Conflicts[0].GetType());
 		}
 
 		[Test]
-		public void TextElement_TheyEdittedWeDeleted_EditedIsKept_ConflictRegistered()
+		public void TextElement_TheyEditedWeDeleted_EditedIsKept_ConflictRegistered()
 		{
 			string ancestor = @"<t>original</t>";
 			string ours = @"<t></t>";
@@ -140,7 +140,7 @@ namespace LibChorus.Tests.merge.xml.generic
 			var result = m.Merge(ours, theirs, ancestor);
 			XmlTestHelper.AssertXPathMatchesExactlyOne(result.MergedNode, "t[text()='change']");
 
-			Assert.AreEqual(typeof(RemovedVsEdittedTextConflict), result.Conflicts[0].GetType());
+			Assert.AreEqual(typeof(RemovedVsEditedTextConflict), result.Conflicts[0].GetType());
 		}
 
 		[Test]
@@ -300,10 +300,10 @@ namespace LibChorus.Tests.merge.xml.generic
 			string blue = @"<a one='b'/>";
 
 			ChangeAndConflictAccumulator r = CheckOneWay(blue, red, ancestor, "a[@one='b']");
-			Assert.AreEqual(typeof(BothEdittedAttributeConflict), r.Conflicts[0].GetType());
+			Assert.AreEqual(typeof(BothEditedAttributeConflict), r.Conflicts[0].GetType());
 
 			r =CheckOneWay(red, blue, ancestor, "a[@one='r']");
-			Assert.AreEqual(typeof(BothEdittedAttributeConflict), r.Conflicts[0].GetType());
+			Assert.AreEqual(typeof(BothEditedAttributeConflict), r.Conflicts[0].GetType());
 		}
 
 		[Test]

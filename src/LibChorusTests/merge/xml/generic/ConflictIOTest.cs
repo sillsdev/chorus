@@ -13,10 +13,10 @@ namespace LibChorus.Tests.merge.xml.generic
 	public class ConflictIOTests
 	{
 		[Test]
-		public void BothEdittedTextConflict_RoundtripThroughXml()
+		public void BothEditedTextConflict_RoundtripThroughXml()
 		{
 			MergeSituation mergesituation = new MergeSituation("path", "x", "1", "y", "2", MergeOrder.ConflictHandlingModeChoices.TheyWin);
-			var c = new BothEdittedTextConflict(
+			var c = new BothEditedTextConflict(
 				GetNodeFromString("<a>ours</a>"),
 				GetNodeFromString("<a>theirs</a>"),
 				GetNodeFromString("<a>ancestor</a>"),

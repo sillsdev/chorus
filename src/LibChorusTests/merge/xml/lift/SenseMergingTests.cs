@@ -52,7 +52,7 @@ namespace LibChorus.Tests.merge.xml.lift
 		}
 
 		[Test]
-		public void GetMergedLift_ConflictingGlosses_ListenerIsNotifiedOfBothEdittedConflict()
+		public void GetMergedLift_ConflictingGlosses_ListenerIsNotifiedOfBothEditedConflict()
 		{
 			string ours = @"<?xml version='1.0' encoding='utf-8'?>
 					<lift version='0.10' producer='WeSay 1.0.0.0'>
@@ -91,7 +91,7 @@ namespace LibChorus.Tests.merge.xml.lift
 			string result = merger.GetMergedLift();
 			Assert.AreEqual(1, listener.Conflicts.Count);
 			var conflict = listener.Conflicts[0];
-			AssertConflictType<BothEdittedTextConflict>(conflict);
+			AssertConflictType<BothEditedTextConflict>(conflict);
 			var expectedContext = "lift://unknown?type=entry&id=F169EB3D-16F2-4eb0-91AA-FDB91636F8F6";
 			Assert.AreEqual(expectedContext, listener.Contexts[0].PathToUserUnderstandableElement, "the listener wasn't give the expected context");
 		}

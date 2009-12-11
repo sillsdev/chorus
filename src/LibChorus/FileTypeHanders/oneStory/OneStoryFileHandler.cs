@@ -71,7 +71,7 @@ namespace Chorus.FileTypeHanders.oneStory
 			elementStrategyStory.AttributesToIgnoreForMerging.Add("stageDateTimeStamp");
 			merger.MergeStrategies.SetStrategy("story", elementStrategyStory);
 
-			// the rest is used only if the same story was editted by two or more people at the same time
+			// the rest is used only if the same story was edited by two or more people at the same time
 			//  not supposed to happen, but let's be safer
 			merger.MergeStrategies.SetStrategy("CraftingInfo", ElementStrategy.CreateSingletonElement());
 			merger.MergeStrategies.SetStrategy("StoryCrafter", ElementStrategy.CreateSingletonElement());

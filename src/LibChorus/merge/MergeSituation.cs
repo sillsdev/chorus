@@ -25,10 +25,10 @@ namespace Chorus.merge
 		public MergeOrder.ConflictHandlingModeChoices ConflictHandlingMode { get; private set; }
 
 		//we don't have access to this yet: public const string kAncestorRevision = "ChorusAncestorRevision";
-		public const string kUserXId= "ChorusUserXId";
-		public const string kUserYId = "ChorusUserYId";
-		public const string kUserXRevision = "ChorusUserXRevision";
-		public const string kUserYRevision = "ChorusUserYRevision";
+		public const string kUseAlphaId= "ChorusUserAlphaId";
+		public const string kUserBetaId = "ChorusUserBetaId";
+		public const string kUserAlphaRevision = "ChorusUserAlphaRevision";
+		public const string kUserBetaRevision = "ChorusUserBetaRevision";
 		//public const string kPathToFileInRepository = "ChorusPathToFileInRepository";
 
 		/// <summary>
@@ -36,36 +36,50 @@ namespace Chorus.merge
 		/// </summary>
 		public string PathToFileInRepository{ get; set;}
 	   //we don't have access to this yet: public string AncestorRevision { get; set; }
-		public string UserXId { get; set; }
-		public string UserYId { get; set; }
-		public string UserXRevision { get; set; }
-		public string UserYRevision { get; set; }
+		public string UserAlphaId { get; set; }
+		public string UserBetaId { get; set; }
+		public string UserAlphaRevision { get; set; }
+		public string UserBetaRevision { get; set; }
 
 
 		public void WriteAsXml(XmlWriter writer)
 		{
 			writer.WriteStartElement("MergeSituation");
-			writer.WriteAttributeString("userXId", UserXId);
-			writer.WriteAttributeString("userYId", UserYId);
-			writer.WriteAttributeString("userXRevision", UserXRevision);
-			writer.WriteAttributeString("userYRevision", UserYRevision);
+			writer.WriteAttributeString("userAlphaId", UserAlphaId);
+			writer.WriteAttributeString("userBetaId", UserBetaId);
+			writer.WriteAttributeString("userXRevision", UserAlphaRevision);
+			writer.WriteAttributeString("userYRevision", UserBetaRevision);
 			writer.WriteAttributeString("path", PathToFileInRepository);
 			writer.WriteAttributeString("conflictHandlingMode", string.Empty, ConflictHandlingMode.ToString());
 			writer.WriteEndElement();
 		}
 
-		public MergeSituation(string relativePathToFile, string userXId, string userXRevision, string userYId, string userYRevision, MergeOrder.ConflictHandlingModeChoices conflictHandlingMode)
+		public MergeSituation(string relativePathToFile, string firstUserId, string firstUserRevision, string secondUserId, string secondRevision, MergeOrder.ConflictHandlingModeChoices conflictHandlingMode)
 		{
 			ConflictHandlingMode = conflictHandlingMode;
 
 			if (relativePathToFile != null)
-				relativePathToFile = relativePathToFile.Trim(new[] { Path.DirectorySeparatorChar });
+				relativePathToFile = relativePathToFile.Trim(new[] {Path.DirectorySeparatorChar});
 
 			PathToFileInRepository = relativePathToFile;
-			UserXId = userXId;
-			UserYId = userYId;
-			UserYRevision = userYRevision;
-			UserXRevision = userXRevision;
+
+			switch (conflictHandlingMode)
+			{
+				case MergeOrder.ConflictHandlingModeChoices.TheyWin:
+					UserAlphaId = secondUserId;
+					UserBetaId = firstUserId;
+					UserBetaRevision = firstUserRevision;
+					UserAlphaRevision = secondRevision;
+					break;
+				default:
+					UserAlphaId = firstUserId;
+					UserBetaId = secondUserId;
+					UserBetaRevision = secondRevision;
+					UserAlphaRevision = firstUserRevision;
+					break;
+			}
+
+
 			//we don't have access to this yet:   AncestorRevision = ancestorRevision;
 		}
 
@@ -88,12 +102,12 @@ namespace Chorus.merge
 			//for the conflict record, so that we can later look up exactly what were the 3 inputs at the time of merging.
 		   //string pathToFileInRepository = Environment.GetEnvironmentVariable(MergeSituation.kPathToFileInRepository);
 			//we don't have access to this yet: string ancestorRevision = Environment.GetEnvironmentVariable(MergeSituation.kAncestorRevision);
-			string userXId = Environment.GetEnvironmentVariable(MergeSituation.kUserXId);
-			string userYId = Environment.GetEnvironmentVariable(MergeSituation.kUserYId);
-			string userXRevision = Environment.GetEnvironmentVariable(MergeSituation.kUserXRevision);
-			string userYRevision = Environment.GetEnvironmentVariable(MergeSituation.kUserYRevision);
+			string userAlphaId = Environment.GetEnvironmentVariable(MergeSituation.kUseAlphaId);
+			string userBetaId = Environment.GetEnvironmentVariable(MergeSituation.kUserBetaId);
+			string userXRevision = Environment.GetEnvironmentVariable(MergeSituation.kUserAlphaRevision);
+			string userYRevision = Environment.GetEnvironmentVariable(MergeSituation.kUserBetaRevision);
 
-			return new MergeSituation( pathToFileInRepository, userXId, userXRevision, userYId,
+			return new MergeSituation( pathToFileInRepository, userAlphaId, userXRevision, userBetaId,
 									  userYRevision, mode);
 
 		}
@@ -104,13 +118,13 @@ namespace Chorus.merge
 		/// </summary>
 		/// <param name="userXRevision"></param>
 		/// <param name="userYRevision"></param>
-		public static void PushRevisionsToEnvironmentVariables(string userXId, string userXRevision, string userYId, string userYRevision)
+		public static void PushRevisionsToEnvironmentVariables(string userAlphaId, string userXRevision, string userBetaId, string userYRevision)
 		{
-			Environment.SetEnvironmentVariable(kUserXId, userXId);
-			Environment.SetEnvironmentVariable(kUserXRevision, userXRevision);
+			Environment.SetEnvironmentVariable(kUseAlphaId, userAlphaId);
+			Environment.SetEnvironmentVariable(kUserAlphaRevision, userXRevision);
 
-			Environment.SetEnvironmentVariable(kUserYId, userYId);
-			Environment.SetEnvironmentVariable(kUserYRevision, userYRevision);
+			Environment.SetEnvironmentVariable(kUserBetaId, userBetaId);
+			Environment.SetEnvironmentVariable(kUserBetaRevision, userYRevision);
 		}
 //
 //        public void WriteXml(XmlWriter writer)
@@ -141,9 +155,9 @@ namespace Chorus.merge
 			}
 
 			return new MergeSituation(node.GetStringAttribute("path"),
-									  node.GetStringAttribute("userXId"),
+									  node.GetStringAttribute("userAlphaId"),
 									  node.GetStringAttribute("userXRevision"),
-									  node.GetStringAttribute("userYId"),
+									  node.GetStringAttribute("userBetaId"),
 									  node.GetStringAttribute("userYRevision"),
 									  mode);
 		}

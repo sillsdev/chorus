@@ -21,7 +21,7 @@ using Chorus.VcsDrivers;
 namespace Chorus.FileTypeHanders
 {
 	/// <summary>
-	/// The key thing to understand here is that the conflict file only *grows*... it doesn't get editted
+	/// The key thing to understand here is that the conflict file only *grows*... it doesn't get edited
 	/// normally.  So the only changes we're interested in are *additions* of conflict reports to the file.
 	/// </summary>
 	public class ConflictPresenter : IChangePresenter
@@ -92,7 +92,7 @@ namespace Chorus.FileTypeHanders
 				{
 					builder.AppendFormat(
 						"<p>{0} and {1} both edited {2} in the file {3} in a way that could not be automatically merged.</p>",
-						_conflict.Situation.UserXId, _conflict.Situation.UserYId, _conflict.Context.DataLabel,
+						_conflict.Situation.UserAlphaId, _conflict.Situation.UserBetaId, _conflict.Context.DataLabel,
 						_conflict.RelativeFilePath);
 
 					builder.AppendFormat("<p></p>");
@@ -116,7 +116,7 @@ namespace Chorus.FileTypeHanders
 
 					builder.AppendFormat(
 						"{0} and {1} both edited {2} in a way that could not be merged. Where they conflicted, {3}'s version was kept.<br/>",
-						_conflict.Situation.UserXId, _conflict.Situation.UserYId, _conflict.Context.DataLabel,
+						_conflict.Situation.UserAlphaId, _conflict.Situation.UserBetaId, _conflict.Context.DataLabel,
 						_conflict.WinnerId);
 
 					builder.AppendFormat(
@@ -128,17 +128,17 @@ namespace Chorus.FileTypeHanders
 					var ancestor = _conflict.GetConflictingRecordOutOfSourceControl(_fileRetriever,
 																					ThreeWayMergeSources.Source.Ancestor);
 					builder.Append(XmlUtilities.GetXmlForShowingInHtml(ancestor));
-					builder.AppendFormat("<h3>{0}'s version</h3>", _conflict.Situation.UserXId);
+					builder.AppendFormat("<h3>{0}'s version</h3>", _conflict.Situation.UserAlphaId);
 					var userXVersion = _conflict.GetConflictingRecordOutOfSourceControl(_fileRetriever,
 																						ThreeWayMergeSources.Source.
 																							UserX);
 					builder.Append(XmlUtilities.GetXmlForShowingInHtml(userXVersion));
-					builder.AppendFormat("</p><h3>{0}'s version</h3>", _conflict.Situation.UserYId);
+					builder.AppendFormat("</p><h3>{0}'s version</h3>", _conflict.Situation.UserBetaId);
 					var userYVersion = _conflict.GetConflictingRecordOutOfSourceControl(_fileRetriever,
 																						ThreeWayMergeSources.Source.
 																							UserY);
 					builder.Append(XmlUtilities.GetXmlForShowingInHtml(userYVersion));
-					builder.AppendFormat("</p><h3>Resulting version</h3>", _conflict.Situation.UserYId);
+					builder.AppendFormat("</p><h3>Resulting version</h3>", _conflict.Situation.UserBetaId);
 
 					try
 					{

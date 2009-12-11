@@ -46,7 +46,7 @@ namespace Chorus.FileTypeHanders.lift
 
 		public IEnumerable<IChangeReport> Find2WayDifferences(FileInRevision parent, FileInRevision child, HgRepository repository)
 		{
-			return new IChangeReport[] {new DefaultChangeReport(parent, child,"Editted")};
+			return new IChangeReport[] {new DefaultChangeReport(parent, child,"Edited")};
 		}
 
 		public IChangePresenter GetChangePresenter(IChangeReport report, HgRepository repository)
@@ -86,7 +86,7 @@ namespace Chorus.FileTypeHanders.lift
 			builder.Append("<html><head>" + styleSheet + "</head><body>");
 
 			if (style == "normal")
-				builder.AppendFormat("The configuration file for the WeSay project was editted.  This tool cannot present what changed in a friendly way.  However a 'raw' view of the changes is available.");
+				builder.AppendFormat("The configuration file for the WeSay project was edited.  This tool cannot present what changed in a friendly way.  However a 'raw' view of the changes is available.");
 			else
 			{
 				AppendRawDiffOfFiles(builder);

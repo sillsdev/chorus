@@ -68,7 +68,7 @@ namespace Chorus.merge.xml.generic
 						// stick with our orderer (we win), but report conflict.
 						_merger.EventListener.ConflictOccurred(new BothReorderedElementConflict(_ours.Name, _ours,
 							_theirs, _ancestor, _merger.MergeSituation, _merger.MergeStrategies.GetElementStrategy(_ours),
-							_merger.MergeSituation.UserXId));
+							_merger.MergeSituation.UserAlphaId));
 					}
 					else
 					{
@@ -84,13 +84,13 @@ namespace Chorus.merge.xml.generic
 			{
 				_merger.EventListener.ConflictOccurred(new AmbiguousInsertReorderConflict(_ours.Name, _ours,
 					_theirs, _ancestor, _merger.MergeSituation, _merger.MergeStrategies.GetElementStrategy(_ours),
-					_merger.MergeSituation.UserXId));
+					_merger.MergeSituation.UserAlphaId));
 			}
 			else if (resultOrderer.OrderIsAmbiguous)
 			{
 				_merger.EventListener.ConflictOccurred(new AmbiguousInsertConflict(_ours.Name, _ours,
 					_theirs, _ancestor, _merger.MergeSituation, _merger.MergeStrategies.GetElementStrategy(_ours),
-					_merger.MergeSituation.UserXId));
+					_merger.MergeSituation.UserAlphaId));
 			}
 
 			List<XmlNode> newChildren = resultOrderer.GetResultList();
@@ -230,7 +230,7 @@ namespace Chorus.merge.xml.generic
 			//            else
 			//            {
 			//                _merger.EventListener.ConflictOccurred(
-			//                    new RemovedVsEdittedTextConflict(ourChild, null, ancestorChild, _merger.MergeSituation));
+			//                    new RemovedVsEditedTextConflict(ourChild, null, ancestorChild, _merger.MergeSituation));
 			//            }
 			//        }
 			//    }
@@ -301,15 +301,15 @@ namespace Chorus.merge.xml.generic
 																	   _merger.MergeSituation,
 																	   _merger.MergeStrategies.
 																		   GetElementStrategy(theirChild),
-																	   _merger.MergeSituation.UserYId));
+																	   _merger.MergeSituation.UserBetaId));
 							}
 							else
 							{   //review hatton added dec 2009, was always reporting the element conflict rather than text
 								_merger.EventListener.ConflictOccurred(
-									new RemovedVsEdittedTextConflict(null, theirChild,
+									new RemovedVsEditedTextConflict(null, theirChild,
 																	   ancestorChild,
 																	   _merger.MergeSituation,
-																	   _merger.MergeSituation.UserYId));
+																	   _merger.MergeSituation.UserBetaId));
 							}
 							_ancestorKeepers.Remove(ancestorChild);//review hatton added dec 2009, wanting whoever edited it to win (previously "we" always won)
 						}
@@ -337,12 +337,12 @@ namespace Chorus.merge.xml.generic
 						{
 							_merger.EventListener.ConflictOccurred(
 								new RemovedVsEditedElementConflict(ourChild.Name, ourChild, null, ancestorChild,
-																   _merger.MergeSituation, _merger.MergeStrategies.GetElementStrategy(ourChild), _merger.MergeSituation.UserXId));
+																   _merger.MergeSituation, _merger.MergeStrategies.GetElementStrategy(ourChild), _merger.MergeSituation.UserAlphaId));
 						}
 						else
 						{
 							_merger.EventListener.ConflictOccurred(
-								new RemovedVsEdittedTextConflict(ourChild, null, ancestorChild, _merger.MergeSituation, _merger.MergeSituation.UserXId));
+								new RemovedVsEditedTextConflict(ourChild, null, ancestorChild, _merger.MergeSituation, _merger.MergeSituation.UserAlphaId));
 						}
 					}
 				}
