@@ -246,9 +246,6 @@
 	<None Include="Resources\generic32x32.png" />
   </ItemGroup>
   <ItemGroup>
-	<None Include="Resources\MergeConflic32x32.png" />
-  </ItemGroup>
-  <ItemGroup>
 	<None Include="Resources\question16x16.png" />
   </ItemGroup>
   <ItemGroup>
