@@ -60,7 +60,7 @@ namespace LibChorus.Tests.merge.xml.generic
 		}
 
 		[Test]
-		public void TextElement_OneAdded()
+		public void TextElement_OneAdded_NoConflicts()
 		{
 			CheckBothWaysNoConflicts("<r><t>hello</t></r>", "<r/>", "<r/>",
 									 "r[count(t)=1]",
@@ -76,7 +76,7 @@ namespace LibChorus.Tests.merge.xml.generic
 		}
 
 		[Test]
-		public void TextElement_BothDeleted()
+		public void TextElement_BothDeleted_NoConflicts()
 		{
 			CheckBothWaysNoConflicts("<r><t/></r>", "<r><t></t></r>", "<r><t>hello</t></r>",
 									 "r/t[not(text())]",
@@ -84,11 +84,13 @@ namespace LibChorus.Tests.merge.xml.generic
 		}
 
 		[Test]
-		public void TextElement_OneEditted()
+		public void TextElement_OneEditted_NoConflicts()
 		{
 			CheckBothWaysNoConflicts("<r><t>after</t></r>", "<r><t>before</t></r>", "<r><t>before</t></r>",
 									 "r/t[contains(text(),'after')]");
 		}
+
+
 
 		[Test, Ignore("Not yet. The matcher using xmldiff sees the parent objects as different")]
 		public void TextElement_BothEditted_OuterWhiteSpaceIgnored()
@@ -96,6 +98,7 @@ namespace LibChorus.Tests.merge.xml.generic
 			CheckBothWaysNoConflicts("<r><t>   flub</t></r>", "<r><t> flub      </t></r>", "<r><t/></r>",
 									 "r/t[contains(text(),'flub')]");
 		}
+
 
 		[Test]
 		public void TextElement_EachEditted_OursKept_ConflictRegistered()
@@ -126,6 +129,19 @@ namespace LibChorus.Tests.merge.xml.generic
 			Assert.AreEqual(typeof(RemovedVsEdittedTextConflict), result.Conflicts[0].GetType());
 		}
 
+		[Test]
+		public void TextElement_TheyEdittedWeDeleted_EditedIsKept_ConflictRegistered()
+		{
+			string ancestor = @"<t>original</t>";
+			string ours = @"<t></t>";
+			string theirs = @"<t>change</t>";
+
+			XmlMerger m = new XmlMerger(new NullMergeSituation());
+			var result = m.Merge(ours, theirs, ancestor);
+			XmlTestHelper.AssertXPathMatchesExactlyOne(result.MergedNode, "t[text()='change']");
+
+			Assert.AreEqual(typeof(RemovedVsEdittedTextConflict), result.Conflicts[0].GetType());
+		}
 
 		[Test]
 		public void EachAddedDifferentSyblings_GetBoth()

@@ -293,16 +293,32 @@ namespace Chorus.merge.xml.generic
 						if (!XmlUtilities.AreXmlElementsEqual(ancestorChild, theirChild))
 						{
 							// We deleted, they modified, report conflict.
-							_merger.EventListener.ConflictOccurred(new RemovedVsEditedElementConflict(theirChild.Name, null,
-																								theirChild, ancestorChild,
-																								_merger.MergeSituation,
-																								_merger.MergeStrategies.GetElementStrategy(theirChild),
-																								_merger.MergeSituation.UserYId));
+							if (theirChild.NodeType == XmlNodeType.Element)
+							{
+								_merger.EventListener.ConflictOccurred(
+									new RemovedVsEditedElementConflict(theirChild.Name, null,
+																	   theirChild, ancestorChild,
+																	   _merger.MergeSituation,
+																	   _merger.MergeStrategies.
+																		   GetElementStrategy(theirChild),
+																	   _merger.MergeSituation.UserYId));
+							}
+							else
+							{   //review hatton added dec 2009, was always reporting the element conflict rather than text
+								_merger.EventListener.ConflictOccurred(
+									new RemovedVsEdittedTextConflict(null, theirChild,
+																	   ancestorChild,
+																	   _merger.MergeSituation,
+																	   _merger.MergeSituation.UserYId));
+							}
+							_ancestorKeepers.Remove(ancestorChild);//review hatton added dec 2009, wanting whoever edited it to win (previously "we" always won)
 						}
-
-						//error on the side of preservation.
-						_ancestorKeepers.Remove(ancestorChild);
-						//_theirKeepers.Remove(theirChild);
+						else
+						{
+							//We deleted it, they didn't edit it. So just make it go away.
+							_ancestorKeepers.Remove(ancestorChild);
+							_theirKeepers.Remove(theirChild);
+						}
 					}
 				}
 				else if (theirChild == null)

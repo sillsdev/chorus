@@ -339,7 +339,6 @@ namespace Chorus.merge.xml.generic
 			_ourValue = xmlRepresentation.GetOptionalStringAttribute("ourValue", string.Empty);
 			_theirValue = xmlRepresentation.GetOptionalStringAttribute("theirValue", string.Empty);
 			_ancestorValue = xmlRepresentation.GetOptionalStringAttribute("ancestorValue", string.Empty);
-			_whoWon = xmlRepresentation.GetOptionalStringAttribute("whoWon", string.Empty);
 		}
 
 		protected override void WriteAttributes(XmlWriter writer)
@@ -349,7 +348,6 @@ namespace Chorus.merge.xml.generic
 			writer.WriteAttributeString("ourValue", _ourValue);
 			writer.WriteAttributeString("theirValue", _theirValue);
 			writer.WriteAttributeString("ancestorValue", _ancestorValue);
-			writer.WriteAttributeString("whoWon", _whoWon);
 		}
 
 		public string AttributeDescription
