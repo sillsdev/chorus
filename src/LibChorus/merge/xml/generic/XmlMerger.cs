@@ -131,13 +131,14 @@ namespace Chorus.merge.xml.generic
 					{
 						continue; // we deleted it, they didn't touch it
 					}
-					else //we deleted it, but at the same time, they changed it
+					else //we deleted it, but at the same time, they changed it. So just add theirs in, under the principle of
+						//least data loss (an attribute can be a huge text element)
 					{
-						//todo: should we add what they modified?
-						//needs a test first
+						var importedAttribute = (XmlAttribute)ours.OwnerDocument.ImportNode(theirAttr, true);
+						ours.Attributes.Append(importedAttribute);
 
-						//until then, this is a conflict
-						EventListener.ConflictOccurred(new RemovedVsEditedAttributeConflict(theirAttr.Name, null, theirAttr.Value, ancestorAttr.Value, MergeSituation));
+						EventListener.ConflictOccurred(new RemovedVsEditedAttributeConflict(theirAttr.Name, null, theirAttr.Value, ancestorAttr.Value, MergeSituation,
+							MergeSituation.UserYId));
 						continue;
 					}
 				}
@@ -150,7 +151,8 @@ namespace Chorus.merge.xml.generic
 					}
 					else
 					{
-						EventListener.ConflictOccurred(new BothEdittedAttributeConflict(theirAttr.Name, ourAttr.Value, theirAttr.Value, null,  MergeSituation));
+						EventListener.ConflictOccurred(new BothEdittedAttributeConflict(theirAttr.Name, ourAttr.Value, theirAttr.Value, null,  MergeSituation,
+							MergeSituation.UserXId));
 					}
 				}
 				else if (ancestorAttr.Value == ourAttr.Value)
@@ -185,7 +187,8 @@ namespace Chorus.merge.xml.generic
 						EventListener.ConflictOccurred(new BothEdittedAttributeConflict(theirAttr.Name, ourAttr.Value,
 																						theirAttr.Value,
 																						ancestorAttr.Value,
-																						MergeSituation));
+																						MergeSituation,
+																						MergeSituation.UserXId));
 					}
 				}
 			}
@@ -205,7 +208,7 @@ namespace Chorus.merge.xml.generic
 					}
 					else
 					{
-						EventListener.ConflictOccurred(new RemovedVsEditedAttributeConflict(ourAttr.Name, ourAttr.Value, null, ancestorAttr.Value, MergeSituation));
+						EventListener.ConflictOccurred(new RemovedVsEditedAttributeConflict(ourAttr.Name, ourAttr.Value, null, ancestorAttr.Value, MergeSituation, MergeSituation.UserXId));
 					}
 				}
 			}
@@ -234,8 +237,10 @@ namespace Chorus.merge.xml.generic
 					}
 					else
 					{
-						//they edited it. Keep our removal.
-						EventListener.ConflictOccurred(new RemovedVsEdittedTextConflict(ours, theirs, ancestor, MergeSituation));
+						//they edited it. Keep theirs under the principle of least data loss.
+						ours.InnerText = theirs.InnerText;
+						EventListener.ConflictOccurred(new RemovedVsEdittedTextConflict(ours, theirs, ancestor, MergeSituation,
+							MergeSituation.UserYId));
 						return;
 					}
 				}
@@ -249,7 +254,8 @@ namespace Chorus.merge.xml.generic
 				if (theirs.InnerText == null || string.IsNullOrEmpty(theirs.InnerText.Trim()))
 				{
 					//we edited, they deleted it. Keep ours.
-					EventListener.ConflictOccurred(new RemovedVsEdittedTextConflict(ours, theirs, ancestor, MergeSituation));
+					EventListener.ConflictOccurred(new RemovedVsEdittedTextConflict(ours, theirs, ancestor, MergeSituation,
+						MergeSituation.UserXId));
 					return;
 				}
 				else
@@ -259,7 +265,7 @@ namespace Chorus.merge.xml.generic
 					if (ancestor!=null && theirs.InnerText == ancestor.InnerText)
 						return; // we edited it, they did not, keep ours.
 					//both edited it. Keep ours, but report conflict.
-					EventListener.ConflictOccurred(new BothEdittedTextConflict(ours, theirs, ancestor, MergeSituation));
+					EventListener.ConflictOccurred(new BothEdittedTextConflict(ours, theirs, ancestor, MergeSituation, MergeSituation.UserXId));
 					return;
 				}
 			}

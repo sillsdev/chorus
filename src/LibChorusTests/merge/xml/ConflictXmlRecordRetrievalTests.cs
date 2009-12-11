@@ -29,7 +29,7 @@ namespace LibChorus.Tests.merge
 			var conflict = new BothEdittedTextConflict(docX.SelectSingleNode("doc/test"),
 			  docY.SelectSingleNode("doc/test"),
 			  docA.SelectSingleNode("doc/test"),
-			  situation);
+			  situation, "theWinner");
 			conflict.Context = new ContextDescriptor("dummy","//test[@id='2']");
 			var retriever = new DummyXmlRetriever(docA,docX, docY);
 			var result = conflict.GetConflictingRecordOutOfSourceControl(retriever, ThreeWayMergeSources.Source.UserX);

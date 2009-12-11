@@ -20,7 +20,7 @@ namespace LibChorus.Tests.merge.xml.generic
 				GetNodeFromString("<a>ours</a>"),
 				GetNodeFromString("<a>theirs</a>"),
 				GetNodeFromString("<a>ancestor</a>"),
-				mergesituation);
+				mergesituation, "theWinner");
 			c.Context = new ContextDescriptor("testLabel", "testPath");
 			string desc = c.GetFullHumanReadableDescription();
 
@@ -39,7 +39,7 @@ namespace LibChorus.Tests.merge.xml.generic
 				GetNodeFromString("<a>ours</a>"),
 				GetNodeFromString("<a>theirs</a>"),
 				GetNodeFromString("<a>ancestor</a>"),
-				mergesituation, new ElementStrategy(false));
+				mergesituation, new ElementStrategy(false), "theWinner");
 			c.Context = new ContextDescriptor("testLabel", "testPath");
 			string desc = c.GetFullHumanReadableDescription();
 

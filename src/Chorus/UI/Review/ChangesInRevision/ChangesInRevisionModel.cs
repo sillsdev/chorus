@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 using System.Windows.Forms;
 using Chorus.FileTypeHanders;
@@ -75,7 +76,17 @@ namespace Chorus.UI.Review.ChangesInRevision
 
 		public IChangePresenter GetChangePresenterForDataType(IChangeReport report)
 		{
-			var handler = _fileHandlers.GetHandlerForPresentation(report.PathToFile);
+
+			IChorusFileTypeHandler handler;
+			if (string.IsNullOrEmpty(report.PathToFile))
+			{
+				Debug.Fail("Report had empty path (only seeing this becuase in Debug Mode)");
+				handler = new DefaultFileTypeHandler();
+			}
+			else
+			{
+				handler = _fileHandlers.GetHandlerForPresentation(report.PathToFile);
+			}
 			return handler.GetChangePresenter(report, _revisionInspector.Repository);
 		}
 	}

@@ -43,19 +43,22 @@ namespace Chorus.merge.xml.lift
 			var guid = LiftUtils.GetGuid(entryNode);
 			if (!string.IsNullOrEmpty(guid))
 			{
-				url += "guid=" + guid + "&";
+				url += "id=" + guid + "&";
+			}
+			else
+			{
+				var id = LiftUtils.GetId(entryNode);
+				if (!string.IsNullOrEmpty(id))
+				{
+					url += "id=" + id + "&";
+				}
 			}
 
-			var id = LiftUtils.GetId(entryNode);
-			if (!string.IsNullOrEmpty(id))
-			{
-				url += "id=" + id + "&";
-			}
 
 			var form = LiftUtils.GetFormForEntry(entryNode);
 			if (!string.IsNullOrEmpty(form))
 			{
-				url += "form=" + form + "&";
+				url += "label=" + form + "&";
 			}
 			url = url.Trim('&');
 			return url;

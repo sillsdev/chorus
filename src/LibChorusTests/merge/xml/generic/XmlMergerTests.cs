@@ -521,6 +521,43 @@ namespace LibChorus.Tests.merge.xml.generic
 									 "a/b[@key='one']/c[2][@key='z' and text()='extra']",
 									 "a/b[@key='one']/c[3][@key='d' and text()='fourth']");
 		}
+		[Test]
+		public void HattonTempCheck()
+		{
+			string ancestor = @"<a>
+								<b key='one'>
+									<c key='a'>first</c>
+									<c key='b'>second</c>
+									<c key='c'>third</c>
+									<c key='d'>fourth</c>
+							   </b>
+							</a>";
+
+			string red = @"<a>
+								<b key='one'>
+									<c key='a'>first</c>
+									<c key='d'>fourth</c>
+							   </b>
+							</a>";
+
+
+			string blue = @"<a>
+								<b key='one'>
+									<c key='a'>first</c>
+									<c key='b'>second</c>
+									<c key='z'>extra</c>
+									<c key='c'>third</c>
+									<c key='d'>fourth</c>
+							   </b>
+							</a>";
+
+			CheckBothWaysNoConflicts(blue, red, ancestor,
+									 "a[count(b)='1']",
+									 "a/b[count(c)='3']",
+									 "a/b[@key='one']/c[1][@key='a' and text()='first']",
+									 "a/b[@key='one']/c[2][@key='z' and text()='extra']",
+									 "a/b[@key='one']/c[3][@key='d' and text()='fourth']");
+		}
 		/// <summary>
 		/// Red inserted at the start, blue at the end. Both should be in the right place.
 		/// </summary>
@@ -613,8 +650,8 @@ namespace LibChorus.Tests.merge.xml.generic
 		}
 
 		/// <summary>
-		/// Red deleted an item, and blue modified it. Either way we get a conflict report. Red wins should
-		/// show it deleted, blue wins should show it modified.
+		/// Red deleted an item, and blue edited it. Regardless of who initiated the merge,
+		/// we should keep the edit.
 		/// </summary>
 		[Test]
 		public void ElementDeleteAndModifyConflict()
@@ -640,18 +677,18 @@ namespace LibChorus.Tests.merge.xml.generic
 							   </b>
 							</a>";
 
-			// blue wins
 			ChangeAndConflictAccumulator r = CheckOneWay(blue, red, ancestor,
 										"a[count(b)='1']",
 										"a/b[count(c)='2']",
 										"a/b[@key='one']/c[1][@key='x' and text()='first']",
 										"a/b[@key='one']/c[2][@key='y' and text()='blue']");
 			Assert.AreEqual(typeof(RemovedVsEditedElementConflict), r.Conflicts[0].GetType());
-			// red wins
+
 			ChangeAndConflictAccumulator r2 = CheckOneWay(red, blue, ancestor,
-										 "a[count(b)='1']",
-										 "a/b[count(c)='1']",
-										 "a/b[@key='one']/c[1][@key='x' and text()='first']");
+										"a[count(b)='1']",
+										"a/b[count(c)='2']",
+										"a/b[@key='one']/c[1][@key='x' and text()='first']",
+										"a/b[@key='one']/c[2][@key='y' and text()='blue']");
 			Assert.AreEqual(typeof(RemovedVsEditedElementConflict), r2.Conflicts[0].GetType());
 		}
 
