@@ -143,7 +143,7 @@
 	<value>..\Resources\generic32x32.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="MergeConflict32x32" type="System.Resources.ResXFileRef, System.Windows.Forms">
-	<value>..\Resources\MergeConflict32x32.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+	<value>..\Resources\mergeConflict32x32.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="MergeConflict16x16" type="System.Resources.ResXFileRef, System.Windows.Forms">
 	<value>..\Resources\MergeConflict16x16.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
