@@ -1,7 +1,7 @@
 using System;
 using System.Windows.Forms;
 using System.Xml.Linq;
-using Chorus.annotations;
+using Chorus.notes;
 
 namespace Chorus.Tests.notes
 {

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
-using Chorus.annotations;
+using Chorus.notes;
 using Chorus.sync;
 using Chorus.UI;
 using Chorus.UI.Notes;
@@ -14,6 +14,7 @@ namespace Chorus.Tests.notes
 	[TestFixture]
 	public class NotesUITests
 	{
+		private IProgress _progress= new ConsoleProgress();
 
 
 		[Test, Ignore("By Hand only")]
@@ -39,9 +40,8 @@ namespace Chorus.Tests.notes
 					<annotation ref='somwhere://foo2?id=y' class='note'/>
 				</notes>"))
 			{
-				var chorus = new ChorusSystem(folder.Path, new ChorusUser("testguy"));
-				var notesSystem = chorus.GetNotesSystem(dataFile.Path, new ConsoleProgress());
-				var view = notesSystem.CreateNotesBarView();
+				var chorus = new ChorusSystem(folder.Path);
+				var view = chorus.WinForms.CreateNotesBar(dataFile.Path, NotesToRecordMapping.SimpleForTest(), _progress);
 				view.Height = 32;
 				view.SetTargetObject("x");
 
@@ -103,13 +103,13 @@ namespace Chorus.Tests.notes
 					</notes>"))
 			{
 				var messageSelected = new MessageSelectedEvent();
-				ProjectFolderConfiguration projectConfig = new ProjectFolderConfiguration(folder.Path);
-				NotesInProjectViewModel notesInProjectModel = new NotesInProjectViewModel(new ChorusUser("Bob"), projectConfig, messageSelected,new ConsoleProgress());
+				var repositories = AnnotationRepository.CreateRepositoriesFromFolder(folder.Path, _progress);
+				NotesInProjectViewModel notesInProjectModel = new NotesInProjectViewModel(new ChorusUser("Bob"), repositories, messageSelected, new ConsoleProgress());
 
 				var annotationModel = new AnnotationEditorModel(new ChorusUser("bob"), messageSelected, StyleSheet.CreateFromDisk(), new EmbeddedMessageContentHandlerFactory());
 				AnnotationEditorView annotationView = new AnnotationEditorView(annotationModel);
 				annotationView.ModalDialogMode=false;
-				var page = new NotesBrowserPage(progress=>notesInProjectModel, annotationView);
+				var page = new NotesBrowserPage((unusedRepos,progress)=>notesInProjectModel, repositories, annotationView);
 				page.Dock = DockStyle.Fill;
 				var form = new Form();
 				form.Size = new Size(700,600);

@@ -36,7 +36,7 @@ namespace Chorus
 			_container = builder.Build();
 			var shell= _container.Resolve<Shell>();
 
-			shell.AddPage("Review", _container.Resolve<ReviewPage>());
+			shell.AddPage("Review", _container.Resolve<HistoryPage>());
 			shell.AddPage("Notes", _container.Resolve<NotesBrowserPage>());
 			shell.AddPage("Send/Receive", _container.Resolve<SyncPanel>());
 			shell.AddPage("Settings", _container.Resolve<SettingsView>());

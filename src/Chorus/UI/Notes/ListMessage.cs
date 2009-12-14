@@ -1,6 +1,6 @@
 using System.Windows.Forms;
-using Chorus.annotations;
-using Message=Chorus.annotations.Message;
+using Chorus.notes;
+using Message=Chorus.notes.Message;
 
 namespace Chorus.UI.Notes
 {

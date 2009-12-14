@@ -1,7 +1,7 @@
 using System.Diagnostics;
 using System.Web;
 
-namespace Chorus.annotations
+namespace Chorus.notes
 {
 	public class IndexOfAllAnnotationsByKey : AnnotationIndex
 	{

@@ -2,34 +2,36 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Chorus.notes;
+using Chorus.annotations;
 using Chorus.sync;
 using Chorus.Utilities;
 
-namespace Chorus.UI.Notes.Browser
+namespace Chorus.UI.Notes
 {
 	public class NotesInProjectViewModel
 	{
-		public delegate NotesInProjectViewModel Factory(IEnumerable<AnnotationRepository> repositories, IProgress progress);//autofac uses this
+		public delegate NotesInProjectViewModel Factory(IProgress progress);//autofac uses this
 
 		private readonly IChorusUser _user;
 		private readonly MessageSelectedEvent _messageSelectedEvent;
-		private IEnumerable<AnnotationRepository> _repositories;
+		private List<AnnotationRepository> _repositories=new List<AnnotationRepository>();
 		private string _searchText;
 
-		public NotesInProjectViewModel( IChorusUser user, IEnumerable<AnnotationRepository> repositories,
-										MessageSelectedEvent messageSelectedEventToRaise, IProgress progress)
+		public NotesInProjectViewModel( IChorusUser user, ProjectFolderConfiguration projectFolderConfiguration,
+			MessageSelectedEvent messageSelectedEventToRaise, IProgress progress)
 		{
 			_user = user;
-			_repositories = repositories;
 			_messageSelectedEvent = messageSelectedEventToRaise;
-//            foreach (var path in GetChorusNotesFilePaths(projectFolderConfiguration.FolderPath))
-//            {
-//                _repositories.Add(AnnotationRepository.FromFile(string.Empty, path, progress));
-//            }
+			foreach (var path in GetChorusNotesFilePaths(projectFolderConfiguration.FolderPath))
+			{
+				_repositories.Add(AnnotationRepository.FromFile(string.Empty, path, progress));
+			}
 		}
 
-
+		private IEnumerable<string> GetChorusNotesFilePaths(string path)
+		{
+			return Directory.GetFiles(path, "*." + AnnotationRepository.FileExtension, SearchOption.AllDirectories);
+		}
 
 		public bool ShowClosedNotes { get; set; }
 
@@ -56,6 +58,8 @@ namespace Chorus.UI.Notes.Browser
 			}
 		}
 
+
+
 		private bool GetDoesMatch(Annotation annotation, Message message)
 		{
 			return string.IsNullOrEmpty(_searchText)
@@ -72,20 +76,16 @@ namespace Chorus.UI.Notes.Browser
 		public void SelectedMessageChanged(ListMessage listMessage)
 		{
 			if (_messageSelectedEvent != null)
-			{
-				if (listMessage == null) //nothing is selected now
-				{
-					_messageSelectedEvent.Raise(null, null);
-				}
-				else
-				{
-					_messageSelectedEvent.Raise(listMessage.ParentAnnotation, listMessage.Message);
-				}
-			}
+				_messageSelectedEvent.Raise(listMessage.ParentAnnotation, listMessage.Message);
 		}
 
 		public void SearchTextChanged(string searchText)
 		{
+			int result;
+			if(int.TryParse(searchText, out result))
+			{
+				throw new ApplicationException();
+			}
 			_searchText = searchText;
 		}
 	}

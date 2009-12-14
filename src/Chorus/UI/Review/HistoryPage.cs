@@ -5,10 +5,10 @@ using Chorus.UI.Review.RevisionsInRepository;
 
 namespace Chorus.UI.Review
 {
-	public partial class ReviewPage : UserControl
+	public partial class HistoryPage : UserControl
 	{
 
-		public ReviewPage(RevisionsInRepositoryView revisionsInRepositoryView, ChangesInRevisionView changesInRevisionView, ChangeReportView changeReportView)
+		public HistoryPage(RevisionsInRepositoryView revisionsInRepositoryView, ChangesInRevisionView changesInRevisionView, ChangeReportView changeReportView)
 		{
 			InitializeComponent();
 

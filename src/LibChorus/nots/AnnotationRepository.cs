@@ -7,7 +7,7 @@ using System.Xml.Linq;
 using Chorus.Utilities;
 using Chorus.Utilities.code;
 
-namespace Chorus.annotations
+namespace Chorus.notes
 {
 	public class AnnotationRepository : IDisposable
 	{
@@ -167,13 +167,19 @@ namespace Chorus.annotations
 			}
 		}
 
+		public IEnumerable<Annotation> GetMatches(Func<Annotation,  bool> predicate)
+		{
+			return from a in _doc.Root.Elements()
+				   where predicate(new Annotation(a))    //enhance... very ineffienct making these constantly
+				   select new Annotation(a);
+		}
+
 		public IEnumerable<Annotation> GetMatches(Func<Annotation, string, bool> predicate, string parameter)
 		{
 			return from a in _doc.Root.Elements()
 				   where predicate(new Annotation(a), parameter)    //enhance... very ineffienct making these constantly
 				   select new Annotation(a);
 		}
-
 
 		public void Remove(Annotation annotation)
 		{
@@ -196,6 +202,19 @@ namespace Chorus.annotations
 		{
 			if(_isDirty && !string.IsNullOrEmpty(_annotationFilePath))
 				Save(progress);
+		}
+
+		public static IEnumerable<AnnotationRepository> CreateRepositoriesFromFolder(string folderPath, IProgress progress)
+		{
+			foreach (var path in GetChorusNotesFilePaths(folderPath))
+			{
+				yield return AnnotationRepository.FromFile(string.Empty, path, progress);
+			}
+		}
+
+		private static IEnumerable<string> GetChorusNotesFilePaths(string path)
+		{
+			return Directory.GetFiles(path, "*." + AnnotationRepository.FileExtension, SearchOption.AllDirectories);
 		}
 	}
 

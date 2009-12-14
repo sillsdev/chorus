@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using Chorus.Utilities;
 
-namespace Chorus.annotations
+namespace Chorus.notes
 {
 	/// <summary>
 	/// This index is for finding open conflicts.  It makes an index of all the refs of them, and then

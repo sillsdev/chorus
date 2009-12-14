@@ -84,12 +84,12 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
-	<Compile Include="annotations\IndexOfAllAnnotationsByKey.cs" />
-	<Compile Include="annotations\AnnotationIndex.cs" />
-	<Compile Include="annotations\IAnnotationRepositoryObserver.cs" />
-	<Compile Include="annotations\IEmbeddedMessageContentHandler.cs" />
-	<Compile Include="annotations\IndexOfAllOpenConflicts.cs" />
-	<Compile Include="annotations\Message.cs" />
+	<Compile Include="nots\IndexOfAllAnnotationsByKey.cs" />
+	<Compile Include="nots\AnnotationIndex.cs" />
+	<Compile Include="nots\IAnnotationRepositoryObserver.cs" />
+	<Compile Include="nots\IEmbeddedMessageContentHandler.cs" />
+	<Compile Include="nots\IndexOfAllOpenConflicts.cs" />
+	<Compile Include="nots\Message.cs" />
 	<Compile Include="clone\CloneFromUsb.cs" />
 	<Compile Include="FileTypeHanders\adaptIt\AdaptItHandler.cs" />
 	<Compile Include="FileTypeHanders\audio\AudioChangePresenter.cs" />
@@ -123,16 +123,16 @@
 	<Compile Include="merge\UnmergableFileTypeConflict.cs" />
 	<Compile Include="merge\xml\generic\HumanLogMergeEventListener.cs" />
 	<Compile Include="merge\xml\generic\ChorusNotesMergeEventListener.cs" />
-	<Compile Include="annotations\Annotation.cs" />
-	<Compile Include="annotations\AnnotationClassFactory.cs" />
+	<Compile Include="nots\Annotation.cs" />
+	<Compile Include="nots\AnnotationClassFactory.cs" />
 	<Compile Include="ChorusUser.cs" />
-	<Compile Include="annotations\AnnotationRepository.cs" />
+	<Compile Include="nots\AnnotationRepository.cs" />
 	<Compile Include="Properties\AnnotationImages.Designer.cs">
 	  <AutoGen>True</AutoGen>
 	  <DesignTime>True</DesignTime>
 	  <DependentUpon>AnnotationImages.resx</DependentUpon>
 	</Compile>
-	<Compile Include="annotations\AnnotationClass.cs" />
+	<Compile Include="nots\AnnotationClass.cs" />
 	<Compile Include="Utilities\code\DelegateDefinitions.cs" />
 	<Compile Include="Utilities\MultiMap.cs" />
 	<Compile Include="Utilities\XmlElementExtensions.cs" />

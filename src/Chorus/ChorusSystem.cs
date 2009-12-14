@@ -1,41 +1,39 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Windows.Forms;
 using Autofac;
 using Autofac.Builder;
-using Chorus.annotations;
+using Chorus.notes;
 using Chorus.sync;
+using Chorus.UI.Notes;
+using Chorus.UI.Notes.Bar;
 using Chorus.UI.Notes.Browser;
+using Chorus.UI.Review;
 using Chorus.Utilities;
 using Chorus.Utilities.code;
 using Chorus.VcsDrivers.Mercurial;
 
 namespace Chorus
 {
-	public class ChorusSystem
+	public class ChorusSystem :IDisposable
 	{
 		private readonly IChorusUser _user;
 		private readonly IContainer _container;
-		private readonly Dictionary<string, AnnotationRepository> _annotationRepositories = new Dictionary<string, AnnotationRepository>();
+		internal readonly Dictionary<string, AnnotationRepository> _annotationRepositories = new Dictionary<string, AnnotationRepository>();
 
-		static public ChorusSystem CreateAndGuessUserName(string folderPath)
-		{
-				var hgrepo = HgRepository.CreateOrLocate(folderPath, new NullProgress());
-				var user  =new ChorusUser(hgrepo.GetUserIdInUse());
-				return new ChorusSystem(folderPath, user);
-		}
 
-		public ChorusSystem(string folderPath, IChorusUser user)
+		public ChorusSystem(string folderPath)
 		{
-			_user = user;
+			var hgrepo = HgRepository.CreateOrLocate(folderPath, new NullProgress());
+			_user  =new ChorusUser(hgrepo.GetUserIdInUse());
 			var builder = new Autofac.Builder.ContainerBuilder();
 
 			builder.Register<ProjectFolderConfiguration>(c => new ProjectFolderConfiguration(folderPath));
 
 			ChorusUIComponentsInjector.InjectNotesUI(builder);
 
-			builder.Register<ChorusNotesSystem>().ContainerScoped();
 			builder.Register<IChorusUser>(_user);
-			builder.RegisterGeneratedFactory<ChorusNotesSystem.Factory>().ContainerScoped();
 			builder.RegisterGeneratedFactory<NotesInProjectView.Factory>().ContainerScoped();
 			builder.RegisterGeneratedFactory<NotesInProjectViewModel.Factory>().ContainerScoped();
 			builder.RegisterGeneratedFactory<NotesBrowserPage.Factory>().ContainerScoped();
@@ -49,8 +47,78 @@ namespace Chorus
 			builder2.Build(_container);
 		}
 
+		public WinFormsFactory WinForms
+		{
+			get { return new WinFormsFactory(this, _container); }
+		}
 
-		public ChorusNotesSystem GetNotesSystem(string pathToFileBeingAnnotated, IProgress progress)
+		/// <summary>
+		/// This class is exists only to organize all WindowForms UI component factories together,
+		/// so the programmer can write, for example:
+		/// _chorusSystem.WinForms.CreateSynchronizationDialog()
+		/// </summary>
+		public class WinFormsFactory
+		{
+			private readonly ChorusSystem _parent;
+			private readonly IContainer _container;
+
+			public WinFormsFactory(ChorusSystem parent, IContainer container)
+			{
+				_parent = parent;
+				_container = container;
+			}
+
+			public Chorus.UI.Sync.SyncDialog CreateSynchronizationDialog()
+			{
+				return _container.Resolve<Chorus.UI.Sync.SyncDialog>();
+			}
+
+			public NotesBarView CreateNotesBar(string pathToAnnotatedFile, NotesToRecordMapping mapping, IProgress progress)
+			{
+				var repo = _parent.GetNotesRepository(pathToAnnotatedFile, progress);
+				var model = _container.Resolve<NotesBarModel.Factory>()(repo, mapping);
+				return new NotesBarView(model, _container.Resolve<AnnotationEditorModel.Factory>());
+			}
+
+
+/* is this needed?             public NotesBarView.Factory NotesBarFactory
+			{
+				get { return _container.Resolve<NotesBarView.Factory>(); }
+			}
+ */
+
+			public NotesBrowserPage CreateNotesBrowser()
+			{
+				return _container.Resolve<NotesBrowserPage.Factory>()(_parent._annotationRepositories.Values);
+			}
+
+ /* is this needed?            public NotesBrowserPage.Factory NotesBrowserFactory
+			{
+				get { return _container.Resolve<NotesBrowserPage.Factory>(); }
+			}
+*/
+
+			public HistoryPage CreateHistoryPage()
+			{
+				throw new NotImplementedException();
+			}
+
+			public Form CreateSettingDialog()
+			{
+				throw new NotImplementedException();
+			}
+		}
+
+//
+//        public ChorusNotesSystem GetNotesSystem(string pathToFileBeingAnnotated, IProgress progress)
+//        {
+//            AnnotationRepository repo;
+//            string pathToAnnotationFile = GetRepositoryForTargetFile(pathToFileBeingAnnotated, progress, out repo);
+//
+//            return _container.Resolve<ChorusNotesSystem.Factory>()(repo, pathToAnnotationFile, progress);
+//        }
+
+		public AnnotationRepository GetNotesRepository(string pathToFileBeingAnnotated, IProgress progress)
 		{
 			Require.That(File.Exists(pathToFileBeingAnnotated));
 			var pathToAnnotationFile = pathToFileBeingAnnotated + "."+AnnotationRepository.FileExtension;
@@ -59,8 +127,7 @@ namespace Chorus
 			{
 				repo = AddAnnotationRepository(pathToAnnotationFile, progress);
 			}
-
-			return _container.Resolve<ChorusNotesSystem.Factory>()(repo, pathToAnnotationFile, progress);
+			return repo;
 		}
 
 		private AnnotationRepository AddAnnotationRepository(string pathToFileBeingAnnotated, IProgress progress)
@@ -74,5 +141,53 @@ namespace Chorus
 
 			return repo;
 		}
+
+		#region Implementation of IDisposable
+
+		public void Dispose()
+		{
+			_container.Dispose();
+		}
+
+		#endregion
+
+
 	}
+
+
+
+	public class NotesToRecordMapping
+	{
+
+		static internal NotesToRecordMapping SimpleForTest()
+		{
+			var m = new NotesToRecordMapping();
+			m.FunctionToGoFromObjectToItsId = DefaultIdGeneratorUsingObjectToStringAsId;
+			m.FunctionToGetCurrentUrlForNewNotes = DefaultUrlGenerator;
+			return m;
+		}
+
+		 public delegate string UrlGeneratorFunction(string escapedId);
+
+		public delegate string IdGeneratorFunction(object targetOfAnnotation);
+
+
+		public static IdGeneratorFunction DefaultIdGeneratorUsingObjectToStringAsId = (target) => target.ToString();
+		internal static UrlGeneratorFunction DefaultUrlGenerator = (id) => string.Format("chorus://object?id={0}", id);
+
+	   /// <summary>
+		/// Used to figure out which existing notes to show
+		/// The Id is what normally comes after the "id=" in the url
+		/// </summary>
+		public IdGeneratorFunction FunctionToGoFromObjectToItsId = o => { throw new ArgumentNullException("FunctionToGoFromObjectToItsId", "You need to supply a function for FunctionToGoFromObjectToItsId."); };
+
+		/// <summary>
+		/// Used to make new annotations with a url refelctign the current object/insertion-point/whatever
+		/// Note, the key will be "escaped" (made safe for going in a url) for you, so don't make
+		/// your UrlGeneratorFunction do that.
+		/// <example>(escapedId) => string.Format("myimages://image?id={0}&amp;type=jpg",escapedId)</example>
+		/// <example>(ignoreIt) => string.Format("myimages://image?id={0}&amp;type={1}",_currentImage.Guid, _currentImage.FileType)</example>
+		public UrlGeneratorFunction FunctionToGetCurrentUrlForNewNotes = DefaultUrlGenerator;
+	}
+
 }

@@ -5,7 +5,7 @@ using System.Xml;
 using System.Xml.Linq;
 using Chorus.Utilities;
 
-namespace Chorus.annotations
+namespace Chorus.notes
 {
 	public class Message
 	{

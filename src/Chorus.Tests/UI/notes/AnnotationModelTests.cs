@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using System.Xml.Linq;
-using Chorus.annotations;
+using Chorus.notes;
 using Chorus.sync;
 using Chorus.UI;
 using Chorus.UI.Notes;

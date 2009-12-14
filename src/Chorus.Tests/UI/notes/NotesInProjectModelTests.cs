@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
-using Chorus.annotations;
+using Chorus.notes;
 using Chorus.sync;
 using Chorus.UI.Notes;
 using Chorus.UI.Notes.Browser;
@@ -15,6 +15,7 @@ namespace Chorus.Tests.notes
 	[TestFixture]
 	public class NotesInProjectModelTests
 	{
+		private IProgress _progress = new ConsoleProgress();
 
 		[SetUp]
 		public void Setup()
@@ -23,14 +24,10 @@ namespace Chorus.Tests.notes
 		}
 
 		[Test]
-		public void GetMessages_NoNotesFiles()
+		public void GetMessages_NoNotesFiles_GivesZeroMessages()
 		{
-			using (var folder = new TempFolder("NotesModelTests"))
-			{
-				ProjectFolderConfiguration project = new ProjectFolderConfiguration(folder.Path);
-				var m = new NotesInProjectViewModel(TheUser, project, new MessageSelectedEvent(), new ConsoleProgress());
+				var m = new NotesInProjectViewModel(TheUser, new List<AnnotationRepository>(), new MessageSelectedEvent(), new ConsoleProgress());
 				Assert.AreEqual(0, m.GetMessages().Count());
-			}
 		}
 
 		protected ChorusUser TheUser
@@ -47,8 +44,8 @@ namespace Chorus.Tests.notes
 			using (new TempFile(folder, "one." + AnnotationRepository.FileExtension, "<notes version='0'><annotation><message/></annotation></notes>"))
 			using (new TempFile(subfolder, "two." + AnnotationRepository.FileExtension, "<notes  version='0'><annotation><message/></annotation></notes>"))
 			{
-				ProjectFolderConfiguration project = new ProjectFolderConfiguration(folder.Path);
-				var m = new NotesInProjectViewModel(TheUser, project, new MessageSelectedEvent(), new ConsoleProgress());
+				var repos = AnnotationRepository.CreateRepositoriesFromFolder(folder.Path, _progress);
+				var m = new NotesInProjectViewModel(TheUser, repos, new MessageSelectedEvent(), new ConsoleProgress());
 				Assert.AreEqual(2, m.GetMessages().Count());
 			}
 		}
@@ -66,8 +63,7 @@ namespace Chorus.Tests.notes
 				string contents = "<annotation><message author='john'></message></annotation>";
 				using (CreateNotesFile(folder, contents))
 				{
-					ProjectFolderConfiguration project = new ProjectFolderConfiguration(folder.Path);
-					var m = new NotesInProjectViewModel(TheUser, project, new MessageSelectedEvent(), new ConsoleProgress());
+					var m = new NotesInProjectViewModel(TheUser, AnnotationRepository.CreateRepositoriesFromFolder(folder.Path, _progress), new MessageSelectedEvent(), new ConsoleProgress());
 					m.SearchTextChanged("john");
 					Assert.AreEqual(1, m.GetMessages().Count());
 				}
@@ -82,8 +78,8 @@ namespace Chorus.Tests.notes
 				<annotation class='note'><message author='bob'></message></annotation>";
 				using (CreateNotesFile(folder, contents))
 				{
-					ProjectFolderConfiguration project = new ProjectFolderConfiguration(folder.Path);
-					var m = new NotesInProjectViewModel(TheUser, project, new MessageSelectedEvent(), new ConsoleProgress());
+					var repos = AnnotationRepository.CreateRepositoriesFromFolder(folder.Path, _progress);
+					var m = new NotesInProjectViewModel(TheUser, repos, new MessageSelectedEvent(), new ConsoleProgress());
 					 Assert.AreEqual(2, m.GetMessages().Count(), "should get 2 annotations when search box is empty");
 				   m.SearchTextChanged("ques");
 					Assert.AreEqual(1, m.GetMessages().Count());

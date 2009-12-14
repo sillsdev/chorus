@@ -1,6 +1,6 @@
 using System;
 using Autofac.Builder;
-using Chorus.annotations;
+using Chorus.notes;
 using Chorus.FileTypeHanders;
 using Chorus.retrieval;
 using Chorus.sync;
@@ -68,7 +68,7 @@ namespace Chorus
 		public static void InjectNotesUI(ContainerBuilder builder)
 		{
 			builder.Register<MessageSelectedEvent>();
-			builder.Register<Chorus.annotations.EmbeddedMessageContentHandlerFactory>();
+			builder.Register<Chorus.notes.EmbeddedMessageContentHandlerFactory>();
 			builder.Register<NotesInProjectViewModel>();
 			builder.Register<NotesInProjectView>();
 			builder.Register<Chorus.UI.Notes.AnnotationEditorView>();
@@ -109,7 +109,7 @@ namespace Chorus
 			builder.Register<IProgress>(new ConsoleProgress( ));
 			builder.Register<RevisionInspector>();
 			builder.Register<ChangesInRevisionModel>();
-			builder.Register<ReviewPage>();
+			builder.Register<HistoryPage>();
 			builder.Register<ChangesInRevisionView>();
 			builder.Register<ChangeReportView>();
 
@@ -125,7 +125,7 @@ namespace Chorus
 		private static Shell CreateShell(string projectPath, Autofac.Builder.ContainerBuilder builder)
 		{
 			builder.Register<Shell>();
-			builder.Register<ReviewPage>();
+			builder.Register<HistoryPage>();
 			builder.Register<RevisionsInRepositoryView>();
 			builder.Register<RevisionInRepositoryModel>();
 			builder.Register<ChangesInRevisionModel>();
@@ -138,7 +138,7 @@ namespace Chorus
 			var container = builder.Build();
 			var shell = container.Resolve<Shell>();
 
-			shell.AddPage("Review", container.Resolve<ReviewPage>());
+			shell.AddPage("Review", container.Resolve<HistoryPage>());
 			shell.AddPage("Send/Receive", container.Resolve<SyncPanel>());
 			shell.AddPage("Settings", container.Resolve<SettingsView>());
 			shell.AddPage("Troubleshooting", container.Resolve<TroubleshootingView>());

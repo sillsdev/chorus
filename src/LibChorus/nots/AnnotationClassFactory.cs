@@ -2,7 +2,7 @@ using System;
 using System.Windows.Forms;
 using Chorus.merge.xml.generic;
 
-namespace Chorus.annotations
+namespace Chorus.notes
 {
 	public static class AnnotationClassFactory
 	{

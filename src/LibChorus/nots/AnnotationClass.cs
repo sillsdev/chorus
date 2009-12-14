@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 
 
-namespace Chorus.annotations
+namespace Chorus.notes
 {
 	public class AnnotationClass
 	{

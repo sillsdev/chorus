@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using Chorus.annotations;
+using Chorus.notes;
 using Chorus.Utilities;
+using Chorus.Utilities.code;
 
 namespace Chorus.UI.Notes.Bar
 {
@@ -9,13 +10,10 @@ namespace Chorus.UI.Notes.Bar
 	{
 		//use this one for apps that have just one file being edited, and thus on notes repository,
 		//which would have been pushed into the container
-		public delegate NotesBarModel Factory(AnnotationRepository repository, ChorusNotesSystem.UrlGeneratorFunction functionToMakeUrlForAnnotation);//autofac uses this
-
-		//use this one in apps that have multipel repositories
-		//public delegate NotesBarModel FactoryWithExplicitRepository(AnnotationRepository repository, AnnotationIndex index);//autofac uses this
+		public delegate NotesBarModel Factory(AnnotationRepository repository, NotesToRecordMapping mapping);//autofac uses this
 
 		private readonly AnnotationRepository _repository;
-	  //  private string _idOfCurrentAnnotatedObject;
+		private readonly NotesToRecordMapping _mapping;
 		private object _targetObject;
 
 		public void SetTargetObject(object target)
@@ -29,33 +27,24 @@ namespace Chorus.UI.Notes.Bar
 
 		internal event EventHandler UpdateContent;
 
-		public NotesBarModel(AnnotationRepository repository, ChorusNotesSystem.UrlGeneratorFunction functionToMakeUrlForAnnotation)
+		public NotesBarModel(AnnotationRepository repository, NotesToRecordMapping mapping)
 		{
 			_repository = repository;
-			UrlGenerator = functionToMakeUrlForAnnotation;
-			IdGenerator = ChorusNotesSystem.DefaultIdGeneratorUsingObjectToStringAsId;
+			_mapping = mapping;
 		}
-		public NotesBarModel(AnnotationRepository repository)
-			: this(repository, ChorusNotesSystem.DefaultUrlGenerator)
+		internal NotesBarModel(AnnotationRepository repository)
+			: this(repository, NotesToRecordMapping.SimpleForTest())
 		{
 		}
 
-		/// <summary>
-		/// Used to make new annotations with a url refelctign the current object/insertion-point/whatever
-		/// </summary>
-		public ChorusNotesSystem.UrlGeneratorFunction UrlGenerator { get; set; }
 
-		/// <summary>
-		/// Used to figure out which existing notes to show
-		/// </summary>
-		public ChorusNotesSystem.IdGeneratorFunction IdGenerator { get; set; }
 
 		public IEnumerable<Annotation> GetAnnotationsToShow()
 		{
 			if (null == _targetObject)
 				return new List<Annotation>();
 
-			return _repository.GetMatchesByPrimaryRefKey(IdGenerator(_targetObject));
+			return _repository.GetMatchesByPrimaryRefKey(_mapping.FunctionToGoFromObjectToItsId(_targetObject));
 			//todo: add controls for adding new notes, showing closed ones, etc.
 		}
 
@@ -67,12 +56,13 @@ namespace Chorus.UI.Notes.Bar
 
 		public Annotation CreateAnnotation()
 		{
-			var id = IdGenerator(_targetObject);
+			Guard.AgainstNull(_targetObject, "TargetObject");
+			var id = _mapping.FunctionToGoFromObjectToItsId(_targetObject);
 			//nb: it's intentional and necessary to escape the id so it doesn't corrupt
 			//the parsing of the url query string, even though the entire url will be
 			//escaped again for xml purposes
 			var escapedId = Annotation.GetEscapedUrl(id);
-			var url = UrlGenerator(escapedId);
+			var url = _mapping.FunctionToGetCurrentUrlForNewNotes(escapedId);
 			var annotation = new Annotation("question", url, "doesntmakesense");
 			_repository.AddAnnotation(annotation);
 

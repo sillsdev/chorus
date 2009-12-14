@@ -1,6 +1,6 @@
 ﻿namespace Chorus.UI.Review
 {
-	partial class ReviewPage
+	partial class HistoryPage
 	{
 		/// <summary>
 		/// Required designer variable.

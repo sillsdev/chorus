@@ -4,7 +4,7 @@ using System.Linq;
 using Chorus.Utilities;
 using Chorus.Utilities.code;
 
-namespace Chorus.annotations
+namespace Chorus.notes
 {
 	/// <summary>
 	/// Provides a way to speed-up queries which differ by a single string parameter.

@@ -6,7 +6,7 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
-using Chorus.annotations;
+using Chorus.notes;
 using Chorus.Properties;
 using Chorus.UI.Notes.Bar;
 using Chorus.Utilities;
@@ -26,7 +26,7 @@ namespace Chorus.UI.Notes
 		/// <returns></returns>
 		public delegate NotesBarView Factory();//autofac uses this
 
-		private readonly NotesBarModel _model;
+		internal readonly NotesBarModel _model;
 		private AnnotationEditorModel.Factory _annotationEditorModelFactory;
 
 		/// <summary>

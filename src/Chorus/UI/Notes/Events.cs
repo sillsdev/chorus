@@ -1,5 +1,5 @@
 ﻿using System.Text;
-using Chorus.annotations;
+using Chorus.notes;
 using Chorus.merge;
 using Chorus.VcsDrivers.Mercurial;
 

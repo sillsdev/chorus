@@ -1,4 +1,4 @@
-﻿using Chorus.annotations;
+﻿using Chorus.notes;
 
 namespace Chorus
 {

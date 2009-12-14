@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml.Linq;
-using Chorus.annotations;
+using Chorus.notes;
 using NUnit.Framework;
 
 namespace Chorus.Tests.notes

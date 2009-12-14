@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
-using Chorus.annotations;
+using Chorus.notes;
 using Chorus.Utilities;
 
 namespace Chorus.UI.Notes.Browser

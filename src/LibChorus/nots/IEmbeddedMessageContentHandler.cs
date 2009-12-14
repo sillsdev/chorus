@@ -5,7 +5,7 @@ using System.Linq;
 using System.Windows.Forms;
 using Chorus.merge.xml.generic;
 
-namespace Chorus.annotations
+namespace Chorus.notes
 {
 	public interface IEmbeddedMessageContentHandler
 	{

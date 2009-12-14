@@ -69,7 +69,6 @@
   </ItemGroup>
   <ItemGroup>
 	<Compile Include="Bootstrapper.cs" />
-	<Compile Include="ChorusNotesSystem.cs" />
 	<Compile Include="ChorusSystem.cs" />
 	<Compile Include="ChorusUIComponentsInjector.cs" />
 	<Compile Include="UI\BetterLabel.cs">
@@ -196,11 +195,11 @@
 	  <DependentUpon>RevisionsInRepositoryView.cs</DependentUpon>
 	</Compile>
 	<Compile Include="UI\Review\RevisionsInRepository\RevisionInRepositoryModel.cs" />
-	<Compile Include="UI\Review\ReviewPage.cs">
+	<Compile Include="UI\Review\HistoryPage.cs">
 	  <SubType>UserControl</SubType>
 	</Compile>
-	<Compile Include="UI\Review\ReviewPage.Designer.cs">
-	  <DependentUpon>ReviewPage.cs</DependentUpon>
+	<Compile Include="UI\Review\HistoryPage.Designer.cs">
+	  <DependentUpon>HistoryPage.cs</DependentUpon>
 	</Compile>
 	<Compile Include="Program.cs" />
 	<Compile Include="Properties\AssemblyInfo.cs" />
@@ -208,8 +207,8 @@
 	  <DependentUpon>ChangeReportView.cs</DependentUpon>
 	  <SubType>Designer</SubType>
 	</EmbeddedResource>
-	<EmbeddedResource Include="UI\Review\ReviewPage.resx">
-	  <DependentUpon>ReviewPage.cs</DependentUpon>
+	<EmbeddedResource Include="UI\Review\HistoryPage.resx">
+	  <DependentUpon>HistoryPage.cs</DependentUpon>
 	  <SubType>Designer</SubType>
 	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Review\RevisionsInRepository\RevisionsInRepositoryView.resx">

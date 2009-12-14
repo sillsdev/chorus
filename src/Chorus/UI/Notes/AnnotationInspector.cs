@@ -9,7 +9,7 @@ using System.Windows.Forms;
 using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Xsl;
-using Chorus.annotations;
+using Chorus.notes;
 
 namespace Chorus.UI.Notes
 {
