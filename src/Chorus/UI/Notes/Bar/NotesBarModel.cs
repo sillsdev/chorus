@@ -62,7 +62,7 @@ namespace Chorus.UI.Notes.Bar
 			//the parsing of the url query string, even though the entire url will be
 			//escaped again for xml purposes
 			var escapedId = Annotation.GetEscapedUrl(id);
-			var url = _mapping.FunctionToGetCurrentUrlForNewNotes(escapedId);
+			var url = _mapping.FunctionToGetCurrentUrlForNewNotes(_targetObject, escapedId);
 			var annotation = new Annotation("question", url, "doesntmakesense");
 			_repository.AddAnnotation(annotation);
 

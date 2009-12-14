@@ -167,13 +167,13 @@ namespace Chorus
 			return m;
 		}
 
-		 public delegate string UrlGeneratorFunction(string escapedId);
+		 public delegate string UrlGeneratorFunction(object target, string escapedId);
 
 		public delegate string IdGeneratorFunction(object targetOfAnnotation);
 
 
 		public static IdGeneratorFunction DefaultIdGeneratorUsingObjectToStringAsId = (target) => target.ToString();
-		internal static UrlGeneratorFunction DefaultUrlGenerator = (id) => string.Format("chorus://object?id={0}", id);
+		internal static UrlGeneratorFunction DefaultUrlGenerator = (unused, id) => string.Format("chorus://object?id={0}", id);
 
 	   /// <summary>
 		/// Used to figure out which existing notes to show

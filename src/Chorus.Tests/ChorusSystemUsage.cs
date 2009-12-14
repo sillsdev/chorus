@@ -93,9 +93,9 @@ namespace Chorus.Tests
 			//Tell Chorus how to map between our records and the url system we want to use in notes
 			var mapping = new NotesToRecordMapping();
 			mapping.FunctionToGoFromObjectToItsId = who => ((Character)who).Guid;
-			mapping.FunctionToGetCurrentUrlForNewNotes = unused => string.Format("comics://character?id={0}?label={1}", _currentCharacter.Guid, _currentCharacter.Name);
+			mapping.FunctionToGetCurrentUrlForNewNotes = (unusedTarget, unusedId) => string.Format("comics://character?id={0}?label={1}", _currentCharacter.Guid, _currentCharacter.Name);
 			//or
-			mapping.FunctionToGetCurrentUrlForNewNotes = unused => _currentCharacter.GetUrl();
+			mapping.FunctionToGetCurrentUrlForNewNotes = (unusedTarget, unusedId) => _currentCharacter.GetUrl();
 
 			var barControl = _chorusSystem.WinForms.CreateNotesBar(_someDataFilePath, mapping, _progress);
 

@@ -25,7 +25,7 @@ namespace Chorus.Tests.notes
 			var repo = AnnotationRepository.FromString("id", "<notes version='0'/>");
 			var mapping = new NotesToRecordMapping();
 			mapping.FunctionToGoFromObjectToItsId = (target) => "x" + target.ToString() + "x";
-			mapping.FunctionToGetCurrentUrlForNewNotes = (escapedId) => "foobar:" + escapedId;
+			mapping.FunctionToGetCurrentUrlForNewNotes = (unusedTarget, escapedId) => "foobar:" + escapedId;
 			var model = new NotesBarModel(repo, mapping);
 			model.SetTargetObject("foo3");
 			model.CreateAnnotation();
@@ -38,7 +38,7 @@ namespace Chorus.Tests.notes
 		{
 			var repo = AnnotationRepository.FromString("id", "<notes version='0'/>");
 		   var mapping = new NotesToRecordMapping();
-			mapping.FunctionToGetCurrentUrlForNewNotes = (escapedId) => string.Format("lift://object?type=entry&id={0}&type=test", escapedId);
+		   mapping.FunctionToGetCurrentUrlForNewNotes = (unusedTarget, escapedId) => string.Format("lift://object?type=entry&id={0}&type=test", escapedId);
 			mapping.FunctionToGoFromObjectToItsId = NotesToRecordMapping.DefaultIdGeneratorUsingObjectToStringAsId;
 
 			//mapping.UrlGenerator = (target,key)=> string.Format("lift://object?type=entry&amp;id={0}&amp;type=test", key);
