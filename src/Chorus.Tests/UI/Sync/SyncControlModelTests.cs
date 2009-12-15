@@ -50,10 +50,17 @@ namespace Chorus.Tests
 		public void AfterSyncLogNotEmpty()
 		{
 			_model.Sync(false);
+			var start = DateTime.Now;
 			while(!_model.EnableSendReceive)
+			{
 				Thread.Sleep(100);
-			Assert.IsNotEmpty(_progress.Text);
-		}
+				if ((DateTime.Now.Subtract(start).Minutes > 0))
+				{
+					Assert.Fail("Gave up waiting.");
+				}
+			}
+				 Assert.IsNotEmpty(_progress.Text);
+	   }
 
 		[Test]
 		public void InitiallyHasUsbTarget()
