@@ -23,12 +23,16 @@ namespace Chorus.Tests
 		private string _someDataFilePath;
 		private Character _currentCharacter;
 		private IProgress _progress = new NullProgress();
+		private TempFile _someDataFile;
 
 		[SetUp]
 		public void Setup()
 		{
 			_tempFolder = new TempFolder("ChorusSystemUsage");
 			_dataFolderRoot = _tempFolder.Path;
+			_someDataFile = new TempFile(_tempFolder, "test.txt", "hello");
+			_someDataFilePath = _someDataFile.Path;
+
 			_chorusSystem = new ChorusSystem(_dataFolderRoot);
 		}
 
@@ -36,6 +40,7 @@ namespace Chorus.Tests
 		public void TearDown()
 		{
 			_chorusSystem.Dispose();
+			_someDataFile.Dispose();
 			_tempFolder.Dispose();
 		}
 		#endregion
