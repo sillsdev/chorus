@@ -104,7 +104,7 @@ namespace Chorus
 			builder.Register<SyncControlModel>();
 		}
 
-		private static void RegisterReviewStuff(ContainerBuilder builder)
+		internal static void RegisterReviewStuff(ContainerBuilder builder)
 		{
 			builder.Register<IProgress>(new ConsoleProgress( ));
 			builder.Register<RevisionInspector>();

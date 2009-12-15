@@ -21,7 +21,7 @@ namespace Chorus.notes
 
 		public static AnnotationClass GetClassOrDefault(string name)
 		{
-			switch (name.ToLower())
+			switch (name)
 			{
 				case "question":
 					return new QuestionAnnotationClass();

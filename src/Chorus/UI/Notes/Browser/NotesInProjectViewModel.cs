@@ -8,14 +8,16 @@ using Chorus.Utilities;
 
 namespace Chorus.UI.Notes.Browser
 {
-	public class NotesInProjectViewModel
+	public class NotesInProjectViewModel : IDisposable, IAnnotationRepositoryObserver
 	{
 		public delegate NotesInProjectViewModel Factory(IEnumerable<AnnotationRepository> repositories, IProgress progress);//autofac uses this
+		internal event EventHandler ReloadMessages;
 
 		private readonly IChorusUser _user;
 		private readonly MessageSelectedEvent _messageSelectedEvent;
 		private IEnumerable<AnnotationRepository> _repositories;
 		private string _searchText;
+		private bool _reloadPending=true;
 
 		public NotesInProjectViewModel( IChorusUser user, IEnumerable<AnnotationRepository> repositories,
 										MessageSelectedEvent messageSelectedEventToRaise, IProgress progress)
@@ -23,10 +25,11 @@ namespace Chorus.UI.Notes.Browser
 			_user = user;
 			_repositories = repositories;
 			_messageSelectedEvent = messageSelectedEventToRaise;
-//            foreach (var path in GetChorusNotesFilePaths(projectFolderConfiguration.FolderPath))
-//            {
-//                _repositories.Add(AnnotationRepository.FromFile(string.Empty, path, progress));
-//            }
+
+			foreach (var repository in repositories)
+			{
+				repository.AddObserver(this, progress);
+			}
 		}
 
 
@@ -87,6 +90,56 @@ namespace Chorus.UI.Notes.Browser
 		public void SearchTextChanged(string searchText)
 		{
 			_searchText = searchText;
+			ReloadMessagesNow();
+		}
+
+		private void ReloadMessagesNow()
+		{
+			if(ReloadMessages!=null)
+				ReloadMessages(this,null);
+
+			_reloadPending = false;
+		}
+
+		#region Implementation of IDisposable
+
+		public void Dispose()
+		{
+			foreach (var repository in _repositories)
+			{
+				repository.RemoveObserver(this);
+			}
+		}
+
+		#endregion
+
+		#region Implementation of IAnnotationRepositoryObserver
+
+		public void Initialize(Func<IEnumerable<Annotation>> allAnnotationsFunction, IProgress progress)
+		{
+		}
+
+		public void NotifyOfAddition(Annotation annotation)
+		{
+			_reloadPending=true;
+		}
+
+		public void NotifyOfModification(Annotation annotation)
+		{
+			_reloadPending = true;
+		}
+
+		public void NotifyOfDeletion(Annotation annotation)
+		{
+			_reloadPending = true;
+		}
+
+		#endregion
+
+		public void NowVisible()
+		{
+			if(_reloadPending)
+				ReloadMessagesNow();
 		}
 	}
 }

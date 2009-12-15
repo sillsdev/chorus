@@ -110,6 +110,7 @@ namespace Chorus.UI.Notes.Browser
 			this.Name = "NotesInProjectView";
 			this.Size = new System.Drawing.Size(470, 348);
 			this.Load += new System.EventHandler(this.OnLoad);
+			this.VisibleChanged += new System.EventHandler(this.NotesInProjectView_VisibleChanged);
 			this.ResumeLayout(false);
 
 		}

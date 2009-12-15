@@ -19,6 +19,11 @@ namespace Chorus.notes
 		private AnnotationIndex _indexOfAllAnnotationsByKey;
 		private bool _isDirty;
 
+		public string AnnotationFilePath
+		{
+			get { return _annotationFilePath; }
+		}
+
 		public static AnnotationRepository FromFile(string primaryRefParameter, string path, IProgress progress)
 		{
 			try
@@ -106,6 +111,12 @@ namespace Chorus.notes
 			observer.Initialize(GetAllAnnotations, progress);
 		}
 
+		public void RemoveObserver(IAnnotationRepositoryObserver observer)
+		{
+			if(_observers.Contains(observer))
+				_observers.Remove(observer);
+		}
+
 
 		public IEnumerable<Annotation> GetAllAnnotations()
 		{
@@ -126,12 +137,12 @@ namespace Chorus.notes
 
 		public void Save(IProgress progress)
 		{
-			if(string.IsNullOrEmpty(_annotationFilePath))
+			if(string.IsNullOrEmpty(AnnotationFilePath))
 			{
 				throw new InvalidOperationException("Cannot save if the repository was created from a string");
 			}
 			progress.WriteStatus("Saving Chorus Notes...");
-			_doc.Save(_annotationFilePath);
+			_doc.Save(AnnotationFilePath);
 			progress.WriteStatus("");
 			_isDirty = false;
 		}
@@ -200,7 +211,7 @@ namespace Chorus.notes
 
 		public void SaveNowIfNeeded(IProgress progress)
 		{
-			if(_isDirty && !string.IsNullOrEmpty(_annotationFilePath))
+			if(_isDirty && !string.IsNullOrEmpty(AnnotationFilePath))
 				Save(progress);
 		}
 
@@ -208,7 +219,7 @@ namespace Chorus.notes
 		{
 			foreach (var path in GetChorusNotesFilePaths(folderPath))
 			{
-				yield return AnnotationRepository.FromFile(string.Empty, path, progress);
+				yield return AnnotationRepository.FromFile("id", path, progress);
 			}
 		}
 
@@ -216,6 +227,8 @@ namespace Chorus.notes
 		{
 			return Directory.GetFiles(path, "*." + AnnotationRepository.FileExtension, SearchOption.AllDirectories);
 		}
+
+
 	}
 
 	public class AnnotationFormatException : ApplicationException

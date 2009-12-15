@@ -39,7 +39,7 @@ namespace Chorus.merge.xml.generic
 
 	   // protected string _shortDataDescription;
 		protected Guid _guid = Guid.NewGuid();
-		public  const string ConflictAnnotationClassName="mergeconflict";
+		public  const string ConflictAnnotationClassName="mergeConflict";
 		// public string PathToUnitOfConflict { get; set; }
 		public string RelativeFilePath { get { return Situation.PathToFileInRepository; } }
 

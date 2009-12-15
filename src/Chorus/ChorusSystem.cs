@@ -18,25 +18,28 @@ namespace Chorus
 {
 	public class ChorusSystem :IDisposable
 	{
+		private readonly string _folderPath;
 		private readonly IChorusUser _user;
 		private readonly IContainer _container;
 		internal readonly Dictionary<string, AnnotationRepository> _annotationRepositories = new Dictionary<string, AnnotationRepository>();
+		private bool _searchedForAllExistingNotesFiles;
 
 
 		public ChorusSystem(string folderPath)
 		{
+			_folderPath = folderPath;
 			var hgrepo = HgRepository.CreateOrLocate(folderPath, new NullProgress());
-			_user  =new ChorusUser(hgrepo.GetUserIdInUse());
 			var builder = new Autofac.Builder.ContainerBuilder();
 
 			builder.Register<ProjectFolderConfiguration>(c => new ProjectFolderConfiguration(folderPath));
 
-			ChorusUIComponentsInjector.InjectNotesUI(builder);
+			ChorusUIComponentsInjector.Inject(builder, folderPath);
 
+			_user  =new ChorusUser(hgrepo.GetUserIdInUse());
 			builder.Register<IChorusUser>(_user);
-			builder.RegisterGeneratedFactory<NotesInProjectView.Factory>().ContainerScoped();
-			builder.RegisterGeneratedFactory<NotesInProjectViewModel.Factory>().ContainerScoped();
-			builder.RegisterGeneratedFactory<NotesBrowserPage.Factory>().ContainerScoped();
+//            builder.RegisterGeneratedFactory<NotesInProjectView.Factory>().ContainerScoped();
+//            builder.RegisterGeneratedFactory<NotesInProjectViewModel.Factory>().ContainerScoped();
+//            builder.RegisterGeneratedFactory<NotesBrowserPage.Factory>().ContainerScoped();
 
 		   // builder.Register(new NullProgress());//TODO
 			_container = builder.Build();
@@ -80,27 +83,16 @@ namespace Chorus
 				return new NotesBarView(model, _container.Resolve<AnnotationEditorModel.Factory>());
 			}
 
-
-/* is this needed?             public NotesBarView.Factory NotesBarFactory
-			{
-				get { return _container.Resolve<NotesBarView.Factory>(); }
-			}
- */
-
 			public NotesBrowserPage CreateNotesBrowser()
 			{
+				_parent.EnsureAllNotesRepositoriesLoaded();
 				return _container.Resolve<NotesBrowserPage.Factory>()(_parent._annotationRepositories.Values);
 			}
 
- /* is this needed?            public NotesBrowserPage.Factory NotesBrowserFactory
-			{
-				get { return _container.Resolve<NotesBrowserPage.Factory>(); }
-			}
-*/
 
 			public HistoryPage CreateHistoryPage()
 			{
-				throw new NotImplementedException();
+				return _container.Resolve<HistoryPage>();
 			}
 
 			public Form CreateSettingDialog()
@@ -109,14 +101,21 @@ namespace Chorus
 			}
 		}
 
-//
-//        public ChorusNotesSystem GetNotesSystem(string pathToFileBeingAnnotated, IProgress progress)
-//        {
-//            AnnotationRepository repo;
-//            string pathToAnnotationFile = GetRepositoryForTargetFile(pathToFileBeingAnnotated, progress, out repo);
-//
-//            return _container.Resolve<ChorusNotesSystem.Factory>()(repo, pathToAnnotationFile, progress);
-//        }
+		public void EnsureAllNotesRepositoriesLoaded()
+		{
+			if(!_searchedForAllExistingNotesFiles)
+			{
+				var progress = new NullProgress();
+				foreach (var repo in AnnotationRepository.CreateRepositoriesFromFolder(_folderPath, progress))
+				{
+					if (!_annotationRepositories.ContainsKey(repo.AnnotationFilePath))
+					{
+						_annotationRepositories.Add(repo.AnnotationFilePath, repo);
+					}
+				}
+				_searchedForAllExistingNotesFiles=true;
+			}
+		}
 
 		public AnnotationRepository GetNotesRepository(string pathToFileBeingAnnotated, IProgress progress)
 		{
@@ -135,10 +134,6 @@ namespace Chorus
 			AnnotationRepository repo;
 			repo = AnnotationRepository.FromFile("id", pathToFileBeingAnnotated, progress);
 			_annotationRepositories.Add(pathToFileBeingAnnotated, repo);
-//            var builder = new Autofac.Builder.ContainerBuilder();
-//            builder.Register<AnnotationRepository>(repo);
-//            builder.Build(_container);
-
 			return repo;
 		}
 

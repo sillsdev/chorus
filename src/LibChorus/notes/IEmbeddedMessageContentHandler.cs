@@ -75,7 +75,7 @@ namespace Chorus.notes
 			//safe to stick in a giant URL, and making a link of it.
 			//THat URL is then decoded in HandleUrl()
 			var encodedData= HttpUtility.UrlEncode(cDataContent);
-			return string.Format("<a href={0}>{1}</a>", "http://mergeconflict?data="+encodedData, "Conflict Details...");
+			return string.Format("<a href={0}>{1}</a>", "http://mergeConflict?data="+encodedData, "Conflict Details...");
 		}
 
 		public bool CanHandleUrl(Uri uri)

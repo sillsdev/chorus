@@ -10,25 +10,20 @@ namespace Chorus.UI.Notes.Browser
 	public partial class NotesInProjectView : UserControl
 	{
 		public delegate NotesInProjectView Factory(IProgress progress);//autofac uses this
-
 		private NotesInProjectViewModel _viewModel;
 
 		public NotesInProjectView(NotesInProjectViewModel model)
 		{
 			this.Font = SystemFonts.MessageBoxFont;
+			model.ReloadMessages += new EventHandler(OnReloadMessages);
 			_viewModel = model;
 			//       _model.ProgressDisplay = new NullProgress();
 			InitializeComponent();
 			_messageListView.SmallImageList = AnnotationClassFactory.CreateImageListContainingAnnotationImages();
-			UpdateDisplay();
-
 		}
 
-		private void UpdateDisplay()
-		{
-		}
 
-		public void ReloadMessages()
+		void OnReloadMessages(object sender, EventArgs e)
 		{
 			Cursor.Current = Cursors.WaitCursor;
 			_messageListView.SuspendLayout();
@@ -61,13 +56,19 @@ namespace Chorus.UI.Notes.Browser
 
 		private void OnLoad(object sender, EventArgs e)
 		{
-			ReloadMessages();
+			//OnReloadMessages(null,null);
+			_viewModel.NowVisible();
 		}
 
 		private void searchBox1_SearchTextChanged(object sender, EventArgs e)
 		{
 			_viewModel.SearchTextChanged(sender as string);
-			ReloadMessages();
+		}
+
+		private void NotesInProjectView_VisibleChanged(object sender, EventArgs e)
+		{
+			if (this.Visible)
+				_viewModel.NowVisible();
 		}
 	}
 }

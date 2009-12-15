@@ -22,7 +22,7 @@ namespace Chorus.Tests.notes
 		{
 			using (var folder = new TempFolder("NotesModelTests"))
 			using (var dataFile = new TempFile(folder, "one.txt", "just a pretend file"))
-			using (new TempFile(folder, "one.txt" + AnnotationRepository.FileExtension,
+			using (new TempFile(folder, "one.txt." + AnnotationRepository.FileExtension,
 				@"<notes version='0'>
 					<annotation ref='somwhere://foo?id=x' class='question'>
 						<message guid='123' author='john' status='open' date='2009-07-18T23:53:04Z'>
@@ -32,7 +32,7 @@ namespace Chorus.Tests.notes
 							It's fine.
 						</message>
 					</annotation>
-					<annotation ref='somwhere://foo?id=x' class='mergeconflict'>
+					<annotation ref='somwhere://foo?id=x' class='mergeConflict'>
 						<message guid='123' author='merger' status='open' date='2009-07-18T23:53:04Z'>
 							some description of the conflict
 						</message>
@@ -83,7 +83,7 @@ namespace Chorus.Tests.notes
 				</notes>"))
 			using (new TempFile(folder, "two." + AnnotationRepository.FileExtension,
 				string.Format(@"<notes version='0'>
-					<annotation ref='somwhere://foo?label=korupsen' class='conflict'>
+					<annotation ref='somwhere://foo?label=korupsen' class='mergeConflict'>
 						<message guid='abc' author='merger' status='open' date='2009-07-18T23:53:04Z'>
 							  <![CDATA[<someembedded>something</someembedded>]]>
 						</message>
@@ -95,7 +95,7 @@ namespace Chorus.Tests.notes
 			using (new TempFile(folder, "three." + AnnotationRepository.FileExtension,
 				@"<notes  version='0'>
 					 <annotation  ref='lift://foo.lift?label=wantok' class='mergeConflict'>
-						<message guid='1234' author='merger' status='open' date='2009-09-28T11:11:11Z'>
+						<message guid='1234' author='merger' status='open' date='2009-02-28T11:11:11Z'>
 							 Some description of hte conflict
 							  <![CDATA[<conflict>something</conflict>]]>
 						</message>
