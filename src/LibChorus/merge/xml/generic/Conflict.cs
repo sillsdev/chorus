@@ -106,7 +106,9 @@ namespace Chorus.merge.xml.generic
 			//we embedd this xml inside the CDATA section so that it pass a more generic schema without
 			//resorting to the complexities of namespaces
 			var b = new StringBuilder();
-			using (var embeddedWriter = XmlWriter.Create(b))
+			XmlWriterSettings settings = new XmlWriterSettings();
+			settings.OmitXmlDeclaration=true;
+			using (var embeddedWriter = XmlWriter.Create(b,settings))
 			{
 				embeddedWriter.WriteStartElement("conflict");
 				WriteAttributes(embeddedWriter);
