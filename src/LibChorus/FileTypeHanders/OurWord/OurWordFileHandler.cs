@@ -17,7 +17,7 @@ namespace Chorus.FileTypeHanders.OurWord
 				Other.DirectoryOfExecutingAssembly, "OurWordData.dll");
 			var ourWordAssembly = Assembly.LoadFrom(ourWordPath);
 
-			var mergerType = ourWordAssembly.GetType("OurWordData.DataModel.Merger");
+			var mergerType = ourWordAssembly.GetType("OurWordData.Synchronize.Merger");
 
 			return mergerType.GetMethod(remoteMethodName);
 		}
@@ -48,7 +48,7 @@ namespace Chorus.FileTypeHanders.OurWord
 
 		public void Do3WayMerge(MergeOrder mergeOrder)
 		{
-			//Debug.Fail("LibChorus.FileTypeHandlers.OurWord.Do3WayMerge - For debugging.");
+			// Debug.Fail("LibChorus.FileTypeHandlers.OurWord.Do3WayMerge - For debugging.");
 
 			var method = RetrieveRemoteMethod("Do3WayMerge");
 			method.Invoke(null, new object[]{mergeOrder});
