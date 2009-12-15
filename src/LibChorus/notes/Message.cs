@@ -35,9 +35,15 @@ namespace Chorus.notes
 
 		public DateTime Date
 		{
-			get {
+			get
+			{
 				var date = _element.GetAttributeValue("date");
-				return DateTime.Parse(date);
+				DateTime dt;
+				if (DateTime.TryParse(date, out dt))
+				{
+					return dt;
+				}
+				return default(DateTime);
 			}
 		}
 
