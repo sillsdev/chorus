@@ -1,3 +1,4 @@
+using System;
 using System.Windows.Forms;
 using Chorus.notes;
 using Message=Chorus.notes.Message;
@@ -16,6 +17,10 @@ namespace Chorus.UI.Notes
 		{
 			ParentAnnotation = parentAnnotation;
 			Message = message;
+		}
+		public DateTime Date
+		{
+			get { return Message.Date; }
 		}
 
 		public ListViewItem GetListViewItem()

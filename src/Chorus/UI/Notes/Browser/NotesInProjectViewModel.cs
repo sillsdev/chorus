@@ -38,6 +38,11 @@ namespace Chorus.UI.Notes.Browser
 
 		public IEnumerable<ListMessage> GetMessages()
 		{
+			return GetMessagesUnsorted().OrderByDescending((msg) => msg.Date);
+		}
+
+		private IEnumerable<ListMessage> GetMessagesUnsorted()
+		{
 			foreach (var repository in _repositories)
 			{
 				IEnumerable<Annotation> annotations=  repository.GetAllAnnotations();
