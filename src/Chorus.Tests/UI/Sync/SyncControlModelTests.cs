@@ -94,8 +94,11 @@ namespace Chorus.Tests
 			SyncResults results = null;
 			_model.SynchronizeOver += new EventHandler((sender, e) => results = (sender as SyncResults));
 		   _model.Sync(true);
-		   while (results==null)
+		   while (results == null)
+		   {
 			   Thread.Sleep(100);
+			   Application.DoEvents(); //else the background worker may starve
+		   }
 			Assert.IsFalse(results.Succeeded);
 			Assert.IsNotNull(results.ErrorEncountered);
 		}
@@ -113,7 +116,10 @@ namespace Chorus.Tests
 			Thread.Sleep(100);
 			_model.Cancel();
 			while (results == null)
+			{
 				Thread.Sleep(100);
+				Application.DoEvents(); //else the background worker may starve
+			}
 			Assert.IsFalse(results.Succeeded);
 			Assert.IsTrue(results.Cancelled);
 			Assert.IsNull(results.ErrorEncountered);
