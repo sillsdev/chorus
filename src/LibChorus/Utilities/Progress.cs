@@ -168,7 +168,7 @@ namespace Chorus.Utilities
 			Console.Write("                          ".Substring(0, indent*2));
 			Console.WriteLine(string.Format(message, args));
 #else
-			Debug.Write("                          ".Substring(0, indent*2));
+			Debug.Write("                          ".Substring(0, indent * 2));
 			Debug.WriteLine(string.Format(message, args));
 #endif
 		}
@@ -216,7 +216,8 @@ namespace Chorus.Utilities
 		///<filterpriority>2</filterpriority>
 		public void Dispose()
 		{
-			indent--;
+			if(indent>0)
+				indent--;
 		}
 
 
