@@ -51,7 +51,7 @@ namespace Chorus.retrieval
 					{
 //                        var parentFileInRevision = new FileInRevision(parentRev.LocalRevisionNumber,
 //                                                                      fileInRevision.FullPath,
-//                                                                      FileInRevision.Action.Parent);
+//                                                                      FileInRevision.Action.ParentRepository);
 						CollectChangesInFile(fileInRevision, parentRev.LocalRevisionNumber, changes);
 					}
 				}
@@ -76,7 +76,7 @@ namespace Chorus.retrieval
 			foreach (var report in reports)
 			{
 				var handler = _fileHandlerCollection.GetHandlerForDiff(report.PathToFile);
-				if(handler.GetType()==typeof(ConflictFileTypeHandler))
+				if(handler.GetType()==typeof(ChorusNotesFileHandler))
 				{
 					changes.Add(report);
 				}

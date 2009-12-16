@@ -26,10 +26,10 @@ namespace LibChorus.Tests.merge
 			var docY = new XmlDocument();
 			docY.LoadXml(@"<doc><test id='2'>y</test></doc>");
 			var situation = new MergeSituation("ARelativePath", "x", "x1", "y", "y1",MergeOrder.ConflictHandlingModeChoices.WeWin);
-			var conflict = new BothEdittedTextConflict(docX.SelectSingleNode("doc/test"),
+			var conflict = new BothEditedTextConflict(docX.SelectSingleNode("doc/test"),
 			  docY.SelectSingleNode("doc/test"),
 			  docA.SelectSingleNode("doc/test"),
-			  situation);
+			  situation, "theWinner");
 			conflict.Context = new ContextDescriptor("dummy","//test[@id='2']");
 			var retriever = new DummyXmlRetriever(docA,docX, docY);
 			var result = conflict.GetConflictingRecordOutOfSourceControl(retriever, ThreeWayMergeSources.Source.UserX);

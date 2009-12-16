@@ -5,6 +5,7 @@ using System.Drawing;
 using System.Data;
 using System.IO;
 using System.Text;
+using System.Threading;
 using System.Windows.Forms;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
@@ -45,49 +46,26 @@ namespace Chorus.UI.Sync
 
 		private void UpdateDisplay()
 		{
-			var drives = GetUsbDriveInfo();
+			UpdateUsbDriveSituation();
+			UpdateInternetSituation();
+			UpdateLocalNetworkSituation();
+		}
 
-			if (drives.Count()==0)
+		private void UpdateLocalNetworkSituation()
+		{
+			RepositoryAddress address;
+
+			try
 			{
-				_useUSBButton.Enabled = false;
-				_usbStatusLabel.Text = "First insert a USB flash drive";
+				address = GetDefaultNetworkAddress<DirectoryRepositorySource>();
 			}
-			else if (drives.Count() > 1)
+			catch(Exception error)//probably, hgrc is locked
 			{
-				_useUSBButton.Enabled = false;
-				_usbStatusLabel.Text = "More than one USB flash drive detected. Please remove one.";
-			}
-			else
-			{
-				_useUSBButton.Enabled = true;
-				try
-				{
-					var first = drives.First();
-#if !MONO
-					_usbStatusLabel.Text = first.RootDirectory + " " + first.VolumeLabel + " (" + Math.Floor(first.TotalFreeSpace/1024000.0)+" Megs Free Space)";
-#else
-					_usbStatusLabel.Text = first.VolumeLabel;//RootDir & volume label are the same on linux.  TotalFreeSpace is, like, maxint or something in mono 2.0
-#endif
-				}
-				catch(Exception error   )
-				{
-					_usbStatusLabel.Text = error.Message;
-				}
-			}
-			var address = GetDefaultNetworkAddress<HttpRepositoryPath>();
-			_useInternetButton.Enabled = address != null;
-			if (address==null)
-			{
-				_internetStatusLabel.Text = "This project is not yet associated with an internet server";
-			}
-			else
-			{
-				_internetStatusLabel.Text = address.Name;
-				toolTip1.SetToolTip(_useInternetButton, address.URI);
-				//enhance: which one will be used if I click this?
+				_useSharedFolderButton.Enabled = false;
+				_sharedFolderLabel.Text = error.Message;
+			   return;
 			}
 
-			address = GetDefaultNetworkAddress<DirectoryRepositorySource>();
 			_useSharedFolderButton.Enabled = address != null;
 			if (address == null)
 			{
@@ -100,42 +78,96 @@ namespace Chorus.UI.Sync
 			}
 		}
 
-		private IEnumerable<DriveInfo> GetUsbDriveInfo()
+		private void UpdateInternetSituation()
 		{
-			var info = new Chorus.Utilities.UsbDrive.RetrieveUsbDriveInfo();
-			var drives = info.GetDrives();
-			if (drives.Count > 0)
+			RepositoryAddress address;
+			try
 			{
-				foreach (var drive in System.IO.DriveInfo.GetDrives())
-				{
-					if (drive.RootDirectory.FullName == drives[0].RootDirectory.FullName)
-					{
-						yield return drive;
-					}
-				}
+				address = GetDefaultNetworkAddress<HttpRepositoryPath>();
 			}
-			//MessageBox.Show("There was a problem getting USB drive information.","Error", MessageBoxButtons.OK,MessageBoxIcon.Warning);
+			catch (Exception error)//probably, hgrc is locked
+			{
+				_useInternetButton.Enabled = false;
+				_internetStatusLabel.Text = error.Message;
+				return;
+			}
+
+			_useInternetButton.Enabled = address != null;
+			if (address==null)
+			{
+				_internetStatusLabel.Text = "This project is not yet associated with an internet server";
+			}
+			else
+			{
+				_internetStatusLabel.Text = address.Name;
+				toolTip1.SetToolTip(_useInternetButton, address.URI);
+				//enhance: which one will be used if I click this?
+			}
 		}
 
+
+
+		private void UpdateUsbDriveSituation()
+		{
+			if (usbDriveLocator.UsbDrives.Count() == 0)
+			{
+				_useUSBButton.Enabled = false;
+				_usbStatusLabel.Text = "First insert a USB flash drive";
+			}
+			else if (usbDriveLocator.UsbDrives.Count() > 1)
+			{
+				_useUSBButton.Enabled = false;
+				_usbStatusLabel.Text = "More than one USB drive detected. Please remove one.";
+			}
+			else
+			{
+				_useUSBButton.Enabled = true;
+				try
+				{
+					var first = usbDriveLocator.UsbDrives.First();
+#if !MONO
+					_usbStatusLabel.Text = first.RootDirectory + " " + first.VolumeLabel + " (" +
+										   Math.Floor(first.TotalFreeSpace/1024000.0) + " Megs Free Space)";
+#else
+				_usbStatusLabel.Text = first.VolumeLabel;
+					//RootDir & volume label are the same on linux.  TotalFreeSpace is, like, maxint or something in mono 2.0
+#endif
+				}
+				catch (Exception error)
+				{
+					_usbStatusLabel.Text = error.Message;
+				}
+			}
+		}
+
+
+		/// <exception cref="Exception">This will throw when the hgrc is locked</exception>
 		private RepositoryAddress GetDefaultNetworkAddress<T>()
 		{
-			var paths = Repository.GetRepositoryPathsInHgrc();
-			var networkPaths = paths.Where(p => p is T);
-
-			//none found in the hgrc
-			if(networkPaths.Count()==0)
-				return null;
-
 			//the first one found in the default list
-			var defaultAliases = Repository.GetDefaultSyncAliases();
-			foreach (var path in networkPaths)
+			try
 			{
-				if(defaultAliases.Any(a=> a==path.Name))
-					return path;
-			}
+				var paths = Repository.GetRepositoryPathsInHgrc();
+				var networkPaths = paths.Where(p => p is T);
 
-			//the first one
-			return networkPaths.First();
+				//none found in the hgrc
+				if (networkPaths.Count() == 0) //nb: because of lazy eval, the hgrc lock exception can happen here
+					return null;
+
+
+				var defaultAliases = Repository.GetDefaultSyncAliases();
+
+				foreach (var path in networkPaths)
+				{
+					if (defaultAliases.Any(a => a == path.Name))
+						return path;
+				}
+				return networkPaths.First();
+			}
+			catch (Exception error) //this would happen if the hgrc was locked
+			{
+				throw;
+			}
 		}
 
 		private void _useUSBButton_Click(object sender, EventArgs e)
@@ -172,6 +204,7 @@ namespace Chorus.UI.Sync
 
 		private void SyncStartControl_Load(object sender, EventArgs e)
 		{
+
 		}
 	}
 	public class SyncStartArgs : EventArgs

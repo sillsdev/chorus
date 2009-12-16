@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.IO;
 using Autofac;
 using Chorus.UI.Misc;
+using Chorus.UI.Notes.Browser;
 using Chorus.UI.Review;
 using Chorus.UI.Settings;
 using Chorus.UI.Sync;
+using Chorus.VcsDrivers.Mercurial;
 
 namespace Chorus
 {
@@ -27,12 +29,17 @@ namespace Chorus
 
 			builder.Register<BrowseForRepositoryEvent>(browseForRepositoryEvent).SingletonScoped();
 
+			builder.Register<IChorusUser>(c => new ChorusUser(c.Resolve<HgRepository>().GetUserIdInUse()));
+
 			builder.Register<Shell>();
 
 			_container = builder.Build();
 			var shell= _container.Resolve<Shell>();
 
-			shell.AddPage("Review", _container.Resolve<ReviewPage>());
+			var system = new ChorusSystem(_projectPath);
+
+			shell.AddPage("Review", system.WinForms.CreateHistoryPage());
+			shell.AddPage("Notes", system.WinForms.CreateNotesBrowser());
 			shell.AddPage("Send/Receive", _container.Resolve<SyncPanel>());
 			shell.AddPage("Settings", _container.Resolve<SettingsView>());
 			shell.AddPage("Troubleshooting", _container.Resolve<TroubleshootingView>());

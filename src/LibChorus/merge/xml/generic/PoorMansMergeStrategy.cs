@@ -13,7 +13,7 @@ namespace Chorus.merge.xml.generic
 		public string MakeMergedEntry(IMergeEventListener listener, XmlNode ourEntry, XmlNode theirEntry, XmlNode unusedCommonEntry)
 		{
 			XmlNode mergeNoteFieldNode = ourEntry.OwnerDocument.CreateElement("field");
-			LiftMerger.AddAttribute(mergeNoteFieldNode, "type", "mergeConflict");
+			LiftMerger.AddAttribute(mergeNoteFieldNode, "type", Conflict.ConflictAnnotationClassName);
 			LiftMerger.AddDateCreatedAttribute(mergeNoteFieldNode);
 			StringBuilder b = new StringBuilder();
 			b.Append("<trait name='looserData'>");

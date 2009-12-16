@@ -92,10 +92,13 @@ namespace LibChorus.Tests.sync
 			/// <summary>
 			///
 			/// </summary>
-			/// <param name="sourcePath">does not inclue the project folder dir</param>
-			public string SetupClone(string sourcePath)
+			/// <param name="targetPath">does not inclue the project folder dir</param>
+			public string SetupClone(string targetPath)
 			{
-				return GetSynchronizer().MakeClone(Path.Combine(sourcePath, BobSetup.ProjectFolderName), true);
+				//return GetSynchronizer().MakeClone(Path.Combine(targetPath, BobSetup.ProjectFolderName), true);
+				return HgHighLevel.MakeCloneFromLocalToLocal(_languageProjectPath,
+														Path.Combine(targetPath, BobSetup.ProjectFolderName), true,
+														_progress);
 			}
 
 			public Synchronizer GetSynchronizer()
@@ -117,7 +120,7 @@ namespace LibChorus.Tests.sync
 //
 //            Synchronizer repo = Synchronizer.FromProjectConfiguration(bobSetup._projectFolderConfiguration);
 //            string usbPath = Path.Combine(_pathToTestRoot, "USB-A");
-//            repo.MakeClone(usbPath, false, progress);
+//            repo.MakeCloneFromLocalToLocal(usbPath, false, progress);
 //            Assert.IsTrue(Directory.Exists(Path.Combine(usbPath, BobSetup.ProjectFolderName)));
 //        }
 
@@ -210,7 +213,9 @@ namespace LibChorus.Tests.sync
 			//Sally gets the usb and uses it to clone herself a repository
 			string sallySourcePath = Path.Combine(_pathToTestRoot, "sally");
 			Directory.CreateDirectory(sallySourcePath);
-			string sallyRepoPath = usbRepo.MakeClone(Path.Combine(sallySourcePath, BobSetup.ProjectFolderName), true);
+			//string sallyRepoPath = usbRepo.MakeClone(Path.Combine(sallySourcePath, BobSetup.ProjectFolderName), true);
+			string sallyRepoPath = HgHighLevel.MakeCloneFromLocalToLocal(usbRepo.Repository.PathToRepo, Path.Combine(sallySourcePath, BobSetup.ProjectFolderName), true, progress);
+
 
 			//Now bob sets up the conflict
 

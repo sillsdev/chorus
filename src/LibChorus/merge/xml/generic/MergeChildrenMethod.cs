@@ -67,7 +67,8 @@ namespace Chorus.merge.xml.generic
 					{
 						// stick with our orderer (we win), but report conflict.
 						_merger.EventListener.ConflictOccurred(new BothReorderedElementConflict(_ours.Name, _ours,
-							_theirs, _ancestor, _merger.MergeSituation, _merger.MergeStrategies.GetElementStrategy(_ours)));
+							_theirs, _ancestor, _merger.MergeSituation, _merger.MergeStrategies.GetElementStrategy(_ours),
+							_merger.MergeSituation.AlphaUserId));
 					}
 					else
 					{
@@ -82,12 +83,14 @@ namespace Chorus.merge.xml.generic
 				(resultOrderer.OrderIsDifferent && resultOrderer.OrderIsAmbiguous))
 			{
 				_merger.EventListener.ConflictOccurred(new AmbiguousInsertReorderConflict(_ours.Name, _ours,
-					_theirs, _ancestor, _merger.MergeSituation, _merger.MergeStrategies.GetElementStrategy(_ours)));
+					_theirs, _ancestor, _merger.MergeSituation, _merger.MergeStrategies.GetElementStrategy(_ours),
+					_merger.MergeSituation.AlphaUserId));
 			}
 			else if (resultOrderer.OrderIsAmbiguous)
 			{
 				_merger.EventListener.ConflictOccurred(new AmbiguousInsertConflict(_ours.Name, _ours,
-					_theirs, _ancestor, _merger.MergeSituation, _merger.MergeStrategies.GetElementStrategy(_ours)));
+					_theirs, _ancestor, _merger.MergeSituation, _merger.MergeStrategies.GetElementStrategy(_ours),
+					_merger.MergeSituation.AlphaUserId));
 			}
 
 			List<XmlNode> newChildren = resultOrderer.GetResultList();
@@ -101,13 +104,15 @@ namespace Chorus.merge.xml.generic
 				XmlNode theirChild;
 				XmlNode ancestorChild = FindMatchingNode(ourChild, _ancestor);
 				if (resultOrderer.Correspondences.TryGetValue(ourChild, out theirChild)
-					&& !XmlUtilities.AreXmlElementsEqual(ourChild, theirChild))
+					&& !ChildrenAreSame(ourChild, theirChild))
 				{
-					// There's a corresponding node and it isn't the same as ours...
-					if (theirChild.NodeType == XmlNodeType.Text)
-						_merger.MergeTextNodes(ref ourChild, theirChild, ancestorChild);
-					else
-						_merger.MergeInner(ref ourChild, theirChild, ancestorChild);
+
+						// There's a corresponding node and it isn't the same as ours...
+						if (theirChild.NodeType == XmlNodeType.Text)
+							_merger.MergeTextNodes(ref ourChild, theirChild, ancestorChild);
+						else
+							_merger.MergeInner(ref ourChild, theirChild, ancestorChild);
+
 					newChildren[i] = ourChild;
 				}
 				else
@@ -225,12 +230,18 @@ namespace Chorus.merge.xml.generic
 			//            else
 			//            {
 			//                _merger.EventListener.ConflictOccurred(
-			//                    new RemovedVsEdittedTextConflict(ourChild, null, ancestorChild, _merger.MergeSituation));
+			//                    new RemovedVsEditedTextConflict(ourChild, null, ancestorChild, _merger.MergeSituation));
 			//            }
 			//        }
 			//    }
 			//}
 
+		}
+
+		private bool ChildrenAreSame(XmlNode ourChild, XmlNode theirChild)
+		{
+			return  _merger.MergeStrategies.GetElementStrategy(ourChild).IsImmutable // don't bother comparing
+					|| XmlUtilities.AreXmlElementsEqual(ourChild, theirChild);
 		}
 
 		private Dictionary<XmlNode, XmlNode> MakeCorrespondences(List<XmlNode> primary, List<XmlNode> others, XmlNode otherParent)
@@ -282,14 +293,32 @@ namespace Chorus.merge.xml.generic
 						if (!XmlUtilities.AreXmlElementsEqual(ancestorChild, theirChild))
 						{
 							// We deleted, they modified, report conflict.
-							_merger.EventListener.ConflictOccurred(new RemovedVsEditedElementConflict(theirChild.Name, null,
-																								theirChild, ancestorChild,
-																								_merger.MergeSituation,
-																								_merger.MergeStrategies.GetElementStrategy(theirChild)));
+							if (theirChild.NodeType == XmlNodeType.Element)
+							{
+								_merger.EventListener.ConflictOccurred(
+									new RemovedVsEditedElementConflict(theirChild.Name, null,
+																	   theirChild, ancestorChild,
+																	   _merger.MergeSituation,
+																	   _merger.MergeStrategies.
+																		   GetElementStrategy(theirChild),
+																	   _merger.MergeSituation.BetaUserId));
+							}
+							else
+							{   //review hatton added dec 2009, was always reporting the element conflict rather than text
+								_merger.EventListener.ConflictOccurred(
+									new RemovedVsEditedTextConflict(null, theirChild,
+																	   ancestorChild,
+																	   _merger.MergeSituation,
+																	   _merger.MergeSituation.BetaUserId));
+							}
+							_ancestorKeepers.Remove(ancestorChild);//review hatton added dec 2009, wanting whoever edited it to win (previously "we" always won)
 						}
-						// In any case, we deleted it, forget it existed.
-						_ancestorKeepers.Remove(ancestorChild);
-						_theirKeepers.Remove(theirChild);
+						else
+						{
+							//We deleted it, they didn't edit it. So just make it go away.
+							_ancestorKeepers.Remove(ancestorChild);
+							_theirKeepers.Remove(theirChild);
+						}
 					}
 				}
 				else if (theirChild == null)
@@ -308,12 +337,12 @@ namespace Chorus.merge.xml.generic
 						{
 							_merger.EventListener.ConflictOccurred(
 								new RemovedVsEditedElementConflict(ourChild.Name, ourChild, null, ancestorChild,
-																   _merger.MergeSituation, _merger.MergeStrategies.GetElementStrategy(ourChild)));
+																   _merger.MergeSituation, _merger.MergeStrategies.GetElementStrategy(ourChild), _merger.MergeSituation.AlphaUserId));
 						}
 						else
 						{
 							_merger.EventListener.ConflictOccurred(
-								new RemovedVsEdittedTextConflict(ourChild, null, ancestorChild, _merger.MergeSituation));
+								new RemovedVsEditedTextConflict(ourChild, null, ancestorChild, _merger.MergeSituation, _merger.MergeSituation.AlphaUserId));
 						}
 					}
 				}

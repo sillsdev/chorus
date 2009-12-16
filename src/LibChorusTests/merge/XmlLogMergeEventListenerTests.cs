@@ -17,19 +17,19 @@ namespace LibChorus.Tests.merge
 		{
 			using (TempFile logFile = TempFile.CreateAndGetPathButDontMakeTheFile())
 			{
-				using (XmlLogMergeEventListener log = new XmlLogMergeEventListener(logFile.Path))
+				using (ChorusNotesMergeEventListener log = new ChorusNotesMergeEventListener(logFile.Path))
 				{
 					log.ConflictOccurred(new DummyConflict());
 					log.ConflictOccurred(new DummyConflict());
 				}
-				using (XmlLogMergeEventListener log2 = new XmlLogMergeEventListener(logFile.Path))
+				using (ChorusNotesMergeEventListener log2 = new ChorusNotesMergeEventListener(logFile.Path))
 				{
 					log2.ConflictOccurred(new DummyConflict());
 					log2.ConflictOccurred(new DummyConflict());
 				}
 				XmlDocument doc = new XmlDocument();
 				doc.Load(logFile.Path);
-				Assert.AreEqual(4, doc.SafeSelectNodes("conflicts/conflict").Count);
+				Assert.AreEqual(4, doc.SafeSelectNodes("notes/annotation").Count);
 			}
 		}
 
@@ -38,14 +38,14 @@ namespace LibChorus.Tests.merge
 		{
 			using (TempFile logFile =  TempFile.CreateAndGetPathButDontMakeTheFile())
 			{
-				using(XmlLogMergeEventListener log = new XmlLogMergeEventListener(logFile.Path))
+				using(ChorusNotesMergeEventListener log = new ChorusNotesMergeEventListener(logFile.Path))
 				{
 					log.ConflictOccurred(new DummyConflict());
 					log.ConflictOccurred(new DummyConflict());
 				}
 				XmlDocument doc = new XmlDocument();
 				doc.Load(logFile.Path);
-				Assert.AreEqual(2, doc.SelectNodes("conflicts/conflict").Count);
+				Assert.AreEqual(2, doc.SelectNodes("notes/annotation").Count);
 			}
 		}
 
@@ -54,12 +54,12 @@ namespace LibChorus.Tests.merge
 		{
 			using (TempFile logFile = TempFile.CreateAndGetPathButDontMakeTheFile())
 			{
-				using (XmlLogMergeEventListener log = new XmlLogMergeEventListener(logFile.Path))
+				using (ChorusNotesMergeEventListener log = new ChorusNotesMergeEventListener(logFile.Path))
 				{
 				 }
 				XmlDocument doc = new XmlDocument();
 				doc.Load(logFile.Path);
-				Assert.AreEqual(1, doc.SelectNodes("conflicts").Count);
+				Assert.AreEqual(1, doc.SelectNodes("notes").Count);
 			}
 		}
 
@@ -119,9 +119,9 @@ namespace LibChorus.Tests.merge
 			throw new System.NotImplementedException();
 		}
 
-		public void WriteAsXml(XmlWriter writer)
+		public void WriteAsChorusNotesAnnotation(XmlWriter writer)
 		{
-			writer.WriteElementString("conflict", string.Empty, "Dummy");
+			writer.WriteElementString("annotation", string.Empty, "Dummy");
 		}
 	}
 }

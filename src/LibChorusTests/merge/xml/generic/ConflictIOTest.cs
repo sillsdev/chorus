@@ -3,6 +3,7 @@ using System.Text;
 using System.Xml;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
+using System.Linq;
 using NUnit.Framework;
 
 namespace LibChorus.Tests.merge.xml.generic
@@ -12,19 +13,19 @@ namespace LibChorus.Tests.merge.xml.generic
 	public class ConflictIOTests
 	{
 		[Test]
-		public void BothEdittedTextConflict_RoundtripThroughXml()
+		public void BothEditedTextConflict_RoundtripThroughXml()
 		{
 			MergeSituation mergesituation = new MergeSituation("path", "x", "1", "y", "2", MergeOrder.ConflictHandlingModeChoices.TheyWin);
-			var c = new BothEdittedTextConflict(
-				GetNodeFromString("<a>ours</a>"),
-				GetNodeFromString("<a>theirs</a>"),
+			var c = new BothEditedTextConflict(
+				GetNodeFromString("<a>y</a>"),      //NB: since "y" is the "alpha-dog" under "TheyWin" policy, it is the 1st parameter
+				GetNodeFromString("<a>x</a>"),
 				GetNodeFromString("<a>ancestor</a>"),
-				mergesituation);
+				mergesituation, "theWinner");
 			c.Context = new ContextDescriptor("testLabel", "testPath");
 			string desc = c.GetFullHumanReadableDescription();
 
-			var xml = WriteConflictXml(c);
-			var regurgitated = Conflict.CreateFromXml(GetNodeFromString(xml));
+			var annotationXml = WriteConflictAnnotation(c);
+			var regurgitated = Conflict.CreateFromChorusNotesAnnotation(annotationXml);
 			Assert.AreEqual("path", regurgitated.RelativeFilePath);
 			Assert.AreEqual(desc, regurgitated.GetFullHumanReadableDescription());
 		   Assert.AreEqual(c.Context.PathToUserUnderstandableElement, regurgitated.Context.PathToUserUnderstandableElement);
@@ -38,25 +39,25 @@ namespace LibChorus.Tests.merge.xml.generic
 				GetNodeFromString("<a>ours</a>"),
 				GetNodeFromString("<a>theirs</a>"),
 				GetNodeFromString("<a>ancestor</a>"),
-				mergesituation, new ElementStrategy(false));
+				mergesituation, new ElementStrategy(false), "theWinner");
 			c.Context = new ContextDescriptor("testLabel", "testPath");
 			string desc = c.GetFullHumanReadableDescription();
 
-			var xml = WriteConflictXml(c);
-			var regurgitated = Conflict.CreateFromXml(GetNodeFromString(xml));
+			var annotationXml = WriteConflictAnnotation(c);
+			var regurgitated = Conflict.CreateFromChorusNotesAnnotation(annotationXml);
 			Assert.AreEqual("path", regurgitated.RelativeFilePath);
 			Assert.AreEqual(desc, regurgitated.GetFullHumanReadableDescription());
 			Assert.AreEqual(c.Context.PathToUserUnderstandableElement, regurgitated.Context.PathToUserUnderstandableElement);
 			Assert.AreEqual(c.Context.DataLabel, regurgitated.Context.DataLabel);
 		}
-		private string WriteConflictXml(IConflict c)
+		private string WriteConflictAnnotation(IConflict c)
 		{
 			var b = new StringBuilder();
 			using (StringWriter sw = new StringWriter(b))
 			{
 				using (var w = new XmlTextWriter(sw))
 				{
-					c.WriteAsXml(w);
+					c.WriteAsChorusNotesAnnotation(w);
 				}
 			}
 			return b.ToString();
@@ -68,5 +69,6 @@ namespace LibChorus.Tests.merge.xml.generic
 			dom.LoadXml(xml);
 			return dom.FirstChild;
 		}
+
 	}
 }

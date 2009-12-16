@@ -44,12 +44,17 @@ namespace LibChorus.Tests
 			ProjectFolderConfig = sourceToClone.ProjectFolderConfig.Clone();
 			ProjectFolderConfig.FolderPath = pathToProject;
 
-			sourceToClone.CreateSynchronizer().MakeClone(pathToProject, true);
+			sourceToClone.MakeClone(pathToProject);
 			ProjectFolder = TempFolder.TrackExisting(RootFolder.Combine(ProjectName));
 
 			var hg = new HgRepository(pathToProject, Progress);
 			hg.SetUserNameInIni(cloneName, Progress);
 
+		}
+
+		private void MakeClone(string pathToNewRepo)
+		{
+			HgHighLevel.MakeCloneFromLocalToLocal(ProjectFolder.Path, pathToNewRepo, true, Progress);
 		}
 
 		public string GetProgressString()
@@ -100,6 +105,18 @@ namespace LibChorus.Tests
 			Repository.AddAndCheckinFile(p);
 		}
 
+		public void ChangeFile(string fileName, string contents)
+		{
+			var p = ProjectFolder.Combine(fileName);
+			File.WriteAllText(p, contents);
+		}
+	   public void ChangeFileAndCommit(string fileName, string contents, string message)
+		{
+			var p = ProjectFolder.Combine(fileName);
+			File.WriteAllText(p, contents);
+		   Repository.Commit(false,message);
+		}
+
 		public void AddAndCheckIn()
 		{
 			SyncOptions options = new SyncOptions();
@@ -109,6 +126,10 @@ namespace LibChorus.Tests
 
 			CreateSynchronizer().SyncNow(options);
 		}
+		public SyncResults CheckinAndPullAndMerge()
+		{
+			return CheckinAndPullAndMerge(null);
+		}
 
 		public SyncResults CheckinAndPullAndMerge(RepositorySetup otherUser)
 		{
@@ -117,7 +138,8 @@ namespace LibChorus.Tests
 			options.DoPullFromOthers = true;
 			options.DoSendToOthers = true;
 
-			options.RepositorySourcesToTry.Add(otherUser.GetRepositoryAddress());
+			if(otherUser!=null)
+				options.RepositorySourcesToTry.Add(otherUser.GetRepositoryAddress());
 			return CreateSynchronizer().SyncNow(options);
 		}
 
@@ -214,6 +236,75 @@ namespace LibChorus.Tests
 			start.WorkingDirectory = ProjectFolder.Path;
 			System.Diagnostics.Process.Start(start);
 		}
+
+				   /// <summary>
+		/// not called "CreateReject*Branch* because we're not naming it (but it is, technically, a branch)
+		/// </summary>
+		public void CreateRejectForkAndComeBack()
+		{
+			var originalTip = Repository.GetTip();
+			ChangeFile("test.txt", "bad");
+			var options = new SyncOptions()
+							  {DoMergeWithOthers = true, DoPullFromOthers = true, DoSendToOthers = true};
+			var synchronizer = CreateSynchronizer();
+			synchronizer.SyncNow(options);
+			var badRev = Repository.GetTip();
+
+			//notice that we're putting changeset which does the tagging over on the original branch
+			Repository.RollbackWorkingDirectoryToRevision(originalTip.Number.Hash);
+			Repository.TagRevision(badRev.Number.Hash, Synchronizer.RejectTagSubstring);// this adds a new changeset
+			synchronizer.SyncNow(options);
+
+			Revision revision = Repository.GetRevisionWorkingSetIsBasedOn();
+			revision.EnsureParentRevisionInfo();
+			 Assert.AreEqual(originalTip.Number.LocalRevisionNumber, revision.Parents[0].LocalRevisionNumber, "Should have moved back to original tip.");
+		}
+
+		public void AssertLocalRevisionNumber(int localNumber)
+		{
+			Assert.AreEqual(localNumber.ToString(), Repository.GetRevisionWorkingSetIsBasedOn().Number.LocalRevisionNumber);
+		}
+
+		public void AssertRevisionHasTag(int localRevisionNumber, string tag)
+		{
+			Assert.AreEqual(tag, Repository.GetRevision(localRevisionNumber.ToString()).Tag);
+		}
+
+		public void ChangeFileOnNamedBranchAndComeBack(string fileName, string contents, string branchName)
+		{
+			string previousRevisionNumber = Repository.GetRevisionWorkingSetIsBasedOn().Number.LocalRevisionNumber;
+			Repository.Branch(branchName);
+			ChangeFileAndCommit(fileName, contents, "Created by ChangeFileOnNamedBranchAndComeBack()");
+			Repository.Update(previousRevisionNumber);//go back
+		}
+
+		public BookMark CreateBookmarkHere()
+		{
+			return new BookMark(Repository);
+		}
+
+
 	}
 
+	public class BookMark
+	{
+		private readonly HgRepository _repository;
+		private Revision _revision;
+
+		public BookMark(HgRepository repository)
+		{
+			_repository = repository;
+			_revision = _repository.GetRevisionWorkingSetIsBasedOn();
+		}
+
+		public void Go()
+		{
+			_repository.Update(_revision.Number.Hash);
+		}
+
+		public void AssertRepoIsAtThisPoint()
+		{
+			Assert.AreEqual(_revision.Number.Hash, _repository.GetRevisionWorkingSetIsBasedOn().Number.Hash);
+		}
+	}
 }

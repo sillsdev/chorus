@@ -31,7 +31,7 @@ namespace Chorus.merge
 		string RevisionWhereMergeWasCheckedIn { get;  }
 
 		string GetConflictingRecordOutOfSourceControl(IRetrieveFileVersionsFromRepository fileRetriever, ThreeWayMergeSources.Source mergeSource);
-		void WriteAsXml(XmlWriter writer);
+		void WriteAsChorusNotesAnnotation(XmlWriter writer);
 	}
 
 	public class TypeGuidAttribute : Attribute

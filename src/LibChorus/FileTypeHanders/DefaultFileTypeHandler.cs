@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using Chorus.merge;
 using Chorus.Utilities;
+using Chorus.Utilities.code;
 using Chorus.VcsDrivers.Mercurial;
 
 namespace Chorus.FileTypeHanders
@@ -26,6 +27,14 @@ namespace Chorus.FileTypeHanders
 		public bool CanPresentFile(string pathToFile)
 		{
 			return true;
+		}
+		public bool CanValidateFile(string pathToFile)
+		{
+			return false;
+		}
+		public string ValidateFile(string pathToFile, IProgress progress)
+		{
+			throw new NotImplementedException();
 		}
 
 		public void Do3WayMerge(MergeOrder mergeOrder)

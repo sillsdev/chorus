@@ -34,6 +34,7 @@
 				<include name="**/*.cs" />
 			</sources>
 			<references basedir="${project.output.dir}">
+				<include name="System.Xml.Linq.dll" />
 				<include name="nunit.framework.dll" />
 				<include name="Palaso.dll" />
 				<include name="Palaso.TestUtilities.dll" />

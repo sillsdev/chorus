@@ -40,7 +40,9 @@
 			this.betterLabel2 = new Chorus.UI.BetterLabel();
 			this._commitMessageText = new System.Windows.Forms.TextBox();
 			this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
+			this.usbDriveLocator = new Chorus.UI.UsbDriveLocator(this.components);
 			this.tableLayoutPanel1.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.usbDriveLocator)).BeginInit();
 			this.SuspendLayout();
 			//
 			// _useSharedFolderButton
@@ -181,7 +183,7 @@
 			this.betterLabel2.Size = new System.Drawing.Size(324, 24);
 			this.betterLabel2.TabIndex = 3;
 			this.betterLabel2.TabStop = false;
-			this.betterLabel2.Text = "Label this point in the project history (Optional) :";
+			this.betterLabel2.Text = "LabelOfThingAnnotated this point in the project history (Optional) :";
 			//
 			// _commitMessageText
 			//
@@ -202,6 +204,7 @@
 			this.Load += new System.EventHandler(this.SyncStartControl_Load);
 			this.tableLayoutPanel1.ResumeLayout(false);
 			this.tableLayoutPanel1.PerformLayout();
+			((System.ComponentModel.ISupportInitialize)(this.usbDriveLocator)).EndInit();
 			this.ResumeLayout(false);
 
 		}
@@ -219,5 +222,6 @@
 		private System.Windows.Forms.ToolTip toolTip1;
 		private BetterLabel betterLabel2;
 		private System.Windows.Forms.TextBox _commitMessageText;
+		private UsbDriveLocator usbDriveLocator;
 	}
 }

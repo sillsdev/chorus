@@ -60,7 +60,7 @@ namespace LibChorus.Tests.merge.xml.generic
 		}
 
 		[Test]
-		public void TextElement_OneAdded()
+		public void TextElement_OneAdded_NoConflicts()
 		{
 			CheckBothWaysNoConflicts("<r><t>hello</t></r>", "<r/>", "<r/>",
 									 "r[count(t)=1]",
@@ -76,7 +76,7 @@ namespace LibChorus.Tests.merge.xml.generic
 		}
 
 		[Test]
-		public void TextElement_BothDeleted()
+		public void TextElement_BothDeleted_NoConflicts()
 		{
 			CheckBothWaysNoConflicts("<r><t/></r>", "<r><t></t></r>", "<r><t>hello</t></r>",
 									 "r/t[not(text())]",
@@ -84,21 +84,24 @@ namespace LibChorus.Tests.merge.xml.generic
 		}
 
 		[Test]
-		public void TextElement_OneEditted()
+		public void TextElement_OneEdited_NoConflicts()
 		{
 			CheckBothWaysNoConflicts("<r><t>after</t></r>", "<r><t>before</t></r>", "<r><t>before</t></r>",
 									 "r/t[contains(text(),'after')]");
 		}
 
+
+
 		[Test, Ignore("Not yet. The matcher using xmldiff sees the parent objects as different")]
-		public void TextElement_BothEditted_OuterWhiteSpaceIgnored()
+		public void TextElement_BothEdited_OuterWhiteSpaceIgnored()
 		{
 			CheckBothWaysNoConflicts("<r><t>   flub</t></r>", "<r><t> flub      </t></r>", "<r><t/></r>",
 									 "r/t[contains(text(),'flub')]");
 		}
 
+
 		[Test]
-		public void TextElement_EachEditted_OursKept_ConflictRegistered()
+		public void TextElement_EachEdited_OursKept_ConflictRegistered()
 		{
 			string ancestor = @"<t>original</t>";
 			string ours = @"<t>mine</t>";
@@ -109,11 +112,11 @@ namespace LibChorus.Tests.merge.xml.generic
 			XmlTestHelper.AssertXPathMatchesExactlyOne(result.MergedNode, "t[text()='mine']");
 			Assert.AreEqual("pretendPath", result.Conflicts[0].RelativeFilePath);
 
-			Assert.AreEqual(typeof (BothEdittedTextConflict), result.Conflicts[0].GetType());
+			Assert.AreEqual(typeof (BothEditedTextConflict), result.Conflicts[0].GetType());
 		}
 
 		[Test]
-		public void TextElement_WeEdittedTheyDeleted_OursKept_ConflictRegistered()
+		public void TextElement_WeEditedTheyDeleted_OursKept_ConflictRegistered()
 		{
 			string ancestor = @"<t>original</t>";
 			string ours = @"<t>mine</t>";
@@ -123,9 +126,22 @@ namespace LibChorus.Tests.merge.xml.generic
 			var result = m.Merge(ours, theirs, ancestor);
 			XmlTestHelper.AssertXPathMatchesExactlyOne(result.MergedNode, "t[text()='mine']");
 
-			Assert.AreEqual(typeof(RemovedVsEdittedTextConflict), result.Conflicts[0].GetType());
+			Assert.AreEqual(typeof(RemovedVsEditedTextConflict), result.Conflicts[0].GetType());
 		}
 
+		[Test]
+		public void TextElement_TheyEditedWeDeleted_EditedIsKept_ConflictRegistered()
+		{
+			string ancestor = @"<t>original</t>";
+			string ours = @"<t></t>";
+			string theirs = @"<t>change</t>";
+
+			XmlMerger m = new XmlMerger(new NullMergeSituation());
+			var result = m.Merge(ours, theirs, ancestor);
+			XmlTestHelper.AssertXPathMatchesExactlyOne(result.MergedNode, "t[text()='change']");
+
+			Assert.AreEqual(typeof(RemovedVsEditedTextConflict), result.Conflicts[0].GetType());
+		}
 
 		[Test]
 		public void EachAddedDifferentSyblings_GetBoth()
@@ -284,10 +300,10 @@ namespace LibChorus.Tests.merge.xml.generic
 			string blue = @"<a one='b'/>";
 
 			ChangeAndConflictAccumulator r = CheckOneWay(blue, red, ancestor, "a[@one='b']");
-			Assert.AreEqual(typeof(BothEdittedAttributeConflict), r.Conflicts[0].GetType());
+			Assert.AreEqual(typeof(BothEditedAttributeConflict), r.Conflicts[0].GetType());
 
 			r =CheckOneWay(red, blue, ancestor, "a[@one='r']");
-			Assert.AreEqual(typeof(BothEdittedAttributeConflict), r.Conflicts[0].GetType());
+			Assert.AreEqual(typeof(BothEditedAttributeConflict), r.Conflicts[0].GetType());
 		}
 
 		[Test]
@@ -521,6 +537,43 @@ namespace LibChorus.Tests.merge.xml.generic
 									 "a/b[@key='one']/c[2][@key='z' and text()='extra']",
 									 "a/b[@key='one']/c[3][@key='d' and text()='fourth']");
 		}
+		[Test]
+		public void HattonTempCheck()
+		{
+			string ancestor = @"<a>
+								<b key='one'>
+									<c key='a'>first</c>
+									<c key='b'>second</c>
+									<c key='c'>third</c>
+									<c key='d'>fourth</c>
+							   </b>
+							</a>";
+
+			string red = @"<a>
+								<b key='one'>
+									<c key='a'>first</c>
+									<c key='d'>fourth</c>
+							   </b>
+							</a>";
+
+
+			string blue = @"<a>
+								<b key='one'>
+									<c key='a'>first</c>
+									<c key='b'>second</c>
+									<c key='z'>extra</c>
+									<c key='c'>third</c>
+									<c key='d'>fourth</c>
+							   </b>
+							</a>";
+
+			CheckBothWaysNoConflicts(blue, red, ancestor,
+									 "a[count(b)='1']",
+									 "a/b[count(c)='3']",
+									 "a/b[@key='one']/c[1][@key='a' and text()='first']",
+									 "a/b[@key='one']/c[2][@key='z' and text()='extra']",
+									 "a/b[@key='one']/c[3][@key='d' and text()='fourth']");
+		}
 		/// <summary>
 		/// Red inserted at the start, blue at the end. Both should be in the right place.
 		/// </summary>
@@ -613,8 +666,8 @@ namespace LibChorus.Tests.merge.xml.generic
 		}
 
 		/// <summary>
-		/// Red deleted an item, and blue modified it. Either way we get a conflict report. Red wins should
-		/// show it deleted, blue wins should show it modified.
+		/// Red deleted an item, and blue edited it. Regardless of who initiated the merge,
+		/// we should keep the edit.
 		/// </summary>
 		[Test]
 		public void ElementDeleteAndModifyConflict()
@@ -640,18 +693,18 @@ namespace LibChorus.Tests.merge.xml.generic
 							   </b>
 							</a>";
 
-			// blue wins
 			ChangeAndConflictAccumulator r = CheckOneWay(blue, red, ancestor,
 										"a[count(b)='1']",
 										"a/b[count(c)='2']",
 										"a/b[@key='one']/c[1][@key='x' and text()='first']",
 										"a/b[@key='one']/c[2][@key='y' and text()='blue']");
 			Assert.AreEqual(typeof(RemovedVsEditedElementConflict), r.Conflicts[0].GetType());
-			// red wins
+
 			ChangeAndConflictAccumulator r2 = CheckOneWay(red, blue, ancestor,
-										 "a[count(b)='1']",
-										 "a/b[count(c)='1']",
-										 "a/b[@key='one']/c[1][@key='x' and text()='first']");
+										"a[count(b)='1']",
+										"a/b[count(c)='2']",
+										"a/b[@key='one']/c[1][@key='x' and text()='first']",
+										"a/b[@key='one']/c[2][@key='y' and text()='blue']");
 			Assert.AreEqual(typeof(RemovedVsEditedElementConflict), r2.Conflicts[0].GetType());
 		}
 

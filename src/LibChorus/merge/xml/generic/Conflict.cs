@@ -1,11 +1,10 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml;
-using System.Xml.Serialization;
 using Autofac;
 using Chorus.Utilities;
+using Chorus.Utilities.code;
 using Chorus.VcsDrivers;
 
 namespace Chorus.merge.xml.generic
@@ -40,7 +39,8 @@ namespace Chorus.merge.xml.generic
 
 	   // protected string _shortDataDescription;
 		protected Guid _guid = Guid.NewGuid();
-	   // public string PathToUnitOfConflict { get; set; }
+		public  const string ConflictAnnotationClassName="mergeConflict";
+		// public string PathToUnitOfConflict { get; set; }
 		public string RelativeFilePath { get { return Situation.PathToFileInRepository; } }
 
 		public abstract string GetFullHumanReadableDescription();
@@ -49,6 +49,9 @@ namespace Chorus.merge.xml.generic
 		public string RevisionWhereMergeWasCheckedIn { get;private set;}
 
 		public ContextDescriptor Context { get; set; }
+		protected  string _whoWon;
+
+
 
 		public Conflict(XmlNode xmlRepresentation)
 		{
@@ -57,6 +60,7 @@ namespace Chorus.merge.xml.generic
 			//PathToUnitOfConflict = xmlRepresentation.GetOptionalStringAttribute("pathToUnitOfConflict", string.Empty);
 			Context  = ContextDescriptor.CreateFromXml(xmlRepresentation);
 		   // _shortDataDescription = xmlRepresentation.GetOptionalStringAttribute("shortElementDescription", string.Empty);
+			_whoWon = xmlRepresentation.GetOptionalStringAttribute("whoWon", string.Empty);
 	   }
 
 
@@ -79,15 +83,45 @@ namespace Chorus.merge.xml.generic
 
 		public abstract string GetConflictingRecordOutOfSourceControl(IRetrieveFileVersionsFromRepository fileRetriever, ThreeWayMergeSources.Source mergeSource);
 
-		public void WriteAsXml(XmlWriter writer)
+		protected string GetWhoWonText()
 		{
-			writer.WriteStartElement("conflict");
-			WriteAttributes(writer);
+			return string.Format("The automated merger kept the change made by {0}.", _whoWon);
+		}
+		public void WriteAsChorusNotesAnnotation(XmlWriter writer)
+		{
+			writer.WriteStartElement("annotation");
+			writer.WriteAttributeString("class", string.Empty, Conflict.ConflictAnnotationClassName);
+			Guard.AgainstNull(Context,"Context");
+			Guard.AgainstNull(Context.PathToUserUnderstandableElement, "Context.PathToUserUnderstandableElement");
+			writer.WriteAttributeString("ref", Context.PathToUserUnderstandableElement);
+			writer.WriteAttributeString("guid", Guid.NewGuid().ToString()); //nb: this is the guid of the enclosing annotation, not the conflict;
 
+			writer.WriteStartElement("message");
+			writer.WriteAttributeString("author", string.Empty, "merger");
+			writer.WriteAttributeString("status", string.Empty, "open");
+			writer.WriteAttributeString("guid", string.Empty, Guid.ToString());//nb: ok to have the same guid with the conflict, as they are in 1-1 relation and eventually we'll remove the one on conflict
+			writer.WriteAttributeString("date", string.Empty, DateTime.UtcNow.ToString(TimeFormatNoTimeZone));
 			writer.WriteString(GetFullHumanReadableDescription());
 
-			Situation.WriteAsXml(writer);
+			//we embedd this xml inside the CDATA section so that it pass a more generic schema without
+			//resorting to the complexities of namespaces
+			var b = new StringBuilder();
+			XmlWriterSettings settings = new XmlWriterSettings();
+			settings.OmitXmlDeclaration=true;
+			using (var embeddedWriter = XmlWriter.Create(b,settings))
+			{
+				embeddedWriter.WriteStartElement("conflict");
+				WriteAttributes(embeddedWriter);
 
+				Situation.WriteAsXml(embeddedWriter);
+
+				embeddedWriter.WriteEndElement();
+			}
+
+			writer.WriteCData(b.ToString());
+
+
+			writer.WriteEndElement();
 			writer.WriteEndElement();
 		}
 
@@ -101,6 +135,7 @@ namespace Chorus.merge.xml.generic
 			writer.WriteAttributeString("guid", string.Empty, Guid.ToString());
 			writer.WriteAttributeString("date", string.Empty, DateTime.UtcNow.ToString(TimeFormatNoTimeZone));
 		  //  writer.WriteAttributeString("shortDataDescription", _shortDataDescription);
+			writer.WriteAttributeString("whoWon", _whoWon);
 
 			if (Context != null)
 			{
@@ -130,12 +165,12 @@ namespace Chorus.merge.xml.generic
 			{
 				return (this.Situation.ConflictHandlingMode == MergeOrder.ConflictHandlingModeChoices.TheyWin)
 						   ?
-							   Situation.UserYId
-						   : Situation.UserXId;
+							   Situation.BetaUserId
+						   : Situation.AlphaUserId;
 			}
 		}
 
-		public static IConflict CreateFromXml(XmlNode conflictNode)
+		public static IConflict CreateFromConflictElement(XmlNode conflictNode)
 		{
 			try
 			{
@@ -145,13 +180,13 @@ namespace Chorus.merge.xml.generic
 			Register<RemovedVsEditedElementConflict>(builder);
 			Register<AmbiguousInsertConflict>(builder);
 			Register<AmbiguousInsertReorderConflict>(builder);
-			Register<BothEdittedAttributeConflict>(builder);
-			Register<BothEdittedTextConflict>(builder);
+			Register<BothEditedAttributeConflict>(builder);
+			Register<BothEditedTextConflict>(builder);
 			Register<BothReorderedElementConflict>(builder);
 			Register<RemovedVsEditedElementConflict>(builder);
 			Register<RemovedVsEditedAttributeConflict>(builder);
-			Register<RemovedVsEdittedTextConflict>(builder);
-			Register<BothEdittedDifferentPartsOfDependentPiecesOfDataWarning>(builder);
+			Register<RemovedVsEditedTextConflict>(builder);
+			Register<BothEditedDifferentPartsOfDependentPiecesOfDataWarning>(builder);
 			Register<UnmergableFileTypeConflict>(builder);
 
 			var container = builder.Build();
@@ -184,6 +219,27 @@ namespace Chorus.merge.xml.generic
 			{
 				return _guid.GetHashCode();
 			}
+		}
+
+		public static IConflict CreateFromChorusNotesAnnotation(string annotationXml)
+		{
+			var dom = new XmlDocument();
+			dom.LoadXml(annotationXml);
+			var msg = dom.SelectSingleNode("//message");
+			return CreateFromConflictElement(GetFirstCDataChild(msg));
+		}
+		private static XmlNode GetFirstCDataChild(XmlNode messageNode)
+		{
+			foreach (XmlNode node in messageNode)
+			{
+				if (node.NodeType == XmlNodeType.CDATA)
+				{
+					XmlDocument x = new XmlDocument();
+					x.LoadXml(node.InnerText);
+					return x.SelectSingleNode("conflict");
+				}
+			}
+			return null;
 		}
 	}
 
@@ -253,7 +309,7 @@ namespace Chorus.merge.xml.generic
 			throw new NotImplementedException("Unable to retrieve from source control.");
 		}
 
-		public void WriteAsXml(XmlWriter writer)
+		public void WriteAsChorusNotesAnnotation(XmlWriter writer)
 		{
 			throw new NotImplementedException("UnreadableConflict is not intended to be ever saved");
 		}
@@ -262,24 +318,25 @@ namespace Chorus.merge.xml.generic
 	public abstract class AttributeConflict : Conflict, IConflict
 	{
 		protected readonly string _attributeName;
-		protected readonly string _ourValue;
-		protected readonly string _theirValue;
+		protected readonly string _alphaValue;
+		protected readonly string _betaValue;
 		protected readonly string _ancestorValue;
 
-		public AttributeConflict(string attributeName, string ourValue, string theirValue, string ancestorValue,MergeSituation mergeSituation)
+		public AttributeConflict(string attributeName, string alphaValue, string betaValue, string ancestorValue, MergeSituation mergeSituation, string whoWon)
 			:base(mergeSituation)
 		{
+			_whoWon = whoWon;
 			_attributeName = attributeName;
-			_ourValue = ourValue;
-			_theirValue = theirValue;
+			_alphaValue = alphaValue;
+			_betaValue = betaValue;
 			_ancestorValue = ancestorValue;
 		}
 
 		public AttributeConflict(XmlNode xmlRepresentation):base(xmlRepresentation)
 		{
 			_attributeName = xmlRepresentation.GetOptionalStringAttribute("attributeName", "unknown");
-			_ourValue = xmlRepresentation.GetOptionalStringAttribute("ourValue", string.Empty);
-			_theirValue = xmlRepresentation.GetOptionalStringAttribute("theirValue", string.Empty);
+			_alphaValue = xmlRepresentation.GetOptionalStringAttribute("alphaValue", string.Empty);
+			_betaValue = xmlRepresentation.GetOptionalStringAttribute("betaValue", string.Empty);
 			_ancestorValue = xmlRepresentation.GetOptionalStringAttribute("ancestorValue", string.Empty);
 		}
 
@@ -287,8 +344,8 @@ namespace Chorus.merge.xml.generic
 		{
 			base.WriteAttributes(writer);
 			writer.WriteAttributeString("attributeName", _attributeName);
-			writer.WriteAttributeString("ourValue", _ourValue);
-			writer.WriteAttributeString("theirValue", _theirValue);
+			writer.WriteAttributeString("alphaValue", _alphaValue);
+			writer.WriteAttributeString("betaValue", _betaValue);
 			writer.WriteAttributeString("ancestorValue", _ancestorValue);
 		}
 
@@ -304,11 +361,11 @@ namespace Chorus.merge.xml.generic
 		{
 			get
 			{
-				string ancestor = string.IsNullOrEmpty(_ancestorValue) ? "<didn't exist>" : _ancestorValue;
-				string ours = string.IsNullOrEmpty(_ourValue) ? "<removed>" : _ourValue;
-				string theirs = string.IsNullOrEmpty(_theirValue) ? "<removed>" : _theirValue;
-				return string.Format("When they last synchronized, the value was {0}. Since then, one changed it to {1}, while the other changed it to {2}.",
-									 ancestor, ours, theirs);
+				string ancestor = string.IsNullOrEmpty(_ancestorValue) ? "empty" : "'"+_ancestorValue+"'";
+				string alpha = string.IsNullOrEmpty(_alphaValue) ? "(empty)" : "'"+_alphaValue+"'";
+				string beta = string.IsNullOrEmpty(_betaValue) ? "(empty)" : "'" + _betaValue+"'";
+				return string.Format("{1} changed {0} to {2}, while {3} changed it to {4}. ",
+									 ancestor, Situation.AlphaUserId, alpha, Situation.BetaUserId, beta)+GetWhoWonText();
 			}
 		}
 
@@ -320,7 +377,7 @@ namespace Chorus.merge.xml.generic
 		}
 		public virtual string GetXmlOfConflict()
 		{
-			return string.Format("<conflict type='{0}'/>", this.GetType().Name);
+			return string.Format("<annotation type='{0}'/>", this.GetType().Name);
 		}
 
 
@@ -331,14 +388,14 @@ namespace Chorus.merge.xml.generic
 			switch (mergeSource)
 			{
 				case ThreeWayMergeSources.Source.Ancestor:
-					revision =fileRetriever.GetCommonAncestorOfRevisions(this.Situation.UserXRevision, Situation.UserYRevision);
+					revision =fileRetriever.GetCommonAncestorOfRevisions(this.Situation.AlphaUserRevision, Situation.BetaUserRevision);
 					break;
 				case ThreeWayMergeSources.Source.UserX:
-					revision = Situation.UserXRevision;
+					revision = Situation.AlphaUserRevision;
 				 //   elementId = _userXElementId;
 					break;
 				case ThreeWayMergeSources.Source.UserY:
-					revision = Situation.UserYRevision;
+					revision = Situation.BetaUserRevision;
 				 //    elementId = _userYElementId;
 				   break;
 
@@ -360,8 +417,8 @@ namespace Chorus.merge.xml.generic
 	[TypeGuid("B11ABA8C-DFB9-4E37-AF35-8AFDB86F00B7")]
 	sealed public class RemovedVsEditedAttributeConflict : AttributeConflict
 	{
-		public RemovedVsEditedAttributeConflict(string attributeName, string ourValue, string theirValue, string ancestorValue,MergeSituation mergeSituation)
-			: base(attributeName, ourValue, theirValue, ancestorValue, mergeSituation)
+		public RemovedVsEditedAttributeConflict(string attributeName, string alphaValue, string betaValue, string ancestorValue, MergeSituation mergeSituation, string whoWon)
+			: base(attributeName, alphaValue, betaValue, ancestorValue, mergeSituation, whoWon)
 		{
 		}
 		public override string Description
@@ -371,10 +428,10 @@ namespace Chorus.merge.xml.generic
 	}
 
 	[TypeGuid("5BBDF4F6-953A-4F79-BDCD-0B1F733DA4AB")]
-	sealed public class BothEdittedAttributeConflict : AttributeConflict
+	sealed public class BothEditedAttributeConflict : AttributeConflict
 	{
-		public BothEdittedAttributeConflict(string attributeName, string ourValue, string theirValue, string ancestorValue,MergeSituation mergeSituation)
-			: base(attributeName, ourValue, theirValue, ancestorValue, mergeSituation)
+		public BothEditedAttributeConflict(string attributeName, string alphaValue, string betaValue, string ancestorValue, MergeSituation mergeSituation, string whoWon)
+			: base(attributeName, alphaValue, betaValue, ancestorValue, mergeSituation, whoWon)
 		{
 		}
 
@@ -385,16 +442,16 @@ namespace Chorus.merge.xml.generic
 	}
 
 	[TypeGuid("0507DE36-13A3-449D-8302-48F5213BD92E")]
-	sealed public class BothEdittedTextConflict : AttributeConflict
+	sealed public class BothEditedTextConflict : AttributeConflict
 	{
-		public BothEdittedTextConflict(XmlNode ours, XmlNode theirs, XmlNode ancestor,MergeSituation mergeSituation)
-			: base("text", ours.InnerText, theirs.InnerText,
+		public BothEditedTextConflict(XmlNode alphaNode, XmlNode betaNode, XmlNode ancestor, MergeSituation mergeSituation, string whoWon)
+			: base("text", alphaNode.InnerText, betaNode.InnerText,
 				   ancestor == null ? string.Empty : ancestor.InnerText,
-				   mergeSituation)
+				   mergeSituation, whoWon)
 		{
 		}
 
-		public BothEdittedTextConflict(XmlNode xmlRepresentation):base(xmlRepresentation)
+		public BothEditedTextConflict(XmlNode xmlRepresentation):base(xmlRepresentation)
 		{
 
 		}
@@ -406,18 +463,18 @@ namespace Chorus.merge.xml.generic
 	}
 
 	[TypeGuid("E1CCC59B-46E5-4D24-A1B1-5B621A0F8870")]
-	sealed public class RemovedVsEdittedTextConflict : AttributeConflict
+	sealed public class RemovedVsEditedTextConflict : AttributeConflict
 	{
-		public RemovedVsEdittedTextConflict(XmlNode ours, XmlNode theirs, XmlNode ancestor,MergeSituation mergeSituation)
-			: base("text", ours == null ? string.Empty : ours.InnerText,
-				   theirs == null ? string.Empty : theirs.InnerText,
+		public RemovedVsEditedTextConflict(XmlNode alphaNode, XmlNode betaNode, XmlNode ancestor,MergeSituation mergeSituation, string whoWon)
+			: base("text", alphaNode == null ? string.Empty : alphaNode.InnerText,
+				   betaNode == null ? string.Empty : betaNode.InnerText,
 				   ancestor.InnerText,
-				   mergeSituation)
+				   mergeSituation, whoWon)
 		{
 		}
 
 
-		public RemovedVsEdittedTextConflict(XmlNode xmlRepresentation):base(xmlRepresentation)
+		public RemovedVsEditedTextConflict(XmlNode xmlRepresentation):base(xmlRepresentation)
 		{
 
 		}
@@ -434,11 +491,11 @@ namespace Chorus.merge.xml.generic
 		protected readonly string _elementName;
 
 
-		public ElementConflict(string elementName, XmlNode ourElement, XmlNode theirElement, XmlNode ancestorElement,
-							  MergeSituation mergeSituation, IElementDescriber elementDescriber)
+		public ElementConflict(string elementName, XmlNode alphaNode, XmlNode betaNode, XmlNode ancestorElement, MergeSituation mergeSituation, IElementDescriber elementDescriber, string whoWon)
 			: base(mergeSituation)
 		{
 			_elementName = elementName;
+			_whoWon = whoWon;
 		}
 
 		public ElementConflict(XmlNode xmlRepresentation):base(xmlRepresentation)
@@ -468,9 +525,8 @@ namespace Chorus.merge.xml.generic
 	[TypeGuid("56F9C347-C4FA-48F4-8028-729F3CFF48EF")]
 	internal class RemovedVsEditedElementConflict : ElementConflict
 	{
-		public RemovedVsEditedElementConflict(string elementName, XmlNode ourElement, XmlNode theirElement,
-			XmlNode ancestorElement,MergeSituation mergeSituation, IElementDescriber elementDescriber)
-			: base(elementName, ourElement, theirElement, ancestorElement, mergeSituation, elementDescriber)
+		public RemovedVsEditedElementConflict(string elementName, XmlNode alphaNode, XmlNode betaNode, XmlNode ancestorElement, MergeSituation mergeSituation, IElementDescriber elementDescriber, string whoWon)
+			: base(elementName, alphaNode, betaNode, ancestorElement, mergeSituation, elementDescriber, whoWon)
 		{
 		}
 
@@ -488,17 +544,18 @@ namespace Chorus.merge.xml.generic
 		{
 			get
 			{
-				return "One user deleted this element, while another edited it.";
+				return string.Format("{0} deleted this element, while {1} edited it. ", Situation.AlphaUserId, Situation.BetaUserId, _whoWon)+GetWhoWonText();
 			}
 		}
+
 	}
 
 	[TypeGuid("14262878-270A-4E27-BA5F-7D232B979D6B")]
 	internal class BothReorderedElementConflict : ElementConflict
 	{
-		public BothReorderedElementConflict(string elementName, XmlNode ourElement, XmlNode theirElement,
-			XmlNode ancestorElement,MergeSituation mergeSituation, IElementDescriber elementDescriber)
-			: base(elementName, ourElement, theirElement, ancestorElement, mergeSituation, elementDescriber)
+		public BothReorderedElementConflict(string elementName, XmlNode alphaNode, XmlNode betaNode,
+			XmlNode ancestorElement,MergeSituation mergeSituation, IElementDescriber elementDescriber, string whoWon)
+			: base(elementName, alphaNode, betaNode, ancestorElement, mergeSituation, elementDescriber, whoWon)
 		{
 		}
 
@@ -513,16 +570,18 @@ namespace Chorus.merge.xml.generic
 
 		public override string WhatHappened
 		{
-			get { return "Since we last synchronized, you and they both reordered the children of this element in different ways"; }
+			get { return string.Format("{0} and {1} both re-ordered the children of this element in different ways.",
+				Situation.AlphaUserId, Situation.BetaUserId);
+			}
 		}
 	}
 
 	[TypeGuid("B77C0D86-2368-4380-B2E4-7943F3E7553C")]
 	internal class AmbiguousInsertConflict : ElementConflict
 	{
-		public AmbiguousInsertConflict(string elementName, XmlNode ourElement, XmlNode theirElement,
-			XmlNode ancestorElement,MergeSituation mergeSituation, IElementDescriber elementDescriber)
-			: base(elementName, ourElement, theirElement, ancestorElement, mergeSituation, elementDescriber)
+		public AmbiguousInsertConflict(string elementName, XmlNode alphaNode, XmlNode betaNode,
+			XmlNode ancestorElement, MergeSituation mergeSituation, IElementDescriber elementDescriber, string whoWon)
+			: base(elementName, alphaNode, betaNode, ancestorElement, mergeSituation, elementDescriber, whoWon)
 		{
 		}
 
@@ -537,7 +596,9 @@ namespace Chorus.merge.xml.generic
 
 		public override string WhatHappened
 		{
-			get { return "Since we last synchronized, you and they both inserted material in this element in the same place. We cannot be sure of the correct order for the inserted material."; }
+			get { return string.Format("{0} and {1} both inserted material in this element in the same place. The automated merger cannot be sure of the correct order for the inserted material.",
+				Situation.AlphaUserId, Situation.BetaUserId);
+			}
 		}
 		public override string ToString()
 		{
@@ -548,9 +609,9 @@ namespace Chorus.merge.xml.generic
 	[TypeGuid("A5CE68F5-ED0D-4732-BAA8-A04A99ED35B3")]
 	internal class AmbiguousInsertReorderConflict : ElementConflict
 	{
-		public AmbiguousInsertReorderConflict(string elementName, XmlNode ourElement, XmlNode theirElement,
-			XmlNode ancestorElement,MergeSituation mergeSituation, IElementDescriber elementDescriber)
-			: base(elementName, ourElement, theirElement, ancestorElement, mergeSituation, elementDescriber)
+		public AmbiguousInsertReorderConflict(string elementName, XmlNode alphaNode, XmlNode betaNode,
+			XmlNode ancestorElement, MergeSituation mergeSituation, IElementDescriber elementDescriber, string whoWon)
+			: base(elementName, alphaNode, betaNode, ancestorElement, mergeSituation, elementDescriber, whoWon)
 		{
 		}
 
@@ -568,7 +629,9 @@ namespace Chorus.merge.xml.generic
 
 		public override string WhatHappened
 		{
-			get { return "Since we last synchronized, someone inserted material in this element, but the other user re-ordered things. We cannot be sure of the correct position for the inserted material."; }
+			get { return string.Format("{0} inserted material in this element, but {1} re-ordered things. The automated merger cannot be sure of the correct position for the inserted material.",
+				Situation.AlphaUserId, Situation.BetaUserId);
+			}
 		}
 	}
 
@@ -578,15 +641,15 @@ namespace Chorus.merge.xml.generic
 	/// suspect.  This could be a "warning", if we had such a thing.
 	/// </summary>
 	[TypeGuid("71636317-A94F-4814-8665-1D0F83DF388F")]
-	internal class BothEdittedDifferentPartsOfDependentPiecesOfDataWarning : ElementConflict
+	internal class BothEditedDifferentPartsOfDependentPiecesOfDataWarning : ElementConflict
 	{
-		public BothEdittedDifferentPartsOfDependentPiecesOfDataWarning(string elementName, XmlNode ourElement, XmlNode theirElement,
-			XmlNode ancestorElement, MergeSituation mergeSituation, IElementDescriber elementDescriber)
-			: base(elementName, ourElement, theirElement, ancestorElement, mergeSituation, elementDescriber)
+		public BothEditedDifferentPartsOfDependentPiecesOfDataWarning(string elementName, XmlNode alphaNode, XmlNode betaNode,
+			XmlNode ancestorElement, MergeSituation mergeSituation, IElementDescriber elementDescriber, string whoWon)
+			: base(elementName, alphaNode, betaNode, ancestorElement, mergeSituation, elementDescriber, whoWon)
 		{
 		}
 
-		public BothEdittedDifferentPartsOfDependentPiecesOfDataWarning(XmlNode xmlRepresentation)
+		public BothEditedDifferentPartsOfDependentPiecesOfDataWarning(XmlNode xmlRepresentation)
 			: base(xmlRepresentation)
 		{
 
@@ -602,7 +665,8 @@ namespace Chorus.merge.xml.generic
 		{
 			get {
 				return
-					"Since we last synchronized, someone editted one part of this element, while the other editted another part. Since these two pieces of data are thought to be dependent on each other, someone needs to verify that the resulting merge is ok."; }
+					string.Format("{0} edited one part of this element, while {1} edited another part. Since these two pieces of data are thought to be dependent on each other, someone needs to verify that the resulting merge is ok.",
+					Situation.AlphaUserId, Situation.BetaUserId); }
 		}
 	}
 }

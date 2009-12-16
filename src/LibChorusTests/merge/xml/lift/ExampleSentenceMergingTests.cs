@@ -16,7 +16,7 @@ namespace LibChorus.Tests.merge.xml.lift
 	public class ExampleSentenceMergingTests
 	{
 		[Test, Ignore("not implemented yet")]
-		public void OneEdittedExampleWhileOtherAddedTranslation_MergesButRaiseWarning()
+		public void OneEditedExampleWhileOtherAddedTranslation_MergesButRaiseWarning()
 		{
    string ancestor =
 				@"<?xml version='1.0' encoding='utf-8'?>
@@ -40,7 +40,7 @@ namespace LibChorus.Tests.merge.xml.lift
 			string result = merger.GetMergedLift();
 			Assert.AreEqual(1, listener.Conflicts.Count);
 			var warning = listener.Warnings[0];
-			Assert.AreEqual(typeof(BothEdittedDifferentPartsOfDependentPiecesOfDataWarning), warning.GetType(), warning.ToString());
+			Assert.AreEqual(typeof(BothEditedDifferentPartsOfDependentPiecesOfDataWarning), warning.GetType(), warning.ToString());
 
 			XmlTestHelper.AssertXPathMatchesExactlyOne(result, "//example");
 		}

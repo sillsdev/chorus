@@ -25,43 +25,45 @@ namespace Chorus.merge.xml.lift
 	/// </summary>
 	public class LiftMerger
 	{
-		private readonly string _ourLift;
-		private readonly string _theirLift;
+		private readonly string _alphaLift;
+		private readonly string _betaLift;
 		private readonly string _ancestorLift;
 		private readonly List<string> _processedIds = new List<string>();
-		private readonly XmlDocument _ourDom;
-		private readonly XmlDocument _theirDom;
+		private readonly XmlDocument _alphaDom;
+		private readonly XmlDocument _betaDom;
 		private readonly XmlDocument _ancestorDom;
 		private IMergeStrategy _mergingStrategy;
 		public IMergeEventListener EventListener = new NullMergeEventListener();
 
-
-		public LiftMerger(IMergeStrategy mergeStrategy, string ourLiftPath, string theirLiftPath, string ancestorLiftPath)
+		/// <summary>
+		/// Here, "alpha" is the guy who wins when there's no better way to decide, and "beta" is the loser.
+		/// </summary>
+		public LiftMerger(IMergeStrategy mergeStrategy, string alphaLiftPath, string betaLiftPath, string ancestorLiftPath)
 		{
-			_ourLift = File.ReadAllText(ourLiftPath);
-			_theirLift =  File.ReadAllText(theirLiftPath);
+			_alphaLift = File.ReadAllText(alphaLiftPath);
+			_betaLift =  File.ReadAllText(betaLiftPath);
 			_ancestorLift = File.ReadAllText(ancestorLiftPath);
-			_ourDom = new XmlDocument();
-			_theirDom = new XmlDocument();
+			_alphaDom = new XmlDocument();
+			_betaDom = new XmlDocument();
 			_ancestorDom = new XmlDocument();
 
 			_mergingStrategy = mergeStrategy;
 
 //            string path = Path.Combine(System.Environment.GetEnvironmentVariable("temp"),
-//                           @"chorusMergeOrder" + Path.GetFileName(_ourLiftPath) + ".txt");
-//            File.WriteAllText(path, "Merging OURS\r\n" + _ourLift + "\r\n----------THEIRS\r\n" + _theirLift + "\r\n----------ANCESTOR\r\n" + _ancestorLift);
+//                           @"chorusMergeOrder" + Path.GetFileName(_alphaLiftPath) + ".txt");
+//            File.WriteAllText(path, "Merging alphaS\r\n" + _alphaLift + "\r\n----------betaS\r\n" + _betaLift + "\r\n----------ANCESTOR\r\n" + _ancestorLift);
 		}
 
 		/// <summary>
 		/// Used by tests, which prefer to give us raw contents rather than paths
 		/// </summary>
-		public LiftMerger(string ourLiftContents, string theirLiftContents, string ancestorLiftContents, IMergeStrategy mergeStrategy)
+		public LiftMerger(string alphaLiftContents, string betaLiftContents, string ancestorLiftContents, IMergeStrategy mergeStrategy)
 		{
-			_ourLift = ourLiftContents;
-			_theirLift = theirLiftContents;
+			_alphaLift = alphaLiftContents;
+			_betaLift = betaLiftContents;
 			_ancestorLift = ancestorLiftContents;
-			_ourDom = new XmlDocument();
-			_theirDom = new XmlDocument();
+			_alphaDom = new XmlDocument();
+			_betaDom = new XmlDocument();
 			_ancestorDom = new XmlDocument();
 
 			_mergingStrategy = mergeStrategy;
@@ -70,12 +72,12 @@ namespace Chorus.merge.xml.lift
 		public string GetMergedLift()
 		{
 //            string path = Path.Combine(System.Environment.GetEnvironmentVariable("temp"),
-//                                    @"chorusMergeResult" + Path.GetFileName(_ourLiftPath) + ".txt");
+//                                    @"chorusMergeResult" + Path.GetFileName(_alphaLiftPath) + ".txt");
 //
 //            File.WriteAllText(path, "ENter GetMergedLift()");
 
-			_ourDom.LoadXml(_ourLift);
-			_theirDom.LoadXml(_theirLift);
+			_alphaDom.LoadXml(_alphaLift);
+			_betaDom.LoadXml(_betaLift);
 			_ancestorDom.LoadXml(_ancestorLift);
 
 
@@ -89,13 +91,13 @@ namespace Chorus.merge.xml.lift
 				using (XmlWriter writer = XmlWriter.Create(memoryStream, settings))
 				{
 					WriteStartOfLiftElement(writer);
-					foreach (XmlNode e in _ourDom.SafeSelectNodes("lift/entry"))
+					foreach (XmlNode e in _alphaDom.SafeSelectNodes("lift/entry"))
 					{
 						ProcessEntry(writer, e);
 					}
 
-					//now process any remaining elements in "theirs"
-					foreach (XmlNode e in _theirDom.SafeSelectNodes("lift/entry"))
+					//now process any remaining elements in "betas"
+					foreach (XmlNode e in _betaDom.SafeSelectNodes("lift/entry"))
 					{
 						string id = LiftUtils.GetId(e);
 						if (!_processedIds.Contains(id))
@@ -116,8 +118,8 @@ namespace Chorus.merge.xml.lift
 
 //        public void Do2WayDiffOfLift()
 //        {
-//            _ourDom.LoadXml(_ourLift);
-//            _theirDom.LoadXml(_ancestorLift);//nb: putting the ancestor in there is intentional
+//            _alphaDom.LoadXml(_alphaLift);
+//            _betaDom.LoadXml(_ancestorLift);//nb: putting the ancestor in there is intentional
 //            _ancestorDom.LoadXml(_ancestorLift);
 //
 //            //NB: we dont' actually have any interest in writing anything,
@@ -128,7 +130,7 @@ namespace Chorus.merge.xml.lift
 //            {
 //                WriteStartOfLiftElement(writer);
 //
-//                foreach (XmlNode e in _ourDom.SelectNodes("lift/entry"))
+//                foreach (XmlNode e in _alphaDom.SelectNodes("lift/entry"))
 //                {
 //                        ProcessEntry(writer, e);
 //                }
@@ -151,35 +153,35 @@ namespace Chorus.merge.xml.lift
 			return doc.SelectSingleNode("lift/entry[@id=\""+id+"\"]");
 		}
 
-		private void ProcessEntry(XmlWriter writer, XmlNode ourEntry)
+		private void ProcessEntry(XmlWriter writer, XmlNode alphaEntry)
 		{
-			string id = LiftUtils.GetId(ourEntry);
-			XmlNode theirEntry = FindEntry(_theirDom, id);
-			if (theirEntry == null) //it's new
+			string id = LiftUtils.GetId(alphaEntry);
+			XmlNode betaEntry = FindEntry(_betaDom, id);
+			if (betaEntry == null) //it's new
 			{
 				//enchance: we know this at this point only in the 2-way diff mode
-				EventListener.ChangeOccurred(new XmlAdditionChangeReport("hackFixThis.lift", ourEntry));
+				EventListener.ChangeOccurred(new XmlAdditionChangeReport("hackFixThis.lift", alphaEntry));
 
 
-				ProcessEntryWeKnowDoesntNeedMerging(ourEntry, id, writer);
+				ProcessEntryWeKnowDoesntNeedMerging(alphaEntry, id, writer);
 			}
-			else if (AreTheSame(ourEntry, theirEntry))//unchanged or both made same change
+			else if (AreTheSame(alphaEntry, betaEntry))//unchanged or both made same change
 			{
-				writer.WriteRaw(ourEntry.OuterXml);
+				writer.WriteRaw(alphaEntry.OuterXml);
 			}
 			else //one or both changed
 			{
 
 				/* TODO: put this back after figuring out the exact situation it was for an adding a unit test
-				 if (!LiftUtils.GetIsMarkedAsDeleted(ourEntry))
+				 if (!LiftUtils.GetIsMarkedAsDeleted(alphaEntry))
 				{
-					EventListener.ChangeOccurred(new XmlChangedRecordReport("hackFixThis.lift",  FindEntryById(_ancestorDom, id), ourEntry));
+					EventListener.ChangeOccurred(new XmlChangedRecordReport("hackFixThis.lift",  FindEntryById(_ancestorDom, id), alphaEntry));
 				}
 				 */
 
 				XmlNode commonEntry = FindEntry(_ancestorDom, id);
 
-				writer.WriteRaw(_mergingStrategy.MakeMergedEntry(this.EventListener, ourEntry, theirEntry, commonEntry));
+				writer.WriteRaw(_mergingStrategy.MakeMergedEntry(this.EventListener, alphaEntry, betaEntry, commonEntry));
 			}
 			_processedIds.Add(id);
 		}
@@ -211,21 +213,21 @@ namespace Chorus.merge.xml.lift
 			element.Attributes.Append(attr);
 		}
 
-		private static bool AreTheSame(XmlNode ourEntry, XmlNode theirEntry)
+		private static bool AreTheSame(XmlNode alphaEntry, XmlNode betaEntry)
 		{
 			//review: why do we need to actually parse these dates?  Could we just do a string comparison?
-			if (LiftUtils.GetModifiedDate(theirEntry) == LiftUtils.GetModifiedDate(ourEntry)
-				&& !(LiftUtils.GetModifiedDate(theirEntry) == default(DateTime)))
+			if (LiftUtils.GetModifiedDate(betaEntry) == LiftUtils.GetModifiedDate(alphaEntry)
+				&& !(LiftUtils.GetModifiedDate(betaEntry) == default(DateTime)))
 				return true;
 
-			return XmlUtilities.AreXmlElementsEqual(ourEntry.OuterXml, theirEntry.OuterXml);
+			return XmlUtilities.AreXmlElementsEqual(alphaEntry.OuterXml, betaEntry.OuterXml);
 		}
 
 
 
 		private void WriteStartOfLiftElement(XmlWriter writer)
 		{
-			XmlNode liftNode = _ourDom.SelectSingleNode("lift");
+			XmlNode liftNode = _alphaDom.SelectSingleNode("lift");
 
 			writer.WriteStartElement(liftNode.Name);
 			foreach (XmlAttribute attribute in liftNode.Attributes)

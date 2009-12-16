@@ -10,7 +10,7 @@
 	<AppDesignerFolder>Properties</AppDesignerFolder>
 	<RootNamespace>Chorus</RootNamespace>
 	<AssemblyName>Chorus</AssemblyName>
-	<TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+	<TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
 	<FileAlignment>512</FileAlignment>
 	<TargetFrameworkSubset>
 	</TargetFrameworkSubset>
@@ -48,24 +48,28 @@
 	<ApplicationIcon>chorus.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
-	<Reference Include="Autofac, Version=1.3.2.449, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
+	<Reference Include="Autofac, Version=1.4.4.561, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
 	  <SpecificVersion>False</SpecificVersion>
 	  <HintPath>..\..\lib\net2.0\Autofac.dll</HintPath>
 	</Reference>
-	<Reference Include="LinqBridge, Version=1.0.0.0, Culture=neutral, PublicKeyToken=c2b14eb747628076, processorArchitecture=MSIL">
-	  <SpecificVersion>False</SpecificVersion>
-	  <HintPath>..\..\lib\net2.0\LinqBridge.dll</HintPath>
-	</Reference>
 	<Reference Include="System" />
+	<Reference Include="System.Core">
+	  <RequiredTargetFramework>3.5</RequiredTargetFramework>
+	</Reference>
 	<Reference Include="System.Data" />
 	<Reference Include="System.Deployment" />
 	<Reference Include="System.Design" />
 	<Reference Include="System.Drawing" />
+	<Reference Include="System.Web" />
 	<Reference Include="System.Windows.Forms" />
 	<Reference Include="System.Xml" />
+	<Reference Include="System.Xml.Linq">
+	  <RequiredTargetFramework>3.5</RequiredTargetFramework>
+	</Reference>
   </ItemGroup>
   <ItemGroup>
 	<Compile Include="Bootstrapper.cs" />
+	<Compile Include="ChorusSystem.cs" />
 	<Compile Include="ChorusUIComponentsInjector.cs" />
 	<Compile Include="UI\BetterLabel.cs">
 	  <SubType>Component</SubType>
@@ -122,6 +126,41 @@
 	<Compile Include="UI\Misc\ReadinessPanel.Designer.cs">
 	  <DependentUpon>ReadinessPanel.cs</DependentUpon>
 	</Compile>
+	<Compile Include="UI\Notes\AnnotationInspector.cs">
+	  <SubType>Form</SubType>
+	</Compile>
+	<Compile Include="UI\Notes\AnnotationInspector.Designer.cs">
+	  <DependentUpon>AnnotationInspector.cs</DependentUpon>
+	</Compile>
+	<Compile Include="UI\Notes\AnnotationEditorModel.cs" />
+	<Compile Include="UI\Notes\Events.cs" />
+	<Compile Include="UI\Notes\ListMessage.cs" />
+	<Compile Include="UI\Notes\Bar\NoteDetailDialog.cs">
+	  <SubType>Form</SubType>
+	</Compile>
+	<Compile Include="UI\Notes\Bar\NoteDetailDialog.Designer.cs">
+	  <DependentUpon>NoteDetailDialog.cs</DependentUpon>
+	</Compile>
+	<Compile Include="UI\Notes\Bar\NotesBarModel.cs" />
+	<Compile Include="UI\Notes\Bar\NotesBarView.cs">
+	  <SubType>UserControl</SubType>
+	</Compile>
+	<Compile Include="UI\Notes\Bar\NotesBarView.Designer.cs">
+	  <DependentUpon>NotesBarView.cs</DependentUpon>
+	</Compile>
+	<Compile Include="UI\Notes\Browser\NotesBrowserPage.cs">
+	  <SubType>UserControl</SubType>
+	</Compile>
+	<Compile Include="UI\Notes\Browser\NotesBrowserPage.Designer.cs">
+	  <DependentUpon>NotesBrowserPage.cs</DependentUpon>
+	</Compile>
+	<Compile Include="UI\Notes\Browser\SearchBox.cs">
+	  <SubType>UserControl</SubType>
+	</Compile>
+	<Compile Include="UI\Notes\Browser\SearchBox.Designer.cs">
+	  <DependentUpon>SearchBox.cs</DependentUpon>
+	</Compile>
+	<Compile Include="UI\Notes\Html\StyleSheet.cs" />
 	<Compile Include="UI\Review\ChangedReport\ChangeReportView.cs">
 	  <SubType>UserControl</SubType>
 	</Compile>
@@ -136,6 +175,19 @@
 	</Compile>
 	<Compile Include="UI\Review\ChangesInRevision\ChangesInRevisionModel.cs" />
 	<Compile Include="Event.cs" />
+	<Compile Include="UI\Notes\AnnotationEditorView.cs">
+	  <SubType>UserControl</SubType>
+	</Compile>
+	<Compile Include="UI\Notes\AnnotationEditorView.Designer.cs">
+	  <DependentUpon>AnnotationEditorView.cs</DependentUpon>
+	</Compile>
+	<Compile Include="UI\Notes\Browser\NotesInProjectViewModel.cs" />
+	<Compile Include="UI\Notes\Browser\NotesInProjectView.cs">
+	  <SubType>UserControl</SubType>
+	</Compile>
+	<Compile Include="UI\Notes\Browser\NotesInProjectView.Designer.cs">
+	  <DependentUpon>NotesInProjectView.cs</DependentUpon>
+	</Compile>
 	<Compile Include="UI\Review\RevisionsInRepository\RevisionsInRepositoryView.cs">
 	  <SubType>UserControl</SubType>
 	</Compile>
@@ -143,11 +195,11 @@
 	  <DependentUpon>RevisionsInRepositoryView.cs</DependentUpon>
 	</Compile>
 	<Compile Include="UI\Review\RevisionsInRepository\RevisionInRepositoryModel.cs" />
-	<Compile Include="UI\Review\ReviewPage.cs">
+	<Compile Include="UI\Review\HistoryPage.cs">
 	  <SubType>UserControl</SubType>
 	</Compile>
-	<Compile Include="UI\Review\ReviewPage.Designer.cs">
-	  <DependentUpon>ReviewPage.cs</DependentUpon>
+	<Compile Include="UI\Review\HistoryPage.Designer.cs">
+	  <DependentUpon>HistoryPage.cs</DependentUpon>
 	</Compile>
 	<Compile Include="Program.cs" />
 	<Compile Include="Properties\AssemblyInfo.cs" />
@@ -155,8 +207,8 @@
 	  <DependentUpon>ChangeReportView.cs</DependentUpon>
 	  <SubType>Designer</SubType>
 	</EmbeddedResource>
-	<EmbeddedResource Include="UI\Review\ReviewPage.resx">
-	  <DependentUpon>ReviewPage.cs</DependentUpon>
+	<EmbeddedResource Include="UI\Review\HistoryPage.resx">
+	  <DependentUpon>HistoryPage.cs</DependentUpon>
 	  <SubType>Designer</SubType>
 	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Review\RevisionsInRepository\RevisionsInRepositoryView.resx">
@@ -248,6 +300,12 @@
 	<Compile Include="UI\Sync\SyncStartControl.Designer.cs">
 	  <DependentUpon>SyncStartControl.cs</DependentUpon>
 	</Compile>
+	<Compile Include="UI\UsbDriveLocator.cs">
+	  <SubType>Component</SubType>
+	</Compile>
+	<Compile Include="UI\UsbDriveLocator.Designer.cs">
+	  <DependentUpon>UsbDriveLocator.cs</DependentUpon>
+	</Compile>
   </ItemGroup>
   <ItemGroup>
 	<ProjectReference Include="..\LibChorus\LibChorus.csproj">
@@ -288,6 +346,29 @@
 	  <DependentUpon>ReadinessPanel.cs</DependentUpon>
 	  <SubType>Designer</SubType>
 	</EmbeddedResource>
+	<EmbeddedResource Include="UI\Notes\AnnotationInspector.resx">
+	  <DependentUpon>AnnotationInspector.cs</DependentUpon>
+	</EmbeddedResource>
+	<EmbeddedResource Include="UI\Notes\AnnotationEditorView.resx">
+	  <DependentUpon>AnnotationEditorView.cs</DependentUpon>
+	</EmbeddedResource>
+	<EmbeddedResource Include="UI\Notes\Bar\NoteDetailDialog.resx">
+	  <DependentUpon>NoteDetailDialog.cs</DependentUpon>
+	</EmbeddedResource>
+	<EmbeddedResource Include="UI\Notes\Bar\NotesBarView.resx">
+	  <DependentUpon>NotesBarView.cs</DependentUpon>
+	</EmbeddedResource>
+	<EmbeddedResource Include="UI\Notes\Browser\NotesInProjectView.resx">
+	  <DependentUpon>NotesInProjectView.cs</DependentUpon>
+	  <SubType>Designer</SubType>
+	</EmbeddedResource>
+	<EmbeddedResource Include="UI\Notes\Browser\NotesBrowserPage.resx">
+	  <DependentUpon>NotesBrowserPage.cs</DependentUpon>
+	  <SubType>Designer</SubType>
+	</EmbeddedResource>
+	<EmbeddedResource Include="UI\Notes\Browser\SearchBox.resx">
+	  <DependentUpon>SearchBox.cs</DependentUpon>
+	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Sync\SyncControl.resx">
 	  <DependentUpon>SyncControl.cs</DependentUpon>
 	  <SubType>Designer</SubType>
@@ -311,7 +392,33 @@
 	<None Include="Resources\internet29x32.png" />
 	<None Include="Resources\networkFolder29x32.png" />
 	<None Include="Resources\Usb32x28.png" />
+	<None Include="Resources\search18x18.png" />
+	<None Include="Resources\question32x32.png" />
+	<None Include="Resources\search16x16.png" />
+	<None Include="Resources\check16x16.png" />
+	<None Include="Resources\NewNote16x16.png" />
+	<None Include="Resources\check12x12.png" />
+	<Content Include="UI\Notes\Html\bl.gif">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</Content>
+	<Content Include="UI\Notes\Html\br.gif">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</Content>
+	<Content Include="UI\Notes\Html\dot.gif">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</Content>
+	<Content Include="UI\Notes\Html\StyleSheet.css">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</Content>
+	<None Include="UI\Notes\XmlToHtml10Plus.xslt" />
+	<None Include="UI\Notes\XmlToHtml10Basic.xslt" />
 	<Content Include="UI\Settings\SetupPanel.htm">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</Content>
+	<Content Include="UI\Notes\Html\tl.gif">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</Content>
+	<Content Include="UI\Notes\Html\tr.gif">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</Content>
   </ItemGroup>

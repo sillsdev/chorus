@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Media;
+using System.Threading;
 using System.Windows.Forms;
 using Chorus.sync;
 using Chorus.Utilities;
@@ -67,8 +68,17 @@ namespace Chorus.UI.Sync
 					stream.Dispose();
 				}
 
-				var synchResults = e.Result as SyncResults;
-				SynchronizeOver.Invoke(synchResults, null);
+				if (e.Cancelled)
+				{
+					var r = new SyncResults();
+					r.Succeeded = false;
+					r.Cancelled = true;
+					SynchronizeOver.Invoke(r, null);
+				}
+				else //checking e.Result if there was a cancellation causes an InvalidOperationException
+				{
+					SynchronizeOver.Invoke(e.Result as SyncResults, null);
+				}
 			}
 		}
 
@@ -82,7 +92,13 @@ namespace Chorus.UI.Sync
 
 		public bool EnableCancel
 		{
-			get { return _backgroundWorker.IsBusy; }
+			get
+			{
+				if (_backgroundWorker.IsBusy)
+					return true;
+				else
+					return false;
+			}
 		}
 
 		public bool ShowTabs
@@ -119,6 +135,11 @@ namespace Chorus.UI.Sync
 			set { _syncOptions = value; }
 		}
 
+		public bool CancellationPending
+		{
+			get { return _backgroundWorker.CancellationPending;  }
+		}
+
 
 		public bool HasFeature(SyncUIFeatures feature)
 		{
@@ -147,12 +168,14 @@ namespace Chorus.UI.Sync
 					return;
 				if (!useTargetsAsSpecifiedInSyncOptions)
 				{
-					foreach (var address in GetRepositoriesToList().Where(r => !r.Enabled))
-					{
-						SyncOptions.RepositorySourcesToTry.RemoveAll(x => x.URI == address.URI);
-					}
+//                    foreach (var address in GetRepositoriesToList().Where(r => !r.Enabled))
+//                    {
+//                        SyncOptions.RepositorySourcesToTry.RemoveAll(x => x.URI == address.URI);
+//                    }
+				   // SyncOptions.RepositorySourcesToTry.AddRange(GetRepositoriesToList().Where(r => r.Enabled && !SyncOptions.RepositorySourcesToTry.Any(x=>x.URI ==r.URI)));
+					SyncOptions.RepositorySourcesToTry.Clear();
+					SyncOptions.RepositorySourcesToTry.AddRange(GetRepositoriesToList().Where(r => r.Enabled ));
 
-					SyncOptions.RepositorySourcesToTry.AddRange(GetRepositoriesToList().Where(r => r.Enabled && !SyncOptions.RepositorySourcesToTry.Any(x=>x.URI ==r.URI)));
 				}
 				_backgroundWorker.RunWorkerAsync(new object[] {_synchronizer, SyncOptions, _progress});
 			}
@@ -165,7 +188,8 @@ namespace Chorus.UI.Sync
 				if(!_backgroundWorker.IsBusy)
 					return;
 
-				_backgroundWorker.CancelAsync();
+				_backgroundWorker.CancelAsync();//this only gets picked up when the synchronizer checks it, which may be after some long operation is finished
+				_progress.CancelRequested = true;//this gets picked up by the low-level process reader
 			}
 		}
 

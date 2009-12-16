@@ -351,11 +351,13 @@ namespace Chorus.Utilities
 		public void WriteWarning(string message, params object[] args)
 		{
 			LastWarning = string.Format(message, args);
+			LastStatus = LastWarning;
 		}
 
 		public void WriteError(string message, params object[] args)
 		{
 			LastError = string.Format(message, args);
+			LastStatus = LastError;
 		}
 
 		public void WriteMessage(string message, params object[] args)

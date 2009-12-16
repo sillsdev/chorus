@@ -81,7 +81,9 @@ namespace LibChorus.Tests.merge
 			RootFolder = new TempFolder("ChorusTest-"+userName);
 			Console.WriteLine("TestRepository Cloned: {0}", RootFolder.Path);
 			string pathToProject = RootFolder.Combine(Path.GetFileName(cloneFromUser.ProjectFolder.Path));
-			cloneFromUser.Synchronizer.MakeClone(pathToProject, true);
+			//cloneFromUser.Synchronizer.MakeClone(pathToProject, true);
+			HgHighLevel.MakeCloneFromLocalToLocal(cloneFromUser.Repository.PathToRepo, pathToProject, true, Progress);
+
 			ProjectFolder = TempFolder.TrackExisting(RootFolder.Combine("foo project"));
 			string pathToOurLiftFile = ProjectFolder.Combine(Path.GetFileName(cloneFromUser.UserFile.Path));
 			UserFile = TempFile.TrackExisting(pathToOurLiftFile);
@@ -179,21 +181,16 @@ namespace LibChorus.Tests.merge
 			Assert.AreEqual(count, actual, "Wrong number of heads");
 		}
 
-// this would be cool, but we don't yet de-persist the conflicts        public void AssertSingleConflict(Func<IConflict, bool> assertion)
 
 		public void AssertSingleConflictType<TConflict>()
 		{
-			string xmlConflictFile = XmlLogMergeEventListener.GetXmlConflictFilePath(UserFile.Path);
-			Assert.IsTrue(File.Exists(xmlConflictFile), "Conflict file should have been in working set");
-			Assert.IsTrue(Synchronizer.Repository.GetFileIsInRepositoryFromFullPath(xmlConflictFile), "Conflict file should have been in repository");
+			string cmlFile = ChorusNotesMergeEventListener.GetChorusNotesFilePath(UserFile.Path);
+			Assert.IsTrue(File.Exists(cmlFile), "ChorusNotes file should have been in working set");
+			Assert.IsTrue(Synchronizer.Repository.GetFileIsInRepositoryFromFullPath(cmlFile), "ChorusNotes file should have been in repository");
 
 			XmlDocument doc = new XmlDocument();
-			doc.Load(xmlConflictFile);
-			Assert.AreEqual(1, doc.SafeSelectNodes("conflicts/conflict").Count);
-
-//            var x = typeof (TConflict).GetCustomAttributes(true);
-//            var y = x[0] as TypeGuidAttribute;
-//            Assert.AreEqual(1, doc.SafeSelectNodes("conflicts/conflict[@typeGuid='{0}']", y.GuidString).Count);
+			doc.Load(cmlFile);
+			Assert.AreEqual(1, doc.SafeSelectNodes("notes/annotation").Count);
 
 		}
 

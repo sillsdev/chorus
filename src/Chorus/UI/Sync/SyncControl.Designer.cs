@@ -205,7 +205,7 @@
 			// _showCancelButtonTimer
 			//
 			this._showCancelButtonTimer.Enabled = true;
-			this._showCancelButtonTimer.Interval = 10000;
+			this._showCancelButtonTimer.Interval = 1000;
 			this._showCancelButtonTimer.Tick += new System.EventHandler(this._showCancelButtonTimer_Tick);
 			//
 			// _successIcon

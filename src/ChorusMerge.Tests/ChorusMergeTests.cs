@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
-using Chorus.FileTypeHanders;
+﻿using System.IO;
 using Chorus.merge;
 using LibChorus.Tests.merge;
 using Chorus.Utilities;
@@ -25,7 +21,8 @@ namespace ChorusMerge.Tests
 			{
 				Assert.AreEqual(0, DoMerge(group));
 				Assert.IsTrue(File.Exists(group.BobTextConflictsPath));
-				Assert.AreNotEqual(string.Empty, File.ReadAllText(group.BobTextConflictsPath));
+				var text = File.ReadAllText(group.BobTextConflictsPath);
+				Assert.AreNotEqual(string.Empty, text);
 			}
 		}
 

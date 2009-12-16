@@ -5,10 +5,23 @@ using Chorus.merge;
 using Chorus.merge.xml.generic;
 using Chorus.VcsDrivers;
 
+/********************
+ *
+ *
+ *
+ * This stuff is defunct. Conflicts now are displayed by the notes system,
+ * not the change presentation system.
+ *
+ * However, I (John) have so burnt ot on this stuff that I haven't moved
+ * the functionality here over to the new system, so it sits her waiting.
+ *
+ *
+ ***************************/
+
 namespace Chorus.FileTypeHanders
 {
 	/// <summary>
-	/// The key thing to understand here is that the conflict file only *grows*... it doesn't get editted
+	/// The key thing to understand here is that the conflict file only *grows*... it doesn't get edited
 	/// normally.  So the only changes we're interested in are *additions* of conflict reports to the file.
 	/// </summary>
 	public class ConflictPresenter : IChangePresenter
@@ -27,7 +40,22 @@ namespace Chorus.FileTypeHanders
 			}
 			else
 			{
-				_conflict = Conflict.CreateFromXml(_report.ChildNode);
+				if (_report.ChildNode.Name == "conflict") // old style situation, only on Tok Pisin before Oct 2009
+				{
+					_conflict = Conflict.CreateFromConflictElement(_report.ChildNode);
+				}
+				else
+				{
+					var conflictNode = _report.ChildNode.SelectSingleNode("data/conflict");
+					if (conflictNode != null)
+					{
+						_conflict = Conflict.CreateFromConflictElement(conflictNode);
+					}
+					else
+					{
+						_conflict = new UnreadableConflict(_report.ChildNode);
+					}
+				}
 			}
 		}
 
@@ -38,7 +66,12 @@ namespace Chorus.FileTypeHanders
 
 		public string GetActionLabel()
 		{
-			return XmlUtilities.GetStringAttribute(_report.ChildNode, "type");
+			var label = _report.ChildNode.GetOptionalStringAttribute("class", string.Empty);//the annotation class
+			if (label == string.Empty)
+			{   //handle pre-oct09 TokPisin experiment format, which had the conflict in their own file, not wrapped in annotations
+				label = _report.ChildNode.GetOptionalStringAttribute("type", string.Empty);
+			}
+			return label;
 		}
 
 		public string GetHtml(string style, string styleSheet)
@@ -59,7 +92,7 @@ namespace Chorus.FileTypeHanders
 				{
 					builder.AppendFormat(
 						"<p>{0} and {1} both edited {2} in the file {3} in a way that could not be automatically merged.</p>",
-						_conflict.Situation.UserXId, _conflict.Situation.UserYId, _conflict.Context.DataLabel,
+						_conflict.Situation.AlphaUserId, _conflict.Situation.BetaUserId, _conflict.Context.DataLabel,
 						_conflict.RelativeFilePath);
 
 					builder.AppendFormat("<p></p>");
@@ -83,7 +116,7 @@ namespace Chorus.FileTypeHanders
 
 					builder.AppendFormat(
 						"{0} and {1} both edited {2} in a way that could not be merged. Where they conflicted, {3}'s version was kept.<br/>",
-						_conflict.Situation.UserXId, _conflict.Situation.UserYId, _conflict.Context.DataLabel,
+						_conflict.Situation.AlphaUserId, _conflict.Situation.BetaUserId, _conflict.Context.DataLabel,
 						_conflict.WinnerId);
 
 					builder.AppendFormat(
@@ -95,17 +128,17 @@ namespace Chorus.FileTypeHanders
 					var ancestor = _conflict.GetConflictingRecordOutOfSourceControl(_fileRetriever,
 																					ThreeWayMergeSources.Source.Ancestor);
 					builder.Append(XmlUtilities.GetXmlForShowingInHtml(ancestor));
-					builder.AppendFormat("<h3>{0}'s version</h3>", _conflict.Situation.UserXId);
+					builder.AppendFormat("<h3>{0}'s version</h3>", _conflict.Situation.AlphaUserId);
 					var userXVersion = _conflict.GetConflictingRecordOutOfSourceControl(_fileRetriever,
 																						ThreeWayMergeSources.Source.
 																							UserX);
 					builder.Append(XmlUtilities.GetXmlForShowingInHtml(userXVersion));
-					builder.AppendFormat("</p><h3>{0}'s version</h3>", _conflict.Situation.UserYId);
+					builder.AppendFormat("</p><h3>{0}'s version</h3>", _conflict.Situation.BetaUserId);
 					var userYVersion = _conflict.GetConflictingRecordOutOfSourceControl(_fileRetriever,
 																						ThreeWayMergeSources.Source.
 																							UserY);
 					builder.Append(XmlUtilities.GetXmlForShowingInHtml(userYVersion));
-					builder.AppendFormat("</p><h3>Resulting version</h3>", _conflict.Situation.UserYId);
+					builder.AppendFormat("</p><h3>Resulting version</h3>", _conflict.Situation.BetaUserId);
 
 					try
 					{

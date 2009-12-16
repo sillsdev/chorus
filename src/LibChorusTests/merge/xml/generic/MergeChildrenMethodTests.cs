@@ -15,7 +15,7 @@ namespace LibChorus.Tests.merge.xml.generic
 	public class MergeChildrenMethodTests
 	{
 		[Test]
-		public void Run_BothChangedSingletonNode_GetBothEdittedConflict()
+		public void Run_BothChangedSingletonNode_GetBothEditedConflict()
 		{
 			string ours = @"<gloss lang='a'>
 									<text>ourGloss</text>
@@ -33,7 +33,7 @@ namespace LibChorus.Tests.merge.xml.generic
 			//without this stategy, we'd get an AmbiguousInsertConflict
 			merger.MergeStrategies.SetStrategy("text", ElementStrategy.CreateSingletonElement());
 
-			TestMerge<BothEdittedTextConflict>(merger, ours, theirs, ancestor, "//gloss");
+			TestMerge<BothEditedTextConflict>(merger, ours, theirs, ancestor, "//gloss");
 		}
 
 		private void TestMerge<TConflictType>(XmlMerger merger, string ours, string theirs, string ancestors, string xpathToElementsToMerge)
@@ -66,7 +66,7 @@ namespace LibChorus.Tests.merge.xml.generic
 		}
 
 		[Test]
-		public void Run_BothChangedKeyedNode_GetBothEdittedConflict()
+		public void Run_BothChangedKeyedNode_GetBothEditedConflict()
 		{
 			string ours = @"<sense id='123'><gloss lang='a'>
 									<text>ourGloss</text>
@@ -86,7 +86,7 @@ namespace LibChorus.Tests.merge.xml.generic
 			merger.MergeStrategies.SetStrategy("sense", ElementStrategy.CreateForKeyedElement("id", true));
 			merger.MergeStrategies.SetStrategy("gloss", ElementStrategy.CreateForKeyedElement("lang", true));
 
-			TestMerge<BothEdittedTextConflict>(merger, ours, theirs, ancestor, "//sense");
+			TestMerge<BothEditedTextConflict>(merger, ours, theirs, ancestor, "//sense");
 		}
 		[Test]
 		public void Run_BothAddedDifferentKeyedNodes_OrderIrrelevant_NoConflict()
