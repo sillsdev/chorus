@@ -241,6 +241,38 @@ namespace LibChorus.Tests.notes
 			}
 		}
 
+		[Test]
+		public void SaveAndLoad_10KRecords_CompletesQuickly()
+		{
+			using(var f = new TempFile("<notes version='0'/>"))
+			{
+				Console.WriteLine("Building File...");
+				var r = AnnotationRepository.FromFile("id", f.Path, new NullProgress());
+				for (int i = 0; i < 10000; i++)
+				{
+					var annotation = new Annotation("question", string.Format("nowhere://blah?id={0}", Guid.NewGuid().ToString()), f.Path);
+					r.AddAnnotation(annotation);
+					annotation.AddMessage("test", "open", "blah blah");
+				}
+				Console.WriteLine("Saving Large File...");
+				var w = new System.Diagnostics.Stopwatch();
+				w.Start();
+				r.Save(new NullProgress());
+				w.Stop();
+				Console.WriteLine("Elapsed Time:"+w.ElapsedMilliseconds.ToString()+" milliseconds");
+				Assert.IsTrue(w.ElapsedMilliseconds < 200); //it's around 70 on my laptop
+
+				w.Reset();
+				Console.WriteLine("Reading Large File...");
+				w.Start();
+				var rToRead = AnnotationRepository.FromFile("id", f.Path, new NullProgress());
+				w.Stop();
+				Console.WriteLine("Elapsed Time:"+w.ElapsedMilliseconds.ToString()+" milliseconds");
+				Assert.IsTrue(w.ElapsedMilliseconds < 1000); //it's around 240 on my laptop
+			}
+		}
+
+
 		#endregion
 	}
 
