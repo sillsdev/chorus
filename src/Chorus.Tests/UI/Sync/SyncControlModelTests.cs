@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Windows.Forms;
 using Chorus.sync;
 using Chorus.UI.Sync;
 using Chorus.Utilities;
@@ -46,6 +47,8 @@ namespace Chorus.Tests
 			_model.AddProgressDisplay(_progress);
 		}
 
+
+
 		[Test]
 		public void AfterSyncLogNotEmpty()
 		{
@@ -54,6 +57,7 @@ namespace Chorus.Tests
 			while(!_model.EnableSendReceive)
 			{
 				Thread.Sleep(100);
+				Application.DoEvents();//without this, the background worker starves 'cause their's no UI
 				if ((DateTime.Now.Subtract(start).Minutes > 0))
 				{
 					Assert.Fail("Gave up waiting.");

@@ -92,7 +92,7 @@ namespace Chorus.Tests
 		/// The NotesBar is a useful GUI component for record-based applications to quickly
 		/// get group annotation ability with just a few lines of code.
 		/// </summary>
-		[Test, Ignore("TODO Somehow Causing another AfterSyncLogNotEmpty test to hang")]
+		[Test]
 		public void CreateNotesBar()
 		{
 			//Tell Chorus how to map between our records and the url system we want to use in notes
@@ -135,7 +135,7 @@ namespace Chorus.Tests
 		/// A NotesBrowser grabs up all the notes in all the .ChorusNotes files in the system, and gives the users
 		/// tools to search and filter them.
 		/// </summary>
-		[Test, Ignore("TODO Somehow Causing another AfterSyncLogNotEmpty test to hang")]
+		[Test]
 		public void CreateNotesBrowser()
 		{
 			var browser = _chorusSystem.WinForms.CreateNotesBrowser();
