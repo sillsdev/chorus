@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
+﻿using System.Diagnostics;
 using System.Xml;
 using Chorus.FileTypeHanders.lift;
-using Chorus.merge.xml.generic;
 using NUnit.Framework;
 
-namespace LibChorus.Tests
+namespace Chorus.Tests.UI.Review
 {
 	[TestFixture]
 	public class LiftChangePresenterTests

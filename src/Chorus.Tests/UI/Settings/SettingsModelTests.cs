@@ -6,7 +6,7 @@ using Chorus.Utilities;
 using NUnit.Framework;
 using System.Linq;
 
-namespace LibChorus.Tests
+namespace Chorus.Tests.UI.Settings
 {
 	[TestFixture]
 	public class SettingsModelTests

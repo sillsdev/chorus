@@ -6,9 +6,10 @@ using System.Windows.Forms;
 using Chorus.sync;
 using Chorus.UI.Sync;
 using Chorus.VcsDrivers;
+using LibChorus.Tests;
 using NUnit.Framework;
 
-namespace LibChorus.Tests
+namespace Chorus.Tests.UI.Sync
 {
 	[TestFixture]
 	public class SyncDialogTests
@@ -32,10 +33,10 @@ namespace LibChorus.Tests
 			var setup = new RepositorySetup("pedro");
 			{
 				setup.Repository.SetKnownRepositoryAddresses(new RepositoryAddress[]
-				{
-					RepositoryAddress.Create("language depot", "http://hg-public.languagedepot.org"),
-					RepositoryAddress.Create("joe's mac", "//suzie-pc/shared")
-				});
+																 {
+																	 RepositoryAddress.Create("language depot", "http://hg-public.languagedepot.org"),
+																	 RepositoryAddress.Create("joe's mac", "//suzie-pc/shared")
+																 });
 				var c = new SyncStartControl() { Repository = setup.Repository };
 				var f = new Form();
 				c.Dock = DockStyle.Fill;
@@ -52,14 +53,14 @@ namespace LibChorus.Tests
 				Application.EnableVisualStyles();
 
 				setup.Repository.SetKnownRepositoryAddresses(new RepositoryAddress[]
-				{
-					RepositoryAddress.Create("language depot", "http://pedro:mypassword@hg-public.languagedepot.org"),
-				});
+																 {
+																	 RepositoryAddress.Create("language depot", "http://pedro:mypassword@hg-public.languagedepot.org"),
+																 });
 				setup.Repository.SetDefaultSyncRepositoryAliases(new[] {"language depot"});
 
 				using (var dlg = new SyncDialog(setup.ProjectFolderConfig,
-				   SyncUIDialogBehaviors.StartImmediatelyAndCloseWhenFinished,
-				   SyncUIFeatures.Minimal))
+												SyncUIDialogBehaviors.StartImmediatelyAndCloseWhenFinished,
+												SyncUIFeatures.Minimal))
 				{
 					dlg.ShowDialog();
 				}
@@ -74,14 +75,14 @@ namespace LibChorus.Tests
 				Application.EnableVisualStyles();
 
 				setup.Repository.SetKnownRepositoryAddresses(new RepositoryAddress[]
-				{
-					RepositoryAddress.Create("language depot", "http://automatedtest:testing@hg-public.languagedepot.org/tpi"),
-				});
+																 {
+																	 RepositoryAddress.Create("language depot", "http://automatedtest:testing@hg-public.languagedepot.org/tpi"),
+																 });
 				setup.Repository.SetDefaultSyncRepositoryAliases(new[] { "language depot" });
 
 				using (var dlg = new SyncDialog(setup.ProjectFolderConfig,
-				   SyncUIDialogBehaviors.StartImmediately,
-				   SyncUIFeatures.NormalRecommended))
+												SyncUIDialogBehaviors.StartImmediately,
+												SyncUIFeatures.NormalRecommended))
 				{
 					dlg.ShowDialog();
 				}
@@ -96,8 +97,8 @@ namespace LibChorus.Tests
 				Application.EnableVisualStyles();
 
 				using (var dlg = new SyncDialog(setup.ProjectFolderConfig,
-					SyncUIDialogBehaviors.Lazy,
-					SyncUIFeatures.NormalRecommended))
+												SyncUIDialogBehaviors.Lazy,
+												SyncUIFeatures.NormalRecommended))
 				{
 					dlg.ShowDialog();
 				}
@@ -112,8 +113,8 @@ namespace LibChorus.Tests
 			projectConfig.IncludePatterns.Add("*.lift");
 
 			using (var dlg = new SyncDialog(projectConfig,
-					SyncUIDialogBehaviors.Lazy,
-					SyncUIFeatures.NormalRecommended))
+											SyncUIDialogBehaviors.Lazy,
+											SyncUIFeatures.NormalRecommended))
 			{
 				dlg.ShowDialog();
 			}
@@ -127,10 +128,10 @@ namespace LibChorus.Tests
 				Application.EnableVisualStyles();
 
 				using (var dlg = new SyncDialog(setup.ProjectFolderConfig,
-					SyncUIDialogBehaviors.Lazy,
-					SyncUIFeatures.Advanced))
+												SyncUIDialogBehaviors.Lazy,
+												SyncUIFeatures.Advanced))
 				{
-				//    dlg.SyncOptions.RepositorySourcesToTry.Add(RepositoryAddress.Create("bogus", @"z:/"));
+					//    dlg.SyncOptions.RepositorySourcesToTry.Add(RepositoryAddress.Create("bogus", @"z:/"));
 					dlg.ShowDialog();
 				}
 
@@ -144,8 +145,8 @@ namespace LibChorus.Tests
 			{
 				Application.EnableVisualStyles();
 				var dlg = new SyncDialog(setup.ProjectFolderConfig,
-				   SyncUIDialogBehaviors.StartImmediately,
-				   SyncUIFeatures.Minimal);
+										 SyncUIDialogBehaviors.StartImmediately,
+										 SyncUIFeatures.Minimal);
 
 				dlg.ShowDialog();
 			}
@@ -158,8 +159,8 @@ namespace LibChorus.Tests
 			{
 				Application.EnableVisualStyles();
 				var dlg = new SyncDialog(setup.ProjectFolderConfig,
-				   SyncUIDialogBehaviors.StartImmediatelyAndCloseWhenFinished,
-				   SyncUIFeatures.Minimal);
+										 SyncUIDialogBehaviors.StartImmediatelyAndCloseWhenFinished,
+										 SyncUIFeatures.Minimal);
 
 				dlg.ShowDialog();
 			}
@@ -172,14 +173,14 @@ namespace LibChorus.Tests
 			{
 				Application.EnableVisualStyles();
 				using (var dlg = new SyncDialog(setup.ProjectFolderConfig,
-				   SyncUIDialogBehaviors.StartImmediatelyAndCloseWhenFinished,
-				   SyncUIFeatures.Minimal))
+												SyncUIDialogBehaviors.StartImmediatelyAndCloseWhenFinished,
+												SyncUIFeatures.Minimal))
 				{
 					dlg.SyncOptions.RepositorySourcesToTry.Add(RepositoryAddress.Create("bogus", @"z:/"));
 					dlg.ShowDialog();
 					Assert.IsTrue(dlg.FinalStatus.WarningEncountered);
 				}
- }
+			}
 		}
 	}
 }

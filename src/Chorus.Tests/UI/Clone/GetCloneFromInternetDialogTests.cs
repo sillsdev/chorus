@@ -7,7 +7,7 @@ using Chorus.Utilities.UsbDrive;
 using Chorus.VcsDrivers.Mercurial;
 using NUnit.Framework;
 
-namespace LibChorus.Tests
+namespace Chorus.Tests.UI.Clone
 {
 	[TestFixture]
 	public class GetCloneFromInterentDialogTests
