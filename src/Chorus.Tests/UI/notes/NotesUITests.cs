@@ -76,7 +76,7 @@ namespace Chorus.Tests.notes
 						</message>
 					</annotation>
 					<annotation ref='somwhere://foo2' class='note'>
-						<message guid='342' author='john' status='open' date='2009-07-18T23:53:04Z'>
+						<message guid='342' author='john' status='closed' date='2009-07-18T23:53:04Z'>
 							This is fun.
 						</message>
 					</annotation>

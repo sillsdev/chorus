@@ -40,6 +40,13 @@ namespace Chorus.UI.Notes.Browser
 			this.timer1 = new System.Windows.Forms.Timer(this.components);
 			this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
 			this.searchBox1 = new Chorus.UI.Notes.Browser.SearchBox();
+			this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
+			this.showClosedNotesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.menuStrip1 = new System.Windows.Forms.MenuStrip();
+			this.filterToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.showClosedNotesToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+			this.contextMenuStrip1.SuspendLayout();
+			this.menuStrip1.SuspendLayout();
 			this.SuspendLayout();
 			//
 			// _messageListView
@@ -100,18 +107,65 @@ namespace Chorus.UI.Notes.Browser
 			this.searchBox1.TabIndex = 3;
 			this.searchBox1.SearchTextChanged += new System.EventHandler(this.searchBox1_SearchTextChanged);
 			//
+			// contextMenuStrip1
+			//
+			this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+			this.showClosedNotesToolStripMenuItem});
+			this.contextMenuStrip1.Name = "contextMenuStrip1";
+			this.contextMenuStrip1.Size = new System.Drawing.Size(177, 26);
+			this.contextMenuStrip1.Text = "Filter";
+			//
+			// showClosedNotesToolStripMenuItem
+			//
+			this.showClosedNotesToolStripMenuItem.Name = "showClosedNotesToolStripMenuItem";
+			this.showClosedNotesToolStripMenuItem.Size = new System.Drawing.Size(176, 22);
+			this.showClosedNotesToolStripMenuItem.Text = "Show Closed Notes";
+			//
+			// menuStrip1
+			//
+			this.menuStrip1.BackColor = System.Drawing.Color.Transparent;
+			this.menuStrip1.Dock = System.Windows.Forms.DockStyle.None;
+			this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+			this.filterToolStripMenuItem});
+			this.menuStrip1.Location = new System.Drawing.Point(4, 0);
+			this.menuStrip1.Name = "menuStrip1";
+			this.menuStrip1.Size = new System.Drawing.Size(36, 24);
+			this.menuStrip1.TabIndex = 5;
+			this.menuStrip1.Text = "menuStrip1";
+			//
+			// filterToolStripMenuItem
+			//
+			this.filterToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+			this.showClosedNotesToolStripMenuItem1});
+			this.filterToolStripMenuItem.Image = global::Chorus.Properties.Resources.Filter;
+			this.filterToolStripMenuItem.Name = "filterToolStripMenuItem";
+			this.filterToolStripMenuItem.Size = new System.Drawing.Size(28, 20);
+			//
+			// showClosedNotesToolStripMenuItem1
+			//
+			this.showClosedNotesToolStripMenuItem1.CheckOnClick = true;
+			this.showClosedNotesToolStripMenuItem1.Name = "showClosedNotesToolStripMenuItem1";
+			this.showClosedNotesToolStripMenuItem1.Size = new System.Drawing.Size(176, 22);
+			this.showClosedNotesToolStripMenuItem1.Text = "Show Closed Notes";
+			this.showClosedNotesToolStripMenuItem1.Click += new System.EventHandler(this.showClosedNotesToolStripMenuItem1_Click);
+			//
 			// NotesInProjectView
 			//
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.BackColor = System.Drawing.SystemColors.GradientInactiveCaption;
+			this.Controls.Add(this.menuStrip1);
 			this.Controls.Add(this.searchBox1);
 			this.Controls.Add(this._messageListView);
 			this.Name = "NotesInProjectView";
 			this.Size = new System.Drawing.Size(470, 348);
 			this.Load += new System.EventHandler(this.OnLoad);
 			this.VisibleChanged += new System.EventHandler(this.NotesInProjectView_VisibleChanged);
+			this.contextMenuStrip1.ResumeLayout(false);
+			this.menuStrip1.ResumeLayout(false);
+			this.menuStrip1.PerformLayout();
 			this.ResumeLayout(false);
+			this.PerformLayout();
 
 		}
 
@@ -125,6 +179,11 @@ namespace Chorus.UI.Notes.Browser
 		private System.Windows.Forms.ColumnHeader author;
 		private SearchBox searchBox1;
 		private System.Windows.Forms.ImageList _stateImageList;
+		private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
+		private System.Windows.Forms.ToolStripMenuItem showClosedNotesToolStripMenuItem;
+		private System.Windows.Forms.MenuStrip menuStrip1;
+		private System.Windows.Forms.ToolStripMenuItem filterToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem showClosedNotesToolStripMenuItem1;
 
 	}
 }

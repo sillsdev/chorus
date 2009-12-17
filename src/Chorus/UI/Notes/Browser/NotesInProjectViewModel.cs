@@ -33,8 +33,16 @@ namespace Chorus.UI.Notes.Browser
 		}
 
 
-
-		public bool ShowClosedNotes { get; set; }
+		private bool _showClosedNotes;
+		public bool ShowClosedNotes
+		{
+			get { return _showClosedNotes; }
+			set
+			{
+				_showClosedNotes = value;
+				ReloadMessagesNow();
+			}
+		}
 
 		public IEnumerable<ListMessage> GetMessages()
 		{
@@ -46,7 +54,7 @@ namespace Chorus.UI.Notes.Browser
 			foreach (var repository in _repositories)
 			{
 				IEnumerable<Annotation> annotations=  repository.GetAllAnnotations();
-				if(ShowClosedNotes)
+				if(!ShowClosedNotes)
 				{
 					annotations= annotations.Where(a=>a.Status!="closed");
 				}
@@ -55,7 +63,7 @@ namespace Chorus.UI.Notes.Browser
 				{
 					foreach (var message in annotation.Messages)
 					{
-						if (GetDoesMatch(annotation, message))
+						if (GetShouldBeShown(annotation, message))
 						{
 							yield return new ListMessage(annotation, message);
 						}
@@ -64,8 +72,14 @@ namespace Chorus.UI.Notes.Browser
 			}
 		}
 
-		private bool GetDoesMatch(Annotation annotation, Message message)
+		private bool GetShouldBeShown(Annotation annotation, Message message)
 		{
+//            if (!ShowClosedNotes)
+//            {
+//                if (annotation.IsClosed)
+//                    return false;
+//            }
+
 			return string.IsNullOrEmpty(_searchText)
 				   || annotation.LabelOfThingAnnotated.StartsWith(_searchText)
 				   || annotation.ClassName.StartsWith(_searchText)
