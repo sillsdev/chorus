@@ -61,11 +61,11 @@ namespace Chorus.UI.Notes.Browser
 			this._messageListView.FullRowSelect = true;
 			this._messageListView.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
 			this._messageListView.HideSelection = false;
-			this._messageListView.Location = new System.Drawing.Point(0, 27);
+			this._messageListView.Location = new System.Drawing.Point(6, 27);
 			this._messageListView.MultiSelect = false;
 			this._messageListView.Name = "_messageListView";
 			this._messageListView.ShowItemToolTips = true;
-			this._messageListView.Size = new System.Drawing.Size(470, 321);
+			this._messageListView.Size = new System.Drawing.Size(462, 321);
 			this._messageListView.TabIndex = 2;
 			this._messageListView.UseCompatibleStateImageBehavior = false;
 			this._messageListView.View = System.Windows.Forms.View.Details;
@@ -125,11 +125,13 @@ namespace Chorus.UI.Notes.Browser
 			//
 			this.menuStrip1.BackColor = System.Drawing.Color.Transparent;
 			this.menuStrip1.Dock = System.Windows.Forms.DockStyle.None;
+			this.menuStrip1.GripMargin = new System.Windows.Forms.Padding(0, 2, 0, 2);
 			this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
 			this.filterToolStripMenuItem});
 			this.menuStrip1.Location = new System.Drawing.Point(4, 0);
 			this.menuStrip1.Name = "menuStrip1";
-			this.menuStrip1.Size = new System.Drawing.Size(36, 24);
+			this.menuStrip1.Padding = new System.Windows.Forms.Padding(0, 2, 0, 2);
+			this.menuStrip1.Size = new System.Drawing.Size(30, 24);
 			this.menuStrip1.TabIndex = 5;
 			this.menuStrip1.Text = "menuStrip1";
 			//
@@ -138,6 +140,7 @@ namespace Chorus.UI.Notes.Browser
 			this.filterToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
 			this.showClosedNotesToolStripMenuItem1});
 			this.filterToolStripMenuItem.Image = global::Chorus.Properties.Resources.Filter;
+			this.filterToolStripMenuItem.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
 			this.filterToolStripMenuItem.Name = "filterToolStripMenuItem";
 			this.filterToolStripMenuItem.Size = new System.Drawing.Size(28, 20);
 			//

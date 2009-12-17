@@ -26,6 +26,10 @@ namespace Chorus.notes
 
 		public virtual bool UserCanResolve { get { return false; } }
 
+		public virtual string GetLongLabel(string labelOfThingAnnotated)
+		{
+			return String.Format("{0} on {1}", NameInEnglish, labelOfThingAnnotated);
+		}
 	}
 
 	public class QuestionAnnotationClass:AnnotationClass
@@ -42,6 +46,10 @@ namespace Chorus.notes
 				return Chorus.Properties.AnnotationImages.question32x32;
 		}
 
+		public override string GetLongLabel(string labelOfThingAnnotated)
+		{
+			return String.Format("Question about {1}", NameInEnglish, labelOfThingAnnotated);
+		}
 		public override bool UserCanResolve { get { return true; } }
 	}
 
@@ -76,6 +84,11 @@ namespace Chorus.notes
 				return Chorus.Properties.AnnotationImages.MergeConflict16x16;
 			else
 				return Chorus.Properties.AnnotationImages.MergeConflict32x32;
+		}
+
+		public override string GetLongLabel(string labelOfThingAnnotated)
+		{
+			return String.Format("Merge Conflict on {1}", NameInEnglish, labelOfThingAnnotated);
 		}
 
 		public override bool UserCanResolve { get { return true; } }

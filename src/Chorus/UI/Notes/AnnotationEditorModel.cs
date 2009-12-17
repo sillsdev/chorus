@@ -234,6 +234,13 @@ namespace Chorus.UI.Notes
 			return _annotation.GetImage(32);
 		}
 
+		public string GetLongLabel()
+		{
+			return _annotation.GetLongLabel();
+		}
+
+
+
 		public void AddButtonClicked()
 		{
 			_annotation.AddMessage(_user.Name, null, NewMessageText);

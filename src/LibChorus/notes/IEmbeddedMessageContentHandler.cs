@@ -80,7 +80,7 @@ namespace Chorus.notes
 
 		public bool CanHandleUrl(Uri uri)
 		{
-			return uri.Host == Conflict.ConflictAnnotationClassName;
+			return uri.Host == Conflict.ConflictAnnotationClassName.ToLower();//it seems something automatically changes the host to lowercase
 		}
 
 		public void HandleUrl(Uri uri)

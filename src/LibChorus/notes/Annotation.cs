@@ -68,14 +68,6 @@ namespace Chorus.notes
 		{
 			XElement last = LastMessage(annotation);
 			return last == null ? string.Empty : last.Attribute("status").Value;
-//            var x = annotation.Elements("message");
-//            if (x == null)
-//                return string.Empty;
-//            var y = x.Last();
-//            if (y == null)
-//                return string.Empty;
-//            var v = y.Attribute("status");
-//            return v == null ? string.Empty : v.Value;
 		}
 
 		private static XElement LastMessage(XElement annotation)
@@ -174,26 +166,14 @@ namespace Chorus.notes
 			}
 		}
 
-//        public string GetImageUrl(int pixels)
-//        {
-//            var dir = Path.Combine(Path.GetTempPath(), "chorusIcons");
-//            if (!Directory.Exists(dir))
-//                Directory.CreateDirectory(dir);
-//
-//            var bmapPath = Path.Combine(dir, "question.bmp");
-//            if (!File.Exists(bmapPath))
-//            {
-//                using (var bmap = Chorus.Properties.TagIcons.Question.ToBitmap())
-//                {
-//                    bmap.Save(bmapPath);
-//                }
-//            }
-//            return "file://"+bmapPath;
-//        }
-
 		public Image GetImage(int pixels)
 		{
 			return _class.GetImage(pixels);
+		}
+
+		public string GetLongLabel()
+		{
+			return _class.GetLongLabel(LabelOfThingAnnotated);
 		}
 
 		public string GetDiagnosticDump()
