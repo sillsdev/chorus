@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 using Chorus.notes;
@@ -59,10 +60,27 @@ namespace Chorus.Tests.notes
 			}
 		}
 
+		[Test, Ignore("By Hand only")]
+		public void ShowNotesBrowser_LargeNumber()
+		{
+			using (var f = new TempFile("<notes version='0'/>"))
+			{
+				var r = AnnotationRepository.FromFile("id", f.Path, new NullProgress());
+				for (int i = 0; i < 10000; i++)
+				{
+					var annotation = new Annotation("question",
+													string.Format("nowhere://blah?id={0}&label={1}", Guid.NewGuid().ToString(), i.ToString()),
+													f.Path);
+					r.AddAnnotation(annotation);
+					annotation.AddMessage("test", "open", "blah blah");
+				}
 
+				ShowBrowser(new List<AnnotationRepository> {r});
+			}
+		}
 
 		[Test, Ignore("By Hand only")]
-		public void ShowNotesPage()
+		public void ShowNotesBrowser_SmallNumber()
 		{
 			using (var folder = new TempFolder("NotesModelTests"))
 			using (new TempFile(folder, "one." + AnnotationRepository.FileExtension,
@@ -102,22 +120,27 @@ namespace Chorus.Tests.notes
 						</annotation>
 					</notes>"))
 			{
-				var messageSelected = new MessageSelectedEvent();
 				var repositories = AnnotationRepository.CreateRepositoriesFromFolder(folder.Path, _progress);
-				NotesInProjectViewModel notesInProjectModel = new NotesInProjectViewModel(new ChorusUser("Bob"), repositories, messageSelected, new ConsoleProgress());
-
-				var annotationModel = new AnnotationEditorModel(new ChorusUser("bob"), messageSelected, StyleSheet.CreateFromDisk(), new EmbeddedMessageContentHandlerFactory());
-				AnnotationEditorView annotationView = new AnnotationEditorView(annotationModel);
-				annotationView.ModalDialogMode=false;
-				var page = new NotesBrowserPage((unusedRepos,progress)=>notesInProjectModel, repositories, annotationView);
-				page.Dock = DockStyle.Fill;
-				var form = new Form();
-				form.Size = new Size(700,600);
-				form.Controls.Add(page);
-
-				Application.EnableVisualStyles();
-				Application.Run(form);
+				ShowBrowser(repositories);
 			}
+		}
+
+		private void ShowBrowser(IEnumerable<AnnotationRepository> repositories)
+		{
+			var messageSelected = new MessageSelectedEvent();
+			NotesInProjectViewModel notesInProjectModel = new NotesInProjectViewModel(new ChorusUser("Bob"), repositories, messageSelected, new ConsoleProgress());
+
+			var annotationModel = new AnnotationEditorModel(new ChorusUser("bob"), messageSelected, StyleSheet.CreateFromDisk(), new EmbeddedMessageContentHandlerFactory());
+			AnnotationEditorView annotationView = new AnnotationEditorView(annotationModel);
+			annotationView.ModalDialogMode=false;
+			var page = new NotesBrowserPage((unusedRepos,progress)=>notesInProjectModel, repositories, annotationView);
+			page.Dock = DockStyle.Fill;
+			var form = new Form();
+			form.Size = new Size(700,600);
+			form.Controls.Add(page);
+
+			Application.EnableVisualStyles();
+			Application.Run(form);
 		}
 	}
 
