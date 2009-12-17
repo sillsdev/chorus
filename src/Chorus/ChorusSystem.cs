@@ -50,6 +50,10 @@ namespace Chorus
 			builder2.Build(_container);
 		}
 
+		public NavigateToRecordEvent NavigateToRecordEvent
+		{
+			get { return _container.Resolve<NavigateToRecordEvent>(); }
+		}
 		public WinFormsFactory WinForms
 		{
 			get { return new WinFormsFactory(this, _container); }

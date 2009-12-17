@@ -58,6 +58,15 @@ namespace Chorus.UI.Notes
 				_addNewMessageLabel.Visible = _model.ShowNewMessageControls;
 
 				_closeButton.Text = _model.CloseButtonText;
+
+				if (_model.ShowLabelAsHyperlink)
+				{
+					_annotationLabel.LinkBehavior = LinkBehavior.AlwaysUnderline;
+				}
+				else
+				{
+				   _annotationLabel.LinkBehavior = LinkBehavior.NeverUnderline;
+				}
 			}
 		}
 
@@ -141,6 +150,11 @@ namespace Chorus.UI.Notes
 			{
 				OnClose(sender, e);
 			}
+		}
+
+		private void _annotationLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+		{
+			_model.JumpToAnnotationTarget();
 		}
 
 	}

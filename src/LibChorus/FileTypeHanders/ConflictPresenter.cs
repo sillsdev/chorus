@@ -27,16 +27,16 @@ namespace Chorus.FileTypeHanders
 	public class ConflictPresenter : IChangePresenter
 	{
 		private readonly IRetrieveFileVersionsFromRepository _fileRetriever;
-		private readonly XmlAdditionChangeReport _report;
+		private readonly IXmlChangeReport _report;
 		private IConflict _conflict;
 
 		public ConflictPresenter(IXmlChangeReport report, IRetrieveFileVersionsFromRepository fileRetriever)
 		{
 			_fileRetriever = fileRetriever;
-			_report = report as XmlAdditionChangeReport;
+			_report = report;// as XmlAdditionChangeReport;
 			if (_report == null)
 			{
-				_conflict = new UnreadableConflict(_report.ChildNode);
+				_conflict = new UnreadableConflict(report.ChildNode);
 			}
 			else
 			{

@@ -7,6 +7,7 @@ using Chorus.sync;
 using Chorus.UI;
 using Chorus.UI.Notes;
 using Chorus.UI.Notes.Browser;
+using Chorus.UI.Review;
 using Chorus.Utilities;
 using NUnit.Framework;
 
@@ -130,7 +131,7 @@ namespace Chorus.Tests.notes
 			var messageSelected = new MessageSelectedEvent();
 			NotesInProjectViewModel notesInProjectModel = new NotesInProjectViewModel(new ChorusUser("Bob"), repositories, messageSelected, new ConsoleProgress());
 
-			var annotationModel = new AnnotationEditorModel(new ChorusUser("bob"), messageSelected, StyleSheet.CreateFromDisk(), new EmbeddedMessageContentHandlerFactory());
+			var annotationModel = new AnnotationEditorModel(new ChorusUser("bob"), messageSelected, StyleSheet.CreateFromDisk(), new EmbeddedMessageContentHandlerFactory(), new NavigateToRecordEvent());
 			AnnotationEditorView annotationView = new AnnotationEditorView(annotationModel);
 			annotationView.ModalDialogMode=false;
 			var page = new NotesBrowserPage((unusedRepos,progress)=>notesInProjectModel, repositories, annotationView);

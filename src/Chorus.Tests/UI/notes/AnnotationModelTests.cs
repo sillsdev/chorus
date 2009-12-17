@@ -8,6 +8,7 @@ using Chorus.notes;
 using Chorus.sync;
 using Chorus.UI;
 using Chorus.UI.Notes;
+using Chorus.UI.Review;
 using Chorus.Utilities;
 using NUnit.Framework;
 
@@ -51,7 +52,7 @@ namespace Chorus.Tests.notes
 
 		private AnnotationEditorModel CreateAnnotationModel(MessageSelectedEvent messageSelected)
 		{
-			return new AnnotationEditorModel(new ChorusUser("bob"), messageSelected, StyleSheet.CreateFromDisk(), new EmbeddedMessageContentHandlerFactory());
+			return new AnnotationEditorModel(new ChorusUser("bob"), messageSelected, StyleSheet.CreateFromDisk(), new EmbeddedMessageContentHandlerFactory(), new NavigateToRecordEvent());
 		}
 
 		private Annotation CreateAnnotation()

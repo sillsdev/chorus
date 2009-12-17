@@ -21,6 +21,10 @@ namespace Chorus
 				((Action<TPayload>)subscriber)(descriptor);
 			}
 		}
+		public bool HasSubscribers
+		{
+			get { return _subscribers.Count > 0; }
+		}
 	}
 
 	public class Event<TPayload1, TPayload2>

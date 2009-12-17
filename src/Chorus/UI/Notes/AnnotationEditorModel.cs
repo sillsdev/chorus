@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using Chorus.notes;
+using Chorus.UI.Review;
 using Message=Chorus.notes.Message;
 
 namespace Chorus.UI.Notes
@@ -14,14 +15,16 @@ namespace Chorus.UI.Notes
 
 	public class AnnotationEditorModel
 	{
-		public delegate AnnotationEditorModel Factory(Annotation annotation);//autofac uses this
+		public delegate AnnotationEditorModel Factory(Annotation annotation, bool showLabelAsHyperlink);//autofac uses this
 
 		private readonly IChorusUser _user;
 		private readonly StyleSheet _styleSheet;
 		private Annotation _annotation;
+		private readonly NavigateToRecordEvent _navigateToRecordEventToRaise;
 		private Message _currentFocussedMessage; //this is the part of the annotation in focus
 		private string _newMessageText;
 		private EmbeddedMessageContentHandlerFactory _embeddedMessageContentHandlerFactory;
+		private bool _showLabelAsHyperLink=true;
 
 		internal event EventHandler UpdateContent;
 		internal event EventHandler UpdateStates;
@@ -33,22 +36,28 @@ namespace Chorus.UI.Notes
 		public AnnotationEditorModel(IChorusUser user,
 		   StyleSheet styleSheet,
 		   EmbeddedMessageContentHandlerFactory embeddedMessageContentHandlerFactory,
-			Annotation annotation)
+			Annotation annotation,
+			NavigateToRecordEvent navigateToRecordEventToRaise,
+			bool showLabelAsHyperlink)
 		{
 			_user = user;
 			_embeddedMessageContentHandlerFactory = embeddedMessageContentHandlerFactory;
 			_styleSheet = styleSheet;
 			NewMessageText = string.Empty;
 			_annotation = annotation;
+			_navigateToRecordEventToRaise = navigateToRecordEventToRaise;
+			_showLabelAsHyperLink = showLabelAsHyperlink;
 		}
 
 		public AnnotationEditorModel(IChorusUser user,
 							MessageSelectedEvent messageSelectedEventToSubscribeTo,
 							StyleSheet styleSheet,
-							EmbeddedMessageContentHandlerFactory embeddedMessageContentHandlerFactory)
+							EmbeddedMessageContentHandlerFactory embeddedMessageContentHandlerFactory,
+							NavigateToRecordEvent navigateToRecordEventToRaise)
 		{
 			_user = user;
 			_embeddedMessageContentHandlerFactory = embeddedMessageContentHandlerFactory;
+			_navigateToRecordEventToRaise = navigateToRecordEventToRaise;
 			_styleSheet = styleSheet;
 			messageSelectedEventToSubscribeTo.Subscribe((annotation, message) => SetAnnotationAndFocussedMessage(annotation, message));
 			NewMessageText = string.Empty;
@@ -229,6 +238,14 @@ namespace Chorus.UI.Notes
 			get { return _annotation.LabelOfThingAnnotated; }
 		}
 
+		//In a dialog situation, we might not want to offer the hyperlink, if we don't plan to act on it.
+		//Or, if we happen to know that noone is listenting...
+		public bool ShowLabelAsHyperlink
+		{
+			get { return _showLabelAsHyperLink && _navigateToRecordEventToRaise.HasSubscribers; }
+			set {_showLabelAsHyperLink = value;}
+		}
+
 		public Image GetAnnotationLogoImage()
 		{
 			return _annotation.GetImage(32);
@@ -316,6 +333,11 @@ namespace Chorus.UI.Notes
 			{
 				handler.HandleUrl(uri);
 			}
+		}
+
+		public void JumpToAnnotationTarget()
+		{
+			_navigateToRecordEventToRaise.Raise(_annotation.RefUnEscaped);
 		}
 	}
 }

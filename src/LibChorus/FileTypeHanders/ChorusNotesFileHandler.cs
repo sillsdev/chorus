@@ -68,7 +68,8 @@ namespace Chorus.FileTypeHanders
 			using (var parentFile = parent.CreateTempFile(repository))
 			{
 
-				var differ = ChorusNotesDiffer.CreateFromFiles(parentFile.Path, childFile.Path, listener);
+			 //   var differ = ChorusNotesDiffer.CreateFromFiles(parentFile.Path, childFile.Path, listener);
+				var differ = ChorusNotesDiffer.CreateFromFiles(parent, child, parentFile.Path, childFile.Path, listener);
 				differ.ReportDifferencesToListener();
 				return listener.Changes;
 			}
@@ -78,7 +79,7 @@ namespace Chorus.FileTypeHanders
 		{
 			if ((report as IXmlChangeReport) != null)
 			{
-				return new ConflictPresenter(report as IXmlChangeReport, repository);
+				return new NotePresenter(report as IXmlChangeReport, repository);
 			}
 			else
 			{

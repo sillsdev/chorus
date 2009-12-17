@@ -31,10 +31,10 @@
 			this._closedCheckBox = new System.Windows.Forms.CheckBox();
 			this._addButton = new System.Windows.Forms.Button();
 			this._newMessage = new System.Windows.Forms.TextBox();
-			this._annotationLabel = new System.Windows.Forms.Label();
 			this._annotationLogo = new System.Windows.Forms.PictureBox();
 			this._existingMessagesDisplay = new System.Windows.Forms.WebBrowser();
 			this._closeButton = new System.Windows.Forms.Button();
+			this._annotationLabel = new System.Windows.Forms.LinkLabel();
 			this._addNewMessageLabel = new Chorus.UI.BetterLabel();
 			((System.ComponentModel.ISupportInitialize)(this._annotationLogo)).BeginInit();
 			this.SuspendLayout();
@@ -75,16 +75,6 @@
 			this._newMessage.TabIndex = 0;
 			this._newMessage.TextChanged += new System.EventHandler(this._newMessage_TextChanged);
 			//
-			// _annotationLabel
-			//
-			this._annotationLabel.AutoSize = true;
-			this._annotationLabel.Font = new System.Drawing.Font("Segoe UI", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this._annotationLabel.Location = new System.Drawing.Point(44, 9);
-			this._annotationLabel.Name = "_annotationLabel";
-			this._annotationLabel.Size = new System.Drawing.Size(151, 25);
-			this._annotationLabel.TabIndex = 8;
-			this._annotationLabel.Text = "AnnotationLabel";
-			//
 			// _annotationLogo
 			//
 			this._annotationLogo.Image = global::Chorus.Properties.Resources.NewNote16x16;
@@ -122,6 +112,19 @@
 			this._closeButton.UseVisualStyleBackColor = true;
 			this._closeButton.Click += new System.EventHandler(this._closeButton_Click);
 			//
+			// _annotationLabel
+			//
+			this._annotationLabel.AutoSize = true;
+			this._annotationLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this._annotationLabel.LinkColor = System.Drawing.Color.Black;
+			this._annotationLabel.Location = new System.Drawing.Point(43, 8);
+			this._annotationLabel.Name = "_annotationLabel";
+			this._annotationLabel.Size = new System.Drawing.Size(129, 24);
+			this._annotationLabel.TabIndex = 10;
+			this._annotationLabel.TabStop = true;
+			this._annotationLabel.Text = "Target of Note";
+			this._annotationLabel.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this._annotationLabel_LinkClicked);
+			//
 			// _addNewMessageLabel
 			//
 			this._addNewMessageLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
@@ -140,8 +143,8 @@
 			//
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.Controls.Add(this._existingMessagesDisplay);
 			this.Controls.Add(this._annotationLabel);
+			this.Controls.Add(this._existingMessagesDisplay);
 			this.Controls.Add(this._newMessage);
 			this.Controls.Add(this._closeButton);
 			this.Controls.Add(this._addButton);
@@ -164,8 +167,8 @@
 		private BetterLabel _addNewMessageLabel;
 		private System.Windows.Forms.Button _addButton;
 		private System.Windows.Forms.TextBox _newMessage;
-		private System.Windows.Forms.Label _annotationLabel;
 		private System.Windows.Forms.WebBrowser _existingMessagesDisplay;
 		private System.Windows.Forms.Button _closeButton;
+		private System.Windows.Forms.LinkLabel _annotationLabel;
 	}
 }

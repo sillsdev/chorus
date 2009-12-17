@@ -4,6 +4,7 @@ using System.Xml;
 using Chorus.FileTypeHanders.xml;
 using Chorus.merge.xml.generic;
 using Chorus.merge.xml.lift;
+using Chorus.VcsDrivers.Mercurial;
 
 
 namespace Chorus.FileTypeHanders
@@ -13,14 +14,17 @@ namespace Chorus.FileTypeHanders
 		private readonly List<string> _processedIds = new List<string>();
 		private readonly XmlDocument _childDom;
 		private readonly XmlDocument _parentDom;
+		private readonly FileInRevision _parentFileInRevision;
+		private readonly FileInRevision _childFileInRevision;
 		private readonly string _fullPath;
 		private IMergeEventListener EventListener;
 
-		public static ChorusNotesDiffer CreateFromFiles(string ancestorLiftPath, string ourLiftPath, IMergeEventListener eventListener)
+		public static ChorusNotesDiffer CreateFromFiles(FileInRevision parent, FileInRevision child, string ancestorLiftPath, string ourLiftPath, IMergeEventListener eventListener)
 		{
-			return new ChorusNotesDiffer(ourLiftPath, File.ReadAllText(ourLiftPath), File.ReadAllText(ancestorLiftPath), eventListener);
+			return new ChorusNotesDiffer(parent, child, ourLiftPath, File.ReadAllText(ourLiftPath), File.ReadAllText(ancestorLiftPath), eventListener);
 		}
-		private ChorusNotesDiffer(string fullPath, string childXml, string parentXml, IMergeEventListener eventListener)
+		private ChorusNotesDiffer(FileInRevision parentFileInRevision, FileInRevision childFileInRevision,
+			string fullPath, string childXml, string parentXml, IMergeEventListener eventListener)
 		{
 			_childDom = new XmlDocument();
 			_parentDom = new XmlDocument();
@@ -28,6 +32,8 @@ namespace Chorus.FileTypeHanders
 			_childDom.LoadXml(childXml);
 			_parentDom.LoadXml(parentXml);
 
+			_parentFileInRevision = parentFileInRevision;
+			_childFileInRevision = childFileInRevision;
 			_fullPath = fullPath;
 			EventListener = eventListener;
 		}
@@ -62,7 +68,7 @@ namespace Chorus.FileTypeHanders
 			}
 			else //one or both changed
 			{
-				EventListener.ChangeOccurred(new XmlChangedRecordReport(null, null, parent,child));
+				EventListener.ChangeOccurred(new XmlChangedRecordReport(_parentFileInRevision,_childFileInRevision, parent,child));
 			}
 			_processedIds.Add(id);
 		}

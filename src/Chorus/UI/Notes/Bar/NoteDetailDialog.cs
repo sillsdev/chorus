@@ -15,7 +15,7 @@ namespace Chorus.UI.Notes.Bar
 		public NoteDetailDialog(Annotation annotation, AnnotationEditorModel.Factory viewModelFactory)
 		{
 			InitializeComponent();
-			var model = viewModelFactory(annotation);
+			var model = viewModelFactory(annotation, false);
 			Text = model.GetLongLabel();
 			var view = new AnnotationEditorView(model);
 			view.ModalDialogMode = true;
