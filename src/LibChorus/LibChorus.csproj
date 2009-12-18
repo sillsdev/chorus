@@ -85,6 +85,7 @@
   </ItemGroup>
   <ItemGroup>
 	<Compile Include="FileTypeHanders\NotePresenter.cs" />
+	<Compile Include="IWritingSystem.cs" />
 	<Compile Include="notes\IndexOfAllAnnotationsByKey.cs" />
 	<Compile Include="notes\AnnotationIndex.cs" />
 	<Compile Include="notes\IAnnotationRepositoryObserver.cs" />

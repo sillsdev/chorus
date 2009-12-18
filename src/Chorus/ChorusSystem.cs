@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 using Autofac;
 using Autofac.Builder;
@@ -27,11 +28,14 @@ namespace Chorus
 
 		public ChorusSystem(string folderPath)
 		{
+			WritingSystems = new List<IWritingSystem>(new []{new EnglishWritingSystem()});
+
 			_folderPath = folderPath;
 			var hgrepo = HgRepository.CreateOrLocate(folderPath, new NullProgress());
 			var builder = new Autofac.Builder.ContainerBuilder();
 
 			builder.Register<ProjectFolderConfiguration>(c => new ProjectFolderConfiguration(folderPath));
+			builder.Register<IEnumerable<IWritingSystem>>(c=>WritingSystems);
 
 			ChorusUIComponentsInjector.Inject(builder, folderPath);
 
@@ -44,10 +48,20 @@ namespace Chorus
 		   // builder.Register(new NullProgress());//TODO
 			_container = builder.Build();
 
+
 			//add the container itself
 			var builder2 = new Autofac.Builder.ContainerBuilder();
 			builder2.Register<IContainer>(_container);
 			builder2.Build(_container);
+		}
+
+		/// <summary>
+		/// Set this if you want something other than English
+		/// </summary>
+		public IEnumerable<IWritingSystem> WritingSystems
+		{
+			get;
+			set;
 		}
 
 		public NavigateToRecordEvent NavigateToRecordEvent

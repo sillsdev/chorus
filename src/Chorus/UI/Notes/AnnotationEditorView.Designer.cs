@@ -74,6 +74,7 @@
 			this._newMessage.Size = new System.Drawing.Size(248, 45);
 			this._newMessage.TabIndex = 0;
 			this._newMessage.TextChanged += new System.EventHandler(this._newMessage_TextChanged);
+			this._newMessage.Enter += new System.EventHandler(this._newMessage_Enter);
 			//
 			// _annotationLogo
 			//

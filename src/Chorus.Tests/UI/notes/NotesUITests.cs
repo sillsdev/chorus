@@ -131,7 +131,9 @@ namespace Chorus.Tests.notes
 			var messageSelected = new MessageSelectedEvent();
 			NotesInProjectViewModel notesInProjectModel = new NotesInProjectViewModel(new ChorusUser("Bob"), repositories, messageSelected, new ConsoleProgress());
 
-			var annotationModel = new AnnotationEditorModel(new ChorusUser("bob"), messageSelected, StyleSheet.CreateFromDisk(), new EmbeddedMessageContentHandlerFactory(), new NavigateToRecordEvent());
+			var writingSystems= new List<IWritingSystem>(new []{new EnglishWritingSystem()});
+			var annotationModel = new AnnotationEditorModel(new ChorusUser("bob"), messageSelected, StyleSheet.CreateFromDisk(),
+				new EmbeddedMessageContentHandlerFactory(), new NavigateToRecordEvent(), writingSystems);
 			AnnotationEditorView annotationView = new AnnotationEditorView(annotationModel);
 			annotationView.ModalDialogMode=false;
 			var page = new NotesBrowserPage((unusedRepos,progress)=>notesInProjectModel, repositories, annotationView);

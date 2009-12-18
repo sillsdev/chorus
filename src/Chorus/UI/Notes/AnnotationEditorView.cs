@@ -20,6 +20,7 @@ namespace Chorus.UI.Notes
 			ModalDialogMode = true;
 			//needs to be primed this way
 			_existingMessagesDisplay.DocumentText = "<html></html>";
+			_newMessage.Font = model.FontForNewMessage;
 		}
 
 		public bool ModalDialogMode
@@ -155,6 +156,11 @@ namespace Chorus.UI.Notes
 		private void _annotationLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
 		{
 			_model.JumpToAnnotationTarget();
+		}
+
+		private void _newMessage_Enter(object sender, EventArgs e)
+		{
+			_model.ActivateKeyboard();
 		}
 
 	}
