@@ -40,6 +40,7 @@ namespace Chorus.UI.Clone
 
 			_internetCloneInstructionsControl = new InternetCloneInstructionsControl(parentDirectoryToPutCloneIn);
 		//	_internetCloneInstructionsControl.AutoSize = true;
+			_internetCloneInstructionsControl.TabIndex = 0;
 			_internetCloneInstructionsControl.Anchor = (AnchorStyles.Bottom | AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right);
 			_internetCloneInstructionsControl._downloadButton.Click+=new EventHandler(OnDownloadClick);
 			this.MinimumSize = new Size(_internetCloneInstructionsControl.MinimumSize.Width+20, _internetCloneInstructionsControl.MinimumSize.Height+20);
@@ -48,6 +49,8 @@ namespace Chorus.UI.Clone
 				this.Size = new Size(this.Width,_internetCloneInstructionsControl.Bottom + 30);
 			}
 			this.Controls.Add(_internetCloneInstructionsControl);
+
+			_fixSettingsButton.Left = _cancelButton.Left;
 		}
 
 		private void _backgroundWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
@@ -85,7 +88,7 @@ namespace Chorus.UI.Clone
 			try
 			{
 				//review: do we need to get these out of the DoWorkEventArgs instead?
-				HgRepository.Clone(URL, PathToNewProject, _progress);
+				HgRepository.Clone(ThreadSafeUrl, PathToNewProject, _progress);
 				using (SoundPlayer player = new SoundPlayer(Properties.Resources.finishedSound))
 				{
 					player.Play();
@@ -107,6 +110,7 @@ namespace Chorus.UI.Clone
 		private void UpdateDisplay(State newState)
 		{
 			_state = newState;
+			_fixSettingsButton.Visible = false;
 			switch (_state)
 			{
 				case State.AskingUserForURL:
@@ -153,8 +157,9 @@ namespace Chorus.UI.Clone
 					_logBox.Visible = true;
 					break;
 				case State.Error:
-					_cancelButton.Enabled = true;
-					_cancelButton.Text = "Close";
+					_fixSettingsButton.Visible = true;
+					_cancelButton.Enabled = false;
+					_cancelButton.Text = "&Cancel";
 					_cancelButton.Select();
 					_cancelTaskButton.Visible = false;
 					_statusLabel.Visible = true;
@@ -198,7 +203,7 @@ namespace Chorus.UI.Clone
 
 		private void _cancelButton_Click(object sender, EventArgs e)
 		{
-				DialogResult = DialogResult.Cancel;
+			DialogResult = DialogResult.Cancel;
 				Close();
 		}
 
@@ -206,19 +211,21 @@ namespace Chorus.UI.Clone
 		{
 			lock (this)
 			{
+				_logBox.Clear();
 				if(_backgroundWorker.IsBusy)
 					return;
 				UpdateDisplay(State.MakingClone);
-				_backgroundWorker.RunWorkerAsync(new object[] {URL, PathToNewProject, _progress});
+				ThreadSafeUrl = _internetCloneInstructionsControl.URL;
+				_backgroundWorker.RunWorkerAsync(new object[] { ThreadSafeUrl, PathToNewProject, _progress });
 			}
 
 		}
 
 
-		public string URL
+		public string ThreadSafeUrl
 		{
-			get { return _internetCloneInstructionsControl.URL; }
-			set { _internetCloneInstructionsControl.URL = value; }
+			get;
+			set;
 		}
 
 		private void button2_Click(object sender, EventArgs e)
@@ -234,6 +241,15 @@ namespace Chorus.UI.Clone
 					_progress.CancelRequested = true; //but it will be monitoring this
 				}
 			}
+		}
+
+		private void _logBox_Load(object sender, EventArgs e)
+		{
+		}
+
+		private void _fixSettingsButton_Click(object sender, EventArgs e)
+		{
+				UpdateDisplay(State.AskingUserForURL);
 		}
 
 	}

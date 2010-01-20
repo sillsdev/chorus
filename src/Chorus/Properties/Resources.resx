@@ -142,11 +142,17 @@
   <data name="errorSound" type="System.Resources.ResXFileRef, System.Windows.Forms">
 	<value>..\Resources\error.wav;System.IO.MemoryStream, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
+  <data name="expand" type="System.Resources.ResXFileRef, System.Windows.Forms">
+	<value>..\Resources\expand.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
   <data name="XmlToHtml10Basic" type="System.Resources.ResXFileRef, System.Windows.Forms">
 	<value>..\UI\Notes\XmlToHtml10Basic.xslt;System.String, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-16</value>
   </data>
   <data name="search16x16" type="System.Resources.ResXFileRef, System.Windows.Forms">
 	<value>..\Resources\search16x16.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="check12x12" type="System.Resources.ResXFileRef, System.Windows.Forms">
+	<value>..\Resources\check12x12.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="chorus32x32" type="System.Resources.ResXFileRef, System.Windows.Forms">
 	<value>..\Resources\chorus32x32.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -163,16 +169,16 @@
   <data name="internet29x32" type="System.Resources.ResXFileRef, System.Windows.Forms">
 	<value>..\Resources\internet29x32.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="Filter" type="System.Resources.ResXFileRef, System.Windows.Forms">
+	<value>..\Resources\Filter2HS.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
   <data name="warningSound" type="System.Resources.ResXFileRef, System.Windows.Forms">
 	<value>..\Resources\warning.wav;System.IO.MemoryStream, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="NewNote16x16" type="System.Resources.ResXFileRef, System.Windows.Forms">
 	<value>..\Resources\NewNote16x16.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="check12x12" type="System.Resources.ResXFileRef, System.Windows.Forms">
-	<value>..\Resources\check12x12.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="Filter" type="System.Resources.ResXFileRef, System.Windows.Forms">
-	<value>..\Resources\Filter2HS.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="menuButton" type="System.Resources.ResXFileRef, System.Windows.Forms">
+	<value>..\Resources\menuButton.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
 </root>

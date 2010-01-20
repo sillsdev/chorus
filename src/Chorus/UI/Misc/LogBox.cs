@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Drawing;
-using System.Data;
-using System.Text;
 using System.Windows.Forms;
 using Chorus.Utilities;
 
@@ -72,7 +68,7 @@ namespace Chorus.UI.Misc
 
 		public bool ShowVerbose
 		{
-			set { _showDetails.Checked = value; }
+			set { _showDetailsMenu.Checked = value; }
 		}
 
 		public bool CancelRequested
@@ -83,8 +79,8 @@ namespace Chorus.UI.Misc
 
 		private void _showDetails_CheckedChanged(object sender, EventArgs e)
 		{
-			_verboseBox.Visible = _showDetails.Checked;
-			_box.Visible = !_showDetails.Checked;
+			_verboseBox.Visible = _showDetailsMenu.Checked;
+			_box.Visible = !_showDetailsMenu.Checked;
 
 #if MONO  //mono (2.0?) doesn't update the size of the box when invisible, apparently
 			if (_showDetails.Checked)
@@ -113,5 +109,17 @@ namespace Chorus.UI.Misc
 			_box.Text = "";
 			_verboseBox.Text = "";
 		}
+
+		private void _verboseBox_SizeChanged(object sender, EventArgs e)
+		{
+		   // _copyToClipboardLink.Top = _showDetails.Top = 10; //_verboseBox.Bottom ;
+	   }
+
+		private void copyToClipboardToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			_copyToClipboardLink_LinkClicked(sender, null);
+		}
+
+
 	}
 }

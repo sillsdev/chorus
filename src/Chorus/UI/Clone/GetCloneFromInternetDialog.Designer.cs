@@ -37,6 +37,7 @@
 			this._statusLabel = new System.Windows.Forms.TextBox();
 			this._progressBar = new System.Windows.Forms.ProgressBar();
 			this._cancelTaskButton = new System.Windows.Forms.Button();
+			this._fixSettingsButton = new System.Windows.Forms.Button();
 			this._logBox = new Chorus.UI.Misc.LogBox();
 			this.SuspendLayout();
 			//
@@ -55,7 +56,8 @@
 			// _okButton
 			//
 			this._okButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-			this._okButton.Location = new System.Drawing.Point(204, 227);
+			this._okButton.DialogResult = System.Windows.Forms.DialogResult.OK;
+			this._okButton.Location = new System.Drawing.Point(206, 227);
 			this._okButton.Name = "_okButton";
 			this._okButton.Size = new System.Drawing.Size(75, 23);
 			this._okButton.TabIndex = 2;
@@ -119,15 +121,28 @@
 			this._cancelTaskButton.UseVisualStyleBackColor = true;
 			this._cancelTaskButton.Click += new System.EventHandler(this.button2_Click);
 			//
+			// _fixSettingsButton
+			//
+			this._fixSettingsButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+			this._fixSettingsButton.Location = new System.Drawing.Point(113, 227);
+			this._fixSettingsButton.Name = "_fixSettingsButton";
+			this._fixSettingsButton.Size = new System.Drawing.Size(75, 23);
+			this._fixSettingsButton.TabIndex = 1;
+			this._fixSettingsButton.Text = "&Fix Settings";
+			this._fixSettingsButton.UseVisualStyleBackColor = true;
+			this._fixSettingsButton.Click += new System.EventHandler(this._fixSettingsButton_Click);
+			//
 			// _logBox
 			//
 			this._logBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
 						| System.Windows.Forms.AnchorStyles.Left)
 						| System.Windows.Forms.AnchorStyles.Right)));
+			this._logBox.CancelRequested = false;
 			this._logBox.Location = new System.Drawing.Point(15, 80);
 			this._logBox.Name = "_logBox";
-			this._logBox.Size = new System.Drawing.Size(359, 141);
-			this._logBox.TabIndex = 24;
+			this._logBox.Size = new System.Drawing.Size(359, 122);
+			this._logBox.TabIndex = 0;
+			this._logBox.Load += new System.EventHandler(this._logBox_Load);
 			//
 			// GetCloneFromInternetDialog
 			//
@@ -139,6 +154,7 @@
 			this.Controls.Add(this._progressBar);
 			this.Controls.Add(this._statusImage);
 			this.Controls.Add(this._okButton);
+			this.Controls.Add(this._fixSettingsButton);
 			this.Controls.Add(this._cancelButton);
 			this.Controls.Add(this._statusLabel);
 			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
@@ -164,5 +180,6 @@
 		private System.Windows.Forms.ProgressBar _progressBar;
 		private System.Windows.Forms.Button _cancelTaskButton;
 		private Chorus.UI.Misc.LogBox _logBox;
+		private System.Windows.Forms.Button _fixSettingsButton;
 	}
 }

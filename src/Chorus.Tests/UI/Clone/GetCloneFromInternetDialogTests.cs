@@ -18,33 +18,33 @@ namespace Chorus.Tests.UI.Clone
 			Application.EnableVisualStyles();//make progress bar work correctly
 		}
 
-		[Test, Ignore("Run by hand only")]
-		public void LaunchDialog_GoodAddressLargeRepot()
-		{
-			Launch("http://hg-public.languagedepot.org/tpi");
-		}
-
-		[Test, Ignore("Run by hand only")]
-		public void LaunchDialog_GoodAddressSmallRepot()
-		{
-			Launch("http://hg.palaso.org/chorusdemo");
-		}
-
-		[Test, Ignore("Run by hand only")]
-		public void LaunchDialog_IllFormedAddress()//gives abort: repository htt://a73fsz.org/tpi not found!
-		{
-			Launch("htt://a73fsz.org/tpi");
-		}
-		[Test, Ignore("Run by hand only")]
-		public void LaunchDialog_BogusAddress()//(in Ukarumpa) gives : HTTP Error 502: Proxy Error ( The host was not found. )
-		{
-			Launch("http://a73fsz.org/tpi");
-		}
-		[Test, Ignore("Run by hand only")]
-		public void LaunchDialog_ProjectWontbeFound()//gives HTTP Error 404: Not Found
-		{
-			Launch("http://hg-public.languagedepot.org/NOTHERE");
-		}
+//        [Test, Ignore("Run by hand only")]
+//        public void LaunchDialog_GoodAddressLargeRepot()
+//        {
+//            Launch("http://hg-public.languagedepot.org/tpi");
+//        }
+//
+//        [Test, Ignore("Run by hand only")]
+//        public void LaunchDialog_GoodAddressSmallRepot()
+//        {
+//            Launch("http://hg.palaso.org/chorusdemo");
+//        }
+//
+//        [Test, Ignore("Run by hand only")]
+//        public void LaunchDialog_IllFormedAddress()//gives abort: repository htt://a73fsz.org/tpi not found!
+//        {
+//            Launch("htt://a73fsz.org/tpi");
+//        }
+//        [Test, Ignore("Run by hand only")]
+//        public void LaunchDialog_BogusAddress()//(in Ukarumpa) gives : HTTP Error 502: Proxy Error ( The host was not found. )
+//        {
+//            Launch("http://a73fsz.org/tpi");
+//        }
+//        [Test, Ignore("Run by hand only")]
+//        public void LaunchDialog_ProjectWontbeFound()//gives HTTP Error 404: Not Found
+//        {
+//            Launch("http://hg-public.languagedepot.org/NOTHERE");
+//        }
 
 		private void Launch(string url)
 		{
@@ -60,7 +60,7 @@ namespace Chorus.Tests.UI.Clone
 				using (var dlg = new GetCloneFromInternetDialog(targetComputer.Path))
 				{
 
-					dlg.URL = url;
+			 //       dlg.URL = url;
 
 					if (DialogResult.OK != dlg.ShowDialog())
 						return;
@@ -68,6 +68,32 @@ namespace Chorus.Tests.UI.Clone
 			}
 		}
 
+		[Test,Ignore("By hand only")]
+		public void LaunchUI()
+		{
+			Launch();
+		}
+
+
+		private void Launch()
+		{
+			using (var targetComputer = new TempFolder("clonetest-targetComputer"))
+			using (var dest = new TempFolder("clonetest"))
+			{
+				Directory.CreateDirectory(dest.Combine("repo1"));
+				HgRepository.CreateRepositoryInExistingDir(dest.Combine("repo1"), new NullProgress());
+
+				//ok, the point here is that we already haved something called "repo1"
+				Directory.CreateDirectory(targetComputer.Combine("repo1"));
+
+				using (var dlg = new GetCloneFromInternetDialog(targetComputer.Path))
+				{
+
+					if (DialogResult.OK != dlg.ShowDialog())
+						return;
+				}
+			}
+		}
 
 	}
 }

@@ -62,14 +62,14 @@
 		<bottomheight>0</bottomheight>
 	  </controlProperties>
 	</control>
-	<control controlID="24" controlTypeID="com.balsamiq.mockups::Label" x="574" y="150" w="-1" h="-1" measuredW="39" measuredH="25" zOrder="10" locked="false" isInGroup="-1">
+	<control controlID="24" controlTypeID="com.balsamiq.mockups::Label" x="574" y="150" w="-1" h="-1" measuredW="40" measuredH="25" zOrder="10" locked="false" isInGroup="-1">
 	  <controlProperties>
 		<text>Name</text>
 	  </controlProperties>
 	</control>
-	<control controlID="25" controlTypeID="com.balsamiq.mockups::Label" x="574" y="191" w="-1" h="-1" measuredW="166" measuredH="25" zOrder="11" locked="false" isInGroup="-1">
+	<control controlID="25" controlTypeID="com.balsamiq.mockups::Label" x="574" y="191" w="-1" h="-1" measuredW="169" measuredH="25" zOrder="11" locked="false" isInGroup="-1">
 	  <controlProperties>
-		<text>ISO%20%3F%3F%3F/Ethnologue%20Code</text>
+		<text>ISO%20639/Ethnologue%20Code</text>
 	  </controlProperties>
 	</control>
 	<control controlID="26" controlTypeID="com.balsamiq.mockups::Label" x="574" y="226" w="-1" h="-1" measuredW="126" measuredH="25" zOrder="12" locked="false" isInGroup="-1">

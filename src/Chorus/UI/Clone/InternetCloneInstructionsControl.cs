@@ -1,26 +1,39 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Web;
 using System.Windows.Forms;
+using System.Linq;
 
 namespace Chorus.UI.Clone
 {
 	public partial class InternetCloneInstructionsControl : UserControl
 	{
 		private readonly string _parentDirectoryToPutCloneIn;
+		private readonly Dictionary<string, string> _servers = new Dictionary<string, string>();
 
 		public InternetCloneInstructionsControl(string parentDirectoryToPutCloneIn)
 		{
 			_parentDirectoryToPutCloneIn = parentDirectoryToPutCloneIn;
+
 			InitializeComponent();
+
+			_servers.Add("languageDepot.org", "hg-public.languageDepot.org");
+			_servers.Add("private.languageDepot.org", "hg-private.languageDepot.org");
+			foreach (KeyValuePair<string, string> pair in _servers)
+			{
+				_serverCombo.Items.Add(pair.Key);
+			}
+			_serverCombo.SelectedIndex = 0;
 		}
 
 		private void UpdateDisplay()
 		{
-			var haveGoodUrl = HaveGoodUrl;
+			var haveGoodUrl = HaveNeededAccountInfo;
 			_downloadButton.Enabled = haveGoodUrl && TargetLocationIsUnused && HaveWellFormedTargetLocation;
 
-			_targetInfoLabel.Visible = _localFolderName.Enabled = HaveGoodUrl;
-			_sourcetWarningImage.Visible = !haveGoodUrl;
+			_targetInfoLabel.Visible = _localFolderName.Enabled = HaveNeededAccountInfo;
+//            _sourcetWarningImage.Visible = !haveGoodUrl;
 
 			if (haveGoodUrl)
 			{
@@ -38,7 +51,10 @@ namespace Chorus.UI.Clone
 				}
 				else if (!HaveWellFormedTargetLocation)
 				{
-					_targetInfoLabel.Text = string.Format("That name contains characters which are not allowed.");
+					if (_localFolderName.Text.Trim().Length == 0)
+						_targetInfoLabel.Text = "Please enter a name";
+					else
+						_targetInfoLabel.Text = string.Format("That name contains characters which are not allowed.");
 				}
 				else
 				{
@@ -54,22 +70,38 @@ namespace Chorus.UI.Clone
 		}
 		public string URL
 		{
-			get { return _urlBox.Text; }
-			set { _urlBox.Text = value; }
+			get { return "http://"+
+				HttpUtility.UrlEncode(_accountName.Text) + ":" +
+				HttpUtility.UrlEncode(_password.Text) + "@" + ServerPath + "/" +
+				HttpUtility.UrlEncode(_projectId.Text);
+			}
+		   // set { _urlBox.Text = value; }
 		}
+
+		protected string ServerPath
+		{
+			get
+			{
+				if(_serverCombo.SelectedIndex < 0)
+						return string.Empty;
+				return _servers[(string)_serverCombo.SelectedItem];
+			}
+		}
+
 		public string NameOfProjectOnRepository
 		{
 			get
 			{
-				if (!HaveGoodUrl)
+				if (!HaveNeededAccountInfo)
 					return string.Empty;
-				var uri = new Uri(_urlBox.Text);
-				return uri.PathAndQuery.Trim('/').Replace('/', '-').Replace('?', '-').Replace('*', '-').Replace('\\', '-');
+//                var uri = new Uri(URL);
+//                return uri.PathAndQuery.Trim('/').Replace('/', '-').Replace('?', '-').Replace('*', '-').Replace('\\', '-');
+				return _projectId.Text;
 			}
 		}
-		public bool ReadForDownload
+		public bool ReadyForDownload
 		{
-			get { return HaveGoodUrl && TargetLocationIsUnused && HaveWellFormedTargetLocation; }
+			get { return HaveNeededAccountInfo && HaveWellFormedTargetLocation && TargetLocationIsUnused ; }
 		}
 
 		protected bool TargetLocationIsUnused
@@ -97,7 +129,7 @@ namespace Chorus.UI.Clone
 		{
 			get
 			{
-				return (_localFolderName.Text.LastIndexOfAny(Path.GetInvalidFileNameChars()) == -1);
+				return (_localFolderName.Text.Trim().Length > 0 && _localFolderName.Text.LastIndexOfAny(Path.GetInvalidFileNameChars()) == -1);
 			}
 		}
 
@@ -106,16 +138,19 @@ namespace Chorus.UI.Clone
 			get { return Path.Combine(_parentDirectoryToPutCloneIn, _localFolderName.Text); }
 		}
 
-		protected bool HaveGoodUrl
+		protected bool HaveNeededAccountInfo
 		{
 			get
 			{
 				try
 				{
-					var uri = new Uri(_urlBox.Text);
-					return uri.Scheme =="http" &&
-						   Uri.IsWellFormedUriString(_urlBox.Text, UriKind.Absolute) &&
-						   !string.IsNullOrEmpty(uri.PathAndQuery.Trim('/'));
+//                    var uri = new Uri(_urlBox.Text);
+//                    return uri.Scheme =="http" &&
+//                           Uri.IsWellFormedUriString(_urlBox.Text, UriKind.Absolute) &&
+//                           !string.IsNullOrEmpty(uri.PathAndQuery.Trim('/'));
+					return _projectId.Text.Trim().Length > 1 &&
+							_accountName.Text.Trim().Length > 1 &&
+							_password.Text.Trim().Length > 1;
 				}
 				catch(Exception)
 				{
@@ -129,20 +164,24 @@ namespace Chorus.UI.Clone
 			UpdateDisplay();
 		}
 
-		private void _urlBox_TextChanged(object sender, EventArgs e)
+		private void OnAccountInfoTextChanged(object sender, EventArgs e)
 		{
 		   _localFolderName.Text = NameOfProjectOnRepository;
 			UpdateDisplay();
+			toolTip1.SetToolTip(_downloadButton, URL);
 		}
 
-		private void _downloadButton_Click(object sender, EventArgs e)
-		{
-
-		}
 
 		private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
 		{
 			System.Diagnostics.Process.Start("http://public.languagedepot.org");
 		}
+
+		private void label5_Click(object sender, EventArgs e)
+		{
+
+		}
+
+
 	}
 }

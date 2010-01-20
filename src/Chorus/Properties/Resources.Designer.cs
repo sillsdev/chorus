@@ -87,6 +87,13 @@ namespace Chorus.Properties {
 			}
 		}
 
+		internal static System.Drawing.Bitmap expand {
+			get {
+				object obj = ResourceManager.GetObject("expand", resourceCulture);
+				return ((System.Drawing.Bitmap)(obj));
+			}
+		}
+
 		internal static System.Drawing.Bitmap Filter {
 			get {
 				object obj = ResourceManager.GetObject("Filter", resourceCulture);
@@ -110,6 +117,13 @@ namespace Chorus.Properties {
 		internal static System.Drawing.Bitmap internet59x64 {
 			get {
 				object obj = ResourceManager.GetObject("internet59x64", resourceCulture);
+				return ((System.Drawing.Bitmap)(obj));
+			}
+		}
+
+		internal static System.Drawing.Bitmap menuButton {
+			get {
+				object obj = ResourceManager.GetObject("menuButton", resourceCulture);
 				return ((System.Drawing.Bitmap)(obj));
 			}
 		}
