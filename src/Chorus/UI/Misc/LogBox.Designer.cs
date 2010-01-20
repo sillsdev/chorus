@@ -34,6 +34,7 @@
 			this.xToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this._showDetailsMenu = new System.Windows.Forms.ToolStripMenuItem();
 			this.copyToClipboardToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.panel1 = new System.Windows.Forms.Panel();
 			this.menuStrip1.SuspendLayout();
 			this.SuspendLayout();
 			//
@@ -71,7 +72,7 @@
 			this.menuStrip1.Dock = System.Windows.Forms.DockStyle.None;
 			this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
 			this.xToolStripMenuItem});
-			this.menuStrip1.Location = new System.Drawing.Point(3, 161);
+			this.menuStrip1.Location = new System.Drawing.Point(-2, 155);
 			this.menuStrip1.Name = "menuStrip1";
 			this.menuStrip1.Padding = new System.Windows.Forms.Padding(0, 2, 0, 2);
 			this.menuStrip1.Size = new System.Drawing.Size(30, 24);
@@ -102,6 +103,18 @@
 			this.copyToClipboardToolStripMenuItem.Text = "CopyTo Clipboard";
 			this.copyToClipboardToolStripMenuItem.Click += new System.EventHandler(this.copyToClipboardToolStripMenuItem_Click);
 			//
+			// panel1
+			//
+			this.panel1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+						| System.Windows.Forms.AnchorStyles.Left)
+						| System.Windows.Forms.AnchorStyles.Right)));
+			this.panel1.BackColor = System.Drawing.SystemColors.Window;
+			this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.panel1.Location = new System.Drawing.Point(4, 4);
+			this.panel1.Name = "panel1";
+			this.panel1.Size = new System.Drawing.Size(482, 154);
+			this.panel1.TabIndex = 5;
+			//
 			// LogBox
 			//
 			this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
@@ -109,6 +122,7 @@
 			this.Controls.Add(this._verboseBox);
 			this.Controls.Add(this._box);
 			this.Controls.Add(this.menuStrip1);
+			this.Controls.Add(this.panel1);
 			this.Name = "LogBox";
 			this.Size = new System.Drawing.Size(489, 184);
 			this.menuStrip1.ResumeLayout(false);
@@ -126,5 +140,6 @@
 		private System.Windows.Forms.ToolStripMenuItem xToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem _showDetailsMenu;
 		private System.Windows.Forms.ToolStripMenuItem copyToClipboardToolStripMenuItem;
+		private System.Windows.Forms.Panel panel1;
 	}
 }

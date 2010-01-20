@@ -400,7 +400,7 @@
 	<None Include="Resources\check12x12.png" />
 	<None Include="Resources\Filter2HS.png" />
 	<None Include="Resources\expand.png" />
-	<None Include="Resources\menuButton.png" />
+	<Content Include="Resources\menuButton.png" />
 	<Content Include="UI\Notes\Html\bl.gif">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</Content>

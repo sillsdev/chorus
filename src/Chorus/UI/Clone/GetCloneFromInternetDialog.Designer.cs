@@ -45,7 +45,7 @@
 			//
 			this._cancelButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
 			this._cancelButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-			this._cancelButton.Location = new System.Drawing.Point(295, 227);
+			this._cancelButton.Location = new System.Drawing.Point(295, 240);
 			this._cancelButton.Name = "_cancelButton";
 			this._cancelButton.Size = new System.Drawing.Size(75, 23);
 			this._cancelButton.TabIndex = 1;
@@ -57,7 +57,7 @@
 			//
 			this._okButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
 			this._okButton.DialogResult = System.Windows.Forms.DialogResult.OK;
-			this._okButton.Location = new System.Drawing.Point(206, 227);
+			this._okButton.Location = new System.Drawing.Point(206, 240);
 			this._okButton.Name = "_okButton";
 			this._okButton.Size = new System.Drawing.Size(75, 23);
 			this._okButton.TabIndex = 2;
@@ -96,7 +96,7 @@
 			this._statusLabel.Multiline = true;
 			this._statusLabel.Name = "_statusLabel";
 			this._statusLabel.ReadOnly = true;
-			this._statusLabel.Size = new System.Drawing.Size(316, 60);
+			this._statusLabel.Size = new System.Drawing.Size(316, 73);
 			this._statusLabel.TabIndex = 18;
 			this._statusLabel.Text = "Status text";
 			//
@@ -113,7 +113,7 @@
 			// _cancelTaskButton
 			//
 			this._cancelTaskButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this._cancelTaskButton.Location = new System.Drawing.Point(295, 43);
+			this._cancelTaskButton.Location = new System.Drawing.Point(295, 45);
 			this._cancelTaskButton.Name = "_cancelTaskButton";
 			this._cancelTaskButton.Size = new System.Drawing.Size(75, 23);
 			this._cancelTaskButton.TabIndex = 23;
@@ -124,7 +124,7 @@
 			// _fixSettingsButton
 			//
 			this._fixSettingsButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-			this._fixSettingsButton.Location = new System.Drawing.Point(113, 227);
+			this._fixSettingsButton.Location = new System.Drawing.Point(113, 240);
 			this._fixSettingsButton.Name = "_fixSettingsButton";
 			this._fixSettingsButton.Size = new System.Drawing.Size(75, 23);
 			this._fixSettingsButton.TabIndex = 1;
@@ -140,7 +140,7 @@
 			this._logBox.CancelRequested = false;
 			this._logBox.Location = new System.Drawing.Point(15, 80);
 			this._logBox.Name = "_logBox";
-			this._logBox.Size = new System.Drawing.Size(359, 122);
+			this._logBox.Size = new System.Drawing.Size(359, 135);
 			this._logBox.TabIndex = 0;
 			this._logBox.Load += new System.EventHandler(this._logBox_Load);
 			//
@@ -148,7 +148,7 @@
 			//
 			this.AcceptButton = this._okButton;
 			this.CancelButton = this._cancelButton;
-			this.ClientSize = new System.Drawing.Size(394, 262);
+			this.ClientSize = new System.Drawing.Size(394, 275);
 			this.Controls.Add(this._logBox);
 			this.Controls.Add(this._cancelTaskButton);
 			this.Controls.Add(this._progressBar);
