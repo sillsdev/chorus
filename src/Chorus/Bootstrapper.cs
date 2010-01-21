@@ -7,6 +7,7 @@ using Chorus.UI.Notes.Browser;
 using Chorus.UI.Review;
 using Chorus.UI.Settings;
 using Chorus.UI.Sync;
+using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
 
 namespace Chorus
@@ -29,7 +30,9 @@ namespace Chorus
 
 			builder.Register<BrowseForRepositoryEvent>(browseForRepositoryEvent).SingletonScoped();
 
-			builder.Register<IChorusUser>(c => new ChorusUser(c.Resolve<HgRepository>().GetUserIdInUse()));
+			//For now, we like the idea of just using the login name.  But
+			//this allows someone to override that in the ini (which would be for all users of this machine, then)
+			builder.Register<IChorusUser>(c => new ChorusUser(c.Resolve<HgRepository>().GetUserNameFromIni(new NullProgress(), System.Environment.UserName)));
 
 			builder.Register<Shell>();
 
