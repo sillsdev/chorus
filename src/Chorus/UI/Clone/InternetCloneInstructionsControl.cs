@@ -177,11 +177,5 @@ namespace Chorus.UI.Clone
 			System.Diagnostics.Process.Start("http://public.languagedepot.org");
 		}
 
-		private void label5_Click(object sender, EventArgs e)
-		{
-
-		}
-
-
 	}
 }

@@ -30,8 +30,6 @@
 		{
 			this.components = new System.ComponentModel.Container();
 			this._localFolderName = new System.Windows.Forms.TextBox();
-			this.label3 = new System.Windows.Forms.Label();
-			this._downloadButton = new System.Windows.Forms.Button();
 			this._targetWarningImage = new System.Windows.Forms.PictureBox();
 			this.label2 = new System.Windows.Forms.Label();
 			this.label4 = new System.Windows.Forms.Label();
@@ -43,8 +41,8 @@
 			this.label1 = new System.Windows.Forms.Label();
 			this.label6 = new System.Windows.Forms.Label();
 			this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
+			this._downloadButton = new System.Windows.Forms.Button();
 			this._targetInfoLabel = new Chorus.UI.BetterLabel();
-			this.betterLabel1 = new Chorus.UI.BetterLabel();
 			((System.ComponentModel.ISupportInitialize)(this._targetWarningImage)).BeginInit();
 			this.SuspendLayout();
 			//
@@ -54,32 +52,13 @@
 			this._localFolderName.Name = "_localFolderName";
 			this._localFolderName.Size = new System.Drawing.Size(166, 20);
 			this._localFolderName.TabIndex = 3;
+			this.toolTip1.SetToolTip(this._localFolderName, "What to call this project");
 			this._localFolderName.TextChanged += new System.EventHandler(this.OnLocalNameChanged);
-			//
-			// label3
-			//
-			this.label3.AutoSize = true;
-			this.label3.ForeColor = System.Drawing.Color.DimGray;
-			this.label3.Location = new System.Drawing.Point(277, 167);
-			this.label3.Name = "label3";
-			this.label3.Size = new System.Drawing.Size(118, 13);
-			this.label3.TabIndex = 4;
-			this.label3.Text = "What to call this project";
-			//
-			// _downloadButton
-			//
-			this._downloadButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this._downloadButton.Location = new System.Drawing.Point(110, 258);
-			this._downloadButton.Name = "_downloadButton";
-			this._downloadButton.Size = new System.Drawing.Size(94, 23);
-			this._downloadButton.TabIndex = 4;
-			this._downloadButton.Text = "&Download";
-			this._downloadButton.UseVisualStyleBackColor = true;
 			//
 			// _targetWarningImage
 			//
 			this._targetWarningImage.Image = global::Chorus.Properties.Resources.warningImage;
-			this._targetWarningImage.Location = new System.Drawing.Point(31, 201);
+			this._targetWarningImage.Location = new System.Drawing.Point(282, 162);
 			this._targetWarningImage.Name = "_targetWarningImage";
 			this._targetWarningImage.Size = new System.Drawing.Size(26, 33);
 			this._targetWarningImage.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
@@ -113,7 +92,6 @@
 			this.label5.Size = new System.Drawing.Size(53, 13);
 			this.label5.TabIndex = 26;
 			this.label5.Text = "Password";
-			this.label5.Click += new System.EventHandler(this.label5_Click);
 			//
 			// _projectId
 			//
@@ -123,6 +101,7 @@
 			this._projectId.Name = "_projectId";
 			this._projectId.Size = new System.Drawing.Size(45, 20);
 			this._projectId.TabIndex = 0;
+			this.toolTip1.SetToolTip(this._projectId, "Usually the Ethnologue code, e.g. \'tpi\'");
 			this._projectId.TextChanged += new System.EventHandler(this.OnAccountInfoTextChanged);
 			//
 			// _accountName
@@ -133,7 +112,7 @@
 			this._accountName.Name = "_accountName";
 			this._accountName.Size = new System.Drawing.Size(166, 20);
 			this._accountName.TabIndex = 1;
-			this._accountName.Text = "tpiContributor";
+			this.toolTip1.SetToolTip(this._accountName, "This is your account on the server, which must already be set up.");
 			this._accountName.TextChanged += new System.EventHandler(this.OnAccountInfoTextChanged);
 			//
 			// _password
@@ -144,6 +123,7 @@
 			this._password.Name = "_password";
 			this._password.Size = new System.Drawing.Size(166, 20);
 			this._password.TabIndex = 2;
+			this.toolTip1.SetToolTip(this._password, "This is the password belonging to this account, as it was set up on the server.");
 			this._password.TextChanged += new System.EventHandler(this.OnAccountInfoTextChanged);
 			//
 			// _serverCombo
@@ -172,7 +152,16 @@
 			this.label6.Size = new System.Drawing.Size(71, 13);
 			this.label6.TabIndex = 26;
 			this.label6.Text = "Project Name";
-			this.label6.Click += new System.EventHandler(this.label5_Click);
+			//
+			// _downloadButton
+			//
+			this._downloadButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+			this._downloadButton.Location = new System.Drawing.Point(5, 274);
+			this._downloadButton.Name = "_downloadButton";
+			this._downloadButton.Size = new System.Drawing.Size(94, 23);
+			this._downloadButton.TabIndex = 27;
+			this._downloadButton.Text = "&Download";
+			this._downloadButton.UseVisualStyleBackColor = true;
 			//
 			// _targetInfoLabel
 			//
@@ -182,46 +171,27 @@
 			this._targetInfoLabel.BorderStyle = System.Windows.Forms.BorderStyle.None;
 			this._targetInfoLabel.Font = new System.Drawing.Font("Segoe UI", 9F);
 			this._targetInfoLabel.ForeColor = System.Drawing.Color.DimGray;
-			this._targetInfoLabel.Location = new System.Drawing.Point(110, 201);
+			this._targetInfoLabel.Location = new System.Drawing.Point(30, 190);
 			this._targetInfoLabel.Multiline = true;
 			this._targetInfoLabel.Name = "_targetInfoLabel";
 			this._targetInfoLabel.ReadOnly = true;
-			this._targetInfoLabel.Size = new System.Drawing.Size(299, 53);
+			this._targetInfoLabel.Size = new System.Drawing.Size(246, 78);
 			this._targetInfoLabel.TabIndex = 25;
 			this._targetInfoLabel.TabStop = false;
 			this._targetInfoLabel.Text = "runtime info";
 			//
-			// betterLabel1
-			//
-			this.betterLabel1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-						| System.Windows.Forms.AnchorStyles.Right)));
-			this.betterLabel1.BackColor = System.Drawing.SystemColors.Control;
-			this.betterLabel1.BorderStyle = System.Windows.Forms.BorderStyle.None;
-			this.betterLabel1.Font = new System.Drawing.Font("Segoe UI", 9F);
-			this.betterLabel1.ForeColor = System.Drawing.Color.DimGray;
-			this.betterLabel1.Location = new System.Drawing.Point(170, 62);
-			this.betterLabel1.Multiline = true;
-			this.betterLabel1.Name = "betterLabel1";
-			this.betterLabel1.ReadOnly = true;
-			this.betterLabel1.Size = new System.Drawing.Size(264, 18);
-			this.betterLabel1.TabIndex = 25;
-			this.betterLabel1.TabStop = false;
-			this.betterLabel1.Text = "Usually the Ethnologue code, e.g. \'tpi\'";
-			//
 			// InternetCloneInstructionsControl
 			//
 			this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+			this.Controls.Add(this._downloadButton);
 			this.Controls.Add(this._serverCombo);
 			this.Controls.Add(this.label6);
 			this.Controls.Add(this.label5);
 			this.Controls.Add(this.label4);
 			this.Controls.Add(this.label1);
 			this.Controls.Add(this.label2);
-			this.Controls.Add(this._downloadButton);
 			this.Controls.Add(this._targetInfoLabel);
-			this.Controls.Add(this.betterLabel1);
 			this.Controls.Add(this._targetWarningImage);
-			this.Controls.Add(this.label3);
 			this.Controls.Add(this._localFolderName);
 			this.Controls.Add(this._password);
 			this.Controls.Add(this._accountName);
@@ -239,10 +209,7 @@
 		#endregion
 
 		private System.Windows.Forms.TextBox _localFolderName;
-		private System.Windows.Forms.Label label3;
-		public System.Windows.Forms.Button _downloadButton;
 		private System.Windows.Forms.PictureBox _targetWarningImage;
-		private BetterLabel betterLabel1;
 		private BetterLabel _targetInfoLabel;
 		private System.Windows.Forms.Label label2;
 		private System.Windows.Forms.Label label4;
@@ -254,5 +221,6 @@
 		private System.Windows.Forms.Label label1;
 		private System.Windows.Forms.Label label6;
 		private System.Windows.Forms.ToolTip toolTip1;
+		public System.Windows.Forms.Button _downloadButton;
 	}
 }

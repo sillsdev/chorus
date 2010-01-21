@@ -96,7 +96,7 @@
 			this._statusLabel.Multiline = true;
 			this._statusLabel.Name = "_statusLabel";
 			this._statusLabel.ReadOnly = true;
-			this._statusLabel.Size = new System.Drawing.Size(316, 73);
+			this._statusLabel.Size = new System.Drawing.Size(316, 71);
 			this._statusLabel.TabIndex = 18;
 			this._statusLabel.Text = "Status text";
 			//
@@ -108,7 +108,7 @@
 			this._progressBar.Name = "_progressBar";
 			this._progressBar.Size = new System.Drawing.Size(275, 18);
 			this._progressBar.Style = System.Windows.Forms.ProgressBarStyle.Marquee;
-			this._progressBar.TabIndex = 21;
+			this._progressBar.TabIndex = 0;
 			//
 			// _cancelTaskButton
 			//
@@ -137,25 +137,27 @@
 			this._logBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
 						| System.Windows.Forms.AnchorStyles.Left)
 						| System.Windows.Forms.AnchorStyles.Right)));
+			this._logBox.BackColor = System.Drawing.Color.Transparent;
 			this._logBox.CancelRequested = false;
 			this._logBox.Location = new System.Drawing.Point(15, 80);
 			this._logBox.Name = "_logBox";
-			this._logBox.Size = new System.Drawing.Size(359, 135);
+			this._logBox.Size = new System.Drawing.Size(359, 172);
 			this._logBox.TabIndex = 0;
 			this._logBox.Load += new System.EventHandler(this._logBox_Load);
 			//
 			// GetCloneFromInternetDialog
 			//
 			this.AcceptButton = this._okButton;
+			this.BackColor = System.Drawing.SystemColors.Control;
 			this.CancelButton = this._cancelButton;
 			this.ClientSize = new System.Drawing.Size(394, 275);
-			this.Controls.Add(this._logBox);
 			this.Controls.Add(this._cancelTaskButton);
 			this.Controls.Add(this._progressBar);
 			this.Controls.Add(this._statusImage);
 			this.Controls.Add(this._okButton);
 			this.Controls.Add(this._fixSettingsButton);
 			this.Controls.Add(this._cancelButton);
+			this.Controls.Add(this._logBox);
 			this.Controls.Add(this._statusLabel);
 			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
 			this.MaximizeBox = false;
@@ -165,6 +167,7 @@
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
 			this.Text = "Get Project From Internet";
 			this.Load += new System.EventHandler(this.OnLoad);
+			this.BackColorChanged += new System.EventHandler(this.GetCloneFromInternetDialog_BackColorChanged);
 			this.ResumeLayout(false);
 			this.PerformLayout();
 

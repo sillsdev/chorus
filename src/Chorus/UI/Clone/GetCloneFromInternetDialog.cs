@@ -30,6 +30,8 @@ namespace Chorus.UI.Clone
 //#endif
 			InitializeComponent();
 
+			this.Font = SystemFonts.MessageBoxFont;
+
 			_backgroundWorker = new BackgroundWorker();
 			_backgroundWorker.WorkerSupportsCancellation = true;
 			_backgroundWorker.RunWorkerCompleted += new RunWorkerCompletedEventHandler(_backgroundWorker_RunWorkerCompleted);
@@ -51,6 +53,8 @@ namespace Chorus.UI.Clone
 			this.Controls.Add(_internetCloneInstructionsControl);
 
 			_fixSettingsButton.Left = _cancelButton.Left;
+			 _internetCloneInstructionsControl._downloadButton.Top = _okButton.Top;
+			 _internetCloneInstructionsControl._downloadButton.Left = _okButton.Left - 15;
 		}
 
 		private void _backgroundWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
@@ -125,6 +129,8 @@ namespace Chorus.UI.Clone
 
 					break;
 				case State.MakingClone:
+					_progressBar.Focus();
+					_progressBar.Select();
 					_internetCloneInstructionsControl.Visible = false;
 					_statusImage.Visible = false;
 					_progressBar.Visible = true;
@@ -158,6 +164,7 @@ namespace Chorus.UI.Clone
 					break;
 				case State.Error:
 					_fixSettingsButton.Visible = true;
+					_fixSettingsButton.Focus();
 					_cancelButton.Enabled = false;
 					_cancelButton.Text = "&Cancel";
 					_cancelButton.Select();
@@ -188,6 +195,7 @@ namespace Chorus.UI.Clone
 		private void OnLoad(object sender, EventArgs e)
 		{
 			UpdateDisplay(State.AskingUserForURL);
+			_logBox.BackColor = this.BackColor;
 		}
 
 		private void _okButton_Click(object sender, EventArgs e)
@@ -250,6 +258,11 @@ namespace Chorus.UI.Clone
 		private void _fixSettingsButton_Click(object sender, EventArgs e)
 		{
 				UpdateDisplay(State.AskingUserForURL);
+		}
+
+		private void GetCloneFromInternetDialog_BackColorChanged(object sender, EventArgs e)
+		{
+			_logBox.BackColor  =this.BackColor;
 		}
 
 	}

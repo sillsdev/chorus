@@ -110,14 +110,21 @@ namespace Chorus.UI.Misc
 			_verboseBox.Text = "";
 		}
 
-		private void _verboseBox_SizeChanged(object sender, EventArgs e)
-		{
-		   // _copyToClipboardLink.Top = _showDetails.Top = 10; //_verboseBox.Bottom ;
-	   }
+
 
 		private void copyToClipboardToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			_copyToClipboardLink_LinkClicked(sender, null);
+		}
+
+		private void LogBox_BackColorChanged(object sender, EventArgs e)
+		{
+			this._menu.BackColor =  this.BackColor;
+		}
+
+		private void menuStrip1_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+		{
+
 		}
 
 

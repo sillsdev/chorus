@@ -31,7 +31,7 @@
 			this._box = new System.Windows.Forms.RichTextBox();
 			this._verboseBox = new System.Windows.Forms.RichTextBox();
 			this.menuStrip1 = new System.Windows.Forms.MenuStrip();
-			this.xToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this._menu = new System.Windows.Forms.ToolStripMenuItem();
 			this._showDetailsMenu = new System.Windows.Forms.ToolStripMenuItem();
 			this.copyToClipboardToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.panel1 = new System.Windows.Forms.Panel();
@@ -64,29 +64,30 @@
 			this._verboseBox.TabStop = false;
 			this._verboseBox.Text = "";
 			this._verboseBox.Visible = false;
-			this._verboseBox.SizeChanged += new System.EventHandler(this._verboseBox_SizeChanged);
 			//
 			// menuStrip1
 			//
 			this.menuStrip1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+			this.menuStrip1.BackColor = System.Drawing.Color.Transparent;
 			this.menuStrip1.Dock = System.Windows.Forms.DockStyle.None;
 			this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-			this.xToolStripMenuItem});
+			this._menu});
 			this.menuStrip1.Location = new System.Drawing.Point(-2, 155);
 			this.menuStrip1.Name = "menuStrip1";
 			this.menuStrip1.Padding = new System.Windows.Forms.Padding(0, 2, 0, 2);
 			this.menuStrip1.Size = new System.Drawing.Size(30, 24);
 			this.menuStrip1.TabIndex = 4;
 			this.menuStrip1.Text = "menuStrip1";
+			this.menuStrip1.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.menuStrip1_ItemClicked);
 			//
-			// xToolStripMenuItem
+			// _menu
 			//
-			this.xToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+			this._menu.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
 			this._showDetailsMenu,
 			this.copyToClipboardToolStripMenuItem});
-			this.xToolStripMenuItem.Image = global::Chorus.Properties.Resources.menuButton;
-			this.xToolStripMenuItem.Name = "xToolStripMenuItem";
-			this.xToolStripMenuItem.Size = new System.Drawing.Size(28, 20);
+			this._menu.Image = global::Chorus.Properties.Resources.menuButton;
+			this._menu.Name = "_menu";
+			this._menu.Size = new System.Drawing.Size(28, 20);
 			//
 			// _showDetailsMenu
 			//
@@ -119,12 +120,14 @@
 			//
 			this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
+			this.BackColor = System.Drawing.Color.MediumPurple;
 			this.Controls.Add(this._verboseBox);
 			this.Controls.Add(this._box);
 			this.Controls.Add(this.menuStrip1);
 			this.Controls.Add(this.panel1);
 			this.Name = "LogBox";
 			this.Size = new System.Drawing.Size(489, 184);
+			this.BackColorChanged += new System.EventHandler(this.LogBox_BackColorChanged);
 			this.menuStrip1.ResumeLayout(false);
 			this.menuStrip1.PerformLayout();
 			this.ResumeLayout(false);
@@ -137,7 +140,7 @@
 		private System.Windows.Forms.RichTextBox _box;
 		private System.Windows.Forms.RichTextBox _verboseBox;
 		private System.Windows.Forms.MenuStrip menuStrip1;
-		private System.Windows.Forms.ToolStripMenuItem xToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem _menu;
 		private System.Windows.Forms.ToolStripMenuItem _showDetailsMenu;
 		private System.Windows.Forms.ToolStripMenuItem copyToClipboardToolStripMenuItem;
 		private System.Windows.Forms.Panel panel1;
