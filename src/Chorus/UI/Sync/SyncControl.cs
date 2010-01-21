@@ -37,17 +37,6 @@ namespace Chorus.UI.Sync
 			UpdateDisplay();
 		}
 
-
-
-		/// <summary>
-		/// most client apps won't have anything to put in here, that's ok
-		/// </summary>
-		public string UserName
-		{
-			get { return _userName; }
-			set { _userName = value; }
-		}
-
 		public SyncControlModel Model
 		{
 			get { return _model; }

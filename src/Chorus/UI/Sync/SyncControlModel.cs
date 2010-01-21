@@ -14,15 +14,20 @@ namespace Chorus.UI.Sync
 {
 	public class SyncControlModel
 	{
+		private readonly IChorusUser _user;
 		private readonly Synchronizer _synchronizer;
 		private readonly BackgroundWorker _backgroundWorker;
 		public event EventHandler SynchronizeOver;
 		private readonly MultiProgress _progress;
 		private SyncOptions _syncOptions;
+
 		public StatusProgress StatusProgress { get; private set; }
 
-		public SyncControlModel(ProjectFolderConfiguration projectFolderConfiguration, SyncUIFeatures uiFeatureFlags)
+		public SyncControlModel(ProjectFolderConfiguration projectFolderConfiguration,
+			SyncUIFeatures uiFeatureFlags,
+			IChorusUser user)
 		{
+			_user = user;
 			StatusProgress = new StatusProgress();
 			_progress = new MultiProgress(new[] { StatusProgress });
 			Features = uiFeatureFlags;
@@ -79,6 +84,19 @@ namespace Chorus.UI.Sync
 				{
 					SynchronizeOver.Invoke(e.Result as SyncResults, null);
 				}
+			}
+		}
+
+		public string UserName
+		{
+			get
+			{
+				if(_user==null)
+				{
+					return "anonymous";
+				}
+
+				return _user.Name;
 			}
 		}
 

@@ -17,7 +17,7 @@ namespace Chorus.UI.Sync
 		{
 			InitializeComponent();
 			Behavior = behavior;
-			_syncControl.Model=new SyncControlModel(projectFolderConfiguration, uiFeatureFlags);
+			_syncControl.Model=new SyncControlModel(projectFolderConfiguration, uiFeatureFlags, null/*to do*/);
 			AcceptButton = _syncControl._cancelButton;
 		   // CancelButton =  _syncControl._cancelOrCloseButton;
 
@@ -47,6 +47,7 @@ namespace Chorus.UI.Sync
 				_syncControl.Visible = true;
 			}
 
+			this.Text = string.Format("Send/Receive ({0})", _syncControl.Model.UserName);
 		}
 
 		public SyncOptions SyncOptions

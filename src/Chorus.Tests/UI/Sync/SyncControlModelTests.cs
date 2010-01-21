@@ -43,7 +43,7 @@ namespace Chorus.Tests
 			_project.FolderPath = _pathToTestRoot;
 
 			_synchronizer = Synchronizer.FromProjectConfiguration(_project, new NullProgress());
-			_model = new SyncControlModel(_project, SyncUIFeatures.Advanced);
+			_model = new SyncControlModel(_project, SyncUIFeatures.Advanced,null);
 			_model.AddProgressDisplay(_progress);
 		}
 
@@ -79,7 +79,7 @@ namespace Chorus.Tests
 		public void GetRepositoriesToList_NoRepositoriesKnown_GivesUsb()
 		{
 			_synchronizer.ExtraRepositorySources.Clear();
-			_model = new SyncControlModel(_project, SyncUIFeatures.Advanced);
+			_model = new SyncControlModel(_project, SyncUIFeatures.Advanced, null);
 			_model.AddProgressDisplay(_progress);
 			Assert.AreEqual(1, _model.GetRepositoriesToList().Count);
 		}
@@ -87,7 +87,7 @@ namespace Chorus.Tests
 		[Test]
 		public void Sync_NonExistantLangDepotProject_ExitsGracefullyWithCorrectErrorResult()
 		{
-			_model = new SyncControlModel(_project, SyncUIFeatures.Minimal);
+			_model = new SyncControlModel(_project, SyncUIFeatures.Minimal, null);
 			_model.SyncOptions.RepositorySourcesToTry.Add(RepositoryAddress.Create("languageforge", "http://hg-public.languagedepot.org/dummy"));
 			var progress = new ConsoleProgress();
 			_model.AddProgressDisplay(progress);
@@ -111,7 +111,7 @@ namespace Chorus.Tests
 		[Test]
 		public void Sync_Cancelled_ResultsHaveCancelledEqualsTrue()
 		{
-			_model = new SyncControlModel(_project, SyncUIFeatures.Minimal);
+			_model = new SyncControlModel(_project, SyncUIFeatures.Minimal, null);
 			_model.SyncOptions.RepositorySourcesToTry.Add(RepositoryAddress.Create("languageforge", "http://hg-public.languagedepot.org/dummy"));
 			var progress = new ConsoleProgress();
 			_model.AddProgressDisplay(progress);

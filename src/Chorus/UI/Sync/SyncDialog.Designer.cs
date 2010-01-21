@@ -56,7 +56,6 @@ namespace Chorus.UI.Sync
 			this._syncControl.Name = "_syncControl";
 			this._syncControl.Size = new System.Drawing.Size(521, 327);
 			this._syncControl.TabIndex = 0;
-			this._syncControl.UserName = "anonymous";
 			this._syncControl.Visible = false;
 			this._syncControl.CloseButtonClicked += new System.EventHandler(this._syncControl_CloseButtonClicked);
 			//
