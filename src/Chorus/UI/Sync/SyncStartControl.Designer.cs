@@ -183,7 +183,7 @@
 			this.betterLabel2.Size = new System.Drawing.Size(324, 24);
 			this.betterLabel2.TabIndex = 3;
 			this.betterLabel2.TabStop = false;
-			this.betterLabel2.Text = "LabelOfThingAnnotated this point in the project history (Optional) :";
+			this.betterLabel2.Text = "Label this point in the project history (Optional) :";
 			//
 			// _commitMessageText
 			//

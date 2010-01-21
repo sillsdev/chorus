@@ -401,6 +401,7 @@
 	<None Include="Resources\Filter2HS.png" />
 	<None Include="Resources\expand.png" />
 	<Content Include="Resources\menuButton.png" />
+	<None Include="Resources\sendReceiveCircle16x16png.png" />
 	<Content Include="UI\Notes\Html\bl.gif">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</Content>

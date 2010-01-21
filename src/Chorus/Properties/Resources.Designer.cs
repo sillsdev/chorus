@@ -170,6 +170,13 @@ namespace Chorus.Properties {
 			}
 		}
 
+		internal static System.Drawing.Bitmap sendReceiveCircle16x16png {
+			get {
+				object obj = ResourceManager.GetObject("sendReceiveCircle16x16png", resourceCulture);
+				return ((System.Drawing.Bitmap)(obj));
+			}
+		}
+
 		internal static System.Drawing.Bitmap Usb32x28 {
 			get {
 				object obj = ResourceManager.GetObject("Usb32x28", resourceCulture);
