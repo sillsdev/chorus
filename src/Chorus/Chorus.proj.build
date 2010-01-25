@@ -60,6 +60,7 @@
 				<include name="PalasoUIWindowsForms.dll" />
 				<include name="LibChorus.dll" />
 				<include name="System.dll" />
+				<include name="System.Web.dll" />
 				<include name="System.Data.dll" />
 				<include name="System.Design.dll" />
 				<include name="System.Drawing.dll" />
