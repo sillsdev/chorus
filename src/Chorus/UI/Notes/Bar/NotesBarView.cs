@@ -59,8 +59,10 @@ namespace Chorus.UI.Notes
 		{
 			SuspendLayout();
 			_buttonsPanel.Controls.Clear();
-
-			AddNoteCreationControl();
+			if (!_model.TargetObjectIsNull)
+			{
+				AddNoteCreationControl();
+			}
 
 			foreach (var annotation in _model.GetAnnotationsToShow())
 			{
@@ -129,13 +131,23 @@ namespace Chorus.UI.Notes
 
 		private void OnCreateNoteButtonClick(object sender, EventArgs e)
 		{
-			var newguy = _model.CreateAnnotation();
-			var btn = AddAnnotationButton(newguy);
-			OnExistingAnnotationButtonClick(btn, null);
-			var annotation = ((Annotation)btn.Tag);
-			if(annotation.Messages.Count()==0)
+			try
 			{
-				_model.RemoveAnnotation(annotation);
+				var newguy = _model.CreateAnnotation();
+				var btn = AddAnnotationButton(newguy);
+				OnExistingAnnotationButtonClick(btn, null);
+				var annotation = ((Annotation)btn.Tag);
+				if (annotation.Messages.Count() == 0)
+				{
+					_model.RemoveAnnotation(annotation);
+				}
+			}
+			catch (Exception)
+			{
+				// nothing here is worth crashing over.  if/when we add palaso reporting, we could be more visible about it
+#if DEBUG
+				throw;
+#endif
 			}
 		}
 

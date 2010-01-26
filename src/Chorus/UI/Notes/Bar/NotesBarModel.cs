@@ -24,6 +24,10 @@ namespace Chorus.UI.Notes.Bar
 				UpdateContentNow();
 			}
 		}
+		public bool TargetObjectIsNull
+		{
+			get { return _targetObject == null; }
+		}
 
 		internal event EventHandler UpdateContent;
 
@@ -56,7 +60,7 @@ namespace Chorus.UI.Notes.Bar
 
 		public Annotation CreateAnnotation()
 		{
-			Guard.AgainstNull(_targetObject, "TargetObject");
+			Guard.AgainstNull(_targetObject, "The program tried to create a note when TargetObject was empty.");
 			var id = _mapping.FunctionToGoFromObjectToItsId(_targetObject);
 			//nb: it's intentional and necessary to escape the id so it doesn't corrupt
 			//the parsing of the url query string, even though the entire url will be
