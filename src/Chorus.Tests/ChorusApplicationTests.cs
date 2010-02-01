@@ -13,7 +13,7 @@ namespace Chorus.Tests
 	public class ChorusApplicationTests
 	{
 		[Test]
-		[Category("HangsOnTC")]
+		[Category("SkipOnBuildServer")]
 		public void Launch_CloseAfterAFewSeconds_DoesntCrash()
 		{
 			using (var folder = new TempFolder("ChorusApplicationTests"))

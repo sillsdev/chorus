@@ -195,7 +195,10 @@
 					<include name="${filename}" />
 				</assemblies>
 				<categories>
-					<exclude name="Mono Known Issue"/>
+		  <exclude name="SkipOnBuildServer"/>
+		  <exclude name="MouseSensitive"/>
+		  <exclude name="RequiresUSB"/>
+		  <exclude name="Mono Known Issue"/>
 				</categories>
 				</test>
 				</nunit2>

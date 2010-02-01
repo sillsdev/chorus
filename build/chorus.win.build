@@ -96,8 +96,8 @@
 			<include name="../output/${configuration}/*.Tests.dll" />
 		  </assemblies>
 		  <categories>
-			<exclude name="HangsOnTC"/>
-			<exclude name="MouseSensitive"/>
+				  <exclude name="SkipOnBuildServer"/>
+				  <exclude name="MouseSensitive"/>
 			<exclude name="RequiresUSB"/>
 		  </categories>
 			</test>

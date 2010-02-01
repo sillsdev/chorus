@@ -242,6 +242,7 @@ namespace LibChorus.Tests.notes
 		}
 
 		[Test]
+		[Category("SkipOnBuildServer")]
 		public void SaveAndLoad_10KRecords_CompletesQuickly()
 		{
 			using(var f = new TempFile("<notes version='0'/>"))
