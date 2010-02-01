@@ -11,8 +11,9 @@ namespace Chorus.UI
 {
   //  [Designer(typeof (LocalizationHelperDesigner))]
 	[ToolboxItem(true)]
-	public partial class UsbDriveLocator : Component, ISupportInitialize, IExtenderProvider, IDisposable
+	public partial class UsbDriveLocator : Component, ISupportInitialize, IExtenderProvider
 	{
+
 
 		#region Extender Stuff
 		public UsbDriveLocator()
@@ -23,8 +24,13 @@ namespace Chorus.UI
 		public UsbDriveLocator(IContainer container)
 		{
 			container.Add(this);
-
+			this.Disposed += new EventHandler(UsbDriveLocator_Disposed);
 			InitializeComponent();
+		}
+
+		void UsbDriveLocator_Disposed(object sender, EventArgs e)
+		{
+			_keepRunning = false;
 		}
 
 		public void BeginInit() { }

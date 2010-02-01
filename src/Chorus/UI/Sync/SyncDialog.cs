@@ -16,38 +16,46 @@ namespace Chorus.UI.Sync
 			SyncUIDialogBehaviors behavior, SyncUIFeatures uiFeatureFlags)
 		{
 			InitializeComponent();
-			Behavior = behavior;
-			_syncControl.Model=new SyncControlModel(projectFolderConfiguration, uiFeatureFlags, null/*to do*/);
-			AcceptButton = _syncControl._cancelButton;
-		   // CancelButton =  _syncControl._cancelOrCloseButton;
-
-			_syncControl.Model.SynchronizeOver += new EventHandler(_syncControl_SynchronizeOver);
-
-			//we don't want clients digging down this deeply, so we present it as one of our properties
-			FinalStatus = _syncControl.Model.StatusProgress;
-
-			//set the default based on whether this looks like a backup or local commit operation
-			UseTargetsAsSpecifiedInSyncOptions = (Behavior == SyncUIDialogBehaviors.StartImmediately ||
-												  Behavior == SyncUIDialogBehaviors.StartImmediatelyAndCloseWhenFinished);
-
-			//in case the user cancels before the sync and the client doesn't check to see if the result is null
-			if ((uiFeatureFlags & SyncUIFeatures.SimpleRepositoryChooserInsteadOfAdvanced) == SyncUIFeatures.SimpleRepositoryChooserInsteadOfAdvanced)
+			try
 			{
-				SyncResult = new SyncResults();
-				SyncResult.Succeeded = false;
+				Behavior = behavior;
+				_syncControl.Model = new SyncControlModel(projectFolderConfiguration, uiFeatureFlags, null/*to do*/);
+				AcceptButton = _syncControl._cancelButton;
+				// CancelButton =  _syncControl._cancelOrCloseButton;
 
-				_syncStartControl1.Repository = HgRepository.CreateOrLocate(projectFolderConfiguration.FolderPath,
-																			new NullProgress());
-				_syncStartControl1.Visible = true;
-				_syncControl.Visible = false;
+				_syncControl.Model.SynchronizeOver += new EventHandler(_syncControl_SynchronizeOver);
+
+				//we don't want clients digging down this deeply, so we present it as one of our properties
+				FinalStatus = _syncControl.Model.StatusProgress;
+
+				//set the default based on whether this looks like a backup or local commit operation
+				UseTargetsAsSpecifiedInSyncOptions = (Behavior == SyncUIDialogBehaviors.StartImmediately ||
+													  Behavior == SyncUIDialogBehaviors.StartImmediatelyAndCloseWhenFinished);
+
+				//in case the user cancels before the sync and the client doesn't check to see if the result is null
+				if ((uiFeatureFlags & SyncUIFeatures.SimpleRepositoryChooserInsteadOfAdvanced) == SyncUIFeatures.SimpleRepositoryChooserInsteadOfAdvanced)
+				{
+					SyncResult = new SyncResults();
+					SyncResult.Succeeded = false;
+
+					_syncStartControl1.Repository = HgRepository.CreateOrLocate(projectFolderConfiguration.FolderPath,
+																				new NullProgress());
+					_syncStartControl1.Visible = true;
+					_syncControl.Visible = false;
+				}
+				else
+				{
+					_syncStartControl1.Visible = false;
+					_syncControl.Visible = true;
+				}
+
+				this.Text = string.Format("Send/Receive ({0})", _syncControl.Model.UserName);
 			}
-			else
+			catch (Exception)
 			{
-				_syncStartControl1.Visible = false;
-				_syncControl.Visible = true;
+				_syncStartControl1.Dispose();//without this, the usbdetector just goes on and on
+				throw;
 			}
-
-			this.Text = string.Format("Send/Receive ({0})", _syncControl.Model.UserName);
 		}
 
 		public SyncOptions SyncOptions
