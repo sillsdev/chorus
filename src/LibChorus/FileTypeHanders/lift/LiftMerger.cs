@@ -28,7 +28,9 @@ namespace Chorus.merge.xml.lift
 		private readonly string _alphaLift;
 		private readonly string _betaLift;
 		private readonly string _ancestorLift;
-		private readonly List<string> _processedIds = new List<string>();
+		// only one index for now...
+		private readonly Dictionary<string, XmlNode> _betaIndex;
+		private readonly Dictionary<string,bool> _processedIds = new Dictionary<string,bool>();
 		private readonly XmlDocument _alphaDom;
 		private readonly XmlDocument _betaDom;
 		private readonly XmlDocument _ancestorDom;
@@ -43,6 +45,7 @@ namespace Chorus.merge.xml.lift
 			_alphaLift = File.ReadAllText(alphaLiftPath);
 			_betaLift =  File.ReadAllText(betaLiftPath);
 			_ancestorLift = File.ReadAllText(ancestorLiftPath);
+			_betaIndex = new Dictionary<string, XmlNode>();
 			_alphaDom = new XmlDocument();
 			_betaDom = new XmlDocument();
 			_ancestorDom = new XmlDocument();
@@ -62,6 +65,7 @@ namespace Chorus.merge.xml.lift
 			_alphaLift = alphaLiftContents;
 			_betaLift = betaLiftContents;
 			_ancestorLift = ancestorLiftContents;
+			_betaIndex = new Dictionary<string, XmlNode>();
 			_alphaDom = new XmlDocument();
 			_betaDom = new XmlDocument();
 			_ancestorDom = new XmlDocument();
@@ -88,6 +92,10 @@ namespace Chorus.merge.xml.lift
 			//this, rather than a string builder, is needed to avoid utf-16 coming out
 			using (MemoryStream memoryStream = new MemoryStream())
 			{
+				foreach (XmlNode b in _betaDom.SafeSelectNodes("lift/entry"))
+				{
+					_betaIndex[LiftUtils.GetId(b)] = b;
+				}
 				using (XmlWriter writer = XmlWriter.Create(memoryStream, settings))
 				{
 					WriteStartOfLiftElement(writer);
@@ -100,7 +108,7 @@ namespace Chorus.merge.xml.lift
 					foreach (XmlNode e in _betaDom.SafeSelectNodes("lift/entry"))
 					{
 						string id = LiftUtils.GetId(e);
-						if (!_processedIds.Contains(id))
+						if (!_processedIds.ContainsKey(id))
 						{
 							ProcessEntryWeKnowDoesntNeedMerging(e, id, writer);
 						}
@@ -153,10 +161,23 @@ namespace Chorus.merge.xml.lift
 			return doc.SelectSingleNode("lift/entry[@id=\""+id+"\"]");
 		}
 
+
+
+
 		private void ProcessEntry(XmlWriter writer, XmlNode alphaEntry)
 		{
 			string id = LiftUtils.GetId(alphaEntry);
-			XmlNode betaEntry = FindEntry(_betaDom, id);
+			XmlNode betaEntry;
+			try
+			{
+				 betaEntry = _betaIndex[id];
+			}
+			catch (KeyNotFoundException)
+			{
+
+				betaEntry = null;
+			}
+
 			if (betaEntry == null) //it's new
 			{
 				//enchance: we know this at this point only in the 2-way diff mode
@@ -183,7 +204,7 @@ namespace Chorus.merge.xml.lift
 
 				writer.WriteRaw(_mergingStrategy.MakeMergedEntry(this.EventListener, alphaEntry, betaEntry, commonEntry));
 			}
-			_processedIds.Add(id);
+			_processedIds[id] = true;
 		}
 
 
