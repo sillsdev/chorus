@@ -26,7 +26,10 @@ namespace Chorus.UI.Notes
 		private void AnnotationInspector_Load(object sender, EventArgs e)
 		{
 			this._pathLabel.Text = _annotation.AnnotationFilePath;
-			webBrowser1.DocumentText = Render(_annotation.Element);
+			string htmlText = Render(_annotation.Element).Replace("'", "\'");
+			webBrowser1.Navigate("javascript:{document.body.outerHTML = '" +
+								 htmlText + "';}");
+			//webBrowser1.DocumentText = Render(_annotation.Element);
 		}
 
 		internal static string Render(XElement element)
