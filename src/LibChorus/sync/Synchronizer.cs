@@ -171,9 +171,9 @@ namespace Chorus.sync
 				return list;
 
 			}
-			catch (Exception error) // we've see an excepption here when the hgrc was open by someone else
+			catch (Exception error) // we've see an exception here when the hgrc was open by someone else
 			{
-				_progress.WriteError(error.Message);
+				_progress.WriteException(error);
 				_progress.WriteVerbose(error.ToString());
 				return new List<RepositoryAddress>();
 			}
@@ -233,6 +233,12 @@ namespace Chorus.sync
 				}
 				if (canConnect)
 				{
+#if DEBUG
+					if(DialogResult.No == MessageBox.Show("In Debug mode... really push?", "Debug", MessageBoxButtons.YesNo))
+					{
+						throw new ApplicationException("Chose not to push");
+					}
+#endif
 					repo.Push(address, resolvedUri, _progress);
 
 					//for usb, it's safe and desireable to do an update (bring into the directory
@@ -425,7 +431,6 @@ namespace Chorus.sync
 				{
 					progress.WriteVerbose("inner exception:");
 					progress.WriteError(Message);
-					progress.WriteVerbose(StackTrace);
 				}
 
 				progress.WriteError(Message);
@@ -535,7 +540,8 @@ namespace Chorus.sync
 					}
 					catch (Exception error)
 					{
-						_progress.WriteError("Could not create repository on {0}. {1}", uri, error.Message);
+						_progress.WriteError("Could not create repository on {0}. Error follow:", uri);
+						_progress.WriteException(error);
 						continue;
 					}
 				}
@@ -553,7 +559,7 @@ namespace Chorus.sync
 			}
 			catch (Exception error)
 			{
-				_progress.WriteError(error.Message);
+				_progress.WriteException(error);
 				_progress.WriteError("Rolling back...");
 				UpdateToTheDescendantRevision(repo, workingRevBeforeSync); //rollback
 				throw;
@@ -687,7 +693,8 @@ namespace Chorus.sync
 						}
 						catch (Exception error)
 						{
-							_progress.WriteError("Could not move the file. Error was: {0}", error.Message);
+							_progress.WriteError("Could not move the file. Error follows.");
+							_progress.WriteException(error);
 							throw;
 						}
 					}
