@@ -97,7 +97,8 @@ namespace Chorus.UI.Review.RevisionsInRepository
 			_historyList.Items.AddRange(rows.ToArray());
 			if (_historyList.Items.Count > 0)
 			{
-				_historyList.Items[0].Selected = true;
+			   // no: this can be very slow, so wait until they select one
+				//_historyList.Items[0].Selected = true;
 			}
 			Cursor.Current = Cursors.Default;
 		}
