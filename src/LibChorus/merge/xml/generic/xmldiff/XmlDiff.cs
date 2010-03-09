@@ -73,7 +73,14 @@ namespace Chorus.merge.xml.generic.xmldiff
 				_diffResult = new DiffResult();
 				if (!_controlReader.Equals(_testReader))
 				{
-					Compare(_diffResult);
+					try
+					{
+						Compare(_diffResult);
+					}
+					catch(Exception e)
+					{
+						throw e;//just need a place to put a breakpoint
+					}
 				}
 			}
 			return _diffResult;
@@ -87,7 +94,14 @@ namespace Chorus.merge.xml.generic.xmldiff
 				do
 				{
 					controlRead = _controlReader.Read();
-					testRead = _testReader.Read();
+					try
+					{
+						testRead = _testReader.Read();
+					}
+					catch(Exception e)
+					{
+						throw e;//just need a place to put a breakpoint
+					}
 					Compare(result, ref controlRead, ref testRead);
 				} while (controlRead && testRead);
 			}

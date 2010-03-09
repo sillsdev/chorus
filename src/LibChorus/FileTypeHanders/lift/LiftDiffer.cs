@@ -21,6 +21,7 @@ namespace Chorus.merge.xml.lift
 		private readonly XmlDocument _childDom;
 		private readonly XmlDocument _parentDom;
 		private IMergeEventListener EventListener;
+		private readonly Dictionary<string, XmlNode> _parentIdToNodeIndex;
 
 		public static Lift2WayDiffer CreateFromFileInRevision(IMergeStrategy mergeStrategy, FileInRevision parent, FileInRevision child, IMergeEventListener eventListener, HgRepository repository)
 		{
@@ -38,6 +39,7 @@ namespace Chorus.merge.xml.lift
 
 			_childDom.LoadXml(childXml);
 			_parentDom.LoadXml(parentXml);
+			_parentIdToNodeIndex = new Dictionary<string, XmlNode>();
 
 			EventListener = eventListener;
 		}
@@ -51,6 +53,11 @@ namespace Chorus.merge.xml.lift
 
 		public void ReportDifferencesToListener()
 		{
+			foreach (XmlNode node in _parentDom.SafeSelectNodes("lift/entry"))
+			{
+				_parentIdToNodeIndex.Add(LiftUtils.GetId(node), node);
+			}
+
 			foreach (XmlNode childNode in _childDom.SafeSelectNodes("lift/entry"))
 			{
 				try
@@ -66,7 +73,7 @@ namespace Chorus.merge.xml.lift
 			}
 
 			//now detect any removed (not just marked as deleted) elements
-			foreach (XmlNode parentNode in _parentDom.SafeSelectNodes("lift/entry"))
+			foreach (XmlNode parentNode in _parentIdToNodeIndex.Values)// _parentDom.SafeSelectNodes("lift/entry"))
 			{
 				try
 				{
@@ -91,7 +98,9 @@ namespace Chorus.merge.xml.lift
 		private void ProcessEntry(XmlNode child)
 		{
 			string id = LiftUtils.GetId(child);
-			XmlNode parent = LiftUtils.FindEntryById(_parentDom, id);
+			XmlNode parent=null;// = LiftUtils.FindEntryById(_parentDom, id);
+			_parentIdToNodeIndex.TryGetValue(id, out parent);
+
 			string path = string.Empty;
 			if (_childFileInRevision != null && !string.IsNullOrEmpty(_childFileInRevision.FullPath))
 			{

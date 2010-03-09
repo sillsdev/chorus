@@ -11,6 +11,7 @@ namespace Chorus.Utilities
 		void WriteStatus(string message, params object[] args);
 		void WriteMessage(string message, params object[] args);
 		void WriteWarning(string message, params object[] args);
+		void WriteException(Exception error);
 		void WriteError(string message, params object[] args);
 		void WriteVerbose(string message, params object[] args);
 		bool ShowVerbose {set; }
@@ -30,6 +31,11 @@ namespace Chorus.Utilities
 
 		public void WriteWarning(string message, params object[] args)
 		{
+		}
+
+		public void WriteException(Exception error)
+		{
+
 		}
 
 		public void WriteError(string message, params object[] args)
@@ -101,6 +107,14 @@ namespace Chorus.Utilities
 			foreach (var handler in _progressHandlers)
 			{
 				handler.WriteWarning(message, args);
+			}
+		}
+
+		public void WriteException(Exception error)
+		{
+			 foreach (var handler in _progressHandlers)
+			{
+				handler.WriteException(error);
 			}
 		}
 
@@ -185,6 +199,22 @@ namespace Chorus.Utilities
 			WriteStatus("Warning: "+ message, args);
 		}
 
+		public void WriteException(Exception error)
+		{
+			WriteError("Exception: ");
+			WriteError(error.Message);
+			WriteError(error.StackTrace);
+
+			if (error.InnerException != null)
+			{
+				++indent;
+				WriteError("Inner: ");
+				WriteException(error.InnerException);
+				--indent;
+			}
+		}
+
+
 		public void WriteError(string message, params object[] args)
 		{
 			WriteStatus("Error: "+ message, args);
@@ -267,6 +297,11 @@ namespace Chorus.Utilities
 		{
 		}
 
+		public void WriteException(Exception error)
+		{
+			WriteError("Error");
+		}
+
 		public void WriteError(string message, params object[] args)
 		{
 			WriteStatus(message,args);
@@ -311,6 +346,23 @@ namespace Chorus.Utilities
 //                box.Text += String.Format(message + Environment.NewLine, args);
 //            }), _box, indent);
 		}
+
+
+		public override void WriteException(Exception error)
+		{
+			WriteError("Exception: ");
+			WriteError(error.Message);
+			WriteError(error.StackTrace);
+			if (error.InnerException != null)
+			{
+				++indent;
+				WriteError("Inner: ");
+				WriteException(error.InnerException);
+				--indent;
+			}
+		}
+
+
 	}
 
 	public class StringBuilderProgress : GenericProgress
@@ -353,6 +405,11 @@ namespace Chorus.Utilities
 		{
 			LastWarning = string.Format(message, args);
 			LastStatus = LastWarning;
+		}
+
+		public void WriteException(Exception error)
+		{
+			WriteError(error.Message);
 		}
 
 		public void WriteError(string message, params object[] args)
@@ -409,6 +466,11 @@ namespace Chorus.Utilities
 		public void WriteWarning(string message, params object[] args)
 		{
 			WriteMessage("Warning: " + message, args);
+		}
+
+		public virtual void WriteException(Exception error)
+		{
+			WriteError(error.Message);
 		}
 
 		public void WriteError(string message, params object[] args)

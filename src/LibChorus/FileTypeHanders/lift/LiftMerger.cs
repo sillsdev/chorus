@@ -29,8 +29,8 @@ namespace Chorus.merge.xml.lift
 		private readonly string _betaLift;
 		private readonly string _ancestorLift;
 		// only one index for now...
-		private readonly Dictionary<string, XmlNode> _betaIndex;
-		private readonly Dictionary<string,bool> _processedIds = new Dictionary<string,bool>();
+		private readonly Dictionary<string, XmlNode> _betaIdToNodeIndex;
+		private readonly Dictionary<string,bool> _processedIds;
 		private readonly XmlDocument _alphaDom;
 		private readonly XmlDocument _betaDom;
 		private readonly XmlDocument _ancestorDom;
@@ -42,10 +42,11 @@ namespace Chorus.merge.xml.lift
 		/// </summary>
 		public LiftMerger(IMergeStrategy mergeStrategy, string alphaLiftPath, string betaLiftPath, string ancestorLiftPath)
 		{
+			_processedIds = new Dictionary<string,bool>();
 			_alphaLift = File.ReadAllText(alphaLiftPath);
 			_betaLift =  File.ReadAllText(betaLiftPath);
 			_ancestorLift = File.ReadAllText(ancestorLiftPath);
-			_betaIndex = new Dictionary<string, XmlNode>();
+			_betaIdToNodeIndex = new Dictionary<string, XmlNode>();
 			_alphaDom = new XmlDocument();
 			_betaDom = new XmlDocument();
 			_ancestorDom = new XmlDocument();
@@ -62,10 +63,11 @@ namespace Chorus.merge.xml.lift
 		/// </summary>
 		public LiftMerger(string alphaLiftContents, string betaLiftContents, string ancestorLiftContents, IMergeStrategy mergeStrategy)
 		{
+			_processedIds = new Dictionary<string,bool>();
 			_alphaLift = alphaLiftContents;
 			_betaLift = betaLiftContents;
 			_ancestorLift = ancestorLiftContents;
-			_betaIndex = new Dictionary<string, XmlNode>();
+			_betaIdToNodeIndex = new Dictionary<string, XmlNode>();
 			_alphaDom = new XmlDocument();
 			_betaDom = new XmlDocument();
 			_ancestorDom = new XmlDocument();
@@ -94,7 +96,7 @@ namespace Chorus.merge.xml.lift
 			{
 				foreach (XmlNode b in _betaDom.SafeSelectNodes("lift/entry"))
 				{
-					_betaIndex[LiftUtils.GetId(b)] = b;
+					_betaIdToNodeIndex[LiftUtils.GetId(b)] = b;
 				}
 				using (XmlWriter writer = XmlWriter.Create(memoryStream, settings))
 				{
@@ -168,22 +170,11 @@ namespace Chorus.merge.xml.lift
 		{
 			string id = LiftUtils.GetId(alphaEntry);
 			XmlNode betaEntry;
-			try
-			{
-				 betaEntry = _betaIndex[id];
-			}
-			catch (KeyNotFoundException)
-			{
 
-				betaEntry = null;
-			}
-
-			if (betaEntry == null) //it's new
+			if(!_betaIdToNodeIndex.TryGetValue(id, out betaEntry))
 			{
 				//enchance: we know this at this point only in the 2-way diff mode
 				EventListener.ChangeOccurred(new XmlAdditionChangeReport("hackFixThis.lift", alphaEntry));
-
-
 				ProcessEntryWeKnowDoesntNeedMerging(alphaEntry, id, writer);
 			}
 			else if (AreTheSame(alphaEntry, betaEntry))//unchanged or both made same change

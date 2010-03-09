@@ -22,7 +22,7 @@ namespace Chorus.UI.Misc
 			Write(Color.Black, message, args);
 		}
 
-		private void Write(Color color, string message, object[] args)
+		private void Write(Color color, string message, params object[] args)
 		{
 //            try
 //            {
@@ -49,6 +49,18 @@ namespace Chorus.UI.Misc
 		public void WriteWarning(string message, params object[] args)
 		{
 			Write(Color.Blue, "Warning: " + message, args);
+		}
+
+
+		public void WriteException(Exception error)
+		{
+			Write(Color.Red, "Exception: " +error.Message);
+			WriteVerbose(error.StackTrace);
+			if (error.InnerException != null)
+			{
+				WriteError("Inner--> ");
+				WriteException(error.InnerException);
+			}
 		}
 
 		public void WriteError(string message, params object[] args)
