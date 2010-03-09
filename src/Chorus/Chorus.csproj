@@ -69,6 +69,7 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
+	<Compile Include="Arguments.cs" />
 	<Compile Include="Bootstrapper.cs" />
 	<Compile Include="ChorusSystem.cs" />
 	<Compile Include="ChorusUIComponentsInjector.cs" />

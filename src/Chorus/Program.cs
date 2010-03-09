@@ -54,7 +54,7 @@ namespace Chorus
 
 			Properties.Settings.Default.PathToRepository = pathToRepository;
 			Properties.Settings.Default.Save();
-			new Runner().Run(pathToRepository);
+			new Runner().Run(pathToRepository, new Arguments(args));
 
 			Properties.Settings.Default.Save();
 		}
@@ -82,14 +82,14 @@ namespace Chorus
 
 		internal class Runner
 		{
-			public void Run(string pathToRepository)
+			public void Run(string pathToRepository, Arguments arguments)
 			{
 
 				BrowseForRepositoryEvent browseForRepositoryEvent = new BrowseForRepositoryEvent();
 				browseForRepositoryEvent.Subscribe(BrowseForRepository);
 				using (var bootStrapper = new BootStrapper(pathToRepository))
 				{
-					Application.Run(bootStrapper.CreateShell(browseForRepositoryEvent));
+					Application.Run(bootStrapper.CreateShell(browseForRepositoryEvent, arguments));
 				}
 			}
 

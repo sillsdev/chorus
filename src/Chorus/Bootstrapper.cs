@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using Autofac;
+using Chorus.sync;
 using Chorus.UI.Misc;
 using Chorus.UI.Notes.Browser;
 using Chorus.UI.Review;
@@ -22,7 +23,7 @@ namespace Chorus
 			_projectPath = projectPath;
 		}
 
-		public Shell CreateShell(BrowseForRepositoryEvent browseForRepositoryEvent)
+		internal Shell CreateShell(BrowseForRepositoryEvent browseForRepositoryEvent, Arguments arguments)
 		{
 			var builder = new Autofac.Builder.ContainerBuilder();
 
@@ -35,6 +36,13 @@ namespace Chorus
 			builder.Register<IChorusUser>(c => new ChorusUser(c.Resolve<HgRepository>().GetUserNameFromIni(new NullProgress(), System.Environment.UserName)));
 
 			builder.Register<Shell>();
+			if(arguments!=null)
+			{
+				builder.Register(arguments);
+				Synchronizer.s_testingDoNotPush = arguments.DontPush; //hack, at this point it would take a lot of plumbing
+					//to get this properly to any synchronizer that is created.  Can be fixed if/when we go to the
+				//autofac generated factor approach
+			}
 
 			_container = builder.Build();
 			var shell= _container.Resolve<Shell>();

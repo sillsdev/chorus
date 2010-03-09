@@ -25,6 +25,8 @@ namespace Chorus.sync
 		private IProgress _progress;
 		private ChorusFileTypeHandlerCollection _handlers;
 		public static readonly string RejectTagSubstring = "[reject]";
+		//hack to prevent making change to custer repose when diagnosing problems... activated by -noPush commandline arg.
+		public static bool s_testingDoNotPush;
 		#endregion
 
 		#region Properties
@@ -233,13 +235,14 @@ namespace Chorus.sync
 				}
 				if (canConnect)
 				{
-#if DEBUG
-					if(DialogResult.No == MessageBox.Show("In Debug mode... really push?", "Debug", MessageBoxButtons.YesNo))
+					if(s_testingDoNotPush)
 					{
-						throw new ApplicationException("Chose not to push");
+						_progress.WriteWarning("**Skipping push because s_testingDoNotPush is true");
 					}
-#endif
-					repo.Push(address, resolvedUri, _progress);
+					else
+					{
+						repo.Push(address, resolvedUri, _progress);
+					}
 
 					//for usb, it's safe and desireable to do an update (bring into the directory
 					//  the latest files from the repo) for LAN, it could be... for now we assume it is

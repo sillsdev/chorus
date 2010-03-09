@@ -19,7 +19,7 @@ namespace Chorus.Tests
 			using (var folder = new TempFolder("ChorusApplicationTests"))
 			{
 				Application.Idle += new EventHandler(Application_Idle);
-				new Program.Runner().Run(folder.Path);
+				new Program.Runner().Run(folder.Path, new Arguments(new object[]{}));
 			}
 		}
 
