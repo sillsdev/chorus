@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Xml;
 using Chorus.merge.xml.generic.xmldiff;
@@ -74,6 +75,15 @@ namespace Chorus.merge.xml.generic
 
 			foreach (XmlNode node in parentToSearchIn.ChildNodes)
 			{
+				if(nodeToMatch.Name != node.Name)
+				{
+					continue; // can't be equal if they don't even have the same name
+				}
+
+				if (node.GetType() == typeof(XmlText))
+				{
+					throw new ApplicationException("Please report: regression in FindByEqualityOfTree where the node is simply a text.");
+				}
 				XmlDiff d = new XmlDiff(nodeToMatch.OuterXml, node.OuterXml);
 				DiffResult result = d.Compare();
 				if (result == null || result.Equal)
