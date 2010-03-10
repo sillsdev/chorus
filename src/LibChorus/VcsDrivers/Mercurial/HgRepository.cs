@@ -162,7 +162,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			_progress.WriteVerbose("({0} is {1})", address.GetFullName(targetUri), targetUri);
 			try
 			{
-				Execute(_secondsBeforeTimeoutOnLocalOperation, "push", SurroundWithQuotes(targetUri));
+				Execute(_secondsBeforeTimeoutOnRemoteOperation, "push", SurroundWithQuotes(targetUri));
 			}
 			catch (Exception err)
 			{
