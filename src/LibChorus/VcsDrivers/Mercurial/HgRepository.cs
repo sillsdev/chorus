@@ -22,12 +22,13 @@ namespace Chorus.VcsDrivers.Mercurial
 		protected readonly string _pathToRepository;
 		protected string _userName;
 		protected IProgress _progress;
-		private int _secondsBeforeTimeoutOnLocalOperation = 60;
-		private int _secondsBeforeTimeoutOnRemoteOperation = 20 * 60;
+		private const int SecondsBeforeTimeoutOnLocalOperation = 60;
+		private const int SecondsBeforeTimeoutOnMergeOperation = 5 * 60;
+		private const int SecondsBeforeTimeoutOnRemoteOperation = 20 * 60;
 
 		public static string GetEnvironmentReadinessMessage(string messageLanguageId)
 		{
-			ProcessStartInfo startInfo = new ProcessStartInfo();
+			var startInfo = new ProcessStartInfo();
 			startInfo.FileName = "hg";
 			startInfo.Arguments = "version";
 			startInfo.CreateNoWindow = true;
@@ -144,7 +145,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			_progress.WriteVerbose("setting name and branch");
 			using (new ShortTermEnvironmentalVariable("HGUSER", userName))
 			{
-				Execute(_secondsBeforeTimeoutOnLocalOperation, "branch", userName);
+				Execute(SecondsBeforeTimeoutOnLocalOperation, "branch", userName);
 			}
 		}
 
@@ -162,7 +163,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			_progress.WriteVerbose("({0} is {1})", address.GetFullName(targetUri), targetUri);
 			try
 			{
-				Execute(_secondsBeforeTimeoutOnRemoteOperation, "push", SurroundWithQuotes(targetUri));
+				Execute(SecondsBeforeTimeoutOnRemoteOperation, "push", SurroundWithQuotes(targetUri));
 			}
 			catch (Exception err)
 			{
@@ -173,7 +174,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			{
 				try
 				{
-					Execute(_secondsBeforeTimeoutOnLocalOperation, "update", "-C"); // for usb keys and other local repositories
+					Execute(SecondsBeforeTimeoutOnLocalOperation, "update", "-C"); // for usb keys and other local repositories
 				}
 				catch (Exception err)
 				{
@@ -201,7 +202,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				try
 				{
 					var tip = GetTip();
-					Execute(_secondsBeforeTimeoutOnRemoteOperation, "pull", otherRepo.PathWithQuotes);
+					Execute(SecondsBeforeTimeoutOnRemoteOperation, "pull", otherRepo.PathWithQuotes);
 
 					var newTip = GetTip();
 					if (tip == null)
@@ -264,7 +265,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		protected string GetTextFromQuery(string query)
 		{
-			ExecutionResult result = ExecuteErrorsOk(query + " -R " + SurroundWithQuotes(_pathToRepository), _pathToRepository, _secondsBeforeTimeoutOnLocalOperation, _progress);
+			ExecutionResult result = ExecuteErrorsOk(query + " -R " + SurroundWithQuotes(_pathToRepository), _pathToRepository, SecondsBeforeTimeoutOnLocalOperation, _progress);
 			// Debug.Assert(string.IsNullOrEmpty(result.StandardError), result.StandardError);
 
 			if (!string.IsNullOrEmpty(result.StandardOutput))
@@ -297,14 +298,14 @@ namespace Chorus.VcsDrivers.Mercurial
 		{
 			_progress.WriteVerbose("Adding {0} to the files that are tracked for {1}: ", Path.GetFileName(filePath),
 								   _userName);
-			Execute(_secondsBeforeTimeoutOnLocalOperation, "add", SurroundWithQuotes(filePath));
+			Execute(SecondsBeforeTimeoutOnLocalOperation, "add", SurroundWithQuotes(filePath));
 		}
 
 		public virtual void Commit(bool forceCreationOfChangeSet, string message, params object[] args)
 		{
 			message = string.Format(message, args);
 			_progress.WriteVerbose("{0} committing with comment: {1}", _userName, message);
-			ExecutionResult result = Execute(_secondsBeforeTimeoutOnLocalOperation, "ci", "-m " + SurroundWithQuotes(message));
+			ExecutionResult result = Execute(SecondsBeforeTimeoutOnLocalOperation, "ci", "-m " + SurroundWithQuotes(message));
 			_progress.WriteVerbose(result.StandardOutput);
 		}
 
@@ -314,7 +315,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		public void Branch(string branchName)
 		{
 			_progress.WriteVerbose("{0} changing working dir to branch: {1}", _userName, branchName);
-			Execute(_secondsBeforeTimeoutOnLocalOperation, "branch -f ", SurroundWithQuotes(branchName));
+			Execute(SecondsBeforeTimeoutOnLocalOperation, "branch -f ", SurroundWithQuotes(branchName));
 		}
 
 		protected ExecutionResult Execute(int secondsBeforeTimeout, string cmd, params string[] rest)
@@ -463,7 +464,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		public List<string> GetChangedFiles()
 		{
-			ExecutionResult result = Execute(_secondsBeforeTimeoutOnLocalOperation, "status");
+			ExecutionResult result = Execute(SecondsBeforeTimeoutOnLocalOperation, "status");
 			string[] lines = result.StandardOutput.Split('\n');
 			List<string> files = new List<string>();
 			foreach (string line in lines)
@@ -478,13 +479,13 @@ namespace Chorus.VcsDrivers.Mercurial
 		public void Update()
 		{
 			_progress.WriteVerbose("{0} updating", _userName);
-			Execute(_secondsBeforeTimeoutOnLocalOperation, "update", "-C");
+			Execute(SecondsBeforeTimeoutOnLocalOperation, "update", "-C");
 		}
 
 		public void Update(string revision)
 		{
 			_progress.WriteVerbose("{0} updating (making working directory contain) revision {1}", _userName, revision);
-			Execute(_secondsBeforeTimeoutOnLocalOperation, "update", "-r", revision, "-C");
+			Execute(SecondsBeforeTimeoutOnLocalOperation, "update", "-r", revision, "-C");
 		}
 
 		//        public void GetRevisionOfFile(string fileRelativePath, string revision, string fullOutputPath)
@@ -528,11 +529,11 @@ namespace Chorus.VcsDrivers.Mercurial
 				_progress.WriteVerbose(
 					"At least one file was removed from the working directory.  Telling Hg to record the deletion.");
 
-				Execute(_secondsBeforeTimeoutOnLocalOperation, "rm -A");
+				Execute(SecondsBeforeTimeoutOnLocalOperation, "rm -A");
 			}
 
 			_progress.WriteVerbose("Adding files to be tracked ({0}", args.ToString());
-			Execute(_secondsBeforeTimeoutOnLocalOperation, "add", args.ToString());
+			Execute(SecondsBeforeTimeoutOnLocalOperation, "add", args.ToString());
 
 			_progress.WriteVerbose("Committing \"{0}\"", message);
 			Commit(false, message);
@@ -607,7 +608,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		public void CloneLocal(string targetPath)
 		{
-			Execute(_secondsBeforeTimeoutOnLocalOperation, "clone --uncompressed", PathWithQuotes + " " + SurroundWithQuotes(targetPath));
+			Execute(SecondsBeforeTimeoutOnLocalOperation, "clone --uncompressed", PathWithQuotes + " " + SurroundWithQuotes(targetPath));
 		}
 
 		private List<Revision> GetRevisionsFromQuery(string query)
@@ -763,7 +764,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			var f = TempFile.CreateWithExtension(Path.GetExtension(relativePath));
 
 			var cmd = string.Format("cat -o \"{0}\" -r {1} \"{2}\"", f.Path, revOrHash, relativePath);
-			ExecutionResult result = ExecuteErrorsOk(cmd, _pathToRepository, _secondsBeforeTimeoutOnLocalOperation, _progress);
+			ExecutionResult result = ExecuteErrorsOk(cmd, _pathToRepository, SecondsBeforeTimeoutOnLocalOperation, _progress);
 			if (!string.IsNullOrEmpty(result.StandardError.Trim()))
 			{
 				throw new ApplicationException(String.Format("Could not retrieve version {0} of {1}. Mercurial said: {2}", revOrHash, relativePath, result.StandardError));
@@ -1087,7 +1088,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		{
 
 			//this may be just as slow as a pull
-			//    ExecutionResult result = ExecuteErrorsOk(string.Format("incoming -l 1 {0}", SurroundWithQuotes(uri)), _pathToRepository, _secondsBeforeTimeoutOnLocalOperation, _progress);
+			//    ExecutionResult result = ExecuteErrorsOk(string.Format("incoming -l 1 {0}", SurroundWithQuotes(uri)), _pathToRepository, SecondsBeforeTimeoutOnLocalOperation, _progress);
 			//so we're going to just ping
 
 			try
@@ -1149,7 +1150,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		public void RecoverFromInterruptedTransactionIfNeeded()
 		{
-			var result = Execute(true, _secondsBeforeTimeoutOnLocalOperation, "recover");
+			var result = Execute(true, SecondsBeforeTimeoutOnLocalOperation, "recover");
 
 			if (GetHasLocks())
 			{   //recover very often leaves store/lock, at least in hg 1.3
@@ -1183,7 +1184,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		/// <returns>false if nothing needed to be merged, true if the merge was done. Throws exception if there is an error.</returns>
 		public bool Merge(string localRepositoryPath, string revisionNumber)
 		{
-			var result = Execute(true, _secondsBeforeTimeoutOnLocalOperation, "merge", "-r", revisionNumber);
+			var result = Execute(true, SecondsBeforeTimeoutOnMergeOperation, "merge", "-r", revisionNumber);
 
 			if (result.ExitCode != 0)
 			{
@@ -1472,7 +1473,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		/// <param name="tag"></param>
 		public void TagRevision(string revisionNumber, string tag)
 		{
-			Execute(false, _secondsBeforeTimeoutOnLocalOperation, "tag -r " + revisionNumber + " \"" + tag + "\"");
+			Execute(false, SecondsBeforeTimeoutOnLocalOperation, "tag -r " + revisionNumber + " \"" + tag + "\"");
 		}
 
 		protected static string SurroundWithQuotes(string path)
@@ -1499,7 +1500,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 				using (var messageFile = new TempFile(changeSetSummary))
 				{
-					Execute(false, _secondsBeforeTimeoutOnLocalOperation,
+					Execute(false, SecondsBeforeTimeoutOnLocalOperation,
 							string.Format("backout -r {0} --logfile \"{1}\"", revisionNumber, messageFile.Path));
 				}
 				//if we were not backing out the "current" revision, move back over to it.
