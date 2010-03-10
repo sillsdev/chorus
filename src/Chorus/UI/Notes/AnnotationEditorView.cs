@@ -19,8 +19,19 @@ namespace Chorus.UI.Notes
 			Visible = model.IsVisible;
 			ModalDialogMode = true;
 			//needs to be primed this way
-			_existingMessagesDisplay.DocumentText = "<html></html>";
+			SetDocumentText("<html><head></head><body></body></html>");
 			_newMessage.Font = model.FontForNewMessage;
+		}
+
+		protected void SetDocumentText(string text)
+		{
+			// Using _existingMessagesDisplay.DocumentText =  causes an exception on mono
+#if MONO
+			text = text.Replace("'", "\'");
+			_existingMessagesDisplay.Navigate("javascript:{document.body.outerHTML = '" + text + "';}");
+#else
+			_existingMessagesDisplay.DocumentText = text;
+#endif
 		}
 
 		public bool ModalDialogMode
@@ -40,7 +51,7 @@ namespace Chorus.UI.Notes
 			{
 				_annotationLogo.Image = _model.GetAnnotationLogoImage();
 				_annotationLabel.Text = _model.AnnotationLabel;
-				_existingMessagesDisplay.DocumentText = _model.GetExistingMessagesHtml();
+				SetDocumentText(_model.GetExistingMessagesHtml());
 				_newMessage.Text = _model.NewMessageText;
 			}
 			OnUpdateStates(sender,e);
