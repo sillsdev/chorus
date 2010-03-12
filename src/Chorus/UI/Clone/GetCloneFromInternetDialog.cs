@@ -69,6 +69,10 @@ namespace Chorus.UI.Clone
 				{
 					var repo = new HgRepository(_internetCloneInstructionsControl.TargetDestination, _progress);
 					var name = new Uri(_internetCloneInstructionsControl.URL).Host;
+					if (String.IsNullOrEmpty(name)) //This happens for repos on the local machine
+					{
+						name = "LocalRepository";
+					}
 					if (name.ToLower().Contains("languagedepot"))
 						name = "LanguageDepot";
 

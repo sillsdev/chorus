@@ -70,22 +70,22 @@ namespace Chorus.UI.Clone
 		}
 		public string URL
 		{
-			get { return "http://"+
-				HttpUtility.UrlEncode(_accountName.Text) + ":" +
-				HttpUtility.UrlEncode(_password.Text) + "@" + ServerPath + "/" +
-				HttpUtility.UrlEncode(_projectId.Text);
-			}
-		   // set { _urlBox.Text = value; }
-		}
-
-		protected string ServerPath
-		{
 			get
 			{
-				if(_serverCombo.SelectedIndex < 0)
-						return string.Empty;
-				return _servers[(string)_serverCombo.SelectedItem];
+				if (_serverCombo.SelectedIndex < 0)
+				{
+					return _serverCombo.Text;
+				}
+				else
+				{
+					string ServerPath = _servers[(string)_serverCombo.SelectedItem];
+					return "http://" +
+						   HttpUtility.UrlEncode(_accountName.Text) + ":" +
+						   HttpUtility.UrlEncode(_password.Text) + "@" + ServerPath + "/" +
+						   HttpUtility.UrlEncode(_projectId.Text);
+				}
 			}
+		   // set { _urlBox.Text = value; }
 		}
 
 		public string NameOfProjectOnRepository
