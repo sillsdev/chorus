@@ -27,24 +27,34 @@ namespace Chorus.UI.Clone
 			}
 			_serverCombo.SelectedIndex = 0;
 			_serverCombo.TextChanged += OnComboBoxTextChanged;
-			_serverCombo.SelectedIndexChanged += OnComboBoxSelectedIndexChanged;
-		}
-
-		private void OnComboBoxSelectedIndexChanged(object sender, EventArgs e)
-		{
-			if (_serverCombo.SelectedIndex < 0)
-			{
-				customUrlEntered = true;
-			}
 		}
 
 		private void OnComboBoxTextChanged(object sender, EventArgs e)
 		{
+			customUrlEntered = true;
+			foreach(string key in _servers.Keys)
+			{
+				if (key.ToLower() == _serverCombo.Text.ToLower())
+				{
+					customUrlEntered = false;
+					_serverCombo.SelectedItem = key;
+				}
+			}
+
 			if (customUrlEntered)
 			{
 				_accountName.Enabled = false;
 				_projectId.Enabled = false;
 				_password.Enabled = false;
+				_localFolderName.Enabled = true;
+			}
+			else
+			{
+				_serverCombo.SelectedItem =
+				_accountName.Enabled = true;
+				_projectId.Enabled = true;
+				_password.Enabled = true;
+				_localFolderName.Enabled = HaveNeededAccountInfo;
 			}
 		}
 
@@ -100,7 +110,6 @@ namespace Chorus.UI.Clone
 				}
 				else
 				{
-					Console.WriteLine("selected index: {0}", _serverCombo.SelectedIndex);
 					string ServerPath = _servers[(string)_serverCombo.SelectedItem];
 					return "http://" +
 						   HttpUtility.UrlEncode(_accountName.Text) + ":" +
@@ -152,16 +161,7 @@ namespace Chorus.UI.Clone
 		{
 			get
 			{
-				bool haveWellFormedTargetLocation = false;
-				if (customUrlEntered)
-				{
-					haveWellFormedTargetLocation = true;
-				}
-				else
-				{
-					haveWellFormedTargetLocation = (_localFolderName.Text.Trim().Length > 0 && _localFolderName.Text.LastIndexOfAny(Path.GetInvalidFileNameChars()) == -1);
-				}
-				return haveWellFormedTargetLocation;
+				return (_localFolderName.Text.Trim().Length > 0 && _localFolderName.Text.LastIndexOfAny(Path.GetInvalidFileNameChars()) == -1);
 			}
 		}
 

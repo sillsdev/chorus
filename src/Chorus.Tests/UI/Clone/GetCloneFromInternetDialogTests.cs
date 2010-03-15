@@ -46,13 +46,6 @@ namespace Chorus.Tests.UI.Clone
 //            Launch("http://hg-public.languagedepot.org/NOTHERE");
 //        }
 
-		[Test]
-		public void Temporary_Manual_DialogCheckTest()
-		{
-			Launch();
-		}
-
-
 		[Test, Ignore("Run by hand only")]
 		public void LaunchDialog_ProjectWontbeFound()//gives HTTP Error 404: Not Found
 		{
