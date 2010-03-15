@@ -11,6 +11,7 @@ namespace Chorus.UI.Clone
 	{
 		private readonly string _parentDirectoryToPutCloneIn;
 		private readonly Dictionary<string, string> _servers = new Dictionary<string, string>();
+		private bool customUrlEntered = false;
 
 		public InternetCloneInstructionsControl(string parentDirectoryToPutCloneIn)
 		{
@@ -25,6 +26,26 @@ namespace Chorus.UI.Clone
 				_serverCombo.Items.Add(pair.Key);
 			}
 			_serverCombo.SelectedIndex = 0;
+			_serverCombo.TextChanged += OnComboBoxTextChanged;
+			_serverCombo.SelectedIndexChanged += OnComboBoxSelectedIndexChanged;
+		}
+
+		private void OnComboBoxSelectedIndexChanged(object sender, EventArgs e)
+		{
+			if (_serverCombo.SelectedIndex < 0)
+			{
+				customUrlEntered = true;
+			}
+		}
+
+		private void OnComboBoxTextChanged(object sender, EventArgs e)
+		{
+			if (customUrlEntered)
+			{
+				_accountName.Enabled = false;
+				_projectId.Enabled = false;
+				_password.Enabled = false;
+			}
 		}
 
 		private void UpdateDisplay()
@@ -68,16 +89,18 @@ namespace Chorus.UI.Clone
 		{
 		   UpdateDisplay();
 		}
+
 		public string URL
 		{
 			get
 			{
-				if (_serverCombo.SelectedIndex < 0)
+				if (customUrlEntered)
 				{
 					return _serverCombo.Text;
 				}
 				else
 				{
+					Console.WriteLine("selected index: {0}", _serverCombo.SelectedIndex);
 					string ServerPath = _servers[(string)_serverCombo.SelectedItem];
 					return "http://" +
 						   HttpUtility.UrlEncode(_accountName.Text) + ":" +
@@ -129,7 +152,16 @@ namespace Chorus.UI.Clone
 		{
 			get
 			{
-				return (_localFolderName.Text.Trim().Length > 0 && _localFolderName.Text.LastIndexOfAny(Path.GetInvalidFileNameChars()) == -1);
+				bool haveWellFormedTargetLocation = false;
+				if (customUrlEntered)
+				{
+					haveWellFormedTargetLocation = true;
+				}
+				else
+				{
+					haveWellFormedTargetLocation = (_localFolderName.Text.Trim().Length > 0 && _localFolderName.Text.LastIndexOfAny(Path.GetInvalidFileNameChars()) == -1);
+				}
+				return haveWellFormedTargetLocation;
 			}
 		}
 
@@ -142,19 +174,26 @@ namespace Chorus.UI.Clone
 		{
 			get
 			{
-				try
+				if (customUrlEntered)
 				{
-//                    var uri = new Uri(_urlBox.Text);
-//                    return uri.Scheme =="http" &&
-//                           Uri.IsWellFormedUriString(_urlBox.Text, UriKind.Absolute) &&
-//                           !string.IsNullOrEmpty(uri.PathAndQuery.Trim('/'));
-					return _projectId.Text.Trim().Length > 1 &&
-							_accountName.Text.Trim().Length > 1 &&
-							_password.Text.Trim().Length > 1;
+					return true;
 				}
-				catch(Exception)
+				else
 				{
-					return false;
+					try
+					{
+						//                    var uri = new Uri(_urlBox.Text);
+						//                    return uri.Scheme =="http" &&
+						//                           Uri.IsWellFormedUriString(_urlBox.Text, UriKind.Absolute) &&
+						//                           !string.IsNullOrEmpty(uri.PathAndQuery.Trim('/'));
+						return _projectId.Text.Trim().Length > 1 &&
+							   _accountName.Text.Trim().Length > 1 &&
+							   _password.Text.Trim().Length > 1;
+					}
+					catch (Exception)
+					{
+						return false;
+					}
 				}
 			}
 		}

@@ -71,7 +71,7 @@ namespace Chorus.UI.Clone
 					var name = new Uri(_internetCloneInstructionsControl.URL).Host;
 					if (String.IsNullOrEmpty(name)) //This happens for repos on the local machine
 					{
-						name = "LocalRepository";
+						//name = "LocalRepository";
 					}
 					if (name.ToLower().Contains("languagedepot"))
 						name = "LanguageDepot";
