@@ -128,12 +128,13 @@
 			//
 			// _serverCombo
 			//
+			this._serverCombo.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			this._serverCombo.FormattingEnabled = true;
 			this._serverCombo.Location = new System.Drawing.Point(110, 23);
 			this._serverCombo.Name = "_serverCombo";
 			this._serverCombo.Size = new System.Drawing.Size(168, 21);
 			this._serverCombo.TabIndex = 5;
-			this._serverCombo.SelectedIndexChanged += new System.EventHandler(this.OnAccountInfoTextChanged);
+			this._serverCombo.SelectedIndexChanged += new System.EventHandler(this.OnSelectedIndexChanged);
 			//
 			// label1
 			//

@@ -25,24 +25,19 @@ namespace Chorus.UI.Clone
 			{
 				_serverCombo.Items.Add(pair.Key);
 			}
+			_serverCombo.Items.Add("Custom Location...");
+
 			_serverCombo.SelectedIndex = 0;
-			_serverCombo.TextChanged += OnComboBoxTextChanged;
+			_serverCombo.SelectedIndexChanged += OnSelectedIndexChanged;
 		}
 
-		private void OnComboBoxTextChanged(object sender, EventArgs e)
+		private void OnSelectedIndexChanged(object sender, EventArgs e)
 		{
-			customUrlEntered = true;
-			foreach(string key in _servers.Keys)
-			{
-				if (key.ToLower() == _serverCombo.Text.ToLower())
-				{
-					customUrlEntered = false;
-					_serverCombo.SelectedItem = key;
-				}
-			}
+			customUrlEntered = _serverCombo.SelectedItem == "Custom Location..." ? true : false;
 
 			if (customUrlEntered)
 			{
+				_serverCombo.DropDownStyle = ComboBoxStyle.DropDown;
 				_accountName.Enabled = false;
 				_projectId.Enabled = false;
 				_password.Enabled = false;
@@ -50,12 +45,14 @@ namespace Chorus.UI.Clone
 			}
 			else
 			{
+				_serverCombo.DropDownStyle = ComboBoxStyle.DropDownList;
 				_serverCombo.SelectedItem =
 				_accountName.Enabled = true;
 				_projectId.Enabled = true;
 				_password.Enabled = true;
 				_localFolderName.Enabled = HaveNeededAccountInfo;
 			}
+			OnAccountInfoTextChanged(sender, e);
 		}
 
 		private void UpdateDisplay()
