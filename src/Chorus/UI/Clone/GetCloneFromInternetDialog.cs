@@ -261,7 +261,8 @@ namespace Chorus.UI.Clone
 
 		private void _fixSettingsButton_Click(object sender, EventArgs e)
 		{
-				UpdateDisplay(State.AskingUserForURL);
+			_statusProgress = new StatusProgress();
+			UpdateDisplay(State.AskingUserForURL);
 		}
 
 		private void GetCloneFromInternetDialog_BackColorChanged(object sender, EventArgs e)
