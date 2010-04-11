@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using Chorus.merge;
 using Chorus.Utilities;
+using Chorus.Utilities.code;
 using Chorus.VcsDrivers.Mercurial;
 
 namespace Chorus.FileTypeHanders.FieldWorks
@@ -15,22 +17,34 @@ namespace Chorus.FileTypeHanders.FieldWorks
 
 		public bool CanDiffFile(string pathToFile)
 		{
-			throw new NotImplementedException();
+			//if (!CheckValidPathname(pathToFile))
+			//    return false;
+
+			//using (var reader = File.OpenText(pathToFile))
+			//{
+			//    while (!reader.EndOfStream)
+			//    {
+			//        var line = reader.ReadLine();
+			//        if (line != null && line.Contains("<languageproject"))
+			//            return true;
+			//    }
+			//}
+			return false;
 		}
 
 		public bool CanMergeFile(string pathToFile)
 		{
-			throw new NotImplementedException();
+			return false;
 		}
 
 		public bool CanPresentFile(string pathToFile)
 		{
-			throw new NotImplementedException();
+			return false;
 		}
 
 		public bool CanValidateFile(string pathToFile)
 		{
-			throw new NotImplementedException();
+			return CheckValidPathname(pathToFile);
 		}
 
 		/// <summary>
@@ -58,7 +72,7 @@ namespace Chorus.FileTypeHanders.FieldWorks
 		/// </summary>
 		public string ValidateFile(string pathToFile, IProgress progress)
 		{
-			throw new NotImplementedException();
+			return XmlValidation.ValidateFile(pathToFile, progress);
 		}
 
 		/// <summary>
@@ -72,9 +86,14 @@ namespace Chorus.FileTypeHanders.FieldWorks
 
 		public IEnumerable<string> GetExtensionsOfKnownTextFileTypes()
 		{
-			throw new NotImplementedException();
+			yield return "xml";
 		}
 
 		#endregion
+
+		private static bool CheckValidPathname(string pathToFile)
+		{
+			return !string.IsNullOrEmpty(pathToFile) && File.Exists(pathToFile) && Path.GetExtension(pathToFile).ToLower() == ".xml";
+		}
 	}
 }
