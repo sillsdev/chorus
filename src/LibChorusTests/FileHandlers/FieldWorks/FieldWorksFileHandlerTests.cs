@@ -2,7 +2,6 @@
 using System.IO;
 using System.Linq;
 using Chorus.FileTypeHanders;
-using Chorus.FileTypeHanders.FieldWorks;
 using NUnit.Framework;
 
 namespace LibChorus.Tests.FileHandlers.FieldWorks
@@ -16,16 +15,21 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 		private IChorusFileTypeHandler m_handler;
 		private string m_goodXmlPathname;
 		private string m_illformedXmlPathname;
+		private string m_goodXmlButNotFwPathname;
 		private string m_nonXmlPathname;
 
 		[TestFixtureSetUp]
 		public void FixtureSetup()
 		{
-			m_handler = new FieldWorksFileHandler();
+			m_handler = (from handler in ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers().Handers
+						 where handler.GetType().Name == "FieldWorksFileHandler"
+						 select handler).First();
 			m_goodXmlPathname = Path.ChangeExtension(Path.GetTempFileName(), ".xml");
-			File.WriteAllText(m_goodXmlPathname, "<?xml version='1.0' encoding='utf-8'?>" + Environment.NewLine + "<languageproject version='7000016'>" + Environment.NewLine + "</languageproject>");
+			File.WriteAllText(m_goodXmlPathname, "<?xml version='1.0' encoding='utf-8'?>" + Environment.NewLine + "<languageproject version='7000016' />");
 			m_illformedXmlPathname = Path.ChangeExtension(Path.GetTempFileName(), ".xml");
 			File.WriteAllText(m_illformedXmlPathname, "<?xml version='1.0' encoding='utf-8'?>" + Environment.NewLine + "<languageproject version='7000016'>");
+			m_goodXmlButNotFwPathname = Path.ChangeExtension(Path.GetTempFileName(), ".xml");
+			File.WriteAllText(m_goodXmlButNotFwPathname, "<?xml version='1.0' encoding='utf-8'?>" + Environment.NewLine + "<nonfwstuff />");
 			m_nonXmlPathname = Path.ChangeExtension(Path.GetTempFileName(), ".txt");
 			File.WriteAllText(m_nonXmlPathname, "This is not an xml file." + Environment.NewLine);
 
@@ -39,6 +43,8 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 				File.Delete(m_goodXmlPathname);
 			if (File.Exists(m_illformedXmlPathname))
 				File.Delete(m_illformedXmlPathname);
+			if (File.Exists(m_goodXmlButNotFwPathname))
+				File.Delete(m_goodXmlButNotFwPathname);
 			if (File.Exists(m_nonXmlPathname))
 				File.Delete(m_nonXmlPathname);
 		}
@@ -49,14 +55,12 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 			Assert.IsFalse(m_handler.CanDiffFile("bogusPathname"));
 		}
 
-		//[Test, ExpectedException(typeof(ArgumentException))]
 		[Test]
 		public void Cannot_Diff_Null_File()
 		{
 			Assert.IsFalse(m_handler.CanDiffFile(null));
 		}
 
-		//[Test, ExpectedException(typeof(ArgumentException))]
 		[Test]
 		public void Cannot_Diff_Empty_String_File()
 		{
@@ -64,21 +68,20 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 		}
 
 		[Test]
-		public void CanDiff_Good_Fw_Xml_File()
+		public void Cannot_Diff_Good_Fw_Xml_File_Yet()
 		{
-			//Assert.IsTrue(m_handler.CanDiffFile(m_goodXmlPathname), "Oops. Could not try to validate good file.");
-			Assert.IsFalse(m_handler.CanDiffFile(m_goodXmlPathname), "Oops. Could not try to validate good file.");
+			//Assert.IsTrue(m_handler.CanDiffFile(m_goodXmlPathname));
+			Assert.IsFalse(m_handler.CanDiffFile(m_goodXmlPathname));
 		}
 
-		//[Test, ExpectedException(typeof(ArgumentNullException))]
 		[Test]
-		public void CanMerge_For_Null_File_Throws()
+		public void Cannot_Merge_Null_File()
 		{
 			Assert.IsFalse(m_handler.CanMergeFile(null));
 		}
 
 		[Test]
-		public void CanPresentFile_Cannot_Happen()
+		public void Cannot_PresentFile_Yet()
 		{
 			Assert.IsFalse(m_handler.CanPresentFile("bogusPathname"));
 		}
@@ -108,7 +111,7 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 		}
 
 		[Test]
-		public void Can_Validate_Xml_File()
+		public void Can_Validate_Fw_Xml_File()
 		{
 			Assert.IsTrue(m_handler.CanValidateFile(m_goodXmlPathname));
 		}
@@ -125,28 +128,43 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 			m_handler.GetChangePresenter(null, null);
 		}
 
-		[Test, ExpectedException(typeof(NotImplementedException))]
-		public void ValidateFile_Throws_For_Empty_Pathname()
+		[Test]
+		public void ValidateFile_Returns_Message_For_Empty_Pathname()
 		{
-			m_handler.ValidateFile("", null);
+			Assert.IsNotNull(m_handler.ValidateFile("", null));
+		}
+
+		[Test]
+		public void ValidateFile_Returns_Message_For_Null_Pathname()
+		{
+			Assert.IsNotNull(m_handler.ValidateFile(null, null));
 		}
 
 		[Test]
 		public void ValidateFile_Returns_Null_For_Good_File()
 		{
-			Assert.IsNull(m_handler.ValidateFile(m_goodXmlPathname, null), "Oops. Could not validate file.");
+			Assert.IsNull(m_handler.ValidateFile(m_goodXmlPathname, null));
 		}
 
 		[Test]
 		public void ValidateFile_Returns_Message_For_Crummy_Xml_File()
 		{
-			Assert.IsNotNull(m_handler.ValidateFile(m_illformedXmlPathname, null), "Oops. Could validate ill-formed xml file.");
+			Assert.IsNotNull(m_handler.ValidateFile(m_illformedXmlPathname, null));
 		}
 
-		[Test, ExpectedException(typeof(NotImplementedException))]
-		public void DescribeInitialContents_NotImplemented()
+		[Test]
+		public void ValidateFile_Returns_Message_For_Good_But_Not_Fw_Xml_File()
 		{
-			m_handler.DescribeInitialContents(null, null);
+			Assert.IsNotNull(m_handler.ValidateFile(m_goodXmlButNotFwPathname, null));
+		}
+
+		[Test]
+		public void DescribeInitialContents_Should_Have_Added_For_Label()
+		{
+			var initialContents = m_handler.DescribeInitialContents(null, null);
+			Assert.AreEqual(1, initialContents.Count());
+			var onlyOne = initialContents.First();
+			Assert.AreEqual("Added", onlyOne.ActionLabel);
 		}
 
 		[Test]

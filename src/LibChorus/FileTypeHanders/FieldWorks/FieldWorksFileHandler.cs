@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Xml;
 using Chorus.merge;
 using Chorus.Utilities;
-using Chorus.Utilities.code;
 using Chorus.VcsDrivers.Mercurial;
 
 namespace Chorus.FileTypeHanders.FieldWorks
@@ -13,38 +13,46 @@ namespace Chorus.FileTypeHanders.FieldWorks
 	/// </summary>
 	public class FieldWorksFileHandler : IChorusFileTypeHandler
 	{
+		private const string kExtension = "xml";
+
 		#region Implementation of IChorusFileTypeHandler
 
 		public bool CanDiffFile(string pathToFile)
 		{
-			//if (!CheckValidPathname(pathToFile))
-			//    return false;
-
-			//using (var reader = File.OpenText(pathToFile))
-			//{
-			//    while (!reader.EndOfStream)
-			//    {
-			//        var line = reader.ReadLine();
-			//        if (line != null && line.Contains("<languageproject"))
-			//            return true;
-			//    }
-			//}
+			//return CheckThatInputIsValidFieldWorksFile(pathToFile);
 			return false;
 		}
 
 		public bool CanMergeFile(string pathToFile)
 		{
+			//return CheckThatInputIsValidFieldWorksFile(pathToFile);
 			return false;
 		}
 
 		public bool CanPresentFile(string pathToFile)
 		{
+			//return CheckThatInputIsValidFieldWorksFile(pathToFile);
 			return false;
 		}
 
 		public bool CanValidateFile(string pathToFile)
 		{
-			return CheckValidPathname(pathToFile);
+			if (!CheckValidPathname(pathToFile))
+				return false;
+
+			try
+			{
+				var settings = new XmlReaderSettings { ValidationType = ValidationType.None };
+				using (var reader = XmlReader.Create(pathToFile, settings))
+				{
+					reader.MoveToContent();
+					return reader.LocalName == "languageproject" && reader.MoveToAttribute("version");
+				}
+			}
+			catch
+			{
+				return false;
+			}
 		}
 
 		/// <summary>
@@ -72,7 +80,29 @@ namespace Chorus.FileTypeHanders.FieldWorks
 		/// </summary>
 		public string ValidateFile(string pathToFile, IProgress progress)
 		{
-			return XmlValidation.ValidateFile(pathToFile, progress);
+			try
+			{
+				var settings = new XmlReaderSettings { ValidationType = ValidationType.None };
+				using (var reader = XmlReader.Create(pathToFile, settings))
+				{
+					reader.MoveToContent();
+					if (reader.LocalName == "languageproject" && reader.MoveToAttribute("version"))
+					{
+						// It would be nice, if it could really validate it.
+						while (reader.Read())
+						{}
+					}
+					else
+					{
+						throw new InvalidOperationException("Not a FieldWorks file.");
+					}
+				}
+			}
+			catch (Exception error)
+			{
+				return error.Message;
+			}
+			return null;
 		}
 
 		/// <summary>
@@ -81,19 +111,31 @@ namespace Chorus.FileTypeHanders.FieldWorks
 		/// </summary>
 		public IEnumerable<IChangeReport> DescribeInitialContents(FileInRevision fileInRevision, TempFile file)
 		{
-			throw new NotImplementedException();
+			return new IChangeReport[] { new DefaultChangeReport(fileInRevision, "Added") };
 		}
 
 		public IEnumerable<string> GetExtensionsOfKnownTextFileTypes()
 		{
-			yield return "xml";
+			yield return kExtension;
 		}
 
 		#endregion
 
+		private bool CheckThatInputIsValidFieldWorksFile(string pathToFile)
+		{
+			if (!CheckValidPathname(pathToFile))
+				return false;
+
+			return ValidateFile(pathToFile, null) == null;
+		}
+
 		private static bool CheckValidPathname(string pathToFile)
 		{
-			return !string.IsNullOrEmpty(pathToFile) && File.Exists(pathToFile) && Path.GetExtension(pathToFile).ToLower() == ".xml";
+			// Just because all of this is true, doesn't mean it is a FW 7.0 xml file. :-(
+
+			return !string.IsNullOrEmpty(pathToFile) // No null or empty string can be valid.
+				&& File.Exists(pathToFile) // There has to be an actual file,
+				&& Path.GetExtension(pathToFile).ToLowerInvariant() == "." + kExtension; // It better have kExtension for its extension.
 		}
 	}
 }
