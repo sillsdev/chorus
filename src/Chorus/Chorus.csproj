@@ -83,6 +83,7 @@
 	<Compile Include="UI\BetterLabel.designer.cs">
 	  <DependentUpon>BetterLabel.cs</DependentUpon>
 	</Compile>
+	<Compile Include="UI\Clone\GetCloneFromInternetModel.cs" />
 	<Compile Include="UI\Clone\InternetCloneInstructionsControl.cs">
 	  <SubType>UserControl</SubType>
 	</Compile>

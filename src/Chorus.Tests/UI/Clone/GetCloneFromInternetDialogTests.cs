@@ -18,11 +18,17 @@ namespace Chorus.Tests.UI.Clone
 			Application.EnableVisualStyles();//make progress bar work correctly
 		}
 
-//        [Test, Ignore("Run by hand only")]
-//        public void LaunchDialog_GoodAddressLargeRepot()
-//        {
-//            Launch("http://hg-public.languagedepot.org/tpi");
-//        }
+		[Test, Ignore("Run by hand only")]
+		public void LaunchDialog_GoodAddressNoFolder()
+		{
+			LaunchCustomUrl("http://hg-public.languagedepot.org/tpi");
+		}
+
+		[Test, Ignore("Run by hand only")]
+		public void LaunchDialog_GoodAddressWithFolderName()
+		{
+			LaunchCustomUrl("http://hg-public.languagedepot.org/tpi?localFolder=TokPisin");
+		}
 //
 //        [Test, Ignore("Run by hand only")]
 //        public void LaunchDialog_GoodAddressSmallRepot()
@@ -47,27 +53,35 @@ namespace Chorus.Tests.UI.Clone
 //        }
 
 		[Test, Ignore("Run by hand only")]
-		public void LaunchDialog_ProjectWontbeFound()//gives HTTP Error 404: Not Found
+		public void LaunchDialog_CustomUrlSourceWontBeFound()//gives HTTP Error 404: Not Found
 		{
-			Launch(@"C:\Users\tim\Documents\WeSay\ThaiFood");
+			using (var source = new TempFolder("CloneDialogTest"))
+			{
+				Directory.CreateDirectory(source.Combine("repo1"));
+				HgRepository.CreateRepositoryInExistingDir(source.Combine("repo1"), new NullProgress());
+				LaunchCustomUrl(@"somewhereElse");
+			}
 		}
 
-		private void Launch(string url)
+		[Test, Ignore("Run by hand only")]
+		public void LaunchDialog_CustomSourceWillBeFound()
+		{
+			using (var source = new TempFolder("CloneDialogTest"))
+			{
+				Directory.CreateDirectory(source.Combine("repo1"));
+				HgRepository.CreateRepositoryInExistingDir(source.Combine("repo1"), new NullProgress());
+				LaunchCustomUrl(source.Combine("repo1"));
+			}
+		}
+
+		private void LaunchCustomUrl(string url)
 		{
 			using (var targetComputer = new TempFolder("clonetest-targetComputer"))
-			using (var usb = new TempFolder("clonetest-Usb"))
 			{
-				Directory.CreateDirectory(usb.Combine("repo1"));
-				HgRepository.CreateRepositoryInExistingDir(usb.Combine("repo1"), new NullProgress());
-
-				//ok, the point here is that we already haved something called "repo1"
-				Directory.CreateDirectory(targetComputer.Combine("repo1"));
-
-				using (var dlg = new GetCloneFromInternetDialog(targetComputer.Path))
+				var model = new GetCloneFromInternetModel(targetComputer.Path);
+				model.InitFromUri(url);
+				using (var dlg = new GetCloneFromInternetDialog(model))
 				{
-
-			 //       dlg.URL = url;
-
 					if (DialogResult.OK != dlg.ShowDialog())
 						return;
 				}
@@ -75,7 +89,13 @@ namespace Chorus.Tests.UI.Clone
 		}
 
 		[Test,Ignore("By hand only")]
-		public void LaunchUI()
+		public void LaunchUI_Blank()
+		{
+			Launch();
+		}
+
+		[Test, Ignore("By hand only")]
+		public void LaunchWithPreformedSettings()
 		{
 			Launch();
 		}
@@ -92,7 +112,7 @@ namespace Chorus.Tests.UI.Clone
 				//ok, the point here is that we already haved something called "repo1"
 				Directory.CreateDirectory(targetComputer.Combine("repo1"));
 
-				using (var dlg = new GetCloneFromInternetDialog(targetComputer.Path))
+				using (var dlg = new GetCloneFromInternetDialog(new GetCloneFromInternetModel(targetComputer.Path)))
 				{
 
 					if (DialogResult.OK != dlg.ShowDialog())

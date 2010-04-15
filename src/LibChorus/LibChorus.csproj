@@ -138,6 +138,7 @@
 	<Compile Include="notes\AnnotationClass.cs" />
 	<Compile Include="Utilities\code\DelegateDefinitions.cs" />
 	<Compile Include="Utilities\MultiMap.cs" />
+	<Compile Include="Utilities\UrlHelper.cs" />
 	<Compile Include="Utilities\XmlElementExtensions.cs" />
 	<Compile Include="VcsDrivers\Mercurial\HgHighLevel.cs" />
 	<Compile Include="sync\CommitCop.cs" />

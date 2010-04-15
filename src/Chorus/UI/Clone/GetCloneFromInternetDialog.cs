@@ -12,7 +12,7 @@ namespace Chorus.UI.Clone
 {
 	public partial class GetCloneFromInternetDialog : Form
 	{
-		private CloneFromUsb _model;
+		private readonly GetCloneFromInternetModel _model;
 		private IProgress _progress;
 		private readonly BackgroundWorker _backgroundWorker;
 		private enum State { AskingUserForURL, MakingClone, Success, Error,
@@ -23,8 +23,9 @@ namespace Chorus.UI.Clone
 		private StatusProgress _statusProgress;
 		private State _state;
 
-		public GetCloneFromInternetDialog(string parentDirectoryToPutCloneIn)
+		public GetCloneFromInternetDialog(GetCloneFromInternetModel model)
 		{
+			_model = model;
 //#if !MONO
 			Font = SystemFonts.MessageBoxFont;
 //#endif
@@ -40,7 +41,7 @@ namespace Chorus.UI.Clone
 			_statusProgress = new StatusProgress();
 			_progress = new MultiProgress(new IProgress[]{_logBox, _statusProgress});
 
-			_internetCloneInstructionsControl = new InternetCloneInstructionsControl(parentDirectoryToPutCloneIn);
+			_internetCloneInstructionsControl = new InternetCloneInstructionsControl(_model);
 		//	_internetCloneInstructionsControl.AutoSize = true;
 			_internetCloneInstructionsControl.TabIndex = 0;
 			_internetCloneInstructionsControl.Anchor = (AnchorStyles.Bottom | AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right);
@@ -73,8 +74,8 @@ namespace Chorus.UI.Clone
 			{
 				try
 				{
-					var repo = new HgRepository(_internetCloneInstructionsControl.TargetDestination, _progress);
-					var name = new Uri(_internetCloneInstructionsControl.URL).Host;
+					var repo = new HgRepository(_model.TargetDestination, _progress);
+					var name = new Uri(_model.URL).Host;
 					if (String.IsNullOrEmpty(name)) //This happens for repos on the local machine
 					{
 						name = "LocalRepository";
@@ -82,7 +83,7 @@ namespace Chorus.UI.Clone
 					if (name.ToLower().Contains("languagedepot"))
 						name = "LanguageDepot";
 
-					var address = RepositoryAddress.Create(name,_internetCloneInstructionsControl.URL);
+					var address = RepositoryAddress.Create(name, _model.URL);
 
 					//this will also remove the "default" one that hg puts in, which we don't really want.
 					repo.SetKnownRepositoryAddresses(new[] {address});
@@ -118,8 +119,6 @@ namespace Chorus.UI.Clone
 				}
 			}
 		}
-
-		public CloneFromUsb Model { get { return _model; } }
 
 		private void UpdateDisplay(State newState)
 		{
@@ -216,7 +215,7 @@ namespace Chorus.UI.Clone
 
 		public string PathToNewProject
 		{
-			get { return _internetCloneInstructionsControl.TargetDestination; }
+			get { return _model.TargetDestination; }
 		}
 
 		private void _cancelButton_Click(object sender, EventArgs e)
@@ -233,7 +232,7 @@ namespace Chorus.UI.Clone
 				if(_backgroundWorker.IsBusy)
 					return;
 				UpdateDisplay(State.MakingClone);
-				ThreadSafeUrl = _internetCloneInstructionsControl.URL;
+				ThreadSafeUrl = _model.URL;
 				_backgroundWorker.RunWorkerAsync(new object[] { ThreadSafeUrl, PathToNewProject, _progress });
 			}
 

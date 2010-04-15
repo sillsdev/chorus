@@ -1,83 +1,66 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Web;
 using System.Windows.Forms;
-using System.Linq;
 
 namespace Chorus.UI.Clone
 {
 	public partial class InternetCloneInstructionsControl : UserControl
 	{
-		private readonly string _parentDirectoryToPutCloneIn;
-		private readonly Dictionary<string, string> _servers = new Dictionary<string, string>();
-		private bool customUrlEntered = false;
+		private readonly GetCloneFromInternetModel _model;
 
-		public InternetCloneInstructionsControl(string parentDirectoryToPutCloneIn)
+		public InternetCloneInstructionsControl(GetCloneFromInternetModel model)
 		{
-			_parentDirectoryToPutCloneIn = parentDirectoryToPutCloneIn;
+			_model = model;
 
 			InitializeComponent();
 
-			_servers.Add("languageDepot.org", "hg-public.languageDepot.org");
-			_servers.Add("private.languageDepot.org", "hg-private.languageDepot.org");
-			foreach (KeyValuePair<string, string> pair in _servers)
+			foreach (KeyValuePair<string, string> pair in _model.Servers)
 			{
 				_serverCombo.Items.Add(pair.Key);
 			}
-			_serverCombo.Items.Add("Custom Location...");
-
-			_serverCombo.SelectedIndex = 0;
 			_serverCombo.SelectedIndexChanged += OnSelectedIndexChanged;
 		}
 
 		private void OnSelectedIndexChanged(object sender, EventArgs e)
 		{
-			customUrlEntered = _serverCombo.SelectedItem == "Custom Location..." ? true : false;
+			if (_model.SelectedServerLabel != (string)_serverCombo.SelectedItem)
+			{
+				_model.SelectedServerLabel = (string) _serverCombo.SelectedItem;
 
-			if (customUrlEntered)
-			{
-				_serverCombo.DropDownStyle = ComboBoxStyle.DropDown;
-				_accountName.Enabled = false;
-				_projectId.Enabled = false;
-				_password.Enabled = false;
-				_localFolderName.Enabled = true;
+				UpdateDisplay();
 			}
-			else
-			{
-				_serverCombo.DropDownStyle = ComboBoxStyle.DropDownList;
-				_serverCombo.SelectedItem =
-				_accountName.Enabled = true;
-				_projectId.Enabled = true;
-				_password.Enabled = true;
-				_localFolderName.Enabled = HaveNeededAccountInfo;
-			}
-			OnAccountInfoTextChanged(sender, e);
 		}
 
 		private void UpdateDisplay()
 		{
-			var haveGoodUrl = HaveNeededAccountInfo;
-			_downloadButton.Enabled = haveGoodUrl && TargetLocationIsUnused && HaveWellFormedTargetLocation;
+			_serverCombo.SelectedItem = _model.SelectedServerLabel;
 
-			_targetInfoLabel.Visible = _localFolderName.Enabled = HaveNeededAccountInfo;
-//            _sourcetWarningImage.Visible = !haveGoodUrl;
+			_customUrl.Text = _model.URL;
+			_customUrl.Visible = _model.CustomUrlSelected;
+			_customUrlLabel.Visible = _model.CustomUrlSelected;
 
-			if (haveGoodUrl)
+			_localFolderName.Text = _model.LocalFolderName;
+
+			_downloadButton.Enabled = _model.ReadyToDownload;
+
+			_targetInfoLabel.Visible = _localFolderName.Enabled =  _model.HaveNeededAccountInfo;
+
+			if (_model.HaveGoodUrl)
 			{
-				_targetWarningImage.Visible = !TargetLocationIsUnused || !HaveWellFormedTargetLocation;
 
-				if (!Directory.Exists(_parentDirectoryToPutCloneIn))
+			  _targetWarningImage.Visible = _model.TargetHasProblem;
+			  if (!Directory.Exists(_model.ParentDirectoryToPutCloneIn))
 				{
 					_targetInfoLabel.Text = string.Format("The directory {0} doesn't exist, but should have been created by the application.",
-														  _parentDirectoryToPutCloneIn);
+														  _model.ParentDirectoryToPutCloneIn);
 				}
-				else if (!TargetLocationIsUnused)
+				else if (!_model.TargetLocationIsUnused)
 				{
 					_targetInfoLabel.Text = string.Format("There is a already a project with that name at {0}",
-														  TargetDestination);
+														  _model.TargetDestination);
 				}
-				else if (!HaveWellFormedTargetLocation)
+				else if (!_model.HaveWellFormedTargetLocation)
 				{
 					if (_localFolderName.Text.Trim().Length == 0)
 						_targetInfoLabel.Text = "Please enter a name";
@@ -87,131 +70,54 @@ namespace Chorus.UI.Clone
 				else
 				{
 					_targetWarningImage.Visible = false;
-					_targetInfoLabel.Text = string.Format("Project will be downloaded to {0}", TargetDestination);
+					_targetInfoLabel.Text = string.Format("Project will be downloaded to {0}", _model.TargetDestination);
 				}
 			}
+
+
+			_accountName.Visible = _model.NeedProjectDetails;
+			_projectId.Visible = _model.NeedProjectDetails;
+			_password.Visible = _model.NeedProjectDetails;
+			_accountLabel.Visible = _model.NeedProjectDetails;
+			_projectIdLabel.Visible = _model.NeedProjectDetails;
+			_passwordLabel.Visible = _model.NeedProjectDetails;
+			_localFolderName.Enabled = true;
+
+			toolTip1.SetToolTip(_downloadButton, _model.URL);
 		}
 
-		private void OnLocalNameChanged(object sender, EventArgs e)
+		private void _localName_TextChanged(object sender, EventArgs e)
 		{
+			_model.LocalFolderName = _localFolderName.Text.Trim();
 		   UpdateDisplay();
 		}
 
-		public string URL
+		private void _customUrl_TextChanged(object sender, EventArgs e)
 		{
-			get
-			{
-				if (customUrlEntered)
-				{
-					return _serverCombo.Text;
-				}
-				else
-				{
-					string ServerPath = _servers[(string)_serverCombo.SelectedItem];
-					return "http://" +
-						   HttpUtility.UrlEncode(_accountName.Text) + ":" +
-						   HttpUtility.UrlEncode(_password.Text) + "@" + ServerPath + "/" +
-						   HttpUtility.UrlEncode(_projectId.Text);
-				}
-			}
-		   // set { _urlBox.Text = value; }
-		}
-
-		public string NameOfProjectOnRepository
-		{
-			get
-			{
-				if (!HaveNeededAccountInfo)
-					return string.Empty;
-//                var uri = new Uri(URL);
-//                return uri.PathAndQuery.Trim('/').Replace('/', '-').Replace('?', '-').Replace('*', '-').Replace('\\', '-');
-				return _projectId.Text;
-			}
-		}
-		public bool ReadyForDownload
-		{
-			get { return HaveNeededAccountInfo && HaveWellFormedTargetLocation && TargetLocationIsUnused ; }
-		}
-
-		protected bool TargetLocationIsUnused
-		{
-			get
-			{
-				try
-				{
-					// the target location is "unused" if either the Target Destination doesn't exist OR
-					//  if it has nothing in it (I tried Clone once and it failed because the repo spec
-					//  was wrong, but since it had created the Target Destination folder, it wouldn't
-					//  try again-rde)
-					return Directory.Exists(_parentDirectoryToPutCloneIn) &&
-						   (!Directory.Exists(TargetDestination)
-						   || (Directory.GetFiles(TargetDestination, "*.*", SearchOption.AllDirectories).Length == 0));
-				}
-				catch(Exception)
-				{
-					return false;
-				}
-			}
-		}
-
-		protected bool HaveWellFormedTargetLocation
-		{
-			get
-			{
-				return (_localFolderName.Text.Trim().Length > 0 && _localFolderName.Text.LastIndexOfAny(Path.GetInvalidFileNameChars()) == -1);
-			}
-		}
-
-		public string TargetDestination
-		{
-			get { return Path.Combine(_parentDirectoryToPutCloneIn, _localFolderName.Text); }
-		}
-
-		protected bool HaveNeededAccountInfo
-		{
-			get
-			{
-				if (customUrlEntered)
-				{
-					return true;
-				}
-				else
-				{
-					try
-					{
-						//                    var uri = new Uri(_urlBox.Text);
-						//                    return uri.Scheme =="http" &&
-						//                           Uri.IsWellFormedUriString(_urlBox.Text, UriKind.Absolute) &&
-						//                           !string.IsNullOrEmpty(uri.PathAndQuery.Trim('/'));
-						return _projectId.Text.Trim().Length > 1 &&
-							   _accountName.Text.Trim().Length > 1 &&
-							   _password.Text.Trim().Length > 1;
-					}
-					catch (Exception)
-					{
-						return false;
-					}
-				}
-			}
-		}
-
-		private void AccountInfo_Load(object sender, EventArgs e)
-		{
+			_model.CustomUrl = _customUrl.Text.Trim();
 			UpdateDisplay();
 		}
 
-		private void OnAccountInfoTextChanged(object sender, EventArgs e)
+		private void _projectId_TextChanged(object sender, EventArgs e)
 		{
-		   _localFolderName.Text = NameOfProjectOnRepository;
+			_model.ProjectId = _projectId.Text.Trim();
 			UpdateDisplay();
-			toolTip1.SetToolTip(_downloadButton, URL);
 		}
 
-
-		private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+		private void _accountName_TextChanged(object sender, EventArgs e)
 		{
-			System.Diagnostics.Process.Start("http://public.languagedepot.org");
+			_model.AccountName = _accountName.Text.Trim();
+			UpdateDisplay();
 		}
 
+		private void _password_TextChanged(object sender, EventArgs e)
+		{
+			_model.Password = _password.Text.Trim();
+		}
+
+		private void InternetCloneInstructionsControl_Load(object sender, EventArgs e)
+		{
+			UpdateDisplay();
+		}
 	}
 }
