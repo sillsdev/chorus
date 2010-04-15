@@ -134,8 +134,8 @@ namespace Chorus.sync
 				if (error.InnerException != null)
 				{
 					_progress.WriteVerbose("inner exception:");
-					_progress.WriteError(error.Message);
-					_progress.WriteVerbose(error.StackTrace);
+					_progress.WriteError(error.InnerException.Message);
+					_progress.WriteVerbose(error.InnerException.StackTrace);
 				}
 
 				_progress.WriteError(error.Message);
@@ -378,12 +378,12 @@ namespace Chorus.sync
 									 };
 				repository.EnsureTheseExtensionAreEnabled(names);
 
-				List<string> extensions = new List<string>();
-
-				foreach (var handler in _handlers.Handers)
-				{
-					extensions.AddRange(handler.GetExtensionsOfKnownTextFileTypes());
-				}
+//                List<string> extensions = new List<string>();
+//
+//                foreach (var handler in _handlers.Handers)
+//                {
+//                    extensions.AddRange(handler.GetExtensionsOfKnownTextFileTypes());
+//                }
 			}
 			catch (Exception error)
 			{

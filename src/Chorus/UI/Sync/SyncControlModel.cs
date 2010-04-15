@@ -231,6 +231,11 @@ namespace Chorus.UI.Sync
 		{
 			_progress.Add(progress);
 		}
+
+		public void GetDiagnostics(IProgress progress)
+		{
+			_synchronizer.Repository.GetDiagnosticInformation(progress);
+		}
 	}
 
 	[Flags]

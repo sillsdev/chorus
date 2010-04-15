@@ -1319,9 +1319,39 @@ namespace Chorus.VcsDrivers.Mercurial
 			Execute(false, 30, "update --clean --rev " + revision);
 		}
 
+		/// <summary>
+		/// use this, for example, if a clone fails
+		/// </summary>
+		public void GetDiagnosticInformationForRemoteProject(IProgress progress, string url)
+		{
+			progress.WriteStatus("Gathering diagnostics data (can't actually tell you anything about the remote server)...");
+			progress.WriteMessage(GetTextFromQuery("version", 30));
+			progress.WriteMessage("---------------------------------------------------");
+
+			progress.WriteMessage("remote url = " + url);
+
+			try
+			{
+				progress.WriteMessage("Client = " + Assembly.GetEntryAssembly().FullName);
+				progress.WriteMessage("Chorus = " + Assembly.GetExecutingAssembly().FullName);
+			}
+			catch (Exception)
+			{
+				progress.WriteWarning("Could not get all assembly info.");
+			}
+
+			progress.WriteMessage("---------------------------------------------------");
+
+			progress.WriteMessage("config:");
+			progress.WriteMessage(GetTextFromQuery("showconfig", 30));
+			progress.WriteMessage("---------------------------------------------------");
+
+			progress.WriteStatus("Done.");
+		}
+
 		public void GetDiagnosticInformation(IProgress progress)
 		{
-			progress.WriteStatus("Gathering data...");
+			progress.WriteStatus("Gathering diagnostics data...");
 			progress.WriteMessage(GetTextFromQuery("version", 30));
 			progress.WriteMessage("---------------------------------------------------");
 

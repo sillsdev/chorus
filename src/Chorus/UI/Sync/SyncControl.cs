@@ -34,6 +34,7 @@ namespace Chorus.UI.Sync
 			:this()
 		{
 			Model = model;
+			_logBox.GetDiagnosticsMethod = model.GetDiagnostics;
 			UpdateDisplay();
 		}
 

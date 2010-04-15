@@ -35,6 +35,8 @@
 			this._showDetailsMenu = new System.Windows.Forms.ToolStripMenuItem();
 			this.copyToClipboardToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.panel1 = new System.Windows.Forms.Panel();
+			this._reportProblemLink = new System.Windows.Forms.LinkLabel();
+			this._runDiagnostics = new System.Windows.Forms.ToolStripMenuItem();
 			this.menuStrip1.SuspendLayout();
 			this.SuspendLayout();
 			//
@@ -75,7 +77,7 @@
 			this.menuStrip1.Location = new System.Drawing.Point(-2, 155);
 			this.menuStrip1.Name = "menuStrip1";
 			this.menuStrip1.Padding = new System.Windows.Forms.Padding(0, 2, 0, 2);
-			this.menuStrip1.Size = new System.Drawing.Size(30, 24);
+			this.menuStrip1.Size = new System.Drawing.Size(122, 24);
 			this.menuStrip1.TabIndex = 4;
 			this.menuStrip1.Text = "menuStrip1";
 			this.menuStrip1.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.menuStrip1_ItemClicked);
@@ -84,7 +86,8 @@
 			//
 			this._menu.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
 			this._showDetailsMenu,
-			this.copyToClipboardToolStripMenuItem});
+			this.copyToClipboardToolStripMenuItem,
+			this._runDiagnostics});
 			this._menu.Image = global::Chorus.Properties.Resources.menuButton;
 			this._menu.Name = "_menu";
 			this._menu.Size = new System.Drawing.Size(28, 20);
@@ -116,11 +119,34 @@
 			this.panel1.Size = new System.Drawing.Size(482, 154);
 			this.panel1.TabIndex = 5;
 			//
+			// _reportProblemLink
+			//
+			this._reportProblemLink.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+			this._reportProblemLink.AutoSize = true;
+			this._reportProblemLink.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this._reportProblemLink.LinkColor = System.Drawing.Color.Red;
+			this._reportProblemLink.Location = new System.Drawing.Point(22, 157);
+			this._reportProblemLink.Name = "_reportProblemLink";
+			this._reportProblemLink.Size = new System.Drawing.Size(311, 20);
+			this._reportProblemLink.TabIndex = 6;
+			this._reportProblemLink.TabStop = true;
+			this._reportProblemLink.Text = "Report this problem to the developers";
+			this._reportProblemLink.Visible = false;
+			this._reportProblemLink.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this._reportProblemLink_LinkClicked);
+			//
+			// _runDiagnostics
+			//
+			this._runDiagnostics.Name = "_runDiagnostics";
+			this._runDiagnostics.Size = new System.Drawing.Size(171, 22);
+			this._runDiagnostics.Text = "Run diagnostics";
+			this._runDiagnostics.Click += new System.EventHandler(this.OnRunDiagnosticsClick);
+			//
 			// LogBox
 			//
 			this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
 			this.BackColor = System.Drawing.Color.Transparent;
+			this.Controls.Add(this._reportProblemLink);
 			this.Controls.Add(this._verboseBox);
 			this.Controls.Add(this._box);
 			this.Controls.Add(this.menuStrip1);
@@ -144,5 +170,7 @@
 		private System.Windows.Forms.ToolStripMenuItem _showDetailsMenu;
 		private System.Windows.Forms.ToolStripMenuItem copyToClipboardToolStripMenuItem;
 		private System.Windows.Forms.Panel panel1;
+		private System.Windows.Forms.LinkLabel _reportProblemLink;
+		private System.Windows.Forms.ToolStripMenuItem _runDiagnostics;
 	}
 }

@@ -55,6 +55,12 @@ namespace Chorus.UI.Clone
 			_fixSettingsButton.Left = _cancelButton.Left;
 			 _internetCloneInstructionsControl._downloadButton.Top = _okButton.Top;
 			 _internetCloneInstructionsControl._downloadButton.Left = _okButton.Left - 15;
+
+			_logBox.GetDiagnosticsMethod = (progress) =>
+											{
+												var hg = new HgRepository(PathToNewProject, progress);
+												hg.GetDiagnosticInformationForRemoteProject(progress, ThreadSafeUrl);
+											};
 		}
 
 		private void _backgroundWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.Reflection;
 using System.Windows.Forms;
 using Chorus.Utilities;
 
@@ -7,6 +8,8 @@ namespace Chorus.UI.Misc
 {
 	public partial class LogBox : UserControl, IProgress
 	{
+		private Action<IProgress> _getDiagnosticsMethod;
+
 		public LogBox()
 		{
 			InitializeComponent();
@@ -51,7 +54,20 @@ namespace Chorus.UI.Misc
 			Write(Color.Blue, "Warning: " + message, args);
 		}
 
-
+		/// <summary>
+		/// This is a callback the client can set to soemthing which will then generate
+		/// Write() calls.  If it is set, the user sees a "Run diagnostics" menu item.
+		/// </summary>
+		public Action<IProgress> GetDiagnosticsMethod
+		{
+			get
+			{ return _getDiagnosticsMethod; }
+			set
+			{
+				_getDiagnosticsMethod = value;
+				_runDiagnostics.Visible = (_getDiagnosticsMethod != null);
+			}
+		}
 		public void WriteException(Exception error)
 		{
 			Write(Color.Red, "Exception: " +error.Message);
@@ -65,7 +81,13 @@ namespace Chorus.UI.Misc
 
 		public void WriteError(string message, params object[] args)
 		{
-			Write(Color.Red,"Error:" + message, args);
+			Write(Color.Red,Environment.NewLine+ "Error:" + message, args);
+			_reportProblemLink.Invoke(new Action(() =>
+			{
+				_reportProblemLink.Visible = true;
+			}));
+
+
 		}
 
 		public void WriteVerbose(string message, params object[] args)
@@ -139,6 +161,36 @@ namespace Chorus.UI.Misc
 
 		}
 
+		private void _reportProblemLink_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+		{
+			if(!ReportError(_verboseBox.Text))
+			{
+				Clipboard.SetText(_verboseBox.Text);
+				MessageBox.Show(
+					"Information on what happened has been copied to your clipboard. Please email it to the developers of the program you are using.");
+			}
+		}
 
+		private static bool ReportError(string msg)
+		{
+			try
+			{
+				Palaso.Reporting.ErrorReport.ReportNonFatalMessageWithStackTrace(msg);
+				return true;
+			}
+			catch (Exception)
+			{
+				return false;
+			}
+		}
+
+		private void OnRunDiagnosticsClick(object sender, EventArgs e)
+		{
+			if (GetDiagnosticsMethod != null)
+			{
+				ShowVerbose = true;
+				GetDiagnosticsMethod(this);
+			}
+		}
 	}
 }

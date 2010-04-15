@@ -20,6 +20,8 @@ namespace Chorus
 
 			SetUpErrorHandling();
 
+		//	throw new ApplicationException("test");
+
 			//is mercurial set up?
 			var s = HgRepository.GetEnvironmentReadinessMessage("en");
 			if (!string.IsNullOrEmpty(s))
@@ -61,11 +63,15 @@ namespace Chorus
 
 		private static void SetUpErrorHandling()
 		{
+			try
+			{
+//				Palaso.Reporting.ErrorReport.AddProperty("EmailAddress", "issues@wesay.org");
+//				Palaso.Reporting.ErrorReport.AddStandardProperties();
+//				Palaso.Reporting.ExceptionHandler.Init();
+
 			/* until we decide to require palaso.dll, we can at least make use of it if it happens
 			 * to be there (as it is with WeSay)
 			 */
-			try
-			{
 				Assembly asm = Assembly.LoadFrom("Palaso.dll");
 				Type errorReportType = asm.GetType("Palaso.Reporting.ErrorReport");
 				PropertyInfo emailAddress = errorReportType.GetProperty("EmailAddress");
