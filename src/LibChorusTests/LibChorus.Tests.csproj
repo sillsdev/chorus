@@ -66,7 +66,9 @@
   <ItemGroup>
 	<Compile Include="clone\ClonerTests.cs" />
 	<Compile Include="FileHandlers\ChorusTestFileHanderTests.cs" />
+	<Compile Include="FileHandlers\FieldWorks\FieldWorksFileDiffTests.cs" />
 	<Compile Include="FileHandlers\FieldWorks\FieldWorksFileHandlerTests.cs" />
+	<Compile Include="FileHandlers\FieldWorks\FieldWorksFileValidationTests.cs" />
 	<Compile Include="merge\xml\adaptIt\FileLevelAdaptItKnowlegeBaseMergeTests.cs" />
 	<Compile Include="merge\xml\ConflictXmlRecordRetrievalTests.cs" />
 	<Compile Include="merge\GroupOfConflictFiles.cs" />

@@ -19,8 +19,7 @@ namespace Chorus.FileTypeHanders.FieldWorks
 
 		public bool CanDiffFile(string pathToFile)
 		{
-			//return CheckThatInputIsValidFieldWorksFile(pathToFile);
-			return false;
+			return CheckThatInputIsValidFieldWorksFile(pathToFile);
 		}
 
 		public bool CanMergeFile(string pathToFile)
@@ -67,7 +66,22 @@ namespace Chorus.FileTypeHanders.FieldWorks
 
 		public IEnumerable<IChangeReport> Find2WayDifferences(FileInRevision parent, FileInRevision child, HgRepository repository)
 		{
-			throw new NotImplementedException();
+			var changeAndConflictAccumulator = new ChangeAndConflictAccumulator();
+			// Pulls the files out of the repository so we can read them.
+			var differ = FieldWorks2WayDiffer.CreateFromFileInRevision(
+				parent,
+				child,
+				changeAndConflictAccumulator,
+				repository);
+			try
+			{
+				differ.ReportDifferencesToListener();
+			}
+// ReSharper disable EmptyGeneralCatchClause
+			catch {}
+// ReSharper restore EmptyGeneralCatchClause
+
+			return changeAndConflictAccumulator.Changes;
 		}
 
 		public IChangePresenter GetChangePresenter(IChangeReport report, HgRepository repository)
@@ -132,7 +146,6 @@ namespace Chorus.FileTypeHanders.FieldWorks
 		private static bool CheckValidPathname(string pathToFile)
 		{
 			// Just because all of this is true, doesn't mean it is a FW 7.0 xml file. :-(
-
 			return !string.IsNullOrEmpty(pathToFile) // No null or empty string can be valid.
 				&& File.Exists(pathToFile) // There has to be an actual file,
 				&& Path.GetExtension(pathToFile).ToLowerInvariant() == "." + kExtension; // It better have kExtension for its extension.

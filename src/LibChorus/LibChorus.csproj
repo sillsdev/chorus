@@ -85,7 +85,9 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
+	<Compile Include="FileTypeHanders\FieldWorks\FieldWorks2WayDiffer.cs" />
 	<Compile Include="FileTypeHanders\FieldWorks\FieldWorksFileHandler.cs" />
+	<Compile Include="FileTypeHanders\FieldWorks\FieldWorksMergingStrategy.cs" />
 	<Compile Include="FileTypeHanders\NotePresenter.cs" />
 	<Compile Include="IWritingSystem.cs" />
 	<Compile Include="notes\IndexOfAllAnnotationsByKey.cs" />
