@@ -156,6 +156,7 @@
 		<copy todir="${project.base.dir}/../wesay/lib/mono">
 			<fileset basedir="${project.output.dir}">
 				<include name="LibChorus.dll" />
+				<include name="Palaso.dll" />
 				<include name="Chorus.exe" />
 				<include name="ChorusMerge.exe" />
 			</fileset>
@@ -163,6 +164,7 @@
 		<copy todir="${project.base.dir}/../wesay/output/linux/mono/2.0/Debug">
 			<fileset basedir="${project.output.dir}">
 				<include name="LibChorus.dll" />
+				<include name="Palaso.dll" />
 				<include name="Chorus.exe" />
 				<include name="ChorusMerge.exe" />
 			</fileset>
