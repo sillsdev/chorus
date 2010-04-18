@@ -9,7 +9,7 @@ using Chorus.VcsDrivers.Mercurial;
 namespace Chorus.FileTypeHanders.FieldWorks
 {
 	/// <summary>
-	/// File handler for a FieldWorks 7.0+ xml file.
+	/// File handler for a FieldWorks 7.0 xml file.
 	/// </summary>
 	public class FieldWorksFileHandler : IChorusFileTypeHandler
 	{

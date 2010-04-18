@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -110,7 +109,11 @@ namespace Chorus.FileTypeHanders.FieldWorks
 			var settings = new XmlReaderSettings { ValidationType = ValidationType.None };
 			using (var reader = XmlReader.Create(new StringReader(xml), settings))
 			{
+// ReSharper disable PossibleNullReferenceException
+// ReSharper disable AssignNullToNotNullAttribute
 				return doc.DocumentElement.AppendChild(doc.ReadNode(reader));
+// ReSharper restore AssignNullToNotNullAttribute
+// ReSharper restore PossibleNullReferenceException
 			}
 		}
 
