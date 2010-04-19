@@ -66,6 +66,7 @@
   <ItemGroup>
 	<Compile Include="clone\ClonerTests.cs" />
 	<Compile Include="FileHandlers\ChorusTestFileHanderTests.cs" />
+	<Compile Include="FileHandlers\FieldWorks\FieldWorksChangePresenterTests.cs" />
 	<Compile Include="FileHandlers\FieldWorks\FieldWorksFileDiffTests.cs" />
 	<Compile Include="FileHandlers\FieldWorks\FieldWorksFileHandlerTests.cs" />
 	<Compile Include="FileHandlers\FieldWorks\FieldWorksFileValidationTests.cs" />

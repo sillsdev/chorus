@@ -86,6 +86,7 @@
   </ItemGroup>
   <ItemGroup>
 	<Compile Include="FileTypeHanders\FieldWorks\FieldWorks2WayDiffer.cs" />
+	<Compile Include="FileTypeHanders\FieldWorks\FieldWorksChangePresenter.cs" />
 	<Compile Include="FileTypeHanders\FieldWorks\FieldWorksFileHandler.cs" />
 	<Compile Include="FileTypeHanders\FieldWorks\FieldWorksMergingStrategy.cs" />
 	<Compile Include="FileTypeHanders\NotePresenter.cs" />
@@ -228,6 +229,7 @@
 	<EmbeddedResource Include="Properties\AnnotationImages.resx">
 	  <Generator>PublicResXFileCodeGenerator</Generator>
 	  <LastGenOutput>AnnotationImages.Designer.cs</LastGenOutput>
+	  <SubType>Designer</SubType>
 	</EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

@@ -103,8 +103,8 @@ namespace Chorus.merge.xml.generic
 				{
 					return false;
 				}
-				bool oursIsEmpty = (ours.InnerText == null || ours.InnerText.Trim() == string.Empty);
-				bool theirsIsEmpty = (theirs.InnerText == null || theirs.InnerText.Trim() == string.Empty);
+				bool oursIsEmpty = (ours.InnerText == null || ours.InnerText.Trim() == String.Empty);
+				bool theirsIsEmpty = (theirs.InnerText == null || theirs.InnerText.Trim() == String.Empty);
 				if(oursIsEmpty != theirsIsEmpty)
 				{
 					return false;
@@ -125,7 +125,7 @@ namespace Chorus.merge.xml.generic
 			}
 			catch(NullReferenceException)
 			{
-				throw new XmlFormatException(string.Format("Expected a {0} attribute on {1}.", attr, form.OuterXml));
+				throw new XmlFormatException(String.Format("Expected a {0} attribute on {1}.", attr, form.OuterXml));
 			}
 		}
 
@@ -139,7 +139,7 @@ namespace Chorus.merge.xml.generic
 
 		public static XmlNode GetDocumentNodeFromRawXml(string outerXml, XmlNode nodeMaker)
 		{
-			if(string.IsNullOrEmpty(outerXml))
+			if(String.IsNullOrEmpty(outerXml))
 			{
 				throw new ArgumentException();
 			}
@@ -173,7 +173,7 @@ namespace Chorus.merge.xml.generic
 		/// <returns></returns>
 		public static string GetIndendentedXml(string xml)
 	  {
-		 string outXml = string.Empty;
+		 string outXml = String.Empty;
 		 using(MemoryStream ms = new MemoryStream())
 		 // Create a XMLTextWriter that will send its output to a memory stream (file)
 		 using (XmlTextWriter xtw = new XmlTextWriter(ms, Encoding.Unicode))
@@ -210,6 +210,18 @@ namespace Chorus.merge.xml.generic
 //             }
 		 }
 	  }
+
+		public static XmlNode MakeNodeFromString(string xml, XmlDocument doc)
+		{
+			using (var strm = new StringReader(xml))
+			{
+				var settings = new XmlReaderSettings { ValidationType = ValidationType.None };
+				using (var reader = XmlReader.Create(strm, settings))
+				{
+					return doc.DocumentElement.AppendChild(doc.ReadNode(reader));
+				}
+			}
+		}
 	}
 
 	public class XmlFormatException : ApplicationException

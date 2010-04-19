@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Xml;
+using Chorus.FileTypeHanders.xml;
 using Chorus.merge;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
@@ -30,8 +31,7 @@ namespace Chorus.FileTypeHanders.FieldWorks
 
 		public bool CanPresentFile(string pathToFile)
 		{
-			//return CheckThatInputIsValidFieldWorksFile(pathToFile);
-			return false;
+			return CheckThatInputIsValidFieldWorksFile(pathToFile);
 		}
 
 		public bool CanValidateFile(string pathToFile)
@@ -86,7 +86,13 @@ namespace Chorus.FileTypeHanders.FieldWorks
 
 		public IChangePresenter GetChangePresenter(IChangeReport report, HgRepository repository)
 		{
-			throw new NotImplementedException();
+			if (report is IXmlChangeReport)
+				return new FieldWorksChangePresenter((IXmlChangeReport)report);
+
+			if (report is ErrorDeterminingChangeReport)
+				return (IChangePresenter)report;
+
+			return new DefaultChangePresenter(report, repository);
 		}
 
 		/// <summary>

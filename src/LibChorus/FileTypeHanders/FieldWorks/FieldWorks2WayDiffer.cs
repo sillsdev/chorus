@@ -63,7 +63,7 @@ namespace Chorus.FileTypeHanders.FieldWorks
 			{
 				m_eventListener.ChangeOccurred(new XmlAdditionChangeReport(
 												m_childFileInRevision,
-												MakeNodeFromString(kvpChild.Value, childDoc),
+												XmlUtilities.MakeNodeFromString(kvpChild.Value, childDoc),
 												null)); // url for final parm, maybe.
 				keys.Add(kvpChild.Key);
 			}
@@ -77,7 +77,7 @@ namespace Chorus.FileTypeHanders.FieldWorks
 			{
 				m_eventListener.ChangeOccurred(new XmlDeletionChangeReport(
 												m_parentFileInRevision,
-												MakeNodeFromString(kvpParent.Value, parentDoc),
+												XmlUtilities.MakeNodeFromString(kvpParent.Value, parentDoc),
 												null)); // url for final parm, maybe.
 				keys.Add(kvpParent.Key);
 			}
@@ -89,8 +89,8 @@ namespace Chorus.FileTypeHanders.FieldWorks
 			// Check for changed <rt> elements in child.
 			foreach (var kvpParent in m_parentIndex)
 			{
-				var parentNode = MakeNodeFromString(kvpParent.Value, parentDoc);
-				var childNode = MakeNodeFromString(m_childIndex[kvpParent.Key], childDoc);
+				var parentNode = XmlUtilities.MakeNodeFromString(kvpParent.Value, parentDoc);
+				var childNode = XmlUtilities.MakeNodeFromString(m_childIndex[kvpParent.Key], childDoc);
 				if (!XmlUtilities.AreXmlElementsEqual(childNode, parentNode))
 				{
 					// Child has changed.
@@ -101,19 +101,6 @@ namespace Chorus.FileTypeHanders.FieldWorks
 													childNode,
 													null)); // url for final parm, maybe.
 				}
-			}
-		}
-
-		private static XmlNode MakeNodeFromString(string xml, XmlDocument doc)
-		{
-			var settings = new XmlReaderSettings { ValidationType = ValidationType.None };
-			using (var reader = XmlReader.Create(new StringReader(xml), settings))
-			{
-// ReSharper disable PossibleNullReferenceException
-// ReSharper disable AssignNullToNotNullAttribute
-				return doc.DocumentElement.AppendChild(doc.ReadNode(reader));
-// ReSharper restore AssignNullToNotNullAttribute
-// ReSharper restore PossibleNullReferenceException
 			}
 		}
 

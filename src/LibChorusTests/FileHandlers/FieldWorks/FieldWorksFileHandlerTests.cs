@@ -33,22 +33,10 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 			Assert.IsFalse(m_fwFileHandler.CanMergeFile(null));
 		}
 
-		[Test]
-		public void Cannot_PresentFile_Yet()
-		{
-			Assert.IsFalse(m_fwFileHandler.CanPresentFile("bogusPathname"));
-		}
-
 		[Test, ExpectedException(typeof(NotImplementedException))]
 		public void Do3WayMerge_Throws()
 		{
 			m_fwFileHandler.Do3WayMerge(null);
-		}
-
-		[Test, ExpectedException(typeof(NotImplementedException))]
-		public void GetChangePresenter_Throws()
-		{
-			m_fwFileHandler.GetChangePresenter(null, null);
 		}
 
 		[Test]
