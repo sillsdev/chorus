@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -17,10 +18,8 @@ namespace Chorus.FileTypeHanders.FieldWorks
 		private readonly IMergeEventListener m_eventListener;
 		private readonly FileInRevision m_parentFileInRevision;
 		private readonly FileInRevision m_childFileInRevision;
-		private readonly string m_parentXml;
-		private readonly string m_childXml;
-		private readonly Dictionary<string, string> m_parentIndex = new Dictionary<string, string>();
-		private readonly Dictionary<string, string> m_childIndex = new Dictionary<string, string>();
+		private string m_parentXml;
+		private string m_childXml;
 
 		public static FieldWorks2WayDiffer CreateFromFileInRevision(FileInRevision parent, FileInRevision child, IMergeEventListener changeAndConflictAccumulator, HgRepository repository)
 		{
@@ -50,47 +49,58 @@ namespace Chorus.FileTypeHanders.FieldWorks
 
 		public void ReportDifferencesToListener()
 		{
-			PrepareIndex(m_parentIndex, m_parentXml);
-			PrepareIndex(m_childIndex, m_childXml);
+			var parentIndex = new Dictionary<string, string>();
+			PrepareIndex(parentIndex, m_parentXml);
+			m_parentXml = null;
+			var childIndex = new Dictionary<string, string>();
+			PrepareIndex(childIndex, m_childXml);
+			m_childXml = null;
 
 			var parentDoc = new XmlDocument();
 			parentDoc.AppendChild(parentDoc.CreateNode(XmlNodeType.Element, "root", null));
+			var parentRoot = parentDoc.DocumentElement;
 			var childDoc = new XmlDocument();
 			childDoc.AppendChild(childDoc.CreateNode(XmlNodeType.Element, "root", null));
+			var childRoot = childDoc.DocumentElement;
 			var keys = new List<string>();
 			// Check for new <rt> elements in child.
-			foreach (var kvpChild in m_childIndex.Where(kvp => !m_parentIndex.ContainsKey(kvp.Key)))
+			foreach (var kvpChild in childIndex.Where(kvp => !parentIndex.ContainsKey(kvp.Key)))
 			{
+				var newNode = XmlUtilities.MakeNodeFromString(kvpChild.Value, childDoc);
 				m_eventListener.ChangeOccurred(new XmlAdditionChangeReport(
 												m_childFileInRevision,
-												XmlUtilities.MakeNodeFromString(kvpChild.Value, childDoc),
+												newNode,
 												null)); // url for final parm, maybe.
+				childRoot.RemoveChild(newNode);
 				keys.Add(kvpChild.Key);
 			}
 			// Remove new items from child index.
 			foreach (var key in keys)
-				m_childIndex.Remove(key);
+				childIndex.Remove(key);
 			keys.Clear();
 
 			// Check for deleted <rt> elements in child.
-			foreach (var kvpParent in m_parentIndex.Where(kvp => !m_childIndex.ContainsKey(kvp.Key)))
+			foreach (var kvpParent in parentIndex.Where(kvp => !childIndex.ContainsKey(kvp.Key)))
 			{
+				var deletedNode = XmlUtilities.MakeNodeFromString(kvpParent.Value, parentDoc);
 				m_eventListener.ChangeOccurred(new XmlDeletionChangeReport(
 												m_parentFileInRevision,
-												XmlUtilities.MakeNodeFromString(kvpParent.Value, parentDoc),
+												deletedNode,
 												null)); // url for final parm, maybe.
+				parentRoot.RemoveChild(deletedNode);
 				keys.Add(kvpParent.Key);
 			}
 			// Remove deleted items from parent index.
 			foreach (var key in keys)
-				m_parentIndex.Remove(key);
+				parentIndex.Remove(key);
 			keys.Clear();
 
 			// Check for changed <rt> elements in child.
-			foreach (var kvpParent in m_parentIndex)
+			foreach (var kvpParent in parentIndex)
 			{
+				var parentKey = kvpParent.Key;
 				var parentNode = XmlUtilities.MakeNodeFromString(kvpParent.Value, parentDoc);
-				var childNode = XmlUtilities.MakeNodeFromString(m_childIndex[kvpParent.Key], childDoc);
+				var childNode = XmlUtilities.MakeNodeFromString(childIndex[parentKey], childDoc);
 				if (!XmlUtilities.AreXmlElementsEqual(childNode, parentNode))
 				{
 					// Child has changed.
@@ -101,13 +111,17 @@ namespace Chorus.FileTypeHanders.FieldWorks
 													childNode,
 													null)); // url for final parm, maybe.
 				}
+				// Get rid of both parent and child nodes.
+				// Otherwise, there may an out of memory exception.
+				parentRoot.RemoveChild(parentNode);
+				childRoot.RemoveChild(childNode);
+				childIndex.Remove(parentKey);
 			}
+			parentIndex.Clear();
 		}
 
 		private static void PrepareIndex(IDictionary dictionary, string fwData)
 		{
-			dictionary.Clear();
-
 			var settings = new XmlReaderSettings { ValidationType = ValidationType.None };
 			using (var reader = XmlReader.Create(new StringReader(fwData), settings))
 			{
