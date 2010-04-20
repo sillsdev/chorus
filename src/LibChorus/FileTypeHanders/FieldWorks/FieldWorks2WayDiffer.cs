@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -57,21 +56,17 @@ namespace Chorus.FileTypeHanders.FieldWorks
 			m_childXml = null;
 
 			var parentDoc = new XmlDocument();
-			parentDoc.AppendChild(parentDoc.CreateNode(XmlNodeType.Element, "root", null));
-			var parentRoot = parentDoc.DocumentElement;
+			//parentDoc.AppendChild(parentDoc.CreateNode(XmlNodeType.Element, "root", null));
 			var childDoc = new XmlDocument();
-			childDoc.AppendChild(childDoc.CreateNode(XmlNodeType.Element, "root", null));
-			var childRoot = childDoc.DocumentElement;
+			//childDoc.AppendChild(childDoc.CreateNode(XmlNodeType.Element, "root", null));
 			var keys = new List<string>();
 			// Check for new <rt> elements in child.
 			foreach (var kvpChild in childIndex.Where(kvp => !parentIndex.ContainsKey(kvp.Key)))
 			{
-				var newNode = XmlUtilities.MakeNodeFromString(kvpChild.Value, childDoc);
 				m_eventListener.ChangeOccurred(new XmlAdditionChangeReport(
 												m_childFileInRevision,
-												newNode,
+												XmlUtilities.GetDocumentNodeFromRawXml(kvpChild.Value, childDoc),
 												null)); // url for final parm, maybe.
-				childRoot.RemoveChild(newNode);
 				keys.Add(kvpChild.Key);
 			}
 			// Remove new items from child index.
@@ -82,12 +77,10 @@ namespace Chorus.FileTypeHanders.FieldWorks
 			// Check for deleted <rt> elements in child.
 			foreach (var kvpParent in parentIndex.Where(kvp => !childIndex.ContainsKey(kvp.Key)))
 			{
-				var deletedNode = XmlUtilities.MakeNodeFromString(kvpParent.Value, parentDoc);
 				m_eventListener.ChangeOccurred(new XmlDeletionChangeReport(
 												m_parentFileInRevision,
-												deletedNode,
+												XmlUtilities.GetDocumentNodeFromRawXml(kvpParent.Value, parentDoc),
 												null)); // url for final parm, maybe.
-				parentRoot.RemoveChild(deletedNode);
 				keys.Add(kvpParent.Key);
 			}
 			// Remove deleted items from parent index.
@@ -99,22 +92,23 @@ namespace Chorus.FileTypeHanders.FieldWorks
 			foreach (var kvpParent in parentIndex)
 			{
 				var parentKey = kvpParent.Key;
-				var parentNode = XmlUtilities.MakeNodeFromString(kvpParent.Value, parentDoc);
-				var childNode = XmlUtilities.MakeNodeFromString(childIndex[parentKey], childDoc);
-				if (!XmlUtilities.AreXmlElementsEqual(childNode, parentNode))
+				var parentValue = kvpParent.Value;
+				var childValue = childIndex[parentKey];
+				if (parentValue != childValue)
 				{
-					// Child has changed.
-					m_eventListener.ChangeOccurred(new XmlChangedRecordReport(
-													m_parentFileInRevision,
-													m_childFileInRevision,
-													parentNode,
-													childNode,
-													null)); // url for final parm, maybe.
+					var parentNode = XmlUtilities.GetDocumentNodeFromRawXml(parentValue, parentDoc);
+					var childNode = XmlUtilities.GetDocumentNodeFromRawXml(childValue, childDoc);
+					if (!XmlUtilities.AreXmlElementsEqual(childNode, parentNode))
+					{
+						// Child has changed.
+						m_eventListener.ChangeOccurred(new XmlChangedRecordReport(
+														m_parentFileInRevision,
+														m_childFileInRevision,
+														parentNode,
+														childNode,
+														null)); // url for final parm, maybe.
+					}
 				}
-				// Get rid of both parent and child nodes.
-				// Otherwise, there may an out of memory exception.
-				parentRoot.RemoveChild(parentNode);
-				childRoot.RemoveChild(childNode);
 				childIndex.Remove(parentKey);
 			}
 			parentIndex.Clear();

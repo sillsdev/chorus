@@ -178,7 +178,7 @@ color: 'purple';
 					null,
 					null,
 					null,
-					XmlUtilities.MakeNodeFromString(@"<rt guid='3d9ba4a5-4a25-11df-9879-0800200c9a66' class='LexEntry'/>", doc)));
+					XmlUtilities.GetDocumentNodeFromRawXml(@"<rt guid='3d9ba4a5-4a25-11df-9879-0800200c9a66' class='LexEntry'/>", doc)));
 			Assert.AreEqual("LexEntry", changePresenter.GetDataLabel());
 		}
 
@@ -192,7 +192,7 @@ color: 'purple';
 					null,
 					null,
 					null,
-					XmlUtilities.MakeNodeFromString(@"<rt guid='3d9ba4a5-4a25-11df-9879-0800200c9a66' class='LexEntry'/>", doc)));
+					XmlUtilities.GetDocumentNodeFromRawXml(@"<rt guid='3d9ba4a5-4a25-11df-9879-0800200c9a66' class='LexEntry'/>", doc)));
 			Assert.AreEqual("Change", changePresenter.GetActionLabel());
 		}
 
@@ -212,7 +212,7 @@ color: 'purple';
 					null,
 					null,
 					null,
-					XmlUtilities.MakeNodeFromString(@"<rt guid='3d9ba4a5-4a25-11df-9879-0800200c9a66' class='LexEntry'/>", doc)));
+					XmlUtilities.GetDocumentNodeFromRawXml(@"<rt guid='3d9ba4a5-4a25-11df-9879-0800200c9a66' class='LexEntry'/>", doc)));
 			Assert.AreEqual("FieldWorks data object", changePresenter.GetTypeLabel());
 		}
 

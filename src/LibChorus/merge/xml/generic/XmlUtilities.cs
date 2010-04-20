@@ -210,18 +210,6 @@ namespace Chorus.merge.xml.generic
 //             }
 		 }
 	  }
-
-		public static XmlNode MakeNodeFromString(string xml, XmlDocument doc)
-		{
-			using (var strm = new StringReader(xml))
-			{
-				var settings = new XmlReaderSettings { ValidationType = ValidationType.None };
-				using (var reader = XmlReader.Create(strm, settings))
-				{
-					return doc.DocumentElement.AppendChild(doc.ReadNode(reader));
-				}
-			}
-		}
 	}
 
 	public class XmlFormatException : ApplicationException
