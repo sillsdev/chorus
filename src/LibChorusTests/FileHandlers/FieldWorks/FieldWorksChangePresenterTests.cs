@@ -83,21 +83,31 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 			const string parent =
 @"<?xml version='1.0' encoding='utf-8'?>
 <languageproject version='7000016'>
-<rt guid='3d9ba4a4-4a25-11df-9879-0800200c9a66'/>
-<rt guid='3d9b7d90-4a25-11df-9879-0800200c9a66'/>
-<rt guid='3d9ba4a0-4a25-11df-9879-0800200c9a66'/>
-<rt guid='3d9ba4a1-4a25-11df-9879-0800200c9a66'/>
-<rt guid='3d9ba4a6-4a25-11df-9879-0800200c9a66' ownerguid='3d9ba4a7-4a25-11df-9879-0800200c9a66' />
+<rt guid='3d9ba4a4-4a25-11df-9879-0800200c9a66'>
+</rt>
+<rt guid='3d9b7d90-4a25-11df-9879-0800200c9a66'>
+</rt>
+<rt guid='3d9ba4a0-4a25-11df-9879-0800200c9a66'>
+</rt>
+<rt guid='3d9ba4a1-4a25-11df-9879-0800200c9a66'>
+</rt>
+<rt guid='3d9ba4a6-4a25-11df-9879-0800200c9a66' ownerguid='3d9ba4a7-4a25-11df-9879-0800200c9a66'>
+</rt>
 </languageproject>";
 			// One deletion, one change, one insertion, and three reordered, but not changed.
 			const string child =
 @"<?xml version='1.0' encoding='utf-8'?>
 <languageproject version='7000016'>
-<rt guid='3d9ba4a1-4a25-11df-9879-0800200c9a66'/>
-<rt guid='3d9ba4a0-4a25-11df-9879-0800200c9a66'/>
-<rt guid='3d9b7d90-4a25-11df-9879-0800200c9a66'/>
-<rt guid='3d9ba4a5-4a25-11df-9879-0800200c9a66'/>
-<rt guid='3d9ba4a6-4a25-11df-9879-0800200c9a66' ownerguid='3d9ba4a8-4a25-11df-9879-0800200c9a66' />
+<rt guid='3d9ba4a1-4a25-11df-9879-0800200c9a66'>
+</rt>
+<rt guid='3d9ba4a0-4a25-11df-9879-0800200c9a66'>
+</rt>
+<rt guid='3d9b7d90-4a25-11df-9879-0800200c9a66'>
+</rt>
+<rt guid='3d9ba4a5-4a25-11df-9879-0800200c9a66'>
+</rt>
+<rt guid='3d9ba4a6-4a25-11df-9879-0800200c9a66' ownerguid='3d9ba4a8-4a25-11df-9879-0800200c9a66'>
+</rt>
 </languageproject>";
 			using (var repositorySetup = new RepositorySetup("randy"))
 			{

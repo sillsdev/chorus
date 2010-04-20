@@ -56,9 +56,8 @@ namespace Chorus.FileTypeHanders.FieldWorks
 			m_childXml = null;
 
 			var parentDoc = new XmlDocument();
-			//parentDoc.AppendChild(parentDoc.CreateNode(XmlNodeType.Element, "root", null));
 			var childDoc = new XmlDocument();
-			//childDoc.AppendChild(childDoc.CreateNode(XmlNodeType.Element, "root", null));
+#if !ORIGINAL
 			var keys = new List<string>();
 			// Check for new <rt> elements in child.
 			foreach (var kvpChild in childIndex.Where(kvp => !parentIndex.ContainsKey(kvp.Key)))
@@ -112,10 +111,54 @@ namespace Chorus.FileTypeHanders.FieldWorks
 				childIndex.Remove(parentKey);
 			}
 			parentIndex.Clear();
+#else
+			foreach (var kvpParent in parentIndex)
+			{
+				var parentKey = kvpParent.Key;
+				var parentValue = kvpParent.Value;
+				string childValue;
+				if (childIndex.TryGetValue(parentKey, out childValue))
+				{
+					if (parentValue != childValue)
+					{
+						var parentNode = XmlUtilities.GetDocumentNodeFromRawXml(parentValue, parentDoc);
+						var childNode = XmlUtilities.GetDocumentNodeFromRawXml(childValue, childDoc);
+						if (!XmlUtilities.AreXmlElementsEqual(childNode, parentNode))
+						{
+							// Child has changed.
+							m_eventListener.ChangeOccurred(new XmlChangedRecordReport(
+															m_parentFileInRevision,
+															m_childFileInRevision,
+															parentNode,
+															childNode,
+															null)); // url for final parm, maybe.
+						}
+					}
+					// 'else' means the xml is the same, so no difference.
+					childIndex.Remove(parentKey);
+				}
+				else
+				{
+					m_eventListener.ChangeOccurred(new XmlDeletionChangeReport(
+													m_parentFileInRevision,
+													XmlUtilities.GetDocumentNodeFromRawXml(kvpParent.Value, parentDoc),
+													null)); // url for final parm, maybe.
+				}
+			}
+			foreach (var child in childIndex.Values)
+			{
+				m_eventListener.ChangeOccurred(new XmlAdditionChangeReport(
+												m_childFileInRevision,
+												XmlUtilities.GetDocumentNodeFromRawXml(child, childDoc),
+												null)); // url for final parm, maybe.
+			}
+#endif
 		}
 
 		private static void PrepareIndex(IDictionary dictionary, string fwData)
 		{
+#if USEXMLREADER
+			// Try using an XmlReader.
 			var settings = new XmlReaderSettings { ValidationType = ValidationType.None };
 			using (var reader = XmlReader.Create(new StringReader(fwData), settings))
 			{
@@ -129,6 +172,23 @@ namespace Chorus.FileTypeHanders.FieldWorks
 					dictionary.Add(key, value);
 				}
 			}
+#else
+			// Try working through the string, directly.
+			const string guidAttr = "guid=";
+			const string openRt = "<rt";
+			var startOfRtElementOffset = fwData.IndexOf(openRt);
+			const string closeRt = "</rt>";
+			while (startOfRtElementOffset > 0)
+			{
+				var endOfRtElementOffset = fwData.IndexOf(closeRt, startOfRtElementOffset + 3);
+				var lengthToCopy = endOfRtElementOffset - startOfRtElementOffset + 5;
+				var rtElement = fwData.Substring(startOfRtElementOffset, lengthToCopy);
+				var guidStartOffset = rtElement.IndexOf(guidAttr) + 6;
+				var guidAsString = rtElement.Substring(guidStartOffset, 36);
+				dictionary.Add(guidAsString, rtElement);
+				startOfRtElementOffset = fwData.IndexOf(openRt, endOfRtElementOffset);
+			}
+#endif
 		}
 	}
 }
