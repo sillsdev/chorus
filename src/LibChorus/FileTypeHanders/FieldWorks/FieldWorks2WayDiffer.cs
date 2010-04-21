@@ -1,7 +1,5 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Xml;
 using Chorus.FileTypeHanders.xml;
 using Chorus.merge.xml.generic;
@@ -48,70 +46,18 @@ namespace Chorus.FileTypeHanders.FieldWorks
 
 		public void ReportDifferencesToListener()
 		{
-			var parentIndex = new Dictionary<string, string>();
+			// This arbitrary length is based on two large databases, one 360M with 474 bytes/object, and one 180M with 541.
+			// It's probably not perfect, but we're mainly trying to prevent fragmenting the large object heap
+			// by growing it MANY times.
+			var parentIndex = new Dictionary<string, string>(m_parentXml.Length / 400);
 			PrepareIndex(parentIndex, m_parentXml);
 			m_parentXml = null;
-			var childIndex = new Dictionary<string, string>();
+			var childIndex = new Dictionary<string, string>(m_childXml.Length / 400);
 			PrepareIndex(childIndex, m_childXml);
 			m_childXml = null;
 
 			var parentDoc = new XmlDocument();
 			var childDoc = new XmlDocument();
-#if !ORIGINAL
-			var keys = new List<string>();
-			// Check for new <rt> elements in child.
-			foreach (var kvpChild in childIndex.Where(kvp => !parentIndex.ContainsKey(kvp.Key)))
-			{
-				m_eventListener.ChangeOccurred(new XmlAdditionChangeReport(
-												m_childFileInRevision,
-												XmlUtilities.GetDocumentNodeFromRawXml(kvpChild.Value, childDoc),
-												null)); // url for final parm, maybe.
-				keys.Add(kvpChild.Key);
-			}
-			// Remove new items from child index.
-			foreach (var key in keys)
-				childIndex.Remove(key);
-			keys.Clear();
-
-			// Check for deleted <rt> elements in child.
-			foreach (var kvpParent in parentIndex.Where(kvp => !childIndex.ContainsKey(kvp.Key)))
-			{
-				m_eventListener.ChangeOccurred(new XmlDeletionChangeReport(
-												m_parentFileInRevision,
-												XmlUtilities.GetDocumentNodeFromRawXml(kvpParent.Value, parentDoc),
-												null)); // url for final parm, maybe.
-				keys.Add(kvpParent.Key);
-			}
-			// Remove deleted items from parent index.
-			foreach (var key in keys)
-				parentIndex.Remove(key);
-			keys.Clear();
-
-			// Check for changed <rt> elements in child.
-			foreach (var kvpParent in parentIndex)
-			{
-				var parentKey = kvpParent.Key;
-				var parentValue = kvpParent.Value;
-				var childValue = childIndex[parentKey];
-				if (parentValue != childValue)
-				{
-					var parentNode = XmlUtilities.GetDocumentNodeFromRawXml(parentValue, parentDoc);
-					var childNode = XmlUtilities.GetDocumentNodeFromRawXml(childValue, childDoc);
-					if (!XmlUtilities.AreXmlElementsEqual(childNode, parentNode))
-					{
-						// Child has changed.
-						m_eventListener.ChangeOccurred(new XmlChangedRecordReport(
-														m_parentFileInRevision,
-														m_childFileInRevision,
-														parentNode,
-														childNode,
-														null)); // url for final parm, maybe.
-					}
-				}
-				childIndex.Remove(parentKey);
-			}
-			parentIndex.Clear();
-#else
 			foreach (var kvpParent in parentIndex)
 			{
 				var parentKey = kvpParent.Key;
@@ -119,23 +65,21 @@ namespace Chorus.FileTypeHanders.FieldWorks
 				string childValue;
 				if (childIndex.TryGetValue(parentKey, out childValue))
 				{
-					if (parentValue != childValue)
-					{
-						var parentNode = XmlUtilities.GetDocumentNodeFromRawXml(parentValue, parentDoc);
-						var childNode = XmlUtilities.GetDocumentNodeFromRawXml(childValue, childDoc);
-						if (!XmlUtilities.AreXmlElementsEqual(childNode, parentNode))
-						{
-							// Child has changed.
-							m_eventListener.ChangeOccurred(new XmlChangedRecordReport(
-															m_parentFileInRevision,
-															m_childFileInRevision,
-															parentNode,
-															childNode,
-															null)); // url for final parm, maybe.
-						}
-					}
-					// 'else' means the xml is the same, so no difference.
 					childIndex.Remove(parentKey);
+					if (parentValue == childValue)
+						continue;
+
+					var parentNode = XmlUtilities.GetDocumentNodeFromRawXml(parentValue, parentDoc);
+					var childNode = XmlUtilities.GetDocumentNodeFromRawXml(childValue, childDoc);
+					if (XmlUtilities.AreXmlElementsEqual(childNode, parentNode))
+						continue;
+
+					m_eventListener.ChangeOccurred(new XmlChangedRecordReport(
+													m_parentFileInRevision,
+													m_childFileInRevision,
+													parentNode,
+													childNode,
+													null)); // url for final parm, maybe.
 				}
 				else
 				{
@@ -152,7 +96,6 @@ namespace Chorus.FileTypeHanders.FieldWorks
 												XmlUtilities.GetDocumentNodeFromRawXml(child, childDoc),
 												null)); // url for final parm, maybe.
 			}
-#endif
 		}
 
 		private static void PrepareIndex(IDictionary dictionary, string fwData)
@@ -174,6 +117,8 @@ namespace Chorus.FileTypeHanders.FieldWorks
 			}
 #else
 			// Try working through the string, directly.
+			// NB: If the FW xml ever has rt elements like:  <rt ... />,
+			// then this won't work.
 			const string guidAttr = "guid=";
 			const string openRt = "<rt";
 			var startOfRtElementOffset = fwData.IndexOf(openRt);
