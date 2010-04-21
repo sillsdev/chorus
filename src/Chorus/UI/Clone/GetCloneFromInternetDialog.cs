@@ -23,6 +23,11 @@ namespace Chorus.UI.Clone
 		private StatusProgress _statusProgress;
 		private State _state;
 
+		public GetCloneFromInternetDialog(string parentDirectoryToPutCloneIn)
+			:this(new GetCloneFromInternetModel(parentDirectoryToPutCloneIn))
+		{
+		}
+
 		public GetCloneFromInternetDialog(GetCloneFromInternetModel model)
 		{
 			_model = model;
