@@ -76,6 +76,9 @@ namespace Chorus.merge.xml.generic
 
 		public static bool AreXmlElementsEqual(string ours, string theirs)
 		{
+			if (ours == theirs)
+				return true;
+
 			StringReader osr = new StringReader(ours);
 			XmlReader or = XmlReader.Create(osr);
 			XmlDocument od = new XmlDocument();
@@ -111,10 +114,17 @@ namespace Chorus.merge.xml.generic
 				}
 				return ours.InnerText.Trim() == theirs.InnerText.Trim();
 			}
+
+			return AreXmlElementsEqual(new XmlInput(ours.OuterXml), new XmlInput(theirs.OuterXml));
+		}
+
+
+		public static bool AreXmlElementsEqual(XmlInput ours, XmlInput theirs)
+		{
 			// DiffConfiguration config = new DiffConfiguration(WhitespaceHandling.None);
-			XmlDiff diff = new XmlDiff(new XmlInput(ours.OuterXml), new XmlInput(theirs.OuterXml));//, config);
-			DiffResult d = diff.Compare();
-			return (d == null || d.Difference == null || !d.Difference.MajorDifference);
+			var diff = new XmlDiff(ours, theirs);//, config);
+			var diffResult = diff.Compare();
+			return (diffResult == null || diffResult.Difference == null || !diffResult.Difference.MajorDifference);
 		}
 
 		public static string GetStringAttribute(XmlNode form, string attr)

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Xml;
 using Chorus.FileTypeHanders.xml;
 using Chorus.merge.xml.generic;
+using Chorus.merge.xml.generic.xmldiff;
 using Chorus.VcsDrivers.Mercurial;
 
 namespace Chorus.FileTypeHanders.FieldWorks
@@ -46,13 +47,15 @@ namespace Chorus.FileTypeHanders.FieldWorks
 
 		public void ReportDifferencesToListener()
 		{
-			// This arbitrary length is based on two large databases, one 360M with 474 bytes/object, and one 180M with 541.
-			// It's probably not perfect, but we're mainly trying to prevent fragmenting the large object heap
-			// by growing it MANY times.
-			var parentIndex = new Dictionary<string, string>(m_parentXml.Length / 400);
+			// This arbitrary length (400) is based on two large databases,
+			// one 360M with 474 bytes/object, and one 180M with 541.
+			// It's probably not perfect, but we're mainly trying to prevent
+			// fragmenting the large object heap by growing it MANY times.
+			const int arbitraryObjectLength = 400;
+			var parentIndex = new Dictionary<string, string>(m_parentXml.Length / arbitraryObjectLength);
 			PrepareIndex(parentIndex, m_parentXml);
 			m_parentXml = null;
-			var childIndex = new Dictionary<string, string>(m_childXml.Length / 400);
+			var childIndex = new Dictionary<string, string>(m_childXml.Length / arbitraryObjectLength);
 			PrepareIndex(childIndex, m_childXml);
 			m_childXml = null;
 
@@ -69,32 +72,30 @@ namespace Chorus.FileTypeHanders.FieldWorks
 					if (parentValue == childValue)
 						continue;
 
-					var parentNode = XmlUtilities.GetDocumentNodeFromRawXml(parentValue, parentDoc);
-					var childNode = XmlUtilities.GetDocumentNodeFromRawXml(childValue, childDoc);
-					if (XmlUtilities.AreXmlElementsEqual(childNode, parentNode))
+					var parentInput = new XmlInput(parentValue);
+					var childInput = new XmlInput(childValue);
+					if (XmlUtilities.AreXmlElementsEqual(childInput, parentInput))
 						continue;
 
 					m_eventListener.ChangeOccurred(new XmlChangedRecordReport(
 													m_parentFileInRevision,
 													m_childFileInRevision,
-													parentNode,
-													childNode,
-													null)); // url for final parm, maybe.
+													XmlUtilities.GetDocumentNodeFromRawXml(parentValue, parentDoc),
+													XmlUtilities.GetDocumentNodeFromRawXml(childValue, childDoc)));
 				}
 				else
 				{
 					m_eventListener.ChangeOccurred(new XmlDeletionChangeReport(
 													m_parentFileInRevision,
 													XmlUtilities.GetDocumentNodeFromRawXml(kvpParent.Value, parentDoc),
-													null)); // url for final parm, maybe.
+													null)); // Child Node? How can we put it in, if it was deleted?
 				}
 			}
 			foreach (var child in childIndex.Values)
 			{
 				m_eventListener.ChangeOccurred(new XmlAdditionChangeReport(
 												m_childFileInRevision,
-												XmlUtilities.GetDocumentNodeFromRawXml(child, childDoc),
-												null)); // url for final parm, maybe.
+												XmlUtilities.GetDocumentNodeFromRawXml(child, childDoc)));
 			}
 		}
 
