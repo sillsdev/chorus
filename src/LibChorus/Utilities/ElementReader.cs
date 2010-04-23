@@ -41,13 +41,10 @@ namespace Chorus.Utilities
 		}
 		*/
 		private byte[] m_inputData;
-		private int m_startingOffset;
-		private int m_position; // index of next useable character in m_inputData.
-		private readonly int m_limit; // one more than the last useable character in m_inputData.
+		private int m_limit; // one more than the last useable character in m_inputData.
 		private readonly byte[] m_openingMarker;
 		private readonly byte[] m_finalClosingTag;
 		private Action<byte[]> m_outputHandler;
-		private static readonly byte CloseBracket = Encoding.UTF8.GetBytes(">")[0];
 
 		public ElementReader(string openingMarker, string finalClosingTag, byte[] inputData, Action<byte[]> outputHandler)
 		{
@@ -59,92 +56,91 @@ namespace Chorus.Utilities
 			m_openingMarker = enc.GetBytes(openingMarker);
 			m_finalClosingTag = enc.GetBytes(finalClosingTag);
 			m_outputHandler = outputHandler;
-			m_position = 0;
 			m_limit = m_inputData.Length;
 		}
 
 		public void Run()
 		{
-			int offset;
-			if (!AdvanceToMarkerElement(out offset))
-				return; // no elements!
+			TrimInput();
 
-			m_startingOffset = offset;
-			while (ProcessElement())
+			var openingAngleBracket = m_openingMarker[0];
+			for (var i = 0; i < m_limit; ++i)
 			{
+				var endOffset = FindStartOfElement(i + 1, openingAngleBracket);
+				// We should have the complete <foo> element in the param.
+				m_outputHandler(m_inputData.SubArray(i, endOffset - i));
+				i = endOffset - 1;
 			}
 		}
 
-		/// <summary>
-		/// Advance input, copying characters read to m_currentOutput if it is non-null, until we
-		/// have successfully read the target marker, or reached EOF. Return true if we found it.
-		/// Assumes m_marker is at least two characters. Also expects it to be an XML element marker,
-		/// or at least that it's first character does not recur in the marker.
-		/// </summary>
-		/// <returns></returns>
-		private bool AdvanceToMarkerElement(out int startOffset)
+		private void TrimInput()
 		{
-			startOffset = m_limit;
+			// Trim off junk at the start.
 			var openingAngleBracket = m_openingMarker[0];
-			while (true)
+			var canStop = false;
+			for (var i = 0; i < m_limit; ++i)
 			{
+				var currentByte = m_inputData[i];
+				// Need to get the next starting marker, or the main closing tag
+				// When the end point is found, call m_outputHandler with the current array
+				// from 'offset' to 'i' (more or less).
 				// Skip quickly over anything that doesn't match even one character.
-				while (More() && Next() != openingAngleBracket)
-				{
-				}
-				if (!More())
-					return false;
+				if (currentByte != openingAngleBracket)
+					continue; // Useless check for any xml input that starts with the normal <?xml version='1.0' encoding='utf-8'?>
+
 				// Try to match the rest of the marker.
-				for (var i = 1; ; i++)
+				for (var j = 1; ; j++)
 				{
-					if (!More())
-						return false;
-					if (m_openingMarker[i] != Next())
+					if (m_openingMarker[j] != m_inputData[i + j])
 						break; // no match, resume searching for opening character.
-					if (i != m_openingMarker.Length - 1)
+					if (j != m_openingMarker.Length - 1)
 						continue;
 
-					startOffset = m_position - m_openingMarker.Length;
-					m_startingOffset = m_position - m_openingMarker.Length;
-					return true; // got it!
+					// Got it!
+					m_inputData = m_inputData.SubArray(i, m_limit - i);
+					m_limit = m_inputData.Length;
+					canStop = true;
+					break;
+				}
+				if (canStop)
+					break;
+			}
+
+			// Trim off end tag. It really better be the last bunch of bytes!
+			m_inputData = m_inputData.SubArray(0, m_inputData.Length - m_finalClosingTag.Length);
+			m_limit = m_inputData.Length;
+		}
+
+		private int FindStartOfElement(int currentOffset, byte openingAngleBracket)
+		{
+			// Need to get the next starting marker, or the main closing tag
+			// When the end point is found, call m_outputHandler with the current array
+			// from 'offset' to 'i' (more or less).
+			// Skip quickly over anything that doesn't match even one character.
+			for (var i = currentOffset; i < m_limit; ++i)
+			{
+				var currentByte = m_inputData[i];
+				// Need to get the next starting marker, or the main closing tag
+				// When the end point is found, call m_outputHandler with the current array
+				// from 'offset' to 'i' (more or less).
+				// Skip quickly over anything that doesn't match even one character.
+				if (currentByte != openingAngleBracket)
+					continue;
+
+				// Try to match the rest of the marker.
+				for (var j = 1; ; j++)
+				{
+					if (m_openingMarker[j] != m_inputData[i + j])
+						break; // no match, resume searching for opening character.
+					if (j != m_openingMarker.Length - 1)
+						continue;
+
+					// Got it!
+					return i;
 				}
 			}
-		}
-		/// <summary>
-		/// Called when we have just read the input marker. Advances to the
-		/// start of closing tag "languageproject" or just after the next element.
-		/// </summary>
-		/// <returns>false, if we have found the final closing tag, otherwise true</returns>
-		private bool ProcessElement()
-		{
-			var currentStartOffset = m_startingOffset;
-			int endOffset;
-			var result = AdvanceToMarkerElement(out endOffset);
-			// See to the character before the marker for the next element (if we got one)
-			if (result)
-			{
-				//endOffset -= m_openingMarker.Length; // read a marker into the stream, skip it.
-			}
-			else
-			{
-				endOffset -= m_finalClosingTag.Length; // read the closing tag into the stream, skip it.
-			}
-			var xmlBytes = new byte[endOffset - currentStartOffset];
-			Array.Copy(m_inputData, currentStartOffset, xmlBytes, 0, xmlBytes.Length);
-			// We should have the complete <foo> element in xmlBytes.
-			m_outputHandler(xmlBytes);
-			return result;
-		}
 
-		// Return true if there are more bytes to read. Refill the buffer if need be.
-		private bool More()
-		{
-			return m_position < m_limit;
-		}
-
-		private byte Next()
-		{
-			return m_inputData[m_position++];
+			return m_limit; // Found the end.
 		}
 
 		~ElementReader()
