@@ -61,7 +61,33 @@ namespace Chorus.FileTypeHanders.FieldWorks
 		/// The must not have any UI, no interaction with the user.</remarks>
 		public void Do3WayMerge(MergeOrder mergeOrder)
 		{
-			throw new NotImplementedException();
+			string pathToWinner;
+			string pathToLoser;
+			switch (mergeOrder.MergeSituation.ConflictHandlingMode)
+			{
+				default:
+					throw new ArgumentException("The FieldWorks merger cannot handle the requested conflict handling mode");
+				case MergeOrder.ConflictHandlingModeChoices.WeWin:
+					pathToWinner = mergeOrder.pathToOurs;
+					pathToLoser = mergeOrder.pathToTheirs;
+					break;
+				case MergeOrder.ConflictHandlingModeChoices.TheyWin:
+					pathToWinner = mergeOrder.pathToTheirs;
+					pathToLoser = mergeOrder.pathToOurs;
+					break;
+			}
+			var merger = new FieldWorksMerger(
+				new FieldWorksMergingStrategy(mergeOrder.MergeSituation),
+				pathToWinner, pathToLoser, mergeOrder.pathToCommonAncestor)
+					{
+						EventListener = mergeOrder.EventListener
+					};
+
+			var newContents = merger.GetMergedContents();
+			if (newContents.IndexOf('\0') != -1)
+				throw new ApplicationException("Merged XML had a null! This is very serious... please report it to the developers.");
+
+			File.WriteAllText(mergeOrder.pathToOurs, newContents);
 		}
 
 		public IEnumerable<IChangeReport> Find2WayDifferences(FileInRevision parent, FileInRevision child, HgRepository repository)
