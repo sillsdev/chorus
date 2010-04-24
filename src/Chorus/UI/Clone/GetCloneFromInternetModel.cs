@@ -105,7 +105,7 @@ namespace Chorus.UI.Clone
 				{
 					return "http://" +
 						   HttpUtility.UrlEncode(AccountName) + ":" +
-						   HttpUtility.UrlEncode(Password) + "@" + SelectedServerLabel + "/" +
+						   HttpUtility.UrlEncode(Password) + "@" + SelectedServerPath + "/" +
 						   HttpUtility.UrlEncode(ProjectId);
 				}
 			}
@@ -157,6 +157,20 @@ namespace Chorus.UI.Clone
 		public bool HaveGoodUrl
 		{
 			get { return HaveNeededAccountInfo; }
+		}
+
+
+		public string SelectedServerPath
+		{
+			get
+			{
+				string path;
+				if(Servers.TryGetValue(SelectedServerLabel, out path))
+				{
+					return path;
+				}
+				throw new ApplicationException("Somehow SelectedServerLabel was empty, when called from SelectedServerPath.");
+			}
 		}
 
 		public string SelectedServerLabel
