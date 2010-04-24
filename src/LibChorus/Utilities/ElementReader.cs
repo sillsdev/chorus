@@ -41,10 +41,11 @@ namespace Chorus.Utilities
 		}
 		*/
 		private byte[] m_inputData;
-		private int m_limit; // one more than the last useable character in m_inputData.
 		private readonly byte[] m_openingMarker;
 		private readonly byte[] m_finalClosingTag;
 		private Action<byte[]> m_outputHandler;
+		private int m_startOfRecordsOffset;
+		private int m_endOfRecordsOffset;
 
 		public ElementReader(string openingMarker, string finalClosingTag, byte[] inputData, Action<byte[]> outputHandler)
 		{
@@ -56,7 +57,8 @@ namespace Chorus.Utilities
 			m_openingMarker = enc.GetBytes(openingMarker);
 			m_finalClosingTag = enc.GetBytes(finalClosingTag);
 			m_outputHandler = outputHandler;
-			m_limit = m_inputData.Length;
+			m_startOfRecordsOffset = 0;
+			m_endOfRecordsOffset = m_inputData.Length;
 		}
 
 		public void Run()
@@ -64,7 +66,7 @@ namespace Chorus.Utilities
 			TrimInput();
 
 			var openingAngleBracket = m_openingMarker[0];
-			for (var i = 0; i < m_limit; ++i)
+			for (var i = m_startOfRecordsOffset; i < m_endOfRecordsOffset; ++i)
 			{
 				var endOffset = FindStartOfElement(i + 1, openingAngleBracket);
 				// We should have the complete <foo> element in the param.
@@ -73,12 +75,16 @@ namespace Chorus.Utilities
 			}
 		}
 
+		/// <summary>
+		/// This method adjusts m_startOfRecordsOffset to the offset to the start of the records,
+		/// and adjusts m_endOfRecordsOffset to the end of the last record.
+		/// </summary>
 		private void TrimInput()
 		{
 			// Trim off junk at the start.
 			var openingAngleBracket = m_openingMarker[0];
 			var canStop = false;
-			for (var i = 0; i < m_limit; ++i)
+			for (var i = 0; i < m_endOfRecordsOffset; ++i)
 			{
 				var currentByte = m_inputData[i];
 				// Need to get the next starting marker, or the main closing tag
@@ -97,8 +103,7 @@ namespace Chorus.Utilities
 						continue;
 
 					// Got it!
-					m_inputData = m_inputData.SubArray(i, m_limit - i);
-					m_limit = m_inputData.Length;
+					m_startOfRecordsOffset = i;
 					canStop = true;
 					break;
 				}
@@ -107,8 +112,7 @@ namespace Chorus.Utilities
 			}
 
 			// Trim off end tag. It really better be the last bunch of bytes!
-			m_inputData = m_inputData.SubArray(0, m_inputData.Length - m_finalClosingTag.Length);
-			m_limit = m_inputData.Length;
+			m_endOfRecordsOffset = m_inputData.Length - m_finalClosingTag.Length;
 		}
 
 		private int FindStartOfElement(int currentOffset, byte openingAngleBracket)
@@ -117,7 +121,7 @@ namespace Chorus.Utilities
 			// When the end point is found, call m_outputHandler with the current array
 			// from 'offset' to 'i' (more or less).
 			// Skip quickly over anything that doesn't match even one character.
-			for (var i = currentOffset; i < m_limit; ++i)
+			for (var i = currentOffset; i < m_endOfRecordsOffset; ++i)
 			{
 				var currentByte = m_inputData[i];
 				// Need to get the next starting marker, or the main closing tag
@@ -140,7 +144,7 @@ namespace Chorus.Utilities
 				}
 			}
 
-			return m_limit; // Found the end.
+			return m_endOfRecordsOffset; // Found the end.
 		}
 
 		~ElementReader()
