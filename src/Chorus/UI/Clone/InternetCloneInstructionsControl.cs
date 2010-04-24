@@ -44,7 +44,14 @@ namespace Chorus.UI.Clone
 
 			_downloadButton.Enabled = _model.ReadyToDownload;
 
-			_targetInfoLabel.Visible = _localFolderName.Enabled =  _model.HaveNeededAccountInfo;
+		   _localFolderName.Enabled =  _model.HaveNeededAccountInfo;
+
+			_targetInfoLabel.Visible = true;
+
+			if (string.IsNullOrEmpty(_model.LocalFolderName))
+			{
+				_targetInfoLabel.Text = "For example, 'Swahili Project'";
+			}
 
 			if (_model.HaveGoodUrl)
 			{

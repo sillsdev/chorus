@@ -67,6 +67,7 @@ namespace Chorus.UI.Clone
 												var hg = new HgRepository(PathToNewProject, progress);
 												hg.GetDiagnosticInformationForRemoteProject(progress, ThreadSafeUrl);
 											};
+
 		}
 
 		private void _backgroundWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)

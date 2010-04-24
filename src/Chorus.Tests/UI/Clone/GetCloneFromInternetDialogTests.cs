@@ -112,7 +112,7 @@ namespace Chorus.Tests.UI.Clone
 				//ok, the point here is that we already haved something called "repo1"
 				Directory.CreateDirectory(targetComputer.Combine("repo1"));
 
-				using (var dlg = new GetCloneFromInternetDialog(new GetCloneFromInternetModel(targetComputer.Path)))
+				using (var dlg = new GetCloneFromInternetDialog(targetComputer.Path))
 				{
 
 					if (DialogResult.OK != dlg.ShowDialog())

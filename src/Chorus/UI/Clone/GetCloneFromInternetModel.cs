@@ -17,9 +17,11 @@ namespace Chorus.UI.Clone
 		{
 			ParentDirectoryToPutCloneIn = parentDirectoryToPutCloneIn;
 
-			Servers.Add("languageDepot.org", "hg-public.languageDepot.org");
+			string languageDepotLabel = "languageDepot.org";
+			Servers.Add(languageDepotLabel, "hg-public.languageDepot.org");
 			Servers.Add("private.languageDepot.org", "hg-private.languageDepot.org");
 			Servers.Add("Custom Location...", "");
+			SelectedServerLabel = languageDepotLabel;
 		}
 
 		public string ParentDirectoryToPutCloneIn { get; set; }
@@ -169,7 +171,15 @@ namespace Chorus.UI.Clone
 
 		public bool CustomUrlSelected
 		{
-			get { return Servers[SelectedServerLabel] == string.Empty; }
+			get
+			{
+				string server;
+				if (!Servers.TryGetValue(SelectedServerLabel, out server))
+				{
+					SelectedServerLabel = Servers.Keys.First();
+				}
+				return Servers[SelectedServerLabel] == string.Empty;
+			}
 			private set
 			{
 				if (value)
