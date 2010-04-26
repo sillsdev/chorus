@@ -1,7 +1,5 @@
-using Chorus.FileTypeHanders.lift;
+using Chorus.FileTypeHanders;
 using Chorus.FileTypeHanders.xml;
-using Chorus.merge.xml.generic;
-using Chorus.merge.xml.lift;
 using LibChorus.Tests.merge.xml.generic;
 using NUnit.Framework;
 
@@ -28,7 +26,8 @@ namespace LibChorus.Tests.merge.xml.lift
 						<entry id='old2'/>
 					</lift>";
 			var listener = new ListenerForUnitTests();
-			var differ =  Lift2WayDiffer.CreateFromStrings(new DropTheirsMergeStrategy(), parent, child, listener);
+			var differ = Xml2WayDiffer.CreateFromStrings(parent, child, listener,
+				"<entry ", "</lift>", "id");
 			differ.ReportDifferencesToListener();
 			listener.AssertExpectedChangesCount(1);
 			listener.AssertFirstChangeType<XmlAdditionChangeReport>();
@@ -47,7 +46,8 @@ namespace LibChorus.Tests.merge.xml.lift
 						<entry id='old2'/>
 					</lift>";
 			var listener = new ListenerForUnitTests();
-			var differ =  Lift2WayDiffer.CreateFromStrings(new DropTheirsMergeStrategy(), parent, child, listener);
+			var differ = Xml2WayDiffer.CreateFromStrings(parent, child, listener,
+				"<entry ", "</lift>", "id");
 			differ.ReportDifferencesToListener();
 			listener.AssertExpectedChangesCount(1);
 			listener.AssertFirstChangeType<XmlDeletionChangeReport>();
@@ -67,7 +67,8 @@ namespace LibChorus.Tests.merge.xml.lift
 						<entry id='old2'/>
 					</lift>";
 			var listener = new ListenerForUnitTests();
-			var differ = Lift2WayDiffer.CreateFromStrings(new DropTheirsMergeStrategy(), parent, child, listener);
+			var differ = Xml2WayDiffer.CreateFromStrings(parent, child, listener,
+				"<entry ", "</lift>", "id");
 			differ.ReportDifferencesToListener();
 			listener.AssertExpectedChangesCount(1);
 			listener.AssertFirstChangeType<XmlDeletionChangeReport>();

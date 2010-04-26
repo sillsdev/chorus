@@ -85,10 +85,10 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
+	<Compile Include="FileTypeHanders\Xml2WayDiffer.cs" />
 	<Compile Include="Utilities\DifferDictionaryPrepper.cs" />
 	<Compile Include="Utilities\ElementReader.cs" />
 	<Compile Include="FileTypeHanders\FieldWorks\FieldWorkObjectContextGenerator.cs" />
-	<Compile Include="FileTypeHanders\FieldWorks\FieldWorks2WayDiffer.cs" />
 	<Compile Include="FileTypeHanders\FieldWorks\FieldWorksChangePresenter.cs" />
 	<Compile Include="FileTypeHanders\FieldWorks\FieldWorksFileHandler.cs" />
 	<Compile Include="FileTypeHanders\FieldWorks\FieldWorksMerger.cs" />
@@ -125,7 +125,6 @@
 	<Compile Include="FileTypeHanders\lift\LexEntryContextGenerator.cs" />
 	<Compile Include="FileTypeHanders\lift\LiftChangePresenter.cs" />
 	<Compile Include="FileTypeHanders\lift\LiftFileHandler.cs" />
-	<Compile Include="FileTypeHanders\lift\LiftDiffer.cs" />
 	<Compile Include="FileTypeHanders\lift\LiftUtils.cs" />
 	<Compile Include="FileTypeHanders\xml\IXmlChangeReport.cs" />
 	<Compile Include="FileTypeHanders\xml\XmlAdditionChangeReport.cs" />

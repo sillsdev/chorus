@@ -15,6 +15,7 @@ namespace Chorus.FileTypeHanders.FieldWorks
 	public class FieldWorksFileHandler : IChorusFileTypeHandler
 	{
 		private const string kExtension = "xml";
+		private readonly Dictionary<string, bool> m_filesChecked = new Dictionary<string, bool>();
 
 		#region Implementation of IChorusFileTypeHandler
 
@@ -94,11 +95,14 @@ namespace Chorus.FileTypeHanders.FieldWorks
 		{
 			var changeAndConflictAccumulator = new ChangeAndConflictAccumulator();
 			// Pulls the files out of the repository so we can read them.
-			var differ = FieldWorks2WayDiffer.CreateFromFileInRevision(
+			var differ = Xml2WayDiffer.CreateFromFileInRevision(
 				parent,
 				child,
 				changeAndConflictAccumulator,
-				repository);
+				repository,
+				"<rt ",
+				"</languageproject>",
+				"guid");
 			try
 			{
 				differ.ReportDifferencesToListener();
@@ -172,7 +176,12 @@ namespace Chorus.FileTypeHanders.FieldWorks
 			if (!CheckValidPathname(pathToFile))
 				return false;
 
-			return ValidateFile(pathToFile, null) == null;
+			bool seenBefore;
+			if (m_filesChecked.TryGetValue(pathToFile, out seenBefore))
+				return seenBefore;
+			var retval = ValidateFile(pathToFile, null) == null;
+			m_filesChecked.Add(pathToFile, retval);
+			return retval;
 		}
 
 		private static bool CheckValidPathname(string pathToFile)

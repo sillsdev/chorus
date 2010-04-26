@@ -92,7 +92,10 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 </rt>
 </languageproject>";
 			var listener = new ListenerForUnitTests();
-			var differ = FieldWorks2WayDiffer.CreateFromStrings(parent, child, listener);
+			var differ = Xml2WayDiffer.CreateFromStrings(parent, child, listener,
+				"<rt ",
+				"</languageproject>",
+				"guid");
 			differ.ReportDifferencesToListener();
 			listener.AssertExpectedChangesCount(1);
 			listener.AssertFirstChangeType<XmlAdditionChangeReport>();
@@ -121,7 +124,10 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 </rt>
 </languageproject>";
 			var listener = new ListenerForUnitTests();
-			var differ = FieldWorks2WayDiffer.CreateFromStrings(parent, child, listener);
+			var differ = Xml2WayDiffer.CreateFromStrings(parent, child, listener,
+				"<rt ",
+				"</languageproject>",
+				"guid");
 			differ.ReportDifferencesToListener();
 			listener.AssertExpectedChangesCount(1);
 			listener.AssertFirstChangeType<XmlDeletionChangeReport>();
@@ -143,7 +149,10 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 </rt>
 </languageproject>";
 			var listener = new ListenerForUnitTests();
-			var differ = FieldWorks2WayDiffer.CreateFromStrings(parent, child, listener);
+			var differ = Xml2WayDiffer.CreateFromStrings(parent, child, listener,
+				"<rt ",
+				"</languageproject>",
+				"guid");
 			differ.ReportDifferencesToListener();
 			listener.AssertExpectedChangesCount(1);
 			listener.AssertFirstChangeType<XmlChangedRecordReport>();
@@ -174,7 +183,10 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 </rt>
 </languageproject>";
 			var listener = new ListenerForUnitTests();
-			var differ = FieldWorks2WayDiffer.CreateFromStrings(parent, child, listener);
+			var differ = Xml2WayDiffer.CreateFromStrings(parent, child, listener,
+				"<rt ",
+				"</languageproject>",
+				"guid");
 			differ.ReportDifferencesToListener();
 			listener.AssertExpectedChangesCount(0);
 		}
