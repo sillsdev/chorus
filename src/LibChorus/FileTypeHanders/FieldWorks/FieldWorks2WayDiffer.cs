@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml;
@@ -51,13 +49,16 @@ namespace Chorus.FileTypeHanders.FieldWorks
 			// fragmenting the large object heap by growing it MANY times.
 			const int estimatedObjectCount = 400;
 			var parentIndex = new Dictionary<string, byte[]>(m_parentBytes.Length / estimatedObjectCount);
-			using (var prepper = new FieldWorksDictionaryPrepper(parentIndex, m_parentBytes))
+			const string startTag = "<rt ";
+			const string fileClosingTag = "</languageproject>";
+			const string identfierAttribute = "guid";
+			using (var prepper = new DifferDictionaryPrepper(parentIndex, m_parentBytes, startTag, fileClosingTag, identfierAttribute))
 			{
 				prepper.Run();
 			}
 			m_parentBytes = null;
 			var childIndex = new Dictionary<string, byte[]>(m_childBytes.Length / estimatedObjectCount);
-			using (var prepper = new FieldWorksDictionaryPrepper(childIndex, m_childBytes))
+			using (var prepper = new DifferDictionaryPrepper(childIndex, m_childBytes, startTag, fileClosingTag, identfierAttribute))
 			{
 				prepper.Run();
 			}
@@ -107,90 +108,6 @@ namespace Chorus.FileTypeHanders.FieldWorks
 												m_childFileInRevision,
 												XmlUtilities.GetDocumentNodeFromRawXml(enc.GetString(child), childDoc)));
 			}
-		}
-
-		private class FieldWorksDictionaryPrepper : IDisposable
-		{
-			private static readonly byte[] s_guidDoubleQuote = Encoding.UTF8.GetBytes("guid=\"");
-			private static readonly byte[] s_guidSingleQuote = Encoding.UTF8.GetBytes("guid='");
-			private static readonly byte s_closeDoubleQuote = Encoding.UTF8.GetBytes("\"")[0];
-			private static readonly byte s_closeSingleQuote = Encoding.UTF8.GetBytes("'")[0];
-			private ElementReader m_reader;
-			private IDictionary<string, byte[]> m_dictionary;
-
-			internal FieldWorksDictionaryPrepper(IDictionary<string, byte[]> dictionary, byte[] data)
-			{
-				m_dictionary = dictionary;
-				m_reader = new ElementReader("<rt ", "</languageproject>", data, PrepareIndex);
-			}
-
-			internal void Run()
-			{
-				m_reader.Run();
-			}
-
-			private void PrepareIndex(byte[] fwData)
-			{
-				var guid = GetAttribute(s_guidDoubleQuote, s_closeDoubleQuote, fwData) ??
-						   GetAttribute(s_guidSingleQuote, s_closeSingleQuote, fwData);
-				m_dictionary.Add(guid, fwData);
-			}
-
-			static string GetAttribute(byte[] name, byte closeQuote, byte[] input)
-			{
-				var start = input.IndexOfSubArray(name);
-				if (start == -1)
-					return null;
-
-				start += name.Length;
-				var end = Array.IndexOf(input, closeQuote, start);
-				return end == -1
-					? null
-					: Encoding.UTF8.GetString(input.SubArray(start, end - start));
-			}
-
-			#region Implementation of IDisposable
-
-			~FieldWorksDictionaryPrepper()
-			{
-				Debug.WriteLine("**** FieldWorksDictionaryPrepper.Finalizer called ****");
-				Dispose(false);
-				// The base class finalizer is called automatically.
-			}
-
-			public void Dispose()
-			{
-				Dispose(true);
-				// This object will be cleaned up by the Dispose method.
-				// Therefore, you should call GC.SupressFinalize to
-				// take this object off the finalization queue
-				// and prevent finalization code for this object
-				// from executing a second time.
-				GC.SuppressFinalize(this);
-			}
-
-			private bool m_isDisposed;
-			private void Dispose(bool disposing)
-			{
-				if (m_isDisposed)
-					return; // Done already, so nothing left to do.
-
-				if (disposing)
-				{
-					if (m_reader != null)
-						m_reader.Dispose();
-				}
-
-				// Dispose unmanaged resources here, whether disposing is true or false.
-
-				// Main data members.
-				m_reader = null;
-				m_dictionary = null;
-
-				m_isDisposed = true;
-			}
-
-			#endregion
 		}
 	}
 }

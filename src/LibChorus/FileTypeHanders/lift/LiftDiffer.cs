@@ -1,13 +1,15 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
+using System.Linq;
+using System.Text;
 using System.Xml;
 using Chorus.FileTypeHanders.xml;
 using Chorus.merge.xml.generic;
+using Chorus.merge.xml.generic.xmldiff;
+using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
 
-
-namespace Chorus.merge.xml.lift
+namespace Chorus.FileTypeHanders.lift
 {
 
 	/// <summary>
@@ -15,131 +17,121 @@ namespace Chorus.merge.xml.lift
 	/// </summary>
 	public class Lift2WayDiffer
 	{
+		private readonly IMergeEventListener _eventListener;
 		private readonly FileInRevision _parentFileInRevision;
 		private readonly FileInRevision _childFileInRevision;
-		private readonly List<string> _processedIds = new List<string>();
-		private readonly XmlDocument _childDom;
-		private readonly XmlDocument _parentDom;
-		private IMergeEventListener EventListener;
-		private readonly Dictionary<string, XmlNode> _parentIdToNodeIndex;
+		private byte[] _parentBytes;
+		private byte[] _childBytes;
 
 		public static Lift2WayDiffer CreateFromFileInRevision(IMergeStrategy mergeStrategy, FileInRevision parent, FileInRevision child, IMergeEventListener eventListener, HgRepository repository)
 		{
-			return new Lift2WayDiffer(mergeStrategy, parent.GetFileContents(repository), child.GetFileContents(repository), eventListener, parent, child);
+			return new Lift2WayDiffer(parent.GetFileContentsAsBytes(repository), child.GetFileContentsAsBytes(repository), eventListener, parent, child);
 		}
 		public static Lift2WayDiffer CreateFromStrings(IMergeStrategy mergeStrategy, string parentXml, string childXml, IMergeEventListener eventListener)
 		{
-			return new Lift2WayDiffer(mergeStrategy, parentXml, childXml, eventListener);
+			var enc = Encoding.UTF8;
+			return new Lift2WayDiffer(enc.GetBytes(parentXml), enc.GetBytes(childXml), eventListener, null, null);
 		}
 
-		private Lift2WayDiffer(IMergeStrategy mergeStrategy, string parentXml, string childXml,IMergeEventListener eventListener)
+		private Lift2WayDiffer(byte[] parentBytes, byte[] childBytes, IMergeEventListener eventListener, FileInRevision parent, FileInRevision child)
 		{
-			_childDom = new XmlDocument();
-			_parentDom = new XmlDocument();
-
-			_childDom.LoadXml(childXml);
-			_parentDom.LoadXml(parentXml);
-			_parentIdToNodeIndex = new Dictionary<string, XmlNode>();
-
-			EventListener = eventListener;
-		}
-
-		private Lift2WayDiffer(IMergeStrategy mergeStrategy, string parentXml, string childXml , IMergeEventListener listener, FileInRevision parentFileInRevision, FileInRevision childFileInRevision)
-			:this(mergeStrategy,parentXml, childXml, listener)
-		{
-			_parentFileInRevision = parentFileInRevision;
-			_childFileInRevision = childFileInRevision;
+			_parentBytes = parentBytes;
+			_childBytes = childBytes;
+			_eventListener = eventListener;
+			_parentFileInRevision = parent;
+			_childFileInRevision = child;
 		}
 
 		public void ReportDifferencesToListener()
 		{
-			foreach (XmlNode node in _parentDom.SafeSelectNodes("lift/entry"))
+			// This arbitrary length (200) is based on a large database,
+			// with over 200 bytes per object. It's probably not perfect,
+			// but we're mainly trying to prevent
+			// fragmenting the large object heap by growing it MANY times.
+			const int estimatedObjectCount = 200;
+			var parentIndex = new Dictionary<string, byte[]>(_parentBytes.Length / estimatedObjectCount);
+			const string startTag = "<entry ";
+			const string fileClosingTag = "</lift>";
+			const string identfierAttribute = "id";
+			using (var prepper = new DifferDictionaryPrepper(parentIndex, _parentBytes, startTag, fileClosingTag, identfierAttribute))
 			{
-				_parentIdToNodeIndex.Add(LiftUtils.GetId(node), node);
+				prepper.Run();
 			}
-
-			foreach (XmlNode childNode in _childDom.SafeSelectNodes("lift/entry"))
+			_parentBytes = null;
+			var childIndex = new Dictionary<string, byte[]>(_childBytes.Length / estimatedObjectCount);
+			using (var prepper = new DifferDictionaryPrepper(childIndex, _childBytes, startTag, fileClosingTag, identfierAttribute))
 			{
-				try
-				{
-					ProcessEntry(childNode);
-				}
-				catch (Exception error)
-				{
-					EventListener.ChangeOccurred(new ErrorDeterminingChangeReport(_parentFileInRevision,
-																				  _childFileInRevision, null, childNode,
-																				  error));
-				}
+				prepper.Run();
 			}
+			_childBytes = null;
 
-			//now detect any removed (not just marked as deleted) elements
-			foreach (XmlNode parentNode in _parentIdToNodeIndex.Values)// _parentDom.SafeSelectNodes("lift/entry"))
+			var enc = Encoding.UTF8;
+			var parentDoc = new XmlDocument();
+			var childDoc = new XmlDocument();
+			foreach (var kvpParent in parentIndex)
 			{
-				try
+				var parentKey = kvpParent.Key;
+				var parentValue = kvpParent.Value;
+				byte[] childValue;
+				if (childIndex.TryGetValue(parentKey, out childValue))
 				{
-					if (!_processedIds.Contains(LiftUtils.GetId(parentNode)))
+					childIndex.Remove(parentKey);
+					if (parentValue.Length == childValue.Length)
 					{
-						EventListener.ChangeOccurred(new XmlDeletionChangeReport(_parentFileInRevision, parentNode,
-																				 null));
+						if (!parentValue.Where((t, i) => t != childValue[i]).Any())
+							continue; // Exact same data in byte array. Ergo, a no change deal.
 					}
-				}
-				catch (Exception error)
-				{
-					EventListener.ChangeOccurred(new ErrorDeterminingChangeReport(_parentFileInRevision,
-																				  _childFileInRevision,
-																				  parentNode,
-																				  null,
-																				  error));
-				}
-			}
-		}
 
-
-		private void ProcessEntry(XmlNode child)
-		{
-			string id = LiftUtils.GetId(child);
-			XmlNode parent=null;// = LiftUtils.FindEntryById(_parentDom, id);
-			_parentIdToNodeIndex.TryGetValue(id, out parent);
-
-			string path = string.Empty;
-			if (_childFileInRevision != null && !string.IsNullOrEmpty(_childFileInRevision.FullPath))
-			{
-				path = Path.GetFileName(_childFileInRevision.FullPath);
-			}
-			string url = LiftUtils.GetUrl(child, path);
-
-			if (parent == null) //it's new
-			{
-				//it's possible to create and entry, delete it, then checkin, leave us with this
-				//spurious deletion messages
-				if (string.IsNullOrEmpty(XmlUtilities.GetOptionalAttributeString(child, "dateDeleted")))
-				{
-					EventListener.ChangeOccurred(new XmlAdditionChangeReport(_childFileInRevision, child, url));
-				}
-			}
-			else if (LiftUtils.AreTheSame(child, parent))//unchanged or both made same change
-			{
-			}
-			else //one or both changed
-			{
-				if (!string.IsNullOrEmpty(XmlUtilities.GetOptionalAttributeString(child, "dateDeleted")))
-				{
-					EventListener.ChangeOccurred(new XmlDeletionChangeReport(_parentFileInRevision, parent, child));
+					var childStr = enc.GetString(childValue);
+					// May have added dateDeleted' attr, in which case treat it as deleted, not changed.
+					if (childStr.Contains("dateDeleted="))
+					{
+						_eventListener.ChangeOccurred(new XmlDeletionChangeReport(
+														_parentFileInRevision,
+														XmlUtilities.GetDocumentNodeFromRawXml(enc.GetString(kvpParent.Value), parentDoc),
+														XmlUtilities.GetDocumentNodeFromRawXml(childStr, childDoc)));
+					}
+					else
+					{
+						var parentStr = enc.GetString(parentValue);
+						try
+						{
+							var parentInput = new XmlInput(parentStr);
+							var childInput = new XmlInput(childStr);
+							if (XmlUtilities.AreXmlElementsEqual(childInput, parentInput))
+								continue;
+						}
+						catch (Exception error)
+						{
+							_eventListener.ChangeOccurred(new ErrorDeterminingChangeReport(
+								_parentFileInRevision,
+								_childFileInRevision,
+								XmlUtilities.GetDocumentNodeFromRawXml(parentStr, parentDoc),
+								XmlUtilities.GetDocumentNodeFromRawXml(childStr, childDoc),
+								error));
+							continue;
+						}
+						_eventListener.ChangeOccurred(new XmlChangedRecordReport(
+														_parentFileInRevision,
+														_childFileInRevision,
+														XmlUtilities.GetDocumentNodeFromRawXml(parentStr, parentDoc),
+														XmlUtilities.GetDocumentNodeFromRawXml(childStr, childDoc)));
+					}
 				}
 				else
 				{
-					//enhance... we are only using this because it will conveniently find the differences
-					//and fire them off for us
-
-					//enhance: we can skip this and just say "something changed in this entry",
-					//until we really *need* the details (if ever), and have a way to call this then
-					//_mergingStrategy.MakeMergedEntry(this.EventListener, child, parent, parent);
-					EventListener.ChangeOccurred(new XmlChangedRecordReport(_parentFileInRevision, _childFileInRevision, parent,child, url));
+					_eventListener.ChangeOccurred(new XmlDeletionChangeReport(
+													_parentFileInRevision,
+													XmlUtilities.GetDocumentNodeFromRawXml(enc.GetString(kvpParent.Value), parentDoc),
+													null)); // Child Node? How can we put it in, if it was deleted?
 				}
 			}
-			_processedIds.Add(id);
+			foreach (var child in childIndex.Values)
+			{
+				_eventListener.ChangeOccurred(new XmlAdditionChangeReport(
+												_childFileInRevision,
+												XmlUtilities.GetDocumentNodeFromRawXml(enc.GetString(child), childDoc)));
+			}
 		}
-
-
 	}
 }

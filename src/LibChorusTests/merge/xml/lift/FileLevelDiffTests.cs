@@ -1,3 +1,4 @@
+using Chorus.FileTypeHanders.lift;
 using Chorus.FileTypeHanders.xml;
 using Chorus.merge.xml.generic;
 using Chorus.merge.xml.lift;
@@ -55,14 +56,14 @@ namespace LibChorus.Tests.merge.xml.lift
 		[Test]
 		public void WeMarkedEntryAsDeleted_ReportedAsDeletion()
 		{
-			var child = @"<?xml version='1.0' encoding='utf-8'?>
-					<lift version='0.10' producer='WeSay 1.0.0.0'>
-						<entry id='old1' dateDeleted='2009-06-16T06:14:20Z'/>
-						<entry id='old2'/>
-					</lift>";
 			var parent = @"<?xml version='1.0' encoding='utf-8'?>
 					<lift version='0.10' producer='WeSay 1.0.0.0'>
 						<entry id='old1'/>
+						<entry id='old2'/>
+					</lift>";
+			var child = @"<?xml version='1.0' encoding='utf-8'?>
+					<lift version='0.10' producer='WeSay 1.0.0.0'>
+						<entry id='old1' dateDeleted='2009-06-16T06:14:20Z'/>
 						<entry id='old2'/>
 					</lift>";
 			var listener = new ListenerForUnitTests();
