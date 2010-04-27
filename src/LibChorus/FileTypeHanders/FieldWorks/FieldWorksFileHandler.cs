@@ -100,8 +100,8 @@ namespace Chorus.FileTypeHanders.FieldWorks
 				child,
 				changeAndConflictAccumulator,
 				repository,
-				"<rt ",
-				"</languageproject>",
+				"rt",
+				"languageproject",
 				"guid");
 			try
 			{

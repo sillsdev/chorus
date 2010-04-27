@@ -99,7 +99,7 @@ namespace Chorus.FileTypeHanders.lift
 
 			//pull the files out of the repository so we can read them
 			var differ = Xml2WayDiffer.CreateFromFileInRevision(parent, child, listener, repository,
-				"<entry ", "</lift>", "id");
+				"entry", "lift", "id");
 			try
 			{
 				differ.ReportDifferencesToListener();

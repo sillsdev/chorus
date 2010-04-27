@@ -45,8 +45,8 @@ namespace Chorus.FileTypeHanders
 		{
 			m_parentFileInRevision = parent;
 			m_childFileInRevision = child;
-			m_startTag = startTag;
-			m_fileClosingTag = fileClosingTag;
+			m_startTag = "<" + startTag.Trim();
+			m_fileClosingTag = "</" + fileClosingTag.Trim() + ">";
 			m_identfierAttribute = identfierAttribute;
 			m_parentBytes = parentBytes;
 			m_childBytes = childBytes;

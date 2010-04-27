@@ -2,7 +2,6 @@ using System;
 using System.IO;
 using System.Linq;
 using Chorus.FileTypeHanders;
-using Chorus.FileTypeHanders.FieldWorks;
 using Chorus.FileTypeHanders.xml;
 using LibChorus.Tests.merge.xml.generic;
 using NUnit.Framework;
@@ -93,8 +92,8 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 </languageproject>";
 			var listener = new ListenerForUnitTests();
 			var differ = Xml2WayDiffer.CreateFromStrings(parent, child, listener,
-				"<rt ",
-				"</languageproject>",
+				"rt",
+				"languageproject",
 				"guid");
 			differ.ReportDifferencesToListener();
 			listener.AssertExpectedChangesCount(1);
@@ -125,8 +124,8 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 </languageproject>";
 			var listener = new ListenerForUnitTests();
 			var differ = Xml2WayDiffer.CreateFromStrings(parent, child, listener,
-				"<rt ",
-				"</languageproject>",
+				"rt",
+				"languageproject",
 				"guid");
 			differ.ReportDifferencesToListener();
 			listener.AssertExpectedChangesCount(1);
@@ -150,8 +149,8 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 </languageproject>";
 			var listener = new ListenerForUnitTests();
 			var differ = Xml2WayDiffer.CreateFromStrings(parent, child, listener,
-				"<rt ",
-				"</languageproject>",
+				"rt",
+				"languageproject",
 				"guid");
 			differ.ReportDifferencesToListener();
 			listener.AssertExpectedChangesCount(1);
@@ -184,8 +183,8 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 </languageproject>";
 			var listener = new ListenerForUnitTests();
 			var differ = Xml2WayDiffer.CreateFromStrings(parent, child, listener,
-				"<rt ",
-				"</languageproject>",
+				"rt",
+				"languageproject",
 				"guid");
 			differ.ReportDifferencesToListener();
 			listener.AssertExpectedChangesCount(0);

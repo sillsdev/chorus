@@ -109,7 +109,6 @@
 	<Compile Include="FileTypeHanders\ConflictPresenter.cs" />
 	<Compile Include="FileTypeHanders\image\ImageChangePresenter.cs" />
 	<Compile Include="FileTypeHanders\image\ImageFileTypeHandler.cs" />
-	<Compile Include="FileTypeHanders\ChorusNotesDiffer.cs" />
 	<Compile Include="FileTypeHanders\lift\WeSayConfigFileHandler.cs" />
 	<Compile Include="FileTypeHanders\oneStory\OneStoryFileHandler.cs" />
 	<Compile Include="FileTypeHanders\OurWord\OurWordFileHandler.cs" />
