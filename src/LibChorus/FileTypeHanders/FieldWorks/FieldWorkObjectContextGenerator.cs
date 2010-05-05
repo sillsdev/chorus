@@ -1,4 +1,4 @@
-using System.Xml;
+using System.Xml.Linq;
 using Chorus.merge.xml.generic;
 
 namespace Chorus.FileTypeHanders.FieldWorks
@@ -7,10 +7,9 @@ namespace Chorus.FileTypeHanders.FieldWorks
 	{
 		public ContextDescriptor GenerateContextDescriptor(string mergeElement, string filePath)
 		{
-			var doc = new XmlDocument();
-			doc.LoadXml(mergeElement);
+			var rtElement = XElement.Parse(mergeElement);
+			var label = rtElement.Attribute("class").Value + ": " + rtElement.Attribute("guid").Value;
 			// var label = doc.SelectTextPortion("entry/lexical-unit/form/text");
-			const string label = "Some object";
 			return new ContextDescriptor(label, null); // LiftUtils.GetUrl(doc.FirstChild, Path.GetFileName(filePath), label)
 		}
 	}

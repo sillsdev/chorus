@@ -69,6 +69,7 @@
 	<Compile Include="FileHandlers\FieldWorks\FieldWorksChangePresenterTests.cs" />
 	<Compile Include="FileHandlers\FieldWorks\FieldWorksFileDiffTests.cs" />
 	<Compile Include="FileHandlers\FieldWorks\FieldWorksFileHandlerTests.cs" />
+	<Compile Include="FileHandlers\FieldWorks\FieldWorksFileMergeTests.cs" />
 	<Compile Include="FileHandlers\FieldWorks\FieldWorksFileValidationTests.cs" />
 	<Compile Include="merge\xml\adaptIt\FileLevelAdaptItKnowlegeBaseMergeTests.cs" />
 	<Compile Include="merge\xml\ConflictXmlRecordRetrievalTests.cs" />

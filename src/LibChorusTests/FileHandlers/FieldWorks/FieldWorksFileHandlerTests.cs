@@ -28,18 +28,6 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 		}
 
 		[Test]
-		public void Cannot_Merge_Null_File()
-		{
-			Assert.IsFalse(m_fwFileHandler.CanMergeFile(null));
-		}
-
-		[Test, ExpectedException(typeof(NotImplementedException))]
-		public void Do3WayMerge_Throws()
-		{
-			m_fwFileHandler.Do3WayMerge(null);
-		}
-
-		[Test]
 		public void DescribeInitialContents_Should_Have_Added_For_Label()
 		{
 			var initialContents = m_fwFileHandler.DescribeInitialContents(null, null);

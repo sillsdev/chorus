@@ -30,7 +30,7 @@ namespace Chorus.FileTypeHanders
 				eventListener, parent, child,
 				startTag, fileClosingTag, identfierAttribute);
 		}
-		/// <summary>Used by unit tests only.</summary>
+
 		public static Xml2WayDiffer CreateFromStrings(string parentXml, string childXml,
 			IMergeEventListener eventListener,
 			string startTag, string fileClosingTag, string identfierAttribute)

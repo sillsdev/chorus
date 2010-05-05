@@ -26,8 +26,7 @@ namespace Chorus.FileTypeHanders.FieldWorks
 
 		public bool CanMergeFile(string pathToFile)
 		{
-			//return CheckThatInputIsValidFieldWorksFile(pathToFile);
-			return false;
+			return CheckThatInputIsValidFieldWorksFile(pathToFile);
 		}
 
 		public bool CanPresentFile(string pathToFile)
@@ -64,6 +63,7 @@ namespace Chorus.FileTypeHanders.FieldWorks
 		{
 			string pathToWinner;
 			string pathToLoser;
+			string winnerId;
 			switch (mergeOrder.MergeSituation.ConflictHandlingMode)
 			{
 				default:
@@ -71,24 +71,23 @@ namespace Chorus.FileTypeHanders.FieldWorks
 				case MergeOrder.ConflictHandlingModeChoices.WeWin:
 					pathToWinner = mergeOrder.pathToOurs;
 					pathToLoser = mergeOrder.pathToTheirs;
+					winnerId = mergeOrder.MergeSituation.AlphaUserId;
 					break;
 				case MergeOrder.ConflictHandlingModeChoices.TheyWin:
 					pathToWinner = mergeOrder.pathToTheirs;
 					pathToLoser = mergeOrder.pathToOurs;
+					winnerId = mergeOrder.MergeSituation.BetaUserId;
 					break;
 			}
 			var merger = new FieldWorksMerger(
+				mergeOrder,
 				new FieldWorksMergingStrategy(mergeOrder.MergeSituation),
-				pathToWinner, pathToLoser, mergeOrder.pathToCommonAncestor)
+				pathToWinner, pathToLoser, mergeOrder.pathToCommonAncestor, winnerId)
 					{
 						EventListener = mergeOrder.EventListener
 					};
 
-			var newContents = merger.GetMergedContents();
-			if (newContents.IndexOf('\0') != -1)
-				throw new ApplicationException("Merged XML had a null! This is very serious... please report it to the developers.");
-
-			File.WriteAllText(mergeOrder.pathToOurs, newContents);
+			merger.DoMerge(mergeOrder.pathToOurs);
 		}
 
 		public IEnumerable<IChangeReport> Find2WayDifferences(FileInRevision parent, FileInRevision child, HgRepository repository)

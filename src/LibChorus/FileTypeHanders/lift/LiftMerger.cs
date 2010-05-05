@@ -232,6 +232,8 @@ namespace Chorus.merge.xml.lift
 				&& !(LiftUtils.GetModifiedDate(betaEntry) == default(DateTime)))
 				return true;
 
+			// REVIEW JohnH(RandyR): Please look this over to see which of the three overloads of
+			// XmlUtilities.AreXmlElementsEqual ought to be used here.
 			return XmlUtilities.AreXmlElementsEqual(alphaEntry.OuterXml, betaEntry.OuterXml);
 		}
 
