@@ -81,7 +81,8 @@ namespace Chorus.FileTypeHanders.FieldWorks
 			}
 			var merger = new FieldWorksMerger(
 				mergeOrder,
-				new FieldWorksMergingStrategy(mergeOrder.MergeSituation),
+				// TODO: When the <rt> elments need more sophisticated merge strategies,
+				// TODO: then feed the FW merge strategy into the FieldWorksMerger class.
 				pathToWinner, pathToLoser, mergeOrder.pathToCommonAncestor, winnerId)
 					{
 						EventListener = mergeOrder.EventListener

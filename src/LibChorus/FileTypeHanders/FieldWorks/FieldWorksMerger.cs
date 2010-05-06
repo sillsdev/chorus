@@ -1,9 +1,7 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Xml;
-using System.Xml.Linq;
 using Chorus.FileTypeHanders.xml;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
@@ -13,16 +11,14 @@ namespace Chorus.FileTypeHanders.FieldWorks
 	public class FieldWorksMerger
 	{
 		private readonly MergeOrder m_mergeOrder;
-		private readonly IMergeStrategy m_mergeStrategy;
 		private readonly string m_winnerId;
 		private string m_winnerXml;
 		private string m_loserXml;
 		private string m_commonAncestorXml;
 
-		public FieldWorksMerger(MergeOrder mergeOrder, IMergeStrategy mergeStrategy, string pathToWinner, string pathToLoser, string pathToCommonAncestor, string winnerId)
+		public FieldWorksMerger(MergeOrder mergeOrder, string pathToWinner, string pathToLoser, string pathToCommonAncestor, string winnerId)
 		{
 			m_mergeOrder = mergeOrder;
-			m_mergeStrategy = mergeStrategy;
 			m_winnerId = winnerId;
 
 			m_winnerXml = File.ReadAllText(pathToWinner);
@@ -31,29 +27,25 @@ namespace Chorus.FileTypeHanders.FieldWorks
 		}
 
 		/// <summary>Used by tests, which prefer to give us raw contents rather than paths</summary>
-		public FieldWorksMerger(string winnerXml, string loserXml, string commonAncestorXml, IMergeStrategy mergeStrategy)
+		public FieldWorksMerger(string winnerXml, string loserXml, string commonAncestorXml)
 		{
 			m_winnerXml = winnerXml;
 			m_loserXml = loserXml;
 			m_commonAncestorXml = commonAncestorXml;
-			m_mergeStrategy = mergeStrategy;
 		}
 
-		public void DoMerge(string outputPathname)
+		private void Do2WayDiff(string parentXml, ref string childXml,
+			Dictionary<string, XmlNode> goners, Dictionary<string, ChangedElement> dirtballs, Dictionary<string, XmlNode> newbies)
 		{
-			// Do diff between winner and common
 			var winnerCommonListener = new ChangeAndConflictAccumulator();
 			var winnerDiffer = Xml2WayDiffer.CreateFromStrings(
-				m_commonAncestorXml,
-				m_winnerXml,
+				parentXml,
+				childXml,
 				winnerCommonListener,
 				"rt",
 				"languageproject",
 				"guid");
-			m_winnerXml = null;
-			var winnerGoners = new Dictionary<string, XmlNode>();
-			var winnerDirtballs = new Dictionary<string, ChangedElement>();
-			var newbies = new Dictionary<string, XmlNode>();
+			childXml = null;
 			try
 			{
 				winnerDiffer.ReportDifferencesToListener();
@@ -67,16 +59,16 @@ namespace Chorus.FileTypeHanders.FieldWorks
 					{
 						case "XmlDeletionChangeReport":
 							var gonerNode = asXmlReport.ParentNode;
-							winnerGoners.Add(gonerNode.Attributes["guid"].Value, gonerNode);
+							goners.Add(gonerNode.Attributes["guid"].Value, gonerNode);
 							break;
 						case "XmlChangedRecordReport":
 							var originalNode = asXmlReport.ParentNode;
 							var updatedNode = asXmlReport.ChildNode;
-							winnerDirtballs.Add(originalNode.Attributes["guid"].Value, new ChangedElement()
-								{
-									m_parentNode = originalNode,
-									m_childNode = updatedNode
-								});
+							dirtballs.Add(originalNode.Attributes["guid"].Value, new ChangedElement
+							{
+								m_parentNode = originalNode,
+								m_childNode = updatedNode
+							});
 							break;
 						case "XmlAdditionChangeReport":
 							var newbieNode = asXmlReport.ChildNode;
@@ -85,72 +77,37 @@ namespace Chorus.FileTypeHanders.FieldWorks
 					}
 				}
 			}
-// ReSharper disable EmptyGeneralCatchClause
+			// ReSharper disable EmptyGeneralCatchClause
 			catch { }
-// ReSharper restore EmptyGeneralCatchClause
+			// ReSharper restore EmptyGeneralCatchClause
+		}
+
+		public void DoMerge(string outputPathname)
+		{
+			// Do diff between winner and common
+			var winnerGoners = new Dictionary<string, XmlNode>();
+			var winnerDirtballs = new Dictionary<string, ChangedElement>();
+			var newbies = new Dictionary<string, XmlNode>();
+			Do2WayDiff(m_commonAncestorXml, ref m_winnerXml, winnerGoners, winnerDirtballs, newbies);
 
 			// Do diff between loser and common
-			var loserCommonListener = new ChangeAndConflictAccumulator();
-			var loserDiffer = Xml2WayDiffer.CreateFromStrings(
-				m_commonAncestorXml,
-				m_loserXml,
-				loserCommonListener,
-				"rt",
-				"languageproject",
-				"guid");
-			m_loserXml = null;
 			var loserGoners = new Dictionary<string, XmlNode>();
 			var loserDirtballs = new Dictionary<string, ChangedElement>();
-			try
-			{
-				loserDiffer.ReportDifferencesToListener();
-				foreach (var loserDif in loserCommonListener.Changes)
-				{
-					if (!(loserDif is IXmlChangeReport))
-						continue; // It could be ErrorDeterminingChangeReport, so what to do with it?
-
-					var asXmlReport = (IXmlChangeReport)loserDif;
-					switch (loserDif.GetType().Name)
-					{
-						case "XmlDeletionChangeReport":
-							var gonerNode = asXmlReport.ParentNode;
-							loserGoners.Add(gonerNode.Attributes["guid"].Value, gonerNode);
-							break;
-						case "XmlChangedRecordReport":
-							var originalNode = asXmlReport.ParentNode;
-							var updatedNode = asXmlReport.ChildNode;
-							loserDirtballs.Add(originalNode.Attributes["guid"].Value, new ChangedElement()
-								{
-									m_parentNode = originalNode,
-									m_childNode = updatedNode
-								});
-							break;
-						case "XmlAdditionChangeReport":
-							var newbieNode = asXmlReport.ChildNode;
-							newbies.Add(newbieNode.Attributes["guid"].Value, newbieNode);
-							break;
-					}
-				}
-			}
-// ReSharper disable EmptyGeneralCatchClause
-			catch { }
-// ReSharper restore EmptyGeneralCatchClause
+			Do2WayDiff(m_commonAncestorXml, ref m_loserXml, loserGoners, loserDirtballs, newbies);
 
 			// At this point we have two sets of diffs, but we need to merge them.
 			// Newbies from both get added.
 			// A conflict has 'winner' stay, but with a report.
-
-			var writerSettings = new XmlWriterSettings
-									{
-										OmitXmlDeclaration = false,
-										CheckCharacters = true,
-										ConformanceLevel = ConformanceLevel.Document,
-										Encoding = new UTF8Encoding(false),
-										Indent = true,
-										IndentChars = (""),
-										NewLineOnAttributes = false
-									};
-			using (var writer = XmlWriter.Create(outputPathname, writerSettings))
+			using (var writer = XmlWriter.Create(outputPathname, new XmlWriterSettings
+			{
+				OmitXmlDeclaration = false,
+				CheckCharacters = true,
+				ConformanceLevel = ConformanceLevel.Document,
+				Encoding = new UTF8Encoding(false),
+				Indent = true,
+				IndentChars = (""),
+				NewLineOnAttributes = false
+			}))
 			{
 				// Need a reader on 'm_commonAncestorXml', much as is done for FW, but sans thread.
 				// Blend in newbies, goners, and dirtballs to 'outputPathname' as in FW.
@@ -199,7 +156,6 @@ namespace Chorus.FileTypeHanders.FieldWorks
 							if (loserGoners.ContainsKey(currentGuid))
 							{
 								// Both deleted it.
-								winnerGoners.Remove(currentGuid);
 								loserGoners.Remove(currentGuid);
 							}
 							else
@@ -217,15 +173,11 @@ namespace Chorus.FileTypeHanders.FieldWorks
 										m_mergeOrder.MergeSituation,
 										new ElementStrategy(false),
 										m_winnerId));
-									winnerGoners.Remove(currentGuid);
 									loserDirtballs.Remove(currentGuid);
 								}
-								else
-								{
-									// Winner deleted it and loser did nothing with it.
-									winnerGoners.Remove(currentGuid);
-								}
+								// else // Winner deleted it and loser did nothing with it.
 							}
+							winnerGoners.Remove(currentGuid);
 						}
 
 						if (winnerDirtballs.ContainsKey(currentGuid))
@@ -245,21 +197,7 @@ namespace Chorus.FileTypeHanders.FieldWorks
 									new ElementStrategy(false),
 									m_winnerId));
 
-								// Replace current node.
-								readerSettings = new XmlReaderSettings
-								{
-									CheckCharacters = false,
-									ConformanceLevel = ConformanceLevel.Fragment,
-									ProhibitDtd = true,
-									ValidationType = ValidationType.None,
-									CloseInput = true,
-									IgnoreWhitespace = true
-								};
-								using (var tempReader = XmlReader.Create(new MemoryStream(enc.GetBytes(dirtballElement.m_childNode.OuterXml)), readerSettings))
-								{
-									writer.WriteNode(tempReader, false);
-								}
-
+								ReplaceCurrentNode(writer, dirtballElement.m_childNode);
 								winnerDirtballs.Remove(currentGuid);
 								loserGoners.Remove(currentGuid);
 							}
@@ -281,39 +219,13 @@ namespace Chorus.FileTypeHanders.FieldWorks
 											new ElementStrategy(false),
 											m_winnerId));
 									}
-									// Replace current node.
-									readerSettings = new XmlReaderSettings
-									{
-										CheckCharacters = false,
-										ConformanceLevel = ConformanceLevel.Fragment,
-										ProhibitDtd = true,
-										ValidationType = ValidationType.None,
-										CloseInput = true,
-										IgnoreWhitespace = true
-									};
-									using (var tempReader = XmlReader.Create(new MemoryStream(enc.GetBytes(winnerDirtballs[currentGuid].m_childNode.OuterXml)), readerSettings))
-									{
-										writer.WriteNode(tempReader, false);
-									}
+									ReplaceCurrentNode(writer, winnerDirtballs[currentGuid].m_childNode);
 									loserDirtballs.Remove(currentGuid);
 								}
 								else
 								{
 									// Winner edited it. Loser did nothing with it.
-									// Replace current node.
-									readerSettings = new XmlReaderSettings
-									{
-										CheckCharacters = false,
-										ConformanceLevel = ConformanceLevel.Fragment,
-										ProhibitDtd = true,
-										ValidationType = ValidationType.None,
-										CloseInput = true,
-										IgnoreWhitespace = true
-									};
-									using (var tempReader = XmlReader.Create(new MemoryStream(enc.GetBytes(winnerDirtballs[currentGuid].m_childNode.OuterXml)), readerSettings))
-									{
-										writer.WriteNode(tempReader, false);
-									}
+									ReplaceCurrentNode(writer, winnerDirtballs[currentGuid].m_childNode);
 									winnerDirtballs.Remove(currentGuid);
 								}
 							}
@@ -332,20 +244,7 @@ namespace Chorus.FileTypeHanders.FieldWorks
 						{
 							// Loser changed it, but winner did nothing to it.
 							transferUntouched = false;
-							// Replace current node.
-							readerSettings = new XmlReaderSettings
-							{
-								CheckCharacters = false,
-								ConformanceLevel = ConformanceLevel.Fragment,
-								ProhibitDtd = true,
-								ValidationType = ValidationType.None,
-								CloseInput = true,
-								IgnoreWhitespace = true
-							};
-							using (var tempReader = XmlReader.Create(new MemoryStream(enc.GetBytes(loserDirtballs[currentGuid].m_childNode.OuterXml)), readerSettings))
-							{
-								writer.WriteNode(tempReader, false);
-							}
+							ReplaceCurrentNode(writer, loserDirtballs[currentGuid].m_childNode);
 							loserDirtballs.Remove(currentGuid);
 						}
 
@@ -357,7 +256,7 @@ namespace Chorus.FileTypeHanders.FieldWorks
 							continue;
 						}
 
-						// Nobody did anything with the curent node, so just copy it to output.
+						// Nobody did anything with the currentsource node, so just copy it to output.
 						writer.WriteNode(reader, false);
 						keepReading = reader.IsStartElement();
 					}
@@ -374,6 +273,8 @@ namespace Chorus.FileTypeHanders.FieldWorks
 					};
 					foreach (var newby in newbies.Values)
 					{
+						// Note: If we need to put in a XmlAdditionChangeReport for newbies from 'loser',
+						// Note: then we will need two 'newbie' lists.
 						using (var nodeReader = XmlReader.Create(new MemoryStream(enc.GetBytes(newby.OuterXml)), readerSettings))
 						{
 							writer.WriteNode(nodeReader, false);
@@ -382,6 +283,24 @@ namespace Chorus.FileTypeHanders.FieldWorks
 
 					writer.WriteEndElement();
 				}
+			}
+		}
+
+		private static void ReplaceCurrentNode(XmlWriter writer, XmlNode replacementNode)
+		{
+			using (var tempReader = XmlReader.Create(
+				new MemoryStream(Encoding.UTF8.GetBytes(replacementNode.OuterXml)),
+				new XmlReaderSettings
+				{
+					CheckCharacters = false,
+					ConformanceLevel = ConformanceLevel.Fragment,
+					ProhibitDtd = true,
+					ValidationType = ValidationType.None,
+					CloseInput = true,
+					IgnoreWhitespace = true
+				}))
+			{
+				writer.WriteNode(tempReader, false);
 			}
 		}
 

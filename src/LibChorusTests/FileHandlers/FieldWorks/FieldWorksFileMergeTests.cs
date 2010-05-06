@@ -3,7 +3,9 @@ using System.IO;
 using System.Linq;
 using Chorus.FileTypeHanders;
 using Chorus.merge;
+using Chorus.merge.xml.generic;
 using LibChorus.Tests.merge.xml;
+using LibChorus.Tests.merge.xml.generic;
 using NUnit.Framework;
 
 namespace LibChorus.Tests.FileHandlers.FieldWorks
@@ -15,6 +17,7 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 	public class FieldWorksFileMergeTests
 	{
 		private IChorusFileTypeHandler m_fwFileHandler;
+		private ListenerForUnitTests m_eventListener;
 
 		[TestFixtureSetUp]
 		public void FixtureSetup()
@@ -86,6 +89,7 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 			XmlTestHelper.AssertXPathMatchesExactlyOne(result, @"languageproject/rt[@guid=""oldie""]");
 			XmlTestHelper.AssertXPathMatchesExactlyOne(result, @"languageproject/rt[@guid=""newbieOurs""]");
 			XmlTestHelper.AssertXPathMatchesExactlyOne(result, @"languageproject/rt[@guid=""newbieTheirs""]");
+			m_eventListener.AssertExpectedConflictCount(0);
 		}
 
 		[Test]
@@ -102,6 +106,7 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 			var result = DoMerge(commonAncestor, ourContent, theirContent);
 			XmlTestHelper.AssertXPathMatchesExactlyOne(result, @"languageproject/rt[@guid=""oldie""]");
 			XmlTestHelper.AssertXPathMatchesExactlyOne(result, @"languageproject/rt[@guid=""newbieOurs""]");
+			m_eventListener.AssertExpectedConflictCount(0);
 		}
 
 		[Test]
@@ -118,6 +123,7 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 			var result = DoMerge(commonAncestor, ourContent, theirContent);
 			XmlTestHelper.AssertXPathMatchesExactlyOne(result, @"languageproject/rt[@guid=""oldie""]");
 			XmlTestHelper.AssertXPathMatchesExactlyOne(result, @"languageproject/rt[@guid=""newbieTheirs""]");
+			m_eventListener.AssertExpectedConflictCount(0);
 		}
 
 		[Test]
@@ -135,6 +141,7 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 			var result = DoMerge(commonAncestor, ourContent, theirContent);
 			XmlTestHelper.AssertXPathMatchesExactlyOne(result, @"languageproject/rt[@guid=""oldie""]");
 			XmlTestHelper.AssertXPathIsNull(result, @"languageproject/rt[@guid=""goner""]");
+			m_eventListener.AssertExpectedConflictCount(0);
 		}
 
 		[Test]
@@ -152,6 +159,7 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 			var result = DoMerge(commonAncestor, ourContent, theirContent);
 			XmlTestHelper.AssertXPathMatchesExactlyOne(result, @"languageproject/rt[@guid=""oldie""]");
 			XmlTestHelper.AssertXPathIsNull(result, @"languageproject/rt[@guid=""goner""]");
+			m_eventListener.AssertExpectedConflictCount(0);
 		}
 
 		[Test]
@@ -169,6 +177,7 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 			var result = DoMerge(commonAncestor, ourContent, theirContent);
 			XmlTestHelper.AssertXPathMatchesExactlyOne(result, @"languageproject/rt[@guid=""oldie""]");
 			XmlTestHelper.AssertXPathIsNull(result, @"languageproject/rt[@guid=""goner""]");
+			m_eventListener.AssertExpectedConflictCount(0);
 		}
 
 		[Test]
@@ -187,6 +196,7 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 			XmlTestHelper.AssertXPathMatchesExactlyOne(result, @"languageproject/rt[@guid=""oldie""]");
 			XmlTestHelper.AssertXPathMatchesExactlyOne(result, @"languageproject/rt[@ownerguid=""newOwner""]");
 			XmlTestHelper.AssertXPathIsNull(result, @"languageproject/rt[@ownerguid=""originalOwner""]");
+			m_eventListener.AssertExpectedConflictCount(0);
 		}
 
 		[Test]
@@ -206,6 +216,8 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 			XmlTestHelper.AssertXPathMatchesExactlyOne(result, @"languageproject/rt[@ownerguid=""newWinningOwner""]");
 			XmlTestHelper.AssertXPathIsNull(result, @"languageproject/rt[@ownerguid=""originalOwner""]");
 			XmlTestHelper.AssertXPathIsNull(result, @"languageproject/rt[@ownerguid=""newLosingOwner""]");
+			m_eventListener.AssertExpectedConflictCount(1);
+			m_eventListener.AssertFirstConflictType<BothEditedTheSameElement>();
 		}
 
 		[Test]
@@ -224,6 +236,7 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 			XmlTestHelper.AssertXPathMatchesExactlyOne(result, @"languageproject/rt[@guid=""oldie""]");
 			XmlTestHelper.AssertXPathMatchesExactlyOne(result, @"languageproject/rt[@ownerguid=""newOwner""]");
 			XmlTestHelper.AssertXPathIsNull(result, @"languageproject/rt[@ownerguid=""originalOwner""]");
+			m_eventListener.AssertExpectedConflictCount(0);
 		}
 
 		[Test]
@@ -242,6 +255,47 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 			XmlTestHelper.AssertXPathMatchesExactlyOne(result, @"languageproject/rt[@guid=""oldie""]");
 			XmlTestHelper.AssertXPathMatchesExactlyOne(result, @"languageproject/rt[@ownerguid=""newOwner""]");
 			XmlTestHelper.AssertXPathIsNull(result, @"languageproject/rt[@ownerguid=""originalOwner""]");
+			m_eventListener.AssertExpectedConflictCount(0);
+		}
+
+		[Test]
+		public void WinnerEditedButLoserDeletedElement()
+		{
+			const string commonAncestor =
+@"<?xml version='1.0' encoding='utf-8'?>
+<languageproject version='7000016'>
+<rt guid='oldie'/>
+<rt guid='dirtball' ownerguid='originalOwner'/>
+</languageproject>";
+			var ourContent = commonAncestor.Replace("originalOwner", "newOwner");
+			var theirContent = commonAncestor.Replace("<rt guid='dirtball' ownerguid='originalOwner'/>", null);
+
+			var result = DoMerge(commonAncestor, ourContent, theirContent);
+			XmlTestHelper.AssertXPathMatchesExactlyOne(result, @"languageproject/rt[@guid=""oldie""]");
+			XmlTestHelper.AssertXPathMatchesExactlyOne(result, @"languageproject/rt[@ownerguid=""newOwner""]");
+			XmlTestHelper.AssertXPathIsNull(result, @"languageproject/rt[@ownerguid=""originalOwner""]");
+			m_eventListener.AssertExpectedConflictCount(1);
+			m_eventListener.AssertFirstConflictType<EditedVsRemovedElementConflict>();
+		}
+
+		[Test]
+		public void WinnerDeletedButLoserEditedElement()
+		{
+			const string commonAncestor =
+@"<?xml version='1.0' encoding='utf-8'?>
+<languageproject version='7000016'>
+<rt guid='oldie'/>
+<rt guid='dirtball' ownerguid='originalOwner'/>
+</languageproject>";
+			var ourContent = commonAncestor.Replace("<rt guid='dirtball' ownerguid='originalOwner'/>", null);
+			var theirContent = commonAncestor.Replace("originalOwner", "newOwner");
+
+			var result = DoMerge(commonAncestor, ourContent, theirContent);
+			XmlTestHelper.AssertXPathMatchesExactlyOne(result, @"languageproject/rt[@guid=""oldie""]");
+			XmlTestHelper.AssertXPathIsNull(result, @"languageproject/rt[@ownerguid=""originalOwner""]");
+			XmlTestHelper.AssertXPathIsNull(result, @"languageproject/rt[@ownerguid=""newOwner""]");
+			m_eventListener.AssertExpectedConflictCount(1);
+			m_eventListener.AssertFirstConflictType<RemovedVsEditedElementConflict>();
 		}
 
 		private string DoMerge(string commonAncestor, string ourContent, string theirContent)
@@ -253,6 +307,8 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 			{
 				var situation = new NullMergeSituation();
 				var mergeOrder = new MergeOrder(ours.Path, ancestor.Path, theirs.Path, situation);
+				m_eventListener = new ListenerForUnitTests();
+				mergeOrder.EventListener = m_eventListener;
 
 				m_fwFileHandler.Do3WayMerge(mergeOrder);
 				result = File.ReadAllText(ours.Path);
