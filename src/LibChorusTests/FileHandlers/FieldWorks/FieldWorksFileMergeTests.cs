@@ -80,10 +80,10 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 			const string commonAncestor =
 @"<?xml version='1.0' encoding='utf-8'?>
 <languageproject version='7000016'>
-<rt guid='oldie'/>
+<rt class='LexEntry' guid='oldie'/>
 </languageproject>";
-			var ourContent = commonAncestor.Replace("</languageproject>", "<rt guid='newbieOurs'/></languageproject>");
-			var theirContent = commonAncestor.Replace("</languageproject>", "<rt guid='newbieTheirs'/></languageproject>");
+			var ourContent = commonAncestor.Replace("</languageproject>", "<rt class='LexEntry' guid='newbieOurs'/></languageproject>");
+			var theirContent = commonAncestor.Replace("</languageproject>", "<rt class='LexEntry' guid='newbieTheirs'/></languageproject>");
 
 			var result = DoMerge(commonAncestor, ourContent, theirContent);
 			XmlTestHelper.AssertXPathMatchesExactlyOne(result, @"languageproject/rt[@guid=""oldie""]");
@@ -98,9 +98,9 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 			const string commonAncestor =
 @"<?xml version='1.0' encoding='utf-8'?>
 <languageproject version='7000016'>
-<rt guid='oldie'/>
+<rt class='LexEntry' guid='oldie'/>
 </languageproject>";
-			var ourContent = commonAncestor.Replace("</languageproject>", "<rt guid='newbieOurs'/></languageproject>");
+			var ourContent = commonAncestor.Replace("</languageproject>", "<rt class='LexEntry' guid='newbieOurs'/></languageproject>");
 			var theirContent = commonAncestor;
 
 			var result = DoMerge(commonAncestor, ourContent, theirContent);
@@ -115,10 +115,10 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 			const string commonAncestor =
 @"<?xml version='1.0' encoding='utf-8'?>
 <languageproject version='7000016'>
-<rt guid='oldie'/>
+<rt class='LexEntry' guid='oldie'/>
 </languageproject>";
 			var ourContent = commonAncestor;
-			var theirContent = commonAncestor.Replace("</languageproject>", "<rt guid='newbieTheirs'/></languageproject>");
+			var theirContent = commonAncestor.Replace("</languageproject>", "<rt class='LexEntry' guid='newbieTheirs'/></languageproject>");
 
 			var result = DoMerge(commonAncestor, ourContent, theirContent);
 			XmlTestHelper.AssertXPathMatchesExactlyOne(result, @"languageproject/rt[@guid=""oldie""]");
@@ -132,10 +132,10 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 			const string commonAncestor =
 @"<?xml version='1.0' encoding='utf-8'?>
 <languageproject version='7000016'>
-<rt guid='oldie'/>
-<rt guid='goner'/>
+<rt class='LexEntry' guid='oldie'/>
+<rt class='LexEntry' guid='goner'/>
 </languageproject>";
-			var ourContent = commonAncestor.Replace("<rt guid='goner'/>", null);
+			var ourContent = commonAncestor.Replace("<rt class='LexEntry' guid='goner'/>", null);
 			var theirContent = commonAncestor;
 
 			var result = DoMerge(commonAncestor, ourContent, theirContent);
@@ -150,11 +150,11 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 			const string commonAncestor =
 @"<?xml version='1.0' encoding='utf-8'?>
 <languageproject version='7000016'>
-<rt guid='oldie'/>
-<rt guid='goner'/>
+<rt class='LexEntry' guid='oldie'/>
+<rt class='LexEntry' guid='goner'/>
 </languageproject>";
 			var ourContent = commonAncestor;
-			var theirContent = commonAncestor.Replace("<rt guid='goner'/>", null);
+			var theirContent = commonAncestor.Replace("<rt class='LexEntry' guid='goner'/>", null);
 
 			var result = DoMerge(commonAncestor, ourContent, theirContent);
 			XmlTestHelper.AssertXPathMatchesExactlyOne(result, @"languageproject/rt[@guid=""oldie""]");
@@ -168,11 +168,11 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 			const string commonAncestor =
 @"<?xml version='1.0' encoding='utf-8'?>
 <languageproject version='7000016'>
-<rt guid='oldie'/>
-<rt guid='goner'/>
+<rt class='LexEntry' guid='oldie'/>
+<rt class='LexEntry' guid='goner'/>
 </languageproject>";
-			var ourContent = commonAncestor.Replace("<rt guid='goner'/>", null);
-			var theirContent = commonAncestor.Replace("<rt guid='goner'/>", null);
+			var ourContent = commonAncestor.Replace("<rt class='LexEntry' guid='goner'/>", null);
+			var theirContent = commonAncestor.Replace("<rt class='LexEntry' guid='goner'/>", null);
 
 			var result = DoMerge(commonAncestor, ourContent, theirContent);
 			XmlTestHelper.AssertXPathMatchesExactlyOne(result, @"languageproject/rt[@guid=""oldie""]");
@@ -186,8 +186,8 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 			const string commonAncestor =
 @"<?xml version='1.0' encoding='utf-8'?>
 <languageproject version='7000016'>
-<rt guid='oldie'/>
-<rt guid='dirtball' ownerguid='originalOwner'/>
+<rt class='LexEntry' guid='oldie'/>
+<rt class='LexEntry' guid='dirtball' ownerguid='originalOwner'/>
 </languageproject>";
 			var ourContent = commonAncestor.Replace("originalOwner", "newOwner");
 			var theirContent = commonAncestor.Replace("originalOwner", "newOwner");
@@ -205,8 +205,8 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 			const string commonAncestor =
 @"<?xml version='1.0' encoding='utf-8'?>
 <languageproject version='7000016'>
-<rt guid='oldie'/>
-<rt guid='dirtball' ownerguid='originalOwner'/>
+<rt class='LexEntry' guid='oldie'/>
+<rt class='LexEntry' guid='dirtball' ownerguid='originalOwner'/>
 </languageproject>";
 			var ourContent = commonAncestor.Replace("originalOwner", "newWinningOwner");
 			var theirContent = commonAncestor.Replace("originalOwner", "newLosingOwner");
@@ -217,7 +217,7 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 			XmlTestHelper.AssertXPathIsNull(result, @"languageproject/rt[@ownerguid=""originalOwner""]");
 			XmlTestHelper.AssertXPathIsNull(result, @"languageproject/rt[@ownerguid=""newLosingOwner""]");
 			m_eventListener.AssertExpectedConflictCount(1);
-			m_eventListener.AssertFirstConflictType<BothEditedTheSameElement>();
+			m_eventListener.AssertFirstConflictType<BothEditedAttributeConflict>();
 		}
 
 		[Test]
@@ -226,8 +226,8 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 			const string commonAncestor =
 @"<?xml version='1.0' encoding='utf-8'?>
 <languageproject version='7000016'>
-<rt guid='oldie'/>
-<rt guid='dirtball' ownerguid='originalOwner'/>
+<rt class='LexEntry' guid='oldie'/>
+<rt class='LexEntry' guid='dirtball' ownerguid='originalOwner'/>
 </languageproject>";
 			var ourContent = commonAncestor.Replace("originalOwner", "newOwner");
 			var theirContent = commonAncestor;
@@ -245,8 +245,8 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 			const string commonAncestor =
 @"<?xml version='1.0' encoding='utf-8'?>
 <languageproject version='7000016'>
-<rt guid='oldie'/>
-<rt guid='dirtball' ownerguid='originalOwner'/>
+<rt class='LexEntry' guid='oldie'/>
+<rt class='LexEntry' guid='dirtball' ownerguid='originalOwner'/>
 </languageproject>";
 			var ourContent = commonAncestor;
 			var theirContent = commonAncestor.Replace("originalOwner", "newOwner");
@@ -264,11 +264,11 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 			const string commonAncestor =
 @"<?xml version='1.0' encoding='utf-8'?>
 <languageproject version='7000016'>
-<rt guid='oldie'/>
-<rt guid='dirtball' ownerguid='originalOwner'/>
+<rt class='LexEntry' guid='oldie'/>
+<rt class='LexEntry' guid='dirtball' ownerguid='originalOwner'/>
 </languageproject>";
 			var ourContent = commonAncestor.Replace("originalOwner", "newOwner");
-			var theirContent = commonAncestor.Replace("<rt guid='dirtball' ownerguid='originalOwner'/>", null);
+			var theirContent = commonAncestor.Replace("<rt class='LexEntry' guid='dirtball' ownerguid='originalOwner'/>", null);
 
 			var result = DoMerge(commonAncestor, ourContent, theirContent);
 			XmlTestHelper.AssertXPathMatchesExactlyOne(result, @"languageproject/rt[@guid=""oldie""]");
@@ -284,10 +284,10 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 			const string commonAncestor =
 @"<?xml version='1.0' encoding='utf-8'?>
 <languageproject version='7000016'>
-<rt guid='oldie'/>
-<rt guid='dirtball' ownerguid='originalOwner'/>
+<rt class='LexEntry' guid='oldie'/>
+<rt class='LexEntry' guid='dirtball' ownerguid='originalOwner'/>
 </languageproject>";
-			var ourContent = commonAncestor.Replace("<rt guid='dirtball' ownerguid='originalOwner'/>", null);
+			var ourContent = commonAncestor.Replace("<rt class='LexEntry' guid='dirtball' ownerguid='originalOwner'/>", null);
 			var theirContent = commonAncestor.Replace("originalOwner", "newOwner");
 
 			var result = DoMerge(commonAncestor, ourContent, theirContent);

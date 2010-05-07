@@ -9,8 +9,7 @@ namespace Chorus.FileTypeHanders.FieldWorks
 		{
 			var rtElement = XElement.Parse(mergeElement);
 			var label = rtElement.Attribute("class").Value + ": " + rtElement.Attribute("guid").Value;
-			// var label = doc.SelectTextPortion("entry/lexical-unit/form/text");
-			return new ContextDescriptor(label, null); // LiftUtils.GetUrl(doc.FirstChild, Path.GetFileName(filePath), label)
+			return new ContextDescriptor(label, null);
 		}
 	}
 }

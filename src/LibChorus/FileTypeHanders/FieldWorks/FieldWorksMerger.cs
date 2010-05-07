@@ -11,14 +11,16 @@ namespace Chorus.FileTypeHanders.FieldWorks
 	public class FieldWorksMerger
 	{
 		private readonly MergeOrder m_mergeOrder;
+		private readonly IMergeStrategy m_mergeStategy;
 		private readonly string m_winnerId;
 		private string m_winnerXml;
 		private string m_loserXml;
 		private string m_commonAncestorXml;
 
-		public FieldWorksMerger(MergeOrder mergeOrder, string pathToWinner, string pathToLoser, string pathToCommonAncestor, string winnerId)
+		public FieldWorksMerger(MergeOrder mergeOrder, IMergeStrategy mergeStategy, string pathToWinner, string pathToLoser, string pathToCommonAncestor, string winnerId)
 		{
 			m_mergeOrder = mergeOrder;
+			m_mergeStategy = mergeStategy;
 			m_winnerId = winnerId;
 
 			m_winnerXml = File.ReadAllText(pathToWinner);
@@ -206,20 +208,14 @@ namespace Chorus.FileTypeHanders.FieldWorks
 								if (loserDirtballs.ContainsKey(currentGuid))
 								{
 									// Both edited it. Check it out.
+									var mergedResult = winnerDirtballs[currentGuid].m_childNode.OuterXml;
 									if (!XmlUtilities.AreXmlElementsEqual(winnerDirtballs[currentGuid].m_childNode, loserDirtballs[currentGuid].m_childNode))
 									{
-										// Different changes, so report conflict.
 										var dirtballElement = winnerDirtballs[currentGuid];
-										EventListener.ConflictOccurred(new BothEditedTheSameElement(
-											"rt",
-											dirtballElement.m_childNode,
-											loserDirtballs[currentGuid].m_childNode,
-											dirtballElement.m_parentNode,
-											m_mergeOrder.MergeSituation,
-											new ElementStrategy(false),
-											m_winnerId));
+										mergedResult = m_mergeStategy.MakeMergedEntry(EventListener, dirtballElement.m_childNode,
+																	   loserDirtballs[currentGuid].m_childNode, dirtballElement.m_parentNode);
 									}
-									ReplaceCurrentNode(writer, winnerDirtballs[currentGuid].m_childNode);
+									ReplaceCurrentNode(writer, mergedResult);
 									loserDirtballs.Remove(currentGuid);
 								}
 								else
@@ -288,8 +284,13 @@ namespace Chorus.FileTypeHanders.FieldWorks
 
 		private static void ReplaceCurrentNode(XmlWriter writer, XmlNode replacementNode)
 		{
+			ReplaceCurrentNode(writer, replacementNode.OuterXml);
+		}
+
+		private static void ReplaceCurrentNode(XmlWriter writer, string replacementValue)
+		{
 			using (var tempReader = XmlReader.Create(
-				new MemoryStream(Encoding.UTF8.GetBytes(replacementNode.OuterXml)),
+				new MemoryStream(Encoding.UTF8.GetBytes(replacementValue)),
 				new XmlReaderSettings
 				{
 					CheckCharacters = false,
