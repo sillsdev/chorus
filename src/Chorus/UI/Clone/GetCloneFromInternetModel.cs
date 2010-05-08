@@ -18,8 +18,8 @@ namespace Chorus.UI.Clone
 			ParentDirectoryToPutCloneIn = parentDirectoryToPutCloneIn;
 
 			string languageDepotLabel = "languageDepot.org";
-			Servers.Add(languageDepotLabel, "hg-public.languageDepot.org");
-			Servers.Add("private.languageDepot.org", "hg-private.languageDepot.org");
+			Servers.Add(languageDepotLabel, "hg-public.languagedepot.org");
+			Servers.Add("private.languageDepot.org", "hg-private.languagedepot.org");
 			Servers.Add("Custom Location...", "");
 			SelectedServerLabel = languageDepotLabel;
 		}
