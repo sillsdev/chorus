@@ -7,6 +7,7 @@ using Chorus.FileTypeHanders.lift;
 using Chorus.FileTypeHanders.oneStory;
 using Chorus.FileTypeHanders.test;
 using Chorus.FileTypeHanders.OurWord;
+using Chorus.FileTypeHanders.text;
 using Chorus.merge;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;

@@ -1,6 +1,6 @@
+using Chorus.FileTypeHanders.lift;
 using Chorus.FileTypeHanders.xml;
 using Chorus.merge.xml.generic;
-using Chorus.merge.xml.lift;
 using LibChorus.Tests.merge.xml.generic;
 using NUnit.Framework;
 

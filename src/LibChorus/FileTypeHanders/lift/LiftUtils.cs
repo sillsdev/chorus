@@ -2,7 +2,7 @@ using System;
 using System.Xml;
 using Chorus.merge.xml.generic;
 
-namespace Chorus.merge.xml.lift
+namespace Chorus.FileTypeHanders.lift
 {
 	public static class LiftUtils
 	{

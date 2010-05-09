@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using Chorus.notes;
+using Chorus.UI.Notes.Html;
 using Chorus.UI.Review;
 using Message=Chorus.notes.Message;
 

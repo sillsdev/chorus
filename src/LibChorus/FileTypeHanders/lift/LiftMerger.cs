@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Xml;
@@ -8,8 +7,7 @@ using Chorus.FileTypeHanders.xml;
 using Chorus.merge.xml.generic;
 using Chorus.Utilities;
 
-
-namespace Chorus.merge.xml.lift
+namespace Chorus.FileTypeHanders.lift
 {
 	/// <summary>
 	/// This is used by version control systems to do an intelligent 3-way merge of lift files.

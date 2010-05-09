@@ -3,7 +3,6 @@ using System.IO;
 using System.Xml;
 using Chorus.FileTypeHanders.xml;
 using Chorus.merge.xml.generic;
-using Chorus.merge.xml.lift;
 using Chorus.VcsDrivers.Mercurial;
 
 

@@ -5,12 +5,10 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 using Chorus.merge;
-using Chorus.merge.text;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
 
-
-namespace Chorus.FileTypeHanders
+namespace Chorus.FileTypeHanders.text
 {
 
 

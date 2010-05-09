@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Linq;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -8,8 +7,6 @@ using System.Net.NetworkInformation;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading;
-using System.Windows.Forms;
 using Chorus.Utilities;
 using Chorus.Utilities.code;
 using Nini.Ini;
@@ -28,16 +25,9 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		public static string GetEnvironmentReadinessMessage(string messageLanguageId)
 		{
-//
-//            var startInfo = new ProcessStartInfo();
-//            startInfo.FileName = "hg";
-//            startInfo.Arguments = "version";
-//            startInfo.CreateNoWindow = true;
-//            startInfo.UseShellExecute = false;
 			try
 			{
 				HgRunner.Run("hg version", Environment.CurrentDirectory, 5, new NullProgress());
-			   // System.Diagnostics.Process.Start(startInfo);
 			}
 			catch (Exception)
 			{

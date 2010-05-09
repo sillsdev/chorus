@@ -6,7 +6,6 @@ using System.Text;
 using Chorus.FileTypeHanders.lift;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
-using Chorus.merge.xml.lift;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
 

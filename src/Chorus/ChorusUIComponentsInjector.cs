@@ -9,6 +9,7 @@ using Chorus.UI.Misc;
 using Chorus.UI.Notes;
 using Chorus.UI.Notes.Bar;
 using Chorus.UI.Notes.Browser;
+using Chorus.UI.Notes.Html;
 using Chorus.UI.Review;
 using Chorus.UI.Review.ChangedReport;
 using Chorus.UI.Review.ChangesInRevision;

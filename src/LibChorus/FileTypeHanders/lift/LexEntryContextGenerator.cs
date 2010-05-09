@@ -2,7 +2,6 @@ using System;
 using System.IO;
 using System.Xml;
 using Chorus.merge.xml.generic;
-using Chorus.merge.xml.lift;
 
 namespace Chorus.FileTypeHanders.lift
 {

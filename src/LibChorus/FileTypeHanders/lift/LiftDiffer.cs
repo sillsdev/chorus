@@ -6,8 +6,7 @@ using Chorus.FileTypeHanders.xml;
 using Chorus.merge.xml.generic;
 using Chorus.VcsDrivers.Mercurial;
 
-
-namespace Chorus.merge.xml.lift
+namespace Chorus.FileTypeHanders.lift
 {
 
 	/// <summary>

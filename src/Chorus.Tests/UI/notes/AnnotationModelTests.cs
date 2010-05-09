@@ -9,6 +9,7 @@ using Chorus.notes;
 using Chorus.sync;
 using Chorus.UI;
 using Chorus.UI.Notes;
+using Chorus.UI.Notes.Html;
 using Chorus.UI.Review;
 using Chorus.Utilities;
 using NUnit.Framework;

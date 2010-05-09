@@ -757,7 +757,7 @@ namespace Chorus.merge.xml.generic
 		// Sort _positions by Key, then if keys are equal, by current position (just use merge sort).
 		private void SortPositions()
 		{
-			com.focuspoint.collections.algorithms.MergeSort.Sort(_positions, new PositionRecordComparer());
+			MergeSort.Sort(_positions, new PositionRecordComparer());
 		}
 
 		internal List<XmlNode> GetResultList()

@@ -1,6 +1,6 @@
 using System.Text;
 using System.Xml;
-using Chorus.merge.xml.lift;
+using Chorus.FileTypeHanders.lift;
 
 namespace Chorus.merge.xml.generic
 {

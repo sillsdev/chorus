@@ -4,10 +4,9 @@ using System.Linq;
 using System.Windows.Forms;
 using Chorus.notes;
 using Chorus.Properties;
-using Chorus.UI.Notes.Bar;
 using Chorus.Utilities;
 
-namespace Chorus.UI.Notes
+namespace Chorus.UI.Notes.Bar
 {
 	public partial class NotesBarView : UserControl
 	{
