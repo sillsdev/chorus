@@ -61,7 +61,8 @@ namespace Chorus.VcsDrivers.Mercurial
 			{
 				const int ERROR_FILE_NOT_FOUND = 2;
 
-				if (error.NativeErrorCode == ERROR_FILE_NOT_FOUND)
+				if (error.NativeErrorCode == ERROR_FILE_NOT_FOUND &&
+					!commandLine.Contains("version"))//don't recurse if the readinessMessage itself is what failed
 				{
 					string msg = HgRepository.GetEnvironmentReadinessMessage("en");
 					if(!string.IsNullOrEmpty(msg))

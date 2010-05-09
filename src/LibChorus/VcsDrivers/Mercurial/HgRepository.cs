@@ -28,14 +28,16 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		public static string GetEnvironmentReadinessMessage(string messageLanguageId)
 		{
-			var startInfo = new ProcessStartInfo();
-			startInfo.FileName = "hg";
-			startInfo.Arguments = "version";
-			startInfo.CreateNoWindow = true;
-			startInfo.UseShellExecute = false;
+//
+//            var startInfo = new ProcessStartInfo();
+//            startInfo.FileName = "hg";
+//            startInfo.Arguments = "version";
+//            startInfo.CreateNoWindow = true;
+//            startInfo.UseShellExecute = false;
 			try
 			{
-				System.Diagnostics.Process.Start(startInfo);
+				HgRunner.Run("hg version", Environment.CurrentDirectory, 5, new NullProgress());
+			   // System.Diagnostics.Process.Start(startInfo);
 			}
 			catch (Exception)
 			{
