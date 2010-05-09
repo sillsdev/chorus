@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using Chorus;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
 using NUnit.Framework;
@@ -303,5 +304,55 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 //            hg.GetTip();
 //            Assert.IsTrue(progress.Text.Contains("Error"));
 //        }
+
+		[Test, ExpectedException(typeof(FileNotFoundException))]
+		public void PathToMercurialFolder_DirOKButHgMissing_Throws()
+		{
+			using (var folder = new TempFolder("HgWrappingTest"))
+			using(new ShortTermMercurialPathSetting(folder.Path))
+			{
+				MercurialLocation.PathToMercurialFolder = folder.Path;
+			}
+		}
+
+		/// <summary>
+		/// this tests that it's really using the hg we say to use
+		/// </summary>
+		[Test, ExpectedException(typeof(Exception))]
+		public void Run_IndicatedHgExecutableIsBogus_Throws()
+		{
+			using(var folder = new TempFolder("HgWrappingTest"))
+			{
+				//make a bogus exe
+				File.WriteAllText(folder.Combine("hg.exe"),@"hello");
+				using (new ShortTermMercurialPathSetting(folder.Path))
+				{
+					HgRunner.Run("version", Environment.CurrentDirectory, 2, new NullProgress());
+				}
+			}
+		}
+
+	}
+
+	/// <summary>
+	/// this lets us safely use this static without messing up other tests
+	/// </summary>
+	internal class ShortTermMercurialPathSetting : IDisposable
+	{
+		private readonly string _oldValue;
+
+		public ShortTermMercurialPathSetting(string path)
+		{
+			_oldValue = MercurialLocation.PathToMercurialFolder;
+			MercurialLocation.PathToMercurialFolder = path;
+		}
+
+		///<summary>
+		///Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+		///</summary>
+		public virtual void Dispose()
+		{
+			MercurialLocation.PathToMercurialFolder = _oldValue;
+		}
 	}
 }

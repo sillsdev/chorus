@@ -50,7 +50,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			process.StartInfo.UseShellExecute = false;
 			process.StartInfo.CreateNoWindow = true;
 			process.StartInfo.WorkingDirectory = fromDirectory;
-			process.StartInfo.FileName = "hg";
+			process.StartInfo.FileName = MercurialLocation.PathToHgExecutable;
 			process.StartInfo.Arguments = commandLine.Replace("hg ", ""); //we don't want the whole command line, just the args portion
 
 			try
