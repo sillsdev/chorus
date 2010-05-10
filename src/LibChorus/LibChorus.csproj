@@ -282,5 +282,6 @@ copy $(OutDir)..\..\lib\diff3\bin\*.* $(OutDir)diff3\bin\
 </PostBuildEvent>
 	<ProjectGuid>{94245366-8F1E-475C-810D-FE89BB3948E0}</ProjectGuid>
 	<RootNamespace>Chorus</RootNamespace>
+	<PreBuildEvent>REM IF NOT EXIST $(OutDir)\..\COMMON\MERCURIAL (ECHO ********* developer: please unzip lib\net2.0\mercurial.zip To output\common\)</PreBuildEvent>
   </PropertyGroup>
 </Project>
