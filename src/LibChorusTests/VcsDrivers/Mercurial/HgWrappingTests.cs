@@ -17,20 +17,14 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 	public class HgWrappingTests
 	{
 		private ConsoleProgress _progress;
-		private UseMercurialInChorusCodeDirectory _mercurialLocation;
 
 		[SetUp]
 		public void Setup()
 		{
 			_progress = new ConsoleProgress();
-			_mercurialLocation = new UseMercurialInChorusCodeDirectory();
 		}
 
-		[TearDown]
-		public void TearDown()
-		{
-			_mercurialLocation.Dispose();
-		}
+
 
 		[Test]
 		public void RemoveOldLocks_NoLocks_ReturnsTrue()

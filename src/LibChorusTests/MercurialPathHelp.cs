@@ -27,6 +27,8 @@ namespace LibChorus.Tests
 		}
 	}
 
+/*NO LONGER NEEDED, AS THE SYSTEM DETECTS AND CHOOSES APPROPRIATELY
+
 	/// <summary>
 	/// most tests should create this in setup and remove it in teardown
 	/// </summary>
@@ -37,4 +39,5 @@ namespace LibChorus.Tests
 		{
 		}
 	}
+ */
 }
