@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using Chorus.Utilities;
 using Chorus.Utilities.code;
 
 namespace Chorus// DON'T MOVE THIS! It needs to be super easy for the client to find
 {
 	/// <summary>
-	/// Used to customize where Chorus looks to run hg
+	/// Used to customize where Chorus looks to run hg. If you have a Mercurial folder in with the executables, or in ../common/
+	/// then it will be found for you without you ever looking at this class.
 	/// </summary>
 	public class MercurialLocation
 	{
@@ -17,7 +19,11 @@ namespace Chorus// DON'T MOVE THIS! It needs to be super easy for the client to 
 		/// </summary>
 		public static string PathToMercurialFolder
 		{
-			get { return _pathToMercurialFolder; }
+			get
+			{
+				GuessAtLocationIfNotSetAlready();
+				return _pathToMercurialFolder;
+			}
 			set
 			{
 				if(string.IsNullOrEmpty(value))//was reset to default
@@ -42,9 +48,34 @@ namespace Chorus// DON'T MOVE THIS! It needs to be super easy for the client to 
 		{
 			get
 			{
+				GuessAtLocationIfNotSetAlready();
+
 				if(string.IsNullOrEmpty(_pathToMercurialFolder))
 					return "hg"; //rely on the PATH
 				return Path.Combine(_pathToMercurialFolder, "hg");
+			}
+		}
+
+		private static void GuessAtLocationIfNotSetAlready()
+		{
+			if (!string.IsNullOrEmpty(_pathToMercurialFolder))
+			{
+				return;
+			}
+
+			var guess = Path.Combine(ExecutionEnvironment.DirectoryOfExecutingAssembly,"mercurial");
+			if(Directory.Exists(guess))
+			{
+				MercurialLocation.PathToMercurialFolder = guess;
+				return;
+			}
+
+			//in case we're running off the source code directory
+			guess = Path.Combine(ExecutionEnvironment.DirectoryOfExecutingAssembly+"//..//common", "mercurial");
+			if (Directory.Exists(guess))
+			{
+				MercurialLocation.PathToMercurialFolder = guess;
+				return;
 			}
 		}
 	}

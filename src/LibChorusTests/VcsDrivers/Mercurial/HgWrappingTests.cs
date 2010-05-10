@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Reflection;
 using Chorus;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
@@ -16,11 +17,19 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 	public class HgWrappingTests
 	{
 		private ConsoleProgress _progress;
+		private UseMercurialInChorusCodeDirectory _mercurialLocation;
 
 		[SetUp]
 		public void Setup()
 		{
 			_progress = new ConsoleProgress();
+			_mercurialLocation = new UseMercurialInChorusCodeDirectory();
+		}
+
+		[TearDown]
+		public void TearDown()
+		{
+			_mercurialLocation.Dispose();
 		}
 
 		[Test]
@@ -334,25 +343,5 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 
 	}
 
-	/// <summary>
-	/// this lets us safely use this static without messing up other tests
-	/// </summary>
-	internal class ShortTermMercurialPathSetting : IDisposable
-	{
-		private readonly string _oldValue;
 
-		public ShortTermMercurialPathSetting(string path)
-		{
-			_oldValue = MercurialLocation.PathToMercurialFolder;
-			MercurialLocation.PathToMercurialFolder = path;
-		}
-
-		///<summary>
-		///Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-		///</summary>
-		public virtual void Dispose()
-		{
-			MercurialLocation.PathToMercurialFolder = _oldValue;
-		}
-	}
 }

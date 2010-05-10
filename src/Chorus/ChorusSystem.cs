@@ -19,25 +19,25 @@ namespace Chorus
 {
 	public class ChorusSystem :IDisposable
 	{
-		private readonly string _folderPath;
+		private readonly string _dataFolderPath;
 		private readonly IChorusUser _user;
 		private readonly IContainer _container;
 		internal readonly Dictionary<string, AnnotationRepository> _annotationRepositories = new Dictionary<string, AnnotationRepository>();
 		private bool _searchedForAllExistingNotesFiles;
 
 
-		public ChorusSystem(string folderPath)
+		public ChorusSystem(string dataFolderPath)
 		{
 			WritingSystems = new List<IWritingSystem>(new []{new EnglishWritingSystem()});
 
-			_folderPath = folderPath;
-			var hgrepo = HgRepository.CreateOrLocate(folderPath, new NullProgress());
+			_dataFolderPath = dataFolderPath;
+			var hgrepo = HgRepository.CreateOrLocate(dataFolderPath, new NullProgress());
 			var builder = new Autofac.Builder.ContainerBuilder();
 
-			builder.Register<ProjectFolderConfiguration>(c => new ProjectFolderConfiguration(folderPath));
+			builder.Register<ProjectFolderConfiguration>(c => new ProjectFolderConfiguration(dataFolderPath));
 			builder.Register<IEnumerable<IWritingSystem>>(c=>WritingSystems);
 
-			ChorusUIComponentsInjector.Inject(builder, folderPath);
+			ChorusUIComponentsInjector.Inject(builder, dataFolderPath);
 
 			_user  =new ChorusUser(hgrepo.GetUserIdInUse());
 			builder.Register<IChorusUser>(_user);
@@ -124,7 +124,7 @@ namespace Chorus
 			if(!_searchedForAllExistingNotesFiles)
 			{
 				var progress = new NullProgress();
-				foreach (var repo in AnnotationRepository.CreateRepositoriesFromFolder(_folderPath, progress))
+				foreach (var repo in AnnotationRepository.CreateRepositoriesFromFolder(_dataFolderPath, progress))
 				{
 					if (!_annotationRepositories.ContainsKey(repo.AnnotationFilePath))
 					{
