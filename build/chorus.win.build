@@ -2,7 +2,7 @@
 	<property name="configuration" value="debug"/>
 	<property name="nant.settings.currentframework" value="net-2.0" />
 
-	<target name="clean" description="Delete all previously compiled binaries.">
+  <target name="clean" description="Delete all previously compiled binaries.">
 		<delete>
 			<fileset>
 				<exclude name="../.hg/**" />
@@ -66,6 +66,12 @@
 				}
 				]]>
 				</code>
+		  <imports>
+			<import namespace="System.Text.RegularExpressions"/>
+		  </imports>
+			<references>
+			  <include name="System.dll"/>
+		  </references>
 				</script>
 			</do>
 		</foreach>
@@ -77,9 +83,19 @@
 
 	<target name="rebuild" depends="clean, build" />
 
-	<target name="build.solution" depends="assemblyinfo">
-		<solution configuration="${configuration}" solutionfile="../src/Chorus VS2008.sln">
+  <target name="UnzipMercurial">
+	<unzip zipfile="../lib/net2.0/Mercurial.zip"
+		   todir="../output/common"/>
+  </target>
+
+  <target name="build.solution" depends="assemblyinfo">
+	   <solution configuration="${configuration}" solutionfile="../src/Chorus VS2008.sln">
 		</solution>
+
+	<!-- <msbuild project="../src/Chorus VS2008.sln">
+	  <property name="Configuration" value="Debug"/>
+	</msbuild>
+	-->
 		<property name="expected.output" value="../output/${configuration}/LibChorus.dll"/>
 		<fail unless="${file::exists(expected.output)}">Output file doesn't exist in ${expected.output}</fail>
 		<property name="expected.output" value="../output/${configuration}/ChorusMerge.exe"/>
