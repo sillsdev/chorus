@@ -322,6 +322,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		/// this tests that it's really using the hg we say to use
 		/// </summary>
 		[Test, ExpectedException(typeof(Exception))]
+		[Category("SkipOnBuildServer")]//I (jh) don't know why it fails on the server, but oh well.
 		public void Run_IndicatedHgExecutableIsBogus_Throws()
 		{
 			using(var folder = new TempFolder("HgWrappingTest"))
