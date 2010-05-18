@@ -105,5 +105,25 @@ namespace Chorus.Utilities
 			var result = Regex.Match(uri.UserInfo, @"([^:]*):(.*)");
 			return result.Groups[2].Value;
 		}
+
+		public static string GetPathAfterHost(string url)
+		{
+			Uri uri;
+			if (!Uri.TryCreate(url, UriKind.Absolute, out uri))
+			{
+				return string.Empty;
+			}
+			return uri.PathAndQuery.Trim(new char[] {'/'});
+		}
+
+		public static string GetHost(string url)
+		{
+			Uri uri;
+			if (!Uri.TryCreate(url, UriKind.Absolute, out uri))
+			{
+				return string.Empty;
+			}
+			return uri.Host;
+		}
 	}
 }

@@ -28,47 +28,11 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
-			this._chorusGetHgLink = new System.Windows.Forms.LinkLabel();
-			this._chorusGetTortoiseLink = new System.Windows.Forms.LinkLabel();
-			this._chorusReadinessMessage = new System.Windows.Forms.Label();
 			this._warningImage = new System.Windows.Forms.PictureBox();
+			this._editServerInfoButton = new System.Windows.Forms.Button();
+			this._chorusReadinessMessage = new Chorus.UI.BetterLabel();
 			((System.ComponentModel.ISupportInitialize)(this._warningImage)).BeginInit();
 			this.SuspendLayout();
-			//
-			// _chorusGetHgLink
-			//
-			this._chorusGetHgLink.AutoSize = true;
-			this._chorusGetHgLink.LinkArea = new System.Windows.Forms.LinkArea(4, 28);
-			this._chorusGetHgLink.Location = new System.Drawing.Point(3, 56);
-			this._chorusGetHgLink.Name = "_chorusGetHgLink";
-			this._chorusGetHgLink.Size = new System.Drawing.Size(145, 17);
-			this._chorusGetHgLink.TabIndex = 7;
-			this._chorusGetHgLink.TabStop = true;
-			this._chorusGetHgLink.Text = "Or, get Mercurial alone here";
-			this._chorusGetHgLink.UseCompatibleTextRendering = true;
-			this._chorusGetHgLink.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.OnGetMercurialClicked);
-			//
-			// _chorusGetTortoiseLink
-			//
-			this._chorusGetTortoiseLink.AutoSize = true;
-			this._chorusGetTortoiseLink.Location = new System.Drawing.Point(3, 41);
-			this._chorusGetTortoiseLink.Name = "_chorusGetTortoiseLink";
-			this._chorusGetTortoiseLink.Size = new System.Drawing.Size(222, 13);
-			this._chorusGetTortoiseLink.TabIndex = 6;
-			this._chorusGetTortoiseLink.TabStop = true;
-			this._chorusGetTortoiseLink.Text = "Get TortoiseHg GUI package at SourceForge";
-			this._chorusGetTortoiseLink.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.OnGetTortoiseHgClicked);
-			//
-			// _chorusReadinessMessage
-			//
-			this._chorusReadinessMessage.AutoSize = true;
-			this._chorusReadinessMessage.ForeColor = System.Drawing.Color.Black;
-			this._chorusReadinessMessage.Location = new System.Drawing.Point(56, 0);
-			this._chorusReadinessMessage.MaximumSize = new System.Drawing.Size(500, 0);
-			this._chorusReadinessMessage.Name = "_chorusReadinessMessage";
-			this._chorusReadinessMessage.Size = new System.Drawing.Size(141, 13);
-			this._chorusReadinessMessage.TabIndex = 8;
-			this._chorusReadinessMessage.Text = "Chorus Message Goes here.";
 			//
 			// _warningImage
 			//
@@ -80,16 +44,41 @@
 			this._warningImage.TabIndex = 9;
 			this._warningImage.TabStop = false;
 			//
+			// _editServerInfoButton
+			//
+			this._editServerInfoButton.Location = new System.Drawing.Point(46, 52);
+			this._editServerInfoButton.Name = "_editServerInfoButton";
+			this._editServerInfoButton.Size = new System.Drawing.Size(171, 22);
+			this._editServerInfoButton.TabIndex = 10;
+			this._editServerInfoButton.Text = "Send/Receive Server Settings...";
+			this._editServerInfoButton.UseVisualStyleBackColor = true;
+			this._editServerInfoButton.Click += new System.EventHandler(this._editServerInfoButton_Click);
+			//
+			// _chorusReadinessMessage
+			//
+			this._chorusReadinessMessage.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+						| System.Windows.Forms.AnchorStyles.Right)));
+			this._chorusReadinessMessage.BorderStyle = System.Windows.Forms.BorderStyle.None;
+			this._chorusReadinessMessage.Font = new System.Drawing.Font("Segoe UI", 9F);
+			this._chorusReadinessMessage.Location = new System.Drawing.Point(41, 3);
+			this._chorusReadinessMessage.Multiline = true;
+			this._chorusReadinessMessage.Name = "_chorusReadinessMessage";
+			this._chorusReadinessMessage.ReadOnly = true;
+			this._chorusReadinessMessage.Size = new System.Drawing.Size(377, 46);
+			this._chorusReadinessMessage.TabIndex = 11;
+			this._chorusReadinessMessage.TabStop = false;
+			this._chorusReadinessMessage.Text = "Chorus Readiness Message Will Go Here";
+			//
 			// ReadinessPanel
 			//
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.Controls.Add(this._warningImage);
 			this.Controls.Add(this._chorusReadinessMessage);
-			this.Controls.Add(this._chorusGetHgLink);
-			this.Controls.Add(this._chorusGetTortoiseLink);
+			this.Controls.Add(this._editServerInfoButton);
+			this.Controls.Add(this._warningImage);
 			this.Name = "ReadinessPanel";
 			this.Size = new System.Drawing.Size(439, 90);
+			this.Load += new System.EventHandler(this.ReadinessPanel_Load);
 			this.Resize += new System.EventHandler(this.ReadinessPanel_Resize);
 			((System.ComponentModel.ISupportInitialize)(this._warningImage)).EndInit();
 			this.ResumeLayout(false);
@@ -99,9 +88,8 @@
 
 		#endregion
 
-		private System.Windows.Forms.LinkLabel _chorusGetHgLink;
-		private System.Windows.Forms.LinkLabel _chorusGetTortoiseLink;
-		private System.Windows.Forms.Label _chorusReadinessMessage;
 		private System.Windows.Forms.PictureBox _warningImage;
+		private System.Windows.Forms.Button _editServerInfoButton;
+		private BetterLabel _chorusReadinessMessage;
 	}
 }

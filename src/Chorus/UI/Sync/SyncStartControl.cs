@@ -57,7 +57,7 @@ namespace Chorus.UI.Sync
 
 			try
 			{
-				address = GetDefaultNetworkAddress<DirectoryRepositorySource>();
+				address = Repository.GetDefaultNetworkAddress<DirectoryRepositorySource>();
 			}
 			catch(Exception error)//probably, hgrc is locked
 			{
@@ -83,7 +83,7 @@ namespace Chorus.UI.Sync
 			RepositoryAddress address;
 			try
 			{
-				address = GetDefaultNetworkAddress<HttpRepositoryPath>();
+				address = Repository.GetDefaultNetworkAddress<HttpRepositoryPath>();
 			}
 			catch (Exception error)//probably, hgrc is locked
 			{
@@ -141,34 +141,7 @@ namespace Chorus.UI.Sync
 		}
 
 
-		/// <exception cref="Exception">This will throw when the hgrc is locked</exception>
-		private RepositoryAddress GetDefaultNetworkAddress<T>()
-		{
-			//the first one found in the default list
-			try
-			{
-				var paths = Repository.GetRepositoryPathsInHgrc();
-				var networkPaths = paths.Where(p => p is T);
 
-				//none found in the hgrc
-				if (networkPaths.Count() == 0) //nb: because of lazy eval, the hgrc lock exception can happen here
-					return null;
-
-
-				var defaultAliases = Repository.GetDefaultSyncAliases();
-
-				foreach (var path in networkPaths)
-				{
-					if (defaultAliases.Any(a => a == path.Name))
-						return path;
-				}
-				return networkPaths.First();
-			}
-			catch (Exception error) //this would happen if the hgrc was locked
-			{
-				throw;
-			}
-		}
 
 		private void _useUSBButton_Click(object sender, EventArgs e)
 		{
@@ -183,7 +156,7 @@ namespace Chorus.UI.Sync
 		{
 			if (RepositoryChosen != null)
 			{
-				RepositoryChosen.Invoke(this, new SyncStartArgs(GetDefaultNetworkAddress<HttpRepositoryPath>(), _commitMessageText.Text));
+				RepositoryChosen.Invoke(this, new SyncStartArgs(Repository.GetDefaultNetworkAddress<HttpRepositoryPath>(), _commitMessageText.Text));
 			}
 
 		}
@@ -192,7 +165,7 @@ namespace Chorus.UI.Sync
 		{
 			if (RepositoryChosen != null)
 			{
-				var address = GetDefaultNetworkAddress<DirectoryRepositorySource>();
+				var address = Repository.GetDefaultNetworkAddress<DirectoryRepositorySource>();
 				RepositoryChosen.Invoke(this, new SyncStartArgs(address, _commitMessageText.Text));
 			}
 		}

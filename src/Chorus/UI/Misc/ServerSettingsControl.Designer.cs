@@ -1,6 +1,6 @@
-﻿namespace Chorus.UI.Clone
+﻿namespace Chorus.UI.Misc
 {
-	partial class InternetCloneInstructionsControl
+	partial class ServerSettingsControl
 	{
 		/// <summary>
 		/// Required designer variable.
@@ -29,8 +29,6 @@
 		private void InitializeComponent()
 		{
 			this.components = new System.ComponentModel.Container();
-			this._localFolderName = new System.Windows.Forms.TextBox();
-			this._targetWarningImage = new System.Windows.Forms.PictureBox();
 			this._projectIdLabel = new System.Windows.Forms.Label();
 			this._accountLabel = new System.Windows.Forms.Label();
 			this._passwordLabel = new System.Windows.Forms.Label();
@@ -39,34 +37,10 @@
 			this._password = new System.Windows.Forms.TextBox();
 			this._serverCombo = new System.Windows.Forms.ComboBox();
 			this.label1 = new System.Windows.Forms.Label();
-			this.label6 = new System.Windows.Forms.Label();
 			this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
 			this._customUrl = new System.Windows.Forms.TextBox();
-			this._downloadButton = new System.Windows.Forms.Button();
 			this._customUrlLabel = new System.Windows.Forms.Label();
-			this._targetInfoLabel = new Chorus.UI.BetterLabel();
-			((System.ComponentModel.ISupportInitialize)(this._targetWarningImage)).BeginInit();
 			this.SuspendLayout();
-			//
-			// _localFolderName
-			//
-			this._localFolderName.Location = new System.Drawing.Point(110, 213);
-			this._localFolderName.Name = "_localFolderName";
-			this._localFolderName.Size = new System.Drawing.Size(166, 20);
-			this._localFolderName.TabIndex = 3;
-			this.toolTip1.SetToolTip(this._localFolderName, "What to call this project");
-			this._localFolderName.TextChanged += new System.EventHandler(this._localName_TextChanged);
-			//
-			// _targetWarningImage
-			//
-			this._targetWarningImage.Image = global::Chorus.Properties.Resources.warningImage;
-			this._targetWarningImage.Location = new System.Drawing.Point(282, 207);
-			this._targetWarningImage.Name = "_targetWarningImage";
-			this._targetWarningImage.Size = new System.Drawing.Size(26, 33);
-			this._targetWarningImage.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-			this._targetWarningImage.TabIndex = 20;
-			this._targetWarningImage.TabStop = false;
-			this._targetWarningImage.Visible = false;
 			//
 			// _projectIdLabel
 			//
@@ -147,15 +121,6 @@
 			this.label1.TabIndex = 26;
 			this.label1.Text = "Server";
 			//
-			// label6
-			//
-			this.label6.AutoSize = true;
-			this.label6.Location = new System.Drawing.Point(28, 191);
-			this.label6.Name = "label6";
-			this.label6.Size = new System.Drawing.Size(182, 13);
-			this.label6.TabIndex = 26;
-			this.label6.Text = "Name for the folder on your computer";
-			//
 			// _customUrl
 			//
 			this._customUrl.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
@@ -166,16 +131,6 @@
 			this._customUrl.TabIndex = 6;
 			this._customUrl.TextChanged += new System.EventHandler(this._customUrl_TextChanged);
 			//
-			// _downloadButton
-			//
-			this._downloadButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this._downloadButton.Location = new System.Drawing.Point(5, 312);
-			this._downloadButton.Name = "_downloadButton";
-			this._downloadButton.Size = new System.Drawing.Size(94, 23);
-			this._downloadButton.TabIndex = 4;
-			this._downloadButton.Text = "&Download";
-			this._downloadButton.UseVisualStyleBackColor = true;
-			//
 			// _customUrlLabel
 			//
 			this._customUrlLabel.AutoSize = true;
@@ -185,46 +140,23 @@
 			this._customUrlLabel.TabIndex = 29;
 			this._customUrlLabel.Text = "URL";
 			//
-			// _targetInfoLabel
-			//
-			this._targetInfoLabel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-						| System.Windows.Forms.AnchorStyles.Right)));
-			this._targetInfoLabel.BackColor = System.Drawing.SystemColors.Control;
-			this._targetInfoLabel.BorderStyle = System.Windows.Forms.BorderStyle.None;
-			this._targetInfoLabel.Font = new System.Drawing.Font("Segoe UI", 9F);
-			this._targetInfoLabel.ForeColor = System.Drawing.Color.DimGray;
-			this._targetInfoLabel.Location = new System.Drawing.Point(30, 239);
-			this._targetInfoLabel.Multiline = true;
-			this._targetInfoLabel.Name = "_targetInfoLabel";
-			this._targetInfoLabel.ReadOnly = true;
-			this._targetInfoLabel.Size = new System.Drawing.Size(370, 54);
-			this._targetInfoLabel.TabIndex = 25;
-			this._targetInfoLabel.TabStop = false;
-			this._targetInfoLabel.Text = "runtime info";
-			//
 			// InternetCloneInstructionsControl
 			//
 			this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
 			this.Controls.Add(this._customUrlLabel);
 			this.Controls.Add(this._customUrl);
-			this.Controls.Add(this._downloadButton);
 			this.Controls.Add(this._serverCombo);
-			this.Controls.Add(this.label6);
 			this.Controls.Add(this._passwordLabel);
 			this.Controls.Add(this._accountLabel);
 			this.Controls.Add(this.label1);
 			this.Controls.Add(this._projectIdLabel);
-			this.Controls.Add(this._targetInfoLabel);
-			this.Controls.Add(this._targetWarningImage);
-			this.Controls.Add(this._localFolderName);
 			this.Controls.Add(this._password);
 			this.Controls.Add(this._accountName);
 			this.Controls.Add(this._projectId);
-			this.MinimumSize = new System.Drawing.Size(430, 300);
+			this.MinimumSize = new System.Drawing.Size(430, 200);
 			this.Name = "InternetCloneInstructionsControl";
-			this.Size = new System.Drawing.Size(430, 338);
-			this.Load += new System.EventHandler(this.InternetCloneInstructionsControl_Load);
-			((System.ComponentModel.ISupportInitialize)(this._targetWarningImage)).EndInit();
+			this.Size = new System.Drawing.Size(430, 200);
+			this.Load += new System.EventHandler(this.OnLoad);
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -232,9 +164,6 @@
 
 		#endregion
 
-		private System.Windows.Forms.TextBox _localFolderName;
-		private System.Windows.Forms.PictureBox _targetWarningImage;
-		private BetterLabel _targetInfoLabel;
 		private System.Windows.Forms.Label _projectIdLabel;
 		private System.Windows.Forms.Label _accountLabel;
 		private System.Windows.Forms.Label _passwordLabel;
@@ -243,9 +172,7 @@
 		private System.Windows.Forms.TextBox _password;
 		private System.Windows.Forms.ComboBox _serverCombo;
 		private System.Windows.Forms.Label label1;
-		private System.Windows.Forms.Label label6;
 		private System.Windows.Forms.ToolTip toolTip1;
-		public System.Windows.Forms.Button _downloadButton;
 		private System.Windows.Forms.TextBox _customUrl;
 		private System.Windows.Forms.Label _customUrlLabel;
 	}

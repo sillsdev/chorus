@@ -34,9 +34,9 @@
 			this._menu = new System.Windows.Forms.ToolStripMenuItem();
 			this._showDetailsMenu = new System.Windows.Forms.ToolStripMenuItem();
 			this.copyToClipboardToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this._runDiagnostics = new System.Windows.Forms.ToolStripMenuItem();
 			this.panel1 = new System.Windows.Forms.Panel();
 			this._reportProblemLink = new System.Windows.Forms.LinkLabel();
-			this._runDiagnostics = new System.Windows.Forms.ToolStripMenuItem();
 			this.menuStrip1.SuspendLayout();
 			this.SuspendLayout();
 			//
@@ -77,7 +77,7 @@
 			this.menuStrip1.Location = new System.Drawing.Point(-2, 155);
 			this.menuStrip1.Name = "menuStrip1";
 			this.menuStrip1.Padding = new System.Windows.Forms.Padding(0, 2, 0, 2);
-			this.menuStrip1.Size = new System.Drawing.Size(122, 24);
+			this.menuStrip1.Size = new System.Drawing.Size(30, 24);
 			this.menuStrip1.TabIndex = 4;
 			this.menuStrip1.Text = "menuStrip1";
 			this.menuStrip1.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.menuStrip1_ItemClicked);
@@ -107,6 +107,13 @@
 			this.copyToClipboardToolStripMenuItem.Text = "CopyTo Clipboard";
 			this.copyToClipboardToolStripMenuItem.Click += new System.EventHandler(this.copyToClipboardToolStripMenuItem_Click);
 			//
+			// _runDiagnostics
+			//
+			this._runDiagnostics.Name = "_runDiagnostics";
+			this._runDiagnostics.Size = new System.Drawing.Size(171, 22);
+			this._runDiagnostics.Text = "Run diagnostics";
+			this._runDiagnostics.Click += new System.EventHandler(this.OnRunDiagnosticsClick);
+			//
 			// panel1
 			//
 			this.panel1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
@@ -123,23 +130,16 @@
 			//
 			this._reportProblemLink.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
 			this._reportProblemLink.AutoSize = true;
-			this._reportProblemLink.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this._reportProblemLink.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this._reportProblemLink.LinkColor = System.Drawing.Color.Red;
 			this._reportProblemLink.Location = new System.Drawing.Point(22, 157);
 			this._reportProblemLink.Name = "_reportProblemLink";
-			this._reportProblemLink.Size = new System.Drawing.Size(311, 20);
+			this._reportProblemLink.Size = new System.Drawing.Size(246, 17);
 			this._reportProblemLink.TabIndex = 6;
 			this._reportProblemLink.TabStop = true;
 			this._reportProblemLink.Text = "Report this problem to the developers";
 			this._reportProblemLink.Visible = false;
 			this._reportProblemLink.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this._reportProblemLink_LinkClicked);
-			//
-			// _runDiagnostics
-			//
-			this._runDiagnostics.Name = "_runDiagnostics";
-			this._runDiagnostics.Size = new System.Drawing.Size(171, 22);
-			this._runDiagnostics.Text = "Run diagnostics";
-			this._runDiagnostics.Click += new System.EventHandler(this.OnRunDiagnosticsClick);
 			//
 			// LogBox
 			//
