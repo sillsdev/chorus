@@ -37,6 +37,37 @@ namespace Chorus.VcsDrivers.Mercurial
 		}
 
 
+		/// <exception cref="Exception">This will throw when the hgrc is locked</exception>
+		public RepositoryAddress GetDefaultNetworkAddress<T>()
+		{
+			//the first one found in the default list
+			try
+			{
+				var paths = GetRepositoryPathsInHgrc();
+				var networkPaths = paths.Where(p => p is T);
+
+				//none found in the hgrc
+				if (networkPaths.Count() == 0) //nb: because of lazy eval, the hgrc lock exception can happen here
+					return null;
+
+
+				var defaultAliases = GetDefaultSyncAliases();
+
+				foreach (var path in networkPaths)
+				{
+					RepositoryAddress path1 = path;//avoid "acces to modified closure"
+					if (defaultAliases.Any(a => a == path1.Name))
+						return path;
+				}
+				return networkPaths.First();
+			}
+			catch (Exception error) //this would happen if the hgrc was locked
+			{
+				throw;
+			}
+		}
+
+
 		/// <summary>
 		/// Given a file path or directory path, first try to find an existing repository at this
 		/// location or in one of its parents.  If not found, create one at this location.
@@ -1554,6 +1585,52 @@ namespace Chorus.VcsDrivers.Mercurial
 		private bool GetHasOneOrMoreChangeSets()
 		{
 			return GetTip() != null;
+		}
+
+		/// <summary>
+		/// Tells whether is looks like we have enough information to attempt an internet send/receive
+		/// </summary>
+		/// <param name="message">An english string which will convey the readiness status</param>
+		/// <returns></returns>
+		public bool GetIsReadyForInternetSendReceive(out string message)
+		{
+			var address = GetDefaultNetworkAddress<HttpRepositoryPath>();
+
+			if (address==null || string.IsNullOrEmpty(address.URI))
+			{
+				message = "The address of the server is empty.";
+				return false;
+			}
+
+			Uri uri;
+			if (!Uri.TryCreate(address.URI, UriKind.Absolute, out uri))
+			{
+				message = "The address of the server has problems.";
+				return false;
+			}
+
+			if (string.IsNullOrEmpty(uri.PathAndQuery))
+			{
+				message = string.Format("The project name at {0} is missing.", uri.Host);
+				return false;
+			}
+
+			if (string.IsNullOrEmpty(address.UserName))
+			{
+				message = "The account name is missing.";
+				return false;
+			}
+
+			if (string.IsNullOrEmpty(address.Password))
+			{
+				message = string.Format("The password for {0} is missing.", uri.Host);
+				return false;
+			}
+
+			message = string.Format("Ready to send/receive to {0} with project '{1}' and user '{2}'",
+				uri.Host, uri.PathAndQuery.Trim(new char[]{'/'}), address.UserName);
+
+			return true;
 		}
 	}
 

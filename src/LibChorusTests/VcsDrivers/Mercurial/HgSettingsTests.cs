@@ -56,6 +56,43 @@ two = http://foo.com");
 			}
 		}
 
+
+
+		private bool GetIsReady(string pathsSectionContents)
+		{
+			string contents = @"[paths]" + Environment.NewLine + pathsSectionContents+Environment.NewLine;
+
+			using (var testRoot = new TempFolder("ChorusHgSettingsTest"))
+			{
+				HgRepository.CreateRepositoryInExistingDir(testRoot.Path, _progress);
+				File.WriteAllText(testRoot.Combine(Path.Combine(".hg", "hgrc")), contents);
+				var repo = new HgRepository(testRoot.Path, _progress);
+				string msg;
+				bool ready= repo.GetIsReadyForInternetSendReceive(out msg);
+				Console.WriteLine(msg);
+				return ready;
+			}
+		}
+
+
+		[Test]
+		public void GetIsReadyForInternetSendReceive_NoPaths_ReturnsFalse()
+		{
+			Assert.IsFalse(GetIsReady(@""));
+		}
+
+		[Test]
+		public void GetIsReadyForInternetSendReceive_MissingUserName_ReturnsFalse()
+		{
+			Assert.IsFalse(GetIsReady(@"LanguageDepot = http://hg-public.languagedepot.org/xyz"));
+		}
+
+		[Test]
+		public void GetIsReadyForInternetSendReceive_HasFullLangDepotUrl_ReturnsTrue()
+		{
+			Assert.IsTrue(GetIsReady(@"LanguageDepot = http://joe_user:xyz@hg-public.languagedepot.org/xyz"));
+		}
+
 		[Test]
 		public void GetUserName_NameInLocalReop_GetsName()
 		{
