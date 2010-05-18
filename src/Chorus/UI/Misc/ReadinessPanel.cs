@@ -4,6 +4,7 @@ using System.Windows.Forms;
 using Chorus.UI.Clone;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
+using Palaso.Code;
 
 namespace Chorus.UI.Misc
 {
@@ -43,6 +44,7 @@ namespace Chorus.UI.Misc
 
 		private void ReadinessPanel_Load(object sender, EventArgs e)
 		{
+			RequireThat.Directory(ProjectFolderPath).Exists();
 			var repo = new HgRepository(ProjectFolderPath, new NullProgress());
 			string message;
 			var ready = repo.GetIsReadyForInternetSendReceive(out message);
@@ -53,6 +55,7 @@ namespace Chorus.UI.Misc
 		private void _editServerInfoButton_Click(object sender, EventArgs e)
 		{
 			var model = new ServerSettingsModel();
+			model.InitFromProjectPath(ProjectFolderPath);
 			using (var dlg = new Chorus.UI.Misc.ServerSettingsDialog(model))
 			{
 				dlg.ShowDialog();

@@ -60,7 +60,10 @@ namespace Chorus.UI.Clone
 			{
 				this.Size = new Size(this.Width,_targetFolderControl.Bottom + 30);
 			}
+			_targetFolderControl.TabIndex = 1;
 			this.Controls.Add(_targetFolderControl);
+			_okButton.TabIndex = 90;
+			_cancelButton.TabIndex = 91;
 
 			_fixSettingsButton.Left = _cancelButton.Left;
 			 _targetFolderControl._downloadButton.Top = _okButton.Top-_targetFolderControl.Top	;
