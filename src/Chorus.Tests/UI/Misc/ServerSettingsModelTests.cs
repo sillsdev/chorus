@@ -47,6 +47,14 @@ namespace Chorus.Tests.UI.Misc
 			Assert.AreEqual("languageDepot.org", m.SelectedServerLabel);
 		}
 		[Test]
+		public void InitFromUri_FullPrivateLangDepot_SelectedServerLabel()
+		{
+			var m = new ServerSettingsModel();
+			m.InitFromUri("http://joe:pass@hg-private.languagedepot.org/tpi");
+			Assert.AreEqual("private.LanguageDepot.org".ToLower(), m.SelectedServerLabel.ToLower());
+		}
+
+		[Test]
 		public void InitFromUri_FullTypicalLangDepot_CustomUrlFalse()
 		{
 			var m = new ServerSettingsModel();
@@ -54,6 +62,13 @@ namespace Chorus.Tests.UI.Misc
 			Assert.IsFalse(m.CustomUrlSelected);
 		}
 
+		[Test]
+		public void InitFromUri_HasFolderDesignator_IdIsCorrect()
+		{
+			var m = new ServerSettingsModel();
+			m.InitFromUri("http://joe:pass@hg-public.languagedepot.org/tpi?localFolder=foo");
+			Assert.AreEqual("tpi", m.ProjectId);
+		}
 
 		[Test]
 		public void InitFromUri_UnknownHttpGiven_CustomUrlIsTrue()

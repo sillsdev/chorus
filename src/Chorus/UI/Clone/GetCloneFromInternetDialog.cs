@@ -212,6 +212,8 @@ namespace Chorus.UI.Clone
 				default:
 					throw new ArgumentOutOfRangeException();
 			}
+
+			_serverSettingsControl.Visible = _targetFolderControl.Visible;
 		}
 
 		private void OnLoad(object sender, EventArgs e)

@@ -13,6 +13,12 @@ namespace Chorus.Tests.UI.Clone
 			LaunchCustomUrl("http://joe:pass@hg-public.languagedepot.org/tpi");
 		}
 
+		[Test, Ignore("Run by hand only")]
+		public void LaunchDialog_CustomAddress()
+		{
+			LaunchCustomUrl(@"\\myserver/tpi");
+		}
+
 		private void LaunchCustomUrl(string url)
 		{
 			var model = new ServerSettingsModel();

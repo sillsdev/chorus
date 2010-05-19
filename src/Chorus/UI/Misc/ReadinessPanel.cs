@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
-using Chorus.UI.Clone;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
 using Palaso.Code;
@@ -26,17 +25,6 @@ namespace Chorus.UI.Misc
 		/// </summary>
 		public string ProjectFolderPath { get; set; }
 
-//
-//        private void OnGetTortoiseHgClicked(object sender, System.Windows.Forms.LinkLabelLinkClickedEventArgs e)
-//        {
-//            Process.Start(@"http://sourceforge.net/project/showfiles.php?group_id=199155");
-//        }
-//
-//        private void OnGetMercurialClicked(object sender, System.Windows.Forms.LinkLabelLinkClickedEventArgs e)
-//        {
-//            Process.Start(@"http://mercurial.selenic.com/wiki/BinaryPackages");
-//        }
-
 		private void ReadinessPanel_Resize(object sender, EventArgs e)
 		{
 			_chorusReadinessMessage.MaximumSize = new Size(this.Width -(10+ _chorusReadinessMessage.Left), 0);
@@ -44,6 +32,7 @@ namespace Chorus.UI.Misc
 
 		private void ReadinessPanel_Load(object sender, EventArgs e)
 		{
+			BackColor = Parent.BackColor;
 			RequireThat.Directory(ProjectFolderPath).Exists();
 			var repo = new HgRepository(ProjectFolderPath, new NullProgress());
 			string message;
@@ -56,7 +45,7 @@ namespace Chorus.UI.Misc
 		{
 			var model = new ServerSettingsModel();
 			model.InitFromProjectPath(ProjectFolderPath);
-			using (var dlg = new Chorus.UI.Misc.ServerSettingsDialog(model))
+			using (var dlg = new ServerSettingsDialog(model))
 			{
 				dlg.ShowDialog();
 			}

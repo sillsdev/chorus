@@ -106,6 +106,9 @@ namespace Chorus.Utilities
 			return result.Groups[2].Value;
 		}
 
+		/// <summary>
+		/// gives path only, not including any query part
+		/// </summary>
 		public static string GetPathAfterHost(string url)
 		{
 			Uri uri;
@@ -113,7 +116,13 @@ namespace Chorus.Utilities
 			{
 				return string.Empty;
 			}
-			return uri.PathAndQuery.Trim(new char[] {'/'});
+			var s = uri.PathAndQuery;
+			var i = s.IndexOf('?');
+			if(i>=0)
+			{
+				s = s.Substring(0, i);
+			}
+			return s.Trim(new char[] {'/'});
 		}
 
 		public static string GetHost(string url)

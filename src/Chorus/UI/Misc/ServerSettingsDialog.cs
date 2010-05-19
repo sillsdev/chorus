@@ -18,6 +18,8 @@ namespace Chorus.UI.Misc
 			_serverSettingsControl = new ServerSettingsControl(model);
 			_serverSettingsControl.TabIndex = 0;
 			_serverSettingsControl.Anchor = (AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right);
+			_serverSettingsControl.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+			this.Width = _serverSettingsControl.Width + 30;
 			this.Controls.Add(_serverSettingsControl);
 		}
 
