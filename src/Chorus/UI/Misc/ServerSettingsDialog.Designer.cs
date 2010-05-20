@@ -68,7 +68,7 @@
 			this.Name = "ServerSettingsDialog";
 			this.ShowIcon = false;
 			this.ShowInTaskbar = false;
-			this.Text = "Internet Send/Receive Settings...";
+			this.Text = "Send/Receive Server Settings...";
 			this.ResumeLayout(false);
 
 		}

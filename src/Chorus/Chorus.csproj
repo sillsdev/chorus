@@ -123,12 +123,6 @@
 	<Compile Include="UI\Misc\ProxySettingsView.Designer.cs">
 	  <DependentUpon>ProxySettingsView.cs</DependentUpon>
 	</Compile>
-	<Compile Include="UI\Misc\ReadinessDialog.cs">
-	  <SubType>Form</SubType>
-	</Compile>
-	<Compile Include="UI\Misc\ReadinessDialog.Designer.cs">
-	  <DependentUpon>ReadinessDialog.cs</DependentUpon>
-	</Compile>
 	<Compile Include="UI\Misc\TroubleshootingView.cs">
 	  <SubType>UserControl</SubType>
 	</Compile>
@@ -360,9 +354,6 @@
 	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Misc\ProxySettingsView.resx">
 	  <DependentUpon>ProxySettingsView.cs</DependentUpon>
-	</EmbeddedResource>
-	<EmbeddedResource Include="UI\Misc\ReadinessDialog.resx">
-	  <DependentUpon>ReadinessDialog.cs</DependentUpon>
 	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Misc\TroubleshootingView.resx">
 	  <DependentUpon>TroubleshootingView.cs</DependentUpon>

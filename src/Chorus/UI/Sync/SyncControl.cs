@@ -261,7 +261,7 @@ namespace Chorus.UI.Sync
 
 		private void SyncControl_Resize(object sender, EventArgs e)
 		{
-			_statusText.MaximumSize = new Size(_sendReceiveButton.Left - 20, 0);
+			_statusText.MaximumSize = new Size((_sendReceiveButton.Left-_statusText.Left) - 20, _statusText.Height);
 		}
 
 		private void _showCancelButtonTimer_Tick(object sender, EventArgs e)

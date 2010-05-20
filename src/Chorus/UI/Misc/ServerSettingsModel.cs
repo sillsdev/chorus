@@ -184,7 +184,31 @@ namespace Chorus.UI.Misc
 				throw new ArgumentException("SaveSettings() only works if you InitFromProjectPath()");
 			}
 			var repo = HgRepository.CreateOrLocate(_pathToRepo, new NullProgress());
-			repo.SetKnownRepositoryAddresses(new[]{new HttpRepositoryPath("default", URL, false)});
+
+			repo.SetKnownRepositoryAddresses(new[]{new HttpRepositoryPath(AliasName, URL, false)});
+		}
+
+		public string AliasName
+		{
+			get
+			{
+				if (CustomUrlSelected)
+				{
+					Uri uri;
+					if (Uri.TryCreate(URL, UriKind.Absolute, out uri))
+					{
+						return uri.Host;
+					}
+					else
+					{
+						return "custom";
+					}
+				}
+				else
+				{
+					return SelectedServerLabel.Replace(" ","");
+				}
+			}
 		}
 
 		/// <summary>

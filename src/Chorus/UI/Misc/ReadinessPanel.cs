@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.IO;
 using System.Windows.Forms;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
@@ -18,6 +19,7 @@ namespace Chorus.UI.Misc
 		{
 			InitializeComponent();
 			BorderStyle = System.Windows.Forms.BorderStyle.None;//having some trouble with this
+			_showSettingsLink.Font = SystemFonts.DialogFont;
 		}
 
 		/// <summary>
@@ -27,13 +29,26 @@ namespace Chorus.UI.Misc
 
 		private void ReadinessPanel_Resize(object sender, EventArgs e)
 		{
-			_chorusReadinessMessage.MaximumSize = new Size(this.Width -(10+ _chorusReadinessMessage.Left), 0);
+			_chorusReadinessMessage.MaximumSize = new Size(this.Width -(10+ _chorusReadinessMessage.Left), _chorusReadinessMessage.Height);
 		}
 
 		private void ReadinessPanel_Load(object sender, EventArgs e)
 		{
 			BackColor = Parent.BackColor;
-			RequireThat.Directory(ProjectFolderPath).Exists();
+//kill designer in clients
+			//RequireThat.Directory(ProjectFolderPath).Exists();
+//instead
+			if (!Directory.Exists(ProjectFolderPath))
+			{
+				_chorusReadinessMessage.Text = "ProjectFolderPath will need a valid path, at runtime.";
+				return;
+			}
+
+			UpdateDisplay();
+		}
+
+		private void UpdateDisplay()
+		{
 			var repo = new HgRepository(ProjectFolderPath, new NullProgress());
 			string message;
 			var ready = repo.GetIsReadyForInternetSendReceive(out message);
@@ -41,13 +56,21 @@ namespace Chorus.UI.Misc
 			_chorusReadinessMessage.Text = message;
 		}
 
-		private void _editServerInfoButton_Click(object sender, EventArgs e)
+		private void ReadinessPanel_FontChanged(object sender, EventArgs e)
+		{
+			_chorusReadinessMessage.Font = this.Font;
+			_showSettingsLink.Font = this.Font;
+			betterLabel1.Font = new Font(this.Font,FontStyle.Bold);
+		}
+
+		private void _showSettingsLink_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
 		{
 			var model = new ServerSettingsModel();
 			model.InitFromProjectPath(ProjectFolderPath);
 			using (var dlg = new ServerSettingsDialog(model))
 			{
 				dlg.ShowDialog();
+				UpdateDisplay();
 			}
 		}
 	}
