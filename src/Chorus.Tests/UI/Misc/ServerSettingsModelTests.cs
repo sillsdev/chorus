@@ -108,7 +108,7 @@ namespace Chorus.Tests.UI.Misc
 				Assert.IsTrue(File.Exists(folder.Combine(".hg","hgrc")));
 				var repo =HgRepository.CreateOrLocate(folder.Path, new NullProgress());
 				var address = repo.GetDefaultNetworkAddress<HttpRepositoryPath>();
-				Assert.AreEqual("default", address.Name);
+				Assert.AreEqual("languageDepot.org".ToLower(), address.Name.ToLower());
 				Assert.AreEqual(url, address.URI);
 			}
 		}
