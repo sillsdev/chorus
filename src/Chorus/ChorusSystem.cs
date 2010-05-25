@@ -28,7 +28,7 @@ namespace Chorus
 
 		public ChorusSystem(string dataFolderPath)
 		{
-			WritingSystems = new List<IWritingSystem>(new []{new EnglishWritingSystem()});
+			WritingSystems = new List<IWritingSystem>{new EnglishWritingSystem(), new ThaiWritingSystem()};
 
 			_dataFolderPath = dataFolderPath;
 			var hgrepo = HgRepository.CreateOrLocate(dataFolderPath, new NullProgress());
