@@ -18,7 +18,7 @@ namespace LibChorus.Tests.sync
 		[SetUp]
 		public void Setup()
 		{
-			_pathToTestRoot = Path.Combine(Path.GetTempPath(), "ChorusTest");
+			_pathToTestRoot = Path.Combine(Path.GetTempPath(), "ChorusSyncScenarioTests");
 			if(Directory.Exists(_pathToTestRoot))
 				Directory.Delete(_pathToTestRoot, true);
 			Directory.CreateDirectory(_pathToTestRoot);

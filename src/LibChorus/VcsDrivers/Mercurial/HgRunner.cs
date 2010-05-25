@@ -85,7 +85,23 @@ namespace Chorus.VcsDrivers.Mercurial
 			if (!processReader.Read(ref process, secondsBeforeTimeOut, progress))
 			{
 				timedOut = !progress.CancelRequested;
-				process.Kill();
+				try
+				{
+					if (process.HasExited)
+					{
+						progress.WriteWarning("Process exited, cancelRequested was {0}", progress.CancelRequested);
+					}
+					else
+					{
+						progress.WriteWarning("Killing Process...");
+						process.Kill();
+					}
+				}
+				catch(Exception e)
+				{
+					progress.WriteWarning("Exception while killing process, as though the process reader failed to notice that the process was over: {0}", e.Message);
+					progress.WriteWarning("Process.HasExited={0}", process.HasExited.ToString());
+				}
 			}
 			result.StandardOutput = processReader.StandardOutput;
 			result.StandardError = processReader.StandardError;
