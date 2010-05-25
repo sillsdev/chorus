@@ -99,7 +99,7 @@ namespace Chorus.Tests
 		   {
 			   Thread.Sleep(100);
 			   Application.DoEvents(); //else the background worker may starve
-			   if ((DateTime.Now.Subtract(start).Minutes > 0))
+			   if ((DateTime.Now.Subtract(start).Minutes > 1))
 			   {
 				   Assert.Fail("Gave up waiting.");
 			   }

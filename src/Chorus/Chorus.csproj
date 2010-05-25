@@ -84,12 +84,18 @@
 	<Compile Include="UI\BetterLabel.designer.cs">
 	  <DependentUpon>BetterLabel.cs</DependentUpon>
 	</Compile>
-	<Compile Include="UI\Clone\GetCloneFromInternetModel.cs" />
-	<Compile Include="UI\Clone\InternetCloneInstructionsControl.cs">
+	<Compile Include="UI\Misc\ServerSettingsControl.cs">
 	  <SubType>UserControl</SubType>
 	</Compile>
-	<Compile Include="UI\Clone\InternetCloneInstructionsControl.Designer.cs">
-	  <DependentUpon>InternetCloneInstructionsControl.cs</DependentUpon>
+	<Compile Include="UI\Misc\ServerSettingsControl.Designer.cs">
+	  <DependentUpon>ServerSettingsControl.cs</DependentUpon>
+	</Compile>
+	<Compile Include="UI\Clone\GetCloneFromInternetModel.cs" />
+	<Compile Include="UI\Clone\TargetFolderControl.cs">
+	  <SubType>UserControl</SubType>
+	</Compile>
+	<Compile Include="UI\Clone\TargetFolderControl.Designer.cs">
+	  <DependentUpon>TargetFolderControl.cs</DependentUpon>
 	</Compile>
 	<Compile Include="UI\Clone\GetCloneFromInternetDialog.cs">
 	  <SubType>Form</SubType>
@@ -103,6 +109,7 @@
 	<Compile Include="UI\Clone\GetCloneFromUsbDialog.Designer.cs">
 	  <DependentUpon>GetCloneFromUsbDialog.cs</DependentUpon>
 	</Compile>
+	<Compile Include="UI\Misc\ServerSettingsModel.cs" />
 	<Compile Include="UI\Misc\LogBox.cs">
 	  <SubType>UserControl</SubType>
 	</Compile>
@@ -115,12 +122,6 @@
 	</Compile>
 	<Compile Include="UI\Misc\ProxySettingsView.Designer.cs">
 	  <DependentUpon>ProxySettingsView.cs</DependentUpon>
-	</Compile>
-	<Compile Include="UI\Misc\ReadinessDialog.cs">
-	  <SubType>Form</SubType>
-	</Compile>
-	<Compile Include="UI\Misc\ReadinessDialog.Designer.cs">
-	  <DependentUpon>ReadinessDialog.cs</DependentUpon>
 	</Compile>
 	<Compile Include="UI\Misc\TroubleshootingView.cs">
 	  <SubType>UserControl</SubType>
@@ -283,6 +284,12 @@
 	<Compile Include="UI\Settings\SetupPanel.Designer.cs">
 	  <DependentUpon>SetupPanel.cs</DependentUpon>
 	</Compile>
+	<Compile Include="UI\Misc\ServerSettingsDialog.cs">
+	  <SubType>Form</SubType>
+	</Compile>
+	<Compile Include="UI\Misc\ServerSettingsDialog.Designer.cs">
+	  <DependentUpon>ServerSettingsDialog.cs</DependentUpon>
+	</Compile>
 	<Compile Include="UI\Sync\SyncControl.cs">
 	  <SubType>UserControl</SubType>
 	</Compile>
@@ -326,8 +333,12 @@
 	<EmbeddedResource Include="UI\BetterLabel.resx">
 	  <DependentUpon>BetterLabel.cs</DependentUpon>
 	</EmbeddedResource>
-	<EmbeddedResource Include="UI\Clone\InternetCloneInstructionsControl.resx">
-	  <DependentUpon>InternetCloneInstructionsControl.cs</DependentUpon>
+	<EmbeddedResource Include="UI\Misc\ServerSettingsControl.resx">
+	  <DependentUpon>ServerSettingsControl.cs</DependentUpon>
+	  <SubType>Designer</SubType>
+	</EmbeddedResource>
+	<EmbeddedResource Include="UI\Clone\TargetFolderControl.resx">
+	  <DependentUpon>TargetFolderControl.cs</DependentUpon>
 	  <SubType>Designer</SubType>
 	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Clone\GetCloneFromInternetDialog.resx">
@@ -343,9 +354,6 @@
 	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Misc\ProxySettingsView.resx">
 	  <DependentUpon>ProxySettingsView.cs</DependentUpon>
-	</EmbeddedResource>
-	<EmbeddedResource Include="UI\Misc\ReadinessDialog.resx">
-	  <DependentUpon>ReadinessDialog.cs</DependentUpon>
 	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Misc\TroubleshootingView.resx">
 	  <DependentUpon>TroubleshootingView.cs</DependentUpon>
@@ -376,6 +384,9 @@
 	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Notes\Browser\SearchBox.resx">
 	  <DependentUpon>SearchBox.cs</DependentUpon>
+	</EmbeddedResource>
+	<EmbeddedResource Include="UI\Misc\ServerSettingsDialog.resx">
+	  <DependentUpon>ServerSettingsDialog.cs</DependentUpon>
 	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Sync\SyncControl.resx">
 	  <DependentUpon>SyncControl.cs</DependentUpon>

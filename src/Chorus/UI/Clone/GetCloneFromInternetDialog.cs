@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Media;
 using System.Windows.Forms;
 using Chorus.clone;
+using Chorus.UI.Misc;
 using Chorus.Utilities;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
@@ -15,13 +16,12 @@ namespace Chorus.UI.Clone
 		private readonly GetCloneFromInternetModel _model;
 		private IProgress _progress;
 		private readonly BackgroundWorker _backgroundWorker;
-		private enum State { AskingUserForURL, MakingClone, Success, Error,
-		Cancelled
-		}
+		private enum State { AskingUserForURL, MakingClone, Success, Error,Cancelled}
 
-		private InternetCloneInstructionsControl _internetCloneInstructionsControl;
+		private TargetFolderControl _targetFolderControl;
 		private StatusProgress _statusProgress;
 		private State _state;
+		private ServerSettingsControl _serverSettingsControl;
 
 		public GetCloneFromInternetDialog(string parentDirectoryToPutCloneIn)
 			:this(new GetCloneFromInternetModel(parentDirectoryToPutCloneIn))
@@ -46,21 +46,28 @@ namespace Chorus.UI.Clone
 			_statusProgress = new StatusProgress();
 			_progress = new MultiProgress(new IProgress[]{_logBox, _statusProgress});
 
-			_internetCloneInstructionsControl = new InternetCloneInstructionsControl(_model);
-		//	_internetCloneInstructionsControl.AutoSize = true;
-			_internetCloneInstructionsControl.TabIndex = 0;
-			_internetCloneInstructionsControl.Anchor = (AnchorStyles.Bottom | AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right);
-			_internetCloneInstructionsControl._downloadButton.Click+=new EventHandler(OnDownloadClick);
-			this.MinimumSize = new Size(_internetCloneInstructionsControl.MinimumSize.Width+20, _internetCloneInstructionsControl.MinimumSize.Height+20);
-			if (_internetCloneInstructionsControl.Bottom +30> Bottom)
+			_serverSettingsControl = new ServerSettingsControl(_model);
+			_serverSettingsControl.TabIndex = 0;
+			_serverSettingsControl.Anchor = (AnchorStyles.Top | AnchorStyles.Left);
+			this.Controls.Add(_serverSettingsControl);
+
+			_targetFolderControl = new TargetFolderControl(_model);
+			_targetFolderControl.Anchor = (AnchorStyles.Bottom | AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right);
+			_targetFolderControl._downloadButton.Click+=new EventHandler(OnDownloadClick);
+			_targetFolderControl.Location = new Point(0, _serverSettingsControl.Height +10);
+			this.MinimumSize = new Size(_targetFolderControl.MinimumSize.Width+20, _targetFolderControl.Bottom +20);
+			if (_targetFolderControl.Bottom +30> Bottom)
 			{
-				this.Size = new Size(this.Width,_internetCloneInstructionsControl.Bottom + 30);
+				this.Size = new Size(this.Width,_targetFolderControl.Bottom + 30);
 			}
-			this.Controls.Add(_internetCloneInstructionsControl);
+			_targetFolderControl.TabIndex = 1;
+			this.Controls.Add(_targetFolderControl);
+			_okButton.TabIndex = 90;
+			_cancelButton.TabIndex = 91;
 
 			_fixSettingsButton.Left = _cancelButton.Left;
-			 _internetCloneInstructionsControl._downloadButton.Top = _okButton.Top;
-			 _internetCloneInstructionsControl._downloadButton.Left = _okButton.Left - 15;
+			 _targetFolderControl._downloadButton.Top = _okButton.Top-_targetFolderControl.Top	;
+			 _targetFolderControl._downloadButton.Left = _okButton.Left - 15;
 
 			_logBox.GetDiagnosticsMethod = (progress) =>
 											{
@@ -138,7 +145,7 @@ namespace Chorus.UI.Clone
 					_logBox.Visible = false;
 					_okButton.Visible = false;
 					_progressBar.Visible = false;
-					_internetCloneInstructionsControl.Visible = true;
+					_targetFolderControl.Visible = true;
 					 _cancelButton.Enabled = true;
 				   _cancelTaskButton.Visible = false;
 
@@ -146,7 +153,7 @@ namespace Chorus.UI.Clone
 				case State.MakingClone:
 					_progressBar.Focus();
 					_progressBar.Select();
-					_internetCloneInstructionsControl.Visible = false;
+					_targetFolderControl.Visible = false;
 					_statusImage.Visible = false;
 					_progressBar.Visible = true;
 					_progressBar.Style = ProgressBarStyle.Marquee;
@@ -168,7 +175,7 @@ namespace Chorus.UI.Clone
 					_statusLabel.Visible = true;
 					_statusLabel.Text = "Done.";
 					_progressBar.Visible = false;
-					_internetCloneInstructionsControl.Visible = false;
+					_targetFolderControl.Visible = false;
 					_statusLabel.Left = _statusImage.Right + 10;
 					_statusImage.Visible = true;
 					_statusImage.ImageKey="Success";
@@ -187,7 +194,7 @@ namespace Chorus.UI.Clone
 					_statusLabel.Visible = true;
 					_statusLabel.Text = "Failed.";
 					_progressBar.Visible = false;
-					_internetCloneInstructionsControl.Visible = false;
+					_targetFolderControl.Visible = false;
 					_statusLabel.Left = _statusImage.Right + 10;
 					_statusImage.ImageKey = "Error";
 					_statusImage.Visible = true;
@@ -198,13 +205,15 @@ namespace Chorus.UI.Clone
 					_statusLabel.Visible = true;
 					_statusLabel.Text = "Cancelled.";
 					_progressBar.Visible = false;
-					_internetCloneInstructionsControl.Visible = false;
+					_targetFolderControl.Visible = false;
 					_statusLabel.Left =  _progressBar.Left;
 					_statusImage.Visible = false;
 					break;
 				default:
 					throw new ArgumentOutOfRangeException();
 			}
+
+			_serverSettingsControl.Visible = _targetFolderControl.Visible;
 		}
 
 		private void OnLoad(object sender, EventArgs e)

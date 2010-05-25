@@ -71,6 +71,9 @@
 	<Compile Include="ChorusSystemTests.cs" />
 	<Compile Include="ChorusSystemUsage.cs" />
 	<Compile Include="UI\Clone\GetCloneFromInternetModelTest.cs" />
+	<Compile Include="UI\Misc\ServerSettingsModelTests.cs" />
+	<Compile Include="UI\Misc\ServerSettingsDialogTests.cs" />
+	<Compile Include="UI\Misc\ReadinessPanelTests.cs" />
 	<Compile Include="UI\notes\AnnotationModelTests.cs" />
 	<Compile Include="UI\notes\NotesBarModelTests.cs" />
 	<Compile Include="UI\notes\IEmbeddedMessageContentHandler.cs" />

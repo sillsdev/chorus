@@ -21,6 +21,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		[SetUp]
 		public void Setup()
 		{
+			HgRunner.TimeoutSecondsOverrideForUnitTests = 10000;//reset it in between tests
 			_progress = new ConsoleProgress();
 		}
 

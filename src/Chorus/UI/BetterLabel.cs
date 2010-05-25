@@ -14,6 +14,7 @@ namespace Chorus.UI
 		public BetterLabel()
 		{
 			InitializeComponent();
+			Font = SystemFonts.DialogFont;
 		}
 
 		//make it transparent
@@ -30,6 +31,10 @@ namespace Chorus.UI
 			{
 				//trying to harden this against the mysteriously disappearing from a host designer
 			}
+		}
+		protected override void OnSizeChanged(EventArgs e)
+		{
+			base.OnSizeChanged(e);
 		}
 
 

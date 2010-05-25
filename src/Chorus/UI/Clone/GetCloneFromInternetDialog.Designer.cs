@@ -93,6 +93,7 @@
 			this._statusLabel.BorderStyle = System.Windows.Forms.BorderStyle.None;
 			this._statusLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this._statusLabel.Location = new System.Drawing.Point(58, 12);
+			this._statusLabel.MaximumSize = new System.Drawing.Size(316, 71);
 			this._statusLabel.Multiline = true;
 			this._statusLabel.Name = "_statusLabel";
 			this._statusLabel.ReadOnly = true;
@@ -139,6 +140,7 @@
 						| System.Windows.Forms.AnchorStyles.Right)));
 			this._logBox.BackColor = System.Drawing.Color.Transparent;
 			this._logBox.CancelRequested = false;
+			this._logBox.GetDiagnosticsMethod = null;
 			this._logBox.Location = new System.Drawing.Point(15, 80);
 			this._logBox.Name = "_logBox";
 			this._logBox.Size = new System.Drawing.Size(359, 172);

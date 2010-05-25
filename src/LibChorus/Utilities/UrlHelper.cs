@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Chorus.Utilities
 {
@@ -81,6 +82,57 @@ namespace Chorus.Utilities
 				return url.Substring(0, locationOfQuestionMark);
 			}
 			return url;
+		}
+
+		public static string GetUserName(string url)
+		{
+			Uri uri;
+			if (!Uri.TryCreate(url, UriKind.Absolute, out uri))
+			{
+				return string.Empty;
+			}
+			var result = Regex.Match(uri.UserInfo, @"([^:]*)(:(.*))*");
+			return result.Groups[1].Value;
+		}
+
+		public static string GetPassword(string url)
+		{
+			Uri uri;
+			if (!Uri.TryCreate(url, UriKind.Absolute, out uri))
+			{
+				return string.Empty;
+			}
+			var result = Regex.Match(uri.UserInfo, @"([^:]*):(.*)");
+			return result.Groups[2].Value;
+		}
+
+		/// <summary>
+		/// gives path only, not including any query part
+		/// </summary>
+		public static string GetPathAfterHost(string url)
+		{
+			Uri uri;
+			if (!Uri.TryCreate(url, UriKind.Absolute, out uri))
+			{
+				return string.Empty;
+			}
+			var s = uri.PathAndQuery;
+			var i = s.IndexOf('?');
+			if(i>=0)
+			{
+				s = s.Substring(0, i);
+			}
+			return s.Trim(new char[] {'/'});
+		}
+
+		public static string GetHost(string url)
+		{
+			Uri uri;
+			if (!Uri.TryCreate(url, UriKind.Absolute, out uri))
+			{
+				return string.Empty;
+			}
+			return uri.Host;
 		}
 	}
 }

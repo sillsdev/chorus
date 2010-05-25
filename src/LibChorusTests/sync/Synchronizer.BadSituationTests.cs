@@ -20,6 +20,12 @@ namespace LibChorus.Tests.sync
 	public class SynchronizerBadSituationTests
 	{
 
+		[SetUp]
+		public void Setup()
+		{
+			HgRunner.TimeoutSecondsOverrideForUnitTests = 10000;//reset it in between tests
+		}
+
 		[Test]//regression
 		public void RepoProjectName_SourceHasDotInName_IsNotLost()
 		{

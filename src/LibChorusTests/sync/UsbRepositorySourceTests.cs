@@ -24,7 +24,7 @@ namespace LibChorus.Tests.sync
 		public void Setup()
 		{
 			_progress = new ConsoleProgress();
-			_pathToTestRoot = Path.Combine(Path.GetTempPath(), "ChorusTest");
+			_pathToTestRoot = Path.Combine(Path.GetTempPath(), "ChorusUsbRepositorySourceTests");
 			if (Directory.Exists(_pathToTestRoot))
 				Directory.Delete(_pathToTestRoot, true);
 			Directory.CreateDirectory(_pathToTestRoot);

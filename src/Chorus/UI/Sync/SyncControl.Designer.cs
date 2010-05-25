@@ -150,8 +150,10 @@
 			//
 			// _logBox
 			//
+			this._logBox.BackColor = System.Drawing.Color.Transparent;
 			this._logBox.CancelRequested = false;
 			this._logBox.Dock = System.Windows.Forms.DockStyle.Fill;
+			this._logBox.GetDiagnosticsMethod = null;
 			this._logBox.Location = new System.Drawing.Point(3, 3);
 			this._logBox.Name = "_logBox";
 			this._logBox.Size = new System.Drawing.Size(472, 216);
@@ -196,7 +198,7 @@
 			//
 			this._statusText.AutoSize = true;
 			this._statusText.Location = new System.Drawing.Point(53, 2);
-			this._statusText.MaximumSize = new System.Drawing.Size(250, 0);
+			this._statusText.MaximumSize = new System.Drawing.Size(250, 26);
 			this._statusText.Name = "_statusText";
 			this._statusText.Size = new System.Drawing.Size(248, 26);
 			this._statusText.TabIndex = 16;
