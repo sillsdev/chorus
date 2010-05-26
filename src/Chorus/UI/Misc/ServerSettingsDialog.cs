@@ -11,11 +11,23 @@ namespace Chorus.UI.Misc
 		private readonly ServerSettingsModel _model;
 		private ServerSettingsControl _serverSettingsControl;
 
+		public ServerSettingsDialog(string pathToRepositoryFolder)
+		{
+			_model = new ServerSettingsModel();
+			_model.InitFromProjectPath(pathToRepositoryFolder);
+			Init();
+		}
+
 		public ServerSettingsDialog(ServerSettingsModel model)
 		{
 			_model = model;
+			Init();
+		}
+
+		private void Init()
+		{
 			InitializeComponent();
-			_serverSettingsControl = new ServerSettingsControl(model);
+			_serverSettingsControl = new ServerSettingsControl(_model);
 			_serverSettingsControl.TabIndex = 0;
 			_serverSettingsControl.Anchor = (AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right);
 			_serverSettingsControl.AutoSizeMode = AutoSizeMode.GrowAndShrink;

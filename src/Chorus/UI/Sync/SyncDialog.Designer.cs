@@ -65,7 +65,6 @@ namespace Chorus.UI.Sync
 						| System.Windows.Forms.AnchorStyles.Right)));
 			this._syncStartControl1.Location = new System.Drawing.Point(12, 10);
 			this._syncStartControl1.Name = "_syncStartControl1";
-			this._syncStartControl1.Repository = null;
 			this._syncStartControl1.Size = new System.Drawing.Size(489, 302);
 			this._syncStartControl1.TabIndex = 1;
 			this._syncStartControl1.Visible = false;

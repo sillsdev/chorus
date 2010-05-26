@@ -19,7 +19,7 @@ namespace Chorus.Tests.UI.Sync
 		{
 			var setup = new RepositorySetup("pedro");
 			{
-				var c = new SyncStartControl() {Repository = setup.Repository};
+				var c = new SyncStartControl(setup.Repository);
 				var f = new Form();
 				c.Dock = DockStyle.Fill;
 				f.Controls.Add(c);
@@ -37,7 +37,7 @@ namespace Chorus.Tests.UI.Sync
 																	 RepositoryAddress.Create("language depot", "http://hg-public.languagedepot.org"),
 																	 RepositoryAddress.Create("joe's mac", "//suzie-pc/shared")
 																 });
-				var c = new SyncStartControl() { Repository = setup.Repository };
+				var c = new SyncStartControl(setup.Repository);
 				var f = new Form();
 				c.Dock = DockStyle.Fill;
 				f.Controls.Add(c);

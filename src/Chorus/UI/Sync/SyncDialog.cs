@@ -38,8 +38,8 @@ namespace Chorus.UI.Sync
 					SyncResult = new SyncResults();
 					SyncResult.Succeeded = false;
 
-					_syncStartControl1.Repository = HgRepository.CreateOrLocate(projectFolderConfiguration.FolderPath,
-																				new NullProgress());
+					_syncStartControl1.Init(HgRepository.CreateOrLocate(projectFolderConfiguration.FolderPath,
+																				new NullProgress()));
 					_syncStartControl1.Visible = true;
 					_syncControl.Visible = false;
 				}

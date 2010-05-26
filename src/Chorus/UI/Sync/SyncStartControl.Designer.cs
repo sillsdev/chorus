@@ -35,10 +35,10 @@
 			this._updateDisplayTimer = new System.Windows.Forms.Timer(this.components);
 			this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
 			this._usbStatusLabel = new Chorus.UI.BetterLabel();
-			this._internetStatusLabel = new Chorus.UI.BetterLabel();
 			this._sharedFolderLabel = new Chorus.UI.BetterLabel();
 			this.betterLabel2 = new Chorus.UI.BetterLabel();
 			this._commitMessageText = new System.Windows.Forms.TextBox();
+			this._internetStatusLabel = new System.Windows.Forms.LinkLabel();
 			this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
 			this.usbDriveLocator = new Chorus.UI.UsbDriveLocator(this.components);
 			this.tableLayoutPanel1.SuspendLayout();
@@ -90,7 +90,7 @@
 			//
 			// _updateDisplayTimer
 			//
-			this._updateDisplayTimer.Interval = 500;
+			this._updateDisplayTimer.Interval = 2000;
 			this._updateDisplayTimer.Tick += new System.EventHandler(this.OnUpdateDisplayTick);
 			//
 			// tableLayoutPanel1
@@ -101,12 +101,12 @@
 			this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
 			this.tableLayoutPanel1.Controls.Add(this._useUSBButton, 0, 0);
 			this.tableLayoutPanel1.Controls.Add(this._usbStatusLabel, 0, 1);
-			this.tableLayoutPanel1.Controls.Add(this._internetStatusLabel, 0, 3);
 			this.tableLayoutPanel1.Controls.Add(this._sharedFolderLabel, 0, 5);
 			this.tableLayoutPanel1.Controls.Add(this._useInternetButton, 0, 2);
 			this.tableLayoutPanel1.Controls.Add(this._useSharedFolderButton, 0, 4);
 			this.tableLayoutPanel1.Controls.Add(this.betterLabel2, 0, 6);
 			this.tableLayoutPanel1.Controls.Add(this._commitMessageText, 0, 7);
+			this.tableLayoutPanel1.Controls.Add(this._internetStatusLabel, 0, 3);
 			this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 13);
 			this.tableLayoutPanel1.Name = "tableLayoutPanel1";
 			this.tableLayoutPanel1.RowCount = 8;
@@ -137,22 +137,6 @@
 			this._usbStatusLabel.TabIndex = 1;
 			this._usbStatusLabel.TabStop = false;
 			this._usbStatusLabel.Text = "Checking...";
-			//
-			// _internetStatusLabel
-			//
-			this._internetStatusLabel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-						| System.Windows.Forms.AnchorStyles.Right)));
-			this._internetStatusLabel.BorderStyle = System.Windows.Forms.BorderStyle.None;
-			this._internetStatusLabel.Font = new System.Drawing.Font("Segoe UI", 9F);
-			this._internetStatusLabel.ForeColor = System.Drawing.Color.DimGray;
-			this._internetStatusLabel.Location = new System.Drawing.Point(3, 123);
-			this._internetStatusLabel.Multiline = true;
-			this._internetStatusLabel.Name = "_internetStatusLabel";
-			this._internetStatusLabel.ReadOnly = true;
-			this._internetStatusLabel.Size = new System.Drawing.Size(324, 24);
-			this._internetStatusLabel.TabIndex = 1;
-			this._internetStatusLabel.TabStop = false;
-			this._internetStatusLabel.Text = "Checking...";
 			//
 			// _sharedFolderLabel
 			//
@@ -194,6 +178,21 @@
 			this._commitMessageText.Size = new System.Drawing.Size(324, 41);
 			this._commitMessageText.TabIndex = 4;
 			//
+			// _internetStatusLabel
+			//
+			this._internetStatusLabel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+						| System.Windows.Forms.AnchorStyles.Right)));
+			this._internetStatusLabel.AutoSize = true;
+			this._internetStatusLabel.LinkArea = new System.Windows.Forms.LinkArea(20, 5);
+			this._internetStatusLabel.Location = new System.Drawing.Point(3, 120);
+			this._internetStatusLabel.Name = "_internetStatusLabel";
+			this._internetStatusLabel.Size = new System.Drawing.Size(324, 17);
+			this._internetStatusLabel.TabIndex = 5;
+			this._internetStatusLabel.TabStop = true;
+			this._internetStatusLabel.Text = "A nice message with help";
+			this._internetStatusLabel.UseCompatibleTextRendering = true;
+			this._internetStatusLabel.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this._internetStatusLabel_LinkClicked);
+			//
 			// SyncStartControl
 			//
 			this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
@@ -216,12 +215,12 @@
 		private System.Windows.Forms.Button _useSharedFolderButton;
 		private System.Windows.Forms.Timer _updateDisplayTimer;
 		private BetterLabel _usbStatusLabel;
-		private BetterLabel _internetStatusLabel;
 		private BetterLabel _sharedFolderLabel;
 		private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
 		private System.Windows.Forms.ToolTip toolTip1;
 		private BetterLabel betterLabel2;
 		private System.Windows.Forms.TextBox _commitMessageText;
 		private UsbDriveLocator usbDriveLocator;
+		private System.Windows.Forms.LinkLabel _internetStatusLabel;
 	}
 }

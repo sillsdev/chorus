@@ -1,21 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Data;
-using System.IO;
-using System.Text;
-using System.Threading;
 using System.Windows.Forms;
+using Chorus.UI.Misc;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using System.Linq;
+using Palaso.Code;
 
 namespace Chorus.UI.Sync
 {
 	internal partial class SyncStartControl : UserControl
 	{
 		private HgRepository _repository;
+		private SyncStartModel _model;
 		public event EventHandler<SyncStartArgs> RepositoryChosen;
 
 		//designer only
@@ -23,19 +19,20 @@ namespace Chorus.UI.Sync
 		{
 			InitializeComponent();
 		}
-
-
-		public HgRepository Repository
+		public SyncStartControl(HgRepository repository)
 		{
-			get { return _repository; }
-			set
-			{
-				_repository = value;
-				if (_repository != null)
-				{
-					_updateDisplayTimer.Enabled = true;
-				}
-			}
+			InitializeComponent();
+			Init(repository);
+		}
+
+		public void Init(HgRepository repository)
+		{
+			_internetStatusLabel.Text = string.Empty;
+			Guard.AgainstNull(repository, "repository");
+			_model = new SyncStartModel(repository);
+			_repository = repository;
+			_updateDisplayTimer.Enabled = true;
+			UpdateDisplay();//don't wait 2 seconds
 		}
 
 
@@ -53,11 +50,13 @@ namespace Chorus.UI.Sync
 
 		private void UpdateLocalNetworkSituation()
 		{
+			//TODO: move this to model, as we did with UpdateInternetSituation()
+
 			RepositoryAddress address;
 
 			try
 			{
-				address = Repository.GetDefaultNetworkAddress<DirectoryRepositorySource>();
+				address = _repository.GetDefaultNetworkAddress<DirectoryRepositorySource>();
 			}
 			catch(Exception error)//probably, hgrc is locked
 			{
@@ -80,35 +79,28 @@ namespace Chorus.UI.Sync
 
 		private void UpdateInternetSituation()
 		{
-			RepositoryAddress address;
-			try
+			string message,  tooltip, buttonLabel;
+			_useInternetButton.Enabled = _model.GetInternetStatusLink(out buttonLabel, out message, out tooltip);
+			_useInternetButton.Text = buttonLabel;
+			_internetStatusLabel.Text = message;
+			_internetStatusLabel.LinkArea = new LinkArea(message.Length+1, 1000);
+			if(_useInternetButton.Enabled )
 			{
-				address = Repository.GetDefaultNetworkAddress<HttpRepositoryPath>();
+				tooltip += System.Environment.NewLine+"Press Shift to see Set Up button";
 			}
-			catch (Exception error)//probably, hgrc is locked
-			{
-				_useInternetButton.Enabled = false;
-				_internetStatusLabel.Text = error.Message;
-				return;
-			}
+			toolTip1.SetToolTip(_useInternetButton, tooltip);
 
-			_useInternetButton.Enabled = address != null;
-			if (address==null)
+			if (!_useInternetButton.Enabled || Control.ModifierKeys == Keys.Shift)
 			{
-				_internetStatusLabel.Text = "This project is not yet associated with an internet server";
-			}
-			else
-			{
-				_internetStatusLabel.Text = address.Name;
-				toolTip1.SetToolTip(_useInternetButton, address.URI);
-				//enhance: which one will be used if I click this?
+				_internetStatusLabel.Text += " Set Up";
+				_internetStatusLabel.LinkArea = new LinkArea(message.Length + 1, 1000);
 			}
 		}
 
-
-
 		private void UpdateUsbDriveSituation()
 		{
+			//TODO: move this to model, as we did with UpdateInternetSituation()
+
 			if (usbDriveLocator.UsbDrives.Count() == 0)
 			{
 				_useUSBButton.Enabled = false;
@@ -156,7 +148,7 @@ namespace Chorus.UI.Sync
 		{
 			if (RepositoryChosen != null)
 			{
-				RepositoryChosen.Invoke(this, new SyncStartArgs(Repository.GetDefaultNetworkAddress<HttpRepositoryPath>(), _commitMessageText.Text));
+				RepositoryChosen.Invoke(this, new SyncStartArgs(_repository.GetDefaultNetworkAddress<HttpRepositoryPath>(), _commitMessageText.Text));
 			}
 
 		}
@@ -165,7 +157,7 @@ namespace Chorus.UI.Sync
 		{
 			if (RepositoryChosen != null)
 			{
-				var address = Repository.GetDefaultNetworkAddress<DirectoryRepositorySource>();
+				var address = _repository.GetDefaultNetworkAddress<DirectoryRepositorySource>();
 				RepositoryChosen.Invoke(this, new SyncStartArgs(address, _commitMessageText.Text));
 			}
 		}
@@ -179,6 +171,16 @@ namespace Chorus.UI.Sync
 		{
 
 		}
+
+		private void _internetStatusLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+		{
+			using(var dlg = new ServerSettingsDialog(_repository.PathToRepo))
+			{
+				dlg.ShowDialog();
+			}
+			UpdateInternetSituation();
+		}
+
 	}
 	public class SyncStartArgs : EventArgs
 	{
