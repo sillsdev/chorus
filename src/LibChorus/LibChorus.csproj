@@ -2,7 +2,7 @@
   <PropertyGroup>
 	<Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
 	<Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-	<ProductVersion>9.0.30729</ProductVersion>
+	<ProductVersion>9.0.21022</ProductVersion>
 	<SchemaVersion>2.0</SchemaVersion>
 	<ProjectGuid>{94245366-8F1E-475C-810D-FE89BB3948E0}</ProjectGuid>
 	<OutputType>Library</OutputType>
@@ -87,6 +87,14 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
+	<Compile Include="FileTypeHanders\Xml2WayDiffer.cs" />
+	<Compile Include="Utilities\DifferDictionaryPrepper.cs" />
+	<Compile Include="Utilities\ElementReader.cs" />
+	<Compile Include="FileTypeHanders\FieldWorks\FieldWorkObjectContextGenerator.cs" />
+	<Compile Include="FileTypeHanders\FieldWorks\FieldWorksChangePresenter.cs" />
+	<Compile Include="FileTypeHanders\FieldWorks\FieldWorksFileHandler.cs" />
+	<Compile Include="FileTypeHanders\FieldWorks\FieldWorksMerger.cs" />
+	<Compile Include="FileTypeHanders\FieldWorks\FieldWorksMergingStrategy.cs" />
 	<Compile Include="FileTypeHanders\NotePresenter.cs" />
 	<Compile Include="IWritingSystem.cs" />
 	<Compile Include="MercurialLocation.cs" />
@@ -104,7 +112,6 @@
 	<Compile Include="FileTypeHanders\ConflictPresenter.cs" />
 	<Compile Include="FileTypeHanders\image\ImageChangePresenter.cs" />
 	<Compile Include="FileTypeHanders\image\ImageFileTypeHandler.cs" />
-	<Compile Include="FileTypeHanders\ChorusNotesDiffer.cs" />
 	<Compile Include="FileTypeHanders\lift\WeSayConfigFileHandler.cs" />
 	<Compile Include="FileTypeHanders\oneStory\OneStoryFileHandler.cs" />
 	<Compile Include="FileTypeHanders\OurWord\OurWordFileHandler.cs" />
@@ -120,7 +127,6 @@
 	<Compile Include="FileTypeHanders\lift\LexEntryContextGenerator.cs" />
 	<Compile Include="FileTypeHanders\lift\LiftChangePresenter.cs" />
 	<Compile Include="FileTypeHanders\lift\LiftFileHandler.cs" />
-	<Compile Include="FileTypeHanders\lift\LiftDiffer.cs" />
 	<Compile Include="FileTypeHanders\lift\LiftUtils.cs" />
 	<Compile Include="FileTypeHanders\xml\IXmlChangeReport.cs" />
 	<Compile Include="FileTypeHanders\xml\XmlAdditionChangeReport.cs" />
@@ -229,6 +235,7 @@
 	<EmbeddedResource Include="Properties\AnnotationImages.resx">
 	  <Generator>PublicResXFileCodeGenerator</Generator>
 	  <LastGenOutput>AnnotationImages.Designer.cs</LastGenOutput>
+	  <SubType>Designer</SubType>
 	</EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

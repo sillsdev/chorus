@@ -550,6 +550,34 @@ namespace Chorus.merge.xml.generic
 
 	}
 
+	[TypeGuid("3d9ba4ac-4a25-11df-9879-0800200c9a66")]
+	internal class EditedVsRemovedElementConflict : ElementConflict
+	{
+		public EditedVsRemovedElementConflict(string elementName, XmlNode alphaNode, XmlNode betaNode, XmlNode ancestorElement, MergeSituation mergeSituation, IElementDescriber elementDescriber, string whoWon)
+			: base(elementName, alphaNode, betaNode, ancestorElement, mergeSituation, elementDescriber, whoWon)
+		{
+		}
+
+		public EditedVsRemovedElementConflict(XmlNode xmlRepresentation)
+			: base(xmlRepresentation)
+		{
+
+		}
+		public override string Description
+		{
+			get { return "Edited Vs Removed Element Conflict"; }
+		}
+
+		public override string WhatHappened
+		{
+			get
+			{
+				return string.Format("{0} edited this element, while {1} deleted it. ", Situation.AlphaUserId, Situation.BetaUserId) + GetWhoWonText();
+			}
+		}
+
+	}
+
 	[TypeGuid("14262878-270A-4E27-BA5F-7D232B979D6B")]
 	internal class BothReorderedElementConflict : ElementConflict
 	{
@@ -667,6 +695,41 @@ namespace Chorus.merge.xml.generic
 				return
 					string.Format("{0} edited one part of this element, while {1} edited another part. Since these two pieces of data are thought to be dependent on each other, someone needs to verify that the resulting merge is ok.",
 					Situation.AlphaUserId, Situation.BetaUserId); }
+		}
+	}
+
+	/// <summary>
+	/// Used when, say, one guy adds a translation of an the example sentence,
+	/// but meanwhile the other guy changed the example sentence, so the translation is
+	/// suspect.  This could be a "warning", if we had such a thing.
+	/// </summary>
+	[TypeGuid("3d9ba4ae-4a25-11df-9879-0800200c9a66")]
+	internal class BothEditedTheSameElement : ElementConflict
+	{
+		public BothEditedTheSameElement(string elementName, XmlNode alphaNode, XmlNode betaNode,
+			XmlNode ancestorElement, MergeSituation mergeSituation, IElementDescriber elementDescriber, string whoWon)
+			: base(elementName, alphaNode, betaNode, ancestorElement, mergeSituation, elementDescriber, whoWon)
+		{
+		}
+
+		public BothEditedTheSameElement(XmlNode xmlRepresentation)
+			: base(xmlRepresentation)
+		{
+
+		}
+
+
+		public override string Description
+		{
+			get { return "Both Edited the Same Element"; }
+		}
+
+		public override string WhatHappened
+		{
+			get
+			{
+				return string.Format("{0} and {1} edited this element.", Situation.AlphaUserId, Situation.BetaUserId);
+			}
 		}
 	}
 }

@@ -92,10 +92,13 @@ namespace Chorus.FileTypeHanders.lift
 		public IEnumerable<IChangeReport> Find2WayDifferences(FileInRevision parent, FileInRevision child, HgRepository repository)
 		{
 			var listener = new ChangeAndConflictAccumulator();
-			var strat = new LiftEntryMergingStrategy(new NullMergeSituation());
+			// I (RandyR) wonder if 'strat' was added in anticipation of being used,
+			// or was removed as extra, since the Differ doesn't even try to merge anything.
+			//var strat = new LiftEntryMergingStrategy(new NullMergeSituation());
 
 			//pull the files out of the repository so we can read them
-			var differ = Lift2WayDiffer.CreateFromFileInRevision(strat, parent, child, listener, repository);
+			var differ = Xml2WayDiffer.CreateFromFileInRevision(parent, child, listener, repository,
+				"entry", "lift", "id");
 			try
 			{
 				differ.ReportDifferencesToListener();
