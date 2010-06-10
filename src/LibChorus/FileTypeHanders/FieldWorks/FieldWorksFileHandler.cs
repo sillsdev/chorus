@@ -15,7 +15,7 @@ namespace Chorus.FileTypeHanders.FieldWorks
 	public class FieldWorksFileHandler : IChorusFileTypeHandler
 	{
 		private const string kExtension = "xml";
-		private readonly Dictionary<string, bool> m_filesChecked = new Dictionary<string, bool>();
+		private readonly Dictionary<string, bool> _filesChecked = new Dictionary<string, bool>();
 
 		#region Implementation of IChorusFileTypeHandler
 
@@ -176,10 +176,10 @@ namespace Chorus.FileTypeHanders.FieldWorks
 				return false;
 
 			bool seenBefore;
-			if (m_filesChecked.TryGetValue(pathToFile, out seenBefore))
+			if (_filesChecked.TryGetValue(pathToFile, out seenBefore))
 				return seenBefore;
 			var retval = ValidateFile(pathToFile, null) == null;
-			m_filesChecked.Add(pathToFile, retval);
+			_filesChecked.Add(pathToFile, retval);
 			return retval;
 		}
 

@@ -12,70 +12,70 @@ namespace Chorus.Utilities
 	/// </summary>
 	public class ElementReader : IDisposable
 	{
-		private byte[] m_inputData;
-		private readonly byte[] m_openingMarker;
-		private readonly byte[] m_finalClosingTag;
-		private Action<byte[]> m_outputHandler;
-		private int m_startOfRecordsOffset;
-		private int m_endOfRecordsOffset;
-		private readonly List<Byte> m_endingWhitespace;
+		private byte[] _inputData;
+		private readonly byte[] _openingMarker;
+		private readonly byte[] _finalClosingTag;
+		private Action<byte[]> _outputHandler;
+		private int _startOfRecordsOffset;
+		private int _endOfRecordsOffset;
+		private readonly List<Byte> _endingWhitespace;
 
 		public ElementReader(string openingMarker, string finalClosingTag, byte[] inputData, Action<byte[]> outputHandler)
 		{
-			m_inputData = inputData;
+			_inputData = inputData;
 			var enc = Encoding.UTF8;
-			m_openingMarker = enc.GetBytes(openingMarker);
-			m_finalClosingTag = enc.GetBytes(finalClosingTag);
-			m_outputHandler = outputHandler;
-			m_startOfRecordsOffset = 0;
-			m_endOfRecordsOffset = m_inputData.Length;
-			m_endingWhitespace = new List<byte>();
-			m_endingWhitespace.AddRange(enc.GetBytes(" "));
-			m_endingWhitespace.AddRange(enc.GetBytes("\t"));
-			m_endingWhitespace.AddRange(enc.GetBytes("\r"));
-			m_endingWhitespace.AddRange(enc.GetBytes("\n"));
+			_openingMarker = enc.GetBytes(openingMarker);
+			_finalClosingTag = enc.GetBytes(finalClosingTag);
+			_outputHandler = outputHandler;
+			_startOfRecordsOffset = 0;
+			_endOfRecordsOffset = _inputData.Length;
+			_endingWhitespace = new List<byte>();
+			_endingWhitespace.AddRange(enc.GetBytes(" "));
+			_endingWhitespace.AddRange(enc.GetBytes("\t"));
+			_endingWhitespace.AddRange(enc.GetBytes("\r"));
+			_endingWhitespace.AddRange(enc.GetBytes("\n"));
 		}
 
 		public void Run()
 		{
 			TrimInput();
 
-			if (m_startOfRecordsOffset == m_endOfRecordsOffset)
+			if (_startOfRecordsOffset == _endOfRecordsOffset)
 				return; // Nothing to do.
 
-			var openingAngleBracket = m_openingMarker[0];
-			for (var i = m_startOfRecordsOffset; i < m_endOfRecordsOffset; ++i)
+			var openingAngleBracket = _openingMarker[0];
+			for (var i = _startOfRecordsOffset; i < _endOfRecordsOffset; ++i)
 			{
 				var endOffset = FindStartOfElement(i + 1, openingAngleBracket);
 				// We should have the complete <foo> element in the param.
-				m_outputHandler(m_inputData.SubArray(i, endOffset - i));
+				_outputHandler(_inputData.SubArray(i, endOffset - i));
 				i = endOffset - 1;
 			}
 		}
 
 		/// <summary>
-		/// This method adjusts m_startOfRecordsOffset to the offset to the start of the records,
-		/// and adjusts m_endOfRecordsOffset to the end of the last record.
+		/// This method adjusts _startOfRecordsOffset to the offset to the start of the records,
+		/// and adjusts _endOfRecordsOffset to the end of the last record.
 		/// </summary>
 		private void TrimInput()
 		{
 			// Trim off junk at the start.
-			m_startOfRecordsOffset = FindStartOfElement(0, m_openingMarker[0]);
+			_startOfRecordsOffset = FindStartOfElement(0, _openingMarker[0]);
 			// Trim off end tag. It really better be the last bunch of bytes!
-			m_endOfRecordsOffset = m_inputData.Length - m_finalClosingTag.Length;
+			_endOfRecordsOffset = _inputData.Length - _finalClosingTag.Length;
 		}
 
 		private int FindStartOfElement(int currentOffset, byte openingAngleBracket)
 		{
 			// Need to get the next starting marker, or the main closing tag
-			// When the end point is found, call m_outputHandler with the current array
+			// When the end point is found, call _outputHandler with the current array
 			// from 'offset' to 'i' (more or less).
 			// Skip quickly over anything that doesn't match even one character.
-			for (var i = currentOffset; i < m_endOfRecordsOffset; ++i)
+			for (var i = currentOffset; i < _endOfRecordsOffset; ++i)
 			{
-				var currentByte = m_inputData[i];
+				var currentByte = _inputData[i];
 				// Need to get the next starting marker, or the main closing tag
-				// When the end point is found, call m_outputHandler with the current array
+				// When the end point is found, call _outputHandler with the current array
 				// from 'offset' to 'i' (more or less).
 				// Skip quickly over anything that doesn't match even one character.
 				if (currentByte != openingAngleBracket)
@@ -84,20 +84,20 @@ namespace Chorus.Utilities
 				// Try to match the rest of the marker.
 				for (var j = 1; ; j++)
 				{
-					var current = m_inputData[i + j];
-					if (m_endingWhitespace.Contains(current))
+					var current = _inputData[i + j];
+					if (_endingWhitespace.Contains(current))
 					{
 						// Got it!
 						return i;
 					}
-					if (m_openingMarker[j] != current)
+					if (_openingMarker[j] != current)
 						break; // no match, resume searching for opening character.
-					if (j != m_openingMarker.Length - 1)
+					if (j != _openingMarker.Length - 1)
 						continue;
 				}
 			}
 
-			return m_endOfRecordsOffset; // Found the end.
+			return _endOfRecordsOffset; // Found the end.
 		}
 
 		~ElementReader()
@@ -131,8 +131,8 @@ namespace Chorus.Utilities
 			// Dispose unmanaged resources here, whether disposing is true or false.
 
 			// Main data members.
-			m_inputData = null;
-			m_outputHandler = null;
+			_inputData = null;
+			_outputHandler = null;
 
 			m_isDisposed = true;
 		}

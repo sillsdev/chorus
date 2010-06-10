@@ -11,16 +11,22 @@ using Chorus.VcsDrivers.Mercurial;
 
 namespace Chorus.FileTypeHanders
 {
+	/// <summary>
+	/// This class does some high level 2-way diffing between parent and child sets of XML data.
+	/// If the xml for individual main elements is not the same byte array,
+	/// then this class calls into the more detailed xml diffing code, the entry point of which is
+	/// the XmlUtilities.AreXmlElementsEqual method.
+	/// </summary>
 	public class Xml2WayDiffer
 	{
-		private readonly IMergeEventListener m_eventListener;
-		private readonly FileInRevision m_parentFileInRevision;
-		private readonly FileInRevision m_childFileInRevision;
-		private byte[] m_parentBytes;
-		private byte[] m_childBytes;
-		private readonly string m_startTag;
-		private readonly string m_fileClosingTag;
-		private readonly string m_identfierAttribute;
+		private readonly IMergeEventListener _eventListener;
+		private readonly FileInRevision _parentFileInRevision;
+		private readonly FileInRevision _childFileInRevision;
+		private byte[] _parentBytes;
+		private byte[] _childBytes;
+		private readonly string _startTag;
+		private readonly string _fileClosingTag;
+		private readonly string _identfierAttribute;
 
 		public static Xml2WayDiffer CreateFromFileInRevision(FileInRevision parent, FileInRevision child,
 			IMergeEventListener eventListener, HgRepository repository,
@@ -43,16 +49,24 @@ namespace Chorus.FileTypeHanders
 
 		private Xml2WayDiffer(byte[] parentBytes, byte[] childBytes, IMergeEventListener eventListener, FileInRevision parent, FileInRevision child, string startTag, string fileClosingTag, string identfierAttribute)
 		{
-			m_parentFileInRevision = parent;
-			m_childFileInRevision = child;
-			m_startTag = "<" + startTag.Trim();
-			m_fileClosingTag = "</" + fileClosingTag.Trim() + ">";
-			m_identfierAttribute = identfierAttribute;
-			m_parentBytes = parentBytes;
-			m_childBytes = childBytes;
-			m_eventListener = eventListener;
+			_parentFileInRevision = parent;
+			_childFileInRevision = child;
+			_startTag = "<" + startTag.Trim();
+			_fileClosingTag = "</" + fileClosingTag.Trim() + ">";
+			_identfierAttribute = identfierAttribute;
+			_parentBytes = parentBytes;
+			_childBytes = childBytes;
+			_eventListener = eventListener;
 		}
 
+		///<summary>
+		/// Given the complete parent and child xml,
+		/// this method compares 'records' (main xml elements) in the parent and child data sets
+		/// at a high level of difference detection.
+		///
+		/// Low-level xl differences are handed to XmlUtilities.AreXmlElementsEqual for processing differences
+		/// of each 'record'.
+		///</summary>
 		public void ReportDifferencesToListener()
 		{
 			// This arbitrary length (400) is based on two large databases,
@@ -60,18 +74,18 @@ namespace Chorus.FileTypeHanders
 			// It's probably not perfect, but we're mainly trying to prevent
 			// fragmenting the large object heap by growing it MANY times.
 			const int estimatedObjectCount = 400;
-			var parentIndex = new Dictionary<string, byte[]>(m_parentBytes.Length / estimatedObjectCount);
-			using (var prepper = new DifferDictionaryPrepper(parentIndex, m_parentBytes, m_startTag, m_fileClosingTag, m_identfierAttribute))
+			var parentIndex = new Dictionary<string, byte[]>(_parentBytes.Length / estimatedObjectCount);
+			using (var prepper = new DifferDictionaryPrepper(parentIndex, _parentBytes, _startTag, _fileClosingTag, _identfierAttribute))
 			{
 				prepper.Run();
 			}
-			m_parentBytes = null;
-			var childIndex = new Dictionary<string, byte[]>(m_childBytes.Length / estimatedObjectCount);
-			using (var prepper = new DifferDictionaryPrepper(childIndex, m_childBytes, m_startTag, m_fileClosingTag, m_identfierAttribute))
+			_parentBytes = null;
+			var childIndex = new Dictionary<string, byte[]>(_childBytes.Length / estimatedObjectCount);
+			using (var prepper = new DifferDictionaryPrepper(childIndex, _childBytes, _startTag, _fileClosingTag, _identfierAttribute))
 			{
 				prepper.Run();
 			}
-			m_childBytes = null;
+			_childBytes = null;
 
 			var enc = Encoding.UTF8;
 			var parentDoc = new XmlDocument();
@@ -96,8 +110,8 @@ namespace Chorus.FileTypeHanders
 					// so figure a way to have the client do this kind of check.
 					if (childStr.Contains("dateDeleted="))
 					{
-						m_eventListener.ChangeOccurred(new XmlDeletionChangeReport(
-														m_parentFileInRevision,
+						_eventListener.ChangeOccurred(new XmlDeletionChangeReport(
+														_parentFileInRevision,
 														XmlUtilities.GetDocumentNodeFromRawXml(enc.GetString(kvpParent.Value), parentDoc),
 														XmlUtilities.GetDocumentNodeFromRawXml(childStr, childDoc)));
 					}
@@ -106,40 +120,38 @@ namespace Chorus.FileTypeHanders
 						var parentStr = enc.GetString(parentValue);
 						try
 						{
-							var parentInput = new XmlInput(parentStr);
-							var childInput = new XmlInput(childStr);
-							if (XmlUtilities.AreXmlElementsEqual(childInput, parentInput))
+							if (XmlUtilities.AreXmlElementsEqual(new XmlInput(childStr), new XmlInput(parentStr)))
 								continue;
 						}
 						catch (Exception error)
 						{
-							m_eventListener.ChangeOccurred(new ErrorDeterminingChangeReport(
-								m_parentFileInRevision,
-								m_childFileInRevision,
+							_eventListener.ChangeOccurred(new ErrorDeterminingChangeReport(
+								_parentFileInRevision,
+								_childFileInRevision,
 								XmlUtilities.GetDocumentNodeFromRawXml(parentStr, parentDoc),
 								XmlUtilities.GetDocumentNodeFromRawXml(childStr, childDoc),
 								error));
 							continue;
 						}
-						m_eventListener.ChangeOccurred(new XmlChangedRecordReport(
-														m_parentFileInRevision,
-														m_childFileInRevision,
+						_eventListener.ChangeOccurred(new XmlChangedRecordReport(
+														_parentFileInRevision,
+														_childFileInRevision,
 														XmlUtilities.GetDocumentNodeFromRawXml(parentStr, parentDoc),
 														XmlUtilities.GetDocumentNodeFromRawXml(childStr, childDoc)));
 					}
 				}
 				else
 				{
-					m_eventListener.ChangeOccurred(new XmlDeletionChangeReport(
-													m_parentFileInRevision,
+					_eventListener.ChangeOccurred(new XmlDeletionChangeReport(
+													_parentFileInRevision,
 													XmlUtilities.GetDocumentNodeFromRawXml(enc.GetString(kvpParent.Value), parentDoc),
 													null)); // Child Node? How can we put it in, if it was deleted?
 				}
 			}
 			foreach (var child in childIndex.Values)
 			{
-				m_eventListener.ChangeOccurred(new XmlAdditionChangeReport(
-												m_childFileInRevision,
+				_eventListener.ChangeOccurred(new XmlAdditionChangeReport(
+												_childFileInRevision,
 												XmlUtilities.GetDocumentNodeFromRawXml(enc.GetString(child), childDoc)));
 			}
 		}

@@ -5,35 +5,51 @@ using System.Text;
 
 namespace Chorus.Utilities
 {
+	/// <summary>
+	/// This class processes source xml data (a whole file) and places 'records' into
+	/// the given Dictionary. The client is then assumed to use the results in the
+	/// dictionary.
+	///
+	/// A 'record' in this class means one, or more, main xml elements, each of which has the same element name.
+	/// Lift data would have 'entry' to mark 'records', and FieldWorks 7.0 will use 'rt'
+	/// to mark its 'records'.
+	///
+	/// The given ElementReader tokenizes the input xml data and uses this class' "PrepareIndex" delegate
+	/// to add 'records' to the dictionary
+	/// </summary>
 	public class DifferDictionaryPrepper : IDisposable
 	{
-		private readonly byte[] m_identifierWithDoubleQuote;
-		private readonly byte[] m_identifierWithSingleQuote;
-		private static readonly byte s_closeDoubleQuote = Encoding.UTF8.GetBytes("\"")[0];
-		private static readonly byte s_closeSingleQuote = Encoding.UTF8.GetBytes("'")[0];
-		private ElementReader m_reader;
-		private IDictionary<string, byte[]> m_dictionary;
-		private readonly Encoding m_utf8;
+		private readonly byte[] _identifierWithDoubleQuote;
+		private readonly byte[] _identifierWithSingleQuote;
+		private static readonly byte _closeDoubleQuote = Encoding.UTF8.GetBytes("\"")[0];
+		private static readonly byte _closeSingleQuote = Encoding.UTF8.GetBytes("'")[0];
+		private ElementReader _reader;
+		private IDictionary<string, byte[]> _dictionary;
+		private readonly Encoding _utf8;
 
 		internal DifferDictionaryPrepper(IDictionary<string, byte[]> dictionary, byte[] data, string recordStartingTag, string fileClosingTag, string identifierAttribute)
 		{
-			m_dictionary = dictionary;
-			m_reader = new ElementReader(recordStartingTag, fileClosingTag, data, PrepareIndex);
-			m_utf8 = Encoding.UTF8;
-			m_identifierWithDoubleQuote = m_utf8.GetBytes(identifierAttribute + "=\"");
-			m_identifierWithSingleQuote = m_utf8.GetBytes(identifierAttribute + "='");
+			_dictionary = dictionary;
+			_reader = new ElementReader(recordStartingTag, fileClosingTag, data, PrepareIndex);
+			_utf8 = Encoding.UTF8;
+			_identifierWithDoubleQuote = _utf8.GetBytes(identifierAttribute + "=\"");
+			_identifierWithSingleQuote = _utf8.GetBytes(identifierAttribute + "='");
 		}
 
 		internal void Run()
 		{
-			m_reader.Run();
+			_reader.Run();
 		}
 
+		/// <summary>
+		/// The ElementReader calls back to this delegate to add items to the dictionary.
+		/// </summary>
+		/// <param name="data"></param>
 		private void PrepareIndex(byte[] data)
 		{
-			var guid = GetAttribute(m_identifierWithDoubleQuote, s_closeDoubleQuote, data)
-					   ?? GetAttribute(m_identifierWithSingleQuote, s_closeSingleQuote, data);
-			m_dictionary.Add(guid, data);
+			var guid = GetAttribute(_identifierWithDoubleQuote, _closeDoubleQuote, data)
+					   ?? GetAttribute(_identifierWithSingleQuote, _closeSingleQuote, data);
+			_dictionary.Add(guid, data);
 		}
 
 		private string GetAttribute(byte[] name, byte closeQuote, byte[] input)
@@ -46,7 +62,7 @@ namespace Chorus.Utilities
 			var end = Array.IndexOf(input, closeQuote, start);
 			return (end == -1)
 					? null
-					: m_utf8.GetString(input.SubArray(start, end - start));
+					: _utf8.GetString(input.SubArray(start, end - start));
 		}
 
 		#region Implementation of IDisposable
@@ -77,15 +93,15 @@ namespace Chorus.Utilities
 
 			if (disposing)
 			{
-				if (m_reader != null)
-					m_reader.Dispose();
+				if (_reader != null)
+					_reader.Dispose();
 			}
 
 			// Dispose unmanaged resources here, whether disposing is true or false.
 
 			// Main data members.
-			m_reader = null;
-			m_dictionary = null;
+			_reader = null;
+			_dictionary = null;
 
 			m_isDisposed = true;
 		}

@@ -8,36 +8,39 @@ using Chorus.merge.xml.generic;
 
 namespace Chorus.FileTypeHanders.FieldWorks
 {
+	/// <summary>
+	/// Class that does the bulk of the 3-way merging for FieldWorks 7.0 data.
+	/// </summary>
 	public class FieldWorksMerger
 	{
-		private readonly MergeOrder m_mergeOrder;
-		private readonly IMergeStrategy m_mergeStategy;
-		private readonly string m_winnerId;
-		private string m_winnerXml;
-		private string m_loserXml;
-		private string m_commonAncestorXml;
+		private readonly MergeOrder _mergeOrder;
+		private readonly IMergeStrategy _mergeStategy;
+		private readonly string _winnerId;
+		private string _winnerXml;
+		private string _loserXml;
+		private string _commonAncestorXml;
 
 		public FieldWorksMerger(MergeOrder mergeOrder, IMergeStrategy mergeStategy, string pathToWinner, string pathToLoser, string pathToCommonAncestor, string winnerId)
 		{
-			m_mergeOrder = mergeOrder;
-			m_mergeStategy = mergeStategy;
-			m_winnerId = winnerId;
+			_mergeOrder = mergeOrder;
+			_mergeStategy = mergeStategy;
+			_winnerId = winnerId;
 
-			m_winnerXml = File.ReadAllText(pathToWinner);
-			m_loserXml = File.ReadAllText(pathToLoser);
-			m_commonAncestorXml = File.ReadAllText(pathToCommonAncestor);
+			_winnerXml = File.ReadAllText(pathToWinner);
+			_loserXml = File.ReadAllText(pathToLoser);
+			_commonAncestorXml = File.ReadAllText(pathToCommonAncestor);
 		}
 
 		/// <summary>Used by tests, which prefer to give us raw contents rather than paths</summary>
 		public FieldWorksMerger(string winnerXml, string loserXml, string commonAncestorXml)
 		{
-			m_winnerXml = winnerXml;
-			m_loserXml = loserXml;
-			m_commonAncestorXml = commonAncestorXml;
+			_winnerXml = winnerXml;
+			_loserXml = loserXml;
+			_commonAncestorXml = commonAncestorXml;
 		}
 
 		private void Do2WayDiff(string parentXml, ref string childXml,
-			Dictionary<string, XmlNode> goners, Dictionary<string, ChangedElement> dirtballs, Dictionary<string, XmlNode> newbies)
+			IDictionary<string, XmlNode> goners, IDictionary<string, ChangedElement> dirtballs, IDictionary<string, XmlNode> newbies)
 		{
 			var winnerCommonListener = new ChangeAndConflictAccumulator();
 			var winnerDiffer = Xml2WayDiffer.CreateFromStrings(
@@ -90,12 +93,12 @@ namespace Chorus.FileTypeHanders.FieldWorks
 			var winnerGoners = new Dictionary<string, XmlNode>();
 			var winnerDirtballs = new Dictionary<string, ChangedElement>();
 			var newbies = new Dictionary<string, XmlNode>();
-			Do2WayDiff(m_commonAncestorXml, ref m_winnerXml, winnerGoners, winnerDirtballs, newbies);
+			Do2WayDiff(_commonAncestorXml, ref _winnerXml, winnerGoners, winnerDirtballs, newbies);
 
 			// Do diff between loser and common
 			var loserGoners = new Dictionary<string, XmlNode>();
 			var loserDirtballs = new Dictionary<string, ChangedElement>();
-			Do2WayDiff(m_commonAncestorXml, ref m_loserXml, loserGoners, loserDirtballs, newbies);
+			Do2WayDiff(_commonAncestorXml, ref _loserXml, loserGoners, loserDirtballs, newbies);
 
 			// At this point we have two sets of diffs, but we need to merge them.
 			// Newbies from both get added.
@@ -111,7 +114,7 @@ namespace Chorus.FileTypeHanders.FieldWorks
 				NewLineOnAttributes = false
 			}))
 			{
-				// Need a reader on 'm_commonAncestorXml', much as is done for FW, but sans thread.
+				// Need a reader on '_commonAncestorXml', much as is done for FW, but sans thread.
 				// Blend in newbies, goners, and dirtballs to 'outputPathname' as in FW.
 				var readerSettings = new XmlReaderSettings
 						{
@@ -123,9 +126,9 @@ namespace Chorus.FileTypeHanders.FieldWorks
 							IgnoreWhitespace = true
 						};
 				var enc = Encoding.UTF8;
-				using (var reader = XmlReader.Create(new MemoryStream(enc.GetBytes(m_commonAncestorXml)), readerSettings))
+				using (var reader = XmlReader.Create(new MemoryStream(enc.GetBytes(_commonAncestorXml)), readerSettings))
 				{
-					m_commonAncestorXml = null;
+					_commonAncestorXml = null;
 					reader.MoveToContent();
 
 					writer.WriteStartElement("languageproject");
@@ -172,9 +175,9 @@ namespace Chorus.FileTypeHanders.FieldWorks
 										winnerGoners[currentGuid],
 										dirtball.m_childNode,
 										dirtball.m_parentNode,
-										m_mergeOrder.MergeSituation,
+										_mergeOrder.MergeSituation,
 										new ElementStrategy(false),
-										m_winnerId));
+										_winnerId));
 									loserDirtballs.Remove(currentGuid);
 								}
 								// else // Winner deleted it and loser did nothing with it.
@@ -195,9 +198,9 @@ namespace Chorus.FileTypeHanders.FieldWorks
 									dirtballElement.m_childNode,
 									loserGoners[currentGuid],
 									dirtballElement.m_parentNode,
-									m_mergeOrder.MergeSituation,
+									_mergeOrder.MergeSituation,
 									new ElementStrategy(false),
-									m_winnerId));
+									_winnerId));
 
 								ReplaceCurrentNode(writer, dirtballElement.m_childNode);
 								winnerDirtballs.Remove(currentGuid);
@@ -212,7 +215,7 @@ namespace Chorus.FileTypeHanders.FieldWorks
 									if (!XmlUtilities.AreXmlElementsEqual(winnerDirtballs[currentGuid].m_childNode, loserDirtballs[currentGuid].m_childNode))
 									{
 										var dirtballElement = winnerDirtballs[currentGuid];
-										mergedResult = m_mergeStategy.MakeMergedEntry(EventListener, dirtballElement.m_childNode,
+										mergedResult = _mergeStategy.MakeMergedEntry(EventListener, dirtballElement.m_childNode,
 																	   loserDirtballs[currentGuid].m_childNode, dirtballElement.m_parentNode);
 									}
 									ReplaceCurrentNode(writer, mergedResult);

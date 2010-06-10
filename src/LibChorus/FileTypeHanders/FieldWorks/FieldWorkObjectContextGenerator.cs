@@ -3,6 +3,9 @@ using Chorus.merge.xml.generic;
 
 namespace Chorus.FileTypeHanders.FieldWorks
 {
+	/// <summary>
+	/// Class that creates a descriptor that can be used later to find the element again, as when reviewing conflict.
+	/// </summary>
 	public class FieldWorkObjectContextGenerator : IGenerateContextDescriptor
 	{
 		public ContextDescriptor GenerateContextDescriptor(string mergeElement, string filePath)

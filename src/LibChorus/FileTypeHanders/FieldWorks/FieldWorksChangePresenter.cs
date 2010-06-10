@@ -12,18 +12,18 @@ namespace Chorus.FileTypeHanders.FieldWorks
 	/// </summary>
 	public class FieldWorksChangePresenter : IChangePresenter
 	{
-		private readonly IXmlChangeReport m_report;
+		private readonly IXmlChangeReport _report;
 
 		public FieldWorksChangePresenter(IXmlChangeReport report)
 		{
-			m_report = report;
+			_report = report;
 		}
 
 		private XmlNode FirstNonNullNode
 		{
 			get
 			{
-				return m_report.ChildNode ?? m_report.ParentNode;
+				return _report.ChildNode ?? _report.ParentNode;
 			}
 		}
 
@@ -43,7 +43,7 @@ namespace Chorus.FileTypeHanders.FieldWorks
 
 		public string GetActionLabel()
 		{
-			return ((IChangeReport)m_report).ActionLabel;
+			return ((IChangeReport)_report).ActionLabel;
 		}
 
 		public string GetHtml(string style, string styleSheet)
@@ -51,13 +51,13 @@ namespace Chorus.FileTypeHanders.FieldWorks
 			var builder = new StringBuilder();
 			builder.Append("<html><head>" + styleSheet + "</head>");
 
-			switch (m_report.GetType().Name)
+			switch (_report.GetType().Name)
 			{
 				default:
-					builder.Append("Don't know how to display a report of type: " + m_report.GetType().Name + "<p/>");
+					builder.Append("Don't know how to display a report of type: " + _report.GetType().Name + "<p/>");
 					break;
 				case "XmlAdditionChangeReport":
-					var additionChangeReport = (XmlAdditionChangeReport)m_report;
+					var additionChangeReport = (XmlAdditionChangeReport)_report;
 					builder.Append("Added the following object:<p/>");
 					switch (style)
 					{
@@ -72,7 +72,7 @@ namespace Chorus.FileTypeHanders.FieldWorks
 					}
 					break;
 				case "XmlDeletionChangeReport":
-					var deletionChangeReport = (XmlDeletionChangeReport)m_report;
+					var deletionChangeReport = (XmlDeletionChangeReport)_report;
 					builder.Append("Deleted the following object:<p/>");
 					switch (style)
 					{
@@ -87,7 +87,7 @@ namespace Chorus.FileTypeHanders.FieldWorks
 					}
 					break;
 				case "XmlChangedRecordReport":
-					var changedRecordReport = (XmlChangedRecordReport)m_report;
+					var changedRecordReport = (XmlChangedRecordReport)_report;
 					switch (style.ToLower())
 					{
 						case "normal": // Fall through for now.

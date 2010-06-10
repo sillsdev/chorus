@@ -4,13 +4,18 @@ using Chorus.merge.xml.generic;
 
 namespace Chorus.FileTypeHanders.FieldWorks
 {
+	/// <summary>
+	/// Almost a 'do-nothing' strategy for FieldWorks 7.0 xml data.
+	///
+	/// As the FW team develops this, it will do lots more for the various domain classes.
+	/// </summary>
 	public class FieldWorksMergingStrategy : IMergeStrategy
 	{
-		private readonly XmlMerger m_entryMerger;
+		private readonly XmlMerger _entryMerger;
 
 		public FieldWorksMergingStrategy(MergeSituation mergeSituation)
 		{
-			m_entryMerger = new XmlMerger(mergeSituation);
+			_entryMerger = new XmlMerger(mergeSituation);
 
 			// Customize the XmlMerger with FW-specific info (cf. LiftEntryMergingStrategy for how Lift dees this.)
 			// Start with the <rt> element.
@@ -24,7 +29,7 @@ namespace Chorus.FileTypeHanders.FieldWorks
 				{
 					MergePartnerFinder = new FindByKeyAttribute(attribute)
 				};
-			m_entryMerger.MergeStrategies.SetStrategy(name, strategy);
+			_entryMerger.MergeStrategies.SetStrategy(name, strategy);
 			return strategy;
 		}
 
@@ -32,7 +37,7 @@ namespace Chorus.FileTypeHanders.FieldWorks
 
 		public string MakeMergedEntry(IMergeEventListener eventListener, XmlNode ourEntry, XmlNode theirEntry, XmlNode commonEntry)
 		{
-			return GetOuterXml(m_entryMerger.Merge(eventListener, ourEntry, theirEntry, commonEntry));
+			return GetOuterXml(_entryMerger.Merge(eventListener, ourEntry, theirEntry, commonEntry));
 		}
 
 		private static string GetOuterXml(XmlNode node)
