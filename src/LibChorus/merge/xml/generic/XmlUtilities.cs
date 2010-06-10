@@ -122,8 +122,10 @@ namespace Chorus.merge.xml.generic
 
 		public static bool AreXmlElementsEqual(XmlInput ours, XmlInput theirs)
 		{
-			// DiffConfiguration config = new DiffConfiguration(WhitespaceHandling.None);
-			var diff = new XmlDiff(ours, theirs);//, config);
+			// Must use 'config', or whitespace only differences will make the elements different.
+			// cf. diffing changeset 240 and 241 in the Tok Pisin project for such whitespace differences.
+			var config = new DiffConfiguration(WhitespaceHandling.None);
+			var diff = new XmlDiff(ours, theirs, config);
 			var diffResult = diff.Compare();
 			return (diffResult == null || diffResult.Difference == null || !diffResult.Difference.MajorDifference);
 		}
