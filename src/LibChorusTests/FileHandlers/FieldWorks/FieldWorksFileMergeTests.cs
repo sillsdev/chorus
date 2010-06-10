@@ -226,8 +226,9 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 			const string commonAncestor =
 @"<?xml version='1.0' encoding='utf-8'?>
 <languageproject version='7000016'>
-<rt class='LexEntry' guid='oldie'/>
-<rt class='LexEntry' guid='dirtball' ownerguid='originalOwner'/>
+<rt		class='LexEntry' guid='oldie'/>
+<rt
+	class='LexEntry' guid='dirtball' ownerguid='originalOwner'/>
 </languageproject>";
 			var ourContent = commonAncestor.Replace("originalOwner", "newOwner");
 			var theirContent = commonAncestor;

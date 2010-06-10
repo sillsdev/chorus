@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 
@@ -17,12 +18,10 @@ namespace Chorus.Utilities
 		private Action<byte[]> m_outputHandler;
 		private int m_startOfRecordsOffset;
 		private int m_endOfRecordsOffset;
+		private readonly List<Byte> m_endingWhitespace;
 
 		public ElementReader(string openingMarker, string finalClosingTag, byte[] inputData, Action<byte[]> outputHandler)
 		{
-			if (!openingMarker.EndsWith(" "))
-				openingMarker += " ";
-
 			m_inputData = inputData;
 			var enc = Encoding.UTF8;
 			m_openingMarker = enc.GetBytes(openingMarker);
@@ -30,6 +29,11 @@ namespace Chorus.Utilities
 			m_outputHandler = outputHandler;
 			m_startOfRecordsOffset = 0;
 			m_endOfRecordsOffset = m_inputData.Length;
+			m_endingWhitespace = new List<byte>();
+			m_endingWhitespace.AddRange(enc.GetBytes(" "));
+			m_endingWhitespace.AddRange(enc.GetBytes("\t"));
+			m_endingWhitespace.AddRange(enc.GetBytes("\r"));
+			m_endingWhitespace.AddRange(enc.GetBytes("\n"));
 		}
 
 		public void Run()
@@ -80,13 +84,16 @@ namespace Chorus.Utilities
 				// Try to match the rest of the marker.
 				for (var j = 1; ; j++)
 				{
-					if (m_openingMarker[j] != m_inputData[i + j])
+					var current = m_inputData[i + j];
+					if (m_endingWhitespace.Contains(current))
+					{
+						// Got it!
+						return i;
+					}
+					if (m_openingMarker[j] != current)
 						break; // no match, resume searching for opening character.
 					if (j != m_openingMarker.Length - 1)
 						continue;
-
-					// Got it!
-					return i;
 				}
 			}
 
