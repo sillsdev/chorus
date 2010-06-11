@@ -77,6 +77,26 @@ namespace LibChorus.Tests.merge.xml.lift
 		}
 
 		[Test]
+		public void DeletionReport_Not_ProducedForDeletionInParentAndChild()
+		{
+			var parent = @"<?xml version='1.0' encoding='utf-8'?>
+					<lift version='0.10' producer='WeSay 1.0.0.0'>
+						<entry id='old1' dateDeleted='2009-06-16T06:14:20Z'/>
+						<entry id='old2'/>
+					</lift>";
+			var child = @"<?xml version='1.0' encoding='utf-8'?>
+					<lift version='0.10' producer='WeSay 1.0.0.0'>
+						<entry	id='old1'	dateDeleted='2009-06-16T06:14:20Z'/>
+						<entry id='old2'/>
+					</lift>";
+			var listener = new ListenerForUnitTests();
+			var differ = Xml2WayDiffer.CreateFromStrings(parent, child, listener,
+				"entry", "lift", "id");
+			differ.ReportDifferencesToListener();
+			listener.AssertExpectedChangesCount(0);
+		}
+
+		[Test]
 		public void DeletionReport_Not_ProducedForDeletedAnnotationUsingNotesHandler()
 		{
 			const string parent = @"<?xml version='1.0' encoding='utf-8'?>

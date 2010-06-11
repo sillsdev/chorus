@@ -89,10 +89,10 @@ namespace Chorus.FileTypeHanders.FieldWorks
 
 		public void DoMerge(string outputPathname)
 		{
+			var newbies = new Dictionary<string, XmlNode>();
 			// Do diff between winner and common
 			var winnerGoners = new Dictionary<string, XmlNode>();
 			var winnerDirtballs = new Dictionary<string, ChangedElement>();
-			var newbies = new Dictionary<string, XmlNode>();
 			Do2WayDiff(_commonAncestorXml, ref _winnerXml, winnerGoners, winnerDirtballs, newbies);
 
 			// Do diff between loser and common
@@ -129,158 +129,180 @@ namespace Chorus.FileTypeHanders.FieldWorks
 				using (var reader = XmlReader.Create(new MemoryStream(enc.GetBytes(_commonAncestorXml)), readerSettings))
 				{
 					_commonAncestorXml = null;
-					reader.MoveToContent();
 
-					writer.WriteStartElement("languageproject");
-					reader.MoveToAttribute("version");
-					writer.WriteAttributeString("version", reader.Value);
-					reader.MoveToElement();
+					WritePreliminaryInformation(reader, writer);
 
-					// Deal with optional custom field declarations.
-					if (reader.LocalName == "AdditionalFields")
-					{
-						writer.WriteNode(reader, false);
-					}
+					ProcessMainRecordElements(winnerGoners, winnerDirtballs, loserGoners, loserDirtballs, reader, writer);
 
-					// Deal with <rt> elements
-					var keepReading = reader.Read();
-					while (keepReading)
-					{
-						if (reader.EOF)
-							break;
-
-						// 'rt' node is current node in reader.
-						// Fetch Guid from 'rt' node and see if it is in either
-						// of the modified/deleted dictionaries.
-						var transferUntouched = true;
-						var currentGuid = reader.GetAttribute("guid");
-
-						if (winnerGoners.ContainsKey(currentGuid))
-						{
-							transferUntouched = false;
-							if (loserGoners.ContainsKey(currentGuid))
-							{
-								// Both deleted it.
-								loserGoners.Remove(currentGuid);
-							}
-							else
-							{
-								if (loserDirtballs.ContainsKey(currentGuid))
-								{
-									var dirtball = loserDirtballs[currentGuid];
-									// Winner deleted it, but loser edited it.
-									// Make a conflict report.
-									EventListener.ConflictOccurred(new RemovedVsEditedElementConflict(
-										"rt",
-										winnerGoners[currentGuid],
-										dirtball.m_childNode,
-										dirtball.m_parentNode,
-										_mergeOrder.MergeSituation,
-										new ElementStrategy(false),
-										_winnerId));
-									loserDirtballs.Remove(currentGuid);
-								}
-								// else // Winner deleted it and loser did nothing with it.
-							}
-							winnerGoners.Remove(currentGuid);
-						}
-
-						if (winnerDirtballs.ContainsKey(currentGuid))
-						{
-							transferUntouched = false;
-							if (loserGoners.ContainsKey(currentGuid))
-							{
-								// Winner edited it, but loser deleted it.
-								// Make a conflict report.
-								var dirtballElement = winnerDirtballs[currentGuid];
-								EventListener.ConflictOccurred(new EditedVsRemovedElementConflict(
-									"rt",
-									dirtballElement.m_childNode,
-									loserGoners[currentGuid],
-									dirtballElement.m_parentNode,
-									_mergeOrder.MergeSituation,
-									new ElementStrategy(false),
-									_winnerId));
-
-								ReplaceCurrentNode(writer, dirtballElement.m_childNode);
-								winnerDirtballs.Remove(currentGuid);
-								loserGoners.Remove(currentGuid);
-							}
-							else
-							{
-								if (loserDirtballs.ContainsKey(currentGuid))
-								{
-									// Both edited it. Check it out.
-									var mergedResult = winnerDirtballs[currentGuid].m_childNode.OuterXml;
-									if (!XmlUtilities.AreXmlElementsEqual(winnerDirtballs[currentGuid].m_childNode, loserDirtballs[currentGuid].m_childNode))
-									{
-										var dirtballElement = winnerDirtballs[currentGuid];
-										mergedResult = _mergeStategy.MakeMergedEntry(EventListener, dirtballElement.m_childNode,
-																	   loserDirtballs[currentGuid].m_childNode, dirtballElement.m_parentNode);
-									}
-									ReplaceCurrentNode(writer, mergedResult);
-									loserDirtballs.Remove(currentGuid);
-								}
-								else
-								{
-									// Winner edited it. Loser did nothing with it.
-									ReplaceCurrentNode(writer, winnerDirtballs[currentGuid].m_childNode);
-									winnerDirtballs.Remove(currentGuid);
-								}
-							}
-						}
-
-						if (loserGoners.ContainsKey(currentGuid))
-						{
-							// Loser deleted it but winner did nothing to it.
-							// If winner had either deleted or edited it,
-							// then the code above here would have been involved,
-							// and currentGuid would have been removed from loserGoners.
-							transferUntouched = false;
-							loserGoners.Remove(currentGuid);
-						}
-						if (loserDirtballs.ContainsKey(currentGuid))
-						{
-							// Loser changed it, but winner did nothing to it.
-							transferUntouched = false;
-							ReplaceCurrentNode(writer, loserDirtballs[currentGuid].m_childNode);
-							loserDirtballs.Remove(currentGuid);
-						}
-
-						if (!transferUntouched)
-						{
-							// Read to next <rt> element
-							reader.ReadOuterXml();
-							keepReading = reader.IsStartElement();
-							continue;
-						}
-
-						// Nobody did anything with the currentsource node, so just copy it to output.
-						writer.WriteNode(reader, false);
-						keepReading = reader.IsStartElement();
-					}
-
-					// Write out all new kids from winner and loser.
-					readerSettings = new XmlReaderSettings
-					{
-						CheckCharacters = false,
-						ConformanceLevel = ConformanceLevel.Fragment,
-						ProhibitDtd = true,
-						ValidationType = ValidationType.None,
-						CloseInput = true,
-						IgnoreWhitespace = true
-					};
-					foreach (var newby in newbies.Values)
-					{
-						// Note: If we need to put in a XmlAdditionChangeReport for newbies from 'loser',
-						// Note: then we will need two 'newbie' lists.
-						using (var nodeReader = XmlReader.Create(new MemoryStream(enc.GetBytes(newby.OuterXml)), readerSettings))
-						{
-							writer.WriteNode(nodeReader, false);
-						}
-					}
+					WriteOutNewObjects(newbies, enc, writer);
 
 					writer.WriteEndElement();
+				}
+			}
+		}
+
+		private void ProcessMainRecordElements(IDictionary<string, XmlNode> winnerGoners,
+			IDictionary<string, ChangedElement> winnerDirtballs,
+			IDictionary<string, XmlNode> loserGoners,
+			IDictionary<string, ChangedElement> loserDirtballs,
+			XmlReader reader, XmlWriter writer)
+		{
+			var keepReading = reader.Read();
+			while (keepReading)
+			{
+				if (reader.EOF)
+					break;
+
+				// 'rt' node is current node in reader.
+				// Fetch Guid from 'rt' node and see if it is in either
+				// of the modified/deleted dictionaries.
+				var transferUntouched = true;
+				var currentGuid = reader.GetAttribute("guid");
+
+				if (winnerGoners.ContainsKey(currentGuid))
+				{
+					transferUntouched = false;
+					ProcessDeletedRecordFromWinningData(winnerGoners, currentGuid, loserGoners, loserDirtballs);
+				}
+
+				if (winnerDirtballs.ContainsKey(currentGuid))
+				{
+					transferUntouched = false;
+					if (loserGoners.ContainsKey(currentGuid))
+					{
+						// Winner edited it, but loser deleted it.
+						// Make a conflict report.
+						var dirtballElement = winnerDirtballs[currentGuid];
+						EventListener.ConflictOccurred(new EditedVsRemovedElementConflict(
+														"rt",
+														dirtballElement.m_childNode,
+														loserGoners[currentGuid],
+														dirtballElement.m_parentNode,
+														_mergeOrder.MergeSituation,
+														new ElementStrategy(false),
+														_winnerId));
+
+						ReplaceCurrentNode(writer, dirtballElement.m_childNode);
+						winnerDirtballs.Remove(currentGuid);
+						loserGoners.Remove(currentGuid);
+					}
+					else
+					{
+						if (loserDirtballs.ContainsKey(currentGuid))
+						{
+							// Both edited it. Check it out.
+							var mergedResult = winnerDirtballs[currentGuid].m_childNode.OuterXml;
+							if (!XmlUtilities.AreXmlElementsEqual(winnerDirtballs[currentGuid].m_childNode, loserDirtballs[currentGuid].m_childNode))
+							{
+								var dirtballElement = winnerDirtballs[currentGuid];
+								mergedResult = _mergeStategy.MakeMergedEntry(EventListener, dirtballElement.m_childNode,
+																			 loserDirtballs[currentGuid].m_childNode, dirtballElement.m_parentNode);
+							}
+							ReplaceCurrentNode(writer, mergedResult);
+							loserDirtballs.Remove(currentGuid);
+						}
+						else
+						{
+							// Winner edited it. Loser did nothing with it.
+							ReplaceCurrentNode(writer, winnerDirtballs[currentGuid].m_childNode);
+							winnerDirtballs.Remove(currentGuid);
+						}
+					}
+				}
+
+				if (loserGoners.ContainsKey(currentGuid))
+				{
+					// Loser deleted it but winner did nothing to it.
+					// If winner had either deleted or edited it,
+					// then the code above here would have been involved,
+					// and currentGuid would have been removed from loserGoners.
+					transferUntouched = false;
+					loserGoners.Remove(currentGuid);
+				}
+				if (loserDirtballs.ContainsKey(currentGuid))
+				{
+					// Loser changed it, but winner did nothing to it.
+					transferUntouched = false;
+					ReplaceCurrentNode(writer, loserDirtballs[currentGuid].m_childNode);
+					loserDirtballs.Remove(currentGuid);
+				}
+
+				if (!transferUntouched)
+				{
+					// Read to next <rt> element
+					reader.ReadOuterXml();
+					keepReading = reader.IsStartElement();
+					continue;
+				}
+
+				// Nobody did anything with the current source node, so just copy it to output.
+				writer.WriteNode(reader, false);
+				keepReading = reader.IsStartElement();
+			}
+		}
+
+		private void ProcessDeletedRecordFromWinningData(IDictionary<string, XmlNode> winnerGoners, string currentGuid, IDictionary<string, XmlNode> loserGoners, IDictionary<string, ChangedElement> loserDirtballs)
+		{
+			if (loserGoners.ContainsKey(currentGuid))
+			{
+				// Both deleted it.
+				loserGoners.Remove(currentGuid);
+			}
+			else
+			{
+				if (loserDirtballs.ContainsKey(currentGuid))
+				{
+					var dirtball = loserDirtballs[currentGuid];
+					// Winner deleted it, but loser edited it.
+					// Make a conflict report.
+					EventListener.ConflictOccurred(new RemovedVsEditedElementConflict(
+													"rt",
+													winnerGoners[currentGuid],
+													dirtball.m_childNode,
+													dirtball.m_parentNode,
+													_mergeOrder.MergeSituation,
+													new ElementStrategy(false),
+													_winnerId));
+					loserDirtballs.Remove(currentGuid);
+				}
+				// else // Winner deleted it and loser did nothing with it.
+			}
+			winnerGoners.Remove(currentGuid);
+		}
+
+		private static void WritePreliminaryInformation(XmlReader reader, XmlWriter writer)
+		{
+			reader.MoveToContent();
+			writer.WriteStartElement("languageproject");
+			reader.MoveToAttribute("version");
+			writer.WriteAttributeString("version", reader.Value);
+			reader.MoveToElement();
+
+			// Deal with optional custom field declarations.
+			if (reader.LocalName == "AdditionalFields")
+			{
+				writer.WriteNode(reader, false);
+			}
+		}
+
+		private static void WriteOutNewObjects(Dictionary<string, XmlNode> newbies, Encoding enc, XmlWriter writer)
+		{
+			var readerSettings = new XmlReaderSettings
+												{
+													CheckCharacters = false,
+													ConformanceLevel = ConformanceLevel.Fragment,
+													ProhibitDtd = true,
+													ValidationType = ValidationType.None,
+													CloseInput = true,
+													IgnoreWhitespace = true
+												};
+			foreach (var newby in newbies.Values)
+			{
+				// Note: If we need to put in a XmlAdditionChangeReport for newbies from 'loser',
+				// Note: then we will need two 'newbie' lists.
+				using (var nodeReader = XmlReader.Create(new MemoryStream(enc.GetBytes(newby.OuterXml)), readerSettings))
+				{
+					writer.WriteNode(nodeReader, false);
 				}
 			}
 		}

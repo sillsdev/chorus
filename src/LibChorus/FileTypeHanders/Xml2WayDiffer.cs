@@ -104,20 +104,26 @@ namespace Chorus.FileTypeHanders
 							continue;
 					}
 
+					const string deletedAttr = "dateDeleted=";
+					var parentStr = enc.GetString(parentValue);
 					var childStr = enc.GetString(childValue);
 					// May have added dateDeleted' attr, in which case treat it as deleted, not changed.
 					// NB: This is only for Lift diffing, not FW diffing,
 					// so figure a way to have the client do this kind of check.
-					if (childStr.Contains("dateDeleted="))
+					if (childStr.Contains(deletedAttr))
 					{
-						_eventListener.ChangeOccurred(new XmlDeletionChangeReport(
-														_parentFileInRevision,
-														XmlUtilities.GetDocumentNodeFromRawXml(enc.GetString(kvpParent.Value), parentDoc),
-														XmlUtilities.GetDocumentNodeFromRawXml(childStr, childDoc)));
+						// Only report it as deleted, if it is not already marked as deleted in the parent.
+						if (!parentStr.Contains(deletedAttr))
+						{
+							_eventListener.ChangeOccurred(new XmlDeletionChangeReport(
+															_parentFileInRevision,
+															XmlUtilities.GetDocumentNodeFromRawXml(enc.GetString(kvpParent.Value), parentDoc),
+															XmlUtilities.GetDocumentNodeFromRawXml(childStr, childDoc)));
+
+						}
 					}
 					else
 					{
-						var parentStr = enc.GetString(parentValue);
 						try
 						{
 							if (XmlUtilities.AreXmlElementsEqual(new XmlInput(childStr), new XmlInput(parentStr)))
