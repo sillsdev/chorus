@@ -41,7 +41,7 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 		{
 			var extensions = m_fwFileHandler.GetExtensionsOfKnownTextFileTypes().ToArray();
 			Assert.AreEqual(1, extensions.Count(), "Wrong number of extensions.");
-			Assert.AreEqual("xml", extensions[0]);
+			Assert.AreEqual("fwdata", extensions[0]);
 		}
 	}
 }

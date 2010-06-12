@@ -14,7 +14,7 @@ namespace Chorus.FileTypeHanders.FieldWorks
 	/// </summary>
 	public class FieldWorksFileHandler : IChorusFileTypeHandler
 	{
-		private const string kExtension = "xml";
+		private const string kExtension = "fwdata";
 		private readonly Dictionary<string, bool> _filesChecked = new Dictionary<string, bool>();
 
 		#region Implementation of IChorusFileTypeHandler

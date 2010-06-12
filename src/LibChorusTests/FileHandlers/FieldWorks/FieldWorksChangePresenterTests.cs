@@ -32,7 +32,7 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 					null,
 					null,
 					null));
-			m_goodXmlPathname = Path.ChangeExtension(Path.GetTempFileName(), ".xml");
+			m_goodXmlPathname = Path.ChangeExtension(Path.GetTempFileName(), ".fwdata");
 // ReSharper disable LocalizableElement
 			File.WriteAllText(m_goodXmlPathname, "<?xml version='1.0' encoding='utf-8'?>" + Environment.NewLine + "<languageproject version='7000016' />");
 // ReSharper restore LocalizableElement

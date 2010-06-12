@@ -48,7 +48,7 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 		[Test]
 		public void Can_Merge_Good_Fw_Xml_File()
 		{
-			var goodXmlPathname = Path.ChangeExtension(Path.GetTempFileName(), ".xml");
+			var goodXmlPathname = Path.ChangeExtension(Path.GetTempFileName(), ".fwdata");
 			try
 			{
 // ReSharper disable LocalizableElement
