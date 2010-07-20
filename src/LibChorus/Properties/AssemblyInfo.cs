@@ -33,4 +33,4 @@ using System.Runtime.InteropServices;
 // by using the '*' as shown below:
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
-[assembly: InternalsVisibleTo("LibChorus.Tests")]
+[assembly: InternalsVisibleTo("LibChorus.Tests, PublicKey=f1447bae1e63f485")]

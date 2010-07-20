@@ -16,6 +16,8 @@
 	</TargetFrameworkSubset>
 	<StartupObject>Chorus.Program</StartupObject>
 	<ApplicationIcon>chorus.ico</ApplicationIcon>
+	<SignAssembly>true</SignAssembly>
+	<AssemblyOriginatorKeyFile>FieldWorks.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
 	<DebugSymbols>true</DebugSymbols>
@@ -49,12 +51,32 @@
 	<CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
 	<ApplicationIcon>chorus.ico</ApplicationIcon>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+	<DebugSymbols>true</DebugSymbols>
+	<OutputPath>..\..\output\Debug\</OutputPath>
+	<DefineConstants>DEBUG;TRACE</DefineConstants>
+	<CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+	<DocumentationFile>..\..\output\Debug\Chorus.XML</DocumentationFile>
+	<DebugType>full</DebugType>
+	<PlatformTarget>x86</PlatformTarget>
+	<ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+	<DebugSymbols>true</DebugSymbols>
+	<OutputPath>bin\x86\Release\</OutputPath>
+	<DefineConstants>TRACE</DefineConstants>
+	<CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+	<Optimize>true</Optimize>
+	<DebugType>pdbonly</DebugType>
+	<PlatformTarget>x86</PlatformTarget>
+	<ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
   <ItemGroup>
 	<Reference Include="Autofac, Version=1.4.4.561, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
 	  <SpecificVersion>False</SpecificVersion>
 	  <HintPath>..\..\lib\net2.0\Autofac.dll</HintPath>
 	</Reference>
-	<Reference Include="Palaso, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+	<Reference Include="Palaso, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f1447bae1e63f485, processorArchitecture=x86">
 	  <SpecificVersion>False</SpecificVersion>
 	  <HintPath>..\..\lib\net2.0\Palaso.dll</HintPath>
 	</Reference>
@@ -400,6 +422,7 @@
 	<EmbeddedResource Include="UI\Sync\SyncStartControl.resx">
 	  <DependentUpon>SyncStartControl.cs</DependentUpon>
 	</EmbeddedResource>
+	<None Include="FieldWorks.snk" />
 	<None Include="Resources\error.wav" />
 	<None Include="Resources\chorus32x32.png" />
 	<None Include="Resources\networkFolder58x64" />
