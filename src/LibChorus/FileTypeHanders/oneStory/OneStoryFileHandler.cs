@@ -2,28 +2,35 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Xml.Linq;
+using Chorus.FileTypeHanders.xml;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
+using OneStoryProjectEditor;
 
 namespace Chorus.FileTypeHanders.oneStory
 {
 	public class OneStoryFileHandler : IChorusFileTypeHandler
 	{
+		protected bool HasOneStoryExtension(string strPathToFile)
+		{
+			return (Path.GetExtension(strPathToFile).ToLower() == ".onestory");
+		}
+
 		public bool CanDiffFile(string pathToFile)
 		{
-			return false;
+			return HasOneStoryExtension(pathToFile);
 		}
 
 		public bool CanMergeFile(string pathToFile)
 		{
-			return Path.GetExtension(pathToFile).ToLower() == ".onestory";
+			return HasOneStoryExtension(pathToFile);
 		}
 
 		public bool CanPresentFile(string pathToFile)
 		{
-			return false;
+			return HasOneStoryExtension(pathToFile);
 		}
 
 		public bool CanValidateFile(string pathToFile)
@@ -125,16 +132,27 @@ namespace Chorus.FileTypeHanders.oneStory
 			merger.MergeStrategies.SetStrategy("CoachNote", elementStrategyCoaNote);
 		}
 
+		private ProjectSettings _projSettings;
+		private TeamMembersData _teamMembers;
 		public IEnumerable<IChangeReport> Find2WayDifferences(FileInRevision parent, FileInRevision child, HgRepository repository)
 		{
-			//this is never called because we said we don't do diffs yet; review is handled some other way
-			throw new NotImplementedException();
+			var listener = new ChangeAndConflictAccumulator();
+			//pull the files out of the repository so we can read them
+			using (var childFile = child.CreateTempFile(repository))
+			using (var parentFile = parent.CreateTempFile(repository))
+			{
+				var differ = OneStoryDiffer.CreateFromFiles(parent, child, repository.PathToRepo, parentFile.Path, childFile.Path, listener);
+				differ.ReportDifferencesToListener(out _projSettings, out _teamMembers);
+				return listener.Changes;
+			}
 		}
 
 		public IChangePresenter GetChangePresenter(IChangeReport report, HgRepository repository)
 		{
-			//this is never called because we said we don't present diffs; review is handled some other way
-			throw new NotImplementedException();
+			if ((report as IXmlChangeReport) != null)
+				return new OneStoryChangePresenter(report as IXmlChangeReport, _projSettings, _teamMembers);
+
+			return new DefaultChangePresenter(report, repository);
 		}
 
 		public IEnumerable<IChangeReport> DescribeInitialContents(FileInRevision fileInRevision, TempFile file)
