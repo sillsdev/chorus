@@ -115,7 +115,7 @@ namespace Rainbow.HtmlDiffEngine
 	/// for marking up the deleted words in the merged
 	/// file.
 	/// </summary>
-	class CommentOff
+	public class CommentOff
 	{
 		static public string BeginTag = "<span style=\"text-decoration: line-through; color: red\">";
 		static public string EndTag = "</span>";
@@ -126,7 +126,7 @@ namespace Rainbow.HtmlDiffEngine
 	/// for marking up the added words in the merged
 	/// file.
 	/// </summary>
-	class Added
+	public class Added
 	{
 		static public string BeginTag = "<span style=\"background: Yellow\">";
 		static public string EndTag = "</span>";
