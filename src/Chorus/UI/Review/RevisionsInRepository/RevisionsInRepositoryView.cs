@@ -48,8 +48,8 @@ namespace Chorus.UI.Review.RevisionsInRepository
 		public void RefreshRevisions()
 		{
 			Cursor.Current = Cursors.WaitCursor;
-			_historyList.Items.Clear();
-			List<ListViewItem> rows = new List<ListViewItem>();
+			_historyGrid.Rows.Clear();
+			List<DataGridViewRow> rows = new List<DataGridViewRow>();
 			foreach (Revision rev in _model.GetHistoryItems())
 			{
 				var dateString = rev.DateString;
@@ -66,13 +66,17 @@ namespace Chorus.UI.Review.RevisionsInRepository
 					dateString = when.ToShortDateString()+" "+when.ToShortTimeString();
 				}
 
-				var viewItem = new ListViewItem(new string[] {dateString, rev.UserId, GetDescriptionForListView(rev)});
+				object image;
 				if (rev.Summary.ToLower().Contains("conflict"))
-					viewItem.ImageKey = "Warning";
+					image = imageList1.Images["Warning"];
+					// viewItem.ImageKey = "Warning";
 				else if (rev.Parents.Count > 1)
-					viewItem.ImageKey = "Merge";
+					image = imageList1.Images["Merge"];
+					// viewItem.ImageKey = "Merge";
 				else
 				{
+					image = null;
+					/*
 					var colonLocation = rev.Summary.IndexOf(':');
 					string appName = rev.Summary;
 					if (colonLocation > 0)
@@ -88,18 +92,26 @@ namespace Chorus.UI.Review.RevisionsInRepository
 					//temp hack... the app has now been fixed to not include this
 					appName = appName.Replace("0.5", "");
 					viewItem.ImageKey = appName.Trim();
-
+					*/
 				}
-				viewItem.Tag = rev;
-				viewItem.ToolTipText = rev.Number.LocalRevisionNumber + ": " + rev.Number.Hash;
-				rows.Add(viewItem);
+				int nIndex = _historyGrid.Rows.Add(new [] { image, false, false, dateString, rev.UserId, GetDescriptionForListView(rev) });
+				var row = _historyGrid.Rows[nIndex];
+				row.Tag = rev;
+				row.Cells[0].ToolTipText = rev.Number.LocalRevisionNumber + ": " + rev.Number.Hash;
+				// rows.Add(viewItem);
 			}
-			_historyList.Items.AddRange(rows.ToArray());
-			if (_historyList.Items.Count > 0)
+			// _historyList.Items.AddRange(rows.ToArray());
+			_nChildIndex = _nParentIndex = 0;
+			if (_historyGrid.Rows.Count > 1)
 			{
-			   // no: this can be very slow, so wait until they select one
+				// no: this can be very slow, so wait until they select one
 				//_historyList.Items[0].Selected = true;
+				_nParentIndex = 1;
 			}
+
+			_historyGrid.Rows[_nChildIndex].Cells[ColumnChildRevision.Name].Value = true;
+			_historyGrid.Rows[_nParentIndex].Cells[ColumnParentRevision.Name].Value = true;
+
 			Cursor.Current = Cursors.Default;
 		}
 
@@ -109,16 +121,6 @@ namespace Chorus.UI.Review.RevisionsInRepository
 			if(s=="auto")
 				return string.Empty;
 			return s;
-		}
-
-		private void _historyList_SelectedIndexChanged(object sender, EventArgs e)
-		{
-			Revision rev = null;
-			if( _historyList.SelectedItems.Count == 1)
-			{
-				rev = _historyList.SelectedItems[0].Tag as Revision;
-			}
-			_model.SelectedRevisionChanged(rev);
 		}
 
 		private void StartRefreshTimer(object sender, EventArgs e)
@@ -147,6 +149,28 @@ namespace Chorus.UI.Review.RevisionsInRepository
 		   RefreshRevisions();
 		}
 
+	   private int _nChildIndex;
+	   private int _nParentIndex;
+	   private void _historyGrid_CellClick(object sender, DataGridViewCellEventArgs e)
+	   {
+		   // make sure we have something reasonable
+		   if (((e.ColumnIndex < ColumnParentRevision.Index) || (e.ColumnIndex > ColumnChildRevision.Index))
+			   || (e.RowIndex < 0) || (e.RowIndex > _historyGrid.Rows.Count))
+			   return;
 
+		   if (e.ColumnIndex == ColumnParentRevision.Index)
+		   {
+			   _historyGrid.Rows[_nParentIndex].Cells[ColumnParentRevision.Index].Value = false;
+			   _nParentIndex = e.RowIndex;
+		   }
+		   else if (e.ColumnIndex == ColumnChildRevision.Index)
+		   {
+			   _historyGrid.Rows[_nChildIndex].Cells[ColumnChildRevision.Index].Value = false;
+			   _nChildIndex = e.RowIndex;
+		   }
+
+		   Revision rev = _historyGrid.Rows[_nParentIndex].Tag as Revision;
+		   _model.SelectedRevisionChanged(rev);
+	   }
 	}
 }

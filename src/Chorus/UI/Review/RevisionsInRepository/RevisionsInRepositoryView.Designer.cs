@@ -31,14 +31,18 @@
 			this.components = new System.ComponentModel.Container();
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(RevisionsInRepositoryView));
 			this._loadButton = new System.Windows.Forms.Button();
-			this._historyList = new System.Windows.Forms.ListView();
-			this.columnHeader1 = new System.Windows.Forms.ColumnHeader();
-			this.columnHeader2 = new System.Windows.Forms.ColumnHeader();
-			this.columnHeader3 = new System.Windows.Forms.ColumnHeader();
 			this.imageList1 = new System.Windows.Forms.ImageList(this.components);
 			this.timer1 = new System.Windows.Forms.Timer(this.components);
 			this.label3 = new System.Windows.Forms.Label();
 			this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
+			this._historyGrid = new System.Windows.Forms.DataGridView();
+			this.ColumnImage = new System.Windows.Forms.DataGridViewImageColumn();
+			this.ColumnParentRevision = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+			this.ColumnChildRevision = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+			this.ColumnDate = new System.Windows.Forms.DataGridViewTextBoxColumn();
+			this.ColumnPerson = new System.Windows.Forms.DataGridViewTextBoxColumn();
+			this.ColumnAction = new System.Windows.Forms.DataGridViewTextBoxColumn();
+			((System.ComponentModel.ISupportInitialize)(this._historyGrid)).BeginInit();
 			this.SuspendLayout();
 			//
 			// _loadButton
@@ -55,44 +59,6 @@
 			this.toolTip1.SetToolTip(this._loadButton, "Reload the history");
 			this._loadButton.UseVisualStyleBackColor = true;
 			this._loadButton.Click += new System.EventHandler(this.OnRefresh);
-			//
-			// _historyList
-			//
-			this._historyList.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-						| System.Windows.Forms.AnchorStyles.Left)
-						| System.Windows.Forms.AnchorStyles.Right)));
-			this._historyList.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-			this.columnHeader1,
-			this.columnHeader2,
-			this.columnHeader3});
-			this._historyList.FullRowSelect = true;
-			this._historyList.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
-			this._historyList.HideSelection = false;
-			this._historyList.Location = new System.Drawing.Point(3, 32);
-			this._historyList.MultiSelect = false;
-			this._historyList.Name = "_historyList";
-			this._historyList.ShowItemToolTips = true;
-			this._historyList.Size = new System.Drawing.Size(464, 297);
-			this._historyList.SmallImageList = this.imageList1;
-			this._historyList.TabIndex = 2;
-			this._historyList.UseCompatibleStateImageBehavior = false;
-			this._historyList.View = System.Windows.Forms.View.Details;
-			this._historyList.SelectedIndexChanged += new System.EventHandler(this._historyList_SelectedIndexChanged);
-			//
-			// columnHeader1
-			//
-			this.columnHeader1.Text = "Date";
-			this.columnHeader1.Width = 124;
-			//
-			// columnHeader2
-			//
-			this.columnHeader2.Text = "Person";
-			this.columnHeader2.Width = 118;
-			//
-			// columnHeader3
-			//
-			this.columnHeader3.Text = "Action";
-			this.columnHeader3.Width = 300;
 			//
 			// imageList1
 			//
@@ -120,18 +86,76 @@
 			this.label3.TabIndex = 4;
 			this.label3.Text = "Review Project Changes";
 			//
+			// _historyGrid
+			//
+			this._historyGrid.AllowUserToAddRows = false;
+			this._historyGrid.AllowUserToDeleteRows = false;
+			this._historyGrid.AllowUserToResizeRows = false;
+			this._historyGrid.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
+			this._historyGrid.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+			this._historyGrid.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+			this.ColumnImage,
+			this.ColumnParentRevision,
+			this.ColumnChildRevision,
+			this.ColumnDate,
+			this.ColumnPerson,
+			this.ColumnAction});
+			this._historyGrid.Location = new System.Drawing.Point(3, 32);
+			this._historyGrid.Name = "_historyGrid";
+			this._historyGrid.RowHeadersVisible = false;
+			this._historyGrid.Size = new System.Drawing.Size(464, 297);
+			this._historyGrid.TabIndex = 5;
+			this._historyGrid.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this._historyGrid_CellClick);
+			//
+			// ColumnImage
+			//
+			this.ColumnImage.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+			this.ColumnImage.HeaderText = "";
+			this.ColumnImage.Name = "ColumnImage";
+			this.ColumnImage.Width = 5;
+			//
+			// ColumnParentRevision
+			//
+			this.ColumnParentRevision.FillWeight = 35F;
+			this.ColumnParentRevision.HeaderText = "Old";
+			this.ColumnParentRevision.Name = "ColumnParentRevision";
+			this.ColumnParentRevision.ToolTipText = "Older (parent) revision to compare";
+			//
+			// ColumnChildRevision
+			//
+			this.ColumnChildRevision.FillWeight = 35F;
+			this.ColumnChildRevision.HeaderText = "New";
+			this.ColumnChildRevision.Name = "ColumnChildRevision";
+			this.ColumnChildRevision.ToolTipText = "Newer (child) revision to compare";
+			//
+			// ColumnDate
+			//
+			this.ColumnDate.HeaderText = "Date";
+			this.ColumnDate.Name = "ColumnDate";
+			//
+			// ColumnPerson
+			//
+			this.ColumnPerson.HeaderText = "Person";
+			this.ColumnPerson.Name = "ColumnPerson";
+			//
+			// ColumnAction
+			//
+			this.ColumnAction.HeaderText = "Action";
+			this.ColumnAction.Name = "ColumnAction";
+			//
 			// RevisionsInRepositoryView
 			//
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.BackColor = System.Drawing.SystemColors.GradientInactiveCaption;
+			this.Controls.Add(this._historyGrid);
 			this.Controls.Add(this.label3);
-			this.Controls.Add(this._historyList);
 			this.Controls.Add(this._loadButton);
 			this.Name = "RevisionsInRepositoryView";
 			this.Size = new System.Drawing.Size(470, 348);
 			this.Load += new System.EventHandler(this.StartRefreshTimer);
 			this.VisibleChanged += new System.EventHandler(this.StartRefreshTimer);
+			((System.ComponentModel.ISupportInitialize)(this._historyGrid)).EndInit();
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -140,14 +164,17 @@
 		#endregion
 
 		private System.Windows.Forms.Button _loadButton;
-		private System.Windows.Forms.ListView _historyList;
-		private System.Windows.Forms.ColumnHeader columnHeader1;
-		private System.Windows.Forms.ColumnHeader columnHeader2;
-		private System.Windows.Forms.ColumnHeader columnHeader3;
 		private System.Windows.Forms.Timer timer1;
 		private System.Windows.Forms.Label label3;
 		private System.Windows.Forms.ToolTip toolTip1;
 		private System.Windows.Forms.ImageList imageList1;
+		private System.Windows.Forms.DataGridView _historyGrid;
+		private System.Windows.Forms.DataGridViewImageColumn ColumnImage;
+		private System.Windows.Forms.DataGridViewCheckBoxColumn ColumnParentRevision;
+		private System.Windows.Forms.DataGridViewCheckBoxColumn ColumnChildRevision;
+		private System.Windows.Forms.DataGridViewTextBoxColumn ColumnDate;
+		private System.Windows.Forms.DataGridViewTextBoxColumn ColumnPerson;
+		private System.Windows.Forms.DataGridViewTextBoxColumn ColumnAction;
 
 	}
 }
