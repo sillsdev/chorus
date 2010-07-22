@@ -17,7 +17,8 @@
 	<StartupObject>Chorus.Program</StartupObject>
 	<ApplicationIcon>chorus.ico</ApplicationIcon>
 	<SignAssembly>true</SignAssembly>
-	<AssemblyOriginatorKeyFile>FieldWorks.snk</AssemblyOriginatorKeyFile>
+	<AssemblyOriginatorKeyFile>
+	</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
 	<DebugSymbols>true</DebugSymbols>
@@ -422,7 +423,6 @@
 	<EmbeddedResource Include="UI\Sync\SyncStartControl.resx">
 	  <DependentUpon>SyncStartControl.cs</DependentUpon>
 	</EmbeddedResource>
-	<None Include="FieldWorks.snk" />
 	<None Include="Resources\error.wav" />
 	<None Include="Resources\chorus32x32.png" />
 	<None Include="Resources\networkFolder58x64" />

@@ -16,7 +16,8 @@
 	</UpgradeBackupLocation>
 	<TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
 	<SignAssembly>true</SignAssembly>
-	<AssemblyOriginatorKeyFile>FieldWorks.snk</AssemblyOriginatorKeyFile>
+	<AssemblyOriginatorKeyFile>
+	</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
 	<DebugSymbols>true</DebugSymbols>
@@ -149,9 +150,6 @@
 	  <Project>{1264E294-F719-491C-863A-703CB48385D8}</Project>
 	  <Name>ChorusMerge</Name>
 	</ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-	<None Include="FieldWorks.snk" />
   </ItemGroup>
   <ItemGroup>
 	<Folder Include="merge\text\" />
