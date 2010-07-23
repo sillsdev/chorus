@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
@@ -48,7 +49,7 @@ namespace Chorus.UI.Review.RevisionsInRepository
 		private void RefreshRevisions()
 		{
 			_historyGrid.Rows.Clear();
-			_model.StartGettingRevisions();
+			_model.BeginGettingRevisions();
 			_rowAddingTimer.Enabled = true;
 		}
 
@@ -76,9 +77,15 @@ namespace Chorus.UI.Review.RevisionsInRepository
 		private void OnRowAddingTimer_Tick(object sender, EventArgs e)
 		{
 			bool gridWasEmpty =_historyGrid.Rows.Count < 2;
-			foreach (var revision in _model.DiscoveredRevisionsQueue)
+			lock(_model.DiscoveredRevisionsQueue)
 			{
-				AddRow(revision);
+				_historyGrid.SuspendLayout();
+				const int maxNumberToAddAtOnce = 20;
+				for (int i = 0; i < maxNumberToAddAtOnce && _model.DiscoveredRevisionsQueue.Count > 0; i++)
+				{
+						AddRow(_model.DiscoveredRevisionsQueue.Dequeue());
+				}
+				_historyGrid.ResumeLayout();
 			}
 			if(gridWasEmpty && _historyGrid.Rows.Count >= 2)
 			{

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Chorus.sync;
 using Chorus.UI.Review.RevisionsInRepository;
 using Chorus.Utilities;
@@ -46,8 +47,8 @@ namespace Chorus.Tests
 		[Test]
 		public void BeforeAnySyncing_EmptyHistory()
 		{
-			List<Revision> items = _model.GetHistoryItems();
-			Assert.AreEqual(0, items.Count);
+			var items = _model.GetAllRevisions();
+			Assert.AreEqual(0, items.Count());
 		}
 	}
 }
