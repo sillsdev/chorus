@@ -16,11 +16,21 @@ namespace Chorus.UI.Review.RevisionsInRepository
 		private string _currentTipRev;
 		public IProgress ProgressDisplay { get; set; }
 
+		/// <summary>
+		/// Revisions take time to gether up, so the UI gets them in chunks,
+		/// while we gather up more in the background
+		/// </summary>
+		public Queue<Revision> DiscoveredRevisionsQueue
+		{
+			get; set;
+		}
+
 		public RevisionInRepositoryModel(HgRepository repository, RevisionSelectedEvent revisionSelectedEvent)
 		{
 			Guard.AgainstNull(repository, "repository");
 			_repository = repository;
 			_revisionSelectedEvent = revisionSelectedEvent;
+			DiscoveredRevisionsQueue = new Queue<Revision>();
 		}
 
 		public List<Revision> GetHistoryItems()
@@ -56,6 +66,20 @@ namespace Chorus.UI.Review.RevisionsInRepository
 			catch (Exception)
 			{
 				return false;
+			}
+		}
+
+		public void StartGettingRevisions()
+		{
+			lock (DiscoveredRevisionsQueue)
+			{
+				DiscoveredRevisionsQueue.Clear();
+
+				//todo: for now, this just gets them all at once
+				foreach (var revision in GetHistoryItems())
+				{
+					this.DiscoveredRevisionsQueue.Enqueue(revision);
+				}
 			}
 		}
 	}

@@ -45,38 +45,74 @@ namespace Chorus.UI.Review.RevisionsInRepository
 		{
 		}
 
-		public void RefreshRevisions()
+		private void RefreshRevisions()
 		{
-			Cursor.Current = Cursors.WaitCursor;
 			_historyGrid.Rows.Clear();
-			List<DataGridViewRow> rows = new List<DataGridViewRow>();
-			foreach (Revision rev in _model.GetHistoryItems())
+			_model.StartGettingRevisions();
+			_rowAddingTimer.Enabled = true;
+		}
+
+		/// <summary>
+		/// called when the firt batch of revisions are ready
+		/// </summary>
+		private void ChooseInitialRevisions()
+		{
+			_childRevisionIndex = _parentRevisionIndex = 0;
+			if (_historyGrid.Rows.Count > 1)
 			{
-				var dateString = rev.DateString;
-				DateTime when;
+				// no: this can be very slow, so wait until they select one
+				//_historyList.Items[0].Selected = true;
+				_parentRevisionIndex = 1;
+			}
 
-				//TODO: this is all a guess and a mess
-				//I haven't figured out how/why hg uses this strange date format,
-				//nor if it is going to do it on all machines, or will someday
-				//change.
-				if (DateTime.TryParseExact(dateString, "ddd MMM dd HH':'mm':'ss yyyy zzz",
-										   null, DateTimeStyles.AssumeUniversal, out when))
-				{
-					when = when.ToLocalTime();
-					dateString = when.ToShortDateString()+" "+when.ToShortTimeString();
-				}
+			_historyGrid.Rows[_childRevisionIndex].Cells[ColumnChildRevision.Name].Value = true;
+			_historyGrid.Rows[_parentRevisionIndex].Cells[ColumnParentRevision.Name].Value = true;
+		}
 
-				object image;
-				if (rev.Summary.ToLower().Contains("conflict"))
-					image = imageList1.Images["Warning"];
-					// viewItem.ImageKey = "Warning";
-				else if (rev.Parents.Count > 1)
-					image = imageList1.Images["Merge"];
-					// viewItem.ImageKey = "Merge";
-				else
-				{
-					image = null;
-					/*
+		/// <summary>
+		/// Revisions take time to gether up, so the UI gets them in chunks,
+		/// while we gather up more in the background
+		/// </summary>
+		private void OnRowAddingTimer_Tick(object sender, EventArgs e)
+		{
+			bool gridWasEmpty =_historyGrid.Rows.Count < 2;
+			foreach (var revision in _model.DiscoveredRevisionsQueue)
+			{
+				AddRow(revision);
+			}
+			if(gridWasEmpty && _historyGrid.Rows.Count >= 2)
+			{
+				ChooseInitialRevisions();
+			}
+		}
+
+		private void AddRow(Revision rev)
+		{
+			var dateString = rev.DateString;
+			DateTime when;
+
+			//TODO: this is all a guess and a mess
+			//I haven't figured out how/why hg uses this strange date format,
+			//nor if it is going to do it on all machines, or will someday
+			//change.
+			if (DateTime.TryParseExact(dateString, "ddd MMM dd HH':'mm':'ss yyyy zzz",
+									   null, DateTimeStyles.AssumeUniversal, out when))
+			{
+				when = when.ToLocalTime();
+				dateString = when.ToShortDateString()+" "+when.ToShortTimeString();
+			}
+
+			object image;
+			if (rev.Summary.ToLower().Contains("conflict"))
+				image = imageList1.Images["Warning"];
+				// viewItem.ImageKey = "Warning";
+			else if (rev.Parents.Count > 1)
+				image = imageList1.Images["Merge"];
+				// viewItem.ImageKey = "Merge";
+			else
+			{
+				image = null;
+				/*
 					var colonLocation = rev.Summary.IndexOf(':');
 					string appName = rev.Summary;
 					if (colonLocation > 0)
@@ -93,26 +129,11 @@ namespace Chorus.UI.Review.RevisionsInRepository
 					appName = appName.Replace("0.5", "");
 					viewItem.ImageKey = appName.Trim();
 					*/
-				}
-				int nIndex = _historyGrid.Rows.Add(new [] { image, false, false, dateString, rev.UserId, GetDescriptionForListView(rev) });
-				var row = _historyGrid.Rows[nIndex];
-				row.Tag = rev;
-				row.Cells[0].ToolTipText = rev.Number.LocalRevisionNumber + ": " + rev.Number.Hash;
-				// rows.Add(viewItem);
 			}
-			// _historyList.Items.AddRange(rows.ToArray());
-			_nChildIndex = _nParentIndex = 0;
-			if (_historyGrid.Rows.Count > 1)
-			{
-				// no: this can be very slow, so wait until they select one
-				//_historyList.Items[0].Selected = true;
-				_nParentIndex = 1;
-			}
-
-			_historyGrid.Rows[_nChildIndex].Cells[ColumnChildRevision.Name].Value = true;
-			_historyGrid.Rows[_nParentIndex].Cells[ColumnParentRevision.Name].Value = true;
-
-			Cursor.Current = Cursors.Default;
+			int nIndex = _historyGrid.Rows.Add(new [] { image, false, false, dateString, rev.UserId, GetDescriptionForListView(rev) });
+			var row = _historyGrid.Rows[nIndex];
+			row.Tag = rev;
+			row.Cells[0].ToolTipText = rev.Number.LocalRevisionNumber + ": " + rev.Number.Hash;
 		}
 
 		private string GetDescriptionForListView(Revision rev)
@@ -149,9 +170,9 @@ namespace Chorus.UI.Review.RevisionsInRepository
 		   RefreshRevisions();
 		}
 
-	   private int _nChildIndex;
-	   private int _nParentIndex;
-	   private void _historyGrid_CellClick(object sender, DataGridViewCellEventArgs e)
+	   private int _childRevisionIndex;
+	   private int _parentRevisionIndex;
+	   private void OnHistoryGrid_CellClick(object sender, DataGridViewCellEventArgs e)
 	   {
 		   // make sure we have something reasonable
 		   if (((e.ColumnIndex < ColumnParentRevision.Index) || (e.ColumnIndex > ColumnChildRevision.Index))
@@ -160,17 +181,19 @@ namespace Chorus.UI.Review.RevisionsInRepository
 
 		   if (e.ColumnIndex == ColumnParentRevision.Index)
 		   {
-			   _historyGrid.Rows[_nParentIndex].Cells[ColumnParentRevision.Index].Value = false;
-			   _nParentIndex = e.RowIndex;
+			   _historyGrid.Rows[_parentRevisionIndex].Cells[ColumnParentRevision.Index].Value = false;
+			   _parentRevisionIndex = e.RowIndex;
 		   }
 		   else if (e.ColumnIndex == ColumnChildRevision.Index)
 		   {
-			   _historyGrid.Rows[_nChildIndex].Cells[ColumnChildRevision.Index].Value = false;
-			   _nChildIndex = e.RowIndex;
+			   _historyGrid.Rows[_childRevisionIndex].Cells[ColumnChildRevision.Index].Value = false;
+			   _childRevisionIndex = e.RowIndex;
 		   }
 
-		   Revision rev = _historyGrid.Rows[_nParentIndex].Tag as Revision;
+		   Revision rev = _historyGrid.Rows[_parentRevisionIndex].Tag as Revision;
 		   _model.SelectedRevisionChanged(rev);
 	   }
+
+
 	}
 }

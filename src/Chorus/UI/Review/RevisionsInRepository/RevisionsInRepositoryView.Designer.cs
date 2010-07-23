@@ -42,6 +42,7 @@
 			this.ColumnDate = new System.Windows.Forms.DataGridViewTextBoxColumn();
 			this.ColumnPerson = new System.Windows.Forms.DataGridViewTextBoxColumn();
 			this.ColumnAction = new System.Windows.Forms.DataGridViewTextBoxColumn();
+			this._rowAddingTimer = new System.Windows.Forms.Timer(this.components);
 			((System.ComponentModel.ISupportInitialize)(this._historyGrid)).BeginInit();
 			this.SuspendLayout();
 			//
@@ -105,7 +106,7 @@
 			this._historyGrid.RowHeadersVisible = false;
 			this._historyGrid.Size = new System.Drawing.Size(464, 297);
 			this._historyGrid.TabIndex = 5;
-			this._historyGrid.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this._historyGrid_CellClick);
+			this._historyGrid.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.OnHistoryGrid_CellClick);
 			//
 			// ColumnImage
 			//
@@ -143,6 +144,10 @@
 			this.ColumnAction.HeaderText = "Action";
 			this.ColumnAction.Name = "ColumnAction";
 			//
+			// _rowAddingTimer
+			//
+			this._rowAddingTimer.Tick += new System.EventHandler(this.OnRowAddingTimer_Tick);
+			//
 			// RevisionsInRepositoryView
 			//
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -175,6 +180,7 @@
 		private System.Windows.Forms.DataGridViewTextBoxColumn ColumnDate;
 		private System.Windows.Forms.DataGridViewTextBoxColumn ColumnPerson;
 		private System.Windows.Forms.DataGridViewTextBoxColumn ColumnAction;
+		private System.Windows.Forms.Timer _rowAddingTimer;
 
 	}
 }
