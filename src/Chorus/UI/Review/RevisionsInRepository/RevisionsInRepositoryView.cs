@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
 using System.Windows.Forms;
 using Chorus.sync;
-using Chorus.UI.Review.RevisionsInRepository;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
 

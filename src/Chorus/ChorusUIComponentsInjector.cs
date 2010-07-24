@@ -111,6 +111,8 @@ namespace Chorus
 			builder.Register<RevisionInspector>();
 			builder.Register<ChangesInRevisionModel>();
 			builder.Register<HistoryPage>();
+			builder.RegisterGeneratedFactory<HistoryPage.Factory>();
+
 			builder.Register<ChangesInRevisionView>();
 			builder.Register<ChangeReportView>();
 
@@ -119,6 +121,7 @@ namespace Chorus
 			builder.Register<ChangedRecordSelectedEvent>();
 
 			builder.Register<RevisionInRepositoryModel>();
+			builder.RegisterGeneratedFactory<RevisionInRepositoryModel.Factory>();
 			builder.Register<RevisionsInRepositoryView>();
 
 		}

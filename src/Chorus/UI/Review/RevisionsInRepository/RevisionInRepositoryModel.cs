@@ -14,9 +14,11 @@ namespace Chorus.UI.Review.RevisionsInRepository
 	{
 		private readonly HgRepository _repository;
 		private readonly RevisionSelectedEvent _revisionSelectedEvent;
+		private readonly RevisionListOptions _options;
 		private string _currentTipRev;
 		public IProgress ProgressDisplay { get; set; }
 
+		public delegate RevisionInRepositoryModel Factory(RevisionListOptions options);
 		/// <summary>
 		/// Revisions take time to gether up, so the UI gets them in chunks,
 		/// while we gather up more in the background
@@ -26,11 +28,14 @@ namespace Chorus.UI.Review.RevisionsInRepository
 			get; set;
 		}
 
-		public RevisionInRepositoryModel(HgRepository repository, RevisionSelectedEvent revisionSelectedEvent)
+		public RevisionInRepositoryModel(HgRepository repository,
+										RevisionSelectedEvent revisionSelectedEvent,
+										RevisionListOptions options)
 		{
 			Guard.AgainstNull(repository, "repository");
 			_repository = repository;
 			_revisionSelectedEvent = revisionSelectedEvent;
+			_options = options;
 			DiscoveredRevisionsQueue =  new Queue<Revision>();
 		}
 
@@ -138,9 +143,12 @@ namespace Chorus.UI.Review.RevisionsInRepository
 			//is when we call GetAllRevisions(), we need to not add those first (up to) 20 again.
 			foreach (var revision in _repository.GetAllRevisions())
 			{
-				lock (DiscoveredRevisionsQueue)
+				if (_options.ShowRevisionPredicate(revision))
 				{
-					this.DiscoveredRevisionsQueue.Enqueue(revision);
+					lock (DiscoveredRevisionsQueue)
+					{
+						this.DiscoveredRevisionsQueue.Enqueue(revision);
+					}
 				}
 			}
 		}
