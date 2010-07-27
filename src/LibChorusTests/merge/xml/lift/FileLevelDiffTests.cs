@@ -27,12 +27,16 @@ namespace LibChorus.Tests.merge.xml.lift
 						<entry id='old1'/>
 						<entry id='old2'/>
 					</lift>";
-			var listener = new ListenerForUnitTests();
-			var differ = Xml2WayDiffer.CreateFromStrings(parent, child, listener,
-				"entry", "lift", "id");
-			differ.ReportDifferencesToListener();
-			listener.AssertExpectedChangesCount(1);
-			listener.AssertFirstChangeType<XmlAdditionChangeReport>();
+			using (var parentTempFile = new TempFile(parent))
+			using (var childTempFile = new TempFile(child))
+			{
+				var listener = new ListenerForUnitTests();
+				var differ = Xml2WayDiffer.CreateFromFiles(parentTempFile.Path, childTempFile.Path, listener,
+															 "entry", "id");
+				differ.ReportDifferencesToListener();
+				listener.AssertExpectedChangesCount(1);
+				listener.AssertFirstChangeType<XmlAdditionChangeReport>();
+			}
 		}
 
 		[Test]
@@ -47,12 +51,16 @@ namespace LibChorus.Tests.merge.xml.lift
 						<entry id='old1'/>
 						<entry id='old2'/>
 					</lift>";
-			var listener = new ListenerForUnitTests();
-			var differ = Xml2WayDiffer.CreateFromStrings(parent, child, listener,
-				"entry", "lift", "id");
-			differ.ReportDifferencesToListener();
-			listener.AssertExpectedChangesCount(1);
-			listener.AssertFirstChangeType<XmlDeletionChangeReport>();
+			using (var parentTempFile = new TempFile(parent))
+			using (var childTempFile = new TempFile(child))
+			{
+				var listener = new ListenerForUnitTests();
+				var differ = Xml2WayDiffer.CreateFromFiles(parentTempFile.Path, childTempFile.Path, listener,
+															 "entry", "id");
+				differ.ReportDifferencesToListener();
+				listener.AssertExpectedChangesCount(1);
+				listener.AssertFirstChangeType<XmlDeletionChangeReport>();
+			}
 		}
 
 		[Test]
@@ -68,12 +76,16 @@ namespace LibChorus.Tests.merge.xml.lift
 						<entry id='old1' dateDeleted='2009-06-16T06:14:20Z'/>
 						<entry id='old2'/>
 					</lift>";
-			var listener = new ListenerForUnitTests();
-			var differ = Xml2WayDiffer.CreateFromStrings(parent, child, listener,
-				"entry", "lift", "id");
-			differ.ReportDifferencesToListener();
-			listener.AssertExpectedChangesCount(1);
-			listener.AssertFirstChangeType<XmlDeletionChangeReport>();
+			using (var parentTempFile = new TempFile(parent))
+			using (var childTempFile = new TempFile(child))
+			{
+				var listener = new ListenerForUnitTests();
+				var differ = Xml2WayDiffer.CreateFromFiles(parentTempFile.Path, childTempFile.Path, listener,
+															 "entry", "id");
+				differ.ReportDifferencesToListener();
+				listener.AssertExpectedChangesCount(1);
+				listener.AssertFirstChangeType<XmlDeletionChangeReport>();
+			}
 		}
 
 		[Test]
@@ -89,11 +101,15 @@ namespace LibChorus.Tests.merge.xml.lift
 						<entry	id='old1'	dateDeleted='2009-06-16T06:14:20Z'/>
 						<entry id='old2'/>
 					</lift>";
-			var listener = new ListenerForUnitTests();
-			var differ = Xml2WayDiffer.CreateFromStrings(parent, child, listener,
-				"entry", "lift", "id");
-			differ.ReportDifferencesToListener();
-			listener.AssertExpectedChangesCount(0);
+			using (var parentTempFile = new TempFile(parent))
+			using (var childTempFile = new TempFile(child))
+			{
+				var listener = new ListenerForUnitTests();
+				var differ = Xml2WayDiffer.CreateFromFiles(parentTempFile.Path, childTempFile.Path, listener,
+															 "entry", "id");
+				differ.ReportDifferencesToListener();
+				listener.AssertExpectedChangesCount(0);
+			}
 		}
 
 		[Test]
@@ -110,15 +126,18 @@ namespace LibChorus.Tests.merge.xml.lift
 					</notes>";
 
 			// Make sure the common differ code does produce the deletion report.
-			var listener = new ListenerForUnitTests();
-			var differ = Xml2WayDiffer.CreateFromStrings(parent, child, listener,
-				"annotation",
-				"notes",
-				"guid");
-			differ.ReportDifferencesToListener();
-			listener.AssertExpectedChangesCount(1);
-			listener.AssertFirstChangeType<XmlDeletionChangeReport>();
-
+			using (var parentTempFile = new TempFile(parent))
+			using (var childTempFile = new TempFile(child))
+			{
+				var listener = new ListenerForUnitTests();
+				var differ = Xml2WayDiffer.CreateFromFiles(parentTempFile.Path, childTempFile.Path,
+					listener,
+					"annotation",
+					"guid");
+				differ.ReportDifferencesToListener();
+				listener.AssertExpectedChangesCount(1);
+				listener.AssertFirstChangeType<XmlDeletionChangeReport>();
+			}
 			// Now make sure the ChorusNotesFileHandler filters it out, and does not return it,
 			// as per the original notes differ code.
 			var notesHandler = (from handler in ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers().Handers

@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using Chorus.FileTypeHanders;
 using Chorus.FileTypeHanders.xml;
+using Chorus.Utilities;
 using LibChorus.Tests.merge.xml.generic;
 using NUnit.Framework;
 
@@ -90,14 +91,17 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 <rt guid='3d9ba4a1-4a25-11df-9879-0800200c9a66'>
 </rt>
 </languageproject>";
-			var listener = new ListenerForUnitTests();
-			var differ = Xml2WayDiffer.CreateFromStrings(parent, child, listener,
-				"rt",
-				"languageproject",
-				"guid");
-			differ.ReportDifferencesToListener();
-			listener.AssertExpectedChangesCount(1);
-			listener.AssertFirstChangeType<XmlAdditionChangeReport>();
+			using (var parentTempFile = new TempFile(parent))
+			using (var childTempFile = new TempFile(child))
+			{
+				var listener = new ListenerForUnitTests();
+				var differ = Xml2WayDiffer.CreateFromFiles(parentTempFile.Path, childTempFile.Path, listener,
+															 "rt",
+															 "guid");
+				differ.ReportDifferencesToListener();
+				listener.AssertExpectedChangesCount(1);
+				listener.AssertFirstChangeType<XmlAdditionChangeReport>();
+			}
 		}
 
 		[Test]
@@ -122,14 +126,17 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 <rt guid='3d9ba4a0-4a25-11df-9879-0800200c9a66'>
 </rt>
 </languageproject>";
-			var listener = new ListenerForUnitTests();
-			var differ = Xml2WayDiffer.CreateFromStrings(parent, child, listener,
-				"rt",
-				"languageproject",
-				"guid");
-			differ.ReportDifferencesToListener();
-			listener.AssertExpectedChangesCount(1);
-			listener.AssertFirstChangeType<XmlDeletionChangeReport>();
+			using (var parentTempFile = new TempFile(parent))
+			using (var childTempFile = new TempFile(child))
+			{
+				var listener = new ListenerForUnitTests();
+				var differ = Xml2WayDiffer.CreateFromFiles(parentTempFile.Path, childTempFile.Path, listener,
+															 "rt",
+															 "guid");
+				differ.ReportDifferencesToListener();
+				listener.AssertExpectedChangesCount(1);
+				listener.AssertFirstChangeType<XmlDeletionChangeReport>();
+			}
 		}
 
 		[Test]
@@ -147,14 +154,17 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 <rt guid='3d9b7d90-4a25-11df-9879-0800200c9a66' ownerguid='3d9ba4a3-4a25-11df-9879-0800200c9a66'>
 </rt>
 </languageproject>";
-			var listener = new ListenerForUnitTests();
-			var differ = Xml2WayDiffer.CreateFromStrings(parent, child, listener,
-				"rt",
-				"languageproject",
-				"guid");
-			differ.ReportDifferencesToListener();
-			listener.AssertExpectedChangesCount(1);
-			listener.AssertFirstChangeType<XmlChangedRecordReport>();
+			using (var parentTempFile = new TempFile(parent))
+			using (var childTempFile = new TempFile(child))
+			{
+				var listener = new ListenerForUnitTests();
+				var differ = Xml2WayDiffer.CreateFromFiles(parentTempFile.Path, childTempFile.Path, listener,
+															 "rt",
+															 "guid");
+				differ.ReportDifferencesToListener();
+				listener.AssertExpectedChangesCount(1);
+				listener.AssertFirstChangeType<XmlChangedRecordReport>();
+			}
 		}
 
 		[Test]
@@ -181,13 +191,16 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 <rt guid='3d9b7d90-4a25-11df-9879-0800200c9a66'>
 </rt>
 </languageproject>";
-			var listener = new ListenerForUnitTests();
-			var differ = Xml2WayDiffer.CreateFromStrings(parent, child, listener,
-				"rt",
-				"languageproject",
-				"guid");
-			differ.ReportDifferencesToListener();
-			listener.AssertExpectedChangesCount(0);
+			using (var parentTempFile = new TempFile(parent))
+			using (var childTempFile = new TempFile(child))
+			{
+				var listener = new ListenerForUnitTests();
+				var differ = Xml2WayDiffer.CreateFromFiles(parentTempFile.Path, childTempFile.Path, listener,
+															 "rt",
+															 "guid");
+				differ.ReportDifferencesToListener();
+				listener.AssertExpectedChangesCount(0);
+			}
 		}
 
 		[Test]

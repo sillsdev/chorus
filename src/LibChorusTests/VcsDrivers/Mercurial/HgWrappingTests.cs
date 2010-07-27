@@ -322,7 +322,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		/// <summary>
 		/// this tests that it's really using the hg we say to use
 		/// </summary>
-		[Test, ExpectedException(typeof(Exception))]
+		[Test, ExpectedException(typeof(InvalidOperationException))]
 		[Category("SkipOnBuildServer")]//I (jh) don't know why it fails on the server, but oh well.
 		public void Run_IndicatedHgExecutableIsBogus_Throws()
 		{

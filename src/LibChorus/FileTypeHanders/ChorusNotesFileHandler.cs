@@ -63,14 +63,8 @@ namespace Chorus.FileTypeHanders
 
 		public IEnumerable<IChangeReport> Find2WayDifferences(FileInRevision parent, FileInRevision child, HgRepository repository)
 		{
-			var listener = new ChangeAndConflictAccumulator();
-			var differ = Xml2WayDiffer.CreateFromFileInRevision(parent, child, listener, repository,
-				"annotation",
-				"notes",
-				"guid");
-			differ.ReportDifferencesToListener();
-			// Original code with its ChorusNotesDiffer did not produce deletion reports, so filter them out.
-			return listener.Changes.Where(change => !(change is XmlDeletionChangeReport));
+			return Xml2WayDiffService.ReportDifferences(repository, parent, child, "annotation", "guid")
+				.Where(change => !(change is XmlDeletionChangeReport)); // Remove any deletion reports.
 		}
 
 		public IChangePresenter GetChangePresenter(IChangeReport report, HgRepository repository)

@@ -92,25 +92,7 @@ namespace Chorus.FileTypeHanders.FieldWorks
 
 		public IEnumerable<IChangeReport> Find2WayDifferences(FileInRevision parent, FileInRevision child, HgRepository repository)
 		{
-			var changeAndConflictAccumulator = new ChangeAndConflictAccumulator();
-			// Pulls the files out of the repository so we can read them.
-			var differ = Xml2WayDiffer.CreateFromFileInRevision(
-				parent,
-				child,
-				changeAndConflictAccumulator,
-				repository,
-				"rt",
-				"languageproject",
-				"guid");
-			try
-			{
-				differ.ReportDifferencesToListener();
-			}
-// ReSharper disable EmptyGeneralCatchClause
-			catch {}
-// ReSharper restore EmptyGeneralCatchClause
-
-			return changeAndConflictAccumulator.Changes;
+			return Xml2WayDiffService.ReportDifferences(repository, parent, child, "rt", "guid");
 		}
 
 		public IChangePresenter GetChangePresenter(IChangeReport report, HgRepository repository)

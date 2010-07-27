@@ -206,8 +206,8 @@ color: 'purple';
 			Assert.AreEqual("Change", changePresenter.GetActionLabel());
 		}
 
-		[Test, ExpectedException(typeof(NotImplementedException))]
-		public void GetHtml_Not_Implemented()
+		[Test, ExpectedException(typeof(NullReferenceException))]
+		public void GetHtml_Has_Null_Input()
 		{
 			m_changePresenter.GetHtml(null, null);
 		}

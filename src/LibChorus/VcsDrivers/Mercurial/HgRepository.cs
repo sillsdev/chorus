@@ -374,6 +374,8 @@ namespace Chorus.VcsDrivers.Mercurial
 				_progress.WriteWarning("User Cancelled");
 				return result;
 			}
+			if (result.ExitCode == 1 && result.StandardOutput.ToLowerInvariant().StartsWith("nothing changed") && !failureIsOk)
+				return result;
 			if (0 != result.ExitCode && !failureIsOk)
 			{
 				var details = Environment.NewLine + "hg Command was " + Environment.NewLine + b.ToString();
@@ -387,18 +389,13 @@ namespace Chorus.VcsDrivers.Mercurial
 				catch (Exception)
 				{
 					details += Environment.NewLine + "Could not get HG VERSION";
-
 				}
 
 
 				if (!string.IsNullOrEmpty(result.StandardError))
-				{
 					throw new ApplicationException(result.StandardError + details);
-				}
-				else
-				{
-					throw new ApplicationException("Got return value " + result.ExitCode + details);
-				}
+
+				throw new ApplicationException("Got return value " + result.ExitCode + details);
 			}
 			return result;
 		}

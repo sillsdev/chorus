@@ -88,8 +88,8 @@
   </ItemGroup>
   <ItemGroup>
 	<Compile Include="FileTypeHanders\Xml2WayDiffer.cs" />
+	<Compile Include="FileTypeHanders\Xml2WayDiffService.cs" />
 	<Compile Include="Utilities\DifferDictionaryPrepper.cs" />
-	<Compile Include="Utilities\ElementReader.cs" />
 	<Compile Include="FileTypeHanders\FieldWorks\FieldWorkObjectContextGenerator.cs" />
 	<Compile Include="FileTypeHanders\FieldWorks\FieldWorksChangePresenter.cs" />
 	<Compile Include="FileTypeHanders\FieldWorks\FieldWorksFileHandler.cs" />
@@ -146,6 +146,7 @@
 	</Compile>
 	<Compile Include="notes\AnnotationClass.cs" />
 	<Compile Include="Utilities\code\DelegateDefinitions.cs" />
+	<Compile Include="Utilities\FastXmlElementSplitter.cs" />
 	<Compile Include="Utilities\MultiMap.cs" />
 	<Compile Include="Utilities\UrlHelper.cs" />
 	<Compile Include="Utilities\XmlElementExtensions.cs" />

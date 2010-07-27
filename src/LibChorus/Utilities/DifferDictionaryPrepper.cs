@@ -23,14 +23,16 @@ namespace Chorus.Utilities
 		private readonly byte[] _identifierWithSingleQuote;
 		private static readonly byte _closeDoubleQuote = Encoding.UTF8.GetBytes("\"")[0];
 		private static readonly byte _closeSingleQuote = Encoding.UTF8.GetBytes("'")[0];
-		private ElementReader _reader;
+		private FastXmlElementSplitter _elementSplitter;
 		private IDictionary<string, byte[]> _dictionary;
+		private readonly string _recordStartingTag;
 		private readonly Encoding _utf8;
 
-		internal DifferDictionaryPrepper(IDictionary<string, byte[]> dictionary, byte[] data, string recordStartingTag, string fileClosingTag, string identifierAttribute)
+		internal DifferDictionaryPrepper(IDictionary<string, byte[]> dictionary, string pathname, string recordStartingTag, string identifierAttribute)
 		{
 			_dictionary = dictionary;
-			_reader = new ElementReader(recordStartingTag, fileClosingTag, data, PrepareIndex);
+			_recordStartingTag = recordStartingTag;
+			_elementSplitter = new FastXmlElementSplitter(pathname);
 			_utf8 = Encoding.UTF8;
 			_identifierWithDoubleQuote = _utf8.GetBytes(identifierAttribute + "=\"");
 			_identifierWithSingleQuote = _utf8.GetBytes(identifierAttribute + "='");
@@ -38,7 +40,10 @@ namespace Chorus.Utilities
 
 		internal void Run()
 		{
-			_reader.Run();
+			foreach (var record in _elementSplitter.GetSecondLevelElementBytes(_recordStartingTag))
+			{
+				PrepareIndex(record);
+			}
 		}
 
 		/// <summary>
@@ -85,25 +90,25 @@ namespace Chorus.Utilities
 			GC.SuppressFinalize(this);
 		}
 
-		private bool m_isDisposed;
+		private bool _isDisposed;
 		private void Dispose(bool disposing)
 		{
-			if (m_isDisposed)
+			if (_isDisposed)
 				return; // Done already, so nothing left to do.
 
 			if (disposing)
 			{
-				if (_reader != null)
-					_reader.Dispose();
+				if (_elementSplitter != null)
+					_elementSplitter.Dispose();
 			}
 
 			// Dispose unmanaged resources here, whether disposing is true or false.
 
 			// Main data members.
-			_reader = null;
+			_elementSplitter = null;
 			_dictionary = null;
 
-			m_isDisposed = true;
+			_isDisposed = true;
 		}
 
 		#endregion

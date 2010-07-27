@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Xml;
@@ -19,43 +21,56 @@ namespace Chorus.FileTypeHanders
 	/// </summary>
 	public class Xml2WayDiffer
 	{
+		private enum DiffingMode
+		{
+			FromFileInRevisions,
+			FromPathnames,
+		}
+
 		private readonly IMergeEventListener _eventListener;
+		private readonly HgRepository _repository;
 		private readonly FileInRevision _parentFileInRevision;
 		private readonly FileInRevision _childFileInRevision;
-		private byte[] _parentBytes;
-		private byte[] _childBytes;
 		private readonly string _startTag;
-		private readonly string _fileClosingTag;
 		private readonly string _identfierAttribute;
+		private readonly string _parentPathname;
+		private readonly string _childPathname;
+		private readonly DiffingMode _diffingMode;
 
 		public static Xml2WayDiffer CreateFromFileInRevision(FileInRevision parent, FileInRevision child,
 			IMergeEventListener eventListener, HgRepository repository,
-			string startTag, string fileClosingTag, string identfierAttribute)
+			string startTag, string identfierAttribute)
 		{
-			return new Xml2WayDiffer(parent.GetFileContentsAsBytes(repository), child.GetFileContentsAsBytes(repository),
-				eventListener, parent, child,
-				startTag, fileClosingTag, identfierAttribute);
+			return new Xml2WayDiffer(repository, eventListener, parent, child,
+				startTag, identfierAttribute);
 		}
 
-		public static Xml2WayDiffer CreateFromStrings(string parentXml, string childXml,
-			IMergeEventListener eventListener,
-			string startTag, string fileClosingTag, string identfierAttribute)
+		private Xml2WayDiffer(HgRepository repository, IMergeEventListener eventListener, FileInRevision parent, FileInRevision child, string startTag, string identfierAttribute)
 		{
-			var enc = Encoding.UTF8;
-			return new Xml2WayDiffer(enc.GetBytes(parentXml), enc.GetBytes(childXml),
-				eventListener, null, null,
-				startTag, fileClosingTag, identfierAttribute);
-		}
-
-		private Xml2WayDiffer(byte[] parentBytes, byte[] childBytes, IMergeEventListener eventListener, FileInRevision parent, FileInRevision child, string startTag, string fileClosingTag, string identfierAttribute)
-		{
+			_diffingMode = DiffingMode.FromFileInRevisions;
+			_repository = repository;
 			_parentFileInRevision = parent;
 			_childFileInRevision = child;
 			_startTag = "<" + startTag.Trim();
-			_fileClosingTag = "</" + fileClosingTag.Trim() + ">";
 			_identfierAttribute = identfierAttribute;
-			_parentBytes = parentBytes;
-			_childBytes = childBytes;
+			_eventListener = eventListener;
+		}
+
+		public static Xml2WayDiffer CreateFromFiles(string parentPathname, string childPathname,
+			IMergeEventListener eventListener,
+			string startTag, string identfierAttribute)
+		{
+			return new Xml2WayDiffer(eventListener, parentPathname, childPathname,
+				startTag, identfierAttribute);
+		}
+
+		private Xml2WayDiffer(IMergeEventListener eventListener, string parentPathname, string childPathname, string startTag, string identfierAttribute)
+		{
+			_diffingMode = DiffingMode.FromPathnames;
+			_parentPathname = parentPathname;
+			_childPathname = childPathname;
+			_startTag = "<" + startTag.Trim();
+			_identfierAttribute = identfierAttribute;
 			_eventListener = eventListener;
 		}
 
@@ -64,29 +79,66 @@ namespace Chorus.FileTypeHanders
 		/// this method compares 'records' (main xml elements) in the parent and child data sets
 		/// at a high level of difference detection.
 		///
-		/// Low-level xl differences are handed to XmlUtilities.AreXmlElementsEqual for processing differences
+		/// Low-level xml differences are handed to XmlUtilities.AreXmlElementsEqual for processing differences
 		/// of each 'record'.
 		///</summary>
 		public void ReportDifferencesToListener()
+		{
+			Dictionary<string, byte[]> childIndex;
+			Dictionary<string, byte[]> parentIndex;
+			switch (_diffingMode)
+			{
+				default:
+					throw new InvalidEnumArgumentException("Diffing mode not recognized.");
+				case DiffingMode.FromFileInRevisions:
+					ReportDifferencesUsingFilesInRepositorySource(out parentIndex, out childIndex);
+					break;
+				case DiffingMode.FromPathnames:
+					ReportDifferencesUsingPathNameSource(out parentIndex, out childIndex);
+					break;
+			}
+
+			DoDiff(parentIndex, childIndex);
+		}
+
+		private void ReportDifferencesUsingPathNameSource(out Dictionary<string, byte[]> parentIndex, out Dictionary<string, byte[]> childIndex)
+		{
+			ReportDifferencesUsingPathNameSource(_parentPathname, out parentIndex, _childPathname, out childIndex);
+		}
+
+		private void ReportDifferencesUsingFilesInRepositorySource(out Dictionary<string, byte[]> parentIndex, out Dictionary<string, byte[]> childIndex)
+		{
+			using (var parentTempFile = _parentFileInRevision.CreateTempFile(_repository))
+			using (var childTempFile = _childFileInRevision.CreateTempFile(_repository))
+			{
+				ReportDifferencesUsingPathNameSource(parentTempFile.Path, out parentIndex, childTempFile.Path, out childIndex);
+			}
+		}
+
+		private void ReportDifferencesUsingPathNameSource(string parentPathname, out Dictionary<string, byte[]> parentIndex,
+			string childPathname, out Dictionary<string, byte[]> childIndex)
 		{
 			// This arbitrary length (400) is based on two large databases,
 			// one 360M with 474 bytes/object, and one 180M with 541.
 			// It's probably not perfect, but we're mainly trying to prevent
 			// fragmenting the large object heap by growing it MANY times.
 			const int estimatedObjectCount = 400;
-			var parentIndex = new Dictionary<string, byte[]>(_parentBytes.Length / estimatedObjectCount);
-			using (var prepper = new DifferDictionaryPrepper(parentIndex, _parentBytes, _startTag, _fileClosingTag, _identfierAttribute))
+			var fileInfo = new FileInfo(parentPathname);
+			parentIndex = new Dictionary<string, byte[]>((int)(fileInfo.Length / estimatedObjectCount));
+			using (var prepper = new DifferDictionaryPrepper(parentIndex, parentPathname, _startTag, _identfierAttribute))
 			{
 				prepper.Run();
 			}
-			_parentBytes = null;
-			var childIndex = new Dictionary<string, byte[]>(_childBytes.Length / estimatedObjectCount);
-			using (var prepper = new DifferDictionaryPrepper(childIndex, _childBytes, _startTag, _fileClosingTag, _identfierAttribute))
+			fileInfo = new FileInfo(childPathname);
+			childIndex = new Dictionary<string, byte[]>((int)(fileInfo.Length / estimatedObjectCount));
+			using (var prepper = new DifferDictionaryPrepper(childIndex, childPathname, _startTag, _identfierAttribute))
 			{
 				prepper.Run();
 			}
-			_childBytes = null;
+		}
 
+		private void DoDiff(Dictionary<string, byte[]> parentIndex, Dictionary<string, byte[]> childIndex)
+		{
 			var enc = Encoding.UTF8;
 			var parentDoc = new XmlDocument();
 			var childDoc = new XmlDocument();
@@ -132,11 +184,11 @@ namespace Chorus.FileTypeHanders
 						catch (Exception error)
 						{
 							_eventListener.ChangeOccurred(new ErrorDeterminingChangeReport(
-								_parentFileInRevision,
-								_childFileInRevision,
-								XmlUtilities.GetDocumentNodeFromRawXml(parentStr, parentDoc),
-								XmlUtilities.GetDocumentNodeFromRawXml(childStr, childDoc),
-								error));
+															_parentFileInRevision,
+															_childFileInRevision,
+															XmlUtilities.GetDocumentNodeFromRawXml(parentStr, parentDoc),
+															XmlUtilities.GetDocumentNodeFromRawXml(childStr, childDoc),
+															error));
 							continue;
 						}
 						_eventListener.ChangeOccurred(new XmlChangedRecordReport(
