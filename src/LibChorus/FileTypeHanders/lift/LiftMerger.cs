@@ -161,9 +161,6 @@ namespace Chorus.FileTypeHanders.lift
 			return doc.SelectSingleNode("lift/entry[@id=\""+id+"\"]");
 		}
 
-
-
-
 		private void ProcessEntry(XmlWriter writer, XmlNode alphaEntry)
 		{
 			string id = LiftUtils.GetId(alphaEntry);

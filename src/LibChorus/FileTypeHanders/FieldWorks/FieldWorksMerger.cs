@@ -87,17 +87,12 @@ namespace Chorus.FileTypeHanders.FieldWorks
 		private static void Do2WayDiff(string parentPathname, string childPathname,
 			IDictionary<string, XmlNode> goners, IDictionary<string, ChangedElement> dirtballs, IDictionary<string, XmlNode> newbies)
 		{
-			var winnerCommonListener = new ChangeAndConflictAccumulator();
-			var winnerDiffer = Xml2WayDiffer.CreateFromFiles(
-				parentPathname,
-				childPathname,
-				winnerCommonListener,
-				"rt",
-				"guid");
 			try
 			{
-				winnerDiffer.ReportDifferencesToListener();
-				foreach (var winnerDif in winnerCommonListener.Changes)
+				foreach (var winnerDif in Xml2WayDiffService.ReportDifferences(
+					parentPathname, childPathname,
+					new ChangeAndConflictAccumulator(),
+					"rt", "guid"))
 				{
 					if (!(winnerDif is IXmlChangeReport))
 						continue; // It could be ErrorDeterminingChangeReport, so what to do with it?

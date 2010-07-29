@@ -40,40 +40,48 @@ namespace Chorus.FileTypeHanders
 			return changeAndConflictAccumulator.Changes;
 		}
 
+		// Not used now, but keep it a bit longer. It was used to support tests.
+		///// <summary>
+		///// Report the differences between two versions of files in the repository.
+		///// </summary>
+		///// <returns>Zero or more change reports.</returns>
+		//public static IEnumerable<IChangeReport> ReportDifferences(IMergeEventListener listener,
+		//    string parentXmlData, string childXmlData,
+		//    string recordMarker, string identfierAttribute)
+		//{
+		//    using (var tempParent = new TempFile(parentXmlData))
+		//    using (var tempChild = new TempFile(childXmlData))
+		//    {
+		//        return ReportDifferences(tempParent.Path, tempChild.Path, listener, recordMarker, identfierAttribute);
+		//    }
+		//}
+
 		/// <summary>
 		/// Report the differences between two versions of files in the repository.
 		/// </summary>
 		/// <returns>Zero or more change reports.</returns>
-		public static IEnumerable<IChangeReport> ReportDifferences(IMergeEventListener listener,
-			string parentXmlData, string childXmlData,
+		public static IEnumerable<IChangeReport> ReportDifferences(
+			string parentPathname, string childPathname,
+			IMergeEventListener listener,
 			string recordMarker, string identfierAttribute)
 		{
-			using (var tempParent = new TempFile(parentXmlData))
+			var changeAndConflictAccumulator = listener ?? new ChangeAndConflictAccumulator();
+			var differ = Xml2WayDiffer.CreateFromFiles(
+				parentPathname, childPathname,
+				changeAndConflictAccumulator,
+				recordMarker, identfierAttribute);
+			try
 			{
-				using (var tempChild = new TempFile(childXmlData))
-				{
-					var changeAndConflictAccumulator = listener ?? new ChangeAndConflictAccumulator();
-					// Pulls the files out of the repository so we can read them.
-					var differ = Xml2WayDiffer.CreateFromFiles(
-						tempParent.Path,
-						tempChild.Path,
-						changeAndConflictAccumulator,
-						recordMarker,
-						identfierAttribute);
-					try
-					{
-						differ.ReportDifferencesToListener();
-					}
-					catch
-					{
-						// Eat exception.
-					}
-
-					if (changeAndConflictAccumulator is ChangeAndConflictAccumulator)
-						return ((ChangeAndConflictAccumulator) changeAndConflictAccumulator).Changes;
-					return null; // unit tests use impl class that has no "Changes" property.
-				}
+				differ.ReportDifferencesToListener();
 			}
+			catch
+			{
+				// Eat exception.
+			}
+
+			if (changeAndConflictAccumulator is ChangeAndConflictAccumulator)
+				return ((ChangeAndConflictAccumulator)changeAndConflictAccumulator).Changes;
+			return null; // unit tests use impl class that has no "Changes" property.
 		}
 	}
 }
