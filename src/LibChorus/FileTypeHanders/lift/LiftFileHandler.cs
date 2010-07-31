@@ -1,10 +1,6 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
-using System.Xml;
-using System.Xml.Schema;
 using Chorus.FileTypeHanders.xml;
 using Chorus.merge;
 using Chorus.Utilities;
@@ -16,12 +12,7 @@ namespace Chorus.FileTypeHanders.lift
 	{
 		public bool CanDiffFile(string pathToFile)
 		{
-			return (System.IO.Path.GetExtension(pathToFile).ToLower() == ".lift");
-		}
-
-		private bool LoadValidator()
-		{
-			return false;
+			return (Path.GetExtension(pathToFile).ToLower() == ".lift");
 		}
 
 		public bool CanValidateFile(string pathToFile)
@@ -33,10 +24,8 @@ namespace Chorus.FileTypeHanders.lift
 		public string ValidateFile(string pathToFile, IProgress progress)
 		{
 			//todo: decide how we want to use LiftIO validation. For now, just make sure it is well-formed xml
-			return Chorus.Utilities.XmlValidation.ValidateFile(pathToFile, progress);
+			return XmlValidation.ValidateFile(pathToFile, progress);
 		}
-
-
 
 		public bool CanMergeFile(string pathToFile)
 		{
@@ -50,43 +39,28 @@ namespace Chorus.FileTypeHanders.lift
 
 		public void Do3WayMerge(MergeOrder mergeOrder)
 		{
-//            DispatchingMergeEventListener listenerDispatcher = new DispatchingMergeEventListener();
-//            using (HumanLogMergeEventListener humanListener = new HumanLogMergeEventListener(mergeOrder.pathToOurs + ".ChorusNotes.txt"))
-//            using (ChorusNotesMergeEventListener xmlListener = new ChorusNotesMergeEventListener(mergeOrder.pathToOurs + ".ChorusNotes"))
-//            {
-//                listenerDispatcher.AddEventListener(humanListener);
-//                listenerDispatcher.AddEventListener(xmlListener);
-//                mergeOrder.EventListener = listenerDispatcher;
-
-			//;  Debug.Fail("hello");
 			LiftMerger merger;
+			string winnerId;
 			switch (mergeOrder.MergeSituation.ConflictHandlingMode)
 			{
 				default:
 					throw new ArgumentException("The Lift merger cannot handle the requested conflict handling mode");
 				case MergeOrder.ConflictHandlingModeChoices.WeWin:
-
-					merger = new LiftMerger(new LiftEntryMergingStrategy(mergeOrder.MergeSituation), mergeOrder.pathToOurs, mergeOrder.pathToTheirs,
-											mergeOrder.pathToCommonAncestor);
+					winnerId = mergeOrder.MergeSituation.AlphaUserId;
+					merger = new LiftMerger(mergeOrder,
+						mergeOrder.pathToOurs, mergeOrder.pathToTheirs,
+						new LiftEntryMergingStrategy(mergeOrder.MergeSituation), mergeOrder.pathToCommonAncestor, winnerId);
 					break;
 				case MergeOrder.ConflictHandlingModeChoices.TheyWin:
-					merger = new LiftMerger(new LiftEntryMergingStrategy(mergeOrder.MergeSituation), mergeOrder.pathToTheirs, mergeOrder.pathToOurs,
-											mergeOrder.pathToCommonAncestor);
+					winnerId = mergeOrder.MergeSituation.BetaUserId;
+					merger = new LiftMerger(mergeOrder,
+						mergeOrder.pathToTheirs, mergeOrder.pathToOurs,
+						new LiftEntryMergingStrategy(mergeOrder.MergeSituation), mergeOrder.pathToCommonAncestor, winnerId);
 					break;
 			}
 			merger.EventListener = mergeOrder.EventListener;
 
-			string newContents = merger.GetMergedLift();
-			if(newContents.IndexOf('\0') !=-1)
-			{
-				throw new ApplicationException("Merged XML had a null! This is very serious... please report it to the developers." );
-			}
-
-			File.WriteAllText(mergeOrder.pathToOurs, newContents);
-
-
-
-//            }
+			merger.DoMerge(mergeOrder.pathToOurs);
 		}
 
 		public IEnumerable<IChangeReport> Find2WayDifferences(FileInRevision parent, FileInRevision child, HgRepository repository)

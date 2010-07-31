@@ -1,9 +1,11 @@
+#define USENEWCODE
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Xml;
 using Chorus.FileTypeHanders.xml;
+using Chorus.merge;
 using Chorus.merge.xml.generic;
 using Chorus.Utilities;
 
@@ -23,190 +25,324 @@ namespace Chorus.FileTypeHanders.lift
 	/// </summary>
 	public class LiftMerger
 	{
-		private readonly string _alphaLift;
-		private readonly string _betaLift;
-		private readonly string _ancestorLift;
-		// only one index for now...
-		private readonly Dictionary<string, XmlNode> _betaIdToNodeIndex;
-		private readonly Dictionary<string,bool> _processedIds;
-		private readonly XmlDocument _alphaDom;
-		private readonly XmlDocument _betaDom;
-		private readonly XmlDocument _ancestorDom;
 		private IMergeStrategy _mergingStrategy;
 		public IMergeEventListener EventListener = new NullMergeEventListener();
+		private readonly MergeOrder _mergeOrder;
+		private readonly string _pathToWinner;
+		private readonly string _pathToLoser;
+		private readonly string _pathToCommonAncestor;
+		private readonly string _winnerId;
 
 		/// <summary>
 		/// Here, "alpha" is the guy who wins when there's no better way to decide, and "beta" is the loser.
 		/// </summary>
-		public LiftMerger(IMergeStrategy mergeStrategy, string alphaLiftPath, string betaLiftPath, string ancestorLiftPath)
+		public LiftMerger(MergeOrder mergeOrder, string alphaLiftPath, string betaLiftPath, IMergeStrategy mergeStrategy, string ancestorLiftPath, string winnerId)
 		{
-			_processedIds = new Dictionary<string,bool>();
-			_alphaLift = File.ReadAllText(alphaLiftPath);
-			_betaLift =  File.ReadAllText(betaLiftPath);
-			_ancestorLift = File.ReadAllText(ancestorLiftPath);
-			_betaIdToNodeIndex = new Dictionary<string, XmlNode>();
-			_alphaDom = new XmlDocument();
-			_betaDom = new XmlDocument();
-			_ancestorDom = new XmlDocument();
-
-			_mergingStrategy = mergeStrategy;
-
-//            string path = Path.Combine(System.Environment.GetEnvironmentVariable("temp"),
-//                           @"chorusMergeOrder" + Path.GetFileName(_alphaLiftPath) + ".txt");
-//            File.WriteAllText(path, "Merging alphaS\r\n" + _alphaLift + "\r\n----------betaS\r\n" + _betaLift + "\r\n----------ANCESTOR\r\n" + _ancestorLift);
-		}
-
-		/// <summary>
-		/// Used by tests, which prefer to give us raw contents rather than paths
-		/// </summary>
-		public LiftMerger(string alphaLiftContents, string betaLiftContents, string ancestorLiftContents, IMergeStrategy mergeStrategy)
-		{
-			_processedIds = new Dictionary<string,bool>();
-			_alphaLift = alphaLiftContents;
-			_betaLift = betaLiftContents;
-			_ancestorLift = ancestorLiftContents;
-			_betaIdToNodeIndex = new Dictionary<string, XmlNode>();
-			_alphaDom = new XmlDocument();
-			_betaDom = new XmlDocument();
-			_ancestorDom = new XmlDocument();
-
+			_mergeOrder = mergeOrder;
+			_pathToWinner = alphaLiftPath;
+			_pathToLoser = betaLiftPath;
+			_pathToCommonAncestor = ancestorLiftPath;
+			_winnerId = winnerId;
 			_mergingStrategy = mergeStrategy;
 		}
 
-		public string GetMergedLift()
+		private class ChangedElement
 		{
-//            string path = Path.Combine(System.Environment.GetEnvironmentVariable("temp"),
-//                                    @"chorusMergeResult" + Path.GetFileName(_alphaLiftPath) + ".txt");
-//
-//            File.WriteAllText(path, "ENter GetMergedLift()");
+			internal XmlNode m_parentNode;
+			internal XmlNode m_childNode;
+		}
 
-			_alphaDom.LoadXml(_alphaLift);
-			_betaDom.LoadXml(_betaLift);
-			_ancestorDom.LoadXml(_ancestorLift);
+		public void DoMerge(string outputPathname)
+		{
+			var newbies = new Dictionary<string, XmlNode>();
+			// Do diff between winner and common
+			var winnerGoners = new Dictionary<string, XmlNode>();
+			var winnerDirtballs = new Dictionary<string, ChangedElement>();
+			Do2WayDiff(_pathToCommonAncestor, _pathToWinner, winnerGoners, winnerDirtballs, newbies);
 
+			// Do diff between loser and common
+			var loserGoners = new Dictionary<string, XmlNode>();
+			var loserDirtballs = new Dictionary<string, ChangedElement>();
+			Do2WayDiff(_pathToCommonAncestor, _pathToLoser, loserGoners, loserDirtballs, newbies);
 
-			Encoding utf8NoBom = new UTF8Encoding(false);
-			XmlWriterSettings settings = new XmlWriterSettings();
-			settings.Encoding = utf8NoBom;//the lack of a bom is probably no big deal either way
-
-			//this, rather than a string builder, is needed to avoid utf-16 coming out
-			using (MemoryStream memoryStream = new MemoryStream())
+			// At this point we have two sets of diffs, but we need to merge them.
+			// Newbies from both get added.
+			// A conflict has 'winner' stay, but with a report.
+			using (var writer = XmlWriter.Create(outputPathname, new XmlWriterSettings
 			{
-				foreach (XmlNode b in _betaDom.SafeSelectNodes("lift/entry"))
+				OmitXmlDeclaration = false,
+				CheckCharacters = true,
+				ConformanceLevel = ConformanceLevel.Document,
+				Encoding = new UTF8Encoding(false),
+				Indent = true,
+				IndentChars = (""),
+				NewLineOnAttributes = false
+			}))
+			{
+				// Need a reader on '_commonAncestorXml', much as is done for FW, but sans thread.
+				// Blend in newbies, goners, and dirtballs to 'outputPathname' as in FW.
+				var readerSettings = new XmlReaderSettings
 				{
-					_betaIdToNodeIndex[LiftUtils.GetId(b)] = b;
-				}
-				using (XmlWriter writer = XmlWriter.Create(memoryStream, settings))
+					CheckCharacters = false,
+					ConformanceLevel = ConformanceLevel.Document,
+					ProhibitDtd = true,
+					ValidationType = ValidationType.None,
+					CloseInput = true,
+					IgnoreWhitespace = true
+				};
+				var enc = Encoding.UTF8;
+				using (var reader = XmlReader.Create(new FileStream(_pathToCommonAncestor, FileMode.Open), readerSettings))
 				{
-					WriteStartOfLiftElement(writer);
-					foreach (XmlNode e in _alphaDom.SafeSelectNodes("lift/entry"))
-					{
-						ProcessEntry(writer, e);
-					}
+					WritePreliminaryInformation(reader, writer);
 
-					//now process any remaining elements in "betas"
-					foreach (XmlNode e in _betaDom.SafeSelectNodes("lift/entry"))
-					{
-						string id = LiftUtils.GetId(e);
-						if (!_processedIds.ContainsKey(id))
-						{
-							ProcessEntryWeKnowDoesntNeedMerging(e, id, writer);
-						}
-					}
+					ProcessMainRecordElements(winnerGoners, winnerDirtballs, loserGoners, loserDirtballs, reader, writer);
+
+					WriteOutNewObjects(newbies, enc, writer);
+
+					// ReSharper disable PossibleNullReferenceException
 					writer.WriteEndElement();
-					writer.Close();
+					// ReSharper restore PossibleNullReferenceException
 				}
-
-				//don't use GetBuffer()!!! it pads the results with nulls:  return Encoding.UTF8.GetString(memoryStream.ToArray());
-				//this works but doubles the ram use: return Encoding.UTF8.GetString(memoryStream.ToArray());
-				return Encoding.UTF8.GetString(memoryStream.GetBuffer(), 0, (int)memoryStream.Position);
 			}
 		}
 
-
-//        public void Do2WayDiffOfLift()
-//        {
-//            _alphaDom.LoadXml(_alphaLift);
-//            _betaDom.LoadXml(_ancestorLift);//nb: putting the ancestor in there is intentional
-//            _ancestorDom.LoadXml(_ancestorLift);
-//
-//            //NB: we dont' actually have any interest in writing anything,
-//            //but for now, this lets us reuse the merger code
-//
-//            using(MemoryStream memoryStream = new MemoryStream())
-//            using (XmlWriter writer = XmlWriter.Create(memoryStream))
-//            {
-//                WriteStartOfLiftElement(writer);
-//
-//                foreach (XmlNode e in _alphaDom.SelectNodes("lift/entry"))
-//                {
-//                        ProcessEntry(writer, e);
-//                }
-//
-//                //now detect any deleted elements
-//                foreach (XmlNode e in _ancestorDom.SelectNodes("lift/entry"))
-//                {
-//                    if (!_processedIds.Contains(LiftUtils.GetId(e)))
-//                    {
-//                        EventListener.ChangeOccurred(new XmlDeletionChangeReport(e));
-//                    }
-//                }
-//                writer.WriteEndElement();
-//            }
-//        }
-
-		private static XmlNode FindEntry(XmlNode doc, string id)
+		private void ProcessMainRecordElements(IDictionary<string, XmlNode> winnerGoners,
+			IDictionary<string, ChangedElement> winnerDirtballs,
+			IDictionary<string, XmlNode> loserGoners,
+			IDictionary<string, ChangedElement> loserDirtballs,
+			XmlReader reader, XmlWriter writer)
 		{
-			FailureSimulator.IfTestRequestsItThrowNow("LiftMerger.FindEntryById");
-			return doc.SelectSingleNode("lift/entry[@id=\""+id+"\"]");
-		}
-
-		private void ProcessEntry(XmlWriter writer, XmlNode alphaEntry)
-		{
-			string id = LiftUtils.GetId(alphaEntry);
-			XmlNode betaEntry;
-
-			if(!_betaIdToNodeIndex.TryGetValue(id, out betaEntry))
+			var keepReading = reader.Read();
+			while (keepReading)
 			{
-				//enchance: we know this at this point only in the 2-way diff mode
-				EventListener.ChangeOccurred(new XmlAdditionChangeReport("hackFixThis.lift", alphaEntry));
-				ProcessEntryWeKnowDoesntNeedMerging(alphaEntry, id, writer);
-			}
-			else if (AreTheSame(alphaEntry, betaEntry))//unchanged or both made same change
-			{
-				writer.WriteRaw(alphaEntry.OuterXml);
-			}
-			else //one or both changed
-			{
+				if (reader.EOF || !reader.IsStartElement())
+					break;
 
-				/* TODO: put this back after figuring out the exact situation it was for an adding a unit test
-				 if (!LiftUtils.GetIsMarkedAsDeleted(alphaEntry))
+				// 'entry' node is current node in reader.
+				// Fetch id from 'entry' node and see if it is in either
+				// of the modified/deleted dictionaries.
+				var transferUntouched = true;
+				var currentGuid = reader.GetAttribute("id");
+
+				if (winnerGoners.ContainsKey(currentGuid))
 				{
-					EventListener.ChangeOccurred(new XmlChangedRecordReport("hackFixThis.lift",  FindEntryById(_ancestorDom, id), alphaEntry));
+					transferUntouched = false;
+					ProcessDeletedRecordFromWinningData(winnerGoners, currentGuid, loserGoners, loserDirtballs);
 				}
-				 */
 
-				XmlNode commonEntry = FindEntry(_ancestorDom, id);
+				if (winnerDirtballs.ContainsKey(currentGuid))
+				{
+					transferUntouched = false;
+					ProcessWinnerEditedRecord(currentGuid, loserGoners, loserDirtballs, winnerDirtballs, writer);
+				}
 
-				writer.WriteRaw(_mergingStrategy.MakeMergedEntry(this.EventListener, alphaEntry, betaEntry, commonEntry));
+				if (loserGoners.ContainsKey(currentGuid))
+				{
+					// Loser deleted it but winner did nothing to it.
+					// If winner had either deleted or edited it,
+					// then the code above here would have been involved,
+					// and currentGuid would have been removed from loserGoners.
+					// The net effect is that it will be removed.
+					transferUntouched = false;
+					loserGoners.Remove(currentGuid);
+				}
+				if (loserDirtballs.ContainsKey(currentGuid))
+				{
+					// Loser changed it, but winner did nothing to it.
+					transferUntouched = false;
+					ReplaceCurrentNode(writer, loserDirtballs, currentGuid);
+				}
+
+				if (!transferUntouched)
+				{
+					// Read to next <rt> element,
+					// Which skips writing our the current element.
+					FailureSimulator.IfTestRequestsItThrowNow("LiftMerger.FindEntryById");
+					reader.ReadOuterXml();
+					keepReading = reader.IsStartElement();
+					continue;
+				}
+
+				// Nobody did anything with the current source node, so just copy it to output.
+				writer.WriteNode(reader, false);
+				keepReading = reader.IsStartElement();
 			}
-			_processedIds[id] = true;
 		}
 
-
-		private void ProcessEntryWeKnowDoesntNeedMerging(XmlNode entry, string id, XmlWriter writer)
+		private void ProcessWinnerEditedRecord(string currentGuid, IDictionary<string, XmlNode> loserGoners, IDictionary<string, ChangedElement> loserDirtballs, IDictionary<string, ChangedElement> winnerDirtballs, XmlWriter writer)
 		{
-			if(FindEntry(_ancestorDom,id) ==null)
+			if (loserGoners.ContainsKey(currentGuid))
 			{
-				writer.WriteRaw(entry.OuterXml); //it's new
+				// Winner edited it, but loser deleted it.
+				// Make a conflict report.
+				var dirtballElement = winnerDirtballs[currentGuid];
+				EventListener.ConflictOccurred(new EditedVsRemovedElementConflict(
+												"entry",
+												dirtballElement.m_childNode,
+												loserGoners[currentGuid],
+												dirtballElement.m_parentNode,
+												_mergeOrder.MergeSituation,
+												new ElementStrategy(false),
+												_winnerId));
+
+				ReplaceCurrentNode(writer, dirtballElement.m_childNode);
+				winnerDirtballs.Remove(currentGuid);
+				loserGoners.Remove(currentGuid);
 			}
 			else
 			{
-				// it must have been deleted by the other guy
+				if (loserDirtballs.ContainsKey(currentGuid))
+				{
+					// Both edited it. Check it out.
+					var mergedResult = winnerDirtballs[currentGuid].m_childNode.OuterXml;
+					if (!XmlUtilities.AreXmlElementsEqual(winnerDirtballs[currentGuid].m_childNode, loserDirtballs[currentGuid].m_childNode))
+					{
+						var dirtballElement = winnerDirtballs[currentGuid];
+						mergedResult = _mergingStrategy.MakeMergedEntry(EventListener, dirtballElement.m_childNode,
+																	 loserDirtballs[currentGuid].m_childNode, dirtballElement.m_parentNode);
+					}
+					ReplaceCurrentNode(writer, mergedResult);
+					loserDirtballs.Remove(currentGuid);
+				}
+				else
+				{
+					// Winner edited it. Loser did nothing with it.
+					ReplaceCurrentNode(writer, winnerDirtballs[currentGuid].m_childNode);
+					winnerDirtballs.Remove(currentGuid);
+				}
 			}
 		}
 
+		private void ProcessDeletedRecordFromWinningData(IDictionary<string, XmlNode> winnerGoners, string currentGuid, IDictionary<string, XmlNode> loserGoners, IDictionary<string, ChangedElement> loserDirtballs)
+		{
+			if (loserGoners.ContainsKey(currentGuid))
+			{
+				// Both deleted it.
+				loserGoners.Remove(currentGuid);
+			}
+			else
+			{
+				if (loserDirtballs.ContainsKey(currentGuid))
+				{
+					var dirtball = loserDirtballs[currentGuid];
+					// Winner deleted it, but loser edited it.
+					// Make a conflict report.
+					EventListener.ConflictOccurred(new RemovedVsEditedElementConflict(
+													"entry",
+													winnerGoners[currentGuid],
+													dirtball.m_childNode,
+													dirtball.m_parentNode,
+													_mergeOrder.MergeSituation,
+													new ElementStrategy(false),
+													_winnerId));
+					loserDirtballs.Remove(currentGuid);
+				}
+				// else // Winner deleted it and loser did nothing with it.
+			}
+			winnerGoners.Remove(currentGuid);
+		}
 
+		private static void ReplaceCurrentNode(XmlWriter writer, IDictionary<string, ChangedElement> loserDirtballs, string currentGuid)
+		{
+			ReplaceCurrentNode(writer, loserDirtballs[currentGuid].m_childNode);
+			loserDirtballs.Remove(currentGuid);
+		}
+
+		private static void ReplaceCurrentNode(XmlWriter writer, XmlNode replacementNode)
+		{
+			ReplaceCurrentNode(writer, replacementNode.OuterXml);
+		}
+
+		private static void ReplaceCurrentNode(XmlWriter writer, string replacementValue)
+		{
+			using (var tempReader = XmlReader.Create(
+				new MemoryStream(Encoding.UTF8.GetBytes(replacementValue)),
+				new XmlReaderSettings
+				{
+					CheckCharacters = false,
+					ConformanceLevel = ConformanceLevel.Fragment,
+					ProhibitDtd = true,
+					ValidationType = ValidationType.None,
+					CloseInput = true,
+					IgnoreWhitespace = true
+				}))
+			{
+				writer.WriteNode(tempReader, false);
+			}
+		}
+
+		private static void WriteOutNewObjects(Dictionary<string, XmlNode> newbies, Encoding enc, XmlWriter writer)
+		{
+			var readerSettings = new XmlReaderSettings
+			{
+				CheckCharacters = false,
+				ConformanceLevel = ConformanceLevel.Fragment,
+				ProhibitDtd = true,
+				ValidationType = ValidationType.None,
+				CloseInput = true,
+				IgnoreWhitespace = true
+			};
+			foreach (var newby in newbies.Values)
+			{
+				// Note: If we need to put in a XmlAdditionChangeReport for newbies from 'loser',
+				// Note: then we will need two 'newbie' lists.
+				using (var nodeReader = XmlReader.Create(new MemoryStream(enc.GetBytes(newby.OuterXml)), readerSettings))
+				{
+					writer.WriteNode(nodeReader, false);
+				}
+			}
+		}
+
+		private static void WritePreliminaryInformation(XmlReader reader, XmlWriter writer)
+		{
+			reader.MoveToContent();
+			writer.WriteStartElement("lift");
+			if (reader.MoveToAttribute("version"))
+				writer.WriteAttributeString("version", reader.Value);
+			if (reader.MoveToAttribute("producer"))
+				writer.WriteAttributeString("producer", reader.Value);
+			reader.MoveToElement();
+		}
+
+		private static void Do2WayDiff(string parentPathname, string childPathname,
+			IDictionary<string, XmlNode> goners, IDictionary<string, ChangedElement> dirtballs, IDictionary<string, XmlNode> newbies)
+		{
+			try
+			{
+				foreach (var winnerDif in Xml2WayDiffService.ReportDifferences(
+					parentPathname, childPathname,
+					new ChangeAndConflictAccumulator(),
+					"entry", "id"))
+				{
+					if (!(winnerDif is IXmlChangeReport))
+						continue; // It could be ErrorDeterminingChangeReport, so what to do with it?
+
+					var asXmlReport = (IXmlChangeReport)winnerDif;
+					switch (winnerDif.GetType().Name)
+					{
+						case "XmlDeletionChangeReport":
+							var gonerNode = asXmlReport.ParentNode;
+							goners.Add(gonerNode.Attributes["id"].Value, gonerNode);
+							break;
+						case "XmlChangedRecordReport":
+							var originalNode = asXmlReport.ParentNode;
+							var updatedNode = asXmlReport.ChildNode;
+							dirtballs.Add(originalNode.Attributes["id"].Value, new ChangedElement
+							{
+								m_parentNode = originalNode,
+								m_childNode = updatedNode
+							});
+							break;
+						case "XmlAdditionChangeReport":
+							var newbieNode = asXmlReport.ChildNode;
+							newbies.Add(newbieNode.Attributes["id"].Value, newbieNode);
+							break;
+					}
+				}
+			}
+			catch
+			{}
+		}
 
 		internal static void AddDateCreatedAttribute(XmlNode elementNode)
 		{
@@ -219,31 +355,5 @@ namespace Chorus.FileTypeHanders.lift
 			attr.Value = value;
 			element.Attributes.Append(attr);
 		}
-
-		private static bool AreTheSame(XmlNode alphaEntry, XmlNode betaEntry)
-		{
-			//review: why do we need to actually parse these dates?  Could we just do a string comparison?
-			if (LiftUtils.GetModifiedDate(betaEntry) == LiftUtils.GetModifiedDate(alphaEntry)
-				&& !(LiftUtils.GetModifiedDate(betaEntry) == default(DateTime)))
-				return true;
-
-			// REVIEW JohnH(RandyR): Please look this over to see which of the three overloads of
-			// XmlUtilities.AreXmlElementsEqual ought to be used here.
-			return XmlUtilities.AreXmlElementsEqual(alphaEntry.OuterXml, betaEntry.OuterXml);
-		}
-
-
-
-		private void WriteStartOfLiftElement(XmlWriter writer)
-		{
-			XmlNode liftNode = _alphaDom.SelectSingleNode("lift");
-
-			writer.WriteStartElement(liftNode.Name);
-			foreach (XmlAttribute attribute in liftNode.Attributes)
-			{
-				writer.WriteAttributeString(attribute.Name, attribute.Value);
-			}
-		}
-
 	}
 }

@@ -269,7 +269,6 @@ namespace LibChorus.Tests.sync
 
 			bobSetup.ChangeTextFile();
 
-
 			//Ok, this is unrealistic, but we just clone Bob onto Sally
 			string sallyMachineRoot = Path.Combine(_pathToTestRoot, "sally");
 			Directory.CreateDirectory(sallyMachineRoot);
@@ -291,12 +290,11 @@ namespace LibChorus.Tests.sync
 			bobOptions.DoPullFromOthers = false; // just want a fast checkin
 			bobSetup.GetSynchronizer().SyncNow(bobOptions);
 
-
 			//now Sally modifies the original file, not having seen Bob's changes yet
 			string sallyPathToLift = Path.Combine(sallyProject.FolderPath, "lexicon/foo.lift");
 			File.WriteAllText(sallyPathToLift, "<lift version='0.12'><entry id='cat'><lexical-unit><form lang='en'><text>cat</text></form></lexical-unit></entry></lift>");
 
-			//Salyy syncs, pulling in Bob's change, and encountering a need to merge (no conflicts)
+			//Sally syncs, pulling in Bob's change, and encountering a need to merge (no conflicts)
 			SyncOptions sallyOptions = new SyncOptions();
 			sallyOptions.CheckinDescription = "adding cat";
 			sallyOptions.DoPullFromOthers = true;

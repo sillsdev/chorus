@@ -134,8 +134,9 @@ namespace Chorus.Utilities
 
 			// Find offset for first record.
 			_startOfRecordsOffset = FindStartOfMainRecordOffset(0, openingAngleBracket, inputBytes, recordMarkerAsBytes);
-			if (_startOfRecordsOffset == _endOfRecordsOffset)
-				throw new InvalidOperationException("There was no main starting tag in the file.");
+			// No. At least in a test (SyncScenarioTests.CanCollaborateOnLift) the ancestor has no elements at all.
+			//if (_startOfRecordsOffset == _endOfRecordsOffset)
+			//	throw new InvalidOperationException("There was no main starting tag in the file.");
 		}
 
 		private int FindStartOfMainRecordOffset(int currentOffset, byte openingAngleBracket, byte[] inputBytes, byte[] recordMarkerAsBytes)

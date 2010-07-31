@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
-using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
 
 namespace Chorus.FileTypeHanders

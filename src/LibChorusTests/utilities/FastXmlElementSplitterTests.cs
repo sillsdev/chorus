@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -51,8 +50,8 @@ namespace LibChorus.Tests.utilities
 			}
 		}
 
-		[Test, ExpectedException(typeof(InvalidOperationException))]
-		public void No_Records_Throws()
+		[Test]
+		public void No_Records_With_Children_Is_Fine()
 		{
 			const string noRecordsInput =
 @"<?xml version='1.0' encoding='utf-8'?>
@@ -64,7 +63,7 @@ namespace LibChorus.Tests.utilities
 				File.WriteAllText(goodXmlPathname, noRecordsInput, Encoding.UTF8);
 				using (var reader = new FastXmlElementSplitter(goodXmlPathname))
 				{
-					reader.GetSecondLevelElementBytes("rt");
+					Assert.AreEqual(0, reader.GetSecondLevelElementBytes("rt").Count());
 				}
 			}
 			finally
@@ -73,8 +72,8 @@ namespace LibChorus.Tests.utilities
 			}
 		}
 
-		[Test, ExpectedException(typeof(InvalidOperationException))]
-		public void No_Children_Throws()
+		[Test]
+		public void No_Records_Without_Children_Is_Fine()
 		{
 			const string noRecordsInput =
 @"<?xml version='1.0' encoding='utf-8'?>
@@ -86,7 +85,7 @@ namespace LibChorus.Tests.utilities
 				File.WriteAllText(goodXmlPathname, noRecordsInput, Encoding.UTF8);
 				using (var reader = new FastXmlElementSplitter(goodXmlPathname))
 				{
-					reader.GetSecondLevelElementBytes("rt");
+					Assert.AreEqual(0, reader.GetSecondLevelElementBytes("rt").Count());
 				}
 			}
 			finally

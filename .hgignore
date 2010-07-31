@@ -12,3 +12,5 @@ glob:lib/Palaso.TestUtilities.pdb
 glob:*~
 *.pidb
 glob:Mercurial/*
+relre:src/Chorus.Tests/bin/*
+relre:src/ChorusMerge.Tests/bin/*
