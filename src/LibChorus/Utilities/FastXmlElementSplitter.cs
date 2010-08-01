@@ -14,13 +14,14 @@ namespace Chorus.Utilities
 	public class FastXmlElementSplitter : IDisposable
 	{
 		private readonly static Encoding _encUtf8 = Encoding.UTF8;
-		private readonly static List<byte> _endingWhitespace = new List<byte>
-			{
-				_encUtf8.GetBytes(" ")[0],
-				_encUtf8.GetBytes("\t")[0],
-				_encUtf8.GetBytes("\r")[0],
-				_encUtf8.GetBytes("\n")[0]
-			};
+
+		private static readonly Dictionary<byte, bool> _endingWhitespace = new Dictionary<byte, bool>
+										{
+											{_encUtf8.GetBytes(" ")[0], true},
+											{_encUtf8.GetBytes("\t")[0], true},
+											{_encUtf8.GetBytes("\r")[0], true},
+											{_encUtf8.GetBytes("\n")[0], true}
+										};
 
 		private readonly string _pathname;
 		private int _startOfRecordsOffset;
@@ -159,7 +160,7 @@ namespace Chorus.Utilities
 				for (var j = 1; ; j++)
 				{
 					var current = inputBytes[i + j];
-					if (_endingWhitespace.Contains(current))
+					if (_endingWhitespace.ContainsKey(current))
 					{
 						// Got it!
 						return i;

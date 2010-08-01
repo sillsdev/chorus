@@ -25,8 +25,10 @@ namespace Chorus.FileTypeHanders
 		{
 			FromFileInRevisions,
 			FromPathnames,
+			FromMixed
 		}
 
+		private readonly static string _deletedAttr = "dateDeleted=";
 		private readonly IMergeEventListener _eventListener;
 		private readonly HgRepository _repository;
 		private readonly FileInRevision _parentFileInRevision;
@@ -36,6 +38,7 @@ namespace Chorus.FileTypeHanders
 		private readonly string _parentPathname;
 		private readonly string _childPathname;
 		private readonly DiffingMode _diffingMode;
+		private readonly Dictionary<string, byte[]> _parentIndex;
 
 		public static Xml2WayDiffer CreateFromFileInRevision(FileInRevision parent, FileInRevision child,
 			IMergeEventListener eventListener, HgRepository repository,
@@ -74,6 +77,24 @@ namespace Chorus.FileTypeHanders
 			_eventListener = eventListener;
 		}
 
+		public static Xml2WayDiffer CreateFromMixed(Dictionary<string, byte[]> parentIndex, string childPathname,
+			IMergeEventListener eventListener,
+			string startTag, string identfierAttribute)
+		{
+			return new Xml2WayDiffer(eventListener, parentIndex, childPathname,
+				startTag, identfierAttribute);
+		}
+
+		private Xml2WayDiffer(IMergeEventListener eventListener, Dictionary<string, byte[]> parentIndex, string childPathname, string startTag, string identfierAttribute)
+		{
+			_diffingMode = DiffingMode.FromMixed;
+			_parentIndex = parentIndex;
+			_childPathname = childPathname;
+			_startTag = "<" + startTag.Trim();
+			_identfierAttribute = identfierAttribute;
+			_eventListener = eventListener;
+		}
+
 		///<summary>
 		/// Given the complete parent and child xml,
 		/// this method compares 'records' (main xml elements) in the parent and child data sets
@@ -82,7 +103,7 @@ namespace Chorus.FileTypeHanders
 		/// Low-level xml differences are handed to XmlUtilities.AreXmlElementsEqual for processing differences
 		/// of each 'record'.
 		///</summary>
-		public void ReportDifferencesToListener()
+		public Dictionary<string, byte[]> ReportDifferencesToListener()
 		{
 			Dictionary<string, byte[]> childIndex;
 			Dictionary<string, byte[]> parentIndex;
@@ -91,31 +112,47 @@ namespace Chorus.FileTypeHanders
 				default:
 					throw new InvalidEnumArgumentException("Diffing mode not recognized.");
 				case DiffingMode.FromFileInRevisions:
-					ReportDifferencesUsingFilesInRepositorySource(out parentIndex, out childIndex);
+					PrepareIndicesUsingFilesInRepositorySource(out parentIndex, out childIndex);
 					break;
 				case DiffingMode.FromPathnames:
-					ReportDifferencesUsingPathNameSource(out parentIndex, out childIndex);
+					PrepareIndicesUsingPathNameSource(out parentIndex, out childIndex);
+					break;
+				case DiffingMode.FromMixed:
+					parentIndex = _parentIndex;
+					PrepareIndexUsingPathNameSource(out childIndex);
 					break;
 			}
 
 			DoDiff(parentIndex, childIndex);
+			return parentIndex;
 		}
 
-		private void ReportDifferencesUsingPathNameSource(out Dictionary<string, byte[]> parentIndex, out Dictionary<string, byte[]> childIndex)
+		private void PrepareIndexUsingPathNameSource(out Dictionary<string, byte[]> childIndex)
 		{
-			ReportDifferencesUsingPathNameSource(_parentPathname, out parentIndex, _childPathname, out childIndex);
+			const int estimatedObjectCount = 400;
+			var fileInfo = new FileInfo(_childPathname);
+			childIndex = new Dictionary<string, byte[]>((int)(fileInfo.Length / estimatedObjectCount));
+			using (var prepper = new DifferDictionaryPrepper(childIndex, _childPathname, _startTag, _identfierAttribute))
+			{
+				prepper.Run();
+			}
 		}
 
-		private void ReportDifferencesUsingFilesInRepositorySource(out Dictionary<string, byte[]> parentIndex, out Dictionary<string, byte[]> childIndex)
+		private void PrepareIndicesUsingPathNameSource(out Dictionary<string, byte[]> parentIndex, out Dictionary<string, byte[]> childIndex)
+		{
+			PrepareIndicesUsingPathNameSource(_parentPathname, out parentIndex, _childPathname, out childIndex);
+		}
+
+		private void PrepareIndicesUsingFilesInRepositorySource(out Dictionary<string, byte[]> parentIndex, out Dictionary<string, byte[]> childIndex)
 		{
 			using (var parentTempFile = _parentFileInRevision.CreateTempFile(_repository))
 			using (var childTempFile = _childFileInRevision.CreateTempFile(_repository))
 			{
-				ReportDifferencesUsingPathNameSource(parentTempFile.Path, out parentIndex, childTempFile.Path, out childIndex);
+				PrepareIndicesUsingPathNameSource(parentTempFile.Path, out parentIndex, childTempFile.Path, out childIndex);
 			}
 		}
 
-		private void ReportDifferencesUsingPathNameSource(string parentPathname, out Dictionary<string, byte[]> parentIndex,
+		private void PrepareIndicesUsingPathNameSource(string parentPathname, out Dictionary<string, byte[]> parentIndex,
 			string childPathname, out Dictionary<string, byte[]> childIndex)
 		{
 			// This arbitrary length (400) is based on two large databases,
@@ -150,22 +187,21 @@ namespace Chorus.FileTypeHanders
 				if (childIndex.TryGetValue(parentKey, out childValue))
 				{
 					childIndex.Remove(parentKey);
-					if (parentValue.Length == childValue.Length)
-					{
-						if (!parentValue.Where((t, i) => t != childValue[i]).Any())
-							continue;
-					}
+					// It is faster to skip this and jsut turn them into strings and then do the check.
+					//if (!parentValue.Where((t, i) => t != childValue[i]).Any())
+					//    continue; // Bytes are all the same.
 
-					const string deletedAttr = "dateDeleted=";
 					var parentStr = enc.GetString(parentValue);
 					var childStr = enc.GetString(childValue);
+					if (parentStr == childStr)
+						continue;
 					// May have added dateDeleted' attr, in which case treat it as deleted, not changed.
 					// NB: This is only for Lift diffing, not FW diffing,
 					// so figure a way to have the client do this kind of check.
-					if (childStr.Contains(deletedAttr))
+					if (childStr.Contains(_deletedAttr))
 					{
 						// Only report it as deleted, if it is not already marked as deleted in the parent.
-						if (!parentStr.Contains(deletedAttr))
+						if (!parentStr.Contains(_deletedAttr))
 						{
 							_eventListener.ChangeOccurred(new XmlDeletionChangeReport(
 															_parentFileInRevision,
@@ -206,6 +242,9 @@ namespace Chorus.FileTypeHanders
 													null)); // Child Node? How can we put it in, if it was deleted?
 				}
 			}
+
+			// Values that are still in childIndex are new,
+			// since values that were not new have been removed by now.
 			foreach (var child in childIndex.Values)
 			{
 				_eventListener.ChangeOccurred(new XmlAdditionChangeReport(

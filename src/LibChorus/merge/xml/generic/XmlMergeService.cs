@@ -49,12 +49,12 @@ namespace Chorus.merge.xml.generic
 			// Do diff between winner and common
 			var winnerGoners = new Dictionary<string, XmlNode>();
 			var winnerDirtballs = new Dictionary<string, ChangedElement>();
-			Do2WayDiff(commonAncestorPathname, pathToWinner, winnerGoners, winnerDirtballs, newbies, recordElementName, id);
+			var parentIndex = Do2WayDiff(commonAncestorPathname, pathToWinner, winnerGoners, winnerDirtballs, newbies, recordElementName, id);
 
 			// Do diff between loser and common
 			var loserGoners = new Dictionary<string, XmlNode>();
 			var loserDirtballs = new Dictionary<string, ChangedElement>();
-			Do2WayDiff(commonAncestorPathname, pathToLoser, loserGoners, loserDirtballs, newbies, recordElementName, id);
+			Do2WayDiff(parentIndex, pathToLoser, loserGoners, loserDirtballs, newbies, recordElementName, id);
 
 			// At this point we have two sets of diffs, but we need to merge them.
 			// Newbies from both get added.
@@ -174,9 +174,11 @@ namespace Chorus.merge.xml.generic
 
 				if (!transferUntouched)
 				{
+#if DEBUG
+					FailureSimulator.IfTestRequestsItThrowNow("LiftMerger.FindEntryById");
+#endif
 					// Read to next <rt> element,
 					// Which skips writing our the current element.
-					FailureSimulator.IfTestRequestsItThrowNow("LiftMerger.FindEntryById");
 					reader.ReadOuterXml();
 					keepReading = reader.IsStartElement();
 					continue;
@@ -299,45 +301,70 @@ namespace Chorus.merge.xml.generic
 			winnerGoners.Remove(currentId);
 		}
 
-		private static void Do2WayDiff(string parentPathname, string childPathname,
+		private static void Do2WayDiff(Dictionary<string, byte[]> parentIndex, string childPathname,
 			IDictionary<string, XmlNode> goners, IDictionary<string, ChangedElement> dirtballs, IDictionary<string, XmlNode> newbies,
 			string recordElementName, string id)
 		{
 			try
 			{
 				foreach (var winnerDif in Xml2WayDiffService.ReportDifferences(
-					parentPathname, childPathname,
+					parentIndex, childPathname,
 					new ChangeAndConflictAccumulator(),
 					recordElementName, id))
 				{
-					if (!(winnerDif is IXmlChangeReport))
-						continue; // It could be ErrorDeterminingChangeReport, so what to do with it?
-
-					var asXmlReport = (IXmlChangeReport)winnerDif;
-					switch (winnerDif.GetType().Name)
-					{
-						case "XmlDeletionChangeReport":
-							var gonerNode = asXmlReport.ParentNode;
-							goners.Add(gonerNode.Attributes[id].Value, gonerNode);
-							break;
-						case "XmlChangedRecordReport":
-							var originalNode = asXmlReport.ParentNode;
-							var updatedNode = asXmlReport.ChildNode;
-							dirtballs.Add(originalNode.Attributes[id].Value, new ChangedElement
-							{
-								m_parentNode = originalNode,
-								m_childNode = updatedNode
-							});
-							break;
-						case "XmlAdditionChangeReport":
-							var newbieNode = asXmlReport.ChildNode;
-							newbies.Add(newbieNode.Attributes[id].Value, newbieNode);
-							break;
-					}
+					Do2WayDiffCore(id, winnerDif, goners, dirtballs, newbies);
 				}
 			}
 			catch
 			{ }
+		}
+
+		private static Dictionary<string, byte[]> Do2WayDiff(string parentPathname, string childPathname,
+			IDictionary<string, XmlNode> goners, IDictionary<string, ChangedElement> dirtballs, IDictionary<string, XmlNode> newbies,
+			string recordElementName, string id)
+		{
+			Dictionary<string, byte[]> parentIndex = null;
+			try
+			{
+				foreach (var winnerDif in Xml2WayDiffService.ReportDifferencesForMerge(
+					parentPathname, childPathname,
+					new ChangeAndConflictAccumulator(),
+					recordElementName, id, out parentIndex))
+				{
+					Do2WayDiffCore(id, winnerDif, goners, dirtballs, newbies);
+				}
+			}
+			catch
+			{ }
+			return parentIndex;
+		}
+
+		private static void Do2WayDiffCore(string id, IChangeReport winnerDif, IDictionary<string, XmlNode> goners, IDictionary<string, ChangedElement> dirtballs, IDictionary<string, XmlNode> newbies)
+		{
+			if (!(winnerDif is IXmlChangeReport))
+				return;
+
+			var asXmlReport = (IXmlChangeReport)winnerDif;
+			switch (winnerDif.GetType().Name)
+			{
+				case "XmlDeletionChangeReport":
+					var gonerNode = asXmlReport.ParentNode;
+					goners.Add(gonerNode.Attributes[id].Value, gonerNode);
+					break;
+				case "XmlChangedRecordReport":
+					var originalNode = asXmlReport.ParentNode;
+					var updatedNode = asXmlReport.ChildNode;
+					dirtballs.Add(originalNode.Attributes[id].Value, new ChangedElement
+																		{
+																			m_parentNode = originalNode,
+																			m_childNode = updatedNode
+																		});
+					break;
+				case "XmlAdditionChangeReport":
+					var newbieNode = asXmlReport.ChildNode;
+					newbies.Add(newbieNode.Attributes[id].Value, newbieNode);
+					break;
+			}
 		}
 
 		private static void CheckParameters(IMergeStrategy mergeStrategy, MergeOrder mergeOrder, IMergeEventListener listener,

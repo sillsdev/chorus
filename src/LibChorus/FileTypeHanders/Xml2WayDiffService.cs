@@ -82,5 +82,63 @@ namespace Chorus.FileTypeHanders
 				return ((ChangeAndConflictAccumulator)changeAndConflictAccumulator).Changes;
 			return null; // unit tests use impl class that has no "Changes" property.
 		}
+
+		/// <summary>
+		/// Report the differences between two versions of files in the repository.
+		/// </summary>
+		/// <returns>Zero or more change reports.</returns>
+		public static IEnumerable<IChangeReport> ReportDifferencesForMerge(
+			string parentPathname, string childPathname,
+			IMergeEventListener listener,
+			string recordMarker, string identfierAttribute,
+			out Dictionary<string, byte[]> parentIndex)
+		{
+			parentIndex = null;
+			var changeAndConflictAccumulator = listener ?? new ChangeAndConflictAccumulator();
+			var differ = Xml2WayDiffer.CreateFromFiles(
+				parentPathname, childPathname,
+				changeAndConflictAccumulator,
+				recordMarker, identfierAttribute);
+			try
+			{
+				parentIndex = differ.ReportDifferencesToListener();
+			}
+			catch
+			{
+				// Eat exception.
+			}
+
+			if (changeAndConflictAccumulator is ChangeAndConflictAccumulator)
+				return ((ChangeAndConflictAccumulator)changeAndConflictAccumulator).Changes;
+			return null; // unit tests use impl class that has no "Changes" property.
+		}
+
+		/// <summary>
+		/// Report the differences between two versions of files in the repository.
+		/// </summary>
+		/// <returns>Zero or more change reports.</returns>
+		public static IEnumerable<IChangeReport> ReportDifferences(
+			Dictionary<string, byte[]> parentIndex, string childPathname,
+			IMergeEventListener listener,
+			string recordMarker, string identfierAttribute)
+		{
+			var changeAndConflictAccumulator = listener ?? new ChangeAndConflictAccumulator();
+			var differ = Xml2WayDiffer.CreateFromMixed(
+				parentIndex, childPathname,
+				changeAndConflictAccumulator,
+				recordMarker, identfierAttribute);
+			try
+			{
+				differ.ReportDifferencesToListener();
+			}
+			catch
+			{
+				// Eat exception.
+			}
+
+			if (changeAndConflictAccumulator is ChangeAndConflictAccumulator)
+				return ((ChangeAndConflictAccumulator)changeAndConflictAccumulator).Changes;
+			return null; // unit tests use impl class that has no "Changes" property.
+		}
 	}
 }
