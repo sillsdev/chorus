@@ -309,9 +309,9 @@ namespace LibChorus.Tests.sync
 			var synchronizer = Synchronizer.FromProjectConfiguration(sallyProject, progress);
 			synchronizer.SyncNow(sallyOptions);
 
-			Debug.WriteLine("bob's: " + File.ReadAllText(bobSetup._pathToLift));
+			//Debug.WriteLine("bob's: " + File.ReadAllText(bobSetup._pathToLift));
 			var contents = File.ReadAllText(sallyPathToLift);
-			Debug.WriteLine("sally's: " + contents);
+			//Debug.WriteLine("sally's: " + contents);
 			Assert.IsTrue(contents.Contains("cat"));
 			Assert.IsTrue(contents.Contains("dog"));
 		}

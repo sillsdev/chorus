@@ -41,7 +41,6 @@ namespace Chorus.FileTypeHanders.lift
 
 		public void Do3WayMerge(MergeOrder mergeOrder)
 		{
-			Console.WriteLine("Doing Lift Do3WayMerge.");
 			XmlMergeService.Do3WayMerge(mergeOrder,
 				new LiftEntryMergingStrategy(mergeOrder.MergeSituation),
 				"entry", "id", WritePreliminaryInformation);
