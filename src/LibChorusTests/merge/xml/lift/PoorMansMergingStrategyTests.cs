@@ -3,6 +3,7 @@ using Chorus.FileTypeHanders.lift;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
 using LibChorus.Tests.merge.xml;
+using LibChorus.Tests.merge.xml.generic;
 using NUnit.Framework;
 
 namespace LiftIO.Tests.Merging
@@ -42,13 +43,11 @@ namespace LiftIO.Tests.Merging
 			using (var theirsTemp = new TempFile(theirs))
 			using (var ancestorTemp = new TempFile(ancestor))
 			{
+				var listener = new ListenerForUnitTests();
 				var situation = new NullMergeSituation();
-				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation);
-				var merger = new LiftMerger(mergeOrder, oursTemp.Path, theirsTemp.Path,
-					new PoorMansMergeStrategy(),
-					ancestorTemp.Path, mergeOrder.MergeSituation.AlphaUserId);
-				//since we gave it null for the merger, it will die if tries to merge at all
-				merger.DoMerge(mergeOrder.pathToOurs);
+				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation) { EventListener = listener };
+				XmlMergeService.Do3WayMerge(mergeOrder, new PoorMansMergeStrategy(),
+					"entry", "id", LiftFileHandler.WritePreliminaryInformation);
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
 				XmlTestHelper.AssertXPathMatchesExactlyOne(result, "lift/entry[@id='lexicalformcollission']");
 				XmlTestHelper.AssertXPathMatchesExactlyOne(result, "lift/entry");//just one
@@ -57,7 +56,7 @@ namespace LiftIO.Tests.Merging
 			}
 		}
 
-		[Test, Ignore("Not implemented")]
+		[Test]
 		public void EachHasNewSense_BothSensesCoveyed()
 		{
 			const string ours = @"<?xml version='1.0' encoding='utf-8'?>
@@ -90,12 +89,11 @@ namespace LiftIO.Tests.Merging
 			using (var theirsTemp = new TempFile(theirs))
 			using (var ancestorTemp = new TempFile(ancestor))
 			{
+				var listener = new ListenerForUnitTests();
 				var situation = new NullMergeSituation();
-				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation);
-				var merger = new LiftMerger(mergeOrder, oursTemp.Path, theirsTemp.Path,
-					new PoorMansMergeStrategy(),
-					ancestorTemp.Path, mergeOrder.MergeSituation.AlphaUserId);
-				merger.DoMerge(mergeOrder.pathToOurs);
+				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation) { EventListener = listener };
+				XmlMergeService.Do3WayMerge(mergeOrder, new LiftEntryMergingStrategy(situation),
+					"entry", "id", LiftFileHandler.WritePreliminaryInformation);
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
 				XmlTestHelper.AssertXPathMatchesExactlyOne(result, "lift/entry[@id='test']");
 				XmlTestHelper.AssertXPathMatchesExactlyOne(result, "lift/entry[@id='test' and sense/gloss/text='ourSense']");

@@ -12,7 +12,7 @@ namespace Chorus.merge
 	public class NullMergeSituation: MergeSituation
 	{
 		public NullMergeSituation()
-			: base(null, null, null, null, null,MergeOrder.ConflictHandlingModeChoices.WeWin)
+			: base(null, null, null, null, null, MergeOrder.ConflictHandlingModeChoices.WeWin)
 		{
 		}
 	}

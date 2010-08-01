@@ -4,6 +4,7 @@ using System.IO;
 using System.Text;
 using System.Xml;
 using Chorus.FileTypeHanders;
+using Chorus.FileTypeHanders.lift;
 using Chorus.FileTypeHanders.xml;
 using Chorus.Utilities;
 
@@ -17,23 +18,43 @@ namespace Chorus.merge.xml.generic
 		/// <summary>
 		/// Perform the 3-way merge.
 		/// </summary>
-		public static void Do3WayMerge(IMergeStrategy mergeStrategy, MergeOrder mergeOrder, IMergeEventListener listener,
-			string winnerPathname, string loserPathname, string commonAncestorPathname, string outputPathname,
-			string winnerId, string recordElementName, string id,
+		public static void Do3WayMerge(MergeOrder mergeOrder, IMergeStrategy mergeStrategy, // Get from mergeOrder: IMergeEventListener listener,
+			string recordElementName, string id,
 			Action<XmlReader, XmlWriter> writePreliminaryInformationDelegate)
 		{
-			CheckParameters(mergeStrategy, mergeOrder, listener, winnerPathname, loserPathname, commonAncestorPathname, recordElementName, id, writePreliminaryInformationDelegate);
+			string pathToWinner;
+			string pathToLoser;
+			string winnerId;
+			switch (mergeOrder.MergeSituation.ConflictHandlingMode)
+			{
+				default:
+					throw new ArgumentException("The merge service cannot handle the requested conflict handling mode");
+				case MergeOrder.ConflictHandlingModeChoices.WeWin:
+					pathToWinner = mergeOrder.pathToOurs;
+					pathToLoser = mergeOrder.pathToTheirs;
+					winnerId = mergeOrder.MergeSituation.AlphaUserId;
+					break;
+				case MergeOrder.ConflictHandlingModeChoices.TheyWin:
+					pathToWinner = mergeOrder.pathToTheirs;
+					pathToLoser = mergeOrder.pathToOurs;
+					winnerId = mergeOrder.MergeSituation.BetaUserId;
+					break;
+			}
+			var commonAncestorPathname = mergeOrder.pathToCommonAncestor;
+			// Do not change outputPathname, or be ready to fix SyncScenarioTests.CanCollaborateOnLift()!
+			var outputPathname = mergeOrder.pathToOurs;
+			CheckParameters(mergeStrategy, mergeOrder, mergeOrder.EventListener, pathToWinner, pathToLoser, commonAncestorPathname, recordElementName, id, writePreliminaryInformationDelegate);
 
 			var newbies = new Dictionary<string, XmlNode>();
 			// Do diff between winner and common
 			var winnerGoners = new Dictionary<string, XmlNode>();
 			var winnerDirtballs = new Dictionary<string, ChangedElement>();
-			Do2WayDiff(commonAncestorPathname, winnerPathname, winnerGoners, winnerDirtballs, newbies, recordElementName, id);
+			Do2WayDiff(commonAncestorPathname, pathToWinner, winnerGoners, winnerDirtballs, newbies, recordElementName, id);
 
 			// Do diff between loser and common
 			var loserGoners = new Dictionary<string, XmlNode>();
 			var loserDirtballs = new Dictionary<string, ChangedElement>();
-			Do2WayDiff(commonAncestorPathname, loserPathname, loserGoners, loserDirtballs, newbies, recordElementName, id);
+			Do2WayDiff(commonAncestorPathname, pathToLoser, loserGoners, loserDirtballs, newbies, recordElementName, id);
 
 			// At this point we have two sets of diffs, but we need to merge them.
 			// Newbies from both get added.
@@ -67,7 +88,7 @@ namespace Chorus.merge.xml.generic
 					writePreliminaryInformationDelegate(reader, writer);
 
 					ProcessMainRecordElements(
-						mergeStrategy, mergeOrder, listener,
+						mergeStrategy, mergeOrder, mergeOrder.EventListener,
 						winnerGoners, winnerDirtballs, loserGoners, loserDirtballs,
 						reader, writer,
 						id, winnerId, recordElementName);
@@ -340,7 +361,7 @@ namespace Chorus.merge.xml.generic
 
 		private static void CheckParameterForContent(string parameter)
 		{
-			if (string.IsNullOrEmpty(parameter))
+			if (String.IsNullOrEmpty(parameter))
 				throw new ArgumentNullException("parameter");
 		}
 
@@ -354,6 +375,18 @@ namespace Chorus.merge.xml.generic
 		{
 			internal XmlNode m_parentNode;
 			internal XmlNode m_childNode;
+		}
+
+		internal static void AddDateCreatedAttribute(XmlNode elementNode)
+		{
+			AddAttribute(elementNode, "dateCreated", DateTime.Now.ToString(LiftUtils.LiftTimeFormatNoTimeZone));
+		}
+
+		internal static void AddAttribute(XmlNode element, string name, string value)
+		{
+			XmlAttribute attr = element.OwnerDocument.CreateAttribute(name);
+			attr.Value = value;
+			element.Attributes.Append(attr);
 		}
 	}
 }

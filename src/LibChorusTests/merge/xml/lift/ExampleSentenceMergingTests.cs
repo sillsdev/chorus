@@ -37,14 +37,12 @@ namespace LibChorus.Tests.merge.xml.lift
 			using (var theirsTemp = new TempFile(theirs))
 			using (var ancestorTemp = new TempFile(ancestor))
 			{
-				var situation = new NullMergeSituation();
-				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation);
-				var merger = new LiftMerger(mergeOrder, oursTemp.Path, theirsTemp.Path,
-					new LiftEntryMergingStrategy(situation),
-					ancestorTemp.Path, mergeOrder.MergeSituation.AlphaUserId);
 				var listener = new ListenerForUnitTests();
-				merger.EventListener = listener;
-				merger.DoMerge(mergeOrder.pathToOurs);
+				var situation = new NullMergeSituation();
+				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation)
+					{ EventListener = listener };
+				XmlMergeService.Do3WayMerge(mergeOrder, new LiftEntryMergingStrategy(situation),
+					"entry", "id", LiftFileHandler.WritePreliminaryInformation);
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
 				Assert.AreEqual(1, listener.Conflicts.Count);
 				var warning = listener.Warnings[0];
@@ -76,12 +74,12 @@ namespace LibChorus.Tests.merge.xml.lift
 			using (var theirsTemp = new TempFile(theirs))
 			using (var ancestorTemp = new TempFile(ancestor))
 			{
+				var listener = new ListenerForUnitTests();
 				var situation = new NullMergeSituation();
-				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation);
-				var merger = new LiftMerger(mergeOrder, oursTemp.Path, theirsTemp.Path,
-					new LiftEntryMergingStrategy(situation),
-					ancestorTemp.Path, mergeOrder.MergeSituation.AlphaUserId);
-				merger.DoMerge(mergeOrder.pathToOurs);
+				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation)
+					{ EventListener = listener };
+				XmlMergeService.Do3WayMerge(mergeOrder, new LiftEntryMergingStrategy(situation),
+					"entry", "id", LiftFileHandler.WritePreliminaryInformation);
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
 				XmlTestHelper.AssertXPathMatchesExactlyOne(result, "//example");
 			}

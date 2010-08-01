@@ -4,6 +4,7 @@ using System.IO;
 using System.Xml;
 using Chorus.FileTypeHanders.xml;
 using Chorus.merge;
+using Chorus.merge.xml.generic;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
 
@@ -61,33 +62,9 @@ namespace Chorus.FileTypeHanders.FieldWorks
 		/// The must not have any UI, no interaction with the user.</remarks>
 		public void Do3WayMerge(MergeOrder mergeOrder)
 		{
-			string pathToWinner;
-			string pathToLoser;
-			string winnerId;
-			switch (mergeOrder.MergeSituation.ConflictHandlingMode)
-			{
-				default:
-					throw new ArgumentException("The FieldWorks merger cannot handle the requested conflict handling mode");
-				case MergeOrder.ConflictHandlingModeChoices.WeWin:
-					pathToWinner = mergeOrder.pathToOurs;
-					pathToLoser = mergeOrder.pathToTheirs;
-					winnerId = mergeOrder.MergeSituation.AlphaUserId;
-					break;
-				case MergeOrder.ConflictHandlingModeChoices.TheyWin:
-					pathToWinner = mergeOrder.pathToTheirs;
-					pathToLoser = mergeOrder.pathToOurs;
-					winnerId = mergeOrder.MergeSituation.BetaUserId;
-					break;
-			}
-			var merger = new FieldWorksMerger(
-				mergeOrder,
+			XmlMergeService.Do3WayMerge(mergeOrder,
 				new FieldWorksMergingStrategy(mergeOrder.MergeSituation),
-				pathToWinner, pathToLoser, mergeOrder.pathToCommonAncestor, winnerId)
-					{
-						EventListener = mergeOrder.EventListener
-					};
-
-			merger.DoMerge(mergeOrder.pathToOurs);
+				"rt", "guid", WritePreliminaryInformation);
 		}
 
 		public IEnumerable<IChangeReport> Find2WayDifferences(FileInRevision parent, FileInRevision child, HgRepository repository)
@@ -171,6 +148,21 @@ namespace Chorus.FileTypeHanders.FieldWorks
 			return !string.IsNullOrEmpty(pathToFile) // No null or empty string can be valid.
 				&& File.Exists(pathToFile) // There has to be an actual file,
 				&& Path.GetExtension(pathToFile).ToLowerInvariant() == "." + kExtension; // It better have kExtension for its extension.
+		}
+
+		private static void WritePreliminaryInformation(XmlReader reader, XmlWriter writer)
+		{
+			reader.MoveToContent();
+			writer.WriteStartElement("languageproject");
+			reader.MoveToAttribute("version");
+			writer.WriteAttributeString("version", reader.Value);
+			reader.MoveToElement();
+
+			// Deal with optional custom field declarations.
+			if (reader.LocalName == "AdditionalFields")
+			{
+				writer.WriteNode(reader, false);
+			}
 		}
 	}
 }

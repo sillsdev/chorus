@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Xml;
 using Chorus.FileTypeHanders.xml;
 using Chorus.merge;
+using Chorus.merge.xml.generic;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
 
@@ -39,28 +41,10 @@ namespace Chorus.FileTypeHanders.lift
 
 		public void Do3WayMerge(MergeOrder mergeOrder)
 		{
-			LiftMerger merger;
-			string winnerId;
-			switch (mergeOrder.MergeSituation.ConflictHandlingMode)
-			{
-				default:
-					throw new ArgumentException("The Lift merger cannot handle the requested conflict handling mode");
-				case MergeOrder.ConflictHandlingModeChoices.WeWin:
-					winnerId = mergeOrder.MergeSituation.AlphaUserId;
-					merger = new LiftMerger(mergeOrder,
-						mergeOrder.pathToOurs, mergeOrder.pathToTheirs,
-						new LiftEntryMergingStrategy(mergeOrder.MergeSituation), mergeOrder.pathToCommonAncestor, winnerId);
-					break;
-				case MergeOrder.ConflictHandlingModeChoices.TheyWin:
-					winnerId = mergeOrder.MergeSituation.BetaUserId;
-					merger = new LiftMerger(mergeOrder,
-						mergeOrder.pathToTheirs, mergeOrder.pathToOurs,
-						new LiftEntryMergingStrategy(mergeOrder.MergeSituation), mergeOrder.pathToCommonAncestor, winnerId);
-					break;
-			}
-			merger.EventListener = mergeOrder.EventListener;
-
-			merger.DoMerge(mergeOrder.pathToOurs);
+			Console.WriteLine("Doing Lift Do3WayMerge.");
+			XmlMergeService.Do3WayMerge(mergeOrder,
+				new LiftEntryMergingStrategy(mergeOrder.MergeSituation),
+				"entry", "id", WritePreliminaryInformation);
 		}
 
 		public IEnumerable<IChangeReport> Find2WayDifferences(FileInRevision parent, FileInRevision child, HgRepository repository)
@@ -94,6 +78,17 @@ namespace Chorus.FileTypeHanders.lift
 		public IEnumerable<string> GetExtensionsOfKnownTextFileTypes()
 		{
 			yield return "lift";
+		}
+
+		internal static void WritePreliminaryInformation(XmlReader reader, XmlWriter writer)
+		{
+			reader.MoveToContent();
+			writer.WriteStartElement("lift");
+			if (reader.MoveToAttribute("version"))
+				writer.WriteAttributeString("version", reader.Value);
+			if (reader.MoveToAttribute("producer"))
+				writer.WriteAttributeString("producer", reader.Value);
+			reader.MoveToElement();
 		}
 	}
 }

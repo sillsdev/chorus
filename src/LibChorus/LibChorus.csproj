@@ -94,7 +94,6 @@
 	<Compile Include="FileTypeHanders\FieldWorks\FieldWorkObjectContextGenerator.cs" />
 	<Compile Include="FileTypeHanders\FieldWorks\FieldWorksChangePresenter.cs" />
 	<Compile Include="FileTypeHanders\FieldWorks\FieldWorksFileHandler.cs" />
-	<Compile Include="FileTypeHanders\FieldWorks\FieldWorksMerger.cs" />
 	<Compile Include="FileTypeHanders\FieldWorks\FieldWorksMergingStrategy.cs" />
 	<Compile Include="FileTypeHanders\NotePresenter.cs" />
 	<Compile Include="IWritingSystem.cs" />
@@ -199,7 +198,6 @@
 	<Compile Include="merge\xml\generic\FindNodeToMerge.cs" />
 	<Compile Include="merge\xml\generic\IMergeStrategy.cs" />
 	<Compile Include="FileTypeHanders\lift\LiftEntryMergingStrategy.cs" />
-	<Compile Include="FileTypeHanders\lift\LiftMerger.cs" />
 	<Compile Include="merge\xml\generic\XmlUtilities.cs" />
 	<Compile Include="merge\xml\generic\xmldiff\DiffConfiguration.cs" />
 	<Compile Include="merge\xml\generic\xmldiff\Difference.cs" />

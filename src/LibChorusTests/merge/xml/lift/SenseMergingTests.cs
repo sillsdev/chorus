@@ -43,13 +43,12 @@ namespace LibChorus.Tests.merge.xml.lift
 			using (var theirsTemp = new TempFile(theirs))
 			using (var ancestorTemp = new TempFile(ancestor))
 			{
-				var situation = new NullMergeSituation();
-				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation);
-				var merger = new LiftMerger(mergeOrder, oursTemp.Path, theirsTemp.Path, new LiftEntryMergingStrategy(situation), ancestorTemp.Path, mergeOrder.MergeSituation.AlphaUserId);
 				var listener = new ListenerForUnitTests();
-				merger.EventListener = listener;
-				merger.DoMerge(mergeOrder.pathToOurs);
-				//string result = merger.GetMergedLift();
+				var situation = new NullMergeSituation();
+				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation)
+									{EventListener = listener};
+				XmlMergeService.Do3WayMerge(mergeOrder, new LiftEntryMergingStrategy(situation),
+					"entry", "id", LiftFileHandler.WritePreliminaryInformation);
 				//this doesn't seem particular relevant, but senses are, in fact, ordered, so there is some ambiguity here
 				Assert.AreEqual(typeof(AmbiguousInsertConflict), listener.Conflicts[0].GetType());
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
@@ -98,15 +97,14 @@ namespace LibChorus.Tests.merge.xml.lift
 			using (var theirsTemp = new TempFile(theirs))
 			using (var ancestorTemp = new TempFile(ancestor))
 			{
-				var situation = new NullMergeSituation();
-				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation);
-				var merger = new LiftMerger(mergeOrder, oursTemp.Path, theirsTemp.Path, new LiftEntryMergingStrategy(situation), ancestorTemp.Path, mergeOrder.MergeSituation.AlphaUserId);
 				var listener = new ListenerForUnitTests();
-				merger.EventListener = listener;
-				merger.DoMerge(mergeOrder.pathToOurs);
+				var situation = new NullMergeSituation();
+				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation) { EventListener = listener };
+				XmlMergeService.Do3WayMerge(mergeOrder, new LiftEntryMergingStrategy(situation),
+					"entry", "id", LiftFileHandler.WritePreliminaryInformation);
 				var conflict = listener.Conflicts[0];
 				AssertConflictType<BothEditedTextConflict>(conflict);
-				var expectedContext = "lift://unknown?type=entry&id=F169EB3D-16F2-4eb0-91AA-FDB91636F8F6";
+				const string expectedContext = "lift://unknown?type=entry&id=F169EB3D-16F2-4eb0-91AA-FDB91636F8F6";
 				Assert.AreEqual(expectedContext, listener.Contexts[0].PathToUserUnderstandableElement,
 								"the listener wasn't give the expected context");
 			}
