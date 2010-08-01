@@ -89,6 +89,7 @@
   <ItemGroup>
 	<Compile Include="FileTypeHanders\Xml2WayDiffer.cs" />
 	<Compile Include="FileTypeHanders\Xml2WayDiffService.cs" />
+	<Compile Include="merge\xml\generic\XmlMergeService.cs" />
 	<Compile Include="Utilities\DifferDictionaryPrepper.cs" />
 	<Compile Include="FileTypeHanders\FieldWorks\FieldWorkObjectContextGenerator.cs" />
 	<Compile Include="FileTypeHanders\FieldWorks\FieldWorksChangePresenter.cs" />
