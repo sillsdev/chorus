@@ -157,6 +157,7 @@ namespace Chorus.FileTypeHanders.FieldWorks
 			reader.MoveToAttribute("version");
 			writer.WriteAttributeString("version", reader.Value);
 			reader.MoveToElement();
+			reader.Read();
 
 			// Deal with optional custom field declarations.
 			if (reader.LocalName == "AdditionalFields")

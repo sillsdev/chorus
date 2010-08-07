@@ -88,6 +88,9 @@ namespace Chorus.FileTypeHanders.lift
 			if (reader.MoveToAttribute("producer"))
 				writer.WriteAttributeString("producer", reader.Value);
 			reader.MoveToElement();
+			reader.Read();
+			if (!reader.IsStartElement())
+				reader.Read();
 		}
 	}
 }

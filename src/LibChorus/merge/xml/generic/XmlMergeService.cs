@@ -131,10 +131,10 @@ namespace Chorus.merge.xml.generic
 			XmlReader reader, XmlWriter writer,
 			string id, string winnerId, string recordElementName)
 		{
-			var keepReading = reader.Read();
+			var keepReading = true;
 			while (keepReading)
 			{
-				if (reader.EOF || !reader.IsStartElement())
+				if (reader.EOF) // moved to lift handler to deal with || !reader.IsStartElement())
 					break;
 
 				// 'entry' node is current node in reader.
