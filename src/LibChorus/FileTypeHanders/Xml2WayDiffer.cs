@@ -187,7 +187,7 @@ namespace Chorus.FileTypeHanders
 				if (childIndex.TryGetValue(parentKey, out childValue))
 				{
 					childIndex.Remove(parentKey);
-					// It is faster to skip this and jsut turn them into strings and then do the check.
+					// It is faster to skip this and just turn them into strings and then do the check.
 					//if (!parentValue.Where((t, i) => t != childValue[i]).Any())
 					//    continue; // Bytes are all the same.
 

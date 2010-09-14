@@ -105,6 +105,39 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 		}
 
 		[Test]
+		public void GuidCaseDifference_Not_Reported()
+		{
+			const string parent =
+@"<?xml version='1.0' encoding='utf-8'?>
+<languageproject version='7000016'>
+<rt guid='3d9b7d90-4a25-11df-9879-0800200c9a66'>
+</rt>
+</languageproject>";
+			// Third <rt> element (3d9ba4a1-4a25-11df-9879-0800200c9a66) is new.
+			const string child =
+@"<?xml version='1.0' encoding='utf-8'?>
+<languageproject version='7000016'>
+<rt guid='3D9B7D90-4A25-11DF-9879-0800200C9A66'>
+</rt>
+</languageproject>";
+			using (var parentTempFile = new TempFile(parent))
+			using (var childTempFile = new TempFile(child))
+			{
+				var listener = new ListenerForUnitTests();
+				var differ = Xml2WayDiffer.CreateFromFiles(parentTempFile.Path, childTempFile.Path, listener,
+															 "rt",
+															 "guid");
+
+				// TODO: It would be nice if case on a guid didn't matter,
+				// TODO: but that would require the basic XML diff code to know the id's attribute,
+				// TODO: and that it was a guid.
+				differ.ReportDifferencesToListener();
+				listener.AssertExpectedChangesCount(1);
+				listener.AssertFirstChangeType<XmlChangedRecordReport>();
+			}
+		}
+
+		[Test]
 		public void ObjectDeletedInChild_Reported()
 		{
 			const string parent =

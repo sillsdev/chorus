@@ -67,7 +67,7 @@ namespace Chorus.Utilities
 			var end = Array.IndexOf(input, closeQuote, start);
 			return (end == -1)
 					? null
-					: _utf8.GetString(input.SubArray(start, end - start));
+					: _utf8.GetString(input.SubArray(start, end - start)).ToLowerInvariant();
 		}
 
 		#region Implementation of IDisposable
