@@ -249,7 +249,7 @@ namespace Chorus.sync
 
 					//for usb, it's safe and desireable to do an update (bring into the directory
 					//  the latest files from the repo) for LAN, it could be... for now we assume it is
-					if (address is UsbKeyRepositorySource || address is DirectoryRepositorySource)
+					if (address is UsbKeyRepositorySource) // Crashes for me (RandyR) using a shared folder on my LAN, even though I have full access permissions. || address is DirectoryRepositorySource)
 					{
 						var otherRepo = new HgRepository(resolvedUri, _progress);
 						otherRepo.Update();
