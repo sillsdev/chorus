@@ -59,7 +59,7 @@ namespace LibChorus.Tests.sync
 		}
 
 
-		[Test]
+		[Test, Ignore("Doesn't really test a repository on another computer. Cf. Synchronizer.SendToOneOther that fails on the Update attempt on a shared network folder.")]
 		public void SyncNow_BackupAlreadySetUp_GetsSync()
 		{
 			SyncOptions options = new SyncOptions();
