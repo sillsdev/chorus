@@ -244,9 +244,14 @@ namespace Chorus.sync
 						repo.Push(address, resolvedUri, _progress);
 					}
 
-					//for usb, it's safe and desireable to do an update (bring into the directory
-					//  the latest files from the repo) for LAN, it could be... for now we assume it is
-					if (address is UsbKeyRepositorySource) // Crashes for me (RandyR) using a shared folder on my LAN, even though I have full access permissions. || address is DirectoryRepositorySource)
+					// For usb, it's safe and desireable to do an update (bring into the directory
+					// the latest files from the repo) for LAN, it could be... for now we assume it is.
+					// For me (RandyR) including the shared network folder
+					// failed to do the update and killed the process, which left a 'wlock' file
+					// in the shared folder's '.hg' folder. No more S/Rs could then be done,
+					// because the repo was locked.
+					// For now, at least, it is not a requirement to do the update on the shared folder.
+					if (address is UsbKeyRepositorySource) // || address is DirectoryRepositorySource)
 					{
 						var otherRepo = new HgRepository(resolvedUri, _progress);
 						otherRepo.Update();
