@@ -1,0 +1,48 @@
+<mockup version="1.0" skin="sketch" measuredW="758" measuredH="874" mockupW="679" mockupH="831">
+  <controls>
+	<control controlID="1" controlTypeID="com.balsamiq.mockups::TitleWindow" x="129" y="55" w="587" h="263" measuredW="450" measuredH="400" zOrder="0" locked="false" isInGroup="-1">
+	  <controlProperties>
+		<text>FLEx%20Bridge%3A%20Zapotec</text>
+	  </controlProperties>
+	</control>
+	<control controlID="6" controlTypeID="com.balsamiq.mockups::TitleWindow" x="129" y="360" w="619" h="504" measuredW="450" measuredH="400" zOrder="1" locked="false" isInGroup="-1">
+	  <controlProperties>
+		<text>FLEx%20Bridge%3A%20Zapotec</text>
+	  </controlProperties>
+	</control>
+	<control controlID="7" controlTypeID="com.balsamiq.mockups::TabBar" x="129" y="385" w="611" h="455" measuredW="339" measuredH="100" zOrder="2" locked="false" isInGroup="-1">
+	  <controlProperties>
+		<selectedIndex>0</selectedIndex>
+		<text>Send/Receive%2CNotes%2C%20History%2C%20About</text>
+	  </controlProperties>
+	</control>
+	<control controlID="10" controlTypeID="com.balsamiq.mockups::Image" x="169" y="503" w="-1" h="-1" measuredW="462" measuredH="303" zOrder="3" locked="false" isInGroup="-1">
+	  <controlProperties>
+		<src>./assets/SendReceive.png</src>
+		<text/>
+	  </controlProperties>
+	</control>
+	<control controlID="12" controlTypeID="com.balsamiq.mockups::Label" x="144" y="101" w="-1" h="-1" measuredW="151" measuredH="22" zOrder="4" locked="false" isInGroup="-1">
+	  <controlProperties>
+		<text>Welcome%20to%20FLEx%20Bridge</text>
+	  </controlProperties>
+	</control>
+	<control controlID="13" controlTypeID="com.balsamiq.mockups::RadioButtonGroup" x="169" y="131" w="511" h="180" measuredW="491" measuredH="66" zOrder="5" locked="false" isInGroup="-1">
+	  <controlProperties>
+		<text>%28o%29%20I%20am%20the%20first%20member%20of%20the%20team%20to%20start%20using%20FLExBridge%0A%28%20%29%20Another%20teammate%20has%20already%20used%20FLEx%20Bridge%2C%20and%20now%20I%20want%20to%20synchronze%0A%20%20%20%20%20with%20them%20using%20the%20internet%2C%20USB%20flash%20drive%2C%20or%20a%20local%20network</text>
+	  </controlProperties>
+	</control>
+	<control controlID="15" controlTypeID="com.balsamiq.mockups::Label" x="91" y="33" w="-1" h="-1" measuredW="359" measuredH="22" zOrder="6" locked="false" isInGroup="-1">
+	  <controlProperties>
+		<color>545684</color>
+		<text>On%20startup...%20if%20there%20is%20not%20.hg%20folder%20for%20the%20active%20FW%20project</text>
+	  </controlProperties>
+	</control>
+	<control controlID="16" controlTypeID="com.balsamiq.mockups::Label" x="69" y="332" w="-1" h="-1" measuredW="355" measuredH="22" zOrder="7" locked="false" isInGroup="-1">
+	  <controlProperties>
+		<color>545684</color>
+		<text>On%20startup...%20if%20there%20is%20an%20.hg%20folder%20for%20the%20active%20FW%20project</text>
+	  </controlProperties>
+	</control>
+  </controls>
+</mockup>
