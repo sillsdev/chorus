@@ -147,6 +147,9 @@ namespace Chorus.sync
 			return results;
 		}
 
+		/// <summary>
+		/// This version is used by the CHorus UI, which wants to do the sync in the background
+		/// </summary>
 		public SyncResults SyncNow(BackgroundWorker backgroundWorker, DoWorkEventArgs args, SyncOptions options)
 		{
 			_backgroundWorker = backgroundWorker;
