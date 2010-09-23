@@ -496,6 +496,8 @@ namespace Chorus.sync
 					return;
 				}
 
+				_progress.WriteError(string.Format("There are {0} sets of changes could not be merged together. Please contact your technical help person.", heads.Count()));
+
 				//TODO: I think this "direct descendant" limitation won't be enough
 				//  when there are more than 2 people merging and there's a failure
 				foreach (var head in heads)
@@ -507,7 +509,7 @@ namespace Chorus.sync
 					}
 				}
 
-				_progress.WriteWarning("Staying at previous-tip (unusual)");
+				_progress.WriteWarning("No changes from others were merged in.");
 			}
 			catch (Exception error)
 			{
