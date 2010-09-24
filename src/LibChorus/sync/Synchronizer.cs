@@ -496,7 +496,8 @@ namespace Chorus.sync
 					return;
 				}
 
-				_progress.WriteError(string.Format("There are {0} sets of changes could not be merged together. Please contact your technical help person.", heads.Count()));
+				//NB: note that changing this from a warning to an error ends up changing behavior (which tests catch)
+				_progress.WriteWarning(string.Format("There are {0} sets of changes could not be merged together. Please contact your technical help person.", heads.Count()));
 
 				//TODO: I think this "direct descendant" limitation won't be enough
 				//  when there are more than 2 people merging and there's a failure
