@@ -103,6 +103,7 @@
 			this.imageList1.Images.SetKeyName(2, "WeSay Configuration Tool");
 			this.imageList1.Images.SetKeyName(3, "Warning");
 			this.imageList1.Images.SetKeyName(4, "chorus");
+			this.imageList1.Images.SetKeyName(5, "FieldWorksBridge");
 			//
 			// timer1
 			//
