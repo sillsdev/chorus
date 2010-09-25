@@ -1,7 +1,9 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Xml;
 using Chorus.FileTypeHanders;
+using Chorus.FileTypeHanders.FieldWorks;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
 using LibChorus.Tests.merge.xml;
@@ -302,6 +304,66 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 			XmlTestHelper.AssertXPathIsNull(result, @"languageproject/rt[@ownerguid=""newOwner""]");
 			m_eventListener.AssertExpectedConflictCount(1);
 			m_eventListener.AssertFirstConflictType<RemovedVsEditedElementConflict>();
+		}
+
+		[Test]
+		public void NewerTimestampInOurWins()
+		{
+			const string commonAncestor =
+@"<?xml version='1.0' encoding='utf-8'?>
+<languageproject version='7000016'>
+<rt class='LexEntry' guid='oldie' >
+<DateModified val='2000-1-1 23:59:59.000' />
+</rt>
+</languageproject>";
+			var ourContent = commonAncestor.Replace("2000-1-1 23:59:59.000", "2002-1-1 23:59:59.000");
+			var theirContent = commonAncestor.Replace("2000-1-1 23:59:59.000", "2001-1-1 23:59:59.000");
+
+			var ancestorDoc = new XmlDocument();
+			ancestorDoc.LoadXml(commonAncestor);
+			var ancestorNode = ancestorDoc.DocumentElement.FirstChild;
+
+			var ourDoc = new XmlDocument();
+			ourDoc.LoadXml(ourContent);
+			var ourNode = ourDoc.DocumentElement.FirstChild;
+
+			var theirDoc = new XmlDocument();
+			theirDoc.LoadXml(theirContent);
+			var theirNode = theirDoc.DocumentElement.FirstChild;
+
+			var fwMergeStrategy = new FieldWorksMergingStrategy(new NullMergeSituation());
+			var result = fwMergeStrategy.MakeMergedEntry(new ListenerForUnitTests(), ourNode, theirNode, ancestorNode);
+			Assert.IsTrue(result.Contains("2002-1-1 23:59:59.000"));
+		}
+
+		[Test]
+		public void NewerTimestampInTheirsWins()
+		{
+			const string commonAncestor =
+@"<?xml version='1.0' encoding='utf-8'?>
+<languageproject version='7000016'>
+<rt class='LexEntry' guid='oldie' >
+<DateModified val='2000-1-1 23:59:59.000' />
+</rt>
+</languageproject>";
+			var ourContent = commonAncestor.Replace("2000-1-1 23:59:59.000", "2001-1-1 23:59:59.000");
+			var theirContent = commonAncestor.Replace("2000-1-1 23:59:59.000", "2002-1-1 23:59:59.000");
+
+			var ancestorDoc = new XmlDocument();
+			ancestorDoc.LoadXml(commonAncestor);
+			var ancestorNode = ancestorDoc.DocumentElement.FirstChild;
+
+			var ourDoc = new XmlDocument();
+			ourDoc.LoadXml(ourContent);
+			var ourNode = ourDoc.DocumentElement.FirstChild;
+
+			var theirDoc = new XmlDocument();
+			theirDoc.LoadXml(theirContent);
+			var theirNode = theirDoc.DocumentElement.FirstChild;
+
+			var fwMergeStrategy = new FieldWorksMergingStrategy(new NullMergeSituation());
+			var result = fwMergeStrategy.MakeMergedEntry(new ListenerForUnitTests(), ourNode, theirNode, ancestorNode);
+			Assert.IsTrue(result.Contains("2002-1-1 23:59:59.000"));
 		}
 
 		private string DoMerge(string commonAncestor, string ourContent, string theirContent)
