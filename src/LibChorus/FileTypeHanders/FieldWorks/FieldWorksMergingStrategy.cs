@@ -6,7 +6,7 @@ using Chorus.merge.xml.generic;
 namespace Chorus.FileTypeHanders.FieldWorks
 {
 	/// <summary>
-	/// A strategy for FieldWorks 7.0 xml data.
+	/// A merge strategy for FieldWorks 7.0 xml data.
 	///
 	/// As the FW team develops this, it will do lots more for the various domain classes.
 	/// </summary>
@@ -18,7 +18,7 @@ namespace Chorus.FileTypeHanders.FieldWorks
 		{
 			_entryMerger = new XmlMerger(mergeSituation);
 
-			// Customize the XmlMerger with FW-specific info (cf. LiftEntryMergingStrategy for how Lift dees this.)
+			// Customize the XmlMerger with FW-specific info (cf. LiftEntryMergingStrategy for how Lift does this.)
 			// Start with the <rt> element.
 			var elementStrategy = AddKeyedElementType("rt", "guid", false);
 			elementStrategy.ContextDescriptorGenerator = new FieldWorkObjectContextGenerator();
@@ -38,18 +38,64 @@ namespace Chorus.FileTypeHanders.FieldWorks
 
 		public string MakeMergedEntry(IMergeEventListener eventListener, XmlNode ourEntry, XmlNode theirEntry, XmlNode commonEntry)
 		{
-			const string xpath = "DateModified | DateResolved | RunDate";
-			var ourDateTimeNodes = ourEntry.SelectNodes(xpath);
-			var theirDateTimeNodes = theirEntry.SelectNodes(xpath);
-			if ((ourDateTimeNodes != null && ourDateTimeNodes.Count > 0) || (theirDateTimeNodes != null && theirDateTimeNodes.Count > 0))
-			{
-				MergeTimestamps(ourDateTimeNodes, theirDateTimeNodes);
-			}
+			MergeTimestamps(ourEntry, theirEntry);
+			MergeCheckSum(ourEntry, theirEntry);
 			return GetOuterXml(_entryMerger.Merge(eventListener, ourEntry, theirEntry, commonEntry));
 		}
 
-		private static void MergeTimestamps(XmlNodeList ourDateTimeNodes, XmlNodeList theirDateTimeNodes)
+		private static void MergeCheckSum(XmlNode ourEntry, XmlNode theirEntry)
 		{
+			if (ourEntry.SelectSingleNode("@class").Value != "WfiWordform")
+				return;
+
+			const string xpath = "Checksum";
+			var ourChecksumNode = ourEntry.SelectSingleNode(xpath);
+			var theirChecksumNode = theirEntry.SelectSingleNode(xpath);
+			if (ourChecksumNode == null && theirChecksumNode != null)
+			{
+				var attr = theirChecksumNode.Attributes["val"];
+				attr.Value = "0";
+				var ourDoc = ourEntry.OwnerDocument;
+				var newChecksumElement = ourDoc.CreateElement("Checksum");
+				ourEntry.AppendChild(newChecksumElement);
+
+				var newAttr = ourDoc.CreateAttribute("val");
+				newChecksumElement.SetAttributeNode(newAttr);
+				newAttr.Value = "0";
+				return;
+			}
+			if (theirChecksumNode == null && ourChecksumNode != null)
+			{
+				var attr = ourChecksumNode.Attributes["val"];
+				attr.Value = "0";
+				var theirDoc = theirEntry.OwnerDocument;
+				var newChecksumElement = theirDoc.CreateElement("Checksum");
+				theirEntry.AppendChild(newChecksumElement);
+
+				var newAttr = theirDoc.CreateAttribute("val");
+				newChecksumElement.SetAttributeNode(newAttr);
+				newAttr.Value = "0";
+				return;
+			}
+			var ourAttr = ourChecksumNode.Attributes["val"];
+			var theirAttr = theirChecksumNode.Attributes["val"];
+			if (ourAttr.Value == theirAttr.Value)
+				return;
+
+			// Set both to 0.
+			ourAttr.Value = "0";
+			theirAttr.Value = "0";
+		}
+
+		private static void MergeTimestamps(XmlNode ourEntry, XmlNode theirEntry)
+		{
+			const string xpath = "DateModified | DateResolved | RunDate";
+			var ourDateTimeNodes = ourEntry.SelectNodes(xpath);
+			var theirDateTimeNodes = theirEntry.SelectNodes(xpath);
+			if ((ourDateTimeNodes == null || ourDateTimeNodes.Count == 0) &&
+				(theirDateTimeNodes == null || theirDateTimeNodes.Count == 0))
+				return;
+
 			for (var i = 0; i < ourDateTimeNodes.Count; ++i)
 			{
 				var ourNode = ourDateTimeNodes[i];

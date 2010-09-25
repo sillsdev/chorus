@@ -73,6 +73,7 @@
 	<Compile Include="FileHandlers\FieldWorks\FieldWorksFileHandlerTests.cs" />
 	<Compile Include="FileHandlers\FieldWorks\FieldWorksFileMergeTests.cs" />
 	<Compile Include="FileHandlers\FieldWorks\FieldWorksFileValidationTests.cs" />
+	<Compile Include="FileHandlers\FieldWorks\FieldWorksMergingStrategyTests.cs" />
 	<Compile Include="MercurialPathHelp.cs" />
 	<Compile Include="merge\xml\adaptIt\FileLevelAdaptItKnowlegeBaseMergeTests.cs" />
 	<Compile Include="merge\xml\ConflictXmlRecordRetrievalTests.cs" />
