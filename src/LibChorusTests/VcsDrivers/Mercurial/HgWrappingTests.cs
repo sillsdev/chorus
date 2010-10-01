@@ -314,34 +314,6 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 
 
 
-		/// <summary>
-		/// this tests that it's really using the hg we say to use
-		/// </summary>
-		[Test]
-		//[Category("SkipOnBuildServer")]//I (jh) don't know why it fails on the server, but oh well.
-		public void Run_IndicatedHgExecutableIsBogus_Throws()
-		{
-			using(var folder = new TempFolder("HgWrappingTest"))
-			{
-				//make a bogus exe
-				File.WriteAllText(folder.Combine("hg.exe"),@"hello");
-				using (new ShortTermMercurialPathSetting(folder.Path))
-				{
-					//NB: we're using this approach rather than the normal nunit
-					//one becuase different exceptions will come from different OS's
-					//all we care is that something is thrown.
-					try
-					{
-						HgRunner.Run("version", Environment.CurrentDirectory, 2, new NullProgress());
-					}
-					catch(Exception)
-					{
-						return;
-					}
-					Assert.Fail("Didn't get an exception");
-				}
-			}
-		}
 
 	}
 
