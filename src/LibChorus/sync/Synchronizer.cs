@@ -366,7 +366,7 @@ namespace Chorus.sync
 
 		/// <summary>
 		/// put anything in the hgrc that chorus requires
-		/// todo: kinda lame to do it every time, but when is better?
+		/// todo: Now that we ship with our own mercurial, figure out how to just set these outside of code.
 		/// </summary>
 		private void UpdateHgrc(HgRepository repository)
 		{
@@ -497,10 +497,15 @@ namespace Chorus.sync
 				}
 
 				//NB: note that changing this from a warning to an error ends up changing behavior (which tests catch)
-				_progress.WriteWarning(string.Format("There are {0} sets of changes could not be merged together. Please contact your technical help person.", heads.Count()));
+				_progress.WriteWarning(string.Format("There are {0} sets of changes that could not be merged together. Please contact your technical help person.", heads.Count()));
+				foreach (var revision in heads)
+				{
+					_progress.WriteStatus("Head: {0}:{1} {2}",revision.Number.LocalRevisionNumber, revision.Number.Hash, revision.Summary);
+				}
+				_progress.WriteStatus(repository.GetLog(30));
 
 				//TODO: I think this "direct descendant" limitation won't be enough
-				//  when there are more than 2 people merging and there's a failure
+				//  when there are more than 2 people merging and there's a failure);)
 				foreach (var head in heads)
 				{
 					if (parent.Number.Hash == head.Number.Hash || head.IsDirectDescendantOf(parent))

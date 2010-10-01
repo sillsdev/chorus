@@ -1505,7 +1505,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		{
 			if (maxChangeSetsToShow > 0)
 			{
-				return GetTextFromQuery("log -G -l {0}", maxChangeSetsToShow);
+				return GetTextFromQuery(String.Format("log -G -l {0}", maxChangeSetsToShow));
 			}
 			else
 			{
