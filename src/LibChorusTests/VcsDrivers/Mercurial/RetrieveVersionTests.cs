@@ -63,18 +63,18 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 
 		}
 
-		[Test, ExpectedException(typeof(ApplicationException))]
+		[Test]
 		public void RetrieveHistoricalVersionOfFile_BogusHash_Throws()
 		{
-				Assert.IsNull(
-					TempFile.TrackExisting(_repo.RetrieveHistoricalVersionOfFile(Path.GetFileName(_tempFile.Path), "123456)")));
+			Assert.Throws<ApplicationException>(()=>
+				_repo.RetrieveHistoricalVersionOfFile(Path.GetFileName(_tempFile.Path), "123456)"));
 		}
 
-		[Test, ExpectedException(typeof(ApplicationException))]
+		[Test]
 		public void RetrieveHistoricalVersionOfFile_BogusFile_Throws()
 		{
-			Assert.IsNull(
-				TempFile.TrackExisting(_repo.RetrieveHistoricalVersionOfFile("bogus.txt", _changesets[0].Number.Hash)));
+			Assert.Throws<ApplicationException>(() =>
+				_repo.RetrieveHistoricalVersionOfFile("bogus.txt", _changesets[0].Number.Hash));
 		}
 
 
