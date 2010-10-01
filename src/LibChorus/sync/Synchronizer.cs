@@ -508,11 +508,14 @@ namespace Chorus.sync
 				//  when there are more than 2 people merging and there's a failure);)
 				foreach (var head in heads)
 				{
+					_progress.WriteStatus("Considering rollling back to Head: {0}:{1} {2}",head.Number.LocalRevisionNumber, head.Number.Hash, head.Summary);
 					if (parent.Number.Hash == head.Number.Hash || head.IsDirectDescendantOf(parent))
 					{
+						_progress.WriteStatus("Doing rollback to that head");
 						repository.RollbackWorkingDirectoryToRevision(head.Number.LocalRevisionNumber);
 						return;
 					}
+					_progress.WriteStatus("Was not a parent");
 				}
 
 				_progress.WriteWarning("No changes from others were merged in.");
