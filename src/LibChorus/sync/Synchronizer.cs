@@ -249,7 +249,11 @@ namespace Chorus.sync
 
 					//for usb, it's safe and desireable to do an update (bring into the directory
 					//  the latest files from the repo) for LAN, it could be... for now we assume it is
-					if (address is UsbKeyRepositorySource) // Crashes for me (RandyR) using a shared folder on my LAN, even though I have full access permissions. || address is DirectoryRepositorySource)
+
+					// Attempting to update a network folder crashes for me (RandyR) using a shared folder on my LAN, even though I have full access permissions. || address is DirectoryRepositorySource)
+					// JDH Oct 2010: added this back in if it doesn't look like a shared folder
+					if (address is UsbKeyRepositorySource  ||
+						(address is DirectoryRepositorySource && ((DirectoryRepositorySource)address).LooksLikeLocalDirectory))
 					{
 						var otherRepo = new HgRepository(resolvedUri, _progress);
 						otherRepo.Update();
