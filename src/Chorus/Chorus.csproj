@@ -80,6 +80,7 @@
 	<Compile Include="Bootstrapper.cs" />
 	<Compile Include="ChorusSystem.cs" />
 	<Compile Include="ChorusUIComponentsInjector.cs" />
+	<Compile Include="NotesToRecordMapping.cs" />
 	<Compile Include="UI\BetterLabel.cs">
 	  <SubType>Component</SubType>
 	</Compile>
@@ -199,6 +200,7 @@
 	<Compile Include="UI\Notes\Browser\NotesInProjectView.Designer.cs">
 	  <DependentUpon>NotesInProjectView.cs</DependentUpon>
 	</Compile>
+	<Compile Include="UI\Review\HistoryPageOptions.cs" />
 	<Compile Include="UI\Review\RevisionsInRepository\RevisionsInRepositoryView.cs">
 	  <SubType>UserControl</SubType>
 	</Compile>
