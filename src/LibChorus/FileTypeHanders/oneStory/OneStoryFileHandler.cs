@@ -1,18 +1,29 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Xml;
 using System.Xml.Linq;
 using Chorus.FileTypeHanders.xml;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
-using OneStoryProjectEditor;
 
 namespace Chorus.FileTypeHanders.oneStory
 {
 	public class OneStoryFileHandler : IChorusFileTypeHandler
 	{
+		public const string CstrAppName = "StoryEditor.exe";
+
+		private bool OneStoryAssemblyIsAvailable
+		{
+			get
+			{
+				return File.Exists(Path.Combine(
+									   ExecutionEnvironment.DirectoryOfExecutingAssembly, CstrAppName));
+			}
+		}
+
 		protected bool HasOneStoryExtension(string strPathToFile)
 		{
 			return (Path.GetExtension(strPathToFile).ToLower() == ".onestory");
@@ -20,7 +31,7 @@ namespace Chorus.FileTypeHanders.oneStory
 
 		public bool CanDiffFile(string pathToFile)
 		{
-			return HasOneStoryExtension(pathToFile);
+			return OneStoryAssemblyIsAvailable && HasOneStoryExtension(pathToFile);
 		}
 
 		public bool CanMergeFile(string pathToFile)
@@ -30,7 +41,7 @@ namespace Chorus.FileTypeHanders.oneStory
 
 		public bool CanPresentFile(string pathToFile)
 		{
-			return HasOneStoryExtension(pathToFile);
+			return OneStoryAssemblyIsAvailable && HasOneStoryExtension(pathToFile);
 		}
 
 		public bool CanValidateFile(string pathToFile)
@@ -89,6 +100,9 @@ namespace Chorus.FileTypeHanders.oneStory
 			merger.MergeStrategies.SetStrategy("Tests", ElementStrategy.CreateSingletonElement());
 			merger.MergeStrategies.SetStrategy("Test", ElementStrategy.CreateForKeyedElement("memberID", true));
 
+			merger.MergeStrategies.SetStrategy("TransitionHistory", ElementStrategy.CreateSingletonElement());
+			merger.MergeStrategies.SetStrategy("StateTransition", ElementStrategy.CreateForKeyedElement("TransitionDateTime", true));
+
 			merger.MergeStrategies.SetStrategy("verses", ElementStrategy.CreateSingletonElement());
 			merger.MergeStrategies.SetStrategy("verse", ElementStrategy.CreateForKeyedElement("guid", true));
 			merger.MergeStrategies.SetStrategy("Vernacular", ElementStrategy.CreateSingletonElement());
@@ -132,8 +146,7 @@ namespace Chorus.FileTypeHanders.oneStory
 			merger.MergeStrategies.SetStrategy("CoachNote", elementStrategyCoaNote);
 		}
 
-		private ProjectSettings _projSettings;
-		private TeamMembersData _teamMembers;
+		private XmlNode _projFile;
 		public IEnumerable<IChangeReport> Find2WayDifferences(FileInRevision parent, FileInRevision child, HgRepository repository)
 		{
 			var listener = new ChangeAndConflictAccumulator();
@@ -142,7 +155,7 @@ namespace Chorus.FileTypeHanders.oneStory
 			using (var parentFile = parent.CreateTempFile(repository))
 			{
 				var differ = OneStoryDiffer.CreateFromFiles(parent, child, repository.PathToRepo, parentFile.Path, childFile.Path, listener);
-				differ.ReportDifferencesToListener(out _projSettings, out _teamMembers);
+				differ.ReportDifferencesToListener(out _projFile);
 				return listener.Changes;
 			}
 		}
@@ -150,7 +163,7 @@ namespace Chorus.FileTypeHanders.oneStory
 		public IChangePresenter GetChangePresenter(IChangeReport report, HgRepository repository)
 		{
 			if ((report as IXmlChangeReport) != null)
-				return new OneStoryChangePresenter(report as IXmlChangeReport, _projSettings, _teamMembers);
+				return new OneStoryChangePresenter(report as IXmlChangeReport, _projFile, repository.PathToRepo);
 
 			return new DefaultChangePresenter(report, repository);
 		}

@@ -5,7 +5,6 @@ using System.Xml;
 using Chorus.FileTypeHanders.xml;
 using Chorus.merge.xml.generic;
 using Chorus.VcsDrivers.Mercurial;
-using OneStoryProjectEditor;
 
 
 namespace Chorus.FileTypeHanders.oneStory
@@ -44,19 +43,18 @@ namespace Chorus.FileTypeHanders.oneStory
 			EventListener = eventListener;
 		}
 
-		public void ReportDifferencesToListener(out ProjectSettings projSettings, out TeamMembersData teamMembers)
+		public void ReportDifferencesToListener(out XmlNode projFile)
 		{
-			XmlNode eStoryProject = _childDom.SelectSingleNode("/StoryProject");
-			projSettings = new ProjectSettings(eStoryProject, _strProjectFolder);
-			teamMembers = new TeamMembersData(eStoryProject);
+			projFile = _childDom.SelectSingleNode("/StoryProject");
+			string strProjectName = projFile.Attributes["ProjectName"].Value;
 			foreach (XmlNode e in _childDom.SafeSelectNodes("/StoryProject/stories[@SetName = 'Stories']/story"))
 			{
-				ProcessEntry(projSettings.ProjectName, e);
+				ProcessEntry(strProjectName, e);
 			}
 		}
 
 		private string[] _astrXPath = new [] { "/", "/verses/verse[@first = 'true']" };
-		private string[] _astrAttributeToIgnore = new [] { StoryData.CstrAttributeTimeStamp, null };
+		private string[] _astrAttributeToIgnore = new[] { "stageDateTimeStamp", null };
 
 		/// <summary>
 		/// Process the differences for a particular story
