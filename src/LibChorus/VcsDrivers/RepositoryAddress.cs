@@ -188,6 +188,11 @@ namespace Chorus.VcsDrivers
 			return Directory.Exists(path);
 		}
 
+		public bool LooksLikeLocalDirectory
+		{
+			get { return !(this.URI.StartsWith(@"\\")); }
+		}
+
 		public override List<string> GetPossibleCloneUris(string projectName, IProgress progress)
 		{
 			return new List<string>(new string[]{GetPotentialRepoUri(projectName, progress)});

@@ -147,6 +147,9 @@ namespace Chorus.sync
 			return results;
 		}
 
+		/// <summary>
+		/// This version is used by the CHorus UI, which wants to do the sync in the background
+		/// </summary>
 		public SyncResults SyncNow(BackgroundWorker backgroundWorker, DoWorkEventArgs args, SyncOptions options)
 		{
 			_backgroundWorker = backgroundWorker;
@@ -246,7 +249,11 @@ namespace Chorus.sync
 
 					//for usb, it's safe and desireable to do an update (bring into the directory
 					//  the latest files from the repo) for LAN, it could be... for now we assume it is
-					if (address is UsbKeyRepositorySource || address is DirectoryRepositorySource)
+
+					// Attempting to update a network folder crashes for me (RandyR) using a shared folder on my LAN, even though I have full access permissions. || address is DirectoryRepositorySource)
+					// JDH Oct 2010: added this back in if it doesn't look like a shared folder
+					if (address is UsbKeyRepositorySource  ||
+						(address is DirectoryRepositorySource && ((DirectoryRepositorySource)address).LooksLikeLocalDirectory))
 					{
 						var otherRepo = new HgRepository(resolvedUri, _progress);
 						otherRepo.Update();
@@ -363,7 +370,7 @@ namespace Chorus.sync
 
 		/// <summary>
 		/// put anything in the hgrc that chorus requires
-		/// todo: kinda lame to do it every time, but when is better?
+		/// todo: Now that we ship with our own mercurial, figure out how to just set these outside of code.
 		/// </summary>
 		private void UpdateHgrc(HgRepository repository)
 		{
@@ -493,18 +500,29 @@ namespace Chorus.sync
 					return;
 				}
 
+				//NB: note that changing this from a warning to an error ends up changing behavior (which tests catch)
+				_progress.WriteWarning(string.Format("There are {0} sets of changes that could not be merged together. Please contact your technical help person.", heads.Count()));
+				foreach (var revision in heads)
+				{
+					_progress.WriteStatus("Head: {0}:{1} {2}",revision.Number.LocalRevisionNumber, revision.Number.Hash, revision.Summary);
+				}
+				_progress.WriteStatus(repository.GetLog(30));
+
 				//TODO: I think this "direct descendant" limitation won't be enough
-				//  when there are more than 2 people merging and there's a failure
+				//  when there are more than 2 people merging and there's a failure);)
 				foreach (var head in heads)
 				{
+					_progress.WriteStatus("Considering rollling back to Head: {0}:{1} {2}",head.Number.LocalRevisionNumber, head.Number.Hash, head.Summary);
 					if (parent.Number.Hash == head.Number.Hash || head.IsDirectDescendantOf(parent))
 					{
+						_progress.WriteStatus("Doing rollback to that head");
 						repository.RollbackWorkingDirectoryToRevision(head.Number.LocalRevisionNumber);
 						return;
 					}
+					_progress.WriteStatus("Was not a parent");
 				}
 
-				_progress.WriteWarning("Staying at previous-tip (unusual)");
+				_progress.WriteWarning("No changes from others were merged in.");
 			}
 			catch (Exception error)
 			{

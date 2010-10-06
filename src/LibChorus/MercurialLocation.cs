@@ -77,6 +77,14 @@ namespace Chorus// DON'T MOVE THIS! It needs to be super easy for the client to 
 				MercurialLocation.PathToMercurialFolder = guess;
 				return;
 			}
+
+			//in case we're running in chorus's solution directory
+			guess = Path.Combine(ExecutionEnvironment.DirectoryOfExecutingAssembly + "//..//..//", "mercurial");
+			if (Directory.Exists(guess))
+			{
+				MercurialLocation.PathToMercurialFolder = guess;
+				return;
+			}
 		}
 	}
 }

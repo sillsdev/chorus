@@ -14,10 +14,13 @@ namespace LibChorus.Tests.notes
 	{
 		private IProgress _progress = new ConsoleProgress();
 
-		[Test, ExpectedException(typeof(ArgumentException))]
+		[Test]
 		public void FromPath_ParentDirectoryPathDoesntExist_Throws()
 		{
-			AnnotationRepository.FromFile("id", Path.Combine("blah","bogus.xml"), new ConsoleProgress());
+			Assert.Throws<ArgumentException>(() =>
+
+											 AnnotationRepository.FromFile("id", Path.Combine("blah", "bogus.xml"),
+																		   new ConsoleProgress()));
 		}
 
 		[Test]
@@ -32,16 +35,18 @@ namespace LibChorus.Tests.notes
 			}
 		}
 
-		[Test, ExpectedException(typeof(AnnotationFormatException))]
+		[Test]
 		public void FromString_FormatIsTooNew_Throws()
 		{
-			AnnotationRepository.FromString("id", "<notes version='99'/>");
+			Assert.Throws<AnnotationFormatException>(() =>
+													 AnnotationRepository.FromString("id", "<notes version='99'/>"));
 		}
 
-		[Test, ExpectedException(typeof(AnnotationFormatException))]
+		[Test]
 		public void FromString_FormatIsBadXml_Throws()
 		{
-			AnnotationRepository.FromString("id", "<notes version='99'>");
+			Assert.Throws<AnnotationFormatException>(() =>
+				AnnotationRepository.FromString("id", "<notes version='99'>"));
 		}
 
 		[Test]
@@ -91,13 +96,14 @@ namespace LibChorus.Tests.notes
 			}
 		}
 
-		[Test, ExpectedException(typeof(InvalidOperationException))]
+		[Test]
 		public void Save_AfterCreatingFromString_Throws()
 		{
 			using (var r =AnnotationRepository.FromString("id", @"<notes version='0'><annotation guid='123'>
 <message guid='234'>&lt;p&gt;hello</message></annotation></notes>"))
 			{
-				r.Save(new ConsoleProgress());
+				Assert.Throws<InvalidOperationException>(() =>
+					r.Save(new ConsoleProgress()));
 			}
 		}
 
@@ -124,7 +130,7 @@ namespace LibChorus.Tests.notes
 
 		#region IndexHandlingTests
 
-		[Test, ExpectedException(typeof(ApplicationException))]
+		[Test]
 		public void AddIndex_AddSameIndexTwice_Throws()
 		{
 			using (var r = AnnotationRepository.FromString("id", @"<notes version='0'/>"))
@@ -132,7 +138,7 @@ namespace LibChorus.Tests.notes
 				var index1 = new IndexOfAllOpenConflicts();
 				r.AddObserver(index1, _progress);
 				var index2 = new IndexOfAllOpenConflicts();
-				r.AddObserver(index2, _progress);
+			  Assert.Throws<ApplicationException>(() => r.AddObserver(index2, _progress));
 			}
 		}
 

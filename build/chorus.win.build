@@ -89,10 +89,10 @@
   </target>
 
   <target name="build.solution" depends="assemblyinfo">
-	   <solution configuration="${configuration}" solutionfile="../src/Chorus VS2008.sln">
+	   <solution configuration="${configuration}" solutionfile="../Chorus VS2008.sln">
 		</solution>
 
-	<!-- <msbuild project="../src/Chorus VS2008.sln">
+	<!-- <msbuild project="../Chorus VS2008.sln">
 	  <property name="Configuration" value="Debug"/>
 	</msbuild>
 	-->

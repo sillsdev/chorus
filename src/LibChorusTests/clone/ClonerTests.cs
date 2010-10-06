@@ -27,7 +27,7 @@ namespace Chorus.Tests
 			}
 		}
 
-		[Test, ExpectedException(typeof(ApplicationException))]
+		[Test]
 		public void MakeClone_TargetExists_Throws()
 		{
 			using (var repo = new RepositorySetup("source"))
@@ -37,7 +37,8 @@ namespace Chorus.Tests
 				var progress = new ConsoleProgress();
 				progress.ShowVerbose = true;
 				Directory.CreateDirectory(f.Combine(RepositorySetup.ProjectName));
-				model.MakeClone(repo.ProjectFolder.Path, f.Path, progress);
+				Assert.Throws<ApplicationException>(()=>
+					model.MakeClone(repo.ProjectFolder.Path, f.Path, progress));
 			}
 		}
 
