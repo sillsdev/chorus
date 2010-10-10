@@ -11,6 +11,7 @@ using Chorus.UI.Notes;
 using Chorus.UI.Notes.Bar;
 using Chorus.UI.Notes.Browser;
 using Chorus.UI.Review;
+using Chorus.UI.Sync;
 using Chorus.Utilities;
 using Chorus.Utilities.code;
 using Chorus.VcsDrivers.Mercurial;
@@ -89,9 +90,14 @@ namespace Chorus
 				_container = container;
 			}
 
-			public Chorus.UI.Sync.SyncDialog CreateSynchronizationDialog()
+			public Form CreateSynchronizationDialog()
 			{
-				return _container.Resolve<Chorus.UI.Sync.SyncDialog>();
+				return _container.Resolve<SyncDialog.Factory>()(SyncUIDialogBehaviors.Lazy, SyncUIFeatures.NormalRecommended);
+			}
+
+			public Form CreateSynchronizationDialog(SyncUIDialogBehaviors behavior, SyncUIFeatures uiFeaturesFlags)
+			{
+				return _container.Resolve<SyncDialog.Factory>()(behavior, uiFeaturesFlags);
 			}
 
 			public NotesBarView CreateNotesBar(string pathToAnnotatedFile, NotesToRecordMapping mapping, IProgress progress)
@@ -113,10 +119,7 @@ namespace Chorus
 				return _container.Resolve<HistoryPage>();
 			}
 
-			public Form CreateSettingDialog()
-			{
-				throw new NotImplementedException();
-			}
+
 		}
 
 		public void EnsureAllNotesRepositoriesLoaded()

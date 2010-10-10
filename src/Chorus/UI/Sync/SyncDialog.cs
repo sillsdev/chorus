@@ -11,6 +11,7 @@ namespace Chorus.UI.Sync
 {
 	public partial class SyncDialog : Form
 	{
+		public delegate SyncDialog Factory(SyncUIDialogBehaviors behavior, SyncUIFeatures uiFeatureFlags);//autofac uses this
 
 		public SyncDialog(ProjectFolderConfiguration projectFolderConfiguration,
 			SyncUIDialogBehaviors behavior, SyncUIFeatures uiFeatureFlags)
