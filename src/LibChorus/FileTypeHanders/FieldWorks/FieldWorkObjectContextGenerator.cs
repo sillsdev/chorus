@@ -12,7 +12,7 @@ namespace Chorus.FileTypeHanders.FieldWorks
 		{
 			var rtElement = XElement.Parse(mergeElement);
 			var label = rtElement.Attribute("class").Value + ": " + rtElement.Attribute("guid").Value;
-			return new ContextDescriptor(label, null);
+			return new ContextDescriptor(label, "FIXTHIS");
 		}
 	}
 }
