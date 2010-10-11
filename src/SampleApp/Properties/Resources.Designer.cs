@@ -59,5 +59,12 @@ namespace SampleApp.Properties {
 				resourceCulture = value;
 			}
 		}
+
+		internal static byte[] ShoppingList {
+			get {
+				object obj = ResourceManager.GetObject("ShoppingList", resourceCulture);
+				return ((byte[])(obj));
+			}
+		}
 	}
 }

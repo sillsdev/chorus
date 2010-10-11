@@ -80,6 +80,7 @@
 	<Compile Include="Bootstrapper.cs" />
 	<Compile Include="ChorusSystem.cs" />
 	<Compile Include="ChorusUIComponentsInjector.cs" />
+	<Compile Include="NotesToRecordMapping.cs" />
 	<Compile Include="UI\BetterLabel.cs">
 	  <SubType>Component</SubType>
 	</Compile>

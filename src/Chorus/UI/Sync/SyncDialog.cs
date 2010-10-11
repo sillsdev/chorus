@@ -105,11 +105,13 @@ namespace Chorus.UI.Sync
 
 		private void _syncControl_CloseButtonClicked(object sender, System.EventArgs e)
 		{
+			DialogResult = DialogResult.OK;
 			Close();
 		}
 
 		private void _closeWhenDoneTimer_Tick(object sender, EventArgs e)
 		{
+			DialogResult = DialogResult.OK;
 			Close();
 		}
 

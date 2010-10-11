@@ -18,6 +18,10 @@ using Chorus.VcsDrivers.Mercurial;
 
 namespace Chorus
 {
+	/// <summary>
+	/// A ChorusSystem object hides a lot of the complexity of Chorus from the client programmer.  It offers
+	/// up the most common controls and services of Chorus. See the SampleApp for examples of using it.
+	/// </summary>
 	public class ChorusSystem :IDisposable
 	{
 		private readonly string _dataFolderPath;
@@ -26,13 +30,29 @@ namespace Chorus
 		internal readonly Dictionary<string, AnnotationRepository> _annotationRepositories = new Dictionary<string, AnnotationRepository>();
 		private bool _searchedForAllExistingNotesFiles;
 
-
+		/// <summary>
+		/// Constructor
+		/// </summary>
+		/// <param name="dataFolderPath">The root of the project</param>
 		public ChorusSystem(string dataFolderPath)
+			:this(dataFolderPath, string.Empty)
+		{
+
+		}
+
+		/// <summary>
+		/// Constructor
+		/// </summary>
+		/// <param name="dataFolderPath">The root of the project</param>
+		/// <param name="userNameForHistoryAndNotes">This is not the same name as that used for any given network
+		/// repository credentials. Rather, it's the name which will show in the history, and besides Notes that this user makes.
+		///</param>
+		public ChorusSystem(string dataFolderPath, string userNameForHistoryAndNotes)
 		{
 			WritingSystems = new List<IWritingSystem>{new EnglishWritingSystem(), new ThaiWritingSystem()};
 
 			_dataFolderPath = dataFolderPath;
-			var hgrepo = HgRepository.CreateOrLocate(dataFolderPath, new NullProgress());
+			Repository = HgRepository.CreateOrLocate(dataFolderPath, new NullProgress());
 			var builder = new Autofac.Builder.ContainerBuilder();
 
 			builder.Register<ProjectFolderConfiguration>(c => new ProjectFolderConfiguration(dataFolderPath));
@@ -40,7 +60,11 @@ namespace Chorus
 
 			ChorusUIComponentsInjector.Inject(builder, dataFolderPath);
 
-			_user  =new ChorusUser(hgrepo.GetUserIdInUse());
+			if (String.IsNullOrEmpty(userNameForHistoryAndNotes))
+			{
+				userNameForHistoryAndNotes = Repository.GetUserIdInUse();
+			}
+			_user = new ChorusUser(userNameForHistoryAndNotes);
 			builder.Register<IChorusUser>(_user);
 //            builder.RegisterGeneratedFactory<NotesInProjectView.Factory>().ContainerScoped();
 //            builder.RegisterGeneratedFactory<NotesInProjectViewModel.Factory>().ContainerScoped();
@@ -69,9 +93,31 @@ namespace Chorus
 		{
 			get { return _container.Resolve<NavigateToRecordEvent>(); }
 		}
+
+		/// <summary>
+		/// Various factories for creating WinForms controls, already wired to the other parts of Chorus
+		/// </summary>
 		public WinFormsFactory WinForms
 		{
 			get { return new WinFormsFactory(this, _container); }
+		}
+
+		public HgRepository Repository
+		{
+			get; private set;
+		}
+
+		public string UserNameForHistoryAndNotes
+		{
+			get
+			{
+				return _user.Name;
+			}
+//  it's too late to set it, the name is already in the DI container
+//            set
+//            {
+//                Repository.SetUserNameInIni(value, new NullProgress());
+//            }
 		}
 
 		/// <summary>
@@ -169,41 +215,4 @@ namespace Chorus
 
 
 	}
-
-
-
-	public class NotesToRecordMapping
-	{
-
-		static internal NotesToRecordMapping SimpleForTest()
-		{
-			var m = new NotesToRecordMapping();
-			m.FunctionToGoFromObjectToItsId = DefaultIdGeneratorUsingObjectToStringAsId;
-			m.FunctionToGetCurrentUrlForNewNotes = DefaultUrlGenerator;
-			return m;
-		}
-
-		 public delegate string UrlGeneratorFunction(object target, string escapedId);
-
-		public delegate string IdGeneratorFunction(object targetOfAnnotation);
-
-
-		public static IdGeneratorFunction DefaultIdGeneratorUsingObjectToStringAsId = (target) => target.ToString();
-		internal static UrlGeneratorFunction DefaultUrlGenerator = (unused, id) => string.Format("chorus://object?id={0}", id);
-
-	   /// <summary>
-		/// Used to figure out which existing notes to show
-		/// The Id is what normally comes after the "id=" in the url
-		/// </summary>
-		public IdGeneratorFunction FunctionToGoFromObjectToItsId = o => { throw new ArgumentNullException("FunctionToGoFromObjectToItsId", "You need to supply a function for FunctionToGoFromObjectToItsId."); };
-
-		/// <summary>
-		/// Used to make new annotations with a url refelctign the current object/insertion-point/whatever
-		/// Note, the key will be "escaped" (made safe for going in a url) for you, so don't make
-		/// your UrlGeneratorFunction do that.
-		/// <example>(escapedId) => string.Format("myimages://image?id={0}&amp;type=jpg",escapedId)</example>
-		/// <example>(ignoreIt) => string.Format("myimages://image?id={0}&amp;type={1}",_currentImage.Guid, _currentImage.FileType)</example>
-		public UrlGeneratorFunction FunctionToGetCurrentUrlForNewNotes = DefaultUrlGenerator;
-	}
-
 }

@@ -53,7 +53,7 @@ namespace Chorus
 
 			builder.Register<SyncPanel>();
 			builder.Register<SyncControlModel>();
-			builder.Register<SyncDialog>();
+			builder.Register<SyncDialog>().FactoryScoped();
 			builder.RegisterGeneratedFactory<SyncDialog.Factory>();
 			builder.Register<Chorus.UI.Misc.TroubleshootingView>();
 
