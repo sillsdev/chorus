@@ -24,7 +24,7 @@ namespace Chorus.FileTypeHanders.FieldWorks
 	public sealed partial class FieldWorksMergingStrategy : IMergeStrategy
 	{
 		private readonly MetadataCache _mdc;
-		private readonly Dictionary<string, ElementStrategy> _elementStrategies = new Dictionary<string, ElementStrategy>();
+		private readonly Dictionary<string, ElementStrategy> _sharedElementStrategies = new Dictionary<string, ElementStrategy>();
 		private readonly Dictionary<string, XmlMerger> _mergers = new Dictionary<string, XmlMerger>();
 		const string Rt = "rt";
 
@@ -41,15 +41,19 @@ namespace Chorus.FileTypeHanders.FieldWorks
 			{
 				MergePartnerFinder = new FindByKeyAttribute("guid")
 			};
-			_elementStrategies.Add(Rt, strategy);
+			_sharedElementStrategies.Add(Rt, strategy);
 			strategy.ContextDescriptorGenerator = new FieldWorkObjectContextGenerator();
 		}
 
 		private void CreateMergers(MergeSituation mergeSituation)
 		{
-			var merger = new XmlMerger(mergeSituation);
-			merger.MergeStrategies.SetStrategy(Rt, _elementStrategies[Rt]);
-			_mergers.Add("CmObject", merger);
+			foreach (var classInfo in _mdc.AllConcreteClasses)
+			{
+				var merger = new XmlMerger(mergeSituation);
+				merger.MergeStrategies.SetStrategy(Rt, _sharedElementStrategies[Rt]);
+				// TODO: Add all of the property bits.
+				_mergers.Add(classInfo.ClassName, merger);
+			}
 		}
 
 		//private ElementStrategy AddKeyedElementType(XmlMerger merger, string elementName, string keyAttribute, bool orderOfTheseIsRelevant)
@@ -68,7 +72,7 @@ namespace Chorus.FileTypeHanders.FieldWorks
 		{
 			MergeTimestamps(ourEntry, theirEntry);
 			MergeCheckSum(ourEntry, theirEntry);
-			return GetOuterXml(_mergers["CmObject"].Merge(eventListener, ourEntry, theirEntry, commonEntry));
+			return GetOuterXml(_mergers[ourEntry.GetStringAttribute("class")].Merge(eventListener, ourEntry, theirEntry, commonEntry));
 		}
 
 		private static void MergeCheckSum(XmlNode ourEntry, XmlNode theirEntry)

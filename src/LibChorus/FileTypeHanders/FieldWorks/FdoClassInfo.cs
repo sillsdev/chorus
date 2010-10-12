@@ -9,11 +9,18 @@ namespace Chorus.FileTypeHanders.FieldWorks
 	public sealed class FdoClassInfo
 	{
 		internal string ClassName { get; private set; }
+		internal bool IsAbstract { get; private set; }
 		private readonly List<FdoPropertyInfo> _properties = new List<FdoPropertyInfo>();
 
 		internal FdoClassInfo(string className, string superclassName)
+			: this(className, false, superclassName)
+		{
+		}
+
+		internal FdoClassInfo(string className, bool isAbstract, string superclassName)
 		{
 			ClassName = className;
+			IsAbstract = isAbstract;
 			SuperclassName = superclassName;
 		}
 

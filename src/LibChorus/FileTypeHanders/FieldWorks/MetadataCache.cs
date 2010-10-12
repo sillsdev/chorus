@@ -11,6 +11,7 @@ namespace Chorus.FileTypeHanders.FieldWorks
 	public sealed class MetadataCache
 	{
 		private readonly Dictionary<string, FdoClassInfo> _classes = new Dictionary<string, FdoClassInfo>();
+		private readonly IEnumerable<FdoClassInfo> _concreteClasses;
 
 		/// <summary>
 		/// Constructor.
@@ -19,6 +20,9 @@ namespace Chorus.FileTypeHanders.FieldWorks
 		{
 			AddMainClassInfo();
 			SetSuperclasses();
+			_concreteClasses = new List<FdoClassInfo>(from classInfo in _classes.Values
+													  where !classInfo.IsAbstract
+													  select classInfo);
 		}
 
 		///<summary>
@@ -37,6 +41,11 @@ namespace Chorus.FileTypeHanders.FieldWorks
 				throw new ArgumentNullException("classname", AnnotationImages.kNullOrEmptyString);
 
 			return _classes[className];
+		}
+
+		internal IEnumerable<FdoClassInfo> AllConcreteClasses
+		{
+			get { return _concreteClasses; }
 		}
 
 		/// <summary>
@@ -62,10 +71,10 @@ namespace Chorus.FileTypeHanders.FieldWorks
 		/// </summary>
 		private void AddMainClassInfo()
 		{
-			var clsInfo = new FdoClassInfo("CmObject", null);
+			var clsInfo = new FdoClassInfo("CmObject", true, null);
 			_classes.Add("CmObject", clsInfo);
 
-			clsInfo = new FdoClassInfo("CmProject", "CmObject");
+			clsInfo = new FdoClassInfo("CmProject", true, "CmObject");
 			_classes.Add("CmProject", clsInfo);
 			clsInfo.AddProperty(new FdoPropertyInfo("DateCreated", DataType.Time));
 			clsInfo.AddProperty(new FdoPropertyInfo("DateModified", DataType.Time));
@@ -86,7 +95,7 @@ namespace Chorus.FileTypeHanders.FieldWorks
 			_classes.Add("FsComplexFeature", clsInfo);
 			clsInfo.AddProperty(new FdoPropertyInfo("Type", DataType.ReferenceAtomic));
 
-			clsInfo = new FdoClassInfo("CmMajorObject", "CmObject");
+			clsInfo = new FdoClassInfo("CmMajorObject", true, "CmObject");
 			_classes.Add("CmMajorObject", clsInfo);
 			clsInfo.AddProperty(new FdoPropertyInfo("Name", DataType.MultiUnicode));
 			clsInfo.AddProperty(new FdoPropertyInfo("DateCreated", DataType.Time));
@@ -187,7 +196,7 @@ namespace Chorus.FileTypeHanders.FieldWorks
 			clsInfo.AddProperty(new FdoPropertyInfo("RightToLeft", DataType.Boolean));
 			clsInfo.AddProperty(new FdoPropertyInfo("Tags", DataType.OwningCollection));
 
-			clsInfo = new FdoClassInfo("StPara", "CmObject");
+			clsInfo = new FdoClassInfo("StPara", true, "CmObject");
 			_classes.Add("StPara", clsInfo);
 			clsInfo.AddProperty(new FdoPropertyInfo("StyleRules", DataType.TextPropBinary));
 
@@ -289,7 +298,7 @@ namespace Chorus.FileTypeHanders.FieldWorks
 			clsInfo = new FdoClassInfo("CmAgentEvaluation", "CmObject");
 			_classes.Add("CmAgentEvaluation", clsInfo);
 
-			clsInfo = new FdoClassInfo("CmAnnotation", "CmObject");
+			clsInfo = new FdoClassInfo("CmAnnotation", true, "CmObject");
 			_classes.Add("CmAnnotation", clsInfo);
 			clsInfo.AddProperty(new FdoPropertyInfo("CompDetails", DataType.Unicode));
 			clsInfo.AddProperty(new FdoPropertyInfo("Comment", DataType.MultiString));
@@ -451,7 +460,7 @@ namespace Chorus.FileTypeHanders.FieldWorks
 			_classes.Add("FsDisjunctiveValue", clsInfo);
 			clsInfo.AddProperty(new FdoPropertyInfo("Value", DataType.ReferenceCollection));
 
-			clsInfo = new FdoClassInfo("FsFeatDefn", "CmObject");
+			clsInfo = new FdoClassInfo("FsFeatDefn", true, "CmObject");
 			_classes.Add("FsFeatDefn", clsInfo);
 			clsInfo.AddProperty(new FdoPropertyInfo("Name", DataType.MultiUnicode));
 			clsInfo.AddProperty(new FdoPropertyInfo("Abbreviation", DataType.MultiUnicode));
@@ -463,7 +472,7 @@ namespace Chorus.FileTypeHanders.FieldWorks
 			clsInfo.AddProperty(new FdoPropertyInfo("DisplayToRightOfValues", DataType.Boolean));
 			clsInfo.AddProperty(new FdoPropertyInfo("CatalogSourceId", DataType.Unicode));
 
-			clsInfo = new FdoClassInfo("FsFeatureSpecification", "CmObject");
+			clsInfo = new FdoClassInfo("FsFeatureSpecification", true, "CmObject");
 			_classes.Add("FsFeatureSpecification", clsInfo);
 			clsInfo.AddProperty(new FdoPropertyInfo("RefNumber", DataType.Integer));
 			clsInfo.AddProperty(new FdoPropertyInfo("ValueState", DataType.Integer));
@@ -487,7 +496,7 @@ namespace Chorus.FileTypeHanders.FieldWorks
 			clsInfo.AddProperty(new FdoPropertyInfo("Features", DataType.ReferenceSequence));
 			clsInfo.AddProperty(new FdoPropertyInfo("CatalogSourceId", DataType.Unicode));
 
-			clsInfo = new FdoClassInfo("FsAbstractStructure", "CmObject");
+			clsInfo = new FdoClassInfo("FsAbstractStructure", true, "CmObject");
 			_classes.Add("FsAbstractStructure", clsInfo);
 
 			clsInfo = new FdoClassInfo("FsNegatedValue", "FsFeatureSpecification");
@@ -641,7 +650,7 @@ namespace Chorus.FileTypeHanders.FieldWorks
 			clsInfo.AddProperty(new FdoPropertyInfo("RevLim", DataType.Integer));
 			clsInfo.AddProperty(new FdoPropertyInfo("RevParagraph", DataType.ReferenceAtomic));
 
-			clsInfo = new FdoClassInfo("ScrImportSource", "CmObject");
+			clsInfo = new FdoClassInfo("ScrImportSource", true, "CmObject");
 			_classes.Add("ScrImportSource", clsInfo);
 			clsInfo.AddProperty(new FdoPropertyInfo("WritingSystem", DataType.Unicode));
 			clsInfo.AddProperty(new FdoPropertyInfo("NoteType", DataType.ReferenceAtomic));
@@ -816,7 +825,7 @@ namespace Chorus.FileTypeHanders.FieldWorks
 			clsInfo.AddProperty(new FdoPropertyInfo("VariantEntryTypes", DataType.OwningAtomic));
 			clsInfo.AddProperty(new FdoPropertyInfo("ComplexEntryTypes", DataType.OwningAtomic));
 
-			clsInfo = new FdoClassInfo("ConstituentChartCellPart", "CmObject");
+			clsInfo = new FdoClassInfo("ConstituentChartCellPart", true, "CmObject");
 			_classes.Add("ConstituentChartCellPart", clsInfo);
 			clsInfo.AddProperty(new FdoPropertyInfo("Column", DataType.ReferenceAtomic));
 			clsInfo.AddProperty(new FdoPropertyInfo("MergesAfter", DataType.Boolean));
@@ -887,7 +896,7 @@ namespace Chorus.FileTypeHanders.FieldWorks
 			clsInfo.AddProperty(new FdoPropertyInfo("ImportResidue", DataType.String));
 			clsInfo.AddProperty(new FdoPropertyInfo("LiftResidue", DataType.Unicode));
 
-			clsInfo = new FdoClassInfo("MoAdhocProhib", "CmObject");
+			clsInfo = new FdoClassInfo("MoAdhocProhib", true, "CmObject");
 			_classes.Add("MoAdhocProhib", clsInfo);
 			clsInfo.AddProperty(new FdoPropertyInfo("Adjacency", DataType.Integer));
 
@@ -898,7 +907,7 @@ namespace Chorus.FileTypeHanders.FieldWorks
 			clsInfo.AddProperty(new FdoPropertyInfo("MsEnvPartOfSpeech", DataType.ReferenceAtomic));
 			clsInfo.AddProperty(new FdoPropertyInfo("Position", DataType.ReferenceSequence));
 
-			clsInfo = new FdoClassInfo("MoAffixForm", "MoForm");
+			clsInfo = new FdoClassInfo("MoAffixForm", true, "MoForm");
 			_classes.Add("MoAffixForm", clsInfo);
 			clsInfo.AddProperty(new FdoPropertyInfo("InflectionClasses", DataType.ReferenceCollection));
 
@@ -907,7 +916,7 @@ namespace Chorus.FileTypeHanders.FieldWorks
 			clsInfo.AddProperty(new FdoPropertyInfo("Input", DataType.OwningSequence));
 			clsInfo.AddProperty(new FdoPropertyInfo("Output", DataType.OwningSequence));
 
-			clsInfo = new FdoClassInfo("MoCompoundRule", "CmObject");
+			clsInfo = new FdoClassInfo("MoCompoundRule", true, "CmObject");
 			_classes.Add("MoCompoundRule", clsInfo);
 			clsInfo.AddProperty(new FdoPropertyInfo("Name", DataType.MultiUnicode));
 			clsInfo.AddProperty(new FdoPropertyInfo("Description", DataType.MultiString));
@@ -945,7 +954,7 @@ namespace Chorus.FileTypeHanders.FieldWorks
 			_classes.Add("MoExoCompound", clsInfo);
 			clsInfo.AddProperty(new FdoPropertyInfo("ToMsa", DataType.OwningAtomic));
 
-			clsInfo = new FdoClassInfo("MoForm", "CmObject");
+			clsInfo = new FdoClassInfo("MoForm", true, "CmObject");
 			_classes.Add("MoForm", clsInfo);
 			clsInfo.AddProperty(new FdoPropertyInfo("Form", DataType.MultiUnicode));
 			clsInfo.AddProperty(new FdoPropertyInfo("MorphType", DataType.ReferenceAtomic));
@@ -998,7 +1007,7 @@ namespace Chorus.FileTypeHanders.FieldWorks
 			clsInfo.AddProperty(new FdoPropertyInfo("ParserParameters", DataType.Unicode));
 			clsInfo.AddProperty(new FdoPropertyInfo("ProdRestrict", DataType.OwningAtomic));
 
-			clsInfo = new FdoClassInfo("MoMorphSynAnalysis", "CmObject");
+			clsInfo = new FdoClassInfo("MoMorphSynAnalysis", true, "CmObject");
 			_classes.Add("MoMorphSynAnalysis", clsInfo);
 			clsInfo.AddProperty(new FdoPropertyInfo("Components", DataType.ReferenceSequence));
 			clsInfo.AddProperty(new FdoPropertyInfo("GlossString", DataType.Unicode));
@@ -1116,7 +1125,7 @@ namespace Chorus.FileTypeHanders.FieldWorks
 			clsInfo.AddProperty(new FdoPropertyInfo("Wordforms", DataType.OwningCollection));
 			clsInfo.AddProperty(new FdoPropertyInfo("WritingSystem", DataType.Unicode));
 
-			clsInfo = new FdoClassInfo("MoRuleMapping", "CmObject");
+			clsInfo = new FdoClassInfo("MoRuleMapping", true, "CmObject");
 			_classes.Add("MoRuleMapping", clsInfo);
 
 			clsInfo = new FdoClassInfo("MoInsertPhones", "MoRuleMapping");
@@ -1132,7 +1141,7 @@ namespace Chorus.FileTypeHanders.FieldWorks
 			clsInfo.AddProperty(new FdoPropertyInfo("Content", DataType.ReferenceAtomic));
 			clsInfo.AddProperty(new FdoPropertyInfo("Modification", DataType.ReferenceAtomic));
 
-			clsInfo = new FdoClassInfo("MoDerivTrace", "CmObject");
+			clsInfo = new FdoClassInfo("MoDerivTrace", true, "CmObject");
 			_classes.Add("MoDerivTrace", clsInfo);
 			clsInfo.AddProperty(new FdoPropertyInfo("OutputForm", DataType.MultiUnicode));
 
@@ -1172,10 +1181,10 @@ namespace Chorus.FileTypeHanders.FieldWorks
 			clsInfo.AddProperty(new FdoPropertyInfo("TemplateApp", DataType.OwningAtomic));
 			clsInfo.AddProperty(new FdoPropertyInfo("PRuleApps", DataType.OwningSequence));
 
-			clsInfo = new FdoClassInfo("PhContextOrVar", "CmObject");
+			clsInfo = new FdoClassInfo("PhContextOrVar", true, "CmObject");
 			_classes.Add("PhContextOrVar", clsInfo);
 
-			clsInfo = new FdoClassInfo("PhPhonContext", "PhContextOrVar");
+			clsInfo = new FdoClassInfo("PhPhonContext", true, "PhContextOrVar");
 			_classes.Add("PhPhonContext", clsInfo);
 			clsInfo.AddProperty(new FdoPropertyInfo("Name", DataType.MultiUnicode));
 			clsInfo.AddProperty(new FdoPropertyInfo("Description", DataType.OwningAtomic));
@@ -1190,7 +1199,7 @@ namespace Chorus.FileTypeHanders.FieldWorks
 			_classes.Add("PhSequenceContext", clsInfo);
 			clsInfo.AddProperty(new FdoPropertyInfo("Members", DataType.ReferenceSequence));
 
-			clsInfo = new FdoClassInfo("PhSimpleContext", "PhPhonContext");
+			clsInfo = new FdoClassInfo("PhSimpleContext", true, "PhPhonContext");
 			_classes.Add("PhSimpleContext", clsInfo);
 
 			clsInfo = new FdoClassInfo("PhSimpleContextBdry", "PhSimpleContext");
@@ -1217,7 +1226,7 @@ namespace Chorus.FileTypeHanders.FieldWorks
 			clsInfo.AddProperty(new FdoPropertyInfo("BoundaryMarkers", DataType.OwningCollection));
 			clsInfo.AddProperty(new FdoPropertyInfo("Description", DataType.MultiString));
 
-			clsInfo = new FdoClassInfo("PhTerminalUnit", "CmObject");
+			clsInfo = new FdoClassInfo("PhTerminalUnit", true, "CmObject");
 			_classes.Add("PhTerminalUnit", clsInfo);
 			clsInfo.AddProperty(new FdoPropertyInfo("Name", DataType.MultiUnicode));
 			clsInfo.AddProperty(new FdoPropertyInfo("Description", DataType.MultiString));
@@ -1231,7 +1240,7 @@ namespace Chorus.FileTypeHanders.FieldWorks
 			clsInfo.AddProperty(new FdoPropertyInfo("BasicIPASymbol", DataType.String));
 			clsInfo.AddProperty(new FdoPropertyInfo("Features", DataType.OwningAtomic));
 
-			clsInfo = new FdoClassInfo("PhNaturalClass", "CmObject");
+			clsInfo = new FdoClassInfo("PhNaturalClass", true, "CmObject");
 			_classes.Add("PhNaturalClass", clsInfo);
 			clsInfo.AddProperty(new FdoPropertyInfo("Name", DataType.MultiUnicode));
 			clsInfo.AddProperty(new FdoPropertyInfo("Description", DataType.MultiString));
@@ -1384,7 +1393,7 @@ namespace Chorus.FileTypeHanders.FieldWorks
 			clsInfo.AddProperty(new FdoPropertyInfo("Explanation", DataType.MultiUnicode));
 			clsInfo.AddProperty(new FdoPropertyInfo("Sense", DataType.ReferenceAtomic));
 
-			clsInfo = new FdoClassInfo("DsChart", "CmMajorObject");
+			clsInfo = new FdoClassInfo("DsChart", true, "CmMajorObject");
 			_classes.Add("DsChart", clsInfo);
 			clsInfo.AddProperty(new FdoPropertyInfo("Template", DataType.ReferenceAtomic));
 
