@@ -87,6 +87,10 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
+	<Compile Include="FileTypeHanders\FieldWorks\DataType.cs" />
+	<Compile Include="FileTypeHanders\FieldWorks\FdoClassInfo.cs" />
+	<Compile Include="FileTypeHanders\FieldWorks\FdoPropertyInfo.cs" />
+	<Compile Include="FileTypeHanders\FieldWorks\MetadataCache.cs" />
 	<Compile Include="FileTypeHanders\Xml2WayDiffer.cs" />
 	<Compile Include="FileTypeHanders\Xml2WayDiffService.cs" />
 	<Compile Include="merge\xml\generic\XmlMergeService.cs" />

@@ -14,12 +14,14 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 	{
 		private ListenerForUnitTests _eventListener;
 		private FieldWorksMergingStrategy _fwMergeStrategy;
+		private MetadataCache _mdc;
 
 		[SetUp]
 		public void TestSetup()
 		{
+			_mdc = new MetadataCache();
 			_eventListener = new ListenerForUnitTests();
-			_fwMergeStrategy = new FieldWorksMergingStrategy(new NullMergeSituation());
+			_fwMergeStrategy = new FieldWorksMergingStrategy(new NullMergeSituation(), _mdc);
 		}
 
 		[TearDown]

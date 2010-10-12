@@ -17,6 +17,15 @@ namespace Chorus.FileTypeHanders.FieldWorks
 	{
 		private const string kExtension = "fwdata";
 		private readonly Dictionary<string, bool> _filesChecked = new Dictionary<string, bool>();
+		private readonly MetadataCache _mdc = new MetadataCache();
+
+		/// <summary>
+		/// For testing only.
+		/// </summary>
+		internal MetadataCache Mdc
+		{
+			get { return _mdc; }
+		}
 
 		#region Implementation of IChorusFileTypeHandler
 
@@ -63,7 +72,7 @@ namespace Chorus.FileTypeHanders.FieldWorks
 		public void Do3WayMerge(MergeOrder mergeOrder)
 		{
 			XmlMergeService.Do3WayMerge(mergeOrder,
-				new FieldWorksMergingStrategy(mergeOrder.MergeSituation),
+				new FieldWorksMergingStrategy(mergeOrder.MergeSituation, _mdc),
 				"rt", "guid", WritePreliminaryInformation);
 		}
 
@@ -98,7 +107,31 @@ namespace Chorus.FileTypeHanders.FieldWorks
 					{
 						// It would be nice, if it could really validate it.
 						while (reader.Read())
-						{}
+						{
+							// Populate _mdc with optional custom properties.
+							//if (reader.LocalName != "CustomField")
+							//	continue;
+							/*
+<AdditionalFields>
+<CustomField name="Certified" class="WfiWordform" type="Boolean" />
+</AdditionalFields>
+								*/
+							while (reader.LocalName == "CustomField")
+							{
+								reader.MoveToAttribute("name");
+								var propName = reader.Value;
+								reader.MoveToAttribute("class");
+								var className = reader.Value;
+								reader.MoveToAttribute("type");
+								var propDataType = reader.Value;
+								// Add custom property to MDC.
+								_mdc.AddCustomPropInfo(className, new FdoPropertyInfo(propName, propDataType));
+
+
+								reader.MoveToElement();
+								reader.Read();
+							}
+						}
 					}
 					else
 					{

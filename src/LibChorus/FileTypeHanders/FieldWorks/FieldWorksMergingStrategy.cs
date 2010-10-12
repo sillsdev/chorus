@@ -23,12 +23,14 @@ namespace Chorus.FileTypeHanders.FieldWorks
 	/// </remarks>
 	public sealed partial class FieldWorksMergingStrategy : IMergeStrategy
 	{
+		private readonly MetadataCache _mdc;
 		private readonly Dictionary<string, ElementStrategy> _elementStrategies = new Dictionary<string, ElementStrategy>();
 		private readonly Dictionary<string, XmlMerger> _mergers = new Dictionary<string, XmlMerger>();
 		const string Rt = "rt";
 
-		public FieldWorksMergingStrategy(MergeSituation mergeSituation)
+		public FieldWorksMergingStrategy(MergeSituation mergeSituation, MetadataCache mdc)
 		{
+			_mdc = mdc;
 			CreateSharedElementStrategies();
 			CreateMergers(mergeSituation);
 		}
