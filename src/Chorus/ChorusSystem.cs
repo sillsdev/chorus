@@ -11,12 +11,17 @@ using Chorus.UI.Notes;
 using Chorus.UI.Notes.Bar;
 using Chorus.UI.Notes.Browser;
 using Chorus.UI.Review;
+using Chorus.UI.Sync;
 using Chorus.Utilities;
 using Chorus.Utilities.code;
 using Chorus.VcsDrivers.Mercurial;
 
 namespace Chorus
 {
+	/// <summary>
+	/// A ChorusSystem object hides a lot of the complexity of Chorus from the client programmer.  It offers
+	/// up the most common controls and services of Chorus. See the SampleApp for examples of using it.
+	/// </summary>
 	public class ChorusSystem :IDisposable
 	{
 		private readonly string _dataFolderPath;
@@ -25,13 +30,29 @@ namespace Chorus
 		internal readonly Dictionary<string, AnnotationRepository> _annotationRepositories = new Dictionary<string, AnnotationRepository>();
 		private bool _searchedForAllExistingNotesFiles;
 
-
+		/// <summary>
+		/// Constructor
+		/// </summary>
+		/// <param name="dataFolderPath">The root of the project</param>
 		public ChorusSystem(string dataFolderPath)
+			:this(dataFolderPath, string.Empty)
+		{
+
+		}
+
+		/// <summary>
+		/// Constructor
+		/// </summary>
+		/// <param name="dataFolderPath">The root of the project</param>
+		/// <param name="userNameForHistoryAndNotes">This is not the same name as that used for any given network
+		/// repository credentials. Rather, it's the name which will show in the history, and besides Notes that this user makes.
+		///</param>
+		public ChorusSystem(string dataFolderPath, string userNameForHistoryAndNotes)
 		{
 			WritingSystems = new List<IWritingSystem>{new EnglishWritingSystem(), new ThaiWritingSystem()};
 
 			_dataFolderPath = dataFolderPath;
-			var hgrepo = HgRepository.CreateOrLocate(dataFolderPath, new NullProgress());
+			Repository = HgRepository.CreateOrLocate(dataFolderPath, new NullProgress());
 			var builder = new Autofac.Builder.ContainerBuilder();
 
 			builder.Register<ProjectFolderConfiguration>(c => new ProjectFolderConfiguration(dataFolderPath));
@@ -39,7 +60,11 @@ namespace Chorus
 
 			ChorusUIComponentsInjector.Inject(builder, dataFolderPath);
 
-			_user  =new ChorusUser(hgrepo.GetUserIdInUse());
+			if (String.IsNullOrEmpty(userNameForHistoryAndNotes))
+			{
+				userNameForHistoryAndNotes = Repository.GetUserIdInUse();
+			}
+			_user = new ChorusUser(userNameForHistoryAndNotes);
 			builder.Register<IChorusUser>(_user);
 //            builder.RegisterGeneratedFactory<NotesInProjectView.Factory>().ContainerScoped();
 //            builder.RegisterGeneratedFactory<NotesInProjectViewModel.Factory>().ContainerScoped();
@@ -68,9 +93,31 @@ namespace Chorus
 		{
 			get { return _container.Resolve<NavigateToRecordEvent>(); }
 		}
+
+		/// <summary>
+		/// Various factories for creating WinForms controls, already wired to the other parts of Chorus
+		/// </summary>
 		public WinFormsFactory WinForms
 		{
 			get { return new WinFormsFactory(this, _container); }
+		}
+
+		public HgRepository Repository
+		{
+			get; private set;
+		}
+
+		public string UserNameForHistoryAndNotes
+		{
+			get
+			{
+				return _user.Name;
+			}
+//  it's too late to set it, the name is already in the DI container
+//            set
+//            {
+//                Repository.SetUserNameInIni(value, new NullProgress());
+//            }
 		}
 
 		/// <summary>
@@ -89,9 +136,14 @@ namespace Chorus
 				_container = container;
 			}
 
-			public Chorus.UI.Sync.SyncDialog CreateSynchronizationDialog()
+			public Form CreateSynchronizationDialog()
 			{
-				return _container.Resolve<Chorus.UI.Sync.SyncDialog>();
+				return _container.Resolve<SyncDialog.Factory>()(SyncUIDialogBehaviors.Lazy, SyncUIFeatures.NormalRecommended);
+			}
+
+			public Form CreateSynchronizationDialog(SyncUIDialogBehaviors behavior, SyncUIFeatures uiFeaturesFlags)
+			{
+				return _container.Resolve<SyncDialog.Factory>()(behavior, uiFeaturesFlags);
 			}
 
 			/// <summary>
@@ -136,10 +188,7 @@ namespace Chorus
 				return _container.Resolve<HistoryPage.Factory>()(options);
 			}
 
-			public Form CreateSettingDialog()
-			{
-				throw new NotImplementedException();
-			}
+
 		}
 
 		public void EnsureAllNotesRepositoriesLoaded()

@@ -21,6 +21,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChorusMerge.Tests", "src\Ch
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chorus", "src\Chorus\Chorus.csproj", "{9DA5A655-1881-4BE1-81BA-256E47CF7537}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleApp", "src\SampleApp\SampleApp.csproj", "{550854F0-9247-42C5-B41D-08E96CC17F92}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +53,10 @@ Global
 		{9DA5A655-1881-4BE1-81BA-256E47CF7537}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9DA5A655-1881-4BE1-81BA-256E47CF7537}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9DA5A655-1881-4BE1-81BA-256E47CF7537}.Release|Any CPU.Build.0 = Release|Any CPU
+		{550854F0-9247-42C5-B41D-08E96CC17F92}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{550854F0-9247-42C5-B41D-08E96CC17F92}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{550854F0-9247-42C5-B41D-08E96CC17F92}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{550854F0-9247-42C5-B41D-08E96CC17F92}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

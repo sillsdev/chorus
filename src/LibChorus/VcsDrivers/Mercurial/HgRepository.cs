@@ -928,7 +928,7 @@ namespace Chorus.VcsDrivers.Mercurial
 						return section.GetValue("username");
 				}
 
-				return string.Empty;
+				return defaultName;
 			}
 			catch (Exception)
 			{

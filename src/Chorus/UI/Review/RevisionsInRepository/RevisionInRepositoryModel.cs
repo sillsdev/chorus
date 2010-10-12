@@ -49,7 +49,11 @@ namespace Chorus.UI.Review.RevisionsInRepository
 		{
 			try
 			{
-				var s = _repository.GetTip().Number.LocalRevisionNumber;
+				var tip = _repository.GetTip();
+				if (tip == null)
+					return false;
+
+				var s = tip.Number.LocalRevisionNumber;
 				return s != _currentTipRev;
 			}
 			catch (Exception)

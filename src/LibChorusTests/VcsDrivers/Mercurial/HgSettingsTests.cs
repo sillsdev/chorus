@@ -106,23 +106,23 @@ username = joe
 			}
 		}
 		[Test]
-		public void GetUserName_EmptyHgrc_ReturnsEmpty()
+		public void GetUserName_EmptyHgrc_ReturnsDefault()
 		{
 			using (var setup = new RepositorySetup("Dan"))
 			{
 				setup.WriteIniContents(@"");
 				var repository = setup.CreateSynchronizer().Repository;
-				Assert.AreEqual(string.Empty, repository.GetUserNameFromIni(_progress, "anonymous"));
+				Assert.AreEqual("anonymous", repository.GetUserNameFromIni(_progress, "anonymous"));
 			}
 		}
 		[Test]
-		public void GetUserName_NoHgrcYet_ReturnsEmpty()
+		public void GetUserName_NoHgrcYet_ReturnsDefault()
 		{
 			using (var setup = new RepositorySetup("Dan"))
 			{
 				setup.EnsureNoHgrcExists();
 				var repository = setup.CreateSynchronizer().Repository;
-				Assert.AreEqual(string.Empty, repository.GetUserNameFromIni(_progress, "anonymous"));
+				Assert.AreEqual("anonymous", repository.GetUserNameFromIni(_progress, "anonymous"));
 			}
 		}
 		[Test]
