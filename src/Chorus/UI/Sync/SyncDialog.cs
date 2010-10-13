@@ -130,9 +130,9 @@ namespace Chorus.UI.Sync
 #endif
 			_syncControl.Model.SyncOptions.RepositorySourcesToTry.Clear();
 			_syncControl.Model.SyncOptions.RepositorySourcesToTry.Add(args.Address);
-			if(!string.IsNullOrEmpty(args.ComittMessage))
+			if(!string.IsNullOrEmpty(args.CommitMessage))
 			{
-				_syncControl.Model.SyncOptions.CheckinDescription += " "+ args.ComittMessage;
+				_syncControl.Model.SyncOptions.CheckinDescription += ": "+ args.CommitMessage;
 			}
 			_syncControl.Synchronize(true);
 		}
