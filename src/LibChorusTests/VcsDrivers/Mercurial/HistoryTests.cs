@@ -44,16 +44,6 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		}
 
 
-		[Test,  ExpectedException(typeof(ApplicationException))]
-		[Ignore("Never worked on mono, now hard to stop hg on windows because we embed it.")]
-		public void GetHistory_NoHg_GetException()
-		{
-			using (new Chorus.VcsDrivers.Mercurial.HgMissingSimulation())
-			{
-				List<Revision> items = _repository.GetAllRevisions();
-				Assert.AreEqual(0, items.Count);
-			}
-		}
 
 		[Test]
 		public void GetAllRevisionss_BeforeAnySyncing_EmptyHistory()

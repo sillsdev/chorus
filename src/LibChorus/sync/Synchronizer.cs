@@ -251,7 +251,9 @@ namespace Chorus.sync
 					// in the shared folder's '.hg' folder. No more S/Rs could then be done,
 					// because the repo was locked.
 					// For now, at least, it is not a requirement to do the update on the shared folder.
-					if (address is UsbKeyRepositorySource) // || address is DirectoryRepositorySource)
+					// JDH Oct 2010: added this back in if it doesn't look like a shared folder
+					if (address is UsbKeyRepositorySource  ||
+					(address is DirectoryRepositorySource && ((DirectoryRepositorySource)address).LooksLikeLocalDirectory))
 					{
 						var otherRepo = new HgRepository(resolvedUri, _progress);
 						otherRepo.Update();

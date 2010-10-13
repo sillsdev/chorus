@@ -77,6 +77,7 @@ namespace Chorus.merge.xml.generic
 
 		public NodeMergeResult MergeFiles(string ourPath, string theirPath, string ancestorPath)
 		{
+			//Debug.Fail("time to attach");
 			XmlDocument ourDoc = new XmlDocument();
 			ourDoc.Load(ourPath);
 			XmlNode ourNode = ourDoc.DocumentElement;
@@ -89,9 +90,21 @@ namespace Chorus.merge.xml.generic
 			if (File.Exists(ancestorPath)) // it's possible for the file to be created independently by each user, with no common ancestor
 			{
 				XmlDocument ancestorDoc = new XmlDocument();
-				ancestorDoc.Load(ancestorPath);
-				ancestorNode = ancestorDoc.DocumentElement;
-			}
+				try
+				{
+					ancestorDoc.Load(ancestorPath);
+					ancestorNode = ancestorDoc.DocumentElement;
+				}
+				catch (XmlException e)
+				{
+					if(File.ReadAllText(ancestorPath).Length>1 )
+					{
+						throw e;
+					}
+					//otherwise, it's likely an artifact of how hg seems to create an emty file
+					//for the ancestor, if there wasn't one there before, and empty = not well-formed xml!
+				}
+			 }
 
 			return Merge(ourNode, theirNode, ancestorNode);
 		}

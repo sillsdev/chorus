@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Chorus.Properties {
+namespace SampleApp.Properties {
 
 
 	[global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
@@ -20,18 +20,6 @@ namespace Chorus.Properties {
 		public static Settings Default {
 			get {
 				return defaultInstance;
-			}
-		}
-
-		[global::System.Configuration.UserScopedSettingAttribute()]
-		[global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-		[global::System.Configuration.DefaultSettingValueAttribute("")]
-		public string PathToRepository {
-			get {
-				return ((string)(this["PathToRepository"]));
-			}
-			set {
-				this["PathToRepository"] = value;
 			}
 		}
 	}
