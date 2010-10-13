@@ -12,6 +12,7 @@ namespace Chorus.FileTypeHanders.FieldWorks
 	{
 		private readonly Dictionary<string, FdoClassInfo> _classes = new Dictionary<string, FdoClassInfo>();
 		private readonly IEnumerable<FdoClassInfo> _concreteClasses;
+		private readonly Dictionary<string, FdoClassInfo> _classesWithCollectionProperties;
 
 		/// <summary>
 		/// Constructor.
@@ -23,6 +24,13 @@ namespace Chorus.FileTypeHanders.FieldWorks
 			_concreteClasses = new List<FdoClassInfo>(from classInfo in _classes.Values
 													  where !classInfo.IsAbstract
 													  select classInfo);
+			_classesWithCollectionProperties = new Dictionary<string, FdoClassInfo>(_concreteClasses.Count());
+			foreach (var classWithCollectionProp in from classInfo in _classes.Values
+													where classInfo.AllCollectionProperties.Count() > 0
+													select classInfo)
+			{
+				_classesWithCollectionProperties.Add(classWithCollectionProp.ClassName, classWithCollectionProp);
+			}
 		}
 
 		///<summary>
@@ -46,6 +54,11 @@ namespace Chorus.FileTypeHanders.FieldWorks
 		internal IEnumerable<FdoClassInfo> AllConcreteClasses
 		{
 			get { return _concreteClasses; }
+		}
+
+		internal IDictionary<string, FdoClassInfo> ClassesWithCollectionProperties
+		{
+			get { return _classesWithCollectionProperties; }
 		}
 
 		/// <summary>

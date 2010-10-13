@@ -88,6 +88,7 @@
   </ItemGroup>
   <ItemGroup>
 	<Compile Include="FileTypeHanders\FieldWorks\DataType.cs" />
+	<Compile Include="FileTypeHanders\FieldWorks\FieldWorksMergingServices.cs" />
 	<Compile Include="FileTypeHanders\FieldWorks\FdoClassInfo.cs" />
 	<Compile Include="FileTypeHanders\FieldWorks\FdoPropertyInfo.cs" />
 	<Compile Include="FileTypeHanders\FieldWorks\MetadataCache.cs" />
