@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Windows.Forms;
+using Chorus.sync;
 using Chorus.VcsDrivers.Mercurial;
 
 namespace Chorus.UI.Sync
@@ -10,6 +11,10 @@ namespace Chorus.UI.Sync
 	/// </summary>
 	public partial class BridgeSyncControl : UserControl
 	{
+		private readonly SyncControlModel _model;
+		private bool _didAttemptSync;
+		private string _originalComment;
+
 		/// <summary></summary>
 		public BridgeSyncControl()
 		{
@@ -17,39 +22,83 @@ namespace Chorus.UI.Sync
 		}
 
 		/// <summary></summary>
-		public BridgeSyncControl(HgRepository repository, SyncControlModel model)
+		public BridgeSyncControl(HgRepository repository, ProjectFolderConfiguration projectFolderConfiguration)
 			: this()
 		{
+			_model = new SyncControlModel(projectFolderConfiguration, SyncUIFeatures.Log | SyncUIFeatures.PlaySoundIfSuccessful, null);
+			_model.SynchronizeOver += _model_SynchronizeOver;
+			_model.AddProgressDisplay(_logBox);
 			try
 			{
-				_syncControl.Model = model;
-				_syncStartControl1.Visible = true;
-				//_syncStartControl1.Dock = DockStyle.Fill;
-				_syncControl.Visible = false;
-
-				_syncStartControl1.Init(repository);
+				_syncStartControl.Init(repository);
 			}
 			catch (Exception)
 			{
-				_syncStartControl1.Dispose(); // without this, the usbdetector just goes on and on
+				_syncStartControl.Dispose(); // without this, the usbdetector just goes on and on
 				throw;
 			}
+			_logBox.GetDiagnosticsMethod = _model.GetDiagnostics;
+			UpdateDisplay();
+		}
+
+		void _model_SynchronizeOver(object sender, EventArgs e)
+		{
+			//Cursor.Current = Cursors.Default;
+			progressBar1.MarqueeAnimationSpeed = 0;
+			progressBar1.Style = ProgressBarStyle.Continuous;
+			progressBar1.Maximum = 100;
+			progressBar1.Value = progressBar1.Maximum;
+			_didAttemptSync = true;
+			UpdateDisplay();
 		}
 
 		private void SelectedRepository(object sender, SyncStartArgs e)
 		{
-			_syncStartControl1.Visible = false;
-			_syncControl.Visible = true;
-#if MONO
-			_syncControl.Refresh();
-#endif
-			_syncControl.Model.SyncOptions.RepositorySourcesToTry.Clear();
-			_syncControl.Model.SyncOptions.RepositorySourcesToTry.Add(e.Address);
-			if (!string.IsNullOrEmpty(e.CommitMessage))
+			_didAttemptSync = false;
+			UpdateDisplay();
+			_statusText.Visible = false;
+
+			_model.SyncOptions.RepositorySourcesToTry.Clear();
+			_model.SyncOptions.RepositorySourcesToTry.Add(e.Address);
+			if (_originalComment == null)
 			{
-				_syncControl.Model.SyncOptions.CheckinDescription += ": " + e.CommitMessage;
+				var desc = _model.SyncOptions.CheckinDescription;
+				_originalComment = string.IsNullOrEmpty(desc) ? string.Empty : _model.SyncOptions.CheckinDescription = ": ";
+				if (_originalComment == string.Empty)
+					_model.SyncOptions.CheckinDescription = _originalComment;
 			}
-			_syncControl.Synchronize(true);
+			if (!string.IsNullOrEmpty(e.CommitMessage))
+				_model.SyncOptions.CheckinDescription = _originalComment + e.CommitMessage;
+
+			progressBar1.Style = ProgressBarStyle.Marquee;
+#if MONO
+			progressBar1.MarqueeAnimationSpeed = 3000;
+#else
+			progressBar1.MarqueeAnimationSpeed = 50;
+#endif
+			_logBox.Clear();
+			_logBox.Enabled = true;
+			_logBox.WriteStatus("Syncing...");
+			Cursor.Current = Cursors.WaitCursor;
+			try
+			{
+				_model.Sync(true);
+			}
+			finally
+			{
+				Cursor.Current = Cursors.Default;
+			}
+			UpdateDisplay();
+		}
+
+		private void UpdateDisplay()
+		{
+			_successIcon.Visible = _didAttemptSync && !(_model.StatusProgress.WarningEncountered || _model.StatusProgress.ErrorEncountered);
+			_warningIcon.Visible = (_model.StatusProgress.WarningEncountered || _model.StatusProgress.ErrorEncountered);
+			progressBar1.Visible = _model.SynchronizingNow;// || _didAttemptSync;
+			_statusText.Visible = progressBar1.Visible || _didAttemptSync;
+			_statusText.Text = _model.StatusProgress.LastStatus;
+			_logBox.Enabled = _model.SynchronizingNow || _didAttemptSync;
 		}
 	}
 }
