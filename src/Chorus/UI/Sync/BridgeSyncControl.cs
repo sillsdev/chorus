@@ -1,5 +1,4 @@
 ﻿using System;
-using System.ComponentModel;
 using System.IO;
 using System.Windows.Forms;
 using Chorus.sync;
@@ -36,7 +35,7 @@ namespace Chorus.UI.Sync
 		{
 			_projectFolderConfig = projectFolderConfiguration;
 			_model = new SyncControlModel(projectFolderConfiguration, SyncUIFeatures.Log | SyncUIFeatures.PlaySoundIfSuccessful, null);
-			_model.SynchronizeOver += _model_SynchronizeOver;
+			_model.SynchronizeOver += ModelSynchronizeOver;
 			_model.AddProgressDisplay(_logBox);
 			try
 			{
@@ -51,7 +50,7 @@ namespace Chorus.UI.Sync
 			UpdateDisplay();
 		}
 
-		void _model_SynchronizeOver(object syncResults, EventArgs e)
+		void ModelSynchronizeOver(object syncResults, EventArgs e)
 		{
 			//Cursor.Current = Cursors.Default;
 			_results = syncResults as SyncResults;
@@ -61,6 +60,7 @@ namespace Chorus.UI.Sync
 			progressBar1.Value = progressBar1.Maximum;
 			_didAttemptSync = true;
 			UpdateDisplay();
+			OnSyncFinished();
 		}
 
 		private bool OnSyncStarting()
@@ -82,7 +82,7 @@ namespace Chorus.UI.Sync
 				handler(this, new SyncFinishedEventArgs(_results));
 		}
 
-		private void SyncStartControl_RepositoryChosen(object sender, SyncStartArgs e)
+		private void SyncStartControlRepositoryChosen(object sender, SyncStartArgs e)
 		{
 			if (OnSyncStarting())
 			{
@@ -119,7 +119,8 @@ namespace Chorus.UI.Sync
 			try
 			{
 				_model.Sync(true);
-				OnSyncFinished();
+				// Don't do this here. It has to be done at the end of the _model_SynchronizeOver handler.
+				//OnSyncFinished();
 			}
 			finally
 			{

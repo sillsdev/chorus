@@ -9,6 +9,7 @@ namespace Chorus.UI.Sync
 
 		public SyncFinishedEventArgs(SyncResults syncResults)
 		{
+			if (syncResults == null) throw new ArgumentNullException("syncResults");
 			Results = syncResults;
 		}
 	}

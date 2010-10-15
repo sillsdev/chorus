@@ -10,7 +10,7 @@ namespace Chorus.UI.Sync
 		public SyncStartingEventArgs(string liftPathname)
 			: base(false)
 		{
-			if (!string.IsNullOrEmpty(liftPathname))
+			if (string.IsNullOrEmpty(liftPathname))
 				throw new ArgumentNullException("liftPathname");
 
 			LiftPathname = liftPathname;
