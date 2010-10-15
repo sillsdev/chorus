@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.IO;
 using System.Windows.Forms;
 using Chorus.sync;
 using Chorus.VcsDrivers.Mercurial;
@@ -13,7 +14,7 @@ namespace Chorus.UI.Sync
 	public partial class BridgeSyncControl : UserControl
 	{
 		public event SyncStartingEventHandler SyncStarting;
-		public delegate void SyncStartingEventHandler(object sender, CancelEventArgs e);
+		public delegate void SyncStartingEventHandler(object sender, SyncStartingEventArgs e);
 		public event SyncFinishedEventHandler SyncFinished;
 		public delegate void SyncFinishedEventHandler(object sender, SyncFinishedEventArgs e);
 
@@ -21,6 +22,7 @@ namespace Chorus.UI.Sync
 		private bool _didAttemptSync;
 		private string _originalComment;
 		private SyncResults _results;
+		private readonly ProjectFolderConfiguration _projectFolderConfig;
 
 		/// <summary></summary>
 		public BridgeSyncControl()
@@ -32,6 +34,7 @@ namespace Chorus.UI.Sync
 		public BridgeSyncControl(HgRepository repository, ProjectFolderConfiguration projectFolderConfiguration)
 			: this()
 		{
+			_projectFolderConfig = projectFolderConfiguration;
 			_model = new SyncControlModel(projectFolderConfiguration, SyncUIFeatures.Log | SyncUIFeatures.PlaySoundIfSuccessful, null);
 			_model.SynchronizeOver += _model_SynchronizeOver;
 			_model.AddProgressDisplay(_logBox);
@@ -65,7 +68,7 @@ namespace Chorus.UI.Sync
 			var handler = SyncStarting;
 			if (handler != null)
 			{
-				var cancelArgs = new CancelEventArgs { Cancel = false };
+				var cancelArgs = new SyncStartingEventArgs(Directory.GetFiles(_projectFolderConfig.FolderPath, "*.lift")[0]);
 				handler(this, cancelArgs);
 				return cancelArgs.Cancel;
 			}

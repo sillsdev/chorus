@@ -325,6 +325,7 @@
 	<Compile Include="UI\Sync\SyncStartControl.Designer.cs">
 	  <DependentUpon>SyncStartControl.cs</DependentUpon>
 	</Compile>
+	<Compile Include="UI\Sync\SyncStartingEventArgs.cs" />
 	<Compile Include="UI\Sync\SyncStartModel.cs" />
 	<Compile Include="UI\UsbDriveLocator.cs">
 	  <SubType>Component</SubType>
