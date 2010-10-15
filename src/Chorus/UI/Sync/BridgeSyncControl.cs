@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Windows.Forms;
 using Chorus.sync;
 using Chorus.VcsDrivers.Mercurial;
@@ -11,9 +12,15 @@ namespace Chorus.UI.Sync
 	/// </summary>
 	public partial class BridgeSyncControl : UserControl
 	{
+		public event SyncStartingEventHandler SyncStarting;
+		public delegate void SyncStartingEventHandler(object sender, CancelEventArgs e);
+		public event SyncFinishedEventHandler SyncFinished;
+		public delegate void SyncFinishedEventHandler(object sender, SyncFinishedEventArgs e);
+
 		private readonly SyncControlModel _model;
 		private bool _didAttemptSync;
 		private string _originalComment;
+		private SyncResults _results;
 
 		/// <summary></summary>
 		public BridgeSyncControl()
@@ -41,9 +48,10 @@ namespace Chorus.UI.Sync
 			UpdateDisplay();
 		}
 
-		void _model_SynchronizeOver(object sender, EventArgs e)
+		void _model_SynchronizeOver(object syncResults, EventArgs e)
 		{
 			//Cursor.Current = Cursors.Default;
+			_results = syncResults as SyncResults;
 			progressBar1.MarqueeAnimationSpeed = 0;
 			progressBar1.Style = ProgressBarStyle.Continuous;
 			progressBar1.Maximum = 100;
@@ -52,8 +60,33 @@ namespace Chorus.UI.Sync
 			UpdateDisplay();
 		}
 
-		private void SelectedRepository(object sender, SyncStartArgs e)
+		private bool OnSyncStarting()
 		{
+			var handler = SyncStarting;
+			if (handler != null)
+			{
+				var cancelArgs = new CancelEventArgs { Cancel = false };
+				handler(this, cancelArgs);
+				return cancelArgs.Cancel;
+			}
+			return false; // Do not cancel, if there is no handler.
+		}
+
+		private void OnSyncFinished()
+		{
+			var handler = SyncFinished;
+			if (handler != null)
+				handler(this, new SyncFinishedEventArgs(_results));
+		}
+
+		private void SyncStartControl_RepositoryChosen(object sender, SyncStartArgs e)
+		{
+			if (OnSyncStarting())
+			{
+				// TODO: Show some message about it being cancelled?
+				return;
+			}
+
 			_didAttemptSync = false;
 			UpdateDisplay();
 			_statusText.Visible = false;
@@ -83,6 +116,7 @@ namespace Chorus.UI.Sync
 			try
 			{
 				_model.Sync(true);
+				OnSyncFinished();
 			}
 			finally
 			{

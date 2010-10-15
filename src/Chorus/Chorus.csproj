@@ -311,6 +311,7 @@
 	<Compile Include="UI\Sync\SyncDialog.Designer.cs">
 	  <DependentUpon>SyncDialog.cs</DependentUpon>
 	</Compile>
+	<Compile Include="UI\Sync\SyncFinishedEventArgs.cs" />
 	<Compile Include="UI\Sync\SyncPanel.cs">
 	  <SubType>UserControl</SubType>
 	</Compile>

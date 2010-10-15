@@ -112,7 +112,7 @@
 			this._syncStartControl.Name = "_syncStartControl";
 			this._syncStartControl.Size = new System.Drawing.Size(294, 306);
 			this._syncStartControl.TabIndex = 4;
-			this._syncStartControl.RepositoryChosen += new System.EventHandler<Chorus.UI.Sync.SyncStartArgs>(this.SelectedRepository);
+			this._syncStartControl.RepositoryChosen += new System.EventHandler<Chorus.UI.Sync.SyncStartArgs>(this.SyncStartControl_RepositoryChosen);
 			//
 			// _logBox
 			//
