@@ -50,6 +50,8 @@ namespace Chorus.UI.Sync
 			UpdateDisplay();
 		}
 
+		public bool ShowAllControls { get; set; }
+
 		void ModelSynchronizeOver(object syncResults, EventArgs e)
 		{
 			//Cursor.Current = Cursors.Default;
@@ -131,12 +133,24 @@ namespace Chorus.UI.Sync
 
 		private void UpdateDisplay()
 		{
-			_successIcon.Visible = _didAttemptSync && !(_model.StatusProgress.WarningEncountered || _model.StatusProgress.ErrorEncountered);
-			_warningIcon.Visible = (_model.StatusProgress.WarningEncountered || _model.StatusProgress.ErrorEncountered);
-			progressBar1.Visible = _model.SynchronizingNow;// || _didAttemptSync;
-			_statusText.Visible = progressBar1.Visible || _didAttemptSync;
-			_statusText.Text = _model.StatusProgress.LastStatus;
-			_logBox.Enabled = _model.SynchronizingNow || _didAttemptSync;
+			if (ShowAllControls)
+			{
+				_successIcon.Visible = _didAttemptSync && !(_model.StatusProgress.WarningEncountered || _model.StatusProgress.ErrorEncountered);
+				_warningIcon.Visible = (_model.StatusProgress.WarningEncountered || _model.StatusProgress.ErrorEncountered);
+				progressBar1.Visible = _model.SynchronizingNow;// || _didAttemptSync;
+				_statusText.Visible = progressBar1.Visible || _didAttemptSync;
+				_statusText.Text = _model.StatusProgress.LastStatus;
+				_logBox.Enabled = _model.SynchronizingNow || _didAttemptSync;
+			}
+			else
+			{
+				_successIcon.Visible = false;
+				_warningIcon.Visible = false;
+				progressBar1.Visible = false;
+				_statusText.Visible = false;
+				_statusText.Text = null;
+				_logBox.Visible = false;
+			}
 		}
 	}
 }
