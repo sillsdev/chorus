@@ -22,6 +22,7 @@ namespace Chorus.UI.Sync
 		private string _originalComment;
 		private SyncResults _results;
 		private readonly ProjectFolderConfiguration _projectFolderConfig;
+		private bool _showAllControls;
 
 		/// <summary></summary>
 		public BridgeSyncControl()
@@ -50,7 +51,15 @@ namespace Chorus.UI.Sync
 			UpdateDisplay();
 		}
 
-		public bool ShowAllControls { get; set; }
+		public bool ShowAllControls
+		{
+			get { return _showAllControls; }
+			set
+			{
+				_showAllControls = value;
+				UpdateDisplay();
+			}
+		}
 
 		void ModelSynchronizeOver(object syncResults, EventArgs e)
 		{
@@ -140,6 +149,7 @@ namespace Chorus.UI.Sync
 				progressBar1.Visible = _model.SynchronizingNow;// || _didAttemptSync;
 				_statusText.Visible = progressBar1.Visible || _didAttemptSync;
 				_statusText.Text = _model.StatusProgress.LastStatus;
+				_logBox.Visible = true;
 				_logBox.Enabled = _model.SynchronizingNow || _didAttemptSync;
 			}
 			else
