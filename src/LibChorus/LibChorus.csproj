@@ -88,6 +88,7 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
+	<Compile Include="FileTypeHanders\lift\LiftFolder.cs" />
 	<Compile Include="FileTypeHanders\FieldWorks\DataType.cs" />
 	<Compile Include="FileTypeHanders\FieldWorks\FieldWorksMergingServices.cs" />
 	<Compile Include="FileTypeHanders\FieldWorks\FdoClassInfo.cs" />

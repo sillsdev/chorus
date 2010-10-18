@@ -61,6 +61,8 @@ namespace SampleApp
 
 			_chorusSystem.Repository.SetKnownRepositoryAddresses(new RepositoryAddress[] {_serverRepository});
 
+			_chorusSystem.ProjectFolderConfiguration.IncludePatterns.Add("*.xml");
+
 			_dataEditor = new DataEditor(_chorusSystem, Path.Combine(shoppingListDir, "shopping.xml"));
 			_dataEditor.Dock = DockStyle.Fill;
 			_frontPage.Controls.Add(_dataEditor);
