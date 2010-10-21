@@ -183,7 +183,6 @@ namespace Chorus.UI.Notes.Bar
 		}
 
 
-
 	  /* for now, let's just autosave
 	   * public void SaveNowIfNeeded(IProgress progress)
 		{

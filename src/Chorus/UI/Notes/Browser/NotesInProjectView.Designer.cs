@@ -33,11 +33,11 @@ namespace Chorus.UI.Notes.Browser
 			this.components = new System.ComponentModel.Container();
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(NotesInProjectView));
 			this._messageListView = new System.Windows.Forms.ListView();
-			this.label = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-			this.author = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-			this.date = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+			this.label = new System.Windows.Forms.ColumnHeader();
+			this.author = new System.Windows.Forms.ColumnHeader();
+			this.date = new System.Windows.Forms.ColumnHeader();
 			this._stateImageList = new System.Windows.Forms.ImageList(this.components);
-			this._refreshTimer = new System.Windows.Forms.Timer(this.components);
+			this.timer1 = new System.Windows.Forms.Timer(this.components);
 			this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
 			this.searchBox1 = new Chorus.UI.Notes.Browser.SearchBox();
 			this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
@@ -92,11 +92,9 @@ namespace Chorus.UI.Notes.Browser
 			this._stateImageList.TransparentColor = System.Drawing.Color.Transparent;
 			this._stateImageList.Images.SetKeyName(0, "check16x16.png");
 			//
-			// _refreshTimer
+			// timer1
 			//
-			this._refreshTimer.Enabled = true;
-			this._refreshTimer.Interval = 1000;
-			this._refreshTimer.Tick += new System.EventHandler(this.OnRefreshTimer_Tick);
+			this.timer1.Interval = 500;
 			//
 			// searchBox1
 			//
@@ -179,7 +177,7 @@ namespace Chorus.UI.Notes.Browser
 		private System.Windows.Forms.ListView _messageListView;
 		private System.Windows.Forms.ColumnHeader date;
 		private System.Windows.Forms.ColumnHeader label;
-		private System.Windows.Forms.Timer _refreshTimer;
+		private System.Windows.Forms.Timer timer1;
 		private System.Windows.Forms.ToolTip toolTip1;
 		private System.Windows.Forms.ColumnHeader author;
 		private SearchBox searchBox1;

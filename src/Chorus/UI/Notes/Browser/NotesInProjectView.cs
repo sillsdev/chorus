@@ -58,7 +58,7 @@ namespace Chorus.UI.Notes.Browser
 		private void OnLoad(object sender, EventArgs e)
 		{
 			//OnReloadMessages(null,null);
-			_model.CheckIfRefreshNeeded();
+			_model.NowVisible();
 		}
 
 		private void searchBox1_SearchTextChanged(object sender, EventArgs e)
@@ -69,7 +69,7 @@ namespace Chorus.UI.Notes.Browser
 		private void NotesInProjectView_VisibleChanged(object sender, EventArgs e)
 		{
 			if (this.Visible)
-				_model.CheckIfRefreshNeeded();
+				_model.NowVisible();
 		}
 
 		private void _filterCombo_SelectedIndexChanged(object sender, EventArgs e)
@@ -80,15 +80,6 @@ namespace Chorus.UI.Notes.Browser
 		private void showClosedNotesToolStripMenuItem1_Click(object sender, EventArgs e)
 		{
 			_model.ShowClosedNotes = ((ToolStripMenuItem)sender).Checked;
-		}
-
-
-		private void OnRefreshTimer_Tick(object sender, EventArgs e)
-		{
-			if (Visible)
-			{
-				_model.CheckIfRefreshNeeded();
-			}
 		}
 	}
 }

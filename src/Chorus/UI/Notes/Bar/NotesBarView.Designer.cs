@@ -31,7 +31,6 @@
 			this.components = new System.ComponentModel.Container();
 			this._buttonsPanel = new System.Windows.Forms.FlowLayoutPanel();
 			this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
-			this._refreshTimer = new System.Windows.Forms.Timer(this.components);
 			this.SuspendLayout();
 			//
 			// _buttonsPanel
@@ -41,12 +40,6 @@
 			this._buttonsPanel.Name = "_buttonsPanel";
 			this._buttonsPanel.Size = new System.Drawing.Size(226, 49);
 			this._buttonsPanel.TabIndex = 0;
-			//
-			// _refreshTimer
-			//
-			this._refreshTimer.Enabled = true;
-			this._refreshTimer.Interval = 1000;
-			this._refreshTimer.Tick += new System.EventHandler(this._refreshTimer_Tick);
 			//
 			// NotesBarView
 			//
@@ -64,6 +57,5 @@
 
 		private System.Windows.Forms.FlowLayoutPanel _buttonsPanel;
 		private System.Windows.Forms.ToolTip toolTip1;
-		private System.Windows.Forms.Timer _refreshTimer;
 	}
 }
