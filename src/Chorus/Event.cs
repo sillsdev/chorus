@@ -50,4 +50,8 @@ namespace Chorus
 
 	public class BrowseForRepositoryEvent : Event<string>
 	{ }
+
+	public class NotesUpdatedEvent: Event<object>//really, null
+	{}
+
 }

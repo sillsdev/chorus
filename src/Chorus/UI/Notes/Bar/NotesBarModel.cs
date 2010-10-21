@@ -14,6 +14,7 @@ namespace Chorus.UI.Notes.Bar
 
 		private readonly AnnotationRepository _repository;
 		private readonly NotesToRecordMapping _mapping;
+		private readonly NotesUpdatedEvent _notesUpdatedEvent;
 		private object _targetObject;
 
 		public void SetTargetObject(object target)
@@ -31,13 +32,14 @@ namespace Chorus.UI.Notes.Bar
 
 		internal event EventHandler UpdateContent;
 
-		public NotesBarModel(AnnotationRepository repository, NotesToRecordMapping mapping)
+		public NotesBarModel(AnnotationRepository repository, NotesToRecordMapping mapping, NotesUpdatedEvent notesUpdatedEvent)
 		{
 			_repository = repository;
 			_mapping = mapping;
+			_notesUpdatedEvent = notesUpdatedEvent;
 		}
 		internal NotesBarModel(AnnotationRepository repository)
-			: this(repository, NotesToRecordMapping.SimpleForTest())
+			: this(repository, NotesToRecordMapping.SimpleForTest(), null)
 		{
 		}
 
@@ -56,6 +58,9 @@ namespace Chorus.UI.Notes.Bar
 		{
 			if(UpdateContent!=null)
 				UpdateContent.Invoke(this, null);
+
+			if(_notesUpdatedEvent !=null)   // tell the browser, if there is one, to update
+				_notesUpdatedEvent.Raise(this);
 		}
 
 		public Annotation CreateAnnotation()

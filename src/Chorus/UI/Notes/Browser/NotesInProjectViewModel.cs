@@ -17,11 +17,12 @@ namespace Chorus.UI.Notes.Browser
 		private readonly MessageSelectedEvent _messageSelectedEvent;
 		private IEnumerable<AnnotationRepository> _repositories;
 		private string _searchText;
-		private bool _reloadPending=true;
 
 		public NotesInProjectViewModel( IChorusUser user, IEnumerable<AnnotationRepository> repositories,
-										MessageSelectedEvent messageSelectedEventToRaise, IProgress progress)
+										MessageSelectedEvent messageSelectedEventToRaise, NotesUpdatedEvent notesUpdatedEvent, IProgress progress)
 		{
+			notesUpdatedEvent.Subscribe((unused)=>ReloadPending = true);
+			ReloadPending = true;
 			_user = user;
 			_repositories = repositories;
 			_messageSelectedEvent = messageSelectedEventToRaise;
@@ -32,6 +33,7 @@ namespace Chorus.UI.Notes.Browser
 			}
 		}
 
+		private bool ReloadPending { get; private set; }
 
 		private bool _showClosedNotes;
 		public bool ShowClosedNotes
@@ -117,7 +119,7 @@ namespace Chorus.UI.Notes.Browser
 			if(ReloadMessages!=null)
 				ReloadMessages(this,null);
 
-			_reloadPending = false;
+			ReloadPending = false;
 		}
 
 		#region Implementation of IDisposable
@@ -140,24 +142,26 @@ namespace Chorus.UI.Notes.Browser
 
 		public void NotifyOfAddition(Annotation annotation)
 		{
-			_reloadPending=true;
+			ReloadPending=true;
 		}
 
 		public void NotifyOfModification(Annotation annotation)
 		{
-			_reloadPending = true;
+			ReloadPending = true;
 		}
 
 		public void NotifyOfDeletion(Annotation annotation)
 		{
-			_reloadPending = true;
+			ReloadPending = true;
 		}
 
 		#endregion
 
-		public void NowVisible()
+
+
+		public void CheckIfRefreshNeeded()
 		{
-			if(_reloadPending)
+			if (ReloadPending)
 				ReloadMessagesNow();
 		}
 	}
