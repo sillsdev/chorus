@@ -82,6 +82,10 @@ namespace Chorus.FileTypeHanders.oneStory
 			merger.MergeStrategies.SetStrategy("NationalBTLang", ElementStrategy.CreateSingletonElement());
 			merger.MergeStrategies.SetStrategy("InternationalBTLang", ElementStrategy.CreateSingletonElement());
 
+			// Language and culture notes
+			merger.MergeStrategies.SetStrategy("LnCNotes", ElementStrategy.CreateSingletonElement());
+			merger.MergeStrategies.SetStrategy("LnCNote", ElementStrategy.CreateForKeyedElement("guid", false));
+
 			// story sets and stories
 			merger.MergeStrategies.SetStrategy("stories", ElementStrategy.CreateForKeyedElement("SetName", false));
 
