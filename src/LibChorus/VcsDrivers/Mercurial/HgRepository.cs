@@ -186,7 +186,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			_progress.WriteVerbose("({0} is {1})", address.GetFullName(targetUri), targetUri);
 			try
 			{
-				Execute(SecondsBeforeTimeoutOnRemoteOperation, "push", SurroundWithQuotes(targetUri));
+				Execute(SecondsBeforeTimeoutOnRemoteOperation, "push --debug", SurroundWithQuotes(targetUri));
 			}
 			catch (Exception err)
 			{
@@ -225,7 +225,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				try
 				{
 					var tip = GetTip();
-					Execute(SecondsBeforeTimeoutOnRemoteOperation, "pull", otherRepo.PathWithQuotes);
+					Execute(SecondsBeforeTimeoutOnRemoteOperation, "pull --debug", otherRepo.PathWithQuotes);
 
 					var newTip = GetTip();
 					if (tip == null)

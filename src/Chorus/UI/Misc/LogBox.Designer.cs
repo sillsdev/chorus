@@ -77,7 +77,7 @@
 			this.menuStrip1.Location = new System.Drawing.Point(-2, 155);
 			this.menuStrip1.Name = "menuStrip1";
 			this.menuStrip1.Padding = new System.Windows.Forms.Padding(0, 2, 0, 2);
-			this.menuStrip1.Size = new System.Drawing.Size(30, 24);
+			this.menuStrip1.Size = new System.Drawing.Size(122, 24);
 			this.menuStrip1.TabIndex = 4;
 			this.menuStrip1.Text = "menuStrip1";
 			this.menuStrip1.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.menuStrip1_ItemClicked);
@@ -147,9 +147,9 @@
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
 			this.BackColor = System.Drawing.Color.Transparent;
 			this.Controls.Add(this._reportProblemLink);
+			this.Controls.Add(this.menuStrip1);
 			this.Controls.Add(this._verboseBox);
 			this.Controls.Add(this._box);
-			this.Controls.Add(this.menuStrip1);
 			this.Controls.Add(this.panel1);
 			this.Name = "LogBox";
 			this.Size = new System.Drawing.Size(489, 184);
