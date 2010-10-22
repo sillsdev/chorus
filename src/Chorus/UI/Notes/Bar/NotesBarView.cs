@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
@@ -175,6 +176,14 @@ namespace Chorus.UI.Notes.Bar
 			dlg.ShowDialog();
 			OnUpdateContent(null,null);
 			_model.SaveNowIfNeeded(new NullProgress());
+			Timer refreshTimer = new Timer() {Interval = 500, Enabled = true};
+			refreshTimer.Tick += new EventHandler(OnRefreshTimer_Tick);
+			components.Add(refreshTimer);
+		}
+
+		void OnRefreshTimer_Tick(object sender, EventArgs e)
+		{
+			_model.CheckIfWeNeedToReload();
 		}
 
 		private void NotesBarView_Load(object sender, EventArgs e)

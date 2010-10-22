@@ -95,6 +95,14 @@ namespace Chorus
 		}
 
 		/// <summary>
+		/// Use this to set things like what file types to include/exclude
+		/// </summary>
+		public ProjectFolderConfiguration ProjectFolderConfiguration
+		{
+			get { return _container.Resolve<ProjectFolderConfiguration>(); }
+		}
+
+		/// <summary>
 		/// Various factories for creating WinForms controls, already wired to the other parts of Chorus
 		/// </summary>
 		public WinFormsFactory WinForms

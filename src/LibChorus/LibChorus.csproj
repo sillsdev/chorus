@@ -3,7 +3,7 @@
   <PropertyGroup>
 	<Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
 	<Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-	<ProductVersion>9.0.30729</ProductVersion>
+	<ProductVersion>9.0.21022</ProductVersion>
 	<SchemaVersion>2.0</SchemaVersion>
 	<ProjectGuid>{94245366-8F1E-475C-810D-FE89BB3948E0}</ProjectGuid>
 	<OutputType>Library</OutputType>
@@ -115,6 +115,7 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
+	<Compile Include="FileTypeHanders\lift\LiftFolder.cs" />
 	<Compile Include="FileTypeHanders\NotePresenter.cs" />
 	<Compile Include="FileTypeHanders\oneStory\OneStoryChangePresenter.cs" />
 	<Compile Include="FileTypeHanders\oneStory\OneStoryDiffer.cs" />
@@ -259,6 +260,7 @@
 	<EmbeddedResource Include="Properties\AnnotationImages.resx">
 	  <Generator>PublicResXFileCodeGenerator</Generator>
 	  <LastGenOutput>AnnotationImages.Designer.cs</LastGenOutput>
+	  <SubType>Designer</SubType>
 	</EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

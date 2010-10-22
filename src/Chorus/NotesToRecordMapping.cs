@@ -26,7 +26,7 @@ namespace Chorus
 
 
 		public static IdGeneratorFunction DefaultIdGeneratorUsingObjectToStringAsId = (target) => target.ToString();
-		internal static UrlGeneratorFunction DefaultUrlGenerator = (unused, id) => string.Format("chorus://object?id={0}", id);
+		public static UrlGeneratorFunction DefaultUrlGenerator = (unused, id) => string.Format("chorus://object?id={0}", id);
 
 		/// <summary>
 		/// Used to figure out which existing notes to show

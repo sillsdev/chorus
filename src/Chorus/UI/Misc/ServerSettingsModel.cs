@@ -195,7 +195,7 @@ namespace Chorus.UI.Misc
 				if (CustomUrlSelected)
 				{
 					Uri uri;
-					if (Uri.TryCreate(URL, UriKind.Absolute, out uri))
+					if (Uri.TryCreate(URL, UriKind.Absolute, out uri) && !String.IsNullOrEmpty(uri.Host))
 					{
 						return uri.Host;
 					}
