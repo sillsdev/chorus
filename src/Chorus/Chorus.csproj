@@ -119,13 +119,6 @@
 	<Compile Include="UI\Misc\LogBox.Designer.cs">
 	  <DependentUpon>LogBox.cs</DependentUpon>
 	</Compile>
-	<Compile Include="UI\Misc\ProxySettingsModel.cs" />
-	<Compile Include="UI\Misc\ProxySettingsView.cs">
-	  <SubType>UserControl</SubType>
-	</Compile>
-	<Compile Include="UI\Misc\ProxySettingsView.Designer.cs">
-	  <DependentUpon>ProxySettingsView.cs</DependentUpon>
-	</Compile>
 	<Compile Include="UI\Misc\TroubleshootingView.cs">
 	  <SubType>UserControl</SubType>
 	</Compile>
@@ -355,9 +348,6 @@
 	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Misc\LogBox.resx">
 	  <DependentUpon>LogBox.cs</DependentUpon>
-	</EmbeddedResource>
-	<EmbeddedResource Include="UI\Misc\ProxySettingsView.resx">
-	  <DependentUpon>ProxySettingsView.cs</DependentUpon>
 	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Misc\TroubleshootingView.resx">
 	  <DependentUpon>TroubleshootingView.cs</DependentUpon>

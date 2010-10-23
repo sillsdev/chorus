@@ -1,15 +1,8 @@
-using System.Diagnostics;
 using System.IO;
-using Chorus.FileTypeHanders.test;
-using Chorus.merge;
-using Chorus.sync;
 using Chorus.Utilities;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
-using LibChorus.Tests.merge;
-using LibChorus.Tests.VcsDrivers.Mercurial;
 using NUnit.Framework;
-using Palaso.Network;
 
 namespace LibChorus.Tests.sync
 {
