@@ -16,10 +16,10 @@ namespace Chorus.UI.Misc
 			 _repository = repository;
 		}
 
-		public void Save()
-		{
-			_repository.SetGlobalProxyInfo(Proxy);
-		}
+//        public void Save()
+//        {
+//            _repository.SetGlobalProxyInfo(Proxy);
+//        }
 	}
 
 }

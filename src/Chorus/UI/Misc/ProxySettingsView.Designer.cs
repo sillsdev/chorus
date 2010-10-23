@@ -164,8 +164,6 @@
 			this.Controls.Add(this.label1);
 			this.Name = "ProxySettingsView";
 			this.Size = new System.Drawing.Size(345, 279);
-			this.Load += new System.EventHandler(this.ProxySettingsView_Load);
-			this.Leave += new System.EventHandler(this.ProxySettingsView_Leave);
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
