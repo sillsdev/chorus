@@ -1595,16 +1595,16 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		public static string DoWorkOfDeterminingProxyConfigParameterString(string httpUrl, IProgress progress)
 		{
+			/* The hg url itself would be more robust for the theoretical possibility of different
+				* proxies for different destinations, but some hg servers (notably language depot) require a login.
+				* So we're ignoring what we were given, and just using a known address, for now.
+				*/
+			httpUrl = "http://hg.palaso.org";
+
 			progress.WriteVerbose("Checking for proxy by trying to http-get {0}...", httpUrl);
 
 			try
 			{
-				/* The hg url itself would be more robust for the theoretical possibility of different
-				 * proxies for different destinations, but some hg servers (notably language depot) require a login.
-				 * So we're getting by with this one, for now.
-				 */
-				httpUrl = "http://hg.palaso.org";
-
 				//The following, which comes from the palaso library, will take care of remembering, between runs,
 				//what credentials the user entered.  If they are needed but are missing or don't work,
 				//it will put a dialog asking for them.
@@ -1626,8 +1626,16 @@ namespace Chorus.VcsDrivers.Mercurial
 		{
 			var builder = new StringBuilder();
 			builder.AppendFormat(" --config \"http_proxy.host={0}\" ", proxyHostAndPort);
-			builder.AppendFormat(" --config \"http_proxy.user={0}\" ", proxyUserName);
-			builder.AppendFormat(" --config \"http_proxy.passwd={0}\" ",proxyPassword);
+			if(!string.IsNullOrEmpty(proxyUserName))
+			{
+				builder.AppendFormat(" --config \"http_proxy.user={0}\" ", proxyUserName);
+
+				if (!string.IsNullOrEmpty(proxyPassword))
+				{
+					builder.AppendFormat(" --config \"http_proxy.passwd={0}\" ", proxyPassword);
+				}
+			}
+
 			return builder.ToString();
 		}
 

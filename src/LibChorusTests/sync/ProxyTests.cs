@@ -37,7 +37,7 @@ namespace LibChorus.Tests.sync
 		   // RobustNetworkOperation.ClearCredentialSettings();
 			using (var f = new TempFolder("clonetest"))
 			{
-				HgRepository.Clone("http://chorus:notasecret@hg-public.languagedepot.org/testing-clone", f.Path, new ConsoleProgress());
+				HgRepository.Clone(_cloneableTestProjectUrl, f.Path, _progress);
 				Assert.IsTrue(Directory.Exists(f.Combine(f.Path, ".hg")));
 			}
 		}
@@ -46,11 +46,11 @@ namespace LibChorus.Tests.sync
 		[Test, Ignore("By Hand Only")]
 		public void Pull_Test()
 		{
-			RobustNetworkOperation.ClearCredentialSettings();
+			//RobustNetworkOperation.ClearCredentialSettings();
 			using (var f = new TempFolder("pulltest"))
 			{
-				var repo = HgRepository.CreateOrLocate(f.Path, new ConsoleProgress());
-				repo.TryToPull("default", "http://chorus:notasecret@hg-public.languagedepot.org/testing-clone");
+				var repo = HgRepository.CreateOrLocate(f.Path, _progress);
+				repo.TryToPull("default", _cloneableTestProjectUrl);
 				Assert.IsTrue(Directory.Exists(f.Combine(f.Path, ".hg")));
 			}
 		}
