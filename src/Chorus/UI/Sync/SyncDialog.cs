@@ -99,7 +99,7 @@ namespace Chorus.UI.Sync
 
 		/// <summary>
 		/// Set this to true when simpling doing a backup...,
-		/// false were we want to sync to whatever sites the user has indicated</param>
+		/// false were we want to sync to whatever sites the user has indicated
 		/// </summary>
 	   public bool UseTargetsAsSpecifiedInSyncOptions { get; set; }
 
@@ -130,9 +130,9 @@ namespace Chorus.UI.Sync
 #endif
 			_syncControl.Model.SyncOptions.RepositorySourcesToTry.Clear();
 			_syncControl.Model.SyncOptions.RepositorySourcesToTry.Add(args.Address);
-			if(!string.IsNullOrEmpty(args.ComittMessage))
+			if(!string.IsNullOrEmpty(args.CommitMessage))
 			{
-				_syncControl.Model.SyncOptions.CheckinDescription += " "+ args.ComittMessage;
+				_syncControl.Model.SyncOptions.CheckinDescription += " "+ args.CommitMessage;
 			}
 			_syncControl.Synchronize(true);
 		}

@@ -3,7 +3,7 @@
   <PropertyGroup>
 	<Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
 	<Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-	<ProductVersion>9.0.30729</ProductVersion>
+	<ProductVersion>9.0.21022</ProductVersion>
 	<SchemaVersion>2.0</SchemaVersion>
 	<ProjectGuid>{F9671F8B-8556-44EA-81A7-C236D871B471}</ProjectGuid>
 	<OutputType>Library</OutputType>
@@ -69,6 +69,13 @@
   <ItemGroup>
 	<Compile Include="clone\ClonerTests.cs" />
 	<Compile Include="FileHandlers\ChorusTestFileHanderTests.cs" />
+	<Compile Include="FileHandlers\FieldWorks\FieldWorksChangePresenterTests.cs" />
+	<Compile Include="FileHandlers\FieldWorks\FieldWorksFileDiffTests.cs" />
+	<Compile Include="FileHandlers\FieldWorks\FieldWorksFileHandlerTests.cs" />
+	<Compile Include="FileHandlers\FieldWorks\FieldWorksFileMergeTests.cs" />
+	<Compile Include="FileHandlers\FieldWorks\FieldWorksFileValidationTests.cs" />
+	<Compile Include="FileHandlers\FieldWorks\FieldWorksMergingStrategyTests.cs" />
+	<Compile Include="FileHandlers\FieldWorks\MetadataCacheTests.cs" />
 	<Compile Include="MercurialPathHelp.cs" />
 	<Compile Include="merge\xml\adaptIt\FileLevelAdaptItKnowlegeBaseMergeTests.cs" />
 	<Compile Include="merge\xml\ConflictXmlRecordRetrievalTests.cs" />
@@ -107,6 +114,7 @@
 	<Compile Include="sync\Synchronizer.BadSituationTests.cs" />
 	<Compile Include="sync\SyncScenarioTests.cs" />
 	<Compile Include="sync\UsbRepositorySourceTests.cs" />
+	<Compile Include="utilities\FastXmlElementSplitterTests.cs" />
 	<Compile Include="utilities\UrlHelperTests.cs" />
 	<Compile Include="utilities\MultiMapTests.cs" />
 	<Compile Include="VcsDrivers\Mercurial\HgTestSetup.cs" />

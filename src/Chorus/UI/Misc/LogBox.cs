@@ -55,7 +55,7 @@ namespace Chorus.UI.Misc
 		}
 
 		/// <summary>
-		/// This is a callback the client can set to soemthing which will then generate
+		/// This is a callback the client can set to something which will then generate
 		/// Write() calls.  If it is set, the user sees a "Run diagnostics" menu item.
 		/// </summary>
 		public Action<IProgress> GetDiagnosticsMethod

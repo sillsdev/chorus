@@ -8,10 +8,11 @@ namespace Chorus.FileTypeHanders.lift
 	{
 		static public string LiftTimeFormatNoTimeZone = "yyyy-MM-ddTHH:mm:ssZ";
 
-		public static bool GetIsMarkedAsDeleted(XmlNode entry)
-		{
-			return !string.IsNullOrEmpty(XmlUtilities.GetOptionalAttributeString(entry, "dateDeleted"));
-		}
+		// Not used after Randy's overhaul.
+		//public static bool GetIsMarkedAsDeleted(XmlNode entry)
+		//{
+		//    return !string.IsNullOrEmpty(XmlUtilities.GetOptionalAttributeString(entry, "dateDeleted"));
+		//}
 
 		public static string GetId(XmlNode e)
 		{
@@ -40,14 +41,14 @@ namespace Chorus.FileTypeHanders.lift
 			fileNameUnescaped = fileNameUnescaped==null?"unknown": Uri.EscapeDataString(fileNameUnescaped);
 			string url = string.Format("lift://{0}?type=entry&", fileNameUnescaped);
 
-			var guid = LiftUtils.GetGuid(entryNode);
+			var guid = GetGuid(entryNode);
 			if (!string.IsNullOrEmpty(guid))
 			{
 				url += "id=" + guid + "&";
 			}
 			else
 			{
-				var id = LiftUtils.GetId(entryNode);
+				var id = GetId(entryNode);
 				if (!string.IsNullOrEmpty(id))
 				{
 					url += "id=" + id + "&";
@@ -55,7 +56,7 @@ namespace Chorus.FileTypeHanders.lift
 			}
 
 
-			var form = LiftUtils.GetFormForEntry(entryNode);
+			var form = GetFormForEntry(entryNode);
 			if (!string.IsNullOrEmpty(form))
 			{
 				url += "label=" + form + "&";
@@ -64,24 +65,25 @@ namespace Chorus.FileTypeHanders.lift
 			return url;
 		}
 
-		public static XmlNode FindEntryById(XmlNode doc, string id)
-		{
-				return doc.SelectSingleNode("lift/entry[@id=\""+id+"\"]");
-		}
-		public static XmlNode FindEntryByGuid(XmlNode doc, string guid)
-		{
-				return doc.SelectSingleNode("lift/entry[@guid=\""+guid+"\"]");
-		}
-		public static bool AreTheSame(XmlNode ourEntry, XmlNode theirEntry)
-		{
-			//for now...
-			if (GetModifiedDate(theirEntry) == GetModifiedDate(ourEntry)
-				&& !(GetModifiedDate(theirEntry) == default(DateTime))
-				&& !GetIsMarkedAsDeleted(ourEntry))
-				return true;
+		// Not used after Randy's overhaul.
+		//public static XmlNode FindEntryById(XmlNode doc, string id)
+		//{
+		//        return doc.SelectSingleNode("lift/entry[@id=\""+id+"\"]");
+		//}
+		//public static XmlNode FindEntryByGuid(XmlNode doc, string guid)
+		//{
+		//        return doc.SelectSingleNode("lift/entry[@guid=\""+guid+"\"]");
+		//}
+		//public static bool AreTheSame(XmlNode ourEntry, XmlNode theirEntry)
+		//{
+		//    //for now...
+		//    if (GetModifiedDate(theirEntry) == GetModifiedDate(ourEntry)
+		//        && !(GetModifiedDate(theirEntry) == default(DateTime))
+		//        && !GetIsMarkedAsDeleted(ourEntry))
+		//        return true;
 
-			return XmlUtilities.AreXmlElementsEqual(ourEntry.OuterXml, theirEntry.OuterXml);
-		}
+		//    return XmlUtilities.AreXmlElementsEqual(ourEntry.OuterXml, theirEntry.OuterXml);
+		//}
 
 
 		public static string GetUrl(XmlNode child, string unescaped, string label)

@@ -46,6 +46,19 @@ namespace Chorus.VcsDrivers.Mercurial
 				 File.Delete(path);
 			}
 		}
+
+		public byte[] GetFileContentsAsBytes(HgRepository repository)
+		{
+			var path = repository.RetrieveHistoricalVersionOfFile(FullPath, _revisionNumber);
+			try
+			{
+				return File.ReadAllBytes(path);
+			}
+			finally
+			{
+				File.Delete(path);
+			}
+		}
 	}
 
 	public class FileInUnknownRevision : FileInRevision

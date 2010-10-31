@@ -397,8 +397,8 @@ namespace Chorus.VcsDrivers.Mercurial
 				}
 				else
 				{
-					throw new ApplicationException("Got return value " + result.ExitCode + details);
-				}
+				throw new ApplicationException("Got return value " + result.ExitCode + details);
+			}
 			}
 			return result;
 		}

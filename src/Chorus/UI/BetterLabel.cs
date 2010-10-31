@@ -24,8 +24,12 @@ namespace Chorus.UI
 			{
 				if (DesignMode)
 					return;
-				BackColor = Parent.BackColor;
-				Parent.BackColorChanged += ((x, y) => BackColor = Parent.BackColor);
+				var form = FindForm();
+				if (form != null)
+				{
+					BackColor = form.BackColor;
+					form.BackColorChanged += ((x, y) => BackColor = form.BackColor);
+				}
 			}
 			catch (Exception error)
 			{
