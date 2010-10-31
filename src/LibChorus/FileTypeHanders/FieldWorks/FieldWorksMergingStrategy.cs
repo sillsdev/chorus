@@ -48,7 +48,9 @@ namespace Chorus.FileTypeHanders.FieldWorks
 			FieldWorksMergingServices.MergeTimestamps(ourEntry, theirEntry);
 			FieldWorksMergingServices.MergeCheckSum(ourEntry, theirEntry);
 			var className = XmlUtilities.GetStringAttribute(ourEntry, "class");
-			FieldWorksMergingServices.MergeCollectionProperties(_mdc.ClassesWithCollectionProperties[className], ourEntry, theirEntry, commonEntry);
+			FdoClassInfo info;
+			if (_mdc.ClassesWithCollectionProperties.TryGetValue(className, out info))
+				FieldWorksMergingServices.MergeCollectionProperties(info, ourEntry, theirEntry, commonEntry);
 
 			var mergerForClass = _mergers[className];
 			var mergedNode = mergerForClass.Merge(eventListener, ourEntry, theirEntry, commonEntry);
