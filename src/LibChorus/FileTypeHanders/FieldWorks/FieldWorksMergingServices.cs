@@ -16,6 +16,7 @@ namespace Chorus.FileTypeHanders.FieldWorks
 		private static readonly FieldWorkObjectContextGenerator _contextGen = new FieldWorkObjectContextGenerator();
 		private const string DateCreated = "DateCreated";
 		private const string Rt = "rt";
+		private const string ImmutableSingleton = "ImmutableSingleton";
 
 		internal static void AddSharedImmutableSingletonElementType(Dictionary<string, ElementStrategy> sharedElementStrategies, string name, bool orderOfTheseIsRelevant)
 		{
@@ -58,15 +59,66 @@ namespace Chorus.FileTypeHanders.FieldWorks
 
 			// Set one up (immutable) for DateCreated properties.
 			AddSharedImmutableSingletonElementType(sharedElementStrategies, DateCreated, false);
+			AddSharedImmutableSingletonElementType(sharedElementStrategies, ImmutableSingleton, false);
 		}
 
 		private static void CreateMergers(MetadataCache metadataCache, Dictionary<string, ElementStrategy> sharedElementStrategies, Dictionary<string, XmlMerger> mergers, MergeSituation mergeSituation)
 		{
+			var immSingleton = sharedElementStrategies[ImmutableSingleton];
 			foreach (var classInfo in metadataCache.AllConcreteClasses)
 			{
 				var merger = new XmlMerger(mergeSituation);
-				merger.MergeStrategies.SetStrategy(Rt, sharedElementStrategies[Rt]);
-				// TODO: Add all of the property bits.
+				var strategiesForMerger = merger.MergeStrategies;
+				strategiesForMerger.SetStrategy(Rt, sharedElementStrategies[Rt]);
+				// Add all of the property bits.
+				// NB: Each of the child elements (except for custom properties, when when get to the point of handling them)
+				// will be singletons.
+				foreach (var propInfo in classInfo.AllProperties)
+				{
+					switch (propInfo.DataType)
+					{
+						// All of these are immutable, in a manner of speaking.
+						// DateCreated is honestly, and the others are because 'ours' and 'theirs' have been made to be the same already.
+						case DataType.Time: // DateTime
+						case DataType.OwningCollection:
+						case DataType.ReferenceCollection:
+							strategiesForMerger.SetStrategy(classInfo.ClassName, immSingleton);
+							break;
+
+						case DataType.OwningSequence:
+							// TODO: Can we pre-process seq props like we did with collections?
+							break;
+						case DataType.ReferenceSequence:
+							// TODO: Can we pre-process seq props like we did with collections?
+							break;
+						case DataType.OwningAtomic:
+							break;
+						case DataType.ReferenceAtomic:
+							break;
+
+						// Other data types
+						case DataType.MultiUnicode:
+							break;
+						case DataType.MultiString:
+							break;
+						case DataType.Unicode: // Ordinary C# string
+							break;
+						case DataType.String: // TsString
+							break;
+						case DataType.Integer:
+							break;
+						case DataType.Boolean:
+							break;
+						case DataType.GenDate:
+							break;
+						case DataType.Guid:
+							break;
+						case DataType.Binary:
+							break;
+						case DataType.TextPropBinary:
+							break;
+					}
+				}
 				mergers.Add(classInfo.ClassName, merger);
 			}
 		}
@@ -163,10 +215,6 @@ namespace Chorus.FileTypeHanders.FieldWorks
 
 		internal static void MergeCollectionProperties(FdoClassInfo classWithCollectionProperties, XmlNode ourEntry, XmlNode theirEntry, XmlNode commonEntry)
 		{
-			var ourEntryClassName = XmlUtilities.GetStringAttribute(ourEntry, "class");
-			if (classWithCollectionProperties.ClassName != ourEntryClassName)
-				return; // Not the same class of object.
-
 			//throw new NotImplementedException();
 		}
 
