@@ -821,7 +821,7 @@ namespace Chorus.FileTypeHanders.FieldWorks
 
 			clsInfo = new FdoClassInfo("LexDb", "CmMajorObject");
 			_classes.Add("LexDb", clsInfo);
-			clsInfo.AddProperty(new FdoPropertyInfo("Entries", DataType.OwningCollection));
+			// Went away in DM 28 clsInfo.AddProperty(new FdoPropertyInfo("Entries", DataType.OwningCollection));
 			clsInfo.AddProperty(new FdoPropertyInfo("Appendixes", DataType.OwningCollection));
 			clsInfo.AddProperty(new FdoPropertyInfo("SenseTypes", DataType.OwningAtomic));
 			clsInfo.AddProperty(new FdoPropertyInfo("UsageTypes", DataType.OwningAtomic));
