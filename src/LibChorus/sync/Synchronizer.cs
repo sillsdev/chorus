@@ -377,6 +377,7 @@ namespace Chorus.sync
 			ThrowIfCancelPending();
 			try
 			{
+				//TODO: I think these can be removed now, since we have our own mercurial.ini
 				string[] names = new string[]
 									 {
 										 "hgext.win32text", //for converting line endings on windows machines

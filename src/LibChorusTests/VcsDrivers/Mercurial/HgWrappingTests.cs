@@ -26,6 +26,16 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		}
 
 
+		[Test, Ignore("By Hand only")]
+		public void Test_GetProxyAndCredentials()
+		{
+			using (var setup = new HgTestSetup())
+			{
+				var result =setup.Repository.GetProxyConfigParameterString("http://hg.palaso.org/", new NullProgress());
+
+			}
+		}
+
 
 		[Test]
 		public void RemoveOldLocks_NoLocks_ReturnsTrue()
