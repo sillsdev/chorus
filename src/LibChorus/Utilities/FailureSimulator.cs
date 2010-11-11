@@ -31,7 +31,6 @@ namespace Chorus.Utilities
 
 		public static void IfTestRequestsItThrowNow(string name)
 		{
-#if DEBUG
 			string s = System.Environment.GetEnvironmentVariable(Inducechorusfailure);
 			if (s != null && s == name)
 			{
@@ -39,7 +38,6 @@ namespace Chorus.Utilities
 				Environment.SetEnvironmentVariable(InducechorusFailureTriggered, name);
 				throw new Exception("Exception Induced By InduceChorusFailure Environment Variable");
 			}
-#endif
 		}
 
 		private static string GetTriggerIndicatorPath(string name)

@@ -11,6 +11,7 @@ namespace Chorus.merge.xml.generic.xmldiff
 {
 	public class XmlDiff
 	{
+		private bool _continueComparing;
 		private readonly XmlReader _controlReader;
 		private readonly XmlReader _testReader;
 		private readonly DiffConfiguration _diffConfiguration;
@@ -88,9 +89,16 @@ namespace Chorus.merge.xml.generic.xmldiff
 
 		private void Compare(DiffResult result)
 		{
+			_continueComparing = true;
 			bool controlRead, testRead;
-			try
-			{
+			// Yuck! (Says RandyR) Exceptions are too expensive to use to control program flow like this.
+			// Compare these times with and without the exceptions:
+			// ZPI data set, DM09->DM10
+			// With 19K exceptions: RevisionInspector.GetChangeRecords: 00:02:31.5675604
+			// Use bool (_continueComparing) to control it, not exception: RevisionInspector.GetChangeRecords: 00:00:30.9605999
+			// The bool code is two minutes faster.
+			//try
+			//{
 				do
 				{
 					controlRead = _controlReader.Read();
@@ -103,14 +111,14 @@ namespace Chorus.merge.xml.generic.xmldiff
 						throw e;//just need a place to put a breakpoint
 					}
 					Compare(result, ref controlRead, ref testRead);
-				} while (controlRead && testRead);
-			}
-			catch (FlowControlException e)
-			{
-				//what is this? it's how this class stops looking for more differences,
-				//by throwing this exception, making us jump back up here.
-				//Console.Out.WriteLine(e.Message);
-			}
+				} while (_continueComparing && controlRead && testRead);
+			//}
+			//catch (FlowControlException e)
+			//{
+			//    //what is this? it's how this class stops looking for more differences,
+			//    //by throwing this exception, making us jump back up here.
+			//    //Console.Out.WriteLine(e.Message);
+			//}
 		}
 
 		private void Compare(DiffResult result, ref bool controlRead, ref bool testRead)
@@ -266,7 +274,9 @@ namespace Chorus.merge.xml.generic.xmldiff
 			result.DifferenceFound(this, difference);
 			if (!ContinueComparison(difference))
 			{
-				throw new FlowControlException(difference);
+				// Don't even think of using exceptions to control program flow. They are too expensive!
+				//throw new FlowControlException(difference);
+				_continueComparing = false;
 			}
 		}
 
@@ -309,14 +319,6 @@ namespace Chorus.merge.xml.generic.xmldiff
 			if (!readResult || reader.NodeType != XmlNodeType.EndElement)
 			{
 				DifferenceFound(DifferenceType.CHILD_NODELIST_LENGTH_ID, result);
-			}
-		}
-
-		private class FlowControlException : ApplicationException
-		{
-			public FlowControlException(Difference cause)
-				: base(cause.ToString())
-			{
 			}
 		}
 

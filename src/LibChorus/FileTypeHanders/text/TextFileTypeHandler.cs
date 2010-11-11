@@ -41,11 +41,13 @@ namespace Chorus.FileTypeHanders.text
 
 		public void Do3WayMerge(MergeOrder order)
 		{
+#if DEBUG
 		   // Debug.Fail("hello");
 			FailureSimulator.IfTestRequestsItThrowNow("TextMerger");
 
 			//trigger on a particular file name
 			FailureSimulator.IfTestRequestsItThrowNow("TextMerger-"+Path.GetFileName(order.pathToOurs));
+#endif
 
 
 			//TODO: this is not yet going to deal with conflicts at all!
