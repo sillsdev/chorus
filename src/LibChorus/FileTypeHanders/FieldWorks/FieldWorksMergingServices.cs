@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Xml;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
@@ -14,9 +15,12 @@ namespace Chorus.FileTypeHanders.FieldWorks
 	{
 		private static readonly FindFirstElementWithSameName _sameName = new FindFirstElementWithSameName();
 		private static readonly FieldWorkObjectContextGenerator _contextGen = new FieldWorkObjectContextGenerator();
+		private const string MutableSingleton = "MutableSingleton";
 		private const string DateCreated = "DateCreated";
 		private const string Rt = "rt";
 		private const string ImmutableSingleton = "ImmutableSingleton";
+		private const string Objsur = "objsur";
+		private const string GuidStr = "guid";
 
 		internal static void AddSharedImmutableSingletonElementType(Dictionary<string, ElementStrategy> sharedElementStrategies, string name, bool orderOfTheseIsRelevant)
 		{
@@ -60,10 +64,14 @@ namespace Chorus.FileTypeHanders.FieldWorks
 			// Set one up (immutable) for DateCreated properties.
 			AddSharedImmutableSingletonElementType(sharedElementStrategies, DateCreated, false);
 			AddSharedImmutableSingletonElementType(sharedElementStrategies, ImmutableSingleton, false);
+
+			AddSharedSingletonElementType(sharedElementStrategies, MutableSingleton, false);
 		}
 
-		private static void CreateMergers(MetadataCache metadataCache, Dictionary<string, ElementStrategy> sharedElementStrategies, Dictionary<string, XmlMerger> mergers, MergeSituation mergeSituation)
+		private static void CreateMergers(MetadataCache metadataCache, MergeSituation mergeSituation,
+			IDictionary<string, ElementStrategy> sharedElementStrategies, IDictionary<string, XmlMerger> mergers)
 		{
+			var mutableSingleton = sharedElementStrategies[MutableSingleton];
 			var immSingleton = sharedElementStrategies[ImmutableSingleton];
 			foreach (var classInfo in metadataCache.AllConcreteClasses)
 			{
@@ -71,18 +79,22 @@ namespace Chorus.FileTypeHanders.FieldWorks
 				var strategiesForMerger = merger.MergeStrategies;
 				strategiesForMerger.SetStrategy(Rt, sharedElementStrategies[Rt]);
 				// Add all of the property bits.
-				// NB: Each of the child elements (except for custom properties, when when get to the point of handling them)
+				// NB: Each of the child elements (except for custom properties, when we get to the point of handling them)
 				// will be singletons.
 				foreach (var propInfo in classInfo.AllProperties)
 				{
 					switch (propInfo.DataType)
 					{
-						// All of these are immutable, in a manner of speaking.
-						// DateCreated is honestly, and the others are because 'ours' and 'theirs' have been made to be the same already.
+						// These three are immutable, in a manner of speaking.
+						// DateCreated is honestly, and the other two are because 'ours' and 'theirs' have been made to be the same already.
 						case DataType.Time: // DateTime
+							strategiesForMerger.SetStrategy(propInfo.PropertyName, immSingleton);
+							break;
 						case DataType.OwningCollection:
+							break; // TODO: Deal with these, including the fact that the owned object may have been moved elsewhere.
 						case DataType.ReferenceCollection:
-							strategiesForMerger.SetStrategy(classInfo.ClassName, immSingleton);
+							strategiesForMerger.SetStrategy(propInfo.PropertyName, immSingleton);
+							// Using regular xmlmerger code: strategiesForMerger.SetStrategy(propInfo.PropertyName, mutableSingleton);
 							break;
 
 						case DataType.OwningSequence:
@@ -108,12 +120,16 @@ namespace Chorus.FileTypeHanders.FieldWorks
 						case DataType.Integer:
 							break;
 						case DataType.Boolean:
+							// NB: These can never be in conflict in a 3-way merge environment.
+							// One or the other can toggle the bool, so the one changing it 'wins'.
+							// If both change it then it's no big deal either.
 							break;
 						case DataType.GenDate:
 							break;
 						case DataType.Guid:
 							break;
 						case DataType.Binary:
+							// We can't really merge these, so pick the one that changed it.
 							break;
 						case DataType.TextPropBinary:
 							break;
@@ -215,13 +231,105 @@ namespace Chorus.FileTypeHanders.FieldWorks
 
 		internal static void MergeCollectionProperties(FdoClassInfo classWithCollectionProperties, XmlNode ourEntry, XmlNode theirEntry, XmlNode commonEntry)
 		{
-			//throw new NotImplementedException();
+			foreach (var collectionProperty in classWithCollectionProperties.AllCollectionProperties)
+			{
+				var commonValues = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+				var propNode = commonEntry.SelectSingleNode(collectionProperty.PropertyName);
+				if (propNode != null)
+				{
+					commonValues.UnionWith(from XmlNode objsurNode in propNode.SafeSelectNodes(Objsur)
+										   select objsurNode.GetStringAttribute(GuidStr));
+				}
+				var ourValues = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+				var ourPropNode = ourEntry.SelectSingleNode(collectionProperty.PropertyName);
+				if (ourPropNode != null)
+				{
+					ourValues.UnionWith(from XmlNode objsurNode in ourPropNode.SafeSelectNodes(Objsur)
+										select objsurNode.GetStringAttribute(GuidStr));
+				}
+				var theirValues = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+				var theirPropNode = theirEntry.SelectSingleNode(collectionProperty.PropertyName);
+				if (theirPropNode != null)
+				{
+					theirValues.UnionWith(from XmlNode objsurNode in theirPropNode.SafeSelectNodes(Objsur)
+										  select objsurNode.GetStringAttribute(GuidStr));
+				}
+
+				// 0. If ours and theirs are the same, there is no conflict.
+				if (ourValues.SetEquals(theirValues))
+					continue; // NB: The merger will be told the prop is immutable, so it will not notice if the order is different.
+
+				// 1. Keep ones that are in all three. (Excludes removed items.)
+				var mergedCollection = new HashSet<string>(commonValues, StringComparer.OrdinalIgnoreCase);
+				mergedCollection.IntersectWith(ourValues);
+				mergedCollection.IntersectWith(theirValues);
+
+				// 2. Add ones that either added.
+				var ourAdditions = ourValues.Except(commonValues);
+				mergedCollection.UnionWith(ourAdditions);
+				var theirAdditions = theirValues.Except(commonValues);
+				mergedCollection.UnionWith(theirAdditions);
+
+				// 3. Update ours and theirs to the new collection.
+				if (mergedCollection.Count == 0)
+				{
+					// Remove prop node from both.
+					var gonerNode = ourEntry.SelectSingleNode(collectionProperty.PropertyName);
+					if (gonerNode != null)
+						gonerNode.ParentNode.RemoveChild(gonerNode);
+					gonerNode = theirEntry.SelectSingleNode(collectionProperty.PropertyName);
+					if (gonerNode != null)
+						gonerNode.ParentNode.RemoveChild(gonerNode);
+				}
+				else
+				{
+					var ourDoc = ourEntry.OwnerDocument;
+					var theirDoc = theirEntry.OwnerDocument;
+					if (ourPropNode == null)
+					{
+						ourPropNode = ourDoc.CreateNode(XmlNodeType.Element, collectionProperty.PropertyName, null);
+						ourEntry.AppendChild(ourPropNode);
+					}
+					else
+					{
+						ourPropNode.RemoveAll();
+					}
+					if (theirPropNode == null)
+					{
+						theirPropNode = theirDoc.CreateNode(XmlNodeType.Element, collectionProperty.PropertyName, null);
+						theirEntry.AppendChild(theirPropNode);
+					}
+					else
+					{
+						theirPropNode.RemoveAll();
+					}
+					var propType = (collectionProperty.DataType == DataType.ReferenceCollection) ? "r" : "o";
+					foreach (var newValue in mergedCollection)
+					{
+						// Add it to ours and theirs.
+						CreateObjsurNode(ourDoc, newValue, propType, ourPropNode);
+						CreateObjsurNode(theirDoc, newValue, propType, theirPropNode);
+					}
+				}
+			}
+		}
+
+		private static void CreateObjsurNode(XmlDocument srcDoc, string newValue, string propType, XmlNode srcPropNode)
+		{
+			var srcObjsurNode = srcDoc.CreateNode(XmlNodeType.Element, Objsur, null);
+			srcPropNode.AppendChild(srcObjsurNode);
+			var srcGuidAttrNode = srcDoc.CreateAttribute(GuidStr);
+			srcGuidAttrNode.Value = newValue;
+			srcObjsurNode.Attributes.Append(srcGuidAttrNode);
+			var srcPropTypeAttrNode = srcDoc.CreateAttribute("t");
+			srcPropTypeAttrNode.Value = propType;
+			srcObjsurNode.Attributes.Append(srcPropTypeAttrNode);
 		}
 
 		internal static void BootstrapSystem(MetadataCache mdc, Dictionary<string, ElementStrategy> sharedElementStrategies, Dictionary<string, XmlMerger> mergers, MergeSituation mergeSituation)
 		{
 			CreateSharedElementStrategies(sharedElementStrategies);
-			CreateMergers(mdc, sharedElementStrategies, mergers, mergeSituation);
+			CreateMergers(mdc, mergeSituation, sharedElementStrategies, mergers);
 		}
 
 		//private ElementStrategy AddKeyedElementType(XmlMerger merger, string elementName, string keyAttribute, bool orderOfTheseIsRelevant)

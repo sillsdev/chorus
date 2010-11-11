@@ -43,6 +43,14 @@ namespace Chorus.FileTypeHanders.FieldWorks
 		/// <returns>XML of the merged object.</returns>
 		public string MakeMergedEntry(IMergeEventListener eventListener, XmlNode ourEntry, XmlNode theirEntry, XmlNode commonEntry)
 		{
+			// TODO: Figure out what to do about an owner being changed.
+			// 1. If only one person changed it, there should be no problem.
+			// 2. If two people changed the owner, there could be trouble:
+			//		A. The owned would report a merge conflict,
+			//		B. The new owner(s) may not report a conflict,
+			//		So, if the owned object reports an owner conflict,
+			//		then make sure the 'loser' owner also has a conflict.
+
 			// These steps will do some 'pre-merging' work,
 			// which will avoid what could otherwise be conflicts.
 			FieldWorksMergingServices.MergeTimestamps(ourEntry, theirEntry);

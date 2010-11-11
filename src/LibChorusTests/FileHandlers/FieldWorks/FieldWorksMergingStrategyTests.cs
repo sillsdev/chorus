@@ -1,4 +1,6 @@
-﻿using System.Xml;
+﻿using System.Linq;
+using System.Xml;
+using System.Xml.Linq;
 using Chorus.FileTypeHanders.FieldWorks;
 using Chorus.merge;
 using LibChorus.Tests.merge.xml.generic;
@@ -139,6 +141,160 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 			var result = _fwMergeStrategy.MakeMergedEntry(_eventListener, ourNode, theirNode, ancestorNode);
 			Assert.IsTrue(result.Contains("val='0'") || result.Contains("val=\"0\""));
 			_eventListener.AssertExpectedConflictCount(0);
+		}
+
+		[Test]
+		public void EnsureReferenceCollectionDoesNotConflictOnMerge()
+		{
+			const string commonAncestor =
+@"<?xml version='1.0' encoding='utf-8'?>
+<languageproject version='7000028'>
+<rt class='CmPerson' guid='someguid' >
+<PlacesOfResidence>
+<objsur guid='one' t='r' />
+<objsur guid='two' t='r' />
+<objsur guid='three' t='r' />
+<objsur guid='four' t='r' />
+<objsur guid='five' t='r' />
+<objsur guid='six' t='r' />
+</PlacesOfResidence>
+</rt>
+</languageproject>";
+			const string ourContent =
+@"<?xml version='1.0' encoding='utf-8'?>
+<languageproject version='7000028'>
+<rt class='CmPerson' guid='someguid' >
+<PlacesOfResidence>
+<objsur guid='one' t='r' />
+<objsur guid='two' t='r' />
+<objsur guid='four' t='r' />
+<objsur guid='five' t='r' />
+<objsur guid='six' t='r' />
+<objsur guid='weAdded' t='r' />
+</PlacesOfResidence>
+</rt>
+</languageproject>";
+			const string theirContent =
+@"<?xml version='1.0' encoding='utf-8'?>
+<languageproject version='7000028'>
+<rt class='CmPerson' guid='someguid' >
+<PlacesOfResidence>
+<objsur guid='one' t='r' />
+<objsur guid='two' t='r' />
+<objsur guid='theyAdded' t='r' />
+<objsur guid='three' t='r' />
+<objsur guid='four' t='r' />
+<objsur guid='six' t='r' />
+</PlacesOfResidence>
+</rt>
+</languageproject>";
+
+			XmlNode theirNode;
+			XmlNode ancestorNode;
+			var ourNode = CreateNodes(commonAncestor, ourContent, theirContent, out theirNode, out ancestorNode);
+			var result = _fwMergeStrategy.MakeMergedEntry(_eventListener, ourNode, theirNode, ancestorNode);
+
+			_eventListener.AssertExpectedConflictCount(0);
+
+			var resElement = XElement.Parse(result);
+			var refTargets = resElement.Descendants("objsur");
+			Assert.AreEqual(6, refTargets.Count());
+			// Make sure they are the correct six.
+			Assert.IsNotNull((from target in refTargets
+								  where target.Attribute("guid").Value == "one"
+							  select target).FirstOrDefault());
+			Assert.IsNotNull((from target in refTargets
+							  where target.Attribute("guid").Value == "two"
+							  select target).FirstOrDefault());
+			Assert.IsNotNull((from target in refTargets
+							  where target.Attribute("guid").Value == "four"
+							  select target).FirstOrDefault());
+			Assert.IsNotNull((from target in refTargets
+							  where target.Attribute("guid").Value == "six"
+							  select target).FirstOrDefault());
+			Assert.IsNotNull((from target in refTargets
+							  where target.Attribute("guid").Value == "theyAdded"
+							  select target).FirstOrDefault());
+			Assert.IsNotNull((from target in refTargets
+							  where target.Attribute("guid").Value == "weAdded"
+							  select target).FirstOrDefault());
+		}
+
+		[Test]
+		public void EnsureReferenceCollectionDoesNotConflictOnMergeWhenBothMadeTheSameChanges()
+		{
+			const string commonAncestor =
+@"<?xml version='1.0' encoding='utf-8'?>
+<languageproject version='7000028'>
+<rt class='CmPerson' guid='someguid' >
+<PlacesOfResidence>
+<objsur guid='one' t='r' />
+<objsur guid='two' t='r' />
+<objsur guid='three' t='r' />
+<objsur guid='four' t='r' />
+<objsur guid='five' t='r' />
+<objsur guid='six' t='r' />
+</PlacesOfResidence>
+</rt>
+</languageproject>";
+			const string ourContent =
+@"<?xml version='1.0' encoding='utf-8'?>
+<languageproject version='7000028'>
+<rt class='CmPerson' guid='someguid' >
+<PlacesOfResidence>
+<objsur guid='one' t='r' />
+<objsur guid='two' t='r' />
+<objsur guid='four' t='r' />
+<objsur guid='five' t='r' />
+<objsur guid='six' t='r' />
+<objsur guid='bothAdded' t='r' />
+</PlacesOfResidence>
+</rt>
+</languageproject>";
+			const string theirContent =
+@"<?xml version='1.0' encoding='utf-8'?>
+<languageproject version='7000028'>
+<rt class='CmPerson' guid='someguid' >
+<PlacesOfResidence>
+<objsur guid='one' t='r' />
+<objsur guid='two' t='r' />
+<objsur guid='bothAdded' t='r' />
+<objsur guid='five' t='r' />
+<objsur guid='four' t='r' />
+<objsur guid='six' t='r' />
+</PlacesOfResidence>
+</rt>
+</languageproject>";
+
+			XmlNode theirNode;
+			XmlNode ancestorNode;
+			var ourNode = CreateNodes(commonAncestor, ourContent, theirContent, out theirNode, out ancestorNode);
+			var result = _fwMergeStrategy.MakeMergedEntry(_eventListener, ourNode, theirNode, ancestorNode);
+
+			_eventListener.AssertExpectedConflictCount(0);
+
+			var resElement = XElement.Parse(result);
+			var refTargets = resElement.Descendants("objsur");
+			Assert.AreEqual(6, refTargets.Count());
+			// Make sure they are the correct six.
+			Assert.IsNotNull((from target in refTargets
+							  where target.Attribute("guid").Value == "one"
+							  select target).FirstOrDefault());
+			Assert.IsNotNull((from target in refTargets
+							  where target.Attribute("guid").Value == "two"
+							  select target).FirstOrDefault());
+			Assert.IsNotNull((from target in refTargets
+							  where target.Attribute("guid").Value == "four"
+							  select target).FirstOrDefault());
+			Assert.IsNotNull((from target in refTargets
+							  where target.Attribute("guid").Value == "six"
+							  select target).FirstOrDefault());
+			Assert.IsNotNull((from target in refTargets
+							  where target.Attribute("guid").Value == "five"
+							  select target).FirstOrDefault());
+			Assert.IsNotNull((from target in refTargets
+							  where target.Attribute("guid").Value == "bothAdded"
+							  select target).FirstOrDefault());
 		}
 
 		private static XmlNode CreateNodes(string commonAncestor, string ourContent, string theirContent, out XmlNode theirNode, out XmlNode ancestorNode)
