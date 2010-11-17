@@ -239,34 +239,35 @@ namespace Chorus.FileTypeHanders.FieldWorks
 			clsInfo.AddProperty(new FdoPropertyInfo("Function", DataType.Integer));
 			clsInfo.AddProperty(new FdoPropertyInfo("Usage", DataType.MultiUnicode));
 
-			clsInfo = new FdoClassInfo("UserView", "CmObject");
-			_classes.Add("UserView", clsInfo);
-			clsInfo.AddProperty(new FdoPropertyInfo("Name", DataType.MultiUnicode));
-			clsInfo.AddProperty(new FdoPropertyInfo("Type", DataType.Integer));
-			clsInfo.AddProperty(new FdoPropertyInfo("App", DataType.Guid));
-			clsInfo.AddProperty(new FdoPropertyInfo("Records", DataType.OwningCollection));
-			clsInfo.AddProperty(new FdoPropertyInfo("Details", DataType.Binary));
-			clsInfo.AddProperty(new FdoPropertyInfo("System", DataType.Boolean));
-			clsInfo.AddProperty(new FdoPropertyInfo("SubType", DataType.Integer));
+			// Removed in DM31.
+			//clsInfo = new FdoClassInfo("UserView", "CmObject");
+			//_classes.Add("UserView", clsInfo);
+			//clsInfo.AddProperty(new FdoPropertyInfo("Name", DataType.MultiUnicode));
+			//clsInfo.AddProperty(new FdoPropertyInfo("Type", DataType.Integer));
+			//clsInfo.AddProperty(new FdoPropertyInfo("App", DataType.Guid));
+			//clsInfo.AddProperty(new FdoPropertyInfo("Records", DataType.OwningCollection));
+			//clsInfo.AddProperty(new FdoPropertyInfo("Details", DataType.Binary));
+			//clsInfo.AddProperty(new FdoPropertyInfo("System", DataType.Boolean));
+			//clsInfo.AddProperty(new FdoPropertyInfo("SubType", DataType.Integer));
 
-			clsInfo = new FdoClassInfo("UserViewRec", "CmObject");
-			_classes.Add("UserViewRec", clsInfo);
-			clsInfo.AddProperty(new FdoPropertyInfo("Clsid", DataType.Integer));
-			clsInfo.AddProperty(new FdoPropertyInfo("Level", DataType.Integer));
-			clsInfo.AddProperty(new FdoPropertyInfo("Fields", DataType.OwningSequence));
-			clsInfo.AddProperty(new FdoPropertyInfo("Details", DataType.Binary));
+			//clsInfo = new FdoClassInfo("UserViewRec", "CmObject");
+			//_classes.Add("UserViewRec", clsInfo);
+			//clsInfo.AddProperty(new FdoPropertyInfo("Clsid", DataType.Integer));
+			//clsInfo.AddProperty(new FdoPropertyInfo("Level", DataType.Integer));
+			//clsInfo.AddProperty(new FdoPropertyInfo("Fields", DataType.OwningSequence));
+			//clsInfo.AddProperty(new FdoPropertyInfo("Details", DataType.Binary));
 
-			clsInfo = new FdoClassInfo("UserViewField", "CmObject");
-			_classes.Add("UserViewField", clsInfo);
-			clsInfo.AddProperty(new FdoPropertyInfo("Label", DataType.MultiUnicode));
-			clsInfo.AddProperty(new FdoPropertyInfo("HelpString", DataType.MultiUnicode));
-			clsInfo.AddProperty(new FdoPropertyInfo("Type", DataType.Integer));
-			clsInfo.AddProperty(new FdoPropertyInfo("Flid", DataType.Integer));
-			clsInfo.AddProperty(new FdoPropertyInfo("Required", DataType.Integer));
-			clsInfo.AddProperty(new FdoPropertyInfo("Style", DataType.Unicode));
-			clsInfo.AddProperty(new FdoPropertyInfo("PossList", DataType.ReferenceAtomic));
-			clsInfo.AddProperty(new FdoPropertyInfo("WritingSystem", DataType.Unicode));
-			clsInfo.AddProperty(new FdoPropertyInfo("WsSelector", DataType.Integer));
+			//clsInfo = new FdoClassInfo("UserViewField", "CmObject");
+			//_classes.Add("UserViewField", clsInfo);
+			//clsInfo.AddProperty(new FdoPropertyInfo("Label", DataType.MultiUnicode));
+			//clsInfo.AddProperty(new FdoPropertyInfo("HelpString", DataType.MultiUnicode));
+			//clsInfo.AddProperty(new FdoPropertyInfo("Type", DataType.Integer));
+			//clsInfo.AddProperty(new FdoPropertyInfo("Flid", DataType.Integer));
+			//clsInfo.AddProperty(new FdoPropertyInfo("Required", DataType.Integer));
+			//clsInfo.AddProperty(new FdoPropertyInfo("Style", DataType.Unicode));
+			//clsInfo.AddProperty(new FdoPropertyInfo("PossList", DataType.ReferenceAtomic));
+			//clsInfo.AddProperty(new FdoPropertyInfo("WritingSystem", DataType.Unicode));
+			//clsInfo.AddProperty(new FdoPropertyInfo("WsSelector", DataType.Integer));
 
 			clsInfo = new FdoClassInfo("CmOverlay", "CmObject");
 			_classes.Add("CmOverlay", clsInfo);

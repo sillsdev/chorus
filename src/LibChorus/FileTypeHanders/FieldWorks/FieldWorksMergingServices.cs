@@ -13,6 +13,7 @@ namespace Chorus.FileTypeHanders.FieldWorks
 	/// </summary>
 	internal static class FieldWorksMergingServices
 	{
+		private static readonly FindByKeyAttribute _wsKey = new FindByKeyAttribute(Ws);
 		private static readonly FindFirstElementWithSameName _sameName = new FindFirstElementWithSameName();
 		private static readonly FieldWorkObjectContextGenerator _contextGen = new FieldWorkObjectContextGenerator();
 		private const string MutableSingleton = "MutableSingleton";
@@ -21,6 +22,9 @@ namespace Chorus.FileTypeHanders.FieldWorks
 		private const string ImmutableSingleton = "ImmutableSingleton";
 		private const string Objsur = "objsur";
 		private const string GuidStr = "guid";
+		private const string AStr = "AStr";
+		private const string AUni = "AUni";
+		private const string Ws = "ws";
 
 		internal static void AddSharedImmutableSingletonElementType(Dictionary<string, ElementStrategy> sharedElementStrategies, string name, bool orderOfTheseIsRelevant)
 		{
@@ -66,6 +70,22 @@ namespace Chorus.FileTypeHanders.FieldWorks
 			AddSharedImmutableSingletonElementType(sharedElementStrategies, ImmutableSingleton, false);
 
 			AddSharedSingletonElementType(sharedElementStrategies, MutableSingleton, false);
+			AddSharedKeyedByWsElementType(sharedElementStrategies, AStr, false);
+			AddSharedKeyedByWsElementType(sharedElementStrategies, AUni, false);
+		}
+
+		private static void AddSharedKeyedByWsElementType(IDictionary<string, ElementStrategy> sharedElementStrategies, string elementName, bool orderOfTheseIsRelevant)
+		{
+			AddKeyedElementType(sharedElementStrategies, elementName, _wsKey, orderOfTheseIsRelevant);
+		}
+
+		private static void AddKeyedElementType(IDictionary<string, ElementStrategy> sharedElementStrategies, string elementName, FindByKeyAttribute findBykeyAttribute, bool orderOfTheseIsRelevant)
+		{
+			var strategy = new ElementStrategy(orderOfTheseIsRelevant)
+			{
+				MergePartnerFinder = findBykeyAttribute
+			};
+			sharedElementStrategies.Add(elementName, strategy);
 		}
 
 		private static void CreateMergers(MetadataCache metadataCache, MergeSituation mergeSituation,
@@ -73,6 +93,7 @@ namespace Chorus.FileTypeHanders.FieldWorks
 		{
 			var mutableSingleton = sharedElementStrategies[MutableSingleton];
 			var immSingleton = sharedElementStrategies[ImmutableSingleton];
+			ElementStrategy extantStrategy;
 			foreach (var classInfo in metadataCache.AllConcreteClasses)
 			{
 				var merger = new XmlMerger(mergeSituation);
@@ -94,8 +115,9 @@ namespace Chorus.FileTypeHanders.FieldWorks
 							break; // TODO: Deal with these, including the fact that the owned object may have been moved elsewhere.
 						case DataType.ReferenceCollection:
 							strategiesForMerger.SetStrategy(propInfo.PropertyName, immSingleton);
-							// Using regular xmlmerger code: strategiesForMerger.SetStrategy(propInfo.PropertyName, mutableSingleton);
 							break;
+
+						// Using regular xmlmerger code: strategiesForMerger.SetStrategy(propInfo.PropertyName, mutableSingleton);
 
 						case DataType.OwningSequence:
 							// TODO: Can we pre-process seq props like we did with collections?
@@ -110,12 +132,69 @@ namespace Chorus.FileTypeHanders.FieldWorks
 
 						// Other data types
 						case DataType.MultiUnicode:
+							/*
+This ought to be a keyed widget with the key being the ws. Order of the <AUni> elements is not relevant.
+The diff could be in presence or absence of the property or an entire AUni element, or just in the content string.
+A conflict can happen if:
+							 * 1. an alternative was edited by both where the resulting string is not the same.
+							 * 2. somebody deleted an alternative, but the other edited it.
+							 * 3. both added the same alternative, but with different values.
+These are not conflicts, and can be merged automatically:
+							 * 1. Somebody deleted an alternative, and the other had not edited it.
+							 * 2. One person added a new alternative.
+							 * 3. Both added an alternative, but with the same value.
+<AUni ws="en">Status</AUni>
+<AUni ws="es">Estado</AUni>
+							*/
+							// Use new IsAtomic.
+							strategiesForMerger.SetStrategy(propInfo.PropertyName, CreateSingletonElementType(false));
+							if (!strategiesForMerger.ElementStrategies.TryGetValue(AUni, out extantStrategy))
+								strategiesForMerger.SetStrategy(AUni, sharedElementStrategies[AUni]);
 							break;
 						case DataType.MultiString:
+							/*
+This ought to be a keyed widget with the key being the ws. Order of the <AStr> elements is not relevant.
+The diff could be in presence or absence of the property or an entire AUni element, or just in the content string.
+No attempt is to be made to try and merge the run(s) within an alternative.
+We will just see if the corresponding <AStr> elements are the same or different.
+1. Add any new alternates from winner or loser.
+<SummaryDefinition>
+<AStr ws="en">
+<Run ws="en">go</Run>
+</AStr>
+<AStr ws="es">
+<Run ws="es">ir</Run>
+</AStr>
+</SummaryDefinition>
+							*/
+							// Use new IsAtomic.
 							break;
 						case DataType.Unicode: // Ordinary C# string
+							/*
+The entire property element may be missing, but if present, there should then be one <Uni> element.
+These are conflicts:
+							 * 1. Somebody removed the <Uni> element and the other edited it.
+							 * 2. Both edited it, with different ending content.
+							 * 3. Both added the <Uni> element, but with different content.
+These are not conflicts:
+							 * 1. Both removed the <Uni> element
+							 * 2. Both added the <Uni> element with the same contents.
+							 * 3. Both edited the <Uni> element contents, with the same resulting value.
+<Name>
+<Uni>Anthro Category</Uni>
+</Name>
+							*/
 							break;
 						case DataType.String: // TsString
+							/*
+The entire property element may be missing, but if present, there should then be one or more runs.
+No attempt is to be made to try and merge the run(s).
+We will just see if the corresponding <Str> elements are the same or different.
+<Str>
+<Run ws="grc">Αἴγυπτος</Run>
+</Str>
+							*/
+							// Use new IsAtomic.
 							break;
 						case DataType.Integer:
 							break;
@@ -130,8 +209,10 @@ namespace Chorus.FileTypeHanders.FieldWorks
 							break;
 						case DataType.Binary:
 							// We can't really merge these, so pick the one that changed it.
+							// Use new IsAtomic.
 							break;
 						case DataType.TextPropBinary:
+							// Use new IsAtomic.
 							break;
 					}
 				}
@@ -331,15 +412,5 @@ namespace Chorus.FileTypeHanders.FieldWorks
 			CreateSharedElementStrategies(sharedElementStrategies);
 			CreateMergers(mdc, mergeSituation, sharedElementStrategies, mergers);
 		}
-
-		//private ElementStrategy AddKeyedElementType(XmlMerger merger, string elementName, string keyAttribute, bool orderOfTheseIsRelevant)
-		//{
-		//    var strategy = new ElementStrategy(orderOfTheseIsRelevant)
-		//        {
-		//            MergePartnerFinder = new FindByKeyAttribute(keyAttribute)
-		//        };
-		//    merger.MergeStrategies.SetStrategy(elementName, strategy);
-		//    return strategy;
-		//}
 	}
 }
