@@ -105,6 +105,16 @@ namespace Chorus.merge.xml.generic
 		/// </summary>
 		public bool IsImmutable{get;set;}
 
+		/// <summary>
+		/// This allows for an element to be declared 'atomic'.
+		/// When set to true, no merging will be done.
+		/// If the compared elemetns are not the same,
+		/// then a conflict report will be produced.
+		///
+		/// The default is 'false'.
+		/// </summary>
+		public bool IsAtomic { get; set; }
+
 		public static ElementStrategy CreateForKeyedElement(string keyAttributeName, bool orderIsRelevant)
 		{
 			ElementStrategy strategy = new ElementStrategy(orderIsRelevant);

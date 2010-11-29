@@ -51,9 +51,7 @@ namespace Chorus.merge.xml.generic
 		public ContextDescriptor Context { get; set; }
 		protected  string _whoWon;
 
-
-
-		public Conflict(XmlNode xmlRepresentation)
+		protected Conflict(XmlNode xmlRepresentation)
 		{
 			Situation =  MergeSituation.FromXml(xmlRepresentation.SafeSelectNodes("MergeSituation")[0]);
 			_guid = new Guid(xmlRepresentation.GetOptionalStringAttribute("guid", string.Empty));
@@ -315,14 +313,14 @@ namespace Chorus.merge.xml.generic
 		}
 	}
 
-	public abstract class AttributeConflict : Conflict, IConflict
+	public abstract class AttributeConflict : Conflict
 	{
 		protected readonly string _attributeName;
 		protected readonly string _alphaValue;
 		protected readonly string _betaValue;
 		protected readonly string _ancestorValue;
 
-		public AttributeConflict(string attributeName, string alphaValue, string betaValue, string ancestorValue, MergeSituation mergeSituation, string whoWon)
+		protected AttributeConflict(string attributeName, string alphaValue, string betaValue, string ancestorValue, MergeSituation mergeSituation, string whoWon)
 			:base(mergeSituation)
 		{
 			_whoWon = whoWon;
@@ -332,7 +330,7 @@ namespace Chorus.merge.xml.generic
 			_ancestorValue = ancestorValue;
 		}
 
-		public AttributeConflict(XmlNode xmlRepresentation):base(xmlRepresentation)
+		protected AttributeConflict(XmlNode xmlRepresentation):base(xmlRepresentation)
 		{
 			_attributeName = xmlRepresentation.GetOptionalStringAttribute("attributeName", "unknown");
 			_alphaValue = xmlRepresentation.GetOptionalStringAttribute("alphaValue", string.Empty);
@@ -486,19 +484,19 @@ namespace Chorus.merge.xml.generic
 	}
 
 	[TypeGuid("DC5D3236-9372-4965-9E34-386182675A5C")]
-	public abstract class ElementConflict : Conflict, IConflict
+	public abstract class ElementConflict : Conflict
 	{
 		protected readonly string _elementName;
 
 
-		public ElementConflict(string elementName, XmlNode alphaNode, XmlNode betaNode, XmlNode ancestorElement, MergeSituation mergeSituation, IElementDescriber elementDescriber, string whoWon)
+		protected ElementConflict(string elementName, XmlNode alphaNode, XmlNode betaNode, XmlNode ancestorElement, MergeSituation mergeSituation, IElementDescriber elementDescriber, string whoWon)
 			: base(mergeSituation)
 		{
 			_elementName = elementName;
 			_whoWon = whoWon;
 		}
 
-		public ElementConflict(XmlNode xmlRepresentation):base(xmlRepresentation)
+		protected ElementConflict(XmlNode xmlRepresentation):base(xmlRepresentation)
 		{
 		}
 
