@@ -51,9 +51,9 @@ namespace LibChorus.Tests.merge.xml.generic
 			const string ours = @"<topatomic originalAttr='originalValue' newAttr='newValue' />";
 			const string theirs = @"<topatomic originalAttr='originalValue' thirdAttr='thirdValue' />";
 
-			var elementStrategy = new ElementStrategy(false) {IsAtomic = false};
-			var merger = new XmlMerger(new NullMergeSituation());
-			merger.MergeStrategies.SetStrategy("topatomic", elementStrategy);
+			ListenerForUnitTests listener;
+			var merger = GetMerger(out listener, false);
+
 			var results = merger.Merge(ours, theirs, common);
 			Assert.AreEqual(0, results.Conflicts.Count);
 // ReSharper disable PossibleNullReferenceException
@@ -68,9 +68,9 @@ namespace LibChorus.Tests.merge.xml.generic
 			const string ours = @"<topatomic originalAttr='originalValue' newAttr='newValue' />";
 			const string theirs = @"<topatomic originalAttr='originalValue' thirdAttr='thirdValue' />";
 
-			var elementStrategy = new ElementStrategy(false) { IsAtomic = true };
-			var merger = new XmlMerger(new NullMergeSituation());
-			merger.MergeStrategies.SetStrategy("topatomic", elementStrategy);
+			ListenerForUnitTests listener;
+			var merger = GetMerger(out listener, true);
+
 			var results = merger.Merge(ours, theirs, common);
 			Assert.AreEqual(1, results.Conflicts.Count);
 			var mergedNode = results.MergedNode;
@@ -85,18 +85,13 @@ namespace LibChorus.Tests.merge.xml.generic
 		[Test]
 		public void TheyAddedNode()
 		{
-			var elementStrategy = new ElementStrategy(false) { IsAtomic = true };
-			var merger = new XmlMerger(new NullMergeSituation());
-			merger.MergeStrategies.SetStrategy("topatomic", elementStrategy);
-			var listener = new ListenerForUnitTests();
-			merger.EventListener = listener;
-			var doc = new XmlDocument();
+			XmlNode rootNode;
+			XmlMerger merger;
+			ListenerForUnitTests listener;
+			var doc = SetupMergerAndDocument(out rootNode, out merger, out listener);
+
 			XmlNode ours = null;
-			var theirsNode = doc.CreateNode(XmlNodeType.Element, "topatomic", null);
-			doc.AppendChild(theirsNode);
-			var theirsAttr = doc.CreateAttribute("originalAttr");
-			theirsAttr.Value = "originalValue";
-			theirsNode.Attributes.Append(theirsAttr);
+			var theirsNode = CreateOneNode(doc, rootNode, "originalAttr", "originalValue");
 
 			var result = MergeAtomicElementService.Run(merger, ref ours, theirsNode, null);
 			Assert.IsTrue(result);
@@ -108,17 +103,12 @@ namespace LibChorus.Tests.merge.xml.generic
 		[Test]
 		public void WeAddedNode()
 		{
-			var elementStrategy = new ElementStrategy(false) { IsAtomic = true };
-			var merger = new XmlMerger(new NullMergeSituation());
-			merger.MergeStrategies.SetStrategy("topatomic", elementStrategy);
-			var listener = new ListenerForUnitTests();
-			merger.EventListener = listener;
-			var doc = new XmlDocument();
-			var ours = doc.CreateNode(XmlNodeType.Element, "topatomic", null);
-			doc.AppendChild(ours);
-			var oursAttr = doc.CreateAttribute("originalAttr");
-			oursAttr.Value = "originalValue";
-			ours.Attributes.Append(oursAttr);
+			XmlNode rootNode;
+			XmlMerger merger;
+			ListenerForUnitTests listener;
+			var doc = SetupMergerAndDocument(out rootNode, out merger, out listener);
+
+			var ours = CreateOneNode(doc, rootNode, "originalAttr", "originalValue");
 
 			var result = MergeAtomicElementService.Run(merger, ref ours, null, null);
 			Assert.IsTrue(result);
@@ -129,17 +119,12 @@ namespace LibChorus.Tests.merge.xml.generic
 		[Test]
 		public void BothDeletedNode()
 		{
-			var elementStrategy = new ElementStrategy(false) { IsAtomic = true };
-			var merger = new XmlMerger(new NullMergeSituation());
-			merger.MergeStrategies.SetStrategy("topatomic", elementStrategy);
-			var listener = new ListenerForUnitTests();
-			merger.EventListener = listener;
-			var doc = new XmlDocument();
-			var ancestor = doc.CreateNode(XmlNodeType.Element, "topatomic", null);
-			doc.AppendChild(ancestor);
-			var ancestorAttr = doc.CreateAttribute("originalAttr");
-			ancestorAttr.Value = "originalValue";
-			ancestor.Attributes.Append(ancestorAttr);
+			XmlNode rootNode;
+			XmlMerger merger;
+			ListenerForUnitTests listener;
+			var doc = SetupMergerAndDocument(out rootNode, out merger, out listener);
+
+			var ancestor = CreateOneNode(doc, rootNode, "originalAttr", "originalValue");
 			XmlNode ours = null;
 			var result = MergeAtomicElementService.Run(merger, ref ours, null, ancestor);
 			Assert.IsTrue(result);
@@ -151,18 +136,14 @@ namespace LibChorus.Tests.merge.xml.generic
 		[Test]
 		public void NeitherMadeChanges()
 		{
-			var elementStrategy = new ElementStrategy(false) { IsAtomic = true };
-			var merger = new XmlMerger(new NullMergeSituation());
-			merger.MergeStrategies.SetStrategy("topatomic", elementStrategy);
-			var listener = new ListenerForUnitTests();
-			merger.EventListener = listener;
-			var doc = new XmlDocument();
-			var ancestor = doc.CreateNode(XmlNodeType.Element, "topatomic", null);
-			doc.AppendChild(ancestor);
-			var ancestorAttr = doc.CreateAttribute("originalAttr");
-			ancestorAttr.Value = "originalValue";
-			ancestor.Attributes.Append(ancestorAttr);
+			XmlNode rootNode;
+			XmlMerger merger;
+			ListenerForUnitTests listener;
+			var doc = SetupMergerAndDocument(out rootNode, out merger, out listener);
+
+			var ancestor = CreateOneNode(doc, rootNode, "originalAttr", "originalValue");
 			var ours = ancestor;
+
 			var result = MergeAtomicElementService.Run(merger, ref ours, ancestor, ancestor);
 			Assert.IsTrue(result);
 			listener.AssertExpectedConflictCount(0);
@@ -172,26 +153,19 @@ namespace LibChorus.Tests.merge.xml.generic
 		[Test]
 		public void WeDeletedTheyEditSoTheyWin()
 		{
-			var elementStrategy = new ElementStrategy(false) { IsAtomic = true };
-			var merger = new XmlMerger(new NullMergeSituation());
-			merger.MergeStrategies.SetStrategy("topatomic", elementStrategy);
-			var listener = new ListenerForUnitTests();
-			merger.EventListener = listener;
-			var doc = new XmlDocument();
-			var rootNode = doc.CreateNode(XmlNodeType.Element, "root", null);
-			doc.AppendChild(rootNode);
-			var ancestor = doc.CreateNode(XmlNodeType.Element, "topatomic", null);
-			rootNode.AppendChild(ancestor);
-			var ancestorAttr = doc.CreateAttribute("originalAttr");
-			ancestorAttr.Value = "originalValue";
-			ancestor.Attributes.Append(ancestorAttr);
+			XmlNode rootNode;
+			XmlMerger merger;
+			ListenerForUnitTests listener;
+			var doc = SetupMergerAndDocument(out rootNode, out merger, out listener);
+
 			XmlNode ours = null;
-			var theirsNode = doc.CreateNode(XmlNodeType.Element, "topatomic", null);
-			rootNode.AppendChild(theirsNode);
-			var theirAttr = doc.CreateAttribute("originalAttr");
-			theirAttr.Value = "newValue";
-			theirsNode.Attributes.Append(theirAttr);
-			var result = MergeAtomicElementService.Run(merger, ref ours, theirsNode, ancestor);
+			XmlNode ancestor;
+			XmlNode theirs;
+			CreateTwoNodes(doc, rootNode,
+							 out ancestor, "originalAttr", "originalValue",
+							 out theirs, "originalAttr", "newValue");
+
+			var result = MergeAtomicElementService.Run(merger, ref ours, theirs, ancestor);
 			Assert.IsTrue(result);
 			listener.AssertExpectedConflictCount(1);
 			listener.AssertFirstConflictType<RemovedVsEditedElementConflict>();
@@ -201,26 +175,16 @@ namespace LibChorus.Tests.merge.xml.generic
 		[Test]
 		public void TheyDeletedWeEditSoWeWin()
 		{
-			var elementStrategy = new ElementStrategy(false) { IsAtomic = true };
-			var merger = new XmlMerger(new NullMergeSituation());
-			merger.MergeStrategies.SetStrategy("topatomic", elementStrategy);
-			var listener = new ListenerForUnitTests();
-			merger.EventListener = listener;
-			var doc = new XmlDocument();
-			var rootNode = doc.CreateNode(XmlNodeType.Element, "root", null);
-			doc.AppendChild(rootNode);
+			XmlNode rootNode;
+			XmlMerger merger;
+			ListenerForUnitTests listener;
+			var doc = SetupMergerAndDocument(out rootNode, out merger, out listener);
 
-			var ancestor = doc.CreateNode(XmlNodeType.Element, "topatomic", null);
-			rootNode.AppendChild(ancestor);
-			var ancestorAttr = doc.CreateAttribute("originalAttr");
-			ancestorAttr.Value = "originalValue";
-			ancestor.Attributes.Append(ancestorAttr);
-
-			var ours = doc.CreateNode(XmlNodeType.Element, "topatomic", null);
-			rootNode.AppendChild(ours);
-			var ourAttr = doc.CreateAttribute("originalAttr");
-			ourAttr.Value = "newValue";
-			ours.Attributes.Append(ourAttr);
+			XmlNode ancestor;
+			XmlNode ours;
+			CreateTwoNodes(doc, rootNode,
+							 out ancestor, "originalAttr", "originalValue",
+							 out ours, "originalAttr", "newValue");
 
 			var result = MergeAtomicElementService.Run(merger, ref ours, null, ancestor);
 			Assert.IsTrue(result);
@@ -232,32 +196,18 @@ namespace LibChorus.Tests.merge.xml.generic
 		[Test]
 		public void WeEditedTheyDidNothingWeWinNoConflict()
 		{
-			var elementStrategy = new ElementStrategy(false) { IsAtomic = true };
-			var merger = new XmlMerger(new NullMergeSituation());
-			merger.MergeStrategies.SetStrategy("topatomic", elementStrategy);
-			var listener = new ListenerForUnitTests();
-			merger.EventListener = listener;
-			var doc = new XmlDocument();
-			var rootNode = doc.CreateNode(XmlNodeType.Element, "root", null);
-			doc.AppendChild(rootNode);
+			XmlNode rootNode;
+			XmlMerger merger;
+			ListenerForUnitTests listener;
+			var doc = SetupMergerAndDocument(out rootNode, out merger, out listener);
 
-			var ancestor = doc.CreateNode(XmlNodeType.Element, "topatomic", null);
-			rootNode.AppendChild(ancestor);
-			var ancestorAttr = doc.CreateAttribute("originalAttr");
-			ancestorAttr.Value = "originalValue";
-			ancestor.Attributes.Append(ancestorAttr);
-
-			var ours = doc.CreateNode(XmlNodeType.Element, "topatomic", null);
-			rootNode.AppendChild(ours);
-			var oursAttr = doc.CreateAttribute("originalAttr");
-			oursAttr.Value = "newValue";
-			ours.Attributes.Append(oursAttr);
-
-			var theirs = doc.CreateNode(XmlNodeType.Element, "topatomic", null);
-			rootNode.AppendChild(theirs);
-			var theirAttr = doc.CreateAttribute("originalAttr");
-			theirAttr.Value = "originalValue";
-			theirs.Attributes.Append(theirAttr);
+			XmlNode ancestor;
+			XmlNode ours;
+			XmlNode theirs;
+			CreateThreeNodes(doc, rootNode,
+							 out ancestor, "originalAttr", "originalValue",
+							 out ours, "originalAttr", "newValue",
+							 out theirs, "originalAttr", "originalValue");
 
 			var result = MergeAtomicElementService.Run(merger, ref ours, theirs, ancestor);
 			Assert.IsTrue(result);
@@ -268,32 +218,18 @@ namespace LibChorus.Tests.merge.xml.generic
 		[Test]
 		public void WeDidNothingTheyEditedTheyWinNoConflict()
 		{
-			var elementStrategy = new ElementStrategy(false) { IsAtomic = true };
-			var merger = new XmlMerger(new NullMergeSituation());
-			merger.MergeStrategies.SetStrategy("topatomic", elementStrategy);
-			var listener = new ListenerForUnitTests();
-			merger.EventListener = listener;
-			var doc = new XmlDocument();
-			var rootNode = doc.CreateNode(XmlNodeType.Element, "root", null);
-			doc.AppendChild(rootNode);
+			XmlNode rootNode;
+			XmlMerger merger;
+			ListenerForUnitTests listener;
+			var doc = SetupMergerAndDocument(out rootNode, out merger, out listener);
 
-			var ancestor = doc.CreateNode(XmlNodeType.Element, "topatomic", null);
-			rootNode.AppendChild(ancestor);
-			var ancestorAttr = doc.CreateAttribute("originalAttr");
-			ancestorAttr.Value = "originalValue";
-			ancestor.Attributes.Append(ancestorAttr);
-
-			var ours = doc.CreateNode(XmlNodeType.Element, "topatomic", null);
-			rootNode.AppendChild(ours);
-			var oursAttr = doc.CreateAttribute("originalAttr");
-			oursAttr.Value = "originalValue";
-			ours.Attributes.Append(oursAttr);
-
-			var theirs = doc.CreateNode(XmlNodeType.Element, "topatomic", null);
-			rootNode.AppendChild(theirs);
-			var theirAttr = doc.CreateAttribute("originalAttr");
-			theirAttr.Value = "newValue";
-			theirs.Attributes.Append(theirAttr);
+			XmlNode ancestor;
+			XmlNode ours;
+			XmlNode theirs;
+			CreateThreeNodes(doc, rootNode,
+							 out ancestor, "originalAttr", "originalValue",
+							 out ours, "originalAttr", "originalValue",
+							 out theirs, "originalAttr", "newValue");
 
 			var result = MergeAtomicElementService.Run(merger, ref ours, theirs, ancestor);
 			Assert.IsTrue(result);
@@ -305,32 +241,18 @@ namespace LibChorus.Tests.merge.xml.generic
 		[Test]
 		public void BothMadeSameChangeNoConflict()
 		{
-			var elementStrategy = new ElementStrategy(false) { IsAtomic = true };
-			var merger = new XmlMerger(new NullMergeSituation());
-			merger.MergeStrategies.SetStrategy("topatomic", elementStrategy);
-			var listener = new ListenerForUnitTests();
-			merger.EventListener = listener;
-			var doc = new XmlDocument();
-			var rootNode = doc.CreateNode(XmlNodeType.Element, "root", null);
-			doc.AppendChild(rootNode);
+			XmlNode rootNode;
+			XmlMerger merger;
+			ListenerForUnitTests listener;
+			var doc = SetupMergerAndDocument(out rootNode, out merger, out listener);
 
-			var ancestor = doc.CreateNode(XmlNodeType.Element, "topatomic", null);
-			rootNode.AppendChild(ancestor);
-			var ancestorAttr = doc.CreateAttribute("originalAttr");
-			ancestorAttr.Value = "originalValue";
-			ancestor.Attributes.Append(ancestorAttr);
-
-			var ours = doc.CreateNode(XmlNodeType.Element, "topatomic", null);
-			rootNode.AppendChild(ours);
-			var oursAttr = doc.CreateAttribute("originalAttr");
-			oursAttr.Value = "newValue";
-			ours.Attributes.Append(oursAttr);
-
-			var theirs = doc.CreateNode(XmlNodeType.Element, "topatomic", null);
-			rootNode.AppendChild(theirs);
-			var theirAttr = doc.CreateAttribute("originalAttr");
-			theirAttr.Value = "newValue";
-			theirs.Attributes.Append(theirAttr);
+			XmlNode ancestor;
+			XmlNode ours;
+			XmlNode theirs;
+			CreateThreeNodes(doc, rootNode,
+							 out ancestor, "originalAttr", "originalValue",
+							 out ours, "originalAttr", "newValue",
+							 out theirs, "originalAttr", "newValue");
 
 			var result = MergeAtomicElementService.Run(merger, ref ours, theirs, ancestor);
 			Assert.IsTrue(result);
@@ -341,37 +263,72 @@ namespace LibChorus.Tests.merge.xml.generic
 		[Test]
 		public void BothMadeChangesButWithConflict()
 		{
-			var elementStrategy = new ElementStrategy(false) { IsAtomic = true };
-			var merger = new XmlMerger(new NullMergeSituation());
-			merger.MergeStrategies.SetStrategy("topatomic", elementStrategy);
-			var listener = new ListenerForUnitTests();
-			merger.EventListener = listener;
-			var doc = new XmlDocument();
-			var rootNode = doc.CreateNode(XmlNodeType.Element, "root", null);
-			doc.AppendChild(rootNode);
+			XmlNode rootNode;
+			XmlMerger merger;
+			ListenerForUnitTests listener;
+			var doc = SetupMergerAndDocument(out rootNode, out merger, out listener);
 
-			var ancestor = doc.CreateNode(XmlNodeType.Element, "topatomic", null);
-			rootNode.AppendChild(ancestor);
-			var ancestorAttr = doc.CreateAttribute("originalAttr");
-			ancestorAttr.Value = "originalValue";
-			ancestor.Attributes.Append(ancestorAttr);
-
-			var ours = doc.CreateNode(XmlNodeType.Element, "topatomic", null);
-			rootNode.AppendChild(ours);
-			var oursAttr = doc.CreateAttribute("originalAttr");
-			oursAttr.Value = "newValue";
-			ours.Attributes.Append(oursAttr);
-
-			var theirs = doc.CreateNode(XmlNodeType.Element, "topatomic", null);
-			rootNode.AppendChild(theirs);
-			var theirAttr = doc.CreateAttribute("originalAttr");
-			theirAttr.Value = "nutherValue";
-			theirs.Attributes.Append(theirAttr);
+			XmlNode ancestor;
+			XmlNode ours;
+			XmlNode theirs;
+			CreateThreeNodes(doc, rootNode,
+							 out ancestor, "originalAttr", "originalValue",
+							 out ours, "originalAttr", "newValue",
+							 out theirs, "originalAttr", "nutherValue");
 
 			var result = MergeAtomicElementService.Run(merger, ref ours, theirs, ancestor);
 			Assert.IsTrue(result);
 			listener.AssertExpectedConflictCount(1);
 			listener.AssertExpectedChangesCount(0);
+		}
+
+		private static void CreateThreeNodes(XmlDocument doc, XmlNode rootNode,
+			out XmlNode first, string firstAttrName, string firstAttrValue,
+			out XmlNode second, string secondAttrName, string secondAttrValue,
+			out XmlNode third, string thirdAttrName, string thirdAttrValue)
+		{
+			CreateTwoNodes(doc, rootNode,
+						   out first, firstAttrName, firstAttrValue,
+						   out second, secondAttrName, secondAttrValue);
+			third = CreateOneNode(doc, rootNode, thirdAttrName, thirdAttrValue);
+		}
+
+		private static void CreateTwoNodes(XmlDocument doc, XmlNode rootNode,
+			out XmlNode first, string firstAttrName, string firstAttrValue,
+			out XmlNode second, string secondAttrName, string secondAttrValue)
+		{
+			first = CreateOneNode(doc, rootNode, firstAttrName, firstAttrValue);
+			second = CreateOneNode(doc, rootNode, secondAttrName, secondAttrValue);
+		}
+
+		private static XmlNode CreateOneNode(XmlDocument doc, XmlNode rootNode, string attrName, string attrValue)
+		{
+			var newElement = doc.CreateNode(XmlNodeType.Element, "topatomic", null);
+			rootNode.AppendChild(newElement);
+			var oursAttr = doc.CreateAttribute(attrName);
+			oursAttr.Value = attrValue;
+// ReSharper disable PossibleNullReferenceException
+			newElement.Attributes.Append(oursAttr);
+// ReSharper restore PossibleNullReferenceException
+			return newElement;
+		}
+
+		private static XmlDocument GetDocument(out XmlNode rootNode)
+		{
+			var doc = new XmlDocument();
+			rootNode = doc.CreateNode(XmlNodeType.Element, "root", null);
+			doc.AppendChild(rootNode);
+			return doc;
+		}
+
+		private static XmlMerger GetMerger(out ListenerForUnitTests listener, bool isAtomic)
+		{
+			var elementStrategy = new ElementStrategy(false) { IsAtomic = isAtomic };
+			var merger = new XmlMerger(new NullMergeSituation());
+			merger.MergeStrategies.SetStrategy("topatomic", elementStrategy);
+			listener = new ListenerForUnitTests();
+			merger.EventListener = listener;
+			return merger;
 		}
 
 		private static void CheckAttribute(XmlNode node, string attribute, string value)
@@ -381,6 +338,13 @@ namespace LibChorus.Tests.merge.xml.generic
 // ReSharper restore PossibleNullReferenceException
 			Assert.IsNotNull(attr);
 			Assert.AreEqual(value, attr.Value);
+		}
+
+		private static XmlDocument SetupMergerAndDocument(out XmlNode rootNode, out XmlMerger merger, out ListenerForUnitTests listener)
+		{
+			merger = GetMerger(out listener, true);
+
+			return GetDocument(out rootNode);
 		}
 	}
 }
