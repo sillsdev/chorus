@@ -131,8 +131,32 @@ namespace LibChorus.Tests.utilities
 <rt guid='emptyElement2' />
 </languageproject>";
 
-			CheckGoodFile(hasRecordsInput, 5, "rt");
-			CheckGoodFile(hasRecordsInput, 5, "<rt");
+			CheckGoodFile(hasRecordsInput, 5, "AdditionalFields", "rt");
+			CheckGoodFile(hasRecordsInput, 5, "AdditionalFields", "<rt");
+		}
+
+		[Test]
+		public void Can_Find_Custom_FieldWorks_Element()
+		{
+			const string hasRecordsInput =
+@"<?xml version='1.0' encoding='utf-8'?>
+<languageproject version='7000016'>
+<AdditionalFields>
+<CustomField name='Certified' class='WfiWordform' type='Boolean' />
+</AdditionalFields>
+<rt guid='emptyElement1'/>
+<rt guid='normalElement'>
+	<randomElement />
+</rt>
+<rt
+	guid='atterOnNextLine'>
+</rt>
+<rt		guid='tabAfterOpenTag'>
+</rt>
+<rt guid='emptyElement2' />
+</languageproject>";
+
+			CheckGoodFile(hasRecordsInput, 6, "AdditionalFields", "rt");
 		}
 
 		[Test]
@@ -168,10 +192,10 @@ namespace LibChorus.Tests.utilities
 
 					</lift>";
 
-			CheckGoodFile(hasRecordsInput, 4, "entry");
+			CheckGoodFile(hasRecordsInput, 4, "header", "entry");
 		}
 
-		private static void CheckGoodFile(string hasRecordsInput, int expectedCount, string recordMarker)
+		private static void CheckGoodFile(string hasRecordsInput, int expectedCount, string firstElementMarker, string recordMarker)
 		{
 			var goodPathname = Path.GetTempFileName();
 			try
@@ -180,9 +204,9 @@ namespace LibChorus.Tests.utilities
 				File.WriteAllText(goodPathname, hasRecordsInput, enc);
 				using (var reader = new FastXmlElementSplitter(goodPathname))
 				{
-					var elementBytes = reader.GetSecondLevelElementBytes(recordMarker).ToList();
+					var elementBytes = reader.GetSecondLevelElementBytes(firstElementMarker, recordMarker).ToList();
 					Assert.AreEqual(expectedCount, elementBytes.Count);
-					var elementStrings = reader.GetSecondLevelElementStrings(recordMarker).ToList();
+					var elementStrings = reader.GetSecondLevelElementStrings(firstElementMarker, recordMarker).ToList();
 					Assert.AreEqual(expectedCount, elementStrings.Count);
 					for (var i = 0; i < elementStrings.Count; ++i)
 					{
