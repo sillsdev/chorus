@@ -34,6 +34,7 @@ namespace Chorus.FileTypeHanders
 		private readonly FileInRevision _parentFileInRevision;
 		private readonly FileInRevision _childFileInRevision;
 		private readonly string _startTag;
+		private readonly string _firstElementTag;
 		private readonly string _identfierAttribute;
 		private readonly string _parentPathname;
 		private readonly string _childPathname;
@@ -42,18 +43,24 @@ namespace Chorus.FileTypeHanders
 
 		public static Xml2WayDiffer CreateFromFileInRevision(FileInRevision parent, FileInRevision child,
 			IMergeEventListener eventListener, HgRepository repository,
+			string firstElementMarker,
 			string startTag, string identfierAttribute)
 		{
 			return new Xml2WayDiffer(repository, eventListener, parent, child,
+				firstElementMarker,
 				startTag, identfierAttribute);
 		}
 
-		private Xml2WayDiffer(HgRepository repository, IMergeEventListener eventListener, FileInRevision parent, FileInRevision child, string startTag, string identfierAttribute)
+		private Xml2WayDiffer(HgRepository repository, IMergeEventListener eventListener, FileInRevision parent, FileInRevision child,
+			string firstElementMarker,
+			string startTag, string identfierAttribute)
 		{
 			_diffingMode = DiffingMode.FromFileInRevisions;
 			_repository = repository;
 			_parentFileInRevision = parent;
 			_childFileInRevision = child;
+			if (!string.IsNullOrEmpty(firstElementMarker))
+				_firstElementTag = firstElementMarker.Trim();
 			_startTag = "<" + startTag.Trim();
 			_identfierAttribute = identfierAttribute;
 			_eventListener = eventListener;
@@ -61,17 +68,23 @@ namespace Chorus.FileTypeHanders
 
 		public static Xml2WayDiffer CreateFromFiles(string parentPathname, string childPathname,
 			IMergeEventListener eventListener,
+			string firstElementMarker,
 			string startTag, string identfierAttribute)
 		{
 			return new Xml2WayDiffer(eventListener, parentPathname, childPathname,
+				firstElementMarker,
 				startTag, identfierAttribute);
 		}
 
-		private Xml2WayDiffer(IMergeEventListener eventListener, string parentPathname, string childPathname, string startTag, string identfierAttribute)
+		private Xml2WayDiffer(IMergeEventListener eventListener, string parentPathname, string childPathname,
+			string firstElementMarker,
+			string startTag, string identfierAttribute)
 		{
 			_diffingMode = DiffingMode.FromPathnames;
 			_parentPathname = parentPathname;
 			_childPathname = childPathname;
+			if (!string.IsNullOrEmpty(firstElementMarker))
+				_firstElementTag = firstElementMarker.Trim();
 			_startTag = "<" + startTag.Trim();
 			_identfierAttribute = identfierAttribute;
 			_eventListener = eventListener;
@@ -79,17 +92,23 @@ namespace Chorus.FileTypeHanders
 
 		public static Xml2WayDiffer CreateFromMixed(Dictionary<string, byte[]> parentIndex, string childPathname,
 			IMergeEventListener eventListener,
+			string firstElementMarker,
 			string startTag, string identfierAttribute)
 		{
 			return new Xml2WayDiffer(eventListener, parentIndex, childPathname,
+				firstElementMarker,
 				startTag, identfierAttribute);
 		}
 
-		private Xml2WayDiffer(IMergeEventListener eventListener, Dictionary<string, byte[]> parentIndex, string childPathname, string startTag, string identfierAttribute)
+		private Xml2WayDiffer(IMergeEventListener eventListener, Dictionary<string, byte[]> parentIndex, string childPathname,
+			string firstElementMarker,
+			string startTag, string identfierAttribute)
 		{
 			_diffingMode = DiffingMode.FromMixed;
 			_parentIndex = parentIndex;
 			_childPathname = childPathname;
+			if (!string.IsNullOrEmpty(firstElementMarker))
+				_firstElementTag = firstElementMarker.Trim();
 			_startTag = "<" + startTag.Trim();
 			_identfierAttribute = identfierAttribute;
 			_eventListener = eventListener;
@@ -132,7 +151,9 @@ namespace Chorus.FileTypeHanders
 			const int estimatedObjectCount = 400;
 			var fileInfo = new FileInfo(_childPathname);
 			childIndex = new Dictionary<string, byte[]>((int)(fileInfo.Length / estimatedObjectCount));
-			using (var prepper = new DifferDictionaryPrepper(childIndex, _childPathname, _startTag, _identfierAttribute))
+			using (var prepper = new DifferDictionaryPrepper(childIndex, _childPathname,
+				_firstElementTag,
+				_startTag, _identfierAttribute))
 			{
 				prepper.Run();
 			}
@@ -162,13 +183,17 @@ namespace Chorus.FileTypeHanders
 			const int estimatedObjectCount = 400;
 			var fileInfo = new FileInfo(parentPathname);
 			parentIndex = new Dictionary<string, byte[]>((int)(fileInfo.Length / estimatedObjectCount));
-			using (var prepper = new DifferDictionaryPrepper(parentIndex, parentPathname, _startTag, _identfierAttribute))
+			using (var prepper = new DifferDictionaryPrepper(parentIndex, parentPathname,
+				_firstElementTag,
+				_startTag, _identfierAttribute))
 			{
 				prepper.Run();
 			}
 			fileInfo = new FileInfo(childPathname);
 			childIndex = new Dictionary<string, byte[]>((int)(fileInfo.Length / estimatedObjectCount));
-			using (var prepper = new DifferDictionaryPrepper(childIndex, childPathname, _startTag, _identfierAttribute))
+			using (var prepper = new DifferDictionaryPrepper(childIndex, childPathname,
+				_firstElementTag,
+				_startTag, _identfierAttribute))
 			{
 				prepper.Run();
 			}

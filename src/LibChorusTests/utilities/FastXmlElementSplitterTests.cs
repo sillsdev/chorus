@@ -204,9 +204,10 @@ namespace LibChorus.Tests.utilities
 				File.WriteAllText(goodPathname, hasRecordsInput, enc);
 				using (var reader = new FastXmlElementSplitter(goodPathname))
 				{
-					var elementBytes = reader.GetSecondLevelElementBytes(firstElementMarker, recordMarker).ToList();
+					bool foundOptionalFirstElement;
+					var elementBytes = reader.GetSecondLevelElementBytes(firstElementMarker, recordMarker, out foundOptionalFirstElement).ToList();
 					Assert.AreEqual(expectedCount, elementBytes.Count);
-					var elementStrings = reader.GetSecondLevelElementStrings(firstElementMarker, recordMarker).ToList();
+					var elementStrings = reader.GetSecondLevelElementStrings(firstElementMarker, recordMarker, out foundOptionalFirstElement).ToList();
 					Assert.AreEqual(expectedCount, elementStrings.Count);
 					for (var i = 0; i < elementStrings.Count; ++i)
 					{

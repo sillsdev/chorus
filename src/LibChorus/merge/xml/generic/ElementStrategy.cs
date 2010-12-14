@@ -77,7 +77,7 @@ namespace Chorus.merge.xml.generic
 		public IFindNodeToMerge MergePartnerFinder{ get; set;}
 
 		//is this a level of the xml file that would consitute the minimal unit conflict-understanding
-		//from a user perspecitve?
+		//from a user perspective?
 		//e.g., in a dictionary, this is the lexical entry.  In a text, it might be  a paragraph.
 		public IGenerateContextDescriptor ContextDescriptorGenerator { get; set; }
 

@@ -16,6 +16,7 @@ namespace Chorus.FileTypeHanders
 		/// <returns>Zero or more change reports.</returns>
 		public static IEnumerable<IChangeReport> ReportDifferences(HgRepository repository,
 			FileInRevision parent, FileInRevision child,
+			string firstElementMarker,
 			string recordMarker, string identfierAttribute)
 		{
 			var changeAndConflictAccumulator = new ChangeAndConflictAccumulator();
@@ -25,6 +26,7 @@ namespace Chorus.FileTypeHanders
 				child,
 				changeAndConflictAccumulator,
 				repository,
+				firstElementMarker,
 				recordMarker,
 				identfierAttribute);
 			try
@@ -62,12 +64,14 @@ namespace Chorus.FileTypeHanders
 		public static IEnumerable<IChangeReport> ReportDifferences(
 			string parentPathname, string childPathname,
 			IMergeEventListener listener,
+			string firstElementMarker,
 			string recordMarker, string identfierAttribute)
 		{
 			var changeAndConflictAccumulator = listener ?? new ChangeAndConflictAccumulator();
 			var differ = Xml2WayDiffer.CreateFromFiles(
 				parentPathname, childPathname,
 				changeAndConflictAccumulator,
+				firstElementMarker,
 				recordMarker, identfierAttribute);
 			try
 			{
@@ -90,6 +94,7 @@ namespace Chorus.FileTypeHanders
 		public static IEnumerable<IChangeReport> ReportDifferencesForMerge(
 			string parentPathname, string childPathname,
 			IMergeEventListener listener,
+			string firstElementMarker,
 			string recordMarker, string identfierAttribute,
 			out Dictionary<string, byte[]> parentIndex)
 		{
@@ -98,6 +103,7 @@ namespace Chorus.FileTypeHanders
 			var differ = Xml2WayDiffer.CreateFromFiles(
 				parentPathname, childPathname,
 				changeAndConflictAccumulator,
+				firstElementMarker,
 				recordMarker, identfierAttribute);
 			try
 			{
@@ -120,12 +126,14 @@ namespace Chorus.FileTypeHanders
 		public static IEnumerable<IChangeReport> ReportDifferences(
 			Dictionary<string, byte[]> parentIndex, string childPathname,
 			IMergeEventListener listener,
+			string firstElementMarker,
 			string recordMarker, string identfierAttribute)
 		{
 			var changeAndConflictAccumulator = listener ?? new ChangeAndConflictAccumulator();
 			var differ = Xml2WayDiffer.CreateFromMixed(
 				parentIndex, childPathname,
 				changeAndConflictAccumulator,
+				firstElementMarker,
 				recordMarker, identfierAttribute);
 			try
 			{

@@ -32,7 +32,8 @@ namespace LibChorus.Tests.merge.xml.lift
 			{
 				var listener = new ListenerForUnitTests();
 				var differ = Xml2WayDiffer.CreateFromFiles(parentTempFile.Path, childTempFile.Path, listener,
-															 "entry", "id");
+					"header",
+					"entry", "id");
 				differ.ReportDifferencesToListener();
 				listener.AssertExpectedChangesCount(1);
 				listener.AssertFirstChangeType<XmlAdditionChangeReport>();
@@ -56,6 +57,7 @@ namespace LibChorus.Tests.merge.xml.lift
 			{
 				var listener = new ListenerForUnitTests();
 				var differ = Xml2WayDiffer.CreateFromFiles(parentTempFile.Path, childTempFile.Path, listener,
+					"header",
 															 "entry", "id");
 				differ.ReportDifferencesToListener();
 				listener.AssertExpectedChangesCount(1);
@@ -81,6 +83,7 @@ namespace LibChorus.Tests.merge.xml.lift
 			{
 				var listener = new ListenerForUnitTests();
 				var differ = Xml2WayDiffer.CreateFromFiles(parentTempFile.Path, childTempFile.Path, listener,
+					"header",
 															 "entry", "id");
 				differ.ReportDifferencesToListener();
 				listener.AssertExpectedChangesCount(1);
@@ -106,6 +109,7 @@ namespace LibChorus.Tests.merge.xml.lift
 			{
 				var listener = new ListenerForUnitTests();
 				var differ = Xml2WayDiffer.CreateFromFiles(parentTempFile.Path, childTempFile.Path, listener,
+					"header",
 															 "entry", "id");
 				differ.ReportDifferencesToListener();
 				listener.AssertExpectedChangesCount(0);
@@ -132,6 +136,7 @@ namespace LibChorus.Tests.merge.xml.lift
 				var listener = new ListenerForUnitTests();
 				var differ = Xml2WayDiffer.CreateFromFiles(parentTempFile.Path, childTempFile.Path,
 					listener,
+					null,
 					"annotation",
 					"guid");
 				differ.ReportDifferencesToListener();

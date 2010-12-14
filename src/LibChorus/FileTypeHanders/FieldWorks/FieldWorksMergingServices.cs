@@ -25,6 +25,9 @@ namespace Chorus.FileTypeHanders.FieldWorks
 		private const string AStr = "AStr";
 		private const string AUni = "AUni";
 		private const string Ws = "ws";
+		private const string MainCustom = "AdditionalFields";
+		private const string CustomField = "CustomField";
+		private const string Custom = "Custom";
 
 		internal static void AddSharedImmutableSingletonElementType(Dictionary<string, ElementStrategy> sharedElementStrategies, string name, bool orderOfTheseIsRelevant)
 		{
@@ -72,11 +75,29 @@ namespace Chorus.FileTypeHanders.FieldWorks
 			AddSharedSingletonElementType(sharedElementStrategies, MutableSingleton, false);
 			AddSharedKeyedByWsElementType(sharedElementStrategies, AStr, false);
 			AddSharedKeyedByWsElementType(sharedElementStrategies, AUni, false);
+
+			// Set up shared custom strategies
+			// Main declaration element
+			AddSharedSingletonElementType(sharedElementStrategies, MainCustom, false);
+			// Individual custom property declaration.
+			AddMultipleKeyedElementType(sharedElementStrategies, CustomField, new List<string> {"name", "class"}, false);
+			// Element in the data xml.
+			AddKeyedElementType(sharedElementStrategies, Custom, new FindByKeyAttribute("name"), false);
 		}
 
 		private static void AddSharedKeyedByWsElementType(IDictionary<string, ElementStrategy> sharedElementStrategies, string elementName, bool orderOfTheseIsRelevant)
 		{
 			AddKeyedElementType(sharedElementStrategies, elementName, _wsKey, orderOfTheseIsRelevant);
+		}
+
+		private static void AddMultipleKeyedElementType(IDictionary<string, ElementStrategy> sharedElementStrategies, string elementName, List<string> keyAttributes, bool orderOfTheseIsRelevant)
+		{
+			var strategy = new ElementStrategy(orderOfTheseIsRelevant)
+							{
+								MergePartnerFinder = new FindByMultipleKeyAttributes(keyAttributes)
+							};
+			//strategy.ContextDescriptorGenerator
+			sharedElementStrategies.Add(elementName, strategy);
 		}
 
 		private static void AddKeyedElementType(IDictionary<string, ElementStrategy> sharedElementStrategies, string elementName, FindByKeyAttribute findBykeyAttribute, bool orderOfTheseIsRelevant)
@@ -85,18 +106,24 @@ namespace Chorus.FileTypeHanders.FieldWorks
 			{
 				MergePartnerFinder = findBykeyAttribute
 			};
+			//strategy.ContextDescriptorGenerator
 			sharedElementStrategies.Add(elementName, strategy);
 		}
 
 		private static void CreateMergers(MetadataCache metadataCache, MergeSituation mergeSituation,
 			IDictionary<string, ElementStrategy> sharedElementStrategies, IDictionary<string, XmlMerger> mergers)
 		{
+			// Create merger for main custom property declaration.
+			var merger = new XmlMerger(mergeSituation);
+			merger.MergeStrategies.SetStrategy("AdditionalFields", sharedElementStrategies["AdditionalFields"]);
+			mergers.Add("AdditionalFields", merger);
+
 			var mutableSingleton = sharedElementStrategies[MutableSingleton];
 			var immSingleton = sharedElementStrategies[ImmutableSingleton];
 			ElementStrategy extantStrategy;
 			foreach (var classInfo in metadataCache.AllConcreteClasses)
 			{
-				var merger = new XmlMerger(mergeSituation);
+				merger = new XmlMerger(mergeSituation);
 				var strategiesForMerger = merger.MergeStrategies;
 				strategiesForMerger.SetStrategy(Rt, sharedElementStrategies[Rt]);
 				// Add all of the property bits.
@@ -132,6 +159,7 @@ namespace Chorus.FileTypeHanders.FieldWorks
 
 						// Other data types
 						case DataType.MultiUnicode:
+							// Use new IsAtomic.
 							/*
 This ought to be a keyed widget with the key being the ws. Order of the <AUni> elements is not relevant.
 The diff could be in presence or absence of the property or an entire AUni element, or just in the content string.
@@ -146,12 +174,12 @@ These are not conflicts, and can be merged automatically:
 <AUni ws="en">Status</AUni>
 <AUni ws="es">Estado</AUni>
 							*/
-							// Use new IsAtomic.
 							strategiesForMerger.SetStrategy(propInfo.PropertyName, CreateSingletonElementType(false));
 							if (!strategiesForMerger.ElementStrategies.TryGetValue(AUni, out extantStrategy))
 								strategiesForMerger.SetStrategy(AUni, sharedElementStrategies[AUni]);
 							break;
 						case DataType.MultiString:
+							// Use new IsAtomic.
 							/*
 This ought to be a keyed widget with the key being the ws. Order of the <AStr> elements is not relevant.
 The diff could be in presence or absence of the property or an entire AUni element, or just in the content string.
@@ -167,7 +195,6 @@ We will just see if the corresponding <AStr> elements are the same or different.
 </AStr>
 </SummaryDefinition>
 							*/
-							// Use new IsAtomic.
 							break;
 						case DataType.Unicode: // Ordinary C# string
 							/*
@@ -186,6 +213,7 @@ These are not conflicts:
 							*/
 							break;
 						case DataType.String: // TsString
+							// Use new IsAtomic.
 							/*
 The entire property element may be missing, but if present, there should then be one or more runs.
 No attempt is to be made to try and merge the run(s).
@@ -194,7 +222,6 @@ We will just see if the corresponding <Str> elements are the same or different.
 <Run ws="grc">Αἴγυπτος</Run>
 </Str>
 							*/
-							// Use new IsAtomic.
 							break;
 						case DataType.Integer:
 							break;
@@ -208,7 +235,6 @@ We will just see if the corresponding <Str> elements are the same or different.
 						case DataType.Guid:
 							break;
 						case DataType.Binary:
-							// We can't really merge these, so pick the one that changed it.
 							// Use new IsAtomic.
 							break;
 						case DataType.TextPropBinary:

@@ -73,12 +73,15 @@ namespace Chorus.FileTypeHanders.FieldWorks
 		{
 			XmlMergeService.Do3WayMerge(mergeOrder,
 				new FieldWorksMergingStrategy(mergeOrder.MergeSituation, _mdc),
+				"AdditionalFields",
 				"rt", "guid", WritePreliminaryInformation);
 		}
 
 		public IEnumerable<IChangeReport> Find2WayDifferences(FileInRevision parent, FileInRevision child, HgRepository repository)
 		{
-			return Xml2WayDiffService.ReportDifferences(repository, parent, child, "rt", "guid");
+			return Xml2WayDiffService.ReportDifferences(repository, parent, child,
+				"AdditionalFields",
+				"rt", "guid");
 		}
 
 		public IChangePresenter GetChangePresenter(IChangeReport report, HgRepository repository)
@@ -191,12 +194,6 @@ namespace Chorus.FileTypeHanders.FieldWorks
 			writer.WriteAttributeString("version", reader.Value);
 			reader.MoveToElement();
 			reader.Read();
-
-			// Deal with optional custom field declarations.
-			if (reader.LocalName == "AdditionalFields")
-			{
-				writer.WriteNode(reader, false);
-			}
 		}
 	}
 }

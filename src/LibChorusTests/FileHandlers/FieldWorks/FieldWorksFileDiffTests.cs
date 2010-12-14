@@ -96,6 +96,7 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 			{
 				var listener = new ListenerForUnitTests();
 				var differ = Xml2WayDiffer.CreateFromFiles(parentTempFile.Path, childTempFile.Path, listener,
+					"AdditionalFields",
 															 "rt",
 															 "guid");
 				differ.ReportDifferencesToListener();
@@ -125,6 +126,7 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 			{
 				var listener = new ListenerForUnitTests();
 				var differ = Xml2WayDiffer.CreateFromFiles(parentTempFile.Path, childTempFile.Path, listener,
+					"AdditionalFields",
 															 "rt",
 															 "guid");
 
@@ -164,6 +166,7 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 			{
 				var listener = new ListenerForUnitTests();
 				var differ = Xml2WayDiffer.CreateFromFiles(parentTempFile.Path, childTempFile.Path, listener,
+					"AdditionalFields",
 															 "rt",
 															 "guid");
 				differ.ReportDifferencesToListener();
@@ -192,6 +195,7 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 			{
 				var listener = new ListenerForUnitTests();
 				var differ = Xml2WayDiffer.CreateFromFiles(parentTempFile.Path, childTempFile.Path, listener,
+					"AdditionalFields",
 															 "rt",
 															 "guid");
 				differ.ReportDifferencesToListener();
@@ -229,6 +233,7 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 			{
 				var listener = new ListenerForUnitTests();
 				var differ = Xml2WayDiffer.CreateFromFiles(parentTempFile.Path, childTempFile.Path, listener,
+					"AdditionalFields",
 															 "rt",
 															 "guid");
 				differ.ReportDifferencesToListener();

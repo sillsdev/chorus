@@ -25,12 +25,16 @@ namespace Chorus.Utilities
 		private static readonly byte _closeSingleQuote = Encoding.UTF8.GetBytes("'")[0];
 		private FastXmlElementSplitter _elementSplitter;
 		private IDictionary<string, byte[]> _dictionary;
+		private readonly string _firstElementTag;
 		private readonly string _recordStartingTag;
 		private readonly Encoding _utf8;
 
-		internal DifferDictionaryPrepper(IDictionary<string, byte[]> dictionary, string pathname, string recordStartingTag, string identifierAttribute)
+		internal DifferDictionaryPrepper(IDictionary<string, byte[]> dictionary, string pathname,
+			string firstElementMarker,
+			string recordStartingTag, string identifierAttribute)
 		{
 			_dictionary = dictionary;
+			_firstElementTag = firstElementMarker; // May be null, which is fine.
 			_recordStartingTag = recordStartingTag;
 			_elementSplitter = new FastXmlElementSplitter(pathname);
 			_utf8 = Encoding.UTF8;
@@ -40,9 +44,18 @@ namespace Chorus.Utilities
 
 		internal void Run()
 		{
-			foreach (var record in _elementSplitter.GetSecondLevelElementBytes(_recordStartingTag))
+			bool foundOptionalFirstElement;
+			foreach (var record in _elementSplitter.GetSecondLevelElementBytes(_firstElementTag, _recordStartingTag, out foundOptionalFirstElement))
 			{
-				PrepareIndex(record);
+				if (foundOptionalFirstElement)
+				{
+					_dictionary.Add(_firstElementTag, record);
+					foundOptionalFirstElement = false;
+				}
+				else
+				{
+					PrepareIndex(record);
+				}
 			}
 		}
 

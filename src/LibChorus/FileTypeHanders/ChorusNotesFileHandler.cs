@@ -63,7 +63,7 @@ namespace Chorus.FileTypeHanders
 
 		public IEnumerable<IChangeReport> Find2WayDifferences(FileInRevision parent, FileInRevision child, HgRepository repository)
 		{
-			return Xml2WayDiffService.ReportDifferences(repository, parent, child, "annotation", "guid")
+			return Xml2WayDiffService.ReportDifferences(repository, parent, child, null, "annotation", "guid")
 				.Where(change => !(change is XmlDeletionChangeReport)); // Remove any deletion reports.
 		}
 

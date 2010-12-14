@@ -48,6 +48,7 @@ namespace LibChorus.Tests.merge.xml.lift
 				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation)
 									{EventListener = listener};
 				XmlMergeService.Do3WayMerge(mergeOrder, new LiftEntryMergingStrategy(situation),
+					"header",
 					"entry", "id", LiftFileHandler.WritePreliminaryInformation);
 				//this doesn't seem particular relevant, but senses are, in fact, ordered, so there is some ambiguity here
 				Assert.AreEqual(typeof(AmbiguousInsertConflict), listener.Conflicts[0].GetType());
@@ -101,6 +102,7 @@ namespace LibChorus.Tests.merge.xml.lift
 				var situation = new NullMergeSituation();
 				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation) { EventListener = listener };
 				XmlMergeService.Do3WayMerge(mergeOrder, new LiftEntryMergingStrategy(situation),
+					"header",
 					"entry", "id", LiftFileHandler.WritePreliminaryInformation);
 				var conflict = listener.Conflicts[0];
 				AssertConflictType<BothEditedTextConflict>(conflict);

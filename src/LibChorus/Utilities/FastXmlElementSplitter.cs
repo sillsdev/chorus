@@ -87,56 +87,6 @@ namespace Chorus.Utilities
 			return results;
 		}
 
-		/// <summary>
-		/// Return the second level elements that are in the input file, including an optional first element.
-		/// </summary>
-		public IEnumerable<byte[]> GetSecondLevelElementBytes(string firstElementMarker, string recordMarker)
-		{
-			if (string.IsNullOrEmpty(recordMarker))
-				throw new ArgumentException("Null or empty string.", "recordMarker");
-
-			var results = new List<byte[]>(GetSecondLevelElementBytes(recordMarker));
-			var readerSettings = new XmlReaderSettings
-			{
-				CheckCharacters = false,
-				ConformanceLevel = ConformanceLevel.Document,
-#if NET_4_0 && !__MonoCS__
-							DtdProcessing = DtdProcessing.Parse,
-#else
-				ProhibitDtd = true,
-#endif
-				ValidationType = ValidationType.None,
-				CloseInput = true,
-				IgnoreWhitespace = true
-			};
-			var textReader = new XmlTextReader(_pathname)
-								{
-									WhitespaceHandling = WhitespaceHandling.Significant
-								};
-			using (var reader = XmlReader.Create(textReader, readerSettings))
-			{
-				// Try to get the optional first element. Prepend it to 'results', if found.
-				reader.MoveToContent();
-				if (reader.Read() && reader.LocalName == firstElementMarker)
-				{
-					var optionalElement = reader.ReadOuterXml();
-					results.Insert(0, _encUtf8.GetBytes(optionalElement));
-				}
-			}
-
-			return results;
-		}
-
-		/// <summary>
-		/// Return the second level elements that are in the input file, including an optional first element.
-		/// </summary>
-		public IEnumerable<string> GetSecondLevelElementStrings(string firstElementMarker, string recordMarker)
-		{
-			return new List<string>(
-				GetSecondLevelElementBytes(firstElementMarker, recordMarker)
-					.Select(byteResult => _encUtf8.GetString(byteResult)));
-		}
-
 		///<summary>
 		/// Return the second level elements that are in the input file.
 		///</summary>
@@ -162,6 +112,58 @@ namespace Chorus.Utilities
 		{
 			return new List<string>(
 				GetSecondLevelElementBytes(recordMarker)
+					.Select(byteResult => _encUtf8.GetString(byteResult)));
+		}
+
+		/// <summary>
+		/// Return the second level elements that are in the input file, including an optional first element.
+		/// </summary>
+		public IEnumerable<byte[]> GetSecondLevelElementBytes(string firstElementMarker, string recordMarker, out bool foundOptionalFirstElement)
+		{
+			foundOptionalFirstElement = false;
+			if (string.IsNullOrEmpty(recordMarker))
+				throw new ArgumentException("Null or empty string.", "recordMarker");
+
+			var results = new List<byte[]>(GetSecondLevelElementBytes(recordMarker));
+			var readerSettings = new XmlReaderSettings
+			{
+				CheckCharacters = false,
+				ConformanceLevel = ConformanceLevel.Document,
+#if NET_4_0 && !__MonoCS__
+				DtdProcessing = DtdProcessing.Parse,
+#else
+				ProhibitDtd = true,
+#endif
+				ValidationType = ValidationType.None,
+				CloseInput = true,
+				IgnoreWhitespace = true
+			};
+			var textReader = new XmlTextReader(_pathname)
+			{
+				WhitespaceHandling = WhitespaceHandling.Significant
+			};
+			using (var reader = XmlReader.Create(textReader, readerSettings))
+			{
+				// Try to get the optional first element. Prepend it to 'results', if found.
+				reader.MoveToContent();
+				if (reader.Read() && reader.LocalName == firstElementMarker)
+				{
+					foundOptionalFirstElement = true;
+					var optionalElement = reader.ReadOuterXml();
+					results.Insert(0, _encUtf8.GetBytes(optionalElement));
+				}
+			}
+
+			return results;
+		}
+
+		/// <summary>
+		/// Return the second level elements that are in the input file, including an optional first element.
+		/// </summary>
+		public IEnumerable<string> GetSecondLevelElementStrings(string firstElementMarker, string recordMarker, out bool foundOptionalFirstElement)
+		{
+			return new List<string>(
+				GetSecondLevelElementBytes(firstElementMarker, recordMarker, out foundOptionalFirstElement)
 					.Select(byteResult => _encUtf8.GetString(byteResult)));
 		}
 

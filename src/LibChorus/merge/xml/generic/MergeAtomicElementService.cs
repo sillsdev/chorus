@@ -36,14 +36,11 @@ namespace Chorus.merge.xml.generic
 
 			if (commonAncestor == null)
 			{
-				if (ours ==  null)
+				if (theirs != null)
 				{
 					ours = theirs; // They added it.
 				}
-				else if (theirs == null)
-				{
-					// We added it.
-				}
+				// else // We added it.
 			}
 			else
 			{
@@ -57,10 +54,10 @@ namespace Chorus.merge.xml.generic
 						// If one is null, keep the other one, but only if it was edited.
 					if (ours == null && !XmlUtilities.AreXmlElementsEqual(theirs, commonAncestor))
 					{
+						ours = theirs;
 						// We deleted, they edited, so keep theirs under the least loss principle.
 						if (merger.MergeSituation.ConflictHandlingMode == MergeOrder.ConflictHandlingModeChoices.WeWin)
 						{
-							ours = theirs;
 							merger.EventListener.ConflictOccurred(new RemovedVsEditedElementConflict(ours.Name, ours, theirs, commonAncestor,
 																									 merger.MergeSituation, null,
 																									 MergeSituation.kAlphaUserId));
@@ -76,18 +73,9 @@ namespace Chorus.merge.xml.generic
 					else if (theirs == null && !XmlUtilities.AreXmlElementsEqual(ours, commonAncestor))
 					{
 						// We edited, they deleted, so keep ours under the least loss principle.
-						if (merger.MergeSituation.ConflictHandlingMode == MergeOrder.ConflictHandlingModeChoices.WeWin)
-						{
-							merger.EventListener.ConflictOccurred(new RemovedVsEditedElementConflict(ours.Name, ours, theirs, commonAncestor,
-																						   merger.MergeSituation, null,
-																						   MergeSituation.kAlphaUserId));
-						}
-						else
-						{
-							merger.EventListener.ConflictOccurred(new RemovedVsEditedElementConflict(theirs.Name, theirs, ours, commonAncestor,
-																						   merger.MergeSituation, null,
-																						   MergeSituation.kBetaUserId));
-						}
+						merger.EventListener.ConflictOccurred(new RemovedVsEditedElementConflict(ours.Name, ours, theirs, commonAncestor,
+																					   merger.MergeSituation, null,
+																					   MergeSituation.kAlphaUserId));
 					}
 					else if (!XmlUtilities.AreXmlElementsEqual(ours, theirs))
 					{
@@ -107,6 +95,7 @@ namespace Chorus.merge.xml.generic
 						{
 							// Both edited.
 							// 2A1b. If different, then report a conflict (what kind of conflict?) and then stop.
+// ReSharper disable PossibleNullReferenceException
 							merger.EventListener.ConflictOccurred(merger.MergeSituation.ConflictHandlingMode ==
 														   MergeOrder.ConflictHandlingModeChoices.WeWin
 															? new BothEditedTheSameElement(ours.Name, ours, theirs, commonAncestor,
@@ -115,6 +104,7 @@ namespace Chorus.merge.xml.generic
 															: new BothEditedTheSameElement(theirs.Name, theirs, ours, commonAncestor,
 																						   merger.MergeSituation, null,
 																						   MergeSituation.kBetaUserId));
+// ReSharper restore PossibleNullReferenceException
 						}
 					}
 						// else

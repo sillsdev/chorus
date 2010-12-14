@@ -43,26 +43,37 @@ namespace Chorus.FileTypeHanders.FieldWorks
 		/// <returns>XML of the merged object.</returns>
 		public string MakeMergedEntry(IMergeEventListener eventListener, XmlNode ourEntry, XmlNode theirEntry, XmlNode commonEntry)
 		{
-			// TODO: Figure out what to do about an owner being changed.
-			// 1. If only one person changed it, there should be no problem.
-			// 2. If two people changed the owner, there could be trouble:
-			//		A. The owned would report a merge conflict,
-			//		B. The new owner(s) may not report a conflict,
-			//		So, if the owned object reports an owner conflict,
-			//		then make sure the 'loser' owner also has a conflict.
+			XmlMerger merger;
+			var extantNode = ourEntry ?? theirEntry ?? commonEntry;
 
-			// These steps will do some 'pre-merging' work,
-			// which will avoid what could otherwise be conflicts.
-			FieldWorksMergingServices.MergeTimestamps(ourEntry, theirEntry);
-			FieldWorksMergingServices.MergeCheckSum(ourEntry, theirEntry);
-			var className = XmlUtilities.GetStringAttribute(ourEntry, "class");
-			FdoClassInfo info;
-			if (_mdc.ClassesWithCollectionProperties.TryGetValue(className, out info))
-				FieldWorksMergingServices.MergeCollectionProperties(info, ourEntry, theirEntry, commonEntry);
+			const string additionalFields = "AdditionalFields";
+			if (extantNode.Name == additionalFields)
+			{
+				// Deal with "AdditionalFields" element by fetching the correct merger.
+				merger = _mergers[additionalFields];
+			}
+			else
+			{
+				// TODO: Figure out what to do about an owner being changed.
+				// 1. If only one person changed it, there should be no problem.
+				// 2. If two people changed the owner, there could be trouble:
+				//		A. The owned would report a merge conflict,
+				//		B. The new owner(s) may not report a conflict,
+				//		So, if the owned object reports an owner conflict,
+				//		then make sure the 'loser' owner also has a conflict.
 
-			var mergerForClass = _mergers[className];
-			var mergedNode = mergerForClass.Merge(eventListener, ourEntry, theirEntry, commonEntry);
-			return FieldWorksMergingServices.GetOuterXml(mergedNode);
+				// These steps will do some 'pre-merging' work,
+				// which will avoid what could otherwise be conflicts.
+				FieldWorksMergingServices.MergeTimestamps(ourEntry, theirEntry);
+				FieldWorksMergingServices.MergeCheckSum(ourEntry, theirEntry);
+				var className = XmlUtilities.GetStringAttribute(extantNode, "class");
+				FdoClassInfo info;
+				if (_mdc.ClassesWithCollectionProperties.TryGetValue(className, out info))
+					FieldWorksMergingServices.MergeCollectionProperties(info, ourEntry, theirEntry, commonEntry);
+				merger = _mergers[className];
+			}
+
+			return FieldWorksMergingServices.GetOuterXml(merger.Merge(eventListener, ourEntry, theirEntry, commonEntry));
 		}
 
 		#endregion

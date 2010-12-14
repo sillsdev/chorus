@@ -95,7 +95,7 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 		[Test]
 		public void WinnerAddedNewElement()
 		{
-			// Add the required AdditionalFields  element to flush out a merge problem,
+			// Add the optional AdditionalFields element to flush out a merge problem,
 			// and ensure it stays fixed.
 			const string commonAncestor =
 @"<?xml version='1.0' encoding='utf-8'?>
@@ -236,7 +236,7 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 	class='LexEntry' guid='dirtball' ownerguid='originalOwner'/>
 </languageproject>";
 			var ourContent = commonAncestor.Replace("originalOwner", "newOwner");
-			var theirContent = commonAncestor;
+			const string theirContent = commonAncestor;
 
 			var result = DoMerge(commonAncestor, ourContent, theirContent);
 			XmlTestHelper.AssertXPathMatchesExactlyOne(result, @"languageproject/rt[@guid=""oldie""]");
@@ -254,7 +254,7 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 <rt class='LexEntry' guid='oldie'/>
 <rt class='LexEntry' guid='dirtball' ownerguid='originalOwner'/>
 </languageproject>";
-			var ourContent = commonAncestor;
+			const string ourContent = commonAncestor;
 			var theirContent = commonAncestor.Replace("originalOwner", "newOwner");
 
 			var result = DoMerge(commonAncestor, ourContent, theirContent);
@@ -299,9 +299,38 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 			var result = DoMerge(commonAncestor, ourContent, theirContent);
 			XmlTestHelper.AssertXPathMatchesExactlyOne(result, @"languageproject/rt[@guid=""oldie""]");
 			XmlTestHelper.AssertXPathIsNull(result, @"languageproject/rt[@ownerguid=""originalOwner""]");
-			XmlTestHelper.AssertXPathIsNull(result, @"languageproject/rt[@ownerguid=""newOwner""]");
+			XmlTestHelper.AssertXPathMatchesExactlyOne(result, @"languageproject/rt[@ownerguid=""newOwner""]");
 			m_eventListener.AssertExpectedConflictCount(1);
 			m_eventListener.AssertFirstConflictType<RemovedVsEditedElementConflict>();
+		}
+
+		[Test]
+		public void AddNewCustomProperty()
+		{
+			const string commonAncestor =
+@"<?xml version='1.0' encoding='utf-8'?>
+<languageproject version='7000016'>
+<rt class='LexEntry' guid='original'/>
+</languageproject>";
+			const string ourContent =
+@"<?xml version='1.0' encoding='utf-8'?>
+<languageproject version='7000016'>
+<rt class='LexEntry' guid='original'/>
+</languageproject>";
+			const string theirContent =
+@"<?xml version='1.0' encoding='utf-8'?>
+<languageproject version='7000016'>
+<AdditionalFields>
+<CustomField name='Certified' class='WfiWordform' type='Boolean' />
+</AdditionalFields>
+<rt class='LexEntry' guid='original'/>
+</languageproject>";
+
+			var result = DoMerge(commonAncestor, ourContent, theirContent);
+			XmlTestHelper.AssertXPathMatchesExactlyOne(result, @"languageproject/AdditionalFields");
+			XmlTestHelper.AssertXPathMatchesExactlyOne(result, @"languageproject/AdditionalFields/CustomField[@name=""Certified""]");
+			m_eventListener.AssertExpectedChangesCount(0);
+			m_eventListener.AssertExpectedConflictCount(0);
 		}
 
 		private string DoMerge(string commonAncestor, string ourContent, string theirContent)
