@@ -29,7 +29,7 @@ namespace LibChorus.Tests.merge.xml.generic
 			Assert.IsTrue(elementStrategy.IsAtomic);
 		}
 
-		[Test, ExpectedException(typeof(ArgumentNullException))]
+		[Test, ExpectedException(typeof(ArgumentNullException)), Category("SkipOnTeamCity")]
 		public void NullMergerThrows()
 		{
 			var doc = new XmlDocument();
@@ -37,7 +37,7 @@ namespace LibChorus.Tests.merge.xml.generic
 			MergeAtomicElementService.Run(null, ref node, node, node);
 		}
 
-		[Test, ExpectedException(typeof(ArgumentNullException))]
+		[Test, ExpectedException(typeof(ArgumentNullException)), Category("SkipOnTeamCity")]
 		public void AllNullNodesThrows()
 		{
 			XmlNode node = null;

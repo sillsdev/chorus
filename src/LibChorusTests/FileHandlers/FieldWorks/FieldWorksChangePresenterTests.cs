@@ -206,7 +206,7 @@ color: 'purple';
 			Assert.AreEqual("Change", changePresenter.GetActionLabel());
 		}
 
-		[Test, ExpectedException(typeof(NullReferenceException))]
+		[Test, ExpectedException(typeof(NullReferenceException)), Category("SkipOnTeamCity")]
 		public void GetHtml_Has_Null_Input()
 		{
 			m_changePresenter.GetHtml(null, null);

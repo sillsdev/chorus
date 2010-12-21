@@ -14,25 +14,25 @@ namespace LibChorus.Tests.utilities
 	[TestFixture]
 	public class FastXmlElementSplitterTests
 	{
-		[Test, ExpectedException(typeof(ArgumentException))]
+		[Test, ExpectedException(typeof(ArgumentException)), Category("SkipOnTeamCity")]
 		public void Null_Pathname_Throws()
 		{
 			new FastXmlElementSplitter(null);
 		}
 
-		[Test, ExpectedException(typeof(ArgumentException))]
+		[Test, ExpectedException(typeof(ArgumentException)), Category("SkipOnTeamCity")]
 		public void Empty_String_Pathname_Throws()
 		{
 			new FastXmlElementSplitter(null);
 		}
 
-		[Test, ExpectedException(typeof(FileNotFoundException))]
+		[Test, ExpectedException(typeof(FileNotFoundException)), Category("SkipOnTeamCity")]
 		public void File_Not_Found_Throws()
 		{
 			new FastXmlElementSplitter("Non-existant-file.xml");
 		}
 
-		[Test, ExpectedException(typeof(ArgumentException))]
+		[Test, ExpectedException(typeof(ArgumentException)), Category("SkipOnTeamCity")]
 		public void Null_Parameter_Throws()
 		{
 			using (var reader = new FastXmlElementSplitter(Assembly.GetExecutingAssembly().CodeBase.Replace(@"file:///", null)))
@@ -41,7 +41,7 @@ namespace LibChorus.Tests.utilities
 			}
 		}
 
-		[Test, ExpectedException(typeof(ArgumentException))]
+		[Test, ExpectedException(typeof(ArgumentException)), Category("SkipOnTeamCity")]
 		public void Empty_String_Parameter_Throws()
 		{
 			using (var reader = new FastXmlElementSplitter(Assembly.GetExecutingAssembly().CodeBase.Replace(@"file:///", null)))
@@ -94,7 +94,7 @@ namespace LibChorus.Tests.utilities
 			}
 		}
 
-		[Test, ExpectedException(typeof(InvalidOperationException))]
+		[Test, ExpectedException(typeof(InvalidOperationException)), Category("SkipOnTeamCity")]
 		public void Not_Xml_Throws()
 		{
 			const string noRecordsInput = "Some random text file.";

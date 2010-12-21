@@ -68,7 +68,7 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 			Assert.IsFalse(m_fwFileHandler.CanMergeFile(null));
 		}
 
-		[Test, ExpectedException(typeof(NullReferenceException))]
+		[Test, ExpectedException(typeof(NullReferenceException)), Category("SkipOnTeamCity")]
 		public void Do3WayMerge_Throws()
 		{
 			m_fwFileHandler.Do3WayMerge(null);
