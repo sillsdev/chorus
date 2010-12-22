@@ -13,3 +13,4 @@ glob:*~
 *.pidb
 glob:Mercurial/*
 glob:*ReSharper*
+glob:build/old
