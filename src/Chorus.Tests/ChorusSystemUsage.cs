@@ -22,7 +22,7 @@ namespace Chorus.Tests
 		private TempFolder _tempFolder;
 		private string _dataFolderRoot;
 		private string _someDataFilePath;
-		private Character _currentCharacter;
+		private Character _currentCharacter = null;
 		private IProgress _progress = new NullProgress();
 		private TempFile _someDataFile;
 

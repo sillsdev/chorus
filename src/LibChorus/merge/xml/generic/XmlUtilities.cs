@@ -5,6 +5,7 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 using System.Xml;
+using System.Xml.Linq;
 using System.Xml.Xsl;
 using Chorus.merge.xml.generic.xmldiff;
 
@@ -76,6 +77,9 @@ namespace Chorus.merge.xml.generic
 
 		public static bool AreXmlElementsEqual(string ours, string theirs)
 		{
+			if (ours == theirs)
+				return true;
+
 			StringReader osr = new StringReader(ours);
 			XmlReader or = XmlReader.Create(osr);
 			XmlDocument od = new XmlDocument();
@@ -103,18 +107,27 @@ namespace Chorus.merge.xml.generic
 				{
 					return false;
 				}
-				bool oursIsEmpty = (ours.InnerText == null || ours.InnerText.Trim() == string.Empty);
-				bool theirsIsEmpty = (theirs.InnerText == null || theirs.InnerText.Trim() == string.Empty);
+				bool oursIsEmpty = (ours.InnerText == null || ours.InnerText.Trim() == String.Empty);
+				bool theirsIsEmpty = (theirs.InnerText == null || theirs.InnerText.Trim() == String.Empty);
 				if(oursIsEmpty != theirsIsEmpty)
 				{
 					return false;
 				}
 				return ours.InnerText.Trim() == theirs.InnerText.Trim();
 			}
-			// DiffConfiguration config = new DiffConfiguration(WhitespaceHandling.None);
-			XmlDiff diff = new XmlDiff(new XmlInput(ours.OuterXml), new XmlInput(theirs.OuterXml));//, config);
-			DiffResult d = diff.Compare();
-			return (d == null || d.Difference == null || !d.Difference.MajorDifference);
+
+			return AreXmlElementsEqual(new XmlInput(ours.OuterXml), new XmlInput(theirs.OuterXml));
+		}
+
+
+		public static bool AreXmlElementsEqual(XmlInput ours, XmlInput theirs)
+		{
+			// Must use 'config', or whitespace only differences will make the elements different.
+			// cf. diffing changeset 240 and 241 in the Tok Pisin project for such whitespace differences.
+			var config = new DiffConfiguration(WhitespaceHandling.None);
+			var diff = new XmlDiff(ours, theirs, config);
+			var diffResult = diff.Compare();
+			return (diffResult == null || diffResult.Difference == null || !diffResult.Difference.MajorDifference);
 		}
 
 		public static string GetStringAttribute(XmlNode form, string attr)
@@ -125,7 +138,7 @@ namespace Chorus.merge.xml.generic
 			}
 			catch(NullReferenceException)
 			{
-				throw new XmlFormatException(string.Format("Expected a {0} attribute on {1}.", attr, form.OuterXml));
+				throw new XmlFormatException(String.Format("Expected a {0} attribute on {1}.", attr, form.OuterXml));
 			}
 		}
 
@@ -139,15 +152,11 @@ namespace Chorus.merge.xml.generic
 
 		public static XmlNode GetDocumentNodeFromRawXml(string outerXml, XmlNode nodeMaker)
 		{
-			if(string.IsNullOrEmpty(outerXml))
+			if(String.IsNullOrEmpty(outerXml))
 			{
 				throw new ArgumentException();
 			}
-			XmlDocument doc = nodeMaker as XmlDocument;
-			if(doc == null)
-			{
-				doc = nodeMaker.OwnerDocument;
-			}
+			XmlDocument doc = nodeMaker as XmlDocument ?? nodeMaker.OwnerDocument;
 			using (StringReader sr = new StringReader(outerXml))
 			{
 				using (XmlReader r = XmlReader.Create(sr))
@@ -166,50 +175,10 @@ namespace Chorus.merge.xml.generic
 			return s;
 		}
 
-		/// <summary>
-		/// lifted from http://www.knowdotnet.com/articles/indentxml.html
-		/// </summary>
-		/// <param name="xml"></param>
-		/// <returns></returns>
 		public static string GetIndendentedXml(string xml)
-	  {
-		 string outXml = string.Empty;
-		 using(MemoryStream ms = new MemoryStream())
-		 // Create a XMLTextWriter that will send its output to a memory stream (file)
-		 using (XmlTextWriter xtw = new XmlTextWriter(ms, Encoding.Unicode))
-		 {
-			 XmlDocument doc = new XmlDocument();
-
-//             try
-//             {
-				 // Load the unformatted XML text string into an instance
-				 // of the XML Document Object Model (DOM)
-				 doc.LoadXml(xml);
-
-				 // Set the formatting property of the XML Text Writer to indented
-				 // the text writer is where the indenting will be performed
-				 xtw.Formatting = Formatting.Indented;
-
-				 // write dom xml to the xmltextwriter
-				 doc.WriteContentTo(xtw);
-				 // Flush the contents of the text writer
-				 // to the memory stream, which is simply a memory file
-				 xtw.Flush();
-
-				 // set to start of the memory stream (file)
-				 ms.Seek(0, SeekOrigin.Begin);
-				 // create a reader to read the contents of
-				 // the memory stream (file)
-				 StreamReader sr = new StreamReader(ms);
-				 // return the formatted string to caller
-				 return sr.ReadToEnd();
-//             }
-//             catch (Exception ex)
-//             {
-//                 return ex.Message;
-//             }
-		 }
-	  }
+		{
+			return XElement.Parse(xml).ToString();
+		}
 	}
 
 	public class XmlFormatException : ApplicationException

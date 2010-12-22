@@ -184,13 +184,13 @@ namespace Chorus.UI.Sync
 	}
 	public class SyncStartArgs : EventArgs
 	{
-		public SyncStartArgs(RepositoryAddress address, string comittMessage)
+		public SyncStartArgs(RepositoryAddress address, string commitMessage)
 		{
 			Address = address;
-			ComittMessage = comittMessage;
+			CommitMessage = commitMessage;
 		}
 		public RepositoryAddress Address;
-		public string ComittMessage;
+		public string CommitMessage;
 	}
 
 }

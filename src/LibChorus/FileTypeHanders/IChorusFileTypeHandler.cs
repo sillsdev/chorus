@@ -2,6 +2,7 @@
 using System.Linq;
 using Chorus.FileTypeHanders.adaptIt;
 using Chorus.FileTypeHanders.audio;
+using Chorus.FileTypeHanders.FieldWorks;
 using Chorus.FileTypeHanders.image;
 using Chorus.FileTypeHanders.lift;
 using Chorus.FileTypeHanders.oneStory;
@@ -26,7 +27,7 @@ namespace Chorus.FileTypeHanders
 		/// </summary>
 		/// <remarks>Implementations can exit with an exception, which the caller will catch and deal with.
 		/// The must not have any UI, no interaction with the user.</remarks>
-		void Do3WayMerge(merge.MergeOrder mergeOrder);
+		void Do3WayMerge(MergeOrder mergeOrder);
 
 		IEnumerable<IChangeReport> Find2WayDifferences(FileInRevision parent, FileInRevision child, HgRepository repository);
 		IChangePresenter GetChangePresenter(IChangeReport report, HgRepository repository);
@@ -67,7 +68,7 @@ namespace Chorus.FileTypeHanders
 			fileTypeHandlers.HandersList.Add(new ImageFileTypeHandler());
 			fileTypeHandlers.HandersList.Add(new ChorusTestFileHandler());
 			fileTypeHandlers.HandersList.Add(new OurWordFileHandler());
-
+			fileTypeHandlers.HandersList.Add(new FieldWorksFileHandler());
 
 			//NB: never add the Default handler
 			return fileTypeHandlers;

@@ -1,3 +1,4 @@
+using System;
 using System.Xml;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
@@ -61,9 +62,9 @@ namespace Chorus.FileTypeHanders.xml
 		public override int GetHashCode()
 		{
 			var guid = _addedElement.GetOptionalStringAttribute("guid",string.Empty);
-			if(guid!=string.Empty)
-				return guid.GetHashCode();
-			return base.GetHashCode();
+			return (guid != string.Empty)
+				? guid.ToLowerInvariant().GetHashCode()
+				: base.GetHashCode();
 		}
 		public override bool Equals(object obj)
 		{
@@ -75,10 +76,11 @@ namespace Chorus.FileTypeHanders.xml
 			if(r==null)
 				return false;
 			var otherGuid = r._addedElement.GetOptionalStringAttribute("guid",string.Empty);
+			// REVIEW JohnH(RandyR): Why is it checking 'guid' again, since it has done it already? Is it to supposed to check 'otherGuid' instead?
 			if (guid == string.Empty)
 				return base.Equals(obj);
 
-			return guid.Equals(otherGuid);
+			return String.Equals(guid, otherGuid, StringComparison.InvariantCultureIgnoreCase); // Make sure case is ignored.
 		}
 	}
 }
