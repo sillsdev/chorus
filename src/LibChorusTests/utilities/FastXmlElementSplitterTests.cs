@@ -14,39 +14,39 @@ namespace LibChorus.Tests.utilities
 	[TestFixture]
 	public class FastXmlElementSplitterTests
 	{
-		[Test, ExpectedException(typeof(ArgumentException)), Category("SkipOnBuildServer")]
+		[Test]
 		public void Null_Pathname_Throws()
 		{
-			new FastXmlElementSplitter(null);
+			Assert.Throws<ArgumentException>(() => new FastXmlElementSplitter(null));
 		}
 
-		[Test, ExpectedException(typeof(ArgumentException)), Category("SkipOnBuildServer")]
+		[Test]
 		public void Empty_String_Pathname_Throws()
 		{
-			new FastXmlElementSplitter(null);
+			Assert.Throws<ArgumentException>(() => new FastXmlElementSplitter(null));
 		}
 
-		[Test, ExpectedException(typeof(FileNotFoundException)), Category("SkipOnBuildServer")]
+		[Test]
 		public void File_Not_Found_Throws()
 		{
-			new FastXmlElementSplitter("Non-existant-file.xml");
+			Assert.Throws<FileNotFoundException>(() => new FastXmlElementSplitter("Non-existant-file.xml"));
 		}
 
-		[Test, ExpectedException(typeof(ArgumentException)), Category("SkipOnBuildServer")]
+		[Test]
 		public void Null_Parameter_Throws()
 		{
 			using (var reader = new FastXmlElementSplitter(Assembly.GetExecutingAssembly().CodeBase.Replace(@"file:///", null)))
 			{
-				reader.GetSecondLevelElementBytes(null);
+				Assert.Throws<ArgumentException>(() => reader.GetSecondLevelElementBytes(null));
 			}
 		}
 
-		[Test, ExpectedException(typeof(ArgumentException)), Category("SkipOnBuildServer")]
+		[Test]
 		public void Empty_String_Parameter_Throws()
 		{
 			using (var reader = new FastXmlElementSplitter(Assembly.GetExecutingAssembly().CodeBase.Replace(@"file:///", null)))
 			{
-				reader.GetSecondLevelElementBytes("");
+				Assert.Throws<ArgumentException>(() => reader.GetSecondLevelElementBytes(""));
 			}
 		}
 
@@ -94,7 +94,7 @@ namespace LibChorus.Tests.utilities
 			}
 		}
 
-		[Test, ExpectedException(typeof(InvalidOperationException)), Category("SkipOnBuildServer")]
+		[Test]
 		public void Not_Xml_Throws()
 		{
 			const string noRecordsInput = "Some random text file.";
@@ -104,7 +104,7 @@ namespace LibChorus.Tests.utilities
 				File.WriteAllText(goodPathname, noRecordsInput, Encoding.UTF8);
 				using (var reader = new FastXmlElementSplitter(goodPathname))
 				{
-					reader.GetSecondLevelElementBytes("rt");
+					Assert.Throws<InvalidOperationException>(() => reader.GetSecondLevelElementBytes("rt"));
 				}
 			}
 			finally

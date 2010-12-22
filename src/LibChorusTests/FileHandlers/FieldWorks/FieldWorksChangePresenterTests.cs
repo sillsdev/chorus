@@ -206,10 +206,10 @@ color: 'purple';
 			Assert.AreEqual("Change", changePresenter.GetActionLabel());
 		}
 
-		[Test, ExpectedException(typeof(NullReferenceException)), Category("SkipOnBuildServer")]
+		[Test]
 		public void GetHtml_Has_Null_Input()
 		{
-			m_changePresenter.GetHtml(null, null);
+			Assert.Throws<NullReferenceException>(() => m_changePresenter.GetHtml(null, null));
 		}
 
 		[Test]

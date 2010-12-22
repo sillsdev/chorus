@@ -26,24 +26,24 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 		}
 
 		/// <summary></summary>
-		[Test, ExpectedException(typeof(ArgumentNullException)), Category("SkipOnBuildServer")]
+		[Test]
 		public void Access_Class_Info_With_Null_ClassName_Throws()
 		{
-			_mdc.GetClassInfo(null);
+			Assert.Throws<ArgumentNullException>(() => _mdc.GetClassInfo(null));
 		}
 
 		/// <summary></summary>
-		[Test, ExpectedException(typeof(ArgumentNullException)), Category("SkipOnBuildServer")]
+		[Test]
 		public void Access_Class_Info_With_Empty_String_For_ClassName_Throws()
 		{
-			_mdc.GetClassInfo("");
+			Assert.Throws<ArgumentNullException>(() => _mdc.GetClassInfo(""));
 		}
 
 		/// <summary></summary>
-		[Test, ExpectedException(typeof(KeyNotFoundException)), Category("SkipOnBuildServer")]
+		[Test]
 		public void Access_Class_Info_With_Bogus_ClassName_Throws()
 		{
-			_mdc.GetClassInfo("Bogus");
+			Assert.Throws<KeyNotFoundException>(() => _mdc.GetClassInfo("Bogus"));
 		}
 
 		/// <summary></summary>

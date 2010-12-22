@@ -29,19 +29,19 @@ namespace LibChorus.Tests.merge.xml.generic
 			Assert.IsTrue(elementStrategy.IsAtomic);
 		}
 
-		[Test, ExpectedException(typeof(ArgumentNullException)), Category("SkipOnBuildServer")]
+		[Test]
 		public void NullMergerThrows()
 		{
 			var doc = new XmlDocument();
 			var node = doc.CreateNode(XmlNodeType.Element, "somenode", null);
-			MergeAtomicElementService.Run(null, ref node, node, node);
+			Assert.Throws<ArgumentNullException>(() => MergeAtomicElementService.Run(null, ref node, node, node));
 		}
 
-		[Test, ExpectedException(typeof(ArgumentNullException)), Category("SkipOnBuildServer")]
+		[Test]
 		public void AllNullNodesThrows()
 		{
 			XmlNode node = null;
-			MergeAtomicElementService.Run(new XmlMerger(new NullMergeSituation()), ref node, node, node);
+			Assert.Throws<ArgumentNullException>(() => MergeAtomicElementService.Run(new XmlMerger(new NullMergeSituation()), ref node, node, node));
 		}
 
 		[Test]
