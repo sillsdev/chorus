@@ -6,6 +6,7 @@ using Chorus.UI;
 using Chorus.UI.Notes;
 using Chorus.Utilities;
 using NUnit.Framework;
+using Palaso.Progress.LogBox;
 
 namespace Chorus.Tests
 {

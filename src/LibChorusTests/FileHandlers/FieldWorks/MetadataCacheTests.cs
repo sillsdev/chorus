@@ -5,6 +5,7 @@ using System.Linq;
 using Chorus.FileTypeHanders.FieldWorks;
 using Chorus.Utilities;
 using NUnit.Framework;
+using Palaso.Progress.LogBox;
 
 namespace LibChorus.Tests.FileHandlers.FieldWorks
 {

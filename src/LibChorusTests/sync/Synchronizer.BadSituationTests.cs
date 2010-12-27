@@ -8,6 +8,7 @@ using Chorus.VcsDrivers.Mercurial;
 using LibChorus.Tests.merge;
 using LibChorus.Tests.VcsDrivers.Mercurial;
 using NUnit.Framework;
+using Palaso.Progress.LogBox;
 
 namespace LibChorus.Tests.sync
 {

@@ -11,6 +11,7 @@ using Chorus.UI.Notes.Html;
 using Chorus.UI.Review;
 using Chorus.Utilities;
 using NUnit.Framework;
+using Palaso.Progress.LogBox;
 
 namespace Chorus.Tests.notes
 {

@@ -5,6 +5,7 @@ using System.Linq;
 using Chorus.notes;
 using Chorus.sync;
 using Chorus.Utilities;
+using Palaso.Progress.LogBox;
 
 namespace Chorus.UI.Notes.Browser
 {

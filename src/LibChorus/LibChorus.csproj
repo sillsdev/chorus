@@ -196,7 +196,6 @@
 	<Compile Include="Utilities\ini\OrderedListEnumerator.cs" />
 	<Compile Include="Utilities\ExecutionEnvironment.cs" />
 	<Compile Include="Utilities\ProcessStream.cs" />
-	<Compile Include="Utilities\Progress.cs" />
 	<Compile Include="Utilities\ShortTermEnvironmentalVariable.cs" />
 	<Compile Include="Utilities\TempFile.cs" />
 	<Compile Include="VcsDrivers\Git\GitRepository.cs" />

@@ -1,4 +1,6 @@
-﻿namespace Chorus.UI.Sync
+﻿using Palaso.Progress.LogBox;
+
+namespace Chorus.UI.Sync
 {
 	partial class BridgeSyncControl
 	{
@@ -35,7 +37,7 @@
 			this._successIcon = new System.Windows.Forms.PictureBox();
 			this.progressBar1 = new System.Windows.Forms.ProgressBar();
 			this._syncStartControl = new Chorus.UI.Sync.SyncStartControl();
-			this._logBox = new Chorus.UI.Misc.LogBox();
+			this._logBox = new LogBox();
 			this._splitContainer.Panel1.SuspendLayout();
 			this._splitContainer.Panel2.SuspendLayout();
 			this._splitContainer.SuspendLayout();
@@ -149,7 +151,7 @@
 
 		private System.Windows.Forms.SplitContainer _splitContainer;
 		private SyncStartControl _syncStartControl;
-		private Chorus.UI.Misc.LogBox _logBox;
+		private LogBox _logBox;
 		private System.Windows.Forms.Label _statusText;
 		private System.Windows.Forms.PictureBox _successIcon;
 		private System.Windows.Forms.ProgressBar progressBar1;

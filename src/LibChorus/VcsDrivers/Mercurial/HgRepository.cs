@@ -12,6 +12,7 @@ using Chorus.Utilities;
 using Chorus.Utilities.code;
 using Nini.Ini;
 using Palaso.Network;
+using Palaso.Progress.LogBox;
 
 namespace Chorus.VcsDrivers.Mercurial
 {

@@ -1,6 +1,7 @@
 using System;
 using System.Windows.Forms;
 using Chorus.Utilities;
+using Palaso.Progress.LogBox;
 
 namespace Chorus.UI.Settings
 {

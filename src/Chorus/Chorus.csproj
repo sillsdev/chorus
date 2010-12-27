@@ -113,12 +113,6 @@
 	  <DependentUpon>GetCloneFromUsbDialog.cs</DependentUpon>
 	</Compile>
 	<Compile Include="UI\Misc\ServerSettingsModel.cs" />
-	<Compile Include="UI\Misc\LogBox.cs">
-	  <SubType>UserControl</SubType>
-	</Compile>
-	<Compile Include="UI\Misc\LogBox.Designer.cs">
-	  <DependentUpon>LogBox.cs</DependentUpon>
-	</Compile>
 	<Compile Include="UI\Misc\TroubleshootingView.cs">
 	  <SubType>UserControl</SubType>
 	</Compile>
@@ -352,9 +346,6 @@
 	<EmbeddedResource Include="UI\Clone\GetCloneFromUsbDialog.resx">
 	  <DependentUpon>GetCloneFromUsbDialog.cs</DependentUpon>
 	  <SubType>Designer</SubType>
-	</EmbeddedResource>
-	<EmbeddedResource Include="UI\Misc\LogBox.resx">
-	  <DependentUpon>LogBox.cs</DependentUpon>
 	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Misc\TroubleshootingView.resx">
 	  <DependentUpon>TroubleshootingView.cs</DependentUpon>
