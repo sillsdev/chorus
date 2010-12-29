@@ -81,10 +81,20 @@ namespace Chorus.UI.Notes.Browser
 //                    return false;
 //            }
 
-			return string.IsNullOrEmpty(_searchText)
-				   || annotation.LabelOfThingAnnotated.StartsWith(_searchText)
-				   || annotation.ClassName.StartsWith(_searchText)
-				   || message.Author.StartsWith(_searchText);
+			if (string.IsNullOrEmpty(_searchText))
+				return true;
+
+			string t = _searchText.ToLowerInvariant();
+			if(  annotation.LabelOfThingAnnotated.ToLowerInvariant().StartsWith(t)
+				   || annotation.ClassName.ToLowerInvariant().StartsWith(t)
+				   || message.Author.ToLowerInvariant().StartsWith(t))
+				return true;
+
+			if (t.Length > 2)//arbitrary, but don't want to search on ever last letter
+			{
+				return message.Text.ToLowerInvariant().Contains(t);
+			}
+			return false;
 		}
 
 		public void CloseAnnotation(ListMessage listMessage)
