@@ -59,8 +59,6 @@ namespace Chorus
 			return shell;
 		}
 
-
-
 		public void Dispose()
 		{
 			_container.Dispose();
