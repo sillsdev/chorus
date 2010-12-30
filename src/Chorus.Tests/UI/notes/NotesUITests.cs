@@ -130,6 +130,8 @@ namespace Chorus.Tests.notes
 
 		private void ShowBrowser(IEnumerable<AnnotationRepository> repositories)
 		{
+			//TODO (jh/jh): something here seems screwed up... we create a NotesInProjectViewModel here, and yet so does the NotesBrowserPage
+
 			var messageSelected = new MessageSelectedEvent();
 			NotesInProjectViewModel notesInProjectModel = new NotesInProjectViewModel(new ChorusUser("Bob"), repositories, messageSelected, new ConsoleProgress());
 

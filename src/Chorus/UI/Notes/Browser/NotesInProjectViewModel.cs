@@ -152,16 +152,31 @@ namespace Chorus.UI.Notes.Browser
 		public void NotifyOfAddition(Annotation annotation)
 		{
 			_reloadPending=true;
+			SaveChanges();
+		}
+
+
+		private void SaveChanges()
+		{
+			//this is a bit of a hack... seems like different clients have different times of saving;
+			//not sure what the better answer would be.
+
+			foreach (var repository in _repositories)
+			{
+				repository.SaveNowIfNeeded(new NullProgress());
+			}
 		}
 
 		public void NotifyOfModification(Annotation annotation)
 		{
 			_reloadPending = true;
+			SaveChanges();
 		}
 
 		public void NotifyOfDeletion(Annotation annotation)
 		{
 			_reloadPending = true;
+			SaveChanges();
 		}
 
 		#endregion
