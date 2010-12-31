@@ -139,6 +139,35 @@ namespace LibChorus.Tests.merge.xml.lift
 		}
 
 		[Test]
+		public void IdHasEntityDoesNotGenerateReports()
+		{
+			var parent = @"<?xml version='1.0' encoding='utf-8'?>
+					<lift version='0.10' producer='WeSay 1.0.0.0'>
+
+	<entry
+		id=""Id'dPrematurely_18d66025-59bc-4bd0-b59c-0f01ae09dede""
+		dateCreated='2009-09-14T10:02:26Z'
+		dateModified='2009-09-14T10:26:21Z'
+		guid='18d66025-59bc-4bd0-b59c-0f01ae09dede'>
+	</entry>
+					</lift>";
+			var child = @"<?xml version='1.0' encoding='utf-8'?>
+					<lift version='0.10' producer='WeSay 1.0.0.0'>
+<entry dateCreated='2009-09-14T10:02:26Z' dateModified='2009-09-14T10:26:21Z' guid='18d66025-59bc-4bd0-b59c-0f01ae09dede' id=""Id&apos;dPrematurely_18d66025-59bc-4bd0-b59c-0f01ae09dede"">
+</entry>
+					</lift>";
+			using (var parentTempFile = new TempFile(parent))
+			using (var childTempFile = new TempFile(child))
+			{
+				var listener = new ListenerForUnitTests();
+				var differ = Xml2WayDiffer.CreateFromFiles(parentTempFile.Path, childTempFile.Path, listener,
+					"header", "entry", "id");
+				differ.ReportDifferencesToListener();
+				listener.AssertExpectedChangesCount(0);
+			}
+		}
+
+		[Test]
 		public void DeletionReport_Not_ProducedForDeletedAnnotationUsingNotesHandler()
 		{
 			const string parent = @"<?xml version='1.0' encoding='utf-8'?>

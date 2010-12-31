@@ -85,10 +85,15 @@ namespace Chorus.Utilities
 			{
 				return (end == -1)
 						? null
-						: _utf8.GetString(input.SubArray(start, end - start)).ToLowerInvariant();
+						: ReplaceBasicSetOfEntitites(_utf8.GetString(input.SubArray(start, end - start)).ToLowerInvariant());
 			}
 
 			return GetAttribute(name, closeQuote, input.SubArray(end + 1, input.Length - end));
+		}
+
+		private static string ReplaceBasicSetOfEntitites(string input)
+		{
+			return input.Replace("&amp;", "&").Replace("&lt;", "<").Replace("&gt;", ">").Replace("&quot;", "\"").Replace("&apos;", "'");
 		}
 
 		private static bool IsWhitespace(byte input)
