@@ -93,7 +93,12 @@ namespace Chorus.Utilities
 
 		private static string ReplaceBasicSetOfEntitites(string input)
 		{
-			return input.Replace("&amp;", "&").Replace("&lt;", "<").Replace("&gt;", ">").Replace("&quot;", "\"").Replace("&apos;", "'");
+			return input
+				.Replace("&amp;", "&")
+				.Replace("&lt;", "<")
+				.Replace("&gt;", ">")
+				.Replace("&quot;", "\"")
+				.Replace("&apos;", "'");
 		}
 
 		private static bool IsWhitespace(byte input)

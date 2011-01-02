@@ -143,7 +143,6 @@ namespace LibChorus.Tests.merge.xml.lift
 		{
 			var parent = @"<?xml version='1.0' encoding='utf-8'?>
 					<lift version='0.10' producer='WeSay 1.0.0.0'>
-
 	<entry
 		id=""Id'dPrematurely_18d66025-59bc-4bd0-b59c-0f01ae09dede""
 		dateCreated='2009-09-14T10:02:26Z'

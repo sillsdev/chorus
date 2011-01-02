@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Chorus.FileTypeHanders;
@@ -16,13 +17,13 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 	[TestFixture]
 	public class FieldWorksFileMergeTests
 	{
-		private IChorusFileTypeHandler m_fwFileHandler;
-		private ListenerForUnitTests m_eventListener;
+		private IChorusFileTypeHandler _fwFileHandler;
+		private ListenerForUnitTests _eventListener;
 
 		[TestFixtureSetUp]
 		public void FixtureSetup()
 		{
-			m_fwFileHandler = (from handler in ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers().Handers
+			_fwFileHandler = (from handler in ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers().Handers
 							   where handler.GetType().Name == "FieldWorksFileHandler"
 							   select handler).First();
 		}
@@ -30,19 +31,19 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 		[TestFixtureTearDown]
 		public void FixtureTearDown()
 		{
-			m_fwFileHandler = null;
+			_fwFileHandler = null;
 		}
 
 		[Test]
 		public void Cannot_Merge_Nonexistant_File()
 		{
-			Assert.IsFalse(m_fwFileHandler.CanMergeFile("bogusPathname"));
+			Assert.IsFalse(_fwFileHandler.CanMergeFile("bogusPathname"));
 		}
 
 		[Test]
 		public void Cannot_Merge_Empty_String_File()
 		{
-			Assert.IsFalse(m_fwFileHandler.CanMergeFile(String.Empty));
+			Assert.IsFalse(_fwFileHandler.CanMergeFile(String.Empty));
 		}
 
 		[Test]
@@ -54,7 +55,7 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 // ReSharper disable LocalizableElement
 				File.WriteAllText(goodXmlPathname, "<?xml version='1.0' encoding='utf-8'?>" + Environment.NewLine + "<languageproject version='7000016' />");
 // ReSharper restore LocalizableElement
-				Assert.IsTrue(m_fwFileHandler.CanMergeFile(goodXmlPathname));
+				Assert.IsTrue(_fwFileHandler.CanMergeFile(goodXmlPathname));
 			}
 			finally
 			{
@@ -65,13 +66,13 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 		[Test]
 		public void Cannot_Merge_Null_File()
 		{
-			Assert.IsFalse(m_fwFileHandler.CanMergeFile(null));
+			Assert.IsFalse(_fwFileHandler.CanMergeFile(null));
 		}
 
 		[Test]
 		public void Do3WayMerge_Throws()
 		{
-			Assert.Throws<NullReferenceException>(() => m_fwFileHandler.Do3WayMerge(null));
+			Assert.Throws<NullReferenceException>(() => _fwFileHandler.Do3WayMerge(null));
 		}
 
 		[Test]
@@ -85,11 +86,9 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 			var ourContent = commonAncestor.Replace("</languageproject>", "<rt class='LexEntry' guid='newbieOurs'/></languageproject>");
 			var theirContent = commonAncestor.Replace("</languageproject>", "<rt class='LexEntry' guid='newbieTheirs'/></languageproject>");
 
-			var result = DoMerge(commonAncestor, ourContent, theirContent);
-			XmlTestHelper.AssertXPathMatchesExactlyOne(result, @"languageproject/rt[@guid=""oldie""]");
-			XmlTestHelper.AssertXPathMatchesExactlyOne(result, @"languageproject/rt[@guid=""newbieOurs""]");
-			XmlTestHelper.AssertXPathMatchesExactlyOne(result, @"languageproject/rt[@guid=""newbieTheirs""]");
-			m_eventListener.AssertExpectedConflictCount(0);
+			DoMerge(commonAncestor, ourContent, theirContent,
+				new List<string> { @"languageproject/rt[@guid=""oldie""]", @"languageproject/rt[@guid=""newbieOurs""]", @"languageproject/rt[@guid=""newbieTheirs""]"}, null,
+				0, 0);
 		}
 
 		[Test]
@@ -106,12 +105,11 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 <rt class='LexEntry' guid='oldie'/>
 </languageproject>";
 			var ourContent = commonAncestor.Replace("</languageproject>", "<rt class='LexEntry' guid='newbieOurs'/></languageproject>");
-			var theirContent = commonAncestor;
+			const string theirContent = commonAncestor;
 
-			var result = DoMerge(commonAncestor, ourContent, theirContent);
-			XmlTestHelper.AssertXPathMatchesExactlyOne(result, @"languageproject/rt[@guid=""oldie""]");
-			XmlTestHelper.AssertXPathMatchesExactlyOne(result, @"languageproject/rt[@guid=""newbieOurs""]");
-			m_eventListener.AssertExpectedConflictCount(0);
+			DoMerge(commonAncestor, ourContent, theirContent,
+				new List<string> { @"languageproject/rt[@guid=""oldie""]", @"languageproject/rt[@guid=""newbieOurs""]" }, null,
+				0, 0);
 		}
 
 		[Test]
@@ -122,13 +120,12 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 <languageproject version='7000016'>
 <rt class='LexEntry' guid='oldie'/>
 </languageproject>";
-			var ourContent = commonAncestor;
+			const string ourContent = commonAncestor;
 			var theirContent = commonAncestor.Replace("</languageproject>", "<rt class='LexEntry' guid='newbieTheirs'/></languageproject>");
 
-			var result = DoMerge(commonAncestor, ourContent, theirContent);
-			XmlTestHelper.AssertXPathMatchesExactlyOne(result, @"languageproject/rt[@guid=""oldie""]");
-			XmlTestHelper.AssertXPathMatchesExactlyOne(result, @"languageproject/rt[@guid=""newbieTheirs""]");
-			m_eventListener.AssertExpectedConflictCount(0);
+			DoMerge(commonAncestor, ourContent, theirContent,
+				new List<string> { @"languageproject/rt[@guid=""oldie""]", @"languageproject/rt[@guid=""newbieTheirs""]" }, null,
+				0, 0);
 		}
 
 		[Test]
@@ -141,12 +138,12 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 <rt class='LexEntry' guid='goner'/>
 </languageproject>";
 			var ourContent = commonAncestor.Replace("<rt class='LexEntry' guid='goner'/>", null);
-			var theirContent = commonAncestor;
+			const string theirContent = commonAncestor;
 
-			var result = DoMerge(commonAncestor, ourContent, theirContent);
-			XmlTestHelper.AssertXPathMatchesExactlyOne(result, @"languageproject/rt[@guid=""oldie""]");
-			XmlTestHelper.AssertXPathIsNull(result, @"languageproject/rt[@guid=""goner""]");
-			m_eventListener.AssertExpectedConflictCount(0);
+			DoMerge(commonAncestor, ourContent, theirContent,
+				new List<string> { @"languageproject/rt[@guid=""oldie""]" },
+				new List<string> { @"languageproject/rt[@guid=""goner""]" },
+				0, 0);
 		}
 
 		[Test]
@@ -158,13 +155,13 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 <rt class='LexEntry' guid='oldie'/>
 <rt class='LexEntry' guid='goner'/>
 </languageproject>";
-			var ourContent = commonAncestor;
+			const string ourContent = commonAncestor;
 			var theirContent = commonAncestor.Replace("<rt class='LexEntry' guid='goner'/>", null);
 
-			var result = DoMerge(commonAncestor, ourContent, theirContent);
-			XmlTestHelper.AssertXPathMatchesExactlyOne(result, @"languageproject/rt[@guid=""oldie""]");
-			XmlTestHelper.AssertXPathIsNull(result, @"languageproject/rt[@guid=""goner""]");
-			m_eventListener.AssertExpectedConflictCount(0);
+			DoMerge(commonAncestor, ourContent, theirContent,
+				new List<string> { @"languageproject/rt[@guid=""oldie""]" },
+				new List<string> { @"languageproject/rt[@guid=""goner""]" },
+				0, 0);
 		}
 
 		[Test]
@@ -179,10 +176,10 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 			var ourContent = commonAncestor.Replace("<rt class='LexEntry' guid='goner'/>", null);
 			var theirContent = commonAncestor.Replace("<rt class='LexEntry' guid='goner'/>", null);
 
-			var result = DoMerge(commonAncestor, ourContent, theirContent);
-			XmlTestHelper.AssertXPathMatchesExactlyOne(result, @"languageproject/rt[@guid=""oldie""]");
-			XmlTestHelper.AssertXPathIsNull(result, @"languageproject/rt[@guid=""goner""]");
-			m_eventListener.AssertExpectedConflictCount(0);
+			DoMerge(commonAncestor, ourContent, theirContent,
+				new List<string> { @"languageproject/rt[@guid=""oldie""]" },
+				new List<string> { @"languageproject/rt[@guid=""goner""]" },
+				0, 0);
 		}
 
 		[Test]
@@ -197,11 +194,10 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 			var ourContent = commonAncestor.Replace("originalOwner", "newOwner");
 			var theirContent = commonAncestor.Replace("originalOwner", "newOwner");
 
-			var result = DoMerge(commonAncestor, ourContent, theirContent);
-			XmlTestHelper.AssertXPathMatchesExactlyOne(result, @"languageproject/rt[@guid=""oldie""]");
-			XmlTestHelper.AssertXPathMatchesExactlyOne(result, @"languageproject/rt[@ownerguid=""newOwner""]");
-			XmlTestHelper.AssertXPathIsNull(result, @"languageproject/rt[@ownerguid=""originalOwner""]");
-			m_eventListener.AssertExpectedConflictCount(0);
+			DoMerge(commonAncestor, ourContent, theirContent,
+				new List<string> { @"languageproject/rt[@guid=""oldie""]",  @"languageproject/rt[@ownerguid=""newOwner""]"},
+				new List<string> { @"languageproject/rt[@ownerguid=""originalOwner""]" },
+				0, 0);
 		}
 
 		[Test]
@@ -216,13 +212,11 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 			var ourContent = commonAncestor.Replace("originalOwner", "newWinningOwner");
 			var theirContent = commonAncestor.Replace("originalOwner", "newLosingOwner");
 
-			var result = DoMerge(commonAncestor, ourContent, theirContent);
-			XmlTestHelper.AssertXPathMatchesExactlyOne(result, @"languageproject/rt[@guid=""oldie""]");
-			XmlTestHelper.AssertXPathMatchesExactlyOne(result, @"languageproject/rt[@ownerguid=""newWinningOwner""]");
-			XmlTestHelper.AssertXPathIsNull(result, @"languageproject/rt[@ownerguid=""originalOwner""]");
-			XmlTestHelper.AssertXPathIsNull(result, @"languageproject/rt[@ownerguid=""newLosingOwner""]");
-			m_eventListener.AssertExpectedConflictCount(1);
-			m_eventListener.AssertFirstConflictType<BothEditedAttributeConflict>();
+			DoMerge(commonAncestor, ourContent, theirContent,
+				new List<string> { @"languageproject/rt[@guid=""oldie""]", @"languageproject/rt[@ownerguid=""newWinningOwner""]" },
+				new List<string> { @"languageproject/rt[@ownerguid=""originalOwner""]", @"languageproject/rt[@ownerguid=""newLosingOwner""]" },
+				1, 0);
+			_eventListener.AssertFirstConflictType<BothEditedAttributeConflict>();
 		}
 
 		[Test]
@@ -238,11 +232,10 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 			var ourContent = commonAncestor.Replace("originalOwner", "newOwner");
 			const string theirContent = commonAncestor;
 
-			var result = DoMerge(commonAncestor, ourContent, theirContent);
-			XmlTestHelper.AssertXPathMatchesExactlyOne(result, @"languageproject/rt[@guid=""oldie""]");
-			XmlTestHelper.AssertXPathMatchesExactlyOne(result, @"languageproject/rt[@ownerguid=""newOwner""]");
-			XmlTestHelper.AssertXPathIsNull(result, @"languageproject/rt[@ownerguid=""originalOwner""]");
-			m_eventListener.AssertExpectedConflictCount(0);
+			DoMerge(commonAncestor, ourContent, theirContent,
+				new List<string> { @"languageproject/rt[@guid=""oldie""]", @"languageproject/rt[@ownerguid=""newOwner""]" },
+				new List<string> { @"languageproject/rt[@ownerguid=""originalOwner""]" },
+				0, 0);
 		}
 
 		[Test]
@@ -257,11 +250,10 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 			const string ourContent = commonAncestor;
 			var theirContent = commonAncestor.Replace("originalOwner", "newOwner");
 
-			var result = DoMerge(commonAncestor, ourContent, theirContent);
-			XmlTestHelper.AssertXPathMatchesExactlyOne(result, @"languageproject/rt[@guid=""oldie""]");
-			XmlTestHelper.AssertXPathMatchesExactlyOne(result, @"languageproject/rt[@ownerguid=""newOwner""]");
-			XmlTestHelper.AssertXPathIsNull(result, @"languageproject/rt[@ownerguid=""originalOwner""]");
-			m_eventListener.AssertExpectedConflictCount(0);
+			DoMerge(commonAncestor, ourContent, theirContent,
+				new List<string> { @"languageproject/rt[@guid=""oldie""]", @"languageproject/rt[@ownerguid=""newOwner""]" },
+				new List<string> { @"languageproject/rt[@ownerguid=""originalOwner""]" },
+				0, 0);
 		}
 
 		[Test]
@@ -276,12 +268,11 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 			var ourContent = commonAncestor.Replace("originalOwner", "newOwner");
 			var theirContent = commonAncestor.Replace("<rt class='LexEntry' guid='dirtball' ownerguid='originalOwner'/>", null);
 
-			var result = DoMerge(commonAncestor, ourContent, theirContent);
-			XmlTestHelper.AssertXPathMatchesExactlyOne(result, @"languageproject/rt[@guid=""oldie""]");
-			XmlTestHelper.AssertXPathMatchesExactlyOne(result, @"languageproject/rt[@ownerguid=""newOwner""]");
-			XmlTestHelper.AssertXPathIsNull(result, @"languageproject/rt[@ownerguid=""originalOwner""]");
-			m_eventListener.AssertExpectedConflictCount(1);
-			m_eventListener.AssertFirstConflictType<EditedVsRemovedElementConflict>();
+			DoMerge(commonAncestor, ourContent, theirContent,
+				new List<string> { @"languageproject/rt[@guid=""oldie""]", @"languageproject/rt[@ownerguid=""newOwner""]" },
+				new List<string> { @"languageproject/rt[@ownerguid=""originalOwner""]" },
+				1, 0);
+			_eventListener.AssertFirstConflictType<EditedVsRemovedElementConflict>();
 		}
 
 		[Test]
@@ -296,12 +287,11 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 			var ourContent = commonAncestor.Replace("<rt class='LexEntry' guid='dirtball' ownerguid='originalOwner'/>", null);
 			var theirContent = commonAncestor.Replace("originalOwner", "newOwner");
 
-			var result = DoMerge(commonAncestor, ourContent, theirContent);
-			XmlTestHelper.AssertXPathMatchesExactlyOne(result, @"languageproject/rt[@guid=""oldie""]");
-			XmlTestHelper.AssertXPathIsNull(result, @"languageproject/rt[@ownerguid=""originalOwner""]");
-			XmlTestHelper.AssertXPathMatchesExactlyOne(result, @"languageproject/rt[@ownerguid=""newOwner""]");
-			m_eventListener.AssertExpectedConflictCount(1);
-			m_eventListener.AssertFirstConflictType<RemovedVsEditedElementConflict>();
+			DoMerge(commonAncestor, ourContent, theirContent,
+				new List<string> { @"languageproject/rt[@guid=""oldie""]", @"languageproject/rt[@ownerguid=""newOwner""]" },
+				new List<string> { @"languageproject/rt[@ownerguid=""originalOwner""]" },
+				1, 0);
+			_eventListener.AssertFirstConflictType<RemovedVsEditedElementConflict>();
 		}
 
 		[Test]
@@ -326,29 +316,37 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 <rt class='LexEntry' guid='original'/>
 </languageproject>";
 
-			var result = DoMerge(commonAncestor, ourContent, theirContent);
-			XmlTestHelper.AssertXPathMatchesExactlyOne(result, @"languageproject/AdditionalFields");
-			XmlTestHelper.AssertXPathMatchesExactlyOne(result, @"languageproject/AdditionalFields/CustomField[@name=""Certified""]");
-			m_eventListener.AssertExpectedChangesCount(0);
-			m_eventListener.AssertExpectedConflictCount(0);
+			DoMerge(commonAncestor, ourContent, theirContent,
+				new List<string> { @"languageproject/AdditionalFields", @"languageproject/AdditionalFields/CustomField[@name=""Certified""]" },
+				null,
+				0, 0);
 		}
 
-		private string DoMerge(string commonAncestor, string ourContent, string theirContent)
+		private void DoMerge(string commonAncestor, string ourContent, string theirContent,
+			IEnumerable<string> matchesExactlyOne, IEnumerable<string> isNull,
+			int expectedConflictCount, int expectedChangesCount)
 		{
-			string result;
 			using (var ours = new TempFile(ourContent))
 			using (var theirs = new TempFile(theirContent))
 			using (var ancestor = new TempFile(commonAncestor))
 			{
 				var situation = new NullMergeSituation();
 				var mergeOrder = new MergeOrder(ours.Path, ancestor.Path, theirs.Path, situation);
-				m_eventListener = new ListenerForUnitTests();
-				mergeOrder.EventListener = m_eventListener;
+				_eventListener = new ListenerForUnitTests();
+				mergeOrder.EventListener = _eventListener;
 
-				m_fwFileHandler.Do3WayMerge(mergeOrder);
-				result = File.ReadAllText(ours.Path);
+				_fwFileHandler.Do3WayMerge(mergeOrder);
+				var result = File.ReadAllText(ours.Path);
+				foreach (var query in matchesExactlyOne)
+					XmlTestHelper.AssertXPathMatchesExactlyOne(result, query);
+				if (isNull != null)
+				{
+					foreach (var query in isNull)
+						XmlTestHelper.AssertXPathIsNull(result, query);
+				}
+				_eventListener.AssertExpectedConflictCount(expectedConflictCount);
+				_eventListener.AssertExpectedChangesCount(expectedChangesCount);
 			}
-			return result;
 		}
 	}
 }
