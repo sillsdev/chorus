@@ -47,7 +47,7 @@ namespace Chorus.FileTypeHanders.FieldWorks
 			var strategy = new ElementStrategy(orderOfTheseIsRelevant)
 							{
 								MergePartnerFinder = _sameName,
-								ContextDescriptorGenerator = _contextGen
+								//ContextDescriptorGenerator = _contextGen
 							};
 			return strategy;
 		}
@@ -73,8 +73,8 @@ namespace Chorus.FileTypeHanders.FieldWorks
 			AddSharedImmutableSingletonElementType(sharedElementStrategies, ImmutableSingleton, false);
 
 			AddSharedSingletonElementType(sharedElementStrategies, MutableSingleton, false);
-			AddSharedKeyedByWsElementType(sharedElementStrategies, AStr, false);
-			AddSharedKeyedByWsElementType(sharedElementStrategies, AUni, false);
+			AddSharedKeyedByWsElementType(sharedElementStrategies, AStr, false, true);
+			AddSharedKeyedByWsElementType(sharedElementStrategies, AUni, false, true);
 
 			// Set up shared custom strategies
 			// Main declaration element
@@ -82,12 +82,12 @@ namespace Chorus.FileTypeHanders.FieldWorks
 			// Individual custom property declaration.
 			AddMultipleKeyedElementType(sharedElementStrategies, CustomField, new List<string> {"name", "class"}, false);
 			// Element in the data xml.
-			AddKeyedElementType(sharedElementStrategies, Custom, new FindByKeyAttribute("name"), false);
+			AddKeyedElementType(sharedElementStrategies, Custom, new FindByKeyAttribute("name"), false, false);
 		}
 
-		private static void AddSharedKeyedByWsElementType(IDictionary<string, ElementStrategy> sharedElementStrategies, string elementName, bool orderOfTheseIsRelevant)
+		private static void AddSharedKeyedByWsElementType(IDictionary<string, ElementStrategy> sharedElementStrategies, string elementName, bool orderOfTheseIsRelevant, bool isAtomic)
 		{
-			AddKeyedElementType(sharedElementStrategies, elementName, _wsKey, orderOfTheseIsRelevant);
+			AddKeyedElementType(sharedElementStrategies, elementName, _wsKey, orderOfTheseIsRelevant, isAtomic);
 		}
 
 		private static void AddMultipleKeyedElementType(IDictionary<string, ElementStrategy> sharedElementStrategies, string elementName, List<string> keyAttributes, bool orderOfTheseIsRelevant)
@@ -100,12 +100,13 @@ namespace Chorus.FileTypeHanders.FieldWorks
 			sharedElementStrategies.Add(elementName, strategy);
 		}
 
-		private static void AddKeyedElementType(IDictionary<string, ElementStrategy> sharedElementStrategies, string elementName, FindByKeyAttribute findBykeyAttribute, bool orderOfTheseIsRelevant)
+		private static void AddKeyedElementType(IDictionary<string, ElementStrategy> sharedElementStrategies, string elementName, IFindNodeToMerge findBykeyAttribute, bool orderOfTheseIsRelevant, bool isAtomic)
 		{
 			var strategy = new ElementStrategy(orderOfTheseIsRelevant)
-			{
-				MergePartnerFinder = findBykeyAttribute
-			};
+							{
+								MergePartnerFinder = findBykeyAttribute,
+								IsAtomic = isAtomic
+							};
 			//strategy.ContextDescriptorGenerator
 			sharedElementStrategies.Add(elementName, strategy);
 		}
@@ -195,6 +196,9 @@ We will just see if the corresponding <AStr> elements are the same or different.
 </AStr>
 </SummaryDefinition>
 							*/
+							strategiesForMerger.SetStrategy(propInfo.PropertyName, CreateSingletonElementType(false));
+							if (!strategiesForMerger.ElementStrategies.TryGetValue(AStr, out extantStrategy))
+								strategiesForMerger.SetStrategy(AStr, sharedElementStrategies[AStr]);
 							break;
 						case DataType.Unicode: // Ordinary C# string
 							/*

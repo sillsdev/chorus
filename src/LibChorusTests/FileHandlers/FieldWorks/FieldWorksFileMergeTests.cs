@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Xml.Linq;
 using Chorus.FileTypeHanders;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
@@ -322,10 +323,169 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 				0, 0);
 		}
 
-		private void DoMerge(string commonAncestor, string ourContent, string theirContent,
+		[Test]
+		public void RemovePartOfMultiString()
+		{
+			const string commonAncestor =
+@"<?xml version='1.0' encoding='utf-8'?>
+<languageproject version='7000016'>
+<rt class='LexEntry' guid='9bffac9d-432a-43ce-a947-8e9f93074d65'>
+<Comment>
+<AStr ws='en'>
+<Run ws='en'>variant </Run>
+<Run ws='es'>variante</Run>
+</AStr>
+</Comment>
+</rt>
+</languageproject>";
+			const string ourContent =
+@"<?xml version='1.0' encoding='utf-8'?>
+<languageproject version='7000016'>
+<rt class='LexEntry' guid='9bffac9d-432a-43ce-a947-8e9f93074d65'>
+<Comment>
+<AStr ws='en'>
+<Run ws='en'>variant </Run>
+</AStr>
+</Comment>
+</rt>
+</languageproject>";
+			const string theirContent =
+@"<?xml version='1.0' encoding='utf-8'?>
+<languageproject version='7000016'>
+<rt class='LexEntry' guid='9bffac9d-432a-43ce-a947-8e9f93074d65'>
+<Comment>
+<AStr ws='en'>
+<Run ws='en'>variant </Run>
+<Run ws='es'>variante</Run>
+</AStr>
+</Comment>
+</rt>
+</languageproject>";
+
+			DoMerge(commonAncestor, ourContent, theirContent,
+				new List<string> { @"languageproject/rt/Comment/AStr[@ws='en']", @"languageproject/rt/Comment/AStr/Run[@ws='en']" },
+				new List<string> { @"languageproject/rt/Comment/AStr/Run[@ws='es']" },
+				0, 0);
+		}
+
+		[Test]
+		public void EditDifferentPartsOfMultiStringGeneratesConflictReport()
+		{
+			const string commonAncestor =
+@"<?xml version='1.0' encoding='utf-8'?>
+<languageproject version='7000016'>
+<rt class='LexEntry' guid='9bffac9d-432a-43ce-a947-8e9f93074d65'>
+<Comment>
+<AStr ws='en'>
+<Run ws='en'>variant </Run>
+<Run ws='es'>variante</Run>
+</AStr>
+</Comment>
+</rt>
+</languageproject>";
+			const string ourContent =
+@"<?xml version='1.0' encoding='utf-8'?>
+<languageproject version='7000016'>
+<rt class='LexEntry' guid='9bffac9d-432a-43ce-a947-8e9f93074d65'>
+<Comment>
+<AStr ws='en'>
+<Run ws='en'>variantNew </Run>
+<Run ws='es'>variante</Run>
+</AStr>
+</Comment>
+</rt>
+</languageproject>";
+			const string theirContent =
+@"<?xml version='1.0' encoding='utf-8'?>
+<languageproject version='7000016'>
+<rt class='LexEntry' guid='9bffac9d-432a-43ce-a947-8e9f93074d65'>
+<Comment>
+<AStr ws='en'>
+<Run ws='en'>variant </Run>
+<Run ws='es'>varianteNew</Run>
+</AStr>
+</Comment>
+</rt>
+</languageproject>";
+
+			var result = DoMerge(commonAncestor, ourContent, theirContent,
+				new List<string> { @"languageproject/rt/Comment/AStr[@ws='en']",
+					@"languageproject/rt/Comment/AStr/Run[@ws='en']",
+					@"languageproject/rt/Comment/AStr/Run[@ws='es']" },
+				null,
+				1, 0);
+			var doc = XDocument.Parse(result);
+			var commentElement = doc.Element("languageproject").Element("rt").Element("Comment");
+			var enAlt = commentElement.Element("AStr");
+			var runs = enAlt.Descendants("Run");
+			Assert.AreEqual("variantNew ", runs.ElementAt(0).Value);
+			Assert.AreEqual("variante", runs.ElementAt(1).Value);
+		}
+
+		[Test]
+		public void EditDifferentPartsOfMultiStringGeneratesConflictReport_ButNewAltAdded()
+		{
+			const string commonAncestor =
+@"<?xml version='1.0' encoding='utf-8'?>
+<languageproject version='7000016'>
+<rt class='LexEntry' guid='9bffac9d-432a-43ce-a947-8e9f93074d65'>
+<Comment>
+<AStr ws='en'>
+<Run ws='en'>variant </Run>
+<Run ws='es'>variante</Run>
+</AStr>
+</Comment>
+</rt>
+</languageproject>";
+			const string ourContent =
+@"<?xml version='1.0' encoding='utf-8'?>
+<languageproject version='7000016'>
+<rt class='LexEntry' guid='9bffac9d-432a-43ce-a947-8e9f93074d65'>
+<Comment>
+<AStr ws='en'>
+<Run ws='en'>variantNew </Run>
+<Run ws='es'>variante</Run>
+</AStr>
+</Comment>
+</rt>
+</languageproject>";
+			const string theirContent =
+@"<?xml version='1.0' encoding='utf-8'?>
+<languageproject version='7000016'>
+<rt class='LexEntry' guid='9bffac9d-432a-43ce-a947-8e9f93074d65'>
+<Comment>
+<AStr ws='en'>
+<Run ws='en'>variant </Run>
+<Run ws='es'>varianteNew</Run>
+</AStr>
+<AStr ws='es'>
+<Run ws='es'>variante</Run>
+</AStr>
+</Comment>
+</rt>
+</languageproject>";
+
+			var result = DoMerge(commonAncestor, ourContent, theirContent,
+				new List<string> { @"languageproject/rt/Comment/AStr[@ws='en']",
+					@"languageproject/rt/Comment/AStr[@ws='en']/Run[@ws='en']",
+					@"languageproject/rt/Comment/AStr[@ws='en']/Run[@ws='es']",
+					@"languageproject/rt/Comment/AStr[@ws='es']",
+					@"languageproject/rt/Comment/AStr[@ws='es']/Run[@ws='es']",},
+				null,
+				1, 1); // 1 conflict, sinnce both edited the 'en' alternative: 1 change, since 'they' added the new 'es' altenative.
+			var doc = XDocument.Parse(result);
+			var commentElement = doc.Element("languageproject").Element("rt").Element("Comment");
+			var enAlt = commentElement.Element("AStr");
+			var runs = enAlt.Descendants("Run");
+			Assert.AreEqual("variantNew ", runs.ElementAt(0).Value);
+			Assert.AreEqual("variante", runs.ElementAt(1).Value);
+		}
+
+		private string DoMerge(string commonAncestor, string ourContent, string theirContent,
 			IEnumerable<string> matchesExactlyOne, IEnumerable<string> isNull,
 			int expectedConflictCount, int expectedChangesCount)
 		{
+			string result;
 			using (var ours = new TempFile(ourContent))
 			using (var theirs = new TempFile(theirContent))
 			using (var ancestor = new TempFile(commonAncestor))
@@ -336,7 +496,7 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 				mergeOrder.EventListener = _eventListener;
 
 				_fwFileHandler.Do3WayMerge(mergeOrder);
-				var result = File.ReadAllText(ours.Path);
+				result = File.ReadAllText(ours.Path);
 				foreach (var query in matchesExactlyOne)
 					XmlTestHelper.AssertXPathMatchesExactlyOne(result, query);
 				if (isNull != null)
@@ -347,6 +507,7 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 				_eventListener.AssertExpectedConflictCount(expectedConflictCount);
 				_eventListener.AssertExpectedChangesCount(expectedChangesCount);
 			}
+			return result;
 		}
 	}
 }
