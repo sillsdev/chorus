@@ -423,7 +423,7 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 		}
 
 		[Test]
-		public void EditDifferentPartsOfMultiStringGeneratesConflictReport_ButNewAltAdded()
+		public void EditDifferentPartsOfMultiStringGeneratesConflictReport_ButNewAltAddedWithChangeReport()
 		{
 			const string commonAncestor =
 @"<?xml version='1.0' encoding='utf-8'?>
@@ -470,15 +470,102 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 					@"languageproject/rt/Comment/AStr[@ws='en']/Run[@ws='en']",
 					@"languageproject/rt/Comment/AStr[@ws='en']/Run[@ws='es']",
 					@"languageproject/rt/Comment/AStr[@ws='es']",
-					@"languageproject/rt/Comment/AStr[@ws='es']/Run[@ws='es']",},
+					@"languageproject/rt/Comment/AStr[@ws='es']/Run[@ws='es']" },
 				null,
-				1, 1); // 1 conflict, sinnce both edited the 'en' alternative: 1 change, since 'they' added the new 'es' altenative.
+				1, 1); // 1 conflict, since both edited the 'en' alternative: 1 change, since 'they' added the new 'es' altenative.
 			var doc = XDocument.Parse(result);
 			var commentElement = doc.Element("languageproject").Element("rt").Element("Comment");
 			var enAlt = commentElement.Element("AStr");
 			var runs = enAlt.Descendants("Run");
 			Assert.AreEqual("variantNew ", runs.ElementAt(0).Value);
 			Assert.AreEqual("variante", runs.ElementAt(1).Value);
+		}
+
+		[Test]
+		public void BothEditMultuUnicodePropertyGeneratesConflictReport()
+		{
+			const string commonAncestor =
+@"<?xml version='1.0' encoding='utf-8'?>
+<languageproject version='7000016'>
+<rt class='CmPossibilityList' guid='d72a1748-be3b-4164-9858-bc99de37e434' ownerguid='9719a466-2240-4dea-9722-9fe0746a30a6'>
+<Name>
+<AUni ws='en'>Parts Of Speech</AUni>
+<AUni ws='es'>Categorías Gramáticas</AUni>
+<AUni ws='fr'>Parties du Discours</AUni>
+</Name>
+</rt>
+</languageproject>";
+			const string ourContent =
+@"<?xml version='1.0' encoding='utf-8'?>
+<languageproject version='7000016'>
+<rt class='CmPossibilityList' guid='d72a1748-be3b-4164-9858-bc99de37e434' ownerguid='9719a466-2240-4dea-9722-9fe0746a30a6'>
+<Name>
+<AUni ws='en'>Parts Of Speech We Changed</AUni>
+<AUni ws='es'>Categorías Gramáticas</AUni>
+<AUni ws='fr'>Parties du Discours</AUni>
+</Name>
+</rt>
+</languageproject>";
+			const string theirContent =
+@"<?xml version='1.0' encoding='utf-8'?>
+<languageproject version='7000016'>
+<rt class='CmPossibilityList' guid='d72a1748-be3b-4164-9858-bc99de37e434' ownerguid='9719a466-2240-4dea-9722-9fe0746a30a6'>
+<Name>
+<AUni ws='en'>Parts Of Speech They Changed</AUni>
+<AUni ws='es'>Categorías Gramáticas</AUni>
+<AUni ws='fr'>Parties du Discours</AUni>
+</Name>
+</rt>
+</languageproject>";
+
+			var result = DoMerge(commonAncestor, ourContent, theirContent,
+				new List<string> { @"languageproject/rt/Name/AUni[@ws='en']",
+					@"languageproject/rt/Name/AUni[@ws='es']",
+					@"languageproject/rt/Name/AUni[@ws='fr']"},
+				null,
+				1, 0); // 1 conflict, since both edited the 'en' alternative: 0 changes.
+		}
+
+		[Test]
+		public void EachDeletedOneAltWithOneChangeReported()
+		{
+			const string commonAncestor =
+@"<?xml version='1.0' encoding='utf-8'?>
+<languageproject version='7000016'>
+<rt class='CmPossibilityList' guid='d72a1748-be3b-4164-9858-bc99de37e434' ownerguid='9719a466-2240-4dea-9722-9fe0746a30a6'>
+<Name>
+<AUni ws='en'>Parts Of Speech</AUni>
+<AUni ws='es'>Categorías Gramáticas</AUni>
+<AUni ws='fr'>Parties du Discours</AUni>
+</Name>
+</rt>
+</languageproject>";
+			const string ourContent =
+@"<?xml version='1.0' encoding='utf-8'?>
+<languageproject version='7000016'>
+<rt class='CmPossibilityList' guid='d72a1748-be3b-4164-9858-bc99de37e434' ownerguid='9719a466-2240-4dea-9722-9fe0746a30a6'>
+<Name>
+<AUni ws='en'>Parts Of Speech</AUni>
+<AUni ws='fr'>Parties du Discours</AUni>
+</Name>
+</rt>
+</languageproject>";
+			const string theirContent =
+@"<?xml version='1.0' encoding='utf-8'?>
+<languageproject version='7000016'>
+<rt class='CmPossibilityList' guid='d72a1748-be3b-4164-9858-bc99de37e434' ownerguid='9719a466-2240-4dea-9722-9fe0746a30a6'>
+<Name>
+<AUni ws='en'>Parts Of Speech</AUni>
+<AUni ws='es'>Categorías Gramáticas</AUni>
+</Name>
+</rt>
+</languageproject>";
+
+			var result = DoMerge(commonAncestor, ourContent, theirContent,
+				new List<string> { @"languageproject/rt/Name/AUni[@ws='en']" },
+				new List<string> { @"languageproject/rt/Name/AUni[@ws='es']",
+					@"languageproject/rt/Name/AUni[@ws='fr']" },
+				0, 1);
 		}
 
 		private string DoMerge(string commonAncestor, string ourContent, string theirContent,

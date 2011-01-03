@@ -160,42 +160,11 @@ namespace Chorus.FileTypeHanders.FieldWorks
 
 						// Other data types
 						case DataType.MultiUnicode:
-							// Use new IsAtomic.
-							/*
-This ought to be a keyed widget with the key being the ws. Order of the <AUni> elements is not relevant.
-The diff could be in presence or absence of the property or an entire AUni element, or just in the content string.
-A conflict can happen if:
-							 * 1. an alternative was edited by both where the resulting string is not the same.
-							 * 2. somebody deleted an alternative, but the other edited it.
-							 * 3. both added the same alternative, but with different values.
-These are not conflicts, and can be merged automatically:
-							 * 1. Somebody deleted an alternative, and the other had not edited it.
-							 * 2. One person added a new alternative.
-							 * 3. Both added an alternative, but with the same value.
-<AUni ws="en">Status</AUni>
-<AUni ws="es">Estado</AUni>
-							*/
 							strategiesForMerger.SetStrategy(propInfo.PropertyName, CreateSingletonElementType(false));
 							if (!strategiesForMerger.ElementStrategies.TryGetValue(AUni, out extantStrategy))
 								strategiesForMerger.SetStrategy(AUni, sharedElementStrategies[AUni]);
 							break;
 						case DataType.MultiString:
-							// Use new IsAtomic.
-							/*
-This ought to be a keyed widget with the key being the ws. Order of the <AStr> elements is not relevant.
-The diff could be in presence or absence of the property or an entire AUni element, or just in the content string.
-No attempt is to be made to try and merge the run(s) within an alternative.
-We will just see if the corresponding <AStr> elements are the same or different.
-1. Add any new alternates from winner or loser.
-<SummaryDefinition>
-<AStr ws="en">
-<Run ws="en">go</Run>
-</AStr>
-<AStr ws="es">
-<Run ws="es">ir</Run>
-</AStr>
-</SummaryDefinition>
-							*/
 							strategiesForMerger.SetStrategy(propInfo.PropertyName, CreateSingletonElementType(false));
 							if (!strategiesForMerger.ElementStrategies.TryGetValue(AStr, out extantStrategy))
 								strategiesForMerger.SetStrategy(AStr, sharedElementStrategies[AStr]);
