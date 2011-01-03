@@ -22,9 +22,13 @@ namespace Chorus.FileTypeHanders.FieldWorks
 		private const string ImmutableSingleton = "ImmutableSingleton";
 		private const string Objsur = "objsur";
 		private const string GuidStr = "guid";
+		private const string Str = "Str";
 		private const string AStr = "AStr";
+		private const string Uni = "Uni";
 		private const string AUni = "AUni";
 		private const string Ws = "ws";
+		private const string Binary = "Binary";
+		private const string Prop = "Prop";
 		private const string MainCustom = "AdditionalFields";
 		private const string CustomField = "CustomField";
 		private const string Custom = "Custom";
@@ -73,6 +77,13 @@ namespace Chorus.FileTypeHanders.FieldWorks
 			AddSharedImmutableSingletonElementType(sharedElementStrategies, ImmutableSingleton, false);
 
 			AddSharedSingletonElementType(sharedElementStrategies, MutableSingleton, false);
+			var elementStrategy = AddSharedSingletonElementType(sharedElementStrategies, Str, false);
+			elementStrategy.IsAtomic = true;
+			elementStrategy = AddSharedSingletonElementType(sharedElementStrategies, Binary, false);
+			elementStrategy.IsAtomic = true;
+			elementStrategy = AddSharedSingletonElementType(sharedElementStrategies, Prop, false);
+			elementStrategy.IsAtomic = true;
+			AddSharedSingletonElementType(sharedElementStrategies, Uni, false);
 			AddSharedKeyedByWsElementType(sharedElementStrategies, AStr, false, true);
 			AddSharedKeyedByWsElementType(sharedElementStrategies, AUni, false, true);
 
@@ -121,10 +132,10 @@ namespace Chorus.FileTypeHanders.FieldWorks
 
 			var mutableSingleton = sharedElementStrategies[MutableSingleton];
 			var immSingleton = sharedElementStrategies[ImmutableSingleton];
-			ElementStrategy extantStrategy;
 			foreach (var classInfo in metadataCache.AllConcreteClasses)
 			{
 				merger = new XmlMerger(mergeSituation);
+				// Start all with basic mutable singleton. Switch to 'immSingleton' for properties that are immutable.
 				var strategiesForMerger = merger.MergeStrategies;
 				strategiesForMerger.SetStrategy(Rt, sharedElementStrategies[Rt]);
 				// Add all of the property bits.
@@ -132,20 +143,20 @@ namespace Chorus.FileTypeHanders.FieldWorks
 				// will be singletons.
 				foreach (var propInfo in classInfo.AllProperties)
 				{
+					var strategyForCurrentProperty = mutableSingleton;
+					ElementStrategy extantStrategy;
 					switch (propInfo.DataType)
 					{
 						// These three are immutable, in a manner of speaking.
 						// DateCreated is honestly, and the other two are because 'ours' and 'theirs' have been made to be the same already.
 						case DataType.Time: // DateTime
-							strategiesForMerger.SetStrategy(propInfo.PropertyName, immSingleton);
+							strategyForCurrentProperty = immSingleton;
 							break;
 						case DataType.OwningCollection:
 							break; // TODO: Deal with these, including the fact that the owned object may have been moved elsewhere.
 						case DataType.ReferenceCollection:
-							strategiesForMerger.SetStrategy(propInfo.PropertyName, immSingleton);
+							strategyForCurrentProperty = immSingleton;
 							break;
-
-						// Using regular xmlmerger code: strategiesForMerger.SetStrategy(propInfo.PropertyName, mutableSingleton);
 
 						case DataType.OwningSequence:
 							// TODO: Can we pre-process seq props like we did with collections?
@@ -160,41 +171,20 @@ namespace Chorus.FileTypeHanders.FieldWorks
 
 						// Other data types
 						case DataType.MultiUnicode:
-							strategiesForMerger.SetStrategy(propInfo.PropertyName, CreateSingletonElementType(false));
 							if (!strategiesForMerger.ElementStrategies.TryGetValue(AUni, out extantStrategy))
 								strategiesForMerger.SetStrategy(AUni, sharedElementStrategies[AUni]);
 							break;
 						case DataType.MultiString:
-							strategiesForMerger.SetStrategy(propInfo.PropertyName, CreateSingletonElementType(false));
 							if (!strategiesForMerger.ElementStrategies.TryGetValue(AStr, out extantStrategy))
 								strategiesForMerger.SetStrategy(AStr, sharedElementStrategies[AStr]);
 							break;
 						case DataType.Unicode: // Ordinary C# string
-							/*
-The entire property element may be missing, but if present, there should then be one <Uni> element.
-These are conflicts:
-							 * 1. Somebody removed the <Uni> element and the other edited it.
-							 * 2. Both edited it, with different ending content.
-							 * 3. Both added the <Uni> element, but with different content.
-These are not conflicts:
-							 * 1. Both removed the <Uni> element
-							 * 2. Both added the <Uni> element with the same contents.
-							 * 3. Both edited the <Uni> element contents, with the same resulting value.
-<Name>
-<Uni>Anthro Category</Uni>
-</Name>
-							*/
+							if (!strategiesForMerger.ElementStrategies.TryGetValue(Uni, out extantStrategy))
+								strategiesForMerger.SetStrategy(Uni, sharedElementStrategies[Uni]);
 							break;
 						case DataType.String: // TsString
-							// Use new IsAtomic.
-							/*
-The entire property element may be missing, but if present, there should then be one or more runs.
-No attempt is to be made to try and merge the run(s).
-We will just see if the corresponding <Str> elements are the same or different.
-<Str>
-<Run ws="grc">Αἴγυπτος</Run>
-</Str>
-							*/
+							if (!strategiesForMerger.ElementStrategies.TryGetValue(Str, out extantStrategy))
+								strategiesForMerger.SetStrategy(Str, sharedElementStrategies[Str]);
 							break;
 						case DataType.Integer:
 							break;
@@ -208,12 +198,15 @@ We will just see if the corresponding <Str> elements are the same or different.
 						case DataType.Guid:
 							break;
 						case DataType.Binary:
-							// Use new IsAtomic.
+							if (!strategiesForMerger.ElementStrategies.TryGetValue(Binary, out extantStrategy))
+								strategiesForMerger.SetStrategy(Binary, sharedElementStrategies[Binary]);
 							break;
 						case DataType.TextPropBinary:
-							// Use new IsAtomic.
+							if (!strategiesForMerger.ElementStrategies.TryGetValue(Prop, out extantStrategy))
+								strategiesForMerger.SetStrategy(Prop, sharedElementStrategies[Prop]);
 							break;
 					}
+					strategiesForMerger.SetStrategy(propInfo.PropertyName, strategyForCurrentProperty);
 				}
 				mergers.Add(classInfo.ClassName, merger);
 			}

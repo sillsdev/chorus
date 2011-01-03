@@ -36,19 +36,19 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 		}
 
 		[Test]
-		public void Cannot_Merge_Nonexistant_File()
+		public void CannotMergeNonexistantFile()
 		{
 			Assert.IsFalse(_fwFileHandler.CanMergeFile("bogusPathname"));
 		}
 
 		[Test]
-		public void Cannot_Merge_Empty_String_File()
+		public void CannotMergeEmptyStringFile()
 		{
 			Assert.IsFalse(_fwFileHandler.CanMergeFile(String.Empty));
 		}
 
 		[Test]
-		public void Can_Merge_Good_Fw_Xml_File()
+		public void CanMergeGoodFwXmlFile()
 		{
 			var goodXmlPathname = Path.ChangeExtension(Path.GetTempFileName(), ".fwdata");
 			try
@@ -65,13 +65,13 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 		}
 
 		[Test]
-		public void Cannot_Merge_Null_File()
+		public void CannotMergeNullFile()
 		{
 			Assert.IsFalse(_fwFileHandler.CanMergeFile(null));
 		}
 
 		[Test]
-		public void Do3WayMerge_Throws()
+		public void Do3WayMergeThrowsOnNUllInput()
 		{
 			Assert.Throws<NullReferenceException>(() => _fwFileHandler.Do3WayMerge(null));
 		}
@@ -414,16 +414,19 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 					@"languageproject/rt/Comment/AStr/Run[@ws='es']" },
 				null,
 				1, 0);
+
 			var doc = XDocument.Parse(result);
+// ReSharper disable PossibleNullReferenceException
 			var commentElement = doc.Element("languageproject").Element("rt").Element("Comment");
 			var enAlt = commentElement.Element("AStr");
 			var runs = enAlt.Descendants("Run");
+// ReSharper restore PossibleNullReferenceException
 			Assert.AreEqual("variantNew ", runs.ElementAt(0).Value);
 			Assert.AreEqual("variante", runs.ElementAt(1).Value);
 		}
 
 		[Test]
-		public void EditDifferentPartsOfMultiStringGeneratesConflictReport_ButNewAltAddedWithChangeReport()
+		public void EditDifferentPartsOfMultiStringGeneratesConflictReportButNewAltAddedWithChangeReport()
 		{
 			const string commonAncestor =
 @"<?xml version='1.0' encoding='utf-8'?>
@@ -473,10 +476,13 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 					@"languageproject/rt/Comment/AStr[@ws='es']/Run[@ws='es']" },
 				null,
 				1, 1); // 1 conflict, since both edited the 'en' alternative: 1 change, since 'they' added the new 'es' altenative.
+
 			var doc = XDocument.Parse(result);
+// ReSharper disable PossibleNullReferenceException
 			var commentElement = doc.Element("languageproject").Element("rt").Element("Comment");
 			var enAlt = commentElement.Element("AStr");
 			var runs = enAlt.Descendants("Run");
+// ReSharper restore PossibleNullReferenceException
 			Assert.AreEqual("variantNew ", runs.ElementAt(0).Value);
 			Assert.AreEqual("variante", runs.ElementAt(1).Value);
 		}
@@ -524,6 +530,15 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 					@"languageproject/rt/Name/AUni[@ws='fr']"},
 				null,
 				1, 0); // 1 conflict, since both edited the 'en' alternative: 0 changes.
+
+			var doc = XDocument.Parse(result);
+// ReSharper disable PossibleNullReferenceException
+			var nameElement = doc.Element("languageproject").Element("rt").Element("Name");
+			var enAlt = (from auniElement in nameElement.Elements("AUni")
+							where auniElement.Attribute("ws").Value == "en"
+							select auniElement).First();
+			Assert.AreEqual("Parts Of Speech We Changed", enAlt.Value);
+// ReSharper restore PossibleNullReferenceException
 		}
 
 		[Test]
@@ -561,11 +576,104 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 </rt>
 </languageproject>";
 
-			var result = DoMerge(commonAncestor, ourContent, theirContent,
+			DoMerge(commonAncestor, ourContent, theirContent,
 				new List<string> { @"languageproject/rt/Name/AUni[@ws='en']" },
 				new List<string> { @"languageproject/rt/Name/AUni[@ws='es']",
 					@"languageproject/rt/Name/AUni[@ws='fr']" },
 				0, 1);
+		}
+
+		[Test]
+		public void BothEditedTsStringWhichReturnsAConflictReport()
+		{
+			const string commonAncestor =
+@"<?xml version='1.0' encoding='utf-8'?>
+<languageproject version='7000016'>
+<rt class='PunctuationForm' guid='81bf4802-e411-42f7-98c7-319b13ed2e0b'>
+	<Form>
+		<Str>
+			<Run ws='x-ezpi'>.</Run>
+		</Str>
+	</Form>
+</rt>
+</languageproject>";
+			const string ourContent =
+@"<?xml version='1.0' encoding='utf-8'?>
+<languageproject version='7000016'>
+<rt class='PunctuationForm' guid='81bf4802-e411-42f7-98c7-319b13ed2e0b'>
+	<Form>
+		<Str>
+			<Run ws='x-ezpi'>!</Run>
+		</Str>
+	</Form>
+</rt>
+</languageproject>";
+			const string theirContent =
+@"<?xml version='1.0' encoding='utf-8'?>
+<languageproject version='7000016'>
+<rt class='PunctuationForm' guid='81bf4802-e411-42f7-98c7-319b13ed2e0b'>
+	<Form>
+		<Str>
+			<Run ws='x-ezpi'>?</Run>
+		</Str>
+	</Form>
+</rt>
+</languageproject>";
+
+			var result = DoMerge(commonAncestor, ourContent, theirContent,
+				new List<string> { @"languageproject/rt/Form/Str/Run[@ws='x-ezpi']" },
+				null,
+				1, 0);
+
+			var doc = XDocument.Parse(result);
+// ReSharper disable PossibleNullReferenceException
+			var runElement = doc.Element("languageproject").Element("rt").Element("Form").Element("Str").Element("Run");
+			Assert.AreEqual("!", runElement.Value);
+// ReSharper restore PossibleNullReferenceException
+		}
+
+		[Test]
+		public void BothEditedTxtPropWhichReturnsAConflictReport()
+		{
+			const string commonAncestor =
+@"<?xml version='1.0' encoding='utf-8'?>
+<languageproject version='7000016'>
+<rt class='StStyle' guid='ee3c33fa-8141-4efe-a2c5-3e867c554b07' ownerguid='9719a466-2240-4dea-9722-9fe0746a30a6'>
+	<Rules>
+		<Prop firstIndent='-36000' leadingIndent='9000' spaceBefore='1000' spaceAfter='2000' />
+	</Rules>
+</rt>
+</languageproject>";
+			const string ourContent =
+@"<?xml version='1.0' encoding='utf-8'?>
+<languageproject version='7000016'>
+<rt class='StStyle' guid='ee3c33fa-8141-4efe-a2c5-3e867c554b07' ownerguid='9719a466-2240-4dea-9722-9fe0746a30a6'>
+	<Rules>
+		<Prop firstIndent='-36000' leadingIndent='10000' spaceBefore='1000' spaceAfter='2000' />
+	</Rules>
+</rt>
+</languageproject>";
+			const string theirContent =
+@"<?xml version='1.0' encoding='utf-8'?>
+<languageproject version='7000016'>
+<rt class='StStyle' guid='ee3c33fa-8141-4efe-a2c5-3e867c554b07' ownerguid='9719a466-2240-4dea-9722-9fe0746a30a6'>
+	<Rules>
+		<Prop firstIndent='-36000' leadingIndent='9000' spaceBefore='1000' spaceAfter='2000' bold='true' />
+	</Rules>
+</rt>
+</languageproject>";
+
+			var result = DoMerge(commonAncestor, ourContent, theirContent,
+				new List<string> { @"languageproject/rt/Rules/Prop" },
+				null,
+				1, 0);
+
+			var doc = XDocument.Parse(result);
+// ReSharper disable PossibleNullReferenceException
+			var propElement = doc.Element("languageproject").Element("rt").Element("Rules").Element("Prop");
+			Assert.AreEqual("10000", propElement.Attribute("leadingIndent").Value);
+			Assert.IsNull(propElement.Attribute("bold"));
+// ReSharper restore PossibleNullReferenceException
 		}
 
 		private string DoMerge(string commonAncestor, string ourContent, string theirContent,
