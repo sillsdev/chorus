@@ -198,7 +198,7 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 
 			var resElement = XElement.Parse(result);
 			var refTargets = resElement.Descendants("objsur");
-			Assert.AreEqual(6, refTargets.Count());
+			Assert.AreEqual(8, refTargets.Count());
 			// Make sure they are the correct six.
 			Assert.IsNotNull((from target in refTargets
 								  where target.Attribute("guid").Value == "one"
@@ -207,7 +207,13 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 							  where target.Attribute("guid").Value == "two"
 							  select target).FirstOrDefault());
 			Assert.IsNotNull((from target in refTargets
+							  where target.Attribute("guid").Value == "three"
+							  select target).FirstOrDefault());
+			Assert.IsNotNull((from target in refTargets
 							  where target.Attribute("guid").Value == "four"
+							  select target).FirstOrDefault());
+			Assert.IsNotNull((from target in refTargets
+							  where target.Attribute("guid").Value == "five"
 							  select target).FirstOrDefault());
 			Assert.IsNotNull((from target in refTargets
 							  where target.Attribute("guid").Value == "six"

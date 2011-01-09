@@ -713,6 +713,129 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 				1, 0);
 		}
 
+		[Test]
+		public void BothEditedReferenceSequenceGeneratesConflictReport()
+		{
+			const string commonAncestor =
+@"<?xml version='1.0' encoding='utf-8'?>
+<languageproject version='7000016'>
+<rt class='Segment' guid='8e81ab31-31be-49e9-84ee-72a29f6ac50b' ownerguid='d9bc88e2-eeb3-4d99-91e4-99517ab1f9d4'>
+<Analyses>
+<objsur t='r' guid='original1' />
+<objsur t='r' guid='original2' />
+<objsur t='r' guid='original3' />
+</Analyses>
+</rt>
+</languageproject>";
+			const string ourContent =
+@"<?xml version='1.0' encoding='utf-8'?>
+<languageproject version='7000016'>
+<rt class='Segment' guid='8e81ab31-31be-49e9-84ee-72a29f6ac50b' ownerguid='d9bc88e2-eeb3-4d99-91e4-99517ab1f9d4'>
+<Analyses>
+<objsur t='r' guid='ourNew1' />
+<objsur t='r' guid='ourNew2' />
+</Analyses>
+</rt>
+</languageproject>";
+			const string theirContent =
+@"<?xml version='1.0' encoding='utf-8'?>
+<languageproject version='7000016'>
+<rt class='Segment' guid='8e81ab31-31be-49e9-84ee-72a29f6ac50b' ownerguid='d9bc88e2-eeb3-4d99-91e4-99517ab1f9d4'>
+<Analyses>
+<objsur t='r' guid='theirNew1' />
+</Analyses>
+</rt>
+</languageproject>";
+
+			var result = DoMerge(commonAncestor, ourContent, theirContent,
+				new List<string> { @"languageproject/rt/Analyses/objsur[@guid='ourNew1']", @"languageproject/rt/Analyses/objsur[@guid='ourNew2']" },
+				new List<string> { @"languageproject/rt/Analyses/objsur[@guid='original1']", @"languageproject/rt/Analyses/objsur[@guid='original2']", @"languageproject/rt/Analyses/objsur[@guid='original3']",
+					@"languageproject/rt/Analyses/objsur[@guid='theirNew1']" },
+				1, 0);
+		}
+
+		[Test]
+		public void BothEditedOwningSequenceGeneratesConflictReport()
+		{
+			const string commonAncestor =
+@"<?xml version='1.0' encoding='utf-8'?>
+<languageproject version='7000016'>
+<rt class='Segment' guid='8e81ab31-31be-49e9-84ee-72a29f6ac50b' ownerguid='d9bc88e2-eeb3-4d99-91e4-99517ab1f9d4'>
+<Notes>
+<objsur t='r' guid='original1' />
+<objsur t='r' guid='original2' />
+<objsur t='r' guid='original3' />
+</Notes>
+</rt>
+</languageproject>";
+			const string ourContent =
+@"<?xml version='1.0' encoding='utf-8'?>
+<languageproject version='7000016'>
+<rt class='Segment' guid='8e81ab31-31be-49e9-84ee-72a29f6ac50b' ownerguid='d9bc88e2-eeb3-4d99-91e4-99517ab1f9d4'>
+<Notes>
+<objsur t='r' guid='ourNew1' />
+<objsur t='r' guid='ourNew2' />
+</Notes>
+</rt>
+</languageproject>";
+			const string theirContent =
+@"<?xml version='1.0' encoding='utf-8'?>
+<languageproject version='7000016'>
+<rt class='Segment' guid='8e81ab31-31be-49e9-84ee-72a29f6ac50b' ownerguid='d9bc88e2-eeb3-4d99-91e4-99517ab1f9d4'>
+<Notes>
+<objsur t='r' guid='theirNew1' />
+</Notes>
+</rt>
+</languageproject>";
+
+			var result = DoMerge(commonAncestor, ourContent, theirContent,
+				new List<string> { @"languageproject/rt/Notes/objsur[@guid='ourNew1']", @"languageproject/rt/Notes/objsur[@guid='ourNew2']" },
+				new List<string> { @"languageproject/rt/Notes/objsur[@guid='original1']", @"languageproject/rt/Notes/objsur[@guid='original2']", @"languageproject/rt/Notes/objsur[@guid='original3']",
+					@"languageproject/rt/Notes/objsur[@guid='theirNew1']" },
+				1, 0);
+		}
+
+		[Test]
+		public void BothEditedOwningCollectionGeneratesConflictReport()
+		{
+			const string commonAncestor =
+@"<?xml version='1.0' encoding='utf-8'?>
+<languageproject version='7000016'>
+<rt class='CmFolder' guid='8e81ab31-31be-49e9-84ee-72a29f6ac50b' ownerguid='d9bc88e2-eeb3-4d99-91e4-99517ab1f9d4'>
+<SubFolders>
+<objsur t='r' guid='original1' />
+<objsur t='r' guid='original2' />
+<objsur t='r' guid='original3' />
+</SubFolders>
+</rt>
+</languageproject>";
+			const string ourContent =
+@"<?xml version='1.0' encoding='utf-8'?>
+<languageproject version='7000016'>
+<rt class='CmFolder' guid='8e81ab31-31be-49e9-84ee-72a29f6ac50b' ownerguid='d9bc88e2-eeb3-4d99-91e4-99517ab1f9d4'>
+<SubFolders>
+<objsur t='r' guid='ourNew1' />
+<objsur t='r' guid='ourNew2' />
+</SubFolders>
+</rt>
+</languageproject>";
+			const string theirContent =
+@"<?xml version='1.0' encoding='utf-8'?>
+<languageproject version='7000016'>
+<rt class='CmFolder' guid='8e81ab31-31be-49e9-84ee-72a29f6ac50b' ownerguid='d9bc88e2-eeb3-4d99-91e4-99517ab1f9d4'>
+<SubFolders>
+<objsur t='r' guid='original1' />
+<objsur t='r' guid='theirNew1' />
+</SubFolders>
+</rt>
+</languageproject>";
+
+			var result = DoMerge(commonAncestor, ourContent, theirContent,
+				new List<string> { @"languageproject/rt/SubFolders/objsur[@guid='ourNew1']", @"languageproject/rt/SubFolders/objsur[@guid='ourNew2']", @"languageproject/rt/SubFolders/objsur[@guid='theirNew1']", @"languageproject/rt/SubFolders/objsur[@guid='original1']" },
+				new List<string> { @"languageproject/rt/SubFolders/objsur[@guid='original2']", @"languageproject/rt/SubFolders/objsur[@guid='original3']" },
+				0, 0);
+		}
+
 		private string DoMerge(string commonAncestor, string ourContent, string theirContent,
 			IEnumerable<string> matchesExactlyOne, IEnumerable<string> isNull,
 			int expectedConflictCount, int expectedChangesCount)

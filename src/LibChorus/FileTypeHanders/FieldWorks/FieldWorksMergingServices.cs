@@ -153,21 +153,19 @@ namespace Chorus.FileTypeHanders.FieldWorks
 					{
 						// These three are immutable, in a manner of speaking.
 						// DateCreated is honestly, and the other two are because 'ours' and 'theirs' have been made to be the same already.
-						case DataType.Time: // DateTime
-							strategyForCurrentProperty = immSingleton;
-							break;
-						case DataType.OwningCollection: // TODO: Deal with these, including the fact that the owned object may have been moved elsewhere.
-							break;
+						case DataType.Time: // Fall through // DateTime
+						case DataType.OwningCollection: // Fall through. There should be no ownership issues, since removel from original by either will show up as a removal.
 						case DataType.ReferenceCollection:
 							strategyForCurrentProperty = immSingleton;
 							break;
 
-						case DataType.OwningSequence: // TODO: Can we pre-process seq props like we did with collections?
+						case DataType.OwningSequence: // Fall through. // TODO: Sort out ownerships issues for conflicts.
+						case DataType.ReferenceSequence:
+							// Use IsAtomic for whole property.
+							strategyForCurrentProperty = CreateSingletonElementType(false);
+							strategyForCurrentProperty.IsAtomic = true;
 							break;
-						case DataType.ReferenceSequence: // TODO: Can we pre-process seq props like we did with collections?
-							break;
-						case DataType.OwningAtomic: // TODO:
-							break;
+						case DataType.OwningAtomic: // Fall through. // TODO: Think about implications of a conflict.
 						case DataType.ReferenceAtomic:
 							strategyForCurrentProperty = mutableSingleton;
 							// If own seq/col & ref seq end up being atomic, then 'obsur' is a simple singleton.
@@ -351,6 +349,10 @@ namespace Chorus.FileTypeHanders.FieldWorks
 				var mergedCollection = new HashSet<string>(commonValues, StringComparer.OrdinalIgnoreCase);
 				mergedCollection.IntersectWith(ourValues);
 				mergedCollection.IntersectWith(theirValues);
+
+				// 2. Re-add ones that were removed by one, but kept by the other.
+				mergedCollection.UnionWith(commonValues.Intersect(ourValues));
+				mergedCollection.UnionWith(commonValues.Intersect(theirValues));
 
 				// 2. Add ones that either added.
 				var ourAdditions = ourValues.Except(commonValues);
