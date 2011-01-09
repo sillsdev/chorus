@@ -14,6 +14,7 @@ namespace Chorus.FileTypeHanders.FieldWorks
 	internal static class FieldWorksMergingServices
 	{
 		private static readonly FindByKeyAttribute _wsKey = new FindByKeyAttribute(Ws);
+		private static readonly FindByKeyAttribute _guidKey = new FindByKeyAttribute(GuidStr);
 		private static readonly FindFirstElementWithSameName _sameName = new FindFirstElementWithSameName();
 		private static readonly FieldWorkObjectContextGenerator _contextGen = new FieldWorkObjectContextGenerator();
 		private const string MutableSingleton = "MutableSingleton";
@@ -33,10 +34,11 @@ namespace Chorus.FileTypeHanders.FieldWorks
 		private const string CustomField = "CustomField";
 		private const string Custom = "Custom";
 
-		internal static void AddSharedImmutableSingletonElementType(Dictionary<string, ElementStrategy> sharedElementStrategies, string name, bool orderOfTheseIsRelevant)
+		internal static ElementStrategy AddSharedImmutableSingletonElementType(Dictionary<string, ElementStrategy> sharedElementStrategies, string name, bool orderOfTheseIsRelevant)
 		{
 			var strategy = AddSharedSingletonElementType(sharedElementStrategies, name, orderOfTheseIsRelevant);
 			strategy.IsImmutable = true;
+			return strategy;
 		}
 
 		internal static ElementStrategy AddSharedSingletonElementType(Dictionary<string, ElementStrategy> sharedElementStrategies, string name, bool orderOfTheseIsRelevant)
@@ -60,7 +62,7 @@ namespace Chorus.FileTypeHanders.FieldWorks
 		{
 			var strategy = new ElementStrategy(false)
 			{
-				MergePartnerFinder = new FindByKeyAttribute("guid")
+				MergePartnerFinder = _guidKey
 			};
 			strategy.AttributesToIgnoreForMerging.Add("class"); // Immutable
 			strategy.AttributesToIgnoreForMerging.Add("guid"); // Immutable
@@ -72,7 +74,7 @@ namespace Chorus.FileTypeHanders.FieldWorks
 		{
 			AddSharedMainElement(sharedElementStrategies);
 
-			// Set one up (immutable) for DateCreated properties.
+			// Set up immutable strategies.
 			AddSharedImmutableSingletonElementType(sharedElementStrategies, DateCreated, false);
 			AddSharedImmutableSingletonElementType(sharedElementStrategies, ImmutableSingleton, false);
 
@@ -111,7 +113,7 @@ namespace Chorus.FileTypeHanders.FieldWorks
 			sharedElementStrategies.Add(elementName, strategy);
 		}
 
-		private static void AddKeyedElementType(IDictionary<string, ElementStrategy> sharedElementStrategies, string elementName, IFindNodeToMerge findBykeyAttribute, bool orderOfTheseIsRelevant, bool isAtomic)
+		private static ElementStrategy AddKeyedElementType(IDictionary<string, ElementStrategy> sharedElementStrategies, string elementName, IFindNodeToMerge findBykeyAttribute, bool orderOfTheseIsRelevant, bool isAtomic)
 		{
 			var strategy = new ElementStrategy(orderOfTheseIsRelevant)
 							{
@@ -120,6 +122,8 @@ namespace Chorus.FileTypeHanders.FieldWorks
 							};
 			//strategy.ContextDescriptorGenerator
 			sharedElementStrategies.Add(elementName, strategy);
+
+			return strategy;
 		}
 
 		private static void CreateMergers(MetadataCache metadataCache, MergeSituation mergeSituation,
@@ -135,7 +139,6 @@ namespace Chorus.FileTypeHanders.FieldWorks
 			foreach (var classInfo in metadataCache.AllConcreteClasses)
 			{
 				merger = new XmlMerger(mergeSituation);
-				// Start all with basic mutable singleton. Switch to 'immSingleton' for properties that are immutable.
 				var strategiesForMerger = merger.MergeStrategies;
 				strategiesForMerger.SetStrategy(Rt, sharedElementStrategies[Rt]);
 				// Add all of the property bits.
@@ -143,6 +146,7 @@ namespace Chorus.FileTypeHanders.FieldWorks
 				// will be singletons.
 				foreach (var propInfo in classInfo.AllProperties)
 				{
+					// Start all with basic mutable singleton. Switch to 'immSingleton' for properties that are immutable.
 					var strategyForCurrentProperty = mutableSingleton;
 					ElementStrategy extantStrategy;
 					switch (propInfo.DataType)
@@ -152,21 +156,27 @@ namespace Chorus.FileTypeHanders.FieldWorks
 						case DataType.Time: // DateTime
 							strategyForCurrentProperty = immSingleton;
 							break;
-						case DataType.OwningCollection:
-							break; // TODO: Deal with these, including the fact that the owned object may have been moved elsewhere.
+						case DataType.OwningCollection: // TODO: Deal with these, including the fact that the owned object may have been moved elsewhere.
+							break;
 						case DataType.ReferenceCollection:
 							strategyForCurrentProperty = immSingleton;
 							break;
 
-						case DataType.OwningSequence:
-							// TODO: Can we pre-process seq props like we did with collections?
+						case DataType.OwningSequence: // TODO: Can we pre-process seq props like we did with collections?
 							break;
-						case DataType.ReferenceSequence:
-							// TODO: Can we pre-process seq props like we did with collections?
+						case DataType.ReferenceSequence: // TODO: Can we pre-process seq props like we did with collections?
 							break;
-						case DataType.OwningAtomic:
+						case DataType.OwningAtomic: // TODO:
 							break;
 						case DataType.ReferenceAtomic:
+							// immSingleton on prop node ends up with one child, a change report, but no conflict report.
+							// mutableSingleton ends up with two children, 3 changes, and 1 conflict.
+							strategyForCurrentProperty = mutableSingleton;
+							// Needs 'obsur' singleton.
+							// If own seq/col & ref seq end up being atomic, then 'obsur' is a simple singleton.
+							// Otherwise, things get more complicated, since this one is singleton, but the others woudl be keyed.
+							if (!strategiesForMerger.ElementStrategies.TryGetValue(Objsur, out extantStrategy))
+								strategiesForMerger.SetStrategy(Objsur, mutableSingleton);
 							break;
 
 						// Other data types
@@ -186,17 +196,6 @@ namespace Chorus.FileTypeHanders.FieldWorks
 							if (!strategiesForMerger.ElementStrategies.TryGetValue(Str, out extantStrategy))
 								strategiesForMerger.SetStrategy(Str, sharedElementStrategies[Str]);
 							break;
-						case DataType.Integer:
-							break;
-						case DataType.Boolean:
-							// NB: These can never be in conflict in a 3-way merge environment.
-							// One or the other can toggle the bool, so the one changing it 'wins'.
-							// If both change it then it's no big deal either.
-							break;
-						case DataType.GenDate:
-							break;
-						case DataType.Guid:
-							break;
 						case DataType.Binary:
 							if (!strategiesForMerger.ElementStrategies.TryGetValue(Binary, out extantStrategy))
 								strategiesForMerger.SetStrategy(Binary, sharedElementStrategies[Binary]);
@@ -204,6 +203,15 @@ namespace Chorus.FileTypeHanders.FieldWorks
 						case DataType.TextPropBinary:
 							if (!strategiesForMerger.ElementStrategies.TryGetValue(Prop, out extantStrategy))
 								strategiesForMerger.SetStrategy(Prop, sharedElementStrategies[Prop]);
+							break;
+						// NB: Booleans can never be in conflict in a 3-way merge environment.
+						// One or the other can toggle the bool, so the one changing it 'wins'.
+						// If both change it then it's no big deal either.
+						case DataType.Boolean: // Fall through.
+						case DataType.GenDate: // Fall through.
+						case DataType.Guid: // Fall through.
+						case DataType.Integer: // Fall through.
+							// Simple, mutable properties.
 							break;
 					}
 					strategiesForMerger.SetStrategy(propInfo.PropertyName, strategyForCurrentProperty);
@@ -302,26 +310,36 @@ namespace Chorus.FileTypeHanders.FieldWorks
 			return node.OuterXml;
 		}
 
+		private static XmlNode GetPropertyNode(XmlNode parentNode, string propertyName)
+		{
+			return (parentNode == null) ? null : parentNode.SelectSingleNode(propertyName);
+		}
+
+		private static string GetGuidAttribute(XmlNode node)
+		{
+			return node.GetStringAttribute("guid").ToLowerInvariant();
+		}
+
 		internal static void MergeCollectionProperties(FdoClassInfo classWithCollectionProperties, XmlNode ourEntry, XmlNode theirEntry, XmlNode commonEntry)
 		{
 			foreach (var collectionProperty in classWithCollectionProperties.AllCollectionProperties)
 			{
 				var commonValues = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-				var propNode = commonEntry.SelectSingleNode(collectionProperty.PropertyName);
-				if (propNode != null)
+				var commonPropNode = GetPropertyNode(commonEntry, collectionProperty.PropertyName);
+				if (commonPropNode != null)
 				{
-					commonValues.UnionWith(from XmlNode objsurNode in propNode.SafeSelectNodes(Objsur)
+					commonValues.UnionWith(from XmlNode objsurNode in commonPropNode.SafeSelectNodes(Objsur)
 										   select objsurNode.GetStringAttribute(GuidStr));
 				}
 				var ourValues = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-				var ourPropNode = ourEntry.SelectSingleNode(collectionProperty.PropertyName);
+				var ourPropNode = GetPropertyNode(ourEntry, collectionProperty.PropertyName);
 				if (ourPropNode != null)
 				{
 					ourValues.UnionWith(from XmlNode objsurNode in ourPropNode.SafeSelectNodes(Objsur)
 										select objsurNode.GetStringAttribute(GuidStr));
 				}
 				var theirValues = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-				var theirPropNode = theirEntry.SelectSingleNode(collectionProperty.PropertyName);
+				var theirPropNode = GetPropertyNode(theirEntry, collectionProperty.PropertyName);
 				if (theirPropNode != null)
 				{
 					theirValues.UnionWith(from XmlNode objsurNode in theirPropNode.SafeSelectNodes(Objsur)
@@ -347,10 +365,10 @@ namespace Chorus.FileTypeHanders.FieldWorks
 				if (mergedCollection.Count == 0)
 				{
 					// Remove prop node from both.
-					var gonerNode = ourEntry.SelectSingleNode(collectionProperty.PropertyName);
+					var gonerNode = GetPropertyNode(ourEntry, collectionProperty.PropertyName);
 					if (gonerNode != null)
 						gonerNode.ParentNode.RemoveChild(gonerNode);
-					gonerNode = theirEntry.SelectSingleNode(collectionProperty.PropertyName);
+					gonerNode = GetPropertyNode(theirEntry, collectionProperty.PropertyName);
 					if (gonerNode != null)
 						gonerNode.ParentNode.RemoveChild(gonerNode);
 				}

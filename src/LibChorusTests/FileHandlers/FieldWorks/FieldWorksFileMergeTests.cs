@@ -676,6 +676,43 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 // ReSharper restore PossibleNullReferenceException
 		}
 
+		[Test]
+		public void BothEditedAtomicReferenceProducesConflictReport()
+		{
+			const string commonAncestor =
+@"<?xml version='1.0' encoding='utf-8'?>
+<languageproject version='7000016'>
+<rt class='CmTranslation' guid='8e81ab31-31be-49e9-84ee-72a29f6ac50b' ownerguid='d9bc88e2-eeb3-4d99-91e4-99517ab1f9d4'>
+<Type>
+<objsur t='r' guid='original' />
+</Type>
+</rt>
+</languageproject>";
+			const string ourContent =
+@"<?xml version='1.0' encoding='utf-8'?>
+<languageproject version='7000016'>
+<rt class='CmTranslation' guid='8e81ab31-31be-49e9-84ee-72a29f6ac50b' ownerguid='d9bc88e2-eeb3-4d99-91e4-99517ab1f9d4'>
+<Type>
+<objsur t='r' guid='ourNew' />
+</Type>
+</rt>
+</languageproject>";
+			const string theirContent =
+@"<?xml version='1.0' encoding='utf-8'?>
+<languageproject version='7000016'>
+<rt class='CmTranslation' guid='8e81ab31-31be-49e9-84ee-72a29f6ac50b' ownerguid='d9bc88e2-eeb3-4d99-91e4-99517ab1f9d4'>
+<Type>
+<objsur t='r' guid='theirNew' />
+</Type>
+</rt>
+</languageproject>";
+
+			var result = DoMerge(commonAncestor, ourContent, theirContent,
+				new List<string> { @"languageproject/rt/Type/objsur[@guid='ourNew']" },
+				new List<string> { @"languageproject/rt/Type/objsur[@guid='original']", @"languageproject/rt/Type/objsur[@guid='theirNew']" },
+				1, 0);
+		}
+
 		private string DoMerge(string commonAncestor, string ourContent, string theirContent,
 			IEnumerable<string> matchesExactlyOne, IEnumerable<string> isNull,
 			int expectedConflictCount, int expectedChangesCount)
