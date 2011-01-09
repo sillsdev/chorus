@@ -169,12 +169,9 @@ namespace Chorus.FileTypeHanders.FieldWorks
 						case DataType.OwningAtomic: // TODO:
 							break;
 						case DataType.ReferenceAtomic:
-							// immSingleton on prop node ends up with one child, a change report, but no conflict report.
-							// mutableSingleton ends up with two children, 3 changes, and 1 conflict.
 							strategyForCurrentProperty = mutableSingleton;
-							// Needs 'obsur' singleton.
 							// If own seq/col & ref seq end up being atomic, then 'obsur' is a simple singleton.
-							// Otherwise, things get more complicated, since this one is singleton, but the others woudl be keyed.
+							// Otherwise, things get more complicated, since this one is singleton, but the others would be keyed.
 							if (!strategiesForMerger.ElementStrategies.TryGetValue(Objsur, out extantStrategy))
 								strategiesForMerger.SetStrategy(Objsur, mutableSingleton);
 							break;
