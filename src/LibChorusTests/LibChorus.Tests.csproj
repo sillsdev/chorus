@@ -86,6 +86,7 @@
 	<Compile Include="merge\GroupOfConflictFiles.cs" />
 	<Compile Include="merge\XmlLogMergeEventListenerTests.cs" />
 	<Compile Include="merge\GroupOfConflictingLiftFiles.cs" />
+	<Compile Include="merge\xml\FindByKeyAttributeTests.cs" />
 	<Compile Include="merge\xml\FindByEqualityOfTreeTests.cs" />
 	<Compile Include="merge\xml\generic\FindNodeToMergeTests.cs" />
 	<Compile Include="merge\xml\generic\MergeAtomicElementServiceTests.cs" />
