@@ -84,11 +84,6 @@ namespace Chorus.FileTypeHanders.lift
 			_betaDom.LoadXml(_betaLift);
 			_ancestorDom.LoadXml(_ancestorLift);
 
-
-			Encoding utf8NoBom = new UTF8Encoding(false);
-			XmlWriterSettings settings = new XmlWriterSettings();
-			settings.Encoding = utf8NoBom;//the lack of a bom is probably no big deal either way
-
 			//this, rather than a string builder, is needed to avoid utf-16 coming out
 			using (MemoryStream memoryStream = new MemoryStream())
 			{
@@ -96,7 +91,16 @@ namespace Chorus.FileTypeHanders.lift
 				{
 					_betaIdToNodeIndex[LiftUtils.GetId(b)] = b;
 				}
-				using (XmlWriter writer = XmlWriter.Create(memoryStream, settings))
+				using (var writer = XmlWriter.Create(memoryStream, new XmlWriterSettings
+				{
+					OmitXmlDeclaration = false,
+					CheckCharacters = true,
+					ConformanceLevel = ConformanceLevel.Document,
+					Encoding = new UTF8Encoding(false), //the lack of a bom is probably no big deal either way
+					Indent = true,
+					IndentChars = (""),
+					NewLineOnAttributes = false
+				}))
 				{
 					WriteStartOfLiftElement(writer);
 					foreach (XmlNode e in _alphaDom.SafeSelectNodes("lift/entry"))
