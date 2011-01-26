@@ -1,4 +1,6 @@
-﻿namespace Chorus.UI.Clone
+﻿using Palaso.Progress.LogBox;
+
+namespace Chorus.UI.Clone
 {
 	partial class GetCloneFromInternetDialog
 	{
@@ -38,7 +40,7 @@
 			this._progressBar = new System.Windows.Forms.ProgressBar();
 			this._cancelTaskButton = new System.Windows.Forms.Button();
 			this._fixSettingsButton = new System.Windows.Forms.Button();
-			this._logBox = new Chorus.UI.Misc.LogBox();
+			this._logBox = new LogBox();
 			this.SuspendLayout();
 			//
 			// _cancelButton
@@ -184,7 +186,7 @@
 		private System.Windows.Forms.TextBox _statusLabel;
 		private System.Windows.Forms.ProgressBar _progressBar;
 		private System.Windows.Forms.Button _cancelTaskButton;
-		private Chorus.UI.Misc.LogBox _logBox;
+		private LogBox _logBox;
 		private System.Windows.Forms.Button _fixSettingsButton;
 	}
 }

@@ -9,6 +9,7 @@ using Chorus.sync;
 using Chorus.Utilities;
 using System.Linq;
 using Chorus.VcsDrivers;
+using Palaso.Progress.LogBox;
 
 namespace Chorus.UI.Sync
 {

@@ -26,6 +26,7 @@ namespace ChorusMerge.Tests
 			}
 		}
 
+#if DEBUG
 		[Test]
 		public void Main_UnhandledMergeFailure_Returns1()
 		{
@@ -37,6 +38,7 @@ namespace ChorusMerge.Tests
 				}
 			}
 		}
+#endif
 
 		private int DoMerge(GroupOfConflictingLiftFiles group)
 		{

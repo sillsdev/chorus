@@ -6,6 +6,7 @@ using Chorus.merge;
 using Chorus.merge.xml.generic;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
+using Palaso.Progress.LogBox;
 
 namespace Chorus.FileTypeHanders.oneStory
 {

@@ -1,4 +1,6 @@
-﻿namespace Chorus.UI.Sync
+﻿using Palaso.Progress.LogBox;
+
+namespace Chorus.UI.Sync
 {
 	partial class SyncControl
 	{
@@ -40,7 +42,7 @@
 			this._tasksTab = new System.Windows.Forms.TabPage();
 			this._tasksListView = new System.Windows.Forms.ListView();
 			this._logTab = new System.Windows.Forms.TabPage();
-			this._logBox = new Chorus.UI.Misc.LogBox();
+			this._logBox = new LogBox();
 			this.progressBar1 = new System.Windows.Forms.ProgressBar();
 			this._cancelButton = new System.Windows.Forms.Button();
 			this._updateDisplayTimer = new System.Windows.Forms.Timer(this.components);
@@ -412,7 +414,7 @@
 		private System.Windows.Forms.PictureBox pictureBox2;
 		private System.Windows.Forms.Label label1;
 		private System.Windows.Forms.Timer _showCancelButtonTimer;
-		private Chorus.UI.Misc.LogBox _logBox;
+		private LogBox _logBox;
 		private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
 		private System.Windows.Forms.TableLayoutPanel tableLayoutPanel2;
 		private System.Windows.Forms.Panel panel1;

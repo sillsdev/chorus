@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Security;
+using System.Text;
 using System.Xml;
 using Chorus.merge.xml.generic.xmldiff;
 
@@ -53,6 +53,38 @@ namespace Chorus.merge.xml.generic
 			return parentToSearchIn.SelectSingleNode(xpath);
 		}
 
+	}
+
+	/// <summary>
+	/// Search for a matching elment where multiple attributes combine
+	/// to make a single "key" to identify a matching elment.
+	/// </summary>
+	public class FindByMultipleKeyAttributes : IFindNodeToMerge
+	{
+		private readonly List<string> _keyAttributes;
+
+		public FindByMultipleKeyAttributes(List<string> keyAttributes)
+		{
+			_keyAttributes = keyAttributes;
+		}
+
+		public XmlNode GetNodeToMerge(XmlNode nodeToMatch, XmlNode parentToSearchIn)
+		{
+			if (parentToSearchIn == null)
+				return null;
+
+			var bldr = new StringBuilder(nodeToMatch.Name + "[");
+			for (var i = 0; i < _keyAttributes.Count; ++i )
+			{
+				if (i > 0)
+					bldr.Append(" and ");
+				var currentAttrName = _keyAttributes[i];
+				bldr.AppendFormat("@{0}='{1}'", currentAttrName, XmlUtilities.GetStringAttribute(nodeToMatch, currentAttrName));
+			}
+			bldr.Append("]");
+
+			return parentToSearchIn.SelectSingleNode(bldr.ToString());
+		}
 	}
 
 	/// <summary>

@@ -7,6 +7,7 @@ using Chorus.Utilities;
 using Chorus.Utilities.UsbDrive;
 using LibChorus.Tests;
 using NUnit.Framework;
+using Palaso.Progress.LogBox;
 
 namespace LibChorus.Tests
 {

@@ -4,6 +4,7 @@ using System.Text;
 using Chorus.FileTypeHanders.lift;
 using Chorus.Utilities;
 using NUnit.Framework;
+using Palaso.Progress.LogBox;
 
 namespace LibChorus.Tests.merge.xml.lift
 {

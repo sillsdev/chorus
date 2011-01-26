@@ -36,12 +36,15 @@
 			// splitContainer1
 			//
 			this.splitContainer1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-																				 | System.Windows.Forms.AnchorStyles.Left)
-																				| System.Windows.Forms.AnchorStyles.Right)));
-			this.splitContainer1.Location = new System.Drawing.Point(15, 31);
+						| System.Windows.Forms.AnchorStyles.Left)
+						| System.Windows.Forms.AnchorStyles.Right)));
+			this.splitContainer1.Location = new System.Drawing.Point(16, 31);
+			this.splitContainer1.MinimumSize = new System.Drawing.Size(490, 260);
 			this.splitContainer1.Name = "splitContainer1";
-			this.splitContainer1.Size = new System.Drawing.Size(777, 418);
-			this.splitContainer1.SplitterDistance = 370;
+			this.splitContainer1.Panel1MinSize = 250;
+			this.splitContainer1.Panel2MinSize = 200;
+			this.splitContainer1.Size = new System.Drawing.Size(730, 530);
+			this.splitContainer1.SplitterDistance = 350;
 			this.splitContainer1.TabIndex = 1;
 			//
 			// label3
@@ -59,11 +62,12 @@
 			//
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
 			this.BackColor = System.Drawing.SystemColors.GradientInactiveCaption;
 			this.Controls.Add(this.label3);
 			this.Controls.Add(this.splitContainer1);
 			this.Name = "NotesBrowserPage";
-			this.Size = new System.Drawing.Size(810, 463);
+			this.Size = new System.Drawing.Size(748, 561);
 			this.splitContainer1.ResumeLayout(false);
 			this.ResumeLayout(false);
 			this.PerformLayout();
