@@ -636,6 +636,10 @@ namespace Chorus.sync
 		{
 #if MONO
 			string chorusMergeFilePath = Path.Combine(ExecutionEnvironment.DirectoryOfExecutingAssembly, "chorusmerge");
+			// The replace is only useful for use with the MonoDevelop environment whcih doesn't honor $(Configuration) in the csproj files.
+			// When this is exported as an environment var it needs escaping to prevent the shell from replacing it with an empty string.
+			// When MonoDevelop is fixed this can be removed.
+			chorusMergeFilePath = chorusMergeFilePath.Replace("$(Configuration)", "\\$(Configuration)");
 #else
 			string chorusMergeFilePath = Path.Combine(ExecutionEnvironment.DirectoryOfExecutingAssembly, "ChorusMerge.exe");
 #endif
