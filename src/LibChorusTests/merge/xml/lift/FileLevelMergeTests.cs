@@ -208,6 +208,7 @@ namespace LibChorus.Tests.merge.xml.lift
 		public void ReorderedEntry_Reordered()
 		{
 		}
+
 		[Test, Ignore("Not implemented")]
 		public void OlderLiftVersion_Handled()
 		{//what to do?
@@ -226,6 +227,182 @@ namespace LibChorus.Tests.merge.xml.lift
 		[Test, Ignore("Not implemented")]
 		public void MetaData_Merged()
 		{
+		}
+
+		[Test]
+		public void GetMergedLift_LiftHasNoConflicts_IndentingIsCorrect()
+		{
+			const string alpha = @"<?xml version='1.0' encoding='utf-8'?>
+					<lift version='0.10' producer='WeSay 1.0.0.0'>
+						<entry id='alpha'>
+							<lexical-unit>
+								<form lang='a'>
+									<text>form alpha</text>
+								</form>
+							</lexical-unit>
+						 </entry>
+					</lift>";
+
+			const string beta = @"<?xml version='1.0' encoding='utf-8'?>
+					<lift version='0.10' producer='WeSay 1.0.0.0'>
+						<entry id='beta'>
+							<lexical-unit>
+								<form lang='a'>
+									<text>form beta</text>
+								</form>
+							</lexical-unit>
+						 </entry>
+					</lift>";
+
+			const string ancestor = @"<?xml version='1.0' encoding='utf-8'?>
+					<lift version='0.10' producer='WeSay 1.0.0.0'>
+					</lift>";
+
+			string expectedResult =    ("<?xml version='1.0' encoding='utf-8'?>\r\n"
+										+ "<lift\r\n"
+										+ "\tversion='0.10'\r\n"
+										+ "\tproducer='WeSay 1.0.0.0'>\r\n"
+										+ "\t<entry\r\n"
+										+ "\t\tid='alpha'>\r\n"
+										+ "\t\t<lexical-unit>\r\n"
+										+ "\t\t\t<form\r\n"
+										+ "\t\t\t\tlang='a'>\r\n"
+										+ "\t\t\t\t<text>form alpha</text>\r\n"
+										+ "\t\t\t</form>\r\n"
+										+ "\t\t</lexical-unit>\r\n"
+										+ "\t</entry>\r\n"
+										+ "\t<entry\r\n"
+										+ "\t\tid='beta'>\r\n"
+										+ "\t\t<lexical-unit>\r\n"
+										+ "\t\t\t<form\r\n"
+										+ "\t\t\t\tlang='a'>\r\n"
+										+ "\t\t\t\t<text>form beta</text>\r\n"
+										+ "\t\t\t</form>\r\n"
+										+ "\t\t</lexical-unit>\r\n"
+										+ "\t</entry>\r\n"
+										+ "</lift>").Replace('\'', '\"');
+
+			var merger = new LiftMerger(alpha, beta, ancestor, null);
+			//since we gave it null for the merger, it will die if tries to merge at all
+			string result = merger.GetMergedLift();
+			Console.WriteLine(result);
+			Assert.AreEqual(expectedResult, result);
+		}
+
+		[Test]
+		public void GetMergedLift_LiftConflicts_IndentingIsCorrect()
+		{
+			const string alpha = @"<?xml version='1.0' encoding='utf-8'?>
+					<lift version='0.10' producer='WeSay 1.0.0.0'>
+						<entry id='alpha'>
+							<lexical-unit>
+								<form lang='a'>
+									<text>form alpha1</text>
+								</form>
+							</lexical-unit>
+						 </entry>
+					</lift>";
+
+			const string beta = @"<?xml version='1.0' encoding='utf-8'?>
+					<lift version='0.10' producer='WeSay 1.0.0.0'>
+						<entry id='alpha'>
+							<lexical-unit>
+								<form lang='a'>
+									<text>form alpha2</text>
+								</form>
+							</lexical-unit>
+						 </entry>
+					</lift>";
+
+			const string ancestor = @"<?xml version='1.0' encoding='utf-8'?>
+					<lift version='0.10' producer='WeSay 1.0.0.0'>
+						<entry id='alpha'>
+							<lexical-unit>
+								<form lang='a'>
+									<text>form alpha</text>
+								</form>
+							</lexical-unit>
+						 </entry>
+					</lift>";
+
+			string expectedResult =    ("<?xml version='1.0' encoding='utf-8'?>\r\n" +
+										"<lift\r\n" +
+										"\tversion='0.10'\r\n" +
+										"\tproducer='WeSay 1.0.0.0'>\r\n" +
+										"\t<entry\r\n" +
+										"\t\tid='alpha'>\r\n" +
+										"\t\t<lexical-unit>\r\n" +
+										"\t\t\t<form\r\n" +
+										"\t\t\t\tlang='a'>\r\n" +
+										"\t\t\t\t<text>form alpha1</text>\r\n" +
+										"\t\t\t</form>\r\n" +
+										"\t\t</lexical-unit>\r\n" +
+										"\t</entry>\r\n" +
+										"</lift>").Replace('\'', '\"');
+
+			var merger = new LiftMerger(alpha, beta, ancestor, new DropTheirsMergeStrategy());
+			//since we gave it null for the merger, it will die if tries to merge at all
+			string result = merger.GetMergedLift();
+			Console.WriteLine(result);
+			Assert.AreEqual(expectedResult, result);
+		}
+
+		[Test]
+		public void GetMergedLift_LiftIsUnchanged_IndentingIsCorrect()
+		{
+			const string alpha = @"<?xml version='1.0' encoding='utf-8'?>
+					<lift version='0.10' producer='WeSay 1.0.0.0'>
+						<entry id='alpha'>
+							<lexical-unit>
+								<form lang='a'>
+									<text>form alpha</text>
+								</form>
+							</lexical-unit>
+						 </entry>
+					</lift>";
+
+			const string beta = @"<?xml version='1.0' encoding='utf-8'?>
+					<lift version='0.10' producer='WeSay 1.0.0.0'>
+						<entry id='alpha'>
+							<lexical-unit>
+								<form lang='a'>
+									<text>form alpha</text>
+								</form>
+							</lexical-unit>
+						 </entry>
+					</lift>";
+
+			const string ancestor = @"<?xml version='1.0' encoding='utf-8'?>
+					<lift version='0.10' producer='WeSay 1.0.0.0'>
+						<entry id='alpha'>
+							<lexical-unit>
+								<form lang='a'>
+									<text>form alpha</text>
+								</form>
+							</lexical-unit>
+						 </entry>
+					</lift>";
+
+			string expectedResult =    ("<?xml version='1.0' encoding='utf-8'?>\r\n" +
+										"<lift\r\n" +
+										"\tversion='0.10'\r\n" +
+										"\tproducer='WeSay 1.0.0.0'>\r\n" +
+										"\t<entry\r\n" +
+										"\t\tid='alpha'>\r\n" +
+										"\t\t<lexical-unit>\r\n" +
+										"\t\t\t<form\r\n" +
+										"\t\t\t\tlang='a'>\r\n" +
+										"\t\t\t\t<text>form alpha</text>\r\n" +
+										"\t\t\t</form>\r\n" +
+										"\t\t</lexical-unit>\r\n" +
+										"\t</entry>\r\n" +
+										"</lift>").Replace('\'','\"');
+
+			var merger = new LiftMerger(alpha, beta, ancestor, null);
+			//since we gave it null for the merger, it will die if tries to merge at all
+			string result = merger.GetMergedLift();
+			Console.WriteLine(result);
+			Assert.AreEqual(expectedResult, result);
 		}
 	}
 }

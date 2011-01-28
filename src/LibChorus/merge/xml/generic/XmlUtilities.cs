@@ -88,10 +88,6 @@ namespace Chorus.merge.xml.generic
 			XmlNode tn = td.ReadNode(tr);
 			tn.Normalize();//doesn't do much
 
-//            StringBuilder builder = new StringBuilder();
-//            XmlWriter w = XmlWriter.Create(builder);
-
-
 			return AreXmlElementsEqual(on, tn);
 		}
 

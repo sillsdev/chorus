@@ -6,6 +6,7 @@ using System.Xml;
 using Chorus.FileTypeHanders.xml;
 using Chorus.merge.xml.generic;
 using Chorus.Utilities;
+using Palaso.Xml;
 
 namespace Chorus.FileTypeHanders.lift
 {
@@ -91,16 +92,9 @@ namespace Chorus.FileTypeHanders.lift
 				{
 					_betaIdToNodeIndex[LiftUtils.GetId(b)] = b;
 				}
-				using (var writer = XmlWriter.Create(memoryStream, new XmlWriterSettings
-				{
-					OmitXmlDeclaration = false,
-					CheckCharacters = true,
-					ConformanceLevel = ConformanceLevel.Document,
-					Encoding = new UTF8Encoding(false), //the lack of a bom is probably no big deal either way
-					Indent = true,
-					IndentChars = (""),
-					NewLineOnAttributes = false
-				}))
+				var settings = CanonicalXmlSettings.CreateXmlWriterSettings();
+				settings.CloseOutput = false;
+				using (var writer = XmlWriter.Create(memoryStream, settings))
 				{
 					WriteStartOfLiftElement(writer);
 					foreach (XmlNode e in _alphaDom.SafeSelectNodes("lift/entry"))
@@ -138,7 +132,7 @@ namespace Chorus.FileTypeHanders.lift
 //            //but for now, this lets us reuse the merger code
 //
 //            using(MemoryStream memoryStream = new MemoryStream())
-//            using (XmlWriter writer = XmlWriter.Create(memoryStream))
+//            using (XmlWriter writer = XmlWriter.Create(memoryStream)) // May want to use Palaso.Xml.CanonicalXmlWriterSettings here CP 20100-01
 //            {
 //                WriteStartOfLiftElement(writer);
 //
@@ -181,7 +175,7 @@ namespace Chorus.FileTypeHanders.lift
 			}
 			else if (AreTheSame(alphaEntry, betaEntry))//unchanged or both made same change
 			{
-				writer.WriteRaw(alphaEntry.OuterXml);
+				writer.WriteNode(alphaEntry.CreateNavigator(), false);
 			}
 			else //one or both changed
 			{
@@ -195,7 +189,12 @@ namespace Chorus.FileTypeHanders.lift
 
 				XmlNode commonEntry = FindEntry(_ancestorDom, id);
 
-				writer.WriteRaw(_mergingStrategy.MakeMergedEntry(this.EventListener, alphaEntry, betaEntry, commonEntry));
+				using (var reader = XmlReader.Create(new StringReader(
+					_mergingStrategy.MakeMergedEntry(EventListener, alphaEntry, betaEntry, commonEntry)
+				)))
+				{
+					writer.WriteNode(reader, false);
+				}
 			}
 			_processedIds[id] = true;
 		}
@@ -205,7 +204,7 @@ namespace Chorus.FileTypeHanders.lift
 		{
 			if(FindEntry(_ancestorDom,id) ==null)
 			{
-				writer.WriteRaw(entry.OuterXml); //it's new
+				writer.WriteNode(entry.CreateNavigator(), false);
 			}
 			else
 			{

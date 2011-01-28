@@ -8,6 +8,7 @@ using System.Xml;
 
 namespace Chorus.Utilities
 {
+	[Obsolete("Use Palaso.TestUtilities instead")]
 	public class TempLiftFile : TempFile
 	{
 		public TempLiftFile(string xmlOfEntries)
@@ -57,6 +58,7 @@ namespace Chorus.Utilities
 	}
 
 
+	[Obsolete("Use Palaso.TestUtilities instead")]
 	public class TempFile : IDisposable
 	{
 		protected string _path;
@@ -149,6 +151,7 @@ namespace Chorus.Utilities
 			return t;
 		}
 
+		[Obsolete("Use same method from Palaso.TestUtilities")]
 		public static TempFile CreateXmlFileWithContents(string fileName, TempFolder folder, string xmlBody)
 		{
 			string path = folder.Combine(fileName);
@@ -167,6 +170,7 @@ namespace Chorus.Utilities
 		}
 	}
 
+	[Obsolete("Use Palaso.TestUtilities instead")]
 	public class TempFolder : IDisposable
 	{
 		private string _path;
@@ -246,6 +250,7 @@ namespace Chorus.Utilities
 		}
 	}
 
+	[Obsolete("Use Palaso.TestUtilities instead")]
 	public class TestUtilities
 	{
 		public static void DeleteFolderThatMayBeInUse(string folder)
