@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
@@ -8,6 +9,23 @@ using Chorus.Utilities;
 
 namespace Chorus.UI.Notes.Bar
 {
+	/// <summary>
+	/// Normally, you should create this using your ChorusSystem object, not directly. As the user puts the cursor
+	/// on different annotatable objects, call the SetTarget() method so that the bar can update appropriately.
+	/// It will not show *anything* until you call SetTarget().
+	///
+	/// Note that you have to set up the NotesToRecordMapping.  See the summary on that
+	/// class and SampleApp for more information.
+	/// </summary>
+	/// <example>    var notesToRecordMapping = new NotesToRecordMapping()
+	///                                           {
+	///                                               FunctionToGetCurrentUrlForNewNotes = GetCurrentUrlForNewNotes,
+	///                                               FunctionToGoFromObjectToItsId = GetIdForObject
+	///                                           };
+	///             _notesBar = _chorusSystem.WinForms.CreateNotesBar(dataFilePath, notesToRecordMapping, new NullProgress());
+	///             _notesBar.Location = new Point(10, 6);
+	///             this.Controls.Add(_notesBar);
+	///</example>
 	public partial class NotesBarView : UserControl
 	{
 		/// <summary>
@@ -34,6 +52,7 @@ namespace Chorus.UI.Notes.Bar
 			InitializeComponent();
 			_model.UpdateContent += new EventHandler(OnUpdateContent);
 		   // ButtonHeight = 32;
+			this.Height = 25;//nb: there is some confusion here.
 		}
 
 //        public NotesBarView(NotesBarModel model, AnnotationEditorModel.Factory annotationViewModelFactory)
@@ -157,6 +176,14 @@ namespace Chorus.UI.Notes.Bar
 			dlg.ShowDialog();
 			OnUpdateContent(null,null);
 			_model.SaveNowIfNeeded(new NullProgress());
+			Timer refreshTimer = new Timer() {Interval = 500, Enabled = true};
+			refreshTimer.Tick += new EventHandler(OnRefreshTimer_Tick);
+			components.Add(refreshTimer);
+		}
+
+		void OnRefreshTimer_Tick(object sender, EventArgs e)
+		{
+			_model.CheckIfWeNeedToReload();
 		}
 
 		private void NotesBarView_Load(object sender, EventArgs e)

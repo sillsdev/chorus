@@ -27,7 +27,7 @@ namespace LibChorus.Tests.merge.xml
 			var finder = new FindByKeyAttribute("id");
 			var node = doc1.SelectSingleNode("//entry");
 			var result = finder.GetNodeToMerge(node, doc1.DocumentElement);
-			Assert.IsNotNull(result);
+			Assert.NotNull(result);
 			XmlTestHelper.AssertXPathMatchesExactlyOne(result, "entry[@id=\"te'st\"]");
 		}
 
@@ -45,7 +45,7 @@ namespace LibChorus.Tests.merge.xml
 			var finder = new FindByKeyAttribute("id");
 			var node = doc1.SelectSingleNode("//entry");
 			var result = finder.GetNodeToMerge(node, doc1.DocumentElement);
-			Assert.IsNotNull(result);
+			Assert.NotNull(result);
 			XmlTestHelper.AssertXPathMatchesExactlyOne(result, "entry[@id=\"test\"]");
 		}
 	}

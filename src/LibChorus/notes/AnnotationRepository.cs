@@ -98,7 +98,7 @@ namespace Chorus.notes
 		}
 
 		/// <summary>
-		/// a typical observer is an index
+		/// a typical observer is an index or a user-interface element
 		/// </summary>
 		public void AddObserver(IAnnotationRepositoryObserver observer, IProgress progress)
 		{

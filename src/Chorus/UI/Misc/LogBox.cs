@@ -13,6 +13,27 @@ namespace Chorus.UI.Misc
 		public LogBox()
 		{
 			InitializeComponent();
+			//On some machines (winXP?) we get in trouble if we don't make sure these boxes are visible before
+			//they get invoked() to. It's not clear that the following actually works... in addition to this
+			//effort, we also catch exceptions when in trying to invoke on them.
+			_box.CreateControl();
+			_verboseBox.Visible = true;
+			_verboseBox.CreateControl();
+			_verboseBox.Visible = false;
+		}
+
+		/// <summary>
+		/// On Windows XP, the invoke can cause a crash if we invoke before the window's handle had been created
+		/// </summary>
+		public void SafeInvoke(Control box, Action action)
+		{
+			if (!box.IsHandleCreated)
+			{
+				//Debug.Fail("In release build, would have given up writing this message, because the destination control isn't built yet.");
+				return;
+			}
+
+			box.Invoke(action);
 		}
 
 		public void WriteStatus(string message, params object[] args)
@@ -27,26 +48,19 @@ namespace Chorus.UI.Misc
 
 		private void Write(Color color, string message, params object[] args)
 		{
-//            try
-//            {
-				_box.Invoke(new Action(() =>
-									  {
-								_box.SelectionStart = _box.Text.Length;
-								_box.SelectionColor = color;
-								_box.AppendText(String.Format(message + Environment.NewLine, args));
-									   }));
+			SafeInvoke(_box, new Action(() =>
+			{
+				_box.SelectionStart = _box.Text.Length;
+				_box.SelectionColor = color;
+				_box.AppendText(String.Format(message + Environment.NewLine, args));
+			}));
 
-				_verboseBox.Invoke(new Action(() =>
-				{
-					_verboseBox.SelectionStart = _verboseBox.Text.Length;
-					_verboseBox.SelectionColor = color;
-					_verboseBox.AppendText(String.Format(message + Environment.NewLine, args));
-				}));
-//            }
-//            catch (Exception)
-//            {
-//
-//            }
+			SafeInvoke(_verboseBox, new Action(() =>
+			{
+				_verboseBox.SelectionStart = _verboseBox.Text.Length;
+				_verboseBox.SelectionColor = color;
+				_verboseBox.AppendText(String.Format(message + Environment.NewLine, args));
+			}));
 		}
 
 		public void WriteWarning(string message, params object[] args)
@@ -92,7 +106,7 @@ namespace Chorus.UI.Misc
 
 		public void WriteVerbose(string message, params object[] args)
 		{
-			_verboseBox.Invoke(new Action(() =>
+			SafeInvoke(_verboseBox, new Action(() =>
 			{
 				_verboseBox.SelectionStart = _verboseBox.Text.Length;
 				_verboseBox.SelectionColor = Color.DarkGray;

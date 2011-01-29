@@ -155,7 +155,7 @@ namespace Chorus.UI.Notes.Browser
 
 		#endregion
 
-		public void NowVisible()
+		public void CheckIfWeNeedToReload()
 		{
 			if(_reloadPending)
 				ReloadMessagesNow();

@@ -205,7 +205,7 @@ namespace Nini.Ini
 			}
 			catch (Exception e)
 			{
-				MessageBox.Show("There was a problem saving mercurial settings to "+_filePath+". "+Environment.NewLine+e.Message,"Error", MessageBoxButtons.OK,MessageBoxIcon.Warning);
+				Palaso.Reporting.ErrorReport.NotifyUserOfProblem(e, "There was a problem saving mercurial settings to "+_filePath+". ");
 				return false;
 			}
 		}
@@ -244,7 +244,7 @@ namespace Nini.Ini
 						sectionFound = true;
 						// If section already exists then overwrite it
 						if (sections[reader.Name] != null) {
-							sections.Remove (reader.Name);
+							sections.RemoveSection (reader.Name);
 						}
 						section = new IniSection (reader.Name, reader.Comment);
 						sections.Add (section);

@@ -3,6 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Net;
 using System.Net.NetworkInformation;
 using System.Reflection;
 using System.Text;
@@ -10,6 +11,7 @@ using System.Text.RegularExpressions;
 using Chorus.Utilities;
 using Chorus.Utilities.code;
 using Nini.Ini;
+using Palaso.Network;
 
 namespace Chorus.VcsDrivers.Mercurial
 {
@@ -22,6 +24,9 @@ namespace Chorus.VcsDrivers.Mercurial
 		private const int SecondsBeforeTimeoutOnLocalOperation = 60;
 		private const int SecondsBeforeTimeoutOnMergeOperation = 5 * 60;
 		private const int SecondsBeforeTimeoutOnRemoteOperation = 20 * 60;
+		private bool _haveLookedIntoProxySituation;
+		private string _proxyCongfigParameterString = string.Empty;
+
 
 		public static string GetEnvironmentReadinessMessage(string messageLanguageId)
 		{
@@ -176,6 +181,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		public bool TryToPull(string repositoryLabel, string resolvedUri)
 		{
 			HgRepository repo = new HgRepository(resolvedUri, _progress);
+
 			repo.UserName = repositoryLabel;
 			return PullFromRepository(repo, false);
 		}
@@ -186,7 +192,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			_progress.WriteVerbose("({0} is {1})", address.GetFullName(targetUri), targetUri);
 			try
 			{
-				Execute(SecondsBeforeTimeoutOnRemoteOperation, "push", SurroundWithQuotes(targetUri));
+				Execute(SecondsBeforeTimeoutOnRemoteOperation, "push --debug "+GetProxyConfigParameterString(targetUri,progress), SurroundWithQuotes(targetUri));
 			}
 			catch (Exception err)
 			{
@@ -219,13 +225,14 @@ namespace Chorus.VcsDrivers.Mercurial
 		/// <returns>true if the pull happend and changes were pulled in</returns>
 		protected bool PullFromRepository(HgRepository otherRepo, bool throwIfCannot)
 		{
+
 			_progress.WriteStatus("Receiving any changes from {0}", otherRepo.Name);
 			_progress.WriteVerbose("({0} is {1})", otherRepo.Name, otherRepo._pathToRepository);
 			{
 				try
 				{
 					var tip = GetTip();
-					Execute(SecondsBeforeTimeoutOnRemoteOperation, "pull", otherRepo.PathWithQuotes);
+					Execute(SecondsBeforeTimeoutOnRemoteOperation, "pull --debug"+GetProxyConfigParameterString(otherRepo.PathToRepo,_progress), otherRepo.PathWithQuotes);
 
 					var newTip = GetTip();
 					if (tip == null)
@@ -604,30 +611,32 @@ namespace Chorus.VcsDrivers.Mercurial
 		/// Will never time out.
 		/// Will honor state of the progress.CancelRequested property
 		/// </summary>
-		public static void Clone(string sourceURI, string targetPath, IProgress progress)
+		public static void Clone(string sourceUri, string targetPath, IProgress progress)
 		{
 			progress.WriteStatus("Getting project...");
 			try
 			{
 				var repo = new HgRepository(targetPath, progress);
-				repo.Execute(int.MaxValue, "clone", SurroundWithQuotes(sourceURI) + " " + SurroundWithQuotes(targetPath));
+
+				repo.Execute(int.MaxValue, "clone", DoWorkOfDeterminingProxyConfigParameterString(targetPath, progress), SurroundWithQuotes(sourceUri) + " " + SurroundWithQuotes(targetPath));
 				progress.WriteStatus("Finished copying to this computer at {0}", targetPath);
 			}
 			catch (Exception error)
 			{
 				if (error.Message.Contains("502"))
 				{
-					var x = new Uri(sourceURI);
+					var x = new Uri(sourceUri);
 					progress.WriteMessage("Check that the name {0} is correct", x.Host);
 				}
 				else if (error.Message.Contains("404"))
 				{
-					var x = new Uri(sourceURI);
+					var x = new Uri(sourceUri);
 					progress.WriteMessage("Check that {0} really hosts a project labelled '{1}'", x.Host, x.PathAndQuery.Trim('/'));
 				}
 				throw error;
 			}
 		}
+
 
 		public void CloneLocal(string targetPath)
 		{
@@ -928,7 +937,7 @@ namespace Chorus.VcsDrivers.Mercurial
 						return section.GetValue("username");
 				}
 
-				return string.Empty;
+				return defaultName;
 			}
 			catch (Exception)
 			{
@@ -1000,7 +1009,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		public void SetKnownRepositoryAddresses(IEnumerable<RepositoryAddress> addresses)
 		{
 			var doc = GetHgrcDoc();
-			doc.Sections.Remove("paths");//clear it out
+			doc.Sections.RemoveSection("paths");//clear it out
 			var section = doc.Sections.GetOrCreate("paths");
 			foreach (var address in addresses)
 			{
@@ -1022,7 +1031,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		public void SetDefaultSyncRepositoryAliases(IEnumerable<string> aliases)
 		{
 			var doc = GetHgrcDoc();
-			doc.Sections.Remove("ChorusDefaultRepositories");//clear it out
+			doc.Sections.RemoveSection("ChorusDefaultRepositories");//clear it out
 			IniSection section = GetDefaultRepositoriesSection(doc);
 			foreach (var alias in aliases)
 			{
@@ -1127,7 +1136,7 @@ namespace Chorus.VcsDrivers.Mercurial
 					return false;
 				}
 
-				progress.WriteVerbose("Pinging {0}...", uriObject.Host);
+			   progress.WriteVerbose("Pinging {0}...", uriObject.Host);
 				using (var ping = new System.Net.NetworkInformation.Ping())
 				{
 					var result = ping.Send(uriObject.Host, 3000);//arbitrary... what's a reasonable wait?
@@ -1169,6 +1178,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				return false;
 			}
 		}
+
 
 
 		public void RecoverFromInterruptedTransactionIfNeeded()
@@ -1477,35 +1487,11 @@ namespace Chorus.VcsDrivers.Mercurial
 			}
 		}
 
-		public void SetGlobalProxyInfo(ProxySpec proxy)
-		{
-			var doc = GetMercurialIni();
-			var section = doc.Sections.GetOrCreate("http_proxy");
-			section.Set("host", proxy.Host);
-			section.Set("passwd", proxy.Password);
-			section.Set("user", proxy.UserName);
-			section.Set("no", proxy.BypassList);
-			doc.SaveAndGiveMessageIfCannot();
-
-		}
-
-		public ProxySpec GetGlobalProxyInfo()
-		{
-			var doc = GetMercurialIni();
-			var section = doc.Sections.GetOrCreate("http_proxy");
-			var proxy = new ProxySpec();
-			proxy.Host = section.GetValue("host");
-			proxy.Password = section.GetValue("passwd");
-			proxy.UserName = section.GetValue("user");
-			proxy.BypassList = section.GetValue("no");
-			return proxy;
-		}
-
 		public string GetLog(int maxChangeSetsToShow)
 		{
 			if (maxChangeSetsToShow > 0)
 			{
-				return GetTextFromQuery("log -G -l {0}", maxChangeSetsToShow);
+				return GetTextFromQuery(String.Format("log -G -l {0}", maxChangeSetsToShow));
 			}
 			else
 			{
@@ -1516,7 +1502,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		public void SetupEndOfLineConversion(IEnumerable<string> extensionsOfKnownTextFileTypes)
 		{
 			var doc = GetHgrcDoc();
-			doc.Sections.Remove("encode");//clear it out
+			doc.Sections.RemoveSection("encode");//clear it out
 			var section = doc.Sections.GetOrCreate("encode");
 			foreach (string extension in extensionsOfKnownTextFileTypes)
 			{
@@ -1588,6 +1574,73 @@ namespace Chorus.VcsDrivers.Mercurial
 		}
 
 		/// <summary>
+		/// Mercurial gives us a way to set proxy info in the hgrc or ini files, but that
+		/// a) has to be noticed and set up prior to Send/Receive and
+		/// b) may go in and out of correctness, as the user travels between network connections.
+		/// c) leaves the credentials stored in clear text on the hard drive
+		///
+		/// So for now, we're going to see how it works out there in the world if we just always
+		/// handle this ourselves, never paying attention to the hgrc/mercurial.ini
+		/// </summary>
+		public string GetProxyConfigParameterString(string httpUrl, IProgress progress)
+		{
+			if (!_haveLookedIntoProxySituation && !GetIsLocalUri(httpUrl))
+			{
+				_proxyCongfigParameterString = DoWorkOfDeterminingProxyConfigParameterString(httpUrl, progress);
+				_haveLookedIntoProxySituation = true;
+			}
+			return _proxyCongfigParameterString;
+		}
+
+
+		public static string DoWorkOfDeterminingProxyConfigParameterString(string httpUrl, IProgress progress)
+		{
+			/* The hg url itself would be more robust for the theoretical possibility of different
+				* proxies for different destinations, but some hg servers (notably language depot) require a login.
+				* So we're ignoring what we were given, and just using a known address, for now.
+				*/
+			httpUrl = "http://hg.palaso.org";
+
+			progress.WriteVerbose("Checking for proxy by trying to http-get {0}...", httpUrl);
+
+			try
+			{
+				//The following, which comes from the palaso library, will take care of remembering, between runs,
+				//what credentials the user entered.  If they are needed but are missing or don't work,
+				//it will put a dialog asking for them.
+				string hostAndPort;
+				string userName;
+				string password;
+				RobustNetworkOperation.DoHttpGetAndGetProxyInfo(httpUrl, out hostAndPort, out userName, out password);
+				return MakeProxyConfigParameterString(hostAndPort.Replace("http://",""), userName, password);
+			}
+			catch(Exception e)
+			{
+				progress.WriteWarning("Failed to determine if we need to use authentication for a proxy...");
+				progress.WriteException(e);
+				return " ";// space is safer when appending params than string.Empty;
+			}
+		}
+
+		private static string MakeProxyConfigParameterString(string proxyHostAndPort, string proxyUserName, string proxyPassword)
+		{
+			var builder = new StringBuilder();
+			builder.AppendFormat(" --config \"http_proxy.host={0}\" ", proxyHostAndPort);
+			if(!string.IsNullOrEmpty(proxyUserName))
+			{
+				builder.AppendFormat(" --config \"http_proxy.user={0}\" ", proxyUserName);
+
+				if (!string.IsNullOrEmpty(proxyPassword))
+				{
+					builder.AppendFormat(" --config \"http_proxy.passwd={0}\" ", proxyPassword);
+				}
+			}
+
+			return builder.ToString();
+		}
+
+
+		/// <summary>
 		/// Tells whether is looks like we have enough information to attempt an internet send/receive
 		/// </summary>
 		/// <param name="message">An english string which will convey the readiness status</param>
@@ -1630,16 +1683,11 @@ namespace Chorus.VcsDrivers.Mercurial
 			message = string.Format("Ready to send/receive to {0} with project '{1}' and user '{2}'",
 				uri.Host, uri.PathAndQuery.Trim(new char[]{'/'}), address.UserName);
 
+
 			return true;
+
+
 		}
 	}
 
-	public class ProxySpec
-	{
-		public string Host { get; set; }
-		public string Port { get; set; }
-		public string UserName { get; set; }
-		public string Password { get; set; }
-		public string BypassList { get; set; }
-	}
 }

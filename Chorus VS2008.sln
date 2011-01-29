@@ -1,25 +1,27 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual Studio 2008
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibChorus.Tests", "LibChorusTests\LibChorus.Tests.csproj", "{F9671F8B-8556-44EA-81A7-C236D871B471}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibChorus.Tests", "src\LibChorusTests\LibChorus.Tests.csproj", "{F9671F8B-8556-44EA-81A7-C236D871B471}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibChorus", "LibChorus\LibChorus.csproj", "{94245366-8F1E-475C-810D-FE89BB3948E0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibChorus", "src\LibChorus\LibChorus.csproj", "{94245366-8F1E-475C-810D-FE89BB3948E0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chorus.Tests", "Chorus.Tests\Chorus.Tests.csproj", "{887A58D6-E5C5-4BA1-9C9B-41C6E8F0B915}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chorus.Tests", "src\Chorus.Tests\Chorus.Tests.csproj", "{887A58D6-E5C5-4BA1-9C9B-41C6E8F0B915}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChorusMerge", "ChorusMerge\ChorusMerge.csproj", "{1264E294-F719-491C-863A-703CB48385D8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChorusMerge", "src\ChorusMerge\ChorusMerge.csproj", "{1264E294-F719-491C-863A-703CB48385D8}"
 	ProjectSection(WebsiteProperties) = preProject
 		Debug.AspNetCompiler.Debug = "True"
 		Release.AspNetCompiler.Debug = "False"
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChorusMerge.Tests", "ChorusMerge.Tests\ChorusMerge.Tests.csproj", "{2F4DCA63-3503-4F4E-BEC6-8247F83F3BE4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChorusMerge.Tests", "src\ChorusMerge.Tests\ChorusMerge.Tests.csproj", "{2F4DCA63-3503-4F4E-BEC6-8247F83F3BE4}"
 	ProjectSection(WebsiteProperties) = preProject
 		Debug.AspNetCompiler.Debug = "True"
 		Release.AspNetCompiler.Debug = "False"
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chorus", "Chorus\Chorus.csproj", "{9DA5A655-1881-4BE1-81BA-256E47CF7537}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chorus", "src\Chorus\Chorus.csproj", "{9DA5A655-1881-4BE1-81BA-256E47CF7537}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleApp", "src\SampleApp\SampleApp.csproj", "{550854F0-9247-42C5-B41D-08E96CC17F92}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

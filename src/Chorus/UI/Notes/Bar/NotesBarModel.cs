@@ -6,7 +6,7 @@ using Chorus.Utilities.code;
 
 namespace Chorus.UI.Notes.Bar
 {
-	public class NotesBarModel
+	public class NotesBarModel : IAnnotationRepositoryObserver
 	{
 		//use this one for apps that have just one file being edited, and thus on notes repository,
 		//which would have been pushed into the container
@@ -15,6 +15,7 @@ namespace Chorus.UI.Notes.Bar
 		private readonly AnnotationRepository _repository;
 		private readonly NotesToRecordMapping _mapping;
 		private object _targetObject;
+		private bool _reloadPending;
 
 		public void SetTargetObject(object target)
 		{
@@ -35,12 +36,19 @@ namespace Chorus.UI.Notes.Bar
 		{
 			_repository = repository;
 			_mapping = mapping;
+
+			repository.AddObserver(this, new NullProgress());
 		}
 		internal NotesBarModel(AnnotationRepository repository)
 			: this(repository, NotesToRecordMapping.SimpleForTest())
 		{
 		}
 
+		public void CheckIfWeNeedToReload()
+		{
+			if (_reloadPending)
+				UpdateContentNow();
+		}
 
 
 		public IEnumerable<Annotation> GetAnnotationsToShow()
@@ -56,6 +64,8 @@ namespace Chorus.UI.Notes.Bar
 		{
 			if(UpdateContent!=null)
 				UpdateContent.Invoke(this, null);
+
+			_reloadPending = false;
 		}
 
 		public Annotation CreateAnnotation()
@@ -84,5 +94,28 @@ namespace Chorus.UI.Notes.Bar
 			_repository.Remove(annotation);
 			UpdateContentNow();
 		}
+
+		#region Implementation of IAnnotationRepositoryObserver
+
+		public void Initialize(Func<IEnumerable<Annotation>> allAnnotationsFunction, IProgress progress)
+		{
+		}
+
+		public void NotifyOfAddition(Annotation annotation)
+		{
+			_reloadPending = true;
+		}
+
+		public void NotifyOfModification(Annotation annotation)
+		{
+			_reloadPending = true;
+		}
+
+		public void NotifyOfDeletion(Annotation annotation)
+		{
+			_reloadPending = true;
+		}
+
+		#endregion
 	}
 }
