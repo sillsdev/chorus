@@ -23,7 +23,7 @@
 	<DebugSymbols>true</DebugSymbols>
 	<DebugType>full</DebugType>
 	<Optimize>false</Optimize>
-	<OutputPath>..\..\output\Debug\</OutputPath>
+	<OutputPath>..\..\output\$(Configuration)</OutputPath>
 	<DefineConstants>DEBUG;TRACE</DefineConstants>
 	<ErrorReport>prompt</ErrorReport>
 	<WarningLevel>4</WarningLevel>
@@ -34,12 +34,12 @@
 	<CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
 	<ApplicationIcon>chorus.ico</ApplicationIcon>
 	<PlatformTarget>x86</PlatformTarget>
-	<DocumentationFile>..\..\output\Debug\Chorus.XML</DocumentationFile>
+	<DocumentationFile>..\..\output\$(Configuration)\Chorus.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
 	<DebugType>pdbonly</DebugType>
 	<Optimize>true</Optimize>
-	<OutputPath>..\..\output\Release\</OutputPath>
+	<OutputPath>..\..\output\$(Configuration)</OutputPath>
 	<DefineConstants>TRACE</DefineConstants>
 	<ErrorReport>prompt</ErrorReport>
 	<WarningLevel>4</WarningLevel>
@@ -51,14 +51,34 @@
 	<CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
 	<ApplicationIcon>chorus.ico</ApplicationIcon>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'DebugMono|AnyCPU' ">
+	<DebugSymbols>true</DebugSymbols>
+	<OutputPath>..\..\output\$(Configuration)</OutputPath>
+	<DefineConstants>DEBUG;TRACE;MONO</DefineConstants>
+	<CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+	<DocumentationFile>..\..\output\$(Configuration)\Chorus.XML</DocumentationFile>
+	<DebugType>full</DebugType>
+	<PlatformTarget>x86</PlatformTarget>
+	<ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'ReleaseMono|AnyCPU' ">
+	<DebugSymbols>true</DebugSymbols>
+	<OutputPath>..\..\output\$(Configuration)</OutputPath>
+	<DefineConstants>TRACE;MONO</DefineConstants>
+	<CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+	<Optimize>true</Optimize>
+	<DebugType>pdbonly</DebugType>
+	<PlatformTarget>AnyCPU</PlatformTarget>
+	<ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
   <ItemGroup>
 	<Reference Include="Autofac, Version=1.4.4.561, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
 	  <SpecificVersion>False</SpecificVersion>
-	  <HintPath>..\..\lib\net2.0\Autofac.dll</HintPath>
+	  <HintPath>..\..\lib\$(Configuration)\Autofac.dll</HintPath>
 	</Reference>
 	<Reference Include="Palaso, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
 	  <SpecificVersion>False</SpecificVersion>
-	  <HintPath>..\..\lib\net2.0\Palaso.dll</HintPath>
+	  <HintPath>..\..\lib\$(Configuration)\Palaso.dll</HintPath>
 	</Reference>
 	<Reference Include="System" />
 	<Reference Include="System.Core">
@@ -325,6 +345,7 @@
 	<Content Include="chorus.ico" />
 	<EmbeddedResource Include="UI\BetterLabel.resx">
 	  <DependentUpon>BetterLabel.cs</DependentUpon>
+	  <SubType>Designer</SubType>
 	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Misc\ServerSettingsControl.resx">
 	  <DependentUpon>ServerSettingsControl.cs</DependentUpon>
@@ -343,6 +364,7 @@
 	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Misc\TroubleshootingView.resx">
 	  <DependentUpon>TroubleshootingView.cs</DependentUpon>
+	  <SubType>Designer</SubType>
 	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Misc\ReadinessPanel.resx">
 	  <DependentUpon>ReadinessPanel.cs</DependentUpon>
@@ -350,15 +372,19 @@
 	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Notes\AnnotationInspector.resx">
 	  <DependentUpon>AnnotationInspector.cs</DependentUpon>
+	  <SubType>Designer</SubType>
 	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Notes\AnnotationEditorView.resx">
 	  <DependentUpon>AnnotationEditorView.cs</DependentUpon>
+	  <SubType>Designer</SubType>
 	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Notes\Bar\NoteDetailDialog.resx">
 	  <DependentUpon>NoteDetailDialog.cs</DependentUpon>
+	  <SubType>Designer</SubType>
 	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Notes\Bar\NotesBarView.resx">
 	  <DependentUpon>NotesBarView.cs</DependentUpon>
+	  <SubType>Designer</SubType>
 	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Notes\Browser\NotesInProjectView.resx">
 	  <DependentUpon>NotesInProjectView.cs</DependentUpon>
@@ -370,6 +396,7 @@
 	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Notes\Browser\SearchBox.resx">
 	  <DependentUpon>SearchBox.cs</DependentUpon>
+	  <SubType>Designer</SubType>
 	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Misc\ServerSettingsDialog.resx">
 	  <DependentUpon>ServerSettingsDialog.cs</DependentUpon>
@@ -384,6 +411,7 @@
 	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Sync\SyncStartControl.resx">
 	  <DependentUpon>SyncStartControl.cs</DependentUpon>
+	  <SubType>Designer</SubType>
 	</EmbeddedResource>
 	<None Include="Resources\error.wav" />
 	<None Include="Resources\chorus32x32.png" />

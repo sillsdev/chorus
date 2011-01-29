@@ -13,6 +13,10 @@ glob:*~
 *.pidb
 glob:Mercurial/*
 glob:*ReSharper*
+glob:build/old
+glob:lib/$(Configuration)
+glob:*.resources
+glob:*.userprefs
 relre:src/Chorus.Tests/bin/*
 relre:src/ChorusMerge.Tests/bin/*
 relre:src/SampleApp/bin/*.*
