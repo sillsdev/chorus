@@ -8,7 +8,7 @@ using Chorus.Utilities.UsbDrive;
 using LibChorus.Tests;
 using NUnit.Framework;
 
-namespace Chorus.Tests
+namespace LibChorus.Tests
 {
 	[TestFixture]
 	public class ClonerTests
