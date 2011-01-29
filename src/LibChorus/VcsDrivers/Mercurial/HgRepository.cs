@@ -12,6 +12,7 @@ using Chorus.Utilities;
 using Chorus.Utilities.code;
 using Nini.Ini;
 using Palaso.Network;
+using Palaso.Progress.LogBox;
 
 namespace Chorus.VcsDrivers.Mercurial
 {
@@ -404,8 +405,8 @@ namespace Chorus.VcsDrivers.Mercurial
 				}
 				else
 				{
-					throw new ApplicationException("Got return value " + result.ExitCode + details);
-				}
+				throw new ApplicationException("Got return value " + result.ExitCode + details);
+			}
 			}
 			return result;
 		}

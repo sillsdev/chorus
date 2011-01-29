@@ -8,6 +8,7 @@ using System.Text;
 using System.Windows.Forms;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
+using Palaso.Progress.LogBox;
 
 namespace Chorus.UI.Misc
 {

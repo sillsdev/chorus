@@ -9,6 +9,7 @@ using Chorus.UI.Notes;
 using Chorus.UI.Notes.Browser;
 using Chorus.Utilities;
 using NUnit.Framework;
+using Palaso.Progress.LogBox;
 
 namespace Chorus.Tests.notes
 {
@@ -69,6 +70,10 @@ namespace Chorus.Tests.notes
 				}
 			}
 		}
+
+
+
+
 		[Test]
 		public void GetMessages_SearchContainsClass_FindsMatches()
 		{
@@ -84,6 +89,46 @@ namespace Chorus.Tests.notes
 				   m.SearchTextChanged("ques");
 					Assert.AreEqual(1, m.GetMessages().Count());
 					Assert.AreEqual("john",m.GetMessages().First().Message.Author);
+
+				}
+			}
+		}
+
+		[Test]
+		public void GetMessages_SearchContainsWordInMessageInUpperCase_FindsMatches()
+		{
+			using (var folder = new TempFolder("NotesModelTests"))
+			{
+				string contents = @"<annotation class='question'><message author='john'></message></annotation>
+				<annotation class='note'><message author='bob'>my mESsage contents</message></annotation>";
+				using (CreateNotesFile(folder, contents))
+				{
+					var repos = AnnotationRepository.CreateRepositoriesFromFolder(folder.Path, _progress);
+					var m = new NotesInProjectViewModel(TheUser, repos, new MessageSelectedEvent(), new ConsoleProgress());
+					Assert.AreEqual(2, m.GetMessages().Count(), "should get 2 annotations when search box is empty");
+					m.SearchTextChanged("MesSAGE");//es is lower case
+					Assert.AreEqual(1, m.GetMessages().Count());
+					Assert.AreEqual("bob", m.GetMessages().First().Message.Author);
+
+				}
+			}
+		}
+
+		[Test]
+		public void GetMessages_SearchContainsClassInWrongUpperCase_FindsMatches()
+		{
+			using (var folder = new TempFolder("NotesModelTests"))
+			{
+				string contents = @"<annotation class='question'><message author='john'></message></annotation>
+				<annotation class='note'><message author='bob'></message></annotation>";
+				using (CreateNotesFile(folder, contents))
+				{
+					var repos = AnnotationRepository.CreateRepositoriesFromFolder(folder.Path, _progress);
+					var m = new NotesInProjectViewModel(TheUser, repos, new MessageSelectedEvent(), new ConsoleProgress());
+					Assert.AreEqual(2, m.GetMessages().Count(), "should get 2 annotations when search box is empty");
+					m.SearchTextChanged("Ques");
+					Assert.AreEqual(1, m.GetMessages().Count());
+					Assert.AreEqual("john", m.GetMessages().First().Message.Author);
 
 				}
 			}

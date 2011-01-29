@@ -8,6 +8,7 @@ using System.Windows.Forms;
 using Chorus.notes;
 using Chorus.Utilities;
 using NUnit.Framework;
+using Palaso.Progress.LogBox;
 
 namespace Chorus.Tests
 {

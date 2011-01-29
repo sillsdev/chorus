@@ -97,6 +97,20 @@
   </ItemGroup>
   <ItemGroup>
 	<Compile Include="FileTypeHanders\lift\LiftFolder.cs" />
+	<Compile Include="FileTypeHanders\FieldWorks\DataType.cs" />
+	<Compile Include="FileTypeHanders\FieldWorks\FieldWorksMergingServices.cs" />
+	<Compile Include="FileTypeHanders\FieldWorks\FdoClassInfo.cs" />
+	<Compile Include="FileTypeHanders\FieldWorks\FdoPropertyInfo.cs" />
+	<Compile Include="FileTypeHanders\FieldWorks\MetadataCache.cs" />
+	<Compile Include="FileTypeHanders\Xml2WayDiffer.cs" />
+	<Compile Include="FileTypeHanders\Xml2WayDiffService.cs" />
+	<Compile Include="merge\xml\generic\MergeAtomicElementService.cs" />
+	<Compile Include="merge\xml\generic\XmlMergeService.cs" />
+	<Compile Include="Utilities\DifferDictionaryPrepper.cs" />
+	<Compile Include="FileTypeHanders\FieldWorks\FieldWorkObjectContextGenerator.cs" />
+	<Compile Include="FileTypeHanders\FieldWorks\FieldWorksChangePresenter.cs" />
+	<Compile Include="FileTypeHanders\FieldWorks\FieldWorksFileHandler.cs" />
+	<Compile Include="FileTypeHanders\FieldWorks\FieldWorksMergingStrategy.cs" />
 	<Compile Include="FileTypeHanders\NotePresenter.cs" />
 	<Compile Include="IWritingSystem.cs" />
 	<Compile Include="MercurialLocation.cs" />
@@ -114,7 +128,6 @@
 	<Compile Include="FileTypeHanders\ConflictPresenter.cs" />
 	<Compile Include="FileTypeHanders\image\ImageChangePresenter.cs" />
 	<Compile Include="FileTypeHanders\image\ImageFileTypeHandler.cs" />
-	<Compile Include="FileTypeHanders\ChorusNotesDiffer.cs" />
 	<Compile Include="FileTypeHanders\lift\WeSayConfigFileHandler.cs" />
 	<Compile Include="FileTypeHanders\oneStory\OneStoryFileHandler.cs" />
 	<Compile Include="FileTypeHanders\OurWord\OurWordFileHandler.cs" />
@@ -130,7 +143,6 @@
 	<Compile Include="FileTypeHanders\lift\LexEntryContextGenerator.cs" />
 	<Compile Include="FileTypeHanders\lift\LiftChangePresenter.cs" />
 	<Compile Include="FileTypeHanders\lift\LiftFileHandler.cs" />
-	<Compile Include="FileTypeHanders\lift\LiftDiffer.cs" />
 	<Compile Include="FileTypeHanders\lift\LiftUtils.cs" />
 	<Compile Include="FileTypeHanders\xml\IXmlChangeReport.cs" />
 	<Compile Include="FileTypeHanders\xml\XmlAdditionChangeReport.cs" />
@@ -150,6 +162,7 @@
 	</Compile>
 	<Compile Include="notes\AnnotationClass.cs" />
 	<Compile Include="Utilities\code\DelegateDefinitions.cs" />
+	<Compile Include="Utilities\FastXmlElementSplitter.cs" />
 	<Compile Include="Utilities\MultiMap.cs" />
 	<Compile Include="Utilities\UrlHelper.cs" />
 	<Compile Include="Utilities\XmlElementExtensions.cs" />
@@ -187,7 +200,6 @@
 	<Compile Include="Utilities\ini\OrderedListEnumerator.cs" />
 	<Compile Include="Utilities\ExecutionEnvironment.cs" />
 	<Compile Include="Utilities\ProcessStream.cs" />
-	<Compile Include="Utilities\Progress.cs" />
 	<Compile Include="Utilities\ShortTermEnvironmentalVariable.cs" />
 	<Compile Include="Utilities\TempFile.cs" />
 	<Compile Include="VcsDrivers\Git\GitRepository.cs" />
@@ -201,7 +213,6 @@
 	<Compile Include="merge\xml\generic\FindNodeToMerge.cs" />
 	<Compile Include="merge\xml\generic\IMergeStrategy.cs" />
 	<Compile Include="FileTypeHanders\lift\LiftEntryMergingStrategy.cs" />
-	<Compile Include="FileTypeHanders\lift\LiftMerger.cs" />
 	<Compile Include="merge\xml\generic\XmlUtilities.cs" />
 	<Compile Include="merge\xml\generic\xmldiff\DiffConfiguration.cs" />
 	<Compile Include="merge\xml\generic\xmldiff\Difference.cs" />
