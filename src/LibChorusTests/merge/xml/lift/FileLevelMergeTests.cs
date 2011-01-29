@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using Chorus.FileTypeHanders.lift;
 using Chorus.merge;
@@ -360,11 +361,21 @@ namespace LibChorus.Tests.merge.xml.lift
 										+ "\t</entry>\r\n"
 										+ "</lift>").Replace('\'', '\"');
 
-			var merger = new LiftMerger(alpha, beta, ancestor, null);
-			//since we gave it null for the merger, it will die if tries to merge at all
-			string result = merger.GetMergedLift();
-			Console.WriteLine(result);
-			Assert.AreEqual(expectedResult, result);
+			using (var oursTemp = new TempFile(alpha))
+			using (var theirsTemp = new TempFile(beta))
+			using (var ancestorTemp = new TempFile(ancestor))
+			{
+				var listener = new ListenerForUnitTests();
+				var situation = new NullMergeSituation();
+				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation) { EventListener = listener };
+				XmlMergeService.Do3WayMerge(mergeOrder, new LiftEntryMergingStrategy(situation),
+											"header",
+											"entry", "id", LiftFileHandler.WritePreliminaryInformation);
+				var result = File.ReadAllText(mergeOrder.pathToOurs);
+				Console.WriteLine(result);
+				Assert.AreEqual(expectedResult, result);
+			}
+
 		}
 
 		[Test]
@@ -418,11 +429,21 @@ namespace LibChorus.Tests.merge.xml.lift
 										"\t</entry>\r\n" +
 										"</lift>").Replace('\'', '\"');
 
-			var merger = new LiftMerger(alpha, beta, ancestor, new DropTheirsMergeStrategy());
-			//since we gave it null for the merger, it will die if tries to merge at all
-			string result = merger.GetMergedLift();
-			Console.WriteLine(result);
-			Assert.AreEqual(expectedResult, result);
+			using (var oursTemp = new TempFile(alpha))
+			using (var theirsTemp = new TempFile(beta))
+			using (var ancestorTemp = new TempFile(ancestor))
+			{
+				var listener = new ListenerForUnitTests();
+				var situation = new NullMergeSituation();
+				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation)
+									{EventListener = listener};
+				XmlMergeService.Do3WayMerge(mergeOrder, new LiftEntryMergingStrategy(situation),
+											"header",
+											"entry", "id", LiftFileHandler.WritePreliminaryInformation);
+				var result = File.ReadAllText(mergeOrder.pathToOurs);
+				Console.WriteLine(result);
+				Assert.AreEqual(expectedResult, result);
+			}
 		}
 
 		[Test]
@@ -476,11 +497,21 @@ namespace LibChorus.Tests.merge.xml.lift
 										"\t</entry>\r\n" +
 										"</lift>").Replace('\'','\"');
 
-			var merger = new LiftMerger(alpha, beta, ancestor, null);
-			//since we gave it null for the merger, it will die if tries to merge at all
-			string result = merger.GetMergedLift();
-			Console.WriteLine(result);
-			Assert.AreEqual(expectedResult, result);
+			using (var oursTemp = new TempFile(alpha))
+			using (var theirsTemp = new TempFile(beta))
+			using (var ancestorTemp = new TempFile(ancestor))
+			{
+				var listener = new ListenerForUnitTests();
+				var situation = new NullMergeSituation();
+				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation) { EventListener = listener };
+				XmlMergeService.Do3WayMerge(mergeOrder, new LiftEntryMergingStrategy(situation),
+											"header",
+											"entry", "id", LiftFileHandler.WritePreliminaryInformation);
+				var result = File.ReadAllText(mergeOrder.pathToOurs);
+				Console.WriteLine(result);
+				Assert.AreEqual(expectedResult, result);
+			}
+
 		}
 	}
 }

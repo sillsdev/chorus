@@ -7,6 +7,7 @@ using Chorus.FileTypeHanders;
 using Chorus.FileTypeHanders.lift;
 using Chorus.FileTypeHanders.xml;
 using Chorus.Utilities;
+using Palaso.Xml;
 
 namespace Chorus.merge.xml.generic
 {
@@ -77,16 +78,7 @@ namespace Chorus.merge.xml.generic
 			// At this point we have two sets of diffs, but we need to merge them.
 			// Newbies from both get added.
 			// A conflict has 'winner' stay, but with a report.
-			using (var writer = XmlWriter.Create(outputPathname, new XmlWriterSettings
-			{
-				OmitXmlDeclaration = false,
-				CheckCharacters = true,
-				ConformanceLevel = ConformanceLevel.Document,
-				Encoding = new UTF8Encoding(false),
-				Indent = true,
-				IndentChars = (""),
-				NewLineOnAttributes = false
-			}))
+			using (var writer = XmlWriter.Create(outputPathname, CanonicalXmlSettings.CreateXmlWriterSettings()))
 			{
 				// Need a reader on '_commonAncestorXml', much as is done for FW, but sans thread.
 				// Blend in newbies, goners, and dirtballs to 'outputPathname' as in FW.

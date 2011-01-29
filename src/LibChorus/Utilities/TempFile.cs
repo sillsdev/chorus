@@ -158,7 +158,7 @@ namespace Chorus.Utilities
 			using (XmlWriter x = XmlWriter.Create(path))
 			{
 				x.WriteStartDocument();
-				x.WriteRaw(xmlBody);
+				x.WriteRaw(xmlBody); // This will result in non-canonical xml output. TODO upgrade to use Palaso version CP 2011-01
 			}
 			return new TempFile(path, true);
 		}
