@@ -37,9 +37,12 @@ namespace Chorus.merge.xml.generic
 			{
 				if (!File.Exists(path))
 				{
-					XmlDocument doc = new XmlDocument();
+					var doc = new XmlDocument();
 					doc.LoadXml(string.Format("<notes version='{0}'/>", FormatVersionNumber.ToString()));
-					doc.Save(path);
+					using (var fileWriter = XmlWriter.Create(path, CanonicalXmlSettings.CreateXmlWriterSettings()))
+					{
+						doc.Save(fileWriter);
+					}
 				}
 			}
 			catch (Exception error)
