@@ -1,0 +1,9 @@
+﻿<NUnitProject>
+  <Settings activeconfig="Debug" />
+  <Config name="Debug" binpathtype="Auto">
+	<assembly path="output/DebugMono/LibChorus.Tests.dll" />
+	<assembly path="output/DebugMono/ChorusMerge.Tests.dll" />
+	<assembly path="output/DebugMono/Chorus.Tests.dll" />
+  </Config>
+  <Config name="Release" binpathtype="Auto" />
+</NUnitProject>
