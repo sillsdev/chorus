@@ -34,6 +34,25 @@ namespace LibChorus.Tests.merge
 		}
 
 		[Test]
+		public void FileOutput_UsesCanonicalXmlSettings()
+		{
+			string expected = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n"
+				+ "<notes\r\n"
+				+ "\tversion=\"0\">\r\n"
+				+ "\t<annotation>Dummy</annotation>\r\n"
+				+ "</notes>";
+			using (var logFile = TempFile.CreateAndGetPathButDontMakeTheFile())
+			{
+				using (var log = new ChorusNotesMergeEventListener(logFile.Path))
+				{
+					log.ConflictOccurred(new DummyConflict());
+				}
+				string result = File.ReadAllText(logFile.Path);
+				Assert.AreEqual(expected, result);
+			}
+		}
+
+		[Test]
 		public void FileDidNotExist_CreatesCorrectFile()
 		{
 			using (TempFile logFile =  TempFile.CreateAndGetPathButDontMakeTheFile())

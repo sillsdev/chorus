@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Xml;
 using Chorus.Utilities.code;
+using Palaso.Xml;
 
 namespace Chorus.merge.xml.generic
 {
@@ -76,7 +77,10 @@ namespace Chorus.merge.xml.generic
 		public void Dispose()
 		{
 			_writer.Close();
-			_xmlDoc.Save(_path);
+			using (var fileWriter = XmlWriter.Create(_path, CanonicalXmlSettings.CreateXmlWriterSettings()))
+			{
+				_xmlDoc.Save(fileWriter);
+			}
 		}
 	}
 
