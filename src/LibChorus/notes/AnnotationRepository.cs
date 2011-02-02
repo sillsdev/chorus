@@ -6,6 +6,7 @@ using System.Linq;
 using System.Xml.Linq;
 using Chorus.Utilities;
 using Chorus.Utilities.code;
+using Palaso.Xml;
 
 namespace Chorus.notes
 {
@@ -142,7 +143,10 @@ namespace Chorus.notes
 				throw new InvalidOperationException("Cannot save if the repository was created from a string");
 			}
 			progress.WriteStatus("Saving Chorus Notes...");
-			_doc.Save(AnnotationFilePath);
+			using (var writer = XmlWriter.Create(AnnotationFilePath, CanonicalXmlSettings.CreateXmlWriterSettings()))
+			{
+				_doc.Save(writer);
+			}
 			progress.WriteStatus("");
 			_isDirty = false;
 		}
