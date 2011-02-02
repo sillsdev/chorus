@@ -36,6 +36,22 @@ namespace LibChorus.Tests.notes
 		}
 
 		[Test]
+		public void Save_DoesntExistYet_CreatesAndSavesAsCanonicalXml()
+		{
+			string expected = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n"
+				+ "<notes\r\n"
+				+ "\tversion=\"0\" />";
+			using (var f = new TempFile())
+			{
+				File.Delete(f.Path);
+				var repo = AnnotationRepository.FromFile("id", f.Path, new ConsoleProgress());
+				repo.Save(new ConsoleProgress());
+				string result = File.ReadAllText(f.Path);
+				Assert.AreEqual(expected, result);
+			}
+		}
+
+		[Test]
 		public void FromString_FormatIsTooNew_Throws()
 		{
 			Assert.Throws<AnnotationFormatException>(() =>
