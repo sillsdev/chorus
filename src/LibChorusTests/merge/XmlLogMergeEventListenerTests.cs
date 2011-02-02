@@ -34,7 +34,7 @@ namespace LibChorus.Tests.merge
 		}
 
 		[Test]
-		public void FileOutput_UsesCanonicalXmlSettings()
+		public void FileOutput_WithContent_UsesCanonicalXmlSettings()
 		{
 			string expected = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n"
 				+ "<notes\r\n"
@@ -49,6 +49,22 @@ namespace LibChorus.Tests.merge
 				}
 				string result = File.ReadAllText(logFile.Path);
 				Assert.AreEqual(expected, result);
+			}
+		}
+
+		[Test]
+		public void FileOutput_DefaultFile_UsesCanonicalXmlSettings()
+		{
+			string expected = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n"
+							  + "<notes\r\n"
+							  + "\tversion=\"0\" />";
+			using (var logFile = TempFile.CreateAndGetPathButDontMakeTheFile())
+			{
+				using (new ChorusNotesMergeEventListener(logFile.Path))
+				{
+					string result = File.ReadAllText(logFile.Path);
+					Assert.AreEqual(expected, result);
+				}
 			}
 		}
 
