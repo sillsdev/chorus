@@ -35,7 +35,13 @@ namespace LibChorus.Tests.utilities
 		[Test]
 		public void Null_Parameter_Throws()
 		{
+			// review: I (CP) don't know that this is a sufficiently good method for determining the file - even in windows.
+			// In mono I had to make this the absolute path. 2011-01
+#if MONO
+			using (var reader = new FastXmlElementSplitter(Assembly.GetExecutingAssembly().CodeBase.Replace(@"file://", null)))
+#else
 			using (var reader = new FastXmlElementSplitter(Assembly.GetExecutingAssembly().CodeBase.Replace(@"file:///", null)))
+#endif
 			{
 				Assert.Throws<ArgumentException>(() => reader.GetSecondLevelElementBytes(null));
 			}
@@ -44,7 +50,13 @@ namespace LibChorus.Tests.utilities
 		[Test]
 		public void Empty_String_Parameter_Throws()
 		{
+			// review: I (CP) don't know that this is a sufficiently good method for determining the file - even in windows.
+			// In mono I had to make this the absolute path. 2011-01
+#if MONO
+			using (var reader = new FastXmlElementSplitter(Assembly.GetExecutingAssembly().CodeBase.Replace(@"file://", null)))
+#else
 			using (var reader = new FastXmlElementSplitter(Assembly.GetExecutingAssembly().CodeBase.Replace(@"file:///", null)))
+#endif
 			{
 				Assert.Throws<ArgumentException>(() => reader.GetSecondLevelElementBytes(""));
 			}
