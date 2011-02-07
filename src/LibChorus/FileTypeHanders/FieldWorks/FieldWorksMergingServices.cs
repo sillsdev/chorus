@@ -154,12 +154,12 @@ namespace Chorus.FileTypeHanders.FieldWorks
 						// These three are immutable, in a manner of speaking.
 						// DateCreated is honestly, and the other two are because 'ours' and 'theirs' have been made to be the same already.
 						case DataType.Time: // Fall through // DateTime
-						case DataType.OwningCollection: // Fall through. There should be no ownership issues, since removel from original by either will show up as a removal.
+						case DataType.OwningCollection: // Fall through. There should be no ownership issues, since removal from original by either will show up as a removal.
 						case DataType.ReferenceCollection:
 							strategyForCurrentProperty = immSingleton;
 							break;
 
-						case DataType.OwningSequence: // Fall through. // TODO: Sort out ownerships issues for conflicts.
+						case DataType.OwningSequence: // Fall through. // TODO: Sort out ownership issues for conflicts.
 						case DataType.ReferenceSequence:
 							// Use IsAtomic for whole property.
 							strategyForCurrentProperty = CreateSingletonElementType(false);
@@ -350,17 +350,21 @@ namespace Chorus.FileTypeHanders.FieldWorks
 				mergedCollection.IntersectWith(ourValues);
 				mergedCollection.IntersectWith(theirValues);
 
-				// 2. Re-add ones that were removed by one, but kept by the other.
-				mergedCollection.UnionWith(commonValues.Intersect(ourValues));
-				mergedCollection.UnionWith(commonValues.Intersect(theirValues));
+				// 2. Re-add ones that were removed by one, but kept by the other (reference collections only).
+				// It can't be done for owning collections, since the owned object would have been been delated and we can't opt to keep it here.
+				if (collectionProperty.DataType == DataType.ReferenceCollection)
+				{
+					mergedCollection.UnionWith(commonValues.Intersect(ourValues));
+					mergedCollection.UnionWith(commonValues.Intersect(theirValues));
+				}
 
-				// 2. Add ones that either added.
+				// 3. Add ones that either added.
 				var ourAdditions = ourValues.Except(commonValues);
 				mergedCollection.UnionWith(ourAdditions);
 				var theirAdditions = theirValues.Except(commonValues);
 				mergedCollection.UnionWith(theirAdditions);
 
-				// 3. Update ours and theirs to the new collection.
+				// 4. Update ours and theirs to the new collection.
 				if (mergedCollection.Count == 0)
 				{
 					// Remove prop node from both.

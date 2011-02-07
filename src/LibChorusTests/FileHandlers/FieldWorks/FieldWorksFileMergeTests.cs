@@ -831,8 +831,8 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 </languageproject>";
 
 			var result = DoMerge(commonAncestor, ourContent, theirContent,
-				new List<string> { @"languageproject/rt/SubFolders/objsur[@guid='ourNew1']", @"languageproject/rt/SubFolders/objsur[@guid='ourNew2']", @"languageproject/rt/SubFolders/objsur[@guid='theirNew1']", @"languageproject/rt/SubFolders/objsur[@guid='original1']" },
-				new List<string> { @"languageproject/rt/SubFolders/objsur[@guid='original2']", @"languageproject/rt/SubFolders/objsur[@guid='original3']" },
+				new List<string> { @"languageproject/rt/SubFolders/objsur[@guid='ourNew1']", @"languageproject/rt/SubFolders/objsur[@guid='ourNew2']", @"languageproject/rt/SubFolders/objsur[@guid='theirNew1']" },
+				new List<string> { @"languageproject/rt/SubFolders/objsur[@guid='original1']", @"languageproject/rt/SubFolders/objsur[@guid='original2']", @"languageproject/rt/SubFolders/objsur[@guid='original3']" },
 				0, 0);
 		}
 
