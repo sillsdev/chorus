@@ -10,8 +10,8 @@ using Chorus.FileTypeHanders.test;
 using Chorus.FileTypeHanders.OurWord;
 using Chorus.FileTypeHanders.text;
 using Chorus.merge;
-using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
+using Palaso.IO;
 using Palaso.Progress.LogBox;
 
 namespace Chorus.FileTypeHanders
@@ -42,7 +42,7 @@ namespace Chorus.FileTypeHanders
 		/// This is like a diff, but for when the file is first checked in.  So, for example, a dictionary
 		/// handler might list any the words that were already in the dictionary when it was first checked in.
 		/// </summary>
-		IEnumerable<IChangeReport> DescribeInitialContents(FileInRevision fileInRevision,TempFile file);
+		IEnumerable<IChangeReport> DescribeInitialContents(FileInRevision fileInRevision, TempFile file);
 
 		IEnumerable<string> GetExtensionsOfKnownTextFileTypes();
 	}

@@ -1,17 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
 using NUnit.Framework;
+using Palaso.IO;
 using Palaso.Progress.LogBox;
+using Palaso.TestUtilities;
 
 namespace LibChorus.Tests.VcsDrivers.Mercurial
 {
 	[TestFixture]
 	public class RetrieveVersionTests
 	{
-		private TempFolder _testRoot;
+		private TemporaryFolder _testRoot;
 		private TempFile _tempFile;
 		private HgRepository _repo;
 		private List<Revision> _changesets;
@@ -21,12 +22,12 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		public void Setup()
 		{
 			_progress = new ConsoleProgress();
-			_testRoot = new TempFolder("ChorusRetrieveTest");
-			_tempFile = new TempFile(_testRoot);
+			_testRoot = new TemporaryFolder("ChorusRetrieveTest");
+			_tempFile = new TempFileFromFolder(_testRoot);
 				File.WriteAllText(_tempFile.Path,"one");
 
-				Chorus.VcsDrivers.Mercurial.HgRepository.CreateRepositoryInExistingDir(_testRoot.Path,_progress);
-			_repo = new Chorus.VcsDrivers.Mercurial.HgRepository(_testRoot.Path, new NullProgress());
+				HgRepository.CreateRepositoryInExistingDir(_testRoot.Path,_progress);
+			_repo = new HgRepository(_testRoot.Path, new NullProgress());
 			_repo.AddAndCheckinFile(_tempFile.Path);
 				_repo.Commit(true, "initial");
 

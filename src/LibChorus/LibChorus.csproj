@@ -197,7 +197,6 @@
 	<Compile Include="Utilities\ExecutionEnvironment.cs" />
 	<Compile Include="Utilities\ProcessStream.cs" />
 	<Compile Include="Utilities\ShortTermEnvironmentalVariable.cs" />
-	<Compile Include="Utilities\TempFile.cs" />
 	<Compile Include="VcsDrivers\Git\GitRepository.cs" />
 	<Compile Include="VcsDrivers\Mercurial\FileInRevision.cs" />
 	<Compile Include="VcsDrivers\Mercurial\HgMissingSimulation .cs" />

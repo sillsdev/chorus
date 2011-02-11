@@ -1,14 +1,14 @@
 using System;
 using System.IO;
 using System.Xml;
-using Chorus.merge;
 using Chorus.merge.xml.generic;
 using Chorus.sync;
-using Chorus.Utilities;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using NUnit.Framework;
+using Palaso.IO;
 using Palaso.Progress.LogBox;
+using Palaso.TestUtilities;
 
 namespace LibChorus.Tests.merge
 {
@@ -24,8 +24,8 @@ namespace LibChorus.Tests.merge
 		public ProjectFolderConfiguration ProjectConfiguration;
 		private StringBuilderProgress _stringProgress = new StringBuilderProgress();
 		public IProgress Progress;
-		public TempFolder RootFolder;
-		public TempFolder ProjectFolder;
+		public TemporaryFolder RootFolder;
+		public TemporaryFolder ProjectFolder;
 		public TempFile UserFile;
 		public Synchronizer Synchronizer;
 		public RepositoryAddress RepoPath;
@@ -55,8 +55,8 @@ namespace LibChorus.Tests.merge
 		public RepositoryWithFilesSetup(string userName, string fileName, string fileContents)
 		{
 			Progress = new MultiProgress(new IProgress[] { new ConsoleProgress(), _stringProgress });
-			RootFolder = new TempFolder("ChorusTest-"+userName);
-			ProjectFolder = new TempFolder(RootFolder, "foo project");
+			RootFolder = new TemporaryFolder("ChorusTest-" + userName);
+			ProjectFolder = new TemporaryFolder(RootFolder, "foo project");
 			Console.WriteLine("TestRepository Created: {0}", RootFolder.Path);
 			var p = ProjectFolder.Combine(fileName);
 			File.WriteAllText(p, fileContents);
@@ -79,13 +79,13 @@ namespace LibChorus.Tests.merge
 		private RepositoryWithFilesSetup(string userName, RepositoryWithFilesSetup cloneFromUser)
 		{
 			Progress= new MultiProgress(new IProgress[] { new ConsoleProgress(), _stringProgress });
-			RootFolder = new TempFolder("ChorusTest-"+userName);
+			RootFolder = new TemporaryFolder("ChorusTest-" + userName);
 			Console.WriteLine("TestRepository Cloned: {0}", RootFolder.Path);
 			string pathToProject = RootFolder.Combine(Path.GetFileName(cloneFromUser.ProjectFolder.Path));
 			//cloneFromUser.Synchronizer.MakeClone(pathToProject, true);
 			HgHighLevel.MakeCloneFromLocalToLocal(cloneFromUser.Repository.PathToRepo, pathToProject, true, Progress);
 
-			ProjectFolder = TempFolder.TrackExisting(RootFolder.Combine("foo project"));
+			ProjectFolder = TemporaryFolder.TrackExisting(RootFolder.Combine("foo project"));
 			string pathToOurLiftFile = ProjectFolder.Combine(Path.GetFileName(cloneFromUser.UserFile.Path));
 			UserFile = TempFile.TrackExisting(pathToOurLiftFile);
 

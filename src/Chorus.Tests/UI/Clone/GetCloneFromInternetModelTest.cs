@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Chorus.UI.Clone;
-using Chorus.Utilities;
+﻿using Chorus.UI.Clone;
 using NUnit.Framework;
+using Palaso.TestUtilities;
 
 namespace Chorus.Tests.UI.Clone
 {
@@ -14,7 +10,7 @@ namespace Chorus.Tests.UI.Clone
 		[Test]
 		public void InitFromUri_GivenCompleteUri_AllPropertiesCorrect()
 		{
-			using (var testFolder = new TempFolder("clonetest"))
+			using (var testFolder = new TemporaryFolder("clonetest"))
 			{
 				var model = new GetCloneFromInternetModel(testFolder.Path);
 				model.InitFromUri("http://john:myPassword@hg-languagedepot.org/tpi?localFolder=tokPisin");
@@ -27,7 +23,7 @@ namespace Chorus.Tests.UI.Clone
 		[Test]
 		public void URL_AfterConstruction_GoodDefault()
 		{
-			using (var testFolder = new TempFolder("clonetest"))
+			using (var testFolder = new TemporaryFolder("clonetest"))
 			{
 				var model = new GetCloneFromInternetModel(testFolder.Path);
 				model.AccountName = "account";

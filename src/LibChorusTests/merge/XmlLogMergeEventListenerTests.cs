@@ -3,9 +3,9 @@ using System.IO;
 using System.Xml;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
-using Chorus.Utilities;
 using Chorus.VcsDrivers;
 using NUnit.Framework;
+using Palaso.IO;
 
 namespace LibChorus.Tests.merge
 {

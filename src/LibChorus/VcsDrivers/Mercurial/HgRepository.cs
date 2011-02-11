@@ -11,6 +11,7 @@ using System.Text.RegularExpressions;
 using Chorus.Utilities;
 using Chorus.Utilities.code;
 using Nini.Ini;
+using Palaso.IO;
 using Palaso.Network;
 using Palaso.Progress.LogBox;
 
@@ -794,7 +795,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		public string RetrieveHistoricalVersionOfFile(string relativePath, string revOrHash)
 		{
 			Guard.Against(string.IsNullOrEmpty(revOrHash), "The revision cannot be empty (note: the first revision has an empty string for its parent revision");
-			var f = TempFile.CreateWithExtension(Path.GetExtension(relativePath));
+			var f = TempFile.WithExtension(Path.GetExtension(relativePath));
 
 			var cmd = string.Format("cat -o \"{0}\" -r {1} \"{2}\"", f.Path, revOrHash, relativePath);
 			ExecutionResult result = ExecuteErrorsOk(cmd, _pathToRepository, SecondsBeforeTimeoutOnLocalOperation, _progress);

@@ -3,9 +3,9 @@ using System.IO;
 using System.Linq;
 using Chorus.FileTypeHanders;
 using Chorus.FileTypeHanders.xml;
-using Chorus.Utilities;
 using LibChorus.Tests.merge.xml.generic;
 using NUnit.Framework;
+using Palaso.IO;
 
 namespace LibChorus.Tests.FileHandlers.FieldWorks
 {

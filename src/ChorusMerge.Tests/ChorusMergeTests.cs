@@ -44,7 +44,7 @@ namespace ChorusMerge.Tests
 		{
 			MergeSituation.PushRevisionsToEnvironmentVariables("bob", "-123", "sally", "-456");
 			MergeOrder.PushToEnvironmentVariables(group.Folder.Path);
-			return ChorusMerge.Program.Main(new string[] {group.BobFile.Path,group.AncestorFile.Path,group.SallyFile.Path});
+			return Program.Main(new[] {group.BobFile.Path, group.AncestorFile.Path, group.SallyFile.Path});
 		}
 	}
 }

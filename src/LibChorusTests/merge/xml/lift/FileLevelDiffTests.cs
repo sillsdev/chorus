@@ -1,9 +1,9 @@
 using System.Linq;
 using Chorus.FileTypeHanders;
-using Chorus.FileTypeHanders.lift;
 using Chorus.FileTypeHanders.xml;
 using LibChorus.Tests.merge.xml.generic;
 using NUnit.Framework;
+using Palaso.IO;
 
 namespace LibChorus.Tests.merge.xml.lift
 {
