@@ -1,9 +1,10 @@
 ﻿using System.IO;
 using Chorus.UI.Misc;
-using Chorus.Utilities;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using NUnit.Framework;
+using Palaso.Progress.LogBox;
+using Palaso.TestUtilities;
 
 namespace Chorus.Tests.UI.Misc
 {
@@ -97,7 +98,7 @@ namespace Chorus.Tests.UI.Misc
 		[Test]
 		public void SaveSettings_NoHgFolderExists_CreatesOneWithCorrectPath()
 		{
-			using(var folder = new TempFolder("ServerSettingsModel"))
+			using (var folder = new TemporaryFolder("ServerSettingsModel"))
 			{
 				var m = new ServerSettingsModel();
 				var url = "http://joe:pass@hg-public.languagedepot.org/tpi";
@@ -116,7 +117,7 @@ namespace Chorus.Tests.UI.Misc
 		[Test]
 		public void SaveSettings_PrexistsButWeChangePasswordAndSave_ChangesPassword()
 		{
-			using (var folder = new TempFolder("ServerSettingsModel"))
+			using (var folder = new TemporaryFolder("ServerSettingsModel"))
 			{
 				var original = HgRepository.CreateOrLocate(folder.Path, new NullProgress());
 				original.SetKnownRepositoryAddresses(new[] { new HttpRepositoryPath("default", "http://joe:oldPassword@hg-public.languagedepot.org/tpi", false) });
@@ -136,7 +137,7 @@ namespace Chorus.Tests.UI.Misc
 		[Test]
 		public void SetUrlToUseIfSettingsAreEmpty_RepoAlreadyExistsWithAServerAddress_IgnoresOfferedUrl()
 		{
-			using (var folder = new TempFolder("ServerSettingsModel"))
+			using (var folder = new TemporaryFolder("ServerSettingsModel"))
 			{
 				var original = HgRepository.CreateOrLocate(folder.Path, new NullProgress());
 				var existing = "http://abc.com";

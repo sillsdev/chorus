@@ -4,8 +4,9 @@ using System.IO;
 using System.Xml.Linq;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
-using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
+using Palaso.IO;
+using Palaso.Progress.LogBox;
 
 namespace Chorus.FileTypeHanders.oneStory
 {

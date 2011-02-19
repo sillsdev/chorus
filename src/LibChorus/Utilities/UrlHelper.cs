@@ -46,18 +46,20 @@ namespace Chorus.Utilities
 			try
 			{
 				Uri uri;
-				if (!Uri.TryCreate(url, UriKind.Absolute, out uri))
+				if (!Uri.TryCreate(url, UriKind.Absolute, out uri) || uri == null)
 				{
 					throw new ApplicationException("Could not parse the url " + url);
 				}
+				else
+				{
+					//Could not parse the url lift://FTeam.lift?type=entry&label=نویس&id=e824f0ae-6d36-4c52-b30b-eb845d6c120a
 
-				//Could not parse the url lift://FTeam.lift?type=entry&label=نویس&id=e824f0ae-6d36-4c52-b30b-eb845d6c120a
+					var parse = System.Web.HttpUtility.ParseQueryString(uri.Query);
 
-				var parse = System.Web.HttpUtility.ParseQueryString(uri.Query);
-
-				var r = parse.GetValues(name);
-				var label = r == null ? defaultIfCannotGetIt : r.First();
-				return string.IsNullOrEmpty(label) ? defaultIfCannotGetIt : label;
+					var r = parse.GetValues(name);
+					var label = r == null ? defaultIfCannotGetIt : r.First();
+					return string.IsNullOrEmpty(label) ? defaultIfCannotGetIt : label;
+				}
 			}
 			catch (Exception)
 			{

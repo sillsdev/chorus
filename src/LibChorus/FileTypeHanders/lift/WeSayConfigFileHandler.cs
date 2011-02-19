@@ -1,13 +1,10 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
 using System.Text;
-using Chorus.FileTypeHanders.lift;
 using Chorus.merge;
-using Chorus.merge.xml.generic;
-using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
+using Palaso.IO;
+using Palaso.Progress.LogBox;
 
 namespace Chorus.FileTypeHanders.lift
 {

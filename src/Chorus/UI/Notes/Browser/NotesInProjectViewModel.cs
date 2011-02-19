@@ -5,6 +5,7 @@ using System.Linq;
 using Chorus.notes;
 using Chorus.sync;
 using Chorus.Utilities;
+using Palaso.Progress.LogBox;
 
 namespace Chorus.UI.Notes.Browser
 {
@@ -80,10 +81,20 @@ namespace Chorus.UI.Notes.Browser
 //                    return false;
 //            }
 
-			return string.IsNullOrEmpty(_searchText)
-				   || annotation.LabelOfThingAnnotated.StartsWith(_searchText)
-				   || annotation.ClassName.StartsWith(_searchText)
-				   || message.Author.StartsWith(_searchText);
+			if (string.IsNullOrEmpty(_searchText))
+				return true;
+
+			string t = _searchText.ToLowerInvariant();
+			if(  annotation.LabelOfThingAnnotated.ToLowerInvariant().StartsWith(t)
+				   || annotation.ClassName.ToLowerInvariant().StartsWith(t)
+				   || message.Author.ToLowerInvariant().StartsWith(t))
+				return true;
+
+			if (t.Length > 2)//arbitrary, but don't want to search on ever last letter
+			{
+				return message.Text.ToLowerInvariant().Contains(t);
+			}
+			return false;
 		}
 
 		public void CloseAnnotation(ListMessage listMessage)
@@ -141,16 +152,31 @@ namespace Chorus.UI.Notes.Browser
 		public void NotifyOfAddition(Annotation annotation)
 		{
 			_reloadPending=true;
+			SaveChanges();
+		}
+
+
+		private void SaveChanges()
+		{
+			//this is a bit of a hack... seems like different clients have different times of saving;
+			//not sure what the better answer would be.
+
+			foreach (var repository in _repositories)
+			{
+				repository.SaveNowIfNeeded(new NullProgress());
+			}
 		}
 
 		public void NotifyOfModification(Annotation annotation)
 		{
 			_reloadPending = true;
+			SaveChanges();
 		}
 
 		public void NotifyOfDeletion(Annotation annotation)
 		{
 			_reloadPending = true;
+			SaveChanges();
 		}
 
 		#endregion

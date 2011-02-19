@@ -5,6 +5,7 @@ using System.IO;
 using Chorus.Utilities;
 using Chorus.Utilities.UsbDrive;
 using Chorus.VcsDrivers.Mercurial;
+using Palaso.Progress.LogBox;
 
 namespace Chorus.VcsDrivers
 {

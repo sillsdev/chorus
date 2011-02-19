@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Chorus.clone;
-using Chorus.Utilities;
 using Chorus.Utilities.UsbDrive;
 using LibChorus.Tests;
 using NUnit.Framework;
+using Palaso.Progress.LogBox;
+using Palaso.TestUtilities;
 
 namespace Chorus.Tests
 {
@@ -17,7 +18,7 @@ namespace Chorus.Tests
 		public void MakeClone_NoProblems_MakesClone()
 		{
 			using(var repo = new RepositorySetup("source"))
-			using (var f = new TempFolder("clonetest"))
+			using (var f = new TemporaryFolder("clonetest"))
 			{
 				var model = new CloneFromUsb();
 				var progress = new ConsoleProgress();
@@ -31,7 +32,7 @@ namespace Chorus.Tests
 		public void MakeClone_TargetExists_Throws()
 		{
 			using (var repo = new RepositorySetup("source"))
-			using (var f = new TempFolder("clonetest"))
+			using (var f = new TemporaryFolder("clonetest"))
 			{
 				var model = new CloneFromUsb();
 				var progress = new ConsoleProgress();
@@ -54,7 +55,7 @@ namespace Chorus.Tests
 		[Test]
 		public void GetDirectoriesWithMecurialRepos_OneDriveAndDirectoryButNotRep_ReturnsEmptyList()
 		{
-			using (var usb = new TempFolder("clonetestUsb"))
+			using (var usb = new TemporaryFolder("clonetestUsb"))
 			{
 				Directory.CreateDirectory(usb.Combine("tests"));
 				var model = new CloneFromUsb();
@@ -68,7 +69,7 @@ namespace Chorus.Tests
 		[Test]
 		public void GetDirectoriesWithMecurialRepos_OneDriveOneRepo_ReturnsRepoPath()
 		{
-			using (var usb = new TempFolder("clonetestUsb"))
+			using (var usb = new TemporaryFolder("clonetestUsb"))
 			{
 				Directory.CreateDirectory(usb.Combine("test"));
 				Directory.CreateDirectory(usb.Combine("testrepo",".hg"));
@@ -85,7 +86,7 @@ namespace Chorus.Tests
 		[Test]
 		public void GetDirectoriesWithMecurialRepos_TwoRepos_ReturnsOnlyUnfilteredPath()
 		{
-			using (var usb = new TempFolder("clonetestUsb"))
+			using (var usb = new TemporaryFolder("clonetestUsb"))
 			{
 				Directory.CreateDirectory(usb.Combine("test1"));
 				Directory.CreateDirectory(usb.Combine("test1", ".hg"));
@@ -103,8 +104,8 @@ namespace Chorus.Tests
 		[Test]
 		public void GetDirectoriesWithMecurialRepos_TwoDrivesEachWithRepo2Deep_FindsAllRepos()
 		{
-			using (var usb1 = new TempFolder("clonetestUsb1"))
-			using (var usb2 = new TempFolder("clonetestUsb2"))
+			using (var usb1 = new TemporaryFolder("clonetestUsb1"))
+			using (var usb2 = new TemporaryFolder("clonetestUsb2"))
 			{
 				Directory.CreateDirectory(usb1.Combine("a", "repo1", ".hg"));
 				Directory.CreateDirectory(usb2.Combine("a", "repo2", ".hg"));

@@ -3,7 +3,7 @@
   <PropertyGroup>
 	<Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
 	<Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-	<ProductVersion>9.0.30729</ProductVersion>
+	<ProductVersion>9.0.21022</ProductVersion>
 	<SchemaVersion>2.0</SchemaVersion>
 	<ProjectGuid>{887A58D6-E5C5-4BA1-9C9B-41C6E8F0B915}</ProjectGuid>
 	<OutputType>Library</OutputType>
@@ -51,13 +51,17 @@
 	  <SpecificVersion>False</SpecificVersion>
 	  <HintPath>..\..\lib\net2.0\Autofac.dll</HintPath>
 	</Reference>
-	<Reference Include="nunit.framework, Version=2.2.8.0, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77">
+	<Reference Include="nunit.framework, Version=2.5.5.10112, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
 	  <SpecificVersion>False</SpecificVersion>
 	  <HintPath>..\..\lib\common\nunit.framework.dll</HintPath>
 	</Reference>
 	<Reference Include="Palaso, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86">
 	  <SpecificVersion>False</SpecificVersion>
 	  <HintPath>..\..\lib\net2.0\Palaso.dll</HintPath>
+	</Reference>
+	<Reference Include="Palaso.TestUtilities, Version=1.7.3.0, Culture=neutral, processorArchitecture=MSIL">
+	  <SpecificVersion>False</SpecificVersion>
+	  <HintPath>..\..\lib\net2.0\Palaso.TestUtilities.dll</HintPath>
 	</Reference>
 	<Reference Include="System" />
 	<Reference Include="System.Core">

@@ -2,9 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Chorus.merge;
-using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
 using System.Linq;
+using Palaso.IO;
+using Palaso.Progress.LogBox;
 
 namespace Chorus.FileTypeHanders.image
 {

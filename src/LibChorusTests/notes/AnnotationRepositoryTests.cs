@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Xml;
 using Chorus.notes;
-using Chorus.Utilities;
 using NUnit.Framework;
+using Palaso.IO;
+using Palaso.Progress.LogBox;
 
 namespace LibChorus.Tests.notes
 {

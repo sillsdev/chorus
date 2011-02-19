@@ -4,6 +4,7 @@ using System.Linq;
 using Chorus.notes;
 using Chorus.Utilities;
 using NUnit.Framework;
+using Palaso.Progress.LogBox;
 
 namespace LibChorus.Tests.notes
 {

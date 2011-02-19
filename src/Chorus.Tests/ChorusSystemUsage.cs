@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using Chorus.notes;
-using Chorus.UI;
-using Chorus.UI.Notes;
-using Chorus.Utilities;
 using NUnit.Framework;
+using Palaso.IO;
+using Palaso.Progress.LogBox;
+using Palaso.TestUtilities;
 
 namespace Chorus.Tests
 {
@@ -19,19 +19,19 @@ namespace Chorus.Tests
 		private ChorusSystem _chorusSystem;
 
 		#region Scaffolding
-		private TempFolder _tempFolder;
+		private TemporaryFolder _tempFolder;
 		private string _dataFolderRoot;
 		private string _someDataFilePath;
-		private Character _currentCharacter;
+		private Character _currentCharacter = null;
 		private IProgress _progress = new NullProgress();
 		private TempFile _someDataFile;
 
 		[SetUp]
 		public void Setup()
 		{
-			_tempFolder = new TempFolder("ChorusSystemUsage");
+			_tempFolder = new TemporaryFolder("ChorusSystemUsage");
 			_dataFolderRoot = _tempFolder.Path;
-			_someDataFile = new TempFile(_tempFolder, "test.txt", "hello");
+			_someDataFile = new TempFileFromFolder(_tempFolder, "test.txt", "hello");
 			_someDataFilePath = _someDataFile.Path;
 
 			_chorusSystem = new ChorusSystem(_dataFolderRoot);

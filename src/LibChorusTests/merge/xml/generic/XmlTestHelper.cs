@@ -60,50 +60,24 @@ namespace LibChorus.Tests.merge.xml
 			}
 			Assert.IsNotNull(node);
 		}
-	}
 
-	public class TempFile : IDisposable
-	{
-		private string _path;
-
-		public TempFile()
+		public static void AssertXPathIsNull(string xml, string xpath)
 		{
-			_path = System.IO.Path.GetTempFileName();
-		}
-
-
-		public TempFile(string contents)
-			: this()
-		{
-			File.WriteAllText(_path, contents);
-		}
-
-		public static TempFile CreateWithXmlHeader(string xmlForEntries)
-		{
-			string content =
-				"<?xml version=\"1.0\" encoding=\"utf-8\"?><lift producer=\"test\" >" +
-				xmlForEntries + "</lift>";
-			return new TempFile(content);
-
-		}
-
-		public string Path
-		{
-			get { return _path; }
-		}
-		public void Dispose()
-		{
-			File.Delete(_path);
-		}
-
-		private TempFile(string existingPath, bool dummy)
-		{
-			_path = existingPath;
-		}
-
-		public static TempFile TrackExisting(string path)
-		{
-			return new TempFile(path, false);
+			XmlDocument doc = new XmlDocument();
+			doc.LoadXml(xml);
+			XmlNode node = doc.SelectSingleNode(xpath);
+			if (node != null)
+			{
+				XmlWriterSettings settings = new XmlWriterSettings
+												{
+													Indent = true,
+													ConformanceLevel = ConformanceLevel.Fragment
+												};
+				XmlWriter writer = XmlTextWriter.Create(Console.Out, settings);
+				doc.WriteContentTo(writer);
+				writer.Flush();
+			}
+			Assert.IsNull(node);
 		}
 	}
 }

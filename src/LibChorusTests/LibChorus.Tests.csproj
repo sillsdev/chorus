@@ -56,7 +56,7 @@
 	  <SpecificVersion>False</SpecificVersion>
 	  <HintPath>..\..\lib\net2.0\Palaso.dll</HintPath>
 	</Reference>
-	<Reference Include="Palaso.TestUtilities, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+	<Reference Include="Palaso.TestUtilities, Version=1.7.3.0, Culture=neutral, processorArchitecture=MSIL">
 	  <SpecificVersion>False</SpecificVersion>
 	  <HintPath>..\..\lib\net2.0\Palaso.TestUtilities.dll</HintPath>
 	</Reference>
@@ -73,6 +73,13 @@
   <ItemGroup>
 	<Compile Include="clone\ClonerTests.cs" />
 	<Compile Include="FileHandlers\ChorusTestFileHanderTests.cs" />
+	<Compile Include="FileHandlers\FieldWorks\FieldWorksChangePresenterTests.cs" />
+	<Compile Include="FileHandlers\FieldWorks\FieldWorksFileDiffTests.cs" />
+	<Compile Include="FileHandlers\FieldWorks\FieldWorksFileHandlerTests.cs" />
+	<Compile Include="FileHandlers\FieldWorks\FieldWorksFileMergeTests.cs" />
+	<Compile Include="FileHandlers\FieldWorks\FieldWorksFileValidationTests.cs" />
+	<Compile Include="FileHandlers\FieldWorks\FieldWorksMergingStrategyTests.cs" />
+	<Compile Include="FileHandlers\FieldWorks\MetadataCacheTests.cs" />
 	<Compile Include="MercurialPathHelp.cs" />
 	<Compile Include="merge\xml\adaptIt\FileLevelAdaptItKnowlegeBaseMergeTests.cs" />
 	<Compile Include="merge\xml\ConflictXmlRecordRetrievalTests.cs" />
@@ -81,6 +88,8 @@
 	<Compile Include="merge\GroupOfConflictingLiftFiles.cs" />
 	<Compile Include="merge\xml\FindByKeyAttributeTests.cs" />
 	<Compile Include="merge\xml\FindByEqualityOfTreeTests.cs" />
+	<Compile Include="merge\xml\generic\FindNodeToMergeTests.cs" />
+	<Compile Include="merge\xml\generic\MergeAtomicElementServiceTests.cs" />
 	<Compile Include="merge\xml\generic\ConflictIOTest.cs" />
 	<Compile Include="merge\xml\generic\MergeChildrenMethodTests.cs" />
 	<Compile Include="merge\xml\generic\MergeChildrenMethod_DiffOnlyTests.cs" />
@@ -113,6 +122,7 @@
 	<Compile Include="sync\Synchronizer.BadSituationTests.cs" />
 	<Compile Include="sync\SyncScenarioTests.cs" />
 	<Compile Include="sync\UsbRepositorySourceTests.cs" />
+	<Compile Include="utilities\FastXmlElementSplitterTests.cs" />
 	<Compile Include="utilities\UrlHelperTests.cs" />
 	<Compile Include="utilities\MultiMapTests.cs" />
 	<Compile Include="VcsDrivers\Mercurial\HgTestSetup.cs" />

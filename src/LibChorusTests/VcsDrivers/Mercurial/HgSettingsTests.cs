@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
-using Chorus.Utilities;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using NUnit.Framework;
 using System.Linq;
+using Palaso.Progress.LogBox;
+using Palaso.TestUtilities;
 
 namespace LibChorus.Tests.VcsDrivers.Mercurial
 {
@@ -27,7 +27,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 
 		[Test] public void GetKnownRepositories_NoneKnown_GivesNone()
 		{
-			using (var testRoot = new TempFolder("ChorusHgSettingsTest"))
+			using (var testRoot = new TemporaryFolder("ChorusHgSettingsTest"))
 			{
 				HgRepository.CreateRepositoryInExistingDir(testRoot.Path, _progress);
 				var repo = new HgRepository(testRoot.Path, _progress);
@@ -39,7 +39,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		[Test]
 		public void GetKnownRepositories_TwoInRepoSettings_GivesThem()
 		{
-			using (var testRoot = new TempFolder("ChorusHgSettingsTest"))
+			using (var testRoot = new TemporaryFolder("ChorusHgSettingsTest"))
 			{
 				HgRepository.CreateRepositoryInExistingDir(testRoot.Path, _progress);
 				File.WriteAllText(testRoot.Combine(Path.Combine(".hg","hgrc")), @"
@@ -62,7 +62,7 @@ two = http://foo.com");
 		{
 			string contents = @"[paths]" + Environment.NewLine + pathsSectionContents+Environment.NewLine;
 
-			using (var testRoot = new TempFolder("ChorusHgSettingsTest"))
+			using (var testRoot = new TemporaryFolder("ChorusHgSettingsTest"))
 			{
 				HgRepository.CreateRepositoryInExistingDir(testRoot.Path, _progress);
 				File.WriteAllText(testRoot.Combine(Path.Combine(".hg", "hgrc")), contents);
@@ -217,7 +217,7 @@ username = joe
 		[Test]
 		public void EnsureTheseExtensionAreEnabled_someOthersEnabledAlready_StayEnabled()
 		{
-			using (var testRoot = new TempFolder("ChorusHgSettingsTest"))
+			using (var testRoot = new TemporaryFolder("ChorusHgSettingsTest"))
 			{
 				HgRepository.CreateRepositoryInExistingDir(testRoot.Path, _progress);
 				var repository = new HgRepository(testRoot.Path, new ConsoleProgress());
