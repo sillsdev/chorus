@@ -1611,8 +1611,15 @@ namespace Chorus.VcsDrivers.Mercurial
 				string hostAndPort;
 				string userName;
 				string password;
-				RobustNetworkOperation.DoHttpGetAndGetProxyInfo(httpUrl, out hostAndPort, out userName, out password);
-				return MakeProxyConfigParameterString(hostAndPort.Replace("http://",""), userName, password);
+				if(!RobustNetworkOperation.DoHttpGetAndGetProxyInfo(httpUrl, out hostAndPort, out userName, out password,
+					msg=>progress.WriteVerbose(msg)))
+				{
+					return string.Empty;
+				}
+				else
+				{
+					return MakeProxyConfigParameterString(hostAndPort.Replace("http://",""), userName, password);
+				}
 			}
 			catch(Exception e)
 			{
