@@ -1,6 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Chorus.sync;
+using Chorus.UI.Review;
 using Chorus.UI.Review.RevisionsInRepository;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
@@ -29,8 +32,7 @@ namespace Chorus.Tests
 			Directory.CreateDirectory(_pathToTestRoot);
 
 
-			string pathToText = Path.Combine(_pathToTestRoot, "foo.txt");
-			File.WriteAllText(pathToText, "version one of my pretend txt");
+			string pathToText = WriteTestFile("version one of my pretend txt");
 
 			RepositorySetup.MakeRepositoryForTest(_pathToTestRoot, "bob",_progress);
 
@@ -39,15 +41,60 @@ namespace Chorus.Tests
 			_project.IncludePatterns.Add(pathToText);
 			_project.FolderPath = _pathToTestRoot;
 
-			_model = new RevisionInRepositoryModel(HgRepository.CreateOrLocate(_project.FolderPath, new NullProgress()), null);
+			var revisionListOptions = new RevisionListOptions();
+			revisionListOptions.ShowRevisionPredicate = ShowRevisionPredicate;
+
+			_model = new RevisionInRepositoryModel(HgRepository.CreateOrLocate(_project.FolderPath,
+					new NullProgress()),
+					null,
+					revisionListOptions);
 			_model.ProgressDisplay = _progress;
+		}
+
+		private bool ShowRevisionPredicate(Revision revision)
+		{
+			return !revision.Summary.ToLower().Contains("hide");
+		}
+
+		private string WriteTestFile(string contents)
+		{
+			string pathToText = Path.Combine(_pathToTestRoot, "foo.txt");
+			File.WriteAllText(pathToText, contents);
+			return pathToText;
 		}
 
 		[Test]
 		public void BeforeAnySyncing_EmptyHistory()
 		{
-			List<Revision> items = _model.GetHistoryItems();
-			Assert.AreEqual(0, items.Count);
+			var items = _model.GetAllRevisions();
+			Assert.AreEqual(0, items.Count());
+		}
+
+		[Test]
+		public void After2Syncs_HistoryHas2()
+		{
+			var synchronizer = Synchronizer.FromProjectConfiguration(_project, new NullProgress());
+			synchronizer.SyncNow(new SyncOptions());
+			WriteTestFile("two");
+			synchronizer.SyncNow(new SyncOptions());
+			WriteTestFile("three");
+			synchronizer.SyncNow(new SyncOptions());
+			var items = _model.GetAllRevisions();
+			Assert.AreEqual(3, items.Count());
+		}
+
+
+		[Test]
+		public void After2Syncs_WithFilter_OnlyFilteredItemsShown()
+		{
+			var synchronizer = Synchronizer.FromProjectConfiguration(_project, new NullProgress());
+			synchronizer.SyncNow(new SyncOptions() { CheckinDescription = "show me" });
+			WriteTestFile("two");
+			synchronizer.SyncNow(new SyncOptions(){CheckinDescription = "hide me"});
+			WriteTestFile("three");
+			synchronizer.SyncNow(new SyncOptions() { CheckinDescription = "show me" });
+			var items = _model.GetAllRevisions();
+			Assert.AreEqual(2, items.Count());
 		}
 	}
 }

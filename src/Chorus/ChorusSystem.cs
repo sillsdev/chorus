@@ -154,6 +154,12 @@ namespace Chorus
 				return _container.Resolve<SyncDialog.Factory>()(behavior, uiFeaturesFlags);
 			}
 
+			/// <summary>
+			/// Get a UI control designed to live near some data (e.g., a lexical entry);
+			/// it provides buttons
+			/// to let users see and open and existing notes attached to that data,
+			/// or create new notes related to the data.
+			/// </summary>
 			public NotesBarView CreateNotesBar(string pathToAnnotatedFile, NotesToRecordMapping mapping, IProgress progress)
 			{
 				var repo = _parent.GetNotesRepository(pathToAnnotatedFile, progress);
@@ -161,16 +167,33 @@ namespace Chorus
 				return new NotesBarView(model, _container.Resolve<AnnotationEditorModel.Factory>());
 			}
 
+			/// <summary>
+			/// Get a UI control which shows all notes in the project (including conflicts), and
+			/// lets the user filter them and interact with them.
+			/// </summary>
 			public NotesBrowserPage CreateNotesBrowser()
 			{
 				_parent.EnsureAllNotesRepositoriesLoaded();
 				return _container.Resolve<NotesBrowserPage.Factory>()(_parent._annotationRepositories.Values);
 			}
 
-
+			/// <summary>
+			/// Get a UI control which shows all the revisions in the repository, and
+			/// lets the user select one to see what changed.
+			/// </summary>
 			public HistoryPage CreateHistoryPage()
 			{
-				return _container.Resolve<HistoryPage>();
+				return _container.Resolve<HistoryPage.Factory>()(new HistoryPageOptions());
+			}
+
+
+			/// <summary>
+			/// Get a UI control which shows all the revisions in the repository, and
+			/// lets the user select one to see what changed.
+			/// </summary>
+			public HistoryPage CreateHistoryPage(HistoryPageOptions options)
+			{
+				return _container.Resolve<HistoryPage.Factory>()(options);
 			}
 
 

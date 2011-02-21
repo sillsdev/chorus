@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Xml;
 using System.Xml.Linq;
+using Chorus.FileTypeHanders.xml;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
 using Chorus.Utilities;
@@ -11,19 +13,35 @@ namespace Chorus.FileTypeHanders.oneStory
 {
 	public class OneStoryFileHandler : IChorusFileTypeHandler
 	{
+		public const string CstrAppName = "StoryEditor.exe";
+
+		private bool OneStoryAssemblyIsAvailable
+		{
+			get
+			{
+				return File.Exists(Path.Combine(
+									   ExecutionEnvironment.DirectoryOfExecutingAssembly, CstrAppName));
+			}
+		}
+
+		protected bool HasOneStoryExtension(string strPathToFile)
+		{
+			return (Path.GetExtension(strPathToFile).ToLower() == ".onestory");
+		}
+
 		public bool CanDiffFile(string pathToFile)
 		{
-			return false;
+			return OneStoryAssemblyIsAvailable && HasOneStoryExtension(pathToFile);
 		}
 
 		public bool CanMergeFile(string pathToFile)
 		{
-			return Path.GetExtension(pathToFile).ToLower() == ".onestory";
+			return HasOneStoryExtension(pathToFile);
 		}
 
 		public bool CanPresentFile(string pathToFile)
 		{
-			return false;
+			return OneStoryAssemblyIsAvailable && HasOneStoryExtension(pathToFile);
 		}
 
 		public bool CanValidateFile(string pathToFile)
@@ -63,6 +81,11 @@ namespace Chorus.FileTypeHanders.oneStory
 			merger.MergeStrategies.SetStrategy("VernacularLang", ElementStrategy.CreateSingletonElement());
 			merger.MergeStrategies.SetStrategy("NationalBTLang", ElementStrategy.CreateSingletonElement());
 			merger.MergeStrategies.SetStrategy("InternationalBTLang", ElementStrategy.CreateSingletonElement());
+			merger.MergeStrategies.SetStrategy("FreeTranslationLang", ElementStrategy.CreateSingletonElement());
+
+			// Language and culture notes
+			merger.MergeStrategies.SetStrategy("LnCNotes", ElementStrategy.CreateSingletonElement());
+			merger.MergeStrategies.SetStrategy("LnCNote", ElementStrategy.CreateForKeyedElement("guid", false));
 
 			// story sets and stories
 			merger.MergeStrategies.SetStrategy("stories", ElementStrategy.CreateForKeyedElement("SetName", false));
@@ -82,16 +105,18 @@ namespace Chorus.FileTypeHanders.oneStory
 			merger.MergeStrategies.SetStrategy("Tests", ElementStrategy.CreateSingletonElement());
 			merger.MergeStrategies.SetStrategy("Test", ElementStrategy.CreateForKeyedElement("memberID", true));
 
-			merger.MergeStrategies.SetStrategy("verses", ElementStrategy.CreateSingletonElement());
-			merger.MergeStrategies.SetStrategy("verse", ElementStrategy.CreateForKeyedElement("guid", true));
-			merger.MergeStrategies.SetStrategy("Vernacular", ElementStrategy.CreateSingletonElement());
-			merger.MergeStrategies.SetStrategy("NationalBT", ElementStrategy.CreateSingletonElement());
-			merger.MergeStrategies.SetStrategy("InternationalBT", ElementStrategy.CreateSingletonElement());
+			merger.MergeStrategies.SetStrategy("TransitionHistory", ElementStrategy.CreateSingletonElement());
+			merger.MergeStrategies.SetStrategy("StateTransition", ElementStrategy.CreateForKeyedElement("TransitionDateTime", true));
 
-			merger.MergeStrategies.SetStrategy("anchors", ElementStrategy.CreateSingletonElement());
-			merger.MergeStrategies.SetStrategy("anchor", ElementStrategy.CreateForKeyedElement("jumpTarget", false));
-			merger.MergeStrategies.SetStrategy("toolTip", ElementStrategy.CreateSingletonElement());
-			merger.MergeStrategies.SetStrategy("exegeticalHelps", ElementStrategy.CreateSingletonElement());
+			merger.MergeStrategies.SetStrategy("Verses", ElementStrategy.CreateSingletonElement());
+			merger.MergeStrategies.SetStrategy("Verse", ElementStrategy.CreateForKeyedElement("guid", true));
+
+			merger.MergeStrategies.SetStrategy("StoryLine", ElementStrategy.CreateForKeyedElement("lang", false));
+
+			merger.MergeStrategies.SetStrategy("Anchors", ElementStrategy.CreateSingletonElement());
+			merger.MergeStrategies.SetStrategy("Anchor", ElementStrategy.CreateForKeyedElement("jumpTarget", false));
+
+			merger.MergeStrategies.SetStrategy("ExegeticalHelps", ElementStrategy.CreateSingletonElement());
 			// there can be multiple exegeticalHelp elements, but a) their order doesn't matter and b) they don't need a key
 			//  I think if I left this uncommented, then it would only allow one and if another user added one, it
 			//  would just replace the one that's there... (i.e. I think that's what ElementStrategy.CreateSingletonElement
@@ -100,15 +125,31 @@ namespace Chorus.FileTypeHanders.oneStory
 
 			merger.MergeStrategies.SetStrategy("TestQuestions", ElementStrategy.CreateSingletonElement());
 			merger.MergeStrategies.SetStrategy("TestQuestion", ElementStrategy.CreateForKeyedElement("guid", false));
-			merger.MergeStrategies.SetStrategy("TQVernacular", ElementStrategy.CreateSingletonElement());
-			merger.MergeStrategies.SetStrategy("TQNationalBT", ElementStrategy.CreateSingletonElement());
-			merger.MergeStrategies.SetStrategy("TQInternationalBT", ElementStrategy.CreateSingletonElement());
+			merger.MergeStrategies.SetStrategy("TestQuestionLine", ElementStrategy.CreateForKeyedElement("lang", false));
 
 			merger.MergeStrategies.SetStrategy("Answers", ElementStrategy.CreateSingletonElement());
+			// now the answer and retelling have a 2nd attribute which uniquely defines a singleton
+#if !UseSingleAttribute
+			var strategy = new ElementStrategy(true)
+									{
+										MergePartnerFinder = new FindByMultipleKeyAttributes(new List<string> { "memberID", "lang" })
+									};
+			merger.MergeStrategies.ElementStrategies.Add("Answer", strategy);
+#else
 			merger.MergeStrategies.SetStrategy("answer", ElementStrategy.CreateForKeyedElement("memberID", true));
+#endif
 
 			merger.MergeStrategies.SetStrategy("Retellings", ElementStrategy.CreateSingletonElement());
+			// now the answer and retelling have a 2nd attribute which uniquely defines a singleton
+#if !UseSingleAttribute
+			strategy = new ElementStrategy(true)
+									{
+										MergePartnerFinder = new FindByMultipleKeyAttributes(new List<string> { "memberID", "lang" })
+									};
+			merger.MergeStrategies.ElementStrategies.Add("Retelling", strategy);
+#else
 			merger.MergeStrategies.SetStrategy("Retelling", ElementStrategy.CreateForKeyedElement("memberID", true));
+#endif
 
 			merger.MergeStrategies.SetStrategy("ConsultantNotes", ElementStrategy.CreateSingletonElement());
 			merger.MergeStrategies.SetStrategy("ConsultantConversation", ElementStrategy.CreateForKeyedElement("guid", true));
@@ -125,16 +166,26 @@ namespace Chorus.FileTypeHanders.oneStory
 			merger.MergeStrategies.SetStrategy("CoachNote", elementStrategyCoaNote);
 		}
 
+		private XmlNode _projFile;
 		public IEnumerable<IChangeReport> Find2WayDifferences(FileInRevision parent, FileInRevision child, HgRepository repository)
 		{
-			//this is never called because we said we don't do diffs yet; review is handled some other way
-			throw new NotImplementedException();
+			var listener = new ChangeAndConflictAccumulator();
+			//pull the files out of the repository so we can read them
+			using (var childFile = child.CreateTempFile(repository))
+			using (var parentFile = parent.CreateTempFile(repository))
+			{
+				var differ = OneStoryDiffer.CreateFromFiles(parent, child, repository.PathToRepo, parentFile.Path, childFile.Path, listener);
+				differ.ReportDifferencesToListener(out _projFile);
+				return listener.Changes;
+			}
 		}
 
 		public IChangePresenter GetChangePresenter(IChangeReport report, HgRepository repository)
 		{
-			//this is never called because we said we don't present diffs; review is handled some other way
-			throw new NotImplementedException();
+			if ((report as IXmlChangeReport) != null)
+				return new OneStoryChangePresenter(report as IXmlChangeReport, _projFile, repository.PathToRepo);
+
+			return new DefaultChangePresenter(report, repository);
 		}
 
 		public IEnumerable<IChangeReport> DescribeInitialContents(FileInRevision fileInRevision, TempFile file)
