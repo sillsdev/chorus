@@ -78,10 +78,11 @@ namespace Chorus.FileTypeHanders.oneStory
 			merger.MergeStrategies.SetStrategy("Member", ElementStrategy.CreateForKeyedElement("memberKey", false));
 
 			merger.MergeStrategies.SetStrategy("Languages", ElementStrategy.CreateSingletonElement());
-			merger.MergeStrategies.SetStrategy("VernacularLang", ElementStrategy.CreateSingletonElement());
-			merger.MergeStrategies.SetStrategy("NationalBTLang", ElementStrategy.CreateSingletonElement());
-			merger.MergeStrategies.SetStrategy("InternationalBTLang", ElementStrategy.CreateSingletonElement());
-			merger.MergeStrategies.SetStrategy("FreeTranslationLang", ElementStrategy.CreateSingletonElement());
+			merger.MergeStrategies.SetStrategy("LanguageInfo", ElementStrategy.CreateForKeyedElement("lang", false));
+
+			// AdaptIt configuration settings (we use AI for BT)
+			merger.MergeStrategies.SetStrategy("AdaptItConfigurations", ElementStrategy.CreateSingletonElement());
+			merger.MergeStrategies.SetStrategy("AdaptItConfiguration", ElementStrategy.CreateForKeyedElement("BtDirection", false));
 
 			// Language and culture notes
 			merger.MergeStrategies.SetStrategy("LnCNotes", ElementStrategy.CreateSingletonElement());
