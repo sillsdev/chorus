@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Xml.Linq;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
 using Chorus.Utilities;
@@ -53,7 +54,12 @@ namespace Chorus.FileTypeHanders.adaptIt
 
 			merger.EventListener = mergeOrder.EventListener;
 			var result = merger.MergeFiles(mergeOrder.pathToOurs, mergeOrder.pathToTheirs, mergeOrder.pathToCommonAncestor);
+#if !DontUseXDocument
+			XDocument doc = XDocument.Parse(result.MergedNode.OuterXml);
+			doc.Save(mergeOrder.pathToOurs);
+#else
 			File.WriteAllText(mergeOrder.pathToOurs, result.MergedNode.OuterXml);
+#endif
 		}
 
 		private void SetupElementStrategies(XmlMerger merger)
