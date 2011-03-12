@@ -103,8 +103,10 @@ namespace Chorus.FileTypeHanders.oneStory
 			merger.MergeStrategies.SetStrategy("StoryPurpose", ElementStrategy.CreateSingletonElement());
 			merger.MergeStrategies.SetStrategy("ResourcesUsed", ElementStrategy.CreateSingletonElement());
 			merger.MergeStrategies.SetStrategy("BackTranslator", ElementStrategy.CreateSingletonElement());
-			merger.MergeStrategies.SetStrategy("Tests", ElementStrategy.CreateSingletonElement());
-			merger.MergeStrategies.SetStrategy("Test", ElementStrategy.CreateForKeyedElement("memberID", true));
+			merger.MergeStrategies.SetStrategy("TestsRetellings", ElementStrategy.CreateSingletonElement());
+			merger.MergeStrategies.SetStrategy("TestRetelling", ElementStrategy.CreateForKeyedElement("memberID", true));
+			merger.MergeStrategies.SetStrategy("TestsTqAnswers", ElementStrategy.CreateSingletonElement());
+			merger.MergeStrategies.SetStrategy("TestTqAnswer", ElementStrategy.CreateForKeyedElement("memberID", true));
 
 			merger.MergeStrategies.SetStrategy("TransitionHistory", ElementStrategy.CreateSingletonElement());
 			merger.MergeStrategies.SetStrategy("StateTransition", ElementStrategy.CreateForKeyedElement("TransitionDateTime", true));
