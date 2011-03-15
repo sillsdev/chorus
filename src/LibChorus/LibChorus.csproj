@@ -170,6 +170,11 @@
 	  <DependentUpon>AnnotationImages.resx</DependentUpon>
 	</Compile>
 	<Compile Include="notes\AnnotationClass.cs" />
+	<Compile Include="Properties\Resources.Designer.cs">
+	  <AutoGen>True</AutoGen>
+	  <DesignTime>True</DesignTime>
+	  <DependentUpon>Resources.resx</DependentUpon>
+	</Compile>
 	<Compile Include="Utilities\code\DelegateDefinitions.cs" />
 	<Compile Include="Utilities\MultiMap.cs" />
 	<Compile Include="Utilities\UrlHelper.cs" />
@@ -262,6 +267,10 @@
 	  <LastGenOutput>AnnotationImages.Designer.cs</LastGenOutput>
 	  <SubType>Designer</SubType>
 	</EmbeddedResource>
+	<EmbeddedResource Include="Properties\Resources.resx">
+	  <Generator>ResXFileCodeGenerator</Generator>
+	  <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+	</EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
 	<None Include="Resources\approve16x16.png" />
@@ -298,6 +307,9 @@
   </ItemGroup>
   <ItemGroup>
 	<None Include="Resources\question16x16Closed.png" />
+  </ItemGroup>
+  <ItemGroup>
+	<Content Include="FileTypeHanders\adaptIt\SortAIKB.xslt" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.

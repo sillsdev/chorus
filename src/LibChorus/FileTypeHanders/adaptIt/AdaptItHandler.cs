@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Xml;
 using System.Xml.Linq;
+using System.Xml.Xsl;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
 using Chorus.Utilities;
@@ -55,7 +57,24 @@ namespace Chorus.FileTypeHanders.adaptIt
 			merger.EventListener = mergeOrder.EventListener;
 			var result = merger.MergeFiles(mergeOrder.pathToOurs, mergeOrder.pathToTheirs, mergeOrder.pathToCommonAncestor);
 #if !DontUseXDocument
-			XDocument doc = XDocument.Parse(result.MergedNode.OuterXml);
+			XElement elem = XElement.Parse(result.MergedNode.OuterXml);
+
+			// create the root portions of the XML document and tack on the fragment we've been building
+			var doc = new XDocument(
+				new XDeclaration("1.0", "utf-8", "yes"),
+				new XComment(Properties.Resources.AdaptItKbDescription));
+
+			// sort it
+			var xslt = new XslCompiledTransform();
+			xslt.Load(XmlReader.Create(new StringReader(Properties.Resources.SortAIKB)));
+
+			using (XmlWriter writer = doc.CreateWriter())
+			{
+				// Execute the transform and output the results to a writer.
+				xslt.Transform(elem.CreateReader(), writer);
+				writer.Close();
+			}
+
 			doc.Save(mergeOrder.pathToOurs);
 #else
 			File.WriteAllText(mergeOrder.pathToOurs, result.MergedNode.OuterXml);
