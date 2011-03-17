@@ -100,6 +100,7 @@ namespace Chorus.merge.xml.generic
 					{
 						ProcessFirstElement(
 							mergeStrategy, mergeOrder, mergeOrder.EventListener,
+							parentIndex,
 							newbies,
 							winnerGoners, winnerDirtballs,
 							loserGoners, loserDirtballs,
@@ -109,6 +110,7 @@ namespace Chorus.merge.xml.generic
 
 					ProcessMainRecordElements(
 						mergeStrategy, mergeOrder, mergeOrder.EventListener,
+						parentIndex,
 						winnerGoners, winnerDirtballs, loserGoners, loserDirtballs,
 						reader, writer,
 						id, winnerId, recordElementName);
@@ -122,6 +124,7 @@ namespace Chorus.merge.xml.generic
 
 		private static void ProcessFirstElement(
 			IMergeStrategy mergeStrategy, MergeOrder mergeOrder, IMergeEventListener listener,
+			IDictionary<string, byte[]> parentIndex,
 			IDictionary<string, XmlNode> newbies,
 			IDictionary<string, XmlNode> winnerGoners, IDictionary<string, ChangedElement> winnerDirtballs,
 			IDictionary<string, XmlNode> loserGoners, IDictionary<string, ChangedElement> loserDirtballs,
@@ -157,6 +160,7 @@ namespace Chorus.merge.xml.generic
 			var transferUntouched = true;
 
 			ProcessCurrentElement(mergeOrder, firstElementMarker, mergeStrategy, winnerId, listener, writer, firstElementMarker,
+									parentIndex,
 								  loserDirtballs, loserGoners,
 								  winnerDirtballs, winnerGoners, ref transferUntouched);
 
@@ -173,6 +177,7 @@ namespace Chorus.merge.xml.generic
 		}
 
 		private static void ProcessCurrentElement(MergeOrder mergeOrder, string currentKey, IMergeStrategy mergeStrategy, string winnerId, IMergeEventListener listener, XmlWriter writer, string elementMarker,
+			IDictionary<string, byte[]> parentIndex,
 			IDictionary<string, ChangedElement> loserDirtballs, IDictionary<string, XmlNode> loserGoners,
 			IDictionary<string, ChangedElement> winnerDirtballs, IDictionary<string, XmlNode> winnerGoners,
 			ref bool transferUntouched)
@@ -180,7 +185,7 @@ namespace Chorus.merge.xml.generic
 			if (winnerGoners.ContainsKey(currentKey))
 			{
 				transferUntouched = false;
-				ProcessDeletedRecordFromWinningData(mergeOrder, listener, winnerGoners, currentKey, winnerId, elementMarker, loserGoners, loserDirtballs, writer);
+				ProcessDeletedRecordFromWinningData(mergeOrder, listener, parentIndex, winnerGoners, currentKey, winnerId, elementMarker, loserGoners, loserDirtballs, writer);
 			}
 
 			if (winnerDirtballs.ContainsKey(currentKey))
@@ -225,6 +230,7 @@ namespace Chorus.merge.xml.generic
 
 		private static void ProcessMainRecordElements(
 			IMergeStrategy mergeStrategy, MergeOrder mergeOrder, IMergeEventListener listener,
+			IDictionary<string, Byte[]> parentIndex,
 			IDictionary<string, XmlNode> winnerGoners,
 			IDictionary<string, ChangedElement> winnerDirtballs,
 			IDictionary<string, XmlNode> loserGoners,
@@ -245,6 +251,7 @@ namespace Chorus.merge.xml.generic
 				var currentKey = reader.GetAttribute(id);
 
 				ProcessCurrentElement(mergeOrder, currentKey, mergeStrategy, winnerId, listener, writer, recordElementName,
+					parentIndex,
 					loserDirtballs, loserGoners,
 					winnerDirtballs, winnerGoners, ref transferUntouched);
 
@@ -346,14 +353,17 @@ namespace Chorus.merge.xml.generic
 
 		private static void ProcessDeletedRecordFromWinningData(
 			MergeOrder mergeOrder, IMergeEventListener listener,
+			IDictionary<string, byte[]> parentIndex,
 			IDictionary<string, XmlNode> winnerGoners,
 			string currentKey, string winnerId, string recordElementName,
 			IDictionary<string, XmlNode> loserGoners, IDictionary<string, ChangedElement> loserDirtballs,
 			XmlWriter writer)
 		{
+			var wantDeletionChangeReport = false;
 			if (loserGoners.ContainsKey(currentKey))
 			{
 				// Both deleted it.
+				wantDeletionChangeReport = true;
 				loserGoners.Remove(currentKey);
 			}
 			else
@@ -375,7 +385,19 @@ namespace Chorus.merge.xml.generic
 					ReplaceCurrentNode(writer, loserDirtballs, currentKey);
 					loserDirtballs.Remove(currentKey);
 				}
-				// else // Winner deleted it and loser did nothing with it.
+				else
+				{
+					// Winner deleted it and loser did nothing with it.
+					wantDeletionChangeReport = true;
+				}
+			}
+			if (wantDeletionChangeReport)
+			{
+				// Make XmlDeletionChangeReport.
+				// Get the xml node for the parent from the byte array.
+				var doc = new XmlDocument();
+				doc.LoadXml(Encoding.UTF8.GetString(parentIndex[currentKey.ToLowerInvariant()]));
+				listener.ChangeOccurred(new XmlDeletionChangeReport(mergeOrder.pathToOurs, doc.DocumentElement, winnerGoners[currentKey]));
 			}
 			winnerGoners.Remove(currentKey);
 		}

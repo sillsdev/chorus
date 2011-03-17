@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Xml.Linq;
 using Chorus.FileTypeHanders;
+using Chorus.FileTypeHanders.xml;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
 using LibChorus.Tests.merge.xml;
@@ -145,7 +146,8 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 			DoMerge(commonAncestor, ourContent, theirContent,
 				new List<string> { @"languageproject/rt[@guid=""oldie""]" },
 				new List<string> { @"languageproject/rt[@guid=""goner""]" },
-				0, 0);
+				0, 1);
+			_eventListener.AssertFirstChangeType<XmlDeletionChangeReport>();
 		}
 
 		[Test]
@@ -181,7 +183,8 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 			DoMerge(commonAncestor, ourContent, theirContent,
 				new List<string> { @"languageproject/rt[@guid=""oldie""]" },
 				new List<string> { @"languageproject/rt[@guid=""goner""]" },
-				0, 0);
+				0, 1);
+			_eventListener.AssertFirstChangeType<XmlDeletionChangeReport>();
 		}
 
 		[Test]
