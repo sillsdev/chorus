@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Xml;
 using Chorus.FileTypeHanders.xml;
+using Chorus.merge;
 using Chorus.merge.xml.generic;
 using Chorus.Utilities;
 using Palaso.Xml;
@@ -27,9 +29,10 @@ namespace Chorus.FileTypeHanders.lift
 		private readonly string _alphaLift;
 		private readonly string _betaLift;
 		private readonly string _ancestorLift;
-		// only one index for now...
+		private readonly Dictionary<string, XmlNode> _comonIdToNodeIndex;
+		private readonly Dictionary<string, XmlNode> _alphaIdToNodeIndex;
 		private readonly Dictionary<string, XmlNode> _betaIdToNodeIndex;
-		private readonly Dictionary<string,bool> _processedIds;
+		private readonly HashSet<string> _processedIds;
 		private readonly XmlDocument _alphaDom;
 		private readonly XmlDocument _betaDom;
 		private readonly XmlDocument _ancestorDom;
@@ -41,11 +44,13 @@ namespace Chorus.FileTypeHanders.lift
 		/// </summary>
 		public LiftMerger(IMergeStrategy mergeStrategy, string alphaLiftPath, string betaLiftPath, string ancestorLiftPath)
 		{
-			_processedIds = new Dictionary<string,bool>();
+			_processedIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 			_alphaLift = File.ReadAllText(alphaLiftPath);
 			_betaLift =  File.ReadAllText(betaLiftPath);
 			_ancestorLift = File.ReadAllText(ancestorLiftPath);
-			_betaIdToNodeIndex = new Dictionary<string, XmlNode>();
+			_comonIdToNodeIndex = new Dictionary<string, XmlNode>(StringComparer.OrdinalIgnoreCase);
+			_alphaIdToNodeIndex = new Dictionary<string, XmlNode>(StringComparer.OrdinalIgnoreCase);
+			_betaIdToNodeIndex = new Dictionary<string, XmlNode>(StringComparer.OrdinalIgnoreCase);
 			_alphaDom = new XmlDocument();
 			_betaDom = new XmlDocument();
 			_ancestorDom = new XmlDocument();
@@ -62,11 +67,13 @@ namespace Chorus.FileTypeHanders.lift
 		/// </summary>
 		public LiftMerger(string alphaLiftContents, string betaLiftContents, string ancestorLiftContents, IMergeStrategy mergeStrategy)
 		{
-			_processedIds = new Dictionary<string,bool>();
+			_processedIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 			_alphaLift = alphaLiftContents;
 			_betaLift = betaLiftContents;
 			_ancestorLift = ancestorLiftContents;
-			_betaIdToNodeIndex = new Dictionary<string, XmlNode>();
+			_comonIdToNodeIndex = new Dictionary<string, XmlNode>(StringComparer.OrdinalIgnoreCase);
+			_alphaIdToNodeIndex = new Dictionary<string, XmlNode>(StringComparer.OrdinalIgnoreCase);
+			_betaIdToNodeIndex = new Dictionary<string, XmlNode>(StringComparer.OrdinalIgnoreCase);
 			_alphaDom = new XmlDocument();
 			_betaDom = new XmlDocument();
 			_ancestorDom = new XmlDocument();
@@ -85,73 +92,138 @@ namespace Chorus.FileTypeHanders.lift
 			_betaDom.LoadXml(_betaLift);
 			_ancestorDom.LoadXml(_ancestorLift);
 
-			//this, rather than a string builder, is needed to avoid utf-16 coming out
-			using (MemoryStream memoryStream = new MemoryStream())
+			// The memory stream, rather than a string builder, is needed to avoid utf-16 coming out
+			using (var memoryStream = new MemoryStream())
 			{
-				foreach (XmlNode b in _betaDom.SafeSelectNodes("lift/entry"))
-				{
-					_betaIdToNodeIndex[LiftUtils.GetId(b)] = b;
-				}
+				foreach (XmlNode commonNode in _ancestorDom.SafeSelectNodes("lift/entry"))
+					_comonIdToNodeIndex[LiftUtils.GetId(commonNode)] = commonNode;
+				foreach (XmlNode alphaNode in _alphaDom.SafeSelectNodes("lift/entry"))
+					_alphaIdToNodeIndex[LiftUtils.GetId(alphaNode)] = alphaNode;
+				foreach (XmlNode betaNode in _betaDom.SafeSelectNodes("lift/entry"))
+					_betaIdToNodeIndex[LiftUtils.GetId(betaNode)] = betaNode;
+
 				var settings = CanonicalXmlSettings.CreateXmlWriterSettings();
 				settings.CloseOutput = false;
 				using (var writer = XmlWriter.Create(memoryStream, settings))
 				{
 					WriteStartOfLiftElement(writer);
-					foreach (XmlNode e in _alphaDom.SafeSelectNodes("lift/entry"))
-					{
-						ProcessEntry(writer, e);
-					}
 
-					//now process any remaining elements in "betas"
-					foreach (XmlNode e in _betaDom.SafeSelectNodes("lift/entry"))
-					{
-						string id = LiftUtils.GetId(e);
-						if (!_processedIds.ContainsKey(id))
-						{
-							ProcessEntryWeKnowDoesntNeedMerging(e, id, writer);
-						}
-					}
+					// YUCK, says RBR! This code omits the header element altogether.
+
+					foreach (XmlNode alphaEntry in _alphaDom.SafeSelectNodes("lift/entry"))
+						ProcessAlphaEntry(writer, alphaEntry);
+					foreach (XmlNode betaEntry in _betaDom.SafeSelectNodes("lift/entry"))
+						ProcessBetaEntry(writer, betaEntry);
+
 					writer.WriteEndElement();
 					writer.Close();
 				}
 
-				//don't use GetBuffer()!!! it pads the results with nulls:  return Encoding.UTF8.GetString(memoryStream.ToArray());
-				//this works but doubles the ram use: return Encoding.UTF8.GetString(memoryStream.ToArray());
+				// Don't use GetBuffer()!!! it pads the results with nulls:  return Encoding.UTF8.GetString(memoryStream.ToArray());
+				// This works but doubles the ram use: return Encoding.UTF8.GetString(memoryStream.ToArray());
 				return Encoding.UTF8.GetString(memoryStream.GetBuffer(), 0, (int)memoryStream.Position);
 			}
 		}
 
+		private void ProcessBetaEntry(XmlWriter writer, XmlNode betaEntry)
+		{
+			var id = LiftUtils.GetId(betaEntry);
+			if (_processedIds.Contains(id))
+				return; // Already handled when ProcessAlphaEntry method called.
+			XmlNode alphaEntry;
+			var commonEntry = FindEntry(_ancestorDom, id);
 
-//        public void Do2WayDiffOfLift()
-//        {
-//            _alphaDom.LoadXml(_alphaLift);
-//            _betaDom.LoadXml(_ancestorLift);//nb: putting the ancestor in there is intentional
-//            _ancestorDom.LoadXml(_ancestorLift);
-//
-//            //NB: we dont' actually have any interest in writing anything,
-//            //but for now, this lets us reuse the merger code
-//
-//            using(MemoryStream memoryStream = new MemoryStream())
-//            using (XmlWriter writer = XmlWriter.Create(memoryStream)) // May want to use Palaso.Xml.CanonicalXmlWriterSettings here CP 20100-01
-//            {
-//                WriteStartOfLiftElement(writer);
-//
-//                foreach (XmlNode e in _alphaDom.SelectNodes("lift/entry"))
-//                {
-//                        ProcessEntry(writer, e);
-//                }
-//
-//                //now detect any deleted elements
-//                foreach (XmlNode e in _ancestorDom.SelectNodes("lift/entry"))
-//                {
-//                    if (!_processedIds.Contains(LiftUtils.GetId(e)))
-//                    {
-//                        EventListener.ChangeOccurred(new XmlDeletionChangeReport(e));
-//                    }
-//                }
-//                writer.WriteEndElement();
-//            }
-//        }
+			if (!_alphaIdToNodeIndex.TryGetValue(id, out alphaEntry))
+			{
+				// It is in beta, but not in alpha, so it clearly has been deleted by alpha (new style deletion).
+				if (LiftUtils.GetIsMarkedAsDeleted(betaEntry))
+				{
+					if (!LiftUtils.GetIsMarkedAsDeleted(commonEntry))
+					{
+						// alpha and beta both deleted but in different ways, so make deletion change report.
+						// There is no need to write anything.
+						EventListener.ChangeOccurred(new XmlDeletionChangeReport(_betaLift, commonEntry, betaEntry));
+					}
+					//else
+					//{
+					//    // Make it go away without fanfare by doing nothing to writer, since alpha actually removed the dead entry.
+					//}
+					_processedIds.Add(id);
+					return;
+				}
+
+				if (commonEntry == null)
+				{
+					// Beta added it.
+					EventListener.ChangeOccurred(new XmlAdditionChangeReport(_betaLift, betaEntry));
+					writer.WriteNode(betaEntry.CreateNavigator(), false);
+				}
+				else
+				{
+					if (AreTheSame(betaEntry, commonEntry))
+					{
+						// Alpha's deletion wins with a plain vanilla deletion report.
+						EventListener.ChangeOccurred(new XmlDeletionChangeReport(_betaLift, commonEntry, alphaEntry));
+					}
+					else
+					{
+						// Beta wins with a edit vs remove conflict report,
+						// as per the least loss priciple.
+						EventListener.ConflictOccurred(new RemovedVsEditedElementConflict("entry", betaEntry, alphaEntry, commonEntry, new MergeSituation(_betaLift, "beta", "", "alpha", "", MergeOrder.ConflictHandlingModeChoices.TheyWin), null, "beta"));
+						writer.WriteNode(betaEntry.CreateNavigator(), false);
+					}
+					_processedIds.Add(id);
+					return;
+				}
+			}
+			else if (AreTheSame(alphaEntry, betaEntry))//unchanged or both made same change
+			{
+				writer.WriteNode(alphaEntry.CreateNavigator(), false);
+			}
+			else if (LiftUtils.GetIsMarkedAsDeleted(alphaEntry))
+			{
+				// Beta edited, alpha deleted (old style deletion using dateDeleted attr).
+				EventListener.ConflictOccurred(new RemovedVsEditedElementConflict("entry", betaEntry, alphaEntry, commonEntry, new MergeSituation(_betaLift, "beta", "", "alpha", "", MergeOrder.ConflictHandlingModeChoices.TheyWin), null, "beta"));
+			}
+			else
+			{
+#if false
+				// One or both of them edited it, so merge the hard way.
+				using (var reader = XmlReader.Create(new StringReader(
+					_mergingStrategy.MakeMergedEntry(EventListener, alphaEntry, betaEntry, commonEntry)
+				)))
+				{
+					writer.WriteNode(reader, false);
+				}
+#else
+				if (LiftUtils.GetIsMarkedAsDeleted(betaEntry))
+				{
+					// Q (by RBR): This path is not used by the six new tests. Is that a problem?
+					// ANS (by RBR): No, we edited, they deleted (old style) is covered by a test,
+					// and the case is handled in the ProcessAlphaEntry method.
+					// Leave the check in for histroiucal purposes,
+					// the question doesn't come up again.
+
+					// They deleted (old style), but we edited.
+					// We win with the least loss principle.
+					// But generate a conflict report.
+					EventListener.ConflictOccurred(new RemovedVsEditedElementConflict("entry", alphaEntry, betaEntry, commonEntry, new MergeSituation(_alphaLift, "alpha", "", "beta", "", MergeOrder.ConflictHandlingModeChoices.WeWin), null, "alpha"));
+					writer.WriteNode(betaEntry.CreateNavigator(), false);
+				}
+				else
+				{
+					// One or both of them edited it, so merge the hard way.
+					using (var reader = XmlReader.Create(new StringReader(
+						_mergingStrategy.MakeMergedEntry(EventListener, alphaEntry, betaEntry, commonEntry)
+					)))
+					{
+						writer.WriteNode(reader, false);
+					}
+				}
+#endif
+			}
+			_processedIds.Add(id);
+		}
 
 		private static XmlNode FindEntry(XmlNode doc, string id)
 		{
@@ -159,60 +231,86 @@ namespace Chorus.FileTypeHanders.lift
 			return doc.SelectSingleNode("lift/entry[@id=\""+id+"\"]");
 		}
 
-
-
-
-		private void ProcessEntry(XmlWriter writer, XmlNode alphaEntry)
+		private void ProcessAlphaEntry(XmlWriter writer, XmlNode alphaEntry)
 		{
 			string id = LiftUtils.GetId(alphaEntry);
 			XmlNode betaEntry;
-
+			var commonEntry = FindEntry(_ancestorDom, id);
 			if(!_betaIdToNodeIndex.TryGetValue(id, out betaEntry))
 			{
-				//enchance: we know this at this point only in the 2-way diff mode
-				EventListener.ChangeOccurred(new XmlAdditionChangeReport("hackFixThis.lift", alphaEntry));
-				ProcessEntryWeKnowDoesntNeedMerging(alphaEntry, id, writer);
+				// It is in alpha, but not in beta, so it clearly has been deleted by beta (new style deletion).
+				if (LiftUtils.GetIsMarkedAsDeleted(alphaEntry))
+				{
+					if (!LiftUtils.GetIsMarkedAsDeleted(commonEntry))
+					{
+						// alpha and beta both deleted but in different ways, so make deletion change report.
+						// There is no need to write anything.
+						EventListener.ChangeOccurred(new XmlDeletionChangeReport(_alphaLift, commonEntry, alphaEntry));
+					}
+					//else
+					//{
+					//    // Make it go away without fanfare by doing nothing to writer, since beta actually removed the dead entry.
+					//}
+					_processedIds.Add(id);
+					return;
+				}
+
+				if (commonEntry == null)
+				{
+					// Alpha added it
+					EventListener.ChangeOccurred(new XmlAdditionChangeReport(_alphaLift, alphaEntry));
+					writer.WriteNode(alphaEntry.CreateNavigator(), false);
+				}
+				else
+				{
+					if (AreTheSame(alphaEntry, commonEntry))
+					{
+						// beta's deletion wins with a plain vanilla deletion report.
+						EventListener.ChangeOccurred(new XmlDeletionChangeReport(_alphaLift, commonEntry, betaEntry));
+					}
+					else
+					{
+						// Alpha wins over beta's new style deletion on the least loss priciple.
+						// Add an edit vs remove conflict report.
+						EventListener.ConflictOccurred(new RemovedVsEditedElementConflict("entry", alphaEntry, betaEntry, commonEntry, new MergeSituation(_alphaLift, "alpha", "", "beta", "", MergeOrder.ConflictHandlingModeChoices.WeWin), null, "alpha"));
+						writer.WriteNode(alphaEntry.CreateNavigator(), false);
+					}
+					_processedIds.Add(id);
+					return;
+				}
 			}
 			else if (AreTheSame(alphaEntry, betaEntry))//unchanged or both made same change
 			{
 				writer.WriteNode(alphaEntry.CreateNavigator(), false);
 			}
-			else //one or both changed
+			else if (LiftUtils.GetIsMarkedAsDeleted(betaEntry))
 			{
-
-				/* TODO: put this back after figuring out the exact situation it was for an adding a unit test
-				 if (!LiftUtils.GetIsMarkedAsDeleted(alphaEntry))
-				{
-					EventListener.ChangeOccurred(new XmlChangedRecordReport("hackFixThis.lift",  FindEntryById(_ancestorDom, id), alphaEntry));
-				}
-				 */
-
-				XmlNode commonEntry = FindEntry(_ancestorDom, id);
-
-				using (var reader = XmlReader.Create(new StringReader(
-					_mergingStrategy.MakeMergedEntry(EventListener, alphaEntry, betaEntry, commonEntry)
-				)))
-				{
-					writer.WriteNode(reader, false);
-				}
-			}
-			_processedIds[id] = true;
-		}
-
-
-		private void ProcessEntryWeKnowDoesntNeedMerging(XmlNode entry, string id, XmlWriter writer)
-		{
-			if(FindEntry(_ancestorDom,id) ==null)
-			{
-				writer.WriteNode(entry.CreateNavigator(), false);
+				// We edited, they deleted (old style deletion using dateDeleted attr).
+				EventListener.ConflictOccurred(new RemovedVsEditedElementConflict("entry", alphaEntry, betaEntry, commonEntry, new MergeSituation(_alphaLift, "alpha", "", "beta", "", MergeOrder.ConflictHandlingModeChoices.WeWin), null, "alpha"));
 			}
 			else
 			{
-				// it must have been deleted by the other guy
+				if (LiftUtils.GetIsMarkedAsDeleted(alphaEntry))
+				{
+					// We deleted (old style), but they edited.
+					// They win with the least loss principle.
+					// But generate a conflict report.
+					EventListener.ConflictOccurred(new RemovedVsEditedElementConflict("entry", betaEntry, alphaEntry, commonEntry, new MergeSituation(_betaLift, "beta", "", "alpha", "", MergeOrder.ConflictHandlingModeChoices.TheyWin), null, "beta"));
+					writer.WriteNode(betaEntry.CreateNavigator(), false);
+				}
+				else
+				{
+					// One or both of them edited it, so merge the hard way.
+					using (var reader = XmlReader.Create(new StringReader(
+						_mergingStrategy.MakeMergedEntry(EventListener, alphaEntry, betaEntry, commonEntry)
+					)))
+					{
+						writer.WriteNode(reader, false);
+					}
+				}
 			}
+			_processedIds.Add(id);
 		}
-
-
 
 		internal static void AddDateCreatedAttribute(XmlNode elementNode)
 		{
