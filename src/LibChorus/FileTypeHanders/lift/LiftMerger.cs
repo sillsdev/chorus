@@ -108,7 +108,7 @@ namespace Chorus.FileTypeHanders.lift
 				{
 					WriteStartOfLiftElement(writer);
 
-					// YUCK, says RBR! This code omits the header element altogether.
+					ProcessHeaderNodeHACK(writer);
 
 					foreach (XmlNode alphaEntry in _alphaDom.SafeSelectNodes("lift/entry"))
 						ProcessAlphaEntry(writer, alphaEntry);
@@ -123,6 +123,28 @@ namespace Chorus.FileTypeHanders.lift
 				// This works but doubles the ram use: return Encoding.UTF8.GetString(memoryStream.ToArray());
 				return Encoding.UTF8.GetString(memoryStream.GetBuffer(), 0, (int)memoryStream.Position);
 			}
+		}
+
+		private void ProcessHeaderNodeHACK(XmlWriter writer)
+		{
+			// Without a principled merge system for the header element,
+			// just pick the longest one from alpha/beta.
+			// NB: This has *no* tests, since it is such a hack.
+			var alphaHeader = _alphaDom.SelectSingleNode("lift/header");
+			var betaHeader = _betaDom.SelectSingleNode("lift/header");
+			XmlNode winningHeader = null;
+			if (alphaHeader == null && betaHeader == null)
+				winningHeader = null;
+			else if (alphaHeader == null & betaHeader != null)
+				winningHeader = betaHeader;
+			else if (betaHeader == null && alphaHeader != null)
+				winningHeader = alphaHeader;
+			else if (alphaHeader.ChildNodes.Count > betaHeader.ChildNodes.Count)
+				winningHeader = alphaHeader;
+			else
+				winningHeader = betaHeader;
+			if (winningHeader != null)
+				writer.WriteNode(winningHeader.CreateNavigator(), false);
 		}
 
 		private void ProcessBetaEntry(XmlWriter writer, XmlNode betaEntry)
