@@ -333,7 +333,7 @@ namespace LibChorus.Tests.merge.xml.lift
 			string result = merger.GetMergedLift();
 			listener.AssertExpectedChangesCount(0);
 			listener.AssertExpectedConflictCount(1);
-			// Fine for default, but not beta.
+			// Fine for default (since EditedVsRemovedElementConflict exists), but not beta.
 			//listener.AssertFirstConflictType<EditedVsRemovedElementConflict>();
 			listener.AssertFirstConflictType<RemovedVsEditedElementConflict>();
 		}
@@ -465,7 +465,7 @@ namespace LibChorus.Tests.merge.xml.lift
 			string result = merger.GetMergedLift();
 			listener.AssertExpectedChangesCount(0);
 			listener.AssertExpectedConflictCount(1);
-			// Fine for default, but not beta.
+			// Fine for default (since EditedVsRemovedElementConflict exists), but not beta.
 			//listener.AssertFirstConflictType<EditedVsRemovedElementConflict>();
 			listener.AssertFirstConflictType<RemovedVsEditedElementConflict>();
 		}
