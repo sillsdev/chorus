@@ -98,6 +98,8 @@ namespace Chorus.sync
 
 				var workingRevBeforeSync = repo.GetRevisionWorkingSetIsBasedOn();
 
+				CreateRepositoryOnLocalAreaNetworkFolderIfNeededThrowIfFails(repo, sourcesToTry);
+
 				if (options.DoPullFromOthers)
 				{
 					results.DidGetChangesFromOthers = PullFromOthers(repo, sourcesToTry, connectionAttempts);
@@ -147,6 +149,23 @@ namespace Chorus.sync
 			}
 			return results;
 		}
+
+		private void CreateRepositoryOnLocalAreaNetworkFolderIfNeededThrowIfFails(HgRepository repo, List<RepositoryAddress> sourcesToTry)
+		{
+			RepositoryAddress directorySource = sourcesToTry.FirstOrDefault(s=>s is DirectoryRepositorySource);
+			if(directorySource!=null)
+			{
+				if(!Directory.Exists(Path.Combine(directorySource.URI, ".hg")))
+				{
+					_progress.WriteMessage("Creating new repository at "+directorySource.URI);
+					repo.CloneToRemoteDirectoryWithoutCheckout(directorySource.URI);
+				}
+			}
+		}
+
+		/// <summary>
+		/// This version is used by the CHorus UI, which wants to do the sync in the background
+		/// </summary>
 
 		public SyncResults SyncNow(BackgroundWorker backgroundWorker, DoWorkEventArgs args, SyncOptions options)
 		{
@@ -500,6 +519,10 @@ namespace Chorus.sync
 				{
 					repository.Update(); //update to the tip
 					return;
+				}
+				if (heads.Count == 0)
+				{
+					return;//nothing has been checked in, so we're done! (this happens during some UI tests)
 				}
 
 				//TODO: I think this "direct descendant" limitation won't be enough

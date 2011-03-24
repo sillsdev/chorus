@@ -184,7 +184,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		{
 			HgRepository repo = new HgRepository(resolvedUri, _progress);
 
-			repo.UserName = repositoryLabel;
+			//repo.UserName = repositoryLabel;
 			return PullFromRepository(repo, false);
 		}
 
@@ -478,11 +478,11 @@ namespace Chorus.VcsDrivers.Mercurial
 			get { return _pathToRepository; }
 		}
 
-		public string UserName
-		{
-			get { return _userName; }
-			set { _userName = value; }
-		}
+//        public string UserName
+//        {
+//            get { return _userName; }
+//            set { _userName = value; }
+//        }
 
 		private string Name
 		{
@@ -643,6 +643,15 @@ namespace Chorus.VcsDrivers.Mercurial
 		public void CloneLocal(string targetPath)
 		{
 			Execute(SecondsBeforeTimeoutOnLocalOperation, "clone --uncompressed", PathWithQuotes + " " + SurroundWithQuotes(targetPath));
+		}
+
+		/// <summary>
+		/// here we only create the .hg, no files. This is good because the people aren't tempted to modify
+		/// files in that directory, where nothing will ever check the changes in.
+		/// </summary>
+		public void CloneToRemoteDirectoryWithoutCheckout(string targetPath)
+		{
+			Execute(SecondsBeforeTimeoutOnLocalOperation, "clone -U --uncompressed", PathWithQuotes + " " + SurroundWithQuotes(targetPath));
 		}
 
 		private List<Revision> GetRevisionsFromQuery(string query)
@@ -1020,6 +1029,17 @@ namespace Chorus.VcsDrivers.Mercurial
 			doc.SaveAndGiveMessageIfCannot();
 		}
 
+		public void SetTheOnlyAddressOfThisType(RepositoryAddress address)
+		{
+			List<RepositoryAddress> addresses = new List<RepositoryAddress>(GetRepositoryPathsInHgrc());
+			RepositoryAddress match = addresses.FirstOrDefault(p=>p.GetType()  ==  address.GetType());
+			if(match!=null)
+			{
+				addresses.Remove(match);
+			}
+			addresses.Add(address);
+			SetKnownRepositoryAddresses(addresses);
+		}
 
 		public Revision GetRevision(string numberOrHash)
 		{
@@ -1281,7 +1301,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		}
 
 		/// <summary>
-		/// Used by tests, which can't easily make hg be running
+		///
 		/// </summary>
 		/// <param name="processNameToMatch">the process to look for, instead of "hg.exe"</param>
 		/// <param name="registerWarningIfFound"></param>
