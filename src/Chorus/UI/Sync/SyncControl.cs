@@ -9,7 +9,6 @@ namespace Chorus.UI.Sync
 	public partial class SyncControl : UserControl
 	{
 		private SyncControlModel _model;
-		private String _userName="anonymous";
 		private int _desiredHeight;
 		private bool _didAttemptSync=false;
 		public event EventHandler CloseButtonClicked;
