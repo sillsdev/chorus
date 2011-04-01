@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using Chorus.sync;
@@ -22,13 +23,18 @@ namespace Chorus.FileTypeHanders.lift
 			config.ExcludePatterns.Add("*.WeSayUserMemory");
 			config.ExcludePatterns.Add("*.tmp");
 			config.ExcludePatterns.Add("*.bak");
+		   config.ExcludePatterns.Add("export" + Path.DirectorySeparatorChar + "*.lift");
+		   config.ExcludePatterns.Add("*.plift");//normally in /export
+			config.ExcludePatterns.Add("*.pdf");//normally in /export
+		   config.ExcludePatterns.Add("*.html");//normally in /export
+		   config.ExcludePatterns.Add("*.odt");//normally in /export
 
 			config.IncludePatterns.Add("**.lift");
 			config.IncludePatterns.Add(".lift-ranges");
 			config.IncludePatterns.Add(".ldml");
 			config.IncludePatterns.Add("audio/*.*");
 			config.IncludePatterns.Add("pictures/*.*");
-			config.IncludePatterns.Add("**.css"); //stylesheets
+			config.IncludePatterns.Add("export" + Path.DirectorySeparatorChar + "custom*.css"); //stylesheets
 			config.IncludePatterns.Add("**.xml"); //hopefully the days of files ending in "xml" are numbered
 			config.IncludePatterns.Add(".hgIgnore");
 
