@@ -70,8 +70,8 @@ namespace Chorus// DON'T MOVE THIS! It needs to be super easy for the client to 
 				return;
 			}
 
-			//in case we're running off the source code directory
-			guess = Path.Combine(ExecutionEnvironment.DirectoryOfExecutingAssembly+"//..//common", "mercurial");
+			//in case we're running off the wesay source code directory
+			guess = Path.Combine(ExecutionEnvironment.DirectoryOfExecutingAssembly+"\\..\\..\\common", "mercurial");
 			if (Directory.Exists(guess))
 			{
 				MercurialLocation.PathToMercurialFolder = guess;
@@ -79,7 +79,7 @@ namespace Chorus// DON'T MOVE THIS! It needs to be super easy for the client to 
 			}
 
 			//in case we're running in chorus's solution directory
-			guess = Path.Combine(ExecutionEnvironment.DirectoryOfExecutingAssembly + "//..//..//", "mercurial");
+			guess = Path.Combine(ExecutionEnvironment.DirectoryOfExecutingAssembly + "\\..\\..\\", "mercurial");
 			if (Directory.Exists(guess))
 			{
 				MercurialLocation.PathToMercurialFolder = guess;
