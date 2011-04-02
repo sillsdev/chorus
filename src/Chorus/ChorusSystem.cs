@@ -216,6 +216,11 @@ namespace Chorus
 
 		public void Dispose()
 		{
+			foreach (AnnotationRepository repository in _annotationRepositories.Values)
+			{
+				repository.Dispose();
+			}
+			_annotationRepositories.Clear();
 			_container.Dispose();
 		}
 
