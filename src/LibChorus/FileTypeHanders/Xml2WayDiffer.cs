@@ -127,6 +127,14 @@ namespace Chorus.FileTypeHanders
 		public Dictionary<string, byte[]> ReportDifferencesToListener()
 		{
 			Dictionary<string, byte[]> childIndex;
+			return ReportDifferencesToListener(out childIndex);
+		}
+
+		/// <summary>
+		/// Usable by clients who might want the parent and child indices more than the report.
+		/// </summary>
+		public Dictionary<string, byte[]> ReportDifferencesToListener(out Dictionary<string, byte[]> childIndex)
+		{
 			Dictionary<string, byte[]> parentIndex;
 			switch (_diffingMode)
 			{

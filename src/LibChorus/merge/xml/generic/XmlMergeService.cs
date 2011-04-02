@@ -69,6 +69,8 @@ namespace Chorus.merge.xml.generic
 				recordElementName, id);
 
 			// Do diff between loser and common
+			// TODO: Use a second newbie dictionary for loser, since we need to add an additional change report for them.
+			// TODO: Add additional change report for newbies added by winner, as well.
 			var loserGoners = new Dictionary<string, XmlNode>();
 			var loserDirtballs = new Dictionary<string, ChangedElement>();
 			Do2WayDiff(parentIndex, pathToLoser, loserGoners, loserDirtballs, newbies,
@@ -167,7 +169,7 @@ namespace Chorus.merge.xml.generic
 			if (!transferUntouched)
 			{
 				// Read to next main element,
-				// Which skips writing our the current element.
+				// Which skips writing out the current element.
 				reader.ReadOuterXml();
 				return;
 			}
@@ -216,6 +218,7 @@ namespace Chorus.merge.xml.generic
 		{
 			// Note: If we need to put in a XmlAdditionChangeReport for newbies from 'loser',
 			// Note: then we will need two 'newbie' lists.
+			// ANS (RBR): In beta (19 MAR 2011) LiftMerger added such an addition change report.
 			foreach (var newby in newbies)
 				WriteNode(newby, writer);
 		}
