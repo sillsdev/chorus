@@ -17,7 +17,7 @@ namespace Chorus.FileTypeHanders.FieldWorks
 	public class FieldWorksFileHandler : IChorusFileTypeHandler
 	{
 		private const string kExtension = "fwdata";
-		private readonly Dictionary<string, bool> _filesChecked = new Dictionary<string, bool>();
+		private readonly Dictionary<string, bool> _filesChecked = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
 		private readonly MetadataCache _mdc = new MetadataCache();
 
 		/// <summary>

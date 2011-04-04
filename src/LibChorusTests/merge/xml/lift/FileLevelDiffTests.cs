@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using Chorus.FileTypeHanders;
 using Chorus.FileTypeHanders.xml;
@@ -113,6 +114,54 @@ namespace LibChorus.Tests.merge.xml.lift
 															 "entry", "id");
 				differ.ReportDifferencesToListener();
 				listener.AssertExpectedChangesCount(0);
+			}
+		}
+
+		[Test]
+		public void DuplicateIdInParentEntryThrows()
+		{
+			var parent = @"<?xml version='1.0' encoding='utf-8'?>
+					<lift version='0.10' producer='WeSay 1.0.0.0'>
+						<entry id='old1'/>
+						<entry id='old1'/>
+					</lift>";
+			var child = @"<?xml version='1.0' encoding='utf-8'?>
+					<lift version='0.10' producer='WeSay 1.0.0.0'>
+						<entry	id='old1'	dateDeleted='2009-06-16T06:14:20Z'/>
+						<entry id='old2'/>
+					</lift>";
+			using (var parentTempFile = new TempFile(parent))
+			using (var childTempFile = new TempFile(child))
+			{
+				var listener = new ListenerForUnitTests();
+				var differ = Xml2WayDiffer.CreateFromFiles(parentTempFile.Path, childTempFile.Path, listener,
+					"header",
+															 "entry", "id");
+				Assert.Throws<ArgumentException>(() => differ.ReportDifferencesToListener());
+			}
+		}
+
+		[Test]
+		public void DuplicateIdInChildtEntryThrows()
+		{
+			var parent = @"<?xml version='1.0' encoding='utf-8'?>
+					<lift version='0.10' producer='WeSay 1.0.0.0'>
+						<entry	id='old1'	dateDeleted='2009-06-16T06:14:20Z'/>
+						<entry id='old2'/>
+					</lift>";
+			var child = @"<?xml version='1.0' encoding='utf-8'?>
+					<lift version='0.10' producer='WeSay 1.0.0.0'>
+						<entry id='old1'/>
+						<entry id='old1'/>
+					</lift>";
+			using (var parentTempFile = new TempFile(parent))
+			using (var childTempFile = new TempFile(child))
+			{
+				var listener = new ListenerForUnitTests();
+				var differ = Xml2WayDiffer.CreateFromFiles(parentTempFile.Path, childTempFile.Path, listener,
+					"header",
+															 "entry", "id");
+				Assert.Throws<ArgumentException>(() => differ.ReportDifferencesToListener());
 			}
 		}
 

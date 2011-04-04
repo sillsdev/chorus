@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Xml;
 using Chorus.merge;
@@ -23,8 +24,8 @@ namespace Chorus.FileTypeHanders.FieldWorks
 	public sealed class FieldWorksMergingStrategy : IMergeStrategy
 	{
 		private readonly MetadataCache _mdc;
-		private readonly Dictionary<string, ElementStrategy> _sharedElementStrategies = new Dictionary<string, ElementStrategy>();
-		private readonly Dictionary<string, XmlMerger> _mergers = new Dictionary<string, XmlMerger>();
+		private readonly Dictionary<string, ElementStrategy> _sharedElementStrategies = new Dictionary<string, ElementStrategy>(StringComparer.OrdinalIgnoreCase);
+		private readonly Dictionary<string, XmlMerger> _mergers = new Dictionary<string, XmlMerger>(StringComparer.OrdinalIgnoreCase);
 
 		/// <summary>
 		/// Constructor.

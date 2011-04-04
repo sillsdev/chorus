@@ -127,14 +127,6 @@ namespace Chorus.FileTypeHanders
 		public Dictionary<string, byte[]> ReportDifferencesToListener()
 		{
 			Dictionary<string, byte[]> childIndex;
-			return ReportDifferencesToListener(out childIndex);
-		}
-
-		/// <summary>
-		/// Usable by clients who might want the parent and child indices more than the report.
-		/// </summary>
-		public Dictionary<string, byte[]> ReportDifferencesToListener(out Dictionary<string, byte[]> childIndex)
-		{
 			Dictionary<string, byte[]> parentIndex;
 			switch (_diffingMode)
 			{
@@ -160,7 +152,7 @@ namespace Chorus.FileTypeHanders
 		{
 			const int estimatedObjectCount = 400;
 			var fileInfo = new FileInfo(_childPathname);
-			childIndex = new Dictionary<string, byte[]>((int)(fileInfo.Length / estimatedObjectCount));
+			childIndex = new Dictionary<string, byte[]>((int)(fileInfo.Length / estimatedObjectCount), StringComparer.OrdinalIgnoreCase);
 			using (var prepper = new DifferDictionaryPrepper(childIndex, _childPathname,
 				_firstElementTag,
 				_startTag, _identfierAttribute))
@@ -192,7 +184,7 @@ namespace Chorus.FileTypeHanders
 			// fragmenting the large object heap by growing it MANY times.
 			const int estimatedObjectCount = 400;
 			var fileInfo = new FileInfo(parentPathname);
-			parentIndex = new Dictionary<string, byte[]>((int)(fileInfo.Length / estimatedObjectCount));
+			parentIndex = new Dictionary<string, byte[]>((int)(fileInfo.Length / estimatedObjectCount), StringComparer.OrdinalIgnoreCase);
 			using (var prepper = new DifferDictionaryPrepper(parentIndex, parentPathname,
 				_firstElementTag,
 				_startTag, _identfierAttribute))
@@ -200,7 +192,7 @@ namespace Chorus.FileTypeHanders
 				prepper.Run();
 			}
 			fileInfo = new FileInfo(childPathname);
-			childIndex = new Dictionary<string, byte[]>((int)(fileInfo.Length / estimatedObjectCount));
+			childIndex = new Dictionary<string, byte[]>((int)(fileInfo.Length / estimatedObjectCount), StringComparer.OrdinalIgnoreCase);
 			using (var prepper = new DifferDictionaryPrepper(childIndex, childPathname,
 				_firstElementTag,
 				_startTag, _identfierAttribute))
@@ -230,7 +222,7 @@ namespace Chorus.FileTypeHanders
 					var childStr = enc.GetString(childValue);
 					if (parentStr == childStr)
 						continue;
-					// May have added dateDeleted' attr, in which case treat it as deleted, not changed.
+					// May have added 'dateDeleted' attr, in which case treat it as deleted, not changed.
 					// TODO: This is only for Lift diffing, not FW diffing,
 					// so figure a way to have the client do this kind of check.
 					if (childStr.Contains(_deletedAttr))

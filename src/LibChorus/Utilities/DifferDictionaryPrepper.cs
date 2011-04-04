@@ -29,7 +29,7 @@ namespace Chorus.Utilities
 		private readonly string _recordStartingTag;
 		private readonly Encoding _utf8;
 
-		internal DifferDictionaryPrepper(IDictionary<string, byte[]> dictionary, string pathname,
+		public DifferDictionaryPrepper(IDictionary<string, byte[]> dictionary, string pathname,
 			string firstElementMarker,
 			string recordStartingTag, string identifierAttribute)
 		{
@@ -42,14 +42,14 @@ namespace Chorus.Utilities
 			_identifierWithSingleQuote = _utf8.GetBytes(identifierAttribute + "='");
 		}
 
-		internal void Run()
+		public void Run()
 		{
 			bool foundOptionalFirstElement;
 			foreach (var record in _elementSplitter.GetSecondLevelElementBytes(_firstElementTag, _recordStartingTag, out foundOptionalFirstElement))
 			{
 				if (foundOptionalFirstElement)
 				{
-					_dictionary.Add(_firstElementTag.ToLowerInvariant(), record);
+					_dictionary.Add(_firstElementTag, record);
 					foundOptionalFirstElement = false;
 				}
 				else
@@ -85,7 +85,7 @@ namespace Chorus.Utilities
 			{
 				return (end == -1)
 						? null
-						: ReplaceBasicSetOfEntitites(_utf8.GetString(input.SubArray(start, end - start)).ToLowerInvariant());
+						: ReplaceBasicSetOfEntitites(_utf8.GetString(input.SubArray(start, end - start)));
 			}
 
 			return GetAttribute(name, closeQuote, input.SubArray(end + 1, input.Length - end));

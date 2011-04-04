@@ -60,10 +60,10 @@ namespace Chorus.merge.xml.generic
 			CheckParameters(mergeStrategy, mergeOrder, mergeOrder.EventListener, pathToWinner, pathToLoser, commonAncestorPathname,
 				recordElementName, id, writePreliminaryInformationDelegate);
 
-			var newbies = new Dictionary<string, XmlNode>();
+			var newbies = new Dictionary<string, XmlNode>(StringComparer.OrdinalIgnoreCase);
 			// Do diff between winner and common
-			var winnerGoners = new Dictionary<string, XmlNode>();
-			var winnerDirtballs = new Dictionary<string, ChangedElement>();
+			var winnerGoners = new Dictionary<string, XmlNode>(StringComparer.OrdinalIgnoreCase);
+			var winnerDirtballs = new Dictionary<string, ChangedElement>(StringComparer.OrdinalIgnoreCase);
 			var parentIndex = Do2WayDiff(commonAncestorPathname, pathToWinner, winnerGoners, winnerDirtballs, newbies,
 				firstElementMarker,
 				recordElementName, id);
@@ -71,8 +71,8 @@ namespace Chorus.merge.xml.generic
 			// Do diff between loser and common
 			// TODO: Use a second newbie dictionary for loser, since we need to add an additional change report for them.
 			// TODO: Add additional change report for newbies added by winner, as well.
-			var loserGoners = new Dictionary<string, XmlNode>();
-			var loserDirtballs = new Dictionary<string, ChangedElement>();
+			var loserGoners = new Dictionary<string, XmlNode>(StringComparer.OrdinalIgnoreCase);
+			var loserDirtballs = new Dictionary<string, ChangedElement>(StringComparer.OrdinalIgnoreCase);
 			Do2WayDiff(parentIndex, pathToLoser, loserGoners, loserDirtballs, newbies,
 				firstElementMarker,
 				recordElementName, id);
@@ -469,6 +469,7 @@ namespace Chorus.merge.xml.generic
 																		});
 					break;
 				case "XmlAdditionChangeReport":
+					// NOTE: Needs XmlAdditionChangeReport for winner and loser
 					var newbieNode = asXmlReport.ChildNode;
 					newbies.Add(GetKey(newbieNode, id), newbieNode);
 					break;
