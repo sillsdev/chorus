@@ -91,7 +91,8 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 
 			DoMerge(commonAncestor, ourContent, theirContent,
 				new List<string> { @"languageproject/rt[@guid=""oldie""]", @"languageproject/rt[@guid=""newbieOurs""]", @"languageproject/rt[@guid=""newbieTheirs""]"}, null,
-				0, 0);
+				0, 2);
+			_eventListener.AssertFirstChangeType<XmlAdditionChangeReport>();
 		}
 
 		[Test]
@@ -112,7 +113,8 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 
 			DoMerge(commonAncestor, ourContent, theirContent,
 				new List<string> { @"languageproject/rt[@guid=""oldie""]", @"languageproject/rt[@guid=""newbieOurs""]" }, null,
-				0, 0);
+				0, 1);
+			_eventListener.AssertFirstChangeType<XmlAdditionChangeReport>();
 		}
 
 		[Test]
@@ -128,7 +130,8 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 
 			DoMerge(commonAncestor, ourContent, theirContent,
 				new List<string> { @"languageproject/rt[@guid=""oldie""]", @"languageproject/rt[@guid=""newbieTheirs""]" }, null,
-				0, 0);
+				0, 1);
+			_eventListener.AssertFirstChangeType<XmlAdditionChangeReport>();
 		}
 
 		[Test]
@@ -324,7 +327,7 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 			DoMerge(commonAncestor, ourContent, theirContent,
 				new List<string> { @"languageproject/AdditionalFields", @"languageproject/AdditionalFields/CustomField[@name=""Certified""]" },
 				null,
-				0, 0);
+				0, 1);
 		}
 
 		[Test]

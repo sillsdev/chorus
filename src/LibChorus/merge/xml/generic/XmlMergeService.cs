@@ -6,6 +6,7 @@ using System.Xml;
 using Chorus.FileTypeHanders;
 using Chorus.FileTypeHanders.lift;
 using Chorus.FileTypeHanders.xml;
+using Chorus.Properties;
 using Chorus.Utilities;
 using Palaso.Xml;
 
@@ -60,20 +61,19 @@ namespace Chorus.merge.xml.generic
 			CheckParameters(mergeStrategy, mergeOrder, mergeOrder.EventListener, pathToWinner, pathToLoser, commonAncestorPathname,
 				recordElementName, id, writePreliminaryInformationDelegate);
 
-			var newbies = new Dictionary<string, XmlNode>(StringComparer.OrdinalIgnoreCase);
+			var winnerNewbies = new Dictionary<string, XmlNode>(StringComparer.OrdinalIgnoreCase);
 			// Do diff between winner and common
 			var winnerGoners = new Dictionary<string, XmlNode>(StringComparer.OrdinalIgnoreCase);
 			var winnerDirtballs = new Dictionary<string, ChangedElement>(StringComparer.OrdinalIgnoreCase);
-			var parentIndex = Do2WayDiff(commonAncestorPathname, pathToWinner, winnerGoners, winnerDirtballs, newbies,
+			var parentIndex = Do2WayDiff(commonAncestorPathname, pathToWinner, winnerGoners, winnerDirtballs, winnerNewbies,
 				firstElementMarker,
 				recordElementName, id);
 
 			// Do diff between loser and common
-			// TODO: Use a second newbie dictionary for loser, since we need to add an additional change report for them.
-			// TODO: Add additional change report for newbies added by winner, as well.
+			var loserNewbies = new Dictionary<string, XmlNode>(StringComparer.OrdinalIgnoreCase);
 			var loserGoners = new Dictionary<string, XmlNode>(StringComparer.OrdinalIgnoreCase);
 			var loserDirtballs = new Dictionary<string, ChangedElement>(StringComparer.OrdinalIgnoreCase);
-			Do2WayDiff(parentIndex, pathToLoser, loserGoners, loserDirtballs, newbies,
+			Do2WayDiff(parentIndex, pathToLoser, loserGoners, loserDirtballs, loserNewbies,
 				firstElementMarker,
 				recordElementName, id);
 
@@ -103,9 +103,8 @@ namespace Chorus.merge.xml.generic
 						ProcessFirstElement(
 							mergeStrategy, mergeOrder, mergeOrder.EventListener,
 							parentIndex,
-							newbies,
-							winnerGoners, winnerDirtballs,
-							loserGoners, loserDirtballs,
+							pathToWinner, winnerNewbies, winnerGoners, winnerDirtballs,
+							pathToLoser, loserNewbies, loserGoners, loserDirtballs,
 							reader, writer,
 							winnerId, firstElementMarker);
 					}
@@ -113,11 +112,13 @@ namespace Chorus.merge.xml.generic
 					ProcessMainRecordElements(
 						mergeStrategy, mergeOrder, mergeOrder.EventListener,
 						parentIndex,
-						winnerGoners, winnerDirtballs, loserGoners, loserDirtballs,
+						winnerGoners, winnerDirtballs,
+						loserGoners, loserDirtballs,
 						reader, writer,
 						id, winnerId, recordElementName);
 
-					WriteOutNewObjects(newbies.Values, writer);
+					WriteOutNewObjects(mergeOrder.EventListener, winnerNewbies.Values, pathToWinner, writer);
+					WriteOutNewObjects(mergeOrder.EventListener, loserNewbies.Values, pathToLoser, writer);
 
 					writer.WriteEndElement();
 				}
@@ -127,20 +128,63 @@ namespace Chorus.merge.xml.generic
 		private static void ProcessFirstElement(
 			IMergeStrategy mergeStrategy, MergeOrder mergeOrder, IMergeEventListener listener,
 			IDictionary<string, byte[]> parentIndex,
-			IDictionary<string, XmlNode> newbies,
-			IDictionary<string, XmlNode> winnerGoners, IDictionary<string, ChangedElement> winnerDirtballs,
-			IDictionary<string, XmlNode> loserGoners, IDictionary<string, ChangedElement> loserDirtballs,
+			string pathToWinner, IDictionary<string, XmlNode> winnerNewbies, IDictionary<string, XmlNode> winnerGoners, IDictionary<string, ChangedElement> winnerDirtballs,
+			string pathToLoser, IDictionary<string, XmlNode> loserNewbies, IDictionary<string, XmlNode> loserGoners, IDictionary<string, ChangedElement> loserDirtballs,
 			XmlReader reader, XmlWriter writer,
 			string winnerId, string firstElementMarker)
 		{
 			XmlNode currentNode;
-			if (newbies.TryGetValue(firstElementMarker, out currentNode))
+			if (winnerNewbies.TryGetValue(firstElementMarker, out currentNode))
+			{
+				XmlNode loserFirstElement;
+				if (loserNewbies.TryGetValue(firstElementMarker, out loserFirstElement))
+				{
+					if (!XmlUtilities.AreXmlElementsEqual(currentNode, loserFirstElement))
+					{
+						// Bother. They are not the same.
+						// Do it the hard way via a merge.
+						var results = mergeStrategy.MakeMergedEntry(listener, currentNode, loserFirstElement, null);
+						var doc = new XmlDocument();
+						doc.LoadXml(results);
+						WriteNode(doc, writer);
+					}
+					else
+					{
+						listener.ChangeOccurred(new XmlAdditionChangeReport(pathToWinner, currentNode));
+						WriteNode(currentNode, writer);
+					}
+					winnerNewbies.Remove(firstElementMarker);
+					loserNewbies.Remove(firstElementMarker);
+					// These should never have them, but make sure.
+					winnerGoners.Remove(firstElementMarker);
+					winnerDirtballs.Remove(firstElementMarker);
+					loserGoners.Remove(firstElementMarker);
+					loserDirtballs.Remove(firstElementMarker);
+				}
+				else
+				{
+					// Brand new, so write it out and quit.
+					listener.ChangeOccurred(new XmlAdditionChangeReport(pathToWinner, currentNode));
+					WriteNode(currentNode, writer);
+
+					winnerNewbies.Remove(firstElementMarker);
+					// These should never have them, but make sure.
+					winnerGoners.Remove(firstElementMarker);
+					winnerDirtballs.Remove(firstElementMarker);
+					loserGoners.Remove(firstElementMarker);
+					loserDirtballs.Remove(firstElementMarker);
+				}
+
+				return;
+			}
+			if (loserNewbies.TryGetValue(firstElementMarker, out currentNode))
 			{
 				// Brand new, so write it out and quit.
-				newbies.Remove(firstElementMarker);
+				loserNewbies.Remove(firstElementMarker);
+				listener.ChangeOccurred(new XmlAdditionChangeReport(pathToLoser, currentNode));
 				WriteNode(currentNode, writer);
 
-				// This should never have them, but make sure.
+				// These should never have them, but make sure.
 				winnerGoners.Remove(firstElementMarker);
 				winnerDirtballs.Remove(firstElementMarker);
 				loserGoners.Remove(firstElementMarker);
@@ -214,13 +258,13 @@ namespace Chorus.merge.xml.generic
 			}
 		}
 
-		private static void WriteOutNewObjects(IEnumerable<XmlNode> newbies, XmlWriter writer)
+		private static void WriteOutNewObjects(IMergeEventListener listener, IEnumerable<XmlNode> newbies, string pathname, XmlWriter writer)
 		{
-			// Note: If we need to put in a XmlAdditionChangeReport for newbies from 'loser',
-			// Note: then we will need two 'newbie' lists.
-			// ANS (RBR): In beta (19 MAR 2011) LiftMerger added such an addition change report.
 			foreach (var newby in newbies)
+			{
+				listener.ChangeOccurred(new XmlAdditionChangeReport(pathname, newby));
 				WriteNode(newby, writer);
+			}
 		}
 
 		private static void WriteNode(XmlNode nodeToWrite, XmlWriter writer)
@@ -263,7 +307,7 @@ namespace Chorus.merge.xml.generic
 #if DEBUG
 					FailureSimulator.IfTestRequestsItThrowNow("LiftMerger.FindEntryById");
 #endif
-					// Read to next <rt> element,
+					// Read to next record element,
 					// Which skips writing our the current element.
 					reader.ReadOuterXml();
 					keepReading = reader.IsStartElement();
@@ -290,14 +334,14 @@ namespace Chorus.merge.xml.generic
 				var dirtballElement = winnerDirtballs[currentKey];
 				listener.ConflictOccurred(new EditedVsRemovedElementConflict(
 												recordElementName,
-												dirtballElement.m_childNode,
+												dirtballElement._childNode,
 												loserGoners[currentKey],
-												dirtballElement.m_parentNode,
+												dirtballElement._parentNode,
 												mergeOrder.MergeSituation,
 												new ElementStrategy(false),
 												winnerId));
 
-				ReplaceCurrentNode(writer, dirtballElement.m_childNode);
+				ReplaceCurrentNode(writer, dirtballElement._childNode);
 				winnerDirtballs.Remove(currentKey);
 				loserGoners.Remove(currentKey);
 			}
@@ -306,12 +350,12 @@ namespace Chorus.merge.xml.generic
 				if (loserDirtballs.ContainsKey(currentKey))
 				{
 					// Both edited it. Check it out.
-					var mergedResult = winnerDirtballs[currentKey].m_childNode.OuterXml;
-					if (!XmlUtilities.AreXmlElementsEqual(winnerDirtballs[currentKey].m_childNode, loserDirtballs[currentKey].m_childNode))
+					var mergedResult = winnerDirtballs[currentKey]._childNode.OuterXml;
+					if (!XmlUtilities.AreXmlElementsEqual(winnerDirtballs[currentKey]._childNode, loserDirtballs[currentKey]._childNode))
 					{
 						var dirtballElement = winnerDirtballs[currentKey];
-						mergedResult = mergeStrategy.MakeMergedEntry(listener, dirtballElement.m_childNode,
-																	 loserDirtballs[currentKey].m_childNode, dirtballElement.m_parentNode);
+						mergedResult = mergeStrategy.MakeMergedEntry(listener, dirtballElement._childNode,
+																	 loserDirtballs[currentKey]._childNode, dirtballElement._parentNode);
 					}
 					ReplaceCurrentNode(writer, mergedResult);
 					loserDirtballs.Remove(currentKey);
@@ -319,7 +363,7 @@ namespace Chorus.merge.xml.generic
 				else
 				{
 					// Winner edited it. Loser did nothing with it.
-					ReplaceCurrentNode(writer, winnerDirtballs[currentKey].m_childNode);
+					ReplaceCurrentNode(writer, winnerDirtballs[currentKey]._childNode);
 					winnerDirtballs.Remove(currentKey);
 				}
 			}
@@ -327,7 +371,7 @@ namespace Chorus.merge.xml.generic
 
 		private static void ReplaceCurrentNode(XmlWriter writer, IDictionary<string, ChangedElement> loserDirtballs, string currentKey)
 		{
-			ReplaceCurrentNode(writer, loserDirtballs[currentKey].m_childNode);
+			ReplaceCurrentNode(writer, loserDirtballs[currentKey]._childNode);
 			loserDirtballs.Remove(currentKey);
 		}
 
@@ -379,8 +423,8 @@ namespace Chorus.merge.xml.generic
 					listener.ConflictOccurred(new RemovedVsEditedElementConflict(
 													recordElementName,
 													winnerGoners[currentKey],
-													dirtball.m_childNode,
-													dirtball.m_parentNode,
+													dirtball._childNode,
+													dirtball._parentNode,
 													mergeOrder.MergeSituation,
 													new ElementStrategy(false),
 													winnerId));
@@ -464,12 +508,11 @@ namespace Chorus.merge.xml.generic
 					var updatedNode = asXmlReport.ChildNode;
 					dirtballs.Add(GetKey(originalNode, id), new ChangedElement
 																		{
-																			m_parentNode = originalNode,
-																			m_childNode = updatedNode
+																			_parentNode = originalNode,
+																			_childNode = updatedNode
 																		});
 					break;
 				case "XmlAdditionChangeReport":
-					// NOTE: Needs XmlAdditionChangeReport for winner and loser
 					var newbieNode = asXmlReport.ChildNode;
 					newbies.Add(GetKey(newbieNode, id), newbieNode);
 					break;
@@ -510,13 +553,13 @@ namespace Chorus.merge.xml.generic
 		private static void CheckThatFileExists(string pathname)
 		{
 			if (!File.Exists(pathname))
-				throw new ArgumentException("File does not exist.", "pathname");
+				throw new ArgumentException(AnnotationImages.kFileDoesNotExist, "pathname");
 		}
 
 		private class ChangedElement
 		{
-			internal XmlNode m_parentNode;
-			internal XmlNode m_childNode;
+			internal XmlNode _parentNode;
+			internal XmlNode _childNode;
 		}
 
 		internal static void AddDateCreatedAttribute(XmlNode elementNode)

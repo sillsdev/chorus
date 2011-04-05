@@ -157,4 +157,7 @@
 	<data name="kNullOrEmptyString">
 		<value xml:space="preserve">Parameter is null or an empty string.</value>
 	</data>
+	<data name="kFileDoesNotExist">
+		<value xml:space="preserve">File does not exist.</value>
+	</data>
 </root>
