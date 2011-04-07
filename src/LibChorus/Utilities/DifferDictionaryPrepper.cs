@@ -49,7 +49,7 @@ namespace Chorus.Utilities
 			{
 				if (foundOptionalFirstElement)
 				{
-					_dictionary.Add(_firstElementTag, record);
+					_dictionary.Add(_firstElementTag.ToLowerInvariant(), record);
 					foundOptionalFirstElement = false;
 				}
 				else
@@ -85,7 +85,7 @@ namespace Chorus.Utilities
 			{
 				return (end == -1)
 						? null
-						: ReplaceBasicSetOfEntitites(_utf8.GetString(input.SubArray(start, end - start)));
+						: ReplaceBasicSetOfEntitites(_utf8.GetString(input.SubArray(start, end - start)).ToLowerInvariant());
 			}
 
 			return GetAttribute(name, closeQuote, input.SubArray(end + 1, input.Length - end));
