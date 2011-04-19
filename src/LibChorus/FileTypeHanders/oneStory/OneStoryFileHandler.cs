@@ -100,8 +100,11 @@ namespace Chorus.FileTypeHanders.oneStory
 			merger.MergeStrategies.SetStrategy("CraftingInfo", ElementStrategy.CreateSingletonElement());
 			merger.MergeStrategies.SetStrategy("StoryCrafter", ElementStrategy.CreateSingletonElement());
 			merger.MergeStrategies.SetStrategy("ProjectFacilitator", ElementStrategy.CreateSingletonElement());
+			merger.MergeStrategies.SetStrategy("Consultant", ElementStrategy.CreateSingletonElement());
+			merger.MergeStrategies.SetStrategy("Coach", ElementStrategy.CreateSingletonElement());
 			merger.MergeStrategies.SetStrategy("StoryPurpose", ElementStrategy.CreateSingletonElement());
 			merger.MergeStrategies.SetStrategy("ResourcesUsed", ElementStrategy.CreateSingletonElement());
+			merger.MergeStrategies.SetStrategy("MiscellaneousStoryInfo", ElementStrategy.CreateSingletonElement());
 			merger.MergeStrategies.SetStrategy("BackTranslator", ElementStrategy.CreateSingletonElement());
 			merger.MergeStrategies.SetStrategy("TestsRetellings", ElementStrategy.CreateSingletonElement());
 			merger.MergeStrategies.SetStrategy("TestRetelling", ElementStrategy.CreateForKeyedElement("memberID", true));
