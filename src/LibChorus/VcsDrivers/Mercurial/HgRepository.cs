@@ -17,8 +17,10 @@ using Palaso.Progress.LogBox;
 
 namespace Chorus.VcsDrivers.Mercurial
 {
-
-	public class HgRepository : IRetrieveFileVersionsFromRepository
+	/// <summary>
+	/// Implementation of IDVCSRepository interface which uses Mercurial for DVCS.
+	/// </summary>
+	public class HgRepository : IDVCSRepository, IRetrieveFileVersionsFromRepository
 	{
 		protected readonly string _pathToRepository;
 		protected string _userName;

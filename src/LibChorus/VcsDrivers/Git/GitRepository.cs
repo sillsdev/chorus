@@ -3,16 +3,20 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
+using Chorus.VcsDrivers;
+using Palaso.Progress.LogBox;
 
-#if notyet
 namespace Chorus
 {
-	public partial class GitRepository
+	/// <summary>
+	/// Implementation if IDVCSRepository interface which uses Git for DVCS.
+	/// </summary>
+	public class GitRepository : IDVCSRepository
 	{
 		protected readonly string _pathToRepository;
 		protected readonly string _userName;
 
-
+#if TODO
 		protected RevisionDescriptor GetMyHead()
 		{
 //            using (new ConsoleProgress("Getting real head of {0}", _userName))
@@ -24,7 +28,6 @@ namespace Chorus
 //                return descriptor;
 //            }
 		}
-
 
 		public static GitRepository CreateNewDirectoryAndRepository(string parentDirOfNewRepository, string userName)
 		{
@@ -50,6 +53,7 @@ namespace Chorus
 				File.WriteAllText(fake, DateTime.Now.Ticks.ToString().Substring(14));
 				AddAndCheckinFile(fake);
 		}
+#endif
 
 		protected void UpdateFake()
 		{
@@ -59,6 +63,7 @@ namespace Chorus
 			File.WriteAllText(fake, DateTime.Now.Ticks.ToString().Substring(14));
 		}
 
+#if TODO
 		public static GitRepository CreateNewByCloning(GitRepository sourceRepo, string parentDirOfNewRepository, string newPersonName)
 		{
 			string repositoryPath = Path.Combine(parentDirOfNewRepository, newPersonName );
@@ -71,6 +76,7 @@ namespace Chorus
 				return repository;
 			}
 		}
+#endif
 
 		private static string MakeDirectoryForUser(string parentDirOfNewRepository, string userName)
 		{
@@ -90,8 +96,7 @@ namespace Chorus
 //                "ATTENTION: if the real kdiff3.exe comes up while running this, you're doomed.  Find it and rename it.");
 		}
 
-
-
+#if TODO
 		static private void SetupPerson(string pathToRepository, string userName)
 		{
 			using (new ConsoleProgress("setting name and branch"))
@@ -110,7 +115,6 @@ namespace Chorus
 				Execute("pull", _pathToRepository, otherRepository.PathWithQuotes);
 			}
 		}
-
 
 		private List<RevisionDescriptor> GetBranches()
 		{
@@ -155,7 +159,6 @@ namespace Chorus
 			return RevisionDescriptor.GetRevisionsFromQueryOutput(result);
 		}
 
-
 		protected static string GetTextFromQuery(string repositoryPath, string s)
 		{
 			ExecutionResult result= ExecuteErrorsOk(s + " -R " + SurroundWithQuotes(repositoryPath));
@@ -198,7 +201,6 @@ namespace Chorus
 					_progress.WriteMessage(result.StandardError);
 			}
 		}
-
 
 		public void Branch(string branchName)
 		{
@@ -247,7 +249,7 @@ namespace Chorus
 
 			return WrapShellCall.WrapShellCallRunner.Run("git " + command);
 		}
-
+#endif
 
 		protected static string SurroundWithQuotes(string path)
 		{
@@ -277,6 +279,7 @@ namespace Chorus
 			return Path.Combine(_pathToRepository, name);
 		}
 
+#if TODO
 		public List<string> GetChangedFiles()
 		{
 			ExecutionResult result= Execute("status", _pathToRepository);
@@ -315,6 +318,6 @@ namespace Chorus
 
 			Execute("is it show?", _pathToRepository, "-o ",fullOutputPath," -r ",revision,absolutePathToFile);
 		}
+#endif
 	}
 }
-#endif
