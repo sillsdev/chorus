@@ -1,20 +1,18 @@
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
-using System.Text;
-using Chorus.VcsDrivers;
+using Palaso.Code;
 using Palaso.Progress.LogBox;
 
-namespace Chorus
+namespace Chorus.VcsDrivers.Git
 {
 	/// <summary>
 	/// Implementation if IDVCSRepository interface which uses Git for DVCS.
 	/// </summary>
-	public class GitRepository : IDVCSRepository
+	internal class GitRepository : IDVCSRepository
 	{
-		protected readonly string _pathToRepository;
-		protected readonly string _userName;
+		private readonly string _pathToRepository;
+		private readonly string _userName;
+		private IProgress _progress;
 
 #if TODO
 		protected RevisionDescriptor GetMyHead()
@@ -55,7 +53,7 @@ namespace Chorus
 		}
 #endif
 
-		protected void UpdateFake()
+		private void UpdateFake()
 		{
 			//hack to force a changeset
 			string fake = Path.Combine(_pathToRepository, _userName + "_fake");
@@ -85,15 +83,18 @@ namespace Chorus
 			return repositoryPath;
 		}
 
-
-
-		public GitRepository(string pathToRepository, string userName /*todo: figure this out from the repo*/)
+		internal GitRepository(string pathToRepository, IProgress progress)
 		{
+			Guard.AgainstNull(progress, "progress");
 			_pathToRepository = pathToRepository;
-			_userName = userName; //todo: figure out the user name from the repo
 
-//            _progress.WriteMessage(
-//                "ATTENTION: if the real kdiff3.exe comes up while running this, you're doomed.  Find it and rename it.");
+			//// Make sure it exists
+			//if (GetIsLocalUri(_pathToRepository) && !Directory.Exists(_pathToRepository))
+			//    Directory.CreateDirectory(_pathToRepository);
+
+			_progress = progress;
+
+			//_userName = GetUserIdInUse();
 		}
 
 #if TODO
@@ -108,7 +109,7 @@ namespace Chorus
 		}
 
 
-		protected void PullFromRepository(GitRepository otherRepository)
+		private void PullFromRepository(GitRepository otherRepository)
 		{
 			using (new ConsoleProgress("{0} pulling from {1}", _userName,otherRepository.UserName))
 			{
@@ -145,7 +146,7 @@ namespace Chorus
 //            return GetRevisionsFromQuery("tip")[0];
 //        }
 
-		protected List<RevisionDescriptor> GetHeads()
+		private List<RevisionDescriptor> GetHeads()
 		{
 			using (new ConsoleProgress("Getting heads of {0}", _userName))
 			{
@@ -159,7 +160,7 @@ namespace Chorus
 			return RevisionDescriptor.GetRevisionsFromQueryOutput(result);
 		}
 
-		protected static string GetTextFromQuery(string repositoryPath, string s)
+		private static string GetTextFromQuery(string repositoryPath, string s)
 		{
 			ExecutionResult result= ExecuteErrorsOk(s + " -R " + SurroundWithQuotes(repositoryPath));
 			Debug.Assert(string.IsNullOrEmpty(result.StandardError), result.StandardError);
@@ -210,11 +211,12 @@ namespace Chorus
 			}
 		}
 
-		protected static ExecutionResult Execute(string cmd, string repositoryPath, params string[] rest)
+		private static ExecutionResult Execute(string cmd, string repositoryPath, params string[] rest)
 		{
 			return Execute(false, cmd, repositoryPath, rest);
 		}
-		protected static ExecutionResult Execute(bool failureIsOk, string cmd, string repositoryPath, params string[] rest)
+
+		private static ExecutionResult Execute(bool failureIsOk, string cmd, string repositoryPath, params string[] rest)
 		{
 			StringBuilder b = new StringBuilder();
 			b.Append(cmd + " ");
@@ -242,8 +244,7 @@ namespace Chorus
 			return result;
 		}
 
-
-		protected static ExecutionResult ExecuteErrorsOk(string command)
+		private static ExecutionResult ExecuteErrorsOk(string command)
 		{
 			_progress.WriteMessage("git "+command);
 
@@ -251,7 +252,7 @@ namespace Chorus
 		}
 #endif
 
-		protected static string SurroundWithQuotes(string path)
+		private static string SurroundWithQuotes(string path)
 		{
 			return "\"" + path + "\"";
 		}

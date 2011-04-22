@@ -22,12 +22,12 @@ namespace Chorus.VcsDrivers.Mercurial
 	/// </summary>
 	public class HgRepository : IDVCSRepository, IRetrieveFileVersionsFromRepository
 	{
-		protected readonly string _pathToRepository;
-		protected string _userName;
-		protected IProgress _progress;
+		private readonly string _pathToRepository;
+		private readonly string _userName;
+		private readonly IProgress _progress;
 		private const int SecondsBeforeTimeoutOnLocalOperation = 3 * 60;
 		private const int SecondsBeforeTimeoutOnMergeOperation = 5 * 60;
-		private const int SecondsBeforeTimeoutOnRemoteOperation = 20 * 60;
+		private const int SecondsBeforeTimeoutOnRemoteOperation = 30 * 60;
 		private bool _haveLookedIntoProxySituation;
 		private string _proxyCongfigParameterString = string.Empty;
 
