@@ -23,9 +23,9 @@ namespace Chorus.VcsDrivers.Mercurial
 		protected readonly string _pathToRepository;
 		protected string _userName;
 		protected IProgress _progress;
-		private const int SecondsBeforeTimeoutOnLocalOperation = 3 * 60;
-		private const int SecondsBeforeTimeoutOnMergeOperation = 5 * 60;
-		private const int SecondsBeforeTimeoutOnRemoteOperation = 20 * 60;
+		private const int SecondsBeforeTimeoutOnLocalOperation = 15 * 60;
+		private const int SecondsBeforeTimeoutOnMergeOperation = 15 * 60;
+		private const int SecondsBeforeTimeoutOnRemoteOperation = 40 * 60;
 		private bool _haveLookedIntoProxySituation;
 		private string _proxyCongfigParameterString = string.Empty;
 
