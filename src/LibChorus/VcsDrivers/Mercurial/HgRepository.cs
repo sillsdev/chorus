@@ -31,7 +31,6 @@ namespace Chorus.VcsDrivers.Mercurial
 		private bool _haveLookedIntoProxySituation;
 		private string _proxyCongfigParameterString = string.Empty;
 
-
 		public static string GetEnvironmentReadinessMessage(string messageLanguageId)
 		{
 			try
@@ -534,7 +533,13 @@ namespace Chorus.VcsDrivers.Mercurial
 		public static void CreateRepositoryInExistingDir(string path, IProgress progress)
 		{
 			var repo = new HgRepository(path, progress);
-			repo.Execute(20, "init", SurroundWithQuotes(path));
+			repo.Init(path, progress);
+		}
+
+		public void Init(string path, IProgress progress)
+		{
+			Execute(20, "init", SurroundWithQuotes(path));
+			SetUserNameInIni(Environment.UserName, progress);
 		}
 
 

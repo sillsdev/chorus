@@ -32,11 +32,9 @@ namespace LibChorus.Tests
 
 			ProjectFolder = new TemporaryFolder(RootFolder, ProjectName);
 
-			RepositorySetup.MakeRepositoryForTest(ProjectFolder.Path, userName,Progress);
+			MakeRepositoryForTest(ProjectFolder.Path, userName,Progress);
 			ProjectFolderConfig = new ProjectFolderConfiguration(ProjectFolder.Path);
-
 		}
-
 
 		public RepositorySetup(string cloneName, RepositorySetup sourceToClone)
 		{
@@ -68,11 +66,11 @@ namespace LibChorus.Tests
 			return Synchronizer.FromProjectConfiguration(ProjectFolderConfig, Progress);
 		}
 
-
 		public HgRepository Repository
 		{
 			get { return new HgRepository(ProjectFolderConfig.FolderPath, Progress); }
 		}
+
 		public void Dispose()
 		{
 			if (Repository != null)
@@ -111,11 +109,12 @@ namespace LibChorus.Tests
 			var p = ProjectFolder.Combine(fileName);
 			File.WriteAllText(p, contents);
 		}
-	   public void ChangeFileAndCommit(string fileName, string contents, string message)
+
+		public void ChangeFileAndCommit(string fileName, string contents, string message)
 		{
 			var p = ProjectFolder.Combine(fileName);
 			File.WriteAllText(p, contents);
-		   Repository.Commit(false,message);
+			Repository.Commit(false, message);
 		}
 
 		public void AddAndCheckIn()
@@ -173,7 +172,6 @@ namespace LibChorus.Tests
 			hg.SetUserNameInIni(userId,  progress);
 		}
 
-
 		public static string ProjectName
 		{
 			get { return "foo project"; }//nb: important that it have a space, as this helps catch failure to enclose in quotes
@@ -189,6 +187,7 @@ namespace LibChorus.Tests
 		{
 			return new StreamWriter(ProjectFolder.Combine(localPath));
 		}
+
 		public IDisposable GetFileLockForWriting(string localPath)
 		{
 #if MONO
@@ -238,7 +237,7 @@ namespace LibChorus.Tests
 			System.Diagnostics.Process.Start(start);
 		}
 
-				   /// <summary>
+		/// <summary>
 		/// not called "CreateReject*Branch* because we're not naming it (but it is, technically, a branch)
 		/// </summary>
 		public void CreateRejectForkAndComeBack()
@@ -283,8 +282,6 @@ namespace LibChorus.Tests
 		{
 			return new BookMark(Repository);
 		}
-
-
 	}
 
 	public class BookMark

@@ -320,5 +320,17 @@ namespace Chorus.VcsDrivers.Git
 			Execute("is it show?", _pathToRepository, "-o ",fullOutputPath," -r ",revision,absolutePathToFile);
 		}
 #endif
+
+		#region Implementation of IDVCSRepository
+
+		/// <summary>
+		/// Initialize a newly created repository.
+		/// </summary>
+		public void Init(string newRepositoryPath, IProgress progress)
+		{
+			throw new NotImplementedException();
+		}
+
+		#endregion
 	}
 }

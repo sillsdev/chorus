@@ -160,4 +160,7 @@
 	<data name="kFileDoesNotExist">
 		<value xml:space="preserve">File does not exist.</value>
 	</data>
+	<data name="kFileOrFolderNotFound">
+		<value><![CDATA[File or directory wasn't found]]></value>
+	</data>
 </root>
