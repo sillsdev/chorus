@@ -47,7 +47,7 @@ namespace Chorus.FileTypeHanders.FieldWorks
 
 		public bool CanValidateFile(string pathToFile)
 		{
-			if (!CheckValidPathname(pathToFile))
+			if (!FieldWorksMergingServices.CheckValidPathname(pathToFile, kExtension))
 				return false;
 
 			try
@@ -74,14 +74,14 @@ namespace Chorus.FileTypeHanders.FieldWorks
 		{
 			XmlMergeService.Do3WayMerge(mergeOrder,
 				new FieldWorksMergingStrategy(mergeOrder.MergeSituation, _mdc),
-				"AdditionalFields",
+				null,
 				"rt", "guid", WritePreliminaryInformation);
 		}
 
 		public IEnumerable<IChangeReport> Find2WayDifferences(FileInRevision parent, FileInRevision child, HgRepository repository)
 		{
 			return Xml2WayDiffService.ReportDifferences(repository, parent, child,
-				"AdditionalFields",
+				null,
 				"rt", "guid");
 		}
 
@@ -112,29 +112,6 @@ namespace Chorus.FileTypeHanders.FieldWorks
 						// It would be nice, if it could really validate it.
 						while (reader.Read())
 						{
-							// Populate _mdc with optional custom properties.
-							//if (reader.LocalName != "CustomField")
-							//	continue;
-							/*
-<AdditionalFields>
-<CustomField name="Certified" class="WfiWordform" type="Boolean" />
-</AdditionalFields>
-								*/
-							while (reader.LocalName == "CustomField")
-							{
-								reader.MoveToAttribute("name");
-								var propName = reader.Value;
-								reader.MoveToAttribute("class");
-								var className = reader.Value;
-								reader.MoveToAttribute("type");
-								var propDataType = reader.Value;
-								// Add custom property to MDC.
-								_mdc.AddCustomPropInfo(className, new FdoPropertyInfo(propName, propDataType));
-
-
-								reader.MoveToElement();
-								reader.Read();
-							}
 						}
 					}
 					else
@@ -168,7 +145,7 @@ namespace Chorus.FileTypeHanders.FieldWorks
 
 		private bool CheckThatInputIsValidFieldWorksFile(string pathToFile)
 		{
-			if (!CheckValidPathname(pathToFile))
+			if (!FieldWorksMergingServices.CheckValidPathname(pathToFile, kExtension))
 				return false;
 
 			bool seenBefore;
@@ -177,14 +154,6 @@ namespace Chorus.FileTypeHanders.FieldWorks
 			var retval = ValidateFile(pathToFile, null) == null;
 			_filesChecked.Add(pathToFile, retval);
 			return retval;
-		}
-
-		private static bool CheckValidPathname(string pathToFile)
-		{
-			// Just because all of this is true, doesn't mean it is a FW 7.0 xml file. :-(
-			return !string.IsNullOrEmpty(pathToFile) // No null or empty string can be valid.
-				&& File.Exists(pathToFile) // There has to be an actual file,
-				&& Path.GetExtension(pathToFile).ToLowerInvariant() == "." + kExtension; // It better have kExtension for its extension.
 		}
 
 		private static void WritePreliminaryInformation(XmlReader reader, XmlWriter writer)

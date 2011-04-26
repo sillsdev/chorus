@@ -3,6 +3,8 @@ using System.Linq;
 using Chorus.FileTypeHanders.adaptIt;
 using Chorus.FileTypeHanders.audio;
 using Chorus.FileTypeHanders.FieldWorks;
+using Chorus.FileTypeHanders.FieldWorks.CustomProperties;
+using Chorus.FileTypeHanders.FieldWorks.ModelVersion;
 using Chorus.FileTypeHanders.image;
 using Chorus.FileTypeHanders.lift;
 using Chorus.FileTypeHanders.oneStory;
@@ -70,6 +72,8 @@ namespace Chorus.FileTypeHanders
 			fileTypeHandlers.HandersList.Add(new ChorusTestFileHandler());
 			fileTypeHandlers.HandersList.Add(new OurWordFileHandler());
 			fileTypeHandlers.HandersList.Add(new FieldWorksFileHandler());
+			fileTypeHandlers.HandersList.Add(new FieldeWorksCustomPropertyFileHandler());
+			fileTypeHandlers.HandersList.Add(new FieldWorksModelVersionFileHandler());
 
 			//NB: never add the Default handler
 			return fileTypeHandlers;
