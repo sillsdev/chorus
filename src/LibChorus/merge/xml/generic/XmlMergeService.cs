@@ -250,12 +250,15 @@ namespace Chorus.merge.xml.generic
 				transferUntouched = false;
 				loserGoners.Remove(currentKey);
 			}
-			if (loserDirtballs.ContainsKey(currentKey))
-			{
-				// Loser changed it, but winner did nothing to it.
-				transferUntouched = false;
-				ReplaceCurrentNode(writer, loserDirtballs, currentKey);
-			}
+			if (!loserDirtballs.ContainsKey(currentKey))
+				return;
+
+			// Loser changed it, but winner did nothing to it.
+			transferUntouched = false;
+			// Make a change report.
+			listener.ChangeOccurred((new XmlChangedRecordReport(null, null, loserDirtballs[currentKey]._parentNode,
+																loserDirtballs[currentKey]._childNode)));
+			ReplaceCurrentNode(writer, loserDirtballs, currentKey);
 		}
 
 		private static void WriteOutNewObjects(IMergeEventListener listener, IEnumerable<XmlNode> newbies, string pathname, XmlWriter writer)
@@ -351,7 +354,13 @@ namespace Chorus.merge.xml.generic
 				{
 					// Both edited it. Check it out.
 					var mergedResult = winnerDirtballs[currentKey]._childNode.OuterXml;
-					if (!XmlUtilities.AreXmlElementsEqual(winnerDirtballs[currentKey]._childNode, loserDirtballs[currentKey]._childNode))
+					if (XmlUtilities.AreXmlElementsEqual(winnerDirtballs[currentKey]._childNode, loserDirtballs[currentKey]._childNode))
+					{
+						// Both made the same change.
+						listener.ChangeOccurred(new XmlChangedRecordReport(null, null, winnerDirtballs[currentKey]._parentNode,
+																		   winnerDirtballs[currentKey]._childNode));
+					}
+					else
 					{
 						var dirtballElement = winnerDirtballs[currentKey];
 						mergedResult = mergeStrategy.MakeMergedEntry(listener, dirtballElement._childNode,
@@ -363,6 +372,8 @@ namespace Chorus.merge.xml.generic
 				else
 				{
 					// Winner edited it. Loser did nothing with it.
+					listener.ChangeOccurred(new XmlChangedRecordReport(null, null, winnerDirtballs[currentKey]._parentNode,
+																	   winnerDirtballs[currentKey]._childNode));
 					ReplaceCurrentNode(writer, winnerDirtballs[currentKey]._childNode);
 					winnerDirtballs.Remove(currentKey);
 				}

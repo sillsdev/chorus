@@ -94,6 +94,8 @@
   </ItemGroup>
   <ItemGroup>
 	<Compile Include="FileTypeHanders\FieldWorks\CustomProperties\FieldeWorksCustomPropertyFileHandler.cs" />
+	<Compile Include="FileTypeHanders\FieldWorks\CustomProperties\FieldWorksCustomPropertyContextGenerator.cs" />
+	<Compile Include="FileTypeHanders\FieldWorks\CustomProperties\FieldWorksCustomPropertyMergingStrategy.cs" />
 	<Compile Include="FileTypeHanders\FieldWorks\ModelVersion\FieldWorksModelVersionChangePresenter.cs" />
 	<Compile Include="FileTypeHanders\FieldWorks\ModelVersion\FieldWorksModelVersionChangeReport.cs" />
 	<Compile Include="FileTypeHanders\FieldWorks\ModelVersion\FieldWorksModelVersionFileHandler.cs" />

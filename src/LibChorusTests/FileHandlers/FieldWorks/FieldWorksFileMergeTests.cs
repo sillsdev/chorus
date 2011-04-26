@@ -200,7 +200,8 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 			DoMerge(commonAncestor, ourContent, theirContent,
 				new List<string> { @"languageproject/rt[@guid=""oldie""]",  @"languageproject/rt[@ownerguid=""newOwner""]"},
 				new List<string> { @"languageproject/rt[@ownerguid=""originalOwner""]" },
-				0, 0);
+				0, 1);
+			_eventListener.AssertFirstChangeType<XmlChangedRecordReport>();
 		}
 
 		[Test]
@@ -238,7 +239,8 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 			DoMerge(commonAncestor, ourContent, theirContent,
 				new List<string> { @"languageproject/rt[@guid=""oldie""]", @"languageproject/rt[@ownerguid=""newOwner""]" },
 				new List<string> { @"languageproject/rt[@ownerguid=""originalOwner""]" },
-				0, 0);
+				0, 1);
+			_eventListener.AssertFirstChangeType<XmlChangedRecordReport>();
 		}
 
 		[Test]
@@ -256,7 +258,8 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 			DoMerge(commonAncestor, ourContent, theirContent,
 				new List<string> { @"languageproject/rt[@guid=""oldie""]", @"languageproject/rt[@ownerguid=""newOwner""]" },
 				new List<string> { @"languageproject/rt[@ownerguid=""originalOwner""]" },
-				0, 0);
+				0, 1);
+			_eventListener.AssertFirstChangeType<XmlChangedRecordReport>();
 		}
 
 		[Test]
@@ -339,7 +342,8 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 			DoMerge(commonAncestor, ourContent, theirContent,
 				new List<string> { @"languageproject/rt/Comment/AStr[@ws='en']", @"languageproject/rt/Comment/AStr/Run[@ws='en']" },
 				new List<string> { @"languageproject/rt/Comment/AStr/Run[@ws='es']" },
-				0, 0);
+				0, 1);
+			_eventListener.AssertFirstChangeType<XmlChangedRecordReport>();
 		}
 
 		[Test]

@@ -1,6 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Xml;
+using System.Xml.Linq;
+using Chorus.FileTypeHanders.xml;
 using Chorus.merge;
+using Chorus.merge.xml.generic;
 using Chorus.VcsDrivers.Mercurial;
 using Palaso.IO;
 using Palaso.Progress.LogBox;
@@ -18,22 +23,25 @@ namespace Chorus.FileTypeHanders.FieldWorks.CustomProperties
 
 		public bool CanDiffFile(string pathToFile)
 		{
-			return false;
+			return CanValidateFile(pathToFile);
 		}
 
 		public bool CanMergeFile(string pathToFile)
 		{
-			return false;
+			return CanValidateFile(pathToFile);
 		}
 
 		public bool CanPresentFile(string pathToFile)
 		{
-			return false;
+			return CanValidateFile(pathToFile);
 		}
 
 		public bool CanValidateFile(string pathToFile)
 		{
-			return false;
+			if (!FieldWorksMergingServices.CheckValidPathname(pathToFile, kExtension))
+				return false;
+
+			return DoValidation(pathToFile) == null;
 		}
 
 		/// <summary>
@@ -43,17 +51,28 @@ namespace Chorus.FileTypeHanders.FieldWorks.CustomProperties
 		/// The must not have any UI, no interaction with the user.</remarks>
 		public void Do3WayMerge(MergeOrder mergeOrder)
 		{
-			throw new NotImplementedException();
+			XmlMergeService.Do3WayMerge(mergeOrder,
+				new FieldWorksCustomPropertyMergingStrategy(mergeOrder.MergeSituation),
+				null,
+				"CustomField", "key", WritePreliminaryInformation);
 		}
 
 		public IEnumerable<IChangeReport> Find2WayDifferences(FileInRevision parent, FileInRevision child, HgRepository repository)
 		{
-			throw new NotImplementedException();
+			return Xml2WayDiffService.ReportDifferences(repository, parent, child,
+				null,
+				"CustomField", "key");
 		}
 
 		public IChangePresenter GetChangePresenter(IChangeReport report, HgRepository repository)
 		{
-			throw new NotImplementedException();
+			if (report is IXmlChangeReport)
+				return new FieldWorksChangePresenter((IXmlChangeReport)report);
+
+			if (report is ErrorDeterminingChangeReport)
+				return (IChangePresenter)report;
+
+			return new DefaultChangePresenter(report, repository);
 		}
 
 		/// <summary>
@@ -61,7 +80,7 @@ namespace Chorus.FileTypeHanders.FieldWorks.CustomProperties
 		/// </summary>
 		public string ValidateFile(string pathToFile, IProgress progress)
 		{
-			throw new NotImplementedException();
+			return DoValidation(pathToFile);
 		}
 
 		/// <summary>
@@ -79,5 +98,31 @@ namespace Chorus.FileTypeHanders.FieldWorks.CustomProperties
 		}
 
 		#endregion
+
+		private static string DoValidation(string pathToFile)
+		{
+			try
+			{
+				var doc = XDocument.Load(pathToFile);
+				var root = doc.Root;
+// ReSharper disable PossibleNullReferenceException
+				if (root.Name.LocalName != "AdditionalFields" || root.Elements("CustomField").Count() == 0)
+					return "Not valid custom properties file";
+// ReSharper restore PossibleNullReferenceException
+
+				return null;
+			}
+			catch (Exception e)
+			{
+				return e.Message;
+			}
+		}
+
+		private static void WritePreliminaryInformation(XmlReader reader, XmlWriter writer)
+		{
+			reader.MoveToContent();
+			writer.WriteStartElement("AdditionalFields");
+			reader.Read();
+		}
 	}
 }

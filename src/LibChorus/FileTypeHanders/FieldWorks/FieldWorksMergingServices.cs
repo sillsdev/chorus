@@ -31,8 +31,6 @@ namespace Chorus.FileTypeHanders.FieldWorks
 		private const string Ws = "ws";
 		private const string Binary = "Binary";
 		private const string Prop = "Prop";
-		private const string MainCustom = "AdditionalFields";
-		private const string CustomField = "CustomField";
 		private const string Custom = "Custom";
 
 		internal static ElementStrategy AddSharedImmutableSingletonElementType(Dictionary<string, ElementStrategy> sharedElementStrategies, string name, bool orderOfTheseIsRelevant)
@@ -89,14 +87,9 @@ namespace Chorus.FileTypeHanders.FieldWorks
 			AddSharedSingletonElementType(sharedElementStrategies, Uni, false);
 			AddSharedKeyedByWsElementType(sharedElementStrategies, AStr, false, true);
 			AddSharedKeyedByWsElementType(sharedElementStrategies, AUni, false, true);
-
-			// Set up shared custom strategies
-			// Main declaration element
-			AddSharedSingletonElementType(sharedElementStrategies, MainCustom, false);
-			// Individual custom property declaration.
-			AddMultipleKeyedElementType(sharedElementStrategies, CustomField, new List<string> {"name", "class"}, false);
-			// Element in the data xml.
+			// Custom data Element in the data <rt> xml.
 			AddKeyedElementType(sharedElementStrategies, Custom, new FindByKeyAttribute("name"), false, false);
+
 		}
 
 		private static void AddSharedKeyedByWsElementType(IDictionary<string, ElementStrategy> sharedElementStrategies, string elementName, bool orderOfTheseIsRelevant, bool isAtomic)
@@ -130,16 +123,11 @@ namespace Chorus.FileTypeHanders.FieldWorks
 		private static void CreateMergers(MetadataCache metadataCache, MergeSituation mergeSituation,
 			IDictionary<string, ElementStrategy> sharedElementStrategies, IDictionary<string, XmlMerger> mergers)
 		{
-			// Create merger for main custom property declaration.
-			var merger = new XmlMerger(mergeSituation);
-			merger.MergeStrategies.SetStrategy("AdditionalFields", sharedElementStrategies["AdditionalFields"]);
-			mergers.Add("AdditionalFields", merger);
-
 			var mutableSingleton = sharedElementStrategies[MutableSingleton];
 			var immSingleton = sharedElementStrategies[ImmutableSingleton];
 			foreach (var classInfo in metadataCache.AllConcreteClasses)
 			{
-				merger = new XmlMerger(mergeSituation);
+				var merger = new XmlMerger(mergeSituation);
 				var strategiesForMerger = merger.MergeStrategies;
 				strategiesForMerger.SetStrategy(Rt, sharedElementStrategies[Rt]);
 				// Add all of the property bits.
@@ -309,11 +297,6 @@ namespace Chorus.FileTypeHanders.FieldWorks
 		private static XmlNode GetPropertyNode(XmlNode parentNode, string propertyName)
 		{
 			return (parentNode == null) ? null : parentNode.SelectSingleNode(propertyName);
-		}
-
-		private static string GetGuidAttribute(XmlNode node)
-		{
-			return node.GetStringAttribute("guid").ToLowerInvariant();
 		}
 
 		internal static void MergeCollectionProperties(FdoClassInfo classWithCollectionProperties, XmlNode ourEntry, XmlNode theirEntry, XmlNode commonEntry)

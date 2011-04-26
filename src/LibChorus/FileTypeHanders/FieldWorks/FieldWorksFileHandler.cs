@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Xml;
+using System.Xml.Linq;
 using Chorus.FileTypeHanders.xml;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
@@ -20,13 +22,13 @@ namespace Chorus.FileTypeHanders.FieldWorks
 		private readonly Dictionary<string, bool> _filesChecked = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
 		private readonly MetadataCache _mdc = new MetadataCache();
 
-		/// <summary>
-		/// For testing only.
-		/// </summary>
-		internal MetadataCache Mdc
-		{
-			get { return _mdc; }
-		}
+		///// <summary>
+		///// For testing only.
+		///// </summary>
+		//internal MetadataCache Mdc
+		//{
+		//    get { return _mdc; }
+		//}
 
 		#region Implementation of IChorusFileTypeHandler
 
@@ -72,6 +74,18 @@ namespace Chorus.FileTypeHanders.FieldWorks
 		/// The must not have any UI, no interaction with the user.</remarks>
 		public void Do3WayMerge(MergeOrder mergeOrder)
 		{
+// ReSharper disable AssignNullToNotNullAttribute
+			var customPropPathname = Path.GetDirectoryName(mergeOrder.pathToCommonAncestor);
+			var customFiles = Directory.GetFiles(customPropPathname, "*.CustomProperties").ToList();
+// ReSharper restore AssignNullToNotNullAttribute
+			if (customFiles.Count > 0)
+			{
+				var doc = XDocument.Load(customFiles[0]);
+// ReSharper disable PossibleNullReferenceException
+				foreach (var customFieldElement in doc.Elements("CustomField"))
+					_mdc.AddCustomPropInfo(customFieldElement.Attribute("class").Value, new FdoPropertyInfo(customFieldElement.Attribute("name").Value, customFieldElement.Attribute("type").Value));
+// ReSharper restore PossibleNullReferenceException
+			}
 			XmlMergeService.Do3WayMerge(mergeOrder,
 				new FieldWorksMergingStrategy(mergeOrder.MergeSituation, _mdc),
 				null,
