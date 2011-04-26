@@ -26,7 +26,7 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 							   select handler).First();
 			m_goodXmlPathname = Path.ChangeExtension(Path.GetTempFileName(), ".fwdata");
 // ReSharper disable LocalizableElement
-			File.WriteAllText(m_goodXmlPathname, "<?xml version='1.0' encoding='utf-8'?>" + Environment.NewLine + "<languageproject version='7000016' />");
+			File.WriteAllText(m_goodXmlPathname, "<?xml version='1.0' encoding='utf-8'?>" + Environment.NewLine + "<fwdata />");
 // ReSharper restore LocalizableElement
 		}
 
@@ -74,23 +74,23 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 		{
 			const string parent =
 @"<?xml version='1.0' encoding='utf-8'?>
-<languageproject version='7000016'>
+<fwdata>
 <rt guid='3d9b7d90-4a25-11df-9879-0800200c9a66'>
 </rt>
 <rt guid='3d9ba4a0-4a25-11df-9879-0800200c9a66'>
 </rt>
-</languageproject>";
+</fwdata>";
 			// Third <rt> element (3d9ba4a1-4a25-11df-9879-0800200c9a66) is new.
 			const string child =
 @"<?xml version='1.0' encoding='utf-8'?>
-<languageproject version='7000016'>
+<fwdata>
 <rt guid='3d9b7d90-4a25-11df-9879-0800200c9a66'>
 </rt>
 <rt guid='3d9ba4a0-4a25-11df-9879-0800200c9a66'>
 </rt>
 <rt guid='3d9ba4a1-4a25-11df-9879-0800200c9a66'>
 </rt>
-</languageproject>";
+</fwdata>";
 			using (var parentTempFile = new TempFile(parent))
 			using (var childTempFile = new TempFile(child))
 			{
@@ -110,17 +110,17 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 		{
 			const string parent =
 @"<?xml version='1.0' encoding='utf-8'?>
-<languageproject version='7000016'>
+<fwdata>
 <rt guid='3d9b7d90-4a25-11df-9879-0800200c9a66'>
 </rt>
-</languageproject>";
+</fwdata>";
 			// Third <rt> element (3d9ba4a1-4a25-11df-9879-0800200c9a66) is new.
 			const string child =
 @"<?xml version='1.0' encoding='utf-8'?>
-<languageproject version='7000016'>
+<fwdata>
 <rt guid='3D9B7D90-4A25-11DF-9879-0800200C9A66'>
 </rt>
-</languageproject>";
+</fwdata>";
 			using (var parentTempFile = new TempFile(parent))
 			using (var childTempFile = new TempFile(child))
 			{
@@ -144,23 +144,23 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 		{
 			const string parent =
 @"<?xml version='1.0' encoding='utf-8'?>
-<languageproject version='7000016'>
+<fwdata>
 <rt guid='3d9b7d90-4a25-11df-9879-0800200c9a66'>
 </rt>
 <rt guid='3d9ba4a0-4a25-11df-9879-0800200c9a66'>
 </rt>
 <rt guid='3d9ba4a1-4a25-11df-9879-0800200c9a66'>
 </rt>
-</languageproject>";
+</fwdata>";
 			// Third <rt> element (3d9ba4a1-4a25-11df-9879-0800200c9a66) in parent is removed in child.
 			const string child =
 @"<?xml version='1.0' encoding='utf-8'?>
-<languageproject version='7000016'>
+<fwdata>
 <rt guid='3d9b7d90-4a25-11df-9879-0800200c9a66'>
 </rt>
 <rt guid='3d9ba4a0-4a25-11df-9879-0800200c9a66'>
 </rt>
-</languageproject>";
+</fwdata>";
 			using (var parentTempFile = new TempFile(parent))
 			using (var childTempFile = new TempFile(child))
 			{
@@ -180,16 +180,16 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 		{
 			const string parent =
 @"<?xml version='1.0' encoding='utf-8'?>
-<languageproject version='7000016'>
+<fwdata>
 <rt guid='3d9b7d90-4a25-11df-9879-0800200c9a66' ownerguid='3d9ba4a2-4a25-11df-9879-0800200c9a66'>
 </rt>
-</languageproject>";
+</fwdata>";
 			const string child =
 @"<?xml version='1.0' encoding='utf-8'?>
-<languageproject version='7000016'>
+<fwdata>
 <rt guid='3d9b7d90-4a25-11df-9879-0800200c9a66' ownerguid='3d9ba4a3-4a25-11df-9879-0800200c9a66'>
 </rt>
-</languageproject>";
+</fwdata>";
 			using (var parentTempFile = new TempFile(parent))
 			using (var childTempFile = new TempFile(child))
 			{
@@ -209,25 +209,25 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 		{
 			const string parent =
 @"<?xml version='1.0' encoding='utf-8'?>
-<languageproject version='7000016'>
+<fwdata>
 <rt guid='3d9b7d90-4a25-11df-9879-0800200c9a66'>
 </rt>
 <rt guid='3d9ba4a0-4a25-11df-9879-0800200c9a66'>
 </rt>
 <rt guid='3d9ba4a1-4a25-11df-9879-0800200c9a66'>
 </rt>
-</languageproject>";
+</fwdata>";
 			// <rt> elements reordered, but no changes in any of them.
 			const string child =
 @"<?xml version='1.0' encoding='utf-8'?>
-<languageproject version='7000016'>
+<fwdata>
 <rt guid='3d9ba4a1-4a25-11df-9879-0800200c9a66'>
 </rt>
 <rt guid='3d9ba4a0-4a25-11df-9879-0800200c9a66'>
 </rt>
 <rt guid='3d9b7d90-4a25-11df-9879-0800200c9a66'>
 </rt>
-</languageproject>";
+</fwdata>";
 			using (var parentTempFile = new TempFile(parent))
 			using (var childTempFile = new TempFile(child))
 			{
@@ -246,7 +246,7 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 		{
 			const string parent =
 @"<?xml version='1.0' encoding='utf-8'?>
-<languageproject version='7000016'>
+<fwdata>
 <rt guid='3d9ba4a4-4a25-11df-9879-0800200c9a66'>
 </rt>
 <rt guid='3d9b7d90-4a25-11df-9879-0800200c9a66'>
@@ -257,11 +257,11 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 </rt>
 <rt guid='3d9ba4a6-4a25-11df-9879-0800200c9a66' ownerguid='3d9ba4a7-4a25-11df-9879-0800200c9a66'>
 </rt>
-</languageproject>";
+</fwdata>";
 			// One deletion, one change, one insertion, and three reordered, but not changed.
 			const string child =
 @"<?xml version='1.0' encoding='utf-8'?>
-<languageproject version='7000016'>
+<fwdata>
 <rt guid='3d9ba4a1-4a25-11df-9879-0800200c9a66'>
 </rt>
 <rt guid='3d9ba4a0-4a25-11df-9879-0800200c9a66'>
@@ -272,7 +272,7 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 </rt>
 <rt guid='3d9ba4a6-4a25-11df-9879-0800200c9a66' ownerguid='3d9ba4a8-4a25-11df-9879-0800200c9a66'>
 </rt>
-</languageproject>";
+</fwdata>";
 			using (var repositorySetup = new RepositorySetup("randy"))
 			{
 				repositorySetup.AddAndCheckinFile("fwtest.xml", parent);

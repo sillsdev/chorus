@@ -97,17 +97,7 @@ namespace Chorus.FileTypeHanders.FieldWorks
 			AddKeyedElementType(sharedElementStrategies, elementName, _wsKey, orderOfTheseIsRelevant, isAtomic);
 		}
 
-		private static void AddMultipleKeyedElementType(IDictionary<string, ElementStrategy> sharedElementStrategies, string elementName, List<string> keyAttributes, bool orderOfTheseIsRelevant)
-		{
-			var strategy = new ElementStrategy(orderOfTheseIsRelevant)
-							{
-								MergePartnerFinder = new FindByMultipleKeyAttributes(keyAttributes)
-							};
-			//strategy.ContextDescriptorGenerator
-			sharedElementStrategies.Add(elementName, strategy);
-		}
-
-		private static ElementStrategy AddKeyedElementType(IDictionary<string, ElementStrategy> sharedElementStrategies, string elementName, IFindNodeToMerge findBykeyAttribute, bool orderOfTheseIsRelevant, bool isAtomic)
+		private static void AddKeyedElementType(IDictionary<string, ElementStrategy> sharedElementStrategies, string elementName, IFindNodeToMerge findBykeyAttribute, bool orderOfTheseIsRelevant, bool isAtomic)
 		{
 			var strategy = new ElementStrategy(orderOfTheseIsRelevant)
 							{
@@ -116,8 +106,6 @@ namespace Chorus.FileTypeHanders.FieldWorks
 							};
 			//strategy.ContextDescriptorGenerator
 			sharedElementStrategies.Add(elementName, strategy);
-
-			return strategy;
 		}
 
 		private static void CreateMergers(MetadataCache metadataCache, MergeSituation mergeSituation,

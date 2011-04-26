@@ -55,7 +55,7 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks.CustomProperties
 		[Test]
 		public void ShouldNotBeAbleToValidateIncorrectFormatFile()
 		{
-			using (var tempModelVersionFile = new TempFile("<languageproject version='1' />"))
+			using (var tempModelVersionFile = new TempFile("<fwdata />"))
 			{
 				var newpath = Path.ChangeExtension(tempModelVersionFile.Path, "CustomProperties");
 				File.Copy(tempModelVersionFile.Path, newpath, true);
@@ -82,7 +82,7 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks.CustomProperties
 		[Test]
 		public void ShouldNotBeAbleToValidateFile()
 		{
-			using (var tempModelVersionFile = new TempFile("<languageproject version='1' />"))
+			using (var tempModelVersionFile = new TempFile("<fwdata />"))
 			{
 				var newpath = Path.ChangeExtension(tempModelVersionFile.Path, "CustomProperties");
 				File.Copy(tempModelVersionFile.Path, newpath, true);
@@ -475,33 +475,5 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks.CustomProperties
 			}
 			return result;
 		}
-
-//        [Test]
-//        public void AddNewCustomProperty()
-//        {
-//            const string commonAncestor =
-//@"<?xml version='1.0' encoding='utf-8'?>
-//<languageproject version='7000016'>
-//<rt class='LexEntry' guid='original'/>
-//</languageproject>";
-//            const string ourContent =
-//@"<?xml version='1.0' encoding='utf-8'?>
-//<languageproject version='7000016'>
-//<rt class='LexEntry' guid='original'/>
-//</languageproject>";
-//            const string theirContent =
-//@"<?xml version='1.0' encoding='utf-8'?>
-//<languageproject version='7000016'>
-//<AdditionalFields>
-//<CustomField name='Certified' class='WfiWordform' type='Boolean' />
-//</AdditionalFields>
-//<rt class='LexEntry' guid='original'/>
-//</languageproject>";
-
-//            DoMerge(commonAncestor, ourContent, theirContent,
-//                new List<string> { @"languageproject/AdditionalFields", @"languageproject/AdditionalFields/CustomField[@name=""Certified""]" },
-//                null,
-//                0, 1);
-//        }
 	}
 }

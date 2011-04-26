@@ -22,14 +22,6 @@ namespace Chorus.FileTypeHanders.FieldWorks
 		private readonly Dictionary<string, bool> _filesChecked = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
 		private readonly MetadataCache _mdc = new MetadataCache();
 
-		///// <summary>
-		///// For testing only.
-		///// </summary>
-		//internal MetadataCache Mdc
-		//{
-		//    get { return _mdc; }
-		//}
-
 		#region Implementation of IChorusFileTypeHandler
 
 		public bool CanDiffFile(string pathToFile)
@@ -58,7 +50,7 @@ namespace Chorus.FileTypeHanders.FieldWorks
 				using (var reader = XmlReader.Create(pathToFile, settings))
 				{
 					reader.MoveToContent();
-					return reader.LocalName == "languageproject" && reader.MoveToAttribute("version");
+					return reader.LocalName == "fwdata";
 				}
 			}
 			catch
@@ -74,6 +66,7 @@ namespace Chorus.FileTypeHanders.FieldWorks
 		/// The must not have any UI, no interaction with the user.</remarks>
 		public void Do3WayMerge(MergeOrder mergeOrder)
 		{
+			// Add optional custom property information to MDC.
 // ReSharper disable AssignNullToNotNullAttribute
 			var customPropPathname = Path.GetDirectoryName(mergeOrder.pathToCommonAncestor);
 			var customFiles = Directory.GetFiles(customPropPathname, "*.CustomProperties").ToList();
@@ -121,7 +114,7 @@ namespace Chorus.FileTypeHanders.FieldWorks
 				using (var reader = XmlReader.Create(pathToFile, settings))
 				{
 					reader.MoveToContent();
-					if (reader.LocalName == "languageproject" && reader.MoveToAttribute("version"))
+					if (reader.LocalName == "fwdata")
 					{
 						// It would be nice, if it could really validate it.
 						while (reader.Read())
@@ -173,10 +166,7 @@ namespace Chorus.FileTypeHanders.FieldWorks
 		private static void WritePreliminaryInformation(XmlReader reader, XmlWriter writer)
 		{
 			reader.MoveToContent();
-			writer.WriteStartElement("languageproject");
-			reader.MoveToAttribute("version");
-			writer.WriteAttributeString("version", reader.Value);
-			reader.MoveToElement();
+			writer.WriteStartElement("fwdata");
 			reader.Read();
 		}
 	}

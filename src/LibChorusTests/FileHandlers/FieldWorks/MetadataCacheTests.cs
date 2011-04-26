@@ -84,36 +84,5 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 		{
 			Assert.IsTrue(_mdc.GetClassInfo("Segment").AllCollectionProperties.Count() == 0);
 		}
-
-//        /// <summary></summary>
-//        [Test]
-//        public void Can_Bootstrap_Mdc_And_Find_Custom_Properties()
-//        {
-//            const string data =
-//@"<?xml version='1.0' encoding='utf-8'?>
-//<languageproject version='7000027'>
-//<AdditionalFields>
-//<CustomField name='Certified' class='WfiWordform' type='Boolean' />
-//</AdditionalFields>
-//<rt class='LexEntry' guid='oldie' >
-//<DateModified val='2000-1-1 23:59:59.000' />
-//</rt>
-//</languageproject>";
-
-//            var goodXmlPathname = Path.ChangeExtension(Path.GetTempFileName(), ".fwdata");
-//            try
-//            {
-//                File.WriteAllText(goodXmlPathname, data);
-//                var handler = new FieldWorksFileHandler();
-//                handler.ValidateFile(goodXmlPathname, new NullProgress());
-//                Assert.IsNotNull((from prop in handler.Mdc.GetClassInfo("WfiWordform").AllProperties
-//                                     where prop.PropertyName == "Certified"
-//                                     select prop).FirstOrDefault());
-//            }
-//            finally
-//            {
-//                File.Delete(goodXmlPathname);
-//            }
-//        }
 	}
 }

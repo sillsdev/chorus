@@ -115,8 +115,7 @@ namespace Chorus.FileTypeHanders.FieldWorks
 
 		public string GetTypeLabel()
 		{
-			var firstNode = FirstNonNullNode;
-			return firstNode.Name == "rt" ? "FieldWorks data object" : "Custom property";
+			return "FieldWorks data object";
 		}
 
 		public string GetIconName()

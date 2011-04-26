@@ -25,9 +25,9 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 						 where handler.GetType().Name == "FieldWorksFileHandler"
 						 select handler).First();
 			m_goodXmlPathname = Path.ChangeExtension(Path.GetTempFileName(), ".fwdata");
-			File.WriteAllText(m_goodXmlPathname, "<?xml version='1.0' encoding='utf-8'?>" + Environment.NewLine + "<languageproject version='7000016' />");
+			File.WriteAllText(m_goodXmlPathname, "<?xml version='1.0' encoding='utf-8'?>" + Environment.NewLine + "<fwdata />");
 			m_illformedXmlPathname = Path.ChangeExtension(Path.GetTempFileName(), ".fwdata");
-			File.WriteAllText(m_illformedXmlPathname, "<?xml version='1.0' encoding='utf-8'?>" + Environment.NewLine + "<languageproject version='7000016'>");
+			File.WriteAllText(m_illformedXmlPathname, "<?xml version='1.0' encoding='utf-8'?>" + Environment.NewLine + "<fwdata>");
 			m_goodXmlButNotFwPathname = Path.ChangeExtension(Path.GetTempFileName(), ".fwdata");
 			File.WriteAllText(m_goodXmlButNotFwPathname, "<?xml version='1.0' encoding='utf-8'?>" + Environment.NewLine + "<nonfwstuff />");
 			m_nonXmlPathname = Path.ChangeExtension(Path.GetTempFileName(), ".txt");
