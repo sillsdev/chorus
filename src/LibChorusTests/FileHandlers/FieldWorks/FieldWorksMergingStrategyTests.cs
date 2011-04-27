@@ -38,11 +38,11 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 		{
 			const string commonAncestor =
 @"<?xml version='1.0' encoding='utf-8'?>
-<fwdata>
+<classdata>
 <rt class='LexEntry' guid='oldie' >
 <DateModified val='2000-1-1 23:59:59.000' />
 </rt>
-</fwdata>";
+</classdata>";
 			var ourContent = commonAncestor.Replace("2000-1-1 23:59:59.000", "2002-1-1 23:59:59.000");
 			var theirContent = commonAncestor.Replace("2000-1-1 23:59:59.000", "2001-1-1 23:59:59.000");
 
@@ -60,11 +60,11 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 		{
 			const string commonAncestor =
 @"<?xml version='1.0' encoding='utf-8'?>
-<fwdata>
+<classdata>
 <rt class='LexEntry' guid='oldie' >
 <DateModified val='2000-1-1 23:59:59.000' />
 </rt>
-</fwdata>";
+</classdata>";
 			var ourContent = commonAncestor.Replace("2000-1-1 23:59:59.000", "2001-1-1 23:59:59.000");
 			var theirContent = commonAncestor.Replace("2000-1-1 23:59:59.000", "2002-1-1 23:59:59.000");
 
@@ -82,11 +82,11 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 		{
 			const string commonAncestor =
 @"<?xml version='1.0' encoding='utf-8'?>
-<fwdata>
+<classdata>
 <rt class='WfiWordform' guid='someguid' >
 <Checksum val='1' />
 </rt>
-</fwdata>";
+</classdata>";
 			var ourContent = commonAncestor.Replace("val='1'", "val='2'");
 			var theirContent = commonAncestor.Replace("val='1'", "val='3'");
 
@@ -104,11 +104,11 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 		{
 			const string commonAncestor =
 @"<?xml version='1.0' encoding='utf-8'?>
-<fwdata>
+<classdata>
 <rt class='WfiWordform' guid='someguid' >
 <Checksum val='1' />
 </rt>
-</fwdata>";
+</classdata>";
 			var ourContent = commonAncestor.Replace("<Checksum val='1' />", null);
 			var theirContent = commonAncestor.Replace("val='1'", "val='3'");
 
@@ -126,11 +126,11 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 		{
 			const string commonAncestor =
 @"<?xml version='1.0' encoding='utf-8'?>
-<fwdata>
+<classdata>
 <rt class='WfiWordform' guid='someguid' >
 <Checksum val='1' />
 </rt>
-</fwdata>";
+</classdata>";
 			var ourContent = commonAncestor.Replace("val='1'", "val='2'");
 			var theirContent = commonAncestor.Replace("<Checksum val='1' />", null);
 
@@ -148,7 +148,7 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 		{
 			const string commonAncestor =
 @"<?xml version='1.0' encoding='utf-8'?>
-<fwdata>
+<classdata>
 <rt class='CmPerson' guid='someguid' >
 <PlacesOfResidence>
 <objsur guid='one' t='r' />
@@ -159,10 +159,10 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 <objsur guid='six' t='r' />
 </PlacesOfResidence>
 </rt>
-</fwdata>";
+</classdata>";
 			const string ourContent =
 @"<?xml version='1.0' encoding='utf-8'?>
-<fwdata>
+<classdata>
 <rt class='CmPerson' guid='someguid' >
 <PlacesOfResidence>
 <objsur guid='one' t='r' />
@@ -173,10 +173,10 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 <objsur guid='weAdded' t='r' />
 </PlacesOfResidence>
 </rt>
-</fwdata>";
+</classdata>";
 			const string theirContent =
 @"<?xml version='1.0' encoding='utf-8'?>
-<fwdata>
+<classdata>
 <rt class='CmPerson' guid='someguid' >
 <PlacesOfResidence>
 <objsur guid='one' t='r' />
@@ -187,7 +187,7 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 <objsur guid='six' t='r' />
 </PlacesOfResidence>
 </rt>
-</fwdata>";
+</classdata>";
 
 			XmlNode theirNode;
 			XmlNode ancestorNode;
@@ -231,7 +231,7 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 		{
 			const string commonAncestor =
 @"<?xml version='1.0' encoding='utf-8'?>
-<fwdata>
+<classdata>
 <rt class='CmPerson' guid='someguid' >
 <PlacesOfResidence>
 <objsur guid='one' t='r' />
@@ -242,10 +242,10 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 <objsur guid='six' t='r' />
 </PlacesOfResidence>
 </rt>
-</fwdata>";
+</classdata>";
 			const string ourContent =
 @"<?xml version='1.0' encoding='utf-8'?>
-<fwdata>
+<classdata>
 <rt class='CmPerson' guid='someguid' >
 <PlacesOfResidence>
 <objsur guid='one' t='r' />
@@ -256,10 +256,10 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 <objsur guid='bothAdded' t='r' />
 </PlacesOfResidence>
 </rt>
-</fwdata>";
+</classdata>";
 			const string theirContent =
 @"<?xml version='1.0' encoding='utf-8'?>
-<fwdata>
+<classdata>
 <rt class='CmPerson' guid='someguid' >
 <PlacesOfResidence>
 <objsur guid='one' t='r' />
@@ -270,7 +270,7 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 <objsur guid='six' t='r' />
 </PlacesOfResidence>
 </rt>
-</fwdata>";
+</classdata>";
 
 			XmlNode theirNode;
 			XmlNode ancestorNode;

@@ -14,11 +14,11 @@ using Palaso.Progress.LogBox;
 namespace Chorus.FileTypeHanders.FieldWorks
 {
 	/// <summary>
-	/// File handler for a FieldWorks 7.0 xml file.
+	/// File handler for a FieldWorks 7.0 xml class data file (not the main fwdata file).
 	/// </summary>
 	public class FieldWorksFileHandler : IChorusFileTypeHandler
 	{
-		private const string kExtension = "fwdata";
+		private const string kExtension = "ClassData";
 		private readonly Dictionary<string, bool> _filesChecked = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
 		private readonly MetadataCache _mdc = new MetadataCache();
 
@@ -50,7 +50,7 @@ namespace Chorus.FileTypeHanders.FieldWorks
 				using (var reader = XmlReader.Create(pathToFile, settings))
 				{
 					reader.MoveToContent();
-					return reader.LocalName == "fwdata";
+					return reader.LocalName == "classdata";
 				}
 			}
 			catch
@@ -114,7 +114,7 @@ namespace Chorus.FileTypeHanders.FieldWorks
 				using (var reader = XmlReader.Create(pathToFile, settings))
 				{
 					reader.MoveToContent();
-					if (reader.LocalName == "fwdata")
+					if (reader.LocalName == "classdata")
 					{
 						// It would be nice, if it could really validate it.
 						while (reader.Read())
@@ -166,7 +166,7 @@ namespace Chorus.FileTypeHanders.FieldWorks
 		private static void WritePreliminaryInformation(XmlReader reader, XmlWriter writer)
 		{
 			reader.MoveToContent();
-			writer.WriteStartElement("fwdata");
+			writer.WriteStartElement("classdata");
 			reader.Read();
 		}
 	}

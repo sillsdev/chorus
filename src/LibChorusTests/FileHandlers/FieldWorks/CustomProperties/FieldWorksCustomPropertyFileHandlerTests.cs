@@ -55,7 +55,7 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks.CustomProperties
 		[Test]
 		public void ShouldNotBeAbleToValidateIncorrectFormatFile()
 		{
-			using (var tempModelVersionFile = new TempFile("<fwdata />"))
+			using (var tempModelVersionFile = new TempFile("<classdata />"))
 			{
 				var newpath = Path.ChangeExtension(tempModelVersionFile.Path, "CustomProperties");
 				File.Copy(tempModelVersionFile.Path, newpath, true);
@@ -82,7 +82,7 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks.CustomProperties
 		[Test]
 		public void ShouldNotBeAbleToValidateFile()
 		{
-			using (var tempModelVersionFile = new TempFile("<fwdata />"))
+			using (var tempModelVersionFile = new TempFile("<classdata />"))
 			{
 				var newpath = Path.ChangeExtension(tempModelVersionFile.Path, "CustomProperties");
 				File.Copy(tempModelVersionFile.Path, newpath, true);
