@@ -51,12 +51,18 @@ namespace Chorus.FileTypeHanders.FieldWorks
 			return _classes[className];
 		}
 
-		internal IEnumerable<FdoClassInfo> AllConcreteClasses
+		/// <summary>
+		/// Return all concrete classes.
+		/// </summary>
+		public IEnumerable<FdoClassInfo> AllConcreteClasses
 		{
 			get { return _concreteClasses; }
 		}
 
-		internal IDictionary<string, FdoClassInfo> ClassesWithCollectionProperties
+		/// <summary>
+		/// Return classes that have collection properties.
+		/// </summary>
+		public IDictionary<string, FdoClassInfo> ClassesWithCollectionProperties
 		{
 			get { return _classesWithCollectionProperties; }
 		}

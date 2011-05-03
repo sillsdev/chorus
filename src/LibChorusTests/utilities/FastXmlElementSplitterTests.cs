@@ -55,9 +55,9 @@ namespace LibChorus.Tests.utilities
 		{
 			const string noRecordsInput =
 @"<?xml version='1.0' encoding='utf-8'?>
-<fwdata>
-</fwdata>";
-			var goodXmlPathname = Path.ChangeExtension(Path.GetTempFileName(), ".fwdata");
+<classdata>
+</classdata>";
+			var goodXmlPathname = Path.ChangeExtension(Path.GetTempFileName(), ".ClassData");
 			try
 			{
 				File.WriteAllText(goodXmlPathname, noRecordsInput, Encoding.UTF8);
@@ -77,9 +77,9 @@ namespace LibChorus.Tests.utilities
 		{
 			const string noRecordsInput =
 @"<?xml version='1.0' encoding='utf-8'?>
-<fwdata />";
+<classdata />";
 
-			var goodXmlPathname = Path.ChangeExtension(Path.GetTempFileName(), ".fwdata");
+			var goodXmlPathname = Path.ChangeExtension(Path.GetTempFileName(), ".ClassData");
 			try
 			{
 				File.WriteAllText(goodXmlPathname, noRecordsInput, Encoding.UTF8);
@@ -118,7 +118,7 @@ namespace LibChorus.Tests.utilities
 		{
 			const string hasRecordsInput =
 @"<?xml version='1.0' encoding='utf-8'?>
-<fwdata>
+<classdata>
 <rt guid='emptyElement1'/>
 <rt guid='normalElement'>
 	<randomElement />
@@ -129,7 +129,7 @@ namespace LibChorus.Tests.utilities
 <rt		guid='tabAfterOpenTag'>
 </rt>
 <rt guid='emptyElement2' />
-</fwdata>";
+</classdata>";
 
 			CheckGoodFile(hasRecordsInput, 5, null, "rt");
 			CheckGoodFile(hasRecordsInput, 5, null, "<rt");
@@ -144,7 +144,7 @@ namespace LibChorus.Tests.utilities
 			// but it is not worth it (to me [RandyR]) to switch it to a LIFT sample.
 			const string hasRecordsInput =
 @"<?xml version='1.0' encoding='utf-8'?>
-<fwdata>
+<classdata>
 <AdditionalFields>
 <CustomField name='Certified' class='WfiWordform' type='Boolean' />
 </AdditionalFields>
@@ -158,7 +158,7 @@ namespace LibChorus.Tests.utilities
 <rt		guid='tabAfterOpenTag'>
 </rt>
 <rt guid='emptyElement2' />
-</fwdata>";
+</classdata>";
 
 			CheckGoodFile(hasRecordsInput, 6, "AdditionalFields", "rt");
 		}
