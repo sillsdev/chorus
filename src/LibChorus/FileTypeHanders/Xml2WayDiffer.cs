@@ -28,7 +28,9 @@ namespace Chorus.FileTypeHanders
 			FromMixed
 		}
 
+		//TODO: this is a LIFT-only thing, we shouldn't have it hard coded here
 		private readonly static string _deletedAttr = "dateDeleted=";
+
 		private readonly IMergeEventListener _eventListener;
 		private readonly HgRepository _repository;
 		private readonly FileInRevision _parentFileInRevision;
@@ -150,7 +152,7 @@ namespace Chorus.FileTypeHanders
 		{
 			const int estimatedObjectCount = 400;
 			var fileInfo = new FileInfo(_childPathname);
-			childIndex = new Dictionary<string, byte[]>((int)(fileInfo.Length / estimatedObjectCount));
+			childIndex = new Dictionary<string, byte[]>((int)(fileInfo.Length / estimatedObjectCount), StringComparer.OrdinalIgnoreCase);
 			using (var prepper = new DifferDictionaryPrepper(childIndex, _childPathname,
 				_firstElementTag,
 				_startTag, _identfierAttribute))
@@ -182,7 +184,7 @@ namespace Chorus.FileTypeHanders
 			// fragmenting the large object heap by growing it MANY times.
 			const int estimatedObjectCount = 400;
 			var fileInfo = new FileInfo(parentPathname);
-			parentIndex = new Dictionary<string, byte[]>((int)(fileInfo.Length / estimatedObjectCount));
+			parentIndex = new Dictionary<string, byte[]>((int)(fileInfo.Length / estimatedObjectCount), StringComparer.OrdinalIgnoreCase);
 			using (var prepper = new DifferDictionaryPrepper(parentIndex, parentPathname,
 				_firstElementTag,
 				_startTag, _identfierAttribute))
@@ -190,7 +192,7 @@ namespace Chorus.FileTypeHanders
 				prepper.Run();
 			}
 			fileInfo = new FileInfo(childPathname);
-			childIndex = new Dictionary<string, byte[]>((int)(fileInfo.Length / estimatedObjectCount));
+			childIndex = new Dictionary<string, byte[]>((int)(fileInfo.Length / estimatedObjectCount), StringComparer.OrdinalIgnoreCase);
 			using (var prepper = new DifferDictionaryPrepper(childIndex, childPathname,
 				_firstElementTag,
 				_startTag, _identfierAttribute))
@@ -220,8 +222,8 @@ namespace Chorus.FileTypeHanders
 					var childStr = enc.GetString(childValue);
 					if (parentStr == childStr)
 						continue;
-					// May have added dateDeleted' attr, in which case treat it as deleted, not changed.
-					// NB: This is only for Lift diffing, not FW diffing,
+					// May have added 'dateDeleted' attr, in which case treat it as deleted, not changed.
+					// TODO: This is only for Lift diffing, not FW diffing,
 					// so figure a way to have the client do this kind of check.
 					if (childStr.Contains(_deletedAttr))
 					{
@@ -261,6 +263,12 @@ namespace Chorus.FileTypeHanders
 				}
 				else
 				{
+					//don't report deletions where there was a tombstone, but then someone removed the entry (which is what FLEx does)
+					var parentStr = enc.GetString(parentValue);
+					if (parentStr.Contains(_deletedAttr))
+					{
+						continue;
+					}
 					_eventListener.ChangeOccurred(new XmlDeletionChangeReport(
 													_parentFileInRevision,
 													XmlUtilities.GetDocumentNodeFromRawXml(enc.GetString(kvpParent.Value), parentDoc),

@@ -80,49 +80,4 @@ namespace LibChorus.Tests.merge.xml
 			Assert.IsNull(node);
 		}
 	}
-
-	public class TempFile : IDisposable
-	{
-		private string _path;
-
-		public TempFile()
-		{
-			_path = System.IO.Path.GetTempFileName();
-		}
-
-
-		public TempFile(string contents)
-			: this()
-		{
-			File.WriteAllText(_path, contents);
-		}
-
-		public static TempFile CreateWithXmlHeader(string xmlForEntries)
-		{
-			string content =
-				"<?xml version=\"1.0\" encoding=\"utf-8\"?><lift producer=\"test\" >" +
-				xmlForEntries + "</lift>";
-			return new TempFile(content);
-
-		}
-
-		public string Path
-		{
-			get { return _path; }
-		}
-		public void Dispose()
-		{
-			File.Delete(_path);
-		}
-
-		private TempFile(string existingPath, bool dummy)
-		{
-			_path = existingPath;
-		}
-
-		public static TempFile TrackExisting(string path)
-		{
-			return new TempFile(path, false);
-		}
-	}
 }

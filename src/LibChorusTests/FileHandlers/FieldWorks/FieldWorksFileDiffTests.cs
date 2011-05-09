@@ -3,9 +3,9 @@ using System.IO;
 using System.Linq;
 using Chorus.FileTypeHanders;
 using Chorus.FileTypeHanders.xml;
-using Chorus.Utilities;
 using LibChorus.Tests.merge.xml.generic;
 using NUnit.Framework;
+using Palaso.IO;
 
 namespace LibChorus.Tests.FileHandlers.FieldWorks
 {
@@ -24,9 +24,9 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 			m_fwFileHandler = (from handler in ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers().Handers
 							   where handler.GetType().Name == "FieldWorksFileHandler"
 							   select handler).First();
-			m_goodXmlPathname = Path.ChangeExtension(Path.GetTempFileName(), ".fwdata");
+			m_goodXmlPathname = Path.ChangeExtension(Path.GetTempFileName(), ".ClassData");
 // ReSharper disable LocalizableElement
-			File.WriteAllText(m_goodXmlPathname, "<?xml version='1.0' encoding='utf-8'?>" + Environment.NewLine + "<languageproject version='7000016' />");
+			File.WriteAllText(m_goodXmlPathname, "<?xml version='1.0' encoding='utf-8'?>" + Environment.NewLine + "<classdata />");
 // ReSharper restore LocalizableElement
 		}
 
@@ -74,29 +74,29 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 		{
 			const string parent =
 @"<?xml version='1.0' encoding='utf-8'?>
-<languageproject version='7000016'>
+<classdata>
 <rt guid='3d9b7d90-4a25-11df-9879-0800200c9a66'>
 </rt>
 <rt guid='3d9ba4a0-4a25-11df-9879-0800200c9a66'>
 </rt>
-</languageproject>";
+</classdata>";
 			// Third <rt> element (3d9ba4a1-4a25-11df-9879-0800200c9a66) is new.
 			const string child =
 @"<?xml version='1.0' encoding='utf-8'?>
-<languageproject version='7000016'>
+<classdata>
 <rt guid='3d9b7d90-4a25-11df-9879-0800200c9a66'>
 </rt>
 <rt guid='3d9ba4a0-4a25-11df-9879-0800200c9a66'>
 </rt>
 <rt guid='3d9ba4a1-4a25-11df-9879-0800200c9a66'>
 </rt>
-</languageproject>";
+</classdata>";
 			using (var parentTempFile = new TempFile(parent))
 			using (var childTempFile = new TempFile(child))
 			{
 				var listener = new ListenerForUnitTests();
 				var differ = Xml2WayDiffer.CreateFromFiles(parentTempFile.Path, childTempFile.Path, listener,
-					"AdditionalFields",
+					null,
 															 "rt",
 															 "guid");
 				differ.ReportDifferencesToListener();
@@ -110,23 +110,23 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 		{
 			const string parent =
 @"<?xml version='1.0' encoding='utf-8'?>
-<languageproject version='7000016'>
+<classdata>
 <rt guid='3d9b7d90-4a25-11df-9879-0800200c9a66'>
 </rt>
-</languageproject>";
+</classdata>";
 			// Third <rt> element (3d9ba4a1-4a25-11df-9879-0800200c9a66) is new.
 			const string child =
 @"<?xml version='1.0' encoding='utf-8'?>
-<languageproject version='7000016'>
+<classdata>
 <rt guid='3D9B7D90-4A25-11DF-9879-0800200C9A66'>
 </rt>
-</languageproject>";
+</classdata>";
 			using (var parentTempFile = new TempFile(parent))
 			using (var childTempFile = new TempFile(child))
 			{
 				var listener = new ListenerForUnitTests();
 				var differ = Xml2WayDiffer.CreateFromFiles(parentTempFile.Path, childTempFile.Path, listener,
-					"AdditionalFields",
+					null,
 															 "rt",
 															 "guid");
 
@@ -144,29 +144,29 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 		{
 			const string parent =
 @"<?xml version='1.0' encoding='utf-8'?>
-<languageproject version='7000016'>
+<classdata>
 <rt guid='3d9b7d90-4a25-11df-9879-0800200c9a66'>
 </rt>
 <rt guid='3d9ba4a0-4a25-11df-9879-0800200c9a66'>
 </rt>
 <rt guid='3d9ba4a1-4a25-11df-9879-0800200c9a66'>
 </rt>
-</languageproject>";
+</classdata>";
 			// Third <rt> element (3d9ba4a1-4a25-11df-9879-0800200c9a66) in parent is removed in child.
 			const string child =
 @"<?xml version='1.0' encoding='utf-8'?>
-<languageproject version='7000016'>
+<classdata>
 <rt guid='3d9b7d90-4a25-11df-9879-0800200c9a66'>
 </rt>
 <rt guid='3d9ba4a0-4a25-11df-9879-0800200c9a66'>
 </rt>
-</languageproject>";
+</classdata>";
 			using (var parentTempFile = new TempFile(parent))
 			using (var childTempFile = new TempFile(child))
 			{
 				var listener = new ListenerForUnitTests();
 				var differ = Xml2WayDiffer.CreateFromFiles(parentTempFile.Path, childTempFile.Path, listener,
-					"AdditionalFields",
+					null,
 															 "rt",
 															 "guid");
 				differ.ReportDifferencesToListener();
@@ -180,22 +180,22 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 		{
 			const string parent =
 @"<?xml version='1.0' encoding='utf-8'?>
-<languageproject version='7000016'>
+<classdata>
 <rt guid='3d9b7d90-4a25-11df-9879-0800200c9a66' ownerguid='3d9ba4a2-4a25-11df-9879-0800200c9a66'>
 </rt>
-</languageproject>";
+</classdata>";
 			const string child =
 @"<?xml version='1.0' encoding='utf-8'?>
-<languageproject version='7000016'>
+<classdata>
 <rt guid='3d9b7d90-4a25-11df-9879-0800200c9a66' ownerguid='3d9ba4a3-4a25-11df-9879-0800200c9a66'>
 </rt>
-</languageproject>";
+</classdata>";
 			using (var parentTempFile = new TempFile(parent))
 			using (var childTempFile = new TempFile(child))
 			{
 				var listener = new ListenerForUnitTests();
 				var differ = Xml2WayDiffer.CreateFromFiles(parentTempFile.Path, childTempFile.Path, listener,
-					"AdditionalFields",
+					null,
 															 "rt",
 															 "guid");
 				differ.ReportDifferencesToListener();
@@ -209,31 +209,31 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 		{
 			const string parent =
 @"<?xml version='1.0' encoding='utf-8'?>
-<languageproject version='7000016'>
+<classdata>
 <rt guid='3d9b7d90-4a25-11df-9879-0800200c9a66'>
 </rt>
 <rt guid='3d9ba4a0-4a25-11df-9879-0800200c9a66'>
 </rt>
 <rt guid='3d9ba4a1-4a25-11df-9879-0800200c9a66'>
 </rt>
-</languageproject>";
+</classdata>";
 			// <rt> elements reordered, but no changes in any of them.
 			const string child =
 @"<?xml version='1.0' encoding='utf-8'?>
-<languageproject version='7000016'>
+<classdata>
 <rt guid='3d9ba4a1-4a25-11df-9879-0800200c9a66'>
 </rt>
 <rt guid='3d9ba4a0-4a25-11df-9879-0800200c9a66'>
 </rt>
 <rt guid='3d9b7d90-4a25-11df-9879-0800200c9a66'>
 </rt>
-</languageproject>";
+</classdata>";
 			using (var parentTempFile = new TempFile(parent))
 			using (var childTempFile = new TempFile(child))
 			{
 				var listener = new ListenerForUnitTests();
 				var differ = Xml2WayDiffer.CreateFromFiles(parentTempFile.Path, childTempFile.Path, listener,
-					"AdditionalFields",
+					null,
 															 "rt",
 															 "guid");
 				differ.ReportDifferencesToListener();
@@ -246,7 +246,7 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 		{
 			const string parent =
 @"<?xml version='1.0' encoding='utf-8'?>
-<languageproject version='7000016'>
+<classdata>
 <rt guid='3d9ba4a4-4a25-11df-9879-0800200c9a66'>
 </rt>
 <rt guid='3d9b7d90-4a25-11df-9879-0800200c9a66'>
@@ -257,11 +257,11 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 </rt>
 <rt guid='3d9ba4a6-4a25-11df-9879-0800200c9a66' ownerguid='3d9ba4a7-4a25-11df-9879-0800200c9a66'>
 </rt>
-</languageproject>";
+</classdata>";
 			// One deletion, one change, one insertion, and three reordered, but not changed.
 			const string child =
 @"<?xml version='1.0' encoding='utf-8'?>
-<languageproject version='7000016'>
+<classdata>
 <rt guid='3d9ba4a1-4a25-11df-9879-0800200c9a66'>
 </rt>
 <rt guid='3d9ba4a0-4a25-11df-9879-0800200c9a66'>
@@ -272,7 +272,7 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 </rt>
 <rt guid='3d9ba4a6-4a25-11df-9879-0800200c9a66' ownerguid='3d9ba4a8-4a25-11df-9879-0800200c9a66'>
 </rt>
-</languageproject>";
+</classdata>";
 			using (var repositorySetup = new RepositorySetup("randy"))
 			{
 				repositorySetup.AddAndCheckinFile("fwtest.xml", parent);

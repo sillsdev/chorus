@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Windows.Forms;
+using System.Windows.Forms.VisualStyles;
 using Chorus.UI.Misc;
+using Chorus.Utilities;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using System.Linq;
 using Palaso.Code;
+using Palaso.Progress.LogBox;
 
 namespace Chorus.UI.Sync
 {
@@ -32,6 +35,7 @@ namespace Chorus.UI.Sync
 			_model = new SyncStartModel(repository);
 			_repository = repository;
 			_updateDisplayTimer.Enabled = true;
+			_userName.Text = repository.GetUserIdInUse();
 			UpdateDisplay();//don't wait 2 seconds
 		}
 
@@ -61,19 +65,30 @@ namespace Chorus.UI.Sync
 			catch(Exception error)//probably, hgrc is locked
 			{
 				_useSharedFolderButton.Enabled = false;
-				_sharedFolderLabel.Text = error.Message;
+				_useSharedFolderStatusLabel.Text = error.Message;
 			   return;
 			}
 
 			_useSharedFolderButton.Enabled = address != null;
+			_useSharedFolderStatusLabel.LinkArea = new LinkArea(0,0);
 			if (address == null)
 			{
-				_sharedFolderLabel.Text = "This project is not yet associated with a shared folder";
+				_useSharedFolderStatusLabel.Text = "This project is not yet associated with a shared folder";
 			}
 			else
 			{
-				_sharedFolderLabel.Text = address.Name ;
+				_useSharedFolderStatusLabel.Text = address.Name;
 				toolTip1.SetToolTip(_useSharedFolderButton, address.URI);
+			}
+			if (!_useSharedFolderButton.Enabled || Control.ModifierKeys == Keys.Shift)
+			{
+				 _useSharedFolderStatusLabel.LinkArea = new LinkArea(_useSharedFolderStatusLabel.Text.Length + 1, 1000);
+				 _useSharedFolderStatusLabel.Text += " Set Up";
+			}
+
+			if (_useSharedFolderButton.Enabled)
+			{
+				toolTip1.SetToolTip(_useSharedFolderButton, "Press Shift to see Set Up button");
 			}
 		}
 
@@ -139,8 +154,17 @@ namespace Chorus.UI.Sync
 		{
 			if (RepositoryChosen != null)
 			{
+				UpdateName();
 				var address = RepositoryAddress.Create(RepositoryAddress.HardWiredSources.UsbKey, "USB flash drive", false);
 				RepositoryChosen.Invoke(this, new SyncStartArgs(address, _commitMessageText.Text));
+			}
+		}
+
+		private void UpdateName()
+		{
+			if (_repository.GetUserIdInUse() != _userName.Text.Trim() && _userName.Text.Trim().Length>0)
+			{
+				_repository.SetUserNameInIni(_userName.Text.Trim(), new NullProgress());
 			}
 		}
 
@@ -148,6 +172,7 @@ namespace Chorus.UI.Sync
 		{
 			if (RepositoryChosen != null)
 			{
+				UpdateName();
 				RepositoryChosen.Invoke(this, new SyncStartArgs(_repository.GetDefaultNetworkAddress<HttpRepositoryPath>(), _commitMessageText.Text));
 			}
 
@@ -157,6 +182,7 @@ namespace Chorus.UI.Sync
 		{
 			if (RepositoryChosen != null)
 			{
+				UpdateName();
 				var address = _repository.GetDefaultNetworkAddress<DirectoryRepositorySource>();
 				RepositoryChosen.Invoke(this, new SyncStartArgs(address, _commitMessageText.Text));
 			}
@@ -181,6 +207,19 @@ namespace Chorus.UI.Sync
 			UpdateInternetSituation();
 		}
 
+		private void _sharedFolderStatusLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+		{
+			using (var dlg =  new System.Windows.Forms.FolderBrowserDialog())
+			{
+				dlg.ShowNewFolderButton = true;
+				dlg.Description = "Choose the folder containing the project with which you want to synchronize.";
+				if (DialogResult.OK != dlg.ShowDialog())
+					return;
+				_model.SetNewSharedNetworkAddress(dlg.SelectedPath);
+			}
+
+			UpdateLocalNetworkSituation();
+		}
 	}
 	public class SyncStartArgs : EventArgs
 	{

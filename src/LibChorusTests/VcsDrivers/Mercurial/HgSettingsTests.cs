@@ -1,13 +1,12 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
-using Chorus.Utilities;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using NUnit.Framework;
 using System.Linq;
 using Palaso.Progress.LogBox;
+using Palaso.TestUtilities;
 
 namespace LibChorus.Tests.VcsDrivers.Mercurial
 {
@@ -28,7 +27,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 
 		[Test] public void GetKnownRepositories_NoneKnown_GivesNone()
 		{
-			using (var testRoot = new TempFolder("ChorusHgSettingsTest"))
+			using (var testRoot = new TemporaryFolder("ChorusHgSettingsTest"))
 			{
 				HgRepository.CreateRepositoryInExistingDir(testRoot.Path, _progress);
 				var repo = new HgRepository(testRoot.Path, _progress);
@@ -40,7 +39,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		[Test]
 		public void GetKnownRepositories_TwoInRepoSettings_GivesThem()
 		{
-			using (var testRoot = new TempFolder("ChorusHgSettingsTest"))
+			using (var testRoot = new TemporaryFolder("ChorusHgSettingsTest"))
 			{
 				HgRepository.CreateRepositoryInExistingDir(testRoot.Path, _progress);
 				File.WriteAllText(testRoot.Combine(Path.Combine(".hg","hgrc")), @"
@@ -63,7 +62,7 @@ two = http://foo.com");
 		{
 			string contents = @"[paths]" + Environment.NewLine + pathsSectionContents+Environment.NewLine;
 
-			using (var testRoot = new TempFolder("ChorusHgSettingsTest"))
+			using (var testRoot = new TemporaryFolder("ChorusHgSettingsTest"))
 			{
 				HgRepository.CreateRepositoryInExistingDir(testRoot.Path, _progress);
 				File.WriteAllText(testRoot.Combine(Path.Combine(".hg", "hgrc")), contents);
@@ -182,6 +181,83 @@ username = joe
 		}
 
 		[Test]
+		public void SetTheOnlyAddressOfThisType_WasEmtpy_HasNewAddress()
+		{
+			using (var setup = new RepositorySetup("Dan"))
+			{
+				setup.EnsureNoHgrcExists();
+				var repository = setup.CreateSynchronizer().Repository;
+				var y1 = RepositoryAddress.Create("aPath1", @"\\someone1\someFolder");
+				repository.SetTheOnlyAddressOfThisType(y1);
+				Assert.AreEqual(1, repository.GetRepositoryPathsInHgrc().Count());
+				Assert.AreEqual(y1.URI, repository.GetRepositoryPathsInHgrc().ToArray()[0].URI);
+			}
+		}
+
+		[Test]
+		public void SetTheOnlyAddressOfThisType_HadAnotherType_HasOldAddressAndNew()
+		{
+			using (var setup = new RepositorySetup("Dan"))
+			{
+				setup.EnsureNoHgrcExists();
+				var repository = setup.CreateSynchronizer().Repository;
+				var x = RepositoryAddress.Create("theInterent", @"http://two.org");
+				repository.SetKnownRepositoryAddresses(new List<RepositoryAddress>(new RepositoryAddress[] { x }));
+
+				var y2 = RepositoryAddress.Create("aPath2", @"\\someoneElse2\someOtherFolder");
+				repository.SetTheOnlyAddressOfThisType(y2);
+				Assert.AreEqual(2, repository.GetRepositoryPathsInHgrc().Count());
+				AssertHgrcNowContainsUri(repository, x.URI);
+				AssertHgrcNowContainsUri(repository, y2.URI);
+			 }
+		}
+
+		[Test]
+		public void SetTheOnlyAddressOfThisType_SettingLANPathHadSameType_IsReplacedByNew()
+		{
+			using (var setup = new RepositorySetup("Dan"))
+			{
+				setup.EnsureNoHgrcExists();
+				var repository = setup.CreateSynchronizer().Repository;
+				var x = RepositoryAddress.Create("theInterent", @"http://two.org");
+				var y1 = RepositoryAddress.Create("aPath1", @"\\someone1\someFolder");
+				repository.SetKnownRepositoryAddresses(new List<RepositoryAddress>(new RepositoryAddress[] { x, y1 }));
+				Assert.AreEqual(y1.URI, repository.GetRepositoryPathsInHgrc().ToArray()[1].URI, "Test setup is wrong");
+
+				var y2 = RepositoryAddress.Create("aPath2", @"\\someoneElse2\someOtherFolder");
+				repository.SetTheOnlyAddressOfThisType(y2);
+				Assert.AreEqual(2, repository.GetRepositoryPathsInHgrc().Count());
+				AssertHgrcNowContainsUri(repository, x.URI);
+				AssertHgrcNowContainsUri(repository, y2.URI);
+			}
+		}
+
+		[Test]
+		public void SetTheOnlyAddressOfThisType_SettingInternetPathHadSameType_IsReplacedByNew()
+		{
+			using (var setup = new RepositorySetup("Dan"))
+			{
+				setup.EnsureNoHgrcExists();
+				var repository = setup.CreateSynchronizer().Repository;
+				var x1 = RepositoryAddress.Create("interent1", @"http://one.org");
+				var y = RepositoryAddress.Create("aPath", @"\\someone1\someFolder");
+				repository.SetKnownRepositoryAddresses(new List<RepositoryAddress>(new RepositoryAddress[] { x1, y }));
+				Assert.AreEqual(x1.URI, repository.GetRepositoryPathsInHgrc().ToArray()[0].URI, "Test setup is wrong");
+
+				var x2 = RepositoryAddress.Create("internet2", @"http://two.org");
+				repository.SetTheOnlyAddressOfThisType(x2);
+				Assert.AreEqual(2, repository.GetRepositoryPathsInHgrc().Count());
+				AssertHgrcNowContainsUri(repository, y.URI);
+				AssertHgrcNowContainsUri(repository, x2.URI);
+			}
+		}
+
+		private void AssertHgrcNowContainsUri(HgRepository repository, string uri)
+		{
+			Assert.IsNotNull(repository.GetRepositoryPathsInHgrc().FirstOrDefault(a=>a.URI == uri));
+		}
+
+		[Test]
 		public void SetAndGetDefaultSyncRepositories()
 		{
 			using (var setup = new RepositorySetup("Dan"))
@@ -218,7 +294,7 @@ username = joe
 		[Test]
 		public void EnsureTheseExtensionAreEnabled_someOthersEnabledAlready_StayEnabled()
 		{
-			using (var testRoot = new TempFolder("ChorusHgSettingsTest"))
+			using (var testRoot = new TemporaryFolder("ChorusHgSettingsTest"))
 			{
 				HgRepository.CreateRepositoryInExistingDir(testRoot.Path, _progress);
 				var repository = new HgRepository(testRoot.Path, new ConsoleProgress());

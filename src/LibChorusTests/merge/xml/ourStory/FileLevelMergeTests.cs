@@ -3,6 +3,7 @@ using System.Xml;
 using Chorus.FileTypeHanders.oneStory;
 using Chorus.merge;
 using NUnit.Framework;
+using Palaso.IO;
 using Palaso.TestUtilities;
 
 namespace LibChorus.Tests.merge.xml.ourStory

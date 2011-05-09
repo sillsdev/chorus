@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Xml;
 using Chorus.merge;
@@ -23,8 +24,8 @@ namespace Chorus.FileTypeHanders.FieldWorks
 	public sealed class FieldWorksMergingStrategy : IMergeStrategy
 	{
 		private readonly MetadataCache _mdc;
-		private readonly Dictionary<string, ElementStrategy> _sharedElementStrategies = new Dictionary<string, ElementStrategy>();
-		private readonly Dictionary<string, XmlMerger> _mergers = new Dictionary<string, XmlMerger>();
+		private readonly Dictionary<string, ElementStrategy> _sharedElementStrategies = new Dictionary<string, ElementStrategy>(StringComparer.OrdinalIgnoreCase);
+		private readonly Dictionary<string, XmlMerger> _mergers = new Dictionary<string, XmlMerger>(StringComparer.OrdinalIgnoreCase);
 
 		/// <summary>
 		/// Constructor.
@@ -43,35 +44,25 @@ namespace Chorus.FileTypeHanders.FieldWorks
 		/// <returns>XML of the merged object.</returns>
 		public string MakeMergedEntry(IMergeEventListener eventListener, XmlNode ourEntry, XmlNode theirEntry, XmlNode commonEntry)
 		{
-			XmlMerger merger;
 			var extantNode = ourEntry ?? theirEntry ?? commonEntry;
 
-			const string additionalFields = "AdditionalFields";
-			if (extantNode.Name == additionalFields)
-			{
-				// Deal with "AdditionalFields" element by fetching the correct merger.
-				merger = _mergers[additionalFields];
-			}
-			else
-			{
-				// TODO: Figure out what to do about an owner being changed.
-				// 1. If only one person changed it, there should be no problem.
-				// 2. If two people changed the owner, there could be trouble:
-				//		A. The owned would report a merge conflict,
-				//		B. The new owner(s) may not report a conflict,
-				//		So, if the owned object reports an owner conflict,
-				//		then make sure the 'loser' owner also has a conflict.
+			// TODO: Figure out what to do about an owner being changed.
+			// 1. If only one person changed it, there should be no problem.
+			// 2. If two people changed the owner, there could be trouble:
+			//		A. The owned would report a merge conflict,
+			//		B. The new owner(s) may not report a conflict,
+			//		So, if the owned object reports an owner conflict,
+			//		then make sure the 'loser' owner also has a conflict.
 
-				// These steps will do some 'pre-merging' work,
-				// which will avoid what could otherwise be conflicts.
-				FieldWorksMergingServices.MergeTimestamps(ourEntry, theirEntry);
-				FieldWorksMergingServices.MergeCheckSum(ourEntry, theirEntry);
-				var className = XmlUtilities.GetStringAttribute(extantNode, "class");
-				FdoClassInfo info;
-				if (_mdc.ClassesWithCollectionProperties.TryGetValue(className, out info))
-					FieldWorksMergingServices.MergeCollectionProperties(info, ourEntry, theirEntry, commonEntry);
-				merger = _mergers[className];
-			}
+			// These steps will do some 'pre-merging' work,
+			// which will avoid what could otherwise be conflicts.
+			FieldWorksMergingServices.MergeTimestamps(ourEntry, theirEntry);
+			FieldWorksMergingServices.MergeCheckSum(ourEntry, theirEntry);
+			var className = XmlUtilities.GetStringAttribute(extantNode, "class");
+			FdoClassInfo info;
+			if (_mdc.ClassesWithCollectionProperties.TryGetValue(className, out info))
+				FieldWorksMergingServices.MergeCollectionProperties(info, ourEntry, theirEntry, commonEntry);
+			var merger = _mergers[className];
 
 			return FieldWorksMergingServices.GetOuterXml(merger.Merge(eventListener, ourEntry, theirEntry, commonEntry));
 		}

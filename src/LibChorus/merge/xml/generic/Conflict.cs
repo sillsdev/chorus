@@ -3,9 +3,9 @@ using System.Linq;
 using System.Text;
 using System.Xml;
 using Autofac;
-using Chorus.Utilities;
 using Chorus.Utilities.code;
 using Chorus.VcsDrivers;
+using Palaso.IO;
 
 namespace Chorus.merge.xml.generic
 {

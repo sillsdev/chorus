@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using Chorus.FileTypeHanders;
 using NUnit.Framework;
 
@@ -41,7 +40,7 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 		{
 			var extensions = m_fwFileHandler.GetExtensionsOfKnownTextFileTypes().ToArray();
 			Assert.AreEqual(1, extensions.Count(), "Wrong number of extensions.");
-			Assert.AreEqual("fwdata", extensions[0]);
+			Assert.AreEqual("ClassData", extensions[0]);
 		}
 	}
 }

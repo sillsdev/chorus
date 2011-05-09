@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Management;
 using Chorus.Utilities.UsbDrive;
@@ -58,51 +59,63 @@ namespace Chorus.Utilities.UsbDrive
 					"SELECT Caption, DeviceID FROM Win32_DiskDrive WHERE InterfaceType='USB'")
 				)
 			{
-				// walk all USB WMI physical disks
-				foreach (ManagementObject drive in driveSearcher.Get())
+				try
 				{
-					// browse all USB WMI physical disks
-					using (ManagementObjectSearcher searcher =
-						new ManagementObjectSearcher(
-							"ASSOCIATORS OF {Win32_DiskDrive.DeviceID='" +
-							drive["DeviceID"] +
-							"'} WHERE AssocClass = Win32_DiskDriveToDiskPartition"))
+					// walk all USB WMI physical disks
+					foreach (ManagementObject drive in driveSearcher.Get())
 					{
-						// walk all USB WMI physical disks
-						foreach (ManagementObject partition in searcher.Get())
+						try
 						{
-							using (
-								ManagementObjectSearcher partitionSearcher =
-									new ManagementObjectSearcher(
-										"ASSOCIATORS OF {Win32_DiskPartition.DeviceID='" +
-										partition["DeviceID"] +
-										"'} WHERE AssocClass = Win32_LogicalDiskToPartition")
-								)
+							// browse all USB WMI physical disks
+							using (ManagementObjectSearcher searcher =
+								new ManagementObjectSearcher(
+									"ASSOCIATORS OF {Win32_DiskDrive.DeviceID='" +
+									drive["DeviceID"] +
+									"'} WHERE AssocClass = Win32_DiskDriveToDiskPartition"))
 							{
-								foreach (ManagementObject diskInfoFromWMI in partitionSearcher.Get())
+								// walk all USB WMI physical disks
+								foreach (ManagementObject partition in searcher.Get())
 								{
-									foreach (DriveInfo driveInfo in DriveInfo.GetDrives())
+									using (
+										ManagementObjectSearcher partitionSearcher =
+											new ManagementObjectSearcher(
+												"ASSOCIATORS OF {Win32_DiskPartition.DeviceID='" +
+												partition["DeviceID"] +
+												"'} WHERE AssocClass = Win32_LogicalDiskToPartition")
+										)
 									{
-										string s = driveInfo.Name.Replace("\\", "");
-										if (s == diskInfoFromWMI["NAME"].ToString())
+										foreach (ManagementObject diskInfoFromWMI in partitionSearcher.Get())
 										{
-											UsbDriveInfoWindows usbDriveinfo = new UsbDriveInfoWindows();
+											foreach (DriveInfo driveInfo in DriveInfo.GetDrives())
+											{
+												string s = driveInfo.Name.Replace("\\", "");
+												if (s == diskInfoFromWMI["NAME"].ToString())
+												{
+													UsbDriveInfoWindows usbDriveinfo = new UsbDriveInfoWindows();
 
-											usbDriveinfo._driveInfo = driveInfo;
-											drives.Add(usbDriveinfo);
+													usbDriveinfo._driveInfo = driveInfo;
+													drives.Add(usbDriveinfo);
+												}
+											}
+
 										}
+
 									}
 
 								}
 
 							}
-
 						}
-
+						catch (Exception e)
+						{
+							Debug.Fail(e.Message);
+						}
 					}
-
 				}
-
+				catch(Exception e)
+				{
+					Debug.Fail(e.Message);
+				}
 			}
 			return drives;
 		}

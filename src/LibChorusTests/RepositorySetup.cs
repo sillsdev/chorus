@@ -1,11 +1,11 @@
 using System;
 using System.IO;
 using Chorus.sync;
-using Chorus.Utilities;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using NUnit.Framework;
 using Palaso.Progress.LogBox;
+using Palaso.TestUtilities;
 
 namespace LibChorus.Tests
 {
@@ -16,21 +16,21 @@ namespace LibChorus.Tests
 	{
 		private readonly StringBuilderProgress _stringBuilderProgress = new StringBuilderProgress();
 		private IProgress _progress;
-		public TempFolder RootFolder;
-		public TempFolder ProjectFolder;
+		public TemporaryFolder RootFolder;
+		public TemporaryFolder ProjectFolder;
 		public ProjectFolderConfiguration ProjectFolderConfig;
 
 		private void Init(string name)
 		{
 			Progress = new MultiProgress(new IProgress[] { new ConsoleProgress(){ShowVerbose=true}, _stringBuilderProgress });
-			RootFolder = new TempFolder("ChorusTest-" + name);
+			RootFolder = new TemporaryFolder("ChorusTest-" + name);
 		}
 
 		public RepositorySetup(string userName)
 		{
 			Init(userName);
 
-			ProjectFolder = new TempFolder(RootFolder, ProjectName);
+			ProjectFolder = new TemporaryFolder(RootFolder, ProjectName);
 
 			RepositorySetup.MakeRepositoryForTest(ProjectFolder.Path, userName,Progress);
 			ProjectFolderConfig = new ProjectFolderConfiguration(ProjectFolder.Path);
@@ -46,7 +46,7 @@ namespace LibChorus.Tests
 			ProjectFolderConfig.FolderPath = pathToProject;
 
 			sourceToClone.MakeClone(pathToProject);
-			ProjectFolder = TempFolder.TrackExisting(RootFolder.Combine(ProjectName));
+			ProjectFolder = TemporaryFolder.TrackExisting(RootFolder.Combine(ProjectName));
 
 			var hg = new HgRepository(pathToProject, Progress);
 			hg.SetUserNameInIni(cloneName, Progress);

@@ -1,15 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Windows.Forms;
 using Chorus.notes;
-using Chorus.sync;
 using Chorus.UI.Notes;
 using Chorus.UI.Notes.Browser;
-using Chorus.Utilities;
 using NUnit.Framework;
+using Palaso.IO;
 using Palaso.Progress.LogBox;
+using Palaso.TestUtilities;
 
 namespace Chorus.Tests.notes
 {
@@ -40,10 +37,10 @@ namespace Chorus.Tests.notes
 		[Test]
 		public void GetMessages_FilesInSubDirs_GetsThemAll()
 		{
-			using (var folder = new TempFolder("NotesModelTests"))
-			using (var subfolder = new TempFolder(folder, "Sub"))
-			using (new TempFile(folder, "one." + AnnotationRepository.FileExtension, "<notes version='0'><annotation><message/></annotation></notes>"))
-			using (new TempFile(subfolder, "two." + AnnotationRepository.FileExtension, "<notes  version='0'><annotation><message/></annotation></notes>"))
+			using (var folder = new TemporaryFolder("NotesModelTests"))
+			using (var subfolder = new TemporaryFolder(folder, "Sub"))
+			using (new TempFileFromFolder(folder, "one." + AnnotationRepository.FileExtension, "<notes version='0'><annotation><message/></annotation></notes>"))
+			using (new TempFileFromFolder(subfolder, "two." + AnnotationRepository.FileExtension, "<notes  version='0'><annotation><message/></annotation></notes>"))
 			{
 				var repos = AnnotationRepository.CreateRepositoriesFromFolder(folder.Path, _progress);
 				var m = new NotesInProjectViewModel(TheUser, repos, new MessageSelectedEvent(), new ConsoleProgress());
@@ -51,15 +48,15 @@ namespace Chorus.Tests.notes
 			}
 		}
 
-		private TempFile CreateNotesFile(TempFolder folder, string contents)
+		private TempFile CreateNotesFile(TemporaryFolder folder, string contents)
 		{
-			return new TempFile(folder, "one." + AnnotationRepository.FileExtension, "<notes version='0'>" + contents + "</notes>");
+			return new TempFileFromFolder(folder, "one." + AnnotationRepository.FileExtension, "<notes version='0'>" + contents + "</notes>");
 		}
 
 		[Test]
 		public void GetMessages_SearchContainsAuthor_FindsMatches()
 		{
-			using (var folder = new TempFolder("NotesModelTests"))
+			using (var folder = new TemporaryFolder("NotesModelTests"))
 			{
 				string contents = "<annotation><message author='john'></message></annotation>";
 				using (CreateNotesFile(folder, contents))
@@ -77,7 +74,7 @@ namespace Chorus.Tests.notes
 		[Test]
 		public void GetMessages_SearchContainsClass_FindsMatches()
 		{
-			using (var folder = new TempFolder("NotesModelTests"))
+			using (var folder = new TemporaryFolder("NotesModelTests"))
 			{
 				string contents = @"<annotation class='question'><message author='john'></message></annotation>
 				<annotation class='note'><message author='bob'></message></annotation>";
@@ -97,7 +94,7 @@ namespace Chorus.Tests.notes
 		[Test]
 		public void GetMessages_SearchContainsWordInMessageInUpperCase_FindsMatches()
 		{
-			using (var folder = new TempFolder("NotesModelTests"))
+			using (var folder = new TemporaryFolder("NotesModelTests"))
 			{
 				string contents = @"<annotation class='question'><message author='john'></message></annotation>
 				<annotation class='note'><message author='bob'>my mESsage contents</message></annotation>";
@@ -117,7 +114,7 @@ namespace Chorus.Tests.notes
 		[Test]
 		public void GetMessages_SearchContainsClassInWrongUpperCase_FindsMatches()
 		{
-			using (var folder = new TempFolder("NotesModelTests"))
+			using (var folder = new TemporaryFolder("NotesModelTests"))
 			{
 				string contents = @"<annotation class='question'><message author='john'></message></annotation>
 				<annotation class='note'><message author='bob'></message></annotation>";

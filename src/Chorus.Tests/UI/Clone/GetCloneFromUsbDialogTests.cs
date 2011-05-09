@@ -2,11 +2,11 @@
 using System.IO;
 using System.Windows.Forms;
 using Chorus.UI.Clone;
-using Chorus.Utilities;
 using Chorus.Utilities.UsbDrive;
 using Chorus.VcsDrivers.Mercurial;
 using NUnit.Framework;
 using Palaso.Progress.LogBox;
+using Palaso.TestUtilities;
 
 namespace Chorus.Tests.UI.Clone
 {
@@ -16,7 +16,7 @@ namespace Chorus.Tests.UI.Clone
 		[Test, Ignore("Run by hand only")]
 		public void LaunchDialog_LiveTest_FilterOutParatext()
 		{
-			using (var f = new TempFolder("clonetest"))
+			using (var f = new TemporaryFolder("clonetest"))
 			{
 				using (var dlg = new GetCloneFromUsbDialog(f.Path))
 				{
@@ -30,8 +30,8 @@ namespace Chorus.Tests.UI.Clone
 		[Test, Ignore("Run by hand only")]
 		public void LaunchDialog_SimulatedUsb_ProjectAlreadyExists()
 		{
-			using (var targetComputer = new TempFolder("clonetest-targetComputer"))
-			using (var usb = new TempFolder("clonetest-Usb"))
+			using (var targetComputer = new TemporaryFolder("clonetest-targetComputer"))
+			using (var usb = new TemporaryFolder("clonetest-Usb"))
 			{
 				Directory.CreateDirectory(usb.Combine("repo1"));
 				HgRepository.CreateRepositoryInExistingDir(usb.Combine("repo1"), new NullProgress());
@@ -52,7 +52,5 @@ namespace Chorus.Tests.UI.Clone
 				}
 			}
 		}
-
-
 	}
 }

@@ -118,6 +118,7 @@
 	</Reference>
 	<Reference Include="System.Drawing" />
 	<Reference Include="System.Management" />
+	<Reference Include="System.Runtime.Serialization" />
 	<Reference Include="System.Web" />
 	<Reference Include="System.Windows.Forms" />
 	<Reference Include="System.Xml" />
@@ -126,6 +127,13 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
+	<Compile Include="FileTypeHanders\FieldWorks\CustomProperties\FieldeWorksCustomPropertyFileHandler.cs" />
+	<Compile Include="FileTypeHanders\FieldWorks\CustomProperties\FieldWorksCustomPropertyContextGenerator.cs" />
+	<Compile Include="FileTypeHanders\FieldWorks\CustomProperties\FieldWorksCustomPropertyMergingStrategy.cs" />
+	<Compile Include="FileTypeHanders\FieldWorks\ModelVersion\FieldWorksModelVersionChangePresenter.cs" />
+	<Compile Include="FileTypeHanders\FieldWorks\ModelVersion\FieldWorksModelVersionChangeReport.cs" />
+	<Compile Include="FileTypeHanders\FieldWorks\ModelVersion\FieldWorksModelVersionFileHandler.cs" />
+	<Compile Include="FileTypeHanders\lift\LiftFileServices.cs" />
 	<Compile Include="FileTypeHanders\lift\LiftFolder.cs" />
 	<Compile Include="FileTypeHanders\FieldWorks\DataType.cs" />
 	<Compile Include="FileTypeHanders\FieldWorks\FieldWorksMergingServices.cs" />
@@ -231,7 +239,6 @@
 	<Compile Include="Utilities\ExecutionEnvironment.cs" />
 	<Compile Include="Utilities\ProcessStream.cs" />
 	<Compile Include="Utilities\ShortTermEnvironmentalVariable.cs" />
-	<Compile Include="Utilities\TempFile.cs" />
 	<Compile Include="VcsDrivers\Git\GitRepository.cs" />
 	<Compile Include="VcsDrivers\Mercurial\FileInRevision.cs" />
 	<Compile Include="VcsDrivers\Mercurial\HgMissingSimulation .cs" />

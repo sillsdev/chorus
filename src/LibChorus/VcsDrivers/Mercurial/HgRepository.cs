@@ -11,6 +11,7 @@ using System.Text.RegularExpressions;
 using Chorus.Utilities;
 using Chorus.Utilities.code;
 using Nini.Ini;
+using Palaso.IO;
 using Palaso.Network;
 using Palaso.Progress.LogBox;
 
@@ -22,9 +23,9 @@ namespace Chorus.VcsDrivers.Mercurial
 		protected readonly string _pathToRepository;
 		protected string _userName;
 		protected IProgress _progress;
-		private const int SecondsBeforeTimeoutOnLocalOperation = 60;
-		private const int SecondsBeforeTimeoutOnMergeOperation = 5 * 60;
-		private const int SecondsBeforeTimeoutOnRemoteOperation = 20 * 60;
+		private const int SecondsBeforeTimeoutOnLocalOperation = 15 * 60;
+		private const int SecondsBeforeTimeoutOnMergeOperation = 15 * 60;
+		private const int SecondsBeforeTimeoutOnRemoteOperation = 40 * 60;
 		private bool _haveLookedIntoProxySituation;
 		private string _proxyCongfigParameterString = string.Empty;
 
@@ -183,7 +184,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		{
 			HgRepository repo = new HgRepository(resolvedUri, _progress);
 
-			repo.UserName = repositoryLabel;
+			//repo.UserName = repositoryLabel;
 			return PullFromRepository(repo, false);
 		}
 
@@ -477,11 +478,11 @@ namespace Chorus.VcsDrivers.Mercurial
 			get { return _pathToRepository; }
 		}
 
-		public string UserName
-		{
-			get { return _userName; }
-			set { _userName = value; }
-		}
+//        public string UserName
+//        {
+//            get { return _userName; }
+//            set { _userName = value; }
+//        }
 
 		private string Name
 		{
@@ -644,6 +645,15 @@ namespace Chorus.VcsDrivers.Mercurial
 			Execute(SecondsBeforeTimeoutOnLocalOperation, "clone --uncompressed", PathWithQuotes + " " + SurroundWithQuotes(targetPath));
 		}
 
+		/// <summary>
+		/// here we only create the .hg, no files. This is good because the people aren't tempted to modify
+		/// files in that directory, where nothing will ever check the changes in.
+		/// </summary>
+		public void CloneToRemoteDirectoryWithoutCheckout(string targetPath)
+		{
+			Execute(SecondsBeforeTimeoutOnLocalOperation, "clone -U --uncompressed", PathWithQuotes + " " + SurroundWithQuotes(targetPath));
+		}
+
 		private List<Revision> GetRevisionsFromQuery(string query)
 		{
 			string result = GetTextFromQuery(query);
@@ -794,7 +804,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		public string RetrieveHistoricalVersionOfFile(string relativePath, string revOrHash)
 		{
 			Guard.Against(string.IsNullOrEmpty(revOrHash), "The revision cannot be empty (note: the first revision has an empty string for its parent revision");
-			var f = TempFile.CreateWithExtension(Path.GetExtension(relativePath));
+			var f = TempFile.WithExtension(Path.GetExtension(relativePath));
 
 			var cmd = string.Format("cat -o \"{0}\" -r {1} \"{2}\"", f.Path, revOrHash, relativePath);
 			ExecutionResult result = ExecuteErrorsOk(cmd, _pathToRepository, SecondsBeforeTimeoutOnLocalOperation, _progress);
@@ -1019,6 +1029,17 @@ namespace Chorus.VcsDrivers.Mercurial
 			doc.SaveAndGiveMessageIfCannot();
 		}
 
+		public void SetTheOnlyAddressOfThisType(RepositoryAddress address)
+		{
+			List<RepositoryAddress> addresses = new List<RepositoryAddress>(GetRepositoryPathsInHgrc());
+			RepositoryAddress match = addresses.FirstOrDefault(p=>p.GetType()  ==  address.GetType());
+			if(match!=null)
+			{
+				addresses.Remove(match);
+			}
+			addresses.Add(address);
+			SetKnownRepositoryAddresses(addresses);
+		}
 
 		public Revision GetRevision(string numberOrHash)
 		{
@@ -1280,7 +1301,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		}
 
 		/// <summary>
-		/// Used by tests, which can't easily make hg be running
+		///
 		/// </summary>
 		/// <param name="processNameToMatch">the process to look for, instead of "hg.exe"</param>
 		/// <param name="registerWarningIfFound"></param>
@@ -1612,8 +1633,15 @@ namespace Chorus.VcsDrivers.Mercurial
 				string hostAndPort;
 				string userName;
 				string password;
-				RobustNetworkOperation.DoHttpGetAndGetProxyInfo(httpUrl, out hostAndPort, out userName, out password);
-				return MakeProxyConfigParameterString(hostAndPort.Replace("http://",""), userName, password);
+				if(!RobustNetworkOperation.DoHttpGetAndGetProxyInfo(httpUrl, out hostAndPort, out userName, out password,
+					msg=>progress.WriteVerbose(msg)))
+				{
+					return string.Empty;
+				}
+				else
+				{
+					return MakeProxyConfigParameterString(hostAndPort.Replace("http://",""), userName, password);
+				}
 			}
 			catch(Exception e)
 			{
