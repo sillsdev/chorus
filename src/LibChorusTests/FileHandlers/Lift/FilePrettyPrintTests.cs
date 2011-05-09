@@ -63,10 +63,19 @@ namespace LibChorus.Tests.FileHandlers.Lift
 		id='pos3' />
 </lift>";
 
+#if MONO
+			// Seems that Mono isn't quite the same as windows in the pretty printing.
+			const string wellformedHeader =
+@"	<header>
+		<stuff>
+		</stuff>
+	</header>";
+#else
 			const string wellformedHeader =
 @"	<header>
 		<stuff></stuff>
 	</header>";
+#endif
 
 			using (var tempParent = new TempFile(parent))
 			using (var tempChild = new TempFile(child))
@@ -108,11 +117,18 @@ namespace LibChorus.Tests.FileHandlers.Lift
 		id='pos3' />
 </lift>";
 
+#if MONO
+			const string replacedHeader =
+@"	<header>
+		<newstuff>
+		</newstuff>
+	</header>";
+#else
 			const string replacedHeader =
 @"	<header>
 		<newstuff></newstuff>
 	</header>";
-
+#endif
 			using (var tempParent = new TempFile(parent))
 			using (var tempChild = new TempFile(child))
 			{
