@@ -128,6 +128,7 @@
 	<Compile Include="utilities\FastXmlElementSplitterTests.cs" />
 	<Compile Include="utilities\UrlHelperTests.cs" />
 	<Compile Include="utilities\MultiMapTests.cs" />
+	<Compile Include="VcsDrivers\DVCSFactoryTests.cs" />
 	<Compile Include="VcsDrivers\Mercurial\HgTestSetup.cs" />
 	<Compile Include="VcsDrivers\Mercurial\IncludeExcludeTests.cs" />
 	<Compile Include="VcsDrivers\Mercurial\HgWrappingTests.cs" />

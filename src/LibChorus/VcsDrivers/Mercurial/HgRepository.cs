@@ -17,18 +17,19 @@ using Palaso.Progress.LogBox;
 
 namespace Chorus.VcsDrivers.Mercurial
 {
-
-	public class HgRepository : IRetrieveFileVersionsFromRepository
+	/// <summary>
+	/// Implementation of IDVCSRepository interface which uses Mercurial for DVCS.
+	/// </summary>
+	public class HgRepository : IDVCSRepository, IRetrieveFileVersionsFromRepository
 	{
-		protected readonly string _pathToRepository;
-		protected string _userName;
-		protected IProgress _progress;
+		private readonly string _pathToRepository;
+		private readonly string _userName;
+		private readonly IProgress _progress;
 		private const int SecondsBeforeTimeoutOnLocalOperation = 15 * 60;
 		private const int SecondsBeforeTimeoutOnMergeOperation = 15 * 60;
 		private const int SecondsBeforeTimeoutOnRemoteOperation = 40 * 60;
 		private bool _haveLookedIntoProxySituation;
 		private string _proxyCongfigParameterString = string.Empty;
-
 
 		public static string GetEnvironmentReadinessMessage(string messageLanguageId)
 		{
@@ -532,7 +533,13 @@ namespace Chorus.VcsDrivers.Mercurial
 		public static void CreateRepositoryInExistingDir(string path, IProgress progress)
 		{
 			var repo = new HgRepository(path, progress);
-			repo.Execute(20, "init", SurroundWithQuotes(path));
+			repo.Init(path, progress);
+		}
+
+		public void Init(string path, IProgress progress)
+		{
+			Execute(20, "init", SurroundWithQuotes(path));
+			SetUserNameInIni(Environment.UserName, progress);
 		}
 
 
