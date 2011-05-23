@@ -69,11 +69,12 @@ namespace Chorus.FileTypeHanders.FieldWorks
 			// Add optional custom property information to MDC.
 // ReSharper disable AssignNullToNotNullAttribute
 			var customPropPathname = Path.GetDirectoryName(mergeOrder.pathToCommonAncestor);
-			var customFiles = Directory.GetFiles(customPropPathname, "*.CustomProperties").ToList();
+			var customFile = (from customPropFle in Directory.GetFiles(customPropPathname, "*.CustomProperties")
+								  select customPropFle).FirstOrDefault();
 // ReSharper restore AssignNullToNotNullAttribute
-			if (customFiles.Count > 0)
+			if (customFile != null)
 			{
-				var doc = XDocument.Load(customFiles[0]);
+				var doc = XDocument.Load(customFile);
 // ReSharper disable PossibleNullReferenceException
 				foreach (var customFieldElement in doc.Elements("CustomField"))
 					_mdc.AddCustomPropInfo(customFieldElement.Attribute("class").Value, new FdoPropertyInfo(customFieldElement.Attribute("name").Value, customFieldElement.Attribute("type").Value));
