@@ -58,6 +58,22 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			}
 		}
 
+		[Test]
+		public void ExcludeLdmlInRoot_FileNotAdded()
+		{
+			using (var setup = new RepositorySetup("Dan"))
+			{
+				var path = setup.ProjectFolder.Combine("test.ldml");
+				File.WriteAllText(path, "hello");
+				setup.ProjectFolderConfig.IncludePatterns.Clear();
+				setup.ProjectFolderConfig.IncludePatterns.Add("*.*");
+				setup.ProjectFolderConfig.ExcludePatterns.Clear();
+				setup.ProjectFolderConfig.ExcludePatterns.Add("*.ldml");
+				setup.AddAndCheckIn();
+				setup.AssertFileDoesNotExistInRepository("test.ldml");
+			}
+		}
+
 		/// <summary>
 		/// for LIFT, normally we want .lift, but not if it's in th export folder
 		/// </summary>
@@ -80,6 +96,11 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				var goodLayoutCss = Path.Combine(export, "customLayout.css");
 				File.WriteAllText(goodLayoutCss, "hello");
 
+				var other = setup.ProjectFolder.Combine("other");
+				Directory.CreateDirectory(other);
+				var otherBad = Path.Combine(export, "otherBad.lift");
+				File.WriteAllText(otherBad, "hello");
+
 				setup.ProjectFolderConfig.ExcludePatterns.Clear();
 				setup.ProjectFolderConfig.IncludePatterns.Clear();
 
@@ -90,6 +111,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				setup.AssertFileExistsInRepository("export/customFonts.css");
 				setup.AssertFileExistsInRepository("export/customLayout.css");
 				setup.AssertFileDoesNotExistInRepository("export/bad.lift");
+				setup.AssertFileDoesNotExistInRepository("other/otherBad.lift");
 			}
 		}
 	}
