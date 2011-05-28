@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using Chorus.notes;
-using Chorus.sync;
-using Chorus.Utilities;
 using Palaso.Progress.LogBox;
+using Palaso.Reporting;
 
 namespace Chorus.UI.Notes.Browser
 {
