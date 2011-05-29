@@ -28,7 +28,7 @@ namespace LibChorus.Tests.notes
 		public void GetAll_0OutOf1MatchFilter_Returns0()
 		{
 			using (var r = AnnotationRepository.FromString("id", @"<notes version='0'>
-<annotation class='note' ref='black'/>
+<annotation class='note' ref='file://black'/>
 </notes>"))
 			{
 				var index = new IndexOfRefsOfQuestionAnnotations();
@@ -41,9 +41,9 @@ namespace LibChorus.Tests.notes
 		public void GetAll_2OutOf3MatchFilter_Returns2()
 		{
 			using (var r = AnnotationRepository.FromString("id", @"<notes version='0'>
-<annotation class='question' ref='red'/>
-<annotation class='question' ref='blue'/>
-<annotation class='note' ref='black'/>
+<annotation class='question' ref='file://red'/>
+<annotation class='question' ref='file://blue'/>
+<annotation class='note' ref='file://black'/>
 </notes>"))
 			{
 				var index = new IndexOfRefsOfQuestionAnnotations();
@@ -56,15 +56,15 @@ namespace LibChorus.Tests.notes
 		public void GetMatchesOfKey_ReturnsMatchingItems()
 		{
 			using (var r = AnnotationRepository.FromString("id", @"<notes version='0'>
-<annotation class='question' ref='red'/>
-<annotation class='question' ref='blue'/>
-<annotation class='question' ref='blue'/>
-<annotation class='note' ref='black'/>
+<annotation class='question' ref='file://red'/>
+<annotation class='question' ref='file://blue'/>
+<annotation class='question' ref='file://blue'/>
+<annotation class='note' ref='file://black'/>
 </notes>"))
 			{
 				var index = new IndexOfRefsOfQuestionAnnotations();
 				r.AddObserver(index, _progress);
-				Assert.AreEqual(2, index.GetMatchesByKey("blue").Count());
+				Assert.AreEqual(2, index.GetMatchesByKey("file://blue").Count());
 			}
 		}
 
@@ -72,8 +72,8 @@ namespace LibChorus.Tests.notes
 		public void GetMatchesOfKey_Has0Matches_ReturnsNone()
 		{
 			using (var r = AnnotationRepository.FromString("id", @"<notes version='0'>
-<annotation class='question' ref='red'/>
-<annotation class='note' ref='black'/>
+<annotation class='question' ref='file://red'/>
+<annotation class='note' ref='file://black'/>
 </notes>"))
 			{
 				var index = new IndexOfRefsOfQuestionAnnotations();
@@ -112,10 +112,10 @@ namespace LibChorus.Tests.notes
 		public void GetMatches_Has2Matches_Returns2()
 		{
 			using (var r = AnnotationRepository.FromString("id", @"<notes version='0'>
-<annotation class='question' ref='red'/>
-<annotation class='question' ref='blue'/>
-<annotation class='question' ref='blue'/>
-<annotation class='note' ref='black'/>
+<annotation class='question' ref='file://red'/>
+<annotation class='question' ref='file://blue'/>
+<annotation class='question' ref='file://blue'/>
+<annotation class='note' ref='file://black'/>
 </notes>"))
 			{
 				var index = new IndexOfRefsOfQuestionAnnotations();
