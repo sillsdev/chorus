@@ -37,6 +37,8 @@ namespace Chorus.FileTypeHanders.lift
 			config.ExcludePatterns.Add("**.mov");
 			config.ExcludePatterns.Add("**.wmv");
 			config.ExcludePatterns.Add("**.rm");
+			config.ExcludePatterns.Add("**.mp4");
+			config.ExcludePatterns.Add("**.avi");
 
 			config.IncludePatterns.Add("*.lift");
 			config.IncludePatterns.Add(".lift-ranges");
