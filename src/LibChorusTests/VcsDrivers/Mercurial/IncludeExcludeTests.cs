@@ -114,6 +114,51 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				setup.AssertFileDoesNotExistInRepository("other/otherBad.lift");
 			}
 		}
+
+		[Test]
+		public void ExcludedVideosFileNotAdded()
+		{
+			using (var setup = new RepositorySetup("Dan"))
+			{
+				var atRoot = setup.ProjectFolder.Combine("first.wmv");
+				File.WriteAllText(atRoot, "hello"); // Not a wmv file, but who cares?
+
+				var pictures = setup.ProjectFolder.Combine("pictures");
+				Directory.CreateDirectory(pictures);
+				var bad = Path.Combine(pictures, "nested.mov");
+				File.WriteAllText(bad, "hello"); // Also not a video.
+
+				setup.ProjectFolderConfig.ExcludePatterns.Clear();
+				setup.ProjectFolderConfig.IncludePatterns.Clear();
+
+				LiftFolder.AddLiftFileInfoToFolderConfiguration(setup.ProjectFolderConfig);
+
+				setup.AddAndCheckIn();
+				setup.AssertFileDoesNotExistInRepository("first.wmv");
+				setup.AssertFileDoesNotExistInRepository("pictures/nested.mov");
+			}
+		}
+
+		[Test]
+		public void IncludeFilesInSubFolders()
+		{
+			using (var setup = new RepositorySetup("Dan"))
+			{
+				var subpictures = setup.ProjectFolder.Combine("pictures", "subpictures");
+				Directory.CreateDirectory(subpictures);
+				var good = setup.ProjectFolder.Combine(subpictures, "good.jpg");
+				File.WriteAllText(good, "hello"); // Not a real jpeg file
+
+				setup.ProjectFolderConfig.ExcludePatterns.Clear();
+				setup.ProjectFolderConfig.IncludePatterns.Clear();
+
+				LiftFolder.AddLiftFileInfoToFolderConfiguration(setup.ProjectFolderConfig);
+
+				setup.AddAndCheckIn();
+				setup.AssertFileExistsInRepository("pictures/subpictures/good.jpg");
+			}
+
+		}
 	}
 
 }

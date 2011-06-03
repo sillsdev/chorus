@@ -16,8 +16,8 @@ namespace Chorus.FileTypeHanders.lift
 	{
 		public static void AddLiftFileInfoToFolderConfiguration(ProjectFolderConfiguration config)
 		{
-			config.ExcludePatterns.Add("**" + Path.DirectorySeparatorChar + "cache");
-			config.ExcludePatterns.Add("**" + Path.DirectorySeparatorChar + "Cache");
+			config.ExcludePatterns.Add(Path.Combine("**", "cache"));
+			config.ExcludePatterns.Add(Path.Combine("**", "Cache"));
 			config.ExcludePatterns.Add("autoFonts.css");
 			config.ExcludePatterns.Add("autoLayout.css");
 			config.ExcludePatterns.Add("defaultDictionary.css");
@@ -25,25 +25,30 @@ namespace Chorus.FileTypeHanders.lift
 			config.ExcludePatterns.Add("*.WeSayUserMemory");
 			config.ExcludePatterns.Add("*.tmp");
 			config.ExcludePatterns.Add("*.bak");
-			config.ExcludePatterns.Add("export" + Path.DirectorySeparatorChar + "*.lift");
+			config.ExcludePatterns.Add(Path.Combine("export", "*.lift"));
 			config.ExcludePatterns.Add("*.plift");//normally in /export
 			config.ExcludePatterns.Add("*.pdf");//normally in /export
 			config.ExcludePatterns.Add("*.html");//normally in /export
 			config.ExcludePatterns.Add("*.odt");//normally in /export
 			config.ExcludePatterns.Add("*.ldml");
+			// Exclude these video extensions, for now at least.
+			// One can get a list of all sorts of extensions at: http://www.fileinfo.com/filetypes/video
+			config.ExcludePatterns.Add("**.mpg");
+			config.ExcludePatterns.Add("**.mov");
+			config.ExcludePatterns.Add("**.wmv");
+			config.ExcludePatterns.Add("**.rm");
 
 			config.IncludePatterns.Add("*.lift");
 			config.IncludePatterns.Add(".lift-ranges");
-			//config.IncludePatterns.Add(".ldml");
-			config.IncludePatterns.Add("audio" + Path.DirectorySeparatorChar + "*.*");
-			config.IncludePatterns.Add("pictures" + Path.DirectorySeparatorChar + "*.*");
-			// Not yet config.IncludePatterns.Add("other" + Path.DirectorySeparatorChar + "*.*");
-			config.IncludePatterns.Add("WritingSystems" + Path.DirectorySeparatorChar + "*.ldml");
-			config.IncludePatterns.Add("export" + Path.DirectorySeparatorChar + "custom*.css"); //stylesheets
+			config.IncludePatterns.Add(Path.Combine("audio", "**.*")); // Including nested folders/files
+			config.IncludePatterns.Add(Path.Combine("pictures", "**.*")); // Including nested folders/files
+			config.IncludePatterns.Add(Path.Combine("other", "**.*")); // Including nested folders/files
+			config.IncludePatterns.Add(Path.Combine("WritingSystems", "*.ldml"));
 			config.IncludePatterns.Add("**.xml"); //hopefully the days of files ending in "xml" are numbered
 			config.IncludePatterns.Add(".hgIgnore");
 
-			config.IncludePatterns.Add("export" + Path.DirectorySeparatorChar + "*.lpconfig");//lexique pro
+			config.IncludePatterns.Add(Path.Combine("export", "*.lpconfig"));//lexique pro
+			config.IncludePatterns.Add(Path.Combine("export", "custom*.css")); //stylesheets
 
 			//review (jh,jh): should these only be added when WeSay is the client?  Dunno.
 			config.IncludePatterns.Add("**.WeSayConfig");
