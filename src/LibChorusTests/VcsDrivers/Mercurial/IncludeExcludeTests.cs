@@ -146,8 +146,18 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			{
 				var subpictures = setup.ProjectFolder.Combine("pictures", "subpictures");
 				Directory.CreateDirectory(subpictures);
-				var good = setup.ProjectFolder.Combine(subpictures, "good.jpg");
-				File.WriteAllText(good, "hello"); // Not a real jpeg file
+				var goodpicture = setup.ProjectFolder.Combine(subpictures, "good.picture");
+				File.WriteAllText(goodpicture, "hello"); // Not a real jpeg file
+
+				var subaudio = setup.ProjectFolder.Combine("audio", "subaudio");
+				Directory.CreateDirectory(subaudio);
+				var goodaudio = setup.ProjectFolder.Combine(subaudio, "good.audio");
+				File.WriteAllText(goodaudio, "hello"); // Not a real mp3 file
+
+				var subothers = setup.ProjectFolder.Combine("others", "subothers");
+				Directory.CreateDirectory(subothers);
+				var goodother = setup.ProjectFolder.Combine(subothers, "good.other");
+				File.WriteAllText(goodother, "hello");
 
 				setup.ProjectFolderConfig.ExcludePatterns.Clear();
 				setup.ProjectFolderConfig.IncludePatterns.Clear();
@@ -155,9 +165,10 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				LiftFolder.AddLiftFileInfoToFolderConfiguration(setup.ProjectFolderConfig);
 
 				setup.AddAndCheckIn();
-				setup.AssertFileExistsInRepository("pictures/subpictures/good.jpg");
+				setup.AssertFileExistsInRepository("pictures/subpictures/good.picture");
+				setup.AssertFileExistsInRepository("audio/subaudio/good.audio");
+				setup.AssertFileExistsInRepository("others/subothers/good.other");
 			}
-
 		}
 	}
 
