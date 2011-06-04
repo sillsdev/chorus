@@ -140,6 +140,17 @@ namespace Chorus.FileTypeHanders.FieldWorks.ModelVersion
 			yield return kExtension;
 		}
 
+		/// <summary>
+		/// Return the maximum file size that can be added to the repository.
+		/// </summary>
+		/// <remarks>
+		/// Return UInt32.MaxValue for no limit.
+		/// </remarks>
+		public uint MaximumFileSize
+		{
+			get { return UInt32.MaxValue; }
+		}
+
 		#endregion
 
 		private static string DoValidation(string pathToFile)

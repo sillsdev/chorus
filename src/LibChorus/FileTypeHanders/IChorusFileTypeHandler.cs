@@ -47,6 +47,14 @@ namespace Chorus.FileTypeHanders
 		IEnumerable<IChangeReport> DescribeInitialContents(FileInRevision fileInRevision, TempFile file);
 
 		IEnumerable<string> GetExtensionsOfKnownTextFileTypes();
+
+		/// <summary>
+		/// Return the maximum file size that can be added to the repository.
+		/// </summary>
+		/// <remarks>
+		/// Return UInt32.MaxValue for no limit.
+		/// </remarks>
+		uint MaximumFileSize { get; }
 	}
 
 	public class ChorusFileTypeHandlerCollection

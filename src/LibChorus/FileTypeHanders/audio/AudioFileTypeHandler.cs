@@ -24,7 +24,7 @@ namespace Chorus.FileTypeHanders.audio
 		public bool CanPresentFile(string pathToFile)
 		{
 			var ext = Path.GetExtension(pathToFile);
-			return ((new string[] {".wav",".mp3"}.Contains(ext)));
+			return string.IsNullOrEmpty(ext) ? false : GetExtensionsOfKnownTextFileTypes().Contains(ext);
 		}
 
 		public bool CanValidateFile(string pathToFile)
@@ -63,7 +63,18 @@ namespace Chorus.FileTypeHanders.audio
 
 		public IEnumerable<string> GetExtensionsOfKnownTextFileTypes()
 		{
-			yield break;
+			return new List<string> {".wav",".mp3"};
+		}
+
+		/// <summary>
+		/// Return the maximum file size that can be added to the repository.
+		/// </summary>
+		/// <remarks>
+		/// Return UInt32.MaxValue for no limit.
+		/// </remarks>
+		public uint MaximumFileSize
+		{
+			get { return 1 * 1024; }
 		}
 	}
 }
