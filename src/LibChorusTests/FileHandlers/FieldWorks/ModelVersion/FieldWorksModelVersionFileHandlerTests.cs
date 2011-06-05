@@ -21,7 +21,7 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks.ModelVersion
 		[TestFixtureSetUp]
 		public void FixtureSetup()
 		{
-			_fwModelVersionFileHandler = (from handler in ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers().Handers
+			_fwModelVersionFileHandler = (from handler in ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers().Handlers
 											  where handler.GetType().Name == "FieldWorksModelVersionFileHandler"
 											  select handler).First();
 		}

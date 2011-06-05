@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using Chorus.merge;
+using Chorus.sync;
 using Chorus.VcsDrivers.Mercurial;
 using Palaso.IO;
 using Palaso.Progress.LogBox;
@@ -77,7 +78,7 @@ namespace Chorus.FileTypeHanders.test
 		/// </remarks>
 		public uint MaximumFileSize
 		{
-			get { return 200; }
+			get { return LargeFileFilter.Megabyte / 1024; }
 		}
 	}
 }

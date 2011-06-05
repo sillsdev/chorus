@@ -267,7 +267,7 @@ namespace LibChorus.Tests.merge.xml.lift
 			}
 			// Now make sure the ChorusNotesFileHandler filters it out, and does not return it,
 			// as per the original notes differ code.
-			var notesHandler = (from handler in ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers().Handers
+			var notesHandler = (from handler in ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers().Handlers
 								where handler.GetType().Name == "ChorusNotesFileHandler"
 								select handler).First();
 			using (var repositorySetup = new RepositorySetup("randy"))

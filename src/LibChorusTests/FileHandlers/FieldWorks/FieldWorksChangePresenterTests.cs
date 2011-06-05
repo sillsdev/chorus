@@ -23,7 +23,7 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 		[TestFixtureSetUp]
 		public void FixtureSetup()
 		{
-			m_fwFileHandler = (from handler in ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers().Handers
+			m_fwFileHandler = (from handler in ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers().Handlers
 							   where handler.GetType().Name == "FieldWorksFileHandler"
 							   select handler).First();
 			m_changePresenter = new FieldWorksChangePresenter(

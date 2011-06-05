@@ -59,29 +59,29 @@ namespace Chorus.FileTypeHanders
 
 	public class ChorusFileTypeHandlerCollection
 	{
-		private List<IChorusFileTypeHandler> HandersList { get; set; }
-		public IEnumerable<IChorusFileTypeHandler> Handers { get { return HandersList; } }
+		private List<IChorusFileTypeHandler> HandlersList { get; set; }
+		public IEnumerable<IChorusFileTypeHandler> Handlers { get { return HandlersList; } }
 
 		/// <summary>
-		/// THis will eventually done using MEF or some other dynamic way of finding available HandersList
+		/// THis will eventually done using MEF or some other dynamic way of finding available HandlersList
 		/// </summary>
 		/// <returns></returns>
 		public static ChorusFileTypeHandlerCollection CreateWithInstalledHandlers()
 		{
 			var fileTypeHandlers = new ChorusFileTypeHandlerCollection();
-			fileTypeHandlers.HandersList.Add(new LiftFileHandler());
-			fileTypeHandlers.HandersList.Add(new OneStoryFileHandler());
-			fileTypeHandlers.HandersList.Add(new AdaptItFileHandler());
-			fileTypeHandlers.HandersList.Add(new TextFileTypeHandler());
-			fileTypeHandlers.HandersList.Add(new ChorusNotesFileHandler());
-			fileTypeHandlers.HandersList.Add(new WeSayConfigFileHandler());
-			fileTypeHandlers.HandersList.Add(new AudioFileTypeHandler());
-			fileTypeHandlers.HandersList.Add(new ImageFileTypeHandler());
-			fileTypeHandlers.HandersList.Add(new ChorusTestFileHandler());
-			fileTypeHandlers.HandersList.Add(new OurWordFileHandler());
-			fileTypeHandlers.HandersList.Add(new FieldWorksFileHandler());
-			fileTypeHandlers.HandersList.Add(new FieldeWorksCustomPropertyFileHandler());
-			fileTypeHandlers.HandersList.Add(new FieldWorksModelVersionFileHandler());
+			fileTypeHandlers.HandlersList.Add(new LiftFileHandler());
+			fileTypeHandlers.HandlersList.Add(new OneStoryFileHandler());
+			fileTypeHandlers.HandlersList.Add(new AdaptItFileHandler());
+			fileTypeHandlers.HandlersList.Add(new TextFileTypeHandler());
+			fileTypeHandlers.HandlersList.Add(new ChorusNotesFileHandler());
+			fileTypeHandlers.HandlersList.Add(new WeSayConfigFileHandler());
+			fileTypeHandlers.HandlersList.Add(new AudioFileTypeHandler());
+			fileTypeHandlers.HandlersList.Add(new ImageFileTypeHandler());
+			fileTypeHandlers.HandlersList.Add(new ChorusTestFileHandler());
+			fileTypeHandlers.HandlersList.Add(new OurWordFileHandler());
+			fileTypeHandlers.HandlersList.Add(new FieldWorksFileHandler());
+			fileTypeHandlers.HandlersList.Add(new FieldeWorksCustomPropertyFileHandler());
+			fileTypeHandlers.HandlersList.Add(new FieldWorksModelVersionFileHandler());
 
 			//NB: never add the Default handler
 			return fileTypeHandlers;
@@ -90,18 +90,18 @@ namespace Chorus.FileTypeHanders
 		public static ChorusFileTypeHandlerCollection CreateWithTestHandlerOnly()
 		{
 			var fileTypeHandlers = new ChorusFileTypeHandlerCollection();
-			fileTypeHandlers.HandersList.Add(new ChorusTestFileHandler());
+			fileTypeHandlers.HandlersList.Add(new ChorusTestFileHandler());
 
 			//NB: never add the Default handler
 			return fileTypeHandlers;
 		}
 		private ChorusFileTypeHandlerCollection()
 		{
-			HandersList = new List<IChorusFileTypeHandler>();
+			HandlersList = new List<IChorusFileTypeHandler>();
 		}
 		public IChorusFileTypeHandler GetHandlerForMerging(string path)
 		{
-			var handler = HandersList.FirstOrDefault(h => h.CanMergeFile(path));
+			var handler = HandlersList.FirstOrDefault(h => h.CanMergeFile(path));
 			if (handler == null)
 			{
 				return new DefaultFileTypeHandler();
@@ -110,7 +110,7 @@ namespace Chorus.FileTypeHanders
 		}
 		public IChorusFileTypeHandler GetHandlerForDiff(string path)
 		{
-			var handler = HandersList.FirstOrDefault(h => h.CanDiffFile(path));
+			var handler = HandlersList.FirstOrDefault(h => h.CanDiffFile(path));
 			if (handler == null)
 			{
 				return new DefaultFileTypeHandler();
@@ -119,7 +119,7 @@ namespace Chorus.FileTypeHanders
 		}
 		public IChorusFileTypeHandler GetHandlerForPresentation(string path)
 		{
-			var handler = HandersList.FirstOrDefault(h => h.CanPresentFile(path));
+			var handler = HandlersList.FirstOrDefault(h => h.CanPresentFile(path));
 			if (handler == null)
 			{
 				return new DefaultFileTypeHandler();

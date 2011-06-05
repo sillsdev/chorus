@@ -350,8 +350,18 @@ namespace Chorus.VcsDrivers.Mercurial
 			_progress.WriteVerbose(result.StandardOutput);
 		}
 
-
-
+		///<summary>
+		/// Tell Hg to forget the specififed file, so it won't track it anymore.
+		///</summary>
+		/// <remarks>
+		/// 'forget' will mark it as deleted in the repo (keeping its history, of course),
+		/// but it will leave it in the user's workspace.
+		/// </remarks>
+		public void ForgetFile(string filepath)
+		{
+			_progress.WriteWarning("{0} is removing {1} from system. The file will remmain in the history and on disk.", _userName, Path.GetFileName(filepath));
+			Execute(SecondsBeforeTimeoutOnLocalOperation, "forget ", SurroundWithQuotes(filepath));
+		}
 
 		public void Branch(string branchName)
 		{

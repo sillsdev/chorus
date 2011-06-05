@@ -57,6 +57,14 @@ namespace Chorus.sync
 	public static class LargeFileFilter
 	{
 		///<summary>
+		/// Return a standard Megabyte size.
+		///</summary>
+		public static uint Megabyte
+		{
+			get { return (uint)Math.Pow(2, 20); }
+		}
+
+		///<summary>
 		/// Filter the files, before the commit. Files that are too large are added to the exclude section of the configuration.
 		///</summary>
 		///<returns>An empty string or a string with a listing of files that were not added/modified.</returns>
@@ -76,11 +84,11 @@ namespace Chorus.sync
 
 				// This part of the full path must *not* be included in the exclude list,
 				// as it is prepended by HgRepository.
-				var pathToRepository = repository.PathToRepo;// This part of the full path must *not* be included in the exclude list,
+				var pathToRepository = repository.PathToRepo + Path.PathSeparator;// This part of the full path must *not* be included in the exclude list,
 				var filename = Path.GetFileName(fir.FullPath);
 				var fileInfo = new FileInfo(fir.FullPath);
 				var fileSize = fileInfo.Length;
-				foreach (var msg in from handler in handlers.Handers
+				foreach (var msg in from handler in handlers.Handlers
 									where (handler.CanValidateFile(fir.FullPath) && handler.MaximumFileSize != UInt32.MaxValue) && fileSize >= handler.MaximumFileSize
 									select (fir.ActionThatHappened == FileInRevision.Action.Added || fir.ActionThatHappened == FileInRevision.Action.Unknown) ? String.Format("File '{0}' is too large to add to Chorus.", filename) : String.Format("File '{0}' is too large to be updated in Chorus.", filename))
 				{
@@ -89,8 +97,13 @@ namespace Chorus.sync
 					configuration.ExcludePatterns.Add(fir.FullPath.Replace(pathToRepository, ""));
 
 					// TODO: What to do, if the file is "Modified" but now too big?
-					// "remove" actually deletes the file, which seems a bit rude.
-					// "forget"?
+					// "remove" actually deletes the file in repo and in working folder, which seems a bit rude.
+					// "forget" removes it from repo (history remains) and leaves it in working folder.
+					if (fir.ActionThatHappened == FileInRevision.Action.Modified)
+					{
+						// Tell Hg to 'forget' it.
+						repository.ForgetFile(fir.FullPath.Replace(pathToRepository, ""));
+					}
 				}
 			}
 

@@ -56,7 +56,7 @@ namespace Chorus.sync
 				if (file.ActionThatHappened == FileInRevision.Action.Modified
 					|| file.ActionThatHappened == FileInRevision.Action.Added)
 				{
-					foreach (var handler in _handlerCollection.Handers)
+					foreach (var handler in _handlerCollection.Handlers)
 					{
 						if (handler.CanValidateFile(file.FullPath))
 						{

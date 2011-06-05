@@ -411,7 +411,7 @@ namespace Chorus.sync
 
 //                List<string> extensions = new List<string>();
 //
-//                foreach (var handler in _handlers.Handers)
+//                foreach (var handler in _handlers.Handlers)
 //                {
 //                    extensions.AddRange(handler.GetExtensionsOfKnownTextFileTypes());
 //                }

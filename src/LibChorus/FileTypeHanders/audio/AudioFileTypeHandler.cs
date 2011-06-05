@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Chorus.merge;
+using Chorus.sync;
 using Chorus.VcsDrivers.Mercurial;
 using System.Linq;
 using Palaso.IO;
@@ -74,7 +75,7 @@ namespace Chorus.FileTypeHanders.audio
 		/// </remarks>
 		public uint MaximumFileSize
 		{
-			get { return 1 * 1024; }
+			get { return LargeFileFilter.Megabyte; }
 		}
 	}
 }
