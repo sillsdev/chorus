@@ -321,6 +321,10 @@ namespace Chorus.sync
 			ThrowIfCancelPending();
 			_progress.WriteStatus("Storing changes in local repository...");
 
+			// Must be done, before "AddAndCommitFiles" call.
+			// It could be here, or first thing inside the 'using' for CommitCop.
+			LargeFileFilter.FilterFiles(Repository, _project, _handlers, _progress);
+
 			using (var commitCop = new CommitCop(Repository, _handlers, _progress))
 			{
 				// NB: The commit must take place in order for CommitCop to work properly.
