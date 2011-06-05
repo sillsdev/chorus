@@ -77,7 +77,7 @@ namespace Chorus.FileTypeHanders.test
 		/// </remarks>
 		public uint MaximumFileSize
 		{
-			get { return UInt32.MaxValue; }
+			get { return 200; }
 		}
 	}
 }

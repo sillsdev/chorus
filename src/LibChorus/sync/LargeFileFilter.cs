@@ -1,4 +1,12 @@
-﻿namespace Chorus.sync
+﻿using System;
+using System.IO;
+using System.Linq;
+using System.Text;
+using Chorus.FileTypeHanders;
+using Chorus.VcsDrivers.Mercurial;
+using Palaso.Progress.LogBox;
+
+namespace Chorus.sync
 {
 	///<summary>
 	/// Class that filters out large, binary, files from being put into the repo,
@@ -46,8 +54,47 @@
 	///		3. Registry setting
 	///		4. ??
 	///</summary>
-	public class LargeFileFilter
+	public static class LargeFileFilter
 	{
+		///<summary>
+		/// Filter the files, before the commit. Files that are too large are added to the exclude section of the configuration.
+		///</summary>
+		///<returns>An empty string or a string with a listing of files that were not added/modified.</returns>
+		public static string FilterFiles(HgRepository repository, ProjectFolderConfiguration configuration, ChorusFileTypeHandlerCollection handlers, IProgress progress)
+		{
+			var builder = new StringBuilder();
 
+			foreach (var fileInRevision in repository.GetFilesInRevisionFromQuery(null, "status"))
+			{
+				var fir = fileInRevision;
+				if (fir.ActionThatHappened == FileInRevision.Action.Deleted || fir.ActionThatHappened == FileInRevision.Action.NoChanges || fir.ActionThatHappened == FileInRevision.Action.Parent)
+					continue; // Don't fret about the size of any these types of files.
+
+				// Remaining options are: Added, Modified, and Unknown.
+				// It will likely be Unknown when called by Synchronizer's Commit method,
+				// as it will deal with the includes/excludes stuff and mark new stuff as 'add'.
+
+				// This part of the full path must *not* be included in the exclude list,
+				// as it is prepended by HgRepository.
+				var pathToRepository = repository.PathToRepo;// This part of the full path must *not* be included in the exclude list,
+				var filename = Path.GetFileName(fir.FullPath);
+				var fileInfo = new FileInfo(fir.FullPath);
+				var fileSize = fileInfo.Length;
+				foreach (var msg in from handler in handlers.Handers
+									where (handler.CanValidateFile(fir.FullPath) && handler.MaximumFileSize != UInt32.MaxValue) && fileSize >= handler.MaximumFileSize
+									select (fir.ActionThatHappened == FileInRevision.Action.Added || fir.ActionThatHappened == FileInRevision.Action.Unknown) ? String.Format("File '{0}' is too large to add to Chorus.", filename) : String.Format("File '{0}' is too large to be updated in Chorus.", filename))
+				{
+					progress.WriteVerbose(msg);
+					builder.AppendLine(msg);
+					configuration.ExcludePatterns.Add(fir.FullPath.Replace(pathToRepository, ""));
+
+					// TODO: What to do, if the file is "Modified" but now too big?
+					// "remove" actually deletes the file, which seems a bit rude.
+					// "forget"?
+				}
+			}
+
+			return builder.ToString();
+		}
 	}
 }

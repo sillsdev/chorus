@@ -320,6 +320,15 @@ namespace Chorus.VcsDrivers.Mercurial
 			return result.StandardOutput;
 		}
 
+		/// <summary>
+		/// Method only for testing.
+		/// </summary>
+		/// <param name="filePath"></param>
+		internal void AddSansCommit(string filePath)
+		{
+			TrackFile(filePath);
+		}
+
 		public void AddAndCheckinFile(string filePath)
 		{
 			TrackFile(filePath);

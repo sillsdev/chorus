@@ -323,6 +323,9 @@ namespace Chorus.sync
 
 			using (var commitCop = new CommitCop(Repository, _handlers, _progress))
 			{
+				// NB: The commit must take place in order for CommitCop to work properly.
+				// Ergo, don't even think of moving this after the commitCop.ValidationResult check.
+				// Too bad I (RBR) already thought of it, and asked, and found out it ought not be moved. :-)
 				AddAndCommitFiles(options.CheckinDescription);
 
 				if (!string.IsNullOrEmpty(commitCop.ValidationResult))

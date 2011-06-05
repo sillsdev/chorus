@@ -11,7 +11,9 @@ namespace Chorus.sync
 	/// <summary>
 	/// Use this class to bracket a Commit.  Currently, it will validate any added/modified files it can,
 	/// and if they are invalid, it will backout the commit and leave a record what failed so that support
-	/// personel/developers can have easy access to the problem file.
+	/// personnel/developers can have easy access to the problem file.
+	///
+	/// NB: It is crucial that the commit take place.
 	///
 	/// NB: if you're using the Chorus UI components, or the Synchronizer, this class will be used for you.
 	/// You only need to use it explicitly if you're directly committing using calls to the HgRepository.
