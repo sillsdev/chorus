@@ -188,6 +188,16 @@ namespace Chorus.VcsDrivers.Mercurial
 			return PullFromRepository(repo, false);
 		}
 
+		public string Identifier
+		{
+			get
+			{
+				// Or: id -i -r0 for short id
+				var results = Execute(SecondsBeforeTimeoutOnLocalOperation, "log -r0 --template " + SurroundWithQuotes("{node}"));
+				return results.StandardOutput;
+			}
+		}
+
 		public void Push(RepositoryAddress address, string targetUri, IProgress progress)
 		{
 			_progress.WriteStatus("Sending changes to {0}", address.GetFullName(targetUri));
