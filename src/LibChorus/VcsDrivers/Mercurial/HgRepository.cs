@@ -260,7 +260,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				   _progress.WriteWarning("Could not receive from " + otherRepo.Name);
 				   if(err.Message.Contains("authorization"))
 					{
-						_progress.WriteError("The server rejected the project name, user name, or password.");
+						_progress.WriteError("The server rejected the project name, user name, or password. Also make sure this user is a member of the project, with permission to read data.");
 					}
 					throw err;
 				}
@@ -664,6 +664,11 @@ namespace Chorus.VcsDrivers.Mercurial
 					var x = new Uri(sourceUri);
 					progress.WriteMessage("Check that {0} really hosts a project labelled '{1}'", x.Host, x.PathAndQuery.Trim('/'));
 				}
+				else if (error.Message.Contains("authorization"))
+				{
+					throw new RepositoryAuthorizationException();
+				}
+
 				throw error;
 			}
 		}
@@ -1748,4 +1753,8 @@ namespace Chorus.VcsDrivers.Mercurial
 		}
 	}
 
+	public class RepositoryAuthorizationException : Exception
+	{
+
+	}
 }
