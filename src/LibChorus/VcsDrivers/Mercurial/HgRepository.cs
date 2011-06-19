@@ -1751,6 +1751,13 @@ namespace Chorus.VcsDrivers.Mercurial
 
 
 		}
+
+		public static string GetAliasFromPath(string path)
+		{
+			return path.Replace(@":\", "_") //   ":\" on the left side of an assignment messes up the hgrc reading, becuase colon is an alternative to "=" here
+			.Replace(":", "_") // catch one without a slash
+			.Replace("=", "_"); //an = in the path would also mess things up
+		}
 	}
 
 	public class RepositoryAuthorizationException : Exception

@@ -81,7 +81,7 @@ namespace Chorus.UI.Sync
 						return;
 
 }
-				string alias = path;
+				string alias = HgRepository.GetAliasFromPath(path);
 				_repository.SetTheOnlyAddressOfThisType(RepositoryAddress.Create(alias, path));
 			}
 			catch (Exception e)
@@ -91,5 +91,7 @@ namespace Chorus.UI.Sync
 			}
 
 		}
+
+
 	}
 }
