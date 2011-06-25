@@ -241,7 +241,7 @@ namespace Chorus.sync
 		{
 			try
 			{
-				string resolvedUri = address.GetPotentialRepoUri(RepoProjectName, _progress);
+				string resolvedUri = address.GetPotentialRepoUri(Repository.Identifier, RepoProjectName, _progress);
 
 				bool canConnect;
 				if (connectionAttempt.ContainsKey(address))
@@ -343,12 +343,12 @@ namespace Chorus.sync
 		/// <returns>true if there was a successful pull</returns>
 		private bool PullFromOneSource(HgRepository repo, RepositoryAddress source, Dictionary<RepositoryAddress, bool> connectionAttempt)
 		{
-			string resolvedUri = source.GetPotentialRepoUri(RepoProjectName, _progress);
+			string resolvedUri = source.GetPotentialRepoUri(repo.Identifier, RepoProjectName, _progress);
 
 			if (source is UsbKeyRepositorySource)
 			{
 				_progress.WriteStatus("Looking for USB flash drives...");
-				var potential = source.GetPotentialRepoUri(RepoProjectName, _progress);
+				var potential = source.GetPotentialRepoUri(repo.Identifier, RepoProjectName, _progress);
 				if (null ==potential)
 				{
 					_progress.WriteWarning("No USB flash drive found");
@@ -562,7 +562,7 @@ namespace Chorus.sync
 		/// <returns>the uri of a successful clone</returns>
 		private string TryToMakeCloneForSource(RepositoryAddress repoDescriptor)
 		{
-			List<string> possibleRepoCloneUris = repoDescriptor.GetPossibleCloneUris(RepoProjectName, _progress);
+			List<string> possibleRepoCloneUris = repoDescriptor.GetPossibleCloneUris(Repository.Identifier, RepoProjectName, _progress);
 			if (possibleRepoCloneUris == null)
 			{
 				_progress.WriteMessage("No Uris available for cloning to {0}",
