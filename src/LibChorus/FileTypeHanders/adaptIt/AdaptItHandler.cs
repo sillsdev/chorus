@@ -105,5 +105,16 @@ namespace Chorus.FileTypeHanders.adaptIt
 		{
 			yield return "xml";
 		}
+
+		/// <summary>
+		/// Return the maximum file size that can be added to the repository.
+		/// </summary>
+		/// <remarks>
+		/// Return UInt32.MaxValue for no limit.
+		/// </remarks>
+		public uint MaximumFileSize
+		{
+			get { return UInt32.MaxValue; }
+		}
 	}
 }

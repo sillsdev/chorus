@@ -136,6 +136,30 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				Assert.IsNull(setup.Repository.GetRevision("1"));
 			}
 		}
+
+		[Test]
+		public void EnsureRepoIdIsCorrect()
+		{
+			using (var setup = new RepositorySetup("Dan"))
+			{
+				var id = setup.Repository.Identifier.Trim();
+				Assert.IsTrue(String.IsNullOrEmpty(id));
+
+				var path = setup.ProjectFolder.Combine("test.1w1");
+				File.WriteAllText(path, "hello");
+				setup.ProjectFolderConfig.IncludePatterns.Clear();
+				setup.ProjectFolderConfig.ExcludePatterns.Clear();
+				setup.ProjectFolderConfig.IncludePatterns.Add("*.1w1");
+				setup.AddAndCheckIn(); // Need to have one commit.
+
+				id = setup.Repository.Identifier.Trim();
+				Assert.IsFalse(String.IsNullOrEmpty(id));
+
+				var results = HgRunner.Run("log -r0 --template " + "\"{node}\"", setup.Repository.PathToRepo, 10, setup.Progress);
+				Assert.AreEqual(results.StandardOutput.Trim(), id);
+			}
+		}
+
 		[Test]
 		public void GetRevision_RevisionDoesExist_Ok()
 		{

@@ -71,7 +71,7 @@ namespace Chorus.UI.Sync
 					if (Directory.GetDirectories(path).Length > 0 || Directory.GetFiles(path).Length > 0)
 					{
 						Palaso.Reporting.ErrorReport.NotifyUserOfProblem(
-							"The folder you chose doesn't have a repository. Chorus cannot make one there, because the folder is not empty.  Please choose a folder that is already being used for send/recieve, or create and choose a new folder to hold the repository.");
+							"The folder you chose doesn't have a repository. Chorus cannot make one there, because the folder is not empty.  Please choose a folder that is already being used for send/receive, or create and choose a new folder to hold the repository.");
 						return;
 	}
 
@@ -81,7 +81,7 @@ namespace Chorus.UI.Sync
 						return;
 
 }
-				string alias = path;
+				string alias = HgRepository.GetAliasFromPath(path);
 				_repository.SetTheOnlyAddressOfThisType(RepositoryAddress.Create(alias, path));
 			}
 			catch (Exception e)
@@ -91,5 +91,7 @@ namespace Chorus.UI.Sync
 			}
 
 		}
+
+
 	}
 }

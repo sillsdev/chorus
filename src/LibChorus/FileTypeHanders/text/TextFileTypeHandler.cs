@@ -119,6 +119,17 @@ namespace Chorus.FileTypeHanders.text
 		{
 			yield return "txt";
 		}
+
+		/// <summary>
+		/// Return the maximum file size that can be added to the repository.
+		/// </summary>
+		/// <remarks>
+		/// Return UInt32.MaxValue for no limit.
+		/// </remarks>
+		public uint MaximumFileSize
+		{
+			get { return UInt32.MaxValue; }
+		}
 	}
 
 	//Todo: not gonna work in Linux

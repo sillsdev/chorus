@@ -74,6 +74,26 @@ two = http://foo.com");
 			}
 		}
 
+		/// <summary>
+		/// Test regression of CHR-1: Can't use a mapped drive for a network location
+		/// </summary>
+		[Test]
+		public void GetAliasFromPath_IsDrivePlusPath_GivesSafeAlias()
+		{
+			Assert.AreEqual("Z_TokPisinDictionary", HgRepository.GetAliasFromPath(@"Z:\TokPisinDictionary"));
+		}
+
+		[Test]
+		public void GetAliasFromPath_HasEquals_GivesSafeAlias()
+		{
+			Assert.AreEqual("Z_TokPisinDictionary", HgRepository.GetAliasFromPath(@"Z=TokPisinDictionary"));
+		}
+
+		[Test]
+		public void GetAliasFromPath_HasColon_GivesSafeAlias()
+		{
+			Assert.AreEqual("Z_TokPisinDictionary", HgRepository.GetAliasFromPath(@"Z:TokPisinDictionary"));
+		}
 
 		[Test]
 		public void GetIsReadyForInternetSendReceive_NoPaths_ReturnsFalse()
