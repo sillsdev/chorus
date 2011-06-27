@@ -82,6 +82,7 @@ namespace Chorus.FileTypeHanders
 			fileTypeHandlers.HandlersList.Add(new FieldWorksFileHandler());
 			fileTypeHandlers.HandlersList.Add(new FieldeWorksCustomPropertyFileHandler());
 			fileTypeHandlers.HandlersList.Add(new FieldWorksModelVersionFileHandler());
+			fileTypeHandlers.HandlersList.Add(new LiftRangesFileTypeHandler());
 
 			//NB: never add the Default handler
 			return fileTypeHandlers;

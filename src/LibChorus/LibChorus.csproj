@@ -99,6 +99,7 @@
 	<Compile Include="FileTypeHanders\FieldWorks\ModelVersion\FieldWorksModelVersionChangePresenter.cs" />
 	<Compile Include="FileTypeHanders\FieldWorks\ModelVersion\FieldWorksModelVersionChangeReport.cs" />
 	<Compile Include="FileTypeHanders\FieldWorks\ModelVersion\FieldWorksModelVersionFileHandler.cs" />
+	<Compile Include="FileTypeHanders\Lift-Ranges\LiftRangesFileTypeHandler.cs" />
 	<Compile Include="FileTypeHanders\lift\LiftFileServices.cs" />
 	<Compile Include="FileTypeHanders\lift\LiftFolder.cs" />
 	<Compile Include="FileTypeHanders\FieldWorks\DataType.cs" />
@@ -293,6 +294,7 @@
   <ItemGroup>
 	<None Include="Resources\question16x16Closed.png" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
 	   Other similar extension points exist, see Microsoft.Common.targets.
