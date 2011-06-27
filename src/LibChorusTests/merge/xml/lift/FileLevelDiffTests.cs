@@ -1,9 +1,10 @@
+using System;
 using System.Linq;
 using Chorus.FileTypeHanders;
-using Chorus.FileTypeHanders.lift;
 using Chorus.FileTypeHanders.xml;
 using LibChorus.Tests.merge.xml.generic;
 using NUnit.Framework;
+using Palaso.IO;
 
 namespace LibChorus.Tests.merge.xml.lift
 {
@@ -117,6 +118,127 @@ namespace LibChorus.Tests.merge.xml.lift
 		}
 
 		[Test]
+		public void DuplicateIdInParentEntryThrows()
+		{
+			var parent = @"<?xml version='1.0' encoding='utf-8'?>
+					<lift version='0.10' producer='WeSay 1.0.0.0'>
+						<entry id='old1'/>
+						<entry id='old1'/>
+					</lift>";
+			var child = @"<?xml version='1.0' encoding='utf-8'?>
+					<lift version='0.10' producer='WeSay 1.0.0.0'>
+						<entry	id='old1'	dateDeleted='2009-06-16T06:14:20Z'/>
+						<entry id='old2'/>
+					</lift>";
+			using (var parentTempFile = new TempFile(parent))
+			using (var childTempFile = new TempFile(child))
+			{
+				var listener = new ListenerForUnitTests();
+				var differ = Xml2WayDiffer.CreateFromFiles(parentTempFile.Path, childTempFile.Path, listener,
+					"header",
+															 "entry", "id");
+				Assert.Throws<ArgumentException>(() => differ.ReportDifferencesToListener());
+			}
+		}
+
+		[Test]
+		public void DuplicateIdInChildtEntryThrows()
+		{
+			var parent = @"<?xml version='1.0' encoding='utf-8'?>
+					<lift version='0.10' producer='WeSay 1.0.0.0'>
+						<entry	id='old1'	dateDeleted='2009-06-16T06:14:20Z'/>
+						<entry id='old2'/>
+					</lift>";
+			var child = @"<?xml version='1.0' encoding='utf-8'?>
+					<lift version='0.10' producer='WeSay 1.0.0.0'>
+						<entry id='old1'/>
+						<entry id='old1'/>
+					</lift>";
+			using (var parentTempFile = new TempFile(parent))
+			using (var childTempFile = new TempFile(child))
+			{
+				var listener = new ListenerForUnitTests();
+				var differ = Xml2WayDiffer.CreateFromFiles(parentTempFile.Path, childTempFile.Path, listener,
+					"header",
+															 "entry", "id");
+				Assert.Throws<ArgumentException>(() => differ.ReportDifferencesToListener());
+			}
+		}
+
+		[Test]
+		public void Deletion_WasTombstoneNowMissing_NoDeletionReport()
+		{
+			var parent = @"<?xml version='1.0' encoding='utf-8'?>
+					<lift version='0.10' producer='WeSay 1.0.0.0'>
+						<entry id='old1' dateDeleted='2009-06-16T06:14:20Z'/>
+						<entry id='old2'/>
+					</lift>";
+			var child = @"<?xml version='1.0' encoding='utf-8'?>
+					<lift version='0.10' producer='WeSay 1.0.0.0'>
+						<entry id='old2'/>
+					</lift>";
+			using (var parentTempFile = new TempFile(parent))
+			using (var childTempFile = new TempFile(child))
+			{
+				var listener = new ListenerForUnitTests();
+				var differ = Xml2WayDiffer.CreateFromFiles(parentTempFile.Path, childTempFile.Path, listener,
+					"header",
+															 "entry", "id");
+				differ.ReportDifferencesToListener();
+				listener.AssertExpectedChangesCount(0);
+			}
+		}
+		[Test]
+		public void GuidAttrBeforeIdAttrDoesNotGenerateReports()
+		{
+			var parent = @"<?xml version='1.0' encoding='utf-8'?>
+					<lift version='0.10' producer='WeSay 1.0.0.0'>
+						<entry id='fuzz-old1' guid='old1'/>
+					</lift>";
+			var child = @"<?xml version='1.0' encoding='utf-8'?>
+					<lift version='0.10' producer='WeSay 1.0.0.0'>
+						<entry guid='old1' id='fuzz-old1'/>
+					</lift>";
+			using (var parentTempFile = new TempFile(parent))
+			using (var childTempFile = new TempFile(child))
+			{
+				var listener = new ListenerForUnitTests();
+				var differ = Xml2WayDiffer.CreateFromFiles(parentTempFile.Path, childTempFile.Path, listener,
+					"header", "entry", "id");
+				differ.ReportDifferencesToListener();
+				listener.AssertExpectedChangesCount(0);
+			}
+		}
+
+		[Test]
+		public void IdHasEntityDoesNotGenerateReports()
+		{
+			var parent = @"<?xml version='1.0' encoding='utf-8'?>
+					<lift version='0.10' producer='WeSay 1.0.0.0'>
+	<entry
+		id=""Id'dPrematurely_18d66025-59bc-4bd0-b59c-0f01ae09dede""
+		dateCreated='2009-09-14T10:02:26Z'
+		dateModified='2009-09-14T10:26:21Z'
+		guid='18d66025-59bc-4bd0-b59c-0f01ae09dede'>
+	</entry>
+					</lift>";
+			var child = @"<?xml version='1.0' encoding='utf-8'?>
+					<lift version='0.10' producer='WeSay 1.0.0.0'>
+<entry dateCreated='2009-09-14T10:02:26Z' dateModified='2009-09-14T10:26:21Z' guid='18d66025-59bc-4bd0-b59c-0f01ae09dede' id=""Id&apos;dPrematurely_18d66025-59bc-4bd0-b59c-0f01ae09dede"">
+</entry>
+					</lift>";
+			using (var parentTempFile = new TempFile(parent))
+			using (var childTempFile = new TempFile(child))
+			{
+				var listener = new ListenerForUnitTests();
+				var differ = Xml2WayDiffer.CreateFromFiles(parentTempFile.Path, childTempFile.Path, listener,
+					"header", "entry", "id");
+				differ.ReportDifferencesToListener();
+				listener.AssertExpectedChangesCount(0);
+			}
+		}
+
+		[Test]
 		public void DeletionReport_Not_ProducedForDeletedAnnotationUsingNotesHandler()
 		{
 			const string parent = @"<?xml version='1.0' encoding='utf-8'?>
@@ -145,7 +267,7 @@ namespace LibChorus.Tests.merge.xml.lift
 			}
 			// Now make sure the ChorusNotesFileHandler filters it out, and does not return it,
 			// as per the original notes differ code.
-			var notesHandler = (from handler in ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers().Handers
+			var notesHandler = (from handler in ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers().Handlers
 								where handler.GetType().Name == "ChorusNotesFileHandler"
 								select handler).First();
 			using (var repositorySetup = new RepositorySetup("randy"))

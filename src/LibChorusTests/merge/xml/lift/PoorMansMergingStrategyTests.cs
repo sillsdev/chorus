@@ -5,6 +5,7 @@ using Chorus.merge.xml.generic;
 using LibChorus.Tests.merge.xml;
 using LibChorus.Tests.merge.xml.generic;
 using NUnit.Framework;
+using Palaso.IO;
 
 namespace LiftIO.Tests.Merging
 {

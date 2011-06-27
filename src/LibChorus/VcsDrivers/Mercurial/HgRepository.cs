@@ -11,7 +11,9 @@ using System.Text.RegularExpressions;
 using Chorus.Utilities;
 using Chorus.Utilities.code;
 using Nini.Ini;
+using Palaso.IO;
 using Palaso.Network;
+using Palaso.Progress.LogBox;
 
 namespace Chorus.VcsDrivers.Mercurial
 {
@@ -21,9 +23,9 @@ namespace Chorus.VcsDrivers.Mercurial
 		protected readonly string _pathToRepository;
 		protected string _userName;
 		protected IProgress _progress;
-		private const int SecondsBeforeTimeoutOnLocalOperation = 60;
-		private const int SecondsBeforeTimeoutOnMergeOperation = 5 * 60;
-		private const int SecondsBeforeTimeoutOnRemoteOperation = 20 * 60;
+		private const int SecondsBeforeTimeoutOnLocalOperation = 15 * 60;
+		private const int SecondsBeforeTimeoutOnMergeOperation = 15 * 60;
+		private const int SecondsBeforeTimeoutOnRemoteOperation = 40 * 60;
 		private bool _haveLookedIntoProxySituation;
 		private string _proxyCongfigParameterString = string.Empty;
 
@@ -182,8 +184,18 @@ namespace Chorus.VcsDrivers.Mercurial
 		{
 			HgRepository repo = new HgRepository(resolvedUri, _progress);
 
-			repo.UserName = repositoryLabel;
+			//repo.UserName = repositoryLabel;
 			return PullFromRepository(repo, false);
+		}
+
+		public string Identifier
+		{
+			get
+			{
+				// Or: id -i -r0 for short id
+				var results = Execute(SecondsBeforeTimeoutOnLocalOperation, "log -r0 --template " + SurroundWithQuotes("{node}"));
+				return results.StandardOutput;
+			}
 		}
 
 		public void Push(RepositoryAddress address, string targetUri, IProgress progress)
@@ -248,7 +260,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				   _progress.WriteWarning("Could not receive from " + otherRepo.Name);
 				   if(err.Message.Contains("authorization"))
 					{
-						_progress.WriteError("The server rejected the project name, user name, or password.");
+						_progress.WriteError("The server rejected the project name, user name, or password. Also make sure this user is a member of the project, with permission to read data.");
 					}
 					throw err;
 				}
@@ -318,6 +330,15 @@ namespace Chorus.VcsDrivers.Mercurial
 			return result.StandardOutput;
 		}
 
+		/// <summary>
+		/// Method only for testing.
+		/// </summary>
+		/// <param name="filePath"></param>
+		internal void AddSansCommit(string filePath)
+		{
+			TrackFile(filePath);
+		}
+
 		public void AddAndCheckinFile(string filePath)
 		{
 			TrackFile(filePath);
@@ -339,8 +360,18 @@ namespace Chorus.VcsDrivers.Mercurial
 			_progress.WriteVerbose(result.StandardOutput);
 		}
 
-
-
+		///<summary>
+		/// Tell Hg to forget the specififed file, so it won't track it anymore.
+		///</summary>
+		/// <remarks>
+		/// 'forget' will mark it as deleted in the repo (keeping its history, of course),
+		/// but it will leave it in the user's workspace.
+		/// </remarks>
+		public void ForgetFile(string filepath)
+		{
+			_progress.WriteWarning("{0} is removing {1} from system. The file will remmain in the history and on disk.", _userName, Path.GetFileName(filepath));
+			Execute(SecondsBeforeTimeoutOnLocalOperation, "forget ", SurroundWithQuotes(filepath));
+		}
 
 		public void Branch(string branchName)
 		{
@@ -476,11 +507,11 @@ namespace Chorus.VcsDrivers.Mercurial
 			get { return _pathToRepository; }
 		}
 
-		public string UserName
-		{
-			get { return _userName; }
-			set { _userName = value; }
-		}
+//        public string UserName
+//        {
+//            get { return _userName; }
+//            set { _userName = value; }
+//        }
 
 		private string Name
 		{
@@ -633,6 +664,11 @@ namespace Chorus.VcsDrivers.Mercurial
 					var x = new Uri(sourceUri);
 					progress.WriteMessage("Check that {0} really hosts a project labelled '{1}'", x.Host, x.PathAndQuery.Trim('/'));
 				}
+				else if (error.Message.Contains("authorization"))
+				{
+					throw new RepositoryAuthorizationException();
+				}
+
 				throw error;
 			}
 		}
@@ -641,6 +677,15 @@ namespace Chorus.VcsDrivers.Mercurial
 		public void CloneLocal(string targetPath)
 		{
 			Execute(SecondsBeforeTimeoutOnLocalOperation, "clone --uncompressed", PathWithQuotes + " " + SurroundWithQuotes(targetPath));
+		}
+
+		/// <summary>
+		/// here we only create the .hg, no files. This is good because the people aren't tempted to modify
+		/// files in that directory, where nothing will ever check the changes in.
+		/// </summary>
+		public void CloneToRemoteDirectoryWithoutCheckout(string targetPath)
+		{
+			Execute(SecondsBeforeTimeoutOnLocalOperation, "clone -U --uncompressed", PathWithQuotes + " " + SurroundWithQuotes(targetPath));
 		}
 
 		private List<Revision> GetRevisionsFromQuery(string query)
@@ -793,7 +838,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		public string RetrieveHistoricalVersionOfFile(string relativePath, string revOrHash)
 		{
 			Guard.Against(string.IsNullOrEmpty(revOrHash), "The revision cannot be empty (note: the first revision has an empty string for its parent revision");
-			var f = TempFile.CreateWithExtension(Path.GetExtension(relativePath));
+			var f = TempFile.WithExtension(Path.GetExtension(relativePath));
 
 			var cmd = string.Format("cat -o \"{0}\" -r {1} \"{2}\"", f.Path, revOrHash, relativePath);
 			ExecutionResult result = ExecuteErrorsOk(cmd, _pathToRepository, SecondsBeforeTimeoutOnLocalOperation, _progress);
@@ -1018,6 +1063,17 @@ namespace Chorus.VcsDrivers.Mercurial
 			doc.SaveAndGiveMessageIfCannot();
 		}
 
+		public void SetTheOnlyAddressOfThisType(RepositoryAddress address)
+		{
+			List<RepositoryAddress> addresses = new List<RepositoryAddress>(GetRepositoryPathsInHgrc());
+			RepositoryAddress match = addresses.FirstOrDefault(p=>p.GetType()  ==  address.GetType());
+			if(match!=null)
+			{
+				addresses.Remove(match);
+			}
+			addresses.Add(address);
+			SetKnownRepositoryAddresses(addresses);
+		}
 
 		public Revision GetRevision(string numberOrHash)
 		{
@@ -1279,7 +1335,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		}
 
 		/// <summary>
-		/// Used by tests, which can't easily make hg be running
+		///
 		/// </summary>
 		/// <param name="processNameToMatch">the process to look for, instead of "hg.exe"</param>
 		/// <param name="registerWarningIfFound"></param>
@@ -1611,8 +1667,15 @@ namespace Chorus.VcsDrivers.Mercurial
 				string hostAndPort;
 				string userName;
 				string password;
-				RobustNetworkOperation.DoHttpGetAndGetProxyInfo(httpUrl, out hostAndPort, out userName, out password);
-				return MakeProxyConfigParameterString(hostAndPort.Replace("http://",""), userName, password);
+				if(!RobustNetworkOperation.DoHttpGetAndGetProxyInfo(httpUrl, out hostAndPort, out userName, out password,
+					msg=>progress.WriteVerbose(msg)))
+				{
+					return string.Empty;
+				}
+				else
+				{
+					return MakeProxyConfigParameterString(hostAndPort.Replace("http://",""), userName, password);
+				}
 			}
 			catch(Exception e)
 			{
@@ -1688,6 +1751,17 @@ namespace Chorus.VcsDrivers.Mercurial
 
 
 		}
+
+		public static string GetAliasFromPath(string path)
+		{
+			return path.Replace(@":\", "_") //   ":\" on the left side of an assignment messes up the hgrc reading, becuase colon is an alternative to "=" here
+			.Replace(":", "_") // catch one without a slash
+			.Replace("=", "_"); //an = in the path would also mess things up
+		}
 	}
 
+	public class RepositoryAuthorizationException : Exception
+	{
+
+	}
 }

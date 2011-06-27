@@ -113,12 +113,6 @@
 	  <DependentUpon>GetCloneFromUsbDialog.cs</DependentUpon>
 	</Compile>
 	<Compile Include="UI\Misc\ServerSettingsModel.cs" />
-	<Compile Include="UI\Misc\LogBox.cs">
-	  <SubType>UserControl</SubType>
-	</Compile>
-	<Compile Include="UI\Misc\LogBox.Designer.cs">
-	  <DependentUpon>LogBox.cs</DependentUpon>
-	</Compile>
 	<Compile Include="UI\Misc\TroubleshootingView.cs">
 	  <SubType>UserControl</SubType>
 	</Compile>
@@ -286,12 +280,6 @@
 	<Compile Include="UI\Misc\ServerSettingsDialog.Designer.cs">
 	  <DependentUpon>ServerSettingsDialog.cs</DependentUpon>
 	</Compile>
-	<Compile Include="UI\Sync\BridgeSyncControl.cs">
-	  <SubType>UserControl</SubType>
-	</Compile>
-	<Compile Include="UI\Sync\BridgeSyncControl.Designer.cs">
-	  <DependentUpon>BridgeSyncControl.cs</DependentUpon>
-	</Compile>
 	<Compile Include="UI\Sync\SyncControl.cs">
 	  <SubType>UserControl</SubType>
 	</Compile>
@@ -353,9 +341,6 @@
 	  <DependentUpon>GetCloneFromUsbDialog.cs</DependentUpon>
 	  <SubType>Designer</SubType>
 	</EmbeddedResource>
-	<EmbeddedResource Include="UI\Misc\LogBox.resx">
-	  <DependentUpon>LogBox.cs</DependentUpon>
-	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Misc\TroubleshootingView.resx">
 	  <DependentUpon>TroubleshootingView.cs</DependentUpon>
 	</EmbeddedResource>
@@ -388,10 +373,6 @@
 	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Misc\ServerSettingsDialog.resx">
 	  <DependentUpon>ServerSettingsDialog.cs</DependentUpon>
-	</EmbeddedResource>
-	<EmbeddedResource Include="UI\Sync\BridgeSyncControl.resx">
-	  <DependentUpon>BridgeSyncControl.cs</DependentUpon>
-	  <SubType>Designer</SubType>
 	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Sync\SyncControl.resx">
 	  <DependentUpon>SyncControl.cs</DependentUpon>

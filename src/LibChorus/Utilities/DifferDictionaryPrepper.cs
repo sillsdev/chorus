@@ -29,7 +29,7 @@ namespace Chorus.Utilities
 		private readonly string _recordStartingTag;
 		private readonly Encoding _utf8;
 
-		internal DifferDictionaryPrepper(IDictionary<string, byte[]> dictionary, string pathname,
+		public DifferDictionaryPrepper(IDictionary<string, byte[]> dictionary, string pathname,
 			string firstElementMarker,
 			string recordStartingTag, string identifierAttribute)
 		{
@@ -42,14 +42,14 @@ namespace Chorus.Utilities
 			_identifierWithSingleQuote = _utf8.GetBytes(identifierAttribute + "='");
 		}
 
-		internal void Run()
+		public void Run()
 		{
 			bool foundOptionalFirstElement;
 			foreach (var record in _elementSplitter.GetSecondLevelElementBytes(_firstElementTag, _recordStartingTag, out foundOptionalFirstElement))
 			{
 				if (foundOptionalFirstElement)
 				{
-					_dictionary.Add(_firstElementTag, record);
+					_dictionary.Add(_firstElementTag.ToLowerInvariant(), record);
 					foundOptionalFirstElement = false;
 				}
 				else
@@ -66,7 +66,7 @@ namespace Chorus.Utilities
 		private void PrepareIndex(byte[] data)
 		{
 			var guid = GetAttribute(_identifierWithDoubleQuote, _closeDoubleQuote, data)
-					   ?? GetAttribute(_identifierWithSingleQuote, _closeSingleQuote, data);
+				   ?? GetAttribute(_identifierWithSingleQuote, _closeSingleQuote, data);
 			_dictionary.Add(guid, data);
 		}
 
@@ -76,11 +76,34 @@ namespace Chorus.Utilities
 			if (start == -1)
 				return null;
 
+			var isWhiteSpace = IsWhitespace(input[start - 1]);
 			start += name.Length;
 			var end = Array.IndexOf(input, closeQuote, start);
-			return (end == -1)
-					? null
-					: _utf8.GetString(input.SubArray(start, end - start)).ToLowerInvariant();
+
+			// Check to make sure start -1 is not another letter in a similarly named attr (e.g., id vs guid).
+			if (isWhiteSpace)
+			{
+				return (end == -1)
+						? null
+						: ReplaceBasicSetOfEntitites(_utf8.GetString(input.SubArray(start, end - start)).ToLowerInvariant());
+			}
+
+			return GetAttribute(name, closeQuote, input.SubArray(end + 1, input.Length - end));
+		}
+
+		private static string ReplaceBasicSetOfEntitites(string input)
+		{
+			return input
+				.Replace("&amp;", "&")
+				.Replace("&lt;", "<")
+				.Replace("&gt;", ">")
+				.Replace("&quot;", "\"")
+				.Replace("&apos;", "'");
+		}
+
+		private static bool IsWhitespace(byte input)
+		{
+			return (input == ' ' || input == '\t' || input == '\r' || input == '\n');
 		}
 
 		#region Implementation of IDisposable

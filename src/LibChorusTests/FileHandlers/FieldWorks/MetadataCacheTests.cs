@@ -5,6 +5,7 @@ using System.Linq;
 using Chorus.FileTypeHanders.FieldWorks;
 using Chorus.Utilities;
 using NUnit.Framework;
+using Palaso.Progress.LogBox;
 
 namespace LibChorus.Tests.FileHandlers.FieldWorks
 {
@@ -26,24 +27,24 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 		}
 
 		/// <summary></summary>
-		[Test, ExpectedException(typeof(ArgumentNullException))]
+		[Test]
 		public void Access_Class_Info_With_Null_ClassName_Throws()
 		{
-			_mdc.GetClassInfo(null);
+			Assert.Throws<ArgumentNullException>(() => _mdc.GetClassInfo(null));
 		}
 
 		/// <summary></summary>
-		[Test, ExpectedException(typeof(ArgumentNullException))]
+		[Test]
 		public void Access_Class_Info_With_Empty_String_For_ClassName_Throws()
 		{
-			_mdc.GetClassInfo("");
+			Assert.Throws<ArgumentNullException>(() => _mdc.GetClassInfo(""));
 		}
 
 		/// <summary></summary>
-		[Test, ExpectedException(typeof(KeyNotFoundException))]
+		[Test]
 		public void Access_Class_Info_With_Bogus_ClassName_Throws()
 		{
-			_mdc.GetClassInfo("Bogus");
+			Assert.Throws<KeyNotFoundException>(() => _mdc.GetClassInfo("Bogus"));
 		}
 
 		/// <summary></summary>
@@ -82,37 +83,6 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 		public void Segment_Has_No_Collection_Properties()
 		{
 			Assert.IsTrue(_mdc.GetClassInfo("Segment").AllCollectionProperties.Count() == 0);
-		}
-
-		/// <summary></summary>
-		[Test]
-		public void Can_Bootstrap_Mdc_And_Find_Custom_Properties()
-		{
-			const string data =
-@"<?xml version='1.0' encoding='utf-8'?>
-<languageproject version='7000027'>
-<AdditionalFields>
-<CustomField name='Certified' class='WfiWordform' type='Boolean' />
-</AdditionalFields>
-<rt class='LexEntry' guid='oldie' >
-<DateModified val='2000-1-1 23:59:59.000' />
-</rt>
-</languageproject>";
-
-			var goodXmlPathname = Path.ChangeExtension(Path.GetTempFileName(), ".fwdata");
-			try
-			{
-				File.WriteAllText(goodXmlPathname, data);
-				var handler = new FieldWorksFileHandler();
-				handler.ValidateFile(goodXmlPathname, new NullProgress());
-				Assert.IsNotNull((from prop in handler.Mdc.GetClassInfo("WfiWordform").AllProperties
-									 where prop.PropertyName == "Certified"
-									 select prop).FirstOrDefault());
-			}
-			finally
-			{
-				File.Delete(goodXmlPathname);
-			}
 		}
 	}
 }

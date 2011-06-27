@@ -138,6 +138,7 @@
 			this.Controls.Add(this.tabControl1);
 			this.Name = "Form1";
 			this.Text = "Chorus Sample App";
+			this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
 			this.tabControl1.ResumeLayout(false);
 			this.ResumeLayout(false);
 			this.PerformLayout();

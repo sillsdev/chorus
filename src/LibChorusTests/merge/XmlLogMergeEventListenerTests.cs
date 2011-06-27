@@ -3,9 +3,9 @@ using System.IO;
 using System.Xml;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
-using Chorus.Utilities;
 using Chorus.VcsDrivers;
 using NUnit.Framework;
+using Palaso.IO;
 
 namespace LibChorus.Tests.merge
 {
@@ -30,6 +30,41 @@ namespace LibChorus.Tests.merge
 				XmlDocument doc = new XmlDocument();
 				doc.Load(logFile.Path);
 				Assert.AreEqual(4, doc.SafeSelectNodes("notes/annotation").Count);
+			}
+		}
+
+		[Test]
+		public void FileOutput_WithContent_UsesCanonicalXmlSettings()
+		{
+			string expected = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n"
+				+ "<notes\r\n"
+				+ "\tversion=\"0\">\r\n"
+				+ "\t<annotation>Dummy</annotation>\r\n"
+				+ "</notes>";
+			using (var logFile = TempFile.CreateAndGetPathButDontMakeTheFile())
+			{
+				using (var log = new ChorusNotesMergeEventListener(logFile.Path))
+				{
+					log.ConflictOccurred(new DummyConflict());
+				}
+				string result = File.ReadAllText(logFile.Path);
+				Assert.AreEqual(expected, result);
+			}
+		}
+
+		[Test]
+		public void FileOutput_DefaultFile_UsesCanonicalXmlSettings()
+		{
+			string expected = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n"
+							  + "<notes\r\n"
+							  + "\tversion=\"0\" />";
+			using (var logFile = TempFile.CreateAndGetPathButDontMakeTheFile())
+			{
+				using (new ChorusNotesMergeEventListener(logFile.Path))
+				{
+					string result = File.ReadAllText(logFile.Path);
+					Assert.AreEqual(expected, result);
+				}
 			}
 		}
 

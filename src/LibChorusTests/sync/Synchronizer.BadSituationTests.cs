@@ -6,8 +6,9 @@ using Chorus.sync;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
 using LibChorus.Tests.merge;
-using LibChorus.Tests.VcsDrivers.Mercurial;
 using NUnit.Framework;
+using Palaso.Progress.LogBox;
+using Palaso.TestUtilities;
 
 namespace LibChorus.Tests.sync
 {
@@ -19,7 +20,6 @@ namespace LibChorus.Tests.sync
 	[Category("Sync")]
 	public class SynchronizerBadSituationTests
 	{
-
 		[SetUp]
 		public void Setup()
 		{
@@ -29,7 +29,7 @@ namespace LibChorus.Tests.sync
 		[Test]//regression
 		public void RepoProjectName_SourceHasDotInName_IsNotLost()
 		{
-			using (TempFolder f = new TempFolder("SourceHasDotInName_IsNotLost.x.y"))
+			using (var f = new TemporaryFolder("SourceHasDotInName_IsNotLost.x.y"))
 			{
 				Synchronizer m = new Synchronizer(f.Path, new ProjectFolderConfiguration("blah"), new ConsoleProgress());
 

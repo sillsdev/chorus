@@ -15,6 +15,7 @@ using Chorus.UI.Sync;
 using Chorus.Utilities;
 using Chorus.Utilities.code;
 using Chorus.VcsDrivers.Mercurial;
+using Palaso.Progress.LogBox;
 
 namespace Chorus
 {

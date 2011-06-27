@@ -56,7 +56,7 @@
 	  <SpecificVersion>False</SpecificVersion>
 	  <HintPath>..\..\lib\net2.0\Palaso.dll</HintPath>
 	</Reference>
-	<Reference Include="Palaso.TestUtilities, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+	<Reference Include="Palaso.TestUtilities, Version=1.7.3.0, Culture=neutral, processorArchitecture=MSIL">
 	  <SpecificVersion>False</SpecificVersion>
 	  <HintPath>..\..\lib\net2.0\Palaso.TestUtilities.dll</HintPath>
 	</Reference>
@@ -73,19 +73,23 @@
   <ItemGroup>
 	<Compile Include="clone\ClonerTests.cs" />
 	<Compile Include="FileHandlers\ChorusTestFileHanderTests.cs" />
+	<Compile Include="FileHandlers\FieldWorks\CustomProperties\FieldWorksCustomPropertyFileHandlerTests.cs" />
 	<Compile Include="FileHandlers\FieldWorks\FieldWorksChangePresenterTests.cs" />
 	<Compile Include="FileHandlers\FieldWorks\FieldWorksFileDiffTests.cs" />
 	<Compile Include="FileHandlers\FieldWorks\FieldWorksFileHandlerTests.cs" />
 	<Compile Include="FileHandlers\FieldWorks\FieldWorksFileMergeTests.cs" />
 	<Compile Include="FileHandlers\FieldWorks\FieldWorksFileValidationTests.cs" />
 	<Compile Include="FileHandlers\FieldWorks\FieldWorksMergingStrategyTests.cs" />
+	<Compile Include="FileHandlers\FieldWorks\ModelVersion\FieldWorksModelVersionFileHandlerTests.cs" />
 	<Compile Include="FileHandlers\FieldWorks\MetadataCacheTests.cs" />
+	<Compile Include="FileHandlers\Lift\FilePrettyPrintTests.cs" />
 	<Compile Include="MercurialPathHelp.cs" />
 	<Compile Include="merge\xml\adaptIt\FileLevelAdaptItKnowlegeBaseMergeTests.cs" />
 	<Compile Include="merge\xml\ConflictXmlRecordRetrievalTests.cs" />
 	<Compile Include="merge\GroupOfConflictFiles.cs" />
 	<Compile Include="merge\XmlLogMergeEventListenerTests.cs" />
 	<Compile Include="merge\GroupOfConflictingLiftFiles.cs" />
+	<Compile Include="merge\xml\FindByKeyAttributeTests.cs" />
 	<Compile Include="merge\xml\FindByEqualityOfTreeTests.cs" />
 	<Compile Include="merge\xml\generic\FindNodeToMergeTests.cs" />
 	<Compile Include="merge\xml\generic\MergeAtomicElementServiceTests.cs" />
@@ -114,6 +118,7 @@
 	<Compile Include="notes\AnnotationRepositoryTests.cs" />
 	<Compile Include="RepositorySetup.cs" />
 	<Compile Include="sync\CommitCopTests.cs" />
+	<Compile Include="sync\LargeFileFilterTests.cs" />
 	<Compile Include="sync\ProxyTests.cs" />
 	<Compile Include="sync\RevisionMergeBehaviorTests.cs" />
 	<Compile Include="sync\Synchronizer.FileBasedTests.cs" />

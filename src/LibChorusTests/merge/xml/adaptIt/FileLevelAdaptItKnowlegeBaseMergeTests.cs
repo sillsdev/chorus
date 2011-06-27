@@ -2,9 +2,9 @@ using System.IO;
 using System.Xml;
 using Chorus.FileTypeHanders.adaptIt;
 using Chorus.merge;
-using Chorus.Utilities;
 using LibChorus.Tests.merge.xml.generic;
 using NUnit.Framework;
+using Palaso.IO;
 using Palaso.TestUtilities;
 
 namespace LibChorus.Tests.merge.xml.adaptIt

@@ -4,8 +4,9 @@ using System.IO;
 using System.Xml.Linq;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
-using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
+using Palaso.IO;
+using Palaso.Progress.LogBox;
 
 namespace Chorus.FileTypeHanders.oneStory
 {
@@ -146,6 +147,17 @@ namespace Chorus.FileTypeHanders.oneStory
 		public IEnumerable<string> GetExtensionsOfKnownTextFileTypes()
 		{
 			yield return "onestory";
+		}
+
+		/// <summary>
+		/// Return the maximum file size that can be added to the repository.
+		/// </summary>
+		/// <remarks>
+		/// Return UInt32.MaxValue for no limit.
+		/// </remarks>
+		public uint MaximumFileSize
+		{
+			get { return UInt32.MaxValue; }
 		}
 	}
 }

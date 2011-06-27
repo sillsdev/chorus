@@ -6,6 +6,7 @@ using Chorus.sync;
 using Chorus.Utilities;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
+using Palaso.Progress.LogBox;
 
 namespace Chorus.UI.Sync
 {
@@ -41,6 +42,7 @@ namespace Chorus.UI.Sync
 
 					_syncStartControl1.Init(HgRepository.CreateOrLocate(projectFolderConfiguration.FolderPath,
 																				new NullProgress()));
+					_syncControl.Dock = DockStyle.Fill;//in designer, we don't want it to cover up everything, but we do at runtime
 					_syncStartControl1.Visible = true;
 					_syncControl.Visible = false;
 				}

@@ -21,14 +21,14 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 		[TestFixtureSetUp]
 		public void FixtureSetup()
 		{
-			m_handler = (from handler in ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers().Handers
+			m_handler = (from handler in ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers().Handlers
 						 where handler.GetType().Name == "FieldWorksFileHandler"
 						 select handler).First();
-			m_goodXmlPathname = Path.ChangeExtension(Path.GetTempFileName(), ".fwdata");
-			File.WriteAllText(m_goodXmlPathname, "<?xml version='1.0' encoding='utf-8'?>" + Environment.NewLine + "<languageproject version='7000016' />");
-			m_illformedXmlPathname = Path.ChangeExtension(Path.GetTempFileName(), ".fwdata");
-			File.WriteAllText(m_illformedXmlPathname, "<?xml version='1.0' encoding='utf-8'?>" + Environment.NewLine + "<languageproject version='7000016'>");
-			m_goodXmlButNotFwPathname = Path.ChangeExtension(Path.GetTempFileName(), ".fwdata");
+			m_goodXmlPathname = Path.ChangeExtension(Path.GetTempFileName(), ".ClassData");
+			File.WriteAllText(m_goodXmlPathname, "<?xml version='1.0' encoding='utf-8'?>" + Environment.NewLine + "<classdata />");
+			m_illformedXmlPathname = Path.ChangeExtension(Path.GetTempFileName(), ".ClassData");
+			File.WriteAllText(m_illformedXmlPathname, "<?xml version='1.0' encoding='utf-8'?>" + Environment.NewLine + "<classdata>");
+			m_goodXmlButNotFwPathname = Path.ChangeExtension(Path.GetTempFileName(), ".ClassData");
 			File.WriteAllText(m_goodXmlButNotFwPathname, "<?xml version='1.0' encoding='utf-8'?>" + Environment.NewLine + "<nonfwstuff />");
 			m_nonXmlPathname = Path.ChangeExtension(Path.GetTempFileName(), ".txt");
 			File.WriteAllText(m_nonXmlPathname, "This is not an xml file." + Environment.NewLine);

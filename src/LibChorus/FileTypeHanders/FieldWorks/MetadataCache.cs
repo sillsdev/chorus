@@ -51,12 +51,18 @@ namespace Chorus.FileTypeHanders.FieldWorks
 			return _classes[className];
 		}
 
-		internal IEnumerable<FdoClassInfo> AllConcreteClasses
+		/// <summary>
+		/// Return all concrete classes.
+		/// </summary>
+		public IEnumerable<FdoClassInfo> AllConcreteClasses
 		{
 			get { return _concreteClasses; }
 		}
 
-		internal IDictionary<string, FdoClassInfo> ClassesWithCollectionProperties
+		/// <summary>
+		/// Return classes that have collection properties.
+		/// </summary>
+		public IDictionary<string, FdoClassInfo> ClassesWithCollectionProperties
 		{
 			get { return _classesWithCollectionProperties; }
 		}
@@ -208,6 +214,8 @@ namespace Chorus.FileTypeHanders.FieldWorks
 			clsInfo.AddProperty(new FdoPropertyInfo("Paragraphs", DataType.OwningSequence));
 			clsInfo.AddProperty(new FdoPropertyInfo("RightToLeft", DataType.Boolean));
 			clsInfo.AddProperty(new FdoPropertyInfo("Tags", DataType.OwningCollection));
+			// Moved from StJournalText in DM36.
+			clsInfo.AddProperty(new FdoPropertyInfo("DateModified", DataType.Time));
 
 			clsInfo = new FdoClassInfo("StPara", true, "CmObject");
 			_classes.Add("StPara", clsInfo);
@@ -557,7 +565,8 @@ namespace Chorus.FileTypeHanders.FieldWorks
 			clsInfo = new FdoClassInfo("StJournalText", "StText");
 			_classes.Add("StJournalText", clsInfo);
 			clsInfo.AddProperty(new FdoPropertyInfo("DateCreated", DataType.Time));
-			clsInfo.AddProperty(new FdoPropertyInfo("DateModified", DataType.Time));
+			// Moved to StText in DM36.
+			//clsInfo.AddProperty(new FdoPropertyInfo("DateModified", DataType.Time));
 			clsInfo.AddProperty(new FdoPropertyInfo("CreatedBy", DataType.ReferenceAtomic));
 			clsInfo.AddProperty(new FdoPropertyInfo("ModifiedBy", DataType.ReferenceAtomic));
 

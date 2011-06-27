@@ -41,9 +41,14 @@ namespace Chorus.merge.xml.generic
 
 			string key = XmlUtilities.GetOptionalAttributeString(nodeToMatch, _keyAttribute);
 			if (string.IsNullOrEmpty(key))
+			{
 				return null;
-
-			string xpath = string.Format("{0}[@{1}='{2}']", nodeToMatch.Name, _keyAttribute, key);
+			}
+			// I (CP) changed this to use double quotes to allow attributes to contain single quotes.
+			// My understanding is that double quotes are illegal inside attributes so this should be fine.
+			// See: http://jira.palaso.org/issues/browse/WS-33895
+			//string xpath = string.Format("{0}[@{1}='{2}']", nodeToMatch.Name, _keyAttribute, key);
+			string xpath = string.Format("{0}[@{1}=\"{2}\"]", nodeToMatch.Name, _keyAttribute, key);
 
 			return parentToSearchIn.SelectSingleNode(xpath);
 		}

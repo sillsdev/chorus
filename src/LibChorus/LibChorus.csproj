@@ -70,7 +70,7 @@
 	  <SpecificVersion>False</SpecificVersion>
 	  <HintPath>..\..\lib\net2.0\Autofac.dll</HintPath>
 	</Reference>
-	<Reference Include="Palaso, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86">
+	<Reference Include="Palaso, Version=1.5.174.0, Culture=neutral, processorArchitecture=MSIL">
 	  <SpecificVersion>False</SpecificVersion>
 	  <HintPath>..\..\lib\net2.0\Palaso.dll</HintPath>
 	</Reference>
@@ -84,6 +84,7 @@
 	</Reference>
 	<Reference Include="System.Drawing" />
 	<Reference Include="System.Management" />
+	<Reference Include="System.Runtime.Serialization" />
 	<Reference Include="System.Web" />
 	<Reference Include="System.Windows.Forms" />
 	<Reference Include="System.Xml" />
@@ -92,6 +93,13 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
+	<Compile Include="FileTypeHanders\FieldWorks\CustomProperties\FieldeWorksCustomPropertyFileHandler.cs" />
+	<Compile Include="FileTypeHanders\FieldWorks\CustomProperties\FieldWorksCustomPropertyContextGenerator.cs" />
+	<Compile Include="FileTypeHanders\FieldWorks\CustomProperties\FieldWorksCustomPropertyMergingStrategy.cs" />
+	<Compile Include="FileTypeHanders\FieldWorks\ModelVersion\FieldWorksModelVersionChangePresenter.cs" />
+	<Compile Include="FileTypeHanders\FieldWorks\ModelVersion\FieldWorksModelVersionChangeReport.cs" />
+	<Compile Include="FileTypeHanders\FieldWorks\ModelVersion\FieldWorksModelVersionFileHandler.cs" />
+	<Compile Include="FileTypeHanders\lift\LiftFileServices.cs" />
 	<Compile Include="FileTypeHanders\lift\LiftFolder.cs" />
 	<Compile Include="FileTypeHanders\FieldWorks\DataType.cs" />
 	<Compile Include="FileTypeHanders\FieldWorks\FieldWorksMergingServices.cs" />
@@ -102,6 +110,7 @@
 	<Compile Include="FileTypeHanders\Xml2WayDiffService.cs" />
 	<Compile Include="merge\xml\generic\MergeAtomicElementService.cs" />
 	<Compile Include="merge\xml\generic\XmlMergeService.cs" />
+	<Compile Include="sync\LargeFileFilter.cs" />
 	<Compile Include="Utilities\DifferDictionaryPrepper.cs" />
 	<Compile Include="FileTypeHanders\FieldWorks\FieldWorkObjectContextGenerator.cs" />
 	<Compile Include="FileTypeHanders\FieldWorks\FieldWorksChangePresenter.cs" />
@@ -196,9 +205,7 @@
 	<Compile Include="Utilities\ini\OrderedListEnumerator.cs" />
 	<Compile Include="Utilities\ExecutionEnvironment.cs" />
 	<Compile Include="Utilities\ProcessStream.cs" />
-	<Compile Include="Utilities\Progress.cs" />
 	<Compile Include="Utilities\ShortTermEnvironmentalVariable.cs" />
-	<Compile Include="Utilities\TempFile.cs" />
 	<Compile Include="VcsDrivers\Git\GitRepository.cs" />
 	<Compile Include="VcsDrivers\Mercurial\FileInRevision.cs" />
 	<Compile Include="VcsDrivers\Mercurial\HgMissingSimulation .cs" />

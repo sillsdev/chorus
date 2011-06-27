@@ -8,8 +8,14 @@ namespace Chorus.FileTypeHanders.FieldWorks
 	///</summary>
 	public sealed class FdoClassInfo
 	{
-		internal string ClassName { get; private set; }
-		internal bool IsAbstract { get; private set; }
+		/// <summary>
+		/// Get the class name.
+		/// </summary>
+		public string ClassName { get; private set; }
+		/// <summary>
+		/// Check if class is abstract.
+		/// </summary>
+		public bool IsAbstract { get; private set; }
 		private readonly List<FdoPropertyInfo> _properties = new List<FdoPropertyInfo>();
 
 		internal FdoClassInfo(string className, string superclassName)
@@ -61,8 +67,14 @@ namespace Chorus.FileTypeHanders.FieldWorks
 			}
 		}
 
-		internal string SuperclassName { get; set; }
+		/// <summary>
+		/// Get the superclass name.
+		/// </summary>
+		public string SuperclassName { get; internal set; }
 
-		internal FdoClassInfo Superclass { get; set; }
+		/// <summary>
+		/// Get the superclass.
+		/// </summary>
+		public FdoClassInfo Superclass { get; internal set; }
 	}
 }

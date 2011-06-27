@@ -2,10 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Xml;
 using Chorus.notes;
-using Chorus.Utilities;
 using NUnit.Framework;
+using Palaso.IO;
+using Palaso.Progress.LogBox;
+using Palaso.Reporting;
 
 namespace LibChorus.Tests.notes
 {
@@ -32,6 +33,22 @@ namespace LibChorus.Tests.notes
 				var repo = AnnotationRepository.FromFile("id", f.Path, new ConsoleProgress());
 				repo.Save(new ConsoleProgress());
 				Assert.IsTrue(File.Exists(f.Path));
+			}
+		}
+
+		[Test]
+		public void Save_DoesntExistYet_CreatesAndSavesAsCanonicalXml()
+		{
+			string expected = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n"
+				+ "<notes\r\n"
+				+ "\tversion=\"0\" />";
+			using (var f = new TempFile())
+			{
+				File.Delete(f.Path);
+				var repo = AnnotationRepository.FromFile("id", f.Path, new ConsoleProgress());
+				repo.Save(new ConsoleProgress());
+				string result = File.ReadAllText(f.Path);
+				Assert.AreEqual(expected, result);
 			}
 		}
 

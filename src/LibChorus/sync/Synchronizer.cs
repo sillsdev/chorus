@@ -9,6 +9,7 @@ using Chorus.Utilities;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using System.Linq;
+using Palaso.Progress.LogBox;
 
 namespace Chorus.sync
 {
@@ -97,6 +98,8 @@ namespace Chorus.sync
 
 				var workingRevBeforeSync = repo.GetRevisionWorkingSetIsBasedOn();
 
+				CreateRepositoryOnLocalAreaNetworkFolderIfNeededThrowIfFails(repo, sourcesToTry);
+
 				if (options.DoPullFromOthers)
 				{
 					results.DidGetChangesFromOthers = PullFromOthers(repo, sourcesToTry, connectionAttempts);
@@ -146,6 +149,23 @@ namespace Chorus.sync
 			}
 			return results;
 		}
+
+		private void CreateRepositoryOnLocalAreaNetworkFolderIfNeededThrowIfFails(HgRepository repo, List<RepositoryAddress> sourcesToTry)
+		{
+			RepositoryAddress directorySource = sourcesToTry.FirstOrDefault(s=>s is DirectoryRepositorySource);
+			if(directorySource!=null)
+			{
+				if(!Directory.Exists(Path.Combine(directorySource.URI, ".hg")))
+				{
+					_progress.WriteMessage("Creating new repository at "+directorySource.URI);
+					repo.CloneToRemoteDirectoryWithoutCheckout(directorySource.URI);
+				}
+			}
+		}
+
+		/// <summary>
+		/// This version is used by the CHorus UI, which wants to do the sync in the background
+		/// </summary>
 
 		public SyncResults SyncNow(BackgroundWorker backgroundWorker, DoWorkEventArgs args, SyncOptions options)
 		{
@@ -221,7 +241,7 @@ namespace Chorus.sync
 		{
 			try
 			{
-				string resolvedUri = address.GetPotentialRepoUri(RepoProjectName, _progress);
+				string resolvedUri = address.GetPotentialRepoUri(Repository.Identifier, RepoProjectName, _progress);
 
 				bool canConnect;
 				if (connectionAttempt.ContainsKey(address))
@@ -301,8 +321,15 @@ namespace Chorus.sync
 			ThrowIfCancelPending();
 			_progress.WriteStatus("Storing changes in local repository...");
 
+			// Must be done, before "AddAndCommitFiles" call.
+			// It could be here, or first thing inside the 'using' for CommitCop.
+			LargeFileFilter.FilterFiles(Repository, _project, _handlers, _progress);
+
 			using (var commitCop = new CommitCop(Repository, _handlers, _progress))
 			{
+				// NB: The commit must take place in order for CommitCop to work properly.
+				// Ergo, don't even think of moving this after the commitCop.ValidationResult check.
+				// Too bad I (RBR) already thought of it, and asked, and found out it ought not be moved. :-)
 				AddAndCommitFiles(options.CheckinDescription);
 
 				if (!string.IsNullOrEmpty(commitCop.ValidationResult))
@@ -316,12 +343,12 @@ namespace Chorus.sync
 		/// <returns>true if there was a successful pull</returns>
 		private bool PullFromOneSource(HgRepository repo, RepositoryAddress source, Dictionary<RepositoryAddress, bool> connectionAttempt)
 		{
-			string resolvedUri = source.GetPotentialRepoUri(RepoProjectName, _progress);
+			string resolvedUri = source.GetPotentialRepoUri(repo.Identifier, RepoProjectName, _progress);
 
 			if (source is UsbKeyRepositorySource)
 			{
 				_progress.WriteStatus("Looking for USB flash drives...");
-				var potential = source.GetPotentialRepoUri(RepoProjectName, _progress);
+				var potential = source.GetPotentialRepoUri(repo.Identifier, RepoProjectName, _progress);
 				if (null ==potential)
 				{
 					_progress.WriteWarning("No USB flash drive found");
@@ -388,7 +415,7 @@ namespace Chorus.sync
 
 //                List<string> extensions = new List<string>();
 //
-//                foreach (var handler in _handlers.Handers)
+//                foreach (var handler in _handlers.Handlers)
 //                {
 //                    extensions.AddRange(handler.GetExtensionsOfKnownTextFileTypes());
 //                }
@@ -500,6 +527,10 @@ namespace Chorus.sync
 					repository.Update(); //update to the tip
 					return;
 				}
+				if (heads.Count == 0)
+				{
+					return;//nothing has been checked in, so we're done! (this happens during some UI tests)
+				}
 
 				//TODO: I think this "direct descendant" limitation won't be enough
 				//  when there are more than 2 people merging and there's a failure
@@ -531,7 +562,7 @@ namespace Chorus.sync
 		/// <returns>the uri of a successful clone</returns>
 		private string TryToMakeCloneForSource(RepositoryAddress repoDescriptor)
 		{
-			List<string> possibleRepoCloneUris = repoDescriptor.GetPossibleCloneUris(RepoProjectName, _progress);
+			List<string> possibleRepoCloneUris = repoDescriptor.GetPossibleCloneUris(Repository.Identifier, RepoProjectName, _progress);
 			if (possibleRepoCloneUris == null)
 			{
 				_progress.WriteMessage("No Uris available for cloning to {0}",

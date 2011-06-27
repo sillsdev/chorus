@@ -24,21 +24,21 @@ namespace Chorus.UI
 			{
 				if (DesignMode)
 					return;
-				var form = FindForm();
-				if (form != null)
+				Control backgroundColorSource = FindForm();
+				if (backgroundColorSource == null)
+				{   //if we can't get the form, the next best thing is our container (e.g., a table)
+					backgroundColorSource = Parent;
+				}
+				if (backgroundColorSource != null)
 				{
-					BackColor = form.BackColor;
-					form.BackColorChanged += ((x, y) => BackColor = form.BackColor);
+					BackColor = backgroundColorSource.BackColor;
+					backgroundColorSource.BackColorChanged += ((x, y) => BackColor = backgroundColorSource.BackColor);
 				}
 			}
 			catch (Exception error)
 			{
 				//trying to harden this against the mysteriously disappearing from a host designer
 			}
-		}
-		protected override void OnSizeChanged(EventArgs e)
-		{
-			base.OnSizeChanged(e);
 		}
 
 

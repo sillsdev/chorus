@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -43,26 +44,55 @@ namespace Chorus.Utilities
 		/// <example>GetValueFromQueryStringOfRef("id", ""lift://blah.lift?id=foo") returns "foo"</example>
 		public static string GetValueFromQueryStringOfRef(string url, string name, string defaultIfCannotGetIt)
 		{
+			if(String.IsNullOrEmpty(url))
+				return defaultIfCannotGetIt;
+
+			string originalUrl = url;
 			try
 			{
 				Uri uri;
-				if (!Uri.TryCreate(url, UriKind.Absolute, out uri))
+				url = StripSpaceOutOfHostName(url);
+				if (!Uri.TryCreate(url, UriKind.Absolute, out uri) || uri == null)
 				{
 					throw new ApplicationException("Could not parse the url " + url);
 				}
+				else
+				{
+					//Could not parse the url lift://FTeam.lift?type=entry&label=نویس&id=e824f0ae-6d36-4c52-b30b-eb845d6c120a
 
-				//Could not parse the url lift://FTeam.lift?type=entry&label=نویس&id=e824f0ae-6d36-4c52-b30b-eb845d6c120a
+					var parse = System.Web.HttpUtility.ParseQueryString(uri.Query);
 
-				var parse = System.Web.HttpUtility.ParseQueryString(uri.Query);
-
-				var r = parse.GetValues(name);
-				var label = r == null ? defaultIfCannotGetIt : r.First();
-				return string.IsNullOrEmpty(label) ? defaultIfCannotGetIt : label;
+					var r = parse.GetValues(name);
+					var label = r == null ? defaultIfCannotGetIt : r.First();
+					return string.IsNullOrEmpty(label) ? defaultIfCannotGetIt : label;
+				}
 			}
-			catch (Exception)
+			catch (Exception e)
 			{
+#if DEBUG
+				var message = String.Format("Debug mode only: GetValueFromQueryStringOfRef({0},{1}) {2}", originalUrl, name, e.Message);
+				Debug.Fail(message);
+				throw new ApplicationException(message,e);//vs2010 is not actually showing a failure box for me, so next hope is to throw
+#endif
 				return defaultIfCannotGetIt;
 			}
+		}
+
+		/// <summary>
+		/// this is needed because Url.TryCreate dies if there is a space in the initial part, but
+		/// we're often using that part for a file name, as in "lift://XYZ Dictioanary.lift?foo=....".  Even
+		/// with a %20 in place of a space, it is declared "invalid".
+		/// </summary>
+		/// <param name="url"></param>
+		/// <returns></returns>
+		private static string StripSpaceOutOfHostName(string url)
+		{
+			int startOfQuery = url.IndexOf('?');
+			if (startOfQuery < 0)
+				return url;
+			string host = url.Substring(0, startOfQuery);
+			string rest = url.Substring(startOfQuery, url.Length - startOfQuery);
+			return host.Replace("%20", "").Replace(" ",String.Empty) + rest;
 		}
 
 		public static string GetPathOnly(string url)

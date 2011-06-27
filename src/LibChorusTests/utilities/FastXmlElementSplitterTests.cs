@@ -14,39 +14,39 @@ namespace LibChorus.Tests.utilities
 	[TestFixture]
 	public class FastXmlElementSplitterTests
 	{
-		[Test, ExpectedException(typeof(ArgumentException))]
+		[Test]
 		public void Null_Pathname_Throws()
 		{
-			new FastXmlElementSplitter(null);
+			Assert.Throws<ArgumentException>(() => new FastXmlElementSplitter(null));
 		}
 
-		[Test, ExpectedException(typeof(ArgumentException))]
+		[Test]
 		public void Empty_String_Pathname_Throws()
 		{
-			new FastXmlElementSplitter(null);
+			Assert.Throws<ArgumentException>(() => new FastXmlElementSplitter(null));
 		}
 
-		[Test, ExpectedException(typeof(FileNotFoundException))]
+		[Test]
 		public void File_Not_Found_Throws()
 		{
-			new FastXmlElementSplitter("Non-existant-file.xml");
+			Assert.Throws<FileNotFoundException>(() => new FastXmlElementSplitter("Non-existant-file.xml"));
 		}
 
-		[Test, ExpectedException(typeof(ArgumentException))]
+		[Test]
 		public void Null_Parameter_Throws()
 		{
 			using (var reader = new FastXmlElementSplitter(Assembly.GetExecutingAssembly().CodeBase.Replace(@"file:///", null)))
 			{
-				reader.GetSecondLevelElementBytes(null);
+				Assert.Throws<ArgumentException>(() => reader.GetSecondLevelElementBytes(null));
 			}
 		}
 
-		[Test, ExpectedException(typeof(ArgumentException))]
+		[Test]
 		public void Empty_String_Parameter_Throws()
 		{
 			using (var reader = new FastXmlElementSplitter(Assembly.GetExecutingAssembly().CodeBase.Replace(@"file:///", null)))
 			{
-				reader.GetSecondLevelElementBytes("");
+				Assert.Throws<ArgumentException>(() => reader.GetSecondLevelElementBytes(""));
 			}
 		}
 
@@ -55,9 +55,9 @@ namespace LibChorus.Tests.utilities
 		{
 			const string noRecordsInput =
 @"<?xml version='1.0' encoding='utf-8'?>
-<languageproject version='7000016'>
-</languageproject>";
-			var goodXmlPathname = Path.ChangeExtension(Path.GetTempFileName(), ".fwdata");
+<classdata>
+</classdata>";
+			var goodXmlPathname = Path.ChangeExtension(Path.GetTempFileName(), ".ClassData");
 			try
 			{
 				File.WriteAllText(goodXmlPathname, noRecordsInput, Encoding.UTF8);
@@ -77,9 +77,9 @@ namespace LibChorus.Tests.utilities
 		{
 			const string noRecordsInput =
 @"<?xml version='1.0' encoding='utf-8'?>
-<languageproject version='7000016' />";
+<classdata />";
 
-			var goodXmlPathname = Path.ChangeExtension(Path.GetTempFileName(), ".fwdata");
+			var goodXmlPathname = Path.ChangeExtension(Path.GetTempFileName(), ".ClassData");
 			try
 			{
 				File.WriteAllText(goodXmlPathname, noRecordsInput, Encoding.UTF8);
@@ -94,7 +94,7 @@ namespace LibChorus.Tests.utilities
 			}
 		}
 
-		[Test, ExpectedException(typeof(InvalidOperationException))]
+		[Test]
 		public void Not_Xml_Throws()
 		{
 			const string noRecordsInput = "Some random text file.";
@@ -104,7 +104,7 @@ namespace LibChorus.Tests.utilities
 				File.WriteAllText(goodPathname, noRecordsInput, Encoding.UTF8);
 				using (var reader = new FastXmlElementSplitter(goodPathname))
 				{
-					reader.GetSecondLevelElementBytes("rt");
+					Assert.Throws<InvalidOperationException>(() => reader.GetSecondLevelElementBytes("rt"));
 				}
 			}
 			finally
@@ -118,7 +118,7 @@ namespace LibChorus.Tests.utilities
 		{
 			const string hasRecordsInput =
 @"<?xml version='1.0' encoding='utf-8'?>
-<languageproject version='7000016'>
+<classdata>
 <rt guid='emptyElement1'/>
 <rt guid='normalElement'>
 	<randomElement />
@@ -129,18 +129,22 @@ namespace LibChorus.Tests.utilities
 <rt		guid='tabAfterOpenTag'>
 </rt>
 <rt guid='emptyElement2' />
-</languageproject>";
+</classdata>";
 
-			CheckGoodFile(hasRecordsInput, 5, "AdditionalFields", "rt");
-			CheckGoodFile(hasRecordsInput, 5, "AdditionalFields", "<rt");
+			CheckGoodFile(hasRecordsInput, 5, null, "rt");
+			CheckGoodFile(hasRecordsInput, 5, null, "<rt");
 		}
 
 		[Test]
-		public void Can_Find_Custom_FieldWorks_Element()
+		public void Can_Find_Obsolete_Custom_FieldWorks_Element()
 		{
+			// FW no longer has the AdditionalFields element in the main file,
+			// but it is still a good test for the fast splitter, which does support optional first elements.
+			// LIFT still has its optional header element, which coudl be used here instead,
+			// but it is not worth it (to me [RandyR]) to switch it to a LIFT sample.
 			const string hasRecordsInput =
 @"<?xml version='1.0' encoding='utf-8'?>
-<languageproject version='7000016'>
+<classdata>
 <AdditionalFields>
 <CustomField name='Certified' class='WfiWordform' type='Boolean' />
 </AdditionalFields>
@@ -154,7 +158,7 @@ namespace LibChorus.Tests.utilities
 <rt		guid='tabAfterOpenTag'>
 </rt>
 <rt guid='emptyElement2' />
-</languageproject>";
+</classdata>";
 
 			CheckGoodFile(hasRecordsInput, 6, "AdditionalFields", "rt");
 		}
