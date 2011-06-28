@@ -41,7 +41,7 @@ namespace Chorus.FileTypeHanders.lift
 			config.ExcludePatterns.Add("**.avi");
 
 			config.IncludePatterns.Add("*.lift");
-			config.IncludePatterns.Add(".lift-ranges");
+			config.IncludePatterns.Add("*.lift-ranges");
 			config.IncludePatterns.Add(Path.Combine("audio", "**.*")); // Including nested folders/files
 			config.IncludePatterns.Add(Path.Combine("pictures", "**.*")); // Including nested folders/files
 			config.IncludePatterns.Add(Path.Combine("others", "**.*")); // Including nested folders/files
