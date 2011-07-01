@@ -6,6 +6,7 @@ using System.Linq;
 using Chorus.Utilities;
 using Chorus.Utilities.UsbDrive;
 using Chorus.VcsDrivers.Mercurial;
+using Palaso.IO;
 using Palaso.Progress.LogBox;
 
 namespace Chorus.VcsDrivers
@@ -290,7 +291,7 @@ namespace Chorus.VcsDrivers
 
 		private static List<string> CollectPathsWithRepositories(string path)
 		{
-			return (from directory in Directory.GetDirectories(path)
+			return (from directory in FolderUtils.GetSafeDirectories(path)
 					where Directory.Exists(Path.Combine(directory, ".hg"))
 									select directory).ToList();
 		}
