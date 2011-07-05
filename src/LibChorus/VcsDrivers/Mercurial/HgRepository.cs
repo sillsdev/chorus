@@ -188,6 +188,9 @@ namespace Chorus.VcsDrivers.Mercurial
 			return PullFromRepository(repo, false);
 		}
 
+		/// <summary>
+		/// Gives an id string which is unique to this repository, but shared across all clones of it.  Can be used to identify relatives in crowd.
+		/// </summary>
 		public string Identifier
 		{
 			get
