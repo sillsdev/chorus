@@ -48,6 +48,9 @@ namespace Chorus.Utilities
 			if(String.IsNullOrEmpty(url))
 				return defaultIfCannotGetIt;
 
+			if (url == "unknown") //some previous step couldn't come up with the url... review: why not just string.empty then? see CHR-2
+				return defaultIfCannotGetIt;
+
 			string originalUrl = url;
 			try
 			{

@@ -87,7 +87,7 @@ namespace Chorus.Tests.notes
 			using (var folder = new TemporaryFolder("NotesModelTests"))
 			using (new TempFileFromFolder(folder, "one." + AnnotationRepository.FileExtension,
 				@"<notes version='0'>
-					<annotation ref='somwhere://foo?label=korupsen' class='question'>
+					<annotation xref='somwhere://foo?label=korupsen' class='question'>
 						<message guid='123' author='john' status='open' date='2009-07-18T23:53:04Z'>
 							Suzie, is this ok?
 						</message>
