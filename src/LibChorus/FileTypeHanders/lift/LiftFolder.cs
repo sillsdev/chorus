@@ -51,6 +51,7 @@ namespace Chorus.FileTypeHanders.lift
 
 			config.IncludePatterns.Add(Path.Combine("export", "*.lpconfig"));//lexique pro
 			config.IncludePatterns.Add(Path.Combine("export", "custom*.css")); //stylesheets
+			config.IncludePatterns.Add(Path.Combine("export", "multigraphs.txt")); //list of multigraphs
 
 			//review (jh,jh): should these only be added when WeSay is the client?  Dunno.
 			config.IncludePatterns.Add("**.WeSayConfig");
