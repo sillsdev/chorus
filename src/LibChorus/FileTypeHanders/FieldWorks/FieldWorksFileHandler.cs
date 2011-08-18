@@ -41,7 +41,7 @@ namespace Chorus.FileTypeHanders.FieldWorks
 
 		public bool CanValidateFile(string pathToFile)
 		{
-			if (!FieldWorksMergingServices.CheckValidPathname(pathToFile, kExtension))
+			if (!FileUtils.CheckValidPathname(pathToFile, kExtension))
 				return false;
 
 			try
@@ -163,7 +163,7 @@ namespace Chorus.FileTypeHanders.FieldWorks
 
 		private bool CheckThatInputIsValidFieldWorksFile(string pathToFile)
 		{
-			if (!FieldWorksMergingServices.CheckValidPathname(pathToFile, kExtension))
+			if (!FileUtils.CheckValidPathname(pathToFile, kExtension))
 				return false;
 
 			bool seenBefore;

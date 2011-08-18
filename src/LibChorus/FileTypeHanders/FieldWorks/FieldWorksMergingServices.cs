@@ -397,13 +397,5 @@ namespace Chorus.FileTypeHanders.FieldWorks
 			CreateSharedElementStrategies(sharedElementStrategies);
 			CreateMergers(mdc, mergeSituation, sharedElementStrategies, mergers);
 		}
-
-		internal static bool CheckValidPathname(string pathToFile, string expectedExtension)
-		{
-			// Just because all of this is true, doesn't mean it is a FW 7.0 related file. :-(
-			return !string.IsNullOrEmpty(pathToFile) // No null or empty string can be valid.
-				&& File.Exists(pathToFile) // There has to be an actual file,
-				&& Path.GetExtension(pathToFile).ToLowerInvariant() == "." + expectedExtension.ToLowerInvariant(); // It better have 'expectedExtension' for its extension.
-		}
 	}
 }

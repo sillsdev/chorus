@@ -38,7 +38,7 @@ namespace Chorus.FileTypeHanders.FieldWorks.CustomProperties
 
 		public bool CanValidateFile(string pathToFile)
 		{
-			if (!FieldWorksMergingServices.CheckValidPathname(pathToFile, kExtension))
+			if (!FileUtils.CheckValidPathname(pathToFile, kExtension))
 				return false;
 
 			return DoValidation(pathToFile) == null;

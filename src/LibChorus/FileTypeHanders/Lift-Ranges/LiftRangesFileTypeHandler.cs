@@ -25,7 +25,7 @@ namespace Chorus.FileTypeHanders
 
 		public bool CanMergeFile(string pathToFile)
 		{
-			return FieldWorksMergingServices.CheckValidPathname(pathToFile, kExtension);
+			return FileUtils.CheckValidPathname(pathToFile, kExtension);
 		}
 
 		public bool CanPresentFile(string pathToFile)
