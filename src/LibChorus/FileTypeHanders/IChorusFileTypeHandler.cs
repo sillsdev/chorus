@@ -6,6 +6,7 @@ using Chorus.FileTypeHanders.FieldWorks;
 using Chorus.FileTypeHanders.FieldWorks.CustomProperties;
 using Chorus.FileTypeHanders.FieldWorks.ModelVersion;
 using Chorus.FileTypeHanders.image;
+using Chorus.FileTypeHanders.ldml;
 using Chorus.FileTypeHanders.lift;
 using Chorus.FileTypeHanders.oneStory;
 using Chorus.FileTypeHanders.test;
@@ -83,6 +84,7 @@ namespace Chorus.FileTypeHanders
 			fileTypeHandlers.HandlersList.Add(new FieldeWorksCustomPropertyFileHandler());
 			fileTypeHandlers.HandlersList.Add(new FieldWorksModelVersionFileHandler());
 			fileTypeHandlers.HandlersList.Add(new LiftRangesFileTypeHandler());
+			fileTypeHandlers.HandlersList.Add(new LdmlFileHandler());
 
 			//NB: never add the Default handler
 			return fileTypeHandlers;

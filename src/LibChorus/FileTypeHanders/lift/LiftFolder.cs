@@ -30,7 +30,7 @@ namespace Chorus.FileTypeHanders.lift
 			config.ExcludePatterns.Add("*.pdf");//normally in /export
 			config.ExcludePatterns.Add("*.html");//normally in /export
 			config.ExcludePatterns.Add("*.odt");//normally in /export
-			config.ExcludePatterns.Add("*.ldml");
+			config.ExcludePatterns.Add("*.ldml"); // Supposed to be in 'WritingSystems' folder now.
 			// Exclude these video extensions, for now at least.
 			// One can get a list of all sorts of extensions at: http://www.fileinfo.com/filetypes/video
 			config.ExcludePatterns.Add("**.mpg");
