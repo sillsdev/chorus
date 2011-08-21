@@ -10,6 +10,7 @@ using Chorus.merge.xml.generic;
 using Chorus.VcsDrivers.Mercurial;
 using Palaso.IO;
 using Palaso.Progress.LogBox;
+using Palaso.Xml;
 
 namespace Chorus.FileTypeHanders.ldml
 {
@@ -57,7 +58,27 @@ namespace Chorus.FileTypeHanders.ldml
 
 			merger.EventListener = mergeOrder.EventListener;
 			var result = merger.MergeFiles(mergeOrder.pathToOurs, mergeOrder.pathToTheirs, mergeOrder.pathToCommonAncestor);
-			File.WriteAllText(mergeOrder.pathToOurs, result.MergedNode.OuterXml);
+			using (var writer = XmlWriter.Create(mergeOrder.pathToOurs, CanonicalXmlSettings.CreateXmlWriterSettings()))
+			{
+				var nameSpaceManager = new XmlNamespaceManager(new NameTable());
+				nameSpaceManager.AddNamespace("palaso", "urn://palaso.org/ldmlExtensions/v1");
+				nameSpaceManager.AddNamespace("fw", "urn://fieldworks.sil.org/ldmlExtensions/v1");
+
+				var readerSettings = new XmlReaderSettings
+										{
+											NameTable = nameSpaceManager.NameTable,
+											IgnoreWhitespace = true,
+											ConformanceLevel = ConformanceLevel.Auto,
+											ValidationType = ValidationType.None,
+											XmlResolver = null,
+											CloseInput = true,
+											ProhibitDtd = false
+										};
+				using (var nodeReader = XmlReader.Create(new MemoryStream(Encoding.UTF8.GetBytes(result.MergedNode.OuterXml)), readerSettings))
+				{
+					writer.WriteNode(nodeReader, false);
+				}
+			}
 		}
 
 		public IEnumerable<IChangeReport> Find2WayDifferences(FileInRevision parent, FileInRevision child, HgRepository repository)

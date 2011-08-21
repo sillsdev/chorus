@@ -77,7 +77,7 @@ namespace LibChorus.Tests.FileHandlers.ldml
 		}
 
 		[Test]
-		public void ConflictingEditsInSpecialHasConflictReort()
+		public void NonConflictingEditsInAtomicSpecialHasConflictReport()
 		{
 			const string commonAncestor =
 @"<?xml version='1.0' encoding='utf-8'?>
