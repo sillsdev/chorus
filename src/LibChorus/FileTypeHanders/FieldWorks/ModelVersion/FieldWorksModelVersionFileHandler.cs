@@ -52,6 +52,8 @@ namespace Chorus.FileTypeHanders.FieldWorks.ModelVersion
 		/// The must not have any UI, no interaction with the user.</remarks>
 		public void Do3WayMerge(MergeOrder mergeOrder)
 		{
+			// TODO: Update MDC to latest model version.
+
 			if (mergeOrder.EventListener is NullMergeEventListener)
 				mergeOrder.EventListener = new ChangeAndConflictAccumulator();
 
