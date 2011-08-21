@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Xml;
 
 namespace Chorus.merge.xml.generic
@@ -33,23 +34,48 @@ namespace Chorus.merge.xml.generic
 
 		public ElementStrategy GetElementStrategy(XmlNode element)
 		{
-			string name;
+			string key;
 			switch (element.NodeType)
 			{
 				case XmlNodeType.Element:
-					name = element.Name;
+					key = GetKeyViaHack(element);
 					break;
 				default:
-					name = "_"+element.NodeType;
+					key = "_"+element.NodeType;
 					break;
 			}
 
 			ElementStrategy strategy;
-			if (!ElementStrategies.TryGetValue(name, out strategy))
+			if (!ElementStrategies.TryGetValue(key, out strategy))
 			{
 				return ElementStrategies["_defaultElement"];
 			}
 			return strategy;
+		}
+
+		private static string GetKeyViaHack(XmlNode element)
+		{
+			var name = element.Name;
+			if (name == "special")
+			{
+				var foundHack = false;
+				foreach (var attrName in from XmlNode attr in element.Attributes select attr.Name)
+				{
+					switch (attrName)
+					{
+						default:
+							break;
+						case "xmlns:palaso":
+						case "xmlns:fw":
+							name += "_" + attrName;
+							foundHack = true;
+							break;
+					}
+					if (foundHack)
+						break;
+				}
+			}
+			return name;
 		}
 
 		public IFindNodeToMerge GetMergePartnerFinder(XmlNode element)

@@ -79,5 +79,54 @@ namespace LibChorus.Tests.merge.xml
 			}
 			Assert.IsNull(node);
 		}
+
+		public static void AssertXPathMatchesExactlyOne(string xml, string xpath, Dictionary<string, string> namespaces)
+		{
+			var doc = new XmlDocument();
+			doc.LoadXml(xml);
+			var namespaceManager = new XmlNamespaceManager(doc.NameTable);
+			foreach (var namespaceKvp in namespaces)
+				namespaceManager.AddNamespace(namespaceKvp.Key, namespaceKvp.Value);
+
+			var nodes = doc.SelectNodes(xpath, namespaceManager);
+			if (nodes != null && nodes.Count == 1)
+				return;
+
+			var settings = new XmlWriterSettings { Indent = true, ConformanceLevel = ConformanceLevel.Fragment };
+			var writer = XmlTextWriter.Create(Console.Out, settings);
+			doc.WriteContentTo(writer);
+			writer.Flush();
+			if (nodes != null && nodes.Count > 1)
+			{
+				Assert.Fail("Too Many matches for XPath: {0}", xpath);
+			}
+			else
+			{
+				Assert.Fail("No Match: XPath failed: {0}", xpath);
+			}
+		}
+
+		public static void AssertXPathIsNull(string xml, string xpath, Dictionary<string, string> namespaces)
+		{
+			var doc = new XmlDocument();
+			doc.LoadXml(xml);
+			var namespaceManager = new XmlNamespaceManager(doc.NameTable);
+			foreach (var namespaceKvp in namespaces)
+				namespaceManager.AddNamespace(namespaceKvp.Key, namespaceKvp.Value);
+
+			var node = doc.SelectSingleNode(xpath, namespaceManager);
+			if (node != null)
+			{
+				var settings = new XmlWriterSettings
+				{
+					Indent = true,
+					ConformanceLevel = ConformanceLevel.Fragment
+				};
+				var writer = XmlTextWriter.Create(Console.Out, settings);
+				doc.WriteContentTo(writer);
+				writer.Flush();
+			}
+			Assert.IsNull(node);
+		}
 	}
 }

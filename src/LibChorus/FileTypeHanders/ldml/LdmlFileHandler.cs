@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Xml;
+using Chorus.FileTypeHanders.xml;
 using Chorus.merge;
+using Chorus.merge.xml.generic;
 using Chorus.VcsDrivers.Mercurial;
 using Palaso.IO;
 using Palaso.Progress.LogBox;
@@ -21,37 +24,22 @@ namespace Chorus.FileTypeHanders.ldml
 
 		public bool CanDiffFile(string pathToFile)
 		{
-			return false;
+			return CanValidateFile(pathToFile);
 		}
 
 		public bool CanMergeFile(string pathToFile)
 		{
-			return false;
+			return CanValidateFile(pathToFile);
 		}
 
 		public bool CanPresentFile(string pathToFile)
 		{
-			return false;
+			return CanValidateFile(pathToFile);
 		}
 
 		public bool CanValidateFile(string pathToFile)
 		{
-			if (!FileUtils.CheckValidPathname(pathToFile, kExtension))
-				return false;
-
-			try
-			{
-				var settings = new XmlReaderSettings { ValidationType = ValidationType.None };
-				using (var reader = XmlReader.Create(pathToFile, settings))
-				{
-					reader.MoveToContent();
-					return reader.LocalName == "ldml";
-				}
-			}
-			catch
-			{
-				return false;
-			}
+			return FileUtils.CheckValidPathname(pathToFile, kExtension);
 		}
 
 		/// <summary>
@@ -61,17 +49,28 @@ namespace Chorus.FileTypeHanders.ldml
 		/// The must not have any UI, no interaction with the user.</remarks>
 		public void Do3WayMerge(MergeOrder mergeOrder)
 		{
-			throw new NotImplementedException();
+			if (mergeOrder == null)
+				throw new ArgumentNullException("mergeOrder");
+
+			var merger = new XmlMerger(mergeOrder.MergeSituation);
+			SetupElementStrategies(merger);
+
+			merger.EventListener = mergeOrder.EventListener;
+			var result = merger.MergeFiles(mergeOrder.pathToOurs, mergeOrder.pathToTheirs, mergeOrder.pathToCommonAncestor);
+			File.WriteAllText(mergeOrder.pathToOurs, result.MergedNode.OuterXml);
 		}
 
 		public IEnumerable<IChangeReport> Find2WayDifferences(FileInRevision parent, FileInRevision child, HgRepository repository)
 		{
-			throw new NotImplementedException();
+			return new IChangeReport[] { new DefaultChangeReport(parent, child, "Edited") };
 		}
 
 		public IChangePresenter GetChangePresenter(IChangeReport report, HgRepository repository)
 		{
-			throw new NotImplementedException();
+			// TODO: Add better presenter.
+			return report is ErrorDeterminingChangeReport
+					? (IChangePresenter) report
+					: new DefaultChangePresenter(report, repository);
 		}
 
 		/// <summary>
@@ -131,5 +130,37 @@ namespace Chorus.FileTypeHanders.ldml
 		}
 
 		#endregion
+
+		private static void SetupElementStrategies(XmlMerger merger)
+		{
+			merger.MergeStrategies.SetStrategy("ldml", ElementStrategy.CreateSingletonElement());
+			merger.MergeStrategies.SetStrategy("identity", ElementStrategy.CreateSingletonElement());
+			// Child elements of "identity".
+			merger.MergeStrategies.SetStrategy("version", ElementStrategy.CreateSingletonElement());
+			merger.MergeStrategies.SetStrategy("generation", ElementStrategy.CreateSingletonElement());
+			merger.MergeStrategies.SetStrategy("language", ElementStrategy.CreateSingletonElement());
+			merger.MergeStrategies.SetStrategy("script", ElementStrategy.CreateSingletonElement());
+			merger.MergeStrategies.SetStrategy("territory", ElementStrategy.CreateSingletonElement());
+			merger.MergeStrategies.SetStrategy("variant", ElementStrategy.CreateSingletonElement());
+			merger.MergeStrategies.SetStrategy("collations", ElementStrategy.CreateSingletonElement());
+			// Child element of collations
+			var strategy = ElementStrategy.CreateSingletonElement();
+			strategy.IsAtomic = true; // I (RBR) think it would be suicidal to try and merge this element.
+			merger.MergeStrategies.SetStrategy("collation", strategy);
+			// Special "xmlns:palaso"
+			strategy = new ElementStrategy(false)
+			{
+				IsAtomic = true, // May not be needed...
+				MergePartnerFinder = new FindByMatchingAttributeNames(new HashSet<string> { "xmlns:palaso" })
+			};
+			merger.MergeStrategies.SetStrategy("special_xmlns:palaso", strategy);
+			// Special "xmlns:fw"
+			strategy = new ElementStrategy(false)
+			{
+				IsAtomic = true, // Really is needed. At least it is for some child elements.
+				MergePartnerFinder = new FindByMatchingAttributeNames(new HashSet<string> { "xmlns:fw" })
+			};
+			merger.MergeStrategies.SetStrategy("special_xmlns:fw", strategy);
+		}
 	}
 }

@@ -55,6 +55,46 @@ namespace Chorus.merge.xml.generic
 
 	}
 
+	///<summary>
+	/// Search for a matching elment where multiple attribute names (not values) combine
+	/// to make a single "key" to identify a matching elment.
+	///</summary>
+	public class FindByMatchingAttributeNames : IFindNodeToMerge
+	{
+		private readonly HashSet<string> _keyAttributes;
+
+		public FindByMatchingAttributeNames(HashSet<string> keyAttributes)
+		{
+			_keyAttributes = keyAttributes;
+		}
+
+		#region Implementation of IFindNodeToMerge
+
+		/// <summary>
+		/// Should return null if parentToSearchIn is null
+		/// </summary>
+		public XmlNode GetNodeToMerge(XmlNode nodeToMatch, XmlNode parentToSearchIn)
+		{
+			if (parentToSearchIn == null)
+				return null;
+
+
+			foreach (var possibleMatch in parentToSearchIn.SelectNodes(nodeToMatch.Name))
+			{
+				var retval = (XmlNode)possibleMatch;
+				var actualAttrs = new HashSet<string>();
+				foreach (XmlNode attr in retval.Attributes)
+					actualAttrs.Add(attr.Name);
+				if (_keyAttributes.IsSubsetOf(actualAttrs))
+					return retval;
+			}
+
+			return null;
+		}
+
+		#endregion
+	}
+
 	/// <summary>
 	/// Search for a matching elment where multiple attributes combine
 	/// to make a single "key" to identify a matching elment.

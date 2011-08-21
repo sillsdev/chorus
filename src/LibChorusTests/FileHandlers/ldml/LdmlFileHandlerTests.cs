@@ -50,5 +50,64 @@ namespace LibChorus.Tests.FileHandlers.ldml
 			var onlyOne = initialContents.First();
 			Assert.AreEqual("Added", onlyOne.ActionLabel);
 		}
+
+		[Test]
+		public void Find2WayDifferencesShouldReportOneChangeNoMatterHowManyWereMade()
+		{
+			// There are actually more than one change, but we don't fret about that at this point.
+			const string parent =
+@"<?xml version='1.0' encoding='utf-8'?>
+<ldml>
+<special xmlns:palaso='urn://palaso.org/ldmlExtensions/v1' />
+</ldml>";
+			const string child =
+@"<?xml version='1.0' encoding='utf-8'?>
+<ldml>
+<identity />
+<special xmlns:fw='urn://fieldworks.sil.org/ldmlExtensions/v1' />
+<special xmlns:palaso='urn://palaso.org/ldmlExtensions/v1' />
+</ldml>";
+			using (var repositorySetup = new RepositorySetup("randy"))
+			{
+				repositorySetup.AddAndCheckinFile("some.ldml", parent);
+				repositorySetup.ChangeFileAndCommit("some.ldml", child, "change it");
+				var hgRepository = repositorySetup.Repository;
+				var allRevisions = (from rev in hgRepository.GetAllRevisions()
+									orderby rev.Number.LocalRevisionNumber
+									select rev).ToList();
+				var first = allRevisions[0];
+				var second = allRevisions[1];
+				var firstFiR = hgRepository.GetFilesInRevision(first).First();
+				var secondFiR = hgRepository.GetFilesInRevision(second).First();
+				var result = _ldmlFileHandler.Find2WayDifferences(firstFiR, secondFiR, hgRepository);
+				Assert.AreEqual(1, result.Count());
+				Assert.AreEqual("Edited", result.First().ActionLabel);
+			}
+		}
+
+		[Test]
+		public void Find2WayDifferencesShouldReportOneChangeEvenWhenNoneArePresent()
+		{
+			// One 'change' reported, even for the exact same file.
+			const string parent =
+@"<?xml version='1.0' encoding='utf-8'?>
+<ldml>
+<special xmlns:palaso='urn://palaso.org/ldmlExtensions/v1' />
+</ldml>";
+			using (var repositorySetup = new RepositorySetup("randy"))
+			{
+				repositorySetup.AddAndCheckinFile("some.ldml", parent);
+				repositorySetup.ChangeFileAndCommit("some.ldml", parent, "change it");
+				var hgRepository = repositorySetup.Repository;
+				var allRevisions = (from rev in hgRepository.GetAllRevisions()
+									orderby rev.Number.LocalRevisionNumber
+									select rev).ToList();
+				var first = allRevisions[0];
+				var firstFiR = hgRepository.GetFilesInRevision(first).First();
+				var result = _ldmlFileHandler.Find2WayDifferences(firstFiR, firstFiR, hgRepository);
+				Assert.AreEqual(1, result.Count());
+				Assert.AreEqual("Edited", result.First().ActionLabel);
+			}
+		}
 	}
 }
