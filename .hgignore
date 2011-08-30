@@ -13,3 +13,7 @@ glob:*~
 *.pidb
 glob:Mercurial/*
 glob:*ReSharper*
+glob:build/old
+glob:lib/$(Configuration)
+glob:*.resources
+glob:*.userprefs

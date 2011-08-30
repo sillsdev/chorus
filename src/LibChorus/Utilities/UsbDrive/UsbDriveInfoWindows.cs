@@ -105,7 +105,6 @@ namespace Chorus.Utilities.UsbDrive
 						}
 
 					}
-
 				}
 						catch (Exception e)
 						{
