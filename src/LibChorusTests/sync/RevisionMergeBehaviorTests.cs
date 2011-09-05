@@ -9,7 +9,7 @@ namespace LibChorus.Tests.sync
 	/// These tests are not about the internal merging files, but about the Synchronizer's revision
 	/// merging behavior.
 	/// </summary>
-	//[TestFixture]
+	[TestFixture]
 	public class RevisionMergeBehaviorTests
 	{
 		[Test]
