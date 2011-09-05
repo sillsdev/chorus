@@ -86,7 +86,6 @@ namespace LibChorus.Tests.FileHandlers.ldml
 		}
 
 		[Test]
-		[Category("SkipOnBuildServer")]
 		public void Find2WayDifferencesShouldReportOneChangeEvenWhenNoneArePresent()
 		{
 			// One 'change' reported, even for the exact same file.
