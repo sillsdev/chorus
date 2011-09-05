@@ -85,7 +85,7 @@
 
   <target name="UnzipMercurial">
 	<unzip zipfile="../lib/net2.0/Mercurial.zip"
-		   todir="../output/common"/>
+		   todir="../"/>
   </target>
 
   <target name="build.solution" depends="assemblyinfo">
@@ -104,7 +104,7 @@
 		<fail unless="${file::exists(expected.output)}">Output file doesn't exist in ${expected.output}</fail>
 	</target>
 
-	<target name="test" depends="build">
+	<target name="test" depends="UnzipMercurial,build">
 		<nunit2>
 			<formatter type="Plain" usefile="true" />
 			<test>
