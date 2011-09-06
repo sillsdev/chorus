@@ -1,4 +1,4 @@
-syntax: glob
+﻿syntax: glob
 CopyToWeSay.bat
 glob:output/
 glob:obj/
@@ -10,9 +10,13 @@ glob:*.user
 glob:CopyToWeSayDev.bat
 glob:lib/Palaso.TestUtilities.pdb
 glob:*~
-*.pidb
+glob:*.pidb
 glob:Mercurial/*
 glob:*ReSharper*
+glob:build/old
+glob:lib/$(Configuration)
+glob:*.resources
+glob:*.userprefs
 relre:src/Chorus.Tests/bin/*
 relre:src/ChorusMerge.Tests/bin/*
-relre:src/SampleApp/bin/*.*
+relre:src/SampleApp/bin/*

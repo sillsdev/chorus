@@ -19,7 +19,6 @@ namespace LibChorus.Tests.merge.xml.adaptIt
 		public void Setup()
 		{
 			_ancestor = @"<?xml version='1.0' encoding='UTF-8' standalone='yes'?>
-<AdaptItKnowledgeBase xmlns='http://www.sil.org/computing/schemas/AdaptIt KB.xsd'>
 <!--
 	 Note: Using Microsoft WORD 2003 or later is not a good way to edit this xml file.
 	 Instead, use NotePad, WordPad or Windows Explorer.
@@ -38,7 +37,7 @@ namespace LibChorus.Tests.merge.xml.adaptIt
 			<RS n='1' a='seven'/>
 		</TU>
 	</MAP>
-</KB></AdaptItKnowledgeBase>";
+</KB>";
 
 
 			//TODO: remove this once we figure out a way around it
@@ -166,7 +165,7 @@ namespace LibChorus.Tests.merge.xml.adaptIt
 		[Test]
 		public void Do3WayMerge_BothIncreasedTheCountOnAnRS_PickOneAndNoConflictsReported()
 		{
-			var ourContent = _ancestor.Replace("<RS n='1' a='boo'/",
+			var ourContent = _ancestor.Replace("<RS n='1' a='boo'/>",
 											  "<RS n='3' a='boo'/>");
 			var theirContent = _ancestor.Replace("<RS n='1' a='boo'/>",
 											   "<RS n='5' a='boo'/>");
@@ -198,6 +197,21 @@ namespace LibChorus.Tests.merge.xml.adaptIt
 			AssertThatXmlIn.String(result).HasNoMatchForXpath("//TU[@k='foo']");
 		}
 
+		[Test]
+	public void Do3WayMerge_BothAddedTheSameRS_ButWithDifferentNAttrValues_PickOneAndNoConflictsReported()
+	{
+		var ourContent = _ancestor.Replace("<RS n='1' a='boo'/>",
+										  @"<RS n='1' a='boo'/>
+											<RS n='1' a='bar'/>");
+		var theirContent = _ancestor.Replace("<RS n='1' a='boo'/>",
+											@"<RS n='1' a='boo'/>
+											  <RS n='2' a='bar'/>");
+
+		var result = DoMerge(ourContent, theirContent);
+		AssertThatXmlIn.String(result).HasSpecifiedNumberOfMatchesForXpath("//RS[@a='bar']", 1);
+		AssertThatXmlIn.String(result).HasSpecifiedNumberOfMatchesForXpath("//RS[@a='bar' and @n='1']", 1);
+		_eventListener.AssertExpectedConflictCount(0);
+	}
 
 		private string DoMerge(string ourContent, string theirContent)
 		{

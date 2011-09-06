@@ -1,6 +1,7 @@
 using System;
 using System.CodeDom.Compiler;
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Text;
@@ -93,6 +94,60 @@ namespace Chorus.merge.xml.generic
 			tn.Normalize();//doesn't do much
 
 			return AreXmlElementsEqual(on, tn);
+		}
+
+		/// <summary>
+		/// this version of AreXmlElementsEqual is used to compare two xml strings
+		/// and have it ignore certain specified attributes (if the corresponding string
+		/// in astrAttributeToIgnore is non-null) or elements (if the corresponding string
+		/// in astrAttributeToIgnore is null)
+		/// </summary>
+		/// <param name="ours">xml string for left-hand side of the comparison</param>
+		/// <param name="theirs">xml string for right-hand side of the comparison</param>
+		/// <param name="astrElementXPath">an array of XPath strings to the element in which the attribute is to be ignored. For example, if we're ignoring /StoryProject/stories/story/@stageDateTimeStamp, then one of the items of this list would be "/StoryProject/stories/story"</param>
+		/// <param name="astrAttributeToIgnore">an array of attribute names to be ignored. For example, if we're ignoring /StoryProject/stories/story/@stageDateTimeStamp, then the items in this list would be "stageDateTimeStamp"</param>
+		/// <returns></returns>
+		public static bool AreXmlElementsEqual(string ours, string theirs,
+			string[] astrElementXPath, string[] astrAttributeToIgnore)
+		{
+			StringReader osr = new StringReader(ours);
+			XmlReader or = XmlReader.Create(osr);
+			XmlDocument od = new XmlDocument();
+			XmlNode on = od.ReadNode(or);
+			on.Normalize();
+
+			StringReader tsr = new StringReader(theirs);
+			XmlReader tr = XmlReader.Create(tsr);
+			XmlDocument td = new XmlDocument();
+			XmlNode tn = td.ReadNode(tr);
+			tn.Normalize();//doesn't do much
+
+			System.Diagnostics.Debug.Assert(astrElementXPath.Length == astrAttributeToIgnore.Length);
+			for (int i = 0; i < astrElementXPath.Length; i++)
+			{
+				RemoveItem(on, astrElementXPath[i], astrAttributeToIgnore[i]);
+				RemoveItem(tn, astrElementXPath[i], astrAttributeToIgnore[i]);
+			}
+
+			return AreXmlElementsEqual(on, tn);
+		}
+
+		private static void RemoveItem(XmlNode node, string strXPath, string strAttribute)
+		{
+			XmlNodeList list = node.SelectNodes(strXPath);
+			if (list != null)
+				foreach (XmlNode nodeToRemove in list)
+					RemoveItem(nodeToRemove, strAttribute);
+		}
+
+		private static void RemoveItem(XmlNode node, string strAttribute)
+		{
+			if (String.IsNullOrEmpty(strAttribute))
+				// remove the whole element
+				node.ParentNode.RemoveChild(node);
+			else
+				// just remove the attribute
+				node.Attributes.RemoveNamedItem(strAttribute);
 		}
 
 		public static bool AreXmlElementsEqual(XmlNode ours, XmlNode theirs)

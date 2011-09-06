@@ -9,7 +9,7 @@ using NUnit.Framework;
 using Palaso.Progress.LogBox;
 using Palaso.TestUtilities;
 
-namespace Chorus.Tests
+namespace LibChorus.Tests
 {
 	[TestFixture]
 	public class ClonerTests

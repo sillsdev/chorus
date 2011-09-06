@@ -58,6 +58,41 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			}
 		}
 
+		/// <summary>
+		/// for LIFT, normally we want .lift, but not if it's in th export folder
+		/// </summary>
+		[Test]
+		public void IncludeInGeneralButExcludeInSubfolder_FileNotAdded()
+		{
+			using (var setup = new RepositorySetup("Dan"))
+			{
+				var good = setup.ProjectFolder.Combine("good.lift");
+				File.WriteAllText(good, "hello");
+
+				var export = setup.ProjectFolder.Combine("export");
+				Directory.CreateDirectory(export);
+				var bad = Path.Combine(export, "bad.lift");
+				File.WriteAllText(bad, "hello");
+
+				var goodFontCss = Path.Combine(export, "customFonts.css");
+				File.WriteAllText(goodFontCss, "hello");
+
+				var goodLayoutCss = Path.Combine(export, "customLayout.css");
+				File.WriteAllText(goodLayoutCss, "hello");
+
+				setup.ProjectFolderConfig.ExcludePatterns.Clear();
+				setup.ProjectFolderConfig.IncludePatterns.Clear();
+
+				LiftFolder.AddLiftFileInfoToFolderConfiguration(setup.ProjectFolderConfig);
+
+				setup.AddAndCheckIn();
+				setup.AssertFileExistsInRepository("good.lift");
+				setup.AssertFileExistsInRepository("export/customFonts.css");
+				setup.AssertFileExistsInRepository("export/customLayout.css");
+				setup.AssertFileDoesNotExistInRepository("export/bad.lift");
+			}
+		}
+
 		[Test]
 		public void ExcludeLdmlInRoot_FileNotAdded()
 		{

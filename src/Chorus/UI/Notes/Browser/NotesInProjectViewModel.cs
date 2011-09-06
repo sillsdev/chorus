@@ -4,6 +4,7 @@ using System.Linq;
 using Chorus.notes;
 using Palaso.Progress.LogBox;
 using Palaso.Reporting;
+using Palaso.Reporting;
 
 namespace Chorus.UI.Notes.Browser
 {
@@ -95,10 +96,6 @@ namespace Chorus.UI.Notes.Browser
 			return false;
 		}
 
-		public void CloseAnnotation(ListMessage listMessage)
-		{
-			listMessage.ParentAnnotation.AddMessage(_user.Name, "closed", string.Empty);
-		}
 
 		public void SelectedMessageChanged(ListMessage listMessage)
 		{
@@ -113,6 +110,7 @@ namespace Chorus.UI.Notes.Browser
 					_messageSelectedEvent.Raise(listMessage.ParentAnnotation, listMessage.Message);
 				}
 			}
+			GoodTimeToSave();
 		}
 
 		public void SearchTextChanged(string searchText)
@@ -149,6 +147,7 @@ namespace Chorus.UI.Notes.Browser
 
 		public void NotifyOfAddition(Annotation annotation)
 		{
+			//NB: this notification would come from the repository, not the view
 			_reloadPending=true;
 			SaveChanges();
 		}
@@ -167,12 +166,27 @@ namespace Chorus.UI.Notes.Browser
 
 		public void NotifyOfModification(Annotation annotation)
 		{
+			//NB: this notification would come from the repository, not the view
 			_reloadPending = true;
 			SaveChanges();
 		}
 
+		private void Save(Annotation annotation)
+		{
+			var owningRepo = _repositories.Where(r => r.ContainsAnnotation(annotation)).FirstOrDefault();
+			if(owningRepo ==null)
+			{
+				ErrorReport.NotifyUserOfProblem(
+					"A serious problem has occurred; Chorus cannot find the repository which owns this note, so it cannot be saved.");
+				return;
+			}
+
+			owningRepo.SaveNowIfNeeded(new NullProgress());
+		}
+
 		public void NotifyOfDeletion(Annotation annotation)
 		{
+			//NB: this notification would come from the repository, not the view
 			_reloadPending = true;
 			SaveChanges();
 		}
@@ -183,6 +197,14 @@ namespace Chorus.UI.Notes.Browser
 		{
 			if(_reloadPending)
 				ReloadMessagesNow();
+		}
+
+		public void GoodTimeToSave()
+		{
+			foreach (var repository in _repositories)
+			{
+				repository.SaveNowIfNeeded(new NullProgress());
+			}
 		}
 	}
 }

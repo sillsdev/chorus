@@ -169,8 +169,14 @@ namespace Chorus.merge.xml.generic
 					}
 					else
 					{
-						EventListener.ConflictOccurred(new BothEditedAttributeConflict(theirAttr.Name, ourAttr.Value, theirAttr.Value, null,  MergeSituation,
-							MergeSituation.AlphaUserId));
+						var strat = MergeStrategies.GetElementStrategy(ours);
+
+						//for unit test see Merge_RealConflictPlusModDateConflict_ModDateNotReportedAsConflict()
+						if (strat == null || !strat.AttributesToIgnoreForMerging.Contains(ourAttr.Name))
+						{
+							EventListener.ConflictOccurred(new BothEditedAttributeConflict(theirAttr.Name, ourAttr.Value, theirAttr.Value, null, MergeSituation,
+								MergeSituation.AlphaUserId));
+						}
 					}
 				}
 				else if (ancestorAttr.Value == ourAttr.Value)
