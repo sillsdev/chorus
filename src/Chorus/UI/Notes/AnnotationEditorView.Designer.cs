@@ -28,7 +28,7 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
-			this._closedCheckBox = new System.Windows.Forms.CheckBox();
+			this._resolvedCheckBox = new System.Windows.Forms.CheckBox();
 			this._addButton = new System.Windows.Forms.Button();
 			this._newMessage = new System.Windows.Forms.TextBox();
 			this._annotationLogo = new System.Windows.Forms.PictureBox();
@@ -39,19 +39,19 @@
 			((System.ComponentModel.ISupportInitialize)(this._annotationLogo)).BeginInit();
 			this.SuspendLayout();
 			//
-			// _closedCheckBox
+			// _resolvedCheckBox
 			//
-			this._closedCheckBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this._closedCheckBox.AutoSize = true;
-			this._closedCheckBox.Image = global::Chorus.Properties.Resources.check12x12;
-			this._closedCheckBox.Location = new System.Drawing.Point(4, 387);
-			this._closedCheckBox.Name = "_closedCheckBox";
-			this._closedCheckBox.Size = new System.Drawing.Size(83, 17);
-			this._closedCheckBox.TabIndex = 2;
-			this._closedCheckBox.Text = "&Resolved";
-			this._closedCheckBox.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
-			this._closedCheckBox.UseVisualStyleBackColor = true;
-			this._closedCheckBox.CheckedChanged += new System.EventHandler(this.OnClosedCheckBox_CheckedChanged);
+			this._resolvedCheckBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+			this._resolvedCheckBox.AutoSize = true;
+			this._resolvedCheckBox.Image = global::Chorus.Properties.Resources.check12x12;
+			this._resolvedCheckBox.Location = new System.Drawing.Point(4, 387);
+			this._resolvedCheckBox.Name = "_resolvedCheckBox";
+			this._resolvedCheckBox.Size = new System.Drawing.Size(83, 17);
+			this._resolvedCheckBox.TabIndex = 2;
+			this._resolvedCheckBox.Text = "&Resolved";
+			this._resolvedCheckBox.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
+			this._resolvedCheckBox.UseVisualStyleBackColor = true;
+			this._resolvedCheckBox.CheckedChanged += new System.EventHandler(this.OnResolvedCheckBox_CheckedChanged);
 			//
 			// _addButton
 			//
@@ -84,8 +84,8 @@
 			this._annotationLogo.Size = new System.Drawing.Size(32, 32);
 			this._annotationLogo.TabIndex = 1;
 			this._annotationLogo.TabStop = false;
-			this._annotationLogo.DoubleClick += new System.EventHandler(this._annotationLogo_DoubleClick);
 			this._annotationLogo.Paint += new System.Windows.Forms.PaintEventHandler(this._annotationLogo_Paint);
+			this._annotationLogo.DoubleClick += new System.EventHandler(this._annotationLogo_DoubleClick);
 			//
 			// _existingMessagesDisplay
 			//
@@ -99,8 +99,8 @@
 			this._existingMessagesDisplay.Size = new System.Drawing.Size(313, 250);
 			this._existingMessagesDisplay.TabIndex = 9;
 			this._existingMessagesDisplay.WebBrowserShortcutsEnabled = false;
-			this._existingMessagesDisplay.Navigating += new System.Windows.Forms.WebBrowserNavigatingEventHandler(this._existingMessagesDisplay_Navigating);
 			this._existingMessagesDisplay.DocumentCompleted += new System.Windows.Forms.WebBrowserDocumentCompletedEventHandler(this._existingMessagesDisplay_DocumentCompleted);
+			this._existingMessagesDisplay.Navigating += new System.Windows.Forms.WebBrowserNavigatingEventHandler(this._existingMessagesDisplay_Navigating);
 			//
 			// _closeButton
 			//
@@ -150,7 +150,7 @@
 			this.Controls.Add(this._closeButton);
 			this.Controls.Add(this._addButton);
 			this.Controls.Add(this._addNewMessageLabel);
-			this.Controls.Add(this._closedCheckBox);
+			this.Controls.Add(this._resolvedCheckBox);
 			this.Controls.Add(this._annotationLogo);
 			this.Name = "AnnotationEditorView";
 			this.Size = new System.Drawing.Size(321, 415);
@@ -164,7 +164,7 @@
 		#endregion
 
 		private System.Windows.Forms.PictureBox _annotationLogo;
-		private System.Windows.Forms.CheckBox _closedCheckBox;
+		private System.Windows.Forms.CheckBox _resolvedCheckBox;
 		private BetterLabel _addNewMessageLabel;
 		private System.Windows.Forms.Button _addButton;
 		private System.Windows.Forms.TextBox _newMessage;

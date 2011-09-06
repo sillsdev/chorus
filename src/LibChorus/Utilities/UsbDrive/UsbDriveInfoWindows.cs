@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Management;
 using Chorus.Utilities.UsbDrive;
@@ -58,9 +59,13 @@ namespace Chorus.Utilities.UsbDrive
 					"SELECT Caption, DeviceID FROM Win32_DiskDrive WHERE InterfaceType='USB'")
 				)
 			{
+				try
+				{
 				// walk all USB WMI physical disks
 				foreach (ManagementObject drive in driveSearcher.Get())
 				{
+						try
+						{
 					// browse all USB WMI physical disks
 					using (ManagementObjectSearcher searcher =
 						new ManagementObjectSearcher(
@@ -100,9 +105,17 @@ namespace Chorus.Utilities.UsbDrive
 						}
 
 					}
-
 				}
-
+						catch (Exception e)
+						{
+							Debug.Fail(e.Message);
+						}
+					}
+				}
+				catch (Exception e)
+				{
+					Debug.Fail(e.Message);
+				}
 			}
 			return drives;
 		}

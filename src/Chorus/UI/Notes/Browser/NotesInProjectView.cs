@@ -81,6 +81,11 @@ namespace Chorus.UI.Notes.Browser
 		{
 			if (this.Visible)
 				_model.CheckIfWeNeedToReload();
+			else
+			{
+				//Enhance: this is never called (e.g. we get a call when we become visible, but not invisible)
+				_model.GoodTimeToSave();
+			}
 		}
 
 		private void _filterCombo_SelectedIndexChanged(object sender, EventArgs e)

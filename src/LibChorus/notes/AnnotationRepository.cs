@@ -95,7 +95,7 @@ namespace Chorus.notes
 
 		public void Dispose()
 		{
-
+			SaveNowIfNeeded(new NullProgress());
 		}
 
 		/// <summary>
@@ -138,17 +138,26 @@ namespace Chorus.notes
 
 		public void Save(IProgress progress)
 		{
-			if(string.IsNullOrEmpty(AnnotationFilePath))
+			try
 			{
-				throw new InvalidOperationException("Cannot save if the repository was created from a string");
+				if (string.IsNullOrEmpty(AnnotationFilePath))
+				{
+					throw new InvalidOperationException("Cannot save if the repository was created from a string");
+				}
+				progress.WriteStatus("Saving Chorus Notes...");
+				using (var writer = XmlWriter.Create(AnnotationFilePath, CanonicalXmlSettings.CreateXmlWriterSettings())
+					)
+				{
+					_doc.Save(writer);
+				}
+				progress.WriteStatus("");
+				_isDirty = false;
 			}
-			progress.WriteStatus("Saving Chorus Notes...");
-			using (var writer = XmlWriter.Create(AnnotationFilePath, CanonicalXmlSettings.CreateXmlWriterSettings()))
+			catch(Exception e)
 			{
-				_doc.Save(writer);
+				Palaso.Reporting.ErrorReport.NotifyUserOfProblem(e, "Chorus has a problem saving notes for {0}.",
+																 _annotationFilePath);
 			}
-			progress.WriteStatus("");
-			_isDirty = false;
 		}
 
 		public void AddAnnotation(Annotation annotation)
@@ -233,6 +242,10 @@ namespace Chorus.notes
 		}
 
 
+		public bool ContainsAnnotation(Annotation annotation)
+		{
+			return null!= _doc.Root.Elements().FirstOrDefault(e => e.GetAttributeValue("guid") == annotation.Guid);
+		}
 	}
 
 	public class AnnotationFormatException : ApplicationException
