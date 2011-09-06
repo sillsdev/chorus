@@ -106,7 +106,7 @@ namespace LibChorus.Tests.merge.xml.adaptIt
 				handler.Do3WayMerge(mergeOrder);
 				var result = File.ReadAllText(file.Path);
 
-				AssertThatXmlIn.String(result).HasSpecifiedNumberOfMatchesForXpath("AdaptItKnowledgeBase/KB/MAP", 2);
+				AssertThatXmlIn.String(result).HasSpecifiedNumberOfMatchesForXpath("KB/MAP", 2);//REVIEW: Bob, I removed the AdaptItKnowledgeBase/ that was there in this merged version.
 				AssertThatXmlIn.String(result).HasSpecifiedNumberOfMatchesForXpath("//TU", 3);
 				AssertThatXmlIn.String(result).HasSpecifiedNumberOfMatchesForXpath("//RS", 3);
 			}

@@ -11,7 +11,7 @@ using Palaso.TestUtilities;
 
 namespace Chorus.Tests
 {
-	[TestFixture]
+	[TestFixture, RequiresSTA]
 	public class ChorusSystemTests
 	{
 		private TemporaryFolder _folder;

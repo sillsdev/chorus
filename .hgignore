@@ -20,3 +20,5 @@ glob:*.userprefs
 relre:src/Chorus.Tests/bin/*
 relre:src/ChorusMerge.Tests/bin/*
 relre:src/SampleApp/bin/*
+syntax: glob
+CopyTo Dev WeSay.bat
