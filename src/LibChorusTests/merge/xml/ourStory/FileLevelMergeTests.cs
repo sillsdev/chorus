@@ -21,22 +21,22 @@ namespace LibChorus.Tests.merge.xml.ourStory
 	<Member name=""Browser"" memberType=""JustLooking"" memberKey=""mem-2f8b34f9-3098-4ad4-b611-5685a4565845"" />
   </Members>
   <Languages>
-	<VernacularLang name=""Kangri"" code=""xnr"" FontName=""Arial Unicode MS"" FontSize=""12"" FontColor=""Maroon"" SentenceFinalPunct=""।"" Keyboard=""DevRom"" />
-	<NationalBTLang name=""Hindi"" code=""hin"" FontName=""Arial Unicode MS"" FontSize=""12"" FontColor=""Green"" SentenceFinalPunct=""।"" Keyboard=""DevRom"" />
-	<InternationalBTLang name=""English"" code=""en"" FontName=""Times New Roman"" FontSize=""10"" FontColor=""Blue"" SentenceFinalPunct=""."" />
+	<LanguageInfo lang='Vernacular' name='Chhattisgarhi' code='hne' FontName='Arial Unicode MS' FontSize='12.2264156' FontColor='Maroon' SentenceFinalPunct='.!?।,' Keyboard='DevRom' />
+	<LanguageInfo lang='NationalBt' name='Hindi' code='hin' FontName='Arial Unicode MS' FontSize='12' FontColor='Green' SentenceFinalPunct='.!?।,' Keyboard='DevRom' />
+	<LanguageInfo lang='InternationalBt' name='English' code='en' FontName='Times New Roman' FontSize='10' FontColor='Blue' SentenceFinalPunct='.!?.,' />
   </Languages>
   <stories SetName=""Stories"">
 	<story name=""one"" guid=""1108CC4B-E0B7-4227-9645-829082B3F611"">
 	  <verses>
 		<verse guid=""8B2A9897-B79E-4b86-ADF9-FC73BD7CAF1E"">
-		  <InternationalBT lang=""en"">new text for one</InternationalBT>
+		  <StoryLine lang='InternationalBt'>new text for one</StoryLine>
 		</verse>
 	  </verses>
 	</story>
 	<story name=""two"" guid=""2208CC4B-E0B7-4227-9645-829082B3F622"">
 	  <verses>
 		<verse guid=""222A9897-B79E-4b86-ADF9-FC73BD7CAF22"">
-		  <InternationalBT lang=""en"">new text for two</InternationalBT>
+		  <StoryLine lang='InternationalBt'>new text for two</StoryLine>
 		</verse>
 	  </verses>
 	</story>
@@ -86,8 +86,8 @@ namespace LibChorus.Tests.merge.xml.ourStory
 				"new text for two");
 
 			var result = DoMerge(ourContent, theirContent);
-			XmlTestHelper.AssertXPathMatchesExactlyOne(result, @"StoryProject/stories/story[@name=""one""]/verses/verse/InternationalBT[text()=""new text for one""]");
-			XmlTestHelper.AssertXPathMatchesExactlyOne(result, @"StoryProject/stories/story[@name=""two""]/verses/verse/InternationalBT[text()=""new text for two""]");
+			XmlTestHelper.AssertXPathMatchesExactlyOne(result, @"StoryProject/stories/story[@name=""one""]/verses/verse/StoryLine[@lang = 'InternationalBt'][text()=""new text for one""]");
+			XmlTestHelper.AssertXPathMatchesExactlyOne(result, @"StoryProject/stories/story[@name=""two""]/verses/verse/StoryLine[@lang = 'InternationalBt'][text()=""new text for two""]");
 		}
 
 		[Test]
@@ -132,14 +132,20 @@ namespace LibChorus.Tests.merge.xml.ourStory
 		[Test]
 		public void Do3WayMerge_BothChangeKeyboard_ThrowAwayOther()
 		{
-			var ourContent = _ancestor.Replace(@"<VernacularLang name=""Kangri"" code=""xnr"" FontName=""Arial Unicode MS"" FontSize=""12"" FontColor=""Maroon"" SentenceFinalPunct=""।"" Keyboard=""DevRom"" />",
+			/*
+			 * var ourContent = _ancestor.Replace(@"<VernacularLang name=""Kangri"" code=""xnr"" FontName=""Arial Unicode MS"" FontSize=""12"" FontColor=""Maroon"" SentenceFinalPunct=""।"" Keyboard=""DevRom"" />",
 				@"<VernacularLang name=""Kangri"" code=""xnr"" FontName=""Arial Unicode MS"" FontSize=""12"" FontColor=""Maroon"" SentenceFinalPunct=""।"" Keyboard=""Keyman DevRom"" />");
 			var theirContent = _ancestor.Replace(@"<VernacularLang name=""Kangri"" code=""xnr"" FontName=""Arial Unicode MS"" FontSize=""12"" FontColor=""Maroon"" SentenceFinalPunct=""।"" Keyboard=""DevRom"" />",
 				@"<VernacularLang name=""Kangri"" code=""xnr"" FontName=""Arial Unicode MS"" FontSize=""12"" FontColor=""Maroon"" SentenceFinalPunct=""।"" Keyboard=""InKey DevRom"" />");
+			*/
+			var ourContent = _ancestor.Replace(@"<LanguageInfo lang='Vernacular' name='Chhattisgarhi' code='hne' FontName='Arial Unicode MS' FontSize='12.2264156' FontColor='Maroon' SentenceFinalPunct='.!?।,' Keyboard='DevRom' />",
+				@"<LanguageInfo lang='Vernacular' name='Chhattisgarhi' code='hne' FontName='Arial Unicode MS' FontSize='12.2264156' FontColor='Maroon' SentenceFinalPunct='.!?।,' Keyboard='Keyman DevRom' />");
+			var theirContent = _ancestor.Replace(@"<LanguageInfo lang='Vernacular' name='Chhattisgarhi' code='hne' FontName='Arial Unicode MS' FontSize='12.2264156' FontColor='Maroon' SentenceFinalPunct='.!?।,' Keyboard='DevRom' />",
+				@"<LanguageInfo lang='Vernacular' name='Chhattisgarhi' code='hne' FontName='Arial Unicode MS' FontSize='12.2264156' FontColor='Maroon' SentenceFinalPunct='.!?।,' Keyboard='InKey DevRom' />");
 
 			var result = DoMerge(ourContent, theirContent);
-			AssertThatXmlIn.String(result).HasSpecifiedNumberOfMatchesForXpath("//VernacularLang", 1);
-			XmlTestHelper.AssertXPathMatchesExactlyOne(result, @"//VernacularLang[@Keyboard=""Keyman DevRom""]");
+			AssertThatXmlIn.String(result).HasSpecifiedNumberOfMatchesForXpath("//LanguageInfo[@lang='Vernacular']", 1);
+			XmlTestHelper.AssertXPathMatchesExactlyOne(result, @"//LanguageInfo[@lang='Vernacular'][@Keyboard=""Keyman DevRom""]");
 		}
 
 		[Test, Ignore("This issue and what to do about it are in process")]
@@ -175,7 +181,7 @@ namespace LibChorus.Tests.merge.xml.ourStory
 			var theirContent = dom.OuterXml;
 
 			var result = DoMerge(ourContent, theirContent);
-			AssertThatXmlIn.String(result).HasSpecifiedNumberOfMatchesForXpath(@"StoryProject/stories/story[@name=""one""]/verses/verse/InternationalBT[text()=""new text for one""]",1);
+			AssertThatXmlIn.String(result).HasSpecifiedNumberOfMatchesForXpath(@"StoryProject/stories/story[@name=""one""]/verses/verse/StoryLine[@lang = 'InternationalBt'][text()=""new text for one""]", 1);
 
 			AssertThatXmlIn.String(result).HasNoMatchForXpath(@"//story[@name=""two""]");
 		}
