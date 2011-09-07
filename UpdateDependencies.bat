@@ -3,6 +3,12 @@ REM get that project and be able to build it, then run this script.
 REM This script assumes that the libraries project are on the same level as this project.
 REM It copies the needed libraries both into the lib folder and the debug folder.
 
+pushd .
+
+cd ..\palaso
+call GetAndBuildThis.bat
+popd
+
 copy /Y ..\palaso\output\debug\palaso.dll lib\debug\
 copy /Y ..\palaso\output\debug\palaso.xml lib\debug\
 copy /Y ..\palaso\output\debug\palaso.pdb lib\debug\
