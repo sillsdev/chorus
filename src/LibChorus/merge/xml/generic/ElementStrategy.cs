@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Xml;
 
 namespace Chorus.merge.xml.generic
@@ -33,23 +34,48 @@ namespace Chorus.merge.xml.generic
 
 		public ElementStrategy GetElementStrategy(XmlNode element)
 		{
-			string name;
+			string key;
 			switch (element.NodeType)
 			{
 				case XmlNodeType.Element:
-					name = element.Name;
+					key = GetKeyViaHack(element);
 					break;
 				default:
-					name = "_"+element.NodeType;
+					key = "_"+element.NodeType;
 					break;
 			}
 
 			ElementStrategy strategy;
-			if (!ElementStrategies.TryGetValue(name, out strategy))
+			if (!ElementStrategies.TryGetValue(key, out strategy))
 			{
 				return ElementStrategies["_defaultElement"];
 			}
 			return strategy;
+		}
+
+		private static string GetKeyViaHack(XmlNode element)
+		{
+			var name = element.Name;
+			if (name == "special")
+			{
+				var foundHack = false;
+				foreach (var attrName in from XmlNode attr in element.Attributes select attr.Name)
+				{
+					switch (attrName)
+					{
+						default:
+							break;
+						case "xmlns:palaso":
+						case "xmlns:fw":
+							name += "_" + attrName;
+							foundHack = true;
+							break;
+					}
+					if (foundHack)
+						break;
+				}
+			}
+			return name;
 		}
 
 		public IFindNodeToMerge GetMergePartnerFinder(XmlNode element)
@@ -77,7 +103,7 @@ namespace Chorus.merge.xml.generic
 		public IFindNodeToMerge MergePartnerFinder{ get; set;}
 
 		//is this a level of the xml file that would consitute the minimal unit conflict-understanding
-		//from a user perspecitve?
+		//from a user perspective?
 		//e.g., in a dictionary, this is the lexical entry.  In a text, it might be  a paragraph.
 		public IGenerateContextDescriptor ContextDescriptorGenerator { get; set; }
 
@@ -104,6 +130,16 @@ namespace Chorus.merge.xml.generic
 		/// bother comparing it to the other guy's.
 		/// </summary>
 		public bool IsImmutable{get;set;}
+
+		/// <summary>
+		/// This allows for an element to be declared 'atomic'.
+		/// When set to true, no merging will be done.
+		/// If the compared elemetns are not the same,
+		/// then a conflict report will be produced.
+		///
+		/// The default is 'false'.
+		/// </summary>
+		public bool IsAtomic { get; set; }
 
 		public static ElementStrategy CreateForKeyedElement(string keyAttributeName, bool orderIsRelevant)
 		{

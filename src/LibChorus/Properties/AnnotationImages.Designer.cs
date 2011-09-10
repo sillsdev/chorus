@@ -88,6 +88,24 @@ namespace Chorus.Properties {
 			}
 		}
 
+		/// <summary>
+		///   Looks up a localized string similar to File does not exist..
+		/// </summary>
+		public static string kFileDoesNotExist {
+			get {
+				return ResourceManager.GetString("kFileDoesNotExist", resourceCulture);
+			}
+		}
+
+		/// <summary>
+		///   Looks up a localized string similar to Parameter is null or an empty string..
+		/// </summary>
+		public static string kNullOrEmptyString {
+			get {
+				return ResourceManager.GetString("kNullOrEmptyString", resourceCulture);
+			}
+		}
+
 		public static System.Drawing.Bitmap MergeConflict16x16 {
 			get {
 				object obj = ResourceManager.GetObject("MergeConflict16x16", resourceCulture);

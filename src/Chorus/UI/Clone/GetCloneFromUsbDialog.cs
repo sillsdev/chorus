@@ -6,6 +6,7 @@ using System.Windows.Forms;
 using Chorus.clone;
 using Chorus.Utilities;
 using System.Linq;
+using Palaso.Progress.LogBox;
 
 namespace Chorus.UI.Clone
 {

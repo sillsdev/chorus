@@ -7,6 +7,8 @@ using System.Text;
 using Chorus.merge;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
+using Palaso.IO;
+using Palaso.Progress.LogBox;
 
 namespace Chorus.FileTypeHanders.text
 {
@@ -41,11 +43,13 @@ namespace Chorus.FileTypeHanders.text
 
 		public void Do3WayMerge(MergeOrder order)
 		{
+#if DEBUG
 		   // Debug.Fail("hello");
 			FailureSimulator.IfTestRequestsItThrowNow("TextMerger");
 
 			//trigger on a particular file name
 			FailureSimulator.IfTestRequestsItThrowNow("TextMerger-"+Path.GetFileName(order.pathToOurs));
+#endif
 
 
 			//TODO: this is not yet going to deal with conflicts at all!
@@ -114,6 +118,17 @@ namespace Chorus.FileTypeHanders.text
 		public IEnumerable<string> GetExtensionsOfKnownTextFileTypes()
 		{
 			yield return "txt";
+		}
+
+		/// <summary>
+		/// Return the maximum file size that can be added to the repository.
+		/// </summary>
+		/// <remarks>
+		/// Return UInt32.MaxValue for no limit.
+		/// </remarks>
+		public uint MaximumFileSize
+		{
+			get { return UInt32.MaxValue; }
 		}
 	}
 

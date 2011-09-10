@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Windows.Forms;
 using Chorus.sync;
 using Chorus.UI.Sync;
@@ -28,20 +29,24 @@ namespace Chorus.Tests.UI.Sync
 		}
 
 		[Test, Ignore("Run by hand only")]
-		public void ShowSyncStartControl_InternetAndNetworkPaths()
+		public void ShowSyncDialog_InternetAndNetworkPaths()
 		{
+			Application.EnableVisualStyles();
+
 			var setup = new RepositorySetup("pedro");
 			{
 				setup.Repository.SetKnownRepositoryAddresses(new RepositoryAddress[]
 																 {
 																	 RepositoryAddress.Create("language depot", "http://hg-public.languagedepot.org"),
-																	 RepositoryAddress.Create("joe's mac", "//suzie-pc/shared")
+																	 RepositoryAddress.Create("joe's mac", "//suzie-pc/public/chorusTest")
 																 });
-				var c = new SyncStartControl(setup.Repository);
-				var f = new Form();
-				c.Dock = DockStyle.Fill;
-				f.Controls.Add(c);
-				Application.Run(f);
+
+				using (var dlg = new SyncDialog(setup.ProjectFolderConfig,
+												SyncUIDialogBehaviors.Lazy,
+												SyncUIFeatures.NormalRecommended))
+				{
+					dlg.ShowDialog();
+				}
 			}
 		}
 
@@ -92,6 +97,7 @@ namespace Chorus.Tests.UI.Sync
 		[Test, Ignore("Run by hand only")]
 		public void LaunchDialog_LazyWithNormalUI()
 		{
+			Thread.CurrentThread.SetApartmentState(ApartmentState.STA);
 			var setup = new RepositorySetup("pedro");
 			{
 				Application.EnableVisualStyles();

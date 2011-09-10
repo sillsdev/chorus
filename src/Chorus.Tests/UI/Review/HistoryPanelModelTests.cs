@@ -9,6 +9,7 @@ using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
 using LibChorus.Tests;
 using NUnit.Framework;
+using Palaso.Progress.LogBox;
 
 namespace Chorus.Tests
 {

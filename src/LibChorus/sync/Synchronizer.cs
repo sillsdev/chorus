@@ -9,6 +9,7 @@ using Chorus.Utilities;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using System.Linq;
+using Palaso.Progress.LogBox;
 
 namespace Chorus.sync
 {
@@ -97,6 +98,8 @@ namespace Chorus.sync
 
 				var workingRevBeforeSync = repo.GetRevisionWorkingSetIsBasedOn();
 
+				CreateRepositoryOnLocalAreaNetworkFolderIfNeededThrowIfFails(repo, sourcesToTry);
+
 				if (options.DoPullFromOthers)
 				{
 					results.DidGetChangesFromOthers = PullFromOthers(repo, sourcesToTry, connectionAttempts);
@@ -147,9 +150,23 @@ namespace Chorus.sync
 			return results;
 		}
 
+		private void CreateRepositoryOnLocalAreaNetworkFolderIfNeededThrowIfFails(HgRepository repo, List<RepositoryAddress> sourcesToTry)
+		{
+			RepositoryAddress directorySource = sourcesToTry.FirstOrDefault(s=>s is DirectoryRepositorySource);
+			if(directorySource!=null)
+			{
+				if(!Directory.Exists(Path.Combine(directorySource.URI, ".hg")))
+				{
+					_progress.WriteMessage("Creating new repository at "+directorySource.URI);
+					repo.CloneToRemoteDirectoryWithoutCheckout(directorySource.URI);
+				}
+			}
+		}
+
 		/// <summary>
 		/// This version is used by the CHorus UI, which wants to do the sync in the background
 		/// </summary>
+
 		public SyncResults SyncNow(BackgroundWorker backgroundWorker, DoWorkEventArgs args, SyncOptions options)
 		{
 			_backgroundWorker = backgroundWorker;
@@ -224,7 +241,7 @@ namespace Chorus.sync
 		{
 			try
 			{
-				string resolvedUri = address.GetPotentialRepoUri(RepoProjectName, _progress);
+				string resolvedUri = address.GetPotentialRepoUri(Repository.Identifier, RepoProjectName, _progress);
 
 				bool canConnect;
 				if (connectionAttempt.ContainsKey(address))
@@ -247,13 +264,16 @@ namespace Chorus.sync
 						repo.Push(address, resolvedUri, _progress);
 					}
 
-					//for usb, it's safe and desireable to do an update (bring into the directory
-					//  the latest files from the repo) for LAN, it could be... for now we assume it is
-
-					// Attempting to update a network folder crashes for me (RandyR) using a shared folder on my LAN, even though I have full access permissions. || address is DirectoryRepositorySource)
+					// For usb, it's safe and desireable to do an update (bring into the directory
+					// the latest files from the repo) for LAN, it could be... for now we assume it is.
+					// For me (RandyR) including the shared network folder
+					// failed to do the update and killed the process, which left a 'wlock' file
+					// in the shared folder's '.hg' folder. No more S/Rs could then be done,
+					// because the repo was locked.
+					// For now, at least, it is not a requirement to do the update on the shared folder.
 					// JDH Oct 2010: added this back in if it doesn't look like a shared folder
 					if (address is UsbKeyRepositorySource  ||
-						(address is DirectoryRepositorySource && ((DirectoryRepositorySource)address).LooksLikeLocalDirectory))
+					(address is DirectoryRepositorySource && ((DirectoryRepositorySource)address).LooksLikeLocalDirectory))
 					{
 						var otherRepo = new HgRepository(resolvedUri, _progress);
 						otherRepo.Update();
@@ -301,8 +321,15 @@ namespace Chorus.sync
 			ThrowIfCancelPending();
 			_progress.WriteStatus("Storing changes in local repository...");
 
+			// Must be done, before "AddAndCommitFiles" call.
+			// It could be here, or first thing inside the 'using' for CommitCop.
+			LargeFileFilter.FilterFiles(Repository, _project, _handlers, _progress);
+
 			using (var commitCop = new CommitCop(Repository, _handlers, _progress))
 			{
+				// NB: The commit must take place in order for CommitCop to work properly.
+				// Ergo, don't even think of moving this after the commitCop.ValidationResult check.
+				// Too bad I (RBR) already thought of it, and asked, and found out it ought not be moved. :-)
 				AddAndCommitFiles(options.CheckinDescription);
 
 				if (!string.IsNullOrEmpty(commitCop.ValidationResult))
@@ -316,12 +343,12 @@ namespace Chorus.sync
 		/// <returns>true if there was a successful pull</returns>
 		private bool PullFromOneSource(HgRepository repo, RepositoryAddress source, Dictionary<RepositoryAddress, bool> connectionAttempt)
 		{
-			string resolvedUri = source.GetPotentialRepoUri(RepoProjectName, _progress);
+			string resolvedUri = source.GetPotentialRepoUri(repo.Identifier, RepoProjectName, _progress);
 
 			if (source is UsbKeyRepositorySource)
 			{
 				_progress.WriteStatus("Looking for USB flash drives...");
-				var potential = source.GetPotentialRepoUri(RepoProjectName, _progress);
+				var potential = source.GetPotentialRepoUri(repo.Identifier, RepoProjectName, _progress);
 				if (null ==potential)
 				{
 					_progress.WriteWarning("No USB flash drive found");
@@ -370,7 +397,7 @@ namespace Chorus.sync
 
 		/// <summary>
 		/// put anything in the hgrc that chorus requires
-		/// todo: Now that we ship with our own mercurial, figure out how to just set these outside of code.
+		/// todo: kinda lame to do it every time, but when is better?
 		/// </summary>
 		private void UpdateHgrc(HgRepository repository)
 		{
@@ -388,7 +415,7 @@ namespace Chorus.sync
 
 //                List<string> extensions = new List<string>();
 //
-//                foreach (var handler in _handlers.Handers)
+//                foreach (var handler in _handlers.Handlers)
 //                {
 //                    extensions.AddRange(handler.GetExtensionsOfKnownTextFileTypes());
 //                }
@@ -500,30 +527,23 @@ namespace Chorus.sync
 					repository.Update(); //update to the tip
 					return;
 				}
-
-				//NB: note that changing this from a warning to an error ends up changing behavior (which tests catch)
-				_progress.WriteWarning(string.Format("There are {0} sets of changes that could not be merged together. Please contact your technical help person.", heads.Count()));
-				foreach (var revision in heads)
+				if (heads.Count == 0)
 				{
-					_progress.WriteStatus("Head: {0}:{1} {2}",revision.Number.LocalRevisionNumber, revision.Number.Hash, revision.Summary);
+					return;//nothing has been checked in, so we're done! (this happens during some UI tests)
 				}
-				_progress.WriteStatus(repository.GetLog(30));
 
 				//TODO: I think this "direct descendant" limitation won't be enough
-				//  when there are more than 2 people merging and there's a failure);)
+				//  when there are more than 2 people merging and there's a failure
 				foreach (var head in heads)
 				{
-					_progress.WriteStatus("Considering rollling back to Head: {0}:{1} {2}",head.Number.LocalRevisionNumber, head.Number.Hash, head.Summary);
 					if (parent.Number.Hash == head.Number.Hash || head.IsDirectDescendantOf(parent))
 					{
-						_progress.WriteStatus("Doing rollback to that head");
 						repository.RollbackWorkingDirectoryToRevision(head.Number.LocalRevisionNumber);
 						return;
 					}
-					_progress.WriteStatus("Was not a parent");
 				}
 
-				_progress.WriteWarning("No changes from others were merged in.");
+				_progress.WriteWarning("Staying at previous-tip (unusual)");
 			}
 			catch (Exception error)
 			{
@@ -542,7 +562,7 @@ namespace Chorus.sync
 		/// <returns>the uri of a successful clone</returns>
 		private string TryToMakeCloneForSource(RepositoryAddress repoDescriptor)
 		{
-			List<string> possibleRepoCloneUris = repoDescriptor.GetPossibleCloneUris(RepoProjectName, _progress);
+			List<string> possibleRepoCloneUris = repoDescriptor.GetPossibleCloneUris(Repository.Identifier, RepoProjectName, _progress);
 			if (possibleRepoCloneUris == null)
 			{
 				_progress.WriteMessage("No Uris available for cloning to {0}",
@@ -647,6 +667,10 @@ namespace Chorus.sync
 		{
 #if MONO
 			string chorusMergeFilePath = Path.Combine(ExecutionEnvironment.DirectoryOfExecutingAssembly, "chorusmerge");
+			// The replace is only useful for use with the MonoDevelop environment whcih doesn't honor $(Configuration) in the csproj files.
+			// When this is exported as an environment var it needs escaping to prevent the shell from replacing it with an empty string.
+			// When MonoDevelop is fixed this can be removed.
+			chorusMergeFilePath = chorusMergeFilePath.Replace("$(Configuration)", "\\$(Configuration)");
 #else
 			string chorusMergeFilePath = Path.Combine(ExecutionEnvironment.DirectoryOfExecutingAssembly, "ChorusMerge.exe");
 #endif

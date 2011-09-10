@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using Chorus.Utilities;
+using Palaso.Progress.LogBox;
 
 namespace Chorus.VcsDrivers.Mercurial
 {
@@ -45,6 +46,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		{
 			ExecutionResult result = new ExecutionResult();
 			Process process = new Process();
+			process.StartInfo.EnvironmentVariables["PYTHONPATH"] = Path.Combine(MercurialLocation.PathToMercurialFolder, "library.zip");
 			process.StartInfo.RedirectStandardError = true;
 			process.StartInfo.RedirectStandardOutput = true;
 			process.StartInfo.UseShellExecute = false;

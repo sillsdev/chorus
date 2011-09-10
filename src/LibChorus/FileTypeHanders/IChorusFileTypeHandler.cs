@@ -2,15 +2,20 @@
 using System.Linq;
 using Chorus.FileTypeHanders.adaptIt;
 using Chorus.FileTypeHanders.audio;
+using Chorus.FileTypeHanders.FieldWorks;
+using Chorus.FileTypeHanders.FieldWorks.CustomProperties;
+using Chorus.FileTypeHanders.FieldWorks.ModelVersion;
 using Chorus.FileTypeHanders.image;
+using Chorus.FileTypeHanders.ldml;
 using Chorus.FileTypeHanders.lift;
 using Chorus.FileTypeHanders.oneStory;
 using Chorus.FileTypeHanders.test;
 using Chorus.FileTypeHanders.OurWord;
 using Chorus.FileTypeHanders.text;
 using Chorus.merge;
-using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
+using Palaso.IO;
+using Palaso.Progress.LogBox;
 
 namespace Chorus.FileTypeHanders
 {
@@ -26,7 +31,7 @@ namespace Chorus.FileTypeHanders
 		/// </summary>
 		/// <remarks>Implementations can exit with an exception, which the caller will catch and deal with.
 		/// The must not have any UI, no interaction with the user.</remarks>
-		void Do3WayMerge(merge.MergeOrder mergeOrder);
+		void Do3WayMerge(MergeOrder mergeOrder);
 
 		IEnumerable<IChangeReport> Find2WayDifferences(FileInRevision parent, FileInRevision child, HgRepository repository);
 		IChangePresenter GetChangePresenter(IChangeReport report, HgRepository repository);
@@ -40,34 +45,46 @@ namespace Chorus.FileTypeHanders
 		/// This is like a diff, but for when the file is first checked in.  So, for example, a dictionary
 		/// handler might list any the words that were already in the dictionary when it was first checked in.
 		/// </summary>
-		IEnumerable<IChangeReport> DescribeInitialContents(FileInRevision fileInRevision,TempFile file);
+		IEnumerable<IChangeReport> DescribeInitialContents(FileInRevision fileInRevision, TempFile file);
 
 		IEnumerable<string> GetExtensionsOfKnownTextFileTypes();
+
+		/// <summary>
+		/// Return the maximum file size that can be added to the repository.
+		/// </summary>
+		/// <remarks>
+		/// Return UInt32.MaxValue for no limit.
+		/// </remarks>
+		uint MaximumFileSize { get; }
 	}
 
 	public class ChorusFileTypeHandlerCollection
 	{
-		private List<IChorusFileTypeHandler> HandersList { get; set; }
-		public IEnumerable<IChorusFileTypeHandler> Handers { get { return HandersList; } }
+		private List<IChorusFileTypeHandler> HandlersList { get; set; }
+		public IEnumerable<IChorusFileTypeHandler> Handlers { get { return HandlersList; } }
 
 		/// <summary>
-		/// THis will eventually done using MEF or some other dynamic way of finding available HandersList
+		/// THis will eventually done using MEF or some other dynamic way of finding available HandlersList
 		/// </summary>
 		/// <returns></returns>
 		public static ChorusFileTypeHandlerCollection CreateWithInstalledHandlers()
 		{
 			var fileTypeHandlers = new ChorusFileTypeHandlerCollection();
-			fileTypeHandlers.HandersList.Add(new LiftFileHandler());
-			fileTypeHandlers.HandersList.Add(new OneStoryFileHandler());
-			fileTypeHandlers.HandersList.Add(new AdaptItFileHandler());
-			fileTypeHandlers.HandersList.Add(new TextFileTypeHandler());
-			fileTypeHandlers.HandersList.Add(new ChorusNotesFileHandler());
-			fileTypeHandlers.HandersList.Add(new WeSayConfigFileHandler());
-			fileTypeHandlers.HandersList.Add(new AudioFileTypeHandler());
-			fileTypeHandlers.HandersList.Add(new ImageFileTypeHandler());
-			fileTypeHandlers.HandersList.Add(new ChorusTestFileHandler());
-			fileTypeHandlers.HandersList.Add(new OurWordFileHandler());
-
+			fileTypeHandlers.HandlersList.Add(new LiftFileHandler());
+			fileTypeHandlers.HandlersList.Add(new OneStoryFileHandler());
+			fileTypeHandlers.HandlersList.Add(new AdaptItFileHandler());
+			fileTypeHandlers.HandlersList.Add(new TextFileTypeHandler());
+			fileTypeHandlers.HandlersList.Add(new ChorusNotesFileHandler());
+			fileTypeHandlers.HandlersList.Add(new WeSayConfigFileHandler());
+			fileTypeHandlers.HandlersList.Add(new AudioFileTypeHandler());
+			fileTypeHandlers.HandlersList.Add(new ImageFileTypeHandler());
+			fileTypeHandlers.HandlersList.Add(new ChorusTestFileHandler());
+			fileTypeHandlers.HandlersList.Add(new OurWordFileHandler());
+			fileTypeHandlers.HandlersList.Add(new FieldWorksFileHandler());
+			fileTypeHandlers.HandlersList.Add(new FieldeWorksCustomPropertyFileHandler());
+			fileTypeHandlers.HandlersList.Add(new FieldWorksModelVersionFileHandler());
+			fileTypeHandlers.HandlersList.Add(new LiftRangesFileTypeHandler());
+			fileTypeHandlers.HandlersList.Add(new LdmlFileHandler());
 
 			//NB: never add the Default handler
 			return fileTypeHandlers;
@@ -76,18 +93,18 @@ namespace Chorus.FileTypeHanders
 		public static ChorusFileTypeHandlerCollection CreateWithTestHandlerOnly()
 		{
 			var fileTypeHandlers = new ChorusFileTypeHandlerCollection();
-			fileTypeHandlers.HandersList.Add(new ChorusTestFileHandler());
+			fileTypeHandlers.HandlersList.Add(new ChorusTestFileHandler());
 
 			//NB: never add the Default handler
 			return fileTypeHandlers;
 		}
 		private ChorusFileTypeHandlerCollection()
 		{
-			HandersList = new List<IChorusFileTypeHandler>();
+			HandlersList = new List<IChorusFileTypeHandler>();
 		}
 		public IChorusFileTypeHandler GetHandlerForMerging(string path)
 		{
-			var handler = HandersList.FirstOrDefault(h => h.CanMergeFile(path));
+			var handler = HandlersList.FirstOrDefault(h => h.CanMergeFile(path));
 			if (handler == null)
 			{
 				return new DefaultFileTypeHandler();
@@ -96,7 +113,7 @@ namespace Chorus.FileTypeHanders
 		}
 		public IChorusFileTypeHandler GetHandlerForDiff(string path)
 		{
-			var handler = HandersList.FirstOrDefault(h => h.CanDiffFile(path));
+			var handler = HandlersList.FirstOrDefault(h => h.CanDiffFile(path));
 			if (handler == null)
 			{
 				return new DefaultFileTypeHandler();
@@ -105,7 +122,7 @@ namespace Chorus.FileTypeHanders
 		}
 		public IChorusFileTypeHandler GetHandlerForPresentation(string path)
 		{
-			var handler = HandersList.FirstOrDefault(h => h.CanPresentFile(path));
+			var handler = HandlersList.FirstOrDefault(h => h.CanPresentFile(path));
 			if (handler == null)
 			{
 				return new DefaultFileTypeHandler();

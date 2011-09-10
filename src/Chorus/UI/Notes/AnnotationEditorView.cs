@@ -62,8 +62,8 @@ namespace Chorus.UI.Notes
 			Visible = _model.IsVisible;
 			if (_model.IsVisible)
 			{
-				_closedCheckBox.Checked = _model.IsClosed;
-				_closedCheckBox.Visible = _model.ResolvedControlShouldBeVisible;
+				_resolvedCheckBox.Checked = _model.IsResolved;
+				_resolvedCheckBox.Visible = _model.ResolvedControlShouldBeVisible;
 				_addButton.Enabled = _model.AddButtonEnabled;
 				_addButton.Visible = _model.ShowNewMessageControls;
 				_newMessage.Visible = _model.ShowNewMessageControls;
@@ -95,9 +95,9 @@ namespace Chorus.UI.Notes
 			x.Document.BackColor = this.BackColor;
 		}
 
-		private void OnClosedCheckBox_CheckedChanged(object sender, EventArgs e)
+		private void OnResolvedCheckBox_CheckedChanged(object sender, EventArgs e)
 		{
-			_model.IsClosed = (_closedCheckBox.Checked);
+			_model.IsResolved = (_resolvedCheckBox.Checked);
 		}
 
 		private void _addButton_Click(object sender, EventArgs e)
@@ -115,7 +115,7 @@ namespace Chorus.UI.Notes
 
 		private void _annotationLogo_Paint(object sender, PaintEventArgs e)
 		{
-			if (_model.IsClosed)
+			if (_model.IsResolved)
 			{
 				e.Graphics.DrawImage(Properties.Resources.check16x16, new Rectangle(2, 2, 28, 28));
 			}

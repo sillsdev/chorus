@@ -6,6 +6,8 @@ using System.Windows.Forms;
 using Chorus.Utilities;
 using Chorus.Utilities.UsbDrive;
 using Chorus.VcsDrivers.Mercurial;
+using Palaso.IO;
+using Palaso.Progress.LogBox;
 
 namespace Chorus.clone
 {
@@ -44,7 +46,7 @@ namespace Chorus.clone
 				string[] directories = new string[0];
 				try
 				{ // this is all complicated because the yield can't be inside the try/catch
-					directories = Directory.GetDirectories(drive.RootDirectory.FullName);
+					directories = FolderUtils.GetSafeDirectories(drive.RootDirectory.FullName);
 				}
 				catch (Exception error)
 				{
@@ -64,7 +66,7 @@ namespace Chorus.clone
 						string[] subdirs = new string[0];
 						try
 						{    // this is all complicated because the yield can't be inside the try/catch
-							subdirs = Directory.GetDirectories(dir);
+							subdirs = FolderUtils.GetSafeDirectories(dir);
 						}
 						catch (Exception error)
 						{

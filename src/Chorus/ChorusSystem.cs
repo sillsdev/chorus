@@ -15,6 +15,7 @@ using Chorus.UI.Sync;
 using Chorus.Utilities;
 using Chorus.Utilities.code;
 using Chorus.VcsDrivers.Mercurial;
+using Palaso.Progress.LogBox;
 
 namespace Chorus
 {
@@ -239,6 +240,11 @@ namespace Chorus
 
 		public void Dispose()
 		{
+			foreach (AnnotationRepository repository in _annotationRepositories.Values)
+			{
+				repository.Dispose();
+			}
+			_annotationRepositories.Clear();
 			_container.Dispose();
 		}
 

@@ -26,6 +26,7 @@ namespace ChorusMerge.Tests
 			}
 		}
 
+#if DEBUG
 		[Test]
 		public void Main_UnhandledMergeFailure_Returns1()
 		{
@@ -37,12 +38,13 @@ namespace ChorusMerge.Tests
 				}
 			}
 		}
+#endif
 
 		private int DoMerge(GroupOfConflictingLiftFiles group)
 		{
 			MergeSituation.PushRevisionsToEnvironmentVariables("bob", "-123", "sally", "-456");
 			MergeOrder.PushToEnvironmentVariables(group.Folder.Path);
-			return ChorusMerge.Program.Main(new string[] {group.BobFile.Path,group.AncestorFile.Path,group.SallyFile.Path});
+			return Program.Main(new[] {group.BobFile.Path, group.AncestorFile.Path, group.SallyFile.Path});
 		}
 	}
 }

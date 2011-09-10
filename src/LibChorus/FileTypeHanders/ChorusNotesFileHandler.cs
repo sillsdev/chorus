@@ -1,12 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Xml;
 using Chorus.FileTypeHanders.xml;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
-using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
+using Palaso.IO;
+using Palaso.Progress.LogBox;
 
 namespace Chorus.FileTypeHanders
 {
@@ -62,17 +64,8 @@ namespace Chorus.FileTypeHanders
 
 		public IEnumerable<IChangeReport> Find2WayDifferences(FileInRevision parent, FileInRevision child, HgRepository repository)
 		{
-			var listener = new ChangeAndConflictAccumulator();
-						//pull the files out of the repository so we can read them
-			using (var childFile = child.CreateTempFile(repository))
-			using (var parentFile = parent.CreateTempFile(repository))
-			{
-
-			 //   var differ = ChorusNotesDiffer.CreateFromFiles(parentFile.Path, childFile.Path, listener);
-				var differ = ChorusNotesDiffer.CreateFromFiles(parent, child, parentFile.Path, childFile.Path, listener);
-				differ.ReportDifferencesToListener();
-				return listener.Changes;
-			}
+			return Xml2WayDiffService.ReportDifferences(repository, parent, child, null, "annotation", "guid")
+				.Where(change => !(change is XmlDeletionChangeReport)); // Remove any deletion reports.
 		}
 
 		public IChangePresenter GetChangePresenter(IChangeReport report, HgRepository repository)
@@ -104,6 +97,17 @@ namespace Chorus.FileTypeHanders
 		public IEnumerable<string> GetExtensionsOfKnownTextFileTypes()
 		{
 			yield return ".ChorusNotes";
+		}
+
+		/// <summary>
+		/// Return the maximum file size that can be added to the repository.
+		/// </summary>
+		/// <remarks>
+		/// Return UInt32.MaxValue for no limit.
+		/// </remarks>
+		public uint MaximumFileSize
+		{
+			get { return UInt32.MaxValue; }
 		}
 	}
 }

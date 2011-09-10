@@ -2,9 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using Chorus.Utilities;
 using Chorus.Utilities.UsbDrive;
 using Chorus.VcsDrivers.Mercurial;
+using Palaso.IO;
+using Palaso.Progress.LogBox;
 
 namespace Chorus.VcsDrivers
 {
@@ -113,9 +116,9 @@ namespace Chorus.VcsDrivers
 		/// <summary>
 		/// Gets what the uri of the named repository would be, on this source. I.e., gets the full path.
 		/// </summary>
-		public abstract string GetPotentialRepoUri(string projectName, IProgress progress);
+		public abstract string GetPotentialRepoUri(string repoIdentifier, string projectName, IProgress progress);
 
-		public virtual List<string> GetPossibleCloneUris(string name, IProgress progress)
+		public virtual List<string> GetPossibleCloneUris(string repoIdentifier, string name, IProgress progress)
 		{
 			return null;
 		}
@@ -143,7 +146,7 @@ namespace Chorus.VcsDrivers
 		/// <summary>
 		/// Gets what the uri of the named repository would be, on this source. I.e., gets the full path.
 		/// </summary>
-		public override string GetPotentialRepoUri(string projectName, IProgress progress)
+		public override string GetPotentialRepoUri(string repoIdentifier, string projectName, IProgress progress)
 		{
 			return URI.Replace(ProjectNameVariable, projectName);
 		}
@@ -152,12 +155,12 @@ namespace Chorus.VcsDrivers
 		{
 			//review: i don't know how long this is going to cut it...
 			// we really want to know more, like is that repo actually related to us?
-			return localRepository.GetCanConnectToRemote(GetPotentialRepoUri(projectName, progress), progress);
+			return localRepository.GetCanConnectToRemote(GetPotentialRepoUri(localRepository.Identifier, projectName, progress), progress);
 		}
 
-		public override List<string> GetPossibleCloneUris(string projectName, IProgress progress)
+		public override List<string> GetPossibleCloneUris(string repoIdentifier, string projectName, IProgress progress)
 		{
-			return new List<string>(new string[] { GetPotentialRepoUri(projectName, progress) });
+			return new List<string>(new string[] { GetPotentialRepoUri(repoIdentifier, projectName, progress) });
 		}
 	}
 
@@ -173,14 +176,14 @@ namespace Chorus.VcsDrivers
 		/// <summary>
 		/// Gets what the uri of the named repository would be, on this source. I.e., gets the full path.
 		/// </summary>
-		public override string GetPotentialRepoUri(string projectName, IProgress progress)
+		public override string GetPotentialRepoUri(string repoIdentifier, string projectName, IProgress progress)
 		{
 			return URI.Replace(ProjectNameVariable, projectName);
 		}
 
 		public override bool CanConnect(HgRepository localRepository, string projectName, IProgress progress)
 		{
-			var path = GetPotentialRepoUri(projectName, progress);
+			var path = GetPotentialRepoUri(localRepository.Identifier, projectName, progress);
 			if (this.URI.StartsWith(@"\\"))
 			{
 				progress.WriteStatus("Checking to see if we can connect with {0}...", path);
@@ -193,9 +196,9 @@ namespace Chorus.VcsDrivers
 			get { return !(this.URI.StartsWith(@"\\")); }
 		}
 
-		public override List<string> GetPossibleCloneUris(string projectName, IProgress progress)
+		public override List<string> GetPossibleCloneUris(string repoIdentifier, string projectName, IProgress progress)
 		{
-			return new List<string>(new string[]{GetPotentialRepoUri(projectName, progress)});
+			return new List<string>(new string[]{GetPotentialRepoUri(repoIdentifier, projectName, progress)});
 		}
 	}
 
@@ -252,7 +255,7 @@ namespace Chorus.VcsDrivers
 		/// Get a path to use with the version control
 		/// </summary>
 		/// <returns>null if can't find a usb key</returns>
-		public override string GetPotentialRepoUri(string projectName, IProgress progress)
+		public override string GetPotentialRepoUri(string repoIdentifier, string projectName, IProgress progress)
 		{
 			if (RootDirForUsbSourceDuringUnitTest != null)
 			{
@@ -266,17 +269,34 @@ namespace Chorus.VcsDrivers
 			//first try to find this repository on one of the usb keys
 			foreach (var drive in drives)
 			{
-				string pathOnUsb = Path.Combine(drive.RootDirectory.FullName, projectName);
+				// Look at all root directories, matching or not,
+				// since Lift Bridge may be trying to sync to a project with a different name.
+				// Also look for a root folder called "Shared-Dictionaries",
+				// which would contain one or more directories with repos in them.
+				var foldersWithRepos = CollectPathsWithRepositories(drive.RootDirectory.FullName);
+				var sharedFolderPath = Path.Combine(drive.RootDirectory.FullName, "Shared-Dictionaries");
+				if (Directory.Exists(sharedFolderPath))
+					foldersWithRepos.AddRange(CollectPathsWithRepositories(sharedFolderPath));
 
-				if (Directory.Exists(pathOnUsb))
+				foreach (var path in foldersWithRepos)
 				{
-					return pathOnUsb;
+					// Need to create an HgRepository for each so we can get its Id.
+					var usbRepo = new HgRepository(path, progress);
+					if (repoIdentifier.ToLowerInvariant() == usbRepo.Identifier.ToLowerInvariant())
+						return path;
 				}
 			}
 			return string.Empty;
 		}
 
-		public override List<string> GetPossibleCloneUris(string projectName, IProgress progress)
+		private static List<string> CollectPathsWithRepositories(string path)
+		{
+			return (from directory in FolderUtils.GetSafeDirectories(path)
+					where Directory.Exists(Path.Combine(directory, ".hg"))
+									select directory).ToList();
+		}
+
+		public override List<string> GetPossibleCloneUris(string repoIdentifier, string projectName, IProgress progress)
 		{
 			progress.WriteVerbose("Looking for USB flash drives to receive clone...");
 			List<string>  urisToTryCreationAt = new List<string>();
@@ -308,7 +328,7 @@ namespace Chorus.VcsDrivers
 		public override bool CanConnect(HgRepository localRepository, string projectName, IProgress progress)
 		{
 		   // progress.WriteStatus("Looking for USB flash drives with existing repositories...");
-			string path= GetPotentialRepoUri(projectName, progress);
+			string path= GetPotentialRepoUri(localRepository.Identifier, projectName, progress);
 			return (path != null) && Directory.Exists(path);
 		}
 
