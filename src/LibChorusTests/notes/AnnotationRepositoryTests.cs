@@ -6,6 +6,7 @@ using Chorus.notes;
 using NUnit.Framework;
 using Palaso.IO;
 using Palaso.Progress.LogBox;
+using Palaso.Reporting;
 
 namespace LibChorus.Tests.notes
 {
@@ -113,13 +114,14 @@ namespace LibChorus.Tests.notes
 		}
 
 		[Test]
-		public void Save_AfterCreatingFromString_Throws()
+		public void Save_AfterCreatingFromString_GivesMessage()
 		{
+			using(new ErrorReport.NonFatalErrorReportExpected())
 			using (var r =AnnotationRepository.FromString("id", @"<notes version='0'><annotation guid='123'>
 <message guid='234'>&lt;p&gt;hello</message></annotation></notes>"))
 			{
-				Assert.Throws<InvalidOperationException>(() =>
-					r.Save(new ConsoleProgress()));
+			  //  Assert.Throws<InvalidOperationException>(() =>
+					r.Save(new ConsoleProgress());
 			}
 		}
 

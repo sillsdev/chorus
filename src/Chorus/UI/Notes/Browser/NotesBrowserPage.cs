@@ -33,5 +33,6 @@ namespace Chorus.UI.Notes.Browser
 			splitContainer1.Panel2.Controls.Add(annotationView);
 			ResumeLayout();
 		}
+
 	}
 }

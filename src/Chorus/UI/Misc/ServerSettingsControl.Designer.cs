@@ -75,7 +75,7 @@
 						| System.Windows.Forms.AnchorStyles.Right)));
 			this._projectId.Location = new System.Drawing.Point(110, 84);
 			this._projectId.Name = "_projectId";
-			this._projectId.Size = new System.Drawing.Size(45, 20);
+			this._projectId.Size = new System.Drawing.Size(297, 20);
 			this._projectId.TabIndex = 0;
 			this.toolTip1.SetToolTip(this._projectId, "Usually the Ethnologue code, e.g. \'tpi\'");
 			this._projectId.TextChanged += new System.EventHandler(this._projectId_TextChanged);
@@ -86,7 +86,7 @@
 						| System.Windows.Forms.AnchorStyles.Right)));
 			this._accountName.Location = new System.Drawing.Point(110, 119);
 			this._accountName.Name = "_accountName";
-			this._accountName.Size = new System.Drawing.Size(166, 20);
+			this._accountName.Size = new System.Drawing.Size(297, 20);
 			this._accountName.TabIndex = 1;
 			this.toolTip1.SetToolTip(this._accountName, "This is your account on the server, which must already be set up.");
 			this._accountName.TextChanged += new System.EventHandler(this._accountName_TextChanged);
@@ -97,7 +97,7 @@
 						| System.Windows.Forms.AnchorStyles.Right)));
 			this._password.Location = new System.Drawing.Point(110, 154);
 			this._password.Name = "_password";
-			this._password.Size = new System.Drawing.Size(166, 20);
+			this._password.Size = new System.Drawing.Size(297, 20);
 			this._password.TabIndex = 2;
 			this.toolTip1.SetToolTip(this._password, "This is the password belonging to this account, as it was set up on the server.");
 			this._password.TextChanged += new System.EventHandler(this._password_TextChanged);
@@ -108,7 +108,7 @@
 			this._serverCombo.FormattingEnabled = true;
 			this._serverCombo.Location = new System.Drawing.Point(110, 23);
 			this._serverCombo.Name = "_serverCombo";
-			this._serverCombo.Size = new System.Drawing.Size(168, 21);
+			this._serverCombo.Size = new System.Drawing.Size(297, 21);
 			this._serverCombo.TabIndex = 5;
 			this._serverCombo.SelectedIndexChanged += new System.EventHandler(this.OnSelectedIndexChanged);
 			//
@@ -140,7 +140,7 @@
 			this._customUrlLabel.TabIndex = 29;
 			this._customUrlLabel.Text = "URL";
 			//
-			// InternetCloneInstructionsControl
+			// ServerSettingsControl
 			//
 			this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
 			this.Controls.Add(this._customUrlLabel);
@@ -154,7 +154,7 @@
 			this.Controls.Add(this._accountName);
 			this.Controls.Add(this._projectId);
 			this.MinimumSize = new System.Drawing.Size(430, 200);
-			this.Name = "InternetCloneInstructionsControl";
+			this.Name = "ServerSettingsControl";
 			this.Size = new System.Drawing.Size(430, 200);
 			this.Load += new System.EventHandler(this.OnLoad);
 			this.ResumeLayout(false);

@@ -3,7 +3,7 @@
   <PropertyGroup>
 	<Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
 	<Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-	<ProductVersion>9.0.21022</ProductVersion>
+	<ProductVersion>9.0.30729</ProductVersion>
 	<SchemaVersion>2.0</SchemaVersion>
 	<ProjectGuid>{F9671F8B-8556-44EA-81A7-C236D871B471}</ProjectGuid>
 	<OutputType>Library</OutputType>
@@ -66,6 +66,25 @@
 	<PlatformTarget>x86</PlatformTarget>
 	<ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'DebugMono|AnyCPU' ">
+	<DebugSymbols>true</DebugSymbols>
+	<OutputPath>..\..\output\$(Configuration)</OutputPath>
+	<DefineConstants>DEBUG;TRACE;MONO</DefineConstants>
+	<CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+	<DebugType>full</DebugType>
+	<PlatformTarget>x86</PlatformTarget>
+	<ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'ReleaseMono|AnyCPU' ">
+	<DebugSymbols>true</DebugSymbols>
+	<OutputPath>..\..\output\$(Configuration)</OutputPath>
+	<DefineConstants>TRACE;MONO</DefineConstants>
+	<CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+	<Optimize>true</Optimize>
+	<DebugType>pdbonly</DebugType>
+	<PlatformTarget>x86</PlatformTarget>
+	<ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
   <ItemGroup>
 	<Reference Include="nunit.framework, Version=2.5.5.10112, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
 	  <SpecificVersion>False</SpecificVersion>
@@ -101,6 +120,10 @@
 	<Compile Include="FileHandlers\FieldWorks\FieldWorksMergingStrategyTests.cs" />
 	<Compile Include="FileHandlers\FieldWorks\ModelVersion\FieldWorksModelVersionFileHandlerTests.cs" />
 	<Compile Include="FileHandlers\FieldWorks\MetadataCacheTests.cs" />
+	<Compile Include="FileHandlers\ldml\LdmlFileMergeTests.cs" />
+	<Compile Include="FileHandlers\ldml\LdmlFileValidationTests.cs" />
+	<Compile Include="FileHandlers\ldml\LdmlFileHandlerTests.cs" />
+	<Compile Include="FileHandlers\LiftRanges\LiftRangesFileHandlerTests.cs" />
 	<Compile Include="FileHandlers\Lift\FilePrettyPrintTests.cs" />
 	<Compile Include="MercurialPathHelp.cs" />
 	<Compile Include="merge\xml\adaptIt\FileLevelAdaptItKnowlegeBaseMergeTests.cs" />
@@ -137,6 +160,7 @@
 	<Compile Include="notes\AnnotationRepositoryTests.cs" />
 	<Compile Include="RepositorySetup.cs" />
 	<Compile Include="sync\CommitCopTests.cs" />
+	<Compile Include="sync\LargeFileFilterTests.cs" />
 	<Compile Include="sync\ProxyTests.cs" />
 	<Compile Include="sync\RevisionMergeBehaviorTests.cs" />
 	<Compile Include="sync\Synchronizer.FileBasedTests.cs" />
@@ -170,6 +194,11 @@
   </ItemGroup>
   <ItemGroup>
 	<Folder Include="merge\text\" />
+  </ItemGroup>
+  <ItemGroup>
+	<None Include="..\..\build\MonoRunnerForTest\chorusmerge">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</None>
   </ItemGroup>
   <ItemGroup>
 	<None Include="..\..\build\MonoRunnerForTest\chorusmerge">

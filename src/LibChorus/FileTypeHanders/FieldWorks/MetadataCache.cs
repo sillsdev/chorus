@@ -19,6 +19,15 @@ namespace Chorus.FileTypeHanders.FieldWorks
 		/// </summary>
 		public MetadataCache()
 		{
+			// TODO: If FW Bridge ever gets released into the wild,
+			// the MDC needs to be able to support various FW model versions.
+			// This can be introduced with some kind of 'InitializeTo(string modelVersionNumber) method.
+			// There will be a base starting model version number,
+			// and the Init method will then move up one verswion at a time, and add/remove props/classes,
+			// for each FW migration tobring it up to the given number.
+			// This will still require all users of a repo to be on the same version,
+			// but it will allow different sets of users tobe at different levels.
+			// I expect the MDC to be available in a static variable, and accessable via a getter.
 			AddMainClassInfo();
 			SetSuperclasses();
 			_concreteClasses = new List<FdoClassInfo>(from classInfo in _classes.Values
@@ -86,8 +95,11 @@ namespace Chorus.FileTypeHanders.FieldWorks
 
 		/// <summary>
 		/// This method started out as generated from the main FW FDO system.
-		/// But, now it will live on its own, and as the model cahnges, it will need to be changed by hand.
+		/// But, now it will live on its own, and as the model changes, it will need to be changed by hand.
 		/// </summary>
+		/// <remarks>
+		/// It is now at: 7000044.
+		/// </remarks>
 		private void AddMainClassInfo()
 		{
 			var clsInfo = new FdoClassInfo("CmObject", true, null);
@@ -624,6 +636,10 @@ namespace Chorus.FileTypeHanders.FieldWorks
 			clsInfo.AddProperty(new FdoPropertyInfo("Diffs", DataType.OwningCollection));
 			clsInfo.AddProperty(new FdoPropertyInfo("UseChapterNumHeading", DataType.Boolean));
 			clsInfo.AddProperty(new FdoPropertyInfo("CanonicalNum", DataType.Integer));
+			// Added DM39.
+			clsInfo.AddProperty(new FdoPropertyInfo("ImportedCheckSum", DataType.Unicode));
+			// Added DM43
+			clsInfo.AddProperty(new FdoPropertyInfo("ImportedBtCheckSum", DataType.MultiUnicode));
 
 			clsInfo = new FdoClassInfo("ScrRefSystem", "CmObject");
 			_classes.Add("ScrRefSystem", clsInfo);
@@ -803,13 +819,17 @@ namespace Chorus.FileTypeHanders.FieldWorks
 			clsInfo.AddProperty(new FdoPropertyInfo("MainEntriesOrSenses", DataType.ReferenceSequence));
 			clsInfo.AddProperty(new FdoPropertyInfo("Comment", DataType.MultiString));
 			clsInfo.AddProperty(new FdoPropertyInfo("DoNotUseForParsing", DataType.Boolean));
-			clsInfo.AddProperty(new FdoPropertyInfo("ExcludeAsHeadword", DataType.Boolean));
+			//Removed DM41: clsInfo.AddProperty(new FdoPropertyInfo("ExcludeAsHeadword", DataType.Boolean));
 			clsInfo.AddProperty(new FdoPropertyInfo("LexemeForm", DataType.OwningAtomic));
 			clsInfo.AddProperty(new FdoPropertyInfo("AlternateForms", DataType.OwningSequence));
 			clsInfo.AddProperty(new FdoPropertyInfo("Pronunciations", DataType.OwningSequence));
 			clsInfo.AddProperty(new FdoPropertyInfo("ImportResidue", DataType.String));
 			clsInfo.AddProperty(new FdoPropertyInfo("LiftResidue", DataType.Unicode));
 			clsInfo.AddProperty(new FdoPropertyInfo("EntryRefs", DataType.OwningSequence));
+			// Added DM 38
+			clsInfo.AddProperty(new FdoPropertyInfo("DoNotPublishIn", DataType.ReferenceCollection));
+			// Added DM41
+			clsInfo.AddProperty(new FdoPropertyInfo("DoNotShowMainEntryIn", DataType.ReferenceCollection));
 
 			clsInfo = new FdoClassInfo("ConstChartRow", "CmObject");
 			_classes.Add("ConstChartRow", clsInfo);
@@ -828,6 +848,8 @@ namespace Chorus.FileTypeHanders.FieldWorks
 			clsInfo.AddProperty(new FdoPropertyInfo("Reference", DataType.String));
 			clsInfo.AddProperty(new FdoPropertyInfo("Translations", DataType.OwningCollection));
 			clsInfo.AddProperty(new FdoPropertyInfo("LiftResidue", DataType.Unicode));
+			// Added DM 38
+			clsInfo.AddProperty(new FdoPropertyInfo("DoNotPublishIn", DataType.ReferenceCollection));
 
 			clsInfo = new FdoClassInfo("LexDb", "CmMajorObject");
 			_classes.Add("LexDb", clsInfo);
@@ -847,6 +869,8 @@ namespace Chorus.FileTypeHanders.FieldWorks
 			clsInfo.AddProperty(new FdoPropertyInfo("Resources", DataType.OwningCollection));
 			clsInfo.AddProperty(new FdoPropertyInfo("VariantEntryTypes", DataType.OwningAtomic));
 			clsInfo.AddProperty(new FdoPropertyInfo("ComplexEntryTypes", DataType.OwningAtomic));
+			// Added DM 38
+			clsInfo.AddProperty(new FdoPropertyInfo("PublicationTypes", DataType.OwningAtomic));
 
 			clsInfo = new FdoClassInfo("ConstituentChartCellPart", true, "CmObject");
 			_classes.Add("ConstituentChartCellPart", clsInfo);
@@ -918,6 +942,8 @@ namespace Chorus.FileTypeHanders.FieldWorks
 			clsInfo.AddProperty(new FdoPropertyInfo("Pictures", DataType.OwningSequence));
 			clsInfo.AddProperty(new FdoPropertyInfo("ImportResidue", DataType.String));
 			clsInfo.AddProperty(new FdoPropertyInfo("LiftResidue", DataType.Unicode));
+			// Added DM 38
+			clsInfo.AddProperty(new FdoPropertyInfo("DoNotPublishIn", DataType.ReferenceCollection));
 
 			clsInfo = new FdoClassInfo("MoAdhocProhib", true, "CmObject");
 			_classes.Add("MoAdhocProhib", clsInfo);
@@ -1454,6 +1480,8 @@ namespace Chorus.FileTypeHanders.FieldWorks
 			clsInfo.AddProperty(new FdoPropertyInfo("Summary", DataType.MultiString));
 			clsInfo.AddProperty(new FdoPropertyInfo("LiftResidue", DataType.Unicode));
 			clsInfo.AddProperty(new FdoPropertyInfo("RefType", DataType.Integer));
+			// Added DM40
+			clsInfo.AddProperty(new FdoPropertyInfo("ShowComplexFormsIn", DataType.ReferenceSequence));
 
 			clsInfo = new FdoClassInfo("PhSegmentRule", "CmObject");
 			_classes.Add("PhSegmentRule", clsInfo);
@@ -1535,6 +1563,12 @@ namespace Chorus.FileTypeHanders.FieldWorks
 			clsInfo.AddProperty(new FdoPropertyInfo("DiscourseData", DataType.OwningAtomic));
 			clsInfo.AddProperty(new FdoPropertyInfo("TextMarkupTags", DataType.OwningAtomic));
 			clsInfo.AddProperty(new FdoPropertyInfo("PhFeatureSystem", DataType.OwningAtomic));
+			// Added in DM 38
+			clsInfo = new FdoClassInfo("VirtualOrdering", true, "CmObject");
+			_classes.Add("VirtualOrdering", clsInfo);
+			clsInfo.AddProperty(new FdoPropertyInfo("Source", DataType.ReferenceAtomic));
+			clsInfo.AddProperty(new FdoPropertyInfo("Field", DataType.Unicode));
+			clsInfo.AddProperty(new FdoPropertyInfo("Items", DataType.ReferenceSequence));
 		}
 	}
 }

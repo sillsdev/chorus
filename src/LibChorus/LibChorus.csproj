@@ -90,10 +90,6 @@
 	  <SpecificVersion>False</SpecificVersion>
 	  <HintPath>..\..\lib\$(Configuration)\Autofac.dll</HintPath>
 	</Reference>
-	<Reference Include="Palaso, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-	  <SpecificVersion>False</SpecificVersion>
-	  <HintPath>..\..\lib\$(Configuration)\Palaso.dll</HintPath>
-	</Reference>
 	<Reference Include="icu.net, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
 	  <SpecificVersion>False</SpecificVersion>
 	  <HintPath>..\..\lib\$(Configuration)\icu.net.dll</HintPath>
@@ -108,6 +104,14 @@
 	<None Condition="'$(Configuration)' == 'DebugMono' Or '$(Configuration)' == 'ReleaseMono' " Include="..\..\lib\$(Configuration)\NDesk.DBus.dll.config">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</None>
+	<Reference Include="Palaso, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86">
+	  <SpecificVersion>False</SpecificVersion>
+	  <HintPath>..\..\lib\$(Configuration)\Palaso.dll</HintPath>
+	</Reference>
+	<Reference Include="Palaso.TestUtilities, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86">
+	  <SpecificVersion>False</SpecificVersion>
+	  <HintPath>..\..\lib\$(Configuration)\Palaso.TestUtilities.dll</HintPath>
+	</Reference>
 	<Reference Include="System" />
 	<Reference Include="System.Core">
 	  <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -133,6 +137,9 @@
 	<Compile Include="FileTypeHanders\FieldWorks\ModelVersion\FieldWorksModelVersionChangePresenter.cs" />
 	<Compile Include="FileTypeHanders\FieldWorks\ModelVersion\FieldWorksModelVersionChangeReport.cs" />
 	<Compile Include="FileTypeHanders\FieldWorks\ModelVersion\FieldWorksModelVersionFileHandler.cs" />
+	<Compile Include="FileTypeHanders\ldml\LdmlFileHandler.cs" />
+	<Compile Include="FileTypeHanders\ldml\LdmlMergingStrategy.cs" />
+	<Compile Include="FileTypeHanders\Lift-Ranges\LiftRangesFileTypeHandler.cs" />
 	<Compile Include="FileTypeHanders\lift\LiftFileServices.cs" />
 	<Compile Include="FileTypeHanders\lift\LiftFolder.cs" />
 	<Compile Include="FileTypeHanders\FieldWorks\DataType.cs" />
@@ -144,6 +151,14 @@
 	<Compile Include="FileTypeHanders\Xml2WayDiffService.cs" />
 	<Compile Include="merge\xml\generic\MergeAtomicElementService.cs" />
 	<Compile Include="merge\xml\generic\XmlMergeService.cs" />
+	<Compile Include="FileTypeHanders\oneStory\OneStoryChangePresenter.cs" />
+	<Compile Include="FileTypeHanders\oneStory\OneStoryDiffer.cs" />
+	<Compile Include="Properties\Resources.Designer.cs">
+	  <AutoGen>True</AutoGen>
+	  <DesignTime>True</DesignTime>
+	  <DependentUpon>Resources.resx</DependentUpon>
+	</Compile>
+	<Compile Include="sync\LargeFileFilter.cs" />
 	<Compile Include="Utilities\DifferDictionaryPrepper.cs" />
 	<Compile Include="FileTypeHanders\FieldWorks\FieldWorkObjectContextGenerator.cs" />
 	<Compile Include="FileTypeHanders\FieldWorks\FieldWorksChangePresenter.cs" />
@@ -288,6 +303,10 @@
 	  <Generator>PublicResXFileCodeGenerator</Generator>
 	  <LastGenOutput>AnnotationImages.Designer.cs</LastGenOutput>
 	  <SubType>Designer</SubType>
+	</EmbeddedResource>
+	<EmbeddedResource Include="Properties\Resources.resx">
+	  <Generator>ResXFileCodeGenerator</Generator>
+	  <LastGenOutput>Resources.Designer.cs</LastGenOutput>
 	</EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

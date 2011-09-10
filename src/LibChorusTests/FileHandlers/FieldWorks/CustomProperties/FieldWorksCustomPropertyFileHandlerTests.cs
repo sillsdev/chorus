@@ -24,7 +24,7 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks.CustomProperties
 		[TestFixtureSetUp]
 		public void FixtureSetup()
 		{
-			_fwCustomPropertiesFileHandler = (from handler in ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers().Handers
+			_fwCustomPropertiesFileHandler = (from handler in ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers().Handlers
 											  where handler.GetType().Name == "FieldeWorksCustomPropertyFileHandler"
 											  select handler).First();
 		}

@@ -38,7 +38,7 @@ namespace Chorus.FileTypeHanders.FieldWorks.CustomProperties
 
 		public bool CanValidateFile(string pathToFile)
 		{
-			if (!FieldWorksMergingServices.CheckValidPathname(pathToFile, kExtension))
+			if (!FileUtils.CheckValidPathname(pathToFile, kExtension))
 				return false;
 
 			return DoValidation(pathToFile) == null;
@@ -95,6 +95,17 @@ namespace Chorus.FileTypeHanders.FieldWorks.CustomProperties
 		public IEnumerable<string> GetExtensionsOfKnownTextFileTypes()
 		{
 			yield return kExtension;
+		}
+
+		/// <summary>
+		/// Return the maximum file size that can be added to the repository.
+		/// </summary>
+		/// <remarks>
+		/// Return UInt32.MaxValue for no limit.
+		/// </remarks>
+		public uint MaximumFileSize
+		{
+			get { return UInt32.MaxValue; }
 		}
 
 		#endregion

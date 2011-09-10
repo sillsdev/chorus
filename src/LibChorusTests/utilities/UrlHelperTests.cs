@@ -80,5 +80,19 @@ namespace LibChorus.Tests.utilities
 		{
 			Assert.AreEqual("pass", UrlHelper.GetPassword("http://joe_user:pass@there.com/detail"));
 		}
+
+		[Test]
+		public void GetValueFromQueryStringOfRef_HasNoSpaceInName_StillGetsValue()
+		{
+			Assert.AreEqual("2", UrlHelper.GetValueFromQueryStringOfRef(@"lift://somefile.lift?one=1&two=2", "two", string.Empty));
+		}
+
+		[Test]
+		public void GetValueFromQueryStringOfRef_HasEscapedSpaceInName_StillGetsValue()
+		{
+			Assert.AreEqual("2", UrlHelper.GetValueFromQueryStringOfRef(@"lift://some%20file.lift?one=1&two=2", "two", string.Empty));
+			Assert.AreEqual("2", UrlHelper.GetValueFromQueryStringOfRef(@"lift://some %20 file.lift?one=1&two=2", "two", string.Empty));
+		}
+
 	}
 }

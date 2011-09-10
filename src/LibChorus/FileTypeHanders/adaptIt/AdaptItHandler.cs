@@ -1,6 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
+using System.Xml;
+using System.Xml.Linq;
+using System.Xml.Xsl;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
 using Chorus.VcsDrivers.Mercurial;
@@ -54,7 +58,32 @@ namespace Chorus.FileTypeHanders.adaptIt
 
 			merger.EventListener = mergeOrder.EventListener;
 			var result = merger.MergeFiles(mergeOrder.pathToOurs, mergeOrder.pathToTheirs, mergeOrder.pathToCommonAncestor);
+
+			// write it out using XDocument so it's easier to view with wincmp
+			//  (plus we need to sort the KB and the easiest way seems to be with xslt)
+#if !DontUseXDocument
+			XElement elem = XElement.Parse(result.MergedNode.OuterXml);
+
+			// create the root portions of the XML document and tack on the fragment we've been building
+			var doc = new XDocument(
+				new XDeclaration("1.0", "utf-8", "yes"),
+				new XComment(Properties.Resources.AdaptItKbDescription));
+
+			// sort it
+			var xslt = new XslCompiledTransform();
+			xslt.Load(XmlReader.Create(new StringReader(Properties.Resources.SortAIKB)));
+
+			using (XmlWriter writer = doc.CreateWriter())
+			{
+				// Execute the transform and output the results to a writer.
+				xslt.Transform(elem.CreateReader(), writer);
+				writer.Close();
+			}
+
+			doc.Save(mergeOrder.pathToOurs);
+#else
 			File.WriteAllText(mergeOrder.pathToOurs, result.MergedNode.OuterXml);
+#endif
 		}
 
 		private void SetupElementStrategies(XmlMerger merger)
@@ -64,11 +93,17 @@ namespace Chorus.FileTypeHanders.adaptIt
 			merger.MergeStrategies.SetStrategy("KB", ElementStrategy.CreateSingletonElement());
 
 			// Are the listed attributes really unique? rde: yes and their order is probably crucial
-			merger.MergeStrategies.SetStrategy("MAP", ElementStrategy.CreateForKeyedElement("mn", true));
+			//  rde: 4/4/11: using order = true makes the merging incredibly slow. We sort it afterwards
+			//  anyway, so pretend the order doesn't matter.
+			merger.MergeStrategies.SetStrategy("MAP", ElementStrategy.CreateForKeyedElement("mn", false));
 
-			// review: is it ok to ignore @f? rde: I'm not sure what you mean by "ignore", but it seems that
-			//  if someone changes @f, it should be changed
-			merger.MergeStrategies.SetStrategy("TU", ElementStrategy.CreateForKeyedElement("k", false));
+			// ignore whether one user wanted to 'force' the source word or not (too little
+			//  importance to have conflicts over)
+			//  rde: 4/4/11: using order = true makes the merging incredibly slow. We sort it afterwards
+			//  anyway, so pretend the order doesn't matter.
+			var elementStrategy = ElementStrategy.CreateForKeyedElement("k", false);
+			elementStrategy.AttributesToIgnoreForMerging.Add("f");
+			merger.MergeStrategies.SetStrategy("TU", elementStrategy);
 
 			// ... whereas for RS@a, if there's a conflict, just pick one or the other is fine (if there
 			//  were the ability, what we'd want to do is add the differentials from the ancestor--e.g.
@@ -76,7 +111,9 @@ namespace Chorus.FileTypeHanders.adaptIt
 			//  theirs is 2 (they've added 1 new occurrence of this interpretation), then make it 4
 			//  =1 + 2 + 1. This is what we're really want to do, but otherwise, it isn't a big deal
 			//  as far as AI or other users are concerned).
-			var elementStrategy = ElementStrategy.CreateForKeyedElement("a", true);
+			//  rde: 4/4/11: using order = true makes the merging incredibly slow. We sort it afterwards
+			//  anyway, so pretend the order doesn't matter.
+			elementStrategy = ElementStrategy.CreateForKeyedElement("a", false);
 			elementStrategy.AttributesToIgnoreForMerging.Add("n");
 			merger.MergeStrategies.SetStrategy("RS", elementStrategy);
 
@@ -104,6 +141,17 @@ namespace Chorus.FileTypeHanders.adaptIt
 		public IEnumerable<string> GetExtensionsOfKnownTextFileTypes()
 		{
 			yield return "xml";
+		}
+
+		/// <summary>
+		/// Return the maximum file size that can be added to the repository.
+		/// </summary>
+		/// <remarks>
+		/// Return UInt32.MaxValue for no limit.
+		/// </remarks>
+		public uint MaximumFileSize
+		{
+			get { return UInt32.MaxValue; }
 		}
 	}
 }

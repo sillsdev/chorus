@@ -188,6 +188,19 @@ namespace Chorus.VcsDrivers.Mercurial
 			return PullFromRepository(repo, false);
 		}
 
+		/// <summary>
+		/// Gives an id string which is unique to this repository, but shared across all clones of it.  Can be used to identify relatives in crowd.
+		/// </summary>
+		public string Identifier
+		{
+			get
+			{
+				// Or: id -i -r0 for short id
+				var results = Execute(SecondsBeforeTimeoutOnLocalOperation, "log -r0 --template " + SurroundWithQuotes("{node}"));
+				return results.StandardOutput;
+			}
+		}
+
 		public void Push(RepositoryAddress address, string targetUri, IProgress progress)
 		{
 			_progress.WriteStatus("Sending changes to {0}", address.GetFullName(targetUri));
@@ -250,7 +263,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				   _progress.WriteWarning("Could not receive from " + otherRepo.Name);
 				   if(err.Message.Contains("authorization"))
 					{
-						_progress.WriteError("The server rejected the project name, user name, or password.");
+						_progress.WriteError("The server rejected the project name, user name, or password. Also make sure this user is a member of the project, with permission to read data.");
 					}
 					throw err;
 				}
@@ -320,6 +333,15 @@ namespace Chorus.VcsDrivers.Mercurial
 			return result.StandardOutput;
 		}
 
+		/// <summary>
+		/// Method only for testing.
+		/// </summary>
+		/// <param name="filePath"></param>
+		internal void AddSansCommit(string filePath)
+		{
+			TrackFile(filePath);
+		}
+
 		public void AddAndCheckinFile(string filePath)
 		{
 			TrackFile(filePath);
@@ -341,8 +363,18 @@ namespace Chorus.VcsDrivers.Mercurial
 			_progress.WriteVerbose(result.StandardOutput);
 		}
 
-
-
+		///<summary>
+		/// Tell Hg to forget the specififed file, so it won't track it anymore.
+		///</summary>
+		/// <remarks>
+		/// 'forget' will mark it as deleted in the repo (keeping its history, of course),
+		/// but it will leave it in the user's workspace.
+		/// </remarks>
+		public void ForgetFile(string filepath)
+		{
+			_progress.WriteWarning("{0} is removing {1} from system. The file will remmain in the history and on disk.", _userName, Path.GetFileName(filepath));
+			Execute(SecondsBeforeTimeoutOnLocalOperation, "forget ", SurroundWithQuotes(filepath));
+		}
 
 		public void Branch(string branchName)
 		{
@@ -635,6 +667,11 @@ namespace Chorus.VcsDrivers.Mercurial
 					var x = new Uri(sourceUri);
 					progress.WriteMessage("Check that {0} really hosts a project labelled '{1}'", x.Host, x.PathAndQuery.Trim('/'));
 				}
+				else if (error.Message.Contains("authorization"))
+				{
+					throw new RepositoryAuthorizationException();
+				}
+
 				throw error;
 			}
 		}
@@ -1717,6 +1754,17 @@ namespace Chorus.VcsDrivers.Mercurial
 
 
 		}
+
+		public static string GetAliasFromPath(string path)
+		{
+			return path.Replace(@":\", "_") //   ":\" on the left side of an assignment messes up the hgrc reading, becuase colon is an alternative to "=" here
+			.Replace(":", "_") // catch one without a slash
+			.Replace("=", "_"); //an = in the path would also mess things up
+		}
 	}
 
+	public class RepositoryAuthorizationException : Exception
+	{
+
+	}
 }

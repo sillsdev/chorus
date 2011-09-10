@@ -185,7 +185,7 @@ namespace Chorus.UI.Clone
 			this.MinimumSize = new System.Drawing.Size(322, 300);
 			this.Name = "GetCloneFromUsbDialog";
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-			this.Text = "Get Project From USB Flash Drive";
+			this.Text = "Get Project From USB Drive";
 			this.Load += new System.EventHandler(this.GetCloneDialog_Load);
 			this.ResumeLayout(false);
 			this.PerformLayout();

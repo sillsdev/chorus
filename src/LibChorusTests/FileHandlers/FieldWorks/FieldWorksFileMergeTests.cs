@@ -26,7 +26,7 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 		[TestFixtureSetUp]
 		public void FixtureSetup()
 		{
-			_fwFileHandler = (from handler in ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers().Handers
+			_fwFileHandler = (from handler in ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers().Handlers
 							   where handler.GetType().Name == "FieldWorksFileHandler"
 							   select handler).First();
 		}

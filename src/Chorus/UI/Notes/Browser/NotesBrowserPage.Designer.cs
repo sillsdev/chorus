@@ -68,7 +68,7 @@
 			this.Controls.Add(this.splitContainer1);
 			this.Name = "NotesBrowserPage";
 			this.Size = new System.Drawing.Size(748, 561);
-			this.splitContainer1.ResumeLayout(false);
+			 this.splitContainer1.ResumeLayout(false);
 			this.ResumeLayout(false);
 			this.PerformLayout();
 

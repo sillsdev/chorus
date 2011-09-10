@@ -1,14 +1,20 @@
-﻿using System.Windows.Forms;
+﻿using System;
+using System.Windows.Forms;
 using Chorus.UI.Review.ChangedReport;
 using Chorus.UI.Review.ChangesInRevision;
 using Chorus.UI.Review.RevisionsInRepository;
+using Chorus.VcsDrivers.Mercurial;
 
 namespace Chorus.UI.Review
 {
 	public partial class HistoryPage : UserControl
 	{
+		public delegate HistoryPage Factory(HistoryPageOptions options);//used by autofac
 
-		public HistoryPage(RevisionsInRepositoryView revisionsInRepositoryView, ChangesInRevisionView changesInRevisionView, ChangeReportView changeReportView)
+		public HistoryPage(RevisionInRepositoryModel.Factory revisionsInRepositoryModelFactory,
+			ChangesInRevisionView changesInRevisionView,
+			ChangeReportView changeReportView,
+			HistoryPageOptions options)
 		{
 			InitializeComponent();
 
@@ -28,6 +34,8 @@ namespace Chorus.UI.Review
 			lowerContainer.Panel1.Controls.Add(changesInRevisionView);
 			lowerContainer.Panel2.Controls.Add(changeReportView);
 
+			var revisionListModel = revisionsInRepositoryModelFactory(options.RevisionListOptions);
+			var revisionsInRepositoryView = new RevisionsInRepositoryView(revisionListModel);
 
 			var verticalContainer = new SplitContainer();
 			verticalContainer.Orientation = Orientation.Horizontal;
@@ -39,4 +47,5 @@ namespace Chorus.UI.Review
 			ResumeLayout();
 		}
 	}
+
 }

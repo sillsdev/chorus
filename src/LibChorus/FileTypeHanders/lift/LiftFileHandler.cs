@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Xml;
@@ -79,6 +80,17 @@ namespace Chorus.FileTypeHanders.lift
 		public IEnumerable<string> GetExtensionsOfKnownTextFileTypes()
 		{
 			yield return "lift";
+		}
+
+		/// <summary>
+		/// Return the maximum file size that can be added to the repository.
+		/// </summary>
+		/// <remarks>
+		/// Return UInt32.MaxValue for no limit.
+		/// </remarks>
+		public uint MaximumFileSize
+		{
+			get { return UInt32.MaxValue; }
 		}
 
 		internal static void WritePreliminaryInformation(XmlReader reader, XmlWriter writer)

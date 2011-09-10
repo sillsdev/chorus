@@ -6,7 +6,7 @@ using Palaso.TestUtilities;
 
 namespace Chorus.Tests
 {
-	[TestFixture]
+	[TestFixture, RequiresSTA]
 	public class ChorusApplicationTests
 	{
 		[Test]
