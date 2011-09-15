@@ -287,7 +287,7 @@ namespace Chorus.sync
 			}
 			catch (Exception error)
 			{
-				ExplainAndThrow(error, "Could to send to {0}({1}).", address.Name, address.URI);
+				ExplainAndThrow(error, "Failed to send to {0} ({1}).", address.Name, address.URI);
 			}
 		}
 
