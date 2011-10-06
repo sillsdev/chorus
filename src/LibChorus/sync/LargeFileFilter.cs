@@ -92,7 +92,7 @@ namespace Chorus.sync
 									where (handler.CanValidateFile(fir.FullPath) && handler.MaximumFileSize != UInt32.MaxValue) && fileSize >= handler.MaximumFileSize
 									select (fir.ActionThatHappened == FileInRevision.Action.Added || fir.ActionThatHappened == FileInRevision.Action.Unknown) ? String.Format("File '{0}' is too large to add to Chorus.", filename) : String.Format("File '{0}' is too large to be updated in Chorus.", filename))
 				{
-					progress.WriteVerbose(msg);
+					progress.WriteWarning(msg);
 					builder.AppendLine(msg);
 					configuration.ExcludePatterns.Add(fir.FullPath.Replace(pathToRepository, ""));
 

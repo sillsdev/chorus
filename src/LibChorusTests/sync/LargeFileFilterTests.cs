@@ -183,5 +183,36 @@ namespace LibChorus.Tests.sync
 		{
 			Assert.AreEqual(1048576, LargeFileFilter.Megabyte);
 		}
+
+
+		/// <summary>
+		/// Regression test: WS-34181
+		/// </summary
+		[Test, Ignore("Fails due to mercurial")]
+		public void FileWithSpecialCharacterIsAllowed()
+		{
+			using (var bob = new RepositorySetup("bob"))
+			{
+				const string fileName = "ŭburux.wav";
+				bob.ChangeFile(fileName, _goodData);
+				var fullPathname = Path.Combine(bob.ProjectFolderConfig.FolderPath, fileName);
+				var pathToRepo = bob.Repository.PathToRepo + Path.PathSeparator;
+				bob.Repository.AddSansCommit(fullPathname);
+				var config = bob.ProjectFolderConfig;
+				config.ExcludePatterns.Clear();
+				config.IncludePatterns.Clear();
+				config.IncludePatterns.Add("**.wav");
+
+				var result = LargeFileFilter.FilterFiles(
+					bob.Repository,
+					config,
+					_handlersColl,
+					bob.Progress);
+				Assert.IsTrue(string.IsNullOrEmpty(result));
+				var shortpath = fullPathname.Replace(pathToRepo, "");
+				Assert.IsFalse(config.ExcludePatterns.Contains(shortpath));
+				Assert.IsFalse(config.IncludePatterns.Contains(shortpath));
+			}
+		}
 	}
 }
