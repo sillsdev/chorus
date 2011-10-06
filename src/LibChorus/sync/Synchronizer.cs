@@ -627,8 +627,8 @@ namespace Chorus.sync
 					  if (head.Tag.Contains(RejectTagSubstring))
 						  continue;
 
-					  //note: what we're checking here is actualy the *name* of the branch... obviously
-					  //they are different branches, or merge would not be needed.
+					  //note: what we're checking here is actualy the *name* of the branch...important: remmber in hg,
+					  //you can have multiple heads on the same branch
 					  if (head.Branch != myHead.Branch) //Chorus policy is to only auto-merge on branches with same name
 						  continue;
 
@@ -638,7 +638,14 @@ namespace Chorus.sync
 
 					  MergeOrder.PushToEnvironmentVariables(_localRepositoryPath);
 					  _progress.WriteStatus("Merging with {0}...", head.UserId);
+					  _progress.WriteVerbose("   Revisions {0}:{1} with {2}:{3}...", myHead.Number.LocalRevisionNumber, myHead.Number.Hash, head.Number.LocalRevisionNumber, head.Number.Hash);
 					  RemoveMergeObstacles(myHead, head);
+
+					  if(CheckAndWarnIfNoCommonAncestor(myHead, head))
+					  {
+						  continue;
+					  }
+
 					  bool didMerge = MergeTwoChangeSets(myHead, head);
 					  if (didMerge)
 					  {
@@ -661,6 +668,18 @@ namespace Chorus.sync
 			  }
 		  }
 
+		private bool CheckAndWarnIfNoCommonAncestor(Revision a, Revision b )
+		{
+			if (null ==Repository.GetCommonAncestorOfRevisions(a.Number.Hash,b.Number.Hash))
+			{
+				_progress.WriteWarning(
+					"This repository has an anomaly:  the two heads we want to merge have no common ancestor.  You should get help from the developers of this application.");
+				_progress.WriteWarning("1) \"{0}\" on {1} by {2} ({3}). ", a.GetHashCode(), a.Summary, a.DateString, a.UserId);
+				_progress.WriteWarning("2) \"{0}\" on {1} by {2} ({3}). ", b.GetHashCode(), b.Summary, b.DateString, b.UserId);
+				return true;
+			}
+			return false;
+		}
 
 		/// <returns>false if nothing needed to be merged, true if the merge was done. Throws exception if there is an error.</returns>
 		private bool MergeTwoChangeSets(Revision head, Revision theirHead)
