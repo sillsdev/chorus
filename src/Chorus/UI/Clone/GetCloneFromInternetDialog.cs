@@ -132,7 +132,17 @@ namespace Chorus.UI.Clone
 				{
 					player.Play();
 				}
-				if(error is RepositoryAuthorizationException)
+				if (error is FirewallProblemSuspectedException)
+				{
+					_progress.WriteError(error.Message);
+					ErrorReport.NotifyUserOfProblem(error.Message);
+				}
+				else if (error is ServerErrorException)
+				{
+					_progress.WriteError(error.Message);
+					ErrorReport.NotifyUserOfProblem(error.Message);
+				}
+				 else if(error is RepositoryAuthorizationException)
 				{
 					_progress.WriteError("The server {0} did not accept the reqest of {1} to clone from {2} using password {3}.", _model.SelectedServerPath, _model.AccountName, _model.ProjectId, _model.Password);
 					ErrorReport.NotifyUserOfProblem("The server ({0}) rejected the project name ({1}), user name ({2}), or password ({3}) (sorry, it didn't tell us which one). Make sure that each of these is correct, and that '{2}' is a member of the '{1}' project, with permission to read data.",

@@ -324,11 +324,12 @@ namespace Chorus.VcsDrivers.Mercurial
 			return result.StandardOutput;
 		}
 
-		protected string GetTextFromQuery(string query, int secondsBeforeTimeoutOnLocalOperation)
+		protected string GetTextFromQuery(string query, int secondsBeforeTimeoutOnLocalOperation, IProgress progress)
 		{
 			ExecutionResult result = ExecuteErrorsOk(query, _pathToRepository, secondsBeforeTimeoutOnLocalOperation, _progress);
-			//TODO: we need a way to get this kind of error back the devs for debugging
-			Debug.Assert(string.IsNullOrEmpty(result.StandardError), result.StandardError);
+			progress.WriteVerbose(result.StandardOutput);
+			if(!string.IsNullOrEmpty(result.StandardError))
+				progress.WriteError(result.StandardError);
 
 			return result.StandardOutput;
 		}
@@ -420,7 +421,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				var details = Environment.NewLine + "hg Command was " + Environment.NewLine + b.ToString();
 				try
 				{
-					var versionInfo = GetTextFromQuery("version", secondsBeforeTimeout);
+					var versionInfo = GetTextFromQuery("version", secondsBeforeTimeout, _progress);
 					//trim the verbose copyright stuff
 					versionInfo = versionInfo.Substring(0, versionInfo.IndexOf("Copyright"));
 					details += Environment.NewLine + "hg version is: " + versionInfo;
@@ -667,7 +668,15 @@ namespace Chorus.VcsDrivers.Mercurial
 					var x = new Uri(sourceUri);
 					progress.WriteMessage("Check that {0} really hosts a project labelled '{1}'", x.Host, x.PathAndQuery.Trim('/'));
 				}
-				else if (error.Message.Contains("authorization"))
+				else if (FirewallProblemSuspectedException.ErrorMatches(error))
+				{
+					throw new FirewallProblemSuspectedException();
+				}
+				else if (ServerErrorException.ErrorMatches(error))
+				{
+					throw new ServerErrorException();
+				}
+				else if (error.Message.Contains("403") || error.Message.Contains("authorization"))
 				{
 					throw new RepositoryAuthorizationException();
 				}
@@ -855,6 +864,8 @@ namespace Chorus.VcsDrivers.Mercurial
 		public string GetCommonAncestorOfRevisions(string rev1, string rev2)
 		{
 			var result = GetTextFromQuery("debugancestor " + rev1 + " " + rev2);
+			if (result.StartsWith("-1"))
+				return null;
 			return new RevisionNumber(result).LocalRevisionNumber;
 		}
 
@@ -1417,7 +1428,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		public void GetDiagnosticInformationForRemoteProject(IProgress progress, string url)
 		{
 			progress.WriteStatus("Gathering diagnostics data (can't actually tell you anything about the remote server)...");
-			progress.WriteMessage(GetTextFromQuery("version", 30));
+			progress.WriteMessage(GetTextFromQuery("version", 30, _progress));
 
 #if !MONO
 			progress.WriteMessage("Using Mercurial at: "+MercurialLocation.PathToHgExecutable);
@@ -1439,7 +1450,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			progress.WriteMessage("---------------------------------------------------");
 
 			progress.WriteMessage("config:");
-			progress.WriteMessage(GetTextFromQuery("showconfig", 30));
+			progress.WriteMessage(GetTextFromQuery("showconfig", 30, _progress));
 			progress.WriteMessage("---------------------------------------------------");
 
 			progress.WriteStatus("Done.");
@@ -1448,7 +1459,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		public void GetDiagnosticInformation(IProgress progress)
 		{
 			progress.WriteStatus("Gathering diagnostics data...");
-			progress.WriteMessage(GetTextFromQuery("version", 30));
+			progress.WriteMessage(GetTextFromQuery("version", 30, _progress));
    #if !MONO
 			progress.WriteMessage("Using Mercurial at: "+MercurialLocation.PathToHgExecutable);
 #endif
@@ -1468,7 +1479,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 			progress.WriteMessage("---------------------------------------------------");
 			progress.WriteMessage("heads:");
-			progress.WriteMessage(GetTextFromQuery("heads", 30));
+			progress.WriteMessage(GetTextFromQuery("heads", 30, _progress));
 
 			if (GetHeads().Count() > 1)
 			{
@@ -1478,27 +1489,27 @@ namespace Chorus.VcsDrivers.Mercurial
 			progress.WriteMessage("---------------------------------------------------");
 
 			progress.WriteMessage("status:");
-			progress.WriteMessage(GetTextFromQuery("status", 30));
+			progress.WriteMessage(GetTextFromQuery("status", 30, _progress));
 
 			progress.WriteMessage("---------------------------------------------------");
 
 			progress.WriteMessage("Log of last 100 changesets:");
 			try
 			{   //use glog if it is installd and enabled
-				progress.WriteMessage(GetTextFromQuery("glog -l 100", 30));
+				progress.WriteMessage(GetTextFromQuery("glog -l 100", 30, _progress));
 			}
 			catch (Exception)
 			{
-				progress.WriteMessage(GetTextFromQuery("log -l 100", 30));
+				progress.WriteMessage(GetTextFromQuery("log -l 100", 30, _progress));
 			}
 			progress.WriteMessage("---------------------------------------------------");
 
 			progress.WriteMessage("config:");
-			progress.WriteMessage(GetTextFromQuery("showconfig", 30));
+			progress.WriteMessage(GetTextFromQuery("showconfig", 30, _progress));
 			progress.WriteMessage("---------------------------------------------------");
 
 			progress.WriteMessage("manifest:");
-			progress.WriteMessage(GetTextFromQuery("manifest", 30));
+			progress.WriteMessage(GetTextFromQuery("manifest", 30, _progress));
 			progress.WriteMessage("---------------------------------------------------");
 
 
@@ -1533,7 +1544,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		public IntegrityResults CheckIntegrity(IProgress progress)
 		{
 			progress.WriteStatus("Validating Repository... (this can take a long time)");
-			var result = GetTextFromQuery("verify", 60 * 60);
+			var result = GetTextFromQuery("verify", 60 * 60, _progress);
 			if (result.ToLower().Contains("error"))
 			{
 				progress.WriteError(result);
@@ -1763,8 +1774,4 @@ namespace Chorus.VcsDrivers.Mercurial
 		}
 	}
 
-	public class RepositoryAuthorizationException : Exception
-	{
-
-	}
 }
