@@ -46,7 +46,7 @@ namespace Chorus.clone
 				string[] directories = new string[0];
 				try
 				{ // this is all complicated because the yield can't be inside the try/catch
-					directories = FolderUtils.GetSafeDirectories(drive.RootDirectory.FullName);
+					directories = DirectoryUtilities.GetSafeDirectories(drive.RootDirectory.FullName);
 				}
 				catch (Exception error)
 				{
@@ -66,7 +66,7 @@ namespace Chorus.clone
 						string[] subdirs = new string[0];
 						try
 						{    // this is all complicated because the yield can't be inside the try/catch
-							subdirs = FolderUtils.GetSafeDirectories(dir);
+							subdirs = DirectoryUtilities.GetSafeDirectories(dir);
 						}
 						catch (Exception error)
 						{

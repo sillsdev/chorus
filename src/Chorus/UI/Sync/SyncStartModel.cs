@@ -69,7 +69,7 @@ namespace Chorus.UI.Sync
 			{
 				if (!Directory.Exists(Path.Combine(path, ".hg")))
 				{
-					if (FolderUtils.GetSafeDirectories(path).Length > 0 || Directory.GetFiles(path).Length > 0)
+					if (DirectoryUtilities.GetSafeDirectories(path).Length > 0 || Directory.GetFiles(path).Length > 0)
 					{
 						Palaso.Reporting.ErrorReport.NotifyUserOfProblem(
 							"The folder you chose doesn't have a repository. Chorus cannot make one there, because the folder is not empty.  Please choose a folder that is already being used for send/receive, or create and choose a new folder to hold the repository.");
