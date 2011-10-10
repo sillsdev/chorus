@@ -30,7 +30,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		{
 			using (var setup = new HgTestSetup())
 			{
-				var result =setup.Repository.GetProxyConfigParameterString("http://hg.palaso.org/", new NullProgress());
+				var result =setup.Repository.GetProxyConfigParameterString("http://hg.palaso.org/");
 
 			}
 		}

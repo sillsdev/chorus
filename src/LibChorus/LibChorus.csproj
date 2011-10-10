@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <PropertyGroup>
 	<Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -238,6 +238,9 @@
 	<Compile Include="retrieval\RevisionInspector.cs" />
 	<Compile Include="sync\ProjectFolderConfiguration.cs" />
 	<Compile Include="sync\Synchronizer.cs" />
+	<Compile Include="VcsDrivers\Mercurial\HgNormalTransport.cs" />
+	<Compile Include="VcsDrivers\Mercurial\HgResumeTransport.cs" />
+	<Compile Include="VcsDrivers\Mercurial\IHgTransport.cs" />
 	<Compile Include="VcsDrivers\RepositoryAddress.cs" />
 	<Compile Include="sync\SyncOptions.cs" />
 	<Compile Include="Utilities\ExecutionResult.cs" />
@@ -354,9 +357,11 @@
   </Target>
   -->
   <PropertyGroup>
-	<PostBuildEvent></PostBuildEvent>
+	<PostBuildEvent>
+	</PostBuildEvent>
 	<ProjectGuid>{94245366-8F1E-475C-810D-FE89BB3948E0}</ProjectGuid>
 	<RootNamespace>Chorus</RootNamespace>
-	<PreBuildEvent></PreBuildEvent>
+	<PreBuildEvent>
+	</PreBuildEvent>
   </PropertyGroup>
 </Project>
