@@ -10,6 +10,7 @@ using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using System.Linq;
 using Palaso.Progress.LogBox;
+using Palaso.Extensions;
 
 namespace Chorus.sync
 {
@@ -90,10 +91,11 @@ namespace Chorus.sync
 			try
 			{
 				HgRepository repo = new HgRepository(_localRepositoryPath, _progress);
+				repo.UpdateHgrc();
 
 				RemoveLocks(repo);
 				repo.RecoverFromInterruptedTransactionIfNeeded();
-				UpdateHgrc(repo);
+				// moved to a more generic place: UpdateHgrc(repo);
 				Commit(options);
 
 				var workingRevBeforeSync = repo.GetRevisionWorkingSetIsBasedOn();
@@ -395,37 +397,7 @@ namespace Chorus.sync
 			}
 		}
 
-		/// <summary>
-		/// put anything in the hgrc that chorus requires
-		/// todo: kinda lame to do it every time, but when is better?
-		/// </summary>
-		private void UpdateHgrc(HgRepository repository)
-		{
-			ThrowIfCancelPending();
-			try
-			{
-				//TODO: I think these can be removed now, since we have our own mercurial.ini
-				string[] names = new string[]
-									 {
-										 "hgext.win32text", //for converting line endings on windows machines
-										 "hgext.graphlog", //for more easily readable diagnostic logs
-										 "convert" //for catastrophic repair in case of repo corruption
-									 };
-				repository.EnsureTheseExtensionAreEnabled(names);
 
-//                List<string> extensions = new List<string>();
-//
-//                foreach (var handler in _handlers.Handlers)
-//                {
-//                    extensions.AddRange(handler.GetExtensionsOfKnownTextFileTypes());
-//                }
-			}
-			catch (Exception error)
-			{
-				ExplainAndThrow(error, "Could not prepare the mercurial settings");
-			}
-
-		}
 
 		private void ExplainAndThrow(Exception exception, string explanation, params object[] args)
 		{

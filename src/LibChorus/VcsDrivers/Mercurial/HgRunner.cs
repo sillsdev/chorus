@@ -4,6 +4,7 @@ using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Net.Mime;
 using System.Threading;
 using Chorus.Utilities;
 using Palaso.Progress.LogBox;
@@ -55,6 +56,9 @@ namespace Chorus.VcsDrivers.Mercurial
 			process.StartInfo.FileName = MercurialLocation.PathToHgExecutable;
 			process.StartInfo.Arguments = commandLine.Replace("hg ", ""); //we don't want the whole command line, just the args portion
 
+			//The fixutf8 extension's job is to get hg to talk in this encoding
+			process.StartInfo.StandardOutputEncoding = System.Text.Encoding.UTF8;
+			process.StartInfo.StandardErrorEncoding = System.Text.Encoding.UTF8;
 			try
 			{
 				process.Start();

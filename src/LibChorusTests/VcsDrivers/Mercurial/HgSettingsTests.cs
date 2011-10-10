@@ -304,8 +304,10 @@ username = joe
 			using (var setup = new RepositorySetup("Dan"))
 			{
 				setup.EnsureNoHgrcExists();
-
-				setup.Repository.EnsureTheseExtensionAreEnabled(new string[] { "a","b" });
+				var extensions = new Dictionary<string, string>();
+				extensions.Add("a","");
+				extensions.Add("b", "");
+				setup.Repository.EnsureTheseExtensionAreEnabled(extensions);
 				Assert.AreEqual("a", setup.Repository.GetEnabledExtension().First());
 				Assert.AreEqual("b", setup.Repository.GetEnabledExtension().ToArray()[1]);
 			}
@@ -323,8 +325,10 @@ username = joe
 a =
 x =
 ");
+				var extensions = new Dictionary<string, string>();
+				extensions.Add("a", "");
+				extensions.Add("b", "");
 
-				repository.EnsureTheseExtensionAreEnabled(new string[] { "a", "b" });
 				Assert.AreEqual(3, repository.GetEnabledExtension().Count());
 				Assert.AreEqual("a", repository.GetEnabledExtension().ToArray()[0]);
 				Assert.AreEqual("x", repository.GetEnabledExtension().ToArray()[1]);

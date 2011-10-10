@@ -21,3 +21,5 @@ relre:src/Chorus.Tests/bin/*
 relre:src/ChorusMerge.Tests/bin/*
 relre:src/SampleApp/bin/*
 glob:CopyTo Dev WeSay.bat
+MercurialExtensions/fixutf8/cpmap.pyo
+MercurialExtensions/fixutf8/cpmap.py

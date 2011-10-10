@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.IO;
 using Chorus.FileTypeHanders.test;
 using Chorus.merge;
@@ -253,6 +253,7 @@ namespace LibChorus.Tests.sync
 		}
 
 
+
 		[Test]
 		public void Sync_TheyHaveAFileWhichWeAlsoEditedButHavenotCheckedIn_OursIsRenamedToSafetyAndWeGetTheirs()
 		{
@@ -458,7 +459,19 @@ namespace LibChorus.Tests.sync
 //            }
 //        }
 
-
+		/// <summary>
+		/// Regression test: WS-34181
+		/// </summary
+		[Test]
+		public void Sync_NewFileWithNonAsciCharacters_FileAdded()
+		{
+			string name = "ŭburux.txt";
+			using (RepositoryWithFilesSetup bob = new RepositoryWithFilesSetup("bob", name, "original"))
+			{
+					   bob.AddAndCheckIn();
+					   bob.AssertNoErrorsReported();
+			}
+		}
 
 	}
 }

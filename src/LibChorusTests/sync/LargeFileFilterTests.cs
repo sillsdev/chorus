@@ -188,12 +188,12 @@ namespace LibChorus.Tests.sync
 		/// <summary>
 		/// Regression test: WS-34181
 		/// </summary
-		[Test, Ignore("Fails due to mercurial")]
+		[Test]
 		public void FileWithSpecialCharacterIsAllowed()
 		{
 			using (var bob = new RepositorySetup("bob"))
 			{
-				const string fileName = "ŭburux.wav";
+				const string fileName =  "ŭburux.wav";
 				bob.ChangeFile(fileName, _goodData);
 				var fullPathname = Path.Combine(bob.ProjectFolderConfig.FolderPath, fileName);
 				var pathToRepo = bob.Repository.PathToRepo + Path.PathSeparator;

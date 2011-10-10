@@ -28,6 +28,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		private const int SecondsBeforeTimeoutOnRemoteOperation = 40 * 60;
 		private bool _haveLookedIntoProxySituation;
 		private string _proxyCongfigParameterString = string.Empty;
+		private bool _alreadyUpdatedHgrc;
 
 
 		public static string GetEnvironmentReadinessMessage(string messageLanguageId)
@@ -150,6 +151,50 @@ namespace Chorus.VcsDrivers.Mercurial
 			_progress = progress;
 
 			_userName = GetUserIdInUse();
+		}
+
+		/// <summary>
+		/// put anything in the hgrc that chorus requires
+		/// Note: Maybe we could ship the mercurial.ini separately, some how.... there is some value in modifying the hgrc itself, since that way technians doing
+		/// hg stuff by hand will get the right extensions in play.
+		/// </summary>
+		public void UpdateHgrc()
+		{
+			if (_alreadyUpdatedHgrc)
+				return;
+
+			try
+			{
+				//TODO: some can be removed now, since we have our own mercurial.ini.  Unfortunately, we pacakge it in a 4  meg zip, so it's Expensive (in terms of our own hg repo) to modify
+				//so for now we're still using this
+
+				/*
+					fixutf8 makes it possible to have unicode characters in path names. Note that it is prone to break with new versions of mercurial.
+					it works with 1.5.1, and reportedly with 1.84, but the version I got did not work with 1.9.2.
+					When updating, notice that there are several forks available
+					Note too that to make use of this in a cmd window, first set to consolas (more characters)
+					and change the codepage to utf with "chcp 65001"
+				*/
+
+				//NB: this is REQUIRED because we are now, in the hgrunner, saying that we will be getting utf8 output. If we made this extension optional, we'd have to know to not say that.
+
+				string fixUtfFolder = Palaso.IO.FileLocator.GetDirectoryDistributedWithApplication(false, "MercurialExtensions", "fixutf8");
+
+				var extensions = new Dictionary<string, string>();
+				extensions.Add("hgext.win32text", ""); //for converting line endings on windows machines
+				extensions.Add("hgext.graphlog",""); //for more easily readable diagnostic logs
+				extensions.Add("convert",""); //for catastrophic repair in case of repo corruption
+			   if(!string.IsNullOrEmpty(fixUtfFolder))
+				   extensions.Add("fixutf8", Path.Combine(fixUtfFolder, "fixutf8.py"));
+
+				EnsureTheseExtensionAreEnabled(extensions);
+				_alreadyUpdatedHgrc = true;
+			}
+			catch (Exception error)
+			{
+				throw new ApplicationException(string.Format("Failed to set up extensions: {0}", error.Message));
+			}
+
 		}
 
 		public bool GetFileIsInRepositoryFromFullPath(string fullPath)
@@ -310,7 +355,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		protected string GetTextFromQuery(string query)
 		{
-			ExecutionResult result = ExecuteErrorsOk(query + " -R " + SurroundWithQuotes(_pathToRepository), _pathToRepository, SecondsBeforeTimeoutOnLocalOperation, _progress);
+			ExecutionResult result = ExecuteErrorsOk(query, _pathToRepository, SecondsBeforeTimeoutOnLocalOperation, _progress);
 			// Debug.Assert(string.IsNullOrEmpty(result.StandardError), result.StandardError);
 
 			if (!string.IsNullOrEmpty(result.StandardOutput))
@@ -351,6 +396,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		private void TrackFile(string filePath)
 		{
+			UpdateHgrc();
 			_progress.WriteVerbose("Adding {0} to the files that are tracked for {1}: ", Path.GetFileName(filePath),
 								   _userName);
 			Execute(SecondsBeforeTimeoutOnLocalOperation, "add", SurroundWithQuotes(filePath));
@@ -401,10 +447,12 @@ namespace Chorus.VcsDrivers.Mercurial
 			}
 			StringBuilder b = new StringBuilder();
 			b.Append(cmd + " ");
-			if (!string.IsNullOrEmpty(_pathToRepository))
-			{
-				b.Append("-R " + SurroundWithQuotes(_pathToRepository) + " ");
-			}
+//            we used to explicitly specify the repo. This triggered a bug in fixutf8 (with "init" and "add", at least). Since the runner already puts us in the directory, we can safely just
+//              stop specifying it.
+//            if (!string.IsNullOrEmpty(_pathToRepository))
+//            {
+//                b.Append("-R " + SurroundWithQuotes(_pathToRepository) + " ");
+//            }
 			foreach (string s in rest)
 			{
 				b.Append(s + " ");
@@ -654,6 +702,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				var repo = new HgRepository(targetPath, progress);
 
 				repo.Execute(int.MaxValue, "clone", DoWorkOfDeterminingProxyConfigParameterString(targetPath, progress), SurroundWithQuotes(sourceUri) + " " + SurroundWithQuotes(targetPath));
+				repo.UpdateHgrc();
 				progress.WriteStatus("Finished copying to this computer at {0}", targetPath);
 			}
 			catch (Exception error)
@@ -1142,19 +1191,14 @@ namespace Chorus.VcsDrivers.Mercurial
 			return new List<string>(section.GetKeys());
 		}
 
-		public void EnsureTheseExtensionAreEnabled(string[] extensionNames)
+		public void EnsureTheseExtensionAreEnabled(IEnumerable<KeyValuePair<string,string>> extensionDeclarations)
 		{
 			var doc = GetHgrcDoc();
 			var section = doc.Sections.GetOrCreate("extensions");
-			foreach (var name in extensionNames)
+			foreach (var pair in extensionDeclarations)
 			{
-				//NB: if ever we get to setting values, checking for existence won't be enough to get the right new value!
-				if (!section.GetKeys().Contains(name))
-				{
-					_progress.WriteMessage("Adding extension to project configuration: {0}", name);
-					section.Set(name, string.Empty);
-				}
-			}
+					 section.Set(pair.Key, pair.Value);
+			 }
 			doc.SaveAndThrowIfCannot();
 		}
 
