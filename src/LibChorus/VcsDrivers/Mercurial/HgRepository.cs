@@ -14,6 +14,7 @@ using Nini.Ini;
 using Palaso.IO;
 using Palaso.Network;
 using Palaso.Progress.LogBox;
+using Palaso.Reporting;
 
 namespace Chorus.VcsDrivers.Mercurial
 {
@@ -292,29 +293,51 @@ namespace Chorus.VcsDrivers.Mercurial
 				try
 				{
 					var tip = GetTip();
-					Execute(SecondsBeforeTimeoutOnRemoteOperation, "pull --debug"+GetProxyConfigParameterString(otherRepo.PathToRepo,_progress), otherRepo.PathWithQuotes);
+					Execute(SecondsBeforeTimeoutOnRemoteOperation,
+							"pull --debug" + GetProxyConfigParameterString(otherRepo.PathToRepo, _progress),
+							otherRepo.PathWithQuotes);
 
 					var newTip = GetTip();
 					if (tip == null)
 						return newTip != null;
-					return tip.Number.Hash != newTip.Number.Hash; //review... I believe you can't pull without getting a new tip
+					return tip.Number.Hash != newTip.Number.Hash;
+						//review... I believe you can't pull without getting a new tip
 				}
-				catch (Exception err)
+				catch (Exception error)
 				{
+					_progress.WriteWarning("Could not receive from " + otherRepo.Name);
+					Exception specificError = error;
+					if (UriProblemException.ErrorMatches(error))
+					{
+						specificError = new  UriProblemException(otherRepo.PathToRepo);
+					}
+					else if (ProjectLabelErrorException.ErrorMatches(error))
+					{
+						specificError =  new ProjectLabelErrorException(otherRepo.PathToRepo);
+					}
+					else if (FirewallProblemSuspectedException.ErrorMatches(error))
+					{
+						specificError = new FirewallProblemSuspectedException();
+					}
+					else if (ServerErrorException.ErrorMatches(error))
+					{
+						specificError = new ServerErrorException();
+					}
+					else if (RepositoryAuthorizationException.ErrorMatches(error))
+					{
+						specificError = new RepositoryAuthorizationException();
+					}
+
 					if (throwIfCannot)
 					{
-						throw err;
+						throw specificError;
 					}
-				   _progress.WriteWarning("Could not receive from " + otherRepo.Name);
-				   if(err.Message.Contains("authorization"))
-					{
-						_progress.WriteError("The server rejected the project name, user name, or password. Also make sure this user is a member of the project, with permission to read data.");
-					}
-					throw err;
+					_progress.WriteError(specificError.Message);
+					ErrorReport.NotifyUserOfProblem(specificError.Message);
+					return false;
 				}
 			}
 		}
-
 
 		private List<Revision> GetBranches()
 		{
@@ -707,15 +730,13 @@ namespace Chorus.VcsDrivers.Mercurial
 			}
 			catch (Exception error)
 			{
-				if (error.Message.Contains("502"))
+				if (UriProblemException.ErrorMatches(error))
 				{
-					var x = new Uri(sourceUri);
-					progress.WriteMessage("Check that the name {0} is correct", x.Host);
+					throw new UriProblemException(sourceUri);
 				}
-				else if (error.Message.Contains("404"))
+				else if (ProjectLabelErrorException.ErrorMatches(error))
 				{
-					var x = new Uri(sourceUri);
-					progress.WriteMessage("Check that {0} really hosts a project labelled '{1}'", x.Host, x.PathAndQuery.Trim('/'));
+					throw new ProjectLabelErrorException(sourceUri);
 				}
 				else if (FirewallProblemSuspectedException.ErrorMatches(error))
 				{
@@ -725,7 +746,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				{
 					throw new ServerErrorException();
 				}
-				else if (error.Message.Contains("403") || error.Message.Contains("authorization"))
+				else if (RepositoryAuthorizationException.ErrorMatches(error))
 				{
 					throw new RepositoryAuthorizationException();
 				}

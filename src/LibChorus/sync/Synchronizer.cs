@@ -11,6 +11,7 @@ using Chorus.VcsDrivers.Mercurial;
 using System.Linq;
 using Palaso.Progress.LogBox;
 using Palaso.Extensions;
+using Palaso.Reporting;
 
 namespace Chorus.sync
 {
@@ -380,7 +381,21 @@ namespace Chorus.sync
 					throw new SynchronizationException(error, WhatToDo.CheckSettings, "Error while pulling {0} at {1}", source.Name, resolvedUri);
 				}
 				//NB: this returns false if there was nothing to get.
-				return repo.TryToPull(source.Name, resolvedUri);
+				try
+				{
+					return repo.TryToPull(source.Name, resolvedUri);
+				}
+				catch (HgCommonException err)
+				{
+					ErrorReport.NotifyUserOfProblem(err.Message);
+					return false;
+				}
+				catch (Exception err)
+				{
+					_progress.WriteException(err);
+					return false;
+				}
+
 			}
 			else
 			{
@@ -391,8 +406,8 @@ namespace Chorus.sync
 				}
 				else
 				{
-					return false;// this may be fine, even expected
-					//throw new SynchronizationException(null, WhatToDo.CheckAddressAndConnection, "Could not connect to {0} at {1} for pulling", source.Name, resolvedUri);
+					_progress.WriteError("Could not connect to {0} at {1}", source.Name, resolvedUri);
+					return false;
 				}
 			}
 		}

@@ -328,6 +328,7 @@ x =
 				var extensions = new Dictionary<string, string>();
 				extensions.Add("a", "");
 				extensions.Add("b", "");
+				repository.EnsureTheseExtensionAreEnabled(extensions);
 
 				Assert.AreEqual(3, repository.GetEnabledExtension().Count());
 				Assert.AreEqual("a", repository.GetEnabledExtension().ToArray()[0]);
