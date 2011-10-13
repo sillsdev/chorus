@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
+using Palaso.Extensions;
+using Palaso.Xml;
 
 namespace Chorus.Utilities
 {
