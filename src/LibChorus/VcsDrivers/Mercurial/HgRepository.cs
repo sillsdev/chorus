@@ -246,7 +246,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			// Otherwise use the normal Hg facilities for dealing with remote repositories (local or otherwise)
 			if (Regex.IsMatch(targetUri, "^https?://[^/]*(languageforge.com|languagedepot.org)"))
 			{
-				return new HgResumeTransport(this, targetLabel, targetUri, _progress);
+				return new HgResumeTransport(this, targetLabel, new HgResumeRestApiServer(targetUri), _progress);
 			}
 			return new HgNormalTransport(this, targetLabel, targetUri, _progress);
 		}
@@ -314,6 +314,18 @@ namespace Chorus.VcsDrivers.Mercurial
 		{
 			_progress.WriteVerbose("Getting heads of {0}", _userName);
 			return GetRevisionsFromQuery("heads");
+		}
+
+		public bool MakeBundle(string baseRevision, string filePath)
+		{
+			string command = string.Format("bundle --base {0} {1}", baseRevision, filePath);
+			string result = GetTextFromQuery(command);
+			_progress.WriteVerbose("While creating bundle at {0} with base {1}: {2}", filePath, baseRevision, result.Trim());
+			if (File.Exists(filePath))
+			{
+				return true;
+			}
+			return false;
 		}
 
 
@@ -1774,6 +1786,11 @@ namespace Chorus.VcsDrivers.Mercurial
 			return path.Replace(@":\", "_") //   ":\" on the left side of an assignment messes up the hgrc reading, becuase colon is an alternative to "=" here
 			.Replace(":", "_") // catch one without a slash
 			.Replace("=", "_"); //an = in the path would also mess things up
+		}
+
+		public bool Unbundle(string bundlePath)
+		{
+			throw new NotImplementedException();
 		}
 	}
 
