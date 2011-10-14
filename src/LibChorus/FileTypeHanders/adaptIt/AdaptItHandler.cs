@@ -77,7 +77,12 @@ namespace Chorus.FileTypeHanders.adaptIt
 			{
 				// Execute the transform and output the results to a writer.
 				xslt.Transform(elem.CreateReader(), writer);
+#if MONO
+				// Note that mono closes the writer in Dispose. If the writer is already closed
+				// by the call to writer.Close mono throws an InvalidOperationException.
+#else
 				writer.Close();
+#endif
 			}
 
 			doc.Save(mergeOrder.pathToOurs);
