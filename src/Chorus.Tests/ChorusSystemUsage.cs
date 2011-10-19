@@ -136,7 +136,7 @@ namespace Chorus.Tests
 		/// A NotesBrowser grabs up all the notes in all the .ChorusNotes files in the system, and gives the users
 		/// tools to search and filter them.
 		/// </summary>
-		[Test]
+		[Test, Ignore("By Hand only, running CreateNotesBrowser twice in a mono test session causes a crash")]
 		public void CreateNotesBrowser()
 		{
 			var browser = _chorusSystem.WinForms.CreateNotesBrowser();
