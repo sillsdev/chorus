@@ -285,7 +285,7 @@ namespace LibChorus.Tests.notes
 				r.Save(new NullProgress());
 				w.Stop();
 				Console.WriteLine("Elapsed Time:"+w.ElapsedMilliseconds.ToString()+" milliseconds");
-				Assert.IsTrue(w.ElapsedMilliseconds < 200); //it's around 70 on my laptop
+				Assert.IsTrue(w.ElapsedMilliseconds < 250); //it's around 70 on my laptop, and around 225 on mono desktop
 
 				w.Reset();
 				Console.WriteLine("Reading Large File...");
@@ -293,7 +293,7 @@ namespace LibChorus.Tests.notes
 				var rToRead = AnnotationRepository.FromFile("id", f.Path, new NullProgress());
 				w.Stop();
 				Console.WriteLine("Elapsed Time:"+w.ElapsedMilliseconds.ToString()+" milliseconds");
-				Assert.IsTrue(w.ElapsedMilliseconds < 1000); //it's around 240 on my laptop
+				Assert.IsTrue(w.ElapsedMilliseconds < 1000); //it's around 240 on my laptop, and around 800 on mono desktop
 			}
 		}
 
