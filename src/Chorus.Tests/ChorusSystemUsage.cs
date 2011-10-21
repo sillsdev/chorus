@@ -137,7 +137,7 @@ namespace Chorus.Tests
 		/// tools to search and filter them.
 		/// </summary>
 		[Test]
-		[Platform(Exclude="Mono")] //running CreateNotesBrowser twice in a mono test session causes a crash
+		[Category("KnownMonoIssue")] //running CreateNotesBrowser twice in a mono test session causes a crash
 
 		public void CreateNotesBrowser()
 		{
