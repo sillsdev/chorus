@@ -52,6 +52,7 @@ namespace Chorus.Tests
 		/// found at compile time
 		/// </summary>
 		[Test]
+		[Category("KnownMonoIssue")] //running CreateNotesBrowser twice in a mono test session causes a crash
 		public void CanShowNotesBrowserPage()
 		{
 			var page = _system.WinForms.CreateNotesBrowser();
@@ -91,6 +92,7 @@ namespace Chorus.Tests
 		/// This tests hat we're using the same repositories for all instances of Notes UI components
 		/// </summary>
 		[Test]
+		[Category("KnownMonoIssue")] //running CreateNotesBrowser twice in a mono test session causes a crash
 		public void GetNotesBarAndBrowser_MakeNewAnnotationWithBar_BrowserSeesIt()
 		{
 				NotesToRecordMapping mapping =  NotesToRecordMapping.SimpleForTest();

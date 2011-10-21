@@ -137,6 +137,7 @@ namespace Chorus.Tests
 		/// tools to search and filter them.
 		/// </summary>
 		[Test]
+		[Category("KnownMonoIssue")] //running CreateNotesBrowser twice in a mono test session causes a crash
 		public void CreateNotesBrowser()
 		{
 			var browser = _chorusSystem.WinForms.CreateNotesBrowser();

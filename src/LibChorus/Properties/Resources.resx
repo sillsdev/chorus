@@ -124,6 +124,6 @@
   </data>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
   <data name="SortAIKB" type="System.Resources.ResXFileRef, System.Windows.Forms">
-	<value>..\filetypehanders\adaptit\sortaikb.xslt;System.String, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
+	<value>../FileTypeHanders/adaptIt/SortAIKB.xslt;System.String, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
   </data>
 </root>
