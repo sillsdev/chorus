@@ -8,6 +8,7 @@ using Chorus.Utilities.UsbDrive;
 using Chorus.VcsDrivers.Mercurial;
 using Palaso.IO;
 using Palaso.Progress.LogBox;
+using Palaso.Reporting;
 
 namespace Chorus.clone
 {
@@ -70,11 +71,8 @@ namespace Chorus.clone
 						}
 						catch (Exception error)
 						{
-							MessageBox.Show(
-								string.Format(
-									"Error while looking at usb drive.  The drive root was {0}, the directory was {1}. The error was: {2}",
-									drive.RootDirectory.FullName, dir, error.Message), "Error", MessageBoxButtons.OK,
-								MessageBoxIcon.Error);
+							//turns out that WIndows Backup directories can trigger this, so I'm going to just skip it. Wish we had some unobtrusive log to write to.
+							//ErrorReport.NotifyUserOfProblem(error,"Error while looking at usb drive.  The drive root was {0}, the directory was {1}.",  drive.RootDirectory.FullName, dir );
 						}
 						foreach (var subdir in subdirs)
 						{
