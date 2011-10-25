@@ -30,7 +30,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		{
 			using (var setup = new HgTestSetup())
 			{
-				var result =setup.Repository.GetProxyConfigParameterString("http://hg.palaso.org/", new NullProgress());
+				var result =setup.Repository.GetProxyConfigParameterString("http://hg.palaso.org/");
 
 			}
 		}
@@ -346,6 +346,36 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 //        }
 
 
+		[Test]
+		public void MakeBundle_InvalidBase_FalseAndFileDoesNotExist()
+		{
+			using (var setup = new HgTestSetup())
+			{
+				var path = setup.Root.GetNewTempFile(true).Path;
+				File.WriteAllText(path, "original");
+				setup.Repository.AddAndCheckinFile(path);
+				string bundleFilePath = setup.Root.GetNewTempFile(true).Path;
+				Assert.That(setup.Repository.MakeBundle("fakehashstring", bundleFilePath), Is.False);
+				Assert.That(File.Exists(bundleFilePath), Is.False);
+			}
+		}
+
+		[Test]
+		public void MakeBundle_ValidBase_BundleFileExistsAndReturnsTrue()
+		{
+			using (var setup = new HgTestSetup())
+			{
+				var path = setup.Root.GetNewTempFile(true).Path;
+				File.WriteAllText(path, "original");
+				setup.Repository.AddAndCheckinFile(path);
+				Revision revision = setup.Repository.GetTip();
+				setup.ChangeAndCheckinFile(path, "bad");
+
+				var bundleFilePath = setup.Root.GetNewTempFile(true).Path;
+				Assert.That(setup.Repository.MakeBundle(revision.Number.Hash, bundleFilePath), Is.True);
+				Assert.That(File.Exists(bundleFilePath), Is.True);
+			}
+		}
 
 
 	}

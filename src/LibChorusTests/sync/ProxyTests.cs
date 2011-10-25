@@ -44,7 +44,7 @@ namespace LibChorus.Tests.sync
 			using (var f = new TemporaryFolder("pulltest"))
 			{
 				var repo = HgRepository.CreateOrLocate(f.Path, _progress);
-				repo.TryToPull("default", _cloneableTestProjectUrl);
+				repo.Pull("default", _cloneableTestProjectUrl);
 				Assert.IsTrue(Directory.Exists(f.Combine(f.Path, ".hg")));
 			}
 		}
@@ -56,13 +56,12 @@ namespace LibChorus.Tests.sync
 			using (var f = new TemporaryFolder("pulltest"))
 			{
 				var repo = HgRepository.CreateOrLocate(f.Path, _progress);
-				repo.TryToPull("default", _cloneableTestProjectUrl);
+				repo.Pull("default", _cloneableTestProjectUrl);
 				Assert.IsTrue(Directory.Exists(f.Combine(f.Path, ".hg")));
-				var address =RepositoryAddress.Create("default", _cloneableTestProjectUrl);
 
 				//nb: this is safe to do over an over, because it will just say "no changes found", never actually add a changeset
 
-				repo.Push(address, _cloneableTestProjectUrl, _progress);
+				repo.Push("defaultTest", _cloneableTestProjectUrl);
 			}
 		}
 	}

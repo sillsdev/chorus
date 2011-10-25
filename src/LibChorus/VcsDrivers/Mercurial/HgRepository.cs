@@ -26,11 +26,10 @@ namespace Chorus.VcsDrivers.Mercurial
 		protected IProgress _progress;
 		private const int SecondsBeforeTimeoutOnLocalOperation = 15 * 60;
 		private const int SecondsBeforeTimeoutOnMergeOperation = 15 * 60;
-		private const int SecondsBeforeTimeoutOnRemoteOperation = 40 * 60;
+		public const int SecondsBeforeTimeoutOnRemoteOperation = 40 * 60;
 		private bool _haveLookedIntoProxySituation;
 		private string _proxyCongfigParameterString = string.Empty;
 		private bool _alreadyUpdatedHgrc;
-
 
 		public static string GetEnvironmentReadinessMessage(string messageLanguageId)
 		{
@@ -226,34 +225,24 @@ namespace Chorus.VcsDrivers.Mercurial
 		}
 
 		/// <returns>true if changes were received</returns>
-		public bool TryToPull(string repositoryLabel, string resolvedUri)
+		public bool Pull(string targetLabel, string targetUri)
 		{
-			HgRepository repo = new HgRepository(resolvedUri, _progress);
+			_progress.WriteStatus("Receiving any changes from {0}", targetLabel);
+			_progress.WriteVerbose("({0} is {1})", targetLabel, targetUri);
 
-			//repo.UserName = repositoryLabel;
-			return PullFromRepository(repo, false);
-		}
-
-		/// <summary>
-		/// Gives an id string which is unique to this repository, but shared across all clones of it.  Can be used to identify relatives in crowd.
-		/// </summary>
-		public string Identifier
-		{
-			get
+			bool result;
+			using (var transport = CreateTransportBetween(targetLabel, targetUri))
 			{
-				// Or: id -i -r0 for short id
-				var results = Execute(SecondsBeforeTimeoutOnLocalOperation, "log -r0 --template " + SurroundWithQuotes("{node}"));
-				return results.StandardOutput;
+				result = transport.Pull();
 			}
+			return result;
 		}
 
-		public void Push(RepositoryAddress address, string targetUri, IProgress progress)
+		public void PushToTarget(string targetLabel, string targetUri)
 		{
-			_progress.WriteStatus("Sending changes to {0}", address.GetFullName(targetUri));
-			_progress.WriteVerbose("({0} is {1})", address.GetFullName(targetUri), targetUri);
 			try
 			{
-				Execute(SecondsBeforeTimeoutOnRemoteOperation, "push --debug "+GetProxyConfigParameterString(targetUri,progress), SurroundWithQuotes(targetUri));
+				Execute(SecondsBeforeTimeoutOnRemoteOperation, "push --debug " + GetProxyConfigParameterString(targetUri), SurroundWithQuotes(targetUri));
 			}
 			catch (Exception err)
 			{
@@ -274,69 +263,85 @@ namespace Chorus.VcsDrivers.Mercurial
 			}
 		}
 
-		private bool GetIsLocalUri(string uri)
+		public bool PullFromTarget(string targetLabel, string targetUri)
 		{
-			return !(uri.StartsWith("http") || uri.StartsWith("ssh"));
+			try
+			{
+				var tip = GetTip();
+				Execute(SecondsBeforeTimeoutOnRemoteOperation, "pull --debug" + GetProxyConfigParameterString(targetUri), GetPathWithQuotes(targetUri));
+
+				var newTip = GetTip();
+				if (tip == null)
+					return newTip != null;
+				return tip.Number.Hash != newTip.Number.Hash;
+				//review... I believe you can't pull without getting a new tip
+			}
+			catch (Exception error)
+			{
+				_progress.WriteWarning("Could not receive from " + targetLabel);
+				Exception specificError = error;
+				if (UriProblemException.ErrorMatches(error))
+				{
+					specificError = new UriProblemException(targetUri);
+				}
+				else if (ProjectLabelErrorException.ErrorMatches(error))
+				{
+					specificError = new ProjectLabelErrorException(targetUri);
+				}
+				else if (FirewallProblemSuspectedException.ErrorMatches(error))
+				{
+					specificError = new FirewallProblemSuspectedException();
+				}
+				else if (ServerErrorException.ErrorMatches(error))
+				{
+					specificError = new ServerErrorException();
+				}
+				else if (RepositoryAuthorizationException.ErrorMatches(error))
+				{
+					specificError = new RepositoryAuthorizationException();
+				}
+				throw specificError;
+			}
+		}
+
+		private IHgTransport CreateTransportBetween(string targetLabel, string targetUri)
+		{
+			// If the remote repository is languageforge or languagedepot, then we we use the HgResumeTransport
+			// Otherwise use the normal Hg facilities for dealing with remote repositories (local or otherwise)
+			if (Regex.IsMatch(targetUri, "^https?://[^/]*(languageforge.com|languagedepot.org)"))
+			{
+				return new HgResumeTransport(this, targetLabel, new HgResumeRestApiServer(targetUri), _progress);
+			}
+			return new HgNormalTransport(this, targetLabel, targetUri, _progress);
 		}
 
 		/// <summary>
-		/// Pull from the given repository
+		/// Gives an id string which is unique to this repository, but shared across all clones of it.  Can be used to identify relatives in crowd.
 		/// </summary>
-		/// <exception cref="unknown">Throws if could not connect</exception>
-		/// <returns>true if the pull happend and changes were pulled in</returns>
-		protected bool PullFromRepository(HgRepository otherRepo, bool throwIfCannot)
+		public string Identifier
 		{
-
-			_progress.WriteStatus("Receiving any changes from {0}", otherRepo.Name);
-			_progress.WriteVerbose("({0} is {1})", otherRepo.Name, otherRepo._pathToRepository);
+			get
 			{
-				try
-				{
-					var tip = GetTip();
-					Execute(SecondsBeforeTimeoutOnRemoteOperation,
-							"pull --debug" + GetProxyConfigParameterString(otherRepo.PathToRepo, _progress),
-							otherRepo.PathWithQuotes);
-
-					var newTip = GetTip();
-					if (tip == null)
-						return newTip != null;
-					return tip.Number.Hash != newTip.Number.Hash;
-						//review... I believe you can't pull without getting a new tip
-				}
-				catch (Exception error)
-				{
-					_progress.WriteWarning("Could not receive from " + otherRepo.Name);
-					Exception specificError = error;
-					if (UriProblemException.ErrorMatches(error))
-					{
-						specificError = new  UriProblemException(otherRepo.PathToRepo);
-					}
-					else if (ProjectLabelErrorException.ErrorMatches(error))
-					{
-						specificError =  new ProjectLabelErrorException(otherRepo.PathToRepo);
-					}
-					else if (FirewallProblemSuspectedException.ErrorMatches(error))
-					{
-						specificError = new FirewallProblemSuspectedException();
-					}
-					else if (ServerErrorException.ErrorMatches(error))
-					{
-						specificError = new ServerErrorException();
-					}
-					else if (RepositoryAuthorizationException.ErrorMatches(error))
-					{
-						specificError = new RepositoryAuthorizationException();
-					}
-
-					if (throwIfCannot)
-					{
-						throw specificError;
-					}
-					_progress.WriteError(specificError.Message);
-					ErrorReport.NotifyUserOfProblem(specificError.Message);
-					return false;
-				}
+				// Or: id -i -r0 for short id
+				var results = Execute(SecondsBeforeTimeoutOnLocalOperation, "log -r0 --template " + SurroundWithQuotes("{node}"));
+				return results.StandardOutput;
 			}
+		}
+
+		public void Push(string targetLabel, string targetUri)
+		{
+			_progress.WriteStatus("Sending changes to {0}", targetLabel);
+			_progress.WriteVerbose("({0} is {1})", targetLabel, targetUri);
+
+			using (var transport = CreateTransportBetween(targetLabel, targetUri))
+			{
+				transport.Push();
+			}
+		}
+
+		private bool GetIsLocalUri(string uri)
+		{
+			return !(uri.StartsWith("http") || uri.StartsWith("ssh"));
 		}
 
 		private List<Revision> GetBranches()
@@ -373,6 +378,18 @@ namespace Chorus.VcsDrivers.Mercurial
 		{
 			_progress.WriteVerbose("Getting heads of {0}", _userName);
 			return GetRevisionsFromQuery("heads");
+		}
+
+		public bool MakeBundle(string baseRevision, string filePath)
+		{
+			string command = string.Format("bundle --base {0} {1}", baseRevision, filePath);
+			string result = GetTextFromQuery(command);
+			_progress.WriteVerbose("While creating bundle at {0} with base {1}: {2}", filePath, baseRevision, result.Trim());
+			if (File.Exists(filePath))
+			{
+				return true;
+			}
+			return false;
 		}
 
 
@@ -575,6 +592,11 @@ namespace Chorus.VcsDrivers.Mercurial
 			{
 				return "\"" + _pathToRepository + "\"";
 			}
+		}
+
+		public static string GetPathWithQuotes(string path)
+		{
+			return "\"" + path + "\"";
 		}
 
 		public string PathToRepo
@@ -1657,7 +1679,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			Execute(false, SecondsBeforeTimeoutOnLocalOperation, "tag -r " + revisionNumber + " \"" + tag + "\"");
 		}
 
-		protected static string SurroundWithQuotes(string path)
+		public static string SurroundWithQuotes(string path)
 		{
 			return "\"" + path + "\"";
 		}
@@ -1717,11 +1739,11 @@ namespace Chorus.VcsDrivers.Mercurial
 		/// So for now, we're going to see how it works out there in the world if we just always
 		/// handle this ourselves, never paying attention to the hgrc/mercurial.ini
 		/// </summary>
-		public string GetProxyConfigParameterString(string httpUrl, IProgress progress)
+		public string GetProxyConfigParameterString(string httpUrl)
 		{
 			if (!_haveLookedIntoProxySituation && !GetIsLocalUri(httpUrl))
 			{
-				_proxyCongfigParameterString = DoWorkOfDeterminingProxyConfigParameterString(httpUrl, progress);
+				_proxyCongfigParameterString = DoWorkOfDeterminingProxyConfigParameterString(httpUrl, _progress);
 				_haveLookedIntoProxySituation = true;
 			}
 			return _proxyCongfigParameterString;
@@ -1836,6 +1858,11 @@ namespace Chorus.VcsDrivers.Mercurial
 			return path.Replace(@":\", "_") //   ":\" on the left side of an assignment messes up the hgrc reading, becuase colon is an alternative to "=" here
 			.Replace(":", "_") // catch one without a slash
 			.Replace("=", "_"); //an = in the path would also mess things up
+		}
+
+		public bool Unbundle(string bundlePath)
+		{
+			throw new NotImplementedException();
 		}
 	}
 
