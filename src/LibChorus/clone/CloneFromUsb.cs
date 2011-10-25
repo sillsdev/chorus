@@ -69,7 +69,7 @@ namespace Chorus.clone
 						{    // this is all complicated because the yield can't be inside the try/catch
 							subdirs = DirectoryUtilities.GetSafeDirectories(dir);
 						}
-						catch (Exception error)
+						catch (Exception /*error*/) // Mono: The unused variable 'error' causes a compiler crash under mono 2.4, 2.10 CP 2011-10
 						{
 							//turns out that WIndows Backup directories can trigger this, so I'm going to just skip it. Wish we had some unobtrusive log to write to.
 							//ErrorReport.NotifyUserOfProblem(error,"Error while looking at usb drive.  The drive root was {0}, the directory was {1}.",  drive.RootDirectory.FullName, dir );
