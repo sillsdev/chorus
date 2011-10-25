@@ -29,6 +29,7 @@ namespace Chorus.Tests.UI.Sync
 		}
 
 		[Test, Ignore("Run by hand only")]
+		[NUnit.Framework.RequiresSTA]
 		public void ShowSyncDialog_InternetAndNetworkPaths()
 		{
 			Application.EnableVisualStyles();

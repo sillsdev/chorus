@@ -209,6 +209,13 @@ namespace Chorus.UI.Sync
 
 		private void _sharedFolderStatusLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
 		{
+			if(DialogResult.Cancel ==
+				MessageBox.Show(
+				"Note, do to some limitations in the underlying system (Mercurial), connecting to a shared folder hosted by a Windows computer is not recommended. If the server is Linux, it's OK.",
+				"Warning", MessageBoxButtons.OKCancel))
+			{
+				return;
+			}
 			using (var dlg =  new System.Windows.Forms.FolderBrowserDialog())
 			{
 				dlg.ShowNewFolderButton = true;
