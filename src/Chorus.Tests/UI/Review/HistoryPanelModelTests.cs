@@ -43,7 +43,7 @@ namespace Chorus.Tests
 			_project.FolderPath = _pathToTestRoot;
 
 			var revisionListOptions = new RevisionListOptions();
-			revisionListOptions.ShowRevisionPredicate = ShowRevisionPredicate;
+			revisionListOptions.RevisionsToShowFilter = ShowRevisionPredicate;
 
 			_model = new RevisionInRepositoryModel(HgRepository.CreateOrLocate(_project.FolderPath,
 					new NullProgress()),
