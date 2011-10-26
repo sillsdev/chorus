@@ -30,11 +30,10 @@
 		{
 			this.components = new System.ComponentModel.Container();
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(RevisionsInRepositoryView));
-			this._loadButton = new System.Windows.Forms.Button();
-			this.imageList1 = new System.Windows.Forms.ImageList(this.components);
 			this.timer1 = new System.Windows.Forms.Timer(this.components);
 			this.label3 = new System.Windows.Forms.Label();
 			this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
+			this._loadButton = new System.Windows.Forms.Button();
 			this._historyGrid = new System.Windows.Forms.DataGridView();
 			this.ColumnImage = new System.Windows.Forms.DataGridViewImageColumn();
 			this.ColumnParentRevision = new System.Windows.Forms.DataGridViewCheckBoxColumn();
@@ -43,33 +42,9 @@
 			this.ColumnPerson = new System.Windows.Forms.DataGridViewTextBoxColumn();
 			this.ColumnAction = new System.Windows.Forms.DataGridViewTextBoxColumn();
 			this._rowAddingTimer = new System.Windows.Forms.Timer(this.components);
+			this._showAdvanced = new System.Windows.Forms.CheckBox();
 			((System.ComponentModel.ISupportInitialize)(this._historyGrid)).BeginInit();
 			this.SuspendLayout();
-			//
-			// _loadButton
-			//
-			this._loadButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this._loadButton.FlatAppearance.BorderSize = 0;
-			this._loadButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this._loadButton.Image = ((System.Drawing.Image)(resources.GetObject("_loadButton.Image")));
-			this._loadButton.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
-			this._loadButton.Location = new System.Drawing.Point(400, 1);
-			this._loadButton.Name = "_loadButton";
-			this._loadButton.Size = new System.Drawing.Size(65, 29);
-			this._loadButton.TabIndex = 1;
-			this.toolTip1.SetToolTip(this._loadButton, "Reload the history");
-			this._loadButton.UseVisualStyleBackColor = true;
-			this._loadButton.Click += new System.EventHandler(this.OnRefresh);
-			//
-			// imageList1
-			//
-			this.imageList1.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imageList1.ImageStream")));
-			this.imageList1.TransparentColor = System.Drawing.Color.Transparent;
-			this.imageList1.Images.SetKeyName(0, "Merge");
-			this.imageList1.Images.SetKeyName(1, "WeSay");
-			this.imageList1.Images.SetKeyName(2, "WeSay Configuration Tool");
-			this.imageList1.Images.SetKeyName(3, "Warning");
-			this.imageList1.Images.SetKeyName(4, "chorus");
 			//
 			// timer1
 			//
@@ -87,12 +62,29 @@
 			this.label3.TabIndex = 4;
 			this.label3.Text = "Review Project Changes";
 			//
+			// _loadButton
+			//
+			this._loadButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this._loadButton.FlatAppearance.BorderSize = 0;
+			this._loadButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			this._loadButton.Image = ((System.Drawing.Image)(resources.GetObject("_loadButton.Image")));
+			this._loadButton.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
+			this._loadButton.Location = new System.Drawing.Point(400, 1);
+			this._loadButton.Name = "_loadButton";
+			this._loadButton.Size = new System.Drawing.Size(65, 29);
+			this._loadButton.TabIndex = 1;
+			this.toolTip1.SetToolTip(this._loadButton, "Reload the history");
+			this._loadButton.UseVisualStyleBackColor = true;
+			this._loadButton.Click += new System.EventHandler(this.OnRefresh);
+			//
 			// _historyGrid
 			//
 			this._historyGrid.AllowUserToAddRows = false;
 			this._historyGrid.AllowUserToDeleteRows = false;
 			this._historyGrid.AllowUserToResizeRows = false;
 			this._historyGrid.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
+			this._historyGrid.BorderStyle = System.Windows.Forms.BorderStyle.None;
+			this._historyGrid.CellBorderStyle = System.Windows.Forms.DataGridViewCellBorderStyle.None;
 			this._historyGrid.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
 			this._historyGrid.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
 			this.ColumnImage,
@@ -102,9 +94,11 @@
 			this.ColumnPerson,
 			this.ColumnAction});
 			this._historyGrid.Location = new System.Drawing.Point(3, 32);
+			this._historyGrid.MultiSelect = false;
 			this._historyGrid.Name = "_historyGrid";
 			this._historyGrid.RowHeadersVisible = false;
-			this._historyGrid.Size = new System.Drawing.Size(464, 297);
+			this._historyGrid.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
+			this._historyGrid.Size = new System.Drawing.Size(464, 290);
 			this._historyGrid.TabIndex = 5;
 			this._historyGrid.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.OnHistoryGrid_CellClick);
 			//
@@ -148,11 +142,23 @@
 			//
 			this._rowAddingTimer.Tick += new System.EventHandler(this.OnRowAddingTimer_Tick);
 			//
+			// _showAdvanced
+			//
+			this._showAdvanced.AutoSize = true;
+			this._showAdvanced.Location = new System.Drawing.Point(7, 328);
+			this._showAdvanced.Name = "_showAdvanced";
+			this._showAdvanced.Size = new System.Drawing.Size(105, 17);
+			this._showAdvanced.TabIndex = 6;
+			this._showAdvanced.Text = "Advanced Mode";
+			this._showAdvanced.UseVisualStyleBackColor = true;
+			this._showAdvanced.CheckedChanged += new System.EventHandler(this.OnShowAdvanced_CheckedChanged);
+			//
 			// RevisionsInRepositoryView
 			//
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.BackColor = System.Drawing.SystemColors.GradientInactiveCaption;
+			this.Controls.Add(this._showAdvanced);
 			this.Controls.Add(this._historyGrid);
 			this.Controls.Add(this.label3);
 			this.Controls.Add(this._loadButton);
@@ -172,7 +178,6 @@
 		private System.Windows.Forms.Timer timer1;
 		private System.Windows.Forms.Label label3;
 		private System.Windows.Forms.ToolTip toolTip1;
-		private System.Windows.Forms.ImageList imageList1;
 		private System.Windows.Forms.DataGridView _historyGrid;
 		private System.Windows.Forms.DataGridViewImageColumn ColumnImage;
 		private System.Windows.Forms.DataGridViewCheckBoxColumn ColumnParentRevision;
@@ -181,6 +186,7 @@
 		private System.Windows.Forms.DataGridViewTextBoxColumn ColumnPerson;
 		private System.Windows.Forms.DataGridViewTextBoxColumn ColumnAction;
 		private System.Windows.Forms.Timer _rowAddingTimer;
+		private System.Windows.Forms.CheckBox _showAdvanced;
 
 	}
 }

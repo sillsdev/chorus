@@ -40,6 +40,15 @@ namespace Chorus.UI.Review.RevisionsInRepository
 			DiscoveredRevisionsQueue =  new Queue<Revision>();
 		}
 
+		/// <summary>
+		/// This lets you pick a range of revisions to compare, not just a single one
+		/// </summary>
+		public bool DoShowRevisionChoiceControls
+		{
+			get { return _options.ShowRevisionChoiceControls; }
+			set { _options.ShowRevisionChoiceControls = value; }
+		}
+
 		public void SelectedRevisionChanged(Revision descriptor)
 		{
 			if (_revisionSelectedEvent!=null)
@@ -148,7 +157,7 @@ namespace Chorus.UI.Review.RevisionsInRepository
 			//is when we call GetAllRevisions(), we need to not add those first (up to) 20 again.
 			foreach (var revision in _repository.GetAllRevisions())
 			{
-				if (_options.ShowRevisionPredicate(revision))
+				if (_options.RevisionsToShowFilter(revision))
 				{
 					lock (DiscoveredRevisionsQueue)
 					{
