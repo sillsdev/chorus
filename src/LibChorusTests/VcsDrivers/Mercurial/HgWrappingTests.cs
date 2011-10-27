@@ -377,6 +377,24 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			}
 		}
 
+		[Test]
+		public void Unbundle_ValidBundleFile_ReturnsTrue()
+		{
+			throw new NotImplementedException();
+		}
+
+		[Test]
+		public void Unbundle_BadPath_ReturnsFalse()
+		{
+			throw new NotImplementedException();
+		}
+
+		[Test]
+		public void Unbundle_BadBundleFile_ReturnsFalse()
+		{
+			throw new NotImplementedException();
+		}
+
 
 	}
 

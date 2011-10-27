@@ -96,7 +96,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			var bundleFileInfo = new FileInfo(bundleHelper.BundlePath);
 			long bundleSize = bundleFileInfo.Length;
 
-			while (startOfWindow < bundleSize) // loop until finished... or until the user cancels
+			do // loop until finished... or until the user cancels
 			{
 				if (_progress.CancelRequested)
 				{
@@ -131,7 +131,7 @@ namespace Chorus.VcsDrivers.Mercurial
 					_progress.WriteError("Push operation failed.");
 					return;
 				}
-			}
+			} while (startOfWindow < bundleSize);
 		}
 
 		private void FinishPush(string transactionId)
@@ -169,6 +169,7 @@ namespace Chorus.VcsDrivers.Mercurial
 						if (response.StatusCode == HttpStatusCode.Accepted)
 						{
 							pushResponse.StartOfWindow = Convert.ToInt32(response.GetResponseHeader("X-HgR-offset"));
+							pushResponse.Status = PushStatus.Received;
 							return pushResponse;
 						}
 
@@ -236,7 +237,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		public bool Pull()
 		{
-			var bundleHelper = new BundleHelper();
+			var bundleHelper = new PullBundleHelper();
 			string localTip = _repo.GetTip().Number.Hash;
 
 			string transactionId = Guid.NewGuid().ToString();
@@ -255,48 +256,117 @@ namespace Chorus.VcsDrivers.Mercurial
 												{"chunkSize", chunkSize.ToString()},
 												{"transId", transactionId}
 											};
-			var response = PullOneChunk(requestParameters);
-
-			if (response.Status == PullStatus.NoChange)
-			{
-				_progress.WriteVerbose("Pull operation reported no changes");
-				return false;
-			}
-
-			bundleSize = response.BundleSize;
-
-			while (startOfWindow < bundleSize)
-			{
-				response = PullOneChunk(requestParameters);
-
+			do {
+				var response = PullOneChunk(requestParameters);
+				bundleSize = response.BundleSize;
+				if (response.Status == PullStatus.NoChange)
+				{
+					_progress.WriteVerbose("Pull operation reported no changes");
+					return false;
+				}
 				if (response.Status == PullStatus.OK)
 				{
 					bundleHelper.WriteChunk(response.Chunk);
 					startOfWindow = startOfWindow + response.Chunk.Length;
+					requestParameters["offset"] = startOfWindow.ToString();
 				}
-
-
-				if (_repo.Unbundle(bundleHelper.BundlePath))
+				else
 				{
-					_progress.WriteMessage("Pull operation completed successfully");
-					return true;
+					_progress.WriteError("Pull-one-chunk operation failed.");
+					return false;
 				}
-				_progress.WriteError("Received all data but local unbundle operation failed!");
-				return false;
+			} while (startOfWindow < bundleSize);
+
+			if (_repo.Unbundle(bundleHelper.BundlePath))
+			{
+				_progress.WriteMessage("Pull operation completed successfully");
+				return true;
 			}
-			_progress.WriteError("Pull operation failed.");
+			_progress.WriteError("Received all data but local unbundle operation failed!");
 			return false;
 		}
 
-		private PullResponse PullOneChunk(Dictionary<string, string> requestParameters)
+		private PullResponse PullOneChunk(Dictionary<string, string> parameters)
 		{
-			throw new NotImplementedException();
+			var secondsBeforeTimeout = 15;
+			const int totalNumOfAttempts = 5;
+			int chunkSize = Convert.ToInt32(parameters["chunkSize"]);
+			var pullResponse = new PullResponse();
+
+			for (var attempt = 1; attempt <= totalNumOfAttempts; attempt++)
+			{
+				if (_progress.CancelRequested)
+				{
+					throw new UserCancelledException();
+				}
+				try
+				{
+					_progress.WriteStatus("Receiving {0} of {1} bytes", parameters["offset"], parameters["bundleSize"]);
+					using (HttpWebResponse response = _apiServer.Execute("pullBundleChunk", parameters, secondsBeforeTimeout))
+					{
+						/* API returns the following HTTP codes:
+						 * 200 OK (SUCCESS)
+						 * 304 Not Modified (NOCHANGE)
+						 * 400 Bad Request (FAIL, UNKNOWNID)
+						 */
+
+						// chunk pulled OK
+						if (response.StatusCode == HttpStatusCode.OK)
+						{
+							pullResponse.StartOfWindow = Convert.ToInt32(response.GetResponseHeader("X-HgR-offset"));
+							pullResponse.Checksum = response.GetResponseHeader("X-HgR-checksum");
+							pullResponse.BundleSize = Convert.ToInt32(response.GetResponseHeader("X-HgR-bundleSize"));
+							pullResponse.Status = PullStatus.OK;
+
+							// read chunk data
+							// customized from Paratext's GetStreaming method in their RESTClient.cs
+							var chunkData = new byte[chunkSize];
+							var responseStream = response.GetResponseStream();
+							int offset = 0;
+							int bytesRead;
+							do
+							{
+								bytesRead = responseStream.Read(chunkData, offset,
+																	Math.Min(chunkData.Length - offset, chunkSize));
+								offset += bytesRead;
+							} while (bytesRead > 0 && offset < chunkSize);
+
+
+							// verify checksum
+							if (CalculateChecksum(chunkData) != response.GetResponseHeader("X-HgR-checksum"))
+							{
+								_progress.WriteWarning("Checksum failed while pulling {0} bytes of data at offset {1}", chunkSize, parameters["offset"]);
+								continue;
+							}
+
+							pullResponse.Chunk = chunkData;
+							return pullResponse;
+						}
+						if (response.GetResponseHeader("X-HgR-Status") == "UNKNOWNID")
+						{
+							_progress.WriteWarning("The server {0} does not have repoId '{1}'", _targetLabel, _repo.Identifier);
+							pullResponse.Status = PullStatus.Fail;
+							return pullResponse;
+						}
+					}
+				}
+				catch (WebException e)
+				{
+					if (attempt < 5)
+					{
+						_progress.WriteWarning("Unable to contact server.  Retrying... ({0} of {1} attempts).", attempt + 1, totalNumOfAttempts);
+						secondsBeforeTimeout += 3; // increment by 3 seconds
+						chunkSize = chunkSize / 2; // reduce the chunksize by half and try again
+					}
+				}
+			}
+			_progress.WriteWarning("The pull operation failed on the server");
+			pullResponse.Status = PullStatus.Fail;
+			return pullResponse;
 		}
 
 		public void Dispose()
 		{
 		}
 	}
-
-
 }

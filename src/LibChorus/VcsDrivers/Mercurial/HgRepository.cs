@@ -1862,7 +1862,13 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		public bool Unbundle(string bundlePath)
 		{
-			throw new NotImplementedException();
+			string command = string.Format("unbundle -u {0}", bundlePath);
+			string result = GetTextFromQuery(command);
+			if (result.Contains("files updated"))
+			{
+				return true;
+			}
+			return false;
 		}
 	}
 

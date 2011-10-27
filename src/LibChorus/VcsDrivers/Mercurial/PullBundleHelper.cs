@@ -4,7 +4,7 @@ using Palaso.TestUtilities;
 
 namespace Chorus.VcsDrivers.Mercurial
 {
-	public class BundleHelper
+	internal class PullBundleHelper
 	{
 		public string BundlePath;
 		private TemporaryFolder _folder;
@@ -17,9 +17,9 @@ namespace Chorus.VcsDrivers.Mercurial
 			}
 		}
 
-		public BundleHelper()
+		public PullBundleHelper()
 		{
-			_folder = new TemporaryFolder();
+			_folder = new TemporaryFolder("HgResume-PullBundleHelper");
 			BundlePath = _folder.GetNewTempFile(true).Path;
 		}
 
@@ -70,7 +70,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		public PushBundleHelper()
 		{
-			_folder = new TemporaryFolder();
+			_folder = new TemporaryFolder("HgResume - PushBundleHelper");
 			BundlePath = _folder.GetNewTempFile(false).Path;
 		}
 
