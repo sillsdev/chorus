@@ -638,7 +638,9 @@ namespace Chorus.VcsDrivers.Mercurial
 		public static void CreateRepositoryInExistingDir(string path, IProgress progress)
 		{
 			var repo = new HgRepository(path, progress);
-			repo.Execute(20, "init", SurroundWithQuotes(path));
+			//dotencode is a good thing, but until we have all clients to 1.7 or later, it would leave some out in the cold.
+			//see also: DisableNewRepositoryFormats()
+			repo.Execute(20, "init", "--config format.dotencode=False " + SurroundWithQuotes(path));
 		}
 
 
@@ -1237,7 +1239,9 @@ namespace Chorus.VcsDrivers.Mercurial
 			//For Linux, it's hard to ship a specific version, which is our windows approach to ensuring everyone has the same versino of hg.
 			//So instead, we here disable the dotencode, so that new projects created on Linux won't use that feature.
 
-			section.Set("dotencode", "0");
+			//see also: CreateRepositoryInExistingDir
+
+			section.Set("dotencode", "False");
 
 			doc.SaveAndThrowIfCannot();
 		}
