@@ -166,6 +166,8 @@ namespace Chorus.VcsDrivers.Mercurial
 
 			try
 			{
+				DisableNewRepositoryFormats();
+
 				//TODO: some can be removed now, since we have our own mercurial.ini.  Unfortunately, we pacakge it in a 4  meg zip, so it's Expensive (in terms of our own hg repo) to modify
 				//so for now we're still using this
 
@@ -1220,6 +1222,23 @@ namespace Chorus.VcsDrivers.Mercurial
 			{
 					 section.Set(pair.Key, pair.Value);
 			 }
+			doc.SaveAndThrowIfCannot();
+		}
+
+		public void DisableNewRepositoryFormats()
+		{
+			var doc = GetHgrcDoc();
+			var section = doc.Sections.GetOrCreate("format");
+
+			//see http://mercurial.selenic.com/wiki/UpgradingMercurial
+
+			//Mercurial 1.7 introduced a new repository format, "dotencode", which is a good thing. But old clients can't read it (if they
+			//are just talking to the server, they don't notice. But since we push actually repositories around on USB drive, they will!)
+			//For Linux, it's hard to ship a specific version, which is our windows approach to ensuring everyone has the same versino of hg.
+			//So instead, we here disable the dotencode, so that new projects created on Linux won't use that feature.
+
+			section.Set("dotencode", "0");
+
 			doc.SaveAndThrowIfCannot();
 		}
 
