@@ -30,7 +30,7 @@ namespace Chorus.UI.Review
 		/// <summary>
 		/// Supply a function here which returns false for any revisions you want to hide.
 		/// </summary>
-		public Func<Revision, bool> ShowRevisionPredicate = (revision) => true;
+		public Func<Revision, bool> RevisionsToShowFilter = (revision) => true;
 
 		/// <summary>
 		/// Set this to a new list of columns, if you need some custom ones.

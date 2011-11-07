@@ -166,6 +166,8 @@ namespace Chorus.VcsDrivers.Mercurial
 
 			try
 			{
+				DisableNewRepositoryFormats();
+
 				//TODO: some can be removed now, since we have our own mercurial.ini.  Unfortunately, we pacakge it in a 4  meg zip, so it's Expensive (in terms of our own hg repo) to modify
 				//so for now we're still using this
 
@@ -178,8 +180,6 @@ namespace Chorus.VcsDrivers.Mercurial
 				*/
 
 				//NB: this is REQUIRED because we are now, in the hgrunner, saying that we will be getting utf8 output. If we made this extension optional, we'd have to know to not say that.
-
-				// fixutf8 may not be required on linux, we need to make a test for this
 
 				var extensions = new Dictionary<string, string>();
 				extensions.Add("hgext.win32text", ""); //for converting line endings on windows machines
@@ -638,7 +638,9 @@ namespace Chorus.VcsDrivers.Mercurial
 		public static void CreateRepositoryInExistingDir(string path, IProgress progress)
 		{
 			var repo = new HgRepository(path, progress);
-			repo.Execute(20, "init", SurroundWithQuotes(path));
+			//dotencode is a good thing, but until we have all clients to 1.7 or later, it would leave some out in the cold.
+			//see also: DisableNewRepositoryFormats()
+			repo.Execute(20, "init", "--config format.dotencode=False " + SurroundWithQuotes(path));
 		}
 
 
@@ -1222,6 +1224,25 @@ namespace Chorus.VcsDrivers.Mercurial
 			{
 					 section.Set(pair.Key, pair.Value);
 			 }
+			doc.SaveAndThrowIfCannot();
+		}
+
+		public void DisableNewRepositoryFormats()
+		{
+			var doc = GetHgrcDoc();
+			var section = doc.Sections.GetOrCreate("format");
+
+			//see http://mercurial.selenic.com/wiki/UpgradingMercurial
+
+			//Mercurial 1.7 introduced a new repository format, "dotencode", which is a good thing. But old clients can't read it (if they
+			//are just talking to the server, they don't notice. But since we push actually repositories around on USB drive, they will!)
+			//For Linux, it's hard to ship a specific version, which is our windows approach to ensuring everyone has the same versino of hg.
+			//So instead, we here disable the dotencode, so that new projects created on Linux won't use that feature.
+
+			//see also: CreateRepositoryInExistingDir
+
+			section.Set("dotencode", "False");
+
 			doc.SaveAndThrowIfCannot();
 		}
 

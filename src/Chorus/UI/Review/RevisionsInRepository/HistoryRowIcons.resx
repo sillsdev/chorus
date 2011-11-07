@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!--
 	Microsoft ResX Schema
@@ -117,51 +117,26 @@
   <resheader name="writer">
 	<value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <metadata name="timer1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-	<value>17, 6</value>
-  </metadata>
-  <metadata name="toolTip1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-	<value>104, 6</value>
-  </metadata>
-  <assembly alias="System.Drawing" name="System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
-  <data name="_loadButton.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-	<value>
-		iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
-		YQUAAAAgY0hSTQAAeiYAAICEAAD6AAAAgOgAAHUwAADqYAAAOpgAABdwnLpRPAAAAshJREFUOE9tU11I
-		k2EUtkiozAq6qairuqlu06nZRUR0kf2ARYFEdaFu/kBJpUZYlNGISsOkpCSN7dtMzVnmGJpOsWymVpvi
-		TF2i22zOiTW/reb2nZ73cxtjdPGwd+95z3Oe85zzxRBRTAh7MxXbU2SqFyk5KktittKTLFPZcG7HfToQ
-		G/W2GHcbw8kJmYoTSVLOIy3X+8o0JlJ3/yB1l4Uqmofo3F3doiRbuYCEM4wkIUuRhTMBG0QCHHYlyzj+
-		fqOJqt+PU23HBLV8tlGnyUH9E/M0PLVAncYZOlLYxEOZ/uClei9I/MhbLxJA6jNZuT5Q8PQDpeaqCUGC
-		dP/ZO1p3bduoYLb+ojH7b5r46Sa5ajDwyTzL4n9BEC8SQLr7wMV6Ss2rExDgEbgCbAEOJcm4gQtyHT8w
-		5qQpJ0/2eY8IvPMhHicSoH+WuCR91FuNXu0I7Igy7DxT1TvioI9mJ03P8SDgGMHakAf+tOK3JVerv+w5
-		fbttEwIrIyazCgp7yhq++mZQmbWyrIBbwrs1IYL4yIpR1WuY44cvN/5JK2zyiihq8gansDpEwAwRggjg
-		lznMKujYbgCb/4NtrFC4BZuLJ5vLQ1b091w7EpBIuUm2KNHKShTDWwuqBpKDRdYtm4iZsr56RpxkGJ1l
-		C8LU5ES1EpeQpXTkVRoepN/QdgdbiBUJ4HyAETB3rVDSZbTT0WINjxH24WFicNlyUnPrXMevt7IRChKp
-		0hduAS4H2LJUvhkSJh2L4sL0j7uorNEopBVpeFRewqYSIOzPryPcMRJ1mAAKhIxSrRdrOnTsWvNiS980
-		Gb7PUfu3GdIYpqmmw0LyeiPdUg7Sw9cmQkG2bLsjTSQkVwSlnpRkc/Onbr5zl3KD9KTVTFW6MbrXYKL8
-		x91+9sHBs4yQP6EpvATjiojlicX/dMjsgA8OJPhwtu7LVb3C/c5Ic/8BQVqGDn3IwFMAAAAASUVORK5C
-		YII=
-</value>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="Conflict" type="System.Resources.ResXFileRef, System.Windows.Forms">
+	<value>..\..\..\Resources\MergeConflict16x16.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <metadata name="ColumnImage.UserAddedColumn" type="System.Boolean, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-	<value>True</value>
-  </metadata>
-  <metadata name="ColumnParentRevision.UserAddedColumn" type="System.Boolean, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-	<value>True</value>
-  </metadata>
-  <metadata name="ColumnChildRevision.UserAddedColumn" type="System.Boolean, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-	<value>True</value>
-  </metadata>
-  <metadata name="ColumnDate.UserAddedColumn" type="System.Boolean, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-	<value>True</value>
-  </metadata>
-  <metadata name="ColumnPerson.UserAddedColumn" type="System.Boolean, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-	<value>True</value>
-  </metadata>
-  <metadata name="ColumnAction.UserAddedColumn" type="System.Boolean, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-	<value>True</value>
-  </metadata>
-  <metadata name="_rowAddingTimer.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-	<value>311, 6</value>
-  </metadata>
+  <data name="FieldWorks" type="System.Resources.ResXFileRef, System.Windows.Forms">
+	<value>..\..\..\Resources\FieldWorksBridge.bmp;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="GenericCheckin" type="System.Resources.ResXFileRef, System.Windows.Forms">
+	<value>..\..\..\Resources\chorus16x16.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Merge" type="System.Resources.ResXFileRef, System.Windows.Forms">
+	<value>..\..\..\Resources\Merge16x16.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Warning" type="System.Resources.ResXFileRef, System.Windows.Forms">
+	<value>..\..\..\Resources\warning16x16.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="WeSay" type="System.Resources.ResXFileRef, System.Windows.Forms">
+	<value>..\..\..\Resources\wesay16x16.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="WeSayConfiguration" type="System.Resources.ResXFileRef, System.Windows.Forms">
+	<value>..\..\..\Resources\WeSayConfig16x16.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
 </root>
