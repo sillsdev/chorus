@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Chorus.Properties;
 
@@ -81,6 +82,8 @@ namespace Chorus.FileTypeHanders.FieldWorks
 		/// </summary>
 		public void AddCustomPropInfo(string className, FdoPropertyInfo propInfo)
 		{
+			if (!propInfo.IsCustomProperty)
+				throw new ArgumentException("Property is not custom.");
 			_classes[className].AddProperty(propInfo);
 		}
 

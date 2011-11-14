@@ -61,7 +61,7 @@ namespace Chorus.FileTypeHanders.FieldWorks
 			var className = XmlUtilities.GetStringAttribute(extantNode, "class");
 			FdoClassInfo info;
 			if (_mdc.ClassesWithCollectionProperties.TryGetValue(className, out info))
-				FieldWorksMergingServices.MergeCollectionProperties(info, ourEntry, theirEntry, commonEntry);
+				FieldWorksMergingServices.MergeCollectionProperties(eventListener, info, ourEntry, theirEntry, commonEntry);
 			var merger = _mergers[className];
 
 			return FieldWorksMergingServices.GetOuterXml(merger.Merge(eventListener, ourEntry, theirEntry, commonEntry));

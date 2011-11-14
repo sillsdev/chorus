@@ -63,7 +63,7 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 							  where propInfo.PropertyName == "Certified"
 							  select propInfo).FirstOrDefault());
 
-			_mdc.AddCustomPropInfo("WfiWordform", new FdoPropertyInfo("Certified", DataType.Boolean));
+			_mdc.AddCustomPropInfo("WfiWordform", new FdoPropertyInfo("Certified", DataType.Boolean, true));
 
 			Assert.IsNotNull((from propInfo in wordformInfo.AllProperties
 									 where propInfo.PropertyName == "Certified"

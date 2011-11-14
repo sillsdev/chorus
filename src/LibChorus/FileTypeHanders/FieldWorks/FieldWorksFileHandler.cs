@@ -76,7 +76,7 @@ namespace Chorus.FileTypeHanders.FieldWorks
 				var doc = XDocument.Load(customFiles[0]);
 // ReSharper disable PossibleNullReferenceException
 				foreach (var customFieldElement in doc.Elements("CustomField"))
-					_mdc.AddCustomPropInfo(customFieldElement.Attribute("class").Value, new FdoPropertyInfo(customFieldElement.Attribute("name").Value, customFieldElement.Attribute("type").Value));
+					_mdc.AddCustomPropInfo(customFieldElement.Attribute("class").Value, new FdoPropertyInfo(customFieldElement.Attribute("name").Value, customFieldElement.Attribute("type").Value, true));
 // ReSharper restore PossibleNullReferenceException
 			}
 			XmlMergeService.Do3WayMerge(mergeOrder,

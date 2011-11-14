@@ -91,8 +91,9 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 
 			DoMerge(commonAncestor, ourContent, theirContent,
 				new List<string> { @"classdata/rt[@guid=""oldie""]", @"classdata/rt[@guid=""newbieOurs""]", @"classdata/rt[@guid=""newbieTheirs""]" }, null,
-				0, 2);
-			_eventListener.AssertFirstChangeType<XmlAdditionChangeReport>();
+				0, new List<Type>(),
+				2, new List<Type> { typeof(XmlAdditionChangeReport), typeof(XmlAdditionChangeReport) });
+			//_eventListener.AssertFirstChangeType<XmlAdditionChangeReport>();
 		}
 
 		[Test]
@@ -108,8 +109,9 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 
 			DoMerge(commonAncestor, ourContent, theirContent,
 				new List<string> { @"classdata/rt[@guid=""oldie""]", @"classdata/rt[@guid=""newbieOurs""]" }, null,
-				0, 1);
-			_eventListener.AssertFirstChangeType<XmlAdditionChangeReport>();
+				0, new List<Type>(),
+				1, new List<Type> { typeof(XmlAdditionChangeReport) });
+			//_eventListener.AssertFirstChangeType<XmlAdditionChangeReport>();
 		}
 
 		[Test]
@@ -125,8 +127,9 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 
 			DoMerge(commonAncestor, ourContent, theirContent,
 				new List<string> { @"classdata/rt[@guid=""oldie""]", @"classdata/rt[@guid=""newbieTheirs""]" }, null,
-				0, 1);
-			_eventListener.AssertFirstChangeType<XmlAdditionChangeReport>();
+				0, new List<Type>(),
+				1, new List<Type> { typeof(XmlAdditionChangeReport) });
+			//_eventListener.AssertFirstChangeType<XmlAdditionChangeReport>();
 		}
 
 		[Test]
@@ -144,8 +147,9 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 			DoMerge(commonAncestor, ourContent, theirContent,
 				new List<string> { @"classdata/rt[@guid=""oldie""]" },
 				new List<string> { @"classdata/rt[@guid=""goner""]" },
-				0, 1);
-			_eventListener.AssertFirstChangeType<XmlDeletionChangeReport>();
+				0, new List<Type>(),
+				1, new List<Type> { typeof(XmlDeletionChangeReport) });
+			//_eventListener.AssertFirstChangeType<XmlDeletionChangeReport>();
 		}
 
 		[Test]
@@ -163,7 +167,8 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 			DoMerge(commonAncestor, ourContent, theirContent,
 				new List<string> { @"classdata/rt[@guid=""oldie""]" },
 				new List<string> { @"classdata/rt[@guid=""goner""]" },
-				0, 0);
+				0, new List<Type>(),
+				0, new List<Type>());
 		}
 
 		[Test]
@@ -181,8 +186,9 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 			DoMerge(commonAncestor, ourContent, theirContent,
 				new List<string> { @"classdata/rt[@guid=""oldie""]" },
 				new List<string> { @"classdata/rt[@guid=""goner""]" },
-				0, 1);
-			_eventListener.AssertFirstChangeType<XmlDeletionChangeReport>();
+				0, new List<Type>(),
+				1, new List<Type> { typeof(XmlDeletionChangeReport) });
+			//_eventListener.AssertFirstChangeType<XmlDeletionChangeReport>();
 		}
 
 		[Test]
@@ -200,8 +206,9 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 			DoMerge(commonAncestor, ourContent, theirContent,
 				new List<string> { @"classdata/rt[@guid=""oldie""]", @"classdata/rt[@ownerguid=""newOwner""]" },
 				new List<string> { @"classdata/rt[@ownerguid=""originalOwner""]" },
-				0, 1);
-			_eventListener.AssertFirstChangeType<XmlChangedRecordReport>();
+				0, new List<Type>(),
+				1, new List<Type> { typeof(XmlChangedRecordReport) });
+			//_eventListener.AssertFirstChangeType<XmlChangedRecordReport>();
 		}
 
 		[Test]
@@ -217,10 +224,11 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 			var theirContent = commonAncestor.Replace("originalOwner", "newLosingOwner");
 
 			DoMerge(commonAncestor, ourContent, theirContent,
-				new List<string> { @"classdata/rt[@guid=""oldie""]", @"classdata/rt[@ownerguid=""newWinningOwner""]" },
-				new List<string> { @"classdata/rt[@ownerguid=""originalOwner""]", @"classdata/rt[@ownerguid=""newLosingOwner""]" },
-				1, 0);
-			_eventListener.AssertFirstConflictType<BothEditedAttributeConflict>();
+				new List<string> {@"classdata/rt[@guid=""oldie""]", @"classdata/rt[@ownerguid=""newWinningOwner""]"},
+				new List<string> {@"classdata/rt[@ownerguid=""originalOwner""]", @"classdata/rt[@ownerguid=""newLosingOwner""]"},
+				1, new List<Type> {typeof (BothEditedAttributeConflict)},
+				0, new List<Type>());
+			//_eventListener.AssertFirstConflictType<BothEditedAttributeConflict>();
 		}
 
 		[Test]
@@ -239,8 +247,9 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 			DoMerge(commonAncestor, ourContent, theirContent,
 				new List<string> { @"classdata/rt[@guid=""oldie""]", @"classdata/rt[@ownerguid=""newOwner""]" },
 				new List<string> { @"classdata/rt[@ownerguid=""originalOwner""]" },
-				0, 1);
-			_eventListener.AssertFirstChangeType<XmlChangedRecordReport>();
+				0, new List<Type>(),
+				1, new List<Type> { typeof(XmlChangedRecordReport) });
+			//_eventListener.AssertFirstChangeType<XmlChangedRecordReport>();
 		}
 
 		[Test]
@@ -258,8 +267,9 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 			DoMerge(commonAncestor, ourContent, theirContent,
 				new List<string> { @"classdata/rt[@guid=""oldie""]", @"classdata/rt[@ownerguid=""newOwner""]" },
 				new List<string> { @"classdata/rt[@ownerguid=""originalOwner""]" },
-				0, 1);
-			_eventListener.AssertFirstChangeType<XmlChangedRecordReport>();
+				0, new List<Type>(),
+				1, new List<Type> { typeof(XmlChangedRecordReport) });
+			//_eventListener.AssertFirstChangeType<XmlChangedRecordReport>();
 		}
 
 		[Test]
@@ -277,8 +287,9 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 			DoMerge(commonAncestor, ourContent, theirContent,
 				new List<string> { @"classdata/rt[@guid=""oldie""]", @"classdata/rt[@ownerguid=""newOwner""]" },
 				new List<string> { @"classdata/rt[@ownerguid=""originalOwner""]" },
-				1, 0);
-			_eventListener.AssertFirstConflictType<EditedVsRemovedElementConflict>();
+				1, new List<Type> { typeof(EditedVsRemovedElementConflict) },
+				0, new List<Type>());
+			//_eventListener.AssertFirstConflictType<EditedVsRemovedElementConflict>();
 		}
 
 		[Test]
@@ -296,8 +307,9 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 			DoMerge(commonAncestor, ourContent, theirContent,
 				new List<string> { @"classdata/rt[@guid=""oldie""]", @"classdata/rt[@ownerguid=""newOwner""]" },
 				new List<string> { @"classdata/rt[@ownerguid=""originalOwner""]" },
-				1, 0);
-			_eventListener.AssertFirstConflictType<RemovedVsEditedElementConflict>();
+				1, new List<Type> { typeof(RemovedVsEditedElementConflict) },
+				0, new List<Type>());
+			//_eventListener.AssertFirstConflictType<RemovedVsEditedElementConflict>();
 		}
 
 		[Test]
@@ -342,8 +354,9 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 			DoMerge(commonAncestor, ourContent, theirContent,
 				new List<string> { @"classdata/rt/Comment/AStr[@ws='en']", @"classdata/rt/Comment/AStr/Run[@ws='en']" },
 				new List<string> { @"classdata/rt/Comment/AStr/Run[@ws='es']" },
-				0, 1);
-			_eventListener.AssertFirstChangeType<XmlChangedRecordReport>();
+				0, new List<Type>(),
+				1, new List<Type> { typeof(XmlChangedRecordReport) });
+			//_eventListener.AssertFirstChangeType<XmlChangedRecordReport>();
 		}
 
 		[Test]
@@ -391,7 +404,8 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 					@"classdata/rt/Comment/AStr/Run[@ws='en']",
 					@"classdata/rt/Comment/AStr/Run[@ws='es']" },
 				null,
-				1, 0);
+				1, new List<Type> { typeof(BothEditedTheSameElement) },
+				0, new List<Type>());
 
 			var doc = XDocument.Parse(result);
 // ReSharper disable PossibleNullReferenceException
@@ -453,7 +467,8 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 					@"classdata/rt/Comment/AStr[@ws='es']",
 					@"classdata/rt/Comment/AStr[@ws='es']/Run[@ws='es']" },
 				null,
-				1, 1); // 1 conflict, since both edited the 'en' alternative: 1 change, since 'they' added the new 'es' altenative.
+				1, new List<Type> { typeof(BothEditedTheSameElement) }, // 1 conflict, since both edited the 'en' alternative.
+				1, new List<Type> { typeof(XmlAdditionChangeReport) }); // 1 change, since 'they' added the new 'es' altenative.
 
 			var doc = XDocument.Parse(result);
 // ReSharper disable PossibleNullReferenceException
@@ -507,7 +522,8 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 					@"classdata/rt/Name/AUni[@ws='es']",
 					@"classdata/rt/Name/AUni[@ws='fr']"},
 				null,
-				1, 0); // 1 conflict, since both edited the 'en' alternative: 0 changes.
+				1, new List<Type> { typeof(BothEditedTheSameElement) }, // 1 conflict, since both edited the 'en' alternative.
+				0, new List<Type>());
 
 			var doc = XDocument.Parse(result);
 // ReSharper disable PossibleNullReferenceException
@@ -558,7 +574,8 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 				new List<string> { @"classdata/rt/Name/AUni[@ws='en']" },
 				new List<string> { @"classdata/rt/Name/AUni[@ws='es']",
 					@"classdata/rt/Name/AUni[@ws='fr']" },
-				0, 1);
+				0, new List<Type>(),
+				2, new List<Type> { typeof(XmlDeletionChangeReport), typeof(XmlDeletionChangeReport) });
 		}
 
 		[Test]
@@ -601,7 +618,8 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 			var result = DoMerge(commonAncestor, ourContent, theirContent,
 				new List<string> { @"classdata/rt/Form/Str/Run[@ws='x-ezpi']" },
 				null,
-				1, 0);
+				1, new List<Type> { typeof(BothEditedTheSameElement) },
+				0, new List<Type>());
 
 			var doc = XDocument.Parse(result);
 // ReSharper disable PossibleNullReferenceException
@@ -644,7 +662,8 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 			var result = DoMerge(commonAncestor, ourContent, theirContent,
 				new List<string> { @"classdata/rt/Rules/Prop" },
 				null,
-				1, 0);
+				1, new List<Type> { typeof(BothEditedTheSameElement) },
+				0, new List<Type>());
 
 			var doc = XDocument.Parse(result);
 // ReSharper disable PossibleNullReferenceException
@@ -688,7 +707,8 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 			var result = DoMerge(commonAncestor, ourContent, theirContent,
 				new List<string> { @"classdata/rt/Type/objsur[@guid='ourNew']" },
 				new List<string> { @"classdata/rt/Type/objsur[@guid='original']", @"classdata/rt/Type/objsur[@guid='theirNew']" },
-				1, 0);
+				1, new List<Type> { typeof(BothEditedAttributeConflict) },
+				0, new List<Type>());
 		}
 
 		[Test]
@@ -729,7 +749,8 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 				new List<string> { @"classdata/rt/Analyses/objsur[@guid='ourNew1']", @"classdata/rt/Analyses/objsur[@guid='ourNew2']" },
 				new List<string> { @"classdata/rt/Analyses/objsur[@guid='original1']", @"classdata/rt/Analyses/objsur[@guid='original2']", @"classdata/rt/Analyses/objsur[@guid='original3']",
 					@"classdata/rt/Analyses/objsur[@guid='theirNew1']" },
-				1, 0);
+				1, new List<Type> { typeof(BothEditedTheSameElement) },
+				0, new List<Type>());
 		}
 
 		[Test]
@@ -770,11 +791,12 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 				new List<string> { @"classdata/rt/Notes/objsur[@guid='ourNew1']", @"classdata/rt/Notes/objsur[@guid='ourNew2']" },
 				new List<string> { @"classdata/rt/Notes/objsur[@guid='original1']", @"classdata/rt/Notes/objsur[@guid='original2']", @"classdata/rt/Notes/objsur[@guid='original3']",
 					@"classdata/rt/Notes/objsur[@guid='theirNew1']" },
-				1, 0);
+				1, new List<Type> { typeof(BothEditedTheSameElement) },
+				0, new List<Type>());
 		}
 
 		[Test]
-		public void BothEditedOwningCollectionGeneratesConflictReport()
+		public void BothEditedOwningCollectionGeneratesChangeReport()
 		{
 			const string commonAncestor =
 @"<?xml version='1.0' encoding='utf-8'?>
@@ -811,12 +833,14 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 			var result = DoMerge(commonAncestor, ourContent, theirContent,
 				new List<string> { @"classdata/rt/SubFolders/objsur[@guid='ourNew1']", @"classdata/rt/SubFolders/objsur[@guid='ourNew2']", @"classdata/rt/SubFolders/objsur[@guid='theirNew1']" },
 				new List<string> { @"classdata/rt/SubFolders/objsur[@guid='original1']", @"classdata/rt/SubFolders/objsur[@guid='original2']", @"classdata/rt/SubFolders/objsur[@guid='original3']" },
-				0, 0);
+				0, new List<Type>(),
+				2, new List<Type> { typeof(XmlChangedRecordReport), typeof(XmlChangedRecordReport) });
 		}
 
 		private string DoMerge(string commonAncestor, string ourContent, string theirContent,
 			IEnumerable<string> matchesExactlyOne, IEnumerable<string> isNull,
-			int expectedConflictCount, int expectedChangesCount)
+			int expectedConflictCount, List<Type> conflictTypes,
+			int expectedChangesCount, List<Type> changeTypes)
 		{
 			string result;
 			using (var ours = new TempFile(ourContent))
@@ -838,7 +862,13 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 						XmlTestHelper.AssertXPathIsNull(result, query);
 				}
 				_eventListener.AssertExpectedConflictCount(expectedConflictCount);
+				Assert.AreEqual(conflictTypes.Count, _eventListener.Conflicts.Count);
+				for (var idx = 0; idx < conflictTypes.Count; ++idx)
+					Assert.AreSame(conflictTypes[idx], _eventListener.Conflicts[idx].GetType());
 				_eventListener.AssertExpectedChangesCount(expectedChangesCount);
+				Assert.AreEqual(changeTypes.Count, _eventListener.Changes.Count);
+				for (var idx = 0; idx < changeTypes.Count; ++idx)
+					Assert.AreSame(changeTypes[idx], _eventListener.Changes[idx].GetType());
 			}
 			return result;
 		}

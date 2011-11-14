@@ -56,25 +56,33 @@ namespace Chorus.merge.xml.generic
 		private static string GetKeyViaHack(XmlNode element)
 		{
 			var name = element.Name;
-			if (name == "special")
+			switch (name)
 			{
-				var foundHack = false;
-				foreach (var attrName in from XmlNode attr in element.Attributes select attr.Name)
-				{
-					switch (attrName)
+				default:
+					break;
+				case "special":
+					var foundHack = false;
+					foreach (var attrName in from XmlNode attr in element.Attributes select attr.Name)
 					{
-						default:
-							break;
-						case "xmlns:palaso":
-						case "xmlns:fw":
-							name += "_" + attrName;
-							foundHack = true;
+						switch (attrName)
+						{
+							default:
+								break;
+							case "xmlns:palaso":
+							case "xmlns:fw":
+								name += "_" + attrName;
+								foundHack = true;
+								break;
+						}
+						if (foundHack)
 							break;
 					}
-					if (foundHack)
-						break;
-				}
+					break;
+				case "Custom": // Another hack for FW custom property elements. (If tius proves to conflict with WeSay, then move preliminary processing else for Fw Custom properties to get past the Custom element.
+					name += "_" + element.Attributes["name"].Value;
+					break;
 			}
+
 			return name;
 		}
 

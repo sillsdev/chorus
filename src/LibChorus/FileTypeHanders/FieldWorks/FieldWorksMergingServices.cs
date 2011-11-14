@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Xml;
+using Chorus.FileTypeHanders.xml;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
 
@@ -87,9 +88,6 @@ namespace Chorus.FileTypeHanders.FieldWorks
 			AddSharedSingletonElementType(sharedElementStrategies, Uni, false);
 			AddSharedKeyedByWsElementType(sharedElementStrategies, AStr, false, true);
 			AddSharedKeyedByWsElementType(sharedElementStrategies, AUni, false, true);
-			// Custom data Element in the data <rt> xml.
-			AddKeyedElementType(sharedElementStrategies, Custom, new FindByKeyAttribute("name"), false, false);
-
 		}
 
 		private static void AddSharedKeyedByWsElementType(IDictionary<string, ElementStrategy> sharedElementStrategies, string elementName, bool orderOfTheseIsRelevant, bool isAtomic)
@@ -123,73 +121,147 @@ namespace Chorus.FileTypeHanders.FieldWorks
 				// will be singletons.
 				foreach (var propInfo in classInfo.AllProperties)
 				{
-					// Start all with basic mutable singleton. Switch to 'immSingleton' for properties that are immutable.
-					var strategyForCurrentProperty = mutableSingleton;
-					ElementStrategy extantStrategy;
-					switch (propInfo.DataType)
-					{
-						// These three are immutable, in a manner of speaking.
-						// DateCreated is honestly, and the other two are because 'ours' and 'theirs' have been made to be the same already.
-						case DataType.Time: // Fall through // DateTime
-						case DataType.OwningCollection: // Fall through. There should be no ownership issues, since removal from original by either will show up as a removal.
-						case DataType.ReferenceCollection:
-							strategyForCurrentProperty = immSingleton;
-							break;
-
-						case DataType.OwningSequence: // Fall through. // TODO: Sort out ownership issues for conflicts.
-						case DataType.ReferenceSequence:
-							// Use IsAtomic for whole property.
-							strategyForCurrentProperty = CreateSingletonElementType(false);
-							strategyForCurrentProperty.IsAtomic = true;
-							break;
-						case DataType.OwningAtomic: // Fall through. // TODO: Think about implications of a conflict.
-						case DataType.ReferenceAtomic:
-							strategyForCurrentProperty = mutableSingleton;
-							// If own seq/col & ref seq end up being atomic, then 'obsur' is a simple singleton.
-							// Otherwise, things get more complicated, since this one is singleton, but the others would be keyed.
-							if (!strategiesForMerger.ElementStrategies.TryGetValue(Objsur, out extantStrategy))
-								strategiesForMerger.SetStrategy(Objsur, mutableSingleton);
-							break;
-
-						// Other data types
-						case DataType.MultiUnicode:
-							if (!strategiesForMerger.ElementStrategies.TryGetValue(AUni, out extantStrategy))
-								strategiesForMerger.SetStrategy(AUni, sharedElementStrategies[AUni]);
-							break;
-						case DataType.MultiString:
-							if (!strategiesForMerger.ElementStrategies.TryGetValue(AStr, out extantStrategy))
-								strategiesForMerger.SetStrategy(AStr, sharedElementStrategies[AStr]);
-							break;
-						case DataType.Unicode: // Ordinary C# string
-							if (!strategiesForMerger.ElementStrategies.TryGetValue(Uni, out extantStrategy))
-								strategiesForMerger.SetStrategy(Uni, sharedElementStrategies[Uni]);
-							break;
-						case DataType.String: // TsString
-							if (!strategiesForMerger.ElementStrategies.TryGetValue(Str, out extantStrategy))
-								strategiesForMerger.SetStrategy(Str, sharedElementStrategies[Str]);
-							break;
-						case DataType.Binary:
-							if (!strategiesForMerger.ElementStrategies.TryGetValue(Binary, out extantStrategy))
-								strategiesForMerger.SetStrategy(Binary, sharedElementStrategies[Binary]);
-							break;
-						case DataType.TextPropBinary:
-							if (!strategiesForMerger.ElementStrategies.TryGetValue(Prop, out extantStrategy))
-								strategiesForMerger.SetStrategy(Prop, sharedElementStrategies[Prop]);
-							break;
-						// NB: Booleans can never be in conflict in a 3-way merge environment.
-						// One or the other can toggle the bool, so the one changing it 'wins'.
-						// If both change it then it's no big deal either.
-						case DataType.Boolean: // Fall through.
-						case DataType.GenDate: // Fall through.
-						case DataType.Guid: // Fall through.
-						case DataType.Integer: // Fall through.
-							// Simple, mutable properties.
-							break;
-					}
-					strategiesForMerger.SetStrategy(propInfo.PropertyName, strategyForCurrentProperty);
+					if (propInfo.IsCustomProperty)
+						ProcessCustomProperty(sharedElementStrategies, strategiesForMerger, propInfo, mutableSingleton);
+					else
+						ProcessStandardProperty(sharedElementStrategies, strategiesForMerger, propInfo, mutableSingleton, immSingleton);
 				}
 				mergers.Add(classInfo.ClassName, merger);
 			}
+		}
+
+		private static void ProcessCustomProperty(IDictionary<string, ElementStrategy> sharedElementStrategies, MergeStrategies strategiesForMerger, FdoPropertyInfo propInfo, ElementStrategy mutableSingleton)
+		{
+			// Start all with basic keyed strategy.
+			var strategyForCurrentProperty = ElementStrategy.CreateForKeyedElement("name", false);
+			ElementStrategy extantStrategy;
+			switch (propInfo.DataType)
+			{
+				// These three are immutable, in a manner of speaking.
+				// DateCreated is honestly, and the other two are because 'ours' and 'theirs' have been made to be the same already.
+				case DataType.Time: // Fall through // DateTime
+				case DataType.OwningCollection: // Fall through. There should be no ownership issues, since removal from original by either will show up as a removal.
+				case DataType.ReferenceCollection:
+					strategyForCurrentProperty.IsImmutable = true;
+					break;
+
+				case DataType.OwningSequence: // Fall through. // TODO: Sort out ownership issues for conflicts.
+				case DataType.ReferenceSequence:
+					// Use IsAtomic for whole property.
+					strategyForCurrentProperty.IsAtomic = true;
+					break;
+				case DataType.OwningAtomic: // Fall through. // TODO: Think about implications of a conflict.
+				case DataType.ReferenceAtomic:
+					// If own seq/col & ref seq end up being atomic, then 'obsur' is a simple singleton.
+					// Otherwise, things get more complicated, since this one is singleton, but the others would be keyed.
+					if (!strategiesForMerger.ElementStrategies.TryGetValue(Objsur, out extantStrategy))
+						strategiesForMerger.SetStrategy(Objsur, mutableSingleton);
+					break;
+
+				// Other data types
+				case DataType.MultiUnicode:
+					if (!strategiesForMerger.ElementStrategies.TryGetValue(AUni, out extantStrategy))
+						strategiesForMerger.SetStrategy(AUni, sharedElementStrategies[AUni]);
+					break;
+				case DataType.MultiString:
+					if (!strategiesForMerger.ElementStrategies.TryGetValue(AStr, out extantStrategy))
+						strategiesForMerger.SetStrategy(AStr, sharedElementStrategies[AStr]);
+					break;
+				case DataType.Unicode: // Ordinary C# string
+					if (!strategiesForMerger.ElementStrategies.TryGetValue(Uni, out extantStrategy))
+						strategiesForMerger.SetStrategy(Uni, sharedElementStrategies[Uni]);
+					break;
+				case DataType.String: // TsString
+					if (!strategiesForMerger.ElementStrategies.TryGetValue(Str, out extantStrategy))
+						strategiesForMerger.SetStrategy(Str, sharedElementStrategies[Str]);
+					break;
+				case DataType.Binary:
+					if (!strategiesForMerger.ElementStrategies.TryGetValue(Binary, out extantStrategy))
+						strategiesForMerger.SetStrategy(Binary, sharedElementStrategies[Binary]);
+					break;
+				case DataType.TextPropBinary:
+					if (!strategiesForMerger.ElementStrategies.TryGetValue(Prop, out extantStrategy))
+						strategiesForMerger.SetStrategy(Prop, sharedElementStrategies[Prop]);
+					break;
+				// NB: Booleans can never be in conflict in a 3-way merge environment.
+				// One or the other can toggle the bool, so the one changing it 'wins'.
+				// If both change it then it's no big deal either.
+				case DataType.Boolean: // Fall through.
+				case DataType.GenDate: // Fall through.
+				case DataType.Guid: // Fall through.
+				case DataType.Integer: // Fall through.
+					// Simple, mutable properties.
+					break;
+			}
+			strategiesForMerger.SetStrategy(Custom + "_" + propInfo.PropertyName, strategyForCurrentProperty);
+		}
+
+		private static void ProcessStandardProperty(IDictionary<string, ElementStrategy> sharedElementStrategies, MergeStrategies strategiesForMerger, FdoPropertyInfo propInfo, ElementStrategy mutableSingleton, ElementStrategy immSingleton)
+		{
+			// Start all with basic mutable singleton. Switch to 'immSingleton' for properties that are immutable.
+			var strategyForCurrentProperty = mutableSingleton;
+			ElementStrategy extantStrategy;
+			switch (propInfo.DataType)
+			{
+				// These three are immutable, in a manner of speaking.
+				// DateCreated is honestly, and the other two are because 'ours' and 'theirs' have been made to be the same already.
+				case DataType.Time: // Fall through // DateTime
+				case DataType.OwningCollection: // Fall through. There should be no ownership issues, since removal from original by either will show up as a removal.
+				case DataType.ReferenceCollection:
+					strategyForCurrentProperty = immSingleton;
+					break;
+
+				case DataType.OwningSequence: // Fall through. // TODO: Sort out ownership issues for conflicts.
+				case DataType.ReferenceSequence:
+					// Use IsAtomic for whole property.
+					strategyForCurrentProperty = CreateSingletonElementType(false);
+					strategyForCurrentProperty.IsAtomic = true;
+					break;
+				case DataType.OwningAtomic: // Fall through. // TODO: Think about implications of a conflict.
+				case DataType.ReferenceAtomic:
+					strategyForCurrentProperty = mutableSingleton;
+					// If own seq/col & ref seq end up being atomic, then 'obsur' is a simple singleton.
+					// Otherwise, things get more complicated, since this one is singleton, but the others would be keyed.
+					if (!strategiesForMerger.ElementStrategies.TryGetValue(Objsur, out extantStrategy))
+						strategiesForMerger.SetStrategy(Objsur, mutableSingleton);
+					break;
+
+					// Other data types
+				case DataType.MultiUnicode:
+					if (!strategiesForMerger.ElementStrategies.TryGetValue(AUni, out extantStrategy))
+						strategiesForMerger.SetStrategy(AUni, sharedElementStrategies[AUni]);
+					break;
+				case DataType.MultiString:
+					if (!strategiesForMerger.ElementStrategies.TryGetValue(AStr, out extantStrategy))
+						strategiesForMerger.SetStrategy(AStr, sharedElementStrategies[AStr]);
+					break;
+				case DataType.Unicode: // Ordinary C# string
+					if (!strategiesForMerger.ElementStrategies.TryGetValue(Uni, out extantStrategy))
+						strategiesForMerger.SetStrategy(Uni, sharedElementStrategies[Uni]);
+					break;
+				case DataType.String: // TsString
+					if (!strategiesForMerger.ElementStrategies.TryGetValue(Str, out extantStrategy))
+						strategiesForMerger.SetStrategy(Str, sharedElementStrategies[Str]);
+					break;
+				case DataType.Binary:
+					if (!strategiesForMerger.ElementStrategies.TryGetValue(Binary, out extantStrategy))
+						strategiesForMerger.SetStrategy(Binary, sharedElementStrategies[Binary]);
+					break;
+				case DataType.TextPropBinary:
+					if (!strategiesForMerger.ElementStrategies.TryGetValue(Prop, out extantStrategy))
+						strategiesForMerger.SetStrategy(Prop, sharedElementStrategies[Prop]);
+					break;
+					// NB: Booleans can never be in conflict in a 3-way merge environment.
+					// One or the other can toggle the bool, so the one changing it 'wins'.
+					// If both change it then it's no big deal either.
+				case DataType.Boolean: // Fall through.
+				case DataType.GenDate: // Fall through.
+				case DataType.Guid: // Fall through.
+				case DataType.Integer: // Fall through.
+					// Simple, mutable properties.
+					break;
+			}
+			strategiesForMerger.SetStrategy(propInfo.PropertyName, strategyForCurrentProperty);
 		}
 
 		internal static void MergeCheckSum(XmlNode ourEntry, XmlNode theirEntry)
@@ -287,7 +359,7 @@ namespace Chorus.FileTypeHanders.FieldWorks
 			return (parentNode == null) ? null : parentNode.SelectSingleNode(propertyName);
 		}
 
-		internal static void MergeCollectionProperties(FdoClassInfo classWithCollectionProperties, XmlNode ourEntry, XmlNode theirEntry, XmlNode commonEntry)
+		internal static void MergeCollectionProperties(IMergeEventListener eventListener, FdoClassInfo classWithCollectionProperties, XmlNode ourEntry, XmlNode theirEntry, XmlNode commonEntry)
 		{
 			foreach (var collectionProperty in classWithCollectionProperties.AllCollectionProperties)
 			{
@@ -304,6 +376,10 @@ namespace Chorus.FileTypeHanders.FieldWorks
 				{
 					ourValues.UnionWith(from XmlNode objsurNode in ourPropNode.SafeSelectNodes(Objsur)
 										select objsurNode.GetStringAttribute(GuidStr));
+					if (!commonValues.SetEquals(ourValues))
+					{
+						eventListener.ChangeOccurred(new XmlChangedRecordReport(null, null, commonEntry, ourEntry));
+					}
 				}
 				var theirValues = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 				var theirPropNode = GetPropertyNode(theirEntry, collectionProperty.PropertyName);
@@ -311,6 +387,10 @@ namespace Chorus.FileTypeHanders.FieldWorks
 				{
 					theirValues.UnionWith(from XmlNode objsurNode in theirPropNode.SafeSelectNodes(Objsur)
 										  select objsurNode.GetStringAttribute(GuidStr));
+					if (!commonValues.SetEquals(theirValues))
+					{
+						eventListener.ChangeOccurred(new XmlChangedRecordReport(null, null, commonEntry, theirEntry));
+					}
 				}
 
 				// 0. If ours and theirs are the same, there is no conflict.
@@ -323,7 +403,7 @@ namespace Chorus.FileTypeHanders.FieldWorks
 				mergedCollection.IntersectWith(theirValues);
 
 				// 2. Re-add ones that were removed by one, but kept by the other (reference collections only).
-				// It can't be done for owning collections, since the owned object would have been been delated and we can't opt to keep it here.
+				// It can't be done for owning collections, since the owned object would have been been deleted and we can't opt to keep it here.
 				if (collectionProperty.DataType == DataType.ReferenceCollection)
 				{
 					mergedCollection.UnionWith(commonValues.Intersect(ourValues));
