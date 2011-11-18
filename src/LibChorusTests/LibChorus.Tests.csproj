@@ -170,6 +170,7 @@
 	<Compile Include="sync\UsbRepositorySourceTests.cs" />
 	<Compile Include="utilities\UrlHelperTests.cs" />
 	<Compile Include="utilities\MultiMapTests.cs" />
+	<Compile Include="VcsDrivers\Mercurial\HgResumeTestUtilities.cs" />
 	<Compile Include="VcsDrivers\Mercurial\HgResumeTransportTests.cs" />
 	<Compile Include="VcsDrivers\Mercurial\PullBundleHelperTests.cs" />
 	<Compile Include="VcsDrivers\Mercurial\HgTestSetup.cs" />

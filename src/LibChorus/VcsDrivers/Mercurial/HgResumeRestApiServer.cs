@@ -67,14 +67,17 @@ namespace Chorus.VcsDrivers.Mercurial
 			return apiResponse;
 		}
 
-		public string GetIdentifier()
+		public string Identifier
 		{
-			Match match = Regex.Match(_baseUrl, @"(://|:\\)([^/]+)");
-			if (match.Success)
+			get
 			{
-				return match.Groups[2].Value;
+				Match match = Regex.Match(_baseUrl, @"(://|:\\)([^/]+)");
+				if (match.Success)
+				{
+					return match.Groups[2].Value;
+				}
+				return _baseUrl;
 			}
-			return _baseUrl;
 		}
 
 		private static string BuildQueryString(IDictionary<string, string> urlParameters)

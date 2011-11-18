@@ -7,7 +7,7 @@ namespace Chorus.VcsDrivers.Mercurial
 	{
 		HgResumeApiResponse Execute(string method, IDictionary<string, string> parameters, int secondsBeforeTimeout = 10);
 		HgResumeApiResponse Execute(string method, IDictionary<string, string> parameters, byte[] contentToSend, int secondsBeforeTimeout = 10);
-		string GetIdentifier();
+		string Identifier { get; }
 	}
 
 	public class HgResumeApiResponse

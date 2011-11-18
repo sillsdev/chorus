@@ -11,12 +11,16 @@ using Palaso.TestUtilities;
 
 namespace Chorus.VcsDrivers.Mercurial
 {
+
+
 	public class HgResumeTransport : IHgTransport
 	{
 		private IProgress _progress;
 		private HgRepository _repo;
 		private string _targetLabel;
 		private IApiServer _apiServer;
+
+		private const int DefaultChunkSize = 10000;
 
 		///<summary>
 		///</summary>
@@ -40,7 +44,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				if (File.Exists(filePath))
 				{
 					string[] dbFileContents = File.ReadAllLines(filePath);
-					string remoteId = _apiServer.GetIdentifier();
+					string remoteId = _apiServer.Identifier;
 					var db = dbFileContents.Select(i => i.Split('|'));
 					var result = db.Where(x => x[0] == remoteId);
 					if (result.Count() > 0)
@@ -55,7 +59,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				if (String.IsNullOrEmpty(value)) return;
 
 				string filePath = Path.Combine(_repo.PathToRepo, "remoteRepo.db");
-				string remoteId = _apiServer.GetIdentifier();
+				string remoteId = _apiServer.Identifier;
 				if (!File.Exists(filePath))
 				{
 					// this is the first time "set" has been called.  Write value and exit.
@@ -167,53 +171,6 @@ namespace Chorus.VcsDrivers.Mercurial
 			return new List<string>();
 		}
 
-		// This method has been replaced by GetRemoteRevisions... get rid of it
-		//private string GetRemoteTip()
-		//{
-		//    int secondsBeforeTimeout = 5;
-		//    const int totalNumOfAttempts = 5;
-		//    for (int attempt = 1; attempt <= totalNumOfAttempts; attempt++)
-		//    {
-		//        if (_progress.CancelRequested)
-		//        {
-		//            throw new UserCancelledException();
-		//        }
-		//        try
-		//        {
-		//            var response = _apiServer.Execute("getTip",
-		//                                              new Dictionary<string, string> {{"repoId", _repo.Identifier}},
-		//                                              secondsBeforeTimeout);
-		//            // API returns either 200 OK or 400 Bad Request
-		//            // HgR status can be: SUCCESS (200), FAIL (400) or UNKNOWNID (400)
-		//            if (response.StatusCode == HttpStatusCode.OK)
-		//            {
-		//                string tip = response.Headers["X-HgR-Tip"];
-		//                _progress.WriteVerbose("Got remote tip: {0}", tip);
-		//                return tip.Trim();
-		//            }
-		//            if (response.StatusCode == HttpStatusCode.BadRequest && response.Headers["X-HgR-Status"] == "UNKNOWNID")
-		//            {
-		//                _progress.WriteWarning("The remote server {0} does not have repoId '{1}'", _targetLabel, _repo.Identifier);
-		//            }
-		//            _progress.WriteWarning("Failed to get remote tip for {0}", _repo.Identifier);
-		//            return "";
-		//        }
-		//        catch (WebException e)
-		//        {
-		//            if (attempt < 5)
-		//            {
-		//                _progress.WriteWarning("Unable to contact server.  Retrying... ({0} of {1} attempts).", attempt + 1, totalNumOfAttempts);
-		//                secondsBeforeTimeout += 3; // increment by 3 seconds
-		//            }
-		//            else
-		//            {
-		//                _progress.WriteWarning("Failed to contact server.");
-		//            }
-		//        }
-		//    }
-		//    return "";
-		//}
-
 		public void Push()
 		{
 			string baseRevision = GetCommonBaseHashWithRemoteRepo();
@@ -239,7 +196,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 			string transactionId = Guid.NewGuid().ToString();
 			int startOfWindow = 0;
-			int chunkSize = 10000; // size in bytes
+			int chunkSize = DefaultChunkSize; // size in bytes
 			var bundleFileInfo = new FileInfo(bundleHelper.BundlePath);
 			long bundleSize = bundleFileInfo.Length;
 
@@ -369,7 +326,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			return pushResponse;
 		}
 
-		private static string CalculateChecksum(byte[] textBytes)
+		internal static string CalculateChecksum(byte[] textBytes)
 		{
 
 			// lifted from http://www.spiration.co.uk/post/1203/MD5-in-C%23---works-like-php-md5%28%29-example
@@ -411,6 +368,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			do {
 				var response = PullOneChunk(requestParameters);
 				bundleSize = response.BundleSize;
+				chunkSize = response.ChunkSize;
 				if (response.Status == PullStatus.NoChange)
 				{
 					_progress.WriteVerbose("Pull operation reported no changes");
@@ -443,9 +401,8 @@ namespace Chorus.VcsDrivers.Mercurial
 		{
 			var secondsBeforeTimeout = 15;
 			const int totalNumOfAttempts = 5;
-			int chunkSize = Convert.ToInt32(parameters["chunkSize"]);
 			var pullResponse = new PullResponse();
-
+			int chunkSize = DefaultChunkSize;
 			for (var attempt = 1; attempt <= totalNumOfAttempts; attempt++)
 			{
 				if (_progress.CancelRequested)
@@ -469,15 +426,17 @@ namespace Chorus.VcsDrivers.Mercurial
 					// chunk pulled OK
 					if (response.StatusCode == HttpStatusCode.OK)
 					{
-						_progress.WriteStatus("Received {1}+{2} of {3} bytes", parameters["offset"], chunkSize, response.Headers["X-HgR-bundleSize"]);
+						int actualChunkSize = Convert.ToInt32(response.Headers["X-HgR-chunkSize"]);
+						_progress.WriteStatus("Received {0}+{1} of {2} bytes", parameters["offset"], actualChunkSize, response.Headers["X-HgR-bundleSize"]);
 						pullResponse.Checksum = response.Headers["X-HgR-checksum"];
 						pullResponse.BundleSize = Convert.ToInt32(response.Headers["X-HgR-bundleSize"]);
 						pullResponse.Status = PullStatus.OK;
+						pullResponse.ChunkSize = chunkSize;
 
 						// verify checksum
 						if (CalculateChecksum(response.Content) != response.Headers["X-HgR-checksum"])
 						{
-							_progress.WriteWarning("Checksum failed while pulling {0} bytes of data at offset {1}", chunkSize, parameters["offset"]);
+							_progress.WriteWarning("Checksum failed while pulling {0} bytes of data at offset {1}", actualChunkSize, parameters["offset"]);
 							continue;
 						}
 

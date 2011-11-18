@@ -37,6 +37,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		public string Checksum;
 		public byte[] Chunk;
 		public PullStatus Status;
+		public int ChunkSize;
 	}
 
 	internal enum PullStatus
