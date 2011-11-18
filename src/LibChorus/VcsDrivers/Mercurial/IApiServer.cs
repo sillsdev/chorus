@@ -5,7 +5,15 @@ namespace Chorus.VcsDrivers.Mercurial
 {
 	public interface IApiServer
 	{
-		HttpWebResponse Execute(string method, IDictionary<string, string> parameters, int secondsBeforeTimeout = 10);
-		HttpWebResponse Execute(string method, IDictionary<string, string> parameters, string contentToSend, int secondsBeforeTimeout = 10);
+		HgResumeApiResponse Execute(string method, IDictionary<string, string> parameters, int secondsBeforeTimeout = 10);
+		HgResumeApiResponse Execute(string method, IDictionary<string, string> parameters, byte[] contentToSend, int secondsBeforeTimeout = 10);
+		string GetIdentifier();
+	}
+
+	public class HgResumeApiResponse
+	{
+		public Dictionary<string, string> Headers = new Dictionary<string, string>();
+		public HttpStatusCode StatusCode;
+		public byte[] Content;
 	}
 }

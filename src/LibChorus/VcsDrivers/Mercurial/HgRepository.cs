@@ -382,10 +382,11 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		public bool MakeBundle(string baseRevision, string filePath)
 		{
-			string command = string.Format("bundle --base {0} {1}", baseRevision, filePath);
+			string command = string.Format("bundle --base {0} \"{1}\"", baseRevision, filePath);
 			string result = GetTextFromQuery(command);
 			_progress.WriteVerbose("While creating bundle at {0} with base {1}: {2}", filePath, baseRevision, result.Trim());
-			if (File.Exists(filePath))
+			var theFile = new FileInfo(filePath);
+			if (theFile.Exists && theFile.Length > 0)
 			{
 				return true;
 			}
@@ -1862,7 +1863,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		public bool Unbundle(string bundlePath)
 		{
-			string command = string.Format("unbundle -u {0}", bundlePath);
+			string command = string.Format("unbundle -u \"{0}\"", bundlePath);
 			string result = GetTextFromQuery(command);
 			if (result.Contains("files updated"))
 			{

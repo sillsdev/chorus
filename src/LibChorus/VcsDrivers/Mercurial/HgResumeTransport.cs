@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
+using System.Text;
+using System.Text.RegularExpressions;
 using Chorus.Utilities;
 using Palaso.Progress.LogBox;
 using Palaso.TestUtilities;
@@ -15,6 +18,8 @@ namespace Chorus.VcsDrivers.Mercurial
 		private string _targetLabel;
 		private IApiServer _apiServer;
 
+		///<summary>
+		///</summary>
 		public HgResumeTransport(HgRepository repo, string targetLabel, IApiServer apiServer, IProgress progress)
 		{
 			_repo = repo;
@@ -23,7 +28,96 @@ namespace Chorus.VcsDrivers.Mercurial
 			_progress = progress;
 		}
 
-		private string GetRemoteTip()
+		///<summary>
+		/// Implements a simple file-based key:value db.  Should be replaced by something better in the future.  Stores the last known common base for a given api server
+		/// File DB is line separated list of "remoteId|hash" pairs
+		///</summary>
+		private string LastKnownCommonBase
+		{
+			get
+			{
+				string filePath = Path.Combine(_repo.PathToRepo, "remoteRepo.db");
+				if (File.Exists(filePath))
+				{
+					string[] dbFileContents = File.ReadAllLines(filePath);
+					string remoteId = _apiServer.GetIdentifier();
+					var db = dbFileContents.Select(i => i.Split('|'));
+					var result = db.Where(x => x[0] == remoteId);
+					if (result.Count() > 0)
+					{
+						return result.First()[1];
+					}
+				}
+				return "";
+			}
+			set
+			{
+				if (String.IsNullOrEmpty(value)) return;
+
+				string filePath = Path.Combine(_repo.PathToRepo, "remoteRepo.db");
+				string remoteId = _apiServer.GetIdentifier();
+				if (!File.Exists(filePath))
+				{
+					// this is the first time "set" has been called.  Write value and exit.
+					File.WriteAllText(filePath, remoteId + "|" + value);
+					return;
+				}
+
+				var dbFileContents = File.ReadAllLines(filePath);
+				var db = dbFileContents.Select(i => i.Split('|'));
+				var result = db.Where(x => x[0] == remoteId);
+				if (result.Count() > 0)
+				{
+					string oldRev = result.Single()[1];
+					if (oldRev == value)
+					{
+						return;
+					}
+					int indexToChange = Array.IndexOf(dbFileContents, remoteId + "|" + oldRev);
+					dbFileContents[indexToChange] = remoteId + "|" + value;
+				} else
+				{
+					var dbFileContentsAsList = dbFileContents.ToList();
+					dbFileContentsAsList.Add(remoteId + "|" + value);
+					dbFileContents = dbFileContentsAsList.ToArray();
+				}
+				File.WriteAllLines(filePath, dbFileContents);
+			}
+		}
+
+		private string GetCommonBaseHashWithRemoteRepo()
+		{
+			if (!string.IsNullOrEmpty(LastKnownCommonBase))
+			{
+				return LastKnownCommonBase;
+			}
+			int offset = 0;
+			const int quantity = 200;
+			IEnumerable<string> localRevisions = _repo.GetAllRevisions().Select(rev => rev.Number.Hash);
+			string commonBase = "";
+			while (string.IsNullOrEmpty(commonBase))
+			{
+				var remoteRevisions = GetRemoteRevisions(offset, quantity);
+				foreach (var rev in remoteRevisions)
+				{
+					if (localRevisions.Contains(rev))
+					{
+						commonBase = rev;
+						break;
+					}
+				}
+				if (string.IsNullOrEmpty(commonBase) && remoteRevisions.Count() < quantity)
+				{
+					commonBase = localRevisions.Last();
+				}
+				offset += quantity;
+			}
+			LastKnownCommonBase = commonBase;
+			return commonBase;
+		}
+
+
+		private IEnumerable<string> GetRemoteRevisions(int offset, int quantity)
 		{
 			int secondsBeforeTimeout = 5;
 			const int totalNumOfAttempts = 5;
@@ -35,23 +129,27 @@ namespace Chorus.VcsDrivers.Mercurial
 				}
 				try
 				{
-					using (HttpWebResponse response = _apiServer.Execute("getTip", new Dictionary<string, string> {{ "repoId", _repo.Identifier }}, secondsBeforeTimeout))
+					var response = _apiServer.Execute("getRevisions",
+													  new Dictionary<string, string>
+														  {
+															  { "repoId", _repo.Identifier },
+															  {"offset", offset.ToString()},
+															  {"quantity", quantity.ToString()}
+														  },
+													  secondsBeforeTimeout);
+					// API returns either 200 OK or 400 Bad Request
+					// HgR status can be: SUCCESS (200), FAIL (400) or UNKNOWNID (400)
+					if (response.StatusCode == HttpStatusCode.OK)
 					{
-						// API returns either 200 OK or 400 Bad Request
-						// HgR status can be: SUCCESS (200), FAIL (400) or UNKNOWNID (400)
-						if (response.StatusCode == HttpStatusCode.OK)
-						{
-							string tip = response.GetResponseHeader("X-HgR-Tip");
-							_progress.WriteVerbose("Got remote tip: {0}", tip);
-							return tip.Trim();
-						}
-						if (response.GetResponseHeader("X-HgR-Status") == "UNKNOWNID")
-						{
-							_progress.WriteWarning("The remote server {0} does not have repoId '{1}'", _targetLabel, _repo.Identifier);
-						}
-						_progress.WriteWarning("Failed to get remote tip.", _repo.Identifier);
-						return "";
+						string revString = Encoding.UTF8.GetString(response.Content);
+						return revString.Split('|').ToList();
 					}
+					if (response.StatusCode == HttpStatusCode.BadRequest && response.Headers["X-HgR-Status"] == "UNKNOWNID")
+					{
+						_progress.WriteWarning("The remote server {0} does not have repoId '{1}'", _targetLabel, _repo.Identifier);
+					}
+					_progress.WriteWarning("Failed to get remote revisions for {0}", _repo.Identifier);
+					return new List<string>();
 				}
 				catch (WebException e)
 				{
@@ -66,27 +164,76 @@ namespace Chorus.VcsDrivers.Mercurial
 					}
 				}
 			}
-			return "";
+			return new List<string>();
 		}
+
+		// This method has been replaced by GetRemoteRevisions... get rid of it
+		//private string GetRemoteTip()
+		//{
+		//    int secondsBeforeTimeout = 5;
+		//    const int totalNumOfAttempts = 5;
+		//    for (int attempt = 1; attempt <= totalNumOfAttempts; attempt++)
+		//    {
+		//        if (_progress.CancelRequested)
+		//        {
+		//            throw new UserCancelledException();
+		//        }
+		//        try
+		//        {
+		//            var response = _apiServer.Execute("getTip",
+		//                                              new Dictionary<string, string> {{"repoId", _repo.Identifier}},
+		//                                              secondsBeforeTimeout);
+		//            // API returns either 200 OK or 400 Bad Request
+		//            // HgR status can be: SUCCESS (200), FAIL (400) or UNKNOWNID (400)
+		//            if (response.StatusCode == HttpStatusCode.OK)
+		//            {
+		//                string tip = response.Headers["X-HgR-Tip"];
+		//                _progress.WriteVerbose("Got remote tip: {0}", tip);
+		//                return tip.Trim();
+		//            }
+		//            if (response.StatusCode == HttpStatusCode.BadRequest && response.Headers["X-HgR-Status"] == "UNKNOWNID")
+		//            {
+		//                _progress.WriteWarning("The remote server {0} does not have repoId '{1}'", _targetLabel, _repo.Identifier);
+		//            }
+		//            _progress.WriteWarning("Failed to get remote tip for {0}", _repo.Identifier);
+		//            return "";
+		//        }
+		//        catch (WebException e)
+		//        {
+		//            if (attempt < 5)
+		//            {
+		//                _progress.WriteWarning("Unable to contact server.  Retrying... ({0} of {1} attempts).", attempt + 1, totalNumOfAttempts);
+		//                secondsBeforeTimeout += 3; // increment by 3 seconds
+		//            }
+		//            else
+		//            {
+		//                _progress.WriteWarning("Failed to contact server.");
+		//            }
+		//        }
+		//    }
+		//    return "";
+		//}
 
 		public void Push()
 		{
-			string tip = GetRemoteTip();
-			if (String.IsNullOrEmpty(tip))
+			string baseRevision = GetCommonBaseHashWithRemoteRepo();
+			if (String.IsNullOrEmpty(baseRevision))
 			{
+				_progress.WriteError("Push operation failed");
 				return;
 			}
 
 
 			// create a bundle to push
 			var bundleHelper = new PushBundleHelper();
-			bool bundleExists = _repo.MakeBundle(tip, bundleHelper.BundlePath);
+			bool bundleExists = _repo.MakeBundle(baseRevision, bundleHelper.BundlePath);
 			if (!bundleExists)
 			{
 				// TODO: how should I report problems???  Using WriteError, WriteException, or WriteWarning????
 				// Should errors be "user-friendly" or contain technical details?
 
 				_progress.WriteError("Unable to create bundle for Push");
+				_progress.WriteError("Push operation failed");
 				return;
 			}
 
@@ -109,7 +256,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				var requestParameters = new Dictionary<string, string>
 											{
 												{"repoId", _repo.Identifier},
-												{"baseHash", tip},
+												{"baseHash", baseRevision},
 												{"bundleSize", bundleSize.ToString()},
 												{"checksum", CalculateChecksum(bundleChunk)},
 												{"offset", startOfWindow.ToString()},
@@ -123,12 +270,14 @@ namespace Chorus.VcsDrivers.Mercurial
 					// TODO: update progress bar to 100% ?
 					_progress.WriteVerbose("Push operation completed successfully");
 
+					// update our local knowledge of what the server has
+					LastKnownCommonBase = _repo.GetTip().Number.Hash;
 					FinishPush(transactionId);
 					return;
 				}
 				if (response.Status == PushStatus.Fail)
 				{
-					_progress.WriteError("Push operation failed.");
+					_progress.WriteError("Push operation failed");
 					return;
 				}
 			} while (startOfWindow < bundleSize);
@@ -136,7 +285,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		private void FinishPush(string transactionId)
 		{
-			_apiServer.Execute("pushBundleChunk", new Dictionary<string, string> {{"transId", transactionId}}, 20);
+			_apiServer.Execute("finishPushBundle", new Dictionary<string, string> {{"transId", transactionId}}, 20);
 		}
 
 		private PushResponse PushOneChunk(Dictionary<string, string> parameters, byte[] dataToPush)
@@ -155,45 +304,47 @@ namespace Chorus.VcsDrivers.Mercurial
 				}
 				try
 				{
-					_progress.WriteStatus("Sending {0} of {1} bytes", parameters["offset"], parameters["bundleSize"]);
-					using (HttpWebResponse response = _apiServer.Execute("pushBundleChunk", parameters, secondsBeforeTimeout))
+					string retryMsg = (attempt > 1) ? "Retrying s" : "S";
+					_progress.WriteStatus("{0}ending {1}+{2} of {3} bytes", retryMsg, Convert.ToInt32(parameters["offset"]), chunkSize, parameters["bundleSize"]);
+					var response = _apiServer.Execute("pushBundleChunk", parameters, dataToPush, secondsBeforeTimeout);
+					/* API returns the following HTTP codes:
+						* 200 OK (SUCCESS)
+						* 202 Accepted (RECEIVED)
+						* 412 Precondition Failed (RESEND)
+						* 400 Bad Request (FAIL, UNKNOWNID, and RESET)
+						*/
+
+					// the chunk was received successfully
+					if (response.StatusCode == HttpStatusCode.Accepted)
 					{
-						/* API returns the following HTTP codes:
-						 * 200 OK (SUCCESS)
-						 * 202 Accepted (RECEIVED)
-						 * 412 Precondition Failed (RESEND)
-						 * 400 Bad Request (FAIL, UNKNOWNID, and RESET)
-						 */
+						pushResponse.StartOfWindow = Convert.ToInt32(response.Headers["X-HgR-sow"]);
+						pushResponse.Status = PushStatus.Received;
+						return pushResponse;
+					}
 
-						// the chunk was received successfully
-						if (response.StatusCode == HttpStatusCode.Accepted)
-						{
-							pushResponse.StartOfWindow = Convert.ToInt32(response.GetResponseHeader("X-HgR-offset"));
-							pushResponse.Status = PushStatus.Received;
-							return pushResponse;
-						}
+					// the final chunk was received successfully
+					if (response.StatusCode == HttpStatusCode.OK)
+					{
+						pushResponse.Status = PushStatus.Complete;
+						return pushResponse;
+					}
 
-						// the final chunk was received successfully
-						if (response.StatusCode == HttpStatusCode.OK)
-						{
-							pushResponse.Status = PushStatus.Complete;
-							return pushResponse;
-						}
-
-						// checksum failed
-						if (response.StatusCode == HttpStatusCode.PreconditionFailed)
-						{
-							// resend the data
-							_progress.WriteWarning("Checksum failed while pushing {0} bytes of data at offset {1}", chunkSize, parameters["offset"]);
-							continue;
-						}
-						if (response.GetResponseHeader("X-HgR-Status") == "UNKNOWNID")
+					// checksum failed
+					if (response.StatusCode == HttpStatusCode.PreconditionFailed)
+					{
+						// resend the data
+						_progress.WriteWarning("Checksum failed while pushing {0} bytes of data at offset {1}", chunkSize, parameters["offset"]);
+						continue;
+					}
+					if (response.StatusCode == HttpStatusCode.BadRequest)
+					{
+						if (response.Headers["X-HgR-Status"] == "UNKNOWNID")
 						{
 							_progress.WriteWarning("The server {0} does not have repoId '{1}'", _targetLabel, _repo.Identifier);
 							pushResponse.Status = PushStatus.Fail;
 							return pushResponse;
 						}
-						if (response.GetResponseHeader("X-HgR-Status") == "RESET")
+						if (response.Headers["X-HgR-Status"] == "RESET")
 						{
 							_progress.WriteWarning("All chunks were pushed to the server, but the unbundle operation failed.  Restarting the push operation...");
 							pushResponse.Status = PushStatus.Reset;
@@ -201,6 +352,7 @@ namespace Chorus.VcsDrivers.Mercurial
 							return pushResponse;
 						}
 					}
+					_progress.WriteWarning("Invalid Server Response '{0}'", response.StatusCode);
 				}
 				catch (WebException e)
 				{
@@ -243,7 +395,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			string transactionId = Guid.NewGuid().ToString();
 			int startOfWindow = 0;
 			int chunkSize = 10000; // size in bytes
-			int bundleSize = 0;
+			int bundleSize;
 
 			/* API parameters
 			 * $repoId, $baseHash, $offset, $chunkSize, $transId
@@ -272,7 +424,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				}
 				else
 				{
-					_progress.WriteError("Pull-one-chunk operation failed.");
+					_progress.WriteError("Pull operation failed");
 					return false;
 				}
 			} while (startOfWindow < bundleSize);
@@ -283,6 +435,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				return true;
 			}
 			_progress.WriteError("Received all data but local unbundle operation failed!");
+			_progress.WriteError("Pull operation failed");
 			return false;
 		}
 
@@ -301,54 +454,43 @@ namespace Chorus.VcsDrivers.Mercurial
 				}
 				try
 				{
-					_progress.WriteStatus("Receiving {0} of {1} bytes", parameters["offset"], parameters["bundleSize"]);
-					using (HttpWebResponse response = _apiServer.Execute("pullBundleChunk", parameters, secondsBeforeTimeout))
+					if (attempt > 1)
 					{
-						/* API returns the following HTTP codes:
-						 * 200 OK (SUCCESS)
-						 * 304 Not Modified (NOCHANGE)
-						 * 400 Bad Request (FAIL, UNKNOWNID)
-						 */
-
-						// chunk pulled OK
-						if (response.StatusCode == HttpStatusCode.OK)
-						{
-							pullResponse.StartOfWindow = Convert.ToInt32(response.GetResponseHeader("X-HgR-offset"));
-							pullResponse.Checksum = response.GetResponseHeader("X-HgR-checksum");
-							pullResponse.BundleSize = Convert.ToInt32(response.GetResponseHeader("X-HgR-bundleSize"));
-							pullResponse.Status = PullStatus.OK;
-
-							// read chunk data
-							// customized from Paratext's GetStreaming method in their RESTClient.cs
-							var chunkData = new byte[chunkSize];
-							var responseStream = response.GetResponseStream();
-							int offset = 0;
-							int bytesRead;
-							do
-							{
-								bytesRead = responseStream.Read(chunkData, offset,
-																	Math.Min(chunkData.Length - offset, chunkSize));
-								offset += bytesRead;
-							} while (bytesRead > 0 && offset < chunkSize);
-
-
-							// verify checksum
-							if (CalculateChecksum(chunkData) != response.GetResponseHeader("X-HgR-checksum"))
-							{
-								_progress.WriteWarning("Checksum failed while pulling {0} bytes of data at offset {1}", chunkSize, parameters["offset"]);
-								continue;
-							}
-
-							pullResponse.Chunk = chunkData;
-							return pullResponse;
-						}
-						if (response.GetResponseHeader("X-HgR-Status") == "UNKNOWNID")
-						{
-							_progress.WriteWarning("The server {0} does not have repoId '{1}'", _targetLabel, _repo.Identifier);
-							pullResponse.Status = PullStatus.Fail;
-							return pullResponse;
-						}
+						_progress.WriteStatus("Retrying pull operation...");
 					}
+
+					var response = _apiServer.Execute("pullBundleChunk", parameters, secondsBeforeTimeout);
+					/* API returns the following HTTP codes:
+						* 200 OK (SUCCESS)
+						* 304 Not Modified (NOCHANGE)
+						* 400 Bad Request (FAIL, UNKNOWNID)
+						*/
+
+					// chunk pulled OK
+					if (response.StatusCode == HttpStatusCode.OK)
+					{
+						_progress.WriteStatus("Received {1}+{2} of {3} bytes", parameters["offset"], chunkSize, response.Headers["X-HgR-bundleSize"]);
+						pullResponse.Checksum = response.Headers["X-HgR-checksum"];
+						pullResponse.BundleSize = Convert.ToInt32(response.Headers["X-HgR-bundleSize"]);
+						pullResponse.Status = PullStatus.OK;
+
+						// verify checksum
+						if (CalculateChecksum(response.Content) != response.Headers["X-HgR-checksum"])
+						{
+							_progress.WriteWarning("Checksum failed while pulling {0} bytes of data at offset {1}", chunkSize, parameters["offset"]);
+							continue;
+						}
+
+						pullResponse.Chunk = response.Content;
+						return pullResponse;
+					}
+					if (response.StatusCode == HttpStatusCode.BadRequest && response.Headers["X-HgR-Status"] == "UNKNOWNID")
+					{
+						_progress.WriteWarning("The server {0} does not have repoId '{1}'", _targetLabel, _repo.Identifier);
+						pullResponse.Status = PullStatus.Fail;
+						return pullResponse;
+					}
+					_progress.WriteWarning("Invalid Server Response '{0}'", response.StatusCode);
 				}
 				catch (WebException e)
 				{

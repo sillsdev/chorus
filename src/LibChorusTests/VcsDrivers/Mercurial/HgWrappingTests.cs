@@ -354,7 +354,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				var path = setup.Root.GetNewTempFile(true).Path;
 				File.WriteAllText(path, "original");
 				setup.Repository.AddAndCheckinFile(path);
-				string bundleFilePath = setup.Root.GetNewTempFile(true).Path;
+				string bundleFilePath = setup.Root.GetNewTempFile(false).Path;
 				Assert.That(setup.Repository.MakeBundle("fakehashstring", bundleFilePath), Is.False);
 				Assert.That(File.Exists(bundleFilePath), Is.False);
 			}
@@ -380,23 +380,37 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		[Test]
 		public void Unbundle_ValidBundleFile_ReturnsTrue()
 		{
-			throw new NotImplementedException();
+			using (var setup = new RepositorySetup("unbundleTests"))
+			{
+				var bundleFilePath = setup.RootFolder.GetNewTempFile(false).Path;
+				setup.AddAndCheckinFile(setup.ProjectFolder.GetNewTempFile(true).Path, "some file we don't care about");
+				var hash = setup.Repository.GetTip().Number.Hash;
+				setup.AddAndCheckinFile(setup.ProjectFolder.GetNewTempFile(true).Path, "another file we don't care about");
+				setup.Repository.MakeBundle(hash, bundleFilePath);
+				setup.Repository.RollbackWorkingDirectoryToLastCheckin();
+				Assert.That(setup.Repository.Unbundle(bundleFilePath), Is.True);
+			}
 		}
 
 		[Test]
 		public void Unbundle_BadPath_ReturnsFalse()
 		{
-			throw new NotImplementedException();
+			using (var setup = new RepositorySetup("unbundleTests"))
+			{
+				var bundleFilePath = "bad file path";
+				Assert.That(setup.Repository.Unbundle(bundleFilePath), Is.False);
+			}
 		}
 
 		[Test]
 		public void Unbundle_BadBundleFile_ReturnsFalse()
 		{
-			throw new NotImplementedException();
+			using (var setup = new RepositorySetup("unbundleTests"))
+			{
+				var bundleFilePath = setup.RootFolder.GetNewTempFile(false).Path;
+				File.WriteAllText(bundleFilePath, "bogus bundle file contents");
+				Assert.That(setup.Repository.Unbundle(bundleFilePath), Is.False);
+			}
 		}
-
-
 	}
-
-
 }
