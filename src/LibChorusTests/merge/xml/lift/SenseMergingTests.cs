@@ -50,7 +50,7 @@ namespace LibChorus.Tests.merge.xml.lift
 									{EventListener = listener};
 				XmlMergeService.Do3WayMerge(mergeOrder, new LiftEntryMergingStrategy(situation),
 					"header",
-					"entry", "id", LiftFileHandler.WritePreliminaryInformation);
+					"entry", "guid", LiftFileHandler.WritePreliminaryInformation);
 				//this doesn't seem particular relevant, but senses are, in fact, ordered, so there is some ambiguity here
 				Assert.AreEqual(typeof(AmbiguousInsertConflict), listener.Conflicts[0].GetType());
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
@@ -104,7 +104,7 @@ namespace LibChorus.Tests.merge.xml.lift
 				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation) { EventListener = listener };
 				XmlMergeService.Do3WayMerge(mergeOrder, new LiftEntryMergingStrategy(situation),
 					"header",
-					"entry", "id", LiftFileHandler.WritePreliminaryInformation);
+					"entry", "guid", LiftFileHandler.WritePreliminaryInformation);
 				var conflict = listener.Conflicts[0];
 				AssertConflictType<BothEditedTextConflict>(conflict);
 				const string expectedContext = "lift://unknown?type=entry&id=F169EB3D-16F2-4eb0-91AA-FDB91636F8F6";

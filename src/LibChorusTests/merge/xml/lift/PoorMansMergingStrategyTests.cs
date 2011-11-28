@@ -16,7 +16,7 @@ namespace LibChorus.Tests.merge.xml.lift
 		{
 			const string ours = @"<?xml version='1.0' encoding='utf-8'?>
 					<lift version='0.10' producer='WeSay 1.0.0.0'>
-						<entry id='lexicalformcollission'>
+						<entry id='lexicalformcollission' guid='c1ed1fa7-e382-11de-8a39-0800200c9a66' >
 							<lexical-unit>
 								<form lang='x'>
 									<text>ours</text>
@@ -27,7 +27,7 @@ namespace LibChorus.Tests.merge.xml.lift
 
 			const string theirs = @"<?xml version='1.0' encoding='utf-8'?>
 					<lift version='0.10' producer='WeSay 1.0.0.0'>
-						<entry id='lexicalformcollission'>
+						<entry id='lexicalformcollission' guid='c1ed1fa7-e382-11de-8a39-0800200c9a66' >
 							<lexical-unit>
 								<form lang='x'>
 									<text>theirs</text>
@@ -37,7 +37,7 @@ namespace LibChorus.Tests.merge.xml.lift
 					</lift>";
 			const string ancestor = @"<?xml version='1.0' encoding='utf-8'?>
 					<lift version='0.10' producer='WeSay 1.0.0.0'>
-						<entry id='lexicalformcollission'/>
+						<entry id='lexicalformcollission' guid='c1ed1fa7-e382-11de-8a39-0800200c9a66' />
 					</lift>";
 
 			using (var oursTemp = new TempFile(ours))
@@ -49,7 +49,7 @@ namespace LibChorus.Tests.merge.xml.lift
 				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation) { EventListener = listener };
 				XmlMergeService.Do3WayMerge(mergeOrder, new PoorMansMergeStrategy(),
 					"header",
-					"entry", "id", LiftFileHandler.WritePreliminaryInformation);
+					"entry", "guid", LiftFileHandler.WritePreliminaryInformation);
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
 				XmlTestHelper.AssertXPathMatchesExactlyOne(result, "lift/entry[@id='lexicalformcollission']");
 				XmlTestHelper.AssertXPathMatchesExactlyOne(result, "lift/entry");//just one
@@ -63,7 +63,7 @@ namespace LibChorus.Tests.merge.xml.lift
 		{
 			const string ours = @"<?xml version='1.0' encoding='utf-8'?>
 					<lift version='0.10' producer='WeSay 1.0.0.0'>
-						<entry id='test'>
+						<entry id='test' guid='c1ed1fa8-e382-11de-8a39-0800200c9a66' >
 							<sense>
 								 <gloss lang='a'>
 									<text>ourSense</text>
@@ -74,7 +74,7 @@ namespace LibChorus.Tests.merge.xml.lift
 
 			const string theirs = @"<?xml version='1.0' encoding='utf-8'?>
 					<lift version='0.10' producer='WeSay 1.0.0.0'>
-						<entry id='test'>
+						<entry id='test' guid='c1ed1fa8-e382-11de-8a39-0800200c9a66' >
 							<sense>
 								 <gloss lang='a'>
 									<text>theirSense</text>
@@ -84,7 +84,7 @@ namespace LibChorus.Tests.merge.xml.lift
 					</lift>";
 			const string ancestor = @"<?xml version='1.0' encoding='utf-8'?>
 					<lift version='0.10' producer='WeSay 1.0.0.0'>
-						<entry id='test'/>
+						<entry id='test' guid='c1ed1fa8-e382-11de-8a39-0800200c9a66' />
 					</lift>";
 
 			using (var oursTemp = new TempFile(ours))
@@ -96,7 +96,7 @@ namespace LibChorus.Tests.merge.xml.lift
 				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation) { EventListener = listener };
 				XmlMergeService.Do3WayMerge(mergeOrder, new LiftEntryMergingStrategy(situation),
 					"header",
-					"entry", "id", LiftFileHandler.WritePreliminaryInformation);
+					"entry", "guid", LiftFileHandler.WritePreliminaryInformation);
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
 				XmlTestHelper.AssertXPathMatchesExactlyOne(result, "lift/entry[@id='test']");
 				XmlTestHelper.AssertXPathMatchesExactlyOne(result, "lift/entry[@id='test' and sense/gloss/text='ourSense']");

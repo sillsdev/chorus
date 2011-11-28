@@ -36,9 +36,9 @@ namespace LibChorus.Tests.merge.xml.lift
 			*/
 			_ours = @"<?xml version='1.0' encoding='utf-8'?>
 					<lift version='0.10' producer='WeSay 1.0.0.0'>
-						<entry id='usOnly'/>
-						<entry id='doomedByOther'/>
-						<entry id='brewingConflict'>
+						<entry id='usOnly' guid='c1ecf892-e382-11de-8a39-0800200c9a66' />
+						<entry id='doomedByOther' guid='c1ecf893-e382-11de-8a39-0800200c9a66' />
+						<entry id='brewingConflict' guid='c1ecf894-e382-11de-8a39-0800200c9a66' >
 							<sense>
 								 <gloss lang='a'>
 									<text>us</text>
@@ -49,16 +49,16 @@ namespace LibChorus.Tests.merge.xml.lift
 
 			_theirs = @"<?xml version='1.0' encoding='utf-8'?>
 					<lift version='0.10' producer='WeSay 1.0.0.0'>
-						<entry id='themOnly'>
+						<entry id='themOnly' guid='c1ecf895-e382-11de-8a39-0800200c9a66' >
 							<lexical-unit>
 								<form lang='b'>
 									<text>form b</text>
 								</form>
 							</lexical-unit>
 						 </entry>
-						<entry id='doomedByUs'/>
+						<entry id='doomedByUs' guid='c1ecf896-e382-11de-8a39-0800200c9a66' />
 
-						<entry id='brewingConflict'>
+						<entry id='brewingConflict' guid='c1ecf894-e382-11de-8a39-0800200c9a66' >
 							<sense>
 								 <gloss lang='a'>
 									<text>them</text>
@@ -69,9 +69,9 @@ namespace LibChorus.Tests.merge.xml.lift
 					</lift>";
 			_ancestor = @"<?xml version='1.0' encoding='utf-8'?>
 					<lift version='0.10' producer='WeSay 1.0.0.0'>
-						<entry id='doomedByOther'/>
-						<entry id='doomedByUs'/>
-						<entry id='brewingConflict'>
+						<entry id='doomedByOther' guid='c1ecf893-e382-11de-8a39-0800200c9a66' />
+						<entry id='doomedByUs' guid='c1ecf896-e382-11de-8a39-0800200c9a66' />
+						<entry id='brewingConflict' guid='c1ecf894-e382-11de-8a39-0800200c9a66' >
 							<sense>
 								 <gloss lang='a'>
 									<text>original</text>
@@ -93,7 +93,7 @@ namespace LibChorus.Tests.merge.xml.lift
 				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation) { EventListener = listener };
 				XmlMergeService.Do3WayMerge(mergeOrder, new DropTheirsMergeStrategy(),
 					"header",
-					"entry", "id", LiftFileHandler.WritePreliminaryInformation);
+					"entry", "guid", LiftFileHandler.WritePreliminaryInformation);
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
 				Assert.IsTrue(result.ToLower().Contains("utf-8"));
 			}
@@ -111,7 +111,7 @@ namespace LibChorus.Tests.merge.xml.lift
 				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation) { EventListener = listener };
 				XmlMergeService.Do3WayMerge(mergeOrder, new DropTheirsMergeStrategy(),
 					"header",
-					"entry", "id", LiftFileHandler.WritePreliminaryInformation);
+					"entry", "guid", LiftFileHandler.WritePreliminaryInformation);
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
 				XmlTestHelper.AssertXPathMatchesExactlyOne(result, "lift/entry[@id='usOnly']");
 			}
@@ -122,16 +122,16 @@ namespace LibChorus.Tests.merge.xml.lift
 		{
 			const string ancestor = @"<?xml version='1.0' encoding='utf-8'?>
 					<lift version='0.10' producer='WeSay 1.0.0.0'>
-						<entry id='commonOldie'/>
+						<entry id='commonOldie' guid='c1ecf897-e382-11de-8a39-0800200c9a66' />
 					</lift>";
 			const string ours = @"<?xml version='1.0' encoding='utf-8'?>
 					<lift version='0.10' producer='WeSay 1.0.0.0'>
-						<entry id='ourNew'/>
-						<entry id='commonOldie'/>
+						<entry id='ourNew' guid='c1ecf898-e382-11de-8a39-0800200c9a66' />
+						<entry id='commonOldie' guid='c1ecf897-e382-11de-8a39-0800200c9a66' />
 					</lift>";
 			const string theirs = @"<?xml version='1.0' encoding='utf-8'?>
 					<lift version='0.10' producer='WeSay 1.0.0.0'>
-						<entry id='commonOldie'/>
+						<entry id='commonOldie' guid='c1ecf897-e382-11de-8a39-0800200c9a66' />
 					</lift>";
 
 			using (var oursTemp = new TempFile(ours))
@@ -143,7 +143,7 @@ namespace LibChorus.Tests.merge.xml.lift
 				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation) { EventListener = listener };
 				XmlMergeService.Do3WayMerge(mergeOrder, new DropTheirsMergeStrategy(),
 					"header",
-					"entry", "id", LiftFileHandler.WritePreliminaryInformation);
+					"entry", "guid", LiftFileHandler.WritePreliminaryInformation);
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
 				XmlTestHelper.AssertXPathMatchesExactlyOne(result, "lift/entry[@id='ourNew']");
 				listener.AssertExpectedConflictCount(0);
@@ -157,16 +157,16 @@ namespace LibChorus.Tests.merge.xml.lift
 		{
 			const string ancestor = @"<?xml version='1.0' encoding='utf-8'?>
 					<lift version='0.10' producer='WeSay 1.0.0.0'>
-						<entry id='commonOldie'/>
+						<entry id='commonOldie' guid='c1ed1f90-e382-11de-8a39-0800200c9a66' />
 					</lift>";
 			const string ours = @"<?xml version='1.0' encoding='utf-8'?>
 					<lift version='0.10' producer='WeSay 1.0.0.0'>
-						<entry id='commonOldie'/>
+						<entry id='commonOldie' guid='c1ed1f90-e382-11de-8a39-0800200c9a66' />
 					</lift>";
 			const string theirs = @"<?xml version='1.0' encoding='utf-8'?>
 					<lift version='0.10' producer='WeSay 1.0.0.0'>
-						<entry id='commonOldie'/>
-						<entry id='theirNew'/>
+						<entry id='commonOldie' guid='c1ed1f90-e382-11de-8a39-0800200c9a66' />
+						<entry id='theirNew' guid='c1ed1f91-e382-11de-8a39-0800200c9a66' />
 					</lift>";
 
 			using (var oursTemp = new TempFile(ours))
@@ -178,7 +178,7 @@ namespace LibChorus.Tests.merge.xml.lift
 				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation) { EventListener = listener };
 				XmlMergeService.Do3WayMerge(mergeOrder, new DropTheirsMergeStrategy(),
 					"header",
-					"entry", "id", LiftFileHandler.WritePreliminaryInformation);
+					"entry", "guid", LiftFileHandler.WritePreliminaryInformation);
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
 				XmlTestHelper.AssertXPathMatchesExactlyOne(result, "lift/entry[@id='theirNew']");
 				listener.AssertExpectedConflictCount(0);
@@ -199,7 +199,7 @@ namespace LibChorus.Tests.merge.xml.lift
 				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation) { EventListener = listener };
 				XmlMergeService.Do3WayMerge(mergeOrder, new DropTheirsMergeStrategy(),
 					"header",
-					"entry", "id", LiftFileHandler.WritePreliminaryInformation);
+					"entry", "guid", LiftFileHandler.WritePreliminaryInformation);
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
 				XmlTestHelper.AssertXPathMatchesExactlyOne(result, "lift/entry[@id='themOnly']");
 			}
@@ -210,7 +210,7 @@ namespace LibChorus.Tests.merge.xml.lift
 		{
 			const string all = @"<?xml version='1.0' encoding='utf-8'?>
 					<lift version='0.10' producer='WeSay 1.0.0.0'>
-						<entry id='sameInBoth'>
+						<entry id='sameInBoth' guid='c1ed1f92-e382-11de-8a39-0800200c9a66' >
 							<lexical-unit>
 								<form lang='a'>
 									<text>form a</text>
@@ -228,7 +228,7 @@ namespace LibChorus.Tests.merge.xml.lift
 				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation) { EventListener = listener };
 				XmlMergeService.Do3WayMerge(mergeOrder, new DropTheirsMergeStrategy(),
 					"header",
-					"entry", "id", LiftFileHandler.WritePreliminaryInformation);
+					"entry", "guid", LiftFileHandler.WritePreliminaryInformation);
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
 				XmlTestHelper.AssertXPathMatchesExactlyOne(result, "lift/entry[@id='sameInBoth']");
 				XmlTestHelper.AssertXPathMatchesExactlyOne(result, "lift/entry/lexical-unit");
@@ -248,7 +248,7 @@ namespace LibChorus.Tests.merge.xml.lift
 				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation) { EventListener = listener };
 				XmlMergeService.Do3WayMerge(mergeOrder, new DropTheirsMergeStrategy(),
 					"header",
-					"entry", "id", LiftFileHandler.WritePreliminaryInformation);
+					"entry", "guid", LiftFileHandler.WritePreliminaryInformation);
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
 				XmlTestHelper.AssertXPathMatchesExactlyOne(result, "lift[not(entry/@id='doomedByOther')]");
 			}
@@ -266,7 +266,7 @@ namespace LibChorus.Tests.merge.xml.lift
 				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation) { EventListener = listener };
 				XmlMergeService.Do3WayMerge(mergeOrder, new PoorMansMergeStrategy(),
 					"header",
-					"entry", "id", LiftFileHandler.WritePreliminaryInformation);
+					"entry", "guid", LiftFileHandler.WritePreliminaryInformation);
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
 				XmlTestHelper.AssertXPathMatchesExactlyOne(result, "lift[not(entry/@id='doomedByUs')]");
 			}
@@ -277,7 +277,7 @@ namespace LibChorus.Tests.merge.xml.lift
 		{
 			const string template = @"<?xml version='1.0' encoding='utf-8'?>
 					<lift version='0.10' producer='WeSay 1.0.0.0'>
-						<entry id='blah' guid='blah' dateModified='theDate'/>
+						<entry id='blah' guid='c1ed1f93-e382-11de-8a39-0800200c9a66' dateModified='theDate'/>
 					</lift>";
 
 			using (var oursTemp = new TempFile(template.Replace("theDate", "2009-07-08T01:47:02Z")))
@@ -289,7 +289,7 @@ namespace LibChorus.Tests.merge.xml.lift
 				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation) { EventListener = listener };
 				XmlMergeService.Do3WayMerge(mergeOrder, new LiftEntryMergingStrategy(situation),
 					"header",
-					"entry", "id", LiftFileHandler.WritePreliminaryInformation);
+					"entry", "guid", LiftFileHandler.WritePreliminaryInformation);
 				Assert.AreEqual(0, listener.Conflicts.Count);
 				Assert.AreEqual(0, listener.Changes.Count);
 			}
@@ -300,7 +300,7 @@ namespace LibChorus.Tests.merge.xml.lift
 		{
 			const string template = @"<?xml version='1.0' encoding='utf-8'?>
 					<lift version='0.10' producer='WeSay 1.0.0.0'>
-						<entry id='blah' guid='blah' dateModified='theDate'>
+						<entry id='blah' guid='c1ed1f94-e382-11de-8a39-0800200c9a66' dateModified='theDate'>
 						   <lexical-unit>
 								<form lang='a'>
 									<text>theForm</text>
@@ -318,7 +318,7 @@ namespace LibChorus.Tests.merge.xml.lift
 				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation) { EventListener = listener };
 				XmlMergeService.Do3WayMerge(mergeOrder, new LiftEntryMergingStrategy(situation),
 					"header",
-					"entry", "id", LiftFileHandler.WritePreliminaryInformation);
+					"entry", "guid", LiftFileHandler.WritePreliminaryInformation);
 				Assert.AreEqual(1, listener.Conflicts.Count);
 				listener.AssertFirstConflictType<BothEditedTextConflict>();
 				listener.AssertExpectedConflictCount(1);
@@ -331,11 +331,11 @@ namespace LibChorus.Tests.merge.xml.lift
 		{
 			const string ours = @"<?xml version='1.0' encoding='utf-8'?>
 					<lift version='0.10' producer='WeSay 1.0.0.0'>
-						<entry id='usOnly'/>
+						<entry id='usOnly' guid='c1ed1f95-e382-11de-8a39-0800200c9a66' />
 					</lift>";
 			const string theirs = @"<?xml version='1.0' encoding='utf-8'?>
 					<lift version='0.10' producer='WeSay 1.0.0.0'>
-						<entry id='themOnly'/>
+						<entry id='themOnly' guid='c1ed1f96-e382-11de-8a39-0800200c9a66' />
 					</lift>";
 			const string ancestor = @"<lift version='0.12'></lift>";
 			using (var oursTemp = new TempFile(ours))
@@ -347,7 +347,7 @@ namespace LibChorus.Tests.merge.xml.lift
 				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation) { EventListener = listener };
 				XmlMergeService.Do3WayMerge(mergeOrder, new PoorMansMergeStrategy(),
 					"header",
-					"entry", "id", LiftFileHandler.WritePreliminaryInformation);
+					"entry", "guid", LiftFileHandler.WritePreliminaryInformation);
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
 				// REVIEW JohnT(RandyR): Should new entries from 'loser' register an addition change?
 				XmlTestHelper.AssertXPathMatchesExactlyOne(result, "lift[entry/@id='usOnly']");
@@ -361,14 +361,14 @@ namespace LibChorus.Tests.merge.xml.lift
 			// Old Style means the deleted entry was just marked as deleted with the dateDeleted attr.
 			const string ancestor = @"<?xml version='1.0' encoding='utf-8'?>
 					<lift version='0.10' producer='WeSay 1.0.0.0'>
-						<entry id='noChangesInEither'>
+						<entry id='noChangesInEither' guid='c1ed1f97-e382-11de-8a39-0800200c9a66' >
 							<lexical-unit>
 								<form lang='a'>
 									<text>form a</text>
 								</form>
 							</lexical-unit>
 						 </entry>
-						<entry id='doomedByUsEditedByThem'>
+						<entry id='doomedByUsEditedByThem' guid='c1ed1f98-e382-11de-8a39-0800200c9a66' >
 							<sense>
 								 <gloss lang='a'>
 									<text>original</text>
@@ -378,26 +378,26 @@ namespace LibChorus.Tests.merge.xml.lift
 					</lift>";
 			const string ours = @"<?xml version='1.0' encoding='utf-8'?>
 					<lift version='0.10' producer='WeSay 1.0.0.0'>
-						<entry id='noChangesInEither'>
+						<entry id='noChangesInEither' guid='c1ed1f97-e382-11de-8a39-0800200c9a66' >
 							<lexical-unit>
 								<form lang='a'>
 									<text>form a</text>
 								</form>
 							</lexical-unit>
 						 </entry>
-						<entry id='doomedByUsEditedByThem' dateDeleted='2011-03-15T12:15:05Z' />
+						<entry id='doomedByUsEditedByThem' guid='c1ed1f98-e382-11de-8a39-0800200c9a66'  dateDeleted='2011-03-15T12:15:05Z' />
 					</lift>";
 
 			const string theirs = @"<?xml version='1.0' encoding='utf-8'?>
 					<lift version='0.10' producer='WeSay 1.0.0.0'>
-						<entry id='noChangesInEither'>
+						<entry id='noChangesInEither' guid='c1ed1f97-e382-11de-8a39-0800200c9a66' >
 							<lexical-unit>
 								<form lang='a'>
 									<text>form a</text>
 								</form>
 							</lexical-unit>
 						 </entry>
-						<entry id='doomedByUsEditedByThem'>
+						<entry id='doomedByUsEditedByThem' guid='c1ed1f98-e382-11de-8a39-0800200c9a66' >
 							<sense>
 								 <gloss lang='a'>
 									<text>newByThem</text>
@@ -416,7 +416,7 @@ namespace LibChorus.Tests.merge.xml.lift
 				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation) { EventListener = listener };
 				XmlMergeService.Do3WayMerge(mergeOrder, new DropTheirsMergeStrategy(),
 					"header",
-					"entry", "id", LiftFileHandler.WritePreliminaryInformation);
+					"entry", "guid", LiftFileHandler.WritePreliminaryInformation);
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
 				Assert.IsTrue(result.ToLower().Contains("utf-8"));
 			}
@@ -431,14 +431,14 @@ namespace LibChorus.Tests.merge.xml.lift
 			// Old Style means the deleted entry was just marked as deleted with the dateDeleted attr.
 			const string ancestor = @"<?xml version='1.0' encoding='utf-8'?>
 					<lift version='0.10' producer='WeSay 1.0.0.0'>
-						<entry id='noChangesInEither'>
+						<entry id='noChangesInEither' guid='c1ed1f99-e382-11de-8a39-0800200c9a66' >
 							<lexical-unit>
 								<form lang='a'>
 									<text>form a</text>
 								</form>
 							</lexical-unit>
 						 </entry>
-						<entry id='doomedByThemEditedByUs'>
+						<entry id='doomedByThemEditedByUs' guid='c1ed1f9a-e382-11de-8a39-0800200c9a66' >
 							<sense>
 								 <gloss lang='a'>
 									<text>original</text>
@@ -448,14 +448,14 @@ namespace LibChorus.Tests.merge.xml.lift
 					</lift>";
 			const string ours = @"<?xml version='1.0' encoding='utf-8'?>
 					<lift version='0.10' producer='WeSay 1.0.0.0'>
-						<entry id='noChangesInEither'>
+						<entry id='noChangesInEither' guid='c1ed1f99-e382-11de-8a39-0800200c9a66' >
 							<lexical-unit>
 								<form lang='a'>
 									<text>form a</text>
 								</form>
 							</lexical-unit>
 						 </entry>
-						<entry id='doomedByThemEditedByUs'>
+						<entry id='doomedByThemEditedByUs' guid='c1ed1f9a-e382-11de-8a39-0800200c9a66' >
 							<sense>
 								 <gloss lang='a'>
 									<text>newByUs</text>
@@ -466,14 +466,14 @@ namespace LibChorus.Tests.merge.xml.lift
 
 			const string theirs = @"<?xml version='1.0' encoding='utf-8'?>
 					<lift version='0.10' producer='WeSay 1.0.0.0'>
-						<entry id='noChangesInEither'>
+						<entry id='noChangesInEither' guid='c1ed1f99-e382-11de-8a39-0800200c9a66' >
 							<lexical-unit>
 								<form lang='a'>
 									<text>form a</text>
 								</form>
 							</lexical-unit>
 						 </entry>
-						<entry id='doomedByThemEditedByUs' dateDeleted='2011-03-15T12:15:05Z' />
+						<entry id='doomedByThemEditedByUs' guid='c1ed1f9a-e382-11de-8a39-0800200c9a66'  dateDeleted='2011-03-15T12:15:05Z' />
 
 					</lift>";
 
@@ -486,7 +486,7 @@ namespace LibChorus.Tests.merge.xml.lift
 				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation) { EventListener = listener };
 				XmlMergeService.Do3WayMerge(mergeOrder, new DropTheirsMergeStrategy(),
 					"header",
-					"entry", "id", LiftFileHandler.WritePreliminaryInformation);
+					"entry", "guid", LiftFileHandler.WritePreliminaryInformation);
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
 				Assert.IsTrue(result.ToLower().Contains("utf-8"));
 			}
@@ -501,14 +501,14 @@ namespace LibChorus.Tests.merge.xml.lift
 			// New Style means the deleted entry was really removed from the file, not just marked as deleted.
 			const string ancestor = @"<?xml version='1.0' encoding='utf-8'?>
 					<lift version='0.10' producer='WeSay 1.0.0.0'>
-						<entry id='noChangesInEither'>
+						<entry id='noChangesInEither' guid='c1ed1f9b-e382-11de-8a39-0800200c9a66' >
 							<lexical-unit>
 								<form lang='a'>
 									<text>form a</text>
 								</form>
 							</lexical-unit>
 						 </entry>
-						<entry id='doomedByUsEditedByThem'>
+						<entry id='doomedByUsEditedByThem' guid='c1ed1f9c-e382-11de-8a39-0800200c9a66' >
 							<sense>
 								 <gloss lang='a'>
 									<text>original</text>
@@ -518,7 +518,7 @@ namespace LibChorus.Tests.merge.xml.lift
 					</lift>";
 			const string ours = @"<?xml version='1.0' encoding='utf-8'?>
 					<lift version='0.10' producer='WeSay 1.0.0.0'>
-						<entry id='noChangesInEither'>
+						<entry id='noChangesInEither' guid='c1ed1f9b-e382-11de-8a39-0800200c9a66' >
 							<lexical-unit>
 								<form lang='a'>
 									<text>form a</text>
@@ -529,14 +529,14 @@ namespace LibChorus.Tests.merge.xml.lift
 
 			const string theirs = @"<?xml version='1.0' encoding='utf-8'?>
 					<lift version='0.10' producer='WeSay 1.0.0.0'>
-						<entry id='noChangesInEither'>
+						<entry id='noChangesInEither' guid='c1ed1f9b-e382-11de-8a39-0800200c9a66' >
 							<lexical-unit>
 								<form lang='a'>
 									<text>form a</text>
 								</form>
 							</lexical-unit>
 						 </entry>
-						<entry id='doomedByUsEditedByThem'>
+						<entry id='doomedByUsEditedByThem' guid='c1ed1f9c-e382-11de-8a39-0800200c9a66' >
 							<sense>
 								 <gloss lang='a'>
 									<text>newByThem</text>
@@ -555,7 +555,7 @@ namespace LibChorus.Tests.merge.xml.lift
 				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation) { EventListener = listener };
 				XmlMergeService.Do3WayMerge(mergeOrder, new DropTheirsMergeStrategy(),
 					"header",
-					"entry", "id", LiftFileHandler.WritePreliminaryInformation);
+					"entry", "guid", LiftFileHandler.WritePreliminaryInformation);
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
 				Assert.IsTrue(result.ToLower().Contains("utf-8"));
 			}
@@ -570,14 +570,14 @@ namespace LibChorus.Tests.merge.xml.lift
 			// New Style means the deleted entry was really removed from the file, not just marked as deleted.
 			const string ancestor = @"<?xml version='1.0' encoding='utf-8'?>
 					<lift version='0.10' producer='WeSay 1.0.0.0'>
-						<entry id='noChangesInEither'>
+						<entry id='noChangesInEither' guid='c1ed1f9d-e382-11de-8a39-0800200c9a66' >
 							<lexical-unit>
 								<form lang='a'>
 									<text>form a</text>
 								</form>
 							</lexical-unit>
 						 </entry>
-						<entry id='doomedByThemEditedByUs'>
+						<entry id='doomedByThemEditedByUs' guid='c1ed1f9e-e382-11de-8a39-0800200c9a66' >
 							<sense>
 								 <gloss lang='a'>
 									<text>original</text>
@@ -587,14 +587,14 @@ namespace LibChorus.Tests.merge.xml.lift
 					</lift>";
 			const string ours = @"<?xml version='1.0' encoding='utf-8'?>
 					<lift version='0.10' producer='WeSay 1.0.0.0'>
-						<entry id='noChangesInEither'>
+						<entry id='noChangesInEither' guid='c1ed1f9d-e382-11de-8a39-0800200c9a66' >
 							<lexical-unit>
 								<form lang='a'>
 									<text>form a</text>
 								</form>
 							</lexical-unit>
 						 </entry>
-						<entry id='doomedByThemEditedByUs'>
+						<entry id='doomedByThemEditedByUs' guid='c1ed1f9e-e382-11de-8a39-0800200c9a66' >
 							<sense>
 								 <gloss lang='a'>
 									<text>newByUs</text>
@@ -605,14 +605,13 @@ namespace LibChorus.Tests.merge.xml.lift
 
 			const string theirs = @"<?xml version='1.0' encoding='utf-8'?>
 					<lift version='0.10' producer='WeSay 1.0.0.0'>
-						<entry id='noChangesInEither'>
+						<entry id='noChangesInEither' guid='c1ed1f9d-e382-11de-8a39-0800200c9a66' >
 							<lexical-unit>
 								<form lang='a'>
 									<text>form a</text>
 								</form>
 							</lexical-unit>
 						 </entry>
-
 					</lift>";
 
 			var listener = new ListenerForUnitTests();
@@ -624,7 +623,7 @@ namespace LibChorus.Tests.merge.xml.lift
 				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation) { EventListener = listener };
 				XmlMergeService.Do3WayMerge(mergeOrder, new DropTheirsMergeStrategy(),
 					"header",
-					"entry", "id", LiftFileHandler.WritePreliminaryInformation);
+					"entry", "guid", LiftFileHandler.WritePreliminaryInformation);
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
 				Assert.IsTrue(result.ToLower().Contains("utf-8"));
 			}
@@ -638,14 +637,14 @@ namespace LibChorus.Tests.merge.xml.lift
 		{
 			const string ancestor = @"<?xml version='1.0' encoding='utf-8'?>
 					<lift version='0.10' producer='WeSay 1.0.0.0'>
-						<entry id='noChangesInEither'>
+						<entry id='noChangesInEither' guid='c1ed1f9f-e382-11de-8a39-0800200c9a66' >
 							<lexical-unit>
 								<form lang='a'>
 									<text>form a</text>
 								</form>
 							</lexical-unit>
 						 </entry>
-						<entry id='doomedByBoth'>
+						<entry id='doomedByBoth' guid='c1ed1fa0-e382-11de-8a39-0800200c9a66' >
 							<sense>
 								 <gloss lang='a'>
 									<text>original</text>
@@ -656,7 +655,7 @@ namespace LibChorus.Tests.merge.xml.lift
 			// 'ours' does the newer removal.
 			const string ours = @"<?xml version='1.0' encoding='utf-8'?>
 					<lift version='0.10' producer='WeSay 1.0.0.0'>
-						<entry id='noChangesInEither'>
+						<entry id='noChangesInEither' guid='c1ed1f9f-e382-11de-8a39-0800200c9a66' >
 							<lexical-unit>
 								<form lang='a'>
 									<text>form a</text>
@@ -667,14 +666,14 @@ namespace LibChorus.Tests.merge.xml.lift
 			// 'theirs' does the older dateDeleted marking.
 			const string theirs = @"<?xml version='1.0' encoding='utf-8'?>
 					<lift version='0.10' producer='WeSay 1.0.0.0'>
-						<entry id='noChangesInEither'>
+						<entry id='noChangesInEither' guid='c1ed1f9f-e382-11de-8a39-0800200c9a66' >
 							<lexical-unit>
 								<form lang='a'>
 									<text>form a</text>
 								</form>
 							</lexical-unit>
 						 </entry>
-						<entry id='doomedByBoth' dateDeleted='2011-03-15T12:15:05Z' />
+						<entry id='doomedByBoth' guid='c1ed1fa0-e382-11de-8a39-0800200c9a66'  dateDeleted='2011-03-15T12:15:05Z' />
 					</lift>";
 
 			var listener = new ListenerForUnitTests();
@@ -686,7 +685,7 @@ namespace LibChorus.Tests.merge.xml.lift
 				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation) { EventListener = listener };
 				XmlMergeService.Do3WayMerge(mergeOrder, new DropTheirsMergeStrategy(),
 					"header",
-					"entry", "id", LiftFileHandler.WritePreliminaryInformation);
+					"entry", "guid", LiftFileHandler.WritePreliminaryInformation);
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
 				Assert.IsTrue(result.ToLower().Contains("utf-8"));
 			}
@@ -700,14 +699,14 @@ namespace LibChorus.Tests.merge.xml.lift
 		{
 			const string ancestor = @"<?xml version='1.0' encoding='utf-8'?>
 					<lift version='0.10' producer='WeSay 1.0.0.0'>
-						<entry id='noChangesInEither'>
+						<entry id='noChangesInEither' guid='c1ed1fa1-e382-11de-8a39-0800200c9a66' >
 							<lexical-unit>
 								<form lang='a'>
 									<text>form a</text>
 								</form>
 							</lexical-unit>
 						 </entry>
-						<entry id='doomedByBoth'>
+						<entry id='doomedByBoth' guid='c1ed1fa2-e382-11de-8a39-0800200c9a66' >
 							<sense>
 								 <gloss lang='a'>
 									<text>original</text>
@@ -718,19 +717,19 @@ namespace LibChorus.Tests.merge.xml.lift
 			// 'ours' does the older dateDeleted marking.
 			const string ours = @"<?xml version='1.0' encoding='utf-8'?>
 					<lift version='0.10' producer='WeSay 1.0.0.0'>
-						<entry id='noChangesInEither'>
+						<entry id='noChangesInEither' guid='c1ed1fa1-e382-11de-8a39-0800200c9a66' >
 							<lexical-unit>
 								<form lang='a'>
 									<text>form a</text>
 								</form>
 							</lexical-unit>
 						 </entry>
-						<entry id='doomedByBoth' dateDeleted='2011-03-15T12:15:05Z' />
+						<entry id='doomedByBoth' guid='c1ed1fa2-e382-11de-8a39-0800200c9a66'  dateDeleted='2011-03-15T12:15:05Z' />
 					</lift>";
 			// 'theirs' does the newer removal.
 			const string theirs = @"<?xml version='1.0' encoding='utf-8'?>
 					<lift version='0.10' producer='WeSay 1.0.0.0'>
-						<entry id='noChangesInEither'>
+						<entry id='noChangesInEither' guid='c1ed1fa1-e382-11de-8a39-0800200c9a66' >
 							<lexical-unit>
 								<form lang='a'>
 									<text>form a</text>
@@ -748,7 +747,7 @@ namespace LibChorus.Tests.merge.xml.lift
 				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation) { EventListener = listener };
 				XmlMergeService.Do3WayMerge(mergeOrder, new DropTheirsMergeStrategy(),
 					"header",
-					"entry", "id", LiftFileHandler.WritePreliminaryInformation);
+					"entry", "guid", LiftFileHandler.WritePreliminaryInformation);
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
 				Assert.IsTrue(result.ToLower().Contains("utf-8"));
 			}
@@ -787,7 +786,7 @@ namespace LibChorus.Tests.merge.xml.lift
 		{
 			const string alpha = @"<?xml version='1.0' encoding='utf-8'?>
 					<lift version='0.10' producer='WeSay 1.0.0.0'>
-						<entry id='alpha'>
+						<entry id='alpha' guid='c1ed1fa3-e382-11de-8a39-0800200c9a66' >
 							<lexical-unit>
 								<form lang='a'>
 									<text>form alpha</text>
@@ -798,7 +797,7 @@ namespace LibChorus.Tests.merge.xml.lift
 
 			const string beta = @"<?xml version='1.0' encoding='utf-8'?>
 					<lift version='0.10' producer='WeSay 1.0.0.0'>
-						<entry id='beta'>
+						<entry id='beta' guid='c1ed1fa4-e382-11de-8a39-0800200c9a66' >
 							<lexical-unit>
 								<form lang='a'>
 									<text>form beta</text>
@@ -816,7 +815,8 @@ namespace LibChorus.Tests.merge.xml.lift
 										+ "\tversion='0.10'\r\n"
 										+ "\tproducer='WeSay 1.0.0.0'>\r\n"
 										+ "\t<entry\r\n"
-										+ "\t\tid='alpha'>\r\n"
+										+ "\t\tid='alpha'\r\n"
+										+ "\t\tguid='c1ed1fa3-e382-11de-8a39-0800200c9a66'>\r\n"
 										+ "\t\t<lexical-unit>\r\n"
 										+ "\t\t\t<form\r\n"
 										+ "\t\t\t\tlang='a'>\r\n"
@@ -825,7 +825,8 @@ namespace LibChorus.Tests.merge.xml.lift
 										+ "\t\t</lexical-unit>\r\n"
 										+ "\t</entry>\r\n"
 										+ "\t<entry\r\n"
-										+ "\t\tid='beta'>\r\n"
+										+ "\t\tid='beta'\r\n"
+										+ "\t\tguid='c1ed1fa4-e382-11de-8a39-0800200c9a66'>\r\n"
 										+ "\t\t<lexical-unit>\r\n"
 										+ "\t\t\t<form\r\n"
 										+ "\t\t\t\tlang='a'>\r\n"
@@ -844,7 +845,7 @@ namespace LibChorus.Tests.merge.xml.lift
 				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation) { EventListener = listener };
 				XmlMergeService.Do3WayMerge(mergeOrder, new LiftEntryMergingStrategy(situation),
 											"header",
-											"entry", "id", LiftFileHandler.WritePreliminaryInformation);
+											"entry", "guid", LiftFileHandler.WritePreliminaryInformation);
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
 				Console.WriteLine(result);
 				Assert.AreEqual(expectedResult, result);
@@ -857,7 +858,7 @@ namespace LibChorus.Tests.merge.xml.lift
 		{
 			const string alpha = @"<?xml version='1.0' encoding='utf-8'?>
 					<lift version='0.10' producer='WeSay 1.0.0.0'>
-						<entry id='alpha'>
+						<entry id='alpha' guid='c1ed1fa5-e382-11de-8a39-0800200c9a66' >
 							<lexical-unit>
 								<form lang='a'>
 									<text>form alpha1</text>
@@ -868,7 +869,7 @@ namespace LibChorus.Tests.merge.xml.lift
 
 			const string beta = @"<?xml version='1.0' encoding='utf-8'?>
 					<lift version='0.10' producer='WeSay 1.0.0.0'>
-						<entry id='alpha'>
+						<entry id='alpha' guid='c1ed1fa5-e382-11de-8a39-0800200c9a66' >
 							<lexical-unit>
 								<form lang='a'>
 									<text>form alpha2</text>
@@ -879,7 +880,7 @@ namespace LibChorus.Tests.merge.xml.lift
 
 			const string ancestor = @"<?xml version='1.0' encoding='utf-8'?>
 					<lift version='0.10' producer='WeSay 1.0.0.0'>
-						<entry id='alpha'>
+						<entry id='alpha' guid='c1ed1fa5-e382-11de-8a39-0800200c9a66' >
 							<lexical-unit>
 								<form lang='a'>
 									<text>form alpha</text>
@@ -893,7 +894,8 @@ namespace LibChorus.Tests.merge.xml.lift
 										"\tversion='0.10'\r\n" +
 										"\tproducer='WeSay 1.0.0.0'>\r\n" +
 										"\t<entry\r\n" +
-										"\t\tid='alpha'>\r\n" +
+										"\t\tid='alpha'\r\n" +
+										"\t\tguid='c1ed1fa5-e382-11de-8a39-0800200c9a66'>\r\n" +
 										"\t\t<lexical-unit>\r\n" +
 										"\t\t\t<form\r\n" +
 										"\t\t\t\tlang='a'>\r\n" +
@@ -913,7 +915,7 @@ namespace LibChorus.Tests.merge.xml.lift
 									{EventListener = listener};
 				XmlMergeService.Do3WayMerge(mergeOrder, new LiftEntryMergingStrategy(situation),
 											"header",
-											"entry", "id", LiftFileHandler.WritePreliminaryInformation);
+											"entry", "guid", LiftFileHandler.WritePreliminaryInformation);
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
 				Console.WriteLine(result);
 				Assert.AreEqual(expectedResult, result);
@@ -925,7 +927,7 @@ namespace LibChorus.Tests.merge.xml.lift
 		{
 			const string alpha = @"<?xml version='1.0' encoding='utf-8'?>
 					<lift version='0.10' producer='WeSay 1.0.0.0'>
-						<entry id='alpha'>
+						<entry id='alpha' guid='c1ed1fa6-e382-11de-8a39-0800200c9a66' >
 							<lexical-unit>
 								<form lang='a'>
 									<text>form alpha</text>
@@ -936,7 +938,7 @@ namespace LibChorus.Tests.merge.xml.lift
 
 			const string beta = @"<?xml version='1.0' encoding='utf-8'?>
 					<lift version='0.10' producer='WeSay 1.0.0.0'>
-						<entry id='alpha'>
+						<entry id='alpha' guid='c1ed1fa6-e382-11de-8a39-0800200c9a66' >
 							<lexical-unit>
 								<form lang='a'>
 									<text>form alpha</text>
@@ -947,7 +949,7 @@ namespace LibChorus.Tests.merge.xml.lift
 
 			const string ancestor = @"<?xml version='1.0' encoding='utf-8'?>
 					<lift version='0.10' producer='WeSay 1.0.0.0'>
-						<entry id='alpha'>
+						<entry id='alpha' guid='c1ed1fa6-e382-11de-8a39-0800200c9a66' >
 							<lexical-unit>
 								<form lang='a'>
 									<text>form alpha</text>
@@ -961,7 +963,8 @@ namespace LibChorus.Tests.merge.xml.lift
 										"\tversion='0.10'\r\n" +
 										"\tproducer='WeSay 1.0.0.0'>\r\n" +
 										"\t<entry\r\n" +
-										"\t\tid='alpha'>\r\n" +
+										"\t\tid='alpha'\r\n" +
+										"\t\tguid='c1ed1fa6-e382-11de-8a39-0800200c9a66'>\r\n" +
 										"\t\t<lexical-unit>\r\n" +
 										"\t\t\t<form\r\n" +
 										"\t\t\t\tlang='a'>\r\n" +
@@ -980,7 +983,7 @@ namespace LibChorus.Tests.merge.xml.lift
 				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation) { EventListener = listener };
 				XmlMergeService.Do3WayMerge(mergeOrder, new LiftEntryMergingStrategy(situation),
 											"header",
-											"entry", "id", LiftFileHandler.WritePreliminaryInformation);
+											"entry", "guid", LiftFileHandler.WritePreliminaryInformation);
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
 				Console.WriteLine(result);
 				Assert.AreEqual(expectedResult, result);
