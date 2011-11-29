@@ -682,7 +682,12 @@ namespace Chorus.sync
 #endif
 			using (new ShortTermEnvironmentalVariable("HGMERGE", '"' + chorusMergeFilePath + '"'))
 			{
-				using (new ShortTermEnvironmentalVariable(MergeOrder.kConflictHandlingModeEnvVarName, MergeOrder.ConflictHandlingModeChoices.TheyWin.ToString()))
+				// Theory has it that is a tossup on who ought to win, umless there is some more principled way to decide.
+				// If 'they' end up being the right answer, or if it ends up being more exotic,
+				// then be sure to change the alpha and beta info in the MergeSituation class.
+				//using (new ShortTermEnvironmentalVariable(MergeOrder.kConflictHandlingModeEnvVarName, MergeOrder.ConflictHandlingModeChoices.TheyWin.ToString()))
+				// Go with 'WeWin', since that is the default and that is how the alpha and beta data of MergeSituation is set, right before this method is called.
+				using (new ShortTermEnvironmentalVariable(MergeOrder.kConflictHandlingModeEnvVarName, MergeOrder.ConflictHandlingModeChoices.WeWin.ToString()))
 				{
 					return Repository.Merge(_localRepositoryPath, theirHead.Number.LocalRevisionNumber);
 				}

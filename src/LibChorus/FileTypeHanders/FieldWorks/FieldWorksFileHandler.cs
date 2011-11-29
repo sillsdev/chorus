@@ -67,22 +67,40 @@ namespace Chorus.FileTypeHanders.FieldWorks
 		public void Do3WayMerge(MergeOrder mergeOrder)
 		{
 			// Add optional custom property information to MDC.
-// ReSharper disable AssignNullToNotNullAttribute
-			var customPropPathname = Path.GetDirectoryName(mergeOrder.pathToCommonAncestor);
-			var customFiles = Directory.GetFiles(customPropPathname, "*.CustomProperties").ToList();
-// ReSharper restore AssignNullToNotNullAttribute
-			if (customFiles.Count > 0)
-			{
-				var doc = XDocument.Load(customFiles[0]);
-// ReSharper disable PossibleNullReferenceException
-				foreach (var customFieldElement in doc.Elements("CustomField"))
-					_mdc.AddCustomPropInfo(customFieldElement.Attribute("class").Value, new FdoPropertyInfo(customFieldElement.Attribute("name").Value, customFieldElement.Attribute("type").Value, true));
-// ReSharper restore PossibleNullReferenceException
-			}
+			AddCustomPropertyDataToMdc(mergeOrder);
+
 			XmlMergeService.Do3WayMerge(mergeOrder,
 				new FieldWorksMergingStrategy(mergeOrder.MergeSituation, _mdc),
 				null,
 				"rt", "guid", WritePreliminaryInformation);
+		}
+
+		private void AddCustomPropertyDataToMdc(MergeOrder mergeOrder)
+		{
+			string altCustomPropPathname;
+			List<string> customFiles;
+			switch (mergeOrder.MergeSituation.ConflictHandlingMode)
+			{
+				default:
+					customFiles = Directory.GetFiles(Path.GetDirectoryName(mergeOrder.pathToOurs), "*.CustomProperties").ToList();
+					altCustomPropPathname = Path.GetDirectoryName(mergeOrder.pathToTheirs);
+					break;
+				case MergeOrder.ConflictHandlingModeChoices.TheyWin:
+					customFiles = Directory.GetFiles(Path.GetDirectoryName(mergeOrder.pathToTheirs), "*.CustomProperties").ToList();
+					altCustomPropPathname = Path.GetDirectoryName(mergeOrder.pathToOurs);
+					break;
+			}
+			if (customFiles.Count == 0)
+				customFiles = Directory.GetFiles(altCustomPropPathname, "*.CustomProperties").ToList();
+
+			if (customFiles.Count < 1)
+				return;
+
+			var doc = XDocument.Load(customFiles[0]);
+// ReSharper disable PossibleNullReferenceException
+			foreach (var customFieldElement in doc.Element("AdditionalFields").Elements("CustomField"))
+				_mdc.AddCustomPropInfo(customFieldElement.Attribute("class").Value, new FdoPropertyInfo(customFieldElement.Attribute("name").Value, customFieldElement.Attribute("type").Value, true));
+// ReSharper restore PossibleNullReferenceException
 		}
 
 		public IEnumerable<IChangeReport> Find2WayDifferences(FileInRevision parent, FileInRevision child, HgRepository repository)

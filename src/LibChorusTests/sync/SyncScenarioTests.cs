@@ -257,8 +257,8 @@ namespace LibChorus.Tests.sync
 			bobOptions.DoMergeWithOthers = true;
 			bobSynchronizer.SyncNow(bobOptions);
 
-
-			Assert.AreEqual("Sally was here", File.ReadAllText(bobSetup.PathToText));
+			// With sync set as 'WeWin'
+			Assert.AreEqual("Bob's new idea", File.ReadAllText(bobSetup.PathToText));
 
 		}
 

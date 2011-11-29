@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
+﻿using System.IO;
 using Chorus.merge.xml.generic;
+using Chorus.Properties;
 using LibChorus.Tests.merge;
 using NUnit.Framework;
 
@@ -13,7 +10,7 @@ namespace LibChorus.Tests.Integration
 	/// This class tests a complete series of operations over several units including:
 	/// merging and syncing, Some tests may also include conflicts and the respective ChorusNotes file.
 	/// </summary>
-	//[TestFixture]
+	[TestFixture]
 	public class MergeIntegrationTests
 	{
 		[Test]
@@ -98,9 +95,13 @@ namespace LibChorus.Tests.Integration
 			{
 				var sueProjPath = sueRepo.ProjectFolder.Path;
 				// Add model version number file.
-				File.WriteAllText(Path.Combine(sueProjPath, "ZPI.ModelVersion"), "{\"modelversion\": 7000044}");
+				var modelVersionPathname = Path.Combine(sueProjPath, "ZPI.ModelVersion");
+				File.WriteAllText(modelVersionPathname, AnnotationImages.kModelVersion);
+				sueRepo.Repository.AddSansCommit(modelVersionPathname);
 				// Add custom property data file.
-				File.WriteAllText(Path.Combine(sueProjPath, "ZPI.CustomProperties"), customPropData);
+				var customPropsPathname = Path.Combine(sueProjPath, "ZPI.CustomProperties");
+				File.WriteAllText(customPropsPathname, customPropData);
+				sueRepo.Repository.AddSansCommit(customPropsPathname);
 				sueRepo.AddAndCheckIn();
 
 				using (var randyRepo = RepositoryWithFilesSetup.CreateByCloning("Randy", sueRepo))
@@ -116,7 +117,13 @@ namespace LibChorus.Tests.Integration
 					Assert.IsTrue(File.Exists(mergeConflictsNotesFile), "ChorusNotes file should have been in working set.");
 					var notesContents = File.ReadAllText(mergeConflictsNotesFile);
 					Assert.IsNotNullOrEmpty(notesContents);
-					//randyRepo.
+					Assert.IsTrue(notesContents.Contains("Removed Vs Edited Element Conflict"));
+					Assert.IsTrue(notesContents.Contains("Randy deleted this element"));
+					Assert.IsTrue(notesContents.Contains("Sue edited it"));
+					Assert.IsTrue(notesContents.Contains("The automated merger kept the change made by Sue."));
+					Assert.IsTrue(notesContents.Contains("whoWon=\"Sue\""));
+					Assert.IsTrue(notesContents.Contains("alphaUserId=\"Randy\""));
+					Assert.IsTrue(notesContents.Contains("betaUserId=\"Sue\""));
 				}
 			}
 		}
