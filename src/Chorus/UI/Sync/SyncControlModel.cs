@@ -9,6 +9,7 @@ using Chorus.sync;
 using Chorus.Utilities;
 using System.Linq;
 using Chorus.VcsDrivers;
+using Palaso.Progress;
 using Palaso.Progress.LogBox;
 
 namespace Chorus.UI.Sync
@@ -157,6 +158,12 @@ namespace Chorus.UI.Sync
 		public bool CancellationPending
 		{
 			get { return _backgroundWorker.CancellationPending;  }
+		}
+
+		public IProgressIndicator ProgressIndicator
+		{
+			get { return _progress.ProgressIndicator; }
+			set { _progress.ProgressIndicator = value; }
 		}
 
 

@@ -109,7 +109,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 
 				// just pick a file larger than 10K for use as a test... any file will do
 				string sourcePathOfLargeFile = Path.Combine(ExecutionEnvironment.DirectoryOfExecutingAssembly,
-					String.Format("..{0}..{0}lib{0}Debug{0}icu.net.dll", Path.DirectorySeparatorChar));
+					String.Format("..{0}..{0}lib{0}Debug{0}Palaso.Tests.dll", Path.DirectorySeparatorChar));
 
 				string largeFilePath = setup.ProjectFolder.GetNewTempFile(false).Path;
 				File.Copy(sourcePathOfLargeFile, largeFilePath);
@@ -367,7 +367,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 
 				// just pick a file larger than 10K for use as a test... any file will do
 				string sourcePathOfLargeFile = Path.Combine(ExecutionEnvironment.DirectoryOfExecutingAssembly,
-					String.Format("..{0}..{0}lib{0}Debug{0}icu.net.dll", Path.DirectorySeparatorChar));
+					String.Format("..{0}..{0}lib{0}Debug{0}Palaso.Tests.dll", Path.DirectorySeparatorChar));
 
 				string largeFilePath = setup.ProjectFolder.GetNewTempFile(false).Path;
 				File.Copy(sourcePathOfLargeFile, largeFilePath);
@@ -386,24 +386,137 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		{
 			var progressForTest = new ProgressForTest();
 			using (var setup = new RepositorySetup("hgresumetest"))
-			using (var apiServer = new DummyApiServerForTest())
+			using (var apiServer = new PullHandlerApiServerForTest(setup.Repository))
 			using (var progress = new MultiProgress(new IProgress[] { new ConsoleProgress { ShowVerbose = true }, progressForTest }))
 			{
 				var transport = new HgResumeTransport(setup.Repository, "test repo", apiServer, progress);
 				setup.AddAndCheckinFile("sample1", "first checkin");
-				apiServer.AddTimeOut();
-				apiServer.AddResponse(CannedResponses.PullOk(200, Encoding.UTF8.GetBytes("data")));
-				apiServer.AddTimeOut();
-				apiServer.AddTimeOut();
+				string revHash = setup.Repository.GetTip().Number.Hash;
+
+				// just pick a file larger than 10K for use as a test... any file will do
+				string sourcePathOfLargeFile = Path.Combine(ExecutionEnvironment.DirectoryOfExecutingAssembly,
+					String.Format("..{0}..{0}lib{0}Debug{0}Palaso.Tests.dll", Path.DirectorySeparatorChar));
+
+				string largeFilePath = setup.ProjectFolder.GetNewTempFile(false).Path;
+				File.Copy(sourcePathOfLargeFile, largeFilePath);
+				setup.Repository.AddAndCheckinFile(largeFilePath);
+
+				apiServer.PrepareBundle(revHash);
+
+				apiServer.AddTimeoutResponse(2);
+				apiServer.AddTimeoutResponse(3);
+				apiServer.AddTimeoutResponse(6);
 				transport.Pull();
-				Assert.That(progressForTest.AllMessages, Contains.Item("Pull operation failed"));
+				Assert.That(progressForTest.AllMessages, Contains.Item("Pull operation completed successfully"));
 			}
 		}
 
 		[Test]
-		public void Pull_SomeBadChecksum_Success()
+		public void Pull_SomeBadChecksums_Success()
 		{
-			throw new NotImplementedException();
+			var progressForTest = new ProgressForTest();
+			using (var setup = new RepositorySetup("hgresumetest"))
+			using (var apiServer = new PullHandlerApiServerForTest(setup.Repository))
+			using (var progress = new MultiProgress(new IProgress[] { new ConsoleProgress { ShowVerbose = true }, progressForTest }))
+			{
+				var transport = new HgResumeTransport(setup.Repository, "test repo", apiServer, progress);
+				setup.AddAndCheckinFile("sample1", "first checkin");
+				string revHash = setup.Repository.GetTip().Number.Hash;
+
+				// just pick a file larger than 10K for use as a test... any file will do
+				string sourcePathOfLargeFile = Path.Combine(ExecutionEnvironment.DirectoryOfExecutingAssembly,
+					String.Format("..{0}..{0}lib{0}Debug{0}Palaso.Tests.dll", Path.DirectorySeparatorChar));
+
+				string largeFilePath = setup.ProjectFolder.GetNewTempFile(false).Path;
+				File.Copy(sourcePathOfLargeFile, largeFilePath);
+				setup.Repository.AddAndCheckinFile(largeFilePath);
+
+				apiServer.PrepareBundle(revHash);
+
+				apiServer.AddBadChecksumResponse(2);
+				apiServer.AddBadChecksumResponse(3);
+				apiServer.AddBadChecksumResponse(6);
+				transport.Pull();
+				Assert.That(progressForTest.AllMessages, Contains.Item("Pull operation completed successfully"));
+			}
+		}
+
+		[Test]
+		public void Pull_ChunkSizeReducedWithTimeouts_Success()
+		{
+			var progressForTest = new ProgressForTest();
+			using (var setup = new RepositorySetup("hgresumetest"))
+			using (var apiServer = new PullHandlerApiServerForTest(setup.Repository))
+			using (var progress = new MultiProgress(new IProgress[] { new ConsoleProgress { ShowVerbose = true }, progressForTest }))
+			{
+				var transport = new HgResumeTransport(setup.Repository, "test repo", apiServer, progress);
+				setup.AddAndCheckinFile("sample1", "first checkin");
+				string revHash = setup.Repository.GetTip().Number.Hash;
+
+				// just pick a file larger than 10K for use as a test... any file will do
+				string sourcePathOfLargeFile = Path.Combine(ExecutionEnvironment.DirectoryOfExecutingAssembly,
+					String.Format("..{0}..{0}lib{0}Debug{0}Palaso.Tests.dll", Path.DirectorySeparatorChar));
+
+				string largeFilePath = setup.ProjectFolder.GetNewTempFile(false).Path;
+				File.Copy(sourcePathOfLargeFile, largeFilePath);
+				setup.Repository.AddAndCheckinFile(largeFilePath);
+
+				apiServer.PrepareBundle(revHash);
+
+				apiServer.AddTimeoutResponse(2);
+				apiServer.AddTimeoutResponse(3);
+				apiServer.AddTimeoutResponse(6);
+				transport.Pull();
+
+				Assert.That(progressForTest.AllMessages, Contains.Item("Received 0+10000 bytes"));
+				Assert.That(progressForTest.AllMessages, Contains.Item("Received 10000+2500 bytes"));
+				Assert.That(progressForTest.AllMessages, Contains.Item("Received 15000+1250 bytes"));
+				Assert.That(progressForTest.AllMessages, Contains.Item("Pull operation completed successfully"));
+			}
+		}
+
+		[Test]
+		public void Pull_PullOperationFailsMidwayAndStartsAgainWithSeparatePull_Resumes()
+		{
+			var progressForTest = new ProgressForTest();
+			using (var setup = new RepositorySetup("hgresumetest"))
+			using (var apiServer = new PullHandlerApiServerForTest(setup.Repository))
+			using (var progress = new MultiProgress(new IProgress[] { new ConsoleProgress { ShowVerbose = true }, progressForTest }))
+			{
+				var transport = new HgResumeTransport(setup.Repository, "test repo", apiServer, progress);
+				setup.AddAndCheckinFile("sample1", "first checkin");
+				string revHash = setup.Repository.GetTip().Number.Hash;
+
+				// just pick a file larger than 10K for use as a test... any file will do
+				string sourcePathOfLargeFile = Path.Combine(ExecutionEnvironment.DirectoryOfExecutingAssembly,
+															String.Format("..{0}..{0}lib{0}Debug{0}Palaso.Tests.dll",
+																		  Path.DirectorySeparatorChar));
+				string largeFilePath = setup.ProjectFolder.GetNewTempFile(false).Path;
+				File.Copy(sourcePathOfLargeFile, largeFilePath);
+				setup.Repository.AddAndCheckinFile(largeFilePath);
+				apiServer.PrepareBundle(revHash);
+				apiServer.AddTimeoutResponse(4);
+				apiServer.AddTimeoutResponse(5);
+				apiServer.AddTimeoutResponse(6);
+				apiServer.AddTimeoutResponse(7);
+				apiServer.AddTimeoutResponse(8);
+				apiServer.AddTimeoutResponse(12);
+				apiServer.AddTimeoutResponse(13);
+				apiServer.AddTimeoutResponse(14);
+				apiServer.AddTimeoutResponse(15);
+				apiServer.AddTimeoutResponse(16);
+
+				transport.Pull();
+				Assert.That(progressForTest.AllMessages, Contains.Item("Pull operation failed"));
+
+				transport.Pull();
+				Assert.That(progressForTest.AllMessages, Contains.Item("Resuming pull operation at 30000 bytes"));
+				Assert.That(progressForTest.AllMessages, Contains.Item("Pull operation failed"));
+
+				transport.Pull();
+				Assert.That(progressForTest.AllMessages, Contains.Item("Resuming pull operation at 60000 bytes"));
+				Assert.That(progressForTest.AllMessages, Contains.Item("Pull operation completed successfully"));
+			}
 		}
 	}
 }

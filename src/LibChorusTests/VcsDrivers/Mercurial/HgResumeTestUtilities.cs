@@ -4,7 +4,9 @@ using System.IO;
 using System.Net;
 using System.Text;
 using Chorus.VcsDrivers.Mercurial;
+using Palaso.Progress;
 using Palaso.Progress.LogBox;
+using Palaso.TestUtilities;
 
 namespace LibChorus.Tests.VcsDrivers.Mercurial
 {
@@ -60,14 +62,16 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 
 	public class PushHandlerApiServerForTest : IApiServer, IDisposable
 	{
-		private readonly PullBundleHelper _helper;  // yes, we DO want to use the PullBundleHelper for the PushHandler (this is the other side of the API, so it's opposite)
+		private readonly PullStorageManager _helper;  // yes, we DO want to use the PullBundleHelper for the PushHandler (this is the other side of the API, so it's opposite)
 		private readonly HgRepository _repo;
 		public List<string> Revisions;
+		private TemporaryFolder _localStorage;
 
 		public PushHandlerApiServerForTest(HgRepository repo, string identifier = "PushHandlerApiServerForTest")
 		{
+			_localStorage = new TemporaryFolder("PushHandlerApiServerForTest");
 			_repo = repo;
-			_helper = new PullBundleHelper();
+			_helper = new PullStorageManager(_localStorage.Path, identifier);
 			Revisions = new List<string>();
 			Identifier = identifier;
 		}
@@ -89,7 +93,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			}
 			if (method == "pushBundleChunk")
 			{
-				_helper.WriteChunk(bytesToWrite);
+				_helper.AppendChunk(bytesToWrite);
 				int bundleSize = Convert.ToInt32(parameters["bundleSize"]);
 				int offset = Convert.ToInt32(parameters["offset"]);
 				int chunkSize = bytesToWrite.Length;
@@ -114,20 +118,26 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 
 		public void Dispose()
 		{
-			_helper.Dispose();
+			_localStorage.Dispose();
 		}
 	}
 
 	public class PullHandlerApiServerForTest : IApiServer, IDisposable
 	{
-		private readonly PushBundleHelper _helper;
+		private readonly PushStorageHelper _helper;
 		private readonly HgRepository _repo;
+		private int _executeCount;
+		private List<int> _badChecksumList;
+		private List<int> _timeoutList;
 
 		public PullHandlerApiServerForTest(HgRepository repo, string identifier = "PullHandlerApiServerForTest")
 		{
 			_repo = repo;
-			_helper = new PushBundleHelper();
+			_helper = new PushStorageHelper();
 			Identifier = identifier;
+			_executeCount = 0;
+			_badChecksumList = new List<int>();
+			_timeoutList = new List<int>();
 		}
 
 		public void PrepareBundle(string revHash)
@@ -146,12 +156,17 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 
 		public HgResumeApiResponse Execute(string method, IDictionary<string, string> parameters, byte[] bytesToWrite, int secondsBeforeTimeout)
 		{
+			_executeCount++;
 			if (method == "finishPullBundle")
 			{
 				return CannedResponses.Custom(HttpStatusCode.OK);
 			}
 			if (method == "pullBundleChunk")
 			{
+				if (_timeoutList.Contains(_executeCount))
+				{
+					throw new WebException("ApiServerForTest: timeout!");
+				}
 				int offset = Convert.ToInt32(parameters["offset"]);
 				int chunkSize = Convert.ToInt32(parameters["chunkSize"]);
 				var bundleFile = new FileInfo(_helper.BundlePath);
@@ -160,6 +175,10 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 					return CannedResponses.Failed("offset greater than bundleSize");
 				}
 				var chunk = _helper.GetChunk(offset, chunkSize);
+				if (_badChecksumList.Contains(_executeCount))
+				{
+					return CannedResponses.PullOkWithBadChecksum(Convert.ToInt32(bundleFile.Length), chunk);
+				}
 				return CannedResponses.PullOk(Convert.ToInt32(bundleFile.Length), chunk);
 			}
 			return CannedResponses.Custom(HttpStatusCode.InternalServerError);
@@ -170,6 +189,22 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		public void Dispose()
 		{
 			_helper.Dispose();
+		}
+
+		public void AddBadChecksumResponse(int executeCount)
+		{
+			if (!_badChecksumList.Contains(executeCount))
+			{
+				_badChecksumList.Add(executeCount);
+			}
+		}
+
+		public void AddTimeoutResponse(int executeCount)
+		{
+			if (!_timeoutList.Contains(executeCount))
+			{
+				_timeoutList.Add(executeCount);
+			}
 		}
 	}
 
@@ -247,6 +282,12 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		{
 			get { return false; }
 			set { }
+		}
+
+		public IProgressIndicator ProgressIndicator
+		{
+			get;
+			set;
 		}
 
 		public void Dispose()
@@ -368,6 +409,28 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 											 {"X-HgR-Status", "SUCCESS"},
 											 {"X-HgR-Version", "1"},
 											 {"X-HgR-checksum", HgResumeTransport.CalculateChecksum(contentToSend)},
+											 {"X-HgR-bundleSize", bundleSize.ToString()},
+											 {"X-HgR-chunkSize", contentToSend.Length.ToString()}
+										 },
+				Content = contentToSend
+			};
+		}
+
+		public static HgResumeApiResponse PullOkWithBadChecksum(int bundleSize, byte[] contentToSend)
+		{
+			if (contentToSend.Length > bundleSize)
+			{
+				throw new ArgumentException("bundleSize must be larger than the size of the content you are sending");
+			}
+
+			return new HgResumeApiResponse
+			{
+				StatusCode = HttpStatusCode.OK,
+				Headers = new Dictionary<string, string>
+										 {
+											 {"X-HgR-Status", "SUCCESS"},
+											 {"X-HgR-Version", "1"},
+											 {"X-HgR-checksum", "boguschecksum"},
 											 {"X-HgR-bundleSize", bundleSize.ToString()},
 											 {"X-HgR-chunkSize", contentToSend.Length.ToString()}
 										 },

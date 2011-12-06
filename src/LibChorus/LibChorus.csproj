@@ -243,8 +243,8 @@
 	<Compile Include="VcsDrivers\Mercurial\HgResumeTransport.cs" />
 	<Compile Include="VcsDrivers\Mercurial\IApiServer.cs" />
 	<Compile Include="VcsDrivers\Mercurial\IHgTransport.cs" />
-	<Compile Include="VcsDrivers\Mercurial\PullBundleHelper.cs" />
-	<Compile Include="VcsDrivers\Mercurial\PushBundleHelper.cs" />
+	<Compile Include="VcsDrivers\Mercurial\PullStorageManager.cs" />
+	<Compile Include="VcsDrivers\Mercurial\PushStorageHelper.cs" />
 	<Compile Include="VcsDrivers\RepositoryAddress.cs" />
 	<Compile Include="sync\SyncOptions.cs" />
 	<Compile Include="Utilities\ExecutionResult.cs" />

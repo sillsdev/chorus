@@ -616,6 +616,11 @@ namespace Chorus.VcsDrivers.Mercurial
 			get { return _userName; } //enhance... location is important, too
 		}
 
+		public string PathToLocalStorage
+		{
+			get { return Path.Combine(_pathToRepository, "chorus_storage"); }
+		}
+
 		public string GetFilePath(string name)
 		{
 			return Path.Combine(_pathToRepository, name);

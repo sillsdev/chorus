@@ -35,6 +35,8 @@ namespace Chorus.VcsDrivers.Mercurial
 		///<summary>
 		/// Implements a simple file-based key:value db.  Should be replaced by something better in the future.  Stores the last known common base for a given api server
 		/// File DB is line separated list of "remoteId|hash" pairs
+		///
+		/// TODO: implement this using an object serialization class like system.xml.serialization
 		///</summary>
 		private string LastKnownCommonBase
 		{
@@ -182,13 +184,10 @@ namespace Chorus.VcsDrivers.Mercurial
 
 
 			// create a bundle to push
-			var bundleHelper = new PushBundleHelper();
+			var bundleHelper = new PushStorageHelper();
 			bool bundleExists = _repo.MakeBundle(baseRevision, bundleHelper.BundlePath);
 			if (!bundleExists)
 			{
-				// TODO: how should I report problems???  Using WriteError, WriteException, or WriteWarning????
-				// Should errors be "user-friendly" or contain technical details?
-
 				_progress.WriteError("Unable to create bundle for Push");
 				_progress.WriteError("Push operation failed");
 				return;
@@ -198,7 +197,10 @@ namespace Chorus.VcsDrivers.Mercurial
 			int startOfWindow = 0;
 			int chunkSize = DefaultChunkSize; // size in bytes
 			var bundleFileInfo = new FileInfo(bundleHelper.BundlePath);
-			long bundleSize = bundleFileInfo.Length;
+			var bundleSize = (int) bundleFileInfo.Length;
+
+			int numberOfStepsInPushOperation = bundleSize/chunkSize;
+			_progress.ProgressIndicator.Initialize(numberOfStepsInPushOperation);
 
 			do // loop until finished... or until the user cancels
 			{
@@ -210,6 +212,9 @@ namespace Chorus.VcsDrivers.Mercurial
 				/* API parameters
 				 * $repoId, $baseHash, $bundleSize, $checksum, $offset, $data, $transId
 				 * */
+				_progress.WriteStatus(string.Format("Sending {0} of {1} bytes", startOfWindow, bundleSize));
+				_progress.ProgressIndicator.PercentCompleted = startOfWindow*100/bundleSize;
+
 				var requestParameters = new Dictionary<string, string>
 											{
 												{"repoId", _repo.Identifier},
@@ -224,7 +229,8 @@ namespace Chorus.VcsDrivers.Mercurial
 				startOfWindow = response.StartOfWindow;
 				if (response.Status == PushStatus.Complete)
 				{
-					// TODO: update progress bar to 100% ?
+					_progress.WriteStatus("Finished Sending");
+					_progress.ProgressIndicator.Finish();
 					_progress.WriteVerbose("Push operation completed successfully");
 
 					// update our local knowledge of what the server has
@@ -346,13 +352,18 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		public bool Pull()
 		{
-			var bundleHelper = new PullBundleHelper();
 			string localTip = _repo.GetTip().Number.Hash;
-
-			string transactionId = Guid.NewGuid().ToString();
-			int startOfWindow = 0;
-			int chunkSize = 10000; // size in bytes
+			var bundleHelper = new PullStorageManager(_repo.PathToLocalStorage, localTip);
+			string transactionId = bundleHelper.TransactionId;
+			int startOfWindow = bundleHelper.StartOfWindow;
+			int chunkSize = DefaultChunkSize; // size in bytes
 			int bundleSize;
+
+			if (startOfWindow != 0)
+			{
+				string message = String.Format("Resuming pull operation at {0} bytes", startOfWindow);
+				_progress.WriteVerbose(message);
+			}
 
 			/* API parameters
 			 * $repoId, $baseHash, $offset, $chunkSize, $transId
@@ -365,34 +376,54 @@ namespace Chorus.VcsDrivers.Mercurial
 												{"chunkSize", chunkSize.ToString()},
 												{"transId", transactionId}
 											};
+			int loopCtr = 1;
 			do {
 				var response = PullOneChunk(requestParameters);
-				bundleSize = response.BundleSize;
-				chunkSize = response.ChunkSize;
+
 				if (response.Status == PullStatus.NoChange)
 				{
 					_progress.WriteVerbose("Pull operation reported no changes");
+					_progress.ProgressIndicator.Initialize(1);
+					_progress.ProgressIndicator.Finish();
 					return false;
 				}
-				if (response.Status == PullStatus.OK)
-				{
-					bundleHelper.WriteChunk(response.Chunk);
-					startOfWindow = startOfWindow + response.Chunk.Length;
-					requestParameters["offset"] = startOfWindow.ToString();
-				}
-				else
+				if (response.Status == PullStatus.Fail)
 				{
 					_progress.WriteError("Pull operation failed");
+					_progress.ProgressIndicator.Initialize(1);
+					_progress.ProgressIndicator.Finish();
 					return false;
 				}
+
+				bundleSize = response.BundleSize;
+				if (loopCtr == 1)
+				{
+					int numberOfStepsInPullOperation = bundleSize / chunkSize;
+					_progress.ProgressIndicator.Initialize(numberOfStepsInPullOperation);
+				}
+				_progress.ProgressIndicator.PercentCompleted = startOfWindow*100/bundleSize;
+				_progress.WriteStatus(string.Format("Receiving {0} of {1} bytes", startOfWindow, bundleSize));
+
+				_progress.ProgressIndicator.NextStep();
+				bundleHelper.WriteChunk(startOfWindow, response.Chunk);
+				startOfWindow = startOfWindow + response.Chunk.Length;
+				requestParameters["offset"] = startOfWindow.ToString();
+				chunkSize = response.ChunkSize;
+				requestParameters["chunkSize"] = chunkSize.ToString();
+
+				loopCtr++;
+
 			} while (startOfWindow < bundleSize);
 
 			if (_repo.Unbundle(bundleHelper.BundlePath))
 			{
 				_progress.WriteMessage("Pull operation completed successfully");
+				_progress.ProgressIndicator.Finish();
+				_progress.WriteStatus("Finished Receiving");
 				return true;
 			}
 			_progress.WriteError("Received all data but local unbundle operation failed!");
+			_progress.ProgressIndicator.Finish();
 			_progress.WriteError("Pull operation failed");
 			return false;
 		}
@@ -402,7 +433,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			var secondsBeforeTimeout = 15;
 			const int totalNumOfAttempts = 5;
 			var pullResponse = new PullResponse();
-			int chunkSize = DefaultChunkSize;
+			int chunkSize = Convert.ToInt32(parameters["chunkSize"]);
 			for (var attempt = 1; attempt <= totalNumOfAttempts; attempt++)
 			{
 				if (_progress.CancelRequested)
@@ -416,6 +447,7 @@ namespace Chorus.VcsDrivers.Mercurial
 						_progress.WriteStatus("Retrying pull operation...");
 					}
 
+					parameters["chunkSize"] = chunkSize.ToString();
 					var response = _apiServer.Execute("pullBundleChunk", parameters, secondsBeforeTimeout);
 					/* API returns the following HTTP codes:
 						* 200 OK (SUCCESS)
@@ -427,7 +459,9 @@ namespace Chorus.VcsDrivers.Mercurial
 					if (response.StatusCode == HttpStatusCode.OK)
 					{
 						int actualChunkSize = Convert.ToInt32(response.Headers["X-HgR-chunkSize"]);
-						_progress.WriteStatus("Received {0}+{1} of {2} bytes", parameters["offset"], actualChunkSize, response.Headers["X-HgR-bundleSize"]);
+						string statusMessage = string.Format("Received {0}+{1} bytes", parameters["offset"],
+															 actualChunkSize);
+						_progress.WriteVerbose(statusMessage);
 						pullResponse.Checksum = response.Headers["X-HgR-checksum"];
 						pullResponse.BundleSize = Convert.ToInt32(response.Headers["X-HgR-bundleSize"]);
 						pullResponse.Status = PullStatus.OK;
