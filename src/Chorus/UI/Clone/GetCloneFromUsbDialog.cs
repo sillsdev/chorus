@@ -191,7 +191,7 @@ _parentDirectoryToPutCloneIn), "Problem", MessageBoxButtons.OK, MessageBoxIcon.S
 
 				using (SoundPlayer player = new SoundPlayer(Properties.Resources.finishedSound))
 				{
-					player.Play();
+					player.PlaySync();
 				}
 
 			}
@@ -199,7 +199,7 @@ _parentDirectoryToPutCloneIn), "Problem", MessageBoxButtons.OK, MessageBoxIcon.S
 			{
 				using (SoundPlayer player = new SoundPlayer(Properties.Resources.errorSound))
 				{
-					player.Play();
+					player.PlaySync();
 				}
 				_failureMessage = error.Message;
 				UpdateDisplay(State.Error);
