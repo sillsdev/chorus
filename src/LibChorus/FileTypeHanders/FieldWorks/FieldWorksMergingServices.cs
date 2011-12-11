@@ -6,6 +6,7 @@ using System.Xml;
 using Chorus.FileTypeHanders.xml;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
+using Chorus.Properties;
 
 namespace Chorus.FileTypeHanders.FieldWorks
 {
@@ -33,6 +34,7 @@ namespace Chorus.FileTypeHanders.FieldWorks
 		private const string Binary = "Binary";
 		private const string Prop = "Prop";
 		private const string Custom = "Custom";
+		private const string Header = "header";
 
 		internal static ElementStrategy AddSharedImmutableSingletonElementType(Dictionary<string, ElementStrategy> sharedElementStrategies, string name, bool orderOfTheseIsRelevant)
 		{
@@ -58,24 +60,11 @@ namespace Chorus.FileTypeHanders.FieldWorks
 			return strategy;
 		}
 
-		internal static void AddSharedMainElement(Dictionary<string, ElementStrategy> sharedElementStrategies)
-		{
-			var strategy = new ElementStrategy(false)
-			{
-				MergePartnerFinder = _guidKey
-			};
-			strategy.AttributesToIgnoreForMerging.Add("class"); // Immutable
-			strategy.AttributesToIgnoreForMerging.Add("guid"); // Immutable
-			sharedElementStrategies.Add(Rt, strategy);
-			strategy.ContextDescriptorGenerator = _contextGen;
-		}
-
 		private static void CreateSharedElementStrategies(Dictionary<string, ElementStrategy> sharedElementStrategies)
 		{
-			AddSharedMainElement(sharedElementStrategies);
-
 			// Set up immutable strategies.
-			AddSharedImmutableSingletonElementType(sharedElementStrategies, DateCreated, false);
+			// Skip this one, since all DateTime props are, either legally (created), or are pre-processed for merging.
+			//AddSharedImmutableSingletonElementType(sharedElementStrategies, DateCreated, false);
 			AddSharedImmutableSingletonElementType(sharedElementStrategies, ImmutableSingleton, false);
 
 			AddSharedSingletonElementType(sharedElementStrategies, MutableSingleton, false);
@@ -116,18 +105,33 @@ namespace Chorus.FileTypeHanders.FieldWorks
 				var merger = new XmlMerger(mergeSituation);
 				var strategiesForMerger = merger.MergeStrategies;
 				strategiesForMerger.SetStrategy(Rt, sharedElementStrategies[Rt]);
+
+				// Add top level strategy for the new-styled elements (rt->classname).
+				// Eventually, the 'rt' stuff will go away.
+				var classStrat = new ElementStrategy(false);
+				classStrat.AttributesToIgnoreForMerging.Add("guid"); // guid is immutable.
+				classStrat.MergePartnerFinder = _guidKey;
+				classStrat.ContextDescriptorGenerator = _contextGen;
+				strategiesForMerger.SetStrategy(classInfo.ClassName, classStrat);
+
 				// Add all of the property bits.
-				// NB: Each of the child elements (except for custom properties, when we get to the point of handling them)
+				// NB: Each of the child elements (except for custom properties)
 				// will be singletons.
 				foreach (var propInfo in classInfo.AllProperties)
 				{
 					if (propInfo.IsCustomProperty)
+					{
 						ProcessCustomProperty(sharedElementStrategies, strategiesForMerger, propInfo, mutableSingleton);
+					}
 					else
+					{
 						ProcessStandardProperty(sharedElementStrategies, strategiesForMerger, propInfo, mutableSingleton, immSingleton);
+					}
 				}
 				mergers.Add(classInfo.ClassName, merger);
+
 			}
+
 		}
 
 		private static void ProcessCustomProperty(IDictionary<string, ElementStrategy> sharedElementStrategies, MergeStrategies strategiesForMerger, FdoPropertyInfo propInfo, ElementStrategy mutableSingleton)
@@ -137,10 +141,8 @@ namespace Chorus.FileTypeHanders.FieldWorks
 			ElementStrategy extantStrategy;
 			switch (propInfo.DataType)
 			{
-				// These three are immutable, in a manner of speaking.
-				// DateCreated is honestly, and the other two are because 'ours' and 'theirs' have been made to be the same already.
-				case DataType.Time: // Fall through // DateTime
-				case DataType.OwningCollection: // Fall through. There should be no ownership issues, since removal from original by either will show up as a removal.
+				case DataType.Time: // Fall through
+				case DataType.OwningCollection:
 				case DataType.ReferenceCollection:
 					strategyForCurrentProperty.IsImmutable = true;
 					break;
@@ -206,7 +208,7 @@ namespace Chorus.FileTypeHanders.FieldWorks
 				// These three are immutable, in a manner of speaking.
 				// DateCreated is honestly, and the other two are because 'ours' and 'theirs' have been made to be the same already.
 				case DataType.Time: // Fall through // DateTime
-				case DataType.OwningCollection: // Fall through. There should be no ownership issues, since removal from original by either will show up as a removal.
+				case DataType.OwningCollection:
 				case DataType.ReferenceCollection:
 					strategyForCurrentProperty = immSingleton;
 					break;
@@ -264,10 +266,18 @@ namespace Chorus.FileTypeHanders.FieldWorks
 			strategiesForMerger.SetStrategy(propInfo.PropertyName, strategyForCurrentProperty);
 		}
 
-		internal static void MergeCheckSum(XmlNode ourEntry, XmlNode theirEntry)
+		internal static void MergeCheckSum(XmlNode ourEntry, XmlNode theirEntry, bool isNewStyle)
 		{
-			if (ourEntry.SelectSingleNode("@class").Value != "WfiWordform")
-				return;
+			if (isNewStyle)
+			{
+				if (ourEntry.Name != "WfiWordform")
+					return;
+			}
+			else
+			{
+				if (ourEntry.SelectSingleNode("@class").Value != "WfiWordform")
+					return;
+			}
 
 			const string xpath = "Checksum";
 			var ourChecksumNode = ourEntry.SelectSingleNode(xpath);
@@ -359,23 +369,31 @@ namespace Chorus.FileTypeHanders.FieldWorks
 			return (parentNode == null) ? null : parentNode.SelectSingleNode(propertyName);
 		}
 
-		internal static void MergeCollectionProperties(IMergeEventListener eventListener, FdoClassInfo classWithCollectionProperties, XmlNode ourEntry, XmlNode theirEntry, XmlNode commonEntry)
+		internal static void MergeCollectionProperties(IMergeEventListener eventListener, FdoClassInfo classWithCollectionProperties, XmlNode ourEntry, XmlNode theirEntry, XmlNode commonEntry, bool isNewStyle)
 		{
 			foreach (var collectionProperty in classWithCollectionProperties.AllCollectionProperties)
 			{
+				var isOwningProp = (collectionProperty.DataType == DataType.OwningCollection);
+				if (isOwningProp && isNewStyle)
+					continue; // Skip it, even if it was excluded, and thus, has objsur elements. The merge strategy thinks it is mutable, and try to merge it anyway.
+
 				var commonValues = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 				var commonPropNode = GetPropertyNode(commonEntry, collectionProperty.PropertyName);
 				if (commonPropNode != null)
 				{
-					commonValues.UnionWith(from XmlNode objsurNode in commonPropNode.SafeSelectNodes(Objsur)
-										   select objsurNode.GetStringAttribute(GuidStr));
+					var guids = from XmlNode objsurNode in commonPropNode.SafeSelectNodes(Objsur)
+								   select objsurNode.GetStringAttribute(GuidStr);
+
+					commonValues.UnionWith(guids);
 				}
 				var ourValues = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 				var ourPropNode = GetPropertyNode(ourEntry, collectionProperty.PropertyName);
 				if (ourPropNode != null)
 				{
-					ourValues.UnionWith(from XmlNode objsurNode in ourPropNode.SafeSelectNodes(Objsur)
-										select objsurNode.GetStringAttribute(GuidStr));
+					var guids = from XmlNode objsurNode in ourPropNode.SafeSelectNodes(Objsur)
+								select objsurNode.GetStringAttribute(GuidStr);
+
+					ourValues.UnionWith(guids);
 					if (!commonValues.SetEquals(ourValues))
 					{
 						eventListener.ChangeOccurred(new XmlChangedRecordReport(null, null, commonEntry, ourEntry));
@@ -385,8 +403,10 @@ namespace Chorus.FileTypeHanders.FieldWorks
 				var theirPropNode = GetPropertyNode(theirEntry, collectionProperty.PropertyName);
 				if (theirPropNode != null)
 				{
-					theirValues.UnionWith(from XmlNode objsurNode in theirPropNode.SafeSelectNodes(Objsur)
-										  select objsurNode.GetStringAttribute(GuidStr));
+					var guids = from XmlNode objsurNode in theirPropNode.SafeSelectNodes(Objsur)
+								select objsurNode.GetStringAttribute(GuidStr);
+
+					theirValues.UnionWith(guids);
 					if (!commonValues.SetEquals(theirValues))
 					{
 						eventListener.ChangeOccurred(new XmlChangedRecordReport(null, null, commonEntry, theirEntry));
@@ -452,6 +472,11 @@ namespace Chorus.FileTypeHanders.FieldWorks
 					var propType = (collectionProperty.DataType == DataType.ReferenceCollection) ? "r" : "o";
 					foreach (var newValue in mergedCollection)
 					{
+						// TODO: This will be tricky for the new-style system with probable nested owning data.
+						// TODO: For new-styled 'excluded' stuff, the prop will still have the objsur elements.
+						// TODO: For new-styled included props, the prop will have the full objects,
+						// TODO: so some way to merge possible changes to them will be needed.
+
 						// Add it to ours and theirs.
 						CreateObjsurNode(ourDoc, newValue, propType, ourPropNode);
 						CreateObjsurNode(theirDoc, newValue, propType, theirPropNode);
@@ -472,10 +497,123 @@ namespace Chorus.FileTypeHanders.FieldWorks
 			srcObjsurNode.Attributes.Append(srcPropTypeAttrNode);
 		}
 
+		/// <summary>
+		/// Bootstrap a merger for the new-styled (nested) files.
+		/// </summary>
+		/// <remarks>
+		/// 1. A generic 'header' element will be handled, although it may not appear in the file.
+		/// 2. All classes  will be included.
+		/// 3. Merge strategies for class properties (regular or custom) will have keys of "classname+propname" to make them unique, system-wide.
+		/// </remarks>
+		internal static void BootstrapSystem(MetadataCache metadataCache, XmlMerger merger)
+		{
+			var sharedElementStrategies = new Dictionary<string, ElementStrategy>();
+			CreateSharedElementStrategies(sharedElementStrategies);
+
+			var strategiesForMerger = merger.MergeStrategies;
+
+			foreach (var sharedKvp in sharedElementStrategies)
+				strategiesForMerger.SetStrategy(sharedKvp.Key, sharedKvp.Value);
+
+			var headerStrategy = CreateSingletonElementType(true);
+			headerStrategy.ContextDescriptorGenerator = _contextGen;
+			strategiesForMerger.SetStrategy(Header, headerStrategy);
+
+			var classStrat = new ElementStrategy(false)
+								{
+									MergePartnerFinder = _guidKey,
+									ContextDescriptorGenerator = _contextGen,
+									IsAtomic = false
+								};
+
+			foreach (var classInfo in metadataCache.AllConcreteClasses)
+			{
+				strategiesForMerger.SetStrategy(classInfo.ClassName, classStrat);
+				foreach (var propertyInfo in classInfo.AllProperties)
+				{
+					var isCustom = propertyInfo.IsCustomProperty;
+					var propStrategy = isCustom
+										? ElementStrategy.CreateForKeyedElement("name", false)
+										: ElementStrategy.CreateSingletonElement();
+					switch (propertyInfo.DataType)
+					{
+						case DataType.OwningCollection:
+							propStrategy.IsImmutable = false; // Hard to really know, since some owning props can still have 'objsur' elements.
+							break;
+						// These two are immutable, in a manner of speaking.
+						// DateCreated is honestly, and the other two are because 'ours' and 'theirs' have been made to be the same already.
+						case DataType.Time: // Fall through // DateTime
+						case DataType.ReferenceCollection:
+							propStrategy.IsImmutable = true;
+							break;
+
+						case DataType.OwningSequence: // Fall through. // TODO: Sort out ownership issues for conflicts.
+						case DataType.ReferenceSequence:
+							// Use IsAtomic for whole property.
+							propStrategy.IsAtomic = true;
+							break;
+
+						case DataType.OwningAtomic: // Fall through. // TODO: Think about implications of a conflict.
+						case DataType.ReferenceAtomic:
+
+						// Other data types
+						case DataType.MultiUnicode:
+						case DataType.MultiString:
+						case DataType.Unicode: // Ordinary C# string
+						case DataType.String: // TsString
+						case DataType.Binary:
+						case DataType.TextPropBinary:
+						// NB: Booleans can never be in conflict in a 3-way merge environment.
+						// One or the other can toggle the bool, so the one changing it 'wins'.
+						// If both change it then it's no big deal either.
+						case DataType.Boolean: // Fall through.
+						case DataType.GenDate: // Fall through.
+						case DataType.Guid: // Fall through.
+						case DataType.Integer: // Fall through.
+							// Simple, mutable properties.
+							break;
+					}
+					strategiesForMerger.SetStrategy(String.Format("{0}{1}_{2}", isCustom ? "Custom_" : "", classInfo.ClassName, propertyInfo.PropertyName), propStrategy);
+				}
+			}
+		}
+
 		internal static void BootstrapSystem(MetadataCache mdc, Dictionary<string, ElementStrategy> sharedElementStrategies, Dictionary<string, XmlMerger> mergers, MergeSituation mergeSituation)
 		{
+			var strategy = new ElementStrategy(false)
+			{
+				MergePartnerFinder = _guidKey
+			};
+			strategy.AttributesToIgnoreForMerging.Add("class"); // Immutable
+			strategy.AttributesToIgnoreForMerging.Add("guid"); // Immutable
+			sharedElementStrategies.Add(Rt, strategy);
+			strategy.ContextDescriptorGenerator = _contextGen;
+
 			CreateSharedElementStrategies(sharedElementStrategies);
 			CreateMergers(mdc, mergeSituation, sharedElementStrategies, mergers);
+		}
+
+		internal static void SetupMdc(MetadataCache mdc, MergeOrder mergeOrder, string customPropTargetDir, ushort levelsAboveCustomPropTargetDir)
+		{
+			if (mdc == null) throw new ArgumentNullException("mdc");
+			if (mergeOrder == null) throw new ArgumentNullException("mergeOrder");
+			if (string.IsNullOrEmpty(customPropTargetDir)) throw new ArgumentException(AnnotationImages.kInvalidArgument, "customPropTargetDir");
+
+			// Add optional custom property information to MDC.
+			string mainCustomPropPathname;
+			string altCustomPropPathname;
+			switch (mergeOrder.MergeSituation.ConflictHandlingMode)
+			{
+				default:
+					mainCustomPropPathname = Path.GetDirectoryName(mergeOrder.pathToOurs);
+					altCustomPropPathname = Path.GetDirectoryName(mergeOrder.pathToTheirs);
+					break;
+				case MergeOrder.ConflictHandlingModeChoices.TheyWin:
+					mainCustomPropPathname = Path.GetDirectoryName(mergeOrder.pathToTheirs);
+					altCustomPropPathname = Path.GetDirectoryName(mergeOrder.pathToOurs);
+					break;
+			}
+			mdc.AddCustomPropInfo(mainCustomPropPathname, altCustomPropPathname, customPropTargetDir, levelsAboveCustomPropTargetDir);
 		}
 	}
 }

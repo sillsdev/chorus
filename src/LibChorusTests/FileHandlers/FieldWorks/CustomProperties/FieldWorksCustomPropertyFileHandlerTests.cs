@@ -25,7 +25,7 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks.CustomProperties
 		public void FixtureSetup()
 		{
 			_fwCustomPropertiesFileHandler = (from handler in ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers().Handlers
-											  where handler.GetType().Name == "FieldeWorksCustomPropertyFileHandler"
+											  where handler.GetType().Name == "FieldWorksCustomPropertyFileHandler"
 											  select handler).First();
 		}
 
@@ -84,7 +84,7 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks.CustomProperties
 		{
 			using (var tempModelVersionFile = new TempFile("<classdata />"))
 			{
-				var newpath = Path.ChangeExtension(tempModelVersionFile.Path, "CustomProperties");
+				var newpath = Path.ChangeExtension(tempModelVersionFile.Path, "someext");
 				File.Copy(tempModelVersionFile.Path, newpath, true);
 				Assert.IsNotNull(_fwCustomPropertiesFileHandler.ValidateFile(newpath, null));
 				File.Delete(newpath);

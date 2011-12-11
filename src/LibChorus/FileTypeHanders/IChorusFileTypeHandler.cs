@@ -4,6 +4,7 @@ using Chorus.FileTypeHanders.adaptIt;
 using Chorus.FileTypeHanders.audio;
 using Chorus.FileTypeHanders.FieldWorks;
 using Chorus.FileTypeHanders.FieldWorks.CustomProperties;
+using Chorus.FileTypeHanders.FieldWorks.Linguistics.Reversals;
 using Chorus.FileTypeHanders.FieldWorks.ModelVersion;
 using Chorus.FileTypeHanders.image;
 using Chorus.FileTypeHanders.ldml;
@@ -64,7 +65,7 @@ namespace Chorus.FileTypeHanders
 		public IEnumerable<IChorusFileTypeHandler> Handlers { get { return HandlersList; } }
 
 		/// <summary>
-		/// THis will eventually done using MEF or some other dynamic way of finding available HandlersList
+		/// This will eventually done using MEF or some other dynamic way of finding available HandlersList
 		/// </summary>
 		/// <returns></returns>
 		public static ChorusFileTypeHandlerCollection CreateWithInstalledHandlers()
@@ -81,10 +82,11 @@ namespace Chorus.FileTypeHanders
 			fileTypeHandlers.HandlersList.Add(new ChorusTestFileHandler());
 			fileTypeHandlers.HandlersList.Add(new OurWordFileHandler());
 			fileTypeHandlers.HandlersList.Add(new FieldWorksFileHandler());
-			fileTypeHandlers.HandlersList.Add(new FieldeWorksCustomPropertyFileHandler());
+			fileTypeHandlers.HandlersList.Add(new FieldWorksCustomPropertyFileHandler());
 			fileTypeHandlers.HandlersList.Add(new FieldWorksModelVersionFileHandler());
 			fileTypeHandlers.HandlersList.Add(new LiftRangesFileTypeHandler());
 			fileTypeHandlers.HandlersList.Add(new LdmlFileHandler());
+			fileTypeHandlers.HandlersList.Add(new FieldWorksReversalTypeHandler());
 
 			//NB: never add the Default handler
 			return fileTypeHandlers;

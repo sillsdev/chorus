@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
+using System.Text;
 using System.Xml;
-using System.Xml.Linq;
 using Chorus.FileTypeHanders.xml;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
@@ -11,32 +10,31 @@ using Chorus.VcsDrivers.Mercurial;
 using Palaso.IO;
 using Palaso.Progress.LogBox;
 
-namespace Chorus.FileTypeHanders.FieldWorks
+namespace Chorus.FileTypeHanders.FieldWorks.Linguistics.Reversals
 {
-	/// <summary>
-	/// File handler for a FieldWorks 7.0 xml class data file (not the main fwdata file).
-	/// </summary>
-	public class FieldWorksFileHandler : IChorusFileTypeHandler
+	///<summary>
+	/// Handler for '.reversal' extension for FieldWorks reversal files.
+	///</summary>
+	public class FieldWorksReversalTypeHandler : IChorusFileTypeHandler
 	{
-		private const string kExtension = "ClassData";
-		private readonly Dictionary<string, bool> _filesChecked = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
+		private const string kExtension = "reversal";
 		private readonly MetadataCache _mdc = new MetadataCache();
 
 		#region Implementation of IChorusFileTypeHandler
 
 		public bool CanDiffFile(string pathToFile)
 		{
-			return CheckThatInputIsValidFieldWorksFile(pathToFile);
+			return CanValidateFile(pathToFile);
 		}
 
 		public bool CanMergeFile(string pathToFile)
 		{
-			return CheckThatInputIsValidFieldWorksFile(pathToFile);
+			return CanValidateFile(pathToFile);
 		}
 
 		public bool CanPresentFile(string pathToFile)
 		{
-			return CheckThatInputIsValidFieldWorksFile(pathToFile);
+			return CanValidateFile(pathToFile);
 		}
 
 		public bool CanValidateFile(string pathToFile)
@@ -44,19 +42,7 @@ namespace Chorus.FileTypeHanders.FieldWorks
 			if (!FileUtils.CheckValidPathname(pathToFile, kExtension))
 				return false;
 
-			try
-			{
-				var settings = new XmlReaderSettings { ValidationType = ValidationType.None };
-				using (var reader = XmlReader.Create(pathToFile, settings))
-				{
-					reader.MoveToContent();
-					return reader.LocalName == "classdata";
-				}
-			}
-			catch
-			{
-				return false;
-			}
+			return DoValidation(pathToFile) == null;
 		}
 
 		/// <summary>
@@ -69,19 +55,19 @@ namespace Chorus.FileTypeHanders.FieldWorks
 			if (mergeOrder == null) throw new ArgumentNullException("mergeOrder");
 
 			// Add optional custom property information to MDC.
-			FieldWorksMergingServices.SetupMdc(_mdc, mergeOrder, "DataFiles", 1);
+			FieldWorksMergingServices.SetupMdc(_mdc, mergeOrder, "Linguistics", 1);
 
 			XmlMergeService.Do3WayMerge(mergeOrder,
-				new FieldWorksMergingStrategy(mergeOrder.MergeSituation, _mdc),
-				null,
-				"rt", "guid", WritePreliminaryInformation);
+				new FieldWorksReversalMergeStrategy(mergeOrder.MergeSituation, _mdc),
+				"header",
+				"ReversalIndexEntry", "guid", WritePreliminaryInformation);
 		}
 
 		public IEnumerable<IChangeReport> Find2WayDifferences(FileInRevision parent, FileInRevision child, HgRepository repository)
 		{
 			return Xml2WayDiffService.ReportDifferences(repository, parent, child,
-				null,
-				"rt", "guid");
+				"header",
+				"ReversalIndexEntry", "guid");
 		}
 
 		public IChangePresenter GetChangePresenter(IChangeReport report, HgRepository repository)
@@ -100,30 +86,7 @@ namespace Chorus.FileTypeHanders.FieldWorks
 		/// </summary>
 		public string ValidateFile(string pathToFile, IProgress progress)
 		{
-			try
-			{
-				var settings = new XmlReaderSettings { ValidationType = ValidationType.None };
-				using (var reader = XmlReader.Create(pathToFile, settings))
-				{
-					reader.MoveToContent();
-					if (reader.LocalName == "classdata")
-					{
-						// It would be nice, if it could really validate it.
-						while (reader.Read())
-						{
-						}
-					}
-					else
-					{
-						throw new InvalidOperationException("Not a FieldWorks file.");
-					}
-				}
-			}
-			catch (Exception error)
-			{
-				return error.Message;
-			}
-			return null;
+			return DoValidation(pathToFile);
 		}
 
 		/// <summary>
@@ -153,23 +116,38 @@ namespace Chorus.FileTypeHanders.FieldWorks
 
 		#endregion
 
-		private bool CheckThatInputIsValidFieldWorksFile(string pathToFile)
+		private static string DoValidation(string pathToFile)
 		{
-			if (!FileUtils.CheckValidPathname(pathToFile, kExtension))
-				return false;
-
-			bool seenBefore;
-			if (_filesChecked.TryGetValue(pathToFile, out seenBefore))
-				return seenBefore;
-			var retval = ValidateFile(pathToFile, null) == null;
-			_filesChecked.Add(pathToFile, retval);
-			return retval;
+			try
+			{
+				var settings = new XmlReaderSettings { ValidationType = ValidationType.None };
+				using (var reader = XmlReader.Create(pathToFile, settings))
+				{
+					reader.MoveToContent();
+					if (reader.LocalName == "Reversal")
+					{
+						// It would be nice, if it could really validate it.
+						while (reader.Read())
+						{
+						}
+					}
+					else
+					{
+						throw new InvalidOperationException("Not a FieldWorks reversal file.");
+					}
+				}
+			}
+			catch (Exception e)
+			{
+				return e.Message;
+			}
+			return null;
 		}
 
 		private static void WritePreliminaryInformation(XmlReader reader, XmlWriter writer)
 		{
 			reader.MoveToContent();
-			writer.WriteStartElement("classdata");
+			writer.WriteStartElement("Reversal");
 			reader.Read();
 		}
 	}

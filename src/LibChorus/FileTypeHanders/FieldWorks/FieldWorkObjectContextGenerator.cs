@@ -11,7 +11,12 @@ namespace Chorus.FileTypeHanders.FieldWorks
 		public ContextDescriptor GenerateContextDescriptor(string mergeElement, string filePath)
 		{
 			var rtElement = XElement.Parse(mergeElement);
-			var label = rtElement.Attribute("class").Value + ": " + rtElement.Attribute("guid").Value;
+			var label = string.Empty;
+			label = rtElement.Name.LocalName == "header"
+				? "header for context"
+				: rtElement.Name.LocalName == "rt"
+						? rtElement.Attribute("class").Value + ": " + rtElement.Attribute("guid").Value
+						: rtElement.Name.LocalName + ": " + rtElement.Attribute("guid").Value;
 			return new ContextDescriptor(label, "FIXTHIS");
 		}
 	}

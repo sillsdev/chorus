@@ -18,7 +18,7 @@ namespace Chorus.FileTypeHanders.lift
 
 		/// <summary>
 		/// Make sure the newly exported LIFT file:
-		///		1) conforms to the Palas0 canonical XML writer settings, and
+		///		1) conforms to the Palaso canonical XML writer settings, and
 		///		2) retains the order of entries in the original file.
 		///
 		/// Both of these adjustments are needed to make life easier on Mercurial.

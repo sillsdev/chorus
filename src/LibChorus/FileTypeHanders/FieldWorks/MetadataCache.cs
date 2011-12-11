@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Xml.Linq;
 using Chorus.Properties;
 
 namespace Chorus.FileTypeHanders.FieldWorks
@@ -24,10 +25,10 @@ namespace Chorus.FileTypeHanders.FieldWorks
 			// the MDC needs to be able to support various FW model versions.
 			// This can be introduced with some kind of 'InitializeTo(string modelVersionNumber) method.
 			// There will be a base starting model version number,
-			// and the Init method will then move up one verswion at a time, and add/remove props/classes,
-			// for each FW migration tobring it up to the given number.
+			// and the Init method will then move up one version at a time, and add/remove props/classes,
+			// for each FW migration to bring it up to the given number.
 			// This will still require all users of a repo to be on the same version,
-			// but it will allow different sets of users tobe at different levels.
+			// but it will allow different sets of users to be at different levels.
 			// I expect the MDC to be available in a static variable, and accessable via a getter.
 			AddMainClassInfo();
 			SetSuperclasses();
@@ -94,6 +95,40 @@ namespace Chorus.FileTypeHanders.FieldWorks
 				classInfo.Superclass = _classes[classInfo.SuperclassName];
 				classInfo.SuperclassName = null;
 			}
+		}
+
+		internal void AddCustomPropInfo(string mainCustomPropPathname, string altCustomPropPathname, string customPropTargetDir, ushort levelsAboveCustomPropTargetDir)
+		{
+			var customFiles = Directory.GetFiles(GetAdjustedCustomPropDirName(mainCustomPropPathname, customPropTargetDir, levelsAboveCustomPropTargetDir), "*.CustomProperties").ToList();
+			if (customFiles.Count == 0)
+				customFiles = Directory.GetFiles(GetAdjustedCustomPropDirName(altCustomPropPathname, customPropTargetDir, levelsAboveCustomPropTargetDir), "*.CustomProperties").ToList();
+
+			if (customFiles.Count < 1)
+				return;
+
+			var doc = XDocument.Load(customFiles[0]);
+// ReSharper disable PossibleNullReferenceException
+			foreach (var customFieldElement in doc.Element("AdditionalFields").Elements("CustomField"))
+				AddCustomPropInfo(customFieldElement.Attribute("class").Value, new FdoPropertyInfo(customFieldElement.Attribute("name").Value, customFieldElement.Attribute("type").Value, true));
+// ReSharper restore PossibleNullReferenceException
+		}
+
+		private static string GetAdjustedCustomPropDirName(string startingDirName, string customPropTargetDir, ushort levelsAboveCustomPropTargetDir)
+		{
+			var adjustedDirPath = startingDirName;
+			if (startingDirName.Contains(customPropTargetDir))
+			{
+				while (!adjustedDirPath.EndsWith(customPropTargetDir))
+				{
+					adjustedDirPath = Directory.GetParent(adjustedDirPath).FullName;
+				}
+				while (levelsAboveCustomPropTargetDir > 0)
+				{
+					adjustedDirPath = Directory.GetParent(adjustedDirPath).FullName;
+					--levelsAboveCustomPropTargetDir;
+				}
+			}
+			return adjustedDirPath;
 		}
 
 		/// <summary>

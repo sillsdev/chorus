@@ -54,14 +54,15 @@ namespace Chorus.FileTypeHanders.FieldWorks
 			//		So, if the owned object reports an owner conflict,
 			//		then make sure the 'loser' owner also has a conflict.
 
+			var className = XmlUtilities.GetStringAttribute(extantNode, "class");
+
 			// These steps will do some 'pre-merging' work,
 			// which will avoid what could otherwise be conflicts.
 			FieldWorksMergingServices.MergeTimestamps(ourEntry, theirEntry);
-			FieldWorksMergingServices.MergeCheckSum(ourEntry, theirEntry);
-			var className = XmlUtilities.GetStringAttribute(extantNode, "class");
+			FieldWorksMergingServices.MergeCheckSum(ourEntry, theirEntry, false);
 			FdoClassInfo info;
 			if (_mdc.ClassesWithCollectionProperties.TryGetValue(className, out info))
-				FieldWorksMergingServices.MergeCollectionProperties(eventListener, info, ourEntry, theirEntry, commonEntry);
+				FieldWorksMergingServices.MergeCollectionProperties(eventListener, info, ourEntry, theirEntry, commonEntry, false);
 			var merger = _mergers[className];
 
 			return FieldWorksMergingServices.GetOuterXml(merger.Merge(eventListener, ourEntry, theirEntry, commonEntry));

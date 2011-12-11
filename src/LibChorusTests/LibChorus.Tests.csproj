@@ -118,6 +118,8 @@
 	<Compile Include="FileHandlers\FieldWorks\FieldWorksFileMergeTests.cs" />
 	<Compile Include="FileHandlers\FieldWorks\FieldWorksFileValidationTests.cs" />
 	<Compile Include="FileHandlers\FieldWorks\FieldWorksMergingStrategyTests.cs" />
+	<Compile Include="FileHandlers\FieldWorks\FieldWorksTestServices.cs" />
+	<Compile Include="FileHandlers\FieldWorks\Linguistics\Reversals\FieldWorksReversalTypeHandlerTests.cs" />
 	<Compile Include="FileHandlers\FieldWorks\ModelVersion\FieldWorksModelVersionFileHandlerTests.cs" />
 	<Compile Include="FileHandlers\FieldWorks\MetadataCacheTests.cs" />
 	<Compile Include="FileHandlers\ldml\LdmlFileMergeTests.cs" />

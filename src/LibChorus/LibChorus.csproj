@@ -131,9 +131,11 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
-	<Compile Include="FileTypeHanders\FieldWorks\CustomProperties\FieldeWorksCustomPropertyFileHandler.cs" />
+	<Compile Include="FileTypeHanders\FieldWorks\CustomProperties\FieldWorksCustomPropertyFileHandler.cs" />
 	<Compile Include="FileTypeHanders\FieldWorks\CustomProperties\FieldWorksCustomPropertyContextGenerator.cs" />
 	<Compile Include="FileTypeHanders\FieldWorks\CustomProperties\FieldWorksCustomPropertyMergingStrategy.cs" />
+	<Compile Include="FileTypeHanders\FieldWorks\Linguistics\Reversals\FieldWorksReversalMergeStrategy.cs" />
+	<Compile Include="FileTypeHanders\FieldWorks\Linguistics\Reversals\FieldWorksReversalTypeHandler.cs" />
 	<Compile Include="FileTypeHanders\FieldWorks\ModelVersion\FieldWorksModelVersionChangePresenter.cs" />
 	<Compile Include="FileTypeHanders\FieldWorks\ModelVersion\FieldWorksModelVersionChangeReport.cs" />
 	<Compile Include="FileTypeHanders\FieldWorks\ModelVersion\FieldWorksModelVersionFileHandler.cs" />
@@ -345,6 +347,7 @@
   <ItemGroup>
 	<None Include="Resources\question16x16Closed.png" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
 	   Other similar extension points exist, see Microsoft.Common.targets.
