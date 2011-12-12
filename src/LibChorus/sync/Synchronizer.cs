@@ -96,7 +96,7 @@ namespace Chorus.sync
 
 				RemoveLocks(repo);
 				repo.RecoverFromInterruptedTransactionIfNeeded();
-				// moved to a more generic place: UpdateHgrc(repo);
+				repo.FixUnicodeAudio();
 				Commit(options);
 
 				var workingRevBeforeSync = repo.GetRevisionWorkingSetIsBasedOn();
@@ -152,6 +152,8 @@ namespace Chorus.sync
 			}
 			return results;
 		}
+
+
 
 		private void CreateRepositoryOnLocalAreaNetworkFolderIfNeededThrowIfFails(HgRepository repo, List<RepositoryAddress> sourcesToTry)
 		{

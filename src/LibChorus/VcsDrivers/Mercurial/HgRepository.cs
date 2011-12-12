@@ -1861,6 +1861,15 @@ namespace Chorus.VcsDrivers.Mercurial
 			.Replace("=", "_"); //an = in the path would also mess things up
 		}
 
+		/// <summary>
+		/// In late 2011, we added the fixutf8 extension on windows, which preserves file names requiring unicode. However, if files were previously put
+		/// into the repo with messed-up names (because hg by default does some western encoding), this is supposed to detect the name change and fix them.
+		/// http://mercurial.selenic.com/wiki/FixUtf8Extension
+		/// </summary>
+		public void FixUnicodeAudio()
+		{
+			ExecuteErrorsOk("addremove -s 100 -I **.wav", _pathToRepository, SecondsBeforeTimeoutOnLocalOperation, _progress);
+		}
 	}
 
 }
