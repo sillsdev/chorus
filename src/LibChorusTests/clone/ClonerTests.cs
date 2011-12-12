@@ -29,6 +29,7 @@ namespace LibChorus.Tests
 		}
 
 		[Test]
+		[Category("SkipOnTeamCity")]
 		public void MakeClone_TargetExists_CreatesCloneInAnotherFolder()
 		{
 			using (var repo = new RepositorySetup("source"))
