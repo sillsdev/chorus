@@ -106,14 +106,6 @@ namespace Chorus.FileTypeHanders.FieldWorks
 				var strategiesForMerger = merger.MergeStrategies;
 				strategiesForMerger.SetStrategy(Rt, sharedElementStrategies[Rt]);
 
-				// Add top level strategy for the new-styled elements (rt->classname).
-				// Eventually, the 'rt' stuff will go away.
-				var classStrat = new ElementStrategy(false);
-				classStrat.AttributesToIgnoreForMerging.Add("guid"); // guid is immutable.
-				classStrat.MergePartnerFinder = _guidKey;
-				classStrat.ContextDescriptorGenerator = _contextGen;
-				strategiesForMerger.SetStrategy(classInfo.ClassName, classStrat);
-
 				// Add all of the property bits.
 				// NB: Each of the child elements (except for custom properties)
 				// will be singletons.
