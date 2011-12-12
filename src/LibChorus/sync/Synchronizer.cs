@@ -96,7 +96,7 @@ namespace Chorus.sync
 
 				RemoveLocks(repo);
 				repo.RecoverFromInterruptedTransactionIfNeeded();
-				// moved to a more generic place: UpdateHgrc(repo);
+				repo.FixUnicodeAudio();
 				Commit(options);
 
 				var workingRevBeforeSync = repo.GetRevisionWorkingSetIsBasedOn();
@@ -155,15 +155,15 @@ namespace Chorus.sync
 
 		private void CreateRepositoryOnLocalAreaNetworkFolderIfNeededThrowIfFails(HgRepository repo, List<RepositoryAddress> sourcesToTry)
 		{
-			RepositoryAddress directorySource = sourcesToTry.FirstOrDefault(s=>s is DirectoryRepositorySource);
-			if(directorySource!=null)
-			{
-				if(!Directory.Exists(Path.Combine(directorySource.URI, ".hg")))
-				{
-					_progress.WriteMessage("Creating new repository at "+directorySource.URI);
-					repo.CloneToRemoteDirectoryWithoutCheckout(directorySource.URI);
-				}
-			}
+			var directorySource = sourcesToTry.FirstOrDefault(s => s is DirectoryRepositorySource);
+			if (directorySource == null)
+				return;
+
+			var target = HgHighLevel.GetUniqueFolderPath(_progress,
+														 "Could not use folder {0}, since it already exists. Using new folder {1}, instead.",
+														 directorySource.URI);
+			_progress.WriteMessage("Creating new repository at " + target);
+			repo.CloneToRemoteDirectoryWithoutCheckout(target);
 		}
 
 		/// <summary>
