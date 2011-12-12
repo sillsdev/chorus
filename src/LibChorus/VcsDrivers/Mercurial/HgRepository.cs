@@ -726,6 +726,9 @@ namespace Chorus.VcsDrivers.Mercurial
 			progress.WriteStatus("Getting project...");
 			try
 			{
+				targetPath = HgHighLevel.GetUniqueFolderPath(progress,
+															 "Folder at {0} already exists, so can't be used. Creating clone in {1}, instead.",
+															 targetPath);
 				var repo = new HgRepository(targetPath, progress);
 
 				repo.Execute(int.MaxValue, "clone", DoWorkOfDeterminingProxyConfigParameterString(targetPath, progress), SurroundWithQuotes(sourceUri) + " " + SurroundWithQuotes(targetPath));
