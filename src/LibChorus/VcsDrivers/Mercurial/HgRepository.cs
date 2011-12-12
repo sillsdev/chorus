@@ -24,9 +24,9 @@ namespace Chorus.VcsDrivers.Mercurial
 		protected readonly string _pathToRepository;
 		protected string _userName;
 		protected IProgress _progress;
-		private const int SecondsBeforeTimeoutOnLocalOperation = 15 * 60;
-		private const int SecondsBeforeTimeoutOnMergeOperation = 15 * 60;
-		private const int SecondsBeforeTimeoutOnRemoteOperation = 40 * 60;
+		public  int SecondsBeforeTimeoutOnLocalOperation = 15 * 60;
+		public int SecondsBeforeTimeoutOnMergeOperation = 15 * 60;
+		public const int SecondsBeforeTimeoutOnRemoteOperation = 40 * 60;
 		private bool _haveLookedIntoProxySituation;
 		private string _proxyCongfigParameterString = string.Empty;
 		private bool _alreadyUpdatedHgrc;
@@ -1860,6 +1860,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			.Replace(":", "_") // catch one without a slash
 			.Replace("=", "_"); //an = in the path would also mess things up
 		}
+
 	}
 
 }
