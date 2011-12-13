@@ -62,7 +62,7 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 
 			XmlNode theirNode;
 			XmlNode ancestorNode;
-			var ourNode = CreateNodes(commonAncestor, ourContent, theirContent, out theirNode, out ancestorNode);
+			var ourNode = FieldWorksTestServices.CreateNodes(commonAncestor, ourContent, theirContent, out theirNode, out ancestorNode);
 
 			var result = _fwMergeStrategy.MakeMergedEntry(_eventListener, ourNode, theirNode, ancestorNode);
 			Assert.IsTrue(result.Contains("2002-1-1 23:59:59.000"));
@@ -84,7 +84,7 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 
 			XmlNode theirNode;
 			XmlNode ancestorNode;
-			var ourNode = CreateNodes(commonAncestor, ourContent, theirContent, out theirNode, out ancestorNode);
+			var ourNode = FieldWorksTestServices.CreateNodes(commonAncestor, ourContent, theirContent, out theirNode, out ancestorNode);
 
 			var result = _fwMergeStrategy.MakeMergedEntry(_eventListener, ourNode, theirNode, ancestorNode);
 			Assert.IsTrue(result.Contains("2002-1-1 23:59:59.000"));
@@ -106,7 +106,7 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 
 			XmlNode theirNode;
 			XmlNode ancestorNode;
-			var ourNode = CreateNodes(commonAncestor, ourContent, theirContent, out theirNode, out ancestorNode);
+			var ourNode = FieldWorksTestServices.CreateNodes(commonAncestor, ourContent, theirContent, out theirNode, out ancestorNode);
 
 			var result = _fwMergeStrategy.MakeMergedEntry(_eventListener, ourNode, theirNode, ancestorNode);
 			Assert.IsTrue(result.Contains("val='0'") || result.Contains("val=\"0\""));
@@ -128,7 +128,7 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 
 			XmlNode theirNode;
 			XmlNode ancestorNode;
-			var ourNode = CreateNodes(commonAncestor, ourContent, theirContent, out theirNode, out ancestorNode);
+			var ourNode = FieldWorksTestServices.CreateNodes(commonAncestor, ourContent, theirContent, out theirNode, out ancestorNode);
 
 			var result = _fwMergeStrategy.MakeMergedEntry(_eventListener, ourNode, theirNode, ancestorNode);
 			Assert.IsTrue(result.Contains("val='0'") || result.Contains("val=\"0\""));
@@ -150,7 +150,7 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 
 			XmlNode theirNode;
 			XmlNode ancestorNode;
-			var ourNode = CreateNodes(commonAncestor, ourContent, theirContent, out theirNode, out ancestorNode);
+			var ourNode = FieldWorksTestServices.CreateNodes(commonAncestor, ourContent, theirContent, out theirNode, out ancestorNode);
 
 			var result = _fwMergeStrategy.MakeMergedEntry(_eventListener, ourNode, theirNode, ancestorNode);
 			Assert.IsTrue(result.Contains("val='0'") || result.Contains("val=\"0\""));
@@ -214,7 +214,7 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 
 			XmlNode sueNode;
 			XmlNode ancestorNode;
-			var randyNode = CreateNodes(commonAncestor, randy, sue, out sueNode, out ancestorNode);
+			var randyNode = FieldWorksTestServices.CreateNodes(commonAncestor, randy, sue, out sueNode, out ancestorNode);
 
 			var result = _fwMergeStrategy.MakeMergedEntry(_eventListener, randyNode, sueNode, ancestorNode);
 			var resElement = XElement.Parse(result);
@@ -282,7 +282,7 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 
 			XmlNode theirNode;
 			XmlNode ancestorNode;
-			var ourNode = CreateNodes(commonAncestor, ourContent, theirContent, out theirNode, out ancestorNode);
+			var ourNode = FieldWorksTestServices.CreateNodes(commonAncestor, ourContent, theirContent, out theirNode, out ancestorNode);
 			var result = _fwMergeStrategy.MakeMergedEntry(_eventListener, ourNode, theirNode, ancestorNode);
 
 			_eventListener.AssertExpectedConflictCount(0);
@@ -365,7 +365,7 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 
 			XmlNode theirNode;
 			XmlNode ancestorNode;
-			var ourNode = CreateNodes(commonAncestor, ourContent, theirContent, out theirNode, out ancestorNode);
+			var ourNode = FieldWorksTestServices.CreateNodes(commonAncestor, ourContent, theirContent, out theirNode, out ancestorNode);
 			var result = _fwMergeStrategy.MakeMergedEntry(_eventListener, ourNode, theirNode, ancestorNode);
 
 			_eventListener.AssertExpectedConflictCount(0);
@@ -392,22 +392,6 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 			Assert.IsNotNull((from target in refTargets
 							  where target.Attribute("guid").Value == "bothAdded"
 							  select target).FirstOrDefault());
-		}
-
-		private static XmlNode CreateNodes(string commonAncestor, string ourContent, string theirContent, out XmlNode theirNode, out XmlNode ancestorNode)
-		{
-			var ancestorDoc = new XmlDocument();
-			ancestorDoc.LoadXml(commonAncestor);
-			ancestorNode = ancestorDoc.DocumentElement.FirstChild;
-
-			var ourDoc = new XmlDocument();
-			ourDoc.LoadXml(ourContent);
-			var ourNode = ourDoc.DocumentElement.FirstChild;
-
-			var theirDoc = new XmlDocument();
-			theirDoc.LoadXml(theirContent);
-			theirNode = theirDoc.DocumentElement.FirstChild;
-			return ourNode;
 		}
 	}
 }

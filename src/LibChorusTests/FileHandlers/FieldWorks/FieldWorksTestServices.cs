@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Xml;
 using Chorus.FileTypeHanders;
 using Chorus.merge;
 using LibChorus.Tests.merge.xml;
@@ -51,6 +52,22 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks
 					Assert.AreSame(changeTypes[idx], eventListener.Changes[idx].GetType());
 			}
 			return result;
+		}
+
+		internal static XmlNode CreateNodes(string commonAncestor, string ourContent, string theirContent, out XmlNode theirNode, out XmlNode ancestorNode)
+		{
+			var ancestorDoc = new XmlDocument();
+			ancestorDoc.LoadXml(commonAncestor);
+			ancestorNode = ancestorDoc.DocumentElement.FirstChild;
+
+			var ourDoc = new XmlDocument();
+			ourDoc.LoadXml(ourContent);
+			var ourNode = ourDoc.DocumentElement.FirstChild;
+
+			var theirDoc = new XmlDocument();
+			theirDoc.LoadXml(theirContent);
+			theirNode = theirDoc.DocumentElement.FirstChild;
+			return ourNode;
 		}
 	}
 }

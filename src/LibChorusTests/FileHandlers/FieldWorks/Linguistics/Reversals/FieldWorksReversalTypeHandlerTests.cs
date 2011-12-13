@@ -2,8 +2,12 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Xml;
 using Chorus.FileTypeHanders;
+using Chorus.FileTypeHanders.FieldWorks;
+using Chorus.FileTypeHanders.FieldWorks.Linguistics.Reversals;
 using Chorus.FileTypeHanders.xml;
+using Chorus.merge;
 using Chorus.merge.xml.generic;
 using LibChorus.Tests.merge.xml.generic;
 using NUnit.Framework;
@@ -360,6 +364,84 @@ namespace LibChorus.Tests.FileHandlers.FieldWorks.Linguistics.Reversals
 				0, new List<Type>());
 
 			Assert.IsTrue(result.Contains("OurName"));
+		}
+
+		[Test]
+		public void NewerTimestampInOurWins()
+		{
+			const string commonAncestor =
+@"<?xml version='1.0' encoding='utf-8'?>
+<Reversal>
+<header>
+<ReversalIndex guid='c1ed46b8-e382-11de-8a39-0800200c9a66'>
+	<PartsOfSpeech>
+		<CmPossibilityList guid ='c1ed46bb-e382-11de-8a39-0800200c9a66' >
+			<Possibilities>
+				<PartOfSpeech guid ='c1ed6db0-e382-11de-8a39-0800200c9a66'>
+					<DateModified val='2000-1-1 23:59:59.000' />
+					<Name>
+						<AUni
+							ws='en'>commonName</AUni>
+					</Name>
+				</PartOfSpeech>
+			</Possibilities>
+		</CmPossibilityList>
+	</PartsOfSpeech>
+</ReversalIndex>
+</header>
+<ReversalIndexEntry guid='oldie'>
+</ReversalIndexEntry>
+</Reversal>";
+			var ourContent = commonAncestor.Replace("2000-1-1 23:59:59.000", "2002-1-1 23:59:59.000");
+			var theirContent = commonAncestor.Replace("2000-1-1 23:59:59.000", "2001-1-1 23:59:59.000");
+
+			XmlNode theirNode;
+			XmlNode ancestorNode;
+			var ourNode = FieldWorksTestServices.CreateNodes(commonAncestor, ourContent, theirContent, out theirNode, out ancestorNode);
+
+			var mergeStrategy = new FieldWorksReversalMergeStrategy(new NullMergeSituation(), new MetadataCache());
+			var result = mergeStrategy.MakeMergedEntry(_eventListener, ourNode, theirNode, ancestorNode);
+			Assert.IsTrue(result.Contains("2002-1-1 23:59:59.000"));
+			_eventListener.AssertExpectedConflictCount(0);
+		}
+
+		[Test]
+		public void NewerTimestampInTheirsWins()
+		{
+			const string commonAncestor =
+@"<?xml version='1.0' encoding='utf-8'?>
+<Reversal>
+<header>
+<ReversalIndex guid='c1ed46b8-e382-11de-8a39-0800200c9a66'>
+	<PartsOfSpeech>
+		<CmPossibilityList guid ='c1ed46bb-e382-11de-8a39-0800200c9a66' >
+			<Possibilities>
+				<PartOfSpeech guid ='c1ed6db0-e382-11de-8a39-0800200c9a66'>
+					<DateModified val='2000-1-1 23:59:59.000' />
+					<Name>
+						<AUni
+							ws='en'>commonName</AUni>
+					</Name>
+				</PartOfSpeech>
+			</Possibilities>
+		</CmPossibilityList>
+	</PartsOfSpeech>
+</ReversalIndex>
+</header>
+<ReversalIndexEntry guid='oldie'>
+</ReversalIndexEntry>
+</Reversal>";
+			var ourContent = commonAncestor.Replace("2000-1-1 23:59:59.000", "2001-1-1 23:59:59.000");
+			var theirContent = commonAncestor.Replace("2000-1-1 23:59:59.000", "2002-1-1 23:59:59.000");
+
+			XmlNode theirNode;
+			XmlNode ancestorNode;
+			var ourNode = FieldWorksTestServices.CreateNodes(commonAncestor, ourContent, theirContent, out theirNode, out ancestorNode);
+
+			var mergeStrategy = new FieldWorksReversalMergeStrategy(new NullMergeSituation(), new MetadataCache());
+			var result = mergeStrategy.MakeMergedEntry(_eventListener, ourNode, theirNode, ancestorNode);
+			Assert.IsTrue(result.Contains("2002-1-1 23:59:59.000"));
+			_eventListener.AssertExpectedConflictCount(0);
 		}
 	}
 }
