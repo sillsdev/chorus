@@ -46,12 +46,12 @@ namespace Chorus.FileTypeHanders.lift
 			XmlMergeService.Do3WayMerge(mergeOrder,
 				new LiftEntryMergingStrategy(mergeOrder.MergeSituation),
 				"header",
-				"entry", "id", WritePreliminaryInformation);
+				"entry", "guid", WritePreliminaryInformation);
 		}
 
 		public IEnumerable<IChangeReport> Find2WayDifferences(FileInRevision parent, FileInRevision child, HgRepository repository)
 		{
-			return Xml2WayDiffService.ReportDifferences(repository, parent, child, "header", "entry", "id");
+			return Xml2WayDiffService.ReportDifferences(repository, parent, child, "header", "entry", "guid");
 		}
 
 		public IChangePresenter GetChangePresenter(IChangeReport report, HgRepository repository)

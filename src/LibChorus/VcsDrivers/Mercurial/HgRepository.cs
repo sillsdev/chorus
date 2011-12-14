@@ -24,9 +24,9 @@ namespace Chorus.VcsDrivers.Mercurial
 		protected readonly string _pathToRepository;
 		protected string _userName;
 		protected IProgress _progress;
-		private const int SecondsBeforeTimeoutOnLocalOperation = 15 * 60;
-		private const int SecondsBeforeTimeoutOnMergeOperation = 15 * 60;
-		private const int SecondsBeforeTimeoutOnRemoteOperation = 40 * 60;
+		public  int SecondsBeforeTimeoutOnLocalOperation = 15 * 60;
+		public int SecondsBeforeTimeoutOnMergeOperation = 15 * 60;
+		public const int SecondsBeforeTimeoutOnRemoteOperation = 40 * 60;
 		private bool _haveLookedIntoProxySituation;
 		private string _proxyCongfigParameterString = string.Empty;
 		private bool _alreadyUpdatedHgrc;
@@ -726,6 +726,9 @@ namespace Chorus.VcsDrivers.Mercurial
 			progress.WriteStatus("Getting project...");
 			try
 			{
+				targetPath = HgHighLevel.GetUniqueFolderPath(progress,
+															 "Folder at {0} already exists, so can't be used. Creating clone in {1}, instead.",
+															 targetPath);
 				var repo = new HgRepository(targetPath, progress);
 
 				repo.Execute(int.MaxValue, "clone", DoWorkOfDeterminingProxyConfigParameterString(targetPath, progress), SurroundWithQuotes(sourceUri) + " " + SurroundWithQuotes(targetPath));
@@ -1859,6 +1862,16 @@ namespace Chorus.VcsDrivers.Mercurial
 			return path.Replace(@":\", "_") //   ":\" on the left side of an assignment messes up the hgrc reading, becuase colon is an alternative to "=" here
 			.Replace(":", "_") // catch one without a slash
 			.Replace("=", "_"); //an = in the path would also mess things up
+		}
+
+		/// <summary>
+		/// In late 2011, we added the fixutf8 extension on windows, which preserves file names requiring unicode. However, if files were previously put
+		/// into the repo with messed-up names (because hg by default does some western encoding), this is supposed to detect the name change and fix them.
+		/// http://mercurial.selenic.com/wiki/FixUtf8Extension
+		/// </summary>
+		public void FixUnicodeAudio()
+		{
+			ExecuteErrorsOk("addremove -s 100 -I **.wav", _pathToRepository, SecondsBeforeTimeoutOnLocalOperation, _progress);
 		}
 	}
 

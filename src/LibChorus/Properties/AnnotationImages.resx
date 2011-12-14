@@ -160,4 +160,7 @@
 	<data name="kFileDoesNotExist">
 		<value xml:space="preserve">File does not exist.</value>
 	</data>
+	<data name="kModelVersion">
+		<value><![CDATA[{"modelversion": 7000044}]]></value>
+	</data>
 </root>

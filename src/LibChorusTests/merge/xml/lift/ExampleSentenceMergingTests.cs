@@ -44,7 +44,7 @@ namespace LibChorus.Tests.merge.xml.lift
 					{ EventListener = listener };
 				XmlMergeService.Do3WayMerge(mergeOrder, new LiftEntryMergingStrategy(situation),
 					"header",
-					"entry", "id", LiftFileHandler.WritePreliminaryInformation);
+					"entry", "guid", LiftFileHandler.WritePreliminaryInformation);
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
 				Assert.AreEqual(1, listener.Conflicts.Count);
 				var warning = listener.Warnings[0];
@@ -82,7 +82,7 @@ namespace LibChorus.Tests.merge.xml.lift
 					{ EventListener = listener };
 				XmlMergeService.Do3WayMerge(mergeOrder, new LiftEntryMergingStrategy(situation),
 					"header",
-					"entry", "id", LiftFileHandler.WritePreliminaryInformation);
+					"entry", "guid", LiftFileHandler.WritePreliminaryInformation);
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
 				XmlTestHelper.AssertXPathMatchesExactlyOne(result, "//example");
 			}

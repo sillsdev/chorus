@@ -1,5 +1,6 @@
 ﻿using Chorus.Utilities;
 using Chorus.Utilities.code;
+using Palaso.IO;
 using Palaso.Progress.LogBox;
 
 namespace Chorus.VcsDrivers.Mercurial
@@ -23,6 +24,10 @@ namespace Chorus.VcsDrivers.Mercurial
 				return string.Empty;
 			}
 
+			targetDirectory = GetUniqueFolderPath(progress,
+												  "There is a folder with the name {0}, which is the same as this project. However, that folder cannot be used, so a new folder named {1} has been created and used, instead.",
+												  targetDirectory);
+
 			using (new ConsoleProgress("Creating repository clone at {0}", targetDirectory))
 			{
 				local.CloneLocal(targetDirectory);
@@ -34,6 +39,15 @@ namespace Chorus.VcsDrivers.Mercurial
 				}
 				return targetDirectory;
 			}
+		}
+
+		public static string GetUniqueFolderPath(IProgress progress, string formattableMessage, string targetDirectory)
+		{
+			var uniqueTarget = DirectoryUtilities.GetUniqueFolderPath(targetDirectory);
+			if (targetDirectory != uniqueTarget)
+				progress.WriteWarning(string.Format(formattableMessage, targetDirectory, uniqueTarget));
+
+			return uniqueTarget; // It may be the original, if it was unique.
 		}
 	}
 }

@@ -69,7 +69,7 @@ namespace Chorus.UI.Sync
 				{
 					using (SoundPlayer player = new SoundPlayer(stream))
 					{
-						player.Play();
+						player.PlaySync();
 					}
 					stream.Dispose();
 				}
