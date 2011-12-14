@@ -71,6 +71,9 @@ namespace Chorus.FileTypeHanders
 		public static ChorusFileTypeHandlerCollection CreateWithInstalledHandlers()
 		{
 			var fileTypeHandlers = new ChorusFileTypeHandlerCollection();
+
+			// TODO: Add these 'local' ones using the same mechanism as for the 'foreign' ones,
+			// TODO: EXCEPT, do not include DefaultFileTypeHandler or ChorusTestFileHandler.
 			fileTypeHandlers.HandlersList.Add(new LiftFileHandler());
 			fileTypeHandlers.HandlersList.Add(new OneStoryFileHandler());
 			fileTypeHandlers.HandlersList.Add(new AdaptItFileHandler());
@@ -81,11 +84,14 @@ namespace Chorus.FileTypeHanders
 			fileTypeHandlers.HandlersList.Add(new ImageFileTypeHandler());
 			fileTypeHandlers.HandlersList.Add(new ChorusTestFileHandler());
 			fileTypeHandlers.HandlersList.Add(new OurWordFileHandler());
-			fileTypeHandlers.HandlersList.Add(new FieldWorksFileHandler());
-			fileTypeHandlers.HandlersList.Add(new FieldWorksCustomPropertyFileHandler());
-			fileTypeHandlers.HandlersList.Add(new FieldWorksModelVersionFileHandler());
 			fileTypeHandlers.HandlersList.Add(new LiftRangesFileTypeHandler());
 			fileTypeHandlers.HandlersList.Add(new LdmlFileHandler());
+
+			// TODO: Add 'foreign' ones via convention.
+			// TODO: These are the first ones to be divested from LibChorus.
+			fileTypeHandlers.HandlersList.Add(new FieldWorksModelVersionFileHandler());
+			fileTypeHandlers.HandlersList.Add(new FieldWorksCustomPropertyFileHandler());
+			fileTypeHandlers.HandlersList.Add(new FieldWorksFileHandler());
 			fileTypeHandlers.HandlersList.Add(new FieldWorksReversalTypeHandler());
 
 			//NB: never add the Default handler
