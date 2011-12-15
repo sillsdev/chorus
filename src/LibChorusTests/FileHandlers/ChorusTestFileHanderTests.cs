@@ -8,6 +8,7 @@ using NUnit.Framework;
 namespace LibChorus.Tests.FileHandlers
 {
 	[TestFixture]
+	[Category("SkipOnTeamCity")]
 	public class ChorusTestFileHanderTests
 	{
 		[Test]
