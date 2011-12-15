@@ -1,5 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using Chorus.FileTypeHanders.adaptIt;
 using Chorus.FileTypeHanders.audio;
 using Chorus.FileTypeHanders.FieldWorks;
@@ -72,27 +75,30 @@ namespace Chorus.FileTypeHanders
 		{
 			var fileTypeHandlers = new ChorusFileTypeHandlerCollection();
 
-			// TODO: Add these 'local' ones using the same mechanism as for the 'foreign' ones,
-			// TODO: EXCEPT, do not include DefaultFileTypeHandler or ChorusTestFileHandler.
-			fileTypeHandlers.HandlersList.Add(new LiftFileHandler());
-			fileTypeHandlers.HandlersList.Add(new OneStoryFileHandler());
-			fileTypeHandlers.HandlersList.Add(new AdaptItFileHandler());
-			fileTypeHandlers.HandlersList.Add(new TextFileTypeHandler());
-			fileTypeHandlers.HandlersList.Add(new ChorusNotesFileHandler());
-			fileTypeHandlers.HandlersList.Add(new WeSayConfigFileHandler());
-			fileTypeHandlers.HandlersList.Add(new AudioFileTypeHandler());
-			fileTypeHandlers.HandlersList.Add(new ImageFileTypeHandler());
-			fileTypeHandlers.HandlersList.Add(new ChorusTestFileHandler());
-			fileTypeHandlers.HandlersList.Add(new OurWordFileHandler());
-			fileTypeHandlers.HandlersList.Add(new LiftRangesFileTypeHandler());
-			fileTypeHandlers.HandlersList.Add(new LdmlFileHandler());
+			var assem = Assembly.GetExecutingAssembly();
+			var baseDir = new Uri(Path.GetDirectoryName(assem.CodeBase)).AbsolutePath;
+			var pluginAssemblies = new List<Assembly>
+									{
+										assem
+									};
+			foreach (var pluginDllPathname in Directory.GetFiles(baseDir, "*ChorusPlugin.dll", SearchOption.TopDirectoryOnly))
+				pluginAssemblies.Add(Assembly.LoadFrom(Path.Combine(baseDir, pluginDllPathname)));
 
-			// TODO: Add 'foreign' ones via convention.
-			// TODO: These are the first ones to be divested from LibChorus.
-			fileTypeHandlers.HandlersList.Add(new FieldWorksModelVersionFileHandler());
-			fileTypeHandlers.HandlersList.Add(new FieldWorksCustomPropertyFileHandler());
-			fileTypeHandlers.HandlersList.Add(new FieldWorksFileHandler());
-			fileTypeHandlers.HandlersList.Add(new FieldWorksReversalTypeHandler());
+			foreach (var pluginAssembly in pluginAssemblies)
+			{
+				var fileHandlerTypes = (pluginAssembly.GetTypes()
+					.Where(typeof (IChorusFileTypeHandler).IsAssignableFrom)).ToList();
+				foreach (var fileHandlerType in fileHandlerTypes)
+				{
+					// These two are skipped, since they have no constructors.
+					//if (fileHandlerType.Name == "DefaultFileTypeHandler" || fileHandlerType.IsInterface)
+					//	continue;
+					var constInfo = fileHandlerType.GetConstructor(BindingFlags.NonPublic | BindingFlags.Instance, null, Type.EmptyTypes, null);
+					if (constInfo == null)
+						continue;
+					fileTypeHandlers.HandlersList.Add((IChorusFileTypeHandler)constInfo.Invoke(BindingFlags.NonPublic, null, null, null));
+				}
+			}
 
 			//NB: never add the Default handler
 			return fileTypeHandlers;

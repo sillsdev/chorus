@@ -10,26 +10,29 @@ namespace Tests_ChorusPlugin
 {
 	internal class TestAFileTypeHandler : IChorusFileTypeHandler
 	{
+		internal TestAFileTypeHandler()
+		{}
+
 		#region Implementation of IChorusFileTypeHandler
 
 		public bool CanDiffFile(string pathToFile)
 		{
-			throw new NotImplementedException();
+			return false;
 		}
 
 		public bool CanMergeFile(string pathToFile)
 		{
-			throw new NotImplementedException();
+			return false;
 		}
 
 		public bool CanPresentFile(string pathToFile)
 		{
-			throw new NotImplementedException();
+			return false;
 		}
 
 		public bool CanValidateFile(string pathToFile)
 		{
-			throw new NotImplementedException();
+			return false;
 		}
 
 		/// <summary>
@@ -54,7 +57,7 @@ namespace Tests_ChorusPlugin
 
 		public IEnumerable<string> GetExtensionsOfKnownTextFileTypes()
 		{
-			throw new NotImplementedException();
+			yield return "ruqofaksljflk1jalksdjfksl"; // Odds are good that nobody will pick that one for a real file any time soon. :-)
 		}
 
 		/// <summary>
@@ -65,7 +68,7 @@ namespace Tests_ChorusPlugin
 		/// </remarks>
 		public uint MaximumFileSize
 		{
-			get { throw new NotImplementedException(); }
+			get { return 1; }
 		}
 
 		/// <summary>

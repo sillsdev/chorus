@@ -19,6 +19,9 @@ namespace Chorus.FileTypeHanders.ldml
 	///</summary>
 	public class LdmlFileHandler : IChorusFileTypeHandler
 	{
+		internal LdmlFileHandler()
+		{}
+
 		private const string kExtension = "ldml";
 
 		#region Implementation of IChorusFileTypeHandler

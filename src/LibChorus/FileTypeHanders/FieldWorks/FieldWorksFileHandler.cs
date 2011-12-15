@@ -22,6 +22,9 @@ namespace Chorus.FileTypeHanders.FieldWorks
 		private readonly Dictionary<string, bool> _filesChecked = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
 		private readonly MetadataCache _mdc = new MetadataCache();
 
+		internal FieldWorksFileHandler()
+		{}
+
 		#region Implementation of IChorusFileTypeHandler
 
 		public bool CanDiffFile(string pathToFile)

@@ -16,6 +16,9 @@ namespace Chorus.FileTypeHanders
 	/// </summary>
 	public class LiftRangesFileTypeHandler : IChorusFileTypeHandler
 	{
+		internal LiftRangesFileTypeHandler()
+		{}
+
 		private const string kExtension = "lift-ranges";
 
 		public bool CanDiffFile(string pathToFile)

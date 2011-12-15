@@ -17,6 +17,9 @@ namespace Chorus.FileTypeHanders.FieldWorks.Linguistics.Reversals
 	///</summary>
 	public class FieldWorksReversalTypeHandler : IChorusFileTypeHandler
 	{
+		internal FieldWorksReversalTypeHandler()
+		{}
+
 		private const string kExtension = "reversal";
 		private readonly MetadataCache _mdc = new MetadataCache();
 

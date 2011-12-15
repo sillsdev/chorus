@@ -18,6 +18,9 @@ namespace Chorus.FileTypeHanders.FieldWorks.ModelVersion
 	/// </remarks>
 	public class FieldWorksModelVersionFileHandler : IChorusFileTypeHandler
 	{
+		internal FieldWorksModelVersionFileHandler()
+		{}
+
 		private const string kExtension = "ModelVersion";
 
 		#region Implementation of IChorusFileTypeHandler

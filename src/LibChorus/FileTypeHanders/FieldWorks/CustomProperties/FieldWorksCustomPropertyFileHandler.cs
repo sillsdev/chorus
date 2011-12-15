@@ -17,6 +17,9 @@ namespace Chorus.FileTypeHanders.FieldWorks.CustomProperties
 	/// </summary>
 	public class FieldWorksCustomPropertyFileHandler : IChorusFileTypeHandler
 	{
+		internal FieldWorksCustomPropertyFileHandler()
+		{}
+
 		private const string kExtension = "CustomProperties";
 
 		#region Implementation of IChorusFileTypeHandler

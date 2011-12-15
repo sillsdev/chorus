@@ -15,6 +15,9 @@ namespace Chorus.FileTypeHanders.oneStory
 {
 	public class OneStoryFileHandler : IChorusFileTypeHandler
 	{
+		internal OneStoryFileHandler()
+		{}
+
 		public const string CstrAppName = "StoryEditor.exe";
 
 		private bool OneStoryAssemblyIsAvailable

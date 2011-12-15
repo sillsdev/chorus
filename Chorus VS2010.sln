@@ -2,6 +2,9 @@
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibChorus.Tests", "src\LibChorusTests\LibChorus.Tests.csproj", "{F9671F8B-8556-44EA-81A7-C236D871B471}"
+	ProjectSection(ProjectDependencies) = postProject
+		{1E6F4881-AA72-4AC7-B411-7B7E00C30C25} = {1E6F4881-AA72-4AC7-B411-7B7E00C30C25}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibChorus", "src\LibChorus\LibChorus.csproj", "{94245366-8F1E-475C-810D-FE89BB3948E0}"
 EndProject

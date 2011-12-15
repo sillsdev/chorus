@@ -10,14 +10,16 @@
 	<AppDesignerFolder>Properties</AppDesignerFolder>
 	<RootNamespace>Tests_ChorusPlugin</RootNamespace>
 	<AssemblyName>Tests-ChorusPlugin</AssemblyName>
-	<TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+	<TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
 	<FileAlignment>512</FileAlignment>
+	<TargetFrameworkProfile>
+	</TargetFrameworkProfile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
 	<DebugSymbols>true</DebugSymbols>
 	<DebugType>full</DebugType>
 	<Optimize>false</Optimize>
-	<OutputPath>bin\Debug\</OutputPath>
+	<OutputPath>..\output\SamplePlugin\</OutputPath>
 	<DefineConstants>DEBUG;TRACE</DefineConstants>
 	<ErrorReport>prompt</ErrorReport>
 	<WarningLevel>4</WarningLevel>
@@ -25,22 +27,18 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
 	<DebugType>pdbonly</DebugType>
 	<Optimize>true</Optimize>
-	<OutputPath>bin\Release\</OutputPath>
+	<OutputPath>..\output\Release\</OutputPath>
 	<DefineConstants>TRACE</DefineConstants>
 	<ErrorReport>prompt</ErrorReport>
 	<WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-	<Reference Include="Palaso">
+	<Reference Include="Palaso, Version=1.9.187.0, Culture=neutral, processorArchitecture=MSIL">
+	  <SpecificVersion>False</SpecificVersion>
 	  <HintPath>..\lib\Debug\Palaso.dll</HintPath>
 	</Reference>
 	<Reference Include="System" />
 	<Reference Include="System.Core" />
-	<Reference Include="System.Xml.Linq" />
-	<Reference Include="System.Data.DataSetExtensions" />
-	<Reference Include="Microsoft.CSharp" />
-	<Reference Include="System.Data" />
-	<Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
 	<Compile Include="TestAFileTypeHandler.cs" />
