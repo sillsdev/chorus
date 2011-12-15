@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Chorus.FileTypeHanders.FieldWorks;
 using Chorus.FileTypeHanders.text;
 using Chorus.merge;
 using Chorus.Utilities.code;
@@ -16,6 +15,9 @@ namespace Chorus.FileTypeHanders
 	/// </summary>
 	public class LiftRangesFileTypeHandler : IChorusFileTypeHandler
 	{
+		internal LiftRangesFileTypeHandler()
+		{}
+
 		private const string kExtension = "lift-ranges";
 
 		public bool CanDiffFile(string pathToFile)

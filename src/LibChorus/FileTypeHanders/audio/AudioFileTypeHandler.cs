@@ -12,6 +12,9 @@ namespace Chorus.FileTypeHanders.audio
 {
 	public class AudioFileTypeHandler : IChorusFileTypeHandler
 	{
+		internal AudioFileTypeHandler()
+		{}
+
 		public bool CanDiffFile(string pathToFile)
 		{
 			return false;
