@@ -35,5 +35,31 @@ namespace LibChorus.Tests.FileHandlers
 					File.Delete(samplePluginPathname);
 			}
 		}
+
+		[Test]
+		public void MakeSureDefaulthandlerIsNotInMainCollection()
+		{
+			Assert.IsNull((from handler in ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers().Handlers
+						   where handler.GetType().Name == "DefaultFileTypeHandler"
+						   select handler).FirstOrDefault());
+		}
+
+		[Test]
+		public void MakeSureDefaulthandlerIsNotInTestCollection()
+		{
+			Assert.IsNull((from handler in ChorusFileTypeHandlerCollection.CreateWithTestHandlerOnly().Handlers
+						   where handler.GetType().Name == "DefaultFileTypeHandler"
+						   select handler).FirstOrDefault());
+		}
+
+		[Test]
+		public void MakeSureOnlyOneHandlerIsInTestCollection()
+		{
+			var handlers = ChorusFileTypeHandlerCollection.CreateWithTestHandlerOnly().Handlers;
+			Assert.AreEqual(1, handlers.Count());
+			Assert.IsNotNull((from handler in handlers
+						   where handler.GetType().Name == "ChorusTestFileHandler"
+						   select handler).FirstOrDefault());
+		}
 	}
 }

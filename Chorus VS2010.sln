@@ -26,7 +26,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chorus", "src\Chorus\Chorus
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleApp", "src\SampleApp\SampleApp.csproj", "{550854F0-9247-42C5-B41D-08E96CC17F92}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests-ChorusPlugin", "Tests-ChorusPlugin\Tests-ChorusPlugin.csproj", "{1E6F4881-AA72-4AC7-B411-7B7E00C30C25}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests-ChorusPlugin", "src\Tests-ChorusPlugin\Tests-ChorusPlugin.csproj", "{1E6F4881-AA72-4AC7-B411-7B7E00C30C25}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

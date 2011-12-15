@@ -3,19 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using Chorus.FileTypeHanders.adaptIt;
-using Chorus.FileTypeHanders.audio;
-using Chorus.FileTypeHanders.FieldWorks;
-using Chorus.FileTypeHanders.FieldWorks.CustomProperties;
-using Chorus.FileTypeHanders.FieldWorks.Linguistics.Reversals;
-using Chorus.FileTypeHanders.FieldWorks.ModelVersion;
-using Chorus.FileTypeHanders.image;
-using Chorus.FileTypeHanders.ldml;
-using Chorus.FileTypeHanders.lift;
-using Chorus.FileTypeHanders.oneStory;
 using Chorus.FileTypeHanders.test;
-using Chorus.FileTypeHanders.OurWord;
-using Chorus.FileTypeHanders.text;
 using Chorus.merge;
 using Chorus.VcsDrivers.Mercurial;
 using Palaso.IO;
@@ -23,11 +11,37 @@ using Palaso.Progress.LogBox;
 
 namespace Chorus.FileTypeHanders
 {
+	/// <summary>
+	/// Interface that Chorus can use for diffing and merging file(s) with one or more file extensions.
+	/// </summary>
 	public interface IChorusFileTypeHandler
 	{
+		/// <summary>
+		/// Checks to see if the implementation can do a diff on the given file.
+		/// </summary>
+		/// <param name="pathToFile">The file pathname to check.</param>
+		/// <returns>True, if it can do the diff on the file, otherwise false.</returns>
 		bool CanDiffFile(string pathToFile);
+
+		/// <summary>
+		/// Checks to see if the implementation can do a merge on the given file.
+		/// </summary>
+		/// <param name="pathToFile">The file pathname to check.</param>
+		/// <returns>True, if it can do the merge on the file, otherwise false.</returns>
 		bool CanMergeFile(string pathToFile);
+
+		/// <summary>
+		/// Checks to see if the implementation can present the given file.
+		/// </summary>
+		/// <param name="pathToFile">The file pathname to check.</param>
+		/// <returns>True, if it can present the file, otherwise false.</returns>
 		bool CanPresentFile(string pathToFile);
+
+		/// <summary>
+		/// Checks to see if the implementation can validate the given file.
+		/// </summary>
+		/// <param name="pathToFile">The file pathname to check.</param>
+		/// <returns>True, if it can validate the file, otherwise false.</returns>
 		bool CanValidateFile(string pathToFile);
 
 		/// <summary>
@@ -37,7 +51,21 @@ namespace Chorus.FileTypeHanders
 		/// The must not have any UI, no interaction with the user.</remarks>
 		void Do3WayMerge(MergeOrder mergeOrder);
 
+		/// <summary>
+		/// Do a 2-way diff.
+		/// </summary>
+		/// <param name="parent">The parent revision</param>
+		/// <param name="child">The child revision of the parent</param>
+		/// <param name="repository">The Mercurial repository</param>
+		/// <returns>A collection of zero or more reports of changes between parent and child versions</returns>
 		IEnumerable<IChangeReport> Find2WayDifferences(FileInRevision parent, FileInRevision child, HgRepository repository);
+
+		/// <summary>
+		/// Get a presenter for the given change report.
+		/// </summary>
+		/// <param name="report">The change report to use to produce the presewntation</param>
+		/// <param name="repository">mercurial repository</param>
+		/// <returns>A presentation of the given change report</returns>
 		IChangePresenter GetChangePresenter(IChangeReport report, HgRepository repository);
 
 		/// <summary>
@@ -46,11 +74,15 @@ namespace Chorus.FileTypeHanders
 		string ValidateFile(string pathToFile, IProgress progress);
 
 		/// <summary>
-		/// This is like a diff, but for when the file is first checked in.  So, for example, a dictionary
+		/// This is like a diff, but for when the file is first checked in. So, for example, a dictionary
 		/// handler might list any the words that were already in the dictionary when it was first checked in.
 		/// </summary>
 		IEnumerable<IChangeReport> DescribeInitialContents(FileInRevision fileInRevision, TempFile file);
 
+		/// <summary>
+		/// Get a list or one, or more, extensions this file type handler can process
+		/// </summary>
+		/// <returns>A collection of extensions (without leading period (.)) that can be processed.</returns>
 		IEnumerable<string> GetExtensionsOfKnownTextFileTypes();
 
 		/// <summary>
@@ -75,11 +107,11 @@ namespace Chorus.FileTypeHanders
 		{
 			var fileTypeHandlers = new ChorusFileTypeHandlerCollection();
 
-			var assem = Assembly.GetExecutingAssembly();
-			var baseDir = new Uri(Path.GetDirectoryName(assem.CodeBase)).AbsolutePath;
+			var libChorusAssembly = Assembly.GetExecutingAssembly();
+			var baseDir = new Uri(Path.GetDirectoryName(libChorusAssembly.CodeBase)).AbsolutePath;
 			var pluginAssemblies = new List<Assembly>
 									{
-										assem
+										libChorusAssembly
 									};
 			foreach (var pluginDllPathname in Directory.GetFiles(baseDir, "*ChorusPlugin.dll", SearchOption.TopDirectoryOnly))
 				pluginAssemblies.Add(Assembly.LoadFrom(Path.Combine(baseDir, pluginDllPathname)));
@@ -90,26 +122,26 @@ namespace Chorus.FileTypeHanders
 					.Where(typeof (IChorusFileTypeHandler).IsAssignableFrom)).ToList();
 				foreach (var fileHandlerType in fileHandlerTypes)
 				{
-					// These two are skipped, since they have no constructors.
-					//if (fileHandlerType.Name == "DefaultFileTypeHandler" || fileHandlerType.IsInterface)
-					//	continue;
-					var constInfo = fileHandlerType.GetConstructor(BindingFlags.NonPublic | BindingFlags.Instance, null, Type.EmptyTypes, null);
-					if (constInfo == null)
+					if (fileHandlerType.Name == "DefaultFileTypeHandler" || fileHandlerType.IsInterface)
 						continue;
-					fileTypeHandlers.HandlersList.Add((IChorusFileTypeHandler)constInfo.Invoke(BindingFlags.NonPublic, null, null, null));
+					var constInfo = fileHandlerType.GetConstructor(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, Type.EmptyTypes, null);
+					if (constInfo == null)
+						continue; // It does need at least one public or non-public default constructor.
+					fileTypeHandlers.HandlersList.Add((IChorusFileTypeHandler)constInfo.Invoke(BindingFlags.Public | BindingFlags.NonPublic, null, null, null));
 				}
 			}
 
-			//NB: never add the Default handler
+			// NB: Never add the Default handler. [RBR says: "Not to worry, since a test makes sure it is not in 'fileTypeHandlers'."]
 			return fileTypeHandlers;
 		}
 
 		public static ChorusFileTypeHandlerCollection CreateWithTestHandlerOnly()
 		{
 			var fileTypeHandlers = new ChorusFileTypeHandlerCollection();
+
 			fileTypeHandlers.HandlersList.Add(new ChorusTestFileHandler());
 
-			//NB: never add the Default handler
+			// NB: Never add the Default handler. [RBR says: "Not to worry, since a test makes sure it is not in 'fileTypeHandlers'."]
 			return fileTypeHandlers;
 		}
 		private ChorusFileTypeHandlerCollection()

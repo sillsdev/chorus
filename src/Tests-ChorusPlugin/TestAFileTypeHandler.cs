@@ -10,9 +10,6 @@ namespace Tests_ChorusPlugin
 {
 	internal class TestAFileTypeHandler : IChorusFileTypeHandler
 	{
-		internal TestAFileTypeHandler()
-		{}
-
 		#region Implementation of IChorusFileTypeHandler
 
 		public bool CanDiffFile(string pathToFile)
