@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
+using Palaso.Progress;
 
 namespace Chorus.UI.Sync
 {
@@ -52,11 +53,8 @@ namespace Chorus.UI.Sync
 
 		void _model_SynchronizeOver(object sender, EventArgs e)
 		{
-				Cursor.Current = Cursors.Default;
-				progressBar1.MarqueeAnimationSpeed = 0;
-				progressBar1.Style = ProgressBarStyle.Continuous;
-				progressBar1.Maximum = 100;
-				progressBar1.Value = progressBar1.Maximum;
+			Cursor.Current = Cursors.Default;
+			Model.ProgressIndicator.Finish();
 			_didAttemptSync = true;
 		}
 
@@ -149,7 +147,7 @@ namespace Chorus.UI.Sync
 			}
 
 			Model.AddProgressDisplay(_logBox);
-
+			Model.ProgressIndicator = new MultiPhaseProgressIndicator(progressBar1, 2);  // for now we only specify 2 phases (pull, then push).
 			LoadChoices();
 
 #if MONO
@@ -229,12 +227,6 @@ namespace Chorus.UI.Sync
 				_tabControl.SelectedTab = _logTab;
 			}
 
-			progressBar1.Style = ProgressBarStyle.Marquee;
-#if MONO
-			progressBar1.MarqueeAnimationSpeed = 3000;
-#else
-			progressBar1.MarqueeAnimationSpeed = 50;
-#endif
 			_logBox.Clear();
 			_logBox.WriteStatus("Syncing...");
 			Cursor.Current = Cursors.WaitCursor;

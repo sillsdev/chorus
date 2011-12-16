@@ -30,7 +30,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		{
 			using (var setup = new HgTestSetup())
 			{
-				var result =setup.Repository.GetProxyConfigParameterString("http://hg.palaso.org/", new NullProgress());
+				var result =setup.Repository.GetProxyConfigParameterString("http://hg.palaso.org/");
 
 			}
 		}
@@ -346,9 +346,71 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 //        }
 
 
+		[Test]
+		public void MakeBundle_InvalidBase_FalseAndFileDoesNotExist()
+		{
+			using (var setup = new HgTestSetup())
+			{
+				var path = setup.Root.GetNewTempFile(true).Path;
+				File.WriteAllText(path, "original");
+				setup.Repository.AddAndCheckinFile(path);
+				string bundleFilePath = setup.Root.GetNewTempFile(false).Path;
+				Assert.That(setup.Repository.MakeBundle("fakehashstring", bundleFilePath), Is.False);
+				Assert.That(File.Exists(bundleFilePath), Is.False);
+			}
+		}
 
+		[Test]
+		public void MakeBundle_ValidBase_BundleFileExistsAndReturnsTrue()
+		{
+			using (var setup = new HgTestSetup())
+			{
+				var path = setup.Root.GetNewTempFile(true).Path;
+				File.WriteAllText(path, "original");
+				setup.Repository.AddAndCheckinFile(path);
+				Revision revision = setup.Repository.GetTip();
+				setup.ChangeAndCheckinFile(path, "bad");
 
+				var bundleFilePath = setup.Root.GetNewTempFile(true).Path;
+				Assert.That(setup.Repository.MakeBundle(revision.Number.Hash, bundleFilePath), Is.True);
+				Assert.That(File.Exists(bundleFilePath), Is.True);
+			}
+		}
+
+		[Test]
+		public void Unbundle_ValidBundleFile_ReturnsTrue()
+		{
+			using (var setup = new RepositorySetup("unbundleTests"))
+			{
+				var bundleFilePath = setup.RootFolder.GetNewTempFile(false).Path;
+				setup.AddAndCheckinFile(setup.ProjectFolder.GetNewTempFile(true).Path, "some file we don't care about");
+				var hash = setup.Repository.GetTip().Number.Hash;
+				setup.AddAndCheckinFile(setup.ProjectFolder.GetNewTempFile(true).Path, "another file we don't care about");
+				setup.Repository.MakeBundle(hash, bundleFilePath);
+				setup.Repository.RollbackWorkingDirectoryToLastCheckin();
+				Assert.That(setup.Repository.Unbundle(bundleFilePath), Is.True);
+			}
+		}
+
+		[Test]
+		public void Unbundle_BadPath_ReturnsFalse()
+		{
+			using (var setup = new RepositorySetup("unbundleTests"))
+			{
+				var bundleFilePath = "bad file path";
+				Assert.That(setup.Repository.Unbundle(bundleFilePath), Is.False);
+			}
+		}
+
+		[Test]
+		public void Unbundle_BadBundleFile_ReturnsFalse()
+		{
+			using (var setup = new RepositorySetup("unbundleTests"))
+			{
+				var bundleFilePath = setup.RootFolder.GetNewTempFile(false).Path;
+				File.WriteAllText(bundleFilePath, "bogus bundle file contents");
+				Assert.That(setup.Repository.Unbundle(bundleFilePath), Is.False);
+			}
+		}
 	}
-
-
 }
