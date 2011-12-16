@@ -7,13 +7,17 @@ using System.Xml.Linq;
 using System.Xml.Xsl;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
-using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
+using Palaso.IO;
+using Palaso.Progress.LogBox;
 
 namespace Chorus.FileTypeHanders.adaptIt
 {
 	public class AdaptItFileHandler : IChorusFileTypeHandler
 	{
+		internal AdaptItFileHandler()
+		{}
+
 		public bool CanDiffFile(string pathToFile)
 		{
 			return false;
@@ -76,7 +80,12 @@ namespace Chorus.FileTypeHanders.adaptIt
 			{
 				// Execute the transform and output the results to a writer.
 				xslt.Transform(elem.CreateReader(), writer);
+#if MONO
+				// Note that mono closes the writer in Dispose. If the writer is already closed
+				// by the call to writer.Close mono throws an InvalidOperationException.
+#else
 				writer.Close();
+#endif
 			}
 
 			doc.Save(mergeOrder.pathToOurs);
@@ -140,6 +149,17 @@ namespace Chorus.FileTypeHanders.adaptIt
 		public IEnumerable<string> GetExtensionsOfKnownTextFileTypes()
 		{
 			yield return "xml";
+		}
+
+		/// <summary>
+		/// Return the maximum file size that can be added to the repository.
+		/// </summary>
+		/// <remarks>
+		/// Return UInt32.MaxValue for no limit.
+		/// </remarks>
+		public uint MaximumFileSize
+		{
+			get { return UInt32.MaxValue; }
 		}
 	}
 }

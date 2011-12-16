@@ -6,11 +6,16 @@ using System.Reflection;
 using Chorus.merge;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
+using Palaso.IO;
+using Palaso.Progress.LogBox;
 
 namespace Chorus.FileTypeHanders.OurWord
 {
 	public class OurWordFileHandler : IChorusFileTypeHandler
 	{
+		internal OurWordFileHandler()
+		{}
+
 		static MethodInfo RetrieveRemoteMethod(string remoteMethodName)
 		{
 			var ourWordPath = Path.Combine(
@@ -114,6 +119,17 @@ namespace Chorus.FileTypeHanders.OurWord
 			{
 				return null;
 			}
+		}
+
+		/// <summary>
+		/// Return the maximum file size that can be added to the repository.
+		/// </summary>
+		/// <remarks>
+		/// Return UInt32.MaxValue for no limit.
+		/// </remarks>
+		public uint MaximumFileSize
+		{
+			get { return UInt32.MaxValue; }
 		}
 	}
 }

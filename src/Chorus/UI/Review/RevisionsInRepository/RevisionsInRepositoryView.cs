@@ -5,6 +5,7 @@ using System.Windows.Forms;
 using Chorus.sync;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
+using Palaso.Progress.LogBox;
 
 namespace Chorus.UI.Review.RevisionsInRepository
 {
@@ -21,6 +22,7 @@ namespace Chorus.UI.Review.RevisionsInRepository
 			_model.ProgressDisplay = new NullProgress();
 			InitializeComponent();
 			UpdateDisplay();
+			_showAdvanced.Visible=false;
 		}
 
 		public ProjectFolderConfiguration ProjectFolderConfig
@@ -41,6 +43,8 @@ namespace Chorus.UI.Review.RevisionsInRepository
 
 		private void UpdateDisplay()
 		{
+			_historyGrid.Columns[1].Visible = false; // the UI is there, but not the functionality _model.DoShowRevisionChoiceControls;
+			_historyGrid.Columns[2].Visible = false;//  _model.DoShowRevisionChoiceControls;
 		}
 
 		private void RefreshRevisions()
@@ -108,31 +112,42 @@ namespace Chorus.UI.Review.RevisionsInRepository
 
 			object image;
 			if (rev.Summary.ToLower().Contains("conflict"))
-				image = imageList1.Images["Warning"];
-				// viewItem.ImageKey = "Warning";
+				image = HistoryRowIcons.Warning;
 			else if (rev.Parents.Count > 1)
-				image = imageList1.Images["Merge"];
-				// viewItem.ImageKey = "Merge";
+				image = HistoryRowIcons.Merge;
 			else
 			{
-				image = null;
-				/*
-					var colonLocation = rev.Summary.IndexOf(':');
-					string appName = rev.Summary;
-					if (colonLocation > 0)
-					{
-						appName = appName.Substring(0, colonLocation );
-					}
-					var bracketLocation = appName.IndexOf(']');
-					if (bracketLocation > 0)
-					{
-						appName = appName.Substring(0, bracketLocation);
-					}
-					appName = appName.Trim(new char[] { '[','+' }); // there was a bug in chorus that introduced the +
-					//temp hack... the app has now been fixed to not include this
-					appName = appName.Replace("0.5", "");
-					viewItem.ImageKey = appName.Trim();
-					*/
+				var colonLocation = rev.Summary.IndexOf(':');
+				string appName = rev.Summary;
+				if (colonLocation > 0)
+				{
+					appName = appName.Substring(0, colonLocation);
+				}
+				var bracketLocation = appName.IndexOf(']');
+				if (bracketLocation > 0)
+				{
+					appName = appName.Substring(0, bracketLocation);
+				}
+				appName = appName.Trim(new char[] { '[', '+' }); // there was a bug in chorus that introduced the +
+				//temp hack... the app has now been fixed to not include this
+				appName = appName.Replace("0.5", "");
+
+				switch (appName.Trim())
+				{
+					case "WeSay":
+						image = HistoryRowIcons.WeSay;
+						break;
+					case "WeSay Configuration Tool":
+						image = HistoryRowIcons.WeSayConfiguration;
+						break;
+					case "FieldWorks":
+						image = HistoryRowIcons.FieldWorks;
+						break;
+					default:
+						image = HistoryRowIcons.GenericCheckin;
+						break;
+				}
+
 			}
 			int nIndex = _historyGrid.Rows.Add(new [] { image, false, false, dateString, rev.UserId, GetDescriptionForListView(rev) });
 			var row = _historyGrid.Rows[nIndex];
@@ -178,7 +193,16 @@ namespace Chorus.UI.Review.RevisionsInRepository
 	   private int _parentRevisionIndex;
 	   private void OnHistoryGrid_CellClick(object sender, DataGridViewCellEventArgs e)
 	   {
-		   // make sure we have something reasonable
+		   if(!_model.DoShowRevisionChoiceControls)
+		   {
+			   if(_historyGrid.SelectedRows.Count==1)
+			   {
+				   Revision revision = _historyGrid.SelectedRows[0].Tag as Revision;
+				   _model.SelectedRevisionChanged(revision);
+			   }
+			   return;
+		   }
+ /*          // make sure we have something reasonable
 		   if (((e.ColumnIndex < ColumnParentRevision.Index) || (e.ColumnIndex > ColumnChildRevision.Index))
 			   || (e.RowIndex < 0) || (e.RowIndex > _historyGrid.Rows.Count))
 			   return;
@@ -194,8 +218,17 @@ namespace Chorus.UI.Review.RevisionsInRepository
 			   _childRevisionIndex = e.RowIndex;
 		   }
 
+  *
+  * REVIW: I (JH) can't see how this ever worked.  It appears to only send a single revision, the partent, and ignores the childRevisionIndex.
 		   Revision rev = _historyGrid.Rows[_parentRevisionIndex].Tag as Revision;
 		   _model.SelectedRevisionChanged(rev);
+  */
+	   }
+
+	   private void OnShowAdvanced_CheckedChanged(object sender, EventArgs e)
+	   {
+		   _model.DoShowRevisionChoiceControls = _showAdvanced.Checked;
+		   UpdateDisplay();
 	   }
 
 

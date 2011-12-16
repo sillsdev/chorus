@@ -3,9 +3,9 @@ using System.Linq;
 using System.Text;
 using System.Xml;
 using Autofac;
-using Chorus.Utilities;
 using Chorus.Utilities.code;
 using Chorus.VcsDrivers;
+using Palaso.IO;
 
 namespace Chorus.merge.xml.generic
 {
@@ -51,9 +51,7 @@ namespace Chorus.merge.xml.generic
 		public ContextDescriptor Context { get; set; }
 		protected  string _whoWon;
 
-
-
-		public Conflict(XmlNode xmlRepresentation)
+		protected Conflict(XmlNode xmlRepresentation)
 		{
 			Situation =  MergeSituation.FromXml(xmlRepresentation.SafeSelectNodes("MergeSituation")[0]);
 			_guid = new Guid(xmlRepresentation.GetOptionalStringAttribute("guid", string.Empty));
@@ -313,14 +311,14 @@ namespace Chorus.merge.xml.generic
 		}
 	}
 
-	public abstract class AttributeConflict : Conflict, IConflict
+	public abstract class AttributeConflict : Conflict
 	{
 		protected readonly string _attributeName;
 		protected readonly string _alphaValue;
 		protected readonly string _betaValue;
 		protected readonly string _ancestorValue;
 
-		public AttributeConflict(string attributeName, string alphaValue, string betaValue, string ancestorValue, MergeSituation mergeSituation, string whoWon)
+		protected AttributeConflict(string attributeName, string alphaValue, string betaValue, string ancestorValue, MergeSituation mergeSituation, string whoWon)
 			:base(mergeSituation)
 		{
 			_whoWon = whoWon;
@@ -330,7 +328,7 @@ namespace Chorus.merge.xml.generic
 			_ancestorValue = ancestorValue;
 		}
 
-		public AttributeConflict(XmlNode xmlRepresentation):base(xmlRepresentation)
+		protected AttributeConflict(XmlNode xmlRepresentation):base(xmlRepresentation)
 		{
 			_attributeName = xmlRepresentation.GetOptionalStringAttribute("attributeName", "unknown");
 			_alphaValue = xmlRepresentation.GetOptionalStringAttribute("alphaValue", string.Empty);
@@ -484,19 +482,19 @@ namespace Chorus.merge.xml.generic
 	}
 
 	[TypeGuid("DC5D3236-9372-4965-9E34-386182675A5C")]
-	public abstract class ElementConflict : Conflict, IConflict
+	public abstract class ElementConflict : Conflict
 	{
 		protected readonly string _elementName;
 
 
-		public ElementConflict(string elementName, XmlNode alphaNode, XmlNode betaNode, XmlNode ancestorElement, MergeSituation mergeSituation, IElementDescriber elementDescriber, string whoWon)
+		protected ElementConflict(string elementName, XmlNode alphaNode, XmlNode betaNode, XmlNode ancestorElement, MergeSituation mergeSituation, IElementDescriber elementDescriber, string whoWon)
 			: base(mergeSituation)
 		{
 			_elementName = elementName;
 			_whoWon = whoWon;
 		}
 
-		public ElementConflict(XmlNode xmlRepresentation):base(xmlRepresentation)
+		protected ElementConflict(XmlNode xmlRepresentation):base(xmlRepresentation)
 		{
 		}
 
@@ -521,7 +519,7 @@ namespace Chorus.merge.xml.generic
 	}
 
 	[TypeGuid("56F9C347-C4FA-48F4-8028-729F3CFF48EF")]
-	internal class RemovedVsEditedElementConflict : ElementConflict
+	public class RemovedVsEditedElementConflict : ElementConflict
 	{
 		public RemovedVsEditedElementConflict(string elementName, XmlNode alphaNode, XmlNode betaNode, XmlNode ancestorElement, MergeSituation mergeSituation, IElementDescriber elementDescriber, string whoWon)
 			: base(elementName, alphaNode, betaNode, ancestorElement, mergeSituation, elementDescriber, whoWon)
@@ -548,8 +546,36 @@ namespace Chorus.merge.xml.generic
 
 	}
 
+	[TypeGuid("3d9ba4ac-4a25-11df-9879-0800200c9a66")]
+	public class EditedVsRemovedElementConflict : ElementConflict
+	{
+		public EditedVsRemovedElementConflict(string elementName, XmlNode alphaNode, XmlNode betaNode, XmlNode ancestorElement, MergeSituation mergeSituation, IElementDescriber elementDescriber, string whoWon)
+			: base(elementName, alphaNode, betaNode, ancestorElement, mergeSituation, elementDescriber, whoWon)
+		{
+		}
+
+		public EditedVsRemovedElementConflict(XmlNode xmlRepresentation)
+			: base(xmlRepresentation)
+		{
+
+		}
+		public override string Description
+		{
+			get { return "Edited Vs Removed Element Conflict"; }
+		}
+
+		public override string WhatHappened
+		{
+			get
+			{
+				return string.Format("{0} edited this element, while {1} deleted it. ", Situation.AlphaUserId, Situation.BetaUserId) + GetWhoWonText();
+			}
+		}
+
+	}
+
 	[TypeGuid("14262878-270A-4E27-BA5F-7D232B979D6B")]
-	internal class BothReorderedElementConflict : ElementConflict
+	public class BothReorderedElementConflict : ElementConflict
 	{
 		public BothReorderedElementConflict(string elementName, XmlNode alphaNode, XmlNode betaNode,
 			XmlNode ancestorElement,MergeSituation mergeSituation, IElementDescriber elementDescriber, string whoWon)
@@ -575,7 +601,7 @@ namespace Chorus.merge.xml.generic
 	}
 
 	[TypeGuid("B77C0D86-2368-4380-B2E4-7943F3E7553C")]
-	internal class AmbiguousInsertConflict : ElementConflict
+	public class AmbiguousInsertConflict : ElementConflict
 	{
 		public AmbiguousInsertConflict(string elementName, XmlNode alphaNode, XmlNode betaNode,
 			XmlNode ancestorElement, MergeSituation mergeSituation, IElementDescriber elementDescriber, string whoWon)
@@ -605,7 +631,7 @@ namespace Chorus.merge.xml.generic
 	}
 
 	[TypeGuid("A5CE68F5-ED0D-4732-BAA8-A04A99ED35B3")]
-	internal class AmbiguousInsertReorderConflict : ElementConflict
+	public class AmbiguousInsertReorderConflict : ElementConflict
 	{
 		public AmbiguousInsertReorderConflict(string elementName, XmlNode alphaNode, XmlNode betaNode,
 			XmlNode ancestorElement, MergeSituation mergeSituation, IElementDescriber elementDescriber, string whoWon)
@@ -639,7 +665,7 @@ namespace Chorus.merge.xml.generic
 	/// suspect.  This could be a "warning", if we had such a thing.
 	/// </summary>
 	[TypeGuid("71636317-A94F-4814-8665-1D0F83DF388F")]
-	internal class BothEditedDifferentPartsOfDependentPiecesOfDataWarning : ElementConflict
+	public class BothEditedDifferentPartsOfDependentPiecesOfDataWarning : ElementConflict
 	{
 		public BothEditedDifferentPartsOfDependentPiecesOfDataWarning(string elementName, XmlNode alphaNode, XmlNode betaNode,
 			XmlNode ancestorElement, MergeSituation mergeSituation, IElementDescriber elementDescriber, string whoWon)
@@ -665,6 +691,41 @@ namespace Chorus.merge.xml.generic
 				return
 					string.Format("{0} edited one part of this element, while {1} edited another part. Since these two pieces of data are thought to be dependent on each other, someone needs to verify that the resulting merge is ok.",
 					Situation.AlphaUserId, Situation.BetaUserId); }
+		}
+	}
+
+	/// <summary>
+	/// Used when, say, one guy adds a translation of an the example sentence,
+	/// but meanwhile the other guy changed the example sentence, so the translation is
+	/// suspect.  This could be a "warning", if we had such a thing.
+	/// </summary>
+	[TypeGuid("3d9ba4ae-4a25-11df-9879-0800200c9a66")]
+	public class BothEditedTheSameElement : ElementConflict
+	{
+		public BothEditedTheSameElement(string elementName, XmlNode alphaNode, XmlNode betaNode,
+			XmlNode ancestorElement, MergeSituation mergeSituation, IElementDescriber elementDescriber, string whoWon)
+			: base(elementName, alphaNode, betaNode, ancestorElement, mergeSituation, elementDescriber, whoWon)
+		{
+		}
+
+		public BothEditedTheSameElement(XmlNode xmlRepresentation)
+			: base(xmlRepresentation)
+		{
+
+		}
+
+
+		public override string Description
+		{
+			get { return "Both Edited the Same Element"; }
+		}
+
+		public override string WhatHappened
+		{
+			get
+			{
+				return string.Format("{0} and {1} edited this element.", Situation.AlphaUserId, Situation.BetaUserId);
+			}
 		}
 	}
 }

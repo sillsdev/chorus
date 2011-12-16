@@ -2,14 +2,19 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Chorus.merge;
-using Chorus.Utilities;
+using Chorus.sync;
 using Chorus.VcsDrivers.Mercurial;
 using System.Linq;
+using Palaso.IO;
+using Palaso.Progress.LogBox;
 
 namespace Chorus.FileTypeHanders.image
 {
 	public class ImageFileTypeHandler : IChorusFileTypeHandler
 	{
+		internal ImageFileTypeHandler()
+		{}
+
 		public bool CanDiffFile(string pathToFile)
 		{
 			return false;
@@ -23,8 +28,7 @@ namespace Chorus.FileTypeHanders.image
 		public bool CanPresentFile(string pathToFile)
 		{
 			var ext = Path.GetExtension(pathToFile);
-			return ((new string[] { ".tif", ".jpg", ".png", ".bmp" }.Contains(ext)));
-		}
+			return string.IsNullOrEmpty(ext) ? false : GetExtensionsOfKnownTextFileTypes().Contains(ext);}
 
 		public bool CanValidateFile(string pathToFile)
 		{
@@ -61,7 +65,18 @@ namespace Chorus.FileTypeHanders.image
 
 		public IEnumerable<string> GetExtensionsOfKnownTextFileTypes()
 		{
-			yield break;
+			return new List<string> { ".tif", ".jpg", ".png", ".bmp" };
+		}
+
+		/// <summary>
+		/// Return the maximum file size that can be added to the repository.
+		/// </summary>
+		/// <remarks>
+		/// Return UInt32.MaxValue for no limit.
+		/// </remarks>
+		public uint MaximumFileSize
+		{
+			get { return LargeFileFilter.Megabyte; }
 		}
 	}
 }

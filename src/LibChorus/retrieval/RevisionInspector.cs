@@ -7,6 +7,8 @@ using Chorus.merge;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
 using System.Linq;
+using Palaso.Progress.LogBox;
+
 namespace Chorus.retrieval
 {
 	/// <summary>
@@ -29,9 +31,7 @@ namespace Chorus.retrieval
 		public IEnumerable<IChangeReport> GetChangeRecords(Revision revision)
 		{
 			var changes = new List<IChangeReport>();
-
 			revision.EnsureParentRevisionInfo();
-
 
 			if (!revision.HasAtLeastOneParent)
 			{
@@ -47,42 +47,18 @@ namespace Chorus.retrieval
 				IEnumerable<RevisionNumber> parentRevs = revision.GetLocalNumbersOfParents();
 				foreach (RevisionNumber parentRev in parentRevs)
 				{
-					foreach (var fileInRevision in Repository.GetFilesInRevision(revision))
+					foreach (var fileInRevision in Repository.GetFilesInRevision(revision)
+						.Where(fileInRevision => parentRevs.Count() == 1
+							|| fileInRevision.FullPath.ToLowerInvariant().EndsWith(".chorusnotes")))
 					{
-//                        var parentFileInRevision = new FileInRevision(parentRev.LocalRevisionNumber,
-//                                                                      fileInRevision.FullPath,
-//                                                                      FileInRevision.Action.ParentRepository);
 						CollectChangesInFile(fileInRevision, parentRev.LocalRevisionNumber, changes);
 					}
 				}
 				if (parentRevs.Count() > 1)
-				{
-					changes=FilterOutChangesWeDontWantReportAgain(changes);
-				}
+					changes = new List<IChangeReport>(changes.Distinct());
 			}
 
 			return changes;
-
-		}
-
-		/// <summary>
-		/// After a merge, the definition of a "change" gets more complicated.  In a sense, there are
-		/// no new changes. At the moment, our algorithm is just to discard any changes that are not
-		/// conflict reports.
-		/// </summary>
-		private List<IChangeReport> FilterOutChangesWeDontWantReportAgain(List<IChangeReport> reports)
-		{
-			var changes = new List<IChangeReport>();
-			foreach (var report in reports)
-			{
-				var handler = _fileHandlerCollection.GetHandlerForDiff(report.PathToFile);
-				if(handler.GetType()==typeof(ChorusNotesFileHandler))
-				{
-					changes.Add(report);
-				}
-			}
-
-			return new List<IChangeReport>(changes.Distinct());//don't let the same change (like a new conflict) be reported twice
 		}
 
 		private void CollectChangesInFile(FileInRevision fileInRevision, string parentRev, List<IChangeReport> changes)

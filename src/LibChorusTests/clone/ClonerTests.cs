@@ -1,14 +1,15 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Chorus.clone;
-using Chorus.Utilities;
 using Chorus.Utilities.UsbDrive;
 using LibChorus.Tests;
 using NUnit.Framework;
+using Palaso.Progress.LogBox;
+using Palaso.TestUtilities;
 
-namespace Chorus.Tests
+namespace LibChorus.Tests
 {
 	[TestFixture]
 	public class ClonerTests
@@ -17,7 +18,7 @@ namespace Chorus.Tests
 		public void MakeClone_NoProblems_MakesClone()
 		{
 			using(var repo = new RepositorySetup("source"))
-			using (var f = new TempFolder("clonetest"))
+			using (var f = new TemporaryFolder("clonetest"))
 			{
 				var model = new CloneFromUsb();
 				var progress = new ConsoleProgress();
@@ -28,17 +29,18 @@ namespace Chorus.Tests
 		}
 
 		[Test]
-		public void MakeClone_TargetExists_Throws()
+		[Category("SkipOnTeamCity")]
+		public void MakeClone_TargetExists_CreatesCloneInAnotherFolder()
 		{
 			using (var repo = new RepositorySetup("source"))
-			using (var f = new TempFolder("clonetest"))
+			using (var f = new TemporaryFolder("clonetest"))
 			{
 				var model = new CloneFromUsb();
 				var progress = new ConsoleProgress();
 				progress.ShowVerbose = true;
 				Directory.CreateDirectory(f.Combine(RepositorySetup.ProjectName));
-				Assert.Throws<ApplicationException>(()=>
-					model.MakeClone(repo.ProjectFolder.Path, f.Path, progress));
+				model.MakeClone(repo.ProjectFolder.Path, f.Path, progress);
+				Assert.IsTrue(Directory.Exists(f.Path + "1"));
 			}
 		}
 
@@ -54,7 +56,7 @@ namespace Chorus.Tests
 		[Test]
 		public void GetDirectoriesWithMecurialRepos_OneDriveAndDirectoryButNotRep_ReturnsEmptyList()
 		{
-			using (var usb = new TempFolder("clonetestUsb"))
+			using (var usb = new TemporaryFolder("clonetestUsb"))
 			{
 				Directory.CreateDirectory(usb.Combine("tests"));
 				var model = new CloneFromUsb();
@@ -68,7 +70,7 @@ namespace Chorus.Tests
 		[Test]
 		public void GetDirectoriesWithMecurialRepos_OneDriveOneRepo_ReturnsRepoPath()
 		{
-			using (var usb = new TempFolder("clonetestUsb"))
+			using (var usb = new TemporaryFolder("clonetestUsb"))
 			{
 				Directory.CreateDirectory(usb.Combine("test"));
 				Directory.CreateDirectory(usb.Combine("testrepo",".hg"));
@@ -85,7 +87,7 @@ namespace Chorus.Tests
 		[Test]
 		public void GetDirectoriesWithMecurialRepos_TwoRepos_ReturnsOnlyUnfilteredPath()
 		{
-			using (var usb = new TempFolder("clonetestUsb"))
+			using (var usb = new TemporaryFolder("clonetestUsb"))
 			{
 				Directory.CreateDirectory(usb.Combine("test1"));
 				Directory.CreateDirectory(usb.Combine("test1", ".hg"));
@@ -100,23 +102,39 @@ namespace Chorus.Tests
 			}
 		}
 
+		// As of 12 December, 2011, JohnH and I decided to remove the search at the second level.
+		// Seems that will work, but then the next attempt to sync, will not be able to find the second level repo.
+		//[Test]
+		//public void GetDirectoriesWithMecurialRepos_TwoDrivesEachWithRepo2Deep_FindsAllRepos()
+		//{
+		//    using (var usb1 = new TemporaryFolder("clonetestUsb1"))
+		//    using (var usb2 = new TemporaryFolder("clonetestUsb2"))
+		//    {
+		//        Directory.CreateDirectory(usb1.Combine("a", "repo1", ".hg"));
+		//        Directory.CreateDirectory(usb2.Combine("a", "repo2", ".hg"));
+		//        var model = new CloneFromUsb();
+		//        var drives = new List<IUsbDriveInfo>();
+		//        drives.Add(new UsbDriveInfoForTests(usb1.Path));
+		//        drives.Add(new UsbDriveInfoForTests(usb2.Path));
+		//        model.DriveInfoRetriever = new RetrieveUsbDriveInfoForTests(drives);
+		//        Assert.AreEqual(2, model.GetDirectoriesWithMecurialRepos().Count());
+		//        var repos = model.GetDirectoriesWithMecurialRepos().ToArray();
+		//        Assert.AreEqual(usb1.Combine("a", "repo1"), repos[0]);
+		//        Assert.AreEqual(usb2.Combine("a", "repo2"), repos[1]);
+		//    }
+		//}
+
 		[Test]
-		public void GetDirectoriesWithMecurialRepos_TwoDrivesEachWithRepo2Deep_FindsAllRepos()
+		public void GetDirectoriesWithMecurialRepos_WithRepo2DeepIsNotFound()
 		{
-			using (var usb1 = new TempFolder("clonetestUsb1"))
-			using (var usb2 = new TempFolder("clonetestUsb2"))
+			using (var usb1 = new TemporaryFolder("clonetestUsb1"))
 			{
 				Directory.CreateDirectory(usb1.Combine("a", "repo1", ".hg"));
-				Directory.CreateDirectory(usb2.Combine("a", "repo2", ".hg"));
 				var model = new CloneFromUsb();
 				var drives = new List<IUsbDriveInfo>();
 				drives.Add(new UsbDriveInfoForTests(usb1.Path));
-				drives.Add(new UsbDriveInfoForTests(usb2.Path));
 				model.DriveInfoRetriever = new RetrieveUsbDriveInfoForTests(drives);
-				Assert.AreEqual(2, model.GetDirectoriesWithMecurialRepos().Count());
-				var repos = model.GetDirectoriesWithMecurialRepos().ToArray();
-				Assert.AreEqual(usb1.Combine("a", "repo1"), repos[0]);
-				Assert.AreEqual(usb2.Combine("a", "repo2"), repos[1]);
+				Assert.AreEqual(0, model.GetDirectoriesWithMecurialRepos().Count());
 			}
 		}
 	}

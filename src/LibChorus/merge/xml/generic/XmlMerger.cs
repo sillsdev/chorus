@@ -1,11 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Xml;
-using Chorus.FileTypeHanders;
 using Chorus.FileTypeHanders.text;
-using Chorus.merge.xml.generic;
 
 namespace Chorus.merge.xml.generic
 {
@@ -59,10 +56,17 @@ namespace Chorus.merge.xml.generic
 			return ours;
 		}
 
-		public void MergeInner(ref XmlNode ours, XmlNode theirs, XmlNode ancestor)
+		/// <summary>
+		/// This method does the actual work for the various public entry points of XmlMerge
+		/// and from the MergeChildrenMethod class, as it processes child nodes.
+		/// </summary>
+		internal void MergeInner(ref XmlNode ours, XmlNode theirs, XmlNode ancestor)
 		{
+			if (MergeAtomicElementService.Run(this, ref ours, theirs, ancestor))
+				return;
+
 			MergeAttributes(ref ours, theirs, ancestor);
-			MergeChildren(ref ours,theirs,ancestor);
+			MergeChildren(ref ours, theirs, ancestor);
 		}
 
 		public NodeMergeResult Merge(string ourXml, string theirXml, string ancestorXml)

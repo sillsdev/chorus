@@ -10,6 +10,7 @@ using Chorus.UI.Settings;
 using Chorus.UI.Sync;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
+using Palaso.Progress.LogBox;
 
 namespace Chorus
 {
@@ -57,8 +58,6 @@ namespace Chorus
 
 			return shell;
 		}
-
-
 
 		public void Dispose()
 		{

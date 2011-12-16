@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 using Chorus.notes;
-using Chorus.Utilities;
+using Palaso.Progress.LogBox;
 
 namespace Chorus.UI.Notes.Browser
 {
@@ -37,18 +37,39 @@ namespace Chorus.UI.Notes.Browser
 
 		void OnReloadMessages(object sender, EventArgs e)
 		{
+			ListMessage previousItem = null;
+			if (_messageListView.SelectedIndices.Count > 0)
+			{
+				previousItem = _messageListView.SelectedItems[0].Tag as ListMessage;
+			}
+
 			Cursor.Current = Cursors.WaitCursor;
 			_messageListView.SuspendLayout();
-			_messageListView.Items.Clear();
 			List<ListViewItem> rows = new List<ListViewItem>();
 
 			foreach (var item in _model.GetMessages())
 			{
 				rows.Add(item.GetListViewItem());
 			}
+			_messageListView.Items.Clear(); // Don't even think of moving this before the loop, as the items are doubled for reasons unknown.
 			_messageListView.Items.AddRange(rows.ToArray());
 			_messageListView.ResumeLayout();
 			Cursor.Current = Cursors.Default;
+
+			//restore the previous selection
+			if (previousItem !=null)
+			{
+				foreach (ListViewItem listViewItem in _messageListView.Items)
+				{
+					if (((ListMessage)(listViewItem.Tag)).Message.Guid == previousItem.Message.Guid)
+					{
+						listViewItem.Selected = true;
+						break;
+					}
+				}
+			}
+			//enhance...we could, if the message is not found, go looking for the owning annotation. But since
+			//you can't currently delete a message, that wouldn't have any advantage yet.
 
 			//this leads to hiding the annotationview when nothing is actually selected anymore (because of searching)
 			OnSelectedIndexChanged(null, null);
@@ -81,6 +102,11 @@ namespace Chorus.UI.Notes.Browser
 		{
 			if (this.Visible)
 				_model.CheckIfWeNeedToReload();
+			else
+			{
+				//Enhance: this is never called (e.g. we get a call when we become visible, but not invisible)
+				_model.GoodTimeToSave();
+			}
 		}
 
 		private void _filterCombo_SelectedIndexChanged(object sender, EventArgs e)

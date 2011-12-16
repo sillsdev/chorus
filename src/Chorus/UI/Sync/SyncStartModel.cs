@@ -1,9 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.IO;
+using System.Windows.Forms;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
+using Palaso.IO;
 
 namespace Chorus.UI.Sync
 {
@@ -60,5 +60,39 @@ namespace Chorus.UI.Sync
 //				return true;
 //			}
 		}
+
+		public void SetNewSharedNetworkAddress(string path)
+		{
+			if (string.IsNullOrEmpty(path))
+				return;
+			try
+			{
+				if (!Directory.Exists(Path.Combine(path, ".hg")))
+				{
+					if (DirectoryUtilities.GetSafeDirectories(path).Length > 0 || Directory.GetFiles(path).Length > 0)
+					{
+						Palaso.Reporting.ErrorReport.NotifyUserOfProblem(
+							"The folder you chose doesn't have a repository. Chorus cannot make one there, because the folder is not empty.  Please choose a folder that is already being used for send/receive, or create and choose a new folder to hold the repository.");
+						return;
+	}
+
+					var result = MessageBox.Show("A new repository will be created in " + path + ".", "Create new repository?",
+									MessageBoxButtons.OKCancel);
+					if (result != DialogResult.OK)
+						return;
+
+}
+				string alias = HgRepository.GetAliasFromPath(path);
+				_repository.SetTheOnlyAddressOfThisType(RepositoryAddress.Create(alias, path));
+			}
+			catch (Exception e)
+			{
+				Palaso.Reporting.ErrorReport.NotifyUserOfProblem(e,"There was a problem setting the network path.");
+				throw;
+			}
+
+		}
+
+
 	}
 }

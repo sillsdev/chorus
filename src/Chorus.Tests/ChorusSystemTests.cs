@@ -1,20 +1,20 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 using Chorus.notes;
-using Chorus.Utilities;
 using NUnit.Framework;
+using Palaso.IO;
+using Palaso.Progress.LogBox;
+using Palaso.TestUtilities;
 
 namespace Chorus.Tests
 {
-	[TestFixture]
+	[TestFixture, RequiresSTA]
 	public class ChorusSystemTests
 	{
-		private TempFolder _folder;
+		private TemporaryFolder _folder;
 		private TempFile _targetFile1;
 		private TempFile _existingNotesFile;
 		private ChorusSystem _system;
@@ -23,9 +23,9 @@ namespace Chorus.Tests
 		[SetUp]
 		public void Setup()
 		{
-			_folder = new TempFolder("ChorusSystemTests");
-			_targetFile1 = new TempFile(_folder,  "one.txt", "just a pretend file");
-			_existingNotesFile = new TempFile(_folder, "one.txt" + AnnotationRepository.FileExtension,
+			_folder = new TemporaryFolder("ChorusSystemTests");
+			_targetFile1 = new TempFileFromFolder(_folder,  "one.txt", "just a pretend file");
+			_existingNotesFile = new TempFileFromFolder(_folder, "one.txt" + AnnotationRepository.FileExtension,
 						@"<notes version='0'>
 					<annotation ref='somwhere://foo?id=x' class='mergeConflict'>
 						<message guid='123' author='merger' status='open' date='2009-07-18T23:53:04Z'>
@@ -52,6 +52,7 @@ namespace Chorus.Tests
 		/// found at compile time
 		/// </summary>
 		[Test]
+		[Category("KnownMonoIssue")] //running CreateNotesBrowser twice in a mono test session causes a crash
 		public void CanShowNotesBrowserPage()
 		{
 			var page = _system.WinForms.CreateNotesBrowser();
@@ -91,6 +92,7 @@ namespace Chorus.Tests
 		/// This tests hat we're using the same repositories for all instances of Notes UI components
 		/// </summary>
 		[Test]
+		[Category("KnownMonoIssue")] //running CreateNotesBrowser twice in a mono test session causes a crash
 		public void GetNotesBarAndBrowser_MakeNewAnnotationWithBar_BrowserSeesIt()
 		{
 				NotesToRecordMapping mapping =  NotesToRecordMapping.SimpleForTest();

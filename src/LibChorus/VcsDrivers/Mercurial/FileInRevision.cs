@@ -1,6 +1,5 @@
-using System;
 using System.IO;
-using Chorus.Utilities;
+using Palaso.IO;
 
 namespace Chorus.VcsDrivers.Mercurial
 {
@@ -44,6 +43,19 @@ namespace Chorus.VcsDrivers.Mercurial
 			finally
 			{
 				 File.Delete(path);
+			}
+		}
+
+		public byte[] GetFileContentsAsBytes(HgRepository repository)
+		{
+			var path = repository.RetrieveHistoricalVersionOfFile(FullPath, _revisionNumber);
+			try
+			{
+				return File.ReadAllBytes(path);
+			}
+			finally
+			{
+				File.Delete(path);
 			}
 		}
 	}

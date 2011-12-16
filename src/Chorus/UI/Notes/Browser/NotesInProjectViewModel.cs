@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using Chorus.notes;
-using Chorus.sync;
-using Chorus.Utilities;
+using Palaso.Progress.LogBox;
+using Palaso.Reporting;
+using Palaso.Reporting;
 
 namespace Chorus.UI.Notes.Browser
 {
@@ -80,16 +80,22 @@ namespace Chorus.UI.Notes.Browser
 //                    return false;
 //            }
 
-			return string.IsNullOrEmpty(_searchText)
-				   || annotation.LabelOfThingAnnotated.StartsWith(_searchText)
-				   || annotation.ClassName.StartsWith(_searchText)
-				   || message.Author.StartsWith(_searchText);
+			if (string.IsNullOrEmpty(_searchText))
+				return true;
+
+			string t = _searchText.ToLowerInvariant();
+			if(  annotation.LabelOfThingAnnotated.ToLowerInvariant().StartsWith(t)
+				   || annotation.ClassName.ToLowerInvariant().StartsWith(t)
+				   || message.Author.ToLowerInvariant().StartsWith(t))
+				return true;
+
+			if (t.Length > 2)//arbitrary, but don't want to search on ever last letter
+			{
+				return message.Text.ToLowerInvariant().Contains(t);
+			}
+			return false;
 		}
 
-		public void CloseAnnotation(ListMessage listMessage)
-		{
-			listMessage.ParentAnnotation.AddMessage(_user.Name, "closed", string.Empty);
-		}
 
 		public void SelectedMessageChanged(ListMessage listMessage)
 		{
@@ -104,6 +110,7 @@ namespace Chorus.UI.Notes.Browser
 					_messageSelectedEvent.Raise(listMessage.ParentAnnotation, listMessage.Message);
 				}
 			}
+			GoodTimeToSave();
 		}
 
 		public void SearchTextChanged(string searchText)
@@ -140,17 +147,48 @@ namespace Chorus.UI.Notes.Browser
 
 		public void NotifyOfAddition(Annotation annotation)
 		{
+			//NB: this notification would come from the repository, not the view
 			_reloadPending=true;
+			SaveChanges();
+		}
+
+
+		private void SaveChanges()
+		{
+			//this is a bit of a hack... seems like different clients have different times of saving;
+			//not sure what the better answer would be.
+
+			foreach (var repository in _repositories)
+			{
+				repository.SaveNowIfNeeded(new NullProgress());
+			}
 		}
 
 		public void NotifyOfModification(Annotation annotation)
 		{
+			//NB: this notification would come from the repository, not the view
 			_reloadPending = true;
+			SaveChanges();
+		}
+
+		private void Save(Annotation annotation)
+		{
+			var owningRepo = _repositories.Where(r => r.ContainsAnnotation(annotation)).FirstOrDefault();
+			if(owningRepo ==null)
+			{
+				ErrorReport.NotifyUserOfProblem(
+					"A serious problem has occurred; Chorus cannot find the repository which owns this note, so it cannot be saved.");
+				return;
+			}
+
+			owningRepo.SaveNowIfNeeded(new NullProgress());
 		}
 
 		public void NotifyOfDeletion(Annotation annotation)
 		{
+			//NB: this notification would come from the repository, not the view
 			_reloadPending = true;
+			SaveChanges();
 		}
 
 		#endregion
@@ -159,6 +197,14 @@ namespace Chorus.UI.Notes.Browser
 		{
 			if(_reloadPending)
 				ReloadMessagesNow();
+		}
+
+		public void GoodTimeToSave()
+		{
+			foreach (var repository in _repositories)
+			{
+				repository.SaveNowIfNeeded(new NullProgress());
+			}
 		}
 	}
 }

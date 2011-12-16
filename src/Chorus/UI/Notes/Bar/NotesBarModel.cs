@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Chorus.notes;
 using Chorus.Utilities;
 using Chorus.Utilities.code;
+using Palaso.Progress.LogBox;
 
 namespace Chorus.UI.Notes.Bar
 {

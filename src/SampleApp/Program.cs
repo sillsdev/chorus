@@ -22,7 +22,7 @@ namespace SampleApp
 			Application.Run(new Form1(dataDirectory));
 		}
 
-		public static void DeleteFolderThatMayBeInUse(string folder)
+		public static void DeleteFolderThatMayBeInUse(string folder)//review: this is a strange place for this... isn't this in palaso?
 		{
 			if (Directory.Exists(folder))
 			{

@@ -8,6 +8,8 @@ using Chorus.UI.Misc;
 using Chorus.Utilities;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
+using Palaso.Progress.LogBox;
+using Palaso.Reporting;
 
 namespace Chorus.UI.Clone
 {
@@ -119,16 +121,32 @@ namespace Chorus.UI.Clone
 				HgRepository.Clone(ThreadSafeUrl, PathToNewProject, _progress);
 				using (SoundPlayer player = new SoundPlayer(Properties.Resources.finishedSound))
 				{
-					player.Play();
+					player.PlaySync();
 				}
 
 			}
+
 			catch (Exception error)
 			{
-				_progress.WriteError(error.Message);
 				using (SoundPlayer player = new SoundPlayer(Properties.Resources.errorSound))
 				{
-					player.Play();
+					player.PlaySync();
+				}
+				if(error is RepositoryAuthorizationException)
+				{
+					_progress.WriteError("The server {0} did not accept the reqest of {1} to clone from {2} using password {3}.", _model.SelectedServerPath, _model.AccountName, _model.ProjectId, _model.Password);
+					ErrorReport.NotifyUserOfProblem("The server ({0}) rejected the project name ({1}), user name ({2}), or password ({3}) (sorry, it didn't tell us which one). Make sure that each of these is correct, and that '{2}' is a member of the '{1}' project, with permission to read data.",
+						_model.SelectedServerPath, _model.ProjectId, _model.AccountName, _model.Password);
+				}
+
+				else if (error is HgCommonException)
+				{
+					_progress.WriteError(error.Message);
+					ErrorReport.NotifyUserOfProblem(error.Message);
+				}
+				else
+				{
+					_progress.WriteError(error.Message);
 				}
 			}
 		}

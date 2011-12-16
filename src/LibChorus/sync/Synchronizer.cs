@@ -9,6 +9,9 @@ using Chorus.Utilities;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using System.Linq;
+using Palaso.Progress.LogBox;
+using Palaso.Extensions;
+using Palaso.Reporting;
 
 namespace Chorus.sync
 {
@@ -89,13 +92,16 @@ namespace Chorus.sync
 			try
 			{
 				HgRepository repo = new HgRepository(_localRepositoryPath, _progress);
+				repo.UpdateHgrc();
 
 				RemoveLocks(repo);
 				repo.RecoverFromInterruptedTransactionIfNeeded();
-				UpdateHgrc(repo);
+				repo.FixUnicodeAudio();
 				Commit(options);
 
 				var workingRevBeforeSync = repo.GetRevisionWorkingSetIsBasedOn();
+
+				CreateRepositoryOnLocalAreaNetworkFolderIfNeededThrowIfFails(repo, sourcesToTry);
 
 				if (options.DoPullFromOthers)
 				{
@@ -147,9 +153,23 @@ namespace Chorus.sync
 			return results;
 		}
 
+		private void CreateRepositoryOnLocalAreaNetworkFolderIfNeededThrowIfFails(HgRepository repo, List<RepositoryAddress> sourcesToTry)
+		{
+			var directorySource = sourcesToTry.FirstOrDefault(s => s is DirectoryRepositorySource);
+			if (directorySource == null)
+				return;
+
+			var target = HgHighLevel.GetUniqueFolderPath(_progress,
+														 "Could not use folder {0}, since it already exists. Using new folder {1}, instead.",
+														 directorySource.URI);
+			_progress.WriteMessage("Creating new repository at " + target);
+			repo.CloneToRemoteDirectoryWithoutCheckout(target);
+		}
+
 		/// <summary>
 		/// This version is used by the CHorus UI, which wants to do the sync in the background
 		/// </summary>
+
 		public SyncResults SyncNow(BackgroundWorker backgroundWorker, DoWorkEventArgs args, SyncOptions options)
 		{
 			_backgroundWorker = backgroundWorker;
@@ -224,7 +244,7 @@ namespace Chorus.sync
 		{
 			try
 			{
-				string resolvedUri = address.GetPotentialRepoUri(RepoProjectName, _progress);
+				string resolvedUri = address.GetPotentialRepoUri(Repository.Identifier, RepoProjectName, _progress);
 
 				bool canConnect;
 				if (connectionAttempt.ContainsKey(address))
@@ -247,13 +267,16 @@ namespace Chorus.sync
 						repo.Push(address, resolvedUri, _progress);
 					}
 
-					//for usb, it's safe and desireable to do an update (bring into the directory
-					//  the latest files from the repo) for LAN, it could be... for now we assume it is
-
-					// Attempting to update a network folder crashes for me (RandyR) using a shared folder on my LAN, even though I have full access permissions. || address is DirectoryRepositorySource)
+					// For usb, it's safe and desireable to do an update (bring into the directory
+					// the latest files from the repo) for LAN, it could be... for now we assume it is.
+					// For me (RandyR) including the shared network folder
+					// failed to do the update and killed the process, which left a 'wlock' file
+					// in the shared folder's '.hg' folder. No more S/Rs could then be done,
+					// because the repo was locked.
+					// For now, at least, it is not a requirement to do the update on the shared folder.
 					// JDH Oct 2010: added this back in if it doesn't look like a shared folder
 					if (address is UsbKeyRepositorySource  ||
-						(address is DirectoryRepositorySource && ((DirectoryRepositorySource)address).LooksLikeLocalDirectory))
+					(address is DirectoryRepositorySource && ((DirectoryRepositorySource)address).LooksLikeLocalDirectory))
 					{
 						var otherRepo = new HgRepository(resolvedUri, _progress);
 						otherRepo.Update();
@@ -267,7 +290,7 @@ namespace Chorus.sync
 			}
 			catch (Exception error)
 			{
-				ExplainAndThrow(error, "Could to send to {0}({1}).", address.Name, address.URI);
+				ExplainAndThrow(error, "Failed to send to {0} ({1}).", address.Name, address.URI);
 			}
 		}
 
@@ -301,8 +324,15 @@ namespace Chorus.sync
 			ThrowIfCancelPending();
 			_progress.WriteStatus("Storing changes in local repository...");
 
+			// Must be done, before "AddAndCommitFiles" call.
+			// It could be here, or first thing inside the 'using' for CommitCop.
+			LargeFileFilter.FilterFiles(Repository, _project, _handlers, _progress);
+
 			using (var commitCop = new CommitCop(Repository, _handlers, _progress))
 			{
+				// NB: The commit must take place in order for CommitCop to work properly.
+				// Ergo, don't even think of moving this after the commitCop.ValidationResult check.
+				// Too bad I (RBR) already thought of it, and asked, and found out it ought not be moved. :-)
 				AddAndCommitFiles(options.CheckinDescription);
 
 				if (!string.IsNullOrEmpty(commitCop.ValidationResult))
@@ -316,12 +346,12 @@ namespace Chorus.sync
 		/// <returns>true if there was a successful pull</returns>
 		private bool PullFromOneSource(HgRepository repo, RepositoryAddress source, Dictionary<RepositoryAddress, bool> connectionAttempt)
 		{
-			string resolvedUri = source.GetPotentialRepoUri(RepoProjectName, _progress);
+			string resolvedUri = source.GetPotentialRepoUri(repo.Identifier, RepoProjectName, _progress);
 
 			if (source is UsbKeyRepositorySource)
 			{
 				_progress.WriteStatus("Looking for USB flash drives...");
-				var potential = source.GetPotentialRepoUri(RepoProjectName, _progress);
+				var potential = source.GetPotentialRepoUri(repo.Identifier, RepoProjectName, _progress);
 				if (null ==potential)
 				{
 					_progress.WriteWarning("No USB flash drive found");
@@ -351,7 +381,21 @@ namespace Chorus.sync
 					throw new SynchronizationException(error, WhatToDo.CheckSettings, "Error while pulling {0} at {1}", source.Name, resolvedUri);
 				}
 				//NB: this returns false if there was nothing to get.
-				return repo.TryToPull(source.Name, resolvedUri);
+				try
+				{
+					return repo.TryToPull(source.Name, resolvedUri);
+				}
+				catch (HgCommonException err)
+				{
+					ErrorReport.NotifyUserOfProblem(err.Message);
+					return false;
+				}
+				catch (Exception err)
+				{
+					_progress.WriteException(err);
+					return false;
+				}
+
 			}
 			else
 			{
@@ -362,43 +406,13 @@ namespace Chorus.sync
 				}
 				else
 				{
-					return false;// this may be fine, even expected
-					//throw new SynchronizationException(null, WhatToDo.CheckAddressAndConnection, "Could not connect to {0} at {1} for pulling", source.Name, resolvedUri);
+					_progress.WriteError("Could not connect to {0} at {1}", source.Name, resolvedUri);
+					return false;
 				}
 			}
 		}
 
-		/// <summary>
-		/// put anything in the hgrc that chorus requires
-		/// todo: Now that we ship with our own mercurial, figure out how to just set these outside of code.
-		/// </summary>
-		private void UpdateHgrc(HgRepository repository)
-		{
-			ThrowIfCancelPending();
-			try
-			{
-				//TODO: I think these can be removed now, since we have our own mercurial.ini
-				string[] names = new string[]
-									 {
-										 "hgext.win32text", //for converting line endings on windows machines
-										 "hgext.graphlog", //for more easily readable diagnostic logs
-										 "convert" //for catastrophic repair in case of repo corruption
-									 };
-				repository.EnsureTheseExtensionAreEnabled(names);
 
-//                List<string> extensions = new List<string>();
-//
-//                foreach (var handler in _handlers.Handers)
-//                {
-//                    extensions.AddRange(handler.GetExtensionsOfKnownTextFileTypes());
-//                }
-			}
-			catch (Exception error)
-			{
-				ExplainAndThrow(error, "Could not prepare the mercurial settings");
-			}
-
-		}
 
 		private void ExplainAndThrow(Exception exception, string explanation, params object[] args)
 		{
@@ -500,30 +514,23 @@ namespace Chorus.sync
 					repository.Update(); //update to the tip
 					return;
 				}
-
-				//NB: note that changing this from a warning to an error ends up changing behavior (which tests catch)
-				_progress.WriteWarning(string.Format("There are {0} sets of changes that could not be merged together. Please contact your technical help person.", heads.Count()));
-				foreach (var revision in heads)
+				if (heads.Count == 0)
 				{
-					_progress.WriteStatus("Head: {0}:{1} {2}",revision.Number.LocalRevisionNumber, revision.Number.Hash, revision.Summary);
+					return;//nothing has been checked in, so we're done! (this happens during some UI tests)
 				}
-				_progress.WriteStatus(repository.GetLog(30));
 
 				//TODO: I think this "direct descendant" limitation won't be enough
-				//  when there are more than 2 people merging and there's a failure);)
+				//  when there are more than 2 people merging and there's a failure
 				foreach (var head in heads)
 				{
-					_progress.WriteStatus("Considering rollling back to Head: {0}:{1} {2}",head.Number.LocalRevisionNumber, head.Number.Hash, head.Summary);
 					if (parent.Number.Hash == head.Number.Hash || head.IsDirectDescendantOf(parent))
 					{
-						_progress.WriteStatus("Doing rollback to that head");
 						repository.RollbackWorkingDirectoryToRevision(head.Number.LocalRevisionNumber);
 						return;
 					}
-					_progress.WriteStatus("Was not a parent");
 				}
 
-				_progress.WriteWarning("No changes from others were merged in.");
+				_progress.WriteWarning("Staying at previous-tip (unusual)");
 			}
 			catch (Exception error)
 			{
@@ -542,7 +549,7 @@ namespace Chorus.sync
 		/// <returns>the uri of a successful clone</returns>
 		private string TryToMakeCloneForSource(RepositoryAddress repoDescriptor)
 		{
-			List<string> possibleRepoCloneUris = repoDescriptor.GetPossibleCloneUris(RepoProjectName, _progress);
+			List<string> possibleRepoCloneUris = repoDescriptor.GetPossibleCloneUris(Repository.Identifier, RepoProjectName, _progress);
 			if (possibleRepoCloneUris == null)
 			{
 				_progress.WriteMessage("No Uris available for cloning to {0}",
@@ -607,8 +614,8 @@ namespace Chorus.sync
 					  if (head.Tag.Contains(RejectTagSubstring))
 						  continue;
 
-					  //note: what we're checking here is actualy the *name* of the branch... obviously
-					  //they are different branches, or merge would not be needed.
+					  //note: what we're checking here is actualy the *name* of the branch...important: remmber in hg,
+					  //you can have multiple heads on the same branch
 					  if (head.Branch != myHead.Branch) //Chorus policy is to only auto-merge on branches with same name
 						  continue;
 
@@ -618,7 +625,14 @@ namespace Chorus.sync
 
 					  MergeOrder.PushToEnvironmentVariables(_localRepositoryPath);
 					  _progress.WriteStatus("Merging with {0}...", head.UserId);
+					  _progress.WriteVerbose("   Revisions {0}:{1} with {2}:{3}...", myHead.Number.LocalRevisionNumber, myHead.Number.Hash, head.Number.LocalRevisionNumber, head.Number.Hash);
 					  RemoveMergeObstacles(myHead, head);
+
+					  if(CheckAndWarnIfNoCommonAncestor(myHead, head))
+					  {
+						  continue;
+					  }
+
 					  bool didMerge = MergeTwoChangeSets(myHead, head);
 					  if (didMerge)
 					  {
@@ -641,18 +655,39 @@ namespace Chorus.sync
 			  }
 		  }
 
+		private bool CheckAndWarnIfNoCommonAncestor(Revision a, Revision b )
+		{
+			if (null ==Repository.GetCommonAncestorOfRevisions(a.Number.Hash,b.Number.Hash))
+			{
+				_progress.WriteWarning(
+					"This repository has an anomaly:  the two heads we want to merge have no common ancestor.  You should get help from the developers of this application.");
+				_progress.WriteWarning("1) \"{0}\" on {1} by {2} ({3}). ", a.GetHashCode(), a.Summary, a.DateString, a.UserId);
+				_progress.WriteWarning("2) \"{0}\" on {1} by {2} ({3}). ", b.GetHashCode(), b.Summary, b.DateString, b.UserId);
+				return true;
+			}
+			return false;
+		}
 
 		/// <returns>false if nothing needed to be merged, true if the merge was done. Throws exception if there is an error.</returns>
 		private bool MergeTwoChangeSets(Revision head, Revision theirHead)
 		{
 #if MONO
 			string chorusMergeFilePath = Path.Combine(ExecutionEnvironment.DirectoryOfExecutingAssembly, "chorusmerge");
+			// The replace is only useful for use with the MonoDevelop environment whcih doesn't honor $(Configuration) in the csproj files.
+			// When this is exported as an environment var it needs escaping to prevent the shell from replacing it with an empty string.
+			// When MonoDevelop is fixed this can be removed.
+			chorusMergeFilePath = chorusMergeFilePath.Replace("$(Configuration)", "\\$(Configuration)");
 #else
 			string chorusMergeFilePath = Path.Combine(ExecutionEnvironment.DirectoryOfExecutingAssembly, "ChorusMerge.exe");
 #endif
 			using (new ShortTermEnvironmentalVariable("HGMERGE", '"' + chorusMergeFilePath + '"'))
 			{
-				using (new ShortTermEnvironmentalVariable(MergeOrder.kConflictHandlingModeEnvVarName, MergeOrder.ConflictHandlingModeChoices.TheyWin.ToString()))
+				// Theory has it that is a tossup on who ought to win, umless there is some more principled way to decide.
+				// If 'they' end up being the right answer, or if it ends up being more exotic,
+				// then be sure to change the alpha and beta info in the MergeSituation class.
+				//using (new ShortTermEnvironmentalVariable(MergeOrder.kConflictHandlingModeEnvVarName, MergeOrder.ConflictHandlingModeChoices.TheyWin.ToString()))
+				// Go with 'WeWin', since that is the default and that is how the alpha and beta data of MergeSituation is set, right before this method is called.
+				using (new ShortTermEnvironmentalVariable(MergeOrder.kConflictHandlingModeEnvVarName, MergeOrder.ConflictHandlingModeChoices.WeWin.ToString()))
 				{
 					return Repository.Merge(_localRepositoryPath, theirHead.Number.LocalRevisionNumber);
 				}

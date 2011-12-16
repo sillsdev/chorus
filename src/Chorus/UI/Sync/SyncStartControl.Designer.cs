@@ -34,14 +34,18 @@
 			this._useUSBButton = new System.Windows.Forms.Button();
 			this._updateDisplayTimer = new System.Windows.Forms.Timer(this.components);
 			this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+			this._useSharedFolderStatusLabel = new System.Windows.Forms.LinkLabel();
 			this._usbStatusLabel = new Chorus.UI.BetterLabel();
-			this._sharedFolderLabel = new Chorus.UI.BetterLabel();
 			this.betterLabel2 = new Chorus.UI.BetterLabel();
 			this._commitMessageText = new System.Windows.Forms.TextBox();
 			this._internetStatusLabel = new System.Windows.Forms.LinkLabel();
+			this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
+			this.betterLabel1 = new Chorus.UI.BetterLabel();
+			this._userName = new System.Windows.Forms.TextBox();
 			this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
 			this.usbDriveLocator = new Chorus.UI.UsbDriveLocator(this.components);
 			this.tableLayoutPanel1.SuspendLayout();
+			this.flowLayoutPanel1.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.usbDriveLocator)).BeginInit();
 			this.SuspendLayout();
 			//
@@ -51,7 +55,7 @@
 			this._useSharedFolderButton.Enabled = false;
 			this._useSharedFolderButton.Image = global::Chorus.Properties.Resources.networkFolder29x32;
 			this._useSharedFolderButton.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-			this._useSharedFolderButton.Location = new System.Drawing.Point(3, 153);
+			this._useSharedFolderButton.Location = new System.Drawing.Point(3, 157);
 			this._useSharedFolderButton.Name = "_useSharedFolderButton";
 			this._useSharedFolderButton.Size = new System.Drawing.Size(167, 39);
 			this._useSharedFolderButton.TabIndex = 0;
@@ -99,28 +103,47 @@
 						| System.Windows.Forms.AnchorStyles.Right)));
 			this.tableLayoutPanel1.ColumnCount = 1;
 			this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+			this.tableLayoutPanel1.Controls.Add(this._useSharedFolderStatusLabel, 0, 5);
 			this.tableLayoutPanel1.Controls.Add(this._useUSBButton, 0, 0);
 			this.tableLayoutPanel1.Controls.Add(this._usbStatusLabel, 0, 1);
-			this.tableLayoutPanel1.Controls.Add(this._sharedFolderLabel, 0, 5);
 			this.tableLayoutPanel1.Controls.Add(this._useInternetButton, 0, 2);
 			this.tableLayoutPanel1.Controls.Add(this._useSharedFolderButton, 0, 4);
-			this.tableLayoutPanel1.Controls.Add(this.betterLabel2, 0, 6);
-			this.tableLayoutPanel1.Controls.Add(this._commitMessageText, 0, 7);
+			this.tableLayoutPanel1.Controls.Add(this.betterLabel2, 0, 7);
+			this.tableLayoutPanel1.Controls.Add(this._commitMessageText, 0, 8);
 			this.tableLayoutPanel1.Controls.Add(this._internetStatusLabel, 0, 3);
+			this.tableLayoutPanel1.Controls.Add(this.flowLayoutPanel1, 0, 6);
 			this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 13);
 			this.tableLayoutPanel1.Name = "tableLayoutPanel1";
-			this.tableLayoutPanel1.RowCount = 8;
+			this.tableLayoutPanel1.RowCount = 9;
 			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 45F));
 			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
-			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 45F));
+			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 48F));
+			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 31F));
+			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 46F));
 			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
-			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 45F));
-			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
-			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
-			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
-			this.tableLayoutPanel1.Size = new System.Drawing.Size(330, 302);
+			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 34F));
+			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 43F));
+			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+			this.tableLayoutPanel1.Size = new System.Drawing.Size(330, 323);
 			this.tableLayoutPanel1.TabIndex = 2;
 			this.tableLayoutPanel1.Paint += new System.Windows.Forms.PaintEventHandler(this.tableLayoutPanel1_Paint);
+			//
+			// _useSharedFolderStatusLabel
+			//
+			this._useSharedFolderStatusLabel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+						| System.Windows.Forms.AnchorStyles.Right)));
+			this._useSharedFolderStatusLabel.AutoSize = true;
+			this._useSharedFolderStatusLabel.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this._useSharedFolderStatusLabel.LinkArea = new System.Windows.Forms.LinkArea(20, 8);
+			this._useSharedFolderStatusLabel.Location = new System.Drawing.Point(3, 200);
+			this._useSharedFolderStatusLabel.Name = "_useSharedFolderStatusLabel";
+			this._useSharedFolderStatusLabel.Size = new System.Drawing.Size(324, 21);
+			this._useSharedFolderStatusLabel.TabIndex = 7;
+			this._useSharedFolderStatusLabel.TabStop = true;
+			this._useSharedFolderStatusLabel.Text = "A nice message with launcher";
+			this._useSharedFolderStatusLabel.UseCompatibleTextRendering = true;
+			this._useSharedFolderStatusLabel.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this._sharedFolderStatusLabel_LinkClicked);
 			//
 			// _usbStatusLabel
 			//
@@ -138,33 +161,17 @@
 			this._usbStatusLabel.TabStop = false;
 			this._usbStatusLabel.Text = "Checking...";
 			//
-			// _sharedFolderLabel
-			//
-			this._sharedFolderLabel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-						| System.Windows.Forms.AnchorStyles.Right)));
-			this._sharedFolderLabel.BorderStyle = System.Windows.Forms.BorderStyle.None;
-			this._sharedFolderLabel.Font = new System.Drawing.Font("Segoe UI", 9F);
-			this._sharedFolderLabel.ForeColor = System.Drawing.Color.DimGray;
-			this._sharedFolderLabel.Location = new System.Drawing.Point(3, 198);
-			this._sharedFolderLabel.Multiline = true;
-			this._sharedFolderLabel.Name = "_sharedFolderLabel";
-			this._sharedFolderLabel.ReadOnly = true;
-			this._sharedFolderLabel.Size = new System.Drawing.Size(324, 23);
-			this._sharedFolderLabel.TabIndex = 1;
-			this._sharedFolderLabel.TabStop = false;
-			this._sharedFolderLabel.Text = "Checking...";
-			//
 			// betterLabel2
 			//
 			this.betterLabel2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
 						| System.Windows.Forms.AnchorStyles.Right)));
 			this.betterLabel2.BorderStyle = System.Windows.Forms.BorderStyle.None;
 			this.betterLabel2.Font = new System.Drawing.Font("Segoe UI", 9F);
-			this.betterLabel2.Location = new System.Drawing.Point(3, 228);
+			this.betterLabel2.Location = new System.Drawing.Point(3, 267);
 			this.betterLabel2.Multiline = true;
 			this.betterLabel2.Name = "betterLabel2";
 			this.betterLabel2.ReadOnly = true;
-			this.betterLabel2.Size = new System.Drawing.Size(324, 24);
+			this.betterLabel2.Size = new System.Drawing.Size(324, 14);
 			this.betterLabel2.TabIndex = 3;
 			this.betterLabel2.TabStop = false;
 			this.betterLabel2.Text = "Label this point in the project history (Optional) :";
@@ -172,10 +179,11 @@
 			// _commitMessageText
 			//
 			this._commitMessageText.Dock = System.Windows.Forms.DockStyle.Fill;
-			this._commitMessageText.Location = new System.Drawing.Point(3, 258);
+			this._commitMessageText.Location = new System.Drawing.Point(3, 287);
+			this._commitMessageText.Margin = new System.Windows.Forms.Padding(3, 3, 20, 3);
 			this._commitMessageText.Multiline = true;
 			this._commitMessageText.Name = "_commitMessageText";
-			this._commitMessageText.Size = new System.Drawing.Size(324, 41);
+			this._commitMessageText.Size = new System.Drawing.Size(307, 37);
 			this._commitMessageText.TabIndex = 4;
 			//
 			// _internetStatusLabel
@@ -183,15 +191,50 @@
 			this._internetStatusLabel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
 						| System.Windows.Forms.AnchorStyles.Right)));
 			this._internetStatusLabel.AutoSize = true;
-			this._internetStatusLabel.LinkArea = new System.Windows.Forms.LinkArea(20, 5);
-			this._internetStatusLabel.Location = new System.Drawing.Point(3, 120);
+			this._internetStatusLabel.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this._internetStatusLabel.LinkArea = new System.Windows.Forms.LinkArea(20, 8);
+			this._internetStatusLabel.Location = new System.Drawing.Point(3, 123);
 			this._internetStatusLabel.Name = "_internetStatusLabel";
-			this._internetStatusLabel.Size = new System.Drawing.Size(324, 17);
+			this._internetStatusLabel.Size = new System.Drawing.Size(324, 21);
 			this._internetStatusLabel.TabIndex = 5;
 			this._internetStatusLabel.TabStop = true;
-			this._internetStatusLabel.Text = "A nice message with help";
+			this._internetStatusLabel.Text = "A nice message with launcher";
 			this._internetStatusLabel.UseCompatibleTextRendering = true;
 			this._internetStatusLabel.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this._internetStatusLabel_LinkClicked);
+			//
+			// flowLayoutPanel1
+			//
+			this.flowLayoutPanel1.Controls.Add(this.betterLabel1);
+			this.flowLayoutPanel1.Controls.Add(this._userName);
+			this.flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.flowLayoutPanel1.Location = new System.Drawing.Point(0, 233);
+			this.flowLayoutPanel1.Margin = new System.Windows.Forms.Padding(0, 3, 3, 3);
+			this.flowLayoutPanel1.Name = "flowLayoutPanel1";
+			this.flowLayoutPanel1.Size = new System.Drawing.Size(327, 28);
+			this.flowLayoutPanel1.TabIndex = 8;
+			//
+			// betterLabel1
+			//
+			this.betterLabel1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+						| System.Windows.Forms.AnchorStyles.Right)));
+			this.betterLabel1.BorderStyle = System.Windows.Forms.BorderStyle.None;
+			this.betterLabel1.Font = new System.Drawing.Font("Segoe UI", 9F);
+			this.betterLabel1.Location = new System.Drawing.Point(3, 3);
+			this.betterLabel1.Multiline = true;
+			this.betterLabel1.Name = "betterLabel1";
+			this.betterLabel1.ReadOnly = true;
+			this.betterLabel1.Size = new System.Drawing.Size(100, 20);
+			this.betterLabel1.TabIndex = 0;
+			this.betterLabel1.TabStop = false;
+			this.betterLabel1.Text = "Your Name:";
+			//
+			// _userName
+			//
+			this._userName.Location = new System.Drawing.Point(109, 3);
+			this._userName.Margin = new System.Windows.Forms.Padding(3, 3, 0, 3);
+			this._userName.Name = "_userName";
+			this._userName.Size = new System.Drawing.Size(200, 20);
+			this._userName.TabIndex = 1;
 			//
 			// SyncStartControl
 			//
@@ -199,10 +242,12 @@
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
 			this.Controls.Add(this.tableLayoutPanel1);
 			this.Name = "SyncStartControl";
-			this.Size = new System.Drawing.Size(330, 383);
+			this.Size = new System.Drawing.Size(330, 388);
 			this.Load += new System.EventHandler(this.SyncStartControl_Load);
 			this.tableLayoutPanel1.ResumeLayout(false);
 			this.tableLayoutPanel1.PerformLayout();
+			this.flowLayoutPanel1.ResumeLayout(false);
+			this.flowLayoutPanel1.PerformLayout();
 			((System.ComponentModel.ISupportInitialize)(this.usbDriveLocator)).EndInit();
 			this.ResumeLayout(false);
 
@@ -215,12 +260,15 @@
 		private System.Windows.Forms.Button _useSharedFolderButton;
 		private System.Windows.Forms.Timer _updateDisplayTimer;
 		private BetterLabel _usbStatusLabel;
-		private BetterLabel _sharedFolderLabel;
 		private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
 		private System.Windows.Forms.ToolTip toolTip1;
 		private BetterLabel betterLabel2;
 		private System.Windows.Forms.TextBox _commitMessageText;
 		private UsbDriveLocator usbDriveLocator;
 		private System.Windows.Forms.LinkLabel _internetStatusLabel;
+		private System.Windows.Forms.LinkLabel _useSharedFolderStatusLabel;
+		private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
+		private BetterLabel betterLabel1;
+		private System.Windows.Forms.TextBox _userName;
 	}
 }

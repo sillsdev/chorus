@@ -3,7 +3,6 @@ using System.Xml.Linq;
 
 namespace Chorus.Utilities
 {
-
 	public static class XElementExtensions
 	{
 		#region GetAttributeValue

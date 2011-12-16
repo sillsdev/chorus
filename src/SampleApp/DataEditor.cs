@@ -6,6 +6,8 @@ using System.Xml;
 using Chorus;
 using Chorus.UI.Notes.Bar;
 using Chorus.Utilities;
+using Palaso.Progress.LogBox;
+using Palaso.Xml;
 
 namespace SampleApp
 {
@@ -62,7 +64,7 @@ namespace SampleApp
 
 		public void SaveNow()
 		{
-			using(var writer = XmlWriter.Create(_dataFilePath))
+			using(var writer = XmlWriter.Create(_dataFilePath, CanonicalXmlSettings.CreateXmlWriterSettings()))
 			{
 				writer.WriteStartElement("shopping");
 				WriteArea(writer, _area1Label.Text, _area1Text.Text);

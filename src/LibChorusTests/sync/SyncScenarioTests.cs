@@ -6,6 +6,7 @@ using Chorus.Utilities;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using NUnit.Framework;
+using Palaso.Progress.LogBox;
 
 namespace LibChorus.Tests.sync
 {
@@ -140,7 +141,7 @@ namespace LibChorus.Tests.sync
 			bob.ExtraRepositorySources.Add(otherDirPath);
 
 			//now stick a new file over in the "usb", so we can see if it comes back to us
-			File.WriteAllText(Path.Combine(otherDirPath.GetPotentialRepoUri(BobSetup.ProjectFolderName, progress), "incoming.abc"), "this would be a file coming in");
+			File.WriteAllText(Path.Combine(otherDirPath.GetPotentialRepoUri(bob.Repository.Identifier, BobSetup.ProjectFolderName, progress), "incoming.abc"), "this would be a file coming in");
 			SyncOptions options = new SyncOptions();
 			ProjectFolderConfiguration usbProject = new ProjectFolderConfiguration(Path.Combine(usbPath, BobSetup.ProjectFolderName));
 			usbProject.IncludePatterns.Add("**.abc");
@@ -256,8 +257,8 @@ namespace LibChorus.Tests.sync
 			bobOptions.DoMergeWithOthers = true;
 			bobSynchronizer.SyncNow(bobOptions);
 
-
-			Assert.AreEqual("Sally was here", File.ReadAllText(bobSetup.PathToText));
+			// With sync set as 'WeWin'
+			Assert.AreEqual("Bob's new idea", File.ReadAllText(bobSetup.PathToText));
 
 		}
 
@@ -268,7 +269,6 @@ namespace LibChorus.Tests.sync
 			BobSetup bobSetup = new BobSetup(progress, _pathToTestRoot);
 
 			bobSetup.ChangeTextFile();
-
 
 			//Ok, this is unrealistic, but we just clone Bob onto Sally
 			string sallyMachineRoot = Path.Combine(_pathToTestRoot, "sally");
@@ -283,32 +283,36 @@ namespace LibChorus.Tests.sync
 
 
 			// bob makes a change and syncs
-			File.WriteAllText(bobSetup._pathToLift, "<lift version='0.12'><entry id='dog'><lexical-unit><form lang='en'><text>dog</text></form></lexical-unit></entry></lift>");
-			SyncOptions bobOptions = new SyncOptions();
-			bobOptions.CheckinDescription = "added 'dog'";
-			bobOptions.DoMergeWithOthers = false; // just want a fast checkin
-			bobOptions.DoSendToOthers = false; // just want a fast checkin
-			bobOptions.DoPullFromOthers = false; // just want a fast checkin
+			File.WriteAllText(bobSetup._pathToLift, "<lift version='0.12'><entry id='dog' guid='c1ed1fa9-e382-11de-8a39-0800200c9a66'><lexical-unit><form lang='en'><text>dog</text></form></lexical-unit></entry></lift>");
+			var bobOptions = new SyncOptions
+										{
+											CheckinDescription = "added 'dog'",
+											DoMergeWithOthers = false, // just want a fast checkin
+											DoSendToOthers = false, // just want a fast checkin
+											DoPullFromOthers = false // just want a fast checkin
+										};
 			bobSetup.GetSynchronizer().SyncNow(bobOptions);
 
-
 			//now Sally modifies the original file, not having seen Bob's changes yet
-			string sallyPathToLift = Path.Combine(sallyProject.FolderPath, "lexicon/foo.lift");
-			File.WriteAllText(sallyPathToLift, "<lift version='0.12'><entry id='cat'><lexical-unit><form lang='en'><text>cat</text></form></lexical-unit></entry></lift>");
+			var sallyPathToLift = Path.Combine(sallyProject.FolderPath, "lexicon/foo.lift");
+			File.WriteAllText(sallyPathToLift, "<lift version='0.12'><entry id='cat' guid='c1ed1faa-e382-11de-8a39-0800200c9a66'><lexical-unit><form lang='en'><text>cat</text></form></lexical-unit></entry></lift>");
 
-			//Salyy syncs, pulling in Bob's change, and encountering a need to merge (no conflicts)
-			SyncOptions sallyOptions = new SyncOptions();
-			sallyOptions.CheckinDescription = "adding cat";
-			sallyOptions.DoPullFromOthers = true;
-			sallyOptions.DoSendToOthers = true;
-			sallyOptions.DoMergeWithOthers = true;
+			//Sally syncs, pulling in Bob's change, and encountering a need to merge (no conflicts)
+			var sallyOptions = new SyncOptions
+										{
+											CheckinDescription = "adding cat",
+											DoPullFromOthers = true,
+											DoSendToOthers = true,
+											DoMergeWithOthers = true
+										};
 			sallyOptions.RepositorySourcesToTry.Add(RepositoryAddress.Create("bob's machine", bobSetup.BobProjectPath, false));
 
 			var synchronizer = Synchronizer.FromProjectConfiguration(sallyProject, progress);
 			synchronizer.SyncNow(sallyOptions);
 
-			Debug.WriteLine(File.ReadAllText(bobSetup._pathToLift));
-			string contents = File.ReadAllText(sallyPathToLift);
+			//Debug.WriteLine("bob's: " + File.ReadAllText(bobSetup._pathToLift));
+			var contents = File.ReadAllText(sallyPathToLift);
+			//Debug.WriteLine("sally's: " + contents);
 			Assert.IsTrue(contents.Contains("cat"));
 			Assert.IsTrue(contents.Contains("dog"));
 		}

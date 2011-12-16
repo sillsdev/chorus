@@ -9,6 +9,7 @@ using Chorus.sync;
 using Chorus.Utilities;
 using System.Linq;
 using Chorus.VcsDrivers;
+using Palaso.Progress.LogBox;
 
 namespace Chorus.UI.Sync
 {
@@ -68,7 +69,7 @@ namespace Chorus.UI.Sync
 				{
 					using (SoundPlayer player = new SoundPlayer(stream))
 					{
-						player.Play();
+						player.PlaySync();
 					}
 					stream.Dispose();
 				}

@@ -18,12 +18,27 @@
 	</FileUpgradeFlags>
 	<OldToolsVersion>3.5</OldToolsVersion>
 	<UpgradeBackupLocation />
+	<PublishUrl>publish\</PublishUrl>
+	<Install>true</Install>
+	<InstallFrom>Disk</InstallFrom>
+	<UpdateEnabled>false</UpdateEnabled>
+	<UpdateMode>Foreground</UpdateMode>
+	<UpdateInterval>7</UpdateInterval>
+	<UpdateIntervalUnits>Days</UpdateIntervalUnits>
+	<UpdatePeriodically>false</UpdatePeriodically>
+	<UpdateRequired>false</UpdateRequired>
+	<MapFileExtensions>true</MapFileExtensions>
+	<ApplicationRevision>0</ApplicationRevision>
+	<ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+	<IsWebBootstrapper>false</IsWebBootstrapper>
+	<UseApplicationTrust>false</UseApplicationTrust>
+	<BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
 	<DebugSymbols>true</DebugSymbols>
 	<DebugType>full</DebugType>
 	<Optimize>false</Optimize>
-	<OutputPath>..\..\output\Debug\</OutputPath>
+	<OutputPath>..\..\output\$(Configuration)</OutputPath>
 	<DefineConstants>DEBUG;TRACE</DefineConstants>
 	<ErrorReport>prompt</ErrorReport>
 	<WarningLevel>4</WarningLevel>
@@ -34,12 +49,12 @@
 	<CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
 	<ApplicationIcon>chorus.ico</ApplicationIcon>
 	<PlatformTarget>x86</PlatformTarget>
-	<DocumentationFile>..\..\output\Debug\Chorus.XML</DocumentationFile>
+	<DocumentationFile>..\..\output\$(Configuration)\Chorus.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
 	<DebugType>pdbonly</DebugType>
 	<Optimize>true</Optimize>
-	<OutputPath>..\..\output\Release\</OutputPath>
+	<OutputPath>..\..\output\$(Configuration)</OutputPath>
 	<DefineConstants>TRACE</DefineConstants>
 	<ErrorReport>prompt</ErrorReport>
 	<WarningLevel>4</WarningLevel>
@@ -51,34 +66,34 @@
 	<CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
 	<ApplicationIcon>chorus.ico</ApplicationIcon>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'DebugMono|AnyCPU' ">
 	<DebugSymbols>true</DebugSymbols>
-	<OutputPath>..\..\output\Debug\</OutputPath>
-	<DefineConstants>DEBUG;TRACE</DefineConstants>
+	<OutputPath>..\..\output\$(Configuration)</OutputPath>
+	<DefineConstants>DEBUG;TRACE;MONO</DefineConstants>
 	<CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
-	<DocumentationFile>..\..\output\Debug\Chorus.XML</DocumentationFile>
+	<DocumentationFile>..\..\output\$(Configuration)\Chorus.XML</DocumentationFile>
 	<DebugType>full</DebugType>
 	<PlatformTarget>x86</PlatformTarget>
 	<ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'ReleaseMono|AnyCPU' ">
 	<DebugSymbols>true</DebugSymbols>
-	<OutputPath>..\..\output\Release\</OutputPath>
-	<DefineConstants>TRACE</DefineConstants>
+	<OutputPath>..\..\output\$(Configuration)</OutputPath>
+	<DefineConstants>TRACE;MONO</DefineConstants>
 	<CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
 	<Optimize>true</Optimize>
 	<DebugType>pdbonly</DebugType>
-	<PlatformTarget>x86</PlatformTarget>
+	<PlatformTarget>AnyCPU</PlatformTarget>
 	<ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <ItemGroup>
 	<Reference Include="Autofac, Version=1.4.4.561, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
 	  <SpecificVersion>False</SpecificVersion>
-	  <HintPath>..\..\lib\net2.0\Autofac.dll</HintPath>
+	  <HintPath>..\..\lib\$(Configuration)\Autofac.dll</HintPath>
 	</Reference>
-	<Reference Include="Palaso, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+	<Reference Include="Palaso, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86">
 	  <SpecificVersion>False</SpecificVersion>
-	  <HintPath>..\..\lib\net2.0\Palaso.dll</HintPath>
+	  <HintPath>..\..\lib\$(Configuration)\Palaso.dll</HintPath>
 	</Reference>
 	<Reference Include="System" />
 	<Reference Include="System.Core">
@@ -133,12 +148,6 @@
 	  <DependentUpon>GetCloneFromUsbDialog.cs</DependentUpon>
 	</Compile>
 	<Compile Include="UI\Misc\ServerSettingsModel.cs" />
-	<Compile Include="UI\Misc\LogBox.cs">
-	  <SubType>UserControl</SubType>
-	</Compile>
-	<Compile Include="UI\Misc\LogBox.Designer.cs">
-	  <DependentUpon>LogBox.cs</DependentUpon>
-	</Compile>
 	<Compile Include="UI\Misc\TroubleshootingView.cs">
 	  <SubType>UserControl</SubType>
 	</Compile>
@@ -214,6 +223,11 @@
 	  <DependentUpon>NotesInProjectView.cs</DependentUpon>
 	</Compile>
 	<Compile Include="UI\Review\HistoryPageOptions.cs" />
+	<Compile Include="UI\Review\RevisionsInRepository\HistoryRowIcons.Designer.cs">
+	  <AutoGen>True</AutoGen>
+	  <DesignTime>True</DesignTime>
+	  <DependentUpon>HistoryRowIcons.resx</DependentUpon>
+	</Compile>
 	<Compile Include="UI\Review\RevisionsInRepository\RevisionsInRepositoryView.cs">
 	  <SubType>UserControl</SubType>
 	</Compile>
@@ -236,6 +250,10 @@
 	<EmbeddedResource Include="UI\Review\HistoryPage.resx">
 	  <DependentUpon>HistoryPage.cs</DependentUpon>
 	  <SubType>Designer</SubType>
+	</EmbeddedResource>
+	<EmbeddedResource Include="UI\Review\RevisionsInRepository\HistoryRowIcons.resx">
+	  <Generator>ResXFileCodeGenerator</Generator>
+	  <LastGenOutput>HistoryRowIcons.Designer.cs</LastGenOutput>
 	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Review\RevisionsInRepository\RevisionsInRepositoryView.resx">
 	  <DependentUpon>RevisionsInRepositoryView.cs</DependentUpon>
@@ -350,6 +368,7 @@
 	<Content Include="chorus.ico" />
 	<EmbeddedResource Include="UI\BetterLabel.resx">
 	  <DependentUpon>BetterLabel.cs</DependentUpon>
+	  <SubType>Designer</SubType>
 	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Misc\ServerSettingsControl.resx">
 	  <DependentUpon>ServerSettingsControl.cs</DependentUpon>
@@ -367,11 +386,9 @@
 	  <DependentUpon>GetCloneFromUsbDialog.cs</DependentUpon>
 	  <SubType>Designer</SubType>
 	</EmbeddedResource>
-	<EmbeddedResource Include="UI\Misc\LogBox.resx">
-	  <DependentUpon>LogBox.cs</DependentUpon>
-	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Misc\TroubleshootingView.resx">
 	  <DependentUpon>TroubleshootingView.cs</DependentUpon>
+	  <SubType>Designer</SubType>
 	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Misc\ReadinessPanel.resx">
 	  <DependentUpon>ReadinessPanel.cs</DependentUpon>
@@ -379,15 +396,19 @@
 	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Notes\AnnotationInspector.resx">
 	  <DependentUpon>AnnotationInspector.cs</DependentUpon>
+	  <SubType>Designer</SubType>
 	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Notes\AnnotationEditorView.resx">
 	  <DependentUpon>AnnotationEditorView.cs</DependentUpon>
+	  <SubType>Designer</SubType>
 	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Notes\Bar\NoteDetailDialog.resx">
 	  <DependentUpon>NoteDetailDialog.cs</DependentUpon>
+	  <SubType>Designer</SubType>
 	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Notes\Bar\NotesBarView.resx">
 	  <DependentUpon>NotesBarView.cs</DependentUpon>
+	  <SubType>Designer</SubType>
 	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Notes\Browser\NotesInProjectView.resx">
 	  <DependentUpon>NotesInProjectView.cs</DependentUpon>
@@ -399,6 +420,7 @@
 	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Notes\Browser\SearchBox.resx">
 	  <DependentUpon>SearchBox.cs</DependentUpon>
+	  <SubType>Designer</SubType>
 	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Misc\ServerSettingsDialog.resx">
 	  <DependentUpon>ServerSettingsDialog.cs</DependentUpon>
@@ -413,6 +435,7 @@
 	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Sync\SyncStartControl.resx">
 	  <DependentUpon>SyncStartControl.cs</DependentUpon>
+	  <SubType>Designer</SubType>
 	</EmbeddedResource>
 	<None Include="Resources\error.wav" />
 	<None Include="Resources\chorus32x32.png" />
@@ -434,8 +457,16 @@
 	<None Include="Resources\check12x12.png" />
 	<None Include="Resources\Filter2HS.png" />
 	<None Include="Resources\expand.png" />
+	<None Include="Resources\chorus16x16.png" />
+	<None Include="Resources\FieldWorksBridge.bmp" />
 	<Content Include="Resources\menuButton.png" />
 	<None Include="Resources\sendReceiveCircle16x16png.png" />
+	<None Include="Resources\Merge16x16.png" />
+	<None Include="Resources\MergeConflict16x16.png" />
+	<None Include="Resources\warning16x16.png" />
+	<None Include="Resources\wesay16x16.png" />
+	<None Include="Resources\wesayconfigDoc16x16.png" />
+	<None Include="Resources\WeSayConfig16x16.png" />
 	<Content Include="UI\Notes\Html\bl.gif">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</Content>
@@ -459,6 +490,23 @@
 	<Content Include="UI\Notes\Html\tr.gif">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</Content>
+  </ItemGroup>
+  <ItemGroup>
+	<BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+	  <Visible>False</Visible>
+	  <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+	  <Install>false</Install>
+	</BootstrapperPackage>
+	<BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+	  <Visible>False</Visible>
+	  <ProductName>.NET Framework 3.5 SP1</ProductName>
+	  <Install>true</Install>
+	</BootstrapperPackage>
+	<BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
+	  <Visible>False</Visible>
+	  <ProductName>Windows Installer 3.1</ProductName>
+	  <Install>true</Install>
+	</BootstrapperPackage>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.

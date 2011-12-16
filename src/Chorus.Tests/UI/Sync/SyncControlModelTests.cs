@@ -11,6 +11,7 @@ using Chorus.VcsDrivers;
 using LibChorus.Tests;
 using NUnit.Framework;
 using Palaso.Network;
+using Palaso.Progress.LogBox;
 
 namespace Chorus.Tests
 {

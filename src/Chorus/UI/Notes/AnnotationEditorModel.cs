@@ -179,7 +179,7 @@ namespace Chorus.UI.Notes
 			return builder.ToString();
 		}
 
-		public bool IsClosed
+		public bool IsResolved
 		{
 			get { return _annotation.Status == "closed";}
 			set

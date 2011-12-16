@@ -9,6 +9,7 @@ using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
 using LibChorus.Tests;
 using NUnit.Framework;
+using Palaso.Progress.LogBox;
 
 namespace Chorus.Tests
 {
@@ -42,7 +43,7 @@ namespace Chorus.Tests
 			_project.FolderPath = _pathToTestRoot;
 
 			var revisionListOptions = new RevisionListOptions();
-			revisionListOptions.ShowRevisionPredicate = ShowRevisionPredicate;
+			revisionListOptions.RevisionsToShowFilter = ShowRevisionPredicate;
 
 			_model = new RevisionInRepositoryModel(HgRepository.CreateOrLocate(_project.FolderPath,
 					new NullProgress()),
