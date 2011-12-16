@@ -384,7 +384,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		{
 			string command = string.Format("bundle --base {0} \"{1}\"", baseRevision, filePath);
 			string result = GetTextFromQuery(command);
-			_progress.WriteVerbose("While creating bundle at {0} with base {1}: {2}", filePath, baseRevision, result.Trim());
+			//_progress.WriteVerbose("While creating bundle at {0} with base {1}: {2}", filePath, baseRevision, result.Trim());
 			var theFile = new FileInfo(filePath);
 			if (theFile.Exists && theFile.Length > 0)
 			{
@@ -1868,9 +1868,9 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		public bool Unbundle(string bundlePath)
 		{
-			string command = string.Format("unbundle -u \"{0}\"", bundlePath);
+			string command = string.Format("unbundle \"{0}\"", bundlePath);
 			string result = GetTextFromQuery(command);
-			if (result.Contains("files updated"))
+			if (result.Contains("adding changesets") && !result.Contains("heads"))
 			{
 				return true;
 			}

@@ -10,11 +10,40 @@ namespace Chorus.VcsDrivers.Mercurial
 	public class HgResumeRestApiServer : IApiServer
 	{
 		private string _baseUrl;
+		private string _server;
+		private string _projectId;
 
-		public HgResumeRestApiServer(string baseUrl)
+		public HgResumeRestApiServer(string url)
 		{
-			_baseUrl = baseUrl;
+			ParseComponentsInUrl(url);
 		}
+
+		private void ParseComponentsInUrl(string url)
+		{
+			Match match = Regex.Match(url, @"(\w+)(://|:\\)([^/]+)(.*)");
+			if (match.Success)
+			{
+				string protocol = match.Groups[1].Value + match.Groups[2].Value;
+				_server = match.Groups[3].Value;
+				_baseUrl = protocol + _server;
+				string path = match.Groups[4].Value;
+				_projectId = path;
+				if (path.Contains("/"))
+				{
+					int slashIndexInPath = path.LastIndexOf("/");
+					_projectId = path.Substring(slashIndexInPath+1);
+					_baseUrl += path.Substring(0, slashIndexInPath);
+				}
+			}
+			else
+			{
+				// fallback in case we can't parse the URL
+				_baseUrl = url;
+				_server = url;
+				_projectId = url;
+			}
+		}
+
 
 		public HgResumeApiResponse Execute(string method, IDictionary<string, string> parameters, int secondsBeforeTimeout = 10)
 		{
@@ -24,7 +53,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		public HgResumeApiResponse Execute(string method, IDictionary<string, string> parameters, byte[] contentToSend, int secondsBeforeTimeout = 10)
 		{
 			string queryString = BuildQueryString(parameters);
-			string apiUrl = _baseUrl + "/" + method + "?" + queryString;
+			string apiUrl = _baseUrl + "/api/" + method + "?" + queryString;
 			var req = WebRequest.Create(apiUrl) as HttpWebRequest;
 			req.UserAgent = "HgResume";
 			req.Timeout = secondsBeforeTimeout * 1000; // timeout is in milliseconds
@@ -69,15 +98,12 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		public string Identifier
 		{
-			get
-			{
-				Match match = Regex.Match(_baseUrl, @"(://|:\\)([^/]+)");
-				if (match.Success)
-				{
-					return match.Groups[2].Value;
-				}
-				return _baseUrl;
-			}
+			get { return _server; }
+		}
+
+		public string ProjectId
+		{
+			get { return _projectId; }
 		}
 
 		private static string BuildQueryString(IDictionary<string, string> urlParameters)

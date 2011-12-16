@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Text;
 using Chorus.VcsDrivers.Mercurial;
@@ -17,6 +18,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		public DummyApiServerForTest(string identifier = "DummyApiServerForTest")
 		{
 			Identifier = identifier;
+			ProjectId = "SampleProject";
 		}
 
 		public HgResumeApiResponse Execute(string method, IDictionary<string, string> parameters, int secondsBeforeTimeout)
@@ -43,6 +45,8 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 
 		public string Identifier { get; private set; }
 
+		public string ProjectId { get; set; }
+
 		public void AddResponse(HgResumeApiResponse response)
 		{
 			_responseQueue.Enqueue(response);
@@ -60,20 +64,34 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		}
 	}
 
+	internal class ServerUnavailableResponse
+	{
+		public string Message;
+		public int ExecuteCount;
+	}
+
 	public class PushHandlerApiServerForTest : IApiServer, IDisposable
 	{
-		private readonly PullStorageManager _helper;  // yes, we DO want to use the PullBundleHelper for the PushHandler (this is the other side of the API, so it's opposite)
+
+
+		private PullStorageManager _helper;  // yes, we DO want to use the PullBundleHelper for the PushHandler (this is the other side of the API, so it's opposite)
 		private readonly HgRepository _repo;
 		public List<string> Revisions;
 		private TemporaryFolder _localStorage;
+		private int _executeCount;
+		private List<int> _timeoutList;
+		private List<ServerUnavailableResponse> _serverUnavailableList;
 
 		public PushHandlerApiServerForTest(HgRepository repo, string identifier = "PushHandlerApiServerForTest")
 		{
-			_localStorage = new TemporaryFolder("PushHandlerApiServerForTest");
+			_localStorage = new TemporaryFolder(identifier);
 			_repo = repo;
-			_helper = new PullStorageManager(_localStorage.Path, identifier);
 			Revisions = new List<string>();
 			Identifier = identifier;
+			ProjectId = "SampleProject";
+			_executeCount = 0;
+			_timeoutList = new List<int>();
+			_serverUnavailableList = new List<ServerUnavailableResponse>();
 		}
 		public HgResumeApiResponse Execute(string method, IDictionary<string, string> parameters, int secondsBeforeTimeout)
 		{
@@ -85,59 +103,106 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			if (method == "getRevisions")
 			{
 				string revisions = string.Join("|", Revisions.ToArray());
-				return CannedResponses.Revisions(revisions);
+				return ApiResponses.Revisions(revisions);
 			}
 			if (method == "finishPushBundle")
 			{
-				return CannedResponses.PushComplete();
+				return ApiResponses.PushComplete();
 			}
 			if (method == "pushBundleChunk")
 			{
-				_helper.AppendChunk(bytesToWrite);
+				_executeCount++;
+				if (_timeoutList.Contains(_executeCount))
+				{
+					throw new WebException("ApiServerForTest: timeout!");
+				}
+				if (_serverUnavailableList.Any(i => i.ExecuteCount == _executeCount))
+				{
+					return ApiResponses.NotAvailable(
+							_serverUnavailableList.Where(i => i.ExecuteCount == _executeCount).First().Message
+							);
+				}
+				_helper = new PullStorageManager(_localStorage.Path, parameters["transId"]);
+
 				int bundleSize = Convert.ToInt32(parameters["bundleSize"]);
 				int offset = Convert.ToInt32(parameters["offset"]);
 				int chunkSize = bytesToWrite.Length;
+
+				_helper.WriteChunk(offset, bytesToWrite);
+
 				if (offset + chunkSize == bundleSize)
 				{
 					if (_repo.Unbundle(_helper.BundlePath))
 					{
-						return CannedResponses.PushComplete();
+						return ApiResponses.PushComplete();
 					}
-					return CannedResponses.PushUnbundleFailedOnServer();
+					return ApiResponses.Reset();
 				}
 				if (offset + chunkSize < bundleSize)
 				{
-					return CannedResponses.PushAccepted(offset + chunkSize);
+					return ApiResponses.PushAccepted(_helper.StartOfWindow);
 				}
-				return CannedResponses.Failed("offset + chunkSize > bundleSize !");
+				return ApiResponses.Failed("offset + chunkSize > bundleSize !");
 			}
-			return CannedResponses.Custom(HttpStatusCode.InternalServerError);
+			return ApiResponses.Custom(HttpStatusCode.InternalServerError);
 		}
 
 		public string Identifier { get; private set; }
+
+		public string ProjectId { get; set; }
 
 		public void Dispose()
 		{
 			_localStorage.Dispose();
 		}
+
+		public void AddTimeoutResponse(int executeCount)
+		{
+			if (!_timeoutList.Contains(executeCount))
+			{
+				_timeoutList.Add(executeCount);
+			}
+		}
+
+		public void AddServerUnavailableResponse(int executeCount, string serverMessage)
+		{
+			if (!_serverUnavailableList.Any(i => i.ExecuteCount == executeCount))
+			{
+				_serverUnavailableList.Add(new ServerUnavailableResponse {ExecuteCount = executeCount, Message = serverMessage});
+			}
+		}
 	}
 
 	public class PullHandlerApiServerForTest : IApiServer, IDisposable
 	{
-		private readonly PushStorageHelper _helper;
+		private readonly PushStorageManager _helper;
 		private readonly HgRepository _repo;
 		private int _executeCount;
 		private List<int> _badChecksumList;
 		private List<int> _timeoutList;
+		private List<ServerUnavailableResponse> _serverUnavailableList;
+		private TemporaryFolder _storageFolder;
+		public List<string> Revisions;
+		public string OriginalTip;
 
 		public PullHandlerApiServerForTest(HgRepository repo, string identifier = "PullHandlerApiServerForTest")
 		{
+			_storageFolder = new TemporaryFolder(identifier);
 			_repo = repo;
-			_helper = new PushStorageHelper();
+			_helper = new PushStorageManager(_storageFolder.Path, "randomHash");
 			Identifier = identifier;
+			ProjectId = "SampleProject";
 			_executeCount = 0;
 			_badChecksumList = new List<int>();
 			_timeoutList = new List<int>();
+			_serverUnavailableList = new List<ServerUnavailableResponse>();
+			Revisions = new List<string>();
+			OriginalTip = "";
+		}
+
+		private string CurrentTip
+		{
+			get { return _repo.GetTip().Number.Hash; }
 		}
 
 		public void PrepareBundle(string revHash)
@@ -147,6 +212,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				File.Delete(_helper.BundlePath);
 			}
 			_repo.MakeBundle(revHash, _helper.BundlePath);
+			OriginalTip = CurrentTip;
 		}
 
 		public HgResumeApiResponse Execute(string method, IDictionary<string, string> parameters, int secondsBeforeTimeout)
@@ -159,7 +225,17 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			_executeCount++;
 			if (method == "finishPullBundle")
 			{
-				return CannedResponses.Custom(HttpStatusCode.OK);
+				if (CurrentTip != OriginalTip)
+				{
+					PrepareBundle(OriginalTip);
+					return ApiResponses.Reset(); // repo changed in between pulls
+				}
+				return ApiResponses.Custom(HttpStatusCode.OK);
+			}
+			if (method == "getRevisions")
+			{
+				string revisions = string.Join("|", Revisions.ToArray());
+				return ApiResponses.Revisions(revisions);
 			}
 			if (method == "pullBundleChunk")
 			{
@@ -167,28 +243,36 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				{
 					throw new WebException("ApiServerForTest: timeout!");
 				}
+				if (_serverUnavailableList.Any(i => i.ExecuteCount == _executeCount))
+				{
+					return ApiResponses.NotAvailable(
+							_serverUnavailableList.Where(i => i.ExecuteCount == _executeCount).First().Message
+							);
+				}
 				int offset = Convert.ToInt32(parameters["offset"]);
 				int chunkSize = Convert.ToInt32(parameters["chunkSize"]);
 				var bundleFile = new FileInfo(_helper.BundlePath);
 				if (offset >= bundleFile.Length)
 				{
-					return CannedResponses.Failed("offset greater than bundleSize");
+					return ApiResponses.Failed("offset greater than bundleSize");
 				}
 				var chunk = _helper.GetChunk(offset, chunkSize);
 				if (_badChecksumList.Contains(_executeCount))
 				{
-					return CannedResponses.PullOkWithBadChecksum(Convert.ToInt32(bundleFile.Length), chunk);
+					return ApiResponses.PullOkWithBadChecksum(Convert.ToInt32(bundleFile.Length), chunk);
 				}
-				return CannedResponses.PullOk(Convert.ToInt32(bundleFile.Length), chunk);
+				return ApiResponses.PullOk(Convert.ToInt32(bundleFile.Length), chunk);
 			}
-			return CannedResponses.Custom(HttpStatusCode.InternalServerError);
+			return ApiResponses.Custom(HttpStatusCode.InternalServerError);
 		}
 
 		public string Identifier { get; private set; }
 
+		public string ProjectId { get; set; }
+
 		public void Dispose()
 		{
-			_helper.Dispose();
+			_storageFolder.Dispose();
 		}
 
 		public void AddBadChecksumResponse(int executeCount)
@@ -206,6 +290,14 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				_timeoutList.Add(executeCount);
 			}
 		}
+
+		public void AddServerUnavailableResponse(int executeCount, string serverMessage)
+		{
+			if (!_serverUnavailableList.Any(i => i.ExecuteCount == executeCount))
+			{
+				_serverUnavailableList.Add(new ServerUnavailableResponse { ExecuteCount = executeCount, Message = serverMessage });
+			}
+		}
 	}
 
 
@@ -217,40 +309,48 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		public List<Exception> Exceptions = new List<Exception>();
 		public List<string> Errors = new List<string>();
 		public List<string> Verbose = new List<string>();
+		private List<string> _all = new List<string>();
 
 		public void WriteStatus(string message, params object[] args)
 		{
 			Statuses.Add(message);
+			_all.Add(message);
 		}
 
 		public void WriteMessage(string message, params object[] args)
 		{
 			Messages.Add(message);
+			_all.Add(message);
 		}
 
 		public void WriteMessageWithColor(string colorName, string message, params object[] args)
 		{
 			Messages.Add(message);
+			_all.Add(message);
 		}
 
 		public void WriteWarning(string message, params object[] args)
 		{
 			Warnings.Add(message);
+			_all.Add(message);
 		}
 
 		public void WriteException(Exception error)
 		{
 			Exceptions.Add(error);
+			_all.Add(error.Message);
 		}
 
 		public void WriteError(string message, params object[] args)
 		{
 			Errors.Add(message);
+			_all.Add(message);
 		}
 
 		public void WriteVerbose(string message, params object[] args)
 		{
 			Verbose.Add(message);
+			_all.Add(message);
 		}
 
 		public bool ShowVerbose
@@ -262,13 +362,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		{
 			get
 			{
-				var all = new List<string>();
-				all.AddRange(Statuses);
-				all.AddRange(Messages);
-				all.AddRange(Warnings);
-				all.AddRange(Errors);
-				all.AddRange(Verbose);
-				return all;
+				return _all;
 			}
 		}
 
@@ -295,7 +389,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		}
 	}
 
-	public class CannedResponses
+	public class ApiResponses
 	{
 		public static HgResumeApiResponse PushComplete()
 		{
@@ -339,7 +433,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			};
 		}
 
-		public static HgResumeApiResponse PushUnbundleFailedOnServer()
+		public static HgResumeApiResponse Reset()
 		{
 			return new HgResumeApiResponse
 			{
@@ -374,9 +468,10 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		public static HgResumeApiResponse Custom(HttpStatusCode status)
 		{
 			return new HgResumeApiResponse
-			{
-				StatusCode = status,
-				Headers = new Dictionary<string, string>()
+					   {
+						   StatusCode = status,
+						   Headers = new Dictionary<string, string>(),
+						   Content = new byte[0]
 			};
 		}
 
@@ -448,6 +543,20 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 											 {"X-HgR-Status", "NOCHANGE"},
 											 {"X-HgR-Version", "1"}
 										 }
+			};
+		}
+
+		public static HgResumeApiResponse NotAvailable(string message)
+		{
+			return new HgResumeApiResponse
+			{
+				StatusCode = HttpStatusCode.ServiceUnavailable,
+				Headers = new Dictionary<string, string>
+										 {
+											 {"X-HgR-Status", "NOTAVAILABLE"},
+											 {"X-HgR-Version", "1"}
+										 },
+				Content = Encoding.UTF8.GetBytes(message)
 			};
 		}
 	}
