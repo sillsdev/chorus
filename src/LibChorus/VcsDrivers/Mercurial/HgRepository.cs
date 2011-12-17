@@ -408,7 +408,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		/// Method only for testing.
 		/// </summary>
 		/// <param name="filePath"></param>
-		internal void AddSansCommit(string filePath)
+		public void TestOnlyAddSansCommit(string filePath)
 		{
 			TrackFile(filePath);
 		}
