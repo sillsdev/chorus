@@ -108,7 +108,9 @@ namespace Chorus.FileTypeHanders
 			var fileTypeHandlers = new ChorusFileTypeHandlerCollection();
 
 			var libChorusAssembly = Assembly.GetExecutingAssembly();
-			var baseDir = new Uri(Path.GetDirectoryName(libChorusAssembly.CodeBase)).AbsolutePath;
+			var codeBase = libChorusAssembly.CodeBase;
+			var dirname = Path.GetDirectoryName(codeBase);
+			var baseDir = new Uri(dirname).AbsolutePath;
 			var pluginAssemblies = new List<Assembly>
 									{
 										libChorusAssembly
