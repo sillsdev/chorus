@@ -18,7 +18,13 @@ namespace LibChorus.Tests.FileHandlers
 			try
 			{
 				var assem = Assembly.GetExecutingAssembly();
-				var baseDir = new Uri(Path.GetDirectoryName(assem.CodeBase)).AbsolutePath;
+				var codeBase = assem.CodeBase.Substring(8);
+				//Debug.WriteLine("codeBase: " + codeBase);
+				var dirname = Path.GetDirectoryName(codeBase);
+				//Debug.WriteLine("dirname: " + dirname);
+				//var baseDir = new Uri(dirname).AbsolutePath; // NB: The Uri class in Windows and Mono are not the same.
+				var baseDir = dirname;
+				//var baseDir = new Uri(Path.GetDirectoryName(assem.CodeBase)).AbsolutePath;
 				var outputDir = Directory.GetParent(baseDir).FullName;
 				var samplePluginDir = Path.Combine(outputDir, "SamplePlugin");
 				var samplePluginDllPath = Path.Combine(samplePluginDir, "Tests-ChorusPlugin.dll");
