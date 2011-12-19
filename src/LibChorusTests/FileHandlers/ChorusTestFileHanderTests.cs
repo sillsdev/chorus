@@ -19,7 +19,7 @@ namespace LibChorus.Tests.FileHandlers
 			{
 				var assem = Assembly.GetExecutingAssembly();
 #if MONO
-			var codeBase = libChorusAssembly.CodeBase.Substring(7);
+			var codeBase = assem.CodeBase.Substring(7);
 #else
 				var codeBase = assem.CodeBase.Substring(8);
 #endif
