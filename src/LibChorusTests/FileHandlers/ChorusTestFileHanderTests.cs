@@ -18,7 +18,11 @@ namespace LibChorus.Tests.FileHandlers
 			try
 			{
 				var assem = Assembly.GetExecutingAssembly();
+#if MONO
+			var codeBase = libChorusAssembly.CodeBase.Substring(7);
+#else
 				var codeBase = assem.CodeBase.Substring(8);
+#endif
 				//Debug.WriteLine("codeBase: " + codeBase);
 				var dirname = Path.GetDirectoryName(codeBase);
 				//Debug.WriteLine("dirname: " + dirname);

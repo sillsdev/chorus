@@ -108,7 +108,11 @@ namespace Chorus.FileTypeHanders
 			var fileTypeHandlers = new ChorusFileTypeHandlerCollection();
 
 			var libChorusAssembly = Assembly.GetExecutingAssembly();
+#if MONO
+			var codeBase = libChorusAssembly.CodeBase.Substring(7);
+#else
 			var codeBase = libChorusAssembly.CodeBase.Substring(8);
+#endif
 			var dirname = Path.GetDirectoryName(codeBase);
 			//var baseDir = new Uri(dirname).AbsolutePath; // NB: The Uri class in Windows and Mono are not the same.
 			var baseDir = dirname;
