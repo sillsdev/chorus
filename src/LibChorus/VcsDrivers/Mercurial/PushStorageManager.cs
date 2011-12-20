@@ -37,6 +37,13 @@ namespace Chorus.VcsDrivers.Mercurial
 		public int StartOfWindow;
 		public int ChunkSize;
 		public PushStatus Status;
+
+		public PushResponse() {}
+
+		public PushResponse(PushStatus status)
+		{
+			Status = status;
+		}
 	}
 
 	internal enum PushStatus

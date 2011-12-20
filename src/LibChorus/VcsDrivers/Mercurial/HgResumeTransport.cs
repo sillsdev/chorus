@@ -145,27 +145,28 @@ namespace Chorus.VcsDrivers.Mercurial
 													  secondsBeforeTimeout);
 					// API returns either 200 OK or 400 Bad Request
 					// HgR status can be: SUCCESS (200), FAIL (400) or UNKNOWNID (400)
-					if (response.StatusCode == HttpStatusCode.ServiceUnavailable && response.Content.Length > 0)
+
+					if (response != null) // null means server timed out
 					{
-						var msg = String.Format("Server temporarily unavailable: {0}",
-						Encoding.UTF8.GetString(response.Content));
-						_progress.WriteWarning(msg);
+						if (response.StatusCode == HttpStatusCode.ServiceUnavailable && response.Content.Length > 0)
+						{
+							var msg = String.Format("Server temporarily unavailable: {0}",
+							Encoding.UTF8.GetString(response.Content));
+							_progress.WriteWarning(msg);
+							return new List<string>();
+						}
+						if (response.StatusCode == HttpStatusCode.OK)
+						{
+							string revString = Encoding.UTF8.GetString(response.Content);
+							return revString.Split('|').ToList();
+						}
+						if (response.StatusCode == HttpStatusCode.BadRequest && response.Headers["X-HgR-Status"] == "UNKNOWNID")
+						{
+							_progress.WriteWarning("The remote server {0} does not have repoId '{1}'", _targetLabel, _repo.Identifier);
+						}
+						_progress.WriteWarning("Failed to get remote revisions for {0}", _repo.Identifier);
 						return new List<string>();
 					}
-					if (response.StatusCode == HttpStatusCode.OK)
-					{
-						string revString = Encoding.UTF8.GetString(response.Content);
-						return revString.Split('|').ToList();
-					}
-					if (response.StatusCode == HttpStatusCode.BadRequest && response.Headers["X-HgR-Status"] == "UNKNOWNID")
-					{
-						_progress.WriteWarning("The remote server {0} does not have repoId '{1}'", _targetLabel, _repo.Identifier);
-					}
-					_progress.WriteWarning("Failed to get remote revisions for {0}", _repo.Identifier);
-					return new List<string>();
-				}
-				catch (WebException e)
-				{
 					if (attempt < 5)
 					{
 						_progress.WriteWarning("Unable to contact server.  Retrying... ({0} of {1} attempts).", attempt + 1, totalNumOfAttempts);
@@ -175,6 +176,10 @@ namespace Chorus.VcsDrivers.Mercurial
 					{
 						_progress.WriteWarning("Failed to contact server.");
 					}
+				}
+				catch (WebException e)
+				{
+					_progress.WriteError(e.Message);
 				}
 			}
 			return new List<string>();
@@ -227,8 +232,6 @@ namespace Chorus.VcsDrivers.Mercurial
 				/* API parameters
 				 * $repoId, $baseHash, $bundleSize, $checksum, $offset, $data, $transId
 				 * */
-				_progress.WriteStatus(string.Format("Sending {0} of {1} bytes", startOfWindow, bundleSize));
-				_progress.ProgressIndicator.PercentCompleted = startOfWindow*100/bundleSize;
 
 				var requestParameters = new Dictionary<string, string>
 											{
@@ -246,6 +249,11 @@ namespace Chorus.VcsDrivers.Mercurial
 					_progress.ProgressIndicator.Finish();
 					return;
 				}
+				if (response.Status == PushStatus.Fail)
+				{
+					_progress.WriteError("Push operation failed");
+					return;
+				}
 				chunkSize = response.ChunkSize;
 				startOfWindow = response.StartOfWindow;
 				if (loopCtr == 1 && startOfWindow > chunkSize)
@@ -253,6 +261,8 @@ namespace Chorus.VcsDrivers.Mercurial
 					string message = String.Format("Resuming push operation at {0} bytes", startOfWindow);
 					_progress.WriteVerbose(message);
 				}
+				_progress.WriteStatus(string.Format("Sending {0} of {1} bytes", startOfWindow, bundleSize));
+				_progress.ProgressIndicator.PercentCompleted = startOfWindow * 100 / bundleSize;
 				if (response.Status == PushStatus.Complete)
 				{
 					_progress.WriteStatus("Finished Sending");
@@ -262,11 +272,6 @@ namespace Chorus.VcsDrivers.Mercurial
 					// update our local knowledge of what the server has
 					LastKnownCommonBase = _repo.GetTip().Number.Hash;
 					FinishPush(transactionId);
-					return;
-				}
-				if (response.Status == PushStatus.Fail)
-				{
-					_progress.WriteError("Push operation failed");
 					return;
 				}
 			} while (startOfWindow < bundleSize);
@@ -292,7 +297,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			var secondsBeforeTimeout = 15;
 			const int totalNumOfAttempts = 5;
 			int chunkSize = dataToPush.Length;
-			var pushResponse = new PushResponse();
+			var pushResponse = new PushResponse(PushStatus.Fail);
 
 			for (var attempt = 1; attempt <= totalNumOfAttempts; attempt++)
 			{
@@ -312,67 +317,70 @@ namespace Chorus.VcsDrivers.Mercurial
 						* 412 Precondition Failed (RESEND)
 						* 400 Bad Request (FAIL, UNKNOWNID, and RESET)
 						*/
-
-					if (response.StatusCode == HttpStatusCode.ServiceUnavailable && response.Content.Length > 0)
+					if (response != null) // null means server timed out
 					{
-						var msg = String.Format("Server temporarily unavailable: {0}",
-												Encoding.UTF8.GetString(response.Content));
-						_progress.WriteWarning(msg);
-						pushResponse.Status = PushStatus.NotAvailable;
-						return pushResponse;
-					}
-					// the chunk was received successfully
-					if (response.StatusCode == HttpStatusCode.Accepted)
-					{
-						pushResponse.StartOfWindow = Convert.ToInt32(response.Headers["X-HgR-sow"]);
-						pushResponse.Status = PushStatus.Received;
-						return pushResponse;
-					}
-
-					// the final chunk was received successfully
-					if (response.StatusCode == HttpStatusCode.OK)
-					{
-						pushResponse.Status = PushStatus.Complete;
-						return pushResponse;
-					}
-
-					// checksum failed
-					if (response.StatusCode == HttpStatusCode.PreconditionFailed)
-					{
-						// resend the data
-						_progress.WriteWarning("Checksum failed while pushing {0} bytes of data at offset {1}", chunkSize, parameters["offset"]);
-						continue;
-					}
-					if (response.StatusCode == HttpStatusCode.BadRequest)
-					{
-						if (response.Headers["X-HgR-Status"] == "UNKNOWNID")
+						if (response.StatusCode == HttpStatusCode.ServiceUnavailable && response.Content.Length > 0)
 						{
-							_progress.WriteWarning("The server {0} does not have repoId '{1}'", _targetLabel, _repo.Identifier);
-							pushResponse.Status = PushStatus.Fail;
+							var msg = String.Format("Server temporarily unavailable: {0}",
+													Encoding.UTF8.GetString(response.Content));
+							_progress.WriteWarning(msg);
+							pushResponse.Status = PushStatus.NotAvailable;
 							return pushResponse;
 						}
-						if (response.Headers["X-HgR-Status"] == "RESET")
+						// the chunk was received successfully
+						if (response.StatusCode == HttpStatusCode.Accepted)
 						{
-							_progress.WriteWarning("All chunks were pushed to the server, but the unbundle operation failed.  Restarting the push operation...");
-							pushResponse.Status = PushStatus.Reset;
-							pushResponse.StartOfWindow = 0;
+							pushResponse.StartOfWindow = Convert.ToInt32(response.Headers["X-HgR-sow"]);
+							pushResponse.Status = PushStatus.Received;
 							return pushResponse;
 						}
+
+						// the final chunk was received successfully
+						if (response.StatusCode == HttpStatusCode.OK)
+						{
+							pushResponse.Status = PushStatus.Complete;
+							return pushResponse;
+						}
+
+						// checksum failed
+						if (response.StatusCode == HttpStatusCode.PreconditionFailed)
+						{
+							// resend the data
+							_progress.WriteWarning("Checksum failed while pushing {0} bytes of data at offset {1}", chunkSize, parameters["offset"]);
+							continue;
+						}
+						if (response.StatusCode == HttpStatusCode.BadRequest)
+						{
+							if (response.Headers["X-HgR-Status"] == "UNKNOWNID")
+							{
+								_progress.WriteWarning("The server {0} does not have repoId '{1}'", _targetLabel, _repo.Identifier);
+								return pushResponse;
+							}
+							if (response.Headers["X-HgR-Status"] == "RESET")
+							{
+								_progress.WriteWarning("All chunks were pushed to the server, but the unbundle operation failed.  Restarting the push operation...");
+								pushResponse.Status = PushStatus.Reset;
+								pushResponse.StartOfWindow = 0;
+								return pushResponse;
+							}
+						}
+						_progress.WriteWarning("Invalid Server Response '{0}'", response.StatusCode);
+						return pushResponse;
 					}
-					_progress.WriteWarning("Invalid Server Response '{0}'", response.StatusCode);
-				}
-				catch (WebException e)
-				{
 					if (attempt < 5)
 					{
 						_progress.WriteWarning("Unable to contact server.  Retrying... ({0} of {1} attempts).", attempt + 1, totalNumOfAttempts);
 						secondsBeforeTimeout += 3; // increment by 3 seconds
-						chunkSize = chunkSize/2; // reduce the chunksize by half and try again
+						chunkSize = chunkSize / 2; // reduce the chunksize by half and try again
+						continue;
 					}
+				}
+				catch (WebException e)
+				{
+					_progress.WriteError(e.Message);
 				}
 			}
 			_progress.WriteWarning("The push operation failed on the server");
-			pushResponse.Status = PushStatus.Fail;
 			return pushResponse;
 		}
 
@@ -511,7 +519,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		{
 			var secondsBeforeTimeout = 15;
 			const int totalNumOfAttempts = 5;
-			var pullResponse = new PullResponse();
+			var pullResponse = new PullResponse(PullStatus.Fail);
 			int chunkSize = Convert.ToInt32(parameters["chunkSize"]);
 			for (var attempt = 1; attempt <= totalNumOfAttempts; attempt++)
 			{
@@ -521,11 +529,6 @@ namespace Chorus.VcsDrivers.Mercurial
 				}
 				try
 				{
-					if (attempt > 1)
-					{
-						_progress.WriteStatus("Retrying pull operation...");
-					}
-
 					parameters["chunkSize"] = chunkSize.ToString();
 					var response = _apiServer.Execute("pullBundleChunk", parameters, secondsBeforeTimeout);
 					/* API returns the following HTTP codes:
@@ -533,52 +536,51 @@ namespace Chorus.VcsDrivers.Mercurial
 						* 304 Not Modified (NOCHANGE)
 						* 400 Bad Request (FAIL, UNKNOWNID)
 						*/
-
-					if (response.StatusCode == HttpStatusCode.ServiceUnavailable && response.Content.Length > 0)
+					if (response != null) // null means server timed out
 					{
-						var msg = String.Format("Server temporarily unavailable: {0}",
-						Encoding.UTF8.GetString(response.Content));
-						_progress.WriteWarning(msg);
-						pullResponse.Status = PullStatus.NotAvailable;
-						return pullResponse;
-					}
-					// chunk pulled OK
-					if (response.StatusCode == HttpStatusCode.OK)
-					{
-						int actualChunkSize = Convert.ToInt32(response.Headers["X-HgR-chunkSize"]);
-						string statusMessage = string.Format("Received {0}+{1} bytes", parameters["offset"],
-															 actualChunkSize);
-						_progress.WriteVerbose(statusMessage);
-						pullResponse.Checksum = response.Headers["X-HgR-checksum"];
-						pullResponse.BundleSize = Convert.ToInt32(response.Headers["X-HgR-bundleSize"]);
-						pullResponse.Status = PullStatus.OK;
-						pullResponse.ChunkSize = chunkSize;
-
-						// verify checksum
-						if (CalculateChecksum(response.Content) != response.Headers["X-HgR-checksum"])
+						if (response.StatusCode == HttpStatusCode.ServiceUnavailable && response.Content.Length > 0)
 						{
-							_progress.WriteWarning("Checksum failed while pulling {0} bytes of data at offset {1}", actualChunkSize, parameters["offset"]);
-							continue;
+							var msg = String.Format("Server temporarily unavailable: {0}",
+							Encoding.UTF8.GetString(response.Content));
+							_progress.WriteWarning(msg);
+							pullResponse.Status = PullStatus.NotAvailable;
+							return pullResponse;
 						}
+						// chunk pulled OK
+						if (response.StatusCode == HttpStatusCode.OK)
+						{
+							int actualChunkSize = Convert.ToInt32(response.Headers["X-HgR-chunkSize"]);
+							string statusMessage = string.Format("Received {0}+{1} bytes", parameters["offset"],
+																 actualChunkSize);
+							_progress.WriteVerbose(statusMessage);
+							pullResponse.Checksum = response.Headers["X-HgR-checksum"];
+							pullResponse.BundleSize = Convert.ToInt32(response.Headers["X-HgR-bundleSize"]);
+							pullResponse.Status = PullStatus.OK;
+							pullResponse.ChunkSize = chunkSize;
 
-						pullResponse.Chunk = response.Content;
+							// verify checksum
+							if (CalculateChecksum(response.Content) != response.Headers["X-HgR-checksum"])
+							{
+								_progress.WriteWarning("Checksum failed while pulling {0} bytes of data at offset {1}", actualChunkSize, parameters["offset"]);
+								continue;
+							}
+
+							pullResponse.Chunk = response.Content;
+							return pullResponse;
+						}
+						if (response.StatusCode == HttpStatusCode.BadRequest && response.Headers["X-HgR-Status"] == "UNKNOWNID")
+						{
+							_progress.WriteWarning("The server {0} does not have repoId '{1}'", _targetLabel, _repo.Identifier);
+							return pullResponse;
+						}
+						if (response.StatusCode == HttpStatusCode.BadRequest && response.Headers["X-HgR-Status"] == "RESET")
+						{
+							pullResponse.Status = PullStatus.Reset;
+							return pullResponse;
+						}
+						_progress.WriteWarning("Invalid Server Response '{0}'", response.StatusCode);
 						return pullResponse;
 					}
-					if (response.StatusCode == HttpStatusCode.BadRequest && response.Headers["X-HgR-Status"] == "UNKNOWNID")
-					{
-						_progress.WriteWarning("The server {0} does not have repoId '{1}'", _targetLabel, _repo.Identifier);
-						pullResponse.Status = PullStatus.Fail;
-						return pullResponse;
-					}
-					if (response.StatusCode == HttpStatusCode.BadRequest && response.Headers["X-HgR-Status"] == "RESET")
-					{
-						pullResponse.Status = PullStatus.Reset;
-						return pullResponse;
-					}
-					_progress.WriteWarning("Invalid Server Response '{0}'", response.StatusCode);
-				}
-				catch (WebException e)
-				{
 					if (attempt < 5)
 					{
 						_progress.WriteWarning("Unable to contact server.  Retrying... ({0} of {1} attempts).", attempt + 1, totalNumOfAttempts);
@@ -586,9 +588,12 @@ namespace Chorus.VcsDrivers.Mercurial
 						chunkSize = chunkSize / 2; // reduce the chunksize by half and try again
 					}
 				}
+				catch (WebException e)
+				{
+					_progress.WriteError(e.Message);
+				}
 			}
 			_progress.WriteWarning("The pull operation failed on the server");
-			pullResponse.Status = PullStatus.Fail;
 			return pullResponse;
 		}
 

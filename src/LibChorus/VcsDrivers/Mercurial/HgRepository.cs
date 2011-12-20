@@ -308,10 +308,12 @@ namespace Chorus.VcsDrivers.Mercurial
 		{
 			// If the remote repository is languageforge or languagedepot, then we we use the HgResumeTransport
 			// Otherwise use the normal Hg facilities for dealing with remote repositories (local or otherwise)
-			if (Regex.IsMatch(targetUri, "^https?://[^/]*(languageforge.com|languagedepot.org)"))
+			if (Regex.IsMatch(targetUri, "^https?://[^/]*(languageforge.com|languagedepot.org|.local|localhost)"))
 			{
+				_progress.WriteVerbose("Initiating Resumable Transport");
 				return new HgResumeTransport(this, targetLabel, new HgResumeRestApiServer(targetUri), _progress);
 			}
+			_progress.WriteVerbose("Initiating Normal Transport");
 			return new HgNormalTransport(this, targetLabel, targetUri, _progress);
 		}
 

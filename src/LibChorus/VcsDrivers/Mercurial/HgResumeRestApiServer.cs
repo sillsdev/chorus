@@ -72,27 +72,53 @@ namespace Chorus.VcsDrivers.Mercurial
 				}
 			}
 
-			var apiResponse = new HgResumeApiResponse();
-			using (var res = (HttpWebResponse)req.GetResponse())
-			{
-				for (int i = 0; i < res.Headers.Count; i++)
-				{
-					apiResponse.Headers[res.Headers.Keys[i]] = res.Headers[i];
-				}
-				apiResponse.StatusCode = res.StatusCode;
 
-				// customized from Paratext's GetStreaming method in their RESTClient.cs
-				apiResponse.Content = new byte[res.ContentLength];
-				var responseStream = res.GetResponseStream();
-				int offset = 0;
-				int bytesRead;
-				do
+			HttpWebResponse res;
+			try
+			{
+				using (res = (HttpWebResponse)req.GetResponse())
 				{
-					bytesRead = responseStream.Read(apiResponse.Content, offset,
-														Math.Min(apiResponse.Content.Length - offset, (int)res.ContentLength));
-					offset += bytesRead;
-				} while (bytesRead > 0 && offset < res.ContentLength);
+					return HandleResponse(res);
+				}
+
 			}
+			catch(WebException e)
+			{
+				if (e.Status == WebExceptionStatus.ProtocolError)
+				{
+					using (res = (HttpWebResponse)e.Response)
+					{
+						return HandleResponse(res);
+					}
+				}
+				if (e.Status == WebExceptionStatus.Timeout)
+				{
+					return null;
+				}
+				throw; // throw for other types of network errors (see WebExceptionStatus for the full list of errors)
+			}
+		}
+
+		private HgResumeApiResponse HandleResponse(HttpWebResponse res)
+		{
+			var apiResponse = new HgResumeApiResponse();
+			for (int i = 0; i < res.Headers.Count; i++)
+			{
+				apiResponse.Headers[res.Headers.Keys[i]] = res.Headers[i];
+			}
+			apiResponse.StatusCode = res.StatusCode;
+
+			// customized from Paratext's GetStreaming method in their RESTClient.cs
+			apiResponse.Content = new byte[res.ContentLength];
+			var responseStream = res.GetResponseStream();
+			int offset = 0;
+			int bytesRead;
+			do
+			{
+				bytesRead = responseStream.Read(apiResponse.Content, offset,
+													Math.Min(apiResponse.Content.Length - offset, (int)res.ContentLength));
+				offset += bytesRead;
+			} while (bytesRead > 0 && offset < res.ContentLength);
 			return apiResponse;
 		}
 
@@ -111,10 +137,9 @@ namespace Chorus.VcsDrivers.Mercurial
 			string queryString = "";
 			foreach (KeyValuePair<string, string> param in urlParameters)
 			{
-				queryString += string.Format("{1}={2}&", param.Key, System.Web.HttpUtility.UrlEncode(param.Value));
+				queryString += string.Format("{0}={1}&", param.Key, System.Web.HttpUtility.UrlEncode(param.Value));
 			}
-			queryString.TrimEnd('&');
-			return queryString;
+			return queryString.TrimEnd('&');
 		}
 	}
 }

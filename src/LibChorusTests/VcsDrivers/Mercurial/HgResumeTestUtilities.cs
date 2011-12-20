@@ -34,7 +34,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				response = _responseQueue.Dequeue();
 				if (response.StatusCode == HttpStatusCode.RequestTimeout)
 				{
-					throw new WebException("ApiServerForTest: timeout!");
+					return null;
 				}
 			} else
 			{
@@ -114,7 +114,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				_executeCount++;
 				if (_timeoutList.Contains(_executeCount))
 				{
-					throw new WebException("ApiServerForTest: timeout!");
+					return null;
 				}
 				if (_serverUnavailableList.Any(i => i.ExecuteCount == _executeCount))
 				{
@@ -241,7 +241,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			{
 				if (_timeoutList.Contains(_executeCount))
 				{
-					throw new WebException("ApiServerForTest: timeout!");
+					return null;
 				}
 				if (_serverUnavailableList.Any(i => i.ExecuteCount == _executeCount))
 				{

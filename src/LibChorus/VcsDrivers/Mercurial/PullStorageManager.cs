@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 
 namespace Chorus.VcsDrivers.Mercurial
 {
@@ -41,6 +42,13 @@ namespace Chorus.VcsDrivers.Mercurial
 		public byte[] Chunk;
 		public PullStatus Status;
 		public int ChunkSize;
+
+		public PullResponse(PullStatus status)
+		{
+			Status = status;
+		}
+
+		public PullResponse() {}
 	}
 
 	internal enum PullStatus

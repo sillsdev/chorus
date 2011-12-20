@@ -46,6 +46,7 @@ namespace Chorus.UI.Sync
 				_model = value;
 				if(_model ==null)
 					return;
+				_model.ProgressIndicator = new MultiPhaseProgressIndicator(progressBar1, 2);  // for now we only specify 2 phases (pull, then push).
 				_model.SynchronizeOver += new EventHandler(_model_SynchronizeOver);
 				UpdateDisplay();
 			}
@@ -54,7 +55,7 @@ namespace Chorus.UI.Sync
 		void _model_SynchronizeOver(object sender, EventArgs e)
 		{
 			Cursor.Current = Cursors.Default;
-			Model.ProgressIndicator.Finish();
+			//Model.ProgressIndicator.Finish();
 			_didAttemptSync = true;
 		}
 
@@ -147,7 +148,6 @@ namespace Chorus.UI.Sync
 			}
 
 			Model.AddProgressDisplay(_logBox);
-			Model.ProgressIndicator = new MultiPhaseProgressIndicator(progressBar1, 2);  // for now we only specify 2 phases (pull, then push).
 			LoadChoices();
 
 #if MONO
