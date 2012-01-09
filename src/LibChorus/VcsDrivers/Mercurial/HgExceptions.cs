@@ -47,7 +47,7 @@ namespace Chorus.VcsDrivers.Mercurial
 	{
 		public static bool ErrorMatches(Exception error)
 		{
-			return error.Message.Contains("500");
+			return error.Message.Contains("500") || error.Message.Contains("503");
 		}
 
 		public override string Message
