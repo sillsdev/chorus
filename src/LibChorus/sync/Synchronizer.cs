@@ -96,7 +96,7 @@ namespace Chorus.sync
 
 				RemoveLocks(repo);
 				repo.RecoverFromInterruptedTransactionIfNeeded();
-				// moved to a more generic place: UpdateHgrc(repo);
+				repo.FixUnicodeAudio();
 				Commit(options);
 
 				var workingRevBeforeSync = repo.GetRevisionWorkingSetIsBasedOn();
@@ -155,15 +155,15 @@ namespace Chorus.sync
 
 		private void CreateRepositoryOnLocalAreaNetworkFolderIfNeededThrowIfFails(HgRepository repo, List<RepositoryAddress> sourcesToTry)
 		{
-			RepositoryAddress directorySource = sourcesToTry.FirstOrDefault(s=>s is DirectoryRepositorySource);
-			if(directorySource!=null)
-			{
-				if(!Directory.Exists(Path.Combine(directorySource.URI, ".hg")))
-				{
-					_progress.WriteMessage("Creating new repository at "+directorySource.URI);
-					repo.CloneToRemoteDirectoryWithoutCheckout(directorySource.URI);
-				}
-			}
+			var directorySource = sourcesToTry.FirstOrDefault(s => s is DirectoryRepositorySource);
+			if (directorySource == null)
+				return;
+
+			var target = HgHighLevel.GetUniqueFolderPath(_progress,
+														 "Could not use folder {0}, since it already exists. Using new folder {1}, instead.",
+														 directorySource.URI);
+			_progress.WriteMessage("Creating new repository at " + target);
+			repo.CloneToRemoteDirectoryWithoutCheckout(target);
 		}
 
 		/// <summary>
@@ -682,7 +682,12 @@ namespace Chorus.sync
 #endif
 			using (new ShortTermEnvironmentalVariable("HGMERGE", '"' + chorusMergeFilePath + '"'))
 			{
-				using (new ShortTermEnvironmentalVariable(MergeOrder.kConflictHandlingModeEnvVarName, MergeOrder.ConflictHandlingModeChoices.TheyWin.ToString()))
+				// Theory has it that is a tossup on who ought to win, umless there is some more principled way to decide.
+				// If 'they' end up being the right answer, or if it ends up being more exotic,
+				// then be sure to change the alpha and beta info in the MergeSituation class.
+				//using (new ShortTermEnvironmentalVariable(MergeOrder.kConflictHandlingModeEnvVarName, MergeOrder.ConflictHandlingModeChoices.TheyWin.ToString()))
+				// Go with 'WeWin', since that is the default and that is how the alpha and beta data of MergeSituation is set, right before this method is called.
+				using (new ShortTermEnvironmentalVariable(MergeOrder.kConflictHandlingModeEnvVarName, MergeOrder.ConflictHandlingModeChoices.WeWin.ToString()))
 				{
 					return Repository.Merge(_localRepositoryPath, theirHead.Number.LocalRevisionNumber);
 				}

@@ -121,7 +121,7 @@ namespace Chorus.UI.Clone
 				HgRepository.Clone(ThreadSafeUrl, PathToNewProject, _progress);
 				using (SoundPlayer player = new SoundPlayer(Properties.Resources.finishedSound))
 				{
-					player.Play();
+					player.PlaySync();
 				}
 
 			}
@@ -130,7 +130,7 @@ namespace Chorus.UI.Clone
 			{
 				using (SoundPlayer player = new SoundPlayer(Properties.Resources.errorSound))
 				{
-					player.Play();
+					player.PlaySync();
 				}
 				if(error is RepositoryAuthorizationException)
 				{

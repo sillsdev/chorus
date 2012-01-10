@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 using Chorus.notes;
-using Chorus.Utilities;
 using Palaso.Progress.LogBox;
 
 namespace Chorus.UI.Notes.Browser
@@ -46,13 +45,13 @@ namespace Chorus.UI.Notes.Browser
 
 			Cursor.Current = Cursors.WaitCursor;
 			_messageListView.SuspendLayout();
-			_messageListView.Items.Clear();
 			List<ListViewItem> rows = new List<ListViewItem>();
 
 			foreach (var item in _model.GetMessages())
 			{
 				rows.Add(item.GetListViewItem());
 			}
+			_messageListView.Items.Clear(); // Don't even think of moving this before the loop, as the items are doubled for reasons unknown.
 			_messageListView.Items.AddRange(rows.ToArray());
 			_messageListView.ResumeLayout();
 			Cursor.Current = Cursors.Default;

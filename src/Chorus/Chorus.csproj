@@ -223,6 +223,11 @@
 	  <DependentUpon>NotesInProjectView.cs</DependentUpon>
 	</Compile>
 	<Compile Include="UI\Review\HistoryPageOptions.cs" />
+	<Compile Include="UI\Review\RevisionsInRepository\HistoryRowIcons.Designer.cs">
+	  <AutoGen>True</AutoGen>
+	  <DesignTime>True</DesignTime>
+	  <DependentUpon>HistoryRowIcons.resx</DependentUpon>
+	</Compile>
 	<Compile Include="UI\Review\RevisionsInRepository\RevisionsInRepositoryView.cs">
 	  <SubType>UserControl</SubType>
 	</Compile>
@@ -245,6 +250,10 @@
 	<EmbeddedResource Include="UI\Review\HistoryPage.resx">
 	  <DependentUpon>HistoryPage.cs</DependentUpon>
 	  <SubType>Designer</SubType>
+	</EmbeddedResource>
+	<EmbeddedResource Include="UI\Review\RevisionsInRepository\HistoryRowIcons.resx">
+	  <Generator>ResXFileCodeGenerator</Generator>
+	  <LastGenOutput>HistoryRowIcons.Designer.cs</LastGenOutput>
 	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Review\RevisionsInRepository\RevisionsInRepositoryView.resx">
 	  <DependentUpon>RevisionsInRepositoryView.cs</DependentUpon>
@@ -448,8 +457,16 @@
 	<None Include="Resources\check12x12.png" />
 	<None Include="Resources\Filter2HS.png" />
 	<None Include="Resources\expand.png" />
+	<None Include="Resources\chorus16x16.png" />
+	<None Include="Resources\FieldWorksBridge.bmp" />
 	<Content Include="Resources\menuButton.png" />
 	<None Include="Resources\sendReceiveCircle16x16png.png" />
+	<None Include="Resources\Merge16x16.png" />
+	<None Include="Resources\MergeConflict16x16.png" />
+	<None Include="Resources\warning16x16.png" />
+	<None Include="Resources\wesay16x16.png" />
+	<None Include="Resources\wesayconfigDoc16x16.png" />
+	<None Include="Resources\WeSayConfig16x16.png" />
 	<Content Include="UI\Notes\Html\bl.gif">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</Content>

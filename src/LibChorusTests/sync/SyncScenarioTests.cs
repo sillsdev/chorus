@@ -257,8 +257,8 @@ namespace LibChorus.Tests.sync
 			bobOptions.DoMergeWithOthers = true;
 			bobSynchronizer.SyncNow(bobOptions);
 
-
-			Assert.AreEqual("Sally was here", File.ReadAllText(bobSetup.PathToText));
+			// With sync set as 'WeWin'
+			Assert.AreEqual("Bob's new idea", File.ReadAllText(bobSetup.PathToText));
 
 		}
 
@@ -283,7 +283,7 @@ namespace LibChorus.Tests.sync
 
 
 			// bob makes a change and syncs
-			File.WriteAllText(bobSetup._pathToLift, "<lift version='0.12'><entry id='dog'><lexical-unit><form lang='en'><text>dog</text></form></lexical-unit></entry></lift>");
+			File.WriteAllText(bobSetup._pathToLift, "<lift version='0.12'><entry id='dog' guid='c1ed1fa9-e382-11de-8a39-0800200c9a66'><lexical-unit><form lang='en'><text>dog</text></form></lexical-unit></entry></lift>");
 			var bobOptions = new SyncOptions
 										{
 											CheckinDescription = "added 'dog'",
@@ -295,7 +295,7 @@ namespace LibChorus.Tests.sync
 
 			//now Sally modifies the original file, not having seen Bob's changes yet
 			var sallyPathToLift = Path.Combine(sallyProject.FolderPath, "lexicon/foo.lift");
-			File.WriteAllText(sallyPathToLift, "<lift version='0.12'><entry id='cat'><lexical-unit><form lang='en'><text>cat</text></form></lexical-unit></entry></lift>");
+			File.WriteAllText(sallyPathToLift, "<lift version='0.12'><entry id='cat' guid='c1ed1faa-e382-11de-8a39-0800200c9a66'><lexical-unit><form lang='en'><text>cat</text></form></lexical-unit></entry></lift>");
 
 			//Sally syncs, pulling in Bob's change, and encountering a need to merge (no conflicts)
 			var sallyOptions = new SyncOptions

@@ -111,15 +111,6 @@
   <ItemGroup>
 	<Compile Include="clone\ClonerTests.cs" />
 	<Compile Include="FileHandlers\ChorusTestFileHanderTests.cs" />
-	<Compile Include="FileHandlers\FieldWorks\CustomProperties\FieldWorksCustomPropertyFileHandlerTests.cs" />
-	<Compile Include="FileHandlers\FieldWorks\FieldWorksChangePresenterTests.cs" />
-	<Compile Include="FileHandlers\FieldWorks\FieldWorksFileDiffTests.cs" />
-	<Compile Include="FileHandlers\FieldWorks\FieldWorksFileHandlerTests.cs" />
-	<Compile Include="FileHandlers\FieldWorks\FieldWorksFileMergeTests.cs" />
-	<Compile Include="FileHandlers\FieldWorks\FieldWorksFileValidationTests.cs" />
-	<Compile Include="FileHandlers\FieldWorks\FieldWorksMergingStrategyTests.cs" />
-	<Compile Include="FileHandlers\FieldWorks\ModelVersion\FieldWorksModelVersionFileHandlerTests.cs" />
-	<Compile Include="FileHandlers\FieldWorks\MetadataCacheTests.cs" />
 	<Compile Include="FileHandlers\ldml\LdmlFileMergeTests.cs" />
 	<Compile Include="FileHandlers\ldml\LdmlFileValidationTests.cs" />
 	<Compile Include="FileHandlers\ldml\LdmlFileHandlerTests.cs" />

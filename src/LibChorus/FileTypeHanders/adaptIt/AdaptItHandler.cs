@@ -15,6 +15,9 @@ namespace Chorus.FileTypeHanders.adaptIt
 {
 	public class AdaptItFileHandler : IChorusFileTypeHandler
 	{
+		internal AdaptItFileHandler()
+		{}
+
 		public bool CanDiffFile(string pathToFile)
 		{
 			return false;

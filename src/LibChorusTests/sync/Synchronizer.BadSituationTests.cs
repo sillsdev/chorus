@@ -244,9 +244,9 @@ namespace LibChorus.Tests.sync
 					//sally.AssertSingleConflict(c => c.GetType == typeof (UnmergableFileTypeConflict));
 					sally.AssertSingleConflictType<UnmergableFileTypeConflict>();
 
-					//nb: this is bob becuase the conflict handling mode is (at the time of this test
-					//writing) set to TheyWin.
-					Assert.IsTrue(File.ReadAllText(sally.UserFile.Path).Contains("bobWasHere"));
+					// nb: this is sally because the conflict handling mode is (at the time of this test
+					// writing) set to WeWin.
+					Assert.IsTrue(File.ReadAllText(sally.UserFile.Path).Contains("sallyWasHere"));
 				}
 
 			}

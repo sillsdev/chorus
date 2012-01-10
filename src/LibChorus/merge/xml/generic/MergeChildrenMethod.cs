@@ -280,12 +280,11 @@ namespace Chorus.merge.xml.generic
 
 				if (ourChild == null)
 				{
-					_merger.EventListener.ChangeOccurred(new XmlDeletionChangeReport(_merger.MergeSituation.PathToFileInRepository, ancestorChild, ourChild));
-
 					// We deleted it.
 					if (theirChild == null)
 					{
 						// We both deleted it. Forget it ever existed.
+						_merger.EventListener.ChangeOccurred(new XmlDeletionChangeReport(_merger.MergeSituation.PathToFileInRepository, ancestorChild, ourChild));
 						_ancestorKeepers.Remove(ancestorChild);
 					}
 					else
@@ -316,6 +315,7 @@ namespace Chorus.merge.xml.generic
 						else
 						{
 							//We deleted it, they didn't edit it. So just make it go away.
+							_merger.EventListener.ChangeOccurred(new XmlDeletionChangeReport(_merger.MergeSituation.PathToFileInRepository, ancestorChild, theirChild));
 							_ancestorKeepers.Remove(ancestorChild);
 							_theirKeepers.Remove(theirChild);
 						}
@@ -327,6 +327,7 @@ namespace Chorus.merge.xml.generic
 					if (XmlUtilities.AreXmlElementsEqual(ancestorChild, ourChild))
 					{
 						// We didn't touch it, allow their deletion to go forward, forget it existed.
+						_merger.EventListener.ChangeOccurred(new XmlDeletionChangeReport(_merger.MergeSituation.PathToFileInRepository, ancestorChild, ourChild));
 						_ancestorKeepers.Remove(ancestorChild);
 						_ourKeepers.Remove(ourChild);
 					}

@@ -24,8 +24,8 @@ namespace Chorus.VcsDrivers.Mercurial
 		protected readonly string _pathToRepository;
 		protected string _userName;
 		protected IProgress _progress;
-		private const int SecondsBeforeTimeoutOnLocalOperation = 15 * 60;
-		private const int SecondsBeforeTimeoutOnMergeOperation = 15 * 60;
+		public  int SecondsBeforeTimeoutOnLocalOperation = 15 * 60;
+		public int SecondsBeforeTimeoutOnMergeOperation = 15 * 60;
 		public const int SecondsBeforeTimeoutOnRemoteOperation = 40 * 60;
 		private bool _haveLookedIntoProxySituation;
 		private string _proxyCongfigParameterString = string.Empty;
@@ -165,6 +165,8 @@ namespace Chorus.VcsDrivers.Mercurial
 
 			try
 			{
+				DisableNewRepositoryFormats();
+
 				//TODO: some can be removed now, since we have our own mercurial.ini.  Unfortunately, we pacakge it in a 4  meg zip, so it's Expensive (in terms of our own hg repo) to modify
 				//so for now we're still using this
 
@@ -666,7 +668,9 @@ namespace Chorus.VcsDrivers.Mercurial
 		public static void CreateRepositoryInExistingDir(string path, IProgress progress)
 		{
 			var repo = new HgRepository(path, progress);
-			repo.Execute(20, "init", SurroundWithQuotes(path));
+			//dotencode is a good thing, but until we have all clients to 1.7 or later, it would leave some out in the cold.
+			//see also: DisableNewRepositoryFormats()
+			repo.Execute(20, "init", "--config format.dotencode=False " + SurroundWithQuotes(path));
 		}
 
 
@@ -752,6 +756,9 @@ namespace Chorus.VcsDrivers.Mercurial
 			progress.WriteStatus("Getting project...");
 			try
 			{
+				targetPath = HgHighLevel.GetUniqueFolderPath(progress,
+															 "Folder at {0} already exists, so can't be used. Creating clone in {1}, instead.",
+															 targetPath);
 				var repo = new HgRepository(targetPath, progress);
 
 				repo.Execute(int.MaxValue, "clone", DoWorkOfDeterminingProxyConfigParameterString(targetPath, progress), SurroundWithQuotes(sourceUri) + " " + SurroundWithQuotes(targetPath));
@@ -1250,6 +1257,25 @@ namespace Chorus.VcsDrivers.Mercurial
 			{
 					 section.Set(pair.Key, pair.Value);
 			 }
+			doc.SaveAndThrowIfCannot();
+		}
+
+		public void DisableNewRepositoryFormats()
+		{
+			var doc = GetHgrcDoc();
+			var section = doc.Sections.GetOrCreate("format");
+
+			//see http://mercurial.selenic.com/wiki/UpgradingMercurial
+
+			//Mercurial 1.7 introduced a new repository format, "dotencode", which is a good thing. But old clients can't read it (if they
+			//are just talking to the server, they don't notice. But since we push actually repositories around on USB drive, they will!)
+			//For Linux, it's hard to ship a specific version, which is our windows approach to ensuring everyone has the same versino of hg.
+			//So instead, we here disable the dotencode, so that new projects created on Linux won't use that feature.
+
+			//see also: CreateRepositoryInExistingDir
+
+			section.Set("dotencode", "False");
+
 			doc.SaveAndThrowIfCannot();
 		}
 
@@ -1877,6 +1903,16 @@ namespace Chorus.VcsDrivers.Mercurial
 				return true;
 			}
 			return false;
+		}
+
+		/// <summary>
+		/// In late 2011, we added the fixutf8 extension on windows, which preserves file names requiring unicode. However, if files were previously put
+		/// into the repo with messed-up names (because hg by default does some western encoding), this is supposed to detect the name change and fix them.
+		/// http://mercurial.selenic.com/wiki/FixUtf8Extension
+		/// </summary>
+		public void FixUnicodeAudio()
+		{
+			ExecuteErrorsOk("addremove -s 100 -I **.wav", _pathToRepository, SecondsBeforeTimeoutOnLocalOperation, _progress);
 		}
 	}
 

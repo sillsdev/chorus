@@ -67,7 +67,7 @@ namespace Chorus.UI.Misc
 				_repository.GetDiagnosticInformation(_progress);
 				using (SoundPlayer player = new SoundPlayer(Properties.Resources.finishedSound))
 				{
-					player.Play();
+					player.PlaySync();
 				}
 			}
 			catch (Exception error)
@@ -75,7 +75,7 @@ namespace Chorus.UI.Misc
 				_progress.WriteError(error.Message);
 				using (SoundPlayer player = new SoundPlayer(Properties.Resources.errorSound))
 				{
-					player.Play();
+					player.PlaySync();
 				}
 
 			}

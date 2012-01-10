@@ -53,28 +53,47 @@ namespace Chorus.merge.xml.generic
 			return strategy;
 		}
 
-		private static string GetKeyViaHack(XmlNode element)
+		private string GetKeyViaHack(XmlNode element)
 		{
 			var name = element.Name;
-			if (name == "special")
+			switch (name)
 			{
-				var foundHack = false;
-				foreach (var attrName in from XmlNode attr in element.Attributes select attr.Name)
-				{
-					switch (attrName)
+				default:
+					// This really does stink, but I'm (RBR) not sure how to avoid it today!
+					if (ElementStrategies.ContainsKey(name) || element.ParentNode == null)
+						return name;
+					// Combine parent name + element name as key (for new styled FW properties).
+					var combinedKey = element.ParentNode.Name + "_" + name;
+					if (ElementStrategies.ContainsKey(combinedKey))
+						return combinedKey;
+					break;
+				case "special":
+					var foundHack = false;
+					foreach (var attrName in from XmlNode attr in element.Attributes select attr.Name)
 					{
-						default:
-							break;
-						case "xmlns:palaso":
-						case "xmlns:fw":
-							name += "_" + attrName;
-							foundHack = true;
+						switch (attrName)
+						{
+							default:
+								break;
+							case "xmlns:palaso":
+							case "xmlns:fw":
+								name += "_" + attrName;
+								foundHack = true;
+								break;
+						}
+						if (foundHack)
 							break;
 					}
-					if (foundHack)
-						break;
-				}
+					break;
+				case "Custom": // Another hack for FW custom property elements. (If this proves to conflict with WeSay, then move preliminary processing elsewhere for FW Custom properties to get past the Custom element.
+					var customPropName = element.Attributes["name"].Value;
+					name += "_" + customPropName;
+					var combinedCustomKey = name + element.ParentNode.Name + "_" + customPropName;
+					if (ElementStrategies.ContainsKey(combinedCustomKey))
+						return combinedCustomKey;
+					break;
 			}
+
 			return name;
 		}
 
