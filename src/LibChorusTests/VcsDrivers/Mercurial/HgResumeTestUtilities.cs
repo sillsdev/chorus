@@ -47,6 +47,11 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 
 		public string ProjectId { get; set; }
 
+		public string Url
+		{
+			get { return "fake api server"; }
+		}
+
 		public void AddResponse(HgResumeApiResponse response)
 		{
 			_responseQueue.Enqueue(response);
@@ -151,6 +156,16 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 
 		public string ProjectId { get; set; }
 
+		public string StoragePath
+		{
+			get { return _localStorage.Path; }
+		}
+
+		public string Url
+		{
+			get { return "fake api server"; }
+		}
+
 		public void Dispose()
 		{
 			_localStorage.Dispose();
@@ -205,6 +220,11 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			get { return _repo.GetTip().Number.Hash; }
 		}
 
+		public string StoragePath
+		{
+			get { return _storageFolder.Path; }
+		}
+
 		public void PrepareBundle(string revHash)
 		{
 			if(File.Exists(_helper.BundlePath))
@@ -249,6 +269,16 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 							_serverUnavailableList.Where(i => i.ExecuteCount == _executeCount).First().Message
 							);
 				}
+				var bundleFileInfo = new FileInfo(_helper.BundlePath);
+				if (bundleFileInfo.Exists && bundleFileInfo.Length == 0  || !bundleFileInfo.Exists)
+				{
+					PrepareBundle(parameters["baseHash"]);
+					bundleFileInfo.Refresh();
+					if (!bundleFileInfo.Exists)
+					{
+						return ApiResponses.PullNoChange();
+					}
+				}
 				int offset = Convert.ToInt32(parameters["offset"]);
 				int chunkSize = Convert.ToInt32(parameters["chunkSize"]);
 				var bundleFile = new FileInfo(_helper.BundlePath);
@@ -269,6 +299,11 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		public string Identifier { get; private set; }
 
 		public string ProjectId { get; set; }
+
+		public string Url
+		{
+			get { return "fake api server"; }
+		}
 
 		public void Dispose()
 		{
@@ -413,7 +448,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 										 {
 											 {"X-HgR-Status", "RECEIVED"},
 											 {"X-HgR-Version", "1"},
-											 {"X-HgR-sow", startOfWindow.ToString()}
+											 {"X-HgR-Sow", startOfWindow.ToString()}
 										 }
 			};
 		}
@@ -503,9 +538,9 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 										 {
 											 {"X-HgR-Status", "SUCCESS"},
 											 {"X-HgR-Version", "1"},
-											 {"X-HgR-checksum", HgResumeTransport.CalculateChecksum(contentToSend)},
-											 {"X-HgR-bundleSize", bundleSize.ToString()},
-											 {"X-HgR-chunkSize", contentToSend.Length.ToString()}
+											 {"X-HgR-Checksum", HgResumeTransport.CalculateChecksum(contentToSend)},
+											 {"X-HgR-BundleSize", bundleSize.ToString()},
+											 {"X-HgR-ChunkSize", contentToSend.Length.ToString()}
 										 },
 				Content = contentToSend
 			};
@@ -525,9 +560,9 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 										 {
 											 {"X-HgR-Status", "SUCCESS"},
 											 {"X-HgR-Version", "1"},
-											 {"X-HgR-checksum", "boguschecksum"},
-											 {"X-HgR-bundleSize", bundleSize.ToString()},
-											 {"X-HgR-chunkSize", contentToSend.Length.ToString()}
+											 {"X-HgR-Checksum", "boguschecksum"},
+											 {"X-HgR-BundleSize", bundleSize.ToString()},
+											 {"X-HgR-ChunkSize", contentToSend.Length.ToString()}
 										 },
 				Content = contentToSend
 			};

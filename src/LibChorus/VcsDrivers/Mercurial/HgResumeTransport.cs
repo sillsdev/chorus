@@ -42,7 +42,12 @@ namespace Chorus.VcsDrivers.Mercurial
 		{
 			get
 			{
-				string filePath = Path.Combine(_repo.PathToRepo, "remoteRepo.db");
+				string storagePath = Path.Combine(_repo.PathToRepo, "chorus_storage");
+				if (!Directory.Exists(storagePath))
+				{
+					Directory.CreateDirectory(storagePath);
+				}
+				string filePath = Path.Combine(storagePath, "remoteRepo.db");
 				if (File.Exists(filePath))
 				{
 					string[] dbFileContents = File.ReadAllLines(filePath);
@@ -60,7 +65,12 @@ namespace Chorus.VcsDrivers.Mercurial
 			{
 				if (String.IsNullOrEmpty(value)) return;
 
-				string filePath = Path.Combine(_repo.PathToRepo, "remoteRepo.db");
+				string storagePath = Path.Combine(_repo.PathToRepo, "chorus_storage");
+				if (!Directory.Exists(storagePath))
+				{
+					Directory.CreateDirectory(storagePath);
+				}
+				string filePath = Path.Combine(storagePath, "remoteRepo.db");
 				string remoteId = _apiServer.Identifier;
 				if (!File.Exists(filePath))
 				{
@@ -143,6 +153,7 @@ namespace Chorus.VcsDrivers.Mercurial
 															  {"quantity", quantity.ToString()}
 														  },
 													  secondsBeforeTimeout);
+					_progress.WriteVerbose("API URL: {0}", _apiServer.Url);
 					// API returns either 200 OK or 400 Bad Request
 					// HgR status can be: SUCCESS (200), FAIL (400) or UNKNOWNID (400)
 
@@ -155,16 +166,16 @@ namespace Chorus.VcsDrivers.Mercurial
 							_progress.WriteWarning(msg);
 							return new List<string>();
 						}
-						if (response.StatusCode == HttpStatusCode.OK)
+						if (response.StatusCode == HttpStatusCode.OK && response.Content.Length > 0)
 						{
 							string revString = Encoding.UTF8.GetString(response.Content);
 							return revString.Split('|').ToList();
 						}
 						if (response.StatusCode == HttpStatusCode.BadRequest && response.Headers["X-HgR-Status"] == "UNKNOWNID")
 						{
-							_progress.WriteWarning("The remote server {0} does not have repoId '{1}'", _targetLabel, _repo.Identifier);
+							_progress.WriteWarning("The remote server {0} does not have repoId '{1}'", _targetLabel, _apiServer.ProjectId);
 						}
-						_progress.WriteWarning("Failed to get remote revisions for {0}", _repo.Identifier);
+						_progress.WriteWarning("Failed to get remote revisions for {0}", _apiServer.ProjectId);
 						return new List<string>();
 					}
 					if (attempt < 5)
@@ -209,6 +220,12 @@ namespace Chorus.VcsDrivers.Mercurial
 					return;
 				}
 				bundleFileInfo.Refresh();
+				if (bundleFileInfo.Length == 0)
+				{
+					bundleHelper.Cleanup();
+					_progress.WriteStatus("No changes to send.  Push operation completed");
+					return;
+				}
 			}
 
 			string transactionId = bundleHelper.TransactionId;
@@ -217,7 +234,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			int chunkSize = DefaultChunkSize; // size in bytes
 
 			var bundleSize = (int) bundleFileInfo.Length;
-			int numberOfStepsInPushOperation = bundleSize/chunkSize;
+			int numberOfStepsInPushOperation = bundleSize/chunkSize + 1;
 			_progress.ProgressIndicator.Initialize(numberOfStepsInPushOperation);
 
 			int loopCtr = 0;
@@ -254,15 +271,6 @@ namespace Chorus.VcsDrivers.Mercurial
 					_progress.WriteError("Push operation failed");
 					return;
 				}
-				chunkSize = response.ChunkSize;
-				startOfWindow = response.StartOfWindow;
-				if (loopCtr == 1 && startOfWindow > chunkSize)
-				{
-					string message = String.Format("Resuming push operation at {0} bytes", startOfWindow);
-					_progress.WriteVerbose(message);
-				}
-				_progress.WriteStatus(string.Format("Sending {0} of {1} bytes", startOfWindow, bundleSize));
-				_progress.ProgressIndicator.PercentCompleted = startOfWindow * 100 / bundleSize;
 				if (response.Status == PushStatus.Complete)
 				{
 					_progress.WriteStatus("Finished Sending");
@@ -272,14 +280,25 @@ namespace Chorus.VcsDrivers.Mercurial
 					// update our local knowledge of what the server has
 					LastKnownCommonBase = _repo.GetTip().Number.Hash;
 					FinishPush(transactionId);
+					bundleHelper.Cleanup();
 					return;
 				}
+				chunkSize = response.ChunkSize;
+				startOfWindow = response.StartOfWindow;
+				if (loopCtr == 1 && startOfWindow > chunkSize)
+				{
+					string message = String.Format("Resuming push operation at {0} bytes", startOfWindow);
+					_progress.WriteVerbose(message);
+				}
+				_progress.WriteStatus(string.Format("Sending {0} of {1} bytes", startOfWindow, bundleSize));
+				_progress.ProgressIndicator.PercentCompleted = startOfWindow * 100 / bundleSize;
 			} while (startOfWindow < bundleSize);
 		}
 
 		private PushStatus FinishPush(string transactionId)
 		{
 			var apiResponse = _apiServer.Execute("finishPushBundle", new Dictionary<string, string> {{"transId", transactionId}}, 20);
+			_progress.WriteVerbose("API URL: {0}", _apiServer.Url);
 			switch (apiResponse.StatusCode)
 			{
 				case HttpStatusCode.OK:
@@ -311,6 +330,7 @@ namespace Chorus.VcsDrivers.Mercurial
 					string retryMsg = (attempt > 1) ? "Retrying s" : "S";
 					_progress.WriteStatus("{0}ending {1}+{2} of {3} bytes", retryMsg, Convert.ToInt32(parameters["offset"]), chunkSize, parameters["bundleSize"]);
 					var response = _apiServer.Execute("pushBundleChunk", parameters, dataToPush, secondsBeforeTimeout);
+					_progress.WriteVerbose("API URL: {0}", _apiServer.Url);
 					/* API returns the following HTTP codes:
 						* 200 OK (SUCCESS)
 						* 202 Accepted (RECEIVED)
@@ -330,7 +350,7 @@ namespace Chorus.VcsDrivers.Mercurial
 						// the chunk was received successfully
 						if (response.StatusCode == HttpStatusCode.Accepted)
 						{
-							pushResponse.StartOfWindow = Convert.ToInt32(response.Headers["X-HgR-sow"]);
+							pushResponse.StartOfWindow = Convert.ToInt32(response.Headers["X-HgR-Sow"]);
 							pushResponse.Status = PushStatus.Received;
 							return pushResponse;
 						}
@@ -363,6 +383,12 @@ namespace Chorus.VcsDrivers.Mercurial
 								pushResponse.StartOfWindow = 0;
 								return pushResponse;
 							}
+							if (response.Headers.ContainsKey("X-HgR-Error"))
+							{
+								_progress.WriteWarning("Server Error: {0}", response.Headers["X-HgR-Error"]);
+								return pushResponse;
+							}
+
 						}
 						_progress.WriteWarning("Invalid Server Response '{0}'", response.StatusCode);
 						return pushResponse;
@@ -404,8 +430,15 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		public bool Pull()
 		{
+			string baseRevision = GetCommonBaseHashWithRemoteRepo();
 			string localTip = _repo.GetTip().Number.Hash;
-			var bundleHelper = new PullStorageManager(_repo.PathToLocalStorage, localTip);
+			if (String.IsNullOrEmpty(baseRevision))
+			{
+				_progress.WriteError("Pull operation failed");
+				return false;
+			}
+
+			var bundleHelper = new PullStorageManager(_repo.PathToLocalStorage, baseRevision + "_" + localTip);
 			string transactionId = bundleHelper.TransactionId;
 			int startOfWindow = bundleHelper.StartOfWindow;
 			int chunkSize = DefaultChunkSize; // size in bytes
@@ -417,7 +450,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			var requestParameters = new Dictionary<string, string>
 											{
 												{"repoId", _apiServer.ProjectId},
-												{"baseHash", localTip},
+												{"baseHash", baseRevision},
 												{"offset", startOfWindow.ToString()},
 												{"chunkSize", chunkSize.ToString()},
 												{"transId", transactionId}
@@ -434,7 +467,8 @@ namespace Chorus.VcsDrivers.Mercurial
 				}
 				if (response.Status == PullStatus.NoChange)
 				{
-					_progress.WriteVerbose("Pull operation reported no changes");
+					_progress.WriteMessage("No changes");
+					bundleHelper.Cleanup();
 					_progress.ProgressIndicator.Initialize(1);
 					_progress.ProgressIndicator.Finish();
 					return false;
@@ -450,7 +484,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				bundleSize = response.BundleSize;
 				if (loopCtr == 1)
 				{
-					int numberOfStepsInPullOperation = bundleSize / chunkSize;
+					int numberOfStepsInPullOperation = bundleSize / chunkSize + 1;
 					_progress.ProgressIndicator.Initialize(numberOfStepsInPullOperation);
 					if (startOfWindow != 0)
 					{
@@ -474,11 +508,11 @@ namespace Chorus.VcsDrivers.Mercurial
 
 			if (_repo.Unbundle(bundleHelper.BundlePath))
 			{
-				LastKnownCommonBase = _repo.GetTip().Number.Hash;
+				//LastKnownCommonBase = _repo.GetTip().Number.Hash;
 				_progress.WriteMessage("Pull operation completed successfully");
 				_progress.ProgressIndicator.Finish();
 				_progress.WriteStatus("Finished Receiving");
-
+				bundleHelper.Cleanup();
 				var response = FinishPull(transactionId);
 				if (response == PullStatus.Reset)
 				{
@@ -531,6 +565,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				{
 					parameters["chunkSize"] = chunkSize.ToString();
 					var response = _apiServer.Execute("pullBundleChunk", parameters, secondsBeforeTimeout);
+					_progress.WriteVerbose("API URL: {0}", _apiServer.Url);
 					/* API returns the following HTTP codes:
 						* 200 OK (SUCCESS)
 						* 304 Not Modified (NOCHANGE)
@@ -546,24 +581,32 @@ namespace Chorus.VcsDrivers.Mercurial
 							pullResponse.Status = PullStatus.NotAvailable;
 							return pullResponse;
 						}
+						if (response.StatusCode == HttpStatusCode.NotModified)
+						{
+							pullResponse.Status = PullStatus.NoChange;
+							return pullResponse;
+						}
+
 						// chunk pulled OK
 						if (response.StatusCode == HttpStatusCode.OK)
 						{
-							int actualChunkSize = Convert.ToInt32(response.Headers["X-HgR-chunkSize"]);
+							int actualChunkSize = Convert.ToInt32(response.Headers["X-HgR-ChunkSize"]);
 							string statusMessage = string.Format("Received {0}+{1} bytes", parameters["offset"],
 																 actualChunkSize);
 							_progress.WriteVerbose(statusMessage);
-							pullResponse.Checksum = response.Headers["X-HgR-checksum"];
-							pullResponse.BundleSize = Convert.ToInt32(response.Headers["X-HgR-bundleSize"]);
+							pullResponse.Checksum = response.Headers["X-HgR-Checksum"];
+							pullResponse.BundleSize = Convert.ToInt32(response.Headers["X-HgR-BundleSize"]);
 							pullResponse.Status = PullStatus.OK;
 							pullResponse.ChunkSize = chunkSize;
 
-							// verify checksum
-							if (CalculateChecksum(response.Content) != response.Headers["X-HgR-checksum"])
-							{
-								_progress.WriteWarning("Checksum failed while pulling {0} bytes of data at offset {1}", actualChunkSize, parameters["offset"]);
-								continue;
-							}
+							// NOTE: I am abandoning the notion of checksum for the time being.  It's not useful or helpful since we can assume that TCP/IP is doing its job
+							// TODO: checksum code needs to be cleaned up and removed at some point
+							//if (CalculateChecksum(response.Content) != response.Headers["X-HgR-Checksum"])
+							//{
+							//    _progress.WriteWarning("Checksum failed while pulling {0} bytes of data at offset {1}", actualChunkSize, parameters["offset"]);
+							//    pullResponse.Status = PullStatus.Fail;
+							//    continue;
+							//}
 
 							pullResponse.Chunk = response.Content;
 							return pullResponse;
@@ -576,6 +619,14 @@ namespace Chorus.VcsDrivers.Mercurial
 						if (response.StatusCode == HttpStatusCode.BadRequest && response.Headers["X-HgR-Status"] == "RESET")
 						{
 							pullResponse.Status = PullStatus.Reset;
+							return pullResponse;
+						}
+						if (response.StatusCode == HttpStatusCode.BadRequest)
+						{
+							if (response.Headers.ContainsKey("X-HgR-Error"))
+							{
+								_progress.WriteWarning("Server Error: {0}", response.Headers["X-HgR-Error"]);
+							}
 							return pullResponse;
 						}
 						_progress.WriteWarning("Invalid Server Response '{0}'", response.StatusCode);

@@ -7,15 +7,20 @@ using System.Text.RegularExpressions;
 
 namespace Chorus.VcsDrivers.Mercurial
 {
+
 	public class HgResumeRestApiServer : IApiServer
 	{
+		public const string APIVERSION = "01";
+
 		private string _baseUrl;
 		private string _server;
 		private string _projectId;
+		private string _urlExecuted;
 
 		public HgResumeRestApiServer(string url)
 		{
 			ParseComponentsInUrl(url);
+			_urlExecuted = "";
 		}
 
 		private void ParseComponentsInUrl(string url)
@@ -33,6 +38,11 @@ namespace Chorus.VcsDrivers.Mercurial
 					int slashIndexInPath = path.LastIndexOf("/");
 					_projectId = path.Substring(slashIndexInPath+1);
 					_baseUrl += path.Substring(0, slashIndexInPath);
+				}
+				if (_baseUrl.EndsWith("projects"))
+				{
+					// remove "projects" from URL if necessary
+					_baseUrl = _baseUrl.Substring(0, _baseUrl.IndexOf("/projects"));
 				}
 			}
 			else
@@ -53,8 +63,8 @@ namespace Chorus.VcsDrivers.Mercurial
 		public HgResumeApiResponse Execute(string method, IDictionary<string, string> parameters, byte[] contentToSend, int secondsBeforeTimeout = 10)
 		{
 			string queryString = BuildQueryString(parameters);
-			string apiUrl = _baseUrl + "/api/" + method + "?" + queryString;
-			var req = WebRequest.Create(apiUrl) as HttpWebRequest;
+			_urlExecuted = _baseUrl + String.Format("/api/v{0}/", APIVERSION) + method + "?" + queryString;
+			var req = WebRequest.Create(_urlExecuted) as HttpWebRequest;
 			req.UserAgent = "HgResume";
 			req.Timeout = secondsBeforeTimeout * 1000; // timeout is in milliseconds
 			if (contentToSend.Length == 0)
@@ -108,18 +118,30 @@ namespace Chorus.VcsDrivers.Mercurial
 			}
 			apiResponse.StatusCode = res.StatusCode;
 
-			// customized from Paratext's GetStreaming method in their RESTClient.cs
-			apiResponse.Content = new byte[res.ContentLength];
 			var responseStream = res.GetResponseStream();
+			if (responseStream != null && apiResponse.Headers.ContainsKey("Content-Length"))
+			{
+				apiResponse.Content = ReadStream(responseStream, Convert.ToInt32(apiResponse.Headers["Content-Length"]));
+			}
+			else
+			{
+				apiResponse.Content = new byte[0];
+			}
+
+			return apiResponse;
+		}
+
+		private static byte[] ReadStream(Stream stream, int length)
+		{
+			var buffer = new byte[length];
 			int offset = 0;
 			int bytesRead;
 			do
 			{
-				bytesRead = responseStream.Read(apiResponse.Content, offset,
-													Math.Min(apiResponse.Content.Length - offset, (int)res.ContentLength));
+				bytesRead = stream.Read(buffer, offset, length - offset);
 				offset += bytesRead;
-			} while (bytesRead > 0 && offset < res.ContentLength);
-			return apiResponse;
+			} while (bytesRead > 0 && offset < length);
+			return buffer;
 		}
 
 		public string Identifier
@@ -130,6 +152,11 @@ namespace Chorus.VcsDrivers.Mercurial
 		public string ProjectId
 		{
 			get { return _projectId; }
+		}
+
+		public string Url
+		{
+			get { return _urlExecuted; }
 		}
 
 		private static string BuildQueryString(IDictionary<string, string> urlParameters)

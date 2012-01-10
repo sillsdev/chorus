@@ -10,6 +10,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		private string _dataFolderPath;
 		private string _storagePath;
 		private string _bundleId;
+		private string _idFilePath;
 		public readonly string TransactionId;
 
 		public virtual string StorageFolderName
@@ -52,19 +53,25 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		private string GetTransactionId()
 		{
-			string idFilePath = Path.Combine(_dataFolderPath, string.Format("{0}.transid", _bundleId));
-			if (File.Exists(idFilePath))
+			_idFilePath = Path.Combine(_dataFolderPath, string.Format("{0}.transid", _bundleId));
+			if (File.Exists(_idFilePath))
 			{
-				return File.ReadAllText(idFilePath).Trim();
+				return File.ReadAllText(_idFilePath).Trim();
 			}
 			string id = Guid.NewGuid().ToString();
-			File.WriteAllText(idFilePath, id);
+			File.WriteAllText(_idFilePath, id);
 			return id;
 		}
 
 		public void Reset()
 		{
 			File.WriteAllBytes(BundlePath, new byte[0]);
+		}
+
+		public void Cleanup()
+		{
+			File.Delete(BundlePath);
+			File.Delete(_idFilePath);
 		}
 	}
 }
