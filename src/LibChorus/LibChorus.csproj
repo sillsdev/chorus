@@ -126,7 +126,7 @@
 	<Reference Include="System.Xml.Linq">
 	  <RequiredTargetFramework>3.5</RequiredTargetFramework>
 	</Reference>
-	<Reference Condition="'$(Configuration)' == 'DebugMono' Or '$(Configuration)' == 'ReleaseMono' Include="icu.net" />
+	<Reference Condition="'$(Configuration)' == 'DebugMono' Or '$(Configuration)' == 'ReleaseMono' " Include="icu.net" />
   </ItemGroup>
   <ItemGroup>
 	<Compile Include="FileTypeHanders\FieldWorks\CustomProperties\FieldeWorksCustomPropertyFileHandler.cs" />
