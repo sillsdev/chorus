@@ -560,16 +560,21 @@ namespace Chorus.sync
 			{
 				foreach (string uri in possibleRepoCloneUris)
 				{
+					// target may be uri, or some other folder.
+					var target = HgHighLevel.GetUniqueFolderPath(
+						_progress,
+						"Folder at {0} already exists, so can't be used. Creating clone in {1}, instead.",
+						uri);
 					try
 					{
-						_progress.WriteStatus("Copying repository to {0}...", repoDescriptor.GetFullName(uri));
-						_progress.WriteVerbose("({0})", uri);
-						HgHighLevel.MakeCloneFromLocalToLocal(_localRepositoryPath, uri, true, _progress);
-						return uri;
+						_progress.WriteStatus("Copying repository to {0}...", repoDescriptor.GetFullName(target));
+						_progress.WriteVerbose("({0})", target);
+						HgHighLevel.MakeCloneFromLocalToLocal(_localRepositoryPath, target, true, _progress);
+						return target;
 					}
 					catch (Exception error)
 					{
-						_progress.WriteError("Could not create repository on {0}. Error follow:", uri);
+						_progress.WriteError("Could not create repository on {0}. Error follow:", target);
 						_progress.WriteException(error);
 						continue;
 					}
