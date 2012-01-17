@@ -92,7 +92,6 @@ namespace Chorus.sync
 			try
 			{
 				HgRepository repo = new HgRepository(_localRepositoryPath, _progress);
-				repo.UpdateHgrc();
 
 				RemoveLocks(repo);
 				repo.RecoverFromInterruptedTransactionIfNeeded();
@@ -167,9 +166,8 @@ namespace Chorus.sync
 		}
 
 		/// <summary>
-		/// This version is used by the CHorus UI, which wants to do the sync in the background
+		/// This version is used by the Chorus UI, which wants to do the sync in the background
 		/// </summary>
-
 		public SyncResults SyncNow(BackgroundWorker backgroundWorker, DoWorkEventArgs args, SyncOptions options)
 		{
 			_backgroundWorker = backgroundWorker;
