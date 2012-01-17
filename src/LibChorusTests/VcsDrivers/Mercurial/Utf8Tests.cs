@@ -73,6 +73,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			}
 		}
 
+#if !MONO
 		[Test]
 		public void Utf8ExtensionNotPresent_MercurialOperationReportsError()
 		{
@@ -87,7 +88,9 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				Assert.IsTrue(setup.GetProgressString().Contains("Failed to set up extensions"));
 			}
 		}
+#endif
 
+#if !MONO
 		[Test]
 		public void Utf8ExtensionNotPresent_CloneLocalThrows()
 		{
@@ -111,6 +114,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 
 			}
 		}
+#endif
 
 		/// <summary>
 		/// The local clone works as it uses the settings of the source repo. i.e. It is a clone to not a clone from.
