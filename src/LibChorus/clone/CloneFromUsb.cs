@@ -92,7 +92,8 @@ namespace Chorus.clone
 		{
 			var repo = new HgRepository(sourcePath, progress);
 			var actualTarget = repo.CloneLocalWithoutUpdate(Path.Combine(parentDirectoryToPutCloneIn, Path.GetFileName(sourcePath)));
-			repo.Update(); // Need this for new clone from USB drive.
+			var newRepo = new HgRepository(actualTarget, progress);
+			newRepo.Update(); // Need this for new clone from USB drive.
 			return actualTarget;
 		}
 	}
