@@ -86,18 +86,14 @@ namespace Chorus.clone
 					//}
 				}
 			}
-
 		}
 
 		public string MakeClone(string sourcePath, string parentDirectoryToPutCloneIn, IProgress progress)
 		{
-			var target = HgHighLevel.GetUniqueFolderPath(progress,
-				"On the USB Flash drive, there is a folder with the name {0}, which is the same as this project. However, that folder cannot be used, so a new folder named {1} has been created and used, instead.",
-				Path.Combine(parentDirectoryToPutCloneIn, Path.GetFileName(sourcePath)));
-
 			var repo = new HgRepository(sourcePath, progress);
-			repo.CloneLocal(target);
-			return target;
+			var actualTarget = repo.CloneLocalWithoutUpdate(Path.Combine(parentDirectoryToPutCloneIn, Path.GetFileName(sourcePath)));
+			repo.Update(); // Need this for new clone from USB drive.
+			return actualTarget;
 		}
 	}
 }
