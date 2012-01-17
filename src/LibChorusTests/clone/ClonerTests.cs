@@ -40,8 +40,33 @@ namespace LibChorus.Tests
 				progress.ShowVerbose = true;
 				var extantFolder = f.Combine(RepositorySetup.ProjectName);
 				Directory.CreateDirectory(extantFolder);
-				model.MakeClone(repo.ProjectFolder.Path, f.Path, progress);
+				// Make a subfolder, which will force it to make a new folder, since an empty folder is deleted.
+				var extantSubfolderPath = Path.Combine(extantFolder, "ChildFolder");
+				Directory.CreateDirectory(extantSubfolderPath);
+
+				var cloneFolder = model.MakeClone(repo.ProjectFolder.Path, f.Path, progress);
+				Assert.AreEqual(extantFolder + "1", cloneFolder);
 				Assert.IsTrue(Directory.Exists(extantFolder + "1"));
+			}
+		}
+
+		[Test]
+		[Category("SkipOnTeamCity")]
+		public void MakeClone_TargetExists_CreatesCloneInWhenTargetIsEmpty()
+		{
+			using (var repo = new RepositorySetup("source"))
+			using (var f = new TemporaryFolder("clonetest"))
+			{
+				var model = new CloneFromUsb();
+				var progress = new ConsoleProgress();
+				progress.ShowVerbose = true;
+				var extantFolder = f.Combine(RepositorySetup.ProjectName);
+				Directory.CreateDirectory(extantFolder);
+
+				var cloneFolder = model.MakeClone(repo.ProjectFolder.Path, f.Path, progress);
+				Assert.AreEqual(extantFolder, cloneFolder);
+				Assert.IsTrue(Directory.Exists(extantFolder));
+				Assert.IsFalse(Directory.Exists(extantFolder + "1"));
 			}
 		}
 

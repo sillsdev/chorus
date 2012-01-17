@@ -9,6 +9,7 @@ using Chorus.Utilities;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using System.Linq;
+using Palaso.IO;
 using Palaso.Progress.LogBox;
 using Palaso.Extensions;
 using Palaso.Reporting;
@@ -152,17 +153,26 @@ namespace Chorus.sync
 			return results;
 		}
 
-		private void CreateRepositoryOnLocalAreaNetworkFolderIfNeededThrowIfFails(HgRepository repo, List<RepositoryAddress> sourcesToTry)
+		private static void CreateRepositoryOnLocalAreaNetworkFolderIfNeededThrowIfFails(HgRepository repo, IEnumerable<RepositoryAddress> sourcesToTry)
 		{
 			var directorySource = sourcesToTry.FirstOrDefault(s => s is DirectoryRepositorySource);
 			if (directorySource == null)
 				return;
 
-			var target = HgHighLevel.GetUniqueFolderPath(_progress,
-														 "Could not use folder {0}, since it already exists. Using new folder {1}, instead.",
-														 directorySource.URI);
-			_progress.WriteMessage("Creating new repository at " + target);
-			repo.CloneToRemoteDirectoryWithoutCheckout(target);
+			if (Directory.Exists(directorySource.URI) && Directory.Exists(Path.Combine(directorySource.URI, ".hg")))
+			{
+				var otherRepo = new HgRepository(directorySource.URI, new NullProgress());
+				if (repo.Identifier == otherRepo.Identifier)
+					return;
+			}
+
+			var actualTarget = repo.CloneLocalWithoutUpdate(directorySource.URI);
+			if (directorySource.URI != actualTarget)
+			{
+				// Reset hgrc to new location.
+				var alias = HgRepository.GetAliasFromPath(actualTarget);
+				repo.SetTheOnlyAddressOfThisType(RepositoryAddress.Create(alias, actualTarget));
+			}
 		}
 
 		/// <summary>
@@ -560,7 +570,7 @@ namespace Chorus.sync
 				foreach (string uri in possibleRepoCloneUris)
 				{
 					// target may be uri, or some other folder.
-					var target = HgHighLevel.GetUniqueFolderPath(
+					var target = HgRepository.GetUniqueFolderPath(
 						_progress,
 						"Folder at {0} already exists, so can't be used. Creating clone in {1}, instead.",
 						uri);
@@ -568,8 +578,9 @@ namespace Chorus.sync
 					{
 						_progress.WriteStatus("Copying repository to {0}...", repoDescriptor.GetFullName(target));
 						_progress.WriteVerbose("({0})", target);
-						HgHighLevel.MakeCloneFromLocalToLocal(_localRepositoryPath, target, true, _progress);
-						return target;
+						return HgHighLevel.MakeCloneFromLocalToLocal(_localRepositoryPath, target,
+							false, // No update on USB or shared network clones as of 16 Jan 2012.
+							_progress);
 					}
 					catch (Exception error)
 					{
