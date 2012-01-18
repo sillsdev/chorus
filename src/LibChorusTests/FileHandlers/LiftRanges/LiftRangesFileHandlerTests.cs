@@ -80,9 +80,43 @@ namespace LibChorus.Tests.FileHandlers.LiftRanges
 		}
 
 		[Test]
-		public void CanPresentAFile()
+		public void CannotPresentANullFile()
 		{
-			Assert.IsTrue(_liftRangesFileHandler.CanPresentFile(null));
+			Assert.IsFalse(_liftRangesFileHandler.CanPresentFile(null));
+		}
+
+		[Test]
+		public void CannotPresentAnEmptyFileName()
+		{
+			Assert.IsFalse(_liftRangesFileHandler.CanPresentFile(""));
+		}
+
+		[Test]
+		public void CannotPresentAFileWithOtherExtension()
+		{
+			var badXmlPathname = Path.ChangeExtension(Path.GetTempFileName(), ".ClassData");
+			try
+			{
+				Assert.IsFalse(_liftRangesFileHandler.CanPresentFile(badXmlPathname));
+			}
+			finally
+			{
+				File.Delete(badXmlPathname);
+			}
+		}
+
+		[Test]
+		public void CanPresentAGoodFile()
+		{
+			var goodXmlPathname = Path.ChangeExtension(Path.GetTempFileName(), ".lift-ranges");
+			try
+			{
+				Assert.IsFalse(_liftRangesFileHandler.CanPresentFile(goodXmlPathname));
+			}
+			finally
+			{
+				File.Delete(goodXmlPathname);
+			}
 		}
 
 		public void Find2WayDifferencesThrows()

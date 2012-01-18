@@ -18,7 +18,7 @@ namespace Chorus.FileTypeHanders
 		internal LiftRangesFileTypeHandler()
 		{}
 
-		private const string kExtension = "lift-ranges";
+		private const string Extension = "lift-ranges";
 
 		public bool CanDiffFile(string pathToFile)
 		{
@@ -27,11 +27,13 @@ namespace Chorus.FileTypeHanders
 
 		public bool CanMergeFile(string pathToFile)
 		{
-			return FileUtils.CheckValidPathname(pathToFile, kExtension);
+			return FileUtils.CheckValidPathname(pathToFile, Extension);
 		}
 
 		public bool CanPresentFile(string pathToFile)
 		{
+			if (!FileUtils.CheckValidPathname(pathToFile, Extension))
+				return false;
 			return true;
 		}
 		public bool CanValidateFile(string pathToFile)
@@ -99,7 +101,7 @@ namespace Chorus.FileTypeHanders
 
 		public IEnumerable<string> GetExtensionsOfKnownTextFileTypes()
 		{
-			yield return kExtension;
+			yield return Extension;
 		}
 
 		/// <summary>
