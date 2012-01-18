@@ -330,7 +330,9 @@
   <ItemGroup>
 	<None Include="Resources\question16x16Closed.png" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+	<Content Include="FileTypeHanders\adaptIt\SortAIKB.xslt" />
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
 	   Other similar extension points exist, see Microsoft.Common.targets.
