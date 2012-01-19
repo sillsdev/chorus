@@ -163,4 +163,7 @@
 	<data name="kModelVersion">
 		<value><![CDATA[{"modelversion": 7000044}]]></value>
 	</data>
+	<data name="kInvalidArgument">
+		<value xml:space="preserve">Invalid argument</value>
+	</data>
 </root>

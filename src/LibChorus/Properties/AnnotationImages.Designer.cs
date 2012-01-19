@@ -98,6 +98,15 @@ namespace Chorus.Properties {
 		}
 
 		/// <summary>
+		///   Looks up a localized string similar to Invalid argument.
+		/// </summary>
+		public static string kInvalidArgument {
+			get {
+				return ResourceManager.GetString("kInvalidArgument", resourceCulture);
+			}
+		}
+
+		/// <summary>
 		///   Looks up a localized string similar to {&quot;modelversion&quot;: 7000044}.
 		/// </summary>
 		public static string kModelVersion {

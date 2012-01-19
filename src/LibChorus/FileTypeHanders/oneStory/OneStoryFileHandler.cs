@@ -15,6 +15,9 @@ namespace Chorus.FileTypeHanders.oneStory
 {
 	public class OneStoryFileHandler : IChorusFileTypeHandler
 	{
+		internal OneStoryFileHandler()
+		{}
+
 		public const string CstrAppName = "StoryEditor.exe";
 
 		private bool OneStoryAssemblyIsAvailable
@@ -114,7 +117,10 @@ namespace Chorus.FileTypeHanders.oneStory
 			merger.MergeStrategies.SetStrategy("TestTqAnswer", ElementStrategy.CreateForKeyedElement("memberID", true));
 
 			merger.MergeStrategies.SetStrategy("TransitionHistory", ElementStrategy.CreateSingletonElement());
-			merger.MergeStrategies.SetStrategy("StateTransition", ElementStrategy.CreateForKeyedElement("TransitionDateTime", true));
+
+			// this doesn't need a merge strategy, because it's always add-only (and somehow on one user's machine
+			//  OSE was spitting out a whole bunch of these with the same TransitionDateTime...
+			// merger.MergeStrategies.SetStrategy("StateTransition", ElementStrategy.CreateForKeyedElement("TransitionDateTime", true));
 
 			merger.MergeStrategies.SetStrategy("Verses", ElementStrategy.CreateSingletonElement());
 			merger.MergeStrategies.SetStrategy("Verse", ElementStrategy.CreateForKeyedElement("guid", true));

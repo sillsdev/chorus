@@ -142,7 +142,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		{
 			using (var setup = new RepositorySetup("Dan"))
 			{
-				var id = setup.Repository.Identifier.Trim();
+				var id = setup.Repository.Identifier;
 				Assert.IsTrue(String.IsNullOrEmpty(id));
 
 				var path = setup.ProjectFolder.Combine("test.1w1");
@@ -152,10 +152,13 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				setup.ProjectFolderConfig.IncludePatterns.Add("*.1w1");
 				setup.AddAndCheckIn(); // Need to have one commit.
 
-				id = setup.Repository.Identifier.Trim();
+				id = setup.Repository.Identifier;
 				Assert.IsFalse(String.IsNullOrEmpty(id));
 
 				var results = HgRunner.Run("log -r0 --template " + "\"{node}\"", setup.Repository.PathToRepo, 10, setup.Progress);
+				// This will probably fail, if some other version of Hg is used,
+				// as it may include multiple lines (complaining about deprecated extension Chorus uses),
+				// where the last one will be the id.
 				Assert.AreEqual(results.StandardOutput.Trim(), id);
 			}
 		}

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Xml;
 using Chorus.merge.xml.generic.xmldiff;
@@ -27,6 +28,8 @@ namespace Chorus.merge.xml.generic
 	public class FindByKeyAttribute : IFindNodeToMerge
 	{
 		private string _keyAttribute;
+		private List<XmlNode> _parentsToSearchIn = new List<XmlNode>();
+		private Dictionary<int, Dictionary<string, XmlNode>> _indexedSoughtAfterNodes = new Dictionary<int, Dictionary<string, XmlNode>>();
 
 		public FindByKeyAttribute(string keyAttribute)
 		{
@@ -44,13 +47,25 @@ namespace Chorus.merge.xml.generic
 			{
 				return null;
 			}
-			// I (CP) changed this to use double quotes to allow attributes to contain single quotes.
-			// My understanding is that double quotes are illegal inside attributes so this should be fine.
-			// See: http://jira.palaso.org/issues/browse/WS-33895
-			//string xpath = string.Format("{0}[@{1}='{2}']", nodeToMatch.Name, _keyAttribute, key);
-			string xpath = string.Format("{0}[@{1}=\"{2}\"]", nodeToMatch.Name, _keyAttribute, key);
 
-			return parentToSearchIn.SelectSingleNode(xpath);
+			var parentIdx = _parentsToSearchIn.IndexOf(parentToSearchIn);
+			if (parentIdx == -1)
+			{
+				_parentsToSearchIn.Add(parentToSearchIn);
+				parentIdx = _parentsToSearchIn.IndexOf(parentToSearchIn);
+				var childrenWithKeys = new Dictionary<string, XmlNode>(); // StringComparer.OrdinalIgnoreCase NO: Bad idea, since I (RBR) saw a case in a data file that had both upper and lower-cased variations.
+				_indexedSoughtAfterNodes.Add(parentIdx, childrenWithKeys);
+				var matchingName = nodeToMatch.Name;
+				var childrenWithKeyAttr = (from XmlNode childNode in parentToSearchIn.ChildNodes
+										   where childNode.Name == matchingName && childNode.Attributes[_keyAttribute] != null
+										   select childNode).ToList();
+				foreach (XmlNode nodeWithKeyAttribute in childrenWithKeyAttr)
+					childrenWithKeys.Add(nodeWithKeyAttribute.Attributes[_keyAttribute].Value, nodeWithKeyAttribute);
+			}
+
+			XmlNode matchingNode;
+			_indexedSoughtAfterNodes[parentIdx].TryGetValue(key, out matchingNode);
+			return matchingNode; // May be null, which is fine.
 		}
 
 	}
