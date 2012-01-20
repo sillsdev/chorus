@@ -254,6 +254,10 @@ namespace Chorus.FileTypeHanders
 															error));
 							continue;
 						}
+						// NB: This comment is from the class description of XmlChangedRecordReport
+						// This may only be useful for quick, high-level identification that an entry changed,
+						// leaving *what* changed to a second pass, if needed by the user
+						// I (RBR), believe this can overproduce, otherwise useless change reports in a merge, if the merger uses it.
 						_eventListener.ChangeOccurred(new XmlChangedRecordReport(
 														_parentFileInRevision,
 														_childFileInRevision,

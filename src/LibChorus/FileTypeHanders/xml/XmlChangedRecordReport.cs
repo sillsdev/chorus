@@ -5,8 +5,8 @@ using Chorus.VcsDrivers.Mercurial;
 namespace Chorus.FileTypeHanders.xml
 {
 	/// <summary>
-	/// THis may only be useful for quick, high-level identification that an entry changed,
-	/// leaving *what* changed to a second pass, if needed by the user
+	/// This may only be useful for quick, high-level identification that an entry changed,
+	/// leaving *what* changed to a second pass, if needed by the user.
 	/// </summary>
 	public class XmlChangedRecordReport : ChangeReport, IChangeReport, IXmlChangeReport
 	{
@@ -38,7 +38,7 @@ namespace Chorus.FileTypeHanders.xml
 
 		public override string ActionLabel
 		{
-			get { return "Change"; }
+			get { return "Changed"; }
 		}
 
 		public XmlNode ParentNode

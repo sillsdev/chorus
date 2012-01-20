@@ -150,6 +150,8 @@ namespace Chorus.merge.xml.generic
 					}
 					else
 					{
+						// Technically, both of them added the same thing.
+						// Review: JohnH(RandyR) Should there be a special 'both added same thing' change report for this case?
 						listener.ChangeOccurred(new XmlAdditionChangeReport(pathToWinner, currentNode));
 						WriteNode(currentNode, writer);
 					}
@@ -164,6 +166,7 @@ namespace Chorus.merge.xml.generic
 				else
 				{
 					// Brand new, so write it out and quit.
+					// In this case the winner added it.
 					listener.ChangeOccurred(new XmlAdditionChangeReport(pathToWinner, currentNode));
 					WriteNode(currentNode, writer);
 
@@ -180,6 +183,7 @@ namespace Chorus.merge.xml.generic
 			if (loserNewbies.TryGetValue(firstElementMarker, out currentNode))
 			{
 				// Brand new, so write it out and quit.
+				// Loser added it.
 				loserNewbies.Remove(firstElementMarker);
 				listener.ChangeOccurred(new XmlAdditionChangeReport(pathToLoser, currentNode));
 				WriteNode(currentNode, writer);
@@ -247,6 +251,7 @@ namespace Chorus.merge.xml.generic
 				// then the code above here would have been involved,
 				// and currentKey would have been removed from loserGoners.
 				// The net effect is that it will be removed.
+				AddDeletionReport(mergeOrder.pathToTheirs, currentKey, listener, parentIndex, loserGoners);
 				transferUntouched = false;
 				loserGoners.Remove(currentKey);
 			}
@@ -255,10 +260,21 @@ namespace Chorus.merge.xml.generic
 
 			// Loser changed it, but winner did nothing to it.
 			transferUntouched = false;
-			// Make a change report.
-			listener.ChangeOccurred((new XmlChangedRecordReport(null, null, loserDirtballs[currentKey]._parentNode,
-																loserDirtballs[currentKey]._childNode)));
+			// Make change report(s) the hard way.
+			var changedElement = loserDirtballs[currentKey];
+			mergeStrategy.MakeMergedEntry(listener, null, changedElement._childNode, changedElement._parentNode);
+			// No. Too high a level.
+			//listener.ChangeOccurred((new XmlChangedRecordReport(null, null, loserDirtballs[currentKey]._parentNode,
+			//                                                    loserDirtballs[currentKey]._childNode)));
 			ReplaceCurrentNode(writer, loserDirtballs, currentKey);
+		}
+
+		private static void AddDeletionReport(string pathforRemover, string currentKey, IMergeEventListener listener,
+											  IDictionary<string, byte[]> parentIndex, IDictionary<string, XmlNode> goners)
+		{
+			var doc = new XmlDocument();
+			doc.LoadXml(Encoding.UTF8.GetString(parentIndex[currentKey.ToLowerInvariant()]));
+			listener.ChangeOccurred(new XmlDeletionChangeReport(pathforRemover, doc.DocumentElement, goners[currentKey]));
 		}
 
 		private static void WriteOutNewObjects(IMergeEventListener listener, IEnumerable<XmlNode> newbies, string pathname, XmlWriter writer)
@@ -353,28 +369,35 @@ namespace Chorus.merge.xml.generic
 				if (loserDirtballs.ContainsKey(currentKey))
 				{
 					// Both edited it. Check it out.
-					var mergedResult = winnerDirtballs[currentKey]._childNode.OuterXml;
-					if (XmlUtilities.AreXmlElementsEqual(winnerDirtballs[currentKey]._childNode, loserDirtballs[currentKey]._childNode))
-					{
-						// Both made the same change.
-						listener.ChangeOccurred(new XmlChangedRecordReport(null, null, winnerDirtballs[currentKey]._parentNode,
-																		   winnerDirtballs[currentKey]._childNode));
-					}
-					else
-					{
-						var dirtballElement = winnerDirtballs[currentKey];
-						mergedResult = mergeStrategy.MakeMergedEntry(listener, dirtballElement._childNode,
-																	 loserDirtballs[currentKey]._childNode, dirtballElement._parentNode);
-					}
+					// Too high up.
+					//var mergedResult = winnerDirtballs[currentKey]._childNode.OuterXml;
+					//if (XmlUtilities.AreXmlElementsEqual(winnerDirtballs[currentKey]._childNode, loserDirtballs[currentKey]._childNode))
+					//{
+					//    // Both made the same change.
+					//    listener.ChangeOccurred(new XmlChangedRecordReport(null, null, winnerDirtballs[currentKey]._parentNode,
+					//                                                       winnerDirtballs[currentKey]._childNode));
+					//}
+					//else
+					//{
+					//    var dirtballElement = winnerDirtballs[currentKey];
+					//    mergedResult = mergeStrategy.MakeMergedEntry(listener, dirtballElement._childNode,
+					//                                                 loserDirtballs[currentKey]._childNode, dirtballElement._parentNode);
+					//}
+					var dirtballElement = winnerDirtballs[currentKey];
+					var mergedResult = mergeStrategy.MakeMergedEntry(listener, dirtballElement._childNode,
+																 loserDirtballs[currentKey]._childNode, dirtballElement._parentNode);
 					ReplaceCurrentNode(writer, mergedResult);
 					loserDirtballs.Remove(currentKey);
 				}
 				else
 				{
 					// Winner edited it. Loser did nothing with it.
-					listener.ChangeOccurred(new XmlChangedRecordReport(null, null, winnerDirtballs[currentKey]._parentNode,
-																	   winnerDirtballs[currentKey]._childNode));
-					ReplaceCurrentNode(writer, winnerDirtballs[currentKey]._childNode);
+					// Too high up.
+					//listener.ChangeOccurred(new XmlChangedRecordReport(null, null, winnerDirtballs[currentKey]._parentNode,
+					//												   winnerDirtballs[currentKey]._childNode));
+					var dirtballElement = winnerDirtballs[currentKey];
+					var mergedResult = mergeStrategy.MakeMergedEntry(listener, dirtballElement._childNode, null, dirtballElement._parentNode);
+					ReplaceCurrentNode(writer, mergedResult);
 					winnerDirtballs.Remove(currentKey);
 				}
 			}
@@ -451,11 +474,7 @@ namespace Chorus.merge.xml.generic
 			}
 			if (wantDeletionChangeReport)
 			{
-				// Make XmlDeletionChangeReport.
-				// Get the xml node for the parent from the byte array.
-				var doc = new XmlDocument();
-				doc.LoadXml(Encoding.UTF8.GetString(parentIndex[currentKey.ToLowerInvariant()]));
-				listener.ChangeOccurred(new XmlDeletionChangeReport(mergeOrder.pathToOurs, doc.DocumentElement, winnerGoners[currentKey]));
+				AddDeletionReport(mergeOrder.pathToOurs, currentKey, listener, parentIndex, winnerGoners);
 			}
 			winnerGoners.Remove(currentKey);
 		}
