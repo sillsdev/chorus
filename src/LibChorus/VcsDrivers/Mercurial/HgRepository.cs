@@ -328,7 +328,14 @@ namespace Chorus.VcsDrivers.Mercurial
 			{
 				// Or: id -i -r0 for short id
 				var results = Execute(SecondsBeforeTimeoutOnLocalOperation, "log -r0 --template " + SurroundWithQuotes("{node}"));
-				return results.StandardOutput.Trim();
+				string id = results.StandardOutput.Trim();
+				if (!string.IsNullOrEmpty(id))
+				{
+					return id;
+				}
+
+				// In rare cases where there is no id (as in the repo doesn't have a checkin, yet) provide a GUID
+				return Guid.NewGuid().ToString();
 			}
 		}
 

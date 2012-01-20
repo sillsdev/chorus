@@ -247,7 +247,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				}
 				byte[] bundleChunk = bundleHelper.GetChunk(startOfWindow, chunkSize);
 				/* API parameters
-				 * $repoId, $baseHash, $bundleSize, $checksum, $offset, $data, $transId
+				 * $repoId, $baseHash, $bundleSize, $offset, $data, $transId
 				 * */
 
 				var requestParameters = new Dictionary<string, string>
@@ -255,7 +255,6 @@ namespace Chorus.VcsDrivers.Mercurial
 												{"repoId", _apiServer.ProjectId},
 												{"baseHash", baseRevision},
 												{"bundleSize", bundleSize.ToString()},
-												{"checksum", CalculateChecksum(bundleChunk)},
 												{"offset", startOfWindow.ToString()},
 												{"transId", transactionId}
 											};
@@ -369,13 +368,6 @@ namespace Chorus.VcsDrivers.Mercurial
 							return pushResponse;
 						}
 
-						// checksum failed
-						if (response.StatusCode == HttpStatusCode.PreconditionFailed)
-						{
-							// resend the data
-							_progress.WriteWarning("Checksum failed while pushing {0} bytes of data at offset {1}", chunkSize, parameters["offset"]);
-							continue;
-						}
 						if (response.StatusCode == HttpStatusCode.BadRequest)
 						{
 							if (response.Headers["X-HgR-Status"] == "UNKNOWNID")
@@ -414,24 +406,6 @@ namespace Chorus.VcsDrivers.Mercurial
 			}
 			_progress.WriteWarning("The push operation failed on the server");
 			return pushResponse;
-		}
-
-		internal static string CalculateChecksum(byte[] textBytes)
-		{
-
-			// lifted from http://www.spiration.co.uk/post/1203/MD5-in-C%23---works-like-php-md5%28%29-example
-			System.Security.Cryptography.MD5CryptoServiceProvider cryptHandler;
-			cryptHandler = new System.Security.Cryptography.MD5CryptoServiceProvider();
-			byte[] hash = cryptHandler.ComputeHash(textBytes);
-			string ret = "";
-			foreach (byte a in hash)
-			{
-				if (a < 16)
-					ret += "0" + a.ToString("x");
-				else
-					ret += a.ToString("x");
-			}
-			return ret;
 		}
 
 		public bool Pull()
@@ -607,19 +581,9 @@ namespace Chorus.VcsDrivers.Mercurial
 							string statusMessage = string.Format("Received {0}+{1} bytes", parameters["offset"],
 																 actualChunkSize);
 							_progress.WriteVerbose(statusMessage);
-							pullResponse.Checksum = response.Headers["X-HgR-Checksum"];
 							pullResponse.BundleSize = Convert.ToInt32(response.Headers["X-HgR-BundleSize"]);
 							pullResponse.Status = PullStatus.OK;
 							pullResponse.ChunkSize = chunkSize;
-
-							// NOTE: I am abandoning the notion of checksum for the time being.  It's not useful or helpful since we can assume that TCP/IP is doing its job
-							// TODO: checksum code needs to be cleaned up and removed at some point
-							//if (CalculateChecksum(response.Content) != response.Headers["X-HgR-Checksum"])
-							//{
-							//    _progress.WriteWarning("Checksum failed while pulling {0} bytes of data at offset {1}", actualChunkSize, parameters["offset"]);
-							//    pullResponse.Status = PullStatus.Fail;
-							//    continue;
-							//}
 
 							pullResponse.Chunk = response.Content;
 							return pullResponse;

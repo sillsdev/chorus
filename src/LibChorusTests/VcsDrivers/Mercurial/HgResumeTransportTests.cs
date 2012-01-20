@@ -150,51 +150,6 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			}
 		}
 
-		[Test]
-		public void Push_BadChecksumInOneChunk_Success()
-		{
-			var progressForTest = new ProgressForTest();
-			using (var setup = new RepositorySetup("hgresumetest"))
-			using (var apiServer = new DummyApiServerForTest())
-			using (var progress = new MultiProgress(new IProgress[] { new ConsoleProgress { ShowVerbose = true }, progressForTest }))
-			{
-				setup.AddAndCheckinFile("sample1", "first checkin");
-				var revisionResponse = ApiResponses.Revisions(setup.Repository.GetTip().Number.Hash);
-				setup.AddAndCheckinFile("sample2", "second checkin");
-				var transport = new HgResumeTransport(setup.Repository, "test repo", apiServer, progress);
-				apiServer.AddResponse(revisionResponse);
-				apiServer.AddResponse(ApiResponses.PushAccepted(5));
-				apiServer.AddResponse(ApiResponses.PushAccepted(10));
-				apiServer.AddResponse(ApiResponses.BadChecksum());
-				apiServer.AddResponse(ApiResponses.PushComplete());
-				transport.Push();
-				Assert.That(progressForTest.AllMessages, Contains.Item("Push operation completed successfully"));
-			}
-		}
-
-		[Test]
-		public void Push_RepeatedBadChecksum_Fail()
-		{
-			var progressForTest = new ProgressForTest();
-			using (var setup = new RepositorySetup("hgresumetest"))
-			using (var apiServer = new DummyApiServerForTest())
-			using (var progress = new MultiProgress(new IProgress[] { new ConsoleProgress { ShowVerbose = true }, progressForTest }))
-			{
-				setup.AddAndCheckinFile("sample1", "first checkin");
-				var revisionResponse = ApiResponses.Revisions(setup.Repository.GetTip().Number.Hash);
-				setup.AddAndCheckinFile("sample2", "second checkin");
-				var transport = new HgResumeTransport(setup.Repository, "test repo", apiServer, progress);
-				apiServer.AddResponse(revisionResponse);
-				apiServer.AddResponse(ApiResponses.BadChecksum());
-				apiServer.AddResponse(ApiResponses.BadChecksum());
-				apiServer.AddResponse(ApiResponses.BadChecksum());
-				apiServer.AddResponse(ApiResponses.BadChecksum());
-				apiServer.AddResponse(ApiResponses.BadChecksum());
-				apiServer.AddResponse(ApiResponses.PushComplete());
-				transport.Push();
-				Assert.That(progressForTest.AllMessages, Contains.Item("Push operation failed"));
-			}
-		}
 
 		[Test]
 		public void Push_MultiChunkBundleAndUnBundleFails_Fail()
@@ -252,8 +207,6 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			using (var apiServer = new DummyApiServerForTest())
 			using (var progress = new MultiProgress(new IProgress[] { new ConsoleProgress { ShowVerbose = true }, progressForTest }))
 			{
-				string dbStoragePath = setup.Repository.PathToLocalStorage;
-				string dbFilePath = Path.Combine(dbStoragePath, "remoteRepo.db");
 				var transport = new HgResumeTransport(setup.Repository, "test repo", apiServer, progress);
 
 				// first push
@@ -265,8 +218,12 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				apiServer.AddResponse(revisionResponse);
 				apiServer.AddResponse(ApiResponses.PushComplete());
 				transport.Push();
+
+				string dbStoragePath = setup.Repository.PathToLocalStorage;
+				string dbFilePath = Path.Combine(dbStoragePath, "remoteRepo.db");
 				string dbContents = File.ReadAllText(dbFilePath).Trim();
 				Assert.That(dbContents, Is.EqualTo(apiServer.Identifier + "|" + tipHash));
+
 				Assert.That(progressForTest.AllMessages, Contains.Item("Push operation completed successfully"));
 
 				// second push
@@ -292,9 +249,6 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			using (var apiServer2 = new DummyApiServerForTest("apiServer2"))
 			using (var progress = new MultiProgress(new IProgress[] { new ConsoleProgress { ShowVerbose = true }, progressForTest }))
 			{
-				string dbStoragePath = setup.Repository.PathToLocalStorage;
-				string dbFilePath = Path.Combine(dbStoragePath, "remoteRepo.db");
-
 				var transport1 = new HgResumeTransport(setup.Repository, "test repo", apiServer1, progress);
 				// first push to apiServer1
 				setup.AddAndCheckinFile("sample1", "first checkin");
@@ -313,6 +267,8 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				transport2.Push();
 
 				// check contents of remoteRepoDb
+				string dbStoragePath = setup.Repository.PathToLocalStorage;
+				string dbFilePath = Path.Combine(dbStoragePath, "remoteRepo.db");
 				string[] dbContents = File.ReadAllLines(dbFilePath);
 				Assert.That(dbContents, Contains.Item(apiServer1.Identifier + "|" + tipHash1));
 				Assert.That(dbContents, Contains.Item(apiServer2.Identifier + "|" + tipHash1));
@@ -498,37 +454,6 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				apiServer.AddTimeoutResponse(2);
 				apiServer.AddTimeoutResponse(3);
 				apiServer.AddTimeoutResponse(6);
-				transport.Pull();
-				Assert.That(progressForTest.AllMessages, Contains.Item("Pull operation completed successfully"));
-			}
-		}
-
-		[Test]
-		public void Pull_SomeBadChecksums_Success()
-		{
-			var progressForTest = new ProgressForTest();
-			using (var setup = new RepositorySetup("hgresumetest"))
-			using (var apiServer = new PullHandlerApiServerForTest(setup.Repository))
-			using (var progress = new MultiProgress(new IProgress[] { new ConsoleProgress { ShowVerbose = true }, progressForTest }))
-			{
-				var transport = new HgResumeTransport(setup.Repository, "test repo", apiServer, progress);
-				setup.AddAndCheckinFile("sample1", "first checkin");
-				string revHash = setup.Repository.GetTip().Number.Hash;
-
-				// just pick a file larger than 10K for use as a test... any file will do
-				string sourcePathOfLargeFile = Path.Combine(ExecutionEnvironment.DirectoryOfExecutingAssembly,
-					String.Format("..{0}..{0}lib{0}Debug{0}Palaso.Tests.dll", Path.DirectorySeparatorChar));
-
-				string largeFilePath = setup.ProjectFolder.GetNewTempFile(false).Path;
-				File.Copy(sourcePathOfLargeFile, largeFilePath);
-				setup.Repository.AddAndCheckinFile(largeFilePath);
-				string remoteTip = setup.Repository.GetTip().Number.Hash;
-				apiServer.Revisions.Add(remoteTip);
-				apiServer.PrepareBundle(revHash);
-
-				apiServer.AddBadChecksumResponse(2);
-				apiServer.AddBadChecksumResponse(3);
-				apiServer.AddBadChecksumResponse(6);
 				transport.Pull();
 				Assert.That(progressForTest.AllMessages, Contains.Item("Pull operation completed successfully"));
 			}

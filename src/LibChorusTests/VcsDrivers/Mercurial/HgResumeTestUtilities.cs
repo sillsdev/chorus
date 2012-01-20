@@ -193,7 +193,6 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		private readonly PushStorageManager _helper;
 		private readonly HgRepository _repo;
 		private int _executeCount;
-		private List<int> _badChecksumList;
 		private List<int> _timeoutList;
 		private List<ServerUnavailableResponse> _serverUnavailableList;
 		private TemporaryFolder _storageFolder;
@@ -208,7 +207,6 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			Identifier = identifier;
 			ProjectId = "SampleProject";
 			_executeCount = 0;
-			_badChecksumList = new List<int>();
 			_timeoutList = new List<int>();
 			_serverUnavailableList = new List<ServerUnavailableResponse>();
 			Revisions = new List<string>();
@@ -287,10 +285,6 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 					return ApiResponses.Failed("offset greater than bundleSize");
 				}
 				var chunk = _helper.GetChunk(offset, chunkSize);
-				if (_badChecksumList.Contains(_executeCount))
-				{
-					return ApiResponses.PullOkWithBadChecksum(Convert.ToInt32(bundleFile.Length), chunk);
-				}
 				return ApiResponses.PullOk(Convert.ToInt32(bundleFile.Length), chunk);
 			}
 			return ApiResponses.Custom(HttpStatusCode.InternalServerError);
@@ -308,14 +302,6 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		public void Dispose()
 		{
 			_storageFolder.Dispose();
-		}
-
-		public void AddBadChecksumResponse(int executeCount)
-		{
-			if (!_badChecksumList.Contains(executeCount))
-			{
-				_badChecksumList.Add(executeCount);
-			}
 		}
 
 		public void AddTimeoutResponse(int executeCount)
@@ -453,21 +439,6 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			};
 		}
 
-
-
-		public static HgResumeApiResponse BadChecksum()
-		{
-			return new HgResumeApiResponse
-			{
-				StatusCode = HttpStatusCode.PreconditionFailed,
-				Headers = new Dictionary<string, string>
-										 {
-											 {"X-HgR-Status", "RESEND"},
-											 {"X-HgR-Version", "1"}
-										 }
-			};
-		}
-
 		public static HgResumeApiResponse Reset()
 		{
 			return new HgResumeApiResponse
@@ -538,29 +509,6 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 										 {
 											 {"X-HgR-Status", "SUCCESS"},
 											 {"X-HgR-Version", "1"},
-											 {"X-HgR-Checksum", HgResumeTransport.CalculateChecksum(contentToSend)},
-											 {"X-HgR-BundleSize", bundleSize.ToString()},
-											 {"X-HgR-ChunkSize", contentToSend.Length.ToString()}
-										 },
-				Content = contentToSend
-			};
-		}
-
-		public static HgResumeApiResponse PullOkWithBadChecksum(int bundleSize, byte[] contentToSend)
-		{
-			if (contentToSend.Length > bundleSize)
-			{
-				throw new ArgumentException("bundleSize must be larger than the size of the content you are sending");
-			}
-
-			return new HgResumeApiResponse
-			{
-				StatusCode = HttpStatusCode.OK,
-				Headers = new Dictionary<string, string>
-										 {
-											 {"X-HgR-Status", "SUCCESS"},
-											 {"X-HgR-Version", "1"},
-											 {"X-HgR-Checksum", "boguschecksum"},
 											 {"X-HgR-BundleSize", bundleSize.ToString()},
 											 {"X-HgR-ChunkSize", contentToSend.Length.ToString()}
 										 },
