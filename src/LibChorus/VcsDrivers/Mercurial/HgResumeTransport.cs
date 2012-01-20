@@ -42,7 +42,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		{
 			get
 			{
-				string storagePath = Path.Combine(_repo.PathToRepo, "chorus_storage");
+				string storagePath = _repo.PathToLocalStorage;
 				if (!Directory.Exists(storagePath))
 				{
 					Directory.CreateDirectory(storagePath);
@@ -65,7 +65,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			{
 				if (String.IsNullOrEmpty(value)) return;
 
-				string storagePath = Path.Combine(_repo.PathToRepo, "chorus_storage");
+				string storagePath = _repo.PathToLocalStorage;
 				if (!Directory.Exists(storagePath))
 				{
 					Directory.CreateDirectory(storagePath);
@@ -271,6 +271,13 @@ namespace Chorus.VcsDrivers.Mercurial
 					_progress.WriteError("Push operation failed");
 					return;
 				}
+				if (response.Status == PushStatus.Reset)
+				{
+					FinishPush(transactionId);
+					bundleHelper.Cleanup();
+					_progress.WriteError("Push operation failed");
+					return;
+				}
 				if (response.Status == PushStatus.Complete)
 				{
 					_progress.WriteStatus("Finished Sending");
@@ -378,9 +385,8 @@ namespace Chorus.VcsDrivers.Mercurial
 							}
 							if (response.Headers["X-HgR-Status"] == "RESET")
 							{
-								_progress.WriteWarning("All chunks were pushed to the server, but the unbundle operation failed.  Restarting the push operation...");
+								_progress.WriteWarning("All chunks were pushed to the server, but the unbundle operation failed.  Try again later.");
 								pushResponse.Status = PushStatus.Reset;
-								pushResponse.StartOfWindow = 0;
 								return pushResponse;
 							}
 							if (response.Headers.ContainsKey("X-HgR-Error"))
@@ -508,7 +514,9 @@ namespace Chorus.VcsDrivers.Mercurial
 
 			if (_repo.Unbundle(bundleHelper.BundlePath))
 			{
-				//LastKnownCommonBase = _repo.GetTip().Number.Hash;
+				// TODO: we could avoid another network operation if we sent along the bundle's "tip" as chunk metadata
+				LastKnownCommonBase = GetRemoteTip();
+
 				_progress.WriteMessage("Pull operation completed successfully");
 				_progress.ProgressIndicator.Finish();
 				_progress.WriteStatus("Finished Receiving");
@@ -528,6 +536,11 @@ namespace Chorus.VcsDrivers.Mercurial
 			_progress.ProgressIndicator.Finish();
 			_progress.WriteError("Pull operation failed");
 			return false;
+		}
+
+		private string GetRemoteTip()
+		{
+			return GetRemoteRevisions(0, 1).FirstOrDefault();
 		}
 
 		private PullStatus FinishPull(string transactionId)

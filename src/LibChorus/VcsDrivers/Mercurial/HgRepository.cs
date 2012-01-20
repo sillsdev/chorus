@@ -328,7 +328,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			{
 				// Or: id -i -r0 for short id
 				var results = Execute(SecondsBeforeTimeoutOnLocalOperation, "log -r0 --template " + SurroundWithQuotes("{node}"));
-				return results.StandardOutput;
+				return results.StandardOutput.Trim();
 			}
 		}
 
@@ -620,9 +620,30 @@ namespace Chorus.VcsDrivers.Mercurial
 			get { return _userName; } //enhance... location is important, too
 		}
 
+		///<summary>
+		/// returns something like \%AppData%\Chorus\ChorusStorage\uniqueRepoId
+		///</summary>
 		public string PathToLocalStorage
 		{
-			get { return Path.Combine(_pathToRepository, "chorus_storage"); }
+			get
+			{
+				return Path.Combine(
+					PathToChorusAppData,
+					Path.Combine(
+						"ChorusStorage",
+						Identifier
+						)
+					);
+			}
+		}
+
+		public string PathToChorusAppData
+		{
+			get
+			{
+				return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData).ToString(),
+									"Chorus");
+			}
 		}
 
 		public string GetFilePath(string name)

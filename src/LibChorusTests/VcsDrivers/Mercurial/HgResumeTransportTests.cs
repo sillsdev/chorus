@@ -233,7 +233,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				var transport = new HgResumeTransport(setup.Repository, "test repo", apiServer, progress);
 				apiServer.AddResponse(revisionResponse);
 				apiServer.AddResponse(ApiResponses.PushComplete());
-				string dbStoragePath = Path.Combine(setup.Repository.PathToRepo, "chorus_storage");
+				string dbStoragePath = setup.Repository.PathToLocalStorage;
 				string dbFilePath = Path.Combine(dbStoragePath, "remoteRepo.db");
 				Assert.That(File.Exists(dbFilePath), Is.False);
 				transport.Push();
@@ -252,7 +252,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			using (var apiServer = new DummyApiServerForTest())
 			using (var progress = new MultiProgress(new IProgress[] { new ConsoleProgress { ShowVerbose = true }, progressForTest }))
 			{
-				string dbStoragePath = Path.Combine(setup.Repository.PathToRepo, "chorus_storage");
+				string dbStoragePath = setup.Repository.PathToLocalStorage;
 				string dbFilePath = Path.Combine(dbStoragePath, "remoteRepo.db");
 				var transport = new HgResumeTransport(setup.Repository, "test repo", apiServer, progress);
 
@@ -292,7 +292,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			using (var apiServer2 = new DummyApiServerForTest("apiServer2"))
 			using (var progress = new MultiProgress(new IProgress[] { new ConsoleProgress { ShowVerbose = true }, progressForTest }))
 			{
-				string dbStoragePath = Path.Combine(setup.Repository.PathToRepo, "chorus_storage");
+				string dbStoragePath = setup.Repository.PathToLocalStorage;
 				string dbFilePath = Path.Combine(dbStoragePath, "remoteRepo.db");
 
 				var transport1 = new HgResumeTransport(setup.Repository, "test repo", apiServer1, progress);
@@ -408,7 +408,9 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				setup.AddAndCheckinFile("sample1", "first checkin");
 				string revHash = setup.Repository.GetTip().Number.Hash;
 				setup.AddAndCheckinFile("sample2", "second checkin");
+				string remoteTip = setup.Repository.GetTip().Number.Hash;
 				apiServer.PrepareBundle(revHash);
+				apiServer.Revisions.Add(remoteTip);
 				transport.Pull();
 				Assert.That(progressForTest.AllMessages, Contains.Item("Pull operation completed successfully"));
 			}
@@ -427,6 +429,8 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				setup.AddAndCheckinFile("sample1", "first checkin");
 				string revHash = setup.Repository.GetTip().Number.Hash;
 				setup.AddAndCheckinFile("sample2", "second checkin");
+				string remoteTip = setup.Repository.GetTip().Number.Hash;
+				apiServer.Revisions.Add(remoteTip);
 				apiServer.PrepareBundle(revHash);
 				transport.Pull();
 				Assert.That(progressForTest.AllMessages, Contains.Item("Pull operation completed successfully"));
@@ -458,9 +462,10 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				string largeFilePath = setup.ProjectFolder.GetNewTempFile(false).Path;
 				File.Copy(sourcePathOfLargeFile, largeFilePath);
 				setup.Repository.AddAndCheckinFile(largeFilePath);
+				string remoteTip = setup.Repository.GetTip().Number.Hash;
 
 				apiServer.PrepareBundle(revHash);
-
+				apiServer.Revisions.Add(remoteTip);
 				var transport = new HgResumeTransport(setup.Repository, "test repo", apiServer, progress);
 				transport.Pull();
 				Assert.That(progressForTest.AllMessages, Contains.Item("Pull operation completed successfully"));
@@ -486,9 +491,10 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				string largeFilePath = setup.ProjectFolder.GetNewTempFile(false).Path;
 				File.Copy(sourcePathOfLargeFile, largeFilePath);
 				setup.Repository.AddAndCheckinFile(largeFilePath);
+				string remoteTip = setup.Repository.GetTip().Number.Hash;
 
 				apiServer.PrepareBundle(revHash);
-
+				apiServer.Revisions.Add(remoteTip);
 				apiServer.AddTimeoutResponse(2);
 				apiServer.AddTimeoutResponse(3);
 				apiServer.AddTimeoutResponse(6);
@@ -516,7 +522,8 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				string largeFilePath = setup.ProjectFolder.GetNewTempFile(false).Path;
 				File.Copy(sourcePathOfLargeFile, largeFilePath);
 				setup.Repository.AddAndCheckinFile(largeFilePath);
-
+				string remoteTip = setup.Repository.GetTip().Number.Hash;
+				apiServer.Revisions.Add(remoteTip);
 				apiServer.PrepareBundle(revHash);
 
 				apiServer.AddBadChecksumResponse(2);
