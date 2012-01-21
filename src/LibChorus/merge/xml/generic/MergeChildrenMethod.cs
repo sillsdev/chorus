@@ -94,9 +94,6 @@ namespace Chorus.merge.xml.generic
 			}
 
 			List<XmlNode> newChildren = resultOrderer.GetResultList();
-
-
-
 			// Merge corresponding nodes.
 			for (int i = 0; i < newChildren.Count; i++)
 			{
@@ -106,7 +103,6 @@ namespace Chorus.merge.xml.generic
 				if (resultOrderer.Correspondences.TryGetValue(ourChild, out theirChild)
 					&& !ChildrenAreSame(ourChild, theirChild))
 				{
-
 						// There's a corresponding node and it isn't the same as ours...
 						if (theirChild.NodeType == XmlNodeType.Text)
 							_merger.MergeTextNodes(ref ourChild, theirChild, ancestorChild);
@@ -303,7 +299,7 @@ namespace Chorus.merge.xml.generic
 																	   _merger.MergeSituation.BetaUserId));
 							}
 							else
-							{   //review hatton added dec 2009, was always reporting the element conflict rather than text
+							{
 								_merger.EventListener.ConflictOccurred(
 									new RemovedVsEditedTextConflict(null, theirChild,
 																	   ancestorChild,
@@ -343,7 +339,7 @@ namespace Chorus.merge.xml.generic
 						else
 						{
 							_merger.EventListener.ConflictOccurred(
-								new RemovedVsEditedTextConflict(ourChild, null, ancestorChild, _merger.MergeSituation, _merger.MergeSituation.AlphaUserId));
+								new EditedVsRemovedTextConflict(ourChild, null, ancestorChild, _merger.MergeSituation, _merger.MergeSituation.AlphaUserId));
 						}
 					}
 				}

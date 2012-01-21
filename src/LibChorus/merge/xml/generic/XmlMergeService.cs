@@ -143,7 +143,7 @@ namespace Chorus.merge.xml.generic
 					{
 						// Bother. They are not the same.
 						// Do it the hard way via a merge.
-						var results = mergeStrategy.MakeMergedEntry(listener, currentNode, loserFirstElement, null);
+						var results = mergeStrategy.MakeMergedEntry(listener, currentNode, loserFirstElement, currentNode.ParentNode);
 						var doc = new XmlDocument();
 						doc.LoadXml(results);
 						WriteNode(doc, writer);
@@ -262,7 +262,8 @@ namespace Chorus.merge.xml.generic
 			transferUntouched = false;
 			// Make change report(s) the hard way.
 			var changedElement = loserDirtballs[currentKey];
-			mergeStrategy.MakeMergedEntry(listener, null, changedElement._childNode, changedElement._parentNode);
+			// Since winner did nothing, it ought to be the same as parent.
+			mergeStrategy.MakeMergedEntry(listener, changedElement._parentNode, changedElement._childNode, changedElement._parentNode);
 			// No. Too high a level.
 			//listener.ChangeOccurred((new XmlChangedRecordReport(null, null, loserDirtballs[currentKey]._parentNode,
 			//                                                    loserDirtballs[currentKey]._childNode)));
@@ -396,7 +397,8 @@ namespace Chorus.merge.xml.generic
 					//listener.ChangeOccurred(new XmlChangedRecordReport(null, null, winnerDirtballs[currentKey]._parentNode,
 					//												   winnerDirtballs[currentKey]._childNode));
 					var dirtballElement = winnerDirtballs[currentKey];
-					var mergedResult = mergeStrategy.MakeMergedEntry(listener, dirtballElement._childNode, null, dirtballElement._parentNode);
+					var mergedResult = mergeStrategy.MakeMergedEntry(listener, dirtballElement._childNode,
+						dirtballElement._parentNode, dirtballElement._parentNode); // Loser ought to be the saem as parent.
 					ReplaceCurrentNode(writer, mergedResult);
 					winnerDirtballs.Remove(currentKey);
 				}

@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Xml;
 using Chorus.FileTypeHanders.text;
+using Chorus.Properties;
 
 namespace Chorus.merge.xml.generic
 {
@@ -47,8 +49,6 @@ namespace Chorus.merge.xml.generic
 			return result;
 		}
 
-		//review: don't know if this is going to want the result or not
-
 		public XmlNode Merge(IMergeEventListener eventListener, XmlNode ours, XmlNode theirs, XmlNode ancestor)
 		{
 			EventListener = eventListener;
@@ -66,7 +66,23 @@ namespace Chorus.merge.xml.generic
 				return;
 
 			MergeAttributes(ref ours, theirs, ancestor);
-			MergeChildren(ref ours, theirs, ancestor);
+
+			// It could be possible for the elements to have no children, in which case, there is nothing more to merge, so just return.
+			if (ours != null && !ours.HasChildNodes && theirs != null && !theirs.HasChildNodes && ancestor != null && !ancestor.HasChildNodes)
+				return;
+
+			// This loop is either a normal element, or it has only text content.
+			var isTextLevel = ours != null && (ours.ChildNodes.Count == 1 && ours.FirstChild.NodeType == XmlNodeType.Text);
+			isTextLevel = isTextLevel || theirs != null && (theirs.ChildNodes.Count == 1 && theirs.FirstChild.NodeType == XmlNodeType.Text);
+			isTextLevel = isTextLevel || ancestor != null && (ancestor.ChildNodes.Count == 1 && ancestor.FirstChild.NodeType == XmlNodeType.Text);
+			if (isTextLevel)
+			{
+				MergeTextNodes(ref ours, theirs, ancestor);
+			}
+			else
+			{
+				MergeChildren(ref ours, theirs, ancestor);
+			}
 		}
 
 		public NodeMergeResult Merge(string ourXml, string theirXml, string ancestorXml)
@@ -113,15 +129,10 @@ namespace Chorus.merge.xml.generic
 			return Merge(ourNode, theirNode, ancestorNode);
 		}
 
-		private static List<XmlAttribute> GetAttrs(XmlNode node)
+		private static IEnumerable<XmlAttribute> GetAttrs(XmlNode node)
 		{
 			//need to copy so we can iterate while changing
-			List<XmlAttribute> attrs = new List<XmlAttribute>();
-			foreach (XmlAttribute attr in node.Attributes)
-			{
-				attrs.Add(attr);
-			}
-			return attrs;
+			return new List<XmlAttribute>(node.Attributes.Cast<XmlAttribute>());
 		}
 
 		private static XmlAttribute GetAttributeOrNull(XmlNode node, string name)
@@ -240,63 +251,93 @@ namespace Chorus.merge.xml.generic
 
 		internal void MergeTextNodes(ref XmlNode ours, XmlNode theirs, XmlNode ancestor)
 		{
+			if (ours != null && ours.ChildNodes.Count > 0 && ours.FirstChild.NodeType != XmlNodeType.Text)
+				throw new ArgumentException(AnnotationImages.kNotATextElement, "ours");
+			if (theirs != null && theirs.ChildNodes.Count > 0 && theirs.FirstChild.NodeType != XmlNodeType.Text)
+				throw new ArgumentException(AnnotationImages.kNotATextElement, "ours");
+			if (ancestor != null && ancestor.ChildNodes.Count > 0 && ancestor.FirstChild.NodeType != XmlNodeType.Text)
+				throw new ArgumentException(AnnotationImages.kNotATextElement, "ours");
 
-			if (ours.InnerText.Trim() == theirs.InnerText.Trim())
+			var ourText = ours == null ? null : ours.InnerText.Trim();
+			var theirText = theirs == null ? null : theirs.InnerText.Trim();
+			var ancestorText = ancestor == null ? null : ancestor.InnerText.Trim();
+
+			if (ourText == theirText)
 			{
+				// Null, empty strings or same.
+				// [RBR: TODO: Right, but is it the same as ancestor, or did both make the same change?] It could be addition, deletion, or plain vanilla change.
 				return; // we agree
 			}
-			if (string.IsNullOrEmpty(ours.InnerText.Trim()))
+
+			if (string.IsNullOrEmpty(ourText))
 			{
-				if (ancestor == null || ancestor.InnerText ==null || ancestor.InnerText.Trim()==string.Empty)
+				if (ancestor == null || string.IsNullOrEmpty(ancestorText))
 				{
-					ours.InnerText = theirs.InnerText; //we had it empty
+					// TODO: Add new text added report.
+					ours.InnerText = theirs.InnerText; // We had it empty, or null.
 					return;
 				}
-				else  //we deleted it.
+				if (ancestorText == theirText)
 				{
-					if (ancestor.InnerText.Trim() == theirs.InnerText.Trim())
-					{
-						//and they didn't touch it. So leave it deleted
-						return;
-					}
-					else
-					{
-						//they edited it. Keep theirs under the principle of least data loss.
-						ours.InnerText = theirs.InnerText;
-						EventListener.ConflictOccurred(new RemovedVsEditedTextConflict(ours, theirs, ancestor, MergeSituation,
-							MergeSituation.BetaUserId));
-						return;
-					}
+					// TODO: Add new text deleted report.
+					// They didn't touch it. So leave it deleted
+					return;
 				}
+				//they edited it. Keep theirs under the principle of least data loss.
+				ours.InnerText = theirs.InnerText;
+				EventListener.ConflictOccurred(new RemovedVsEditedTextConflict(ours, theirs, ancestor, MergeSituation,
+					MergeSituation.BetaUserId));
+				return;
 			}
-			else if ((ancestor == null) || (ours.InnerText != ancestor.InnerText))
+
+			if ((ancestor == null) || (ours.InnerText != ancestor.InnerText))
 			{
-				//we're not empty, we edited it, and we don't equal theirs
-
-				EventListener.ChangeOccurred(new TextEditChangeReport(this.MergeSituation.PathToFileInRepository, SafelyGetStringTextNode(ancestor), SafelyGetStringTextNode(ours)));
-
-				if (theirs.InnerText == null || string.IsNullOrEmpty(theirs.InnerText.Trim()))
+				//we're not empty, we edited it, and we don't equal theirs.
+				//  Moved  EventListener.ChangeOccurred(new TextEditChangeReport(this.MergeSituation.PathToFileInRepository, SafelyGetStringTextNode(ancestor), SafelyGetStringTextNode(ours)));
+				if (string.IsNullOrEmpty(theirText))
 				{
+					if (ancestor == null)
+					{
+						// We both added at least the containing element for the text.
+						if (ourText == theirText)
+						{
+							// Both added the same thing, even if it is only an empty element.
+							// TODO: Add a "both added" change report.
+							return;
+						}
+						if (theirText.Length > 0 && ourText == string.Empty)
+						{
+							// They added some content, even.
+							// TODO: Add a "text addition" change report for the right person.
+							return;
+						}
+						if (ourText.Length > 0 && theirText == string.Empty)
+						{
+							// We added some content, even.
+							// TODO: Add a "text addition" change report for the right person.
+							return;
+						}
+					}
 					//we edited, they deleted it. Keep ours.
-					EventListener.ConflictOccurred(new RemovedVsEditedTextConflict(ours, theirs, ancestor, MergeSituation,
+					EventListener.ConflictOccurred(new EditedVsRemovedTextConflict(ours, theirs, ancestor, MergeSituation,
 						MergeSituation.AlphaUserId));
 					return;
 				}
-				else
+				// We know: ours is different from theirs; ours is not empty; ours is different from ancestor;
+				// theirs is not empty.
+				if (ancestor != null && theirs.InnerText == ancestor.InnerText)
 				{
-					// We know: ours is different from theirs; ours is not empty; ours is different from ancestor;
-					// theirs is not empty.
-					if (ancestor!=null && theirs.InnerText == ancestor.InnerText)
-						return; // we edited it, they did not, keep ours.
-					//both edited it. Keep ours, but report conflict.
-					EventListener.ConflictOccurred(new BothEditedTextConflict(ours, theirs, ancestor, MergeSituation, MergeSituation.AlphaUserId));
-					return;
+					// Moved from aboe.
+					EventListener.ChangeOccurred(new TextEditChangeReport(this.MergeSituation.PathToFileInRepository, SafelyGetStringTextNode(ancestor), SafelyGetStringTextNode(ours)));
+					return; // we edited it, they did not, keep ours.
 				}
+				//both edited it. Keep ours, but report conflict.
+				EventListener.ConflictOccurred(new BothEditedTextConflict(ours, theirs, ancestor, MergeSituation, MergeSituation.AlphaUserId));
+				return;
 			}
-			else // we didn't edit it, they did
-			{
-				ours.InnerText = theirs.InnerText;
-			}
+			// we didn't edit it, they did
+			EventListener.ChangeOccurred(new TextEditChangeReport(MergeSituation.PathToFileInRepository, SafelyGetStringTextNode(ancestor), SafelyGetStringTextNode(theirs)));
+			ours.InnerText = theirs.InnerText;
 		}
 
 		private static string SafelyGetStringTextNode(XmlNode node)
@@ -316,7 +357,6 @@ namespace Chorus.merge.xml.generic
 			{
 				//review: question: does this not get called at levels below the entry?
 				//this would seem to fail at, say, a sense. I'm confused. (JH 30june09)
-
 				var descriptor = generator.GenerateContextDescriptor(ours.OuterXml, MergeSituation.PathToFileInRepository);
 				EventListener.EnteringContext(descriptor);
 			}

@@ -33,7 +33,7 @@ namespace Chorus.merge.xml.generic
 //        }
 //    }
 
-	public abstract class Conflict :IConflict, IEquatable<Conflict>
+	public abstract class Conflict : IConflict, IEquatable<Conflict> // NB: Be sure to register any new concrete subclasses in CreateFromConflictElement method.
 	{
 		static public string TimeFormatNoTimeZone = "yyyy-MM-ddTHH:mm:ssZ";
 
@@ -174,14 +174,22 @@ namespace Chorus.merge.xml.generic
 			var builder = new Autofac.Builder.ContainerBuilder();
 
 			Register<RemovedVsEditedElementConflict>(builder);
+			Register<EditedVsRemovedElementConflict>(builder);
+
 			Register<AmbiguousInsertConflict>(builder);
 			Register<AmbiguousInsertReorderConflict>(builder);
+
 			Register<BothEditedAttributeConflict>(builder);
 			Register<BothEditedTextConflict>(builder);
+			Register<BothEditedTheSameElement>(builder);
+
 			Register<BothReorderedElementConflict>(builder);
-			Register<RemovedVsEditedElementConflict>(builder);
+
 			Register<RemovedVsEditedAttributeConflict>(builder);
+
 			Register<RemovedVsEditedTextConflict>(builder);
+			Register<EditedVsRemovedTextConflict>(builder);
+
 			Register<BothEditedDifferentPartsOfDependentPiecesOfDataWarning>(builder);
 			Register<UnmergableFileTypeConflict>(builder);
 
@@ -311,7 +319,201 @@ namespace Chorus.merge.xml.generic
 		}
 	}
 
-	public abstract class AttributeConflict : Conflict
+	#region  TextConflicts
+
+	public abstract class TextConflict : Conflict // NB: Be sure to register any new concrete subclasses in CreateFromConflictElement method.
+	{
+		protected readonly string _elementName;
+		protected readonly string _alphaValue;
+		protected readonly string _betaValue;
+		protected readonly string _ancestorValue;
+
+		protected TextConflict(XmlNode alpha, XmlNode beta, XmlNode ancestor, MergeSituation mergeSituation, string whoWon)
+			:base(mergeSituation)
+		{
+			var extantNode = alpha ?? beta ?? ancestor;
+			_whoWon = whoWon;
+			_elementName = extantNode.LocalName;
+			_alphaValue = (alpha == null) ? string.Empty : alpha.InnerText;
+			_betaValue = (beta == null) ? string.Empty : beta.InnerText;
+			_ancestorValue = (ancestor == null) ? string.Empty : ancestor.InnerText;
+		}
+
+		protected TextConflict(XmlNode xmlRepresentation)
+			: base(xmlRepresentation)
+		{
+			var element = xmlRepresentation.FirstChild;
+			if (element == null)
+			{
+				_elementName = string.Empty;
+				_alphaValue = string.Empty;
+				_betaValue = string.Empty;
+				_ancestorValue = string.Empty;
+			}
+			else
+			{
+				_elementName = element.LocalName;
+				_alphaValue = element.SelectSingleNode("alphaValue").InnerText;
+				_betaValue = element.SelectSingleNode("betaValue").InnerText;
+				_ancestorValue = element.SelectSingleNode("ancestorValue").InnerText;
+			}
+		}
+
+		protected override void WriteAttributes(XmlWriter writer)
+		{
+			base.WriteAttributes(writer);
+
+			if (_elementName == string.Empty)
+				return;
+
+			writer.WriteStartElement(_elementName);
+			writer.WriteElementString("alphaValue", _alphaValue);
+			writer.WriteElementString("betaValue", _betaValue);
+			writer.WriteElementString("ancestorValue", _ancestorValue);
+			writer.WriteEndElement();
+		}
+
+		private string ElementDescription
+		{
+			get
+			{
+				return string.Format("{0}", _elementName);
+			}
+		}
+
+		public virtual string WhatHappened
+		{
+			get
+			{
+				var ancestor = string.IsNullOrEmpty(_ancestorValue) ? "(empty)" : "'" + _ancestorValue + "'";
+				var alpha = string.IsNullOrEmpty(_alphaValue) ? "(empty)" : "'" + _alphaValue + "'";
+				var beta = string.IsNullOrEmpty(_betaValue) ? "(empty)" : "'" + _betaValue + "'";
+				return string.Format("{0} changed {1} to {2}, while {3} changed it to {4}.  {5}",
+					Situation.AlphaUserId, ancestor, alpha,
+					Situation.BetaUserId, beta,
+					GetWhoWonText());
+			}
+		}
+
+		public override string GetFullHumanReadableDescription()
+		{
+			return string.Format("{0} ({1}): {2}", Description, ElementDescription, WhatHappened);
+		}
+
+		// I don't think it matches, and it won't in the type attr, anyway
+		//public virtual string GetXmlOfConflict()
+		//{
+		//    return string.Format("<annotation type='{0}'/>", GetType().Name);
+		//}
+
+		public override string GetConflictingRecordOutOfSourceControl(IRetrieveFileVersionsFromRepository fileRetriever, ThreeWayMergeSources.Source mergeSource)
+		{
+			string revision=null;
+		   // string elementId = null;
+			switch (mergeSource)
+			{
+				case ThreeWayMergeSources.Source.Ancestor:
+					revision = fileRetriever.GetCommonAncestorOfRevisions(Situation.AlphaUserRevision, Situation.BetaUserRevision);
+					break;
+				case ThreeWayMergeSources.Source.UserX:
+					revision = Situation.AlphaUserRevision;
+				 //   elementId = _userXElementId;
+					break;
+				case ThreeWayMergeSources.Source.UserY:
+					revision = Situation.BetaUserRevision;
+				 //    elementId = _userYElementId;
+				   break;
+
+			}
+			using(var f = TempFile.TrackExisting(fileRetriever.RetrieveHistoricalVersionOfFile(Situation.PathToFileInRepository, revision)))
+			{
+				var doc = new XmlDocument();
+				doc.Load(f.Path);
+				var element = doc.SelectSingleNode(Context.PathToUserUnderstandableElement);
+				if (element == null)
+					throw new ApplicationException("Could not find the element specified by the context, " + Context.PathToUserUnderstandableElement);
+				return element.OuterXml;
+			}
+		}
+	}
+
+	[TypeGuid("E1CCC59B-46E5-4D24-A1B1-5B621A0F8870")]
+	public sealed class RemovedVsEditedTextConflict : TextConflict // NB: Be sure to register any new instances in CreateFromConflictElement method.
+	{
+		public RemovedVsEditedTextConflict(XmlNode alphaNode, XmlNode betaNode, XmlNode ancestor, MergeSituation mergeSituation, string whoWon)
+			: base(alphaNode, betaNode, ancestor, mergeSituation, whoWon)
+		{
+		}
+
+		public RemovedVsEditedTextConflict(XmlNode xmlRepresentation)
+			: base(xmlRepresentation)
+		{
+		}
+
+		public override string Description
+		{
+			get { return string.Format("Removed Vs Edited Element Conflict"); }
+		}
+
+		public override string WhatHappened
+		{
+			get
+			{
+				return string.Format("{0} deleted this element, while {1} edited it. {2}", Situation.AlphaUserId, Situation.BetaUserId, GetWhoWonText());
+			}
+		}
+	}
+
+	[TypeGuid("c1ed6dbb-e382-11de-8a39-0800200c9a66")]
+	public sealed class EditedVsRemovedTextConflict : TextConflict // NB: Be sure to register any new instances in CreateFromConflictElement method.
+	{
+		public EditedVsRemovedTextConflict(XmlNode alphaNode, XmlNode betaNode, XmlNode ancestor, MergeSituation mergeSituation, string whoWon)
+			: base(alphaNode, betaNode, ancestor, mergeSituation, whoWon)
+		{
+		}
+
+		public EditedVsRemovedTextConflict(XmlNode xmlRepresentation)
+			: base(xmlRepresentation)
+		{
+		}
+
+		public override string Description
+		{
+			get { return string.Format("Removed Vs Edited Element Conflict"); }
+		}
+
+		public override string WhatHappened
+		{
+			get
+			{
+				return string.Format("{0} deleted this element, while {1} edited it. {2}", Situation.BetaUserId, Situation.AlphaUserId, GetWhoWonText());
+			}
+		}
+	}
+
+	[TypeGuid("0507DE36-13A3-449D-8302-48F5213BD92E")]
+	public sealed class BothEditedTextConflict : TextConflict // NB: Be sure to register any new instances in CreateFromConflictElement method.
+	{
+		public BothEditedTextConflict(XmlNode alphaNode, XmlNode betaNode, XmlNode ancestor, MergeSituation mergeSituation, string whoWon)
+			: base(alphaNode, betaNode, ancestor, mergeSituation, whoWon)
+		{
+		}
+
+		public BothEditedTextConflict(XmlNode xmlRepresentation)
+			: base(xmlRepresentation)
+		{
+		}
+
+		public override string Description
+		{
+			get { return string.Format("Both edited a text field conflict"); }
+		}
+	}
+	#endregion TextConflicts
+
+	#region AttributeConflicts
+
+	public abstract class AttributeConflict : Conflict // NB: Be sure to register any new concrete subclasses in CreateFromConflictElement method.
 	{
 		protected readonly string _attributeName;
 		protected readonly string _alphaValue;
@@ -357,25 +559,26 @@ namespace Chorus.merge.xml.generic
 		{
 			get
 			{
-				string ancestor = string.IsNullOrEmpty(_ancestorValue) ? "empty" : "'"+_ancestorValue+"'";
-				string alpha = string.IsNullOrEmpty(_alphaValue) ? "(empty)" : "'"+_alphaValue+"'";
-				string beta = string.IsNullOrEmpty(_betaValue) ? "(empty)" : "'" + _betaValue+"'";
-				return string.Format("{1} changed {0} to {2}, while {3} changed it to {4}. ",
-									 ancestor, Situation.AlphaUserId, alpha, Situation.BetaUserId, beta)+GetWhoWonText();
+				var ancestor = string.IsNullOrEmpty(_ancestorValue) ? "(empty)" : "'"+_ancestorValue+"'";
+				var alpha = string.IsNullOrEmpty(_alphaValue) ? "(empty)" : "'"+_alphaValue+"'";
+				var beta = string.IsNullOrEmpty(_betaValue) ? "(empty)" : "'" + _betaValue+"'";
+				return string.Format("{0} changed {1} to {2}, while {3} changed it to {4}. {5}",
+									 Situation.AlphaUserId, ancestor, alpha,
+									 Situation.BetaUserId, beta,
+									 GetWhoWonText());
 			}
 		}
-
-
 
 		public override string GetFullHumanReadableDescription()
 		{
 			return string.Format("{0} ({1}): {2}", Description, AttributeDescription, WhatHappened);
 		}
+
 		public virtual string GetXmlOfConflict()
 		{
-			return string.Format("<annotation type='{0}'/>", this.GetType().Name);
+			// REVIEW JohnH(RandyR): Waht is this supposed to be doing?
+			return string.Format("<annotation type='{0}'/>", GetType().Name);
 		}
-
 
 		public override string GetConflictingRecordOutOfSourceControl(IRetrieveFileVersionsFromRepository fileRetriever, ThreeWayMergeSources.Source mergeSource)
 		{
@@ -411,7 +614,7 @@ namespace Chorus.merge.xml.generic
 	}
 
 	[TypeGuid("B11ABA8C-DFB9-4E37-AF35-8AFDB86F00B7")]
-	sealed public class RemovedVsEditedAttributeConflict : AttributeConflict
+	sealed public class RemovedVsEditedAttributeConflict : AttributeConflict // NB: Be sure to register any new instances in CreateFromConflictElement method.
 	{
 		public RemovedVsEditedAttributeConflict(string attributeName, string alphaValue, string betaValue, string ancestorValue, MergeSituation mergeSituation, string whoWon)
 			: base(attributeName, alphaValue, betaValue, ancestorValue, mergeSituation, whoWon)
@@ -424,7 +627,7 @@ namespace Chorus.merge.xml.generic
 	}
 
 	[TypeGuid("5BBDF4F6-953A-4F79-BDCD-0B1F733DA4AB")]
-	sealed public class BothEditedAttributeConflict : AttributeConflict
+	sealed public class BothEditedAttributeConflict : AttributeConflict // NB: Be sure to register any new instances in CreateFromConflictElement method.
 	{
 		public BothEditedAttributeConflict(string attributeName, string alphaValue, string betaValue, string ancestorValue, MergeSituation mergeSituation, string whoWon)
 			: base(attributeName, alphaValue, betaValue, ancestorValue, mergeSituation, whoWon)
@@ -437,52 +640,12 @@ namespace Chorus.merge.xml.generic
 		}
 	}
 
-	[TypeGuid("0507DE36-13A3-449D-8302-48F5213BD92E")]
-	sealed public class BothEditedTextConflict : AttributeConflict
-	{
-		public BothEditedTextConflict(XmlNode alphaNode, XmlNode betaNode, XmlNode ancestor, MergeSituation mergeSituation, string whoWon)
-			: base("text", alphaNode.InnerText, betaNode.InnerText,
-				   ancestor == null ? string.Empty : ancestor.InnerText,
-				   mergeSituation, whoWon)
-		{
-		}
+	#endregion AttributeConflicts
 
-		public BothEditedTextConflict(XmlNode xmlRepresentation):base(xmlRepresentation)
-		{
-
-		}
-
-		public override string Description
-		{
-			get { return string.Format("Both Edited Text Field Conflict"); }
-		}
-	}
-
-	[TypeGuid("E1CCC59B-46E5-4D24-A1B1-5B621A0F8870")]
-	sealed public class RemovedVsEditedTextConflict : AttributeConflict
-	{
-		public RemovedVsEditedTextConflict(XmlNode alphaNode, XmlNode betaNode, XmlNode ancestor,MergeSituation mergeSituation, string whoWon)
-			: base("text", alphaNode == null ? string.Empty : alphaNode.InnerText,
-				   betaNode == null ? string.Empty : betaNode.InnerText,
-				   ancestor.InnerText,
-				   mergeSituation, whoWon)
-		{
-		}
-
-
-		public RemovedVsEditedTextConflict(XmlNode xmlRepresentation):base(xmlRepresentation)
-		{
-
-		}
-
-		public override string Description
-		{
-			get { return string.Format("Both Edited Text Field Conflict"); }
-		}
-	}
+	#region ElementConflicts
 
 	[TypeGuid("DC5D3236-9372-4965-9E34-386182675A5C")]
-	public abstract class ElementConflict : Conflict
+	public abstract class ElementConflict : Conflict // NB: Be sure to register any new concrete subclasses in CreateFromConflictElement method.
 	{
 		protected readonly string _elementName;
 
@@ -519,7 +682,7 @@ namespace Chorus.merge.xml.generic
 	}
 
 	[TypeGuid("56F9C347-C4FA-48F4-8028-729F3CFF48EF")]
-	public class RemovedVsEditedElementConflict : ElementConflict
+	public class RemovedVsEditedElementConflict : ElementConflict // NB: Be sure to register any new instances in CreateFromConflictElement method.
 	{
 		public RemovedVsEditedElementConflict(string elementName, XmlNode alphaNode, XmlNode betaNode, XmlNode ancestorElement, MergeSituation mergeSituation, IElementDescriber elementDescriber, string whoWon)
 			: base(elementName, alphaNode, betaNode, ancestorElement, mergeSituation, elementDescriber, whoWon)
@@ -547,7 +710,7 @@ namespace Chorus.merge.xml.generic
 	}
 
 	[TypeGuid("3d9ba4ac-4a25-11df-9879-0800200c9a66")]
-	public class EditedVsRemovedElementConflict : ElementConflict
+	public class EditedVsRemovedElementConflict : ElementConflict // NB: Be sure to register any new instances in CreateFromConflictElement method.
 	{
 		public EditedVsRemovedElementConflict(string elementName, XmlNode alphaNode, XmlNode betaNode, XmlNode ancestorElement, MergeSituation mergeSituation, IElementDescriber elementDescriber, string whoWon)
 			: base(elementName, alphaNode, betaNode, ancestorElement, mergeSituation, elementDescriber, whoWon)
@@ -561,21 +724,21 @@ namespace Chorus.merge.xml.generic
 		}
 		public override string Description
 		{
-			get { return "Edited Vs Removed Element Conflict"; }
+			get { return "Removed Vs Edited Element Conflict"; }
 		}
 
 		public override string WhatHappened
 		{
 			get
 			{
-				return string.Format("{0} edited this element, while {1} deleted it. ", Situation.AlphaUserId, Situation.BetaUserId) + GetWhoWonText();
+				return string.Format("{0} deleted this element, while {1} edited it. ", Situation.BetaUserId, Situation.AlphaUserId) + GetWhoWonText();
 			}
 		}
 
 	}
 
 	[TypeGuid("14262878-270A-4E27-BA5F-7D232B979D6B")]
-	public class BothReorderedElementConflict : ElementConflict
+	public class BothReorderedElementConflict : ElementConflict // NB: Be sure to register any new instances in CreateFromConflictElement method.
 	{
 		public BothReorderedElementConflict(string elementName, XmlNode alphaNode, XmlNode betaNode,
 			XmlNode ancestorElement,MergeSituation mergeSituation, IElementDescriber elementDescriber, string whoWon)
@@ -601,7 +764,7 @@ namespace Chorus.merge.xml.generic
 	}
 
 	[TypeGuid("B77C0D86-2368-4380-B2E4-7943F3E7553C")]
-	public class AmbiguousInsertConflict : ElementConflict
+	public class AmbiguousInsertConflict : ElementConflict // NB: Be sure to register any new instances in CreateFromConflictElement method.
 	{
 		public AmbiguousInsertConflict(string elementName, XmlNode alphaNode, XmlNode betaNode,
 			XmlNode ancestorElement, MergeSituation mergeSituation, IElementDescriber elementDescriber, string whoWon)
@@ -631,7 +794,7 @@ namespace Chorus.merge.xml.generic
 	}
 
 	[TypeGuid("A5CE68F5-ED0D-4732-BAA8-A04A99ED35B3")]
-	public class AmbiguousInsertReorderConflict : ElementConflict
+	public class AmbiguousInsertReorderConflict : ElementConflict // NB: Be sure to register any new instances in CreateFromConflictElement method.
 	{
 		public AmbiguousInsertReorderConflict(string elementName, XmlNode alphaNode, XmlNode betaNode,
 			XmlNode ancestorElement, MergeSituation mergeSituation, IElementDescriber elementDescriber, string whoWon)
@@ -665,7 +828,7 @@ namespace Chorus.merge.xml.generic
 	/// suspect.  This could be a "warning", if we had such a thing.
 	/// </summary>
 	[TypeGuid("71636317-A94F-4814-8665-1D0F83DF388F")]
-	public class BothEditedDifferentPartsOfDependentPiecesOfDataWarning : ElementConflict
+	public class BothEditedDifferentPartsOfDependentPiecesOfDataWarning : ElementConflict // NB: Be sure to register any new instances in CreateFromConflictElement method.
 	{
 		public BothEditedDifferentPartsOfDependentPiecesOfDataWarning(string elementName, XmlNode alphaNode, XmlNode betaNode,
 			XmlNode ancestorElement, MergeSituation mergeSituation, IElementDescriber elementDescriber, string whoWon)
@@ -700,7 +863,7 @@ namespace Chorus.merge.xml.generic
 	/// suspect.  This could be a "warning", if we had such a thing.
 	/// </summary>
 	[TypeGuid("3d9ba4ae-4a25-11df-9879-0800200c9a66")]
-	public class BothEditedTheSameElement : ElementConflict
+	public class BothEditedTheSameElement : ElementConflict // NB: Be sure to register any new instances in CreateFromConflictElement method.
 	{
 		public BothEditedTheSameElement(string elementName, XmlNode alphaNode, XmlNode betaNode,
 			XmlNode ancestorElement, MergeSituation mergeSituation, IElementDescriber elementDescriber, string whoWon)
@@ -728,4 +891,6 @@ namespace Chorus.merge.xml.generic
 			}
 		}
 	}
+
+	#endregion ElementConflicts
 }

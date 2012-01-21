@@ -126,7 +126,7 @@ namespace LibChorus.Tests.merge.xml.generic
 			var result = m.Merge(ours, theirs, ancestor);
 			XmlTestHelper.AssertXPathMatchesExactlyOne(result.MergedNode, "t[text()='mine']");
 
-			Assert.AreEqual(typeof(RemovedVsEditedTextConflict), result.Conflicts[0].GetType());
+			Assert.AreEqual(typeof(EditedVsRemovedTextConflict), result.Conflicts[0].GetType());
 		}
 
 		[Test]
@@ -170,6 +170,35 @@ namespace LibChorus.Tests.merge.xml.generic
 										 "a/b[@key='one']/c[text()='first']",
 										 "a/b[@key='two']/c[text()='second']");
 			Assert.AreEqual(typeof(AmbiguousInsertConflict), r2.Conflicts[0].GetType());
+		}
+
+		[Test]
+		public void EditedTextVsDeletedTextHasConflictAndEditWins()
+		{
+			const string ancestor = @"<a>
+								<b key='one'>
+									<c key='one'>first</c>
+								</b>
+							</a>";
+			var ours = ancestor.Replace("first", "red");
+
+			var theirs = ancestor.Replace("first", null);
+
+			// red wins
+			var r = CheckOneWay(ours, theirs, ancestor,
+										"a/b[@key='one']/c[@key='one'][text()='red']");
+			Assert.AreEqual(typeof(EditedVsRemovedTextConflict), r.Conflicts[0].GetType());
+			Assert.AreEqual(1, r.Conflicts.Count);
+			Assert.AreEqual(0, r.Changes.Count);
+
+			// blue wins
+			ours = ancestor.Replace("first", null);
+			theirs = ancestor.Replace("first", "blue");
+			var r2 = CheckOneWay(ours, theirs, ancestor,
+										 "a/b[@key='one']/c[@key='one'][text()='blue']");
+			Assert.AreEqual(typeof(RemovedVsEditedTextConflict), r2.Conflicts[0].GetType());
+			Assert.AreEqual(1, r2.Conflicts.Count);
+			Assert.AreEqual(0, r2.Changes.Count);
 		}
 
 		[Test]

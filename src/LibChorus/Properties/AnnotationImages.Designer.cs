@@ -116,6 +116,15 @@ namespace Chorus.Properties {
 		}
 
 		/// <summary>
+		///   Looks up a localized string similar to Not a Text element..
+		/// </summary>
+		public static string kNotATextElement {
+			get {
+				return ResourceManager.GetString("kNotATextElement", resourceCulture);
+			}
+		}
+
+		/// <summary>
 		///   Looks up a localized string similar to Parameter is null or an empty string..
 		/// </summary>
 		public static string kNullOrEmptyString {

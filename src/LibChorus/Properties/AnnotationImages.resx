@@ -166,4 +166,7 @@
 	<data name="kInvalidArgument">
 		<value xml:space="preserve">Invalid argument</value>
 	</data>
+  <data name="kNotATextElement">
+	<value xml:space="preserve">Not a Text element.</value>
+  </data>
 </root>

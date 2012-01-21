@@ -24,6 +24,8 @@ namespace Chorus.merge.xml.generic
 			if (ours == null && theirs == null && commonAncestor == null)
 				throw new ArgumentNullException();
 
+			// TODO: Add a stack of change reports in here.
+
 			// One or two of the elements may be null.
 			// If commonAncestor is null and one of the othere is null, then the other one added a new element.
 			// if ours and theirs are both null, they each deleted the element.
