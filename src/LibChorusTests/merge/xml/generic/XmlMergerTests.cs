@@ -6,6 +6,11 @@ using NUnit.Framework;
 
 namespace LibChorus.Tests.merge.xml.generic
 {
+	/// <summary>
+	/// Various notes on merging. Note that because of the way CheckOneWay is implemented, for all tests using it,
+	/// elements a, b, c, and d are special: they expect the attribute 'key' to identify matching elements
+	/// in other branches.
+	/// </summary>
 	[TestFixture]
 	public class XmlMergerTests
 	{
@@ -51,12 +56,49 @@ namespace LibChorus.Tests.merge.xml.generic
 			m.MergeStrategies.ElementStrategies.Add("a", ElementStrategy.CreateForKeyedElement("key", true));
 			m.MergeStrategies.ElementStrategies.Add("b", ElementStrategy.CreateForKeyedElement("key", true));
 			m.MergeStrategies.ElementStrategies.Add("c", ElementStrategy.CreateForKeyedElement("key", true));
+			m.MergeStrategies.ElementStrategies.Add("d", ElementStrategy.CreateForKeyedElement("key", true));
 			var result = m.Merge(ours, theirs, ancestor);
 			foreach (string xpath in xpaths)
 			{
 				XmlTestHelper.AssertXPathMatchesExactlyOne(result.MergedNode, xpath);
 			}
 			return result;
+		}
+
+		[Test]
+		public void OneEditedDeepChildOfElementOtherDeleted()
+		{
+			string ancestor = @"<a>
+								<b key='one'>
+									<c key='two'>
+										<d key='three'>
+											<e>data</e>
+										</d>
+									</c>
+								</b>
+							</a>";
+			string red = @"<a>
+								<b key='one'>
+									<c key='two'>
+										<d key='three'>
+											<e>changed</e>
+										</d>
+									</c>
+								</b>
+							</a>";
+
+			string blue = @"<a>
+							</a>";
+
+			// Review RandyR (JohnT): shouldn't one of these produce EditedVsRemovedElementConflict?
+			// blue wins
+			ChangeAndConflictAccumulator r = CheckOneWay(blue, red, ancestor,
+										"a/b[@key='one']/c[@key='two']/d[@key='three']/e[text()='changed']");
+			Assert.AreEqual(typeof(RemovedVsEditedElementConflict), r.Conflicts[0].GetType());
+			// red wins
+			r = CheckOneWay(red, blue, ancestor,
+										"a/b[@key='one']/c[@key='two']/d[@key='three']/e[text()='changed']");
+			Assert.AreEqual(typeof(RemovedVsEditedElementConflict), r.Conflicts[0].GetType());
 		}
 
 		[Test]
@@ -871,9 +913,9 @@ namespace LibChorus.Tests.merge.xml.generic
 		}
 
 		/// <summary>
-		/// This one is subtle. Red re-ordered fourth before second. Blue inserted something after fourth.
+		/// This one is subtle. Red re-ordered fourth (d) before second. Blue inserted something (z) after fourth.
 		/// Since only red re-ordered things, red's order basically wins. But we don't really know whether
-		/// to insert 'z' after 'e' or before 'e', since those are no longer the same position.
+		/// to insert 'z' after 'd' or before 'e', since those are no longer the same position.
 		/// Arbitrarily, after 'd' currently wins out.
 		/// </summary>
 		[Test]
