@@ -519,7 +519,7 @@ namespace Chorus.merge.xml.generic
 	}
 
 	[TypeGuid("56F9C347-C4FA-48F4-8028-729F3CFF48EF")]
-	internal class RemovedVsEditedElementConflict : ElementConflict
+	public class RemovedVsEditedElementConflict : ElementConflict
 	{
 		public RemovedVsEditedElementConflict(string elementName, XmlNode alphaNode, XmlNode betaNode, XmlNode ancestorElement, MergeSituation mergeSituation, IElementDescriber elementDescriber, string whoWon)
 			: base(elementName, alphaNode, betaNode, ancestorElement, mergeSituation, elementDescriber, whoWon)
@@ -547,7 +547,7 @@ namespace Chorus.merge.xml.generic
 	}
 
 	[TypeGuid("3d9ba4ac-4a25-11df-9879-0800200c9a66")]
-	internal class EditedVsRemovedElementConflict : ElementConflict
+	public class EditedVsRemovedElementConflict : ElementConflict
 	{
 		public EditedVsRemovedElementConflict(string elementName, XmlNode alphaNode, XmlNode betaNode, XmlNode ancestorElement, MergeSituation mergeSituation, IElementDescriber elementDescriber, string whoWon)
 			: base(elementName, alphaNode, betaNode, ancestorElement, mergeSituation, elementDescriber, whoWon)
@@ -575,7 +575,7 @@ namespace Chorus.merge.xml.generic
 	}
 
 	[TypeGuid("14262878-270A-4E27-BA5F-7D232B979D6B")]
-	internal class BothReorderedElementConflict : ElementConflict
+	public class BothReorderedElementConflict : ElementConflict
 	{
 		public BothReorderedElementConflict(string elementName, XmlNode alphaNode, XmlNode betaNode,
 			XmlNode ancestorElement,MergeSituation mergeSituation, IElementDescriber elementDescriber, string whoWon)
@@ -601,7 +601,7 @@ namespace Chorus.merge.xml.generic
 	}
 
 	[TypeGuid("B77C0D86-2368-4380-B2E4-7943F3E7553C")]
-	internal class AmbiguousInsertConflict : ElementConflict
+	public class AmbiguousInsertConflict : ElementConflict
 	{
 		public AmbiguousInsertConflict(string elementName, XmlNode alphaNode, XmlNode betaNode,
 			XmlNode ancestorElement, MergeSituation mergeSituation, IElementDescriber elementDescriber, string whoWon)
@@ -631,7 +631,7 @@ namespace Chorus.merge.xml.generic
 	}
 
 	[TypeGuid("A5CE68F5-ED0D-4732-BAA8-A04A99ED35B3")]
-	internal class AmbiguousInsertReorderConflict : ElementConflict
+	public class AmbiguousInsertReorderConflict : ElementConflict
 	{
 		public AmbiguousInsertReorderConflict(string elementName, XmlNode alphaNode, XmlNode betaNode,
 			XmlNode ancestorElement, MergeSituation mergeSituation, IElementDescriber elementDescriber, string whoWon)
@@ -665,7 +665,7 @@ namespace Chorus.merge.xml.generic
 	/// suspect.  This could be a "warning", if we had such a thing.
 	/// </summary>
 	[TypeGuid("71636317-A94F-4814-8665-1D0F83DF388F")]
-	internal class BothEditedDifferentPartsOfDependentPiecesOfDataWarning : ElementConflict
+	public class BothEditedDifferentPartsOfDependentPiecesOfDataWarning : ElementConflict
 	{
 		public BothEditedDifferentPartsOfDependentPiecesOfDataWarning(string elementName, XmlNode alphaNode, XmlNode betaNode,
 			XmlNode ancestorElement, MergeSituation mergeSituation, IElementDescriber elementDescriber, string whoWon)
@@ -700,7 +700,7 @@ namespace Chorus.merge.xml.generic
 	/// suspect.  This could be a "warning", if we had such a thing.
 	/// </summary>
 	[TypeGuid("3d9ba4ae-4a25-11df-9879-0800200c9a66")]
-	internal class BothEditedTheSameElement : ElementConflict
+	public class BothEditedTheSameElement : ElementConflict
 	{
 		public BothEditedTheSameElement(string elementName, XmlNode alphaNode, XmlNode betaNode,
 			XmlNode ancestorElement, MergeSituation mergeSituation, IElementDescriber elementDescriber, string whoWon)

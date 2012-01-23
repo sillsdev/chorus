@@ -3,7 +3,7 @@
   <PropertyGroup>
 	<Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
 	<Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-	<ProductVersion>9.0.30729</ProductVersion>
+	<ProductVersion>9.0.21022</ProductVersion>
 	<SchemaVersion>2.0</SchemaVersion>
 	<ProjectGuid>{F9671F8B-8556-44EA-81A7-C236D871B471}</ProjectGuid>
 	<OutputType>Library</OutputType>
@@ -111,21 +111,11 @@
   <ItemGroup>
 	<Compile Include="clone\ClonerTests.cs" />
 	<Compile Include="FileHandlers\ChorusTestFileHanderTests.cs" />
-	<Compile Include="FileHandlers\FieldWorks\CustomProperties\FieldWorksCustomPropertyFileHandlerTests.cs" />
-	<Compile Include="FileHandlers\FieldWorks\FieldWorksChangePresenterTests.cs" />
-	<Compile Include="FileHandlers\FieldWorks\FieldWorksFileDiffTests.cs" />
-	<Compile Include="FileHandlers\FieldWorks\FieldWorksFileHandlerTests.cs" />
-	<Compile Include="FileHandlers\FieldWorks\FieldWorksFileMergeTests.cs" />
-	<Compile Include="FileHandlers\FieldWorks\FieldWorksFileValidationTests.cs" />
-	<Compile Include="FileHandlers\FieldWorks\FieldWorksMergingStrategyTests.cs" />
-	<Compile Include="FileHandlers\FieldWorks\ModelVersion\FieldWorksModelVersionFileHandlerTests.cs" />
-	<Compile Include="FileHandlers\FieldWorks\MetadataCacheTests.cs" />
 	<Compile Include="FileHandlers\ldml\LdmlFileMergeTests.cs" />
 	<Compile Include="FileHandlers\ldml\LdmlFileValidationTests.cs" />
 	<Compile Include="FileHandlers\ldml\LdmlFileHandlerTests.cs" />
 	<Compile Include="FileHandlers\LiftRanges\LiftRangesFileHandlerTests.cs" />
 	<Compile Include="FileHandlers\Lift\FilePrettyPrintTests.cs" />
-	<Compile Include="Integration\MergeIntegrationTests.cs" />
 	<Compile Include="MercurialPathHelp.cs" />
 	<Compile Include="merge\xml\adaptIt\FileLevelAdaptItKnowlegeBaseMergeTests.cs" />
 	<Compile Include="merge\xml\ConflictXmlRecordRetrievalTests.cs" />
@@ -194,17 +184,17 @@
 	</ProjectReference>
   </ItemGroup>
   <ItemGroup>
+	<None Include="..\..\build\MonoRunnerForTest\chorusmerge">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</None>
+  </ItemGroup>
+  <ItemGroup>
+	<None Include="..\..\build\MonoRunnerForTest\chorusmerge">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</None>
+  </ItemGroup>
+  <ItemGroup>
 	<Folder Include="merge\text\" />
-  </ItemGroup>
-  <ItemGroup>
-	<None Include="..\..\build\MonoRunnerForTest\chorusmerge">
-	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	</None>
-  </ItemGroup>
-  <ItemGroup>
-	<None Include="..\..\build\MonoRunnerForTest\chorusmerge">
-	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	</None>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.

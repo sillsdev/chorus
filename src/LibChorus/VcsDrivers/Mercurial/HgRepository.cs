@@ -247,7 +247,16 @@ namespace Chorus.VcsDrivers.Mercurial
 				UpdateHgrc();
 				// Or: id -i -r0 for short id
 				var results = Execute(SecondsBeforeTimeoutOnLocalOperation, "log -r0 --template " + SurroundWithQuotes("{node}"));
-				return results.StandardOutput;
+				// NB: This may end with a new line (&#xA; entity in xml).
+				// It could possibly have multiple lines, in which case, we want the last one.
+				// Earlier ones may be coming from some other version of Hg that complains about deprecated extensions Chorus uses.
+				var id = results.StandardOutput;
+				if (string.IsNullOrEmpty(id))
+					return null;
+				var split = id.Split(new[] {"\n", "\r"}, StringSplitOptions.RemoveEmptyEntries);
+				id = split.Length == 0 ? null : split[split.Length - 1]; // Get last one.
+
+				return id;
 			}
 		}
 
@@ -414,7 +423,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		/// Method only for testing.
 		/// </summary>
 		/// <param name="filePath"></param>
-		internal void AddSansCommit(string filePath)
+		public void TestOnlyAddSansCommit(string filePath)
 		{
 			TrackFile(filePath);
 		}
@@ -738,7 +747,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			progress.WriteStatus("Getting project...");
 			try
 			{
-				targetPath = HgHighLevel.GetUniqueFolderPath(progress,
+				targetPath = GetUniqueFolderPath(progress,
 															 "Folder at {0} already exists, so can't be used. Creating clone in {1}, instead.",
 															 targetPath);
 				var repo = new HgRepository(targetPath, progress);
@@ -774,22 +783,22 @@ namespace Chorus.VcsDrivers.Mercurial
 			}
 		}
 
-
-		public void CloneLocal(string targetPath)
-		{
-			UpdateHgrc();
-			// This works with the utf8 plugin because it is clone *from* a repo, thus mercurial has the plugin loaded via the settings of the source repo.
-			Execute(SecondsBeforeTimeoutOnLocalOperation, "clone --uncompressed", PathWithQuotes + " " + SurroundWithQuotes(targetPath));
-		}
-
 		/// <summary>
 		/// Here we only create the .hg, no files. This is good because the people aren't tempted to modify
 		/// files in that directory, where nothing will ever check the changes in.
+		///
+		/// NB: Caller may well want to call Update on this repository,
+		/// say when the clone is from a USB or shared network folder TO a local working folder,
+		/// and the caller plans to use the actual data files in the repository.
 		/// </summary>
-		public void CloneToRemoteDirectoryWithoutCheckout(string targetPath)
+		public string CloneLocalWithoutUpdate(string proposedTargetPath)
 		{
 			UpdateHgrc();
-			Execute(SecondsBeforeTimeoutOnLocalOperation, "clone -U --uncompressed", PathWithQuotes + " " + SurroundWithQuotes(targetPath));
+			var actualTarget = GetUniqueFolderPath(_progress, proposedTargetPath);
+
+			Execute(SecondsBeforeTimeoutOnLocalOperation, "clone -U --uncompressed", PathWithQuotes + " " + SurroundWithQuotes(actualTarget));
+
+			return actualTarget;
 		}
 
 		private List<Revision> GetRevisionsFromQuery(string query)
@@ -1892,6 +1901,35 @@ namespace Chorus.VcsDrivers.Mercurial
 		{
 			UpdateHgrc();
 			ExecuteErrorsOk("addremove -s 100 -I **.wav", _pathToRepository, SecondsBeforeTimeoutOnLocalOperation, _progress);
+		}
+
+		private static string GetUniqueFolderPath(IProgress progress, string proposedTargetDirectory)
+		{
+			// proposedTargetDirectory and actualTarget may be the same, or actualTarget may have 1 (or higher) appeneded to it.
+			var uniqueTarget = GetUniqueFolderPath(progress,
+														 "Could not use folder {0}, since it already exists. Using new folder {1}, instead.",
+														 proposedTargetDirectory);
+			progress.WriteMessage("Creating new repository at " + uniqueTarget);
+			return uniqueTarget;
+		}
+
+		/// <summary>
+		/// Ensure a local clone is going into a uniquly named and non-existant folder.
+		/// </summary>
+		/// <returns>The original folder name, or one similiar to it, but with a counter digit appended to to it to make it unique.</returns>
+		public static string GetUniqueFolderPath(IProgress progress, string formattableMessage, string targetDirectory)
+		{
+			if (Directory.Exists(targetDirectory) && DirectoryUtilities.GetSafeDirectories(targetDirectory).Length == 0 && Directory.GetFiles(targetDirectory).Length == 0)
+			{
+				// Empty folder, so delete it, so the clone can be made in the original folder, rather than in another with a 1 after it.
+				Directory.Delete(targetDirectory);
+			}
+
+			var uniqueTarget = DirectoryUtilities.GetUniqueFolderPath(targetDirectory);
+			if (targetDirectory != uniqueTarget)
+				progress.WriteWarning(String.Format(formattableMessage, targetDirectory, uniqueTarget));
+
+			return uniqueTarget; // It may be the original, if it was unique.
 		}
 	}
 

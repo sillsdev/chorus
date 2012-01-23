@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Chorus.FileTypeHanders.FieldWorks;
 using Chorus.FileTypeHanders.text;
 using Chorus.merge;
 using Chorus.Utilities.code;
@@ -16,7 +15,10 @@ namespace Chorus.FileTypeHanders
 	/// </summary>
 	public class LiftRangesFileTypeHandler : IChorusFileTypeHandler
 	{
-		private const string kExtension = "lift-ranges";
+		internal LiftRangesFileTypeHandler()
+		{}
+
+		private const string Extension = "lift-ranges";
 
 		public bool CanDiffFile(string pathToFile)
 		{
@@ -25,11 +27,13 @@ namespace Chorus.FileTypeHanders
 
 		public bool CanMergeFile(string pathToFile)
 		{
-			return FileUtils.CheckValidPathname(pathToFile, kExtension);
+			return FileUtils.CheckValidPathname(pathToFile, Extension);
 		}
 
 		public bool CanPresentFile(string pathToFile)
 		{
+			if (!FileUtils.CheckValidPathname(pathToFile, Extension))
+				return false;
 			return true;
 		}
 		public bool CanValidateFile(string pathToFile)
@@ -97,7 +101,7 @@ namespace Chorus.FileTypeHanders
 
 		public IEnumerable<string> GetExtensionsOfKnownTextFileTypes()
 		{
-			yield return kExtension;
+			yield return Extension;
 		}
 
 		/// <summary>

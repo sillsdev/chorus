@@ -16,6 +16,8 @@ namespace Chorus.FileTypeHanders.text
 
 	public class TextFileTypeHandler : IChorusFileTypeHandler
 	{
+		internal TextFileTypeHandler()
+		{}
 
 	 public bool CanDiffFile(string pathToFile)
 		{

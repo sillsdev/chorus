@@ -131,22 +131,11 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
-	<Compile Include="FileTypeHanders\FieldWorks\CustomProperties\FieldeWorksCustomPropertyFileHandler.cs" />
-	<Compile Include="FileTypeHanders\FieldWorks\CustomProperties\FieldWorksCustomPropertyContextGenerator.cs" />
-	<Compile Include="FileTypeHanders\FieldWorks\CustomProperties\FieldWorksCustomPropertyMergingStrategy.cs" />
-	<Compile Include="FileTypeHanders\FieldWorks\ModelVersion\FieldWorksModelVersionChangePresenter.cs" />
-	<Compile Include="FileTypeHanders\FieldWorks\ModelVersion\FieldWorksModelVersionChangeReport.cs" />
-	<Compile Include="FileTypeHanders\FieldWorks\ModelVersion\FieldWorksModelVersionFileHandler.cs" />
 	<Compile Include="FileTypeHanders\ldml\LdmlFileHandler.cs" />
 	<Compile Include="FileTypeHanders\ldml\LdmlMergingStrategy.cs" />
 	<Compile Include="FileTypeHanders\Lift-Ranges\LiftRangesFileTypeHandler.cs" />
 	<Compile Include="FileTypeHanders\lift\LiftFileServices.cs" />
 	<Compile Include="FileTypeHanders\lift\LiftFolder.cs" />
-	<Compile Include="FileTypeHanders\FieldWorks\DataType.cs" />
-	<Compile Include="FileTypeHanders\FieldWorks\FieldWorksMergingServices.cs" />
-	<Compile Include="FileTypeHanders\FieldWorks\FdoClassInfo.cs" />
-	<Compile Include="FileTypeHanders\FieldWorks\FdoPropertyInfo.cs" />
-	<Compile Include="FileTypeHanders\FieldWorks\MetadataCache.cs" />
 	<Compile Include="FileTypeHanders\Xml2WayDiffer.cs" />
 	<Compile Include="FileTypeHanders\Xml2WayDiffService.cs" />
 	<Compile Include="merge\xml\generic\MergeAtomicElementService.cs" />
@@ -160,10 +149,6 @@
 	</Compile>
 	<Compile Include="sync\LargeFileFilter.cs" />
 	<Compile Include="Utilities\DifferDictionaryPrepper.cs" />
-	<Compile Include="FileTypeHanders\FieldWorks\FieldWorkObjectContextGenerator.cs" />
-	<Compile Include="FileTypeHanders\FieldWorks\FieldWorksChangePresenter.cs" />
-	<Compile Include="FileTypeHanders\FieldWorks\FieldWorksFileHandler.cs" />
-	<Compile Include="FileTypeHanders\FieldWorks\FieldWorksMergingStrategy.cs" />
 	<Compile Include="FileTypeHanders\NotePresenter.cs" />
 	<Compile Include="IWritingSystem.cs" />
 	<Compile Include="MercurialLocation.cs" />
@@ -344,6 +329,9 @@
   </ItemGroup>
   <ItemGroup>
 	<None Include="Resources\question16x16Closed.png" />
+  </ItemGroup>
+  <ItemGroup>
+	<Content Include="FileTypeHanders\adaptIt\SortAIKB.xslt" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.

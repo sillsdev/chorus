@@ -7,7 +7,7 @@ using NUnit.Framework;
 namespace LibChorus.Tests.FileHandlers.ldml
 {
 	/// <summary>
-	/// Make sure only the FieldWorks 7.0 xml file can be validated by the FieldWorksFileHandler class.
+	/// Make sure only an ldml xml file can be validated by the LdmlFileHandler class.
 	/// </summary>
 	[TestFixture]
 	public class LdmlFileValidationTests
