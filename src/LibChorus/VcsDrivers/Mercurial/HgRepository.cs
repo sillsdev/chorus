@@ -1781,7 +1781,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				* proxies for different destinations, but some hg servers (notably language depot) require a login.
 				* So we're ignoring what we were given, and just using a known address, for now.
 				*/
-			httpUrl = "http://hg.palaso.org";
+			httpUrl = "http://proxycheck.palaso.org";
 
 			progress.WriteVerbose("Checking for proxy by trying to http-get {0}...", httpUrl);
 
