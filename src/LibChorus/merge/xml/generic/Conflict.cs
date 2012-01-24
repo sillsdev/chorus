@@ -182,6 +182,8 @@ namespace Chorus.merge.xml.generic
 			Register<BothEditedAttributeConflict>(builder);
 			Register<BothEditedTextConflict>(builder);
 			Register<BothEditedTheSameElement>(builder);
+			Register<XmlTextBothEditedTextConflict>(builder);
+			Register<XmlTextBothAddedTextConflict>(builder);
 
 			Register<BothReorderedElementConflict>(builder);
 
@@ -189,6 +191,8 @@ namespace Chorus.merge.xml.generic
 
 			Register<RemovedVsEditedTextConflict>(builder);
 			Register<EditedVsRemovedTextConflict>(builder);
+			Register<XmlTextEditVsRemovedConflict>(builder);
+			Register<XmlTextRemovedVsEditConflict>(builder);
 
 			Register<BothEditedDifferentPartsOfDependentPiecesOfDataWarning>(builder);
 			Register<UnmergableFileTypeConflict>(builder);
@@ -734,7 +738,6 @@ namespace Chorus.merge.xml.generic
 				return string.Format("{0} deleted this element, while {1} edited it. ", Situation.BetaUserId, Situation.AlphaUserId) + GetWhoWonText();
 			}
 		}
-
 	}
 
 	[TypeGuid("14262878-270A-4E27-BA5F-7D232B979D6B")]
@@ -888,6 +891,114 @@ namespace Chorus.merge.xml.generic
 			get
 			{
 				return string.Format("{0} and {1} edited this element.", Situation.AlphaUserId, Situation.BetaUserId);
+			}
+		}
+	}
+
+	[TypeGuid("c1ed6dbc-e382-11de-8a39-0800200c9a66")]
+	public sealed class XmlTextEditVsRemovedConflict : ElementConflict // NB: Be sure to register any new instances in CreateFromConflictElement method
+	{
+		public XmlTextEditVsRemovedConflict(string elementName, XmlNode alphaNode, XmlNode betaNode, XmlNode ancestorElement, MergeSituation mergeSituation, IElementDescriber elementDescriber, string whoWon)
+			: base(elementName, alphaNode, betaNode, ancestorElement, mergeSituation, elementDescriber, whoWon)
+		{
+		}
+
+		public XmlTextEditVsRemovedConflict(XmlNode xmlRepresentation)
+			: base(xmlRepresentation)
+		{
+		}
+
+		public override string Description
+		{
+			get { return "Removed Vs Edited Xml Text Element Conflict"; }
+		}
+
+		public override string WhatHappened
+		{
+			get
+			{
+				return string.Format("{0} deleted this element, while {1} edited its text content. {2}", Situation.BetaUserId, Situation.AlphaUserId, GetWhoWonText());
+			}
+		}
+	}
+
+	[TypeGuid("c1ed6dbd-e382-11de-8a39-0800200c9a66")]
+	public sealed class XmlTextRemovedVsEditConflict : ElementConflict // NB: Be sure to register any new instances in CreateFromConflictElement method
+	{
+		public XmlTextRemovedVsEditConflict(string elementName, XmlNode alphaNode, XmlNode betaNode, XmlNode ancestorElement, MergeSituation mergeSituation, IElementDescriber elementDescriber, string whoWon)
+			: base(elementName, alphaNode, betaNode, ancestorElement, mergeSituation, elementDescriber, whoWon)
+		{
+		}
+
+		public XmlTextRemovedVsEditConflict(XmlNode xmlRepresentation)
+			: base(xmlRepresentation)
+		{
+		}
+
+		public override string Description
+		{
+			get { return "Removed Vs Edited Xml Text Element Conflict"; }
+		}
+
+		public override string WhatHappened
+		{
+			get
+			{
+				return string.Format("{0} deleted this element, while {1} edited its text content. {2}", Situation.AlphaUserId, Situation.BetaUserId, GetWhoWonText());
+			}
+		}
+	}
+
+	[TypeGuid("c1ed6dbe-e382-11de-8a39-0800200c9a66")]
+	public sealed class XmlTextBothEditedTextConflict : ElementConflict // NB: Be sure to register any new instances in CreateFromConflictElement method
+	{
+		public XmlTextBothEditedTextConflict(string elementName, XmlNode alphaNode, XmlNode betaNode, XmlNode ancestorElement, MergeSituation mergeSituation, IElementDescriber elementDescriber, string whoWon)
+			: base(elementName, alphaNode, betaNode, ancestorElement, mergeSituation, elementDescriber, whoWon)
+		{
+		}
+
+		public XmlTextBothEditedTextConflict(XmlNode xmlRepresentation)
+			: base(xmlRepresentation)
+		{
+		}
+
+		public override string Description
+		{
+			get { return "Both Edited Xml Text Element Conflict"; }
+		}
+
+		public override string WhatHappened
+		{
+			get
+			{
+				return string.Format("{0} and {1} edited this element.", Situation.AlphaUserId, Situation.BetaUserId);
+			}
+		}
+	}
+
+	[TypeGuid("c1ed6dbf-e382-11de-8a39-0800200c9a66")]
+	public sealed class XmlTextBothAddedTextConflict : ElementConflict // NB: Be sure to register any new instances in CreateFromConflictElement method
+	{
+		public XmlTextBothAddedTextConflict(string elementName, XmlNode alphaNode, XmlNode betaNode, MergeSituation mergeSituation, IElementDescriber elementDescriber, string whoWon)
+			: base(elementName, alphaNode, betaNode, null, mergeSituation, elementDescriber, whoWon)
+		{
+		}
+
+		public XmlTextBothAddedTextConflict(XmlNode xmlRepresentation)
+			: base(xmlRepresentation)
+		{
+		}
+
+		public override string Description
+		{
+			get { return "Both Added Xml Text Conflict"; }
+		}
+
+		public override string WhatHappened
+		{
+			get
+			{
+				return string.Format("{0} and {1} added different text to this element.", Situation.AlphaUserId, Situation.BetaUserId);
 			}
 		}
 	}

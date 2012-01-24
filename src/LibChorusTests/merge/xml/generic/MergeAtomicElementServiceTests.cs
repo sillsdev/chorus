@@ -173,7 +173,7 @@ namespace LibChorus.Tests.merge.xml.generic
 		}
 
 		[Test]
-		public void TheyDeletedWeEditSoWeWin()
+		public void TheyDeletedAttributeWeEditedAttributeSoWeWin()
 		{
 			XmlNode rootNode;
 			XmlMerger merger;
@@ -189,7 +189,7 @@ namespace LibChorus.Tests.merge.xml.generic
 			var result = MergeAtomicElementService.Run(merger, ref ours, null, ancestor);
 			Assert.IsTrue(result);
 			listener.AssertExpectedConflictCount(1);
-			listener.AssertFirstConflictType<RemovedVsEditedElementConflict>();
+			listener.AssertFirstConflictType<XmlTextEditVsRemovedConflict>(); // Needs new r vs e artr conflict report.
 			listener.AssertExpectedChangesCount(0);
 		}
 

@@ -233,4 +233,35 @@ namespace Chorus.FileTypeHanders.xml
 
 		#endregion
 	}
+
+	/// <summary>
+	/// Change report for Xml Text element (parent of XmlNodeType.Text node) that was added by both people.
+	/// </summary>
+	public sealed class XmlTextBothMadeSameChangeReport : XmlTextChange
+	{
+		public XmlTextBothMadeSameChangeReport(FileInRevision fileInRevision, XmlNode editedChildNode, string url)
+			: base(null, fileInRevision, editedChildNode, url)
+		{
+		}
+
+		// When merging, the eventual revision is unknown
+		public XmlTextBothMadeSameChangeReport(string fullPath, XmlNode editedChildNode)
+			: base(null, new FileInUnknownRevision(fullPath, FileInRevision.Action.Modified), editedChildNode, string.Empty)
+		{
+		}
+
+		public override string ActionLabel
+		{
+			get { return "Both Made Same Change"; }
+		}
+
+		#region Overrides of XmlTextChange
+
+		protected override string FormattedMessageForFullHumanReadableDescription
+		{
+			get { return "Both people changed <{0}> to <{1}>"; }
+		}
+
+		#endregion
+	}
 }

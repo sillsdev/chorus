@@ -90,14 +90,13 @@ namespace LibChorus.Tests.merge.xml.generic
 		//                             "r/t[contains(text(),'after')]");
 		//}
 
-
-
-		[Test, Ignore("Not yet. The matcher using xmldiff sees the parent objects as different")]
-		public void TextElement_BothEdited_OuterWhiteSpaceIgnored()
-		{
-			CheckBothWaysNoConflicts("<r><t>   flub</t></r>", "<r><t> flub      </t></r>", "<r><t/></r>",
-									 "r/t[contains(text(),'flub')]");
-		}
+		// Moved to TextElementMergeTests (and got it to pass, btw. :-)
+		//[Test, Ignore("Not yet. The matcher using xmldiff sees the parent objects as different")]
+		//public void TextElement_BothEdited_OuterWhiteSpaceIgnored()
+		//{
+		//    CheckBothWaysNoConflicts("<r><t>   flub</t></r>", "<r><t> flub      </t></r>", "<r><t/></r>",
+		//                             "r/t[contains(text(),'flub')]");
+		//}
 
 
 		[Test]
@@ -112,7 +111,7 @@ namespace LibChorus.Tests.merge.xml.generic
 			XmlTestHelper.AssertXPathMatchesExactlyOne(result.MergedNode, "t[text()='mine']");
 			Assert.AreEqual("pretendPath", result.Conflicts[0].RelativeFilePath);
 
-			Assert.AreEqual(typeof (BothEditedTextConflict), result.Conflicts[0].GetType());
+			Assert.AreEqual(typeof(XmlTextBothEditedTextConflict), result.Conflicts[0].GetType());
 		}
 
 		[Test]
@@ -126,7 +125,7 @@ namespace LibChorus.Tests.merge.xml.generic
 			var result = m.Merge(ours, theirs, ancestor);
 			XmlTestHelper.AssertXPathMatchesExactlyOne(result.MergedNode, "t[text()='mine']");
 
-			Assert.AreEqual(typeof(EditedVsRemovedTextConflict), result.Conflicts[0].GetType());
+			Assert.AreEqual(typeof(XmlTextEditVsRemovedConflict), result.Conflicts[0].GetType());
 		}
 
 		[Test]
@@ -140,7 +139,7 @@ namespace LibChorus.Tests.merge.xml.generic
 			var result = m.Merge(ours, theirs, ancestor);
 			XmlTestHelper.AssertXPathMatchesExactlyOne(result.MergedNode, "t[text()='change']");
 
-			Assert.AreEqual(typeof(RemovedVsEditedTextConflict), result.Conflicts[0].GetType());
+			Assert.AreEqual(typeof(XmlTextRemovedVsEditConflict), result.Conflicts[0].GetType());
 		}
 
 		[Test]
@@ -187,7 +186,7 @@ namespace LibChorus.Tests.merge.xml.generic
 			// red wins
 			var r = CheckOneWay(ours, theirs, ancestor,
 										"a/b[@key='one']/c[@key='one'][text()='red']");
-			Assert.AreEqual(typeof(EditedVsRemovedTextConflict), r.Conflicts[0].GetType());
+			Assert.AreEqual(typeof(XmlTextEditVsRemovedConflict), r.Conflicts[0].GetType());
 			Assert.AreEqual(1, r.Conflicts.Count);
 			Assert.AreEqual(0, r.Changes.Count);
 
@@ -196,7 +195,7 @@ namespace LibChorus.Tests.merge.xml.generic
 			theirs = ancestor.Replace("first", "blue");
 			var r2 = CheckOneWay(ours, theirs, ancestor,
 										 "a/b[@key='one']/c[@key='one'][text()='blue']");
-			Assert.AreEqual(typeof(RemovedVsEditedTextConflict), r2.Conflicts[0].GetType());
+			Assert.AreEqual(typeof(XmlTextRemovedVsEditConflict), r2.Conflicts[0].GetType());
 			Assert.AreEqual(1, r2.Conflicts.Count);
 			Assert.AreEqual(0, r2.Changes.Count);
 		}
@@ -525,47 +524,50 @@ namespace LibChorus.Tests.merge.xml.generic
 									 "a/b[@key='one']/c[3][@key='z' and text()='third']");
 		}
 
-		/// <summary>
-		/// Red deletes two adjacent items; blue inserts a new item between them. Output should show the missing
-		/// items deleted and the new one inserted in the right place.
-		/// </summary>
-		[Test]
-		public void DeleteNeighborsAndInsertInOrder()
-		{
-			string ancestor = @"<a>
-								<b key='one'>
-									<c key='a'>first</c>
-									<c key='b'>second</c>
-									<c key='c'>third</c>
-									<c key='d'>fourth</c>
-							   </b>
-							</a>";
+		// Moved to TextElementMergeTests
+//        /// <summary>
+//        /// Red deletes two adjacent items; blue inserts a new item between them. Output should show the missing
+//        /// items deleted and the new one inserted in the right place.
+//        /// </summary>
+//        [Test]
+//        public void DeleteNeighborsAndInsertInOrder()
+//        {
+//            // <b key="one"><c key="a">first</c><c key="b">second</c><c key="z">extra</c><c key="c">third</c><c key="d">fourth</c></b>
+//            string ancestor = @"<a>
+//                                <b key='one'>
+//                                    <c key='a'>first</c>
+//                                    <c key='b'>second</c>
+//                                    <c key='c'>third</c>
+//                                    <c key='d'>fourth</c>
+//                               </b>
+//                            </a>";
 
-			string red = @"<a>
-								<b key='one'>
-									<c key='a'>first</c>
-									<c key='d'>fourth</c>
-							   </b>
-							</a>";
+//            string red = @"<a>
+//                                <b key='one'>
+//                                    <c key='a'>first</c>
+//                                    <c key='d'>fourth</c>
+//                               </b>
+//                            </a>";
 
 
-			string blue = @"<a>
-								<b key='one'>
-									<c key='a'>first</c>
-									<c key='b'>second</c>
-									<c key='z'>extra</c>
-									<c key='c'>third</c>
-									<c key='d'>fourth</c>
-							   </b>
-							</a>";
+//            string blue = @"<a>
+//                                <b key='one'>
+//                                    <c key='a'>first</c>
+//                                    <c key='b'>second</c>
+//                                    <c key='z'>extra</c>
+//                                    <c key='c'>third</c>
+//                                    <c key='d'>fourth</c>
+//                               </b>
+//                            </a>";
 
-			CheckBothWaysNoConflicts(blue, red, ancestor,
-									 "a[count(b)='1']",
-									 "a/b[count(c)='3']",
-									 "a/b[@key='one']/c[1][@key='a' and text()='first']",
-									 "a/b[@key='one']/c[2][@key='z' and text()='extra']",
-									 "a/b[@key='one']/c[3][@key='d' and text()='fourth']");
-		}
+//            CheckBothWaysNoConflicts(blue, red, ancestor,
+//                                     "a[count(b)='1']",
+//                                     "a/b[count(c)='3']",
+//                                     "a/b[@key='one']/c[1][@key='a' and text()='first']",
+//                                     "a/b[@key='one']/c[2][@key='z' and text()='extra']",
+//                                     "a/b[@key='one']/c[3][@key='d' and text()='fourth']");
+//        }
+
 		[Test]
 		public void HattonTempCheck()
 		{
@@ -727,14 +729,14 @@ namespace LibChorus.Tests.merge.xml.generic
 										"a/b[count(c)='2']",
 										"a/b[@key='one']/c[1][@key='x' and text()='first']",
 										"a/b[@key='one']/c[2][@key='y' and text()='blue']");
-			Assert.AreEqual(typeof(RemovedVsEditedElementConflict), r.Conflicts[0].GetType());
+			Assert.AreEqual(typeof(XmlTextRemovedVsEditConflict), r.Conflicts[0].GetType());
 
 			ChangeAndConflictAccumulator r2 = CheckOneWay(red, blue, ancestor,
 										"a[count(b)='1']",
 										"a/b[count(c)='2']",
 										"a/b[@key='one']/c[1][@key='x' and text()='first']",
 										"a/b[@key='one']/c[2][@key='y' and text()='blue']");
-			Assert.AreEqual(typeof(RemovedVsEditedElementConflict), r2.Conflicts[0].GetType());
+			Assert.AreEqual(typeof(XmlTextRemovedVsEditConflict), r2.Conflicts[0].GetType());
 		}
 
 		/// <summary>

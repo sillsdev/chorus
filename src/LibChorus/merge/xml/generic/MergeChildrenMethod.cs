@@ -16,6 +16,7 @@ namespace Chorus.merge.xml.generic
 		private List<XmlNode> _ourKeepers = new List<XmlNode>();
 		private List<XmlNode> _theirKeepers = new List<XmlNode>();
 		private List<XmlNode> _ancestorKeepers = new List<XmlNode>();
+		private HashSet<XmlNode> _skipInnerMergeFor = new HashSet<XmlNode>();
 
 		/// <summary>
 		/// Use this one for a diff of one xml node against another
@@ -45,6 +46,11 @@ namespace Chorus.merge.xml.generic
 
 			// Deal with deletions.
 			DoDeletions();
+
+			if (XmlUtilities.IsTextLevel(_ours, _theirs, _ancestor))
+			{
+				new MergeTextNodesMethod(_merger, _merger.MergeStrategies.GetElementStrategy(_ours ?? _theirs ?? _ancestor), _skipInnerMergeFor, ref _ours, _ourKeepers, _theirs, _theirKeepers, _ancestor, _ancestorKeepers).Run();
+			}
 
 			ChildOrderer oursOrderer = new ChildOrderer(_ourKeepers, _theirKeepers,
 				MakeCorrespondences(_ourKeepers, _theirKeepers, _theirs), _merger);
@@ -103,15 +109,20 @@ namespace Chorus.merge.xml.generic
 					&& !ChildrenAreSame(ourChild, theirChild))
 				{
 					// There's a corresponding node and it isn't the same as ours...
-					_merger.MergeInner(ref ourChild, theirChild, ancestorChild);
-					newChildren[i] = ourChild;
+					if (!_skipInnerMergeFor.Contains(ourChild))
+					{
+						_merger.MergeInner(ref ourChild, theirChild, ancestorChild);
+						newChildren[i] = ourChild;
+					}
 				}
 				else
 				{
 					//Review JohnT (jh): Is this the correct interpretation?
 					if (ancestorChild == null)
 					{
-						if (!XmlUtilities.IsTextLevel(ourChild)) // MergeTextNodesMethod has already added the addition report.
+						if (XmlUtilities.IsTextLevel(ourChild)) // No, it hasn't. MergeTextNodesMethod has already added the addition report.
+							_merger.EventListener.ChangeOccurred(new XmlTextAddedReport(_merger.MergeSituation.PathToFileInRepository, ourChild));
+						else if (!(ourChild is XmlCharacterData))
 							_merger.EventListener.ChangeOccurred(new XmlAdditionChangeReport(_merger.MergeSituation.PathToFileInRepository, ourChild));
 					}
 				}
@@ -266,7 +277,8 @@ namespace Chorus.merge.xml.generic
 			List<XmlNode> loopSource = new List<XmlNode>(_ancestorKeepers);
 			foreach (XmlNode ancestorChild in loopSource)
 			{
-				IFindNodeToMerge finder = _merger.MergeStrategies.GetMergePartnerFinder(ancestorChild);
+				ElementStrategy mergeStrategy = _merger.MergeStrategies.GetElementStrategy(ancestorChild);
+				IFindNodeToMerge finder = mergeStrategy.MergePartnerFinder;
 				XmlNode ourChild = finder.GetNodeToMerge(ancestorChild, _ours);
 				XmlNode theirChild = finder.GetNodeToMerge(ancestorChild, _theirs);
 
@@ -276,10 +288,10 @@ namespace Chorus.merge.xml.generic
 
 				if (XmlUtilities.IsTextLevel(ourChild, theirChild, ancestorChild))
 				{
-					new MergeTextNodesMethod(_merger,
+					new MergeTextNodesMethod(_merger, mergeStrategy, _skipInnerMergeFor,
 						ref ourChild, _ourKeepers,
 						theirChild, _theirKeepers,
-						ancestorChild, _ancestorKeepers).Run();
+						ancestorChild, _ancestorKeepers).DoDeletions();
 				}
 				else if (ourChild == null)
 				{

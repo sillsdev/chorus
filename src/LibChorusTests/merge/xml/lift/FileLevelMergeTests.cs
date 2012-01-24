@@ -322,7 +322,7 @@ namespace LibChorus.Tests.merge.xml.lift
 					"header",
 					"entry", "guid", LiftFileHandler.WritePreliminaryInformation);
 				listener.AssertExpectedConflictCount(1);
-				listener.AssertFirstConflictType<BothEditedTextConflict>();
+				listener.AssertFirstConflictType<XmlTextBothEditedTextConflict>();
 				listener.AssertExpectedChangesCount(0);
 			}
 		}
@@ -799,8 +799,8 @@ namespace LibChorus.Tests.merge.xml.lift
 							</lexical-unit>
 						 </entry>
 					</lift>";
-			var alpha = ancestor.Replace("<entry id", "<header><astuff>alphastuff</astuff></header><entry id");
-			var beta = ancestor.Replace("<entry id", "<header><bstuff>blphastuff</bstuff></header><entry id");
+			var alpha = ancestor.Replace("<entry id", "<header><description>alphastuff</description></header><entry id");
+			var beta = ancestor.Replace("<entry id", "<header><ranges>blphastuff</ranges></header><entry id");
 
 			using (var oursTemp = new TempFile(alpha))
 			using (var theirsTemp = new TempFile(beta))
@@ -814,10 +814,10 @@ namespace LibChorus.Tests.merge.xml.lift
 											"entry", "guid", LiftFileHandler.WritePreliminaryInformation);
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
 				Assert.IsTrue(result.Contains("<header>"));
-				Assert.IsTrue(result.Contains("<astuff>"));
-				Assert.IsTrue(result.Contains("<bstuff>"));
+				Assert.IsTrue(result.Contains("<description>"));
+				Assert.IsTrue(result.Contains("<ranges>"));
 				listener.AssertExpectedChangesCount(2);
-				listener.AssertFirstChangeType<XmlAdditionChangeReport>();
+				listener.AssertFirstChangeType<XmlTextAddedReport>();
 			}
 		}
 
@@ -850,7 +850,7 @@ namespace LibChorus.Tests.merge.xml.lift
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
 				Assert.IsTrue(result.Contains("form alpha"));
 				listener.AssertExpectedChangesCount(1);
-				listener.AssertFirstChangeType<TextEditChangeReport>();
+				listener.AssertFirstChangeType<XmlTextChangedReport>();
 			}
 		}
 
@@ -883,7 +883,7 @@ namespace LibChorus.Tests.merge.xml.lift
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
 				Assert.IsTrue(result.Contains("form beta"));
 				listener.AssertExpectedChangesCount(1);
-				listener.AssertFirstChangeType<TextEditChangeReport>();
+				listener.AssertFirstChangeType<XmlTextChangedReport>();
 			}
 		}
 
