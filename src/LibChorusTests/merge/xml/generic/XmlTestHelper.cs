@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Xml;
+using Chorus.merge;
+using Chorus.merge.xml.generic;
+using LibChorus.Tests.merge.xml.generic;
 using NUnit.Framework;
 
 namespace LibChorus.Tests.merge.xml
@@ -127,6 +130,54 @@ namespace LibChorus.Tests.merge.xml
 				writer.Flush();
 			}
 			Assert.IsNull(node);
+		}
+
+		public static string DoMerge(
+			MergeStrategies mergeStrategies,
+			string ancestorXml, string ourXml, string theirXml,
+			IEnumerable<string> xpathQueriesThatMatchExactlyOneNode, IEnumerable<string> xpathQueriesThatReturnNull,
+			int expectedConflictCount, List<Type> expectedConflictTypes,
+			int expectedChangesCount, List<Type> expectedChangeTypes)
+		{
+			var doc = new XmlDocument();
+			var ourNode = XmlUtilities.GetDocumentNodeFromRawXml(ourXml, doc);
+			var theirNode = XmlUtilities.GetDocumentNodeFromRawXml(theirXml, doc);
+			var ancestorNode = XmlUtilities.GetDocumentNodeFromRawXml(ancestorXml, doc);
+
+			var mergeSituation = new NullMergeSituation();
+			var eventListener = new ListenerForUnitTests();
+			var merger = new XmlMerger(mergeSituation)
+							{
+								MergeStrategies = mergeStrategies
+							};
+			var retval = merger.Merge(eventListener, ourNode, theirNode, ancestorNode).OuterXml;
+			Assert.AreSame(eventListener, merger.EventListener); // Make sure it never changes it, while we aren't looking, since at least one Merge method does that very thing.
+
+			if (xpathQueriesThatMatchExactlyOneNode != null)
+			{
+				foreach (var query in xpathQueriesThatMatchExactlyOneNode)
+					AssertXPathMatchesExactlyOne(retval, query);
+			}
+
+			if (xpathQueriesThatReturnNull != null)
+			{
+				foreach (var query in xpathQueriesThatReturnNull)
+					AssertXPathIsNull(retval, query);
+			}
+
+			eventListener.AssertExpectedConflictCount(expectedConflictCount);
+			expectedConflictTypes = expectedConflictTypes ?? new List<Type>();
+			Assert.AreEqual(expectedConflictTypes.Count, eventListener.Conflicts.Count, "Expected conflict count and actual number found differ.");
+			for (var idx = 0; idx < expectedConflictTypes.Count; ++idx)
+				Assert.AreSame(expectedConflictTypes[idx], eventListener.Conflicts[idx].GetType());
+
+			eventListener.AssertExpectedChangesCount(expectedChangesCount);
+			expectedChangeTypes = expectedChangeTypes ?? new List<Type>();
+			Assert.AreEqual(expectedChangeTypes.Count, eventListener.Changes.Count, "Expected change count and actual number found differ.");
+			for (var idx = 0; idx < expectedChangeTypes.Count; ++idx)
+				Assert.AreSame(expectedChangeTypes[idx], eventListener.Changes[idx].GetType());
+
+			return retval;
 		}
 	}
 }

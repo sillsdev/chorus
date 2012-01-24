@@ -89,6 +89,15 @@ namespace Chorus.Properties {
 		}
 
 		/// <summary>
+		///   Looks up a localized string similar to Element is not a text element.
+		/// </summary>
+		public static string kElementNotTextElement {
+			get {
+				return ResourceManager.GetString("kElementNotTextElement", resourceCulture);
+			}
+		}
+
+		/// <summary>
 		///   Looks up a localized string similar to File does not exist..
 		/// </summary>
 		public static string kFileDoesNotExist {

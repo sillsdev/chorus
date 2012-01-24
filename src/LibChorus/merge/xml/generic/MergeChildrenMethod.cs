@@ -17,7 +17,6 @@ namespace Chorus.merge.xml.generic
 		private List<XmlNode> _theirKeepers = new List<XmlNode>();
 		private List<XmlNode> _ancestorKeepers = new List<XmlNode>();
 
-
 		/// <summary>
 		/// Use this one for a diff of one xml node against another
 		/// </summary>
@@ -99,24 +98,21 @@ namespace Chorus.merge.xml.generic
 			{
 				XmlNode ourChild = newChildren[i];
 				XmlNode theirChild;
-				XmlNode ancestorChild = FindMatchingNode(ourChild, _ancestor);
+				var ancestorChild = FindMatchingNode(ourChild, _ancestor);
 				if (resultOrderer.Correspondences.TryGetValue(ourChild, out theirChild)
 					&& !ChildrenAreSame(ourChild, theirChild))
 				{
-						// There's a corresponding node and it isn't the same as ours...
-						if (theirChild.NodeType == XmlNodeType.Text)
-							_merger.MergeTextNodes(ref ourChild, theirChild, ancestorChild);
-						else
-							_merger.MergeInner(ref ourChild, theirChild, ancestorChild);
-
+					// There's a corresponding node and it isn't the same as ours...
+					_merger.MergeInner(ref ourChild, theirChild, ancestorChild);
 					newChildren[i] = ourChild;
 				}
 				else
 				{
 					//Review JohnT (jh): Is this the correct interpretation?
-					if (ancestorChild==null)
+					if (ancestorChild == null)
 					{
-						_merger.EventListener.ChangeOccurred(new XmlAdditionChangeReport(_merger.MergeSituation.PathToFileInRepository, ourChild));
+						if (!XmlUtilities.IsTextLevel(ourChild)) // MergeTextNodesMethod has already added the addition report.
+							_merger.EventListener.ChangeOccurred(new XmlAdditionChangeReport(_merger.MergeSituation.PathToFileInRepository, ourChild));
 					}
 				}
 			}
@@ -274,7 +270,18 @@ namespace Chorus.merge.xml.generic
 				XmlNode ourChild = finder.GetNodeToMerge(ancestorChild, _ours);
 				XmlNode theirChild = finder.GetNodeToMerge(ancestorChild, _theirs);
 
-				if (ourChild == null)
+				var extantNode = ancestorChild ?? ourChild ?? theirChild;
+				if (extantNode is XmlCharacterData)
+					return; // Already done.
+
+				if (XmlUtilities.IsTextLevel(ourChild, theirChild, ancestorChild))
+				{
+					new MergeTextNodesMethod(_merger,
+						ref ourChild, _ourKeepers,
+						theirChild, _theirKeepers,
+						ancestorChild, _ancestorKeepers).Run();
+				}
+				else if (ourChild == null)
 				{
 					// We deleted it.
 					if (theirChild == null)

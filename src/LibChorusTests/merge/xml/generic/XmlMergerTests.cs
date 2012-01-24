@@ -1,7 +1,6 @@
 using System;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
-using LibChorus.Tests.merge.xml;
 using NUnit.Framework;
 
 namespace LibChorus.Tests.merge.xml.generic
@@ -83,12 +82,13 @@ namespace LibChorus.Tests.merge.xml.generic
 									 "r[count(t)=1]");
 		}
 
-		[Test]
-		public void TextElement_OneEdited_NoConflicts()
-		{
-			CheckBothWaysNoConflicts("<r><t>after</t></r>", "<r><t>before</t></r>", "<r><t>before</t></r>",
-									 "r/t[contains(text(),'after')]");
-		}
+		// Moved to TextElementMergeTests
+		//[Test]
+		//public void TextElement_OneEdited_NoConflicts()
+		//{
+		//    CheckBothWaysNoConflicts("<r><t>after</t></r>", "<r><t>before</t></r>", "<r><t>before</t></r>",
+		//                             "r/t[contains(text(),'after')]");
+		//}
 
 
 

@@ -8,7 +8,7 @@ namespace Chorus.FileTypeHanders.xml
 	/// This may only be useful for quick, high-level identification that an entry changed,
 	/// leaving *what* changed to a second pass, if needed by the user.
 	/// </summary>
-	public class XmlChangedRecordReport : ChangeReport, IChangeReport, IXmlChangeReport
+	public class XmlChangedRecordReport : ChangeReport, IXmlChangeReport
 	{
 		private readonly XmlNode _parent;
 		private readonly XmlNode _child;

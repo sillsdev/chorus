@@ -19,7 +19,7 @@ namespace Chorus.FileTypeHanders.xml
 
 		//when merging, the eventual revision is unknown
 		public XmlDeletionChangeReport(string fullPath, XmlNode parentNode, XmlNode childNode)
-			: this(new FileInUnknownRevision(fullPath, FileInRevision.Action.Modified), parentNode,  childNode)
+			: this(new FileInUnknownRevision(fullPath, FileInRevision.Action.Deleted), parentNode,  childNode)
 		{
 		}
 
