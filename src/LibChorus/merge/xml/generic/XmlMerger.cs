@@ -151,6 +151,7 @@ namespace Chorus.merge.xml.generic
 					}
 					else if (ancestorAttr.Value == theirAttr.Value)
 					{
+						// TODO: Add report.
 						continue; // we deleted it, they didn't touch it
 					}
 					else //we deleted it, but at the same time, they changed it. So just add theirs in, under the principle of
@@ -168,7 +169,8 @@ namespace Chorus.merge.xml.generic
 				{
 					if (ourAttr.Value == theirAttr.Value)
 					{
-						//nothing to do
+						// nothing to do
+						// TODO: Add both added same thing report.
 						continue;
 					}
 					else
@@ -192,17 +194,20 @@ namespace Chorus.merge.xml.generic
 					}
 					else //theirs is a change
 					{
+						// TODO: Add report.
 						ourAttr.Value = theirAttr.Value;
 					}
 				}
 				else if (ourAttr.Value == theirAttr.Value)
 				{
 					//both changed to same value
+					// TODO: Add report.
 					continue;
 				}
 				else if (ancestorAttr.Value == theirAttr.Value)
 				{
 					//only we changed the value
+					// TODO: Add report.
 					continue;
 				}
 				else
@@ -232,11 +237,13 @@ namespace Chorus.merge.xml.generic
 				{
 					if (ourAttr.Value == ancestorAttr.Value) //we didn't change it, they deleted it
 					{
+						// TODO: Add report.
 						ours.Attributes.Remove(ourAttr);
 					}
 					else
 					{
-						EventListener.ConflictOccurred(new RemovedVsEditedAttributeConflict(ourAttr.Name, ourAttr.Value, null, ancestorAttr.Value, MergeSituation, MergeSituation.AlphaUserId));
+						// We changed it, and they deleted it, so stay with ours and add conflict report.
+						EventListener.ConflictOccurred(new EditedVsRemovedAttributeConflict(ourAttr.Name, ourAttr.Value, null, ancestorAttr.Value, MergeSituation, MergeSituation.AlphaUserId));
 					}
 				}
 			}

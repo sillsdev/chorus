@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Xml;
+using Chorus.FileTypeHanders.xml;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
 using NUnit.Framework;
@@ -97,7 +98,8 @@ namespace LibChorus.Tests.merge.xml.generic
 			Assert.IsTrue(result);
 			Assert.AreSame(ours, theirsNode);
 			listener.AssertExpectedConflictCount(0);
-			listener.AssertExpectedChangesCount(0);
+			listener.AssertExpectedChangesCount(1);
+			listener.AssertFirstChangeType<XmlAdditionChangeReport>();
 		}
 
 		[Test]
@@ -113,7 +115,8 @@ namespace LibChorus.Tests.merge.xml.generic
 			var result = MergeAtomicElementService.Run(merger, ref ours, null, null);
 			Assert.IsTrue(result);
 			listener.AssertExpectedConflictCount(0);
-			listener.AssertExpectedChangesCount(0);
+			listener.AssertExpectedChangesCount(1);
+			listener.AssertFirstChangeType<XmlAdditionChangeReport>();
 		}
 
 		[Test]
@@ -130,7 +133,8 @@ namespace LibChorus.Tests.merge.xml.generic
 			Assert.IsTrue(result);
 			Assert.IsNull(ours);
 			listener.AssertExpectedConflictCount(0);
-			listener.AssertExpectedChangesCount(0);
+			listener.AssertExpectedChangesCount(1);
+			listener.AssertFirstChangeType<XmlBothDeletionChangeReport>();
 		}
 
 		[Test]
@@ -189,7 +193,7 @@ namespace LibChorus.Tests.merge.xml.generic
 			var result = MergeAtomicElementService.Run(merger, ref ours, null, ancestor);
 			Assert.IsTrue(result);
 			listener.AssertExpectedConflictCount(1);
-			listener.AssertFirstConflictType<XmlTextEditVsRemovedConflict>(); // Needs new r vs e artr conflict report.
+			listener.AssertFirstConflictType<EditedVsRemovedElementConflict>();
 			listener.AssertExpectedChangesCount(0);
 		}
 
@@ -212,7 +216,8 @@ namespace LibChorus.Tests.merge.xml.generic
 			var result = MergeAtomicElementService.Run(merger, ref ours, theirs, ancestor);
 			Assert.IsTrue(result);
 			listener.AssertExpectedConflictCount(0);
-			listener.AssertExpectedChangesCount(0);
+			listener.AssertExpectedChangesCount(1);
+			listener.AssertFirstChangeType<XmlChangedRecordReport>();
 		}
 
 		[Test]
@@ -235,7 +240,8 @@ namespace LibChorus.Tests.merge.xml.generic
 			Assert.IsTrue(result);
 			Assert.AreSame(ours, theirs);
 			listener.AssertExpectedConflictCount(0);
-			listener.AssertExpectedChangesCount(0);
+			listener.AssertExpectedChangesCount(1);
+			listener.AssertFirstChangeType<XmlChangedRecordReport>();
 		}
 
 		[Test]
@@ -257,7 +263,8 @@ namespace LibChorus.Tests.merge.xml.generic
 			var result = MergeAtomicElementService.Run(merger, ref ours, theirs, ancestor);
 			Assert.IsTrue(result);
 			listener.AssertExpectedConflictCount(0);
-			listener.AssertExpectedChangesCount(0);
+			listener.AssertExpectedChangesCount(1);
+			listener.AssertFirstChangeType<BothChangedAtomicElementReport>();
 		}
 
 		[Test]

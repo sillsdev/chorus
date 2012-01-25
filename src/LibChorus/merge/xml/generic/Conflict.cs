@@ -188,6 +188,7 @@ namespace Chorus.merge.xml.generic
 			Register<BothReorderedElementConflict>(builder);
 
 			Register<RemovedVsEditedAttributeConflict>(builder);
+			Register<EditedVsRemovedAttributeConflict>(builder);
 
 			Register<RemovedVsEditedTextConflict>(builder);
 			Register<EditedVsRemovedTextConflict>(builder);
@@ -621,6 +622,19 @@ namespace Chorus.merge.xml.generic
 	sealed public class RemovedVsEditedAttributeConflict : AttributeConflict // NB: Be sure to register any new instances in CreateFromConflictElement method.
 	{
 		public RemovedVsEditedAttributeConflict(string attributeName, string alphaValue, string betaValue, string ancestorValue, MergeSituation mergeSituation, string whoWon)
+			: base(attributeName, alphaValue, betaValue, ancestorValue, mergeSituation, whoWon)
+		{
+		}
+		public override string Description
+		{
+			get { return string.Format("Removed Vs Edited Attribute Conflict"); }
+		}
+	}
+
+	[TypeGuid("c1ed6dc0-e382-11de-8a39-0800200c9a66")]
+	sealed public class EditedVsRemovedAttributeConflict : AttributeConflict // NB: Be sure to register any new instances in CreateFromConflictElement method.
+	{
+		public EditedVsRemovedAttributeConflict(string attributeName, string alphaValue, string betaValue, string ancestorValue, MergeSituation mergeSituation, string whoWon)
 			: base(attributeName, alphaValue, betaValue, ancestorValue, mergeSituation, whoWon)
 		{
 		}
