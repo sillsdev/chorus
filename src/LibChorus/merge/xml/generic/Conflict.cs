@@ -49,7 +49,7 @@ namespace Chorus.merge.xml.generic
 		public string RevisionWhereMergeWasCheckedIn { get;private set;}
 
 		public ContextDescriptor Context { get; set; }
-		protected  string _whoWon;
+		protected string _whoWon;
 
 		protected Conflict(XmlNode xmlRepresentation)
 		{
@@ -63,6 +63,11 @@ namespace Chorus.merge.xml.generic
 
 
 		protected Conflict(MergeSituation situation)
+		{
+			Situation = situation;
+		}
+
+		protected Conflict(MergeSituation situation, string whoWon)
 		{
 			Situation = situation;
 		}
@@ -95,13 +100,13 @@ namespace Chorus.merge.xml.generic
 			writer.WriteAttributeString("guid", Guid.NewGuid().ToString()); //nb: this is the guid of the enclosing annotation, not the conflict;
 
 			writer.WriteStartElement("message");
-			writer.WriteAttributeString("author", string.Empty, "merger");
+			writer.WriteAttributeString("author", string.Empty, Author);
 			writer.WriteAttributeString("status", string.Empty, "open");
 			writer.WriteAttributeString("guid", string.Empty, Guid.ToString());//nb: ok to have the same guid with the conflict, as they are in 1-1 relation and eventually we'll remove the one on conflict
 			writer.WriteAttributeString("date", string.Empty, DateTime.UtcNow.ToString(TimeFormatNoTimeZone));
 			writer.WriteString(GetFullHumanReadableDescription());
 
-			//we embedd this xml inside the CDATA section so that it pass a more generic schema without
+			//we embed this xml inside the CDATA section so that it pass a more generic schema without
 			//resorting to the complexities of namespaces
 			var b = new StringBuilder();
 			using (var embeddedWriter = XmlWriter.Create(b, Palaso.Xml.CanonicalXmlSettings.CreateXmlWriterSettings(ConformanceLevel.Fragment)))
@@ -120,6 +125,8 @@ namespace Chorus.merge.xml.generic
 			writer.WriteEndElement();
 			writer.WriteEndElement();
 		}
+
+		protected virtual string Author { get { return "merger"; } }
 
 		protected virtual void WriteAttributes(XmlWriter writer)
 		{
@@ -195,6 +202,8 @@ namespace Chorus.merge.xml.generic
 			Register<EditedVsRemovedTextConflict>(builder);
 			Register<XmlTextEditVsRemovedConflict>(builder);
 			Register<XmlTextRemovedVsEditConflict>(builder);
+
+			Register<IncompatibleMoveConflict>(builder);
 
 			Register<BothEditedDifferentPartsOfDependentPiecesOfDataWarning>(builder);
 			Register<UnmergableFileTypeConflict>(builder);
@@ -1029,6 +1038,55 @@ namespace Chorus.merge.xml.generic
 				return string.Format("{0} and {1} added different text to this element.", Situation.AlphaUserId, Situation.BetaUserId);
 			}
 		}
+	}
+
+	[TypeGuid("c1ed6dc2-e382-11de-8a39-0800200c9a66")]
+	public sealed class IncompatibleMoveConflict : Conflict // NB: Be sure to register any new instances in CreateFromConflictElement method
+	{
+		private readonly string _elementName;
+		private readonly XmlNode _alphaNode;
+		private readonly XmlNode _betaNode;
+		private readonly IElementDescriber _elementDescriber;
+
+		public IncompatibleMoveConflict(string elementName, XmlNode alphaNode, XmlNode betaNode, MergeSituation mergeSituation, IElementDescriber elementDescriber, string whoWon)
+			: base(mergeSituation, whoWon)
+		{
+			_elementName = elementName;
+			_alphaNode = alphaNode;
+			_betaNode = betaNode;
+			_elementDescriber = elementDescriber;
+		}
+
+		public IncompatibleMoveConflict(XmlNode xmlRepresentation)
+			: base(xmlRepresentation)
+		{
+		}
+
+		#region Overrides of Conflict
+
+		protected override string Author
+		{
+			get { return "FLExBridge"; }
+		}
+
+		public override string GetFullHumanReadableDescription()
+		{
+			return string.Format("{0} ({1}): The identifier of one was changed, and the object is in both places.", Description, Context.DataLabel);
+		}
+
+		public override string Description
+		{
+			get { return string.Format("{0} and {1} each moved something, but to different locations.", Situation.AlphaUserId, Situation.BetaUserId) ; }
+		}
+
+		public override string GetConflictingRecordOutOfSourceControl(IRetrieveFileVersionsFromRepository fileRetriever, ThreeWayMergeSources.Source mergeSource)
+		{
+			// Borrowed from ElementConflict.
+			//fileRetriever.RetrieveHistoricalVersionOfFile(_file, userSources[]);
+			return null;
+		}
+
+		#endregion
 	}
 
 	#endregion ElementConflicts
