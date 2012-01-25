@@ -51,6 +51,11 @@ namespace Chorus.FileTypeHanders.xml
 			get { return _url; }
 		}
 
+		public override string GetFullHumanReadableDescription()
+		{
+			return string.Format(FormattedMessageForFullHumanReadableDescription, ChildNode.Name, ParentNode.Name);
+		}
+
 		#endregion
 	}
 
@@ -215,7 +220,7 @@ namespace Chorus.FileTypeHanders.xml
 
 		// When merging, the eventual revision is unknown
 		public XmlTextBothAddedReport(string fullPath, XmlNode addedChildNode)
-			: base(null, new FileInUnknownRevision(fullPath, FileInRevision.Action.Deleted), addedChildNode, string.Empty)
+			: base(null, new FileInUnknownRevision(fullPath, FileInRevision.Action.Added), addedChildNode, string.Empty)
 		{
 		}
 
@@ -259,7 +264,7 @@ namespace Chorus.FileTypeHanders.xml
 
 		protected override string FormattedMessageForFullHumanReadableDescription
 		{
-			get { return "Both people changed <{0}> to <{1}>"; }
+			get { return "Both people changed <{0}> in <{1}>"; }
 		}
 
 		#endregion

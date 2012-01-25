@@ -111,7 +111,7 @@ namespace Chorus.merge.xml.generic
 					{
 						throw e;
 					}
-					//otherwise, it's likely an artifact of how hg seems to create an emty file
+					//otherwise, it's likely an artifact of how hg seems to create an empty file
 					//for the ancestor, if there wasn't one there before, and empty = not well-formed xml!
 				}
 			 }
@@ -121,26 +121,74 @@ namespace Chorus.merge.xml.generic
 
 		private static IEnumerable<XmlAttribute> GetAttrs(XmlNode node)
 		{
-			if (node is XmlCharacterData)
-				return new List<XmlAttribute>();
-
-			//need to copy so we can iterate while changing
-			return new List<XmlAttribute>(node.Attributes.Cast<XmlAttribute>());
+			return (node is XmlCharacterData || node == null)
+					? new List<XmlAttribute>()
+					: new List<XmlAttribute>(node.Attributes.Cast<XmlAttribute>()); // Need to copy so we can iterate while changing.
 		}
 
 		private static XmlAttribute GetAttributeOrNull(XmlNode node, string name)
 		{
-			if (node == null)
-				return null;
-			return node.Attributes.GetNamedItem(name) as XmlAttribute;
+			return node == null ? null : node.Attributes.GetNamedItem(name) as XmlAttribute;
 		}
 
 		private void MergeAttributes(ref XmlNode ours, XmlNode theirs, XmlNode ancestor)
 		{
-			foreach (XmlAttribute theirAttr in GetAttrs(theirs))
+			var extantNode = ours ?? theirs ?? ancestor;
+
+			var newForOurs = new List<XmlAttribute>();
+			// Deletions from ancestor, no matter who did it.
+			foreach (var ancestorAttr in GetAttrs(ancestor))
 			{
-				XmlAttribute ourAttr = GetAttributeOrNull(ours, theirAttr.Name);
-				XmlAttribute ancestorAttr = GetAttributeOrNull(ancestor, theirAttr.Name);
+				var ourAttr = GetAttributeOrNull(ours, ancestorAttr.Name);
+				var theirAttr = GetAttributeOrNull(theirs, ancestorAttr.Name);
+				if (theirAttr == null)
+				{
+					if (ourAttr == null)
+					{
+						// Both deleted.
+						EventListener.ChangeOccurred(new XmlAttributeBothDeletedReport(MergeSituation.PathToFileInRepository, ancestorAttr));
+						ancestor.Attributes.Remove(ancestorAttr);
+						continue;
+					}
+					if (ourAttr.Value != ancestorAttr.Value)
+					{
+						// They deleted, but we changed, so we win under the principle of
+						// least data loss (an attribute can be a huge text element).
+						EventListener.ConflictOccurred(new EditedVsRemovedAttributeConflict(ourAttr.Name, ourAttr.Value, null, ancestorAttr.Value, MergeSituation, MergeSituation.AlphaUserId));
+						continue;
+					}
+					// They deleted. We did zip.
+					EventListener.ChangeOccurred(new XmlAttributeDeletedReport(MergeSituation.PathToFileInRepository, ancestorAttr));
+					ancestor.Attributes.Remove(ancestorAttr);
+					ours.Attributes.Remove(ourAttr);
+					continue;
+				}
+				if (ourAttr == null)
+				{
+					if (ancestorAttr.Value != theirAttr.Value)
+					{
+						// We deleted it, but at the same time, they changed it. So just add theirs in, under the principle of
+						// least data loss (an attribute can be a huge text element)
+						newForOurs.Add(theirAttr);
+						//var importedAttribute = (XmlAttribute)ours.OwnerDocument.ImportNode(theirAttr, true);
+						//ours.Attributes.Append(importedAttribute);
+						EventListener.ConflictOccurred(new RemovedVsEditedAttributeConflict(theirAttr.Name, null, theirAttr.Value, ancestorAttr.Value, MergeSituation,
+							MergeSituation.BetaUserId));
+						continue;
+					}
+					// We deleted it. They did nothing.
+					EventListener.ChangeOccurred(new XmlAttributeDeletedReport(MergeSituation.PathToFileInRepository, ancestorAttr));
+					ancestor.Attributes.Remove(ancestorAttr);
+					theirs.Attributes.Remove(theirAttr);
+				}
+			}
+
+			foreach (var theirAttr in GetAttrs(theirs))
+			{
+				// Will never return null, since it will use the default one, if it can't find a better one.
+				var mergeStrategy = MergeStrategies.GetElementStrategy(extantNode);
+				var ourAttr = GetAttributeOrNull(ours, theirAttr.Name);
+				var ancestorAttr = GetAttributeOrNull(ancestor, theirAttr.Name);
 
 				if (ourAttr == null)
 				{
@@ -148,40 +196,48 @@ namespace Chorus.merge.xml.generic
 					{
 						var importedAttribute = (XmlAttribute)ours.OwnerDocument.ImportNode(theirAttr, true);
 						ours.Attributes.Append(importedAttribute);
+						EventListener.ChangeOccurred(new XmlAttributeAddedReport(MergeSituation.PathToFileInRepository, theirAttr));
 					}
-					else if (ancestorAttr.Value == theirAttr.Value)
-					{
-						// TODO: Add report.
-						continue; // we deleted it, they didn't touch it
-					}
-					else //we deleted it, but at the same time, they changed it. So just add theirs in, under the principle of
-						//least data loss (an attribute can be a huge text element)
-					{
-						var importedAttribute = (XmlAttribute)ours.OwnerDocument.ImportNode(theirAttr, true);
-						ours.Attributes.Append(importedAttribute);
+					// NB: Deletes are all handles above in first loop.
+					//else if (ancestorAttr.Value == theirAttr.Value)
+					//{
+					//    continue; // we deleted it, they didn't touch it
+					//}
+					//else
+					//{
+					//    // We deleted it, but at the same time, they changed it. So just add theirs in, under the principle of
+					//    // least data loss (an attribute can be a huge text element)
+					//    var importedAttribute = (XmlAttribute)ours.OwnerDocument.ImportNode(theirAttr, true);
+					//    ours.Attributes.Append(importedAttribute);
 
-						EventListener.ConflictOccurred(new RemovedVsEditedAttributeConflict(theirAttr.Name, null, theirAttr.Value, ancestorAttr.Value, MergeSituation,
-							MergeSituation.BetaUserId));
-						continue;
-					}
+					//    EventListener.ConflictOccurred(new RemovedVsEditedAttributeConflict(theirAttr.Name, null, theirAttr.Value, ancestorAttr.Value, MergeSituation,
+					//        MergeSituation.BetaUserId));
+					//    continue;
+					//}
 				}
-				else if (ancestorAttr == null) // we both introduced this attribute
+				else if (ancestorAttr == null) // Both introduced this attribute
 				{
 					if (ourAttr.Value == theirAttr.Value)
 					{
-						// nothing to do
-						// TODO: Add both added same thing report.
+						EventListener.ChangeOccurred(new XmlAttributeBothAddedReport(MergeSituation.PathToFileInRepository, ourAttr));
 						continue;
 					}
 					else
 					{
-						var strat = MergeStrategies.GetElementStrategy(ours);
-
-						//for unit test see Merge_RealConflictPlusModDateConflict_ModDateNotReportedAsConflict()
-						if (strat == null || !strat.AttributesToIgnoreForMerging.Contains(ourAttr.Name))
+						// Both added, but not the same.
+						if (!mergeStrategy.AttributesToIgnoreForMerging.Contains(ourAttr.Name))
 						{
-							EventListener.ConflictOccurred(new BothEditedAttributeConflict(theirAttr.Name, ourAttr.Value, theirAttr.Value, null, MergeSituation,
-								MergeSituation.AlphaUserId));
+							if (MergeSituation.ConflictHandlingMode == MergeOrder.ConflictHandlingModeChoices.WeWin)
+							{
+								EventListener.ConflictOccurred(new BothAddedAttributeConflict(theirAttr.Name, ourAttr.Value, theirAttr.Value, null, MergeSituation,
+									MergeSituation.AlphaUserId));
+							}
+							else
+							{
+								ourAttr.Value = theirAttr.Value;
+								EventListener.ConflictOccurred(new BothAddedAttributeConflict(theirAttr.Name, ourAttr.Value, theirAttr.Value, null, MergeSituation,
+									MergeSituation.BetaUserId));
+							}
 						}
 					}
 				}
@@ -189,63 +245,96 @@ namespace Chorus.merge.xml.generic
 				{
 					if (ourAttr.Value == theirAttr.Value)
 					{
-						//nothing to do
-						continue;
+						continue; // Nothing to do.
 					}
-					else //theirs is a change
+					else
 					{
-						// TODO: Add report.
-						ourAttr.Value = theirAttr.Value;
+						// They changed.
+						if (!mergeStrategy.AttributesToIgnoreForMerging.Contains(ourAttr.Name))
+						{
+							EventListener.ChangeOccurred(new XmlAttributeChangedReport(MergeSituation.PathToFileInRepository, theirAttr));
+							ourAttr.Value = theirAttr.Value;
+						}
+						continue;
 					}
 				}
 				else if (ourAttr.Value == theirAttr.Value)
 				{
-					//both changed to same value
-					// TODO: Add report.
+					// Both changed to same value
+					EventListener.ChangeOccurred(new XmlAttributeBothMadeSameChangeReport(MergeSituation.PathToFileInRepository, ourAttr));
 					continue;
 				}
 				else if (ancestorAttr.Value == theirAttr.Value)
 				{
-					//only we changed the value
-					// TODO: Add report.
-					continue;
+					// We changed the value. They did nothing.
+					if (!mergeStrategy.AttributesToIgnoreForMerging.Contains(ourAttr.Name))
+					{
+						EventListener.ChangeOccurred(new XmlAttributeChangedReport(MergeSituation.PathToFileInRepository, ourAttr));
+						continue;
+					}
 				}
 				else
 				{
-					var strat = MergeStrategies.GetElementStrategy(ours);
-
 					//for unit test see Merge_RealConflictPlusModDateConflict_ModDateNotReportedAsConflict()
-					if (strat == null || !strat.AttributesToIgnoreForMerging.Contains(ourAttr.Name))
+					if (!mergeStrategy.AttributesToIgnoreForMerging.Contains(ourAttr.Name))
 					{
-						EventListener.ConflictOccurred(new BothEditedAttributeConflict(theirAttr.Name, ourAttr.Value,
-																						theirAttr.Value,
-																						ancestorAttr.Value,
-																						MergeSituation,
-																						MergeSituation.AlphaUserId));
+						if (MergeSituation.ConflictHandlingMode == MergeOrder.ConflictHandlingModeChoices.WeWin)
+						{
+							EventListener.ConflictOccurred(new BothEditedAttributeConflict(theirAttr.Name, ourAttr.Value,
+																							theirAttr.Value,
+																							ancestorAttr.Value,
+																							MergeSituation,
+																							MergeSituation.AlphaUserId));
+						}
+						else
+						{
+							ourAttr.Value = theirAttr.Value;
+							EventListener.ConflictOccurred(new BothEditedAttributeConflict(theirAttr.Name, ourAttr.Value,
+																							theirAttr.Value,
+																							ancestorAttr.Value,
+																							MergeSituation,
+																							MergeSituation.BetaUserId));
+						}
 					}
 				}
 			}
 
-			// deal with their deletions
-			foreach (XmlAttribute ourAttr in GetAttrs(ours))
+			foreach (var ourAttr in GetAttrs(ours))
 			{
+				var theirAttr = GetAttributeOrNull(theirs, ourAttr.Name);
+				var ancestorAttr = GetAttributeOrNull(ancestor, ourAttr.Name);
 
-				XmlAttribute theirAttr = GetAttributeOrNull(theirs, ourAttr.Name);
-				XmlAttribute ancestorAttr = GetAttributeOrNull(ancestor,ourAttr.Name);
-
-				if (theirAttr == null && ancestorAttr != null)
+				if (ancestorAttr == null)
+				{
+					if (theirAttr == null)
+					{
+						// We added it.
+						EventListener.ChangeOccurred(new XmlAttributeAddedReport(MergeSituation.PathToFileInRepository, ourAttr));
+						continue;
+					}
+					// They also added, and it may, or may not, be the same.
+					continue;
+				}
+				if (theirAttr == null)
 				{
 					if (ourAttr.Value == ancestorAttr.Value) //we didn't change it, they deleted it
 					{
-						// TODO: Add report.
+						EventListener.ChangeOccurred(new XmlAttributeDeletedReport(MergeSituation.PathToFileInRepository, ourAttr));
 						ours.Attributes.Remove(ourAttr);
 					}
-					else
-					{
-						// We changed it, and they deleted it, so stay with ours and add conflict report.
-						EventListener.ConflictOccurred(new EditedVsRemovedAttributeConflict(ourAttr.Name, ourAttr.Value, null, ancestorAttr.Value, MergeSituation, MergeSituation.AlphaUserId));
-					}
+					// NB: Deletes are all handles above in first loop.
+					//else
+					//{
+					//    // We changed it, and they deleted it, so stay with ours and add conflict report.
+					//    EventListener.ConflictOccurred(new EditedVsRemovedAttributeConflict(ourAttr.Name, ourAttr.Value, null, ancestorAttr.Value, MergeSituation, MergeSituation.AlphaUserId));
+					//}
 				}
+			}
+
+			foreach (var newby in newForOurs)
+			{
+				// Wonder what happens if ours is null?
+				ours.Attributes.Append((XmlAttribute)ours.OwnerDocument.ImportNode(newby, true));
 			}
 		}
 

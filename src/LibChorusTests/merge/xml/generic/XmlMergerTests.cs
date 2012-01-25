@@ -299,59 +299,59 @@ namespace LibChorus.Tests.merge.xml.generic
 			CheckOneWay(blue, red, ancestor, "a[ not(b)]");
 		}
 
+		// Moved to XmlAttributeMergeTests
+		//[Test]
+		//public void OneAddedAttribute()
+		//{
+		//    string red = @"<a/>";
+		//    string ancestor = red;
+		//    string blue = @"<a one='1'/>";
 
-		[Test]
-		public void OneAddedAttribute()
-		{
-			string red = @"<a/>";
-			string ancestor = red;
-			string blue = @"<a one='1'/>";
+		//    CheckBothWaysNoConflicts(blue, red, ancestor, "a[@one='1']");
+		//}
 
-			CheckBothWaysNoConflicts(blue, red, ancestor, "a[@one='1']");
-		}
+		//[Test]
+		//public void BothAddedSameAttributeSameValue()
+		//{
+		//    string ancestor = @"<a/>";
+		//    string red = @"<a one='1'/>";
+		//    string blue = @"<a one='1'/>";
 
-		[Test]
-		public void BothAddedSameAttributeSameValue()
-		{
-			string ancestor = @"<a/>";
-			string red = @"<a one='1'/>";
-			string blue = @"<a one='1'/>";
+		//    CheckBothWaysNoConflicts(blue, red, ancestor, "a[@one='1']");
+		//}
 
-			CheckBothWaysNoConflicts(blue, red, ancestor, "a[@one='1']");
-		}
+		//[Test]
+		//public void BothAddedSameAttributeDifferentValue()
+		//{
+		//    string ancestor = @"<a/>";
+		//    string red = @"<a one='r'/>";
+		//    string blue = @"<a one='b'/>";
 
-		[Test]
-		public void BothAddedSameAttributeDifferentValue()
-		{
-			string ancestor = @"<a/>";
-			string red = @"<a one='r'/>";
-			string blue = @"<a one='b'/>";
+		//    ChangeAndConflictAccumulator r = CheckOneWay(blue, red, ancestor, "a[@one='b']");
+		//    Assert.AreEqual(typeof(BothEditedAttributeConflict), r.Conflicts[0].GetType());
 
-			ChangeAndConflictAccumulator r = CheckOneWay(blue, red, ancestor, "a[@one='b']");
-			Assert.AreEqual(typeof(BothEditedAttributeConflict), r.Conflicts[0].GetType());
+		//    r =CheckOneWay(red, blue, ancestor, "a[@one='r']");
+		//    Assert.AreEqual(typeof(BothEditedAttributeConflict), r.Conflicts[0].GetType());
+		//}
 
-			r =CheckOneWay(red, blue, ancestor, "a[@one='r']");
-			Assert.AreEqual(typeof(BothEditedAttributeConflict), r.Conflicts[0].GetType());
-		}
+		//[Test]
+		//public void OneRemovedAttribute()
+		//{
+		//    string red = @"<a one='1'/>";
+		//    string ancestor = red;
+		//    string blue = @"<a/>";
 
-		[Test]
-		public void OneRemovedAttribute()
-		{
-			string red = @"<a one='1'/>";
-			string ancestor = red;
-			string blue = @"<a/>";
+		//    CheckBothWaysNoConflicts(blue, red, ancestor, "a[not(@one)]");
+		//}
+		//[Test]
+		//public void OneMovedAndChangedAttribute()
+		//{
+		//    string red = @"<a one='1' two='2'/>";
+		//    string ancestor = red;
+		//    string blue = @"<a two='22' one='1'/>";
 
-			CheckBothWaysNoConflicts(blue, red, ancestor, "a[not(@one)]");
-		}
-		[Test]
-		public void OneMovedAndChangedAttribute()
-		{
-			string red = @"<a one='1' two='2'/>";
-			string ancestor = red;
-			string blue = @"<a two='22' one='1'/>";
-
-			CheckBothWaysNoConflicts(blue, red, ancestor, "a[@one='1' and @two='22']");
-		}
+		//    CheckBothWaysNoConflicts(blue, red, ancestor, "a[@one='1' and @two='22']");
+		//}
 
 		[Test]
 		public void BothAddedAnUnkeyableNephewElement()

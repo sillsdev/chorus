@@ -134,6 +134,7 @@ namespace LibChorus.Tests.merge.xml
 
 		public static string DoMerge(
 			MergeStrategies mergeStrategies,
+			MergeSituation mergeSituation,
 			string ancestorXml, string ourXml, string theirXml,
 			IEnumerable<string> xpathQueriesThatMatchExactlyOneNode, IEnumerable<string> xpathQueriesThatReturnNull,
 			int expectedConflictCount, List<Type> expectedConflictTypes,
@@ -144,7 +145,6 @@ namespace LibChorus.Tests.merge.xml
 			var theirNode = XmlUtilities.GetDocumentNodeFromRawXml(theirXml, doc);
 			var ancestorNode = XmlUtilities.GetDocumentNodeFromRawXml(ancestorXml, doc);
 
-			var mergeSituation = new NullMergeSituation();
 			var eventListener = new ListenerForUnitTests();
 			var merger = new XmlMerger(mergeSituation)
 							{
@@ -178,6 +178,22 @@ namespace LibChorus.Tests.merge.xml
 				Assert.AreSame(expectedChangeTypes[idx], eventListener.Changes[idx].GetType());
 
 			return retval;
+		}
+
+		public static string DoMerge(
+			MergeStrategies mergeStrategies,
+			string ancestorXml, string ourXml, string theirXml,
+			IEnumerable<string> xpathQueriesThatMatchExactlyOneNode, IEnumerable<string> xpathQueriesThatReturnNull,
+			int expectedConflictCount, List<Type> expectedConflictTypes,
+			int expectedChangesCount, List<Type> expectedChangeTypes)
+		{
+			return DoMerge(
+				mergeStrategies,
+				new NullMergeSituation(),
+				ancestorXml, ourXml, theirXml,
+				xpathQueriesThatMatchExactlyOneNode, xpathQueriesThatReturnNull,
+				expectedConflictCount, expectedConflictTypes,
+				expectedChangesCount, expectedChangeTypes);
 		}
 	}
 }

@@ -189,6 +189,7 @@ namespace Chorus.merge.xml.generic
 
 			Register<RemovedVsEditedAttributeConflict>(builder);
 			Register<EditedVsRemovedAttributeConflict>(builder);
+			Register<BothAddedAttributeConflict>(builder);
 
 			Register<RemovedVsEditedTextConflict>(builder);
 			Register<EditedVsRemovedTextConflict>(builder);
@@ -581,7 +582,7 @@ namespace Chorus.merge.xml.generic
 
 		public virtual string GetXmlOfConflict()
 		{
-			// REVIEW JohnH(RandyR): Waht is this supposed to be doing?
+			// REVIEW JohnH(RandyR): What is this supposed to be doing?
 			return string.Format("<annotation type='{0}'/>", GetType().Name);
 		}
 
@@ -615,6 +616,19 @@ namespace Chorus.merge.xml.generic
 				}
 				return element.OuterXml;
 			}
+		}
+	}
+
+	[TypeGuid("c1ed6dc1-e382-11de-8a39-0800200c9a66")]
+	sealed public class BothAddedAttributeConflict : AttributeConflict // NB: Be sure to register any new instances in CreateFromConflictElement method.
+	{
+		public BothAddedAttributeConflict(string attributeName, string alphaValue, string betaValue, string ancestorValue, MergeSituation mergeSituation, string whoWon)
+			: base(attributeName, alphaValue, betaValue, ancestorValue, mergeSituation, whoWon)
+		{
+		}
+		public override string Description
+		{
+			get { return string.Format("Both Added Attribute Conflict"); }
 		}
 	}
 
