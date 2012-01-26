@@ -129,6 +129,8 @@
 	<Compile Include="merge\xml\generic\ConflictIOTest.cs" />
 	<Compile Include="merge\xml\generic\MergeChildrenMethodTests.cs" />
 	<Compile Include="merge\xml\generic\MergeChildrenMethod_DiffOnlyTests.cs" />
+	<Compile Include="merge\xml\generic\TextElementMergeTests.cs" />
+	<Compile Include="merge\xml\generic\XmlAttributeMergeTests.cs" />
 	<Compile Include="merge\xml\generic\xmldiff\XmlDiffTests.cs" />
 	<Compile Include="merge\xml\generic\XmlMergerTests.cs" />
 	<Compile Include="merge\xml\generic\XmlTestHelper.cs" />

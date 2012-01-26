@@ -302,9 +302,12 @@ namespace Chorus.VcsDrivers.Mercurial
 		/// <returns>true if the pull happend and changes were pulled in</returns>
 		protected bool PullFromRepository(HgRepository otherRepo, bool throwIfCannot)
 		{
-
-			_progress.WriteStatus("Receiving any changes from {0}", otherRepo.Name);
-			_progress.WriteVerbose("({0} is {1})", otherRepo.Name, otherRepo._pathToRepository);
+			// 'otherRepo.Name' is useless, since if it can't find the username in the hgrc file,
+			// it defaults to the person who is logged on to the local machine,
+			// so the poor user sees is getting changes from himself.
+			// I suppose the other option would be to add the username to the other hgrc file, after a push....
+			_progress.WriteStatus("Receiving any changes from {0}", otherRepo._pathToRepository);
+			//_progress.WriteVerbose("({0} is {1})", otherRepo.Name, otherRepo._pathToRepository);
 			{
 				UpdateHgrc();
 				try
