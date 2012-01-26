@@ -352,7 +352,7 @@ namespace Chorus.merge.xml.generic
 						if (ourChild.NodeType == XmlNodeType.Element)
 						{
 							_merger.EventListener.ConflictOccurred(
-								new RemovedVsEditedElementConflict(ourChild.Name, ourChild, null, ancestorChild,
+								new EditedVsRemovedElementConflict(ourChild.Name, ourChild, null, ancestorChild,
 																   _merger.MergeSituation, _merger.MergeStrategies.GetElementStrategy(ourChild), _merger.MergeSituation.AlphaUserId));
 						}
 						else
