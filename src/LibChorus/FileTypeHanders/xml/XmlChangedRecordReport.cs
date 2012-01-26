@@ -7,8 +7,10 @@ namespace Chorus.FileTypeHanders.xml
 	/// <summary>
 	/// This may only be useful for quick, high-level identification that an entry changed,
 	/// leaving *what* changed to a second pass, if needed by the user.
+	///
+	/// It is useful for the atomic strategy, as we don't relly care what the lower level difference are (e.g., it may be binary data).
 	/// </summary>
-	public class XmlChangedRecordReport : ChangeReport, IChangeReport, IXmlChangeReport
+	public class XmlChangedRecordReport : ChangeReport, IXmlChangeReport
 	{
 		private readonly XmlNode _parent;
 		private readonly XmlNode _child;

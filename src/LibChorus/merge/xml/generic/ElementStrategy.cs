@@ -207,7 +207,7 @@ namespace Chorus.merge.xml.generic
 	public class ContextDescriptor
 	{
 		/// <summary>
-		/// Something at the right level to show in a list view, e.g. a lexical entry or chapter/verse
+		/// (XPath query for xml) Something at the right level to show in a list view, e.g. a lexical entry or chapter/verse
 		/// </summary>
 		public string PathToUserUnderstandableElement { get; set; }
 
