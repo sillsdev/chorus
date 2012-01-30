@@ -181,6 +181,7 @@
 	<Compile Include="utilities\ChorusDiff3Tests.cs" />
 	<Compile Include="Properties\AssemblyInfo.cs" />
 	<Compile Include="VcsDrivers\Mercurial\RetrieveVersionTests.cs" />
+	<Compile Include="VcsDrivers\Mercurial\Utf8Tests.cs" />
   </ItemGroup>
   <ItemGroup>
 	<ProjectReference Include="..\LibChorus\LibChorus.csproj">

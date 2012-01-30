@@ -92,7 +92,6 @@ namespace Chorus.sync
 			try
 			{
 				HgRepository repo = new HgRepository(_localRepositoryPath, _progress);
-				repo.UpdateHgrc();
 
 				RemoveLocks(repo);
 				repo.RecoverFromInterruptedTransactionIfNeeded();
