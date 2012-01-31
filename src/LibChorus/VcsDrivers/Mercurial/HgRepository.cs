@@ -166,8 +166,6 @@ namespace Chorus.VcsDrivers.Mercurial
 
 			try
 			{
-				DisableNewRepositoryFormats();
-
 				//TODO: some can be removed now, since we have our own mercurial.ini.  Unfortunately, we pacakge it in a 4  meg zip, so it's Expensive (in terms of our own hg repo) to modify
 				//so for now we're still using this
 
@@ -190,7 +188,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				if(!string.IsNullOrEmpty(fixUtfFolder))
 					extensions.Add("fixutf8", Path.Combine(fixUtfFolder, "fixutf8.py"));
 #endif
-				EnsureTheseExtensionAreEnabled(extensions);
+				EnsureTheseExtensionsAndFormatSet(extensions);
 				_alreadyUpdatedHgrc = true;
 			}
 			catch (Exception error)
@@ -1234,21 +1232,16 @@ namespace Chorus.VcsDrivers.Mercurial
 			return new List<string>(section.GetKeys());
 		}
 
-		public void EnsureTheseExtensionAreEnabled(IEnumerable<KeyValuePair<string, string>> extensionDeclarations)
+		internal void EnsureTheseExtensionsAndFormatSet(IEnumerable<KeyValuePair<string, string>> extensionDeclarations)
 		{
 			var doc = GetMercurialConfigForRepository();
 			var section = doc.Sections.GetOrCreate("extensions");
 			foreach (var pair in extensionDeclarations)
 			{
-					 section.Set(pair.Key, pair.Value);
-			 }
-			doc.SaveAndThrowIfCannot();
-		}
+				section.Set(pair.Key, pair.Value);
+			}
 
-		public void DisableNewRepositoryFormats()
-		{
-			var doc = GetMercurialConfigForRepository();
-			var section = doc.Sections.GetOrCreate("format");
+			section = doc.Sections.GetOrCreate("format");
 
 			//see http://mercurial.selenic.com/wiki/UpgradingMercurial
 
@@ -1260,7 +1253,6 @@ namespace Chorus.VcsDrivers.Mercurial
 			//see also: CreateRepositoryInExistingDir
 
 			section.Set("dotencode", "False");
-
 			doc.SaveAndThrowIfCannot();
 		}
 
