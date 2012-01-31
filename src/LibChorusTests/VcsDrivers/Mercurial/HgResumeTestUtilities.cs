@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Threading;
 using Chorus.VcsDrivers.Mercurial;
 using Palaso.Progress;
 using Palaso.Progress.LogBox;
@@ -404,6 +405,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			get;
 			set;
 		}
+		public SynchronizationContext SyncContext { get; set; }
 
 		public void Dispose()
 		{

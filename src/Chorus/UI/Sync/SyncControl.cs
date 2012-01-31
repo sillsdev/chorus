@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.Threading;
 using System.Windows.Forms;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
@@ -46,7 +47,6 @@ namespace Chorus.UI.Sync
 				_model = value;
 				if(_model ==null)
 					return;
-				_model.ProgressIndicator = new MultiPhaseProgressIndicator(progressBar1, 2);  // for now we only specify 2 phases (pull, then push).
 				_model.SynchronizeOver += new EventHandler(_model_SynchronizeOver);
 				UpdateDisplay();
 			}
@@ -57,6 +57,7 @@ namespace Chorus.UI.Sync
 			Cursor.Current = Cursors.Default;
 			//Model.ProgressIndicator.Finish();
 			_didAttemptSync = true;
+			UpdateDisplay();
 		}
 
 
@@ -70,8 +71,8 @@ namespace Chorus.UI.Sync
 			}
 			_sendReceiveButton.Visible =  Model.EnableSendReceive;
 			_cancelButton.Visible =  Model.EnableCancel && !_showCancelButtonTimer.Enabled;
-			_successIcon.Visible = _didAttemptSync  && !(Model.StatusProgress.WarningEncountered || Model.StatusProgress.ErrorEncountered);
-			_warningIcon.Visible = (Model.StatusProgress.WarningEncountered || Model.StatusProgress.ErrorEncountered);
+			_successIcon.Visible = _didAttemptSync  && !(_statusText.ErrorEncountered);
+			_warningIcon.Visible = (_statusText.ErrorEncountered || _statusText.WarningEncountered);
 			_closeButton.Visible = Model.EnableClose;
 			if (_closeButton.Visible && Parent!=null && (Parent is Form))
 			{
@@ -80,8 +81,7 @@ namespace Chorus.UI.Sync
 			}
 			progressBar1.Visible = Model.SynchronizingNow;// || _didAttemptSync;
 			_statusText.Visible = progressBar1.Visible || _didAttemptSync;
-			_statusText.Text = Model.StatusProgress.LastStatus;
-
+			_logBox.ShowDetailsMenuItem = _didAttemptSync;
 			_syncTargets.Enabled = Model != null;
 //
 //            if (_sendReceiveButton.Enabled)
@@ -147,7 +147,11 @@ namespace Chorus.UI.Sync
 				return;
 			}
 
+			Model.ProgressIndicator = new MultiPhaseProgressIndicator(progressBar1, 2);  // for now we only specify 2 phases (pull, then push).
 			Model.AddProgressDisplay(_logBox);
+			Model.AddProgressDisplay(_statusText);
+			Model.UIContext = SynchronizationContext.Current;
+
 			LoadChoices();
 
 #if MONO
@@ -258,6 +262,11 @@ namespace Chorus.UI.Sync
 		private void _showCancelButtonTimer_Tick(object sender, EventArgs e)
 		{
 			_showCancelButtonTimer.Enabled = false;
+		}
+
+		private void _statusText_Click(object sender, EventArgs e)
+		{
+
 		}
 	}
 }
