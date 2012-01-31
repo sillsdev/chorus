@@ -143,7 +143,6 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			using (var setup = new RepositorySetup("Dan"))
 			{
 				var id = setup.Repository.Identifier.Trim();
-				Assert.IsTrue(String.IsNullOrEmpty(id));
 
 				var path = setup.ProjectFolder.Combine("test.1w1");
 				File.WriteAllText(path, "hello");
