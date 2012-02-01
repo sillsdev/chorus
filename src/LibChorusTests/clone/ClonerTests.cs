@@ -38,9 +38,10 @@ namespace LibChorus.Tests
 				var model = new CloneFromUsb();
 				var progress = new ConsoleProgress();
 				progress.ShowVerbose = true;
-				Directory.CreateDirectory(f.Combine(RepositorySetup.ProjectName));
+				var extantFolder = f.Combine(RepositorySetup.ProjectName);
+				Directory.CreateDirectory(extantFolder);
 				model.MakeClone(repo.ProjectFolder.Path, f.Path, progress);
-				Assert.IsTrue(Directory.Exists(f.Path + "1"));
+				Assert.IsTrue(Directory.Exists(extantFolder + "1"));
 			}
 		}
 
