@@ -245,7 +245,16 @@ namespace Chorus.VcsDrivers.Mercurial
 				UpdateHgrc();
 				// Or: id -i -r0 for short id
 				var results = Execute(SecondsBeforeTimeoutOnLocalOperation, "log -r0 --template " + SurroundWithQuotes("{node}"));
-				return results.StandardOutput;
+				// NB: This may end with a new line (&#xA; entity in xml).
+				// It could possibly have multiple lines, in which case, we want the last one.
+				// Earlier ones may be coming from some other version of Hg that complains about deprecated extensions Chorus uses.
+				var id = results.StandardOutput;
+				if (string.IsNullOrEmpty(id))
+					return null;
+				var split = id.Split(new[] { "\n", "\r" }, StringSplitOptions.RemoveEmptyEntries);
+				id = split.Length == 0 ? null : split[split.Length - 1]; // Get last one.
+
+				return id;
 			}
 		}
 
