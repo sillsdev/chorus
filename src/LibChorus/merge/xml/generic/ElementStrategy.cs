@@ -63,7 +63,7 @@ namespace Chorus.merge.xml.generic
 					if (ElementStrategies.ContainsKey(name) || element.ParentNode == null)
 						return name;
 					// Combine parent name + element name as key (for new styled FW properties).
-					var combinedKey = element.ParentNode.Name + "_" + name;
+					var combinedKey = element.ParentNode.Name == "ownseq" ? element.ParentNode.Attributes["class"].Value + "_" + name : element.ParentNode.Name + "_" + name;
 					if (ElementStrategies.ContainsKey(combinedKey))
 						return combinedKey;
 					break;

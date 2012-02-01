@@ -238,8 +238,12 @@ namespace Chorus.merge.xml.generic
 
 		public static bool IsTextLevel(XmlNode ours, XmlNode theirs, XmlNode ancestor)
 		{
-			return (ours != null || theirs != null || ancestor != null)
-				&& ((IsTextLevel(ours) || ours == null)
+			if (ours == null && theirs == null && ancestor == null)
+				return false;
+			if ((ours != null && !ours.HasChildNodes) && (theirs != null && !theirs.HasChildNodes) && (ancestor != null && !ancestor.HasChildNodes))
+				return false; // None are null, and none have children, so pick not text nodes.
+
+			return ((IsTextLevel(ours) || ours == null)
 				&& (IsTextLevel(theirs) || theirs == null)
 				&& (IsTextLevel(ancestor) || ancestor == null));
 		}
