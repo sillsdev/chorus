@@ -92,7 +92,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 
 #if !MONO
 		[Test]
-		public void Utf8ExtensionNotPresent_CloneLocalThrows()
+		public void Utf8ExtensionNotPresent_CloneLocalWithoutUpdateThrows()
 		{
 			using (var setup = new RepositorySetup("Dan"))
 			{
@@ -105,7 +105,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				using (var other = new RepositorySetup("Bob", false))
 				{
 					Assert.Throws<ApplicationException>(
-						() =>setup.Repository.CloneLocal(other.ProjectFolder.Path)
+						() => setup.Repository.CloneLocalWithoutUpdate(other.ProjectFolder.Path)
 					);
 					//string log = setup.GetProgressString();
 					//Assert.That(log, Contains.Substring("Failed to set up extensions"));
@@ -131,7 +131,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 
 				using (var other = new RepositorySetup("Bob", false))
 				{
-					setup.Repository.CloneLocal(other.ProjectFolder.Path); // Somewhat surprisingly this works as it is using the settings of the source hgrc during the clone
+					setup.Repository.CloneLocalWithoutUpdate(other.ProjectFolder.Path); // Somewhat surprisingly this works as it is using the settings of the source hgrc during the clone
 					other.Repository.Update();
 
 					other.AssertFileExists(utf8FilePath);

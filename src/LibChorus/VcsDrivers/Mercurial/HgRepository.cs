@@ -772,22 +772,22 @@ namespace Chorus.VcsDrivers.Mercurial
 			}
 		}
 
-
-		public void CloneLocal(string targetPath)
-		{
-			UpdateHgrc();
-			// This works with the utf8 plugin because it is clone *from* a repo, thus mercurial has the plugin loaded via the settings of the source repo.
-			Execute(SecondsBeforeTimeoutOnLocalOperation, "clone --uncompressed", PathWithQuotes + " " + SurroundWithQuotes(targetPath));
-		}
-
 		/// <summary>
 		/// Here we only create the .hg, no files. This is good because the people aren't tempted to modify
 		/// files in that directory, where nothing will ever check the changes in.
+		///
+		/// NB: Caller may well want to call Update on this repository,
+		/// say when the clone is from a USB or shared network folder TO a local working folder,
+		/// and the caller plans to use the actual data files in the repository.
 		/// </summary>
-		public void CloneToRemoteDirectoryWithoutCheckout(string targetPath)
+		public string CloneLocalWithoutUpdate(string proposedTargetPath)
 		{
 			UpdateHgrc();
-			Execute(SecondsBeforeTimeoutOnLocalOperation, "clone -U --uncompressed", PathWithQuotes + " " + SurroundWithQuotes(targetPath));
+			var actualTarget = GetUniqueFolderPath(_progress, proposedTargetPath);
+
+			Execute(SecondsBeforeTimeoutOnLocalOperation, "clone -U --uncompressed", PathWithQuotes + " " + SurroundWithQuotes(actualTarget));
+
+			return actualTarget;
 		}
 
 		private List<Revision> GetRevisionsFromQuery(string query)
