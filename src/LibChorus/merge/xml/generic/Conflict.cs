@@ -188,7 +188,7 @@ namespace Chorus.merge.xml.generic
 
 			Register<BothEditedAttributeConflict>(builder);
 			Register<BothEditedTextConflict>(builder);
-			Register<BothEditedTheSameElement>(builder);
+			Register<BothEditedTheSameAtomicElement>(builder);
 			Register<XmlTextBothEditedTextConflict>(builder);
 			Register<XmlTextBothAddedTextConflict>(builder);
 
@@ -903,31 +903,30 @@ namespace Chorus.merge.xml.generic
 	/// suspect.  This could be a "warning", if we had such a thing.
 	/// </summary>
 	[TypeGuid("3d9ba4ae-4a25-11df-9879-0800200c9a66")]
-	public class BothEditedTheSameElement : ElementConflict // NB: Be sure to register any new instances in CreateFromConflictElement method.
+	public class BothEditedTheSameAtomicElement : ElementConflict // NB: Be sure to register any new instances in CreateFromConflictElement method.
 	{
-		public BothEditedTheSameElement(string elementName, XmlNode alphaNode, XmlNode betaNode,
+		public BothEditedTheSameAtomicElement(string elementName, XmlNode alphaNode, XmlNode betaNode,
 			XmlNode ancestorElement, MergeSituation mergeSituation, IElementDescriber elementDescriber, string whoWon)
 			: base(elementName, alphaNode, betaNode, ancestorElement, mergeSituation, elementDescriber, whoWon)
 		{
 		}
 
-		public BothEditedTheSameElement(XmlNode xmlRepresentation)
+		public BothEditedTheSameAtomicElement(XmlNode xmlRepresentation)
 			: base(xmlRepresentation)
 		{
-
 		}
 
 
 		public override string Description
 		{
-			get { return "Both Edited the Same Element"; }
+			get { return "Both Edited the Same Atomic Element"; }
 		}
 
 		public override string WhatHappened
 		{
 			get
 			{
-				return string.Format("{0} and {1} edited this element.", Situation.AlphaUserId, Situation.BetaUserId);
+				return string.Format("{0} and {1} edited this atomic element.", Situation.AlphaUserId, Situation.BetaUserId);
 			}
 		}
 	}

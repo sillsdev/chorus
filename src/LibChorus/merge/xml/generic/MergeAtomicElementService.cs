@@ -111,13 +111,13 @@ namespace Chorus.merge.xml.generic
 				else
 				{
 					// Both edited.
-					// 2A1b. If different, then report a conflict (what kind of conflict?) and then stop.
+					// 2A1b. If different, then report a conflict and then stop.
 					merger.EventListener.ConflictOccurred(merger.MergeSituation.ConflictHandlingMode ==
 												   MergeOrder.ConflictHandlingModeChoices.WeWin
-													? new BothEditedTheSameElement(ours.Name, ours, theirs, commonAncestor,
+													? new BothEditedTheSameAtomicElement(ours.Name, ours, theirs, commonAncestor,
 																				   merger.MergeSituation, elementStrategy,
 																				   merger.MergeSituation.AlphaUserId)
-													: new BothEditedTheSameElement(theirs.Name, ours, theirs, commonAncestor,
+													: new BothEditedTheSameAtomicElement(theirs.Name, ours, theirs, commonAncestor,
 																				   merger.MergeSituation, elementStrategy,
 																				   merger.MergeSituation.BetaUserId));
 					if (merger.MergeSituation.ConflictHandlingMode != MergeOrder.ConflictHandlingModeChoices.WeWin)
