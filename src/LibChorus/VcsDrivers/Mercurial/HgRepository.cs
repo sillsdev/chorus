@@ -424,7 +424,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		/// Method only for testing.
 		/// </summary>
 		/// <param name="filePath"></param>
-		internal void TestOnlyAddSansCommit(string filePath)
+		public void TestOnlyAddSansCommit(string filePath)
 		{
 			TrackFile(filePath);
 		}
@@ -547,7 +547,7 @@ namespace Chorus.VcsDrivers.Mercurial
 #if DEBUG
 			if (GetHasLocks(fromDirectory, progress))
 			{
-				progress.WriteWarning("Found a lock before exectuting: {0}.", command);
+				progress.WriteWarning("Found a lock before executing: {0}.", command);
 			}
 #endif
 
