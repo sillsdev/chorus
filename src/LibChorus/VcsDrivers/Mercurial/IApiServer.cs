@@ -17,5 +17,6 @@ namespace Chorus.VcsDrivers.Mercurial
 		public Dictionary<string, string> Headers = new Dictionary<string, string>();
 		public HttpStatusCode StatusCode;
 		public byte[] Content;
+		public long ResponseTimeInMilliseconds;
 	}
 }

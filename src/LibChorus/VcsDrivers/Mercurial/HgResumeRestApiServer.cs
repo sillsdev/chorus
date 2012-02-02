@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Text;
@@ -84,11 +85,14 @@ namespace Chorus.VcsDrivers.Mercurial
 
 
 			HttpWebResponse res;
+			HgResumeApiResponse apiResponse;
+			var stopwatch = new Stopwatch();
+			stopwatch.Start();
 			try
 			{
 				using (res = (HttpWebResponse)req.GetResponse())
 				{
-					return HandleResponse(res);
+					apiResponse = HandleResponse(res);
 				}
 
 			}
@@ -98,15 +102,27 @@ namespace Chorus.VcsDrivers.Mercurial
 				{
 					using (res = (HttpWebResponse)e.Response)
 					{
-						return HandleResponse(res);
+						apiResponse = HandleResponse(res);
 					}
 				}
-				if (e.Status == WebExceptionStatus.Timeout)
+				else if (e.Status == WebExceptionStatus.Timeout)
 				{
-					return null;
+					apiResponse = null;
 				}
-				throw; // throw for other types of network errors (see WebExceptionStatus for the full list of errors)
+				else
+				{
+					throw; // throw for other types of network errors (see WebExceptionStatus for the full list of errors)
+				}
 			}
+			finally
+			{
+				stopwatch.Stop();
+			}
+			if (apiResponse != null)
+			{
+				apiResponse.ResponseTimeInMilliseconds = stopwatch.ElapsedMilliseconds;
+			}
+			return apiResponse;
 		}
 
 		private HgResumeApiResponse HandleResponse(HttpWebResponse res)

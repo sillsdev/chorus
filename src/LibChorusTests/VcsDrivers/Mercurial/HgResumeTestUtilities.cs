@@ -46,6 +46,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			{
 				response = new HgResumeApiResponse {StatusCode = HttpStatusCode.InternalServerError};
 			}
+			response.ResponseTimeInMilliseconds = 200;
 			return response;
 		}
 
@@ -92,6 +93,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		private int _executeCount;
 		private List<int> _timeoutList;
 		private List<ServerUnavailableResponse> _serverUnavailableList;
+		private int _failCount;
 
 		public PushHandlerApiServerForTest(HgRepository repo)
 		{
@@ -102,6 +104,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			Identifier = identifier;
 			ProjectId = "SampleProject";
 			_executeCount = 0;
+			_failCount = -1;
 			_timeoutList = new List<int>();
 			_serverUnavailableList = new List<ServerUnavailableResponse>();
 		}
@@ -124,6 +127,10 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			if (method == "pushBundleChunk")
 			{
 				_executeCount++;
+				if (_failCount == _executeCount)
+				{
+					return ApiResponses.Failed();
+				}
 				if (_timeoutList.Contains(_executeCount))
 				{
 					return null;
@@ -193,6 +200,11 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				_serverUnavailableList.Add(new ServerUnavailableResponse {ExecuteCount = executeCount, Message = serverMessage});
 			}
 		}
+
+		public void AddFailResponse(int executeCount)
+		{
+			_failCount = executeCount;
+		}
 	}
 
 	public class PullHandlerApiServerForTest : IApiServer, IDisposable
@@ -200,6 +212,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		private readonly PushStorageManager _helper;
 		private readonly HgRepository _repo;
 		private int _executeCount;
+		private int _failCount;
 		private List<int> _timeoutList;
 		private List<ServerUnavailableResponse> _serverUnavailableList;
 		private TemporaryFolder _storageFolder;
@@ -215,6 +228,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			Identifier = identifier;
 			ProjectId = "SampleProject";
 			_executeCount = 0;
+			_failCount = -1;
 			_timeoutList = new List<int>();
 			_serverUnavailableList = new List<ServerUnavailableResponse>();
 			Revisions = new List<string>();
@@ -265,6 +279,10 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			}
 			if (method == "pullBundleChunk")
 			{
+				if (_failCount == _executeCount)
+				{
+					return ApiResponses.Failed();
+				}
 				if (_timeoutList.Contains(_executeCount))
 				{
 					return null;
@@ -326,6 +344,11 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			{
 				_serverUnavailableList.Add(new ServerUnavailableResponse { ExecuteCount = executeCount, Message = serverMessage });
 			}
+		}
+
+		public void AddFailResponse(int executeCount)
+		{
+			_failCount = executeCount;
 		}
 	}
 
@@ -395,6 +418,11 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			}
 		}
 
+		public string AllMessagesString()
+		{
+			return String.Join(" ", _all.ToArray());
+		}
+
 		public bool CancelRequested
 		{
 			get { return false; }
@@ -430,7 +458,8 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 										 {
 											 {"X-HgR-Status", "SUCCESS"},
 											 {"X-HgR-Version", "1"}
-										 }
+										 },
+				ResponseTimeInMilliseconds = 200
 			};
 		}
 
@@ -444,7 +473,8 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 											 {"X-HgR-Status", "RECEIVED"},
 											 {"X-HgR-Version", "1"},
 											 {"X-HgR-Sow", startOfWindow.ToString()}
-										 }
+										 },
+				ResponseTimeInMilliseconds = 200
 			};
 		}
 
@@ -457,7 +487,8 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 										 {
 											 {"X-HgR-Status", "RESET"},
 											 {"X-HgR-Version", "1"}
-										 }
+										 },
+				ResponseTimeInMilliseconds = 200
 			};
 		}
 
@@ -471,7 +502,8 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 										 {
 											 {"X-HgR-Status", "FAIL"},
 											 {"X-HgR-Version", "1"}
-										 }
+										 },
+				ResponseTimeInMilliseconds = 200
 			};
 			if (!String.IsNullOrEmpty(message))
 			{
@@ -486,7 +518,8 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 					   {
 						   StatusCode = status,
 						   Headers = new Dictionary<string, string>(),
-						   Content = new byte[0]
+						   Content = new byte[0],
+						   ResponseTimeInMilliseconds = 200
 			};
 		}
 
@@ -500,7 +533,8 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 											 {"X-HgR-Status", "SUCCESS"},
 											 {"X-HgR-Version", "1"}
 										 },
-				Content = Encoding.UTF8.GetBytes(revisions)
+				Content = Encoding.UTF8.GetBytes(revisions),
+				ResponseTimeInMilliseconds = 200
 			};
 		}
 
@@ -521,7 +555,8 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 											 {"X-HgR-BundleSize", bundleSize.ToString()},
 											 {"X-HgR-ChunkSize", contentToSend.Length.ToString()}
 										 },
-				Content = contentToSend
+				Content = contentToSend,
+				ResponseTimeInMilliseconds = 200
 			};
 		}
 
@@ -534,7 +569,8 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 										 {
 											 {"X-HgR-Status", "NOCHANGE"},
 											 {"X-HgR-Version", "1"}
-										 }
+										 },
+				ResponseTimeInMilliseconds = 200
 			};
 		}
 
@@ -548,7 +584,8 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 											 {"X-HgR-Status", "NOTAVAILABLE"},
 											 {"X-HgR-Version", "1"}
 										 },
-				Content = Encoding.UTF8.GetBytes(message)
+				Content = Encoding.UTF8.GetBytes(message),
+				ResponseTimeInMilliseconds = 200
 			};
 		}
 	}

@@ -101,32 +101,6 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		}
 
 		[Test]
-		public void Push_TooManyServerTimeouts_Fails()
-		{
-			var progressForTest = new ProgressForTest();
-			using (var setup = new RepositorySetup("hgresumetest"))
-			using (var apiServer = new DummyApiServerForTest())
-			using (var progress = new MultiProgress(new IProgress[] { new ConsoleProgress { ShowVerbose = true }, progressForTest }))
-			{
-				setup.AddAndCheckinFile("sample1", "first checkin");
-				var revisionResponse = ApiResponses.Revisions(setup.Repository.GetTip().Number.Hash);
-				setup.AddAndCheckinFile("sample2", "second checkin");
-				var transport = new HgResumeTransport(setup.Repository, "test repo", apiServer, progress);
-				apiServer.AddTimeOut();
-				apiServer.AddResponse(revisionResponse);
-				apiServer.AddTimeOut();
-				apiServer.AddTimeOut();
-				apiServer.AddTimeOut();
-				apiServer.AddTimeOut();
-				apiServer.AddTimeOut();
-				apiServer.AddTimeOut();
-				apiServer.AddResponse(ApiResponses.PushComplete());
-				transport.Push();
-				Assert.That(progressForTest.AllMessages, Contains.Item("Push operation failed"));
-			}
-		}
-
-		[Test]
 		public void Push_LargeFileSizeBundle_Success()
 		{
 			var progressForTest = new ProgressForTest();
@@ -455,7 +429,6 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				apiServer.Revisions.Add(remoteTip);
 				apiServer.AddTimeoutResponse(2);
 				apiServer.AddTimeoutResponse(3);
-				apiServer.AddTimeoutResponse(6);
 				transport.Pull();
 				Assert.That(progressForTest.AllMessages, Contains.Item("Pull operation completed successfully"));
 			}
@@ -488,9 +461,8 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				apiServer.AddTimeoutResponse(7);
 				transport.Pull();
 
-				Assert.That(progressForTest.AllMessages, Contains.Item("Received 0+10000 bytes"));
-				Assert.That(progressForTest.AllMessages, Contains.Item("Received 10000+2500 bytes"));
-				Assert.That(progressForTest.AllMessages, Contains.Item("Received 15000+1250 bytes"));
+				Assert.That(progressForTest.AllMessagesString(), Contains.Substring("Received 0+5000 bytes"));
+				Assert.That(progressForTest.AllMessagesString(), Contains.Substring("Received 5000 of "));
 				Assert.That(progressForTest.AllMessages, Contains.Item("Pull operation completed successfully"));
 			}
 		}
@@ -515,26 +487,18 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				File.Copy(sourcePathOfLargeFile, largeFilePath);
 				setup.Repository.AddAndCheckinFile(largeFilePath);
 				apiServer.Revisions.Add(revHash);
-				apiServer.AddTimeoutResponse(5);
-				apiServer.AddTimeoutResponse(6);
-				apiServer.AddTimeoutResponse(7);
-				apiServer.AddTimeoutResponse(8);
-				apiServer.AddTimeoutResponse(9);
-				apiServer.AddTimeoutResponse(13);
-				apiServer.AddTimeoutResponse(14);
-				apiServer.AddTimeoutResponse(15);
-				apiServer.AddTimeoutResponse(16);
-				apiServer.AddTimeoutResponse(17);
+				apiServer.AddFailResponse(3);
 
 				transport.Pull();
 				Assert.That(progressForTest.AllMessages, Contains.Item("Pull operation failed"));
 
+				apiServer.AddFailResponse(5);
 				transport.Pull();
-				Assert.That(progressForTest.AllMessages, Contains.Item("Resuming pull operation at 30000 bytes"));
+				Assert.That(progressForTest.AllMessages, Contains.Item("Resuming pull operation at 5000 bytes"));
 				Assert.That(progressForTest.AllMessages, Contains.Item("Pull operation failed"));
 
 				transport.Pull();
-				Assert.That(progressForTest.AllMessages, Contains.Item("Resuming pull operation at 60000 bytes"));
+				Assert.That(progressForTest.AllMessages, Contains.Item("Resuming pull operation at 10000 bytes"));
 				Assert.That(progressForTest.AllMessages, Contains.Item("Pull operation completed successfully"));
 			}
 		}
@@ -552,31 +516,20 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 
 				// just pick a file larger than 10K for use as a test... any file will do
 				string sourcePathOfLargeFile = Path.Combine(ExecutionEnvironment.DirectoryOfExecutingAssembly,
-					String.Format("..{0}..{0}lib{0}Debug{0}Palaso.Tests.dll", Path.DirectorySeparatorChar));
+					String.Format("..{0}..{0}lib{0}Debug{0}Mercurial.zip", Path.DirectorySeparatorChar));
 
 				string largeFilePath = setup.ProjectFolder.GetNewTempFile(false).Path;
 				File.Copy(sourcePathOfLargeFile, largeFilePath);
 				setup.Repository.AddAndCheckinFile(largeFilePath);
 				var transport = new HgResumeTransport(setup.Repository, "test repo", apiServer, progress);
-				apiServer.AddTimeoutResponse(4);
-				apiServer.AddTimeoutResponse(5);
-				apiServer.AddTimeoutResponse(6);
-				apiServer.AddTimeoutResponse(7);
-				apiServer.AddTimeoutResponse(8);
-				apiServer.AddTimeoutResponse(12);
-				apiServer.AddTimeoutResponse(13);
-				apiServer.AddTimeoutResponse(14);
-				apiServer.AddTimeoutResponse(15);
-				apiServer.AddTimeoutResponse(16);
-				apiServer.AddTimeoutResponse(19);
-				apiServer.AddTimeoutResponse(20);
+				apiServer.AddFailResponse(3);
 				transport.Push();
 				Assert.That(progressForTest.AllMessages, Contains.Item("Push operation failed"));
+				apiServer.AddFailResponse(6);
 				transport.Push();
-				Assert.That(progressForTest.AllMessages, Contains.Item("Resuming push operation at 30000 bytes"));
-				Assert.That(progressForTest.AllMessages, Contains.Item("Push operation failed"));
+				Assert.That(progressForTest.AllMessages, Contains.Item("Resuming push operation at 130000 bytes"));
 				transport.Push();
-				Assert.That(progressForTest.AllMessages, Contains.Item("Resuming push operation at 50000 bytes"));
+				Assert.That(progressForTest.AllMessages, Contains.Item("Resuming push operation at 255000 bytes"));
 				Assert.That(progressForTest.AllMessages, Contains.Item("Push operation completed successfully"));
 			}
 		}
@@ -600,17 +553,13 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				File.Copy(sourcePathOfLargeFile, largeFilePath);
 				setup.Repository.AddAndCheckinFile(largeFilePath);
 				var transport = new HgResumeTransport(setup.Repository, "test repo", apiServer, progress);
-				apiServer.AddTimeoutResponse(4);
-				apiServer.AddTimeoutResponse(5);
-				apiServer.AddTimeoutResponse(6);
-				apiServer.AddTimeoutResponse(7);
-				apiServer.AddTimeoutResponse(8);
+				apiServer.AddFailResponse(2);
 				transport.Push();
 				Assert.That(progressForTest.AllMessages, Contains.Item("Push operation failed"));
 
 				setup.AddAndCheckinFile("sample2", "second checkin");
 				transport.Push();
-				Assert.That(progressForTest.AllMessages, Has.No.Member("Resuming push operation at 30000 bytes"));
+				Assert.That(progressForTest.AllMessagesString().Contains("Resuming push operation at"), Is.Not.True);
 				Assert.That(progressForTest.AllMessages, Contains.Item("Push operation completed successfully"));
 			}
 		}
@@ -641,18 +590,14 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 
 				apiServer.Revisions.Add(localTip);
 				apiServer.Revisions.Add(remoteTip);
-				apiServer.AddTimeoutResponse(5);
-				apiServer.AddTimeoutResponse(6);
-				apiServer.AddTimeoutResponse(7);
-				apiServer.AddTimeoutResponse(8);
-				apiServer.AddTimeoutResponse(9);
+				apiServer.AddFailResponse(3);
 
 				transport.Pull();
 				Assert.That(progressForTest.AllMessages, Contains.Item("Pull operation failed"));
 
 				remoteSetup.AddAndCheckinFile("sample2", "second checkin");
 				transport.Pull();
-				Assert.That(progressForTest.AllMessages, Contains.Item("Resuming pull operation at 30000 bytes"));
+				Assert.That(progressForTest.AllMessages, Contains.Item("Resuming pull operation at 5000 bytes"));
 				Assert.That(progressForTest.AllMessages, Contains.Item("Pull operation completed successfully"));
 				Assert.That(progressForTest.AllMessages, Contains.Item("Remote repo has changed.  Initiating additional pull operation"));
 				IEnumerable<string> msgs = progressForTest.Messages.Where(x => x == "Pull operation completed successfully");
@@ -672,11 +617,11 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				setup.AddAndCheckinFile("sample1", "first checkin");
 				apiServer.Revisions.Add(setup.Repository.GetTip().Number.Hash);
 				string serverMessage = "The server is down for scheduled maintenance";
-				apiServer.AddServerUnavailableResponse(7, serverMessage);
+				apiServer.AddServerUnavailableResponse(4, serverMessage);
 
 				// just pick a file larger than 10K for use as a test... any file will do
 				string sourcePathOfLargeFile = Path.Combine(ExecutionEnvironment.DirectoryOfExecutingAssembly,
-					String.Format("..{0}..{0}lib{0}Debug{0}Palaso.Tests.dll", Path.DirectorySeparatorChar));
+					String.Format("..{0}..{0}lib{0}Debug{0}Mercurial.zip", Path.DirectorySeparatorChar));
 
 				string largeFilePath = setup.ProjectFolder.GetNewTempFile(false).Path;
 				File.Copy(sourcePathOfLargeFile, largeFilePath);
@@ -710,11 +655,8 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 
 				apiServer.PrepareBundle(revHash);
 
-				apiServer.AddTimeoutResponse(2);
-				apiServer.AddTimeoutResponse(3);
-				apiServer.AddTimeoutResponse(6);
 				string serverMessage = "The server is down for scheduled maintenance";
-				apiServer.AddServerUnavailableResponse(7, serverMessage);
+				apiServer.AddServerUnavailableResponse(2, serverMessage);
 				transport.Pull();
 				Assert.That(progressForTest.AllMessages, Contains.Item("Server temporarily unavailable: " + serverMessage));
 				Assert.That(progressForTest.AllMessages, Has.No.Member("Pull operation completed successfully"));
