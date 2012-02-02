@@ -8,6 +8,7 @@ using Chorus.Utilities.UsbDrive;
 using Chorus.VcsDrivers.Mercurial;
 using Palaso.IO;
 using Palaso.Progress.LogBox;
+using Palaso.Reporting;
 
 namespace Chorus.VcsDrivers
 {
@@ -280,10 +281,19 @@ namespace Chorus.VcsDrivers
 
 				foreach (var path in foldersWithRepos)
 				{
-					// Need to create an HgRepository for each so we can get its Id.
-					var usbRepo = new HgRepository(path, progress);
-					if (repoIdentifier.ToLowerInvariant() == usbRepo.Identifier.ToLowerInvariant())
-						return path;
+					try
+					{
+
+
+						// Need to create an HgRepository for each so we can get its Id.
+						var usbRepo = new HgRepository(path, progress);
+						if (repoIdentifier.ToLowerInvariant() == usbRepo.Identifier.ToLowerInvariant())
+							return path;
+					}
+					catch (Exception e)
+					{
+						ErrorReport.ReportNonFatalExceptionWithMessage(e, "Error while processing USB folder '{0}'", path);
+					}
 				}
 			}
 			return string.Empty;

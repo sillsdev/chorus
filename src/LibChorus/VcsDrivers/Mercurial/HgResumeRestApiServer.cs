@@ -55,12 +55,12 @@ namespace Chorus.VcsDrivers.Mercurial
 		}
 
 
-		public HgResumeApiResponse Execute(string method, IDictionary<string, string> parameters, int secondsBeforeTimeout = 10)
+		public HgResumeApiResponse Execute(string method, IDictionary<string, string> parameters, int secondsBeforeTimeout)
 		{
 			return Execute(method, parameters, new byte[0], secondsBeforeTimeout);
 		}
 
-		public HgResumeApiResponse Execute(string method, IDictionary<string, string> parameters, byte[] contentToSend, int secondsBeforeTimeout = 10)
+		public HgResumeApiResponse Execute(string method, IDictionary<string, string> parameters, byte[] contentToSend, int secondsBeforeTimeout)
 		{
 			string queryString = BuildQueryString(parameters);
 			_urlExecuted = _baseUrl + String.Format("/api/v{0}/", APIVERSION) + method + "?" + queryString;

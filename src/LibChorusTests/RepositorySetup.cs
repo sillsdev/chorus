@@ -15,28 +15,38 @@ namespace LibChorus.Tests
 	public class RepositorySetup :IDisposable
 	{
 		private readonly StringBuilderProgress _stringBuilderProgress = new StringBuilderProgress();
-		private IProgress _progress;
 		public TemporaryFolder RootFolder;
 		public TemporaryFolder ProjectFolder;
 		public ProjectFolderConfiguration ProjectFolderConfig;
 
 		private void Init(string name)
 		{
-			Progress = new MultiProgress(new IProgress[] { new ConsoleProgress(){ShowVerbose=true}, _stringBuilderProgress });
+			Progress = new MultiProgress(new IProgress[] { new ConsoleProgress {ShowVerbose=true}, _stringBuilderProgress });
 			RootFolder = new TemporaryFolder("ChorusTest-" + name);
 		}
 
-		public RepositorySetup(string userName)
+		public RepositorySetup(string userName) :
+			this(userName, true)
+		{
+		}
+
+		public RepositorySetup(string userName, bool makeRepository)
 		{
 			Init(userName);
 
 			ProjectFolder = new TemporaryFolder(RootFolder, ProjectName);
 
-			RepositorySetup.MakeRepositoryForTest(ProjectFolder.Path, userName,Progress);
+			if (makeRepository)
+			{
+				RepositorySetup.MakeRepositoryForTest(ProjectFolder.Path, userName, Progress);
+			} else
+			{
+				// Remove the folder to make way for a clone which requires the folder to be not present.
+				Directory.Delete(ProjectFolder.Path);
+			}
 			ProjectFolderConfig = new ProjectFolderConfiguration(ProjectFolder.Path);
 
 		}
-
 
 		public RepositorySetup(string cloneName, RepositorySetup sourceToClone)
 		{
@@ -60,7 +70,7 @@ namespace LibChorus.Tests
 
 		public string GetProgressString()
 		{
-			return _stringBuilderProgress.ToString();
+			return _stringBuilderProgress.Text;
 		}
 
 		public Synchronizer CreateSynchronizer()
@@ -111,16 +121,17 @@ namespace LibChorus.Tests
 			var p = ProjectFolder.Combine(fileName);
 			File.WriteAllText(p, contents);
 		}
-	   public void ChangeFileAndCommit(string fileName, string contents, string message)
+
+		public void ChangeFileAndCommit(string fileName, string contents, string message)
 		{
 			var p = ProjectFolder.Combine(fileName);
 			File.WriteAllText(p, contents);
-		   Repository.Commit(false,message);
+			Repository.Commit(false,message);
 		}
 
 		public void AddAndCheckIn()
 		{
-			SyncOptions options = new SyncOptions();
+			var options = new SyncOptions();
 			options.DoMergeWithOthers = false;
 			options.DoPullFromOthers = false;
 			options.DoSendToOthers = false;
@@ -134,7 +145,7 @@ namespace LibChorus.Tests
 
 		public SyncResults CheckinAndPullAndMerge(RepositorySetup otherUser)
 		{
-			SyncOptions options = new SyncOptions();
+			var options = new SyncOptions();
 			options.DoMergeWithOthers = true;
 			options.DoPullFromOthers = true;
 			options.DoSendToOthers = true;
@@ -179,11 +190,7 @@ namespace LibChorus.Tests
 			get { return "foo project"; }//nb: important that it have a space, as this helps catch failure to enclose in quotes
 		}
 
-		public IProgress Progress
-		{
-			get { return _progress; }
-			set { _progress = value; }
-		}
+		public IProgress Progress { get; set; }
 
 		public IDisposable GetFileLockForReading(string localPath)
 		{

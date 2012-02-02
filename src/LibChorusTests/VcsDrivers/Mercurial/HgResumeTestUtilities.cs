@@ -16,7 +16,12 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 	{
 		private readonly Queue<HgResumeApiResponse> _responseQueue = new Queue<HgResumeApiResponse>();
 
-		public DummyApiServerForTest(string identifier = "DummyApiServerForTest")
+		public DummyApiServerForTest() :
+			this("DummyApiServerForTest")
+		{
+		}
+
+		public DummyApiServerForTest(string identifier)
 		{
 			Identifier = identifier;
 			ProjectId = "SampleProject";
@@ -88,8 +93,9 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		private List<int> _timeoutList;
 		private List<ServerUnavailableResponse> _serverUnavailableList;
 
-		public PushHandlerApiServerForTest(HgRepository repo, string identifier = "PushHandlerApiServerForTest")
+		public PushHandlerApiServerForTest(HgRepository repo)
 		{
+			const string identifier = "PushHandlerApiServerForTest";
 			_localStorage = new TemporaryFolder(identifier);
 			_repo = repo;
 			Revisions = new List<string>();
@@ -200,8 +206,9 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		public List<string> Revisions;
 		public string OriginalTip;
 
-		public PullHandlerApiServerForTest(HgRepository repo, string identifier = "PullHandlerApiServerForTest")
+		public PullHandlerApiServerForTest(HgRepository repo)
 		{
+			const string identifier = "PullHandlerApiServerForTest";
 			_storageFolder = new TemporaryFolder(identifier);
 			_repo = repo;
 			_helper = new PushStorageManager(_storageFolder.Path, "randomHash");
@@ -455,7 +462,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		}
 
 
-		public static HgResumeApiResponse Failed(string message = "")
+		public static HgResumeApiResponse Failed(string message)
 		{
 			var response = new HgResumeApiResponse
 			{

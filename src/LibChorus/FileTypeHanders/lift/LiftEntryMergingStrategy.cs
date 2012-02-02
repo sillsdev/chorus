@@ -1,10 +1,6 @@
-using System;
-using System.Collections.Generic;
 using System.Xml;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
-using Chorus.Utilities;
-using System.Linq;
 
 namespace Chorus.FileTypeHanders.lift
 {
@@ -18,7 +14,7 @@ namespace Chorus.FileTypeHanders.lift
 
 			//now customize the XmlMerger with LIFT-specific info
 
-			var elementStrategy =AddKeyedElementType("entry", "id", false);
+			var elementStrategy = AddKeyedElementType("entry", "id", false);
 			elementStrategy.AttributesToIgnoreForMerging.Add("dateModified");
 
 			elementStrategy.ContextDescriptorGenerator = new LexEntryContextGenerator();
@@ -38,9 +34,12 @@ namespace Chorus.FileTypeHanders.lift
 			AddSingletonElementType("label");
 			AddSingletonElementType("usage");
 			AddSingletonElementType("header");
-			AddSingletonElementType("description"); // in header
+			var strategy = AddSingletonElementType("description"); // in header
+			strategy.OrderIsRelevant = false; // Order may well be important, in the end, but for now, I (RBR) have no idea what is to be in the header.
 			AddSingletonElementType("ranges"); // in header
+			strategy.OrderIsRelevant = false; // Order may well be important, in the end, but for now, I (RBR) have no idea what is to be in the header.
 			AddSingletonElementType("fields"); // in header
+			strategy.OrderIsRelevant = false; // Order may well be important, in the end, but for now, I (RBR) have no idea what is to be in the header.
 
 			//enhance: don't currently have a way of limitting etymology/form to a single instance but not multitext/form
 

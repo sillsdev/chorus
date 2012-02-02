@@ -2,7 +2,9 @@ using System;
 using System.CodeDom.Compiler;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Xml;
@@ -72,10 +74,8 @@ namespace Chorus.merge.xml.generic
 		}
 	}
 
-	public class XmlUtilities
+	public static class XmlUtilities
 	{
-
-
 		public static bool AreXmlElementsEqual(string ours, string theirs)
 		{
 			if (ours == theirs)
@@ -85,7 +85,7 @@ namespace Chorus.merge.xml.generic
 			XmlReader or = XmlReader.Create(osr);
 			XmlDocument od = new XmlDocument();
 			XmlNode on = od.ReadNode(or);
-			on.Normalize();
+			@on.Normalize();
 
 			StringReader tsr = new StringReader(theirs);
 			XmlReader tr = XmlReader.Create(tsr);
@@ -93,7 +93,7 @@ namespace Chorus.merge.xml.generic
 			XmlNode tn = td.ReadNode(tr);
 			tn.Normalize();//doesn't do much
 
-			return AreXmlElementsEqual(on, tn);
+			return AreXmlElementsEqual(@on, tn);
 		}
 
 		/// <summary>
@@ -114,7 +114,7 @@ namespace Chorus.merge.xml.generic
 			XmlReader or = XmlReader.Create(osr);
 			XmlDocument od = new XmlDocument();
 			XmlNode on = od.ReadNode(or);
-			on.Normalize();
+			@on.Normalize();
 
 			StringReader tsr = new StringReader(theirs);
 			XmlReader tr = XmlReader.Create(tsr);
@@ -122,14 +122,14 @@ namespace Chorus.merge.xml.generic
 			XmlNode tn = td.ReadNode(tr);
 			tn.Normalize();//doesn't do much
 
-			System.Diagnostics.Debug.Assert(astrElementXPath.Length == astrAttributeToIgnore.Length);
+			Debug.Assert(astrElementXPath.Length == astrAttributeToIgnore.Length);
 			for (int i = 0; i < astrElementXPath.Length; i++)
 			{
-				RemoveItem(on, astrElementXPath[i], astrAttributeToIgnore[i]);
+				RemoveItem(@on, astrElementXPath[i], astrAttributeToIgnore[i]);
 				RemoveItem(tn, astrElementXPath[i], astrAttributeToIgnore[i]);
 			}
 
-			return AreXmlElementsEqual(on, tn);
+			return AreXmlElementsEqual(@on, tn);
 		}
 
 		private static void RemoveItem(XmlNode node, string strXPath, string strAttribute)
@@ -229,6 +229,51 @@ namespace Chorus.merge.xml.generic
 		public static string GetIndendentedXml(string xml)
 		{
 			return XElement.Parse(xml).ToString();
+		}
+
+		public static string SafelyGetStringTextNode(XmlNode node)
+		{
+			return (node == null || node.InnerText == String.Empty) ? String.Empty : node.InnerText.Trim();
+		}
+
+		public static bool IsTextLevel(XmlNode ours, XmlNode theirs, XmlNode ancestor)
+		{
+			if (ours == null && theirs == null && ancestor == null)
+				return false;
+			if ((ours != null && !ours.HasChildNodes) && (theirs != null && !theirs.HasChildNodes) && (ancestor != null && !ancestor.HasChildNodes))
+				return false; // None are null, and none have children, so pick not text nodes.
+
+			return ((IsTextLevel(ours) || ours == null)
+				&& (IsTextLevel(theirs) || theirs == null)
+				&& (IsTextLevel(ancestor) || ancestor == null));
+		}
+
+		public static bool IsTextLevel(XmlNode node)
+		{
+			var badNodeTypes = new HashSet<XmlNodeType>
+								{
+									XmlNodeType.None,
+									XmlNodeType.Element,
+									XmlNodeType.Attribute,
+									XmlNodeType.CDATA,
+									XmlNodeType.EntityReference,
+									XmlNodeType.Entity,
+									XmlNodeType.ProcessingInstruction,
+									XmlNodeType.Comment,
+									XmlNodeType.Document,
+									XmlNodeType.DocumentType,
+									XmlNodeType.DocumentFragment,
+									XmlNodeType.Notation,
+									XmlNodeType.EndElement,
+									XmlNodeType.EndEntity,
+									XmlNodeType.XmlDeclaration
+								};
+			// I (RBR) think the only ones we can cope with are:
+			// Text, Whitespace, and SignificantWhitespace.
+			// Alternatively, one might be able to use the XmlText, XmlWhitespace,
+			// and XmlSignificantWhitespace subclasses of XmlCharacterData (leaving out XmlCDataSection and XmlComment), which match well with those legal enums
+
+			return node == null || (node.NodeType == XmlNodeType.Element && (!node.HasChildNodes || node.ChildNodes.Cast<XmlNode>().All(childNode => !badNodeTypes.Contains(childNode.NodeType))));
 		}
 	}
 

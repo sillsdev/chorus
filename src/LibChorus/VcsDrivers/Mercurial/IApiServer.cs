@@ -5,8 +5,8 @@ namespace Chorus.VcsDrivers.Mercurial
 {
 	public interface IApiServer
 	{
-		HgResumeApiResponse Execute(string method, IDictionary<string, string> parameters, int secondsBeforeTimeout = 10);
-		HgResumeApiResponse Execute(string method, IDictionary<string, string> parameters, byte[] contentToSend, int secondsBeforeTimeout = 10);
+		HgResumeApiResponse Execute(string method, IDictionary<string, string> parameters, int secondsBeforeTimeout);
+		HgResumeApiResponse Execute(string method, IDictionary<string, string> parameters, byte[] contentToSend, int secondsBeforeTimeout);
 		string Identifier { get; }
 		string ProjectId { get; }
 		string Url { get; }

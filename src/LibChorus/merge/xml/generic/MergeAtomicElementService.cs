@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Xml;
+using Chorus.FileTypeHanders.xml;
 
 namespace Chorus.merge.xml.generic
 {
@@ -25,7 +26,7 @@ namespace Chorus.merge.xml.generic
 				throw new ArgumentNullException();
 
 			// One or two of the elements may be null.
-			// If commonAncestor is null and one of the othere is null, then the other one added a new element.
+			// If commonAncestor is null and one of the others is null, then the other one added a new element.
 			// if ours and theirs are both null, they each deleted the element.
 			var nodeForStrategy = ours ?? (theirs ?? commonAncestor);
 			// Here is where we sort out the new 'IsAtomic' business of ElementStrategy.
@@ -36,82 +37,96 @@ namespace Chorus.merge.xml.generic
 
 			if (commonAncestor == null)
 			{
-				if (theirs != null)
+				if (ours == null)
 				{
+					if (theirs == null)
+					{
+						// Nobody did anything.
+						return true;
+					}
+					// They seem to have added a new one.
+					merger.EventListener.ChangeOccurred(new XmlAdditionChangeReport(merger.MergeSituation.PathToFileInRepository, theirs));
 					ours = theirs; // They added it.
+					return true;
 				}
 				// else // We added it.
+				merger.EventListener.ChangeOccurred(new XmlAdditionChangeReport(merger.MergeSituation.PathToFileInRepository, ours));
+				return true;
 			}
-			else
+
+			// commonAncestor != null from here on out.
+			if (ours == null && theirs == null)
 			{
-				if (ours == null && theirs == null)
+				// No problemo, since both deleted it.
+				merger.EventListener.ChangeOccurred(new XmlBothDeletionChangeReport(merger.MergeSituation.PathToFileInRepository, commonAncestor));
+				return true;
+			}
+
+			// 2A1. Compare 'ours' with 'theirs'.
+			// If one is null, keep the other one, but only if it was edited.
+			var theirsAndCommonAreEqual = theirs != null && XmlUtilities.AreXmlElementsEqual(theirs, commonAncestor);
+			if (ours == null && !theirsAndCommonAreEqual)
+			{
+				// We deleted, they edited, so keep theirs under the least loss principle.
+				merger.EventListener.ConflictOccurred(new RemovedVsEditedElementConflict(theirs.Name, null, theirs,
+																						 commonAncestor,
+																						 merger.MergeSituation, elementStrategy,
+																						 merger.MergeSituation.BetaUserId));
+				ours = theirs;
+				return true;
+			}
+
+			var oursAndCommonAreEqual = XmlUtilities.AreXmlElementsEqual(ours, commonAncestor);
+			if (theirs == null && !oursAndCommonAreEqual)
+			{
+				// We edited, they deleted, so keep ours under the least loss principle.
+				merger.EventListener.ConflictOccurred(new EditedVsRemovedElementConflict(ours.Name, ours, null, commonAncestor,
+																			   merger.MergeSituation, elementStrategy,
+																			   merger.MergeSituation.AlphaUserId));
+				return true;
+			}
+
+			var oursAndTheirsAreEqual = XmlUtilities.AreXmlElementsEqual(ours, theirs);
+			if (oursAndTheirsAreEqual && !oursAndCommonAreEqual)
+			{
+				// Both made same changes.
+				merger.EventListener.ChangeOccurred(new BothChangedAtomicElementReport(merger.MergeSituation.PathToFileInRepository, ours));
+				return true;
+			}
+
+			if (!oursAndTheirsAreEqual)
+			{
+				// Compare with common ancestor to see who made the change, if only one made it.\
+				if (!oursAndCommonAreEqual && theirsAndCommonAreEqual)
 				{
-					// No problemo, since both deleted it.
+					// We edited it. They did nothing.
+					merger.EventListener.ChangeOccurred(new XmlChangedRecordReport(null, null, ours.ParentNode, ours));
+				}
+				else if (!theirsAndCommonAreEqual && oursAndCommonAreEqual)
+				{
+					// They edited it. We did nothing.
+					merger.EventListener.ChangeOccurred(new XmlChangedRecordReport(null, null, theirs.ParentNode, theirs));
+					ours = theirs;
 				}
 				else
 				{
-					// 2A1. Compare 'ours' with 'theirs'.
-						// If one is null, keep the other one, but only if it was edited.
-					if (ours == null && !XmlUtilities.AreXmlElementsEqual(theirs, commonAncestor))
-					{
+					// Both edited.
+					// 2A1b. If different, then report a conflict and then stop.
+					merger.EventListener.ConflictOccurred(merger.MergeSituation.ConflictHandlingMode ==
+												   MergeOrder.ConflictHandlingModeChoices.WeWin
+													? new BothEditedTheSameAtomicElement(ours.Name, ours, theirs, commonAncestor,
+																				   merger.MergeSituation, elementStrategy,
+																				   merger.MergeSituation.AlphaUserId)
+													: new BothEditedTheSameAtomicElement(theirs.Name, ours, theirs, commonAncestor,
+																				   merger.MergeSituation, elementStrategy,
+																				   merger.MergeSituation.BetaUserId));
+					if (merger.MergeSituation.ConflictHandlingMode != MergeOrder.ConflictHandlingModeChoices.WeWin)
 						ours = theirs;
-						// We deleted, they edited, so keep theirs under the least loss principle.
-						if (merger.MergeSituation.ConflictHandlingMode == MergeOrder.ConflictHandlingModeChoices.WeWin)
-						{
-							merger.EventListener.ConflictOccurred(new RemovedVsEditedElementConflict(ours.Name, ours, theirs, commonAncestor,
-																									 merger.MergeSituation, null,
-																									 MergeSituation.kAlphaUserId));
-						}
-						else
-						{
-							merger.EventListener.ConflictOccurred(new RemovedVsEditedElementConflict(theirs.Name, theirs, ours,
-																									 commonAncestor,
-																									 merger.MergeSituation, null,
-																									 MergeSituation.kBetaUserId));
-						}
-					}
-					else if (theirs == null && !XmlUtilities.AreXmlElementsEqual(ours, commonAncestor))
-					{
-						// We edited, they deleted, so keep ours under the least loss principle.
-						merger.EventListener.ConflictOccurred(new RemovedVsEditedElementConflict(ours.Name, ours, theirs, commonAncestor,
-																					   merger.MergeSituation, null,
-																					   MergeSituation.kAlphaUserId));
-					}
-					else if (!XmlUtilities.AreXmlElementsEqual(ours, theirs))
-					{
-						var oursAndCommonAreEqual = XmlUtilities.AreXmlElementsEqual(ours, commonAncestor);
-						var theirsAndCommonAreEqual = XmlUtilities.AreXmlElementsEqual(theirs, commonAncestor);
-						// Compare with common ancestor to see who made the change, if only one made it.\
-						if (!oursAndCommonAreEqual && theirsAndCommonAreEqual)
-						{
-							// We edited it.
-						}
-						else if (!theirsAndCommonAreEqual && oursAndCommonAreEqual)
-						{
-							// They edited it.
-							ours = theirs;
-						}
-						else
-						{
-							// Both edited.
-							// 2A1b. If different, then report a conflict (what kind of conflict?) and then stop.
-// ReSharper disable PossibleNullReferenceException
-							merger.EventListener.ConflictOccurred(merger.MergeSituation.ConflictHandlingMode ==
-														   MergeOrder.ConflictHandlingModeChoices.WeWin
-															? new BothEditedTheSameElement(ours.Name, ours, theirs, commonAncestor,
-																						   merger.MergeSituation, null,
-																						   MergeSituation.kAlphaUserId)
-															: new BothEditedTheSameElement(theirs.Name, theirs, ours, commonAncestor,
-																						   merger.MergeSituation, null,
-																						   MergeSituation.kBetaUserId));
-// ReSharper restore PossibleNullReferenceException
-						}
-					}
-						// else
-						// No changes, or both made the same change(s).
 				}
+				return true;
 			}
 
+			// No changes.
 			return true;
 		}
 	}

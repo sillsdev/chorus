@@ -63,7 +63,7 @@ namespace Chorus.merge.xml.generic
 					if (ElementStrategies.ContainsKey(name) || element.ParentNode == null)
 						return name;
 					// Combine parent name + element name as key (for new styled FW properties).
-					var combinedKey = element.ParentNode.Name + "_" + name;
+					var combinedKey = (element.ParentNode.Name == "ownseq" || element.ParentNode.Name == "ownseqatomic") ? element.ParentNode.Attributes["class"].Value + "_" + name : element.ParentNode.Name + "_" + name;
 					if (ElementStrategies.ContainsKey(combinedKey))
 						return combinedKey;
 					break;
@@ -207,7 +207,7 @@ namespace Chorus.merge.xml.generic
 	public class ContextDescriptor
 	{
 		/// <summary>
-		/// Something at the right level to show in a list view, e.g. a lexical entry or chapter/verse
+		/// (XPath query for xml) Something at the right level to show in a list view, e.g. a lexical entry or chapter/verse
 		/// </summary>
 		public string PathToUserUnderstandableElement { get; set; }
 

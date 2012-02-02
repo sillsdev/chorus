@@ -188,6 +188,8 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				var transport = new HgResumeTransport(setup.Repository, "test repo", apiServer, progress);
 				apiServer.AddResponse(revisionResponse);
 				apiServer.AddResponse(ApiResponses.PushComplete());
+				// CH TODO CP 2012-02
+				//string dbStoragePath = HgResumeTransport.PathToLocalStorage(setup.Repository.Identifier);
 				string dbStoragePath = setup.Repository.PathToLocalStorage;
 				string dbFilePath = Path.Combine(dbStoragePath, "remoteRepo.db");
 				Assert.That(File.Exists(dbFilePath), Is.False);

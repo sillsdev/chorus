@@ -4,7 +4,6 @@ using System.IO;
 using System.Media;
 using System.Windows.Forms;
 using Chorus.clone;
-using Chorus.Utilities;
 using System.Linq;
 using Palaso.Progress.LogBox;
 
@@ -92,7 +91,7 @@ namespace Chorus.UI.Clone
 			_copyToComputerButton.Enabled = listView1.SelectedItems.Count == 1;
 		}
 
-		private void GetCloneDialog_Load(object sender, EventArgs e)
+		private void GetCloneFromUsbDialog_Load(object sender, EventArgs e)
 		{
 			if (_model.GetHaveOneOrMoreUsbDrives())
 			{

@@ -9,6 +9,7 @@ using Chorus.Utilities;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using System.Linq;
+using Palaso.IO;
 using Palaso.Progress.LogBox;
 using Palaso.Extensions;
 using Palaso.Reporting;
@@ -92,7 +93,6 @@ namespace Chorus.sync
 			try
 			{
 				HgRepository repo = new HgRepository(_localRepositoryPath, _progress);
-				repo.UpdateHgrc();
 
 				RemoveLocks(repo);
 				repo.RecoverFromInterruptedTransactionIfNeeded();
@@ -153,23 +153,31 @@ namespace Chorus.sync
 			return results;
 		}
 
-		private void CreateRepositoryOnLocalAreaNetworkFolderIfNeededThrowIfFails(HgRepository repo, List<RepositoryAddress> sourcesToTry)
+		private static void CreateRepositoryOnLocalAreaNetworkFolderIfNeededThrowIfFails(HgRepository repo, IEnumerable<RepositoryAddress> sourcesToTry)
 		{
 			var directorySource = sourcesToTry.FirstOrDefault(s => s is DirectoryRepositorySource);
 			if (directorySource == null)
 				return;
 
-			var target = HgHighLevel.GetUniqueFolderPath(_progress,
-														 "Could not use folder {0}, since it already exists. Using new folder {1}, instead.",
-														 directorySource.URI);
-			_progress.WriteMessage("Creating new repository at " + target);
-			repo.CloneToRemoteDirectoryWithoutCheckout(target);
+			if (Directory.Exists(directorySource.URI) && Directory.Exists(Path.Combine(directorySource.URI, ".hg")))
+			{
+				var otherRepo = new HgRepository(directorySource.URI, new NullProgress());
+				if (repo.Identifier == otherRepo.Identifier)
+					return;
+			}
+
+			var actualTarget = repo.CloneLocalWithoutUpdate(directorySource.URI);
+			if (directorySource.URI != actualTarget)
+			{
+				// Reset hgrc to new location.
+				var alias = HgRepository.GetAliasFromPath(actualTarget);
+				repo.SetTheOnlyAddressOfThisType(RepositoryAddress.Create(alias, actualTarget));
+			}
 		}
 
 		/// <summary>
-		/// This version is used by the CHorus UI, which wants to do the sync in the background
+		/// This version is used by the Chorus UI, which wants to do the sync in the background
 		/// </summary>
-
 		public SyncResults SyncNow(BackgroundWorker backgroundWorker, DoWorkEventArgs args, SyncOptions options)
 		{
 			_backgroundWorker = backgroundWorker;
@@ -560,16 +568,22 @@ namespace Chorus.sync
 			{
 				foreach (string uri in possibleRepoCloneUris)
 				{
+					// target may be uri, or some other folder.
+					var target = HgRepository.GetUniqueFolderPath(
+						_progress,
+						"Folder at {0} already exists, so can't be used. Creating clone in {1}, instead.",
+						uri);
 					try
 					{
-						_progress.WriteStatus("Copying repository to {0}...", repoDescriptor.GetFullName(uri));
-						_progress.WriteVerbose("({0})", uri);
-						HgHighLevel.MakeCloneFromLocalToLocal(_localRepositoryPath, uri, true, _progress);
-						return uri;
+						_progress.WriteStatus("Copying repository to {0}...", repoDescriptor.GetFullName(target));
+						_progress.WriteVerbose("({0})", target);
+						return HgHighLevel.MakeCloneFromLocalToLocal(_localRepositoryPath, target,
+							false, // No update on USB or shared network clones as of 16 Jan 2012.
+							_progress);
 					}
 					catch (Exception error)
 					{
-						_progress.WriteError("Could not create repository on {0}. Error follow:", uri);
+						_progress.WriteError("Could not create repository on {0}. Error follow:", target);
 						_progress.WriteException(error);
 						continue;
 					}
@@ -624,7 +638,7 @@ namespace Chorus.sync
 																		 head.Number.Hash);
 
 					  MergeOrder.PushToEnvironmentVariables(_localRepositoryPath);
-					  _progress.WriteStatus("Merging with {0}...", head.UserId);
+					  _progress.WriteStatus("Merging {0} and {1}...", myHead.UserId, head.UserId);
 					  _progress.WriteVerbose("   Revisions {0}:{1} with {2}:{3}...", myHead.Number.LocalRevisionNumber, myHead.Number.Hash, head.Number.LocalRevisionNumber, head.Number.Hash);
 					  RemoveMergeObstacles(myHead, head);
 

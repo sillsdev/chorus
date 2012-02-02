@@ -1,20 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using System.Windows.Forms;
-using Chorus.Utilities;
 using Chorus.Utilities.UsbDrive;
 using Chorus.VcsDrivers.Mercurial;
 using Palaso.IO;
 using Palaso.Progress.LogBox;
-using Palaso.Reporting;
 
 namespace Chorus.clone
 {
 	/// <summary>
 	/// Use this class to make an initial clone from a USB drive or Internet repository.
-	/// Note, most clients can instead use the GetCloneDialog in Chorus.exe.
+	/// Note, most clients can instead use the GetCloneFromUsbDialog in Chorus.exe.
 	/// </summary>
 	public class CloneFromUsb
 	{
@@ -86,18 +83,15 @@ namespace Chorus.clone
 					//}
 				}
 			}
-
 		}
 
 		public string MakeClone(string sourcePath, string parentDirectoryToPutCloneIn, IProgress progress)
 		{
-			var target = HgHighLevel.GetUniqueFolderPath(progress,
-				"On the USB Flash drive, there is a folder with the name {0}, which is the same as this project. However, that folder cannot be used, so a new folder named {1} has been created and used, instead.",
-				Path.Combine(parentDirectoryToPutCloneIn, Path.GetFileName(sourcePath)));
-
-			var repo = new HgRepository(sourcePath, progress);
-			repo.CloneLocal(target);
-			return target;
+			var sourceRepo = new HgRepository(sourcePath, progress);
+			var actualTarget = sourceRepo.CloneLocalWithoutUpdate(Path.Combine(parentDirectoryToPutCloneIn, Path.GetFileName(sourcePath)));
+			var targetRepo = new HgRepository(actualTarget, progress);
+			targetRepo.Update(); // Need this for new clone from USB drive.
+			return actualTarget;
 		}
 	}
 }

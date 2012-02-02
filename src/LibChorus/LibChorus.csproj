@@ -138,7 +138,11 @@
 	<Compile Include="FileTypeHanders\lift\LiftFolder.cs" />
 	<Compile Include="FileTypeHanders\Xml2WayDiffer.cs" />
 	<Compile Include="FileTypeHanders\Xml2WayDiffService.cs" />
+	<Compile Include="FileTypeHanders\xml\BothChangedAtomicElementReport.cs" />
+	<Compile Include="FileTypeHanders\xml\XmlAttributeChange.cs" />
+	<Compile Include="FileTypeHanders\xml\XmlTextChange.cs" />
 	<Compile Include="merge\xml\generic\MergeAtomicElementService.cs" />
+	<Compile Include="merge\xml\generic\MergeTextNodesMethod.cs" />
 	<Compile Include="merge\xml\generic\XmlMergeService.cs" />
 	<Compile Include="FileTypeHanders\oneStory\OneStoryChangePresenter.cs" />
 	<Compile Include="FileTypeHanders\oneStory\OneStoryDiffer.cs" />
@@ -338,7 +342,9 @@
   <ItemGroup>
 	<None Include="Resources\question16x16Closed.png" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+	<Content Include="FileTypeHanders\adaptIt\SortAIKB.xslt" />
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
 	   Other similar extension points exist, see Microsoft.Common.targets.

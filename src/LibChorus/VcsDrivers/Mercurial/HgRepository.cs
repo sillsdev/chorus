@@ -115,7 +115,7 @@ namespace Chorus.VcsDrivers.Mercurial
 					//review: Machine name would be more accurate, but most people have, like "Compaq" as their machine name
 					//but in any case, this is just a default until they set the name explicity
 					var hg = new HgRepository(newRepositoryPath, progress);
-					hg.SetUserNameInIni(System.Environment.UserName, progress);
+					hg.SetUserNameInIni(Environment.UserName, progress);
 					return new HgRepository(newRepositoryPath, progress);
 				}
 				else
@@ -158,15 +158,13 @@ namespace Chorus.VcsDrivers.Mercurial
 		/// Note: Maybe we could ship the mercurial.ini separately, some how.... there is some value in modifying the hgrc itself, since that way technians doing
 		/// hg stuff by hand will get the right extensions in play.
 		/// </summary>
-		public void UpdateHgrc()
+		private void UpdateHgrc()
 		{
 			if (_alreadyUpdatedHgrc)
 				return;
 
 			try
 			{
-				DisableNewRepositoryFormats();
-
 				//TODO: some can be removed now, since we have our own mercurial.ini.  Unfortunately, we pacakge it in a 4  meg zip, so it's Expensive (in terms of our own hg repo) to modify
 				//so for now we're still using this
 
@@ -185,11 +183,11 @@ namespace Chorus.VcsDrivers.Mercurial
 				extensions.Add("hgext.graphlog",""); //for more easily readable diagnostic logs
 				extensions.Add("convert",""); //for catastrophic repair in case of repo corruption
 #if !MONO
-				string fixUtfFolder = Palaso.IO.FileLocator.GetDirectoryDistributedWithApplication(false, "MercurialExtensions", "fixutf8");
+				string fixUtfFolder = FileLocator.GetDirectoryDistributedWithApplication(false, "MercurialExtensions", "fixutf8");
 				if(!string.IsNullOrEmpty(fixUtfFolder))
 					extensions.Add("fixutf8", Path.Combine(fixUtfFolder, "fixutf8.py"));
 #endif
-				EnsureTheseExtensionAreEnabled(extensions);
+				EnsureTheseExtensionsAndFormatSet(extensions);
 				_alreadyUpdatedHgrc = true;
 			}
 			catch (Exception error)
@@ -220,6 +218,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		protected void SetupPerson(string pathToRepository, string userName)
 		{
 			_progress.WriteVerbose("setting name and branch");
+			UpdateHgrc();
 			using (new ShortTermEnvironmentalVariable("HGUSER", userName))
 			{
 				Execute(SecondsBeforeTimeoutOnLocalOperation, "branch", userName);
@@ -270,7 +269,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			try
 			{
 				var tip = GetTip();
-				Execute(SecondsBeforeTimeoutOnRemoteOperation, "pull --debug" + GetProxyConfigParameterString(targetUri), GetPathWithQuotes(targetUri));
+				Execute(SecondsBeforeTimeoutOnRemoteOperation, "pull --debug" + GetProxyConfigParameterString(targetUri), SurroundWithQuotes(targetUri));
 
 				var newTip = GetTip();
 				if (tip == null)
@@ -326,16 +325,19 @@ namespace Chorus.VcsDrivers.Mercurial
 		{
 			get
 			{
+				UpdateHgrc();
 				// Or: id -i -r0 for short id
 				var results = Execute(SecondsBeforeTimeoutOnLocalOperation, "log -r0 --template " + SurroundWithQuotes("{node}"));
-				string id = results.StandardOutput.Trim();
-				if (!string.IsNullOrEmpty(id))
-				{
-					return id;
-				}
+				// NB: This may end with a new line (&#xA; entity in xml).
+				// It could possibly have multiple lines, in which case, we want the last one.
+				// Earlier ones may be coming from some other version of Hg that complains about deprecated extensions Chorus uses.
+				var id = results.StandardOutput;
+				if (string.IsNullOrEmpty(id))
+					return null;
+				var split = id.Split(new[] { "\n", "\r" }, StringSplitOptions.RemoveEmptyEntries);
+				id = split.Length == 0 ? null : split[split.Length - 1]; // Get last one.
 
-				// In rare cases where there is no id (as in the repo doesn't have a checkin, yet) provide a GUID
-				return Guid.NewGuid().ToString();
+				return id;
 			}
 		}
 
@@ -343,6 +345,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		{
 			_progress.WriteStatus("Sending changes to {0}", targetLabel);
 			_progress.WriteVerbose("({0} is {1})", targetLabel, targetUri);
+				UpdateHgrc();
 
 			using (var transport = CreateTransportBetween(targetLabel, targetUri))
 			{
@@ -435,7 +438,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		/// Method only for testing.
 		/// </summary>
 		/// <param name="filePath"></param>
-		internal void AddSansCommit(string filePath)
+		internal void TestOnlyAddSansCommit(string filePath)
 		{
 			TrackFile(filePath);
 		}
@@ -456,6 +459,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		public virtual void Commit(bool forceCreationOfChangeSet, string message, params object[] args)
 		{
+			UpdateHgrc();
 			message = string.Format(message, args);
 			_progress.WriteVerbose("{0} committing with comment: {1}", _userName, message);
 			ExecutionResult result = Execute(SecondsBeforeTimeoutOnLocalOperation, "ci", "-m " + SurroundWithQuotes(message));
@@ -471,6 +475,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		/// </remarks>
 		public void ForgetFile(string filepath)
 		{
+			UpdateHgrc();
 			_progress.WriteWarning("{0} is removing {1} from system. The file will remmain in the history and on disk.", _userName, Path.GetFileName(filepath));
 			Execute(SecondsBeforeTimeoutOnLocalOperation, "forget ", SurroundWithQuotes(filepath));
 		}
@@ -539,8 +544,8 @@ namespace Chorus.VcsDrivers.Mercurial
 				}
 				else
 				{
-				throw new ApplicationException("Got return value " + result.ExitCode + details);
-			}
+					throw new ApplicationException("Got return value " + result.ExitCode + details);
+				}
 			}
 			return result;
 		}
@@ -606,11 +611,6 @@ namespace Chorus.VcsDrivers.Mercurial
 			}
 		}
 
-		public static string GetPathWithQuotes(string path)
-		{
-			return "\"" + path + "\"";
-		}
-
 		public string PathToRepo
 		{
 			get { return _pathToRepository; }
@@ -627,6 +627,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			get { return _userName; } //enhance... location is important, too
 		}
 
+		// review: This should be on the transport? CH TODO CP 2012-02
 		///<summary>
 		/// returns something like \%AppData%\Chorus\ChorusStorage\uniqueRepoId
 		///</summary>
@@ -660,6 +661,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		public List<string> GetChangedFiles()
 		{
+			UpdateHgrc();
 			ExecutionResult result = Execute(SecondsBeforeTimeoutOnLocalOperation, "status");
 			string[] lines = result.StandardOutput.Split('\n');
 			List<string> files = new List<string>();
@@ -675,12 +677,14 @@ namespace Chorus.VcsDrivers.Mercurial
 		public void Update()
 		{
 			_progress.WriteVerbose("{0} updating", _userName);
+			UpdateHgrc();
 			Execute(SecondsBeforeTimeoutOnLocalOperation, "update", "-C");
 		}
 
 		public void Update(string revision)
 		{
 			_progress.WriteVerbose("{0} updating (making working directory contain) revision {1}", _userName, revision);
+			UpdateHgrc();
 			Execute(SecondsBeforeTimeoutOnLocalOperation, "update", "-r", revision, "-C");
 		}
 
@@ -704,6 +708,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		public void AddAndCheckinFiles(List<string> includePatterns, List<string> excludePatterns, string message)
 		{
+			UpdateHgrc();
 			StringBuilder args = new StringBuilder();
 			foreach (string pattern in includePatterns)
 			{
@@ -779,18 +784,19 @@ namespace Chorus.VcsDrivers.Mercurial
 		/// Will never time out.
 		/// Will honor state of the progress.CancelRequested property
 		/// </summary>
+		// CH TODO implement for resumable transport. hg init, resumable pull, hg unbundle CP 2012-02
 		public static void Clone(string sourceUri, string targetPath, IProgress progress)
 		{
 			progress.WriteStatus("Getting project...");
 			try
 			{
-				targetPath = HgHighLevel.GetUniqueFolderPath(progress,
+				targetPath = GetUniqueFolderPath(progress,
 															 "Folder at {0} already exists, so can't be used. Creating clone in {1}, instead.",
 															 targetPath);
 				var repo = new HgRepository(targetPath, progress);
 
-				repo.Execute(int.MaxValue, "clone", DoWorkOfDeterminingProxyConfigParameterString(targetPath, progress), SurroundWithQuotes(sourceUri) + " " + SurroundWithQuotes(targetPath));
-				repo.UpdateHgrc();
+				repo.Execute(int.MaxValue, "clone -U", DoWorkOfDeterminingProxyConfigParameterString(targetPath, progress), SurroundWithQuotes(sourceUri) + " " + SurroundWithQuotes(targetPath));
+				repo.Update();
 				progress.WriteStatus("Finished copying to this computer at {0}", targetPath);
 			}
 			catch (Exception error)
@@ -820,19 +826,22 @@ namespace Chorus.VcsDrivers.Mercurial
 			}
 		}
 
-
-		public void CloneLocal(string targetPath)
-		{
-			Execute(SecondsBeforeTimeoutOnLocalOperation, "clone --uncompressed", PathWithQuotes + " " + SurroundWithQuotes(targetPath));
-		}
-
 		/// <summary>
-		/// here we only create the .hg, no files. This is good because the people aren't tempted to modify
+		/// Here we only create the .hg, no files. This is good because the people aren't tempted to modify
 		/// files in that directory, where nothing will ever check the changes in.
+		///
+		/// NB: Caller may well want to call Update on this repository,
+		/// say when the clone is from a USB or shared network folder TO a local working folder,
+		/// and the caller plans to use the actual data files in the repository.
 		/// </summary>
-		public void CloneToRemoteDirectoryWithoutCheckout(string targetPath)
+		public string CloneLocalWithoutUpdate(string proposedTargetPath)
 		{
-			Execute(SecondsBeforeTimeoutOnLocalOperation, "clone -U --uncompressed", PathWithQuotes + " " + SurroundWithQuotes(targetPath));
+			UpdateHgrc();
+			var actualTarget = GetUniqueFolderPath(_progress, proposedTargetPath);
+
+			Execute(SecondsBeforeTimeoutOnLocalOperation, "clone -U --uncompressed", PathWithQuotes + " " + SurroundWithQuotes(actualTarget));
+
+			return actualTarget;
 		}
 
 		private List<Revision> GetRevisionsFromQuery(string query)
@@ -1099,7 +1108,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		public IEnumerable<RepositoryAddress> GetRepositoryPathsInHgrc()
 		{
-			var section = GetHgrcDoc().Sections.GetOrCreate("paths");
+			var section = GetMercurialConfigForRepository().Sections.GetOrCreate("paths");
 			//I repent            if (section.GetKeys().Count() == 0)
 			//            {
 			//                yield return
@@ -1125,7 +1134,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				var p = GetPathToHgrc();
 				if (File.Exists(p))
 				{
-					var doc = GetHgrcDoc();
+					var doc = GetMercurialConfigForRepository();
 					var section = doc.Sections["ui"];
 					if ((section != null) && section.Contains("username"))
 						return section.GetValue("username");
@@ -1146,7 +1155,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			return Path.Combine(d, "hgrc");
 		}
 
-		private IniDocument GetHgrcDoc()
+		private IniDocument GetMercurialConfigForRepository()
 		{
 			var p = GetPathToHgrc();
 			if (!File.Exists(p))
@@ -1157,10 +1166,10 @@ namespace Chorus.VcsDrivers.Mercurial
 
 				File.WriteAllText(p, "");
 			}
-			return new Nini.Ini.IniDocument(p, IniFileType.MercurialStyle);
+			return new IniDocument(p, IniFileType.MercurialStyle);
 		}
 
-		private IniDocument GetMercurialIni()
+		private IniDocument GetMercurialConfigForUser()
 		{
 #if MONO
 			var p = "~/.hgrc";
@@ -1177,14 +1186,14 @@ namespace Chorus.VcsDrivers.Mercurial
 			{
 				File.WriteAllText(p, "");
 			}
-			return new Nini.Ini.IniDocument(p, IniFileType.MercurialStyle);
+			return new IniDocument(p, IniFileType.MercurialStyle);
 		}
 
 		public void SetUserNameInIni(string name, IProgress progress)
 		{
 			try
 			{
-				var doc = GetHgrcDoc();
+				var doc = GetMercurialConfigForRepository();
 				doc.Sections.GetOrCreate("ui").Set("username", name);
 				doc.SaveAndGiveMessageIfCannot();
 			}
@@ -1202,7 +1211,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		public void SetKnownRepositoryAddresses(IEnumerable<RepositoryAddress> addresses)
 		{
-			var doc = GetHgrcDoc();
+			var doc = GetMercurialConfigForRepository();
 			doc.Sections.RemoveSection("paths");//clear it out
 			var section = doc.Sections.GetOrCreate("paths");
 			foreach (var address in addresses)
@@ -1235,7 +1244,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		/// </summary>
 		public void SetDefaultSyncRepositoryAliases(IEnumerable<string> aliases)
 		{
-			var doc = GetHgrcDoc();
+			var doc = GetMercurialConfigForRepository();
 			doc.Sections.RemoveSection("ChorusDefaultRepositories");//clear it out
 			IniSection section = GetDefaultRepositoriesSection(doc);
 			foreach (var alias in aliases)
@@ -1256,7 +1265,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		//        public List<RepositoryAddress> GetDefaultSyncAddresses()
 		//        {
 		//            var list = new List<RepositoryAddress>();
-		//            var doc = GetHgrcDoc();
+		//            var doc = GetHgrcForRepository();
 		//            var section = GetDefaultRepositoriesSection(doc);
 		//            var aliases = section.GetKeys();
 		//            foreach (var path in GetRepositoryPathsInHgrc())
@@ -1272,26 +1281,21 @@ namespace Chorus.VcsDrivers.Mercurial
 		public List<string> GetDefaultSyncAliases()
 		{
 			var list = new List<RepositoryAddress>();
-			var doc = GetHgrcDoc();
+			var doc = GetMercurialConfigForRepository();
 			var section = GetDefaultRepositoriesSection(doc);
 			return new List<string>(section.GetKeys());
 		}
 
-		public void EnsureTheseExtensionAreEnabled(IEnumerable<KeyValuePair<string,string>> extensionDeclarations)
+		internal void EnsureTheseExtensionsAndFormatSet(IEnumerable<KeyValuePair<string, string>> extensionDeclarations)
 		{
-			var doc = GetHgrcDoc();
+			var doc = GetMercurialConfigForRepository();
 			var section = doc.Sections.GetOrCreate("extensions");
 			foreach (var pair in extensionDeclarations)
 			{
-					 section.Set(pair.Key, pair.Value);
-			 }
-			doc.SaveAndThrowIfCannot();
-		}
+				section.Set(pair.Key, pair.Value);
+			}
 
-		public void DisableNewRepositoryFormats()
-		{
-			var doc = GetHgrcDoc();
-			var section = doc.Sections.GetOrCreate("format");
+			section = doc.Sections.GetOrCreate("format");
 
 			//see http://mercurial.selenic.com/wiki/UpgradingMercurial
 
@@ -1303,20 +1307,19 @@ namespace Chorus.VcsDrivers.Mercurial
 			//see also: CreateRepositoryInExistingDir
 
 			section.Set("dotencode", "False");
-
 			doc.SaveAndThrowIfCannot();
 		}
 
 		public IEnumerable<string> GetEnabledExtension()
 		{
-			var doc = GetHgrcDoc();
+			var doc = GetMercurialConfigForRepository();
 			var section = doc.Sections.GetOrCreate("extensions");
 			return section.GetKeys();
 		}
 
 		public void SetIsOneDefaultSyncAddresses(RepositoryAddress address, bool doInclude)
 		{
-			var doc = GetHgrcDoc();
+			var doc = GetMercurialConfigForRepository();
 			var section = GetDefaultRepositoriesSection(doc);
 			if (doInclude)
 			{
@@ -1349,14 +1352,14 @@ namespace Chorus.VcsDrivers.Mercurial
 				if (!Uri.TryCreate(uri, UriKind.Absolute, out uriObject))
 					return false;
 
-				if (!System.Net.NetworkInformation.NetworkInterface.GetIsNetworkAvailable())
+				if (!NetworkInterface.GetIsNetworkAvailable())
 				{
 					progress.WriteWarning("This machine does not have a live network connection.");
 					return false;
 				}
 
 			   progress.WriteVerbose("Pinging {0}...", uriObject.Host);
-				using (var ping = new System.Net.NetworkInformation.Ping())
+				using (var ping = new Ping())
 				{
 					var result = ping.Send(uriObject.Host, 3000);//arbitrary... what's a reasonable wait?
 					if (result.Status == IPStatus.Success)
@@ -1371,7 +1374,7 @@ namespace Chorus.VcsDrivers.Mercurial
 					if (result.Status != IPStatus.Success)
 					{
 						progress.WriteVerbose("Ping to google failed, too.");
-						if (System.Net.Dns.GetHostAddresses(uriObject.Host).Count() > 0)
+						if (Dns.GetHostAddresses(uriObject.Host).Count() > 0)
 						{
 							progress.WriteVerbose(
 								"Did resolve the host name, so it's worth trying to use hg to connect... some places block ping.");
@@ -1381,7 +1384,7 @@ namespace Chorus.VcsDrivers.Mercurial
 						return false;
 					}
 
-					if (System.Net.Dns.GetHostAddresses(uriObject.Host).Count() > 0)
+					if (Dns.GetHostAddresses(uriObject.Host).Count() > 0)
 					{
 						progress.WriteStatus(
 							"Chorus could ping google, and did get IP address for {0}, but could not ping it, so it could be that the server is temporarily unavailable.", uriObject.Host);
@@ -1402,6 +1405,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		public void RecoverFromInterruptedTransactionIfNeeded()
 		{
+			UpdateHgrc();
 			var result = Execute(true, SecondsBeforeTimeoutOnLocalOperation, "recover");
 
 			if (GetHasLocks())
@@ -1436,6 +1440,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		/// <returns>false if nothing needed to be merged, true if the merge was done. Throws exception if there is an error.</returns>
 		public bool Merge(string localRepositoryPath, string revisionNumber)
 		{
+			UpdateHgrc();
 			var result = Execute(true, SecondsBeforeTimeoutOnMergeOperation, "merge", "-r", revisionNumber);
 
 			if (result.ExitCode != 0)
@@ -1525,7 +1530,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				{
 					_progress.WriteWarning("Trying to remove a lock at {0}...", pathToLock);
 				}
-				var hgIsRunning = System.Diagnostics.Process.GetProcessesByName(processNameToMatch).Length > 0;
+				var hgIsRunning = Process.GetProcessesByName(processNameToMatch).Length > 0;
 				if (hgIsRunning)
 				{
 					_progress.WriteError("There is at last one {0} running, so {1} cannot be removed.  You may need to restart the computer.", processNameToMatch, Path.GetFileName(pathToLock));
@@ -1564,10 +1569,13 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		public void RollbackWorkingDirectoryToLastCheckin()
 		{
+			UpdateHgrc();
 			Execute(false, 30, "update --clean");
 		}
+
 		public void RollbackWorkingDirectoryToRevision(string revision)
 		{
+			UpdateHgrc();
 			Execute(false, 30, "update --clean --rev " + revision);
 		}
 
@@ -1720,7 +1728,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		public void SetupEndOfLineConversion(IEnumerable<string> extensionsOfKnownTextFileTypes)
 		{
-			var doc = GetHgrcDoc();
+			var doc = GetMercurialConfigForRepository();
 			doc.Sections.RemoveSection("encode");//clear it out
 			var section = doc.Sections.GetOrCreate("encode");
 			foreach (string extension in extensionsOfKnownTextFileTypes)
@@ -1738,10 +1746,11 @@ namespace Chorus.VcsDrivers.Mercurial
 		/// <param name="tag"></param>
 		public void TagRevision(string revisionNumber, string tag)
 		{
+			UpdateHgrc();
 			Execute(false, SecondsBeforeTimeoutOnLocalOperation, "tag -r " + revisionNumber + " \"" + tag + "\"");
 		}
 
-		public static string SurroundWithQuotes(string path)
+		private static string SurroundWithQuotes(string path)
 		{
 			return "\"" + path + "\"";
 		}
@@ -1818,7 +1827,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				* proxies for different destinations, but some hg servers (notably language depot) require a login.
 				* So we're ignoring what we were given, and just using a known address, for now.
 				*/
-			httpUrl = "http://hg.palaso.org";
+			httpUrl = "http://proxycheck.palaso.org";
 
 			progress.WriteVerbose("Checking for proxy by trying to http-get {0}...", httpUrl);
 
@@ -1911,8 +1920,6 @@ namespace Chorus.VcsDrivers.Mercurial
 
 
 			return true;
-
-
 		}
 
 		public static string GetAliasFromPath(string path)
@@ -1924,6 +1931,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		public bool Unbundle(string bundlePath)
 		{
+			UpdateHgrc();
 			string command = string.Format("unbundle \"{0}\"", bundlePath);
 			string result = GetTextFromQuery(command);
 			if (result.Contains("adding changesets"))
@@ -1940,7 +1948,37 @@ namespace Chorus.VcsDrivers.Mercurial
 		/// </summary>
 		public void FixUnicodeAudio()
 		{
+			UpdateHgrc();
 			ExecuteErrorsOk("addremove -s 100 -I **.wav", _pathToRepository, SecondsBeforeTimeoutOnLocalOperation, _progress);
+		}
+
+		private static string GetUniqueFolderPath(IProgress progress, string proposedTargetDirectory)
+		{
+			// proposedTargetDirectory and actualTarget may be the same, or actualTarget may have 1 (or higher) appeneded to it.
+			var uniqueTarget = GetUniqueFolderPath(progress,
+														 "Could not use folder {0}, since it already exists. Using new folder {1}, instead.",
+														 proposedTargetDirectory);
+			progress.WriteMessage("Creating new repository at " + uniqueTarget);
+			return uniqueTarget;
+		}
+
+		/// <summary>
+		/// Ensure a local clone is going into a uniquly named and non-existant folder.
+		/// </summary>
+		/// <returns>The original folder name, or one similiar to it, but with a counter digit appended to to it to make it unique.</returns>
+		public static string GetUniqueFolderPath(IProgress progress, string formattableMessage, string targetDirectory)
+		{
+			if (Directory.Exists(targetDirectory) && DirectoryUtilities.GetSafeDirectories(targetDirectory).Length == 0 && Directory.GetFiles(targetDirectory).Length == 0)
+			{
+				// Empty folder, so delete it, so the clone can be made in the original folder, rather than in another with a 1 after it.
+				Directory.Delete(targetDirectory);
+			}
+
+			var uniqueTarget = DirectoryUtilities.GetUniqueFolderPath(targetDirectory);
+			if (targetDirectory != uniqueTarget)
+				progress.WriteWarning(String.Format(formattableMessage, targetDirectory, uniqueTarget));
+
+			return uniqueTarget; // It may be the original, if it was unique.
 		}
 	}
 
