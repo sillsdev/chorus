@@ -70,6 +70,119 @@ namespace Chorus.merge.xml.generic
 
 	}
 
+	/// <summary>
+	/// Assuming the children of the parent to search in form a list (order matters, duplicates allowed), and so do the
+	/// children of the nodeToMatch, find the corresponding object in the list. A corresponding node will have the same key,
+	/// and the same number of preceding siblings with the same key. This is fairly simplistic, but good enough for merging
+	/// lists of objsur elements in FieldWorks reference sequence properties.
+	/// </summary>
+	public class FindByKeyAttributeInList : IFindNodeToMerge
+	{
+		private string _keyAttribute;
+
+		public FindByKeyAttributeInList(string keyAttribute)
+		{
+			_keyAttribute = keyAttribute;
+		}
+
+		/// <summary>
+		/// The parent of the most recent target node (if any).
+		/// </summary>
+		private XmlNode _sourceNode;
+		/// <summary>
+		/// Map from each child of _sourceNode that has a key to its KeyPosition in the children of SourceNode.
+		/// </summary>
+		Dictionary<XmlNode, KeyPosition> _sourceMap = new Dictionary<XmlNode, KeyPosition>();
+
+		/// <summary>
+		/// Most recent parentNodeToSearchIn, if any.
+		/// </summary>
+		private XmlNode _parentNode;
+		/// <summary>
+		/// Map from KeyPosition in _parentNode to corresponding node (for each node that has a key).
+		/// </summary>
+		Dictionary<KeyPosition, XmlNode> _parentMap = new Dictionary<KeyPosition, XmlNode>();
+
+		public XmlNode GetNodeToMerge(XmlNode nodeToMatch, XmlNode parentToSearchIn)
+		{
+			if (parentToSearchIn == null)
+				return null;
+
+			string key = XmlUtilities.GetOptionalAttributeString(nodeToMatch, _keyAttribute);
+			if (string.IsNullOrEmpty(key))
+			{
+				return null;
+			}
+
+			if (nodeToMatch.ParentNode == null)
+				return null;
+
+			if (_sourceNode != nodeToMatch.ParentNode)
+			{
+				_sourceMap.Clear();
+				_sourceNode = nodeToMatch.ParentNode;
+				GetKeyPositions(_sourceNode, (node, kp) => _sourceMap[node] = kp);
+			}
+
+			if (_parentNode != parentToSearchIn)
+			{
+				_parentMap.Clear();
+				_parentNode = parentToSearchIn;
+				GetKeyPositions(_parentNode, (node, kp) => _parentMap[kp] = node);
+			}
+
+			KeyPosition targetKp;
+			if (!_sourceMap.TryGetValue(nodeToMatch, out targetKp))
+				return null;
+			XmlNode result;
+			_parentMap.TryGetValue(targetKp, out result);
+			return result;
+		}
+
+		private void GetKeyPositions(XmlNode parent, Action<XmlNode, KeyPosition> saveIt)
+		{
+			Dictionary<string, int> Occurrences = new Dictionary<string, int>();
+			foreach (XmlNode node in parent.ChildNodes)
+			{
+				if (node.Attributes == null)
+					continue;
+				var key1 = XmlUtilities.GetOptionalAttributeString(node, _keyAttribute);
+				if (string.IsNullOrEmpty(key1))
+					continue;
+				int oldCount;
+				Occurrences.TryGetValue(key1, out oldCount);
+				saveIt(node, new KeyPosition(key1, oldCount));
+				Occurrences[key1] = oldCount + 1;
+			}
+		}
+	}
+
+	class KeyPosition
+	{
+		public string Key; // Key attribute of some XmlNode
+		// Position of the XmlNode among those children of its parent that have the same key.
+		// Technically, a count of the number of preceding nodes among its siblings that have the same key.
+		public int Position;
+		public KeyPosition(string key, int position)
+		{
+			Key = key;
+			Position = position;
+		}
+
+		public override bool Equals(object obj)
+		{
+			var other = obj as KeyPosition;
+			if (other == null)
+				return false;
+			return other.Key == Key && other.Position == Position;
+		}
+
+		public override int GetHashCode()
+		{
+			return Key.GetHashCode() ^ Position;
+		}
+	}
+
 	///<summary>
 	/// Search for a matching elment where multiple attribute names (not values) combine
 	/// to make a single "key" to identify a matching elment.

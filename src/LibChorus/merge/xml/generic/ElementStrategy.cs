@@ -167,6 +167,13 @@ namespace Chorus.merge.xml.generic
 			return strategy;
 		}
 
+		public static ElementStrategy CreateForKeyedElementInList(string keyAttributeName)
+		{
+			ElementStrategy strategy = new ElementStrategy(true);
+			strategy.MergePartnerFinder = new FindByKeyAttributeInList(keyAttributeName);
+			return strategy;
+		}
+
 		/// <summary>
 		/// Declare that there can only be a single element with this name in a list of children
 		/// </summary>

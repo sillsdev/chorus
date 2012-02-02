@@ -803,6 +803,34 @@ namespace Chorus.merge.xml.generic
 		}
 	}
 
+	[TypeGuid("46423E4C-34EF-4F19-B62F-07AB2634E53B")]
+	public class BothInsertedAtDifferentPlaceConflict : ElementConflict
+	{
+		public BothInsertedAtDifferentPlaceConflict(string elementName, XmlNode alphaNode, XmlNode betaNode,
+			XmlNode ancestorElement, MergeSituation mergeSituation, IElementDescriber elementDescriber, string whoWon)
+			: base(elementName, alphaNode, betaNode, ancestorElement, mergeSituation, elementDescriber, whoWon)
+		{
+		}
+
+		public BothInsertedAtDifferentPlaceConflict(XmlNode xmlRepresentation)
+			: base(xmlRepresentation)
+		{
+
+		}
+		public override string Description
+		{
+			get { return "Both Inserted at different places Conflict"; }
+		}
+
+		public override string WhatHappened
+		{
+			get
+			{
+				return string.Format("{0} and {1} both added the same children to this element in different places.",
+					Situation.AlphaUserId, Situation.BetaUserId);
+			}
+		}
+	}
 	[TypeGuid("B77C0D86-2368-4380-B2E4-7943F3E7553C")]
 	public class AmbiguousInsertConflict : ElementConflict // NB: Be sure to register any new instances in CreateFromConflictElement method.
 	{

@@ -53,16 +53,21 @@ namespace LibChorus.Tests.merge.xml.generic
 		private ChangeAndConflictAccumulator CheckOneWay(string ours, string theirs, string ancestor, params string[] xpaths)
 		{
 			XmlMerger m = new XmlMerger(new NullMergeSituation());
-			m.MergeStrategies.ElementStrategies.Add("a", ElementStrategy.CreateForKeyedElement("key", true));
-			m.MergeStrategies.ElementStrategies.Add("b", ElementStrategy.CreateForKeyedElement("key", true));
-			m.MergeStrategies.ElementStrategies.Add("c", ElementStrategy.CreateForKeyedElement("key", true));
-			m.MergeStrategies.ElementStrategies.Add("d", ElementStrategy.CreateForKeyedElement("key", true));
+			AddMergeStrategies(m);
 			var result = m.Merge(ours, theirs, ancestor);
 			foreach (string xpath in xpaths)
 			{
 				XmlTestHelper.AssertXPathMatchesExactlyOne(result.MergedNode, xpath);
 			}
 			return result;
+		}
+
+		protected virtual void AddMergeStrategies(XmlMerger m)
+		{
+			m.MergeStrategies.ElementStrategies.Add("a", ElementStrategy.CreateForKeyedElement("key", true));
+			m.MergeStrategies.ElementStrategies.Add("b", ElementStrategy.CreateForKeyedElement("key", true));
+			m.MergeStrategies.ElementStrategies.Add("c", ElementStrategy.CreateForKeyedElement("key", true));
+			m.MergeStrategies.ElementStrategies.Add("d", ElementStrategy.CreateForKeyedElement("key", true));
 		}
 
 		[Test]
@@ -634,6 +639,44 @@ namespace LibChorus.Tests.merge.xml.generic
 										"a/b[@key='one']/c[1][@key='x' and text()='first']",
 										"a/b[@key='one']/c[2][@key='y' and text()='blue']");
 			Assert.AreEqual(typeof(XmlTextRemovedVsEditConflict), r2.Conflicts[0].GetType());
+		}
+
+		[Test]
+		public void BothInsertedSameInDifferentPlaces()
+		{
+			string ancestor = @"<a>
+								<b key='one'>
+									<c>first</c>
+								</b>
+							</a>";
+			string red = @"<a>
+							  <b key='two'>
+									<c>second</c>
+								</b>
+							   <b key='one'>
+									<c>first</c>
+								</b>
+							</a>";
+
+			string blue = @"<a>
+								<b key='one'>
+									<c>first</c>
+								</b>
+								<b key='two'>
+									<c>second</c>
+								</b>
+						  </a>";
+
+			// blue wins
+			ChangeAndConflictAccumulator r = CheckOneWay(blue, red, ancestor,
+										 "a/b[@key='one']/c[text()='first']",
+				"a/b[@key='one']/following-sibling::b/c[text()='second']");
+			Assert.AreEqual(typeof(BothInsertedAtDifferentPlaceConflict), r.Conflicts[0].GetType());
+			// red wins
+			ChangeAndConflictAccumulator r2 = CheckOneWay(red, blue, ancestor,
+										 "a/b[@key='two']/c[text()='second']",
+				"a/b[@key='two']/following-sibling::b/c[text()='first']");
+			Assert.AreEqual(typeof(BothInsertedAtDifferentPlaceConflict), r.Conflicts[0].GetType());
 		}
 
 		/// <summary>

@@ -82,6 +82,17 @@ namespace Chorus.merge.xml.generic
 							MakeCorrespondences(_theirKeepers, _ourKeepers, _ours), _merger);
 					}
 				}
+				else if(!ancestorOursOrderer.OrderIsDifferent)
+				{
+					// our order is different from theirs, but neither is different from the ancestor.
+					// the only way this can be true is if both inserted the same thing, but in
+					// different places. Stick with our orderer (we win), but report conflict.
+					_merger.EventListener.ConflictOccurred(new BothInsertedAtDifferentPlaceConflict(_ours.Name, _ours,
+						_theirs, _ancestor, _merger.MergeSituation, _merger.MergeStrategies.GetElementStrategy(_ours),
+						_merger.MergeSituation.AlphaUserId));
+				}
+				// otherwise we re-ordered, but they didn't. That's not a problem, unless it resulted
+				// in inconsistency or ambiguity in other stuff that someone added.
 			}
 
 			if (!resultOrderer.OrderIsConsistent ||
