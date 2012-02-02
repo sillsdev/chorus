@@ -1047,13 +1047,13 @@ namespace Chorus.merge.xml.generic
 		private readonly XmlNode _betaNode;
 		private readonly IElementDescriber _elementDescriber;
 
-		public IncompatibleMoveConflict(string elementName, XmlNode alphaNode, XmlNode betaNode, MergeSituation mergeSituation, IElementDescriber elementDescriber, string whoWon)
-			: base(mergeSituation, whoWon)
+		public IncompatibleMoveConflict(string elementName, XmlNode alphaNode)
+			: base(null, "Dunno")
 		{
 			_elementName = elementName;
 			_alphaNode = alphaNode;
-			_betaNode = betaNode;
-			_elementDescriber = elementDescriber;
+			_betaNode = null;
+			_elementDescriber = null;
 		}
 
 		public IncompatibleMoveConflict(XmlNode xmlRepresentation)
@@ -1070,12 +1070,12 @@ namespace Chorus.merge.xml.generic
 
 		public override string GetFullHumanReadableDescription()
 		{
-			return string.Format("{0} ({1}): The identifier of one was changed, and the object is in both places.", Description, Context.DataLabel);
+			return string.Format("{0}: The identifier of one was changed, and the object is in both places.", Description);
 		}
 
 		public override string Description
 		{
-			get { return string.Format("{0} and {1} each moved something, but to different locations.", Situation.AlphaUserId, Situation.BetaUserId) ; }
+			get { return "Each person moved something, but to different locations." ; }
 		}
 
 		public override string GetConflictingRecordOutOfSourceControl(IRetrieveFileVersionsFromRepository fileRetriever, ThreeWayMergeSources.Source mergeSource)
