@@ -129,7 +129,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				_executeCount++;
 				if (_failCount == _executeCount)
 				{
-					return ApiResponses.Failed();
+					return ApiResponses.Failed("");
 				}
 				if (_timeoutList.Contains(_executeCount))
 				{
@@ -281,7 +281,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			{
 				if (_failCount == _executeCount)
 				{
-					return ApiResponses.Failed();
+					return ApiResponses.Failed("");
 				}
 				if (_timeoutList.Contains(_executeCount))
 				{

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using Chorus.Utilities;
+using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using NUnit.Framework;
 using Palaso.Progress.LogBox;
@@ -292,7 +293,8 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			{
 				var transport = new HgResumeTransport(localSetup.Repository, "test repo", apiServer, progress);
 				localSetup.AddAndCheckinFile("sample1", "first checkin");
-				remoteSetup.Repository.Pull("localRepo", localSetup.Repository.PathToRepo);
+				var address = new HttpRepositoryPath("localrepo", localSetup.Repository.PathToRepo, false);
+				remoteSetup.Repository.Pull(address, localSetup.Repository.PathToRepo);
 				remoteSetup.Repository.Update();
 
 				string localTip = localSetup.Repository.GetTip().Number.Hash;
@@ -575,7 +577,8 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			{
 				var transport = new HgResumeTransport(localSetup.Repository, "test repo", apiServer, progress);
 				localSetup.AddAndCheckinFile("sample1", "first checkin");
-				remoteSetup.Repository.Pull("localRepo", localSetup.Repository.PathToRepo);
+				var address = new HttpRepositoryPath("localrepo", localSetup.Repository.PathToRepo, false);
+				remoteSetup.Repository.Pull(address, localSetup.Repository.PathToRepo);
 				remoteSetup.Repository.Update();
 				// just pick a file larger than 10K for use as a test... any file will do
 				string sourcePathOfLargeFile = Path.Combine(ExecutionEnvironment.DirectoryOfExecutingAssembly,
@@ -711,8 +714,9 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			using (var progress = new MultiProgress(new IProgress[] { new ConsoleProgress { ShowVerbose = true }, progressForTest }))
 			{
 				var transport = new HgResumeTransport(localSetup.Repository, "test repo", apiServer, progress);
+				var address = new HttpRepositoryPath("localrepo", localSetup.Repository.PathToRepo, false);
 				localSetup.AddAndCheckinFile("sample1", "first checkin");
-				remoteSetup.Repository.Pull("localRepo", localSetup.Repository.PathToRepo);
+				remoteSetup.Repository.Pull(address, localSetup.Repository.PathToRepo);
 				remoteSetup.Repository.Update();
 				string remoteBaseHash = localSetup.Repository.GetTip().Number.Hash;
 				// at this point the local and remote repos are in sync

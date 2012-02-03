@@ -17,7 +17,7 @@ namespace Chorus.VcsDrivers
 		/// <summary>
 		/// Can be a file path or an http address
 		/// </summary>
-		public string URI { get; set; }
+		public string URI { get; private set; }
 
 		/// <summary>
 		/// This can be used in place of the project name, so that path can be specified which will work
@@ -30,7 +30,7 @@ namespace Chorus.VcsDrivers
 		/// In the case of a repo sitting on the user's machine, this will be a person's name.
 		/// It might also be the name of the web-based repo. It also gets the "alias" name, in the case of hg.
 		/// </summary>
-		public string Name{get;set;}
+		public string Name{get; private set;}
 
 		public enum HardWiredSources { UsbKey };
 
@@ -55,7 +55,6 @@ namespace Chorus.VcsDrivers
 		/// <returns></returns>
 		public static RepositoryAddress Create(string name, string uri, bool readOnly)
 		{
-
 			if (uri.Trim().StartsWith("http"))
 			{
 				return new HttpRepositoryPath(name, uri, readOnly);
@@ -83,6 +82,12 @@ namespace Chorus.VcsDrivers
 			URI = uri;
 			Name = name;
 			ReadOnly = readOnly;
+			IsResumable = IsKnownResumableRepository(uri);
+		}
+
+		public static bool IsKnownResumableRepository(string uri)
+		{
+			return uri.ToLower().Contains("hg.languageforge.org") || uri.ToLower().Contains("resumable");
 		}
 
 
@@ -96,6 +101,8 @@ namespace Chorus.VcsDrivers
 			get { return _readOnly; }
 			set { _readOnly = value; }
 		}
+
+		public bool IsResumable { get; private set; }
 
 		/// <summary>
 		/// Does the user want us to try to sync with this one?
@@ -141,7 +148,6 @@ namespace Chorus.VcsDrivers
 		public HttpRepositoryPath(string name, string uri, bool readOnly)
 			: base(name, uri, readOnly)
 		{
-
 		}
 
 		/// <summary>
@@ -320,7 +326,7 @@ namespace Chorus.VcsDrivers
 				return urisToTryCreationAt;
 			}
 
-			var drives = Chorus.Utilities.UsbDrive.UsbDriveInfo.GetDrives();
+			var drives = UsbDriveInfo.GetDrives();
 
 			if (drives.Count == 0)
 				return null;
@@ -341,7 +347,6 @@ namespace Chorus.VcsDrivers
 			string path= GetPotentialRepoUri(localRepository.Identifier, projectName, progress);
 			return (path != null) && Directory.Exists(path);
 		}
-
 
 	}
 }

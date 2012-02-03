@@ -226,13 +226,13 @@ namespace Chorus.VcsDrivers.Mercurial
 		}
 
 		/// <returns>true if changes were received</returns>
-		public bool Pull(string targetLabel, string targetUri)
+		public bool Pull(RepositoryAddress source, string targetUri)
 		{
-			_progress.WriteStatus("Receiving any changes from {0}", targetLabel);
-			_progress.WriteVerbose("({0} is {1})", targetLabel, targetUri);
+			_progress.WriteStatus("Receiving any changes from {0}", source.Name);
+			_progress.WriteVerbose("({0} is {1})", source.Name, targetUri);
 
 			bool result;
-			using (var transport = CreateTransportBetween(targetLabel, targetUri))
+			using (var transport = CreateTransportBetween(source, targetUri))
 			{
 				result = transport.Pull();
 			}
@@ -305,17 +305,15 @@ namespace Chorus.VcsDrivers.Mercurial
 			}
 		}
 
-		private IHgTransport CreateTransportBetween(string targetLabel, string targetUri)
+		private IHgTransport CreateTransportBetween(RepositoryAddress source, string targetUri)
 		{
-			// If the remote repository is languageforge or languagedepot, then we we use the HgResumeTransport
-			// Otherwise use the normal Hg facilities for dealing with remote repositories (local or otherwise)
-			if (Regex.IsMatch(targetUri, "^https?://[^/]*(languageforge.com|languagedepot.org|.local|localhost)"))
+			if (source.IsResumable)
 			{
 				_progress.WriteVerbose("Initiating Resumable Transport");
-				return new HgResumeTransport(this, targetLabel, new HgResumeRestApiServer(targetUri), _progress);
+				return new HgResumeTransport(this, source.Name, new HgResumeRestApiServer(targetUri), _progress);
 			}
 			_progress.WriteVerbose("Initiating Normal Transport");
-			return new HgNormalTransport(this, targetLabel, targetUri, _progress);
+			return new HgNormalTransport(this, source.Name, targetUri, _progress);
 		}
 
 		/// <summary>
@@ -341,13 +339,13 @@ namespace Chorus.VcsDrivers.Mercurial
 			}
 		}
 
-		public void Push(string targetLabel, string targetUri)
+		public void Push(RepositoryAddress source, string targetUri)
 		{
-			_progress.WriteStatus("Sending changes to {0}", targetLabel);
-			_progress.WriteVerbose("({0} is {1})", targetLabel, targetUri);
+			_progress.WriteStatus("Sending changes to {0}", source.Name);
+			_progress.WriteVerbose("({0} is {1})", source.Name, targetUri);
 				UpdateHgrc();
 
-			using (var transport = CreateTransportBetween(targetLabel, targetUri))
+			using (var transport = CreateTransportBetween(source, targetUri))
 			{
 				transport.Push();
 			}

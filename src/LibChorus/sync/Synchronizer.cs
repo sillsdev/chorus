@@ -272,7 +272,7 @@ namespace Chorus.sync
 					}
 					else
 					{
-						repo.Push(address.GetFullName(resolvedUri), resolvedUri);
+						repo.Push(address, resolvedUri);
 					}
 
 					// For usb, it's safe and desireable to do an update (bring into the directory
@@ -391,7 +391,7 @@ namespace Chorus.sync
 				//NB: this returns false if there was nothing to get.
 				try
 				{
-					return repo.Pull(source.Name, resolvedUri);
+					return repo.Pull(source, resolvedUri);
 				}
 				catch (HgCommonException err)
 				{
