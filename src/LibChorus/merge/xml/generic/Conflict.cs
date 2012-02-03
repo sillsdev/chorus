@@ -193,6 +193,7 @@ namespace Chorus.merge.xml.generic
 			Register<XmlTextBothAddedTextConflict>(builder);
 
 			Register<BothReorderedElementConflict>(builder);
+			Register<BothInsertedAtDifferentPlaceConflict>(builder);
 
 			Register<RemovedVsEditedAttributeConflict>(builder);
 			Register<EditedVsRemovedAttributeConflict>(builder);
@@ -804,7 +805,7 @@ namespace Chorus.merge.xml.generic
 	}
 
 	[TypeGuid("46423E4C-34EF-4F19-B62F-07AB2634E53B")]
-	public class BothInsertedAtDifferentPlaceConflict : ElementConflict
+	public class BothInsertedAtDifferentPlaceConflict : ElementConflict // NB: Be sure to register any new instances in CreateFromConflictElement method.
 	{
 		public BothInsertedAtDifferentPlaceConflict(string elementName, XmlNode alphaNode, XmlNode betaNode,
 			XmlNode ancestorElement, MergeSituation mergeSituation, IElementDescriber elementDescriber, string whoWon)
