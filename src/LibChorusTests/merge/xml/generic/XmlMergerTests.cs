@@ -1,4 +1,5 @@
 using System;
+using System.Xml;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
 using LibChorus.Tests.merge.xml;
@@ -906,6 +907,54 @@ namespace LibChorus.Tests.merge.xml.generic
 										 "a/b[@key='one']/c[6][@key='e' and text()='fifth']"
 				);
 			Assert.AreEqual(typeof(AmbiguousInsertReorderConflict), r2.Conflicts[0].GetType());
+		}
+
+		[Test]
+		public void MergeChildren_UsesNodeToGenerateContextDescriptorIfPossible()
+		{
+			string ancestor = @"<a>
+								<b key='one'>
+									<c key='a'>first</c>
+							   </b>
+							</a>";
+
+			string red = ancestor;
+
+
+			string blue = @"<a>
+								<b key='one'>
+									<c key='a'>first</c>
+									<c key='b'>second</c>
+								</b>
+							</a>";
+			XmlMerger m = new XmlMerger(new NullMergeSituation());
+			m.MergeStrategies.ElementStrategies.Add("a", ElementStrategy.CreateForKeyedElementInList("key"));
+			var strategy = ElementStrategy.CreateForKeyedElementInList("key");
+			var contextGenerator = new MockContextGenerator();
+			strategy.ContextDescriptorGenerator = contextGenerator;
+			m.MergeStrategies.ElementStrategies.Add("b", strategy);
+			m.MergeStrategies.ElementStrategies.Add("c", ElementStrategy.CreateForKeyedElementInList("key"));
+			m.MergeStrategies.ElementStrategies.Add("d", ElementStrategy.CreateForKeyedElementInList("key"));
+			m.Merge(red, blue, ancestor);
+			Assert.That(contextGenerator.InputNode, Is.Not.Null);
+			Assert.That(contextGenerator.InputNode.Name, Is.EqualTo("b"));
+		}
+	}
+
+	internal class MockContextGenerator : IGenerateContextDescriptor, IGenerateContextDescriptorFromNode
+	{
+		public ContextDescriptor GenerateContextDescriptor(string mergeElement, string filePath)
+		{
+			Assert.Fail("should not call the string version when an XmlNode version is available");
+			return null; // to satisfy compiler
+		}
+
+		public XmlNode InputNode;
+
+		public ContextDescriptor GenerateContextDescriptor(XmlNode mergeElement, string filePath)
+		{
+			InputNode = mergeElement;
+			return null;
 		}
 	}
 }

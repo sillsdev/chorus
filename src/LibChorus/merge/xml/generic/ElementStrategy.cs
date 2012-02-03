@@ -211,6 +211,15 @@ namespace Chorus.merge.xml.generic
 		ContextDescriptor GenerateContextDescriptor(string mergeElement, string filePath);
 	}
 
+	/// <summary>
+	/// If the ContextDescriptorGenerator implements this interface, it will be called instead of
+	/// the IGenerateContextDescriptor version.
+	/// </summary>
+	public interface IGenerateContextDescriptorFromNode
+	{
+		ContextDescriptor GenerateContextDescriptor(XmlNode mergeElement, string filePath);
+	}
+
 	public class ContextDescriptor
 	{
 		/// <summary>
