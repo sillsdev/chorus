@@ -7,44 +7,36 @@ namespace LibChorus.Tests.utilities
 	[TestFixture]
 	public class XmlUtilitiesTests
 	{
+		#region IsTextNodeContainer
+
 		[Test]
-		public void NullNodeIsTextlevel()
+		public void NullNodeIsAnAmbiguousTextNode()
 		{
-			Assert.IsTrue(XmlUtilities.IsTextLevel(null));
+			Assert.AreEqual(TextNodeStatus.IsAmbiguous, XmlUtilities.IsTextNodeContainer(null));
 		}
 
 		[Test]
-		public void XmlDeclarationNodeIsNotTextlevel()
+		public void EmptyElementNodeIsAnAmbiguousTextNode()
+		{
+			var doc = new XmlDocument();
+			var node = doc.CreateElement("myelement");
+			Assert.AreEqual(TextNodeStatus.IsAmbiguous, XmlUtilities.IsTextNodeContainer(node));
+		}
+
+		[Test]
+		public void XmlDeclarationNodeIsNotTextNode()
 		{
 			var doc = new XmlDocument();
 			var decNode = doc.CreateXmlDeclaration("1.0", "utf-8", "yes");
-			Assert.IsFalse(XmlUtilities.IsTextLevel(decNode));
+			Assert.AreEqual(TextNodeStatus.IsNotTextNodeContainer, XmlUtilities.IsTextNodeContainer(decNode));
 		}
 
 		[Test]
-		public void EmptyElementNodeIsTextlevel()
-		{
-			var doc = new XmlDocument();
-			var node = doc.CreateElement("myelement");
-			Assert.IsTrue(XmlUtilities.IsTextLevel(node));
-		}
-
-		[Test]
-		public void TextNodeIsNotTextlevel()
+		public void TextNodeIsNotTextNode()
 		{
 			var doc = new XmlDocument();
 			var node = doc.CreateTextNode("mytext");
-			Assert.IsFalse(XmlUtilities.IsTextLevel(node));
-		}
-
-		[Test]
-		public void ElementNodeWithTextNodeChildIsTextlevel()
-		{
-			var doc = new XmlDocument();
-			var node = doc.CreateElement("myelement");
-			var textNode = doc.CreateTextNode("mytext");
-			node.AppendChild(textNode);
-			Assert.IsTrue(XmlUtilities.IsTextLevel(node));
+			Assert.AreEqual(TextNodeStatus.IsNotTextNodeContainer, XmlUtilities.IsTextNodeContainer(node));
 		}
 
 		[Test]
@@ -54,8 +46,22 @@ namespace LibChorus.Tests.utilities
 			var node = doc.CreateElement("myelement");
 			var childNode = doc.CreateElement("mychild");
 			node.AppendChild(childNode);
-			Assert.IsFalse(XmlUtilities.IsTextLevel(node));
+			Assert.AreEqual(TextNodeStatus.IsNotTextNodeContainer, XmlUtilities.IsTextNodeContainer(node));
 		}
+
+		[Test]
+		public void ElementNodeWithTextNodeChildIsTextlevel()
+		{
+			var doc = new XmlDocument();
+			var node = doc.CreateElement("myelement");
+			var textNode = doc.CreateTextNode("mytext");
+			node.AppendChild(textNode);
+			Assert.AreEqual(TextNodeStatus.IsTextNodeContainer, XmlUtilities.IsTextNodeContainer(node));
+		}
+
+		#endregion IsTextNodeContainer
+
+		#region IsTextLevel
 
 		[Test]
 		public void NonNullElementsWithNoChildNodesIsNotTextlevel()
@@ -72,5 +78,7 @@ namespace LibChorus.Tests.utilities
 		{
 			Assert.IsFalse(XmlUtilities.IsTextLevel(null, null, null));
 		}
+
+		#endregion IsTextLevel
 	}
 }

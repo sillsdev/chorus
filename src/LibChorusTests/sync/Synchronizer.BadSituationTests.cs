@@ -56,7 +56,7 @@ namespace LibChorus.Tests.sync
 
 		[Test]
 #if !DEBUG
-		[Ignore("Test fails in release build.")]
+		//[Ignore("Test fails in release build (Failure not triggered).")]
 #endif
 		public void Sync_ExceptionInMergeCode_LeftWith2HeadsAndErrorOutputToProgress()
 		{
@@ -88,11 +88,12 @@ namespace LibChorus.Tests.sync
 					Assert.IsTrue(File.ReadAllText(bob.UserFile.Path).Contains("bobWasHere"));
 				}
 			}
+			File.Delete(Path.Combine(Path.GetTempPath(), "LiftMerger.FindEntryById"));
 		}
 
 		[Test]
 #if !DEBUG
-		[Ignore("Test fails in release build.")]
+		[Ignore("Test fails in release build. (Failure not triggered)")]
 #endif
 		public void Sync_MergeFailure_NoneOfTheOtherGuysFilesMakeItIntoWorkingDirectory()
 		{
@@ -129,6 +130,7 @@ namespace LibChorus.Tests.sync
 					}
 				}
 			}
+			File.Delete(Path.Combine(Path.GetTempPath(), "TextMerger-bbb.txt"));
 		}
 
 		/// <summary>
@@ -137,7 +139,7 @@ namespace LibChorus.Tests.sync
 		/// </summary>
 		[Test]
 #if !DEBUG
-		[Ignore("Test fails in release build.")]
+		[Ignore("Test fails in release build. (Failure not triggered)")]
 #endif
 		public void Sync_RepeatedMergeFailure_WeAreLeftOnOurOwnWorkingDefault()
 		{
@@ -171,6 +173,7 @@ namespace LibChorus.Tests.sync
 				//sally.ShowInTortoise();
 
 			}
+			File.Delete(Path.Combine(Path.GetTempPath(), "TextMerger-test.txt"));
 		}
 
 		[Test]

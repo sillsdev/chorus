@@ -13,7 +13,6 @@ namespace ChorusMerge.Tests
 	[TestFixture]
 	public class ChorusMergeTests
 	{
-
 		[Test]
 		public void Main_NoConflictFileB4_ConflictsEncountered_HaveConflictFileAfter()
 		{
@@ -31,11 +30,9 @@ namespace ChorusMerge.Tests
 		public void Main_UnhandledMergeFailure_Returns1()
 		{
 			using (var group = new GroupOfConflictingLiftFiles())
+			using (new FailureSimulator("LiftMerger.FindEntryById"))
 			{
-				using (new FailureSimulator("LiftMerger.FindEntryById"))
-				{
-					Assert.AreEqual(1, DoMerge(group));
-				}
+				Assert.AreEqual(1, DoMerge(group));
 			}
 		}
 #endif

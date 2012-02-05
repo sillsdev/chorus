@@ -240,16 +240,34 @@ namespace Chorus.merge.xml.generic
 		{
 			if (ours == null && theirs == null && ancestor == null)
 				return false;
-			if ((ours != null && !ours.HasChildNodes) && (theirs != null && !theirs.HasChildNodes) && (ancestor != null && !ancestor.HasChildNodes))
-				return false; // None are null, and none have children, so pick not text nodes.
 
-			return ((IsTextLevel(ours) || ours == null)
-				&& (IsTextLevel(theirs) || theirs == null)
-				&& (IsTextLevel(ancestor) || ancestor == null));
+			// At least one of them has to be a text container.
+			var ourStatus = IsTextNodeContainer(ours);
+			var theirStatus = IsTextNodeContainer(theirs);
+			var ancestorStatus = IsTextNodeContainer(ancestor);
+
+			// If any of them is not a text container, the three are not, even if one or more of the others is.
+			if (ourStatus == TextNodeStatus.IsNotTextNodeContainer || theirStatus == TextNodeStatus.IsNotTextNodeContainer || ancestorStatus == TextNodeStatus.IsNotTextNodeContainer)
+				return false;
+			// Unable to determine, so guess no.
+			if (ourStatus == TextNodeStatus.IsAmbiguous && theirStatus == TextNodeStatus.IsAmbiguous & ancestorStatus == TextNodeStatus.IsAmbiguous)
+				return false;
+
+			/******************* WARNING *****************/
+			// Don't let R# 'help' with the return layout, or it will continue 'helping',
+			// until there is only one gianormous return that is undertandable only by the compiler.
+			/******************* WARNING *****************/
+			if (ourStatus == TextNodeStatus.IsTextNodeContainer || theirStatus == TextNodeStatus.IsTextNodeContainer || ancestorStatus == TextNodeStatus.IsTextNodeContainer)
+				return true; // One node is a text container, even if the other two aren't sure.
+
+			return false;
 		}
 
-		public static bool IsTextLevel(XmlNode node)
+		public static TextNodeStatus IsTextNodeContainer(XmlNode node)
 		{
+			if (node == null)
+				return TextNodeStatus.IsAmbiguous;
+
 			var badNodeTypes = new HashSet<XmlNodeType>
 								{
 									XmlNodeType.None,
@@ -268,13 +286,34 @@ namespace Chorus.merge.xml.generic
 									XmlNodeType.EndEntity,
 									XmlNodeType.XmlDeclaration
 								};
+			if (node.NodeType != XmlNodeType.Element)
+				return TextNodeStatus.IsNotTextNodeContainer;
+
+			if (!node.HasChildNodes)
+				return TextNodeStatus.IsAmbiguous;
+
+			var goodNodeTypes = new HashSet<XmlNodeType>
+									{
+										XmlNodeType.SignificantWhitespace,
+										XmlNodeType.Whitespace,
+										XmlNodeType.Text
+									};
+
 			// I (RBR) think the only ones we can cope with are:
 			// Text, Whitespace, and SignificantWhitespace.
 			// Alternatively, one might be able to use the XmlText, XmlWhitespace,
 			// and XmlSignificantWhitespace subclasses of XmlCharacterData (leaving out XmlCDataSection and XmlComment), which match well with those legal enums
-
-			return node == null || (node.NodeType == XmlNodeType.Element && (!node.HasChildNodes || node.ChildNodes.Cast<XmlNode>().All(childNode => !badNodeTypes.Contains(childNode.NodeType))));
+			return node.ChildNodes.Cast<XmlNode>().Any(childNode => !goodNodeTypes.Contains(childNode.NodeType))
+				? TextNodeStatus.IsNotTextNodeContainer
+				: TextNodeStatus.IsTextNodeContainer;
 		}
+	}
+
+	public enum TextNodeStatus
+	{
+		IsTextNodeContainer,
+		IsNotTextNodeContainer,
+		IsAmbiguous
 	}
 
 	public class XmlFormatException : ApplicationException

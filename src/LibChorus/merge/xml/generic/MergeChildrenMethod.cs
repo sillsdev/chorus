@@ -131,7 +131,7 @@ namespace Chorus.merge.xml.generic
 					//Review JohnT (jh): Is this the correct interpretation?
 					if (ancestorChild == null)
 					{
-						if (XmlUtilities.IsTextLevel(ourChild)) // No, it hasn't. MergeTextNodesMethod has already added the addition report.
+						if (XmlUtilities.IsTextNodeContainer(ourChild) == TextNodeStatus.IsTextNodeContainer) // No, it hasn't. MergeTextNodesMethod has already added the addition report.
 							_merger.EventListener.ChangeOccurred(new XmlTextAddedReport(_merger.MergeSituation.PathToFileInRepository, ourChild));
 						else if (!(ourChild is XmlCharacterData))
 							_merger.EventListener.ChangeOccurred(new XmlAdditionChangeReport(_merger.MergeSituation.PathToFileInRepository, ourChild));

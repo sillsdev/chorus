@@ -320,7 +320,7 @@ namespace LibChorus.Tests.merge.xml.generic
 				new List<string> {"a"},
 				new List<string> {"a/b"},
 				0, null,
-				1, new List<Type> {typeof (XmlTextDeletedReport)});
+				1, new List<Type> { typeof(XmlDeletionChangeReport) });
 		}
 
 		/// <summary>

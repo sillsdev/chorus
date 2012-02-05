@@ -51,6 +51,12 @@ namespace Chorus.Tests
 			_model.ProgressDisplay = _progress;
 		}
 
+		[TearDown]
+		public void TearDown()
+		{
+			Directory.Delete(_pathToTestRoot, true);
+		}
+
 		private bool ShowRevisionPredicate(Revision revision)
 		{
 			return !revision.Summary.ToLower().Contains("hide");

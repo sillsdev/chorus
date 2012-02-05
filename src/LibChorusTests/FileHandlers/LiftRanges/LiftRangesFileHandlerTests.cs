@@ -65,7 +65,9 @@ namespace LibChorus.Tests.FileHandlers.LiftRanges
 		[Test]
 		public void CanMergeAFile()
 		{
-			var goodXmlPathname = Path.ChangeExtension(Path.GetTempFileName(), ".lift-ranges");
+			var tempPath = Path.GetTempFileName();
+			var goodXmlPathname = Path.ChangeExtension(tempPath, ".lift-ranges");
+			File.Delete(tempPath);
 			try
 			{
 // ReSharper disable LocalizableElement
@@ -94,7 +96,9 @@ namespace LibChorus.Tests.FileHandlers.LiftRanges
 		[Test]
 		public void CannotPresentAFileWithOtherExtension()
 		{
-			var badXmlPathname = Path.ChangeExtension(Path.GetTempFileName(), ".ClassData");
+			var tempPath = Path.GetTempFileName();
+			var badXmlPathname = Path.ChangeExtension(tempPath, ".ClassData");
+			File.Delete(tempPath);
 			try
 			{
 				Assert.IsFalse(_liftRangesFileHandler.CanPresentFile(badXmlPathname));
@@ -108,7 +112,9 @@ namespace LibChorus.Tests.FileHandlers.LiftRanges
 		[Test]
 		public void CanPresentAGoodFile()
 		{
-			var goodXmlPathname = Path.ChangeExtension(Path.GetTempFileName(), ".lift-ranges");
+			var tempPath = Path.GetTempFileName();
+			var goodXmlPathname = Path.ChangeExtension(tempPath, ".lift-ranges");
+			File.Delete(tempPath);
 			try
 			{
 				Assert.IsFalse(_liftRangesFileHandler.CanPresentFile(goodXmlPathname));

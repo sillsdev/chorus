@@ -62,11 +62,9 @@ namespace LibChorus.Tests.sync
 		public void MergeConflictFiles_AncestorDidNotExist()
 		{
 
-			using (
-				GroupOfConflictFiles group = new GroupOfConflictFiles("",
+			using (GroupOfConflictFiles group = new GroupOfConflictFiles("",
 																	  "<notes><annotation guid='bobGuid'/></notes>",
-																	  "<notes><annotation guid='sallyGuid'/></notes>")
-				)
+																	  "<notes><annotation guid='sallyGuid'/></notes>"))
 			{
 				MergeOrder order = new MergeOrder(group.BobFile.Path,
 												  string.Empty, group.SallyFile.Path, new NullMergeSituation());
@@ -75,7 +73,6 @@ namespace LibChorus.Tests.sync
 				XmlDocument doc = new XmlDocument();
 				doc.Load(group.BobFile.Path);
 				Assert.AreEqual(2, doc.SelectNodes("notes/annotation").Count);
-
 			}
 		}
 

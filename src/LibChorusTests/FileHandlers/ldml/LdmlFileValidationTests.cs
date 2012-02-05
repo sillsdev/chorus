@@ -23,13 +23,24 @@ namespace LibChorus.Tests.FileHandlers.ldml
 		{
 			_handler = (ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers().Handlers.Where(
 				handler => handler.GetType().Name == "LdmlFileHandler")).First();
-			_goodXmlPathname = Path.ChangeExtension(Path.GetTempFileName(), ".ldml");
+			var tempPath = Path.GetTempFileName();
+			_goodXmlPathname = Path.ChangeExtension(tempPath, ".ldml");
+			File.Delete(tempPath);
+
 			File.WriteAllText(_goodXmlPathname, "<?xml version='1.0' encoding='utf-8'?>" + Environment.NewLine + "<ldml />");
-			_illformedXmlPathname = Path.ChangeExtension(Path.GetTempFileName(), ".ldml");
+			tempPath = Path.GetTempFileName();
+			_illformedXmlPathname = Path.ChangeExtension(tempPath, ".ldml");
+			File.Delete(tempPath);
+
 			File.WriteAllText(_illformedXmlPathname, "<?xml version='1.0' encoding='utf-8'?>" + Environment.NewLine + "<ldml>");
-			_goodXmlButNotFwPathname = Path.ChangeExtension(Path.GetTempFileName(), ".ldml");
+			tempPath = Path.GetTempFileName();
+			_goodXmlButNotFwPathname = Path.ChangeExtension(tempPath, ".ldml");
+			File.Delete(tempPath);
+
 			File.WriteAllText(_goodXmlButNotFwPathname, "<?xml version='1.0' encoding='utf-8'?>" + Environment.NewLine + "<nonldmlstuff />");
-			_nonXmlPathname = Path.ChangeExtension(Path.GetTempFileName(), ".txt");
+			tempPath = Path.GetTempFileName();
+			_nonXmlPathname = Path.ChangeExtension(tempPath, ".txt");
+			File.Delete(tempPath);
 			File.WriteAllText(_nonXmlPathname, "This is not an ldml file." + Environment.NewLine);
 		}
 

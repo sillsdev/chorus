@@ -958,6 +958,8 @@ namespace Chorus.VcsDrivers.Mercurial
 			ExecutionResult result = ExecuteErrorsOk(cmd, _pathToRepository, SecondsBeforeTimeoutOnLocalOperation, _progress);
 			if (!string.IsNullOrEmpty(result.StandardError.Trim()))
 			{
+				// At least zap the temp file, since it isn't to be returned.
+				File.Delete(f.Path);
 				throw new ApplicationException(String.Format("Could not retrieve version {0} of {1}. Mercurial said: {2}", revOrHash, relativePath, result.StandardError));
 			}
 			return f.Path;

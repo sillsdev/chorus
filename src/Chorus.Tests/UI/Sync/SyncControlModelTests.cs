@@ -29,8 +29,6 @@ namespace Chorus.Tests
 		{
 			_progress = new StringBuilderProgress();
 			_pathToTestRoot = Path.Combine(Path.GetTempPath(), "ChorusTest");
-			if (Directory.Exists(_pathToTestRoot))
-				Directory.Delete(_pathToTestRoot, true);
 			Directory.CreateDirectory(_pathToTestRoot);
 
 
@@ -49,7 +47,11 @@ namespace Chorus.Tests
 			_model.AddProgressDisplay(_progress);
 		}
 
-
+		[TearDown]
+		public void TearDown()
+		{
+			Directory.Delete(_pathToTestRoot, true);
+		}
 
 		[Test]
 		public void AfterSyncLogNotEmpty()

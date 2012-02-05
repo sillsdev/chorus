@@ -83,6 +83,7 @@ namespace LibChorus.Tests
 		{
 			get { return new HgRepository(ProjectFolderConfig.FolderPath, Progress); }
 		}
+
 		public void Dispose()
 		{
 			if (Repository != null)

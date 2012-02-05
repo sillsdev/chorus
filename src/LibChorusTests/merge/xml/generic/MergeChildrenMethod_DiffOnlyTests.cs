@@ -64,7 +64,7 @@ namespace LibChorus.Tests.merge.xml.generic
 			string ours = @"<a></a>";
 
 			XmlMerger merger = new XmlMerger(new NullMergeSituation());
-			TestCompare<XmlTextDeletedReport>(merger, ours, ancestor, "//a");
+			TestCompare<XmlDeletionChangeReport>(merger, ours, ancestor, "//a");
 		}
 
 		private void TestCompare<TChangeReport>(XmlMerger merger, string ours, string ancestors, string xpathToElementsToMerge)

@@ -50,7 +50,9 @@ namespace LibChorus.Tests.FileHandlers.ldml
 		[Test]
 		public void CanMergeGoodFwXmlFile()
 		{
-			var goodXmlPathname = Path.ChangeExtension(Path.GetTempFileName(), ".ldml");
+			var tempPath = Path.GetTempFileName();
+			var goodXmlPathname = Path.ChangeExtension(tempPath, ".ldml");
+			File.Delete(tempPath);
 			try
 			{
 // ReSharper disable LocalizableElement
