@@ -38,7 +38,6 @@ namespace Chorus.VcsDrivers.Mercurial
 	internal class PullResponse
 	{
 		public int BundleSize;
-		public string Checksum;
 		public byte[] Chunk;
 		public PullStatus Status;
 		public int ChunkSize;
@@ -58,6 +57,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		Fail = 2,
 		Reset = 3,
 		NotAvailable = 4,
-		Timeout = 5
+		Timeout = 5,
+		InvalidHash = 6
 	}
 }

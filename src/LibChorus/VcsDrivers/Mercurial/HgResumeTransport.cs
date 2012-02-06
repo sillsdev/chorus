@@ -67,14 +67,13 @@ namespace Chorus.VcsDrivers.Mercurial
 			}
 			set
 			{
-				if (String.IsNullOrEmpty(value)) return;
-
 				string storagePath = PathToLocalStorage(_repo.Identifier);
 				if (!Directory.Exists(storagePath))
 				{
 					Directory.CreateDirectory(storagePath);
 				}
 				string filePath = Path.Combine(storagePath, "remoteRepo.db");
+
 				string remoteId = _apiServer.Identifier;
 				if (!File.Exists(filePath))
 				{
@@ -272,6 +271,12 @@ namespace Chorus.VcsDrivers.Mercurial
 					_progress.WriteVerbose("Push operation timed out.  Retrying...");
 					continue;
 				}
+				if (response.Status == PushStatus.InvalidHash)
+				{
+					// this should not happen...but sometimes it gets into a state where it remembers the wrong basehash of the server (CJH Feb-12)
+					LastKnownCommonBase = "";
+					continue;
+				}
 				if (response.Status == PushStatus.Fail)
 				{
 					_progress.WriteError("Push operation failed");
@@ -382,7 +387,14 @@ namespace Chorus.VcsDrivers.Mercurial
 						}
 						if (response.Headers.ContainsKey("X-HgR-Error"))
 						{
-							_progress.WriteWarning("Server Error: {0}", response.Headers["X-HgR-Error"]);
+							if (response.Headers["X-HgR-Error"] == "invalid baseHash")
+							{
+								pushResponse.Status = PushStatus.InvalidHash;
+							}
+							else
+							{
+								_progress.WriteWarning("Server Error: {0}", response.Headers["X-HgR-Error"]);
+							}
 							return pushResponse;
 						}
 
@@ -486,6 +498,13 @@ namespace Chorus.VcsDrivers.Mercurial
 					_progress.ProgressIndicator.Initialize(1);
 					_progress.ProgressIndicator.Finish();
 					return false;
+				}
+				if (response.Status == PullStatus.InvalidHash)
+				{
+					// this should not happen...but sometimes it gets into a state where it remembers the wrong basehash of the server (CJH Feb-12)
+					retryLoop = true;
+					LastKnownCommonBase = "";
+					continue;
 				}
 				if (response.Status == PullStatus.Fail)
 				{
@@ -627,7 +646,13 @@ namespace Chorus.VcsDrivers.Mercurial
 					{
 						if (response.Headers.ContainsKey("X-HgR-Error"))
 						{
-							_progress.WriteWarning("Server Error: {0}", response.Headers["X-HgR-Error"]);
+							if (response.Headers["X-HgR-Error"] == "invalid baseHash")
+							{
+								pullResponse.Status = PullStatus.InvalidHash;
+							} else
+							{
+								_progress.WriteWarning("Server Error: {0}", response.Headers["X-HgR-Error"]);
+							}
 						}
 						return pullResponse;
 					}

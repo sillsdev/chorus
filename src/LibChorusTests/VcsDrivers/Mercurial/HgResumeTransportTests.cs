@@ -728,8 +728,6 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 
 				transport.Pull();
 				Assert.That(progressForTest.AllMessages, Contains.Item("Pull operation completed successfully"));
-
-
 			}
 		}
 
@@ -751,6 +749,68 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				apiServer.Revisions.Add(tip);
 				transport.Clone();
 				Assert.That(localSetup.Repository.GetTip().Number.Hash, Is.EqualTo(tip));
+			}
+		}
+
+		[Test]
+		public void Pull_InvalidBaseHashFromServer_ClientRecoversSuccessfully()
+		{
+			var progressForTest = new ProgressForTest();
+			using (var localSetup = new RepositorySetup("hgresumetestlocal"))
+			using (var remoteSetup = new RepositorySetup("hgresumetestremote", localSetup))
+			using (var apiServer = new PullHandlerApiServerForTest(remoteSetup.Repository))
+			using (var progress = new MultiProgress(new IProgress[] { new ConsoleProgress { ShowVerbose = true }, progressForTest }))
+			{
+				var transport = new HgResumeTransport(localSetup.Repository, "test repo", apiServer, progress);
+				var address = new HttpRepositoryPath("localrepo", localSetup.Repository.PathToRepo, false);
+				localSetup.AddAndCheckinFile("sample1", "first checkin");
+				remoteSetup.Repository.Pull(address, localSetup.Repository.PathToRepo);
+				remoteSetup.Repository.Update();
+				string remoteTip = remoteSetup.Repository.GetTip().Number.Hash;
+				apiServer.Revisions.Add(remoteTip);
+				// at this point the local and remote repos are in sync
+
+				remoteSetup.AddAndCheckinFile("sample2", "second checkin");
+				remoteTip = remoteSetup.Repository.GetTip().Number.Hash;
+				apiServer.Revisions.Add(remoteTip);
+				transport.Pull();
+				// at this point the local server has cached the tip of the repo
+
+				remoteSetup.Repository.RollbackWorkingDirectoryToLastCheckin();
+				transport.Pull();
+
+				Assert.That(progressForTest.AllMessages, Has.No.Member("Pull operation failed"));
+			}
+		}
+
+		[Test]
+		public void Push_InvalidBaseHashFromServer_ClientRecoversSuccessfully()
+		{
+			var progressForTest = new ProgressForTest();
+			using (var localSetup = new RepositorySetup("hgresumetestlocal"))
+			using (var remoteSetup = new RepositorySetup("hgresumetestremote", localSetup))
+			using (var apiServer = new PullHandlerApiServerForTest(remoteSetup.Repository))
+			using (var progress = new MultiProgress(new IProgress[] { new ConsoleProgress { ShowVerbose = true }, progressForTest }))
+			{
+				var transport = new HgResumeTransport(localSetup.Repository, "test repo", apiServer, progress);
+				var address = new HttpRepositoryPath("localrepo", localSetup.Repository.PathToRepo, false);
+				localSetup.AddAndCheckinFile("sample1", "first checkin");
+				remoteSetup.Repository.Pull(address, localSetup.Repository.PathToRepo);
+				remoteSetup.Repository.Update();
+				string remoteTip = remoteSetup.Repository.GetTip().Number.Hash;
+				apiServer.Revisions.Add(remoteTip);
+				// at this point the local and remote repos are in sync
+
+				localSetup.AddAndCheckinFile("sample2", "second checkin");
+				transport.Push();
+				// at this point the local server has cached the tip of the repo
+
+				remoteSetup.Repository.RollbackWorkingDirectoryToLastCheckin();
+
+				localSetup.AddAndCheckinFile("sample3", "third checkin");
+				transport.Push();
+
+				Assert.That(progressForTest.AllMessages, Has.No.Member("Pull operation failed"));
 			}
 		}
 	}

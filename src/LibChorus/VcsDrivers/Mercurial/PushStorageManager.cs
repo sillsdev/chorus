@@ -53,6 +53,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		Fail = 2,
 		Reset = 3,
 		NotAvailable = 4,
-		Timeout = 5
+		Timeout = 5,
+		InvalidHash = 6
 	}
 }
