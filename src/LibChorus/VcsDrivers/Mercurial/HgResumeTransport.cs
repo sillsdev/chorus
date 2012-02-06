@@ -46,7 +46,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		{
 			get
 			{
-				string storagePath = _repo.PathToLocalStorage;
+				string storagePath = PathToLocalStorage(_repo.Identifier);
 				if (!Directory.Exists(storagePath))
 				{
 					Directory.CreateDirectory(storagePath);
@@ -69,7 +69,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			{
 				if (String.IsNullOrEmpty(value)) return;
 
-				string storagePath = _repo.PathToLocalStorage;
+				string storagePath = PathToLocalStorage(_repo.Identifier);
 				if (!Directory.Exists(storagePath))
 				{
 					Directory.CreateDirectory(storagePath);
@@ -210,7 +210,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			// create a bundle to push
 			string tip = _repo.GetTip().Number.Hash;
 			var bundleId = String.Format("{0}-{1}", baseRevision, tip);
-			var bundleHelper = new PushStorageManager(_repo.PathToLocalStorage, bundleId);
+			var bundleHelper = new PushStorageManager(PathToLocalStorage(_repo.Identifier), bundleId);
 			var bundleFileInfo = new FileInfo(bundleHelper.BundlePath);
 			if (bundleFileInfo.Length == 0)
 			{
@@ -444,7 +444,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				return false;
 			}
 
-			var bundleHelper = new PullStorageManager(_repo.PathToLocalStorage, baseRevision + "_" + localTip);
+			var bundleHelper = new PullStorageManager(PathToLocalStorage(_repo.Identifier), baseRevision + "_" + localTip);
 			string transactionId = bundleHelper.TransactionId;
 			int startOfWindow = bundleHelper.StartOfWindow;
 			int chunkSize = initialChunkSize; // size in bytes
@@ -643,6 +643,22 @@ namespace Chorus.VcsDrivers.Mercurial
 				_progress.WriteWarning("The pull operation failed on the server");
 				return pullResponse;
 			}
+		}
+
+		///<summary>
+		/// returns something like \%AppData%\Chorus\ChorusStorage\uniqueRepoId
+		///</summary>
+		public static string PathToLocalStorage(string id)
+		{
+			if (String.IsNullOrEmpty(id))
+			{
+				id = "0";
+			}
+			string appDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Chorus");
+			return Path.Combine(appDataPath,
+								Path.Combine("ChorusStorage",
+											 id)
+								);
 		}
 
 		public void Clone()

@@ -55,7 +55,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				var transport = new HgResumeTransport(setup.Repository, "test repo", apiServer, progress);
 				transport.Push();
 				Assert.That(progressForTest.AllMessages, Contains.Item("Push operation completed successfully"));
-				var dirInfo = new DirectoryInfo(Path.Combine(setup.Repository.PathToLocalStorage, "pushData"));
+				var dirInfo = new DirectoryInfo(Path.Combine(HgResumeTransport.PathToLocalStorage(setup.Repository.Identifier), "pushData"));
 				Assert.That(dirInfo.GetFiles().Length, Is.EqualTo(0));
 			}
 		}
@@ -163,9 +163,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				var transport = new HgResumeTransport(setup.Repository, "test repo", apiServer, progress);
 				apiServer.AddResponse(revisionResponse);
 				apiServer.AddResponse(ApiResponses.PushComplete());
-				// CH TODO CP 2012-02
-				//string dbStoragePath = HgResumeTransport.PathToLocalStorage(setup.Repository.Identifier);
-				string dbStoragePath = setup.Repository.PathToLocalStorage;
+				string dbStoragePath = HgResumeTransport.PathToLocalStorage(setup.Repository.Identifier);
 				string dbFilePath = Path.Combine(dbStoragePath, "remoteRepo.db");
 				Assert.That(File.Exists(dbFilePath), Is.False);
 				transport.Push();
@@ -196,7 +194,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				apiServer.AddResponse(ApiResponses.PushComplete());
 				transport.Push();
 
-				string dbStoragePath = setup.Repository.PathToLocalStorage;
+				string dbStoragePath = HgResumeTransport.PathToLocalStorage(setup.Repository.Identifier);
 				string dbFilePath = Path.Combine(dbStoragePath, "remoteRepo.db");
 				string dbContents = File.ReadAllText(dbFilePath).Trim();
 				Assert.That(dbContents, Is.EqualTo(apiServer.Identifier + "|" + tipHash));
@@ -244,7 +242,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				transport2.Push();
 
 				// check contents of remoteRepoDb
-				string dbStoragePath = setup.Repository.PathToLocalStorage;
+				string dbStoragePath = HgResumeTransport.PathToLocalStorage(setup.Repository.Identifier);
 				string dbFilePath = Path.Combine(dbStoragePath, "remoteRepo.db");
 				string[] dbContents = File.ReadAllLines(dbFilePath);
 				Assert.That(dbContents, Contains.Item(apiServer1.Identifier + "|" + tipHash1));
@@ -368,7 +366,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				apiServer.PrepareBundle(revHash);
 				transport.Pull();
 				Assert.That(progressForTest.AllMessages, Contains.Item("Pull operation completed successfully"));
-				var dirInfo = new DirectoryInfo(Path.Combine(setup.Repository.PathToLocalStorage, "pullData"));
+				var dirInfo = new DirectoryInfo(Path.Combine(HgResumeTransport.PathToLocalStorage(setup.Repository.Identifier), "pullData"));
 				Assert.That(dirInfo.GetFiles().Length, Is.EqualTo(0));
 			}
 		}

@@ -633,34 +633,6 @@ namespace Chorus.VcsDrivers.Mercurial
 			get { return _userName; } //enhance... location is important, too
 		}
 
-		// review: This should be on the transport? CH TODO CP 2012-02
-		///<summary>
-		/// returns something like \%AppData%\Chorus\ChorusStorage\uniqueRepoId
-		///</summary>
-		public string PathToLocalStorage
-		{
-			get
-			{
-				string id = Identifier ?? "0";
-				return Path.Combine(
-					PathToChorusAppData,
-					Path.Combine(
-						"ChorusStorage",
-						id
-						)
-					);
-			}
-		}
-
-		public string PathToChorusAppData
-		{
-			get
-			{
-				return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData).ToString(),
-									"Chorus");
-			}
-		}
-
 		public string GetFilePath(string name)
 		{
 			return Path.Combine(_pathToRepository, name);
