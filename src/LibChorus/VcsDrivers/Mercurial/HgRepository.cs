@@ -394,7 +394,15 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		public bool MakeBundle(string baseRevision, string filePath)
 		{
-			string command = string.Format("bundle --base {0} \"{1}\"", baseRevision, filePath);
+			string command;
+			if (baseRevision == "0") // special hash meaning "all revisions"
+			{
+				command = string.Format("bundle --all \"{0}\"", filePath);
+			} else
+			{
+				command = string.Format("bundle --base {0} \"{1}\"", baseRevision, filePath);
+			}
+
 			string result = GetTextFromQuery(command);
 			//_progress.WriteVerbose("While creating bundle at {0} with base {1}: {2}", filePath, baseRevision, result.Trim());
 			var theFile = new FileInfo(filePath);
@@ -633,11 +641,12 @@ namespace Chorus.VcsDrivers.Mercurial
 		{
 			get
 			{
+				string id = Identifier ?? "0";
 				return Path.Combine(
 					PathToChorusAppData,
 					Path.Combine(
 						"ChorusStorage",
-						Identifier
+						id
 						)
 					);
 			}
@@ -782,20 +791,11 @@ namespace Chorus.VcsDrivers.Mercurial
 		/// Will never time out.
 		/// Will honor state of the progress.CancelRequested property
 		/// </summary>
-		// CH TODO implement for resumable transport. hg init, resumable pull, hg unbundle CP 2012-02
-		public static void Clone(string sourceUri, string targetPath, IProgress progress)
+		public void CloneFromSource(string sourceLabel, string sourceUri)
 		{
-			progress.WriteStatus("Getting project...");
 			try
 			{
-				targetPath = GetUniqueFolderPath(progress,
-															 "Folder at {0} already exists, so can't be used. Creating clone in {1}, instead.",
-															 targetPath);
-				var repo = new HgRepository(targetPath, progress);
-
-				repo.Execute(int.MaxValue, "clone -U", DoWorkOfDeterminingProxyConfigParameterString(targetPath, progress), SurroundWithQuotes(sourceUri) + " " + SurroundWithQuotes(targetPath));
-				repo.Update();
-				progress.WriteStatus("Finished copying to this computer at {0}", targetPath);
+				Execute(int.MaxValue, "clone -U", DoWorkOfDeterminingProxyConfigParameterString(_pathToRepository, _progress), SurroundWithQuotes(sourceUri) + " " + SurroundWithQuotes(_pathToRepository));
 			}
 			catch (Exception error)
 			{
@@ -822,6 +822,22 @@ namespace Chorus.VcsDrivers.Mercurial
 
 				throw error;
 			}
+		}
+
+		public static void Clone(RepositoryAddress source, string targetPath, IProgress progress)
+		{
+			progress.WriteStatus("Getting project...");
+			targetPath = GetUniqueFolderPath(progress,
+											 "Folder at {0} already exists, so can't be used. Creating clone in {1}, instead.",
+											 targetPath);
+			var repo = new HgRepository(targetPath, progress);
+
+			using (var transport = repo.CreateTransportBetween(source, source.URI))
+			{
+				transport.Clone();
+			}
+			repo.Update();
+			progress.WriteStatus("Finished copying to this computer at {0}", targetPath);
 		}
 
 		/// <summary>

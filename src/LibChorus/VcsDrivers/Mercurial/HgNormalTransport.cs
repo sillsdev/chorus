@@ -38,6 +38,11 @@ namespace Chorus.VcsDrivers.Mercurial
 			return _repo.PullFromTarget(_targetLabel, _targetUri);
 		}
 
+		public void Clone()
+		{
+			_repo.CloneFromSource(_targetLabel, _targetUri);
+		}
+
 		public void Dispose()
 		{
 			// how do we clean up here?  Do we need to do anything?

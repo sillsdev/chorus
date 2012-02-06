@@ -734,5 +734,26 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 
 			}
 		}
+
+		[Test]
+		public void Clone_LocalRepoEmpty_ReposAreIdentical()
+		{
+			var progressForTest = new ProgressForTest();
+			using (var localSetup = new RepositorySetup("hgresumetestlocal"))
+			using (var remoteSetup = new RepositorySetup("hgresumetestremote"))
+			using (var apiServer = new PullHandlerApiServerForTest(remoteSetup.Repository))
+			using (var progress = new MultiProgress(new IProgress[] { new ConsoleProgress { ShowVerbose = true }, progressForTest }))
+			{
+				var transport = new HgResumeTransport(localSetup.Repository, "test repo", apiServer, progress);
+
+				remoteSetup.AddAndCheckinFile("sample1", "first checkin");
+				remoteSetup.AddAndCheckinFile("sample2", "second checkin");
+				remoteSetup.AddAndCheckinFile("sample3", "third checkin");
+				string tip = remoteSetup.Repository.GetTip().Number.Hash;
+				apiServer.Revisions.Add(tip);
+				transport.Clone();
+				Assert.That(localSetup.Repository.GetTip().Number.Hash, Is.EqualTo(tip));
+			}
+		}
 	}
 }

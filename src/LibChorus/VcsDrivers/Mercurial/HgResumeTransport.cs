@@ -426,8 +426,18 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		public bool Pull()
 		{
-			string baseRevision = GetCommonBaseHashWithRemoteRepo();
-			string localTip = _repo.GetTip().Number.Hash;
+			return Pull(GetCommonBaseHashWithRemoteRepo());
+		}
+
+		public bool Pull(string baseRevision)
+		{
+			var tipRevision = _repo.GetTip();
+			string localTip = "0";
+			if (tipRevision != null)
+			{
+				localTip = tipRevision.Number.Hash;
+			}
+
 			if (String.IsNullOrEmpty(baseRevision))
 			{
 				_progress.WriteError("Pull operation failed");
@@ -633,6 +643,11 @@ namespace Chorus.VcsDrivers.Mercurial
 				_progress.WriteWarning("The pull operation failed on the server");
 				return pullResponse;
 			}
+		}
+
+		public void Clone()
+		{
+			Pull("0");
 		}
 
 		public void Dispose()

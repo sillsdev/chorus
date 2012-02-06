@@ -7,5 +7,6 @@ namespace Chorus.VcsDrivers.Mercurial
 	{
 		void Push();
 		bool Pull();
+		void Clone();
 	}
 }

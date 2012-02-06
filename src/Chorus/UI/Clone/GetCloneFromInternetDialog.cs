@@ -118,7 +118,7 @@ namespace Chorus.UI.Clone
 			try
 			{
 				//review: do we need to get these out of the DoWorkEventArgs instead?
-				HgRepository.Clone(ThreadSafeUrl, PathToNewProject, _progress);
+				HgRepository.Clone(new HttpRepositoryPath(ThreadSafeUrl, ThreadSafeUrl, false), PathToNewProject, _progress);
 				using (SoundPlayer player = new SoundPlayer(Properties.Resources.finishedSound))
 				{
 					player.PlaySync();
