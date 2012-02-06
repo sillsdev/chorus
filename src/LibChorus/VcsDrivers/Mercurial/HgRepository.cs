@@ -1508,8 +1508,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				{
 					try
 					{
-						var dest = Path.GetTempFileName();
-						File.Delete(dest);
+						var dest = Path.Combine(Path.GetTempPath(),Path.GetRandomFileName());
 						File.Move(pathToLock, dest);
 						_progress.WriteWarning("Lock could not be deleted, but was moved to temp directory.");
 					}

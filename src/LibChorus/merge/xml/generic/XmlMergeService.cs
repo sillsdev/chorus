@@ -324,9 +324,9 @@ namespace Chorus.merge.xml.generic
 
 				if (!transferUntouched)
 				{
-#if DEBUG
+					// NB: The FailureSimulator is *only* used in tests.
 					FailureSimulator.IfTestRequestsItThrowNow("LiftMerger.FindEntryById");
-#endif
+
 					// Read to next record element,
 					// Which skips writing our the current element.
 					reader.ReadOuterXml();

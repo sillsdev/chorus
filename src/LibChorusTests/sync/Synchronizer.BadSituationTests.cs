@@ -55,9 +55,6 @@ namespace LibChorus.Tests.sync
 		}
 
 		[Test]
-#if !DEBUG
-		//[Ignore("Test fails in release build (Failure not triggered).")]
-#endif
 		public void Sync_ExceptionInMergeCode_LeftWith2HeadsAndErrorOutputToProgress()
 		{
 			using (RepositoryWithFilesSetup bob = RepositoryWithFilesSetup.CreateWithLiftFile("bob"))
@@ -92,9 +89,6 @@ namespace LibChorus.Tests.sync
 		}
 
 		[Test]
-#if !DEBUG
-		[Ignore("Test fails in release build. (Failure not triggered)")]
-#endif
 		public void Sync_MergeFailure_NoneOfTheOtherGuysFilesMakeItIntoWorkingDirectory()
 		{
 			using (var bob = new RepositorySetup("bob"))
@@ -138,9 +132,6 @@ namespace LibChorus.Tests.sync
 		/// we were going to the tip, which if this was the *second* attempt, could be the other guy's work!
 		/// </summary>
 		[Test]
-#if !DEBUG
-		[Ignore("Test fails in release build. (Failure not triggered)")]
-#endif
 		public void Sync_RepeatedMergeFailure_WeAreLeftOnOurOwnWorkingDefault()
 		{
 			using (var bob = new RepositoryWithFilesSetup("bob", "test.txt", "hello"))

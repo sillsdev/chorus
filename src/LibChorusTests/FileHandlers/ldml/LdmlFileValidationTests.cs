@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using Chorus.FileTypeHanders;
 using NUnit.Framework;
+using Palaso.IO;
 
 namespace LibChorus.Tests.FileHandlers.ldml
 {
@@ -13,49 +14,48 @@ namespace LibChorus.Tests.FileHandlers.ldml
 	public class LdmlFileValidationTests
 	{
 		private IChorusFileTypeHandler _handler;
-		private string _goodXmlPathname;
-		private string _illformedXmlPathname;
-		private string _goodXmlButNotFwPathname;
-		private string _nonXmlPathname;
+		private TempFile _goodXmlTempFile;
+		private TempFile _illformedXmlTempFile;
+		private TempFile _goodXmlButNotLdmlTempFile;
+		private TempFile _nonXmlTempFile;
 
 		[TestFixtureSetUp]
 		public void FixtureSetup()
 		{
 			_handler = (ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers().Handlers.Where(
 				handler => handler.GetType().Name == "LdmlFileHandler")).First();
-			var tempPath = Path.GetTempFileName();
-			_goodXmlPathname = Path.ChangeExtension(tempPath, ".ldml");
-			File.Delete(tempPath);
 
-			File.WriteAllText(_goodXmlPathname, "<?xml version='1.0' encoding='utf-8'?>" + Environment.NewLine + "<ldml />");
-			tempPath = Path.GetTempFileName();
-			_illformedXmlPathname = Path.ChangeExtension(tempPath, ".ldml");
-			File.Delete(tempPath);
+			_goodXmlTempFile = TempFile.WithExtension(".ldml");
+#if MONO
+			File.WriteAllText(_goodXmlTempFile.Path, "<?xml version='1.0' encoding='utf-8'?>" + Environment.NewLine + "<ldml>" + Environment.NewLine + "</ldml>");
+#else
+			File.WriteAllText(_goodXmlTempFile.Path, "<?xml version='1.0' encoding='utf-8'?>" + Environment.NewLine + "<ldml />");
+#endif
+			_illformedXmlTempFile = TempFile.WithExtension(".ldml");
+			File.WriteAllText(_illformedXmlTempFile.Path, "<?xml version='1.0' encoding='utf-8'?>" + Environment.NewLine + "<ldml>");
 
-			File.WriteAllText(_illformedXmlPathname, "<?xml version='1.0' encoding='utf-8'?>" + Environment.NewLine + "<ldml>");
-			tempPath = Path.GetTempFileName();
-			_goodXmlButNotFwPathname = Path.ChangeExtension(tempPath, ".ldml");
-			File.Delete(tempPath);
+			_goodXmlButNotLdmlTempFile = TempFile.WithExtension(".ldml");
+			File.WriteAllText(_goodXmlButNotLdmlTempFile.Path, "<?xml version='1.0' encoding='utf-8'?>" + Environment.NewLine + "<nonldmlstuff />");
 
-			File.WriteAllText(_goodXmlButNotFwPathname, "<?xml version='1.0' encoding='utf-8'?>" + Environment.NewLine + "<nonldmlstuff />");
-			tempPath = Path.GetTempFileName();
-			_nonXmlPathname = Path.ChangeExtension(tempPath, ".txt");
-			File.Delete(tempPath);
-			File.WriteAllText(_nonXmlPathname, "This is not an ldml file." + Environment.NewLine);
+			_nonXmlTempFile = TempFile.WithExtension(".txt");
+			File.WriteAllText(_nonXmlTempFile.Path, "This is not an ldml file." + Environment.NewLine);
 		}
 
 		[TestFixtureTearDown]
 		public void FixtureTearDown()
 		{
 			_handler = null;
-			if (File.Exists(_goodXmlPathname))
-				File.Delete(_goodXmlPathname);
-			if (File.Exists(_illformedXmlPathname))
-				File.Delete(_illformedXmlPathname);
-			if (File.Exists(_goodXmlButNotFwPathname))
-				File.Delete(_goodXmlButNotFwPathname);
-			if (File.Exists(_nonXmlPathname))
-				File.Delete(_nonXmlPathname);
+			_goodXmlTempFile.Dispose();
+			_goodXmlTempFile = null;
+
+			_illformedXmlTempFile.Dispose();
+			_illformedXmlTempFile = null;
+
+			_goodXmlButNotLdmlTempFile.Dispose();
+			_goodXmlButNotLdmlTempFile = null;
+
+			_nonXmlTempFile.Dispose();
+			_nonXmlTempFile = null;
 		}
 
 		[Test]
@@ -79,13 +79,13 @@ namespace LibChorus.Tests.FileHandlers.ldml
 		[Test]
 		public void Cannot_Validate_Nonxml_File()
 		{
-			Assert.IsFalse(_handler.CanValidateFile(_nonXmlPathname));
+			Assert.IsFalse(_handler.CanValidateFile(_nonXmlTempFile.Path));
 		}
 
 		[Test]
 		public void Can_Validate_Fw_Xml_File()
 		{
-			Assert.IsTrue(_handler.CanValidateFile(_goodXmlPathname));
+			Assert.IsTrue(_handler.CanValidateFile(_goodXmlTempFile.Path));
 		}
 
 		[Test]
@@ -103,19 +103,19 @@ namespace LibChorus.Tests.FileHandlers.ldml
 		[Test]
 		public void ValidateFile_Returns_Null_For_Good_File()
 		{
-			Assert.IsNull(_handler.ValidateFile(_goodXmlPathname, null));
+			Assert.IsNull(_handler.ValidateFile(_goodXmlTempFile.Path, null));
 		}
 
 		[Test]
 		public void ValidateFile_Returns_Message_For_Crummy_Ldml_File()
 		{
-			Assert.IsNotNull(_handler.ValidateFile(_illformedXmlPathname, null));
+			Assert.IsNotNull(_handler.ValidateFile(_illformedXmlTempFile.Path, null));
 		}
 
 		[Test]
 		public void ValidateFile_Returns_Message_For_Good_But_Not_Ldml_File()
 		{
-			Assert.IsNotNull(_handler.ValidateFile(_goodXmlButNotFwPathname, null));
+			Assert.IsNotNull(_handler.ValidateFile(_goodXmlButNotLdmlTempFile.Path, null));
 		}
 	}
 }

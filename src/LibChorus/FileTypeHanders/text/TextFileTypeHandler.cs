@@ -45,14 +45,13 @@ namespace Chorus.FileTypeHanders.text
 
 		public void Do3WayMerge(MergeOrder order)
 		{
-#if DEBUG
 		   // Debug.Fail("hello");
+			// FailureSimulator is only used by tests to force a failure.
 			FailureSimulator.IfTestRequestsItThrowNow("TextMerger");
 
 			//trigger on a particular file name
+			// FailureSimulator is only used by tests to force a failure.
 			FailureSimulator.IfTestRequestsItThrowNow("TextMerger-"+Path.GetFileName(order.pathToOurs));
-#endif
-
 
 			//TODO: this is not yet going to deal with conflicts at all!
 			var contents = GetRawMerge(order.pathToOurs, order.pathToCommonAncestor, order.pathToTheirs);
