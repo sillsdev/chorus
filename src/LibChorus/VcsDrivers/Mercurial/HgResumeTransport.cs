@@ -688,7 +688,10 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		public void Clone()
 		{
-			_repo.Init();
+			if (!_repo.IsInitialized)
+			{
+				_repo.Init();
+			}
 			Pull("0");
 		}
 

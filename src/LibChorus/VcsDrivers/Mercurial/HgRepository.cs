@@ -1967,6 +1967,14 @@ namespace Chorus.VcsDrivers.Mercurial
 
 			return uniqueTarget; // It may be the original, if it was unique.
 		}
+
+		public bool IsInitialized
+		{
+			get
+			{
+				return Directory.Exists(Path.Combine(_pathToRepository, ".hg"));
+			}
+		}
 	}
 
 }
