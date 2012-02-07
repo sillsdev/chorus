@@ -73,8 +73,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				apiServer.AddResponse(ApiResponses.Custom(HttpStatusCode.SeeOther));
 				apiServer.AddResponse(ApiResponses.Custom(HttpStatusCode.SeeOther));
 				var transport = new HgResumeTransport(setup.Repository, "test repo", apiServer, progress);
-				transport.Push();
-				Assert.That(progressForTest.AllMessages, Contains.Item("Push operation failed"));
+				Assert.That(() => transport.Push(), Throws.Exception.TypeOf<HgResumeOperationFailed>());
 			}
 		}
 
@@ -142,8 +141,8 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				apiServer.AddResponse(ApiResponses.PushAccepted(1));
 				apiServer.AddResponse(ApiResponses.PushAccepted(2));
 				apiServer.AddResponse(ApiResponses.Reset());
-				transport.Push();
-				Assert.That(progressForTest.AllMessages, Contains.Item("Push operation failed"));
+
+				Assert.That(() => transport.Push(), Throws.Exception.TypeOf<HgResumeOperationFailed>());
 			}
 		}
 
@@ -275,8 +274,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				var transport = new HgResumeTransport(setup.Repository, "test repo", apiServer, progress);
 				setup.AddAndCheckinFile("sample1", "first checkin");
 				apiServer.AddResponse(ApiResponses.Custom(HttpStatusCode.ServiceUnavailable));
-				transport.Pull();
-				Assert.That(progressForTest.AllMessages, Contains.Item("Pull operation failed"));
+				Assert.That(() => transport.Pull(), Throws.Exception.TypeOf<HgResumeOperationFailed>());
 			}
 		}
 
@@ -305,26 +303,6 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				transport.Pull();
 				Assert.That(progressForTest.AllMessages, Contains.Item("No changes"));
 
-			}
-		}
-
-		[Test]
-		public void Pull_ServerTimeOut_Fails()
-		{
-			var progressForTest = new ProgressForTest();
-			using (var setup = new RepositorySetup("hgresumetest"))
-			using (var apiServer = new DummyApiServerForTest())
-			using (var progress = new MultiProgress(new IProgress[] { new ConsoleProgress { ShowVerbose = true }, progressForTest }))
-			{
-				var transport = new HgResumeTransport(setup.Repository, "test repo", apiServer, progress);
-				setup.AddAndCheckinFile("sample1", "first checkin");
-				apiServer.AddTimeOut();
-				apiServer.AddTimeOut();
-				apiServer.AddTimeOut();
-				apiServer.AddTimeOut();
-				apiServer.AddTimeOut();
-				transport.Pull();
-				Assert.That(progressForTest.AllMessages, Contains.Item("Pull operation failed"));
 			}
 		}
 
@@ -461,7 +439,6 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				apiServer.AddTimeoutResponse(7);
 				transport.Pull();
 
-				Assert.That(progressForTest.AllMessagesString(), Contains.Substring("Received 0+5000 bytes"));
 				Assert.That(progressForTest.AllMessagesString(), Contains.Substring("Received 5000 of "));
 				Assert.That(progressForTest.AllMessages, Contains.Item("Pull operation completed successfully"));
 			}
@@ -489,13 +466,11 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				apiServer.Revisions.Add(revHash);
 				apiServer.AddFailResponse(3);
 
-				transport.Pull();
-				Assert.That(progressForTest.AllMessages, Contains.Item("Pull operation failed"));
+				Assert.That(() => transport.Pull(), Throws.Exception.TypeOf<HgResumeOperationFailed>());
 
 				apiServer.AddFailResponse(5);
-				transport.Pull();
+				Assert.That(() => transport.Pull(), Throws.Exception.TypeOf<HgResumeOperationFailed>());
 				Assert.That(progressForTest.AllMessages, Contains.Item("Resuming pull operation at 5000 bytes"));
-				Assert.That(progressForTest.AllMessages, Contains.Item("Pull operation failed"));
 
 				transport.Pull();
 				Assert.That(progressForTest.AllMessages, Contains.Item("Resuming pull operation at 10000 bytes"));
@@ -523,10 +498,12 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				setup.Repository.AddAndCheckinFile(largeFilePath);
 				var transport = new HgResumeTransport(setup.Repository, "test repo", apiServer, progress);
 				apiServer.AddFailResponse(3);
-				transport.Push();
-				Assert.That(progressForTest.AllMessages, Contains.Item("Push operation failed"));
+
+				Assert.That(() => transport.Push(), Throws.Exception.TypeOf<HgResumeOperationFailed>());
+
 				apiServer.AddFailResponse(6);
-				transport.Push();
+				Assert.That(() => transport.Push(), Throws.Exception.TypeOf<HgResumeOperationFailed>());
+
 				Assert.That(progressForTest.AllMessages, Contains.Item("Resuming push operation at 130000 bytes"));
 				transport.Push();
 				Assert.That(progressForTest.AllMessages, Contains.Item("Resuming push operation at 255000 bytes"));
@@ -554,8 +531,8 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				setup.Repository.AddAndCheckinFile(largeFilePath);
 				var transport = new HgResumeTransport(setup.Repository, "test repo", apiServer, progress);
 				apiServer.AddFailResponse(2);
-				transport.Push();
-				Assert.That(progressForTest.AllMessages, Contains.Item("Push operation failed"));
+
+				Assert.That(() => transport.Push(), Throws.Exception.TypeOf<HgResumeOperationFailed>());
 
 				setup.AddAndCheckinFile("sample2", "second checkin");
 				transport.Push();
@@ -593,8 +570,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				apiServer.Revisions.Add(remoteTip);
 				apiServer.AddFailResponse(3);
 
-				transport.Pull();
-				Assert.That(progressForTest.AllMessages, Contains.Item("Pull operation failed"));
+				Assert.That(() => transport.Pull(), Throws.Exception.TypeOf<HgResumeOperationFailed>());
 
 				remoteSetup.AddAndCheckinFile("sample2", "second checkin");
 				transport.Pull();
@@ -789,7 +765,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			var progressForTest = new ProgressForTest();
 			using (var localSetup = new RepositorySetup("hgresumetestlocal"))
 			using (var remoteSetup = new RepositorySetup("hgresumetestremote", localSetup))
-			using (var apiServer = new PullHandlerApiServerForTest(remoteSetup.Repository))
+			using (var apiServer = new PushHandlerApiServerForTest(remoteSetup.Repository))
 			using (var progress = new MultiProgress(new IProgress[] { new ConsoleProgress { ShowVerbose = true }, progressForTest }))
 			{
 				var transport = new HgResumeTransport(localSetup.Repository, "test repo", apiServer, progress);
@@ -808,9 +784,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				remoteSetup.Repository.RollbackWorkingDirectoryToLastCheckin();
 
 				localSetup.AddAndCheckinFile("sample3", "third checkin");
-				transport.Push();
-
-				Assert.That(progressForTest.AllMessages, Has.No.Member("Pull operation failed"));
+				Assert.That(() => transport.Push(), Throws.Nothing);
 			}
 		}
 	}

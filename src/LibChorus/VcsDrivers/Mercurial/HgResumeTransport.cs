@@ -11,7 +11,14 @@ using Palaso.TestUtilities;
 
 namespace Chorus.VcsDrivers.Mercurial
 {
-
+	class HgResumeException : Exception
+	{
+		public HgResumeException(string message) : base(message) {}
+	}
+	class HgResumeOperationFailed : HgResumeException
+	{
+		public HgResumeOperationFailed(string message) : base(message) {}
+	}
 
 	public class HgResumeTransport : IHgTransport
 	{
@@ -202,8 +209,9 @@ namespace Chorus.VcsDrivers.Mercurial
 			string baseRevision = GetCommonBaseHashWithRemoteRepo();
 			if (String.IsNullOrEmpty(baseRevision))
 			{
-				_progress.WriteError("Push operation failed");
-				return;
+				var errorMessage = "Push operation failed";
+				_progress.WriteError(errorMessage);
+				throw new HgResumeOperationFailed(errorMessage);
 			}
 
 			// create a bundle to push
@@ -217,7 +225,9 @@ namespace Chorus.VcsDrivers.Mercurial
 				if (!bundleCreatedSuccessfully)
 				{
 					_progress.WriteError("Unable to create bundle for Push");
-					_progress.WriteError("Push operation failed");
+					var errorMessage = "Push operation failed";
+					_progress.WriteError(errorMessage);
+					throw new HgResumeOperationFailed(errorMessage);
 					return;
 				}
 				bundleFileInfo.Refresh();
@@ -279,15 +289,17 @@ namespace Chorus.VcsDrivers.Mercurial
 				}
 				if (response.Status == PushStatus.Fail)
 				{
-					_progress.WriteError("Push operation failed");
-					return;
+					var errorMessage = "Push operation failed";
+					_progress.WriteError(errorMessage);
+					throw new HgResumeOperationFailed(errorMessage);
 				}
 				if (response.Status == PushStatus.Reset)
 				{
 					FinishPush(transactionId);
 					bundleHelper.Cleanup();
-					_progress.WriteError("Push operation failed");
-					return;
+					var errorMessage = "Push operation failed";
+					_progress.WriteError(errorMessage);
+					throw new HgResumeOperationFailed(errorMessage);
 				}
 				if (response.Status == PushStatus.Complete)
 				{
@@ -337,7 +349,6 @@ namespace Chorus.VcsDrivers.Mercurial
 			var pushResponse = new PushResponse(PushStatus.Fail);
 			try
 			{
-				_progress.WriteStatus("Sending {0}+{1} of {2} bytes", Convert.ToInt32(parameters["offset"]), chunkSize, parameters["bundleSize"]);
 				var response = _apiServer.Execute("pushBundleChunk", parameters, dataToPush, timeoutInSeconds);
 				_progress.WriteVerbose("API URL: {0}", _apiServer.Url);
 				/* API returns the following HTTP codes:
@@ -445,6 +456,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		{
 			var tipRevision = _repo.GetTip();
 			string localTip = "0";
+			string errorMessage;
 			if (tipRevision != null)
 			{
 				localTip = tipRevision.Number.Hash;
@@ -452,8 +464,9 @@ namespace Chorus.VcsDrivers.Mercurial
 
 			if (String.IsNullOrEmpty(baseRevision))
 			{
-				_progress.WriteError("Pull operation failed");
-				return false;
+				errorMessage = "Pull operation failed";
+				_progress.WriteError(errorMessage);
+				throw new HgResumeOperationFailed(errorMessage);
 			}
 
 			var bundleHelper = new PullStorageManager(PathToLocalStorage(_repo.Identifier), baseRevision + "_" + localTip);
@@ -475,8 +488,13 @@ namespace Chorus.VcsDrivers.Mercurial
 											};
 			int loopCtr = 1;
 			bool retryLoop;
+
 			do
 			{
+				if (_progress.CancelRequested)
+				{
+					throw new UserCancelledException();
+				}
 				retryLoop = false;
 				var response = PullOneChunk(requestParameters);
 				if (response.Status == PullStatus.NotAvailable)
@@ -508,10 +526,11 @@ namespace Chorus.VcsDrivers.Mercurial
 				}
 				if (response.Status == PullStatus.Fail)
 				{
-					_progress.WriteError("Pull operation failed");
+					errorMessage = "Pull operation failed";
+					_progress.WriteError(errorMessage);
 					_progress.ProgressIndicator.Initialize(1);
 					_progress.ProgressIndicator.Finish();
-					return false;
+					throw new HgResumeOperationFailed(errorMessage);
 				}
 
 				bundleSize = response.BundleSize;
@@ -560,8 +579,9 @@ namespace Chorus.VcsDrivers.Mercurial
 			}
 			_progress.WriteError("Received all data but local unbundle operation failed or resulted in multiple heads!");
 			_progress.ProgressIndicator.Finish();
-			_progress.WriteError("Pull operation failed");
-			return false;
+			errorMessage = "Pull operation failed";
+			_progress.WriteError(errorMessage);
+			throw new HgResumeOperationFailed(errorMessage);
 		}
 
 		private string GetRemoteTip()
@@ -622,9 +642,6 @@ namespace Chorus.VcsDrivers.Mercurial
 					if (response.StatusCode == HttpStatusCode.OK)
 					{
 						int actualChunkSize = Convert.ToInt32(response.Headers["X-HgR-ChunkSize"]);
-						string statusMessage = string.Format("Received {0}+{1} bytes", parameters["offset"],
-																actualChunkSize);
-						_progress.WriteVerbose(statusMessage);
 						pullResponse.BundleSize = Convert.ToInt32(response.Headers["X-HgR-BundleSize"]);
 						pullResponse.Status = PullStatus.OK;
 						pullResponse.ChunkSize = CalculateChunkSize(chunkSize, response.ResponseTimeInMilliseconds);
@@ -634,6 +651,7 @@ namespace Chorus.VcsDrivers.Mercurial
 					}
 					if (response.StatusCode == HttpStatusCode.BadRequest && response.Headers["X-HgR-Status"] == "UNKNOWNID")
 					{
+						// this is not implemented currently (feb 2012 cjh)
 						_progress.WriteWarning("The server {0} does not have repoId '{1}'", _targetLabel, _repo.Identifier);
 						return pullResponse;
 					}
@@ -692,7 +710,14 @@ namespace Chorus.VcsDrivers.Mercurial
 			{
 				_repo.Init();
 			}
-			Pull("0");
+			try
+			{
+				Pull("0");
+			}
+			catch(HgResumeOperationFailed)
+			{
+				throw new HgResumeOperationFailed("Clone operation failed");
+			}
 		}
 
 		public void Dispose()
