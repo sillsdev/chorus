@@ -317,7 +317,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		private PushStatus FinishPush(string transactionId)
 		{
-			var apiResponse = _apiServer.Execute("finishPushBundle", new Dictionary<string, string> {{"transId", transactionId}}, 20);
+			var apiResponse = _apiServer.Execute("finishPushBundle", new Dictionary<string, string> { { "transId", transactionId }, { "repoId", _apiServer.ProjectId } }, 20);
 			_progress.WriteVerbose("API URL: {0}", _apiServer.Url);
 			switch (apiResponse.StatusCode)
 			{
@@ -571,7 +571,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		private PullStatus FinishPull(string transactionId)
 		{
-			var apiResponse = _apiServer.Execute("finishPullBundle", new Dictionary<string, string> { { "transId", transactionId } }, 20);
+			var apiResponse = _apiServer.Execute("finishPullBundle", new Dictionary<string, string> { { "transId", transactionId }, {"repoId", _apiServer.ProjectId} }, 20);
 			switch (apiResponse.StatusCode)
 			{
 				case HttpStatusCode.OK:
@@ -688,6 +688,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		public void Clone()
 		{
+			_repo.Init();
 			Pull("0");
 		}
 

@@ -5,6 +5,7 @@ using System.IO;
 using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Web;
 
 namespace Chorus.VcsDrivers.Mercurial
 {
@@ -13,48 +14,14 @@ namespace Chorus.VcsDrivers.Mercurial
 	{
 		public const string APIVERSION = "01";
 
-		private string _baseUrl;
-		private string _server;
-		private string _projectId;
+		private readonly Uri _url;
 		private string _urlExecuted;
 
 		public HgResumeRestApiServer(string url)
 		{
-			ParseComponentsInUrl(url);
+			_url = new Uri(url);
 			_urlExecuted = "";
 		}
-
-		private void ParseComponentsInUrl(string url)
-		{
-			Match match = Regex.Match(url, @"(\w+)(://|:\\)([^/]+)(.*)");
-			if (match.Success)
-			{
-				string protocol = match.Groups[1].Value + match.Groups[2].Value;
-				_server = match.Groups[3].Value;
-				_baseUrl = protocol + _server;
-				string path = match.Groups[4].Value;
-				_projectId = path;
-				if (path.Contains("/"))
-				{
-					int slashIndexInPath = path.LastIndexOf("/");
-					_projectId = path.Substring(slashIndexInPath+1);
-					_baseUrl += path.Substring(0, slashIndexInPath);
-				}
-				if (_baseUrl.EndsWith("projects"))
-				{
-					// remove "projects" from URL if necessary
-					_baseUrl = _baseUrl.Substring(0, _baseUrl.IndexOf("/projects"));
-				}
-			}
-			else
-			{
-				// fallback in case we can't parse the URL
-				_baseUrl = url;
-				_server = url;
-				_projectId = url;
-			}
-		}
-
 
 		public HgResumeApiResponse Execute(string method, IDictionary<string, string> parameters, int secondsBeforeTimeout)
 		{
@@ -64,20 +31,22 @@ namespace Chorus.VcsDrivers.Mercurial
 		public HgResumeApiResponse Execute(string method, IDictionary<string, string> parameters, byte[] contentToSend, int secondsBeforeTimeout)
 		{
 			string queryString = BuildQueryString(parameters);
-			_urlExecuted = _baseUrl + String.Format("/api/v{0}/", APIVERSION) + method + "?" + queryString;
+			_urlExecuted = String.Format("{0}://{1}/api/v{2}/{3}?{4}", _url.Scheme, _url.Host, APIVERSION, method, queryString);
 			var req = WebRequest.Create(_urlExecuted) as HttpWebRequest;
-			req.UserAgent = "HgResume";
+			req.UserAgent = String.Format("HgResume v{0}", APIVERSION);
+			req.PreAuthenticate = true;
+			req.Credentials = new NetworkCredential(_url.UserInfo.Split(':')[0], _url.UserInfo.Split(':')[1]);
 			req.Timeout = secondsBeforeTimeout * 1000; // timeout is in milliseconds
 			if (contentToSend.Length == 0)
 			{
-				req.Method = "GET";
+				req.Method = WebRequestMethods.Http.Get;
 			}
 			else
 			{
-				req.Method = "POST";
+				req.Method = WebRequestMethods.Http.Post;
 				req.ContentLength = contentToSend.Length;
 				req.ContentType = "text/plain";  // i'm not sure this is really what we want.  The other possibility is "application/x-www-form-urlencoded"
-				using (Stream reqStream = req.GetRequestStream())
+				using (var reqStream = req.GetRequestStream())
 				{
 					reqStream.Write(contentToSend, 0, contentToSend.Length);
 				}
@@ -125,7 +94,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			return apiResponse;
 		}
 
-		private HgResumeApiResponse HandleResponse(HttpWebResponse res)
+		private static HgResumeApiResponse HandleResponse(HttpWebResponse res)
 		{
 			var apiResponse = new HgResumeApiResponse();
 			for (int i = 0; i < res.Headers.Count; i++)
@@ -162,12 +131,23 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		public string Identifier
 		{
-			get { return _server; }
+			get { return _url.Host; }
 		}
 
 		public string ProjectId
 		{
-			get { return _projectId; }
+			get
+			{
+				if (_url.Query.Contains("repoId="))
+				{
+					return HttpUtility.ParseQueryString(_url.Query).Get("repoId");
+				}
+				if (_url.Segments[1].ToLower() != "projects/")
+				{
+					return _url.Segments[1].TrimEnd('/');
+				}
+				return _url.Segments[2].TrimEnd('/');
+			}
 		}
 
 		public string Url
@@ -175,12 +155,12 @@ namespace Chorus.VcsDrivers.Mercurial
 			get { return _urlExecuted; }
 		}
 
-		private static string BuildQueryString(IDictionary<string, string> urlParameters)
+		private static string BuildQueryString(IEnumerable<KeyValuePair<string, string>> urlParameters)
 		{
-			string queryString = "";
-			foreach (KeyValuePair<string, string> param in urlParameters)
+			var queryString = "";
+			foreach (var param in urlParameters)
 			{
-				queryString += string.Format("{0}={1}&", param.Key, System.Web.HttpUtility.UrlEncode(param.Value));
+				queryString += string.Format("{0}={1}&", param.Key, HttpUtility.UrlEncode(param.Value));
 			}
 			return queryString.TrimEnd('&');
 		}

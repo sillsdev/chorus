@@ -108,20 +108,17 @@ namespace Chorus.VcsDrivers.Mercurial
 				*/
 				string newRepositoryPath = startingPointForPathSearch;
 
-				if (!string.IsNullOrEmpty(startingPointForPathSearch) && Directory.Exists(newRepositoryPath))
+				if (!string.IsNullOrEmpty(newRepositoryPath) && Directory.Exists(newRepositoryPath))
 				{
-					CreateRepositoryInExistingDir(newRepositoryPath, progress);
+					var hg = new HgRepository(newRepositoryPath, progress);
+					hg.Init();
 
 					//review: Machine name would be more accurate, but most people have, like "Compaq" as their machine name
 					//but in any case, this is just a default until they set the name explicity
-					var hg = new HgRepository(newRepositoryPath, progress);
 					hg.SetUserNameInIni(Environment.UserName, progress);
-					return new HgRepository(newRepositoryPath, progress);
+					return hg;
 				}
-				else
-				{
-					return null;
-				}
+				return null;
 			}
 		}
 
@@ -684,6 +681,10 @@ namespace Chorus.VcsDrivers.Mercurial
 			repo.Execute(20, "init", "--config format.dotencode=False " + SurroundWithQuotes(path));
 		}
 
+		public void Init()
+		{
+			Execute(20, "init", "--config format.dotencode=False " + SurroundWithQuotes(_pathToRepository));
+		}
 
 		public void AddAndCheckinFiles(List<string> includePatterns, List<string> excludePatterns, string message)
 		{
