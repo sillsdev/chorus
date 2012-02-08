@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml;
@@ -173,46 +174,59 @@ namespace Chorus.merge.xml.generic
 			}
 		}
 
+		private static IContainer _conflictFactory;
+
+		//List<Type> _additionalConflictTypes =
+
+		private static IContainer ConflictFactory
+		{
+			get
+			{
+				if (_conflictFactory == null)
+				{
+					var builder = new Autofac.Builder.ContainerBuilder();
+
+					Register<RemovedVsEditedElementConflict>(builder);
+					Register<EditedVsRemovedElementConflict>(builder);
+
+					Register<AmbiguousInsertConflict>(builder);
+					Register<AmbiguousInsertReorderConflict>(builder);
+
+					Register<BothEditedAttributeConflict>(builder);
+					Register<BothEditedTextConflict>(builder);
+					Register<BothEditedTheSameAtomicElement>(builder);
+					Register<XmlTextBothEditedTextConflict>(builder);
+					Register<XmlTextBothAddedTextConflict>(builder);
+
+					Register<BothReorderedElementConflict>(builder);
+					Register<BothInsertedAtDifferentPlaceConflict>(builder);
+
+					Register<RemovedVsEditedAttributeConflict>(builder);
+					Register<EditedVsRemovedAttributeConflict>(builder);
+					Register<BothAddedAttributeConflict>(builder);
+
+					Register<RemovedVsEditedTextConflict>(builder);
+					Register<EditedVsRemovedTextConflict>(builder);
+					Register<XmlTextEditVsRemovedConflict>(builder);
+					Register<XmlTextRemovedVsEditConflict>(builder);
+
+					Register<IncompatibleMoveConflict>(builder);
+
+					Register<BothEditedDifferentPartsOfDependentPiecesOfDataWarning>(builder);
+					Register<UnmergableFileTypeConflict>(builder);
+
+					_conflictFactory = builder.Build();
+				}
+				return _conflictFactory;
+			}
+		}
+
 		public static IConflict CreateFromConflictElement(XmlNode conflictNode)
 		{
 			try
 			{
-
-			var builder = new Autofac.Builder.ContainerBuilder();
-
-			Register<RemovedVsEditedElementConflict>(builder);
-			Register<EditedVsRemovedElementConflict>(builder);
-
-			Register<AmbiguousInsertConflict>(builder);
-			Register<AmbiguousInsertReorderConflict>(builder);
-
-			Register<BothEditedAttributeConflict>(builder);
-			Register<BothEditedTextConflict>(builder);
-			Register<BothEditedTheSameAtomicElement>(builder);
-			Register<XmlTextBothEditedTextConflict>(builder);
-			Register<XmlTextBothAddedTextConflict>(builder);
-
-			Register<BothReorderedElementConflict>(builder);
-			Register<BothInsertedAtDifferentPlaceConflict>(builder);
-
-			Register<RemovedVsEditedAttributeConflict>(builder);
-			Register<EditedVsRemovedAttributeConflict>(builder);
-			Register<BothAddedAttributeConflict>(builder);
-
-			Register<RemovedVsEditedTextConflict>(builder);
-			Register<EditedVsRemovedTextConflict>(builder);
-			Register<XmlTextEditVsRemovedConflict>(builder);
-			Register<XmlTextRemovedVsEditConflict>(builder);
-
-			Register<IncompatibleMoveConflict>(builder);
-
-			Register<BothEditedDifferentPartsOfDependentPiecesOfDataWarning>(builder);
-			Register<UnmergableFileTypeConflict>(builder);
-
-			var container = builder.Build();
-
 			var typeGuid = conflictNode.GetStringAttribute("typeGuid");
-			return container.Resolve<IConflict>(typeGuid, new Parameter[]{new TypedParameter(typeof(XmlNode),conflictNode)});
+			return ConflictFactory.Resolve<IConflict>(typeGuid, new Parameter[] { new TypedParameter(typeof(XmlNode), conflictNode) });
 			}
 			catch (Exception error)
 			{
