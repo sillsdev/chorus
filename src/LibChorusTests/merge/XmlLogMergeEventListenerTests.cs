@@ -123,6 +123,11 @@ namespace LibChorus.Tests.merge
 			get { return "dummy"; }
 		}
 
+		public string HtmlDetails
+		{
+			get { return "<body>dummy</body>"; }
+		}
+
 		public string WinnerId
 		{
 			get { return null; }

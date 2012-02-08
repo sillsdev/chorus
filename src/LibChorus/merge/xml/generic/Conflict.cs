@@ -34,7 +34,12 @@ namespace Chorus.merge.xml.generic
 //        }
 //    }
 
-	public abstract class Conflict : IConflict, IEquatable<Conflict> // NB: Be sure to register any new concrete subclasses in CreateFromConflictElement method.
+	/// <summary>
+	/// Base class for Conflicts detected in merging changes made by different users.
+	/// NB: Be sure to register any new concrete subclasses in this assembly in the ConflictFactory getter.
+	/// Register any Conflict types added by clients using Conflict.RegisterConflictClass().
+	/// </summary>
+	public abstract class Conflict : IConflict, IEquatable<Conflict>
 	{
 		static public string TimeFormatNoTimeZone = "yyyy-MM-ddTHH:mm:ssZ";
 
@@ -46,6 +51,9 @@ namespace Chorus.merge.xml.generic
 
 		public abstract string GetFullHumanReadableDescription();
 		public abstract string Description { get; }
+
+		public string HtmlDetails { get; set; }
+
 		public MergeSituation Situation{get;set;}
 		public string RevisionWhereMergeWasCheckedIn { get;private set;}
 
@@ -60,7 +68,8 @@ namespace Chorus.merge.xml.generic
 			Context  = ContextDescriptor.CreateFromXml(xmlRepresentation);
 		   // _shortDataDescription = xmlRepresentation.GetOptionalStringAttribute("shortElementDescription", string.Empty);
 			_whoWon = xmlRepresentation.GetOptionalStringAttribute("whoWon", string.Empty);
-	   }
+			HtmlDetails = xmlRepresentation.GetOptionalStringAttribute("htmlDetails", string.Empty);
+		}
 
 
 		protected Conflict(MergeSituation situation)
@@ -140,6 +149,7 @@ namespace Chorus.merge.xml.generic
 			writer.WriteAttributeString("date", string.Empty, DateTime.UtcNow.ToString(TimeFormatNoTimeZone));
 		  //  writer.WriteAttributeString("shortDataDescription", _shortDataDescription);
 			writer.WriteAttributeString("whoWon", _whoWon);
+			writer.WriteAttributeString("htmlDetails", HtmlDetails);
 
 			if (Context != null)
 			{
@@ -329,6 +339,11 @@ namespace Chorus.merge.xml.generic
 		public string Description
 		{
 			get { return "Unreadable Conflict"; }
+		}
+
+		public string HtmlDetails
+		{
+			get { return "<body>The system does not know how to interpret this conflict report.</body>"; }
 		}
 
 		public string WinnerId

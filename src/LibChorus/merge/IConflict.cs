@@ -20,6 +20,11 @@ namespace Chorus.merge
 			get;
 		}
 
+		/// <summary>
+		/// This should be a string which can be set as the entire DocumentText of a System.Windows.Forms.WebBrowser.
+		/// </summary>
+		string HtmlDetails { get; }
+
 		string WinnerId
 		{
 			get;

@@ -23,6 +23,7 @@ namespace LibChorus.Tests.merge.xml.generic
 				GetNodeFromString("<a>ancestor</a>"),
 				mergesituation, "theWinner");
 			c.Context = new ContextDescriptor("testLabel", "testPath");
+			c.HtmlDetails = "<body>this is a conflict</body>";
 			string desc = c.GetFullHumanReadableDescription();
 
 			var annotationXml = WriteConflictAnnotation(c);
@@ -31,6 +32,7 @@ namespace LibChorus.Tests.merge.xml.generic
 			Assert.AreEqual(desc, regurgitated.GetFullHumanReadableDescription());
 		   Assert.AreEqual(c.Context.PathToUserUnderstandableElement, regurgitated.Context.PathToUserUnderstandableElement);
 		   Assert.AreEqual(c.Context.DataLabel, regurgitated.Context.DataLabel);
+			Assert.That(regurgitated.HtmlDetails, Is.EqualTo(c.HtmlDetails));
 		}
 		[Test]
 		public void RemovedVsEditedElementConflict_RoundtripThroughXml()
