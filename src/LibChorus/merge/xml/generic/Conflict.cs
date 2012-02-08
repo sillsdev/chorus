@@ -176,7 +176,18 @@ namespace Chorus.merge.xml.generic
 
 		private static IContainer _conflictFactory;
 
-		//List<Type> _additionalConflictTypes =
+		static List<Type> _additionalConflictTypes = new List<Type>();
+
+		/// <summary>
+		/// Notify the system that the specified type of conflict may need to be created by CreateFromConflictElement.
+		/// NOTE that the indicated type MUST have a TypeGuid. See declarations of concrete classes in this file.
+		/// </summary>
+		/// <param name="type"></param>
+		internal static void RegisterContextClass(Type type)
+		{
+			_additionalConflictTypes.Add(type);
+			_conflictFactory = null; // regenerate when next needed
+		}
 
 		private static IContainer ConflictFactory
 		{
@@ -215,6 +226,10 @@ namespace Chorus.merge.xml.generic
 					Register<BothEditedDifferentPartsOfDependentPiecesOfDataWarning>(builder);
 					Register<UnmergableFileTypeConflict>(builder);
 
+					foreach (var conflictType in _additionalConflictTypes)
+					{
+						builder.Register(conflictType).Named(GetTypeGuid(conflictType));
+					}
 					_conflictFactory = builder.Build();
 				}
 				return _conflictFactory;
