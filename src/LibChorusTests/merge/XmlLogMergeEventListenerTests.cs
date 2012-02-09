@@ -128,6 +128,11 @@ namespace LibChorus.Tests.merge
 			get { return "<body>dummy</body>"; }
 		}
 
+		public void MakeHtmlDetails(XmlNode oursContext, XmlNode theirsContext, XmlNode ancestorContext, IGenerateHtmlContext htmlMaker)
+		{
+
+		}
+
 		public string WinnerId
 		{
 			get { return null; }

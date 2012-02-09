@@ -173,6 +173,80 @@ namespace Chorus.merge.xml.generic
 			return attribute.GuidString;
 		}
 
+		public void MakeHtmlDetails(XmlNode oursContext, XmlNode theirsContext, XmlNode ancestorContext, IGenerateHtmlContext htmlMaker)
+		{
+			StringBuilder sb = new StringBuilder("<body><div class='description'>");
+			sb.Append(GetFullHumanReadableDescription());
+			sb.Append("</div>");
+			var ancestorHtml = "";
+			if (ancestorContext != null)
+			{
+				sb.Append("<div class='altheader'>");
+				sb.Append(string.Format("{0} was originally", ContextDataLabel));
+				sb.Append("</div>");
+				sb.Append("<div class='alternative'>");
+				ancestorHtml = htmlMaker.HtmlContext(ancestorContext);
+				sb.Append(ancestorHtml);
+				sb.Append("</div>");
+			}
+			AppendAlternative(sb, oursContext, ancestorContext, ancestorHtml, htmlMaker, OursLabel);
+			AppendAlternative(sb, theirsContext, ancestorContext, ancestorHtml, htmlMaker, TheirsLabel);
+			sb.Append("<div class='mergechoice'>");
+			sb.Append(string.Format("The merger kept the change made by {0}", WinnerId));
+			sb.Append("</div>");
+			sb.Append("</body>");
+			HtmlDetails = sb.ToString();
+		}
+
+		private void AppendAlternative(StringBuilder sb, XmlNode changedContext, XmlNode ancestorContext,
+			string ancestorHtml, IGenerateHtmlContext htmlMaker, string label)
+		{
+			if (changedContext != null)
+			{
+				sb.Append("<div class='altheader'>");
+				sb.Append(string.Format("{0} changed it to ", label));
+				sb.Append("</div>");
+				sb.Append("<div class='alternative'>");
+				var oursHtml = htmlMaker.HtmlContext(changedContext);
+				if (ancestorContext != null)
+					sb.Append(new Rainbow.HtmlDiffEngine.Merger(ancestorHtml, oursHtml).merge());
+				else
+					sb.Append(oursHtml);
+				sb.Append(ancestorHtml);
+				sb.Append("</div>");
+			}
+		}
+
+		string ContextDataLabel
+		{
+			get
+			{
+				if (Context != null)
+					return(Context.DataLabel);
+				return "";
+			}
+		}
+
+		string OursLabel
+		{
+			get
+			{
+				if (Situation == null)
+					return "One user";
+				return Situation.AlphaUserId;
+			}
+		}
+
+		string TheirsLabel
+		{
+			get
+			{
+				if (Situation == null)
+					return "Another user";
+				return Situation.BetaUserId;
+			}
+		}
+
 		public string WinnerId
 		{
 			get
@@ -344,6 +418,11 @@ namespace Chorus.merge.xml.generic
 		public string HtmlDetails
 		{
 			get { return "<body>The system does not know how to interpret this conflict report.</body>"; }
+		}
+
+		public void MakeHtmlDetails(XmlNode oursContext, XmlNode theirsContext, XmlNode ancestorContext, IGenerateHtmlContext htmlMaker)
+		{
+			throw new NotImplementedException("MakeHtmlDetails should never be called for UnreadableConflict; they are never made in the conflict detection phase");
 		}
 
 		public string WinnerId
@@ -749,7 +828,7 @@ namespace Chorus.merge.xml.generic
 
 		public override string GetFullHumanReadableDescription()
 		{
-			return string.Format("{0} ({1}): {2}", Description, Context.DataLabel, WhatHappened);
+			return string.Format("{0} ({1}): {2}", Description, (Context == null ? "" : Context.DataLabel), WhatHappened);
 		}
 
 
