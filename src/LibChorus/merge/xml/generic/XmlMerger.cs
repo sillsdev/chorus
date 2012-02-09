@@ -70,6 +70,7 @@ namespace Chorus.merge.xml.generic
 		{
 			if (_htmlContextGenerator == null)
 				_htmlContextGenerator = new SimpleHtmlGenerator();
+			EventListener.RecordContextInConflict(conflict);
 			conflict.MakeHtmlDetails(_oursContext, _theirsContext, _ancestorContext, _htmlContextGenerator);
 			EventListener.ConflictOccurred(conflict);
 

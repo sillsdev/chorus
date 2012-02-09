@@ -209,7 +209,18 @@ namespace Chorus.merge.xml.generic
 				sb.Append("<div class='alternative'>");
 				var oursHtml = htmlMaker.HtmlContext(changedContext);
 				if (ancestorContext != null)
-					sb.Append(new Rainbow.HtmlDiffEngine.Merger(ancestorHtml, oursHtml).merge());
+				{
+					try
+					{
+						sb.Append(new Rainbow.HtmlDiffEngine.Merger(ancestorHtml, oursHtml).merge());
+					}
+					catch (Exception)
+					{
+						// Diff sometimes fails; I've had IndexOutOfRange exceptions when one input is just <a></a> for example.
+						// For example, you can reach this point by executing XmlMergerTests.OneEditedDeepChildOfElementOtherDeleted
+						sb.Append(oursHtml);
+					}
+				}
 				else
 					sb.Append(oursHtml);
 				sb.Append(ancestorHtml);

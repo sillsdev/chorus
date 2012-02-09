@@ -352,14 +352,10 @@ namespace Chorus.merge.xml.generic
 				// Winner edited it, but loser deleted it.
 				// Make a conflict report.
 				var dirtballElement = winnerDirtballs[currentKey];
-				listener.ConflictOccurred(new EditedVsRemovedElementConflict(
-												recordElementName,
-												dirtballElement._childNode,
-												loserGoners[currentKey],
-												dirtballElement._parentNode,
-												mergeOrder.MergeSituation,
-												new ElementStrategy(false),
-												winnerId));
+				var editedVsRemovedElementConflict = new EditedVsRemovedElementConflict(recordElementName, dirtballElement._childNode,
+					loserGoners[currentKey], dirtballElement._parentNode, mergeOrder.MergeSituation, new ElementStrategy(false), winnerId);
+				listener.RecordContextInConflict(editedVsRemovedElementConflict);
+				listener.ConflictOccurred(editedVsRemovedElementConflict);
 
 				ReplaceCurrentNode(writer, dirtballElement._childNode);
 				winnerDirtballs.Remove(currentKey);
@@ -456,14 +452,10 @@ namespace Chorus.merge.xml.generic
 					var dirtball = loserDirtballs[currentKey];
 					// Winner deleted it, but loser edited it.
 					// Make a conflict report.
-					listener.ConflictOccurred(new RemovedVsEditedElementConflict(
-													recordElementName,
-													winnerGoners[currentKey],
-													dirtball._childNode,
-													dirtball._parentNode,
-													mergeOrder.MergeSituation,
-													new ElementStrategy(false),
-													winnerId));
+					var removedVsEditedElementConflict = new RemovedVsEditedElementConflict(recordElementName, winnerGoners[currentKey],
+						dirtball._childNode, dirtball._parentNode, mergeOrder.MergeSituation, new ElementStrategy(false), winnerId);
+					listener.RecordContextInConflict(removedVsEditedElementConflict);
+					listener.ConflictOccurred(removedVsEditedElementConflict);
 					// Write out edited node, under the least loss principle.
 					ReplaceCurrentNode(writer, loserDirtballs, currentKey);
 					loserDirtballs.Remove(currentKey);
