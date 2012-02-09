@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Web;
 using System.Linq;
 using System.Windows.Forms;
+using System.Xml;
 using Chorus.merge.xml.generic;
 
 namespace Chorus.notes
@@ -87,7 +88,27 @@ namespace Chorus.notes
 		{
 			var content = uri.Query.Substring(uri.Query.IndexOf('=') + 1);
 			content = HttpUtility.UrlDecode(content);
-			MessageBox.Show("Sorry, conflict details aren't implemented yet. Here's the content:\r\n"+content);//uri.ToString());
+			try
+			{
+				var doc = new XmlDocument();
+				var conflict = Conflict.CreateFromConflictElement(XmlUtilities.GetDocumentNodeFromRawXml(content, doc));
+				var html = conflict.HtmlDetails;
+				if (string.IsNullOrEmpty(html))
+				{
+					MessageBox.Show("Sorry, no conflict details are recorded for this conflict (it might be an old one). Here's the content:\r\n" + content);
+					return;
+				}
+				using (var conflictForm = new ConflictDetailsForm())
+				{
+					conflictForm.SetDocumentText(html);
+					conflictForm.ShowDialog(Form.ActiveForm);
+					return;
+				}
+			}
+			catch (Exception)
+			{
+			}
+			MessageBox.Show("Sorry, conflict details aren't working for this conflict (it might be an old one). Here's the content:\r\n"+content);//uri.ToString());
 		}
 
 		public bool CanHandleContent(string cDataContent)
