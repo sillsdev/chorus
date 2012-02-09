@@ -68,7 +68,7 @@ namespace Chorus.merge.xml.generic
 			if (ours == null && !theirsAndCommonAreEqual)
 			{
 				// We deleted, they edited, so keep theirs under the least loss principle.
-				merger.EventListener.ConflictOccurred(new RemovedVsEditedElementConflict(theirs.Name, null, theirs,
+				merger.ConflictOccurred(new RemovedVsEditedElementConflict(theirs.Name, null, theirs,
 																						 commonAncestor,
 																						 merger.MergeSituation, elementStrategy,
 																						 merger.MergeSituation.BetaUserId));
@@ -80,7 +80,7 @@ namespace Chorus.merge.xml.generic
 			if (theirs == null && !oursAndCommonAreEqual)
 			{
 				// We edited, they deleted, so keep ours under the least loss principle.
-				merger.EventListener.ConflictOccurred(new EditedVsRemovedElementConflict(ours.Name, ours, null, commonAncestor,
+				merger.ConflictOccurred(new EditedVsRemovedElementConflict(ours.Name, ours, null, commonAncestor,
 																			   merger.MergeSituation, elementStrategy,
 																			   merger.MergeSituation.AlphaUserId));
 				return true;
@@ -112,7 +112,7 @@ namespace Chorus.merge.xml.generic
 				{
 					// Both edited.
 					// 2A1b. If different, then report a conflict and then stop.
-					merger.EventListener.ConflictOccurred(merger.MergeSituation.ConflictHandlingMode ==
+					merger.ConflictOccurred(merger.MergeSituation.ConflictHandlingMode ==
 												   MergeOrder.ConflictHandlingModeChoices.WeWin
 													? new BothEditedTheSameAtomicElement(ours.Name, ours, theirs, commonAncestor,
 																				   merger.MergeSituation, elementStrategy,

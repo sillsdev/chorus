@@ -57,6 +57,11 @@ namespace Chorus.merge.xml.generic
 			return ours;
 		}
 
+		internal void ConflictOccurred(IConflict conflict)
+		{
+			EventListener.ConflictOccurred(conflict);
+		}
+
 		/// <summary>
 		/// This method does the actual work for the various public entry points of XmlMerge
 		/// and from the MergeChildrenMethod class, as it processes child nodes.
@@ -154,7 +159,7 @@ namespace Chorus.merge.xml.generic
 					{
 						// They deleted, but we changed, so we win under the principle of
 						// least data loss (an attribute can be a huge text element).
-						EventListener.ConflictOccurred(new EditedVsRemovedAttributeConflict(ourAttr.Name, ourAttr.Value, null, ancestorAttr.Value, MergeSituation, MergeSituation.AlphaUserId));
+						ConflictOccurred(new EditedVsRemovedAttributeConflict(ourAttr.Name, ourAttr.Value, null, ancestorAttr.Value, MergeSituation, MergeSituation.AlphaUserId));
 						continue;
 					}
 					// They deleted. We did zip.
@@ -172,7 +177,7 @@ namespace Chorus.merge.xml.generic
 						newForOurs.Add(theirAttr);
 						//var importedAttribute = (XmlAttribute)ours.OwnerDocument.ImportNode(theirAttr, true);
 						//ours.Attributes.Append(importedAttribute);
-						EventListener.ConflictOccurred(new RemovedVsEditedAttributeConflict(theirAttr.Name, null, theirAttr.Value, ancestorAttr.Value, MergeSituation,
+						ConflictOccurred(new RemovedVsEditedAttributeConflict(theirAttr.Name, null, theirAttr.Value, ancestorAttr.Value, MergeSituation,
 							MergeSituation.BetaUserId));
 						continue;
 					}
@@ -229,13 +234,13 @@ namespace Chorus.merge.xml.generic
 						{
 							if (MergeSituation.ConflictHandlingMode == MergeOrder.ConflictHandlingModeChoices.WeWin)
 							{
-								EventListener.ConflictOccurred(new BothAddedAttributeConflict(theirAttr.Name, ourAttr.Value, theirAttr.Value, null, MergeSituation,
+								ConflictOccurred(new BothAddedAttributeConflict(theirAttr.Name, ourAttr.Value, theirAttr.Value, null, MergeSituation,
 									MergeSituation.AlphaUserId));
 							}
 							else
 							{
 								ourAttr.Value = theirAttr.Value;
-								EventListener.ConflictOccurred(new BothAddedAttributeConflict(theirAttr.Name, ourAttr.Value, theirAttr.Value, null, MergeSituation,
+								ConflictOccurred(new BothAddedAttributeConflict(theirAttr.Name, ourAttr.Value, theirAttr.Value, null, MergeSituation,
 									MergeSituation.BetaUserId));
 							}
 						}
@@ -280,7 +285,7 @@ namespace Chorus.merge.xml.generic
 					{
 						if (MergeSituation.ConflictHandlingMode == MergeOrder.ConflictHandlingModeChoices.WeWin)
 						{
-							EventListener.ConflictOccurred(new BothEditedAttributeConflict(theirAttr.Name, ourAttr.Value,
+							ConflictOccurred(new BothEditedAttributeConflict(theirAttr.Name, ourAttr.Value,
 																							theirAttr.Value,
 																							ancestorAttr.Value,
 																							MergeSituation,
@@ -289,7 +294,7 @@ namespace Chorus.merge.xml.generic
 						else
 						{
 							ourAttr.Value = theirAttr.Value;
-							EventListener.ConflictOccurred(new BothEditedAttributeConflict(theirAttr.Name, ourAttr.Value,
+							ConflictOccurred(new BothEditedAttributeConflict(theirAttr.Name, ourAttr.Value,
 																							theirAttr.Value,
 																							ancestorAttr.Value,
 																							MergeSituation,
