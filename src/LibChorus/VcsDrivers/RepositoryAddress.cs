@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Windows.Forms;
 using Chorus.Utilities;
 using Chorus.Utilities.UsbDrive;
 using Chorus.VcsDrivers.Mercurial;
@@ -289,11 +290,14 @@ namespace Chorus.VcsDrivers
 				{
 					try
 					{
-
-
 						// Need to create an HgRepository for each so we can get its Id.
 						var usbRepo = new HgRepository(path, progress);
-						if (repoIdentifier.ToLowerInvariant() == usbRepo.Identifier.ToLowerInvariant())
+						if (usbRepo.Identifier == null)
+						{   // bad repository -- should report somehow
+							//MessageBox.Show("Repository at "+path+" is damaged, it did not return an id.","Chorus - Bad News",MessageBoxButtons.OK,MessageBoxIcon.Information);
+							// this dialog likes to hide under other windows; looks like a hung app.
+						}
+						else if (repoIdentifier.ToLowerInvariant() == usbRepo.Identifier.ToLowerInvariant())
 							return path;
 					}
 					catch (Exception e)
@@ -338,8 +342,6 @@ namespace Chorus.VcsDrivers
 			}
 			return urisToTryCreationAt;
 		}
-
-
 
 		public override bool CanConnect(HgRepository localRepository, string projectName, IProgress progress)
 		{

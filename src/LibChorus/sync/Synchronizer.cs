@@ -204,7 +204,7 @@ namespace Chorus.sync
 				return list;
 
 			}
-			catch (Exception error) // we've see an exception here when the hgrc was open by someone else
+			catch (Exception error) // we've seen an exception here when the hgrc was open by someone else
 			{
 				_progress.WriteException(error);
 				_progress.WriteVerbose(error.ToString());
