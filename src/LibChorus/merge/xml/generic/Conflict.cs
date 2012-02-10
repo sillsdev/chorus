@@ -175,27 +175,38 @@ namespace Chorus.merge.xml.generic
 
 		public void MakeHtmlDetails(XmlNode oursContext, XmlNode theirsContext, XmlNode ancestorContext, IGenerateHtmlContext htmlMaker)
 		{
-			StringBuilder sb = new StringBuilder("<body><div class='description'>");
+			StringBuilder sb = new StringBuilder("<head><style type='text/css'>div.alternative {leftmargin:0.5 in;} </style></head><body><div class='description'>");
 			sb.Append(GetFullHumanReadableDescription());
 			sb.Append("</div>");
 			var ancestorHtml = "";
 			if (ancestorContext != null)
 			{
-				sb.Append("<div class='altheader'>");
-				sb.Append(string.Format("{0} was originally", ContextDataLabel));
-				sb.Append("</div>");
-				sb.Append("<div class='alternative'>");
+				//sb.Append("<div class='altheader'>");
+				//sb.Append(string.Format("{0} was originally", ContextDataLabel));
+				//sb.Append("</div>");
+				//sb.Append("<div class='alternative'>");
 				ancestorHtml = htmlMaker.HtmlContext(ancestorContext);
-				sb.Append(ancestorHtml);
-				sb.Append("</div>");
+				//sb.Append(ancestorHtml);
+				//sb.Append("</div>");
 			}
 			AppendAlternative(sb, oursContext, ancestorContext, ancestorHtml, htmlMaker, OursLabel);
 			AppendAlternative(sb, theirsContext, ancestorContext, ancestorHtml, htmlMaker, TheirsLabel);
 			sb.Append("<div class='mergechoice'>");
-			sb.Append(string.Format("The merger kept the change made by {0}", WinnerId));
+			AppendWhatHappened(sb);
 			sb.Append("</div>");
 			sb.Append("</body>");
 			HtmlDetails = sb.ToString();
+		}
+
+		/// <summary>
+		/// Append to the builder a description of how the conflict was resolved. The two changed versions have already
+		/// been reported. Usually it is enough to say who won, but in some cases (such as ambiguous insert) we need to say
+		/// that we inserted both in some specific order.
+		/// </summary>
+		/// <param name="sb"></param>
+		protected virtual void AppendWhatHappened(StringBuilder sb)
+		{
+			sb.Append(string.Format("The merger kept the change made by {0}", WinnerId));
 		}
 
 		private void AppendAlternative(StringBuilder sb, XmlNode changedContext, XmlNode ancestorContext,
@@ -203,28 +214,32 @@ namespace Chorus.merge.xml.generic
 		{
 			if (changedContext != null)
 			{
-				sb.Append("<div class='altheader'>");
-				sb.Append(string.Format("{0} changed it to ", label));
-				sb.Append("</div>");
-				sb.Append("<div class='alternative'>");
 				var oursHtml = htmlMaker.HtmlContext(changedContext);
 				if (ancestorContext != null)
 				{
 					try
 					{
-						sb.Append(new Rainbow.HtmlDiffEngine.Merger(ancestorHtml, oursHtml).merge());
+						var diffReport = new Rainbow.HtmlDiffEngine.Merger(ancestorHtml, oursHtml).merge();
+						sb.Append("<div class='altheader'>");
+						sb.Append(string.Format("{0} changed it like this ", label));
+						sb.Append("</div>");
+						sb.Append("<div class='alternative'>");
+						sb.Append(diffReport);
+						sb.Append("</div>");
+						return;
 					}
 					catch (Exception)
 					{
 						// Diff sometimes fails; I've had IndexOutOfRange exceptions when one input is just <a></a> for example.
 						// For example, you can reach this point by executing XmlMergerTests.OneEditedDeepChildOfElementOtherDeleted
-						sb.Append(oursHtml);
 					}
 				}
-				else
-					sb.Append(oursHtml);
-				sb.Append(ancestorHtml);
+				// fall-back strategy
+				sb.Append("<div class='altheader'>");
+				sb.Append(string.Format("{0} changed it to this ", label));
 				sb.Append("</div>");
+				sb.Append("<div class='alternative'>");
+				sb.Append(oursHtml);
 			}
 		}
 

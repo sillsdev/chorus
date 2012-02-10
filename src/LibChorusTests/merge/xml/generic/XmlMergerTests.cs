@@ -117,10 +117,11 @@ namespace LibChorus.Tests.merge.xml.generic
 			Assert.AreEqual(typeof(XmlTextBothEditedTextConflict), r.Conflicts[0].GetType());
 
 			var c = r.Conflicts[0];
-			Assert.That(c.HtmlDetails.StartsWith("<body>"));
+			Assert.That(c.HtmlDetails.StartsWith("<head>"));
 			Assert.That(c.HtmlDetails, Contains.Substring(c.GetFullHumanReadableDescription()));
 			var ancestorHml = XmlUtilities.GetXmlForShowingInHtml("<c key='two'>data</c>");
-			Assert.That(c.HtmlDetails, Contains.Substring(ancestorHml));
+			// For now decided that with diffs we don't need the ancestor
+			//Assert.That(c.HtmlDetails, Contains.Substring(ancestorHml));
 			Assert.That(c.HtmlDetails.EndsWith("</body>"));
 			var oursHtml = XmlUtilities.GetXmlForShowingInHtml("<c key='two'>change1</c>");
 			var m = new Rainbow.HtmlDiffEngine.Merger(ancestorHml, oursHtml);
@@ -128,6 +129,48 @@ namespace LibChorus.Tests.merge.xml.generic
 
 			var theirsHtml = XmlUtilities.GetXmlForShowingInHtml("<c key='two'>change2</c>");
 			m = new Rainbow.HtmlDiffEngine.Merger(ancestorHml, theirsHtml);
+			Assert.That(c.HtmlDetails, Contains.Substring(m.merge()));
+
+			Assert.That(c.HtmlDetails, Contains.Substring("kept the change made by red"));
+		}
+
+		[Test]
+		public void DefaultHtmlDetails_ReportsOneDeleted()
+		{
+			string ancestor = @"<a>
+								<b key='one'>
+									<c key='two'>data</c>
+								</b>
+							</a>";
+			string red = @"<a>
+								<b key='one'>
+									<c key='two'>change1</c>
+								</b>
+							</a>";
+
+			string blue = @"<a>
+							</a>";
+
+			// blue would normally win, but this is a delete vs edit.
+			ChangeAndConflictAccumulator r = CheckOneWay(blue, red, ancestor,
+										"a/b[@key='one']/c[@key='two' and text()='change1']");
+			Assert.AreEqual(typeof(RemovedVsEditedElementConflict), r.Conflicts[0].GetType());
+			// red wins
+			var mergeSituation = new MergeSituation("somepath", "red", "some rev", "blue", "another rev",
+				MergeOrder.ConflictHandlingModeChoices.WeWin);
+			r = CheckOneWay(red, blue, ancestor, mergeSituation, null,
+										"a/b[@key='one']/c[@key='two' and text()='change1']");
+			Assert.AreEqual(typeof(EditedVsRemovedElementConflict), r.Conflicts[0].GetType());
+
+			var c = r.Conflicts[0];
+			Assert.That(c.HtmlDetails.StartsWith("<head>"));
+			Assert.That(c.HtmlDetails, Contains.Substring(c.GetFullHumanReadableDescription()));
+			var ancestorHml = XmlUtilities.GetXmlForShowingInHtml("<c key='two'>data</c>");
+			// For now decided that with diffs we don't need the ancestor
+			//Assert.That(c.HtmlDetails, Contains.Substring(ancestorHml));
+			Assert.That(c.HtmlDetails.EndsWith("</body>"));
+			var oursHtml = XmlUtilities.GetXmlForShowingInHtml("<c key='two'>change1</c>");
+			var m = new Rainbow.HtmlDiffEngine.Merger(ancestorHml, oursHtml);
 			Assert.That(c.HtmlDetails, Contains.Substring(m.merge()));
 
 			Assert.That(c.HtmlDetails, Contains.Substring("kept the change made by red"));
@@ -169,10 +212,11 @@ namespace LibChorus.Tests.merge.xml.generic
 			Assert.AreEqual(typeof(XmlTextBothEditedTextConflict), r.Conflicts[0].GetType());
 
 			var c = r.Conflicts[0];
-			Assert.That(c.HtmlDetails.StartsWith("<body>"));
+			Assert.That(c.HtmlDetails.StartsWith("<head>"));
 			Assert.That(c.HtmlDetails, Contains.Substring(c.GetFullHumanReadableDescription()));
 			var ancestorHml = "<div class='test'>" + XmlUtilities.GetXmlForShowingInHtml("<c key='two'>data</c>") + "</div>";
-			Assert.That(c.HtmlDetails, Contains.Substring(ancestorHml));
+			// For now decided that with diffs we don't need the ancestor
+			//Assert.That(c.HtmlDetails, Contains.Substring(ancestorHml));
 			Assert.That(c.HtmlDetails.EndsWith("</body>"));
 			var oursHtml = "<div class='test'>" + XmlUtilities.GetXmlForShowingInHtml("<c key='two'>change1</c>") + "</div>";
 			var m = new Rainbow.HtmlDiffEngine.Merger(ancestorHml, oursHtml);
