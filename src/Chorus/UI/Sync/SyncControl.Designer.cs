@@ -1,4 +1,5 @@
-﻿using Palaso.Progress.LogBox;
+﻿using Palaso.Progress;
+using Palaso.Progress.LogBox;
 
 namespace Chorus.UI.Sync
 {
@@ -43,11 +44,11 @@ namespace Chorus.UI.Sync
 			this._tasksListView = new System.Windows.Forms.ListView();
 			this._logTab = new System.Windows.Forms.TabPage();
 			this._logBox = new LogBox();
-			this.progressBar1 = new System.Windows.Forms.ProgressBar();
+			this.progressBar1 = new SimpleProgressIndicator();
 			this._cancelButton = new System.Windows.Forms.Button();
 			this._updateDisplayTimer = new System.Windows.Forms.Timer(this.components);
 			this._closeButton = new System.Windows.Forms.Button();
-			this._statusText = new System.Windows.Forms.Label();
+			this._statusText = new SimpleStatusProgress();
 			this._showCancelButtonTimer = new System.Windows.Forms.Timer(this.components);
 			this._successIcon = new System.Windows.Forms.PictureBox();
 			this._warningIcon = new System.Windows.Forms.PictureBox();
@@ -210,6 +211,8 @@ namespace Chorus.UI.Sync
 			this.progressBar1.Size = new System.Drawing.Size(302, 10);
 			this.progressBar1.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
 			this.progressBar1.TabIndex = 13;
+			this.progressBar1.SyncContext = null;
+
 			//
 			// _cancelButton
 			//
@@ -403,14 +406,14 @@ namespace Chorus.UI.Sync
 		private System.Windows.Forms.TabPage _logTab;
 		private System.Windows.Forms.TabPage _chooseTargetsTab;
 		private System.Windows.Forms.CheckedListBox _syncTargets;
-		private System.Windows.Forms.ProgressBar progressBar1;
+		private SimpleProgressIndicator progressBar1;
 		private System.Windows.Forms.Button _sendReceiveButton;
 		private System.Windows.Forms.Timer _updateDisplayTimer;
 		public System.Windows.Forms.Button _cancelButton;
 		private System.Windows.Forms.PictureBox _warningIcon;
 		private System.Windows.Forms.PictureBox _successIcon;
 		public System.Windows.Forms.Button _closeButton;
-		private System.Windows.Forms.Label _statusText;
+		private SimpleStatusProgress _statusText;
 		private System.Windows.Forms.PictureBox pictureBox2;
 		private System.Windows.Forms.Label label1;
 		private System.Windows.Forms.Timer _showCancelButtonTimer;
