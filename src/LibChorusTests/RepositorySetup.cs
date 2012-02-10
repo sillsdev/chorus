@@ -292,7 +292,15 @@ namespace LibChorus.Tests
 			return new BookMark(Repository);
 		}
 
-
+		public void CreateLargeFileAndCheckItIn(int sizeInMB)
+		{
+			var filePath = ProjectFolder.GetPathForNewTempFile(false);
+			byte[] data = new byte[sizeInMB * 1024 * 1024];  // 5MB file
+			Random rng = new Random();
+			rng.NextBytes(data);
+			File.WriteAllBytes(filePath, data);
+			Repository.AddAndCheckinFile(filePath);
+		}
 	}
 
 	public class BookMark
