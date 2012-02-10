@@ -168,7 +168,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				transport.Push();
 				Assert.That(File.Exists(dbFilePath), Is.True);
 				string dbContents = File.ReadAllText(dbFilePath).Trim();
-				Assert.That(dbContents, Is.EqualTo(apiServer.Identifier + "|" + tipHash));
+				Assert.That(dbContents, Is.EqualTo(apiServer.Host + "|" + tipHash));
 				Assert.That(progressForTest.AllMessages, Contains.Item("Push operation completed successfully"));
 			}
 		}
@@ -196,7 +196,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				string dbStoragePath = HgResumeTransport.PathToLocalStorage(setup.Repository.Identifier);
 				string dbFilePath = Path.Combine(dbStoragePath, "remoteRepo.db");
 				string dbContents = File.ReadAllText(dbFilePath).Trim();
-				Assert.That(dbContents, Is.EqualTo(apiServer.Identifier + "|" + tipHash));
+				Assert.That(dbContents, Is.EqualTo(apiServer.Host + "|" + tipHash));
 
 				Assert.That(progressForTest.AllMessages, Contains.Item("Push operation completed successfully"));
 
@@ -209,7 +209,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				apiServer.AddResponse(ApiResponses.PushComplete());
 				transport.Push();
 				dbContents = File.ReadAllText(dbFilePath).Trim();
-				Assert.That(dbContents, Is.EqualTo(apiServer.Identifier + "|" + tipHash2));
+				Assert.That(dbContents, Is.EqualTo(apiServer.Host + "|" + tipHash2));
 				Assert.That(progressForTest.AllMessages, Contains.Item("Push operation completed successfully"));
 			}
 		}
@@ -244,8 +244,8 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				string dbStoragePath = HgResumeTransport.PathToLocalStorage(setup.Repository.Identifier);
 				string dbFilePath = Path.Combine(dbStoragePath, "remoteRepo.db");
 				string[] dbContents = File.ReadAllLines(dbFilePath);
-				Assert.That(dbContents, Contains.Item(apiServer1.Identifier + "|" + tipHash1));
-				Assert.That(dbContents, Contains.Item(apiServer2.Identifier + "|" + tipHash1));
+				Assert.That(dbContents, Contains.Item(apiServer1.Host + "|" + tipHash1));
+				Assert.That(dbContents, Contains.Item(apiServer2.Host + "|" + tipHash1));
 
 				// second push
 				setup.AddAndCheckinFile("sample3", "third checkin");
@@ -256,8 +256,8 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				transport1.Push();
 
 				dbContents = File.ReadAllLines(dbFilePath);
-				Assert.That(dbContents, Contains.Item(apiServer1.Identifier + "|" + tipHash2));
-				Assert.That(dbContents, Contains.Item(apiServer2.Identifier + "|" + tipHash1));
+				Assert.That(dbContents, Contains.Item(apiServer1.Host + "|" + tipHash2));
+				Assert.That(dbContents, Contains.Item(apiServer2.Host + "|" + tipHash1));
 
 				Assert.That(progressForTest.AllMessages, Contains.Item("Push operation completed successfully"));
 			}

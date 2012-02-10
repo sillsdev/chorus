@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.NetworkInformation;
 using System.Text;
 using System.Text.RegularExpressions;
 using Chorus.Utilities;
@@ -62,7 +63,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				if (File.Exists(filePath))
 				{
 					string[] dbFileContents = File.ReadAllLines(filePath);
-					string remoteId = _apiServer.Identifier;
+					string remoteId = _apiServer.Host;
 					var db = dbFileContents.Select(i => i.Split('|'));
 					var result = db.Where(x => x[0] == remoteId);
 					if (result.Count() > 0)
@@ -81,7 +82,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				}
 				string filePath = Path.Combine(storagePath, "remoteRepo.db");
 
-				string remoteId = _apiServer.Identifier;
+				string remoteId = _apiServer.Host;
 				if (!File.Exists(filePath))
 				{
 					// this is the first time "set" has been called.  Write value and exit.
@@ -224,11 +225,17 @@ namespace Chorus.VcsDrivers.Mercurial
 				bool bundleCreatedSuccessfully = _repo.MakeBundle(baseRevision, bundleHelper.BundlePath);
 				if (!bundleCreatedSuccessfully)
 				{
-					_progress.WriteError("Unable to create bundle for Push");
-					var errorMessage = "Push operation failed";
-					_progress.WriteError(errorMessage);
-					throw new HgResumeOperationFailed(errorMessage);
-					return;
+					// try again after clearing revision cache
+					LastKnownCommonBase = "";
+					baseRevision = GetCommonBaseHashWithRemoteRepo();
+					bundleCreatedSuccessfully = _repo.MakeBundle(baseRevision, bundleHelper.BundlePath);
+					if (!bundleCreatedSuccessfully)
+					{
+						_progress.WriteError("Unable to create bundle for Push");
+						const string errorMessage = "Push operation failed";
+						_progress.WriteError(errorMessage);
+						throw new HgResumeOperationFailed(errorMessage);
+					}
 				}
 				bundleFileInfo.Refresh();
 				if (bundleFileInfo.Length == 0)
@@ -245,8 +252,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			int chunkSize = initialChunkSize;
 
 			var bundleSize = (int) bundleFileInfo.Length;
-			int numberOfStepsInPushOperation = bundleSize/chunkSize + 1;
-			_progress.ProgressIndicator.Initialize(numberOfStepsInPushOperation);
+			_progress.ProgressIndicator.Initialize();
 
 			int loopCtr = 0;
 			do // loop until finished... or until the user cancels
@@ -272,7 +278,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				var response = PushOneChunk(requestParameters, bundleChunk);
 				if (response.Status == PushStatus.NotAvailable)
 				{
-					_progress.ProgressIndicator.Initialize(1);
+					_progress.ProgressIndicator.Initialize();
 					_progress.ProgressIndicator.Finish();
 					return;
 				}
@@ -322,9 +328,20 @@ namespace Chorus.VcsDrivers.Mercurial
 					string message = String.Format("Resuming push operation at {0} bytes", startOfWindow);
 					_progress.WriteVerbose(message);
 				}
-				_progress.WriteStatus(string.Format("Sent {0} of {1} bytes", startOfWindow, bundleSize));
+				string eta = GetEstimatedTimeRemaining(bundleSize, chunkSize, startOfWindow);
+				_progress.WriteStatus(string.Format("Sent {0} of {1} bytes ({2} remaining)", startOfWindow, bundleSize, eta));
 				_progress.ProgressIndicator.PercentCompleted = startOfWindow * 100 / bundleSize;
 			} while (startOfWindow < bundleSize);
+		}
+
+		private static string GetEstimatedTimeRemaining(int bundleSize, int chunkSize, int startOfWindow)
+		{
+			int secondsRemaining = targetTimeInSeconds*(bundleSize - startOfWindow)/chunkSize;
+			if (secondsRemaining < 60)
+			{
+				return String.Format("{0} seconds", secondsRemaining);
+			}
+			return String.Format("{0} minutes {1} seconds", secondsRemaining/60, secondsRemaining%60);
 		}
 
 		private PushStatus FinishPush(string transactionId)
@@ -499,7 +516,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				var response = PullOneChunk(requestParameters);
 				if (response.Status == PullStatus.NotAvailable)
 				{
-					_progress.ProgressIndicator.Initialize(1);
+					_progress.ProgressIndicator.Initialize();
 					_progress.ProgressIndicator.Finish();
 					return false;
 				}
@@ -513,7 +530,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				{
 					_progress.WriteMessage("No changes");
 					bundleHelper.Cleanup();
-					_progress.ProgressIndicator.Initialize(1);
+					_progress.ProgressIndicator.Initialize();
 					_progress.ProgressIndicator.Finish();
 					return false;
 				}
@@ -528,7 +545,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				{
 					errorMessage = "Pull operation failed";
 					_progress.WriteError(errorMessage);
-					_progress.ProgressIndicator.Initialize(1);
+					_progress.ProgressIndicator.Initialize();
 					_progress.ProgressIndicator.Finish();
 					throw new HgResumeOperationFailed(errorMessage);
 				}
@@ -536,7 +553,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				bundleSize = response.BundleSize;
 				if (loopCtr == 1)
 				{
-					_progress.ProgressIndicator.Initialize(100); // 100 steps e.g. up to 100 percent
+					_progress.ProgressIndicator.Initialize();
 					if (startOfWindow != 0)
 					{
 						string message = String.Format("Resuming pull operation at {0} bytes", startOfWindow);
@@ -551,7 +568,8 @@ namespace Chorus.VcsDrivers.Mercurial
 				requestParameters["chunkSize"] = chunkSize.ToString();
 
 				_progress.ProgressIndicator.PercentCompleted = startOfWindow * 100 / bundleSize;
-				_progress.WriteStatus(string.Format("Received {0} of {1} bytes", startOfWindow, bundleSize));
+				string eta = GetEstimatedTimeRemaining(bundleSize, chunkSize, startOfWindow);
+				_progress.WriteStatus(string.Format("Received {0} of {1} bytes ({2} remaining)", startOfWindow, bundleSize, eta));
 
 				loopCtr++;
 

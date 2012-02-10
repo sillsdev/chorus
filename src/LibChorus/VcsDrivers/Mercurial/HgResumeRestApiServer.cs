@@ -129,7 +129,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			return buffer;
 		}
 
-		public string Identifier
+		public string Host
 		{
 			get { return _url.Host; }
 		}

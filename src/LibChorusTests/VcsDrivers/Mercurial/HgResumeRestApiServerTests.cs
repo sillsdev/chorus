@@ -14,7 +14,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		public void Constructor_languageDepotUrl_IdentityAndProjectIdSetCorrectly()
 		{
 			var api = new HgResumeRestApiServer("http://hg-private.languagedepot.org/kyu-dictionary");
-			Assert.That(api.Identifier, Is.EqualTo("hg-private.languagedepot.org"));
+			Assert.That(api.Host, Is.EqualTo("hg-private.languagedepot.org"));
 			Assert.That(api.ProjectId, Is.EqualTo("kyu-dictionary"));
 		}
 
@@ -22,7 +22,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		public void Constructor_languageForgeUrl_IdentityAndProjectIdSetCorrectly()
 		{
 			var api = new HgResumeRestApiServer("http://hg.languageforge.com/projects/kyu-dictionary");
-			Assert.That(api.Identifier, Is.EqualTo("hg.languageforge.com"));
+			Assert.That(api.Host, Is.EqualTo("hg.languageforge.com"));
 			Assert.That(api.ProjectId, Is.EqualTo("kyu-dictionary"));
 		}
 	}

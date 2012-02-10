@@ -147,9 +147,9 @@ namespace Chorus.UI.Sync
 				return;
 			}
 
-			Model.ProgressIndicator = new MultiPhaseProgressIndicator(progressBar1, 2);  // for now we only specify 2 phases (pull, then push).
 			Model.AddProgressDisplay(_logBox);
 			Model.AddProgressDisplay(_statusText);
+			Model.ProgressIndicator = new MultiPhaseProgressIndicator(progressBar1, 2);  // for now we only specify 2 phases (pull, then push).
 			Model.UIContext = SynchronizationContext.Current;
 
 			LoadChoices();

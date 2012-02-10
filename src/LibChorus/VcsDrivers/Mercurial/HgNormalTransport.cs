@@ -16,6 +16,10 @@ namespace Chorus.VcsDrivers.Mercurial
 			_targetUri = targetUri;
 			_targetLabel = targetLabel;
 			_progress = progress;
+			if (_progress.ProgressIndicator != null)
+			{
+				_progress.ProgressIndicator.IndicateUnknownProgress();
+			}
 		}
 
 		/* CJH 2011-09-19

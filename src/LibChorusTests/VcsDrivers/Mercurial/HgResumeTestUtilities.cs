@@ -23,7 +23,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 
 		public DummyApiServerForTest(string identifier)
 		{
-			Identifier = identifier;
+			Host = identifier;
 			ProjectId = "SampleProject";
 		}
 
@@ -50,7 +50,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			return response;
 		}
 
-		public string Identifier { get; private set; }
+		public string Host { get; private set; }
 
 		public string ProjectId { get; set; }
 
@@ -101,7 +101,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			_localStorage = new TemporaryFolder(identifier);
 			_repo = repo;
 			Revisions = new List<string>();
-			Identifier = identifier;
+			Host = identifier;
 			ProjectId = "SampleProject";
 			_executeCount = 0;
 			_failCount = -1;
@@ -166,7 +166,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			return ApiResponses.Custom(HttpStatusCode.InternalServerError);
 		}
 
-		public string Identifier { get; private set; }
+		public string Host { get; private set; }
 
 		public string ProjectId { get; set; }
 
@@ -225,7 +225,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			_storageFolder = new TemporaryFolder(identifier);
 			_repo = repo;
 			_helper = new PushStorageManager(_storageFolder.Path, "randomHash");
-			Identifier = identifier;
+			Host = identifier;
 			ProjectId = "SampleProject";
 			_executeCount = 0;
 			_failCount = -1;
@@ -316,7 +316,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			return ApiResponses.Custom(HttpStatusCode.InternalServerError);
 		}
 
-		public string Identifier { get; private set; }
+		public string Host { get; private set; }
 
 		public string ProjectId { get; set; }
 
