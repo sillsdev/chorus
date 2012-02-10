@@ -20,6 +20,8 @@ namespace Chorus.UI.Misc
 			const string languageDepotLabel = "languageDepot.org";
 			Servers.Add(languageDepotLabel, "hg-public.languagedepot.org");
 			Servers.Add("private.languageDepot.org", "hg-private.languagedepot.org");
+			Servers.Add("LanguageForge", "hg.languageforge.org");
+			Servers.Add("languageDepot.org - resumable", "resumable.languagedepot.org");
 			Servers.Add("Custom Location...", "");
 			SelectedServerLabel = languageDepotLabel;
 		}
