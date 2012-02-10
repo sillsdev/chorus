@@ -47,7 +47,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		{
 			ExecutionResult result = new ExecutionResult();
 			Process process = new Process();
-			if (MercurialLocation.PathToMercurialFolder == null)
+			if (String.IsNullOrEmpty(MercurialLocation.PathToMercurialFolder))
 			{
 				throw new ApplicationException("Mercurial location has not been configured.");
 			}
