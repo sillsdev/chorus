@@ -328,20 +328,25 @@ namespace Chorus.VcsDrivers.Mercurial
 					string message = String.Format("Resuming push operation at {0} bytes", startOfWindow);
 					_progress.WriteVerbose(message);
 				}
-				string eta = GetEstimatedTimeRemaining(bundleSize, chunkSize, startOfWindow);
-				_progress.WriteStatus(string.Format("Sent {0} of {1} bytes ({2} remaining)", startOfWindow, bundleSize, eta));
+				string eta = CalculateEstimatedTimeRemaining(bundleSize, chunkSize, startOfWindow);
+				_progress.WriteStatus(string.Format("Sent {0} of {1} bytes {2}", startOfWindow, bundleSize, eta));
 				_progress.ProgressIndicator.PercentCompleted = startOfWindow * 100 / bundleSize;
 			} while (startOfWindow < bundleSize);
 		}
 
-		private static string GetEstimatedTimeRemaining(int bundleSize, int chunkSize, int startOfWindow)
+		private static string CalculateEstimatedTimeRemaining(int bundleSize, int chunkSize, int startOfWindow)
 		{
+			if (startOfWindow < 80000)
+			{
+				return ""; // wait until we've transferred 80K before calculating an ETA
+			}
 			int secondsRemaining = targetTimeInSeconds*(bundleSize - startOfWindow)/chunkSize;
 			if (secondsRemaining < 60)
 			{
-				return String.Format("{0} seconds", secondsRemaining);
+				secondsRemaining = (secondsRemaining/5+1)*5;
+				return String.Format("({0} seconds remaining)", secondsRemaining);
 			}
-			return String.Format("{0} minutes {1} seconds", secondsRemaining/60, secondsRemaining%60);
+			return String.Format("({0} minutes remaining)", secondsRemaining/60);
 		}
 
 		private PushStatus FinishPush(string transactionId)
@@ -568,8 +573,8 @@ namespace Chorus.VcsDrivers.Mercurial
 				requestParameters["chunkSize"] = chunkSize.ToString();
 
 				_progress.ProgressIndicator.PercentCompleted = startOfWindow * 100 / bundleSize;
-				string eta = GetEstimatedTimeRemaining(bundleSize, chunkSize, startOfWindow);
-				_progress.WriteStatus(string.Format("Received {0} of {1} bytes ({2} remaining)", startOfWindow, bundleSize, eta));
+				string eta = CalculateEstimatedTimeRemaining(bundleSize, chunkSize, startOfWindow);
+				_progress.WriteStatus(string.Format("Received {0} of {1} bytes {2}", startOfWindow, bundleSize, eta));
 
 				loopCtr++;
 
