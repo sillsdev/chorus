@@ -325,12 +325,12 @@ namespace Chorus.VcsDrivers.Mercurial
 				startOfWindow = response.StartOfWindow;
 				if (loopCtr == 1 && startOfWindow > chunkSize)
 				{
-					string message = String.Format("Resuming push operation at {0} bytes", startOfWindow);
+					string message = String.Format("Resuming push operation at {0} sent", GetHumanReadableByteSize(startOfWindow));
 					_progress.WriteVerbose(message);
 				}
 				string eta = CalculateEstimatedTimeRemaining(bundleSize, chunkSize, startOfWindow);
-				_progress.WriteStatus(string.Format("Sent {0} of {1} bytes {2}", startOfWindow, bundleSize, eta));
-				_progress.ProgressIndicator.PercentCompleted = startOfWindow * 100 / bundleSize;
+				_progress.WriteStatus(string.Format("Sending {0} {1}", GetHumanReadableByteSize(bundleSize), eta));
+				_progress.ProgressIndicator.PercentCompleted = (int)((long)startOfWindow * 100 / bundleSize);
 			} while (startOfWindow < bundleSize);
 		}
 
@@ -347,6 +347,26 @@ namespace Chorus.VcsDrivers.Mercurial
 				return String.Format("({0} seconds remaining)", secondsRemaining);
 			}
 			return String.Format("({0} minutes remaining)", secondsRemaining/60);
+		}
+
+		private static string GetHumanReadableByteSize(int length)
+		{
+			// lifted from http://stackoverflow.com/questions/281640/how-do-i-get-a-human-readable-file-size-using-net
+			try
+			{
+				string[] sizes = { "B", "KB", "MB", "GB" };
+				int order = 0;
+				while (length >= 1024 && order + 1 < sizes.Length)
+				{
+					order++;
+					length = length / 1024;
+				}
+				return String.Format("{0:0.#}{1}", length, sizes[order]);
+			}
+			catch(Exception) // I'm not sure why I would get an overflow exception, but I did once and so I'm trying to catch it here
+			{
+				return "...";
+			}
 		}
 
 		private PushStatus FinishPush(string transactionId)
@@ -496,6 +516,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			int startOfWindow = bundleHelper.StartOfWindow;
 			int chunkSize = initialChunkSize; // size in bytes
 			int bundleSize = 0;
+			int bundleSizeFromResponse;
 
 			/* API parameters
 			 * $repoId, $baseHash, $offset, $chunkSize, $transId
@@ -555,13 +576,13 @@ namespace Chorus.VcsDrivers.Mercurial
 					throw new HgResumeOperationFailed(errorMessage);
 				}
 
-				bundleSize = response.BundleSize;
+				bundleSizeFromResponse = response.BundleSize;
 				if (loopCtr == 1)
 				{
 					_progress.ProgressIndicator.Initialize();
 					if (startOfWindow != 0)
 					{
-						string message = String.Format("Resuming pull operation at {0} bytes", startOfWindow);
+						string message = String.Format("Resuming pull operation at {0} received", GetHumanReadableByteSize(startOfWindow));
 						_progress.WriteVerbose(message);
 					}
 				}
@@ -571,11 +592,19 @@ namespace Chorus.VcsDrivers.Mercurial
 				requestParameters["offset"] = startOfWindow.ToString();
 				chunkSize = response.ChunkSize;
 				requestParameters["chunkSize"] = chunkSize.ToString();
-
-				_progress.ProgressIndicator.PercentCompleted = startOfWindow * 100 / bundleSize;
-				string eta = CalculateEstimatedTimeRemaining(bundleSize, chunkSize, startOfWindow);
-				_progress.WriteStatus(string.Format("Received {0} of {1} bytes {2}", startOfWindow, bundleSize, eta));
-
+				if (bundleSize == bundleSizeFromResponse)
+				{
+					_progress.ProgressIndicator.PercentCompleted = (int)((long)startOfWindow * 100 / bundleSize);
+					string eta = CalculateEstimatedTimeRemaining(bundleSize, chunkSize, startOfWindow);
+					_progress.WriteStatus(string.Format("Receiving {0} {1}", GetHumanReadableByteSize(bundleSize), eta));
+				}
+				else
+				{
+					// this is only useful when the bundle size is significantly large (like with a clone operation) such that
+					// the server takes a long time to create the bundle, and the bundleSize continues to rise as the chunks are received
+					bundleSize = bundleSizeFromResponse;
+					_progress.WriteStatus(string.Format("Calculating data to receive (>{0})", GetHumanReadableByteSize(bundleSize)));
+				}
 				loopCtr++;
 
 			} while (startOfWindow < bundleSize || retryLoop);
