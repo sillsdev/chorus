@@ -1,6 +1,9 @@
+//#define USEOPTIMIZEDVERSION
 using System;
 using System.Collections.Generic;
+#if USEOPTIMIZEDVERSION
 using System.Linq;
+#endif
 using System.Text;
 using System.Xml;
 using Chorus.merge.xml.generic.xmldiff;
@@ -28,8 +31,10 @@ namespace Chorus.merge.xml.generic
 	public class FindByKeyAttribute : IFindNodeToMerge
 	{
 		private string _keyAttribute;
+#if USEOPTIMIZEDVERSION
 		private List<XmlNode> _parentsToSearchIn = new List<XmlNode>();
 		private Dictionary<int, Dictionary<string, XmlNode>> _indexedSoughtAfterNodes = new Dictionary<int, Dictionary<string, XmlNode>>();
+#endif
 
 		public FindByKeyAttribute(string keyAttribute)
 		{
@@ -48,6 +53,7 @@ namespace Chorus.merge.xml.generic
 				return null;
 			}
 
+#if USEOPTIMIZEDVERSION
 			var parentIdx = _parentsToSearchIn.IndexOf(parentToSearchIn);
 			if (parentIdx == -1)
 			{
@@ -66,6 +72,15 @@ namespace Chorus.merge.xml.generic
 			XmlNode matchingNode;
 			_indexedSoughtAfterNodes[parentIdx].TryGetValue(key, out matchingNode);
 			return matchingNode; // May be null, which is fine.
+#else
+			// I (CP) changed this to use double quotes to allow attributes to contain single quotes.
+			// My understanding is that double quotes are illegal inside attributes so this should be fine.
+			// See: http://jira.palaso.org/issues/browse/WS-33895
+			//string xpath = string.Format("{0}[@{1}='{2}']", nodeToMatch.Name, _keyAttribute, key);
+			string xpath = string.Format("{0}[@{1}=\"{2}\"]", nodeToMatch.Name, _keyAttribute, key);
+
+			return parentToSearchIn.SelectSingleNode(xpath);
+#endif
 		}
 
 	}
