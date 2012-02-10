@@ -439,7 +439,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				apiServer.AddTimeoutResponse(7);
 				transport.Pull();
 
-				Assert.That(progressForTest.AllMessagesString(), Contains.Substring("Received 5000 of "));
+				Assert.That(progressForTest.AllMessagesString(), Contains.Substring("Calculating data to receive"));
 				Assert.That(progressForTest.AllMessages, Contains.Item("Pull operation completed successfully"));
 			}
 		}
@@ -470,10 +470,10 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 
 				apiServer.AddFailResponse(5);
 				Assert.That(() => transport.Pull(), Throws.Exception.TypeOf<HgResumeOperationFailed>());
-				Assert.That(progressForTest.AllMessages, Contains.Item("Resuming pull operation at 5000 bytes"));
+				Assert.That(progressForTest.AllMessages, Contains.Item("Resuming pull operation at 4KB received"));
 
 				transport.Pull();
-				Assert.That(progressForTest.AllMessages, Contains.Item("Resuming pull operation at 10000 bytes"));
+				Assert.That(progressForTest.AllMessages, Contains.Item("Resuming pull operation at 9KB received"));
 				Assert.That(progressForTest.AllMessages, Contains.Item("Pull operation completed successfully"));
 			}
 		}
@@ -504,9 +504,9 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				apiServer.AddFailResponse(6);
 				Assert.That(() => transport.Push(), Throws.Exception.TypeOf<HgResumeOperationFailed>());
 
-				Assert.That(progressForTest.AllMessages, Contains.Item("Resuming push operation at 130000 bytes"));
+				Assert.That(progressForTest.AllMessages, Contains.Item("Resuming push operation at 126KB sent"));
 				transport.Push();
-				Assert.That(progressForTest.AllMessages, Contains.Item("Resuming push operation at 255000 bytes"));
+				Assert.That(progressForTest.AllMessages, Contains.Item("Resuming push operation at 249KB sent"));
 				Assert.That(progressForTest.AllMessages, Contains.Item("Push operation completed successfully"));
 			}
 		}
@@ -574,7 +574,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 
 				remoteSetup.AddAndCheckinFile("sample2", "second checkin");
 				transport.Pull();
-				Assert.That(progressForTest.AllMessages, Contains.Item("Resuming pull operation at 5000 bytes"));
+				Assert.That(progressForTest.AllMessages, Contains.Item("Resuming pull operation at 4KB received"));
 				Assert.That(progressForTest.AllMessages, Contains.Item("Pull operation completed successfully"));
 				Assert.That(progressForTest.AllMessages, Contains.Item("Remote repo has changed.  Initiating additional pull operation"));
 				IEnumerable<string> msgs = progressForTest.Messages.Where(x => x == "Pull operation completed successfully");
