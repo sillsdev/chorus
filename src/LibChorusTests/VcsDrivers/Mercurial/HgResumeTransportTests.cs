@@ -45,13 +45,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				setup.AddAndCheckinFile("sample1", "first checkin");
 				apiServer.Revisions.Add(setup.Repository.GetTip().Number.Hash);
 
-				// just pick a file larger than 10K for use as a test... any file will do
-				string sourcePathOfLargeFile = Path.Combine(ExecutionEnvironment.DirectoryOfExecutingAssembly,
-					String.Format("..{0}..{0}lib{0}Debug{0}Palaso.Tests.dll", Path.DirectorySeparatorChar));
-
-				string largeFilePath = setup.ProjectFolder.GetNewTempFile(false).Path;
-				File.Copy(sourcePathOfLargeFile, largeFilePath);
-				setup.Repository.AddAndCheckinFile(largeFilePath);
+				setup.CreateLargeFileAndCheckItIn(1);
 				var transport = new HgResumeTransport(setup.Repository, "test repo", apiServer, progress);
 				transport.Push();
 				Assert.That(progressForTest.AllMessages, Contains.Item("Push operation completed successfully"));
@@ -111,13 +105,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				setup.AddAndCheckinFile("sample1", "first checkin");
 				apiServer.Revisions.Add(setup.Repository.GetTip().Number.Hash);
 
-				// just pick a file larger than 10K for use as a test... any file will do
-				string sourcePathOfLargeFile = Path.Combine(ExecutionEnvironment.DirectoryOfExecutingAssembly,
-					String.Format("..{0}..{0}lib{0}Debug{0}Palaso.Tests.dll", Path.DirectorySeparatorChar));
-
-				string largeFilePath = setup.ProjectFolder.GetNewTempFile(false).Path;
-				File.Copy(sourcePathOfLargeFile, largeFilePath);
-				setup.Repository.AddAndCheckinFile(largeFilePath);
+				setup.CreateLargeFileAndCheckItIn(1);
 				var transport = new HgResumeTransport(setup.Repository, "test repo", apiServer, progress);
 				transport.Push();
 				Assert.That(progressForTest.AllMessages, Contains.Item("Push operation completed successfully"));
@@ -365,13 +353,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				setup.AddAndCheckinFile("sample1", "first checkin");
 				string revHash = setup.Repository.GetTip().Number.Hash;
 
-				// just pick a file larger than 10K for use as a test... any file will do
-				string sourcePathOfLargeFile = Path.Combine(ExecutionEnvironment.DirectoryOfExecutingAssembly,
-					String.Format("..{0}..{0}lib{0}Debug{0}Palaso.Tests.dll", Path.DirectorySeparatorChar));
-
-				string largeFilePath = setup.ProjectFolder.GetNewTempFile(false).Path;
-				File.Copy(sourcePathOfLargeFile, largeFilePath);
-				setup.Repository.AddAndCheckinFile(largeFilePath);
+				setup.CreateLargeFileAndCheckItIn(1);
 				string remoteTip = setup.Repository.GetTip().Number.Hash;
 
 				apiServer.PrepareBundle(revHash);
@@ -394,13 +376,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				setup.AddAndCheckinFile("sample1", "first checkin");
 				string revHash = setup.Repository.GetTip().Number.Hash;
 
-				// just pick a file larger than 10K for use as a test... any file will do
-				string sourcePathOfLargeFile = Path.Combine(ExecutionEnvironment.DirectoryOfExecutingAssembly,
-					String.Format("..{0}..{0}lib{0}Debug{0}Palaso.Tests.dll", Path.DirectorySeparatorChar));
-
-				string largeFilePath = setup.ProjectFolder.GetNewTempFile(false).Path;
-				File.Copy(sourcePathOfLargeFile, largeFilePath);
-				setup.Repository.AddAndCheckinFile(largeFilePath);
+				setup.CreateLargeFileAndCheckItIn(1);
 				string remoteTip = setup.Repository.GetTip().Number.Hash;
 
 				apiServer.PrepareBundle(revHash);
@@ -424,13 +400,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				setup.AddAndCheckinFile("sample1", "first checkin");
 				string revHash = setup.Repository.GetTip().Number.Hash;
 
-				// just pick a file larger than 10K for use as a test... any file will do
-				string sourcePathOfLargeFile = Path.Combine(ExecutionEnvironment.DirectoryOfExecutingAssembly,
-					String.Format("..{0}..{0}lib{0}Debug{0}Palaso.Tests.dll", Path.DirectorySeparatorChar));
-
-				string largeFilePath = setup.ProjectFolder.GetNewTempFile(false).Path;
-				File.Copy(sourcePathOfLargeFile, largeFilePath);
-				setup.Repository.AddAndCheckinFile(largeFilePath);
+				setup.CreateLargeFileAndCheckItIn(1);
 
 				apiServer.Revisions.Add(revHash);
 
@@ -439,7 +409,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				apiServer.AddTimeoutResponse(7);
 				transport.Pull();
 
-				Assert.That(progressForTest.AllMessagesString(), Contains.Substring("Received 5000 of "));
+				Assert.That(progressForTest.AllMessagesString(), Contains.Substring("Calculating data to receive"));
 				Assert.That(progressForTest.AllMessages, Contains.Item("Pull operation completed successfully"));
 			}
 		}
@@ -456,13 +426,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				setup.AddAndCheckinFile("sample1", "first checkin");
 				string revHash = setup.Repository.GetTip().Number.Hash;
 
-				// just pick a file larger than 10K for use as a test... any file will do
-				string sourcePathOfLargeFile = Path.Combine(ExecutionEnvironment.DirectoryOfExecutingAssembly,
-															String.Format("..{0}..{0}lib{0}Debug{0}Palaso.Tests.dll",
-																		  Path.DirectorySeparatorChar));
-				string largeFilePath = setup.ProjectFolder.GetNewTempFile(false).Path;
-				File.Copy(sourcePathOfLargeFile, largeFilePath);
-				setup.Repository.AddAndCheckinFile(largeFilePath);
+				setup.CreateLargeFileAndCheckItIn(1);
 				apiServer.Revisions.Add(revHash);
 				apiServer.AddFailResponse(3);
 
@@ -470,10 +434,10 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 
 				apiServer.AddFailResponse(5);
 				Assert.That(() => transport.Pull(), Throws.Exception.TypeOf<HgResumeOperationFailed>());
-				Assert.That(progressForTest.AllMessages, Contains.Item("Resuming pull operation at 5000 bytes"));
+				Assert.That(progressForTest.AllMessages, Contains.Item("Resuming pull operation at 4KB received"));
 
 				transport.Pull();
-				Assert.That(progressForTest.AllMessages, Contains.Item("Resuming pull operation at 10000 bytes"));
+				Assert.That(progressForTest.AllMessages, Contains.Item("Resuming pull operation at 9KB received"));
 				Assert.That(progressForTest.AllMessages, Contains.Item("Pull operation completed successfully"));
 			}
 		}
@@ -489,13 +453,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				setup.AddAndCheckinFile("sample1", "first checkin");
 				apiServer.Revisions.Add(setup.Repository.GetTip().Number.Hash);
 
-				// just pick a file larger than 10K for use as a test... any file will do
-				string sourcePathOfLargeFile = Path.Combine(ExecutionEnvironment.DirectoryOfExecutingAssembly,
-					String.Format("..{0}..{0}lib{0}Debug{0}Mercurial.zip", Path.DirectorySeparatorChar));
-
-				string largeFilePath = setup.ProjectFolder.GetNewTempFile(false).Path;
-				File.Copy(sourcePathOfLargeFile, largeFilePath);
-				setup.Repository.AddAndCheckinFile(largeFilePath);
+				setup.CreateLargeFileAndCheckItIn(1);
 				var transport = new HgResumeTransport(setup.Repository, "test repo", apiServer, progress);
 				apiServer.AddFailResponse(3);
 
@@ -504,9 +462,9 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				apiServer.AddFailResponse(6);
 				Assert.That(() => transport.Push(), Throws.Exception.TypeOf<HgResumeOperationFailed>());
 
-				Assert.That(progressForTest.AllMessages, Contains.Item("Resuming push operation at 130000 bytes"));
+				Assert.That(progressForTest.AllMessages, Contains.Item("Resuming push operation at 126KB sent"));
 				transport.Push();
-				Assert.That(progressForTest.AllMessages, Contains.Item("Resuming push operation at 255000 bytes"));
+				Assert.That(progressForTest.AllMessages, Contains.Item("Resuming push operation at 249KB sent"));
 				Assert.That(progressForTest.AllMessages, Contains.Item("Push operation completed successfully"));
 			}
 		}
@@ -522,13 +480,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				setup.AddAndCheckinFile("sample1", "first checkin");
 				apiServer.Revisions.Add(setup.Repository.GetTip().Number.Hash);
 
-				// just pick a file larger than 10K for use as a test... any file will do
-				string sourcePathOfLargeFile = Path.Combine(ExecutionEnvironment.DirectoryOfExecutingAssembly,
-					String.Format("..{0}..{0}lib{0}Debug{0}Palaso.Tests.dll", Path.DirectorySeparatorChar));
-
-				string largeFilePath = setup.ProjectFolder.GetNewTempFile(false).Path;
-				File.Copy(sourcePathOfLargeFile, largeFilePath);
-				setup.Repository.AddAndCheckinFile(largeFilePath);
+				setup.CreateLargeFileAndCheckItIn(1);
 				var transport = new HgResumeTransport(setup.Repository, "test repo", apiServer, progress);
 				apiServer.AddFailResponse(2);
 
@@ -555,13 +507,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				var address = new HttpRepositoryPath("localrepo", localSetup.Repository.PathToRepo, false);
 				remoteSetup.Repository.Pull(address, localSetup.Repository.PathToRepo);
 				remoteSetup.Repository.Update();
-				// just pick a file larger than 10K for use as a test... any file will do
-				string sourcePathOfLargeFile = Path.Combine(ExecutionEnvironment.DirectoryOfExecutingAssembly,
-															String.Format("..{0}..{0}lib{0}Debug{0}Palaso.Tests.dll",
-																		  Path.DirectorySeparatorChar));
-				string largeFilePath = remoteSetup.ProjectFolder.GetNewTempFile(false).Path;
-				File.Copy(sourcePathOfLargeFile, largeFilePath);
-				remoteSetup.Repository.AddAndCheckinFile(largeFilePath);
+				remoteSetup.CreateLargeFileAndCheckItIn(1);
 
 				string localTip = localSetup.Repository.GetTip().Number.Hash;
 				string remoteTip = remoteSetup.Repository.GetTip().Number.Hash;
@@ -574,7 +520,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 
 				remoteSetup.AddAndCheckinFile("sample2", "second checkin");
 				transport.Pull();
-				Assert.That(progressForTest.AllMessages, Contains.Item("Resuming pull operation at 5000 bytes"));
+				Assert.That(progressForTest.AllMessages, Contains.Item("Resuming pull operation at 4KB received"));
 				Assert.That(progressForTest.AllMessages, Contains.Item("Pull operation completed successfully"));
 				Assert.That(progressForTest.AllMessages, Contains.Item("Remote repo has changed.  Initiating additional pull operation"));
 				IEnumerable<string> msgs = progressForTest.Messages.Where(x => x == "Pull operation completed successfully");
@@ -596,13 +542,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				string serverMessage = "The server is down for scheduled maintenance";
 				apiServer.AddServerUnavailableResponse(4, serverMessage);
 
-				// just pick a file larger than 10K for use as a test... any file will do
-				string sourcePathOfLargeFile = Path.Combine(ExecutionEnvironment.DirectoryOfExecutingAssembly,
-					String.Format("..{0}..{0}lib{0}Debug{0}Mercurial.zip", Path.DirectorySeparatorChar));
-
-				string largeFilePath = setup.ProjectFolder.GetNewTempFile(false).Path;
-				File.Copy(sourcePathOfLargeFile, largeFilePath);
-				setup.Repository.AddAndCheckinFile(largeFilePath);
+				setup.CreateLargeFileAndCheckItIn(1);
 				var transport = new HgResumeTransport(setup.Repository, "test repo", apiServer, progress);
 				transport.Push();
 				Assert.That(progressForTest.AllMessages, Contains.Item("Server temporarily unavailable: " + serverMessage));
@@ -622,13 +562,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				setup.AddAndCheckinFile("sample1", "first checkin");
 				string revHash = setup.Repository.GetTip().Number.Hash;
 
-				// just pick a file larger than 10K for use as a test... any file will do
-				string sourcePathOfLargeFile = Path.Combine(ExecutionEnvironment.DirectoryOfExecutingAssembly,
-					String.Format("..{0}..{0}lib{0}Debug{0}Palaso.Tests.dll", Path.DirectorySeparatorChar));
-
-				string largeFilePath = setup.ProjectFolder.GetNewTempFile(false).Path;
-				File.Copy(sourcePathOfLargeFile, largeFilePath);
-				setup.Repository.AddAndCheckinFile(largeFilePath);
+				setup.CreateLargeFileAndCheckItIn(1);
 
 				apiServer.PrepareBundle(revHash);
 
