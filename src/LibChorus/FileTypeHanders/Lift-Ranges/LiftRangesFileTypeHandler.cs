@@ -78,7 +78,9 @@ namespace Chorus.FileTypeHanders
 				return;
 			}
 
-			mergeOrder.EventListener.ConflictOccurred(new UnmergableFileTypeConflict(mergeOrder.MergeSituation));
+			var unmergableFileTypeConflict = new UnmergableFileTypeConflict(mergeOrder.MergeSituation);
+			mergeOrder.EventListener.RecordContextInConflict(unmergableFileTypeConflict);
+			mergeOrder.EventListener.ConflictOccurred(unmergableFileTypeConflict);
 			if (mergeOrder.MergeSituation.ConflictHandlingMode == MergeOrder.ConflictHandlingModeChoices.TheyWin)
 				File.Copy(mergeOrder.pathToTheirs, mergeOrder.pathToOurs, true);
 		}

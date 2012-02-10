@@ -146,6 +146,12 @@
 	<Compile Include="merge\xml\generic\XmlMergeService.cs" />
 	<Compile Include="FileTypeHanders\oneStory\OneStoryChangePresenter.cs" />
 	<Compile Include="FileTypeHanders\oneStory\OneStoryDiffer.cs" />
+	<Compile Include="notes\ConflictDetailsForm.cs">
+	  <SubType>Form</SubType>
+	</Compile>
+	<Compile Include="notes\ConflictDetailsForm.Designer.cs">
+	  <DependentUpon>ConflictDetailsForm.cs</DependentUpon>
+	</Compile>
 	<Compile Include="Properties\Resources.Designer.cs">
 	  <AutoGen>True</AutoGen>
 	  <DesignTime>True</DesignTime>
@@ -296,6 +302,9 @@
 	</BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+	<EmbeddedResource Include="notes\ConflictDetailsForm.resx">
+	  <DependentUpon>ConflictDetailsForm.cs</DependentUpon>
+	</EmbeddedResource>
 	<EmbeddedResource Include="Properties\AnnotationImages.resx">
 	  <Generator>PublicResXFileCodeGenerator</Generator>
 	  <LastGenOutput>AnnotationImages.Designer.cs</LastGenOutput>

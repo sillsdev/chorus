@@ -20,6 +20,15 @@ namespace Chorus.merge.xml.generic
 		public MergeSituation MergeSituation{ get; set;}
 		public MergeStrategies MergeStrategies { get; set; }
 
+		/// <summary>
+		/// The nodes we were merging on the last MergeChildren call; these (specifically _oursContext) are the
+		/// nodes that are the basis of the Context we set in calling the Listener's EnteringContext method.
+		/// They are used to allow any Conflict objects we generate to BuildHtmlDetails.
+		/// </summary>
+		private XmlNode _oursContext, _theirsContext, _ancestorContext;
+
+		private IGenerateHtmlContext _htmlContextGenerator;
+
 		public XmlMerger(MergeSituation mergeSituation)
 		{
 			MergeSituation = mergeSituation;
@@ -55,6 +64,24 @@ namespace Chorus.merge.xml.generic
 			EventListener = eventListener;
 			MergeInner(ref ours, theirs, ancestor);
 			return ours;
+		}
+
+		internal void ConflictOccurred(IConflict conflict)
+		{
+			if (_htmlContextGenerator == null)
+				_htmlContextGenerator = new SimpleHtmlGenerator();
+			EventListener.RecordContextInConflict(conflict);
+			conflict.MakeHtmlDetails(_oursContext, _theirsContext, _ancestorContext, _htmlContextGenerator);
+			EventListener.ConflictOccurred(conflict);
+
+		}
+
+		class SimpleHtmlGenerator : IGenerateHtmlContext
+		{
+			public string HtmlContext(XmlNode mergeElement)
+			{
+				return XmlUtilities.GetXmlForShowingInHtml(mergeElement.OuterXml);
+			}
 		}
 
 		/// <summary>
@@ -154,7 +181,7 @@ namespace Chorus.merge.xml.generic
 					{
 						// They deleted, but we changed, so we win under the principle of
 						// least data loss (an attribute can be a huge text element).
-						EventListener.ConflictOccurred(new EditedVsRemovedAttributeConflict(ourAttr.Name, ourAttr.Value, null, ancestorAttr.Value, MergeSituation, MergeSituation.AlphaUserId));
+						ConflictOccurred(new EditedVsRemovedAttributeConflict(ourAttr.Name, ourAttr.Value, null, ancestorAttr.Value, MergeSituation, MergeSituation.AlphaUserId));
 						continue;
 					}
 					// They deleted. We did zip.
@@ -172,7 +199,7 @@ namespace Chorus.merge.xml.generic
 						newForOurs.Add(theirAttr);
 						//var importedAttribute = (XmlAttribute)ours.OwnerDocument.ImportNode(theirAttr, true);
 						//ours.Attributes.Append(importedAttribute);
-						EventListener.ConflictOccurred(new RemovedVsEditedAttributeConflict(theirAttr.Name, null, theirAttr.Value, ancestorAttr.Value, MergeSituation,
+						ConflictOccurred(new RemovedVsEditedAttributeConflict(theirAttr.Name, null, theirAttr.Value, ancestorAttr.Value, MergeSituation,
 							MergeSituation.BetaUserId));
 						continue;
 					}
@@ -229,13 +256,13 @@ namespace Chorus.merge.xml.generic
 						{
 							if (MergeSituation.ConflictHandlingMode == MergeOrder.ConflictHandlingModeChoices.WeWin)
 							{
-								EventListener.ConflictOccurred(new BothAddedAttributeConflict(theirAttr.Name, ourAttr.Value, theirAttr.Value, null, MergeSituation,
+								ConflictOccurred(new BothAddedAttributeConflict(theirAttr.Name, ourAttr.Value, theirAttr.Value, null, MergeSituation,
 									MergeSituation.AlphaUserId));
 							}
 							else
 							{
 								ourAttr.Value = theirAttr.Value;
-								EventListener.ConflictOccurred(new BothAddedAttributeConflict(theirAttr.Name, ourAttr.Value, theirAttr.Value, null, MergeSituation,
+								ConflictOccurred(new BothAddedAttributeConflict(theirAttr.Name, ourAttr.Value, theirAttr.Value, null, MergeSituation,
 									MergeSituation.BetaUserId));
 							}
 						}
@@ -280,7 +307,7 @@ namespace Chorus.merge.xml.generic
 					{
 						if (MergeSituation.ConflictHandlingMode == MergeOrder.ConflictHandlingModeChoices.WeWin)
 						{
-							EventListener.ConflictOccurred(new BothEditedAttributeConflict(theirAttr.Name, ourAttr.Value,
+							ConflictOccurred(new BothEditedAttributeConflict(theirAttr.Name, ourAttr.Value,
 																							theirAttr.Value,
 																							ancestorAttr.Value,
 																							MergeSituation,
@@ -289,7 +316,7 @@ namespace Chorus.merge.xml.generic
 						else
 						{
 							ourAttr.Value = theirAttr.Value;
-							EventListener.ConflictOccurred(new BothEditedAttributeConflict(theirAttr.Name, ourAttr.Value,
+							ConflictOccurred(new BothEditedAttributeConflict(theirAttr.Name, ourAttr.Value,
 																							theirAttr.Value,
 																							ancestorAttr.Value,
 																							MergeSituation,
@@ -340,6 +367,9 @@ namespace Chorus.merge.xml.generic
 
 		private void MergeChildren(ref XmlNode ours, XmlNode theirs, XmlNode ancestor)
 		{
+			_oursContext = ours;
+			_theirsContext = theirs;
+			_ancestorContext = ancestor;
 			//is this a level of the xml file that would consitute the minimal unit conflict-understanding
 			//from a user perspecitve?
 			//e.g., in a dictionary, this is the lexical entry.  In a text, it might be  a paragraph.
@@ -361,8 +391,13 @@ namespace Chorus.merge.xml.generic
 				}
 				EventListener.EnteringContext(descriptor);
 			}
+			_htmlContextGenerator = (generator as IGenerateHtmlContext); // null is OK.
 
 			new MergeChildrenMethod(ours, theirs, ancestor, this).Run();
+			// At some point, it may be necessary here to restore the pre-existing values of
+			// _oursContext, _theirsContext, _ancestorContext, and _htmlContextGenerator.
+			// and somehow restore the EventListener's Context.
+			// Currently however no client generates further conflicts after calling MergeChildren.
 		}
 	}
 }
