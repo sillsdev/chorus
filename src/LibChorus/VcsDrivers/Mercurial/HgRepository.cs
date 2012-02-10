@@ -440,8 +440,11 @@ namespace Chorus.VcsDrivers.Mercurial
 		/// <summary>
 		/// Method only for testing.
 		/// </summary>
+		/// <remarks>
+		/// *********** NB: To whoever merges this method [READ: YOU], please take care that this method is public after the merge, or you will break the FLEx Bridge build (again). ***********
+		/// </remarks>
 		/// <param name="filePath"></param>
-		internal void TestOnlyAddSansCommit(string filePath)
+		public void TestOnlyAddSansCommit(string filePath)
 		{
 			TrackFile(filePath);
 		}
