@@ -87,8 +87,10 @@ namespace Chorus.merge.xml.generic
 					break;
 				case "Custom": // Another hack for FW custom property elements. (If this proves to conflict with WeSay, then move preliminary processing elsewhere for FW Custom properties to get past the Custom element.
 					var customPropName = element.Attributes["name"].Value;
-					name += "_" + customPropName;
-					var combinedCustomKey = name + element.ParentNode.Name + "_" + customPropName;
+					var className = element.ParentNode.Name;
+					if (className == "ownseq" || className == "ownseqatomic")
+						className = element.ParentNode.Attributes["class"].Value;
+					var combinedCustomKey = name + "_" + className + "_" + customPropName;
 					if (ElementStrategies.ContainsKey(combinedCustomKey))
 						return combinedCustomKey;
 					break;
