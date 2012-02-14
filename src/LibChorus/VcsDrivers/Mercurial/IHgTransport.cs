@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace Chorus.VcsDrivers.Mercurial
 {
-	public interface IHgTransport : IDisposable
+	public interface IHgTransport
 	{
 		void Push();
 		bool Pull();

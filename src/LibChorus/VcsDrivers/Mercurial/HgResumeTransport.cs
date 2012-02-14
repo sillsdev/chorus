@@ -772,10 +772,6 @@ namespace Chorus.VcsDrivers.Mercurial
 			}
 		}
 
-		public void Dispose()
-		{
-		}
-
 		public void RemoveCache()
 		{
 			var localStoragePath = PathToLocalStorage(_repo.Identifier);
