@@ -10,6 +10,7 @@ using Chorus.VcsDrivers.Mercurial;
 using Palaso.Progress;
 using Palaso.Progress.LogBox;
 using Palaso.TestUtilities;
+using ConsoleProgress = Palaso.Progress.LogBox.ConsoleProgress;
 
 namespace LibChorus.Tests.VcsDrivers.Mercurial
 {
@@ -20,13 +21,26 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		Push
 	}
 
+	internal class HgResumeTransportProvider : IDisposable
+	{
+		public HgResumeTransportProvider(HgResumeTransport transport)
+		{
+			Transport = transport;
+		}
+
+		public void Dispose()
+		{
+			Transport.RemoveCache();
+		}
+
+		public HgResumeTransport Transport { get; private set; }
+	}
 
 	internal class TestEnvironment : IDisposable
 	{
 
 		public TestEnvironment(string testName, ApiServerType type)
 		{
-			Progress = new ProgressForTest();
 			Local = new RepositorySetup(testName + "-local");
 			Remote = new RepositorySetup(testName + "-remote");
 			switch (type)
@@ -41,58 +55,60 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 					ApiServer = new PushHandlerApiServerForTest(Remote.Repository);
 					break;
 			}
-			Transport = new HgResumeTransport(Local.Repository, testName, ApiServer, new MultiProgress(new IProgress[] { new Palaso.Progress.LogBox.ConsoleProgress { ShowVerbose = true }, Progress }));
+			Label = testName;
+			Progress = new ProgressForTest();
+			MultiProgress = new MultiProgress(new IProgress[] { new ConsoleProgress { ShowVerbose = true }, Progress });
 		}
 
-		public HgResumeTransport Transport { get; private set; }
 		public RepositorySetup Local { get; private set; }
 		public RepositorySetup Remote { get; private set; }
 		public IApiServerForTest ApiServer { get; private set; }
 		public ProgressForTest Progress { get; private set; }
+		public string Label { get; private set; }
+		public IProgress MultiProgress { get; private set; }
 
 		public void Dispose()
 		{
-			Transport.RemoveCache();
 			Local.Dispose();
 			Remote.Dispose();
 		}
 
-		public void LocalCheckIn()
+		public void LocalAddAndCommit()
 		{
 			string filename = Path.GetRandomFileName();
 			Local.AddAndCheckinFile(filename, "localcheckin");
 		}
 
-		public void RemoteCheckIn()
+		public void RemoteAddAndCommit()
 		{
 			string filename = Path.GetRandomFileName();
 			Remote.AddAndCheckinFile(filename, "remotecheckin");
 		}
 
-		public void LocalCheckInLargeFile()
+		public void LocalAddAndCommitLargeFile()
 		{
-			LocalCheckInLargeFile(1);
+			LocalAddAndCommitLargeFile(1);
 		}
 
-		public void LocalCheckInLargeFile(int sizeInMB)
+		public void LocalAddAndCommitLargeFile(int sizeInMb)
 		{
 			var filePath = Local.ProjectFolder.GetPathForNewTempFile(false);
-			byte[] data = new byte[sizeInMB * 1024 * 1024];  // MB file
+			byte[] data = new byte[sizeInMb * 1024 * 1024];  // MB file
 			Random rng = new Random();
 			rng.NextBytes(data);
 			File.WriteAllBytes(filePath, data);
 			Local.Repository.AddAndCheckinFile(filePath);
 		}
 
-		public void RemoteCheckInLargeFile()
+		public void RemoteAddAndCommitLargeFile()
 		{
-			RemoteCheckInLargeFile(1);
+			RemoteAddAndCommitLargeFile(1);
 		}
 
-		public void RemoteCheckInLargeFile(int sizeInMB)
+		public void RemoteAddAndCommitLargeFile(int sizeInMb)
 		{
 			var filePath = Remote.ProjectFolder.GetPathForNewTempFile(false);
-			byte[] data = new byte[sizeInMB * 1024 * 1024];  // 5MB file
+			byte[] data = new byte[sizeInMb * 1024 * 1024];  // 5MB file
 			Random rng = new Random();
 			rng.NextBytes(data);
 			File.WriteAllBytes(filePath, data);

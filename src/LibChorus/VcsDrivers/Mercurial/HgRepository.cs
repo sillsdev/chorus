@@ -229,10 +229,8 @@ namespace Chorus.VcsDrivers.Mercurial
 			_progress.WriteVerbose("({0} is {1})", source.Name, targetUri);
 
 			bool result;
-			using (var transport = CreateTransportBetween(source, targetUri))
-			{
-				result = transport.Pull();
-			}
+			var transport = CreateTransportBetween(source, targetUri);
+			result = transport.Pull();
 			return result;
 		}
 
@@ -342,10 +340,8 @@ namespace Chorus.VcsDrivers.Mercurial
 			_progress.WriteVerbose("({0} is {1})", source.Name, targetUri);
 				UpdateHgrc();
 
-			using (var transport = CreateTransportBetween(source, targetUri))
-			{
-				transport.Push();
-			}
+			var transport = CreateTransportBetween(source, targetUri);
+			transport.Push();
 		}
 
 		private bool GetIsLocalUri(string uri)
@@ -805,10 +801,8 @@ namespace Chorus.VcsDrivers.Mercurial
 											 targetPath);
 			var repo = new HgRepository(targetPath, progress);
 
-			using (var transport = repo.CreateTransportBetween(source, source.URI))
-			{
-				transport.Clone();
-			}
+			var transport = repo.CreateTransportBetween(source, source.URI);
+			transport.Clone();
 			repo.Update();
 			progress.WriteStatus("Finished copying to this computer at {0}", targetPath);
 		}

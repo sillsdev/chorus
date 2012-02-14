@@ -15,16 +15,23 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 	[TestFixture]
 	public class HgResumeTransportTests
 	{
+		private static HgResumeTransportProvider GetTransportProviderForTest(TestEnvironment e)
+		{
+			return new HgResumeTransportProvider(new HgResumeTransport(e.Local.Repository, e.Label, e.ApiServer, e.MultiProgress));
+		}
+
 		[Test]
 		public void Push_SingleResponse_OK()
 		{
 			using (var e = new TestEnvironment("hgresumetest", ApiServerType.Dummy))
+			using (var provider = GetTransportProviderForTest(e))
 			{
-				e.LocalCheckIn();
+				e.LocalAddAndCommit();
 				e.ApiServer.AddResponse(ApiResponses.Revisions(e.Local.Repository.GetTip().Number.Hash));
-				e.LocalCheckIn();
+				e.LocalAddAndCommit();
 				e.ApiServer.AddResponse(ApiResponses.PushComplete());
-				e.Transport.Push();
+				var transport = provider.Transport;
+				transport.Push();
 				Assert.That(e.Progress.AllMessages, Contains.Item("Push operation completed successfully"));
 			}
 		}
@@ -33,11 +40,13 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		public void Push_SuccessfulPush_PushDataCacheDestroyed()
 		{
 			using (var e = new TestEnvironment("hgresumetest", ApiServerType.Push))
+			using (var provider = GetTransportProviderForTest(e))
 			{
-				e.LocalCheckIn();
+				e.LocalAddAndCommit();
 				e.CloneRemoteFromLocal();
-				e.LocalCheckInLargeFile();
-				e.Transport.Push();
+				e.LocalAddAndCommitLargeFile();
+				var transport = provider.Transport;
+				transport.Push();
 				Assert.That(e.Progress.AllMessages, Contains.Item("Push operation completed successfully"));
 				var dirInfo = new DirectoryInfo(Path.Combine(HgResumeTransport.PathToLocalStorage(e.Local.Repository.Identifier), "pushData"));
 				Assert.That(dirInfo.GetFiles().Length, Is.EqualTo(0));
@@ -48,12 +57,14 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		public void Push_UnknownServerResponse_Fails()
 		{
 			using (var e = new TestEnvironment("hgresumetest", ApiServerType.Dummy))
+			using (var provider = GetTransportProviderForTest(e))
 			{
-				e.LocalCheckIn();
-				e.LocalCheckIn();
+				e.LocalAddAndCommit();
+				e.LocalAddAndCommit();
 				e.ApiServer.AddResponse(ApiResponses.Custom(HttpStatusCode.SeeOther));
 				e.ApiServer.AddResponse(ApiResponses.Custom(HttpStatusCode.SeeOther));
-				Assert.That(() => e.Transport.Push(), Throws.Exception.TypeOf<HgResumeOperationFailed>());
+				var transport = provider.Transport;
+				Assert.That(() => transport.Push(), Throws.Exception.TypeOf<HgResumeOperationFailed>());
 			}
 		}
 
@@ -61,16 +72,18 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		public void Push_SomeServerTimeOuts_Success()
 		{
 			using (var e = new TestEnvironment("hgresumetest", ApiServerType.Dummy))
+			using (var provider = GetTransportProviderForTest(e))
 			{
-				e.LocalCheckIn();
+				e.LocalAddAndCommit();
 				e.ApiServer.AddTimeOut();
 				e.ApiServer.AddResponse(ApiResponses.Revisions(e.Local.Repository.GetTip().Number.Hash));
-				e.LocalCheckIn();
+				e.LocalAddAndCommit();
 				e.ApiServer.AddTimeOut();
 				e.ApiServer.AddTimeOut();
 				e.ApiServer.AddTimeOut();
 				e.ApiServer.AddResponse(ApiResponses.PushComplete());
-				e.Transport.Push();
+				var transport = provider.Transport;
+				transport.Push();
 				Assert.That(e.Progress.AllMessages, Contains.Item("Push operation completed successfully"));
 			}
 		}
@@ -79,11 +92,13 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		public void Push_LargeFileSizeBundle_Success()
 		{
 			using (var e = new TestEnvironment("hgresumetest", ApiServerType.Push))
+			using (var provider = GetTransportProviderForTest(e))
 			{
-				e.LocalCheckIn();
+				e.LocalAddAndCommit();
 				e.CloneRemoteFromLocal();
-				e.LocalCheckInLargeFile();
-				e.Transport.Push();
+				e.LocalAddAndCommitLargeFile();
+				var transport = provider.Transport;
+				transport.Push();
 				Assert.That(e.Progress.AllMessages, Contains.Item("Push operation completed successfully"));
 			}
 		}
@@ -93,14 +108,16 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		public void Push_MultiChunkBundleAndUnBundleFails_Fail()
 		{
 			using (var e = new TestEnvironment("hgresumetest", ApiServerType.Dummy))
+			using (var provider = GetTransportProviderForTest(e))
 			{
-				e.LocalCheckIn();
+				e.LocalAddAndCommit();
 				e.ApiServer.AddResponse(ApiResponses.Revisions(e.Local.Repository.GetTip().Number.Hash));
-				e.LocalCheckIn();
+				e.LocalAddAndCommit();
 				e.ApiServer.AddResponse(ApiResponses.PushAccepted(1));
 				e.ApiServer.AddResponse(ApiResponses.PushAccepted(2));
 				e.ApiServer.AddResponse(ApiResponses.Reset());
-				Assert.That(() => e.Transport.Push(), Throws.Exception.TypeOf<HgResumeOperationFailed>());
+				var transport = provider.Transport;
+				Assert.That(() => transport.Push(), Throws.Exception.TypeOf<HgResumeOperationFailed>());
 			}
 		}
 
@@ -108,10 +125,11 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		public void Push_RemoteRepoDbNotExistsAndSetsCorrectlyWithRevHash_Success()
 		{
 			using (var e = new TestEnvironment("hgresumetest", ApiServerType.Dummy))
+			using (var provider = GetTransportProviderForTest(e))
 			{
-				e.LocalCheckIn();
+				e.LocalAddAndCommit();
 				e.ApiServer.AddResponse(ApiResponses.Revisions(e.Local.Repository.GetTip().Number.Hash));
-				e.LocalCheckIn();
+				e.LocalAddAndCommit();
 				e.ApiServer.AddResponse(ApiResponses.PushComplete());
 
 				string dbStoragePath = HgResumeTransport.PathToLocalStorage(e.Local.Repository.Identifier);
@@ -119,7 +137,8 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				Assert.That(File.Exists(dbFilePath), Is.False);
 
 				var tipHash = e.Local.Repository.GetTip().Number.Hash;
-				e.Transport.Push();
+				var transport = provider.Transport;
+				transport.Push();
 				Assert.That(File.Exists(dbFilePath), Is.True);
 				string dbContents = File.ReadAllText(dbFilePath).Trim();
 				Assert.That(dbContents, Is.EqualTo(e.ApiServer.Host + "|" + tipHash));
@@ -131,13 +150,15 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		public void Push_2PushesAndRemoteRepoDbFileUpdated_Success()
 		{
 			using (var e = new TestEnvironment("hgresumetest", ApiServerType.Dummy))
+			using (var provider = GetTransportProviderForTest(e))
 			{
-				e.LocalCheckIn();
+				e.LocalAddAndCommit();
 				e.ApiServer.AddResponse(ApiResponses.Revisions(e.Local.Repository.GetTip().Number.Hash));
-				e.LocalCheckIn();
+				e.LocalAddAndCommit();
 				e.ApiServer.AddResponse(ApiResponses.PushComplete());
 				var tipHash = e.Local.Repository.GetTip().Number.Hash;
-				e.Transport.Push();
+				var transport = provider.Transport;
+				transport.Push();
 
 				string dbStoragePath = HgResumeTransport.PathToLocalStorage(e.Local.Repository.Identifier);
 				string dbFilePath = Path.Combine(dbStoragePath, "remoteRepo.db");
@@ -146,12 +167,12 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 
 				Assert.That(e.Progress.AllMessages, Contains.Item("Push operation completed successfully"));
 
-				e.LocalCheckIn();
-				e.LocalCheckIn();
+				e.LocalAddAndCommit();
+				e.LocalAddAndCommit();
 				var tipHash2 = e.Local.Repository.GetTip().Number.Hash;
 				e.ApiServer.AddResponse(ApiResponses.PushAccepted(1));
 				e.ApiServer.AddResponse(ApiResponses.PushComplete());
-				e.Transport.Push();
+				transport.Push();
 				dbContents = File.ReadAllText(dbFilePath).Trim();
 				Assert.That(dbContents, Is.EqualTo(e.ApiServer.Host + "|" + tipHash2));
 				Assert.That(e.Progress.AllMessages, Contains.Item("Push operation completed successfully"));
@@ -162,20 +183,20 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		public void Push_2DifferentApiServers_HgRepoFileUpdatedWithBothEntries()
 		{
 			using (var e1 = new TestEnvironment("api1", ApiServerType.Dummy))
+			using (var provider = GetTransportProviderForTest(e1))
 			{
 				var api2 = new DummyApiServerForTest("api2");
-				var progress2 =
-					new MultiProgress(new IProgress[] {new ConsoleProgress {ShowVerbose = true}, e1.Progress});
-				var transport2 = new HgResumeTransport(e1.Local.Repository, "api2", api2, progress2);
+				var transport2 = new HgResumeTransport(e1.Local.Repository, "api2", api2, e1.MultiProgress);
 
 				// push to ApiServer 1
-				e1.LocalCheckIn();
+				e1.LocalAddAndCommit();
 				var revisionResponse = ApiResponses.Revisions(e1.Local.Repository.GetTip().Number.Hash);
 				e1.ApiServer.AddResponse(revisionResponse);
-				e1.LocalCheckIn();
+				e1.LocalAddAndCommit();
 				e1.ApiServer.AddResponse(ApiResponses.PushComplete());
 				var tipHash1 = e1.Local.Repository.GetTip().Number.Hash;
-				e1.Transport.Push();
+				var transport = provider.Transport;
+				transport.Push();
 				e1.ApiServer.AddResponse(ApiResponses.PushComplete());  // finishPushBundle
 
 				// push to ApiServer 2
@@ -191,12 +212,12 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				Assert.That(dbContents, Contains.Item(api2.Host + "|" + tipHash1));
 
 				// second push
-				e1.LocalCheckIn();
-				e1.LocalCheckIn();
+				e1.LocalAddAndCommit();
+				e1.LocalAddAndCommit();
 				string tipHash2 = e1.Local.Repository.GetTip().Number.Hash;
 				e1.ApiServer.AddResponse(ApiResponses.PushAccepted(1));
 				e1.ApiServer.AddResponse(ApiResponses.PushComplete());
-				e1.Transport.Push();
+				transport.Push();
 
 				dbContents = File.ReadAllLines(dbFilePath);
 				Assert.That(dbContents, Contains.Item(e1.ApiServer.Host + "|" + tipHash2));
@@ -210,10 +231,12 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		public void Pull_UnknownServerResponse_Fails()
 		{
 			using (var e = new TestEnvironment("hgresumetest", ApiServerType.Dummy))
+			using (var provider = GetTransportProviderForTest(e))
 			{
-				e.LocalCheckIn();
+				e.LocalAddAndCommit();
 				e.ApiServer.AddResponse(ApiResponses.Custom(HttpStatusCode.ServiceUnavailable));
-				Assert.That(() => e.Transport.Pull(), Throws.Exception.TypeOf<HgResumeOperationFailed>());
+				var transport = provider.Transport;
+				Assert.That(() => transport.Pull(), Throws.Exception.TypeOf<HgResumeOperationFailed>());
 			}
 		}
 
@@ -221,11 +244,13 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		public void Pull_NoChangesInRepo_NoChanges()
 		{
 			using (var e = new TestEnvironment("hgresumetest", ApiServerType.Pull))
+			using (var provider = GetTransportProviderForTest(e))
 			{
-				e.LocalCheckIn();
+				e.LocalAddAndCommit();
 				e.CloneRemoteFromLocal();
 				Assert.That(e.Local.Repository.GetTip().Number.Hash, Is.EqualTo(e.Remote.Repository.GetTip().Number.Hash));
-				e.Transport.Pull();
+				var transport = provider.Transport;
+				transport.Pull();
 				Assert.That(e.Progress.AllMessages, Contains.Item("No changes"));
 			}
 		}
@@ -234,11 +259,13 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		public void Pull_BundleInOneChunk_Success()
 		{
 			using (var e = new TestEnvironment("hgresumetest", ApiServerType.Pull))
+			using (var provider = GetTransportProviderForTest(e))
 			{
-				e.LocalCheckIn();
+				e.LocalAddAndCommit();
 				e.CloneRemoteFromLocal();
-				e.RemoteCheckIn();
-				e.Transport.Pull();
+				e.RemoteAddAndCommit();
+				var transport = provider.Transport;
+				transport.Pull();
 				Assert.That(e.Progress.AllMessages, Contains.Item("Pull operation completed successfully"));
 			}
 		}
@@ -247,11 +274,13 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		public void Pull_SucessfulPull_PullBundleDataIsRemoved()
 		{
 			using (var e = new TestEnvironment("hgresumetest", ApiServerType.Pull))
+			using (var provider = GetTransportProviderForTest(e))
 			{
-				e.LocalCheckIn();
+				e.LocalAddAndCommit();
 				e.CloneRemoteFromLocal();
-				e.RemoteCheckIn();
-				e.Transport.Pull();
+				e.RemoteAddAndCommit();
+				var transport = provider.Transport;
+				transport.Pull();
 				Assert.That(e.Progress.AllMessages, Contains.Item("Pull operation completed successfully"));
 				var dirInfo = new DirectoryInfo(Path.Combine(HgResumeTransport.PathToLocalStorage(e.Local.Repository.Identifier), "pullData"));
 				Assert.That(dirInfo.GetFiles().Length, Is.EqualTo(0));
@@ -263,11 +292,13 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		public void Pull_BundleInMultipleChunks_Success()
 		{
 			using (var e = new TestEnvironment("hgresumetest", ApiServerType.Pull))
+			using (var provider = GetTransportProviderForTest(e))
 			{
-				e.LocalCheckIn();
+				e.LocalAddAndCommit();
 				e.CloneRemoteFromLocal();
-				e.RemoteCheckInLargeFile();
-				e.Transport.Pull();
+				e.RemoteAddAndCommitLargeFile();
+				var transport = provider.Transport;
+				transport.Pull();
 				Assert.That(e.Progress.AllMessages, Contains.Item("Pull operation completed successfully"));
 			}
 		}
@@ -276,13 +307,15 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		public void Pull_SomeTimeOuts_Success()
 		{
 			using (var e = new TestEnvironment("hgresumetest", ApiServerType.Pull))
+			using (var provider = GetTransportProviderForTest(e))
 			{
-				e.LocalCheckIn();
+				e.LocalAddAndCommit();
 				e.CloneRemoteFromLocal();
-				e.RemoteCheckInLargeFile();
+				e.RemoteAddAndCommitLargeFile();
 				e.ApiServer.AddTimeoutResponse(2);
 				e.ApiServer.AddTimeoutResponse(3);
-				e.Transport.Pull();
+				var transport = provider.Transport;
+				transport.Pull();
 				Assert.That(e.Progress.AllMessages, Contains.Item("Pull operation completed successfully"));
 			}
 		}
@@ -291,15 +324,17 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		public void Pull_PullOperationFailsMidwayAndStartsAgainWithSeparatePull_Resumes()
 		{
 			using (var e = new TestEnvironment("hgresumetest", ApiServerType.Pull))
+			using (var provider = GetTransportProviderForTest(e))
 			{
-				e.LocalCheckIn();
+				e.LocalAddAndCommit();
 				e.CloneRemoteFromLocal();
-				e.RemoteCheckInLargeFile();
+				e.RemoteAddAndCommitLargeFile();
 				e.ApiServer.AddFailResponse(3);
-				Assert.That(() => e.Transport.Pull(), Throws.Exception.TypeOf<HgResumeOperationFailed>());
+				var transport = provider.Transport;
+				Assert.That(() => transport.Pull(), Throws.Exception.TypeOf<HgResumeOperationFailed>());
 				e.ApiServer.AddFailResponse(5);
-				Assert.That(() => e.Transport.Pull(), Throws.Exception.TypeOf<HgResumeOperationFailed>());
-				e.Transport.Pull();
+				Assert.That(() => transport.Pull(), Throws.Exception.TypeOf<HgResumeOperationFailed>());
+				transport.Pull();
 				Assert.That(e.Progress.AllMessages, Contains.Item("Resuming pull operation at 4KB received"));
 				Assert.That(e.Progress.AllMessages, Contains.Item("Resuming pull operation at 9KB received"));
 				Assert.That(e.Progress.AllMessages, Contains.Item("Pull operation completed successfully"));
@@ -310,15 +345,17 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		public void Push_PushOperationFailsMidwayAndBeginsAgainWithAdditionalPush_Resumes()
 		{
 			using (var e = new TestEnvironment("hgresumetest", ApiServerType.Push))
+			using (var provider = GetTransportProviderForTest(e))
 			{
-				e.LocalCheckIn();
+				e.LocalAddAndCommit();
 				e.CloneRemoteFromLocal();
-				e.LocalCheckInLargeFile();
+				e.LocalAddAndCommitLargeFile();
 				e.ApiServer.AddFailResponse(3);
-				Assert.That(() => e.Transport.Push(), Throws.Exception.TypeOf<HgResumeOperationFailed>());
+				var transport = provider.Transport;
+				Assert.That(() => transport.Push(), Throws.Exception.TypeOf<HgResumeOperationFailed>());
 				e.ApiServer.AddFailResponse(6);
-				Assert.That(() => e.Transport.Push(), Throws.Exception.TypeOf<HgResumeOperationFailed>());
-				e.Transport.Push();
+				Assert.That(() => transport.Push(), Throws.Exception.TypeOf<HgResumeOperationFailed>());
+				transport.Push();
 				Assert.That(e.Progress.AllMessages, Contains.Item("Resuming push operation at 126KB sent"));
 				Assert.That(e.Progress.AllMessages, Contains.Item("Resuming push operation at 249KB sent"));
 				Assert.That(e.Progress.AllMessages, Contains.Item("Push operation completed successfully"));
@@ -329,14 +366,16 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		public void Push_PushFailsMidwayThenRepoChanges_PushDoesNotResume()
 		{
 			using (var e = new TestEnvironment("hgresumetest", ApiServerType.Push))
+			using (var provider = GetTransportProviderForTest(e))
 			{
-				e.LocalCheckIn();
+				e.LocalAddAndCommit();
 				e.CloneRemoteFromLocal();
-				e.LocalCheckInLargeFile();
+				e.LocalAddAndCommitLargeFile();
 				e.ApiServer.AddFailResponse(2);
-				Assert.That(() => e.Transport.Push(), Throws.Exception.TypeOf<HgResumeOperationFailed>());
-				e.RemoteCheckIn();
-				e.Transport.Push();
+				var transport = provider.Transport;
+				Assert.That(() => transport.Push(), Throws.Exception.TypeOf<HgResumeOperationFailed>());
+				e.RemoteAddAndCommit();
+				transport.Push();
 				Assert.That(e.Progress.AllMessagesString().Contains("Resuming push operation at"), Is.Not.True);
 				Assert.That(e.Progress.AllMessages, Contains.Item("Push operation completed successfully"));
 			}
@@ -346,14 +385,16 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		public void Pull_PullFailsMidwayTheRemoteRepoChanges_PullFinishesThenStartsSecondPullToGetNewChanges()
 		{
 			using (var e = new TestEnvironment("hgresumetest", ApiServerType.Pull))
+			using (var provider = GetTransportProviderForTest(e))
 			{
-				e.LocalCheckIn();
+				e.LocalAddAndCommit();
 				e.CloneRemoteFromLocal();
-				e.RemoteCheckInLargeFile();
+				e.RemoteAddAndCommitLargeFile();
 				e.ApiServer.AddFailResponse(3);
-				Assert.That(() => e.Transport.Pull(), Throws.Exception.TypeOf<HgResumeOperationFailed>());
-				e.RemoteCheckIn();
-				e.Transport.Pull();
+				var transport = provider.Transport;
+				Assert.That(() => transport.Pull(), Throws.Exception.TypeOf<HgResumeOperationFailed>());
+				e.RemoteAddAndCommit();
+				transport.Pull();
 				Assert.That(e.Progress.AllMessages, Contains.Item("Resuming pull operation at 4KB received"));
 				Assert.That(e.Progress.AllMessages, Contains.Item("Pull operation completed successfully"));
 				Assert.That(e.Progress.AllMessages, Contains.Item("Remote repo has changed.  Initiating additional pull operation"));
@@ -366,13 +407,15 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		public void Push_ServerNotAvailableMidTransaction_NotAvailableMessage()
 		{
 			using (var e = new TestEnvironment("hgresumetest", ApiServerType.Push))
+			using (var provider = GetTransportProviderForTest(e))
 			{
-				e.LocalCheckIn();
+				e.LocalAddAndCommit();
 				e.CloneRemoteFromLocal();
-				e.LocalCheckInLargeFile();
+				e.LocalAddAndCommitLargeFile();
 				var serverMessage = "The server is down for scheduled maintenance";
 				e.ApiServer.AddServerUnavailableResponse(4, serverMessage);
-				e.Transport.Push();
+				var transport = provider.Transport;
+				transport.Push();
 				Assert.That(e.Progress.AllMessages, Contains.Item("Server temporarily unavailable: " + serverMessage));
 				Assert.That(e.Progress.AllMessages, Has.No.Member("Push operation completed successfully"));
 			}
@@ -382,13 +425,15 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		public void Pull_ServerNotAvailableMidTransaction_NotAvailableMessage()
 		{
 			using (var e = new TestEnvironment("hgresumetest", ApiServerType.Pull))
+			using (var provider = GetTransportProviderForTest(e))
 			{
-				e.LocalCheckIn();
+				e.LocalAddAndCommit();
 				e.CloneRemoteFromLocal();
-				e.RemoteCheckInLargeFile();
+				e.RemoteAddAndCommitLargeFile();
 				var serverMessage = "The server is down for scheduled maintenance";
 				e.ApiServer.AddServerUnavailableResponse(2, serverMessage);
-				e.Transport.Pull();
+				var transport = provider.Transport;
+				transport.Pull();
 				Assert.That(e.Progress.AllMessages, Contains.Item("Server temporarily unavailable: " + serverMessage));
 				Assert.That(e.Progress.AllMessages, Has.No.Member("Pull operation completed successfully"));
 			}
@@ -398,12 +443,14 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		public void Pull_InitialServerResponseServerNotAvailable_NotAvailableMessage()
 		{
 			using (var e = new TestEnvironment("hgresumetest", ApiServerType.Dummy))
+			using (var provider = GetTransportProviderForTest(e))
 			{
-				e.LocalCheckIn();
+				e.LocalAddAndCommit();
 				var serverMessage = "The server is down for scheduled maintenance";
 				e.ApiServer.AddResponse(ApiResponses.NotAvailable(serverMessage));
 				e.ApiServer.AddResponse(ApiResponses.PullNoChange());
-				e.Transport.Pull();
+				var transport = provider.Transport;
+				transport.Pull();
 				Assert.That(e.Progress.AllMessages, Contains.Item("Server temporarily unavailable: " + serverMessage));
 				Assert.That(e.Progress.AllMessages, Has.No.Member("The pull operation completed successfully"));
 			}
@@ -413,12 +460,14 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		public void Push_InitialServerResponseServerNotAvailable_NotAvailableMessage()
 		{
 			using (var e = new TestEnvironment("hgresumetest", ApiServerType.Dummy))
+			using (var provider = GetTransportProviderForTest(e))
 			{
-				e.LocalCheckIn();
+				e.LocalAddAndCommit();
 				var serverMessage = "The server is down for scheduled maintenance";
 				e.ApiServer.AddResponse(ApiResponses.NotAvailable(serverMessage));
 				e.ApiServer.AddResponse(ApiResponses.PushComplete());
-				e.Transport.Push();
+				var transport = provider.Transport;
+				transport.Push();
 				Assert.That(e.Progress.AllMessages, Contains.Item("Server temporarily unavailable: " + serverMessage));
 				Assert.That(e.Progress.AllMessages, Has.No.Member("The pull operation completed successfully"));
 			}
@@ -428,12 +477,14 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		public void Pull_LocalRepoAndRemoteRepoUpdatedIndependently_Success()
 		{
 			using (var e = new TestEnvironment("hgresumetest", ApiServerType.Pull))
+			using (var provider = GetTransportProviderForTest(e))
 			{
-				e.LocalCheckIn();
+				e.LocalAddAndCommit();
 				e.CloneRemoteFromLocal();
-				e.LocalCheckIn();
-				e.RemoteCheckIn();
-				e.Transport.Pull();
+				e.LocalAddAndCommit();
+				e.RemoteAddAndCommit();
+				var transport = provider.Transport;
+				transport.Pull();
 				Assert.That(e.Progress.AllMessages, Contains.Item("Pull operation completed successfully"));
 			}
 		}
@@ -442,11 +493,13 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		public void Clone_LocalRepoEmpty_ReposAreIdentical()
 		{
 			using (var e = new TestEnvironment("hgresumetest", ApiServerType.Pull))
+			using (var provider = GetTransportProviderForTest(e))
 			{
-				e.RemoteCheckIn();
-				e.RemoteCheckIn();
-				e.RemoteCheckIn();
-				e.Transport.Clone();
+				e.RemoteAddAndCommit();
+				e.RemoteAddAndCommit();
+				e.RemoteAddAndCommit();
+				var transport = provider.Transport;
+				transport.Clone();
 				Assert.That(e.Local.Repository.GetTip().Number.Hash, Is.EqualTo(e.Remote.Repository.GetTip().Number.Hash));
 			}
 		}
@@ -455,14 +508,16 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		public void Pull_InvalidBaseHashFromServer_ClientRecoversSuccessfully()
 		{
 			using (var e = new TestEnvironment("hgresumetest", ApiServerType.Pull))
+			using (var provider = GetTransportProviderForTest(e))
 			{
-				e.LocalCheckIn();
+				e.LocalAddAndCommit();
 				e.CloneRemoteFromLocal();
-				e.RemoteCheckIn();
-				e.Transport.Pull();
+				e.RemoteAddAndCommit();
+				var transport = provider.Transport;
+				transport.Pull();
 				// at this point the local server has cached the tip of the repo
 				e.Remote.Repository.RollbackWorkingDirectoryToLastCheckin();
-				e.Transport.Pull();
+				transport.Pull();
 				Assert.That(e.Progress.AllMessages, Has.No.Member("Pull operation failed"));
 			}
 		}
@@ -471,15 +526,17 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		public void Push_InvalidBaseHashFromServer_ClientRecoversSuccessfully()
 		{
 			using (var e = new TestEnvironment("hgresumetest", ApiServerType.Push))
+			using (var provider = GetTransportProviderForTest(e))
 			{
-				e.LocalCheckIn();
+				e.LocalAddAndCommit();
 				e.CloneRemoteFromLocal();
-				e.LocalCheckIn();
-				e.Transport.Push();
+				e.LocalAddAndCommit();
+				var transport = provider.Transport;
+				transport.Push();
 				// at this point the transport has cached the tip of the remote repo
 				e.Remote.Repository.RollbackWorkingDirectoryToLastCheckin();
-				e.LocalCheckIn();
-				Assert.That(() => e.Transport.Push(), Throws.Nothing);
+				e.LocalAddAndCommit();
+				Assert.That(() => transport.Push(), Throws.Nothing);
 			}
 		}
 	}
