@@ -29,7 +29,7 @@ namespace Chorus.Tests.UI.Clone
 				model.AccountName = "account";
 				model.Password = "password";
 				model.ProjectId = "id";
-				Assert.AreEqual("http://account:password@hg-public.languagedepot.org/id", model.URL.ToLower());
+				Assert.AreEqual("http://account:password@resumable.languagedepot.org/id", model.URL.ToLower());
 			}
 		}
 	}

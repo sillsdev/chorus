@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Drawing;
+using System.Threading;
 using System.Windows.Forms;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
+using Palaso.Progress;
 
 namespace Chorus.UI.Sync
 {
@@ -52,12 +54,10 @@ namespace Chorus.UI.Sync
 
 		void _model_SynchronizeOver(object sender, EventArgs e)
 		{
-				Cursor.Current = Cursors.Default;
-				progressBar1.MarqueeAnimationSpeed = 0;
-				progressBar1.Style = ProgressBarStyle.Continuous;
-				progressBar1.Maximum = 100;
-				progressBar1.Value = progressBar1.Maximum;
+			Cursor.Current = Cursors.Default;
+			//Model.ProgressIndicator.Finish();
 			_didAttemptSync = true;
+			UpdateDisplay();
 		}
 
 
@@ -71,8 +71,8 @@ namespace Chorus.UI.Sync
 			}
 			_sendReceiveButton.Visible =  Model.EnableSendReceive;
 			_cancelButton.Visible =  Model.EnableCancel && !_showCancelButtonTimer.Enabled;
-			_successIcon.Visible = _didAttemptSync  && !(Model.StatusProgress.WarningEncountered || Model.StatusProgress.ErrorEncountered);
-			_warningIcon.Visible = (Model.StatusProgress.WarningEncountered || Model.StatusProgress.ErrorEncountered);
+			_successIcon.Visible = _didAttemptSync  && !(_statusText.ErrorEncountered);
+			_warningIcon.Visible = (_statusText.ErrorEncountered || _statusText.WarningEncountered);
 			_closeButton.Visible = Model.EnableClose;
 			if (_closeButton.Visible && Parent!=null && (Parent is Form))
 			{
@@ -81,8 +81,7 @@ namespace Chorus.UI.Sync
 			}
 			progressBar1.Visible = Model.SynchronizingNow;// || _didAttemptSync;
 			_statusText.Visible = progressBar1.Visible || _didAttemptSync;
-			_statusText.Text = Model.StatusProgress.LastStatus;
-
+			_logBox.ShowDetailsMenuItem = _didAttemptSync;
 			_syncTargets.Enabled = Model != null;
 //
 //            if (_sendReceiveButton.Enabled)
@@ -149,6 +148,9 @@ namespace Chorus.UI.Sync
 			}
 
 			Model.AddProgressDisplay(_logBox);
+			Model.AddProgressDisplay(_statusText);
+			Model.ProgressIndicator = new MultiPhaseProgressIndicator(progressBar1, 2);  // for now we only specify 2 phases (pull, then push).
+			Model.UIContext = SynchronizationContext.Current;
 
 			LoadChoices();
 
@@ -229,12 +231,6 @@ namespace Chorus.UI.Sync
 				_tabControl.SelectedTab = _logTab;
 			}
 
-			progressBar1.Style = ProgressBarStyle.Marquee;
-#if MONO
-			progressBar1.MarqueeAnimationSpeed = 3000;
-#else
-			progressBar1.MarqueeAnimationSpeed = 50;
-#endif
 			_logBox.Clear();
 			_logBox.WriteStatus("Syncing...");
 			Cursor.Current = Cursors.WaitCursor;
@@ -266,6 +262,11 @@ namespace Chorus.UI.Sync
 		private void _showCancelButtonTimer_Tick(object sender, EventArgs e)
 		{
 			_showCancelButtonTimer.Enabled = false;
+		}
+
+		private void _statusText_Click(object sender, EventArgs e)
+		{
+
 		}
 	}
 }

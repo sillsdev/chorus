@@ -17,9 +17,12 @@ namespace Chorus.UI.Misc
 
 		public ServerSettingsModel()
 		{
-			const string languageDepotLabel = "languageDepot.org";
-			Servers.Add(languageDepotLabel, "hg-public.languagedepot.org");
-			Servers.Add("private.languageDepot.org", "hg-private.languagedepot.org");
+			const string languageDepotLabel = "LanguageDepot.org";
+			Servers.Add(languageDepotLabel, "resumable.languagedepot.org");
+			Servers.Add("LanguageDepot.org [legacy sync]", "hg-public.languagedepot.org");
+			Servers.Add("LanguageDepot.org [private]", "hg-private.languagedepot.org");
+			Servers.Add("LanguageForge", "hg.languageforge.org");
+
 			Servers.Add("Custom Location...", "");
 			SelectedServerLabel = languageDepotLabel;
 		}

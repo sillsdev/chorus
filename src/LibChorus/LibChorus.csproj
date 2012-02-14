@@ -207,6 +207,7 @@
 	<Compile Include="Utilities\MultiMap.cs" />
 	<Compile Include="Utilities\UrlHelper.cs" />
 	<Compile Include="Utilities\XmlElementExtensions.cs" />
+	<Compile Include="VcsDrivers\Mercurial\BundleStorageManager.cs" />
 	<Compile Include="VcsDrivers\Mercurial\HgExceptions.cs" />
 	<Compile Include="VcsDrivers\Mercurial\HgHighLevel.cs" />
 	<Compile Include="sync\CommitCop.cs" />
@@ -227,6 +228,13 @@
 	<Compile Include="retrieval\RevisionInspector.cs" />
 	<Compile Include="sync\ProjectFolderConfiguration.cs" />
 	<Compile Include="sync\Synchronizer.cs" />
+	<Compile Include="VcsDrivers\Mercurial\HgNormalTransport.cs" />
+	<Compile Include="VcsDrivers\Mercurial\HgResumeRestApiServer.cs" />
+	<Compile Include="VcsDrivers\Mercurial\HgResumeTransport.cs" />
+	<Compile Include="VcsDrivers\Mercurial\IApiServer.cs" />
+	<Compile Include="VcsDrivers\Mercurial\IHgTransport.cs" />
+	<Compile Include="VcsDrivers\Mercurial\PullStorageManager.cs" />
+	<Compile Include="VcsDrivers\Mercurial\PushStorageManager.cs" />
 	<Compile Include="VcsDrivers\RepositoryAddress.cs" />
 	<Compile Include="sync\SyncOptions.cs" />
 	<Compile Include="Utilities\ExecutionResult.cs" />
