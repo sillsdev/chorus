@@ -390,8 +390,8 @@ namespace Chorus.merge.xml.generic
 					descriptor = generator.GenerateContextDescriptor(ours.OuterXml, MergeSituation.PathToFileInRepository);
 				}
 				EventListener.EnteringContext(descriptor);
+				_htmlContextGenerator = (generator as IGenerateHtmlContext); // null is OK.
 			}
-			_htmlContextGenerator = (generator as IGenerateHtmlContext); // null is OK.
 
 			new MergeChildrenMethod(ours, theirs, ancestor, this).Run();
 			// At some point, it may be necessary here to restore the pre-existing values of
