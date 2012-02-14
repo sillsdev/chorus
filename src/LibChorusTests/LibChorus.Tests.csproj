@@ -166,6 +166,7 @@
 	<Compile Include="utilities\UrlHelperTests.cs" />
 	<Compile Include="utilities\MultiMapTests.cs" />
 	<Compile Include="utilities\XmlUtilitiesTests.cs" />
+	<Compile Include="VcsDrivers\Mercurial\BundleStorageManagerTests.cs" />
 	<Compile Include="VcsDrivers\Mercurial\HgResumeRestApiServerTests.cs" />
 	<Compile Include="VcsDrivers\Mercurial\HgResumeTestUtilities.cs" />
 	<Compile Include="VcsDrivers\Mercurial\HgResumeTransportTests.cs" />
