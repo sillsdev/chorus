@@ -5,14 +5,148 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading;
+using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using Palaso.Progress;
 using Palaso.Progress.LogBox;
 using Palaso.TestUtilities;
+using ConsoleProgress = Palaso.Progress.LogBox.ConsoleProgress;
 
 namespace LibChorus.Tests.VcsDrivers.Mercurial
 {
-	public class DummyApiServerForTest : IApiServer, IDisposable
+	internal enum ApiServerType
+	{
+		Dummy,
+		Pull,
+		Push
+	}
+
+	internal class HgResumeTransportProvider : IDisposable
+	{
+		public HgResumeTransportProvider(HgResumeTransport transport)
+		{
+			Transport = transport;
+		}
+
+		public void Dispose()
+		{
+			Transport.RemoveCache();
+		}
+
+		public HgResumeTransport Transport { get; private set; }
+	}
+
+	internal class TestEnvironment : IDisposable
+	{
+
+		public TestEnvironment(string testName, ApiServerType type)
+		{
+			Local = new RepositorySetup(testName + "-local");
+			Remote = new RepositorySetup(testName + "-remote");
+			switch (type)
+			{
+				case ApiServerType.Dummy:
+					ApiServer = new DummyApiServerForTest(testName);
+					break;
+				case ApiServerType.Pull:
+					ApiServer = new PullHandlerApiServerForTest(Remote.Repository);
+					break;
+				case ApiServerType.Push:
+					ApiServer = new PushHandlerApiServerForTest(Remote.Repository);
+					break;
+			}
+			Label = testName;
+			Progress = new ProgressForTest();
+			MultiProgress = new MultiProgress(new IProgress[] { new ConsoleProgress { ShowVerbose = true }, Progress });
+		}
+
+		public RepositorySetup Local { get; private set; }
+		public RepositorySetup Remote { get; private set; }
+		public IApiServerForTest ApiServer { get; private set; }
+		public ProgressForTest Progress { get; private set; }
+		public string Label { get; private set; }
+		public IProgress MultiProgress { get; private set; }
+
+		public void Dispose()
+		{
+			Local.Dispose();
+			Remote.Dispose();
+		}
+
+		public void LocalAddAndCommit()
+		{
+			string filename = Path.GetRandomFileName();
+			Local.AddAndCheckinFile(filename, "localcheckin");
+		}
+
+		public void RemoteAddAndCommit()
+		{
+			string filename = Path.GetRandomFileName();
+			Remote.AddAndCheckinFile(filename, "remotecheckin");
+		}
+
+		public void LocalAddAndCommitLargeFile()
+		{
+			LocalAddAndCommitLargeFile(1);
+		}
+
+		public void LocalAddAndCommitLargeFile(int sizeInMb)
+		{
+			var filePath = Local.ProjectFolder.GetPathForNewTempFile(false);
+			byte[] data = new byte[sizeInMb * 1024 * 1024];  // MB file
+			Random rng = new Random();
+			rng.NextBytes(data);
+			File.WriteAllBytes(filePath, data);
+			Local.Repository.AddAndCheckinFile(filePath);
+		}
+
+		public void RemoteAddAndCommitLargeFile()
+		{
+			RemoteAddAndCommitLargeFile(1);
+		}
+
+		public void RemoteAddAndCommitLargeFile(int sizeInMb)
+		{
+			var filePath = Remote.ProjectFolder.GetPathForNewTempFile(false);
+			byte[] data = new byte[sizeInMb * 1024 * 1024];  // 5MB file
+			Random rng = new Random();
+			rng.NextBytes(data);
+			File.WriteAllBytes(filePath, data);
+			Remote.Repository.AddAndCheckinFile(filePath);
+		}
+
+		public void SyncRemoteFromLocal()
+		{
+			var address = new HttpRepositoryPath("localrepo", Local.Repository.PathToRepo, false);
+			Remote.Repository.Pull(address, Local.Repository.PathToRepo);
+			Remote.Repository.Update();
+		}
+
+		public void CloneRemoteFromLocal()
+		{
+			//Remote.Repository.Init();
+			var address = new HttpRepositoryPath("localrepo", Local.Repository.PathToRepo, false);
+			Remote.Repository.Pull(address, Local.Repository.PathToRepo);
+			Remote.Repository.Update();
+		}
+	}
+
+
+
+
+	public interface IApiServerForTest : IApiServer
+	{
+		void AddTimeoutResponse(int executeCount);
+		void AddServerUnavailableResponse(int executeCount, string serverMessage);
+		void AddFailResponse(int executeCount);
+		void PrepareBundle(string revHash);
+		void AddResponse(HgResumeApiResponse response);
+		void AddTimeOut();
+		string StoragePath { get; }
+		string CurrentTip { get; }
+	}
+
+	internal class DummyApiServerForTest : IApiServerForTest, IDisposable
 	{
 		private readonly Queue<HgResumeApiResponse> _responseQueue = new Queue<HgResumeApiResponse>();
 
@@ -59,6 +193,26 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			get { return "fake api server"; }
 		}
 
+		public void AddTimeoutResponse(int executeCount)
+		{
+			throw new NotImplementedException();
+		}
+
+		public void AddServerUnavailableResponse(int executeCount, string serverMessage)
+		{
+			throw new NotImplementedException();
+		}
+
+		public void AddFailResponse(int executeCount)
+		{
+			throw new NotImplementedException();
+		}
+
+		public void PrepareBundle(string revHash)
+		{
+			throw new NotImplementedException();
+		}
+
 		public void AddResponse(HgResumeApiResponse response)
 		{
 			_responseQueue.Enqueue(response);
@@ -69,6 +223,16 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			// we are hijacking the HTTP 408 request timeout to mean a client-side networking timeout...
 			// it works for our testing purposes even though that's not what the status code means
 			_responseQueue.Enqueue(new HgResumeApiResponse {StatusCode = HttpStatusCode.RequestTimeout});
+		}
+
+		public string StoragePath
+		{
+			get { throw new NotImplementedException(); }
+		}
+
+		public string CurrentTip
+		{
+			get { throw new NotImplementedException(); }
 		}
 
 		public void Dispose()
@@ -82,13 +246,12 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		public int ExecuteCount;
 	}
 
-	public class PushHandlerApiServerForTest : IApiServer, IDisposable
+	internal class PushHandlerApiServerForTest : IApiServerForTest, IDisposable
 	{
 
 
-		private PullStorageManager _helper;  // yes, we DO want to use the PullBundleHelper for the PushHandler (this is the other side of the API, so it's opposite)
+		private PullStorageManager _helper;  // yes, we DO want to use the PullStorageManager for the PushHandler (this is the other side of the API, so it's opposite)
 		private readonly HgRepository _repo;
-		public List<string> Revisions;
 		private TemporaryFolder _localStorage;
 		private int _executeCount;
 		private List<int> _timeoutList;
@@ -100,7 +263,6 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			const string identifier = "PushHandlerApiServerForTest";
 			_localStorage = new TemporaryFolder(identifier);
 			_repo = repo;
-			Revisions = new List<string>();
 			Host = identifier;
 			ProjectId = "SampleProject";
 			_executeCount = 0;
@@ -117,8 +279,8 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		{
 			if (method == "getRevisions")
 			{
-				string revisions = string.Join("|", Revisions.ToArray());
-				return ApiResponses.Revisions(revisions);
+				IEnumerable<string> revisions = _repo.GetAllRevisions().Select(rev => rev.Number.Hash);
+				return ApiResponses.Revisions(string.Join("|", revisions.ToArray()));
 			}
 			if (method == "finishPushBundle")
 			{
@@ -170,9 +332,19 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 
 		public string ProjectId { get; set; }
 
+		public void AddTimeOut()
+		{
+			throw new NotImplementedException();
+		}
+
 		public string StoragePath
 		{
 			get { return _localStorage.Path; }
+		}
+
+		public string CurrentTip
+		{
+			get { throw new NotImplementedException(); }
 		}
 
 		public string Url
@@ -205,9 +377,19 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		{
 			_failCount = executeCount;
 		}
+
+		public void PrepareBundle(string revHash)
+		{
+			throw new NotImplementedException();
+		}
+
+		public void AddResponse(HgResumeApiResponse response)
+		{
+			throw new NotImplementedException();
+		}
 	}
 
-	public class PullHandlerApiServerForTest : IApiServer, IDisposable
+	internal class PullHandlerApiServerForTest : IApiServerForTest, IDisposable
 	{
 		private readonly PushStorageManager _helper;
 		private readonly HgRepository _repo;
@@ -216,7 +398,6 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		private List<int> _timeoutList;
 		private List<ServerUnavailableResponse> _serverUnavailableList;
 		private TemporaryFolder _storageFolder;
-		public List<string> Revisions;
 		public string OriginalTip;
 
 		public PullHandlerApiServerForTest(HgRepository repo)
@@ -231,7 +412,6 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			_failCount = -1;
 			_timeoutList = new List<int>();
 			_serverUnavailableList = new List<ServerUnavailableResponse>();
-			Revisions = new List<string>();
 			OriginalTip = "";
 		}
 
@@ -240,9 +420,19 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			get { return _repo.GetTip().Number.Hash; }
 		}
 
+		public void AddTimeOut()
+		{
+			throw new NotImplementedException();
+		}
+
 		public string StoragePath
 		{
 			get { return _storageFolder.Path; }
+		}
+
+		string IApiServerForTest.CurrentTip
+		{
+			get { return CurrentTip; }
 		}
 
 		public void PrepareBundle(string revHash)
@@ -253,6 +443,11 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			}
 			_repo.MakeBundle(revHash, _helper.BundlePath);
 			OriginalTip = CurrentTip;
+		}
+
+		public void AddResponse(HgResumeApiResponse response)
+		{
+			throw new NotImplementedException();
 		}
 
 		public HgResumeApiResponse Execute(string method, IDictionary<string, string> parameters, int secondsBeforeTimeout)
@@ -274,8 +469,8 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			}
 			if (method == "getRevisions")
 			{
-				string revisions = string.Join("|", Revisions.ToArray());
-				return ApiResponses.Revisions(revisions);
+				IEnumerable<string> revisions = _repo.GetAllRevisions().Select(rev => rev.Number.Hash);
+				return ApiResponses.Revisions(string.Join("|", revisions.ToArray()));
 			}
 			if (method == "pullBundleChunk")
 			{
@@ -293,15 +488,16 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 							_serverUnavailableList.Where(i => i.ExecuteCount == _executeCount).First().Message
 							);
 				}
+				if (parameters["baseHash"] == CurrentTip)
+				{
+					return ApiResponses.PullNoChange();
+				}
+
+
 				var bundleFileInfo = new FileInfo(_helper.BundlePath);
 				if (bundleFileInfo.Exists && bundleFileInfo.Length == 0  || !bundleFileInfo.Exists)
 				{
 					PrepareBundle(parameters["baseHash"]);
-					bundleFileInfo.Refresh();
-					if (!bundleFileInfo.Exists)
-					{
-						return ApiResponses.PullNoChange();
-					}
 				}
 				int offset = Convert.ToInt32(parameters["offset"]);
 				int chunkSize = Convert.ToInt32(parameters["chunkSize"]);
@@ -353,7 +549,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 	}
 
 
-	public class ProgressForTest : IProgress, IDisposable
+	internal class ProgressForTest : IProgress, IDisposable
 	{
 		public List<string> Statuses = new List<string>();
 		public List<string> Messages = new List<string>();

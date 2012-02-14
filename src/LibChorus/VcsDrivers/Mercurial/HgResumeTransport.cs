@@ -611,9 +611,6 @@ namespace Chorus.VcsDrivers.Mercurial
 
 			if (_repo.Unbundle(bundleHelper.BundlePath))
 			{
-				// TODO: we could avoid another network operation if we sent along the bundle's "tip" as chunk metadata
-				LastKnownCommonBase = GetRemoteTip();
-
 				_progress.WriteMessage("Pull operation completed successfully");
 				_progress.ProgressIndicator.Finish();
 				_progress.WriteStatus("Finished Receiving");
@@ -627,6 +624,9 @@ namespace Chorus.VcsDrivers.Mercurial
 					_progress.WriteMessage("Remote repo has changed.  Initiating additional pull operation");
 					return Pull();
 				}
+
+				// TODO: we could avoid another network operation if we sent along the bundle's "tip" as chunk metadata
+				LastKnownCommonBase = GetRemoteTip();
 				return true;
 			}
 			_progress.WriteError("Received all data but local unbundle operation failed or resulted in multiple heads!");
@@ -772,8 +772,13 @@ namespace Chorus.VcsDrivers.Mercurial
 			}
 		}
 
-		public void Dispose()
+		public void RemoveCache()
 		{
+			var localStoragePath = PathToLocalStorage(_repo.Identifier);
+			if (Directory.Exists(localStoragePath))
+			{
+				Directory.Delete(localStoragePath, true);
+			}
 		}
 	}
 }
