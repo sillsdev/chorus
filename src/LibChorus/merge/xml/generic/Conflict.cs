@@ -854,7 +854,7 @@ namespace Chorus.merge.xml.generic
 
 		public override string GetFullHumanReadableDescription()
 		{
-			return string.Format("{0} ({1}): {2}", Description, (Context == null ? "" : Context.DataLabel), WhatHappened);
+			return string.Format("{0}{1}", (Context == null ? "" : Context.DataLabel + ": "), WhatHappened);
 		}
 
 
@@ -1079,6 +1079,8 @@ namespace Chorus.merge.xml.generic
 	/// Used when, say, one guy adds a translation of an the example sentence,
 	/// but meanwhile the other guy changed the example sentence, so the translation is
 	/// suspect.  This could be a "warning", if we had such a thing.
+	/// (Or maybe not. Currently in FlexBridge, multistring alternatives are marked atomic, so this is the one that
+	/// comes up for both editing, say, the definition of a sense.)
 	/// </summary>
 	[TypeGuid("3d9ba4ae-4a25-11df-9879-0800200c9a66")]
 	public class BothEditedTheSameAtomicElement : ElementConflict // NB: Be sure to register any new instances in CreateFromConflictElement method.
@@ -1104,7 +1106,7 @@ namespace Chorus.merge.xml.generic
 		{
 			get
 			{
-				return string.Format("{0} and {1} edited this atomic element.", Situation.AlphaUserId, Situation.BetaUserId);
+				return string.Format("{0} and {1} edited the same part of this data.", Situation.AlphaUserId, Situation.BetaUserId);
 			}
 		}
 	}
