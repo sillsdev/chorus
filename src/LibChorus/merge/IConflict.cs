@@ -20,6 +20,23 @@ namespace Chorus.merge
 			get;
 		}
 
+		/// <summary>
+		/// This should be a string which can be set as the entire DocumentText of a System.Windows.Forms.WebBrowser.
+		/// </summary>
+		string HtmlDetails { get; }
+
+		/// <summary>
+		/// This method should be called to initialize the HtmlDetails. It is passed the three versions of the context
+		/// node that has the conflict (one may be null for some conflict types) and an object which can come up
+		/// with an HTML version of the data.
+		/// </summary>
+		/// <param name="oursContext"></param>
+		/// <param name="theirsContext"></param>
+		/// <param name="ancestorContext"></param>
+		/// <param name="htmlMaker"></param>
+		void MakeHtmlDetails(XmlNode oursContext, XmlNode theirsContext, XmlNode ancestorContext,
+			IGenerateHtmlContext htmlMaker);
+
 		string WinnerId
 		{
 			get;

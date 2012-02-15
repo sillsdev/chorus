@@ -83,14 +83,14 @@ namespace Chorus.merge.xml.generic
 				// Add conflict and set winner to merge situation declaration.
 				if (_merger.MergeSituation.ConflictHandlingMode == MergeOrder.ConflictHandlingModeChoices.WeWin)
 				{
-					_merger.EventListener.ConflictOccurred(new XmlTextBothAddedTextConflict(_ours.Name,
+					_merger.ConflictOccurred(new XmlTextBothAddedTextConflict(_ours.Name,
 						_ours, _theirs,
 						_merger.MergeSituation, _elementDescriber,
 						_merger.MergeSituation.AlphaUserId));
 					return;
 				}
 
-				_merger.EventListener.ConflictOccurred(new XmlTextBothAddedTextConflict(_ours.Name,
+				_merger.ConflictOccurred(new XmlTextBothAddedTextConflict(_ours.Name,
 					_ours, _theirs,
 					_merger.MergeSituation, _elementDescriber,
 					_merger.MergeSituation.BetaUserId));
@@ -159,7 +159,7 @@ namespace Chorus.merge.xml.generic
 					if (theirText == string.Empty)
 					{
 						// They deleted the text string, but we edited it, so we win.
-						_merger.EventListener.ConflictOccurred(new XmlTextEditVsRemovedConflict(_ancestor.Name,
+						_merger.ConflictOccurred(new XmlTextEditVsRemovedConflict(_ancestor.Name,
 							_ours, _theirs, _ancestor,
 							_merger.MergeSituation, _elementDescriber,
 							_merger.MergeSituation.AlphaUserId));
@@ -169,7 +169,7 @@ namespace Chorus.merge.xml.generic
 					{
 						// We deleted the text string, but they edited it, so they win.
 						_ours.InnerText = _theirs.InnerText;
-						_merger.EventListener.ConflictOccurred(new XmlTextRemovedVsEditConflict(_ancestor.Name,
+						_merger.ConflictOccurred(new XmlTextRemovedVsEditConflict(_ancestor.Name,
 							_ours, _theirs, _ancestor,
 							_merger.MergeSituation, _elementDescriber,
 							_merger.MergeSituation.BetaUserId));
@@ -178,7 +178,7 @@ namespace Chorus.merge.xml.generic
 					// Both edited, but not the same edit.
 					if (_merger.MergeSituation.ConflictHandlingMode == MergeOrder.ConflictHandlingModeChoices.WeWin)
 					{
-						_merger.EventListener.ConflictOccurred(new XmlTextBothEditedTextConflict(_ours.Name,
+						_merger.ConflictOccurred(new XmlTextBothEditedTextConflict(_ours.Name,
 							_ours, _theirs, _ancestor,
 							_merger.MergeSituation, _elementDescriber,
 							_merger.MergeSituation.AlphaUserId));
@@ -186,7 +186,7 @@ namespace Chorus.merge.xml.generic
 					}
 					// They win
 					_ours.InnerText = _theirs.InnerText;
-					_merger.EventListener.ConflictOccurred(new XmlTextBothEditedTextConflict(_ours.Name,
+					_merger.ConflictOccurred(new XmlTextBothEditedTextConflict(_ours.Name,
 						_ours, _theirs, _ancestor,
 						_merger.MergeSituation, _elementDescriber,
 						_merger.MergeSituation.BetaUserId));
@@ -316,7 +316,7 @@ namespace Chorus.merge.xml.generic
 				if (theirText != ancestorText)
 				{
 					// 2B. But they changed, so keep theirs and register XmlTextRemovedVsEditConflictReport.
-					_merger.EventListener.ConflictOccurred(new XmlTextRemovedVsEditConflict(_ancestor.Name,
+					_merger.ConflictOccurred(new XmlTextRemovedVsEditConflict(_ancestor.Name,
 						_ours, _theirs, _ancestor,
 						_merger.MergeSituation, _elementDescriber,
 						_merger.MergeSituation.BetaUserId));
@@ -355,7 +355,7 @@ namespace Chorus.merge.xml.generic
 				if (ourText != ancestorText)
 				{
 					// 3B. But we changed, so keep ours and register XmlTextRemovedVsEditConflictReport.
-					_merger.EventListener.ConflictOccurred(new XmlTextRemovedVsEditConflict(_ancestor.Name,
+					_merger.ConflictOccurred(new XmlTextRemovedVsEditConflict(_ancestor.Name,
 						_ours, _theirs, _ancestor,
 						_merger.MergeSituation, _elementDescriber,
 						_merger.MergeSituation.AlphaUserId));
