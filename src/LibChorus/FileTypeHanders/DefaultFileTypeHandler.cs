@@ -42,7 +42,9 @@ namespace Chorus.FileTypeHanders
 		{
 		  //  Debug.Fail("john");
 			Guard.AgainstNull(mergeOrder, "mergeOrder");
-			mergeOrder.EventListener.ConflictOccurred(new UnmergableFileTypeConflict(mergeOrder.MergeSituation));
+			var unmergableFileTypeConflict = new UnmergableFileTypeConflict(mergeOrder.MergeSituation);
+			mergeOrder.EventListener.RecordContextInConflict(unmergableFileTypeConflict);
+			mergeOrder.EventListener.ConflictOccurred(unmergableFileTypeConflict);
 			switch (mergeOrder.MergeSituation.ConflictHandlingMode)
 			{
 				default: // just leave our file there

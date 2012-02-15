@@ -223,6 +223,23 @@ namespace Chorus.merge.xml.generic
 	}
 
 	/// <summary>
+	/// This interface is expected to be an additional interface implemented by a context generator, that is,
+	/// a class that implements IGenerateContextDescriptor, or more probably, IGenerateContextDescriptorFromNode.
+	/// It is used to get a human-readable HTML representation of the ancestor or one of the leaf contexts for
+	/// a conflicting change.
+	/// </summary>
+	public interface IGenerateHtmlContext
+	{
+		/// <summary>
+		/// Passed a node at the same level in the hierarchy as GenerateContextDescriptor, this returns a
+		/// human-readable HTML representation of the object contents.
+		/// </summary>
+		/// <param name="mergeElement"></param>
+		/// <returns></returns>
+		string HtmlContext(XmlNode mergeElement);
+	}
+
+	/// <summary>
 	/// If the ContextDescriptorGenerator implements this interface, it will be called instead of
 	/// the IGenerateContextDescriptor version.
 	/// </summary>
