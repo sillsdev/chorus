@@ -175,7 +175,7 @@ namespace Chorus.merge.xml.generic
 
 		public void MakeHtmlDetails(XmlNode oursContext, XmlNode theirsContext, XmlNode ancestorContext, IGenerateHtmlContext htmlMaker)
 		{
-			StringBuilder sb = new StringBuilder("<head><style type='text/css'>div.alternative {leftmargin:0.5 in;} </style></head><body><div class='description'>");
+			StringBuilder sb = new StringBuilder("<head><style type='text/css'>div.alternative {margin-left:  0.3in} </style></head><body><div class='description'>");
 			sb.Append(GetFullHumanReadableDescription());
 			sb.Append("</div>");
 			var ancestorHtml = "";
@@ -220,10 +220,8 @@ namespace Chorus.merge.xml.generic
 					try
 					{
 						var diffReport = new Rainbow.HtmlDiffEngine.Merger(ancestorHtml, oursHtml).merge();
-						sb.Append("<div class='altheader'>");
-						sb.Append(string.Format("{0} changed it like this ", label));
-						sb.Append("</div>");
 						sb.Append("<div class='alternative'>");
+						sb.Append(string.Format("{0}'s changes: ", label));
 						sb.Append(diffReport);
 						sb.Append("</div>");
 						return;
@@ -235,10 +233,8 @@ namespace Chorus.merge.xml.generic
 					}
 				}
 				// fall-back strategy
-				sb.Append("<div class='altheader'>");
-				sb.Append(string.Format("{0} changed it to this ", label));
-				sb.Append("</div>");
 				sb.Append("<div class='alternative'>");
+				sb.Append(string.Format("{0}'s version: ", label));
 				sb.Append(oursHtml);
 			}
 		}
