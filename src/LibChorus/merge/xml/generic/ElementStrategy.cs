@@ -56,6 +56,15 @@ namespace Chorus.merge.xml.generic
 		private string GetKeyViaHack(XmlNode element)
 		{
 			var name = element.Name;
+			var oddElementNames = new HashSet<string>
+									{
+										"ownseq",
+										"ownseqatomic",
+										"refseq",
+										"CmAnnotation",
+										"DsChart",
+										"curiosity"
+									};
 			switch (name)
 			{
 				default:
@@ -63,7 +72,7 @@ namespace Chorus.merge.xml.generic
 					if (ElementStrategies.ContainsKey(name) || element.ParentNode == null)
 						return name;
 					// Combine parent name + element name as key (for new styled FW properties).
-					var combinedKey = (element.ParentNode.Name == "ownseq" || element.ParentNode.Name == "ownseqatomic" || element.ParentNode.Name == "refseq") ? element.ParentNode.Attributes["class"].Value + "_" + name : element.ParentNode.Name + "_" + name;
+					var combinedKey = oddElementNames.Contains(element.ParentNode.Name) ? element.ParentNode.Attributes["class"].Value + "_" + name : element.ParentNode.Name + "_" + name;
 					if (ElementStrategies.ContainsKey(combinedKey))
 						return combinedKey;
 					break;
@@ -88,7 +97,7 @@ namespace Chorus.merge.xml.generic
 				case "Custom": // Another hack for FW custom property elements. (If this proves to conflict with WeSay, then move preliminary processing elsewhere for FW Custom properties to get past the Custom element.
 					var customPropName = element.Attributes["name"].Value;
 					var className = element.ParentNode.Name;
-					if (className == "ownseq" || className == "ownseqatomic")
+					if (oddElementNames.Contains(className))
 						className = element.ParentNode.Attributes["class"].Value;
 					var combinedCustomKey = name + "_" + className + "_" + customPropName;
 					if (ElementStrategies.ContainsKey(combinedCustomKey))
