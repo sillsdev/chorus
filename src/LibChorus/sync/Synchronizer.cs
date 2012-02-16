@@ -92,6 +92,10 @@ namespace Chorus.sync
 
 			try
 			{
+				if (_progress.ProgressIndicator != null)
+				{
+					_progress.ProgressIndicator.IndicateUnknownProgress();
+				}
 				HgRepository repo = new HgRepository(_localRepositoryPath, _progress);
 
 				RemoveLocks(repo);
