@@ -173,6 +173,11 @@ namespace Chorus.UI.Sync
 			set { _progress.SyncContext = value; }
 		}
 
+		public bool ErrorsOrWarningsEncountered
+		{
+			get { return _progress.ErrorEncountered || _progress.WarningsEncountered; }
+		}
+
 		public bool HasFeature(SyncUIFeatures feature)
 		{
 			return (Features & feature) == feature;
@@ -194,6 +199,7 @@ namespace Chorus.UI.Sync
 		/// sites the user has indicated</param>
 		public void Sync(bool useTargetsAsSpecifiedInSyncOptions)
 		{
+			_progress.WriteStatus("Syncing...");
 			lock (this)
 			{
 				if(_backgroundWorker.IsBusy)
@@ -241,9 +247,14 @@ namespace Chorus.UI.Sync
 			_synchronizer.SetIsOneOfDefaultSyncAddresses(address, address.Enabled);
 		}
 
-		public void AddProgressDisplay(IProgress progress)
+		public void AddMessagesDisplay(IProgress progress)
 		{
-			_progress.Add(progress);
+			_progress.AddMessageProgress(progress);
+		}
+
+		public void AddStatusDisplay(IProgress progress)
+		{
+			_progress.AddStatusProgress(progress);
 		}
 
 		public void GetDiagnostics(IProgress progress)
