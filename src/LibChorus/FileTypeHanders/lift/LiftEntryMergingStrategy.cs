@@ -12,7 +12,7 @@ namespace Chorus.FileTypeHanders.lift
 		{
 			_entryMerger = new XmlMerger(mergeSituation);
 
-			//now customize the XmlMerger with LIFT-specific info
+			// now customize the XmlMerger with LIFT-specific info
 
 			var elementStrategy = AddKeyedElementType("entry", "id", false);
 			elementStrategy.AttributesToIgnoreForMerging.Add("dateModified");
@@ -33,13 +33,16 @@ namespace Chorus.FileTypeHanders.lift
 			AddSingletonElementType("definition");
 			AddSingletonElementType("label");
 			AddSingletonElementType("usage");
+
+			// Start of header element and its contents
 			AddSingletonElementType("header");
-			var strategy = AddSingletonElementType("description"); // in header
-			strategy.OrderIsRelevant = false; // Order may well be important, in the end, but for now, I (RBR) have no idea what is to be in the header.
-			AddSingletonElementType("ranges"); // in header
-			strategy.OrderIsRelevant = false; // Order may well be important, in the end, but for now, I (RBR) have no idea what is to be in the header.
-			AddSingletonElementType("fields"); // in header
-			strategy.OrderIsRelevant = false; // Order may well be important, in the end, but for now, I (RBR) have no idea what is to be in the header.
+			var strategy = AddSingletonElementType("description");
+			strategy.OrderIsRelevant = false;
+			AddSingletonElementType("ranges");
+			strategy.OrderIsRelevant = false;
+			AddSingletonElementType("fields");
+			strategy.OrderIsRelevant = false;
+			// End of header and its contents
 
 			//enhance: don't currently have a way of limitting etymology/form to a single instance but not multitext/form
 
@@ -74,8 +77,7 @@ namespace Chorus.FileTypeHanders.lift
 
 		public string MakeMergedEntry(IMergeEventListener listener, XmlNode ourEntry, XmlNode theirEntry, XmlNode commonEntry)
 		{
-			XmlNode n = _entryMerger.Merge(listener, ourEntry, theirEntry, commonEntry);
-			return n.OuterXml;
+			return _entryMerger.Merge(listener, ourEntry, theirEntry, commonEntry).OuterXml;
 		}
 	}
 
