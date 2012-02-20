@@ -242,6 +242,15 @@ namespace Chorus.merge.xml.generic
 		/// <param name="mergeElement"></param>
 		/// <returns></returns>
 		string HtmlContext(XmlNode mergeElement);
+
+		/// <summary>
+		/// Return whatever should go INSIDE the "style type='text/css'" element in the header of the HTML document
+		/// for describing the specified element. (Typically the implementation ignores the particular element,
+		/// it's just provided for compatibility.)
+		/// </summary>
+		/// <param name="mergeElement"></param>
+		/// <returns></returns>
+		string HtmlContextStyles(XmlNode mergeElement);
 	}
 
 	/// <summary>

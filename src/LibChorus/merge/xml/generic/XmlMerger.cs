@@ -82,6 +82,11 @@ namespace Chorus.merge.xml.generic
 			{
 				return XmlUtilities.GetXmlForShowingInHtml(mergeElement.OuterXml);
 			}
+
+			public string HtmlContextStyles(XmlNode mergeElement)
+			{
+				return ""; // GetXmlForShowingInHtml does not generate any classes
+			}
 		}
 
 		/// <summary>

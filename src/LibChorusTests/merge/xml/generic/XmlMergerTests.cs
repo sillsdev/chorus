@@ -212,7 +212,7 @@ namespace LibChorus.Tests.merge.xml.generic
 			Assert.AreEqual(typeof(XmlTextBothEditedTextConflict), r.Conflicts[0].GetType());
 
 			var c = r.Conflicts[0];
-			Assert.That(c.HtmlDetails.StartsWith("<head>"));
+			Assert.That(c.HtmlDetails.StartsWith("<head><style type='text/css'>div.myStyle {margin-left:  0.2in}</style>"));
 			Assert.That(c.HtmlDetails, Contains.Substring(c.GetFullHumanReadableDescription()));
 			var ancestorHml = "<div class='test'>" + XmlUtilities.GetXmlForShowingInHtml("<c key='two'>data</c>") + "</div>";
 			// For now decided that with diffs we don't need the ancestor
@@ -239,6 +239,11 @@ namespace LibChorus.Tests.merge.xml.generic
 			public string HtmlContext(XmlNode mergeElement)
 			{
 				return "<div class='test'>" + XmlUtilities.GetXmlForShowingInHtml(mergeElement.OuterXml) + "</div>";
+			}
+
+			public string HtmlContextStyles(XmlNode mergeElement)
+			{
+				return "div.myStyle {margin-left:  0.2in}";
 			}
 		}
 		[Test]

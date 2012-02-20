@@ -175,7 +175,9 @@ namespace Chorus.merge.xml.generic
 
 		public void MakeHtmlDetails(XmlNode oursContext, XmlNode theirsContext, XmlNode ancestorContext, IGenerateHtmlContext htmlMaker)
 		{
-			StringBuilder sb = new StringBuilder("<head><style type='text/css'>div.alternative {margin-left:  0.3in} </style></head><body><div class='description'>");
+			StringBuilder sb = new StringBuilder("<head><style type='text/css'>");
+			sb.Append(htmlMaker.HtmlContextStyles(oursContext));
+			sb.Append("</style></head><body><div class='description'>");
 			sb.Append(GetFullHumanReadableDescription());
 			sb.Append("</div>");
 			var ancestorHtml = "";
