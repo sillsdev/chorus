@@ -25,7 +25,16 @@ namespace Chorus.merge.xml.generic
 			ElementStrategy def = new ElementStrategy(true);//review: this says the default is to consder order relevant
 			def.MergePartnerFinder = new FindByEqualityOfTree();
 			this.SetStrategy("_defaultElement", def);
+
+			KeyFinder = new DefaultKeyFinder();
 		}
+
+		/// <summary>
+		/// Get or set the IKeyFinder implementation that is used by some domain to find the key to use to get the correct ElementStrategy.
+		///
+		/// It starts out using the DefaultKeyFinder, which uses the element's name.
+		/// </summary>
+		public IKeyFinder KeyFinder { get; set; }
 
 		public void SetStrategy(string key, ElementStrategy strategy)
 		{
@@ -38,7 +47,7 @@ namespace Chorus.merge.xml.generic
 			switch (element.NodeType)
 			{
 				case XmlNodeType.Element:
-					key = GetKeyViaHack(element);
+					key = KeyFinder.GetKeyFromElement(ElementStrategies.Keys, element);
 					break;
 				default:
 					key = "_"+element.NodeType;
@@ -51,50 +60,6 @@ namespace Chorus.merge.xml.generic
 				return ElementStrategies["_defaultElement"];
 			}
 			return strategy;
-		}
-
-		private string GetKeyViaHack(XmlNode element)
-		{
-			var name = element.Name;
-			switch (name)
-			{
-				default:
-					// This really does stink, but I'm (RBR) not sure how to avoid it today!
-					if (ElementStrategies.ContainsKey(name) || element.ParentNode == null)
-						return name;
-					// Combine parent name + element name as key (for new styled FW properties).
-					var combinedKey = (element.ParentNode.Name == "ownseq" || element.ParentNode.Name == "ownseqatomic" || element.ParentNode.Name == "refseq") ? element.ParentNode.Attributes["class"].Value + "_" + name : element.ParentNode.Name + "_" + name;
-					if (ElementStrategies.ContainsKey(combinedKey))
-						return combinedKey;
-					break;
-				case "special":
-					var foundHack = false;
-					foreach (var attrName in from XmlNode attr in element.Attributes select attr.Name)
-					{
-						switch (attrName)
-						{
-							default:
-								break;
-							case "xmlns:palaso":
-							case "xmlns:fw":
-								name += "_" + attrName;
-								foundHack = true;
-								break;
-						}
-						if (foundHack)
-							break;
-					}
-					break;
-				case "Custom": // Another hack for FW custom property elements. (If this proves to conflict with WeSay, then move preliminary processing elsewhere for FW Custom properties to get past the Custom element.
-					var customPropName = element.Attributes["name"].Value;
-					name += "_" + customPropName;
-					var combinedCustomKey = name + element.ParentNode.Name + "_" + customPropName;
-					if (ElementStrategies.ContainsKey(combinedCustomKey))
-						return combinedCustomKey;
-					break;
-			}
-
-			return name;
 		}
 
 		public IFindNodeToMerge GetMergePartnerFinder(XmlNode element)
