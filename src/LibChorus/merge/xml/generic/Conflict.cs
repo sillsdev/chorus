@@ -783,7 +783,7 @@ namespace Chorus.merge.xml.generic
 		}
 
 		// Constructor required for regenerating conflict object from XML.
-		protected BothAddedAttributeConflict(XmlNode xmlRepresentation):
+		public BothAddedAttributeConflict(XmlNode xmlRepresentation):
 			base(xmlRepresentation)
 		{
 		}
@@ -802,7 +802,7 @@ namespace Chorus.merge.xml.generic
 		{
 		}
 		// Constructor required for regenerating conflict object from XML.
-		protected RemovedVsEditedAttributeConflict(XmlNode xmlRepresentation)
+		public RemovedVsEditedAttributeConflict(XmlNode xmlRepresentation)
 			: base(xmlRepresentation)
 		{
 		}
@@ -820,7 +820,7 @@ namespace Chorus.merge.xml.generic
 		{
 		}
 		// Constructor required for regenerating conflict object from XML.
-		protected EditedVsRemovedAttributeConflict(XmlNode xmlRepresentation)
+		public EditedVsRemovedAttributeConflict(XmlNode xmlRepresentation)
 			: base(xmlRepresentation)
 		{
 		}
@@ -838,7 +838,7 @@ namespace Chorus.merge.xml.generic
 		{
 		}
 		// Constructor required for regenerating conflict object from XML.
-		protected BothEditedAttributeConflict(XmlNode xmlRepresentation)
+		public BothEditedAttributeConflict(XmlNode xmlRepresentation)
 			: base(xmlRepresentation)
 		{
 		}
