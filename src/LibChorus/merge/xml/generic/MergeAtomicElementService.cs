@@ -17,7 +17,7 @@ namespace Chorus.merge.xml.generic
 		/// <param name="ours" /> may be changed to <param name="theirs"/>,
 		/// if <param name="ours"/> is null and <param name="theirs"/> is not null.
 		/// </remarks>
-		/// <returns>'True' if the given elements were 'atomic'. Otherewise 'false'.</returns>
+		/// <returns>'True' if the given elements were 'atomic'. Otherwise 'false'.</returns>
 		internal static bool Run(XmlMerger merger, ref XmlNode ours, XmlNode theirs, XmlNode commonAncestor)
 		{
 			if (merger == null)
@@ -47,10 +47,40 @@ namespace Chorus.merge.xml.generic
 					// They seem to have added a new one.
 					merger.EventListener.ChangeOccurred(new XmlAdditionChangeReport(merger.MergeSituation.PathToFileInRepository, theirs));
 					ours = theirs; // They added it.
-					return true;
 				}
-				// else // We added it.
-				merger.EventListener.ChangeOccurred(new XmlAdditionChangeReport(merger.MergeSituation.PathToFileInRepository, ours));
+				else
+				{
+					// Ours is not null.
+					if (theirs != null)
+					{
+						// Neither is theirs.
+						if (XmlUtilities.AreXmlElementsEqual(ours, theirs))
+						{
+							// Both added the same thing.
+							merger.EventListener.ChangeOccurred(new BothChangedAtomicElementReport(merger.MergeSituation.PathToFileInRepository, ours));
+						}
+						else
+						{
+							// Both added, but not the same thing.
+							if (merger.MergeSituation.ConflictHandlingMode == MergeOrder.ConflictHandlingModeChoices.WeWin)
+							{
+								merger.EventListener.ConflictOccurred(new BothEditedTheSameAtomicElement(ours.Name,
+									ours, theirs, null, merger.MergeSituation, null, merger.MergeSituation.AlphaUserId));
+							}
+							else
+							{
+								merger.EventListener.ConflictOccurred(new BothEditedTheSameAtomicElement(ours.Name,
+									theirs, ours, null, merger.MergeSituation, null, merger.MergeSituation.BetaUserId));
+								ours = theirs;
+							}
+						}
+					}
+					else
+					{
+						// We added. They are still null.
+						merger.EventListener.ChangeOccurred(new XmlAdditionChangeReport(merger.MergeSituation.PathToFileInRepository, ours));
+					}
+				}
 				return true;
 			}
 
