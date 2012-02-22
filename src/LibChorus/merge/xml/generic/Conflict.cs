@@ -781,6 +781,13 @@ namespace Chorus.merge.xml.generic
 			: base(attributeName, alphaValue, betaValue, ancestorValue, mergeSituation, whoWon)
 		{
 		}
+
+		// Constructor required for regenerating conflict object from XML.
+		protected BothAddedAttributeConflict(XmlNode xmlRepresentation):
+			base(xmlRepresentation)
+		{
+		}
+
 		public override string Description
 		{
 			get { return string.Format("Both Added Attribute Conflict"); }
@@ -792,6 +799,11 @@ namespace Chorus.merge.xml.generic
 	{
 		public RemovedVsEditedAttributeConflict(string attributeName, string alphaValue, string betaValue, string ancestorValue, MergeSituation mergeSituation, string whoWon)
 			: base(attributeName, alphaValue, betaValue, ancestorValue, mergeSituation, whoWon)
+		{
+		}
+		// Constructor required for regenerating conflict object from XML.
+		protected RemovedVsEditedAttributeConflict(XmlNode xmlRepresentation)
+			: base(xmlRepresentation)
 		{
 		}
 		public override string Description
@@ -807,6 +819,11 @@ namespace Chorus.merge.xml.generic
 			: base(attributeName, alphaValue, betaValue, ancestorValue, mergeSituation, whoWon)
 		{
 		}
+		// Constructor required for regenerating conflict object from XML.
+		protected EditedVsRemovedAttributeConflict(XmlNode xmlRepresentation)
+			: base(xmlRepresentation)
+		{
+		}
 		public override string Description
 		{
 			get { return string.Format("Removed Vs Edited Attribute Conflict"); }
@@ -820,7 +837,11 @@ namespace Chorus.merge.xml.generic
 			: base(attributeName, alphaValue, betaValue, ancestorValue, mergeSituation, whoWon)
 		{
 		}
-
+		// Constructor required for regenerating conflict object from XML.
+		protected BothEditedAttributeConflict(XmlNode xmlRepresentation)
+			: base(xmlRepresentation)
+		{
+		}
 		public override string Description
 		{
 			get { return string.Format("Both Edited Attribute Conflict"); }
