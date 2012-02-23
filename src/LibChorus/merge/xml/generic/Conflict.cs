@@ -238,6 +238,7 @@ namespace Chorus.merge.xml.generic
 				sb.Append("<div class='alternative'>");
 				sb.Append(string.Format("{0}'s version: ", label));
 				sb.Append(oursHtml);
+				sb.Append("</div>");
 			}
 		}
 
