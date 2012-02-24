@@ -343,10 +343,12 @@ namespace Chorus.VcsDrivers.Mercurial
 			int secondsRemaining = targetTimeInSeconds*(bundleSize - startOfWindow)/chunkSize;
 			if (secondsRemaining < 60)
 			{
-				secondsRemaining = (secondsRemaining/5+1)*5;
-				return String.Format("({0} seconds remaining)", secondsRemaining);
+				//secondsRemaining = (secondsRemaining/5+1)*5;
+				return "(less than 1 minute)";
 			}
-			return String.Format("({0} minutes remaining)", secondsRemaining/60);
+			int minutesRemaining = secondsRemaining/60;
+			string minutesString = (minutesRemaining > 1) ? "minutes" : "minute";
+			return String.Format("(about {0} {1})", minutesRemaining, minutesString);
 		}
 
 		private static string GetHumanReadableByteSize(int length)
