@@ -225,7 +225,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		/// <returns>true if changes were received</returns>
 		public bool Pull(RepositoryAddress source, string targetUri)
 		{
-			_progress.WriteStatus("Receiving any changes from {0}", source.Name);
+			_progress.WriteMessage("Receiving any changes from {0}", source.Name);
 			_progress.WriteVerbose("({0} is {1})", source.Name, targetUri);
 
 			bool result;
@@ -336,7 +336,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		public void Push(RepositoryAddress source, string targetUri)
 		{
-			_progress.WriteStatus("Sending changes to {0}", source.Name);
+			_progress.WriteMessage("Sending changes to {0}", source.Name);
 			_progress.WriteVerbose("({0} is {1})", source.Name, targetUri);
 				UpdateHgrc();
 
@@ -436,9 +436,6 @@ namespace Chorus.VcsDrivers.Mercurial
 		/// <summary>
 		/// Method only for testing.
 		/// </summary>
-		/// <remarks>
-		/// *********** NB: To whoever merges this method [READ: YOU], please take care that this method is public after the merge, or you will break the FLEx Bridge build (again). ***********
-		/// </remarks>
 		/// <param name="filePath"></param>
 		public void TestOnlyAddSansCommit(string filePath)
 		{
@@ -798,7 +795,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		public static void Clone(RepositoryAddress source, string targetPath, IProgress progress)
 		{
-			progress.WriteStatus("Getting project...");
+			progress.WriteMessage("Getting project...");
 			targetPath = GetUniqueFolderPath(progress,
 											 "Folder at {0} already exists, so can't be used. Creating clone in {1}, instead.",
 											 targetPath);
@@ -807,7 +804,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			var transport = repo.CreateTransportBetween(source, source.URI);
 			transport.Clone();
 			repo.Update();
-			progress.WriteStatus("Finished copying to this computer at {0}", targetPath);
+			progress.WriteMessage("Finished copying to this computer at {0}", targetPath);
 		}
 
 		/// <summary>
@@ -1130,7 +1127,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			}
 			catch (Exception)
 			{
-				progress.WriteStatus("Couldn't determine user name, will use {0}", defaultName);
+				progress.WriteMessage("Couldn't determine user name, will use {0}", defaultName);
 				return defaultName;
 			}
 		}
@@ -1372,7 +1369,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 					if (Dns.GetHostAddresses(uriObject.Host).Count() > 0)
 					{
-						progress.WriteStatus(
+						progress.WriteMessage(
 							"Chorus could ping google, and did get IP address for {0}, but could not ping it, so it could be that the server is temporarily unavailable.", uriObject.Host);
 						return true;
 					}
@@ -1569,7 +1566,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		/// </summary>
 		public void GetDiagnosticInformationForRemoteProject(IProgress progress, string url)
 		{
-			progress.WriteStatus("Gathering diagnostics data (can't actually tell you anything about the remote server)...");
+			progress.WriteMessage("Gathering diagnostics data (can't actually tell you anything about the remote server)...");
 			progress.WriteMessage(GetTextFromQuery("version", 30, _progress));
 
 #if !MONO
@@ -1595,12 +1592,12 @@ namespace Chorus.VcsDrivers.Mercurial
 			progress.WriteMessage(GetTextFromQuery("showconfig", 30, _progress));
 			progress.WriteMessage("---------------------------------------------------");
 
-			progress.WriteStatus("Done.");
+			progress.WriteMessage("Done.");
 		}
 
 		public void GetDiagnosticInformation(IProgress progress)
 		{
-			progress.WriteStatus("Gathering diagnostics data...");
+			progress.WriteMessage("Gathering diagnostics data...");
 			progress.WriteMessage(GetTextFromQuery("version", 30, _progress));
    #if !MONO
 			progress.WriteMessage("Using Mercurial at: "+MercurialLocation.PathToHgExecutable);
@@ -1678,14 +1675,14 @@ namespace Chorus.VcsDrivers.Mercurial
 
 			CheckIntegrity(progress);
 
-			progress.WriteStatus("Done.");
+			progress.WriteMessage("Done.");
 		}
 
 		public enum IntegrityResults { Good, Bad }
 
 		public IntegrityResults CheckIntegrity(IProgress progress)
 		{
-			progress.WriteStatus("Validating Repository... (this can take a long time)");
+			progress.WriteMessage("Validating Repository... (this can take a long time)");
 			var result = GetTextFromQuery("verify", 60 * 60, _progress);
 			if (result.ToLower().Contains("error"))
 			{

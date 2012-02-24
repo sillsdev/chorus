@@ -125,7 +125,7 @@ namespace Chorus.sync
 				UpdateToTheDescendantRevision(repo, workingRevBeforeSync);
 
 				results.Succeeded = true;
-			   _progress.WriteStatus("Done");
+			   _progress.WriteMessage("Done");
 			}
 			catch (SynchronizationException error)
 			{
@@ -246,7 +246,7 @@ namespace Chorus.sync
 			if (_backgroundWorker != null && _backgroundWorker.CancellationPending)
 			{
 				_progress.WriteWarning("User cancelled operation.");
-				_progress.WriteStatus("Cancelled.");
+				_progress.WriteMessage("Cancelled.");
 				_backgroundWorkerArguments.Cancel = true;
 				throw new UserCancelledException();
 			}
@@ -334,7 +334,7 @@ namespace Chorus.sync
 		private void Commit(SyncOptions options)
 		{
 			ThrowIfCancelPending();
-			_progress.WriteStatus("Storing changes in local repository...");
+			_progress.WriteMessage("Storing changes in local repository...");
 
 			// Must be done, before "AddAndCommitFiles" call.
 			// It could be here, or first thing inside the 'using' for CommitCop.
@@ -362,7 +362,7 @@ namespace Chorus.sync
 
 			if (source is UsbKeyRepositorySource)
 			{
-				_progress.WriteStatus("Looking for USB flash drives...");
+				_progress.WriteMessage("Looking for USB flash drives...");
 				var potential = source.GetPotentialRepoUri(repo.Identifier, RepoProjectName, _progress);
 				if (null ==potential)
 				{
@@ -375,7 +375,7 @@ namespace Chorus.sync
 			}
 			else
 			{
-				_progress.WriteStatus("Connecting to {0}...", source.Name);
+				_progress.WriteMessage("Connecting to {0}...", source.Name);
 			}
 			var canConnect = source.CanConnect(repo, RepoProjectName, _progress);
 			if (!connectionAttempt.ContainsKey(source))
@@ -579,7 +579,7 @@ namespace Chorus.sync
 						uri);
 					try
 					{
-						_progress.WriteStatus("Copying repository to {0}...", repoDescriptor.GetFullName(target));
+						_progress.WriteMessage("Copying repository to {0}...", repoDescriptor.GetFullName(target));
 						_progress.WriteVerbose("({0})", target);
 						return HgHighLevel.MakeCloneFromLocalToLocal(_localRepositoryPath, target,
 							false, // No update on USB or shared network clones as of 16 Jan 2012.
@@ -642,7 +642,7 @@ namespace Chorus.sync
 																		 head.Number.Hash);
 
 					  MergeOrder.PushToEnvironmentVariables(_localRepositoryPath);
-					  _progress.WriteStatus("Merging {0} and {1}...", myHead.UserId, head.UserId);
+					  _progress.WriteMessage("Merging {0} and {1}...", myHead.UserId, head.UserId);
 					  _progress.WriteVerbose("   Revisions {0}:{1} with {2}:{3}...", myHead.Number.LocalRevisionNumber, myHead.Number.Hash, head.Number.LocalRevisionNumber, head.Number.Hash);
 					  RemoveMergeObstacles(myHead, head);
 

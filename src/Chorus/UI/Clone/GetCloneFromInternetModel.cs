@@ -195,5 +195,18 @@ namespace Chorus.UI.Clone
 				}
 			}
 		}
+
+		public void Click_FixSettingsButton()
+		{
+			_progress.CancelRequested = false;
+		}
+
+		public void CleanUpAfterErrorOrCancel()
+		{
+			if (Directory.Exists(TargetDestination))
+			{
+				Directory.Delete(TargetDestination, true);
+			}
+		}
 	}
 }

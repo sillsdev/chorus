@@ -241,7 +241,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				if (bundleFileInfo.Length == 0)
 				{
 					bundleHelper.Cleanup();
-					_progress.WriteStatus("No changes to send.  Push operation completed");
+					_progress.WriteMessage("No changes to send.  Push operation completed");
 					return;
 				}
 			}
@@ -309,7 +309,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				}
 				if (response.Status == PushStatus.Complete)
 				{
-					_progress.WriteStatus("Finished Sending");
+					_progress.WriteMessage("Finished Sending");
 					_progress.ProgressIndicator.Finish();
 					_progress.WriteVerbose("Push operation completed successfully");
 
@@ -613,7 +613,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			{
 				_progress.WriteMessage("Pull operation completed successfully");
 				_progress.ProgressIndicator.Finish();
-				_progress.WriteStatus("Finished Receiving");
+				_progress.WriteMessage("Finished Receiving");
 				bundleHelper.Cleanup();
 				var response = FinishPull(transactionId);
 				if (response == PullStatus.Reset)
