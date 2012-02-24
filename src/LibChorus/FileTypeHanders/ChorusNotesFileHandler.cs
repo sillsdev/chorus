@@ -22,6 +22,9 @@ namespace Chorus.FileTypeHanders
 	/// </summary>
 	public class ChorusNotesFileHandler : IChorusFileTypeHandler
 	{
+		internal ChorusNotesFileHandler()
+		{}
+
 		public bool CanDiffFile(string pathToFile)
 		{
 			return CanMergeFile(pathToFile);

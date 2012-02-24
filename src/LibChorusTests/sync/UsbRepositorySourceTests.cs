@@ -26,8 +26,6 @@ namespace LibChorus.Tests.sync
 		{
 			_progress = new ConsoleProgress();
 			_pathToTestRoot = Path.Combine(Path.GetTempPath(), "ChorusUsbRepositorySourceTests");
-			if (Directory.Exists(_pathToTestRoot))
-				Directory.Delete(_pathToTestRoot, true);
 			Directory.CreateDirectory(_pathToTestRoot);
 
 			_pathToProjectRoot = Path.Combine(_pathToTestRoot, "foo project");
@@ -42,6 +40,12 @@ namespace LibChorus.Tests.sync
 
 
 			UsbKeyRepositorySource.SetRootDirForAllSourcesDuringUnitTest(_pathToTestRoot);
+		}
+
+		[TearDown]
+		public void TearDwon()
+		{
+			Directory.Delete(_pathToTestRoot, true);
 		}
 
 		private string WriteTestFile(string contents)

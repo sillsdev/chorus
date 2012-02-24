@@ -1,4 +1,5 @@
-﻿using Palaso.Progress.LogBox;
+﻿using Palaso.Progress;
+using Palaso.Progress.LogBox;
 
 namespace Chorus.UI.Clone
 {
@@ -37,7 +38,7 @@ namespace Chorus.UI.Clone
 			this._statusImages = new System.Windows.Forms.ImageList(this.components);
 			this._statusImage = new System.Windows.Forms.Button();
 			this._statusLabel = new System.Windows.Forms.TextBox();
-			this._progressBar = new System.Windows.Forms.ProgressBar();
+			this._progressBar = new SimpleProgressIndicator();
 			this._cancelTaskButton = new System.Windows.Forms.Button();
 			this._fixSettingsButton = new System.Windows.Forms.Button();
 			this._logBox = new LogBox();
@@ -184,7 +185,7 @@ namespace Chorus.UI.Clone
 		private System.Windows.Forms.ImageList _statusImages;
 		private System.Windows.Forms.Button _statusImage;
 		private System.Windows.Forms.TextBox _statusLabel;
-		private System.Windows.Forms.ProgressBar _progressBar;
+		private SimpleProgressIndicator _progressBar;
 		private System.Windows.Forms.Button _cancelTaskButton;
 		private LogBox _logBox;
 		private System.Windows.Forms.Button _fixSettingsButton;

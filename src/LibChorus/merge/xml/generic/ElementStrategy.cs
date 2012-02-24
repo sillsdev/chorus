@@ -53,12 +53,19 @@ namespace Chorus.merge.xml.generic
 			return strategy;
 		}
 
-		private static string GetKeyViaHack(XmlNode element)
+		private string GetKeyViaHack(XmlNode element)
 		{
 			var name = element.Name;
 			switch (name)
 			{
 				default:
+					// This really does stink, but I'm (RBR) not sure how to avoid it today!
+					if (ElementStrategies.ContainsKey(name) || element.ParentNode == null)
+						return name;
+					// Combine parent name + element name as key (for new styled FW properties).
+					var combinedKey = (element.ParentNode.Name == "ownseq" || element.ParentNode.Name == "ownseqatomic" || element.ParentNode.Name == "refseq") ? element.ParentNode.Attributes["class"].Value + "_" + name : element.ParentNode.Name + "_" + name;
+					if (ElementStrategies.ContainsKey(combinedKey))
+						return combinedKey;
 					break;
 				case "special":
 					var foundHack = false;
@@ -78,8 +85,12 @@ namespace Chorus.merge.xml.generic
 							break;
 					}
 					break;
-				case "Custom": // Another hack for FW custom property elements. (If tius proves to conflict with WeSay, then move preliminary processing else for Fw Custom properties to get past the Custom element.
-					name += "_" + element.Attributes["name"].Value;
+				case "Custom": // Another hack for FW custom property elements. (If this proves to conflict with WeSay, then move preliminary processing elsewhere for FW Custom properties to get past the Custom element.
+					var customPropName = element.Attributes["name"].Value;
+					name += "_" + customPropName;
+					var combinedCustomKey = name + element.ParentNode.Name + "_" + customPropName;
+					if (ElementStrategies.ContainsKey(combinedCustomKey))
+						return combinedCustomKey;
 					break;
 			}
 
@@ -156,6 +167,13 @@ namespace Chorus.merge.xml.generic
 			return strategy;
 		}
 
+		public static ElementStrategy CreateForKeyedElementInList(string keyAttributeName)
+		{
+			ElementStrategy strategy = new ElementStrategy(true);
+			strategy.MergePartnerFinder = new FindByKeyAttributeInList(keyAttributeName);
+			return strategy;
+		}
+
 		/// <summary>
 		/// Declare that there can only be a single element with this name in a list of children
 		/// </summary>
@@ -193,10 +211,19 @@ namespace Chorus.merge.xml.generic
 		ContextDescriptor GenerateContextDescriptor(string mergeElement, string filePath);
 	}
 
+	/// <summary>
+	/// If the ContextDescriptorGenerator implements this interface, it will be called instead of
+	/// the IGenerateContextDescriptor version.
+	/// </summary>
+	public interface IGenerateContextDescriptorFromNode
+	{
+		ContextDescriptor GenerateContextDescriptor(XmlNode mergeElement, string filePath);
+	}
+
 	public class ContextDescriptor
 	{
 		/// <summary>
-		/// Something at the right level to show in a list view, e.g. a lexical entry or chapter/verse
+		/// (XPath query for xml) Something at the right level to show in a list view, e.g. a lexical entry or chapter/verse
 		/// </summary>
 		public string PathToUserUnderstandableElement { get; set; }
 

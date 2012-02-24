@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
+using System.Threading;
 
 namespace Chorus.Utilities
 {
@@ -20,7 +21,7 @@ namespace Chorus.Utilities
 		{
 			_desiredFailureLocation = desiredFailureLocation;
 
-			//using files becuase even environment variables can't be propogated up
+			//using files because even environment variables can't be propogated up
 			//from this child process to the caller
 			if(File.Exists(GetTriggerIndicatorPath(desiredFailureLocation)))
 				File.Delete(GetTriggerIndicatorPath(desiredFailureLocation));
@@ -53,15 +54,14 @@ namespace Chorus.Utilities
 			{
 				throw new ApplicationException("FailureSimulator was not tiggered: "+ _desiredFailureLocation );
 			}
-			try
-			{
-				File.Delete(GetTriggerIndicatorPath(_desiredFailureLocation));
-
-			}
-			catch (IOException e)
-			{
-				Debug.WriteLine("Could not delete the file used to indicate that the failure was successfully induced: "+ e.Message);
-			}
+			//try
+			//{
+			//    File.Delete(GetTriggerIndicatorPath(_desiredFailureLocation));
+			//}
+			//catch (IOException e)
+			//{
+			//    Debug.WriteLine("Could not delete the file used to indicate that the failure was successfully induced: "+ e.Message);
+			//}
 		}
 	}
 }

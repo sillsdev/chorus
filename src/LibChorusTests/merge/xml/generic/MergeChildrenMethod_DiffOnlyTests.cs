@@ -21,21 +21,21 @@ namespace LibChorus.Tests.merge.xml.generic
 			string ancestor = @"<a/>";
 
 			XmlMerger merger = new XmlMerger(new NullMergeSituation());
-			TestCompare<XmlAdditionChangeReport>(merger, ours, ancestor,"//a");
+			TestCompare<XmlTextAddedReport>(merger, ours, ancestor, "//a");
 		}
 
 		[Test]
-		public void Run_WeEdditedTextElementInsideSingleton_ListenerGetsTextEditReport()
+		public void Run_WeEditedTextElementInsideSingleton_ListenerGetsTextEditReport()
 		{
 			string ours = @"<a><b>new</b></a>";
 			string ancestor = @"<a><b>old</b></a>";
 
 			XmlMerger merger = new XmlMerger(new NullMergeSituation());
 			merger.MergeStrategies.SetStrategy("b", ElementStrategy.CreateSingletonElement());
-			TestCompare<TextEditChangeReport>(merger, ours, ancestor, "//a");
+			TestCompare<XmlTextChangedReport>(merger, ours, ancestor, "//a");
 		}
 		[Test]
-		public void Run_WeEdditedTextElementInsideKeyedElement_ListenerGetsTextEditReport()
+		public void Run_WeEditedTextElementInsideKeyedElement_ListenerGetsTextEditReport()
 		{
 
 			string ours = @"<a><b id='foo'>new</b>  </a>";
@@ -43,25 +43,25 @@ namespace LibChorus.Tests.merge.xml.generic
 
 			XmlMerger merger = new XmlMerger(new NullMergeSituation());
 			merger.MergeStrategies.SetStrategy("b", ElementStrategy.CreateForKeyedElement("id", false));
-			TestCompare<TextEditChangeReport>(merger, ours, ancestor, "//a");
+			TestCompare<XmlTextChangedReport>(merger, ours, ancestor, "//a");
 		}
 
 		[Test]
-		public void Run_WeEdditedTextElementInsideOneOfTWoKeyedElements_ListenerGetsTextEditReport()
+		public void Run_WeEditedTextElementInsideOneOfTWoKeyedElements_ListenerGetsTextEditReport()
 		{
 			string ours = @"<a><b id='foo'>new</b>   <b id='gaa'>same</b></a>";
 			string ancestor = @"<a><b id='foo'>old</b>   <b id='gaa'>same</b></a>";
 
 			XmlMerger merger = new XmlMerger(new NullMergeSituation());
 			merger.MergeStrategies.SetStrategy("b", ElementStrategy.CreateForKeyedElement("id", false));
-			TestCompare<TextEditChangeReport>(merger, ours, ancestor, "//a");
+			TestCompare<XmlTextChangedReport>(merger, ours, ancestor, "//a");
 		}
 
 		[Test]
 		public void Run_WeDeletedElement_ListenerGetsDeletionEditReport()
 		{
-			string ours = @"<a></a>";
 			string ancestor = @"<a><b/></a>";
+			string ours = @"<a></a>";
 
 			XmlMerger merger = new XmlMerger(new NullMergeSituation());
 			TestCompare<XmlDeletionChangeReport>(merger, ours, ancestor, "//a");

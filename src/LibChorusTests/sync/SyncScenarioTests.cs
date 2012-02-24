@@ -20,9 +20,13 @@ namespace LibChorus.Tests.sync
 		public void Setup()
 		{
 			_pathToTestRoot = Path.Combine(Path.GetTempPath(), "ChorusSyncScenarioTests");
-			if(Directory.Exists(_pathToTestRoot))
-				Directory.Delete(_pathToTestRoot, true);
 			Directory.CreateDirectory(_pathToTestRoot);
+		}
+
+		[TearDown]
+		public void TearDown()
+		{
+			Directory.Delete(_pathToTestRoot, true);
 		}
 
 		class BobSetup

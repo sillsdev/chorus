@@ -1,13 +1,11 @@
 using System;
-using System.IO;
 using System.Xml;
 using Chorus.merge.xml.generic;
 using Chorus.VcsDrivers;
 
 namespace Chorus.merge
 {
-
-	public interface IConflict
+	public interface IConflict // NB: Be sure to register any concrete implementations in CreateFromConflictElement method.
 	{
 		//store a descriptor that can be used later to find the element again, as when reviewing conflict.
 		//for xml files, this would be an xpath which returns the element which you'd use to

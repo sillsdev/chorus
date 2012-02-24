@@ -1,20 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using System.Windows.Forms;
-using Chorus.Utilities;
 using Chorus.Utilities.UsbDrive;
 using Chorus.VcsDrivers.Mercurial;
 using Palaso.IO;
 using Palaso.Progress.LogBox;
-using Palaso.Reporting;
 
 namespace Chorus.clone
 {
 	/// <summary>
 	/// Use this class to make an initial clone from a USB drive or Internet repository.
-	/// Note, most clients can instead use the GetCloneDialog in Chorus.exe.
+	/// Note, most clients can instead use the GetCloneFromUsbDialog in Chorus.exe.
 	/// </summary>
 	public class CloneFromUsb
 	{
@@ -62,43 +59,39 @@ namespace Chorus.clone
 					{
 						yield return dir;
 					}
-					else //we'll look just at the next level down
-					{
-						string[] subdirs = new string[0];
-						try
-						{    // this is all complicated because the yield can't be inside the try/catch
-							subdirs = DirectoryUtilities.GetSafeDirectories(dir);
-						}
-						catch (Exception /*error*/) // Mono: The unused variable 'error' causes a compiler crash under mono 2.4, 2.10 CP 2011-10
-						{
-							//turns out that WIndows Backup directories can trigger this, so I'm going to just skip it. Wish we had some unobtrusive log to write to.
-							//ErrorReport.NotifyUserOfProblem(error,"Error while looking at usb drive.  The drive root was {0}, the directory was {1}.",  drive.RootDirectory.FullName, dir );
-						}
-						foreach (var subdir in subdirs)
-						{
-							if (Directory.Exists(Path.Combine(subdir, ".hg")) && ProjectFilter(subdir))
-							{
-								yield return subdir;
-							}
-						}
-
-					}
+					// As of 12 December, 2011, JohnH and I decided to remove the search at the second level.
+					// Seems that will work, but then the next attempt to sync, will not be able to find the second level repo.
+					//else //we'll look just at the next level down
+					//{
+					//    string[] subdirs = new string[0];
+					//    try
+					//    {    // this is all complicated because the yield can't be inside the try/catch
+					//        subdirs = DirectoryUtilities.GetSafeDirectories(dir);
+					//    }
+					//    catch (Exception /*error*/) // Mono: The unused variable 'error' causes a compiler crash under mono 2.4, 2.10 CP 2011-10
+					//    {
+					//        //turns out that WIndows Backup directories can trigger this, so I'm going to just skip it. Wish we had some unobtrusive log to write to.
+					//        //ErrorReport.NotifyUserOfProblem(error,"Error while looking at usb drive.  The drive root was {0}, the directory was {1}.",  drive.RootDirectory.FullName, dir );
+					//    }
+					//    foreach (var subdir in subdirs)
+					//    {
+					//        if (Directory.Exists(Path.Combine(subdir, ".hg")) && ProjectFilter(subdir))
+					//        {
+					//            yield return subdir;
+					//        }
+					//    }
+					//}
 				}
 			}
-
 		}
 
 		public string MakeClone(string sourcePath, string parentDirectoryToPutCloneIn, IProgress progress)
 		{
-			var target = Path.Combine(parentDirectoryToPutCloneIn, Path.GetFileName(sourcePath));
-			if(Directory.Exists(target))
-				throw new ApplicationException("Cannot clone onto an existing directory ("+target+")");
-
-			var repo = new HgRepository(sourcePath, progress);
-
-			repo.CloneLocal(target);
-			return target;
+			var sourceRepo = new HgRepository(sourcePath, progress);
+			var actualTarget = sourceRepo.CloneLocalWithoutUpdate(Path.Combine(parentDirectoryToPutCloneIn, Path.GetFileName(sourcePath)));
+			var targetRepo = new HgRepository(actualTarget, progress);
+			targetRepo.Update(); // Need this for new clone from USB drive.
+			return actualTarget;
 		}
-
 	}
 }

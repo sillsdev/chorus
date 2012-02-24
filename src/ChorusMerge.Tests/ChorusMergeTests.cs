@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Threading;
 using Chorus.merge;
 using LibChorus.Tests.merge;
 using Chorus.Utilities;
@@ -13,6 +14,14 @@ namespace ChorusMerge.Tests
 	[TestFixture]
 	public class ChorusMergeTests
 	{
+		// The file is held onto by R#'s test taskrunner for some reason.
+		//[TestFixtureTearDown]
+		//public void FixtureTearDown()
+		//{
+		//    var file = Path.Combine(Path.GetTempPath(), "LiftMerger.FindEntryById");
+		//    if (File.Exists(file))
+		//        File.Delete(file);
+		//}
 
 		[Test]
 		public void Main_NoConflictFileB4_ConflictsEncountered_HaveConflictFileAfter()
@@ -26,19 +35,15 @@ namespace ChorusMerge.Tests
 			}
 		}
 
-#if DEBUG
 		[Test]
 		public void Main_UnhandledMergeFailure_Returns1()
 		{
 			using (var group = new GroupOfConflictingLiftFiles())
+			using (new FailureSimulator("LiftMerger.FindEntryById"))
 			{
-				using (new FailureSimulator("LiftMerger.FindEntryById"))
-				{
-					Assert.AreEqual(1, DoMerge(group));
-				}
+				Assert.AreEqual(1, DoMerge(group));
 			}
 		}
-#endif
 
 		private int DoMerge(GroupOfConflictingLiftFiles group)
 		{

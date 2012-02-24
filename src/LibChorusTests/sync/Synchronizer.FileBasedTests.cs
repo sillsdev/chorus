@@ -52,6 +52,14 @@ namespace LibChorus.Tests.sync
 
 		}
 
+		[TearDown]
+		public void Teardown()
+		{
+			Directory.Delete(_pathToTestRoot, true);
+			// No. It goes away when _pathToTestRoot goes away.
+			//Directory.Delete(_pathToProjectRoot, true);
+		}
+
 		private string WriteTestFile(string contents)
 		{
 			string pathToText = Path.Combine(_pathToProjectRoot, "foo.txt");

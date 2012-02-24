@@ -27,11 +27,10 @@ namespace Chorus.Tests
 		public void Setup()
 		{
 			_progress = new StringBuilderProgress();
-			_pathToTestRoot = Path.Combine(Path.GetTempPath(), "ChorusTest");
+			_pathToTestRoot = Path.Combine(Path.GetTempPath(), "ChorusHistoryPaneTest"); // Don't use 'standard' ChorusTest, since it will fial, if the tests are run in seperate processes (R# 6).
 			if (Directory.Exists(_pathToTestRoot))
 				Directory.Delete(_pathToTestRoot, true);
 			Directory.CreateDirectory(_pathToTestRoot);
-
 
 			string pathToText = WriteTestFile("version one of my pretend txt");
 
@@ -50,6 +49,12 @@ namespace Chorus.Tests
 					null,
 					revisionListOptions);
 			_model.ProgressDisplay = _progress;
+		}
+
+		[TearDown]
+		public void TearDown()
+		{
+			Directory.Delete(_pathToTestRoot, true);
 		}
 
 		private bool ShowRevisionPredicate(Revision revision)

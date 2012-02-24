@@ -55,9 +55,6 @@ namespace LibChorus.Tests.sync
 		}
 
 		[Test]
-#if !DEBUG
-		[Ignore("Test fails in release build.")]
-#endif
 		public void Sync_ExceptionInMergeCode_LeftWith2HeadsAndErrorOutputToProgress()
 		{
 			using (RepositoryWithFilesSetup bob = RepositoryWithFilesSetup.CreateWithLiftFile("bob"))
@@ -88,12 +85,10 @@ namespace LibChorus.Tests.sync
 					Assert.IsTrue(File.ReadAllText(bob.UserFile.Path).Contains("bobWasHere"));
 				}
 			}
+			File.Delete(Path.Combine(Path.GetTempPath(), "LiftMerger.FindEntryById"));
 		}
 
 		[Test]
-#if !DEBUG
-		[Ignore("Test fails in release build.")]
-#endif
 		public void Sync_MergeFailure_NoneOfTheOtherGuysFilesMakeItIntoWorkingDirectory()
 		{
 			using (var bob = new RepositorySetup("bob"))
@@ -129,6 +124,7 @@ namespace LibChorus.Tests.sync
 					}
 				}
 			}
+			File.Delete(Path.Combine(Path.GetTempPath(), "TextMerger-bbb.txt"));
 		}
 
 		/// <summary>
@@ -136,9 +132,6 @@ namespace LibChorus.Tests.sync
 		/// we were going to the tip, which if this was the *second* attempt, could be the other guy's work!
 		/// </summary>
 		[Test]
-#if !DEBUG
-		[Ignore("Test fails in release build.")]
-#endif
 		public void Sync_RepeatedMergeFailure_WeAreLeftOnOurOwnWorkingDefault()
 		{
 			using (var bob = new RepositoryWithFilesSetup("bob", "test.txt", "hello"))
@@ -171,6 +164,7 @@ namespace LibChorus.Tests.sync
 				//sally.ShowInTortoise();
 
 			}
+			File.Delete(Path.Combine(Path.GetTempPath(), "TextMerger-test.txt"));
 		}
 
 		[Test]

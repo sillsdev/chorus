@@ -8,6 +8,7 @@ using Chorus.Utilities.UsbDrive;
 using Chorus.VcsDrivers.Mercurial;
 using Palaso.IO;
 using Palaso.Progress.LogBox;
+using Palaso.Reporting;
 
 namespace Chorus.VcsDrivers
 {
@@ -16,7 +17,7 @@ namespace Chorus.VcsDrivers
 		/// <summary>
 		/// Can be a file path or an http address
 		/// </summary>
-		public string URI { get; set; }
+		public string URI { get; private set; }
 
 		/// <summary>
 		/// This can be used in place of the project name, so that path can be specified which will work
@@ -29,7 +30,7 @@ namespace Chorus.VcsDrivers
 		/// In the case of a repo sitting on the user's machine, this will be a person's name.
 		/// It might also be the name of the web-based repo. It also gets the "alias" name, in the case of hg.
 		/// </summary>
-		public string Name{get;set;}
+		public string Name{get; private set;}
 
 		public enum HardWiredSources { UsbKey };
 
@@ -54,7 +55,6 @@ namespace Chorus.VcsDrivers
 		/// <returns></returns>
 		public static RepositoryAddress Create(string name, string uri, bool readOnly)
 		{
-
 			if (uri.Trim().StartsWith("http"))
 			{
 				return new HttpRepositoryPath(name, uri, readOnly);
@@ -82,6 +82,12 @@ namespace Chorus.VcsDrivers
 			URI = uri;
 			Name = name;
 			ReadOnly = readOnly;
+			IsResumable = IsKnownResumableRepository(uri);
+		}
+
+		public static bool IsKnownResumableRepository(string uri)
+		{
+			return uri.ToLower().Contains("languageforge.org") || uri.ToLower().Contains("resumable");
 		}
 
 
@@ -95,6 +101,8 @@ namespace Chorus.VcsDrivers
 			get { return _readOnly; }
 			set { _readOnly = value; }
 		}
+
+		public bool IsResumable { get; private set; }
 
 		/// <summary>
 		/// Does the user want us to try to sync with this one?
@@ -140,7 +148,6 @@ namespace Chorus.VcsDrivers
 		public HttpRepositoryPath(string name, string uri, bool readOnly)
 			: base(name, uri, readOnly)
 		{
-
 		}
 
 		/// <summary>
@@ -280,10 +287,19 @@ namespace Chorus.VcsDrivers
 
 				foreach (var path in foldersWithRepos)
 				{
-					// Need to create an HgRepository for each so we can get its Id.
-					var usbRepo = new HgRepository(path, progress);
-					if (repoIdentifier.ToLowerInvariant() == usbRepo.Identifier.ToLowerInvariant())
-						return path;
+					try
+					{
+
+
+						// Need to create an HgRepository for each so we can get its Id.
+						var usbRepo = new HgRepository(path, progress);
+						if (repoIdentifier.ToLowerInvariant() == usbRepo.Identifier.ToLowerInvariant())
+							return path;
+					}
+					catch (Exception e)
+					{
+						ErrorReport.ReportNonFatalExceptionWithMessage(e, "Error while processing USB folder '{0}'", path);
+					}
 				}
 			}
 			return string.Empty;
@@ -310,7 +326,7 @@ namespace Chorus.VcsDrivers
 				return urisToTryCreationAt;
 			}
 
-			var drives = Chorus.Utilities.UsbDrive.UsbDriveInfo.GetDrives();
+			var drives = UsbDriveInfo.GetDrives();
 
 			if (drives.Count == 0)
 				return null;
@@ -331,7 +347,6 @@ namespace Chorus.VcsDrivers
 			string path= GetPotentialRepoUri(localRepository.Identifier, projectName, progress);
 			return (path != null) && Directory.Exists(path);
 		}
-
 
 	}
 }

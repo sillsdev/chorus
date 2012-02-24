@@ -131,25 +131,18 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
-	<Compile Include="FileTypeHanders\FieldWorks\CustomProperties\FieldeWorksCustomPropertyFileHandler.cs" />
-	<Compile Include="FileTypeHanders\FieldWorks\CustomProperties\FieldWorksCustomPropertyContextGenerator.cs" />
-	<Compile Include="FileTypeHanders\FieldWorks\CustomProperties\FieldWorksCustomPropertyMergingStrategy.cs" />
-	<Compile Include="FileTypeHanders\FieldWorks\ModelVersion\FieldWorksModelVersionChangePresenter.cs" />
-	<Compile Include="FileTypeHanders\FieldWorks\ModelVersion\FieldWorksModelVersionChangeReport.cs" />
-	<Compile Include="FileTypeHanders\FieldWorks\ModelVersion\FieldWorksModelVersionFileHandler.cs" />
 	<Compile Include="FileTypeHanders\ldml\LdmlFileHandler.cs" />
 	<Compile Include="FileTypeHanders\ldml\LdmlMergingStrategy.cs" />
 	<Compile Include="FileTypeHanders\Lift-Ranges\LiftRangesFileTypeHandler.cs" />
 	<Compile Include="FileTypeHanders\lift\LiftFileServices.cs" />
 	<Compile Include="FileTypeHanders\lift\LiftFolder.cs" />
-	<Compile Include="FileTypeHanders\FieldWorks\DataType.cs" />
-	<Compile Include="FileTypeHanders\FieldWorks\FieldWorksMergingServices.cs" />
-	<Compile Include="FileTypeHanders\FieldWorks\FdoClassInfo.cs" />
-	<Compile Include="FileTypeHanders\FieldWorks\FdoPropertyInfo.cs" />
-	<Compile Include="FileTypeHanders\FieldWorks\MetadataCache.cs" />
 	<Compile Include="FileTypeHanders\Xml2WayDiffer.cs" />
 	<Compile Include="FileTypeHanders\Xml2WayDiffService.cs" />
+	<Compile Include="FileTypeHanders\xml\BothChangedAtomicElementReport.cs" />
+	<Compile Include="FileTypeHanders\xml\XmlAttributeChange.cs" />
+	<Compile Include="FileTypeHanders\xml\XmlTextChange.cs" />
 	<Compile Include="merge\xml\generic\MergeAtomicElementService.cs" />
+	<Compile Include="merge\xml\generic\MergeTextNodesMethod.cs" />
 	<Compile Include="merge\xml\generic\XmlMergeService.cs" />
 	<Compile Include="FileTypeHanders\oneStory\OneStoryChangePresenter.cs" />
 	<Compile Include="FileTypeHanders\oneStory\OneStoryDiffer.cs" />
@@ -160,10 +153,6 @@
 	</Compile>
 	<Compile Include="sync\LargeFileFilter.cs" />
 	<Compile Include="Utilities\DifferDictionaryPrepper.cs" />
-	<Compile Include="FileTypeHanders\FieldWorks\FieldWorkObjectContextGenerator.cs" />
-	<Compile Include="FileTypeHanders\FieldWorks\FieldWorksChangePresenter.cs" />
-	<Compile Include="FileTypeHanders\FieldWorks\FieldWorksFileHandler.cs" />
-	<Compile Include="FileTypeHanders\FieldWorks\FieldWorksMergingStrategy.cs" />
 	<Compile Include="FileTypeHanders\NotePresenter.cs" />
 	<Compile Include="IWritingSystem.cs" />
 	<Compile Include="MercurialLocation.cs" />
@@ -218,6 +207,7 @@
 	<Compile Include="Utilities\MultiMap.cs" />
 	<Compile Include="Utilities\UrlHelper.cs" />
 	<Compile Include="Utilities\XmlElementExtensions.cs" />
+	<Compile Include="VcsDrivers\Mercurial\BundleStorageManager.cs" />
 	<Compile Include="VcsDrivers\Mercurial\HgExceptions.cs" />
 	<Compile Include="VcsDrivers\Mercurial\HgHighLevel.cs" />
 	<Compile Include="sync\CommitCop.cs" />
@@ -238,6 +228,13 @@
 	<Compile Include="retrieval\RevisionInspector.cs" />
 	<Compile Include="sync\ProjectFolderConfiguration.cs" />
 	<Compile Include="sync\Synchronizer.cs" />
+	<Compile Include="VcsDrivers\Mercurial\HgNormalTransport.cs" />
+	<Compile Include="VcsDrivers\Mercurial\HgResumeRestApiServer.cs" />
+	<Compile Include="VcsDrivers\Mercurial\HgResumeTransport.cs" />
+	<Compile Include="VcsDrivers\Mercurial\IApiServer.cs" />
+	<Compile Include="VcsDrivers\Mercurial\IHgTransport.cs" />
+	<Compile Include="VcsDrivers\Mercurial\PullStorageManager.cs" />
+	<Compile Include="VcsDrivers\Mercurial\PushStorageManager.cs" />
 	<Compile Include="VcsDrivers\RepositoryAddress.cs" />
 	<Compile Include="sync\SyncOptions.cs" />
 	<Compile Include="Utilities\ExecutionResult.cs" />
@@ -344,6 +341,9 @@
   </ItemGroup>
   <ItemGroup>
 	<None Include="Resources\question16x16Closed.png" />
+  </ItemGroup>
+  <ItemGroup>
+	<Content Include="FileTypeHanders\adaptIt\SortAIKB.xslt" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.

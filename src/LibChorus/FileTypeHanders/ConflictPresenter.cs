@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Text;
 using Chorus.FileTypeHanders.xml;
 using Chorus.merge;
@@ -140,15 +141,18 @@ namespace Chorus.FileTypeHanders
 					builder.Append(XmlUtilities.GetXmlForShowingInHtml(userYVersion));
 					builder.AppendFormat("</p><h3>Resulting version</h3>", _conflict.Situation.BetaUserId);
 
+					string resulting = "";
 					try
 					{
-						var resulting = _fileRetriever.RetrieveHistoricalVersionOfFile(_conflict.RelativeFilePath,
+						resulting = _fileRetriever.RetrieveHistoricalVersionOfFile(_conflict.RelativeFilePath,
 																					   _conflict.
 																						   RevisionWhereMergeWasCheckedIn);
 						builder.Append(XmlUtilities.GetXmlForShowingInHtml(resulting));
 					}
 					catch (Exception error)
 					{
+						if (File.Exists(resulting))
+							File.Delete(resulting);
 						builder.Append("Could not retrieve the file. The error was: " + error.Message);
 					}
 				}

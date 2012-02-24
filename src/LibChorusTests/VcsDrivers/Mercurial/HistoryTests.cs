@@ -26,8 +26,6 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		{
 			_progress = new StringBuilderProgress();
 			_pathToTestRoot = Path.Combine(Path.GetTempPath(), "ChorusTest");
-			if (Directory.Exists(_pathToTestRoot))
-				Directory.Delete(_pathToTestRoot, true);
 			Directory.CreateDirectory(_pathToTestRoot);
 
 
@@ -44,7 +42,11 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			_repository = new HgRepository(_project.FolderPath, _progress);
 		}
 
-
+		[TearDown]
+		public void TearDown()
+		{
+			Directory.Delete(_pathToTestRoot, true);
+		}
 
 		[Test]
 		public void GetAllRevisionss_BeforeAnySyncing_EmptyHistory()
