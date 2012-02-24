@@ -308,13 +308,18 @@ namespace Chorus.UI.Clone
 		private void _fixSettingsButton_Click(object sender, EventArgs e)
 		{
 			//_statusProgress.Reset();
-			_model.Click_FixSettingsButton();
+			this.Click_FixSettingsButton(); // Change to _model.Click_FixSettingsButton(); when merging.
 			UpdateDisplay(State.AskingUserForURL);
 		}
 
 		private void GetCloneFromInternetDialog_BackColorChanged(object sender, EventArgs e)
 		{
 			_logBox.BackColor  =this.BackColor;
+		}
+
+		private void Click_FixSettingsButton()
+		{
+			_progress.CancelRequested = false;
 		}
 
 	}

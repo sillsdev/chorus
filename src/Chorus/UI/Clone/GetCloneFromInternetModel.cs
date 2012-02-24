@@ -79,7 +79,6 @@ namespace Chorus.UI.Clone
 			}
 		}
 
-
 		public bool TargetHasProblem
 		{
 			get {
@@ -87,26 +86,16 @@ namespace Chorus.UI.Clone
 			}
 		}
 
-
 		public bool ShowCloneOnlyControls
 		{
 			get { return _showCloneSpecificSettings; }
 		}
 
-		public void Click_FixSettingsButton()
-		{
-			_progress.CancelRequested = false;
-		}
-
 		public void CleanUpAfterErrorOrCancel()
 		{
-			try
+			if (Directory.Exists(TargetDestination))
 			{
 				Directory.Delete(TargetDestination, true);
-			}
-			catch(Exception e)
-			{
-				return;
 			}
 		}
 	}
