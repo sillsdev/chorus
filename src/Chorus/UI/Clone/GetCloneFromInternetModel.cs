@@ -189,6 +189,10 @@ namespace Chorus.UI.Clone
 					_progress.WriteError(error.Message);
 					ErrorReport.NotifyUserOfProblem(error.Message);
 				}
+				else if (error is UserCancelledException)
+				{
+					_progress.WriteMessage(error.Message);
+				}
 				else
 				{
 					_progress.WriteError(error.Message);
