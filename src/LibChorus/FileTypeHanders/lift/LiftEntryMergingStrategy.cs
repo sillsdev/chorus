@@ -228,7 +228,9 @@ namespace Chorus.FileTypeHanders.lift
 			// ******************************* <reversal> **************************************************
 			// <reversal
 			//		type [Optional, sig=key]
-			AddKeyedElementType("reversal", "type", true);
+			// No. There can be multiple ones with the same 'type', AddKeyedElementType("reversal", "type", true);
+			//elementStrategy = new ElementStrategy(true);
+			//elementStrategy.MergePartnerFinder = new FindByKeyAttributeInList();
 			//		<form> [Optional, Multiple, sig=form, inherited from <multitext>]
 			//		<main> [Optional, sig=reversal] NAME OVERRIDE
 			AddSingletonElementType("main");
@@ -324,6 +326,7 @@ namespace Chorus.FileTypeHanders.lift
 			// !!!!!!!!! HACK ALERT !!!!!!!!!
 			AddKeyedElementType("headerfield", "tag", false);
 			// !!!!!!!!! END HACK ALERT !!!!!!!!!
+			//		<form> [optional, multiple]
 			// </field-defn>
 			// ******************************* </field-defn> **************************************************
 

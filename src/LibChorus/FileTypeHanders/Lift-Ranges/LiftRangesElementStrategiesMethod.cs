@@ -28,10 +28,10 @@ namespace Chorus.FileTypeHanders
 			//		guid [Optional, string]
 			//		href [Optional, URL]
 			elementStrategy.AttributesToIgnoreForMerging.Add("href");
-			//		<description> [Optional, multitext] NAME OVERRIDE
-			//		<range-element> [Optional (Req in doc and UML), Multiple, range-element] RNG has <range-element>, doc and UML says <range> for a NAME OVERRIDE. Go with <range-element>, since that is what FLEx writes in the lift-ranges file.
-			//		<label> [Optional, Multiple, multitext] NAME OVERRIDE (Declared in LiftBasicElementStrategiesMethod)
-			//		<abbrev> [Optional, Multiple, multitext] NAME OVERRIDE
+			//		<description> [Optional, multitext] <description> holds zero or more <form> elements
+			//		<range-element> [Optional, Multiple, range-element] RNG has <range-element>, doc and UML says <range> for a NAME OVERRIDE. Go with <range-element>, since that is what FLEx writes in the lift-ranges file.
+			//		<label> [Optional, Multiple, multitext] <label> holds zero or more <form> elements
+			//		<abbrev> [Optional, Multiple, multitext] <abbrev> holds zero or more <form> elements
 			// </range>
 			// ******************************* </range> **************************************************
 
@@ -44,9 +44,9 @@ namespace Chorus.FileTypeHanders
 			LiftBasicElementStrategiesMethod.AddKeyedElementType(mergeStrategies, "range-element", "id", false);
 			//		parent [Optional, key]
 			//		guid [Optional, string]
-			//		<description> [Optional, Multiple, multitext] NAME OVERRIDE
-			//		<label> [Optional, Multiple, multitext] NAME OVERRIDE (Declared in LiftBasicElementStrategiesMethod)
-			//		<abbrev> [Optional, Multiple, multitext] NAME OVERRIDE
+			//		<description> [Optional, multitext] <description> holds zero or more <form> elements
+			//		<label> [Optional, multitext] <label> holds zero or more <form> elements
+			//		<abbrev> [Optional, multitext] <abbrev> holds zero or more <form> elements
 			elementStrategy = LiftBasicElementStrategiesMethod.AddSingletonElementType(mergeStrategies, "abbrev");
 			elementStrategy.OrderIsRelevant = false;
 			// </range-element>

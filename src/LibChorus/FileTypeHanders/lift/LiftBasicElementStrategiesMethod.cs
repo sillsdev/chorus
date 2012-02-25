@@ -61,7 +61,7 @@ namespace Chorus.FileTypeHanders.lift
 			// <URLRef> element never occurs in the wild, as it always gets a name change.
 			// <URLRef
 			//		href="URL" [Required, sig=URL]
-			//		<label> [Optional, sig=multitext] NAME OVERRIDE
+			//		<label> [Optional, sig=multitext]
 			AddSingletonElementType(mergeStrategies, "label");
 			// </URLRef>
 			// ******************************* </URLRef> **************************************************
