@@ -65,12 +65,12 @@ namespace Chorus.merge.xml.generic
 							if (merger.MergeSituation.ConflictHandlingMode == MergeOrder.ConflictHandlingModeChoices.WeWin)
 							{
 								merger.EventListener.ConflictOccurred(new BothEditedTheSameAtomicElement(ours.Name,
-									ours, theirs, null, merger.MergeSituation, null, merger.MergeSituation.AlphaUserId));
+									ours, theirs, null, merger.MergeSituation, elementStrategy, merger.MergeSituation.AlphaUserId));
 							}
 							else
 							{
 								merger.EventListener.ConflictOccurred(new BothEditedTheSameAtomicElement(ours.Name,
-									theirs, ours, null, merger.MergeSituation, null, merger.MergeSituation.BetaUserId));
+									theirs, ours, null, merger.MergeSituation, elementStrategy, merger.MergeSituation.BetaUserId));
 								ours = theirs;
 							}
 						}
