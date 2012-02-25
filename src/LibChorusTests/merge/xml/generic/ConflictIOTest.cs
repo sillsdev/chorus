@@ -1,6 +1,7 @@
 using System.IO;
 using System.Text;
 using System.Xml;
+using Chorus.VcsDrivers;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
 using System.Linq;
@@ -22,6 +23,7 @@ namespace LibChorus.Tests.merge.xml.generic
 				GetNodeFromString("<a>ancestor</a>"),
 				mergesituation, "theWinner");
 			c.Context = new ContextDescriptor("testLabel", "testPath");
+			c.HtmlDetails = "<body>this is a conflict</body>";
 			string desc = c.GetFullHumanReadableDescription();
 
 			var annotationXml = WriteConflictAnnotation(c);
@@ -30,6 +32,7 @@ namespace LibChorus.Tests.merge.xml.generic
 			Assert.AreEqual(desc, regurgitated.GetFullHumanReadableDescription());
 		   Assert.AreEqual(c.Context.PathToUserUnderstandableElement, regurgitated.Context.PathToUserUnderstandableElement);
 		   Assert.AreEqual(c.Context.DataLabel, regurgitated.Context.DataLabel);
+			Assert.That(regurgitated.HtmlDetails, Is.EqualTo(c.HtmlDetails));
 		}
 		[Test]
 		public void RemovedVsEditedElementConflict_RoundtripThroughXml()
@@ -70,5 +73,48 @@ namespace LibChorus.Tests.merge.xml.generic
 			return dom.FirstChild;
 		}
 
+		[Test]
+		public void CanCreateNonStandardConflictType()
+		{
+			var conflict = new DemoConflict(new NullMergeSituation());
+			conflict.Context = new ContextDescriptor("testLabel", "testPath");
+			var annotationXml = WriteConflictAnnotation(conflict);
+			Conflict.RegisterContextClass(typeof (DemoConflict));
+			var regurgitated = Conflict.CreateFromChorusNotesAnnotation(annotationXml);
+			Assert.That(regurgitated, Is.InstanceOf<DemoConflict>());
+		}
+
+
+	}
+
+	[TypeGuid("F76A3182-A405-4685-8881-8C369CB8A506")]
+	class DemoConflict : Conflict
+	{
+		public DemoConflict(XmlNode xmlRepresentation) : base(xmlRepresentation)
+		{
+		}
+
+		public DemoConflict(MergeSituation situation) : base(situation)
+		{
+		}
+
+		public DemoConflict(MergeSituation situation, string whoWon) : base(situation, whoWon)
+		{
+		}
+
+		public override string GetFullHumanReadableDescription()
+		{
+			return "a human-readable description";
+		}
+
+		public override string Description
+		{
+			get { return "a description"; }
+		}
+
+		public override string GetConflictingRecordOutOfSourceControl(IRetrieveFileVersionsFromRepository fileRetriever, ThreeWayMergeSources.Source mergeSource)
+		{
+			return "a record";
+		}
 	}
 }

@@ -71,7 +71,7 @@ namespace Chorus.merge.xml.generic
 					if (ancestorOursOrderer.OrderIsDifferent)
 					{
 						// stick with our orderer (we win), but report conflict.
-						_merger.EventListener.ConflictOccurred(new BothReorderedElementConflict(_ours.Name, _ours,
+						_merger.ConflictOccurred(new BothReorderedElementConflict(_ours.Name, _ours,
 							_theirs, _ancestor, _merger.MergeSituation, _merger.MergeStrategies.GetElementStrategy(_ours),
 							_merger.MergeSituation.AlphaUserId));
 					}
@@ -87,7 +87,7 @@ namespace Chorus.merge.xml.generic
 					// our order is different from theirs, but neither is different from the ancestor.
 					// the only way this can be true is if both inserted the same thing, but in
 					// different places. Stick with our orderer (we win), but report conflict.
-					_merger.EventListener.ConflictOccurred(new BothInsertedAtDifferentPlaceConflict(_ours.Name, _ours,
+					_merger.ConflictOccurred(new BothInsertedAtDifferentPlaceConflict(_ours.Name, _ours,
 						_theirs, _ancestor, _merger.MergeSituation, _merger.MergeStrategies.GetElementStrategy(_ours),
 						_merger.MergeSituation.AlphaUserId));
 				}
@@ -98,13 +98,13 @@ namespace Chorus.merge.xml.generic
 			if (!resultOrderer.OrderIsConsistent ||
 				(resultOrderer.OrderIsDifferent && resultOrderer.OrderIsAmbiguous))
 			{
-				_merger.EventListener.ConflictOccurred(new AmbiguousInsertReorderConflict(_ours.Name, _ours,
+				_merger.ConflictOccurred(new AmbiguousInsertReorderConflict(_ours.Name, _ours,
 					_theirs, _ancestor, _merger.MergeSituation, _merger.MergeStrategies.GetElementStrategy(_ours),
 					_merger.MergeSituation.AlphaUserId));
 			}
 			else if (resultOrderer.OrderIsAmbiguous)
 			{
-				_merger.EventListener.ConflictOccurred(new AmbiguousInsertConflict(_ours.Name, _ours,
+				_merger.ConflictOccurred(new AmbiguousInsertConflict(_ours.Name, _ours,
 					_theirs, _ancestor, _merger.MergeSituation, _merger.MergeStrategies.GetElementStrategy(_ours),
 					_merger.MergeSituation.AlphaUserId));
 			}
@@ -320,7 +320,7 @@ namespace Chorus.merge.xml.generic
 							// We deleted, they modified, report conflict.
 							if (theirChild.NodeType == XmlNodeType.Element)
 							{
-								_merger.EventListener.ConflictOccurred(
+								_merger.ConflictOccurred(
 									new RemovedVsEditedElementConflict(theirChild.Name, null,
 																	   theirChild, ancestorChild,
 																	   _merger.MergeSituation,
@@ -330,7 +330,7 @@ namespace Chorus.merge.xml.generic
 							}
 							else
 							{
-								_merger.EventListener.ConflictOccurred(
+								_merger.ConflictOccurred(
 									new RemovedVsEditedTextConflict(null, theirChild,
 																	   ancestorChild,
 																	   _merger.MergeSituation,
@@ -362,13 +362,13 @@ namespace Chorus.merge.xml.generic
 						// We changed it, ignore their deletion and report conflict.
 						if (ourChild.NodeType == XmlNodeType.Element)
 						{
-							_merger.EventListener.ConflictOccurred(
+							_merger.ConflictOccurred(
 								new EditedVsRemovedElementConflict(ourChild.Name, ourChild, null, ancestorChild,
 																   _merger.MergeSituation, _merger.MergeStrategies.GetElementStrategy(ourChild), _merger.MergeSituation.AlphaUserId));
 						}
 						else
 						{
-							_merger.EventListener.ConflictOccurred(
+							_merger.ConflictOccurred(
 								new EditedVsRemovedTextConflict(ourChild, null, ancestorChild, _merger.MergeSituation, _merger.MergeSituation.AlphaUserId));
 						}
 					}

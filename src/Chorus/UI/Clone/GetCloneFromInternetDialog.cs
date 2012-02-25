@@ -2,12 +2,14 @@
 using System.ComponentModel;
 using System.Drawing;
 using System.Media;
+using System.Threading;
 using System.Windows.Forms;
 using Chorus.clone;
 using Chorus.UI.Misc;
 using Chorus.Utilities;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
+using Palaso.Progress;
 using Palaso.Progress.LogBox;
 using Palaso.Reporting;
 
@@ -16,7 +18,6 @@ namespace Chorus.UI.Clone
 	public partial class GetCloneFromInternetDialog : Form
 	{
 		private readonly GetCloneFromInternetModel _model;
-		private IProgress _progress;
 		private readonly BackgroundWorker _backgroundWorker;
 		private enum State { AskingUserForURL, MakingClone, Success, Error,Cancelled}
 
@@ -38,26 +39,29 @@ namespace Chorus.UI.Clone
 //#endif
 			InitializeComponent();
 
-			this.Font = SystemFonts.MessageBoxFont;
+			Font = SystemFonts.MessageBoxFont;
 
 			_backgroundWorker = new BackgroundWorker();
 			_backgroundWorker.WorkerSupportsCancellation = true;
-			_backgroundWorker.RunWorkerCompleted += new RunWorkerCompletedEventHandler(_backgroundWorker_RunWorkerCompleted);
-			_backgroundWorker.DoWork += new DoWorkEventHandler(_backgroundWorker_DoWork);
+			_backgroundWorker.RunWorkerCompleted += _backgroundWorker_RunWorkerCompleted;
+			_backgroundWorker.DoWork += _backgroundWorker_DoWork;
 
 			_statusProgress = new StatusProgress();
-			_progress = new MultiProgress(new IProgress[]{_logBox, _statusProgress});
+			_model.AddDisplay(_statusProgress);  // TODO: needs to be replaced by SimpleStatusProgress
+			_model.AddDisplay(_logBox);
+			_model.ProgressIndicator = _progressBar;
+			_model.UIContext = SynchronizationContext.Current;
 
 			_serverSettingsControl = new ServerSettingsControl(_model);
 			_serverSettingsControl.TabIndex = 0;
 			_serverSettingsControl.Anchor = (AnchorStyles.Top | AnchorStyles.Left);
-			this.Controls.Add(_serverSettingsControl);
+			Controls.Add(_serverSettingsControl);
 
 			_targetFolderControl = new TargetFolderControl(_model);
 			_targetFolderControl.Anchor = (AnchorStyles.Bottom | AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right);
-			_targetFolderControl._downloadButton.Click+=new EventHandler(OnDownloadClick);
+			_targetFolderControl._downloadButton.Click+=OnDownloadClick;
 			_targetFolderControl.Location = new Point(0, _serverSettingsControl.Height +10);
-			this.MinimumSize = new Size(_targetFolderControl.MinimumSize.Width+20, _targetFolderControl.Bottom +20);
+			MinimumSize = new Size(_targetFolderControl.MinimumSize.Width+20, _targetFolderControl.Bottom +20);
 			if (_targetFolderControl.Bottom +30> Bottom)
 			{
 				this.Size = new Size(this.Width,_targetFolderControl.Bottom + 30);
@@ -82,73 +86,24 @@ namespace Chorus.UI.Clone
 		private void _backgroundWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
 		{
 			if (_statusProgress.ErrorEncountered)
+			{
 				UpdateDisplay(State.Error);
+				_model.CleanUpAfterErrorOrCancel();
+			}
 			else if (_statusProgress.WasCancelled)
+			{
 				UpdateDisplay(State.Cancelled);
+				_model.CleanUpAfterErrorOrCancel();
+			}
 			else
 			{
-				try
-				{
-					var repo = new HgRepository(_model.TargetDestination, _progress);
-					var name = new Uri(_model.URL).Host;
-					if (String.IsNullOrEmpty(name)) //This happens for repos on the local machine
-					{
-						name = "LocalRepository";
-					}
-					if (name.ToLower().Contains("languagedepot"))
-						name = "LanguageDepot";
-
-					var address = RepositoryAddress.Create(name, _model.URL);
-
-					//this will also remove the "default" one that hg puts in, which we don't really want.
-					repo.SetKnownRepositoryAddresses(new[] {address});
-					repo.SetIsOneDefaultSyncAddresses( address, true);
-					UpdateDisplay(State.Success);
-				}
-				catch (Exception error)
-				{
-					_progress.WriteError(error.Message);
-					UpdateDisplay(State.Error);
-				}
+				UpdateDisplay(_model.SetRepositoryAddress() ? State.Success : State.Error);
 			}
 		}
 
 		void _backgroundWorker_DoWork(object sender, DoWorkEventArgs e)
 		{
-			try
-			{
-				//review: do we need to get these out of the DoWorkEventArgs instead?
-				HgRepository.Clone(ThreadSafeUrl, PathToNewProject, _progress);
-				using (SoundPlayer player = new SoundPlayer(Properties.Resources.finishedSound))
-				{
-					player.PlaySync();
-				}
-
-			}
-
-			catch (Exception error)
-			{
-				using (SoundPlayer player = new SoundPlayer(Properties.Resources.errorSound))
-				{
-					player.PlaySync();
-				}
-				if(error is RepositoryAuthorizationException)
-				{
-					_progress.WriteError("The server {0} did not accept the reqest of {1} to clone from {2} using password {3}.", _model.SelectedServerPath, _model.AccountName, _model.ProjectId, _model.Password);
-					ErrorReport.NotifyUserOfProblem("The server ({0}) rejected the project name ({1}), user name ({2}), or password ({3}) (sorry, it didn't tell us which one). Make sure that each of these is correct, and that '{2}' is a member of the '{1}' project, with permission to read data.",
-						_model.SelectedServerPath, _model.ProjectId, _model.AccountName, _model.Password);
-				}
-
-				else if (error is HgCommonException)
-				{
-					_progress.WriteError(error.Message);
-					ErrorReport.NotifyUserOfProblem(error.Message);
-				}
-				else
-				{
-					_progress.WriteError(error.Message);
-				}
-			}
+			_model.DoClone();
 		}
 
 		private void UpdateDisplay(State newState)
@@ -164,8 +119,9 @@ namespace Chorus.UI.Clone
 					_okButton.Visible = false;
 					_progressBar.Visible = false;
 					_targetFolderControl.Visible = true;
-					 _cancelButton.Enabled = true;
-				   _cancelTaskButton.Visible = false;
+					_cancelButton.Enabled = true;
+					_cancelButton.Visible = true;
+					_cancelTaskButton.Visible = false;
 
 					break;
 				case State.MakingClone:
@@ -185,10 +141,9 @@ namespace Chorus.UI.Clone
 					_statusLabel.Left = _progressBar.Left;
 					_logBox.Visible = true;
 					_cancelTaskButton.Visible = true;
-					_cancelButton.Enabled = false;
+					_cancelButton.Visible = false;
 					break;
 				case State.Success:
-					_cancelButton.Enabled = false;
 					_cancelTaskButton.Visible = false;
 					_statusLabel.Visible = true;
 					_statusLabel.Text = "Done.";
@@ -199,15 +154,15 @@ namespace Chorus.UI.Clone
 					_statusImage.ImageKey="Success";
 					_statusLabel.Text = string.Format("Finished");
 					_okButton.Visible = true;
-					_cancelButton.Enabled = false;
+					_cancelButton.Visible = false;
 					_logBox.Visible = true;
 					break;
 				case State.Error:
 					_fixSettingsButton.Visible = true;
 					_fixSettingsButton.Focus();
-					_cancelButton.Enabled = false;
-					_cancelButton.Text = "&Cancel";
-					_cancelButton.Select();
+					_cancelButton.Visible = false;
+					//_cancelButton.Text = "&Cancel";
+					//_cancelButton.Select();
 					_cancelTaskButton.Visible = false;
 					_statusLabel.Visible = true;
 					_statusLabel.Text = "Failed.";
@@ -218,7 +173,9 @@ namespace Chorus.UI.Clone
 					_statusImage.Visible = true;
 					break;
 				case State.Cancelled:
-					_cancelButton.Enabled = true;
+					_cancelButton.Visible = true;
+					_cancelButton.Text = "&Close";
+					_cancelButton.Select();
 					_cancelTaskButton.Visible = false;
 					_statusLabel.Visible = true;
 					_statusLabel.Text = "Cancelled.";
@@ -266,9 +223,9 @@ namespace Chorus.UI.Clone
 					return;
 				UpdateDisplay(State.MakingClone);
 				ThreadSafeUrl = _model.URL;
-				_backgroundWorker.RunWorkerAsync(new object[] { ThreadSafeUrl, PathToNewProject, _progress });
+				//_backgroundWorker.RunWorkerAsync(new object[] { ThreadSafeUrl, PathToNewProject, _progress });
+				_backgroundWorker.RunWorkerAsync(new object[0]);
 			}
-
 		}
 
 
@@ -288,7 +245,7 @@ namespace Chorus.UI.Clone
 						return;
 
 					_backgroundWorker.CancelAsync();//the hg call will know nothing of this
-					_progress.CancelRequested = true; //but it will be monitoring this
+					_model.CancelRequested = true; //but it will be monitoring this
 				}
 			}
 		}
@@ -299,7 +256,8 @@ namespace Chorus.UI.Clone
 
 		private void _fixSettingsButton_Click(object sender, EventArgs e)
 		{
-			_statusProgress = new StatusProgress();
+			//_statusProgress.Reset();
+			_model.Click_FixSettingsButton();
 			UpdateDisplay(State.AskingUserForURL);
 		}
 

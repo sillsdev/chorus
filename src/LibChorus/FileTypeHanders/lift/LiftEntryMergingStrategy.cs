@@ -7,11 +7,14 @@ namespace Chorus.FileTypeHanders.lift
 {
 	public class LiftEntryMergingStrategy : IMergeStrategy
 	{
-		private XmlMerger _entryMerger;
+		private readonly XmlMerger _entryMerger;
 
 		public LiftEntryMergingStrategy(MergeSituation mergeSituation)
 		{
-			_entryMerger = new XmlMerger(mergeSituation);
+			_entryMerger = new XmlMerger(mergeSituation)
+							{
+								MergeStrategies = {KeyFinder = new LiftKeyFinder()}
+							};
 
 			#region Base elements
 

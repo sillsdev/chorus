@@ -291,8 +291,6 @@ namespace LibChorus.Tests
 		{
 			return new BookMark(Repository);
 		}
-
-
 	}
 
 	public class BookMark
