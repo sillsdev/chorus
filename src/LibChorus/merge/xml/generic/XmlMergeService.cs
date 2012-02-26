@@ -17,7 +17,7 @@ namespace Chorus.merge.xml.generic
 	/// </summary>
 	public static class XmlMergeService
 	{
-		private static readonly XmlReaderSettings _readerSettings = new XmlReaderSettings
+		private static readonly XmlReaderSettings ReaderSettings = new XmlReaderSettings
 				{
 					CheckCharacters = false,
 					ConformanceLevel = ConformanceLevel.Fragment,
@@ -27,7 +27,7 @@ namespace Chorus.merge.xml.generic
 					IgnoreWhitespace = true
 				};
 
-		private static readonly Encoding _utf8 = Encoding.UTF8;
+		private static readonly Encoding Utf8 = Encoding.UTF8;
 
 		/// <summary>
 		/// Perform the 3-way merge.
@@ -289,7 +289,7 @@ namespace Chorus.merge.xml.generic
 
 		private static void WriteNode(XmlNode nodeToWrite, XmlWriter writer)
 		{
-			using (var nodeReader = XmlReader.Create(new MemoryStream(_utf8.GetBytes(nodeToWrite.OuterXml)), _readerSettings))
+			using (var nodeReader = XmlReader.Create(new MemoryStream(Utf8.GetBytes(nodeToWrite.OuterXml)), ReaderSettings))
 			{
 				writer.WriteNode(nodeReader, false);
 			}
