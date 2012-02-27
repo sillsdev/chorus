@@ -64,12 +64,12 @@ namespace Chorus.merge.xml.generic
 							// Both added, but not the same thing.
 							if (merger.MergeSituation.ConflictHandlingMode == MergeOrder.ConflictHandlingModeChoices.WeWin)
 							{
-								merger.EventListener.ConflictOccurred(new BothEditedTheSameAtomicElement(ours.Name,
+								merger.ConflictOccurred(new BothEditedTheSameAtomicElement(ours.Name,
 									ours, theirs, null, merger.MergeSituation, elementStrategy, merger.MergeSituation.AlphaUserId));
 							}
 							else
 							{
-								merger.EventListener.ConflictOccurred(new BothEditedTheSameAtomicElement(ours.Name,
+								merger.ConflictOccurred(new BothEditedTheSameAtomicElement(ours.Name,
 									theirs, ours, null, merger.MergeSituation, elementStrategy, merger.MergeSituation.BetaUserId));
 								ours = theirs;
 							}

@@ -8,7 +8,7 @@ namespace Chorus.FileTypeHanders.xml
 	/// This may only be useful for quick, high-level identification that an entry changed,
 	/// leaving *what* changed to a second pass, if needed by the user.
 	///
-	/// It is useful for the atomic strategy, as we don't relly care what the lower level difference are (e.g., it may be binary data).
+	/// It is also useful for MergeAtomicElementService, as we don't relly care what the lower level difference are (e.g., it may be binary data).
 	/// </summary>
 	public class XmlChangedRecordReport : ChangeReport, IXmlChangeReport
 	{

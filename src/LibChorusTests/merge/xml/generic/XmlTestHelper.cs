@@ -153,31 +153,44 @@ namespace LibChorus.Tests.merge.xml
 			var retval = merger.Merge(eventListener, ourNode, theirNode, ancestorNode).OuterXml;
 			Assert.AreSame(eventListener, merger.EventListener); // Make sure it never changes it, while we aren't looking, since at least one Merge method does that very thing.
 
+			CheckMergeResults(retval, eventListener,
+				xpathQueriesThatMatchExactlyOneNode, xpathQueriesThatReturnNull,
+				expectedConflictCount, expectedConflictTypes,
+				expectedChangesCount, expectedChangeTypes);
+
+			return retval;
+		}
+
+		internal static void CheckMergeResults(string mergedResults, ListenerForUnitTests eventListener,
+			IEnumerable<string> xpathQueriesThatMatchExactlyOneNode, IEnumerable<string> xpathQueriesThatReturnNull,
+			int expectedConflictCount, List<Type> expectedConflictTypes,
+			int expectedChangesCount, List<Type> expectedChangeTypes)
+		{
 			if (xpathQueriesThatMatchExactlyOneNode != null)
 			{
 				foreach (var query in xpathQueriesThatMatchExactlyOneNode)
-					AssertXPathMatchesExactlyOne(retval, query);
+					AssertXPathMatchesExactlyOne(mergedResults, query);
 			}
 
 			if (xpathQueriesThatReturnNull != null)
 			{
 				foreach (var query in xpathQueriesThatReturnNull)
-					AssertXPathIsNull(retval, query);
+					AssertXPathIsNull(mergedResults, query);
 			}
 
 			eventListener.AssertExpectedConflictCount(expectedConflictCount);
 			expectedConflictTypes = expectedConflictTypes ?? new List<Type>();
-			Assert.AreEqual(expectedConflictTypes.Count, eventListener.Conflicts.Count, "Expected conflict count and actual number found differ.");
+			Assert.AreEqual(expectedConflictTypes.Count, eventListener.Conflicts.Count,
+							"Expected conflict count and actual number found differ.");
 			for (var idx = 0; idx < expectedConflictTypes.Count; ++idx)
 				Assert.AreSame(expectedConflictTypes[idx], eventListener.Conflicts[idx].GetType());
 
 			eventListener.AssertExpectedChangesCount(expectedChangesCount);
 			expectedChangeTypes = expectedChangeTypes ?? new List<Type>();
-			Assert.AreEqual(expectedChangeTypes.Count, eventListener.Changes.Count, "Expected change count and actual number found differ.");
+			Assert.AreEqual(expectedChangeTypes.Count, eventListener.Changes.Count,
+							"Expected change count and actual number found differ.");
 			for (var idx = 0; idx < expectedChangeTypes.Count; ++idx)
 				Assert.AreSame(expectedChangeTypes[idx], eventListener.Changes[idx].GetType());
-
-			return retval;
 		}
 
 		public static string DoMerge(

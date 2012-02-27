@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Xml;
 using Chorus.FileTypeHanders.xml;
@@ -28,9 +27,7 @@ namespace Chorus.FileTypeHanders
 			FromMixed
 		}
 
-		//TODO: this is a LIFT-only thing, we shouldn't have it hard coded here
-		private readonly static string _deletedAttr = "dateDeleted=";
-
+		private const string DeletedAttr = "dateDeleted=";
 		private readonly IMergeEventListener _eventListener;
 		private readonly HgRepository _repository;
 		private readonly FileInRevision _parentFileInRevision;
@@ -43,6 +40,9 @@ namespace Chorus.FileTypeHanders
 		private readonly DiffingMode _diffingMode;
 		private readonly Dictionary<string, byte[]> _parentIndex;
 
+		/// <summary>
+		/// Create instance of Xml2WayDiffer
+		/// </summary>
 		public static Xml2WayDiffer CreateFromFileInRevision(FileInRevision parent, FileInRevision child,
 			IMergeEventListener eventListener, HgRepository repository,
 			string firstElementMarker,
@@ -68,6 +68,9 @@ namespace Chorus.FileTypeHanders
 			_eventListener = eventListener;
 		}
 
+		/// <summary>
+		/// Create instance of Xml2WayDiffer
+		/// </summary>
 		public static Xml2WayDiffer CreateFromFiles(string parentPathname, string childPathname,
 			IMergeEventListener eventListener,
 			string firstElementMarker,
@@ -92,6 +95,9 @@ namespace Chorus.FileTypeHanders
 			_eventListener = eventListener;
 		}
 
+		/// <summary>
+		/// Create instance of Xml2WayDiffer
+		/// </summary>
 		public static Xml2WayDiffer CreateFromMixed(Dictionary<string, byte[]> parentIndex, string childPathname,
 			IMergeEventListener eventListener,
 			string firstElementMarker,
@@ -221,15 +227,17 @@ namespace Chorus.FileTypeHanders
 					var parentStr = enc.GetString(parentValue);
 					var childStr = enc.GetString(childValue);
 					if (parentStr == childStr)
-						continue;
+						continue; // Route tested
+
 					// May have added 'dateDeleted' attr, in which case treat it as deleted, not changed.
-					// TODO: This is only for Lift diffing, not FW diffing,
+					// NB: This is only for Lift diffing, not FW diffing,
 					// so figure a way to have the client do this kind of check.
-					if (childStr.Contains(_deletedAttr))
+					if (childStr.Contains(DeletedAttr))
 					{
 						// Only report it as deleted, if it is not already marked as deleted in the parent.
-						if (!parentStr.Contains(_deletedAttr))
+						if (!parentStr.Contains(DeletedAttr))
 						{
+							// Route tested
 							_eventListener.ChangeOccurred(new XmlDeletionChangeReport(
 															_parentFileInRevision,
 															XmlUtilities.GetDocumentNodeFromRawXml(enc.GetString(kvpParent.Value), parentDoc),
@@ -242,10 +250,11 @@ namespace Chorus.FileTypeHanders
 						try
 						{
 							if (XmlUtilities.AreXmlElementsEqual(new XmlInput(childStr), new XmlInput(parentStr)))
-								continue;
+								continue; // Route tested
 						}
 						catch (Exception error)
 						{
+							// Route not tested, and I don't know how to get XmlUtilities.AreXmlElementsEqual to throw.
 							_eventListener.ChangeOccurred(new ErrorDeterminingChangeReport(
 															_parentFileInRevision,
 															_childFileInRevision,
@@ -258,6 +267,7 @@ namespace Chorus.FileTypeHanders
 						// This may only be useful for quick, high-level identification that an entry changed,
 						// leaving *what* changed to a second pass, if needed by the user
 						// I (RBR), believe this can overproduce, otherwise useless change reports in a merge, if the merger uses it.
+						// Route tested
 						_eventListener.ChangeOccurred(new XmlChangedRecordReport(
 														_parentFileInRevision,
 														_childFileInRevision,
@@ -269,10 +279,12 @@ namespace Chorus.FileTypeHanders
 				{
 					//don't report deletions where there was a tombstone, but then someone removed the entry (which is what FLEx does)
 					var parentStr = enc.GetString(parentValue);
-					if (parentStr.Contains(_deletedAttr))
+					if (parentStr.Contains(DeletedAttr))
 					{
+						// Route tested
 						continue;
 					}
+					// Route tested
 					_eventListener.ChangeOccurred(new XmlDeletionChangeReport(
 													_parentFileInRevision,
 													XmlUtilities.GetDocumentNodeFromRawXml(enc.GetString(kvpParent.Value), parentDoc),
@@ -284,6 +296,7 @@ namespace Chorus.FileTypeHanders
 			// since values that were not new have been removed by now.
 			foreach (var child in childIndex.Values)
 			{
+				// Route tested
 				_eventListener.ChangeOccurred(new XmlAdditionChangeReport(
 												_childFileInRevision,
 												XmlUtilities.GetDocumentNodeFromRawXml(enc.GetString(child), childDoc)));

@@ -300,7 +300,7 @@ namespace Chorus.merge.xml.generic
 				}
 				if (theirText == string.Empty && ancestorText != string.Empty)
 				{
-					// 2A. Well, they almost deleted everything, so just go with a simple we deleted, rather than a conflict.
+					// 2A. Well, they almost deleted everything, so just go with a simple we deleted node, rather than a conflict.
 					_merger.EventListener.ChangeOccurred(new XmlTextDeletedReport(_merger.MergeSituation.PathToFileInRepository, _ancestor));
 					_ancestorKeepers.Remove(_ancestor);
 					_ours = _theirs;
@@ -363,7 +363,7 @@ namespace Chorus.merge.xml.generic
 				}
 				if (ourText == ancestorText)
 				{
-					// They delete entire node, We did nothing.
+					// They deleted entire node, We did nothing.
 					_merger.EventListener.ChangeOccurred(new XmlTextDeletedReport(_merger.MergeSituation.PathToFileInRepository, _ancestor));
 					_ancestorKeepers.Remove(_ancestor);
 					_ourKeepers.Remove(_ours);
