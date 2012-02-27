@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Net;
 
 namespace Chorus.VcsDrivers.Mercurial
@@ -14,7 +15,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 	public class HgResumeApiResponse
 	{
-		public Dictionary<string, string> Headers = new Dictionary<string, string>();
+		public Dictionary<string, string> Headers = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 		public HttpStatusCode StatusCode;
 		public byte[] Content;
 		public long ResponseTimeInMilliseconds;
