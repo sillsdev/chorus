@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using System.Xml;
 using Chorus.FileTypeHanders.xml;
 
@@ -14,12 +13,12 @@ namespace Chorus.merge.xml.generic
 		{
 			var extantNode = ours ?? theirs ?? ancestor;
 
-			var newForOurs = new List<XmlAttribute>();
+			var skipProcessingInOurs = new HashSet<string>();
 			// Deletions from ancestor, no matter who did it.
-			foreach (var ancestorAttr in GetAttrs(ancestor))
+			foreach (var ancestorAttr in XmlUtilities.GetAttrs(ancestor))
 			{
-				var ourAttr = GetAttributeOrNull(ours, ancestorAttr.Name);
-				var theirAttr = GetAttributeOrNull(theirs, ancestorAttr.Name);
+				var ourAttr = XmlUtilities.GetAttributeOrNull(ours, ancestorAttr.Name);
+				var theirAttr = XmlUtilities.GetAttributeOrNull(theirs, ancestorAttr.Name);
 				if (theirAttr == null)
 				{
 					if (ourAttr == null)
@@ -48,9 +47,9 @@ namespace Chorus.merge.xml.generic
 					{
 						// We deleted it, but at the same time, they changed it. So just add theirs in, under the principle of
 						// least data loss (an attribute can be a huge text element)
-						newForOurs.Add(theirAttr);
-						//var importedAttribute = (XmlAttribute)ours.OwnerDocument.ImportNode(theirAttr, true);
-						//ours.Attributes.Append(importedAttribute);
+						skipProcessingInOurs.Add(theirAttr.Name); // Make sure we don't process it again in 'ours loop, below.
+						var importedAttribute = (XmlAttribute)ours.OwnerDocument.ImportNode(theirAttr.CloneNode(true), true);
+						ours.Attributes.Append(importedAttribute);
 						merger.ConflictOccurred(new RemovedVsEditedAttributeConflict(theirAttr.Name, null, theirAttr.Value, ancestorAttr.Value, merger.MergeSituation,
 							merger.MergeSituation.BetaUserId));
 						continue;
@@ -62,18 +61,19 @@ namespace Chorus.merge.xml.generic
 				}
 			}
 
-			foreach (var theirAttr in GetAttrs(theirs))
+			foreach (var theirAttr in XmlUtilities.GetAttrs(theirs))
 			{
 				// Will never return null, since it will use the default one, if it can't find a better one.
 				var mergeStrategy = merger.MergeStrategies.GetElementStrategy(extantNode);
-				var ourAttr = GetAttributeOrNull(ours, theirAttr.Name);
-				var ancestorAttr = GetAttributeOrNull(ancestor, theirAttr.Name);
+				var ourAttr = XmlUtilities.GetAttributeOrNull(ours, theirAttr.Name);
+				var ancestorAttr = XmlUtilities.GetAttributeOrNull(ancestor, theirAttr.Name);
 
 				if (ourAttr == null)
 				{
 					if (ancestorAttr == null)
 					{
-						var importedAttribute = (XmlAttribute)ours.OwnerDocument.ImportNode(theirAttr, true);
+						skipProcessingInOurs.Add(theirAttr.Name); // Make sure we don't process it again in 'ours loop, below.
+						var importedAttribute = (XmlAttribute)ours.OwnerDocument.ImportNode(theirAttr.CloneNode(true), true);
 						ours.Attributes.Append(importedAttribute);
 						merger.EventListener.ChangeOccurred(new XmlAttributeAddedReport(merger.MergeSituation.PathToFileInRepository, theirAttr));
 					}
@@ -108,13 +108,13 @@ namespace Chorus.merge.xml.generic
 						{
 							if (merger.MergeSituation.ConflictHandlingMode == MergeOrder.ConflictHandlingModeChoices.WeWin)
 							{
-								merger.ConflictOccurred(new BothAddedAttributeConflict(theirAttr.Name, ourAttr.Value, theirAttr.Value, null, merger.MergeSituation,
+								merger.ConflictOccurred(new BothAddedAttributeConflict(theirAttr.Name, ourAttr.Value, theirAttr.Value, merger.MergeSituation,
 									merger.MergeSituation.AlphaUserId));
 							}
 							else
 							{
 								ourAttr.Value = theirAttr.Value;
-								merger.ConflictOccurred(new BothAddedAttributeConflict(theirAttr.Name, ourAttr.Value, theirAttr.Value, null, merger.MergeSituation,
+								merger.ConflictOccurred(new BothAddedAttributeConflict(theirAttr.Name, ourAttr.Value, theirAttr.Value, merger.MergeSituation,
 									merger.MergeSituation.BetaUserId));
 							}
 						}
@@ -131,6 +131,7 @@ namespace Chorus.merge.xml.generic
 						// They changed.
 						if (!mergeStrategy.AttributesToIgnoreForMerging.Contains(ourAttr.Name))
 						{
+							skipProcessingInOurs.Add(theirAttr.Name);
 							merger.EventListener.ChangeOccurred(new XmlAttributeChangedReport(merger.MergeSituation.PathToFileInRepository, theirAttr));
 							ourAttr.Value = theirAttr.Value;
 						}
@@ -140,6 +141,8 @@ namespace Chorus.merge.xml.generic
 				else if (ourAttr.Value == theirAttr.Value)
 				{
 					// Both changed to same value
+					if (skipProcessingInOurs.Contains(theirAttr.Name))
+						continue;
 					merger.EventListener.ChangeOccurred(new XmlAttributeBothMadeSameChangeReport(merger.MergeSituation.PathToFileInRepository, ourAttr));
 					continue;
 				}
@@ -178,10 +181,13 @@ namespace Chorus.merge.xml.generic
 				}
 			}
 
-			foreach (var ourAttr in GetAttrs(ours))
+			foreach (var ourAttr in XmlUtilities.GetAttrs(ours))
 			{
-				var theirAttr = GetAttributeOrNull(theirs, ourAttr.Name);
-				var ancestorAttr = GetAttributeOrNull(ancestor, ourAttr.Name);
+				if (skipProcessingInOurs.Contains(ourAttr.Name))
+					continue;
+
+				var theirAttr = XmlUtilities.GetAttributeOrNull(theirs, ourAttr.Name);
+				var ancestorAttr = XmlUtilities.GetAttributeOrNull(ancestor, ourAttr.Name);
 
 				if (ancestorAttr == null)
 				{
@@ -209,24 +215,6 @@ namespace Chorus.merge.xml.generic
 					//}
 				}
 			}
-
-			foreach (var newby in newForOurs)
-			{
-				// Wonder what happens if ours is null?
-				ours.Attributes.Append((XmlAttribute)ours.OwnerDocument.ImportNode(newby, true));
-			}
-		}
-
-		private static IEnumerable<XmlAttribute> GetAttrs(XmlNode node)
-		{
-			return (node is XmlCharacterData || node == null)
-					? new List<XmlAttribute>()
-					: new List<XmlAttribute>(node.Attributes.Cast<XmlAttribute>()); // Need to copy so we can iterate while changing.
-		}
-
-		private static XmlAttribute GetAttributeOrNull(XmlNode node, string name)
-		{
-			return node == null ? null : node.Attributes.GetNamedItem(name) as XmlAttribute;
 		}
 	}
 }

@@ -319,6 +319,7 @@ namespace Chorus.merge.xml.generic
 
 					Register<BothReorderedElementConflict>(builder);
 					Register<BothInsertedAtDifferentPlaceConflict>(builder);
+					Register<BothAddedMainElementButWithDifferentContentConflict>(builder);
 
 					Register<RemovedVsEditedAttributeConflict>(builder);
 					Register<EditedVsRemovedAttributeConflict>(builder);
@@ -779,8 +780,8 @@ namespace Chorus.merge.xml.generic
 	[TypeGuid("c1ed6dc1-e382-11de-8a39-0800200c9a66")]
 	sealed public class BothAddedAttributeConflict : AttributeConflict // NB: Be sure to register any new instances in CreateFromConflictElement method.
 	{
-		public BothAddedAttributeConflict(string attributeName, string alphaValue, string betaValue, string ancestorValue, MergeSituation mergeSituation, string whoWon)
-			: base(attributeName, alphaValue, betaValue, ancestorValue, mergeSituation, whoWon)
+		public BothAddedAttributeConflict(string attributeName, string alphaValue, string betaValue, MergeSituation mergeSituation, string whoWon)
+			: base(attributeName, alphaValue, betaValue, null, mergeSituation, whoWon)
 		{
 		}
 
@@ -946,6 +947,35 @@ namespace Chorus.merge.xml.generic
 		}
 	}
 
+	[TypeGuid("c1ed94d6-e382-11de-8a39-0800200c9a66")]
+	public class BothAddedMainElementButWithDifferentContentConflict : ElementConflict
+	{
+		public BothAddedMainElementButWithDifferentContentConflict(string elementName, XmlNode alphaNode, XmlNode betaNode,
+			MergeSituation mergeSituation, IElementDescriber elementDescriber, string whoWon)
+			: base(elementName, alphaNode, betaNode, null, mergeSituation, elementDescriber, whoWon)
+		{
+		}
+
+		public BothAddedMainElementButWithDifferentContentConflict(XmlNode xmlRepresentation)
+			: base(xmlRepresentation)
+		{
+		}
+
+		public override string Description
+		{
+			get { return "Both added the same element, but with different content conflict"; }
+		}
+
+		public override string WhatHappened
+		{
+			get
+			{
+				return string.Format("{0} and {1} added the same element, but with different content.",
+					Situation.AlphaUserId, Situation.BetaUserId);
+			}
+		}
+	}
+
 	[TypeGuid("14262878-270A-4E27-BA5F-7D232B979D6B")]
 	public class BothReorderedElementConflict : ElementConflict // NB: Be sure to register any new instances in CreateFromConflictElement method.
 	{
@@ -959,6 +989,7 @@ namespace Chorus.merge.xml.generic
 		{
 
 		}
+
 		public override string Description
 		{
 			get { return "Both Reordered Conflict"; }

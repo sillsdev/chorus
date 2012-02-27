@@ -143,6 +143,7 @@
 	<Compile Include="FileTypeHanders\Xml2WayDiffService.cs" />
 	<Compile Include="FileTypeHanders\xml\BothChangedAtomicElementReport.cs" />
 	<Compile Include="FileTypeHanders\xml\XmlAttributeChange.cs" />
+	<Compile Include="FileTypeHanders\xml\XmlBothAddedSameChangeReport.cs" />
 	<Compile Include="FileTypeHanders\xml\XmlTextChange.cs" />
 	<Compile Include="merge\xml\generic\DefaultKeyFinder.cs" />
 	<Compile Include="merge\xml\generic\IKeyFinder.cs" />
