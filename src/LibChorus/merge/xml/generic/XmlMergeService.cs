@@ -29,6 +29,33 @@ namespace Chorus.merge.xml.generic
 		private static readonly Encoding Utf8 = Encoding.UTF8;
 
 		/// <summary>
+		/// Do some repeated lines in one place.
+		/// </summary>
+		public static void AddConflictToListener(IMergeEventListener listener, IConflict conflict)
+		{
+			AddConflictToListener(listener, conflict, null, null, null);
+		}
+
+		/// <summary>
+		/// Do some repeated lines in one place.
+		/// </summary>
+		public static void AddConflictToListener(IMergeEventListener listener, IConflict conflict, XmlNode oursContext, XmlNode theirsContext, XmlNode ancestorContext)
+		{
+			AddConflictToListener(listener, conflict, oursContext, theirsContext, ancestorContext, new SimpleHtmlGenerator());
+		}
+
+		/// <summary>
+		/// Do some repeated lines in one place.
+		/// </summary>
+		public static void AddConflictToListener(IMergeEventListener listener, IConflict conflict, XmlNode oursContext, XmlNode theirsContext, XmlNode ancestorContext, IGenerateHtmlContext htmlContextGenerator)
+		{
+			// NB: All three of these are crucially ordered.
+			listener.RecordContextInConflict(conflict);
+			conflict.MakeHtmlDetails(oursContext, theirsContext, ancestorContext, htmlContextGenerator);
+			listener.ConflictOccurred(conflict);
+		}
+
+		/// <summary>
 		/// Perform the 3-way merge.
 		/// </summary>
 		public static void Do3WayMerge(MergeOrder mergeOrder, IMergeStrategy mergeStrategy, // Get from mergeOrder: IMergeEventListener listener,
@@ -161,7 +188,18 @@ namespace Chorus.merge.xml.generic
 					// We win. Work up conflict report.
 					// Route tested.
 					var winnerElement = winnerKvp.Value;
-					listener.ConflictOccurred(new BothAddedMainElementButWithDifferentContentConflict(winnerKvp.Value.Name, winnerElement, loserNewbies[winnerKey], mergeOrder.MergeSituation, ElementStrategy.CreateForKeyedElement(winnerKey, false), mergeOrder.MergeSituation.AlphaUserId));
+					AddConflictToListener(
+						listener,
+						new BothAddedMainElementButWithDifferentContentConflict(
+							winnerKvp.Value.Name,
+							winnerElement,
+							loserNewbies[winnerKey],
+							mergeOrder.MergeSituation,
+							ElementStrategy.CreateForKeyedElement(winnerKey, false),
+							mergeOrder.MergeSituation.AlphaUserId),
+						winnerElement,
+						loserNewbies[winnerKey],
+						null);
 					loserNewbies.Remove(winnerKey);
 					winnersToRemove.Add(winnerKey);
 					WriteNode(winnerElement, writer);
@@ -171,7 +209,18 @@ namespace Chorus.merge.xml.generic
 					// They win. Work up conflict report.
 					// Route tested.
 					var loserElement = loserNewbies[winnerKey];
-					listener.ConflictOccurred(new BothAddedMainElementButWithDifferentContentConflict(winnerKvp.Value.Name, loserNewbies[winnerKey], winnerKvp.Value, mergeOrder.MergeSituation, ElementStrategy.CreateForKeyedElement(winnerKey, false), mergeOrder.MergeSituation.BetaUserId));
+					AddConflictToListener(
+						listener,
+						new BothAddedMainElementButWithDifferentContentConflict(
+							winnerKvp.Value.Name,
+							winnerKvp.Value,
+							loserNewbies[winnerKey],
+							mergeOrder.MergeSituation,
+							ElementStrategy.CreateForKeyedElement(winnerKey, false),
+							mergeOrder.MergeSituation.BetaUserId),
+						winnerKvp.Value,
+						loserNewbies[winnerKey],
+						null);
 					winnersToRemove.Add(winnerKey);
 					loserNewbies.Remove(winnerKey);
 					WriteNode(loserElement, writer);
@@ -426,10 +475,19 @@ namespace Chorus.merge.xml.generic
 				// Winner edited it, but loser deleted it.
 				// Make a conflict report.
 				var dirtballChangedElement = winnerDirtballs[currentKey];
-				var editedVsRemovedElementConflict = new EditedVsRemovedElementConflict(recordElementName, dirtballChangedElement._childNode,
-					loserGoners[currentKey], dirtballChangedElement._parentNode, mergeOrder.MergeSituation, new ElementStrategy(false), winnerId);
-				listener.RecordContextInConflict(editedVsRemovedElementConflict);
-				listener.ConflictOccurred(editedVsRemovedElementConflict);
+				AddConflictToListener(
+					listener,
+					new EditedVsRemovedElementConflict(
+						recordElementName,
+						dirtballChangedElement._childNode,
+						loserGoners[currentKey],
+						dirtballChangedElement._parentNode,
+						mergeOrder.MergeSituation,
+						new ElementStrategy(false),
+						winnerId),
+					dirtballChangedElement._childNode,
+					loserGoners[currentKey],
+					dirtballChangedElement._parentNode);
 
 				ReplaceCurrentNode(writer, dirtballChangedElement._childNode);
 				winnerDirtballs.Remove(currentKey);
@@ -519,10 +577,19 @@ namespace Chorus.merge.xml.generic
 					// Winner deleted it, but loser edited it.
 					// Make a conflict report.
 					// Route tested (x2).
-					var removedVsEditedElementConflict = new RemovedVsEditedElementConflict(recordElementName, winnerGoners[currentKey],
-						dirtball._childNode, dirtball._parentNode, mergeOrder.MergeSituation, new ElementStrategy(false), winnerId);
-					listener.RecordContextInConflict(removedVsEditedElementConflict);
-					listener.ConflictOccurred(removedVsEditedElementConflict);
+					AddConflictToListener(
+						listener,
+						new RemovedVsEditedElementConflict(
+							recordElementName,
+							winnerGoners[currentKey],
+							dirtball._childNode,
+							dirtball._parentNode,
+							mergeOrder.MergeSituation,
+							new ElementStrategy(false),
+							winnerId),
+						winnerGoners[currentKey],
+						dirtball._childNode,
+						dirtball._parentNode);
 					// Write out edited node, under the least loss principle.
 					ReplaceCurrentNode(writer, loserDirtballs, currentKey);
 					loserDirtballs.Remove(currentKey);

@@ -1,15 +1,9 @@
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Xml;
-using Chorus.FileTypeHanders.text;
-using Chorus.FileTypeHanders.xml;
-using Chorus.Properties;
 
 namespace Chorus.merge.xml.generic
 {
-	 public class NodeMergeResult : ChangeAndConflictAccumulator
+	public class NodeMergeResult : ChangeAndConflictAccumulator
 		{
 				public XmlNode MergedNode { get; internal set; }
 		}
@@ -70,23 +64,14 @@ namespace Chorus.merge.xml.generic
 		{
 			if (_htmlContextGenerator == null)
 				_htmlContextGenerator = new SimpleHtmlGenerator();
-			EventListener.RecordContextInConflict(conflict);
-			conflict.MakeHtmlDetails(_oursContext, _theirsContext, _ancestorContext, _htmlContextGenerator);
-			EventListener.ConflictOccurred(conflict);
 
-		}
-
-		class SimpleHtmlGenerator : IGenerateHtmlContext
-		{
-			public string HtmlContext(XmlNode mergeElement)
-			{
-				return XmlUtilities.GetXmlForShowingInHtml(mergeElement.OuterXml);
-			}
-
-			public string HtmlContextStyles(XmlNode mergeElement)
-			{
-				return ""; // GetXmlForShowingInHtml does not generate any classes
-			}
+			XmlMergeService.AddConflictToListener(
+				EventListener,
+				conflict,
+				_oursContext,
+				_theirsContext,
+				_ancestorContext,
+				_htmlContextGenerator);
 		}
 
 		/// <summary>

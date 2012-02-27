@@ -150,6 +150,7 @@
 	<Compile Include="merge\xml\generic\MergeAtomicElementService.cs" />
 	<Compile Include="merge\xml\generic\MergeTextNodesMethod.cs" />
 	<Compile Include="merge\xml\generic\MergeXmlAttributesService.cs" />
+	<Compile Include="merge\xml\generic\SimpleHtmlGenerator.cs" />
 	<Compile Include="merge\xml\generic\XmlMergeService.cs" />
 	<Compile Include="FileTypeHanders\oneStory\OneStoryChangePresenter.cs" />
 	<Compile Include="FileTypeHanders\oneStory\OneStoryDiffer.cs" />

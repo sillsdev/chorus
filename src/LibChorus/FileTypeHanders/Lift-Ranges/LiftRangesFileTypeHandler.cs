@@ -5,6 +5,7 @@ using Chorus.FileTypeHanders.text;
 using Chorus.merge;
 using Chorus.Utilities.code;
 using Chorus.VcsDrivers.Mercurial;
+using Chorus.merge.xml.generic;
 using Palaso.IO;
 using Palaso.Progress.LogBox;
 
@@ -78,9 +79,7 @@ namespace Chorus.FileTypeHanders
 				return;
 			}
 
-			var unmergableFileTypeConflict = new UnmergableFileTypeConflict(mergeOrder.MergeSituation);
-			mergeOrder.EventListener.RecordContextInConflict(unmergableFileTypeConflict);
-			mergeOrder.EventListener.ConflictOccurred(unmergableFileTypeConflict);
+			XmlMergeService.AddConflictToListener(mergeOrder.EventListener, new UnmergableFileTypeConflict(mergeOrder.MergeSituation));
 			if (mergeOrder.MergeSituation.ConflictHandlingMode == MergeOrder.ConflictHandlingModeChoices.TheyWin)
 				File.Copy(mergeOrder.pathToTheirs, mergeOrder.pathToOurs, true);
 		}
