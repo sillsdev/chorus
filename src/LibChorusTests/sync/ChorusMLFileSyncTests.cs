@@ -4,6 +4,7 @@ using System.Xml;
 using Chorus.FileTypeHanders;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
+using LibChorus.TestUtilities;
 using LibChorus.Tests.merge;
 using NUnit.Framework;
 

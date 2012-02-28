@@ -7,6 +7,7 @@ using Chorus.UI.Review;
 using Chorus.UI.Review.RevisionsInRepository;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
+using LibChorus.TestUtilities;
 using LibChorus.Tests;
 using NUnit.Framework;
 using Palaso.Progress.LogBox;
