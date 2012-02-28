@@ -28,9 +28,12 @@ namespace LibChorus.Tests.merge.xml.generic
 			_mergeStrategies = null;
 		}
 
+		#region Report added in MergeChildrenMethod
+
 		[Test]
 		public void WeAddedNewTextElementToNonExistingElementTheyDidNothingHasOneChangeReport()
 		{
+			// report is added in MergeChildrenMethod
 			const string ancestor = @"<a/>";
 			const string ours =
 @"<a>
@@ -45,6 +48,83 @@ namespace LibChorus.Tests.merge.xml.generic
 				null,
 				0, null,
 				1, new List<Type> { typeof(XmlTextAddedReport) });
+		}
+
+		[Test]
+		public void TheyAddedNewTextElementToNonExistingElementWeDidNothingHasOneChangeReport()
+		{
+			// report is added in MergeChildrenMethod
+			const string ancestor = @"<a/>";
+			const string ours = ancestor;
+			const string theirs =
+@"<a>
+	<b>theirNewText</b>
+</a>";
+			XmlTestHelper.DoMerge(
+				_mergeStrategies,
+				ancestor, ours, theirs,
+				new List<string> { "a/b[text()='theirNewText']" },
+				null,
+				0, null,
+				1, new List<Type> { typeof(XmlTextAddedReport) });
+		}
+
+		[Test]
+		public void WeDeletedOtherwiseEmptyElementTheyDidNothingHasDeletionReport()
+		{
+			const string ancestor = @"<a><b/></a>";
+			const string ours = @"<a></a>";
+			const string theirs = ancestor;
+
+			XmlTestHelper.DoMerge(
+				_mergeStrategies,
+				ancestor, ours, theirs,
+				new List<string> { "a" },
+				new List<string> { "a/b" },
+				0, null,
+				1, new List<Type> { typeof(XmlDeletionChangeReport) });
+		}
+
+		#endregion Report added in MergeChildrenMethod
+
+		[Test]
+		public void NobodyDidAnythingHasNoReports()
+		{
+			const string ancestor =
+@"<a>
+	<b>originalText</b>
+</a>";
+			const string ours = ancestor;
+			const string theirs = ancestor;
+
+			XmlTestHelper.DoMerge(
+				_mergeStrategies,
+				ancestor, ours, theirs,
+				null,
+				null,
+				0, null,
+				0, null);
+		}
+
+		[Test]
+		public void BothAddedSameThingHasChangeReport()
+		{
+			const string ancestor =
+@"<a>
+</a>";
+			const string ours =
+@"<a>
+	<b>bothAddedText</b>
+</a>";
+			const string theirs = ours;
+
+			XmlTestHelper.DoMerge(
+				_mergeStrategies,
+				ancestor, ours, theirs,
+				new [] { "a/b[text()='bothAddedText']" },
+				null,
+				0, null,
+				1, new List<Type> { typeof(XmlTextBothAddedReport) });
 		}
 
 		[Test]
@@ -64,24 +144,6 @@ namespace LibChorus.Tests.merge.xml.generic
 				_mergeStrategies,
 				ancestor, ours, theirs,
 				new List<string> { "a/b[text()='ourNewText']" },
-				null,
-				0, null,
-				1, new List<Type> { typeof(XmlTextAddedReport) });
-		}
-
-		[Test]
-		public void TheyAddedNewTextElementToNonExistingElementWeDidNothingHasOneChangeReport()
-		{
-			const string ancestor = @"<a/>";
-			const string ours = ancestor;
-			const string theirs =
-@"<a>
-	<b>theirNewText</b>
-</a>";
-			XmlTestHelper.DoMerge(
-				_mergeStrategies,
-				ancestor, ours, theirs,
-				new List<string> { "a/b[text()='theirNewText']" },
 				null,
 				0, null,
 				1, new List<Type> { typeof(XmlTextAddedReport) });
@@ -198,6 +260,30 @@ namespace LibChorus.Tests.merge.xml.generic
 		}
 
 		[Test]
+		public void WeAddedEmptyNodeTheyAddedNodeAndContentHasChangeReport1()
+		{
+			const string ancestor =
+@"<a>
+</a>";
+			const string ours =
+@"<a>
+	<b></b>
+</a>";
+			const string theirs =
+@"<a>
+	<b>theyAddedText</b>
+</a>";
+
+			XmlTestHelper.DoMerge(
+				_mergeStrategies,
+				ancestor, ours, theirs,
+				new List<string> { "a/b[text()='theyAddedText']" },
+				null,
+				0, null,
+				1, new List<Type> { typeof(XmlTextAddedReport) });
+		}
+
+		[Test]
 		public void BothDeletedWithOneChangeReport1()
 		{
 			const string ancestor =
@@ -292,7 +378,7 @@ namespace LibChorus.Tests.merge.xml.generic
 		}
 
 		[Test]
-		public void BothEditedButNotTheSameEditsReportedAsConflict()
+		public void BothEditedButNotTheSameEditsWeWinReportedAsConflict()
 		{
 			const string ancestor = "<a><b>original</b></a>";
 			const string ours = "<a><b>weChanged</b></a>";
@@ -307,22 +393,6 @@ namespace LibChorus.Tests.merge.xml.generic
 				0, null);
 		}
 
-		[Test]
-		public void WeDeletedOtherwiseEmptyElementTheyDidNothingHasDeletionReport()
-		{
-			const string ancestor = @"<a><b/></a>";
-			const string ours = @"<a></a>";
-			const string theirs = ancestor;
-
-			XmlTestHelper.DoMerge(
-				_mergeStrategies,
-				ancestor, ours, theirs,
-				new List<string> {"a"},
-				new List<string> {"a/b"},
-				0, null,
-				1, new List<Type> { typeof(XmlDeletionChangeReport) });
-		}
-
 		/// <summary>
 		/// We delete two adjacent items; They inserts a new item between the two deleted items. Output should show the missing
 		/// items deleted and the new one inserted in the right place, with the right number of reports.
@@ -330,6 +400,7 @@ namespace LibChorus.Tests.merge.xml.generic
 		[Test]
 		public void WeDeleteNeighborsAndTheyInsertInOrder()
 		{
+			// Some in MergeTextNodesMethod. One in MergeChildrenMethod
 			const string ancestor = @"<a>
 								<b key='one'>
 									<c key='a'>first</c>
@@ -379,6 +450,7 @@ namespace LibChorus.Tests.merge.xml.generic
 		[Test]
 		public void TheyDeleteNeighborsAndWeInsertInOrder()
 		{
+			// Some in MergeTextNodesMethod. One in MergeChildrenMethod
 			const string ancestor = @"<a>
 								<b key='one'>
 									<c key='a'>first</c>
@@ -423,7 +495,7 @@ namespace LibChorus.Tests.merge.xml.generic
 		}
 
 		[Test]
-		public void TextElementBothEdited_OuterWhiteSpaceIgnored()
+		public void TextElementBothEditedOuterWhiteSpaceIgnored()
 		{
 			const string ancestor = "<a><b/></a>";
 			const string ours = "<a><b>   flub</b></a>";
@@ -452,6 +524,234 @@ namespace LibChorus.Tests.merge.xml.generic
 				null,
 				0, null,
 				1, new List<Type> { typeof(XmlTextAddedReport) });
+		}
+
+		[Test]
+		public void WeBothAddedButNotTheSameWeWinHasConflictReport()
+		{
+			const string ancestor = "<a/>";
+			const string ours = "<a><b>ourAdd</b></a>";
+			const string theirs = "<a><b>theirAdd</b></a>";
+
+			XmlTestHelper.DoMerge(
+				_mergeStrategies,
+				ancestor, ours, theirs,
+				new List<string> { "a/b[contains(text(),'ourAdd')]" },
+				null,
+				1, new List<Type> { typeof(XmlTextBothAddedTextConflict) },
+				0, null);
+		}
+
+		[Test]
+		public void WeBothAddedButNotTheSameTheyWinHasConflictReport()
+		{
+			const string ancestor = "<a/>";
+			const string ours = "<a><b>ourAdd</b></a>";
+			const string theirs = "<a><b>theirAdd</b></a>";
+
+			XmlTestHelper.DoMerge(
+				_mergeStrategies,
+				new NullMergeSituationTheyWin(),
+				ancestor, ours, theirs,
+				new List<string> { "a/b[contains(text(),'theirAdd')]" },
+				null,
+				1, new List<Type> { typeof(XmlTextBothAddedTextConflict) },
+				0, null);
+		}
+
+		[Test]
+		public void TheyAddedTextContentAndNodeWeDidNothingHasChangeReport()
+		{
+			const string ancestor = "<a></a>";
+			const string ours = ancestor;
+			const string theirs = "<a><b>theirAdd</b></a>";
+
+			XmlTestHelper.DoMerge(
+				_mergeStrategies,
+				new NullMergeSituationTheyWin(),
+				ancestor, ours, theirs,
+				new List<string> { "a/b[contains(text(),'theirAdd')]" },
+				null,
+				0, null,
+				1, new List<Type> { typeof(XmlTextAddedReport) });
+		}
+
+		[Test]
+		public void TheyDeletedTextStringButWeEditedItHasConflictReport()
+		{
+			const string ancestor = "<a><b>original</b></a>";
+			const string ours = "<a><b>ourEdit</b></a>";
+			const string theirs = "<a><b></b></a>";
+
+			XmlTestHelper.DoMerge(
+				_mergeStrategies,
+				ancestor, ours, theirs,
+				new List<string> { "a/b[contains(text(),'ourEdit')]" },
+				new List<string> { "a/b[contains(text(),'original')]" },
+				1, new List<Type> { typeof(XmlTextEditVsRemovedConflict) },
+				0, null);
+		}
+
+		[Test]
+		public void WeDeletedTextStringButTheyEditedItHasConflictReport()
+		{
+			const string ancestor = "<a><b>original</b></a>";
+			const string ours = "<a><b></b></a>";
+			const string theirs = "<a><b>theirEdit</b></a>";
+
+			XmlTestHelper.DoMerge(
+				_mergeStrategies,
+				ancestor, ours, theirs,
+				new List<string> { "a/b[contains(text(),'theirEdit')]" },
+				new List<string> { "a/b[contains(text(),'original')]" },
+				1, new List<Type> { typeof(XmlTextRemovedVsEditConflict) },
+				0, null);
+		}
+
+		[Test]
+		public void BothEditedTextStringButNotTheSameWayWeWinHasConflictReport()
+		{
+			const string ancestor = "<a><b>original</b></a>";
+			const string ours = "<a><b>ourEdit</b></a>";
+			const string theirs = "<a><b>theirEdit</b></a>";
+
+			XmlTestHelper.DoMerge(
+				_mergeStrategies,
+				new NullMergeSituationTheyWin(),
+				ancestor, ours, theirs,
+				new List<string> { "a/b[contains(text(),'theirEdit')]" },
+				new List<string> { "a/b[contains(text(),'original')]", "a/b[contains(text(),'ourEdit')]" },
+				1, new List<Type> { typeof(XmlTextBothEditedTextConflict) },
+				0, null);
+		}
+
+		[Test]
+		public void BothMadeTheSameEditInTheTextStringHasChangeReport()
+		{
+			const string ancestor = "<a><b>original</b></a>";
+			const string ours = "<a><b>commonEdit</b></a>";
+			const string theirs = "<a><b>commonEdit</b></a>";
+
+			XmlTestHelper.DoMerge(
+				_mergeStrategies,
+				ancestor, ours, theirs,
+				new List<string> { "a/b[contains(text(),'commonEdit')]" },
+				new List<string> { "a/b[contains(text(),'original')]" },
+				0, null,
+				1, new List<Type> { typeof(XmlTextBothMadeSameChangeReport) });
+		}
+
+		[Test]
+		public void BothDeletedTheTextStringButLeftTheNodeHasChangeReport()
+		{
+			const string ancestor = "<a><b>original</b></a>";
+			const string ours = "<a><b></b></a>";
+			const string theirs = "<a><b></b></a>";
+
+			XmlTestHelper.DoMerge(
+				_mergeStrategies,
+				ancestor, ours, theirs,
+				new List<string> { "a/b" },
+				new List<string> { "a/b[contains(text(),'original')]" },
+				0, null,
+				1, new List<Type> { typeof(XmlTextBothDeletedReport) });
+		}
+
+		[Test]
+		public void WeDeletedNodeTheyDeletedTextAndLeftNodeHasChangeReport()
+		{
+			const string ancestor = "<a><b>original</b></a>";
+			const string ours = "<a></a>";
+			const string theirs = "<a><b></b></a>";
+
+			XmlTestHelper.DoMerge(
+				_mergeStrategies,
+				ancestor, ours, theirs,
+				new List<string> { "a/b" },
+				new List<string> { "a/b[contains(text(),'original')]" },
+				0, null,
+				1, new List<Type> { typeof(XmlTextDeletedReport) });
+		}
+
+		[Test]
+		public void WeDeletedNodeButTheyChangedTextHasConflictReport()
+		{
+			const string ancestor = "<a><b>original</b></a>";
+			const string ours = "<a></a>";
+			const string theirs = "<a><b>theirEdit</b></a>";
+
+			XmlTestHelper.DoMerge(
+				_mergeStrategies,
+				ancestor, ours, theirs,
+				new List<string> { "a/b[contains(text(),'theirEdit')]" },
+				new List<string> { "a/b[contains(text(),'original')]" },
+				1, new List<Type> { typeof(XmlTextRemovedVsEditConflict) },
+				0, null);
+		}
+
+		[Test]
+		public void WeEditedTextButTheyDeletedNodeHasConflictReport()
+		{
+			const string ancestor = "<a><b>original</b></a>";
+			const string ours = "<a><b>ourEdit</b></a>";
+			const string theirs = "<a></a>";
+
+			XmlTestHelper.DoMerge(
+				_mergeStrategies,
+				ancestor, ours, theirs,
+				new List<string> { "a/b[contains(text(),'ourEdit')]" },
+				new List<string> { "a/b[contains(text(),'original')]" },
+				1, new List<Type> { typeof(XmlTextEditVsRemovedConflict) },
+				0, null);
+		}
+
+		[Test]
+		public void WeDeletedTextButLeftNodeTheyDidNothingHasChangeReport()
+		{
+			const string ancestor = "<a><b>original</b></a>";
+			const string ours = "<a><b></b></a>";
+			const string theirs = "<a><b>original</b></a>";
+
+			XmlTestHelper.DoMerge(
+				_mergeStrategies,
+				ancestor, ours, theirs,
+				new List<string> { "a/b" },
+				new List<string> { "a/b[contains(text(),'original')]" },
+				0, null,
+				1, new List<Type> { typeof(XmlTextDeletedReport) });
+		}
+
+		[Test]
+		public void WeDeletedTextTheyDeletedTextAndNodeHasChangeReport()
+		{
+			const string ancestor = "<a><b>original</b></a>";
+			const string ours = "<a><b></b></a>";
+			const string theirs = "<a></a>";
+
+			XmlTestHelper.DoMerge(
+				_mergeStrategies,
+				ancestor, ours, theirs,
+				new List<string> { "a" },
+				new List<string> { "a/b" },
+				0, null,
+				1, new List<Type> { typeof(XmlTextDeletedReport) });
+		}
+		// They deleted text, but left node, We did nothing.
+
+		[Test]
+		public void TheyDeletedTextButLeftNodeAndWeDidNothingHasChangeReport()
+		{
+			const string ancestor = "<a><b>original</b></a>";
+			const string ours = "<a><b>original</b></a>";
+			const string theirs = "<a><b></b></a>";
+
+			XmlTestHelper.DoMerge(
+				_mergeStrategies,
+				ancestor, ours, theirs,
+				new List<string> { "a/b" },
+				new List<string> { "a/b[contains(text(),'original')]" },
+				0, null,
+				1, new List<Type> { typeof(XmlTextDeletedReport) });
 		}
 	}
 }

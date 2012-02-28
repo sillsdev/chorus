@@ -132,9 +132,29 @@ namespace Chorus.merge.xml.generic
 					if (ancestorChild == null)
 					{
 						if (XmlUtilities.IsTextNodeContainer(ourChild) == TextNodeStatus.IsTextNodeContainer) // No, it hasn't. MergeTextNodesMethod has already added the addition report.
-							_merger.EventListener.ChangeOccurred(new XmlTextAddedReport(_merger.MergeSituation.PathToFileInRepository, ourChild));
+						{
+							if (theirChild == null)
+							{
+								_merger.EventListener.ChangeOccurred(new XmlTextAddedReport(_merger.MergeSituation.PathToFileInRepository, ourChild)); // Route tested (x2).
+							}
+							else
+							{
+								if (XmlUtilities.AreXmlElementsEqual(ourChild, theirChild))
+									_merger.EventListener.ChangeOccurred(new XmlTextBothAddedReport(_merger.MergeSituation.PathToFileInRepository, ourChild)); // Route tested
+							}
+						}
 						else if (!(ourChild is XmlCharacterData))
+						{
 							_merger.EventListener.ChangeOccurred(new XmlAdditionChangeReport(_merger.MergeSituation.PathToFileInRepository, ourChild));
+						}
+					}
+					else
+					{
+						if (XmlUtilities.IsTextNodeContainer(ourChild) == TextNodeStatus.IsTextNodeContainer)
+						{
+							if (theirChild != null && XmlUtilities.AreXmlElementsEqual(ourChild, theirChild) && !XmlUtilities.AreXmlElementsEqual(ourChild, ancestorChild))
+								_merger.EventListener.ChangeOccurred(new XmlTextBothMadeSameChangeReport(_merger.MergeSituation.PathToFileInRepository, ourChild)); // Route tested
+						}
 					}
 				}
 			}
@@ -341,6 +361,7 @@ namespace Chorus.merge.xml.generic
 						else
 						{
 							//We deleted it, they didn't edit it. So just make it go away.
+							// Route tested in TextElementMergeTests
 							_merger.EventListener.ChangeOccurred(new XmlDeletionChangeReport(_merger.MergeSituation.PathToFileInRepository, ancestorChild, theirChild));
 							_ancestorKeepers.Remove(ancestorChild);
 							_theirKeepers.Remove(theirChild);

@@ -63,6 +63,7 @@ namespace Chorus.merge.xml.generic
 				if (ourText == theirText)
 				{
 					// We both added the same thing. It could be content or empty strings.
+					// This case seems to be handled by MergeChildrenMethod.
 					_merger.EventListener.ChangeOccurred(new XmlTextBothAddedReport(_merger.MergeSituation.PathToFileInRepository, _ours));
 					return;
 				}
@@ -70,6 +71,7 @@ namespace Chorus.merge.xml.generic
 				if (ourText == string.Empty)
 				{
 					// We added empty node. They added content, so go with simple add report.
+					// Route tested.
 					_merger.EventListener.ChangeOccurred(new XmlTextAddedReport(_merger.MergeSituation.PathToFileInRepository, _theirs));
 					_ours.InnerText = _theirs.InnerText;
 					return;
@@ -77,12 +79,14 @@ namespace Chorus.merge.xml.generic
 				if (theirText == string.Empty)
 				{
 					// They added empty node. We added content, so go with simple add report.
+					// Route tested.
 					_merger.EventListener.ChangeOccurred(new XmlTextAddedReport(_merger.MergeSituation.PathToFileInRepository, _ours));
 					return;
 				}
 				// Add conflict and set winner to merge situation declaration.
 				if (_merger.MergeSituation.ConflictHandlingMode == MergeOrder.ConflictHandlingModeChoices.WeWin)
 				{
+					// Route tested.
 					_merger.ConflictOccurred(new XmlTextBothAddedTextConflict(_ours.Name,
 						_ours, _theirs,
 						_merger.MergeSituation, _elementDescriber,
@@ -90,6 +94,7 @@ namespace Chorus.merge.xml.generic
 					return;
 				}
 
+				// Route tested.
 				_merger.ConflictOccurred(new XmlTextBothAddedTextConflict(_ours.Name,
 					_ours, _theirs,
 					_merger.MergeSituation, _elementDescriber,
@@ -108,11 +113,13 @@ namespace Chorus.merge.xml.generic
 					if (theirText.Length > 0)
 					{
 						// They added text to otherwise empty node. We did nothing.
+						// Route tested.
 						_merger.EventListener.ChangeOccurred(new XmlTextAddedReport(_merger.MergeSituation.PathToFileInRepository, _theirs));
 						_ours.InnerText = _theirs.InnerText;
 						return;
 					}
 					// They added text content into node. We did nothing.
+					// This case seems to be handled by MergeChildrenMethod.
 					_ours.InnerText = _theirs.InnerText;
 					_merger.EventListener.ChangeOccurred(new XmlTextAddedReport(_merger.MergeSituation.PathToFileInRepository, _theirs));
 					return;
@@ -125,80 +132,86 @@ namespace Chorus.merge.xml.generic
 					if (ourText.Length > 0)
 					{
 						// We edited. They did nothing. Keep ours.
+						// Route tested.
 						_merger.EventListener.ChangeOccurred(new XmlTextAddedReport(_merger.MergeSituation.PathToFileInRepository, _ours));
-						return;
 					}
 					return;
 				}
 				if (ourText == theirText)
 				{
 					// Both added same text to empty node.
+					// Route tested.
 					_merger.EventListener.ChangeOccurred(new XmlTextBothAddedReport(_merger.MergeSituation.PathToFileInRepository, _ours));
 					return;
 				}
 			}
 
-			if (ancestorText.Length > 0)
+			if (ancestorText.Length <= 0)
+				return;
+
+			// ourText is not null nor an empty string.
+			if (ourText == ancestorText && ourText != theirText)
 			{
-				// ourText is not null nor an empty string.
-				if (ourText == ancestorText && ourText != theirText)
+				_ours.InnerText = _theirs.InnerText;
+				// They changed it, nobody else did anything.
+				// Route tested.
+				_merger.EventListener.ChangeOccurred(new XmlTextChangedReport(_merger.MergeSituation.PathToFileInRepository, _theirs));
+				return;
+			}
+			if (theirText == ancestorText && ourText != ancestorText)
+			{
+				// We changed. They did nothing.
+				// Route tested.
+				_merger.EventListener.ChangeOccurred(new XmlTextChangedReport(_merger.MergeSituation.PathToFileInRepository, _ours));
+				return;
+			}
+			if (theirText != ourText && ourText != ancestorText)
+			{
+				if (theirText == string.Empty)
 				{
-					_ours.InnerText = _theirs.InnerText;
-					// They changed it, nobody else did anything.
-					_merger.EventListener.ChangeOccurred(new XmlTextChangedReport(_merger.MergeSituation.PathToFileInRepository, _theirs));
+					// They deleted the text string, but we edited it, so we win.
+					// Route tested.
+					_merger.ConflictOccurred(new XmlTextEditVsRemovedConflict(_ancestor.Name,
+																			  _ours, _theirs, _ancestor,
+																			  _merger.MergeSituation, _elementDescriber,
+																			  _merger.MergeSituation.AlphaUserId));
 					return;
 				}
-				if (theirText == ancestorText && ourText != ancestorText)
+				if (ourText == string.Empty)
 				{
-					// We changed. They did nothing.
-					_merger.EventListener.ChangeOccurred(new XmlTextChangedReport(_merger.MergeSituation.PathToFileInRepository, _ours));
+					// We deleted the text string, but they edited it, so they win.
+					// Route tested.
+					_ours.InnerText = _theirs.InnerText;
+					_merger.ConflictOccurred(new XmlTextRemovedVsEditConflict(_ancestor.Name,
+																			  _ours, _theirs, _ancestor,
+																			  _merger.MergeSituation, _elementDescriber,
+																			  _merger.MergeSituation.BetaUserId));
 					return;
 				}
-				if (theirText != ourText && ourText != ancestorText)
+				// Both edited, but not the same edit.
+				if (_merger.MergeSituation.ConflictHandlingMode == MergeOrder.ConflictHandlingModeChoices.WeWin)
 				{
-					if (theirText == string.Empty)
-					{
-						// They deleted the text string, but we edited it, so we win.
-						_merger.ConflictOccurred(new XmlTextEditVsRemovedConflict(_ancestor.Name,
-							_ours, _theirs, _ancestor,
-							_merger.MergeSituation, _elementDescriber,
-							_merger.MergeSituation.AlphaUserId));
-						return;
-					}
-					if (ourText == string.Empty)
-					{
-						// We deleted the text string, but they edited it, so they win.
-						_ours.InnerText = _theirs.InnerText;
-						_merger.ConflictOccurred(new XmlTextRemovedVsEditConflict(_ancestor.Name,
-							_ours, _theirs, _ancestor,
-							_merger.MergeSituation, _elementDescriber,
-							_merger.MergeSituation.BetaUserId));
-						return;
-					}
-					// Both edited, but not the same edit.
-					if (_merger.MergeSituation.ConflictHandlingMode == MergeOrder.ConflictHandlingModeChoices.WeWin)
-					{
-						_merger.ConflictOccurred(new XmlTextBothEditedTextConflict(_ours.Name,
-							_ours, _theirs, _ancestor,
-							_merger.MergeSituation, _elementDescriber,
-							_merger.MergeSituation.AlphaUserId));
-						return;
-					}
-					// They win
-					_ours.InnerText = _theirs.InnerText;
+					// Route tested.
 					_merger.ConflictOccurred(new XmlTextBothEditedTextConflict(_ours.Name,
-						_ours, _theirs, _ancestor,
-						_merger.MergeSituation, _elementDescriber,
-						_merger.MergeSituation.BetaUserId));
+																			   _ours, _theirs, _ancestor,
+																			   _merger.MergeSituation, _elementDescriber,
+																			   _merger.MergeSituation.AlphaUserId));
 					return;
 				}
-				if (ourText == theirText && ourText != ancestorText)
-				{
-					// Both did the same edit.
-					_merger.EventListener.ChangeOccurred(new XmlTextBothMadeSameChangeReport(_merger.MergeSituation.PathToFileInRepository, _ours));
-					//return;
-				}
-				//return;
+				// They win
+				// Route tested.
+				_ours.InnerText = _theirs.InnerText;
+				_merger.ConflictOccurred(new XmlTextBothEditedTextConflict(_ours.Name,
+																		   _ours, _theirs, _ancestor,
+																		   _merger.MergeSituation, _elementDescriber,
+																		   _merger.MergeSituation.BetaUserId));
+				return;
+			}
+			if (ourText == theirText && ourText != ancestorText)
+			{
+				// Both did the same edit.
+				// This case seems to be handled by MergeChildrenMethod.
+				_merger.EventListener.ChangeOccurred(new XmlTextBothMadeSameChangeReport(_merger.MergeSituation.PathToFileInRepository, _ours));
 			}
 		}
 
@@ -230,25 +243,27 @@ namespace Chorus.merge.xml.generic
 					if (theirText == string.Empty)
 					{
 						// Both deleted the text and left the node.
+						// Route tested.
 						_merger.EventListener.ChangeOccurred(new XmlTextBothDeletedReport(_merger.MergeSituation.PathToFileInRepository, _ancestor));
 						if (_ours != null)
-							_skipInnerMergeFor.Add(_ours);
+							_skipInnerMergeFor.Add(_ours); // Route used.
 						if (_theirs != null)
-							_skipInnerMergeFor.Add(_theirs);
+							_skipInnerMergeFor.Add(_theirs); // Route used.
 						if (_ancestor != null)
-							_skipInnerMergeFor.Add(_ancestor);
+							_skipInnerMergeFor.Add(_ancestor); // Route used.
 						return;
 					}
 					if (theirText == ancestorText)
 					{
 						// We deleted the text and left the node.
+						// Route tested.
 						_merger.EventListener.ChangeOccurred(new XmlTextDeletedReport(_merger.MergeSituation.PathToFileInRepository, _ancestor));
 						if (_ours != null)
-							_skipInnerMergeFor.Add(_ours);
+							_skipInnerMergeFor.Add(_ours); // Route used.
 						if (_theirs != null)
-							_skipInnerMergeFor.Add(_theirs);
+							_skipInnerMergeFor.Add(_theirs); // Route used.
 						if (_ancestor != null)
-							_skipInnerMergeFor.Add(_ancestor);
+							_skipInnerMergeFor.Add(_ancestor); // Route used.
 						return;
 					}
 				}
@@ -259,12 +274,14 @@ namespace Chorus.merge.xml.generic
 					{
 						// They deleted the text, but left the node.
 						if (_ours != null)
-							_skipInnerMergeFor.Add(_ours);
+							_skipInnerMergeFor.Add(_ours); // Route used.
 						if (_theirs != null)
-							_skipInnerMergeFor.Add(_theirs);
+							_skipInnerMergeFor.Add(_theirs); // Route used.
 						if (_ancestor != null)
-							_skipInnerMergeFor.Add(_ancestor);
+							_skipInnerMergeFor.Add(_ancestor); // Route used.
+						// Route tested.
 						_ours.InnerText = _theirs.InnerText;
+						_theirs.InnerText = "MadeUp"; // This avoids a second report off in MergeChildrenMethod, but feels like a big kludge.
 						_merger.EventListener.ChangeOccurred(new XmlTextDeletedReport(_merger.MergeSituation.PathToFileInRepository, _ours));
 						return;
 					}
@@ -273,6 +290,7 @@ namespace Chorus.merge.xml.generic
 			if (_ours == null && _theirs == null)
 			{
 				// 1A. We both deleted entire node.
+				// Route tested.
 				_merger.EventListener.ChangeOccurred(new XmlTextBothDeletedReport(_merger.MergeSituation.PathToFileInRepository, _ancestor));
 				_ancestorKeepers.Remove(_ancestor);
 				return;
@@ -281,8 +299,9 @@ namespace Chorus.merge.xml.generic
 			{
 				// 1. We both deleted something.
 				// 1B. We both deleted the text, but left the node.
+				// Test case is covered, above.
 				_merger.EventListener.ChangeOccurred(new XmlTextBothDeletedReport(_merger.MergeSituation.PathToFileInRepository, _ancestor));
-				// NB: Don't remove anything from the keeprs, since the node remains, albeit empty.
+				// NB: Don't remove anything from the keepers, since the node remains, albeit empty.
 				return;
 			}
 
@@ -293,6 +312,7 @@ namespace Chorus.merge.xml.generic
 				if (theirText == ancestorText)
 				{
 					// Report deletion of node.
+					// Route tested
 					_merger.EventListener.ChangeOccurred(new XmlTextDeletedReport(_merger.MergeSituation.PathToFileInRepository, _ancestor));
 					_ancestorKeepers.Remove(_ancestor);
 					_theirKeepers.Remove(_theirs);
@@ -301,12 +321,13 @@ namespace Chorus.merge.xml.generic
 				if (theirText == string.Empty && ancestorText != string.Empty)
 				{
 					// 2A. Well, they almost deleted everything, so just go with a simple we deleted node, rather than a conflict.
+					// Route tested.
 					_merger.EventListener.ChangeOccurred(new XmlTextDeletedReport(_merger.MergeSituation.PathToFileInRepository, _ancestor));
 					_ancestorKeepers.Remove(_ancestor);
-					_ours = _theirs;
-					_ourKeepers.Add(_theirs); // Review JohnT (RandyR): Is this right or not?
-					if (_ours != null)
-						_skipInnerMergeFor.Add(_ours);
+					//_ours = _theirs; // Let our node deletion stand.
+					//_ourKeepers.Add(_theirs); // Review JohnT (RandyR): Is this right or not?
+					//if (_ours != null)
+					//	_skipInnerMergeFor.Add(_ours);
 					if (_theirs != null)
 						_skipInnerMergeFor.Add(_theirs);
 					if (_ancestor != null)
@@ -316,20 +337,27 @@ namespace Chorus.merge.xml.generic
 				if (theirText != ancestorText)
 				{
 					// 2B. But they changed, so keep theirs and register XmlTextRemovedVsEditConflictReport.
+					// Route tested.
 					_merger.ConflictOccurred(new XmlTextRemovedVsEditConflict(_ancestor.Name,
 						_ours, _theirs, _ancestor,
 						_merger.MergeSituation, _elementDescriber,
 						_merger.MergeSituation.BetaUserId));
 					_ours = _theirs;
-					_ourKeepers.Add(_theirs); // Review JohnT (RandyR): Is this right or not?
-					return;
+					//_ourKeepers.Add(_theirs); // Review JohnT (RandyR): Is this right or not?
+					if (_ours != null)
+						_skipInnerMergeFor.Add(_ours);
+					if (_theirs != null)
+						_skipInnerMergeFor.Add(_theirs);
+					if (_ancestor != null)
+						_skipInnerMergeFor.Add(_ancestor);
 				}
-				return; // If it can get here, I need another 'if' or two.
+				return;
 			}
 
 			if (ourText == string.Empty && theirText == ancestorText && theirText != string.Empty)
 			{
 				// We deleted text, but left node, They did nothing.
+				// Route tested, above.
 				_merger.EventListener.ChangeOccurred(new XmlTextDeletedReport(_merger.MergeSituation.PathToFileInRepository, _ancestor));
 				if (_ours != null)
 					_skipInnerMergeFor.Add(_ours);
@@ -346,6 +374,7 @@ namespace Chorus.merge.xml.generic
 				if (ourText == string.Empty && ancestorText != string.Empty)
 				{
 					// 3A. Well, We almost deleted everything, so just go with a simple they deleted, rather than a conflict.
+					// Route tested.
 					_merger.EventListener.ChangeOccurred(new XmlTextDeletedReport(_merger.MergeSituation.PathToFileInRepository, _ancestor));
 					_ancestorKeepers.Remove(_ancestor);
 					_ourKeepers.Remove(_ours);
@@ -354,8 +383,9 @@ namespace Chorus.merge.xml.generic
 				}
 				if (ourText != ancestorText)
 				{
-					// 3B. But we changed, so keep ours and register XmlTextRemovedVsEditConflictReport.
-					_merger.ConflictOccurred(new XmlTextRemovedVsEditConflict(_ancestor.Name,
+					// 3B. But we changed, so keep ours and register XmlTextEditVsRemovedConflict.
+					// Route tested
+					_merger.ConflictOccurred(new XmlTextEditVsRemovedConflict(_ancestor.Name,
 						_ours, _theirs, _ancestor,
 						_merger.MergeSituation, _elementDescriber,
 						_merger.MergeSituation.AlphaUserId));
@@ -364,6 +394,7 @@ namespace Chorus.merge.xml.generic
 				if (ourText == ancestorText)
 				{
 					// They deleted entire node, We did nothing.
+					// Route tested
 					_merger.EventListener.ChangeOccurred(new XmlTextDeletedReport(_merger.MergeSituation.PathToFileInRepository, _ancestor));
 					_ancestorKeepers.Remove(_ancestor);
 					_ourKeepers.Remove(_ours);
@@ -374,6 +405,7 @@ namespace Chorus.merge.xml.generic
 			if (theirText == string.Empty && ourText == ancestorText && ourText != string.Empty)
 			{
 				// They deleted text, but left node, We did nothing.
+				// Route tested, above.
 				_merger.EventListener.ChangeOccurred(new XmlTextDeletedReport(_merger.MergeSituation.PathToFileInRepository, _ancestor));
 				if (_ours != null)
 					_skipInnerMergeFor.Add(_ours);
