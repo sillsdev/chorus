@@ -158,7 +158,7 @@ namespace Chorus.merge.xml.generic
 				}
 
 				if (mergeStrategy.AttributesToIgnoreForMerging.Contains(ourAttr.Name))
-					continue;
+					continue; // Route used (FileLevelMergeTests)
 
 				//for unit test see Merge_RealConflictPlusModDateConflict_ModDateNotReportedAsConflict()
 				if (merger.MergeSituation.ConflictHandlingMode == MergeOrder.ConflictHandlingModeChoices.WeWin)

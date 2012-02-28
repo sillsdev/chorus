@@ -71,6 +71,7 @@ namespace Chorus.merge.xml.generic
 					if (ancestorOursOrderer.OrderIsDifferent)
 					{
 						// stick with our orderer (we win), but report conflict.
+						// Route tested (XmlMergerTests).
 						_merger.ConflictOccurred(new BothReorderedElementConflict(_ours.Name, _ours,
 							_theirs, _ancestor, _merger.MergeSituation, _merger.MergeStrategies.GetElementStrategy(_ours),
 							_merger.MergeSituation.AlphaUserId));
@@ -87,6 +88,7 @@ namespace Chorus.merge.xml.generic
 					// our order is different from theirs, but neither is different from the ancestor.
 					// the only way this can be true is if both inserted the same thing, but in
 					// different places. Stick with our orderer (we win), but report conflict.
+					// Route tested (XmlMergerTests).
 					_merger.ConflictOccurred(new BothInsertedAtDifferentPlaceConflict(_ours.Name, _ours,
 						_theirs, _ancestor, _merger.MergeSituation, _merger.MergeStrategies.GetElementStrategy(_ours),
 						_merger.MergeSituation.AlphaUserId));
@@ -98,12 +100,14 @@ namespace Chorus.merge.xml.generic
 			if (!resultOrderer.OrderIsConsistent ||
 				(resultOrderer.OrderIsDifferent && resultOrderer.OrderIsAmbiguous))
 			{
+				// Route tested (XmlMergerTests[x2]).
 				_merger.ConflictOccurred(new AmbiguousInsertReorderConflict(_ours.Name, _ours,
 					_theirs, _ancestor, _merger.MergeSituation, _merger.MergeStrategies.GetElementStrategy(_ours),
 					_merger.MergeSituation.AlphaUserId));
 			}
 			else if (resultOrderer.OrderIsAmbiguous)
 			{
+				// Route tested (MergeChildrenMethodTests, XmlMergerTests).
 				_merger.ConflictOccurred(new AmbiguousInsertConflict(_ours.Name, _ours,
 					_theirs, _ancestor, _merger.MergeSituation, _merger.MergeStrategies.GetElementStrategy(_ours),
 					_merger.MergeSituation.AlphaUserId));
@@ -122,6 +126,7 @@ namespace Chorus.merge.xml.generic
 					// There's a corresponding node and it isn't the same as ours...
 					if (!_skipInnerMergeFor.Contains(ourChild))
 					{
+						// Route tested: MergeChildrenMethod_DiffOnlyTests.
 						_merger.MergeInner(ref ourChild, theirChild, ancestorChild);
 						newChildren[i] = ourChild;
 					}
@@ -135,6 +140,7 @@ namespace Chorus.merge.xml.generic
 						{
 							if (theirChild == null)
 							{
+								// Route tested: MergeChildrenMethod_DiffOnlyTests & XmlMergerTests.
 								_merger.EventListener.ChangeOccurred(new XmlTextAddedReport(_merger.MergeSituation.PathToFileInRepository, ourChild)); // Route tested (x2).
 							}
 							else
@@ -145,6 +151,7 @@ namespace Chorus.merge.xml.generic
 						}
 						else if (!(ourChild is XmlCharacterData))
 						{
+							// Route tested (MergeChildrenMethodTests, XmlMergerTests).
 							_merger.EventListener.ChangeOccurred(new XmlAdditionChangeReport(_merger.MergeSituation.PathToFileInRepository, ourChild));
 						}
 					}
@@ -330,6 +337,7 @@ namespace Chorus.merge.xml.generic
 					if (theirChild == null)
 					{
 						// We both deleted it. Forget it ever existed.
+						// Route tested: MergeChildrenMethodTests.
 						_merger.EventListener.ChangeOccurred(new XmlDeletionChangeReport(_merger.MergeSituation.PathToFileInRepository, ancestorChild, null));
 						_ancestorKeepers.Remove(ancestorChild);
 					}
@@ -340,6 +348,7 @@ namespace Chorus.merge.xml.generic
 							// We deleted, they modified, report conflict.
 							if (theirChild.NodeType == XmlNodeType.Element)
 							{
+								// Route tested (XmlMergerTests).
 								_merger.ConflictOccurred(
 									new RemovedVsEditedElementConflict(theirChild.Name, null,
 																	   theirChild, ancestorChild,
@@ -350,6 +359,7 @@ namespace Chorus.merge.xml.generic
 							}
 							else
 							{
+								// Never used. But then, there isn't plain text in an xml file.
 								_merger.ConflictOccurred(
 									new RemovedVsEditedTextConflict(null, theirChild,
 																	   ancestorChild,
@@ -361,7 +371,7 @@ namespace Chorus.merge.xml.generic
 						else
 						{
 							//We deleted it, they didn't edit it. So just make it go away.
-							// Route tested in TextElementMergeTests
+							// Route tested in TextElementMergeTests, MergeChildrenMethod_DiffOnlyTests, XmlMergerTests
 							_merger.EventListener.ChangeOccurred(new XmlDeletionChangeReport(_merger.MergeSituation.PathToFileInRepository, ancestorChild, theirChild));
 							_ancestorKeepers.Remove(ancestorChild);
 							_theirKeepers.Remove(theirChild);
@@ -374,6 +384,7 @@ namespace Chorus.merge.xml.generic
 					if (XmlUtilities.AreXmlElementsEqual(ancestorChild, ourChild))
 					{
 						// We didn't touch it, allow their deletion to go forward, forget it existed.
+						// Route tested (XmlMergerTests).
 						_merger.EventListener.ChangeOccurred(new XmlDeletionChangeReport(_merger.MergeSituation.PathToFileInRepository, ancestorChild, ourChild));
 						_ancestorKeepers.Remove(ancestorChild);
 						_ourKeepers.Remove(ourChild);
@@ -383,12 +394,14 @@ namespace Chorus.merge.xml.generic
 						// We changed it, ignore their deletion and report conflict.
 						if (ourChild.NodeType == XmlNodeType.Element)
 						{
+							// Route tested (XmlMergerTests).
 							_merger.ConflictOccurred(
 								new EditedVsRemovedElementConflict(ourChild.Name, ourChild, null, ancestorChild,
 																   _merger.MergeSituation, _merger.MergeStrategies.GetElementStrategy(ourChild), _merger.MergeSituation.AlphaUserId));
 						}
 						else
 						{
+							// Never used. But then, there isn't plain text in an xml file.
 							_merger.ConflictOccurred(
 								new EditedVsRemovedTextConflict(ourChild, null, ancestorChild, _merger.MergeSituation, _merger.MergeSituation.AlphaUserId));
 						}

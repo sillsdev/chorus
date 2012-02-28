@@ -55,7 +55,7 @@ namespace Chorus.merge.xml.generic
 			var ancestorText = _ancestor == null ? null : _ancestor.InnerText.Trim();
 
 			if (ourText == theirText && ourText == ancestorText)
-				return; // No changes by anyone.
+				return; // No changes by anyone. // Not used.
 
 			if (ancestorText == null)
 			{
