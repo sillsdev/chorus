@@ -184,7 +184,7 @@
 	<Compile Include="VcsDrivers\Mercurial\Utf8Tests.cs" />
   </ItemGroup>
   <ItemGroup>
-	<ProjectReference Include="..\LibChorus.TestUtilities\LibChorus.TestUtilities\LibChorus.TestUtilities.csproj">
+	<ProjectReference Include="..\LibChorus.TestUtilities\LibChorus.TestUtilities.csproj">
 	  <Project>{0681E722-1856-44A1-B585-220E6AEC85CB}</Project>
 	  <Name>LibChorus.TestUtilities</Name>
 	</ProjectReference>

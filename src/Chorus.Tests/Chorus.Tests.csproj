@@ -126,7 +126,7 @@
 	  <Project>{9DA5A655-1881-4BE1-81BA-256E47CF7537}</Project>
 	  <Name>Chorus</Name>
 	</ProjectReference>
-	<ProjectReference Include="..\LibChorus.TestUtilities\LibChorus.TestUtilities\LibChorus.TestUtilities.csproj">
+	<ProjectReference Include="..\LibChorus.TestUtilities\LibChorus.TestUtilities.csproj">
 	  <Project>{0681E722-1856-44A1-B585-220E6AEC85CB}</Project>
 	  <Name>LibChorus.TestUtilities</Name>
 	</ProjectReference>
