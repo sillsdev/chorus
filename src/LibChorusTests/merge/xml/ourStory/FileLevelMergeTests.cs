@@ -2,6 +2,7 @@ using System.IO;
 using System.Xml;
 using Chorus.FileTypeHanders.oneStory;
 using Chorus.merge;
+using LibChorus.TestUtilities;
 using NUnit.Framework;
 using Palaso.IO;
 using Palaso.TestUtilities;

@@ -1,14 +1,11 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Text;
 using System.Xml;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
-using LibChorus.Tests.merge.xml.generic;
 using NUnit.Framework;
 
-namespace LibChorus.Tests.merge.xml
+namespace LibChorus.TestUtilities
 {
 	public class XmlTestHelper
 	{
@@ -161,7 +158,7 @@ namespace LibChorus.Tests.merge.xml
 			return retval;
 		}
 
-		internal static void CheckMergeResults(string mergedResults, ListenerForUnitTests eventListener,
+		public static void CheckMergeResults(string mergedResults, ListenerForUnitTests eventListener,
 			IEnumerable<string> xpathQueriesThatMatchExactlyOneNode, IEnumerable<string> xpathQueriesThatReturnNull,
 			int expectedConflictCount, List<Type> expectedConflictTypes,
 			int expectedChangesCount, List<Type> expectedChangeTypes)

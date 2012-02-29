@@ -1,11 +1,10 @@
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using NUnit.Framework;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
-using NUnit.Framework;
 
-namespace LibChorus.Tests.merge.xml.generic
+namespace LibChorus.TestUtilities
 {
 	public class ListenerForUnitTests : IMergeEventListener
 	{
