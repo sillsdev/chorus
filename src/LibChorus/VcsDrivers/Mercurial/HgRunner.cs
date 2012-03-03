@@ -103,7 +103,7 @@ namespace Chorus.VcsDrivers.Mercurial
 					}
 					else
 					{
-						progress.WriteWarning("Killing Process...");
+						progress.WriteWarning("Killing Hg Process...");
 						process.Kill();
 					}
 				}
