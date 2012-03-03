@@ -69,7 +69,14 @@ namespace Chorus.Utilities
 		{
 			var guid = GetAttribute(_identifierWithDoubleQuote, _closeDoubleQuote, data)
 				   ?? GetAttribute(_identifierWithSingleQuote, _closeSingleQuote, data);
-			_dictionary.Add(guid, data);
+			try
+			{
+				_dictionary.Add(guid, data);
+			}
+			catch (Exception error)
+			{
+				throw new ApplicationException(error.Message+ "  Guid was " + guid, error);
+			}
 		}
 
 		private string GetAttribute(byte[] name, byte closeQuote, byte[] input)
