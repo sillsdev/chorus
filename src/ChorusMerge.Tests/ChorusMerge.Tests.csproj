@@ -85,7 +85,7 @@
 	<CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
 	<Optimize>true</Optimize>
 	<DebugType>pdbonly</DebugType>
-	<PlatformTarget>AnyCPU</PlatformTarget>
+	<PlatformTarget>x86</PlatformTarget>
 	<ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <ItemGroup>
