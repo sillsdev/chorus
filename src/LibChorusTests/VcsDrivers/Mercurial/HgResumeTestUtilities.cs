@@ -280,6 +280,10 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			if (method == "getRevisions")
 			{
 				IEnumerable<string> revisions = _repo.GetAllRevisions().Select(rev => rev.Number.Hash);
+				if (revisions.Count() == 0)
+				{
+					return ApiResponses.Revisions("0");
+				}
 				return ApiResponses.Revisions(string.Join("|", revisions.ToArray()));
 			}
 			if (method == "finishPushBundle")

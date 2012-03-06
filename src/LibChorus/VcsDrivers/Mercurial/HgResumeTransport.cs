@@ -492,7 +492,14 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		public bool Pull()
 		{
-			return Pull(GetCommonBaseHashWithRemoteRepo());
+			var baseHash = GetCommonBaseHashWithRemoteRepo();
+			if (baseHash == "0")
+			{
+				// a baseHash of 0 indicates that the server has an empty repo
+				// in this case there is no reason to Pull
+				return false;
+			}
+			return Pull(baseHash);
 		}
 
 		public bool Pull(string baseRevision)

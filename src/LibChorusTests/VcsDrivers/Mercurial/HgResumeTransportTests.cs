@@ -539,5 +539,21 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				Assert.That(() => transport.Push(), Throws.Nothing);
 			}
 		}
+
+		[Test]
+		public void Push_RemoteRepoIsEmptyRepo_PushesBundleSuccessfully()
+		{
+			// TODO: this test succeeds but for the wrong reason.
+			// Make sure that a inited repo can have a bundle applied to it; currently there are "transaction abort" and "rollback completed" messages
+			using (var e = new TestEnvironment("hgresumetest", ApiServerType.Push))
+			using (var provider = GetTransportProviderForTest(e))
+			{
+				e.LocalAddAndCommit();
+				e.LocalAddAndCommit();
+				var transport = provider.Transport;
+				transport.Push();
+				Assert.That(e.Progress.AllMessages, Contains.Item("Push operation completed successfully"));
+			}
+		}
 	}
 }
