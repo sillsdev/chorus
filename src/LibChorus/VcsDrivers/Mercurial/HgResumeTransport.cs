@@ -270,7 +270,6 @@ namespace Chorus.VcsDrivers.Mercurial
 				var requestParameters = new Dictionary<string, string>
 											{
 												{"repoId", _apiServer.ProjectId},
-												{"baseHash", baseRevision},
 												{"bundleSize", bundleSize.ToString()},
 												{"offset", startOfWindow.ToString()},
 												{"transId", transactionId}
