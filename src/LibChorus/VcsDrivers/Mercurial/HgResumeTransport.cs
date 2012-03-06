@@ -185,8 +185,7 @@ namespace Chorus.VcsDrivers.Mercurial
 						{
 							_progress.WriteWarning("The remote server {0} does not have repoId '{1}'", _targetLabel, _apiServer.ProjectId);
 						}
-						_progress.WriteWarning("Failed to get remote revisions for {0}", _apiServer.ProjectId);
-						return new List<string>();
+						throw new HgResumeOperationFailed(String.Format("Failed to get remote revisions for {0}", _apiServer.ProjectId));
 					}
 					if (attempt < totalNumOfAttempts)
 					{
@@ -195,6 +194,7 @@ namespace Chorus.VcsDrivers.Mercurial
 					else
 					{
 						_progress.WriteWarning("Failed to contact server.");
+						throw new HgResumeOperationFailed(String.Format("Failed to get remote revisions for {0}", _apiServer.ProjectId));
 					}
 				}
 				catch (WebException e)
@@ -202,7 +202,7 @@ namespace Chorus.VcsDrivers.Mercurial
 					_progress.WriteError(e.Message);
 				}
 			}
-			return new List<string>();
+			throw new HgResumeOperationFailed(String.Format("Failed to get remote revisions for {0}", _apiServer.ProjectId));
 		}
 
 		public void Push()
