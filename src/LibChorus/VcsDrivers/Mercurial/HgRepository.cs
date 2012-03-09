@@ -1369,8 +1369,13 @@ namespace Chorus.VcsDrivers.Mercurial
 
 					if (Dns.GetHostAddresses(uriObject.Host).Count() > 0)
 					{
-						progress.WriteMessage(
+						// cjh 2012-03 : excluded languageforge.org from this check since it doesn't respond to ping requests
+						// TODO: what we should really do is build in a server check to see if we can retrieve a small file from the server instead of trying to ping it
+						if (!uriObject.Host.Contains("languageforge.org"))
+						{
+							progress.WriteMessage(
 							"Chorus could ping google, and did get IP address for {0}, but could not ping it, so it could be that the server is temporarily unavailable.", uriObject.Host);
+						}
 						return true;
 					}
 
