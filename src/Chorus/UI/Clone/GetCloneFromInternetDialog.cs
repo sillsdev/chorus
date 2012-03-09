@@ -130,6 +130,7 @@ namespace Chorus.UI.Clone
 					_cancelButton.Visible = true;
 					_cancelTaskButton.Visible = false;
 					_statusProgress.Visible = false;
+					_statusProgress.Text = "";
 
 					break;
 				case State.MakingClone:
