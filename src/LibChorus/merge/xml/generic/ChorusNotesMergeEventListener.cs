@@ -55,10 +55,15 @@ namespace Chorus.merge.xml.generic
 			_xmlDoc.Load(path);
 			_writer = _xmlDoc.CreateNavigator().SelectSingleNode("notes").AppendChild();
 		}
-		public void ConflictOccurred(IConflict conflict)
+
+		public void RecordContextInConflict(IConflict conflict)
 		{
 			Guard.AgainstNull(_context, "_context");
 			conflict.Context = _context;
+		}
+
+		public void ConflictOccurred(IConflict conflict)
+		{
 			conflict.WriteAsChorusNotesAnnotation(_writer);
 		}
 

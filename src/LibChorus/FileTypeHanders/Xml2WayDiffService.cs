@@ -82,9 +82,9 @@ namespace Chorus.FileTypeHanders
 				// Eat exception.
 			}
 
-			if (changeAndConflictAccumulator is ChangeAndConflictAccumulator)
-				return ((ChangeAndConflictAccumulator)changeAndConflictAccumulator).Changes;
-			return null; // unit tests use impl class that has no "Changes" property.
+			return changeAndConflictAccumulator is ChangeAndConflictAccumulator
+					? ((ChangeAndConflictAccumulator) changeAndConflictAccumulator).Changes
+					: null; // unit tests use impl class that has no "Changes" property.
 		}
 
 		/// <summary>
@@ -114,9 +114,9 @@ namespace Chorus.FileTypeHanders
 				// Eat exception.
 			}
 
-			if (changeAndConflictAccumulator is ChangeAndConflictAccumulator)
-				return ((ChangeAndConflictAccumulator)changeAndConflictAccumulator).Changes;
-			return null; // unit tests use impl class that has no "Changes" property.
+			return changeAndConflictAccumulator is ChangeAndConflictAccumulator
+					? ((ChangeAndConflictAccumulator) changeAndConflictAccumulator).Changes
+					: null; // unit tests use impl class that has no "Changes" property.
 		}
 
 		/// <summary>
@@ -144,9 +144,9 @@ namespace Chorus.FileTypeHanders
 				// Eat exception.
 			}
 
-			if (changeAndConflictAccumulator is ChangeAndConflictAccumulator)
-				return ((ChangeAndConflictAccumulator)changeAndConflictAccumulator).Changes;
-			return null; // unit tests use impl class that has no "Changes" property.
+			return changeAndConflictAccumulator is ChangeAndConflictAccumulator
+					? ((ChangeAndConflictAccumulator) changeAndConflictAccumulator).Changes
+					: null; // unit tests use impl class that has no "Changes" property.
 		}
 	}
 }

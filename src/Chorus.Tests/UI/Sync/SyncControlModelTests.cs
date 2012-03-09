@@ -8,6 +8,7 @@ using Chorus.sync;
 using Chorus.UI.Sync;
 using Chorus.Utilities;
 using Chorus.VcsDrivers;
+using LibChorus.TestUtilities;
 using LibChorus.Tests;
 using NUnit.Framework;
 using Palaso.Network;

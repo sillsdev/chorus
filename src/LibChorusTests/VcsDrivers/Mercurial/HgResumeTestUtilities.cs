@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
+using LibChorus.TestUtilities;
 using Palaso.Progress;
 using Palaso.Progress.LogBox;
 using Palaso.TestUtilities;

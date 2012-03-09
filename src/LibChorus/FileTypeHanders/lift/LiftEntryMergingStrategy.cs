@@ -6,11 +6,14 @@ namespace Chorus.FileTypeHanders.lift
 {
 	public class LiftEntryMergingStrategy : IMergeStrategy
 	{
-		private XmlMerger _entryMerger;
+		private readonly XmlMerger _entryMerger;
 
 		public LiftEntryMergingStrategy(MergeSituation mergeSituation)
 		{
-			_entryMerger = new XmlMerger(mergeSituation);
+			_entryMerger = new XmlMerger(mergeSituation)
+							{
+								MergeStrategies = {KeyFinder = new LiftKeyFinder()}
+							};
 
 			//now customize the XmlMerger with LIFT-specific info
 
@@ -24,7 +27,9 @@ namespace Chorus.FileTypeHanders.lift
 			AddKeyedElementType("gloss", "lang", false);
 			AddKeyedElementType("field", "type", false);
 
+#if MaybeSomeday
 			AddExampleSentenceStrategy();
+#endif
 
 			AddSingletonElementType("text");
 			AddSingletonElementType("grammatical-info");
@@ -44,17 +49,16 @@ namespace Chorus.FileTypeHanders.lift
 			//enhance: don't currently have a way of limitting etymology/form to a single instance but not multitext/form
 
 			AddSingletonElementType("main"); //reversal/main
-
 		}
 
+#if MaybeSomeday
 		private void AddExampleSentenceStrategy()
 		{
-			#if MaybeSomeday
 			ElementStrategy strategy = new ElementStrategy(true);
 			strategy.MergePartnerFinder = new ExampleSentenceFinder();
 			_entryMerger.MergeStrategies.SetStrategy(name, strategy);
-			#endif
 		}
+#endif
 
 		private ElementStrategy AddKeyedElementType(string name, string attribute, bool orderOfTheseIsRelevant)
 		{

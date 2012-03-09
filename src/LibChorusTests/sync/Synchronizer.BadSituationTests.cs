@@ -5,7 +5,7 @@ using Chorus.merge;
 using Chorus.sync;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
-using LibChorus.Tests.merge;
+using LibChorus.TestUtilities;
 using NUnit.Framework;
 using Palaso.Progress.LogBox;
 using Palaso.TestUtilities;
@@ -86,6 +86,43 @@ namespace LibChorus.Tests.sync
 				}
 			}
 			File.Delete(Path.Combine(Path.GetTempPath(), "LiftMerger.FindEntryById"));
+		}
+
+		[Test]
+		public void Sync_MergeFailure_LeavesNoChorusMergeProcessAlive()
+		{
+			using (RepositoryWithFilesSetup bob = RepositoryWithFilesSetup.CreateWithLiftFile("bob"))
+			{
+				using (RepositoryWithFilesSetup sally = RepositoryWithFilesSetup.CreateByCloning("sally", bob))
+				{
+					bob.ReplaceSomething("bobWasHere");
+					bob.AddAndCheckIn();
+					sally.ReplaceSomething("sallyWasHere");
+					using (new FailureSimulator("LiftMerger.FindEntryById"))
+					{
+						sally.CheckinAndPullAndMerge(bob);
+					}
+					Assert.AreEqual(0, Process.GetProcessesByName("ChorusMerge").Length);
+				}
+			}
+			File.Delete(Path.Combine(Path.GetTempPath(), "LiftMerger.FindEntryById"));
+		}
+
+		[Test]
+		public void Sync_MergeTimeoutExceeded_LeavesNoChorusMergeProcessAlive()
+		{
+			HgRunner.TimeoutSecondsOverrideForUnitTests = 1;
+			using (var bob = RepositoryWithFilesSetup.CreateWithLiftFile("bob"))
+			{
+				using (var sally = RepositoryWithFilesSetup.CreateByCloning("sally", bob))
+				{
+					bob.ReplaceSomething("bobWasHere");
+					bob.AddAndCheckIn();
+					sally.ReplaceSomething("sallyWasHere");
+					sally.CheckinAndPullAndMerge(bob);
+					Assert.AreEqual(0, Process.GetProcessesByName("ChorusMerge").Length);
+				}
+			}
 		}
 
 		[Test]

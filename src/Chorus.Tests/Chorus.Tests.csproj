@@ -63,7 +63,7 @@
 	<CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
 	<Optimize>true</Optimize>
 	<DebugType>pdbonly</DebugType>
-	<PlatformTarget>AnyCPU</PlatformTarget>
+	<PlatformTarget>x86</PlatformTarget>
 	<ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <ItemGroup>
@@ -125,6 +125,10 @@
 	<ProjectReference Include="..\Chorus\Chorus.csproj">
 	  <Project>{9DA5A655-1881-4BE1-81BA-256E47CF7537}</Project>
 	  <Name>Chorus</Name>
+	</ProjectReference>
+	<ProjectReference Include="..\LibChorus.TestUtilities\LibChorus.TestUtilities.csproj">
+	  <Project>{0681E722-1856-44A1-B585-220E6AEC85CB}</Project>
+	  <Name>LibChorus.TestUtilities</Name>
 	</ProjectReference>
 	<ProjectReference Include="..\LibChorusTests\LibChorus.Tests.csproj">
 	  <Project>{F9671F8B-8556-44EA-81A7-C236D871B471}</Project>
