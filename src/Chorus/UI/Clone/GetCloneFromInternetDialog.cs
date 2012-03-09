@@ -51,7 +51,7 @@ namespace Chorus.UI.Clone
 			_logBox.ShowFontMenuItem = true;
 
 
-			_model.AddStatusProgress(_statusProgress);  // TODO: needs to be replaced by SimpleStatusProgress
+			_model.AddProgress(_statusProgress);
 			_statusProgress.Text = "";
 			_statusProgress.Visible = false;
 			_model.AddMessageProgress(_logBox);

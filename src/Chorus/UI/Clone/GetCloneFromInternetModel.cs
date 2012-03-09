@@ -217,5 +217,10 @@ namespace Chorus.UI.Clone
 		{
 			_progress.AddStatusProgress(p);
 		}
+
+		public void AddProgress(IProgress p)
+		{
+			_progress.Add(p);
+		}
 	}
 }

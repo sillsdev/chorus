@@ -125,6 +125,12 @@ namespace Chorus.VcsDrivers.Mercurial
 			while (string.IsNullOrEmpty(commonBase))
 			{
 				var remoteRevisions = GetRemoteRevisions(offset, quantity);
+				if (remoteRevisions.Count() == 1 && remoteRevisions.First() == "0")
+				{
+					// special case when remote repo is empty (initialized with no changesets)
+					commonBase = "0";
+					break;
+				}
 				foreach (var rev in remoteRevisions)
 				{
 					if (localRevisions.Contains(rev))
@@ -283,7 +289,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				}
 				if (response.Status == PushStatus.Timeout)
 				{
-					_progress.WriteVerbose("Push operation timed out.  Retrying...");
+					_progress.WriteWarning("Push operation timed out.  Retrying...");
 					continue;
 				}
 				if (response.Status == PushStatus.InvalidHash)
@@ -556,7 +562,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				}
 				if (response.Status == PullStatus.Timeout)
 				{
-					_progress.WriteVerbose("Pull operation timed out.  Retrying...");
+					_progress.WriteWarning("Pull operation timed out.  Retrying...");
 					retryLoop = true;
 					continue;
 				}
