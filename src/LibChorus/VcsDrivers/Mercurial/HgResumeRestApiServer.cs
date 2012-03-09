@@ -35,6 +35,10 @@ namespace Chorus.VcsDrivers.Mercurial
 			var req = WebRequest.Create(_urlExecuted) as HttpWebRequest;
 			req.UserAgent = String.Format("HgResume v{0}", APIVERSION);
 			req.PreAuthenticate = true;
+			if (!_url.UserInfo.Contains(":"))
+			{
+				throw new HgResumeException("Username or password were not supplied in custom location");
+			}
 			req.Credentials = new NetworkCredential(_url.UserInfo.Split(':')[0], _url.UserInfo.Split(':')[1]);
 			req.Timeout = secondsBeforeTimeout * 1000; // timeout is in milliseconds
 			if (contentToSend.Length == 0)

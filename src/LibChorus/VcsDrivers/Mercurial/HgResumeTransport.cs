@@ -191,7 +191,7 @@ namespace Chorus.VcsDrivers.Mercurial
 						{
 							var msg = String.Format("Server temporarily unavailable: {0}",
 							Encoding.UTF8.GetString(response.Content));
-							_progress.WriteWarning(msg);
+							_progress.WriteError(msg);
 							return new List<string>();
 						}
 						if (response.StatusCode == HttpStatusCode.OK && response.Content.Length > 0)
@@ -424,7 +424,7 @@ namespace Chorus.VcsDrivers.Mercurial
 					{
 						var msg = String.Format("Server temporarily unavailable: {0}",
 												Encoding.UTF8.GetString(response.Content));
-						_progress.WriteWarning(msg);
+						_progress.WriteError(msg);
 						pushResponse.Status = PushStatus.NotAvailable;
 						return pushResponse;
 					}
@@ -448,12 +448,12 @@ namespace Chorus.VcsDrivers.Mercurial
 					{
 						if (response.Headers["X-HgR-Status"] == "UNKNOWNID")
 						{
-							_progress.WriteWarning("The server {0} does not have the project '{1}'", _targetLabel, _apiServer.ProjectId);
+							_progress.WriteError("The server {0} does not have the project '{1}'", _targetLabel, _apiServer.ProjectId);
 							return pushResponse;
 						}
 						if (response.Headers["X-HgR-Status"] == "RESET")
 						{
-							_progress.WriteWarning("All chunks were pushed to the server, but the unbundle operation failed.  Try again later.");
+							_progress.WriteError("All chunks were pushed to the server, but the unbundle operation failed.  Try again later.");
 							pushResponse.Status = PushStatus.Reset;
 							return pushResponse;
 						}
@@ -706,7 +706,7 @@ namespace Chorus.VcsDrivers.Mercurial
 					{
 						var msg = String.Format("Server temporarily unavailable: {0}",
 						Encoding.UTF8.GetString(response.Content));
-						_progress.WriteWarning(msg);
+						_progress.WriteError(msg);
 						pullResponse.Status = PullStatus.NotAvailable;
 						return pullResponse;
 					}
@@ -730,7 +730,7 @@ namespace Chorus.VcsDrivers.Mercurial
 					if (response.StatusCode == HttpStatusCode.BadRequest && response.Headers["X-HgR-Status"] == "UNKNOWNID")
 					{
 						// this is not implemented currently (feb 2012 cjh)
-						_progress.WriteWarning("The server {0} does not have the project '{1}'", _targetLabel, _apiServer.ProjectId);
+						_progress.WriteError("The server {0} does not have the project '{1}'", _targetLabel, _apiServer.ProjectId);
 						return pullResponse;
 					}
 					if (response.StatusCode == HttpStatusCode.BadRequest && response.Headers["X-HgR-Status"] == "RESET")
