@@ -601,6 +601,15 @@ namespace Chorus.VcsDrivers.Mercurial
 					_progress.ProgressIndicator.Finish();
 					throw new HgResumeOperationFailed(errorMessage);
 				}
+				if (response.Status == PullStatus.Reset)
+				{
+					retryLoop = true;
+					bundleHelper.Reset();
+					_progress.WriteVerbose("Server's bundle cache has expired.  Restarting pull...");
+					startOfWindow = bundleHelper.StartOfWindow;
+					requestParameters["offset"] = startOfWindow.ToString();
+					continue;
+				}
 
 				bundleSizeFromResponse = response.BundleSize;
 				if (loopCtr == 1)
@@ -657,6 +666,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			}
 			_progress.WriteError("Received all data but local unbundle operation failed or resulted in multiple heads!");
 			_progress.ProgressIndicator.Finish();
+			bundleHelper.Cleanup();
 			errorMessage = "Pull operation failed";
 			_progress.WriteError(errorMessage);
 			throw new HgResumeOperationFailed(errorMessage);
