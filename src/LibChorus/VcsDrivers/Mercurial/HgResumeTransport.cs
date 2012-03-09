@@ -44,6 +44,18 @@ namespace Chorus.VcsDrivers.Mercurial
 			_progress = progress;
 		}
 
+		private string RepoIdentifier
+		{
+			get
+			{
+				if (_repo.Identifier != null)
+				{
+					return _repo.Identifier;
+				}
+				return _apiServer.Host.Replace('.', '_') + '-' + _apiServer.ProjectId;
+			}
+		}
+
 		///<summary>
 		/// Implements a simple file-based key:value db.  Should be replaced by something better in the future.  Stores the last known common base for a given api server
 		/// File DB is line separated list of "remoteId|hash" pairs
@@ -54,7 +66,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		{
 			get
 			{
-				string storagePath = PathToLocalStorage(_repo.Identifier);
+				string storagePath = PathToLocalStorage;
 				if (!Directory.Exists(storagePath))
 				{
 					Directory.CreateDirectory(storagePath);
@@ -75,7 +87,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			}
 			set
 			{
-				string storagePath = PathToLocalStorage(_repo.Identifier);
+				string storagePath = PathToLocalStorage;
 				if (!Directory.Exists(storagePath))
 				{
 					Directory.CreateDirectory(storagePath);
@@ -224,7 +236,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			// create a bundle to push
 			string tip = _repo.GetTip().Number.Hash;
 			var bundleId = String.Format("{0}-{1}", baseRevision, tip);
-			var bundleHelper = new PushStorageManager(PathToLocalStorage(_repo.Identifier), bundleId);
+			var bundleHelper = new PushStorageManager(PathToLocalStorage, bundleId);
 			var bundleFileInfo = new FileInfo(bundleHelper.BundlePath);
 			if (bundleFileInfo.Length == 0)
 			{
@@ -436,7 +448,7 @@ namespace Chorus.VcsDrivers.Mercurial
 					{
 						if (response.Headers["X-HgR-Status"] == "UNKNOWNID")
 						{
-							_progress.WriteWarning("The server {0} does not have repoId '{1}'", _targetLabel, _repo.Identifier);
+							_progress.WriteWarning("The server {0} does not have the project '{1}'", _targetLabel, _apiServer.ProjectId);
 							return pushResponse;
 						}
 						if (response.Headers["X-HgR-Status"] == "RESET")
@@ -525,7 +537,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				throw new HgResumeOperationFailed(errorMessage);
 			}
 
-			var bundleHelper = new PullStorageManager(PathToLocalStorage(_repo.Identifier), baseRevision + "_" + localTip);
+			var bundleHelper = new PullStorageManager(PathToLocalStorage, baseRevision + "_" + localTip);
 			string transactionId = bundleHelper.TransactionId;
 			int startOfWindow = bundleHelper.StartOfWindow;
 			int chunkSize = initialChunkSize; // size in bytes
@@ -718,7 +730,7 @@ namespace Chorus.VcsDrivers.Mercurial
 					if (response.StatusCode == HttpStatusCode.BadRequest && response.Headers["X-HgR-Status"] == "UNKNOWNID")
 					{
 						// this is not implemented currently (feb 2012 cjh)
-						_progress.WriteWarning("The server {0} does not have repoId '{1}'", _targetLabel, _repo.Identifier);
+						_progress.WriteWarning("The server {0} does not have the project '{1}'", _targetLabel, _apiServer.ProjectId);
 						return pullResponse;
 					}
 					if (response.StatusCode == HttpStatusCode.BadRequest && response.Headers["X-HgR-Status"] == "RESET")
@@ -757,17 +769,16 @@ namespace Chorus.VcsDrivers.Mercurial
 		///<summary>
 		/// returns something like \%AppData%\Chorus\ChorusStorage\uniqueRepoId
 		///</summary>
-		public static string PathToLocalStorage(string id)
+		public string PathToLocalStorage
 		{
-			if (String.IsNullOrEmpty(id))
+			get
 			{
-				id = "0";
+				string appDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Chorus");
+				return Path.Combine(appDataPath,
+									Path.Combine("ChorusStorage",
+												 RepoIdentifier)
+					);
 			}
-			string appDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Chorus");
-			return Path.Combine(appDataPath,
-								Path.Combine("ChorusStorage",
-											 id)
-								);
 		}
 
 		public void Clone()
@@ -788,7 +799,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		public void RemoveCache()
 		{
-			var localStoragePath = PathToLocalStorage(_repo.Identifier);
+			var localStoragePath = PathToLocalStorage;
 			if (Directory.Exists(localStoragePath))
 			{
 				Directory.Delete(localStoragePath, true);
