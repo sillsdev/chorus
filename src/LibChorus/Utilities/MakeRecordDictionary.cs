@@ -69,11 +69,11 @@ namespace Chorus.Utilities
 					{
 						AddKeyToIndex(record);
 					}
-					catch (Exception)
+					catch (Exception error)
 					{
 						if (ShouldContinueAfterDuplicateKey != null)
 						{
-							if (!ShouldContinueAfterDuplicateKey("Found Duplicate Key"))
+							if (!ShouldContinueAfterDuplicateKey(error.Message))
 							{
 								throw;
 							}

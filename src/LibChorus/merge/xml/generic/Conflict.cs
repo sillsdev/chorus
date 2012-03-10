@@ -1097,10 +1097,12 @@ namespace Chorus.merge.xml.generic
 	[TypeGuid("2E7B7307-B316-4644-8565-1B667372E269")]
 	public class MergeWarning : Conflict // NB: Be sure to register any new instances in CreateFromConflictElement method.
 	{
+		private readonly string _message;
+
 		public MergeWarning(string message)
 			: base(new NullMergeSituation(), string.Empty)
 		{
-			//todo: need to store that message somehow
+			_message = message;
 		}
 
 		public MergeWarning(XmlNode xmlRepresentation)
@@ -1121,8 +1123,9 @@ namespace Chorus.merge.xml.generic
 
 		public override string GetFullHumanReadableDescription()
 		{
-			return "There was a warning during merge";//TODO once we can store the message, retrieve it here.
+			return _message;
 		}
+
 	}
 
 	/// <summary>
