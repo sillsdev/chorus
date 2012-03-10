@@ -159,10 +159,15 @@ namespace Chorus.FileTypeHanders
 			const int estimatedObjectCount = 400;
 			var fileInfo = new FileInfo(_childPathname);
 			childIndex = new Dictionary<string, byte[]>((int)(fileInfo.Length / estimatedObjectCount), StringComparer.OrdinalIgnoreCase);
-			using (var prepper = new DifferDictionaryPrepper(childIndex, _childPathname,
+			using (var prepper = new MakeRecordDictionary(childIndex, _childPathname,
 				_firstElementTag,
 				_startTag, _identfierAttribute))
 			{
+				prepper.ShouldContinueAfterDuplicateKey = s =>
+															{
+																_eventListener.WarningOccurred(new MergeWarning(s));
+																return true;
+															};
 				prepper.Run();
 			}
 		}
@@ -191,18 +196,30 @@ namespace Chorus.FileTypeHanders
 			const int estimatedObjectCount = 400;
 			var fileInfo = new FileInfo(parentPathname);
 			parentIndex = new Dictionary<string, byte[]>((int)(fileInfo.Length / estimatedObjectCount), StringComparer.OrdinalIgnoreCase);
-			using (var prepper = new DifferDictionaryPrepper(parentIndex, parentPathname,
+			using (var prepper = new MakeRecordDictionary(parentIndex, parentPathname,
 				_firstElementTag,
 				_startTag, _identfierAttribute))
 			{
+				prepper.ShouldContinueAfterDuplicateKey = s =>
+				{
+					_eventListener.WarningOccurred(new MergeWarning(parentPathname +": "+s));
+					return true;
+				};
+
 				prepper.Run();
 			}
 			fileInfo = new FileInfo(childPathname);
 			childIndex = new Dictionary<string, byte[]>((int)(fileInfo.Length / estimatedObjectCount), StringComparer.OrdinalIgnoreCase);
-			using (var prepper = new DifferDictionaryPrepper(childIndex, childPathname,
+			using (var prepper = new MakeRecordDictionary(childIndex, childPathname,
 				_firstElementTag,
 				_startTag, _identfierAttribute))
 			{
+				prepper.ShouldContinueAfterDuplicateKey = s =>
+				{
+					_eventListener.WarningOccurred(new MergeWarning(childPathname + ": " + s));
+					return true;
+				};
+
 				prepper.Run();
 			}
 		}

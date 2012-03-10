@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -32,13 +33,24 @@ namespace Chorus.FileTypeHanders.lift
 
 			// Diff the original file (now bak) and the newly exported file (temp).
 			var parentIndex = new Dictionary<string, byte[]>(StringComparer.OrdinalIgnoreCase);
-			using (var parentPrepper = new DifferDictionaryPrepper(parentIndex, bakPathname, "header", "entry", "guid"))
+			using (var parentPrepper = new MakeRecordDictionary(parentIndex, bakPathname, "header", "entry", "guid"))
 			{
+				parentPrepper.ShouldContinueAfterDuplicateKey = s =>
+																	{
+																		Debug.Fail("Duplicate GUID");
+																		return true;
+																	};
+
 				parentPrepper.Run();
 			}
 			var childIndex = new Dictionary<string, byte[]>(StringComparer.OrdinalIgnoreCase);
-			using (var childPrepper = new DifferDictionaryPrepper(childIndex, tempPathname, "header", "entry", "guid"))
+			using (var childPrepper = new MakeRecordDictionary(childIndex, tempPathname, "header", "entry", "guid"))
 			{
+				childPrepper.ShouldContinueAfterDuplicateKey = s =>
+																{
+																	Debug.Fail("Duplicate GUID");
+																	return true;
+																};
 				childPrepper.Run();
 			}
 
