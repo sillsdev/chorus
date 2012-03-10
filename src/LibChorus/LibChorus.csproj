@@ -166,7 +166,7 @@
 	  <DependentUpon>Resources.resx</DependentUpon>
 	</Compile>
 	<Compile Include="sync\LargeFileFilter.cs" />
-	<Compile Include="Utilities\DifferDictionaryPrepper.cs" />
+	<Compile Include="Utilities\MakeRecordDictionary.cs" />
 	<Compile Include="FileTypeHanders\NotePresenter.cs" />
 	<Compile Include="IWritingSystem.cs" />
 	<Compile Include="MercurialLocation.cs" />

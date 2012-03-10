@@ -33,7 +33,7 @@ namespace Chorus.FileTypeHanders.lift
 
 			// Diff the original file (now bak) and the newly exported file (temp).
 			var parentIndex = new Dictionary<string, byte[]>(StringComparer.OrdinalIgnoreCase);
-			using (var parentPrepper = new DifferDictionaryPrepper(parentIndex, bakPathname, "header", "entry", "guid"))
+			using (var parentPrepper = new MakeRecordDictionary(parentIndex, bakPathname, "header", "entry", "guid"))
 			{
 				parentPrepper.ShouldContinueAfterDuplicateKey = s =>
 																	{
@@ -44,7 +44,7 @@ namespace Chorus.FileTypeHanders.lift
 				parentPrepper.Run();
 			}
 			var childIndex = new Dictionary<string, byte[]>(StringComparer.OrdinalIgnoreCase);
-			using (var childPrepper = new DifferDictionaryPrepper(childIndex, tempPathname, "header", "entry", "guid"))
+			using (var childPrepper = new MakeRecordDictionary(childIndex, tempPathname, "header", "entry", "guid"))
 			{
 				childPrepper.ShouldContinueAfterDuplicateKey = s =>
 																{

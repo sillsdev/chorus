@@ -8,7 +8,7 @@ using Palaso.Xml;
 namespace Chorus.Utilities
 {
 	/// <summary>
-	/// This class processes source xml data (a whole file) and places 'records' into
+	/// This Method Class processes source xml data (a whole file) and places 'records' into
 	/// the given Dictionary. The client is then assumed to use the results in the
 	/// dictionary.
 	///
@@ -19,7 +19,7 @@ namespace Chorus.Utilities
 	/// The given ElementReader tokenizes the input xml data and uses this class' "AddKeyToIndex" delegate
 	/// to add 'records' to the dictionary
 	/// </summary>
-	public class DifferDictionaryPrepper : IDisposable
+	public class MakeRecordDictionary : IDisposable
 	{
 		private readonly byte[] _identifierWithDoubleQuote;
 		private readonly byte[] _identifierWithSingleQuote;
@@ -37,7 +37,7 @@ namespace Chorus.Utilities
 		/// </summary>
 		public Func<string, bool> ShouldContinueAfterDuplicateKey;
 
-		public DifferDictionaryPrepper(IDictionary<string, byte[]> dictionary, string pathname,
+		public MakeRecordDictionary(IDictionary<string, byte[]> dictionary, string pathname,
 			string firstElementMarker,
 			string recordStartingTag, string identifierAttribute)
 		{
@@ -144,7 +144,7 @@ namespace Chorus.Utilities
 
 		#region Implementation of IDisposable
 
-		~DifferDictionaryPrepper()
+		~MakeRecordDictionary()
 		{
 			Debug.WriteLine("**** FieldWorksDictionaryPrepper.Finalizer called ****");
 			Dispose(false);

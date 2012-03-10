@@ -159,7 +159,7 @@ namespace Chorus.FileTypeHanders
 			const int estimatedObjectCount = 400;
 			var fileInfo = new FileInfo(_childPathname);
 			childIndex = new Dictionary<string, byte[]>((int)(fileInfo.Length / estimatedObjectCount), StringComparer.OrdinalIgnoreCase);
-			using (var prepper = new DifferDictionaryPrepper(childIndex, _childPathname,
+			using (var prepper = new MakeRecordDictionary(childIndex, _childPathname,
 				_firstElementTag,
 				_startTag, _identfierAttribute))
 			{
@@ -196,7 +196,7 @@ namespace Chorus.FileTypeHanders
 			const int estimatedObjectCount = 400;
 			var fileInfo = new FileInfo(parentPathname);
 			parentIndex = new Dictionary<string, byte[]>((int)(fileInfo.Length / estimatedObjectCount), StringComparer.OrdinalIgnoreCase);
-			using (var prepper = new DifferDictionaryPrepper(parentIndex, parentPathname,
+			using (var prepper = new MakeRecordDictionary(parentIndex, parentPathname,
 				_firstElementTag,
 				_startTag, _identfierAttribute))
 			{
@@ -210,7 +210,7 @@ namespace Chorus.FileTypeHanders
 			}
 			fileInfo = new FileInfo(childPathname);
 			childIndex = new Dictionary<string, byte[]>((int)(fileInfo.Length / estimatedObjectCount), StringComparer.OrdinalIgnoreCase);
-			using (var prepper = new DifferDictionaryPrepper(childIndex, childPathname,
+			using (var prepper = new MakeRecordDictionary(childIndex, childPathname,
 				_firstElementTag,
 				_startTag, _identfierAttribute))
 			{
