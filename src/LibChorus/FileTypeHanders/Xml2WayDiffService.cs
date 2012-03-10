@@ -82,7 +82,12 @@ namespace Chorus.FileTypeHanders
 			}
 			catch
 			{
-				// Eat exception.
+				//REVIEW (from JH, 3/2012): why was this exception being swallowed?  We should always give a justification in the code. For
+				//now, since I don't know why this was being swalled, I'm going to at least throw in debug mode.
+				//anyone who sees it throw here should add a catch with the explicit exception, and then eventually we can get rid of this catch-all
+#if DEBUG
+				throw;
+#endif
 			}
 
 			return changeAndConflictAccumulator is ChangeAndConflictAccumulator
@@ -114,7 +119,12 @@ namespace Chorus.FileTypeHanders
 			}
 			catch
 			{
-				// Eat exception.
+//REVIEW (from JH, 3/2012): why was this exception being swallowed?  We should always give a justification in the code. For
+				//now, since I don't know why this was being swalled, I'm going to at least throw in debug mode.
+				//anyone who sees it throw here should add a catch with the explicit exception, and then eventually we can get rid of this catch-all
+#if DEBUG
+				throw;
+#endif
 			}
 
 			return changeAndConflictAccumulator is ChangeAndConflictAccumulator
@@ -144,12 +154,17 @@ namespace Chorus.FileTypeHanders
 			}
 			catch
 			{
-				// Eat exception.
+				//REVIEW (from JH, 3/2012): why was this exception being swallowed?  We should always give a justification in the code. For
+				//now, since I don't know why this was being swalled, I'm going to at least throw in debug mode.
+				//anyone who sees it throw here should add a catch with the explicit exception, and then eventually we can get rid of this catch-all
+#if DEBUG
+				throw;
+#endif
 			}
 
 			return changeAndConflictAccumulator is ChangeAndConflictAccumulator
 					? ((ChangeAndConflictAccumulator) changeAndConflictAccumulator).Changes
-					: null; // unit tests use impl class that has no "Changes" property.
+					: null;// new List<IChangeReport>(); // unit tests use impl class that has no "Changes" property.
 		}
 	}
 }

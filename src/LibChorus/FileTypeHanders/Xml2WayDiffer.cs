@@ -163,6 +163,11 @@ namespace Chorus.FileTypeHanders
 				_firstElementTag,
 				_startTag, _identfierAttribute))
 			{
+				prepper.ShouldContinueAfterDuplicateKey = s =>
+															{
+																_eventListener.WarningOccurred(new MergeWarning(s));
+																return true;
+															};
 				prepper.Run();
 			}
 		}
@@ -195,6 +200,12 @@ namespace Chorus.FileTypeHanders
 				_firstElementTag,
 				_startTag, _identfierAttribute))
 			{
+				prepper.ShouldContinueAfterDuplicateKey = s =>
+				{
+					_eventListener.WarningOccurred(new MergeWarning(parentPathname +": "+s));
+					return true;
+				};
+
 				prepper.Run();
 			}
 			fileInfo = new FileInfo(childPathname);
@@ -203,6 +214,12 @@ namespace Chorus.FileTypeHanders
 				_firstElementTag,
 				_startTag, _identfierAttribute))
 			{
+				prepper.ShouldContinueAfterDuplicateKey = s =>
+				{
+					_eventListener.WarningOccurred(new MergeWarning(childPathname + ": " + s));
+					return true;
+				};
+
 				prepper.Run();
 			}
 		}

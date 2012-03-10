@@ -16,7 +16,7 @@ namespace Chorus.Utilities
 	/// Lift data would have 'entry' to mark 'records', and FieldWorks 7.0 will use 'rt'
 	/// to mark its 'records'.
 	///
-	/// The given ElementReader tokenizes the input xml data and uses this class' "PrepareIndex" delegate
+	/// The given ElementReader tokenizes the input xml data and uses this class' "AddKeyToIndex" delegate
 	/// to add 'records' to the dictionary
 	/// </summary>
 	public class DifferDictionaryPrepper : IDisposable
@@ -31,6 +31,12 @@ namespace Chorus.Utilities
 		private readonly string _recordStartingTag;
 		private readonly Encoding _utf8;
 
+		/// <summary>
+		/// This function should return true if the Run method should continue on
+		/// If this function is not provide by the client an exception will be thrown if a duplicate is encountered.
+		/// </summary>
+		public Func<string, bool> ShouldContinueAfterDuplicateKey;
+
 		public DifferDictionaryPrepper(IDictionary<string, byte[]> dictionary, string pathname,
 			string firstElementMarker,
 			string recordStartingTag, string identifierAttribute)
@@ -44,6 +50,9 @@ namespace Chorus.Utilities
 			_identifierWithSingleQuote = _utf8.GetBytes(identifierAttribute + "='");
 		}
 
+		/// <summary>
+		/// Will throw if a duplicate is encountered, unless ShouldContinueAfterDuplicateKey is declared and returns false.
+		/// </summary>
 		public void Run()
 		{
 			bool foundOptionalFirstElement;
@@ -56,7 +65,25 @@ namespace Chorus.Utilities
 				}
 				else
 				{
-					PrepareIndex(record);
+					try
+					{
+						AddKeyToIndex(record);
+					}
+					catch (Exception)
+					{
+						if (ShouldContinueAfterDuplicateKey != null)
+						{
+							if (!ShouldContinueAfterDuplicateKey("Found Duplicate Key"))
+							{
+								throw;
+							}
+						}
+						else
+						{
+							throw;
+						}
+					}
+
 				}
 			}
 		}
@@ -65,7 +92,7 @@ namespace Chorus.Utilities
 		/// The ElementReader calls back to this delegate to add items to the dictionary.
 		/// </summary>
 		/// <param name="data"></param>
-		private void PrepareIndex(byte[] data)
+		private void AddKeyToIndex(byte[] data)
 		{
 			var guid = GetAttribute(_identifierWithDoubleQuote, _closeDoubleQuote, data)
 				   ?? GetAttribute(_identifierWithSingleQuote, _closeSingleQuote, data);
@@ -73,9 +100,9 @@ namespace Chorus.Utilities
 			{
 				_dictionary.Add(guid, data);
 			}
-			catch (Exception error)
+			catch (ArgumentException error)
 			{
-				throw new ApplicationException(error.Message+ "  Guid was " + guid, error);
+				throw new ArgumentException("There is more than one element with the guid " + guid, error);
 			}
 		}
 

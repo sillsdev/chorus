@@ -334,6 +334,7 @@ namespace Chorus.merge.xml.generic
 
 					Register<BothEditedDifferentPartsOfDependentPiecesOfDataWarning>(builder);
 					Register<UnmergableFileTypeConflict>(builder);
+					Register<MergeWarning>(builder);
 
 					foreach (var conflictType in _additionalConflictTypes)
 					{
@@ -1087,6 +1088,40 @@ namespace Chorus.merge.xml.generic
 			get { return string.Format("{0} inserted material in this element, but {1} re-ordered things. The automated merger cannot be sure of the correct position for the inserted material.",
 				Situation.AlphaUserId, Situation.BetaUserId);
 			}
+		}
+	}
+
+	/// <summary>
+	/// This not really a conflict but is used to store warnings that occur during merge
+	/// </summary>
+	[TypeGuid("2E7B7307-B316-4644-8565-1B667372E269")]
+	public class MergeWarning : Conflict // NB: Be sure to register any new instances in CreateFromConflictElement method.
+	{
+		public MergeWarning(string message)
+			: base(new NullMergeSituation(), string.Empty)
+		{
+			//todo: need to store that message somehow
+		}
+
+		public MergeWarning(XmlNode xmlRepresentation)
+			: base(xmlRepresentation)
+		{
+
+		}
+
+		public override string Description
+		{
+			get { return "Merge Warning"; }
+		}
+
+		public override string GetConflictingRecordOutOfSourceControl(IRetrieveFileVersionsFromRepository fileRetriever, ThreeWayMergeSources.Source mergeSource)
+		{
+			throw new NotImplementedException();
+		}
+
+		public override string GetFullHumanReadableDescription()
+		{
+			return "There was a warning during merge";//TODO once we can store the message, retrieve it here.
 		}
 	}
 

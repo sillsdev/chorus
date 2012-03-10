@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -34,11 +35,22 @@ namespace Chorus.FileTypeHanders.lift
 			var parentIndex = new Dictionary<string, byte[]>(StringComparer.OrdinalIgnoreCase);
 			using (var parentPrepper = new DifferDictionaryPrepper(parentIndex, bakPathname, "header", "entry", "guid"))
 			{
+				parentPrepper.ShouldContinueAfterDuplicateKey = s =>
+																	{
+																		Debug.Fail("Duplicate GUID");
+																		return true;
+																	};
+
 				parentPrepper.Run();
 			}
 			var childIndex = new Dictionary<string, byte[]>(StringComparer.OrdinalIgnoreCase);
 			using (var childPrepper = new DifferDictionaryPrepper(childIndex, tempPathname, "header", "entry", "guid"))
 			{
+				childPrepper.ShouldContinueAfterDuplicateKey = s =>
+																{
+																	Debug.Fail("Duplicate GUID");
+																	return true;
+																};
 				childPrepper.Run();
 			}
 
