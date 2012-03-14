@@ -125,7 +125,6 @@
 	<Compile Include="FileHandlers\ldml\LdmlFileHandlerTests.cs" />
 	<Compile Include="FileHandlers\LiftRanges\LiftRangesFileHandlerTests.cs" />
 	<Compile Include="FileHandlers\Lift\FilePrettyPrintTests.cs" />
-	<Compile Include="GlobalSuppressions.cs" />
 	<Compile Include="Integration\MergeIntegrationTests.cs" />
 	<Compile Include="MercurialPathHelp.cs" />
 	<Compile Include="merge\xml\adaptIt\FileLevelAdaptItKnowlegeBaseMergeTests.cs" />
