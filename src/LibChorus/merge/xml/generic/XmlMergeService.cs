@@ -105,9 +105,9 @@ namespace Chorus.merge.xml.generic
 			var loserNewbies = new Dictionary<string, XmlNode>(StringComparer.OrdinalIgnoreCase);
 			var loserGoners = new Dictionary<string, XmlNode>(StringComparer.OrdinalIgnoreCase);
 			var loserDirtballs = new Dictionary<string, ChangedElement>(StringComparer.OrdinalIgnoreCase);
-			Do2WayDiff(parentIndex, pathToLoser, loserGoners, loserDirtballs, loserNewbies,
+			Do2WayDiffX(parentIndex, pathToLoser, loserGoners, loserDirtballs, loserNewbies,
 				firstElementMarker,
-				recordElementName, id);
+				recordElementName, id, mergeOrder.EventListener);
 
 			// At this point we have two sets of diffs, but we need to merge them.
 			// Newbies from both get added.
@@ -608,20 +608,29 @@ namespace Chorus.merge.xml.generic
 			winnerGoners.Remove(currentKey);
 		}
 
-		private static void Do2WayDiff(Dictionary<string, byte[]> parentIndex, string childPathname,
+		private static void Do2WayDiffX(Dictionary<string, byte[]> parentIndex, string childPathname,
 			IDictionary<string, XmlNode> goners, IDictionary<string, ChangedElement> dirtballs, IDictionary<string, XmlNode> newbies,
 			string firstElementMarker,
-			string recordElementName, string id)
+			string recordElementName, string id, IMergeEventListener mergeEventListener)
 		{
 			try
 			{
+				var warningListener = new ChangeAndConflictAccumulator();
+
 				foreach (var winnerDif in Xml2WayDiffService.ReportDifferences(
 					parentIndex, childPathname,
-					new ChangeAndConflictAccumulator(),
+					warningListener,
 					firstElementMarker,
 					recordElementName, id))
 				{
 					Do2WayDiffCore(id, winnerDif, goners, dirtballs, newbies);
+				}
+
+				//What's going on here: all the changes found by the differ aren't supposed to be reported to the listener, but
+				//when we added duplicate guid detection to the differ, we need a way to get warning out
+				foreach(var warning in warningListener.Warnings)
+				{
+					mergeEventListener.WarningOccurred(warning);
 				}
 			}
 			catch

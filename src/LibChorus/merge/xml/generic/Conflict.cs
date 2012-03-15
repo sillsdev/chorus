@@ -334,6 +334,7 @@ namespace Chorus.merge.xml.generic
 
 					Register<BothEditedDifferentPartsOfDependentPiecesOfDataWarning>(builder);
 					Register<UnmergableFileTypeConflict>(builder);
+					Register<MergeWarning>(builder);
 
 					foreach (var conflictType in _additionalConflictTypes)
 					{
@@ -1088,6 +1089,43 @@ namespace Chorus.merge.xml.generic
 				Situation.AlphaUserId, Situation.BetaUserId);
 			}
 		}
+	}
+
+	/// <summary>
+	/// This not really a conflict but is used to store warnings that occur during merge
+	/// </summary>
+	[TypeGuid("2E7B7307-B316-4644-8565-1B667372E269")]
+	public class MergeWarning : Conflict // NB: Be sure to register any new instances in CreateFromConflictElement method.
+	{
+		private readonly string _message;
+
+		public MergeWarning(string message)
+			: base(new NullMergeSituation(), string.Empty)
+		{
+			_message = message;
+		}
+
+		public MergeWarning(XmlNode xmlRepresentation)
+			: base(xmlRepresentation)
+		{
+
+		}
+
+		public override string Description
+		{
+			get { return "Merge Warning"; }
+		}
+
+		public override string GetConflictingRecordOutOfSourceControl(IRetrieveFileVersionsFromRepository fileRetriever, ThreeWayMergeSources.Source mergeSource)
+		{
+			throw new NotImplementedException();
+		}
+
+		public override string GetFullHumanReadableDescription()
+		{
+			return _message;
+		}
+
 	}
 
 	/// <summary>
