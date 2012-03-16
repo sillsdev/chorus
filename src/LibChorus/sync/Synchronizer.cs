@@ -246,8 +246,7 @@ namespace Chorus.sync
 		{
 			if (_backgroundWorker != null && _backgroundWorker.CancellationPending)
 			{
-				_progress.WriteWarning("User cancelled operation.");
-				_progress.WriteMessage("Cancelled.");
+				_progress.WriteMessage("Operation cancelled.");
 				_backgroundWorkerArguments.Cancel = true;
 				throw new UserCancelledException();
 			}
@@ -401,6 +400,11 @@ namespace Chorus.sync
 				catch (HgCommonException err)
 				{
 					ErrorReport.NotifyUserOfProblem(err.Message);
+					return false;
+				}
+				catch (UserCancelledException)
+				{
+					// don't report anything
 					return false;
 				}
 				catch (Exception err)
