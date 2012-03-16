@@ -23,18 +23,22 @@ namespace Chorus.VcsDrivers.Mercurial
 			_urlExecuted = "";
 		}
 
-		public HgResumeApiResponse Execute(string method, IDictionary<string, string> parameters, int secondsBeforeTimeout)
+		public HgResumeApiResponse Execute(string method, HgResumeApiParameters request, int secondsBeforeTimeout)
 		{
-			return Execute(method, parameters, new byte[0], secondsBeforeTimeout);
+			return Execute(method, request, new byte[0], secondsBeforeTimeout);
 		}
 
-		public HgResumeApiResponse Execute(string method, IDictionary<string, string> parameters, byte[] contentToSend, int secondsBeforeTimeout)
+		public HgResumeApiResponse Execute(string method, HgResumeApiParameters parameters, byte[] contentToSend, int secondsBeforeTimeout)
 		{
-			string queryString = BuildQueryString(parameters);
+			string queryString = parameters.BuildQueryString();
 			_urlExecuted = String.Format("{0}://{1}/api/v{2}/{3}?{4}", _url.Scheme, _url.Host, APIVERSION, method, queryString);
 			var req = WebRequest.Create(_urlExecuted) as HttpWebRequest;
 			req.UserAgent = String.Format("HgResume v{0}", APIVERSION);
 			req.PreAuthenticate = true;
+			if (!_url.UserInfo.Contains(":"))
+			{
+				throw new HgResumeException("Username or password were not supplied in custom location");
+			}
 			req.Credentials = new NetworkCredential(_url.UserInfo.Split(':')[0], _url.UserInfo.Split(':')[1]);
 			req.Timeout = secondsBeforeTimeout * 1000; // timeout is in milliseconds
 			if (contentToSend.Length == 0)
@@ -97,16 +101,14 @@ namespace Chorus.VcsDrivers.Mercurial
 		private static HgResumeApiResponse HandleResponse(HttpWebResponse res)
 		{
 			var apiResponse = new HgResumeApiResponse();
-			for (int i = 0; i < res.Headers.Count; i++)
-			{
-				apiResponse.Headers[res.Headers.Keys[i]] = res.Headers[i];
-			}
+			apiResponse.Headers = new HgResumeApiResponseHeaders(res.Headers);
 			apiResponse.StatusCode = res.StatusCode;
 
 			var responseStream = res.GetResponseStream();
-			if (responseStream != null && apiResponse.Headers.ContainsKey("Content-Length"))
+
+			if (responseStream != null && !String.IsNullOrEmpty(res.Headers["Content-Length"]))
 			{
-				apiResponse.Content = ReadStream(responseStream, Convert.ToInt32(apiResponse.Headers["Content-Length"]));
+				apiResponse.Content = ReadStream(responseStream, Convert.ToInt32(res.Headers["Content-Length"]));
 			}
 			else
 			{
@@ -153,16 +155,6 @@ namespace Chorus.VcsDrivers.Mercurial
 		public string Url
 		{
 			get { return _urlExecuted; }
-		}
-
-		private static string BuildQueryString(IEnumerable<KeyValuePair<string, string>> urlParameters)
-		{
-			var queryString = "";
-			foreach (var param in urlParameters)
-			{
-				queryString += string.Format("{0}={1}&", param.Key, HttpUtility.UrlEncode(param.Value));
-			}
-			return queryString.TrimEnd('&');
 		}
 	}
 }

@@ -111,11 +111,6 @@ namespace Chorus.UI.Clone
 			set { _progress.CancelRequested = value; }
 		}
 
-		public void AddDisplay(IProgress progress)
-		{
-			_progress.Add(progress);
-		}
-
 		public IProgressIndicator ProgressIndicator
 		{
 			get { return _progress.ProgressIndicator; }
@@ -189,6 +184,10 @@ namespace Chorus.UI.Clone
 					_progress.WriteError(error.Message);
 					ErrorReport.NotifyUserOfProblem(error.Message);
 				}
+				else if (error is UserCancelledException)
+				{
+					_progress.WriteMessage(error.Message);
+				}
 				else
 				{
 					_progress.WriteError(error.Message);
@@ -207,6 +206,21 @@ namespace Chorus.UI.Clone
 			{
 				Directory.Delete(TargetDestination, true);
 			}
+		}
+
+		public void AddMessageProgress(IProgress p)
+		{
+			_progress.AddMessageProgress(p);
+		}
+
+		public void AddStatusProgress(IProgress p)
+		{
+			_progress.AddStatusProgress(p);
+		}
+
+		public void AddProgress(IProgress p)
+		{
+			_progress.Add(p);
 		}
 	}
 }

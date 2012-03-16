@@ -8,6 +8,7 @@ using System.Threading;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using LibChorus.TestUtilities;
+using NUnit.Framework;
 using Palaso.Progress;
 using Palaso.Progress.LogBox;
 using Palaso.TestUtilities;
@@ -135,7 +136,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 
 
 
-	public interface IApiServerForTest : IApiServer
+	internal interface IApiServerForTest : IApiServer
 	{
 		void AddTimeoutResponse(int executeCount);
 		void AddServerUnavailableResponse(int executeCount, string serverMessage);
@@ -147,7 +148,50 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		string CurrentTip { get; }
 	}
 
-	internal class DummyApiServerForTest : IApiServerForTest, IDisposable
+	internal class ApiServerForTest
+	{
+		public void ValidateParameters(string method, HgResumeApiParameters request, byte[] contentToSend, int secondsBeforeTimeout)
+		{
+			Assert.That(method, Is.Not.Empty);
+			Assert.That(secondsBeforeTimeout, Is.GreaterThan(0));
+			if (method == "getRevisions")
+			{
+				Assert.That(request.RepoId, Is.Not.Empty);
+				Assert.That(request.Quantity, Is.GreaterThan(0));
+				Assert.That(request.StartOfWindow, Is.GreaterThan(-1));
+			}
+			else if (method == "pullBundleChunk")
+			{
+				Assert.That(request.RepoId, Is.Not.Empty);
+				Assert.That(request.BaseHash, Is.Not.Empty);
+				Assert.That(request.ChunkSize, Is.GreaterThan(0));
+				Assert.That(request.StartOfWindow, Is.GreaterThanOrEqualTo(0));
+				Assert.That(request.TransId, Is.Not.Empty);
+			}
+			else if (method == "pushBundleChunk")
+			{
+				Assert.That(request.RepoId, Is.Not.Empty);
+				Assert.That(request.BundleSize, Is.GreaterThan(0));
+				Assert.That(request.StartOfWindow, Is.GreaterThanOrEqualTo(0));
+				Assert.That(request.TransId, Is.Not.Empty);
+				Assert.That(contentToSend.Length, Is.GreaterThan(0));
+			}
+			else if (method == "finishPushBundle")
+			{
+				Assert.That(request.TransId, Is.Not.Empty);
+			}
+			else if (method == "finishPullBundle")
+			{
+				Assert.That(request.TransId, Is.Not.Empty);
+			}
+			else
+			{
+				throw new HgResumeException(String.Format("unknown method '{0}'", method));
+			}
+		}
+	}
+
+	internal class DummyApiServerForTest : ApiServerForTest, IApiServerForTest, IDisposable
 	{
 		private readonly Queue<HgResumeApiResponse> _responseQueue = new Queue<HgResumeApiResponse>();
 
@@ -162,13 +206,14 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			ProjectId = "SampleProject";
 		}
 
-		public HgResumeApiResponse Execute(string method, IDictionary<string, string> parameters, int secondsBeforeTimeout)
+		public HgResumeApiResponse Execute(string method, HgResumeApiParameters request, int secondsBeforeTimeout)
 		{
-			return Execute(method, parameters, new byte[0], secondsBeforeTimeout);
+			return Execute(method, request, new byte[0], secondsBeforeTimeout);
 		}
 
-		public HgResumeApiResponse Execute(string method, IDictionary<string, string> parameters, byte[] contentToSend, int secondsBeforeTimeout)
+		public HgResumeApiResponse Execute(string method, HgResumeApiParameters request, byte[] contentToSend, int secondsBeforeTimeout)
 		{
+			ValidateParameters(method, request, contentToSend, secondsBeforeTimeout);
 			HgResumeApiResponse response;
 			if (_responseQueue.Count > 0)
 			{
@@ -247,7 +292,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		public int ExecuteCount;
 	}
 
-	internal class PushHandlerApiServerForTest : IApiServerForTest, IDisposable
+	internal class PushHandlerApiServerForTest : ApiServerForTest, IApiServerForTest, IDisposable
 	{
 
 
@@ -271,16 +316,22 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			_timeoutList = new List<int>();
 			_serverUnavailableList = new List<ServerUnavailableResponse>();
 		}
-		public HgResumeApiResponse Execute(string method, IDictionary<string, string> parameters, int secondsBeforeTimeout)
+
+		public HgResumeApiResponse Execute(string method, HgResumeApiParameters request, int secondsBeforeTimeout)
 		{
-			return Execute(method, parameters, new byte[0], secondsBeforeTimeout);
+			return Execute(method, request, new byte[0], secondsBeforeTimeout);
 		}
 
-		public HgResumeApiResponse Execute(string method, IDictionary<string, string> parameters, byte[] bytesToWrite, int secondsBeforeTimeout)
+		public HgResumeApiResponse Execute(string method, HgResumeApiParameters request, byte[] bytesToWrite, int secondsBeforeTimeout)
 		{
+			ValidateParameters(method, request, bytesToWrite, secondsBeforeTimeout);
 			if (method == "getRevisions")
 			{
 				IEnumerable<string> revisions = _repo.GetAllRevisions().Select(rev => rev.Number.Hash);
+				if (revisions.Count() == 0)
+				{
+					return ApiResponses.Revisions("0");
+				}
 				return ApiResponses.Revisions(string.Join("|", revisions.ToArray()));
 			}
 			if (method == "finishPushBundle")
@@ -304,15 +355,15 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 							_serverUnavailableList.Where(i => i.ExecuteCount == _executeCount).First().Message
 							);
 				}
-				_helper = new PullStorageManager(_localStorage.Path, parameters["transId"]);
+				_helper = new PullStorageManager(_localStorage.Path, request.TransId);
 
-				int bundleSize = Convert.ToInt32(parameters["bundleSize"]);
-				int offset = Convert.ToInt32(parameters["offset"]);
-				int chunkSize = bytesToWrite.Length;
+				//int bundleSize = Convert.ToInt32(parameters["bundleSize"]);
+				//int offset = Convert.ToInt32(parameters["offset"]);
+				//int chunkSize = bytesToWrite.Length;
 
-				_helper.WriteChunk(offset, bytesToWrite);
+				_helper.WriteChunk(request.StartOfWindow, bytesToWrite);
 
-				if (offset + chunkSize == bundleSize)
+				if (request.StartOfWindow + request.ChunkSize == request.BundleSize)
 				{
 					if (_repo.Unbundle(_helper.BundlePath))
 					{
@@ -320,7 +371,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 					}
 					return ApiResponses.Reset();
 				}
-				if (offset + chunkSize < bundleSize)
+				if (request.StartOfWindow + request.ChunkSize < request.BundleSize)
 				{
 					return ApiResponses.PushAccepted(_helper.StartOfWindow);
 				}
@@ -390,7 +441,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		}
 	}
 
-	internal class PullHandlerApiServerForTest : IApiServerForTest, IDisposable
+	internal class PullHandlerApiServerForTest : ApiServerForTest, IApiServerForTest, IDisposable
 	{
 		private readonly PushStorageManager _helper;
 		private readonly HgRepository _repo;
@@ -451,13 +502,14 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			throw new NotImplementedException();
 		}
 
-		public HgResumeApiResponse Execute(string method, IDictionary<string, string> parameters, int secondsBeforeTimeout)
+		public HgResumeApiResponse Execute(string method, HgResumeApiParameters request, int secondsBeforeTimeout)
 		{
-			return Execute(method, parameters, new byte[0], secondsBeforeTimeout);
+			return Execute(method, request, new byte[0], secondsBeforeTimeout);
 		}
 
-		public HgResumeApiResponse Execute(string method, IDictionary<string, string> parameters, byte[] bytesToWrite, int secondsBeforeTimeout)
+		public HgResumeApiResponse Execute(string method, HgResumeApiParameters request, byte[] bytesToWrite, int secondsBeforeTimeout)
 		{
+			ValidateParameters(method, request, bytesToWrite, secondsBeforeTimeout);
 			_executeCount++;
 			if (method == "finishPullBundle")
 			{
@@ -489,7 +541,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 							_serverUnavailableList.Where(i => i.ExecuteCount == _executeCount).First().Message
 							);
 				}
-				if (parameters["baseHash"] == CurrentTip)
+				if (request.BaseHash == CurrentTip)
 				{
 					return ApiResponses.PullNoChange();
 				}
@@ -498,16 +550,16 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				var bundleFileInfo = new FileInfo(_helper.BundlePath);
 				if (bundleFileInfo.Exists && bundleFileInfo.Length == 0  || !bundleFileInfo.Exists)
 				{
-					PrepareBundle(parameters["baseHash"]);
+					PrepareBundle(request.BaseHash);
 				}
-				int offset = Convert.ToInt32(parameters["offset"]);
-				int chunkSize = Convert.ToInt32(parameters["chunkSize"]);
+				//int offset = Convert.ToInt32(request["offset"]);
+				//int chunkSize = Convert.ToInt32(request["chunkSize"]);
 				var bundleFile = new FileInfo(_helper.BundlePath);
-				if (offset >= bundleFile.Length)
+				if (request.StartOfWindow >= bundleFile.Length)
 				{
 					return ApiResponses.Failed("offset greater than bundleSize");
 				}
-				var chunk = _helper.GetChunk(offset, chunkSize);
+				var chunk = _helper.GetChunk(request.StartOfWindow, request.ChunkSize);
 				return ApiResponses.PullOk(Convert.ToInt32(bundleFile.Length), chunk);
 			}
 			return ApiResponses.Custom(HttpStatusCode.InternalServerError);
@@ -646,17 +698,29 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 
 	public class ApiResponses
 	{
+		public static WebHeaderCollection GetWebHeaderCollection(Dictionary<string, string> parameters)
+		{
+			var headers = new WebHeaderCollection();
+			foreach (var pair in parameters)
+			{
+				headers.Set(pair.Key, pair.Value);
+			}
+			return headers;
+		}
+
 		public static HgResumeApiResponse PushComplete()
 		{
 			return new HgResumeApiResponse
 			{
 				StatusCode = HttpStatusCode.OK,
-				Headers = new Dictionary<string, string>
+				ResponseTimeInMilliseconds = 200,
+				Headers = new HgResumeApiResponseHeaders(
+					GetWebHeaderCollection(
+						new Dictionary<string, string>
 										 {
 											 {"X-HgR-Status", "SUCCESS"},
 											 {"X-HgR-Version", "1"}
-										 },
-				ResponseTimeInMilliseconds = 200
+										 }))
 			};
 		}
 
@@ -665,12 +729,14 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			return new HgResumeApiResponse
 			{
 				StatusCode = HttpStatusCode.Accepted,
-				Headers = new Dictionary<string, string>
+				Headers = new HgResumeApiResponseHeaders(
+					GetWebHeaderCollection(
+						new Dictionary<string, string>
 										 {
 											 {"X-HgR-Status", "RECEIVED"},
 											 {"X-HgR-Version", "1"},
 											 {"X-HgR-Sow", startOfWindow.ToString()}
-										 },
+										 })),
 				ResponseTimeInMilliseconds = 200
 			};
 		}
@@ -680,11 +746,13 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			return new HgResumeApiResponse
 			{
 				StatusCode = HttpStatusCode.BadRequest,
-				Headers = new Dictionary<string, string>
+				Headers = new HgResumeApiResponseHeaders(
+					GetWebHeaderCollection(
+						new Dictionary<string, string>
 										 {
 											 {"X-HgR-Status", "RESET"},
 											 {"X-HgR-Version", "1"}
-										 },
+										 })),
 				ResponseTimeInMilliseconds = 200
 			};
 		}
@@ -692,20 +760,21 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 
 		public static HgResumeApiResponse Failed(string message)
 		{
+			var parameters = new Dictionary<string, string>
+								 {
+									 {"X-HgR-Status", "FAIL"},
+									 {"X-HgR-Version", "1"}
+								 };
+			if (!String.IsNullOrEmpty(message))
+			{
+				parameters.Add("X-HgR-Error", message);
+			}
 			var response = new HgResumeApiResponse
 			{
 				StatusCode = HttpStatusCode.BadRequest,
-				Headers = new Dictionary<string, string>
-										 {
-											 {"X-HgR-Status", "FAIL"},
-											 {"X-HgR-Version", "1"}
-										 },
+				Headers = new HgResumeApiResponseHeaders(GetWebHeaderCollection(parameters)),
 				ResponseTimeInMilliseconds = 200
 			};
-			if (!String.IsNullOrEmpty(message))
-			{
-				response.Headers.Add("X-HgR-Error", message);
-			}
 			return response;
 		}
 
@@ -714,7 +783,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			return new HgResumeApiResponse
 					   {
 						   StatusCode = status,
-						   Headers = new Dictionary<string, string>(),
+						   Headers = new HgResumeApiResponseHeaders(new WebHeaderCollection()),
 						   Content = new byte[0],
 						   ResponseTimeInMilliseconds = 200
 			};
@@ -725,11 +794,12 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			return new HgResumeApiResponse
 			{
 				StatusCode = HttpStatusCode.OK,
-				Headers = new Dictionary<string, string>
+				Headers = new HgResumeApiResponseHeaders(GetWebHeaderCollection(
+				new Dictionary<string, string>
 										 {
 											 {"X-HgR-Status", "SUCCESS"},
 											 {"X-HgR-Version", "1"}
-										 },
+										 })),
 				Content = Encoding.UTF8.GetBytes(revisions),
 				ResponseTimeInMilliseconds = 200
 			};
@@ -745,13 +815,14 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			return new HgResumeApiResponse
 			{
 				StatusCode = HttpStatusCode.OK,
-				Headers = new Dictionary<string, string>
+				Headers = new HgResumeApiResponseHeaders(GetWebHeaderCollection(
+						new Dictionary<string, string>
 										 {
 											 {"X-HgR-Status", "SUCCESS"},
 											 {"X-HgR-Version", "1"},
 											 {"X-HgR-BundleSize", bundleSize.ToString()},
 											 {"X-HgR-ChunkSize", contentToSend.Length.ToString()}
-										 },
+										 })),
 				Content = contentToSend,
 				ResponseTimeInMilliseconds = 200
 			};
@@ -762,11 +833,12 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			return new HgResumeApiResponse
 			{
 				StatusCode = HttpStatusCode.NotModified,
-				Headers = new Dictionary<string, string>
+				Headers = new HgResumeApiResponseHeaders(GetWebHeaderCollection(
+						new Dictionary<string, string>
 										 {
 											 {"X-HgR-Status", "NOCHANGE"},
 											 {"X-HgR-Version", "1"}
-										 },
+										 })),
 				ResponseTimeInMilliseconds = 200
 			};
 		}
@@ -776,11 +848,12 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			return new HgResumeApiResponse
 			{
 				StatusCode = HttpStatusCode.ServiceUnavailable,
-				Headers = new Dictionary<string, string>
+				Headers = new HgResumeApiResponseHeaders(GetWebHeaderCollection(
+						new Dictionary<string, string>
 										 {
 											 {"X-HgR-Status", "NOTAVAILABLE"},
 											 {"X-HgR-Version", "1"}
-										 },
+										 })),
 				Content = Encoding.UTF8.GetBytes(message),
 				ResponseTimeInMilliseconds = 200
 			};

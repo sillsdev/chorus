@@ -38,10 +38,11 @@ namespace Chorus.UI.Clone
 			this._statusImages = new System.Windows.Forms.ImageList(this.components);
 			this._statusImage = new System.Windows.Forms.Button();
 			this._statusLabel = new System.Windows.Forms.TextBox();
-			this._progressBar = new SimpleProgressIndicator();
+			this._progressBar = new Palaso.Progress.SimpleProgressIndicator();
 			this._cancelTaskButton = new System.Windows.Forms.Button();
 			this._fixSettingsButton = new System.Windows.Forms.Button();
-			this._logBox = new LogBox();
+			this._logBox = new Palaso.Progress.LogBox.LogBox();
+			this._statusProgress = new Palaso.Progress.LogBox.SimpleStatusProgress();
 			this.SuspendLayout();
 			//
 			// _cancelButton
@@ -90,28 +91,31 @@ namespace Chorus.UI.Clone
 			// _statusLabel
 			//
 			this._statusLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-						| System.Windows.Forms.AnchorStyles.Left)
-						| System.Windows.Forms.AnchorStyles.Right)));
+			| System.Windows.Forms.AnchorStyles.Left)
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this._statusLabel.BackColor = System.Drawing.SystemColors.Control;
 			this._statusLabel.BorderStyle = System.Windows.Forms.BorderStyle.None;
 			this._statusLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this._statusLabel.Location = new System.Drawing.Point(58, 12);
+			this._statusLabel.Location = new System.Drawing.Point(58, 7);
 			this._statusLabel.MaximumSize = new System.Drawing.Size(316, 71);
 			this._statusLabel.Multiline = true;
 			this._statusLabel.Name = "_statusLabel";
 			this._statusLabel.ReadOnly = true;
-			this._statusLabel.Size = new System.Drawing.Size(316, 71);
+			this._statusLabel.Size = new System.Drawing.Size(316, 25);
 			this._statusLabel.TabIndex = 18;
-			this._statusLabel.Text = "Status text";
+			this._statusLabel.Text = "Status label";
 			//
 			// _progressBar
 			//
 			this._progressBar.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-						| System.Windows.Forms.AnchorStyles.Right)));
-			this._progressBar.Location = new System.Drawing.Point(15, 48);
+			| System.Windows.Forms.AnchorStyles.Right)));
+			this._progressBar.Location = new System.Drawing.Point(15, 54);
+			this._progressBar.MarqueeAnimationSpeed = 50;
 			this._progressBar.Name = "_progressBar";
-			this._progressBar.Size = new System.Drawing.Size(275, 18);
+			this._progressBar.PercentCompleted = 0;
+			this._progressBar.Size = new System.Drawing.Size(275, 10);
 			this._progressBar.Style = System.Windows.Forms.ProgressBarStyle.Marquee;
+			this._progressBar.SyncContext = null;
 			this._progressBar.TabIndex = 0;
 			//
 			// _cancelTaskButton
@@ -139,16 +143,43 @@ namespace Chorus.UI.Clone
 			// _logBox
 			//
 			this._logBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-						| System.Windows.Forms.AnchorStyles.Left)
-						| System.Windows.Forms.AnchorStyles.Right)));
+			| System.Windows.Forms.AnchorStyles.Left)
+			| System.Windows.Forms.AnchorStyles.Right)));
+			this._logBox.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
 			this._logBox.BackColor = System.Drawing.Color.Transparent;
 			this._logBox.CancelRequested = false;
+			this._logBox.ErrorEncountered = false;
+			this._logBox.Font = new System.Drawing.Font("Segoe UI", 9F);
 			this._logBox.GetDiagnosticsMethod = null;
 			this._logBox.Location = new System.Drawing.Point(15, 80);
 			this._logBox.Name = "_logBox";
+			this._logBox.ProgressIndicator = null;
+			this._logBox.ShowCopyToClipboardMenuItem = false;
+			this._logBox.ShowDetailsMenuItem = false;
+			this._logBox.ShowDiagnosticsMenuItem = false;
+			this._logBox.ShowFontMenuItem = false;
+			this._logBox.ShowMenu = true;
 			this._logBox.Size = new System.Drawing.Size(359, 172);
 			this._logBox.TabIndex = 0;
 			this._logBox.Load += new System.EventHandler(this._logBox_Load);
+			//
+			// _statusProgress
+			//
+			this._statusProgress.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+			| System.Windows.Forms.AnchorStyles.Left)
+			| System.Windows.Forms.AnchorStyles.Right)));
+			this._statusProgress.AutoSize = true;
+			this._statusProgress.CancelRequested = false;
+			this._statusProgress.ErrorEncountered = false;
+			this._statusProgress.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this._statusProgress.Location = new System.Drawing.Point(58, 36);
+			this._statusProgress.Name = "_statusProgress";
+			this._statusProgress.ProgressIndicator = null;
+			this._statusProgress.Size = new System.Drawing.Size(61, 15);
+			this._statusProgress.SyncContext = null;
+			this._statusProgress.TabIndex = 24;
+			this._statusProgress.Text = "status text";
+			this._statusProgress.WarningEncountered = false;
 			//
 			// GetCloneFromInternetDialog
 			//
@@ -156,6 +187,7 @@ namespace Chorus.UI.Clone
 			this.BackColor = System.Drawing.SystemColors.Control;
 			this.CancelButton = this._cancelButton;
 			this.ClientSize = new System.Drawing.Size(394, 275);
+			this.Controls.Add(this._statusProgress);
 			this.Controls.Add(this._cancelTaskButton);
 			this.Controls.Add(this._progressBar);
 			this.Controls.Add(this._statusImage);
@@ -189,5 +221,6 @@ namespace Chorus.UI.Clone
 		private System.Windows.Forms.Button _cancelTaskButton;
 		private LogBox _logBox;
 		private System.Windows.Forms.Button _fixSettingsButton;
+		private SimpleStatusProgress _statusProgress;
 	}
 }
