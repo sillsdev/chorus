@@ -157,7 +157,10 @@ def extsetup():
 	# only get the real command line args if we are passed a real ui object
 	def disp_parse(orig, ui, args):
 		if type(ui) == _ui.ui:
-			args = win32helper.getargs()[-len(args):]
+			args = win32helper.getargs()[:]
+			dispatch._earlygetopt(['--config'], args)
+			dispatch._earlygetopt(['--cwd'], args)
+			dispatch._earlygetopt(["-R", "--repository", "--repo"], args)
 		return orig(ui, args)
 	extensions.wrapfunction(dispatch, "_parse", disp_parse)
 
@@ -201,7 +204,7 @@ def extsetup():
 				extensions.wrapfunction(mod, name, utf8wrapper)
 
 	wrapnames(os.path, 'normpath', 'normcase', 'islink', 'dirname',
-			  'isdir', 'isfile', 'exists', 'abspath', 'realpath')
+			  'isdir', 'isfile', 'exists', 'abspath', 'realpath', 'split')
 	wrapnames(os, 'makedirs', 'lstat', 'unlink', 'chmod', 'stat',
 			  'mkdir', 'rename', 'removedirs', 'setcwd', 'open',
 			  'listdir', 'chdir', 'remove')

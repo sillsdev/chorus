@@ -30,7 +30,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		private bool _haveLookedIntoProxySituation;
 		private string _proxyCongfigParameterString = string.Empty;
 		private bool _alreadyUpdatedHgrc;
-
+		private static bool _alreadyUpdatedMercurialIni;
 
 		public static string GetEnvironmentReadinessMessage(string messageLanguageId)
 		{
@@ -161,6 +161,8 @@ namespace Chorus.VcsDrivers.Mercurial
 		/// </summary>
 		private void UpdateHgrc()
 		{
+			UpdateMercurialIni();
+
 			if (_alreadyUpdatedHgrc)
 				return;
 
@@ -173,7 +175,7 @@ namespace Chorus.VcsDrivers.Mercurial
 					fixutf8 makes it possible to have unicode characters in path names. Note that it is prone to break with new versions of mercurial.
 					it works with 1.5.1, and reportedly with 1.84, but the version I got did not work with 1.9.2.
 					When updating, notice that there are several forks available
-					Note too that to make use of this in a cmd window, first set to consolas (more characters)
+					Note too that to make use of this in a cmd window, first set font to consolas (more characters)
 					and change the codepage to utf with "chcp 65001"
 				*/
 
@@ -188,6 +190,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				if(!string.IsNullOrEmpty(fixUtfFolder))
 					extensions.Add("fixutf8", Path.Combine(fixUtfFolder, "fixutf8.py"));
 #endif
+
 				EnsureTheseExtensionsAndFormatSet(extensions);
 				_alreadyUpdatedHgrc = true;
 			}
@@ -196,6 +199,27 @@ namespace Chorus.VcsDrivers.Mercurial
 				throw new ApplicationException(string.Format("Failed to set up extensions: {0}", error.Message));
 			}
 
+		}
+
+		private static void UpdateMercurialIni()
+		{
+			if (_alreadyUpdatedMercurialIni)
+				return;
+
+			var extensions = new Dictionary<string, string>();
+			extensions.Add("hgext.win32text", ""); //for converting line endings on windows machines
+			extensions.Add("hgext.graphlog", ""); //for more easily readable diagnostic logs
+			extensions.Add("convert", ""); //for catastrophic repair in case of repo corruption
+#if !MONO
+			string fixUtfFolder = FileLocator.GetDirectoryDistributedWithApplication(false, "MercurialExtensions", "fixutf8");
+			if (!string.IsNullOrEmpty(fixUtfFolder))
+				extensions.Add("fixutf8", Path.Combine(fixUtfFolder, "fixutf8.py"));
+#endif
+			var doc = GetMercurialConfigInMercurialFolder();
+			SetExtensions(doc, extensions);
+			doc.SaveAndThrowIfCannot();
+
+			_alreadyUpdatedMercurialIni = true;
 		}
 
 		public bool GetFileIsInRepositoryFromFullPath(string fullPath)
@@ -655,6 +679,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		public static void CreateRepositoryInExistingDir(string path, IProgress progress)
 		{
+			UpdateMercurialIni();
 			var repo = new HgRepository(path, progress);
 			//dotencode is a good thing, but until we have all clients to 1.7 or later, it would leave some out in the cold.
 			//see also: DisableNewRepositoryFormats()
@@ -1061,6 +1086,10 @@ namespace Chorus.VcsDrivers.Mercurial
 			}
 		}
 
+		///<summary>
+		/// Returns the repository addresses configured in the paths section of this repos hgrc
+		///</summary>
+		///<returns></returns>
 		public IEnumerable<RepositoryAddress> GetRepositoryPathsInHgrc()
 		{
 			var section = GetMercurialConfigForRepository().Sections.GetOrCreate("paths");
@@ -1122,6 +1151,20 @@ namespace Chorus.VcsDrivers.Mercurial
 				File.WriteAllText(p, "");
 			}
 			return new IniDocument(p, IniFileType.MercurialStyle);
+		}
+
+		private static IniDocument GetMercurialConfigInMercurialFolder()
+		{
+#if MONO
+			return GetMercurialConfigForUser();
+#else
+			var mercurialIniFilePath = Path.Combine(MercurialLocation.PathToMercurialFolder, "mercurial.ini");
+			if (!File.Exists(mercurialIniFilePath))
+			{
+				File.WriteAllText(mercurialIniFilePath, "");
+			}
+			return new IniDocument(mercurialIniFilePath, IniFileType.MercurialStyle);
+#endif
 		}
 
 		private IniDocument GetMercurialConfigForUser()
@@ -1244,11 +1287,8 @@ namespace Chorus.VcsDrivers.Mercurial
 		internal void EnsureTheseExtensionsAndFormatSet(IEnumerable<KeyValuePair<string, string>> extensionDeclarations)
 		{
 			var doc = GetMercurialConfigForRepository();
-			var section = doc.Sections.GetOrCreate("extensions");
-			foreach (var pair in extensionDeclarations)
-			{
-				section.Set(pair.Key, pair.Value);
-			}
+			SetExtensions(doc, extensionDeclarations);
+			IniSection section;
 
 			section = doc.Sections.GetOrCreate("format");
 
@@ -1263,6 +1303,15 @@ namespace Chorus.VcsDrivers.Mercurial
 
 			section.Set("dotencode", "False");
 			doc.SaveAndThrowIfCannot();
+		}
+
+		private static void SetExtensions(IniDocument doc, IEnumerable<KeyValuePair<string, string>> extensionDeclarations)
+		{
+			var section = doc.Sections.GetOrCreate("extensions");
+			foreach (var pair in extensionDeclarations)
+			{
+				section.Set(pair.Key, pair.Value);
+			}
 		}
 
 		public IEnumerable<string> GetEnabledExtension()
@@ -1727,7 +1776,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 				Update(revisionNumber);//move over to this branch, if necessary
 
-				using (var messageFile = new TempFile(changeSetSummary))
+				using (var messageFile = new TempFile(changeSetSummary, Encoding.UTF8))
 				{
 					Execute(false, SecondsBeforeTimeoutOnLocalOperation,
 							string.Format("backout -r {0} --logfile \"{1}\"", revisionNumber, messageFile.Path));
