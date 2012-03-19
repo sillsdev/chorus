@@ -95,12 +95,14 @@ namespace Chorus.UI.Clone
 			{
 				UpdateDisplay(State.Error);
 				_model.CleanUpAfterErrorOrCancel();
+				_statusProgress.Reset();
 			}
-			if (_model.CancelRequested)
+			else if (_model.CancelRequested)
 			{
 				_model.CancelRequested = false;
 				UpdateDisplay(State.Cancelled);
 				_model.CleanUpAfterErrorOrCancel();
+				_statusProgress.Reset();
 			}
 			else
 			{
