@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Xml;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
-using LibChorus.Tests.merge.xml;
+using LibChorus.TestUtilities;
 using NUnit.Framework;
 
 namespace LibChorus.Tests.merge.xml.generic
@@ -807,7 +807,7 @@ namespace LibChorus.Tests.merge.xml.generic
 										"a/b[count(c)='2']",
 										"a/b[@key='one']/c[1][@key='x' and text()='first']",
 										"a/b[@key='one']/c[2][@key='y' and text()='blue']");
-			Assert.AreEqual(typeof(XmlTextRemovedVsEditConflict), r.Conflicts[0].GetType());
+			Assert.AreEqual(typeof(XmlTextEditVsRemovedConflict), r.Conflicts[0].GetType());
 
 			ChangeAndConflictAccumulator r2 = CheckOneWay(red, blue, ancestor,
 										"a[count(b)='1']",

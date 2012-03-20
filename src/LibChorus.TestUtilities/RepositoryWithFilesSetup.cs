@@ -10,7 +10,7 @@ using Palaso.IO;
 using Palaso.Progress.LogBox;
 using Palaso.TestUtilities;
 
-namespace LibChorus.Tests.merge
+namespace LibChorus.TestUtilities
 {
 	/// <summary>
 	/// Provides temporary directories,files, and repositories.  Provides operations on them, to simulate a user.

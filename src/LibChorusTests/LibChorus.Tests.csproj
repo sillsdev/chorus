@@ -130,18 +130,19 @@
 	<Compile Include="merge\xml\generic\ConflictIOTest.cs" />
 	<Compile Include="merge\xml\generic\MergeChildrenMethodTests.cs" />
 	<Compile Include="merge\xml\generic\MergeChildrenMethod_DiffOnlyTests.cs" />
+	<Compile Include="merge\xml\generic\NullMergeStrategy.cs" />
 	<Compile Include="merge\xml\generic\TextElementMergeTests.cs" />
 	<Compile Include="merge\xml\generic\XmlAttributeMergeTests.cs" />
+	<Compile Include="merge\xml\generic\xmldiff\Xml2WayDifferTests.cs" />
 	<Compile Include="merge\xml\generic\xmldiff\XmlDiffTests.cs" />
 	<Compile Include="merge\xml\generic\XmlListMergerTests.cs" />
 	<Compile Include="merge\xml\generic\XmlMergerTests.cs" />
-	<Compile Include="merge\xml\generic\XmlTestHelper.cs" />
+	<Compile Include="merge\xml\generic\XmlMergeServiceTests.cs" />
 	<Compile Include="merge\xml\lift\ExampleSentenceFinderTests.cs" />
 	<Compile Include="merge\xml\lift\ExampleSentenceMergingTests.cs" />
 	<Compile Include="merge\xml\lift\FileLevelDiffTests.cs" />
 	<Compile Include="merge\xml\lift\FileLevelMergeTests.cs" />
 	<Compile Include="merge\xml\lift\LexEntryContextGeneratorTests.cs" />
-	<Compile Include="merge\xml\generic\ListenerForUnitTests.cs" />
 	<Compile Include="merge\xml\lift\MultiTextMergingTests.cs" />
 	<Compile Include="merge\xml\lift\PoorMansMergingStrategyTests.cs" />
 	<Compile Include="merge\xml\lift\SenseMergingTests.cs" />
@@ -153,7 +154,6 @@
 	<Compile Include="notes\IndexOfOpenConflictsTests.cs" />
 	<Compile Include="notes\MessageTests.cs" />
 	<Compile Include="notes\AnnotationRepositoryTests.cs" />
-	<Compile Include="RepositorySetup.cs" />
 	<Compile Include="sync\CommitCopTests.cs" />
 	<Compile Include="sync\LargeFileFilterTests.cs" />
 	<Compile Include="sync\ProxyTests.cs" />
@@ -177,7 +177,6 @@
 	<Compile Include="VcsDrivers\Mercurial\HgSettingsTests.cs" />
 	<Compile Include="VcsDrivers\Mercurial\FileInRevisionTests.cs" />
 	<Compile Include="VcsDrivers\Mercurial\HistoryTests.cs" />
-	<Compile Include="RepositoryWithFilesSetup.cs" />
 	<Compile Include="utilities\ChorusDiff3Tests.cs" />
 	<Compile Include="Properties\AssemblyInfo.cs" />
 	<Compile Include="VcsDrivers\Mercurial\PushStorageManagerTests.cs" />
@@ -185,6 +184,10 @@
 	<Compile Include="VcsDrivers\Mercurial\Utf8Tests.cs" />
   </ItemGroup>
   <ItemGroup>
+	<ProjectReference Include="..\LibChorus.TestUtilities\LibChorus.TestUtilities.csproj">
+	  <Project>{0681E722-1856-44A1-B585-220E6AEC85CB}</Project>
+	  <Name>LibChorus.TestUtilities</Name>
+	</ProjectReference>
 	<ProjectReference Include="..\LibChorus\LibChorus.csproj">
 	  <Project>{94245366-8F1E-475C-810D-FE89BB3948E0}</Project>
 	  <Name>LibChorus</Name>

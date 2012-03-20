@@ -8,7 +8,7 @@ using Palaso.Xml;
 namespace Chorus.Utilities
 {
 	/// <summary>
-	/// This class processes source xml data (a whole file) and places 'records' into
+	/// This Method Class processes source xml data (a whole file) and places 'records' into
 	/// the given Dictionary. The client is then assumed to use the results in the
 	/// dictionary.
 	///
@@ -16,10 +16,10 @@ namespace Chorus.Utilities
 	/// Lift data would have 'entry' to mark 'records', and FieldWorks 7.0 will use 'rt'
 	/// to mark its 'records'.
 	///
-	/// The given ElementReader tokenizes the input xml data and uses this class' "PrepareIndex" delegate
+	/// The given ElementReader tokenizes the input xml data and uses this class' "AddKeyToIndex" delegate
 	/// to add 'records' to the dictionary
 	/// </summary>
-	public class DifferDictionaryPrepper : IDisposable
+	public class MakeRecordDictionary : IDisposable
 	{
 		private readonly byte[] _identifierWithDoubleQuote;
 		private readonly byte[] _identifierWithSingleQuote;
@@ -31,7 +31,13 @@ namespace Chorus.Utilities
 		private readonly string _recordStartingTag;
 		private readonly Encoding _utf8;
 
-		public DifferDictionaryPrepper(IDictionary<string, byte[]> dictionary, string pathname,
+		/// <summary>
+		/// This function should return true if the Run method should continue on
+		/// If this function is not provide by the client an exception will be thrown if a duplicate is encountered.
+		/// </summary>
+		public Func<string, bool> ShouldContinueAfterDuplicateKey;
+
+		public MakeRecordDictionary(IDictionary<string, byte[]> dictionary, string pathname,
 			string firstElementMarker,
 			string recordStartingTag, string identifierAttribute)
 		{
@@ -44,6 +50,9 @@ namespace Chorus.Utilities
 			_identifierWithSingleQuote = _utf8.GetBytes(identifierAttribute + "='");
 		}
 
+		/// <summary>
+		/// Will throw if a duplicate is encountered, unless ShouldContinueAfterDuplicateKey is declared and returns false.
+		/// </summary>
 		public void Run()
 		{
 			bool foundOptionalFirstElement;
@@ -56,7 +65,25 @@ namespace Chorus.Utilities
 				}
 				else
 				{
-					PrepareIndex(record);
+					try
+					{
+						AddKeyToIndex(record);
+					}
+					catch (Exception error)
+					{
+						if (ShouldContinueAfterDuplicateKey != null)
+						{
+							if (!ShouldContinueAfterDuplicateKey(error.Message))
+							{
+								throw;
+							}
+						}
+						else
+						{
+							throw;
+						}
+					}
+
 				}
 			}
 		}
@@ -65,11 +92,18 @@ namespace Chorus.Utilities
 		/// The ElementReader calls back to this delegate to add items to the dictionary.
 		/// </summary>
 		/// <param name="data"></param>
-		private void PrepareIndex(byte[] data)
+		private void AddKeyToIndex(byte[] data)
 		{
 			var guid = GetAttribute(_identifierWithDoubleQuote, _closeDoubleQuote, data)
 				   ?? GetAttribute(_identifierWithSingleQuote, _closeSingleQuote, data);
-			_dictionary.Add(guid, data);
+			try
+			{
+				_dictionary.Add(guid, data);
+			}
+			catch (ArgumentException error)
+			{
+				throw new ArgumentException("There is more than one element with the guid " + guid, error);
+			}
 		}
 
 		private string GetAttribute(byte[] name, byte closeQuote, byte[] input)
@@ -110,7 +144,7 @@ namespace Chorus.Utilities
 
 		#region Implementation of IDisposable
 
-		~DifferDictionaryPrepper()
+		~MakeRecordDictionary()
 		{
 			Debug.WriteLine("**** FieldWorksDictionaryPrepper.Finalizer called ****");
 			Dispose(false);

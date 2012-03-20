@@ -21,9 +21,9 @@ namespace Chorus.merge.xml.generic
 		internal static bool Run(XmlMerger merger, ref XmlNode ours, XmlNode theirs, XmlNode commonAncestor)
 		{
 			if (merger == null)
-				throw new ArgumentNullException("merger");
+				throw new ArgumentNullException("merger"); // Route tested.
 			if (ours == null && theirs == null && commonAncestor == null)
-				throw new ArgumentNullException();
+				throw new ArgumentNullException(); // Route tested.
 
 			// One or two of the elements may be null.
 			// If commonAncestor is null and one of the others is null, then the other one added a new element.
@@ -33,18 +33,20 @@ namespace Chorus.merge.xml.generic
 			// 1. Fetch the relevant ElementStrategy
 			var elementStrategy = merger.MergeStrategies.GetElementStrategy(nodeForStrategy);
 			if (!elementStrategy.IsAtomic)
-				return false;
+				return false; // Route tested.
 
 			if (commonAncestor == null)
 			{
 				if (ours == null)
 				{
-					if (theirs == null)
-					{
-						// Nobody did anything.
-						return true;
-					}
+					// They can't all be null, or there woudl have bene an expected thrown, above.
+					//if (theirs == null)
+					//{
+					//    // Nobody did anything.
+					//    return true;
+					//}
 					// They seem to have added a new one.
+					// Route tested (x2).
 					merger.EventListener.ChangeOccurred(new XmlAdditionChangeReport(merger.MergeSituation.PathToFileInRepository, theirs));
 					ours = theirs; // They added it.
 				}
@@ -57,6 +59,7 @@ namespace Chorus.merge.xml.generic
 						if (XmlUtilities.AreXmlElementsEqual(ours, theirs))
 						{
 							// Both added the same thing.
+							// Route tested (x2).
 							merger.EventListener.ChangeOccurred(new BothChangedAtomicElementReport(merger.MergeSituation.PathToFileInRepository, ours));
 						}
 						else
@@ -64,13 +67,15 @@ namespace Chorus.merge.xml.generic
 							// Both added, but not the same thing.
 							if (merger.MergeSituation.ConflictHandlingMode == MergeOrder.ConflictHandlingModeChoices.WeWin)
 							{
-								merger.EventListener.ConflictOccurred(new BothEditedTheSameAtomicElement(ours.Name,
-									ours, theirs, null, merger.MergeSituation, null, merger.MergeSituation.AlphaUserId));
+								// Route tested.
+								merger.ConflictOccurred(new BothEditedTheSameAtomicElement(ours.Name,
+									ours, theirs, null, merger.MergeSituation, elementStrategy, merger.MergeSituation.AlphaUserId));
 							}
 							else
 							{
-								merger.EventListener.ConflictOccurred(new BothEditedTheSameAtomicElement(ours.Name,
-									theirs, ours, null, merger.MergeSituation, null, merger.MergeSituation.BetaUserId));
+								// Route tested.
+								merger.ConflictOccurred(new BothEditedTheSameAtomicElement(ours.Name,
+									ours, theirs, null, merger.MergeSituation, elementStrategy, merger.MergeSituation.BetaUserId));
 								ours = theirs;
 							}
 						}
@@ -78,16 +83,18 @@ namespace Chorus.merge.xml.generic
 					else
 					{
 						// We added. They are still null.
+						// Route tested (x2).
 						merger.EventListener.ChangeOccurred(new XmlAdditionChangeReport(merger.MergeSituation.PathToFileInRepository, ours));
 					}
 				}
-				return true;
+				return true; // Routed used (x2).
 			}
 
 			// commonAncestor != null from here on out.
 			if (ours == null && theirs == null)
 			{
 				// No problemo, since both deleted it.
+				// Route tested (x2).
 				merger.EventListener.ChangeOccurred(new XmlBothDeletionChangeReport(merger.MergeSituation.PathToFileInRepository, commonAncestor));
 				return true;
 			}
@@ -98,6 +105,7 @@ namespace Chorus.merge.xml.generic
 			if (ours == null && !theirsAndCommonAreEqual)
 			{
 				// We deleted, they edited, so keep theirs under the least loss principle.
+				// Route tested (x2 WeWin & !WeWin).
 				merger.ConflictOccurred(new RemovedVsEditedElementConflict(theirs.Name, null, theirs,
 																						 commonAncestor,
 																						 merger.MergeSituation, elementStrategy,
@@ -110,6 +118,7 @@ namespace Chorus.merge.xml.generic
 			if (theirs == null && !oursAndCommonAreEqual)
 			{
 				// We edited, they deleted, so keep ours under the least loss principle.
+				// Route tested (x2 WeWin & !WeWin)
 				merger.ConflictOccurred(new EditedVsRemovedElementConflict(ours.Name, ours, null, commonAncestor,
 																			   merger.MergeSituation, elementStrategy,
 																			   merger.MergeSituation.AlphaUserId));
@@ -120,6 +129,7 @@ namespace Chorus.merge.xml.generic
 			if (oursAndTheirsAreEqual && !oursAndCommonAreEqual)
 			{
 				// Both made same changes.
+				// Route tested (x2).
 				merger.EventListener.ChangeOccurred(new BothChangedAtomicElementReport(merger.MergeSituation.PathToFileInRepository, ours));
 				return true;
 			}
@@ -130,11 +140,13 @@ namespace Chorus.merge.xml.generic
 				if (!oursAndCommonAreEqual && theirsAndCommonAreEqual)
 				{
 					// We edited it. They did nothing.
+					// Route tested (x2).
 					merger.EventListener.ChangeOccurred(new XmlChangedRecordReport(null, null, ours.ParentNode, ours));
 				}
 				else if (!theirsAndCommonAreEqual && oursAndCommonAreEqual)
 				{
 					// They edited it. We did nothing.
+					// Route tested (x2).
 					merger.EventListener.ChangeOccurred(new XmlChangedRecordReport(null, null, theirs.ParentNode, theirs));
 					ours = theirs;
 				}
@@ -142,6 +154,7 @@ namespace Chorus.merge.xml.generic
 				{
 					// Both edited.
 					// 2A1b. If different, then report a conflict and then stop.
+					// Route tested (x2 WeWin & !WeWin).
 					merger.ConflictOccurred(merger.MergeSituation.ConflictHandlingMode ==
 												   MergeOrder.ConflictHandlingModeChoices.WeWin
 													? new BothEditedTheSameAtomicElement(ours.Name, ours, theirs, commonAncestor,
@@ -153,10 +166,10 @@ namespace Chorus.merge.xml.generic
 					if (merger.MergeSituation.ConflictHandlingMode != MergeOrder.ConflictHandlingModeChoices.WeWin)
 						ours = theirs;
 				}
-				return true;
 			}
 
 			// No changes.
+			// Route tested (x2).
 			return true;
 		}
 	}

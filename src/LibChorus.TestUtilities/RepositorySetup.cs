@@ -7,7 +7,7 @@ using NUnit.Framework;
 using Palaso.Progress.LogBox;
 using Palaso.TestUtilities;
 
-namespace LibChorus.Tests
+namespace LibChorus.TestUtilities
 {
 	/// <summary>
 	/// Provides temporary directories and repositories.

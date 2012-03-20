@@ -22,7 +22,6 @@ namespace Chorus.UI.Clone
 		private enum State { AskingUserForURL, MakingClone, Success, Error,Cancelled}
 
 		private TargetFolderControl _targetFolderControl;
-		private StatusProgress _statusProgress;
 		private State _state;
 		private ServerSettingsControl _serverSettingsControl;
 
@@ -46,9 +45,16 @@ namespace Chorus.UI.Clone
 			_backgroundWorker.RunWorkerCompleted += _backgroundWorker_RunWorkerCompleted;
 			_backgroundWorker.DoWork += _backgroundWorker_DoWork;
 
-			_statusProgress = new StatusProgress();
-			_model.AddDisplay(_statusProgress);  // TODO: needs to be replaced by SimpleStatusProgress
-			_model.AddDisplay(_logBox);
+			_logBox.ShowCopyToClipboardMenuItem = true;
+			_logBox.ShowDetailsMenuItem = true;
+			_logBox.ShowDiagnosticsMenuItem = true;
+			_logBox.ShowFontMenuItem = true;
+
+
+			_model.AddProgress(_statusProgress);
+			_statusProgress.Text = "";
+			_statusProgress.Visible = false;
+			_model.AddMessageProgress(_logBox);
 			_model.ProgressIndicator = _progressBar;
 			_model.UIContext = SynchronizationContext.Current;
 
@@ -90,8 +96,9 @@ namespace Chorus.UI.Clone
 				UpdateDisplay(State.Error);
 				_model.CleanUpAfterErrorOrCancel();
 			}
-			else if (_statusProgress.WasCancelled)
+			if (_model.CancelRequested)
 			{
+				_model.CancelRequested = false;
 				UpdateDisplay(State.Cancelled);
 				_model.CleanUpAfterErrorOrCancel();
 			}
@@ -122,6 +129,8 @@ namespace Chorus.UI.Clone
 					_cancelButton.Enabled = true;
 					_cancelButton.Visible = true;
 					_cancelTaskButton.Visible = false;
+					_statusProgress.Visible = false;
+					_statusProgress.Text = "";
 
 					break;
 				case State.MakingClone:
@@ -139,9 +148,11 @@ namespace Chorus.UI.Clone
 					_statusLabel.Visible = true;
 					_statusLabel.Text = "Getting project...";
 					_statusLabel.Left = _progressBar.Left;
+					_statusProgress.Left = _progressBar.Left;
 					_logBox.Visible = true;
 					_cancelTaskButton.Visible = true;
 					_cancelButton.Visible = false;
+					_statusProgress.Visible = true;
 					break;
 				case State.Success:
 					_cancelTaskButton.Visible = false;
@@ -156,12 +167,13 @@ namespace Chorus.UI.Clone
 					_okButton.Visible = true;
 					_cancelButton.Visible = false;
 					_logBox.Visible = true;
+					_statusProgress.Visible = false;
 					break;
 				case State.Error:
 					_fixSettingsButton.Visible = true;
 					_fixSettingsButton.Focus();
-					_cancelButton.Visible = false;
-					//_cancelButton.Text = "&Cancel";
+					_cancelButton.Visible = true;
+					_cancelButton.Text = "&Cancel";
 					//_cancelButton.Select();
 					_cancelTaskButton.Visible = false;
 					_statusLabel.Visible = true;
@@ -171,6 +183,7 @@ namespace Chorus.UI.Clone
 					_statusLabel.Left = _statusImage.Right + 10;
 					_statusImage.ImageKey = "Error";
 					_statusImage.Visible = true;
+					_statusProgress.Visible = false;
 					break;
 				case State.Cancelled:
 					_cancelButton.Visible = true;
@@ -183,6 +196,7 @@ namespace Chorus.UI.Clone
 					_targetFolderControl.Visible = false;
 					_statusLabel.Left =  _progressBar.Left;
 					_statusImage.Visible = false;
+					_statusProgress.Visible = false;
 					break;
 				default:
 					throw new ArgumentOutOfRangeException();
@@ -265,6 +279,5 @@ namespace Chorus.UI.Clone
 		{
 			_logBox.BackColor  =this.BackColor;
 		}
-
 	}
 }

@@ -28,6 +28,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleApp", "src\SampleApp\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests-ChorusPlugin", "src\Tests-ChorusPlugin\Tests-ChorusPlugin.csproj", "{1E6F4881-AA72-4AC7-B411-7B7E00C30C25}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibChorus.TestUtilities", "src\LibChorus.TestUtilities\LibChorus.TestUtilities.csproj", "{0681E722-1856-44A1-B585-220E6AEC85CB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -66,6 +68,10 @@ Global
 		{1E6F4881-AA72-4AC7-B411-7B7E00C30C25}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1E6F4881-AA72-4AC7-B411-7B7E00C30C25}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1E6F4881-AA72-4AC7-B411-7B7E00C30C25}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0681E722-1856-44A1-B585-220E6AEC85CB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0681E722-1856-44A1-B585-220E6AEC85CB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0681E722-1856-44A1-B585-220E6AEC85CB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0681E722-1856-44A1-B585-220E6AEC85CB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

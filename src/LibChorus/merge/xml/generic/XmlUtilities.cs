@@ -10,6 +10,7 @@ using System.Text;
 using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Xsl;
+using Chorus.FileTypeHanders.lift;
 using Chorus.merge.xml.generic.xmldiff;
 
 
@@ -306,6 +307,30 @@ namespace Chorus.merge.xml.generic
 			return node.ChildNodes.Cast<XmlNode>().Any(childNode => !goodNodeTypes.Contains(childNode.NodeType))
 				? TextNodeStatus.IsNotTextNodeContainer
 				: TextNodeStatus.IsTextNodeContainer;
+		}
+
+		internal static void AddDateCreatedAttribute(XmlNode elementNode)
+		{
+			AddAttribute(elementNode, "dateCreated", DateTime.Now.ToString(LiftUtils.LiftTimeFormatNoTimeZone));
+		}
+
+		internal static void AddAttribute(XmlNode element, string name, string value)
+		{
+			var attr = element.OwnerDocument.CreateAttribute(name);
+			attr.Value = value;
+			element.Attributes.Append(attr);
+		}
+
+		internal static IEnumerable<XmlAttribute> GetAttrs(XmlNode node)
+		{
+			return (node is XmlCharacterData || node == null)
+					? new List<XmlAttribute>()
+					: new List<XmlAttribute>(node.Attributes.Cast<XmlAttribute>()); // Need to copy so we can iterate while changing.
+		}
+
+		internal static XmlAttribute GetAttributeOrNull(XmlNode node, string name)
+		{
+			return node == null ? null : node.Attributes.GetNamedItem(name) as XmlAttribute;
 		}
 	}
 

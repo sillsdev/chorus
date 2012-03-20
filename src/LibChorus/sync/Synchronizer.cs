@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Windows.Forms;
 using Chorus.FileTypeHanders;
@@ -245,8 +246,7 @@ namespace Chorus.sync
 		{
 			if (_backgroundWorker != null && _backgroundWorker.CancellationPending)
 			{
-				_progress.WriteWarning("User cancelled operation.");
-				_progress.WriteMessage("Cancelled.");
+				_progress.WriteMessage("Operation cancelled.");
 				_backgroundWorkerArguments.Cancel = true;
 				throw new UserCancelledException();
 			}
@@ -400,6 +400,11 @@ namespace Chorus.sync
 				catch (HgCommonException err)
 				{
 					ErrorReport.NotifyUserOfProblem(err.Message);
+					return false;
+				}
+				catch (UserCancelledException)
+				{
+					// don't report anything
 					return false;
 				}
 				catch (Exception err)
@@ -606,6 +611,11 @@ namespace Chorus.sync
 			}
 			catch (Exception error)
 			{
+				foreach (var chorusMergeProcess in Process.GetProcessesByName("ChorusMerge"))
+				{
+					_progress.WriteWarning(string.Format("Killing ChorusMerge Process: '{0}'...", chorusMergeProcess.Id));
+					chorusMergeProcess.Kill();
+				}
 				_progress.WriteException(error);
 				_progress.WriteError("Rolling back...");
 				UpdateToTheDescendantRevision(repo, workingRevBeforeSync); //rollback
