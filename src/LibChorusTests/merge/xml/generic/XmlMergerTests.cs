@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using System.Xml;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
@@ -132,6 +133,7 @@ namespace LibChorus.Tests.merge.xml.generic
 			Assert.That(c.HtmlDetails, Contains.Substring(m.merge()));
 
 			Assert.That(c.HtmlDetails, Contains.Substring("kept the change made by red"));
+			AssertDivsMatch(c.HtmlDetails);
 		}
 
 		[Test]
@@ -174,6 +176,14 @@ namespace LibChorus.Tests.merge.xml.generic
 			Assert.That(c.HtmlDetails, Contains.Substring(m.merge()));
 
 			Assert.That(c.HtmlDetails, Contains.Substring("kept the change made by red"));
+			AssertDivsMatch(c.HtmlDetails);
+		}
+
+		private void AssertDivsMatch(string input)
+		{
+			var reDiv = new Regex("<div[^>]*>");
+			var reEndDiv = new Regex("</div>");
+			Assert.That(reDiv.Matches(input).Count, Is.EqualTo(reEndDiv.Matches(input).Count), "<div>s should match </div>s");
 		}
 
 		[Test]
@@ -227,6 +237,7 @@ namespace LibChorus.Tests.merge.xml.generic
 			Assert.That(c.HtmlDetails, Contains.Substring(m.merge()));
 
 			Assert.That(c.HtmlDetails, Contains.Substring("kept the change made by red"));
+			AssertDivsMatch(c.HtmlDetails);
 		}
 
 		class MockContextGenerator2 : IGenerateContextDescriptor, IGenerateHtmlContext
