@@ -57,9 +57,9 @@ namespace ChorusMerge.Tests
 			{
 				var filePath1 = Path.Combine(p.Path, "aaa.txt");
 				File.WriteAllText(filePath1, @"aaa");
-				var filePath2 = Path.Combine(p.Path, "aaa.txt");
+				var filePath2 = Path.Combine(p.Path, "bbb.txt");
 				File.WriteAllText(filePath2, @"bbb");
-				var filePath3 = Path.Combine(p.Path, "aaa.txt");
+				var filePath3 = Path.Combine(p.Path, "ccc.txt");
 				File.WriteAllText(filePath3, @"ccc");
 
 				var encoding = Encoding.GetEncoding(1252);
