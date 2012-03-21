@@ -133,9 +133,9 @@ def utf8wrapper(orig, *args, **kargs):
 
 
 def popen_wrapper(orig, cmd, *args, **kargs):
-	print '[[', orig.__name__, ']]'
-	print '[arguments]'
-	print 'cmd =', repr(cmd)
+	#print '[[', orig.__name__, ']]'
+	#print '[arguments]'
+	#print 'cmd =', repr(cmd)
 	#print 'args =', repr(args)
 	#print 'kargs =', repr(kargs)
 	os.environ['PYTHONIOENCODING'] = 'utf-8'
