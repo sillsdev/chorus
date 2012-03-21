@@ -465,8 +465,8 @@ namespace Chorus.merge.xml.generic
 			string firstElementMarker,
 			string recordElementName, string id)
 		{
-			try
-			{
+//			try
+//			{
 				foreach (var winnerDif in Xml2WayDiffService.ReportDifferences(
 					parentIndex, childPathname,
 					new ChangeAndConflictAccumulator(),
@@ -475,9 +475,9 @@ namespace Chorus.merge.xml.generic
 				{
 					Do2WayDiffCore(id, winnerDif, goners, dirtballs, newbies);
 				}
-			}
-			catch
-			{ }
+//			}
+//			catch
+//			{ }
 		}
 
 		private static Dictionary<string, byte[]> Do2WayDiff(string parentPathname, string childPathname,
