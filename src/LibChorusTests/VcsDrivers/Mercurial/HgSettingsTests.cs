@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
+using LibChorus.TestUtilities;
 using NUnit.Framework;
 using System.Linq;
 using Palaso.Progress.LogBox;

@@ -11,6 +11,9 @@ namespace Chorus.FileTypeHanders.test
 {
 	public class ChorusTestFileHandler : IChorusFileTypeHandler
 	{
+		internal ChorusTestFileHandler()
+		{}
+
 		public bool CanDiffFile(string pathToFile)
 		{
 			return false;

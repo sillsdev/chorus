@@ -1,10 +1,8 @@
-using System;
-using System.Diagnostics;
 using System.IO;
 using Chorus.sync;
-using Chorus.Utilities;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
+using LibChorus.TestUtilities;
 using NUnit.Framework;
 using Palaso.Progress.LogBox;
 
@@ -20,9 +18,13 @@ namespace LibChorus.Tests.sync
 		public void Setup()
 		{
 			_pathToTestRoot = Path.Combine(Path.GetTempPath(), "ChorusSyncScenarioTests");
-			if(Directory.Exists(_pathToTestRoot))
-				Directory.Delete(_pathToTestRoot, true);
 			Directory.CreateDirectory(_pathToTestRoot);
+		}
+
+		[TearDown]
+		public void TearDown()
+		{
+			Directory.Delete(_pathToTestRoot, true);
 		}
 
 		class BobSetup

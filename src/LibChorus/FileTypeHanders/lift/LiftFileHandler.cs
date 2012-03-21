@@ -14,6 +14,9 @@ namespace Chorus.FileTypeHanders.lift
 {
 	public class LiftFileHandler : IChorusFileTypeHandler
 	{
+		internal LiftFileHandler()
+		{}
+
 		public bool CanDiffFile(string pathToFile)
 		{
 			return (Path.GetExtension(pathToFile).ToLower() == ".lift");
