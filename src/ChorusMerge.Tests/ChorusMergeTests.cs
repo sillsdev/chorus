@@ -55,12 +55,12 @@ namespace ChorusMerge.Tests
 			using (var e = new TemporaryFolder("ChorusMergeTest"))
 			using (var p = new TemporaryFolder(e, "ไก่ projéct"))
 			{
-				var filePath1 = Path.Combine(p.Path, "aaa.txt");
+				var filePath1 = Path.Combine(p.Path, "aaa.chorusTest");
 				File.WriteAllText(filePath1, @"aaa");
-				var filePath2 = Path.Combine(p.Path, "bbb.txt");
-				File.WriteAllText(filePath2, @"bbb");
-				var filePath3 = Path.Combine(p.Path, "ccc.txt");
-				File.WriteAllText(filePath3, @"ccc");
+				var filePath2 = Path.Combine(e.Path, "aaa.chorusTest");
+				File.WriteAllText(filePath2, @"aaa");
+				var filePath3 = Path.Combine(e.Path, "aaa.chorusTest");
+				File.WriteAllText(filePath3, @"aaa");
 
 				var encoding = Encoding.GetEncoding(1252);
 				string filePath1Cp1252 = encoding.GetString(Encoding.UTF8.GetBytes(filePath1));
