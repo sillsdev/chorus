@@ -1,5 +1,4 @@
-﻿using System.IO;
-using Chorus.UI.Clone;
+﻿using Chorus.UI.Clone;
 using NUnit.Framework;
 using Palaso.TestUtilities;
 
@@ -31,22 +30,6 @@ namespace Chorus.Tests.UI.Clone
 				model.Password = "password";
 				model.ProjectId = "id";
 				Assert.AreEqual("http://account:password@hg-public.languagedepot.org/id", model.URL.ToLower());
-			}
-		}
-
-		[Test]
-		public void CleanUpAfterErrorOrCancel_DirectoryDeleted()
-		{
-			using (var testFolder = new TemporaryFolder("clonetest"))
-			{
-				var model = new GetCloneFromInternetModel(testFolder.Path);
-				model.LocalFolderName = "SomeFolder";
-				// Ideally would call model to start the clone - but that's in the dialog for now so fake it instead.
-				Directory.CreateDirectory(model.TargetDestination);
-				Assert.That(Directory.Exists(model.TargetDestination), Is.True);
-
-				model.CleanUpAfterErrorOrCancel();
-				Assert.That(Directory.Exists(model.TargetDestination), Is.False);
 			}
 		}
 	}

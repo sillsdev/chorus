@@ -101,7 +101,9 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			{
 				Assert.Throws<ApplicationException>(
 					() =>
-					RepositorySetup.MakeRepositoryForTest(setup.ProjectFolder.Path, "Dan", setup.Progress)
+					RepositorySetup.MakeRepositoryForTest(
+						setup.ProjectFolder.Path, "Dan", setup.Progress
+					)
 				);
 				//const string utf8FilePath = "açesbsun.wav";
 				//setup.ChangeFile(utf8FilePath, "hello1");

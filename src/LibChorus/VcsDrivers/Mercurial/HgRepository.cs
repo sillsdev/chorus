@@ -196,7 +196,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			}
 			catch (Exception error)
 			{
-				throw new ApplicationException(string.Format("Failed to set up extensions: {0}", error.Message));
+				throw new ApplicationException(string.Format("Failed to set up extensions for the repository: {0}", error.Message));
 			}
 
 		}
@@ -206,20 +206,27 @@ namespace Chorus.VcsDrivers.Mercurial
 			if (_alreadyUpdatedMercurialIni)
 				return;
 
-			var extensions = new Dictionary<string, string>();
-			extensions.Add("hgext.win32text", ""); //for converting line endings on windows machines
-			extensions.Add("hgext.graphlog", ""); //for more easily readable diagnostic logs
-			extensions.Add("convert", ""); //for catastrophic repair in case of repo corruption
+			try
+			{
+				var extensions = new Dictionary<string, string>();
+				extensions.Add("hgext.win32text", ""); //for converting line endings on windows machines
+				extensions.Add("hgext.graphlog", ""); //for more easily readable diagnostic logs
+				extensions.Add("convert", ""); //for catastrophic repair in case of repo corruption
 #if !MONO
-			string fixUtfFolder = FileLocator.GetDirectoryDistributedWithApplication(false, "MercurialExtensions", "fixutf8");
-			if (!string.IsNullOrEmpty(fixUtfFolder))
-				extensions.Add("fixutf8", Path.Combine(fixUtfFolder, "fixutf8.py"));
+				string fixUtfFolder = FileLocator.GetDirectoryDistributedWithApplication(false, "MercurialExtensions", "fixutf8");
+				if (!string.IsNullOrEmpty(fixUtfFolder))
+					extensions.Add("fixutf8", Path.Combine(fixUtfFolder, "fixutf8.py"));
 #endif
-			var doc = GetMercurialConfigInMercurialFolder();
-			SetExtensions(doc, extensions);
-			doc.SaveAndThrowIfCannot();
+				var doc = GetMercurialConfigInMercurialFolder();
+				SetExtensions(doc, extensions);
+				doc.SaveAndThrowIfCannot();
 
-			_alreadyUpdatedMercurialIni = true;
+				_alreadyUpdatedMercurialIni = true;
+			}
+			catch (Exception error)
+			{
+				throw new ApplicationException(string.Format("Failed to set up extensions: {0}", error.Message));
+			}
 		}
 
 		public bool GetFileIsInRepositoryFromFullPath(string fullPath)
@@ -732,7 +739,13 @@ namespace Chorus.VcsDrivers.Mercurial
 			ExecutionResult result = secondsBeforeTimeout;
 			if (result.ExitCode == 0)
 			{
-				return result.StandardOutput.Trim();
+				var output = result.StandardOutput;
+				int index = output.IndexOf('\n');
+				if (index > 0)
+				{
+					output = output.Substring(0, index);
+				}
+				return output.Trim();
 			}
 			return null;
 			//            }

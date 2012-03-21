@@ -82,15 +82,9 @@ namespace Chorus.UI.Clone
 		private void _backgroundWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
 		{
 			if (_statusProgress.ErrorEncountered)
-			{
 				UpdateDisplay(State.Error);
-				_model.CleanUpAfterErrorOrCancel();
-			}
 			else if (_statusProgress.WasCancelled)
-			{
 				UpdateDisplay(State.Cancelled);
-				_model.CleanUpAfterErrorOrCancel();
-			}
 			else
 			{
 				try
@@ -170,9 +164,8 @@ namespace Chorus.UI.Clone
 					_okButton.Visible = false;
 					_progressBar.Visible = false;
 					_targetFolderControl.Visible = true;
-					_cancelButton.Enabled = true;
-					_cancelButton.Visible = true;
-					_cancelTaskButton.Visible = false;
+					 _cancelButton.Enabled = true;
+				   _cancelTaskButton.Visible = false;
 
 					break;
 				case State.MakingClone:
@@ -192,9 +185,10 @@ namespace Chorus.UI.Clone
 					_statusLabel.Left = _progressBar.Left;
 					_logBox.Visible = true;
 					_cancelTaskButton.Visible = true;
-					_cancelButton.Visible = false;
+					_cancelButton.Enabled = false;
 					break;
 				case State.Success:
+					_cancelButton.Enabled = false;
 					_cancelTaskButton.Visible = false;
 					_statusLabel.Visible = true;
 					_statusLabel.Text = "Done.";
@@ -205,15 +199,15 @@ namespace Chorus.UI.Clone
 					_statusImage.ImageKey="Success";
 					_statusLabel.Text = string.Format("Finished");
 					_okButton.Visible = true;
-					_cancelButton.Visible = false;
+					_cancelButton.Enabled = false;
 					_logBox.Visible = true;
 					break;
 				case State.Error:
 					_fixSettingsButton.Visible = true;
 					_fixSettingsButton.Focus();
-					_cancelButton.Visible = false;
-					//_cancelButton.Text = "&Cancel";
-					//_cancelButton.Select();
+					_cancelButton.Enabled = false;
+					_cancelButton.Text = "&Cancel";
+					_cancelButton.Select();
 					_cancelTaskButton.Visible = false;
 					_statusLabel.Visible = true;
 					_statusLabel.Text = "Failed.";
@@ -224,9 +218,7 @@ namespace Chorus.UI.Clone
 					_statusImage.Visible = true;
 					break;
 				case State.Cancelled:
-					_cancelButton.Visible = true;
-					_cancelButton.Text = "&Close";
-					_cancelButton.Select();
+					_cancelButton.Enabled = true;
 					_cancelTaskButton.Visible = false;
 					_statusLabel.Visible = true;
 					_statusLabel.Text = "Cancelled.";
@@ -307,19 +299,13 @@ namespace Chorus.UI.Clone
 
 		private void _fixSettingsButton_Click(object sender, EventArgs e)
 		{
-			//_statusProgress.Reset();
-			this.Click_FixSettingsButton(); // Change to _model.Click_FixSettingsButton(); when merging.
+			_statusProgress = new StatusProgress();
 			UpdateDisplay(State.AskingUserForURL);
 		}
 
 		private void GetCloneFromInternetDialog_BackColorChanged(object sender, EventArgs e)
 		{
 			_logBox.BackColor  =this.BackColor;
-		}
-
-		private void Click_FixSettingsButton()
-		{
-			_progress.CancelRequested = false;
 		}
 
 	}
