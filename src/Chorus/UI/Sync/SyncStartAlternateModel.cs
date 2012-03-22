@@ -8,9 +8,11 @@ namespace Chorus.UI.Sync
 {
 	class SyncStartAlternateModel : ISyncStartModel
 	{
+		private readonly HgRepository _repository;
+
 		public SyncStartAlternateModel(HgRepository repository)
 		{
-			throw new NotImplementedException();
+			_repository = repository;
 		}
 
 		public bool GetInternetStatusLink(out string buttonLabel, out string message, out string tooltip)
@@ -28,9 +30,9 @@ namespace Chorus.UI.Sync
 			throw new NotImplementedException();
 		}
 
-		public void SetNewSharedNetworkAddress(string path)
+		public void SetNewSharedNetworkAddress(HgRepository repository, string path)
 		{
-			throw new NotImplementedException();
+			SyncStartModel.SetNewSharedNetworkAddress(repository, path);
 		}
 	}
 }

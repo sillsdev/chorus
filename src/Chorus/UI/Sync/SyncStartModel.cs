@@ -117,7 +117,13 @@ namespace Chorus.UI.Sync
 			return ready;
 		}
 
-		public void SetNewSharedNetworkAddress(string path)
+		void ISyncStartModel.SetNewSharedNetworkAddress(HgRepository repository, string path)
+		{
+			// Needed because this is a static method
+			SetNewSharedNetworkAddress(repository, path);
+		}
+
+		public static void SetNewSharedNetworkAddress(HgRepository repository, string path)
 		{
 			if (string.IsNullOrEmpty(path))
 				return;
@@ -139,7 +145,7 @@ namespace Chorus.UI.Sync
 
 				}
 				string alias = HgRepository.GetAliasFromPath(path);
-				_repository.SetTheOnlyAddressOfThisType(RepositoryAddress.Create(alias, path));
+				repository.SetTheOnlyAddressOfThisType(RepositoryAddress.Create(alias, path));
 			}
 			catch (Exception e)
 			{
@@ -157,6 +163,6 @@ namespace Chorus.UI.Sync
 
 		bool GetUsbStatusLink(IUsbDriveLocator usbDriveLocator, out string message);
 
-		void SetNewSharedNetworkAddress(string path);
+		void SetNewSharedNetworkAddress(HgRepository repository, string path);
 	}
 }

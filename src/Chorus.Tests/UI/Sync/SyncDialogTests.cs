@@ -25,18 +25,19 @@ namespace Chorus.Tests.UI.Sync
 			}
 		}
 
-		//[Test, Ignore("Run by hand only")]
-		//public void ShowSyncStartControlAltMessages_NoPaths()
-		//{
-		//    using (var setup = new RepositorySetup("pedro"))
-		//    {
-		//        var c = new SyncStartControlAltMessages(setup.Repository);
-		//        var f = new Form();
-		//        c.Dock = DockStyle.Fill;
-		//        f.Controls.Add(c);
-		//        Application.Run(f);
-		//    }
-		//}
+		[Test, Ignore("Run by hand only")]
+		public void ShowSyncStartControlAltMessages_NoPaths()
+		{
+			using (var setup = new RepositorySetup("pedro"))
+			{
+				var c = new SyncStartControl();
+				c.InitAlternateModel(setup.Repository);
+				var f = new Form();
+				c.Dock = DockStyle.Fill;
+				f.Controls.Add(c);
+				Application.Run(f);
+			}
+		}
 
 		[Test, Ignore("Run by hand only")]
 		[NUnit.Framework.RequiresSTA]
