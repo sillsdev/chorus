@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
@@ -44,21 +45,76 @@ namespace Chorus.UI.Sync
 			}
 
 			return ready;
+		}
 
-//			if (address == null)
-//			{
-//				message = "This project is not yet associated with an internet server";
-//				tooltip = string.Empty;
-//				linkText = string.Empty;
-//				return ready;
-//			}
-//			else
-//			{
-//				message = address.Name;
-//				linkText = string.Empty;
-//				tooltip = address.URI;
-//				return true;
-//			}
+		public bool GetNetworkStatusLink(out string message, out string tooltip)
+		{
+			RepositoryAddress address;
+			var ready = false;
+			message = string.Empty;
+
+			try
+			{
+				address = _repository.GetDefaultNetworkAddress<DirectoryRepositorySource>();
+			}
+			catch (Exception error)//probably, hgrc is locked
+			{
+				message = error.Message;
+				tooltip = string.Empty;
+				return false;
+			}
+			if (address == null)
+				message = "This project is not yet associated with a shared folder";
+			else
+				ready = Directory.Exists(Path.Combine(address.URI, ".hg"));
+
+			if (ready)
+			{
+				message = string.Empty;
+				tooltip = address.URI;
+			}
+			else
+			{
+				if (address != null)
+					message = "File not found.";
+				tooltip = message;
+			}
+
+			return ready;
+		}
+
+		public bool GetUsbStatusLink(IUsbDriveLocator usbDriveLocator, out string message)
+		{
+			var ready = false;
+			if (!usbDriveLocator.UsbDrives.Any())
+			{
+				message = "First insert a USB flash drive.";
+			}
+			else if (usbDriveLocator.UsbDrives.Count() > 1)
+			{
+				message = "More than one USB drive detected. Please remove one.";
+			}
+			else
+			{
+				try
+				{
+					var first = usbDriveLocator.UsbDrives.First();
+#if !MONO
+					message = first.RootDirectory + " " + first.VolumeLabel + " (" +
+										   Math.Floor(first.TotalFreeSpace / 1024000.0) + " Megs Free Space)";
+#else
+					message = first.VolumeLabel;
+					//RootDir & volume label are the same on linux.  TotalFreeSpace is, like, maxint or something in mono 2.0
+#endif
+					ready = true;
+				}
+				catch (Exception error)
+				{
+					message = error.Message;
+					ready = false;
+				}
+			}
+			return ready;
 		}
 
 		public void SetNewSharedNetworkAddress(string path)
@@ -91,7 +147,5 @@ namespace Chorus.UI.Sync
 				throw;
 			}
 		}
-
-
 	}
 }

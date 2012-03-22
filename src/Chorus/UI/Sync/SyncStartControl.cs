@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Windows.Forms;
-using System.Windows.Forms.VisualStyles;
 using Chorus.UI.Misc;
-using Chorus.Utilities;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using System.Linq;
@@ -54,41 +52,20 @@ namespace Chorus.UI.Sync
 
 		private void UpdateLocalNetworkSituation()
 		{
-			//TODO: move this to model, as we did with UpdateInternetSituation()
-
-			RepositoryAddress address;
-
-			try
-			{
-				address = _repository.GetDefaultNetworkAddress<DirectoryRepositorySource>();
-			}
-			catch(Exception error)//probably, hgrc is locked
-			{
-				_useSharedFolderButton.Enabled = false;
-				_useSharedFolderStatusLabel.Text = error.Message;
-			   return;
-			}
-
-			_useSharedFolderButton.Enabled = true; // can't do if address == null, but we will launch the setup dialog.
-			_useSharedFolderStatusLabel.LinkArea = new LinkArea(0,0);
-			if (address == null)
-			{
-				_useSharedFolderStatusLabel.Text = "This project is not yet associated with a shared folder";
-			}
-			else
-			{
-				_useSharedFolderStatusLabel.Text = address.Name;
-				toolTip1.SetToolTip(_useSharedFolderButton, address.URI);
-			}
-			if (!_useSharedFolderButton.Enabled || Control.ModifierKeys == Keys.Shift)
-			{
-				 _useSharedFolderStatusLabel.LinkArea = new LinkArea(_useSharedFolderStatusLabel.Text.Length + 1, 1000);
-				 _useSharedFolderStatusLabel.Text += " Set Up";
-			}
-
+			string message, tooltip;
+			_model.GetNetworkStatusLink(out message, out tooltip);
+			_useSharedFolderButton.Enabled = true;
+			_useSharedFolderStatusLabel.Text = message;
+			_useSharedFolderStatusLabel.LinkArea = new LinkArea(message.Length + 1, 1000);
 			if (_useSharedFolderButton.Enabled)
 			{
-				toolTip1.SetToolTip(_useSharedFolderButton, "Press Shift to see Set Up button");
+				tooltip += System.Environment.NewLine + "Press Shift to see Set Up button";
+			}
+			toolTip1.SetToolTip(_useSharedFolderButton, tooltip);
+
+			if (!_useSharedFolderButton.Enabled || Control.ModifierKeys == Keys.Shift)
+			{
+				 _useSharedFolderStatusLabel.Text += " Set Up";
 			}
 		}
 
@@ -109,43 +86,17 @@ namespace Chorus.UI.Sync
 			if (!_useInternetButton.Enabled || Control.ModifierKeys == Keys.Shift)
 			{
 				_internetStatusLabel.Text += " Set Up";
-				_internetStatusLabel.LinkArea = new LinkArea(message.Length + 1, 1000);
+				// hasn't this just been done above?
+				//_internetStatusLabel.LinkArea = new LinkArea(message.Length + 1, 1000);
 			}
 		}
 
 		private void UpdateUsbDriveSituation()
 		{
-			//TODO: move this to model, as we did with UpdateInternetSituation()
-
-			if (usbDriveLocator.UsbDrives.Count() == 0)
-			{
-				_useUSBButton.Enabled = false;
-				_usbStatusLabel.Text = "First insert a USB flash drive";
-			}
-			else if (usbDriveLocator.UsbDrives.Count() > 1)
-			{
-				_useUSBButton.Enabled = false;
-				_usbStatusLabel.Text = "More than one USB drive detected. Please remove one.";
-			}
-			else
-			{
-				_useUSBButton.Enabled = true;
-				try
-				{
-					var first = usbDriveLocator.UsbDrives.First();
-#if !MONO
-					_usbStatusLabel.Text = first.RootDirectory + " " + first.VolumeLabel + " (" +
-										   Math.Floor(first.TotalFreeSpace/1024000.0) + " Megs Free Space)";
-#else
-				_usbStatusLabel.Text = first.VolumeLabel;
-					//RootDir & volume label are the same on linux.  TotalFreeSpace is, like, maxint or something in mono 2.0
-#endif
-				}
-				catch (Exception error)
-				{
-					_usbStatusLabel.Text = error.Message;
-				}
-			}
+			// usbDriveLocator is defined in the Designer?
+			string message;
+			_useUSBButton.Enabled = _model.GetUsbStatusLink(usbDriveLocator, out message);
+			_usbStatusLabel.Text = message;
 		}
 
 

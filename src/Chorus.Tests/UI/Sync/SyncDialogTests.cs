@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿
 using System.Threading;
 using System.Windows.Forms;
 using Chorus.sync;
 using Chorus.UI.Sync;
 using Chorus.VcsDrivers;
 using LibChorus.TestUtilities;
-using LibChorus.Tests;
 using NUnit.Framework;
 
 namespace Chorus.Tests.UI.Sync
@@ -28,6 +24,19 @@ namespace Chorus.Tests.UI.Sync
 				Application.Run(f);
 			}
 		}
+
+		//[Test, Ignore("Run by hand only")]
+		//public void ShowSyncStartControlAltMessages_NoPaths()
+		//{
+		//    using (var setup = new RepositorySetup("pedro"))
+		//    {
+		//        var c = new SyncStartControlAltMessages(setup.Repository);
+		//        var f = new Form();
+		//        c.Dock = DockStyle.Fill;
+		//        f.Controls.Add(c);
+		//        Application.Run(f);
+		//    }
+		//}
 
 		[Test, Ignore("Run by hand only")]
 		[NUnit.Framework.RequiresSTA]
@@ -189,6 +198,45 @@ namespace Chorus.Tests.UI.Sync
 					Assert.IsTrue(dlg.FinalStatus.WarningEncountered);
 				}
 			}
+		}
+
+		[Test]
+		public void Sync_GetUsbStatusLink_NoUsb()
+		{
+			var usbLocator = new MockUsbDriveLocator();
+			usbLocator.Init(0); // pretend no USBs
+			string message;
+			var syncStartModel = new SyncStartModel(null);
+			var result = syncStartModel.GetUsbStatusLink(usbLocator, out message);
+
+			Assert.IsFalse(result, "Should fail!");
+			Assert.AreEqual("First insert a USB flash drive.", message);
+		}
+
+		[Test, Ignore("By Hand Only; might not have multiple drives")]
+		public void Sync_GetUsbStatusLink_MultipleUsb()
+		{
+			var usbLocator = new MockUsbDriveLocator();
+			usbLocator.Init(2); // pretend 2 USBs
+			string message;
+			var syncStartModel = new SyncStartModel(null);
+			var result = syncStartModel.GetUsbStatusLink(usbLocator, out message);
+
+			Assert.IsFalse(result, "Should fail!");
+			Assert.AreEqual("More than one USB drive detected. Please remove one.", message);
+		}
+
+		[Test, Ignore("By Hand Only; Linux drive C might be formatted the same")]
+		public void Sync_GetUsbStatusLink_OneUsb()
+		{
+			var usbLocator = new MockUsbDriveLocator();
+			usbLocator.Init(1); // pretend only one USB
+			string message;
+			var syncStartModel = new SyncStartModel(null);
+			var result = syncStartModel.GetUsbStatusLink(usbLocator, out message);
+
+			Assert.IsTrue(result, "Should pass!");
+			Assert.IsTrue(message.StartsWith("C:"));
 		}
 	}
 }

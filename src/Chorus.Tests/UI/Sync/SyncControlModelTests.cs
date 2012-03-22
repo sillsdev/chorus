@@ -1,17 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
 using Chorus.sync;
 using Chorus.UI.Sync;
-using Chorus.Utilities;
 using Chorus.VcsDrivers;
 using LibChorus.TestUtilities;
-using LibChorus.Tests;
 using NUnit.Framework;
-using Palaso.Network;
 using Palaso.Progress.LogBox;
 
 namespace Chorus.Tests
@@ -69,16 +64,14 @@ namespace Chorus.Tests
 				}
 			}
 				 Assert.IsNotEmpty(_progress.Text);
-	   }
+		}
 
 		[Test]
 		public void InitiallyHasUsbTarget()
 		{
 			Assert.IsNotNull(_model.GetRepositoriesToList()[0].URI == "UsbKey");
 			// Assert.IsNotNull(_model.GetRepositoriesToList().Any(r => r.URI == "UsbKey"));
-	   }
-
-
+		}
 
 		[Test]
 		public void GetRepositoriesToList_NoRepositoriesKnown_GivesUsb()

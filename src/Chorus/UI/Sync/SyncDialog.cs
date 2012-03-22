@@ -1,10 +1,8 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Drawing;
-using System.Threading;
 using System.Windows.Forms;
 using Chorus.sync;
-using Chorus.Utilities;
-using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using Palaso.Progress.LogBox;
 
