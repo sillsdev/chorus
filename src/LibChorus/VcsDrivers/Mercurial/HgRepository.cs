@@ -200,6 +200,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		private static void UpdateMercurialIni()
 		{
+			return; // TODO Remove this, temporary revert until we change the fix to audit only, and provide a merge module / installer fix. CP 2012-03
 			if (_alreadyUpdatedMercurialIni)
 				return;
 
@@ -703,16 +704,17 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		public static void CreateRepositoryInExistingDir(string path, IProgress progress)
 		{
-			UpdateMercurialIni();
 			var repo = new HgRepository(path, progress);
 			//dotencode is a good thing, but until we have all clients to 1.7 or later, it would leave some out in the cold.
 			//see also: DisableNewRepositoryFormats()
-			repo.Execute(20, "init", "--config format.dotencode=False " + SurroundWithQuotes(path));
+			repo.Init();
 		}
 
 		public void Init()
 		{
+			UpdateMercurialIni();
 			Execute(20, "init", "--config format.dotencode=False " + SurroundWithQuotes(_pathToRepository));
+			UpdateHgrc();
 		}
 
 		public void AddAndCheckinFiles(List<string> includePatterns, List<string> excludePatterns, string message)
