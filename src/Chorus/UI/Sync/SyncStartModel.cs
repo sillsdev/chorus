@@ -8,7 +8,7 @@ using Palaso.IO;
 
 namespace Chorus.UI.Sync
 {
-	internal class SyncStartModel
+	internal class SyncStartModel : ISyncStartModel
 	{
 		private readonly HgRepository _repository;
 
@@ -147,5 +147,16 @@ namespace Chorus.UI.Sync
 				throw;
 			}
 		}
+	}
+
+	internal interface ISyncStartModel
+	{
+		bool GetInternetStatusLink(out string buttonLabel, out string message, out string tooltip);
+
+		bool GetNetworkStatusLink(out string message, out string tooltip);
+
+		bool GetUsbStatusLink(IUsbDriveLocator usbDriveLocator, out string message);
+
+		void SetNewSharedNetworkAddress(string path);
 	}
 }

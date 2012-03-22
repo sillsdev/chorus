@@ -155,6 +155,12 @@ namespace Chorus
 				return _container.Resolve<SyncDialog.Factory>()(behavior, uiFeaturesFlags);
 			}
 
+			public Form CreateAlternateSynchronizationDialog()
+			{
+				return _container.Resolve<SyncDialog.Factory>()(SyncUIDialogBehaviors.AlternateStartModel,
+																SyncUIFeatures.NormalRecommended);
+			}
+
 			/// <summary>
 			/// Get a UI control designed to live near some data (e.g., a lexical entry);
 			/// it provides buttons

@@ -12,7 +12,7 @@ namespace Chorus.UI.Sync
 	internal partial class SyncStartControl : UserControl
 	{
 		private HgRepository _repository;
-		private SyncStartModel _model;
+		private ISyncStartModel _model;
 		public event EventHandler<SyncStartArgs> RepositoryChosen;
 
 		//designer only
@@ -37,6 +37,16 @@ namespace Chorus.UI.Sync
 			UpdateDisplay();//don't wait 2 seconds
 		}
 
+		public void InitAlternateModel(HgRepository repository)
+		{
+			_internetStatusLabel.Text = string.Empty;
+			Guard.AgainstNull(repository, "repository");
+			_model = new SyncStartAlternateModel(repository);
+			_repository = repository;
+			_updateDisplayTimer.Enabled = true;
+			_userName.Text = repository.GetUserIdInUse();
+			UpdateDisplay();//don't wait 2 seconds
+		}
 
 		private void OnUpdateDisplayTick(object sender, EventArgs e)
 		{
@@ -207,6 +217,7 @@ namespace Chorus.UI.Sync
 			UpdateLocalNetworkSituation();
 		}
 	}
+
 	public class SyncStartArgs : EventArgs
 	{
 		public SyncStartArgs(RepositoryAddress address, string commitMessage)

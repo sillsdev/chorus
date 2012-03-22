@@ -38,8 +38,17 @@ namespace Chorus.UI.Sync
 					SyncResult = new SyncResults();
 					SyncResult.Succeeded = false;
 
-					_syncStartControl1.Init(HgRepository.CreateOrLocate(projectFolderConfiguration.FolderPath,
-																				new NullProgress()));
+					if (Behavior == SyncUIDialogBehaviors.AlternateStartModel)
+					{
+						_syncStartControl1.InitAlternateModel(HgRepository.CreateOrLocate(projectFolderConfiguration.FolderPath,
+																	new NullProgress()));
+					}
+					else
+					{
+						_syncStartControl1.Init(HgRepository.CreateOrLocate(projectFolderConfiguration.FolderPath,
+																	new NullProgress()));
+					}
+
 					_syncControl.Dock = DockStyle.Fill;//in designer, we don't want it to cover up everything, but we do at runtime
 					_syncStartControl1.Visible = true;
 					_syncControl.Visible = false;
@@ -145,6 +154,7 @@ namespace Chorus.UI.Sync
 	{
 		Lazy=0,
 		StartImmediately,
-		StartImmediatelyAndCloseWhenFinished
+		StartImmediatelyAndCloseWhenFinished,
+		AlternateStartModel
 	} ;
 }
