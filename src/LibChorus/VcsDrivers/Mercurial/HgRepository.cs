@@ -1197,7 +1197,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			return new IniDocument(p, IniFileType.MercurialStyle);
 		}
 
-		private static IniDocument GetMercurialConfigInMercurialFolder()
+		private IniDocument GetMercurialConfigInMercurialFolder()
 		{
 #if MONO
 			return GetMercurialConfigForUser();
