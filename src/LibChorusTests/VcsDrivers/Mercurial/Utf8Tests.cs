@@ -200,7 +200,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		/// <summary>
 		/// The local clone works as it uses the settings of the source repo. i.e. It is a clone to not a clone from.
 		/// </summary>
-		[Test]
+		[Test, Ignore("May not be able to test it, if the ini file is created by the installer.")]
 		public void Utf8ExtensionPresent_LocalMercurialIniIncorrect_MercurialOpStillWorks()
 		{
 			using (new MercurialIniHider())

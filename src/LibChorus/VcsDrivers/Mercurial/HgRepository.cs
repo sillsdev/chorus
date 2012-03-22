@@ -200,31 +200,32 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		private static void UpdateMercurialIni()
 		{
+			// Remove next line and un-comment the rest after the audit fix.
 			return; // TODO Remove this, temporary revert until we change the fix to audit only, and provide a merge module / installer fix. CP 2012-03
-			if (_alreadyUpdatedMercurialIni)
-				return;
+//            if (_alreadyUpdatedMercurialIni)
+//                return;
 
-			try
-			{
-				var extensions = new Dictionary<string, string>();
-				extensions.Add("hgext.win32text", ""); //for converting line endings on windows machines
-				extensions.Add("hgext.graphlog", ""); //for more easily readable diagnostic logs
-				extensions.Add("convert", ""); //for catastrophic repair in case of repo corruption
-#if !MONO
-				string fixUtfFolder = FileLocator.GetDirectoryDistributedWithApplication(false, "MercurialExtensions", "fixutf8");
-				if (!string.IsNullOrEmpty(fixUtfFolder))
-					extensions.Add("fixutf8", Path.Combine(fixUtfFolder, "fixutf8.py"));
-#endif
-				var doc = GetMercurialConfigInMercurialFolder();
-				SetExtensions(doc, extensions);
-				doc.SaveAndThrowIfCannot();
+//            try
+//            {
+//                var extensions = new Dictionary<string, string>();
+//                extensions.Add("hgext.win32text", ""); //for converting line endings on windows machines
+//                extensions.Add("hgext.graphlog", ""); //for more easily readable diagnostic logs
+//                extensions.Add("convert", ""); //for catastrophic repair in case of repo corruption
+//#if !MONO
+//                string fixUtfFolder = FileLocator.GetDirectoryDistributedWithApplication(false, "MercurialExtensions", "fixutf8");
+//                if (!string.IsNullOrEmpty(fixUtfFolder))
+//                    extensions.Add("fixutf8", Path.Combine(fixUtfFolder, "fixutf8.py"));
+//#endif
+//                var doc = GetMercurialConfigInMercurialFolder();
+//                SetExtensions(doc, extensions);
+//                doc.SaveAndThrowIfCannot();
 
-				_alreadyUpdatedMercurialIni = true;
-			}
-			catch (Exception error)
-			{
-				throw new ApplicationException(string.Format("Failed to set up extensions: {0}", error.Message));
-			}
+//                _alreadyUpdatedMercurialIni = true;
+//            }
+//            catch (Exception error)
+//            {
+//                throw new ApplicationException(string.Format("Failed to set up extensions: {0}", error.Message));
+//            }
 		}
 
 		public bool GetFileIsInRepositoryFromFullPath(string fullPath)
