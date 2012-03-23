@@ -207,7 +207,7 @@ namespace Chorus.Tests.UI.Sync
 			var usbLocator = new MockUsbDriveLocator();
 			usbLocator.Init(0); // pretend no USBs
 			string message;
-			var syncStartModel = new SyncStartModel(null);
+			var syncStartModel = new SyncStartModel(null) as ISyncStartModel;
 			var result = syncStartModel.GetUsbStatusLink(usbLocator, out message);
 
 			Assert.IsFalse(result, "Should fail!");
@@ -220,7 +220,7 @@ namespace Chorus.Tests.UI.Sync
 			var usbLocator = new MockUsbDriveLocator();
 			usbLocator.Init(2); // pretend 2 USBs
 			string message;
-			var syncStartModel = new SyncStartModel(null);
+			var syncStartModel = new SyncStartModel(null) as ISyncStartModel;
 			var result = syncStartModel.GetUsbStatusLink(usbLocator, out message);
 
 			Assert.IsFalse(result, "Should fail!");
@@ -233,7 +233,7 @@ namespace Chorus.Tests.UI.Sync
 			var usbLocator = new MockUsbDriveLocator();
 			usbLocator.Init(1); // pretend only one USB
 			string message;
-			var syncStartModel = new SyncStartModel(null);
+			var syncStartModel = new SyncStartModel(null) as ISyncStartModel;
 			var result = syncStartModel.GetUsbStatusLink(usbLocator, out message);
 
 			Assert.IsTrue(result, "Should pass!");

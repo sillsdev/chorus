@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Chorus.UI
 {
-	interface IUsbDriveLocator
+	public interface IUsbDriveLocator
 	{
 		void BeginInit();
 

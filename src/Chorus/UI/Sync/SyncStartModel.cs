@@ -83,7 +83,12 @@ namespace Chorus.UI.Sync
 			return ready;
 		}
 
-		public bool GetUsbStatusLink(IUsbDriveLocator usbDriveLocator, out string message)
+		bool ISyncStartModel.GetUsbStatusLink(IUsbDriveLocator usbDriveLocator, out string message)
+		{
+			return GetUsbStatusLinkInternal(usbDriveLocator, out message);
+		}
+
+		internal static bool GetUsbStatusLinkInternal(IUsbDriveLocator usbDriveLocator, out string message)
 		{
 			var ready = false;
 			if (!usbDriveLocator.UsbDrives.Any())
@@ -155,7 +160,7 @@ namespace Chorus.UI.Sync
 		}
 	}
 
-	internal interface ISyncStartModel
+	public interface ISyncStartModel
 	{
 		bool GetInternetStatusLink(out string buttonLabel, out string message, out string tooltip);
 
