@@ -87,7 +87,7 @@ namespace Chorus.UI.Sync
 			if (address == null)
 				message = "This project is not yet associated with a shared folder";
 			else
-				ready = Directory.Exists(Path.Combine(address.URI, ".hg"));
+				ready = Directory.Exists(address.URI);
 
 			if (ready)
 			{
@@ -97,7 +97,7 @@ namespace Chorus.UI.Sync
 			else
 			{
 				if (address != null)
-					message = "File not found.";
+					message = "The computer does not have access to the specified network folder.";
 				tooltip = message;
 			}
 

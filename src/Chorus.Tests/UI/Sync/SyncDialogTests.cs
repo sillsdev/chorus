@@ -26,6 +26,7 @@ namespace Chorus.Tests.UI.Sync
 		}
 
 		[Test, Ignore("Run by hand only")]
+		[NUnit.Framework.RequiresSTA]
 		public void ShowSyncStartControlAltMessages_NoPaths()
 		{
 			using (var setup = new RepositorySetup("pedro"))
@@ -36,6 +37,29 @@ namespace Chorus.Tests.UI.Sync
 				c.Dock = DockStyle.Fill;
 				f.Controls.Add(c);
 				Application.Run(f);
+			}
+		}
+
+		[Test, Ignore("Run by hand only")]
+		[NUnit.Framework.RequiresSTA]
+		public void ShowSyncDialog_NetworkPath_AltMessages()
+		{
+			Application.EnableVisualStyles();
+
+			using (var setup = new RepositorySetup("pedro"))
+			{
+				// This network address won't exist. What happens?
+				setup.Repository.SetKnownRepositoryAddresses(new RepositoryAddress[]
+																 {
+																	 RepositoryAddress.Create("Network folder", "//xxxxx-pc/public/chorusTest")
+																 });
+
+				using (var dlg = new SyncDialog(setup.ProjectFolderConfig,
+												SyncUIDialogBehaviors.AlternateStartModel,
+												SyncUIFeatures.NormalRecommended))
+				{
+					dlg.ShowDialog();
+				}
 			}
 		}
 
