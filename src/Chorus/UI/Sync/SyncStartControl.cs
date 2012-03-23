@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Windows.Forms;
+using Chorus.Properties;
 using Chorus.UI.Misc;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
@@ -64,7 +65,7 @@ namespace Chorus.UI.Sync
 		{
 			string message, tooltip;
 			_model.GetNetworkStatusLink(out message, out tooltip);
-			_useSharedFolderButton.Enabled = true;
+			_useSharedFolderButton.Enabled = message != Resources.ksSharedFolderInaccessible;
 			_useSharedFolderStatusLabel.Text = message;
 			_useSharedFolderStatusLabel.LinkArea = new LinkArea(message.Length + 1, 1000);
 			if (_useSharedFolderButton.Enabled)
@@ -83,7 +84,7 @@ namespace Chorus.UI.Sync
 		{
 			string message,  tooltip, buttonLabel;
 			_model.GetInternetStatusLink(out buttonLabel, out message, out tooltip);
-			_useInternetButton.Enabled = true;
+			_useInternetButton.Enabled = message != Resources.ksNoInternetAccess;
 			_useInternetButton.Text = buttonLabel;
 			_internetStatusLabel.Text = message;
 			_internetStatusLabel.LinkArea = new LinkArea(message.Length+1, 1000);

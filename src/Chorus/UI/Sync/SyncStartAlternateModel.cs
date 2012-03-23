@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Net.NetworkInformation;
+using Chorus.Properties;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 
@@ -9,7 +10,7 @@ namespace Chorus.UI.Sync
 	class SyncStartAlternateModel : ISyncStartModel
 	{
 		private readonly HgRepository _repository;
-		private const string INTERNET_HOST = "www.google.com";
+		private readonly string INTERNET_HOST = Resources.ksInternetVerificationSite;
 
 		public SyncStartAlternateModel(HgRepository repository)
 		{
@@ -18,10 +19,10 @@ namespace Chorus.UI.Sync
 
 		public bool GetInternetStatusLink(out string buttonLabel, out string message, out string tooltip)
 		{
-			buttonLabel = "Internet";
+			buttonLabel = Resources.ksInternetButtonLabel;
 			if (!IsInternetPingable(INTERNET_HOST))
 			{
-				message = "The computer does not have internet access.";
+				message = Resources.ksNoInternetAccess;
 				tooltip = string.Empty;
 				return false;
 			}
@@ -85,7 +86,7 @@ namespace Chorus.UI.Sync
 				return false;
 			}
 			if (address == null)
-				message = "This project is not yet associated with a shared folder";
+				message = Resources.ksSharedFolderNotAssociated;
 			else
 				ready = Directory.Exists(address.URI);
 
@@ -97,7 +98,7 @@ namespace Chorus.UI.Sync
 			else
 			{
 				if (address != null)
-					message = "The computer does not have access to the specified network folder.";
+					message = Resources.ksSharedFolderInaccessible;
 				tooltip = message;
 			}
 

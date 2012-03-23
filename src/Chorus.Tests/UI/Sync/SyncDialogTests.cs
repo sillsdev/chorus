@@ -48,7 +48,7 @@ namespace Chorus.Tests.UI.Sync
 
 			using (var setup = new RepositorySetup("pedro"))
 			{
-				// This network address won't exist. What happens?
+				// This network address won't exist. Does it say it can't reach the shared folder and disable the button?
 				setup.Repository.SetKnownRepositoryAddresses(new RepositoryAddress[]
 																 {
 																	 RepositoryAddress.Create("Network folder", "//xxxxx-pc/public/chorusTest")
