@@ -253,10 +253,8 @@ namespace Chorus.FileTypeHanders.lift
 
 			// ******************************* <example> **************************************************
 			// <example
-#if MaybeSomeday
 			AddExampleSentenceStrategy();
 			// 'dateModified' is ignored in AddExampleSentenceStrategy, when it gets enabled.
-#endif
 			//		source [Optional, key] // Not suitable for keyed el strat.
 			//		dateCreated [Optional, sig=datetime, inherited from <extensible>]
 			//		dateModified [Optional, sig=datetime, inherited from <extensible>]
@@ -338,15 +336,13 @@ namespace Chorus.FileTypeHanders.lift
 			#endregion #region Header Elements
 		}
 
-#if MaybeSomeday
 		private void AddExampleSentenceStrategy()
 		{
 			ElementStrategy strategy = new ElementStrategy(true);
-			elementStrategy.AttributesToIgnoreForMerging.Add("dateModified");
+			strategy.AttributesToIgnoreForMerging.Add("dateModified");
 			strategy.MergePartnerFinder = new ExampleSentenceFinder();
-			_entryMerger.MergeStrategies.SetStrategy(name, strategy);
+			_entryMerger.MergeStrategies.SetStrategy("example", strategy);
 		}
-#endif
 
 		private ElementStrategy AddKeyedElementType(string name, string attribute, bool orderOfTheseIsRelevant)
 		{
@@ -374,7 +370,6 @@ namespace Chorus.FileTypeHanders.lift
 		}
 	}
 
-#if MaybeSomeday
 	public class ExampleSentenceFinder : IFindNodeToMerge//, IFindPossibleNodeToMerge
 	{
 //        public XmlNode GetPossibleNodeToMerge(XmlNode nodeToMatch, List<XmlNode> possibleMatches)
@@ -392,7 +387,7 @@ namespace Chorus.FileTypeHanders.lift
 			foreach (XmlNode example in parentToSearchIn.SafeSelectNodes("example"))
 			{
 			   XmlNodeList forms = example.SafeSelectNodes("form");
-			   if(!SameForms(forms, ourForms))
+			   if(!SameForms(example, forms, ourForms))
 				   continue;
 
 				return example;
@@ -402,29 +397,24 @@ namespace Chorus.FileTypeHanders.lift
 
 		}
 
-		private bool SameForms(XmlNodeList list1, XmlNodeList list2)
+		private bool SameForms(XmlNode example, XmlNodeList list1, XmlNodeList list2)
 		{
-			if (list1.Count != list2.Count)
-				return false; //enhance... this is giving up to easily
-
 			foreach (XmlNode form in list1)
 			{
+				var x = example.SafeSelectNodes("form[@lang='{0}']", form.GetStringAttribute("lang"));
+				if (x.Count == 0)
+					break;
 				var lang = form.GetStringAttribute("lang");
 				foreach (XmlNode form2 in list2)
 				{
-					if (form2.GetStringAttribute("lang")!=lang)
+					if (form2.GetStringAttribute("lang") != lang)
 						continue;
 					if (form2.InnerText != form.InnerText)
-						return false;// they differ
-
-					}
-				var x = example.SafeSelectNodes("form[@lang='{0}'", form.GetStringAttribute("lang"));
-				if (x.Count == 0)
-					break;
+						return false; // they differ
+				}
 			}
-
+			return true;
 		}
 
 	}
-#endif
 }

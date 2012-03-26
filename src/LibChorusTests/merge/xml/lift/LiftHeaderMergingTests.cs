@@ -69,6 +69,7 @@ namespace LibChorus.Tests.merge.xml.lift
 										<text>This records the tone information for a LexPronunciation in FieldWorks.</text>
 									</form>
 								</field>
+								<field tag='new2'><text>Other new field</text></field>
 							</fields>
 						</header>
 						<entry id='usOnly' guid='c1ecf892-e382-11de-8a39-0800200c9a66' />
@@ -222,7 +223,7 @@ namespace LibChorus.Tests.merge.xml.lift
 					"entry", "guid", LiftFileHandler.WritePreliminaryInformation);
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
 				XmlTestHelper.AssertXPathMatchesExactlyOne(result, "lift/entry[@id='usOnly']");
-				AssertThatXmlIn.String(result).HasSpecifiedNumberOfMatchesForXpath(@"lift/header/fields/field", 4);
+				AssertThatXmlIn.String(result).HasSpecifiedNumberOfMatchesForXpath(@"lift/header/fields/field", 5);
 			}
 		}
 	}
