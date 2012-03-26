@@ -138,6 +138,7 @@
 	<Compile Include="merge\xml\generic\XmlListMergerTests.cs" />
 	<Compile Include="merge\xml\generic\XmlMergerTests.cs" />
 	<Compile Include="merge\xml\generic\XmlMergeServiceTests.cs" />
+	<Compile Include="merge\xml\lift\LiftHeaderMergingTests.cs" />
 	<Compile Include="merge\xml\lift\ExampleSentenceFinderTests.cs" />
 	<Compile Include="merge\xml\lift\ExampleSentenceMergingTests.cs" />
 	<Compile Include="merge\xml\lift\FileLevelDiffTests.cs" />
