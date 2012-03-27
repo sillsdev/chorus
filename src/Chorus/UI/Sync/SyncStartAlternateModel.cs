@@ -97,6 +97,7 @@ namespace Chorus.UI.Sync
 
 		private bool IsSharedFolderRepositoryReachable(RepositoryAddress repoAddress)
 		{
+			// We want to know if we can connect, but we don't want to bother the user with extraneous information.
 			return repoAddress.CanConnect(_repository, repoAddress.Name, new NullProgress());
 		}
 
