@@ -4,13 +4,14 @@ using System.Net.NetworkInformation;
 using Chorus.Properties;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
+using Palaso.Progress.LogBox;
 
 namespace Chorus.UI.Sync
 {
 	class SyncStartAlternateModel : ISyncStartModel
 	{
 		private readonly HgRepository _repository;
-		private readonly string INTERNET_HOST = Resources.ksInternetVerificationSite;
+		//private readonly string INTERNET_HOST = Resources.ksInternetVerificationSite;
 
 		public SyncStartAlternateModel(HgRepository repository)
 		{
@@ -20,12 +21,6 @@ namespace Chorus.UI.Sync
 		public bool GetInternetStatusLink(out string buttonLabel, out string message, out string tooltip)
 		{
 			buttonLabel = Resources.ksInternetButtonLabel;
-			if (!IsInternetPingable(INTERNET_HOST))
-			{
-				message = Resources.ksNoInternetAccess;
-				tooltip = string.Empty;
-				return false;
-			}
 			RepositoryAddress address;
 			try
 			{
@@ -43,6 +38,14 @@ namespace Chorus.UI.Sync
 			{
 				buttonLabel = address.Name;
 				message = string.Empty;
+
+				// But, the Internet might be down or the repo unreachable.
+				if (!IsInternetRepositoryReachable(address))
+				{
+					message = Resources.ksNoInternetAccess;
+					tooltip = string.Empty;
+					return false;
+				}
 			}
 			else
 			{
@@ -52,21 +55,9 @@ namespace Chorus.UI.Sync
 			return ready;
 		}
 
-		private bool IsInternetPingable(string host)
+		private bool IsInternetRepositoryReachable(RepositoryAddress repoAddress)
 		{
-			var myPing = new Ping();
-			var buffer = new byte[32];
-			const int timeout = 2000;
-			var pingOptions = new PingOptions();
-			try
-			{
-				var reply = myPing.Send(host, timeout, buffer, pingOptions);
-				return reply != null && reply.Status == IPStatus.Success;
-			}
-			catch (PingException)
-			{
-			}
-			return false;
+			return repoAddress.CanConnect(_repository, repoAddress.Name, new NullProgress());
 		}
 
 		public bool GetNetworkStatusLink(out string message, out string tooltip)
@@ -88,8 +79,7 @@ namespace Chorus.UI.Sync
 			if (address == null)
 				message = Resources.ksSharedFolderNotAssociated;
 			else
-				ready = Directory.Exists(address.URI);
-
+				ready = IsSharedFolderRepositoryReachable(address);
 			if (ready)
 			{
 				message = string.Empty;
@@ -105,6 +95,10 @@ namespace Chorus.UI.Sync
 			return ready;
 		}
 
+		private bool IsSharedFolderRepositoryReachable(RepositoryAddress repoAddress)
+		{
+			return repoAddress.CanConnect(_repository, repoAddress.Name, new NullProgress());
+		}
 
 		bool ISyncStartModel.GetUsbStatusLink(IUsbDriveLocator usbDriveLocator, out string message)
 		{

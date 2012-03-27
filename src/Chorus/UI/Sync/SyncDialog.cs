@@ -69,7 +69,8 @@ namespace Chorus.UI.Sync
 		}
 
 		public SyncOptions SyncOptions
-		{ get { return _syncControl.Model.SyncOptions; }
+		{
+			get { return _syncControl.Model.SyncOptions; }
 		}
 
 
@@ -145,9 +146,6 @@ namespace Chorus.UI.Sync
 			}
 			_syncControl.Synchronize(true);
 		}
-
-
-
 	}
 
 	public enum SyncUIDialogBehaviors

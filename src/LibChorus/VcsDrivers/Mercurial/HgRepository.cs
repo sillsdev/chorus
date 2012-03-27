@@ -1382,7 +1382,8 @@ namespace Chorus.VcsDrivers.Mercurial
 		}
 
 		/// <summary>
-		/// Warning: this use of "incomin" takes just as long as a pull, according to the hg mailing list
+		/// Tests Network and Internet connection to a URI. Gives the best diagnostics with a log box.
+		/// Uses Ping and (failing that) DNS resolution to determine connection state.
 		/// </summary>
 		/// <param name="uri"></param>
 		/// <param name="progress"></param>
@@ -1390,7 +1391,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		public bool GetCanConnectToRemote(string uri, IProgress progress)
 		{
 
-			//this may be just as slow as a pull
+			// No longer uses "hg incoming", since that takes just as long as a pull, according to the hg mailing list
 			//    ExecutionResult result = ExecuteErrorsOk(string.Format("incoming -l 1 {0}", SurroundWithQuotes(uri)), _pathToRepository, SecondsBeforeTimeoutOnLocalOperation, _progress);
 			//so we're going to just ping
 
