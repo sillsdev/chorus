@@ -347,7 +347,6 @@
 	  <DependentUpon>SyncPanel.cs</DependentUpon>
 	</Compile>
 	<Compile Include="UI\Sync\SyncControlModel.cs" />
-	<Compile Include="UI\Sync\SyncStartAlternateModel.cs" />
 	<Compile Include="UI\Sync\SyncStartControl.cs">
 	  <SubType>UserControl</SubType>
 	</Compile>

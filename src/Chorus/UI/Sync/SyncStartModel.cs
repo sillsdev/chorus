@@ -2,13 +2,15 @@
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
+using Chorus.Properties;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using Palaso.IO;
+using Palaso.Progress.LogBox;
 
 namespace Chorus.UI.Sync
 {
-	internal class SyncStartModel : ISyncStartModel
+	internal class SyncStartModel
 	{
 		private readonly HgRepository _repository;
 
@@ -19,8 +21,7 @@ namespace Chorus.UI.Sync
 
 		public bool GetInternetStatusLink(out string buttonLabel, out string message, out string tooltip)
 		{
-			buttonLabel = "Internet";
-
+			buttonLabel = Resources.ksInternetButtonLabel;
 			RepositoryAddress address;
 			try
 			{
@@ -38,6 +39,14 @@ namespace Chorus.UI.Sync
 			{
 				buttonLabel = address.Name;
 				message = string.Empty;
+
+				// But, the Internet might be down or the repo unreachable.
+				if (!IsInternetRepositoryReachable(address))
+				{
+					message = Resources.ksNoInternetAccess;
+					tooltip = string.Empty;
+					return false;
+				}
 			}
 			else
 			{
@@ -45,6 +54,11 @@ namespace Chorus.UI.Sync
 			}
 
 			return ready;
+		}
+
+		private bool IsInternetRepositoryReachable(RepositoryAddress repoAddress)
+		{
+			return repoAddress.CanConnect(_repository, repoAddress.Name, new NullProgress());
 		}
 
 		public bool GetNetworkStatusLink(out string message, out string tooltip)
@@ -64,10 +78,9 @@ namespace Chorus.UI.Sync
 				return false;
 			}
 			if (address == null)
-				message = "This project is not yet associated with a shared folder";
+				message = Resources.ksSharedFolderNotAssociated;
 			else
-				ready = Directory.Exists(Path.Combine(address.URI, ".hg"));
-
+				ready = IsSharedFolderRepositoryReachable(address);
 			if (ready)
 			{
 				message = string.Empty;
@@ -76,19 +89,20 @@ namespace Chorus.UI.Sync
 			else
 			{
 				if (address != null)
-					message = "File not found.";
+					message = Resources.ksSharedFolderInaccessible;
 				tooltip = message;
 			}
 
 			return ready;
 		}
 
-		bool ISyncStartModel.GetUsbStatusLink(IUsbDriveLocator usbDriveLocator, out string message)
+		private bool IsSharedFolderRepositoryReachable(RepositoryAddress repoAddress)
 		{
-			return GetUsbStatusLinkInternal(usbDriveLocator, out message);
+			// We want to know if we can connect, but we don't want to bother the user with extraneous information.
+			return repoAddress.CanConnect(_repository, repoAddress.Name, new NullProgress());
 		}
 
-		internal static bool GetUsbStatusLinkInternal(IUsbDriveLocator usbDriveLocator, out string message)
+		internal bool GetUsbStatusLink(IUsbDriveLocator usbDriveLocator, out string message)
 		{
 			var ready = false;
 			if (!usbDriveLocator.UsbDrives.Any())
@@ -122,13 +136,7 @@ namespace Chorus.UI.Sync
 			return ready;
 		}
 
-		void ISyncStartModel.SetNewSharedNetworkAddress(HgRepository repository, string path)
-		{
-			// Needed because this is a static method
-			SetNewSharedNetworkAddress(repository, path);
-		}
-
-		public static void SetNewSharedNetworkAddress(HgRepository repository, string path)
+		public void SetNewSharedNetworkAddress(HgRepository repository, string path)
 		{
 			if (string.IsNullOrEmpty(path))
 				return;
@@ -158,16 +166,5 @@ namespace Chorus.UI.Sync
 				throw;
 			}
 		}
-	}
-
-	public interface ISyncStartModel
-	{
-		bool GetInternetStatusLink(out string buttonLabel, out string message, out string tooltip);
-
-		bool GetNetworkStatusLink(out string message, out string tooltip);
-
-		bool GetUsbStatusLink(IUsbDriveLocator usbDriveLocator, out string message);
-
-		void SetNewSharedNetworkAddress(HgRepository repository, string path);
 	}
 }

@@ -27,44 +27,6 @@ namespace Chorus.Tests.UI.Sync
 
 		[Test, Ignore("Run by hand only")]
 		[NUnit.Framework.RequiresSTA]
-		public void ShowSyncStartControlAltMessages_NoPaths()
-		{
-			using (var setup = new RepositorySetup("pedro"))
-			{
-				var c = new SyncStartControl();
-				c.InitAlternateModel(setup.Repository);
-				var f = new Form();
-				c.Dock = DockStyle.Fill;
-				f.Controls.Add(c);
-				Application.Run(f);
-			}
-		}
-
-		[Test, Ignore("Run by hand only")]
-		[NUnit.Framework.RequiresSTA]
-		public void ShowSyncDialog_NetworkPath_AltMessages()
-		{
-			Application.EnableVisualStyles();
-
-			using (var setup = new RepositorySetup("pedro"))
-			{
-				// This network address won't exist. Does it say it can't reach the shared folder and disable the button?
-				setup.Repository.SetKnownRepositoryAddresses(new RepositoryAddress[]
-																 {
-																	 RepositoryAddress.Create("Network folder", "//xxxxx-pc/public/chorusTest")
-																 });
-
-				using (var dlg = new SyncDialog(setup.ProjectFolderConfig,
-												SyncUIDialogBehaviors.AlternateStartModel,
-												SyncUIFeatures.NormalRecommended))
-				{
-					dlg.ShowDialog();
-				}
-			}
-		}
-
-		[Test, Ignore("Run by hand only")]
-		[NUnit.Framework.RequiresSTA]
 		public void ShowSyncDialog_InternetAndNetworkPaths()
 		{
 			Application.EnableVisualStyles();
@@ -231,7 +193,7 @@ namespace Chorus.Tests.UI.Sync
 			var usbLocator = new MockUsbDriveLocator();
 			usbLocator.Init(0); // pretend no USBs
 			string message;
-			var syncStartModel = new SyncStartModel(null) as ISyncStartModel;
+			var syncStartModel = new SyncStartModel(null);
 			var result = syncStartModel.GetUsbStatusLink(usbLocator, out message);
 
 			Assert.IsFalse(result, "Should fail!");
@@ -244,7 +206,7 @@ namespace Chorus.Tests.UI.Sync
 			var usbLocator = new MockUsbDriveLocator();
 			usbLocator.Init(2); // pretend 2 USBs
 			string message;
-			var syncStartModel = new SyncStartModel(null) as ISyncStartModel;
+			var syncStartModel = new SyncStartModel(null);
 			var result = syncStartModel.GetUsbStatusLink(usbLocator, out message);
 
 			Assert.IsFalse(result, "Should fail!");
@@ -257,7 +219,7 @@ namespace Chorus.Tests.UI.Sync
 			var usbLocator = new MockUsbDriveLocator();
 			usbLocator.Init(1); // pretend only one USB
 			string message;
-			var syncStartModel = new SyncStartModel(null) as ISyncStartModel;
+			var syncStartModel = new SyncStartModel(null);
 			var result = syncStartModel.GetUsbStatusLink(usbLocator, out message);
 
 			Assert.IsTrue(result, "Should pass!");

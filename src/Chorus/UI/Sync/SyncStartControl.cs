@@ -13,7 +13,7 @@ namespace Chorus.UI.Sync
 	internal partial class SyncStartControl : UserControl
 	{
 		private HgRepository _repository;
-		private ISyncStartModel _model;
+		private SyncStartModel _model;
 		public event EventHandler<SyncStartArgs> RepositoryChosen;
 
 		//designer only
@@ -29,34 +29,23 @@ namespace Chorus.UI.Sync
 
 		public void Init(HgRepository repository)
 		{
-			_internetStatusLabel.Text = string.Empty;
 			Guard.AgainstNull(repository, "repository");
-			_model = new SyncStartModel(repository);
-			_repository = repository;
-			_updateDisplayTimer.Enabled = true;
-			_userName.Text = repository.GetUserIdInUse();
-			UpdateDisplay();//don't wait 2 seconds
-		}
-
-		public void InitAlternateModel(HgRepository repository)
-		{
 			_internetStatusLabel.Text = Resources.ksCheckingConnection;
 			_useSharedFolderStatusLabel.Text = Resources.ksCheckingConnection;
 			_useInternetButton.Enabled = false;
 			_useSharedFolderButton.Enabled = false;
-			Guard.AgainstNull(repository, "repository");
-			_model = new SyncStartAlternateModel(repository);
+			_model = new SyncStartModel(repository);
 			_repository = repository;
 			_updateDisplayTimer.Enabled = true;
 			_userName.Text = repository.GetUserIdInUse();
-			//UpdateDisplay(); // let the dialog display itself first, then check for connection
+			// let the dialog display itself first, then check for connection
 			_updateDisplayTimer.Interval = 500; // But check sooner than 2 seconds anyway!
 		}
 
 		private void OnUpdateDisplayTick(object sender, EventArgs e)
 		{
 			UpdateDisplay();
-			_updateDisplayTimer.Interval = 2000; // more normal checking
+			_updateDisplayTimer.Interval = 2000; // more normal checking rate from here on out
 		}
 
 		private void UpdateDisplay()
