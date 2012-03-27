@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Xml;
 using Chorus.merge;
@@ -133,8 +134,8 @@ namespace Chorus.FileTypeHanders.lift
 			//		<citation> [Optional, multitext]
 			AddSingletonElementType("citation");
 			//		<pronunciation> [Optional, Multiple, phonetic] NAME OVERRIDE
-			//		TODO: Come up with a way to not use default, along the lines of example.
-			//		<variant> [Optional, Multiple, variant]
+			AddPronunciationStrategy();
+			//		<variant> [Optional, Multiple, variant] dealt with below
 			//		<sense> [Optional, Multiple, Sense]
 			//		<note> [Optional, Multiple, note]
 			//		<relation> [Optional, Multiple, relation]
@@ -147,7 +148,6 @@ namespace Chorus.FileTypeHanders.lift
 			//		ref [Optional, refid] NOTE: Doc: refentry, UML: refid, so go with refid, since there is nothing called refentry. Gives the variation as a reference to another entry or sense rather than specifying the form
 			//		dateCreated [Optional, sig=datetime, inherited from <extensible>]
 			//		dateModified [Optional, sig=datetime, inherited from <extensible>]
-			// TODO: "ignore" dateModified, if this ever gets better defined.
 			//		<field> [Optional, Multiple, sig=field, inherited from <extensible>]
 			//		<trait> [Optional, Multiple, sig=trait, inherited from <extensible>]
 			//		<annotation> [Optional, Multiple, sig=annotation, inherited from <extensible>]
@@ -155,20 +155,19 @@ namespace Chorus.FileTypeHanders.lift
 			//		<pronunciation> [Optional, Multiple, sig=phonetic]
 			//		<relation> [Optional, Multiple, sig=relation]
 			// </variant>
-			// TODO: Come up with a way to locate match, perhaps along the lines of what is being done for <example>. Until then, the default element Strategy will be used.
-			// SteveMc says to use 'ref', if it exists, or some combo of lang+text key for the form alts.
+			AddVariantStrategy();
 			// ******************************* </variant> **************************************************
 
 			// ******************************* <phonetic> **************************************************
 			// <phonetic
 			//		dateCreated [Optional, sig=datetime, inherited from <extensible>]
-			//		dateModified [Optional, sig=datetime, inherited from <extensible>]
-			// TODO: "ignore" dateModified, if this ever gets better defined.
+			//		dateModified [Optional, sig=datetime, inherited from <extensible>] ignored in phonetic strategy
 			//		<field> [Optional, Multiple, sig=field, inherited from <extensible>]
 			//		<trait> [Optional, Multiple, sig=trait, inherited from <extensible>]
 			//		<annotation> [Optional, Multiple, sig=annotation, inherited from <extensible>]
 			//		<form> [Optional, Multiple, sig=form, inherited from <multitext>]
 			//		<media> [Optional, Multiple, sig=URLRef] NAME OVERRIDE
+			AddPhoneticStrategy();
 			AddKeyedElementType("media", "href", false);
 			// </phonetic>
 			// No suitable key attr(s)
@@ -185,7 +184,7 @@ namespace Chorus.FileTypeHanders.lift
 				// Need both keys to find the match.
 				MergePartnerFinder = new FindByMultipleKeyAttributes(new List<string> { "type", "source" })
 			};
-			_entryMerger.MergeStrategies.SetStrategy("relation", elementStrategy);
+			_entryMerger.MergeStrategies.SetStrategy("etymology", elementStrategy);
 			//		dateCreated [Optional, sig=datetime, inherited from <extensible>]
 			//		dateModified [Optional, sig=datetime, inherited from <extensible>]
 			elementStrategy.AttributesToIgnoreForMerging.Add("dateModified");
@@ -231,9 +230,7 @@ namespace Chorus.FileTypeHanders.lift
 			// ******************************* <reversal> **************************************************
 			// <reversal
 			//		type [Optional, sig=key]
-			// No. There can be multiple ones with the same 'type', AddKeyedElementType("reversal", "type", true);
-			//elementStrategy = new ElementStrategy(true);
-			//elementStrategy.MergePartnerFinder = new FindByKeyAttributeInList();
+			AddReversalStrategy();
 			//		<form> [Optional, Multiple, sig=form, inherited from <multitext>]
 			//		<main> [Optional, sig=reversal] NAME OVERRIDE
 			AddSingletonElementType("main");
@@ -254,7 +251,7 @@ namespace Chorus.FileTypeHanders.lift
 			// ******************************* <example> **************************************************
 			// <example
 			AddExampleSentenceStrategy();
-			// 'dateModified' is ignored in AddExampleSentenceStrategy, when it gets enabled.
+			// 'dateModified' is ignored in AddExampleSentenceStrategy
 			//		source [Optional, key] // Not suitable for keyed el strat.
 			//		dateCreated [Optional, sig=datetime, inherited from <extensible>]
 			//		dateModified [Optional, sig=datetime, inherited from <extensible>]
@@ -264,14 +261,13 @@ namespace Chorus.FileTypeHanders.lift
 			//		<form> [Optional, Multiple, sig=form, inherited from <multitext>]
 			//		<translation> [Optional, Multiple, sig=translation]
 			// </example>
-			// TODO: How on earth can one find the matching example? At least the default will keep them all, for good, or ill.
 			// ******************************* </example> **************************************************
 
 			// ******************************* <translation> **************************************************
 			// A translation is simply a multitext with an optional translation type attribute.
 			// <translation
 			//		type [Optional, key]
-			AddKeyedElementType("translation", "type", false); // How much trouble will I (RBR) be in keying off an optional attr?
+			AddTranslationStrategy();
 			//		<form> [Optional, Multiple, sig=form, inherited from <multitext>]
 			// </translation>
 			// ******************************* </translation> **************************************************
@@ -336,11 +332,51 @@ namespace Chorus.FileTypeHanders.lift
 			#endregion #region Header Elements
 		}
 
+		private void AddReversalStrategy()
+		{
+			// No. There can be multiple ones with the same 'type', AddKeyedElementType("reversal", "type", true);
+			var strategy = new ElementStrategy(true);
+			strategy.MergePartnerFinder = new FormMatchingFinder();
+			_entryMerger.MergeStrategies.SetStrategy("reversal", strategy);
+			//elementStrategy.MergePartnerFinder = new FindByKeyAttributeInList();
+		}
+
+		private void AddTranslationStrategy()
+		{
+			var strategy = new ElementStrategy(true);
+			strategy.MergePartnerFinder = new OptionalKeyAttrFinder("type", new FormMatchingFinder());
+			_entryMerger.MergeStrategies.SetStrategy("translation", strategy);
+		}
+
+		private void AddPhoneticStrategy()
+		{
+			var strategy = new ElementStrategy(true);
+			strategy.AttributesToIgnoreForMerging.Add("dateModified");
+			strategy.MergePartnerFinder = new FormMatchingFinder();
+			_entryMerger.MergeStrategies.SetStrategy("phonetic", strategy);
+		}
+
+		private void AddPronunciationStrategy()
+		{
+			var strategy = new ElementStrategy(true);
+			strategy.AttributesToIgnoreForMerging.Add("dateModified");
+			strategy.MergePartnerFinder = new FormMatchingFinder();
+			_entryMerger.MergeStrategies.SetStrategy("pronunciation", strategy);
+		}
+
+		private void AddVariantStrategy()
+		{
+			var strategy = new ElementStrategy(true);
+			strategy.AttributesToIgnoreForMerging.Add("dateModified");
+			strategy.MergePartnerFinder = new OptionalKeyAttrFinder("ref", new FormMatchingFinder());
+			_entryMerger.MergeStrategies.SetStrategy("variant", strategy);
+		}
+
 		private void AddExampleSentenceStrategy()
 		{
-			ElementStrategy strategy = new ElementStrategy(true);
+			var strategy = new ElementStrategy(true);
 			strategy.AttributesToIgnoreForMerging.Add("dateModified");
-			strategy.MergePartnerFinder = new ExampleSentenceFinder();
+			strategy.MergePartnerFinder = new OptionalKeyAttrFinder("source", new FormMatchingFinder());
 			_entryMerger.MergeStrategies.SetStrategy("example", strategy);
 		}
 
@@ -370,21 +406,19 @@ namespace Chorus.FileTypeHanders.lift
 		}
 	}
 
-	public class ExampleSentenceFinder : IFindNodeToMerge//, IFindPossibleNodeToMerge
+	/// <summary>
+	/// Custom finder for matching example sentences by form.
+	/// </summary>
+	public class FormMatchingFinder : IFindNodeToMerge
 	{
-//        public XmlNode GetPossibleNodeToMerge(XmlNode nodeToMatch, List<XmlNode> possibleMatches)
-//        {
-//
-//        }
-
 		public XmlNode GetNodeToMerge(XmlNode nodeToMatch, XmlNode parentToSearchIn)
 		{
-			if (parentToSearchIn == null)
+			if (nodeToMatch == null || parentToSearchIn == null)
 				return null;
+			var nodeName = nodeToMatch.LocalName;
+			var ourForms = nodeToMatch.SafeSelectNodes(nodeName + "/form");
 
-			var ourForms = nodeToMatch.SafeSelectNodes("example/form");
-
-			foreach (XmlNode example in parentToSearchIn.SafeSelectNodes("example"))
+			foreach (XmlNode example in parentToSearchIn.SafeSelectNodes(nodeName))
 			{
 			   XmlNodeList forms = example.SafeSelectNodes("form");
 			   if(!SameForms(example, forms, ourForms))
@@ -415,6 +449,37 @@ namespace Chorus.FileTypeHanders.lift
 			}
 			return true;
 		}
+	}
 
+	/// <summary>
+	/// This class should be used when there is an optional attribute that would provide our match,
+	/// but some other finder strategy is needed when it isn't there.
+	/// </summary>
+	public class OptionalKeyAttrFinder : IFindNodeToMerge
+	{
+		private string _key;
+		private IFindNodeToMerge _backup;
+
+		public OptionalKeyAttrFinder(string key, IFindNodeToMerge backupFinder)
+		{
+			_key = key;
+			_backup = backupFinder;
+		}
+
+		public XmlNode GetNodeToMerge(XmlNode nodeToMatch, XmlNode parentToSearchIn)
+		{
+			if (parentToSearchIn == null || nodeToMatch == null)
+				return null;
+			var keyVal = nodeToMatch.Attributes[_key];
+			if( keyVal != null)
+			{
+				var match = parentToSearchIn.SelectSingleNode(nodeToMatch.LocalName + "[" + keyVal + "]");
+				if (match != null)
+					return match;
+			}
+
+			return _backup.GetNodeToMerge(nodeToMatch, parentToSearchIn);
+
+		}
 	}
 }

@@ -134,6 +134,7 @@
 	<Compile Include="FileTypeHanders\ldml\LdmlFileHandler.cs" />
 	<Compile Include="FileTypeHanders\ldml\LdmlKeyFinder.cs" />
 	<Compile Include="FileTypeHanders\ldml\LdmlMergingStrategy.cs" />
+	<Compile Include="FileTypeHanders\Lift-Ranges\LiftRangesMergingStrategy.cs" />
 	<Compile Include="FileTypeHanders\lift\LiftBasicElementStrategiesMethod.cs" />
 	<Compile Include="FileTypeHanders\Lift-Ranges\LiftRangesElementStrategiesMethod.cs" />
 	<Compile Include="FileTypeHanders\Lift-Ranges\LiftRangesFileTypeHandler.cs" />

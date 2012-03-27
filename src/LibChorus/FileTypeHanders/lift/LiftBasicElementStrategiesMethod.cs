@@ -36,12 +36,13 @@ namespace Chorus.FileTypeHanders.lift
 			// ******************************* <span> **************************************************
 			// <span
 			//		lang='lang' (optional, so how can it really be used as a key to find a match?) NB: UML chart has it as 'string', not 'lang', but 'lang' is better for us
-			var elementStrategy = AddKeyedElementType(mergeStrategies, "span", "lang", true); // This may really need the new repeatable key business, that JohnT added, but which is not in this Product branch.
+			var elementStrategy = ElementStrategy.CreateForKeyedElementInList("lang");
 			//		href='URL' (optional, ignore?)
 			elementStrategy.AttributesToIgnoreForMerging.Add("href");
 			//		class='string'> (optional)
 			//		<span> (optional, multiple)
 			// </span>
+			mergeStrategies.SetStrategy("span", elementStrategy);
 			// ******************************* </span> **************************************************
 
 			// ******************************* <multitext> **************************************************
