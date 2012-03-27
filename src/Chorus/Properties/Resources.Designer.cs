@@ -122,6 +122,15 @@ namespace Chorus.Properties {
 		}
 
 		/// <summary>
+		///   Looks up a localized string similar to Checking connection....
+		/// </summary>
+		internal static string ksCheckingConnection {
+			get {
+				return ResourceManager.GetString("ksCheckingConnection", resourceCulture);
+			}
+		}
+
+		/// <summary>
 		///   Looks up a localized string similar to Internet.
 		/// </summary>
 		internal static string ksInternetButtonLabel {
