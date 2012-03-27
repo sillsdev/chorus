@@ -17,6 +17,12 @@ namespace Chorus.UI.Sync
 		private SyncStartModel _model;
 		public event EventHandler<SyncStartArgs> RepositoryChosen;
 
+		/// <summary>
+		/// Set this flag to get the FLEx-preferred behavior of enabling the buttons all the time
+		/// (if not configured, clicking will launch configure dialog and then do the Send/Receive).
+		/// </summary>
+		public bool AlwaysEnableInternetAndLanButtons { get; set; }
+
 		//designer only
 		public SyncStartControl()
 		{
@@ -69,8 +75,11 @@ namespace Chorus.UI.Sync
 			   return;
 			}
 
-			_useSharedFolderButton.Enabled = true; // can't do if address == null, but we will launch the setup dialog.
-			_useSharedFolderStatusLabel.LinkArea = new LinkArea(0,0);
+			if (AlwaysEnableInternetAndLanButtons)
+				_useSharedFolderButton.Enabled = true; // can't do if address == null, but we will launch the setup dialog.
+			else
+				_useSharedFolderButton.Enabled = address != null;
+			_useSharedFolderStatusLabel.LinkArea = new LinkArea(0, 0);
 			if (address == null)
 			{
 				_useSharedFolderStatusLabel.Text = "This project is not yet associated with a shared folder";
@@ -95,8 +104,11 @@ namespace Chorus.UI.Sync
 		private void UpdateInternetSituation()
 		{
 			string message,  tooltip, buttonLabel;
-			_model.GetInternetStatusLink(out buttonLabel, out message, out tooltip);
-			_useInternetButton.Enabled = true;
+			var internetConfigured = _model.GetInternetStatusLink(out buttonLabel, out message, out tooltip);
+			if (AlwaysEnableInternetAndLanButtons)
+				_useInternetButton.Enabled = true;
+			else
+				_useInternetButton.Enabled = internetConfigured;
 			_useInternetButton.Text = buttonLabel;
 			_internetStatusLabel.Text = message;
 			_internetStatusLabel.LinkArea = new LinkArea(message.Length+1, 1000);
