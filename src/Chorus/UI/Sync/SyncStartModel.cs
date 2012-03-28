@@ -41,10 +41,11 @@ namespace Chorus.UI.Sync
 				message = string.Empty;
 
 				// But, the Internet might be down or the repo unreachable.
-				if (!IsInternetRepositoryReachable(address))
+				string diagnosticNotes;
+				if (!IsInternetRepositoryReachable(address, out diagnosticNotes))
 				{
 					message = Resources.ksNoInternetAccess;
-					tooltip = string.Empty;
+					tooltip = diagnosticNotes;
 					return false;
 				}
 			}
@@ -56,9 +57,14 @@ namespace Chorus.UI.Sync
 			return ready;
 		}
 
-		private bool IsInternetRepositoryReachable(RepositoryAddress repoAddress)
+		private bool IsInternetRepositoryReachable(RepositoryAddress repoAddress, out string logString)
 		{
-			return repoAddress.CanConnect(_repository, repoAddress.Name, new NullProgress());
+			logString = string.Empty;
+			var progress = new StringBuilderProgress();
+			var result = repoAddress.CanConnect(_repository, repoAddress.Name, progress);
+			if (!result)
+				logString = progress.Text;
+			return result;
 		}
 
 		public bool GetNetworkStatusLink(out string message, out string tooltip)
@@ -80,7 +86,16 @@ namespace Chorus.UI.Sync
 			if (address == null)
 				message = Resources.ksSharedFolderNotAssociated;
 			else
-				ready = IsSharedFolderRepositoryReachable(address);
+			{
+				string diagnosticNotes;
+				ready = IsSharedFolderRepositoryReachable(address, out diagnosticNotes);
+				if (!ready)
+				{
+					message = Resources.ksSharedFolderInaccessible;
+					tooltip = diagnosticNotes;
+					return false;
+				}
+			}
 			if (ready)
 			{
 				message = string.Empty;
@@ -88,18 +103,22 @@ namespace Chorus.UI.Sync
 			}
 			else
 			{
-				if (address != null)
-					message = Resources.ksSharedFolderInaccessible;
 				tooltip = message;
 			}
 
 			return ready;
 		}
 
-		private bool IsSharedFolderRepositoryReachable(RepositoryAddress repoAddress)
+		private bool IsSharedFolderRepositoryReachable(RepositoryAddress repoAddress, out string logString)
 		{
 			// We want to know if we can connect, but we don't want to bother the user with extraneous information.
-			return repoAddress.CanConnect(_repository, repoAddress.Name, new NullProgress());
+			// But we DO want the diagnostic information available.
+			logString = string.Empty;
+			var progress = new StringBuilderProgress();
+			var result = repoAddress.CanConnect(_repository, repoAddress.Name, progress);
+			if (!result)
+				logString = progress.Text;
+			return result;
 		}
 
 		internal bool GetUsbStatusLink(IUsbDriveLocator usbDriveLocator, out string message)
