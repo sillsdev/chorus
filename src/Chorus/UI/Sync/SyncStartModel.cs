@@ -19,10 +19,12 @@ namespace Chorus.UI.Sync
 			_repository = repository;
 		}
 
-		public bool GetInternetStatusLink(out string buttonLabel, out string message, out string tooltip)
+		public bool GetInternetStatusLink(out string buttonLabel, out string message, out string tooltip, out string diagnosticNotes)
 		{
 			buttonLabel = Resources.ksInternetButtonLabel;
 			RepositoryAddress address;
+			diagnosticNotes = string.Empty;
+
 			try
 			{
 				address = _repository.GetDefaultNetworkAddress<HttpRepositoryPath>();
@@ -41,11 +43,10 @@ namespace Chorus.UI.Sync
 				message = string.Empty;
 
 				// But, the Internet might be down or the repo unreachable.
-				string diagnosticNotes;
 				if (!IsInternetRepositoryReachable(address, out diagnosticNotes))
 				{
 					message = Resources.ksNoInternetAccess;
-					tooltip = diagnosticNotes;
+					tooltip = message;
 					return false;
 				}
 			}
@@ -67,11 +68,12 @@ namespace Chorus.UI.Sync
 			return result;
 		}
 
-		public bool GetNetworkStatusLink(out string message, out string tooltip)
+		public bool GetNetworkStatusLink(out string message, out string tooltip, out string diagnosticNotes)
 		{
 			RepositoryAddress address;
 			var ready = false;
 			message = string.Empty;
+			diagnosticNotes = string.Empty;
 
 			try
 			{
@@ -87,12 +89,11 @@ namespace Chorus.UI.Sync
 				message = Resources.ksSharedFolderNotAssociated;
 			else
 			{
-				string diagnosticNotes;
 				ready = IsSharedFolderRepositoryReachable(address, out diagnosticNotes);
 				if (!ready)
 				{
 					message = Resources.ksSharedFolderInaccessible;
-					tooltip = diagnosticNotes;
+					tooltip = message;
 					return false;
 				}
 			}

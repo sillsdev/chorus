@@ -42,6 +42,8 @@
 			this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
 			this.betterLabel1 = new Chorus.UI.BetterLabel();
 			this._userName = new System.Windows.Forms.TextBox();
+			this._sharedNetworkDiagnosticsLink = new System.Windows.Forms.LinkLabel();
+			this._internetDiagnosticsLink = new System.Windows.Forms.LinkLabel();
 			this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
 			this.usbDriveLocator = new Chorus.UI.UsbDriveLocator(this.components);
 			this.tableLayoutPanel1.SuspendLayout();
@@ -101,8 +103,9 @@
 			//
 			this.tableLayoutPanel1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
 						| System.Windows.Forms.AnchorStyles.Right)));
-			this.tableLayoutPanel1.ColumnCount = 1;
-			this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+			this.tableLayoutPanel1.ColumnCount = 2;
+			this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 75F));
+			this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
 			this.tableLayoutPanel1.Controls.Add(this._useSharedFolderStatusLabel, 0, 5);
 			this.tableLayoutPanel1.Controls.Add(this._useUSBButton, 0, 0);
 			this.tableLayoutPanel1.Controls.Add(this._usbStatusLabel, 0, 1);
@@ -112,6 +115,8 @@
 			this.tableLayoutPanel1.Controls.Add(this._commitMessageText, 0, 8);
 			this.tableLayoutPanel1.Controls.Add(this._internetStatusLabel, 0, 3);
 			this.tableLayoutPanel1.Controls.Add(this.flowLayoutPanel1, 0, 6);
+			this.tableLayoutPanel1.Controls.Add(this._sharedNetworkDiagnosticsLink, 1, 4);
+			this.tableLayoutPanel1.Controls.Add(this._internetDiagnosticsLink, 1, 2);
 			this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 13);
 			this.tableLayoutPanel1.Name = "tableLayoutPanel1";
 			this.tableLayoutPanel1.RowCount = 9;
@@ -124,7 +129,6 @@
 			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 34F));
 			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
 			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 43F));
-			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
 			this.tableLayoutPanel1.Size = new System.Drawing.Size(330, 323);
 			this.tableLayoutPanel1.TabIndex = 2;
 			this.tableLayoutPanel1.Paint += new System.Windows.Forms.PaintEventHandler(this.tableLayoutPanel1_Paint);
@@ -134,6 +138,7 @@
 			this._useSharedFolderStatusLabel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
 						| System.Windows.Forms.AnchorStyles.Right)));
 			this._useSharedFolderStatusLabel.AutoSize = true;
+			this.tableLayoutPanel1.SetColumnSpan(this._useSharedFolderStatusLabel, 2);
 			this._useSharedFolderStatusLabel.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this._useSharedFolderStatusLabel.LinkArea = new System.Windows.Forms.LinkArea(20, 8);
 			this._useSharedFolderStatusLabel.Location = new System.Drawing.Point(3, 200);
@@ -150,6 +155,7 @@
 			this._usbStatusLabel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
 						| System.Windows.Forms.AnchorStyles.Right)));
 			this._usbStatusLabel.BorderStyle = System.Windows.Forms.BorderStyle.None;
+			this.tableLayoutPanel1.SetColumnSpan(this._usbStatusLabel, 2);
 			this._usbStatusLabel.Font = new System.Drawing.Font("Segoe UI", 9F);
 			this._usbStatusLabel.ForeColor = System.Drawing.Color.DimGray;
 			this._usbStatusLabel.Location = new System.Drawing.Point(3, 48);
@@ -166,6 +172,7 @@
 			this.betterLabel2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
 						| System.Windows.Forms.AnchorStyles.Right)));
 			this.betterLabel2.BorderStyle = System.Windows.Forms.BorderStyle.None;
+			this.tableLayoutPanel1.SetColumnSpan(this.betterLabel2, 2);
 			this.betterLabel2.Font = new System.Drawing.Font("Segoe UI", 9F);
 			this.betterLabel2.Location = new System.Drawing.Point(3, 267);
 			this.betterLabel2.Multiline = true;
@@ -178,6 +185,7 @@
 			//
 			// _commitMessageText
 			//
+			this.tableLayoutPanel1.SetColumnSpan(this._commitMessageText, 2);
 			this._commitMessageText.Dock = System.Windows.Forms.DockStyle.Fill;
 			this._commitMessageText.Location = new System.Drawing.Point(3, 287);
 			this._commitMessageText.Margin = new System.Windows.Forms.Padding(3, 3, 20, 3);
@@ -191,6 +199,7 @@
 			this._internetStatusLabel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
 						| System.Windows.Forms.AnchorStyles.Right)));
 			this._internetStatusLabel.AutoSize = true;
+			this.tableLayoutPanel1.SetColumnSpan(this._internetStatusLabel, 2);
 			this._internetStatusLabel.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this._internetStatusLabel.LinkArea = new System.Windows.Forms.LinkArea(20, 8);
 			this._internetStatusLabel.Location = new System.Drawing.Point(3, 123);
@@ -204,6 +213,7 @@
 			//
 			// flowLayoutPanel1
 			//
+			this.tableLayoutPanel1.SetColumnSpan(this.flowLayoutPanel1, 2);
 			this.flowLayoutPanel1.Controls.Add(this.betterLabel1);
 			this.flowLayoutPanel1.Controls.Add(this._userName);
 			this.flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -235,6 +245,35 @@
 			this._userName.Name = "_userName";
 			this._userName.Size = new System.Drawing.Size(200, 20);
 			this._userName.TabIndex = 1;
+			//
+			// _sharedNetworkDiagnosticsLink
+			//
+			this._sharedNetworkDiagnosticsLink.AccessibleName = "SharedFolderDiagnosticsLink";
+			this._sharedNetworkDiagnosticsLink.Anchor = System.Windows.Forms.AnchorStyles.Right;
+			this._sharedNetworkDiagnosticsLink.AutoSize = true;
+			this._sharedNetworkDiagnosticsLink.Enabled = false;
+			this._sharedNetworkDiagnosticsLink.Location = new System.Drawing.Point(265, 170);
+			this._sharedNetworkDiagnosticsLink.Name = "_sharedNetworkDiagnosticsLink";
+			this._sharedNetworkDiagnosticsLink.RightToLeft = System.Windows.Forms.RightToLeft.No;
+			this._sharedNetworkDiagnosticsLink.Size = new System.Drawing.Size(62, 13);
+			this._sharedNetworkDiagnosticsLink.TabIndex = 9;
+			this._sharedNetworkDiagnosticsLink.TabStop = true;
+			this._sharedNetworkDiagnosticsLink.Text = "Diagnostics";
+			this._sharedNetworkDiagnosticsLink.Visible = false;
+			this._sharedNetworkDiagnosticsLink.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this._sharedNetworkDiagnosticsLink_LinkClicked);
+			//
+			// _internetDiagnosticsLink
+			//
+			this._internetDiagnosticsLink.AccessibleName = "InternetDiagnosticsLink";
+			this._internetDiagnosticsLink.Anchor = System.Windows.Forms.AnchorStyles.Right;
+			this._internetDiagnosticsLink.AutoSize = true;
+			this._internetDiagnosticsLink.Location = new System.Drawing.Point(265, 92);
+			this._internetDiagnosticsLink.Name = "_internetDiagnosticsLink";
+			this._internetDiagnosticsLink.Size = new System.Drawing.Size(62, 13);
+			this._internetDiagnosticsLink.TabIndex = 10;
+			this._internetDiagnosticsLink.TabStop = true;
+			this._internetDiagnosticsLink.Text = "Diagnostics";
+			this._internetDiagnosticsLink.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this._internetDiagnosticsLink_LinkClicked);
 			//
 			// SyncStartControl
 			//
@@ -270,5 +309,7 @@
 		private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
 		private BetterLabel betterLabel1;
 		private System.Windows.Forms.TextBox _userName;
+		private System.Windows.Forms.LinkLabel _sharedNetworkDiagnosticsLink;
+		private System.Windows.Forms.LinkLabel _internetDiagnosticsLink;
 	}
 }

@@ -27,6 +27,29 @@ namespace Chorus.Tests.UI.Sync
 
 		[Test, Ignore("Run by hand only")]
 		[NUnit.Framework.RequiresSTA]
+		public void ShowSyncDialog_InternetAndNetworkPaths_WindowsStyle()
+		{
+			Application.EnableVisualStyles();
+
+			using (var setup = new RepositorySetup("pedro"))
+			{
+				setup.Repository.SetKnownRepositoryAddresses(new RepositoryAddress[]
+																 {
+																	 RepositoryAddress.Create("language depot", "http://hg-public.languagedepot.org"),
+																	 RepositoryAddress.Create("joe's mac", "\\\\suzie-pc\\public\\chorusTest")
+																 });
+
+				using (var dlg = new SyncDialog(setup.ProjectFolderConfig,
+												SyncUIDialogBehaviors.Lazy,
+												SyncUIFeatures.NormalRecommended))
+				{
+					dlg.ShowDialog();
+				}
+			}
+		}
+
+		[Test, Ignore("Run by hand only")]
+		[NUnit.Framework.RequiresSTA]
 		public void ShowSyncDialog_InternetAndNetworkPaths()
 		{
 			Application.EnableVisualStyles();

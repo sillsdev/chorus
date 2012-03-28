@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Drawing;
 using System.Windows.Forms;
 using Chorus.Properties;
 using Chorus.UI.Misc;
@@ -30,16 +31,23 @@ namespace Chorus.UI.Sync
 		public void Init(HgRepository repository)
 		{
 			Guard.AgainstNull(repository, "repository");
-			_internetStatusLabel.Text = Resources.ksCheckingConnection;
-			_useSharedFolderStatusLabel.Text = Resources.ksCheckingConnection;
-			_useInternetButton.Enabled = false;
-			_useSharedFolderButton.Enabled = false;
+			SetupSharedFolderAndInternetUI();
+
 			_model = new SyncStartModel(repository);
 			_repository = repository;
 			_updateDisplayTimer.Enabled = true;
 			_userName.Text = repository.GetUserIdInUse();
 			// let the dialog display itself first, then check for connection
 			_updateDisplayTimer.Interval = 500; // But check sooner than 2 seconds anyway!
+		}
+
+		private void SetupSharedFolderAndInternetUI()
+		{
+			_useSharedFolderStatusLabel.Text = Resources.ksCheckingConnection;
+			_useSharedFolderButton.Enabled = false;
+
+			_internetStatusLabel.Text = Resources.ksCheckingConnection;
+			_useInternetButton.Enabled = false;
 		}
 
 		private void OnUpdateDisplayTick(object sender, EventArgs e)
@@ -57,8 +65,14 @@ namespace Chorus.UI.Sync
 
 		private void UpdateLocalNetworkSituation()
 		{
-			string message, tooltip;
-			_model.GetNetworkStatusLink(out message, out tooltip);
+			string message, tooltip, diagnostics;
+			_model.GetNetworkStatusLink(out message, out tooltip, out diagnostics);
+
+			if (!string.IsNullOrEmpty(diagnostics))
+				SetupSharedFolderDiagnosticLink(diagnostics);
+			else
+				_sharedNetworkDiagnosticsLink.Visible = false;
+
 			_useSharedFolderButton.Enabled = message != Resources.ksSharedFolderInaccessible;
 			_useSharedFolderStatusLabel.Text = message;
 			_useSharedFolderStatusLabel.LinkArea = new LinkArea(message.Length + 1, 1000);
@@ -74,10 +88,22 @@ namespace Chorus.UI.Sync
 			}
 		}
 
+		private void SetupSharedFolderDiagnosticLink(string diagnosticText)
+		{
+			_sharedNetworkDiagnosticsLink.Tag = diagnosticText;
+			_sharedNetworkDiagnosticsLink.Enabled = _sharedNetworkDiagnosticsLink.Visible = true;
+		}
+
 		private void UpdateInternetSituation()
 		{
-			string message,  tooltip, buttonLabel;
-			_model.GetInternetStatusLink(out buttonLabel, out message, out tooltip);
+			string message, tooltip, buttonLabel, diagnostics;
+			_model.GetInternetStatusLink(out buttonLabel, out message, out tooltip, out diagnostics);
+
+			if (!string.IsNullOrEmpty(diagnostics))
+				SetupInternetDiagnosticLink(diagnostics);
+			else
+				_internetDiagnosticsLink.Visible = false;
+
 			_useInternetButton.Enabled = message != Resources.ksNoInternetAccess;
 			_useInternetButton.Text = buttonLabel;
 			_internetStatusLabel.Text = message;
@@ -94,6 +120,12 @@ namespace Chorus.UI.Sync
 				// hasn't this just been done above?
 				//_internetStatusLabel.LinkArea = new LinkArea(message.Length + 1, 1000);
 			}
+		}
+
+		private void SetupInternetDiagnosticLink(string diagnosticText)
+		{
+			_internetDiagnosticsLink.Tag = diagnosticText;
+			_internetDiagnosticsLink.Enabled = _internetDiagnosticsLink.Visible = true;
 		}
 
 		private void UpdateUsbDriveSituation()
@@ -127,11 +159,11 @@ namespace Chorus.UI.Sync
 
 		private void _useInternetButton_Click(object sender, EventArgs e)
 		{
-			string message, tooltip, buttonLabel;
-			if(!_model.GetInternetStatusLink(out buttonLabel, out message, out tooltip))
+			string message, tooltip, buttonLabel, diagnostics;
+			if(!_model.GetInternetStatusLink(out buttonLabel, out message, out tooltip, out diagnostics))
 			{
 				_internetStatusLabel_LinkClicked(null, null);
-				if (!_model.GetInternetStatusLink(out buttonLabel, out message, out tooltip))
+				if (!_model.GetInternetStatusLink(out buttonLabel, out message, out tooltip, out diagnostics))
 					return; // still no good.
 			}
 			if (RepositoryChosen != null)
@@ -210,6 +242,16 @@ namespace Chorus.UI.Sync
 			}
 
 			UpdateLocalNetworkSituation();
+		}
+
+		private void _internetDiagnosticsLink_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+		{
+			MessageBox.Show((string)_internetDiagnosticsLink.Tag);
+		}
+
+		private void _sharedNetworkDiagnosticsLink_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+		{
+			MessageBox.Show((string)_sharedNetworkDiagnosticsLink.Tag);
 		}
 	}
 
