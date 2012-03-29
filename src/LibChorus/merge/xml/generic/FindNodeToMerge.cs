@@ -352,7 +352,8 @@ namespace Chorus.merge.xml.generic
 
 	public class FindTextDumb : IFindNodeToMerge
 	{
-		//todo: this won't cope with multiple text child nodes in the same element
+		// This won't cope with multiple text child nodes in the same element
+		// No, but then use FormMatchingFinder for that scenario.
 
 		public XmlNode GetNodeToMerge(XmlNode nodeToMatch, XmlNode parentToSearchIn)
 		{

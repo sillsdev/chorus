@@ -6,6 +6,7 @@ using Chorus.merge;
 using LibChorus.TestUtilities;
 using NUnit.Framework;
 using Palaso.IO;
+using Palaso.Progress.LogBox;
 
 namespace LibChorus.Tests.FileHandlers.LiftRanges
 {
@@ -107,10 +108,19 @@ namespace LibChorus.Tests.FileHandlers.LiftRanges
 			Assert.Throws<ApplicationException>(() => _liftRangesFileHandler.Find2WayDifferences(null, null, null));
 		}
 
-		[Test, Ignore("Maybe we should check Validate actually validates")]
-		public void ValidateFileThrows()
+		[Test]
+		public void ValidateFileHasNoResultsForValiidFile()
 		{
-			Assert.Throws<NotImplementedException>(() => _liftRangesFileHandler.ValidateFile(null, null));
+			const string data =
+@"<?xml version='1.0' encoding='utf-8'?>
+<lift-ranges>
+	<range
+		id='theone' />
+</lift-ranges>";
+			using (var tempFile = new TempFile(data))
+			{
+				Assert.IsNull(_liftRangesFileHandler.ValidateFile(tempFile.Path, new NullProgress()));
+			}
 		}
 
 		[Test]
@@ -119,19 +129,23 @@ namespace LibChorus.Tests.FileHandlers.LiftRanges
 			const string common =
 @"<?xml version='1.0' encoding='utf-8'?>
 <lift-ranges>
-<range id='theone'/>
+	<range
+		id='theone' />
 </lift-ranges>";
 			const string ours =
 @"<?xml version='1.0' encoding='utf-8'?>
 <lift-ranges>
-<range id='theone'/>
+	<range
+		id='theone' />
 </lift-ranges>";
 			const string theirs =
 @"<?xml version='1.0' encoding='utf-8'?>
 <lift-ranges>
-<range id='theone'/>
+	<range
+		id='theone' />
 </lift-ranges>";
 			var result = DoMerge(common, ours, theirs, 0, 0);
+			result = result.Replace("\"", "'");
 			Assert.AreEqual(common, result);
 			Assert.AreEqual(ours, result);
 			Assert.AreEqual(theirs, result);
@@ -148,14 +162,19 @@ namespace LibChorus.Tests.FileHandlers.LiftRanges
 			const string ours =
 @"<?xml version='1.0' encoding='utf-8'?>
 <lift-ranges>
-<range id='theone' attr='data' />
+	<range
+		id='theone'
+		attr='data' />
 </lift-ranges>";
 			const string theirs =
 @"<?xml version='1.0' encoding='utf-8'?>
 <lift-ranges>
-<range id='theone' attr='data' />
+	<range
+		id='theone'
+		attr='data' />
 </lift-ranges>";
 			var result = DoMerge(common, ours, theirs, 0, 1);
+			result = result.Replace("\"", "'");
 			Assert.AreEqual(ours, result);
 			Assert.AreEqual(theirs, result);
 		}
@@ -171,7 +190,9 @@ namespace LibChorus.Tests.FileHandlers.LiftRanges
 			const string ours =
 @"<?xml version='1.0' encoding='utf-8'?>
 <lift-ranges>
-<range id='theone' attr='data' />
+	<range
+		id='theone'
+		attr='data' />
 </lift-ranges>";
 			const string theirs =
 @"<?xml version='1.0' encoding='utf-8'?>
@@ -179,6 +200,7 @@ namespace LibChorus.Tests.FileHandlers.LiftRanges
 <range id='theone'/>
 </lift-ranges>";
 			var result = DoMerge(common, ours, theirs, 0, 1);
+			result = result.Replace("\"", "'");
 			Assert.AreEqual(ours, result);
 		}
 
@@ -198,9 +220,12 @@ namespace LibChorus.Tests.FileHandlers.LiftRanges
 			const string theirs =
 @"<?xml version='1.0' encoding='utf-8'?>
 <lift-ranges>
-<range attr='data' id='theone'/>
+	<range
+		attr='data'
+		id='theone' />
 </lift-ranges>";
 			var result = DoMerge(common, ours, theirs, 0, 1);
+			result = result.Replace("\"", "'");
 			Assert.AreEqual(theirs, result);
 		}
 
@@ -215,14 +240,19 @@ namespace LibChorus.Tests.FileHandlers.LiftRanges
 			const string ours =
 @"<?xml version='1.0' encoding='utf-8'?>
 <lift-ranges>
-<range attr='ourdata' id='theone'/>
+	<range
+		attr='ourdata'
+		id='theone' />
 </lift-ranges>";
 			const string theirs =
 @"<?xml version='1.0' encoding='utf-8'?>
 <lift-ranges>
-<range attr='theirdata' id='theone'/>
+	<range
+		attr='theirdata'
+		id='theone' />
 </lift-ranges>";
 			var result = DoMerge(common, ours, theirs, 1, 0);
+			result = result.Replace("\"", "'");
 			Assert.AreEqual(ours, result);
 		}
 

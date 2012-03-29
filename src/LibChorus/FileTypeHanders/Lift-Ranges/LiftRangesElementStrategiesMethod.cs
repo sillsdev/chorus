@@ -23,6 +23,7 @@ namespace Chorus.FileTypeHanders
 
 			// ******************************* <range> **************************************************
 			// <range
+			// TODO: Add some kind of context generator.
 			//		id [Required, key]
 			var elementStrategy = LiftBasicElementStrategiesMethod.AddKeyedElementType(mergeStrategies, "range", "id", false);
 			//		guid [Optional, string]

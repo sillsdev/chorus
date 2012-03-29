@@ -54,7 +54,7 @@ namespace Chorus.FileTypeHanders
 		}
 		public string ValidateFile(string pathToFile, IProgress progress)
 		{
-			//todo: decide how we want to use LiftIO validation. For now, just make sure it is well-formed xml
+			// TODO: Decide how we want to do validation. For now, just make sure it is well-formed xml.
 			return XmlValidation.ValidateFile(pathToFile, progress);
 		}
 
