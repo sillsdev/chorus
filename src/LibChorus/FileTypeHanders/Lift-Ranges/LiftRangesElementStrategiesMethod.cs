@@ -23,9 +23,9 @@ namespace Chorus.FileTypeHanders
 
 			// ******************************* <range> **************************************************
 			// <range
-			// TODO: Add some kind of context generator.
 			//		id [Required, key]
 			var elementStrategy = LiftBasicElementStrategiesMethod.AddKeyedElementType(mergeStrategies, "range", "id", false);
+			elementStrategy.ContextDescriptorGenerator = new LiftRangeContextGenerator();
 			//		guid [Optional, string]
 			//		href [Optional, URL]
 			elementStrategy.AttributesToIgnoreForMerging.Add("href");

@@ -25,12 +25,12 @@ namespace Chorus.FileTypeHanders.lift
 			// ******************************* <lift> **************************************************
 
 			// ******************************* <header> **************************************************
-			// TODO: Add some kind of context generator(s). One can go at this <header> level XOR one each can go at the <ranges> or <fields> levels.
 			// <header
-			AddSingletonElementType(mergeStrategies, "header");
+			var elementStrategy = AddSingletonElementType(mergeStrategies, "header");
+			elementStrategy.ContextDescriptorGenerator = new LiftHeaderContextGenerator();
 			//		<description> [Optional, multitext] NAME OVERRIDE (Declared in [LiftBasicElementStrategiesMethod], as it is shared here and in the lift-ranges file.)
 			//		<ranges> [Optional, ranges]
-			var elementStrategy = AddSingletonElementType(mergeStrategies, "ranges");
+			elementStrategy = AddSingletonElementType(mergeStrategies, "ranges");
 			elementStrategy.OrderIsRelevant = false;
 			//		<fields> [Optional, field-defns] NAME OVERRIDE
 			elementStrategy = AddSingletonElementType(mergeStrategies, "fields");
