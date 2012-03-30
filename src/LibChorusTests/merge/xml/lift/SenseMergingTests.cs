@@ -5,6 +5,7 @@ using Chorus.merge.xml.generic;
 using LibChorus.TestUtilities;
 using NUnit.Framework;
 using Palaso.IO;
+using Palaso.TestUtilities;
 
 namespace LibChorus.Tests.merge.xml.lift
 {
@@ -495,6 +496,68 @@ namespace LibChorus.Tests.merge.xml.lift
 			}
 		}
 
+
+		[Test]
+		public void RelationsMergeWithoutThrowing()
+		{
+			var ancestor =
+				@"<?xml version='1.0' encoding='utf-8'?>
+				<lift version='0.13' producer='FLEx 7.2.4'><entry id='lovely_f1c5a4c8-a24f-4351-8551-2b70d53a9256' guid='f1c5a4c8-a24f-4351-8551-2b70d53a9256'>
+				<lexical-unit>
+				<form lang='fr'><text>lovely</text></form>
+				</lexical-unit>
+				<trait name='morph-type' value='stem'/>
+				<sense id='de53a9a1-5b70-49e5-8dbe-171bff37d624'>
+				<example>
+				<form lang='fr'><text>This is example sentence one</text></form>
+				</example>
+				<example>
+				<form lang='fr'><text>This is example sentence two.</text></form>
+				<translation type='Free translation'>
+				<form lang='en'><text>This is a translation of two</text></form>
+				</translation>
+				</example>
+				</sense>
+				</entry>
+				<entry id='love_92b74399-ce6e-4f24-8412-784e0227d3eb' guid='92b74399-ce6e-4f24-8412-784e0227d3eb'>
+				<lexical-unit>
+				<form lang='fr'><text>love</text></form>
+				</lexical-unit>
+				<trait  name='morph-type' value='stem'/>
+				<etymology type='proto' source='French'>
+				<form lang='fr'><text>It came from </text></form>
+				<form lang='en'><text>the deep</text></form>
+				</etymology>
+				<relation type='_component-lexeme' ref='lovely_f1c5a4c8-a24f-4351-8551-2b70d53a9256'>
+				<trait name='is-primary' value='true'/>
+				<trait name='complex-form-type' value=''/>
+				</relation>
+				<sense id='3185e889-eec3-4148-8df9-8f446bc498b7'>
+				</sense>
+				</entry></lift>";
+			var ours = ancestor.Replace(@"It came from", @"May have come from");
+			var theirs = ancestor.Replace(@"</entry></lift>",
+										  @"</entry><entry id='newentry' guid='fffffff-ffff-ffff-ffff-ffffffff'><lexical-unit><form lang='fr'><text>loverly</text></form></lexical-unit></entry></lift>");
+			theirs = theirs.Replace(@"</relation>",
+									@"</relation><relation type='_component-lexeme' ref='newentry'><trait name='is-primary' value='true'/><trait name='complex-form-type' value=''/></relation>");
+
+			Assert.DoesNotThrow(() =>
+			{
+				using (var oursTemp = new TempFile(ours))
+				using (var theirsTemp = new TempFile(theirs))
+				using (var ancestorTemp = new TempFile(ancestor))
+				{
+					var listener = new ListenerForUnitTests();
+					var situation = new NullMergeSituation();
+					var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation) { EventListener = listener };
+					XmlMergeService.Do3WayMerge(mergeOrder, new LiftEntryMergingStrategy(situation),
+						"header",
+						"entry", "guid", LiftFileHandler.WritePreliminaryInformation);
+					var result = File.ReadAllText(mergeOrder.pathToOurs);
+					AssertThatXmlIn.String(result).HasSpecifiedNumberOfMatchesForXpath(@"/lift/entry/relation", 2);
+				}
+			});
+		}
 
 		private void AssertConflictType<TConflictType>(IConflict conflict)
 		{

@@ -22,11 +22,11 @@ namespace Chorus.FileTypeHanders.lift
 			Guard.AgainstNull(keys, "keys is null.");
 			Guard.AgainstNull(element, "Element is null.");
 
-			var key = element.Name;
-
-			// TODO: Add expected new key finding code, as the lift element strategies get messier.
-
-			return key;
+			return element.Name == "field"
+					? (element.Attributes["type"] == null
+						? "headerfield" // Fetch the strategy for the header "field" with its 'tag' key attr.
+						: "mainfield") // Fetch the strategy for the main data (entry or sense) "field" with its 'type' key attr.
+					: element.Name;
 		}
 
 		#endregion

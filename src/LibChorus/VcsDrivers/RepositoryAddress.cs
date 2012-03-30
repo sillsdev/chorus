@@ -292,12 +292,17 @@ namespace Chorus.VcsDrivers
 				{
 					try
 					{
-
-
 						// Need to create an HgRepository for each so we can get its Id.
 						var usbRepo = new HgRepository(path, progress);
-						if (repoIdentifier.ToLowerInvariant() == usbRepo.Identifier.ToLowerInvariant())
+						if (usbRepo.Identifier == null)
+						{
+							// Null indicates a new repo, with no commits yet.
+							continue;
+						}
+						else if (repoIdentifier.ToLowerInvariant() == usbRepo.Identifier.ToLowerInvariant())
+						{
 							return path;
+						}
 					}
 					catch (Exception e)
 					{
@@ -341,8 +346,6 @@ namespace Chorus.VcsDrivers
 			}
 			return urisToTryCreationAt;
 		}
-
-
 
 		public override bool CanConnect(HgRepository localRepository, string projectName, IProgress progress)
 		{
