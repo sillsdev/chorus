@@ -69,7 +69,7 @@ namespace Chorus.UI.Sync
 			   return;
 			}
 
-			_useSharedFolderButton.Enabled = address != null;
+			_useSharedFolderButton.Enabled = true; // can't do if address == null, but we will launch the setup dialog.
 			_useSharedFolderStatusLabel.LinkArea = new LinkArea(0,0);
 			if (address == null)
 			{
@@ -95,7 +95,8 @@ namespace Chorus.UI.Sync
 		private void UpdateInternetSituation()
 		{
 			string message,  tooltip, buttonLabel;
-			_useInternetButton.Enabled = _model.GetInternetStatusLink(out buttonLabel, out message, out tooltip);
+			_model.GetInternetStatusLink(out buttonLabel, out message, out tooltip);
+			_useInternetButton.Enabled = true;
 			_useInternetButton.Text = buttonLabel;
 			_internetStatusLabel.Text = message;
 			_internetStatusLabel.LinkArea = new LinkArea(message.Length+1, 1000);
@@ -170,6 +171,13 @@ namespace Chorus.UI.Sync
 
 		private void _useInternetButton_Click(object sender, EventArgs e)
 		{
+			string message, tooltip, buttonLabel;
+			if(!_model.GetInternetStatusLink(out buttonLabel, out message, out tooltip))
+			{
+				_internetStatusLabel_LinkClicked(null, null);
+				if (!_model.GetInternetStatusLink(out buttonLabel, out message, out tooltip))
+					return; // still no good.
+			}
 			if (RepositoryChosen != null)
 			{
 				UpdateName();
@@ -178,8 +186,28 @@ namespace Chorus.UI.Sync
 
 		}
 
+		private bool IsSharedFolderAddressAvailable()
+		{
+			try
+			{
+				var address = _repository.GetDefaultNetworkAddress<DirectoryRepositorySource>();
+				return address != null;
+			}
+			catch (Exception error)//probably, hgrc is locked
+			{
+				return false;
+			}
+		}
+
 		private void _useSharedFolderButton_Click(object sender, EventArgs e)
 		{
+			// Instead of disabling the button when we have no address, launch the dialog for choosing one.
+			if (!IsSharedFolderAddressAvailable())
+			{
+				_sharedFolderStatusLabel_LinkClicked(null, null);
+				if (!IsSharedFolderAddressAvailable())
+					return; // if the user canceled or otherwise didn't set it up, don't try to S/R.
+			}
 			if (RepositoryChosen != null)
 			{
 				UpdateName();
@@ -211,7 +239,7 @@ namespace Chorus.UI.Sync
 		{
 			if(DialogResult.Cancel ==
 				MessageBox.Show(
-				"Note, due to some limitations in the underlying system (Mercurial), connecting to a shared folder hosted by a Windows computer is not recommended. If the server is Linux, it's OK.",
+				"Sharing repositories over a local network may sometimes cause a repository to become corrupted. This can be repaired by copying one of the good copies of the repository, but it may require expert help. If you have a good internet connection or a small enough group to pass a USB key around, we recommend one of the other Send/Receive options.",
 				"Warning", MessageBoxButtons.OKCancel))
 			{
 				return;
