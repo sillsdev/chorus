@@ -173,14 +173,14 @@ namespace Chorus.VcsDrivers
 
 	public class DirectoryRepositorySource : RepositoryAddress
 	{
-		private readonly string networkMachineSpecifier;
-		private readonly string altMachineSpec;
+		private readonly string _networkMachineSpecifier;
+		private readonly string _alternativeMachineSpecifier;
 
 		public DirectoryRepositorySource(string name, string uri, bool readOnly)
 			: base(name, uri, readOnly)
 		{
-			networkMachineSpecifier = new string(Path.DirectorySeparatorChar, 2);
-			altMachineSpec = new string(Path.AltDirectorySeparatorChar, 2);
+			_networkMachineSpecifier = new string(Path.DirectorySeparatorChar, 2);
+			_alternativeMachineSpecifier = new string(Path.AltDirectorySeparatorChar, 2);
 		}
 
 		/// <summary>
@@ -194,7 +194,7 @@ namespace Chorus.VcsDrivers
 		public override bool CanConnect(HgRepository localRepository, string projectName, IProgress progress)
 		{
 			var path = GetPotentialRepoUri(localRepository.Identifier, projectName, progress);
-			if (URI.StartsWith(networkMachineSpecifier) || URI.StartsWith(altMachineSpec))
+			if (URI.StartsWith(_networkMachineSpecifier) || URI.StartsWith(_alternativeMachineSpecifier))
 			{
 				progress.WriteStatus("Checking to see if we can connect with {0}...", path);
 			}
@@ -203,7 +203,7 @@ namespace Chorus.VcsDrivers
 
 		public bool LooksLikeLocalDirectory
 		{
-			get { return !(this.URI.StartsWith(networkMachineSpecifier)); }
+			get { return !(this.URI.StartsWith(_networkMachineSpecifier)); }
 		}
 
 		public override List<string> GetPossibleCloneUris(string repoIdentifier, string projectName, IProgress progress)

@@ -74,14 +74,13 @@ namespace Chorus.UI.Sync
 		private void UpdateLocalNetworkSituation()
 		{
 			string message, tooltip, diagnostics;
-			_model.GetNetworkStatusLink(out message, out tooltip, out diagnostics);
+			_useSharedFolderButton.Enabled = _model.GetNetworkStatusLink(out message, out tooltip, out diagnostics);
 
 			if (!string.IsNullOrEmpty(diagnostics))
 				SetupSharedFolderDiagnosticLink(diagnostics);
 			else
 				_sharedNetworkDiagnosticsLink.Visible = false;
 
-			_useSharedFolderButton.Enabled = message != _model.NoSharedFolderMessage;
 			_useSharedFolderStatusLabel.Text = message;
 			_useSharedFolderStatusLabel.LinkArea = new LinkArea(message.Length + 1, 1000);
 			if (_useSharedFolderButton.Enabled)
@@ -90,11 +89,11 @@ namespace Chorus.UI.Sync
 			}
 			toolTip1.SetToolTip(_useSharedFolderButton, tooltip);
 
-				_useSharedFolderButton.Enabled = address != null;
 			if (!_useSharedFolderButton.Enabled || Control.ModifierKeys == Keys.Shift)
 			{
-				 _useSharedFolderStatusLabel.Text += " Set Up";
+				_useSharedFolderStatusLabel.Text += " Set Up";
 			}
+		}
 
 		private void SetupSharedFolderDiagnosticLink(string diagnosticText)
 		{
@@ -105,14 +104,13 @@ namespace Chorus.UI.Sync
 		private void UpdateInternetSituation()
 		{
 			string message, tooltip, buttonLabel, diagnostics;
-			_model.GetInternetStatusLink(out buttonLabel, out message, out tooltip, out diagnostics);
+			_useInternetButton.Enabled = _model.GetInternetStatusLink(out buttonLabel, out message, out tooltip, out diagnostics);
 
 			if (!string.IsNullOrEmpty(diagnostics))
 				SetupInternetDiagnosticLink(diagnostics);
 			else
 				_internetDiagnosticsLink.Visible = false;
 
-			_useInternetButton.Enabled = message != _model.NoInternetMessage;
 			_useInternetButton.Text = buttonLabel;
 			_internetStatusLabel.Text = message;
 			_internetStatusLabel.LinkArea = new LinkArea(message.Length+1, 1000);
