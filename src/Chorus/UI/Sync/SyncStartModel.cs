@@ -43,6 +43,7 @@ namespace Chorus.UI.Sync
 			}
 			catch (Exception error)//probably, hgrc is locked
 			{
+				diagnosticNotes = error.Message;
 				message = error.Message;
 				tooltip = string.Empty;
 				return false;
@@ -93,6 +94,7 @@ namespace Chorus.UI.Sync
 			}
 			catch (Exception error)//probably, hgrc is locked
 			{
+				diagnosticNotes = error.Message;
 				message = error.Message;
 				tooltip = string.Empty;
 				return false;

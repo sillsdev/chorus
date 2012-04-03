@@ -18,6 +18,12 @@ namespace Chorus.UI.Sync
 		public event EventHandler<SyncStartArgs> RepositoryChosen;
 		private const string _connectionDiagnostics = "There was a problem connecting to the {0}.\n{1}\nConnection attempt failed.";
 
+		/// <summary>
+		/// Set this flag to get the FLEx-preferred behavior of enabling the buttons all the time
+		/// (if not configured, clicking will launch configure dialog and then do the Send/Receive).
+		/// </summary>
+		public bool AlwaysEnableInternetAndLanButtons { get; set; }
+
 		//designer only
 		public SyncStartControl()
 		{
@@ -84,11 +90,11 @@ namespace Chorus.UI.Sync
 			}
 			toolTip1.SetToolTip(_useSharedFolderButton, tooltip);
 
+				_useSharedFolderButton.Enabled = address != null;
 			if (!_useSharedFolderButton.Enabled || Control.ModifierKeys == Keys.Shift)
 			{
 				 _useSharedFolderStatusLabel.Text += " Set Up";
 			}
-		}
 
 		private void SetupSharedFolderDiagnosticLink(string diagnosticText)
 		{
