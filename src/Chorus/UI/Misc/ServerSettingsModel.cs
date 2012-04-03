@@ -189,6 +189,8 @@ namespace Chorus.UI.Misc
 			}
 			var repo = HgRepository.CreateOrLocate(_pathToRepo, new NullProgress());
 
+			// review: I (CP) think this will overwrite all existing repo addresses of all types such that there can only be one entry
+			// in the hgrc, and that entry will be an internet repo. CP 2012-04
 			repo.SetKnownRepositoryAddresses(new[]{new HttpRepositoryPath(AliasName, URL, false)});
 		}
 

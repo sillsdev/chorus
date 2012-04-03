@@ -56,7 +56,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			try
 			{
 				var paths = GetRepositoryPathsInHgrc();
-				var networkPaths = paths.Where(p => p is T && !IsDefaultDirectoryPath<T>(p));
+				var networkPaths = paths.Where(p => p is T && p.Name != "default");
 
 				//none found in the hgrc
 				if (networkPaths.Count() == 0) //nb: because of lazy eval, the hgrc lock exception can happen here
@@ -78,16 +78,6 @@ namespace Chorus.VcsDrivers.Mercurial
 				throw;
 			}
 		}
-
-		private static bool IsDefaultDirectoryPath<T>(RepositoryAddress input)
-		{
-			if (input.Name != "default")
-				return false;
-			if (!(input is DirectoryRepositorySource))
-				return false;
-			return true;
-		}
-
 
 		/// <summary>
 		/// Given a file path or directory path, first try to find an existing repository at this
