@@ -16,6 +16,7 @@ namespace Chorus.UI.Sync
 		private HgRepository _repository;
 		private SyncStartModel _model;
 		public event EventHandler<SyncStartArgs> RepositoryChosen;
+		private const string _connectionDiagnostics = "There was a problem connecting to the {0}.\n{1}\nConnection attempt failed.";
 
 		//designer only
 		public SyncStartControl()
@@ -43,10 +44,11 @@ namespace Chorus.UI.Sync
 
 		private void SetupSharedFolderAndInternetUI()
 		{
-			_useSharedFolderStatusLabel.Text = Resources.ksCheckingConnection;
+			const string checkingConnection = "Checking connection...";
+			_useSharedFolderStatusLabel.Text = checkingConnection;
 			_useSharedFolderButton.Enabled = false;
 
-			_internetStatusLabel.Text = Resources.ksCheckingConnection;
+			_internetStatusLabel.Text = checkingConnection;
 			_useInternetButton.Enabled = false;
 		}
 
@@ -73,7 +75,7 @@ namespace Chorus.UI.Sync
 			else
 				_sharedNetworkDiagnosticsLink.Visible = false;
 
-			_useSharedFolderButton.Enabled = message != Resources.ksSharedFolderInaccessible;
+			_useSharedFolderButton.Enabled = message != _model.NoSharedFolderMessage;
 			_useSharedFolderStatusLabel.Text = message;
 			_useSharedFolderStatusLabel.LinkArea = new LinkArea(message.Length + 1, 1000);
 			if (_useSharedFolderButton.Enabled)
@@ -104,7 +106,7 @@ namespace Chorus.UI.Sync
 			else
 				_internetDiagnosticsLink.Visible = false;
 
-			_useInternetButton.Enabled = message != Resources.ksNoInternetAccess;
+			_useInternetButton.Enabled = message != _model.NoInternetMessage;
 			_useInternetButton.Text = buttonLabel;
 			_internetStatusLabel.Text = message;
 			_internetStatusLabel.LinkArea = new LinkArea(message.Length+1, 1000);
@@ -232,14 +234,14 @@ namespace Chorus.UI.Sync
 
 		private void _internetDiagnosticsLink_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
 		{
-			Palaso.Reporting.ErrorReport.NotifyUserOfProblem(Resources.ksConnectionDiagnostics,
-				Resources.ksInternetButtonLabel, (string)_internetDiagnosticsLink.Tag);
+			Palaso.Reporting.ErrorReport.NotifyUserOfProblem(_connectionDiagnostics,
+				"Internet", (string)_internetDiagnosticsLink.Tag);
 		}
 
 		private void _sharedNetworkDiagnosticsLink_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
 		{
-			Palaso.Reporting.ErrorReport.NotifyUserOfProblem(Resources.ksConnectionDiagnostics,
-				Resources.ksSharedFolder, (string)_internetDiagnosticsLink.Tag);
+			Palaso.Reporting.ErrorReport.NotifyUserOfProblem(_connectionDiagnostics,
+				"Shared Network Folder", (string)_internetDiagnosticsLink.Tag);
 		}
 	}
 

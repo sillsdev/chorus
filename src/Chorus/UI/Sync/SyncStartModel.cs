@@ -14,6 +14,18 @@ namespace Chorus.UI.Sync
 	{
 		private readonly HgRepository _repository;
 
+		private const string _noInternetMsg = "The computer does not have internet access.";
+		internal string NoInternetMessage
+		{
+			get { return _noInternetMsg; }
+		}
+
+		private const string _noSharedFolderMsg = "The computer does not have access to the specified network folder.";
+		internal string NoSharedFolderMessage
+		{
+			get { return _noSharedFolderMsg; }
+		}
+
 		public SyncStartModel(HgRepository repository)
 		{
 			_repository = repository;
@@ -21,7 +33,7 @@ namespace Chorus.UI.Sync
 
 		public bool GetInternetStatusLink(out string buttonLabel, out string message, out string tooltip, out string diagnosticNotes)
 		{
-			buttonLabel = Resources.ksInternetButtonLabel;
+			buttonLabel = "Internet";
 			RepositoryAddress address;
 			diagnosticNotes = string.Empty;
 
@@ -45,7 +57,7 @@ namespace Chorus.UI.Sync
 				// But, the Internet might be down or the repo unreachable.
 				if (!IsInternetRepositoryReachable(address, out diagnosticNotes))
 				{
-					message = Resources.ksNoInternetAccess;
+					message = NoInternetMessage;
 					tooltip = message;
 					return false;
 				}
@@ -86,13 +98,13 @@ namespace Chorus.UI.Sync
 				return false;
 			}
 			if (address == null)
-				message = Resources.ksSharedFolderNotAssociated;
+				message = "This project is not yet associated with a shared folder.";
 			else
 			{
 				ready = IsSharedFolderRepositoryReachable(address, out diagnosticNotes);
 				if (!ready)
 				{
-					message = Resources.ksSharedFolderInaccessible;
+					message = NoSharedFolderMessage;
 					tooltip = message;
 					return false;
 				}
