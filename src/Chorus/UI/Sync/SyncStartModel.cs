@@ -74,7 +74,7 @@ namespace Chorus.UI.Sync
 		private bool IsInternetRepositoryReachable(RepositoryAddress repoAddress, out string logString)
 		{
 			logString = string.Empty;
-			var progress = new StringBuilderProgress();
+			var progress = new StringBuilderProgress(){ShowVerbose = true};
 			var result = repoAddress.CanConnect(_repository, repoAddress.Name, progress);
 			if (!result)
 				logString = progress.Text;
@@ -142,7 +142,7 @@ namespace Chorus.UI.Sync
 			// We want to know if we can connect, but we don't want to bother the user with extraneous information.
 			// But we DO want the diagnostic information available.
 			logString = string.Empty;
-			var progress = new StringBuilderProgress();
+			var progress = new StringBuilderProgress() { ShowVerbose = true };
 			var result = repoAddress.CanConnect(_repository, repoAddress.Name, progress);
 			if (!result)
 				logString = progress.Text;

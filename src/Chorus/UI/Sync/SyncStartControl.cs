@@ -16,7 +16,7 @@ namespace Chorus.UI.Sync
 		private HgRepository _repository;
 		private SyncStartModel _model;
 		public event EventHandler<SyncStartArgs> RepositoryChosen;
-		private const string _connectionDiagnostics = "There was a problem connecting to the {0}.\n{1}\nConnection attempt failed.";
+		private const string _connectionDiagnostics = "There was a problem connecting to the {0}.\r\n{1}Connection attempt failed.";
 
 		/// <summary>
 		/// Set this flag to get the FLEx-preferred behavior of enabling the buttons all the time
@@ -183,17 +183,10 @@ namespace Chorus.UI.Sync
 
 		private void _useSharedFolderButton_Click(object sender, EventArgs e)
 		{
-			// Instead of disabling the button when we have no address, launch the dialog for choosing one.
-			if (!_model.HasASharedFolderAddressBeenSetUp())
-			{
-				_sharedFolderStatusLabel_LinkClicked(null, null);
-				if (!_model.HasASharedFolderAddressBeenSetUp())
-					return; // if the user canceled or otherwise didn't set it up, don't try to S/R.
-			}
 			string message, tooltip, diagnostics;
 			if (!_model.GetNetworkStatusLink(out message, out tooltip, out diagnostics))
 			{
-				_internetStatusLabel_LinkClicked(null, null);
+				_sharedFolderStatusLabel_LinkClicked(null, null);
 				if (!_model.GetNetworkStatusLink(out message, out tooltip, out diagnostics))
 					return; // still no good.
 			}
@@ -245,7 +238,7 @@ namespace Chorus.UI.Sync
 		private void _sharedNetworkDiagnosticsLink_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
 		{
 			Palaso.Reporting.ErrorReport.NotifyUserOfProblem(_connectionDiagnostics,
-				"Shared Network Folder", (string)_internetDiagnosticsLink.Tag);
+				"Shared Network Folder", (string)_sharedNetworkDiagnosticsLink.Tag);
 		}
 	}
 

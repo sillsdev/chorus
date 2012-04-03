@@ -13,6 +13,7 @@ namespace Chorus.Tests.UI.Sync
 	public class SyncDialogTests
 	{
 		[Test, Ignore("Run by hand only")]
+		[NUnit.Framework.RequiresSTA]
 		public void ShowSyncStartControl_NoPaths()
 		{
 			using(var setup = new RepositorySetup("pedro"))
