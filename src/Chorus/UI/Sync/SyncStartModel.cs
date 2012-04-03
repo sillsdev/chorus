@@ -110,6 +110,19 @@ namespace Chorus.UI.Sync
 			return ready;
 		}
 
+		internal bool HasASharedFolderAddressBeenSetUp()
+		{
+			try
+			{
+				var address = _repository.GetDefaultNetworkAddress<DirectoryRepositorySource>();
+				return address != null;
+			}
+			catch (Exception error)//probably, hgrc is locked
+			{
+				return false;
+			}
+		}
+
 		private bool IsSharedFolderRepositoryReachable(RepositoryAddress repoAddress, out string logString)
 		{
 			// We want to know if we can connect, but we don't want to bother the user with extraneous information.

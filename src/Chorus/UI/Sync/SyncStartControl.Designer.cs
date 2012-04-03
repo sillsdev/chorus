@@ -131,7 +131,6 @@
 			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 43F));
 			this.tableLayoutPanel1.Size = new System.Drawing.Size(330, 323);
 			this.tableLayoutPanel1.TabIndex = 2;
-			this.tableLayoutPanel1.Paint += new System.Windows.Forms.PaintEventHandler(this.tableLayoutPanel1_Paint);
 			//
 			// _useSharedFolderStatusLabel
 			//
@@ -282,7 +281,6 @@
 			this.Controls.Add(this.tableLayoutPanel1);
 			this.Name = "SyncStartControl";
 			this.Size = new System.Drawing.Size(330, 388);
-			this.Load += new System.EventHandler(this.SyncStartControl_Load);
 			this.tableLayoutPanel1.ResumeLayout(false);
 			this.tableLayoutPanel1.PerformLayout();
 			this.flowLayoutPanel1.ResumeLayout(false);

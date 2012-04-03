@@ -196,11 +196,15 @@
   <data name="ksSharedFolderNotAssociated" xml:space="preserve">
 	<value>This project is not yet associated with a shared folder.</value>
   </data>
-  <data name="ksInternetVerificationSite" xml:space="preserve">
-	<value>www.google.com</value>
-	<comment>This should be a site that will respond reliably to a ping if connected to the Internet.</comment>
-  </data>
   <data name="ksCheckingConnection" xml:space="preserve">
 	<value>Checking connection...</value>
+  </data>
+  <data name="ksConnectionDiagnostics" xml:space="preserve">
+	<value>There was a problem connecting to the {0}.
+{1}
+Connection attempt failed.</value>
+  </data>
+  <data name="ksSharedFolder" xml:space="preserve">
+	<value>Shared Network Folder</value>
   </data>
 </root>

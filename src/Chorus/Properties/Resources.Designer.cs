@@ -131,6 +131,17 @@ namespace Chorus.Properties {
 		}
 
 		/// <summary>
+		///   Looks up a localized string similar to There was a problem connecting to the {0}.
+		///{1}
+		///Connection attempt failed..
+		/// </summary>
+		internal static string ksConnectionDiagnostics {
+			get {
+				return ResourceManager.GetString("ksConnectionDiagnostics", resourceCulture);
+			}
+		}
+
+		/// <summary>
 		///   Looks up a localized string similar to Internet.
 		/// </summary>
 		internal static string ksInternetButtonLabel {
@@ -140,20 +151,20 @@ namespace Chorus.Properties {
 		}
 
 		/// <summary>
-		///   Looks up a localized string similar to www.google.com.
-		/// </summary>
-		internal static string ksInternetVerificationSite {
-			get {
-				return ResourceManager.GetString("ksInternetVerificationSite", resourceCulture);
-			}
-		}
-
-		/// <summary>
 		///   Looks up a localized string similar to The computer does not have internet access..
 		/// </summary>
 		internal static string ksNoInternetAccess {
 			get {
 				return ResourceManager.GetString("ksNoInternetAccess", resourceCulture);
+			}
+		}
+
+		/// <summary>
+		///   Looks up a localized string similar to Shared Network Folder.
+		/// </summary>
+		internal static string ksSharedFolder {
+			get {
+				return ResourceManager.GetString("ksSharedFolder", resourceCulture);
 			}
 		}
 

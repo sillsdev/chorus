@@ -169,32 +169,27 @@ namespace Chorus.UI.Sync
 			if (RepositoryChosen != null)
 			{
 				UpdateName();
-				RepositoryChosen.Invoke(this, new SyncStartArgs(_repository.GetDefaultNetworkAddress<HttpRepositoryPath>(), _commitMessageText.Text));
+				var address = _repository.GetDefaultNetworkAddress<HttpRepositoryPath>();
+				RepositoryChosen.Invoke(this, new SyncStartArgs(address, _commitMessageText.Text));
 			}
 
-		}
-
-		private bool IsSharedFolderAddressAvailable()
-		{
-			try
-			{
-				var address = _repository.GetDefaultNetworkAddress<DirectoryRepositorySource>();
-				return address != null;
-			}
-			catch (Exception error)//probably, hgrc is locked
-			{
-				return false;
-			}
 		}
 
 		private void _useSharedFolderButton_Click(object sender, EventArgs e)
 		{
 			// Instead of disabling the button when we have no address, launch the dialog for choosing one.
-			if (!IsSharedFolderAddressAvailable())
+			if (!_model.HasASharedFolderAddressBeenSetUp())
 			{
 				_sharedFolderStatusLabel_LinkClicked(null, null);
-				if (!IsSharedFolderAddressAvailable())
+				if (!_model.HasASharedFolderAddressBeenSetUp())
 					return; // if the user canceled or otherwise didn't set it up, don't try to S/R.
+			}
+			string message, tooltip, diagnostics;
+			if (!_model.GetNetworkStatusLink(out message, out tooltip, out diagnostics))
+			{
+				_internetStatusLabel_LinkClicked(null, null);
+				if (!_model.GetNetworkStatusLink(out message, out tooltip, out diagnostics))
+					return; // still no good.
 			}
 			if (RepositoryChosen != null)
 			{
@@ -204,22 +199,13 @@ namespace Chorus.UI.Sync
 			}
 		}
 
-		private void tableLayoutPanel1_Paint(object sender, PaintEventArgs e)
-		{
-
-		}
-
-		private void SyncStartControl_Load(object sender, EventArgs e)
-		{
-
-		}
-
 		private void _internetStatusLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
 		{
 			using(var dlg = new ServerSettingsDialog(_repository.PathToRepo))
 			{
 				dlg.ShowDialog();
 			}
+
 			UpdateInternetSituation();
 		}
 
@@ -246,12 +232,14 @@ namespace Chorus.UI.Sync
 
 		private void _internetDiagnosticsLink_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
 		{
-			MessageBox.Show((string)_internetDiagnosticsLink.Tag);
+			Palaso.Reporting.ErrorReport.NotifyUserOfProblem(Resources.ksConnectionDiagnostics,
+				Resources.ksInternetButtonLabel, (string)_internetDiagnosticsLink.Tag);
 		}
 
 		private void _sharedNetworkDiagnosticsLink_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
 		{
-			MessageBox.Show((string)_sharedNetworkDiagnosticsLink.Tag);
+			Palaso.Reporting.ErrorReport.NotifyUserOfProblem(Resources.ksConnectionDiagnostics,
+				Resources.ksSharedFolder, (string)_internetDiagnosticsLink.Tag);
 		}
 	}
 
