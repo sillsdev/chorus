@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.Threading;
 using System.Windows.Forms;
 using Chorus.Properties;
 using Chorus.UI.Misc;
@@ -103,29 +104,52 @@ namespace Chorus.UI.Sync
 
 		private void UpdateInternetSituation()
 		{
-			string message, tooltip, buttonLabel, diagnostics;
-			_useInternetButton.Enabled = _model.GetInternetStatusLink(out buttonLabel, out message, out tooltip, out diagnostics);
-
-			if (!string.IsNullOrEmpty(diagnostics))
-				SetupInternetDiagnosticLink(diagnostics);
-			else
-				_internetDiagnosticsLink.Visible = false;
-
-			_useInternetButton.Text = buttonLabel;
-			_internetStatusLabel.Text = message;
-			_internetStatusLabel.LinkArea = new LinkArea(message.Length+1, 1000);
-			if(_useInternetButton.Enabled )
+			var updateInternetSituation = new Thread(() =>
 			{
-				tooltip += System.Environment.NewLine+"Press Shift to see Set Up button";
-			}
-			toolTip1.SetToolTip(_useInternetButton, tooltip);
+				string buttonLabel, message, tooltip, diagnostics;
+				bool result = _model.GetInternetStatusLink(out buttonLabel, out message, out tooltip, out diagnostics);
+				_useInternetButton.Enabled = result;
+				if (!string.IsNullOrEmpty(diagnostics))
+					SetupInternetDiagnosticLink(diagnostics);
+				else
+					_internetDiagnosticsLink.Visible = false;
 
-			if (!_useInternetButton.Enabled || Control.ModifierKeys == Keys.Shift)
-			{
-				_internetStatusLabel.Text += " Set Up";
-				// hasn't this just been done above?
-				//_internetStatusLabel.LinkArea = new LinkArea(message.Length + 1, 1000);
-			}
+				_useInternetButton.Text = buttonLabel;
+				_internetStatusLabel.Text = message;
+				_internetStatusLabel.LinkArea = new LinkArea(message.Length + 1, 1000);
+				if (_useInternetButton.Enabled)
+				{
+					tooltip += System.Environment.NewLine + "Press Shift to see Set Up button";
+				}
+				toolTip1.SetToolTip(_useInternetButton, tooltip);
+
+				if (!_useInternetButton.Enabled || Control.ModifierKeys == Keys.Shift)
+				{
+					_internetStatusLabel.Text += " Set Up";
+				}
+			});
+			updateInternetSituation.Start();
+			//_model.GetInternetStatusLink((messages, enable)=>
+			//    {
+			//        _useInternetButton.Enabled = enable;
+			//        if (!string.IsNullOrEmpty(messages.Diagnostics))
+			//            SetupInternetDiagnosticLink(messages.Diagnostics);
+			//        else
+			//            _internetDiagnosticsLink.Visible = false;
+
+			//        _useInternetButton.Text = messages.ButtonLabel;
+			//        _internetStatusLabel.Text = messages.Message;
+			//        _internetStatusLabel.LinkArea = new LinkArea(messages.Message.Length + 1, 1000);
+			//        var finalTooltip = messages.Tooltip;
+			//        if (_useInternetButton.Enabled)
+			//        {
+			//            finalTooltip += System.Environment.NewLine + "Press Shift to see Set Up button";
+			//        }
+			//        toolTip1.SetToolTip(_useInternetButton, finalTooltip);
+
+			//        if (!_useInternetButton.Enabled || Control.ModifierKeys == Keys.Shift)
+			//            _internetStatusLabel.Text += " Set Up";
+			//    });
 		}
 
 		private void SetupInternetDiagnosticLink(string diagnosticText)
@@ -165,13 +189,13 @@ namespace Chorus.UI.Sync
 
 		private void _useInternetButton_Click(object sender, EventArgs e)
 		{
-			string message, tooltip, buttonLabel, diagnostics;
-			if(!_model.GetInternetStatusLink(out buttonLabel, out message, out tooltip, out diagnostics))
-			{
-				_internetStatusLabel_LinkClicked(null, null);
-				if (!_model.GetInternetStatusLink(out buttonLabel, out message, out tooltip, out diagnostics))
-					return; // still no good.
-			}
+			//string message, tooltip, buttonLabel, diagnostics;
+			//if(!_model.GetInternetStatusLink(out buttonLabel, out message, out tooltip, out diagnostics))
+			//{
+			//    _internetStatusLabel_LinkClicked(null, null);
+			//    if (!_model.GetInternetStatusLink(out buttonLabel, out message, out tooltip, out diagnostics))
+			//        return; // still no good.
+			//}
 			if (RepositoryChosen != null)
 			{
 				UpdateName();
@@ -183,13 +207,13 @@ namespace Chorus.UI.Sync
 
 		private void _useSharedFolderButton_Click(object sender, EventArgs e)
 		{
-			string message, tooltip, diagnostics;
-			if (!_model.GetNetworkStatusLink(out message, out tooltip, out diagnostics))
-			{
-				_sharedFolderStatusLabel_LinkClicked(null, null);
-				if (!_model.GetNetworkStatusLink(out message, out tooltip, out diagnostics))
-					return; // still no good.
-			}
+			//string message, tooltip, diagnostics;
+			//if (!_model.GetNetworkStatusLink(out message, out tooltip, out diagnostics))
+			//{
+			//    _sharedFolderStatusLabel_LinkClicked(null, null);
+			//    if (!_model.GetNetworkStatusLink(out message, out tooltip, out diagnostics))
+			//        return; // still no good.
+			//}
 			if (RepositoryChosen != null)
 			{
 				UpdateName();

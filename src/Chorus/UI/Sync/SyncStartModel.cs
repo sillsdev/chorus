@@ -2,7 +2,6 @@
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
-using Chorus.Properties;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using Palaso.IO;
@@ -80,6 +79,17 @@ namespace Chorus.UI.Sync
 				logString = progress.Text;
 			return result;
 		}
+
+		//internal void GetInternetStatusLink(Action<StatusMessages, bool> internetStateUpdateAction)
+		//{
+		//    var myThread = new Thread(() =>
+		//    {
+		//        string buttonLabel, message, tooltip, diagnostics;
+		//        bool result = GetInternetStatusLink(out buttonLabel, out message, out tooltip, out diagnostics);
+		//        internetStateUpdateAction(new StatusMessages(buttonLabel, message, tooltip, diagnostics), result);
+		//    });
+		//    myThread.Start();
+		//}
 
 		public bool GetNetworkStatusLink(out string message, out string tooltip, out string diagnosticNotes)
 		{
@@ -214,4 +224,20 @@ namespace Chorus.UI.Sync
 			}
 		}
 	}
+
+	//internal class StatusMessages
+	//{
+	//    internal StatusMessages(string buttonLabel, string message, string tooltip, string diagnostics)
+	//    {
+	//        ButtonLabel = buttonLabel;
+	//        Message = message;
+	//        Tooltip = tooltip;
+	//        Diagnostics = diagnostics;
+	//    }
+
+	//    public string ButtonLabel { get; private set; }
+	//    public string Message { get; private set; }
+	//    public string Tooltip { get; private set; }
+	//    public string Diagnostics { get; private set; }
+	//}
 }
