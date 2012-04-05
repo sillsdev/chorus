@@ -80,17 +80,6 @@ namespace Chorus.UI.Sync
 			return result;
 		}
 
-		//internal void GetInternetStatusLink(Action<StatusMessages, bool> internetStateUpdateAction)
-		//{
-		//    var myThread = new Thread(() =>
-		//    {
-		//        string buttonLabel, message, tooltip, diagnostics;
-		//        bool result = GetInternetStatusLink(out buttonLabel, out message, out tooltip, out diagnostics);
-		//        internetStateUpdateAction(new StatusMessages(buttonLabel, message, tooltip, diagnostics), result);
-		//    });
-		//    myThread.Start();
-		//}
-
 		public bool GetNetworkStatusLink(out string message, out string tooltip, out string diagnosticNotes)
 		{
 			RepositoryAddress address;
