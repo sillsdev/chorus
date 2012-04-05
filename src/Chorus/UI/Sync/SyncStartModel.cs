@@ -213,20 +213,4 @@ namespace Chorus.UI.Sync
 			}
 		}
 	}
-
-	//internal class StatusMessages
-	//{
-	//    internal StatusMessages(string buttonLabel, string message, string tooltip, string diagnostics)
-	//    {
-	//        ButtonLabel = buttonLabel;
-	//        Message = message;
-	//        Tooltip = tooltip;
-	//        Diagnostics = diagnostics;
-	//    }
-
-	//    public string ButtonLabel { get; private set; }
-	//    public string Message { get; private set; }
-	//    public string Tooltip { get; private set; }
-	//    public string Diagnostics { get; private set; }
-	//}
 }

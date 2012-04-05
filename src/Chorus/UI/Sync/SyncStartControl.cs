@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Drawing;
 using System.Threading;
 using System.Windows.Forms;
-using Chorus.Properties;
 using Chorus.UI.Misc;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
-using System.Linq;
 using Palaso.Code;
 using Palaso.Progress.LogBox;
 
@@ -20,11 +17,16 @@ namespace Chorus.UI.Sync
 		private const string _connectionDiagnostics = "There was a problem connecting to the {0}.\r\n{1}Connection attempt failed.";
 
 		private Thread _updateInternetSituation; // Thread that runs the Internet status checking worker.
-		private InternetStateWorker _internetStateWorker;
+		private ConnectivityStateWorker _internetStateWorker;
+
+		private Thread _updateNetworkSituation; // Thread that runs the Network Folder status checking worker.
+		private ConnectivityStateWorker _networkStateWorker;
 
 		private const int STATECHECKINTERVAL = 2000; // 2 sec interval between checks of Internet, Network Folder or USB status.
 
 		private delegate void UpdateInternetUICallback(bool enabled, string btnLabel, string message, string tooltip, string diagnostics);
+
+		private delegate void UpdateNetworkUICallback(bool enabled, string message, string tooltip, string diagnostics);
 
 		//designer only
 		public SyncStartControl()
@@ -48,8 +50,12 @@ namespace Chorus.UI.Sync
 			_userName.Text = repository.GetUserIdInUse();
 
 			// Setup Internet State Checking thread and the worker that it will run
-			_internetStateWorker = new InternetStateWorker(CheckInternetStatusAndUpdateUI);
+			_internetStateWorker = new ConnectivityStateWorker(CheckInternetStatusAndUpdateUI);
 			_updateInternetSituation = new Thread(_internetStateWorker.DoWork);
+
+			// Setup Shared Network Folder Checking thread and its worker
+			_networkStateWorker = new ConnectivityStateWorker(CheckNetworkStatusAndUpdateUI);
+			_updateNetworkSituation = new Thread(_networkStateWorker.DoWork);
 
 			// let the dialog display itself first, then check for connection
 			_updateDisplayTimer.Interval = 500; // But check sooner than 2 seconds anyway!
@@ -79,35 +85,70 @@ namespace Chorus.UI.Sync
 			UpdateLocalNetworkSituation();
 		}
 
+		#region Network Status methods
+
 		private void UpdateLocalNetworkSituation()
 		{
-			string message, tooltip, diagnostics;
-			_useSharedFolderButton.Enabled = _model.GetNetworkStatusLink(out message, out tooltip, out diagnostics);
+			if (!_updateNetworkSituation.IsAlive)
+			{
+				_updateNetworkSituation.Start();
+			}
+		}
 
+		/// <summary>
+		/// Called by our worker thread to avoid inordinate pauses in the UI while checking the
+		/// Shared Network Folder to determine its status.
+		/// </summary>
+		private void CheckNetworkStatusAndUpdateUI()
+		{
+			// Check network Shared Folder status
+			string message, tooltip, diagnostics;
+			Monitor.Enter(_model);
+			bool result = _model.GetNetworkStatusLink(out message, out tooltip, out diagnostics);
+			Monitor.Exit(_model);
+
+			if (!IsDisposed)
+			{
+				// Using a callback and Invoke ensures that we avoid cross-threading updates.
+				var callback = new UpdateNetworkUICallback(UpdateNetworkUI);
+				this.Invoke(callback, new object[] { result, message, tooltip, diagnostics });
+			}
+		}
+
+		/// <summary>
+		/// Callback method to ensure that Controls are painted on the main thread and not the worker thread.
+		/// </summary>
+		/// <param name="enabled"></param>
+		/// <param name="message"></param>
+		/// <param name="tooltip"></param>
+		/// <param name="diagnostics"></param>
+		private void UpdateNetworkUI(bool enabled, string message, string tooltip, string diagnostics)
+		{
+			_useSharedFolderButton.Enabled = enabled;
 			if (!string.IsNullOrEmpty(diagnostics))
-				SetupSharedFolderDiagnosticLink(diagnostics);
+				SetupNetworkDiagnosticLink(diagnostics);
 			else
 				_sharedNetworkDiagnosticsLink.Visible = false;
 
 			_useSharedFolderStatusLabel.Text = message;
 			_useSharedFolderStatusLabel.LinkArea = new LinkArea(message.Length + 1, 1000);
 			if (_useSharedFolderButton.Enabled)
-			{
 				tooltip += System.Environment.NewLine + "Press Shift to see Set Up button";
-			}
 			toolTip1.SetToolTip(_useSharedFolderButton, tooltip);
 
 			if (!_useSharedFolderButton.Enabled || Control.ModifierKeys == Keys.Shift)
-			{
 				_useSharedFolderStatusLabel.Text += " Set Up";
-			}
 		}
 
-		private void SetupSharedFolderDiagnosticLink(string diagnosticText)
+		private void SetupNetworkDiagnosticLink(string diagnosticText)
 		{
 			_sharedNetworkDiagnosticsLink.Tag = diagnosticText;
 			_sharedNetworkDiagnosticsLink.Enabled = _sharedNetworkDiagnosticsLink.Visible = true;
 		}
+
+		#endregion // Network
+
+		#region Internet Status methods
 
 		/// <summary>
 		/// Pings to test Internet connectivity were causing several second pauses in the dialog.
@@ -130,12 +171,17 @@ namespace Chorus.UI.Sync
 		{
 			// Check Internet status
 			string buttonLabel, message, tooltip, diagnostics;
+			Monitor.Enter(_model);
 			bool result = _model.GetInternetStatusLink(out buttonLabel, out message, out tooltip,
 													   out diagnostics);
+			Monitor.Exit(_model);
 
-			// Using a callback and Invoke ensures that we avoid cross-threading updates.
-			var callback = new UpdateInternetUICallback(UpdateInternetUI);
-			this.Invoke(callback, new object[] { result, buttonLabel, message, tooltip, diagnostics });
+			if (!IsDisposed)
+			{
+				// Using a callback and Invoke ensures that we avoid cross-threading updates.
+				var callback = new UpdateInternetUICallback(UpdateInternetUI);
+				this.Invoke(callback, new object[] { result, buttonLabel, message, tooltip, diagnostics });
+			}
 		}
 
 		/// <summary>
@@ -170,6 +216,8 @@ namespace Chorus.UI.Sync
 			_internetDiagnosticsLink.Tag = diagnosticText;
 			_internetDiagnosticsLink.Enabled = _internetDiagnosticsLink.Visible = true;
 		}
+
+		#endregion  // Internet
 
 		private void UpdateUsbDriveSituation()
 		{
@@ -240,7 +288,9 @@ namespace Chorus.UI.Sync
 				dlg.Description = "Choose the folder containing the project with which you want to synchronize.";
 				if (DialogResult.OK != dlg.ShowDialog())
 					return;
+				Monitor.Enter(_model);
 				_model.SetNewSharedNetworkAddress(_repository, dlg.SelectedPath);
+				Monitor.Exit(_model);
 			}
 
 			UpdateLocalNetworkSituation();
@@ -259,14 +309,14 @@ namespace Chorus.UI.Sync
 		}
 
 		/// <summary>
-		/// Class to run a separate worker thread to check Internet status.
+		/// Class to run a separate worker thread to check connectivity status.
 		/// </summary>
-		internal class InternetStateWorker
+		internal class ConnectivityStateWorker
 		{
 			internal volatile bool _shouldQuit;
 			private Action _action;
 
-			internal InternetStateWorker(Action action)
+			internal ConnectivityStateWorker(Action action)
 			{
 				_action = action;
 			}
