@@ -15,6 +15,7 @@
 		{
 			if (disposing && (components != null))
 			{
+				_internetStateWorker.RequestStop();
 				components.Dispose();
 			}
 			base.Dispose(disposing);

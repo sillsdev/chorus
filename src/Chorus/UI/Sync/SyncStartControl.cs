@@ -19,6 +19,9 @@ namespace Chorus.UI.Sync
 		public event EventHandler<SyncStartArgs> RepositoryChosen;
 		private const string _connectionDiagnostics = "There was a problem connecting to the {0}.\r\n{1}Connection attempt failed.";
 
+		private Thread _updateInternetSituation;
+		private InternetStateWorker _internetStateWorker;
+
 		/// <summary>
 		/// Set this flag to get the FLEx-preferred behavior of enabling the buttons all the time
 		/// (if not configured, clicking will launch configure dialog and then do the Send/Receive).
@@ -47,6 +50,10 @@ namespace Chorus.UI.Sync
 			_userName.Text = repository.GetUserIdInUse();
 			// let the dialog display itself first, then check for connection
 			_updateDisplayTimer.Interval = 500; // But check sooner than 2 seconds anyway!
+
+			// Setup Internet State Checking thread and worker
+			_internetStateWorker = new InternetStateWorker(CheckInternetStatusAndSetUI);
+			_updateInternetSituation = new Thread(_internetStateWorker.DoWork);
 		}
 
 		private void SetupSharedFolderAndInternetUI()
@@ -104,52 +111,32 @@ namespace Chorus.UI.Sync
 
 		private void UpdateInternetSituation()
 		{
-			var updateInternetSituation = new Thread(() =>
+			if (!_updateInternetSituation.IsAlive)
 			{
-				string buttonLabel, message, tooltip, diagnostics;
-				bool result = _model.GetInternetStatusLink(out buttonLabel, out message, out tooltip, out diagnostics);
-				_useInternetButton.Enabled = result;
-				if (!string.IsNullOrEmpty(diagnostics))
-					SetupInternetDiagnosticLink(diagnostics);
-				else
-					_internetDiagnosticsLink.Visible = false;
+				_updateInternetSituation.Start();
+			}
+		}
 
-				_useInternetButton.Text = buttonLabel;
-				_internetStatusLabel.Text = message;
-				_internetStatusLabel.LinkArea = new LinkArea(message.Length + 1, 1000);
-				if (_useInternetButton.Enabled)
-				{
-					tooltip += System.Environment.NewLine + "Press Shift to see Set Up button";
-				}
-				toolTip1.SetToolTip(_useInternetButton, tooltip);
+		private void CheckInternetStatusAndSetUI()
+		{
+			string buttonLabel, message, tooltip, diagnostics;
+			bool result = _model.GetInternetStatusLink(out buttonLabel, out message, out tooltip,
+													   out diagnostics);
+			_useInternetButton.Enabled = result;
+			if (!string.IsNullOrEmpty(diagnostics))
+				SetupInternetDiagnosticLink(diagnostics);
+			else
+				_internetDiagnosticsLink.Visible = false;
 
-				if (!_useInternetButton.Enabled || Control.ModifierKeys == Keys.Shift)
-				{
-					_internetStatusLabel.Text += " Set Up";
-				}
-			});
-			updateInternetSituation.Start();
-			//_model.GetInternetStatusLink((messages, enable)=>
-			//    {
-			//        _useInternetButton.Enabled = enable;
-			//        if (!string.IsNullOrEmpty(messages.Diagnostics))
-			//            SetupInternetDiagnosticLink(messages.Diagnostics);
-			//        else
-			//            _internetDiagnosticsLink.Visible = false;
+			_useInternetButton.Text = buttonLabel;
+			_internetStatusLabel.Text = message;
+			_internetStatusLabel.LinkArea = new LinkArea(message.Length + 1, 1000);
+			if (_useInternetButton.Enabled)
+				tooltip += System.Environment.NewLine + "Press Shift to see Set Up button";
+			toolTip1.SetToolTip(_useInternetButton, tooltip);
 
-			//        _useInternetButton.Text = messages.ButtonLabel;
-			//        _internetStatusLabel.Text = messages.Message;
-			//        _internetStatusLabel.LinkArea = new LinkArea(messages.Message.Length + 1, 1000);
-			//        var finalTooltip = messages.Tooltip;
-			//        if (_useInternetButton.Enabled)
-			//        {
-			//            finalTooltip += System.Environment.NewLine + "Press Shift to see Set Up button";
-			//        }
-			//        toolTip1.SetToolTip(_useInternetButton, finalTooltip);
-
-			//        if (!_useInternetButton.Enabled || Control.ModifierKeys == Keys.Shift)
-			//            _internetStatusLabel.Text += " Set Up";
-			//    });
+			if (!_useInternetButton.Enabled || Control.ModifierKeys == Keys.Shift)
+				_internetStatusLabel.Text += " Set Up";
 		}
 
 		private void SetupInternetDiagnosticLink(string diagnosticText)
@@ -160,14 +147,11 @@ namespace Chorus.UI.Sync
 
 		private void UpdateUsbDriveSituation()
 		{
-			// usbDriveLocator is defined in the Designer?
+			// usbDriveLocator is defined in the Designer
 			string message;
 			_useUSBButton.Enabled = _model.GetUsbStatusLink(usbDriveLocator, out message);
 			_usbStatusLabel.Text = message;
 		}
-
-
-
 
 		private void _useUSBButton_Click(object sender, EventArgs e)
 		{
@@ -189,31 +173,16 @@ namespace Chorus.UI.Sync
 
 		private void _useInternetButton_Click(object sender, EventArgs e)
 		{
-			//string message, tooltip, buttonLabel, diagnostics;
-			//if(!_model.GetInternetStatusLink(out buttonLabel, out message, out tooltip, out diagnostics))
-			//{
-			//    _internetStatusLabel_LinkClicked(null, null);
-			//    if (!_model.GetInternetStatusLink(out buttonLabel, out message, out tooltip, out diagnostics))
-			//        return; // still no good.
-			//}
 			if (RepositoryChosen != null)
 			{
 				UpdateName();
 				var address = _repository.GetDefaultNetworkAddress<HttpRepositoryPath>();
 				RepositoryChosen.Invoke(this, new SyncStartArgs(address, _commitMessageText.Text));
 			}
-
 		}
 
 		private void _useSharedFolderButton_Click(object sender, EventArgs e)
 		{
-			//string message, tooltip, diagnostics;
-			//if (!_model.GetNetworkStatusLink(out message, out tooltip, out diagnostics))
-			//{
-			//    _sharedFolderStatusLabel_LinkClicked(null, null);
-			//    if (!_model.GetNetworkStatusLink(out message, out tooltip, out diagnostics))
-			//        return; // still no good.
-			//}
 			if (RepositoryChosen != null)
 			{
 				UpdateName();
@@ -277,4 +246,30 @@ namespace Chorus.UI.Sync
 		public string CommitMessage;
 	}
 
+	internal class InternetStateWorker
+	{
+		internal volatile bool _shouldQuit;
+		private Action _action;
+
+		internal InternetStateWorker(Action action)
+		{
+			_action = action;
+		}
+
+		internal void RequestStop()
+		{
+			_shouldQuit = true;
+		}
+
+		internal void DoWork()
+		{
+			while (!_shouldQuit)
+			{
+				_action();
+				Thread.Sleep(2000);
+				Console.WriteLine("worker thread: working...");
+			}
+			Console.WriteLine("worker thread: terminating gracefully.");
+		}
+	}
 }
