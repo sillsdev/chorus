@@ -45,14 +45,15 @@ namespace Chorus.UI.Sync
 
 			_model = new SyncStartModel(repository);
 			_repository = repository;
-			_updateDisplayTimer.Enabled = true;
 			_userName.Text = repository.GetUserIdInUse();
-			// let the dialog display itself first, then check for connection
-			_updateDisplayTimer.Interval = 500; // But check sooner than 2 seconds anyway!
 
 			// Setup Internet State Checking thread and the worker that it will run
 			_internetStateWorker = new InternetStateWorker(CheckInternetStatusAndUpdateUI);
 			_updateInternetSituation = new Thread(_internetStateWorker.DoWork);
+
+			// let the dialog display itself first, then check for connection
+			_updateDisplayTimer.Interval = 500; // But check sooner than 2 seconds anyway!
+			_updateDisplayTimer.Enabled = true;
 		}
 
 		private void SetupSharedFolderAndInternetUI()
