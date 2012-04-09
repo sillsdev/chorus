@@ -65,7 +65,7 @@ namespace LibChorus.Tests.merge.xml.lift
 										<text>This records the tone information for a LexPronunciation in FieldWorks.</text>
 									</form>
 								</field>
-								<field tag='new2'><text>Other new field</text></field>
+								<field tag='ournew'><text>Other new field</text></field>
 							</fields>
 						</header>
 						<entry id='usOnly' guid='c1ecf892-e382-11de-8a39-0800200c9a66' />
@@ -115,7 +115,7 @@ namespace LibChorus.Tests.merge.xml.lift
 										<text>This records a comment (note) in a LexEtymology in FieldWorks.</text>
 									</form>
 								</field>
-								<field tag='newtag'>
+								<field tag='theirnewfield'>
 									<form lang='en'><text>This records a potential problem</text></form>
 								</field>
 							</fields>
@@ -218,8 +218,11 @@ namespace LibChorus.Tests.merge.xml.lift
 					"header",
 					"entry", "guid", LiftFileHandler.WritePreliminaryInformation);
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
-				XmlTestHelper.AssertXPathMatchesExactlyOne(result, "lift/entry[@id='usOnly']");
+				XmlTestHelper.AssertXPathMatchesExactlyOne(result, "lift/header/fields/field[@tag='ournew']");
+				XmlTestHelper.AssertXPathMatchesExactlyOne(result, "lift/header/fields/field[@tag='theirnewfield']");
+				XmlTestHelper.AssertXPathMatchesExactlyOne(result, "lift/header/fields/field[@tag='tone']");
 				AssertThatXmlIn.String(result).HasSpecifiedNumberOfMatchesForXpath(@"lift/header/fields/field", 5);
+				XmlTestHelper.AssertXPathMatchesExactlyOne(result, "lift/entry[@id='usOnly']");
 			}
 		}
 	}
