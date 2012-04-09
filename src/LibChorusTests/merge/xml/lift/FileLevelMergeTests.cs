@@ -118,6 +118,76 @@ namespace LibChorus.Tests.merge.xml.lift
 		}
 
 		[Test]
+		public void WeAddedNewEntryInfileWithNoEntries()
+		{
+			const string ancestor = @"<?xml version='1.0' encoding='utf-8'?>
+					<lift version='0.10' producer='WeSay 1.0.0.0'>
+						<header><ranges>alphastuff</ranges></header>
+					</lift>";
+			const string ours = @"<?xml version='1.0' encoding='utf-8'?>
+					<lift version='0.10' producer='WeSay 1.0.0.0'>
+						<header><ranges>alphastuff</ranges></header>
+						<entry id='ourNew' guid='c1ecf898-e382-11de-8a39-0800200c9a66' />
+					</lift>";
+			const string theirs = @"<?xml version='1.0' encoding='utf-8'?>
+					<lift version='0.10' producer='WeSay 1.0.0.0'>
+						<header><ranges>alphastuff</ranges></header>
+					</lift>";
+
+			using (var oursTemp = new TempFile(ours))
+			using (var theirsTemp = new TempFile(theirs))
+			using (var ancestorTemp = new TempFile(ancestor))
+			{
+				var listener = new ListenerForUnitTests();
+				var situation = new NullMergeSituation();
+				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation) { EventListener = listener };
+				XmlMergeService.Do3WayMerge(mergeOrder, new DropTheirsMergeStrategy(),
+					"header",
+					"entry", "guid", LiftFileHandler.WritePreliminaryInformation);
+				var result = File.ReadAllText(mergeOrder.pathToOurs);
+				XmlTestHelper.AssertXPathMatchesExactlyOne(result, "lift/entry[@id='ourNew']");
+				listener.AssertExpectedConflictCount(0);
+				listener.AssertExpectedChangesCount(1);
+				listener.AssertFirstChangeType<XmlAdditionChangeReport>();
+			}
+		}
+
+		[Test]
+		public void TheyAddedNewEntryInfileWithNoEntries()
+		{
+			const string ancestor = @"<?xml version='1.0' encoding='utf-8'?>
+					<lift version='0.10' producer='WeSay 1.0.0.0'>
+						<header><ranges>alphastuff</ranges></header>
+					</lift>";
+			const string ours = @"<?xml version='1.0' encoding='utf-8'?>
+					<lift version='0.10' producer='WeSay 1.0.0.0'>
+						<header><ranges>alphastuff</ranges></header>
+					</lift>";
+			const string theirs = @"<?xml version='1.0' encoding='utf-8'?>
+					<lift version='0.10' producer='WeSay 1.0.0.0'>
+						<header><ranges>alphastuff</ranges></header>
+						<entry id='theirNew' guid='c1ecf898-e382-11de-8a39-0800200c9a66' />
+					</lift>";
+
+			using (var oursTemp = new TempFile(ours))
+			using (var theirsTemp = new TempFile(theirs))
+			using (var ancestorTemp = new TempFile(ancestor))
+			{
+				var listener = new ListenerForUnitTests();
+				var situation = new NullMergeSituation();
+				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation) { EventListener = listener };
+				XmlMergeService.Do3WayMerge(mergeOrder, new DropTheirsMergeStrategy(),
+					"header",
+					"entry", "guid", LiftFileHandler.WritePreliminaryInformation);
+				var result = File.ReadAllText(mergeOrder.pathToOurs);
+				XmlTestHelper.AssertXPathMatchesExactlyOne(result, "lift/entry[@id='theirNew']");
+				listener.AssertExpectedConflictCount(0);
+				listener.AssertExpectedChangesCount(1);
+				listener.AssertFirstChangeType<XmlAdditionChangeReport>();
+			}
+		}
+
+		[Test]
 		public void NewEntryFromUs_HasAdditionChangeReport()
 		{
 			const string ancestor = @"<?xml version='1.0' encoding='utf-8'?>
