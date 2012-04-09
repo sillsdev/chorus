@@ -248,9 +248,17 @@ namespace Chorus.UI.Sync
 			{
 				dlg.ShowNewFolderButton = true;
 				dlg.Description = "Choose the folder containing the project with which you want to synchronize.";
-				if (DialogResult.OK != dlg.ShowDialog())
-					return;
-				_model.SetNewSharedNetworkAddress(dlg.SelectedPath);
+
+				while (true)
+				{
+					var dlgResult = dlg.ShowDialog();
+					if (dlgResult != DialogResult.OK)
+						return;
+					var networkedDriveOK = _model.SetNewSharedNetworkAddress(dlg.SelectedPath);
+					if (networkedDriveOK)
+						break;
+				}
+
 			}
 
 			UpdateLocalNetworkSituation();
