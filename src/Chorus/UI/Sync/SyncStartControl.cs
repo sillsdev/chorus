@@ -85,14 +85,20 @@ namespace Chorus.UI.Sync
 			UpdateLocalNetworkSituation();
 		}
 
+		public bool ShuttingDown
+		{
+			get { return IsDisposed || Disposing; }
+		}
+
 		#region Network Status methods
 
 		private void UpdateLocalNetworkSituation()
 		{
+			if (ShuttingDown)
+				return;
+
 			if (!_updateNetworkSituation.IsAlive)
-			{
 				_updateNetworkSituation.Start();
-			}
 		}
 
 		/// <summary>
@@ -107,12 +113,12 @@ namespace Chorus.UI.Sync
 			bool result = _model.GetNetworkStatusLink(out message, out tooltip, out diagnostics);
 			Monitor.Exit(_model);
 
-			if (!IsDisposed)
-			{
-				// Using a callback and Invoke ensures that we avoid cross-threading updates.
-				var callback = new UpdateNetworkUICallback(UpdateNetworkUI);
-				this.Invoke(callback, new object[] { result, message, tooltip, diagnostics });
-			}
+			if (ShuttingDown)
+				return; // Avoids a crash on closing dialog.
+
+			// Using a callback and Invoke ensures that we avoid cross-threading updates.
+			var callback = new UpdateNetworkUICallback(UpdateNetworkUI);
+			this.Invoke(callback, new object[] { result, message, tooltip, diagnostics });
 		}
 
 		/// <summary>
@@ -157,10 +163,11 @@ namespace Chorus.UI.Sync
 		/// </summary>
 		private void UpdateInternetSituation()
 		{
+			if (ShuttingDown)
+				return;
+
 			if (!_updateInternetSituation.IsAlive)
-			{
 				_updateInternetSituation.Start();
-			}
 		}
 
 		/// <summary>
@@ -176,12 +183,12 @@ namespace Chorus.UI.Sync
 													   out diagnostics);
 			Monitor.Exit(_model);
 
-			if (!IsDisposed)
-			{
-				// Using a callback and Invoke ensures that we avoid cross-threading updates.
-				var callback = new UpdateInternetUICallback(UpdateInternetUI);
-				this.Invoke(callback, new object[] { result, buttonLabel, message, tooltip, diagnostics });
-			}
+			if (ShuttingDown)
+				return; // Avoids a crash on closing dialog.
+
+			// Using a callback and Invoke ensures that we avoid cross-threading updates.
+			var callback = new UpdateInternetUICallback(UpdateInternetUI);
+			this.Invoke(callback, new object[] { result, buttonLabel, message, tooltip, diagnostics });
 		}
 
 		/// <summary>
