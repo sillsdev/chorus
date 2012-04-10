@@ -104,7 +104,7 @@
 			// tableLayoutPanel1
 			//
 			this.tableLayoutPanel1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-						| System.Windows.Forms.AnchorStyles.Right)));
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this.tableLayoutPanel1.ColumnCount = 2;
 			this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 75F));
 			this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
@@ -137,7 +137,7 @@
 			// _useSharedFolderStatusLabel
 			//
 			this._useSharedFolderStatusLabel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-						| System.Windows.Forms.AnchorStyles.Right)));
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this._useSharedFolderStatusLabel.AutoSize = true;
 			this.tableLayoutPanel1.SetColumnSpan(this._useSharedFolderStatusLabel, 2);
 			this._useSharedFolderStatusLabel.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -154,7 +154,7 @@
 			// _usbStatusLabel
 			//
 			this._usbStatusLabel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-						| System.Windows.Forms.AnchorStyles.Right)));
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this._usbStatusLabel.BorderStyle = System.Windows.Forms.BorderStyle.None;
 			this.tableLayoutPanel1.SetColumnSpan(this._usbStatusLabel, 2);
 			this._usbStatusLabel.Font = new System.Drawing.Font("Segoe UI", 9F);
@@ -171,7 +171,7 @@
 			// betterLabel2
 			//
 			this.betterLabel2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
-						| System.Windows.Forms.AnchorStyles.Right)));
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this.betterLabel2.BorderStyle = System.Windows.Forms.BorderStyle.None;
 			this.tableLayoutPanel1.SetColumnSpan(this.betterLabel2, 2);
 			this.betterLabel2.Font = new System.Drawing.Font("Segoe UI", 9F);
@@ -198,7 +198,7 @@
 			// _internetStatusLabel
 			//
 			this._internetStatusLabel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-						| System.Windows.Forms.AnchorStyles.Right)));
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this._internetStatusLabel.AutoSize = true;
 			this.tableLayoutPanel1.SetColumnSpan(this._internetStatusLabel, 2);
 			this._internetStatusLabel.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -227,7 +227,7 @@
 			// betterLabel1
 			//
 			this.betterLabel1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-						| System.Windows.Forms.AnchorStyles.Right)));
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this.betterLabel1.BorderStyle = System.Windows.Forms.BorderStyle.None;
 			this.betterLabel1.Font = new System.Drawing.Font("Segoe UI", 9F);
 			this.betterLabel1.Location = new System.Drawing.Point(3, 3);
@@ -274,6 +274,7 @@
 			this._internetDiagnosticsLink.TabIndex = 10;
 			this._internetDiagnosticsLink.TabStop = true;
 			this._internetDiagnosticsLink.Text = "Diagnostics";
+			this._internetDiagnosticsLink.Visible = false;
 			this._internetDiagnosticsLink.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this._internetDiagnosticsLink_LinkClicked);
 			//
 			// SyncStartControl
