@@ -6,7 +6,7 @@ namespace Chorus.sync
 	public class ProjectFolderConfiguration
 	{
 		private List<string> _includePatterns=new List<string>(new []{"*.chorusNotes"});
-		private List<string> _excludePatterns=new List<string>();
+		private List<string> _excludePatterns = new List<string>(new[] { "~~*.txt" /* for bare folder readme file */});
 		private string _folderPath;
 
 		public ProjectFolderConfiguration(string folderPath)
