@@ -23,3 +23,4 @@ relre:src/SampleApp/bin/*
 glob:CopyTo Dev WeSay.bat
 MercurialExtensions/fixutf8/cpmap.pyo
 MercurialExtensions/fixutf8/cpmap.py
+MercurialExtensions/fixutf8/cpmap.pyc.orig
