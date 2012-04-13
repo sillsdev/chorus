@@ -15,6 +15,7 @@
 		{
 			if (disposing && (components != null))
 			{
+				_updateDisplayTimer.Stop();
 				_internetStateWorker.RequestStop();
 				_networkStateWorker.RequestStop();
 				components.Dispose();
