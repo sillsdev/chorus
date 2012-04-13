@@ -23,6 +23,7 @@ namespace Chorus.UI.Sync
 		private ConnectivityStateWorker _networkStateWorker;
 
 		private const int STATECHECKINTERVAL = 2000; // 2 sec interval between checks of Internet, Network Folder or USB status.
+		private const int INITIALINTERVAL = 1000; // only wait 1 sec, the first time
 
 		private delegate void UpdateInternetUICallback(bool enabled, string btnLabel, string message, string tooltip, string diagnostics);
 
@@ -58,7 +59,7 @@ namespace Chorus.UI.Sync
 			_updateNetworkSituation = new Thread(_networkStateWorker.DoWork);
 
 			// let the dialog display itself first, then check for connection
-			_updateDisplayTimer.Interval = 500; // But check sooner than 2 seconds anyway!
+			_updateDisplayTimer.Interval = INITIALINTERVAL; // But check sooner than 2 seconds anyway!
 			_updateDisplayTimer.Enabled = true;
 		}
 
@@ -74,8 +75,8 @@ namespace Chorus.UI.Sync
 
 		private void OnUpdateDisplayTick(object sender, EventArgs e)
 		{
-			UpdateDisplay();
 			_updateDisplayTimer.Interval = STATECHECKINTERVAL; // more normal checking rate from here on out
+			UpdateDisplay();
 		}
 
 		private void UpdateDisplay()
@@ -94,9 +95,6 @@ namespace Chorus.UI.Sync
 
 		private void UpdateLocalNetworkSituation()
 		{
-			if (ShuttingDown)
-				return;
-
 			if (!_updateNetworkSituation.IsAlive)
 				_updateNetworkSituation.Start();
 		}
@@ -163,9 +161,6 @@ namespace Chorus.UI.Sync
 		/// </summary>
 		private void UpdateInternetSituation()
 		{
-			if (ShuttingDown)
-				return;
-
 			if (!_updateInternetSituation.IsAlive)
 				_updateInternetSituation.Start();
 		}
@@ -299,8 +294,6 @@ namespace Chorus.UI.Sync
 				_model.SetNewSharedNetworkAddress(_repository, dlg.SelectedPath);
 				Monitor.Exit(_model);
 			}
-
-			UpdateLocalNetworkSituation();
 		}
 
 		private void _internetDiagnosticsLink_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
