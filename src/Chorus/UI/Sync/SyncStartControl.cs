@@ -18,10 +18,13 @@ namespace Chorus.UI.Sync
 
 		private Thread _updateInternetSituation; // Thread that runs the Internet status checking worker.
 		private ConnectivityStateWorker _internetStateWorker;
+		private bool _internetWorkerStarted = false; // Has worker been started?
 
 		private Thread _updateNetworkSituation; // Thread that runs the Network Folder status checking worker.
 		private ConnectivityStateWorker _networkStateWorker;
-		private bool _exiting;
+		private bool _networkWorkerStarted = false; // Has worker been started?
+
+		private bool _exiting; // Dialog is in the process of exiting, stop the threads!
 
 		private const int STATECHECKINTERVAL = 2000; // 2 sec interval between checks of Internet, Network Folder or USB status.
 		private const int INITIALINTERVAL = 1000; // only wait 1 sec, the first time
@@ -91,8 +94,11 @@ namespace Chorus.UI.Sync
 
 		private void UpdateLocalNetworkSituation()
 		{
-			if (!_updateNetworkSituation.IsAlive)
+			if (!_networkWorkerStarted)
+			{
+				_networkWorkerStarted = true;
 				_updateNetworkSituation.Start();
+			}
 		}
 
 		/// <summary>
@@ -159,8 +165,11 @@ namespace Chorus.UI.Sync
 		/// </summary>
 		private void UpdateInternetSituation()
 		{
-			if (!_updateInternetSituation.IsAlive)
+			if (!_internetWorkerStarted)
+			{
+				_internetWorkerStarted = true;
 				_updateInternetSituation.Start();
+			}
 		}
 
 		/// <summary>
