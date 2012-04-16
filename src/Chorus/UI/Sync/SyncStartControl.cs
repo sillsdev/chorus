@@ -21,6 +21,7 @@ namespace Chorus.UI.Sync
 
 		private Thread _updateNetworkSituation; // Thread that runs the Network Folder status checking worker.
 		private ConnectivityStateWorker _networkStateWorker;
+		private bool _exiting;
 
 		private const int STATECHECKINTERVAL = 2000; // 2 sec interval between checks of Internet, Network Folder or USB status.
 		private const int INITIALINTERVAL = 1000; // only wait 1 sec, the first time
@@ -86,11 +87,6 @@ namespace Chorus.UI.Sync
 			UpdateLocalNetworkSituation();
 		}
 
-		public bool ShuttingDown
-		{
-			get { return IsDisposed || Disposing; }
-		}
-
 		#region Network Status methods
 
 		private void UpdateLocalNetworkSituation()
@@ -111,12 +107,14 @@ namespace Chorus.UI.Sync
 			bool result = _model.GetNetworkStatusLink(out message, out tooltip, out diagnostics);
 			Monitor.Exit(_model);
 
-			if (ShuttingDown)
-				return; // Avoids a crash on closing dialog.
-
+			Monitor.Enter(this);
 			// Using a callback and Invoke ensures that we avoid cross-threading updates.
-			var callback = new UpdateNetworkUICallback(UpdateNetworkUI);
-			this.Invoke(callback, new object[] { result, message, tooltip, diagnostics });
+			if (!_exiting)
+			{
+				var callback = new UpdateNetworkUICallback(UpdateNetworkUI);
+				this.Invoke(callback, new object[] {result, message, tooltip, diagnostics});
+			}
+			Monitor.Exit(this);
 		}
 
 		/// <summary>
@@ -178,12 +176,12 @@ namespace Chorus.UI.Sync
 													   out diagnostics);
 			Monitor.Exit(_model);
 
-			if (ShuttingDown)
-				return; // Avoids a crash on closing dialog.
-
 			// Using a callback and Invoke ensures that we avoid cross-threading updates.
 			var callback = new UpdateInternetUICallback(UpdateInternetUI);
-			this.Invoke(callback, new object[] { result, buttonLabel, message, tooltip, diagnostics });
+			Monitor.Enter(this);
+			if(!_exiting)
+				this.Invoke(callback, new object[] { result, buttonLabel, message, tooltip, diagnostics });
+			Monitor.Exit(this);
 		}
 
 		/// <summary>
@@ -313,7 +311,6 @@ namespace Chorus.UI.Sync
 		/// </summary>
 		internal class ConnectivityStateWorker
 		{
-			internal volatile bool _shouldQuit;
 			private Action _action;
 
 			internal ConnectivityStateWorker(Action action)
@@ -321,18 +318,9 @@ namespace Chorus.UI.Sync
 				_action = action;
 			}
 
-			internal void RequestStop()
-			{
-				_shouldQuit = true;
-			}
-
 			internal void DoWork()
 			{
-				while (!_shouldQuit)
-				{
-					_action();
-					Thread.Sleep(STATECHECKINTERVAL); // Keep our worker from ALWAYS checking the Internet status
-				}
+				_action();
 			}
 		}
 	}

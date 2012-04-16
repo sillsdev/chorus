@@ -1,4 +1,6 @@
-﻿namespace Chorus.UI.Sync
+﻿using System.Threading;
+
+namespace Chorus.UI.Sync
 {
 	partial class SyncStartControl
 	{
@@ -13,14 +15,15 @@
 		/// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
 		protected override void Dispose(bool disposing)
 		{
+			Monitor.Enter(this);
+			_exiting = true;
 			if (disposing && (components != null))
 			{
 				_updateDisplayTimer.Stop();
-				_internetStateWorker.RequestStop();
-				_networkStateWorker.RequestStop();
 				components.Dispose();
 			}
 			base.Dispose(disposing);
+			Monitor.Exit(this);
 		}
 
 		#region Component Designer generated code
