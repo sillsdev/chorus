@@ -301,6 +301,10 @@ namespace Chorus.VcsDrivers
 							return path;
 						}
 					}
+					catch (UserCancelledException )
+					{   // deal with this separately to avoid an error report - the user didn't ask for that.
+						throw; // if not thrown now, more folders could be searched in FLExBridge
+					}
 					catch (Exception e)
 					{
 						ErrorReport.ReportNonFatalExceptionWithMessage(e, "Error while processing USB folder '{0}'", path);

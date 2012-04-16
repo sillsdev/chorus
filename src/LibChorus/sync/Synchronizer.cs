@@ -300,6 +300,10 @@ namespace Chorus.sync
 					//nb: no need to push if we just made a clone
 				}
 			}
+			catch (UserCancelledException)
+			{
+				throw;
+			}
 			catch (Exception error)
 			{
 				ExplainAndThrow(error, "Failed to send to {0} ({1}).", address.Name, address.URI);
@@ -549,6 +553,10 @@ namespace Chorus.sync
 
 				_progress.WriteWarning("Staying at previous-tip (unusual)");
 			}
+			catch (UserCancelledException)
+			{
+				throw;
+			}
 			catch (Exception error)
 			{
 				  ExplainAndThrow(error, "Could not update.");
@@ -676,6 +684,10 @@ namespace Chorus.sync
 						  AddAndCommitFiles(GetMergeCommitSummary(head.UserId, Repository));
 					  }
 				  }
+			  }
+			  catch (UserCancelledException)
+			  {
+				  throw;
 			  }
 			  catch (Exception error)
 			  {
