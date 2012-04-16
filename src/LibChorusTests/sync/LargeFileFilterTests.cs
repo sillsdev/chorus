@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using Chorus.FileTypeHanders;
+using Chorus.FileTypeHanders.lift;
 using Chorus.sync;
 using LibChorus.TestUtilities;
 using NUnit.Framework;
@@ -188,7 +189,7 @@ namespace LibChorus.Tests.sync
 
 		/// <summary>
 		/// Regression test: WS-34181
-		/// </summary
+		/// </summary>
 		[Test]
 		public void FileWithSpecialCharacterIsAllowed()
 		{
@@ -212,6 +213,34 @@ namespace LibChorus.Tests.sync
 				Assert.IsTrue(string.IsNullOrEmpty(result));
 				var shortpath = fullPathname.Replace(pathToRepo, "");
 				Assert.IsFalse(config.ExcludePatterns.Contains(shortpath));
+				Assert.IsFalse(config.IncludePatterns.Contains(shortpath));
+			}
+		}
+
+		[Test]
+		public void LargeMp3FileIsNotAllowed()
+		{
+			using (var bob = new RepositorySetup("bob"))
+			{
+				const string fileName = "whopper.Mp3";
+				var megabyteLongData = "long" + Environment.NewLine;
+				while (megabyteLongData.Length < LargeFileFilter.Megabyte)
+					megabyteLongData += megabyteLongData;
+				bob.ChangeFile(fileName, megabyteLongData);
+				var fullPathname = Path.Combine(bob.ProjectFolderConfig.FolderPath, fileName);
+				var pathToRepo = bob.Repository.PathToRepo + Path.PathSeparator;
+				bob.Repository.TestOnlyAddSansCommit(fullPathname);
+				var config = bob.ProjectFolderConfig;
+				LiftFolder.AddLiftFileInfoToFolderConfiguration(config);
+
+				var result = LargeFileFilter.FilterFiles(
+					bob.Repository,
+					config,
+					ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers(),
+					bob.Progress);
+				Assert.IsFalse(string.IsNullOrEmpty(result));
+				var shortpath = fullPathname.Replace(pathToRepo, "");
+				Assert.IsTrue(config.ExcludePatterns.Contains(shortpath));
 				Assert.IsFalse(config.IncludePatterns.Contains(shortpath));
 			}
 		}

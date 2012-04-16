@@ -338,7 +338,9 @@ namespace Chorus.sync
 
 			// Must be done, before "AddAndCommitFiles" call.
 			// It could be here, or first thing inside the 'using' for CommitCop.
-			LargeFileFilter.FilterFiles(Repository, _project, _handlers, _progress);
+			var newlyFilteredFiles = LargeFileFilter.FilterFiles(Repository, _project, _handlers, _progress);
+			if (!string.IsNullOrEmpty(newlyFilteredFiles))
+				_progress.WriteWarning(newlyFilteredFiles);
 
 			using (var commitCop = new CommitCop(Repository, _handlers, _progress))
 			{

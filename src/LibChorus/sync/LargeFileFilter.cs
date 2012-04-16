@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 using System.Text;
 using Chorus.FileTypeHanders;
 using Chorus.VcsDrivers.Mercurial;
@@ -86,23 +85,41 @@ namespace Chorus.sync
 				// as it is prepended by HgRepository.
 				var pathToRepository = repository.PathToRepo + Path.PathSeparator;// This part of the full path must *not* be included in the exclude list,
 				var filename = Path.GetFileName(fir.FullPath);
+				var fileExtension = Path.GetExtension(filename);
+				if (!string.IsNullOrEmpty(fileExtension))
+				{
+					// GetExtensionsOfKnownTextFileTypes on hanlder is to *not* have the extension, according the the interface for handlers.
+					fileExtension = fileExtension.Replace(".", null);
+				}
 				var fileInfo = new FileInfo(fir.FullPath);
 				var fileSize = fileInfo.Length;
-				foreach (var msg in from handler in handlers.Handlers
-									where (handler.CanValidateFile(fir.FullPath) && handler.MaximumFileSize != UInt32.MaxValue) && fileSize >= handler.MaximumFileSize
-									select (fir.ActionThatHappened == FileInRevision.Action.Added || fir.ActionThatHappened == FileInRevision.Action.Unknown) ? String.Format("File '{0}' is too large to add to Chorus.", filename) : String.Format("File '{0}' is too large to be updated in Chorus.", filename))
+				foreach (var handler in handlers.Handlers)
 				{
-					progress.WriteWarning(msg);
-					builder.AppendLine(msg);
-					configuration.ExcludePatterns.Add(fir.FullPath.Replace(pathToRepository, ""));
-
-					// TODO: What to do, if the file is "Modified" but now too big?
-					// "remove" actually deletes the file in repo and in working folder, which seems a bit rude.
-					// "forget" removes it from repo (history remains) and leaves it in working folder.
-					if (fir.ActionThatHappened == FileInRevision.Action.Modified)
+					// NB: we don't care if the handler can validate it, or not.
+					// We only care if it claims to handle the given extension.
+					// For instance the audio and image handers can't validate their files, which lets all manner of big files get in the repo.
+					//if ((handler.CanValidateFile(fir.FullPath) && handler.MaximumFileSize != UInt32.MaxValue) && fileSize >= handler.MaximumFileSize)
+					foreach (var knownExtension in handler.GetExtensionsOfKnownTextFileTypes())
 					{
-						// Tell Hg to 'forget' it.
-						repository.ForgetFile(fir.FullPath.Replace(pathToRepository, ""));
+						if ((knownExtension.ToLowerInvariant() != fileExtension.ToLowerInvariant()
+							|| handler.MaximumFileSize == UInt32.MaxValue) || fileSize <= handler.MaximumFileSize)
+						{
+							continue;
+						}
+
+						var msg = (fir.ActionThatHappened == FileInRevision.Action.Added || fir.ActionThatHappened == FileInRevision.Action.Unknown) ? String.Format("File '{0}' is too large to add to Chorus.", filename) : String.Format("File '{0}' is too large to be updated in Chorus.", filename);
+						progress.WriteWarning(msg);
+						builder.AppendLine(msg);
+						configuration.ExcludePatterns.Add(fir.FullPath.Replace(pathToRepository, ""));
+
+						// TODO: What to do, if the file is "Modified" but now too big?
+						// "remove" actually deletes the file in repo and in working folder, which seems a bit rude.
+						// "forget" removes it from repo (history remains) and leaves it in working folder.
+						if (fir.ActionThatHappened == FileInRevision.Action.Modified)
+						{
+							// Tell Hg to 'forget' it.
+							repository.ForgetFile(fir.FullPath.Replace(pathToRepository, ""));
+						}
 					}
 				}
 			}
