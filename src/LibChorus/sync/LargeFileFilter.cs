@@ -97,7 +97,7 @@ namespace Chorus.sync
 				{
 					// NB: we don't care if the handler can validate it, or not.
 					// We only care if it claims to handle the given extension.
-					// For instance the audio and image handers can't validate their files, which lets all manner of big files get in the repo.
+					// For instance the audio and image handlers can't validate their files, which lets all manner of big files get in the repo.
 					//if ((handler.CanValidateFile(fir.FullPath) && handler.MaximumFileSize != UInt32.MaxValue) && fileSize >= handler.MaximumFileSize)
 					foreach (var knownExtension in handler.GetExtensionsOfKnownTextFileTypes())
 					{
