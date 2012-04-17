@@ -27,8 +27,9 @@ namespace Chorus.FileTypeHanders.image
 
 		public bool CanPresentFile(string pathToFile)
 		{
-			var ext = Path.GetExtension(pathToFile);
-			return string.IsNullOrEmpty(ext) ? false : GetExtensionsOfKnownTextFileTypes().Contains(ext);}
+			var ext = Path.GetExtension(pathToFile); // NB: has the '.'
+			return !string.IsNullOrEmpty(ext) && GetExtensionsOfKnownTextFileTypes().Contains(ext.Replace(".", null));
+		}
 
 		public bool CanValidateFile(string pathToFile)
 		{
