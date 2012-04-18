@@ -49,11 +49,14 @@ namespace Chorus.VcsDrivers.Mercurial
 		/// <exception cref="Exception">This will throw when the hgrc is locked</exception>
 		public RepositoryAddress GetDefaultNetworkAddress<T>()
 		{
-			//the first one found in the default list
+			//the first one found in the default list that is of the requisite type and is NOT a 'default'
+			// path (inserted by the Hg Clone process). See https://trello.com/card/send-receive-dialog-displays-default-as-a-configured-local-network-location-for-newly-obtained-projects/4f3a90277ae2b69b010988ac/37
+			// This could be a problem if there was some way for the user to create a 'default' path, but the paths we want
+			// to find here are currently always named with an adaptation of the path. I don't think that process can produce 'default'.
 			try
 			{
 				var paths = GetRepositoryPathsInHgrc();
-				var networkPaths = paths.Where(p => p is T);
+				var networkPaths = paths.Where(p => p is T && p.Name != "default");
 
 				//none found in the hgrc
 				if (networkPaths.Count() == 0) //nb: because of lazy eval, the hgrc lock exception can happen here
