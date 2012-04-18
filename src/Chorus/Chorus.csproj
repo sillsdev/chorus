@@ -327,6 +327,7 @@
 	<Compile Include="UI\Misc\ServerSettingsDialog.Designer.cs">
 	  <DependentUpon>ServerSettingsDialog.cs</DependentUpon>
 	</Compile>
+	<Compile Include="UI\IUsbDriveLocator.cs" />
 	<Compile Include="UI\Sync\SyncControl.cs">
 	  <SubType>UserControl</SubType>
 	</Compile>
