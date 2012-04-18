@@ -187,9 +187,10 @@ namespace Chorus.UI.Misc
 			{
 				throw new ArgumentException("SaveSettings() only works if you InitFromProjectPath()");
 			}
-			var repo = HgRepository.CreateOrLocate(_pathToRepo, new NullProgress());
 
-			repo.SetKnownRepositoryAddresses(new[]{new HttpRepositoryPath(AliasName, URL, false)});
+			var repo = HgRepository.CreateOrLocate(_pathToRepo, new NullProgress());
+			// Use safer SetTheOnlyAddressOfThisType method, as it won't clobber a shared network setting, if that was the clone source.
+			repo.SetTheOnlyAddressOfThisType(new HttpRepositoryPath(AliasName, URL, false));
 		}
 
 		public string AliasName

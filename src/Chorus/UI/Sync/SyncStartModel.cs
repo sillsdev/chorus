@@ -182,10 +182,15 @@ namespace Chorus.UI.Sync
 			return ready;
 		}
 
-		public void SetNewSharedNetworkAddress(HgRepository repository, string path)
+		/// <summary>
+		///
+		/// </summary>
+		/// <param name="path"></param>
+		/// <returns>Return false if were not able to create the repository and want to give the user another option.</returns>
+		public bool SetNewSharedNetworkAddress(HgRepository repository, string path)
 		{
 			if (string.IsNullOrEmpty(path))
-				return;
+				return false;
 			try
 			{
 				if (!Directory.Exists(Path.Combine(path, ".hg")))
@@ -194,13 +199,13 @@ namespace Chorus.UI.Sync
 					{
 						Palaso.Reporting.ErrorReport.NotifyUserOfProblem(
 							"The folder you chose doesn't have a repository. Chorus cannot make one there, because the folder is not empty.  Please choose a folder that is already being used for send/receive, or create and choose a new folder to hold the repository.");
-						return;
+						return false;
 					}
 
 					var result = MessageBox.Show("A new repository will be created in " + path + ".", "Create new repository?",
 									MessageBoxButtons.OKCancel);
 					if (result != DialogResult.OK)
-						return;
+						return false;
 
 				}
 				string alias = HgRepository.GetAliasFromPath(path);
@@ -209,8 +214,9 @@ namespace Chorus.UI.Sync
 			catch (Exception e)
 			{
 				Palaso.Reporting.ErrorReport.NotifyUserOfProblem(e, "There was a problem setting the network path.");
-				throw;
+				return false;
 			}
+			return true;
 		}
 	}
 }

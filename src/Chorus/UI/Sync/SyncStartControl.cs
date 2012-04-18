@@ -338,7 +338,7 @@ namespace Chorus.UI.Sync
 		{
 			if(DialogResult.Cancel ==
 				MessageBox.Show(
-				"Note, due to some limitations in the underlying system (Mercurial), connecting to a shared folder hosted by a Windows computer is not recommended. If the server is Linux, it's OK.",
+				"Sharing repositories over a local network may sometimes cause a repository to become corrupted. This can be repaired by copying one of the good copies of the repository, but it may require expert help. If you have a good internet connection or a small enough group to pass a USB key around, we recommend one of the other Send/Receive options.",
 				"Warning", MessageBoxButtons.OKCancel))
 			{
 				return;
@@ -347,11 +347,18 @@ namespace Chorus.UI.Sync
 			{
 				dlg.ShowNewFolderButton = true;
 				dlg.Description = "Choose the folder containing the project with which you want to synchronize.";
-				if (DialogResult.OK != dlg.ShowDialog())
-					return;
-				Monitor.Enter(_model);
-				_model.SetNewSharedNetworkAddress(_repository, dlg.SelectedPath);
-				Monitor.Exit(_model);
+
+				while (true)
+				{
+					var dlgResult = dlg.ShowDialog();
+					if (dlgResult != DialogResult.OK)
+						return;
+					Monitor.Enter(_model);
+					var networkedDriveOK = _model.SetNewSharedNetworkAddress(dlg.SelectedPath);
+					Monitor.Exit(_model);
+					if (networkedDriveOK)
+						break;
+				}
 			}
 		}
 
