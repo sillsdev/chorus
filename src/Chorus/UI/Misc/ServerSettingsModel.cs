@@ -187,11 +187,10 @@ namespace Chorus.UI.Misc
 			{
 				throw new ArgumentException("SaveSettings() only works if you InitFromProjectPath()");
 			}
-			var repo = HgRepository.CreateOrLocate(_pathToRepo, new NullProgress());
 
-			// review: I (CP) think this will overwrite all existing repo addresses of all types such that there can only be one entry
-			// in the hgrc, and that entry will be an internet repo. CP 2012-04
-			repo.SetKnownRepositoryAddresses(new[]{new HttpRepositoryPath(AliasName, URL, false)});
+			var repo = HgRepository.CreateOrLocate(_pathToRepo, new NullProgress());
+			// Use safer SetTheOnlyAddressOfThisType method, as it won't clobber a shared network setting, if that was the clone source.
+			repo.SetTheOnlyAddressOfThisType(new HttpRepositoryPath(AliasName, URL, false));
 		}
 
 		public string AliasName
