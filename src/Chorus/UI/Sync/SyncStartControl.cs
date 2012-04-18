@@ -354,7 +354,7 @@ namespace Chorus.UI.Sync
 					if (dlgResult != DialogResult.OK)
 						return;
 					Monitor.Enter(_model);
-					var networkedDriveOK = _model.SetNewSharedNetworkAddress(dlg.SelectedPath);
+					var networkedDriveOK = _model.SetNewSharedNetworkAddress(_repository, dlg.SelectedPath);
 					Monitor.Exit(_model);
 					if (networkedDriveOK)
 						break;
