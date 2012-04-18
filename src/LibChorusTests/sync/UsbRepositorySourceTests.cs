@@ -43,7 +43,7 @@ namespace LibChorus.Tests.sync
 		}
 
 		[TearDown]
-		public void TearDwon()
+		public void TearDown()
 		{
 			Directory.Delete(_pathToTestRoot, true);
 		}
@@ -87,7 +87,7 @@ namespace LibChorus.Tests.sync
 			synchronizer.SyncNow(options);
 			string dir = Path.Combine(UsbKeyRepositorySource.RootDirForUsbSourceDuringUnitTest, "foo project");
 			Assert.IsTrue(Directory.Exists(dir));
-			Assert.IsTrue(File.Exists(dir.CombineForPath(dir, "Folder has an invisible repository.txt")));
+			Assert.IsTrue(File.Exists(dir.CombineForPath(dir, "~~Folder has an invisible repository.txt")));
 
 		}
 		[Test]
