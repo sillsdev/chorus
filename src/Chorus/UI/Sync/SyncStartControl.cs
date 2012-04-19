@@ -128,27 +128,17 @@ namespace Chorus.UI.Sync
 			}
 		}
 
-		public bool ShouldShowInternetSetUpButton
-		{
-			get { return (!_useInternetButton.Enabled || Control.ModifierKeys == Keys.Shift); }
-		}
+		#region Network Status methods
 
 		public bool ShouldShowNetworkSetUpButton
 		{
 			get { return (!_useSharedFolderButton.Enabled || Control.ModifierKeys == Keys.Shift); }
 		}
 
-		protected bool InternetSetupButtonIsActive
-		{
-			get { return _internetStatusLabel.Text.EndsWith(SetupLinkText); }
-		}
-
 		protected bool NetworkSetupButtonIsActive
 		{
 			get { return _useSharedFolderStatusLabel.Text.EndsWith(SetupLinkText); }
 		}
-
-		#region Network Status methods
 
 		private void UpdateLocalNetworkSituation()
 		{
@@ -212,6 +202,16 @@ namespace Chorus.UI.Sync
 		#endregion // Network
 
 		#region Internet Status methods
+
+		public bool ShouldShowInternetSetUpButton
+		{
+			get { return (!_useInternetButton.Enabled || Control.ModifierKeys == Keys.Shift); }
+		}
+
+		protected bool InternetSetupButtonIsActive
+		{
+			get { return _internetStatusLabel.Text.EndsWith(SetupLinkText); }
+		}
 
 		/// <summary>
 		/// Pings to test Internet connectivity were causing several second pauses in the dialog.
@@ -343,7 +343,6 @@ namespace Chorus.UI.Sync
 			// Setup Internet State Checking thread and the worker that it will run
 			_internetStateWorker = new ConnectivityStateWorker(CheckInternetStatusAndUpdateUI);
 			_updateInternetSituation = new Thread(_internetStateWorker.DoWork);
-			UpdateInternetSituation();
 		}
 
 		private void _sharedFolderStatusLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
