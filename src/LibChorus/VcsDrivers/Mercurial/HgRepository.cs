@@ -49,11 +49,14 @@ namespace Chorus.VcsDrivers.Mercurial
 		/// <exception cref="Exception">This will throw when the hgrc is locked</exception>
 		public RepositoryAddress GetDefaultNetworkAddress<T>()
 		{
-			//the first one found in the default list
+			//the first one found in the default list that is of the requisite type and is NOT a 'default'
+			// path (inserted by the Hg Clone process). See https://trello.com/card/send-receive-dialog-displays-default-as-a-configured-local-network-location-for-newly-obtained-projects/4f3a90277ae2b69b010988ac/37
+			// This could be a problem if there was some way for the user to create a 'default' path, but the paths we want
+			// to find here are currently always named with an adaptation of the path. I don't think that process can produce 'default'.
 			try
 			{
 				var paths = GetRepositoryPathsInHgrc();
-				var networkPaths = paths.Where(p => p is T);
+				var networkPaths = paths.Where(p => p is T && p.Name != "default");
 
 				//none found in the hgrc
 				if (networkPaths.Count() == 0) //nb: because of lazy eval, the hgrc lock exception can happen here
@@ -75,7 +78,6 @@ namespace Chorus.VcsDrivers.Mercurial
 				throw;
 			}
 		}
-
 
 		/// <summary>
 		/// Given a file path or directory path, first try to find an existing repository at this
@@ -1382,7 +1384,8 @@ namespace Chorus.VcsDrivers.Mercurial
 		}
 
 		/// <summary>
-		/// Warning: this use of "incomin" takes just as long as a pull, according to the hg mailing list
+		/// Tests Network and Internet connection to a URI. Gives the best diagnostics with a log box.
+		/// Uses Ping and (failing that) DNS resolution to determine connection state.
 		/// </summary>
 		/// <param name="uri"></param>
 		/// <param name="progress"></param>
@@ -1390,7 +1393,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		public bool GetCanConnectToRemote(string uri, IProgress progress)
 		{
 
-			//this may be just as slow as a pull
+			// No longer uses "hg incoming", since that takes just as long as a pull, according to the hg mailing list
 			//    ExecutionResult result = ExecuteErrorsOk(string.Format("incoming -l 1 {0}", SurroundWithQuotes(uri)), _pathToRepository, SecondsBeforeTimeoutOnLocalOperation, _progress);
 			//so we're going to just ping
 
