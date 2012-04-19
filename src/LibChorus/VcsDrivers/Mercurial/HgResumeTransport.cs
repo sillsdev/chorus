@@ -620,7 +620,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				bundleHelper.WriteChunk(req.StartOfWindow, response.Chunk);
 				req.StartOfWindow = req.StartOfWindow + response.Chunk.Length;
 				req.ChunkSize = response.ChunkSize;
-				if (bundleSize == response.BundleSize)
+				if (bundleSize == response.BundleSize && bundleSize != 0)
 				{
 					_progress.ProgressIndicator.PercentCompleted = (int)((long)req.StartOfWindow * 100 / bundleSize);
 					string eta = CalculateEstimatedTimeRemaining(bundleSize, req.ChunkSize, req.StartOfWindow);
