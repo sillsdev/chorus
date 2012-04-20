@@ -70,7 +70,7 @@ namespace Chorus.FileTypeHanders.image
 		/// <returns>A collection of extensions (without leading period (.)) that can be processed.</returns>
 		public IEnumerable<string> GetExtensionsOfKnownTextFileTypes()
 		{
-			return new List<string> { "tif", "jpg", "png", "bmp" };
+			return new List<string> { "bmp", "jpg", "jpeg", "gif", "png", "tif", "tiff", "ico", "wmf", "pcx", "cgm" };
 		}
 
 		/// <summary>

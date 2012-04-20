@@ -41,7 +41,7 @@ namespace LibChorus.Tests.sync
 				const string fileName = "test.chorusTest";
 				bob.ChangeFile(fileName, _goodData);
 				var fullPathname = Path.Combine(bob.ProjectFolderConfig.FolderPath, fileName);
-				var pathToRepo = bob.Repository.PathToRepo + Path.PathSeparator;
+				var pathToRepo = bob.Repository.PathToRepo + Path.DirectorySeparatorChar;
 				bob.Repository.TestOnlyAddSansCommit(fullPathname);
 				var config = bob.ProjectFolderConfig;
 				config.ExcludePatterns.Clear();
@@ -51,8 +51,7 @@ namespace LibChorus.Tests.sync
 				var result = LargeFileFilter.FilterFiles(
 					bob.Repository,
 					config,
-					_handlersColl,
-					bob.Progress);
+					_handlersColl);
 				Assert.IsTrue(string.IsNullOrEmpty(result));
 				var shortpath = fullPathname.Replace(pathToRepo, "");
 				Assert.IsFalse(config.ExcludePatterns.Contains(shortpath));
@@ -68,7 +67,7 @@ namespace LibChorus.Tests.sync
 				const string fileName = "test.chorusTest";
 				bob.ChangeFile(fileName, _longData);
 				var fullPathname = Path.Combine(bob.ProjectFolderConfig.FolderPath, fileName);
-				var pathToRepo = bob.Repository.PathToRepo + Path.PathSeparator;
+				var pathToRepo = bob.Repository.PathToRepo + Path.DirectorySeparatorChar;
 				bob.Repository.TestOnlyAddSansCommit(fullPathname);
 
 				var config = bob.ProjectFolderConfig;
@@ -79,8 +78,7 @@ namespace LibChorus.Tests.sync
 				var result = LargeFileFilter.FilterFiles(
 					bob.Repository,
 					config,
-					_handlersColl,
-					bob.Progress);
+					_handlersColl);
 				Assert.IsFalse(string.IsNullOrEmpty(result));
 				var shortpath = fullPathname.Replace(pathToRepo, "");
 				Assert.IsTrue(config.ExcludePatterns.Contains(shortpath));
@@ -97,7 +95,7 @@ namespace LibChorus.Tests.sync
 				const string fileName = "test.chorusTest";
 				bob.ChangeFile(fileName, _goodData);
 				var fullPathname = Path.Combine(bob.ProjectFolderConfig.FolderPath, fileName);
-				var pathToRepo = bob.Repository.PathToRepo + Path.PathSeparator;
+				var pathToRepo = bob.Repository.PathToRepo + Path.DirectorySeparatorChar;
 				bob.Repository.AddAndCheckinFile(fullPathname);
 				bob.AssertLocalRevisionNumber(0);
 				bob.AssertFileContents(fullPathname, _goodData);
@@ -112,8 +110,7 @@ namespace LibChorus.Tests.sync
 				var result = LargeFileFilter.FilterFiles(
 					bob.Repository,
 					config,
-					_handlersColl,
-					bob.Progress);
+					_handlersColl);
 				bob.Repository.Commit(false, "test");
 				bob.AssertLocalRevisionNumber(1); // 'forget' marks it as deleted in the repo.
 				bob.AssertFileContents(fullPathname, _longData);
@@ -133,7 +130,7 @@ namespace LibChorus.Tests.sync
 				const string fileName = "test.chorusTest";
 				bob.ChangeFile(fileName, _goodData);
 				var fullPathname = Path.Combine(bob.ProjectFolderConfig.FolderPath, fileName);
-				var pathToRepo = bob.Repository.PathToRepo + Path.PathSeparator;
+				var pathToRepo = bob.Repository.PathToRepo + Path.DirectorySeparatorChar;
 				//bob.Repository.TestOnlyAddSansCommit(fullPathname);
 				var config = bob.ProjectFolderConfig;
 				config.ExcludePatterns.Clear();
@@ -143,8 +140,7 @@ namespace LibChorus.Tests.sync
 				var result = LargeFileFilter.FilterFiles(
 					bob.Repository,
 					config,
-					_handlersColl,
-					bob.Progress);
+					_handlersColl);
 				Assert.IsTrue(string.IsNullOrEmpty(result));
 				var shortpath = fullPathname.Replace(pathToRepo, "");
 				Assert.IsFalse(config.ExcludePatterns.Contains(shortpath));
@@ -160,7 +156,7 @@ namespace LibChorus.Tests.sync
 				const string fileName = "test.chorusTest";
 				bob.ChangeFile(fileName, _longData);
 				var fullPathname = Path.Combine(bob.ProjectFolderConfig.FolderPath, fileName);
-				var pathToRepo = bob.Repository.PathToRepo + Path.PathSeparator;
+				var pathToRepo = bob.Repository.PathToRepo + Path.DirectorySeparatorChar;
 				//bob.Repository.TestOnlyAddSansCommit(fullPathname);
 
 				var config = bob.ProjectFolderConfig;
@@ -171,8 +167,7 @@ namespace LibChorus.Tests.sync
 				var result = LargeFileFilter.FilterFiles(
 					bob.Repository,
 					config,
-					_handlersColl,
-					bob.Progress);
+					_handlersColl);
 				Assert.IsFalse(string.IsNullOrEmpty(result));
 				var shortpath = fullPathname.Replace(pathToRepo, "");
 				Assert.IsTrue(config.ExcludePatterns.Contains(shortpath));
@@ -198,7 +193,7 @@ namespace LibChorus.Tests.sync
 				const string fileName =  "ŭburux.wav";
 				bob.ChangeFile(fileName, _goodData);
 				var fullPathname = Path.Combine(bob.ProjectFolderConfig.FolderPath, fileName);
-				var pathToRepo = bob.Repository.PathToRepo + Path.PathSeparator;
+				var pathToRepo = bob.Repository.PathToRepo + Path.DirectorySeparatorChar;
 				bob.Repository.TestOnlyAddSansCommit(fullPathname);
 				var config = bob.ProjectFolderConfig;
 				config.ExcludePatterns.Clear();
@@ -208,8 +203,7 @@ namespace LibChorus.Tests.sync
 				var result = LargeFileFilter.FilterFiles(
 					bob.Repository,
 					config,
-					_handlersColl,
-					bob.Progress);
+					_handlersColl);
 				Assert.IsTrue(string.IsNullOrEmpty(result));
 				var shortpath = fullPathname.Replace(pathToRepo, "");
 				Assert.IsFalse(config.ExcludePatterns.Contains(shortpath));
@@ -228,7 +222,7 @@ namespace LibChorus.Tests.sync
 					megabyteLongData += megabyteLongData;
 				bob.ChangeFile(fileName, megabyteLongData);
 				var fullPathname = Path.Combine(bob.ProjectFolderConfig.FolderPath, fileName);
-				var pathToRepo = bob.Repository.PathToRepo + Path.PathSeparator;
+				var pathToRepo = bob.Repository.PathToRepo + Path.DirectorySeparatorChar;
 				bob.Repository.TestOnlyAddSansCommit(fullPathname);
 				var config = bob.ProjectFolderConfig;
 				LiftFolder.AddLiftFileInfoToFolderConfiguration(config);
@@ -236,8 +230,7 @@ namespace LibChorus.Tests.sync
 				var result = LargeFileFilter.FilterFiles(
 					bob.Repository,
 					config,
-					ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers(),
-					bob.Progress);
+					ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers());
 				Assert.IsFalse(string.IsNullOrEmpty(result));
 				var shortpath = fullPathname.Replace(pathToRepo, "");
 				Assert.IsTrue(config.ExcludePatterns.Contains(shortpath));
