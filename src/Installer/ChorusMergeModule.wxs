@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+
+  <Module Id="ChorusMergeModule" Language="1033" Version="1.0.0.0">
+		<Package Id="59c055f3-e87e-4101-bc70-87ab07d4f26f" Manufacturer="MergeModule" InstallerVersion="200" />
+
+	<Directory Id="TARGETDIR" Name="SourceDir">
+			<Directory Id="MergeRedirectFolder">
+		<Directory Id="mercurial" Name="mercurial">
+		  <!-- This will be filled in by the generated fragment GeneratedMercurial.wxs -->
+		</Directory>
+		<Directory Id="MercurialExtensions" Name="MercurialExtensions">
+		  <!-- This will be filled in by the generated fragment GeneratedMercurialExtensions.wxs -->
+		</Directory>
+
+		<Component Id="libchorus.dll" Guid="B9BCFD29-E687-4ec1-9407-1918AD14075B">
+		  <File Id="libchorus.dll" Name="libchorus.dll" KeyPath="yes" Source="..\..\output\Debug\libchorus.dll" />
+		</Component>
+		<Component Id="chorus.exe" Guid="BAF93900-B12B-4942-BA85-55090CF005D8">
+		  <File Id="chorus.exe" Name="chorus.exe" KeyPath="yes" Source="..\..\output\Debug\chorus.exe" />
+		</Component>
+		<Component Id="chorusmerge.exe" Guid="7A088F3F-411D-41f9-BBA3-4304E2865969">
+		  <File Id="chorusmerge.exe" Name="chorusmerge.exe" KeyPath="yes" Source="..\..\output\Debug\chorusmerge.exe" />
+		</Component>
+	  </Directory>
+		</Directory>
+	<DirectoryRef Id="mercurial">
+	  <Component Id="mercurial.ini" Guid="FA715224-9B87-44a4-B6D3-18EC40712266">
+		<File Id="mercurial.ini" Name="mercurial.ini" Source="..\..\mercurial\mercurial.ini" />
+		<IniFile Id="MercurialIni"
+			   Action="addLine"
+			   Directory="mercurial"
+			   Section="extensions"
+			   Name="mercurial.ini"
+			   Key="fixutf8"
+			   Value="[#mercurial.ini]" />
+	  </Component>
+	</DirectoryRef>
+  </Module>
+</Wix>

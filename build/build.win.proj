@@ -4,7 +4,7 @@
 	</PropertyGroup>
 
 	<UsingTask TaskName="StampAssemblies" AssemblyFile="$(RootDir)/build/Palaso.BuildTasks.dll" />
-	<!-- <UsingTask TaskName="MakeWixForDirTree" AssemblyFile="$(RootDir)/build/Palaso.BuildTasks.dll" /> -->
+	<UsingTask TaskName="MakeWixForDirTree" AssemblyFile="$(RootDir)/build/Palaso.BuildTasks.dll" />
 	<UsingTask TaskName="Split" AssemblyFile="$(RootDir)/build/Palaso.BuildTasks.dll" />
 	<UsingTask TaskName="FileUpdate" AssemblyFile="$(RootDir)/build/Palaso.BuildTasks.dll" />
 	<UsingTask TaskName="DNZip" AssemblyFile="$(RootDir)/build/MSBuild.ExtensionPack.dll" />
@@ -55,6 +55,51 @@
 	<Target Name="UnzipMercurial" DependsOnTargets="">
 		<!-- Extract a zip file-->
 		<DNZip TaskAction="Extract" ExtractPath="$(RootDir)" ZipFileName="$(RootDir)/lib/Debug/Mercurial.zip"/>
+	</Target>
+
+	  <Target Name="Installer" DependsOnTargets="VersionNumbers; MakeWixForDistFiles; MakeWixForXulRunner; Build ">
+
+	<!-- set the version number in the installer configuration program.  Perhaps there's a way to just send in the variables rather than this brute-force
+		changing of the script, but I haven't figured that out. -->
+
+	<FileUpdate File="$(RootDir)\src\Installer\Installer.wxs" Regex='Property_ProductVersion = ".*"'
+				ReplacementText ="Property_ProductVersion = &quot;$(Version)&quot;" />
+
+
+	<Message Text="Making Installer Version: $(Version)" Importance="high"  />
+
+	<MSBuild Projects="$(RootDir)\src\Installer\Installer.wixproj"/>
+
+	<!-- remove an existing one with the same name, if necessary -->
+	<Delete Files="$(RootDir)\output\installer\BloomInstaller.$(Version).msi" TreatErrorsAsWarnings="false" />
+
+	<Copy SourceFiles="$(RootDir)\output\installer\BloomInstaller.msi"
+		  DestinationFiles="$(RootDir)\output\installer\BloomInstaller.$(Version).msi"
+		  />
+
+	<!-- remove the installer which has no version number (wouldn't need this if the copy above was a move, instead) -->
+	<Delete Files="$(RootDir)\output\installer\BloomInstaller.msi" TreatErrorsAsWarnings="false" />
+
+  </Target>
+
+
+	<Target Name="MakeWixForDistFiles">
+		<MakeWixForDirTree
+			DirectoryReferenceId="mercurial"
+			ComponentGroupId="Mercurial"
+			RootDirectory="$(RootDir)\mercurial"
+			OutputFilePath="$(RootDir)\src\Installer\GeneratedMercurial.wxs"
+			MatchRegExPattern=".*">
+			<Output TaskParameter="OutputFilePath" ItemName="Compile" />
+		</MakeWixForDirTree>
+		<MakeWixForDirTree
+			DirectoryReferenceId="MercurialExtensions"
+			ComponentGroupId="MercurialExtensions"
+			RootDirectory="$(RootDir)\MercurialExtensions"
+			OutputFilePath="$(RootDir)\src\Installer\GeneratedMercurialExtensions.wxs"
+			MatchRegExPattern=".*">
+			<Output TaskParameter="OutputFilePath" ItemName="Compile" />
+		</MakeWixForDirTree>
 	</Target>
 
 </Project>

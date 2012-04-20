@@ -1,0 +1,71 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+	<Fragment>
+		<DirectoryRef Id="MercurialExtensions">
+			<Component Id="Dummy.txt" Guid="ABF0992E-2B9F-4C55-B2F4-C5AA062A46E4">
+				<File Id="Dummy.txt" Name="Dummy.txt" KeyPath="yes" Source="..\..\MercurialExtensions\Dummy.txt" />
+			</Component>
+			<Directory Id="MercurialExtensions.fixutf8" Name="fixutf8">
+				<Component Id="_.hgignore" Guid="E79CFE96-C451-48C9-A896-AA3EC8C34B0C">
+					<File Id="_.hgignore" Name=".hgignore" KeyPath="yes" Source="..\..\MercurialExtensions\fixutf8\.hgignore" />
+				</Component>
+				<Component Id="_.hg_archival.txt" Guid="109E36D6-8DCF-44B8-880F-F22D44191B0C">
+					<File Id="_.hg_archival.txt" Name=".hg_archival.txt" Source="..\..\MercurialExtensions\fixutf8\.hg_archival.txt" />
+				</Component>
+				<Component Id="buildcpmap.py" Guid="6105E839-DBDD-4035-810F-B5686B34ED4C">
+					<File Id="buildcpmap.py" Name="buildcpmap.py" Source="..\..\MercurialExtensions\fixutf8\buildcpmap.py" />
+				</Component>
+				<Component Id="cpmap.pyc" Guid="952B2286-4312-48E3-8637-8F10FDFACB60">
+					<File Id="cpmap.pyc" Name="cpmap.pyc" Source="..\..\MercurialExtensions\fixutf8\cpmap.pyc" />
+				</Component>
+				<Component Id="fixutf8.py" Guid="F70BC2D0-4E40-403E-8806-2FF320E0C005">
+					<File Id="fixutf8.py" Name="fixutf8.py" Source="..\..\MercurialExtensions\fixutf8\fixutf8.py" />
+				</Component>
+				<Component Id="fixutf8.pyc" Guid="812D37C0-9D19-4BFD-AE3D-D7ABF82A6C2A">
+					<File Id="fixutf8.pyc" Name="fixutf8.pyc" Source="..\..\MercurialExtensions\fixutf8\fixutf8.pyc" />
+				</Component>
+				<Component Id="fixutf8.pyo" Guid="BD371C48-32AF-493D-921B-AAA50B7656EE">
+					<File Id="fixutf8.pyo" Name="fixutf8.pyo" Source="..\..\MercurialExtensions\fixutf8\fixutf8.pyo" />
+				</Component>
+				<Component Id="osutil.py" Guid="8F5B60DF-0742-498F-B7DA-213D1FFDAEFB">
+					<File Id="osutil.py" Name="osutil.py" Source="..\..\MercurialExtensions\fixutf8\osutil.py" />
+				</Component>
+				<Component Id="osutil.pyc" Guid="450B339A-E76F-45C2-AAD8-BF5AFE1E2414">
+					<File Id="osutil.pyc" Name="osutil.pyc" Source="..\..\MercurialExtensions\fixutf8\osutil.pyc" />
+				</Component>
+				<Component Id="osutil.pyo" Guid="9D23A9ED-2A92-4450-827C-572F4F874D91">
+					<File Id="osutil.pyo" Name="osutil.pyo" Source="..\..\MercurialExtensions\fixutf8\osutil.pyo" />
+				</Component>
+				<Component Id="README" Guid="F4D2E7D8-7608-47B7-99A0-DDB68CEE3797">
+					<File Id="README" Name="README" Source="..\..\MercurialExtensions\fixutf8\README" />
+				</Component>
+				<Component Id="win32helper.py" Guid="1BFC3F08-EED2-4C80-9AE6-2CF6993ADAF2">
+					<File Id="win32helper.py" Name="win32helper.py" Source="..\..\MercurialExtensions\fixutf8\win32helper.py" />
+				</Component>
+				<Component Id="win32helper.pyc" Guid="0FB5D787-016D-4FA0-B68F-9E117606CAB6">
+					<File Id="win32helper.pyc" Name="win32helper.pyc" Source="..\..\MercurialExtensions\fixutf8\win32helper.pyc" />
+				</Component>
+				<Component Id="win32helper.pyo" Guid="20DA0825-1A7F-4948-A1B7-70F29D8D0D16">
+					<File Id="win32helper.pyo" Name="win32helper.pyo" Source="..\..\MercurialExtensions\fixutf8\win32helper.pyo" />
+				</Component>
+			</Directory>
+		</DirectoryRef>
+		<ComponentGroup Id="MercurialExtensions">
+			<ComponentRef Id="Dummy.txt" />
+			<ComponentRef Id="_.hgignore" />
+			<ComponentRef Id="_.hg_archival.txt" />
+			<ComponentRef Id="buildcpmap.py" />
+			<ComponentRef Id="cpmap.pyc" />
+			<ComponentRef Id="fixutf8.py" />
+			<ComponentRef Id="fixutf8.pyc" />
+			<ComponentRef Id="fixutf8.pyo" />
+			<ComponentRef Id="osutil.py" />
+			<ComponentRef Id="osutil.pyc" />
+			<ComponentRef Id="osutil.pyo" />
+			<ComponentRef Id="README" />
+			<ComponentRef Id="win32helper.py" />
+			<ComponentRef Id="win32helper.pyc" />
+			<ComponentRef Id="win32helper.pyo" />
+		</ComponentGroup>
+	</Fragment>
+</Wix>

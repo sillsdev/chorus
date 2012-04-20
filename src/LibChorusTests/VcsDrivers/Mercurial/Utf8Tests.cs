@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using Chorus.FileTypeHanders.lift;
-using Chorus.sync;
-using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
 using NUnit.Framework;
 using Palaso.IO;
@@ -13,7 +9,6 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 	[TestFixture]
 	public class Utf8Tests
 	{
-
 		class MercurialExtensionHider : IDisposable
 		{
 			private readonly string _extensionPath;
@@ -29,25 +24,6 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			public void Dispose()
 			{
 				Directory.Move(_extensionPathRenamed, _extensionPath);
-			}
-		}
-
-		class MercurialIniHider : IDisposable
-		{
-			private readonly string _mercurialIniFilePath;
-			private readonly string _mercurialIniBackupFilePath;
-
-			public MercurialIniHider()
-			{
-				_mercurialIniFilePath = Path.Combine(Chorus.MercurialLocation.PathToMercurialFolder, "mercurial.ini");
-				_mercurialIniBackupFilePath = _mercurialIniFilePath + ".bak";
-				File.Copy(_mercurialIniFilePath, _mercurialIniBackupFilePath, true);
-			}
-
-			public void Dispose()
-			{
-				File.Copy(_mercurialIniBackupFilePath, _mercurialIniFilePath, true);
-				File.Delete(_mercurialIniBackupFilePath);
 			}
 		}
 
@@ -187,7 +163,6 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 					//var uri = new Uri(String.Format("file:///{0}", setup.ProjectFolder.Path));
 					HgRepository.Clone(setup.ProjectFolder.Path, other.ProjectFolder.Path, other.Progress);
 					other.Repository.Update();
-					string log = other.GetProgressString();
 
 					other.AssertFileExists(utf8FilePath);
 					string[] fileNames = Directory.GetFiles(other.ProjectFolder.Path, "*.wav");
