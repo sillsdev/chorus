@@ -10,9 +10,7 @@ using Chorus.Utilities;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using System.Linq;
-using Palaso.IO;
 using Palaso.Progress.LogBox;
-using Palaso.Extensions;
 using Palaso.Reporting;
 
 namespace Chorus.sync
@@ -338,7 +336,7 @@ namespace Chorus.sync
 
 			// Must be done, before "AddAndCommitFiles" call.
 			// It could be here, or first thing inside the 'using' for CommitCop.
-			var newlyFilteredFiles = LargeFileFilter.FilterFiles(Repository, _project, _handlers, _progress);
+			var newlyFilteredFiles = LargeFileFilter.FilterFiles(Repository, _project, _handlers);
 			if (!string.IsNullOrEmpty(newlyFilteredFiles))
 				_progress.WriteWarning(newlyFilteredFiles);
 
@@ -354,7 +352,6 @@ namespace Chorus.sync
 					throw new ApplicationException( "The changed data did not pass validation tests. Your project will be moved back to the last Send/Receive before this problem occurred, so that you can keep working.  Please notify whoever provides you with computer support. Error was: " + commitCop.ValidationResult);
 				}
 			}
-
 		}
 
 		/// <returns>true if there was a successful pull</returns>
@@ -729,11 +726,9 @@ namespace Chorus.sync
 
 		private void AddAndCommitFiles(string summary)
 		{
-			List<string> includePatterns = _project.IncludePatterns;
-			includePatterns.Add("**.ChorusNotes");
-			List<string> excludePatterns = _project.ExcludePatterns;
-			includePatterns.Add("**.ChorusRescuedFile");
-			Repository.AddAndCheckinFiles(includePatterns, excludePatterns,
+			ProjectFolderConfiguration.EnsureCommonPatternsArePresent(_project);
+			_project.IncludePatterns.Add("**.ChorusRescuedFile");
+			Repository.AddAndCheckinFiles(_project.IncludePatterns, _project.ExcludePatterns,
 										  summary);
 		}
 

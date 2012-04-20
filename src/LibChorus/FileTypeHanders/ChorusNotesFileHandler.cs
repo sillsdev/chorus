@@ -7,6 +7,7 @@ using Chorus.FileTypeHanders.xml;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
 using Chorus.VcsDrivers.Mercurial;
+using Chorus.notes;
 using Palaso.IO;
 using Palaso.Progress.LogBox;
 
@@ -103,7 +104,7 @@ namespace Chorus.FileTypeHanders
 		/// <returns>A collection of extensions (without leading period (.)) that can be processed.</returns>
 		public IEnumerable<string> GetExtensionsOfKnownTextFileTypes()
 		{
-			yield return "ChorusNotes";
+			yield return AnnotationRepository.FileExtension;
 		}
 
 		/// <summary>

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net.NetworkInformation;
 using Chorus.Utilities;
 using Chorus.Utilities.UsbDrive;
 using Chorus.VcsDrivers.Mercurial;
@@ -173,11 +174,14 @@ namespace Chorus.VcsDrivers
 
 	public class DirectoryRepositorySource : RepositoryAddress
 	{
+		private readonly string _networkMachineSpecifier;
+		private readonly string _alternativeMachineSpecifier;
 
 		public DirectoryRepositorySource(string name, string uri, bool readOnly)
 			: base(name, uri, readOnly)
 		{
-
+			_networkMachineSpecifier = new string(Path.DirectorySeparatorChar, 2);
+			_alternativeMachineSpecifier = new string(Path.AltDirectorySeparatorChar, 2);
 		}
 
 		/// <summary>
@@ -191,16 +195,27 @@ namespace Chorus.VcsDrivers
 		public override bool CanConnect(HgRepository localRepository, string projectName, IProgress progress)
 		{
 			var path = GetPotentialRepoUri(localRepository.Identifier, projectName, progress);
-			if (this.URI.StartsWith(@"\\"))
+			if (URI.StartsWith(_networkMachineSpecifier) || URI.StartsWith(_alternativeMachineSpecifier))
 			{
 				progress.WriteStatus("Checking to see if we can connect with {0}...", path);
+				if (!NetworkInterface.GetIsNetworkAvailable())
+				{
+					progress.WriteWarning("This machine does not have a live network connection.");
+					return false;
+				}
 			}
-			return Directory.Exists(path);
+
+			var result = Directory.Exists(path);
+			if (!result)
+			{
+				progress.WriteWarning("Cannot find the specified file folder.");
+			}
+			return result;
 		}
 
 		public bool LooksLikeLocalDirectory
 		{
-			get { return !(this.URI.StartsWith(@"\\")); }
+			get { return !(this.URI.StartsWith(_networkMachineSpecifier)); }
 		}
 
 		public override List<string> GetPossibleCloneUris(string repoIdentifier, string projectName, IProgress progress)

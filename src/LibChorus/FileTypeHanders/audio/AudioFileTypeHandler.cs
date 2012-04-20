@@ -48,17 +48,12 @@ namespace Chorus.FileTypeHanders.audio
 		public IEnumerable<IChangeReport> Find2WayDifferences(FileInRevision parent, FileInRevision child, HgRepository repository)
 		{
 			throw new ApplicationException(string.Format("Chorus could not find a handler to diff files like '{0}'", child.FullPath));
-
 		}
-
 
 		public IChangePresenter GetChangePresenter(IChangeReport report, HgRepository repository)
 		{
 			return new AudioChangePresenter(report);
 		}
-
-
-
 
 		public IEnumerable<IChangeReport> DescribeInitialContents(FileInRevision fileInRevision, TempFile file)
 		{
@@ -71,7 +66,7 @@ namespace Chorus.FileTypeHanders.audio
 		/// <returns>A collection of extensions (without leading period (.)) that can be processed.</returns>
 		public IEnumerable<string> GetExtensionsOfKnownTextFileTypes()
 		{
-			return new List<string> {"wav","mp3"};
+			return new List<string> { "wav", "snd", "au", "aif", "aifc", "aiff", "wma", "mp3" };
 		}
 
 		/// <summary>
