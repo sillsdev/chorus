@@ -128,27 +128,17 @@ namespace Chorus.UI.Sync
 			}
 		}
 
-		public bool ShouldShowInternetSetUpButton
-		{
-			get { return (!_useInternetButton.Enabled || Control.ModifierKeys == Keys.Shift); }
-		}
+		#region Network Status methods
 
 		public bool ShouldShowNetworkSetUpButton
 		{
 			get { return (!_useSharedFolderButton.Enabled || Control.ModifierKeys == Keys.Shift); }
 		}
 
-		protected bool InternetSetupButtonIsActive
-		{
-			get { return _internetStatusLabel.Text.EndsWith(SetupLinkText); }
-		}
-
 		protected bool NetworkSetupButtonIsActive
 		{
 			get { return _useSharedFolderStatusLabel.Text.EndsWith(SetupLinkText); }
 		}
-
-		#region Network Status methods
 
 		private void UpdateLocalNetworkSituation()
 		{
@@ -212,6 +202,16 @@ namespace Chorus.UI.Sync
 		#endregion // Network
 
 		#region Internet Status methods
+
+		public bool ShouldShowInternetSetUpButton
+		{
+			get { return (!_useInternetButton.Enabled || Control.ModifierKeys == Keys.Shift); }
+		}
+
+		protected bool InternetSetupButtonIsActive
+		{
+			get { return _internetStatusLabel.Text.EndsWith(SetupLinkText); }
+		}
 
 		/// <summary>
 		/// Pings to test Internet connectivity were causing several second pauses in the dialog.
@@ -328,10 +328,21 @@ namespace Chorus.UI.Sync
 
 		private void _internetStatusLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
 		{
-			using(var dlg = new ServerSettingsDialog(_repository.PathToRepo))
+			DialogResult dlgResult;
+			using (var dlg = new ServerSettingsDialog(_repository.PathToRepo))
 			{
-				dlg.ShowDialog();
+				dlgResult = dlg.ShowDialog();
 			}
+			if (dlgResult == DialogResult.OK)
+				RecheckInternetStatus();
+		}
+
+		private void RecheckInternetStatus()
+		{
+			_internetWorkerStarted = false;
+			// Setup Internet State Checking thread and the worker that it will run
+			_internetStateWorker = new ConnectivityStateWorker(CheckInternetStatusAndUpdateUI);
+			_updateInternetSituation = new Thread(_internetStateWorker.DoWork);
 		}
 
 		private void _sharedFolderStatusLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
@@ -343,6 +354,7 @@ namespace Chorus.UI.Sync
 			{
 				return;
 			}
+			DialogResult dlgResult;
 			using (var dlg =  new System.Windows.Forms.FolderBrowserDialog())
 			{
 				dlg.ShowNewFolderButton = true;
@@ -350,7 +362,7 @@ namespace Chorus.UI.Sync
 
 				while (true)
 				{
-					var dlgResult = dlg.ShowDialog();
+					dlgResult = dlg.ShowDialog();
 					if (dlgResult != DialogResult.OK)
 						return;
 					Monitor.Enter(_model);
@@ -360,6 +372,16 @@ namespace Chorus.UI.Sync
 						break;
 				}
 			}
+			if (dlgResult == DialogResult.OK)
+				RecheckNetworkStatus();
+		}
+
+		private void RecheckNetworkStatus()
+		{
+			_networkWorkerStarted = false;
+			// Setup Shared Network Folder Checking thread and its worker
+			_networkStateWorker = new ConnectivityStateWorker(CheckNetworkStatusAndUpdateUI);
+			_updateNetworkSituation = new Thread(_networkStateWorker.DoWork);
 		}
 
 		private void _internetDiagnosticsLink_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
