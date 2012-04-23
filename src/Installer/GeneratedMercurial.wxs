@@ -8,9 +8,6 @@
 			<Component Id="library.zip" Guid="4DBAD190-0B10-418C-B1E6-8CD0162788E3">
 				<File Id="library.zip" Name="library.zip" Source="..\..\mercurial\library.zip" />
 			</Component>
-			<Component Id="mercurial.ini" Guid="B6A5DDF3-0EA0-45C7-8A5D-D9BD38528D09">
-				<File Id="mercurial.ini" Name="mercurial.ini" Source="..\..\mercurial\mercurial.ini" />
-			</Component>
 			<Component Id="python26.dll" Guid="57498171-216B-48AD-9597-5727FF8C8E42">
 				<File Id="python26.dll" Name="python26.dll" Source="..\..\mercurial\python26.dll" />
 			</Component>
@@ -421,7 +418,6 @@
 		<ComponentGroup Id="Mercurial">
 			<ComponentRef Id="hg.exe" />
 			<ComponentRef Id="library.zip" />
-			<ComponentRef Id="mercurial.ini" />
 			<ComponentRef Id="python26.dll" />
 			<ComponentRef Id="ReadMe.html" />
 			<ComponentRef Id="Mercurial.rc" />
