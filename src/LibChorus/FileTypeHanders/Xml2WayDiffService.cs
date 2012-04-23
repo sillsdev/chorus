@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Chorus.FileTypeHanders.xml;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
 using Chorus.VcsDrivers.Mercurial;
@@ -34,9 +35,10 @@ namespace Chorus.FileTypeHanders
 			{
 				differ.ReportDifferencesToListener();
 			}
-			catch
+			catch(Exception error)
 			{
 				// Eat exception.
+				return new List<IChangeReport>(new[] {new ErrorDeterminingChangeReport(parent, child, null, null, error)});
 			}
 
 			return changeAndConflictAccumulator.Changes;
@@ -80,12 +82,17 @@ namespace Chorus.FileTypeHanders
 			}
 			catch
 			{
-				// Eat exception.
+				//REVIEW (from JH, 3/2012): why was this exception being swallowed?  We should always give a justification in the code. For
+				//now, since I don't know why this was being swalled, I'm going to at least throw in debug mode.
+				//anyone who sees it throw here should add a catch with the explicit exception, and then eventually we can get rid of this catch-all
+#if DEBUG
+				throw;
+#endif
 			}
 
-			if (changeAndConflictAccumulator is ChangeAndConflictAccumulator)
-				return ((ChangeAndConflictAccumulator)changeAndConflictAccumulator).Changes;
-			return null; // unit tests use impl class that has no "Changes" property.
+			return changeAndConflictAccumulator is ChangeAndConflictAccumulator
+					? ((ChangeAndConflictAccumulator) changeAndConflictAccumulator).Changes
+					: null; // unit tests use impl class that has no "Changes" property.
 		}
 
 		/// <summary>
@@ -112,12 +119,17 @@ namespace Chorus.FileTypeHanders
 			}
 			catch
 			{
-				// Eat exception.
+//REVIEW (from JH, 3/2012): why was this exception being swallowed?  We should always give a justification in the code. For
+				//now, since I don't know why this was being swalled, I'm going to at least throw in debug mode.
+				//anyone who sees it throw here should add a catch with the explicit exception, and then eventually we can get rid of this catch-all
+#if DEBUG
+				throw;
+#endif
 			}
 
-			if (changeAndConflictAccumulator is ChangeAndConflictAccumulator)
-				return ((ChangeAndConflictAccumulator)changeAndConflictAccumulator).Changes;
-			return null; // unit tests use impl class that has no "Changes" property.
+			return changeAndConflictAccumulator is ChangeAndConflictAccumulator
+					? ((ChangeAndConflictAccumulator) changeAndConflictAccumulator).Changes
+					: null; // unit tests use impl class that has no "Changes" property.
 		}
 
 		/// <summary>
@@ -142,12 +154,17 @@ namespace Chorus.FileTypeHanders
 			}
 			catch
 			{
-				// Eat exception.
+				//REVIEW (from JH, 3/2012): why was this exception being swallowed?  We should always give a justification in the code. For
+				//now, since I don't know why this was being swalled, I'm going to at least throw in debug mode.
+				//anyone who sees it throw here should add a catch with the explicit exception, and then eventually we can get rid of this catch-all
+#if DEBUG
+				throw;
+#endif
 			}
 
-			if (changeAndConflictAccumulator is ChangeAndConflictAccumulator)
-				return ((ChangeAndConflictAccumulator)changeAndConflictAccumulator).Changes;
-			return null; // unit tests use impl class that has no "Changes" property.
+			return changeAndConflictAccumulator is ChangeAndConflictAccumulator
+					? ((ChangeAndConflictAccumulator) changeAndConflictAccumulator).Changes
+					: null;// new List<IChangeReport>(); // unit tests use impl class that has no "Changes" property.
 		}
 	}
 }

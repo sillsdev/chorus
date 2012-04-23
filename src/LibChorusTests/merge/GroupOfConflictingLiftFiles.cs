@@ -35,9 +35,10 @@ namespace LibChorus.Tests.merge
 
 		public void Dispose()
 		{
-			AncestorFile.Dispose();
-			BobFile.Dispose();
-			SallyFile.Dispose();
+			Folder.Dispose();
+			// Folder Dispose took care of Bob. BobFile.Dispose();
+			// Folder Dispose took care of Sally. SallyFile.Dispose();
+			// Folder Dispose took care of Ancestor. AncestorFile.Dispose();
 		}
 
 

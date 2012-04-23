@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Chorus.merge;
+using Chorus.merge.xml.generic;
 using Chorus.sync;
 using Chorus.Utilities.code;
 using Chorus.VcsDrivers.Mercurial;
@@ -42,7 +43,8 @@ namespace Chorus.FileTypeHanders
 		{
 		  //  Debug.Fail("john");
 			Guard.AgainstNull(mergeOrder, "mergeOrder");
-			mergeOrder.EventListener.ConflictOccurred(new UnmergableFileTypeConflict(mergeOrder.MergeSituation));
+
+			XmlMergeService.AddConflictToListener(mergeOrder.EventListener, new UnmergableFileTypeConflict(mergeOrder.MergeSituation));
 			switch (mergeOrder.MergeSituation.ConflictHandlingMode)
 			{
 				default: // just leave our file there

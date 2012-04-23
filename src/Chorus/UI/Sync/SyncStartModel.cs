@@ -74,23 +74,22 @@ namespace Chorus.UI.Sync
 						Palaso.Reporting.ErrorReport.NotifyUserOfProblem(
 							"The folder you chose doesn't have a repository. Chorus cannot make one there, because the folder is not empty.  Please choose a folder that is already being used for send/receive, or create and choose a new folder to hold the repository.");
 						return;
-	}
+					}
 
 					var result = MessageBox.Show("A new repository will be created in " + path + ".", "Create new repository?",
 									MessageBoxButtons.OKCancel);
 					if (result != DialogResult.OK)
 						return;
 
-}
+				}
 				string alias = HgRepository.GetAliasFromPath(path);
 				_repository.SetTheOnlyAddressOfThisType(RepositoryAddress.Create(alias, path));
 			}
 			catch (Exception e)
 			{
-				Palaso.Reporting.ErrorReport.NotifyUserOfProblem(e,"There was a problem setting the network path.");
+				Palaso.Reporting.ErrorReport.NotifyUserOfProblem(e, "There was a problem setting the network path.");
 				throw;
 			}
-
 		}
 
 

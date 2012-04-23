@@ -1,6 +1,8 @@
-﻿using System;
+using System;
 using System.IO;
+using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
+using LibChorus.TestUtilities;
 using NUnit.Framework;
 using Palaso.IO;
 
@@ -161,7 +163,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				using (var other = new RepositorySetup("Bob", false))
 				{
 					//var uri = new Uri(String.Format("file:///{0}", setup.ProjectFolder.Path));
-					HgRepository.Clone(setup.ProjectFolder.Path, other.ProjectFolder.Path, other.Progress);
+					HgRepository.Clone(new HttpRepositoryPath("utf test repo", setup.ProjectFolder.Path, false), other.ProjectFolder.Path, other.Progress);
 					other.Repository.Update();
 
 					other.AssertFileExists(utf8FilePath);

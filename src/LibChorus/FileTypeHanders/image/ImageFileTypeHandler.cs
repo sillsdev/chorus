@@ -12,6 +12,9 @@ namespace Chorus.FileTypeHanders.image
 {
 	public class ImageFileTypeHandler : IChorusFileTypeHandler
 	{
+		internal ImageFileTypeHandler()
+		{}
+
 		public bool CanDiffFile(string pathToFile)
 		{
 			return false;
