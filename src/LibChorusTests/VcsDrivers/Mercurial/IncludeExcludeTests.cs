@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using Chorus.FileTypeHanders.lift;
-using Chorus.sync;
-using Chorus.Utilities;
-using Chorus.VcsDrivers.Mercurial;
+using LibChorus.TestUtilities;
 using NUnit.Framework;
 
 namespace LibChorus.Tests.VcsDrivers.Mercurial

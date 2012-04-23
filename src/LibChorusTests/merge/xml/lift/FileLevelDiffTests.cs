@@ -2,7 +2,7 @@ using System;
 using System.Linq;
 using Chorus.FileTypeHanders;
 using Chorus.FileTypeHanders.xml;
-using LibChorus.Tests.merge.xml.generic;
+using LibChorus.TestUtilities;
 using NUnit.Framework;
 using Palaso.IO;
 
@@ -117,8 +117,11 @@ namespace LibChorus.Tests.merge.xml.lift
 			}
 		}
 
+		/// <summary>
+		/// well, there is an exception lower down, but not way up at this level
+		/// </summary>
 		[Test]
-		public void DuplicateIdInParentEntryThrows()
+		public void DuplicateIdInParentEntry_EmitsWarning()
 		{
 			var parent = @"<?xml version='1.0' encoding='utf-8'?>
 					<lift version='0.10' producer='WeSay 1.0.0.0'>
@@ -137,12 +140,13 @@ namespace LibChorus.Tests.merge.xml.lift
 				var differ = Xml2WayDiffer.CreateFromFiles(parentTempFile.Path, childTempFile.Path, listener,
 					"header",
 															 "entry", "id");
-				Assert.Throws<ArgumentException>(() => differ.ReportDifferencesToListener());
+				differ.ReportDifferencesToListener();
+				Assert.AreEqual(1, listener.Warnings.Count);
 			}
 		}
 
 		[Test]
-		public void DuplicateIdInChildtEntryThrows()
+		public void DuplicateIdInChildEntryEmitsWarning()
 		{
 			var parent = @"<?xml version='1.0' encoding='utf-8'?>
 					<lift version='0.10' producer='WeSay 1.0.0.0'>
@@ -161,7 +165,8 @@ namespace LibChorus.Tests.merge.xml.lift
 				var differ = Xml2WayDiffer.CreateFromFiles(parentTempFile.Path, childTempFile.Path, listener,
 					"header",
 															 "entry", "id");
-				Assert.Throws<ArgumentException>(() => differ.ReportDifferencesToListener());
+				differ.ReportDifferencesToListener();
+				Assert.AreEqual(1, listener.Warnings.Count);
 			}
 		}
 

@@ -7,6 +7,7 @@ using System.Windows.Forms;
 using Chorus.sync;
 using Chorus.UI.Sync;
 using Chorus.VcsDrivers;
+using LibChorus.TestUtilities;
 using LibChorus.Tests;
 using NUnit.Framework;
 
@@ -18,7 +19,7 @@ namespace Chorus.Tests.UI.Sync
 		[Test, Ignore("Run by hand only")]
 		public void ShowSyncStartControl_NoPaths()
 		{
-			var setup = new RepositorySetup("pedro");
+			using(var setup = new RepositorySetup("pedro"))
 			{
 				var c = new SyncStartControl(setup.Repository);
 				var f = new Form();
@@ -34,7 +35,7 @@ namespace Chorus.Tests.UI.Sync
 		{
 			Application.EnableVisualStyles();
 
-			var setup = new RepositorySetup("pedro");
+			using(var setup = new RepositorySetup("pedro"))
 			{
 				setup.Repository.SetKnownRepositoryAddresses(new RepositoryAddress[]
 																 {
@@ -54,7 +55,7 @@ namespace Chorus.Tests.UI.Sync
 		[Test, Ignore("Run by hand only")]
 		public void LaunchDialog_ExampleForBob()
 		{
-			var setup = new RepositorySetup("pedro");
+			using(var setup = new RepositorySetup("pedro"))
 			{
 				Application.EnableVisualStyles();
 
@@ -76,7 +77,7 @@ namespace Chorus.Tests.UI.Sync
 		[Test, Ignore("Run by hand only")]
 		public void LaunchDialog_GoodForCancelTesting()
 		{
-			var setup = new RepositorySetup("pedro");
+			using(var setup = new RepositorySetup("pedro"))
 			{
 				Application.EnableVisualStyles();
 
@@ -99,7 +100,7 @@ namespace Chorus.Tests.UI.Sync
 		public void LaunchDialog_LazyWithNormalUI()
 		{
 			Thread.CurrentThread.SetApartmentState(ApartmentState.STA);
-			var setup = new RepositorySetup("pedro");
+			using(var setup = new RepositorySetup("pedro"))
 			{
 				Application.EnableVisualStyles();
 
@@ -130,7 +131,7 @@ namespace Chorus.Tests.UI.Sync
 		[Test, Ignore("Run by hand only")]
 		public void LaunchDialog_LazyWithAdvancedUI()
 		{
-			var setup = new RepositorySetup("pedro");
+			using(var setup = new RepositorySetup("pedro"))
 			{
 				Application.EnableVisualStyles();
 
@@ -148,7 +149,7 @@ namespace Chorus.Tests.UI.Sync
 		[Test, Ignore("Run by hand only")]
 		public void LaunchDialog_MinimalUI()
 		{
-			var setup = new RepositorySetup("pedro");
+			using(var setup = new RepositorySetup("pedro"))
 			{
 				Application.EnableVisualStyles();
 				var dlg = new SyncDialog(setup.ProjectFolderConfig,
@@ -162,7 +163,7 @@ namespace Chorus.Tests.UI.Sync
 		[Test, Ignore("By Hand Only (should be fine, but started causing problems on TeamCity")]
 		public void LaunchDialog_AutoWithMinimalUI()
 		{
-			var setup = new RepositorySetup("pedro");
+			using(var setup = new RepositorySetup("pedro"))
 			{
 				Application.EnableVisualStyles();
 				var dlg = new SyncDialog(setup.ProjectFolderConfig,
@@ -176,7 +177,7 @@ namespace Chorus.Tests.UI.Sync
 		[Test, Ignore("By Hand Only")]
 		public void LaunchDialog_BogusTarget_AdmitsError()
 		{
-			var setup = new RepositorySetup("pedro");
+			using(var setup = new RepositorySetup("pedro"))
 			{
 				Application.EnableVisualStyles();
 				using (var dlg = new SyncDialog(setup.ProjectFolderConfig,

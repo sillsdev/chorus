@@ -45,14 +45,14 @@ namespace Chorus.Tests.UI.Misc
 		{
 			var m = new ServerSettingsModel();
 			m.InitFromUri("http://joe:pass@hg-public.languagedepot.org/tpi");
-			Assert.AreEqual("languageDepot.org", m.SelectedServerLabel);
+			Assert.AreEqual("languagedepot.org [legacy sync]", m.SelectedServerLabel.ToLower());
 		}
 		[Test]
 		public void InitFromUri_FullPrivateLangDepot_SelectedServerLabel()
 		{
 			var m = new ServerSettingsModel();
 			m.InitFromUri("http://joe:pass@hg-private.languagedepot.org/tpi");
-			Assert.AreEqual("private.LanguageDepot.org".ToLower(), m.SelectedServerLabel.ToLower());
+			Assert.AreEqual("LanguageDepot.org [private]".ToLower(), m.SelectedServerLabel.ToLower());
 		}
 
 		[Test]
@@ -109,7 +109,7 @@ namespace Chorus.Tests.UI.Misc
 				Assert.IsTrue(File.Exists(folder.Combine(".hg","hgrc")));
 				var repo =HgRepository.CreateOrLocate(folder.Path, new NullProgress());
 				var address = repo.GetDefaultNetworkAddress<HttpRepositoryPath>();
-				Assert.AreEqual("languageDepot.org".ToLower(), address.Name.ToLower());
+				Assert.AreEqual("languageDepot.org[legacysync]".ToLower(), address.Name.ToLower());
 				Assert.AreEqual(url, address.URI);
 			}
 		}

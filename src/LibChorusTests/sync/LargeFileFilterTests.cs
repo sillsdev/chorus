@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using Chorus.FileTypeHanders;
 using Chorus.sync;
+using LibChorus.TestUtilities;
 using NUnit.Framework;
 
 namespace LibChorus.Tests.sync
@@ -40,7 +41,7 @@ namespace LibChorus.Tests.sync
 				bob.ChangeFile(fileName, _goodData);
 				var fullPathname = Path.Combine(bob.ProjectFolderConfig.FolderPath, fileName);
 				var pathToRepo = bob.Repository.PathToRepo + Path.PathSeparator;
-				bob.Repository.AddSansCommit(fullPathname);
+				bob.Repository.TestOnlyAddSansCommit(fullPathname);
 				var config = bob.ProjectFolderConfig;
 				config.ExcludePatterns.Clear();
 				config.IncludePatterns.Clear();
@@ -67,7 +68,7 @@ namespace LibChorus.Tests.sync
 				bob.ChangeFile(fileName, _longData);
 				var fullPathname = Path.Combine(bob.ProjectFolderConfig.FolderPath, fileName);
 				var pathToRepo = bob.Repository.PathToRepo + Path.PathSeparator;
-				bob.Repository.AddSansCommit(fullPathname);
+				bob.Repository.TestOnlyAddSansCommit(fullPathname);
 
 				var config = bob.ProjectFolderConfig;
 				config.ExcludePatterns.Clear();
@@ -132,7 +133,7 @@ namespace LibChorus.Tests.sync
 				bob.ChangeFile(fileName, _goodData);
 				var fullPathname = Path.Combine(bob.ProjectFolderConfig.FolderPath, fileName);
 				var pathToRepo = bob.Repository.PathToRepo + Path.PathSeparator;
-				//bob.Repository.AddSansCommit(fullPathname);
+				//bob.Repository.TestOnlyAddSansCommit(fullPathname);
 				var config = bob.ProjectFolderConfig;
 				config.ExcludePatterns.Clear();
 				config.IncludePatterns.Clear();
@@ -159,7 +160,7 @@ namespace LibChorus.Tests.sync
 				bob.ChangeFile(fileName, _longData);
 				var fullPathname = Path.Combine(bob.ProjectFolderConfig.FolderPath, fileName);
 				var pathToRepo = bob.Repository.PathToRepo + Path.PathSeparator;
-				//bob.Repository.AddSansCommit(fullPathname);
+				//bob.Repository.TestOnlyAddSansCommit(fullPathname);
 
 				var config = bob.ProjectFolderConfig;
 				config.ExcludePatterns.Clear();
@@ -197,7 +198,7 @@ namespace LibChorus.Tests.sync
 				bob.ChangeFile(fileName, _goodData);
 				var fullPathname = Path.Combine(bob.ProjectFolderConfig.FolderPath, fileName);
 				var pathToRepo = bob.Repository.PathToRepo + Path.PathSeparator;
-				bob.Repository.AddSansCommit(fullPathname);
+				bob.Repository.TestOnlyAddSansCommit(fullPathname);
 				var config = bob.ProjectFolderConfig;
 				config.ExcludePatterns.Clear();
 				config.IncludePatterns.Clear();

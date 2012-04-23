@@ -82,6 +82,8 @@
 			this._historyGrid.AllowUserToAddRows = false;
 			this._historyGrid.AllowUserToDeleteRows = false;
 			this._historyGrid.AllowUserToResizeRows = false;
+			this._historyGrid.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+			| System.Windows.Forms.AnchorStyles.Left)));
 			this._historyGrid.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
 			this._historyGrid.BorderStyle = System.Windows.Forms.BorderStyle.None;
 			this._historyGrid.CellBorderStyle = System.Windows.Forms.DataGridViewCellBorderStyle.None;
@@ -144,6 +146,7 @@
 			//
 			// _showAdvanced
 			//
+			this._showAdvanced.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
 			this._showAdvanced.AutoSize = true;
 			this._showAdvanced.Location = new System.Drawing.Point(7, 328);
 			this._showAdvanced.Name = "_showAdvanced";
