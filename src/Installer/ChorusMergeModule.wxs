@@ -31,13 +31,13 @@ http://blogs.msdn.com/robmen/archive/2003/10/04/56479.aspx -->
 		</Directory>
 
 		<Component Id="libchorus.dll" Guid="B9BCFD29-E687-4ec1-9407-1918AD14075B">
-		  <File Id="libchorus.dll" Name="libchorus.dll" KeyPath="yes" Source="..\..\output\Debug\libchorus.dll" />
+		  <File Id="libchorus.dll" Name="libchorus.dll" KeyPath="yes" Source="..\..\output\release\libchorus.dll" />
 		</Component>
 		<Component Id="chorus.exe" Guid="BAF93900-B12B-4942-BA85-55090CF005D8">
-		  <File Id="chorus.exe" Name="chorus.exe" KeyPath="yes" Source="..\..\output\Debug\chorus.exe" />
+		  <File Id="chorus.exe" Name="chorus.exe" KeyPath="yes" Source="..\..\output\release\chorus.exe" />
 		</Component>
 		<Component Id="chorusmerge.exe" Guid="7A088F3F-411D-41f9-BBA3-4304E2865969">
-		  <File Id="chorusmerge.exe" Name="chorusmerge.exe" KeyPath="yes" Source="..\..\output\Debug\chorusmerge.exe" />
+		  <File Id="chorusmerge.exe" Name="chorusmerge.exe" KeyPath="yes" Source="..\..\output\release\chorusmerge.exe" />
 		</Component>
 	  </Directory>
 		</Directory>
