@@ -742,6 +742,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		{
 			CheckMercurialIni();
 			Execute(20, "init", "--config format.dotencode=False " + SurroundWithQuotes(_pathToRepository));
+			CheckAndUpdateHgrc();
 		}
 
 		public void AddAndCheckinFiles(List<string> includePatterns, List<string> excludePatterns, string message)
