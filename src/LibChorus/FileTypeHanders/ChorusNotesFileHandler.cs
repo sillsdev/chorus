@@ -7,6 +7,7 @@ using Chorus.FileTypeHanders.xml;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
 using Chorus.VcsDrivers.Mercurial;
+using Chorus.notes;
 using Palaso.IO;
 using Palaso.Progress.LogBox;
 
@@ -22,6 +23,9 @@ namespace Chorus.FileTypeHanders
 	/// </summary>
 	public class ChorusNotesFileHandler : IChorusFileTypeHandler
 	{
+		internal ChorusNotesFileHandler()
+		{}
+
 		public bool CanDiffFile(string pathToFile)
 		{
 			return CanMergeFile(pathToFile);
@@ -94,9 +98,13 @@ namespace Chorus.FileTypeHanders
 			}
 		}
 
+		/// <summary>
+		/// Get a list or one, or more, extensions this file type handler can process
+		/// </summary>
+		/// <returns>A collection of extensions (without leading period (.)) that can be processed.</returns>
 		public IEnumerable<string> GetExtensionsOfKnownTextFileTypes()
 		{
-			yield return ".ChorusNotes";
+			yield return AnnotationRepository.FileExtension;
 		}
 
 		/// <summary>

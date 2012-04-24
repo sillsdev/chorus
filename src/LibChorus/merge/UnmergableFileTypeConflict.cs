@@ -7,7 +7,7 @@ using Chorus.VcsDrivers;
 namespace Chorus.merge
 {
 	[TypeGuid("18C7E1A2-2F69-442F-9057-6B3AC9833675")]
-	public class UnmergableFileTypeConflict :Conflict
+	public class UnmergableFileTypeConflict : Conflict // NB: Be sure to register any new instances in CreateFromConflictElement method.
 	{
 		public UnmergableFileTypeConflict(MergeSituation situation )
 			: base(situation)

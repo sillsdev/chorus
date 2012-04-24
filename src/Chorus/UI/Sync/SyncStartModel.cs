@@ -1,9 +1,11 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using Palaso.IO;
+using Palaso.Progress.LogBox;
 
 namespace Chorus.UI.Sync
 {
@@ -11,22 +13,36 @@ namespace Chorus.UI.Sync
 	{
 		private readonly HgRepository _repository;
 
+		private const string _noInternetMsg = "The computer does not have internet access.";
+		internal string NoInternetMessage
+		{
+			get { return _noInternetMsg; }
+		}
+
+		private const string _noSharedFolderMsg = "The computer does not have access to the specified network folder.";
+		internal string NoSharedFolderMessage
+		{
+			get { return _noSharedFolderMsg; }
+		}
+
 		public SyncStartModel(HgRepository repository)
 		{
 			_repository = repository;
 		}
 
-		public bool GetInternetStatusLink(out string buttonLabel, out string message, out string tooltip)
+		public bool GetInternetStatusLink(out string buttonLabel, out string message, out string tooltip, out string diagnosticNotes)
 		{
 			buttonLabel = "Internet";
-
 			RepositoryAddress address;
+			diagnosticNotes = string.Empty;
+
 			try
 			{
 				address = _repository.GetDefaultNetworkAddress<HttpRepositoryPath>();
 			}
 			catch (Exception error)//probably, hgrc is locked
 			{
+				diagnosticNotes = error.Message;
 				message = error.Message;
 				tooltip = string.Empty;
 				return false;
@@ -37,6 +53,14 @@ namespace Chorus.UI.Sync
 			{
 				buttonLabel = address.Name;
 				message = string.Empty;
+
+				// But, the Internet might be down or the repo unreachable.
+				if (!IsInternetRepositoryReachable(address, out diagnosticNotes))
+				{
+					message = NoInternetMessage;
+					tooltip = message;
+					return false;
+				}
 			}
 			else
 			{
@@ -44,27 +68,129 @@ namespace Chorus.UI.Sync
 			}
 
 			return ready;
-
-//			if (address == null)
-//			{
-//				message = "This project is not yet associated with an internet server";
-//				tooltip = string.Empty;
-//				linkText = string.Empty;
-//				return ready;
-//			}
-//			else
-//			{
-//				message = address.Name;
-//				linkText = string.Empty;
-//				tooltip = address.URI;
-//				return true;
-//			}
 		}
 
-		public void SetNewSharedNetworkAddress(string path)
+		private bool IsInternetRepositoryReachable(RepositoryAddress repoAddress, out string logString)
+		{
+			logString = string.Empty;
+			var progress = new StringBuilderProgress(){ShowVerbose = true};
+			var result = repoAddress.CanConnect(_repository, repoAddress.Name, progress);
+			if (!result)
+				logString = progress.Text;
+			return result;
+		}
+
+		public bool GetNetworkStatusLink(out string message, out string tooltip, out string diagnosticNotes)
+		{
+			RepositoryAddress address;
+			var ready = false;
+			message = string.Empty;
+			diagnosticNotes = string.Empty;
+
+			try
+			{
+				address = _repository.GetDefaultNetworkAddress<DirectoryRepositorySource>();
+			}
+			catch (Exception error)//probably, hgrc is locked
+			{
+				diagnosticNotes = error.Message;
+				message = error.Message;
+				tooltip = string.Empty;
+				return false;
+			}
+			if (address == null)
+				message = "This project is not yet associated with a shared folder.";
+			else
+			{
+				ready = IsSharedFolderRepositoryReachable(address, out diagnosticNotes);
+				if (!ready)
+				{
+					message = NoSharedFolderMessage;
+					tooltip = message;
+					return false;
+				}
+			}
+			if (ready)
+			{
+				message = string.Empty;
+				tooltip = address.URI;
+			}
+			else
+			{
+				tooltip = message;
+			}
+
+			return ready;
+		}
+
+		internal bool HasASharedFolderAddressBeenSetUp()
+		{
+			try
+			{
+				var address = _repository.GetDefaultNetworkAddress<DirectoryRepositorySource>();
+				return address != null;
+			}
+			catch (Exception error)//probably, hgrc is locked
+			{
+				return false;
+			}
+		}
+
+		private bool IsSharedFolderRepositoryReachable(RepositoryAddress repoAddress, out string logString)
+		{
+			// We want to know if we can connect, but we don't want to bother the user with extraneous information.
+			// But we DO want the diagnostic information available.
+			logString = string.Empty;
+			var progress = new StringBuilderProgress() { ShowVerbose = true };
+			var result = repoAddress.CanConnect(_repository, repoAddress.Name, progress);
+			if (!result)
+				logString = progress.Text;
+			return result;
+		}
+
+		internal bool GetUsbStatusLink(IUsbDriveLocator usbDriveLocator, out string message)
+		{
+			var ready = false;
+			if (!usbDriveLocator.UsbDrives.Any())
+			{
+				message = "First insert a USB flash drive.";
+			}
+			else if (usbDriveLocator.UsbDrives.Count() > 1)
+			{
+				message = "More than one USB drive detected. Please remove one.";
+			}
+			else
+			{
+				try
+				{
+					var first = usbDriveLocator.UsbDrives.First();
+#if !MONO
+					message = first.RootDirectory + " " + first.VolumeLabel + " (" +
+										   Math.Floor(first.TotalFreeSpace / 1024000.0) + " Megs Free Space)";
+#else
+					message = first.VolumeLabel;
+					//RootDir & volume label are the same on linux.  TotalFreeSpace is, like, maxint or something in mono 2.0
+#endif
+					ready = true;
+				}
+				catch (Exception error)
+				{
+					message = error.Message;
+					ready = false;
+				}
+			}
+			return ready;
+		}
+
+		/// <summary>
+		///
+		/// </summary>
+		/// <param name="path"></param>
+		/// <returns>Return false if were not able to create the repository and want to give the user another option.</returns>
+		public bool SetNewSharedNetworkAddress(HgRepository repository, string path)
 		{
 			if (string.IsNullOrEmpty(path))
-				return;
+				return false;
 			try
 			{
 				if (!Directory.Exists(Path.Combine(path, ".hg")))
@@ -73,26 +199,24 @@ namespace Chorus.UI.Sync
 					{
 						Palaso.Reporting.ErrorReport.NotifyUserOfProblem(
 							"The folder you chose doesn't have a repository. Chorus cannot make one there, because the folder is not empty.  Please choose a folder that is already being used for send/receive, or create and choose a new folder to hold the repository.");
-						return;
-	}
+						return false;
+					}
 
 					var result = MessageBox.Show("A new repository will be created in " + path + ".", "Create new repository?",
 									MessageBoxButtons.OKCancel);
 					if (result != DialogResult.OK)
-						return;
+						return false;
 
-}
+				}
 				string alias = HgRepository.GetAliasFromPath(path);
-				_repository.SetTheOnlyAddressOfThisType(RepositoryAddress.Create(alias, path));
+				repository.SetTheOnlyAddressOfThisType(RepositoryAddress.Create(alias, path));
 			}
 			catch (Exception e)
 			{
-				Palaso.Reporting.ErrorReport.NotifyUserOfProblem(e,"There was a problem setting the network path.");
-				throw;
+				Palaso.Reporting.ErrorReport.NotifyUserOfProblem(e, "There was a problem setting the network path.");
+				return false;
 			}
-
+			return true;
 		}
-
-
 	}
 }

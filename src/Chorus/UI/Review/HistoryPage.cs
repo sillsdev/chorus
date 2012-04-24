@@ -22,9 +22,6 @@ namespace Chorus.UI.Review
 			this.Padding = new Padding(20, 20,20,20);
 			var lowerContainer = new SplitContainer();
 			lowerContainer.Orientation = Orientation.Vertical;
-			lowerContainer.Dock = DockStyle.Fill;
-			changesInRevisionView.Dock = DockStyle.Fill;
-			changeReportView.Dock = DockStyle.Fill;
 
 //             var group = new GroupBox();
 //             group.Text = "Changes in Revision";
@@ -37,13 +34,19 @@ namespace Chorus.UI.Review
 			var revisionListModel = revisionsInRepositoryModelFactory(options.RevisionListOptions);
 			var revisionsInRepositoryView = new RevisionsInRepositoryView(revisionListModel);
 
-			var verticalContainer = new SplitContainer();
-			verticalContainer.Orientation = Orientation.Horizontal;
+			var mainContainer = new SplitContainer();
+			mainContainer.Orientation = Orientation.Horizontal;
+
+			mainContainer.Panel1.Controls.Add(revisionsInRepositoryView);
+			mainContainer.Panel2.Controls.Add(lowerContainer);
+			mainContainer.Dock = DockStyle.Fill;
+
+			lowerContainer.Dock = DockStyle.Fill;
+			changesInRevisionView.Dock = DockStyle.Fill;
+			changeReportView.Dock = DockStyle.Fill;
 			revisionsInRepositoryView.Dock = DockStyle.Fill;
-			verticalContainer.Panel1.Controls.Add(revisionsInRepositoryView);
-			verticalContainer.Panel2.Controls.Add(lowerContainer);
-			verticalContainer.Dock = DockStyle.Fill;
-			Controls.Add(verticalContainer);
+
+			Controls.Add(mainContainer);
 			ResumeLayout();
 		}
 	}

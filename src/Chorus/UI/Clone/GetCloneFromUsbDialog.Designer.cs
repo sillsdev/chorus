@@ -186,7 +186,7 @@ namespace Chorus.UI.Clone
 			this.Name = "GetCloneFromUsbDialog";
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
 			this.Text = "Get Project From USB Drive";
-			this.Load += new System.EventHandler(this.GetCloneDialog_Load);
+			this.Load += new System.EventHandler(this.GetCloneFromUsbDialog_Load);
 			this.ResumeLayout(false);
 			this.PerformLayout();
 

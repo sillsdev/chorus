@@ -9,6 +9,7 @@ using Chorus.sync;
 using Chorus.Utilities;
 using System.Linq;
 using Chorus.VcsDrivers;
+using Palaso.Progress;
 using Palaso.Progress.LogBox;
 
 namespace Chorus.UI.Sync
@@ -22,15 +23,14 @@ namespace Chorus.UI.Sync
 		private readonly MultiProgress _progress;
 		private SyncOptions _syncOptions;
 
-		public StatusProgress StatusProgress { get; private set; }
+		public SimpleStatusProgress StatusProgress { get; set; }
 
 		public SyncControlModel(ProjectFolderConfiguration projectFolderConfiguration,
 			SyncUIFeatures uiFeatureFlags,
 			IChorusUser user)
 		{
 			_user = user;
-			StatusProgress = new StatusProgress();
-			_progress = new MultiProgress(new[] { StatusProgress });
+			_progress = new MultiProgress();
 			Features = uiFeatureFlags;
 			_synchronizer = Synchronizer.FromProjectConfiguration(projectFolderConfiguration, _progress);
 			_backgroundWorker = new BackgroundWorker();
@@ -51,20 +51,23 @@ namespace Chorus.UI.Sync
 			if (SynchronizeOver != null)
 			{
 				UnmanagedMemoryStream stream=null;
-				if (this.StatusProgress.ErrorEncountered)
-				{
-					stream = Properties.Resources.errorSound;
-				}
-				else if (this.StatusProgress.WarningEncountered)
-				{
-					stream = Properties.Resources.warningSound;
-				}
-				else
-				{
-					if (HasFeature(SyncUIFeatures.PlaySoundIfSuccessful))
-						stream = Properties.Resources.finishedSound;
-				}
 
+				if (this.StatusProgress != null)
+				{
+					if (this.StatusProgress.ErrorEncountered)
+					{
+						stream = Properties.Resources.errorSound;
+					}
+					else if (this.StatusProgress.WarningEncountered)
+					{
+						stream = Properties.Resources.warningSound;
+					}
+					else
+					{
+						if (HasFeature(SyncUIFeatures.PlaySoundIfSuccessful))
+							stream = Properties.Resources.finishedSound;
+					}
+				}
 				if (stream != null)
 				{
 					using (SoundPlayer player = new SoundPlayer(stream))
@@ -159,6 +162,21 @@ namespace Chorus.UI.Sync
 			get { return _backgroundWorker.CancellationPending;  }
 		}
 
+		public IProgressIndicator ProgressIndicator
+		{
+			get { return _progress.ProgressIndicator; }
+			set { _progress.ProgressIndicator = value; }
+		}
+
+		public SynchronizationContext UIContext
+		{
+			set { _progress.SyncContext = value; }
+		}
+
+		public bool ErrorsOrWarningsEncountered
+		{
+			get { return _progress.ErrorEncountered || _progress.WarningsEncountered; }
+		}
 
 		public bool HasFeature(SyncUIFeatures feature)
 		{
@@ -181,6 +199,7 @@ namespace Chorus.UI.Sync
 		/// sites the user has indicated</param>
 		public void Sync(bool useTargetsAsSpecifiedInSyncOptions)
 		{
+			_progress.WriteStatus("Syncing...");
 			lock (this)
 			{
 				if(_backgroundWorker.IsBusy)
@@ -228,9 +247,14 @@ namespace Chorus.UI.Sync
 			_synchronizer.SetIsOneOfDefaultSyncAddresses(address, address.Enabled);
 		}
 
-		public void AddProgressDisplay(IProgress progress)
+		public void AddMessagesDisplay(IProgress progress)
 		{
-			_progress.Add(progress);
+			_progress.AddMessageProgress(progress);
+		}
+
+		public void AddStatusDisplay(IProgress progress)
+		{
+			_progress.AddStatusProgress(progress);
 		}
 
 		public void GetDiagnostics(IProgress progress)

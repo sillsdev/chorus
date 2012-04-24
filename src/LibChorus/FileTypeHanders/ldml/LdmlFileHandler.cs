@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Xml;
 using Chorus.FileTypeHanders.xml;
@@ -19,7 +18,10 @@ namespace Chorus.FileTypeHanders.ldml
 	///</summary>
 	public class LdmlFileHandler : IChorusFileTypeHandler
 	{
-		private const string kExtension = "ldml";
+		internal LdmlFileHandler()
+		{}
+
+		private const string Extension = "ldml";
 
 		#region Implementation of IChorusFileTypeHandler
 
@@ -40,7 +42,7 @@ namespace Chorus.FileTypeHanders.ldml
 
 		public bool CanValidateFile(string pathToFile)
 		{
-			return FileUtils.CheckValidPathname(pathToFile, kExtension);
+			return FileUtils.CheckValidPathname(pathToFile, Extension);
 		}
 
 		/// <summary>
@@ -134,9 +136,13 @@ namespace Chorus.FileTypeHanders.ldml
 			return new IChangeReport[] { new DefaultChangeReport(fileInRevision, "Added") };
 		}
 
+		/// <summary>
+		/// Get a list or one, or more, extensions this file type handler can process
+		/// </summary>
+		/// <returns>A collection of extensions (without leading period (.)) that can be processed.</returns>
 		public IEnumerable<string> GetExtensionsOfKnownTextFileTypes()
 		{
-			yield return kExtension;
+			yield return Extension;
 		}
 
 		/// <summary>
@@ -154,6 +160,8 @@ namespace Chorus.FileTypeHanders.ldml
 
 		private static void SetupElementStrategies(XmlMerger merger)
 		{
+			merger.MergeStrategies.KeyFinder = new LdmlKeyFinder();
+
 			merger.MergeStrategies.SetStrategy("ldml", ElementStrategy.CreateSingletonElement());
 			merger.MergeStrategies.SetStrategy("identity", ElementStrategy.CreateSingletonElement());
 			// Child elements of "identity".

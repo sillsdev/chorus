@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace Chorus.Tests.UI.Settings
 {
-	[TestFixture]
+	//[TestFixture]
 	public class SettingsModelTests
 	{
 // this is already tested at the lower levelof the hgrepository
