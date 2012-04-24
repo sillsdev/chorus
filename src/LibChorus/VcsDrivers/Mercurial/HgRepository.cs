@@ -1242,7 +1242,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		private static IniDocument GetMercurialConfigForUser()
 		{
 #if MONO
-			var home = Environment..GetEnvironmentVariable("HOME");
+			var home = Environment.GetEnvironmentVariable("HOME");
 			if (home == null)
 			{
 				throw new ApplicationException("The HOME environment variable is not set.");
