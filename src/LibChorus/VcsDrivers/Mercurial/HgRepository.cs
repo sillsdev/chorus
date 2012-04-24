@@ -1239,7 +1239,7 @@ namespace Chorus.VcsDrivers.Mercurial
 #endif
 		}
 
-		private IniDocument GetMercurialConfigForUser()
+		private static IniDocument GetMercurialConfigForUser()
 		{
 #if MONO
 			var p = "~/.hgrc";
