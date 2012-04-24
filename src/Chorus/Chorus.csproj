@@ -256,6 +256,7 @@
 	<EmbeddedResource Include="UI\Review\RevisionsInRepository\HistoryRowIcons.resx">
 	  <Generator>ResXFileCodeGenerator</Generator>
 	  <LastGenOutput>HistoryRowIcons.Designer.cs</LastGenOutput>
+	  <SubType>Designer</SubType>
 	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Review\RevisionsInRepository\RevisionsInRepositoryView.resx">
 	  <DependentUpon>RevisionsInRepositoryView.cs</DependentUpon>
@@ -427,6 +428,7 @@
 	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Misc\ServerSettingsDialog.resx">
 	  <DependentUpon>ServerSettingsDialog.cs</DependentUpon>
+	  <SubType>Designer</SubType>
 	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Sync\SyncControl.resx">
 	  <DependentUpon>SyncControl.cs</DependentUpon>

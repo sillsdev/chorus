@@ -30,25 +30,6 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			}
 		}
 
-		class MercurialIniHider : IDisposable
-		{
-			private readonly string _mercurialIniFilePath;
-			private readonly string _mercurialIniBackupFilePath;
-
-			public MercurialIniHider()
-			{
-				_mercurialIniFilePath = Path.Combine(Chorus.MercurialLocation.PathToMercurialFolder, "mercurial.ini");
-				_mercurialIniBackupFilePath = _mercurialIniFilePath + ".bak";
-				File.Copy(_mercurialIniFilePath, _mercurialIniBackupFilePath, true);
-			}
-
-			public void Dispose()
-			{
-				File.Copy(_mercurialIniBackupFilePath, _mercurialIniFilePath, true);
-				File.Delete(_mercurialIniBackupFilePath);
-			}
-		}
-
 		[Test]
 		public void AddUtf8FileName_CloneUpdatedFileExists()
 		{
