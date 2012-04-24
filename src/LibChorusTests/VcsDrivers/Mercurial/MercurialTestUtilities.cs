@@ -14,16 +14,20 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 
 		public MercurialIniForTests()
 		{
+#if !MONO
 			_mercurialIniFilePath = Path.Combine(Chorus.MercurialLocation.PathToMercurialFolder, "mercurial.ini");
 			_mercurialIniBackupFilePath = _mercurialIniFilePath + ".bak";
 			File.Copy(_mercurialIniFilePath, _mercurialIniBackupFilePath, true);
 			UpdateExtensions();
+#endif
 		}
 
 		public void Dispose()
 		{
+#if !MONO
 			File.Copy(_mercurialIniBackupFilePath, _mercurialIniFilePath, true);
 			File.Delete(_mercurialIniBackupFilePath);
+#endif
 		}
 
 		private static void UpdateExtensions()
