@@ -185,11 +185,9 @@ namespace LibChorus.TestUtilities
 			hg.SetUserNameInIni(userId,  progress);
 		}
 
-
 		public static string ProjectName
 		{
-//            get { return "ไก่ projéct"; }//nb: important that it have a space, as this helps catch failure to enclose in quotes
-			get { return "foo project"; }
+			get { return "ไก่ projéct"; } //nb: important that it have a space, as this helps catch failure to enclose in quotes
 		}
 
 		public IProgress Progress { get; set; }

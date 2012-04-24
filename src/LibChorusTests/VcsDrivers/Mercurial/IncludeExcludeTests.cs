@@ -1,5 +1,7 @@
 ﻿using System.IO;
+using System.Linq;
 using Chorus.FileTypeHanders.lift;
+using Chorus.sync;
 using LibChorus.TestUtilities;
 using NUnit.Framework;
 
@@ -120,12 +122,16 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			using (var setup = new RepositorySetup("Dan"))
 			{
 				var atRoot = setup.ProjectFolder.Combine("first.wmv");
-				File.WriteAllText(atRoot, "hello"); // Not a wmv file, but who cares?
+				File.WriteAllText(atRoot, "hello");
 
 				var pictures = setup.ProjectFolder.Combine("pictures");
 				Directory.CreateDirectory(pictures);
-				var bad = Path.Combine(pictures, "nested.mov");
-				File.WriteAllText(bad, "hello"); // Also not a video.
+				var videoExtensions = ProjectFolderConfiguration.VideoExtensions.ToList();
+				foreach (var videoExtension in videoExtensions)
+				{
+					var bad = Path.Combine(pictures, "nested." + videoExtension);
+					File.WriteAllText(bad, "hello");
+				}
 
 				setup.ProjectFolderConfig.ExcludePatterns.Clear();
 				setup.ProjectFolderConfig.IncludePatterns.Clear();
@@ -134,7 +140,8 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 
 				setup.AddAndCheckIn();
 				setup.AssertFileDoesNotExistInRepository("first.wmv");
-				setup.AssertFileDoesNotExistInRepository("pictures/nested.mov");
+				foreach (var videoExtension in videoExtensions)
+					setup.AssertFileDoesNotExistInRepository("pictures/nested." + videoExtension);
 			}
 		}
 
@@ -167,6 +174,26 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				setup.AssertFileExistsInRepository("pictures/subpictures/good.picture");
 				setup.AssertFileExistsInRepository("audio/subaudio/good.audio");
 				setup.AssertFileExistsInRepository("others/subothers/good.other");
+			}
+		}
+
+		// NB: This test should NOT pass, but it seems Hg will put it in, no matter what.
+		[Test]
+		public void WavFileInRepoEvenWhenExcluded()
+		{
+			using (var setup = new RepositorySetup("Dan"))
+			{
+				var path = setup.ProjectFolder.Combine("test.wav");
+				File.WriteAllText(path, "hello");
+				setup.ProjectFolderConfig.IncludePatterns.Clear();
+				setup.ProjectFolderConfig.IncludePatterns.Add("*.*");
+				setup.ProjectFolderConfig.ExcludePatterns.Clear();
+				setup.ProjectFolderConfig.ExcludePatterns.Add("test.wav");
+				setup.AddAndCheckIn();
+				// TODO: If Hg is fixed to exclude "wav" files,
+				// revise this test to assert it is *not* in repo.
+				// Very important: Also fix the "wav" extension hacks in LargeFileFilter AND AudioFileTypeHandlerTests
+				setup.AssertFileExistsInRepository("test.wav");
 			}
 		}
 	}
