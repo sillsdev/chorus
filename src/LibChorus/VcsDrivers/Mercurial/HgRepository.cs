@@ -1205,10 +1205,15 @@ namespace Chorus.VcsDrivers.Mercurial
 #endif
 		}
 
-		private IniDocument GetMercurialConfigForUser()
+		private static IniDocument GetMercurialConfigForUser()
 		{
 #if MONO
-			var p = "~/.hgrc";
+			var home = Environment.GetEnvironmentVariable("HOME");
+			if (home == null)
+			{
+				throw new ApplicationException("The HOME environment variable is not set.");
+			}
+			var p = Path.Combine(home, ".hgrc");
 #else
 			//NB: they're talking about moving this (but to WORSE place, my documents/mercurial)
 			var profile = Environment.GetEnvironmentVariable("USERPROFILE");
