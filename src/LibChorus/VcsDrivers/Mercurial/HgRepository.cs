@@ -209,7 +209,9 @@ namespace Chorus.VcsDrivers.Mercurial
 			try
 			{
 				var extensions = new Dictionary<string, string>();
+#if !MONO
 				extensions.Add("hgext.win32text", ""); //for converting line endings on windows machines
+#endif
 				extensions.Add("hgext.graphlog", ""); //for more easily readable diagnostic logs
 				extensions.Add("convert", ""); //for catastrophic repair in case of repo corruption
 #if !MONO
