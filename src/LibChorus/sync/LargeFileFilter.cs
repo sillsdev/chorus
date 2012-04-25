@@ -102,6 +102,35 @@ namespace Chorus.sync
 			var fileSize = fileInfo.Length;
 			handlers.Add(new DefaultFileTypeHandler());
 			var allKnownExtensions = new HashSet<string>();
+			var pathToRepository = PathToRepository(repository);
+			var allExtantExcludedPathnames = new HashSet<string>();
+			foreach (var currentExclusion in configuration.ExcludePatterns)
+			{
+				// Gather up all normally excluded files, so they are not reported as being filtered out for being large.
+				// That extra/un-needed warning message will only serve to confuse users.
+				var useNestingFilter = currentExclusion.Contains("**");
+				if (currentExclusion.Contains("*"))
+				{
+					var adjustedBasePath = currentExclusion.Contains(Path.DirectorySeparatorChar)
+											? Path.GetDirectoryName(Path.Combine(pathToRepository, currentExclusion))
+											: pathToRepository;
+					if (!Directory.Exists(adjustedBasePath))
+						continue;
+					foreach (var excludedPathname in Directory.GetFiles(pathToRepository,
+						useNestingFilter ? currentExclusion.Replace("**", "*") : currentExclusion,
+						useNestingFilter ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly))
+					{
+						allExtantExcludedPathnames.Add(excludedPathname.Replace(pathToRepository, null));
+					}
+				}
+				else
+				{
+					var singletonPathname = Path.Combine(pathToRepository, currentExclusion);
+					if (File.Exists(singletonPathname))
+						allExtantExcludedPathnames.Add(singletonPathname.Replace(pathToRepository, null));
+				}
+			}
+
 			foreach (var handler in handlers)
 				allKnownExtensions.UnionWith(handler.GetExtensionsOfKnownTextFileTypes());
 			foreach (var handler in handlers)
@@ -114,7 +143,7 @@ namespace Chorus.sync
 					if (fileSize <= handler.MaximumFileSize)
 						continue;
 
-					RegisterLargeFile(repository, configuration, builder, fir, filename);
+					RegisterLargeFile(repository, configuration, builder, fir, filename, allExtantExcludedPathnames);
 				}
 				else
 				{
@@ -126,7 +155,7 @@ namespace Chorus.sync
 							continue;
 						}
 
-						RegisterLargeFile(repository, configuration, builder, fir, filename);
+						RegisterLargeFile(repository, configuration, builder, fir, filename, allExtantExcludedPathnames);
 					}
 				}
 			}
@@ -134,10 +163,14 @@ namespace Chorus.sync
 
 		private static void RegisterLargeFile(HgRepository repository, ProjectFolderConfiguration configuration,
 											StringBuilder builder,
-											FileInRevision fir, string filename)
+											FileInRevision fir, string filename,
+											ICollection<string> allExtantExcludedPathnames)
 		{
-			var pathToRepository = repository.PathToRepo + Path.DirectorySeparatorChar;// This part of the full path must *not* be included in the exclude list. (Other code adds it, right before the commit.)
-			configuration.ExcludePatterns.Add(fir.FullPath.Replace(pathToRepository, ""));
+			var longPathname = RemoveBasePath(repository, fir);
+			if (allExtantExcludedPathnames.Contains(longPathname))
+				return; // Standard "exclude" covers it, so skip the warning.
+
+			configuration.ExcludePatterns.Add(longPathname);
 			switch (fir.ActionThatHappened)
 			{
 				case FileInRevision.Action.Added:
@@ -150,9 +183,20 @@ namespace Chorus.sync
 					// "remove" actually deletes the file in repo and in working folder, which seems a bit rude.
 					// "forget" removes it from repo (history remains) and leaves it in working folder.
 					// Tell Hg to 'forget' it, for now.
-					repository.ForgetFile(fir.FullPath.Replace(pathToRepository, ""));
+					repository.ForgetFile(longPathname);
 					break;
 			}
+		}
+
+		private static string RemoveBasePath(HgRepository repository, FileInRevision fir)
+		{
+			var pathToRepository = PathToRepository(repository);
+			return fir.FullPath.Replace(pathToRepository, null);
+		}
+
+		private static string PathToRepository(HgRepository repository)
+		{
+			return repository.PathToRepo + Path.DirectorySeparatorChar;// This part of the full path must *not* be included in the exclude list. (Other code adds it, right before the commit.)
 		}
 	}
 }
