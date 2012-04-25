@@ -1262,6 +1262,19 @@ namespace Chorus.VcsDrivers.Mercurial
 			//see also: CreateRepositoryInExistingDir
 
 			section.Set("dotencode", "False");
+
+			//see http://mercurial.selenic.com/wiki/Win32TextExtension
+			//Deprecation: The win32text extension requires each user to configure the extension again and again for each clone
+			//since the configuration is not copied when cloning.
+			//We have therefore made the EolExtension as an alternative. The EolExtension uses a version controlled file for
+			//its configuration and each clone will therefore use the right settings from the start. Mercurial 1.5.4+
+			//This extension may be removed in a future release of Mercurial.
+			//To disable deprecation warnings from this extension (until you get get around to replacing win32text with eol), add
+			// these two lines to your configuration file:
+
+			section = doc.Sections.GetOrCreate("win32text");
+			section.Set("warn", "False");
+
 			doc.SaveAndThrowIfCannot();
 		}
 
