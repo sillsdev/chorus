@@ -229,6 +229,8 @@ namespace LibChorus.Tests.sync
 				var config = bob.ProjectFolderConfig;
 				config.ExcludePatterns.Clear();
 				config.ExcludePatterns.Add("*.fwdata");
+				config.IncludePatterns.Clear();
+				config.IncludePatterns.Add("*.*");
 
 				var result = LargeFileFilter.FilterFiles(
 					bob.Repository,
@@ -260,7 +262,10 @@ namespace LibChorus.Tests.sync
 				bob.Repository.TestOnlyAddSansCommit(largeVideoPathname);
 
 				var config = bob.ProjectFolderConfig;
-				LiftFolder.AddLiftFileInfoToFolderConfiguration(config);
+				config.ExcludePatterns.Clear();
+				config.ExcludePatterns.Add("**.mov");
+				config.IncludePatterns.Clear();
+				config.IncludePatterns.Add("**.*");
 
 				var result = LargeFileFilter.FilterFiles(
 					bob.Repository,
@@ -301,7 +306,12 @@ namespace LibChorus.Tests.sync
 				bob.Repository.TestOnlyAddSansCommit(fullLargeVideoPathname);
 
 				var config = bob.ProjectFolderConfig;
-				LiftFolder.AddLiftFileInfoToFolderConfiguration(config);
+				config.ExcludePatterns.Clear();
+				config.ExcludePatterns.Add("defaultDictionary.css");
+				config.ExcludePatterns.Add("*.old");
+				config.ExcludePatterns.Add("*.mov");
+				config.IncludePatterns.Clear();
+				config.IncludePatterns.Add("*.*");
 
 				var result = LargeFileFilter.FilterFiles(
 					bob.Repository,
