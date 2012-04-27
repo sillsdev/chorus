@@ -52,22 +52,20 @@ namespace Chorus.UI.Sync
 			{
 				UnmanagedMemoryStream stream=null;
 
-				if (this.StatusProgress != null)
+				if (_progress.ErrorEncountered)
 				{
-					if (this.StatusProgress.ErrorEncountered)
-					{
-						stream = Properties.Resources.errorSound;
-					}
-					else if (this.StatusProgress.WarningEncountered)
-					{
-						stream = Properties.Resources.warningSound;
-					}
-					else
-					{
-						if (HasFeature(SyncUIFeatures.PlaySoundIfSuccessful))
-							stream = Properties.Resources.finishedSound;
-					}
+					stream = Properties.Resources.errorSound;
 				}
+				else if (_progress.WarningsEncountered)
+				{
+					stream = Properties.Resources.warningSound;
+				}
+				else
+				{
+					if (HasFeature(SyncUIFeatures.PlaySoundIfSuccessful))
+						stream = Properties.Resources.finishedSound;
+				}
+
 				if (stream != null)
 				{
 					using (SoundPlayer player = new SoundPlayer(stream))
