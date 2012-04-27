@@ -124,9 +124,9 @@ namespace Chorus.VcsDrivers.Mercurial
 			}
 		}
 
-		private string GetCommonBaseHashWithRemoteRepo()
+		private string GetCommonBaseHashWithRemoteRepo(bool useCache = true)
 		{
-			if (!string.IsNullOrEmpty(LastKnownCommonBase))
+			if (useCache && !string.IsNullOrEmpty(LastKnownCommonBase))
 			{
 				return LastKnownCommonBase;
 			}
@@ -306,7 +306,8 @@ namespace Chorus.VcsDrivers.Mercurial
 				if (response.Status == PushStatus.InvalidHash)
 				{
 					// this should not happen...but sometimes it gets into a state where it remembers the wrong basehash of the server (CJH Feb-12)
-					LastKnownCommonBase = "";
+					_progress.WriteVerbose("Invalid basehash response received from server... clearing cache and retrying");
+					req.BaseHash = GetCommonBaseHashWithRemoteRepo(false);
 					continue;
 				}
 				if (response.Status == PushStatus.Fail)
@@ -584,7 +585,8 @@ namespace Chorus.VcsDrivers.Mercurial
 				{
 					// this should not happen...but sometimes it gets into a state where it remembers the wrong basehash of the server (CJH Feb-12)
 					retryLoop = true;
-					LastKnownCommonBase = "";
+					_progress.WriteVerbose("Invalid basehash response received from server... clearing cache and retrying");
+					req.BaseHash = GetCommonBaseHashWithRemoteRepo(false);
 					continue;
 				}
 				if (response.Status == PullStatus.Fail)
@@ -618,7 +620,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				bundleHelper.WriteChunk(req.StartOfWindow, response.Chunk);
 				req.StartOfWindow = req.StartOfWindow + response.Chunk.Length;
 				req.ChunkSize = response.ChunkSize;
-				if (bundleSize == response.BundleSize)
+				if (bundleSize == response.BundleSize && bundleSize != 0)
 				{
 					_progress.ProgressIndicator.PercentCompleted = (int)((long)req.StartOfWindow * 100 / bundleSize);
 					string eta = CalculateEstimatedTimeRemaining(bundleSize, req.ChunkSize, req.StartOfWindow);
