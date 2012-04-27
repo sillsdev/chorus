@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using Chorus.FileTypeHanders;
+using Chorus.FileTypeHanders.lift;
 using Chorus.sync;
 using LibChorus.TestUtilities;
 using NUnit.Framework;
@@ -40,7 +41,7 @@ namespace LibChorus.Tests.sync
 				const string fileName = "test.chorusTest";
 				bob.ChangeFile(fileName, _goodData);
 				var fullPathname = Path.Combine(bob.ProjectFolderConfig.FolderPath, fileName);
-				var pathToRepo = bob.Repository.PathToRepo + Path.PathSeparator;
+				var pathToRepo = bob.Repository.PathToRepo + Path.DirectorySeparatorChar;
 				bob.Repository.TestOnlyAddSansCommit(fullPathname);
 				var config = bob.ProjectFolderConfig;
 				config.ExcludePatterns.Clear();
@@ -50,8 +51,7 @@ namespace LibChorus.Tests.sync
 				var result = LargeFileFilter.FilterFiles(
 					bob.Repository,
 					config,
-					_handlersColl,
-					bob.Progress);
+					_handlersColl);
 				Assert.IsTrue(string.IsNullOrEmpty(result));
 				var shortpath = fullPathname.Replace(pathToRepo, "");
 				Assert.IsFalse(config.ExcludePatterns.Contains(shortpath));
@@ -67,7 +67,7 @@ namespace LibChorus.Tests.sync
 				const string fileName = "test.chorusTest";
 				bob.ChangeFile(fileName, _longData);
 				var fullPathname = Path.Combine(bob.ProjectFolderConfig.FolderPath, fileName);
-				var pathToRepo = bob.Repository.PathToRepo + Path.PathSeparator;
+				var pathToRepo = bob.Repository.PathToRepo + Path.DirectorySeparatorChar;
 				bob.Repository.TestOnlyAddSansCommit(fullPathname);
 
 				var config = bob.ProjectFolderConfig;
@@ -78,8 +78,7 @@ namespace LibChorus.Tests.sync
 				var result = LargeFileFilter.FilterFiles(
 					bob.Repository,
 					config,
-					_handlersColl,
-					bob.Progress);
+					_handlersColl);
 				Assert.IsFalse(string.IsNullOrEmpty(result));
 				var shortpath = fullPathname.Replace(pathToRepo, "");
 				Assert.IsTrue(config.ExcludePatterns.Contains(shortpath));
@@ -96,7 +95,7 @@ namespace LibChorus.Tests.sync
 				const string fileName = "test.chorusTest";
 				bob.ChangeFile(fileName, _goodData);
 				var fullPathname = Path.Combine(bob.ProjectFolderConfig.FolderPath, fileName);
-				var pathToRepo = bob.Repository.PathToRepo + Path.PathSeparator;
+				var pathToRepo = bob.Repository.PathToRepo + Path.DirectorySeparatorChar;
 				bob.Repository.AddAndCheckinFile(fullPathname);
 				bob.AssertLocalRevisionNumber(0);
 				bob.AssertFileContents(fullPathname, _goodData);
@@ -111,8 +110,7 @@ namespace LibChorus.Tests.sync
 				var result = LargeFileFilter.FilterFiles(
 					bob.Repository,
 					config,
-					_handlersColl,
-					bob.Progress);
+					_handlersColl);
 				bob.Repository.Commit(false, "test");
 				bob.AssertLocalRevisionNumber(1); // 'forget' marks it as deleted in the repo.
 				bob.AssertFileContents(fullPathname, _longData);
@@ -132,7 +130,7 @@ namespace LibChorus.Tests.sync
 				const string fileName = "test.chorusTest";
 				bob.ChangeFile(fileName, _goodData);
 				var fullPathname = Path.Combine(bob.ProjectFolderConfig.FolderPath, fileName);
-				var pathToRepo = bob.Repository.PathToRepo + Path.PathSeparator;
+				var pathToRepo = bob.Repository.PathToRepo + Path.DirectorySeparatorChar;
 				//bob.Repository.TestOnlyAddSansCommit(fullPathname);
 				var config = bob.ProjectFolderConfig;
 				config.ExcludePatterns.Clear();
@@ -142,8 +140,7 @@ namespace LibChorus.Tests.sync
 				var result = LargeFileFilter.FilterFiles(
 					bob.Repository,
 					config,
-					_handlersColl,
-					bob.Progress);
+					_handlersColl);
 				Assert.IsTrue(string.IsNullOrEmpty(result));
 				var shortpath = fullPathname.Replace(pathToRepo, "");
 				Assert.IsFalse(config.ExcludePatterns.Contains(shortpath));
@@ -159,7 +156,7 @@ namespace LibChorus.Tests.sync
 				const string fileName = "test.chorusTest";
 				bob.ChangeFile(fileName, _longData);
 				var fullPathname = Path.Combine(bob.ProjectFolderConfig.FolderPath, fileName);
-				var pathToRepo = bob.Repository.PathToRepo + Path.PathSeparator;
+				var pathToRepo = bob.Repository.PathToRepo + Path.DirectorySeparatorChar;
 				//bob.Repository.TestOnlyAddSansCommit(fullPathname);
 
 				var config = bob.ProjectFolderConfig;
@@ -170,8 +167,7 @@ namespace LibChorus.Tests.sync
 				var result = LargeFileFilter.FilterFiles(
 					bob.Repository,
 					config,
-					_handlersColl,
-					bob.Progress);
+					_handlersColl);
 				Assert.IsFalse(string.IsNullOrEmpty(result));
 				var shortpath = fullPathname.Replace(pathToRepo, "");
 				Assert.IsTrue(config.ExcludePatterns.Contains(shortpath));
@@ -188,7 +184,7 @@ namespace LibChorus.Tests.sync
 
 		/// <summary>
 		/// Regression test: WS-34181
-		/// </summary
+		/// </summary>
 		[Test]
 		public void FileWithSpecialCharacterIsAllowed()
 		{
@@ -197,7 +193,7 @@ namespace LibChorus.Tests.sync
 				const string fileName =  "ŭburux.wav";
 				bob.ChangeFile(fileName, _goodData);
 				var fullPathname = Path.Combine(bob.ProjectFolderConfig.FolderPath, fileName);
-				var pathToRepo = bob.Repository.PathToRepo + Path.PathSeparator;
+				var pathToRepo = bob.Repository.PathToRepo + Path.DirectorySeparatorChar;
 				bob.Repository.TestOnlyAddSansCommit(fullPathname);
 				var config = bob.ProjectFolderConfig;
 				config.ExcludePatterns.Clear();
@@ -207,11 +203,158 @@ namespace LibChorus.Tests.sync
 				var result = LargeFileFilter.FilterFiles(
 					bob.Repository,
 					config,
-					_handlersColl,
-					bob.Progress);
+					_handlersColl);
 				Assert.IsTrue(string.IsNullOrEmpty(result));
 				var shortpath = fullPathname.Replace(pathToRepo, "");
 				Assert.IsFalse(config.ExcludePatterns.Contains(shortpath));
+				Assert.IsFalse(config.IncludePatterns.Contains(shortpath));
+			}
+		}
+
+		[Test]
+		public void NormallyExcludedFwdataFileIsNotAddedByLargeFileFilter()
+		{
+			using (var bob = new RepositorySetup("bob"))
+			{
+				var megabyteLongData = "long" + Environment.NewLine;
+				while (megabyteLongData.Length < LargeFileFilter.Megabyte)
+					megabyteLongData += megabyteLongData;
+
+				var pathToRepo = bob.Repository.PathToRepo + Path.DirectorySeparatorChar;
+				const string largeFwdataFilename = "whopper.fwdata";
+				var largeFwdataPathname = Path.Combine(pathToRepo, largeFwdataFilename);
+				bob.ChangeFile(largeFwdataPathname, megabyteLongData);
+				bob.Repository.TestOnlyAddSansCommit(largeFwdataPathname);
+
+				var config = bob.ProjectFolderConfig;
+				config.ExcludePatterns.Clear();
+				config.ExcludePatterns.Add("*.fwdata");
+				config.IncludePatterns.Clear();
+				config.IncludePatterns.Add("*.*");
+
+				var result = LargeFileFilter.FilterFiles(
+					bob.Repository,
+					config,
+					ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers());
+				Assert.IsTrue(string.IsNullOrEmpty(result));
+
+				var shortpath = largeFwdataPathname.Replace(pathToRepo, "");
+				Assert.IsFalse(config.ExcludePatterns.Contains(shortpath));
+				Assert.IsFalse(config.IncludePatterns.Contains(shortpath));
+			}
+		}
+
+		[Test]
+		public void NormallyExcludedNestedFileIsNotAddedByLargeFileFilter()
+		{
+			using (var bob = new RepositorySetup("bob"))
+			{
+				var megabyteLongData = "long" + Environment.NewLine;
+				while (megabyteLongData.Length < LargeFileFilter.Megabyte)
+					megabyteLongData += megabyteLongData;
+
+				var pathToRepo = bob.Repository.PathToRepo + Path.DirectorySeparatorChar;
+				var nestedFolder = Path.Combine(bob.Repository.PathToRepo, "nestedFolder");
+				Directory.CreateDirectory(nestedFolder);
+				const string largeVideoFilename = "whopper.mov";
+				var largeVideoPathname = Path.Combine("nestedFolder", largeVideoFilename);
+				bob.ChangeFile(largeVideoPathname, megabyteLongData);
+				bob.Repository.TestOnlyAddSansCommit(largeVideoPathname);
+
+				var config = bob.ProjectFolderConfig;
+				config.ExcludePatterns.Clear();
+				config.ExcludePatterns.Add("**.mov");
+				config.IncludePatterns.Clear();
+				config.IncludePatterns.Add("**.*");
+
+				var result = LargeFileFilter.FilterFiles(
+					bob.Repository,
+					config,
+					ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers());
+				Assert.IsTrue(string.IsNullOrEmpty(result));
+
+				var shortpath = largeVideoPathname.Replace(pathToRepo, "");
+				Assert.IsFalse(config.ExcludePatterns.Contains(shortpath));
+				Assert.IsFalse(config.IncludePatterns.Contains(shortpath));
+			}
+		}
+
+		[Test]
+		public void NormallyExcludedFileIsNotAddedByLargeFileFilter()
+		{
+			using (var bob = new RepositorySetup("bob"))
+			{
+				const string dictionaryFilename = "defaultDictionary.css";
+				const string oldDictionaryFilename = "defaultDictionary.old";
+				const string largeVideoFilename = "whopper.mov";
+
+				var megabyteLongData = "long" + Environment.NewLine;
+				while (megabyteLongData.Length < LargeFileFilter.Megabyte)
+					megabyteLongData += megabyteLongData;
+
+				bob.ChangeFile(dictionaryFilename, megabyteLongData);
+				var fullDictionaryPathname = Path.Combine(bob.ProjectFolderConfig.FolderPath, dictionaryFilename);
+				var pathToRepo = bob.Repository.PathToRepo + Path.DirectorySeparatorChar;
+				bob.Repository.TestOnlyAddSansCommit(fullDictionaryPathname);
+
+				bob.ChangeFile(oldDictionaryFilename, megabyteLongData);
+				var fullOldDictionaryPathname = Path.Combine(bob.ProjectFolderConfig.FolderPath, oldDictionaryFilename);
+				bob.Repository.TestOnlyAddSansCommit(fullOldDictionaryPathname);
+
+				bob.ChangeFile(largeVideoFilename, megabyteLongData);
+				var fullLargeVideoPathname = Path.Combine(bob.ProjectFolderConfig.FolderPath, largeVideoFilename);
+				bob.Repository.TestOnlyAddSansCommit(fullLargeVideoPathname);
+
+				var config = bob.ProjectFolderConfig;
+				config.ExcludePatterns.Clear();
+				config.ExcludePatterns.Add("defaultDictionary.css");
+				config.ExcludePatterns.Add("*.old");
+				config.ExcludePatterns.Add("*.mov");
+				config.IncludePatterns.Clear();
+				config.IncludePatterns.Add("*.*");
+
+				var result = LargeFileFilter.FilterFiles(
+					bob.Repository,
+					config,
+					ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers());
+				Assert.IsTrue(string.IsNullOrEmpty(result));
+				var shortpath = fullDictionaryPathname.Replace(pathToRepo, "");
+				Assert.IsTrue(config.ExcludePatterns.Contains(shortpath));
+				Assert.IsFalse(config.IncludePatterns.Contains(shortpath));
+
+				shortpath = fullOldDictionaryPathname.Replace(pathToRepo, "");
+				Assert.IsFalse(config.ExcludePatterns.Contains(shortpath));
+				Assert.IsFalse(config.IncludePatterns.Contains(shortpath));
+
+				shortpath = fullLargeVideoPathname.Replace(pathToRepo, "");
+				Assert.IsFalse(config.ExcludePatterns.Contains(shortpath));
+				Assert.IsFalse(config.IncludePatterns.Contains(shortpath));
+			}
+		}
+
+		[Test]
+		public void LargeMp3FileIsNotAllowed()
+		{
+			using (var bob = new RepositorySetup("bob"))
+			{
+				const string fileName = "whopper.Mp3";
+				var megabyteLongData = "long" + Environment.NewLine;
+				while (megabyteLongData.Length < LargeFileFilter.Megabyte)
+					megabyteLongData += megabyteLongData;
+				bob.ChangeFile(fileName, megabyteLongData);
+				var fullPathname = Path.Combine(bob.ProjectFolderConfig.FolderPath, fileName);
+				var pathToRepo = bob.Repository.PathToRepo + Path.DirectorySeparatorChar;
+				bob.Repository.TestOnlyAddSansCommit(fullPathname);
+				var config = bob.ProjectFolderConfig;
+				LiftFolder.AddLiftFileInfoToFolderConfiguration(config);
+
+				var result = LargeFileFilter.FilterFiles(
+					bob.Repository,
+					config,
+					ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers());
+				Assert.IsFalse(string.IsNullOrEmpty(result));
+				var shortpath = fullPathname.Replace(pathToRepo, "");
+				Assert.IsTrue(config.ExcludePatterns.Contains(shortpath));
 				Assert.IsFalse(config.IncludePatterns.Contains(shortpath));
 			}
 		}

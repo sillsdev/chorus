@@ -110,7 +110,11 @@
   </ItemGroup>
   <ItemGroup>
 	<Compile Include="clone\ClonerTests.cs" />
+	<Compile Include="FileHandlers\audio\AudioFileTypeHandlerTests.cs" />
 	<Compile Include="FileHandlers\ChorusTestFileHanderTests.cs" />
+	<Compile Include="FileHandlers\default\DefaultFileTypeHandlerTests.cs" />
+	<Compile Include="FileHandlers\LargeFileIntegrationTestService.cs" />
+	<Compile Include="FileHandlers\image\ImageFileTypeHandlerTests.cs" />
 	<Compile Include="FileHandlers\ldml\LdmlFileMergeTests.cs" />
 	<Compile Include="FileHandlers\ldml\LdmlFileValidationTests.cs" />
 	<Compile Include="FileHandlers\ldml\LdmlFileHandlerTests.cs" />
@@ -138,6 +142,7 @@
 	<Compile Include="merge\xml\generic\XmlListMergerTests.cs" />
 	<Compile Include="merge\xml\generic\XmlMergerTests.cs" />
 	<Compile Include="merge\xml\generic\XmlMergeServiceTests.cs" />
+	<Compile Include="merge\xml\lift\LiftHeaderMergingTests.cs" />
 	<Compile Include="merge\xml\lift\ExampleSentenceFinderTests.cs" />
 	<Compile Include="merge\xml\lift\ExampleSentenceMergingTests.cs" />
 	<Compile Include="merge\xml\lift\FileLevelDiffTests.cs" />
@@ -180,6 +185,7 @@
 	<Compile Include="utilities\ChorusDiff3Tests.cs" />
 	<Compile Include="Properties\AssemblyInfo.cs" />
 	<Compile Include="VcsDrivers\Mercurial\PushStorageManagerTests.cs" />
+	<Compile Include="VcsDrivers\Mercurial\MercurialTestUtilities.cs" />
 	<Compile Include="VcsDrivers\Mercurial\RetrieveVersionTests.cs" />
 	<Compile Include="VcsDrivers\Mercurial\Utf8Tests.cs" />
   </ItemGroup>

@@ -1,11 +1,9 @@
 ﻿using System;
+using System.Threading;
 using System.Windows.Forms;
-using System.Windows.Forms.VisualStyles;
 using Chorus.UI.Misc;
-using Chorus.Utilities;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
-using System.Linq;
 using Palaso.Code;
 using Palaso.Progress.LogBox;
 
@@ -16,12 +14,32 @@ namespace Chorus.UI.Sync
 		private HgRepository _repository;
 		private SyncStartModel _model;
 		public event EventHandler<SyncStartArgs> RepositoryChosen;
+		private const string _connectionDiagnostics = "There was a problem connecting to the {0}.\r\n{1}Connection attempt failed.";
+
+		private Thread _updateInternetSituation; // Thread that runs the Internet status checking worker.
+		private ConnectivityStateWorker _internetStateWorker;
+		private bool _internetWorkerStarted = false; // Has worker been started?
+
+		private Thread _updateNetworkSituation; // Thread that runs the Network Folder status checking worker.
+		private ConnectivityStateWorker _networkStateWorker;
+		private bool _networkWorkerStarted = false; // Has worker been started?
+
+		private bool _exiting; // Dialog is in the process of exiting, stop the threads!
+
+		private const int STATECHECKINTERVAL = 2000; // 2 sec interval between checks of USB status.
+		private const int INITIALINTERVAL = 1000; // only wait 1 sec, the first time
+		const string SetupLinkText = " Set Up"; // Label for status line Setup link
+
+		private delegate void UpdateInternetUICallback(bool enabled, string btnLabel, string message, string tooltip, string diagnostics);
+
+		private delegate void UpdateNetworkUICallback(bool enabled, string message, string tooltip, string diagnostics);
 
 		//designer only
 		public SyncStartControl()
 		{
 			InitializeComponent();
 		}
+
 		public SyncStartControl(HgRepository repository)
 		{
 			InitializeComponent();
@@ -30,18 +48,39 @@ namespace Chorus.UI.Sync
 
 		public void Init(HgRepository repository)
 		{
-			_internetStatusLabel.Text = string.Empty;
 			Guard.AgainstNull(repository, "repository");
+			SetupSharedFolderAndInternetUI();
+
 			_model = new SyncStartModel(repository);
 			_repository = repository;
-			_updateDisplayTimer.Enabled = true;
 			_userName.Text = repository.GetUserIdInUse();
-			UpdateDisplay();//don't wait 2 seconds
+
+			// Setup Internet State Checking thread and the worker that it will run
+			_internetStateWorker = new ConnectivityStateWorker(CheckInternetStatusAndUpdateUI);
+			_updateInternetSituation = new Thread(_internetStateWorker.DoWork);
+
+			// Setup Shared Network Folder Checking thread and its worker
+			_networkStateWorker = new ConnectivityStateWorker(CheckNetworkStatusAndUpdateUI);
+			_updateNetworkSituation = new Thread(_networkStateWorker.DoWork);
+
+			// let the dialog display itself first, then check for connection
+			_updateDisplayTimer.Interval = INITIALINTERVAL; // But check sooner than 2 seconds anyway!
+			_updateDisplayTimer.Enabled = true;
 		}
 
+		private void SetupSharedFolderAndInternetUI()
+		{
+			const string checkingConnection = "Checking connection...";
+			_useSharedFolderStatusLabel.Text = checkingConnection;
+			_useSharedFolderButton.Enabled = false;
+
+			_internetStatusLabel.Text = checkingConnection;
+			_useInternetButton.Enabled = false;
+		}
 
 		private void OnUpdateDisplayTick(object sender, EventArgs e)
 		{
+			_updateDisplayTimer.Interval = STATECHECKINTERVAL; // more normal checking rate from here on out
 			UpdateDisplay();
 		}
 
@@ -50,105 +89,204 @@ namespace Chorus.UI.Sync
 			UpdateUsbDriveSituation();
 			UpdateInternetSituation();
 			UpdateLocalNetworkSituation();
+			UpdateSetupButtonUI();
+		}
+
+		private void UpdateSetupButtonUI()
+		{
+			const int LengthOfSetUpString = 7;
+			if (ShouldShowNetworkSetUpButton)
+			{
+				// Make sure "Set Up" button is active
+				if (!NetworkSetupButtonIsActive)
+					_useSharedFolderStatusLabel.Text += SetupLinkText;
+			}
+			else
+			{
+				if (NetworkSetupButtonIsActive)
+				{
+					// Make sure "Set Up" button is inactive
+					var oldLabel = _useSharedFolderStatusLabel.Text;
+					_useSharedFolderStatusLabel.Text = oldLabel.Substring(0, oldLabel.Length - LengthOfSetUpString);
+				}
+			}
+
+			if (ShouldShowInternetSetUpButton)
+			{
+				// Make sure "Set Up" button is active
+				if (!InternetSetupButtonIsActive)
+					_internetStatusLabel.Text += SetupLinkText;
+			}
+			else
+			{
+				if (InternetSetupButtonIsActive)
+				{
+					// Make sure "Set Up" button is inactive
+					var oldLabel = _internetStatusLabel.Text;
+					_internetStatusLabel.Text = oldLabel.Substring(0, oldLabel.Length - LengthOfSetUpString);
+				}
+			}
+		}
+
+		#region Network Status methods
+
+		public bool ShouldShowNetworkSetUpButton
+		{
+			get { return (!_useSharedFolderButton.Enabled || Control.ModifierKeys == Keys.Shift); }
+		}
+
+		protected bool NetworkSetupButtonIsActive
+		{
+			get { return _useSharedFolderStatusLabel.Text.EndsWith(SetupLinkText); }
 		}
 
 		private void UpdateLocalNetworkSituation()
 		{
-			//TODO: move this to model, as we did with UpdateInternetSituation()
-
-			RepositoryAddress address;
-
-			try
+			if (!_networkWorkerStarted)
 			{
-				address = _repository.GetDefaultNetworkAddress<DirectoryRepositorySource>();
-			}
-			catch(Exception error)//probably, hgrc is locked
-			{
-				_useSharedFolderButton.Enabled = false;
-				_useSharedFolderStatusLabel.Text = error.Message;
-			   return;
-			}
-
-			_useSharedFolderButton.Enabled = address != null;
-			_useSharedFolderStatusLabel.LinkArea = new LinkArea(0,0);
-			if (address == null)
-			{
-				_useSharedFolderStatusLabel.Text = "This project is not yet associated with a shared folder";
-			}
-			else
-			{
-				_useSharedFolderStatusLabel.Text = address.Name;
-				toolTip1.SetToolTip(_useSharedFolderButton, address.URI);
-			}
-			if (!_useSharedFolderButton.Enabled || Control.ModifierKeys == Keys.Shift)
-			{
-				 _useSharedFolderStatusLabel.LinkArea = new LinkArea(_useSharedFolderStatusLabel.Text.Length + 1, 1000);
-				 _useSharedFolderStatusLabel.Text += " Set Up";
-			}
-
-			if (_useSharedFolderButton.Enabled)
-			{
-				toolTip1.SetToolTip(_useSharedFolderButton, "Press Shift to see Set Up button");
+				_networkWorkerStarted = true;
+				_updateNetworkSituation.Start();
 			}
 		}
 
+		/// <summary>
+		/// Called by our worker thread to avoid inordinate pauses in the UI while checking the
+		/// Shared Network Folder to determine its status.
+		/// </summary>
+		private void CheckNetworkStatusAndUpdateUI()
+		{
+			// Check network Shared Folder status
+			string message, tooltip, diagnostics;
+			Monitor.Enter(_model);
+			bool result = _model.GetNetworkStatusLink(out message, out tooltip, out diagnostics);
+			Monitor.Exit(_model);
+
+			Monitor.Enter(this);
+			// Using a callback and Invoke ensures that we avoid cross-threading updates.
+			if (!_exiting)
+			{
+				var callback = new UpdateNetworkUICallback(UpdateNetworkUI);
+				this.Invoke(callback, new object[] {result, message, tooltip, diagnostics});
+			}
+			Monitor.Exit(this);
+		}
+
+		/// <summary>
+		/// Callback method to ensure that Controls are painted on the main thread and not the worker thread.
+		/// </summary>
+		/// <param name="enabled"></param>
+		/// <param name="message"></param>
+		/// <param name="tooltip"></param>
+		/// <param name="diagnostics"></param>
+		private void UpdateNetworkUI(bool enabled, string message, string tooltip, string diagnostics)
+		{
+			_useSharedFolderButton.Enabled = enabled;
+			if (!string.IsNullOrEmpty(diagnostics))
+				SetupNetworkDiagnosticLink(diagnostics);
+			else
+				_sharedNetworkDiagnosticsLink.Visible = false;
+
+			_useSharedFolderStatusLabel.Text = message;
+			_useSharedFolderStatusLabel.LinkArea = new LinkArea(message.Length + 1, 1000);
+			if (_useSharedFolderButton.Enabled)
+				tooltip += System.Environment.NewLine + "Press Shift to see Set Up button";
+			toolTip1.SetToolTip(_useSharedFolderButton, tooltip);
+		}
+
+		private void SetupNetworkDiagnosticLink(string diagnosticText)
+		{
+			_sharedNetworkDiagnosticsLink.Tag = diagnosticText;
+			_sharedNetworkDiagnosticsLink.Enabled = _sharedNetworkDiagnosticsLink.Visible = true;
+		}
+
+		#endregion // Network
+
+		#region Internet Status methods
+
+		public bool ShouldShowInternetSetUpButton
+		{
+			get { return (!_useInternetButton.Enabled || Control.ModifierKeys == Keys.Shift); }
+		}
+
+		protected bool InternetSetupButtonIsActive
+		{
+			get { return _internetStatusLabel.Text.EndsWith(SetupLinkText); }
+		}
+
+		/// <summary>
+		/// Pings to test Internet connectivity were causing several second pauses in the dialog.
+		/// Now the Internet situation is determined in a separate worker thread which reports
+		/// back to the main one.
+		/// </summary>
 		private void UpdateInternetSituation()
 		{
-			string message,  tooltip, buttonLabel;
-			_useInternetButton.Enabled = _model.GetInternetStatusLink(out buttonLabel, out message, out tooltip);
-			_useInternetButton.Text = buttonLabel;
-			_internetStatusLabel.Text = message;
-			_internetStatusLabel.LinkArea = new LinkArea(message.Length+1, 1000);
-			if(_useInternetButton.Enabled )
+			if (!_internetWorkerStarted)
 			{
-				tooltip += System.Environment.NewLine+"Press Shift to see Set Up button";
-			}
-			toolTip1.SetToolTip(_useInternetButton, tooltip);
-
-			if (!_useInternetButton.Enabled || Control.ModifierKeys == Keys.Shift)
-			{
-				_internetStatusLabel.Text += " Set Up";
-				_internetStatusLabel.LinkArea = new LinkArea(message.Length + 1, 1000);
+				_internetWorkerStarted = true;
+				_updateInternetSituation.Start();
 			}
 		}
+
+		/// <summary>
+		/// Called by our worker thread to avoid inordinate pauses in the UI while the Internet
+		/// is pinged to determine its status.
+		/// </summary>
+		private void CheckInternetStatusAndUpdateUI()
+		{
+			// Check Internet status
+			string buttonLabel, message, tooltip, diagnostics;
+			Monitor.Enter(_model);
+			bool result = _model.GetInternetStatusLink(out buttonLabel, out message, out tooltip,
+													   out diagnostics);
+			Monitor.Exit(_model);
+
+			// Using a callback and Invoke ensures that we avoid cross-threading updates.
+			var callback = new UpdateInternetUICallback(UpdateInternetUI);
+			Monitor.Enter(this);
+			if(!_exiting)
+				this.Invoke(callback, new object[] { result, buttonLabel, message, tooltip, diagnostics });
+			Monitor.Exit(this);
+		}
+
+		/// <summary>
+		/// Callback method to ensure that Controls are painted on the main thread and not the worker thread.
+		/// </summary>
+		/// <param name="enabled"></param>
+		/// <param name="btnLabel"></param>
+		/// <param name="message"></param>
+		/// <param name="tooltip"></param>
+		/// <param name="diagnostics"></param>
+		private void UpdateInternetUI(bool enabled, string btnLabel, string message, string tooltip, string diagnostics)
+		{
+			_useInternetButton.Enabled = enabled;
+			if (!string.IsNullOrEmpty(diagnostics))
+				SetupInternetDiagnosticLink(diagnostics);
+			else
+				_internetDiagnosticsLink.Visible = false;
+
+			_useInternetButton.Text = btnLabel;
+			_internetStatusLabel.Text = message;
+			_internetStatusLabel.LinkArea = new LinkArea(message.Length + 1, 1000);
+			if (_useInternetButton.Enabled)
+				tooltip += System.Environment.NewLine + "Press Shift to see Set Up button";
+			toolTip1.SetToolTip(_useInternetButton, tooltip);
+		}
+
+		private void SetupInternetDiagnosticLink(string diagnosticText)
+		{
+			_internetDiagnosticsLink.Tag = diagnosticText;
+			_internetDiagnosticsLink.Enabled = _internetDiagnosticsLink.Visible = true;
+		}
+
+		#endregion  // Internet
 
 		private void UpdateUsbDriveSituation()
 		{
-			//TODO: move this to model, as we did with UpdateInternetSituation()
-
-			if (usbDriveLocator.UsbDrives.Count() == 0)
-			{
-				_useUSBButton.Enabled = false;
-				_usbStatusLabel.Text = "First insert a USB flash drive";
-			}
-			else if (usbDriveLocator.UsbDrives.Count() > 1)
-			{
-				_useUSBButton.Enabled = false;
-				_usbStatusLabel.Text = "More than one USB drive detected. Please remove one.";
-			}
-			else
-			{
-				_useUSBButton.Enabled = true;
-				try
-				{
-					var first = usbDriveLocator.UsbDrives.First();
-#if !MONO
-					_usbStatusLabel.Text = first.RootDirectory + " " + first.VolumeLabel + " (" +
-										   Math.Floor(first.TotalFreeSpace/1024000.0) + " Megs Free Space)";
-#else
-				_usbStatusLabel.Text = first.VolumeLabel;
-					//RootDir & volume label are the same on linux.  TotalFreeSpace is, like, maxint or something in mono 2.0
-#endif
-				}
-				catch (Exception error)
-				{
-					_usbStatusLabel.Text = error.Message;
-				}
-			}
+			// usbDriveLocator is defined in the Designer
+			string message;
+			_useUSBButton.Enabled = _model.GetUsbStatusLink(usbDriveLocator, out message);
+			_usbStatusLabel.Text = message;
 		}
-
-
-
 
 		private void _useUSBButton_Click(object sender, EventArgs e)
 		{
@@ -173,9 +311,9 @@ namespace Chorus.UI.Sync
 			if (RepositoryChosen != null)
 			{
 				UpdateName();
-				RepositoryChosen.Invoke(this, new SyncStartArgs(_repository.GetDefaultNetworkAddress<HttpRepositoryPath>(), _commitMessageText.Text));
+				var address = _repository.GetDefaultNetworkAddress<HttpRepositoryPath>();
+				RepositoryChosen.Invoke(this, new SyncStartArgs(address, _commitMessageText.Text));
 			}
-
 		}
 
 		private void _useSharedFolderButton_Click(object sender, EventArgs e)
@@ -188,46 +326,95 @@ namespace Chorus.UI.Sync
 			}
 		}
 
-		private void tableLayoutPanel1_Paint(object sender, PaintEventArgs e)
-		{
-
-		}
-
-		private void SyncStartControl_Load(object sender, EventArgs e)
-		{
-
-		}
-
 		private void _internetStatusLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
 		{
-			using(var dlg = new ServerSettingsDialog(_repository.PathToRepo))
+			DialogResult dlgResult;
+			using (var dlg = new ServerSettingsDialog(_repository.PathToRepo))
 			{
-				dlg.ShowDialog();
+				dlgResult = dlg.ShowDialog();
 			}
-			UpdateInternetSituation();
+			if (dlgResult == DialogResult.OK)
+				RecheckInternetStatus();
+		}
+
+		private void RecheckInternetStatus()
+		{
+			_internetWorkerStarted = false;
+			// Setup Internet State Checking thread and the worker that it will run
+			_internetStateWorker = new ConnectivityStateWorker(CheckInternetStatusAndUpdateUI);
+			_updateInternetSituation = new Thread(_internetStateWorker.DoWork);
 		}
 
 		private void _sharedFolderStatusLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
 		{
 			if(DialogResult.Cancel ==
 				MessageBox.Show(
-				"Note, due to some limitations in the underlying system (Mercurial), connecting to a shared folder hosted by a Windows computer is not recommended. If the server is Linux, it's OK.",
+				"Sharing repositories over a local network may sometimes cause a repository to become corrupted. This can be repaired by copying one of the good copies of the repository, but it may require expert help. If you have a good internet connection or a small enough group to pass a USB key around, we recommend one of the other Send/Receive options.",
 				"Warning", MessageBoxButtons.OKCancel))
 			{
 				return;
 			}
+			DialogResult dlgResult;
 			using (var dlg =  new System.Windows.Forms.FolderBrowserDialog())
 			{
 				dlg.ShowNewFolderButton = true;
 				dlg.Description = "Choose the folder containing the project with which you want to synchronize.";
-				if (DialogResult.OK != dlg.ShowDialog())
-					return;
-				_model.SetNewSharedNetworkAddress(dlg.SelectedPath);
+
+				while (true)
+				{
+					dlgResult = dlg.ShowDialog();
+					if (dlgResult != DialogResult.OK)
+						return;
+					Monitor.Enter(_model);
+					var networkedDriveOK = _model.SetNewSharedNetworkAddress(_repository, dlg.SelectedPath);
+					Monitor.Exit(_model);
+					if (networkedDriveOK)
+						break;
+				}
+			}
+			if (dlgResult == DialogResult.OK)
+				RecheckNetworkStatus();
+		}
+
+		private void RecheckNetworkStatus()
+		{
+			_networkWorkerStarted = false;
+			// Setup Shared Network Folder Checking thread and its worker
+			_networkStateWorker = new ConnectivityStateWorker(CheckNetworkStatusAndUpdateUI);
+			_updateNetworkSituation = new Thread(_networkStateWorker.DoWork);
+		}
+
+		private void _internetDiagnosticsLink_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+		{
+			Palaso.Reporting.ErrorReport.NotifyUserOfProblem(_connectionDiagnostics,
+				"Internet", (string)_internetDiagnosticsLink.Tag);
+		}
+
+		private void _sharedNetworkDiagnosticsLink_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+		{
+			Palaso.Reporting.ErrorReport.NotifyUserOfProblem(_connectionDiagnostics,
+				"Shared Network Folder", (string)_sharedNetworkDiagnosticsLink.Tag);
+		}
+
+		/// <summary>
+		/// Class to run a separate worker thread to check connectivity status.
+		/// </summary>
+		internal class ConnectivityStateWorker
+		{
+			private Action _action;
+
+			internal ConnectivityStateWorker(Action action)
+			{
+				_action = action;
 			}
 
-			UpdateLocalNetworkSituation();
+			internal void DoWork()
+			{
+				_action();
+			}
 		}
 	}
+
 	public class SyncStartArgs : EventArgs
 	{
 		public SyncStartArgs(RepositoryAddress address, string commitMessage)
@@ -238,5 +425,4 @@ namespace Chorus.UI.Sync
 		public RepositoryAddress Address;
 		public string CommitMessage;
 	}
-
 }

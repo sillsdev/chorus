@@ -262,7 +262,7 @@ namespace Chorus.merge.xml.generic
 				if (i > 0)
 					bldr.Append(" and ");
 				var currentAttrName = _keyAttributes[i];
-				bldr.AppendFormat("@{0}='{1}'", currentAttrName, XmlUtilities.GetStringAttribute(nodeToMatch, currentAttrName));
+				bldr.AppendFormat("@{0}=\"{1}\"", currentAttrName, XmlUtilities.GetStringAttribute(nodeToMatch, currentAttrName));
 			}
 			bldr.Append("]");
 
@@ -352,7 +352,8 @@ namespace Chorus.merge.xml.generic
 
 	public class FindTextDumb : IFindNodeToMerge
 	{
-		//todo: this won't cope with multiple text child nodes in the same element
+		// This won't cope with multiple text child nodes in the same element
+		// No, but then use FormMatchingFinder for that scenario.
 
 		public XmlNode GetNodeToMerge(XmlNode nodeToMatch, XmlNode parentToSearchIn)
 		{

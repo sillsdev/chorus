@@ -1,18 +1,17 @@
-using System;
 using System.Collections.Generic;
 
 namespace Chorus.sync
 {
 	public class ProjectFolderConfiguration
 	{
-		private List<string> _includePatterns=new List<string>(new []{"*.chorusNotes"});
-		private List<string> _excludePatterns=new List<string>();
+		public const string BareFolderReadmeFileName = "~~*.txt";
+		private readonly List<string> _includePatterns = new List<string>(new [] {"**.ChorusNotes"});
+		private readonly List<string> _excludePatterns = new List<string>(new[] { BareFolderReadmeFileName /* for bare folder readme file */});
 		private string _folderPath;
 
 		public ProjectFolderConfiguration(string folderPath)
 		{
 			FolderPath = folderPath;
-
 		}
 
 		/// <summary>
@@ -50,6 +49,47 @@ namespace Chorus.sync
 			clone.ExcludePatterns.Clear();
 			clone.ExcludePatterns.AddRange(_excludePatterns);
 			return clone;
+		}
+
+		public static void EnsureCommonPatternsArePresent(ProjectFolderConfiguration projectFolderConfiguration)
+		{
+			if (!projectFolderConfiguration._includePatterns.Contains("**.ChorusNotes"))
+				projectFolderConfiguration._includePatterns.Add("**.ChorusNotes");
+			if (!projectFolderConfiguration._excludePatterns.Contains(BareFolderReadmeFileName))
+				projectFolderConfiguration._excludePatterns.Add(BareFolderReadmeFileName);
+		}
+
+		public static void AddExcludedVideoExtensions(ProjectFolderConfiguration projectFolderConfiguration)
+		{
+			// Exclude these video extensions.
+			// One can get a list of all sorts of extensions at: http://www.fileinfo.com/filetypes/video
+			foreach (var videoExtension in VideoExtensions)
+			{
+				projectFolderConfiguration.ExcludePatterns.Add("**." + videoExtension);
+			}
+		}
+
+		internal static IEnumerable<string> VideoExtensions
+		{
+			get
+			{
+				return new List<string>
+							{
+								"mpa",
+								"mpe",
+								"mpg",
+								"mpeg",
+								"mpv2",
+								"mp2",
+								"mp4",
+								"mov",
+								"wmv",
+								"rm",
+								"avi",
+								"wvx",
+								"m1v"
+							};
+			}
 		}
 	}
 }

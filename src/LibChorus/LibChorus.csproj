@@ -108,10 +108,6 @@
 	  <SpecificVersion>False</SpecificVersion>
 	  <HintPath>..\..\lib\$(Configuration)\Palaso.dll</HintPath>
 	</Reference>
-	<Reference Include="Palaso.TestUtilities, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86">
-	  <SpecificVersion>False</SpecificVersion>
-	  <HintPath>..\..\lib\$(Configuration)\Palaso.TestUtilities.dll</HintPath>
-	</Reference>
 	<Reference Include="System" />
 	<Reference Include="System.Core">
 	  <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -134,11 +130,19 @@
 	<Compile Include="FileTypeHanders\ldml\LdmlFileHandler.cs" />
 	<Compile Include="FileTypeHanders\ldml\LdmlKeyFinder.cs" />
 	<Compile Include="FileTypeHanders\ldml\LdmlMergingStrategy.cs" />
+	<Compile Include="FileTypeHanders\Lift-Ranges\LiftRangesMergingStrategy.cs" />
+	<Compile Include="FileTypeHanders\lift\LiftHeaderContextGenerator.cs" />
+	<Compile Include="FileTypeHanders\Lift-Ranges\LiftRangeContextGenerator.cs" />
+	<Compile Include="merge\xml\generic\FormMatchingFinder.cs" />
+	<Compile Include="FileTypeHanders\lift\LiftBasicElementStrategiesMethod.cs" />
+	<Compile Include="FileTypeHanders\Lift-Ranges\LiftRangesElementStrategiesMethod.cs" />
 	<Compile Include="FileTypeHanders\Lift-Ranges\LiftRangesFileTypeHandler.cs" />
 	<Compile Include="FileTypeHanders\Lift-Ranges\LiftRangesKeyFinder.cs" />
+	<Compile Include="FileTypeHanders\lift\LiftElementStrategiesMethod.cs" />
 	<Compile Include="FileTypeHanders\lift\LiftFileServices.cs" />
 	<Compile Include="FileTypeHanders\lift\LiftFolder.cs" />
 	<Compile Include="FileTypeHanders\lift\LiftKeyFinder.cs" />
+	<Compile Include="merge\xml\generic\OptionalKeyAttrFinder.cs" />
 	<Compile Include="FileTypeHanders\Xml2WayDiffer.cs" />
 	<Compile Include="FileTypeHanders\Xml2WayDiffService.cs" />
 	<Compile Include="FileTypeHanders\xml\BothChangedAtomicElementReport.cs" />
@@ -312,6 +316,7 @@
   <ItemGroup>
 	<EmbeddedResource Include="notes\ConflictDetailsForm.resx">
 	  <DependentUpon>ConflictDetailsForm.cs</DependentUpon>
+	  <SubType>Designer</SubType>
 	</EmbeddedResource>
 	<EmbeddedResource Include="Properties\AnnotationImages.resx">
 	  <Generator>PublicResXFileCodeGenerator</Generator>
@@ -321,6 +326,7 @@
 	<EmbeddedResource Include="Properties\Resources.resx">
 	  <Generator>ResXFileCodeGenerator</Generator>
 	  <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+	  <SubType>Designer</SubType>
 	</EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

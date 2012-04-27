@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using Chorus.sync;
 using Chorus.VcsDrivers;
@@ -185,10 +185,9 @@ namespace LibChorus.TestUtilities
 			hg.SetUserNameInIni(userId,  progress);
 		}
 
-
 		public static string ProjectName
 		{
-			get { return "foo project"; }//nb: important that it have a space, as this helps catch failure to enclose in quotes
+			get { return "ไก่ projéct"; } //nb: important that it have a space, as this helps catch failure to enclose in quotes
 		}
 
 		public IProgress Progress { get; set; }

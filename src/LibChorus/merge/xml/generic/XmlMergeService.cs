@@ -436,6 +436,8 @@ namespace Chorus.merge.xml.generic
 				// Route used.
 				var transferUntouched = true;
 				var currentKey = reader.GetAttribute(id);
+				if (currentKey == null)
+					break;
 
 				ProcessCurrentElement(mergeOrder, currentKey, mergeStrategy, winnerId, listener, writer, recordElementName,
 					parentIndex,

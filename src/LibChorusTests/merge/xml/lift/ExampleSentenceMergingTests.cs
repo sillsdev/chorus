@@ -5,6 +5,7 @@ using Chorus.merge.xml.generic;
 using LibChorus.TestUtilities;
 using NUnit.Framework;
 using Palaso.IO;
+using Palaso.TestUtilities;
 
 namespace LibChorus.Tests.merge.xml.lift
 {
@@ -15,7 +16,7 @@ namespace LibChorus.Tests.merge.xml.lift
 	[TestFixture]
 	public class ExampleSentenceMergingTests
 	{
-		[Test, Ignore("not implemented yet")]
+		[Test, Ignore("Not yet implemented. Does not warn yet.")]
 		public void OneEditedExampleWhileOtherAddedTranslation_MergesButRaiseWarning()
 		{
 			const string ancestor = @"<?xml version='1.0' encoding='utf-8'?>
@@ -53,7 +54,7 @@ namespace LibChorus.Tests.merge.xml.lift
 			}
 		}
 
-		[Test, Ignore("not implemented yet")]
+		[Test]
 		public void OneAddedOneTranslationWhileOtherAddedAnother_Merged()
 		{
 			const string ancestor = @"<?xml version='1.0' encoding='utf-8'?>
@@ -85,6 +86,76 @@ namespace LibChorus.Tests.merge.xml.lift
 					"entry", "guid", LiftFileHandler.WritePreliminaryInformation);
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
 				XmlTestHelper.AssertXPathMatchesExactlyOne(result, "//example");
+			}
+		}
+
+		[Test]
+		public void OneAddedOneTranslationOtherEditedFormText()
+		{
+			const string ancestor = @"<?xml version='1.0' encoding='utf-8'?>
+<lift version='0.10' producer='WeSay 1.0.0.0'>
+	<entry id='test'  guid='F169EB3D-16F2-4eb0-91AA-FDB91636F8F6'>
+		<sense id='123'>
+	 <example>
+		<form lang='chorus'>
+		  <text>This is my example sentence.</text>
+		</form>
+	  </example>
+	</sense>
+	</entry>
+</lift>";
+			var ours = ancestor.Replace(@"This is my example", @"This was your example");
+			var theirs = ancestor.Replace(@"</example>", @"<form lang='chorus'><text>hello new entry</text></form></example>");
+
+			using (var oursTemp = new TempFile(ours))
+			using (var theirsTemp = new TempFile(theirs))
+			using (var ancestorTemp = new TempFile(ancestor))
+			{
+				var listener = new ListenerForUnitTests();
+				var situation = new NullMergeSituation();
+				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation) { EventListener = listener };
+				XmlMergeService.Do3WayMerge(mergeOrder, new LiftEntryMergingStrategy(situation),
+					"header",
+					"entry", "guid", LiftFileHandler.WritePreliminaryInformation);
+				var result = File.ReadAllText(mergeOrder.pathToOurs);
+				XmlTestHelper.AssertXPathMatchesExactlyOne(result, "//example");
+				AssertThatXmlIn.String(result).HasSpecifiedNumberOfMatchesForXpath("//example/form", 2);
+			}
+		}
+
+		[Test]
+		public void BothModifiedExampleFormTextWorksWithConflict()
+		{
+			const string ancestor = @"<?xml version='1.0' encoding='utf-8'?>
+<lift version='0.10' producer='WeSay 1.0.0.0'>
+	<entry id='test'  guid='F169EB3D-16F2-4eb0-91AA-FDB91636F8F6'>
+		<sense id='123'>
+	 <example>
+		<form lang='chorus'>
+		  <text>This is my example sentence.</text>
+		</form>
+	  </example>
+	</sense>
+	</entry>
+</lift>";
+			var ours = ancestor.Replace(@"This is my example", @"This was your example");
+			var theirs = ancestor.Replace(@"This is my example", @"It's mine don't touch it.");
+
+			using (var oursTemp = new TempFile(ours))
+			using (var theirsTemp = new TempFile(theirs))
+			using (var ancestorTemp = new TempFile(ancestor))
+			{
+				var listener = new ListenerForUnitTests();
+				var situation = new NullMergeSituation();
+				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation) { EventListener = listener };
+				XmlMergeService.Do3WayMerge(mergeOrder, new LiftEntryMergingStrategy(situation),
+					"header",
+					"entry", "guid", LiftFileHandler.WritePreliminaryInformation);
+				var result = File.ReadAllText(mergeOrder.pathToOurs);
+				Assert.AreEqual(1, listener.Conflicts.Count);
+				var warning = listener.Conflicts[0];
+				Assert.AreEqual(typeof(XmlTextBothEditedTextConflict), warning.GetType(), warning.ToString());
+				XmlTestHelper.AssertXPathMatchesExactlyOne(result, "//example/form");
 			}
 		}
 	}

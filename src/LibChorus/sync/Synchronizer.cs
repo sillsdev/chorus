@@ -10,9 +10,7 @@ using Chorus.Utilities;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using System.Linq;
-using Palaso.IO;
 using Palaso.Progress.LogBox;
-using Palaso.Extensions;
 using Palaso.Reporting;
 
 namespace Chorus.sync
@@ -209,7 +207,7 @@ namespace Chorus.sync
 				return list;
 
 			}
-			catch (Exception error) // we've see an exception here when the hgrc was open by someone else
+			catch (Exception error) // we've seen an exception here when the hgrc was open by someone else
 			{
 				_progress.WriteException(error);
 				_progress.WriteVerbose(error.ToString());
@@ -300,6 +298,10 @@ namespace Chorus.sync
 					//nb: no need to push if we just made a clone
 				}
 			}
+			catch (UserCancelledException)
+			{
+				throw;
+			}
 			catch (Exception error)
 			{
 				ExplainAndThrow(error, "Failed to send to {0} ({1}).", address.Name, address.URI);
@@ -338,7 +340,9 @@ namespace Chorus.sync
 
 			// Must be done, before "AddAndCommitFiles" call.
 			// It could be here, or first thing inside the 'using' for CommitCop.
-			LargeFileFilter.FilterFiles(Repository, _project, _handlers, _progress);
+			var newlyFilteredFiles = LargeFileFilter.FilterFiles(Repository, _project, _handlers);
+			if (!string.IsNullOrEmpty(newlyFilteredFiles))
+				_progress.WriteWarning(newlyFilteredFiles);
 
 			using (var commitCop = new CommitCop(Repository, _handlers, _progress))
 			{
@@ -352,7 +356,6 @@ namespace Chorus.sync
 					throw new ApplicationException( "The changed data did not pass validation tests. Your project will be moved back to the last Send/Receive before this problem occurred, so that you can keep working.  Please notify whoever provides you with computer support. Error was: " + commitCop.ValidationResult);
 				}
 			}
-
 		}
 
 		/// <returns>true if there was a successful pull</returns>
@@ -549,6 +552,10 @@ namespace Chorus.sync
 
 				_progress.WriteWarning("Staying at previous-tip (unusual)");
 			}
+			catch (UserCancelledException)
+			{
+				throw;
+			}
 			catch (Exception error)
 			{
 				  ExplainAndThrow(error, "Could not update.");
@@ -677,6 +684,10 @@ namespace Chorus.sync
 					  }
 				  }
 			  }
+			  catch (UserCancelledException)
+			  {
+				  throw;
+			  }
 			  catch (Exception error)
 			  {
 				  ExplainAndThrow(error,WhatToDo.NeedExpertHelp, "Unable to complete the send/receive.");
@@ -727,11 +738,9 @@ namespace Chorus.sync
 
 		private void AddAndCommitFiles(string summary)
 		{
-			List<string> includePatterns = _project.IncludePatterns;
-			includePatterns.Add("**.ChorusNotes");
-			List<string> excludePatterns = _project.ExcludePatterns;
-			includePatterns.Add("**.ChorusRescuedFile");
-			Repository.AddAndCheckinFiles(includePatterns, excludePatterns,
+			ProjectFolderConfiguration.EnsureCommonPatternsArePresent(_project);
+			_project.IncludePatterns.Add("**.ChorusRescuedFile");
+			Repository.AddAndCheckinFiles(_project.IncludePatterns, _project.ExcludePatterns,
 										  summary);
 		}
 
