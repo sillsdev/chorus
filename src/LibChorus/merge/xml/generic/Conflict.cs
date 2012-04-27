@@ -208,7 +208,7 @@ namespace Chorus.merge.xml.generic
 		/// <param name="sb"></param>
 		protected virtual void AppendWhatHappened(StringBuilder sb)
 		{
-			sb.Append(string.Format("The merger kept the change made by {0}", WinnerId));
+			sb.Append(string.Format("The merger kept the change made by {0}", string.IsNullOrEmpty(_whoWon)? WinnerId : _whoWon));
 		}
 
 		private void AppendAlternative(StringBuilder sb, XmlNode changedContext, XmlNode ancestorContext,
