@@ -124,7 +124,12 @@ namespace Chorus.VcsDrivers.Mercurial
 			}
 		}
 
-		private string GetCommonBaseHashWithRemoteRepo(bool useCache = true)
+		private string GetCommonBaseHashWithRemoteRepo()
+		{
+			return GetCommonBaseHashWithRemoteRepo(true);
+		}
+
+		private string GetCommonBaseHashWithRemoteRepo(bool useCache)
 		{
 			if (useCache && !string.IsNullOrEmpty(LastKnownCommonBase))
 			{
