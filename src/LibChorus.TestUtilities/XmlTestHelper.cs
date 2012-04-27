@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Text;
 using System.Xml;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
@@ -188,6 +190,18 @@ namespace LibChorus.TestUtilities
 							"Expected change count and actual number found differ.");
 			for (var idx = 0; idx < expectedChangeTypes.Count; ++idx)
 				Assert.AreSame(expectedChangeTypes[idx], eventListener.Changes[idx].GetType());
+		}
+
+		public static string WriteConflictAnnotation(IConflict conflict)
+		{
+			var stringBuilder = new StringBuilder();
+
+			using (var stringWriter = new StringWriter(stringBuilder))
+			using (var textWriter = new XmlTextWriter(stringWriter))
+			{
+				conflict.WriteAsChorusNotesAnnotation(textWriter);
+			}
+			return stringBuilder.ToString();
 		}
 
 		public static string DoMerge(
