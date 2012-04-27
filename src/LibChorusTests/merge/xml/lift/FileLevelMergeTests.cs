@@ -1,5 +1,7 @@
 using System;
 using System.IO;
+using System.Text;
+using System.Xml;
 using Chorus.FileTypeHanders.lift;
 using Chorus.FileTypeHanders.xml;
 using Chorus.merge;
@@ -1231,6 +1233,143 @@ namespace LibChorus.Tests.merge.xml.lift
 				XmlTestHelper.AssertXPathMatchesExactlyOne(result, "//entry[@id='lostBoy']");
 				Assert.AreEqual(1, listener.Warnings.Count);
 				Assert.AreEqual(typeof(MergeWarning), listener.Warnings[0].GetType());
+			}
+		}
+
+		[Test]
+		public void BothEditedFoo_WithEditVsDeleteOfBar_AndNoChangesToDull_ProducesTwoConflictRreports()
+		{
+			const string ancestor = @"<?xml version='1.0' encoding='utf-8'?>
+					<lift version='0.13' producer='WeSay 1.0.0.0'>
+						<entry id='dull' guid='C1EDBBDE-E382-11DE-8A39-0800200C9A66'>
+							<lexical-unit>
+								<form lang='en'>
+									<text>dull</text>
+								</form>
+							</lexical-unit>
+						</entry>
+						<entry id='foo' guid='C1EDBBDF-E382-11DE-8A39-0800200C9A66'>
+							<lexical-unit>
+								<form lang='en'>
+									<text>foo</text>
+								</form>
+							</lexical-unit>
+						</entry>
+						<entry id='bar' guid='C1EDBBE0-E382-11DE-8A39-0800200C9A66'>
+							<lexical-unit>
+								<form lang='en'>
+									<text>bar</text>
+								</form>
+							</lexical-unit>
+						</entry>
+					</lift>";
+			const string ours = @"<?xml version='1.0' encoding='utf-8'?>
+					<lift version='0.13' producer='WeSay 1.0.0.0'>
+						<entry id='dull' guid='C1EDBBDE-E382-11DE-8A39-0800200C9A66'>
+							<lexical-unit>
+								<form lang='en'>
+									<text>dull</text>
+								</form>
+							</lexical-unit>
+						</entry>
+						<entry id='foo' guid='C1EDBBDF-E382-11DE-8A39-0800200C9A66'>
+							<lexical-unit>
+								<form lang='en'>
+									<text>ourfoo</text>
+								</form>
+							</lexical-unit>
+						</entry>
+						<entry id='bar' guid='C1EDBBE0-E382-11DE-8A39-0800200C9A66'>
+							<lexical-unit>
+								<form lang='en'>
+									<text>mybar</text>
+								</form>
+							</lexical-unit>
+						</entry>
+					</lift>";
+			const string theirs = @"<?xml version='1.0' encoding='utf-8'?>
+					<lift version='0.13' producer='WeSay 1.0.0.0'>
+						<entry id='dull' guid='C1EDBBDE-E382-11DE-8A39-0800200C9A66'>
+							<lexical-unit>
+								<form lang='en'>
+									<text>dull</text>
+								</form>
+							</lexical-unit>
+						</entry>
+						<entry id='foo' guid='C1EDBBDF-E382-11DE-8A39-0800200C9A66'>
+							<lexical-unit>
+								<form lang='en'>
+									<text>theirfoo</text>
+								</form>
+							</lexical-unit>
+						</entry>
+					</lift>";
+
+			// This tests: http://jira.palaso.org/issues/browse/CHR-13
+			// In a test where all I did was an edited vs. delete test, the resulting conflict note listed the element as "unknown".
+			// In a test where all I both a) had both parties edit the same field on record A and b) had parties edit vs. delete record B, the all resulting conflict notes were attached to A.
+			using (var oursTemp = new TempFile(ours))
+			using (var theirsTemp = new TempFile(theirs))
+			using (var ancestorTemp = new TempFile(ancestor))
+			{
+				// 'We' (O) are set to win.
+				// Both edited foo: O should win.
+				// O edited bar, T deleted it. O should win.
+				var listener = new ListenerForUnitTests();
+				var situation = new NullMergeSituation
+									{
+										AlphaUserId = "O",
+										BetaUserId = "T"
+									};
+				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation) { EventListener = listener };
+				XmlMergeService.Do3WayMerge(mergeOrder, new LiftEntryMergingStrategy(situation),
+					"header",
+					"entry", "guid", LiftFileHandler.WritePreliminaryInformation);
+				var result = File.ReadAllText(mergeOrder.pathToOurs);
+				XmlTestHelper.AssertXPathMatchesExactlyOne(result, "lift/entry[@id='dull']");
+				XmlTestHelper.AssertXPathMatchesExactlyOne(result, "lift/entry[@id='foo']/lexical-unit/form/text[text()='ourfoo']");
+				XmlTestHelper.AssertXPathMatchesExactlyOne(result, "lift/entry[@id='bar']");
+				Assert.AreEqual(2, listener.Conflicts.Count);
+				var firstConflict = listener.Conflicts[0];
+				var secondConflict = listener.Conflicts[1];
+				Assert.AreEqual(typeof(XmlTextBothEditedTextConflict), firstConflict.GetType());
+				Assert.AreEqual(typeof(EditedVsRemovedElementConflict), secondConflict.GetType());
+
+				// Doesn't work with ListenerForUnitTests, as ListenerForUnitTests doesn't set the Context on the conflict, as does the Chorus notes listener.
+				//var annotationXml = XmlTestHelper.WriteConflictAnnotation(firstConflict);
+				//var annotationXml = XmlTestHelper.WriteConflictAnnotation(secondConflict);
+			}
+
+			using (var oursTemp = new TempFile(ours))
+			using (var theirsTemp = new TempFile(theirs))
+			using (var ancestorTemp = new TempFile(ancestor))
+			{
+				// 'They' (T) are set to win.
+				// Both edited foom 'T' should win
+				// O edited bar,T deleted it. T should win.
+				var listener = new ListenerForUnitTests();
+				var situation = new NullMergeSituationTheyWin
+					{
+						AlphaUserId = "O",
+						BetaUserId = "T"
+					};
+				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation) { EventListener = listener };
+				XmlMergeService.Do3WayMerge(mergeOrder, new LiftEntryMergingStrategy(situation),
+					"header",
+					"entry", "guid", LiftFileHandler.WritePreliminaryInformation);
+				var result = File.ReadAllText(mergeOrder.pathToOurs);
+				XmlTestHelper.AssertXPathMatchesExactlyOne(result, "lift/entry[@id='dull']");
+				XmlTestHelper.AssertXPathMatchesExactlyOne(result, "lift/entry[@id='foo']/lexical-unit/form/text[text()='theirfoo']");
+				XmlTestHelper.AssertXPathMatchesExactlyOne(result, "lift/entry[@id='bar']");
+				Assert.AreEqual(2, listener.Conflicts.Count);
+				var firstConflict = listener.Conflicts[0];
+				var secondConflict = listener.Conflicts[1];
+				Assert.AreEqual(typeof(XmlTextBothEditedTextConflict), firstConflict.GetType());
+				Assert.AreEqual(typeof(RemovedVsEditedElementConflict), secondConflict.GetType());
+
+				// Doesn't work with ListenerForUnitTests, as ListenerForUnitTests doesn't set the Context on the conflict, as does the Chorus notes listener.
+				//var annotationXml = XmlTestHelper.WriteConflictAnnotation(firstConflict);
+				//var annotationXml = XmlTestHelper.WriteConflictAnnotation(secondConflict);
 			}
 		}
 

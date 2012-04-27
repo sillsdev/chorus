@@ -353,8 +353,7 @@ namespace Chorus.merge.xml.generic
 									new RemovedVsEditedElementConflict(theirChild.Name, null,
 																	   theirChild, ancestorChild,
 																	   _merger.MergeSituation,
-																	   _merger.MergeStrategies.
-																		   GetElementStrategy(theirChild),
+																	   _merger.MergeStrategies.GetElementStrategy(theirChild),
 																	   _merger.MergeSituation.BetaUserId));
 							}
 							else

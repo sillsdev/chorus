@@ -5,6 +5,7 @@ using Chorus.VcsDrivers;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
 using System.Linq;
+using LibChorus.TestUtilities;
 using NUnit.Framework;
 
 namespace LibChorus.Tests.merge.xml.generic
@@ -26,7 +27,7 @@ namespace LibChorus.Tests.merge.xml.generic
 			c.HtmlDetails = "<body>this is a conflict</body>";
 			string desc = c.GetFullHumanReadableDescription();
 
-			var annotationXml = WriteConflictAnnotation(c);
+			var annotationXml = XmlTestHelper.WriteConflictAnnotation(c);
 			var regurgitated = Conflict.CreateFromChorusNotesAnnotation(annotationXml);
 			Assert.AreEqual("path", regurgitated.RelativeFilePath);
 			Assert.AreEqual(desc, regurgitated.GetFullHumanReadableDescription());
@@ -46,24 +47,12 @@ namespace LibChorus.Tests.merge.xml.generic
 			c.Context = new ContextDescriptor("testLabel", "testPath");
 			string desc = c.GetFullHumanReadableDescription();
 
-			var annotationXml = WriteConflictAnnotation(c);
+			var annotationXml = XmlTestHelper.WriteConflictAnnotation(c);
 			var regurgitated = Conflict.CreateFromChorusNotesAnnotation(annotationXml);
 			Assert.AreEqual("path", regurgitated.RelativeFilePath);
 			Assert.AreEqual(desc, regurgitated.GetFullHumanReadableDescription());
 			Assert.AreEqual(c.Context.PathToUserUnderstandableElement, regurgitated.Context.PathToUserUnderstandableElement);
 			Assert.AreEqual(c.Context.DataLabel, regurgitated.Context.DataLabel);
-		}
-		private string WriteConflictAnnotation(IConflict c)
-		{
-			var b = new StringBuilder();
-			using (StringWriter sw = new StringWriter(b))
-			{
-				using (var w = new XmlTextWriter(sw))
-				{
-					c.WriteAsChorusNotesAnnotation(w);
-				}
-			}
-			return b.ToString();
 		}
 
 		private XmlNode GetNodeFromString(string xml)
@@ -78,7 +67,7 @@ namespace LibChorus.Tests.merge.xml.generic
 		{
 			var conflict = new DemoConflict(new NullMergeSituation());
 			conflict.Context = new ContextDescriptor("testLabel", "testPath");
-			var annotationXml = WriteConflictAnnotation(conflict);
+			var annotationXml = XmlTestHelper.WriteConflictAnnotation(conflict);
 			Conflict.RegisterContextClass(typeof (DemoConflict));
 			var regurgitated = Conflict.CreateFromChorusNotesAnnotation(annotationXml);
 			Assert.That(regurgitated, Is.InstanceOf<DemoConflict>());
