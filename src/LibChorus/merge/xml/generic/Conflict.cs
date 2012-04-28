@@ -208,7 +208,10 @@ namespace Chorus.merge.xml.generic
 		/// <param name="sb"></param>
 		protected virtual void AppendWhatHappened(StringBuilder sb)
 		{
-			sb.Append(string.Format("The merger kept the change made by {0}", string.IsNullOrEmpty(_whoWon)? WinnerId : _whoWon));
+			var winnerId = WinnerId;
+			if (!string.IsNullOrEmpty(_whoWon) && _whoWon != winnerId)
+				winnerId = _whoWon; // Can happen if loser edited and winner deleted.
+			sb.Append(string.Format("The merger kept the change made by {0}", winnerId));
 		}
 
 		private void AppendAlternative(StringBuilder sb, XmlNode changedContext, XmlNode ancestorContext,
