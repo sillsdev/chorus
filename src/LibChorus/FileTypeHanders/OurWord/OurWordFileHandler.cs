@@ -103,6 +103,10 @@ namespace Chorus.FileTypeHanders.OurWord
 			throw new NotImplementedException();
 		}
 
+		/// <summary>
+		/// Get a list or one, or more, extensions this file type handler can process
+		/// </summary>
+		/// <returns>A collection of extensions (without leading period (.)) that can be processed.</returns>
 		public IEnumerable<string> GetExtensionsOfKnownTextFileTypes()
 		{
 			if (!OurWordAssemblyIsAvailable)

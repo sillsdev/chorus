@@ -52,6 +52,8 @@ namespace Chorus.VcsDrivers.Mercurial
 				throw new ApplicationException("Mercurial location has not been configured.");
 			}
 			process.StartInfo.EnvironmentVariables["PYTHONPATH"] = Path.Combine(MercurialLocation.PathToMercurialFolder, "library.zip");
+			process.StartInfo.EnvironmentVariables["HGENCODING"] = "UTF-8"; // See mercurial/encoding.py
+			process.StartInfo.EnvironmentVariables["HGENCODINGMODE"] = "strict";
 			process.StartInfo.RedirectStandardError = true;
 			process.StartInfo.RedirectStandardOutput = true;
 			process.StartInfo.UseShellExecute = false;
@@ -103,7 +105,7 @@ namespace Chorus.VcsDrivers.Mercurial
 					}
 					else
 					{
-						progress.WriteWarning("Killing Process...");
+						progress.WriteWarning("Killing Hg Process...");
 						process.Kill();
 					}
 				}

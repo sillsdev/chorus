@@ -171,14 +171,6 @@ namespace Chorus.UI.Clone
 			}
 
 			var target = Path.Combine(_parentDirectoryToPutCloneIn, Path.GetFileName(SelectedPath));
-			if (Directory.Exists(target))
-			{
-				MessageBox.Show(string.Format(@"Sorry, a project with the same name already exists on this computer at the default location ({0}).
-This tool is only for getting the project there in the first place, not for synchronizing with it.
-If you want to use the version on the USB flash drive you will need to first delete, move, or rename the copy that is on your computer.",
-_parentDirectoryToPutCloneIn), "Problem", MessageBoxButtons.OK, MessageBoxIcon.Stop);
-				return;
-			}
 			try
 			{
 				UpdateDisplay(State.MakingClone);

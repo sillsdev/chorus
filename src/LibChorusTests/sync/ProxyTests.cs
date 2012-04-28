@@ -31,7 +31,7 @@ namespace LibChorus.Tests.sync
 		   // RobustNetworkOperation.ClearCredentialSettings();
 			using (var f = new TemporaryFolder("clonetest"))
 			{
-				HgRepository.Clone(_cloneableTestProjectUrl, f.Path, _progress);
+				HgRepository.Clone(new HttpRepositoryPath("cloneableTestProjectUrl", _cloneableTestProjectUrl, false), f.Path, _progress);
 				Assert.IsTrue(Directory.Exists(f.Combine(f.Path, ".hg")));
 			}
 		}
@@ -44,7 +44,8 @@ namespace LibChorus.Tests.sync
 			using (var f = new TemporaryFolder("pulltest"))
 			{
 				var repo = HgRepository.CreateOrLocate(f.Path, _progress);
-				repo.TryToPull("default", _cloneableTestProjectUrl);
+				var address = new HttpRepositoryPath("default", _cloneableTestProjectUrl, false);
+				repo.Pull(address, _cloneableTestProjectUrl);
 				Assert.IsTrue(Directory.Exists(f.Combine(f.Path, ".hg")));
 			}
 		}
@@ -56,13 +57,13 @@ namespace LibChorus.Tests.sync
 			using (var f = new TemporaryFolder("pulltest"))
 			{
 				var repo = HgRepository.CreateOrLocate(f.Path, _progress);
-				repo.TryToPull("default", _cloneableTestProjectUrl);
+				var address = new HttpRepositoryPath("default", _cloneableTestProjectUrl, false);
+				repo.Pull(address, _cloneableTestProjectUrl);
 				Assert.IsTrue(Directory.Exists(f.Combine(f.Path, ".hg")));
-				var address =RepositoryAddress.Create("default", _cloneableTestProjectUrl);
 
 				//nb: this is safe to do over an over, because it will just say "no changes found", never actually add a changeset
 
-				repo.Push(address, _cloneableTestProjectUrl, _progress);
+				repo.Push(address, _cloneableTestProjectUrl);
 			}
 		}
 	}

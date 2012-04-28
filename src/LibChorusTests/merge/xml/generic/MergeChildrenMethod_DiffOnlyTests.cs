@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Xml;
-using Chorus.FileTypeHanders;
-using Chorus.FileTypeHanders.text;
+﻿using System.Xml;
 using Chorus.FileTypeHanders.xml;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
+using LibChorus.TestUtilities;
 using NUnit.Framework;
 
 namespace LibChorus.Tests.merge.xml.generic
@@ -37,7 +33,7 @@ namespace LibChorus.Tests.merge.xml.generic
 		[Test]
 		public void Run_WeEditedTextElementInsideKeyedElement_ListenerGetsTextEditReport()
 		{
-
+			// Gets report from MergeTextNodesMethod
 			string ours = @"<a><b id='foo'>new</b>  </a>";
 			string ancestor = @"<a><b id='foo'>old</b> </a>";
 
@@ -49,6 +45,7 @@ namespace LibChorus.Tests.merge.xml.generic
 		[Test]
 		public void Run_WeEditedTextElementInsideOneOfTWoKeyedElements_ListenerGetsTextEditReport()
 		{
+			// Gets report from MergeTextNodesMethod
 			string ours = @"<a><b id='foo'>new</b>   <b id='gaa'>same</b></a>";
 			string ancestor = @"<a><b id='foo'>old</b>   <b id='gaa'>same</b></a>";
 

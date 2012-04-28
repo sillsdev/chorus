@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using Chorus.sync;
 using Chorus.VcsDrivers;
@@ -7,7 +7,7 @@ using NUnit.Framework;
 using Palaso.Progress.LogBox;
 using Palaso.TestUtilities;
 
-namespace LibChorus.Tests
+namespace LibChorus.TestUtilities
 {
 	/// <summary>
 	/// Provides temporary directories and repositories.
@@ -185,10 +185,9 @@ namespace LibChorus.Tests
 			hg.SetUserNameInIni(userId,  progress);
 		}
 
-
 		public static string ProjectName
 		{
-			get { return "foo project"; }//nb: important that it have a space, as this helps catch failure to enclose in quotes
+			get { return "ไก่ projéct"; } //nb: important that it have a space, as this helps catch failure to enclose in quotes
 		}
 
 		public IProgress Progress { get; set; }
@@ -291,8 +290,6 @@ namespace LibChorus.Tests
 		{
 			return new BookMark(Repository);
 		}
-
-
 	}
 
 	public class BookMark

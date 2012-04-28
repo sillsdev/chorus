@@ -1,16 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
 using Chorus.sync;
 using Chorus.UI.Sync;
-using Chorus.Utilities;
 using Chorus.VcsDrivers;
-using LibChorus.Tests;
+using LibChorus.TestUtilities;
 using NUnit.Framework;
-using Palaso.Network;
 using Palaso.Progress.LogBox;
 
 namespace Chorus.Tests
@@ -44,7 +40,7 @@ namespace Chorus.Tests
 
 			_synchronizer = Synchronizer.FromProjectConfiguration(_project, new NullProgress());
 			_model = new SyncControlModel(_project, SyncUIFeatures.Advanced,null);
-			_model.AddProgressDisplay(_progress);
+			_model.AddMessagesDisplay(_progress);
 		}
 
 		[TearDown]
@@ -68,23 +64,21 @@ namespace Chorus.Tests
 				}
 			}
 				 Assert.IsNotEmpty(_progress.Text);
-	   }
+		}
 
 		[Test]
 		public void InitiallyHasUsbTarget()
 		{
 			Assert.IsNotNull(_model.GetRepositoriesToList()[0].URI == "UsbKey");
 			// Assert.IsNotNull(_model.GetRepositoriesToList().Any(r => r.URI == "UsbKey"));
-	   }
-
-
+		}
 
 		[Test]
 		public void GetRepositoriesToList_NoRepositoriesKnown_GivesUsb()
 		{
 			_synchronizer.ExtraRepositorySources.Clear();
 			_model = new SyncControlModel(_project, SyncUIFeatures.Advanced, null);
-			_model.AddProgressDisplay(_progress);
+			_model.AddMessagesDisplay(_progress);
 			Assert.AreEqual(1, _model.GetRepositoriesToList().Count);
 		}
 
@@ -97,7 +91,7 @@ namespace Chorus.Tests
 			_model = new SyncControlModel(_project, SyncUIFeatures.Minimal, null);
 			_model.SyncOptions.RepositorySourcesToTry.Add(RepositoryAddress.Create("languageforge", "http://hg-public.languagedepot.org/dummy"));
 			var progress = new ConsoleProgress() {ShowVerbose = true};
-			_model.AddProgressDisplay(progress);
+			_model.AddMessagesDisplay(progress);
 			SyncResults results = null;
 			_model.SynchronizeOver += new EventHandler((sender, e) => results = (sender as SyncResults));
 		   _model.Sync(true);
@@ -121,7 +115,7 @@ namespace Chorus.Tests
 			_model = new SyncControlModel(_project, SyncUIFeatures.Minimal, null);
 			_model.SyncOptions.RepositorySourcesToTry.Add(RepositoryAddress.Create("languageforge", "http://hg-public.languagedepot.org/dummy"));
 			var progress = new ConsoleProgress();
-			_model.AddProgressDisplay(progress);
+			_model.AddMessagesDisplay(progress);
 			SyncResults results = null;
 			_model.SynchronizeOver += new EventHandler((sender, e) => results = (sender as SyncResults));
 			_model.Sync(true);

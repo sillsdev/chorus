@@ -45,14 +45,14 @@ namespace Chorus.Tests.UI.Misc
 		{
 			var m = new ServerSettingsModel();
 			m.InitFromUri("http://joe:pass@hg-public.languagedepot.org/tpi");
-			Assert.AreEqual("languageDepot.org", m.SelectedServerLabel);
+			Assert.AreEqual("languagedepot.org [legacy sync]", m.SelectedServerLabel.ToLower());
 		}
 		[Test]
 		public void InitFromUri_FullPrivateLangDepot_SelectedServerLabel()
 		{
 			var m = new ServerSettingsModel();
 			m.InitFromUri("http://joe:pass@hg-private.languagedepot.org/tpi");
-			Assert.AreEqual("private.LanguageDepot.org".ToLower(), m.SelectedServerLabel.ToLower());
+			Assert.AreEqual("LanguageDepot.org [private]".ToLower(), m.SelectedServerLabel.ToLower());
 		}
 
 		[Test]
@@ -109,7 +109,7 @@ namespace Chorus.Tests.UI.Misc
 				Assert.IsTrue(File.Exists(folder.Combine(".hg","hgrc")));
 				var repo =HgRepository.CreateOrLocate(folder.Path, new NullProgress());
 				var address = repo.GetDefaultNetworkAddress<HttpRepositoryPath>();
-				Assert.AreEqual("languageDepot.org".ToLower(), address.Name.ToLower());
+				Assert.AreEqual("languageDepot.org[legacysync]".ToLower(), address.Name.ToLower());
 				Assert.AreEqual(url, address.URI);
 			}
 		}
@@ -119,8 +119,9 @@ namespace Chorus.Tests.UI.Misc
 		{
 			using (var folder = new TemporaryFolder("ServerSettingsModel"))
 			{
+				// Precondition is some url that is not our default from the ServerSettingsModel
 				var original = HgRepository.CreateOrLocate(folder.Path, new NullProgress());
-				original.SetKnownRepositoryAddresses(new[] { new HttpRepositoryPath("default", "http://joe:oldPassword@hg-public.languagedepot.org/tpi", false) });
+				original.SetKnownRepositoryAddresses(new[] { new HttpRepositoryPath("languagedepot.org [legacy sync]", "http://joe:oldPassword@hg-public.languagedepot.org/tpi", false) });
 
 				var m = new ServerSettingsModel();
 				m.InitFromProjectPath(folder.Path);
@@ -130,6 +131,7 @@ namespace Chorus.Tests.UI.Misc
 				Assert.IsTrue(File.Exists(folder.Combine(".hg", "hgrc")));
 				var repo = HgRepository.CreateOrLocate(folder.Path, new NullProgress());
 				var address = repo.GetDefaultNetworkAddress<HttpRepositoryPath>();
+				Assert.AreEqual("http://joe:newPassword@hg-public.languagedepot.org/tpi", address.URI);
 				Assert.AreEqual("newPassword", address.Password);
 			}
 		}
@@ -141,13 +143,33 @@ namespace Chorus.Tests.UI.Misc
 			{
 				var original = HgRepository.CreateOrLocate(folder.Path, new NullProgress());
 				var existing = "http://abc.com";
-				original.SetKnownRepositoryAddresses(new[] { new HttpRepositoryPath("default", existing, false) });
+				original.SetKnownRepositoryAddresses(new[] { new HttpRepositoryPath("languagedepot.org [legacy sync]", existing, false) });
 
 				var m = new ServerSettingsModel();
 				var url = "http://joe:pass@hg-public.languagedepot.org/tpi";
 				m.InitFromProjectPath(folder.Path);
 				m.SetUrlToUseIfSettingsAreEmpty(url);
 				Assert.AreEqual(existing,m.URL);
+			}
+		}
+
+		/// <summary>
+		/// We want disk URLs identified as 'default' to be ignored (since they are not ones we added ourselves)
+		/// </summary>
+		[Test]
+		public void DefaultUrlsAreIgnored()
+		{
+			using (var folder = new TemporaryFolder("ServerSettingsModel"))
+			{
+				var original = HgRepository.CreateOrLocate(folder.Path, new NullProgress());
+				var existing = "c://abc.com";
+				original.SetKnownRepositoryAddresses(new[] { new HttpRepositoryPath("default", existing, false) });
+
+				var m = new ServerSettingsModel();
+				var url = "c://joe:pass@hg-public.languagedepot.org/tpi";
+				m.InitFromProjectPath(folder.Path);
+				m.SetUrlToUseIfSettingsAreEmpty(url);
+				Assert.AreEqual(url, m.URL);
 			}
 		}
 	}

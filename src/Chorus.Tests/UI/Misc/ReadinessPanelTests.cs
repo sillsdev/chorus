@@ -2,6 +2,7 @@
 using Chorus.sync;
 using Chorus.UI.Sync;
 using Chorus.VcsDrivers;
+using LibChorus.TestUtilities;
 using LibChorus.Tests;
 using NUnit.Framework;
 
