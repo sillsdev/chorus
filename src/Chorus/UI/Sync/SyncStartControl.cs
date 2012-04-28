@@ -274,8 +274,8 @@ namespace Chorus.UI.Sync
 			}
 			else
 			{
-				_internetStatusLabel.Text = message;
-				_internetStatusLabel.LinkArea = new LinkArea(message.Length + 1, 1000);
+			_internetStatusLabel.Text = message;
+			_internetStatusLabel.LinkArea = new LinkArea(message.Length + 1, 1000);
 			}
 			if (_useInternetButton.Enabled)
 				tooltip += System.Environment.NewLine + "Press Shift to see Set Up button";
@@ -339,7 +339,7 @@ namespace Chorus.UI.Sync
 		private void _internetStatusLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
 		{
 			DialogResult dlgResult;
-			using (var dlg = new ServerSettingsDialog(_repository.PathToRepo))
+			using(var dlg = new ServerSettingsDialog(_repository.PathToRepo))
 			{
 				dlgResult = dlg.ShowDialog();
 			}
