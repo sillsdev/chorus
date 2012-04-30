@@ -251,11 +251,6 @@ namespace Chorus.UI.Sync
 		/// <summary>
 		/// Callback method to ensure that Controls are painted on the main thread and not the worker thread.
 		/// </summary>
-		/// <param name="enabled"></param>
-		/// <param name="btnLabel"></param>
-		/// <param name="message"></param>
-		/// <param name="tooltip"></param>
-		/// <param name="diagnostics"></param>
 		private void UpdateInternetUI(bool enabled, string btnLabel, string message, string tooltip, string diagnostics)
 		{
 			_useInternetButton.Enabled = enabled;
@@ -264,18 +259,17 @@ namespace Chorus.UI.Sync
 			else
 				_internetDiagnosticsLink.Visible = false;
 
-			// btnLabel is the web address for the repository
-			_internetStatusLabel.Text = btnLabel;
 			// message is empty if there is a connection, otherwise indicates the problem.
 			if (string.IsNullOrEmpty(message))
 			{
+				// btnLabel is the web address for the repository
 				_internetStatusLabel.Text = btnLabel;
 				_internetStatusLabel.LinkArea = new LinkArea(0, 0);
 			}
 			else
 			{
-			_internetStatusLabel.Text = message;
-			_internetStatusLabel.LinkArea = new LinkArea(message.Length + 1, 1000);
+				_internetStatusLabel.Text = message;
+				_internetStatusLabel.LinkArea = new LinkArea(message.Length + 1, 1000);
 			}
 			if (_useInternetButton.Enabled)
 				tooltip += System.Environment.NewLine + "Press Shift to see Set Up button";
