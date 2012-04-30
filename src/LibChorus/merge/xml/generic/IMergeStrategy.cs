@@ -3,7 +3,7 @@ using System.Xml;
 namespace Chorus.merge.xml.generic
 {
 	/// <summary>
-	/// This is a really high level approach.nything anmore
+	/// This is a really high level approach.
 	/// </summary>
 	public interface IMergeStrategy
 	{

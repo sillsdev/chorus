@@ -363,7 +363,7 @@ namespace Chorus.merge.xml.generic
 			{
 				// Route used.
 				transferUntouched = false;
-				ProcessDeletedRecordFromWinningData(mergeStrategy, mergeOrder, listener, parentIndex, winnerGoners, currentKey, winnerId, loserId, elementMarker, loserGoners, loserDirtballs, writer);
+				ProcessDeletedRecordFromWinningData(mergeStrategy, mergeOrder, listener, parentIndex, winnerGoners, currentKey, loserId, elementMarker, loserGoners, loserDirtballs, writer);
 			}
 
 			if (winnerDirtballs.ContainsKey(currentKey))
@@ -503,7 +503,7 @@ namespace Chorus.merge.xml.generic
 					new EditedVsRemovedElementConflict(
 						recordElementName,
 						dirtballChangedElement._childNode,
-						loserGoners[currentKey],
+						null,
 						dirtballChangedElement._parentNode,
 						mergeOrder.MergeSituation,
 						elementStrategy,
@@ -580,7 +580,7 @@ namespace Chorus.merge.xml.generic
 			IMergeStrategy mergeStrategy, MergeOrder mergeOrder, IMergeEventListener listener,
 			IDictionary<string, byte[]> parentIndex,
 			IDictionary<string, XmlNode> winnerGoners,
-			string currentKey, string winnerId, string loserId, string recordElementName,
+			string currentKey, string loserId, string recordElementName,
 			IDictionary<string, XmlNode> loserGoners, IDictionary<string, ChangedElement> loserDirtballs,
 			XmlWriter writer)
 		{
