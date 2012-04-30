@@ -1332,8 +1332,9 @@ namespace Chorus.VcsDrivers.Mercurial
 			var doc = GetMercurialConfigForRepository();
 
 			IniSection section = doc.Sections.GetOrCreate("format");
+			IniSection section_w32text = doc.Sections.GetOrCreate("win32text");
 
-			if (CheckExtensions(doc, extensions) && section.GetValue("dotencode") == "False")
+			if (CheckExtensions(doc, extensions) && section.GetValue("dotencode") == "False" && section_w32text.GetValue("warn") == "False")
 			{
 				return;
 			}
@@ -1360,8 +1361,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			//To disable deprecation warnings from this extension (until you get get around to replacing win32text with eol), add
 			// these two lines to your configuration file:
 
-			section = doc.Sections.GetOrCreate("win32text");
-			section.Set("warn", "False");
+			section_w32text.Set("warn", "False");
 
 			doc.SaveAndThrowIfCannot();
 		}
