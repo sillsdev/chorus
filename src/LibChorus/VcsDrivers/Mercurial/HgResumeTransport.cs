@@ -133,6 +133,10 @@ namespace Chorus.VcsDrivers.Mercurial
 		{
 			if (useCache && !string.IsNullOrEmpty(LastKnownCommonBase))
 			{
+				if (LastKnownCommonBase == "unrelated")
+				{
+					throw new HgResumeException("The remote repo is unrelated");
+				}
 				return LastKnownCommonBase;
 			}
 			int offset = 0;
@@ -158,11 +162,15 @@ namespace Chorus.VcsDrivers.Mercurial
 				}
 				if (string.IsNullOrEmpty(commonBase) && remoteRevisions.Count() < quantity)
 				{
-					commonBase = localRevisions.Last();
+					commonBase = "unrelated";
 				}
 				offset += quantity;
 			}
 			LastKnownCommonBase = commonBase;
+			if (commonBase == "unrelated")
+			{
+				throw new HgResumeException("The remote repo is unrelated");
+			}
 			return commonBase;
 		}
 
