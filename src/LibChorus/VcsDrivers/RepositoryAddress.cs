@@ -88,7 +88,7 @@ namespace Chorus.VcsDrivers
 
 		public static bool IsKnownResumableRepository(string uri)
 		{
-			return uri.ToLower().Contains("languageforge.org") || uri.ToLower().Contains("resumable");
+			return uri.ToLower().Contains("hg-test.languageforge.org") || uri.ToLower().Contains("resumable");
 		}
 
 
