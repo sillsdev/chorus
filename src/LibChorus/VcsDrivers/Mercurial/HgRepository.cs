@@ -182,7 +182,9 @@ namespace Chorus.VcsDrivers.Mercurial
 				//NB: this is REQUIRED because we are now, in the hgrunner, saying that we will be getting utf8 output. If we made this extension optional, we'd have to know to not say that.
 
 				var extensions = new Dictionary<string, string>();
+#if !MONO
 				extensions.Add("hgext.win32text", ""); //for converting line endings on windows machines
+#endif
 				extensions.Add("hgext.graphlog",""); //for more easily readable diagnostic logs
 				extensions.Add("convert",""); //for catastrophic repair in case of repo corruption
 #if !MONO
