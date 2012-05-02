@@ -317,6 +317,52 @@ namespace LibChorus.Tests.sync
 		}
 
 		[Test]
+		public void LargeFileInNonExcludedFolderNotFilteredByExclusionAtDeeperNesting()
+		{
+			//Put a large file in [repo]\Cache and in [repo]\foo\SomeLayer\Cache
+			//exclude \foo\**\Cache, make sure that [repo]\Cache\largeFile was not filtered out.
+			using (var bob = new RepositorySetup("bob"))
+			{
+				var megabyteLongData = "long" + Environment.NewLine;
+				while (megabyteLongData.Length < LargeFileFilter.Megabyte)
+					megabyteLongData += megabyteLongData;
+
+				var pathToRepo = bob.Repository.PathToRepo + Path.DirectorySeparatorChar;
+				var firstLayer = Path.Combine(bob.Repository.PathToRepo, "foo");
+				Directory.CreateDirectory(firstLayer);
+				var coFirstLayer = Path.Combine(bob.Repository.PathToRepo, "Cache");
+				Directory.CreateDirectory(coFirstLayer);
+				var secondLayer = Path.Combine(bob.Repository.PathToRepo, "SomeLayer");
+				Directory.CreateDirectory(secondLayer);
+				var nestedFolder = Path.Combine(secondLayer, "Cache");
+				Directory.CreateDirectory(nestedFolder);
+				const string largeVideoFilename = "whopper.mov";
+				var largeVideoPathname = Path.Combine(nestedFolder, largeVideoFilename);
+				bob.ChangeFile(largeVideoPathname, megabyteLongData);
+				bob.Repository.TestOnlyAddSansCommit(largeVideoPathname);
+				var nonExcludedVideoPath = Path.Combine(coFirstLayer, largeVideoFilename);
+				bob.ChangeFile(nonExcludedVideoPath, megabyteLongData);
+				bob.Repository.TestOnlyAddSansCommit(nonExcludedVideoPath);
+
+				var config = bob.ProjectFolderConfig;
+				config.ExcludePatterns.Clear();
+				config.ExcludePatterns.Add(Path.Combine("foo", Path.Combine("**", "Cache")));
+				config.IncludePatterns.Clear();
+				config.IncludePatterns.Add("**.*");
+
+				var result = LargeFileFilter.FilterFiles(
+					bob.Repository,
+					config,
+					ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers());
+				Assert.IsFalse(string.IsNullOrEmpty(result), @"Cache folder at root was improperly filtered by foo\**\Cache");
+
+				var shortpath = largeVideoPathname.Replace(pathToRepo, "");
+				Assert.IsFalse(config.ExcludePatterns.Contains(shortpath));
+				Assert.IsFalse(config.IncludePatterns.Contains(shortpath));
+			}
+		}
+
+		[Test]
 		public void LargeFileInExcludedDeeplyNestedPathIsNotFilteredOut()
 		{
 			using (var bob = new RepositorySetup("bob"))
