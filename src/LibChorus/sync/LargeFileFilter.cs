@@ -84,7 +84,8 @@ namespace Chorus.sync
 				FilterFiles(repository, configuration, builder, fir, handlerCollection.Handlers.ToList());
 			}
 
-			return builder.ToString();
+			var result = builder.ToString();
+			return string.IsNullOrEmpty(result) ? null : result;
 		}
 
 		private static void FilterFiles(HgRepository repository, ProjectFolderConfiguration configuration,
@@ -98,60 +99,16 @@ namespace Chorus.sync
 				if (fileExtension == "wav")
 					return; // Nasty hack, but "wav" is put into repo no matter its size. TODO: FIX THIS, if Hg ever works right for "wav" files.
 			}
+
+			var pathToRepository = PathToRepository(repository);
 			var fileInfo = new FileInfo(fir.FullPath);
 			var fileSize = fileInfo.Length;
 			handlers.Add(new DefaultFileTypeHandler());
 			var allKnownExtensions = new HashSet<string>();
-			var pathToRepository = PathToRepository(repository);
-			var allExtantExcludedPathnames = new HashSet<string>();
-			foreach (var currentExclusion in configuration.ExcludePatterns)
-			{
-				// Gather up all normally excluded files, so they are not reported as being filtered out for being large.
-				// That extra/un-needed warning message will only serve to confuse users.
-				if (currentExclusion.Contains(Path.DirectorySeparatorChar + "**" + Path.DirectorySeparatorChar)
-					|| (currentExclusion.Contains("**" + Path.DirectorySeparatorChar) && currentExclusion.StartsWith("**")))
-				{
-					// Something like the lift exclusion of **\Cache.
-					// Or some toher filter like: foo\**\bar.
-					var nestedFolderName = currentExclusion.StartsWith("**")
-											? currentExclusion.Replace("**" + Path.DirectorySeparatorChar, null)
-											: currentExclusion.Substring(currentExclusion.IndexOf(Path.DirectorySeparatorChar + "**" + Path.DirectorySeparatorChar, StringComparison.Ordinal) + 4);
-					foreach (var directory in Directory.GetDirectories(pathToRepository, nestedFolderName, SearchOption.AllDirectories))
-					{
-						foreach (var excludedPathname in Directory.GetFiles(directory, "*.*", SearchOption.AllDirectories))
-						{
-							allExtantExcludedPathnames.Add(excludedPathname.Replace(pathToRepository, null));
-						}
-					}
-				}
-				else
-				{
-					if (currentExclusion.Contains("*"))
-					{
-						var adjustedBasePath = currentExclusion.Contains(Path.DirectorySeparatorChar)
-												? Path.GetDirectoryName(Path.Combine(pathToRepository, currentExclusion))
-												: pathToRepository;
-						if (!Directory.Exists(adjustedBasePath))
-							continue;
-						var useNestingFilter = currentExclusion.Contains("**");
-						foreach (var excludedPathname in Directory.GetFiles(pathToRepository,
-							useNestingFilter ? currentExclusion.Replace("**", "*") : currentExclusion,
-							useNestingFilter ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly))
-						{
-							allExtantExcludedPathnames.Add(excludedPathname.Replace(pathToRepository, null));
-						}
-					}
-					else
-					{
-						var singletonPathname = Path.Combine(pathToRepository, currentExclusion);
-						if (File.Exists(singletonPathname))
-							allExtantExcludedPathnames.Add(singletonPathname.Replace(pathToRepository, null));
-					}
-				}
-			}
-
 			foreach (var handler in handlers)
 				allKnownExtensions.UnionWith(handler.GetExtensionsOfKnownTextFileTypes());
+			var allNormallyExcludedPathnames = CollectAllNormallyExcludedPathnames(configuration, pathToRepository);
+
 			foreach (var handler in handlers)
 			{
 				// NB: we don't care if the handler can do anything with the file, or not.
@@ -162,7 +119,7 @@ namespace Chorus.sync
 					if (fileSize <= handler.MaximumFileSize)
 						continue;
 
-					RegisterLargeFile(repository, configuration, builder, fir, filename, allExtantExcludedPathnames);
+					RegisterLargeFile(repository, configuration, builder, fir, filename, allNormallyExcludedPathnames);
 				}
 				else
 				{
@@ -174,9 +131,73 @@ namespace Chorus.sync
 							continue;
 						}
 
-						RegisterLargeFile(repository, configuration, builder, fir, filename, allExtantExcludedPathnames);
+						RegisterLargeFile(repository, configuration, builder, fir, filename, allNormallyExcludedPathnames);
 					}
 				}
+			}
+		}
+
+		private static HashSet<string> CollectAllNormallyExcludedPathnames(ProjectFolderConfiguration configuration,
+																string pathToRepository)
+		{
+			var allNormallyExcludedPathnames = new HashSet<string>();
+			foreach (var currentExclusion in configuration.ExcludePatterns)
+			{
+				// Gather up all normally excluded files, so they are not reported as being filtered out for being large.
+				// That extra/un-needed warning message will only serve to confuse users.
+				if (currentExclusion.StartsWith("**" + Path.DirectorySeparatorChar))
+				{
+					// Something like the lift exclusion of **\Cache. (Or worse: **\foo\**\Cache. Not currently supported)
+					var nestedFolderName = currentExclusion.Replace("**" + Path.DirectorySeparatorChar, null);
+					var adjustedBaseDir = pathToRepository;
+					CollectExcludedFilesFromDirectory(pathToRepository, adjustedBaseDir, nestedFolderName, allNormallyExcludedPathnames);
+				}
+				else if (currentExclusion.Contains(Path.DirectorySeparatorChar + "**" + Path.DirectorySeparatorChar))
+				{
+					// Some other filter like: foo\**\Cache.
+					var idx = currentExclusion.IndexOf(Path.DirectorySeparatorChar + "**" + Path.DirectorySeparatorChar, StringComparison.Ordinal);
+					var nestedFolderName = currentExclusion.Substring(idx + 4);
+					var adjustedBaseDir = Path.Combine(pathToRepository, currentExclusion.Substring(0, idx));
+					CollectExcludedFilesFromDirectory(pathToRepository, adjustedBaseDir, nestedFolderName, allNormallyExcludedPathnames);
+				}
+				else if (currentExclusion.Contains("*"))
+				{
+					// May be "*.*" or "**.*", but not "**".
+					var adjustedBasePath = currentExclusion.Contains(Path.DirectorySeparatorChar)
+											? Path.GetDirectoryName(Path.Combine(pathToRepository, currentExclusion))
+											: pathToRepository;
+					if (!Directory.Exists(adjustedBasePath))
+						continue;
+					var useNestingFilter = currentExclusion.Contains("**");
+					foreach (var excludedPathname in Directory.GetFiles(pathToRepository,
+																		useNestingFilter
+																			? currentExclusion.Replace("**", "*")
+																			: currentExclusion,
+																		useNestingFilter
+																			? SearchOption.AllDirectories
+																			: SearchOption.TopDirectoryOnly))
+					{
+						allNormallyExcludedPathnames.Add(excludedPathname.Replace(pathToRepository, null));
+					}
+				}
+				else
+				{
+					// An explicitly specified file with no wildcards, such as foo\some.txt
+					var singletonPathname = Path.Combine(pathToRepository, currentExclusion);
+					if (File.Exists(singletonPathname))
+						allNormallyExcludedPathnames.Add(singletonPathname.Replace(pathToRepository, null));
+				}
+			}
+			return allNormallyExcludedPathnames;
+		}
+
+		private static void CollectExcludedFilesFromDirectory(string pathToRepository, string adjustedBaseDir,
+															  string nestedFolderName, HashSet<string> allNormallyExcludedPathnames	)
+		{
+			foreach (var directory in Directory.GetDirectories(adjustedBaseDir, nestedFolderName, SearchOption.AllDirectories))
+			{
+				foreach (var excludedPathname in Directory.GetFiles(directory, "*.*", SearchOption.AllDirectories))
+					allNormallyExcludedPathnames.Add(excludedPathname.Replace(pathToRepository, null));
 			}
 		}
 

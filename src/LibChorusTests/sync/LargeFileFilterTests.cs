@@ -319,30 +319,35 @@ namespace LibChorus.Tests.sync
 		[Test]
 		public void LargeFileInNonExcludedFolderNotFilteredByExclusionAtDeeperNesting()
 		{
-			//Put a large file in [repo]\Cache and in [repo]\foo\SomeLayer\Cache
-			//exclude \foo\**\Cache, make sure that [repo]\Cache\largeFile was not filtered out.
+			//Put a small file in [repo]\Cache and a large file in [repo]\foo\SomeLayer\Cache
+			//exclude \foo\**\Cache, make sure that [repo]\Cache\smallFile was not filtered out.
+			// Make sure that [repo]\foo\SomeLayer\Cache\largfile was not reported as being a large file.
 			using (var bob = new RepositorySetup("bob"))
 			{
+				var smallData = "small" + Environment.NewLine;
+				while (smallData.Length < LargeFileFilter.Megabyte / 3)
+					smallData += smallData;
+				var pathToRepo = bob.Repository.PathToRepo + Path.DirectorySeparatorChar;
+				var cacheAtRoot = Path.Combine(bob.Repository.PathToRepo, "Cache");
+				Directory.CreateDirectory(cacheAtRoot);
+				const string smallVideoFilename = "dinky.mov";
+				var smallNestedVideoPathname = Path.Combine(cacheAtRoot, smallVideoFilename);
+				bob.ChangeFile(smallNestedVideoPathname, smallData);
+				bob.Repository.TestOnlyAddSansCommit(smallNestedVideoPathname);
+
 				var megabyteLongData = "long" + Environment.NewLine;
 				while (megabyteLongData.Length < LargeFileFilter.Megabyte)
 					megabyteLongData += megabyteLongData;
-
-				var pathToRepo = bob.Repository.PathToRepo + Path.DirectorySeparatorChar;
-				var firstLayer = Path.Combine(bob.Repository.PathToRepo, "foo");
-				Directory.CreateDirectory(firstLayer);
-				var coFirstLayer = Path.Combine(bob.Repository.PathToRepo, "Cache");
-				Directory.CreateDirectory(coFirstLayer);
-				var secondLayer = Path.Combine(bob.Repository.PathToRepo, "SomeLayer");
-				Directory.CreateDirectory(secondLayer);
-				var nestedFolder = Path.Combine(secondLayer, "Cache");
-				Directory.CreateDirectory(nestedFolder);
+				var fooAtRoot = Path.Combine(bob.Repository.PathToRepo, "foo");
+				Directory.CreateDirectory(fooAtRoot);
+				var firstLayerBelowFoo = Path.Combine(fooAtRoot, "SomeLayer");
+				Directory.CreateDirectory(firstLayerBelowFoo);
+				var nestedCacheFolder = Path.Combine(firstLayerBelowFoo, "Cache");
+				Directory.CreateDirectory(nestedCacheFolder);
 				const string largeVideoFilename = "whopper.mov";
-				var largeVideoPathname = Path.Combine(nestedFolder, largeVideoFilename);
-				bob.ChangeFile(largeVideoPathname, megabyteLongData);
-				bob.Repository.TestOnlyAddSansCommit(largeVideoPathname);
-				var nonExcludedVideoPath = Path.Combine(coFirstLayer, largeVideoFilename);
-				bob.ChangeFile(nonExcludedVideoPath, megabyteLongData);
-				bob.Repository.TestOnlyAddSansCommit(nonExcludedVideoPath);
+				var largeNestedVideoPathname = Path.Combine(nestedCacheFolder, largeVideoFilename);
+				bob.ChangeFile(largeNestedVideoPathname, megabyteLongData);
+				bob.Repository.TestOnlyAddSansCommit(largeNestedVideoPathname);
 
 				var config = bob.ProjectFolderConfig;
 				config.ExcludePatterns.Clear();
@@ -354,10 +359,65 @@ namespace LibChorus.Tests.sync
 					bob.Repository,
 					config,
 					ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers());
-				Assert.IsFalse(string.IsNullOrEmpty(result), @"Cache folder at root was improperly filtered by foo\**\Cache");
+				Assert.True(string.IsNullOrEmpty(result), @"Cache folder at root was improperly filtered by foo\**\Cache");
 
-				var shortpath = largeVideoPathname.Replace(pathToRepo, "");
+				var shortpath = largeNestedVideoPathname.Replace(pathToRepo, null);
 				Assert.IsFalse(config.ExcludePatterns.Contains(shortpath));
+				Assert.IsFalse(config.IncludePatterns.Contains(shortpath));
+
+				shortpath = smallNestedVideoPathname.Replace(pathToRepo, null);
+				Assert.IsFalse(config.ExcludePatterns.Contains(shortpath));
+				Assert.IsFalse(config.IncludePatterns.Contains(shortpath));
+			}
+		}
+
+		[Test]
+		public void LargeFileInNonExcludedFolderFiltered()
+		{
+			//Put a large file in [repo]\Cache and in [repo]\foo\SomeLayer\Cache
+			//exclude \foo\**\Cache, make sure that [repo]\Cache\largeFile was filtered out.
+			using (var bob = new RepositorySetup("bob"))
+			{
+				var megabyteLongData = "long" + Environment.NewLine;
+				while (megabyteLongData.Length < LargeFileFilter.Megabyte)
+					megabyteLongData += megabyteLongData;
+				var pathToRepo = bob.Repository.PathToRepo + Path.DirectorySeparatorChar;
+				var cacheAtRoot = Path.Combine(bob.Repository.PathToRepo, "Cache");
+				Directory.CreateDirectory(cacheAtRoot);
+				const string biggieNonexcludedFileName = "biggie.mov";
+				var biggieNestedNonExcludedVideoPathname = Path.Combine(cacheAtRoot, biggieNonexcludedFileName);
+				bob.ChangeFile(biggieNestedNonExcludedVideoPathname, megabyteLongData);
+				bob.Repository.TestOnlyAddSansCommit(biggieNestedNonExcludedVideoPathname);
+
+				var fooAtRoot = Path.Combine(bob.Repository.PathToRepo, "foo");
+				Directory.CreateDirectory(fooAtRoot);
+				var firstLayerBelowFoo = Path.Combine(fooAtRoot, "SomeLayer");
+				Directory.CreateDirectory(firstLayerBelowFoo);
+				var nestedCacheFolder = Path.Combine(firstLayerBelowFoo, "Cache");
+				Directory.CreateDirectory(nestedCacheFolder);
+				const string largeVideoFilename = "whopper.mov";
+				var largeNestedVideoPathname = Path.Combine(nestedCacheFolder, largeVideoFilename);
+				bob.ChangeFile(largeNestedVideoPathname, megabyteLongData);
+				bob.Repository.TestOnlyAddSansCommit(largeNestedVideoPathname);
+
+				var config = bob.ProjectFolderConfig;
+				config.ExcludePatterns.Clear();
+				config.ExcludePatterns.Add(Path.Combine("foo", Path.Combine("**", "Cache")));
+				config.IncludePatterns.Clear();
+				config.IncludePatterns.Add("**.*");
+
+				var result = LargeFileFilter.FilterFiles(
+					bob.Repository,
+					config,
+					ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers());
+				Assert.IsFalse(string.IsNullOrEmpty(result), @"Cache folder at root wasn't properly filtered by large file filer in [repo]\Cache\biggie.mov");
+
+				var shortpath = largeNestedVideoPathname.Replace(pathToRepo, null);
+				Assert.IsFalse(config.ExcludePatterns.Contains(shortpath));
+				Assert.IsFalse(config.IncludePatterns.Contains(shortpath));
+
+				shortpath = biggieNestedNonExcludedVideoPathname.Replace(pathToRepo, null);
+				Assert.IsTrue(config.ExcludePatterns.Contains(shortpath));
 				Assert.IsFalse(config.IncludePatterns.Contains(shortpath));
 			}
 		}
@@ -431,6 +491,77 @@ namespace LibChorus.Tests.sync
 				Assert.IsTrue(string.IsNullOrEmpty(result));
 
 				var shortpath = largeVideoPathname.Replace(pathToRepo, "");
+				Assert.IsFalse(config.ExcludePatterns.Contains(shortpath));
+				Assert.IsFalse(config.IncludePatterns.Contains(shortpath));
+			}
+		}
+
+		[Test]
+		public void NormallyExcludedNestedLargeFileIsNotAddedByLargeFileFilter()
+		{
+			using (var bob = new RepositorySetup("bob"))
+			{
+				var megabyteLongData = "long" + Environment.NewLine;
+				while (megabyteLongData.Length < LargeFileFilter.Megabyte)
+					megabyteLongData += megabyteLongData;
+
+				const string largeDictionaryFilename = "whopper.dic";
+				var nestedFolder = Path.Combine(bob.Repository.PathToRepo, "nestedFolder");
+				Directory.CreateDirectory(nestedFolder);
+				var largeDictionaryPathname = Path.Combine("nestedFolder", largeDictionaryFilename);
+
+				bob.ChangeFile(largeDictionaryPathname, megabyteLongData);
+				var fullDictionaryPathname = Path.Combine(bob.ProjectFolderConfig.FolderPath, largeDictionaryPathname);
+				var pathToRepo = bob.Repository.PathToRepo + Path.DirectorySeparatorChar;
+				bob.Repository.TestOnlyAddSansCommit(fullDictionaryPathname);
+
+				var config = bob.ProjectFolderConfig;
+				config.ExcludePatterns.Clear();
+				config.ExcludePatterns.Add(Path.Combine("nestedFolder", "whopper.dic"));
+				config.IncludePatterns.Clear();
+				config.IncludePatterns.Add("**.*");
+
+				var result = LargeFileFilter.FilterFiles(
+					bob.Repository,
+					config,
+					ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers());
+				Assert.IsTrue(string.IsNullOrEmpty(result));
+				var shortpath = fullDictionaryPathname.Replace(pathToRepo, "");
+				Assert.IsTrue(config.ExcludePatterns.Contains(shortpath));
+				Assert.IsFalse(config.IncludePatterns.Contains(shortpath));
+			}
+		}
+
+		[Test]
+		public void ExplicitlyExcludedNonexistantFileNotFiltered()
+		{
+			using (var bob = new RepositorySetup("bob"))
+			{
+				const string largeDictionaryFilename = "ghost.dic";
+				var largeDictionaryPathname = Path.Combine("nestedFolder", largeDictionaryFilename);
+				var fullDictionaryPathname = Path.Combine(bob.ProjectFolderConfig.FolderPath, largeDictionaryPathname);
+				var pathToRepo = bob.Repository.PathToRepo + Path.DirectorySeparatorChar;
+				const string randomFile = "random.txt";
+				bob.ChangeFile(randomFile, "Some text.");
+				var fullRandomPathname = Path.Combine(bob.ProjectFolderConfig.FolderPath, randomFile);
+				bob.Repository.TestOnlyAddSansCommit(fullRandomPathname);
+
+				var config = bob.ProjectFolderConfig;
+				config.ExcludePatterns.Clear();
+				config.ExcludePatterns.Add(Path.Combine("nestedFolder", "ghost.dic"));
+				config.IncludePatterns.Clear();
+				config.IncludePatterns.Add("**.*");
+
+				var result = LargeFileFilter.FilterFiles(
+					bob.Repository,
+					config,
+					ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers());
+				Assert.IsTrue(string.IsNullOrEmpty(result));
+				var shortpath = fullDictionaryPathname.Replace(pathToRepo, "");
+				Assert.IsTrue(config.ExcludePatterns.Contains(shortpath));
+				Assert.IsFalse(config.IncludePatterns.Contains(shortpath));
+
+				shortpath = fullRandomPathname.Replace(pathToRepo, "");
 				Assert.IsFalse(config.ExcludePatterns.Contains(shortpath));
 				Assert.IsFalse(config.IncludePatterns.Contains(shortpath));
 			}
