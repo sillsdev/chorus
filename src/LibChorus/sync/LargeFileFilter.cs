@@ -108,26 +108,45 @@ namespace Chorus.sync
 			{
 				// Gather up all normally excluded files, so they are not reported as being filtered out for being large.
 				// That extra/un-needed warning message will only serve to confuse users.
-				var useNestingFilter = currentExclusion.Contains("**");
-				if (currentExclusion.Contains("*"))
+				if (currentExclusion.Contains(Path.DirectorySeparatorChar + "**" + Path.DirectorySeparatorChar)
+					|| (currentExclusion.Contains("**" + Path.DirectorySeparatorChar) && currentExclusion.StartsWith("**")))
 				{
-					var adjustedBasePath = currentExclusion.Contains(Path.DirectorySeparatorChar)
-											? Path.GetDirectoryName(Path.Combine(pathToRepository, currentExclusion))
-											: pathToRepository;
-					if (!Directory.Exists(adjustedBasePath))
-						continue;
-					foreach (var excludedPathname in Directory.GetFiles(pathToRepository,
-						useNestingFilter ? currentExclusion.Replace("**", "*") : currentExclusion,
-						useNestingFilter ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly))
+					// Something like the lift exclusion of **\Cache.
+					// Or some toher filter like: foo\**\bar.
+					var nestedFolderName = currentExclusion.StartsWith("**")
+											? currentExclusion.Replace("**" + Path.DirectorySeparatorChar, null)
+											: currentExclusion.Substring(currentExclusion.IndexOf(Path.DirectorySeparatorChar + "**" + Path.DirectorySeparatorChar, StringComparison.Ordinal) + 4);
+					foreach (var directory in Directory.GetDirectories(pathToRepository, nestedFolderName, SearchOption.AllDirectories))
 					{
-						allExtantExcludedPathnames.Add(excludedPathname.Replace(pathToRepository, null));
+						foreach (var excludedPathname in Directory.GetFiles(directory, "*.*", SearchOption.AllDirectories))
+						{
+							allExtantExcludedPathnames.Add(excludedPathname.Replace(pathToRepository, null));
+						}
 					}
 				}
 				else
 				{
-					var singletonPathname = Path.Combine(pathToRepository, currentExclusion);
-					if (File.Exists(singletonPathname))
-						allExtantExcludedPathnames.Add(singletonPathname.Replace(pathToRepository, null));
+					if (currentExclusion.Contains("*"))
+					{
+						var adjustedBasePath = currentExclusion.Contains(Path.DirectorySeparatorChar)
+												? Path.GetDirectoryName(Path.Combine(pathToRepository, currentExclusion))
+												: pathToRepository;
+						if (!Directory.Exists(adjustedBasePath))
+							continue;
+						var useNestingFilter = currentExclusion.Contains("**");
+						foreach (var excludedPathname in Directory.GetFiles(pathToRepository,
+							useNestingFilter ? currentExclusion.Replace("**", "*") : currentExclusion,
+							useNestingFilter ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly))
+						{
+							allExtantExcludedPathnames.Add(excludedPathname.Replace(pathToRepository, null));
+						}
+					}
+					else
+					{
+						var singletonPathname = Path.Combine(pathToRepository, currentExclusion);
+						if (File.Exists(singletonPathname))
+							allExtantExcludedPathnames.Add(singletonPathname.Replace(pathToRepository, null));
+					}
 				}
 			}
 
