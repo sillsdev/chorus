@@ -1,4 +1,5 @@
 ﻿using System.Threading;
+using Palaso.UI.WindowsForms.SettingProtection;
 
 namespace Chorus.UI.Sync
 {
@@ -47,7 +48,7 @@ namespace Chorus.UI.Sync
 			this._internetStatusLabel = new System.Windows.Forms.LinkLabel();
 			this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
 			this.betterLabel1 = new Chorus.UI.BetterLabel();
-			this._userName = new System.Windows.Forms.TextBox();
+			this._settingsButton = new SettingsLauncherButton();
 			this._sharedNetworkDiagnosticsLink = new System.Windows.Forms.LinkLabel();
 			this._internetDiagnosticsLink = new System.Windows.Forms.LinkLabel();
 			this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
@@ -112,17 +113,17 @@ namespace Chorus.UI.Sync
 			this.tableLayoutPanel1.ColumnCount = 2;
 			this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 75F));
 			this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
-			this.tableLayoutPanel1.Controls.Add(this._useSharedFolderStatusLabel, 0, 5);
-			this.tableLayoutPanel1.Controls.Add(this._useUSBButton, 0, 0);
-			this.tableLayoutPanel1.Controls.Add(this._usbStatusLabel, 0, 1);
-			this.tableLayoutPanel1.Controls.Add(this._useInternetButton, 0, 2);
-			this.tableLayoutPanel1.Controls.Add(this._useSharedFolderButton, 0, 4);
-			this.tableLayoutPanel1.Controls.Add(this.betterLabel2, 0, 7);
-			this.tableLayoutPanel1.Controls.Add(this._commitMessageText, 0, 8);
-			this.tableLayoutPanel1.Controls.Add(this._internetStatusLabel, 0, 3);
-			this.tableLayoutPanel1.Controls.Add(this.flowLayoutPanel1, 0, 6);
-			this.tableLayoutPanel1.Controls.Add(this._sharedNetworkDiagnosticsLink, 1, 4);
-			this.tableLayoutPanel1.Controls.Add(this._internetDiagnosticsLink, 1, 2);
+			this.tableLayoutPanel1.Controls.Add(this.betterLabel2, 0, 0);
+			this.tableLayoutPanel1.Controls.Add(this._commitMessageText, 0, 1);
+			this.tableLayoutPanel1.Controls.Add(this._useUSBButton, 0, 2);
+			this.tableLayoutPanel1.Controls.Add(this._usbStatusLabel, 0, 3);
+			this.tableLayoutPanel1.Controls.Add(this._useInternetButton, 0, 4);
+			this.tableLayoutPanel1.Controls.Add(this._internetStatusLabel, 0, 5);
+			this.tableLayoutPanel1.Controls.Add(this._useSharedFolderButton, 0, 6);
+			this.tableLayoutPanel1.Controls.Add(this._useSharedFolderStatusLabel, 0, 7);
+			this.tableLayoutPanel1.Controls.Add(this.flowLayoutPanel1, 0, 8);
+			this.tableLayoutPanel1.Controls.Add(this._internetDiagnosticsLink, 1, 4);
+			this.tableLayoutPanel1.Controls.Add(this._sharedNetworkDiagnosticsLink, 1, 6);
 			this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 13);
 			this.tableLayoutPanel1.Name = "tableLayoutPanel1";
 			this.tableLayoutPanel1.RowCount = 9;
@@ -219,8 +220,7 @@ namespace Chorus.UI.Sync
 			// flowLayoutPanel1
 			//
 			this.tableLayoutPanel1.SetColumnSpan(this.flowLayoutPanel1, 2);
-			this.flowLayoutPanel1.Controls.Add(this.betterLabel1);
-			this.flowLayoutPanel1.Controls.Add(this._userName);
+			this.flowLayoutPanel1.Controls.Add(this._settingsButton);
 			this.flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.flowLayoutPanel1.Location = new System.Drawing.Point(0, 233);
 			this.flowLayoutPanel1.Margin = new System.Windows.Forms.Padding(0, 3, 3, 3);
@@ -242,14 +242,6 @@ namespace Chorus.UI.Sync
 			this.betterLabel1.TabIndex = 0;
 			this.betterLabel1.TabStop = false;
 			this.betterLabel1.Text = "Your Name:";
-			//
-			// _userName
-			//
-			this._userName.Location = new System.Drawing.Point(109, 3);
-			this._userName.Margin = new System.Windows.Forms.Padding(3, 3, 0, 3);
-			this._userName.Name = "_userName";
-			this._userName.Size = new System.Drawing.Size(200, 20);
-			this._userName.TabIndex = 1;
 			//
 			// _sharedNetworkDiagnosticsLink
 			//
@@ -313,8 +305,8 @@ namespace Chorus.UI.Sync
 		private System.Windows.Forms.LinkLabel _useSharedFolderStatusLabel;
 		private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
 		private BetterLabel betterLabel1;
-		private System.Windows.Forms.TextBox _userName;
 		private System.Windows.Forms.LinkLabel _sharedNetworkDiagnosticsLink;
 		private System.Windows.Forms.LinkLabel _internetDiagnosticsLink;
+		private Palaso.UI.WindowsForms.SettingProtection.SettingsLauncherButton _settingsButton;
 	}
 }

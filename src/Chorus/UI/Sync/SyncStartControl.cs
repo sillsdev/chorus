@@ -53,7 +53,6 @@ namespace Chorus.UI.Sync
 
 			_model = new SyncStartModel(repository);
 			_repository = repository;
-			_userName.Text = repository.GetUserIdInUse();
 
 			// Setup Internet State Checking thread and the worker that it will run
 			_internetStateWorker = new ConnectivityStateWorker(CheckInternetStatusAndUpdateUI);
@@ -304,10 +303,11 @@ namespace Chorus.UI.Sync
 
 		private void UpdateName()
 		{
-			if (_repository.GetUserIdInUse() != _userName.Text.Trim() && _userName.Text.Trim().Length>0)
-			{
-				_repository.SetUserNameInIni(_userName.Text.Trim(), new NullProgress());
-			}
+			//var _userName = repository.GetUserIdInUse();
+			//if (_repository.GetUserIdInUse() != _userName.Text.Trim() && _userName.Text.Trim().Length>0)
+			//{
+			//    _repository.SetUserNameInIni(_userName.Text.Trim(), new NullProgress());
+			//}
 		}
 
 		private void _useInternetButton_Click(object sender, EventArgs e)
