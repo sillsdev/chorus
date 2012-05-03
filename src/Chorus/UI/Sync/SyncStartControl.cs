@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Windows.Forms;
 using Chorus.UI.Misc;
+using Chorus.UI.Settings;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using Palaso.Code;
@@ -65,6 +66,14 @@ namespace Chorus.UI.Sync
 			// let the dialog display itself first, then check for connection
 			_updateDisplayTimer.Interval = INITIALINTERVAL; // But check sooner than 2 seconds anyway!
 			_updateDisplayTimer.Enabled = true;
+
+			_settingsButton.LaunchSettingsCallback = DisplaySRSettingsDlg;
+		}
+
+		private static DialogResult DisplaySRSettingsDlg()
+		{
+			var settingsDlg = new SendReceiveSettings();
+			return settingsDlg.ShowDialog();
 		}
 
 		private void SetupSharedFolderAndInternetUI()
