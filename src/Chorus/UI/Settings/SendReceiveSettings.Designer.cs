@@ -33,8 +33,8 @@ namespace Chorus.UI.Settings
 			this.nameLabel = new System.Windows.Forms.Label();
 			this.textBox1 = new System.Windows.Forms.TextBox();
 			this.settingsTabs = new System.Windows.Forms.TabControl();
-			this.tabPage1 = new System.Windows.Forms.TabPage();
-			this.tabPage2 = new System.Windows.Forms.TabPage();
+			this.internetTab = new System.Windows.Forms.TabPage();
+			this.networkFolderTab = new System.Windows.Forms.TabPage();
 			this.helpButton = new System.Windows.Forms.Button();
 			this.cancelButton = new System.Windows.Forms.Button();
 			this.okButton = new System.Windows.Forms.Button();
@@ -60,37 +60,37 @@ namespace Chorus.UI.Settings
 			//
 			// settingsTabs
 			//
-			this.settingsTabs.Controls.Add(this.tabPage1);
-			this.settingsTabs.Controls.Add(this.tabPage2);
+			this.settingsTabs.Controls.Add(this.internetTab);
+			this.settingsTabs.Controls.Add(this.networkFolderTab);
 			this.settingsTabs.Location = new System.Drawing.Point(16, 56);
 			this.settingsTabs.Name = "settingsTabs";
 			this.settingsTabs.SelectedIndex = 0;
-			this.settingsTabs.Size = new System.Drawing.Size(423, 200);
+			this.settingsTabs.Size = new System.Drawing.Size(423, 243);
 			this.settingsTabs.TabIndex = 2;
 			//
-			// tabPage1
+			// internetTab
 			//
-			this.tabPage1.Location = new System.Drawing.Point(4, 22);
-			this.tabPage1.Name = "tabPage1";
-			this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-			this.tabPage1.Size = new System.Drawing.Size(379, 174);
-			this.tabPage1.TabIndex = 0;
-			this.tabPage1.Text = "tabPage1";
-			this.tabPage1.UseVisualStyleBackColor = true;
+			this.internetTab.Location = new System.Drawing.Point(4, 22);
+			this.internetTab.Name = "internetTab";
+			this.internetTab.Padding = new System.Windows.Forms.Padding(3);
+			this.internetTab.Size = new System.Drawing.Size(415, 217);
+			this.internetTab.TabIndex = 0;
+			this.internetTab.Text = "Internet";
+			this.internetTab.UseVisualStyleBackColor = true;
 			//
-			// tabPage2
+			// networkFolderTab
 			//
-			this.tabPage2.Location = new System.Drawing.Point(4, 22);
-			this.tabPage2.Name = "tabPage2";
-			this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-			this.tabPage2.Size = new System.Drawing.Size(415, 174);
-			this.tabPage2.TabIndex = 1;
-			this.tabPage2.Text = "tabPage2";
-			this.tabPage2.UseVisualStyleBackColor = true;
+			this.networkFolderTab.Location = new System.Drawing.Point(4, 22);
+			this.networkFolderTab.Name = "networkFolderTab";
+			this.networkFolderTab.Padding = new System.Windows.Forms.Padding(3);
+			this.networkFolderTab.Size = new System.Drawing.Size(415, 217);
+			this.networkFolderTab.TabIndex = 1;
+			this.networkFolderTab.Text = "Network Folder";
+			this.networkFolderTab.UseVisualStyleBackColor = true;
 			//
 			// helpButton
 			//
-			this.helpButton.Location = new System.Drawing.Point(364, 262);
+			this.helpButton.Location = new System.Drawing.Point(360, 316);
 			this.helpButton.Name = "helpButton";
 			this.helpButton.Size = new System.Drawing.Size(75, 23);
 			this.helpButton.TabIndex = 5;
@@ -99,25 +99,28 @@ namespace Chorus.UI.Settings
 			//
 			// cancelButton
 			//
-			this.cancelButton.Location = new System.Drawing.Point(283, 262);
+			this.cancelButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+			this.cancelButton.Location = new System.Drawing.Point(279, 316);
 			this.cancelButton.Name = "cancelButton";
 			this.cancelButton.Size = new System.Drawing.Size(75, 23);
 			this.cancelButton.TabIndex = 4;
 			this.cancelButton.Text = "Cancel";
 			this.cancelButton.UseVisualStyleBackColor = true;
+			this.cancelButton.Click += new System.EventHandler(this.cancelButton_Click);
 			//
 			// okButton
 			//
-			this.okButton.Location = new System.Drawing.Point(202, 262);
+			this.okButton.Location = new System.Drawing.Point(198, 316);
 			this.okButton.Name = "okButton";
 			this.okButton.Size = new System.Drawing.Size(75, 23);
 			this.okButton.TabIndex = 3;
 			this.okButton.Text = "OK";
 			this.okButton.UseVisualStyleBackColor = true;
+			this.okButton.Click += new System.EventHandler(this.okButton_Click);
 			//
 			// settingsProtectionButton
 			//
-			this.settingsProtectionButton.Location = new System.Drawing.Point(17, 264);
+			this.settingsProtectionButton.Location = new System.Drawing.Point(17, 302);
 			this.settingsProtectionButton.Margin = new System.Windows.Forms.Padding(0);
 			this.settingsProtectionButton.Name = "settingsProtectionButton";
 			this.settingsProtectionButton.Size = new System.Drawing.Size(257, 37);
@@ -125,9 +128,11 @@ namespace Chorus.UI.Settings
 			//
 			// SendReceiveSettings
 			//
+			this.AcceptButton = this.okButton;
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(447, 324);
+			this.CancelButton = this.cancelButton;
+			this.ClientSize = new System.Drawing.Size(447, 377);
 			this.Controls.Add(this.okButton);
 			this.Controls.Add(this.cancelButton);
 			this.Controls.Add(this.helpButton);
@@ -148,8 +153,8 @@ namespace Chorus.UI.Settings
 		private System.Windows.Forms.Label nameLabel;
 		private System.Windows.Forms.TextBox textBox1;
 		private System.Windows.Forms.TabControl settingsTabs;
-		private System.Windows.Forms.TabPage tabPage1;
-		private System.Windows.Forms.TabPage tabPage2;
+		private System.Windows.Forms.TabPage internetTab;
+		private System.Windows.Forms.TabPage networkFolderTab;
 		private System.Windows.Forms.Button helpButton;
 		private System.Windows.Forms.Button cancelButton;
 		private System.Windows.Forms.Button okButton;

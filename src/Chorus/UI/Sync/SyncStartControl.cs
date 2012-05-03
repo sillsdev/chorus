@@ -70,9 +70,9 @@ namespace Chorus.UI.Sync
 			_settingsButton.LaunchSettingsCallback = DisplaySRSettingsDlg;
 		}
 
-		private static DialogResult DisplaySRSettingsDlg()
+		private DialogResult DisplaySRSettingsDlg()
 		{
-			var settingsDlg = new SendReceiveSettings();
+			var settingsDlg = new SendReceiveSettings(_repository.PathToRepo);
 			return settingsDlg.ShowDialog();
 		}
 
