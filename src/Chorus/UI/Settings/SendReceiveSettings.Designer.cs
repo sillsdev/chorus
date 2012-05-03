@@ -31,7 +31,7 @@ namespace Chorus.UI.Settings
 		private void InitializeComponent()
 		{
 			this.nameLabel = new System.Windows.Forms.Label();
-			this.textBox1 = new System.Windows.Forms.TextBox();
+			this.userNameTextBox = new System.Windows.Forms.TextBox();
 			this.settingsTabs = new System.Windows.Forms.TabControl();
 			this.internetTab = new System.Windows.Forms.TabPage();
 			this.networkFolderTab = new System.Windows.Forms.TabPage();
@@ -51,12 +51,13 @@ namespace Chorus.UI.Settings
 			this.nameLabel.TabIndex = 0;
 			this.nameLabel.Text = "Name to show in change history:";
 			//
-			// textBox1
+			// userNameTextBox
 			//
-			this.textBox1.Location = new System.Drawing.Point(16, 30);
-			this.textBox1.Name = "textBox1";
-			this.textBox1.Size = new System.Drawing.Size(419, 20);
-			this.textBox1.TabIndex = 1;
+			this.userNameTextBox.Location = new System.Drawing.Point(16, 30);
+			this.userNameTextBox.Name = "userNameTextBox";
+			this.userNameTextBox.Size = new System.Drawing.Size(419, 20);
+			this.userNameTextBox.TabIndex = 1;
+			this.userNameTextBox.TextChanged += new System.EventHandler(this.userNameTextBox_TextChanged);
 			//
 			// settingsTabs
 			//
@@ -132,16 +133,19 @@ namespace Chorus.UI.Settings
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.CancelButton = this.cancelButton;
-			this.ClientSize = new System.Drawing.Size(447, 377);
+			this.ClientSize = new System.Drawing.Size(447, 350);
 			this.Controls.Add(this.okButton);
 			this.Controls.Add(this.cancelButton);
 			this.Controls.Add(this.helpButton);
 			this.Controls.Add(this.settingsTabs);
-			this.Controls.Add(this.textBox1);
+			this.Controls.Add(this.userNameTextBox);
 			this.Controls.Add(this.nameLabel);
 			this.Controls.Add(this.settingsProtectionButton);
+			this.MaximizeBox = false;
+			this.MinimizeBox = false;
 			this.Name = "SendReceiveSettings";
-			this.Text = "SendReceiveSettings";
+			this.ShowIcon = false;
+			this.Text = "Send/Receive Settings";
 			this.settingsTabs.ResumeLayout(false);
 			this.ResumeLayout(false);
 			this.PerformLayout();
@@ -151,7 +155,7 @@ namespace Chorus.UI.Settings
 		#endregion
 
 		private System.Windows.Forms.Label nameLabel;
-		private System.Windows.Forms.TextBox textBox1;
+		private System.Windows.Forms.TextBox userNameTextBox;
 		private System.Windows.Forms.TabControl settingsTabs;
 		private System.Windows.Forms.TabPage internetTab;
 		private System.Windows.Forms.TabPage networkFolderTab;

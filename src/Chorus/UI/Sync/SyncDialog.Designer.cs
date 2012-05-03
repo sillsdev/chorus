@@ -45,7 +45,7 @@ namespace Chorus.UI.Sync
 			// _syncStartControl1
 			//
 			this._syncStartControl1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-						| System.Windows.Forms.AnchorStyles.Right)));
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this._syncStartControl1.Location = new System.Drawing.Point(0, -3);
 			this._syncStartControl1.Name = "_syncStartControl1";
 			this._syncStartControl1.Size = new System.Drawing.Size(521, 340);
@@ -56,8 +56,8 @@ namespace Chorus.UI.Sync
 			// _syncControl
 			//
 			this._syncControl.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-						| System.Windows.Forms.AnchorStyles.Left)
-						| System.Windows.Forms.AnchorStyles.Right)));
+			| System.Windows.Forms.AnchorStyles.Left)
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this._syncControl.BackColor = System.Drawing.SystemColors.GradientInactiveCaption;
 			this._syncControl.DesiredHeight = 320;
 			this._syncControl.Font = new System.Drawing.Font("Segoe UI", 9F);
@@ -65,7 +65,7 @@ namespace Chorus.UI.Sync
 			this._syncControl.Margin = new System.Windows.Forms.Padding(48, 22, 48, 22);
 			this._syncControl.Model = null;
 			this._syncControl.Name = "_syncControl";
-			this._syncControl.Size = new System.Drawing.Size(521, 327);
+			this._syncControl.Size = new System.Drawing.Size(521, 272);
 			this._syncControl.TabIndex = 0;
 			this._syncControl.Visible = false;
 			this._syncControl.CloseButtonClicked += new System.EventHandler(this._syncControl_CloseButtonClicked);
@@ -75,7 +75,7 @@ namespace Chorus.UI.Sync
 			this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
 			this.BackColor = System.Drawing.SystemColors.GradientInactiveCaption;
-			this.ClientSize = new System.Drawing.Size(523, 336);
+			this.ClientSize = new System.Drawing.Size(523, 281);
 			this.Controls.Add(this._syncStartControl1);
 			this.Controls.Add(this._syncControl);
 			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));

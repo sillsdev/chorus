@@ -73,7 +73,13 @@ namespace Chorus.UI.Sync
 		private DialogResult DisplaySRSettingsDlg()
 		{
 			var settingsDlg = new SendReceiveSettings(_repository.PathToRepo);
-			return settingsDlg.ShowDialog();
+			var result = settingsDlg.ShowDialog();
+			if(result == DialogResult.OK)
+			{
+				RecheckNetworkStatus();
+				RecheckInternetStatus();
+			}
+			return result;
 		}
 
 		private void SetupSharedFolderAndInternetUI()
@@ -280,7 +286,7 @@ namespace Chorus.UI.Sync
 				_internetStatusLabel.LinkArea = new LinkArea(message.Length + 1, 1000);
 			}
 			if (_useInternetButton.Enabled)
-				tooltip += System.Environment.NewLine + "Press Shift to see Set Up button";
+				tooltip += Environment.NewLine + "Press Shift to see Set Up button";
 			toolTip1.SetToolTip(_useInternetButton, tooltip);
 		}
 
@@ -304,26 +310,15 @@ namespace Chorus.UI.Sync
 		{
 			if (RepositoryChosen != null)
 			{
-				UpdateName();
 				var address = RepositoryAddress.Create(RepositoryAddress.HardWiredSources.UsbKey, "USB flash drive", false);
 				RepositoryChosen.Invoke(this, new SyncStartArgs(address, _commitMessageText.Text));
 			}
-		}
-
-		private void UpdateName()
-		{
-			//var _userName = repository.GetUserIdInUse();
-			//if (_repository.GetUserIdInUse() != _userName.Text.Trim() && _userName.Text.Trim().Length>0)
-			//{
-			//    _repository.SetUserNameInIni(_userName.Text.Trim(), new NullProgress());
-			//}
 		}
 
 		private void _useInternetButton_Click(object sender, EventArgs e)
 		{
 			if (RepositoryChosen != null)
 			{
-				UpdateName();
 				var address = _repository.GetDefaultNetworkAddress<HttpRepositoryPath>();
 				RepositoryChosen.Invoke(this, new SyncStartArgs(address, _commitMessageText.Text));
 			}
@@ -333,7 +328,6 @@ namespace Chorus.UI.Sync
 		{
 			if (RepositoryChosen != null)
 			{
-				UpdateName();
 				var address = _repository.GetDefaultNetworkAddress<DirectoryRepositorySource>();
 				RepositoryChosen.Invoke(this, new SyncStartArgs(address, _commitMessageText.Text));
 			}
@@ -356,37 +350,6 @@ namespace Chorus.UI.Sync
 			// Setup Internet State Checking thread and the worker that it will run
 			_internetStateWorker = new ConnectivityStateWorker(CheckInternetStatusAndUpdateUI);
 			_updateInternetSituation = new Thread(_internetStateWorker.DoWork);
-		}
-
-		private void _sharedFolderStatusLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-		{
-			if(DialogResult.Cancel ==
-				MessageBox.Show(
-				"Sharing repositories over a local network may sometimes cause a repository to become corrupted. This can be repaired by copying one of the good copies of the repository, but it may require expert help. If you have a good internet connection or a small enough group to pass a USB key around, we recommend one of the other Send/Receive options.",
-				"Warning", MessageBoxButtons.OKCancel))
-			{
-				return;
-			}
-			DialogResult dlgResult;
-			using (var dlg =  new System.Windows.Forms.FolderBrowserDialog())
-			{
-				dlg.ShowNewFolderButton = true;
-				dlg.Description = "Choose the folder containing the project with which you want to synchronize.";
-
-				while (true)
-				{
-					dlgResult = dlg.ShowDialog();
-					if (dlgResult != DialogResult.OK)
-						return;
-					Monitor.Enter(_model);
-					var networkedDriveOK = _model.SetNewSharedNetworkAddress(_repository, dlg.SelectedPath);
-					Monitor.Exit(_model);
-					if (networkedDriveOK)
-						break;
-				}
-			}
-			if (dlgResult == DialogResult.OK)
-				RecheckNetworkStatus();
 		}
 
 		private void RecheckNetworkStatus()
