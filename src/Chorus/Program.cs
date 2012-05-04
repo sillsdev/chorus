@@ -59,6 +59,7 @@ namespace Chorus
 			new Runner().Run(pathToRepository, new Arguments(args));
 
 			Properties.Settings.Default.Save();
+			Application.Exit ();
 		}
 
 		private static void SetUpErrorHandling()
