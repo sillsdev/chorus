@@ -37,7 +37,7 @@ namespace Chorus.UI.Misc
 
 		private void browseButton_Click(object sender, EventArgs e)
 		{
-			var folderBrowser = new FolderBrowserDialog {SelectedPath = _model.SharedFolder, ShowNewFolderButton = true};
+			var folderBrowser = new FolderBrowserDialog {Description = "Select the folder where you want your shared projects to go, or the folder where an existing repository for your project is.", SelectedPath = _model.SharedFolder, ShowNewFolderButton = true};
 			var result = folderBrowser.ShowDialog();
 			if(result == DialogResult.OK)
 			{

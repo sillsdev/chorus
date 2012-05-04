@@ -9,7 +9,7 @@ namespace Chorus.UI.Settings
 {
 	public partial class SendReceiveSettings : Form
 	{
-		private HgRepository _repository;
+		private SettingsModel _model;
 
 		private ServerSettingsModel _internetModel;
 		private ServerSettingsControl _serverSettingsControl;
@@ -28,8 +28,9 @@ namespace Chorus.UI.Settings
 			InitializeComponent();
 
 			RequireThat.Directory(repositoryLocation).Exists();
-			_repository = HgRepository.CreateOrLocate(repositoryLocation, new NullProgress());
-			userNameTextBox.Text = _repository.GetUserIdInUse();
+			var repository = HgRepository.CreateOrLocate(repositoryLocation, new NullProgress());
+			_model = new SettingsModel(repository);
+			userNameTextBox.Text = _model.GetUserName(new NullProgress());
 
 			_internetModel = new ServerSettingsModel();
 			_internetModel.InitFromProjectPath(repositoryLocation);
@@ -40,17 +41,25 @@ namespace Chorus.UI.Settings
 			_sharedFolderModel.InitFromProjectPath(repositoryLocation);
 			_sharedFolderSettingsControl = new NetworkFolderSettingsControl(_sharedFolderModel);
 			networkFolderTab.Controls.Add(_sharedFolderSettingsControl);
-			networkFolderTab.Click += new EventHandler(networkFolderTab_Click);
+			settingsTabs.SelectedIndexChanged += new EventHandler(settingsTabSelectionChanged);
 		}
 
-		void networkFolderTab_Click(object sender, EventArgs e)
+		void settingsTabSelectionChanged(object sender, EventArgs e)
 		{
-			if (DialogResult.Cancel ==
-				MessageBox.Show(
-				"Sharing repositories over a local network may sometimes cause a repository to become corrupted. This can be repaired by copying one of the good copies of the repository, but it may require expert help. If you have a good internet connection or a small enough group to pass a USB key around, we recommend one of the other Send/Receive options.",
-				"Warning", MessageBoxButtons.OKCancel))
+			if (settingsTabs.SelectedTab == networkFolderTab)
 			{
-				internetTab.Focus();
+				if (DialogResult.Cancel ==
+					MessageBox.Show(
+						"Sharing repositories over a local network may sometimes cause a repository to become corrupted. This can be repaired by copying one of the good copies of the repository, but it may require expert help. If you have a good internet connection or a small enough group to pass a USB key around, we recommend one of the other Send/Receive options.",
+						"Warning", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning))
+				{
+					_sharedFolderSettingsControl.Enabled = false;
+				}
+				else
+				{
+					_sharedFolderSettingsControl.Enabled = true;
+				}
+
 			}
 		}
 
@@ -58,6 +67,7 @@ namespace Chorus.UI.Settings
 		{
 			_internetModel.SaveSettings();
 			_sharedFolderModel.SaveSettings();
+			_model.SaveSettings();
 			DialogResult = DialogResult.OK;
 			Close();
 		}
@@ -71,9 +81,9 @@ namespace Chorus.UI.Settings
 		private void userNameTextBox_TextChanged(object sender, EventArgs e)
 		{
 			var _userName = userNameTextBox;
-			if (_repository.GetUserIdInUse() != _userName.Text.Trim() && _userName.Text.Trim().Length > 0)
+			if (_model.GetUserName(new NullProgress()) != _userName.Text.Trim() && _userName.Text.Trim().Length > 0)
 			{
-				_repository.SetUserNameInIni(_userName.Text.Trim(), new NullProgress());
+				_model.SetUserName(_userName.Text.Trim(), new NullProgress());
 			}
 		}
 	}

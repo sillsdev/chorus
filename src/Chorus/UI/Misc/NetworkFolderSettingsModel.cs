@@ -4,7 +4,6 @@ using System.Windows.Forms;
 using Chorus.Utilities.code;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
-using Palaso.IO;
 using Palaso.Progress.LogBox;
 
 namespace Chorus.UI.Misc
@@ -56,7 +55,8 @@ namespace Chorus.UI.Misc
 				}
 				else
 				{
-					//The user has apparently chosen an existing project, presume they did this on purpose
+					//The user has apparently chosen an existing project, presume they did this on purpose we can't determine here
+					//if this is the correct repo.
 					path = projectDir;
 				}
 				string alias = HgRepository.GetAliasFromPath(projectDir);
