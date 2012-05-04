@@ -189,7 +189,7 @@ namespace Chorus.VcsDrivers
 		/// </summary>
 		public override string GetPotentialRepoUri(string repoIdentifier, string projectName, IProgress progress)
 		{
-			return URI.Replace(ProjectNameVariable, projectName);
+			return URI.Replace(ProjectNameVariable, projectName).TrimEnd(Path.DirectorySeparatorChar);
 		}
 
 		public override bool CanConnect(HgRepository localRepository, string projectName, IProgress progress)

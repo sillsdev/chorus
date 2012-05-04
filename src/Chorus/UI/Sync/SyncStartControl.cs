@@ -6,7 +6,6 @@ using Chorus.UI.Settings;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using Palaso.Code;
-using Palaso.Progress.LogBox;
 
 namespace Chorus.UI.Sync
 {
@@ -29,7 +28,6 @@ namespace Chorus.UI.Sync
 
 		private const int STATECHECKINTERVAL = 2000; // 2 sec interval between checks of USB status.
 		private const int INITIALINTERVAL = 1000; // only wait 1 sec, the first time
-		const string SetupLinkText = " Set Up"; // Label for status line Setup link
 
 		private delegate void UpdateInternetUICallback(bool enabled, string btnLabel, string message, string tooltip, string diagnostics);
 
@@ -103,43 +101,6 @@ namespace Chorus.UI.Sync
 			UpdateUsbDriveSituation();
 			UpdateInternetSituation();
 			UpdateLocalNetworkSituation();
-			UpdateSetupButtonUI();
-		}
-
-		private void UpdateSetupButtonUI()
-		{
-			const int LengthOfSetUpString = 7;
-			if (ShouldShowNetworkSetUpButton)
-			{
-				// Make sure "Set Up" button is active
-				if (!NetworkSetupButtonIsActive)
-					_useSharedFolderStatusLabel.Text += SetupLinkText;
-			}
-			else
-			{
-				if (NetworkSetupButtonIsActive)
-				{
-					// Make sure "Set Up" button is inactive
-					var oldLabel = _useSharedFolderStatusLabel.Text;
-					_useSharedFolderStatusLabel.Text = oldLabel.Substring(0, oldLabel.Length - LengthOfSetUpString);
-				}
-			}
-
-			if (ShouldShowInternetSetUpButton)
-			{
-				// Make sure "Set Up" button is active
-				if (!InternetSetupButtonIsActive)
-					_internetStatusLabel.Text += SetupLinkText;
-			}
-			else
-			{
-				if (InternetSetupButtonIsActive)
-				{
-					// Make sure "Set Up" button is inactive
-					var oldLabel = _internetStatusLabel.Text;
-					_internetStatusLabel.Text = oldLabel.Substring(0, oldLabel.Length - LengthOfSetUpString);
-				}
-			}
 		}
 
 		#region Network Status methods
@@ -147,11 +108,6 @@ namespace Chorus.UI.Sync
 		public bool ShouldShowNetworkSetUpButton
 		{
 			get { return (!_useSharedFolderButton.Enabled || Control.ModifierKeys == Keys.Shift); }
-		}
-
-		protected bool NetworkSetupButtonIsActive
-		{
-			get { return _useSharedFolderStatusLabel.Text.EndsWith(SetupLinkText); }
 		}
 
 		private void UpdateLocalNetworkSituation()
@@ -202,8 +158,6 @@ namespace Chorus.UI.Sync
 
 			_useSharedFolderStatusLabel.Text = message;
 			_useSharedFolderStatusLabel.LinkArea = new LinkArea(message.Length + 1, 1000);
-			if (_useSharedFolderButton.Enabled)
-				tooltip += System.Environment.NewLine + "Press Shift to see Set Up button";
 			toolTip1.SetToolTip(_useSharedFolderButton, tooltip);
 		}
 
@@ -220,11 +174,6 @@ namespace Chorus.UI.Sync
 		public bool ShouldShowInternetSetUpButton
 		{
 			get { return (!_useInternetButton.Enabled || Control.ModifierKeys == Keys.Shift); }
-		}
-
-		protected bool InternetSetupButtonIsActive
-		{
-			get { return _internetStatusLabel.Text.EndsWith(SetupLinkText); }
 		}
 
 		/// <summary>
@@ -285,8 +234,6 @@ namespace Chorus.UI.Sync
 				_internetStatusLabel.Text = message;
 				_internetStatusLabel.LinkArea = new LinkArea(message.Length + 1, 1000);
 			}
-			if (_useInternetButton.Enabled)
-				tooltip += Environment.NewLine + "Press Shift to see Set Up button";
 			toolTip1.SetToolTip(_useInternetButton, tooltip);
 		}
 

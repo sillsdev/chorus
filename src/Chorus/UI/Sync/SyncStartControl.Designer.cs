@@ -41,7 +41,7 @@ namespace Chorus.UI.Sync
 			this._useUSBButton = new System.Windows.Forms.Button();
 			this._updateDisplayTimer = new System.Windows.Forms.Timer(this.components);
 			this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
-			this.betterLabel2 = new Chorus.UI.BetterLabel();
+			this.commitMessageLabel = new Chorus.UI.BetterLabel();
 			this._commitMessageText = new System.Windows.Forms.TextBox();
 			this._usbStatusLabel = new Chorus.UI.BetterLabel();
 			this._internetStatusLabel = new System.Windows.Forms.LinkLabel();
@@ -50,7 +50,6 @@ namespace Chorus.UI.Sync
 			this._settingsButton = new Palaso.UI.WindowsForms.SettingProtection.SettingsLauncherButton();
 			this._internetDiagnosticsLink = new System.Windows.Forms.LinkLabel();
 			this._sharedNetworkDiagnosticsLink = new System.Windows.Forms.LinkLabel();
-			this.betterLabel1 = new Chorus.UI.BetterLabel();
 			this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
 			this.usbDriveLocator = new Chorus.UI.UsbDriveLocator(this.components);
 			this.tableLayoutPanel1.SuspendLayout();
@@ -113,7 +112,7 @@ namespace Chorus.UI.Sync
 			this.tableLayoutPanel1.ColumnCount = 2;
 			this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 75F));
 			this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
-			this.tableLayoutPanel1.Controls.Add(this.betterLabel2, 0, 0);
+			this.tableLayoutPanel1.Controls.Add(this.commitMessageLabel, 0, 0);
 			this.tableLayoutPanel1.Controls.Add(this._commitMessageText, 0, 1);
 			this.tableLayoutPanel1.Controls.Add(this._useUSBButton, 0, 2);
 			this.tableLayoutPanel1.Controls.Add(this._usbStatusLabel, 0, 3);
@@ -136,24 +135,24 @@ namespace Chorus.UI.Sync
 			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 45F));
 			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
 			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
-			this.tableLayoutPanel1.Size = new System.Drawing.Size(330, 323);
+			this.tableLayoutPanel1.Size = new System.Drawing.Size(330, 274);
 			this.tableLayoutPanel1.TabIndex = 2;
 			//
-			// betterLabel2
+			// commitMessageLabel
 			//
-			this.betterLabel2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
+			this.commitMessageLabel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
 			| System.Windows.Forms.AnchorStyles.Right)));
-			this.betterLabel2.BorderStyle = System.Windows.Forms.BorderStyle.None;
-			this.tableLayoutPanel1.SetColumnSpan(this.betterLabel2, 2);
-			this.betterLabel2.Font = new System.Drawing.Font("Segoe UI", 9F);
-			this.betterLabel2.Location = new System.Drawing.Point(3, 3);
-			this.betterLabel2.Multiline = true;
-			this.betterLabel2.Name = "betterLabel2";
-			this.betterLabel2.ReadOnly = true;
-			this.betterLabel2.Size = new System.Drawing.Size(324, 14);
-			this.betterLabel2.TabIndex = 3;
-			this.betterLabel2.TabStop = false;
-			this.betterLabel2.Text = "Label this point in the project history (Optional) :";
+			this.commitMessageLabel.BorderStyle = System.Windows.Forms.BorderStyle.None;
+			this.tableLayoutPanel1.SetColumnSpan(this.commitMessageLabel, 2);
+			this.commitMessageLabel.Font = new System.Drawing.Font("Segoe UI", 9F);
+			this.commitMessageLabel.Location = new System.Drawing.Point(3, 3);
+			this.commitMessageLabel.Multiline = true;
+			this.commitMessageLabel.Name = "commitMessageLabel";
+			this.commitMessageLabel.ReadOnly = true;
+			this.commitMessageLabel.Size = new System.Drawing.Size(324, 14);
+			this.commitMessageLabel.TabIndex = 3;
+			this.commitMessageLabel.TabStop = false;
+			this.commitMessageLabel.Text = "Label this point in the project history (Optional) :";
 			//
 			// _commitMessageText
 			//
@@ -224,14 +223,16 @@ namespace Chorus.UI.Sync
 			this.flowLayoutPanel1.Location = new System.Drawing.Point(0, 243);
 			this.flowLayoutPanel1.Margin = new System.Windows.Forms.Padding(0, 3, 3, 3);
 			this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-			this.flowLayoutPanel1.Size = new System.Drawing.Size(327, 77);
+			this.flowLayoutPanel1.Size = new System.Drawing.Size(327, 28);
 			this.flowLayoutPanel1.TabIndex = 8;
 			//
 			// _settingsButton
 			//
 			this._settingsButton.LaunchSettingsCallback = null;
-			this._settingsButton.Location = new System.Drawing.Point(3, 3);
+			this._settingsButton.Location = new System.Drawing.Point(0, 0);
+			this._settingsButton.Margin = new System.Windows.Forms.Padding(0);
 			this._settingsButton.Name = "_settingsButton";
+			this._settingsButton.Padding = new System.Windows.Forms.Padding(3, 0, 0, 0);
 			this._settingsButton.Size = new System.Drawing.Size(131, 22);
 			this._settingsButton.TabIndex = 0;
 			//
@@ -265,28 +266,13 @@ namespace Chorus.UI.Sync
 			this._sharedNetworkDiagnosticsLink.Visible = false;
 			this._sharedNetworkDiagnosticsLink.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this._sharedNetworkDiagnosticsLink_LinkClicked);
 			//
-			// betterLabel1
-			//
-			this.betterLabel1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-			| System.Windows.Forms.AnchorStyles.Right)));
-			this.betterLabel1.BorderStyle = System.Windows.Forms.BorderStyle.None;
-			this.betterLabel1.Font = new System.Drawing.Font("Segoe UI", 9F);
-			this.betterLabel1.Location = new System.Drawing.Point(3, 3);
-			this.betterLabel1.Multiline = true;
-			this.betterLabel1.Name = "betterLabel1";
-			this.betterLabel1.ReadOnly = true;
-			this.betterLabel1.Size = new System.Drawing.Size(100, 20);
-			this.betterLabel1.TabIndex = 0;
-			this.betterLabel1.TabStop = false;
-			this.betterLabel1.Text = "Your Name:";
-			//
 			// SyncStartControl
 			//
 			this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
 			this.Controls.Add(this.tableLayoutPanel1);
 			this.Name = "SyncStartControl";
-			this.Size = new System.Drawing.Size(330, 290);
+			this.Size = new System.Drawing.Size(330, 289);
 			this.tableLayoutPanel1.ResumeLayout(false);
 			this.tableLayoutPanel1.PerformLayout();
 			this.flowLayoutPanel1.ResumeLayout(false);
@@ -304,13 +290,12 @@ namespace Chorus.UI.Sync
 		private BetterLabel _usbStatusLabel;
 		private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
 		private System.Windows.Forms.ToolTip toolTip1;
-		private BetterLabel betterLabel2;
+		private BetterLabel commitMessageLabel;
 		private System.Windows.Forms.TextBox _commitMessageText;
 		private UsbDriveLocator usbDriveLocator;
 		private System.Windows.Forms.LinkLabel _internetStatusLabel;
 		private System.Windows.Forms.LinkLabel _useSharedFolderStatusLabel;
 		private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
-		private BetterLabel betterLabel1;
 		private System.Windows.Forms.LinkLabel _sharedNetworkDiagnosticsLink;
 		private System.Windows.Forms.LinkLabel _internetDiagnosticsLink;
 		private Palaso.UI.WindowsForms.SettingProtection.SettingsLauncherButton _settingsButton;

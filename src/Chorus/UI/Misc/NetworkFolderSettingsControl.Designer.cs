@@ -58,6 +58,7 @@
 			this.browseButton.TabIndex = 2;
 			this.browseButton.Text = "Browse...";
 			this.browseButton.UseVisualStyleBackColor = true;
+			this.browseButton.Click += new System.EventHandler(this.browseButton_Click);
 			//
 			// NetworkFolderSettingsControl
 			//

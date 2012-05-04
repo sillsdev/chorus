@@ -34,5 +34,15 @@ namespace Chorus.UI.Misc
 		{
 			_model.SharedFolder = sharedFolderTextbox.Text;
 		}
+
+		private void browseButton_Click(object sender, EventArgs e)
+		{
+			var folderBrowser = new FolderBrowserDialog {SelectedPath = _model.SharedFolder, ShowNewFolderButton = true};
+			var result = folderBrowser.ShowDialog();
+			if(result == DialogResult.OK)
+			{
+				sharedFolderTextbox.Text = folderBrowser.SelectedPath;
+			}
+		}
 	}
 }

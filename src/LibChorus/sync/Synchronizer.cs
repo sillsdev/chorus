@@ -104,7 +104,7 @@ namespace Chorus.sync
 
 				var workingRevBeforeSync = repo.GetRevisionWorkingSetIsBasedOn();
 
-				CreateRepositoryOnLocalAreaNetworkFolderIfNeededThrowIfFails(repo, sourcesToTry);
+				CreateRepositoryOnLocalAreaNetworkFolderIfNeededThrowIfFails(repo, RepoProjectName, sourcesToTry);
 
 				if (options.DoPullFromOthers)
 				{
@@ -156,7 +156,7 @@ namespace Chorus.sync
 			return results;
 		}
 
-		private static void CreateRepositoryOnLocalAreaNetworkFolderIfNeededThrowIfFails(HgRepository repo, IEnumerable<RepositoryAddress> sourcesToTry)
+		private static void CreateRepositoryOnLocalAreaNetworkFolderIfNeededThrowIfFails(HgRepository repo, string repoProjectName, List<RepositoryAddress> sourcesToTry)
 		{
 			var directorySource = sourcesToTry.FirstOrDefault(s => s is DirectoryRepositorySource);
 			if (directorySource == null)
@@ -169,7 +169,7 @@ namespace Chorus.sync
 					return;
 			}
 
-			var actualTarget = repo.CloneLocalWithoutUpdate(directorySource.URI);
+			var actualTarget = repo.CloneLocalWithoutUpdate(directorySource.GetPotentialRepoUri(directorySource.URI, repoProjectName, new NullProgress()));
 			if (directorySource.URI != actualTarget)
 			{
 				// Reset hgrc to new location.

@@ -112,8 +112,7 @@ namespace Chorus.UI.Sync
 			}
 			if (ready)
 			{
-				message = string.Empty;
-				tooltip = address.URI;
+				message = tooltip = address.GetPotentialRepoUri(address.URI, "", new NullProgress());
 			}
 			else
 			{
@@ -142,7 +141,7 @@ namespace Chorus.UI.Sync
 			// But we DO want the diagnostic information available.
 			logString = string.Empty;
 			var progress = new StringBuilderProgress() { ShowVerbose = true };
-			var result = repoAddress.CanConnect(_repository, repoAddress.Name, progress);
+			var result = repoAddress.CanConnect(_repository, "", progress);
 			if (!result)
 				logString = progress.Text;
 			return result;
