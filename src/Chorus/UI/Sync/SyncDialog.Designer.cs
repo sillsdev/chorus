@@ -59,7 +59,7 @@ namespace Chorus.UI.Sync
 			| System.Windows.Forms.AnchorStyles.Left)
 			| System.Windows.Forms.AnchorStyles.Right)));
 			this._syncControl.BackColor = System.Drawing.SystemColors.GradientInactiveCaption;
-			this._syncControl.DesiredHeight = 320;
+			this._syncControl.DesiredHeight = 285;
 			this._syncControl.Font = new System.Drawing.Font("Segoe UI", 9F);
 			this._syncControl.Location = new System.Drawing.Point(0, 10);
 			this._syncControl.Margin = new System.Windows.Forms.Padding(48, 22, 48, 22);

@@ -53,6 +53,8 @@ namespace Chorus.UI.Sync
 			_model = new SyncStartModel(repository);
 			_repository = repository;
 
+			SetButtonStatesFromSettings();
+
 			// Setup Internet State Checking thread and the worker that it will run
 			_internetStateWorker = new ConnectivityStateWorker(CheckInternetStatusAndUpdateUI);
 			_updateInternetSituation = new Thread(_internetStateWorker.DoWork);
@@ -74,10 +76,32 @@ namespace Chorus.UI.Sync
 			var result = settingsDlg.ShowDialog();
 			if(result == DialogResult.OK)
 			{
+				SetButtonStatesFromSettings();
 				RecheckNetworkStatus();
 				RecheckInternetStatus();
 			}
 			return result;
+		}
+
+		/// <summary>
+		/// Retrieves the settings for the various S/R buttons and displays or hides them accordingly.
+		/// </summary>
+		private void SetButtonStatesFromSettings()
+		{
+			var internetState = Properties.Settings.Default.InternetEnabled;
+			_internetStatusLabel.Visible = _internetDiagnosticsLink.Visible = _useInternetButton.Visible = internetState;
+			var statusRow = tableLayoutPanel1.GetRow(_internetStatusLabel);
+			var buttonRow = tableLayoutPanel1.GetRow(_useInternetButton);
+			tableLayoutPanel1.RowStyles[statusRow].Height = internetState ? LABEL_HEIGHT : 0;
+			tableLayoutPanel1.RowStyles[buttonRow].Height = internetState ? BUTTON_HEIGHT : 0;
+
+			var folderState = Properties.Settings.Default.SharedFolderEnabled;
+			_useSharedFolderStatusLabel.Visible =
+				_useSharedFolderButton.Visible = _sharedNetworkDiagnosticsLink.Visible = folderState;
+			statusRow = tableLayoutPanel1.GetRow(_useSharedFolderStatusLabel);
+			buttonRow = tableLayoutPanel1.GetRow(_useSharedFolderButton);
+			tableLayoutPanel1.RowStyles[statusRow].Height = folderState ? LABEL_HEIGHT : 0;
+			tableLayoutPanel1.RowStyles[buttonRow].Height = folderState ? BUTTON_HEIGHT : 0;
 		}
 
 		private void SetupSharedFolderAndInternetUI()
