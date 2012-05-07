@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Drawing;
 using System.Windows.Forms;
 using Chorus.UI.Misc;
 using Chorus.Utilities.code;
@@ -16,6 +17,8 @@ namespace Chorus.UI.Settings
 
 		private NetworkFolderSettingsModel _sharedFolderModel;
 		private NetworkFolderSettingsControl _sharedFolderSettingsControl;
+		private CheckBox _internetButtonEnabledCB;
+		private CheckBox _sharedFolderButtonEnabledCB;
 
 		[Obsolete("for designer support only")]
 		public SendReceiveSettings()
@@ -35,12 +38,26 @@ namespace Chorus.UI.Settings
 			_internetModel = new ServerSettingsModel();
 			_internetModel.InitFromProjectPath(repositoryLocation);
 			_serverSettingsControl = new ServerSettingsControl(_internetModel);
-			internetTab.Controls.Add(_serverSettingsControl);
+			_internetButtonEnabledCB = new CheckBox { Text = "Show Internet as Send/Receive option",
+													  Checked = Properties.Settings.Default.InternetEnabled,
+													  CheckAlign = ContentAlignment.TopLeft,
+													  TextAlign = ContentAlignment.BottomLeft };
+			var internetPanel = new FlowLayoutPanel {AutoSize = true, FlowDirection = FlowDirection.TopDown};
+			internetPanel.Controls.Add(_internetButtonEnabledCB);
+			internetPanel.Controls.Add(_serverSettingsControl);
+			internetTab.Controls.Add(internetPanel);
 
 			_sharedFolderModel = new NetworkFolderSettingsModel();
 			_sharedFolderModel.InitFromProjectPath(repositoryLocation);
 			_sharedFolderSettingsControl = new NetworkFolderSettingsControl(_sharedFolderModel);
-			networkFolderTab.Controls.Add(_sharedFolderSettingsControl);
+			_sharedFolderButtonEnabledCB = new CheckBox { Text = "Show Network Folder as Send/Receive option",
+														  Checked = Properties.Settings.Default.SharedFolderEnabled,
+														  CheckAlign = ContentAlignment.TopLeft,
+														  TextAlign = ContentAlignment.BottomLeft };
+			var folderPanel = new FlowLayoutPanel { AutoSize = true, FlowDirection = FlowDirection.TopDown };
+			folderPanel.Controls.Add(_sharedFolderButtonEnabledCB);
+			folderPanel.Controls.Add(_sharedFolderSettingsControl);
+			networkFolderTab.Controls.Add(folderPanel);
 			settingsTabs.SelectedIndexChanged += new EventHandler(settingsTabSelectionChanged);
 		}
 
@@ -68,6 +85,9 @@ namespace Chorus.UI.Settings
 			_internetModel.SaveSettings();
 			_sharedFolderModel.SaveSettings();
 			_model.SaveSettings();
+			Properties.Settings.Default.InternetEnabled = _internetButtonEnabledCB.Checked;
+			Properties.Settings.Default.SharedFolderEnabled = _sharedFolderButtonEnabledCB.Checked;
+			Properties.Settings.Default.Save();
 			DialogResult = DialogResult.OK;
 			Close();
 		}
