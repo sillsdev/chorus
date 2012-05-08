@@ -119,7 +119,6 @@ namespace Chorus.UI.Sync
 
 		private void SyncDialog_Load(object sender, EventArgs e)
 		{
-			MessageBox.Show("hi");
 			var height = _syncControl.Visible ? _syncControl.DesiredHeight + 10 : _syncStartControl1.DesiredHeight + 10;
 			ClientSize = new Size( 490, height);
 		}
