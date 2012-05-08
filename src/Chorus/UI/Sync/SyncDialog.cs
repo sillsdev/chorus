@@ -37,16 +37,16 @@ namespace Chorus.UI.Sync
 					SyncResult = new SyncResults();
 					SyncResult.Succeeded = false;
 
-					_syncStartControl1.Init(HgRepository.CreateOrLocate(projectFolderConfiguration.FolderPath, new NullProgress()));
+					_syncStartControl.Init(HgRepository.CreateOrLocate(projectFolderConfiguration.FolderPath, new NullProgress()));
 
 					_syncControl.Dock = DockStyle.Fill;//in designer, we don't want it to cover up everything, but we do at runtime
-					_syncStartControl1.Visible = true;
+					_syncStartControl.Visible = true;
 					_syncControl.Visible = false;
-					Height = _syncStartControl1.DesiredHeight;
+					Height = _syncStartControl.DesiredHeight;
 				}
 				else
 				{
-					_syncStartControl1.Visible = false;
+					_syncStartControl.Visible = false;
 					_syncControl.Visible = true;
 					Height = _syncControl.DesiredHeight;
 				}
@@ -55,7 +55,7 @@ namespace Chorus.UI.Sync
 			}
 			catch (Exception)
 			{
-				_syncStartControl1.Dispose();//without this, the usbdetector just goes on and on
+				_syncStartControl.Dispose();//without this, the usbdetector just goes on and on
 				throw;
 			}
 		}
@@ -119,13 +119,13 @@ namespace Chorus.UI.Sync
 
 		private void SyncDialog_Load(object sender, EventArgs e)
 		{
-			var height = _syncControl.Visible ? _syncControl.DesiredHeight + 10 : _syncStartControl1.DesiredHeight + 10;
+			var height = _syncControl.Visible ? _syncControl.DesiredHeight + 10 : _syncStartControl.DesiredHeight + 10;
 			ClientSize = new Size( 490, height);
 		}
 
 		private void _syncStartControl1_RepositoryChosen(object sender, SyncStartArgs args)
 		{
-			_syncStartControl1.Visible = false;
+			_syncStartControl.Visible = false;
 			_syncControl.Visible = true;
 			Height = _syncControl.DesiredHeight;
 			ResumeLayout(true);

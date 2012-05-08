@@ -58,7 +58,7 @@ namespace Chorus.UI.Clone
 			_model.ProgressIndicator = _progressBar;
 			_model.UIContext = SynchronizationContext.Current;
 
-			_serverSettingsControl = new ServerSettingsControl(_model);
+			_serverSettingsControl = new ServerSettingsControl(){Model=_model};
 			_serverSettingsControl.TabIndex = 0;
 			_serverSettingsControl.Anchor = (AnchorStyles.Top | AnchorStyles.Left);
 			Controls.Add(_serverSettingsControl);

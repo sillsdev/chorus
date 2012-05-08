@@ -13,21 +13,19 @@ namespace Chorus.UI.Misc
 	{
 		private NetworkFolderSettingsModel _model;
 
-		[Obsolete("For designer purposes only.")]
 		public NetworkFolderSettingsControl()
 		{
 			InitializeComponent();
 		}
 
-		/// <summary>
-		/// The Constructor that should be used when working with this control
-		/// </summary>
-		/// <param name="sharedFolderModel"></param>
-		public NetworkFolderSettingsControl(NetworkFolderSettingsModel sharedFolderModel)
+		public NetworkFolderSettingsModel Model
 		{
-			_model = sharedFolderModel;
-			InitializeComponent();
-			sharedFolderTextbox.Text = _model.SharedFolder;
+			get { return _model; }
+			set
+			{
+				_model = value;
+				sharedFolderTextbox.Text = _model.SharedFolder;
+			}
 		}
 
 		private void sharedFolderTextbox_TextChanged(object sender, EventArgs e)

@@ -12,6 +12,9 @@ namespace Chorus.UI.Sync
 {
 	internal partial class SyncStartControl : UserControl
 	{
+		private const float LABEL_HEIGHT = 20F;
+		private const float BUTTON_HEIGHT = 45F;
+
 		private HgRepository _repository;
 		private SyncStartModel _model;
 		public event EventHandler<SyncStartArgs> RepositoryChosen;
@@ -93,18 +96,18 @@ namespace Chorus.UI.Sync
 		{
 			var internetState = Properties.Settings.Default.InternetEnabled;
 			_internetStatusLabel.Visible = _internetDiagnosticsLink.Visible = _useInternetButton.Visible = internetState;
-			var statusRow = tableLayoutPanel1.GetRow(_internetStatusLabel);
-			var buttonRow = tableLayoutPanel1.GetRow(_useInternetButton);
-			tableLayoutPanel1.RowStyles[statusRow].Height = internetState ? LABEL_HEIGHT : 0;
-			tableLayoutPanel1.RowStyles[buttonRow].Height = internetState ? BUTTON_HEIGHT : 0;
+			var statusRow = _tableLayoutPanel.GetRow(_internetStatusLabel);
+			var buttonRow = _tableLayoutPanel.GetRow(_useInternetButton);
+			_tableLayoutPanel.RowStyles[statusRow].Height = internetState ? LABEL_HEIGHT : 0;
+			_tableLayoutPanel.RowStyles[buttonRow].Height = internetState ? BUTTON_HEIGHT : 0;
 
 			var folderState = Properties.Settings.Default.SharedFolderEnabled;
 			_useSharedFolderStatusLabel.Visible =
 				_useSharedFolderButton.Visible = _sharedNetworkDiagnosticsLink.Visible = folderState;
-			statusRow = tableLayoutPanel1.GetRow(_useSharedFolderStatusLabel);
-			buttonRow = tableLayoutPanel1.GetRow(_useSharedFolderButton);
-			tableLayoutPanel1.RowStyles[statusRow].Height = folderState ? LABEL_HEIGHT : 0;
-			tableLayoutPanel1.RowStyles[buttonRow].Height = folderState ? BUTTON_HEIGHT : 0;
+			statusRow = _tableLayoutPanel.GetRow(_useSharedFolderStatusLabel);
+			buttonRow = _tableLayoutPanel.GetRow(_useSharedFolderButton);
+			_tableLayoutPanel.RowStyles[statusRow].Height = folderState ? LABEL_HEIGHT : 0;
+			_tableLayoutPanel.RowStyles[buttonRow].Height = folderState ? BUTTON_HEIGHT : 0;
 		}
 
 		private void SetupSharedFolderAndInternetUI()
@@ -207,11 +210,11 @@ namespace Chorus.UI.Sync
 		{
 			get {
 				float height = 0;
-				for (int row = 0; row < tableLayoutPanel1.RowCount; ++row)
+				for (int row = 0; row < _tableLayoutPanel.RowCount; ++row)
 				{
-					height += tableLayoutPanel1.RowStyles[row].Height;
+					height += _tableLayoutPanel.RowStyles[row].Height;
 				}
-				return (int) height;
+				return (int) height+20;
 			}
 		}
 
