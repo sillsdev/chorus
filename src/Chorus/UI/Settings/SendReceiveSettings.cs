@@ -36,6 +36,7 @@ namespace Chorus.UI.Settings
 			_internetModel.InitFromProjectPath(repositoryLocation);
 			_serverSettingsControl.Model = _internetModel;
 
+			_internetButtonEnabledCheckBox.Checked = Properties.Settings.Default.InternetEnabled;
 //			_serverSettingsControl = new ServerSettingsControl(_internetModel);
 //			_serverSettingsControl.Dock = DockStyle.Fill;
 //			_internetButtonEnabledCB = new CheckBox { Text = "Show Internet as Send/Receive option",
@@ -50,6 +51,7 @@ namespace Chorus.UI.Settings
 			_sharedFolderModel = new NetworkFolderSettingsModel();
 			_sharedFolderModel.InitFromProjectPath(repositoryLocation);
 			_sharedFolderSettingsControl.Model = _sharedFolderModel;
+			_sharedFolderButtonEnabledCheckBox.Checked = Properties.Settings.Default.SharedFolderEnabled;
 //			_sharedFolderSettingsControl = new NetworkFolderSettingsControl(_sharedFolderModel);
 //			_sharedFolderButtonEnabledCheckBox = new CheckBox { Text = "Show Network Folder as Send/Receive option",
 //														  Checked = Properties.Settings.Default.SharedFolderEnabled,
