@@ -12,7 +12,7 @@ namespace Chorus.UI.Sync
 {
 	internal partial class SyncStartControl : UserControl
 	{
-		private const float LABEL_HEIGHT = 20F;
+		private const float LABEL_HEIGHT = 40F;//NB: this needs to not only hold the button, but leave white space before the next control cluster
 		private const float BUTTON_HEIGHT = 45F;
 
 		private HgRepository _repository;
