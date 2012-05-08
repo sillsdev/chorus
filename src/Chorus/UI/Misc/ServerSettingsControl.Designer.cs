@@ -48,7 +48,7 @@
 			//
 			this._projectIdLabel.Anchor = System.Windows.Forms.AnchorStyles.Right;
 			this._projectIdLabel.AutoSize = true;
-			this._projectIdLabel.Location = new System.Drawing.Point(43, 96);
+			this._projectIdLabel.Location = new System.Drawing.Point(23, 96);
 			this._projectIdLabel.Name = "_projectIdLabel";
 			this._projectIdLabel.Size = new System.Drawing.Size(54, 13);
 			this._projectIdLabel.TabIndex = 26;
@@ -58,7 +58,7 @@
 			//
 			this._accountLabel.Anchor = System.Windows.Forms.AnchorStyles.Right;
 			this._accountLabel.AutoSize = true;
-			this._accountLabel.Location = new System.Drawing.Point(64, 137);
+			this._accountLabel.Location = new System.Drawing.Point(44, 137);
 			this._accountLabel.Name = "_accountLabel";
 			this._accountLabel.Size = new System.Drawing.Size(33, 13);
 			this._accountLabel.TabIndex = 26;
@@ -68,7 +68,7 @@
 			//
 			this._passwordLabel.Anchor = System.Windows.Forms.AnchorStyles.Right;
 			this._passwordLabel.AutoSize = true;
-			this._passwordLabel.Location = new System.Drawing.Point(44, 179);
+			this._passwordLabel.Location = new System.Drawing.Point(24, 179);
 			this._passwordLabel.Name = "_passwordLabel";
 			this._passwordLabel.Size = new System.Drawing.Size(53, 13);
 			this._passwordLabel.TabIndex = 26;
@@ -77,9 +77,9 @@
 			// _projectId
 			//
 			this._projectId.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-			this._projectId.Location = new System.Drawing.Point(103, 92);
+			this._projectId.Location = new System.Drawing.Point(83, 92);
 			this._projectId.Name = "_projectId";
-			this._projectId.Size = new System.Drawing.Size(324, 20);
+			this._projectId.Size = new System.Drawing.Size(263, 20);
 			this._projectId.TabIndex = 0;
 			this.toolTip1.SetToolTip(this._projectId, "Usually the Ethnologue code, e.g. \'tpi\'");
 			this._projectId.TextChanged += new System.EventHandler(this._projectId_TextChanged);
@@ -87,9 +87,9 @@
 			// _accountName
 			//
 			this._accountName.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-			this._accountName.Location = new System.Drawing.Point(103, 133);
+			this._accountName.Location = new System.Drawing.Point(83, 133);
 			this._accountName.Name = "_accountName";
-			this._accountName.Size = new System.Drawing.Size(324, 20);
+			this._accountName.Size = new System.Drawing.Size(263, 20);
 			this._accountName.TabIndex = 1;
 			this.toolTip1.SetToolTip(this._accountName, "This is your account on the server, which must already be set up.");
 			this._accountName.TextChanged += new System.EventHandler(this._accountName_TextChanged);
@@ -97,9 +97,9 @@
 			// _password
 			//
 			this._password.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-			this._password.Location = new System.Drawing.Point(103, 176);
+			this._password.Location = new System.Drawing.Point(83, 176);
 			this._password.Name = "_password";
-			this._password.Size = new System.Drawing.Size(324, 20);
+			this._password.Size = new System.Drawing.Size(263, 20);
 			this._password.TabIndex = 2;
 			this.toolTip1.SetToolTip(this._password, "This is the password belonging to this account, as it was set up on the server.");
 			this._password.TextChanged += new System.EventHandler(this._password_TextChanged);
@@ -108,7 +108,7 @@
 			//
 			this._customUrlLabel.Anchor = System.Windows.Forms.AnchorStyles.Right;
 			this._customUrlLabel.AutoSize = true;
-			this._customUrlLabel.Location = new System.Drawing.Point(68, 55);
+			this._customUrlLabel.Location = new System.Drawing.Point(48, 55);
 			this._customUrlLabel.Name = "_customUrlLabel";
 			this._customUrlLabel.Size = new System.Drawing.Size(29, 13);
 			this._customUrlLabel.TabIndex = 29;
@@ -117,7 +117,7 @@
 			// tableLayoutPanel1
 			//
 			this.tableLayoutPanel1.ColumnCount = 2;
-			this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 100F));
+			this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 80F));
 			this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
 			this.tableLayoutPanel1.Controls.Add(this._serverCombo, 1, 0);
 			this.tableLayoutPanel1.Controls.Add(this._passwordLabel, 0, 4);
@@ -129,7 +129,6 @@
 			this.tableLayoutPanel1.Controls.Add(this._projectId, 1, 2);
 			this.tableLayoutPanel1.Controls.Add(this._accountName, 1, 3);
 			this.tableLayoutPanel1.Controls.Add(this._password, 1, 4);
-			this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
 			this.tableLayoutPanel1.Name = "tableLayoutPanel1";
 			this.tableLayoutPanel1.RowCount = 5;
@@ -138,7 +137,7 @@
 			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 20F));
 			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 20F));
 			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 20F));
-			this.tableLayoutPanel1.Size = new System.Drawing.Size(430, 208);
+			this.tableLayoutPanel1.Size = new System.Drawing.Size(349, 208);
 			this.tableLayoutPanel1.TabIndex = 30;
 			//
 			// _serverCombo
@@ -146,16 +145,16 @@
 			this._serverCombo.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
 			this._serverCombo.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			this._serverCombo.FormattingEnabled = true;
-			this._serverCombo.Location = new System.Drawing.Point(103, 10);
+			this._serverCombo.Location = new System.Drawing.Point(83, 10);
 			this._serverCombo.Name = "_serverCombo";
-			this._serverCombo.Size = new System.Drawing.Size(324, 21);
+			this._serverCombo.Size = new System.Drawing.Size(263, 21);
 			this._serverCombo.TabIndex = 6;
 			//
 			// label1
 			//
 			this.label1.Anchor = System.Windows.Forms.AnchorStyles.Right;
 			this.label1.AutoSize = true;
-			this.label1.Location = new System.Drawing.Point(59, 14);
+			this.label1.Location = new System.Drawing.Point(39, 14);
 			this.label1.Name = "label1";
 			this.label1.Size = new System.Drawing.Size(38, 13);
 			this.label1.TabIndex = 27;
@@ -164,18 +163,18 @@
 			// _customUrl
 			//
 			this._customUrl.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-			this._customUrl.Location = new System.Drawing.Point(103, 51);
+			this._customUrl.Location = new System.Drawing.Point(83, 51);
 			this._customUrl.Name = "_customUrl";
-			this._customUrl.Size = new System.Drawing.Size(324, 20);
+			this._customUrl.Size = new System.Drawing.Size(263, 20);
 			this._customUrl.TabIndex = 28;
 			//
 			// ServerSettingsControl
 			//
 			this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
 			this.Controls.Add(this.tableLayoutPanel1);
-			this.MinimumSize = new System.Drawing.Size(430, 200);
+			this.MinimumSize = new System.Drawing.Size(363, 200);
 			this.Name = "ServerSettingsControl";
-			this.Size = new System.Drawing.Size(430, 208);
+			this.Size = new System.Drawing.Size(363, 208);
 			this.Load += new System.EventHandler(this.OnLoad);
 			this.tableLayoutPanel1.ResumeLayout(false);
 			this.tableLayoutPanel1.PerformLayout();

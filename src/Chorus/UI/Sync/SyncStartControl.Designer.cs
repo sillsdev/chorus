@@ -41,15 +41,15 @@ namespace Chorus.UI.Sync
 			this._useUSBButton = new System.Windows.Forms.Button();
 			this._updateDisplayTimer = new System.Windows.Forms.Timer(this.components);
 			this._tableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
+			this.commitMessageLabel = new Chorus.UI.BetterLabel();
 			this._commitMessageText = new System.Windows.Forms.TextBox();
+			this._usbStatusLabel = new Chorus.UI.BetterLabel();
 			this._internetStatusLabel = new System.Windows.Forms.LinkLabel();
 			this._useSharedFolderStatusLabel = new System.Windows.Forms.LinkLabel();
 			this._internetDiagnosticsLink = new System.Windows.Forms.LinkLabel();
 			this._sharedNetworkDiagnosticsLink = new System.Windows.Forms.LinkLabel();
-			this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
 			this._settingsButton = new Palaso.UI.WindowsForms.SettingProtection.SettingsLauncherButton();
-			this.commitMessageLabel = new Chorus.UI.BetterLabel();
-			this._usbStatusLabel = new Chorus.UI.BetterLabel();
+			this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
 			this.usbDriveLocator = new Chorus.UI.UsbDriveLocator(this.components);
 			this._tableLayoutPanel.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.usbDriveLocator)).BeginInit();
@@ -137,6 +137,22 @@ namespace Chorus.UI.Sync
 			this._tableLayoutPanel.Size = new System.Drawing.Size(342, 351);
 			this._tableLayoutPanel.TabIndex = 0;
 			//
+			// commitMessageLabel
+			//
+			this.commitMessageLabel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
+			| System.Windows.Forms.AnchorStyles.Right)));
+			this.commitMessageLabel.BorderStyle = System.Windows.Forms.BorderStyle.None;
+			this._tableLayoutPanel.SetColumnSpan(this.commitMessageLabel, 2);
+			this.commitMessageLabel.Font = new System.Drawing.Font("Segoe UI", 9F);
+			this.commitMessageLabel.Location = new System.Drawing.Point(3, 3);
+			this.commitMessageLabel.Multiline = true;
+			this.commitMessageLabel.Name = "commitMessageLabel";
+			this.commitMessageLabel.ReadOnly = true;
+			this.commitMessageLabel.Size = new System.Drawing.Size(336, 14);
+			this.commitMessageLabel.TabIndex = 3;
+			this.commitMessageLabel.TabStop = false;
+			this.commitMessageLabel.Text = "Label this point in the project history (Optional) :";
+			//
 			// _commitMessageText
 			//
 			this._commitMessageText.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
@@ -148,6 +164,23 @@ namespace Chorus.UI.Sync
 			this._commitMessageText.Size = new System.Drawing.Size(319, 20);
 			this._commitMessageText.TabIndex = 0;
 			//
+			// _usbStatusLabel
+			//
+			this._usbStatusLabel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+			| System.Windows.Forms.AnchorStyles.Right)));
+			this._usbStatusLabel.BorderStyle = System.Windows.Forms.BorderStyle.None;
+			this._tableLayoutPanel.SetColumnSpan(this._usbStatusLabel, 2);
+			this._usbStatusLabel.Font = new System.Drawing.Font("Segoe UI", 9F);
+			this._usbStatusLabel.ForeColor = System.Drawing.Color.DimGray;
+			this._usbStatusLabel.Location = new System.Drawing.Point(3, 103);
+			this._usbStatusLabel.Multiline = true;
+			this._usbStatusLabel.Name = "_usbStatusLabel";
+			this._usbStatusLabel.ReadOnly = true;
+			this._usbStatusLabel.Size = new System.Drawing.Size(336, 30);
+			this._usbStatusLabel.TabIndex = 1;
+			this._usbStatusLabel.TabStop = false;
+			this._usbStatusLabel.Text = "Checking...";
+			//
 			// _internetStatusLabel
 			//
 			this._internetStatusLabel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
@@ -155,6 +188,7 @@ namespace Chorus.UI.Sync
 			this._internetStatusLabel.AutoSize = true;
 			this._tableLayoutPanel.SetColumnSpan(this._internetStatusLabel, 2);
 			this._internetStatusLabel.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this._internetStatusLabel.ForeColor = System.Drawing.Color.DimGray;
 			this._internetStatusLabel.LinkArea = new System.Windows.Forms.LinkArea(20, 8);
 			this._internetStatusLabel.Location = new System.Drawing.Point(3, 185);
 			this._internetStatusLabel.Name = "_internetStatusLabel";
@@ -171,6 +205,7 @@ namespace Chorus.UI.Sync
 			this._useSharedFolderStatusLabel.AutoSize = true;
 			this._tableLayoutPanel.SetColumnSpan(this._useSharedFolderStatusLabel, 2);
 			this._useSharedFolderStatusLabel.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this._useSharedFolderStatusLabel.ForeColor = System.Drawing.Color.DimGray;
 			this._useSharedFolderStatusLabel.LinkArea = new System.Windows.Forms.LinkArea(20, 8);
 			this._useSharedFolderStatusLabel.Location = new System.Drawing.Point(3, 270);
 			this._useSharedFolderStatusLabel.Name = "_useSharedFolderStatusLabel";
@@ -220,39 +255,6 @@ namespace Chorus.UI.Sync
 			this._settingsButton.Padding = new System.Windows.Forms.Padding(3, 0, 0, 0);
 			this._settingsButton.Size = new System.Drawing.Size(110, 22);
 			this._settingsButton.TabIndex = 5;
-			//
-			// commitMessageLabel
-			//
-			this.commitMessageLabel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
-			| System.Windows.Forms.AnchorStyles.Right)));
-			this.commitMessageLabel.BorderStyle = System.Windows.Forms.BorderStyle.None;
-			this._tableLayoutPanel.SetColumnSpan(this.commitMessageLabel, 2);
-			this.commitMessageLabel.Font = new System.Drawing.Font("Segoe UI", 9F);
-			this.commitMessageLabel.Location = new System.Drawing.Point(3, 3);
-			this.commitMessageLabel.Multiline = true;
-			this.commitMessageLabel.Name = "commitMessageLabel";
-			this.commitMessageLabel.ReadOnly = true;
-			this.commitMessageLabel.Size = new System.Drawing.Size(336, 14);
-			this.commitMessageLabel.TabIndex = 3;
-			this.commitMessageLabel.TabStop = false;
-			this.commitMessageLabel.Text = "Label this point in the project history (Optional) :";
-			//
-			// _usbStatusLabel
-			//
-			this._usbStatusLabel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-			| System.Windows.Forms.AnchorStyles.Right)));
-			this._usbStatusLabel.BorderStyle = System.Windows.Forms.BorderStyle.None;
-			this._tableLayoutPanel.SetColumnSpan(this._usbStatusLabel, 2);
-			this._usbStatusLabel.Font = new System.Drawing.Font("Segoe UI", 9F);
-			this._usbStatusLabel.ForeColor = System.Drawing.Color.DimGray;
-			this._usbStatusLabel.Location = new System.Drawing.Point(3, 103);
-			this._usbStatusLabel.Multiline = true;
-			this._usbStatusLabel.Name = "_usbStatusLabel";
-			this._usbStatusLabel.ReadOnly = true;
-			this._usbStatusLabel.Size = new System.Drawing.Size(336, 30);
-			this._usbStatusLabel.TabIndex = 1;
-			this._usbStatusLabel.TabStop = false;
-			this._usbStatusLabel.Text = "Checking...";
 			//
 			// SyncStartControl
 			//

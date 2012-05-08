@@ -24,6 +24,8 @@ namespace Chorus.UI.Misc
 			set
 			{
 				_model = value;
+				if (value == null)
+					return;
 				sharedFolderTextbox.Text = _model.SharedFolder;
 			}
 		}
@@ -41,6 +43,13 @@ namespace Chorus.UI.Misc
 			{
 				sharedFolderTextbox.Text = folderBrowser.SelectedPath;
 			}
+		}
+
+		private void _networkWarningButton_Click(object sender, EventArgs e)
+		{
+			MessageBox.Show(
+				"Using a simple shared network folder is somewhat experimental. We don’t yet know if it will be reliable for you, or not… it is difficult for us to test all the different kinds of networks out there. So if you use this feature, please let us know how it goes for you, whether you have success or problems.",
+				"Notice", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 		}
 	}
 }

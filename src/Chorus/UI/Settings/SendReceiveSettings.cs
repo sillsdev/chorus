@@ -66,21 +66,21 @@ namespace Chorus.UI.Settings
 
 		void settingsTabSelectionChanged(object sender, EventArgs e)
 		{
-			if (settingsTabs.SelectedTab == networkFolderTab)
-			{
-				if (DialogResult.Cancel ==
-					MessageBox.Show(
-						"Sharing repositories over a local network may sometimes cause a repository to become corrupted. This can be repaired by copying one of the good copies of the repository, but it may require expert help. If you have a good internet connection or a small enough group to pass a USB key around, we recommend one of the other Send/Receive options.",
-						"Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning))
-				{
-					_sharedFolderSettingsControl.Enabled = false;
-				}
-				else
-				{
-					_sharedFolderSettingsControl.Enabled = true;
-				}
-
-			}
+//			if (settingsTabs.SelectedTab == networkFolderTab)
+//			{
+//				if (DialogResult.Cancel ==
+//				    MessageBox.Show(
+//				    	"Sharing repositories over a local network may sometimes cause a repository to become corrupted. This can be repaired by copying one of the good copies of the repository, but it may require expert help. If you have a good internet connection or a small enough group to pass a USB key around, we recommend one of the other Send/Receive options.",
+//				    	"Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning))
+//				{
+//					_sharedFolderSettingsControl.Enabled = false;
+//				}
+//				else
+//				{
+//					_sharedFolderSettingsControl.Enabled = true;
+//				}
+//
+//			}
 		}
 
 		private void okButton_Click(object sender, EventArgs e)
@@ -108,6 +108,11 @@ namespace Chorus.UI.Settings
 			{
 				_model.SetUserName(_userName.Text.Trim(), new NullProgress());
 			}
+		}
+
+		private void nameLabel_Click(object sender, EventArgs e)
+		{
+
 		}
 	}
 }

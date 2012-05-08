@@ -34,10 +34,12 @@ namespace Chorus.UI.Settings
 			this.userNameTextBox = new System.Windows.Forms.TextBox();
 			this.settingsTabs = new System.Windows.Forms.TabControl();
 			this.internetTab = new System.Windows.Forms.TabPage();
+			this.pictureBox1 = new System.Windows.Forms.PictureBox();
 			this._internetSettingsFlow = new System.Windows.Forms.FlowLayoutPanel();
 			this._internetButtonEnabledCheckBox = new System.Windows.Forms.CheckBox();
 			this._serverSettingsControl = new Chorus.UI.Misc.ServerSettingsControl();
 			this.networkFolderTab = new System.Windows.Forms.TabPage();
+			this.pictureBox2 = new System.Windows.Forms.PictureBox();
 			this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
 			this._sharedFolderButtonEnabledCheckBox = new System.Windows.Forms.CheckBox();
 			this._sharedFolderSettingsControl = new Chorus.UI.Misc.NetworkFolderSettingsControl();
@@ -45,25 +47,30 @@ namespace Chorus.UI.Settings
 			this._cancelButton = new System.Windows.Forms.Button();
 			this._okButton = new System.Windows.Forms.Button();
 			this.settingsProtectionButton = new Palaso.UI.WindowsForms.SettingProtection.SettingsProtectionLauncherButton();
+			this.pictureBox3 = new System.Windows.Forms.PictureBox();
 			this.settingsTabs.SuspendLayout();
 			this.internetTab.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
 			this._internetSettingsFlow.SuspendLayout();
 			this.networkFolderTab.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
 			this.flowLayoutPanel1.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).BeginInit();
 			this.SuspendLayout();
 			//
 			// nameLabel
 			//
 			this.nameLabel.AutoSize = true;
-			this.nameLabel.Location = new System.Drawing.Point(13, 13);
+			this.nameLabel.Location = new System.Drawing.Point(84, 9);
 			this.nameLabel.Name = "nameLabel";
 			this.nameLabel.Size = new System.Drawing.Size(161, 13);
 			this.nameLabel.TabIndex = 0;
 			this.nameLabel.Text = "Name to show in change history:";
+			this.nameLabel.Click += new System.EventHandler(this.nameLabel_Click);
 			//
 			// userNameTextBox
 			//
-			this.userNameTextBox.Location = new System.Drawing.Point(16, 30);
+			this.userNameTextBox.Location = new System.Drawing.Point(86, 25);
 			this.userNameTextBox.Name = "userNameTextBox";
 			this.userNameTextBox.Size = new System.Drawing.Size(158, 20);
 			this.userNameTextBox.TabIndex = 1;
@@ -84,6 +91,7 @@ namespace Chorus.UI.Settings
 			//
 			// internetTab
 			//
+			this.internetTab.Controls.Add(this.pictureBox1);
 			this.internetTab.Controls.Add(this._internetSettingsFlow);
 			this.internetTab.Location = new System.Drawing.Point(4, 22);
 			this.internetTab.Name = "internetTab";
@@ -93,22 +101,31 @@ namespace Chorus.UI.Settings
 			this.internetTab.Text = "Internet";
 			this.internetTab.UseVisualStyleBackColor = true;
 			//
+			// pictureBox1
+			//
+			this.pictureBox1.Image = global::Chorus.Properties.Resources.internet59x64;
+			this.pictureBox1.Location = new System.Drawing.Point(6, 14);
+			this.pictureBox1.Name = "pictureBox1";
+			this.pictureBox1.Size = new System.Drawing.Size(64, 66);
+			this.pictureBox1.TabIndex = 1;
+			this.pictureBox1.TabStop = false;
+			//
 			// _internetSettingsFlow
 			//
 			this._internetSettingsFlow.Controls.Add(this._internetButtonEnabledCheckBox);
 			this._internetSettingsFlow.Controls.Add(this._serverSettingsControl);
 			this._internetSettingsFlow.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
-			this._internetSettingsFlow.Location = new System.Drawing.Point(0, 11);
+			this._internetSettingsFlow.Location = new System.Drawing.Point(73, 11);
 			this._internetSettingsFlow.Name = "_internetSettingsFlow";
-			this._internetSettingsFlow.Size = new System.Drawing.Size(456, 238);
+			this._internetSettingsFlow.Size = new System.Drawing.Size(383, 238);
 			this._internetSettingsFlow.TabIndex = 0;
 			this._internetSettingsFlow.WrapContents = false;
 			//
 			// _internetButtonEnabledCheckBox
 			//
 			this._internetButtonEnabledCheckBox.AutoSize = true;
-			this._internetButtonEnabledCheckBox.Location = new System.Drawing.Point(110, 3);
-			this._internetButtonEnabledCheckBox.Margin = new System.Windows.Forms.Padding(110, 3, 3, 3);
+			this._internetButtonEnabledCheckBox.Location = new System.Drawing.Point(88, 3);
+			this._internetButtonEnabledCheckBox.Margin = new System.Windows.Forms.Padding(88, 3, 3, 3);
 			this._internetButtonEnabledCheckBox.Name = "_internetButtonEnabledCheckBox";
 			this._internetButtonEnabledCheckBox.Size = new System.Drawing.Size(211, 17);
 			this._internetButtonEnabledCheckBox.TabIndex = 0;
@@ -119,13 +136,15 @@ namespace Chorus.UI.Settings
 			//
 			this._serverSettingsControl.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
 			this._serverSettingsControl.Location = new System.Drawing.Point(3, 26);
-			this._serverSettingsControl.MinimumSize = new System.Drawing.Size(430, 200);
+			this._serverSettingsControl.MinimumSize = new System.Drawing.Size(363, 200);
+			this._serverSettingsControl.Model = null;
 			this._serverSettingsControl.Name = "_serverSettingsControl";
-			this._serverSettingsControl.Size = new System.Drawing.Size(430, 200);
+			this._serverSettingsControl.Size = new System.Drawing.Size(363, 200);
 			this._serverSettingsControl.TabIndex = 1;
 			//
 			// networkFolderTab
 			//
+			this.networkFolderTab.Controls.Add(this.pictureBox2);
 			this.networkFolderTab.Controls.Add(this.flowLayoutPanel1);
 			this.networkFolderTab.Location = new System.Drawing.Point(4, 22);
 			this.networkFolderTab.Name = "networkFolderTab";
@@ -135,14 +154,23 @@ namespace Chorus.UI.Settings
 			this.networkFolderTab.Text = "Network Folder";
 			this.networkFolderTab.UseVisualStyleBackColor = true;
 			//
+			// pictureBox2
+			//
+			this.pictureBox2.Image = global::Chorus.Properties.Resources.networkFolder58x64;
+			this.pictureBox2.Location = new System.Drawing.Point(6, 18);
+			this.pictureBox2.Name = "pictureBox2";
+			this.pictureBox2.Size = new System.Drawing.Size(64, 66);
+			this.pictureBox2.TabIndex = 2;
+			this.pictureBox2.TabStop = false;
+			//
 			// flowLayoutPanel1
 			//
 			this.flowLayoutPanel1.Controls.Add(this._sharedFolderButtonEnabledCheckBox);
 			this.flowLayoutPanel1.Controls.Add(this._sharedFolderSettingsControl);
 			this.flowLayoutPanel1.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
-			this.flowLayoutPanel1.Location = new System.Drawing.Point(10, 15);
+			this.flowLayoutPanel1.Location = new System.Drawing.Point(89, 15);
 			this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-			this.flowLayoutPanel1.Size = new System.Drawing.Size(456, 238);
+			this.flowLayoutPanel1.Size = new System.Drawing.Size(377, 238);
 			this.flowLayoutPanel1.TabIndex = 1;
 			this.flowLayoutPanel1.WrapContents = false;
 			//
@@ -160,6 +188,7 @@ namespace Chorus.UI.Settings
 			// _sharedFolderSettingsControl
 			//
 			this._sharedFolderSettingsControl.Location = new System.Drawing.Point(3, 26);
+			this._sharedFolderSettingsControl.Model = null;
 			this._sharedFolderSettingsControl.Name = "_sharedFolderSettingsControl";
 			this._sharedFolderSettingsControl.Size = new System.Drawing.Size(326, 155);
 			this._sharedFolderSettingsControl.TabIndex = 1;
@@ -206,6 +235,16 @@ namespace Chorus.UI.Settings
 			this.settingsProtectionButton.Size = new System.Drawing.Size(258, 37);
 			this.settingsProtectionButton.TabIndex = 0;
 			//
+			// pictureBox3
+			//
+			this.pictureBox3.Image = global::Chorus.Properties.Resources.Committer_Person;
+			this.pictureBox3.Location = new System.Drawing.Point(17, 9);
+			this.pictureBox3.Name = "pictureBox3";
+			this.pictureBox3.Size = new System.Drawing.Size(52, 51);
+			this.pictureBox3.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+			this.pictureBox3.TabIndex = 6;
+			this.pictureBox3.TabStop = false;
+			//
 			// SendReceiveSettings
 			//
 			this.AcceptButton = this._okButton;
@@ -213,6 +252,7 @@ namespace Chorus.UI.Settings
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.CancelButton = this._cancelButton;
 			this.ClientSize = new System.Drawing.Size(508, 434);
+			this.Controls.Add(this.pictureBox3);
 			this.Controls.Add(this._okButton);
 			this.Controls.Add(this._cancelButton);
 			this.Controls.Add(this._helpButton);
@@ -228,11 +268,14 @@ namespace Chorus.UI.Settings
 			this.Text = "Send/Receive Settings";
 			this.settingsTabs.ResumeLayout(false);
 			this.internetTab.ResumeLayout(false);
+			((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
 			this._internetSettingsFlow.ResumeLayout(false);
 			this._internetSettingsFlow.PerformLayout();
 			this.networkFolderTab.ResumeLayout(false);
+			((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
 			this.flowLayoutPanel1.ResumeLayout(false);
 			this.flowLayoutPanel1.PerformLayout();
+			((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).EndInit();
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -255,5 +298,8 @@ namespace Chorus.UI.Settings
 		private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
 		private System.Windows.Forms.CheckBox _sharedFolderButtonEnabledCheckBox;
 		private Misc.NetworkFolderSettingsControl _sharedFolderSettingsControl;
+		private System.Windows.Forms.PictureBox pictureBox1;
+		private System.Windows.Forms.PictureBox pictureBox2;
+		private System.Windows.Forms.PictureBox pictureBox3;
 	}
 }

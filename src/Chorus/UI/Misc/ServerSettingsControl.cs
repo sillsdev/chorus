@@ -26,6 +26,8 @@ namespace Chorus.UI.Misc
 			set
 			{
 				_model = value;
+				if (value == null)
+					return;
 				foreach (KeyValuePair<string, string> pair in Model.Servers)
 				{
 					_serverCombo.Items.Add(pair.Key);

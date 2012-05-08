@@ -31,6 +31,7 @@
 			this.sharedFolderLabel = new System.Windows.Forms.Label();
 			this.sharedFolderTextbox = new System.Windows.Forms.TextBox();
 			this.browseButton = new System.Windows.Forms.Button();
+			this._networkWarningButton = new System.Windows.Forms.Button();
 			this.SuspendLayout();
 			//
 			// sharedFolderLabel
@@ -60,10 +61,25 @@
 			this.browseButton.UseVisualStyleBackColor = true;
 			this.browseButton.Click += new System.EventHandler(this.browseButton_Click);
 			//
+			// _networkWarningButton
+			//
+			this._networkWarningButton.Image = global::Chorus.Properties.Resources.warning24x24;
+			this._networkWarningButton.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			this._networkWarningButton.Location = new System.Drawing.Point(7, 59);
+			this._networkWarningButton.Name = "_networkWarningButton";
+			this._networkWarningButton.Size = new System.Drawing.Size(198, 36);
+			this._networkWarningButton.TabIndex = 3;
+			this._networkWarningButton.Text = "Experimental Feature Notice";
+			this._networkWarningButton.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+			this._networkWarningButton.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
+			this._networkWarningButton.UseVisualStyleBackColor = true;
+			this._networkWarningButton.Click += new System.EventHandler(this._networkWarningButton_Click);
+			//
 			// NetworkFolderSettingsControl
 			//
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			this.Controls.Add(this._networkWarningButton);
 			this.Controls.Add(this.browseButton);
 			this.Controls.Add(this.sharedFolderTextbox);
 			this.Controls.Add(this.sharedFolderLabel);
@@ -79,5 +95,6 @@
 		private System.Windows.Forms.Label sharedFolderLabel;
 		private System.Windows.Forms.TextBox sharedFolderTextbox;
 		private System.Windows.Forms.Button browseButton;
+		private System.Windows.Forms.Button _networkWarningButton;
 	}
 }
