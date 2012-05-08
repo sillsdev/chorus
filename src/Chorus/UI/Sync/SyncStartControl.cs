@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Drawing;
 using System.Threading;
 using System.Windows.Forms;
 using Chorus.UI.Misc;
@@ -77,6 +78,8 @@ namespace Chorus.UI.Sync
 			if(result == DialogResult.OK)
 			{
 				SetButtonStatesFromSettings();
+				Parent.ClientSize = new Size(Width, DesiredHeight + 10);
+				Parent.ResumeLayout(true);
 				RecheckNetworkStatus();
 				RecheckInternetStatus();
 			}
@@ -198,6 +201,18 @@ namespace Chorus.UI.Sync
 		public bool ShouldShowInternetSetUpButton
 		{
 			get { return (!_useInternetButton.Enabled || Control.ModifierKeys == Keys.Shift); }
+		}
+
+		public int DesiredHeight
+		{
+			get {
+				float height = 0;
+				for (int row = 0; row < tableLayoutPanel1.RowCount; ++row)
+				{
+					height += tableLayoutPanel1.RowStyles[row].Height;
+				}
+				return (int) height;
+			}
 		}
 
 		/// <summary>

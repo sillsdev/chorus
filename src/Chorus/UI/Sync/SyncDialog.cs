@@ -42,13 +42,15 @@ namespace Chorus.UI.Sync
 					_syncControl.Dock = DockStyle.Fill;//in designer, we don't want it to cover up everything, but we do at runtime
 					_syncStartControl1.Visible = true;
 					_syncControl.Visible = false;
+					Height = _syncStartControl1.DesiredHeight;
 				}
 				else
 				{
 					_syncStartControl1.Visible = false;
 					_syncControl.Visible = true;
+					Height = _syncControl.DesiredHeight;
 				}
-
+				ResumeLayout(true);
 				this.Text = string.Format("Send/Receive ({0})", _syncControl.Model.UserName);
 			}
 			catch (Exception)
@@ -117,14 +119,17 @@ namespace Chorus.UI.Sync
 
 		private void SyncDialog_Load(object sender, EventArgs e)
 		{
-			this.ClientSize = new Size( 490, _syncControl.DesiredHeight+10);
-
+			MessageBox.Show("hi");
+			var height = _syncControl.Visible ? _syncControl.DesiredHeight + 10 : _syncStartControl1.DesiredHeight + 10;
+			ClientSize = new Size( 490, height);
 		}
 
 		private void _syncStartControl1_RepositoryChosen(object sender, SyncStartArgs args)
 		{
 			_syncStartControl1.Visible = false;
 			_syncControl.Visible = true;
+			Height = _syncControl.DesiredHeight;
+			ResumeLayout(true);
 #if MONO
 			_syncControl.Refresh();
 #endif
