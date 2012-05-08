@@ -44,16 +44,14 @@ namespace Chorus.UI.Sync
 			this._commitMessageText = new System.Windows.Forms.TextBox();
 			this._internetStatusLabel = new System.Windows.Forms.LinkLabel();
 			this._useSharedFolderStatusLabel = new System.Windows.Forms.LinkLabel();
-			this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
-			this._settingsButton = new Palaso.UI.WindowsForms.SettingProtection.SettingsLauncherButton();
 			this._internetDiagnosticsLink = new System.Windows.Forms.LinkLabel();
 			this._sharedNetworkDiagnosticsLink = new System.Windows.Forms.LinkLabel();
 			this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
+			this._settingsButton = new Palaso.UI.WindowsForms.SettingProtection.SettingsLauncherButton();
 			this.commitMessageLabel = new Chorus.UI.BetterLabel();
 			this._usbStatusLabel = new Chorus.UI.BetterLabel();
 			this.usbDriveLocator = new Chorus.UI.UsbDriveLocator(this.components);
 			this._tableLayoutPanel.SuspendLayout();
-			this.flowLayoutPanel1.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.usbDriveLocator)).BeginInit();
 			this.SuspendLayout();
 			//
@@ -66,7 +64,7 @@ namespace Chorus.UI.Sync
 			this._useSharedFolderButton.Location = new System.Drawing.Point(3, 228);
 			this._useSharedFolderButton.Name = "_useSharedFolderButton";
 			this._useSharedFolderButton.Size = new System.Drawing.Size(167, 38);
-			this._useSharedFolderButton.TabIndex = 0;
+			this._useSharedFolderButton.TabIndex = 3;
 			this._useSharedFolderButton.Text = "&Shared Network Folder";
 			this._useSharedFolderButton.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
 			this._useSharedFolderButton.UseVisualStyleBackColor = false;
@@ -80,7 +78,7 @@ namespace Chorus.UI.Sync
 			this._useInternetButton.Location = new System.Drawing.Point(3, 143);
 			this._useInternetButton.Name = "_useInternetButton";
 			this._useInternetButton.Size = new System.Drawing.Size(167, 38);
-			this._useInternetButton.TabIndex = 0;
+			this._useInternetButton.TabIndex = 2;
 			this._useInternetButton.Text = "&Internet";
 			this._useInternetButton.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
 			this._useInternetButton.UseVisualStyleBackColor = false;
@@ -94,7 +92,7 @@ namespace Chorus.UI.Sync
 			this._useUSBButton.Location = new System.Drawing.Point(3, 58);
 			this._useUSBButton.Name = "_useUSBButton";
 			this._useUSBButton.Size = new System.Drawing.Size(167, 38);
-			this._useUSBButton.TabIndex = 0;
+			this._useUSBButton.TabIndex = 1;
 			this._useUSBButton.Text = "&USB Flash Drive";
 			this._useUSBButton.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
 			this._useUSBButton.UseVisualStyleBackColor = false;
@@ -120,9 +118,9 @@ namespace Chorus.UI.Sync
 			this._tableLayoutPanel.Controls.Add(this._internetStatusLabel, 0, 5);
 			this._tableLayoutPanel.Controls.Add(this._useSharedFolderButton, 0, 6);
 			this._tableLayoutPanel.Controls.Add(this._useSharedFolderStatusLabel, 0, 7);
-			this._tableLayoutPanel.Controls.Add(this.flowLayoutPanel1, 0, 8);
 			this._tableLayoutPanel.Controls.Add(this._internetDiagnosticsLink, 1, 4);
 			this._tableLayoutPanel.Controls.Add(this._sharedNetworkDiagnosticsLink, 1, 6);
+			this._tableLayoutPanel.Controls.Add(this._settingsButton, 0, 8);
 			this._tableLayoutPanel.Location = new System.Drawing.Point(22, 13);
 			this._tableLayoutPanel.Name = "_tableLayoutPanel";
 			this._tableLayoutPanel.RowCount = 9;
@@ -137,7 +135,7 @@ namespace Chorus.UI.Sync
 			this._tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
 			this._tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
 			this._tableLayoutPanel.Size = new System.Drawing.Size(342, 351);
-			this._tableLayoutPanel.TabIndex = 2;
+			this._tableLayoutPanel.TabIndex = 0;
 			//
 			// _commitMessageText
 			//
@@ -148,7 +146,7 @@ namespace Chorus.UI.Sync
 			this._commitMessageText.Margin = new System.Windows.Forms.Padding(3, 3, 20, 3);
 			this._commitMessageText.Name = "_commitMessageText";
 			this._commitMessageText.Size = new System.Drawing.Size(319, 20);
-			this._commitMessageText.TabIndex = 4;
+			this._commitMessageText.TabIndex = 0;
 			//
 			// _internetStatusLabel
 			//
@@ -181,27 +179,6 @@ namespace Chorus.UI.Sync
 			this._useSharedFolderStatusLabel.Text = "A nice message";
 			this._useSharedFolderStatusLabel.UseCompatibleTextRendering = true;
 			//
-			// flowLayoutPanel1
-			//
-			this._tableLayoutPanel.SetColumnSpan(this.flowLayoutPanel1, 2);
-			this.flowLayoutPanel1.Controls.Add(this._settingsButton);
-			this.flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.flowLayoutPanel1.Location = new System.Drawing.Point(0, 313);
-			this.flowLayoutPanel1.Margin = new System.Windows.Forms.Padding(0, 3, 3, 3);
-			this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-			this.flowLayoutPanel1.Size = new System.Drawing.Size(339, 35);
-			this.flowLayoutPanel1.TabIndex = 8;
-			//
-			// _settingsButton
-			//
-			this._settingsButton.LaunchSettingsCallback = null;
-			this._settingsButton.Location = new System.Drawing.Point(0, 0);
-			this._settingsButton.Margin = new System.Windows.Forms.Padding(0);
-			this._settingsButton.Name = "_settingsButton";
-			this._settingsButton.Padding = new System.Windows.Forms.Padding(3, 0, 0, 0);
-			this._settingsButton.Size = new System.Drawing.Size(131, 22);
-			this._settingsButton.TabIndex = 0;
-			//
 			// _internetDiagnosticsLink
 			//
 			this._internetDiagnosticsLink.AccessibleName = "InternetDiagnosticsLink";
@@ -226,11 +203,23 @@ namespace Chorus.UI.Sync
 			this._sharedNetworkDiagnosticsLink.Name = "_sharedNetworkDiagnosticsLink";
 			this._sharedNetworkDiagnosticsLink.RightToLeft = System.Windows.Forms.RightToLeft.No;
 			this._sharedNetworkDiagnosticsLink.Size = new System.Drawing.Size(62, 13);
-			this._sharedNetworkDiagnosticsLink.TabIndex = 9;
+			this._sharedNetworkDiagnosticsLink.TabIndex = 4;
 			this._sharedNetworkDiagnosticsLink.TabStop = true;
 			this._sharedNetworkDiagnosticsLink.Text = "Diagnostics";
 			this._sharedNetworkDiagnosticsLink.Visible = false;
 			this._sharedNetworkDiagnosticsLink.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this._sharedNetworkDiagnosticsLink_LinkClicked);
+			//
+			// _settingsButton
+			//
+			this._settingsButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this._tableLayoutPanel.SetColumnSpan(this._settingsButton, 2);
+			this._settingsButton.LaunchSettingsCallback = null;
+			this._settingsButton.Location = new System.Drawing.Point(232, 310);
+			this._settingsButton.Margin = new System.Windows.Forms.Padding(0);
+			this._settingsButton.Name = "_settingsButton";
+			this._settingsButton.Padding = new System.Windows.Forms.Padding(3, 0, 0, 0);
+			this._settingsButton.Size = new System.Drawing.Size(110, 22);
+			this._settingsButton.TabIndex = 5;
 			//
 			// commitMessageLabel
 			//
@@ -274,7 +263,6 @@ namespace Chorus.UI.Sync
 			this.Size = new System.Drawing.Size(384, 367);
 			this._tableLayoutPanel.ResumeLayout(false);
 			this._tableLayoutPanel.PerformLayout();
-			this.flowLayoutPanel1.ResumeLayout(false);
 			((System.ComponentModel.ISupportInitialize)(this.usbDriveLocator)).EndInit();
 			this.ResumeLayout(false);
 
@@ -294,9 +282,8 @@ namespace Chorus.UI.Sync
 		private UsbDriveLocator usbDriveLocator;
 		private System.Windows.Forms.LinkLabel _internetStatusLabel;
 		private System.Windows.Forms.LinkLabel _useSharedFolderStatusLabel;
-		private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
 		private System.Windows.Forms.LinkLabel _sharedNetworkDiagnosticsLink;
 		private System.Windows.Forms.LinkLabel _internetDiagnosticsLink;
-		private Palaso.UI.WindowsForms.SettingProtection.SettingsLauncherButton _settingsButton;
+		private SettingsLauncherButton _settingsButton;
 	}
 }
