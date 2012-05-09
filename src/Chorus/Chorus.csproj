@@ -99,7 +99,7 @@
 	</Reference>
 	<Reference Include="PalasoUIWindowsForms, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86">
 	  <SpecificVersion>False</SpecificVersion>
-	  <HintPath>..\..\lib\Debug\PalasoUIWindowsForms.dll</HintPath>
+	  <HintPath>..\..\lib\$(Configuration)\PalasoUIWindowsForms.dll</HintPath>
 	</Reference>
 	<Reference Include="System" />
 	<Reference Include="System.Core">
