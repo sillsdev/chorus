@@ -66,7 +66,6 @@ namespace Chorus.UI.Settings
 			this.nameLabel.Size = new System.Drawing.Size(161, 13);
 			this.nameLabel.TabIndex = 0;
 			this.nameLabel.Text = "Name to show in change history:";
-			this.nameLabel.Click += new System.EventHandler(this.nameLabel_Click);
 			//
 			// userNameTextBox
 			//

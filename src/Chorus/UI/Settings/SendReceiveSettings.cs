@@ -36,52 +36,19 @@ namespace Chorus.UI.Settings
 			_internetModel.InitFromProjectPath(repositoryLocation);
 			_serverSettingsControl.Model = _internetModel;
 
+			_internetButtonEnabledCheckBox.CheckedChanged += internetCheckChanged;
 			_internetButtonEnabledCheckBox.Checked = Properties.Settings.Default.InternetEnabled;
-//			_serverSettingsControl = new ServerSettingsControl(_internetModel);
-//			_serverSettingsControl.Dock = DockStyle.Fill;
-//			_internetButtonEnabledCB = new CheckBox { Text = "Show Internet as Send/Receive option",
-//													  Checked = Properties.Settings.Default.InternetEnabled,
-//													  CheckAlign = ContentAlignment.TopLeft,
-//													  TextAlign = ContentAlignment.BottomLeft };
-//			var internetPanel = new FlowLayoutPanel {AutoSize = true, FlowDirection = FlowDirection.TopDown};
-//			internetPanel.Controls.Add(_internetButtonEnabledCB);
-//			internetPanel.Controls.Add(_serverSettingsControl);
-//			internetTab.Controls.Add(internetPanel);
+			_serverSettingsControl.Enabled = _internetButtonEnabledCheckBox.Checked;
 
 			_sharedFolderModel = new NetworkFolderSettingsModel();
 			_sharedFolderModel.InitFromProjectPath(repositoryLocation);
 			_sharedFolderSettingsControl.Model = _sharedFolderModel;
+
+			_sharedFolderButtonEnabledCheckBox.CheckedChanged += networkFolderCheckChanged;
 			_sharedFolderButtonEnabledCheckBox.Checked = Properties.Settings.Default.SharedFolderEnabled;
-//			_sharedFolderSettingsControl = new NetworkFolderSettingsControl(_sharedFolderModel);
-//			_sharedFolderButtonEnabledCheckBox = new CheckBox { Text = "Show Network Folder as Send/Receive option",
-//														  Checked = Properties.Settings.Default.SharedFolderEnabled,
-//														  CheckAlign = ContentAlignment.TopLeft,
-//														  TextAlign = ContentAlignment.BottomLeft };
-//			var folderPanel = new FlowLayoutPanel { AutoSize = true, FlowDirection = FlowDirection.TopDown };
-//			folderPanel.Controls.Add(_sharedFolderButtonEnabledCheckBox);
-//			folderPanel.Controls.Add(_sharedFolderSettingsControl);
-//			networkFolderTab.Controls.Add(folderPanel);
-			settingsTabs.SelectedIndexChanged += new EventHandler(settingsTabSelectionChanged);
+			_sharedFolderSettingsControl.Enabled = _sharedFolderButtonEnabledCheckBox.Checked;
 		}
 
-		void settingsTabSelectionChanged(object sender, EventArgs e)
-		{
-//			if (settingsTabs.SelectedTab == networkFolderTab)
-//			{
-//				if (DialogResult.Cancel ==
-//				    MessageBox.Show(
-//				    	"Sharing repositories over a local network may sometimes cause a repository to become corrupted. This can be repaired by copying one of the good copies of the repository, but it may require expert help. If you have a good internet connection or a small enough group to pass a USB key around, we recommend one of the other Send/Receive options.",
-//				    	"Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning))
-//				{
-//					_sharedFolderSettingsControl.Enabled = false;
-//				}
-//				else
-//				{
-//					_sharedFolderSettingsControl.Enabled = true;
-//				}
-//
-//			}
-		}
 
 		private void okButton_Click(object sender, EventArgs e)
 		{
@@ -110,9 +77,14 @@ namespace Chorus.UI.Settings
 			}
 		}
 
-		private void nameLabel_Click(object sender, EventArgs e)
+		private void internetCheckChanged(object sender, EventArgs e)
 		{
+			_serverSettingsControl.Enabled = _internetButtonEnabledCheckBox.Checked;
+		}
 
+		private void networkFolderCheckChanged(object sender, EventArgs e)
+		{
+			_sharedFolderSettingsControl.Enabled = _sharedFolderButtonEnabledCheckBox.Checked;
 		}
 	}
 }
