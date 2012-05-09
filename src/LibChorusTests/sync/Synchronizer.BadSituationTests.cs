@@ -112,14 +112,14 @@ namespace LibChorus.Tests.sync
 		public void Sync_MergeTimeoutExceeded_LeavesNoChorusMergeProcessAlive()
 		{
 			HgRunner.TimeoutSecondsOverrideForUnitTests = 1;
-			using (var bob = RepositoryWithFilesSetup.CreateWithLiftFile("bob"))
+			using (var fred = RepositoryWithFilesSetup.CreateWithLiftFile("fred"))
 			{
-				using (var sally = RepositoryWithFilesSetup.CreateByCloning("sally", bob))
+				using (var betty = RepositoryWithFilesSetup.CreateByCloning("betty", fred))
 				{
-					bob.ReplaceSomething("bobWasHere");
-					bob.AddAndCheckIn();
-					sally.ReplaceSomething("sallyWasHere");
-					sally.CheckinAndPullAndMerge(bob);
+					fred.ReplaceSomething("fredWasHere");
+					fred.AddAndCheckIn();
+					betty.ReplaceSomething("bettyWasHere");
+					betty.CheckinAndPullAndMerge(fred);
 					Assert.AreEqual(0, Process.GetProcessesByName("ChorusMerge").Length);
 				}
 			}
