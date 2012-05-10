@@ -588,7 +588,7 @@ namespace Chorus.sync
 					var target = HgRepository.GetUniqueFolderPath(
 						_progress,
 						//"Folder at {0} already exists, so it can't be used. Creating clone in {1}, instead.",
-						"Warning: there is a project on the USB flash drive which has the right name ({0}), but it is actually unrelated to the one doing the Send/Receive. This usually indicates that the two repositories were created separately, with doesn't work. These repositories have to be descendants of each other, or else they can't be synchronized. This situation occurs when you create the repositories separately by accident. Instead, create one then use 'Get from USB' or 'Get from Internet' from other programs and computers. You may want to get some expert help."
+						"Warning: there is a project on the USB flash drive which has the right name ({0}), but it is actually unrelated to the one doing the Send/Receive. This usually indicates that the two repositories were created separately, which doesn't work. These repositories have to be descendants of each other, or else they can't be synchronized. This situation occurs when you create the repositories separately by accident. Instead, create one then use 'Get from USB' or 'Get from Internet' from other programs and computers. You may want to get some expert help."
 					+ " In the meantime, the program will create a repository at {1} so you can maybe keep collaborating while you wait for help.",
 						uri);
 					try
