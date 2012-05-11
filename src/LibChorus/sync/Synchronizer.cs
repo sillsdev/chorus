@@ -13,6 +13,7 @@ using Chorus.VcsDrivers.Mercurial;
 using System.Linq;
 using Palaso.Progress.LogBox;
 using Palaso.Reporting;
+using Palaso.Xml;
 
 namespace Chorus.sync
 {
@@ -701,16 +702,15 @@ namespace Chorus.sync
 		/// Find any .NewChorusNotes files which were created by the MergeChorus.exe and either rename them to .ChorusNotes
 		/// or add any annotations found in them to the existing .ChorusNotes file.
 		/// </summary>
-		/// <param name="localRepositoryPath"></param>
 		private static void AppendAnyNewNotes(string localRepositoryPath)
 		{
 			var allNewNotes = Directory.GetFiles(localRepositoryPath, "*.NewChorusNotes", SearchOption.AllDirectories);
 			foreach (var newNote in allNewNotes)
 			{
 				var oldNotesFile = newNote.Replace("NewChorusNotes", "ChorusNotes");
-				if(File.Exists(oldNotesFile))
+				if (File.Exists(oldNotesFile))
 				{
-					//Add new annotations to the end of any which were in the repo
+					// Add new annotations to the end of any which were in the repo
 					var oldDoc = new XmlDocument();
 					oldDoc.Load(oldNotesFile);
 					var oldNotesNode = oldDoc.SelectSingleNode("/notes");
@@ -722,12 +722,15 @@ namespace Chorus.sync
 						var newOldNode = oldDoc.ImportNode(node, true);
 						oldNotesNode.AppendChild(newOldNode);
 					}
-					oldDoc.Save(oldNotesFile);
+					using (var fileWriter = XmlWriter.Create(oldNotesFile, CanonicalXmlSettings.CreateXmlWriterSettings()))
+					{
+						oldDoc.Save(fileWriter);
+					}
 					File.Delete(newNote);
 				}
 				else
 				{
-					//There was no former ChorusNotes file, so just rename
+					// There was no former ChorusNotes file, so just rename
 					File.Move(newNote, oldNotesFile);
 				}
 			}
