@@ -583,6 +583,14 @@ namespace Chorus.VcsDrivers.Mercurial
 					_progress.ProgressIndicator.Finish();
 					return false;
 				}
+				if (response.Status == PullStatus.InProgress)
+				{
+					_progress.WriteStatus("Preparing data on server");
+					retryLoop = true;
+					// advance the progress bar 2% to show that something is happening
+					_progress.ProgressIndicator.PercentCompleted = _progress.ProgressIndicator.PercentCompleted + 2;
+					continue;
+				}
 				if (response.Status == PullStatus.InvalidHash)
 				{
 					// this should not happen...but sometimes it gets into a state where it remembers the wrong basehash of the server (CJH Feb-12)
@@ -633,7 +641,7 @@ namespace Chorus.VcsDrivers.Mercurial
 					// this is only useful when the bundle size is significantly large (like with a clone operation) such that
 					// the server takes a long time to create the bundle, and the bundleSize continues to rise as the chunks are received
 					bundleSize = response.BundleSize;
-					_progress.WriteStatus(string.Format("Calculating data to receive (>{0})", GetHumanReadableByteSize(bundleSize)));
+					_progress.WriteStatus(string.Format("Preparing data on server (>{0})", GetHumanReadableByteSize(bundleSize)));
 				}
 				loopCtr++;
 
@@ -721,6 +729,11 @@ namespace Chorus.VcsDrivers.Mercurial
 					if (response.StatusCode == HttpStatusCode.NotModified)
 					{
 						pullResponse.Status = PullStatus.NoChange;
+						return pullResponse;
+					}
+					if (response.StatusCode == HttpStatusCode.Accepted)
+					{
+						pullResponse.Status = PullStatus.InProgress;
 						return pullResponse;
 					}
 
