@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Windows.Forms;
+using System.Xml;
 using Chorus.FileTypeHanders;
 using Chorus.merge;
 using Chorus.Utilities;
@@ -12,6 +13,7 @@ using Chorus.VcsDrivers.Mercurial;
 using System.Linq;
 using Palaso.Progress.LogBox;
 using Palaso.Reporting;
+using Palaso.Xml;
 
 namespace Chorus.sync
 {
@@ -633,68 +635,106 @@ namespace Chorus.sync
 		}
 
 		private void MergeHeads()
-		  {
-			  try
-			  {
-				  List<string> peopleWeMergedWith = new List<string>();
+		{
+			try
+			{
+				List<string> peopleWeMergedWith = new List<string>();
 
-				  List<Revision> heads = Repository.GetHeads();
-				  Revision myHead = Repository.GetRevisionWorkingSetIsBasedOn();
-				  if (myHead == default(Revision))
-					  return;
+				List<Revision> heads = Repository.GetHeads();
+				Revision myHead = Repository.GetRevisionWorkingSetIsBasedOn();
+				if (myHead == default(Revision))
+					return;
 
-				  foreach (Revision head in heads)
-				  {
-					  if (head.Number.LocalRevisionNumber == myHead.Number.LocalRevisionNumber)
-						  continue;
+				foreach (Revision head in heads)
+				{
+					if (head.Number.LocalRevisionNumber == myHead.Number.LocalRevisionNumber)
+						continue;
 
-					  if (head.Tag.Contains(RejectTagSubstring))
-						  continue;
+					if (head.Tag.Contains(RejectTagSubstring))
+						continue;
 
-					  //note: what we're checking here is actualy the *name* of the branch...important: remmber in hg,
-					  //you can have multiple heads on the same branch
-					  if (head.Branch != myHead.Branch) //Chorus policy is to only auto-merge on branches with same name
-						  continue;
+					//note: what we're checking here is actualy the *name* of the branch...important: remmber in hg,
+					//you can have multiple heads on the same branch
+					if (head.Branch != myHead.Branch) //Chorus policy is to only auto-merge on branches with same name
+						continue;
 
-					  //this is for posterity, on other people's machines, so use the hashes instead of local numbers
-					  MergeSituation.PushRevisionsToEnvironmentVariables(myHead.UserId, myHead.Number.Hash, head.UserId,
-																		 head.Number.Hash);
+					//this is for posterity, on other people's machines, so use the hashes instead of local numbers
+					MergeSituation.PushRevisionsToEnvironmentVariables(myHead.UserId, myHead.Number.Hash, head.UserId,
+																		head.Number.Hash);
 
-					  MergeOrder.PushToEnvironmentVariables(_localRepositoryPath);
-					  _progress.WriteMessage("Merging {0} and {1}...", myHead.UserId, head.UserId);
-					  _progress.WriteVerbose("   Revisions {0}:{1} with {2}:{3}...", myHead.Number.LocalRevisionNumber, myHead.Number.Hash, head.Number.LocalRevisionNumber, head.Number.Hash);
-					  RemoveMergeObstacles(myHead, head);
+					MergeOrder.PushToEnvironmentVariables(_localRepositoryPath);
+					_progress.WriteMessage("Merging {0} and {1}...", myHead.UserId, head.UserId);
+					_progress.WriteVerbose("   Revisions {0}:{1} with {2}:{3}...", myHead.Number.LocalRevisionNumber, myHead.Number.Hash, head.Number.LocalRevisionNumber, head.Number.Hash);
+					RemoveMergeObstacles(myHead, head);
 
-					  if(CheckAndWarnIfNoCommonAncestor(myHead, head))
-					  {
-						  continue;
-					  }
+					if(CheckAndWarnIfNoCommonAncestor(myHead, head))
+					{
+						continue;
+					}
 
-					  bool didMerge = MergeTwoChangeSets(myHead, head);
-					  if (didMerge)
-					  {
-						  peopleWeMergedWith.Add(head.UserId);
+					bool didMerge = MergeTwoChangeSets(myHead, head);
+					if (didMerge)
+					{
+						peopleWeMergedWith.Add(head.UserId);
 
-						  //that merge may have generated notes files where they didn't exist before,
-						  //and we want these merged
-						  //version + updated/created notes files to go right back into the repository
+						//that merge may have generated notes files where they didn't exist before,
+						//and we want these merged
+						//version + updated/created notes files to go right back into the repository
 
-						  //  args.Append(" -X " + SurroundWithQuotes(Path.Combine(_pathToRepository, "**.ChorusRescuedFile")));
+						//  args.Append(" -X " + SurroundWithQuotes(Path.Combine(_pathToRepository, "**.ChorusRescuedFile")));
 
+						AppendAnyNewNotes(_localRepositoryPath);
+						AddAndCommitFiles(GetMergeCommitSummary(head.UserId, Repository));
+					}
+				}
+			}
+			catch (UserCancelledException)
+			{
+				throw;
+			}
+			catch (Exception error)
+			{
+				ExplainAndThrow(error,WhatToDo.NeedExpertHelp, "Unable to complete the send/receive.");
+			}
+		}
 
-						  AddAndCommitFiles(GetMergeCommitSummary(head.UserId, Repository));
-					  }
-				  }
-			  }
-			  catch (UserCancelledException)
-			  {
-				  throw;
-			  }
-			  catch (Exception error)
-			  {
-				  ExplainAndThrow(error,WhatToDo.NeedExpertHelp, "Unable to complete the send/receive.");
-			  }
-		  }
+		/// <summary>
+		/// Find any .NewChorusNotes files which were created by the MergeChorus.exe and either rename them to .ChorusNotes
+		/// or add any annotations found in them to the existing .ChorusNotes file.
+		/// </summary>
+		private static void AppendAnyNewNotes(string localRepositoryPath)
+		{
+			var allNewNotes = Directory.GetFiles(localRepositoryPath, "*.NewChorusNotes", SearchOption.AllDirectories);
+			foreach (var newNote in allNewNotes)
+			{
+				var oldNotesFile = newNote.Replace("NewChorusNotes", "ChorusNotes");
+				if (File.Exists(oldNotesFile))
+				{
+					// Add new annotations to the end of any which were in the repo
+					var oldDoc = new XmlDocument();
+					oldDoc.Load(oldNotesFile);
+					var oldNotesNode = oldDoc.SelectSingleNode("/notes");
+					var newDoc = new XmlDocument();
+					newDoc.Load(newNote);
+					var newAnnotations = newDoc.SelectNodes("/notes/annotation");
+					foreach (XmlNode node in newAnnotations)
+					{
+						var newOldNode = oldDoc.ImportNode(node, true);
+						oldNotesNode.AppendChild(newOldNode);
+					}
+					using (var fileWriter = XmlWriter.Create(oldNotesFile, CanonicalXmlSettings.CreateXmlWriterSettings()))
+					{
+						oldDoc.Save(fileWriter);
+					}
+					File.Delete(newNote);
+				}
+				else
+				{
+					// There was no former ChorusNotes file, so just rename
+					File.Move(newNote, oldNotesFile);
+				}
+			}
+		}
 
 		private bool CheckAndWarnIfNoCommonAncestor(Revision a, Revision b )
 		{
