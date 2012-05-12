@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Xml;
 using Chorus.FileTypeHanders.xml;
@@ -10,6 +9,7 @@ using Chorus.VcsDrivers.Mercurial;
 using Chorus.notes;
 using Palaso.IO;
 using Palaso.Progress.LogBox;
+using Palaso.Xml;
 
 namespace Chorus.FileTypeHanders
 {
@@ -53,11 +53,18 @@ namespace Chorus.FileTypeHanders
 
 		public void Do3WayMerge(MergeOrder order)
 		{
-			XmlMerger merger  = new XmlMerger(order.MergeSituation);
+			XmlMerger merger = new XmlMerger(order.MergeSituation);
 			SetupElementStrategies(merger);
 			var r = merger.MergeFiles(order.pathToOurs, order.pathToTheirs, order.pathToCommonAncestor);
-			File.WriteAllText(order.pathToOurs, r.MergedNode.OuterXml);
+			// No. This does not write it out using CanonicalXmlSettings
+			//File.WriteAllText(order.pathToOurs, r.MergedNode.OuterXml);
+			using (var writer = XmlWriter.Create(order.pathToOurs, CanonicalXmlSettings.CreateXmlWriterSettings()))
+			{
+				writer.WriteStartDocument();
+				writer.WriteNode(r.MergedNode.CreateNavigator(), true);
+			}
 		}
+
 		private void SetupElementStrategies(XmlMerger merger)
 		{
 			merger.MergeStrategies.SetStrategy("annotation", ElementStrategy.CreateForKeyedElement("guid", false));
