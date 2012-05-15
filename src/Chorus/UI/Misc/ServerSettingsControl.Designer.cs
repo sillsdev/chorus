@@ -167,6 +167,7 @@
 			this._customUrl.Name = "_customUrl";
 			this._customUrl.Size = new System.Drawing.Size(263, 20);
 			this._customUrl.TabIndex = 28;
+			this._customUrl.TextChanged += new System.EventHandler(this._customUrl_TextChanged);
 			//
 			// ServerSettingsControl
 			//

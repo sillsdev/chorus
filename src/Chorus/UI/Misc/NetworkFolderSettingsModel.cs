@@ -28,7 +28,8 @@ namespace Chorus.UI.Misc
 		/// <returns>Return false if were not able to create the repository and want to give the user another option.</returns>
 		private static bool SetNewSharedNetworkAddress(HgRepository repository, string path)
 		{
-			if (string.IsNullOrEmpty(path))
+			//if the path is empty, or only contains the ProjectNameVariable then this isn't a valid path so ignore it.
+			if (string.IsNullOrEmpty(path) || path.Equals(RepositoryAddress.ProjectNameVariable))
 				return false;
 			var projectDir = path.EndsWith(RepositoryAddress.ProjectNameVariable)
 							? path.Replace(RepositoryAddress.ProjectNameVariable, "")
