@@ -15,5 +15,24 @@ namespace Chorus.UI.Clone
 		{
 			InitializeComponent();
 		}
+
+		private void folderBrowserControl_PathChanged(object sender, EventArgs e)
+		{
+			statusLabel.Text = folderBrowserControl.SelectedPath;
+		}
+
+		private void panel_Resize(object sender, EventArgs e)
+		{
+			const int panelMidGapHalf = 3;
+			var newWidth = panel.Width;
+
+			folderBrowserControl.Width = newWidth / 2 - panelMidGapHalf;
+			lookInLabel.Width = folderBrowserControl.Width;
+
+			projectRepositoryListView.Location = new Point(newWidth / 2 + panelMidGapHalf, projectRepositoryListView.Location.Y);
+			projectRepositoryListView.Width = newWidth / 2 - panelMidGapHalf;
+			chooseRepositoryLabel.Location = new Point(projectRepositoryListView.Location.X, chooseRepositoryLabel.Location.Y);
+			chooseRepositoryLabel.Width = projectRepositoryListView.Width;
+		}
 	}
 }

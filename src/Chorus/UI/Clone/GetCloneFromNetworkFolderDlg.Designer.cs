@@ -45,27 +45,32 @@
 			//
 			// panel
 			//
+			this.panel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+			| System.Windows.Forms.AnchorStyles.Left)
+			| System.Windows.Forms.AnchorStyles.Right)));
+			this.panel.Controls.Add(this.chooseRepositoryLabel);
 			this.panel.Controls.Add(this.projectRepositoryListView);
+			this.panel.Controls.Add(this.lookInLabel);
 			this.panel.Controls.Add(this.folderBrowserControl);
-			this.panel.Location = new System.Drawing.Point(12, 25);
+			this.panel.Location = new System.Drawing.Point(12, 12);
 			this.panel.Name = "panel";
-			this.panel.Size = new System.Drawing.Size(540, 276);
+			this.panel.Size = new System.Drawing.Size(540, 289);
 			this.panel.TabIndex = 0;
+			this.panel.Resize += new System.EventHandler(this.panel_Resize);
 			//
 			// projectRepositoryListView
 			//
-			this.projectRepositoryListView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-			| System.Windows.Forms.AnchorStyles.Left)
+			this.projectRepositoryListView.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
 			| System.Windows.Forms.AnchorStyles.Right)));
 			this.projectRepositoryListView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
 			this.projectHeader,
 			this.dateHeader});
 			this.projectRepositoryListView.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.projectRepositoryListView.Location = new System.Drawing.Point(277, 0);
+			this.projectRepositoryListView.Location = new System.Drawing.Point(277, 17);
 			this.projectRepositoryListView.MultiSelect = false;
 			this.projectRepositoryListView.Name = "projectRepositoryListView";
 			this.projectRepositoryListView.ShowItemToolTips = true;
-			this.projectRepositoryListView.Size = new System.Drawing.Size(263, 273);
+			this.projectRepositoryListView.Size = new System.Drawing.Size(263, 269);
 			this.projectRepositoryListView.TabIndex = 1;
 			this.projectRepositoryListView.UseCompatibleStateImageBehavior = false;
 			this.projectRepositoryListView.View = System.Windows.Forms.View.Details;
@@ -82,8 +87,10 @@
 			//
 			// folderBrowserControl
 			//
+			this.folderBrowserControl.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+			| System.Windows.Forms.AnchorStyles.Left)));
 			this.folderBrowserControl.BackColor = System.Drawing.Color.White;
-			this.folderBrowserControl.Location = new System.Drawing.Point(0, 1);
+			this.folderBrowserControl.Location = new System.Drawing.Point(0, 17);
 			this.folderBrowserControl.Name = "folderBrowserControl";
 			this.folderBrowserControl.SelectedPath = "C:\\";
 			this.folderBrowserControl.ShowAddressbar = true;
@@ -92,11 +99,14 @@
 			this.folderBrowserControl.ShowMyFavorites = true;
 			this.folderBrowserControl.ShowMyNetwork = true;
 			this.folderBrowserControl.ShowToolbar = false;
-			this.folderBrowserControl.Size = new System.Drawing.Size(271, 272);
+			this.folderBrowserControl.Size = new System.Drawing.Size(271, 269);
 			this.folderBrowserControl.TabIndex = 0;
+			this.folderBrowserControl.PathChanged += new Palaso.UI.WindowsForms.FolderBrowserControl.FolderBrowserControl.PathChangedEventHandler(this.folderBrowserControl_PathChanged);
 			//
 			// progressBar
 			//
+			this.progressBar.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this.progressBar.Location = new System.Drawing.Point(12, 323);
 			this.progressBar.Name = "progressBar";
 			this.progressBar.Size = new System.Drawing.Size(540, 14);
@@ -104,6 +114,9 @@
 			//
 			// statusLabel
 			//
+			this.statusLabel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
+			| System.Windows.Forms.AnchorStyles.Right)));
+			this.statusLabel.AutoEllipsis = true;
 			this.statusLabel.Location = new System.Drawing.Point(12, 304);
 			this.statusLabel.Name = "statusLabel";
 			this.statusLabel.Size = new System.Drawing.Size(540, 14);
@@ -144,7 +157,7 @@
 			//
 			// lookInLabel
 			//
-			this.lookInLabel.Location = new System.Drawing.Point(12, 9);
+			this.lookInLabel.Location = new System.Drawing.Point(0, 0);
 			this.lookInLabel.Name = "lookInLabel";
 			this.lookInLabel.Size = new System.Drawing.Size(271, 14);
 			this.lookInLabel.TabIndex = 6;
@@ -152,9 +165,9 @@
 			//
 			// chooseRepositoryLabel
 			//
-			this.chooseRepositoryLabel.Location = new System.Drawing.Point(286, 9);
+			this.chooseRepositoryLabel.Location = new System.Drawing.Point(277, 0);
 			this.chooseRepositoryLabel.Name = "chooseRepositoryLabel";
-			this.chooseRepositoryLabel.Size = new System.Drawing.Size(266, 14);
+			this.chooseRepositoryLabel.Size = new System.Drawing.Size(260, 14);
 			this.chooseRepositoryLabel.TabIndex = 7;
 			this.chooseRepositoryLabel.Text = "Choose a Project Repository:";
 			//
@@ -165,8 +178,6 @@
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.CancelButton = this.cancelButton;
 			this.ClientSize = new System.Drawing.Size(564, 382);
-			this.Controls.Add(this.chooseRepositoryLabel);
-			this.Controls.Add(this.lookInLabel);
 			this.Controls.Add(this.getButton);
 			this.Controls.Add(this.cancelButton);
 			this.Controls.Add(this.helpButton);
@@ -175,6 +186,7 @@
 			this.Controls.Add(this.panel);
 			this.MaximizeBox = false;
 			this.MinimizeBox = false;
+			this.MinimumSize = new System.Drawing.Size(350, 250);
 			this.Name = "GetCloneFromNetworkFolderDlg";
 			this.ShowIcon = false;
 			this.Text = "Get Project from Shared Network Folder";
