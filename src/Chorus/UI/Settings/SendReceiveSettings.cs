@@ -52,8 +52,14 @@ namespace Chorus.UI.Settings
 
 		private void okButton_Click(object sender, EventArgs e)
 		{
-			_internetModel.SaveSettings();
-			_sharedFolderModel.SaveSettings();
+			if(_internetButtonEnabledCheckBox.Checked)
+			{
+				_internetModel.SaveSettings();
+			}
+			if (_sharedFolderButtonEnabledCheckBox.Checked)
+			{
+				_sharedFolderModel.SaveSettings();
+			}
 			_model.SaveSettings();
 			Properties.Settings.Default.InternetEnabled = _internetButtonEnabledCheckBox.Checked;
 			Properties.Settings.Default.SharedFolderEnabled = _sharedFolderButtonEnabledCheckBox.Checked;
