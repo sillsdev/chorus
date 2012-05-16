@@ -128,6 +128,12 @@
 	<Compile Include="UI\BetterLabel.designer.cs">
 	  <DependentUpon>BetterLabel.cs</DependentUpon>
 	</Compile>
+	<Compile Include="UI\Clone\GetCloneFromNetworkFolderDlg.cs">
+	  <SubType>Form</SubType>
+	</Compile>
+	<Compile Include="UI\Clone\GetCloneFromNetworkFolderDlg.Designer.cs">
+	  <DependentUpon>GetCloneFromNetworkFolderDlg.cs</DependentUpon>
+	</Compile>
 	<Compile Include="UI\Misc\NetworkFolderSettingsControl.cs">
 	  <SubType>UserControl</SubType>
 	</Compile>
@@ -256,6 +262,9 @@
 	</Compile>
 	<Compile Include="Program.cs" />
 	<Compile Include="Properties\AssemblyInfo.cs" />
+	<EmbeddedResource Include="UI\Clone\GetCloneFromNetworkFolderDlg.resx">
+	  <DependentUpon>GetCloneFromNetworkFolderDlg.cs</DependentUpon>
+	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Misc\NetworkFolderSettingsControl.resx">
 	  <DependentUpon>NetworkFolderSettingsControl.cs</DependentUpon>
 	</EmbeddedResource>
