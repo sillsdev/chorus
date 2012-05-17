@@ -39,6 +39,8 @@ namespace Chorus.UI.Clone
 			folderBrowserControl.SelectedPath = _model.FolderPath;
 		}
 
+		#region Dialog event handlers
+
 		/// <summary>
 		/// Handles event when user resizes dialog. We need to maintain a 50-50 split
 		/// between the folder browser control and the repository list control.
@@ -103,6 +105,13 @@ namespace Chorus.UI.Clone
 				new Thread(InitializeBackgroundWorkers).Start(new List<string>(Directory.GetDirectories(_model.FolderPath)));
 			}
 		}
+
+		private void OnCancelButtonClick(object sender, EventArgs e)
+		{
+
+		}
+
+		#endregion
 
 		/// <summary>
 		/// Orders all existing FolderSearchWorkers to quit, and creates a bunch of new ones to carry
