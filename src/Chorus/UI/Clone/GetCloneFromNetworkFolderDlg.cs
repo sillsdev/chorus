@@ -77,7 +77,7 @@ namespace Chorus.UI.Clone
 				throw new InvalidDataException(@"_model not initialized. Call LoadFromModel() in GetCloneFromNetworkFolderDlg object before displaying dialog.");
 
 			// Kill any search that was already going on:
-			TerminateBackgroundWorkersFromUIThread();
+			TerminateBackgroundWorkers();
 
 			// Update model with user's new selection:
 			_model.FolderPath = folderBrowserControl.SelectedPath;
@@ -122,27 +122,11 @@ namespace Chorus.UI.Clone
 		/// <param name="e"></param>
 		private void OnCancelButtonClick(object sender, EventArgs e)
 		{
-			TerminateBackgroundWorkersFromUIThread();
+			// TODO: make sure background workers can't call upon UI controls after we return.
+			TerminateBackgroundWorkers();
 		}
 
 		#endregion
-
-		/// <summary>
-		/// Terminates the background workers (that are doing folder searches for Hg repositories).
-		/// Call this method from within the UI thread - we have to avoid deadlocks with other
-		/// threads that might try to access the UI controls by Invoke-ing the UI thread.
-		/// </summary>
-		private void TerminateBackgroundWorkersFromUIThread()
-		{
-			// If we try to kill background workers in our thread, the UI thread, we run the risk of
-			// deadlocking where one of the condemned background workers tries to access a UI control
-			// (by Invoke-ing the UI thread) just before it (the worker) dies, and during our
-			// suspension of the UI thread.
-			// So we will have to kill the background workers in a new thread:
-			var backgroundWorkerAnihilationThread = new Thread(TerminateBackgroundWorkers);
-			backgroundWorkerAnihilationThread.Start();
-			backgroundWorkerAnihilationThread.Join();
-		}
 
 		/// <summary>
 		/// Terminates the background workers (that are doing folder searches for Hg
@@ -160,17 +144,13 @@ namespace Chorus.UI.Clone
 				// Also prevent it from updating the progress bar:
 				existingBackgroundWorker.UpdateProgressBar -= InvokeUpdateProgressBar;
 				// Now we can tell it to quit:
-				var existingBackgroundWorkerThread = existingBackgroundWorker.Cancel();
-				// Wait for it to die:
-				if (existingBackgroundWorkerThread != null) // null is theoretically possible, but very unlikely.
-					existingBackgroundWorkerThread.Join();
+				existingBackgroundWorker.Cancel();
 			}
 			_backgroundWorkers.Clear();
 		}
 
 		/// <summary>
-		/// Orders all existing FolderSearchWorkers to quit, and creates a bunch of new ones to carry
-		/// out a new search through folders to find Hg repositories.
+		/// Creates a bunch of background workers to carry out a new search through folders to find Hg repositories.
 		/// </summary>
 		/// <param name="initialFoldersObject">Really a List of strings; folder paths to search under</param>
 		private void InitializeBackgroundWorkers(object initialFoldersObject)
@@ -238,16 +218,20 @@ namespace Chorus.UI.Clone
 
 		/// <summary>
 		/// Updates the progress bar by the given amount. If progess bar reaches
-		/// its maximum value, alters the status label texbox accordingly.
+		/// its maximum value, alters the status label textbox accordingly.
 		/// </summary>
 		/// <param name="updateAmount">Increment for progress bar</param>
 		private void UpdateProgressBar(int updateAmount)
 		{
-			progressBar.Value += updateAmount;
-			if (progressBar.Value == MaxProgressValue)
+			lock (this)
 			{
-				// Hooray! We've finished:
-				statusLabel.Text = "Search complete.";
+				progressBar.Value += updateAmount;
+				if (progressBar.Value == MaxProgressValue)
+				{
+					// Hooray! We've finished:
+					statusLabel.Text = "Search complete.";
+					// Todo: make progress bar go grey here, but don't forget to undo this when a new search starts!
+				}
 			}
 		}
 
@@ -258,6 +242,7 @@ namespace Chorus.UI.Clone
 		/// <param name="statusText">Text to put in status label textbox</param>
 		private void SetProgress(int barValue, string statusText)
 		{
+			lock (this)
 			{
 				progressBar.Value = barValue;
 				statusLabel.Text = statusText;
@@ -325,8 +310,6 @@ namespace Chorus.UI.Clone
 			private readonly string _initialFolder;
 			// Range of progress bar that we are responsible for:
 			private readonly int _progressBarPortion;
-			// Worker's thread:
-			private Thread _myThread;
 
 			// Define a delegate for adding a ListViewItem to a ListView:
 			internal delegate void AddListItemEvent(ListViewItem listItem);
@@ -350,10 +333,9 @@ namespace Chorus.UI.Clone
 			/// <summary>
 			/// Begins the termination of this background worker's thread.
 			/// </summary>
-			public Thread Cancel()
+			public void Cancel()
 			{
 				_condemned = true;
-				return _myThread;
 			}
 
 			/// <summary>
@@ -361,8 +343,6 @@ namespace Chorus.UI.Clone
 			/// </summary>
 			public void DoWork()
 			{
-				_myThread = Thread.CurrentThread;
-
 				// Recursively search folders and add Hg repository data to the repository ListView:
 				FillRepositoryList(_initialFolder, _progressBarPortion);
 			}
