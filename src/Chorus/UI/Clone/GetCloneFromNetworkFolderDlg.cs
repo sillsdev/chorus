@@ -98,7 +98,8 @@ namespace Chorus.UI.Clone
 			{
 				// Create and start a thread to find all repositories under _model.FolderPath.
 				// We need a new thead for this to prevent deadlocks on this UI thread when
-				// background workers try to add items to the repository listview:
+				// background workers try to update progess bar after it has been reset for a
+				// new search:
 				new Thread(InitializeBackgroundWorkers).Start(new List<string>(Directory.GetDirectories(_model.FolderPath)));
 			}
 		}
@@ -107,12 +108,12 @@ namespace Chorus.UI.Clone
 		/// Orders all existing FolderSearchWorkers to quit, and creates a bunch of new ones to carry
 		/// out a new search through folders to find Hg repositories.
 		/// </summary>
-		/// <param name="initialFolders">Really a List of strings; folder paths to search under</param>
+		/// <param name="initialFoldersObject">Really a List of strings; folder paths to search under</param>
 		private void InitializeBackgroundWorkers(object initialFoldersObject)
 		{
 			foreach (var existingBackgroundWorker in _backgroundWorkers)
 			{
-				// This is crucial for avoiding deadlocks: before we tell each backgroud worker
+				// This is crucial for avoiding race conditions: before we tell each backgroud worker
 				// to quit, we remove its ability to add repository details to the listview by
 				// unplugging the delegate that it calls to do the adding:
 				existingBackgroundWorker.AddListItem -= InvokeAddRepositoryListViewItem;
@@ -126,41 +127,50 @@ namespace Chorus.UI.Clone
 			// repository listview, and they will all die soon as well:
 			_backgroundWorkers.Clear();
 
-			// Reset progress bar:
-			// TODO: poo Have to invoke this...
-			progressBar.Value = 0;
-
 			var initialFolders = (List<string>)initialFoldersObject;
 			var initialFoldersCount = initialFolders.Count;
 
-			// Calculate regular and final (compensating for integer division truncation) progress bar portions:
-			var standardPortion = MaxProgressValue / initialFoldersCount;
-			var finalPortion = standardPortion + MaxProgressValue % initialFoldersCount;
-
-			// Create a new bunch of background workers:
-			for (int i = 0; i < initialFoldersCount; i++)
+			if (initialFoldersCount == 0)
 			{
-				var folder = initialFolders[i];
+				// Nothing to do, so update progress bar etc, cross-threadedly:
+				Invoke(new SetProgressDelegate(SetProgress), MaxProgressValue, "Search Complete.");
+			}
+			else
+			{
+				// Reset progress bar etc, cross-threadedly:
+				Invoke(new SetProgressDelegate(SetProgress), 0, "Searching for Project Repositories...");
 
-				// If we're on the last iteration, use remaining unused progress portion:
-				var progressBarPortion = (i < initialFoldersCount - 1) ? standardPortion : finalPortion;
+				// Calculate regular and final (compensating for integer division truncation) progress bar portions:
+				var standardPortion = MaxProgressValue / initialFoldersCount;
+				var finalPortion = standardPortion + MaxProgressValue % initialFoldersCount;
 
-				var worker = new FolderSearchWorker(folder, progressBarPortion);
-				// Plug in the delegate to allow new background worker to add repository details
-				// to the listview:
-				worker.AddListItem += InvokeAddRepositoryListViewItem;
-				// Plug in the delegate to allow it to update the progress bar:
-				worker.UpdateProgressBar += InvokeUpdateProgressBar;
-				_backgroundWorkers.Add(worker);
-				// Set the background worker going:
-				new Thread(worker.DoWork).Start();
+				// Create a new bunch of background workers:
+				for (int i = 0; i < initialFoldersCount; i++)
+				{
+					var folder = initialFolders[i];
+
+					// If we're on the last iteration, use remaining unused progress portion:
+					var progressBarPortion = (i < initialFoldersCount - 1) ? standardPortion : finalPortion;
+
+					var worker = new FolderSearchWorker(folder, progressBarPortion);
+					// Plug in the delegate to allow new background worker to add repository details
+					// to the listview:
+					worker.AddListItem += InvokeAddRepositoryListViewItem;
+					// Plug in the delegate to allow it to update the progress bar:
+					worker.UpdateProgressBar += InvokeUpdateProgressBar;
+					_backgroundWorkers.Add(worker);
+					// Set the background worker going:
+					new Thread(worker.DoWork).Start();
+				}
 			}
 		}
 
-		#region Deal with Progress Bar updates
+		#region Deal with Progress updates
 
 		// Define a delegate which will allow cross-thread updates to the progress bar:
 		private delegate void UpdateProgressBarDelegate(int updateAmount);
+		// Define a delegate which will allow cross-thread setting of the progress bar etc:
+		private delegate void SetProgressDelegate(int barValue, string statusText);
 
 		private void InvokeUpdateProgressBar(int updateAmount)
 		{
@@ -170,11 +180,23 @@ namespace Chorus.UI.Clone
 
 		private void UpdateProgressBar(int updateAmount)
 		{
-			progressBar.Value += updateAmount;
-			if (progressBar.Value == MaxProgressValue)
+			lock (this)
 			{
-				// Hooray! We've finished:
-				statusLabel.Text = "Search complete.";
+				progressBar.Value += updateAmount;
+				if (progressBar.Value == MaxProgressValue)
+				{
+					// Hooray! We've finished:
+					statusLabel.Text = "Search complete.";
+				}
+			}
+		}
+
+		private void SetProgress(int barValue, string statusText)
+		{
+			lock (this)
+			{
+				progressBar.Value = barValue;
+				statusLabel.Text = statusText;
 			}
 		}
 
@@ -290,28 +312,31 @@ namespace Chorus.UI.Clone
 					return;
 				}
 
+				string[] subFolders;
 				try
 				{
-					var subFolders = Directory.GetDirectories(folderPath);
-
-					if (subFolders.Length != 0)
-					{
-						var standardPortion = myProgressBarPortion / subFolders.Length;
-
-						foreach (var subFolder in subFolders)
-							FillRepositoryList(subFolder, standardPortion);
-
-						var remainingPortion = myProgressBarPortion % subFolders.Length;
-						UpdateProgressBar(remainingPortion);
-					}
-					else
-					{
-						UpdateProgressBar(myProgressBarPortion);
-					}
+					subFolders = Directory.GetDirectories(folderPath);
 				}
 				catch (Exception)
 				{
 					// Typically because we do not have permission to read the current folderPath's contents
+					UpdateProgressBar(myProgressBarPortion);
+					return;
+				}
+
+				if (subFolders.Length != 0)
+				{
+					var standardPortion = myProgressBarPortion / subFolders.Length;
+
+					foreach (var subFolder in subFolders)
+						FillRepositoryList(subFolder, standardPortion);
+
+					var remainingPortion = myProgressBarPortion % subFolders.Length;
+					UpdateProgressBar(remainingPortion);
+				}
+				else
+				{
+					UpdateProgressBar(myProgressBarPortion);
 				}
 			}
 		}
