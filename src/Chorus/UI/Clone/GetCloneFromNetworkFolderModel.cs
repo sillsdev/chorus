@@ -38,12 +38,13 @@ namespace Chorus.UI.Clone
 		/// </summary>
 		/// <param name="path"></param>
 		/// <returns>true if a search is a good idea</returns>
-		public bool IsFolderWorthSearching(string path)
+		public static bool IsFolderWorthSearching(string folderPath)
 		{
+			//TODO
 			return true;
 		}
 
-		public bool IsValidRepository(string folderPath)
+		public static bool IsValidRepository(string folderPath)
 		{
 			return Directory.Exists(folderPath + Path.DirectorySeparatorChar + @".hg");
 		}
