@@ -20,6 +20,8 @@ namespace Chorus.UI.Clone
 		private readonly List<FolderSearchWorker> _backgroundWorkers = new List<FolderSearchWorker>();
 		// Define upper range limit of progess bar:
 		private const int MaxProgressValue = 1000;
+		// Place to store original color of progress bar:
+		private Color _progressBarColor;
 
 		// Object to handle updating the progress bar, status string and repository ListView.
 		// Background threads may make changes to this object, and a Timer event will cause the
@@ -41,6 +43,7 @@ namespace Chorus.UI.Clone
 			InitializeComponent();
 
 			progressBar.Maximum = MaxProgressValue;
+			_progressBarColor = progressBar.ForeColor;
 		}
 
 		///<summary>
@@ -153,6 +156,7 @@ namespace Chorus.UI.Clone
 				catch
 				{
 				}
+
 				// Start a background search for all Hg repositories under _model.FolderPath:
 				if (subFolders == null)
 				{
@@ -180,8 +184,11 @@ namespace Chorus.UI.Clone
 				return;
 			}
 
+			// Recorde selected repository in the model:
 			var selectedItem = projectRepositoryListView.SelectedItems[0];
 			_model.UserSelectedRepositoryPath = selectedItem.Tag.ToString();
+
+			// Allow user to commit selection:
 			getButton.Enabled = true;
 		}
 
@@ -261,7 +268,7 @@ namespace Chorus.UI.Clone
 			{
 				// Set progress bar:
 				progressBar.Value = _currentProgress.Progress;
-				// Todo: make progress bar go grey if at MaxProgressValue
+				progressBar.ForeColor = progressBar.Value == MaxProgressValue ? Color.Gray : _progressBarColor;
 
 				// Set status text:
 				statusLabel.Text = _currentProgress.Status;
@@ -383,6 +390,7 @@ namespace Chorus.UI.Clone
 					return;
 				}
 
+				// Get an array of paths of subfolders of the folderPath:
 				string[] subFolders;
 				try
 				{
