@@ -20,6 +20,16 @@ namespace Chorus.UI.Clone
 		// Define upper range limit of progess bar:
 		private const int MaxProgressValue = 1000;
 
+		// Object to handle updating the progress bar and status string. Background threads may make changes to
+		// this object, and a Timer event will cause the dialog UI thread to read the object and update the
+		// progress bar accordingly:
+		private class ProgressData
+		{
+			public int progress;
+			public string status;
+		}
+		private ProgressData _currentProgress;
+
 		///<summary>
 		/// Constructor
 		///</summary>
@@ -76,7 +86,7 @@ namespace Chorus.UI.Clone
 			if (_model == null)
 				throw new InvalidDataException(@"_model not initialized. Call LoadFromModel() in GetCloneFromNetworkFolderDlg object before displaying dialog.");
 
-			// Kill any search that was already going on:
+			// Abandon any search that was already going on:
 			TerminateBackgroundWorkers();
 
 			// Update model with user's new selection:
@@ -99,17 +109,13 @@ namespace Chorus.UI.Clone
 			{
 				var repoItem = MakeRepositoryListViewItem(_model.FolderPath);
 				AddRepositoryListViewItem(repoItem);
-				progressBar.Value = MaxProgressValue;
-				statusLabel.Text = "Selected folder is a repository.";
+				_currentProgress = new ProgressData { progress = MaxProgressValue, status = "Selected folder is a repository." };
 			}
 			else
 			{
-				// Create and start a thread to find all repositories under _model.FolderPath.
-				// We need a new thead for this to prevent deadlocks on this UI thread when
-				// background workers try to update progess bar after it has been reset for a
-				// new search:
+				// Start a background search for all Hg repositories under _model.FolderPath:
 				// TODO: handle crash if we are not allowed access to _model.FolderPath
-				new Thread(InitializeBackgroundWorkers).Start(new List<string>(Directory.GetDirectories(_model.FolderPath)));
+				InitializeBackgroundWorkers(Directory.GetDirectories(_model.FolderPath));
 			}
 		}
 
@@ -131,7 +137,7 @@ namespace Chorus.UI.Clone
 		/// <summary>
 		/// Terminates the background workers (that are doing folder searches for Hg
 		/// repositories). The background threads terminate asynchronously so we will
-		/// wait for them to die before we return.
+		/// simply abandon them once we tell them to quit.
 		/// </summary>
 		private void TerminateBackgroundWorkers()
 		{
@@ -141,8 +147,6 @@ namespace Chorus.UI.Clone
 				// to quit, we remove its ability to add repository details to the listview by
 				// unplugging the delegate that it calls to do the adding:
 				existingBackgroundWorker.AddListItem -= InvokeAddRepositoryListViewItem;
-				// Also prevent it from updating the progress bar:
-				existingBackgroundWorker.UpdateProgressBar -= InvokeUpdateProgressBar;
 				// Now we can tell it to quit:
 				existingBackgroundWorker.Cancel();
 			}
@@ -152,24 +156,23 @@ namespace Chorus.UI.Clone
 		/// <summary>
 		/// Creates a bunch of background workers to carry out a new search through folders to find Hg repositories.
 		/// </summary>
-		/// <param name="initialFoldersObject">Really a List of strings; folder paths to search under</param>
-		private void InitializeBackgroundWorkers(object initialFoldersObject)
+		/// <param name="initialFolders">Folder paths to search under</param>
+		private void InitializeBackgroundWorkers(string[] initialFolders)
 		{
 			if (_backgroundWorkers.Count != 0)
 				throw new DataException(@"_backgroundWorkers collection not empty at start of InitializeBackgroundWorkers call.");
 
-			var initialFolders = (List<string>)initialFoldersObject;
-			var initialFoldersCount = initialFolders.Count;
+			var initialFoldersCount = initialFolders.Length;
 
 			if (initialFoldersCount == 0)
 			{
-				// Nothing to do, so update progress bar etc, cross-threadedly:
-				Invoke(new SetProgressDelegate(SetProgress), MaxProgressValue, "Selected folder has no subfolders.");
+				// Nothing to do, so create new progress data signifying as such:
+				_currentProgress = new ProgressData {progress = MaxProgressValue, status = "Selected folder has no subfolders."};
 			}
 			else
 			{
-				// Reset progress bar etc, cross-threadedly:
-				Invoke(new SetProgressDelegate(SetProgress), 0, "Searching for Project Repositories...");
+				// Reset progress data:
+				_currentProgress = new ProgressData { progress = 0, status = "Searching for Project Repositories..." };
 
 				// Calculate regular and final (compensating for integer division truncation) progress bar portions:
 				var standardPortion = MaxProgressValue / initialFoldersCount;
@@ -183,12 +186,10 @@ namespace Chorus.UI.Clone
 					// If we're on the last iteration, use remaining unused progress portion:
 					var progressBarPortion = (i < initialFoldersCount - 1) ? standardPortion : finalPortion;
 
-					var worker = new FolderSearchWorker(folder, progressBarPortion);
+					var worker = new FolderSearchWorker(folder, progressBarPortion, _currentProgress);
 					// Plug in the delegate to allow new background worker to add repository details
 					// to the listview:
 					worker.AddListItem += InvokeAddRepositoryListViewItem;
-					// Plug in the delegate to allow it to update the progress bar:
-					worker.UpdateProgressBar += InvokeUpdateProgressBar;
 					_backgroundWorkers.Add(worker);
 					// Set the background worker going:
 					new Thread(worker.DoWork).Start();
@@ -198,54 +199,23 @@ namespace Chorus.UI.Clone
 
 		#region Deal with Progress updates
 
-		// Define a delegate which will allow cross-thread updates to the progress bar:
-		private delegate void UpdateProgressBarDelegate(int updateAmount);
-		// Define a delegate which will allow cross-thread setting of the progress bar etc:
-		private delegate void SetProgressDelegate(int barValue, string statusText);
-
 		/// <summary>
-		/// Updates progress bar by given amount, using Invoke to cross over
-		/// thread boundaries.
+		/// Handler that gets fired every 100 milliseconds or so. This is our mechanism for
+		/// updating the progress bar (and text) without causing deadlocks or race conditions
+		/// that could involve disposed objects.
 		/// </summary>
-		/// <param name="updateAmount">Increment for progress bar</param>
-		private void InvokeUpdateProgressBar(int updateAmount)
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		private void OnProgressTick(object sender, EventArgs e)
 		{
-			{
-				// Use Invoke to call UpdateProgressBar (see below) cross-threadedly:
-				Invoke(new UpdateProgressBarDelegate(UpdateProgressBar), updateAmount);
-			}
-		}
+			if (_currentProgress == null)
+				return;
 
-		/// <summary>
-		/// Updates the progress bar by the given amount. If progess bar reaches
-		/// its maximum value, alters the status label textbox accordingly.
-		/// </summary>
-		/// <param name="updateAmount">Increment for progress bar</param>
-		private void UpdateProgressBar(int updateAmount)
-		{
-			lock (this)
+			lock (_currentProgress)
 			{
-				progressBar.Value += updateAmount;
-				if (progressBar.Value == MaxProgressValue)
-				{
-					// Hooray! We've finished:
-					statusLabel.Text = "Search complete.";
-					// Todo: make progress bar go grey here, but don't forget to undo this when a new search starts!
-				}
-			}
-		}
-
-		/// <summary>
-		/// Sets the progress bar absolute value, and puts text in the status label texbox.
-		/// </summary>
-		/// <param name="barValue">Absolute value for progress bar</param>
-		/// <param name="statusText">Text to put in status label textbox</param>
-		private void SetProgress(int barValue, string statusText)
-		{
-			lock (this)
-			{
-				progressBar.Value = barValue;
-				statusLabel.Text = statusText;
+				progressBar.Value = _currentProgress.progress;
+				// Todo: make progress bar go grey if at MaxProgressValue
+				statusLabel.Text = _currentProgress.status;
 			}
 		}
 
@@ -302,7 +272,7 @@ namespace Chorus.UI.Clone
 		/// <summary>
 		/// A class to hunt for Hg repositories in a given folder and its descendents.
 		/// </summary>
-		internal class FolderSearchWorker
+		private class FolderSearchWorker
 		{
 			// Flag to indicate if we've been told to quit:
 			private bool _condemned;
@@ -310,24 +280,24 @@ namespace Chorus.UI.Clone
 			private readonly string _initialFolder;
 			// Range of progress bar that we are responsible for:
 			private readonly int _progressBarPortion;
+			// The ProgressData object that the dialog created for our search:
+			private ProgressData _progressData;
 
 			// Define a delegate for adding a ListViewItem to a ListView:
 			internal delegate void AddListItemEvent(ListViewItem listItem);
 			internal event AddListItemEvent AddListItem = delegate { };
-
-			// Define a delegate for updating the progress indicator:
-			internal delegate void UpdateProgressBarEvent(int updateAmount);
-			internal event UpdateProgressBarEvent UpdateProgressBar = delegate { };
 
 			/// <summary>
 			/// Constructor
 			/// </summary>
 			/// <param name="folder">Folder to begin searching from</param>
 			/// <param name="progressBarPortion">The portion of the progress bar we get to update (relative to MaxProgressValue)</param>
-			public FolderSearchWorker(string folder, int progressBarPortion)
+			/// <param name="progressData">Structure into which we record our progress, so dialog can update UI progress controls</param>
+			public FolderSearchWorker(string folder, int progressBarPortion, ProgressData progressData)
 			{
 				_initialFolder = folder;
 				_progressBarPortion = progressBarPortion;
+				_progressData = progressData;
 			}
 
 			/// <summary>
@@ -366,17 +336,18 @@ namespace Chorus.UI.Clone
 					// Add folderPath details to projectRepositoryListView:
 					var folderItem = MakeRepositoryListViewItem(folderPath);
 					AddListItem(folderItem);
-					// Show progress:
-					UpdateProgressBar(myProgressBarPortion);
+
+					UpdateProgress(myProgressBarPortion);
 
 					// Main base case:
 					return;
 				}
 
+				// Check if it is worth recursing into current folder:
 				if (!GetCloneFromNetworkFolderModel.IsFolderWorthSearching(folderPath))
 				{
 					// Bail-out base case:
-					UpdateProgressBar(myProgressBarPortion);
+					UpdateProgress(myProgressBarPortion);
 					return;
 				}
 
@@ -388,28 +359,43 @@ namespace Chorus.UI.Clone
 				catch (Exception)
 				{
 					// Typically because we do not have permission to read the current folderPath's contents
-					UpdateProgressBar(myProgressBarPortion);
+					UpdateProgress(myProgressBarPortion);
 					// Bail-out base case:
 					return;
 				}
 
-				if (subFolders.Length != 0)
-				{
-					// Divide up the portion of the progress bar that we get to update among the subfolder recursion calls:
-					var standardPortion = myProgressBarPortion / subFolders.Length;
-
-					// Recurse for each subfolder:
-					foreach (var subFolder in subFolders)
-						FillRepositoryList(subFolder, standardPortion);
-
-					// Update the progress bar by any remainder left by integer division truncation.
-					var remainingPortion = myProgressBarPortion % subFolders.Length;
-					UpdateProgressBar(remainingPortion);
-				}
-				else
+				if (subFolders.Length == 0)
 				{
 					// No subfolders, so no real work to do:
-					UpdateProgressBar(myProgressBarPortion);
+					UpdateProgress(myProgressBarPortion);
+					// Bail-out base case:
+					return;
+				}
+
+				// Divide up the portion of the progress bar that we get to update among the subfolder recursion calls:
+				var standardPortion = myProgressBarPortion/subFolders.Length;
+
+				// Recurse for each subfolder:
+				foreach (var subFolder in subFolders)
+					FillRepositoryList(subFolder, standardPortion);
+
+				// Update the progress data by any remainder left after integer division truncation.
+				var remainingPortion = myProgressBarPortion % subFolders.Length;
+				UpdateProgress(remainingPortion);
+			}
+
+			/// <summary>
+			/// Updates the ProgressData object in a mutex zone.
+			/// Parent dialog will read object later and make updates to progress controls.
+			/// </summary>
+			/// <param name="increment">Amount to update progress value by</param>
+			private void UpdateProgress(int increment)
+			{
+				lock (_progressData)
+				{
+					_progressData.progress += increment;
+					if (_progressData.progress == MaxProgressValue)
+						_progressData.status = "Search complete.";
 				}
 			}
 		}

@@ -15,6 +15,7 @@
 		{
 			if (disposing && (components != null))
 			{
+				updateProgress.Stop();
 				components.Dispose();
 			}
 			base.Dispose(disposing);
@@ -28,6 +29,7 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
+			this.components = new System.ComponentModel.Container();
 			this.panel = new System.Windows.Forms.Panel();
 			this.chooseRepositoryLabel = new System.Windows.Forms.Label();
 			this.projectRepositoryListView = new System.Windows.Forms.ListView();
@@ -40,6 +42,7 @@
 			this.helpButton = new System.Windows.Forms.Button();
 			this.cancelButton = new System.Windows.Forms.Button();
 			this.getButton = new System.Windows.Forms.Button();
+			this.updateProgress = new System.Windows.Forms.Timer(this.components);
 			this.panel.SuspendLayout();
 			this.SuspendLayout();
 			//
@@ -172,6 +175,11 @@
 			this.getButton.Text = "Get";
 			this.getButton.UseVisualStyleBackColor = true;
 			//
+			// updateProgress
+			//
+			this.updateProgress.Enabled = true;
+			this.updateProgress.Tick += new System.EventHandler(this.OnProgressTick);
+			//
 			// GetCloneFromNetworkFolderDlg
 			//
 			this.AcceptButton = this.getButton;
@@ -210,5 +218,6 @@
 		private System.Windows.Forms.Button getButton;
 		private System.Windows.Forms.Label lookInLabel;
 		private System.Windows.Forms.Label chooseRepositoryLabel;
+		private System.Windows.Forms.Timer updateProgress;
 	}
 }
