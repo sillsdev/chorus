@@ -77,6 +77,8 @@
 			this.projectHeader,
 			this.dateHeader});
 			this.projectRepositoryListView.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.projectRepositoryListView.FullRowSelect = true;
+			this.projectRepositoryListView.HideSelection = false;
 			this.projectRepositoryListView.Location = new System.Drawing.Point(277, 17);
 			this.projectRepositoryListView.MultiSelect = false;
 			this.projectRepositoryListView.Name = "projectRepositoryListView";
@@ -85,16 +87,17 @@
 			this.projectRepositoryListView.TabIndex = 1;
 			this.projectRepositoryListView.UseCompatibleStateImageBehavior = false;
 			this.projectRepositoryListView.View = System.Windows.Forms.View.Details;
+			this.projectRepositoryListView.SelectedIndexChanged += new System.EventHandler(this.OnRepositoryListViewSelectionChange);
 			//
 			// projectHeader
 			//
 			this.projectHeader.Text = "Project";
-			this.projectHeader.Width = 129;
+			this.projectHeader.Width = 115;
 			//
 			// dateHeader
 			//
 			this.dateHeader.Text = "Modified Date";
-			this.dateHeader.Width = 130;
+			this.dateHeader.Width = 144;
 			//
 			// lookInLabel
 			//
@@ -168,12 +171,14 @@
 			// getButton
 			//
 			this.getButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+			this.getButton.Enabled = false;
 			this.getButton.Location = new System.Drawing.Point(315, 347);
 			this.getButton.Name = "getButton";
 			this.getButton.Size = new System.Drawing.Size(75, 23);
 			this.getButton.TabIndex = 5;
 			this.getButton.Text = "Get";
 			this.getButton.UseVisualStyleBackColor = true;
+			this.getButton.Click += new System.EventHandler(this.OnGetButtonClick);
 			//
 			// updateProgress
 			//

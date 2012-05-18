@@ -8,15 +8,15 @@ namespace Chorus.UI.Clone
 {
 	public class GetCloneFromNetworkFolderModel
 	{
-		///<summary>
-		/// This serves as both the initial folder to present/search, and also the selected repository path.
-		///</summary>
+		/// <summary>
+		/// This serves as both the initial folder to present/search, and also the selected repository path:
+		/// </summary>
 		public string FolderPath { get; set; }
 
-		public IEnumerable<string> GetDirectoriesWithMecurialRepos()
-		{
-			throw new NotImplementedException();
-		}
+		/// <summary>
+		/// The path of the Hg repository selected by the user:
+		/// </summary>
+		public string UserSelectedRepositoryPath { get; set; }
 
 		///<summary>
 		/// Makes a Mercurial clone of a repository from sourcePath to parentDirectoryToPutCloneIn

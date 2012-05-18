@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -20,15 +21,17 @@ namespace Chorus.UI.Clone
 		// Define upper range limit of progess bar:
 		private const int MaxProgressValue = 1000;
 
-		// Object to handle updating the progress bar and status string. Background threads may make changes to
-		// this object, and a Timer event will cause the dialog UI thread to read the object and update the
-		// progress bar accordingly:
+		// Object to handle updating the progress bar, status string and repository ListView.
+		// Background threads may make changes to this object, and a Timer event will cause the
+		// dialog UI thread to read the object and update its controls accordingly:
 		private class ProgressData
 		{
-			public int progress;
-			public string status;
+			public int Progress;
+			public string Status = "";
+			public readonly List<ListViewItem> CurrentRepositories = new List<ListViewItem>();
 		}
 		private ProgressData _currentProgress;
+
 
 		///<summary>
 		/// Constructor
@@ -51,6 +54,30 @@ namespace Chorus.UI.Clone
 		}
 
 		#region Dialog event handlers
+
+		/// <summary>
+		/// Handles event when user clicks on Get button.
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		private void OnGetButtonClick(object sender, EventArgs e)
+		{
+			TerminateBackgroundWorkers();
+			DialogResult = DialogResult.OK;
+			Close();
+		}
+
+		/// <summary>
+		/// Handles event when user clicks dialog Cancel button.
+		/// We need to terminate all the background worker threads so they don't try
+		/// to access dialog controls after the controls are destroyed.
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		private void OnCancelButtonClick(object sender, EventArgs e)
+		{
+			TerminateBackgroundWorkers();
+		}
 
 		/// <summary>
 		/// Handles event when user resizes dialog. We need to maintain a 50-50 split
@@ -101,35 +128,61 @@ namespace Chorus.UI.Clone
 				if (!existingItem.Tag.ToString().StartsWith(_model.FolderPath))
 					projectRepositoryListView.Items.RemoveAt(i);
 			}
+			// If there is no longer a selected repository, grey-out the Get button:
+			if (projectRepositoryListView.SelectedItems.Count == 0)
+				getButton.Enabled = false;
+
 
 			// Deal with possibility that the user selected an actual Hg Repository,
 			// before we go to all that trouble of creating new threads, making the computer
 			// do extra work, blah, blah...
 			if (GetCloneFromNetworkFolderModel.IsValidRepository(_model.FolderPath))
 			{
-				var repoItem = MakeRepositoryListViewItem(_model.FolderPath);
-				AddRepositoryListViewItem(repoItem);
-				_currentProgress = new ProgressData { progress = MaxProgressValue, status = "Selected folder is a repository." };
+				_currentProgress = new ProgressData { Progress = MaxProgressValue, Status = "Selected folder is a repository." };
+				_currentProgress.CurrentRepositories.Add(MakeRepositoryListViewItem(_model.FolderPath));
 			}
 			else
 			{
+				// Try to get subfolders of _model.FolderPath. One reason this might throw an
+				// exception is if user does not have access rights to _model.FolderPath:
+				string[] subFolders = null;
+				try
+				{
+					subFolders = (Directory.GetDirectories(_model.FolderPath));
+				}
+				catch
+				{
+				}
 				// Start a background search for all Hg repositories under _model.FolderPath:
-				// TODO: handle crash if we are not allowed access to _model.FolderPath
-				InitializeBackgroundWorkers(Directory.GetDirectories(_model.FolderPath));
+				if (subFolders == null)
+				{
+					// We don't care why it failed, we can't dig down into the subfolders, so forget it.
+					_currentProgress = new ProgressData { Progress = 0, Status = "Selected folder cannot be read." };
+				}
+				else
+				{
+					InitializeBackgroundWorkers(subFolders);
+				}
 			}
 		}
 
 		/// <summary>
-		/// Handles event when user clicks dialog Cancel button.
-		/// We need to terminate all the background worker threads so they don't try
-		/// to access dialog controls after the controls are destroyed.
+		/// Handles event when user selects an item in the repository ListView.
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		private void OnCancelButtonClick(object sender, EventArgs e)
+		private void OnRepositoryListViewSelectionChange(object sender, EventArgs e)
 		{
-			// TODO: make sure background workers can't call upon UI controls after we return.
-			TerminateBackgroundWorkers();
+			// Deal with case when user didn't really select anything:
+			if (projectRepositoryListView.SelectedItems.Count == 0)
+			{
+				getButton.Enabled = false;
+				return;
+			}
+
+			var selectedItem = projectRepositoryListView.SelectedItems[0];
+			_model.UserSelectedRepositoryPath = selectedItem.Tag.ToString();
+			getButton.Enabled = true;
 		}
 
 		#endregion
@@ -142,14 +195,8 @@ namespace Chorus.UI.Clone
 		private void TerminateBackgroundWorkers()
 		{
 			foreach (var existingBackgroundWorker in _backgroundWorkers)
-			{
-				// This is crucial for avoiding race conditions: before we tell each backgroud worker
-				// to quit, we remove its ability to add repository details to the listview by
-				// unplugging the delegate that it calls to do the adding:
-				existingBackgroundWorker.AddListItem -= InvokeAddRepositoryListViewItem;
-				// Now we can tell it to quit:
 				existingBackgroundWorker.Cancel();
-			}
+
 			_backgroundWorkers.Clear();
 		}
 
@@ -167,12 +214,12 @@ namespace Chorus.UI.Clone
 			if (initialFoldersCount == 0)
 			{
 				// Nothing to do, so create new progress data signifying as such:
-				_currentProgress = new ProgressData {progress = MaxProgressValue, status = "Selected folder has no subfolders."};
+				_currentProgress = new ProgressData {Progress = MaxProgressValue, Status = "Selected folder has no subfolders."};
 			}
 			else
 			{
 				// Reset progress data:
-				_currentProgress = new ProgressData { progress = 0, status = "Searching for Project Repositories..." };
+				_currentProgress = new ProgressData { Progress = 0, Status = "Searching for Project Repositories..." };
 
 				// Calculate regular and final (compensating for integer division truncation) progress bar portions:
 				var standardPortion = MaxProgressValue / initialFoldersCount;
@@ -186,12 +233,11 @@ namespace Chorus.UI.Clone
 					// If we're on the last iteration, use remaining unused progress portion:
 					var progressBarPortion = (i < initialFoldersCount - 1) ? standardPortion : finalPortion;
 
+					// Create a new background worker:
 					var worker = new FolderSearchWorker(folder, progressBarPortion, _currentProgress);
-					// Plug in the delegate to allow new background worker to add repository details
-					// to the listview:
-					worker.AddListItem += InvokeAddRepositoryListViewItem;
 					_backgroundWorkers.Add(worker);
-					// Set the background worker going:
+
+					// Set the background worker going in its own thread:
 					new Thread(worker.DoWork).Start();
 				}
 			}
@@ -201,8 +247,8 @@ namespace Chorus.UI.Clone
 
 		/// <summary>
 		/// Handler that gets fired every 100 milliseconds or so. This is our mechanism for
-		/// updating the progress bar (and text) without causing deadlocks or race conditions
-		/// that could involve disposed objects.
+		/// updating the progress bar, status text and repository ListView without causing
+		/// deadlocks or race conditions that could involve disposed objects.
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
@@ -213,43 +259,31 @@ namespace Chorus.UI.Clone
 
 			lock (_currentProgress)
 			{
-				progressBar.Value = _currentProgress.progress;
+				// Set progress bar:
+				progressBar.Value = _currentProgress.Progress;
 				// Todo: make progress bar go grey if at MaxProgressValue
-				statusLabel.Text = _currentProgress.status;
+
+				// Set status text:
+				statusLabel.Text = _currentProgress.Status;
+
+				// Get a simple IEnumerable collection of ListViewItems currently in the repsoitory ListView:
+				var existingItems = projectRepositoryListView.Items.Cast<ListViewItem>();
+
+				// Update repository ListView, removing ListViewItems from the _currentProgress object
+				// as we add them to the UI control:
+				for (int i = _currentProgress.CurrentRepositories.Count - 1; i >= 0; i--)
+				{
+					// Get current repository ListViewItem and also its path
+					var currentRepository = _currentProgress.CurrentRepositories[i];
+					var currentRepositoryPath = currentRepository.Tag.ToString();
+
+					// Don't bother adding an item if it is already shown (which can ligitimately happen):
+					if (!existingItems.Any(existing => currentRepositoryPath.Equals(existing.Tag)))
+						projectRepositoryListView.Items.Add(currentRepository);
+
+					_currentProgress.CurrentRepositories.RemoveAt(i);
+				}
 			}
-		}
-
-		#endregion
-
-		#region Deal with ListView updates
-		// Define a delegate which will allow cross-thread additions to the repository listview:
-		private delegate void AddListItemDelegate(ListViewItem item);
-
-		/// <summary>
-		/// Adds given ListViewItem to the ListView of Hg repositories, using Invoke to cross over
-		/// thread boundaries.
-		/// </summary>
-		/// <param name="item">Hg repository item to be added</param>
-		private void InvokeAddRepositoryListViewItem(ListViewItem item)
-		{
-			// Use Invoke to call AddRepositoryListViewItem (see below) cross-threadedly:
-			Invoke(new AddListItemDelegate(AddRepositoryListViewItem), item);
-		}
-
-		/// <summary>
-		/// Adds givent ListViewItem to ListView of Hg repositories.
-		/// </summary>
-		/// <param name="item">ListViewItem to add</param>
-		private void AddRepositoryListViewItem(ListViewItem item)
-		{
-			// Don't bother adding an item if it is already in the list:
-			foreach (ListViewItem existingItem in projectRepositoryListView.Items)
-			{
-				// Compare the ListViewItem Tags, which contain the full path to the repository:
-				if (existingItem.Tag.ToString().Equals(item.Tag.ToString()))
-					return; // We already have this ListViewItem in the list
-			}
-			projectRepositoryListView.Items.Add(item);
 		}
 
 		#endregion
@@ -264,8 +298,10 @@ namespace Chorus.UI.Clone
 			var folderItem = new ListViewItem(Path.GetFileName(folderPath));
 			folderItem.Tag = folderPath;
 			folderItem.ToolTipText = folderPath;
+
 			var fileTime = File.GetLastWriteTime(folderPath);
 			folderItem.SubItems.Add(fileTime.ToShortDateString() + " " + fileTime.ToShortTimeString());
+
 			return folderItem;
 		}
 
@@ -281,11 +317,7 @@ namespace Chorus.UI.Clone
 			// Range of progress bar that we are responsible for:
 			private readonly int _progressBarPortion;
 			// The ProgressData object that the dialog created for our search:
-			private ProgressData _progressData;
-
-			// Define a delegate for adding a ListViewItem to a ListView:
-			internal delegate void AddListItemEvent(ListViewItem listItem);
-			internal event AddListItemEvent AddListItem = delegate { };
+			private readonly ProgressData _progressData;
 
 			/// <summary>
 			/// Constructor
@@ -386,6 +418,7 @@ namespace Chorus.UI.Clone
 
 			/// <summary>
 			/// Updates the ProgressData object in a mutex zone.
+			/// Adds the given increment to the overall progress value.
 			/// Parent dialog will read object later and make updates to progress controls.
 			/// </summary>
 			/// <param name="increment">Amount to update progress value by</param>
@@ -393,9 +426,23 @@ namespace Chorus.UI.Clone
 			{
 				lock (_progressData)
 				{
-					_progressData.progress += increment;
-					if (_progressData.progress == MaxProgressValue)
-						_progressData.status = "Search complete.";
+					_progressData.Progress += increment;
+					if (_progressData.Progress == MaxProgressValue)
+						_progressData.Status = "Search complete.";
+				}
+			}
+
+			/// <summary>
+			/// Updates the ProgressData object in a mutex zone.
+			/// Adds the given item to the list of current repositories.
+			/// Parent dialog will read object later and make updates to ListView control.
+			/// </summary>
+			/// <param name="item">ListViewItem to add</param>
+			private void AddListItem(ListViewItem item)
+			{
+				lock (_progressData)
+				{
+					_progressData.CurrentRepositories.Add(item);
 				}
 			}
 		}
