@@ -144,7 +144,8 @@
 			this.statusLabel.Name = "statusLabel";
 			this.statusLabel.Size = new System.Drawing.Size(540, 14);
 			this.statusLabel.TabIndex = 2;
-			this.statusLabel.Text = "Put clever message here, programmer.";
+			this.statusLabel.Text = "Programmer should have called GetCloneFromNetworkFolderDlg.LoadFromModel() which " +
+	"sets initial folder path.";
 			this.statusLabel.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
 			//
 			// helpButton

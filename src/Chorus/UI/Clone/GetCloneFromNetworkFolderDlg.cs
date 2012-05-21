@@ -196,7 +196,10 @@ namespace Chorus.UI.Clone
 				return;
 			}
 
-			// Recorde selected repository in the model:
+			if (_model == null)
+				throw new InvalidDataException(@"_model not initialized. Call LoadFromModel() in GetCloneFromNetworkFolderDlg object before displaying dialog.");
+
+			// Record selected repository in the model:
 			var selectedItem = projectRepositoryListView.SelectedItems[0];
 			_model.UserSelectedRepositoryPath = selectedItem.Tag.ToString();
 
