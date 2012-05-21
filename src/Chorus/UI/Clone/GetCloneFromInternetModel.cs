@@ -73,7 +73,7 @@ namespace Chorus.UI.Clone
 		{
 			get
 			{
-				return (!string.IsNullOrEmpty(LocalFolderName) && LocalFolderName.LastIndexOfAny(Path.GetInvalidFileNameChars()) == -1);
+				return (!string.IsNullOrEmpty(LocalFolderName) && LocalFolderName.LastIndexOfAny(Path.GetInvalidPathChars()) == -1);
 			}
 		}
 
