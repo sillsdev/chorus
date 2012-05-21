@@ -43,7 +43,7 @@ No special configuration is needed.
 # else.
 #
 
-import sys, os, shutil
+import sys, os, shutil, subprocess
 
 from mercurial import demandimport
 demandimport.ignore.extend(["win32helper", "osutil"])
@@ -94,6 +94,8 @@ def mapconvert(convert, canconvert, doc):
 			return tuple(map(_convert, arg))
 		elif isinstance(arg, list):
 			return map(_convert, arg)
+		elif isinstance(arg, dict):
+			return dict((k, _convert(v)) for k,v in arg.iteritems())
 		return arg
 	_convert.__doc__ = doc
 	return _convert
@@ -111,12 +113,47 @@ fromunicode = mapconvert(
 win32helper.fromunicode = fromunicode
 
 def utf8wrapper(orig, *args, **kargs):
+	#print '[[', orig.__name__, ']]'
+	#print '[arguments]'
+	#print 'args =', repr(args)
+	#print 'kargs =', repr(kargs)
 	try:
-		return fromunicode(orig(*tounicode(args), **kargs))
+		x = orig(*tounicode(args), **tounicode(kargs))
+		#print '[result]'
+		#print 'raw =', repr(x)
+		x = fromunicode(x)
+		#print 'encoded =', repr(x)
+		return x
 	except UnicodeDecodeError:
-		print "While calling %s" % orig.__name__
+		print "utf8wrapper: While calling %s" % orig.__name__
 		raise
+	#except Exception, e:
+	#    print "utf8wrapper: Exception: ", repr(e)
+	#    raise
 
+
+def popen_wrapper(orig, cmd, *args, **kargs):
+	#print '[[', orig.__name__, ']]'
+	#print '[arguments]'
+	#print 'cmd =', repr(cmd)
+	#print 'args =', repr(args)
+	#print 'kargs =', repr(kargs)
+	os.environ['PYTHONIOENCODING'] = 'utf-8'
+	cwd = os.getcwd()
+	os.chdir(kargs.pop('cwd', cwd))
+	try:
+		x = orig(cmd, *args, **kargs)
+		#print '[result]'
+		#print 'raw =', repr(x)
+		return x
+	except UnicodeDecodeError:
+		print "popen_wrapper: While calling %s" % orig.__name__
+		raise
+	#except Exception, e:
+	#    print "popen_wrapper: Exception: ", repr(e)
+	#    raise
+	finally:
+		os.chdir(cwd)
 
 def uisetup(ui):
 	if sys.platform != 'win32' or not win32helper.consolehascp():
@@ -145,19 +182,25 @@ def uisetup(ui):
 	extensions.wrapfunction(_ui.ui, "write", localize(win32helper.hStdOut))
 	extensions.wrapfunction(_ui.ui, "write_err", localize(win32helper.hStdErr))
 
-def extsetup():
+def extsetup(ui):
+	#print "extsetup start"
 	if sys.platform != 'win32':
 		return
 
+	os.environ['PYTHONIOENCODING'] = 'utf-8'
 	oldlistdir = osutil.listdir
 
 	osutil.listdir = pureosutil.listdir # force pure listdir
 	extensions.wrapfunction(osutil, "listdir", utf8wrapper)
+	extensions.wrapfunction(subprocess, "Popen", popen_wrapper)
 
 	# only get the real command line args if we are passed a real ui object
 	def disp_parse(orig, ui, args):
 		if type(ui) == _ui.ui:
-			args = win32helper.getargs()[-len(args):]
+			args = win32helper.getargs()[:]
+			dispatch._earlygetopt(['--config'], args)
+			dispatch._earlygetopt(['--cwd'], args)
+			dispatch._earlygetopt(["-R", "--repository", "--repo"], args)
 		return orig(ui, args)
 	extensions.wrapfunction(dispatch, "_parse", disp_parse)
 
@@ -201,14 +244,14 @@ def extsetup():
 				extensions.wrapfunction(mod, name, utf8wrapper)
 
 	wrapnames(os.path, 'normpath', 'normcase', 'islink', 'dirname',
-			  'isdir', 'isfile', 'exists', 'abspath', 'realpath')
+			  'isdir', 'isfile', 'exists', 'abspath', 'realpath', 'split')
 	wrapnames(os, 'makedirs', 'lstat', 'unlink', 'chmod', 'stat',
 			  'mkdir', 'rename', 'removedirs', 'setcwd', 'open',
-			  'listdir', 'chdir', 'remove')
+			  'listdir', 'chdir', 'remove', 'access', 'rmdir', 'tempnam', 'utime' )
 	wrapnames(shutil, 'copyfile', 'copymode', 'copystat')
 	extensions.wrapfunction(os, 'getcwd', win32helper.getcwdwrapper)
 	wrapnames(sys.modules['__builtin__'], 'open')
-
+	#print "extsetup end"
 
 if __name__ == "__main__":
 	test()

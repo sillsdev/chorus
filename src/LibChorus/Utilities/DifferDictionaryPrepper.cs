@@ -56,7 +56,14 @@ namespace Chorus.Utilities
 				}
 				else
 				{
-					PrepareIndex(record);
+					try
+					{
+						PrepareIndex(record);
+					}
+					catch (ArgumentException exception)
+					{
+						Palaso.Reporting.ErrorReport.NotifyUserOfProblem(exception, exception.Message + " Please seek expert help in removing the duplicate GUID. The process will now continue.");
+					}
 				}
 			}
 		}
@@ -69,6 +76,10 @@ namespace Chorus.Utilities
 		{
 			var guid = GetAttribute(_identifierWithDoubleQuote, _closeDoubleQuote, data)
 				   ?? GetAttribute(_identifierWithSingleQuote, _closeSingleQuote, data);
+			if(_dictionary.ContainsKey(guid))
+			{
+				throw new ArgumentException("Guid "+guid+" appears more than once in this file.");
+			}
 			_dictionary.Add(guid, data);
 		}
 
