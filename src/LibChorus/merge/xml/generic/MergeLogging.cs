@@ -5,6 +5,7 @@ namespace Chorus.merge.xml.generic
 {
 	public interface IMergeEventListener
 	{
+		void RecordContextInConflict(IConflict conflict);
 		void ConflictOccurred(IConflict conflict);
 		void WarningOccurred(IConflict warning);
 
@@ -13,7 +14,7 @@ namespace Chorus.merge.xml.generic
 		/// <summary>
 		/// In order to be able to store in the conflict enough information to later retrieve the conflicting
 		/// data, someone must call this when new element levels were reached.
-		/// Then when a conflict occurs, the listener pushes this context into the conflict and (at least
+		/// Then when a conflict occurs, the listener is asked to push this context into the conflict and (at least
 		/// in the case of the xmllistener as of june2009) writes out the conflict with this context in the
 		/// xml record of the conflict.  Later, a UI handling conflicts can retrieve this info in order
 		/// to reconstruct exact what and where the conflict was.
@@ -24,6 +25,10 @@ namespace Chorus.merge.xml.generic
 
 	public class NullMergeEventListener : IMergeEventListener
 	{
+		public void RecordContextInConflict(IConflict conflict)
+		{
+		}
+
 		public void ConflictOccurred(IConflict conflict)
 		{
 
@@ -52,6 +57,15 @@ namespace Chorus.merge.xml.generic
 		public void AddEventListener(IMergeEventListener listener)
 		{
 			_listeners.Add(listener);
+		}
+
+		public void RecordContextInConflict(IConflict conflict)
+		{
+			// Only the last listener which actually does something will take effect, but usually only one does, anyway.
+			foreach (IMergeEventListener listener in _listeners)
+			{
+				listener.RecordContextInConflict(conflict);
+			}
 		}
 
 		public void ConflictOccurred(IConflict conflict)

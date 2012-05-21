@@ -83,7 +83,7 @@ namespace Chorus.UI.Sync
 
 		public SyncResults SyncResult{get;private set;}
 
-		public StatusProgress FinalStatus
+		public SimpleStatusProgress FinalStatus
 		{
 			get;
 			private set;

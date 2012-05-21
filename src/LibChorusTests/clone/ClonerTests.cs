@@ -1,10 +1,9 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Chorus.clone;
 using Chorus.Utilities.UsbDrive;
-using LibChorus.Tests;
+using LibChorus.TestUtilities;
 using NUnit.Framework;
 using Palaso.Progress.LogBox;
 using Palaso.TestUtilities;

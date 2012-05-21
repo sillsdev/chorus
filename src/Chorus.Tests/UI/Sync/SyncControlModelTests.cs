@@ -8,6 +8,7 @@ using Chorus.sync;
 using Chorus.UI.Sync;
 using Chorus.Utilities;
 using Chorus.VcsDrivers;
+using LibChorus.TestUtilities;
 using LibChorus.Tests;
 using NUnit.Framework;
 using Palaso.Network;
@@ -29,8 +30,6 @@ namespace Chorus.Tests
 		{
 			_progress = new StringBuilderProgress();
 			_pathToTestRoot = Path.Combine(Path.GetTempPath(), "ChorusTest");
-			if (Directory.Exists(_pathToTestRoot))
-				Directory.Delete(_pathToTestRoot, true);
 			Directory.CreateDirectory(_pathToTestRoot);
 
 
@@ -46,10 +45,14 @@ namespace Chorus.Tests
 
 			_synchronizer = Synchronizer.FromProjectConfiguration(_project, new NullProgress());
 			_model = new SyncControlModel(_project, SyncUIFeatures.Advanced,null);
-			_model.AddProgressDisplay(_progress);
+			_model.AddMessagesDisplay(_progress);
 		}
 
-
+		[TearDown]
+		public void TearDown()
+		{
+			Directory.Delete(_pathToTestRoot, true);
+		}
 
 		[Test]
 		public void AfterSyncLogNotEmpty()
@@ -82,7 +85,7 @@ namespace Chorus.Tests
 		{
 			_synchronizer.ExtraRepositorySources.Clear();
 			_model = new SyncControlModel(_project, SyncUIFeatures.Advanced, null);
-			_model.AddProgressDisplay(_progress);
+			_model.AddMessagesDisplay(_progress);
 			Assert.AreEqual(1, _model.GetRepositoriesToList().Count);
 		}
 
@@ -95,7 +98,7 @@ namespace Chorus.Tests
 			_model = new SyncControlModel(_project, SyncUIFeatures.Minimal, null);
 			_model.SyncOptions.RepositorySourcesToTry.Add(RepositoryAddress.Create("languageforge", "http://hg-public.languagedepot.org/dummy"));
 			var progress = new ConsoleProgress() {ShowVerbose = true};
-			_model.AddProgressDisplay(progress);
+			_model.AddMessagesDisplay(progress);
 			SyncResults results = null;
 			_model.SynchronizeOver += new EventHandler((sender, e) => results = (sender as SyncResults));
 		   _model.Sync(true);
@@ -119,7 +122,7 @@ namespace Chorus.Tests
 			_model = new SyncControlModel(_project, SyncUIFeatures.Minimal, null);
 			_model.SyncOptions.RepositorySourcesToTry.Add(RepositoryAddress.Create("languageforge", "http://hg-public.languagedepot.org/dummy"));
 			var progress = new ConsoleProgress();
-			_model.AddProgressDisplay(progress);
+			_model.AddMessagesDisplay(progress);
 			SyncResults results = null;
 			_model.SynchronizeOver += new EventHandler((sender, e) => results = (sender as SyncResults));
 			_model.Sync(true);

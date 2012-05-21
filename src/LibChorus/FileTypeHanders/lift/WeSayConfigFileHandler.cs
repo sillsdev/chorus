@@ -10,6 +10,9 @@ namespace Chorus.FileTypeHanders.lift
 {
 	public class WeSayConfigFileHandler : IChorusFileTypeHandler
 	{
+		internal WeSayConfigFileHandler()
+		{}
+
 		public bool CanDiffFile(string pathToFile)
 		{
 			return false;

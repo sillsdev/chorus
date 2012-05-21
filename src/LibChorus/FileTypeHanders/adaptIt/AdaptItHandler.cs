@@ -15,10 +15,19 @@ namespace Chorus.FileTypeHanders.adaptIt
 {
 	public class AdaptItFileHandler : IChorusFileTypeHandler
 	{
+		internal AdaptItFileHandler()
+		{}
+
 		public bool CanDiffFile(string pathToFile)
 		{
 			return false;
 		}
+
+		/// <summary>
+		/// This flag indicates whether the KB file is from the pre-6.0.0 version of Adapt It (false)
+		/// or post-6.0.0 (true)
+		/// </summary>
+		public bool IsKbV2;
 
 		public bool CanMergeFile(string pathToFile)
 		{
@@ -31,7 +40,13 @@ namespace Chorus.FileTypeHanders.adaptIt
 				for (int i = 0; i < 10; i++)
 				{
 					var line = reader.ReadLine();
-					if (line != null && line.Contains("<KB docVersion"))
+					if (String.IsNullOrEmpty(line))
+						continue;
+					if (line.Contains("<KB docVersion"))
+						return true;
+					if (!line.Contains("<KB kbVersion"))
+						continue;
+					IsKbV2 = true;
 						return true;
 				}
 			}
@@ -91,6 +106,35 @@ namespace Chorus.FileTypeHanders.adaptIt
 #endif
 		}
 
+		/* rde:
+		 * here is an example of the KB structure:
+		  <KB ...>
+			<MAP mn="1">                    // @mn = number of words/phrase (in TU/@k)
+			  <TU f="0" k="Δ">              // @f = forcing (something in the AI UI; not sure)
+											// @k = source word 'key'
+				<RS n="1" a="ασδγδ" />      // @n = number of occurrences of this adaptation
+											// @a = target word 'adaptation'
+			  </TU>
+			</MAP>
+		  </KB>
+		 *
+		 * V6.0.0 of AI adds these new attributes to the RS element:
+		 *  @df = DeleteFlag (indicates whether the adaptation was deleted)
+		 *  @cDT = time/date stamp of the creation of this adaptation
+		 *  @mDT = time/date stamp of the last modification of this adaptation
+		 *  @dDT = time/date stamp of the deletion of this adaptation
+		 *  @wC = stands for 'who created' and gives a username/computer mapping for
+		 *          the creator/last modifier
+		 * However, we don't care about any of these (except TU/@k = source word
+		 * and RS/@a = target word (and I guess MAP/mn, which AI seems to need to
+		 * be sorted in order of increasing value of 'mn'.
+		 * Doing the sorting in the MergeStrategies, however, is very costly, so
+		 * we'll pretend that the order doesn't matter and then just before saving
+		 * the result, we do an xslt sort (which is very efficient).
+		 * Also, we will explicitly ask the MergeStrategies to ignore all of these
+		 * other superflueous attributes or we get lots of conflicts for very (well
+		 * zero) return on investment.
+		*/
 		private void SetupElementStrategies(XmlMerger merger)
 		{
 			// new versions of AI no longer use this element
@@ -119,7 +163,19 @@ namespace Chorus.FileTypeHanders.adaptIt
 			//  rde: 4/4/11: using order = true makes the merging incredibly slow. We sort it afterwards
 			//  anyway, so pretend the order doesn't matter.
 			elementStrategy = ElementStrategy.CreateForKeyedElement("a", false);
-			elementStrategy.AttributesToIgnoreForMerging.Add("n");
+
+			// rde: 10/12/11: adding ignore for merging for all the new attributes
+			//  added to AI in 6.0.0 (someone's going to win and none of these matter)
+			elementStrategy.AttributesToIgnoreForMerging.AddRange(new[]
+																	  {
+																		  "n",
+																		  "df",
+																		  "cDT",
+																		  "mDT",
+																		  "dDT",
+																		  "wC"
+																	  });
+
 			merger.MergeStrategies.SetStrategy("RS", elementStrategy);
 
 			//Banana leaves are great for covering food in a mumu.  But the gorgor leaf is better than that of a banana for cooking manget.

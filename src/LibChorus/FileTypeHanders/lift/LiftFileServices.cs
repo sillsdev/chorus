@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -18,7 +19,7 @@ namespace Chorus.FileTypeHanders.lift
 
 		/// <summary>
 		/// Make sure the newly exported LIFT file:
-		///		1) conforms to the Palas0 canonical XML writer settings, and
+		///		1) conforms to the Palaso canonical XML writer settings, and
 		///		2) retains the order of entries in the original file.
 		///
 		/// Both of these adjustments are needed to make life easier on Mercurial.
@@ -32,13 +33,24 @@ namespace Chorus.FileTypeHanders.lift
 
 			// Diff the original file (now bak) and the newly exported file (temp).
 			var parentIndex = new Dictionary<string, byte[]>(StringComparer.OrdinalIgnoreCase);
-			using (var parentPrepper = new DifferDictionaryPrepper(parentIndex, bakPathname, "header", "entry", "guid"))
+			using (var parentPrepper = new MakeRecordDictionary(parentIndex, bakPathname, "header", "entry", "guid"))
 			{
+				parentPrepper.ShouldContinueAfterDuplicateKey = s =>
+																	{
+																		Debug.Fail("Duplicate GUID");
+																		return true;
+																	};
+
 				parentPrepper.Run();
 			}
 			var childIndex = new Dictionary<string, byte[]>(StringComparer.OrdinalIgnoreCase);
-			using (var childPrepper = new DifferDictionaryPrepper(childIndex, tempPathname, "header", "entry", "guid"))
+			using (var childPrepper = new MakeRecordDictionary(childIndex, tempPathname, "header", "entry", "guid"))
 			{
+				childPrepper.ShouldContinueAfterDuplicateKey = s =>
+																{
+																	Debug.Fail("Duplicate GUID");
+																	return true;
+																};
 				childPrepper.Run();
 			}
 

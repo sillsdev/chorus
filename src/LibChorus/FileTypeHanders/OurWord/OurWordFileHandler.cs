@@ -13,6 +13,9 @@ namespace Chorus.FileTypeHanders.OurWord
 {
 	public class OurWordFileHandler : IChorusFileTypeHandler
 	{
+		internal OurWordFileHandler()
+		{}
+
 		static MethodInfo RetrieveRemoteMethod(string remoteMethodName)
 		{
 			var ourWordPath = Path.Combine(
