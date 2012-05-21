@@ -21,7 +21,7 @@ namespace Chorus.UI.Clone
 		// Define upper range limit of progess bar:
 		private const int MaxProgressValue = 1000;
 		// Place to store original color of progress bar:
-		private Color _progressBarColor;
+		private readonly Color _progressBarColor;
 
 		// Object to handle updating the progress bar, status string and repository ListView.
 		// Background threads may make changes to this object, and a Timer event will cause the
@@ -80,6 +80,18 @@ namespace Chorus.UI.Clone
 		private void OnCancelButtonClick(object sender, EventArgs e)
 		{
 			TerminateBackgroundWorkers();
+		}
+
+		/// <summary>
+		/// Allows user to double-click on a listed repository instead of selecting it
+		/// and pressing the Get button.
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		private void OnRepositoryListViewDoubleClick(object sender, EventArgs e)
+		{
+			if (getButton.Enabled)
+				OnGetButtonClick(sender, e);
 		}
 
 		/// <summary>

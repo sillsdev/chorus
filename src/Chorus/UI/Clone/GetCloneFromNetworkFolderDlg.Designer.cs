@@ -88,6 +88,7 @@
 			this.projectRepositoryListView.UseCompatibleStateImageBehavior = false;
 			this.projectRepositoryListView.View = System.Windows.Forms.View.Details;
 			this.projectRepositoryListView.SelectedIndexChanged += new System.EventHandler(this.OnRepositoryListViewSelectionChange);
+			this.projectRepositoryListView.DoubleClick += new System.EventHandler(this.OnRepositoryListViewDoubleClick);
 			//
 			// projectHeader
 			//

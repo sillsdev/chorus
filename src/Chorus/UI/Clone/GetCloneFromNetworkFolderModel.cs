@@ -1,11 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using Chorus.VcsDrivers.Mercurial;
 using Palaso.Progress.LogBox;
 
 namespace Chorus.UI.Clone
 {
+	///<summary>
+	/// A class to handle the data passed in and out of the network respository selection dialog (GetCloneFromNetworkFolderDlg).
+	///</summary>
 	public class GetCloneFromNetworkFolderModel
 	{
 		/// <summary>
@@ -36,14 +37,20 @@ namespace Chorus.UI.Clone
 		/// <summary>
 		/// Decides if the given folder path is worth the hassle of examining for Hg repositories.
 		/// </summary>
-		/// <param name="path"></param>
+		/// <param name="folderPath"></param>
 		/// <returns>true if a search is a good idea</returns>
 		public static bool IsFolderWorthSearching(string folderPath)
 		{
-			//TODO
+			//TODO we can either add some restrictions or remove this method (and adjust calling code).
 			return true;
 		}
 
+		/// <summary>
+		/// Returns true if the given folder path represents a repository that this model (or a derivative)
+		/// is interested in.
+		/// </summary>
+		/// <param name="folderPath"></param>
+		/// <returns></returns>
 		public static bool IsValidRepository(string folderPath)
 		{
 			return Directory.Exists(folderPath + Path.DirectorySeparatorChar + @".hg");
