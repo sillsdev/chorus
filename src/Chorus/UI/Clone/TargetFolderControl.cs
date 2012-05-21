@@ -24,7 +24,7 @@ namespace Chorus.UI.Clone
 		{
 			_localFolderName.Text = _model.LocalFolderName;
 			_downloadButton.Enabled = _model.ReadyToDownload;
-		   _localFolderName.Enabled =  _model.HaveNeededAccountInfo;
+			_localFolderName.Enabled = true;
 			_targetInfoLabel.Visible = true;
 
 			if (string.IsNullOrEmpty(_model.LocalFolderName))
@@ -59,14 +59,12 @@ namespace Chorus.UI.Clone
 				}
 			}
 
-			_localFolderName.Enabled = true;
-
 			toolTip1.SetToolTip(_downloadButton, _model.URL);
 		}
 
 		private void _localName_TextChanged(object sender, EventArgs e)
 		{
-			_model.LocalFolderName = _localFolderName.Text.Trim();
+			_model.LocalFolderName = _localFolderName.Text;
 		   UpdateDisplay();
 		}
 
