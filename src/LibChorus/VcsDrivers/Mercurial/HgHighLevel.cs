@@ -27,6 +27,8 @@ namespace Chorus.VcsDrivers.Mercurial
 			using (new ConsoleProgress("Trying to Create repository clone at {0}", targetDirectory))
 			{
 				targetDirectory = local.CloneLocalWithoutUpdate(targetDirectory);
+				File.WriteAllText(Path.Combine(targetDirectory, "~~Folder has an invisible repository.txt"), "In this folder, there is a (possibly hidden) folder named '.hg' that contains the actual data of this Chorus repository. Depending on your Operating System settings, that leading '.' might make the folder invisible to you. But Chorus clients (WeSay, FLEx, OneStory, etc.) can see it and can use this folder to perform Send/Receive operations.");
+
 				if (alsoDoCheckout)
 				{
 					// string userIdForCLone = string.Empty; /* don't assume it's this user... a repo on a usb key probably shouldn't have a user default */

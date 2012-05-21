@@ -27,7 +27,7 @@ namespace Chorus.UI.Misc
 		private void Init()
 		{
 			InitializeComponent();
-			_serverSettingsControl = new ServerSettingsControl(_model);
+			_serverSettingsControl = new ServerSettingsControl() { Model = _model };
 			_serverSettingsControl.TabIndex = 0;
 			_serverSettingsControl.Anchor = (AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right);
 			_serverSettingsControl.AutoSizeMode = AutoSizeMode.GrowAndShrink;

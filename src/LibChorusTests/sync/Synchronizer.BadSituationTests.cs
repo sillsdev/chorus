@@ -5,7 +5,7 @@ using Chorus.merge;
 using Chorus.sync;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
-using LibChorus.Tests.merge;
+using LibChorus.TestUtilities;
 using NUnit.Framework;
 using Palaso.Progress.LogBox;
 using Palaso.TestUtilities;
@@ -55,9 +55,6 @@ namespace LibChorus.Tests.sync
 		}
 
 		[Test]
-#if !DEBUG
-		[Ignore("Test fails in release build.")]
-#endif
 		public void Sync_ExceptionInMergeCode_LeftWith2HeadsAndErrorOutputToProgress()
 		{
 			using (RepositoryWithFilesSetup bob = RepositoryWithFilesSetup.CreateWithLiftFile("bob"))
@@ -88,12 +85,47 @@ namespace LibChorus.Tests.sync
 					Assert.IsTrue(File.ReadAllText(bob.UserFile.Path).Contains("bobWasHere"));
 				}
 			}
+			File.Delete(Path.Combine(Path.GetTempPath(), "LiftMerger.FindEntryById"));
 		}
 
 		[Test]
-#if !DEBUG
-		[Ignore("Test fails in release build.")]
-#endif
+		public void Sync_MergeFailure_LeavesNoChorusMergeProcessAlive()
+		{
+			using (RepositoryWithFilesSetup bob = RepositoryWithFilesSetup.CreateWithLiftFile("bob"))
+			{
+				using (RepositoryWithFilesSetup sally = RepositoryWithFilesSetup.CreateByCloning("sally", bob))
+				{
+					bob.ReplaceSomething("bobWasHere");
+					bob.AddAndCheckIn();
+					sally.ReplaceSomething("sallyWasHere");
+					using (new FailureSimulator("LiftMerger.FindEntryById"))
+					{
+						sally.CheckinAndPullAndMerge(bob);
+					}
+					Assert.AreEqual(0, Process.GetProcessesByName("ChorusMerge").Length);
+				}
+			}
+			File.Delete(Path.Combine(Path.GetTempPath(), "LiftMerger.FindEntryById"));
+		}
+
+		[Test]
+		public void Sync_MergeTimeoutExceeded_LeavesNoChorusMergeProcessAlive()
+		{
+			HgRunner.TimeoutSecondsOverrideForUnitTests = 1;
+			using (var fred = RepositoryWithFilesSetup.CreateWithLiftFile("fred"))
+			{
+				using (var betty = RepositoryWithFilesSetup.CreateByCloning("betty", fred))
+				{
+					fred.ReplaceSomething("fredWasHere");
+					fred.AddAndCheckIn();
+					betty.ReplaceSomething("bettyWasHere");
+					betty.CheckinAndPullAndMerge(fred);
+					Assert.AreEqual(0, Process.GetProcessesByName("ChorusMerge").Length);
+				}
+			}
+		}
+
+		[Test]
 		public void Sync_MergeFailure_NoneOfTheOtherGuysFilesMakeItIntoWorkingDirectory()
 		{
 			using (var bob = new RepositorySetup("bob"))
@@ -129,6 +161,7 @@ namespace LibChorus.Tests.sync
 					}
 				}
 			}
+			File.Delete(Path.Combine(Path.GetTempPath(), "TextMerger-bbb.txt"));
 		}
 
 		/// <summary>
@@ -136,9 +169,6 @@ namespace LibChorus.Tests.sync
 		/// we were going to the tip, which if this was the *second* attempt, could be the other guy's work!
 		/// </summary>
 		[Test]
-#if !DEBUG
-		[Ignore("Test fails in release build.")]
-#endif
 		public void Sync_RepeatedMergeFailure_WeAreLeftOnOurOwnWorkingDefault()
 		{
 			using (var bob = new RepositoryWithFilesSetup("bob", "test.txt", "hello"))
@@ -171,6 +201,7 @@ namespace LibChorus.Tests.sync
 				//sally.ShowInTortoise();
 
 			}
+			File.Delete(Path.Combine(Path.GetTempPath(), "TextMerger-test.txt"));
 		}
 
 		[Test]

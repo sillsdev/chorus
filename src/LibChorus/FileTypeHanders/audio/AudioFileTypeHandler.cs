@@ -12,6 +12,9 @@ namespace Chorus.FileTypeHanders.audio
 {
 	public class AudioFileTypeHandler : IChorusFileTypeHandler
 	{
+		internal AudioFileTypeHandler()
+		{}
+
 		public bool CanDiffFile(string pathToFile)
 		{
 			return false;
@@ -24,8 +27,8 @@ namespace Chorus.FileTypeHanders.audio
 
 		public bool CanPresentFile(string pathToFile)
 		{
-			var ext = Path.GetExtension(pathToFile);
-			return string.IsNullOrEmpty(ext) ? false : GetExtensionsOfKnownTextFileTypes().Contains(ext);
+			var ext = Path.GetExtension(pathToFile); // NB: has the '.'
+			return !string.IsNullOrEmpty(ext) && GetExtensionsOfKnownTextFileTypes().Contains(ext.Replace(".", null));
 		}
 
 		public bool CanValidateFile(string pathToFile)
@@ -45,26 +48,25 @@ namespace Chorus.FileTypeHanders.audio
 		public IEnumerable<IChangeReport> Find2WayDifferences(FileInRevision parent, FileInRevision child, HgRepository repository)
 		{
 			throw new ApplicationException(string.Format("Chorus could not find a handler to diff files like '{0}'", child.FullPath));
-
 		}
-
 
 		public IChangePresenter GetChangePresenter(IChangeReport report, HgRepository repository)
 		{
 			return new AudioChangePresenter(report);
 		}
 
-
-
-
 		public IEnumerable<IChangeReport> DescribeInitialContents(FileInRevision fileInRevision, TempFile file)
 		{
 			return new IChangeReport[] { new DefaultChangeReport(fileInRevision, "Added") };
 		}
 
+		/// <summary>
+		/// Get a list or one, or more, extensions this file type handler can process
+		/// </summary>
+		/// <returns>A collection of extensions (without leading period (.)) that can be processed.</returns>
 		public IEnumerable<string> GetExtensionsOfKnownTextFileTypes()
 		{
-			return new List<string> {".wav",".mp3"};
+			return new List<string> { "wav", "snd", "au", "aif", "aifc", "aiff", "wma", "mp3" };
 		}
 
 		/// <summary>

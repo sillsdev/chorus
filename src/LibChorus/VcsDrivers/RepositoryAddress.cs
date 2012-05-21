@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net.NetworkInformation;
 using Chorus.Utilities;
 using Chorus.Utilities.UsbDrive;
 using Chorus.VcsDrivers.Mercurial;
@@ -17,7 +18,7 @@ namespace Chorus.VcsDrivers
 		/// <summary>
 		/// Can be a file path or an http address
 		/// </summary>
-		public string URI { get; set; }
+		public string URI { get; private set; }
 
 		/// <summary>
 		/// This can be used in place of the project name, so that path can be specified which will work
@@ -30,7 +31,7 @@ namespace Chorus.VcsDrivers
 		/// In the case of a repo sitting on the user's machine, this will be a person's name.
 		/// It might also be the name of the web-based repo. It also gets the "alias" name, in the case of hg.
 		/// </summary>
-		public string Name{get;set;}
+		public string Name{get; private set;}
 
 		public enum HardWiredSources { UsbKey };
 
@@ -55,7 +56,6 @@ namespace Chorus.VcsDrivers
 		/// <returns></returns>
 		public static RepositoryAddress Create(string name, string uri, bool readOnly)
 		{
-
 			if (uri.Trim().StartsWith("http"))
 			{
 				return new HttpRepositoryPath(name, uri, readOnly);
@@ -83,6 +83,12 @@ namespace Chorus.VcsDrivers
 			URI = uri;
 			Name = name;
 			ReadOnly = readOnly;
+			IsResumable = IsKnownResumableRepository(uri);
+		}
+
+		public static bool IsKnownResumableRepository(string uri)
+		{
+			return uri.ToLower().Contains("hg-test.languageforge.org") || uri.ToLower().Contains("resumable");
 		}
 
 
@@ -96,6 +102,8 @@ namespace Chorus.VcsDrivers
 			get { return _readOnly; }
 			set { _readOnly = value; }
 		}
+
+		public bool IsResumable { get; private set; }
 
 		/// <summary>
 		/// Does the user want us to try to sync with this one?
@@ -141,7 +149,6 @@ namespace Chorus.VcsDrivers
 		public HttpRepositoryPath(string name, string uri, bool readOnly)
 			: base(name, uri, readOnly)
 		{
-
 		}
 
 		/// <summary>
@@ -167,11 +174,14 @@ namespace Chorus.VcsDrivers
 
 	public class DirectoryRepositorySource : RepositoryAddress
 	{
+		private readonly string _networkMachineSpecifier;
+		private readonly string _alternativeMachineSpecifier;
 
 		public DirectoryRepositorySource(string name, string uri, bool readOnly)
 			: base(name, uri, readOnly)
 		{
-
+			_networkMachineSpecifier = new string(Path.DirectorySeparatorChar, 2);
+			_alternativeMachineSpecifier = new string(Path.AltDirectorySeparatorChar, 2);
 		}
 
 		/// <summary>
@@ -179,22 +189,33 @@ namespace Chorus.VcsDrivers
 		/// </summary>
 		public override string GetPotentialRepoUri(string repoIdentifier, string projectName, IProgress progress)
 		{
-			return URI.Replace(ProjectNameVariable, projectName);
+			return URI.Replace(ProjectNameVariable, projectName).TrimEnd(Path.DirectorySeparatorChar);
 		}
 
 		public override bool CanConnect(HgRepository localRepository, string projectName, IProgress progress)
 		{
 			var path = GetPotentialRepoUri(localRepository.Identifier, projectName, progress);
-			if (this.URI.StartsWith(@"\\"))
+			if (URI.StartsWith(_networkMachineSpecifier) || URI.StartsWith(_alternativeMachineSpecifier))
 			{
 				progress.WriteStatus("Checking to see if we can connect with {0}...", path);
+				if (!NetworkInterface.GetIsNetworkAvailable())
+				{
+					progress.WriteWarning("This machine does not have a live network connection.");
+					return false;
+				}
 			}
-			return Directory.Exists(path);
+
+			var result = Directory.Exists(path);
+			if (!result)
+			{
+				progress.WriteWarning("Cannot find the specified file folder.");
+			}
+			return result;
 		}
 
 		public bool LooksLikeLocalDirectory
 		{
-			get { return !(this.URI.StartsWith(@"\\")); }
+			get { return !(this.URI.StartsWith(_networkMachineSpecifier)); }
 		}
 
 		public override List<string> GetPossibleCloneUris(string repoIdentifier, string projectName, IProgress progress)
@@ -283,15 +304,35 @@ namespace Chorus.VcsDrivers
 				{
 					try
 					{
-
+						if (File.Exists(Path.Combine(path, "SharedRepositoryInfo.xml")))
+						{
+							progress.WriteVerbose("Not checking folder that looks like paratext project: "+path);
+							continue;
+						}
 
 						// Need to create an HgRepository for each so we can get its Id.
 						var usbRepo = new HgRepository(path, progress);
-						if (repoIdentifier.ToLowerInvariant() == usbRepo.Identifier.ToLowerInvariant())
+						if (usbRepo.Identifier == null)
+						{
+							// Null indicates a new repo, with no commits yet.
+							continue;
+						}
+						else if (repoIdentifier.ToLowerInvariant() == usbRepo.Identifier.ToLowerInvariant())
+						{
 							return path;
+						}
+					}
+					catch (UserCancelledException )
+					{   // deal with this separately to avoid an error report - the user didn't ask for that.
+						throw; // if not thrown now, more folders could be searched in FLExBridge
 					}
 					catch (Exception e)
 					{
+						if(e.Message.Contains("not supported"))
+						{
+							progress.WriteWarning("Could not check the repository at {0} because it has some unsupported feature (e.g. made with a new versin of this or some other software?). Error was: {1}", path, e.Message);
+							continue;
+						}
 						ErrorReport.ReportNonFatalExceptionWithMessage(e, "Error while processing USB folder '{0}'", path);
 					}
 				}
@@ -320,7 +361,7 @@ namespace Chorus.VcsDrivers
 				return urisToTryCreationAt;
 			}
 
-			var drives = Chorus.Utilities.UsbDrive.UsbDriveInfo.GetDrives();
+			var drives = UsbDriveInfo.GetDrives();
 
 			if (drives.Count == 0)
 				return null;
@@ -333,15 +374,12 @@ namespace Chorus.VcsDrivers
 			return urisToTryCreationAt;
 		}
 
-
-
 		public override bool CanConnect(HgRepository localRepository, string projectName, IProgress progress)
 		{
 		   // progress.WriteStatus("Looking for USB flash drives with existing repositories...");
 			string path= GetPotentialRepoUri(localRepository.Identifier, projectName, progress);
 			return (path != null) && Directory.Exists(path);
 		}
-
 
 	}
 }

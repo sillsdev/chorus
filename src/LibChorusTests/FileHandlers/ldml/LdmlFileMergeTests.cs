@@ -4,8 +4,7 @@ using System.IO;
 using System.Linq;
 using Chorus.FileTypeHanders;
 using Chorus.merge;
-using LibChorus.Tests.merge.xml;
-using LibChorus.Tests.merge.xml.generic;
+using LibChorus.TestUtilities;
 using NUnit.Framework;
 using Palaso.IO;
 
@@ -50,17 +49,10 @@ namespace LibChorus.Tests.FileHandlers.ldml
 		[Test]
 		public void CanMergeGoodFwXmlFile()
 		{
-			var goodXmlPathname = Path.ChangeExtension(Path.GetTempFileName(), ".ldml");
-			try
+			using (var tempFile = TempFile.WithExtension(".ldml"))
 			{
-// ReSharper disable LocalizableElement
-				File.WriteAllText(goodXmlPathname, "<?xml version='1.0' encoding='utf-8'?>" + Environment.NewLine + "<ldml />");
-// ReSharper restore LocalizableElement
-				Assert.IsTrue(_ldmlFileHandler.CanMergeFile(goodXmlPathname));
-			}
-			finally
-			{
-				File.Delete(goodXmlPathname);
+				File.WriteAllText(tempFile.Path, "<?xml version='1.0' encoding='utf-8'?>" + Environment.NewLine + "<ldml />");
+				Assert.IsTrue(_ldmlFileHandler.CanMergeFile(tempFile.Path));
 			}
 		}
 

@@ -10,6 +10,9 @@ namespace Chorus.FileTypeHanders.lift
 {
 	public class WeSayConfigFileHandler : IChorusFileTypeHandler
 	{
+		internal WeSayConfigFileHandler()
+		{}
+
 		public bool CanDiffFile(string pathToFile)
 		{
 			return false;
@@ -56,6 +59,10 @@ namespace Chorus.FileTypeHanders.lift
 			return new IChangeReport[] { new DefaultChangeReport(fileInRevision, "Added") };
 		}
 
+		/// <summary>
+		/// Get a list or one, or more, extensions this file type handler can process
+		/// </summary>
+		/// <returns>A collection of extensions (without leading period (.)) that can be processed.</returns>
 		public IEnumerable<string> GetExtensionsOfKnownTextFileTypes()
 		{
 			yield return "WeSayConfig";
