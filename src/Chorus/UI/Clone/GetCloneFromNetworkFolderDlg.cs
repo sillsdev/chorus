@@ -151,7 +151,7 @@ namespace Chorus.UI.Clone
 			// Deal with possibility that the user selected an actual Hg Repository,
 			// before we go to all that trouble of creating new threads, making the computer
 			// do extra work, blah, blah...
-			if (GetCloneFromNetworkFolderModel.IsValidRepository(_model.FolderPath))
+			if (_model.IsValidRepository(_model.FolderPath))
 			{
 				_currentProgress = new ProgressData { Progress = MaxProgressValue, Status = "Selected folder is a repository." };
 				_currentProgress.CurrentRepositories.Add(MakeRepositoryListViewItem(_model.FolderPath));
@@ -256,7 +256,7 @@ namespace Chorus.UI.Clone
 					var progressBarPortion = (i < initialFoldersCount - 1) ? standardPortion : finalPortion;
 
 					// Create a new background worker:
-					var worker = new FolderSearchWorker(folder, progressBarPortion, _currentProgress);
+					var worker = new FolderSearchWorker(folder, progressBarPortion, _currentProgress, _model);
 					_backgroundWorkers.Add(worker);
 
 					// Set the background worker going in its own thread:
@@ -281,8 +281,8 @@ namespace Chorus.UI.Clone
 
 			lock (_currentProgress)
 			{
-				// Set progress bar:
 				progressBar.Value = _currentProgress.Progress;
+				// This next line has no effect if Application.EnableVisualStyles() has been called:
 				progressBar.ForeColor = progressBar.Value == MaxProgressValue ? Color.Gray : _progressBarColor;
 
 				// Set status text:
@@ -340,6 +340,9 @@ namespace Chorus.UI.Clone
 			private readonly int _progressBarPortion;
 			// The ProgressData object that the dialog created for our search:
 			private readonly ProgressData _progressData;
+			// Data model passed in by parent:
+			private GetCloneFromNetworkFolderModel _model;
+
 
 			/// <summary>
 			/// Constructor
@@ -347,11 +350,13 @@ namespace Chorus.UI.Clone
 			/// <param name="folder">Folder to begin searching from</param>
 			/// <param name="progressBarPortion">The portion of the progress bar we get to update (relative to MaxProgressValue)</param>
 			/// <param name="progressData">Structure into which we record our progress, so dialog can update UI progress controls</param>
-			public FolderSearchWorker(string folder, int progressBarPortion, ProgressData progressData)
+			/// <param name="model">From parent class. Provided here to overcome "Cannot access non-static field in static context" error</param>
+			public FolderSearchWorker(string folder, int progressBarPortion, ProgressData progressData, GetCloneFromNetworkFolderModel model)
 			{
 				_initialFolder = folder;
 				_progressBarPortion = progressBarPortion;
 				_progressData = progressData;
+				_model = model;
 			}
 
 			/// <summary>
@@ -385,7 +390,7 @@ namespace Chorus.UI.Clone
 					return;
 				}
 
-				if (GetCloneFromNetworkFolderModel.IsValidRepository(folderPath))
+				if (_model.IsValidRepository(folderPath))
 				{
 					// Add folderPath details to projectRepositoryListView:
 					var folderItem = MakeRepositoryListViewItem(folderPath);
