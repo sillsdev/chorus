@@ -147,38 +147,35 @@ namespace Chorus.UI.Clone
 			if (projectRepositoryListView.SelectedItems.Count == 0)
 				getButton.Enabled = false;
 
+			// Get list of subfolders to search (which we will do one thread per folder)
+			// or information that the selected folder is an actual repository:
+			List<string> subFolders;
+			bool exceptionThrown;
+			var repositories = _model.GetRepositoriesAndNextLevelSearchFolders(null, out subFolders, 0, out exceptionThrown);
+
+			// Sanity check: should never get into this state:
+			if (repositories.Count > 1)
+				throw new DataException("Single folder '" + _model.FolderPath + "' represents " + repositories.Count + " repositories: " + repositories.Aggregate("", (list, repo) => list + (", " + repo)));
 
 			// Deal with possibility that the user selected an actual Hg Repository,
 			// before we go to all that trouble of creating new threads, making the computer
-			// do extra work, blah, blah...
-			if (_model.IsValidRepository(_model.FolderPath))
+			// do extra work, blah, blah...))
+			if (repositories.Count == 1)
 			{
 				_currentProgress = new ProgressData { Progress = MaxProgressValue, Status = "Selected folder is a repository." };
-				_currentProgress.CurrentRepositories.Add(MakeRepositoryListViewItem(_model.FolderPath));
+				_currentProgress.CurrentRepositories.Add(MakeRepositoryListViewItem(repositories.First()));
+			}
+			else if (subFolders.Count == 0)
+			{
+				if (exceptionThrown)
+					_currentProgress = new ProgressData { Progress = 0, Status = "Selected folder could not be read." };
+				else
+					_currentProgress = new ProgressData { Progress = 0, Status = "Selected folder contains no repositories." };
 			}
 			else
 			{
-				// Try to get subfolders of _model.FolderPath. One reason this might throw an
-				// exception is if user does not have access rights to _model.FolderPath:
-				string[] subFolders = null;
-				try
-				{
-					subFolders = (Directory.GetDirectories(_model.FolderPath));
-				}
-				catch
-				{
-				}
-
-				// Start a background search for all Hg repositories under _model.FolderPath:
-				if (subFolders == null)
-				{
-					// We don't care why it failed, we can't dig down into the subfolders, so forget it.
-					_currentProgress = new ProgressData { Progress = 0, Status = "Selected folder cannot be read." };
-				}
-				else
-				{
-					InitializeBackgroundWorkers(subFolders);
-				}
+				// Start a background search for all Hg repositories from selected folder:
+				InitializeBackgroundWorkers(subFolders);
 			}
 		}
 
@@ -226,42 +223,33 @@ namespace Chorus.UI.Clone
 		/// Creates a bunch of background workers to carry out a new search through folders to find Hg repositories.
 		/// </summary>
 		/// <param name="initialFolders">Folder paths to search under</param>
-		private void InitializeBackgroundWorkers(string[] initialFolders)
+		private void InitializeBackgroundWorkers(List<string> initialFolders)
 		{
 			if (_backgroundWorkers.Count != 0)
 				throw new DataException(@"_backgroundWorkers collection not empty at start of InitializeBackgroundWorkers call.");
 
-			var initialFoldersCount = initialFolders.Length;
+			var initialFoldersCount = initialFolders.Count;
 
 			if (initialFoldersCount == 0)
+				throw new DataException(@"InitializeBackgroundWorkers called with empty initialFolders List.");
+
+			// Reset progress data:
+			_currentProgress = new ProgressData { Progress = 0, Status = "Searching for Project Repositories..." };
+
+			// Calculate how much of the progress bar each background worker may influence:
+			var progressBarPortions = GetPortionSizes(MaxProgressValue, initialFoldersCount);
+
+			// Create a bunch of background workers:
+			for (int i = 0; i < initialFoldersCount; i++)
 			{
-				// Nothing to do, so create new progress data signifying as such:
-				_currentProgress = new ProgressData {Progress = MaxProgressValue, Status = "Selected folder has no subfolders."};
-			}
-			else
-			{
-				// Reset progress data:
-				_currentProgress = new ProgressData { Progress = 0, Status = "Searching for Project Repositories..." };
+				var folder = initialFolders[i];
 
-				// Calculate regular and final (compensating for integer division truncation) progress bar portions:
-				var standardPortion = MaxProgressValue / initialFoldersCount;
-				var finalPortion = standardPortion + MaxProgressValue % initialFoldersCount;
+				// Create a new background worker:
+				var worker = new FolderSearchWorker(folder, progressBarPortions[i], _currentProgress, _model);
+				_backgroundWorkers.Add(worker);
 
-				// Create a new bunch of background workers:
-				for (int i = 0; i < initialFoldersCount; i++)
-				{
-					var folder = initialFolders[i];
-
-					// If we're on the last iteration, use remaining unused progress portion:
-					var progressBarPortion = (i < initialFoldersCount - 1) ? standardPortion : finalPortion;
-
-					// Create a new background worker:
-					var worker = new FolderSearchWorker(folder, progressBarPortion, _currentProgress, _model);
-					_backgroundWorkers.Add(worker);
-
-					// Set the background worker going in its own thread:
-					new Thread(worker.DoWork).Start();
-				}
+				// Set the background worker going in its own thread:
+				new Thread(worker.DoWork).Start();
 			}
 		}
 
@@ -328,6 +316,32 @@ namespace Chorus.UI.Clone
 		}
 
 		/// <summary>
+		/// Typically used for dividing up progress bar into units of work.
+		/// Given the size of the bar (or of a segment) and the number
+		/// of subdivisions needed, it calculates the size of each subdivision.
+		/// It takes care of rounding issues by dividing the initial remainder
+		/// (after integer division) among the first few values, so the first
+		/// few values will be one bigger than the last few.
+		/// </summary>
+		/// <param name="total">Overall size to be broken down, essentially the numerator</param>
+		/// <param name="portions">Number of shares, essentially the divisor</param>
+		/// <returns>An array of integers, each being either the next integer above or below the quotient</returns>
+		private static int[] GetPortionSizes(int total, int portions)
+		{
+			var size = new int[portions];
+			var intPortionSize = total / portions;
+			var remainder = total % portions;
+
+			for (int i = 0; i < portions; i++)
+			{
+				size[i] = intPortionSize;
+				if (i % portions < remainder)
+					size[i]++;
+			}
+			return size;
+		}
+
+		/// <summary>
 		/// A class to hunt for Hg repositories in a given folder and its descendents.
 		/// </summary>
 		private class FolderSearchWorker
@@ -377,7 +391,7 @@ namespace Chorus.UI.Clone
 			}
 
 			/// <summary>
-			/// Recursive method to search folders and add details of any Hg repositories discovered
+			/// Recursive method to search folders and add details of any suitable repositories discovered
 			/// to the repository ListView.
 			/// </summary>
 			/// <param name="folderPath">Folder to begin searching from</param>
@@ -390,58 +404,35 @@ namespace Chorus.UI.Clone
 					return;
 				}
 
-				if (_model.IsValidRepository(folderPath))
+				// Do a folder search with zero recursion here (i.e. child folders only) so that we
+				// don't spend too long away from the ability to update the progress object:
+				var searchFolders = new List<string> { folderPath };
+				bool exceptionThrown;
+				var repositories = _model.GetRepositoriesAndNextLevelSearchFolders(searchFolders, out searchFolders, 0, out exceptionThrown);
+
+				foreach (var repository in repositories)
 				{
-					// Add folderPath details to projectRepositoryListView:
-					var folderItem = MakeRepositoryListViewItem(folderPath);
-					AddListItem(folderItem);
+					// Add repository details to the ListView:
+					var repositoryListViewItem = MakeRepositoryListViewItem(repository);
+					AddListItem(repositoryListViewItem);
+				}
 
+				// Test for recursion base case:
+				if (searchFolders.Count == 0)
+				{
 					UpdateProgress(myProgressBarPortion);
-
-					// Main base case:
 					return;
 				}
 
-				// Check if it is worth recursing into current folder:
-				if (!GetCloneFromNetworkFolderModel.IsFolderWorthSearching(folderPath))
-				{
-					// Bail-out base case:
-					UpdateProgress(myProgressBarPortion);
-					return;
-				}
-
-				// Get an array of paths of subfolders of the folderPath:
-				string[] subFolders;
-				try
-				{
-					subFolders = Directory.GetDirectories(folderPath);
-				}
-				catch (Exception)
-				{
-					// Typically because we do not have permission to read the current folderPath's contents
-					UpdateProgress(myProgressBarPortion);
-					// Bail-out base case:
-					return;
-				}
-
-				if (subFolders.Length == 0)
-				{
-					// No subfolders, so no real work to do:
-					UpdateProgress(myProgressBarPortion);
-					// Bail-out base case:
-					return;
-				}
-
-				// Divide up the portion of the progress bar that we get to update among the subfolder recursion calls:
-				var standardPortion = myProgressBarPortion/subFolders.Length;
+				// Calculate how much of the progress bar each recursive call may influence:
+				var progressBarPortions = GetPortionSizes(myProgressBarPortion, searchFolders.Count);
 
 				// Recurse for each subfolder:
-				foreach (var subFolder in subFolders)
-					FillRepositoryList(subFolder, standardPortion);
-
-				// Update the progress data by any remainder left after integer division truncation.
-				var remainingPortion = myProgressBarPortion % subFolders.Length;
-				UpdateProgress(remainingPortion);
+				for (int i = 0; i < searchFolders.Count; i++)
+				{
+					var subFolder = searchFolders[i];
+					FillRepositoryList(subFolder, progressBarPortions[i]);
+				}
 			}
 
 			/// <summary>

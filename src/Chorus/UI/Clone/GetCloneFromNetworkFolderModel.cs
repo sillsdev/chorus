@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
@@ -61,17 +62,6 @@ namespace Chorus.UI.Clone
 		}
 
 		/// <summary>
-		/// Decides if the given folder path is worth the hassle of examining for Hg repositories.
-		/// </summary>
-		/// <param name="folderPath"></param>
-		/// <returns>true if a search is a good idea</returns>
-		public static bool IsFolderWorthSearching(string folderPath)
-		{
-			//TODO we can either add some restrictions or remove this method (and adjust calling code).
-			return true;
-		}
-
-		/// <summary>
 		/// Returns true if the given folder path represents a repository that this model (or a derivative)
 		/// is interested in.
 		/// </summary>
@@ -79,7 +69,58 @@ namespace Chorus.UI.Clone
 		/// <returns></returns>
 		public bool IsValidRepository(string folderPath)
 		{
-			return ProjectFilter(folderPath);
+			try
+			{
+				return ProjectFilter(folderPath);
+			}
+			catch // Typically because we do not have permission to read the folderPath's contents
+			{
+				return false;
+			}
+		}
+
+		///<summary>
+		/// Recursively searches folders for valid repositories. Depth of recursion can be limited,
+		/// in which case the next folders to be searched are passed out via nextLevelFolderPaths.
+		///</summary>
+		///<param name="folderPaths">Paths of folders to be searched, or null to use our own FolderPath</param>
+		///<param name="nextLevelFolderPaths">[out] Folders next in line to be searched after recursion halted</param>
+		///<param name="maxRecursionDepth">Maximum number of levels of subfolders to recurse into. Any negative number will cause recursion all the way to the end.</param>
+		///<param name="exceptionThrown">Gets set to true if an exception was thrown during this call.</param>
+		///<returns>List of folder paths that are valid repositories (according to ProjectFilter member)</returns>
+		public List<string> GetRepositoriesAndNextLevelSearchFolders(List<string> folderPaths, out List<string> nextLevelFolderPaths, int maxRecursionDepth, out bool exceptionThrown)
+		{
+			if (folderPaths == null)
+				folderPaths = new List<string> { FolderPath };
+
+			var repositoryPaths = new List<string>();
+			nextLevelFolderPaths = new List<string>();
+			exceptionThrown = false;
+
+			if (folderPaths.Count == 0)
+				return repositoryPaths; // Base case
+
+			foreach (var folderPath in folderPaths)
+			{
+				if (IsValidRepository(folderPath))
+					repositoryPaths.Add(folderPath);
+				else
+				{
+					try
+					{
+						nextLevelFolderPaths.AddRange(Directory.GetDirectories(folderPath));
+					}
+					catch // Typically because we do not have permission to read the folderPath's contents
+					{
+						exceptionThrown = true;
+					}
+				}
+			}
+
+			if (maxRecursionDepth != 0)
+				repositoryPaths.AddRange(GetRepositoriesAndNextLevelSearchFolders(nextLevelFolderPaths, out nextLevelFolderPaths, maxRecursionDepth - 1, out exceptionThrown));
+
+			return repositoryPaths;
 		}
 
 		/// <summary>
