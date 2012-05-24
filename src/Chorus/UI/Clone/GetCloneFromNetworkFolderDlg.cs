@@ -167,10 +167,8 @@ namespace Chorus.UI.Clone
 			}
 			else if (subFolders.Count == 0)
 			{
-				if (exceptionThrown)
-					_currentProgress = new ProgressData { Progress = 0, Status = "Selected folder could not be read." };
-				else
-					_currentProgress = new ProgressData { Progress = 0, Status = "Selected folder contains no repositories." };
+				_currentProgress = new ProgressData {Progress = 0};
+				_currentProgress.Status = exceptionThrown ? "Selected folder could not be read." : "Selected folder contains no repositories.";
 			}
 			else
 			{
@@ -355,7 +353,7 @@ namespace Chorus.UI.Clone
 			// The ProgressData object that the dialog created for our search:
 			private readonly ProgressData _progressData;
 			// Data model passed in by parent:
-			private GetCloneFromNetworkFolderModel _model;
+			private readonly GetCloneFromNetworkFolderModel _model;
 
 
 			/// <summary>
