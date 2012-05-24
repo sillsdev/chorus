@@ -178,7 +178,8 @@ namespace Chorus.merge.xml.generic
 			var config = new DiffConfiguration(WhitespaceHandling.None);
 			var diff = new XmlDiff(ours, theirs, config);
 			var diffResult = diff.Compare();
-			return (diffResult == null || diffResult.Difference == null || !diffResult.Difference.MajorDifference);
+			return diffResult.Equal;
+			// Was this see CHR-18 CP 2012-05: // return (diffResult == null || diffResult.Difference == null || !diffResult.Difference.MajorDifference);
 		}
 
 		public static string GetStringAttribute(XmlNode form, string attr)
