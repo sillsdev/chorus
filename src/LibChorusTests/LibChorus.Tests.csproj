@@ -148,6 +148,7 @@
 	<Compile Include="merge\xml\lift\FileLevelMergeTests.cs" />
 	<Compile Include="merge\xml\lift\LexEntryContextGeneratorTests.cs" />
 	<Compile Include="merge\xml\generic\ListenerForUnitTests.cs" />
+	<Compile Include="merge\xml\lift\LexEntryMergingTests.cs" />
 	<Compile Include="merge\xml\lift\MultiTextMergingTests.cs" />
 	<Compile Include="merge\xml\lift\PoorMansMergingStrategyTests.cs" />
 	<Compile Include="merge\xml\lift\SenseMergingTests.cs" />
