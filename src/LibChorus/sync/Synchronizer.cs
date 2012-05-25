@@ -1,18 +1,19 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Windows.Forms;
+using System.Xml;
 using Chorus.FileTypeHanders;
 using Chorus.merge;
 using Chorus.Utilities;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using System.Linq;
-using Palaso.IO;
 using Palaso.Progress.LogBox;
-using Palaso.Extensions;
 using Palaso.Reporting;
+using Palaso.Xml;
 
 namespace Chorus.sync
 {
@@ -92,6 +93,10 @@ namespace Chorus.sync
 
 			try
 			{
+				if (_progress.ProgressIndicator != null)
+				{
+					_progress.ProgressIndicator.IndicateUnknownProgress();
+				}
 				HgRepository repo = new HgRepository(_localRepositoryPath, _progress);
 
 				RemoveLocks(repo);
@@ -121,7 +126,7 @@ namespace Chorus.sync
 				UpdateToTheDescendantRevision(repo, workingRevBeforeSync);
 
 				results.Succeeded = true;
-			   _progress.WriteStatus("Done");
+			   _progress.WriteMessage("Done");
 			}
 			catch (SynchronizationException error)
 			{
@@ -176,9 +181,8 @@ namespace Chorus.sync
 		}
 
 		/// <summary>
-		/// This version is used by the CHorus UI, which wants to do the sync in the background
+		/// This version is used by the Chorus UI, which wants to do the sync in the background
 		/// </summary>
-
 		public SyncResults SyncNow(BackgroundWorker backgroundWorker, DoWorkEventArgs args, SyncOptions options)
 		{
 			_backgroundWorker = backgroundWorker;
@@ -205,7 +209,7 @@ namespace Chorus.sync
 				return list;
 
 			}
-			catch (Exception error) // we've see an exception here when the hgrc was open by someone else
+			catch (Exception error) // we've seen an exception here when the hgrc was open by someone else
 			{
 				_progress.WriteException(error);
 				_progress.WriteVerbose(error.ToString());
@@ -242,8 +246,7 @@ namespace Chorus.sync
 		{
 			if (_backgroundWorker != null && _backgroundWorker.CancellationPending)
 			{
-				_progress.WriteWarning("User cancelled operation.");
-				_progress.WriteStatus("Cancelled.");
+				_progress.WriteMessage("Operation cancelled.");
 				_backgroundWorkerArguments.Cancel = true;
 				throw new UserCancelledException();
 			}
@@ -273,7 +276,7 @@ namespace Chorus.sync
 					}
 					else
 					{
-						repo.Push(address, resolvedUri, _progress);
+						repo.Push(address, resolvedUri);
 					}
 
 					// For usb, it's safe and desireable to do an update (bring into the directory
@@ -296,6 +299,10 @@ namespace Chorus.sync
 					TryToMakeCloneForSource(address);
 					//nb: no need to push if we just made a clone
 				}
+			}
+			catch (UserCancelledException)
+			{
+				throw;
 			}
 			catch (Exception error)
 			{
@@ -331,11 +338,13 @@ namespace Chorus.sync
 		private void Commit(SyncOptions options)
 		{
 			ThrowIfCancelPending();
-			_progress.WriteStatus("Storing changes in local repository...");
+			_progress.WriteMessage("Storing changes in local repository...");
 
 			// Must be done, before "AddAndCommitFiles" call.
 			// It could be here, or first thing inside the 'using' for CommitCop.
-			LargeFileFilter.FilterFiles(Repository, _project, _handlers, _progress);
+			var newlyFilteredFiles = LargeFileFilter.FilterFiles(Repository, _project, _handlers);
+			if (!string.IsNullOrEmpty(newlyFilteredFiles))
+				_progress.WriteWarning(newlyFilteredFiles);
 
 			using (var commitCop = new CommitCop(Repository, _handlers, _progress))
 			{
@@ -349,7 +358,6 @@ namespace Chorus.sync
 					throw new ApplicationException( "The changed data did not pass validation tests. Your project will be moved back to the last Send/Receive before this problem occurred, so that you can keep working.  Please notify whoever provides you with computer support. Error was: " + commitCop.ValidationResult);
 				}
 			}
-
 		}
 
 		/// <returns>true if there was a successful pull</returns>
@@ -359,7 +367,7 @@ namespace Chorus.sync
 
 			if (source is UsbKeyRepositorySource)
 			{
-				_progress.WriteStatus("Looking for USB flash drives...");
+				_progress.WriteMessage("Looking for USB flash drives...");
 				var potential = source.GetPotentialRepoUri(repo.Identifier, RepoProjectName, _progress);
 				if (null ==potential)
 				{
@@ -372,7 +380,7 @@ namespace Chorus.sync
 			}
 			else
 			{
-				_progress.WriteStatus("Connecting to {0}...", source.Name);
+				_progress.WriteMessage("Connecting to {0}...", source.Name);
 			}
 			var canConnect = source.CanConnect(repo, RepoProjectName, _progress);
 			if (!connectionAttempt.ContainsKey(source))
@@ -392,11 +400,16 @@ namespace Chorus.sync
 				//NB: this returns false if there was nothing to get.
 				try
 				{
-					return repo.TryToPull(source.Name, resolvedUri);
+					return repo.Pull(source, resolvedUri);
 				}
 				catch (HgCommonException err)
 				{
 					ErrorReport.NotifyUserOfProblem(err.Message);
+					return false;
+				}
+				catch (UserCancelledException)
+				{
+					// don't report anything
 					return false;
 				}
 				catch (Exception err)
@@ -541,6 +554,10 @@ namespace Chorus.sync
 
 				_progress.WriteWarning("Staying at previous-tip (unusual)");
 			}
+			catch (UserCancelledException)
+			{
+				throw;
+			}
 			catch (Exception error)
 			{
 				  ExplainAndThrow(error, "Could not update.");
@@ -572,11 +589,13 @@ namespace Chorus.sync
 					// target may be uri, or some other folder.
 					var target = HgRepository.GetUniqueFolderPath(
 						_progress,
-						"Folder at {0} already exists, so can't be used. Creating clone in {1}, instead.",
+						//"Folder at {0} already exists, so it can't be used. Creating clone in {1}, instead.",
+						"Warning: there is a project on the USB flash drive which has the right name ({0}), but it is actually unrelated to the one doing the Send/Receive. This usually indicates that the two repositories were created separately, which doesn't work. These repositories have to be descendants of each other, or else they can't be synchronized. This situation occurs when you create the repositories separately by accident. Instead, create one then use 'Get from USB' or 'Get from Internet' from other programs and computers. You may want to get some expert help."
+					+ " In the meantime, the program will create a repository at {1} so you can maybe keep collaborating while you wait for help.",
 						uri);
 					try
 					{
-						_progress.WriteStatus("Copying repository to {0}...", repoDescriptor.GetFullName(target));
+						_progress.WriteMessage("Copying repository to {0}...", repoDescriptor.GetFullName(target));
 						_progress.WriteVerbose("({0})", target);
 						return HgHighLevel.MakeCloneFromLocalToLocal(_localRepositoryPath, target,
 							false, // No update on USB or shared network clones as of 16 Jan 2012.
@@ -603,6 +622,11 @@ namespace Chorus.sync
 			}
 			catch (Exception error)
 			{
+				foreach (var chorusMergeProcess in Process.GetProcessesByName("ChorusMerge"))
+				{
+					_progress.WriteWarning(string.Format("Killing ChorusMerge Process: '{0}'...", chorusMergeProcess.Id));
+					chorusMergeProcess.Kill();
+				}
 				_progress.WriteException(error);
 				_progress.WriteError("Rolling back...");
 				UpdateToTheDescendantRevision(repo, workingRevBeforeSync); //rollback
@@ -611,64 +635,106 @@ namespace Chorus.sync
 		}
 
 		private void MergeHeads()
-		  {
-			  try
-			  {
-				  List<string> peopleWeMergedWith = new List<string>();
+		{
+			try
+			{
+				List<string> peopleWeMergedWith = new List<string>();
 
-				  List<Revision> heads = Repository.GetHeads();
-				  Revision myHead = Repository.GetRevisionWorkingSetIsBasedOn();
-				  if (myHead == default(Revision))
-					  return;
+				List<Revision> heads = Repository.GetHeads();
+				Revision myHead = Repository.GetRevisionWorkingSetIsBasedOn();
+				if (myHead == default(Revision))
+					return;
 
-				  foreach (Revision head in heads)
-				  {
-					  if (head.Number.LocalRevisionNumber == myHead.Number.LocalRevisionNumber)
-						  continue;
+				foreach (Revision head in heads)
+				{
+					if (head.Number.LocalRevisionNumber == myHead.Number.LocalRevisionNumber)
+						continue;
 
-					  if (head.Tag.Contains(RejectTagSubstring))
-						  continue;
+					if (head.Tag.Contains(RejectTagSubstring))
+						continue;
 
-					  //note: what we're checking here is actualy the *name* of the branch...important: remmber in hg,
-					  //you can have multiple heads on the same branch
-					  if (head.Branch != myHead.Branch) //Chorus policy is to only auto-merge on branches with same name
-						  continue;
+					//note: what we're checking here is actualy the *name* of the branch...important: remmber in hg,
+					//you can have multiple heads on the same branch
+					if (head.Branch != myHead.Branch) //Chorus policy is to only auto-merge on branches with same name
+						continue;
 
-					  //this is for posterity, on other people's machines, so use the hashes instead of local numbers
-					  MergeSituation.PushRevisionsToEnvironmentVariables(myHead.UserId, myHead.Number.Hash, head.UserId,
-																		 head.Number.Hash);
+					//this is for posterity, on other people's machines, so use the hashes instead of local numbers
+					MergeSituation.PushRevisionsToEnvironmentVariables(myHead.UserId, myHead.Number.Hash, head.UserId,
+																		head.Number.Hash);
 
-					  MergeOrder.PushToEnvironmentVariables(_localRepositoryPath);
-					  _progress.WriteStatus("Merging with {0}...", head.UserId);
-					  _progress.WriteVerbose("   Revisions {0}:{1} with {2}:{3}...", myHead.Number.LocalRevisionNumber, myHead.Number.Hash, head.Number.LocalRevisionNumber, head.Number.Hash);
-					  RemoveMergeObstacles(myHead, head);
+					MergeOrder.PushToEnvironmentVariables(_localRepositoryPath);
+					_progress.WriteMessage("Merging {0} and {1}...", myHead.UserId, head.UserId);
+					_progress.WriteVerbose("   Revisions {0}:{1} with {2}:{3}...", myHead.Number.LocalRevisionNumber, myHead.Number.Hash, head.Number.LocalRevisionNumber, head.Number.Hash);
+					RemoveMergeObstacles(myHead, head);
 
-					  if(CheckAndWarnIfNoCommonAncestor(myHead, head))
-					  {
-						  continue;
-					  }
+					if(CheckAndWarnIfNoCommonAncestor(myHead, head))
+					{
+						continue;
+					}
 
-					  bool didMerge = MergeTwoChangeSets(myHead, head);
-					  if (didMerge)
-					  {
-						  peopleWeMergedWith.Add(head.UserId);
+					bool didMerge = MergeTwoChangeSets(myHead, head);
+					if (didMerge)
+					{
+						peopleWeMergedWith.Add(head.UserId);
 
-						  //that merge may have generated notes files where they didn't exist before,
-						  //and we want these merged
-						  //version + updated/created notes files to go right back into the repository
+						//that merge may have generated notes files where they didn't exist before,
+						//and we want these merged
+						//version + updated/created notes files to go right back into the repository
 
-						  //  args.Append(" -X " + SurroundWithQuotes(Path.Combine(_pathToRepository, "**.ChorusRescuedFile")));
+						//  args.Append(" -X " + SurroundWithQuotes(Path.Combine(_pathToRepository, "**.ChorusRescuedFile")));
 
+						AppendAnyNewNotes(_localRepositoryPath);
+						AddAndCommitFiles(GetMergeCommitSummary(head.UserId, Repository));
+					}
+				}
+			}
+			catch (UserCancelledException)
+			{
+				throw;
+			}
+			catch (Exception error)
+			{
+				ExplainAndThrow(error,WhatToDo.NeedExpertHelp, "Unable to complete the send/receive.");
+			}
+		}
 
-						  AddAndCommitFiles(GetMergeCommitSummary(head.UserId, Repository));
-					  }
-				  }
-			  }
-			  catch (Exception error)
-			  {
-				  ExplainAndThrow(error,WhatToDo.NeedExpertHelp, "Unable to complete the send/receive.");
-			  }
-		  }
+		/// <summary>
+		/// Find any .NewChorusNotes files which were created by the MergeChorus.exe and either rename them to .ChorusNotes
+		/// or add any annotations found in them to the existing .ChorusNotes file.
+		/// </summary>
+		private static void AppendAnyNewNotes(string localRepositoryPath)
+		{
+			var allNewNotes = Directory.GetFiles(localRepositoryPath, "*.NewChorusNotes", SearchOption.AllDirectories);
+			foreach (var newNote in allNewNotes)
+			{
+				var oldNotesFile = newNote.Replace("NewChorusNotes", "ChorusNotes");
+				if (File.Exists(oldNotesFile))
+				{
+					// Add new annotations to the end of any which were in the repo
+					var oldDoc = new XmlDocument();
+					oldDoc.Load(oldNotesFile);
+					var oldNotesNode = oldDoc.SelectSingleNode("/notes");
+					var newDoc = new XmlDocument();
+					newDoc.Load(newNote);
+					var newAnnotations = newDoc.SelectNodes("/notes/annotation");
+					foreach (XmlNode node in newAnnotations)
+					{
+						var newOldNode = oldDoc.ImportNode(node, true);
+						oldNotesNode.AppendChild(newOldNode);
+					}
+					using (var fileWriter = XmlWriter.Create(oldNotesFile, CanonicalXmlSettings.CreateXmlWriterSettings()))
+					{
+						oldDoc.Save(fileWriter);
+					}
+					File.Delete(newNote);
+				}
+				else
+				{
+					// There was no former ChorusNotes file, so just rename
+					File.Move(newNote, oldNotesFile);
+				}
+			}
+		}
 
 		private bool CheckAndWarnIfNoCommonAncestor(Revision a, Revision b )
 		{
@@ -714,11 +780,9 @@ namespace Chorus.sync
 
 		private void AddAndCommitFiles(string summary)
 		{
-			List<string> includePatterns = _project.IncludePatterns;
-			includePatterns.Add("**.ChorusNotes");
-			List<string> excludePatterns = _project.ExcludePatterns;
-			includePatterns.Add("**.ChorusRescuedFile");
-			Repository.AddAndCheckinFiles(includePatterns, excludePatterns,
+			ProjectFolderConfiguration.EnsureCommonPatternsArePresent(_project);
+			_project.IncludePatterns.Add("**.ChorusRescuedFile");
+			Repository.AddAndCheckinFiles(_project.IncludePatterns, _project.ExcludePatterns,
 										  summary);
 		}
 

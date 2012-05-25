@@ -17,9 +17,12 @@ namespace Chorus.UI.Misc
 
 		public ServerSettingsModel()
 		{
-			const string languageDepotLabel = "languageDepot.org";
+			const string languageDepotLabel = "LanguageDepot.org [legacy sync]";
 			Servers.Add(languageDepotLabel, "hg-public.languagedepot.org");
-			Servers.Add("private.languageDepot.org", "hg-private.languagedepot.org");
+			Servers.Add("LanguageDepot.org [resumable sync]", "resumable.languagedepot.org");
+			Servers.Add("LanguageDepot.org [private]", "hg-private.languagedepot.org");
+			Servers.Add("LanguageForge", "hg.languageforge.org");
+
 			Servers.Add("Custom Location...", "");
 			SelectedServerLabel = languageDepotLabel;
 		}
@@ -184,9 +187,10 @@ namespace Chorus.UI.Misc
 			{
 				throw new ArgumentException("SaveSettings() only works if you InitFromProjectPath()");
 			}
-			var repo = HgRepository.CreateOrLocate(_pathToRepo, new NullProgress());
 
-			repo.SetKnownRepositoryAddresses(new[]{new HttpRepositoryPath(AliasName, URL, false)});
+			var repo = HgRepository.CreateOrLocate(_pathToRepo, new NullProgress());
+			// Use safer SetTheOnlyAddressOfThisType method, as it won't clobber a shared network setting, if that was the clone source.
+			repo.SetTheOnlyAddressOfThisType(new HttpRepositoryPath(AliasName, URL, false));
 		}
 
 		public string AliasName

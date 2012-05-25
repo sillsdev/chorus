@@ -1,11 +1,11 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using Chorus.sync;
-using Chorus.Utilities;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
+using LibChorus.TestUtilities;
 using NUnit.Framework;
 using Palaso.Progress.LogBox;
+using Palaso.Extensions;
 
 namespace LibChorus.Tests.sync
 {
@@ -26,8 +26,6 @@ namespace LibChorus.Tests.sync
 		{
 			_progress = new ConsoleProgress();
 			_pathToTestRoot = Path.Combine(Path.GetTempPath(), "ChorusUsbRepositorySourceTests");
-			if (Directory.Exists(_pathToTestRoot))
-				Directory.Delete(_pathToTestRoot, true);
 			Directory.CreateDirectory(_pathToTestRoot);
 
 			_pathToProjectRoot = Path.Combine(_pathToTestRoot, "foo project");
@@ -35,13 +33,19 @@ namespace LibChorus.Tests.sync
 
 			string pathToText = WriteTestFile("version one");
 
-			RepositorySetup.MakeRepositoryForTest(_pathToProjectRoot, "bob",_progress);
+			RepositorySetup.MakeRepositoryForTest(_pathToProjectRoot, "bob", _progress);
 			_project = new ProjectFolderConfiguration(_pathToProjectRoot);
 			_project.IncludePatterns.Add(pathToText);
 			_project.FolderPath = _pathToProjectRoot;
 
 
 			UsbKeyRepositorySource.SetRootDirForAllSourcesDuringUnitTest(_pathToTestRoot);
+		}
+
+		[TearDown]
+		public void TearDown()
+		{
+			Directory.Delete(_pathToTestRoot, true);
 		}
 
 		private string WriteTestFile(string contents)
@@ -70,6 +74,23 @@ namespace LibChorus.Tests.sync
 		}
 
 		[Test]
+		public void SyncNow_UsbGetsBareCloneWithReadme()
+		{
+			Synchronizer synchronizer = Synchronizer.FromProjectConfiguration(_project, _progress);
+			SyncOptions options = new SyncOptions();
+			options.DoMergeWithOthers = true;
+			options.DoSendToOthers = true;
+			options.RepositorySourcesToTry.Add(synchronizer.UsbPath);
+
+			WriteTestFile("version two");
+
+			synchronizer.SyncNow(options);
+			string dir = Path.Combine(UsbKeyRepositorySource.RootDirForUsbSourceDuringUnitTest, "foo project");
+			Assert.IsTrue(Directory.Exists(dir));
+			Assert.IsTrue(File.Exists(dir.CombineForPath(dir, "~~Folder has an invisible repository.txt")));
+
+		}
+		[Test]
 		public void SyncNow_AlreadySetupFauxUsbAvailable_UsbGetsSync()
 		{
 			SyncOptions options = new SyncOptions();
@@ -78,7 +99,7 @@ namespace LibChorus.Tests.sync
 
 			options.RepositorySourcesToTry.Add(synchronizer.UsbPath);
 			string usbDirectory = Path.Combine(UsbKeyRepositorySource.RootDirForUsbSourceDuringUnitTest, "foo project");
-		   // synchronizer.MakeClone(usbDirectory, true);
+			// synchronizer.MakeClone(usbDirectory, true);
 			HgHighLevel.MakeCloneFromLocalToLocal(synchronizer.Repository.PathToRepo, usbDirectory, true, _progress);
 
 			string contents = File.ReadAllText(Path.Combine(usbDirectory, "foo.txt"));
