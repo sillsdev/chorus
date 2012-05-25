@@ -28,6 +28,7 @@ namespace Chorus.UI.Clone
 		///</summary>
 		public string ActualClonedFolder { get { return _actualClonedFolder; } }
 
+		// Parent folder to use for cloned repository:
 		private readonly string _baseFolder;
 
 		/// <summary>

@@ -19,7 +19,7 @@ namespace Chorus.UI.Clone
 		// List of background workers that go looking for Hg repositories in the user's folders:
 		private readonly List<FolderSearchWorker> _backgroundWorkers = new List<FolderSearchWorker>();
 		// Define upper range limit of progess bar:
-		private const int MaxProgressValue = 1000;
+		private const int MaxProgressValue = 10000;
 		// Place to store original color of progress bar:
 		private readonly Color _progressBarColor;
 
