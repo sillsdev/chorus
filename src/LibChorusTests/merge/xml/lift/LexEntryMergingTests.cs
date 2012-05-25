@@ -2,6 +2,7 @@
 using Chorus.FileTypeHanders.lift;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
+using LibChorus.TestUtilities;
 using LibChorus.Tests.merge.xml.generic;
 using NUnit.Framework;
 using Palaso.IO;
