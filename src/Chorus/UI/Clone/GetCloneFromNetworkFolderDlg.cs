@@ -150,25 +150,31 @@ namespace Chorus.UI.Clone
 			// Get list of subfolders to search (which we will do one thread per folder)
 			// or information that the selected folder is an actual repository:
 			List<string> subFolders;
-			bool exceptionThrown;
-			var repositories = _model.GetRepositoriesAndNextLevelSearchFolders(null, out subFolders, 0, out exceptionThrown);
+			var repositoryParentPaths = _model.GetRepositoriesAndNextLevelSearchFolders(new List<string> { _model.FolderPath }, out subFolders, 0);
 
 			// Sanity check: should never get into this state:
-			if (repositories.Count > 1)
-				throw new DataException("Single folder '" + _model.FolderPath + "' represents " + repositories.Count + " repositories: " + repositories.Aggregate("", (list, repo) => list + (", " + repo)));
+			if (repositoryParentPaths.Count > 1)
+				throw new DataException("Single folder '" + _model.FolderPath + "' represents " + repositoryParentPaths.Count + " repositories: " + repositoryParentPaths.Aggregate("", (list, repo) => list + (", " + repo)));
 
 			// Deal with possibility that the user selected an actual Hg Repository,
 			// before we go to all that trouble of creating new threads, making the computer
 			// do extra work, blah, blah...))
-			if (repositories.Count == 1)
+			if (repositoryParentPaths.Count == 1)
 			{
-				_currentProgress = new ProgressData { Progress = MaxProgressValue, Status = "Selected folder is a repository." };
-				_currentProgress.CurrentRepositories.Add(MakeRepositoryListViewItem(repositories.First()));
+				_currentProgress = new ProgressData
+									{
+										Progress = MaxProgressValue,
+										Status = "Selected folder is a repository."
+									};
+				_currentProgress.CurrentRepositories.Add(MakeRepositoryListViewItem(repositoryParentPaths.First()));
 			}
 			else if (subFolders.Count == 0)
 			{
-				_currentProgress = new ProgressData {Progress = 0};
-				_currentProgress.Status = exceptionThrown ? "Selected folder could not be read." : "Selected folder contains no repositories.";
+				_currentProgress = new ProgressData
+									{
+										Progress = 0,
+										Status = "Selected folder could not be read or contains no repositories."
+									};
 			}
 			else
 			{
@@ -275,7 +281,7 @@ namespace Chorus.UI.Clone
 				statusLabel.Text = _currentProgress.Status;
 
 				// Get a simple IEnumerable collection of ListViewItems currently in the repsoitory ListView:
-				var existingItems = projectRepositoryListView.Items.Cast<ListViewItem>();
+				var existingItems = projectRepositoryListView.Items.Cast<ListViewItem>().ToList();
 
 				// Update repository ListView, removing ListViewItems from the _currentProgress object
 				// as we add them to the UI control:
@@ -303,9 +309,11 @@ namespace Chorus.UI.Clone
 		/// <returns>a ListViewItem containing repository details</returns>
 		private static ListViewItem MakeRepositoryListViewItem(string folderPath)
 		{
-			var folderItem = new ListViewItem(Path.GetFileName(folderPath));
-			folderItem.Tag = folderPath;
-			folderItem.ToolTipText = folderPath;
+			var folderItem = new ListViewItem(Path.GetFileName(folderPath))
+								{
+									Tag = folderPath,
+									ToolTipText = folderPath
+								};
 
 			var fileTime = File.GetLastWriteTime(folderPath);
 			folderItem.SubItems.Add(fileTime.ToShortDateString() + " " + fileTime.ToShortTimeString());
@@ -405,31 +413,29 @@ namespace Chorus.UI.Clone
 				// Do a folder search with zero recursion here (i.e. child folders only) so that we
 				// don't spend too long away from the ability to update the progress object:
 				var searchFolders = new List<string> { folderPath };
-				bool exceptionThrown;
-				var repositories = _model.GetRepositoriesAndNextLevelSearchFolders(searchFolders, out searchFolders, 0, out exceptionThrown);
+				List<string> subFolders;
+				var repositoryParentPaths = _model.GetRepositoriesAndNextLevelSearchFolders(searchFolders, out subFolders, 0);
 
-				foreach (var repository in repositories)
+				foreach (var repositoryParentPath in repositoryParentPaths)
 				{
 					// Add repository details to the ListView:
-					var repositoryListViewItem = MakeRepositoryListViewItem(repository);
-					AddListItem(repositoryListViewItem);
+					AddListItem(MakeRepositoryListViewItem(repositoryParentPath));
 				}
 
 				// Test for recursion base case:
-				if (searchFolders.Count == 0)
+				if (subFolders.Count == 0)
 				{
 					UpdateProgress(myProgressBarPortion);
 					return;
 				}
 
 				// Calculate how much of the progress bar each recursive call may influence:
-				var progressBarPortions = GetPortionSizes(myProgressBarPortion, searchFolders.Count);
+				var progressBarPortions = GetPortionSizes(myProgressBarPortion, subFolders.Count);
 
 				// Recurse for each subfolder:
-				for (int i = 0; i < searchFolders.Count; i++)
+				for (var i = 0; i < subFolders.Count; i++)
 				{
-					var subFolder = searchFolders[i];
-					FillRepositoryList(subFolder, progressBarPortions[i]);
+					FillRepositoryList(subFolders[i], progressBarPortions[i]);
 				}
 			}
 

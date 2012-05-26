@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Chorus.UI.Clone;
@@ -11,7 +10,7 @@ using Palaso.TestUtilities;
 namespace Chorus.Tests.UI.Clone
 {
 	[TestFixture]
-	class GetCloneFromNetworkModelTest
+	public class GetCloneFromNetworkModelTest
 	{
 		[Test]
 		public void MakeClone_NoProblems_MakesClone()
@@ -20,22 +19,11 @@ namespace Chorus.Tests.UI.Clone
 			using (var f = new TemporaryFolder("clonetest"))
 			{
 				var model = new GetCloneFromNetworkFolderModel(f.Path);
-				var progress = new ConsoleProgress();
-				progress.ShowVerbose = true;
+				var progress = new ConsoleProgress
+								{
+									ShowVerbose = true
+								};
 				model.MakeClone(repo.ProjectFolder.Path, f.Path, progress);
-				Assert.IsTrue(Directory.Exists(f.Combine(RepositorySetup.ProjectName, ".hg")));
-			}
-		}
-
-		[Test]
-		public void SaveSettings_NoProblems_MakesClone()
-		{
-			using (var repo = new RepositorySetup("source"))
-			using (var f = new TemporaryFolder("clonetest"))
-			{
-				var model = new GetCloneFromNetworkFolderModel(f.Path);
-				model.UserSelectedRepositoryPath = repo.ProjectFolder.Path;
-				model.SaveSettings();
 				Assert.IsTrue(Directory.Exists(f.Combine(RepositorySetup.ProjectName, ".hg")));
 			}
 		}
@@ -47,8 +35,10 @@ namespace Chorus.Tests.UI.Clone
 			using (var f = new TemporaryFolder("clonetest"))
 			{
 				var model = new GetCloneFromNetworkFolderModel(f.Path);
-				var progress = new ConsoleProgress();
-				progress.ShowVerbose = true;
+				var progress = new ConsoleProgress
+								{
+									ShowVerbose = true
+								};
 				var extantFolder = f.Combine(RepositorySetup.ProjectName);
 				Directory.CreateDirectory(extantFolder);
 				// Make a subfolder, which will force it to make a new folder, since an empty folder is deleted.
@@ -62,15 +52,17 @@ namespace Chorus.Tests.UI.Clone
 		}
 
 		[Test]
-		[Category("SkipOnTeamCity")]
+		//[Category("SkipOnTeamCity")]
 		public void MakeClone_TargetExists_CreatesCloneInWhenTargetIsEmpty()
 		{
 			using (var repo = new RepositorySetup("source"))
 			using (var f = new TemporaryFolder("clonetest"))
 			{
 				var model = new GetCloneFromNetworkFolderModel(f.Path);
-				var progress = new ConsoleProgress();
-				progress.ShowVerbose = true;
+				var progress = new ConsoleProgress
+								{
+									ShowVerbose = true
+								};
 				var extantFolder = f.Combine(RepositorySetup.ProjectName);
 				Directory.CreateDirectory(extantFolder);
 
@@ -88,8 +80,7 @@ namespace Chorus.Tests.UI.Clone
 			{
 				var model = new GetCloneFromNetworkFolderModel(f.Path);
 				List<string> nextFolders;
-				bool exceptionThrown;
-				Assert.AreEqual(0, model.GetRepositoriesAndNextLevelSearchFolders(new List<string>{f.Path}, out nextFolders, -1, out exceptionThrown).Count());
+				Assert.AreEqual(0, model.GetRepositoriesAndNextLevelSearchFolders(new List<string>{f.Path}, out nextFolders, -1).Count());
 			}
 		}
 
@@ -101,12 +92,9 @@ namespace Chorus.Tests.UI.Clone
 				MakeFolderTree(f.Path, "Folders", 4, 3, 4);
 				var model = new GetCloneFromNetworkFolderModel(f.Path);
 				List<string> nextFolders;
-				bool exceptionThrown;
-				var repoList = model.GetRepositoriesAndNextLevelSearchFolders(new List<string> { f.Path }, out nextFolders, -1,
-																			  out exceptionThrown);
+				var repoList = model.GetRepositoriesAndNextLevelSearchFolders(new List<string> { f.Path }, out nextFolders, -1);
 				Assert.AreEqual(0, repoList.Count());
 				Assert.AreEqual(0, nextFolders.Count());
-				Assert.AreEqual(false, exceptionThrown);
 			}
 		}
 
@@ -119,17 +107,15 @@ namespace Chorus.Tests.UI.Clone
 				MakeFolderTree(f.Path, "Folders", 4, 4, 4);
 				var clonePath = Path.Combine(Path.Combine(Path.Combine(f.Path, "Folders_4"), "Folders_4_4"), "Folders_4_4_4");
 				var model = new GetCloneFromNetworkFolderModel(clonePath);
-				var progress = new ConsoleProgress();
-				progress.ShowVerbose = true;
-
+				var progress = new ConsoleProgress
+								{
+									ShowVerbose = true
+								};
 				model.MakeClone(repo.ProjectFolder.Path, clonePath, progress);
 				List<string> nextFolders;
-				bool exceptionThrown;
-				var repoList = model.GetRepositoriesAndNextLevelSearchFolders(new List<string> {f.Path}, out nextFolders, -1,
-																			  out exceptionThrown);
+				var repoList = model.GetRepositoriesAndNextLevelSearchFolders(new List<string> {f.Path}, out nextFolders, -1);
 				Assert.AreEqual(1, repoList.Count());
 				Assert.AreEqual(0, nextFolders.Count());
-				Assert.AreEqual(false, exceptionThrown);
 			}
 		}
 
@@ -142,17 +128,15 @@ namespace Chorus.Tests.UI.Clone
 				MakeFolderTree(f.Path, "Folders", 4, 5, 6);
 				var clonePath = Path.Combine(Path.Combine(Path.Combine(f.Path, "Folders_4"), "Folders_4_4"), "Folders_4_4_4");
 				var model = new GetCloneFromNetworkFolderModel(clonePath);
-				var progress = new ConsoleProgress();
-				progress.ShowVerbose = true;
-
+				var progress = new ConsoleProgress
+								{
+									ShowVerbose = true
+								};
 				model.MakeClone(repo.ProjectFolder.Path, clonePath, progress);
 				List<string> nextFolders;
-				bool exceptionThrown;
-				var repoList = model.GetRepositoriesAndNextLevelSearchFolders(new List<string> { f.Path }, out nextFolders, 2,
-																			  out exceptionThrown);
+				var repoList = model.GetRepositoriesAndNextLevelSearchFolders(new List<string> { f.Path }, out nextFolders, 2);
 				Assert.AreEqual(0, repoList.Count());
 				Assert.AreEqual(4 * 5 * 6, nextFolders.Count());
-				Assert.AreEqual(false, exceptionThrown);
 			}
 		}
 
@@ -165,17 +149,15 @@ namespace Chorus.Tests.UI.Clone
 				MakeFolderTree(f.Path, "Folders", 4, 4, 4);
 				var clonePath = Path.Combine(Path.Combine(Path.Combine(f.Path, "Folders_4"), "Folders_4_4"), "Folders_4_4_4");
 				var model = new GetCloneFromNetworkFolderModel(clonePath);
-				var progress = new ConsoleProgress();
-				progress.ShowVerbose = true;
-
+				var progress = new ConsoleProgress
+								{
+									ShowVerbose = true
+								};
 				model.MakeClone(repo.ProjectFolder.Path, clonePath, progress);
 				List<string> nextFolders;
-				bool exceptionThrown;
-				var repoList = model.GetRepositoriesAndNextLevelSearchFolders(new List<string> { f.Path }, out nextFolders, 4,
-																			  out exceptionThrown);
+				var repoList = model.GetRepositoriesAndNextLevelSearchFolders(new List<string> { f.Path }, out nextFolders, 4);
 				Assert.AreEqual(1, repoList.Count());
 				Assert.AreEqual(0, nextFolders.Count());
-				Assert.AreEqual(false, exceptionThrown);
 			}
 		}
 
@@ -191,7 +173,7 @@ namespace Chorus.Tests.UI.Clone
 				return;
 
 			var remainingStructure = new int[treeStructure.Length - 1];
-			for (int i = 1; i < treeStructure.Length; i++)
+			for (var i = 1; i < treeStructure.Length; i++)
 				remainingStructure[i - 1] = treeStructure[i];
 
 			var numFoldersToCreate = treeStructure[0];

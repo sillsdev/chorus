@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
+using Palaso.Code;
 using Palaso.Progress.LogBox;
+using Palaso.IO;
 
 namespace Chorus.UI.Clone
 {
@@ -33,10 +36,10 @@ namespace Chorus.UI.Clone
 
 		/// <summary>
 		/// Use this to inject a custom filter, so that the only projects that can be chosen are ones
-		/// you application is prepared to open.  The delegate is given the path to each mercurial project.
-		/// The default filter is simply that there must be a .hg subfolder.
+		/// you application is prepared to open. The delegate is given the path to each mercurial project.
+		/// The default filter is simply true, in that it will accept any folder.
 		/// </summary>
-		public Func<string, bool> ProjectFilter = path => Directory.Exists(path + Path.DirectorySeparatorChar + @".hg");
+		public Func<string, bool> ProjectFilter = path => true;
 
 		///<summary>
 		/// Constructor
@@ -56,89 +59,14 @@ namespace Chorus.UI.Clone
 		///<returns>Directory that clone was actually placed in (allows for renaming to avoid duplicates)</returns>
 		public string MakeClone(string sourcePath, string parentDirectoryToPutCloneIn, IProgress progress)
 		{
-			return HgHighLevel.MakeCloneFromLocalToLocal(sourcePath,
+			_actualClonedFolder = HgHighLevel.MakeCloneFromLocalToLocal(sourcePath,
 														 Path.Combine(parentDirectoryToPutCloneIn, Path.GetFileName(sourcePath)),
 														 true,
 														 progress);
-		}
-
-		/// <summary>
-		/// Returns true if the given folder path represents a repository that this model (or a derivative)
-		/// is interested in.
-		/// </summary>
-		/// <param name="folderPath"></param>
-		/// <returns></returns>
-		public bool IsValidRepository(string folderPath)
-		{
-			try
-			{
-				return ProjectFilter(folderPath);
-			}
-			catch // Typically because we do not have permission to read the folderPath's contents
-			{
-				return false;
-			}
-		}
-
-		///<summary>
-		/// Recursively searches folders for valid repositories. Depth of recursion can be limited,
-		/// in which case the next folders to be searched are passed out via nextLevelFolderPaths.
-		///</summary>
-		///<param name="folderPaths">Paths of folders to be searched, or null to use our own FolderPath</param>
-		///<param name="nextLevelFolderPaths">[out] Folders next in line to be searched after recursion halted</param>
-		///<param name="maxRecursionDepth">Maximum number of levels of subfolders to recurse into. Any negative number will cause recursion all the way to the end.</param>
-		///<param name="exceptionThrown">Gets set to true if an exception was thrown during this call.</param>
-		///<returns>List of folder paths that are valid repositories (according to ProjectFilter member)</returns>
-		public List<string> GetRepositoriesAndNextLevelSearchFolders(List<string> folderPaths, out List<string> nextLevelFolderPaths, int maxRecursionDepth, out bool exceptionThrown)
-		{
-			if (folderPaths == null)
-				folderPaths = new List<string> { FolderPath };
-
-			var repositoryPaths = new List<string>();
-			nextLevelFolderPaths = new List<string>();
-			exceptionThrown = false;
-
-			if (folderPaths.Count == 0)
-				return repositoryPaths; // Base case
-
-			foreach (var folderPath in folderPaths)
-			{
-				if (IsValidRepository(folderPath))
-					repositoryPaths.Add(folderPath);
-				else
-				{
-					try
-					{
-						nextLevelFolderPaths.AddRange(Directory.GetDirectories(folderPath));
-					}
-					catch // Typically because we do not have permission to read the folderPath's contents
-					{
-						exceptionThrown = true;
-					}
-				}
-			}
-
-			if (maxRecursionDepth != 0)
-				repositoryPaths.AddRange(GetRepositoriesAndNextLevelSearchFolders(nextLevelFolderPaths, out nextLevelFolderPaths, maxRecursionDepth - 1, out exceptionThrown));
-
-			return repositoryPaths;
-		}
-
-		/// <summary>
-		/// Save the settings in the folder's .hg, creating the folder and settings if necessary.
-		/// This is only available if you previously called InitFromProjectPath().  It isn't used
-		/// in the GetCloneFromInternet scenario.
-		/// </summary>
-		public void SaveSettings()
-		{
-			// Sanity check - the GetCloneFromNetworkFolderDlg should ensure we should never get into this problem:
-			if (!IsValidRepository(UserSelectedRepositoryPath))
-				return;
-
-			_actualClonedFolder = MakeClone(UserSelectedRepositoryPath, _baseFolder, new StatusProgress());
 
 			var repo = new HgRepository(_actualClonedFolder, new NullProgress());
-			var address = RepositoryAddress.Create("Shared NetWork", UserSelectedRepositoryPath);
+			var address = RepositoryAddress.Create("Shared NetWork", _actualClonedFolder);
+
 			// These next two calls are fine in how they treat the hgrc update, as a bootstrap clone has no old stuff to fret about.
 			// SetKnownRepositoryAddresses blows away entire 'paths' section, including the "default" one that hg puts in, which we don't really want anyway.
 			repo.SetKnownRepositoryAddresses(new[] { address });
@@ -146,6 +74,66 @@ namespace Chorus.UI.Clone
 			// 'true' then writes the "address.Name=" (section.Set(address.Name, string.Empty);).
 			// I (RandyR) think this then uses that address.Name as the new 'default' for that particular repo source type.
 			repo.SetIsOneDefaultSyncAddresses(address, true);
+
+			return _actualClonedFolder;
+		}
+
+		///<summary>
+		/// Recursively searches folders for valid repositories. Depth of recursion can be limited,
+		/// in which case the next folders to be searched are passed out via nextLevelFolderPaths.
+		///</summary>
+		///<param name="folderPaths">Paths of folders to be searched, or empty list to use our own FolderPath</param>
+		///<param name="nextLevelFolderPaths">[out] Folders next in line to be searched after recursion halted</param>
+		///<param name="maxRecursionDepth">Maximum number of levels of subfolders to recurse into. Any negative number will cause recursion all the way to the end.</param>
+		///<returns>List of folder paths that are valid repositories (according to ProjectFilter member)</returns>
+		public HashSet<string> GetRepositoriesAndNextLevelSearchFolders(List<string> folderPaths, out List<string> nextLevelFolderPaths, int maxRecursionDepth)
+		{
+			Guard.AgainstNull(folderPaths, "folderPaths");
+
+			var repositoryPaths = new HashSet<string>();
+			nextLevelFolderPaths = new List<string>();
+
+			if (folderPaths.Count == 0)
+				return repositoryPaths; // Nothing to do
+
+			if (folderPaths.Count == 1)
+			{
+				var singleFolder = folderPaths.First();
+				if (singleFolder.EndsWith(".hg"))
+				{
+					repositoryPaths.Add(Directory.GetParent(singleFolder).FullName);
+					return repositoryPaths;
+				}
+
+				var dirInfo = new DirectoryInfo(singleFolder);
+				var attrs = dirInfo.Attributes;
+				if (((attrs & FileAttributes.System) == FileAttributes.System)
+					|| ((attrs & FileAttributes.System) == FileAttributes.Hidden)
+					|| ((attrs & FileAttributes.System) == FileAttributes.ReadOnly))
+				{
+					return repositoryPaths;
+				}
+			}
+
+			foreach (var folderPath in folderPaths)
+			{
+				if (Directory.Exists(Path.Combine(folderPath, ".hg")) && ProjectFilter(folderPath))
+				{
+					repositoryPaths.Add(folderPath);
+				}
+				else
+				{
+					// DirectoryUtilities.GetSafeDirectories doesn't throw, since it excludes system and hidden folders.
+					nextLevelFolderPaths.AddRange(DirectoryUtilities.GetSafeDirectories(folderPath));
+				}
+			}
+
+			if (nextLevelFolderPaths.Count > 0 && maxRecursionDepth != 0)
+			{
+				repositoryPaths.UnionWith(GetRepositoriesAndNextLevelSearchFolders(nextLevelFolderPaths, out nextLevelFolderPaths, maxRecursionDepth - 1));
+			}
+
+			return repositoryPaths;
 		}
 	}
 }
