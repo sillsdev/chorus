@@ -7,6 +7,7 @@ using Chorus.UI.Notes.Browser;
 using Chorus.UI.Review;
 using Chorus.Utilities;
 using Chorus.VcsDrivers;
+using Palaso.IO;
 using SampleApp.Properties;
 
 namespace SampleApp
@@ -78,14 +79,15 @@ namespace SampleApp
 
 		private void UnZipToDirectory(string dir)
 		{
-			var zipFilePath = Path.GetTempFileName();
-			File.WriteAllBytes(zipFilePath, Resources.ShoppingList);
-			using (var zip = new Ionic.Zip.ZipFile(zipFilePath))
+			using (var tempZipFile = new TempFile())
 			{
-				Directory.CreateDirectory(dir);
-				zip.ExtractAll(dir);
+				File.WriteAllBytes(tempZipFile.Path, Resources.ShoppingList);
+				using (var zip = new Ionic.Zip.ZipFile(tempZipFile.Path))
+				{
+					Directory.CreateDirectory(dir);
+					zip.ExtractAll(dir);
+				}
 			}
-			File.Delete(zipFilePath);
 		}
 
 		private void ClearOutInAnticipationOfSwitchingUsers()

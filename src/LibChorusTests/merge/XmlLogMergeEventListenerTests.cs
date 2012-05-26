@@ -71,9 +71,9 @@ namespace LibChorus.Tests.merge
 		[Test]
 		public void FileDidNotExist_CreatesCorrectFile()
 		{
-			using (TempFile logFile =  TempFile.CreateAndGetPathButDontMakeTheFile())
+			using (TempFile logFile = TempFile.CreateAndGetPathButDontMakeTheFile())
 			{
-				using(ChorusNotesMergeEventListener log = new ChorusNotesMergeEventListener(logFile.Path))
+				using (ChorusNotesMergeEventListener log = new ChorusNotesMergeEventListener(logFile.Path))
 				{
 					log.ConflictOccurred(new DummyConflict());
 					log.ConflictOccurred(new DummyConflict());
@@ -85,17 +85,14 @@ namespace LibChorus.Tests.merge
 		}
 
 		[Test]
-		public void FileDidNotExist_NoConflicts_CreatesCorrectFile()
+		public void FileDidNotExist_NoConflicts_DoesNotCreatesEmptyNotesFile()
 		{
-			using (TempFile logFile = TempFile.CreateAndGetPathButDontMakeTheFile())
+			var tempFile = Path.GetTempFileName();
+			File.Delete(tempFile);
+			using (ChorusNotesMergeEventListener log = new ChorusNotesMergeEventListener(tempFile))
 			{
-				using (ChorusNotesMergeEventListener log = new ChorusNotesMergeEventListener(logFile.Path))
-				{
-				 }
-				XmlDocument doc = new XmlDocument();
-				doc.Load(logFile.Path);
-				Assert.AreEqual(1, doc.SelectNodes("notes").Count);
 			}
+			Assert.IsFalse(File.Exists(tempFile));
 		}
 
 	}
@@ -121,6 +118,16 @@ namespace LibChorus.Tests.merge
 		public string Description
 		{
 			get { return "dummy"; }
+		}
+
+		public string HtmlDetails
+		{
+			get { return "<body>dummy</body>"; }
+		}
+
+		public void MakeHtmlDetails(XmlNode oursContext, XmlNode theirsContext, XmlNode ancestorContext, IGenerateHtmlContext htmlMaker)
+		{
+
 		}
 
 		public string WinnerId

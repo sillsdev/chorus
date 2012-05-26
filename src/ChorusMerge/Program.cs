@@ -1,7 +1,5 @@
 using System;
-using System.Diagnostics;
-using System.IO;
-using System.Threading;
+using System.Text;
 using Chorus.FileTypeHanders;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
@@ -16,23 +14,44 @@ namespace ChorusMerge
 	/// anything beyond the 3 files must be specified in environment variables.
 	/// See MergeOrder and MergeSituation for a description of those variables and their possible values.
 	/// </summary>
+	/// <remarks>
+	/// The arguments are presumed to be presented in utf-8 encoding presented via CP1252. This is a departure
+	/// from the norm on Windows of UCS2. However, python has issues in calling out to processes using UCS2
+	/// so gives utf8, which is then mangled via CP1252.  This can all be decoded to give ChorusMerge the
+	/// ucs2 args it expects.
+	/// </remarks>
 	public class Program
 	{
 		public static int Main(string[] args)
 		{
 			try
 			{
-				//this was originally put here to test if console writes were making it out to the linux log or not
-				Console.WriteLine("ChorusMerge({0}, {1}, {2}", args[0], args[1], args[2]);
 
-				//Debug.Fail("hello");
-				MergeOrder order = MergeOrder.CreateUsingEnvironmentVariables(args[0], args[1], args[2]);
+#if MONO
+				var ourFilePath = args[0];
+				var commonFilePath = args[1];
+				var theirFilePath = args[2];
+#else
+				// Convert the input arguments from cp1252 -> utf8 -> ucs2
+				// It always seems to be 1252, even when the input code page is actually something else. CP 2012-03
+				// var inputEncoding = Console.InputEncoding;
+				var inputEncoding = Encoding.GetEncoding(1252);
+				var ourFilePath = Encoding.UTF8.GetString(inputEncoding.GetBytes(args[0]));
+				var commonFilePath = Encoding.UTF8.GetString(inputEncoding.GetBytes(args[1]));
+				var theirFilePath = Encoding.UTF8.GetString(inputEncoding.GetBytes(args[2]));
+				Console.WriteLine("ChorusMerge: Input encoding {0}", inputEncoding.EncodingName);
+#endif
+
+				//this was originally put here to test if console writes were making it out to the linux log or not
+				Console.WriteLine("ChorusMerge: {0}, {1}, {2}", ourFilePath, commonFilePath, theirFilePath);
+
+				MergeOrder order = MergeOrder.CreateUsingEnvironmentVariables(ourFilePath, commonFilePath, theirFilePath);
 				var handlers = ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers();
 				var handler = handlers.GetHandlerForMerging(order.pathToOurs);
 
 				//DispatchingMergeEventListener listenerDispatcher = new DispatchingMergeEventListener();
 				//using (HumanLogMergeEventListener humanListener = new HumanLogMergeEventListener(order.pathToOurs + ".ChorusNotes.txt"))
-				using (ChorusNotesMergeEventListener xmlListener = new ChorusNotesMergeEventListener(order.pathToOurs + ".ChorusNotes"))
+				using (ChorusNotesMergeEventListener xmlListener = new ChorusNotesMergeEventListener(order.pathToOurs + ".NewChorusNotes"))
 				{
 //                    listenerDispatcher.AddEventListener(humanListener);
 //                    listenerDispatcher.AddEventListener(xmlListener);

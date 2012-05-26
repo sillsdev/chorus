@@ -58,7 +58,7 @@
 			this._accountLabel.Name = "_accountLabel";
 			this._accountLabel.Size = new System.Drawing.Size(47, 13);
 			this._accountLabel.TabIndex = 26;
-			this._accountLabel.Text = "Account";
+			this._accountLabel.Text = "Login";
 			//
 			// _passwordLabel
 			//

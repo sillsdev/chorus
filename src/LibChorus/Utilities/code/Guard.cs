@@ -37,6 +37,13 @@ namespace Chorus.Utilities.code
 				throw new ArgumentNullException(valueName);
 		}
 
+
+		public static void AgainstNullOrEmptyString(string value, string valueName)
+		{
+			if (string.IsNullOrEmpty(value))
+				throw new ArgumentNullException(valueName);
+		}
+
 		/// <summary>
 		/// Will throw exception of type <typeparamref name="TException"/>
 		/// with the specified message if the assertion is true
