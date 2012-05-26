@@ -217,7 +217,7 @@ namespace Chorus.merge.xml.generic.xmldiff
 
 			_controlReader.MoveToFirstAttribute();
 			_testReader.MoveToFirstAttribute();
-			for (int i = 0; i < controlAttributeCount; ++i)
+			for (int i = 0; _continueComparing && i < controlAttributeCount; ++i)
 			{
 
 				controlAttrName = _controlReader.Name;
