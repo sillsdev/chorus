@@ -151,7 +151,7 @@ namespace Chorus.merge.xml.generic
 				if (i > 0)
 					bldr.Append(" and ");
 				var currentAttrName = _keyAttributes[i];
-				bldr.AppendFormat("@{0}='{1}'", currentAttrName, XmlUtilities.GetStringAttribute(nodeToMatch, currentAttrName));
+				bldr.AppendFormat("@{0}={1}", currentAttrName, XmlUtilities.GetSafeXPathLiteral(XmlUtilities.GetStringAttribute(nodeToMatch, currentAttrName)));
 			}
 			bldr.Append("]");
 
