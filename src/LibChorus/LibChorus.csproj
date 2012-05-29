@@ -157,13 +157,10 @@
 	  <SpecificVersion>False</SpecificVersion>
 	  <HintPath>..\..\lib\$(Configuration)\Autofac.dll</HintPath>
 	</Reference>
-	<Reference Include="icu.net, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+	<Reference Condition="'$(Configuration)' == 'Debug' Or '$(Configuration)' == 'Release' " Include="icu.net, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
 	  <SpecificVersion>False</SpecificVersion>
 	  <HintPath>..\..\lib\$(Configuration)\icu.net.dll</HintPath>
 	</Reference>
-	<None Include="..\..\lib\$(Configuration)\icu.net.dll.config">
-	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	</None>
 	<Reference Condition="'$(Configuration)' == 'DebugMono' Or '$(Configuration)' == 'ReleaseMono' " Include="NDesk.DBus, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f6716e4f9b2ed099, processorArchitecture=MSIL">
 	  <SpecificVersion>False</SpecificVersion>
 	  <HintPath>..\..\lib\$(Configuration)\NDesk.DBus.dll</HintPath>
@@ -196,6 +193,7 @@
 	<Reference Include="System.Xml.Linq">
 	  <RequiredTargetFramework>3.5</RequiredTargetFramework>
 	</Reference>
+	<Reference Condition="'$(Configuration)' == 'DebugMono' Or '$(Configuration)' == 'ReleaseMono' " Include="icu.net" />
   </ItemGroup>
   <ItemGroup>
 	<Compile Include="FileTypeHanders\FieldWorks\CustomProperties\FieldeWorksCustomPropertyFileHandler.cs" />

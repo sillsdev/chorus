@@ -182,7 +182,9 @@ namespace Chorus.VcsDrivers.Mercurial
 				//NB: this is REQUIRED because we are now, in the hgrunner, saying that we will be getting utf8 output. If we made this extension optional, we'd have to know to not say that.
 
 				var extensions = new Dictionary<string, string>();
+#if !MONO
 				extensions.Add("hgext.win32text", ""); //for converting line endings on windows machines
+#endif
 				extensions.Add("hgext.graphlog",""); //for more easily readable diagnostic logs
 				extensions.Add("convert",""); //for catastrophic repair in case of repo corruption
 #if !MONO
@@ -209,7 +211,9 @@ namespace Chorus.VcsDrivers.Mercurial
 			try
 			{
 				var extensions = new Dictionary<string, string>();
+#if !MONO
 				extensions.Add("hgext.win32text", ""); //for converting line endings on windows machines
+#endif
 				extensions.Add("hgext.graphlog", ""); //for more easily readable diagnostic logs
 				extensions.Add("convert", ""); //for catastrophic repair in case of repo corruption
 #if !MONO
@@ -1203,10 +1207,15 @@ namespace Chorus.VcsDrivers.Mercurial
 #endif
 		}
 
-		private IniDocument GetMercurialConfigForUser()
+		private static IniDocument GetMercurialConfigForUser()
 		{
 #if MONO
-			var p = "~/.hgrc";
+			var home = Environment.GetEnvironmentVariable("HOME");
+			if (home == null)
+			{
+				throw new ApplicationException("The HOME environment variable is not set.");
+			}
+			var p = Path.Combine(home, ".hgrc");
 #else
 			//NB: they're talking about moving this (but to WORSE place, my documents/mercurial)
 			var profile = Environment.GetEnvironmentVariable("USERPROFILE");
@@ -1325,8 +1334,9 @@ namespace Chorus.VcsDrivers.Mercurial
 			var doc = GetMercurialConfigForRepository();
 
 			IniSection section = doc.Sections.GetOrCreate("format");
+			IniSection section_w32text = doc.Sections.GetOrCreate("win32text");
 
-			if (CheckExtensions(doc, extensions) && section.GetValue("dotencode") == "False")
+			if (CheckExtensions(doc, extensions) && section.GetValue("dotencode") == "False" && section_w32text.GetValue("warn") == "False")
 			{
 				return;
 			}
@@ -1343,6 +1353,18 @@ namespace Chorus.VcsDrivers.Mercurial
 			//see also: CreateRepositoryInExistingDir
 
 			section.Set("dotencode", "False");
+
+			//see http://mercurial.selenic.com/wiki/Win32TextExtension
+			//Deprecation: The win32text extension requires each user to configure the extension again and again for each clone
+			//since the configuration is not copied when cloning.
+			//We have therefore made the EolExtension as an alternative. The EolExtension uses a version controlled file for
+			//its configuration and each clone will therefore use the right settings from the start. Mercurial 1.5.4+
+			//This extension may be removed in a future release of Mercurial.
+			//To disable deprecation warnings from this extension (until you get get around to replacing win32text with eol), add
+			// these two lines to your configuration file:
+
+			section_w32text.Set("warn", "False");
+
 			doc.SaveAndThrowIfCannot();
 		}
 
