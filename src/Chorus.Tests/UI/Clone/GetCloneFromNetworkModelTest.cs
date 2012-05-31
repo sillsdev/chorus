@@ -4,6 +4,7 @@ using System.Linq;
 using Chorus.UI.Clone;
 using LibChorus.TestUtilities;
 using NUnit.Framework;
+using Palaso.Extensions;
 using Palaso.Progress.LogBox;
 using Palaso.TestUtilities;
 
@@ -85,6 +86,26 @@ namespace Chorus.Tests.UI.Clone
 		}
 
 		[Test]
+		[Category("SkipOnBuildServer")]
+		public void GetDirectoriesWithMecurialRepos_ReadCDrive_ReturnsNextLevelFolders()
+		{
+			var model = new GetCloneFromNetworkFolderModel(@"C:\");
+			List<string> nextFolders;
+			model.GetRepositoriesAndNextLevelSearchFolders(new List<string> { @"C:\" }, out nextFolders, 0);
+			Assert.AreNotEqual(0, nextFolders.Count);
+		}
+
+		[Test]
+		[Category("SkipOnBuildServer")]
+		public void GetDirectoriesWithMecurialRepos_ReadCDriveDownTwoLevels_ReturnsNextLevelFolders()
+		{
+			var model = new GetCloneFromNetworkFolderModel(@"C:\");
+			List<string> nextFolders;
+			model.GetRepositoriesAndNextLevelSearchFolders(new List<string> { @"C:\" }, out nextFolders, 2);
+			Assert.AreNotEqual(0, nextFolders.Count);
+		}
+
+		[Test]
 		public void GetDirectoriesWithMecurialRepos_SeveralEmptyDirectories_ReturnsEmptyList()
 		{
 			using (var f = new TemporaryFolder("clonetest"))
@@ -107,6 +128,7 @@ namespace Chorus.Tests.UI.Clone
 				MakeFolderTree(f.Path, "Folders", 4, 4, 4);
 				var clonePath = Path.Combine(Path.Combine(Path.Combine(f.Path, "Folders_4"), "Folders_4_4"), "Folders_4_4_4");
 				var model = new GetCloneFromNetworkFolderModel(clonePath);
+				SetStandardProjectFilter(model);
 				var progress = new ConsoleProgress
 								{
 									ShowVerbose = true
@@ -115,6 +137,38 @@ namespace Chorus.Tests.UI.Clone
 				List<string> nextFolders;
 				var repoList = model.GetRepositoriesAndNextLevelSearchFolders(new List<string> {f.Path}, out nextFolders, -1);
 				Assert.AreEqual(1, repoList.Count());
+				Assert.AreEqual(0, nextFolders.Count());
+			}
+		}
+
+		[Test]
+		public void GetDirectoriesWithMecurialRepos_OneInvalidHgRepo_ReturnsEmptyList()
+		{
+			using (var f = new TemporaryFolder("clonetest"))
+			{
+				var fakeHgPath = Path.Combine(f.Path, ".hg");
+				Directory.CreateDirectory(fakeHgPath);
+				var model = new GetCloneFromNetworkFolderModel(fakeHgPath);
+				SetStandardProjectFilter(model);
+				List<string> nextFolders;
+				var repoList = model.GetRepositoriesAndNextLevelSearchFolders(new List<string> { fakeHgPath }, out nextFolders, -1);
+				Assert.AreEqual(0, repoList.Count());
+				Assert.AreEqual(0, nextFolders.Count());
+			}
+		}
+
+		[Test]
+		public void GetDirectoriesWithMecurialRepos_OneFakeHgRepo_ReturnsEmptyList()
+		{
+			using (var f = new TemporaryFolder("clonetest"))
+			{
+				var fakeHgPath = Path.Combine(f.Path, "junk.hg");
+				Directory.CreateDirectory(fakeHgPath);
+				var model = new GetCloneFromNetworkFolderModel(fakeHgPath);
+				SetStandardProjectFilter(model);
+				List<string> nextFolders;
+				var repoList = model.GetRepositoriesAndNextLevelSearchFolders(new List<string> { fakeHgPath }, out nextFolders, -1);
+				Assert.AreEqual(0, repoList.Count());
 				Assert.AreEqual(0, nextFolders.Count());
 			}
 		}
@@ -149,6 +203,7 @@ namespace Chorus.Tests.UI.Clone
 				MakeFolderTree(f.Path, "Folders", 4, 4, 4);
 				var clonePath = Path.Combine(Path.Combine(Path.Combine(f.Path, "Folders_4"), "Folders_4_4"), "Folders_4_4_4");
 				var model = new GetCloneFromNetworkFolderModel(clonePath);
+				SetStandardProjectFilter(model);
 				var progress = new ConsoleProgress
 								{
 									ShowVerbose = true
@@ -184,6 +239,19 @@ namespace Chorus.Tests.UI.Clone
 				Directory.CreateDirectory(newPath);
 				MakeFolderTree(newPath, name, remainingStructure);
 			}
+		}
+
+		/// <summary>
+		/// Assigns regular bridge project filter to given model.
+		/// </summary>
+		/// <param name="model"></param>
+		private static void SetStandardProjectFilter(GetCloneFromNetworkFolderModel model)
+		{
+			model.ProjectFilter = path =>
+			{
+				var hgrcFolder = Path.Combine(path, ".hg");
+				return Directory.Exists(hgrcFolder) && Directory.GetFiles(hgrcFolder, "hgrc").Length > 0;
+			};
 		}
 	}
 }

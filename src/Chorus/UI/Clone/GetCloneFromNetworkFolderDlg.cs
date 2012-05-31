@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
+using Palaso.Progress.LogBox;
 
 namespace Chorus.UI.Clone
 {
@@ -66,6 +67,16 @@ namespace Chorus.UI.Clone
 		private void OnGetButtonClick(object sender, EventArgs e)
 		{
 			TerminateBackgroundWorkers();
+
+			var langProjName = Path.GetFileNameWithoutExtension(_model.UserSelectedRepositoryPath);
+			var target = Path.Combine(_model._baseFolder, langProjName);
+			if (Directory.Exists(target))
+			{
+				MessageBox.Show(this, "You can not obtain a project that you already have.", "Project folder already exists");
+				return;
+			}
+
+			_model.MakeClone(_model.UserSelectedRepositoryPath, target, new LogBox());
 			DialogResult = DialogResult.OK;
 			Close();
 		}
@@ -146,6 +157,10 @@ namespace Chorus.UI.Clone
 			// If there is no longer a selected repository, grey-out the Get button:
 			if (projectRepositoryListView.SelectedItems.Count == 0)
 				getButton.Enabled = false;
+
+			// Don't initiate a search if the selected path is empty (for example at model initiation):
+			if (folderBrowserControl.SelectedPath == "")
+				return;
 
 			// Get list of subfolders to search (which we will do one thread per folder)
 			// or information that the selected folder is an actual repository:

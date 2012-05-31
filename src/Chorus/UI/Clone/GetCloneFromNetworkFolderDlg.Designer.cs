@@ -121,6 +121,7 @@
 			this.folderBrowserControl.ShowMyDocuments = true;
 			this.folderBrowserControl.ShowMyFavorites = true;
 			this.folderBrowserControl.ShowMyNetwork = true;
+			this.folderBrowserControl.ShowOnlyMappedDrives = true;
 			this.folderBrowserControl.ShowToolbar = false;
 			this.folderBrowserControl.Size = new System.Drawing.Size(271, 269);
 			this.folderBrowserControl.TabIndex = 0;
@@ -145,8 +146,7 @@
 			this.statusLabel.Name = "statusLabel";
 			this.statusLabel.Size = new System.Drawing.Size(540, 14);
 			this.statusLabel.TabIndex = 2;
-			this.statusLabel.Text = "Programmer should have called GetCloneFromNetworkFolderDlg.LoadFromModel() which " +
-	"sets initial folder path.";
+			this.statusLabel.Text = "No folder selected";
 			this.statusLabel.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
 			//
 			// helpButton

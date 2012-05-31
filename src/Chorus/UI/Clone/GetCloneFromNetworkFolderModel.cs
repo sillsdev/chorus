@@ -32,7 +32,7 @@ namespace Chorus.UI.Clone
 		public string ActualClonedFolder { get { return _actualClonedFolder; } }
 
 		// Parent folder to use for cloned repository:
-		private readonly string _baseFolder;
+		internal readonly string _baseFolder;
 
 		/// <summary>
 		/// Use this to inject a custom filter, so that the only projects that can be chosen are ones
@@ -59,8 +59,9 @@ namespace Chorus.UI.Clone
 		///<returns>Directory that clone was actually placed in (allows for renaming to avoid duplicates)</returns>
 		public string MakeClone(string sourcePath, string parentDirectoryToPutCloneIn, IProgress progress)
 		{
+			var targetPath = Path.Combine(parentDirectoryToPutCloneIn, Path.GetFileName(sourcePath));
 			_actualClonedFolder = HgHighLevel.MakeCloneFromLocalToLocal(sourcePath,
-														 Path.Combine(parentDirectoryToPutCloneIn, Path.GetFileName(sourcePath)),
+														 targetPath,
 														 true,
 														 progress);
 
@@ -101,17 +102,12 @@ namespace Chorus.UI.Clone
 				var singleFolder = folderPaths.First();
 				if (singleFolder.EndsWith(".hg"))
 				{
-					repositoryPaths.Add(Directory.GetParent(singleFolder).FullName);
-					return repositoryPaths;
-				}
-
-				var dirInfo = new DirectoryInfo(singleFolder);
-				var attrs = dirInfo.Attributes;
-				if (((attrs & FileAttributes.System) == FileAttributes.System)
-					|| ((attrs & FileAttributes.System) == FileAttributes.Hidden)
-					|| ((attrs & FileAttributes.System) == FileAttributes.ReadOnly))
-				{
-					return repositoryPaths;
+					var folderParent = Directory.GetParent(singleFolder).FullName;
+					if (ProjectFilter(folderParent))
+					{
+						repositoryPaths.Add(folderParent);
+						return repositoryPaths;
+					}
 				}
 			}
 
@@ -123,7 +119,6 @@ namespace Chorus.UI.Clone
 				}
 				else
 				{
-					// DirectoryUtilities.GetSafeDirectories doesn't throw, since it excludes system and hidden folders.
 					nextLevelFolderPaths.AddRange(DirectoryUtilities.GetSafeDirectories(folderPath));
 				}
 			}
