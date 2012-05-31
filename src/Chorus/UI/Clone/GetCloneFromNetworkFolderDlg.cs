@@ -76,7 +76,9 @@ namespace Chorus.UI.Clone
 				return;
 			}
 
-			_model.MakeClone(_model.UserSelectedRepositoryPath, target, new LogBox());
+			getButton.Enabled = false;
+			// TODO: We need some sort of progress bar for the duration og this MakeClone call:
+			_model.MakeClone(_model.UserSelectedRepositoryPath, _model._baseFolder, new LogBox());
 			DialogResult = DialogResult.OK;
 			Close();
 		}
