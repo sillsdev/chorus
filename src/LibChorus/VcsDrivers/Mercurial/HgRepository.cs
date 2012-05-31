@@ -31,6 +31,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		private string _proxyCongfigParameterString = string.Empty;
 		private bool _alreadyUpdatedHgrc;
 		private static bool _alreadyCheckedMercurialIni;
+		private bool _mercurialTwoCompatible;
 
 		public static string GetEnvironmentReadinessMessage(string messageLanguageId)
 		{
@@ -152,6 +153,14 @@ namespace Chorus.VcsDrivers.Mercurial
 			_progress = progress;
 
 			_userName = GetUserIdInUse();
+
+
+#if MERCURIAL2
+			_mercurialTwoCompatible = true;
+#else
+			_mercurialTwoCompatible = false;
+#endif
+
 		}
 
 		/// <summary>
@@ -323,7 +332,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			try
 			{
 				CheckAndUpdateHgrc();
-				Execute(SecondsBeforeTimeoutOnRemoteOperation, "push --debug "+GetProxyConfigParameterString(targetUri,progress), SurroundWithQuotes(targetUri));
+				Execute(false, _mercurialTwoCompatible, SecondsBeforeTimeoutOnRemoteOperation, "push --debug "+GetProxyConfigParameterString(targetUri,progress), SurroundWithQuotes(targetUri));
 			}
 			catch (Exception err)
 			{
@@ -503,7 +512,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			CheckAndUpdateHgrc();
 			message = string.Format(message, args);
 			_progress.WriteVerbose("{0} committing with comment: {1}", _userName, message);
-			ExecutionResult result = Execute(SecondsBeforeTimeoutOnLocalOperation, "ci", "-m " + SurroundWithQuotes(message));
+			ExecutionResult result = Execute(false, _mercurialTwoCompatible, SecondsBeforeTimeoutOnLocalOperation, "ci", "-m " + SurroundWithQuotes(message));
 			_progress.WriteVerbose(result.StandardOutput);
 		}
 
@@ -529,7 +538,12 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		protected ExecutionResult Execute(int secondsBeforeTimeout, string cmd, params string[] rest)
 		{
-			return Execute(false, secondsBeforeTimeout, cmd, rest);
+			return Execute(false, false, secondsBeforeTimeout, cmd, rest);
+		}
+
+		protected ExecutionResult Execute(bool failureIsOk, int secondsBeforeTimeout, string cmd, params string[] rest)
+		{
+			return Execute(failureIsOk, false, secondsBeforeTimeout, cmd, rest);
 		}
 
 		/// <summary>
@@ -537,7 +551,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		/// </summary>
 		/// <exception cref="System.TimeoutException"/>
 		/// <returns></returns>
-		protected ExecutionResult Execute(bool failureIsOk, int secondsBeforeTimeout, string cmd, params string[] rest)
+		protected ExecutionResult Execute(bool failureIsOk, bool noChangeIsOk, int secondsBeforeTimeout, string cmd, params string[] rest)
 		{
 			if(_progress.CancelRequested)
 			{
@@ -562,7 +576,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				_progress.WriteWarning("User Cancelled");
 				return result;
 			}
-			if (0 != result.ExitCode && !failureIsOk)
+			if (0 != result.ExitCode && !failureIsOk && !(1 == result.ExitCode && noChangeIsOk))
 			{
 				var details = Environment.NewLine + "hg Command was " + Environment.NewLine + b.ToString();
 				try
