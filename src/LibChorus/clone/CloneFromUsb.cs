@@ -4,7 +4,7 @@ using System.IO;
 using System.Text;
 using System.Windows.Forms;
 using Chorus.Utilities;
-using Chorus.Utilities.UsbDrive;
+using Palaso.UsbDrive;
 using Chorus.VcsDrivers.Mercurial;
 using Palaso.IO;
 using Palaso.Progress.LogBox;

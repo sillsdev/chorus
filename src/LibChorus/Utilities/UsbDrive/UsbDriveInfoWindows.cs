@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if CHORUSUSBDRIVE
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -121,3 +122,4 @@ namespace Chorus.Utilities.UsbDrive
 		}
 	}
 }
+#endif

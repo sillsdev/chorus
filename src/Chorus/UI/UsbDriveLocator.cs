@@ -6,6 +6,7 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
+using Palaso.UsbDrive;
 
 namespace Chorus.UI
 {
@@ -54,7 +55,7 @@ namespace Chorus.UI
 
 		#region DriveScanning
 
-		private List<DriveInfo> _usbDrives = new List<DriveInfo>();
+		private List<IUsbDriveInfo> _usbDrives = new List<IUsbDriveInfo>();
 		private Thread _worker;
 		private bool _keepRunning;
 
@@ -63,21 +64,7 @@ namespace Chorus.UI
 		{
 			while (_keepRunning)
 			{
-				var usbDrives = new List<DriveInfo>();
-				var info =
-					new Chorus.Utilities.UsbDrive.RetrieveUsbDriveInfo();
-				var drives = info.GetDrives();
-				if (drives.Count > 0)
-				{
-					foreach (var drive in System.IO.DriveInfo.GetDrives())
-					{
-						if (drive.RootDirectory.FullName ==
-							drives[0].RootDirectory.FullName)
-						{
-							usbDrives.Add(drive);
-						}
-					}
-				}
+				var usbDrives = UsbDriveInfo.GetDrives();
 				lock (this)
 				{
 					_usbDrives.Clear();
@@ -87,7 +74,7 @@ namespace Chorus.UI
 			}
 		}
 
-		public IEnumerable<DriveInfo> UsbDrives
+		public IEnumerable<IUsbDriveInfo> UsbDrives
 		{
 			get
 			{

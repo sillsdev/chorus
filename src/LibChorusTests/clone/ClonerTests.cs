@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Chorus.clone;
-using Chorus.Utilities.UsbDrive;
+using Palaso.UsbDrive;
 using LibChorus.Tests;
 using NUnit.Framework;
 using Palaso.Progress.LogBox;

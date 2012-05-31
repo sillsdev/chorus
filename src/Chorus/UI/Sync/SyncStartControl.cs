@@ -134,9 +134,9 @@ namespace Chorus.UI.Sync
 					var first = usbDriveLocator.UsbDrives.First();
 #if !MONO
 					_usbStatusLabel.Text = first.RootDirectory + " " + first.VolumeLabel + " (" +
-										   Math.Floor(first.TotalFreeSpace/1024000.0) + " Megs Free Space)";
+										   Math.Floor(first.AvailableFreeSpace/1024000.0) + " Megs Free Space)";
 #else
-				_usbStatusLabel.Text = first.VolumeLabel;
+				_usbStatusLabel.Text = first.VolumeLabel + " : " + first.RootDirectory;
 					//RootDir & volume label are the same on linux.  TotalFreeSpace is, like, maxint or something in mono 2.0
 #endif
 				}
