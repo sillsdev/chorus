@@ -1,3 +1,7 @@
+#if MONO
+#define MERCURIAL2
+#endif
+
 using System;
 using System.Linq;
 using System.Collections.Generic;
