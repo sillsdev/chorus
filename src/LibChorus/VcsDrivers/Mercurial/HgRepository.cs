@@ -1835,7 +1835,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		public void TagRevision(string revisionNumber, string tag)
 		{
 			CheckAndUpdateHgrc();
-			Execute(false, SecondsBeforeTimeoutOnLocalOperation, "tag -r " + revisionNumber + " \"" + tag + "\"");
+			Execute(false, SecondsBeforeTimeoutOnLocalOperation, "tag -f -r " + revisionNumber + " \"" + tag + "\"");
 		}
 
 		protected static string SurroundWithQuotes(string path)
