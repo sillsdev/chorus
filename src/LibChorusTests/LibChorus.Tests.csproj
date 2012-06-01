@@ -162,6 +162,7 @@
 	<Compile Include="sync\LargeFileFilterTests.cs" />
 	<Compile Include="sync\ProxyTests.cs" />
 	<Compile Include="sync\RevisionMergeBehaviorTests.cs" />
+	<Compile Include="sync\SychronizerAdjunctTests.cs" />
 	<Compile Include="sync\Synchronizer.FileBasedTests.cs" />
 	<Compile Include="sync\ChorusMLFileSyncTests.cs" />
 	<Compile Include="sync\Synchronizer.BadSituationTests.cs" />

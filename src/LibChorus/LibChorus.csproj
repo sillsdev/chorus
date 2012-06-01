@@ -167,6 +167,8 @@
 	  <DesignTime>True</DesignTime>
 	  <DependentUpon>Resources.resx</DependentUpon>
 	</Compile>
+	<Compile Include="sync\DefaultSychronizerAdjunct.cs" />
+	<Compile Include="sync\ISychronizerAdjunct.cs" />
 	<Compile Include="sync\LargeFileFilter.cs" />
 	<Compile Include="Utilities\MakeRecordDictionary.cs" />
 	<Compile Include="FileTypeHanders\NotePresenter.cs" />

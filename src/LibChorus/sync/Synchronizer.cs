@@ -23,6 +23,8 @@ namespace Chorus.sync
 	public class Synchronizer
 	{
 		#region Fields
+
+		private ISychronizerAdjunct _sychronizerAdjunct;
 		private DoWorkEventArgs _backgroundWorkerArguments;
 		private BackgroundWorker _backgroundWorker;
 		private string _localRepositoryPath;
@@ -59,6 +61,14 @@ namespace Chorus.sync
 		}
 		public List<RepositoryAddress> ExtraRepositorySources { get; private set; }
 
+		public ISychronizerAdjunct SynchronizerAdjunct
+		{
+			set
+			{
+				_sychronizerAdjunct = value ?? new DefaultSychronizerAdjunct();
+			}
+		}
+
 		#endregion
 
 		#region Construction
@@ -70,6 +80,8 @@ namespace Chorus.sync
 			_handlers = ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers();
 			ExtraRepositorySources = new List<RepositoryAddress>();
 			ExtraRepositorySources.Add(RepositoryAddress.Create(RepositoryAddress.HardWiredSources.UsbKey, "USB flash drive", false));
+
+		   _sychronizerAdjunct = new DefaultSychronizerAdjunct();
 		}
 
 		public static Synchronizer FromProjectConfiguration(ProjectFolderConfiguration project, IProgress progress)
@@ -339,6 +351,8 @@ namespace Chorus.sync
 		{
 			ThrowIfCancelPending();
 			_progress.WriteMessage("Storing changes in local repository...");
+
+			_sychronizerAdjunct.PrepareForInitialCommit();
 
 			// Must be done, before "AddAndCommitFiles" call.
 			// It could be here, or first thing inside the 'using' for CommitCop.
@@ -653,7 +667,7 @@ namespace Chorus.sync
 					if (head.Tag.Contains(RejectTagSubstring))
 						continue;
 
-					//note: what we're checking here is actualy the *name* of the branch...important: remmber in hg,
+					//note: what we're checking here is actually the *name* of the branch...important: remmber in hg,
 					//you can have multiple heads on the same branch
 					if (head.Branch != myHead.Branch) //Chorus policy is to only auto-merge on branches with same name
 						continue;
@@ -684,6 +698,9 @@ namespace Chorus.sync
 						//  args.Append(" -X " + SurroundWithQuotes(Path.Combine(_pathToRepository, "**.ChorusRescuedFile")));
 
 						AppendAnyNewNotes(_localRepositoryPath);
+
+						_sychronizerAdjunct.PrepareForPostMergeCommit();
+
 						AddAndCommitFiles(GetMergeCommitSummary(head.UserId, Repository));
 					}
 				}

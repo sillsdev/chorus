@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
+using Chorus.Utilities.code;
 using Chorus.sync;
 using Chorus.VcsDrivers.Mercurial;
 using Palaso.Progress.LogBox;
@@ -58,6 +59,11 @@ namespace Chorus.UI.Sync
 				_syncStartControl.Dispose();//without this, the usbdetector just goes on and on
 				throw;
 			}
+		}
+
+		public void SetSynchronizerAdjunct(ISychronizerAdjunct adjunct)
+		{
+			_syncControl.Model.SetSynchronizerAdjunct(adjunct);
 		}
 
 		public SyncOptions SyncOptions
