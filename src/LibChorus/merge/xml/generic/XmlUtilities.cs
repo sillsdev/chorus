@@ -2,12 +2,15 @@ using System;
 using System.CodeDom.Compiler;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Xsl;
+using Chorus.FileTypeHanders.lift;
 using Chorus.merge.xml.generic.xmldiff;
 
 
@@ -72,10 +75,8 @@ namespace Chorus.merge.xml.generic
 		}
 	}
 
-	public class XmlUtilities
+	public static class XmlUtilities
 	{
-
-
 		public static bool AreXmlElementsEqual(string ours, string theirs)
 		{
 			if (ours == theirs)
@@ -85,7 +86,7 @@ namespace Chorus.merge.xml.generic
 			XmlReader or = XmlReader.Create(osr);
 			XmlDocument od = new XmlDocument();
 			XmlNode on = od.ReadNode(or);
-			on.Normalize();
+			@on.Normalize();
 
 			StringReader tsr = new StringReader(theirs);
 			XmlReader tr = XmlReader.Create(tsr);
@@ -93,7 +94,7 @@ namespace Chorus.merge.xml.generic
 			XmlNode tn = td.ReadNode(tr);
 			tn.Normalize();//doesn't do much
 
-			return AreXmlElementsEqual(on, tn);
+			return AreXmlElementsEqual(@on, tn);
 		}
 
 		/// <summary>
@@ -114,7 +115,7 @@ namespace Chorus.merge.xml.generic
 			XmlReader or = XmlReader.Create(osr);
 			XmlDocument od = new XmlDocument();
 			XmlNode on = od.ReadNode(or);
-			on.Normalize();
+			@on.Normalize();
 
 			StringReader tsr = new StringReader(theirs);
 			XmlReader tr = XmlReader.Create(tsr);
@@ -122,14 +123,14 @@ namespace Chorus.merge.xml.generic
 			XmlNode tn = td.ReadNode(tr);
 			tn.Normalize();//doesn't do much
 
-			System.Diagnostics.Debug.Assert(astrElementXPath.Length == astrAttributeToIgnore.Length);
+			Debug.Assert(astrElementXPath.Length == astrAttributeToIgnore.Length);
 			for (int i = 0; i < astrElementXPath.Length; i++)
 			{
-				RemoveItem(on, astrElementXPath[i], astrAttributeToIgnore[i]);
+				RemoveItem(@on, astrElementXPath[i], astrAttributeToIgnore[i]);
 				RemoveItem(tn, astrElementXPath[i], astrAttributeToIgnore[i]);
 			}
 
-			return AreXmlElementsEqual(on, tn);
+			return AreXmlElementsEqual(@on, tn);
 		}
 
 		private static void RemoveItem(XmlNode node, string strXPath, string strAttribute)
@@ -291,7 +292,113 @@ namespace Chorus.merge.xml.generic
 			sb.Append(")");
 			return sb.ToString();
 		}
+		public static string SafelyGetStringTextNode(XmlNode node)
+		{
+			return (node == null || node.InnerText == String.Empty) ? String.Empty : node.InnerText.Trim();
+		}
 
+		public static bool IsTextLevel(XmlNode ours, XmlNode theirs, XmlNode ancestor)
+		{
+			if (ours == null && theirs == null && ancestor == null)
+				return false;
+
+			// At least one of them has to be a text container.
+			var ourStatus = IsTextNodeContainer(ours);
+			var theirStatus = IsTextNodeContainer(theirs);
+			var ancestorStatus = IsTextNodeContainer(ancestor);
+
+			// If any of them is not a text container, the three are not, even if one or more of the others is.
+			if (ourStatus == TextNodeStatus.IsNotTextNodeContainer || theirStatus == TextNodeStatus.IsNotTextNodeContainer || ancestorStatus == TextNodeStatus.IsNotTextNodeContainer)
+				return false;
+			// Unable to determine, so guess no.
+			if (ourStatus == TextNodeStatus.IsAmbiguous && theirStatus == TextNodeStatus.IsAmbiguous & ancestorStatus == TextNodeStatus.IsAmbiguous)
+				return false;
+
+			/******************* WARNING *****************/
+			// Don't let R# 'help' with the return layout, or it will continue 'helping',
+			// until there is only one gianormous return that is undertandable only by the compiler.
+			/******************* WARNING *****************/
+			if (ourStatus == TextNodeStatus.IsTextNodeContainer || theirStatus == TextNodeStatus.IsTextNodeContainer || ancestorStatus == TextNodeStatus.IsTextNodeContainer)
+				return true; // One node is a text container, even if the other two aren't sure.
+
+			return false;
+		}
+
+		public static TextNodeStatus IsTextNodeContainer(XmlNode node)
+		{
+			if (node == null)
+				return TextNodeStatus.IsAmbiguous;
+
+			var badNodeTypes = new HashSet<XmlNodeType>
+								{
+									XmlNodeType.None,
+									XmlNodeType.Element,
+									XmlNodeType.Attribute,
+									XmlNodeType.CDATA,
+									XmlNodeType.EntityReference,
+									XmlNodeType.Entity,
+									XmlNodeType.ProcessingInstruction,
+									XmlNodeType.Comment,
+									XmlNodeType.Document,
+									XmlNodeType.DocumentType,
+									XmlNodeType.DocumentFragment,
+									XmlNodeType.Notation,
+									XmlNodeType.EndElement,
+									XmlNodeType.EndEntity,
+									XmlNodeType.XmlDeclaration
+								};
+			if (node.NodeType != XmlNodeType.Element)
+				return TextNodeStatus.IsNotTextNodeContainer;
+
+			if (!node.HasChildNodes)
+				return TextNodeStatus.IsAmbiguous;
+
+			var goodNodeTypes = new HashSet<XmlNodeType>
+									{
+										XmlNodeType.SignificantWhitespace,
+										XmlNodeType.Whitespace,
+										XmlNodeType.Text
+									};
+
+			// I (RBR) think the only ones we can cope with are:
+			// Text, Whitespace, and SignificantWhitespace.
+			// Alternatively, one might be able to use the XmlText, XmlWhitespace,
+			// and XmlSignificantWhitespace subclasses of XmlCharacterData (leaving out XmlCDataSection and XmlComment), which match well with those legal enums
+			return node.ChildNodes.Cast<XmlNode>().Any(childNode => !goodNodeTypes.Contains(childNode.NodeType))
+				? TextNodeStatus.IsNotTextNodeContainer
+				: TextNodeStatus.IsTextNodeContainer;
+		}
+
+		internal static void AddDateCreatedAttribute(XmlNode elementNode)
+		{
+			AddAttribute(elementNode, "dateCreated", DateTime.Now.ToString(LiftUtils.LiftTimeFormatNoTimeZone));
+		}
+
+		internal static void AddAttribute(XmlNode element, string name, string value)
+		{
+			var attr = element.OwnerDocument.CreateAttribute(name);
+			attr.Value = value;
+			element.Attributes.Append(attr);
+		}
+
+		internal static IEnumerable<XmlAttribute> GetAttrs(XmlNode node)
+		{
+			return (node is XmlCharacterData || node == null)
+					? new List<XmlAttribute>()
+					: new List<XmlAttribute>(node.Attributes.Cast<XmlAttribute>()); // Need to copy so we can iterate while changing.
+		}
+
+		internal static XmlAttribute GetAttributeOrNull(XmlNode node, string name)
+		{
+			return node == null ? null : node.Attributes.GetNamedItem(name) as XmlAttribute;
+		}
+	}
+
+	public enum TextNodeStatus
+	{
+		IsTextNodeContainer,
+		IsNotTextNodeContainer,
+		IsAmbiguous
 	}
 
 	public class XmlFormatException : ApplicationException

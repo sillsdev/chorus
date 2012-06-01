@@ -30,14 +30,15 @@ namespace LibChorus.Tests.merge
 
 		public string BobTextConflictsPath
 		{
-			get { return Folder.Combine("bob.lift.ChorusNotes"); }
+			get { return Folder.Combine("bob.lift.NewChorusNotes"); }
 		}
 
 		public void Dispose()
 		{
-			AncestorFile.Dispose();
-			BobFile.Dispose();
-			SallyFile.Dispose();
+			Folder.Dispose();
+			// Folder Dispose took care of Bob. BobFile.Dispose();
+			// Folder Dispose took care of Sally. SallyFile.Dispose();
+			// Folder Dispose took care of Ancestor. AncestorFile.Dispose();
 		}
 
 

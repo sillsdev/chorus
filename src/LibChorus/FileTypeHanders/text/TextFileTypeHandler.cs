@@ -16,6 +16,8 @@ namespace Chorus.FileTypeHanders.text
 
 	public class TextFileTypeHandler : IChorusFileTypeHandler
 	{
+		internal TextFileTypeHandler()
+		{}
 
 	 public bool CanDiffFile(string pathToFile)
 		{
@@ -43,14 +45,13 @@ namespace Chorus.FileTypeHanders.text
 
 		public void Do3WayMerge(MergeOrder order)
 		{
-#if DEBUG
 		   // Debug.Fail("hello");
+			// FailureSimulator is only used by tests to force a failure.
 			FailureSimulator.IfTestRequestsItThrowNow("TextMerger");
 
 			//trigger on a particular file name
+			// FailureSimulator is only used by tests to force a failure.
 			FailureSimulator.IfTestRequestsItThrowNow("TextMerger-"+Path.GetFileName(order.pathToOurs));
-#endif
-
 
 			//TODO: this is not yet going to deal with conflicts at all!
 			var contents = GetRawMerge(order.pathToOurs, order.pathToCommonAncestor, order.pathToTheirs);
@@ -115,6 +116,10 @@ namespace Chorus.FileTypeHanders.text
 			return new IChangeReport[] { new DefaultChangeReport(fileInRevision, "Added") };
 		}
 
+		/// <summary>
+		/// Get a list or one, or more, extensions this file type handler can process
+		/// </summary>
+		/// <returns>A collection of extensions (without leading period (.)) that can be processed.</returns>
 		public IEnumerable<string> GetExtensionsOfKnownTextFileTypes()
 		{
 			yield return "txt";

@@ -11,6 +11,9 @@ namespace Chorus.FileTypeHanders.test
 {
 	public class ChorusTestFileHandler : IChorusFileTypeHandler
 	{
+		internal ChorusTestFileHandler()
+		{}
+
 		public bool CanDiffFile(string pathToFile)
 		{
 			return false;
@@ -65,6 +68,10 @@ namespace Chorus.FileTypeHanders.test
 			throw new NotImplementedException();
 		}
 
+		/// <summary>
+		/// Get a list or one, or more, extensions this file type handler can process
+		/// </summary>
+		/// <returns>A collection of extensions (without leading period (.)) that can be processed.</returns>
 		public IEnumerable<string> GetExtensionsOfKnownTextFileTypes()
 		{
 			yield return "chorusTest";
