@@ -1,3 +1,5 @@
+using Palaso.Progress.LogBox;
+
 namespace Chorus.sync
 {
 	/// <summary>
@@ -11,12 +13,12 @@ namespace Chorus.sync
 		/// <summary>
 		/// Allow the client to do something right before the initial local commit.
 		/// </summary>
-		void PrepareForInitialCommit();
+		void PrepareForInitialCommit(IProgress progress);
 
 		/// <summary>
 		/// Allow the client to do something right after a merge, but before the merges are committed.
 		/// </summary>
-		/// <remarks>This method not be called at all, if there was no merging.</remarks>
-		void PrepareForPostMergeCommit();
+		/// <remarks>This method is not be called at all, if there was no merging.</remarks>
+		void PrepareForPostMergeCommit(IProgress progress, int totalNumberOfMerges, int currentMerge);
 	}
 }

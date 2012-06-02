@@ -2,6 +2,7 @@ using System.IO;
 using Chorus.sync;
 using LibChorus.TestUtilities;
 using NUnit.Framework;
+using Palaso.Progress.LogBox;
 
 namespace LibChorus.Tests.sync
 {
@@ -138,7 +139,7 @@ namespace LibChorus.Tests.sync
 			/// <summary>
 			/// Allow the client to do something right before the initial local commit.
 			/// </summary>
-			public void PrepareForInitialCommit()
+			public void PrepareForInitialCommit(IProgress progress)
 			{
 				File.WriteAllText(CommitPathname, "Committed");
 			}
@@ -147,7 +148,7 @@ namespace LibChorus.Tests.sync
 			/// Allow the client to do something right after a merge, but before the merges are committed.
 			/// </summary>
 			/// <remarks>This method not be called at all, if there was no merging.</remarks>
-			public void PrepareForPostMergeCommit()
+			public void PrepareForPostMergeCommit(IProgress progress, int totalNumberOfMerges, int currentMerge)
 			{
 				File.WriteAllText(MergePathname, "Merged");
 			}

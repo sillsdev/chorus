@@ -352,7 +352,7 @@ namespace Chorus.sync
 			ThrowIfCancelPending();
 			_progress.WriteMessage("Storing changes in local repository...");
 
-			_sychronizerAdjunct.PrepareForInitialCommit();
+			_sychronizerAdjunct.PrepareForInitialCommit(_progress);
 
 			// Must be done, before "AddAndCommitFiles" call.
 			// It could be here, or first thing inside the 'using' for CommitCop.
@@ -659,18 +659,34 @@ namespace Chorus.sync
 				if (myHead == default(Revision))
 					return;
 
+				var skippedHeads = (heads.Where(
+					head => head.Number.LocalRevisionNumber == myHead.Number.LocalRevisionNumber
+						|| head.Tag.Contains(RejectTagSubstring)
+						|| head.Branch != myHead.Branch
+						|| CheckAndWarnIfNoCommonAncestor(myHead, head))).ToArray();
+				foreach (var skippedHead in skippedHeads)
+					heads.Remove(skippedHead);
+				var totalNumberOfMerges = heads.Count;
+				var currentMerge = 0;
 				foreach (Revision head in heads)
 				{
-					if (head.Number.LocalRevisionNumber == myHead.Number.LocalRevisionNumber)
-						continue;
+					// Note: These are all removed, above.
+					//if (head.Number.LocalRevisionNumber == myHead.Number.LocalRevisionNumber)
+					//{
+					//    continue;
+					//}
 
-					if (head.Tag.Contains(RejectTagSubstring))
-						continue;
+					//if (head.Tag.Contains(RejectTagSubstring))
+					//{
+					//    continue;
+					//}
 
-					//note: what we're checking here is actually the *name* of the branch...important: remmber in hg,
-					//you can have multiple heads on the same branch
-					if (head.Branch != myHead.Branch) //Chorus policy is to only auto-merge on branches with same name
-						continue;
+					////note: what we're checking here is actually the *name* of the branch...important: remmber in hg,
+					////you can have multiple heads on the same branch
+					//if (head.Branch != myHead.Branch) //Chorus policy is to only auto-merge on branches with same name
+					//{
+					//    continue;
+					//}
 
 					//this is for posterity, on other people's machines, so use the hashes instead of local numbers
 					MergeSituation.PushRevisionsToEnvironmentVariables(myHead.UserId, myHead.Number.Hash, head.UserId,
@@ -681,28 +697,31 @@ namespace Chorus.sync
 					_progress.WriteVerbose("   Revisions {0}:{1} with {2}:{3}...", myHead.Number.LocalRevisionNumber, myHead.Number.Hash, head.Number.LocalRevisionNumber, head.Number.Hash);
 					RemoveMergeObstacles(myHead, head);
 
-					if(CheckAndWarnIfNoCommonAncestor(myHead, head))
+					//if(CheckAndWarnIfNoCommonAncestor(myHead, head))
+					//{
+					//    continue;
+					//}
+
+					currentMerge++;
+					if (!MergeTwoChangeSets(myHead, head))
 					{
+						_progress.WriteMessage("Merge {0} of {1} was not done.", currentMerge, totalNumberOfMerges);
 						continue;
 					}
 
-					bool didMerge = MergeTwoChangeSets(myHead, head);
-					if (didMerge)
-					{
-						peopleWeMergedWith.Add(head.UserId);
+					peopleWeMergedWith.Add(head.UserId);
 
-						//that merge may have generated notes files where they didn't exist before,
-						//and we want these merged
-						//version + updated/created notes files to go right back into the repository
+					//that merge may have generated notes files where they didn't exist before,
+					//and we want these merged
+					//version + updated/created notes files to go right back into the repository
 
-						//  args.Append(" -X " + SurroundWithQuotes(Path.Combine(_pathToRepository, "**.ChorusRescuedFile")));
+					//  args.Append(" -X " + SurroundWithQuotes(Path.Combine(_pathToRepository, "**.ChorusRescuedFile")));
 
-						AppendAnyNewNotes(_localRepositoryPath);
+					AppendAnyNewNotes(_localRepositoryPath);
 
-						_sychronizerAdjunct.PrepareForPostMergeCommit();
+					_sychronizerAdjunct.PrepareForPostMergeCommit(_progress, totalNumberOfMerges, currentMerge);
 
-						AddAndCommitFiles(GetMergeCommitSummary(head.UserId, Repository));
-					}
+					AddAndCommitFiles(GetMergeCommitSummary(head.UserId, Repository));
 				}
 			}
 			catch (UserCancelledException)
