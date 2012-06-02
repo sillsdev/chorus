@@ -135,26 +135,41 @@ namespace LibChorus.TestUtilities
 			File.WriteAllText(UserFile.Path, replacement);
 		}
 
+		public SyncResults SyncWithOtions(SyncOptions options)
+		{
+			return SyncWithOtions(options, Synchronizer);
+		}
+
+		public SyncResults SyncWithOtions(SyncOptions options, Synchronizer synchronizer)
+		{
+			return synchronizer.SyncNow(options);
+		}
+
 		public SyncResults CheckinAndPullAndMerge(RepositoryWithFilesSetup syncWithUser)
 		{
-			SyncOptions options = new SyncOptions();
-			options.DoMergeWithOthers = true;
-			options.DoPullFromOthers = true;
-			options.DoSendToOthers = false;
+			var options = new SyncOptions
+							{
+								DoMergeWithOthers = true,
+								DoPullFromOthers = true,
+								DoSendToOthers = false
+							};
 
 			options.RepositorySourcesToTry.Add(syncWithUser.RepoPath);
-			return Synchronizer.SyncNow(options);
+
+			return SyncWithOtions(options);
 		}
 
 
 		public void AddAndCheckIn()
 		{
-			SyncOptions options = new SyncOptions();
-			options.DoMergeWithOthers = false;
-			options.DoPullFromOthers = false;
-			options.DoSendToOthers = false;
+			var options = new SyncOptions
+							{
+								DoMergeWithOthers = false,
+								DoPullFromOthers = false,
+								DoSendToOthers = false
+							};
 
-			Synchronizer.SyncNow(options);
+			SyncWithOtions(options);
 		}
 
 		public void WriteIniContents(string s)

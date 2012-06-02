@@ -264,11 +264,6 @@ namespace Chorus.UI.Sync
 		{
 			_synchronizer.SynchronizerAdjunct = adjunct;
 		}
-
-		public void SetSynchronizerAdjunct(ISychronizerAdjunct adjunct)
-		{
-			_synchronizer.SynchronizerAdjunct = adjunct;
-		}
 	}
 
 	[Flags]

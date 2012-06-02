@@ -130,15 +130,28 @@ namespace LibChorus.TestUtilities
 			Repository.Commit(false,message);
 		}
 
+		public SyncResults SyncWithOtions(SyncOptions options)
+		{
+			return SyncWithOtions(options, CreateSynchronizer());
+		}
+
+		public SyncResults SyncWithOtions(SyncOptions options, Synchronizer synchronizer)
+		{
+			return synchronizer.SyncNow(options);
+		}
+
 		public void AddAndCheckIn()
 		{
-			var options = new SyncOptions();
-			options.DoMergeWithOthers = false;
-			options.DoPullFromOthers = false;
-			options.DoSendToOthers = false;
+			var options = new SyncOptions
+							{
+								DoMergeWithOthers = false,
+								DoPullFromOthers = false,
+								DoSendToOthers = false
+							};
 
-			CreateSynchronizer().SyncNow(options);
+			SyncWithOtions(options);
 		}
+
 		public SyncResults CheckinAndPullAndMerge()
 		{
 			return CheckinAndPullAndMerge(null);
@@ -146,14 +159,17 @@ namespace LibChorus.TestUtilities
 
 		public SyncResults CheckinAndPullAndMerge(RepositorySetup otherUser)
 		{
-			var options = new SyncOptions();
-			options.DoMergeWithOthers = true;
-			options.DoPullFromOthers = true;
-			options.DoSendToOthers = true;
+			var options = new SyncOptions
+							{
+								DoMergeWithOthers = true,
+								DoPullFromOthers = true,
+								DoSendToOthers = true
+							};
 
 			if(otherUser!=null)
 				options.RepositorySourcesToTry.Add(otherUser.GetRepositoryAddress());
-			return CreateSynchronizer().SyncNow(options);
+
+			return SyncWithOtions(options);
 		}
 
 		public RepositoryAddress GetRepositoryAddress()
