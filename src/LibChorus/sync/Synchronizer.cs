@@ -24,7 +24,7 @@ namespace Chorus.sync
 	{
 		#region Fields
 
-		private ISychronizerAdjunct _sychronizerAdjunct;
+		private ISychronizerAdjunct _sychronizerAdjunct = new DefaultSychronizerAdjunct();
 		private DoWorkEventArgs _backgroundWorkerArguments;
 		private BackgroundWorker _backgroundWorker;
 		private string _localRepositoryPath;
@@ -61,8 +61,16 @@ namespace Chorus.sync
 		}
 		public List<RepositoryAddress> ExtraRepositorySources { get; private set; }
 
+		/// <summary>
+		/// Sets the SychronizerAdjunct property to the given ISychronizerAdjunct instance.
+		/// </summary>
+		/// <remarks>
+		/// Setting the property to null will result in the default, do-nothing, interface implementation.
+		///
+		/// </remarks>
 		public ISychronizerAdjunct SynchronizerAdjunct
 		{
+			internal get { return _sychronizerAdjunct; } // For testing.
 			set
 			{
 				_sychronizerAdjunct = value ?? new DefaultSychronizerAdjunct();
@@ -80,8 +88,6 @@ namespace Chorus.sync
 			_handlers = ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers();
 			ExtraRepositorySources = new List<RepositoryAddress>();
 			ExtraRepositorySources.Add(RepositoryAddress.Create(RepositoryAddress.HardWiredSources.UsbKey, "USB flash drive", false));
-
-		   _sychronizerAdjunct = new DefaultSychronizerAdjunct();
 		}
 
 		public static Synchronizer FromProjectConfiguration(ProjectFolderConfiguration project, IProgress progress)

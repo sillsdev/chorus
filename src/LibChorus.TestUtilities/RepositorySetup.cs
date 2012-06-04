@@ -130,12 +130,12 @@ namespace LibChorus.TestUtilities
 			Repository.Commit(false,message);
 		}
 
-		public SyncResults SyncWithOtions(SyncOptions options)
+		public SyncResults SyncWithOptions(SyncOptions options)
 		{
-			return SyncWithOtions(options, CreateSynchronizer());
+			return SyncWithOptions(options, CreateSynchronizer());
 		}
 
-		public SyncResults SyncWithOtions(SyncOptions options, Synchronizer synchronizer)
+		public SyncResults SyncWithOptions(SyncOptions options, Synchronizer synchronizer)
 		{
 			return synchronizer.SyncNow(options);
 		}
@@ -149,7 +149,7 @@ namespace LibChorus.TestUtilities
 								DoSendToOthers = false
 							};
 
-			SyncWithOtions(options);
+			SyncWithOptions(options);
 		}
 
 		public SyncResults CheckinAndPullAndMerge()
@@ -169,7 +169,7 @@ namespace LibChorus.TestUtilities
 			if(otherUser!=null)
 				options.RepositorySourcesToTry.Add(otherUser.GetRepositoryAddress());
 
-			return SyncWithOtions(options);
+			return SyncWithOptions(options);
 		}
 
 		public RepositoryAddress GetRepositoryAddress()

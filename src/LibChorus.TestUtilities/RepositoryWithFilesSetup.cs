@@ -135,12 +135,12 @@ namespace LibChorus.TestUtilities
 			File.WriteAllText(UserFile.Path, replacement);
 		}
 
-		public SyncResults SyncWithOtions(SyncOptions options)
+		public SyncResults SyncWithOptions(SyncOptions options)
 		{
-			return SyncWithOtions(options, Synchronizer);
+			return SyncWithOptions(options, Synchronizer);
 		}
 
-		public SyncResults SyncWithOtions(SyncOptions options, Synchronizer synchronizer)
+		public SyncResults SyncWithOptions(SyncOptions options, Synchronizer synchronizer)
 		{
 			return synchronizer.SyncNow(options);
 		}
@@ -156,7 +156,7 @@ namespace LibChorus.TestUtilities
 
 			options.RepositorySourcesToTry.Add(syncWithUser.RepoPath);
 
-			return SyncWithOtions(options);
+			return SyncWithOptions(options);
 		}
 
 
@@ -169,7 +169,7 @@ namespace LibChorus.TestUtilities
 								DoSendToOthers = false
 							};
 
-			SyncWithOtions(options);
+			SyncWithOptions(options);
 		}
 
 		public void WriteIniContents(string s)

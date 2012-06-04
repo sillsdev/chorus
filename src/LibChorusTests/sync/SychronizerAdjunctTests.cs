@@ -28,7 +28,22 @@ namespace LibChorus.Tests.sync
 				options.RepositorySourcesToTry.Add(bob.RepoPath);
 				var synchronizer = sally.Synchronizer;
 
-				Assert.DoesNotThrow(() => sally.SyncWithOtions(options, synchronizer));
+				Assert.DoesNotThrow(() => sally.SyncWithOptions(options, synchronizer));
+			}
+		}
+
+		[Test]
+		public void SettingSychronizerAdjunctToNullEndsWithDoNothingDefaultInterfaceImplementation()
+		{
+			using (var bob = new RepositorySetup("bob", true))
+			{
+				var synchronizer = bob.CreateSynchronizer();
+				Assert.IsNotNull(synchronizer.SynchronizerAdjunct);
+				Assert.IsInstanceOf<DefaultSychronizerAdjunct>(synchronizer.SynchronizerAdjunct);
+
+				synchronizer.SynchronizerAdjunct = null;
+				Assert.IsNotNull(synchronizer.SynchronizerAdjunct);
+				Assert.IsInstanceOf<DefaultSychronizerAdjunct>(synchronizer.SynchronizerAdjunct);
 			}
 		}
 
@@ -52,10 +67,15 @@ namespace LibChorus.Tests.sync
 				var synchronizer = sally.Synchronizer;
 				synchronizer.SynchronizerAdjunct = null;
 
-				Assert.DoesNotThrow(() => sally.SyncWithOtions(options, synchronizer));
+				Assert.DoesNotThrow(() => sally.SyncWithOptions(options, synchronizer));
 			}
 		}
 
+		/// <summary>
+		/// This test will do the first (local) commit, but does no merge.
+		/// As such, the test CommitPathname will be created, but the test MergePathname will *not* be created.
+		/// The presence or absence of the two files tells us whether the Synchronizer class called the new interface methods.
+		/// </summary>
 		[Test]
 		public void BasicCommitHasCommitFileButNotMergeFile()
 		{
@@ -75,13 +95,19 @@ namespace LibChorus.Tests.sync
 				var synchronizer = bob.CreateSynchronizer();
 				synchronizer.SynchronizerAdjunct = syncAdjunct;
 
-				bob.SyncWithOtions(options, synchronizer);
+				bob.SyncWithOptions(options, synchronizer);
 
 				Assert.IsTrue(File.Exists(syncAdjunct.CommitPathname));
 				Assert.IsFalse(File.Exists(syncAdjunct.MergePathname));
 			}
 		}
 
+
+		/// <summary>
+		/// This test will do the first (local) commit and does a merge.
+		/// As such, the CommitPathname and MergePathname test files will be *bith* created.
+		/// The presence or absence of the two files tells us whether the Synchronizer class called the new interface methods.
+		/// </summary>
 		[Test]
 		public void CommitWithMergeHasCommitFileAndMergeFile()
 		{
@@ -108,7 +134,7 @@ namespace LibChorus.Tests.sync
 				synchronizer.SynchronizerAdjunct = syncAdjunct;
 
 
-				sally.SyncWithOtions(options, synchronizer);
+				sally.SyncWithOptions(options, synchronizer);
 
 				Assert.IsTrue(File.Exists(syncAdjunct.CommitPathname));
 				Assert.IsTrue(File.Exists(syncAdjunct.MergePathname));
@@ -145,7 +171,7 @@ namespace LibChorus.Tests.sync
 			}
 
 			/// <summary>
-			/// Allow the client to do something right after a merge, but before the merges are committed.
+			/// Allow the client to do something right after a merge, but before the merge is committed.
 			/// </summary>
 			/// <remarks>This method not be called at all, if there was no merging.</remarks>
 			public void PrepareForPostMergeCommit(IProgress progress, int totalNumberOfMerges, int currentMerge)

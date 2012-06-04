@@ -19,7 +19,7 @@ namespace Chorus.sync
 		{ /* Do nothing at all. */ }
 
 		/// <summary>
-		/// Allow the client to do something right after a merge, but before the merges are committed.
+		/// Allow the client to do something right after a merge, but before the merge is committed.
 		/// </summary>
 		/// <remarks>This method not be called at all, if there was no merging.</remarks>
 		public void PrepareForPostMergeCommit(IProgress progress, int totalNumberOfMerges, int currentMerge)
