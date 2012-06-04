@@ -169,11 +169,11 @@
 			this.cancelButton.TabIndex = 4;
 			this.cancelButton.Text = "Cancel";
 			this.cancelButton.UseVisualStyleBackColor = true;
-			this.cancelButton.Click += new System.EventHandler(this.OnCancelButtonClick);
 			//
 			// getButton
 			//
 			this.getButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+			this.getButton.DialogResult = System.Windows.Forms.DialogResult.OK;
 			this.getButton.Enabled = false;
 			this.getButton.Location = new System.Drawing.Point(315, 347);
 			this.getButton.Name = "getButton";
@@ -207,6 +207,7 @@
 			this.Name = "GetCloneFromNetworkFolderDlg";
 			this.ShowIcon = false;
 			this.Text = "Get Project from Shared Network Folder";
+			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.OnFormClosing);
 			this.panel.ResumeLayout(false);
 			this.ResumeLayout(false);
 

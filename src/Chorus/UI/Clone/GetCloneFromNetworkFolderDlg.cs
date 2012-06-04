@@ -66,8 +66,6 @@ namespace Chorus.UI.Clone
 		/// <param name="e"></param>
 		private void OnGetButtonClick(object sender, EventArgs e)
 		{
-			TerminateBackgroundWorkers();
-
 			var langProjName = Path.GetFileNameWithoutExtension(_model.UserSelectedRepositoryPath);
 			var target = Path.Combine(_model._baseFolder, langProjName);
 			if (Directory.Exists(target))
@@ -79,18 +77,9 @@ namespace Chorus.UI.Clone
 			getButton.Enabled = false;
 			// TODO: We need some sort of progress bar for the duration og this MakeClone call:
 			_model.MakeClone(_model.UserSelectedRepositoryPath, _model._baseFolder, new LogBox());
-			DialogResult = DialogResult.OK;
-			Close();
 		}
 
-		/// <summary>
-		/// Handles event when user clicks dialog Cancel button.
-		/// We need to terminate all the background worker threads so they don't try
-		/// to access dialog controls after the controls are destroyed.
-		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
-		private void OnCancelButtonClick(object sender, EventArgs e)
+		private void OnFormClosing(object sender, FormClosingEventArgs e)
 		{
 			TerminateBackgroundWorkers();
 		}
@@ -104,7 +93,11 @@ namespace Chorus.UI.Clone
 		private void OnRepositoryListViewDoubleClick(object sender, EventArgs e)
 		{
 			if (getButton.Enabled)
+			{
 				OnGetButtonClick(sender, e);
+				DialogResult = DialogResult.OK;
+				Close();
+			}
 		}
 
 		/// <summary>
