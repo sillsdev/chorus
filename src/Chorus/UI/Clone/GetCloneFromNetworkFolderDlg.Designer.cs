@@ -115,7 +115,7 @@
 			this.folderBrowserControl.BackColor = System.Drawing.Color.White;
 			this.folderBrowserControl.Location = new System.Drawing.Point(0, 17);
 			this.folderBrowserControl.Name = "folderBrowserControl";
-			this.folderBrowserControl.SelectedPath = "C:\\";
+			this.folderBrowserControl.SelectedPath = "";
 			this.folderBrowserControl.ShowAddressbar = true;
 			this.folderBrowserControl.ShowGoButton = false;
 			this.folderBrowserControl.ShowMyDocuments = true;
