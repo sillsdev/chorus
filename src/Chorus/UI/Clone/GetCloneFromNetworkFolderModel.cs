@@ -27,6 +27,11 @@ namespace Chorus.UI.Clone
 
 		private string _actualClonedFolder;
 		///<summary>
+		/// Flag indicating success or otherwise of MakeClone call
+		///</summary>
+		public bool CloneSucceeded { get; set; }
+
+		///<summary>
 		/// The path to the local copy of a cloned repository.
 		///</summary>
 		public string ActualClonedFolder { get { return _actualClonedFolder; } }
@@ -75,6 +80,9 @@ namespace Chorus.UI.Clone
 			// 'true' then writes the "address.Name=" (section.Set(address.Name, string.Empty);).
 			// I (RandyR) think this then uses that address.Name as the new 'default' for that particular repo source type.
 			repo.SetIsOneDefaultSyncAddresses(address, true);
+
+			if (_actualClonedFolder.Length > 0)
+				CloneSucceeded = true;
 
 			return _actualClonedFolder;
 		}

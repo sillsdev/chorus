@@ -173,7 +173,6 @@
 			// getButton
 			//
 			this.getButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-			this.getButton.DialogResult = System.Windows.Forms.DialogResult.OK;
 			this.getButton.Enabled = false;
 			this.getButton.Location = new System.Drawing.Point(315, 347);
 			this.getButton.Name = "getButton";

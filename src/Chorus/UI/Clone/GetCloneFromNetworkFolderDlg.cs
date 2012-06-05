@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
+using Palaso.Progress;
 using Palaso.Progress.LogBox;
 
 namespace Chorus.UI.Clone
@@ -18,14 +20,17 @@ namespace Chorus.UI.Clone
 		// Data model for this view:
 		private GetCloneFromNetworkFolderModel _model;
 		// List of background workers that go looking for Hg repositories in the user's folders:
-		private readonly List<FolderSearchWorker> _backgroundWorkers = new List<FolderSearchWorker>();
+		private readonly List<FolderSearchWorker> _folderSearchers = new List<FolderSearchWorker>();
 		// Define upper range limit of progess bar:
 		private const int MaxProgressValue = 10000;
 		// Place to store original color of progress bar:
 		private readonly Color _progressBarColor;
+		// Thread for call to MakeClone:
+		private readonly BackgroundWorker _backgroundCloner;
+		private MultiProgress _multiProgess;
 
 		// Object to handle updating the progress bar, status string and repository ListView.
-		// Background threads may make changes to this object, and a Timer event will cause the
+		// Folder-searcher threads may make changes to this object, and a Timer event will cause the
 		// dialog UI thread to read the object and update its controls accordingly:
 		private class ProgressData
 		{
@@ -45,6 +50,10 @@ namespace Chorus.UI.Clone
 
 			progressBar.Maximum = MaxProgressValue;
 			_progressBarColor = progressBar.ForeColor;
+
+			_backgroundCloner = new BackgroundWorker();
+			_backgroundCloner.RunWorkerCompleted += BackgroundClonerRunClonerCompleted;
+			_backgroundCloner.DoWork += BackgroundClonerDoWork;
 		}
 
 		///<summary>
@@ -75,13 +84,21 @@ namespace Chorus.UI.Clone
 			}
 
 			getButton.Enabled = false;
-			// TODO: We need some sort of progress bar for the duration og this MakeClone call:
-			_model.MakeClone(_model.UserSelectedRepositoryPath, _model._baseFolder, new LogBox());
+			cancelButton.Enabled = false;
+
+			SwitchControlsForCloning();
+
+			lock (this)
+			{
+				if (_backgroundCloner.IsBusy)
+					throw new Exception("Background repository-cloning thread already busy.");
+				_backgroundCloner.RunWorkerAsync();
+			}
 		}
 
 		private void OnFormClosing(object sender, FormClosingEventArgs e)
 		{
-			TerminateBackgroundWorkers();
+			TerminateFolderSearchers();
 		}
 
 		/// <summary>
@@ -93,11 +110,7 @@ namespace Chorus.UI.Clone
 		private void OnRepositoryListViewDoubleClick(object sender, EventArgs e)
 		{
 			if (getButton.Enabled)
-			{
 				OnGetButtonClick(sender, e);
-				DialogResult = DialogResult.OK;
-				Close();
-			}
 		}
 
 		/// <summary>
@@ -135,7 +148,7 @@ namespace Chorus.UI.Clone
 				throw new InvalidDataException(@"_model not initialized. Call LoadFromModel() in GetCloneFromNetworkFolderDlg object before displaying dialog.");
 
 			// Abandon any search that was already going on:
-			TerminateBackgroundWorkers();
+			TerminateFolderSearchers();
 
 			// Update model with user's new selection:
 			_model.FolderPath = folderBrowserControl.SelectedPath;
@@ -189,7 +202,7 @@ namespace Chorus.UI.Clone
 			else
 			{
 				// Start a background search for all Hg repositories from selected folder:
-				InitializeBackgroundWorkers(subFolders);
+				InitializeFolderSearchers(subFolders);
 			}
 		}
 
@@ -220,32 +233,21 @@ namespace Chorus.UI.Clone
 
 		#endregion
 
-		/// <summary>
-		/// Terminates the background workers (that are doing folder searches for Hg
-		/// repositories). The background threads terminate asynchronously so we will
-		/// simply abandon them once we tell them to quit.
-		/// </summary>
-		private void TerminateBackgroundWorkers()
-		{
-			foreach (var existingBackgroundWorker in _backgroundWorkers)
-				existingBackgroundWorker.Cancel();
-
-			_backgroundWorkers.Clear();
-		}
+		#region Background folder-searching
 
 		/// <summary>
 		/// Creates a bunch of background workers to carry out a new search through folders to find Hg repositories.
 		/// </summary>
 		/// <param name="initialFolders">Folder paths to search under</param>
-		private void InitializeBackgroundWorkers(List<string> initialFolders)
+		private void InitializeFolderSearchers(List<string> initialFolders)
 		{
-			if (_backgroundWorkers.Count != 0)
-				throw new DataException(@"_backgroundWorkers collection not empty at start of InitializeBackgroundWorkers call.");
+			if (_folderSearchers.Count != 0)
+				throw new DataException(@"_folderSearchers collection not empty at start of InitializeFolderSearchers call.");
 
 			var initialFoldersCount = initialFolders.Count;
 
 			if (initialFoldersCount == 0)
-				throw new DataException(@"InitializeBackgroundWorkers called with empty initialFolders List.");
+				throw new DataException(@"InitializeFolderSearchers called with empty initialFolders List.");
 
 			// Reset progress data:
 			_currentProgress = new ProgressData { Progress = 0, Status = "Searching for Project Repositories..." };
@@ -260,12 +262,91 @@ namespace Chorus.UI.Clone
 
 				// Create a new background worker:
 				var worker = new FolderSearchWorker(folder, progressBarPortions[i], _currentProgress, _model);
-				_backgroundWorkers.Add(worker);
+				_folderSearchers.Add(worker);
 
 				// Set the background worker going in its own thread:
 				new Thread(worker.DoWork).Start();
 			}
 		}
+
+		/// <summary>
+		/// Terminates the background workers (that are doing folder searches for Hg
+		/// repositories). The background threads terminate asynchronously so we will
+		/// simply abandon them once we tell them to quit.
+		/// </summary>
+		private void TerminateFolderSearchers()
+		{
+			foreach (var existingBackgroundWorker in _folderSearchers)
+				existingBackgroundWorker.Cancel();
+
+			_folderSearchers.Clear();
+		}
+
+		#endregion
+
+		#region Background Hg repository cloning
+
+		/// <summary>
+		/// Make folder-browsing controls invisible, and add in some progress controls for the MakeClone procedure:
+		/// </summary>
+		private void SwitchControlsForCloning()
+		{
+			panel.Visible = false;
+			progressBar.Visible = false;
+			statusLabel.Visible = false;
+
+			var logBox = new LogBox();
+			logBox.Location = new Point(panel.Location.X, panel.Location.Y + 50);
+			logBox.Width = panel.Width;
+			logBox.Height = panel.Height - 50;
+			logBox.Anchor = panel.Anchor;
+			logBox.ShowCopyToClipboardMenuItem = true;
+			logBox.ShowDetailsMenuItem = true;
+			logBox.ShowDiagnosticsMenuItem = true;
+			logBox.ShowFontMenuItem = true;
+
+			var progressIndicator = new SimpleProgressIndicator();
+			progressIndicator.Location = new Point(panel.Location.X, panel.Location.Y + 35);
+			progressIndicator.Width = panel.Width;
+			progressIndicator.Height = 10;
+			progressIndicator.Style = ProgressBarStyle.Marquee;
+			progressIndicator.Anchor = AnchorStyles.Right | AnchorStyles.Left | AnchorStyles.Right;
+#if MONO
+			progressIndicator.MarqueeAnimationSpeed = 3000;
+#else
+			progressIndicator.MarqueeAnimationSpeed = 50;
+#endif
+			progressIndicator.IndicateUnknownProgress();
+
+			Controls.Add(logBox);
+			Controls.Add(progressIndicator);
+
+			_multiProgess = new MultiProgress();
+			_multiProgess.AddMessageProgress(logBox);
+			logBox.ProgressIndicator = progressIndicator;
+			_multiProgess.ProgressIndicator = progressIndicator;
+		}
+
+		private void BackgroundClonerRunClonerCompleted(object sender, RunWorkerCompletedEventArgs e)
+		{
+			if (_model.CloneSucceeded)
+			{
+				DialogResult = DialogResult.OK;
+				Close();
+			}
+			else
+			{
+				cancelButton.Enabled = true;
+				_multiProgess.ProgressIndicator.Initialize();
+			}
+		}
+
+		void BackgroundClonerDoWork(object sender, DoWorkEventArgs e)
+		{
+			_model.MakeClone(_model.UserSelectedRepositoryPath, _model._baseFolder, _multiProgess);
+		}
+
+		#endregion
 
 		#region Deal with Progress updates
 
