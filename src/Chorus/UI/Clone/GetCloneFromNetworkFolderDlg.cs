@@ -99,6 +99,9 @@ namespace Chorus.UI.Clone
 		private void OnFormClosing(object sender, FormClosingEventArgs e)
 		{
 			TerminateFolderSearchers();
+			// Just ignore the user's request to cancel if the MakeClone thread is still running.
+			if (_backgroundCloner.IsBusy)
+				e.Cancel = true;
 		}
 
 		/// <summary>
