@@ -92,7 +92,7 @@ namespace Chorus.UI.Clone
 		/// Recursively searches folders for valid repositories. Depth of recursion can be limited,
 		/// in which case the next folders to be searched are passed out via nextLevelFolderPaths.
 		///</summary>
-		///<param name="folderPaths">Paths of folders to be searched, or empty list to use our own FolderPath</param>
+		///<param name="folderPaths">Paths of folders to be searched</param>
 		///<param name="nextLevelFolderPaths">[out] Folders next in line to be searched after recursion halted</param>
 		///<param name="maxRecursionDepth">Maximum number of levels of subfolders to recurse into. Any negative number will cause recursion all the way to the end.</param>
 		///<returns>List of folder paths that are valid repositories (according to ProjectFilter member)</returns>
