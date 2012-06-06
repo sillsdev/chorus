@@ -128,7 +128,14 @@ namespace Chorus.UI.Clone
 				}
 				else
 				{
-					nextLevelFolderPaths.AddRange(DirectoryUtilities.GetSafeDirectories(folderPath));
+					try
+					{
+						nextLevelFolderPaths.AddRange(DirectoryUtilities.GetSafeDirectories(folderPath));
+					}
+					catch (UnauthorizedAccessException)
+					{
+						// We don't care if we can't read a folder; we'll just go on to the next one.
+					}
 				}
 			}
 
