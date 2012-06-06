@@ -18,11 +18,11 @@ namespace Chorus.merge.xml.generic
 		public MergeStrategies()
 		{
 			ElementStrategies = new Dictionary<string, ElementStrategy>();
-			ElementStrategy s = new ElementStrategy(true);//review: this says the default is to consder order relevant
+			ElementStrategy s = new ElementStrategy(true);//review: this says the default is to consider order relevant
 			s.MergePartnerFinder = new FindTextDumb();
 			this.SetStrategy("_"+XmlNodeType.Text, s);
 
-			ElementStrategy def = new ElementStrategy(true);//review: this says the default is to consder order relevant
+			ElementStrategy def = new ElementStrategy(true);//review: this says the default is to consider order relevant
 			def.MergePartnerFinder = new FindByEqualityOfTree();
 			this.SetStrategy("_defaultElement", def);
 
