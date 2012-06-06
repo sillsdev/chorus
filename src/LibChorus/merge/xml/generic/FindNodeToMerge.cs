@@ -1,9 +1,5 @@
-//#define USEOPTIMIZEDVERSION
 using System;
 using System.Collections.Generic;
-#if USEOPTIMIZEDVERSION
-using System.Linq;
-#endif
 using System.Text;
 using System.Xml;
 using Chorus.merge.xml.generic.xmldiff;
@@ -52,27 +48,7 @@ namespace Chorus.merge.xml.generic
 			{
 				return null;
 			}
-
-#if USEOPTIMIZEDVERSION
-			var parentIdx = _parentsToSearchIn.IndexOf(parentToSearchIn);
-			if (parentIdx == -1)
-			{
-				_parentsToSearchIn.Add(parentToSearchIn);
-				parentIdx = _parentsToSearchIn.IndexOf(parentToSearchIn);
-				var childrenWithKeys = new Dictionary<string, XmlNode>(); // StringComparer.OrdinalIgnoreCase NO: Bad idea, since I (RBR) saw a case in a data file that had both upper and lower-cased variations.
-				_indexedSoughtAfterNodes.Add(parentIdx, childrenWithKeys);
-				var matchingName = nodeToMatch.Name;
-				var childrenWithKeyAttr = (from XmlNode childNode in parentToSearchIn.ChildNodes
-										   where childNode.Name == matchingName && childNode.Attributes[_keyAttribute] != null
-										   select childNode).ToList();
-				foreach (XmlNode nodeWithKeyAttribute in childrenWithKeyAttr)
-					childrenWithKeys.Add(nodeWithKeyAttribute.Attributes[_keyAttribute].Value, nodeWithKeyAttribute);
-			}
-
-			XmlNode matchingNode;
-			_indexedSoughtAfterNodes[parentIdx].TryGetValue(key, out matchingNode);
-			return matchingNode; // May be null, which is fine.
-#else
+#if USE_DOUBLEQUOTE_VERSION // seems to trade one vulnerability (internal ') for another (internal ")
 			// I (CP) changed this to use double quotes to allow attributes to contain single quotes.
 			// My understanding is that double quotes are illegal inside attributes so this should be fine.
 			// See: http://jira.palaso.org/issues/browse/WS-33895
@@ -80,10 +56,39 @@ namespace Chorus.merge.xml.generic
 			string xpath = string.Format("{0}[@{1}=\"{2}\"]", nodeToMatch.Name, _keyAttribute, key);
 
 			return parentToSearchIn.SelectSingleNode(xpath);
+#else
+			//hatton, working on chr-17, &quot in the lift file gets turned into " when the attribute is read, and then in the above "DOUBLEQUOTE" approach
+
+			//INTERESTING COVERAGE OF THE PROBLEM: http://stackoverflow.com/a/1352556/723299
+
+			//Approach 1: Returns the key to what was in the xml file, but then doesn't actually match anything: key = HttpUtility.HtmlEncode(key);
+
+			//Approach 2:  from http://stackoverflow.com/questions/642125/encoding-xpath-expressions-with-both-single-and-double-quotes?answertab=active#tab-top
+			//there isn't always an ownerdocument, so we can't use the idea from stackoverflow:
+			//				parentToSearchIn.OwnerDocument.DocumentElement.SetAttribute("searchName", key);
+			//				string xpath = string.Format("{0}[@{1}=/*/@searchName]", nodeToMatch.Name, _keyAttribute);
+			// And nor did this attempt to just stick the attribut on the parentToSearchIn (and remove it) work either, in many tests (reason unknown)
+			//			try
+			//        	{
+			//				((XmlElement)parentToSearchIn).SetAttribute("searchName", key);
+			//				string xpath = string.Format("{0}[@{1}=/*/@searchName]", nodeToMatch.Name, _keyAttribute);
+			//				return parentToSearchIn.SelectSingleNode(xpath);
+			//			}
+			//        	finally
+			//        	{
+			//				((XmlElement)parentToSearchIn).RemoveAttribute("searchName");
+			//        	}
+
+			//Approach 3: Use a bunch of Concat's as needed (see GetSafeXPathLiteral())
+
+			string xpath = string.Format("{0}[@{1}={2}]", nodeToMatch.Name, _keyAttribute, XmlUtilities.GetSafeXPathLiteral(key));
+
+			return parentToSearchIn.SelectSingleNode(xpath);
+
 #endif
 		}
 
-	}
+		}
 
 	/// <summary>
 	/// Assuming the children of the parent to search in form a list (order matters, duplicates allowed), and so do the
@@ -262,7 +267,7 @@ namespace Chorus.merge.xml.generic
 				if (i > 0)
 					bldr.Append(" and ");
 				var currentAttrName = _keyAttributes[i];
-				bldr.AppendFormat("@{0}=\"{1}\"", currentAttrName, XmlUtilities.GetStringAttribute(nodeToMatch, currentAttrName));
+				bldr.AppendFormat("@{0}={1}", currentAttrName, XmlUtilities.GetSafeXPathLiteral(XmlUtilities.GetStringAttribute(nodeToMatch, currentAttrName)));
 			}
 			bldr.Append("]");
 
@@ -352,8 +357,7 @@ namespace Chorus.merge.xml.generic
 
 	public class FindTextDumb : IFindNodeToMerge
 	{
-		// This won't cope with multiple text child nodes in the same element
-		// No, but then use FormMatchingFinder for that scenario.
+		//todo: this won't cope with multiple text child nodes in the same element
 
 		public XmlNode GetNodeToMerge(XmlNode nodeToMatch, XmlNode parentToSearchIn)
 		{
