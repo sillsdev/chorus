@@ -27,7 +27,9 @@ namespace Chorus.UI.Clone
 		private readonly Color _progressBarColor;
 		// Thread for call to MakeClone:
 		private readonly BackgroundWorker _backgroundCloner;
-		private MultiProgress _multiProgess;
+		private MultiProgress _clonerMultiProgess;
+		private TextBox _clonerStatusLabel;
+
 
 		// Object to handle updating the progress bar, status string and repository ListView.
 		// Folder-searcher threads may make changes to this object, and a Timer event will cause the
@@ -313,7 +315,7 @@ namespace Chorus.UI.Clone
 			progressIndicator.Width = panel.Width;
 			progressIndicator.Height = 10;
 			progressIndicator.Style = ProgressBarStyle.Marquee;
-			progressIndicator.Anchor = AnchorStyles.Right | AnchorStyles.Left | AnchorStyles.Right;
+			progressIndicator.Anchor = AnchorStyles.Right | AnchorStyles.Left | AnchorStyles.Top;
 #if MONO
 			progressIndicator.MarqueeAnimationSpeed = 3000;
 #else
@@ -321,32 +323,49 @@ namespace Chorus.UI.Clone
 #endif
 			progressIndicator.IndicateUnknownProgress();
 
+			_clonerStatusLabel = new TextBox();
+			_clonerStatusLabel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+			_clonerStatusLabel.BackColor = SystemColors.Control;
+			_clonerStatusLabel.BorderStyle = BorderStyle.None;
+			_clonerStatusLabel.Font = new Font("Microsoft Sans Serif", 12F, FontStyle.Regular, GraphicsUnit.Point, ((0)));
+			_clonerStatusLabel.Location = panel.Location;
+			_clonerStatusLabel.Multiline = true;
+			_clonerStatusLabel.Name = "_clonerStatusLabel";
+			_clonerStatusLabel.ReadOnly = true;
+			_clonerStatusLabel.Size = new Size(panel.Width, 25);
+
 			Controls.Add(logBox);
 			Controls.Add(progressIndicator);
+			Controls.Add(_clonerStatusLabel);
 
-			_multiProgess = new MultiProgress();
-			_multiProgess.AddMessageProgress(logBox);
+			_clonerMultiProgess = new MultiProgress();
+			_clonerMultiProgess.AddMessageProgress(logBox);
 			logBox.ProgressIndicator = progressIndicator;
-			_multiProgess.ProgressIndicator = progressIndicator;
+			_clonerMultiProgess.ProgressIndicator = progressIndicator;
+
+			_clonerStatusLabel.Text = "Getting project...";
 		}
 
 		private void BackgroundClonerRunClonerCompleted(object sender, RunWorkerCompletedEventArgs e)
 		{
 			if (_model.CloneSucceeded)
 			{
+				_clonerStatusLabel.Text = "Success.";
+				_clonerMultiProgess.ProgressIndicator.Initialize();
 				DialogResult = DialogResult.OK;
 				Close();
 			}
 			else
 			{
 				cancelButton.Enabled = true;
-				_multiProgess.ProgressIndicator.Initialize();
+				_clonerStatusLabel.Text = "Failed.";
+				_clonerMultiProgess.ProgressIndicator.Initialize();
 			}
 		}
 
 		void BackgroundClonerDoWork(object sender, DoWorkEventArgs e)
 		{
-			_model.MakeClone(_model.UserSelectedRepositoryPath, _model._baseFolder, _multiProgess);
+			_model.MakeClone(_model.UserSelectedRepositoryPath, _model._baseFolder, _clonerMultiProgess);
 		}
 
 		#endregion

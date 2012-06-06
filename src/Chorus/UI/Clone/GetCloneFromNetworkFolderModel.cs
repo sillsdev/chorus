@@ -81,6 +81,7 @@ namespace Chorus.UI.Clone
 			// I (RandyR) think this then uses that address.Name as the new 'default' for that particular repo source type.
 			repo.SetIsOneDefaultSyncAddresses(address, true);
 
+			// TODO: is there really no better way to detect success other than via the returned clone path?
 			if (_actualClonedFolder.Length > 0)
 				CloneSucceeded = true;
 
