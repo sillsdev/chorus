@@ -121,7 +121,10 @@ namespace Chorus.FileTypeHanders.lift
 			// <note
 			//		type [Optional, sig=key] There is only one note with a given type in any parent element.
 			//									Thus translations of the note are held as different forms of the one note.
-			elementStrategy = AddKeyedElementType(mergeStrategies, "note", "type", false);
+			elementStrategy = new ElementStrategy(false)
+								{
+									MergePartnerFinder = new OptionalKeyAttrFinder("type", new FormMatchingFinder())
+								};
 			//		dateCreated [Optional, sig=datetime, inherited from <extensible>]
 			//		dateModified [Optional, sig=datetime, inherited from <extensible>]
 			elementStrategy.AttributesToIgnoreForMerging.Add("dateModified");
@@ -129,6 +132,7 @@ namespace Chorus.FileTypeHanders.lift
 			//		<trait> [Optional, Multiple, sig=trait, inherited from <extensible>]
 			//		<annotation> [Optional, Multiple, sig=annotation, inherited from <extensible>]
 			//		<form> [Optional, Multiple, sig=form, inherited from <multitext>]
+			mergeStrategies.SetStrategy("note", elementStrategy);
 			// </note>
 			// ******************************* </note> **************************************************
 
@@ -201,6 +205,7 @@ namespace Chorus.FileTypeHanders.lift
 			// ******************************* </variant> **************************************************
 
 			// ******************************* <phonetic> **************************************************
+			// NB: Element name changed to <pronunciation>
 			// <phonetic
 			//		dateCreated [Optional, sig=datetime, inherited from <extensible>]
 			//		dateModified [Optional, sig=datetime, inherited from <extensible>] ignored in phonetic strategy
@@ -209,11 +214,9 @@ namespace Chorus.FileTypeHanders.lift
 			//		<annotation> [Optional, Multiple, sig=annotation, inherited from <extensible>]
 			//		<form> [Optional, Multiple, sig=form, inherited from <multitext>]
 			//		<media> [Optional, Multiple, sig=URLRef] NAME OVERRIDE
-			AddPhoneticStrategy(mergeStrategies);
+			// Not ever in lift file, as <pronunciation> wraps it. AddPhoneticStrategy(mergeStrategies);
 			AddKeyedElementType(mergeStrategies, "media", "href", false);
 			// </phonetic>
-			// No suitable key attr(s)
-			// The default Element Strategy will be used, for good, or ill.
 			// ******************************* </phonetic> **************************************************
 
 			// ******************************* <etymology> **************************************************
@@ -321,37 +324,36 @@ namespace Chorus.FileTypeHanders.lift
 
 		private static void AddReversalStrategy(MergeStrategies mergeStrategies)
 		{
-			// No. There can be multiple ones with the same 'type', AddKeyedElementType("reversal", "type", true);
-			var strategy = new ElementStrategy(true)
+			var strategy = new ElementStrategy(false)
 							{
-								MergePartnerFinder = new FormMatchingFinder()
+								MergePartnerFinder = new OptionalKeyAttrFinder("type", new FormMatchingFinder())
 							};
 			mergeStrategies.SetStrategy("reversal", strategy);
-			//elementStrategy.MergePartnerFinder = new FindByKeyAttributeInList();
 		}
 
 		private static void AddTranslationStrategy(MergeStrategies mergeStrategies)
 		{
-			var strategy = new ElementStrategy(true)
+			var strategy = new ElementStrategy(false)
 							{
 								MergePartnerFinder = new OptionalKeyAttrFinder("type", new FormMatchingFinder())
 							};
 			mergeStrategies.SetStrategy("translation", strategy);
 		}
 
+		/* Called <pronunciation> in lift file.
 		private static void AddPhoneticStrategy(MergeStrategies mergeStrategies)
 		{
-			var strategy = new ElementStrategy(true)
+			var strategy = new ElementStrategy(false)
 							{
 								MergePartnerFinder = new FormMatchingFinder()
 							};
 			strategy.AttributesToIgnoreForMerging.Add("dateModified");
 			mergeStrategies.SetStrategy("phonetic", strategy);
-		}
+		}*/
 
 		private static void AddPronunciationStrategy(MergeStrategies mergeStrategies)
 		{
-			var strategy = new ElementStrategy(true)
+			var strategy = new ElementStrategy(false)
 							{
 								MergePartnerFinder = new FormMatchingFinder()
 							};
@@ -361,7 +363,7 @@ namespace Chorus.FileTypeHanders.lift
 
 		private static void AddVariantStrategy(MergeStrategies mergeStrategies)
 		{
-			var strategy = new ElementStrategy(true)
+			var strategy = new ElementStrategy(false)
 							{
 								MergePartnerFinder = new OptionalKeyAttrFinder("ref", new FormMatchingFinder())
 							};
@@ -371,7 +373,7 @@ namespace Chorus.FileTypeHanders.lift
 
 		private static void AddExampleSentenceStrategy(MergeStrategies mergeStrategies)
 		{
-			var strategy = new ElementStrategy(true)
+			var strategy = new ElementStrategy(false)
 							{
 								MergePartnerFinder = new OptionalKeyAttrFinder("source", new FormMatchingFinder())
 							};
