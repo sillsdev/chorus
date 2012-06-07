@@ -20,11 +20,12 @@ namespace Chorus.Tests.UI.Clone
 			using (var f = new TemporaryFolder("clonetest"))
 			{
 				var model = new GetCloneFromNetworkFolderModel(f.Path);
+				model.UserSelectedRepositoryPath = repo.ProjectFolder.Path;
 				var progress = new ConsoleProgress
 								{
 									ShowVerbose = true
 								};
-				model.MakeClone(repo.ProjectFolder.Path, f.Path, progress);
+				model.MakeClone(progress);
 				Assert.IsTrue(Directory.Exists(f.Combine(RepositorySetup.ProjectName, ".hg")));
 			}
 		}
@@ -36,6 +37,7 @@ namespace Chorus.Tests.UI.Clone
 			using (var f = new TemporaryFolder("clonetest"))
 			{
 				var model = new GetCloneFromNetworkFolderModel(f.Path);
+				model.UserSelectedRepositoryPath = repo.ProjectFolder.Path;
 				var progress = new ConsoleProgress
 								{
 									ShowVerbose = true
@@ -46,7 +48,7 @@ namespace Chorus.Tests.UI.Clone
 				var extantSubfolderPath = Path.Combine(extantFolder, "ChildFolder");
 				Directory.CreateDirectory(extantSubfolderPath);
 
-				var cloneFolder = model.MakeClone(repo.ProjectFolder.Path, f.Path, progress);
+				var cloneFolder = model.MakeClone(progress);
 				Assert.AreEqual(extantFolder + "1", cloneFolder);
 				Assert.IsTrue(Directory.Exists(extantFolder + "1"));
 			}
@@ -60,6 +62,7 @@ namespace Chorus.Tests.UI.Clone
 			using (var f = new TemporaryFolder("clonetest"))
 			{
 				var model = new GetCloneFromNetworkFolderModel(f.Path);
+				model.UserSelectedRepositoryPath = repo.ProjectFolder.Path;
 				var progress = new ConsoleProgress
 								{
 									ShowVerbose = true
@@ -67,7 +70,7 @@ namespace Chorus.Tests.UI.Clone
 				var extantFolder = f.Combine(RepositorySetup.ProjectName);
 				Directory.CreateDirectory(extantFolder);
 
-				var cloneFolder = model.MakeClone(repo.ProjectFolder.Path, f.Path, progress);
+				var cloneFolder = model.MakeClone(progress);
 				Assert.AreEqual(extantFolder, cloneFolder);
 				Assert.IsTrue(Directory.Exists(extantFolder));
 				Assert.IsFalse(Directory.Exists(extantFolder + "1"));
@@ -128,12 +131,13 @@ namespace Chorus.Tests.UI.Clone
 				MakeFolderTree(f.Path, "Folders", 4, 4, 4);
 				var clonePath = Path.Combine(Path.Combine(Path.Combine(f.Path, "Folders_4"), "Folders_4_4"), "Folders_4_4_4");
 				var model = new GetCloneFromNetworkFolderModel(clonePath);
+				model.UserSelectedRepositoryPath = repo.ProjectFolder.Path;
 				SetStandardProjectFilter(model);
 				var progress = new ConsoleProgress
 								{
 									ShowVerbose = true
 								};
-				model.MakeClone(repo.ProjectFolder.Path, clonePath, progress);
+				model.MakeClone(progress);
 				List<string> nextFolders;
 				var repoList = model.GetRepositoriesAndNextLevelSearchFolders(new List<string> {f.Path}, out nextFolders, -1);
 				Assert.AreEqual(1, repoList.Count());
@@ -182,11 +186,12 @@ namespace Chorus.Tests.UI.Clone
 				MakeFolderTree(f.Path, "Folders", 4, 5, 6);
 				var clonePath = Path.Combine(Path.Combine(Path.Combine(f.Path, "Folders_4"), "Folders_4_4"), "Folders_4_4_4");
 				var model = new GetCloneFromNetworkFolderModel(clonePath);
+				model.UserSelectedRepositoryPath = repo.ProjectFolder.Path;
 				var progress = new ConsoleProgress
 								{
 									ShowVerbose = true
 								};
-				model.MakeClone(repo.ProjectFolder.Path, clonePath, progress);
+				model.MakeClone(progress);
 				List<string> nextFolders;
 				var repoList = model.GetRepositoriesAndNextLevelSearchFolders(new List<string> { f.Path }, out nextFolders, 2);
 				Assert.AreEqual(0, repoList.Count());
@@ -203,12 +208,13 @@ namespace Chorus.Tests.UI.Clone
 				MakeFolderTree(f.Path, "Folders", 4, 4, 4);
 				var clonePath = Path.Combine(Path.Combine(Path.Combine(f.Path, "Folders_4"), "Folders_4_4"), "Folders_4_4_4");
 				var model = new GetCloneFromNetworkFolderModel(clonePath);
+				model.UserSelectedRepositoryPath = repo.ProjectFolder.Path;
 				SetStandardProjectFilter(model);
 				var progress = new ConsoleProgress
 								{
 									ShowVerbose = true
 								};
-				model.MakeClone(repo.ProjectFolder.Path, clonePath, progress);
+				model.MakeClone(progress);
 				List<string> nextFolders;
 				var repoList = model.GetRepositoriesAndNextLevelSearchFolders(new List<string> { f.Path }, out nextFolders, 4);
 				Assert.AreEqual(1, repoList.Count());
