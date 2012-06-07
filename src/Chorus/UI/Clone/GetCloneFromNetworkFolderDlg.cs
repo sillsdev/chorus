@@ -77,14 +77,6 @@ namespace Chorus.UI.Clone
 		/// <param name="e"></param>
 		private void OnGetButtonClick(object sender, EventArgs e)
 		{
-			var langProjName = Path.GetFileNameWithoutExtension(_model.UserSelectedRepositoryPath);
-			var target = Path.Combine(_model._baseFolder, langProjName);
-			if (Directory.Exists(target))
-			{
-				MessageBox.Show(this, "You can not obtain a project that you already have.", "Project folder already exists");
-				return;
-			}
-
 			getButton.Enabled = false;
 			cancelButton.Enabled = false;
 
@@ -365,7 +357,7 @@ namespace Chorus.UI.Clone
 
 		void BackgroundClonerDoWork(object sender, DoWorkEventArgs e)
 		{
-			_model.MakeClone(_model.UserSelectedRepositoryPath, _model._baseFolder, _clonerMultiProgess);
+			_model.MakeClone(_clonerMultiProgess);
 		}
 
 		#endregion

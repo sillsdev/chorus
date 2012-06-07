@@ -37,7 +37,7 @@ namespace Chorus.UI.Clone
 		public string ActualClonedFolder { get { return _actualClonedFolder; } }
 
 		// Parent folder to use for cloned repository:
-		internal readonly string _baseFolder;
+		private readonly string _baseFolder;
 
 		/// <summary>
 		/// Use this to inject a custom filter, so that the only projects that can be chosen are ones
@@ -49,23 +49,22 @@ namespace Chorus.UI.Clone
 		///<summary>
 		/// Constructor
 		///</summary>
-		///<param name="baseFolder"></param>
+		///<param name="baseFolder">Parent folder to use for cloning Mercurial repository into.</param>
 		public GetCloneFromNetworkFolderModel(string baseFolder)
 		{
 			_baseFolder = baseFolder;
 		}
 
 		///<summary>
-		/// Makes a Mercurial clone of a repository from sourcePath to parentDirectoryToPutCloneIn
+		/// Makes a Mercurial clone of a repository, reading from the user-selected path, writing to the
+		/// folder passed into our constructor.
 		///</summary>
-		///<param name="sourcePath">Existing Hg repo</param>
-		///<param name="parentDirectoryToPutCloneIn">Target folder for new clone</param>
 		///<param name="progress">Progress indicator object</param>
 		///<returns>Directory that clone was actually placed in (allows for renaming to avoid duplicates)</returns>
-		public string MakeClone(string sourcePath, string parentDirectoryToPutCloneIn, IProgress progress)
+		public string MakeClone(IProgress progress)
 		{
-			var targetPath = Path.Combine(parentDirectoryToPutCloneIn, Path.GetFileName(sourcePath));
-			_actualClonedFolder = HgHighLevel.MakeCloneFromLocalToLocal(sourcePath,
+			var targetPath = Path.Combine(_baseFolder, Path.GetFileName(UserSelectedRepositoryPath));
+			_actualClonedFolder = HgHighLevel.MakeCloneFromLocalToLocal(UserSelectedRepositoryPath,
 														 targetPath,
 														 true,
 														 progress);
