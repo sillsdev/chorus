@@ -710,10 +710,7 @@ namespace Chorus.sync
 
 					currentMerge++;
 					if (!MergeTwoChangeSets(myHead, head))
-					{
-						_progress.WriteMessage("Merge {0} of {1} was not done.", currentMerge, totalNumberOfMerges);
-						continue;
-					}
+						continue; // Nothing to merge.
 
 					peopleWeMergedWith.Add(head.UserId);
 
