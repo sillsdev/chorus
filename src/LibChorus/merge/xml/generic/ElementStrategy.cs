@@ -81,6 +81,13 @@ namespace Chorus.merge.xml.generic
 
 	public class ElementStrategy : IElementDescriber
 	{
+		public ElementStrategy(bool orderIsRelevant)
+		{
+			OrderIsRelevant = orderIsRelevant;
+			AttributesToIgnoreForMerging = new List<string>();
+			NumberOfChildren = NumberOfChildrenAllowed.ZeroOrMore;
+		}
+
 		/// <summary>
 		/// Given a node in "ours" that we want to merge with "theirs", how do we identify the one in "theirs"?
 		/// </summary>
@@ -91,12 +98,10 @@ namespace Chorus.merge.xml.generic
 		//e.g., in a dictionary, this is the lexical entry.  In a text, it might be  a paragraph.
 		public IGenerateContextDescriptor ContextDescriptorGenerator { get; set; }
 
-		public  ElementStrategy(bool orderIsRelevant)
-		{
-			OrderIsRelevant = orderIsRelevant;
-			AttributesToIgnoreForMerging = new List<string>();
-		}
-
+		/// <summary>
+		/// Get or set the number of allowed child elements. Default is: <see cref="NumberOfChildrenAllowed.ZeroOrMore"/>.
+		/// </summary>
+		public NumberOfChildrenAllowed NumberOfChildren { get; set; }
 
 		/// <summary>
 		/// Is the order of this element among its peers relevant (this says nothing about its children)
@@ -118,7 +123,7 @@ namespace Chorus.merge.xml.generic
 		/// <summary>
 		/// This allows for an element to be declared 'atomic'.
 		/// When set to true, no merging will be done.
-		/// If the compared elemetns are not the same,
+		/// If the compared elements are not the same,
 		/// then a conflict report will be produced.
 		///
 		/// The default is 'false'.
@@ -159,6 +164,25 @@ namespace Chorus.merge.xml.generic
 //            return null;
 //        }
 
+	}
+
+	/// <summary>
+	/// The number of chldren allowed in some xml element.
+	/// </summary>
+	public enum NumberOfChildrenAllowed
+	{
+		/// <summary>
+		/// Allow zero or more (no limit) child elements.
+		/// </summary>
+		ZeroOrMore,
+		/// <summary>
+		/// Allows no children at all.
+		/// </summary>
+		Zero,
+		/// <summary>
+		/// Allows one optional child element.
+		/// </summary>
+		ZeroOrOne
 	}
 
 	public interface IElementDescriber
