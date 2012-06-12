@@ -366,18 +366,24 @@ namespace Chorus.sync
 			if (!string.IsNullOrEmpty(newlyFilteredFiles))
 				_progress.WriteWarning(newlyFilteredFiles);
 
+			var commitCopValidationResult = "";
 			using (var commitCop = new CommitCop(Repository, _handlers, _progress))
 			{
 				// NB: The commit must take place in order for CommitCop to work properly.
 				// Ergo, don't even think of moving this after the commitCop.ValidationResult check.
 				// Too bad I (RBR) already thought of it, and asked, and found out it ought not be moved. :-)
 				AddAndCommitFiles(options.CheckinDescription);
-
-				if (!string.IsNullOrEmpty(commitCop.ValidationResult))
-				{
-					throw new ApplicationException( "The changed data did not pass validation tests. Your project will be moved back to the last Send/Receive before this problem occurred, so that you can keep working.  Please notify whoever provides you with computer support. Error was: " + commitCop.ValidationResult);
-				}
+				commitCopValidationResult = commitCop.ValidationResult;
 			}
+			if (string.IsNullOrEmpty(commitCopValidationResult))
+				return;
+
+			// Commit cop reported a validation failure, but deal with it here, rather than inside the 'using', as the rollback won't have happened,
+			// until Dispose, and that is way too early for the "SimpleUpdate" call.
+			_sychronizerAdjunct.SimpleUpdate(_progress, true);
+			throw new ApplicationException(
+					"The changed data did not pass validation tests. Your project will be moved back to the last Send/Receive before this problem occurred, so that you can keep working.  Please notify whoever provides you with computer support. Error was: " +
+					commitCopValidationResult);
 		}
 
 		/// <returns>true if there was a successful pull</returns>
@@ -554,6 +560,7 @@ namespace Chorus.sync
 				if (heads.Count == 1)
 				{
 					repository.Update(); //update to the tip
+					_sychronizerAdjunct.SimpleUpdate(_progress, false);
 					return;
 				}
 				if (heads.Count == 0)
@@ -568,6 +575,7 @@ namespace Chorus.sync
 					if (parent.Number.Hash == head.Number.Hash || head.IsDirectDescendantOf(parent))
 					{
 						repository.RollbackWorkingDirectoryToRevision(head.Number.LocalRevisionNumber);
+						_sychronizerAdjunct.SimpleUpdate(_progress, true);
 						return;
 					}
 				}
@@ -672,8 +680,7 @@ namespace Chorus.sync
 						|| CheckAndWarnIfNoCommonAncestor(myHead, head))).ToArray();
 				foreach (var skippedHead in skippedHeads)
 					heads.Remove(skippedHead);
-				var totalNumberOfMerges = heads.Count;
-				var currentMerge = 0;
+
 				foreach (Revision head in heads)
 				{
 					// Note: These are all removed, above.
@@ -708,7 +715,6 @@ namespace Chorus.sync
 					//    continue;
 					//}
 
-					currentMerge++;
 					if (!MergeTwoChangeSets(myHead, head))
 						continue; // Nothing to merge.
 
@@ -722,7 +728,7 @@ namespace Chorus.sync
 
 					AppendAnyNewNotes(_localRepositoryPath);
 
-					_sychronizerAdjunct.PrepareForPostMergeCommit(_progress, totalNumberOfMerges, currentMerge);
+					_sychronizerAdjunct.PrepareForPostMergeCommit(_progress);
 
 					AddAndCommitFiles(GetMergeCommitSummary(head.UserId, Repository));
 				}
@@ -809,7 +815,9 @@ namespace Chorus.sync
 				// Go with 'WeWin', since that is the default and that is how the alpha and beta data of MergeSituation is set, right before this method is called.
 				using (new ShortTermEnvironmentalVariable(MergeOrder.kConflictHandlingModeEnvVarName, MergeOrder.ConflictHandlingModeChoices.WeWin.ToString()))
 				{
-					return Repository.Merge(_localRepositoryPath, theirHead.Number.LocalRevisionNumber);
+					var didMerge = Repository.Merge(_localRepositoryPath, theirHead.Number.LocalRevisionNumber);
+					FailureSimulator.IfTestRequestsItThrowNow("SychronizerAdjunct");
+					return didMerge;
 				}
 			}
 		}

@@ -21,9 +21,19 @@ namespace Chorus.sync
 		void PrepareForInitialCommit(IProgress progress);
 
 		/// <summary>
+		/// Allow the client to do something in one of two cases:
+		///		1. User A had no new changes, but User B (from afar) did have them. No merge was done.
+		///		2. There was a merge failure, so a rollback is being done.
+		/// In both cases, the client may need to do something.
+		/// </summary>
+		///<param name="progress">A progress mechanism.</param>
+		///<param name="isRollback">"True" if there was a merge failure, and the repo is being rolled back to an earlier state. Otherwise "False".</param>
+		void SimpleUpdate(IProgress progress, bool isRollback);
+
+		/// <summary>
 		/// Allow the client to do something right after a merge, but before the merge is committed.
 		/// </summary>
 		/// <remarks>This method is not be called at all, if there was no merging.</remarks>
-		void PrepareForPostMergeCommit(IProgress progress, int totalNumberOfMerges, int currentMerge);
+		void PrepareForPostMergeCommit(IProgress progress);
 	}
 }
