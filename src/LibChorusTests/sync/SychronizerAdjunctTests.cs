@@ -79,6 +79,9 @@ namespace LibChorus.Tests.sync
 		/// The presence or absence of the two files tells us whether the Synchronizer class called the new interface methods.
 		/// </summary>
 		[Test]
+#if MONO
+		[Ignore]
+#endif
 		public void BasicCommitHasCommitFileButNotMergeFile()
 		{
 			using (var bob = new RepositorySetup("bob", true))
