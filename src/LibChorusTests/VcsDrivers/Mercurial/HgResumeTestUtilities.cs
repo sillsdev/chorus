@@ -218,13 +218,13 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			if (_responseQueue.Count > 0)
 			{
 				response = _responseQueue.Dequeue();
-				if (response.StatusCode == HttpStatusCode.RequestTimeout)
+				if (response.HttpStatus == HttpStatusCode.RequestTimeout)
 				{
 					return null;
 				}
 			} else
 			{
-				response = new HgResumeApiResponse {StatusCode = HttpStatusCode.InternalServerError};
+				response = new HgResumeApiResponse {HttpStatus = HttpStatusCode.InternalServerError};
 			}
 			response.ResponseTimeInMilliseconds = 200;
 			return response;
@@ -268,7 +268,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		{
 			// we are hijacking the HTTP 408 request timeout to mean a client-side networking timeout...
 			// it works for our testing purposes even though that's not what the status code means
-			_responseQueue.Enqueue(new HgResumeApiResponse {StatusCode = HttpStatusCode.RequestTimeout});
+			_responseQueue.Enqueue(new HgResumeApiResponse {HttpStatus = HttpStatusCode.RequestTimeout});
 		}
 
 		public string StoragePath
@@ -712,9 +712,9 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		{
 			return new HgResumeApiResponse
 			{
-				StatusCode = HttpStatusCode.OK,
+				HttpStatus = HttpStatusCode.OK,
 				ResponseTimeInMilliseconds = 200,
-				Headers = new HgResumeApiResponseHeaders(
+				ResumableResponse = new HgResumeApiResponseHeaders(
 					GetWebHeaderCollection(
 						new Dictionary<string, string>
 										 {
@@ -728,8 +728,8 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		{
 			return new HgResumeApiResponse
 			{
-				StatusCode = HttpStatusCode.Accepted,
-				Headers = new HgResumeApiResponseHeaders(
+				HttpStatus = HttpStatusCode.Accepted,
+				ResumableResponse = new HgResumeApiResponseHeaders(
 					GetWebHeaderCollection(
 						new Dictionary<string, string>
 										 {
@@ -745,8 +745,8 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		{
 			return new HgResumeApiResponse
 			{
-				StatusCode = HttpStatusCode.BadRequest,
-				Headers = new HgResumeApiResponseHeaders(
+				HttpStatus = HttpStatusCode.BadRequest,
+				ResumableResponse = new HgResumeApiResponseHeaders(
 					GetWebHeaderCollection(
 						new Dictionary<string, string>
 										 {
@@ -771,8 +771,8 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			}
 			var response = new HgResumeApiResponse
 			{
-				StatusCode = HttpStatusCode.BadRequest,
-				Headers = new HgResumeApiResponseHeaders(GetWebHeaderCollection(parameters)),
+				HttpStatus = HttpStatusCode.BadRequest,
+				ResumableResponse = new HgResumeApiResponseHeaders(GetWebHeaderCollection(parameters)),
 				ResponseTimeInMilliseconds = 200
 			};
 			return response;
@@ -782,8 +782,8 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		{
 			return new HgResumeApiResponse
 					   {
-						   StatusCode = status,
-						   Headers = new HgResumeApiResponseHeaders(new WebHeaderCollection()),
+						   HttpStatus = status,
+						   ResumableResponse = new HgResumeApiResponseHeaders(new WebHeaderCollection()),
 						   Content = new byte[0],
 						   ResponseTimeInMilliseconds = 200
 			};
@@ -793,8 +793,8 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		{
 			return new HgResumeApiResponse
 			{
-				StatusCode = HttpStatusCode.OK,
-				Headers = new HgResumeApiResponseHeaders(GetWebHeaderCollection(
+				HttpStatus = HttpStatusCode.OK,
+				ResumableResponse = new HgResumeApiResponseHeaders(GetWebHeaderCollection(
 				new Dictionary<string, string>
 										 {
 											 {"X-HgR-Status", "SUCCESS"},
@@ -814,8 +814,8 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 
 			return new HgResumeApiResponse
 			{
-				StatusCode = HttpStatusCode.OK,
-				Headers = new HgResumeApiResponseHeaders(GetWebHeaderCollection(
+				HttpStatus = HttpStatusCode.OK,
+				ResumableResponse = new HgResumeApiResponseHeaders(GetWebHeaderCollection(
 						new Dictionary<string, string>
 										 {
 											 {"X-HgR-Status", "SUCCESS"},
@@ -832,8 +832,8 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		{
 			return new HgResumeApiResponse
 			{
-				StatusCode = HttpStatusCode.NotModified,
-				Headers = new HgResumeApiResponseHeaders(GetWebHeaderCollection(
+				HttpStatus = HttpStatusCode.NotModified,
+				ResumableResponse = new HgResumeApiResponseHeaders(GetWebHeaderCollection(
 						new Dictionary<string, string>
 										 {
 											 {"X-HgR-Status", "NOCHANGE"},
@@ -847,8 +847,8 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		{
 			return new HgResumeApiResponse
 			{
-				StatusCode = HttpStatusCode.ServiceUnavailable,
-				Headers = new HgResumeApiResponseHeaders(GetWebHeaderCollection(
+				HttpStatus = HttpStatusCode.ServiceUnavailable,
+				ResumableResponse = new HgResumeApiResponseHeaders(GetWebHeaderCollection(
 						new Dictionary<string, string>
 										 {
 											 {"X-HgR-Status", "NOTAVAILABLE"},

@@ -15,8 +15,8 @@ namespace Chorus.VcsDrivers.Mercurial
 
 	public class HgResumeApiResponse
 	{
-		public HgResumeApiResponseHeaders Headers;
-		public HttpStatusCode StatusCode;
+		public HgResumeApiResponseHeaders ResumableResponse;
+		public HttpStatusCode HttpStatus;
 		public byte[] Content;
 		public long ResponseTimeInMilliseconds;
 	}

@@ -188,19 +188,19 @@ namespace Chorus.VcsDrivers.Mercurial
 
 					if (response != null) // null means server timed out
 					{
-						if (response.StatusCode == HttpStatusCode.ServiceUnavailable && response.Content.Length > 0)
+						if (response.HttpStatus == HttpStatusCode.ServiceUnavailable && response.Content.Length > 0)
 						{
 							var msg = String.Format("Server temporarily unavailable: {0}",
 							Encoding.UTF8.GetString(response.Content));
 							_progress.WriteError(msg);
 							return new List<string>();
 						}
-						if (response.StatusCode == HttpStatusCode.OK && response.Content.Length > 0)
+						if (response.HttpStatus == HttpStatusCode.OK && response.Content.Length > 0)
 						{
 							string revString = Encoding.UTF8.GetString(response.Content);
 							return revString.Split('|').ToList();
 						}
-						if (response.StatusCode == HttpStatusCode.BadRequest && response.Headers.Status == "UNKNOWNID")
+						if (response.HttpStatus == HttpStatusCode.BadRequest && response.ResumableResponse.Status == "UNKNOWNID")
 						{
 							_progress.WriteWarning("The remote server {0} does not have repoId '{1}'", _targetLabel, _apiServer.ProjectId);
 						}
@@ -229,7 +229,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			string baseRevision = GetCommonBaseHashWithRemoteRepo();
 			if (String.IsNullOrEmpty(baseRevision))
 			{
-				var errorMessage = "Push operation failed";
+				const string errorMessage = "Push failed: A common revision could not be found with the server.";
 				_progress.WriteError(errorMessage);
 				throw new HgResumeOperationFailed(errorMessage);
 			}
@@ -250,8 +250,7 @@ namespace Chorus.VcsDrivers.Mercurial
 					bundleCreatedSuccessfully = _repo.MakeBundle(baseRevision, bundleHelper.BundlePath);
 					if (!bundleCreatedSuccessfully)
 					{
-						_progress.WriteError("Unable to create bundle for Push");
-						const string errorMessage = "Push operation failed";
+						const string errorMessage = "Push failed: Unable to create local bundle.";
 						_progress.WriteError(errorMessage);
 						throw new HgResumeOperationFailed(errorMessage);
 					}
@@ -312,17 +311,20 @@ namespace Chorus.VcsDrivers.Mercurial
 					req.BaseHash = GetCommonBaseHashWithRemoteRepo(false);
 					continue;
 				}
+				// This 'Fail' intentionally aborts the push attempt.  I think we can continue to go around the loop and retry. See Pull also. CP 2012-06
+				/*
 				if (response.Status == PushStatus.Fail)
 				{
 					var errorMessage = "Push operation failed";
 					_progress.WriteError(errorMessage);
 					throw new HgResumeOperationFailed(errorMessage);
 				}
+				*/
 				if (response.Status == PushStatus.Reset)
 				{
 					FinishPush(req.TransId);
 					bundleHelper.Cleanup();
-					var errorMessage = "Push operation failed";
+					const string errorMessage = "Push failed: Server reset.";
 					_progress.WriteError(errorMessage);
 					throw new HgResumeOperationFailed(errorMessage);
 				}
@@ -394,7 +396,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		{
 			var apiResponse = _apiServer.Execute("finishPushBundle", new HgResumeApiParameters { TransId = transactionId, RepoId = _apiServer.ProjectId }, 20);
 			_progress.WriteVerbose("API URL: {0}", _apiServer.Url);
-			switch (apiResponse.StatusCode)
+			switch (apiResponse.HttpStatus)
 			{
 				case HttpStatusCode.OK:
 					return PushStatus.Complete;
@@ -411,7 +413,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			var pushResponse = new PushResponse(PushStatus.Fail);
 			try
 			{
-				var response = _apiServer.Execute("pushBundleChunk", request, dataToPush, timeoutInSeconds);
+				HgResumeApiResponse response = _apiServer.Execute("pushBundleChunk", request, dataToPush, timeoutInSeconds);
 				_progress.WriteVerbose("API URL: {0}", _apiServer.Url);
 				/* API returns the following HTTP codes:
 					* 200 OK (SUCCESS)
@@ -421,12 +423,7 @@ namespace Chorus.VcsDrivers.Mercurial
 					*/
 				if (response != null) // null means server timed out
 				{
-					if (response.Headers.HasNote)
-					{
-						_progress.WriteMessage(String.Format("Server replied: {0}", response.Headers.Note));
-					}
-
-					if (response.StatusCode == HttpStatusCode.ServiceUnavailable && response.Content.Length > 0)
+					if (response.HttpStatus == HttpStatusCode.ServiceUnavailable && response.Content.Length > 0)
 					{
 						var msg = String.Format("Server temporarily unavailable: {0}",
 												Encoding.UTF8.GetString(response.Content));
@@ -434,50 +431,54 @@ namespace Chorus.VcsDrivers.Mercurial
 						pushResponse.Status = PushStatus.NotAvailable;
 						return pushResponse;
 					}
-					// the chunk was received successfully
-					if (response.StatusCode == HttpStatusCode.Accepted)
+					if (response.ResumableResponse.HasNote)
 					{
-						pushResponse.StartOfWindow = response.Headers.StartOfWindow;
+						_progress.WriteWarning(String.Format("Server replied: {0}", response.ResumableResponse.Note));
+					}
+					// the chunk was received successfully
+					if (response.HttpStatus == HttpStatusCode.Accepted)
+					{
+						pushResponse.StartOfWindow = response.ResumableResponse.StartOfWindow;
 						pushResponse.Status = PushStatus.Received;
 						pushResponse.ChunkSize = CalculateChunkSize(request.ChunkSize, response.ResponseTimeInMilliseconds);
 						return pushResponse;
 					}
 
 					// the final chunk was received successfully
-					if (response.StatusCode == HttpStatusCode.OK)
+					if (response.HttpStatus == HttpStatusCode.OK)
 					{
 						pushResponse.Status = PushStatus.Complete;
 						return pushResponse;
 					}
 
-					if (response.StatusCode == HttpStatusCode.BadRequest)
+					if (response.HttpStatus == HttpStatusCode.BadRequest)
 					{
-						if (response.Headers.Status == "UNKNOWNID")
+						if (response.ResumableResponse.Status == "UNKNOWNID")
 						{
 							_progress.WriteError("The server {0} does not have the project '{1}'", _targetLabel, _apiServer.ProjectId);
 							return pushResponse;
 						}
-						if (response.Headers.Status == "RESET")
+						if (response.ResumableResponse.Status == "RESET")
 						{
-							_progress.WriteError("All chunks were pushed to the server, but the unbundle operation failed.  Try again later.");
+							_progress.WriteError("Push failed: All chunks were pushed to the server, but the unbundle operation failed.  Try again later.");
 							pushResponse.Status = PushStatus.Reset;
 							return pushResponse;
 						}
-						if (response.Headers.HasError)
+						if (response.ResumableResponse.HasError)
 						{
-							if (response.Headers.Error == "invalid baseHash")
+							if (response.ResumableResponse.Error == "invalid baseHash")
 							{
 								pushResponse.Status = PushStatus.InvalidHash;
 							}
 							else
 							{
-								_progress.WriteWarning("Server Error: {0}", response.Headers.Error);
+								_progress.WriteError("Server Error: {0}", response.ResumableResponse.Error);
 							}
 							return pushResponse;
 						}
 
 					}
-					_progress.WriteWarning("Invalid Server Response '{0}'", response.StatusCode);
+					_progress.WriteWarning("Invalid Server Response '{0}'", response.HttpStatus);
 					return pushResponse;
 				}
 				pushResponse.Status = PushStatus.Timeout;
@@ -485,8 +486,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			}
 			catch (WebException e)
 			{
-				_progress.WriteError(e.Message);
-				_progress.WriteWarning("The push operation failed on the server");
+				_progress.WriteWarning(String.Format("Push data chunk failed: {0}", e.Message));
 				return pushResponse;
 			}
 		}
@@ -538,7 +538,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 			if (String.IsNullOrEmpty(baseRevision))
 			{
-				errorMessage = "Pull operation failed";
+				errorMessage = "Pull failed: No base revision.";
 				_progress.WriteError(errorMessage);
 				throw new HgResumeOperationFailed(errorMessage);
 			}
@@ -599,6 +599,8 @@ namespace Chorus.VcsDrivers.Mercurial
 					req.BaseHash = GetCommonBaseHashWithRemoteRepo(false);
 					continue;
 				}
+				// Not sure that we need to abort the attempts just because .Net web request says so.  See Push also. CP 2012-06
+				/*
 				if (response.Status == PullStatus.Fail)
 				{
 					errorMessage = "Pull operation failed";
@@ -607,6 +609,7 @@ namespace Chorus.VcsDrivers.Mercurial
 					_progress.ProgressIndicator.Finish();
 					throw new HgResumeOperationFailed(errorMessage);
 				}
+				*/
 				if (response.Status == PullStatus.Reset)
 				{
 					retryLoop = true;
@@ -683,12 +686,12 @@ namespace Chorus.VcsDrivers.Mercurial
 		private PullStatus FinishPull(string transactionId)
 		{
 			var apiResponse = _apiServer.Execute("finishPullBundle", new HgResumeApiParameters {TransId  = transactionId, RepoId = _apiServer.ProjectId }, 20);
-			switch (apiResponse.StatusCode)
+			switch (apiResponse.HttpStatus)
 			{
 				case HttpStatusCode.OK:
 					return PullStatus.OK;
 				case HttpStatusCode.BadRequest:
-					if (apiResponse.Headers.Status == "RESET")
+					if (apiResponse.ResumableResponse.Status == "RESET")
 					{
 						return PullStatus.Reset;
 					}
@@ -713,12 +716,12 @@ namespace Chorus.VcsDrivers.Mercurial
 					*/
 				if (response != null) // null means server timed out
 				{
-					if (response.Headers.HasNote)
+					if (response.ResumableResponse.HasNote)
 					{
-						_progress.WriteMessage(String.Format("Server replied: {0}", response.Headers.Note));
+						_progress.WriteMessage(String.Format("Server replied: {0}", response.ResumableResponse.Note));
 					}
 
-					if (response.StatusCode == HttpStatusCode.ServiceUnavailable && response.Content.Length > 0)
+					if (response.HttpStatus == HttpStatusCode.ServiceUnavailable && response.Content.Length > 0)
 					{
 						var msg = String.Format("Server temporarily unavailable: {0}",
 						Encoding.UTF8.GetString(response.Content));
@@ -726,53 +729,53 @@ namespace Chorus.VcsDrivers.Mercurial
 						pullResponse.Status = PullStatus.NotAvailable;
 						return pullResponse;
 					}
-					if (response.StatusCode == HttpStatusCode.NotModified)
+					if (response.HttpStatus == HttpStatusCode.NotModified)
 					{
 						pullResponse.Status = PullStatus.NoChange;
 						return pullResponse;
 					}
-					if (response.StatusCode == HttpStatusCode.Accepted)
+					if (response.HttpStatus == HttpStatusCode.Accepted)
 					{
 						pullResponse.Status = PullStatus.InProgress;
 						return pullResponse;
 					}
 
 					// chunk pulled OK
-					if (response.StatusCode == HttpStatusCode.OK)
+					if (response.HttpStatus == HttpStatusCode.OK)
 					{
-						pullResponse.BundleSize = response.Headers.BundleSize;
+						pullResponse.BundleSize = response.ResumableResponse.BundleSize;
 						pullResponse.Status = PullStatus.OK;
 						pullResponse.ChunkSize = CalculateChunkSize(request.ChunkSize, response.ResponseTimeInMilliseconds);
 
 						pullResponse.Chunk = response.Content;
 						return pullResponse;
 					}
-					if (response.StatusCode == HttpStatusCode.BadRequest && response.Headers.Status == "UNKNOWNID")
+					if (response.HttpStatus == HttpStatusCode.BadRequest && response.ResumableResponse.Status == "UNKNOWNID")
 					{
 						// this is not implemented currently (feb 2012 cjh)
 						_progress.WriteError("The server {0} does not have the project '{1}'", _targetLabel, request.RepoId);
 						return pullResponse;
 					}
-					if (response.StatusCode == HttpStatusCode.BadRequest && response.Headers.Status == "RESET")
+					if (response.HttpStatus == HttpStatusCode.BadRequest && response.ResumableResponse.Status == "RESET")
 					{
 						pullResponse.Status = PullStatus.Reset;
 						return pullResponse;
 					}
-					if (response.StatusCode == HttpStatusCode.BadRequest)
+					if (response.HttpStatus == HttpStatusCode.BadRequest)
 					{
-						if (response.Headers.HasError)
+						if (response.ResumableResponse.HasError)
 						{
-							if (response.Headers.Error == "invalid baseHash")
+							if (response.ResumableResponse.Error == "invalid baseHash")
 							{
 								pullResponse.Status = PullStatus.InvalidHash;
 							} else
 							{
-								_progress.WriteWarning("Server Error: {0}", response.Headers.Error);
+								_progress.WriteWarning("Server Error: {0}", response.ResumableResponse.Error);
 							}
 						}
 						return pullResponse;
 					}
-					_progress.WriteWarning("Invalid Server Response '{0}'", response.StatusCode);
+					_progress.WriteWarning("Invalid Server Response '{0}'", response.HttpStatus);
 					return pullResponse;
 				}
 				pullResponse.Status = PullStatus.Timeout;
@@ -780,8 +783,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			}
 			catch (WebException e)
 			{
-				_progress.WriteError(e.Message);
-				_progress.WriteWarning("The pull operation failed on the server");
+				_progress.WriteWarning(String.Format("Pull data chunk failed: {0}", e.Message));
 				return pullResponse;
 			}
 		}

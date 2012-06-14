@@ -101,8 +101,8 @@ namespace Chorus.VcsDrivers.Mercurial
 		private static HgResumeApiResponse HandleResponse(HttpWebResponse res)
 		{
 			var apiResponse = new HgResumeApiResponse();
-			apiResponse.Headers = new HgResumeApiResponseHeaders(res.Headers);
-			apiResponse.StatusCode = res.StatusCode;
+			apiResponse.ResumableResponse = new HgResumeApiResponseHeaders(res.Headers);
+			apiResponse.HttpStatus = res.StatusCode;
 
 			var responseStream = res.GetResponseStream();
 
