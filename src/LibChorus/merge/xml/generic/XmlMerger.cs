@@ -144,7 +144,10 @@ namespace Chorus.merge.xml.generic
 			//is this a level of the xml file that would consitute the minimal unit conflict-understanding
 			//from a user perspecitve?
 			//e.g., in a dictionary, this is the lexical entry.  In a text, it might be  a paragraph.
-			var generator = MergeStrategies.GetElementStrategy(ours).ContextDescriptorGenerator;
+			var nodeForStrategy = ours ?? theirs ?? ancestor;
+			var strategy = MergeStrategies.GetElementStrategy(nodeForStrategy);
+
+			var generator = strategy.ContextDescriptorGenerator;
 			if(generator != null)
 			{
 				//review: question: does this not get called at levels below the entry?
@@ -164,7 +167,17 @@ namespace Chorus.merge.xml.generic
 				_htmlContextGenerator = (generator as IGenerateHtmlContext); // null is OK.
 			}
 
-			new MergeChildrenMethod(ours, theirs, ancestor, this).Run();
+			switch (strategy.NumberOfChildren)
+			{
+				case NumberOfChildrenAllowed.ZeroOrMore:
+					new MergeChildrenMethod(ours, theirs, ancestor, this).Run();
+					break;
+				case NumberOfChildrenAllowed.Zero: // Fall through
+				case NumberOfChildrenAllowed.ZeroOrOne:
+					MergeLimitedChildrenService.Run(this, strategy, ref ours, theirs, ancestor);
+					break;
+			}
+
 			// At some point, it may be necessary here to restore the pre-existing values of
 			// _oursContext, _theirsContext, _ancestorContext, and _htmlContextGenerator.
 			// and somehow restore the EventListener's Context.

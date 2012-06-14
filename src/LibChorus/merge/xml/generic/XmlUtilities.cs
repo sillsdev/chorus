@@ -347,6 +347,9 @@ namespace Chorus.merge.xml.generic
 									XmlNodeType.EndEntity,
 									XmlNodeType.XmlDeclaration
 								};
+			if (node.ChildNodes.Cast<XmlNode>().Any(childNode => badNodeTypes.Contains(childNode.NodeType)))
+				return TextNodeStatus.IsNotTextNodeContainer;
+
 			if (node.NodeType != XmlNodeType.Element)
 				return TextNodeStatus.IsNotTextNodeContainer;
 
@@ -364,6 +367,13 @@ namespace Chorus.merge.xml.generic
 			// Text, Whitespace, and SignificantWhitespace.
 			// Alternatively, one might be able to use the XmlText, XmlWhitespace,
 			// and XmlSignificantWhitespace subclasses of XmlCharacterData (leaving out XmlCDataSection and XmlComment), which match well with those legal enums
+			//return node.ChildNodes.Cast<XmlNode>().Any(childNode => !goodNodeTypes.Contains(childNode.NodeType))
+			//    ? TextNodeStatus.IsNotTextNodeContainer
+			//    : TextNodeStatus.IsTextNodeContainer;
+
+			// It should have at least one XmlNodeType.Text
+			if (node.InnerXml.Trim() == string.Empty)
+				return TextNodeStatus.IsAmbiguous;
 			return node.ChildNodes.Cast<XmlNode>().Any(childNode => !goodNodeTypes.Contains(childNode.NodeType))
 				? TextNodeStatus.IsNotTextNodeContainer
 				: TextNodeStatus.IsTextNodeContainer;
