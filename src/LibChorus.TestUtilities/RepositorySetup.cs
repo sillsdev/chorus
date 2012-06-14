@@ -130,15 +130,28 @@ namespace LibChorus.TestUtilities
 			Repository.Commit(false,message);
 		}
 
+		public SyncResults SyncWithOptions(SyncOptions options)
+		{
+			return SyncWithOptions(options, CreateSynchronizer());
+		}
+
+		public SyncResults SyncWithOptions(SyncOptions options, Synchronizer synchronizer)
+		{
+			return synchronizer.SyncNow(options);
+		}
+
 		public void AddAndCheckIn()
 		{
-			var options = new SyncOptions();
-			options.DoMergeWithOthers = false;
-			options.DoPullFromOthers = false;
-			options.DoSendToOthers = false;
+			var options = new SyncOptions
+							{
+								DoMergeWithOthers = false,
+								DoPullFromOthers = false,
+								DoSendToOthers = false
+							};
 
-			CreateSynchronizer().SyncNow(options);
+			SyncWithOptions(options);
 		}
+
 		public SyncResults CheckinAndPullAndMerge()
 		{
 			return CheckinAndPullAndMerge(null);
@@ -146,14 +159,17 @@ namespace LibChorus.TestUtilities
 
 		public SyncResults CheckinAndPullAndMerge(RepositorySetup otherUser)
 		{
-			var options = new SyncOptions();
-			options.DoMergeWithOthers = true;
-			options.DoPullFromOthers = true;
-			options.DoSendToOthers = true;
+			var options = new SyncOptions
+							{
+								DoMergeWithOthers = true,
+								DoPullFromOthers = true,
+								DoSendToOthers = true
+							};
 
 			if(otherUser!=null)
 				options.RepositorySourcesToTry.Add(otherUser.GetRepositoryAddress());
-			return CreateSynchronizer().SyncNow(options);
+
+			return SyncWithOptions(options);
 		}
 
 		public RepositoryAddress GetRepositoryAddress()
@@ -185,11 +201,9 @@ namespace LibChorus.TestUtilities
 			hg.SetUserNameInIni(userId,  progress);
 		}
 
-
 		public static string ProjectName
 		{
-			get { return "ไก่ projéct"; }//nb: important that it have a space, as this helps catch failure to enclose in quotes
-//            get { return "project"; }
+			get { return "ไก่ projéct"; } //nb: important that it have a space, as this helps catch failure to enclose in quotes
 		}
 
 		public IProgress Progress { get; set; }

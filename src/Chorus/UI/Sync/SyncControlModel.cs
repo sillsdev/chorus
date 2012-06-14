@@ -40,7 +40,7 @@ namespace Chorus.UI.Sync
 
 			//clients will normally change these
 			SyncOptions = new SyncOptions();
-			SyncOptions.CheckinDescription = "["+Application.ProductName+"] sync";
+			SyncOptions.CheckinDescription = "[" + Application.ProductName + ": " + Application.ProductVersion + "] sync";
 			SyncOptions.DoPullFromOthers = true;
 			SyncOptions.DoMergeWithOthers = true;
 			SyncOptions.RepositorySourcesToTry.AddRange(GetRepositoriesToList().Where(r => r.Enabled));
@@ -258,6 +258,11 @@ namespace Chorus.UI.Sync
 		public void GetDiagnostics(IProgress progress)
 		{
 			_synchronizer.Repository.GetDiagnosticInformation(progress);
+		}
+
+		public void SetSynchronizerAdjunct(ISychronizerAdjunct adjunct)
+		{
+			_synchronizer.SynchronizerAdjunct = adjunct;
 		}
 	}
 

@@ -66,17 +66,20 @@ namespace Chorus.merge.xml.generic
 			string pathToWinner;
 			string pathToLoser;
 			string winnerId;
+			string loserId;
 			switch (mergeOrder.MergeSituation.ConflictHandlingMode)
 			{
 				case MergeOrder.ConflictHandlingModeChoices.WeWin:
 					pathToWinner = mergeOrder.pathToOurs;
 					pathToLoser = mergeOrder.pathToTheirs;
 					winnerId = mergeOrder.MergeSituation.AlphaUserId;
+					loserId = mergeOrder.MergeSituation.BetaUserId;
 					break;
 				default: //case MergeOrder.ConflictHandlingModeChoices.TheyWin:
 					pathToWinner = mergeOrder.pathToTheirs;
 					pathToLoser = mergeOrder.pathToOurs;
 					winnerId = mergeOrder.MergeSituation.BetaUserId;
+					loserId = mergeOrder.MergeSituation.AlphaUserId;
 					break;
 			}
 			var commonAncestorPathname = mergeOrder.pathToCommonAncestor;
@@ -138,7 +141,7 @@ namespace Chorus.merge.xml.generic
 							pathToWinner, winnerNewbies, winnerGoners, winnerDirtballs,
 							pathToLoser, loserNewbies, loserGoners, loserDirtballs,
 							reader, writer,
-							winnerId, firstElementMarker);
+							winnerId, firstElementMarker, loserId);
 					}
 
 					ProcessMainRecordElements(
@@ -147,10 +150,10 @@ namespace Chorus.merge.xml.generic
 						winnerGoners, winnerDirtballs,
 						loserGoners, loserDirtballs,
 						reader, writer,
-						id, winnerId, recordElementName);
+						id, winnerId, recordElementName, loserId);
 
 					// Check to see if they both added the exact same element by some fluke. (Hand edit could do it.)
-					CheckForIdenticalNewbies(mergeOrder, mergeOrder.EventListener, writer,
+					CheckForIdenticalNewbies(mergeStrategy, mergeOrder, mergeOrder.EventListener, writer,
 						winnerNewbies, loserNewbies);
 
 					WriteOutNewObjects(mergeOrder.EventListener, winnerNewbies.Values, pathToWinner, writer);
@@ -162,7 +165,7 @@ namespace Chorus.merge.xml.generic
 		}
 
 		private static void CheckForIdenticalNewbies(
-			MergeOrder mergeOrder, IMergeEventListener listener, XmlWriter writer,
+			IMergeStrategy mergeStrategy, MergeOrder mergeOrder, IMergeEventListener listener, XmlWriter writer,
 			IDictionary<string, XmlNode> winnerNewbies, IDictionary<string, XmlNode> loserNewbies)
 		{
 			var winnersToRemove = new HashSet<string>();
@@ -188,6 +191,12 @@ namespace Chorus.merge.xml.generic
 					// We win. Work up conflict report.
 					// Route tested.
 					var winnerElement = winnerKvp.Value;
+					var elementStrategy = mergeStrategy.GetElementStrategy(winnerElement);
+					var generator = elementStrategy.ContextDescriptorGenerator;
+					if (generator != null)
+					{
+						listener.EnteringContext(generator.GenerateContextDescriptor(winnerElement.OuterXml, mergeOrder.pathToOurs));
+					}
 					AddConflictToListener(
 						listener,
 						new BothAddedMainElementButWithDifferentContentConflict(
@@ -195,7 +204,7 @@ namespace Chorus.merge.xml.generic
 							winnerElement,
 							loserNewbies[winnerKey],
 							mergeOrder.MergeSituation,
-							ElementStrategy.CreateForKeyedElement(winnerKey, false),
+							elementStrategy,
 							mergeOrder.MergeSituation.AlphaUserId),
 						winnerElement,
 						loserNewbies[winnerKey],
@@ -209,6 +218,12 @@ namespace Chorus.merge.xml.generic
 					// They win. Work up conflict report.
 					// Route tested.
 					var loserElement = loserNewbies[winnerKey];
+					var elementStrategy = mergeStrategy.GetElementStrategy(winnerKvp.Value);
+					var generator = elementStrategy.ContextDescriptorGenerator;
+					if (generator != null)
+					{
+						listener.EnteringContext(generator.GenerateContextDescriptor(winnerKvp.Value.OuterXml, mergeOrder.pathToOurs));
+					}
 					AddConflictToListener(
 						listener,
 						new BothAddedMainElementButWithDifferentContentConflict(
@@ -216,7 +231,7 @@ namespace Chorus.merge.xml.generic
 							winnerKvp.Value,
 							loserNewbies[winnerKey],
 							mergeOrder.MergeSituation,
-							ElementStrategy.CreateForKeyedElement(winnerKey, false),
+							elementStrategy,
 							mergeOrder.MergeSituation.BetaUserId),
 						winnerKvp.Value,
 						loserNewbies[winnerKey],
@@ -238,7 +253,7 @@ namespace Chorus.merge.xml.generic
 			string pathToWinner, IDictionary<string, XmlNode> winnerNewbies, IDictionary<string, XmlNode> winnerGoners, IDictionary<string, ChangedElement> winnerDirtballs,
 			string pathToLoser, IDictionary<string, XmlNode> loserNewbies, IDictionary<string, XmlNode> loserGoners, IDictionary<string, ChangedElement> loserDirtballs,
 			XmlReader reader, XmlWriter writer,
-			string winnerId, string firstElementMarker)
+			string winnerId, string firstElementMarker, string loserId)
 		{
 			XmlNode currentNode;
 			if (winnerNewbies.TryGetValue(firstElementMarker, out currentNode))
@@ -321,7 +336,7 @@ namespace Chorus.merge.xml.generic
 
 			// Do it the hard way for the others.
 			var transferUntouched = true;
-			ProcessCurrentElement(mergeOrder, firstElementMarker, mergeStrategy, winnerId, listener, writer, firstElementMarker,
+			ProcessCurrentElement(mergeStrategy, mergeOrder, firstElementMarker, winnerId, loserId, listener, writer, firstElementMarker,
 									parentIndex,
 								  loserDirtballs, loserGoners,
 								  winnerDirtballs, winnerGoners, ref transferUntouched);
@@ -338,7 +353,7 @@ namespace Chorus.merge.xml.generic
 			//writer.WriteNode(reader, false);
 		}
 
-		private static void ProcessCurrentElement(MergeOrder mergeOrder, string currentKey, IMergeStrategy mergeStrategy, string winnerId, IMergeEventListener listener, XmlWriter writer, string elementMarker,
+		private static void ProcessCurrentElement(IMergeStrategy mergeStrategy, MergeOrder mergeOrder, string currentKey, string winnerId, string loserId, IMergeEventListener listener, XmlWriter writer, string elementMarker,
 			IDictionary<string, byte[]> parentIndex,
 			IDictionary<string, ChangedElement> loserDirtballs, IDictionary<string, XmlNode> loserGoners,
 			IDictionary<string, ChangedElement> winnerDirtballs, IDictionary<string, XmlNode> winnerGoners,
@@ -348,7 +363,7 @@ namespace Chorus.merge.xml.generic
 			{
 				// Route used.
 				transferUntouched = false;
-				ProcessDeletedRecordFromWinningData(mergeOrder, listener, parentIndex, winnerGoners, currentKey, winnerId, elementMarker, loserGoners, loserDirtballs, writer);
+				ProcessDeletedRecordFromWinningData(mergeStrategy, mergeOrder, listener, parentIndex, winnerGoners, currentKey, loserId, elementMarker, loserGoners, loserDirtballs, writer);
 			}
 
 			if (winnerDirtballs.ContainsKey(currentKey))
@@ -422,7 +437,7 @@ namespace Chorus.merge.xml.generic
 			IDictionary<string, XmlNode> loserGoners,
 			IDictionary<string, ChangedElement> loserDirtballs,
 			XmlReader reader, XmlWriter writer,
-			string id, string winnerId, string recordElementName)
+			string id, string winnerId, string recordElementName, string loserId)
 		{
 			var keepReading = true;
 			while (keepReading)
@@ -436,8 +451,10 @@ namespace Chorus.merge.xml.generic
 				// Route used.
 				var transferUntouched = true;
 				var currentKey = reader.GetAttribute(id);
+				if (currentKey == null)
+					break;
 
-				ProcessCurrentElement(mergeOrder, currentKey, mergeStrategy, winnerId, listener, writer, recordElementName,
+				ProcessCurrentElement(mergeStrategy, mergeOrder, currentKey, winnerId, loserId, listener, writer, recordElementName,
 					parentIndex,
 					loserDirtballs, loserGoners,
 					winnerDirtballs, winnerGoners, ref transferUntouched);
@@ -475,15 +492,21 @@ namespace Chorus.merge.xml.generic
 				// Winner edited it, but loser deleted it.
 				// Make a conflict report.
 				var dirtballChangedElement = winnerDirtballs[currentKey];
+				var elementStrategy = mergeStrategy.GetElementStrategy(dirtballChangedElement._parentNode);
+				var generator = elementStrategy.ContextDescriptorGenerator;
+				if (generator != null)
+				{
+					listener.EnteringContext(generator.GenerateContextDescriptor(dirtballChangedElement._parentNode.OuterXml, mergeOrder.pathToOurs));
+				}
 				AddConflictToListener(
 					listener,
 					new EditedVsRemovedElementConflict(
 						recordElementName,
 						dirtballChangedElement._childNode,
-						loserGoners[currentKey],
+						null,
 						dirtballChangedElement._parentNode,
 						mergeOrder.MergeSituation,
-						new ElementStrategy(false),
+						elementStrategy,
 						winnerId),
 					dirtballChangedElement._childNode,
 					loserGoners[currentKey],
@@ -554,10 +577,10 @@ namespace Chorus.merge.xml.generic
 		}
 
 		private static void ProcessDeletedRecordFromWinningData(
-			MergeOrder mergeOrder, IMergeEventListener listener,
+			IMergeStrategy mergeStrategy, MergeOrder mergeOrder, IMergeEventListener listener,
 			IDictionary<string, byte[]> parentIndex,
 			IDictionary<string, XmlNode> winnerGoners,
-			string currentKey, string winnerId, string recordElementName,
+			string currentKey, string loserId, string recordElementName,
 			IDictionary<string, XmlNode> loserGoners, IDictionary<string, ChangedElement> loserDirtballs,
 			XmlWriter writer)
 		{
@@ -577,16 +600,22 @@ namespace Chorus.merge.xml.generic
 					// Winner deleted it, but loser edited it.
 					// Make a conflict report.
 					// Route tested (x2).
+					var elementStrategy = mergeStrategy.GetElementStrategy(dirtball._parentNode);
+					var generator = elementStrategy.ContextDescriptorGenerator;
+					if (generator != null)
+					{
+						listener.EnteringContext(generator.GenerateContextDescriptor(dirtball._parentNode.OuterXml, mergeOrder.pathToOurs));
+					}
 					AddConflictToListener(
 						listener,
 						new RemovedVsEditedElementConflict(
 							recordElementName,
-							winnerGoners[currentKey],
+							null,
 							dirtball._childNode,
 							dirtball._parentNode,
 							mergeOrder.MergeSituation,
-							new ElementStrategy(false),
-							winnerId),
+							elementStrategy,
+							loserId),
 						winnerGoners[currentKey],
 						dirtball._childNode,
 						dirtball._parentNode);

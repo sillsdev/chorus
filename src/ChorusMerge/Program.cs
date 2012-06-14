@@ -1,9 +1,5 @@
 using System;
-using System.Diagnostics;
-using System.IO;
-using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading;
 using Chorus.FileTypeHanders;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
@@ -49,14 +45,13 @@ namespace ChorusMerge
 				//this was originally put here to test if console writes were making it out to the linux log or not
 				Console.WriteLine("ChorusMerge: {0}, {1}, {2}", ourFilePath, commonFilePath, theirFilePath);
 
-				//Debug.Fail("hello");
 				MergeOrder order = MergeOrder.CreateUsingEnvironmentVariables(ourFilePath, commonFilePath, theirFilePath);
 				var handlers = ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers();
 				var handler = handlers.GetHandlerForMerging(order.pathToOurs);
 
 				//DispatchingMergeEventListener listenerDispatcher = new DispatchingMergeEventListener();
 				//using (HumanLogMergeEventListener humanListener = new HumanLogMergeEventListener(order.pathToOurs + ".ChorusNotes.txt"))
-				using (ChorusNotesMergeEventListener xmlListener = new ChorusNotesMergeEventListener(order.pathToOurs + ".ChorusNotes"))
+				using (ChorusNotesMergeEventListener xmlListener = new ChorusNotesMergeEventListener(order.pathToOurs + ".NewChorusNotes"))
 				{
 //                    listenerDispatcher.AddEventListener(humanListener);
 //                    listenerDispatcher.AddEventListener(xmlListener);

@@ -14,9 +14,10 @@ namespace Chorus.Utilities
 		public static string ValidateFile(string pathToFile, IProgress progress)
 		{
 			XmlReaderSettings settings = new XmlReaderSettings { ValidationType = ValidationType.None };
-			XmlReader reader = XmlReader.Create(pathToFile, settings);
+			XmlReader reader = null;
 			try
 			{
+				reader = XmlReader.Create(pathToFile, settings);
 				while (reader.Read())
 				{
 				}
@@ -27,7 +28,8 @@ namespace Chorus.Utilities
 			}
 			finally
 			{
-				reader.Close();
+				if (reader != null)
+					reader.Close();
 			}
 			return null;
 		}

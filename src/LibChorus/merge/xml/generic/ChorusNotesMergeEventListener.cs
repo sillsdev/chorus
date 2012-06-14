@@ -85,9 +85,17 @@ namespace Chorus.merge.xml.generic
 		public void Dispose()
 		{
 			_writer.Close();
-			using (var fileWriter = XmlWriter.Create(_path, CanonicalXmlSettings.CreateXmlWriterSettings()))
+			if (_xmlDoc.DocumentElement.ChildNodes.Count == 0 && _xmlDoc.DocumentElement.Attributes["version"].Value == "0")
 			{
-				_xmlDoc.Save(fileWriter);
+				// Get rid of empty file.
+				File.Delete(_path);
+			}
+			else
+			{
+				using (var fileWriter = XmlWriter.Create(_path, CanonicalXmlSettings.CreateXmlWriterSettings()))
+				{
+					_xmlDoc.Save(fileWriter);
+				}
 			}
 		}
 	}

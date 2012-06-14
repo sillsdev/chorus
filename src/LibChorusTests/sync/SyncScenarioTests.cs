@@ -5,6 +5,7 @@ using Chorus.VcsDrivers.Mercurial;
 using LibChorus.TestUtilities;
 using NUnit.Framework;
 using Palaso.Progress.LogBox;
+using Palaso.TestUtilities;
 
 namespace LibChorus.Tests.sync
 {
@@ -261,6 +262,18 @@ namespace LibChorus.Tests.sync
 
 			// With sync set as 'WeWin'
 			Assert.AreEqual("Bob's new idea", File.ReadAllText(bobSetup.PathToText));
+			var notesPath = Path.Combine(Path.Combine(Path.Combine(usbSourcePath, BobSetup.ProjectFolderName), "lexicon"), "foo.abc.ChorusNotes");
+			AssertThatXmlIn.File(notesPath).HasSpecifiedNumberOfMatchesForXpath("//notes/annotation[@class='mergeConflict']", 1);
+
+			//The conflict has now been created, in the merge with Bob, make a new conflict and make sure that when Sally does the next sync both conflicts are
+			//present in the ChorusNotes.
+			File.WriteAllText(Path.Combine(sallyRepoPath, "lexicon/foo.abc"), "Sally changed her mind");
+			File.WriteAllText(bobSetup.PathToText, "Bob changed his mind.");
+			bobOptions.CheckinDescription = "Bob makes conflicting change.";
+			bobSynchronizer.SyncNow(bobOptions);
+			sallyOptions.CheckinDescription = "Sally makes conflicting change.";
+			sallySynchronizer.SyncNow(sallyOptions);
+			AssertThatXmlIn.File(notesPath).HasSpecifiedNumberOfMatchesForXpath("//notes/annotation[@class='mergeConflict']", 2);
 
 		}
 

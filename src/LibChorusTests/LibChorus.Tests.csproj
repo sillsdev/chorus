@@ -102,7 +102,6 @@
 	<Reference Include="System.Core">
 	  <RequiredTargetFramework>3.5</RequiredTargetFramework>
 	</Reference>
-	<Reference Include="System.Data" />
 	<Reference Include="System.Xml" />
 	<Reference Include="System.Xml.Linq">
 	  <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -110,20 +109,24 @@
   </ItemGroup>
   <ItemGroup>
 	<Compile Include="clone\ClonerTests.cs" />
+	<Compile Include="FileHandlers\audio\AudioFileTypeHandlerTests.cs" />
 	<Compile Include="FileHandlers\ChorusTestFileHanderTests.cs" />
+	<Compile Include="FileHandlers\default\DefaultFileTypeHandlerTests.cs" />
+	<Compile Include="FileHandlers\LargeFileIntegrationTestService.cs" />
+	<Compile Include="FileHandlers\image\ImageFileTypeHandlerTests.cs" />
 	<Compile Include="FileHandlers\ldml\LdmlFileMergeTests.cs" />
 	<Compile Include="FileHandlers\ldml\LdmlFileValidationTests.cs" />
 	<Compile Include="FileHandlers\ldml\LdmlFileHandlerTests.cs" />
 	<Compile Include="FileHandlers\LiftRanges\LiftRangesFileHandlerTests.cs" />
 	<Compile Include="FileHandlers\Lift\FilePrettyPrintTests.cs" />
 	<Compile Include="MercurialPathHelp.cs" />
-	<Compile Include="merge\xml\adaptIt\FileLevelAdaptItKnowlegeBaseMergeTests.cs" />
 	<Compile Include="merge\xml\ConflictXmlRecordRetrievalTests.cs" />
 	<Compile Include="merge\GroupOfConflictFiles.cs" />
 	<Compile Include="merge\XmlLogMergeEventListenerTests.cs" />
 	<Compile Include="merge\GroupOfConflictingLiftFiles.cs" />
 	<Compile Include="merge\xml\FindByKeyAttributeTests.cs" />
 	<Compile Include="merge\xml\FindByEqualityOfTreeTests.cs" />
+	<Compile Include="merge\xml\generic\ElementStrategyTests.cs" />
 	<Compile Include="merge\xml\generic\FindByKeyAttributeInListTests.cs" />
 	<Compile Include="merge\xml\generic\FindNodeToMergeTests.cs" />
 	<Compile Include="merge\xml\generic\MergeAtomicElementServiceTests.cs" />
@@ -138,6 +141,7 @@
 	<Compile Include="merge\xml\generic\XmlListMergerTests.cs" />
 	<Compile Include="merge\xml\generic\XmlMergerTests.cs" />
 	<Compile Include="merge\xml\generic\XmlMergeServiceTests.cs" />
+	<Compile Include="merge\xml\lift\LiftHeaderMergingTests.cs" />
 	<Compile Include="merge\xml\lift\ExampleSentenceFinderTests.cs" />
 	<Compile Include="merge\xml\lift\ExampleSentenceMergingTests.cs" />
 	<Compile Include="merge\xml\lift\FileLevelDiffTests.cs" />
@@ -148,7 +152,6 @@
 	<Compile Include="merge\xml\lift\PoorMansMergingStrategyTests.cs" />
 	<Compile Include="merge\xml\lift\SenseMergingTests.cs" />
 	<Compile Include="merge\xml\lift\ValidationTests.cs" />
-	<Compile Include="merge\xml\ourStory\FileLevelMergeTests.cs" />
 	<Compile Include="notes\AnnotationTests.cs" />
 	<Compile Include="notes\AnnotationIndexTests.cs" />
 	<Compile Include="notes\IndexOfAllAnnotationsByKeyTests.cs" />
@@ -159,6 +162,7 @@
 	<Compile Include="sync\LargeFileFilterTests.cs" />
 	<Compile Include="sync\ProxyTests.cs" />
 	<Compile Include="sync\RevisionMergeBehaviorTests.cs" />
+	<Compile Include="sync\SychronizerAdjunctTests.cs" />
 	<Compile Include="sync\Synchronizer.FileBasedTests.cs" />
 	<Compile Include="sync\ChorusMLFileSyncTests.cs" />
 	<Compile Include="sync\Synchronizer.BadSituationTests.cs" />
@@ -171,7 +175,6 @@
 	<Compile Include="VcsDrivers\Mercurial\HgResumeRestApiServerTests.cs" />
 	<Compile Include="VcsDrivers\Mercurial\HgResumeTestUtilities.cs" />
 	<Compile Include="VcsDrivers\Mercurial\HgResumeTransportTests.cs" />
-	<Compile Include="VcsDrivers\Mercurial\MercurialTestUtilities.cs" />
 	<Compile Include="VcsDrivers\Mercurial\PullStorageManagerTests.cs" />
 	<Compile Include="VcsDrivers\Mercurial\HgTestSetup.cs" />
 	<Compile Include="VcsDrivers\Mercurial\IncludeExcludeTests.cs" />
@@ -182,6 +185,7 @@
 	<Compile Include="utilities\ChorusDiff3Tests.cs" />
 	<Compile Include="Properties\AssemblyInfo.cs" />
 	<Compile Include="VcsDrivers\Mercurial\PushStorageManagerTests.cs" />
+	<Compile Include="VcsDrivers\Mercurial\MercurialTestUtilities.cs" />
 	<Compile Include="VcsDrivers\Mercurial\RetrieveVersionTests.cs" />
 	<Compile Include="VcsDrivers\Mercurial\Utf8Tests.cs" />
   </ItemGroup>

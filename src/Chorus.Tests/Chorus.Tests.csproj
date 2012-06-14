@@ -118,6 +118,7 @@
 	<Compile Include="UI\Settings\SettingsModelTests.cs" />
 	<Compile Include="Properties\AssemblyInfo.cs" />
 	<Compile Include="UI\Review\HistoryPanelModelTests.cs" />
+	<Compile Include="UI\Sync\MockUsbDriveLocator.cs" />
 	<Compile Include="UI\Sync\SyncDialogTests.cs" />
 	<Compile Include="UI\Sync\SyncControlModelTests.cs" />
   </ItemGroup>

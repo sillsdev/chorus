@@ -22,7 +22,6 @@ namespace Chorus.UI.Sync
 			InitializeComponent();
 			_cancelButton.Visible = false;
 			_tabControl.TabPages.Remove(_tasksTab);
-			DesiredHeight = 320;
 			_successIcon.Left = _warningIcon.Left;
 			// _cancelButton.Top = _sendReceiveButton.Top;
 		   _closeButton.Bounds = _sendReceiveButton.Bounds;
