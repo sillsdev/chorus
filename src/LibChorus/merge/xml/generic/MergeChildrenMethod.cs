@@ -120,8 +120,15 @@ namespace Chorus.merge.xml.generic
 				XmlNode ourChild = newChildren[i];
 				XmlNode theirChild;
 				var ancestorChild = FindMatchingNode(ourChild, _ancestor);
-				if (resultOrderer.Correspondences.TryGetValue(ourChild, out theirChild)
-					&& !ChildrenAreSame(ourChild, theirChild))
+				var childStrategy = _merger.MergeStrategies.GetElementStrategy(ourChild);
+				var hasTheirChild = resultOrderer.Correspondences.TryGetValue(ourChild, out theirChild);
+				if (childStrategy.NumberOfChildren == NumberOfChildrenAllowed.Zero || childStrategy.NumberOfChildren == NumberOfChildrenAllowed.ZeroOrOne)
+				{
+					MergeLimitedChildrenService.Run(_merger, childStrategy, ref ourChild, theirChild, ancestorChild);
+					continue;
+				}
+
+				if (hasTheirChild && !ChildrenAreSame(ourChild, theirChild))
 				{
 					// There's a corresponding node and it isn't the same as ours...
 					if (!_skipInnerMergeFor.Contains(ourChild))
@@ -157,10 +164,19 @@ namespace Chorus.merge.xml.generic
 					}
 					else
 					{
+						// ancestorChild is not null.
 						if (XmlUtilities.IsTextNodeContainer(ourChild) == TextNodeStatus.IsTextNodeContainer)
 						{
 							if (theirChild != null && XmlUtilities.AreXmlElementsEqual(ourChild, theirChild) && !XmlUtilities.AreXmlElementsEqual(ourChild, ancestorChild))
 								_merger.EventListener.ChangeOccurred(new XmlTextBothMadeSameChangeReport(_merger.MergeSituation.PathToFileInRepository, ourChild)); // Route tested
+						}
+						else if (XmlUtilities.IsTextLevel(ourChild, theirChild, ancestorChild))
+						{
+							new MergeTextNodesMethod(_merger, _merger.MergeStrategies.GetElementStrategy(ourChild ?? theirChild ?? ancestorChild), _skipInnerMergeFor, ref ourChild, _ourKeepers, theirChild, _theirKeepers, ancestorChild, _ancestorKeepers).Run();
+						}
+						else
+						{
+							_merger.MergeInner(ref ourChild, theirChild, ancestorChild);
 						}
 					}
 				}
@@ -338,7 +354,7 @@ namespace Chorus.merge.xml.generic
 					{
 						// We both deleted it. Forget it ever existed.
 						// Route tested: MergeChildrenMethodTests.
-						_merger.EventListener.ChangeOccurred(new XmlDeletionChangeReport(_merger.MergeSituation.PathToFileInRepository, ancestorChild, null));
+						_merger.EventListener.ChangeOccurred(new XmlBothDeletionChangeReport(_merger.MergeSituation.PathToFileInRepository, ancestorChild));
 						_ancestorKeepers.Remove(ancestorChild);
 					}
 					else

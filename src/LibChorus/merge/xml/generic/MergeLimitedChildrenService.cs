@@ -12,29 +12,59 @@ namespace Chorus.merge.xml.generic
 	{
 		public static void Run(XmlMerger merger, ElementStrategy strategy, ref XmlNode ours, XmlNode theirs, XmlNode ancestor)
 		{
+// All routes tested in this method.
 			Guard.AgainstNull(merger, "merger"); // Route tested.
 			Guard.AgainstNull(strategy, "strategy"); // Route tested.
 			if (ours == null && theirs == null && ancestor == null)
 				throw new ArgumentNullException(); // Route tested.
 
-			List<XmlNode> children;
+			if (XmlUtilities.IsTextLevel(ours, theirs, ancestor))
+			{
+				// Route tested.
+				new MergeTextNodesMethod(merger, merger.MergeStrategies.GetElementStrategy(ours ?? theirs ?? ancestor),
+					new HashSet<XmlNode>(),
+					ref ours, new List<XmlNode>(),
+					theirs, new List<XmlNode>(),
+					ancestor, new List<XmlNode>()).Run();
+				return;
+			}
+
+			List<XmlNode> ourChildren;
+			List<XmlNode> theirChildren;
+			List<XmlNode> ancestorChildren;
 			switch (strategy.NumberOfChildren)
 			{
 				default:
 					throw new InvalidOperationException("Using strategy with NumberOfChildren property of NumberOfChildrenAllowed.ZeroOrMore is not legal."); // Route tested.
 				case NumberOfChildrenAllowed.Zero:
-					children = GetElementChildren(ours).ToList();
-					if (children.Any())
-						throw new InvalidOperationException("Using strategy with NumberOfChildren property of NumberOfChildrenAllowed.Zero is not legal, when there are child nodes."); // Route tested.
-					// Don't merge deeper, since there aren't supposed to be any children.
+					ourChildren = GetElementChildren(ours).ToList();
+					if (ourChildren.Any())
+						throw new InvalidOperationException("Using strategy with NumberOfChildren property of NumberOfChildrenAllowed.Zero is not legal, when there are child element nodes."); // Route tested.
+					theirChildren = GetElementChildren(theirs).ToList();
+					if (theirChildren.Any())
+						throw new InvalidOperationException("Using strategy with NumberOfChildren property of NumberOfChildrenAllowed.Zero is not legal, when there are child element nodes."); // Route tested.
+					ancestorChildren = GetElementChildren(ancestor).ToList();
+					if (ancestorChildren.Any())
+						throw new InvalidOperationException("Using strategy with NumberOfChildren property of NumberOfChildrenAllowed.Zero is not legal, when there are child element nodes."); // Route tested.
+
+					// Don't merge deeper than merging the attributes, since there aren't supposed to be any children.
+					MergeXmlAttributesService.MergeAttributes(merger, ref ours, theirs, ancestor);
 					// Route tested.
 					break;
 				case NumberOfChildrenAllowed.ZeroOrOne:
-					children = GetElementChildren(ours).ToList();
-					if (children.Count > 1)
+					ourChildren = GetElementChildren(ours).ToList();
+					if (ourChildren.Count > 1)
 						throw new InvalidOperationException("Using strategy with NumberOfChildren property of NumberOfChildrenAllowed.ZeroOrOne is not legal, when there are multiple child nodes."); // Route tested.
+					theirChildren = GetElementChildren(theirs).ToList();
+					if (theirChildren.Count > 1)
+						throw new InvalidOperationException("Using strategy with NumberOfChildren property of NumberOfChildrenAllowed.ZeroOrOne is not legal, when there are multiple child nodes."); // Route tested.
+					ancestorChildren = GetElementChildren(ancestor).ToList();
+					if (ancestorChildren.Count > 1)
+						throw new InvalidOperationException("Using strategy with NumberOfChildren property of NumberOfChildrenAllowed.ZeroOrOne is not legal, when there are child element nodes."); // Route tested.
 
-					if (!children.Any())
+					MergeXmlAttributesService.MergeAttributes(merger, ref ours, theirs, ancestor);
+
+					if (!ourChildren.Any() && !theirChildren.Any() && ancestor != null)
 						return; // Route tested.
 
 					// The return value of Run may be the original 'ours', or a replacement for it.
@@ -51,14 +81,12 @@ namespace Chorus.merge.xml.generic
 			var ourChild = GetElementChildren(ours).FirstOrDefault();
 			var theirChild = GetElementChildren(theirs).FirstOrDefault();
 			var ancestorChild = GetElementChildren(ancestor).FirstOrDefault();
-			var extantChildNode = ourChild ?? theirChild ?? ancestorChild;
-			var mergeStrategy = merger.MergeStrategies.GetElementStrategy(extantChildNode);
 			if (ancestor == null)
 			{
 				if (ours == null)
 				{
 					// They added, we did nothing.
-					// Route tested, but the MergeChildrenMethod adds the change report for us.
+// Route tested, but the MergeChildrenMethod adds the change report for us.
 					// So, theory has it one can't get here from any normal place.
 					// But, keep it, in case MergeChildrenMethod gets 'fixed'.
 					merger.EventListener.ChangeOccurred(new XmlAdditionChangeReport(merger.MergeSituation.PathToFileInRepository, theirs));
@@ -67,18 +95,34 @@ namespace Chorus.merge.xml.generic
 				if (theirs == null)
 				{
 					// We added, they did nothing.
-					// Route tested, but the MergeChildrenMethod adds the change report for us.
-					// So, theory has it one can't get here from any normal place.
-					// But, keep it, in case MergeChildrenMethod gets 'fixed'.
+// Route tested.
 					merger.EventListener.ChangeOccurred(new XmlAdditionChangeReport(merger.MergeSituation.PathToFileInRepository, ours));
 					return ours;
 				}
 
-				// Both added the containing node.
-				// Route tested.
+				// Both added the special containing node.
+// Route tested.
 				merger.EventListener.ChangeOccurred(new XmlBothAddedSameChangeReport(merger.MergeSituation.PathToFileInRepository, ours));
-				MergeXmlAttributesService.MergeAttributes(merger, ref ours, theirs, null);
 
+				if (ourChild == null && theirChild == null && ancestorChild == null)
+					return null; // Route tested.
+
+				if (ourChild == null && theirChild != null)
+				{
+// Route tested.
+					merger.EventListener.ChangeOccurred(new XmlAdditionChangeReport(merger.MergeSituation.PathToFileInRepository, theirChild));
+					ours.AppendChild(theirChild);
+					return ours;
+				}
+				if (theirChild == null)
+				{
+// Route tested.
+					merger.EventListener.ChangeOccurred(new XmlAdditionChangeReport(merger.MergeSituation.PathToFileInRepository, ourChild));
+					return ours;
+				}
+
+				// Both ourChild and theirChild exist, and may or may not be the same.
+				var mergeStrategy = merger.MergeStrategies.GetElementStrategy(ourChild);
 				var match = mergeStrategy.MergePartnerFinder.GetNodeToMerge(ourChild, theirs);
 				if (match == null)
 				{
@@ -99,26 +143,68 @@ namespace Chorus.merge.xml.generic
 						loser = ourChild;
 						ours = theirs;
 					}
+// Route tested.
 					merger.ConflictOccurred(new BothAddedMainElementButWithDifferentContentConflict(winner.Name, winner, loser, merger.MergeSituation, mergeStrategy, winnerId));
 					return ours;
 				}
 				else
 				{
-					// TODO: Work on this.
-					// Matched nodes.
-					// But, are they the same or not?
-					// ove on down and merge them.
-					//var ourReplacementChild = ourChild;
-					//merger.MergeInner(ref ourReplacementChild, theirChild, ancestorChild);
-					//return ourReplacementChild;
+					// Matched nodes, as far as that goes. But, are they the same or not?
+					if (XmlUtilities.AreXmlElementsEqual(ourChild, theirChild))
+					{
+						// Both added the same thing.
+// Route tested.
+						merger.EventListener.ChangeOccurred(new XmlBothAddedSameChangeReport(merger.MergeSituation.PathToFileInRepository, ourChild));
+						return ours;
+					}
+					else
+					{
+						// Move on down and merge them.
+						// Both messed with the inner stuff, but not the same way.
+// Route tested.
+						var ourReplacementChild = ourChild;
+						merger.MergeInner(ref ourReplacementChild, theirChild, ancestorChild);
+						//if (ourChild != ourReplacementChild)
+						if (!XmlUtilities.AreXmlElementsEqual(ourChild, ourReplacementChild))
+/* TODO: Not yet tested. I added a test I thought would do it, but it didn't, */							ours.ReplaceChild(ourReplacementChild, ourChild);
+						return ours;
+					}
 				}
 			}
-			// TODO: ancestor is not null at this point.
 
-			// TODO: This won't likely survive.
-			var ourReplacementChild = ourChild;
-			merger.MergeInner(ref ourReplacementChild, theirChild, ancestorChild);
-			return ourReplacementChild;
+			// ancestor is not null at this point.
+			// Check the inner nodes
+/* All of these main node deletions are handled in the MergeChildrenMethod DoDeletions method.
+						if (ours == null && theirs == null)
+						{
+							// We both deleted main node.
+// Route tested, but the MergeChildrenMethod adds the change report for us.
+							merger.EventListener.ChangeOccurred(new XmlBothDeletionChangeReport(merger.MergeSituation.PathToFileInRepository, ancestor));
+							return null;
+						}
+						if (ours == null)
+						{
+							// We deleted it.
+// Route tested, but the MergeChildrenMethod adds the change report for us.
+							merger.EventListener.ChangeOccurred(new XmlDeletionChangeReport(merger.MergeSituation.PathToFileInRepository, ancestor, theirs));
+							ours = theirs;
+							return ours;
+						}
+						if (theirs == null)
+						{
+							// They deleted it.
+// Route tested, but the MergeChildrenMethod adds the change report for us.
+							merger.EventListener.ChangeOccurred(new XmlDeletionChangeReport(merger.MergeSituation.PathToFileInRepository, ancestor, ours));
+							return ours;
+						}
+*/
+			if (ancestorChild == null)
+			{
+
+			}
+
+// Route tested. (UsingWith_NumberOfChildrenAllowed_ZeroOrOne_DoesNotThrowWhenParentHasOneChildNode)
+			return ours;
 		}
 
 		private static IEnumerable<XmlNode> GetElementChildren(XmlNode parent)
