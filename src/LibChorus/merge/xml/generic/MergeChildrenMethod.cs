@@ -47,11 +47,6 @@ namespace Chorus.merge.xml.generic
 			// Deal with deletions.
 			DoDeletions();
 
-			//if (XmlUtilities.IsTextLevel(_ours, _theirs, _ancestor))
-			//{
-			//    new MergeTextNodesMethod(_merger, _merger.MergeStrategies.GetElementStrategy(_ours ?? _theirs ?? _ancestor), _skipInnerMergeFor, ref _ours, _childrenOfOurKeepers, _theirs, _childrenOfTheirKeepers, _ancestor, _childrenOfAncestorKeepers).Run();
-			//}
-
 			ChildOrderer oursOrderer = new ChildOrderer(_childrenOfOurKeepers, _childrenOfTheirKeepers,
 				MakeCorrespondences(_childrenOfOurKeepers, _childrenOfTheirKeepers, _theirs), _merger);
 
@@ -129,16 +124,6 @@ namespace Chorus.merge.xml.generic
 
 				XmlNode theirChild;
 				var ancestorChild = FindMatchingNode(ourChild, _ancestor);
-				//var childStrategy = _merger.MergeStrategies.GetElementStrategy(ourChild);
-				//var hasTheirChild = resultOrderer.Correspondences.TryGetValue(ourChild, out theirChild);
-
-				// Just let the regular InnerMerge call handle it.
-				//if (childStrategy.NumberOfChildren == NumberOfChildrenAllowed.Zero || childStrategy.NumberOfChildren == NumberOfChildrenAllowed.ZeroOrOne)
-				//{
-				//    MergeLimitedChildrenService.Run(_merger, childStrategy, ref ourChild, theirChild, ancestorChild);
-				//    _skipInnerMergeFor.Add(ourChild);
-				//    continue;
-				//}
 
 				if (resultOrderer.Correspondences.TryGetValue(ourChild, out theirChild) && !ChildrenAreSame(ourChild, theirChild))
 				{
@@ -164,14 +149,13 @@ namespace Chorus.merge.xml.generic
 							}
 							else
 							{
-								//if (XmlUtilities.AreXmlElementsEqual(ourChild, theirChild))
-									_merger.EventListener.ChangeOccurred(new XmlTextBothAddedReport(_merger.MergeSituation.PathToFileInRepository, ourChild)); // Route tested
+								_merger.EventListener.ChangeOccurred(new XmlTextBothAddedReport(_merger.MergeSituation.PathToFileInRepository, ourChild)); // Route tested
 							}
 						}
 						else if (!(ourChild is XmlCharacterData))
 						{
 							if (theirChild == null)
-							// Route tested (MergeChildrenMethodTests, XmlMergerTests).
+								// Route tested (MergeChildrenMethodTests, XmlMergerTests).
 								_merger.EventListener.ChangeOccurred(new XmlAdditionChangeReport(_merger.MergeSituation.PathToFileInRepository, ourChild));
 							else
 								_merger.EventListener.ChangeOccurred(new XmlBothAddedSameChangeReport(_merger.MergeSituation.PathToFileInRepository, ourChild));
@@ -182,7 +166,6 @@ namespace Chorus.merge.xml.generic
 						// ancestorChild is not null.
 						if (XmlUtilities.IsTextNodeContainer(ourChild) == TextNodeStatus.IsTextNodeContainer)
 						{
-							//if (theirChild != null && XmlUtilities.AreXmlElementsEqual(ourChild, theirChild) && !XmlUtilities.AreXmlElementsEqual(ourChild, ancestorChild))
 							if (theirChild != null && !XmlUtilities.AreXmlElementsEqual(ourChild, ancestorChild))
 								_merger.EventListener.ChangeOccurred(new XmlTextBothMadeSameChangeReport(_merger.MergeSituation.PathToFileInRepository, ourChild)); // Route tested
 						}
@@ -218,94 +201,6 @@ namespace Chorus.merge.xml.generic
 			// Remove any leftovers.
 			while (_ours.ChildNodes.Count > resultsChildren.Count)
 				_ours.RemoveChild(_ours.ChildNodes[resultsChildren.Count]);
-
-
-
-			//    foreach (XmlNode theirChild in _theirs.ChildNodes)
-			//    {
-
-
-
-			//        IFindNodeToMerge finder = _merger.MergeSituation.GetMergePartnerFinder(theirChild);
-			//        XmlNode ourChild = finder.GetNodeToMerge(theirChild, _ours);
-			//        XmlNode ancestorChild = finder.GetNodeToMerge(theirChild, _ancestor);
-
-
-			//        if (theirChild.NodeType == XmlNodeType.Text)
-			//        {
-			//            _merger.MergeTextNodes(ref ourChild, theirChild, ancestorChild);
-			//            continue;
-			//        }
-
-			//        if (ourChild == null)
-			//        {
-			//            if (ancestorChild == null)
-			//            {
-			//                _ours.AppendChild(XmlUtilities.GetDocumentNodeFromRawXml(theirChild.OuterXml, _ours.OwnerDocument));
-			//            }
-			//            else if (XmlUtilities.AreXmlElementsEqual(ancestorChild, theirChild))
-			//            {
-			//                continue; // we deleted it, they didn't touch it
-			//            }
-			//            else //we deleted it, but at the same time, they changed it
-			//            {
-			//                _merger.EventListener.ConflictOccurred(new RemovedVsEditedElementConflict(theirChild.Name, null,
-			//                    theirChild, ancestorChild, _merger.MergeSituation));
-			//                continue;
-			//            }
-			//        }
-			//        else if ((ancestorChild != null) && XmlUtilities.AreXmlElementsEqual(ourChild, ancestorChild))
-			//        {
-			//            if (XmlUtilities.AreXmlElementsEqual(ourChild, theirChild))
-			//            {
-			//                //nothing to do
-			//                continue;
-			//            }
-			//            else //theirs is new
-			//            {
-			//                _merger.MergeInner(ref ourChild, theirChild, ancestorChild);
-			//            }
-			//        }
-			//        else
-			//        {
-			//            _merger.MergeInner(ref ourChild, theirChild, ancestorChild);
-			//        }
-			//    }
-
-			//// deal with their deletions (elements and text)
-			//foreach (XmlNode ourChild in _ours.ChildNodes)
-			//{
-			//    if (ourChild.NodeType != XmlNodeType.Element && ourChild.NodeType != XmlNodeType.Text)
-			//    {
-			//        continue;
-			//    }
-			//    IFindNodeToMerge finder = _merger.MergeSituation.GetMergePartnerFinder(ourChild);
-			//    XmlNode ancestorChild = finder.GetNodeToMerge(ourChild, _ancestor);
-			//    XmlNode theirChild = finder.GetNodeToMerge(ourChild, _theirs);
-
-			//    if (theirChild == null && ancestorChild != null)
-			//    {
-			//        if (XmlUtilities.AreXmlElementsEqual(ourChild, ancestorChild))
-			//        {
-			//            _ours.RemoveChild(ourChild);
-			//        }
-			//        else
-			//        {
-			//            if (ourChild.NodeType == XmlNodeType.Element)
-			//            {
-			//                _merger.EventListener.ConflictOccurred(
-			//                    new RemovedVsEditedElementConflict(ourChild.Name, ourChild, null, ancestorChild,
-			//                    _merger.MergeSituation));
-			//            }
-			//            else
-			//            {
-			//                _merger.EventListener.ConflictOccurred(
-			//                    new RemovedVsEditedTextConflict(ourChild, null, ancestorChild, _merger.MergeSituation));
-			//            }
-			//        }
-			//    }
-			//}
-
 		}
 
 		private bool ChildrenAreSame(XmlNode ourChild, XmlNode theirChild)

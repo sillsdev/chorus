@@ -77,7 +77,7 @@ namespace Chorus.merge.xml.generic
 
 		/// <summary>
 		/// This method does the actual work for the various public entry points of XmlMerge
-		/// and from the MergeChildrenMethod class, as it processes child nodes.
+		/// and from the various Method-type classes, as it processes child nodes, if any.
 		/// </summary>
 		internal void MergeInner(ref XmlNode ours, XmlNode theirs, XmlNode ancestor)
 		{
@@ -89,8 +89,11 @@ namespace Chorus.merge.xml.generic
 			if (elementStrat.IsImmutable)
 				return; // Can't merge something that can't change.
 
-			if (elementStrat.IsAtomic && MergeAtomicElementService.Run(this, ref ours, theirs, ancestor))
+			if (elementStrat.IsAtomic)
+			{
+				MergeAtomicElementService.Run(this, ref ours, theirs, ancestor);
 				return;
+			}
 
 			MergeXmlAttributesService.MergeAttributes(this, ref ours, theirs, ancestor);
 

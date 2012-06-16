@@ -166,7 +166,7 @@ namespace Chorus.merge.xml.generic
 						merger.MergeInner(ref ourReplacementChild, theirChild, ancestorChild);
 						//if (ourChild != ourReplacementChild)
 						if (!XmlUtilities.AreXmlElementsEqual(ourChild, ourReplacementChild))
-/* TODO: Not yet tested. I added a test I thought would do it, but it didn't, */							ours.ReplaceChild(ourReplacementChild, ourChild);
+							ours.ReplaceChild(ourReplacementChild, ourChild); // Not yet tested. I added a test I thought would do it, but it didn't
 						return ours;
 					}
 				}
@@ -198,10 +198,6 @@ namespace Chorus.merge.xml.generic
 							return ours;
 						}
 */
-			if (ancestorChild == null)
-			{
-
-			}
 
 // Route tested. (UsingWith_NumberOfChildrenAllowed_ZeroOrOne_DoesNotThrowWhenParentHasOneChildNode)
 			return ours;
