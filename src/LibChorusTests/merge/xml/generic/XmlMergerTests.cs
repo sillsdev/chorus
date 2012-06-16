@@ -139,29 +139,29 @@ namespace LibChorus.Tests.merge.xml.generic
 		[Test]
 		public void DefaultHtmlDetails_ReportsOneDeleted()
 		{
-			string ancestor = @"<a>
+			string ancestor = @"<a key='one'>
 								<b key='one'>
 									<c key='two'>data</c>
 								</b>
 							</a>";
-			string red = @"<a>
+			string red = @"<a key='one'>
 								<b key='one'>
 									<c key='two'>change1</c>
 								</b>
 							</a>";
 
-			string blue = @"<a>
+			string blue = @"<a key='one'>
 							</a>";
 
 			// blue would normally win, but this is a delete vs edit.
 			ChangeAndConflictAccumulator r = CheckOneWay(blue, red, ancestor,
-										"a/b[@key='one']/c[@key='two' and text()='change1']");
+										"a[@key='one']/b[@key='one']/c[@key='two' and text()='change1']");
 			Assert.AreEqual(typeof(RemovedVsEditedElementConflict), r.Conflicts[0].GetType());
 			// red wins
 			var mergeSituation = new MergeSituation("somepath", "red", "some rev", "blue", "another rev",
 				MergeOrder.ConflictHandlingModeChoices.WeWin);
 			r = CheckOneWay(red, blue, ancestor, mergeSituation, null,
-										"a/b[@key='one']/c[@key='two' and text()='change1']");
+										"a[@key='one']/b[@key='one']/c[@key='two' and text()='change1']");
 			Assert.AreEqual(typeof(EditedVsRemovedElementConflict), r.Conflicts[0].GetType());
 
 			var c = r.Conflicts[0];
@@ -189,18 +189,18 @@ namespace LibChorus.Tests.merge.xml.generic
 		[Test]
 		public void DefaultHtmlDetails_UsesClientHtmlGenerator()
 		{
-			string ancestor = @"<a>
+			string ancestor = @"<a key='one'>
 								<b key='one'>
 									<c key='two'>data</c>
 								</b>
 							</a>";
-			string red = @"<a>
+			string red = @"<a key='one'>
 								<b key='one'>
 									<c key='two'>change1</c>
 								</b>
 							</a>";
 
-			string blue = @"<a>
+			string blue = @"<a key='one'>
 								<b key='one'>
 									<c key='two'>change2</c>
 								</b>
@@ -391,20 +391,20 @@ namespace LibChorus.Tests.merge.xml.generic
 		[Test]
 		public void OneAddedASyblingElement_GetBoth()
 		{
-			string red = @"<a>
+			string red = @"<a key='one'>
 								<b key='one'>
-									<c>first</c>
+									<c key='one'>first</c>
 								</b>
 							</a>";
 
 			string ancestor = red;
 
-			string blue = @"<a>
+			string blue = @"<a key='one'>
 								<b key='one'>
-									<c>first</c>
+									<c key='one'>first</c>
 								</b>
 								<b key='two'>
-									<c>second</c>
+									<c key='two'>second</c>
 								</b>
 							</a>";
 
@@ -831,26 +831,26 @@ namespace LibChorus.Tests.merge.xml.generic
 		[Test]
 		public void BothInsertedSameInDifferentPlaces()
 		{
-			string ancestor = @"<a>
+			string ancestor = @"<a key='one'>
 								<b key='one'>
-									<c>first</c>
+									<c key='one'>first</c>
 								</b>
 							</a>";
-			string red = @"<a>
+			string red = @"<a key='one'>
 							  <b key='two'>
-									<c>second</c>
+									<c key='two'>second</c>
 								</b>
 							   <b key='one'>
-									<c>first</c>
+									<c key='one'>first</c>
 								</b>
 							</a>";
 
-			string blue = @"<a>
+			string blue = @"<a key='one'>
 								<b key='one'>
-									<c>first</c>
+									<c key='one'>first</c>
 								</b>
 								<b key='two'>
-									<c>second</c>
+									<c key='two'>second</c>
 								</b>
 						  </a>";
 

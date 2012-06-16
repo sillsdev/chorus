@@ -190,19 +190,19 @@ namespace LibChorus.Tests.merge.xml.generic
 		[Test]
 		public void InsertedAdjacentDuplicateKey()
 		{
-			string red = @"<a>
+			string red = @"<a key='one'>
 								<b key='one'>
-									<c>first</c>
+									<c key='one'>first</c>
 								</b>
 							</a>";
 			string ancestor = red;
 
-			string blue = @"<a>
+			string blue = @"<a key='one'>
 								<b key='one'>
-									<c>first</c>
+									<c key='one'>first</c>
 								</b>
 								<b key='one'>
-									<c>second</c>
+									<c key='two'>second</c>
 								</b>
 						  </a>";
 
@@ -227,25 +227,25 @@ namespace LibChorus.Tests.merge.xml.generic
 		[Test]
 		public void InsertedDuplicateKeyNotAdjacent()
 		{
-			string red = @"<a>
+			string red = @"<a key='one'>
 								<b key='one'>
-									<c>first</c>
+									<c key='one'>first</c>
 								</b>
 								<b key='two'>
-									<c>second</c>
+									<c key='two'>second</c>
 								</b>
 						</a>";
 			string ancestor = red;
 
-			string blue = @"<a>
+			string blue = @"<a key='one'>
 								<b key='one'>
-									<c>first</c>
+									<c key='one'>first</c>
 								</b>
 								<b key='two'>
-									<c>second</c>
+									<c key='two'>second</c>
 								</b>
 								<b key='one'>
-									<c>third</c>
+									<c key='three'>third</c>
 								</b>
 						  </a>";
 
@@ -259,23 +259,23 @@ namespace LibChorus.Tests.merge.xml.generic
 		{
 			string red = @"<a>
 								<b key='one'>
-									<c>first</c>
+									<c key='one'>first</c>
 								</b>
 								<b key='one'>
-									<c>second</c>
+									<c key='two'>second</c>
 								</b>
 						</a>";
 			string ancestor = red;
 
 			string blue = @"<a>
 								<b key='one'>
-									<c>first</c>
+									<c key='one'>first</c>
 								</b>
 								<b key='three'>
-									<c>third</c>
+									<c key='three'>third</c>
 								</b>
 								<b key='one'>
-									<c>second</c>
+									<c key='two'>second</c>
 								</b>
 						  </a>";
 
@@ -289,20 +289,20 @@ namespace LibChorus.Tests.merge.xml.generic
 		{
 			string red = @"<a>
 								<b key='one'>
-									<c>first</c>
+									<c key='one'>first</c>
 								</b>
 						</a>";
 			string ancestor = red;
 
 			string blue = @"<a>
 							   <b key='two'>
-									<c>second</c>
+									<c key='two'>second</c>
 							   </b>
 							   <b key='one'>
-									<c>first</c>
+									<c key='one'>first</c>
 								</b>
 								<b key='two'>
-									<c>third</c>
+									<c key='three'>third</c>
 								</b>
 						  </a>";
 

@@ -439,7 +439,7 @@ namespace LibChorus.Tests.merge.xml.generic
 								  new[] { "Lexicon/LexEntry/Etymology/LexEtymology" },
 								  null,
 								  0, new List<Type>(),
-								  2, new List<Type> { typeof(XmlBothAddedSameChangeReport), typeof(XmlBothAddedSameChangeReport) });
+								  1, new List<Type> { typeof(XmlBothAddedSameChangeReport) });
 		}
 
 		[Test]
