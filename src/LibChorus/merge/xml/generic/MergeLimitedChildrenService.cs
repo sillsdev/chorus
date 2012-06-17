@@ -81,6 +81,7 @@ namespace Chorus.merge.xml.generic
 			var ourChild = GetElementChildren(ours).FirstOrDefault();
 			var theirChild = GetElementChildren(theirs).FirstOrDefault();
 			var ancestorChild = GetElementChildren(ancestor).FirstOrDefault();
+			XmlNode ourReplacementChild;
 			if (ancestor == null)
 			{
 				if (ours == null)
@@ -162,7 +163,7 @@ namespace Chorus.merge.xml.generic
 						// Move on down and merge them.
 						// Both messed with the inner stuff, but not the same way.
 // Route tested.
-						var ourReplacementChild = ourChild;
+						ourReplacementChild = ourChild;
 						merger.MergeInner(ref ourReplacementChild, theirChild, ancestorChild);
 						//if (ourChild != ourReplacementChild)
 						if (!XmlUtilities.AreXmlElementsEqual(ourChild, ourReplacementChild))
@@ -174,30 +175,35 @@ namespace Chorus.merge.xml.generic
 
 			// ancestor is not null at this point.
 			// Check the inner nodes
-/* All of these main node deletions are handled in the MergeChildrenMethod DoDeletions method.
-						if (ours == null && theirs == null)
-						{
-							// We both deleted main node.
+			if (ours == null && theirs == null)
+			{
+				// We both deleted main node.
 // Route tested, but the MergeChildrenMethod adds the change report for us.
-							merger.EventListener.ChangeOccurred(new XmlBothDeletionChangeReport(merger.MergeSituation.PathToFileInRepository, ancestor));
-							return null;
-						}
-						if (ours == null)
-						{
-							// We deleted it.
+				merger.EventListener.ChangeOccurred(new XmlBothDeletionChangeReport(merger.MergeSituation.PathToFileInRepository, ancestor));
+				return null;
+			}
+			if (ours == null)
+			{
+				// We deleted it.
 // Route tested, but the MergeChildrenMethod adds the change report for us.
-							merger.EventListener.ChangeOccurred(new XmlDeletionChangeReport(merger.MergeSituation.PathToFileInRepository, ancestor, theirs));
-							ours = theirs;
-							return ours;
-						}
-						if (theirs == null)
-						{
-							// They deleted it.
+				merger.EventListener.ChangeOccurred(new XmlDeletionChangeReport(merger.MergeSituation.PathToFileInRepository, ancestor, theirs));
+				ours = theirs;
+				return ours;
+			}
+			if (theirs == null)
+			{
+				// They deleted it.
 // Route tested, but the MergeChildrenMethod adds the change report for us.
-							merger.EventListener.ChangeOccurred(new XmlDeletionChangeReport(merger.MergeSituation.PathToFileInRepository, ancestor, ours));
-							return ours;
-						}
-*/
+				merger.EventListener.ChangeOccurred(new XmlDeletionChangeReport(merger.MergeSituation.PathToFileInRepository, ancestor, ours));
+				return ours;
+			}
+
+			// ours, theirs, and ancestor all exist here.
+			ourReplacementChild = ourChild;
+			merger.MergeInner(ref ourReplacementChild, theirChild, ancestorChild);
+			if (!XmlUtilities.AreXmlElementsEqual(ourChild, ourReplacementChild))
+				ours.ReplaceChild(ourReplacementChild, ourChild); // Not yet tested. I added a test I thought would do it, but it didn't
+
 
 // Route tested. (UsingWith_NumberOfChildrenAllowed_ZeroOrOne_DoesNotThrowWhenParentHasOneChildNode)
 			return ours;

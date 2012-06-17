@@ -515,6 +515,126 @@ namespace LibChorus.Tests.merge.xml.generic
 		}
 
 		[Test]
+		public void TestFromFb()
+		{
+			const string commonAncestor =
+@"<RnGenericRec
+	guid='4a25547a-8ec7-4650-b53b-27c6f6d37fd4'>
+	<TextProp>
+		<Text
+			guid='f123e367-df11-439a-9b7a-7adff0ba1efc'>
+			<TextContents>
+				<StText
+					guid='f0392d21-e8eb-4c05-8bc7-783ce641223b'>
+					<Paragraphs>
+						<ownseqatomic
+							class='StTxtPara'
+							guid='d8c66454-63e4-4052-9fa9-eb1b1b0e4c6d'>
+							<ParaContents>
+								<Str>
+									<Run
+										ws='fr'>Ding, dong, la cloche.</Run>
+								</Str>
+							</ParaContents>
+						</ownseqatomic>
+					</Paragraphs>
+				</StText>
+			</TextContents>
+		</Text>
+	</TextProp>
+</RnGenericRec>";
+
+			const string ours =
+@"<RnGenericRec
+	guid='4a25547a-8ec7-4650-b53b-27c6f6d37fd4'>
+	<TextProp>
+		<Text
+			guid='f123e367-df11-439a-9b7a-7adff0ba1efc'>
+			<TextContents>
+				<StText
+					guid='f0392d21-e8eb-4c05-8bc7-783ce641223b'>
+					<Paragraphs>
+						<ownseqatomic
+							class='StTxtPara'
+							guid='378fe472-be32-43a9-a6e5-6212813050ae'>
+							<ParaContents>
+								<Str>
+									<Run
+										ws='fr'>new</Run>
+								</Str>
+							</ParaContents>
+						</ownseqatomic>
+					</Paragraphs>
+				</StText>
+			</TextContents>
+		</Text>
+	</TextProp>
+</RnGenericRec>";
+
+			const string theirs =
+@"<RnGenericRec
+	guid='4a25547a-8ec7-4650-b53b-27c6f6d37fd4'>
+	<TextProp>
+		<Text
+			guid='f123e367-df11-439a-9b7a-7adff0ba1efc'>
+			<TextContents>
+				<StText
+					guid='f0392d21-e8eb-4c05-8bc7-783ce641223b'>
+					<Paragraphs />
+				</StText>
+			</TextContents>
+		</Text>
+	</TextProp>
+</RnGenericRec>";
+
+			var listener = new ListenerForUnitTests();
+			var merger = new XmlMerger(new NullMergeSituationTheyWin())
+			{
+				EventListener = listener
+			};
+			var mergeStrat = merger.MergeStrategies;
+			mergeStrat.SetStrategy("RnGenericRec", ElementStrategy.CreateForKeyedElement("guid", false));
+
+			var elStrat = ElementStrategy.CreateSingletonElement();
+			elStrat.NumberOfChildren = NumberOfChildrenAllowed.ZeroOrOne;
+			mergeStrat.SetStrategy("TextProp", elStrat);
+
+			elStrat = ElementStrategy.CreateForKeyedElement("guid", false);
+			mergeStrat.SetStrategy("Text", elStrat);
+
+			elStrat = ElementStrategy.CreateSingletonElement();
+			elStrat.NumberOfChildren = NumberOfChildrenAllowed.ZeroOrOne;
+			mergeStrat.SetStrategy("TextContents", elStrat);
+
+			elStrat = ElementStrategy.CreateForKeyedElement("guid", false);
+			mergeStrat.SetStrategy("StText", elStrat);
+
+			elStrat = ElementStrategy.CreateSingletonElement();
+			elStrat.OrderIsRelevant = true;
+			mergeStrat.SetStrategy("Paragraphs", elStrat);
+
+			elStrat = ElementStrategy.CreateForKeyedElement("guid", false);
+			elStrat.IsAtomic = true;
+			mergeStrat.SetStrategy("ownseqatomic", elStrat);
+
+			elStrat = ElementStrategy.CreateSingletonElement();
+			elStrat.NumberOfChildren = NumberOfChildrenAllowed.ZeroOrOne;
+			mergeStrat.SetStrategy("ParaContents", elStrat);
+
+			elStrat = ElementStrategy.CreateSingletonElement();
+			elStrat.NumberOfChildren = NumberOfChildrenAllowed.ZeroOrOne;
+			elStrat.IsAtomic = true;
+			mergeStrat.SetStrategy("Str", elStrat);
+
+			XmlTestHelper.DoMerge(merger.MergeStrategies, merger.MergeSituation,
+								  commonAncestor, ours, theirs,
+								  new[] { "RnGenericRec/TextProp/Text/TextContents/StText/Paragraphs/ownseqatomic[@guid='378fe472-be32-43a9-a6e5-6212813050ae']/ParaContents/Str/Run[text()='new']" },
+								  null,
+								  0, new List<Type>(),
+								  2, new List<Type> {typeof(XmlBothDeletionChangeReport), typeof(XmlAdditionChangeReport)});
+		}
+
+		[Test]
 		public void BothAddedSameAtomicOwnedElementToNewPropertyButWithDifferencesInTheInnards_TheyWin()
 		{
 			const string commonAncestor =
