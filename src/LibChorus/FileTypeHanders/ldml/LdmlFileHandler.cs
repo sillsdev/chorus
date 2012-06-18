@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Xml;
+using System.Xml.Linq;
 using Chorus.FileTypeHanders.xml;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
@@ -54,6 +55,7 @@ namespace Chorus.FileTypeHanders.ldml
 		{
 			if (mergeOrder == null)
 				throw new ArgumentNullException("mergeOrder");
+			PreMergeFile(mergeOrder);
 
 			var merger = new XmlMerger(mergeOrder.MergeSituation);
 			SetupElementStrategies(merger);
@@ -190,6 +192,45 @@ namespace Chorus.FileTypeHanders.ldml
 				MergePartnerFinder = new FindByMatchingAttributeNames(new HashSet<string> { "xmlns:fw" })
 			};
 			merger.MergeStrategies.SetStrategy("special_xmlns:fw", strategy);
+		}
+
+		private static void PreMergeFile(MergeOrder mergeOrder)
+		{
+			var ourDoc = File.Exists(mergeOrder.pathToOurs) ? XDocument.Load(mergeOrder.pathToOurs) : null;
+			var theirDoc = File.Exists(mergeOrder.pathToTheirs) ? XDocument.Load(mergeOrder.pathToTheirs) : null;
+
+			if (ourDoc == null || theirDoc == null)
+				return;
+
+			// Pre-merge <generation> date attr to newest.
+			string ourRawGenDate;
+			var ourGenDate = GetGenDate(ourDoc, out ourRawGenDate);
+			string theirRawGenDate;
+			var theirGenDate = GetGenDate(theirDoc, out theirRawGenDate);
+			if (ourGenDate == theirGenDate)
+				return;
+			if (ourGenDate < theirGenDate)
+			{
+				var ourData = File.ReadAllText(mergeOrder.pathToOurs).Replace(ourRawGenDate, theirRawGenDate);
+				File.WriteAllText(mergeOrder.pathToOurs, ourData);
+				return;
+			}
+			var theirData = File.ReadAllText(mergeOrder.pathToTheirs).Replace(theirRawGenDate, ourRawGenDate);
+			File.WriteAllText(mergeOrder.pathToTheirs, theirData);
+		}
+
+		private static DateTime GetGenDate(XDocument doc, out string rawGenDate)
+		{
+			rawGenDate = doc.Root.Element("identity").Element("generation").Attribute("date").Value;
+			var splitData = GetDateTimeInts(rawGenDate);
+			return new DateTime(splitData[0], splitData[1], splitData[2], splitData[3], splitData[4], splitData[5]);
+		}
+
+		private static int[] GetDateTimeInts(string ldmlDate)
+		{
+			// date="2012-06-08T09:36:30"
+			var splitData = ldmlDate.Split(new[] {"-", "T", ":"}, StringSplitOptions.RemoveEmptyEntries);
+			return new[] { Int32.Parse(splitData[0]), Int32.Parse(splitData[1]), Int32.Parse(splitData[2]), Int32.Parse(splitData[3]), Int32.Parse(splitData[4]), Int32.Parse(splitData[5]) };
 		}
 	}
 }
