@@ -1,4 +1,4 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual Studio 2008
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibChorus.Tests", "src\LibChorusTests\LibChorus.Tests.csproj", "{F9671F8B-8556-44EA-81A7-C236D871B471}"
