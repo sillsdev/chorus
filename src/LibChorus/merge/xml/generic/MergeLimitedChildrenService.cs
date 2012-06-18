@@ -165,9 +165,9 @@ namespace Chorus.merge.xml.generic
 // Route tested.
 						ourReplacementChild = ourChild;
 						merger.MergeInner(ref ourReplacementChild, theirChild, ancestorChild);
-						//if (ourChild != ourReplacementChild)
-						if (!XmlUtilities.AreXmlElementsEqual(ourChild, ourReplacementChild))
-							ours.ReplaceChild(ourReplacementChild, ourChild); // Not yet tested. I added a test I thought would do it, but it didn't
+						if (!ReferenceEquals(ourChild, ourReplacementChild))
+							ours.ReplaceChild(ours.OwnerDocument.ImportNode(ourReplacementChild, true), ourChild);
+
 						return ours;
 					}
 				}
@@ -201,9 +201,8 @@ namespace Chorus.merge.xml.generic
 			// ours, theirs, and ancestor all exist here.
 			ourReplacementChild = ourChild;
 			merger.MergeInner(ref ourReplacementChild, theirChild, ancestorChild);
-			if (!XmlUtilities.AreXmlElementsEqual(ourChild, ourReplacementChild))
-				ours.ReplaceChild(ourReplacementChild, ourChild); // Not yet tested. I added a test I thought would do it, but it didn't
-
+			if (!ReferenceEquals(ourChild, ourReplacementChild))
+				ours.ReplaceChild(ours.OwnerDocument.ImportNode(ourReplacementChild, true), ourChild);
 
 // Route tested. (UsingWith_NumberOfChildrenAllowed_ZeroOrOne_DoesNotThrowWhenParentHasOneChildNode)
 			return ours;
