@@ -45,20 +45,20 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		{
 			Local = new RepositorySetup(testName + "-local");
 			Remote = new RepositorySetup(testName + "-remote");
+			Progress = new ProgressForTest();
 			switch (type)
 			{
 				case ApiServerType.Dummy:
 					ApiServer = new DummyApiServerForTest(testName);
 					break;
 				case ApiServerType.Pull:
-					ApiServer = new PullHandlerApiServerForTest(Remote.Repository);
+					ApiServer = new PullHandlerApiServerForTest(Remote.Repository, Progress);
 					break;
 				case ApiServerType.Push:
-					ApiServer = new PushHandlerApiServerForTest(Remote.Repository);
+					ApiServer = new PushHandlerApiServerForTest(Remote.Repository, Progress);
 					break;
 			}
 			Label = testName;
-			Progress = new ProgressForTest();
 			MultiProgress = new MultiProgress(new IProgress[] { new ConsoleProgress { ShowVerbose = true }, Progress });
 		}
 
@@ -141,6 +141,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		void AddTimeoutResponse(int executeCount);
 		void AddServerUnavailableResponse(int executeCount, string serverMessage);
 		void AddFailResponse(int executeCount);
+		void AddCancelResponse(int executeCount);
 		void PrepareBundle(string revHash);
 		void AddResponse(HgResumeApiResponse response);
 		void AddTimeOut();
@@ -254,6 +255,11 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			throw new NotImplementedException();
 		}
 
+		public void AddCancelResponse(int executeCount)
+		{
+			throw new NotImplementedException();
+		}
+
 		public void PrepareBundle(string revHash)
 		{
 			throw new NotImplementedException();
@@ -298,21 +304,26 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 
 		private PullStorageManager _helper;  // yes, we DO want to use the PullStorageManager for the PushHandler (this is the other side of the API, so it's opposite)
 		private readonly HgRepository _repo;
-		private TemporaryFolder _localStorage;
+		private readonly TemporaryFolder _localStorage;
 		private int _executeCount;
-		private List<int> _timeoutList;
-		private List<ServerUnavailableResponse> _serverUnavailableList;
+		private readonly List<int> _timeoutList;
+		private readonly List<ServerUnavailableResponse> _serverUnavailableList;
 		private int _failCount;
+		private int _cancelCount;
 
-		public PushHandlerApiServerForTest(HgRepository repo)
+		private ProgressForTest _progress;
+
+		public PushHandlerApiServerForTest(HgRepository repo, ProgressForTest progress)
 		{
 			const string identifier = "PushHandlerApiServerForTest";
 			_localStorage = new TemporaryFolder(identifier);
 			_repo = repo;
+			_progress = progress;
 			Host = identifier;
 			ProjectId = "SampleProject";
 			_executeCount = 0;
 			_failCount = -1;
+			_cancelCount = -1;
 			_timeoutList = new List<int>();
 			_serverUnavailableList = new List<ServerUnavailableResponse>();
 		}
@@ -341,6 +352,11 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			if (method == "pushBundleChunk")
 			{
 				_executeCount++;
+				if (_cancelCount == _executeCount)
+				{
+					_progress.CancelRequested = true;
+					return ApiResponses.Failed("");
+				}
 				if (_failCount == _executeCount)
 				{
 					return ApiResponses.Failed("");
@@ -430,6 +446,11 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			_failCount = executeCount;
 		}
 
+		public void AddCancelResponse(int executeCount)
+		{
+			_cancelCount = executeCount;
+		}
+
 		public void PrepareBundle(string revHash)
 		{
 			throw new NotImplementedException();
@@ -447,16 +468,20 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		private readonly HgRepository _repo;
 		private int _executeCount;
 		private int _failCount;
-		private List<int> _timeoutList;
-		private List<ServerUnavailableResponse> _serverUnavailableList;
-		private TemporaryFolder _storageFolder;
+		private int _cancelCount;
+		private readonly List<int> _timeoutList;
+		private readonly List<ServerUnavailableResponse> _serverUnavailableList;
+		private readonly TemporaryFolder _storageFolder;
 		public string OriginalTip;
 
-		public PullHandlerApiServerForTest(HgRepository repo)
+		private ProgressForTest _progress;
+
+		public PullHandlerApiServerForTest(HgRepository repo, ProgressForTest progress)
 		{
 			const string identifier = "PullHandlerApiServerForTest";
 			_storageFolder = new TemporaryFolder(identifier);
 			_repo = repo;
+			_progress = progress;
 			_helper = new PushStorageManager(_storageFolder.Path, "randomHash");
 			Host = identifier;
 			ProjectId = "SampleProject";
@@ -485,6 +510,11 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		string IApiServerForTest.CurrentTip
 		{
 			get { return CurrentTip; }
+		}
+
+		public void AddCancelResponse(int executeCount)
+		{
+			_cancelCount = executeCount;
 		}
 
 		public void PrepareBundle(string revHash)
@@ -527,6 +557,11 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			}
 			if (method == "pullBundleChunk")
 			{
+				if (_cancelCount == _executeCount)
+				{
+					_progress.CancelRequested = true;
+					return ApiResponses.Failed("");
+				}
 				if (_failCount == _executeCount)
 				{
 					return ApiResponses.Failed("");
@@ -672,11 +707,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			return String.Join(" ", _all.ToArray());
 		}
 
-		public bool CancelRequested
-		{
-			get { return false; }
-			set { }
-		}
+		public bool CancelRequested { get; set; }
 
 		public bool ErrorEncountered
 		{

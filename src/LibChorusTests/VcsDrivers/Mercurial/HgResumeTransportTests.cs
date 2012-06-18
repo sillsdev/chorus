@@ -322,7 +322,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		}
 
 		[Test]
-		public void Pull_PullOperationFailsMidwayAndStartsAgainWithSeparatePull_Resumes()
+		public void Pull_PullOperationFailsMidway_ContinuesToCompletion()
 		{
 			using (var e = new TestEnvironment("hgresumetest", ApiServerType.Pull))
 			using (var provider = GetTransportProviderForTest(e))
@@ -332,18 +332,13 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				e.RemoteAddAndCommitLargeFile();
 				e.ApiServer.AddFailResponse(3);
 				var transport = provider.Transport;
-				Assert.That(() => transport.Pull(), Throws.Exception.TypeOf<HgResumeOperationFailed>());
-				e.ApiServer.AddFailResponse(5);
-				Assert.That(() => transport.Pull(), Throws.Exception.TypeOf<HgResumeOperationFailed>());
 				transport.Pull();
-				Assert.That(e.Progress.AllMessages, Contains.Item("Resuming pull operation at 4KB received"));
-				Assert.That(e.Progress.AllMessages, Contains.Item("Resuming pull operation at 9KB received"));
 				Assert.That(e.Progress.AllMessages, Contains.Item("Pull operation completed successfully"));
 			}
 		}
 
 		[Test]
-		public void Push_PushOperationFailsMidwayAndBeginsAgainWithAdditionalPush_Resumes()
+		public void Push_UserCancelsMidwayAndBeginsAgainWithAdditionalPush_Resumes()
 		{
 			using (var e = new TestEnvironment("hgresumetest", ApiServerType.Push))
 			using (var provider = GetTransportProviderForTest(e))
@@ -351,11 +346,13 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				e.LocalAddAndCommit();
 				e.CloneRemoteFromLocal();
 				e.LocalAddAndCommitLargeFile();
-				e.ApiServer.AddFailResponse(3);
+				e.ApiServer.AddCancelResponse(3);
 				var transport = provider.Transport;
-				Assert.That(() => transport.Push(), Throws.Exception.TypeOf<HgResumeOperationFailed>());
-				e.ApiServer.AddFailResponse(6);
-				Assert.That(() => transport.Push(), Throws.Exception.TypeOf<HgResumeOperationFailed>());
+				Assert.That(() => transport.Push(), Throws.Exception.TypeOf<UserCancelledException>());
+				e.Progress.CancelRequested = false;
+				e.ApiServer.AddCancelResponse(6);
+				Assert.That(() => transport.Push(), Throws.Exception.TypeOf<UserCancelledException>());
+				e.Progress.CancelRequested = false;
 				transport.Push();
 				Assert.That(e.Progress.AllMessages, Contains.Item("Resuming push operation at 126KB sent"));
 				Assert.That(e.Progress.AllMessages, Contains.Item("Resuming push operation at 249KB sent"));
@@ -364,7 +361,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		}
 
 		[Test]
-		public void Push_PushFailsMidwayThenRepoChanges_PushDoesNotResume()
+		public void Push_UserCancelsMidwayThenRepoChanges_PushDoesNotResume()
 		{
 			using (var e = new TestEnvironment("hgresumetest", ApiServerType.Push))
 			using (var provider = GetTransportProviderForTest(e))
@@ -372,9 +369,10 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				e.LocalAddAndCommit();
 				e.CloneRemoteFromLocal();
 				e.LocalAddAndCommitLargeFile();
-				e.ApiServer.AddFailResponse(2);
+				e.ApiServer.AddCancelResponse(2);
 				var transport = provider.Transport;
-				Assert.That(() => transport.Push(), Throws.Exception.TypeOf<HgResumeOperationFailed>());
+				Assert.That(() => transport.Push(), Throws.Exception.TypeOf<UserCancelledException>());
+				e.Progress.CancelRequested = false;
 				e.RemoteAddAndCommit();
 				transport.Push();
 				Assert.That(e.Progress.AllMessagesString().Contains("Resuming push operation at"), Is.Not.True);
@@ -383,7 +381,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		}
 
 		[Test]
-		public void Pull_PullFailsMidwayTheRemoteRepoChanges_PullFinishesThenStartsSecondPullToGetNewChanges()
+		public void Pull_UserCancelsMidwayTheRemoteRepoChanges_PullFinishesSecondPull()
 		{
 			using (var e = new TestEnvironment("hgresumetest", ApiServerType.Pull))
 			using (var provider = GetTransportProviderForTest(e))
@@ -391,16 +389,14 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				e.LocalAddAndCommit();
 				e.CloneRemoteFromLocal();
 				e.RemoteAddAndCommitLargeFile();
-				e.ApiServer.AddFailResponse(3);
+				e.ApiServer.AddCancelResponse(2);
 				var transport = provider.Transport;
-				Assert.That(() => transport.Pull(), Throws.Exception.TypeOf<HgResumeOperationFailed>());
+				Assert.That(() => transport.Pull(), Throws.Exception.TypeOf<UserCancelledException>());
+				e.Progress.CancelRequested = false;
 				e.RemoteAddAndCommit();
 				transport.Pull();
-				Assert.That(e.Progress.AllMessages, Contains.Item("Resuming pull operation at 4KB received"));
-				Assert.That(e.Progress.AllMessages, Contains.Item("Pull operation completed successfully"));
-				Assert.That(e.Progress.AllMessages, Contains.Item("Remote repo has changed.  Initiating additional pull operation"));
 				IEnumerable<string> msgs = e.Progress.Messages.Where(x => x == "Pull operation completed successfully");
-				Assert.That(msgs.ToList(), Has.Count.EqualTo(2));
+				Assert.That(msgs.ToList(), Has.Count.EqualTo(1));
 			}
 		}
 

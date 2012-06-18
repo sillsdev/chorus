@@ -311,15 +311,14 @@ namespace Chorus.VcsDrivers.Mercurial
 					req.BaseHash = GetCommonBaseHashWithRemoteRepo(false);
 					continue;
 				}
-				// This 'Fail' intentionally aborts the push attempt.  I think we can continue to go around the loop and retry. See Pull also. CP 2012-06
-				/*
 				if (response.Status == PushStatus.Fail)
 				{
-					var errorMessage = "Push operation failed";
-					_progress.WriteError(errorMessage);
-					throw new HgResumeOperationFailed(errorMessage);
+					// This 'Fail' intentionally aborts the push attempt.  I think we can continue to go around the loop and retry. See Pull also. CP 2012-06
+					continue;
+					//var errorMessage = "Push operation failed";
+					//_progress.WriteError(errorMessage);
+					//throw new HgResumeOperationFailed(errorMessage);
 				}
-				*/
 				if (response.Status == PushStatus.Reset)
 				{
 					FinishPush(req.TransId);
@@ -599,17 +598,18 @@ namespace Chorus.VcsDrivers.Mercurial
 					req.BaseHash = GetCommonBaseHashWithRemoteRepo(false);
 					continue;
 				}
-				// Not sure that we need to abort the attempts just because .Net web request says so.  See Push also. CP 2012-06
-				/*
 				if (response.Status == PullStatus.Fail)
 				{
-					errorMessage = "Pull operation failed";
+					// Not sure that we need to abort the attempts just because .Net web request says so.  See Push also. CP 2012-06
+					errorMessage = "Pull data chunk failed";
 					_progress.WriteError(errorMessage);
-					_progress.ProgressIndicator.Initialize();
-					_progress.ProgressIndicator.Finish();
-					throw new HgResumeOperationFailed(errorMessage);
+					retryLoop = true;
+					req.StartOfWindow = bundleHelper.StartOfWindow;
+					//_progress.ProgressIndicator.Initialize();
+					//_progress.ProgressIndicator.Finish();
+					//throw new HgResumeOperationFailed(errorMessage);
+					continue;
 				}
-				*/
 				if (response.Status == PullStatus.Reset)
 				{
 					retryLoop = true;
