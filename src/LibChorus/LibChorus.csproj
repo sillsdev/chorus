@@ -142,6 +142,7 @@
 	<Compile Include="FileTypeHanders\lift\LiftFileServices.cs" />
 	<Compile Include="FileTypeHanders\lift\LiftFolder.cs" />
 	<Compile Include="FileTypeHanders\lift\LiftKeyFinder.cs" />
+	<Compile Include="merge\xml\generic\MergeLimitedChildrenService.cs" />
 	<Compile Include="merge\xml\generic\OptionalKeyAttrFinder.cs" />
 	<Compile Include="FileTypeHanders\Xml2WayDiffer.cs" />
 	<Compile Include="FileTypeHanders\Xml2WayDiffService.cs" />

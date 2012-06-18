@@ -1041,7 +1041,7 @@ namespace Chorus.merge.xml.generic
 	{
 		public AmbiguousInsertConflict(string elementName, XmlNode alphaNode, XmlNode betaNode,
 			XmlNode ancestorElement, MergeSituation mergeSituation, IElementDescriber elementDescriber, string whoWon)
-			: base(elementName, alphaNode, betaNode, ancestorElement, mergeSituation, elementDescriber, whoWon)
+			: base(elementName, alphaNode, betaNode, ancestorElement, mergeSituation, elementDescriber, "both users")
 		{
 		}
 
@@ -1056,13 +1056,13 @@ namespace Chorus.merge.xml.generic
 
 		public override string WhatHappened
 		{
-			get { return string.Format("{0} and {1} both inserted material in this element in the same place. The automated merger cannot be sure of the correct order for the inserted material.",
+			get { return string.Format("{0} and {1} both inserted material in this element in the same place. The automated merger cannot be sure of the correct order for the inserted material, but kept both of them.",
 				Situation.AlphaUserId, Situation.BetaUserId);
 			}
 		}
 		public override string ToString()
 		{
-			return GetType().ToString() + ":" + _elementName+" (or lower?)";
+			return GetType() + ":" + _elementName + " (or lower?)";
 		}
 	}
 
