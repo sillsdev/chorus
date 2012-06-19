@@ -37,6 +37,10 @@ namespace Chorus.clone
 			return DriveInfoRetriever.GetDrives().Count > 0;
 		}
 
+		///<summary>
+		/// Retrieves from all USB drives all the Mercurial Repositories
+		///</summary>
+		///<returns></returns>
 		public IEnumerable<string> GetDirectoriesWithMecurialRepos()
 		{
 			foreach (var drive in DriveInfoRetriever.GetDrives())
@@ -85,13 +89,19 @@ namespace Chorus.clone
 			}
 		}
 
+		///<summary>
+		/// Makes a Mercurial clone of a repository from sourcePath to parentDirectoryToPutCloneIn
+		///</summary>
+		///<param name="sourcePath">Existing Hg repo</param>
+		///<param name="parentDirectoryToPutCloneIn">Target folder for new clone</param>
+		///<param name="progress">Progress indicator object</param>
+		///<returns>Directory that clone was actually placed in (allows for renaming to avoid duplicates)</returns>
 		public string MakeClone(string sourcePath, string parentDirectoryToPutCloneIn, IProgress progress)
 		{
-			var sourceRepo = new HgRepository(sourcePath, progress);
-			var actualTarget = sourceRepo.CloneLocalWithoutUpdate(Path.Combine(parentDirectoryToPutCloneIn, Path.GetFileName(sourcePath)));
-			var targetRepo = new HgRepository(actualTarget, progress);
-			targetRepo.Update(); // Need this for new clone from USB drive.
-			return actualTarget;
+			return HgHighLevel.MakeCloneFromLocalToLocal(sourcePath,
+														 Path.Combine(parentDirectoryToPutCloneIn, Path.GetFileName(sourcePath)),
+														 true,
+														 progress);
 		}
 	}
 }
