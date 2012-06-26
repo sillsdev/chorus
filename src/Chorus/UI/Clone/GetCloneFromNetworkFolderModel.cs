@@ -44,7 +44,7 @@ namespace Chorus.UI.Clone
 		/// you application is prepared to open. The delegate is given the path to each mercurial project.
 		/// The default filter is simply true, in that it will accept any folder.
 		/// </summary>
-		public Func<string, bool> ProjectFilter = path => true;
+		public Func<string, bool> ProjectFilter = GetSharedProject.DefaultProjectFilter;
 
 		///<summary>
 		/// Constructor

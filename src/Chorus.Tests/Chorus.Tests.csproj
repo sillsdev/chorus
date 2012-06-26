@@ -102,6 +102,7 @@
 	<Compile Include="ChorusApplicationTests.cs" />
 	<Compile Include="ChorusSystemTests.cs" />
 	<Compile Include="ChorusSystemUsage.cs" />
+	<Compile Include="clone\ClonerTests.cs" />
 	<Compile Include="UI\Clone\GetCloneFromInternetModelTest.cs" />
 	<Compile Include="UI\Clone\GetCloneFromNetworkModelTest.cs" />
 	<Compile Include="UI\Misc\ServerSettingsModelTests.cs" />

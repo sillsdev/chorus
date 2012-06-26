@@ -108,7 +108,6 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
-	<Compile Include="clone\ClonerTests.cs" />
 	<Compile Include="FileHandlers\audio\AudioFileTypeHandlerTests.cs" />
 	<Compile Include="FileHandlers\ChorusTestFileHanderTests.cs" />
 	<Compile Include="FileHandlers\default\DefaultFileTypeHandlerTests.cs" />

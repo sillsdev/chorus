@@ -1,17 +1,10 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Drawing;
-using System.Media;
 using System.Threading;
 using System.Windows.Forms;
-using Chorus.clone;
 using Chorus.UI.Misc;
-using Chorus.Utilities;
-using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
-using Palaso.Progress;
-using Palaso.Progress.LogBox;
-using Palaso.Reporting;
 
 namespace Chorus.UI.Clone
 {
