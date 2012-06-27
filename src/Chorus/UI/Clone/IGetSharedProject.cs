@@ -22,7 +22,8 @@ namespace Chorus.UI.Clone
 	/// </summary>
 	public class CloneResult
 	{
-		internal CloneResult(string actualLocation, CloneStatus cloneStatus)
+		/// <summary>Constructor</summary>
+		public CloneResult(string actualLocation, CloneStatus cloneStatus)
 		{
 			ActualLocation = actualLocation;
 			CloneStatus = cloneStatus;
