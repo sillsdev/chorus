@@ -38,9 +38,7 @@ namespace LibChorus.TestUtilities
 							<form lang='a'>
 								<text>original</text>
 							</form>
-						</lexical-unit>
-						<lexical-unit>
-							<form lang='a'>
+							<form lang='b'>
 								<text>other</text>
 							</form>
 						</lexical-unit>

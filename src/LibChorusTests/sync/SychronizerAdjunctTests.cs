@@ -167,7 +167,7 @@ namespace LibChorus.Tests.sync
 				sally.SyncWithOptions(options);
 				bob.ReplaceSomethingElse("no problems.");
 				var syncResults = bob.SyncWithOptions(bobOptions, synchronizer);
-				Assert.IsFalse(syncResults.DidGetChangesFromOthers);
+				Assert.IsTrue(syncResults.DidGetChangesFromOthers);
 				CheckExistanceOfAdjunctFiles(syncAdjunct, true, true, false, false);
 			}
 		}
