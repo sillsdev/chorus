@@ -1,6 +1,7 @@
 using System.IO;
 using Chorus.Utilities;
 using Chorus.sync;
+using Chorus.VcsDrivers;
 using LibChorus.TestUtilities;
 using NUnit.Framework;
 using Palaso.IO;
@@ -104,10 +105,75 @@ namespace LibChorus.Tests.sync
 			}
 		}
 
+		/// <summary>
+		/// This test will do the first (local) commit, but does no merge.
+		/// Then it does a Sync which should find no changes and result in no pull (or pull file)
+		/// </summary>
+		[Test]
+#if MONO
+		[Ignore]
+#endif
+		public void SendReceiveWithNoRemoteChangesGetsNoFiles()
+		{
+			using (var bob = RepositoryWithFilesSetup.CreateWithLiftFile("bob"))
+			{
+				var syncAdjunct = new FileWriterSychronizerAdjunct(bob.RootFolder.Path);
+				CheckNoFilesExist(syncAdjunct);
+				var options = new SyncOptions
+				{
+					DoMergeWithOthers = true,
+					DoPullFromOthers = true,
+					DoSendToOthers = true
+				};
+				var synchronizer = bob.Synchronizer;
+				synchronizer.SynchronizerAdjunct = syncAdjunct;
+				var syncResults = bob.SyncWithOptions(options, synchronizer);
+				Assert.IsFalse(syncResults.DidGetChangesFromOthers);
+				CheckExistanceOfAdjunctFiles(syncAdjunct, true, false, false, false);
+			}
+		}
 
 		/// <summary>
+		/// This test will do the first (local) commit, but does no merge.
+		/// Then it does a Sync which should find no changes and result in no pull (or pull file)
+		/// </summary>
+		[Test]
+#if MONO
+		[Ignore]
+#endif
+		public void SendReceiveWithTrivialMergeCallsSimpleUpdate()
+		{
+			using (var sally = RepositoryWithFilesSetup.CreateWithLiftFile("sally"))
+			using (var bob = RepositoryWithFilesSetup.CreateByCloning("bob", sally))
+			{
+				var syncAdjunct = new FileWriterSychronizerAdjunct(bob.RootFolder.Path);
+				CheckNoFilesExist(syncAdjunct);
+				var options = new SyncOptions
+				{
+					DoMergeWithOthers = true,
+					DoPullFromOthers = true,
+					DoSendToOthers = true
+				};
+				var bobOptions = new SyncOptions
+									{
+										DoMergeWithOthers = true,
+										DoPullFromOthers = true,
+										DoSendToOthers = true,
+										RepositorySourcesToTry = {sally.RepoPath}
+				};
+				var synchronizer = bob.Synchronizer;
+				synchronizer.SynchronizerAdjunct = syncAdjunct;
+				sally.ReplaceSomething("nice.");
+				sally.SyncWithOptions(options);
+				bob.ReplaceSomethingElse("no problems.");
+				var syncResults = bob.SyncWithOptions(bobOptions, synchronizer);
+				Assert.IsFalse(syncResults.DidGetChangesFromOthers);
+				CheckExistanceOfAdjunctFiles(syncAdjunct, true, true, false, false);
+			}
+		}
+		/// <summary>
 		/// This test will do the first (local) commit and does a merge.
-		/// As such, the CommitPathname and MergePathname test files will be *bith* created.
+		/// As such, the CommitPathname and MergePathname test files will *both* be created.
 		/// The presence or absence of the two files tells us whether the Synchronizer class called the new interface methods.
 		/// </summary>
 		[Test]
@@ -274,24 +340,24 @@ namespace LibChorus.Tests.sync
 		private static void CheckExistanceOfAdjunctFiles(FileWriterSychronizerAdjunct syncAdjunct, bool commitFileShouldExist, bool pullFileShouldExist, bool rollbackFileShouldExist, bool mergeFileShouldExist)
 		{
 			if (commitFileShouldExist)
-				Assert.IsTrue(File.Exists(syncAdjunct.CommitPathname));
+				Assert.IsTrue(File.Exists(syncAdjunct.CommitPathname), "CommitFile should exist.");
 			else
-				Assert.IsFalse(File.Exists(syncAdjunct.CommitPathname));
+				Assert.IsFalse(File.Exists(syncAdjunct.CommitPathname), "CommitFile should not exist.");
 
 			if (pullFileShouldExist)
-				Assert.IsTrue(File.Exists(syncAdjunct.PullPathname));
+				Assert.IsTrue(File.Exists(syncAdjunct.PullPathname), "PullFile should exist.");
 			else
-				Assert.IsFalse(File.Exists(syncAdjunct.PullPathname));
+				Assert.IsFalse(File.Exists(syncAdjunct.PullPathname), "PullFile should not exist.");
 
 			if (rollbackFileShouldExist)
-				Assert.IsTrue(File.Exists(syncAdjunct.RollbackPathname));
+				Assert.IsTrue(File.Exists(syncAdjunct.RollbackPathname), "RollbackFile should exist.");
 			else
-				Assert.IsFalse(File.Exists(syncAdjunct.RollbackPathname));
+				Assert.IsFalse(File.Exists(syncAdjunct.RollbackPathname), "RollbackFile shouldn't exist.");
 
 			if (mergeFileShouldExist)
-				Assert.IsTrue(File.Exists(syncAdjunct.MergePathname));
+				Assert.IsTrue(File.Exists(syncAdjunct.MergePathname), "MergeFile should exist.");
 			else
-				Assert.IsFalse(File.Exists(syncAdjunct.MergePathname));
+				Assert.IsFalse(File.Exists(syncAdjunct.MergePathname), "MergeFile shouldn't exist.");
 		}
 
 		private static void CheckNoFilesExist(FileWriterSychronizerAdjunct syncAdjunct)

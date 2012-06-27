@@ -141,7 +141,12 @@ namespace Chorus.sync
 					SendToOthers(repo, sourcesToTry, connectionAttempts);
 				}
 
-				UpdateToTheDescendantRevision(repo, workingRevBeforeSync);
+				//If we did pull any data or a trivial merge succeeded we should call UpdateToTheDescendantRevision
+				if (results.DidGetChangesFromOthers || //we pulled something
+					!repo.GetRevisionWorkingSetIsBasedOn().Number.Hash.Equals(workingRevBeforeSync.Number.Hash)) //a merge happened
+				{
+					UpdateToTheDescendantRevision(repo, workingRevBeforeSync);
+				}
 
 				results.Succeeded = true;
 			   _progress.WriteMessage("Done");
@@ -544,7 +549,7 @@ namespace Chorus.sync
 
 		/// <summary>
 		/// If everything got merged, then this is trivial. But in case of a merge failure,
-		/// the "tip" might be the other guy's unmergable data (mabye because he has a newer
+		/// the "tip" might be the other guy's unmergable data (maybye because he has a newer
 		/// version of some application than we do) We don't want to switch to that!
 		///
 		/// So if there are more than one head out there, we update to the one that is a descendant
@@ -808,7 +813,7 @@ namespace Chorus.sync
 #endif
 			using (new ShortTermEnvironmentalVariable("HGMERGE", '"' + chorusMergeFilePath + '"'))
 			{
-				// Theory has it that is a tossup on who ought to win, umless there is some more principled way to decide.
+				// Theory has it that is a tossup on who ought to win, unless there is some more principled way to decide.
 				// If 'they' end up being the right answer, or if it ends up being more exotic,
 				// then be sure to change the alpha and beta info in the MergeSituation class.
 				//using (new ShortTermEnvironmentalVariable(MergeOrder.kConflictHandlingModeEnvVarName, MergeOrder.ConflictHandlingModeChoices.TheyWin.ToString()))
