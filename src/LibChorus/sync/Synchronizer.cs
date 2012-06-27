@@ -549,7 +549,7 @@ namespace Chorus.sync
 
 		/// <summary>
 		/// If everything got merged, then this is trivial. But in case of a merge failure,
-		/// the "tip" might be the other guy's unmergable data (maybye because he has a newer
+		/// the "tip" might be the other guy's unmergable data (maybe because he has a newer
 		/// version of some application than we do) We don't want to switch to that!
 		///
 		/// So if there are more than one head out there, we update to the one that is a descendant
