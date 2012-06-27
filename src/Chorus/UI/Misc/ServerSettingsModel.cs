@@ -41,14 +41,9 @@ namespace Chorus.UI.Misc
 			_pathToRepo = repo.PathToRepo;
 
 			var address =repo.GetDefaultNetworkAddress<HttpRepositoryPath>();
-			if(address==null)
-			{
-				address = repo.GetDefaultNetworkAddress<DirectoryRepositorySource>();
-			}
-			if(address!=null)
-			{
+			if (address != null)
 				InitFromUri(address.URI);
-			}
+
 			//otherwise, just leave everything in the default state
 		}
 
