@@ -70,7 +70,7 @@ namespace Chorus.UI.Clone
 														 progress);
 
 			var repo = new HgRepository(_actualClonedFolder, new NullProgress());
-			var address = RepositoryAddress.Create("Shared Network", _actualClonedFolder);
+			var address = RepositoryAddress.Create("Shared Network", UserSelectedRepositoryPath);
 
 			// These next two calls are fine in how they treat the hgrc update, as a bootstrap clone has no old stuff to fret about.
 			// SetKnownRepositoryAddresses blows away entire 'paths' section, including the "default" one that hg puts in, which we don't really want anyway.
