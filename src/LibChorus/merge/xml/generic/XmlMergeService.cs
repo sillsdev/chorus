@@ -169,38 +169,43 @@ namespace Chorus.merge.xml.generic
 
 		private static void EnsureCommonAncestorFileHasMimimalContent(string commonAncestorPathname, string pathToWinner, string pathToLoser)
 		{
-			try
+			using(var reader = new XmlTextReader(commonAncestorPathname))
 			{
-				XDocument.Load(commonAncestorPathname);
+				try
+				{
+					if (reader.Read())
+					{
+						return;
+					}
+				}
+				catch (XmlException)
+				{
+					//we need to build the ancestor document if it was empty of xml
+				}
 			}
-			catch (Exception)
-			{
-				// Had no xml guts, so rewrite it with minimal start and end tags.
-				var commonAncestorDoc = new XDocument(new XDeclaration("1.0", "utf-8", "true"));
-				CheckLines(commonAncestorDoc, pathToWinner);
-				if (!commonAncestorDoc.Elements().Any())
-					CheckLines(commonAncestorDoc, pathToLoser);
-
-				commonAncestorDoc.Save(commonAncestorPathname);
-			}
+			BuildAncestorDocument(commonAncestorPathname, pathToWinner);
 		}
 
-		private static void CheckLines(XContainer commonAncestorDoc, string pathToOtherFile)
+		private static void BuildAncestorDocument(string commonAncestorDoc, string pathToOtherFile)
 		{
-			var firstElement = "";
-			foreach (var line in File.ReadAllLines(pathToOtherFile).Where(line => !line.Contains("<?xml")))
+			using(var writer = XmlWriter.Create(commonAncestorDoc))
+			using (var reader = new XmlTextReader(pathToOtherFile))
 			{
-				firstElement += " " + line.TrimStart();
-				if (firstElement.Contains("/>"))
+				//suck in the first node
+				reader.MoveToContent();
+				writer.WriteStartDocument();
+				writer.WriteStartElement(reader.Name, reader.NamespaceURI);
+				//move to the first attribute of the element.
+				reader.MoveToNextAttribute();
+				do
 				{
-					commonAncestorDoc.Add(XElement.Parse(firstElement.Trim()));
-					break;
-				}
-				if (!firstElement.Contains(">"))
-					continue;
-
-				commonAncestorDoc.Add(XElement.Parse(firstElement.Replace(">", "/>").Trim()));
-				break;
+					writer.WriteAttributeString(reader.Name, reader.NamespaceURI, reader.Value);
+				} while (reader.MoveToNextAttribute());
+				writer.WriteEndElement();
+				writer.WriteEndDocument();
+				writer.Flush();
+				writer.Close();
+				reader.Close();
 			}
 		}
 
