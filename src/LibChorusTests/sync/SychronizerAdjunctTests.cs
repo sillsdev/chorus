@@ -134,8 +134,8 @@ namespace LibChorus.Tests.sync
 		}
 
 		/// <summary>
-		/// This test will do the first (local) commit, but does no merge.
-		/// Then it does a Sync which should find no changes and result in no pull (or pull file)
+		/// This test has bob and sally making changes to different data which should cause no merge collision.
+		/// This should result in a SimpleUpdate call, sally made a change so it should have a commmit file and a pull file and a merge file
 		/// </summary>
 		[Test]
 #if MONO
@@ -155,11 +155,11 @@ namespace LibChorus.Tests.sync
 					DoSendToOthers = true
 				};
 				var bobOptions = new SyncOptions
-									{
-										DoMergeWithOthers = true,
-										DoPullFromOthers = true,
-										DoSendToOthers = true,
-										RepositorySourcesToTry = {sally.RepoPath}
+				{
+					DoMergeWithOthers = true,
+					DoPullFromOthers = true,
+					DoSendToOthers = true,
+					RepositorySourcesToTry = {sally.RepoPath}
 				};
 				var synchronizer = bob.Synchronizer;
 				synchronizer.SynchronizerAdjunct = syncAdjunct;
@@ -168,9 +168,10 @@ namespace LibChorus.Tests.sync
 				bob.ReplaceSomethingElse("no problems.");
 				var syncResults = bob.SyncWithOptions(bobOptions, synchronizer);
 				Assert.IsTrue(syncResults.DidGetChangesFromOthers);
-				CheckExistanceOfAdjunctFiles(syncAdjunct, true, true, false, false);
+				CheckExistanceOfAdjunctFiles(syncAdjunct, true, true, false, true);
 			}
 		}
+
 		/// <summary>
 		/// This test will do the first (local) commit and does a merge.
 		/// As such, the CommitPathname and MergePathname test files will *both* be created.
