@@ -143,10 +143,10 @@ namespace LibChorus.Tests.sync
 #endif
 		public void SendReceiveWithTrivialMergeCallsSimpleUpdate()
 		{
-			using (var sally = RepositoryWithFilesSetup.CreateWithLiftFile("sally"))
-			using (var bob = RepositoryWithFilesSetup.CreateByCloning("bob", sally))
+			using (var alistair = RepositoryWithFilesSetup.CreateWithLiftFile("alistair"))
+			using (var susanna = RepositoryWithFilesSetup.CreateByCloning("suzy", alistair))
 			{
-				var syncAdjunct = new FileWriterSychronizerAdjunct(bob.RootFolder.Path);
+				var syncAdjunct = new FileWriterSychronizerAdjunct(susanna.RootFolder.Path);
 				CheckNoFilesExist(syncAdjunct);
 				var options = new SyncOptions
 				{
@@ -159,14 +159,14 @@ namespace LibChorus.Tests.sync
 					DoMergeWithOthers = true,
 					DoPullFromOthers = true,
 					DoSendToOthers = true,
-					RepositorySourcesToTry = {sally.RepoPath}
+					RepositorySourcesToTry = {alistair.RepoPath}
 				};
-				var synchronizer = bob.Synchronizer;
+				var synchronizer = susanna.Synchronizer;
 				synchronizer.SynchronizerAdjunct = syncAdjunct;
-				sally.ReplaceSomething("nice.");
-				sally.SyncWithOptions(options);
-				bob.ReplaceSomethingElse("no problems.");
-				var syncResults = bob.SyncWithOptions(bobOptions, synchronizer);
+				alistair.ReplaceSomething("nice.");
+				alistair.SyncWithOptions(options);
+				susanna.ReplaceSomethingElse("no problems.");
+				var syncResults = susanna.SyncWithOptions(bobOptions, synchronizer);
 				Assert.IsTrue(syncResults.DidGetChangesFromOthers);
 				CheckExistanceOfAdjunctFiles(syncAdjunct, true, true, false, true);
 			}
