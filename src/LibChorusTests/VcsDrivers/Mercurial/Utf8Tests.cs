@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
@@ -11,7 +11,6 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 	[TestFixture]
 	public class Utf8Tests
 	{
-
 		class MercurialExtensionHider : IDisposable
 		{
 			private readonly string _extensionPath;
@@ -166,7 +165,6 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 					//var uri = new Uri(String.Format("file:///{0}", setup.ProjectFolder.Path));
 					HgRepository.Clone(new HttpRepositoryPath("utf test repo", setup.ProjectFolder.Path, false), other.ProjectFolder.Path, other.Progress);
 					other.Repository.Update();
-					string log = other.GetProgressString();
 
 					other.AssertFileExists(utf8FilePath);
 					string[] fileNames = Directory.GetFiles(other.ProjectFolder.Path, "*.wav");
