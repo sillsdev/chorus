@@ -26,7 +26,7 @@ namespace Chorus.merge.xml.generic
 			def.MergePartnerFinder = new FindByEqualityOfTree();
 			this.SetStrategy("_defaultElement", def);
 
-			KeyFinder = new DefaultKeyFinder();
+			ElementToMergeStrategyKeyMapper = new DefaultElementToMergeStrategyKeyMapper();
 		}
 
 		/// <summary>
@@ -34,7 +34,7 @@ namespace Chorus.merge.xml.generic
 		///
 		/// It starts out using the DefaultKeyFinder, which uses the element's name.
 		/// </summary>
-		public IKeyFinder KeyFinder { get; set; }
+		public IElementToMergeStrategyKeyMapper ElementToMergeStrategyKeyMapper { get; set; }
 
 		public void SetStrategy(string key, ElementStrategy strategy)
 		{
@@ -47,7 +47,7 @@ namespace Chorus.merge.xml.generic
 			switch (element.NodeType)
 			{
 				case XmlNodeType.Element:
-					key = KeyFinder.GetKeyFromElement(ElementStrategies.Keys, element);
+					key = ElementToMergeStrategyKeyMapper.GetKeyFromElement(ElementStrategies.Keys, element);
 					break;
 				default:
 					key = "_"+element.NodeType;

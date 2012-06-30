@@ -1,12 +1,16 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Xml;
 using Chorus.Utilities.code;
 using Chorus.merge.xml.generic;
 
-namespace Chorus.FileTypeHanders.lift
+namespace Chorus.FileTypeHanders.ldml
 {
-	internal class LiftKeyFinder : IKeyFinder
+	/// <summary>
+	/// IKeyFinder implementation that can handle the quirks of in an ldml file.
+	/// </summary>
+	internal class LdmlElementToMergeStrategyKeyMapper : IElementToMergeStrategyKeyMapper
 	{
 		#region Implementation of IKeyFinder
 
@@ -22,11 +26,23 @@ namespace Chorus.FileTypeHanders.lift
 			Guard.AgainstNull(keys, "keys is null.");
 			Guard.AgainstNull(element, "Element is null.");
 
-			return element.Name == "field"
-					? (element.Attributes["type"] == null
-						? "headerfield" // Fetch the strategy for the header "field" with its 'tag' key attr.
-						: "mainfield") // Fetch the strategy for the main data (entry or sense) "field" with its 'type' key attr.
-					: element.Name;
+			var key = element.Name;
+
+			if (key == "special")
+			{
+				foreach (var attrName in from XmlNode attr in element.Attributes select attr.Name)
+				{
+					switch (attrName)
+					{
+						case "xmlns:palaso":
+						case "xmlns:fw":
+							key += "_" + attrName;
+							return key;
+					}
+				}
+			}
+
+			return key;
 		}
 
 		#endregion
