@@ -331,19 +331,24 @@ namespace Chorus.VcsDrivers.Mercurial
 					_progress.WriteError(errorMessage);
 					throw new HgResumeOperationFailed(errorMessage);
 				}
-				if (response.Status == PushStatus.Complete)
+
+				if (response.Status == PushStatus.Complete || req.StartOfWindow >= req.BundleSize)
 				{
-					_progress.WriteMessage("Finished Sending");
+					if (response.Status == PushStatus.Complete)
+					{
+						_progress.WriteMessage("Finished sending");
+					} else
+					{
+						_progress.WriteMessage("Finished sending. Server unpacking data");
+					}
 					_progress.ProgressIndicator.Finish();
-					_progress.WriteVerbose("Push operation completed successfully");
 
 					// update our local knowledge of what the server has
-					LastKnownCommonBase = _repo.GetTip().Number.Hash;
-					FinishPush(req.TransId);
+					LastKnownCommonBase = _repo.GetTip().Number.Hash; // This may be a little optimistic, the server may still be unbundling the data.
+					//FinishPush(req.TransId);  // We can't really tell when the server has finished processing our pulled data.  The server cleans up after itself. CP 2012-07
 					bundleHelper.Cleanup();
 					return;
 				}
-
 
 				req.ChunkSize = response.ChunkSize;
 				req.StartOfWindow = response.StartOfWindow;

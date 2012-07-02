@@ -32,7 +32,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				e.ApiServer.AddResponse(ApiResponses.PushComplete());
 				var transport = provider.Transport;
 				transport.Push();
-				Assert.That(e.Progress.AllMessages, Contains.Item("Push operation completed successfully"));
+				Assert.That(e.Progress.AllMessages, Contains.Item("Finished sending"));
 			}
 		}
 
@@ -47,7 +47,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				e.LocalAddAndCommitLargeFile();
 				var transport = provider.Transport;
 				transport.Push();
-				Assert.That(e.Progress.AllMessages, Contains.Item("Push operation completed successfully"));
+				Assert.That(e.Progress.AllMessages, Contains.Item("Finished sending"));
 				var dirInfo = new DirectoryInfo(Path.Combine(transport.PathToLocalStorage, "pushData"));
 				Assert.That(dirInfo.GetFiles().Length, Is.EqualTo(0));
 			}
@@ -84,7 +84,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				e.ApiServer.AddResponse(ApiResponses.PushComplete());
 				var transport = provider.Transport;
 				transport.Push();
-				Assert.That(e.Progress.AllMessages, Contains.Item("Push operation completed successfully"));
+				Assert.That(e.Progress.AllMessages, Contains.Item("Finished sending"));
 			}
 		}
 
@@ -99,7 +99,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				e.LocalAddAndCommitLargeFile();
 				var transport = provider.Transport;
 				transport.Push();
-				Assert.That(e.Progress.AllMessages, Contains.Item("Push operation completed successfully"));
+				Assert.That(e.Progress.AllMessages, Contains.Item("Finished sending"));
 			}
 		}
 
@@ -143,7 +143,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				Assert.That(File.Exists(dbFilePath), Is.True);
 				string dbContents = File.ReadAllText(dbFilePath).Trim();
 				Assert.That(dbContents, Is.EqualTo(e.ApiServer.Host + "|" + tipHash));
-				Assert.That(e.Progress.AllMessages, Contains.Item("Push operation completed successfully"));
+				Assert.That(e.Progress.AllMessages, Contains.Item("Finished sending"));
 			}
 		}
 
@@ -166,7 +166,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				string dbContents = File.ReadAllText(dbFilePath).Trim();
 				Assert.That(dbContents, Is.EqualTo(e.ApiServer.Host + "|" + tipHash));
 
-				Assert.That(e.Progress.AllMessages, Contains.Item("Push operation completed successfully"));
+				Assert.That(e.Progress.AllMessages, Contains.Item("Finished sending"));
 
 				e.LocalAddAndCommit();
 				e.LocalAddAndCommit();
@@ -176,7 +176,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				transport.Push();
 				dbContents = File.ReadAllText(dbFilePath).Trim();
 				Assert.That(dbContents, Is.EqualTo(e.ApiServer.Host + "|" + tipHash2));
-				Assert.That(e.Progress.AllMessages, Contains.Item("Push operation completed successfully"));
+				Assert.That(e.Progress.AllMessages, Contains.Item("Finished sending"));
 			}
 		}
 
@@ -224,7 +224,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				Assert.That(dbContents, Contains.Item(e1.ApiServer.Host + "|" + tipHash2));
 				Assert.That(dbContents, Contains.Item(api2.Host + "|" + tipHash1));
 
-				Assert.That(e1.Progress.AllMessages, Contains.Item("Push operation completed successfully"));
+				Assert.That(e1.Progress.AllMessages, Contains.Item("Finished sending"));
 			}
 		}
 
@@ -356,7 +356,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				transport.Push();
 				Assert.That(e.Progress.AllMessages, Contains.Item("Resuming push operation at 126KB sent"));
 				Assert.That(e.Progress.AllMessages, Contains.Item("Resuming push operation at 249KB sent"));
-				Assert.That(e.Progress.AllMessages, Contains.Item("Push operation completed successfully"));
+				Assert.That(e.Progress.AllMessages, Contains.Item("Finished sending"));
 			}
 		}
 
@@ -376,7 +376,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				e.RemoteAddAndCommit();
 				transport.Push();
 				Assert.That(e.Progress.AllMessagesString().Contains("Resuming push operation at"), Is.Not.True);
-				Assert.That(e.Progress.AllMessages, Contains.Item("Push operation completed successfully"));
+				Assert.That(e.Progress.AllMessages, Contains.Item("Finished sending"));
 			}
 		}
 
@@ -414,7 +414,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				var transport = provider.Transport;
 				transport.Push();
 				Assert.That(e.Progress.AllMessages, Contains.Item("Server temporarily unavailable: " + serverMessage));
-				Assert.That(e.Progress.AllMessages, Has.No.Member("Push operation completed successfully"));
+				Assert.That(e.Progress.AllMessages, Has.No.Member("Finished sending"));
 			}
 		}
 
@@ -549,7 +549,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				e.LocalAddAndCommit();
 				var transport = provider.Transport;
 				transport.Push();
-				Assert.That(e.Progress.AllMessages, Contains.Item("Push operation completed successfully"));
+				Assert.That(e.Progress.AllMessages, Contains.Item("Finished sending"));
 			}
 		}
 	}
