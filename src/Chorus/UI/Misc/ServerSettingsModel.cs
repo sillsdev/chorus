@@ -42,7 +42,9 @@ namespace Chorus.UI.Misc
 
 			var address =repo.GetDefaultNetworkAddress<HttpRepositoryPath>();
 			if (address != null)
+			{
 				InitFromUri(address.URI);
+			}
 
 			//otherwise, just leave everything in the default state
 		}
