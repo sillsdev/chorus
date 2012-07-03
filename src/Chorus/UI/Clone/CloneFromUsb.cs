@@ -7,7 +7,7 @@ using Chorus.VcsDrivers.Mercurial;
 using Palaso.IO;
 using Palaso.Progress.LogBox;
 
-namespace Chorus.clone
+namespace Chorus.UI.Clone
 {
 	/// <summary>
 	/// Use this class to make an initial clone from a USB drive or Internet repository.
@@ -29,7 +29,7 @@ namespace Chorus.clone
 		/// Use this to inject a custom filter, so that the only projects that can be chosen are ones
 		/// you application is prepared to open.  The delegate is given the path to each mercurial project.
 		/// </summary>
-		public Func<string, bool> ProjectFilter = path => true;
+		public Func<string, bool> ProjectFilter = GetSharedProject.DefaultProjectFilter;
 
 
 		public bool GetHaveOneOrMoreUsbDrives()

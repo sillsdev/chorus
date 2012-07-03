@@ -38,6 +38,9 @@ namespace LibChorus.TestUtilities
 							<form lang='a'>
 								<text>original</text>
 							</form>
+							<form lang='b'>
+								<text>other</text>
+							</form>
 						</lexical-unit>
 					 </entry>";
 		   string liftContents = string.Format("<?xml version='1.0' encoding='utf-8'?><lift version='{0}'>{1}</lift>", "0.00", entriesXml);
@@ -128,6 +131,15 @@ namespace LibChorus.TestUtilities
 		public void ReplaceSomething(string replacement)
 		{
 			File.WriteAllText(UserFile.Path, File.ReadAllText(UserFile.Path).Replace("original", replacement));
+		}
+
+		/// <summary>
+		/// replaces all occurrences of "other" with replacement
+		/// </summary>
+		/// <param name="replacement"></param>
+		public void ReplaceSomethingElse(string replacement)
+		{
+			File.WriteAllText(UserFile.Path, File.ReadAllText(UserFile.Path).Replace("other", replacement));
 		}
 
 		public void WriteNewContentsToTestFile(string replacement)

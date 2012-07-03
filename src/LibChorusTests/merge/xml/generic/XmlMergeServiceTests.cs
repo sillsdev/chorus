@@ -48,6 +48,92 @@ namespace LibChorus.Tests.merge.xml.generic
 		}
 
 		[Test]
+		public void BothAddedNewFileWithConflictingDataHasConflict()
+		{
+			const string ours = @"<?xml version='1.0' encoding='utf-8'?>
+					<lift
+	version='0.10'
+	producer='WeSay 1.0.0.0'>
+						<entry id='addedByBoth' guid='c1ed1f98-e382-11de-8a39-0800200c9a66' >
+							<sense>
+								 <gloss lang='a'>
+									<text>our gloss</text>
+								 </gloss>
+							</sense>
+						</entry>
+					</lift>";
+			const string theirs = @"<?xml version='1.0' encoding='utf-8'?>
+					<lift version='0.10' producer='WeSay 1.0.0.0'>
+						<entry id='addedByBoth' guid='c1ed1f98-e382-11de-8a39-0800200c9a66' >
+							<sense>
+								 <gloss lang='a'>
+									<text>their gloss</text>
+								 </gloss>
+							</sense>
+						</entry>
+					</lift>";
+
+			// We win merge situation.
+			DoMerge(null, ours, theirs,
+				new NullMergeSituation(),
+				new NullMergeStrategy(true),
+				new[] { "lift/entry[@id='addedByBoth']/sense/gloss/text[text()='our gloss']" }, new[] { "lift/entry[@id='addedByBoth']/sense/gloss/text[text()='their gloss']" },
+				1, new List<Type> { typeof(BothAddedMainElementButWithDifferentContentConflict) },
+				0, null);
+
+			// They win merge situation.
+			DoMerge(null, ours, theirs,
+				new NullMergeSituationTheyWin(),
+				new NullMergeStrategy(false),
+				new[] { "lift/entry[@id='addedByBoth']/sense/gloss/text[text()='their gloss']" }, new[] { "lift/entry[@id='addedByBoth']/sense/gloss/text[text()='our gloss']" },
+				1, new List<Type> { typeof(BothAddedMainElementButWithDifferentContentConflict) },
+				0, null);
+		}
+
+		[Test]
+		public void BothAddedNewFileWithNonConflictingDataHasChangeReports()
+		{
+			const string ours = @"<?xml version='1.0' encoding='utf-8'?>
+					<lift
+	version='0.10'
+	producer='WeSay 1.0.0.0'>
+						<entry id='addedByUs' guid='c1edbbe7-e382-11de-8a39-0800200c9a66' >
+							<sense>
+								 <gloss lang='a'>
+									<text>our gloss</text>
+								 </gloss>
+							</sense>
+						</entry>
+					</lift>";
+			const string theirs = @"<?xml version='1.0' encoding='utf-8'?>
+					<lift version='0.10' producer='WeSay 1.0.0.0'>
+						<entry id='addedByThem' guid='c1edbbe8-e382-11de-8a39-0800200c9a66' >
+							<sense>
+								 <gloss lang='a'>
+									<text>their gloss</text>
+								 </gloss>
+							</sense>
+						</entry>
+					</lift>";
+
+			// We win merge situation.
+			DoMerge(null, ours, theirs,
+				new NullMergeSituation(),
+				new NullMergeStrategy(true),
+				new[] { "lift/entry[@id='addedByUs']/sense/gloss/text[text()='our gloss']", "lift/entry[@id='addedByUs']/sense/gloss/text[text()='our gloss']" }, new string[0],
+				0, null,
+				2, new List<Type> { typeof(XmlAdditionChangeReport), typeof(XmlAdditionChangeReport) });
+
+			// They win merge situation.
+			DoMerge(null, ours, theirs,
+				new NullMergeSituationTheyWin(),
+				new NullMergeStrategy(false),
+				new[] { "lift/entry[@id='addedByUs']/sense/gloss/text[text()='our gloss']", "lift/entry[@id='addedByUs']/sense/gloss/text[text()='our gloss']" }, new string[0],
+				0, null,
+				2, new List<Type> { typeof(XmlAdditionChangeReport), typeof(XmlAdditionChangeReport) });
+		}
+
+		[Test]
 		public void OldStyleMainItemRemovedByUsEditedByThemHasCorrectRemovedEditConflicts()
 		{
 			// Old Style means the deleted entry was just marked as deleted with the dateDeleted attr.
@@ -378,7 +464,7 @@ namespace LibChorus.Tests.merge.xml.generic
 			DoMerge(ancestor, ours, theirs,
 				new NullMergeSituationTheyWin(),
 				new NullMergeStrategy(false),
-				new[] { "lift/entry[@id='addedByBoth']/sense/gloss/text[text()='editedByUs']" }, new[] { "lift/entry[@id='addedByBoth']/sense/gloss/text[text()='editedByThem']" },
+				new[] { "lift/entry[@id='addedByBoth']/sense/gloss/text[text()='editedByThem']" }, new[] { "lift/entry[@id='addedByBoth']/sense/gloss/text[text()='editedByUs']" },
 				1, new List<Type> { typeof(BothAddedMainElementButWithDifferentContentConflict) },
 				0, null);
 		}

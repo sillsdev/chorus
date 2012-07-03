@@ -1,14 +1,14 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Chorus.clone;
+using Chorus.UI.Clone;
 using Chorus.Utilities.UsbDrive;
 using LibChorus.TestUtilities;
 using NUnit.Framework;
 using Palaso.Progress.LogBox;
 using Palaso.TestUtilities;
 
-namespace LibChorus.Tests
+namespace Chorus.Tests.clone
 {
 	[TestFixture]
 	public class ClonerTests
