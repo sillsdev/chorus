@@ -181,7 +181,6 @@
 	<Compile Include="notes\IEmbeddedMessageContentHandler.cs" />
 	<Compile Include="notes\IndexOfAllOpenConflicts.cs" />
 	<Compile Include="notes\Message.cs" />
-	<Compile Include="clone\CloneFromUsb.cs" />
 	<Compile Include="FileTypeHanders\audio\AudioChangePresenter.cs" />
 	<Compile Include="FileTypeHanders\ChorusNotesFileHandler.cs" />
 	<Compile Include="FileTypeHanders\audio\AudioFileTypeHandler.cs" />

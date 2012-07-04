@@ -3,7 +3,6 @@ using System.Drawing;
 using System.IO;
 using System.Media;
 using System.Windows.Forms;
-using Chorus.clone;
 using System.Linq;
 using Palaso.Progress.LogBox;
 
