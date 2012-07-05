@@ -34,16 +34,11 @@ namespace Chorus.UI.Clone
 
 			if (_model.HaveGoodUrl)
 			{
-			  _targetWarningImage.Visible = _model.TargetHasProblem;
-			  if (!Directory.Exists(_model.ParentDirectoryToPutCloneIn))
+				_targetWarningImage.Visible = _model.TargetHasProblem;
+				if (!Directory.Exists(_model.ParentDirectoryToPutCloneIn))
 				{
 					_targetInfoLabel.Text = string.Format("The directory {0} doesn't exist, but should have been created by the application.",
-														  _model.ParentDirectoryToPutCloneIn);
-				}
-				else if (!_model.TargetLocationIsUnused)
-				{
-					_targetInfoLabel.Text = string.Format("There is a already a project with that name at {0}",
-														  _model.TargetDestination);
+															_model.ParentDirectoryToPutCloneIn);
 				}
 				else if (!_model.HaveWellFormedTargetLocation)
 				{
@@ -51,6 +46,11 @@ namespace Chorus.UI.Clone
 						_targetInfoLabel.Text = "Please enter a name";
 					else
 						_targetInfoLabel.Text = string.Format("That name contains characters which are not allowed.");
+				}
+				else if (!_model.TargetLocationIsUnused)
+				{
+					_targetInfoLabel.Text = string.Format("There is a already a project with that name at {0}",
+															_model.TargetDestination);
 				}
 				else
 				{

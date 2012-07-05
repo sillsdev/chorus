@@ -1,9 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Media;
-using System.Text;
 using System.Threading;
-using System.Windows.Forms;
 using Chorus.UI.Misc;
 using Chorus.Utilities;
 using Chorus.VcsDrivers;
@@ -45,9 +43,10 @@ namespace Chorus.UI.Clone
 		{
 			get
 			{
-				return HaveNeededAccountInfo && TargetLocationIsUnused && HaveWellFormedTargetLocation;
+				return HaveNeededAccountInfo && HaveWellFormedTargetLocation && TargetLocationIsUnused;
 			}
 		}
+
 		public bool TargetLocationIsUnused
 		{
 			get
@@ -95,7 +94,7 @@ namespace Chorus.UI.Clone
 		public bool TargetHasProblem
 		{
 			get {
-				return !TargetLocationIsUnused || !HaveWellFormedTargetLocation;
+				return !HaveWellFormedTargetLocation || !TargetLocationIsUnused;
 			}
 		}
 
