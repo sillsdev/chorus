@@ -94,16 +94,17 @@ namespace Chorus.UI.Sync
 		/// </summary>
 		private void SetButtonStatesFromSettings()
 		{
+			_internetDiagnosticsLink.Visible = false;
 			var internetState = Properties.Settings.Default.InternetEnabled;
-			_internetStatusLabel.Visible = _internetDiagnosticsLink.Visible = _useInternetButton.Visible = internetState;
+			_internetStatusLabel.Visible = _useInternetButton.Visible = internetState;
 			var statusRow = _tableLayoutPanel.GetRow(_internetStatusLabel);
 			var buttonRow = _tableLayoutPanel.GetRow(_useInternetButton);
 			_tableLayoutPanel.RowStyles[statusRow].Height = internetState ? LABEL_HEIGHT : 0;
 			_tableLayoutPanel.RowStyles[buttonRow].Height = internetState ? BUTTON_HEIGHT : 0;
 
+			_sharedNetworkDiagnosticsLink.Visible = false;
 			var folderState = Properties.Settings.Default.SharedFolderEnabled;
-			_useSharedFolderStatusLabel.Visible =
-				_useSharedFolderButton.Visible = _sharedNetworkDiagnosticsLink.Visible = folderState;
+			_useSharedFolderStatusLabel.Visible = _useSharedFolderButton.Visible = folderState;
 			statusRow = _tableLayoutPanel.GetRow(_useSharedFolderStatusLabel);
 			buttonRow = _tableLayoutPanel.GetRow(_useSharedFolderButton);
 			_tableLayoutPanel.RowStyles[statusRow].Height = folderState ? LABEL_HEIGHT : 0;
