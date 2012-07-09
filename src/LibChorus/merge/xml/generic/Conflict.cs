@@ -287,7 +287,7 @@ namespace Chorus.merge.xml.generic
 		}
 
 		private static IContainer _conflictFactory;
-
+		private static Dictionary<string, Type> _guidToConflictTypeMap;
 		static List<Type> _additionalConflictTypes = new List<Type>();
 
 		/// <summary>
@@ -299,6 +299,7 @@ namespace Chorus.merge.xml.generic
 		{
 			_additionalConflictTypes.Add(type);
 			_conflictFactory = null; // regenerate when next needed
+			_guidToConflictTypeMap = null;
 		}
 
 		private static IContainer ConflictFactory
@@ -307,6 +308,7 @@ namespace Chorus.merge.xml.generic
 			{
 				if (_conflictFactory == null)
 				{
+					_guidToConflictTypeMap = new Dictionary<string, Type>();
 					var builder = new Autofac.Builder.ContainerBuilder();
 
 					Register<RemovedVsEditedElementConflict>(builder);
@@ -342,7 +344,7 @@ namespace Chorus.merge.xml.generic
 
 					foreach (var conflictType in _additionalConflictTypes)
 					{
-						builder.Register(conflictType).Named(GetTypeGuid(conflictType));
+						Register(builder, conflictType);
 					}
 					_conflictFactory = builder.Build();
 				}
@@ -354,8 +356,8 @@ namespace Chorus.merge.xml.generic
 		{
 			try
 			{
-			var typeGuid = conflictNode.GetStringAttribute("typeGuid");
-			return ConflictFactory.Resolve<IConflict>(typeGuid, new Parameter[] { new TypedParameter(typeof(XmlNode), conflictNode) });
+				var typeGuid = conflictNode.GetStringAttribute("typeGuid");
+				return ConflictFactory.Resolve(_guidToConflictTypeMap[typeGuid], new Parameter[] {new TypedParameter(typeof (XmlNode), conflictNode)}) as IConflict;
 			}
 			catch (Exception error)
 			{
@@ -363,10 +365,16 @@ namespace Chorus.merge.xml.generic
 			}
 		}
 
+		private static void Register(Autofac.Builder.ContainerBuilder builder, Type type)
+		{
+			var typeGuid = GetTypeGuid(type);
+			_guidToConflictTypeMap.Add(typeGuid, type);
+			builder.Register(type).FactoryScoped();
+		}
 
 		private static void Register<T>(Autofac.Builder.ContainerBuilder builder)
 		{
-			builder.Register<T>().Named(GetTypeGuid(typeof(T)));
+			Register(builder, typeof(T));
 		}
 
 		public bool Equals(Conflict other)
