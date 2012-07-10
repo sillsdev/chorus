@@ -1,7 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using Palaso.Code;
@@ -15,6 +16,10 @@ namespace Chorus.UI.Clone
 	///</summary>
 	public class GetCloneFromNetworkFolderModel
 	{
+		// This is a win32 error code, it can indicate several failures but here it is probably a lack of connections or
+		// an unauthorized exception that surprised windows when we were working with a network folder
+		private const Int32 ErrorNetNameDeleted = 64;
+
 		/// <summary>
 		/// This serves as both the initial folder to present/search, and also the user's last-selected folder:
 		/// </summary>
@@ -88,14 +93,12 @@ namespace Chorus.UI.Clone
 		}
 
 		///<summary>
-		/// Recursively searches folders for valid repositories. Depth of recursion can be limited,
-		/// in which case the next folders to be searched are passed out via nextLevelFolderPaths.
+		/// Searches folders for valid repositories. The subfolders of the given list are are passed out via nextLevelFolderPaths.
 		///</summary>
 		///<param name="folderPaths">Paths of folders to be searched</param>
-		///<param name="nextLevelFolderPaths">[out] Folders next in line to be searched after recursion halted</param>
-		///<param name="maxRecursionDepth">Maximum number of levels of subfolders to recurse into. Any negative number will cause recursion all the way to the end.</param>
+		///<param name="nextLevelFolderPaths">[out] Folders next in line to be searched</param>
 		///<returns>List of folder paths that are valid repositories (according to ProjectFilter member)</returns>
-		public HashSet<string> GetRepositoriesAndNextLevelSearchFolders(List<string> folderPaths, out List<string> nextLevelFolderPaths, int maxRecursionDepth)
+		public HashSet<string> GetRepositoriesAndNextLevelSearchFolders(List<string> folderPaths, out List<string> nextLevelFolderPaths)
 		{
 			Guard.AgainstNull(folderPaths, "folderPaths");
 
@@ -135,12 +138,18 @@ namespace Chorus.UI.Clone
 					{
 						// We don't care if we can't read a folder; we'll just go on to the next one.
 					}
+					catch(IOException io)
+					{
+						var errorCode = Marshal.GetHRForException(io) & 0xFFFF;
+						if (errorCode == ErrorNetNameDeleted)
+						{
+							//This error could mean signal insufficient network connections so we will try again later
+							nextLevelFolderPaths.Add(folderPath);
+						}
+						//Otherwise we can't read the folder for some other reason, if we can't read it, then we can't use
+						//a repository within it
+					}
 				}
-			}
-
-			if (nextLevelFolderPaths.Count > 0 && maxRecursionDepth != 0)
-			{
-				repositoryPaths.UnionWith(GetRepositoriesAndNextLevelSearchFolders(nextLevelFolderPaths, out nextLevelFolderPaths, maxRecursionDepth - 1));
 			}
 
 			return repositoryPaths;

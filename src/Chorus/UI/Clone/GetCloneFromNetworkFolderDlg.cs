@@ -170,7 +170,7 @@ namespace Chorus.UI.Clone
 			// Get list of subfolders to search (which we will do one thread per folder)
 			// or information that the selected folder is an actual repository:
 			List<string> subFolders;
-			var repositoryParentPaths = _model.GetRepositoriesAndNextLevelSearchFolders(new List<string> { _model.FolderPath }, out subFolders, 0);
+			var repositoryParentPaths = _model.GetRepositoriesAndNextLevelSearchFolders(new List<string> { _model.FolderPath }, out subFolders);
 
 			// Sanity check: should never get into this state:
 			if (repositoryParentPaths.Count > 1)
@@ -515,11 +515,10 @@ namespace Chorus.UI.Clone
 					return;
 				}
 
-				// Do a folder search with zero recursion here (i.e. child folders only) so that we
-				// don't spend too long away from the ability to update the progress object:
+				// Search folders retrieving child folders for further recursion
 				var searchFolders = new List<string> { folderPath };
 				List<string> subFolders;
-				var repositoryParentPaths = _model.GetRepositoriesAndNextLevelSearchFolders(searchFolders, out subFolders, 0);
+				var repositoryParentPaths = _model.GetRepositoriesAndNextLevelSearchFolders(searchFolders, out subFolders);
 
 				foreach (var repositoryParentPath in repositoryParentPaths)
 				{
