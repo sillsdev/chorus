@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Chorus.UI.Clone;
@@ -84,7 +84,7 @@ namespace Chorus.Tests.UI.Clone
 			{
 				var model = new GetCloneFromNetworkFolderModel(f.Path);
 				List<string> nextFolders;
-				Assert.AreEqual(0, model.GetRepositoriesAndNextLevelSearchFolders(new List<string>{f.Path}, out nextFolders, -1).Count());
+				Assert.AreEqual(0, model.GetRepositoriesAndNextLevelSearchFolders(new List<string>{f.Path}, out nextFolders).Count());
 			}
 		}
 
@@ -94,17 +94,7 @@ namespace Chorus.Tests.UI.Clone
 		{
 			var model = new GetCloneFromNetworkFolderModel(@"C:\");
 			List<string> nextFolders;
-			model.GetRepositoriesAndNextLevelSearchFolders(new List<string> { @"C:\" }, out nextFolders, 0);
-			Assert.AreNotEqual(0, nextFolders.Count);
-		}
-
-		[Test]
-		[Category("SkipOnBuildServer")]
-		public void GetDirectoriesWithMecurialRepos_ReadCDriveDownTwoLevels_ReturnsNextLevelFolders()
-		{
-			var model = new GetCloneFromNetworkFolderModel(@"C:\");
-			List<string> nextFolders;
-			model.GetRepositoriesAndNextLevelSearchFolders(new List<string> { @"C:\" }, out nextFolders, 2);
+			model.GetRepositoriesAndNextLevelSearchFolders(new List<string> { @"C:\" }, out nextFolders);
 			Assert.AreNotEqual(0, nextFolders.Count);
 		}
 
@@ -115,8 +105,12 @@ namespace Chorus.Tests.UI.Clone
 			{
 				MakeFolderTree(f.Path, "Folders", 4, 3, 4);
 				var model = new GetCloneFromNetworkFolderModel(f.Path);
-				List<string> nextFolders;
-				var repoList = model.GetRepositoriesAndNextLevelSearchFolders(new List<string> { f.Path }, out nextFolders, -1);
+				var nextFolders = new List<string> { f.Path };
+				var repoList = new HashSet<string>();
+				do
+				{
+					repoList.UnionWith(model.GetRepositoriesAndNextLevelSearchFolders(new List<string>(nextFolders), out nextFolders));
+				} while (nextFolders.Count > 0);
 				Assert.AreEqual(0, repoList.Count());
 				Assert.AreEqual(0, nextFolders.Count());
 			}
@@ -138,8 +132,12 @@ namespace Chorus.Tests.UI.Clone
 									ShowVerbose = true
 								};
 				model.MakeClone(progress);
-				List<string> nextFolders;
-				var repoList = model.GetRepositoriesAndNextLevelSearchFolders(new List<string> {f.Path}, out nextFolders, -1);
+				var nextFolders = new List<string> {f.Path};
+				var repoList = new HashSet<string>();
+				do
+				{
+					repoList.UnionWith(model.GetRepositoriesAndNextLevelSearchFolders(new List<string>(nextFolders), out nextFolders));
+				} while (nextFolders.Count > 0);
 				Assert.AreEqual(1, repoList.Count());
 				Assert.AreEqual(0, nextFolders.Count());
 			}
@@ -154,8 +152,12 @@ namespace Chorus.Tests.UI.Clone
 				Directory.CreateDirectory(fakeHgPath);
 				var model = new GetCloneFromNetworkFolderModel(fakeHgPath);
 				SetStandardProjectFilter(model);
-				List<string> nextFolders;
-				var repoList = model.GetRepositoriesAndNextLevelSearchFolders(new List<string> { fakeHgPath }, out nextFolders, -1);
+				var nextFolders = new List<string> { f.Path };
+				var repoList = new HashSet<string>();
+				do
+				{
+					repoList.UnionWith(model.GetRepositoriesAndNextLevelSearchFolders(new List<string>(nextFolders), out nextFolders));
+				} while (nextFolders.Count > 0);
 				Assert.AreEqual(0, repoList.Count());
 				Assert.AreEqual(0, nextFolders.Count());
 			}
@@ -170,37 +172,19 @@ namespace Chorus.Tests.UI.Clone
 				Directory.CreateDirectory(fakeHgPath);
 				var model = new GetCloneFromNetworkFolderModel(fakeHgPath);
 				SetStandardProjectFilter(model);
-				List<string> nextFolders;
-				var repoList = model.GetRepositoriesAndNextLevelSearchFolders(new List<string> { fakeHgPath }, out nextFolders, -1);
+				var nextFolders = new List<string> { f.Path };
+				var repoList = new HashSet<string>();
+				do
+				{
+					repoList.UnionWith(model.GetRepositoriesAndNextLevelSearchFolders(new List<string>(nextFolders), out nextFolders));
+				} while (nextFolders.Count > 0);
 				Assert.AreEqual(0, repoList.Count());
 				Assert.AreEqual(0, nextFolders.Count());
 			}
 		}
 
 		[Test]
-		public void GetDirectoriesWithMecurialRepos_SeveralDirectoriesOneBuriedRepoLimitedRecursion_ReturnsEmptyList()
-		{
-			using (var repo = new RepositorySetup("source"))
-			using (var f = new TemporaryFolder("clonetest"))
-			{
-				MakeFolderTree(f.Path, "Folders", 4, 5, 6);
-				var clonePath = Path.Combine(Path.Combine(Path.Combine(f.Path, "Folders_4"), "Folders_4_4"), "Folders_4_4_4");
-				var model = new GetCloneFromNetworkFolderModel(clonePath);
-				model.UserSelectedRepositoryPath = repo.ProjectFolder.Path;
-				var progress = new ConsoleProgress
-								{
-									ShowVerbose = true
-								};
-				model.MakeClone(progress);
-				List<string> nextFolders;
-				var repoList = model.GetRepositoriesAndNextLevelSearchFolders(new List<string> { f.Path }, out nextFolders, 2);
-				Assert.AreEqual(0, repoList.Count());
-				Assert.AreEqual(4 * 5 * 6, nextFolders.Count());
-			}
-		}
-
-		[Test]
-		public void GetDirectoriesWithMecurialRepos_SeveralDirectoriesOneBuriedRepoLimitedRecursion_ReturnsListOfOne()
+		public void GetDirectoriesWithMecurialRepos_SeveralDirectoriesOneBuried_ReturnsListOfOne()
 		{
 			using (var repo = new RepositorySetup("source"))
 			using (var f = new TemporaryFolder("clonetest"))
@@ -215,8 +199,12 @@ namespace Chorus.Tests.UI.Clone
 									ShowVerbose = true
 								};
 				model.MakeClone(progress);
-				List<string> nextFolders;
-				var repoList = model.GetRepositoriesAndNextLevelSearchFolders(new List<string> { f.Path }, out nextFolders, 4);
+				var nextFolders = new List<string> { f.Path };
+				var repoList = new HashSet<string>();
+				do
+				{
+					repoList.UnionWith(model.GetRepositoriesAndNextLevelSearchFolders(new List<string>(nextFolders), out nextFolders));
+				} while (nextFolders.Count > 0);
 				Assert.AreEqual(1, repoList.Count());
 				Assert.AreEqual(0, nextFolders.Count());
 			}
