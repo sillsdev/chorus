@@ -48,10 +48,22 @@ namespace Chorus.UI.Misc
 					}
 					else
 					{
-						var result = MessageBox.Show("The repository will be created in " + projectDir + ".", "Create new repository?",
-										MessageBoxButtons.OKCancel);
-						if (result != DialogResult.OK)
-							return false;
+						var projectName = Path.GetFileName(repository.PathToRepo);
+						string projectInFolder = "";
+						if(projectName != null)
+						{
+							projectInFolder = path.Replace(RepositoryAddress.ProjectNameVariable, projectName);
+						}
+						if(string.IsNullOrEmpty(projectInFolder) || !Directory.Exists(projectInFolder))
+						{
+							var result = MessageBox.Show("The repository will be created in " + projectDir + ".", "Create new repository?",
+											MessageBoxButtons.OKCancel);
+							if (result != DialogResult.OK)
+								return false;
+						}
+						// There is already a folder with the project name at the chosen path, let the user try that folder
+						// the clone will complain if that was a bad idea.
+						path = projectInFolder;
 					}
 				}
 				else
