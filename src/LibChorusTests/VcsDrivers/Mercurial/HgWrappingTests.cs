@@ -25,6 +25,13 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		}
 
 
+		[Test]
+		public void GetEnvironmentReadinessMessageIsNull()
+		{
+			var s = HgRepository.GetEnvironmentReadinessMessage("en");
+			Assert.IsNullOrEmpty(s);
+		}
+
 		[Test, Ignore("By Hand only")]
 		public void Test_GetProxyAndCredentials()
 		{
