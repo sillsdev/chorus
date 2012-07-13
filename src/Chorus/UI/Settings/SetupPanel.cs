@@ -15,7 +15,11 @@ namespace Chorus.UI.Settings
 		private void SetupPanel_Load(object sender, EventArgs e)
 		{
 			string path = Path.Combine(ExecutionEnvironment.DirectoryOfExecutingAssembly, "UI/SetupPanel.htm");
-			webBrowser1.Document.Write(File.ReadAllText(path));
+			path = Path.GetFullPath(path);
+			// GECKOFX: check that this does load
+			System.Console.WriteLine ("SetupPanel opening UI - uri="+"file://" + path);
+			webBrowser1.Navigate("file://" + path);
+			//webBrowser1.Document.Write(File.ReadAllText(path));
 			// webBrowser1.DocumentText = File.ReadAllText(path);
 			//    webBrowser1.Refresh();
 		}

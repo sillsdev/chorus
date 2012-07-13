@@ -28,11 +28,11 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
-			this._normalChangeDescriptionRenderer = new System.Windows.Forms.WebBrowser();
+			this._normalChangeDescriptionRenderer = new Gecko.GeckoWebBrowser();
 			this.tabControl1 = new System.Windows.Forms.TabControl();
 			this.tabPage1 = new System.Windows.Forms.TabPage();
 			this.tabPageRaw = new System.Windows.Forms.TabPage();
-			this._rawChangeDescriptionRenderer = new System.Windows.Forms.WebBrowser();
+			this._rawChangeDescriptionRenderer = new Gecko.GeckoWebBrowser();
 			this.tabControl1.SuspendLayout();
 			this.tabPage1.SuspendLayout();
 			this.tabPageRaw.SuspendLayout();
@@ -40,15 +40,19 @@
 			//
 			// _normalChangeDescriptionRenderer
 			//
-			this._normalChangeDescriptionRenderer.AllowWebBrowserDrop = false;
+			// GECKOFX: is this needed?
+			//this._normalChangeDescriptionRenderer.AllowWebBrowserDrop = false;
 			this._normalChangeDescriptionRenderer.Dock = System.Windows.Forms.DockStyle.Fill;
 			this._normalChangeDescriptionRenderer.Location = new System.Drawing.Point(3, 3);
 			this._normalChangeDescriptionRenderer.MinimumSize = new System.Drawing.Size(20, 20);
 			this._normalChangeDescriptionRenderer.Name = "_normalChangeDescriptionRenderer";
 			this._normalChangeDescriptionRenderer.Size = new System.Drawing.Size(136, 118);
 			this._normalChangeDescriptionRenderer.TabIndex = 0;
-			this._normalChangeDescriptionRenderer.WebBrowserShortcutsEnabled = false;
-			this._normalChangeDescriptionRenderer.Navigating += new System.Windows.Forms.WebBrowserNavigatingEventHandler(this._normalChangeDescriptionRenderer_Navigating);
+			// GECKOFX: is this needed?
+			//this._normalChangeDescriptionRenderer.WebBrowserShortcutsEnabled = false;
+			// GECKOFX: is this needed?
+			//this._normalChangeDescriptionRenderer.Navigating += new System.Windows.Forms.WebBrowserNavigatingEventHandler(this._normalChangeDescriptionRenderer_Navigating);
+			this._normalChangeDescriptionRenderer.Navigating += new System.EventHandler<Gecko.GeckoNavigatingEventArgs>(this._normalChangeDescriptionRenderer_Navigating);
 			//
 			// tabControl1
 			//
@@ -85,14 +89,16 @@
 			//
 			// _rawChangeDescriptionRenderer
 			//
-			this._rawChangeDescriptionRenderer.AllowWebBrowserDrop = false;
+			// GECKOFX: is this needed?
+			//this._rawChangeDescriptionRenderer.AllowWebBrowserDrop = false;
 			this._rawChangeDescriptionRenderer.Dock = System.Windows.Forms.DockStyle.Fill;
 			this._rawChangeDescriptionRenderer.Location = new System.Drawing.Point(0, 0);
 			this._rawChangeDescriptionRenderer.MinimumSize = new System.Drawing.Size(20, 20);
 			this._rawChangeDescriptionRenderer.Name = "_rawChangeDescriptionRenderer";
 			this._rawChangeDescriptionRenderer.Size = new System.Drawing.Size(142, 124);
 			this._rawChangeDescriptionRenderer.TabIndex = 1;
-			this._rawChangeDescriptionRenderer.WebBrowserShortcutsEnabled = false;
+			// GECKOFX: is this needed?
+			//this._rawChangeDescriptionRenderer.WebBrowserShortcutsEnabled = false;
 			//
 			// ChangeReportView
 			//
@@ -109,11 +115,11 @@
 
 		#endregion
 
-		private System.Windows.Forms.WebBrowser _normalChangeDescriptionRenderer;
+		private Gecko.GeckoWebBrowser _normalChangeDescriptionRenderer;
 		private System.Windows.Forms.TabControl tabControl1;
 		private System.Windows.Forms.TabPage tabPage1;
 		private System.Windows.Forms.TabPage tabPageRaw;
-		private System.Windows.Forms.WebBrowser _rawChangeDescriptionRenderer;
+		private Gecko.GeckoWebBrowser _rawChangeDescriptionRenderer;
 
 	}
 }

@@ -59,7 +59,7 @@ namespace Chorus.UI.Review.ChangedReport
 			return styleSheetBuilder.ToString();
 		}
 
-		private void webBrowser1_Navigated(object sender, WebBrowserNavigatedEventArgs e)
+		private void webBrowser1_Navigated(object sender, Gecko.GeckoNavigatedEventArgs e)
 		{
 			//didn't work, 'cuase is't actually still being held by the browser
 			//  File.Delete(e.URI.AbsoluteUri.Replace(@"file:///", string.Empty));
@@ -67,16 +67,21 @@ namespace Chorus.UI.Review.ChangedReport
 
 		public void LoadReport(IChangeReport report)
 		{
-			if (report == null)
-			{
-				_normalChangeDescriptionRenderer.Navigate(string.Empty);
-			}
-			else
+			// GECKOFX blank url does not blank page
+			if (report != null)
 			{
 				var presenter = _handlers.GetHandlerForPresentation(report.PathToFile).GetChangePresenter(report, _repository);
 				var path = Path.GetTempFileName();
 				File.WriteAllText(path, presenter.GetHtml("normal", _styleSheet));
-				this._normalChangeDescriptionRenderer.Navigate(path);
+				System.Console.WriteLine("normalCDpath="+path);
+				try
+				{
+					this._normalChangeDescriptionRenderer.Navigate(path);
+				}
+				catch(InvalidOperationException)
+				{
+					System.Console.WriteLine("_normalChangeDescriptionRenderer not ready");
+				}
 				path = Path.GetTempFileName();
 				string contents;
 				try
@@ -91,9 +96,31 @@ namespace Chorus.UI.Review.ChangedReport
 				if (!string.IsNullOrEmpty(contents))
 				{
 					if(!tabControl1.TabPages.Contains(tabPageRaw))
+					{
+						System.Console.WriteLine("adding raw tab back");
 						this.tabControl1.TabPages.Add(tabPageRaw);
+					}
 					File.WriteAllText(path, contents);
-					this._rawChangeDescriptionRenderer.Navigate(path);
+					System.Console.WriteLine("rawCDpath="+path);
+					try
+					{
+						// the first Navigate on a GeckoWebBrowser will not work unless it is being shown
+						if (this.tabControl1.SelectedTab != this.tabPageRaw)
+						{
+							this.tabControl1.SelectedTab = this.tabPageRaw;
+							Application.DoEvents();
+							this._rawChangeDescriptionRenderer.Navigate(path);
+							this.tabControl1.SelectedTab = this.tabPage1;
+						}
+						else
+						{
+							this._rawChangeDescriptionRenderer.Navigate(path);
+						}
+					}
+					catch(InvalidOperationException)
+					{
+						System.Console.WriteLine("_rawChangeDescriptionRenderer not ready");
+					}
 				}
 				else
 				{
@@ -102,14 +129,14 @@ namespace Chorus.UI.Review.ChangedReport
 			}
 		}
 
-		private void _normalChangeDescriptionRenderer_Navigating(object sender, WebBrowserNavigatingEventArgs e)
+		private void _normalChangeDescriptionRenderer_Navigating(object sender, Gecko.GeckoNavigatingEventArgs e)
 		{
-			if (e.Url.Scheme == "playaudio")
+			if (e.Uri.Scheme == "playaudio")
 			{
 				e.Cancel = true;
 
-				string url = e.Url.LocalPath;
-				var player = new SoundPlayer(e.Url.LocalPath);
+				string url = e.Uri.LocalPath;
+				var player = new SoundPlayer(e.Uri.LocalPath);
 				player.PlaySync();
 			}
 

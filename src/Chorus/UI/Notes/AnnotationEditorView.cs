@@ -129,27 +129,31 @@ namespace Chorus.UI.Notes
 			Cursor.Current = Cursors.Default;
 		}
 
-		private void _existingMessagesDisplay_Navigating(object sender, WebBrowserNavigatingEventArgs e)
+		private void _existingMessagesDisplay_Navigating(object sender, Gecko.GeckoNavigatingEventArgs e)
 		{
-			if (e.Url.Scheme == "about")
+			if (e.Uri.Scheme == "about")
 				return;
 			e.Cancel = true;
-			_model.HandleLinkClicked(e.Url);
+			_model.HandleLinkClicked(e.Uri);
 		}
 
-		private void _existingMessagesDisplay_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e)
+		private void _existingMessagesDisplay_DocumentCompleted(object sender, EventArgs e)
 		{
 			if(_waitingOnBrowserToBeReady)
 			{
 				_waitingOnBrowserToBeReady = false;
 				OnUpdateContent(null,null);
 			}
-
-			var c = _existingMessagesDisplay.Document.Body.Children.Count;
+			//GECKOFX: looks like previous code is trying to scroll to bottom child
+			// does this do it for geckofx?
+			_existingMessagesDisplay.Document.Body.ScrollIntoView (false);
+/*
+			var c = _existingMessagesDisplay.Document.Body.ChildNodes.Count;
 			if (c > 0)
 			{
 				_existingMessagesDisplay.Document.Body.Children[c - 1].ScrollIntoView(false);
 			}
+			*/
 		}
 
 		private void _closeButton_Click(object sender, EventArgs e)
