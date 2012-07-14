@@ -25,13 +25,16 @@ namespace Chorus.UI.Notes
 
 		protected void SetDocumentText(string text)
 		{
-			// Using _existingMessagesDisplay.DocumentText =  causes an exception on mono
-#if MONO
+			// GECKOFX: is this replace needed or is it already done within geckofx?
 			text = text.Replace("'", "\'");
-			_existingMessagesDisplay.Navigate("javascript:{document.body.outerHTML = '" + text + "';}");
-#else
-			_existingMessagesDisplay.DocumentText = text;
-#endif
+			try
+			{
+				_existingMessagesDisplay.LoadHtml("javascript:{document.body.outerHTML = '" + text + "';}");
+			}
+			catch (Exception e)
+			{
+				System.Console.WriteLine("AnnotationEditorView:SetDocumentText Exception caught: {0}", e.Message);
+			}
 		}
 
 		public bool ModalDialogMode
