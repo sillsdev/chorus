@@ -27,6 +27,7 @@ namespace Chorus.UI.Misc
 				if (value == null)
 					return;
 				sharedFolderTextbox.Text = _model.SharedFolder;
+				_model.MessageBoxService = new MessageBoxService();
 			}
 		}
 
@@ -50,6 +51,14 @@ namespace Chorus.UI.Misc
 			MessageBox.Show(
 				"Using a simple shared network folder is somewhat experimental. We don’t yet know if it will be reliable for you, or not… it is difficult for us to test all the different kinds of networks out there. So if you use this feature, please let us know how it goes for you, whether you have success or problems.",
 				"Notice", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+		}
+
+		private class MessageBoxService : NetworkFolderSettingsModel.IMessageBoxService
+		{
+			public DialogResult Show(string message, string title, MessageBoxButtons buttons, MessageBoxIcon icon)
+			{
+				return MessageBox.Show(message, title, buttons, icon);
+			}
 		}
 	}
 }
