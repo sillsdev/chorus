@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Windows.Forms;
+using Chorus.Utilities;
 using Chorus.Utilities.code;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
@@ -21,56 +22,88 @@ namespace Chorus.UI.Misc
 		}
 
 		/// <summary>
+		/// Property for setting the MessageBoxService (to aid unit testing.)
+		/// </summary>
+		public IMessageBoxService MessageBoxService { get; set; }
+
+		/// <summary>
 		/// Sets the data for the repository path in the hgrc file.
 		/// </summary>
 		/// <param name="repository"></param>
 		/// <param name="path"></param>
-		/// <returns>Return false if were not able to create the repository and want to give the user another option.</returns>
-		private static bool SetNewSharedNetworkAddress(HgRepository repository, string path)
+		private void SetNewSharedNetworkAddress(HgRepository repository, string path)
 		{
 			//if the path is empty, or only contains the ProjectNameVariable then this isn't a valid path so ignore it.
 			if (string.IsNullOrEmpty(path) || path.Equals(RepositoryAddress.ProjectNameVariable))
-				return false;
+				return;
 			var projectDir = path.EndsWith(RepositoryAddress.ProjectNameVariable)
 							? path.Replace(RepositoryAddress.ProjectNameVariable, "")
 							: path;
-			try
+			var projectName = Path.GetFileName(repository.PathToRepo);
+
+			// If the user picked the .hg folder itsself, be kind and try and use the parent folder
+			if(projectDir.EndsWith(".hg" + Path.DirectorySeparatorChar))
 			{
-				if (!Directory.Exists(Path.Combine(projectDir, ".hg")))
+				projectDir = path = path.Substring(0, path.LastIndexOf(".hg"));
+			}
+
+			string projectInFolder = "";
+			if(!Directory.Exists(projectDir))
+			{
+				var result = MessageBoxService.Show("Create the folder and make a new repository?", "The directory does not exist.",
+												MessageBoxButtons.OKCancel, MessageBoxIcon.Question);
+				if (result != DialogResult.OK)
+					return;
+				Directory.CreateDirectory(projectDir);
+				projectInFolder = path.Replace(RepositoryAddress.ProjectNameVariable, projectName);
+			}
+			else
+			{
+				var isProjFolderSelected = projectName != null && projectDir.EndsWith(projectName + Path.DirectorySeparatorChar);
+				if (!isProjFolderSelected && !Directory.Exists(Path.Combine(projectDir, ".hg")))
 				{
-					if(!Directory.Exists(projectDir))
+					if (projectName != null)
 					{
-						var result = MessageBox.Show("Create the folder and make a new repository?", "The directory does not exist.",
-													 MessageBoxButtons.OKCancel);
-						if (result != DialogResult.OK)
-							return false;
-						Directory.CreateDirectory(projectDir);
+						projectInFolder = path.Replace(RepositoryAddress.ProjectNameVariable, projectName);
 					}
-					else
+					if (string.IsNullOrEmpty(projectInFolder) || !Directory.Exists(projectInFolder))
 					{
-						var projectName = Path.GetFileName(repository.PathToRepo);
-						string projectInFolder = "";
-						if(projectName != null)
-						{
-							projectInFolder = path.Replace(RepositoryAddress.ProjectNameVariable, projectName);
-						}
-						if(string.IsNullOrEmpty(projectInFolder) || !Directory.Exists(projectInFolder))
-						{
-							var result = MessageBox.Show("The repository will be created in " + projectDir + ".", "Create new repository?",
-											MessageBoxButtons.OKCancel);
-							if (result != DialogResult.OK)
-								return false;
-						}
-						// There is already a folder with the project name at the chosen path, let the user try that folder
-						// the clone will complain if that was a bad idea.
-						path = projectInFolder;
+						var result = MessageBoxService.Show("The repository will be created in " + projectDir + ".",
+															"Create new repository?",
+															MessageBoxButtons.OKCancel, MessageBoxIcon.Question);
+						if (result != DialogResult.OK)
+							return;
+						Directory.CreateDirectory(projectInFolder);
 					}
 				}
 				else
 				{
-					//The user has apparently chosen an existing project, presume they did this on purpose we can't determine here
-					//if this is the correct repo.
-					path = projectDir;
+					projectInFolder = projectDir;
+				}
+			}
+			try
+			{
+				// This section will test for any existing repo in the selected folder, if it is a correct repo it will save the selection
+				// otherwise it complains
+				if (Directory.Exists(Path.Combine(projectInFolder, ".hg")))
+				{
+					var root = HgRepository.CreateOrLocate(projectInFolder, new NullProgress());
+					if (repository.Identifier == root.Identifier)
+					{
+						path = projectInFolder;
+					}
+					else
+					{
+						MessageBoxService.Show("You selected a repository for a different project. The Shared Network Folder setting was not saved.", "Unrelated repository selected.",
+											   MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+						return;
+					}
+
+				}
+				else
+				{
+					//The user has apparently chosen an existing project which does not match their project repo, move up a folder
+					path = projectInFolder;
 				}
 				string alias = HgRepository.GetAliasFromPath(projectDir);
 				repository.SetTheOnlyAddressOfThisType(RepositoryAddress.Create(alias, path));
@@ -78,9 +111,7 @@ namespace Chorus.UI.Misc
 			catch (Exception e)
 			{
 				Palaso.Reporting.ErrorReport.NotifyUserOfProblem(e, "There was a problem setting the path to the Network Folder.");
-				return false;
 			}
-			return true;
 		}
 
 		/// <summary>
@@ -123,6 +154,11 @@ namespace Chorus.UI.Misc
 			}
 
 			SetNewSharedNetworkAddress(_repo, Path.Combine(SharedFolder, RepositoryAddress.ProjectNameVariable));
+		}
+
+		public interface IMessageBoxService
+		{
+			DialogResult Show(string message, string title, MessageBoxButtons buttons, MessageBoxIcon icon);
 		}
 	}
 }
