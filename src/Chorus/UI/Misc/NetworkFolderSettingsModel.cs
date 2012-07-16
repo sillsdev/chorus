@@ -111,9 +111,7 @@ namespace Chorus.UI.Misc
 			catch (Exception e)
 			{
 				Palaso.Reporting.ErrorReport.NotifyUserOfProblem(e, "There was a problem setting the path to the Network Folder.");
-				return;
 			}
-			return;
 		}
 
 		/// <summary>
