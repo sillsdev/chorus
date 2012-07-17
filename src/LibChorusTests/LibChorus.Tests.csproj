@@ -168,6 +168,7 @@
 	<Compile Include="sync\Synchronizer.BadSituationTests.cs" />
 	<Compile Include="sync\SyncScenarioTests.cs" />
 	<Compile Include="sync\UsbRepositorySourceTests.cs" />
+	<Compile Include="utilities\Help\HelpUtilitiesTests.cs" />
 	<Compile Include="utilities\UrlHelperTests.cs" />
 	<Compile Include="utilities\MultiMapTests.cs" />
 	<Compile Include="utilities\XmlUtilitiesTests.cs" />
