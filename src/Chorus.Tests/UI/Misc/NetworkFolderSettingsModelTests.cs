@@ -100,6 +100,7 @@ namespace Chorus.Tests.UI.Misc
 		}
 
 		[Test]
+		[Category("KnownMonoIssue")]
 		public void ExistingWrongRepoGivesWrongRepoPrompt()
 		{
 
