@@ -19,43 +19,7 @@ namespace Chorus.Utilities.Help
 		/// <returns>The filepath to the help file.</returns>
 		public static string GetHelpFile()
 		{
-			var helpFile = Application.StartupPath + @"\Send_Receive_Help.chm";
-
-			// if (!File.Exists(helpFile))
-			ExtractHelpFile();
-
-			return helpFile;
-		}
-
-		/// <summary>
-		/// Extracts the embedded help file.
-		/// </summary>
-		public static void ExtractHelpFile()
-		{
-			var helpFile = Application.StartupPath + @"\Send_Receive_Help.chm";
-
-			var assembly = Assembly.GetExecutingAssembly();
-			var stream = assembly.GetManifestResourceStream("Chorus.Send_Receive_Help.chm");
-			if (stream == null)
-			{
-				throw new NullReferenceException(); // ?
-			}
-			var binReader = new BinaryReader(stream);
-			var binWriter = new BinaryWriter(File.Open(helpFile, FileMode.Create));
-
-			var i = 0;
-			while (i < stream.Length)
-			{
-				binWriter.Write(binReader.ReadByte());
-				i++;
-			}
-			binReader.Close();
-			binWriter.Close();
-
-			if (!File.Exists(helpFile))
-			{
-				throw new FileNotFoundException("The help file could not be retrieved");
-			}
+			return Path.Combine(Assembly.GetExecutingAssembly().Location, "Chorus_Help.chm");
 		}
 	}
 }
