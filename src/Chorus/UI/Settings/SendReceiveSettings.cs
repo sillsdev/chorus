@@ -1,12 +1,9 @@
 ﻿using System;
-using System.IO;
-using System.Reflection;
 using System.Windows.Forms;
 using Chorus.UI.Misc;
 using Chorus.Utilities.code;
 using Chorus.Utilities.Help;
 using Chorus.VcsDrivers.Mercurial;
-using Microsoft.Contracts;
 using Palaso.Progress.LogBox;
 
 namespace Chorus.UI.Settings
