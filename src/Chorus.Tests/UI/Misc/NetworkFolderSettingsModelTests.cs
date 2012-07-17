@@ -100,7 +100,8 @@ namespace Chorus.Tests.UI.Misc
 		}
 
 		[Test]
-		[Category("KnownMonoIssue")]
+//		[Category("KnownMonoIssue")] I think this was an intermittant failure due to Hg sometimes coming up with the same hash for these two repositories
+//									 since their contents was identical. If it has failed on Mono again I was wrong.
 		public void ExistingWrongRepoGivesWrongRepoPrompt()
 		{
 
@@ -109,7 +110,7 @@ namespace Chorus.Tests.UI.Misc
 				firstRepo.AddAndCheckinFile("this.file", "filetext");
 				model.InitFromProjectPath(firstRepo.ProjectFolder.Path);
 				var secondRepo = new RepositorySetup("bob", "OtherRepoFolder");
-				secondRepo.AddAndCheckinFile("this.file", "filetext");
+				secondRepo.AddAndCheckinFile("that.file", "othertext");
 				model.SharedFolder = secondRepo.ProjectFolder.Path;
 				model.SaveSettings();
 				Assert.True(((MessageBoxService)model.MessageBoxService).LastMessage != null &&
