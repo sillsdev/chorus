@@ -19,7 +19,10 @@ namespace Chorus.Utilities.Help
 		/// <returns>The filepath to the help file.</returns>
 		public static string GetHelpFile()
 		{
-			return Path.Combine(Assembly.GetExecutingAssembly().Location, "Chorus_Help.chm");
+// ReSharper disable AssignNullToNotNullAttribute
+			// If there is no executing assembly, we have other problems.
+			return Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "Chorus_Help.chm");
+// ReSharper restore AssignNullToNotNullAttribute
 		}
 	}
 }

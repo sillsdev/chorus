@@ -102,12 +102,12 @@ namespace Chorus.UI.Settings
 			if (settingsTabs.SelectedTab == internetTab)
 			{
 				Help.ShowHelp(this, helpFile,
-					"Chorus/Internet_tab.htm");
+					"Tasks/Internet_tab.htm");
 			}
 			else if (settingsTabs.SelectedTab == networkFolderTab)
 			{
-				Help.ShowHelp(new Label(), helpFile,
-					"Chorus/Network_Folder_tab.htm");
+				Help.ShowHelp(this, helpFile,
+					"Tasks/Network_Folder_tab.htm");
 			}
 		}
 	}
