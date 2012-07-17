@@ -8,13 +8,11 @@ http://blogs.msdn.com/robmen/archive/2003/10/04/56479.aspx -->
 
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
 
-		<!-- TODO: Add new help file. -->
-
   <Module Id="BasicChorusMergeModule" Language="1033" Version="$(var.Property_ProductVersion)">
 		<Package Id="59c055f3-e87e-4101-bc70-87ab07d4f26f" Manufacturer="SIL" InstallerVersion="200" />
 
 	<Directory Id="TARGETDIR" Name="SourceDir">
-			<Directory Id="MergeRedirectFolder">
+	  <Directory Id="MergeRedirectFolder">
 		<Directory Id="mercurial" Name="mercurial">
 		  <Component Id="mercurial.ini" Guid="FA715224-9B87-44a4-B6D3-18EC40712266">
 			<File Id="mercurial.ini" Name="mercurial.ini" Source="..\..\mercurial\mercurial.ini" />
@@ -26,6 +24,9 @@ http://blogs.msdn.com/robmen/archive/2003/10/04/56479.aspx -->
 				   Key="fixutf8"
 				   Value="[#fixutf8.py]" />
 		  </Component>
+		  <Component Id="chorushelp.chm" Guid="C1EDE2E0-E382-11DE-8A39-0800200C9A66">
+			<File Id="chorushelp.chm" Name="Chorus_Help.chm" KeyPath="yes" Source="..\..\lib\Chorus_Help.chm"/>
+		  </Component>
 
 		  <!-- This will be filled in by the generated fragment GeneratedMercurial.wxs -->
 		</Directory>
@@ -34,7 +35,7 @@ http://blogs.msdn.com/robmen/archive/2003/10/04/56479.aspx -->
 		</Directory>
 
 	  </Directory>
-		</Directory>
+	</Directory>
 	<ComponentGroupRef Id="Mercurial"/>
 	<ComponentGroupRef Id="MercurialExtensions"/>
 	<ComponentRef Id="mercurial.ini" />
