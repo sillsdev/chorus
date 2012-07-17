@@ -30,6 +30,14 @@ namespace LibChorus.TestUtilities
 		{
 		}
 
+		public RepositorySetup(string userName, string projectfolder)
+		{
+			Progress = new NullProgress();
+			ProjectFolder = new TemporaryFolder(projectfolder);
+			MakeRepositoryForTest(ProjectFolder.Path, userName, Progress);
+			ProjectFolderConfig = new ProjectFolderConfiguration(ProjectFolder.Path);
+		}
+
 		public RepositorySetup(string userName, bool makeRepository)
 		{
 			Init(userName);
@@ -39,7 +47,8 @@ namespace LibChorus.TestUtilities
 			if (makeRepository)
 			{
 				RepositorySetup.MakeRepositoryForTest(ProjectFolder.Path, userName, Progress);
-			} else
+			}
+			else
 			{
 				// Remove the folder to make way for a clone which requires the folder to be not present.
 				Directory.Delete(ProjectFolder.Path);
