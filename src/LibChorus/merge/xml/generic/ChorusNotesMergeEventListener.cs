@@ -56,7 +56,16 @@ namespace Chorus.merge.xml.generic
 
 			_tempFile = new TempFile();
 			_readerStream = new FileStream(path, FileMode.Open);
-			_reader = XmlReader.Create(_readerStream);
+			var readerSettings = new XmlReaderSettings
+			{
+				CheckCharacters = false,
+				ConformanceLevel = ConformanceLevel.Document,
+				ProhibitDtd = true,
+				ValidationType = ValidationType.None,
+				CloseInput = true,
+				IgnoreWhitespace = true
+			};
+			_reader = XmlReader.Create(_readerStream, readerSettings);
 			_writer = XmlWriter.Create(_tempFile.Path, CanonicalXmlSettings.CreateXmlWriterSettings());
 			StreamToInsertionPoint(_reader, _writer);
 		}
@@ -148,6 +157,9 @@ namespace Chorus.merge.xml.generic
 
 		public void ChangeOccurred(IChangeReport change)
 		{
+			// N.B.: If you ever decide to write out the change reports,
+			// then be prepared to revise XmlMergeService, as it doesn't bother to add them at all,
+			// in order to save a ton of memory and avoid 'out of memory' exceptions.
 		}
 
 		public void EnteringContext(ContextDescriptor context)
