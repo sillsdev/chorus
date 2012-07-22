@@ -1,3 +1,4 @@
+//#define RUNINDEBUGGER
 using System;
 using System.Text;
 using Chorus.FileTypeHanders;
@@ -45,7 +46,11 @@ namespace ChorusMerge
 				//this was originally put here to test if console writes were making it out to the linux log or not
 				Console.WriteLine("ChorusMerge: {0}, {1}, {2}", ourFilePath, commonFilePath, theirFilePath);
 
+#if RUNINDEBUGGER
+				var order = new MergeOrder(ourFilePath, commonFilePath, theirFilePath, new MergeSituation(ourFilePath, "Me", "CHANGETHIS", "YOU", "CHANGETHIS", MergeOrder.ConflictHandlingModeChoices.WeWin));
+#else
 				MergeOrder order = MergeOrder.CreateUsingEnvironmentVariables(ourFilePath, commonFilePath, theirFilePath);
+#endif
 				var handlers = ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers();
 				var handler = handlers.GetHandlerForMerging(order.pathToOurs);
 
