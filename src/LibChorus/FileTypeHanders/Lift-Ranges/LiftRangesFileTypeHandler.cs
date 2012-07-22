@@ -64,6 +64,7 @@ namespace Chorus.FileTypeHanders
 
 			XmlMergeService.Do3WayMerge(mergeOrder,
 				new LiftRangesMergingStrategy(mergeOrder.MergeSituation),
+				false,
 				null,
 				"range", "id", WritePreliminaryInformation);
 		}

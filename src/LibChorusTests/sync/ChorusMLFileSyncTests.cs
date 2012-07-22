@@ -38,7 +38,7 @@ namespace LibChorus.Tests.sync
 		[Test]
 		public void MergeConflictFiles_CheckIsMutableIsUsedToSkipMergingMessages()
 		{
-			//NB: we can't actualy unit test fot his, since it is just a performance improvement, but
+			//NB: we can't actualy unit test for this, since it is just a performance improvement, but
 			//this test let me watch in the debugger to make sure it skipped trying to merge the message
 			using (
 				GroupOfConflictFiles group = new GroupOfConflictFiles("<notes><annotation guid='111'><message guid='123'>I am thirsty</message></annotation></notes>",
@@ -62,13 +62,12 @@ namespace LibChorus.Tests.sync
 		[Test]
 		public void MergeConflictFiles_AncestorDidNotExist()
 		{
-
 			using (GroupOfConflictFiles group = new GroupOfConflictFiles("",
 																	  "<notes><annotation guid='bobGuid'/></notes>",
 																	  "<notes><annotation guid='sallyGuid'/></notes>"))
 			{
 				MergeOrder order = new MergeOrder(group.BobFile.Path,
-												  string.Empty, group.SallyFile.Path, new NullMergeSituation());
+												  group.AncestorFile.Path, group.SallyFile.Path, new NullMergeSituation());
 				new ChorusNotesFileHandler().Do3WayMerge(order);
 
 				XmlDocument doc = new XmlDocument();

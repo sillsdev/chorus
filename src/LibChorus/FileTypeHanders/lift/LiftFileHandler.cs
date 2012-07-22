@@ -48,6 +48,7 @@ namespace Chorus.FileTypeHanders.lift
 		{
 			XmlMergeService.Do3WayMerge(mergeOrder,
 				new LiftEntryMergingStrategy(mergeOrder.MergeSituation),
+				false,
 				"header",
 				"entry", "guid", WritePreliminaryInformation);
 		}

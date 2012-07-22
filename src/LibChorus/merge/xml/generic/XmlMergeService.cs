@@ -4,9 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Xml;
-using System.Xml.Linq;
-using Chorus.FileTypeHanders;
-using Chorus.FileTypeHanders.xml;
 using Chorus.Utilities;
 using Chorus.Utilities.code;
 using Palaso.Xml;
@@ -61,10 +58,26 @@ namespace Chorus.merge.xml.generic
 		/// Perform the 3-way merge.
 		/// </summary>
 		public static void Do3WayMerge(MergeOrder mergeOrder, IMergeStrategy mergeStrategy, // Get from mergeOrder: IMergeEventListener listener,
-			string firstElementMarker,
-			string recordElementName, string id,
+			bool sortRepeatingRecordOutputByKeyIdentifier,
+			string optionalFirstElementMarker,
+			string repeatingRecordElementName, string repeatingRecordKeyIdentifier,
 			Action<XmlReader, XmlWriter> writePreliminaryInformationDelegate)
 		{
+			// NB: The FailureSimulator is *only* used in tests.
+			FailureSimulator.IfTestRequestsItThrowNow("LiftMerger.FindEntryById");
+
+			Guard.AgainstNull(mergeStrategy, string.Format("'{0}' is null.", mergeStrategy));
+			Guard.AgainstNull(mergeOrder, string.Format("'{0}' is null.", mergeOrder));
+			Guard.AgainstNull(mergeOrder.EventListener, string.Format("'{0}' is null.", "mergeOrder.EventListener"));
+			Guard.AgainstNull(writePreliminaryInformationDelegate, string.Format("'{0}' is null.", writePreliminaryInformationDelegate));
+			Guard.AgainstNullOrEmptyString(repeatingRecordElementName, "No primary record element name.");
+			Guard.AgainstNullOrEmptyString(repeatingRecordKeyIdentifier, "No identifier attribute for primary record element.");
+
+			var commonAncestorPathname = mergeOrder.pathToCommonAncestor;
+			Require.That(File.Exists(commonAncestorPathname), string.Format("'{0}' does not exist.", commonAncestorPathname));
+			// Do not change outputPathname, or be ready to fix SyncScenarioTests.CanCollaborateOnLift()!
+			var outputPathname = mergeOrder.pathToOurs;
+
 			string pathToWinner;
 			string pathToLoser;
 			string winnerId;
@@ -84,90 +97,536 @@ namespace Chorus.merge.xml.generic
 					loserId = mergeOrder.MergeSituation.AlphaUserId;
 					break;
 			}
-			var commonAncestorPathname = mergeOrder.pathToCommonAncestor;
-			EnsureCommonAncestorFileHasMimimalContent(commonAncestorPathname, pathToWinner, pathToLoser);
-			// Do not change outputPathname, or be ready to fix SyncScenarioTests.CanCollaborateOnLift()!
-			var outputPathname = mergeOrder.pathToOurs;
-
-			Guard.AgainstNull(mergeStrategy, string.Format("'{0}' is null.", mergeStrategy));
-			Guard.AgainstNull(mergeOrder, string.Format("'{0}' is null.", mergeOrder));
-			Guard.AgainstNull(mergeOrder.EventListener, string.Format("'{0}' is null.", "mergeOrder.EventListener"));
-			Guard.AgainstNull(writePreliminaryInformationDelegate, string.Format("'{0}' is null.", writePreliminaryInformationDelegate));
-			Require.That(File.Exists(commonAncestorPathname), string.Format("'{0}' does not exist.", commonAncestorPathname));
 			Require.That(File.Exists(pathToWinner), string.Format("'{0}' does not exist.", pathToWinner));
 			Require.That(File.Exists(pathToLoser), string.Format("'{0}' does not exist.", pathToLoser));
-			Guard.AgainstNullOrEmptyString(recordElementName, "No primary record element name.");
-			Guard.AgainstNullOrEmptyString(id, "No identifier attribute for primary record element.");
+			EnsureCommonAncestorFileHasMimimalContent(commonAncestorPathname, pathToWinner);
 
-			var winnerNewbies = new Dictionary<string, XmlNode>(StringComparer.OrdinalIgnoreCase);
-			// Do diff between winner and common
-			var winnerGoners = new Dictionary<string, XmlNode>(StringComparer.OrdinalIgnoreCase);
-			var winnerDirtballs = new Dictionary<string, ChangedElement>(StringComparer.OrdinalIgnoreCase);
-			var parentIndex = Do2WayDiff(commonAncestorPathname, pathToWinner, winnerGoners, winnerDirtballs, winnerNewbies,
-				firstElementMarker,
-				recordElementName, id);
+			// Step 1. Load each of the three files.
+			Dictionary<string, string> allLoserData;
+			HashSet<string> allLoserIds;
+			Dictionary<string, string> allCommonAncestorData;
+			HashSet<string> allCommonAncestorIds;
+			HashSet<string> allWinerIds;
+			Dictionary<string, string> allWinnerData;
+			LoadDataFiles(mergeOrder,
+				optionalFirstElementMarker, repeatingRecordElementName, repeatingRecordKeyIdentifier,
+				commonAncestorPathname, pathToWinner, pathToLoser,
+				out allCommonAncestorData, out allCommonAncestorIds,
+				out allWinnerData, out allWinerIds,
+				out allLoserData, out allLoserIds);
 
-			// Do diff between loser and common
-			var loserNewbies = new Dictionary<string, XmlNode>(StringComparer.OrdinalIgnoreCase);
-			var loserGoners = new Dictionary<string, XmlNode>(StringComparer.OrdinalIgnoreCase);
-			var loserDirtballs = new Dictionary<string, ChangedElement>(StringComparer.OrdinalIgnoreCase);
-			Do2WayDiffX(parentIndex, pathToLoser, loserGoners, loserDirtballs, loserNewbies,
-				firstElementMarker,
-				recordElementName, id, mergeOrder.EventListener);
+			// Step 2. Collect up new items from winner and loser.
+			HashSet<string> allNewIdsFromBoth;
+			HashSet<string> allNewIdsFromBothWithSameData;
+			Dictionary<string, XmlNode> fluffedUpLoserNodes;
+			Dictionary<string, XmlNode> fluffedUpWinnerNodes;
+			CollectNewItemsFromWinnerAndLoser(allWinnerData, allWinerIds, allLoserIds, allLoserData, allCommonAncestorIds,
+				out allNewIdsFromBoth, out allNewIdsFromBothWithSameData, out fluffedUpLoserNodes, out fluffedUpWinnerNodes);
 
-			// At this point we have two sets of diffs, but we need to merge them.
-			// Newbies from both get added.
-			// A conflict has 'winner' stay, but with a report.
+			// Step 3. Collect up deleted items from winner and loser.
+			HashSet<string> allIdsRemovedByWinner;
+			HashSet<string> allIdsRemovedByLoser;
+			HashSet<string> allIdsRemovedByBoth;
+			CollectDeletedIdsFromWinnerAndLoser(allLoserIds, allCommonAncestorIds, allWinerIds,
+				out allIdsRemovedByWinner, out allIdsRemovedByLoser, out allIdsRemovedByBoth);
+
+			// Step 4. Collect up modified items from winner and loser.
+			HashSet<string> allIdsWhereUsersMadeDifferentChanges;
+			HashSet<string> allIdsLoserModified;
+			HashSet<string> allIdsWinnerModified;
+			HashSet<string> allBothUsersMadeSameChanges;
+			HashSet<string> allIdsForUniqueLoserChanges;
+			CollectModifiedIdsFromWinnerAndLoser(allWinnerData, allLoserData, allWinerIds, allCommonAncestorIds, allLoserIds, allCommonAncestorData, out allIdsWhereUsersMadeDifferentChanges, out allIdsLoserModified, out allIdsWinnerModified, out allBothUsersMadeSameChanges, out allIdsForUniqueLoserChanges);
+
+			// Step 5. Collect up items modified by one user, but deleted by the other.
+			HashSet<string> allDeletedByWinnerButEditedByLoserIds;
+			HashSet<string> allDeletedByLoserButEditedByWinnerIds;
+			CollectIdsOfEditVsDelete(allIdsRemovedByLoser, allIdsWinnerModified, allIdsLoserModified, allIdsRemovedByWinner, out allDeletedByWinnerButEditedByLoserIds, out allDeletedByLoserButEditedByWinnerIds);
+
+			// Step 6. Do merging and report conflcits.
+			var fluffedUpAncestorNodes = new Dictionary<string, XmlNode>();
+			ReportEditConflictsForBothAddedNewObjectsWithDifferentContent(mergeOrder, mergeStrategy, pathToWinner,
+				allLoserData, fluffedUpLoserNodes,
+				allNewIdsFromBothWithSameData, allNewIdsFromBoth, allWinnerData, fluffedUpWinnerNodes);
+			ReportNormalEditConflicts(mergeOrder, mergeStrategy,
+				allLoserData, fluffedUpAncestorNodes, allCommonAncestorData, allIdsWhereUsersMadeDifferentChanges,
+				fluffedUpWinnerNodes, fluffedUpLoserNodes, allWinnerData);
+			ReportDeleteVsEditConflicts(mergeOrder, mergeStrategy,
+				fluffedUpLoserNodes, allLoserData, loserId, allDeletedByWinnerButEditedByLoserIds,
+				allCommonAncestorData, fluffedUpAncestorNodes);
+			ReportEditVsDeleteConflicts(mergeOrder, mergeStrategy,
+				fluffedUpWinnerNodes, allWinnerData, winnerId, allDeletedByLoserButEditedByWinnerIds,
+				allCommonAncestorData, fluffedUpAncestorNodes);
+			fluffedUpAncestorNodes.Clear();
+			fluffedUpWinnerNodes.Clear();
+			fluffedUpLoserNodes.Clear();
+
+			// Step 7. Collect all ids that are to be written out.
+			var allWritableIds = new HashSet<string>(allCommonAncestorIds, StringComparer.InvariantCultureIgnoreCase);
+			allWritableIds.UnionWith(allWinerIds);
+			allWritableIds.UnionWith(allLoserIds);
+			allWritableIds.UnionWith(allNewIdsFromBoth); // Adds new ones from winner & loser
+			allWritableIds.ExceptWith(allIdsRemovedByWinner); // Removes deletions by winner.
+			allWritableIds.ExceptWith(allIdsRemovedByLoser); // Removes deletions by loser.
+			allWritableIds.ExceptWith(allIdsRemovedByBoth); // Removes deletions by both.
+			allWritableIds.UnionWith(allDeletedByWinnerButEditedByLoserIds); // Puts back the loser edited vs winner deleted ids.
+			allWritableIds.UnionWith(allDeletedByLoserButEditedByWinnerIds); // Puts back the winner edited vs loser deleted ids.
+			var allWritableData = sortRepeatingRecordOutputByKeyIdentifier ? new SortedDictionary<string, string>(StringComparer.InvariantCultureIgnoreCase) : new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase) as IDictionary<string, string>;
+			foreach (var identifier in allWritableIds)
+			{
+				string updatedData;
+				if (allIdsForUniqueLoserChanges.Contains(identifier))
+				{
+					// Loser made change. Winner did nothing.
+					updatedData = allLoserData[identifier];
+				}
+				else
+				{
+					allWinnerData.TryGetValue(identifier, out updatedData);
+					if (updatedData == null)
+						updatedData = allLoserData[identifier];
+				}
+				allWritableData.Add(identifier, updatedData);
+			}
+
+			// Step 8. Clear out most dictionaries and hash sets.
+			allCommonAncestorData = null;
+			allCommonAncestorIds = null;
+			allWinnerData = null;
+			allWinerIds = null;
+			allLoserData = null;
+			allLoserIds = null;
+			allNewIdsFromBoth = null;
+			allNewIdsFromBothWithSameData = null;
+			allIdsRemovedByWinner = null;
+			allIdsRemovedByLoser = null;
+			allIdsRemovedByBoth = null;
+			allIdsWhereUsersMadeDifferentChanges = null;
+			allIdsLoserModified = null;
+			allIdsWinnerModified = null;
+			allBothUsersMadeSameChanges = null;
+			allIdsForUniqueLoserChanges = null;
+			allDeletedByWinnerButEditedByLoserIds = null;
+			allDeletedByLoserButEditedByWinnerIds = null;
+			GC.Collect(2, GCCollectionMode.Forced);
+
+			// Step 9. Write all objects.
+			WriteMainOutputData(optionalFirstElementMarker, writePreliminaryInformationDelegate, allWritableData, commonAncestorPathname, outputPathname);
+		}
+
+		private static void WriteMainOutputData(string optionalFirstElementMarker, Action<XmlReader, XmlWriter> writePreliminaryInformationDelegate,
+												IDictionary<string, string> allWritableData, string commonAncestorPathname,
+												string outputPathname)
+		{
 			using (var writer = XmlWriter.Create(outputPathname, CanonicalXmlSettings.CreateXmlWriterSettings()))
 			{
-				// Need a reader on '_commonAncestorXml', much as is done for FW, but sans thread.
-				// Blend in newbies, goners, and dirtballs to 'outputPathname' as in FW.
-				var readerSettings = new XmlReaderSettings
+				using (var reader = XmlReader.Create(new FileStream(commonAncestorPathname, FileMode.Open), new XmlReaderSettings
+								{
+									CheckCharacters = false,
+									ConformanceLevel = ConformanceLevel.Document,
+									ProhibitDtd = true,
+									ValidationType = ValidationType.None,
+									CloseInput = true,
+									IgnoreWhitespace = true}))
 				{
-					CheckCharacters = false,
-					ConformanceLevel = ConformanceLevel.Document,
-					ProhibitDtd = true,
-					ValidationType = ValidationType.None,
-					CloseInput = true,
-					IgnoreWhitespace = true
-				};
-				using (var reader = XmlReader.Create(new FileStream(commonAncestorPathname, FileMode.Open), readerSettings))
-				{
-					// This must be client specific behavior.
+					// This must be client specific behavior to rebuild the root element, plus any of its attributes.
 					writePreliminaryInformationDelegate(reader, writer);
+				}
 
-					if (!string.IsNullOrEmpty(firstElementMarker))
+				if (!string.IsNullOrEmpty(optionalFirstElementMarker))
+				{
+					// [NB: Write optional element first, if found.]
+					if (allWritableData.ContainsKey(optionalFirstElementMarker))
 					{
-						ProcessFirstElement(
-							mergeStrategy, mergeOrder, mergeOrder.EventListener,
-							parentIndex,
-							pathToWinner, winnerNewbies, winnerGoners, winnerDirtballs,
-							pathToLoser, loserNewbies, loserGoners, loserDirtballs,
-							reader, writer,
-							winnerId, firstElementMarker, loserId);
+						WriteNode(writer, allWritableData[optionalFirstElementMarker]);
+						allWritableData.Remove(optionalFirstElementMarker);
 					}
-
-					ProcessMainRecordElements(
-						mergeStrategy, mergeOrder, mergeOrder.EventListener,
-						parentIndex,
-						winnerGoners, winnerDirtballs,
-						loserGoners, loserDirtballs,
-						reader, writer,
-						id, winnerId, recordElementName, loserId);
-
-					// Check to see if they both added the exact same element by some fluke. (Hand edit could do it.)
-					CheckForIdenticalNewbies(mergeStrategy, mergeOrder, mergeOrder.EventListener, writer,
-						winnerNewbies, winnerId, pathToWinner, loserNewbies);
-
-					WriteOutNewObjects(mergeOrder.EventListener, winnerNewbies.Values, pathToWinner, writer);
-					WriteOutNewObjects(mergeOrder.EventListener, loserNewbies.Values, pathToLoser, writer);
-
-					writer.WriteEndElement();
+				}
+				foreach (var dataKvp in allWritableData)
+				{
+					WriteNode(writer, dataKvp.Value);
 				}
 			}
 		}
 
-		private static void EnsureCommonAncestorFileHasMimimalContent(string commonAncestorPathname, string pathToWinner, string pathToLoser)
+		private static void ReportEditVsDeleteConflicts(MergeOrder mergeOrder, IMergeStrategy mergeStrategy,
+														IDictionary<string, XmlNode> fluffedUpWinnerNodes, IDictionary<string, string> allWinnerData,
+														string winnerId, IEnumerable<string> allDeletedByLoserButEditedByWinnerIds,
+														IDictionary<string, string> allCommonAncestorData, IDictionary<string, XmlNode> fluffedUpAncestorNodes)
+		{
+			foreach (var allDeletedByLoserButEditedByWinnerId in allDeletedByLoserButEditedByWinnerIds)
+			{
+				// Report winner edited vs loser deleted
+				XmlNode commonNode;
+				if (!fluffedUpAncestorNodes.TryGetValue(allDeletedByLoserButEditedByWinnerId, out commonNode))
+				{
+					commonNode = XmlUtilities.GetDocumentNodeFromRawXml(allCommonAncestorData[allDeletedByLoserButEditedByWinnerId],
+																		new XmlDocument());
+					fluffedUpAncestorNodes.Add(allDeletedByLoserButEditedByWinnerId, commonNode);
+				}
+				XmlNode winnerNode;
+				if (!fluffedUpWinnerNodes.TryGetValue(allDeletedByLoserButEditedByWinnerId, out winnerNode))
+				{
+					winnerNode = XmlUtilities.GetDocumentNodeFromRawXml(allWinnerData[allDeletedByLoserButEditedByWinnerId],
+																		new XmlDocument());
+					fluffedUpWinnerNodes.Add(allDeletedByLoserButEditedByWinnerId, winnerNode);
+				}
+				AddConflictToListener(
+					mergeOrder.EventListener,
+					new EditedVsRemovedElementConflict(commonNode.Name, winnerNode, null, commonNode, mergeOrder.MergeSituation,
+													   mergeStrategy.GetElementStrategy(commonNode), winnerId),
+					winnerNode, winnerNode, commonNode);
+			}
+		}
+
+		private static void ReportDeleteVsEditConflicts(MergeOrder mergeOrder, IMergeStrategy mergeStrategy,
+														IDictionary<string, XmlNode> fluffedUpLoserNodes, IDictionary<string, string> allLoserData, string loserId,
+														IEnumerable<string> allDeletedByWinnerButEditedByLoserIds,
+														IDictionary<string, string> allCommonAncestorData, IDictionary<string, XmlNode> fluffedUpAncestorNodes)
+		{
+			foreach (var allDeletedByWinnerButEditedByLoserId in allDeletedByWinnerButEditedByLoserIds)
+			{
+				// Report winner deleted vs loser edited.
+				XmlNode commonNode;
+				if (!fluffedUpAncestorNodes.TryGetValue(allDeletedByWinnerButEditedByLoserId, out commonNode))
+				{
+					commonNode = XmlUtilities.GetDocumentNodeFromRawXml(allCommonAncestorData[allDeletedByWinnerButEditedByLoserId],
+																		new XmlDocument());
+					fluffedUpAncestorNodes.Add(allDeletedByWinnerButEditedByLoserId, commonNode);
+				}
+				XmlNode loserNode;
+				if (!fluffedUpLoserNodes.TryGetValue(allDeletedByWinnerButEditedByLoserId, out loserNode))
+				{
+					loserNode = XmlUtilities.GetDocumentNodeFromRawXml(allLoserData[allDeletedByWinnerButEditedByLoserId],
+																	   new XmlDocument());
+					fluffedUpLoserNodes.Add(allDeletedByWinnerButEditedByLoserId, loserNode);
+				}
+				AddConflictToListener(
+					mergeOrder.EventListener,
+					new RemovedVsEditedElementConflict(commonNode.Name, null, loserNode, commonNode, mergeOrder.MergeSituation,
+													   mergeStrategy.GetElementStrategy(commonNode), loserId),
+					null, loserNode, commonNode);
+			}
+		}
+
+		private static void ReportNormalEditConflicts(MergeOrder mergeOrder, IMergeStrategy mergeStrategy,
+													  IDictionary<string, string> allLoserData, IDictionary<string, XmlNode> fluffedUpAncestorNodes,
+													  IDictionary<string, string> allCommonAncestorData,
+													  IEnumerable<string> allIdsWhereUsersMadeDifferentChanges,
+													  IDictionary<string, XmlNode> fluffedUpWinnerNodes, IDictionary<string, XmlNode> fluffedUpLoserNodes,
+													  IDictionary<string, string> allWinnerData)
+		{
+			foreach (var identifier in allIdsWhereUsersMadeDifferentChanges)
+			{
+				// Report normal edit conflicts for 'allIdsWhereUsersMadeDifferentChanges'
+				XmlNode winnerNode;
+				if (!fluffedUpWinnerNodes.TryGetValue(identifier, out winnerNode))
+				{
+					winnerNode = XmlUtilities.GetDocumentNodeFromRawXml(allWinnerData[identifier], new XmlDocument());
+					fluffedUpWinnerNodes.Add(identifier, winnerNode);
+				}
+				XmlNode loserNode;
+				if (!fluffedUpLoserNodes.TryGetValue(identifier, out loserNode))
+				{
+					loserNode = XmlUtilities.GetDocumentNodeFromRawXml(allLoserData[identifier], new XmlDocument());
+					fluffedUpLoserNodes.Add(identifier, loserNode);
+				}
+				XmlNode commonNode;
+				if (!fluffedUpAncestorNodes.TryGetValue(identifier, out commonNode))
+				{
+					commonNode = XmlUtilities.GetDocumentNodeFromRawXml(allCommonAncestorData[identifier], new XmlDocument());
+					fluffedUpAncestorNodes.Add(identifier, commonNode);
+				}
+				var mergedResult = mergeStrategy.MakeMergedEntry(
+					mergeOrder.EventListener,
+					mergeOrder.MergeSituation.ConflictHandlingMode == MergeOrder.ConflictHandlingModeChoices.WeWin ? winnerNode : loserNode,
+					mergeOrder.MergeSituation.ConflictHandlingMode == MergeOrder.ConflictHandlingModeChoices.WeWin ? loserNode : winnerNode,
+					commonNode);
+				allWinnerData[identifier] = mergedResult;
+				fluffedUpWinnerNodes.Remove(identifier);
+				allLoserData[identifier] = mergedResult; // They really are the same now, but is it a good idea to make them the same?
+				fluffedUpLoserNodes.Remove(identifier);
+				allCommonAncestorData[identifier] = mergedResult;
+					// They really are the same now, but is it a good idea to make them the same?
+				fluffedUpAncestorNodes.Remove(identifier);
+			}
+		}
+
+		private static void ReportEditConflictsForBothAddedNewObjectsWithDifferentContent(MergeOrder mergeOrder, IMergeStrategy mergeStrategy, string pathToWinner,
+																IDictionary<string, string> allLoserData, IDictionary<string, XmlNode> fluffedUpLoserNodes,
+																IEnumerable<string> allNewIdsFromBothWithSameData, IEnumerable<string> allNewIdsFromBoth,
+																IDictionary<string, string> allWinnerData, IDictionary<string, XmlNode> fluffedUpWinnerNodes)
+		{
+			foreach (var identifier in allNewIdsFromBoth.Except(allNewIdsFromBothWithSameData))
+			{
+				//// These were added by both, but they do not have the same content.
+				XmlNode winnerNode;
+				if (!fluffedUpWinnerNodes.TryGetValue(identifier, out winnerNode))
+				{
+					winnerNode = XmlUtilities.GetDocumentNodeFromRawXml(allWinnerData[identifier], new XmlDocument());
+					fluffedUpWinnerNodes.Add(identifier, winnerNode);
+				}
+				XmlNode loserNode;
+				if (!fluffedUpLoserNodes.TryGetValue(identifier, out loserNode))
+				{
+					loserNode = XmlUtilities.GetDocumentNodeFromRawXml(allLoserData[identifier], new XmlDocument());
+					fluffedUpLoserNodes.Add(identifier, loserNode);
+				}
+
+				var elementStrategy = mergeStrategy.GetElementStrategy(winnerNode);
+				var generator = elementStrategy.ContextDescriptorGenerator;
+				if (generator != null)
+				{
+					mergeOrder.EventListener.EnteringContext(generator.GenerateContextDescriptor(allWinnerData[identifier], pathToWinner));
+				}
+				//AddConflictToListener(
+				//    mergeOrder.EventListener,
+				//    new BothAddedMainElementButWithDifferentContentConflict(
+				//        winnerNode.Name,
+				//        winnerNode,
+				//        loserNode,
+				//        mergeOrder.MergeSituation,
+				//        elementStrategy,
+				//        winnerId),
+				//    winnerNode,
+				//    loserNode,
+				//    null);
+				var mergedResult = mergeStrategy.MakeMergedEntry(
+					mergeOrder.EventListener,
+					mergeOrder.MergeSituation.ConflictHandlingMode == MergeOrder.ConflictHandlingModeChoices.WeWin ? winnerNode : loserNode,
+					mergeOrder.MergeSituation.ConflictHandlingMode == MergeOrder.ConflictHandlingModeChoices.WeWin ? loserNode : winnerNode,
+					null);
+				allWinnerData[identifier] = mergedResult;
+				fluffedUpWinnerNodes.Remove(identifier);
+				allLoserData[identifier] = mergedResult; // They really are the same now, but is it a good idea to make them the same?
+				fluffedUpLoserNodes.Remove(identifier);
+			}
+		}
+
+		private static void CollectIdsOfEditVsDelete(IEnumerable<string> allIdsRemovedByLoser, IEnumerable<string> allIdsWinnerModified,
+													 IEnumerable<string> allIdsLoserModified, IEnumerable<string> allIdsRemovedByWinner,
+													 out HashSet<string> allDeletedByWinnerButEditedByLoserIds,
+													 out HashSet<string> allDeletedByLoserButEditedByWinnerIds)
+		{
+			allDeletedByWinnerButEditedByLoserIds = new HashSet<string>(allIdsRemovedByWinner.Intersect(allIdsLoserModified),
+																		StringComparer.InvariantCultureIgnoreCase);
+			allDeletedByLoserButEditedByWinnerIds = new HashSet<string>(allIdsRemovedByLoser.Intersect(allIdsWinnerModified),
+																		StringComparer.InvariantCultureIgnoreCase);
+		}
+
+		private static void CollectModifiedIdsFromWinnerAndLoser(IDictionary<string, string> allWinnerData, IDictionary<string, string> allLoserData,
+																 IEnumerable<string> allWinerIds, HashSet<string> allCommonAncestorIds,
+																 IEnumerable<string> allLoserIds, IDictionary<string, string> allCommonAncestorData,
+																 out HashSet<string> allIdsWhereUsersMadeDifferentChanges,
+																 out HashSet<string> allIdsLoserModified,
+																 out HashSet<string> allIdsWinnerModified,
+																 out HashSet<string> allBothUsersMadeSameChanges,
+																 out HashSet<string> allIdsForUniqueLoserChanges)
+		{
+			allIdsWinnerModified = new HashSet<string>(allCommonAncestorIds
+														.Intersect(allWinerIds)
+														.Where(
+															identifier =>
+															!XmlUtilities.AreXmlElementsEqual(allCommonAncestorData[identifier],
+																							  allWinnerData[identifier])),
+													   StringComparer.InvariantCultureIgnoreCase);
+			allIdsLoserModified = new HashSet<string>(allCommonAncestorIds
+														.Intersect(allLoserIds)
+														.Where(
+															identifier =>
+															!XmlUtilities.AreXmlElementsEqual(allCommonAncestorData[identifier],
+																							  allLoserData[identifier])),
+													  StringComparer.InvariantCultureIgnoreCase);
+			allBothUsersMadeSameChanges = new HashSet<string>(allIdsWinnerModified
+																.Intersect(allIdsLoserModified)
+																.Where(
+																	identifier =>
+																	XmlUtilities.AreXmlElementsEqual(allWinnerData[identifier],
+																									 allLoserData[identifier])),
+															  StringComparer.InvariantCultureIgnoreCase);
+			allIdsWhereUsersMadeDifferentChanges = new HashSet<string>(allIdsWinnerModified
+																		.Intersect(allIdsLoserModified)
+																		.Where(
+																			identifier =>
+																			!XmlUtilities.AreXmlElementsEqual(
+																				allWinnerData[identifier], allLoserData[identifier])),
+																	   StringComparer.InvariantCultureIgnoreCase);
+			allIdsForUniqueLoserChanges = new HashSet<string>(allIdsLoserModified.Except(allBothUsersMadeSameChanges).Except(allIdsWhereUsersMadeDifferentChanges));
+		}
+
+		private static void CollectDeletedIdsFromWinnerAndLoser(
+			IEnumerable<string> allLoserIds, HashSet<string> allCommonAncestorIds, IEnumerable<string> allWinerIds,
+			out HashSet<string> allIdsRemovedByWinner, out HashSet<string> allIdsRemovedByLoser, out HashSet<string> allIdsRemovedByBoth)
+		{
+			allIdsRemovedByWinner =
+				new HashSet<string>(allCommonAncestorIds.Except(allWinerIds, StringComparer.InvariantCultureIgnoreCase));
+			allIdsRemovedByLoser =
+				new HashSet<string>(allCommonAncestorIds.Except(allLoserIds, StringComparer.InvariantCultureIgnoreCase));
+			allIdsRemovedByBoth = new HashSet<string>(allIdsRemovedByWinner.Intersect(allIdsRemovedByLoser));
+		}
+
+		private static void LoadDataFiles(MergeOrder mergeOrder,
+			string optionalFirstElementMarker, string repeatingRecordElementName, string repeatingRecordKeyIdentifier,
+			string commonAncestorPathname, string pathToWinner, string pathToLoser,
+			out Dictionary<string, string> allCommonAncestorData, out HashSet<string> allCommonAncestorIds,
+			out Dictionary<string, string> allWinnerData, out HashSet<string> allWinerIds,
+			out Dictionary<string, string> allLoserData, out HashSet<string> allLoserIds)
+		{
+			allCommonAncestorData = MakeRecordDictionary(mergeOrder.EventListener,
+																					commonAncestorPathname, optionalFirstElementMarker,
+																					repeatingRecordElementName, repeatingRecordKeyIdentifier);
+			allCommonAncestorIds = new HashSet<string>(allCommonAncestorData.Keys, StringComparer.InvariantCultureIgnoreCase);
+			allWinnerData = MakeRecordDictionary(mergeOrder.EventListener, pathToWinner, optionalFirstElementMarker,
+												 repeatingRecordElementName, repeatingRecordKeyIdentifier);
+			allWinerIds = new HashSet<string>(allWinnerData.Keys, StringComparer.InvariantCultureIgnoreCase);
+			allLoserData = MakeRecordDictionary(mergeOrder.EventListener, pathToLoser, optionalFirstElementMarker, repeatingRecordElementName,
+												repeatingRecordKeyIdentifier);
+			allLoserIds = new HashSet<string>(allLoserData.Keys, StringComparer.InvariantCultureIgnoreCase);
+		}
+
+		private static void CollectNewItemsFromWinnerAndLoser(IDictionary<string, string> allWinnerData, IEnumerable<string> allWinerIds, IEnumerable<string> allLoserIds,
+															  IDictionary<string, string> allLoserData, HashSet<string> allCommonAncestorIds,
+															  out HashSet<string> allNewIdsFromBoth,
+															  out HashSet<string> allNewIdsFromBothWithSameData,
+															  out Dictionary<string, XmlNode> fluffedUpLoserNodes,
+															  out Dictionary<string, XmlNode> fluffedUpWinnerNodes)
+		{
+			var allNewIdsFromWinner = new HashSet<string>(allWinerIds, StringComparer.InvariantCultureIgnoreCase);
+			allNewIdsFromWinner.ExceptWith(allCommonAncestorIds);
+			var allNewIdsFromLoser = new HashSet<string>(allLoserIds, StringComparer.InvariantCultureIgnoreCase);
+			allNewIdsFromLoser.ExceptWith(allCommonAncestorIds);
+			// Step 2A. Should be quite rare, and they may be the same or different.
+			allNewIdsFromBoth = new HashSet<string>(allNewIdsFromWinner.Intersect(allNewIdsFromLoser, StringComparer.InvariantCultureIgnoreCase));
+			var innerFluffedUpWinnerNodes = new Dictionary<string, XmlNode>();
+			fluffedUpWinnerNodes = innerFluffedUpWinnerNodes;
+			var innerFluffedUpLoserNodes = new Dictionary<string, XmlNode>();
+			fluffedUpLoserNodes = innerFluffedUpLoserNodes;
+			allNewIdsFromBothWithSameData = new HashSet<string>(allNewIdsFromBoth
+																	.Where(identifier =>
+																	{
+																		XmlNode winnerNode;
+																		if (
+																			!innerFluffedUpWinnerNodes.TryGetValue(identifier,
+																											  out winnerNode))
+																		{
+																			winnerNode =
+																				XmlUtilities.GetDocumentNodeFromRawXml(
+																					allWinnerData[identifier], new XmlDocument());
+																			innerFluffedUpWinnerNodes.Add(identifier, winnerNode);
+																		}
+																		XmlNode loserNode;
+																		if (
+																			!innerFluffedUpLoserNodes.TryGetValue(identifier,
+																											 out loserNode))
+																		{
+																			loserNode =
+																				XmlUtilities.GetDocumentNodeFromRawXml(
+																					allLoserData[identifier], new XmlDocument());
+																			innerFluffedUpLoserNodes.Add(identifier, loserNode);
+																		}
+																		return XmlUtilities.AreXmlElementsEqual(winnerNode,
+																												loserNode);
+																	}), StringComparer.InvariantCultureIgnoreCase);
+
+			allNewIdsFromWinner.ExceptWith(allNewIdsFromBothWithSameData);
+			allNewIdsFromLoser.ExceptWith(allNewIdsFromBothWithSameData);
+		}
+
+		/// <summary>
+		/// This function should return true if the Run method should continue on
+		/// If this function is not provide by the client an exception will be thrown if a duplicate is encountered.
+		/// </summary>
+		private static Func<string, bool> ShouldContinueAfterDuplicateKey;
+		private static Dictionary<string, string> MakeRecordDictionary(IMergeEventListener mainMergeEventListener, string pathname, string firstElementMarker, string recordStartingTag, string identifierAttribute)
+		{
+			ShouldContinueAfterDuplicateKey = message =>
+				{
+					mainMergeEventListener.WarningOccurred(new MergeWarning(pathname + ": " + message));
+					return true;
+				};
+			var records = new Dictionary<string, string>(EstimatedObjectCount(pathname), StringComparer.InvariantCultureIgnoreCase);
+			using (var fastSplitter = new FastXmlElementSplitter(pathname))
+			{
+				bool foundOptionalFirstElement;
+				foreach (var record in fastSplitter.GetSecondLevelElementStrings(firstElementMarker, recordStartingTag, out foundOptionalFirstElement))
+				{
+					if (foundOptionalFirstElement)
+					{
+						records.Add(firstElementMarker.ToLowerInvariant(), record);
+						foundOptionalFirstElement = false;
+					}
+					else
+					{
+						string message;
+						AddKeyToIndex(records, identifierAttribute, record, out message);
+						if (!string.IsNullOrEmpty(message) && !ShouldContinueAfterDuplicateKey(message))
+						{
+							throw new ArgumentException(message);
+						}
+					}
+				}
+			}
+
+			return records;
+		}
+
+		private static int EstimatedObjectCount(string pathname)
+		{
+			const int estimatedObjectSize = 400;
+			var fileInfo = new FileInfo(pathname);
+			return (int)(fileInfo.Length / estimatedObjectSize);
+		}
+
+		private static void AddKeyToIndex(IDictionary<string, string> records, string identifierAttribute, string data, out string message)
+		{
+			message = null;
+
+			// Skip tombstones.
+			if (GetAttribute("dateDeleted", data) != null)
+				return;
+
+			var identifier = GetAttribute(identifierAttribute, data);
+			if (string.IsNullOrEmpty(identifierAttribute))
+			{
+				message = "There was no identifier for the record";
+			}
+			else
+			{
+				if (!records.ContainsKey(identifier))
+				{
+					records.Add(identifier, data);
+				}
+				else
+				{
+					message = "There is more than one element with the identifier '" + identifier + "'";
+				}
+			}
+		}
+
+		private static string GetAttribute(string identifierAttribute, string data)
+		{
+			string attributeValue = null;
+			var readerSettings = new XmlReaderSettings
+			{
+				CheckCharacters = false,
+				ConformanceLevel = ConformanceLevel.Document,
+				ProhibitDtd = true,
+				ValidationType = ValidationType.None,
+				CloseInput = true,
+				IgnoreWhitespace = true
+			};
+			using (var reader = XmlReader.Create(new StringReader(data), readerSettings))
+			{
+				reader.MoveToContent();
+				if (reader.MoveToAttribute(identifierAttribute))
+				{
+					attributeValue = reader.Value;
+				}
+			}
+			return attributeValue;
+		}
+
+		private static void EnsureCommonAncestorFileHasMimimalContent(string commonAncestorPathname, string pathToWinner)
 		{
 			using(var reader = new XmlTextReader(commonAncestorPathname))
 			{
@@ -196,11 +655,10 @@ namespace Chorus.merge.xml.generic
 				writer.WriteStartDocument();
 				writer.WriteStartElement(reader.Name, reader.NamespaceURI);
 				//move to the first attribute of the element.
-				reader.MoveToNextAttribute();
-				do
+				while (reader.MoveToNextAttribute())
 				{
 					writer.WriteAttributeString(reader.Name, reader.NamespaceURI, reader.Value);
-				} while (reader.MoveToNextAttribute());
+				}
 				writer.WriteEndElement();
 				writer.WriteEndDocument();
 				writer.Flush();
@@ -209,537 +667,12 @@ namespace Chorus.merge.xml.generic
 			}
 		}
 
-		private static void CheckForIdenticalNewbies(
-			IMergeStrategy mergeStrategy, MergeOrder mergeOrder, IMergeEventListener listener, XmlWriter writer,
-			IDictionary<string, XmlNode> winnerNewbies, string winnerId, string pathToWinner, IDictionary<string, XmlNode> loserNewbies)
+		private static void WriteNode(XmlWriter writer, string dataToWrite)
 		{
-			var winnersToRemove = new HashSet<string>();
-			foreach (var winnerKvp in winnerNewbies)
-			{
-				var winnerKey = winnerKvp.Key;
-				if (!loserNewbies.ContainsKey(winnerKey))
-					continue; // Route used.
-				if (XmlUtilities.AreXmlElementsEqual(winnerNewbies[winnerKey], loserNewbies[winnerKey]))
-				{
-					// Code after this method will then add the one newbie, with one addition report.
-					// Route used (x2).
-					// Both added same thing.
-					listener.ChangeOccurred(new XmlBothAddedSameChangeReport(mergeOrder.pathToOurs, winnerNewbies[winnerKey]));
-					WriteNode(winnerNewbies[winnerKey], writer);
-					loserNewbies.Remove(winnerKey);
-					winnersToRemove.Add(winnerKey);
-					continue;
-				}
-				// Pick one, based on MergeOrder.
-				// winnerNewbies and loserNewbies are already offset for mergeOrder.MergeSituation.ConflictHandlingMode.
-				var winnerElement = winnerKvp.Value;
-				var elementStrategy = mergeStrategy.GetElementStrategy(winnerElement);
-				var generator = elementStrategy.ContextDescriptorGenerator;
-				if (generator != null)
-				{
-					listener.EnteringContext(generator.GenerateContextDescriptor(winnerElement.OuterXml, pathToWinner));
-				}
-				AddConflictToListener(
-					listener,
-					new BothAddedMainElementButWithDifferentContentConflict(
-						winnerKvp.Value.Name,
-						winnerElement,
-						loserNewbies[winnerKey],
-						mergeOrder.MergeSituation,
-						elementStrategy,
-						winnerId),
-					winnerElement,
-					loserNewbies[winnerKey],
-					null);
-				loserNewbies.Remove(winnerKey);
-				winnersToRemove.Add(winnerKey);
-				WriteNode(winnerElement, writer);
-			}
-			foreach (var winnerKey in winnersToRemove)
-			{
-				winnerNewbies.Remove(winnerKey);
-			}
-		}
-
-		private static void ProcessFirstElement(
-			IMergeStrategy mergeStrategy, MergeOrder mergeOrder, IMergeEventListener listener,
-			IDictionary<string, byte[]> parentIndex,
-			string pathToWinner, IDictionary<string, XmlNode> winnerNewbies, IDictionary<string, XmlNode> winnerGoners, IDictionary<string, ChangedElement> winnerDirtballs,
-			string pathToLoser, IDictionary<string, XmlNode> loserNewbies, IDictionary<string, XmlNode> loserGoners, IDictionary<string, ChangedElement> loserDirtballs,
-			XmlReader reader, XmlWriter writer,
-			string winnerId, string firstElementMarker, string loserId)
-		{
-			XmlNode currentNode;
-			if (winnerNewbies.TryGetValue(firstElementMarker, out currentNode))
-			{
-				XmlNode loserFirstElement;
-				if (loserNewbies.TryGetValue(firstElementMarker, out loserFirstElement))
-				{
-					if (!XmlUtilities.AreXmlElementsEqual(currentNode, loserFirstElement))
-					{
-						// Bother. They are not the same.
-						// Do it the hard way via a merge.
-						// Route tested (x2).
-						var results = mergeStrategy.MakeMergedEntry(listener,
-							currentNode,
-							loserFirstElement,
-							null); // ancestor is null, since they each added the optional first element.
-						var doc = new XmlDocument();
-						doc.LoadXml(results);
-						WriteNode(doc, writer);
-					}
-					else
-					{
-						// Both of them added the same thing.
-						// Route tested (x2).
-						listener.ChangeOccurred(new XmlBothAddedSameChangeReport(pathToWinner, currentNode));
-						WriteNode(currentNode, writer);
-					}
-					winnerNewbies.Remove(firstElementMarker);
-					loserNewbies.Remove(firstElementMarker);
-					// These should never have them, but make sure.
-					winnerGoners.Remove(firstElementMarker);
-					winnerDirtballs.Remove(firstElementMarker);
-					loserGoners.Remove(firstElementMarker);
-					loserDirtballs.Remove(firstElementMarker);
-				}
-				else
-				{
-					// Brand new, so write it out and quit.
-					// In this case the winner added it.
-					// Route tested.
-					listener.ChangeOccurred(new XmlAdditionChangeReport(pathToWinner, currentNode));
-					WriteNode(currentNode, writer);
-
-					winnerNewbies.Remove(firstElementMarker);
-					// These should never have them, but make sure.
-					winnerGoners.Remove(firstElementMarker);
-					winnerDirtballs.Remove(firstElementMarker);
-					loserGoners.Remove(firstElementMarker);
-					loserDirtballs.Remove(firstElementMarker);
-				}
-				return; // Route used.
-			}
-
-			if (loserNewbies.TryGetValue(firstElementMarker, out currentNode))
-			{
-				// Brand new, so write it out and quit.
-				// Loser added it.
-				// Route tested.
-				loserNewbies.Remove(firstElementMarker);
-				listener.ChangeOccurred(new XmlAdditionChangeReport(pathToLoser, currentNode));
-				WriteNode(currentNode, writer);
-
-				// These should never have them, but make sure.
-				winnerGoners.Remove(firstElementMarker);
-				winnerDirtballs.Remove(firstElementMarker);
-				loserGoners.Remove(firstElementMarker);
-				loserDirtballs.Remove(firstElementMarker);
-
-				return;
-			}
-
-			if (((!winnerGoners.ContainsKey(firstElementMarker) && !winnerDirtballs.ContainsKey(firstElementMarker)) &&
-				 !loserGoners.ContainsKey(firstElementMarker)) && !loserDirtballs.ContainsKey(firstElementMarker))
-			{
-				// It existed before, and nobody touched it.
-				if (reader.LocalName == firstElementMarker)
-					writer.WriteNode(reader, false); // Route tested (x2).
-				return; // Route tested.
-			}
-
-			// Do it the hard way for the others.
-			var transferUntouched = true;
-			ProcessCurrentElement(mergeStrategy, mergeOrder, firstElementMarker, winnerId, loserId, listener, writer, firstElementMarker,
-									parentIndex,
-								  loserDirtballs, loserGoners,
-								  winnerDirtballs, winnerGoners, ref transferUntouched);
-
-			if (transferUntouched)
-				return;
-
-			// Read to next main element,
-			// Which skips writing out the current element.
-			reader.ReadOuterXml(); // Route tested (x3).
-
-			// Nobody did anything with the current source node, so just copy it to output.
-			// This case is handled, above.
-			//writer.WriteNode(reader, false);
-		}
-
-		private static void ProcessCurrentElement(IMergeStrategy mergeStrategy, MergeOrder mergeOrder, string currentKey, string winnerId, string loserId, IMergeEventListener listener, XmlWriter writer, string elementMarker,
-			IDictionary<string, byte[]> parentIndex,
-			IDictionary<string, ChangedElement> loserDirtballs, IDictionary<string, XmlNode> loserGoners,
-			IDictionary<string, ChangedElement> winnerDirtballs, IDictionary<string, XmlNode> winnerGoners,
-			ref bool transferUntouched)
-		{
-			if (winnerGoners.ContainsKey(currentKey))
-			{
-				// Route used.
-				transferUntouched = false;
-				ProcessDeletedRecordFromWinningData(mergeStrategy, mergeOrder, listener, parentIndex, winnerGoners, currentKey, loserId, elementMarker, loserGoners, loserDirtballs, writer);
-			}
-
-			if (winnerDirtballs.ContainsKey(currentKey))
-			{
-				//Route used.
-				transferUntouched = false;
-				ProcessWinnerEditedRecord(mergeStrategy, mergeOrder, listener, currentKey, winnerId, elementMarker, loserGoners, loserDirtballs, winnerDirtballs, writer);
-			}
-
-			if (loserGoners.ContainsKey(currentKey))
-			{
-				// Loser deleted it but winner did nothing to it.
-				// If winner had either deleted or edited it,
-				// then the code above here would have been involved,
-				// and currentKey would have been removed from loserGoners.
-				// The net effect is that it will be removed.
-				// Route tested.
-				AddDeletionReport(mergeOrder.pathToTheirs, currentKey, listener, parentIndex, loserGoners);
-				transferUntouched = false;
-				loserGoners.Remove(currentKey);
-			}
-			if (!loserDirtballs.ContainsKey(currentKey))
-				return; // Route used.
-
-			// Loser changed it, but winner did nothing to it.
-			// Route tested (x2-optional first elment, x2-main record)
-			transferUntouched = false;
-			// Make change report(s) the hard way.
-			var changedElement = loserDirtballs[currentKey];
-			// Since winner did nothing, it ought to be the same as parent.
-			var oursIsWinner = mergeOrder.MergeSituation.ConflictHandlingMode == MergeOrder.ConflictHandlingModeChoices.WeWin;
-			var ours = oursIsWinner ? changedElement.ParentNode : changedElement.ChildNode;
-			var theirs = oursIsWinner ? changedElement.ChildNode : changedElement.ParentNode;
-			mergeStrategy.MakeMergedEntry(listener, ours, theirs, changedElement.ParentNode);
-			ReplaceCurrentNode(writer, loserDirtballs, currentKey);
-			// ReplaceCurrentNode removes currentKey from loserDirtballs.
-		}
-
-		private static void AddDeletionReport(string pathforRemover, string currentKey, IMergeEventListener listener,
-											  IDictionary<string, byte[]> parentIndex, IDictionary<string, XmlNode> goners)
-		{
-			// Route used (x3) [both/winner/loser].
-			var doc = new XmlDocument();
-			doc.LoadXml(Encoding.UTF8.GetString(parentIndex[currentKey.ToLowerInvariant()]));
-			listener.ChangeOccurred(new XmlDeletionChangeReport(pathforRemover, doc.DocumentElement, goners[currentKey]));
-		}
-
-		private static void WriteOutNewObjects(IMergeEventListener listener, IEnumerable<XmlNode> newbies, string pathname, XmlWriter writer)
-		{
-			foreach (var newby in newbies)
-			{
-				// Route tested (x3).
-				listener.ChangeOccurred(new XmlAdditionChangeReport(pathname, newby));
-				WriteNode(newby, writer);
-			}
-		}
-
-		private static void WriteNode(XmlNode nodeToWrite, XmlWriter writer)
-		{
-			using (var nodeReader = XmlReader.Create(new MemoryStream(Utf8.GetBytes(nodeToWrite.OuterXml)), ReaderSettings))
+			using (var nodeReader = XmlReader.Create(new MemoryStream(Utf8.GetBytes(dataToWrite)), ReaderSettings))
 			{
 				writer.WriteNode(nodeReader, false);
 			}
-		}
-
-		private static void ProcessMainRecordElements(
-			IMergeStrategy mergeStrategy, MergeOrder mergeOrder, IMergeEventListener listener,
-			IDictionary<string, Byte[]> parentIndex,
-			IDictionary<string, XmlNode> winnerGoners,
-			IDictionary<string, ChangedElement> winnerDirtballs,
-			IDictionary<string, XmlNode> loserGoners,
-			IDictionary<string, ChangedElement> loserDirtballs,
-			XmlReader reader, XmlWriter writer,
-			string id, string winnerId, string recordElementName, string loserId)
-		{
-			var keepReading = true;
-			while (keepReading)
-			{
-				if (reader.EOF) // moved to lift handler to deal with || !reader.IsStartElement())
-					break; // Route used.
-
-				// 'entry' node is current node in reader.
-				// Fetch id from 'entry' node and see if it is in either
-				// of the modified/deleted dictionaries.
-				// Route used.
-				var transferUntouched = true;
-				var currentKey = reader.GetAttribute(id);
-				if (currentKey == null)
-					break;
-
-				ProcessCurrentElement(mergeStrategy, mergeOrder, currentKey, winnerId, loserId, listener, writer, recordElementName,
-					parentIndex,
-					loserDirtballs, loserGoners,
-					winnerDirtballs, winnerGoners, ref transferUntouched);
-
-				if (!transferUntouched)
-				{
-					// Route used.
-					// NB: The FailureSimulator is *only* used in tests.
-					FailureSimulator.IfTestRequestsItThrowNow("LiftMerger.FindEntryById");
-
-					// Read to next record element,
-					// Which skips writing our the current element.
-					reader.ReadOuterXml();
-					keepReading = reader.IsStartElement();
-					continue;
-				}
-
-				// Nobody did anything with the current source node, so just copy it to output.
-				// Route used.
-				writer.WriteNode(reader, false);
-				keepReading = reader.IsStartElement();
-			}
-		}
-
-		private static void ProcessWinnerEditedRecord(
-			IMergeStrategy mergeStrategy, MergeOrder mergeOrder, IMergeEventListener listener,
-			string currentKey, string winnerId, string recordElementName,
-			IDictionary<string, XmlNode> loserGoners, IDictionary<string, ChangedElement> loserDirtballs,
-			IDictionary<string, ChangedElement> winnerDirtballs,
-			XmlWriter writer)
-		{
-			if (loserGoners.ContainsKey(currentKey))
-			{
-				// Route tested (x2).
-				// Winner edited it, but loser deleted it.
-				// Make a conflict report.
-				var dirtballChangedElement = winnerDirtballs[currentKey];
-				var elementStrategy = mergeStrategy.GetElementStrategy(dirtballChangedElement.ParentNode);
-				var generator = elementStrategy.ContextDescriptorGenerator;
-				if (generator != null)
-				{
-					listener.EnteringContext(generator.GenerateContextDescriptor(dirtballChangedElement.ParentNode.OuterXml, mergeOrder.pathToOurs));
-				}
-				AddConflictToListener(
-					listener,
-					new EditedVsRemovedElementConflict(
-						recordElementName,
-						dirtballChangedElement.ChildNode,
-						null,
-						dirtballChangedElement.ParentNode,
-						mergeOrder.MergeSituation,
-						elementStrategy,
-						winnerId),
-					dirtballChangedElement.ChildNode,
-					loserGoners[currentKey],
-					dirtballChangedElement.ParentNode);
-
-				ReplaceCurrentNode(writer, dirtballChangedElement.ChildNode);
-				winnerDirtballs.Remove(currentKey);
-				loserGoners.Remove(currentKey);
-			}
-			else
-			{
-				var oursIsWinner = mergeOrder.MergeSituation.ConflictHandlingMode == MergeOrder.ConflictHandlingModeChoices.WeWin;
-				XmlNode ours;
-				XmlNode theirs;
-				XmlNode commonAncestor;
-				if (loserDirtballs.ContainsKey(currentKey))
-				{
-					// Both edited it.
-					// Route tested (x2-optional first elment, x2-main record).
-					var dirtballChangedElement = winnerDirtballs[currentKey];
-					ours = oursIsWinner ? dirtballChangedElement.ChildNode : loserDirtballs[currentKey].ChildNode;
-					theirs = oursIsWinner ? loserDirtballs[currentKey].ChildNode : dirtballChangedElement.ChildNode;
-					commonAncestor = dirtballChangedElement.ParentNode;
-					loserDirtballs.Remove(currentKey);
-				}
-				else
-				{
-					// Winner edited it. Loser did nothing with it. Loser is the same as parent.
-					// Route tested (x2-optional first elment, x2-main record)
-					var dirtballChangedElement = winnerDirtballs[currentKey];
-					ours = oursIsWinner ? dirtballChangedElement.ChildNode : dirtballChangedElement.ParentNode;
-					theirs = oursIsWinner ? dirtballChangedElement.ParentNode : dirtballChangedElement.ChildNode;
-					commonAncestor = dirtballChangedElement.ParentNode;
-					winnerDirtballs.Remove(currentKey);
-				}
-				var mergedResult = mergeStrategy.MakeMergedEntry(listener, ours, theirs, commonAncestor);
-				ReplaceCurrentNode(writer, mergedResult);
-			}
-		}
-
-		private static void ReplaceCurrentNode(XmlWriter writer, IDictionary<string, ChangedElement> loserDirtballs, string currentKey)
-		{
-			ReplaceCurrentNode(writer, loserDirtballs[currentKey].ChildNode);
-			loserDirtballs.Remove(currentKey);
-		}
-
-		private static void ReplaceCurrentNode(XmlWriter writer, XmlNode replacementNode)
-		{
-			ReplaceCurrentNode(writer, replacementNode.OuterXml);
-		}
-
-		private static void ReplaceCurrentNode(XmlWriter writer, string replacementValue)
-		{
-			using (var tempReader = XmlReader.Create(
-				new MemoryStream(Encoding.UTF8.GetBytes(replacementValue)),
-				new XmlReaderSettings
-				{
-					CheckCharacters = false,
-					ConformanceLevel = ConformanceLevel.Fragment,
-					ProhibitDtd = true,
-					ValidationType = ValidationType.None,
-					CloseInput = true,
-					IgnoreWhitespace = true
-				}))
-			{
-				writer.WriteNode(tempReader, false);
-			}
-		}
-
-		private static void ProcessDeletedRecordFromWinningData(
-			IMergeStrategy mergeStrategy, MergeOrder mergeOrder, IMergeEventListener listener,
-			IDictionary<string, byte[]> parentIndex,
-			IDictionary<string, XmlNode> winnerGoners,
-			string currentKey, string loserId, string recordElementName,
-			IDictionary<string, XmlNode> loserGoners, IDictionary<string, ChangedElement> loserDirtballs,
-			XmlWriter writer)
-		{
-			var wantDeletionChangeReport = false;
-			if (loserGoners.ContainsKey(currentKey))
-			{
-				// Both deleted it.
-				// Route tested.
-				wantDeletionChangeReport = true;
-				loserGoners.Remove(currentKey);
-			}
-			else
-			{
-				if (loserDirtballs.ContainsKey(currentKey))
-				{
-					var dirtball = loserDirtballs[currentKey];
-					// Winner deleted it, but loser edited it.
-					// Make a conflict report.
-					// Route tested (x2).
-					var elementStrategy = mergeStrategy.GetElementStrategy(dirtball.ParentNode);
-					var generator = elementStrategy.ContextDescriptorGenerator;
-					if (generator != null)
-					{
-						listener.EnteringContext(generator.GenerateContextDescriptor(dirtball.ParentNode.OuterXml, mergeOrder.pathToOurs));
-					}
-					AddConflictToListener(
-						listener,
-						new RemovedVsEditedElementConflict(
-							recordElementName,
-							null,
-							dirtball.ChildNode,
-							dirtball.ParentNode,
-							mergeOrder.MergeSituation,
-							elementStrategy,
-							loserId),
-						winnerGoners[currentKey],
-						dirtball.ChildNode,
-						dirtball.ParentNode);
-					// Write out edited node, under the least loss principle.
-					ReplaceCurrentNode(writer, loserDirtballs, currentKey);
-					loserDirtballs.Remove(currentKey);
-				}
-				else
-				{
-					// Winner deleted it and loser did nothing with it.
-					// Route tested.
-					wantDeletionChangeReport = true;
-				}
-			}
-			if (wantDeletionChangeReport)
-			{
-				AddDeletionReport(mergeOrder.pathToOurs, currentKey, listener, parentIndex, winnerGoners);
-			}
-			winnerGoners.Remove(currentKey);
-		}
-
-		private static void Do2WayDiffX(Dictionary<string, byte[]> parentIndex, string childPathname,
-			IDictionary<string, XmlNode> goners, IDictionary<string, ChangedElement> dirtballs, IDictionary<string, XmlNode> newbies,
-			string firstElementMarker,
-			string recordElementName, string id, IMergeEventListener mergeEventListener)
-		{
-			try
-			{
-				var warningListener = new ChangeAndConflictAccumulator();
-
-				foreach (var winnerDif in Xml2WayDiffService.ReportDifferences(
-					parentIndex, childPathname,
-					warningListener,
-					firstElementMarker,
-					recordElementName, id))
-				{
-					Do2WayDiffCore(id, winnerDif, goners, dirtballs, newbies);
-				}
-
-				//What's going on here: all the changes found by the differ aren't supposed to be reported to the listener, but
-				//when we added duplicate guid detection to the differ, we need a way to get warning out
-				foreach(var warning in warningListener.Warnings)
-				{
-					mergeEventListener.WarningOccurred(warning);
-				}
-			}
-			catch
-			{ }
-		}
-
-		private static Dictionary<string, byte[]> Do2WayDiff(string parentPathname, string childPathname,
-			IDictionary<string, XmlNode> goners, IDictionary<string, ChangedElement> dirtballs, IDictionary<string, XmlNode> newbies,
-			string firstElementMarker,
-			string recordElementName, string id)
-		{
-			Dictionary<string, byte[]> parentIndex = null;
-			try
-			{
-				foreach (var winnerDif in Xml2WayDiffService.ReportDifferencesForMerge(
-					parentPathname, childPathname,
-					new ChangeAndConflictAccumulator(),
-					firstElementMarker,
-					recordElementName, id, out parentIndex))
-				{
-					Do2WayDiffCore(id, winnerDif, goners, dirtballs, newbies);
-				}
-			}
-			catch
-			{ }
-			return parentIndex;
-		}
-
-		private static void Do2WayDiffCore(string id, IChangeReport winnerDif, IDictionary<string, XmlNode> goners, IDictionary<string, ChangedElement> dirtballs, IDictionary<string, XmlNode> newbies)
-		{
-			if (!(winnerDif is IXmlChangeReport))
-				return;
-
-			var asXmlReport = (IXmlChangeReport)winnerDif;
-			switch (winnerDif.GetType().Name)
-			{
-				case "XmlDeletionChangeReport":
-					var gonerNode = asXmlReport.ParentNode;
-					goners.Add(GetKey(gonerNode, id), gonerNode);
-					break;
-				case "XmlChangedRecordReport":
-					var originalNode = asXmlReport.ParentNode;
-					var updatedNode = asXmlReport.ChildNode;
-					dirtballs.Add(GetKey(originalNode, id), new ChangedElement
-																		{
-																			ParentNode = originalNode,
-																			ChildNode = updatedNode
-																		});
-					break;
-				case "XmlAdditionChangeReport":
-					var newbieNode = asXmlReport.ChildNode;
-					newbies.Add(GetKey(newbieNode, id), newbieNode);
-					break;
-			}
-		}
-
-		private static string GetKey(XmlNode node, string id)
-		{
-			var attr = node.Attributes[id];
-			return (attr == null) ? node.LocalName : attr.Value;
-		}
-
-		private class ChangedElement
-		{
-			internal XmlNode ParentNode;
-			internal XmlNode ChildNode;
 		}
 	}
 }

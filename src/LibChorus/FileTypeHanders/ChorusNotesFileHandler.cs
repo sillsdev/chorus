@@ -53,24 +53,23 @@ namespace Chorus.FileTypeHanders
 
 		public void Do3WayMerge(MergeOrder order)
 		{
-			XmlMerger merger = new XmlMerger(order.MergeSituation);
-			SetupElementStrategies(merger);
-			var r = merger.MergeFiles(order.pathToOurs, order.pathToTheirs, order.pathToCommonAncestor);
-			// No. This does not write it out using CanonicalXmlSettings
-			//File.WriteAllText(order.pathToOurs, r.MergedNode.OuterXml);
-			using (var writer = XmlWriter.Create(order.pathToOurs, CanonicalXmlSettings.CreateXmlWriterSettings()))
-			{
-				writer.WriteStartDocument();
-				writer.WriteNode(r.MergedNode.CreateNavigator(), true);
-			}
+			XmlMergeService.Do3WayMerge(order,
+				new ChorusNotesAnnotationMergingStrategy(order.MergeSituation),
+				false,
+				null,
+				"annotation", "guid", WritePreliminaryInformation);
 		}
 
-		private void SetupElementStrategies(XmlMerger merger)
+		internal static void WritePreliminaryInformation(XmlReader reader, XmlWriter writer)
 		{
-			merger.MergeStrategies.SetStrategy("annotation", ElementStrategy.CreateForKeyedElement("guid", false));
-			ElementStrategy messageStrategy = ElementStrategy.CreateForKeyedElement("guid", false);
-			messageStrategy.IsImmutable = true;
-			merger.MergeStrategies.SetStrategy("message", messageStrategy);
+			reader.MoveToContent();
+			writer.WriteStartElement("notes");
+			if (reader.MoveToAttribute("version"))
+				writer.WriteAttributeString("version", reader.Value);
+			reader.MoveToElement();
+			reader.Read();
+			if (!reader.IsStartElement())
+				reader.Read();
 		}
 
 		public IEnumerable<IChangeReport> Find2WayDifferences(FileInRevision parent, FileInRevision child, HgRepository repository)
