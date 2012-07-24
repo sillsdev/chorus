@@ -1,8 +1,8 @@
 ﻿using System;
-using System.Drawing;
 using System.Windows.Forms;
 using Chorus.UI.Misc;
 using Chorus.Utilities.code;
+using Chorus.Utilities.Help;
 using Chorus.VcsDrivers.Mercurial;
 using Palaso.Progress.LogBox;
 
@@ -15,7 +15,6 @@ namespace Chorus.UI.Settings
 		private ServerSettingsModel _internetModel;
 
 		private NetworkFolderSettingsModel _sharedFolderModel;
-
 
 		[Obsolete("for designer support only")]
 		public SendReceiveSettings()
@@ -91,6 +90,22 @@ namespace Chorus.UI.Settings
 		private void networkFolderCheckChanged(object sender, EventArgs e)
 		{
 			_sharedFolderSettingsControl.Enabled = _sharedFolderButtonEnabledCheckBox.Checked;
+		}
+
+		private void _helpButton_Click(object sender, EventArgs e)
+		{
+			string helpFile = HelpUtils.GetHelpFile();
+
+			if (settingsTabs.SelectedTab == internetTab)
+			{
+				Help.ShowHelp(this, helpFile,
+					"Tasks/Internet_tab.htm");
+			}
+			else if (settingsTabs.SelectedTab == networkFolderTab)
+			{
+				Help.ShowHelp(this, helpFile,
+					"Tasks/Network_Folder_tab.htm");
+			}
 		}
 	}
 }

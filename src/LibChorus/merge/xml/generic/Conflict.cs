@@ -287,7 +287,6 @@ namespace Chorus.merge.xml.generic
 		}
 
 		private static IContainer _conflictFactory;
-
 		static List<Type> _additionalConflictTypes = new List<Type>();
 
 		/// <summary>
@@ -308,6 +307,7 @@ namespace Chorus.merge.xml.generic
 				if (_conflictFactory == null)
 				{
 					var builder = new Autofac.Builder.ContainerBuilder();
+					builder.SetDefaultScope(InstanceScope.Factory);
 
 					Register<RemovedVsEditedElementConflict>(builder);
 					Register<EditedVsRemovedElementConflict>(builder);
@@ -342,7 +342,7 @@ namespace Chorus.merge.xml.generic
 
 					foreach (var conflictType in _additionalConflictTypes)
 					{
-						builder.Register(conflictType).Named(GetTypeGuid(conflictType));
+						Register(builder, conflictType);
 					}
 					_conflictFactory = builder.Build();
 				}
@@ -354,8 +354,8 @@ namespace Chorus.merge.xml.generic
 		{
 			try
 			{
-			var typeGuid = conflictNode.GetStringAttribute("typeGuid");
-			return ConflictFactory.Resolve<IConflict>(typeGuid, new Parameter[] { new TypedParameter(typeof(XmlNode), conflictNode) });
+				var typeGuid = conflictNode.GetStringAttribute("typeGuid");
+				return ConflictFactory.Resolve<IConflict>(typeGuid, new Parameter[] {new TypedParameter(typeof (XmlNode), conflictNode)});
 			}
 			catch (Exception error)
 			{
@@ -363,10 +363,14 @@ namespace Chorus.merge.xml.generic
 			}
 		}
 
-
 		private static void Register<T>(Autofac.Builder.ContainerBuilder builder)
 		{
-			builder.Register<T>().Named(GetTypeGuid(typeof(T)));
+			Register(builder, typeof(T));
+		}
+
+		private static void Register(Autofac.Builder.ContainerBuilder builder, Type type)
+		{
+			builder.Register(type).Named(GetTypeGuid(type));
 		}
 
 		public bool Equals(Conflict other)

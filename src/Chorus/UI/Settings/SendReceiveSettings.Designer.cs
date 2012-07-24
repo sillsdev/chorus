@@ -78,8 +78,8 @@ namespace Chorus.UI.Settings
 			// settingsTabs
 			//
 			this.settingsTabs.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-			| System.Windows.Forms.AnchorStyles.Left)
-			| System.Windows.Forms.AnchorStyles.Right)));
+						| System.Windows.Forms.AnchorStyles.Left)
+						| System.Windows.Forms.AnchorStyles.Right)));
 			this.settingsTabs.Controls.Add(this.internetTab);
 			this.settingsTabs.Controls.Add(this.networkFolderTab);
 			this.settingsTabs.Location = new System.Drawing.Point(13, 77);
@@ -201,6 +201,7 @@ namespace Chorus.UI.Settings
 			this._helpButton.TabIndex = 5;
 			this._helpButton.Text = "Help";
 			this._helpButton.UseVisualStyleBackColor = true;
+			this._helpButton.Click += new System.EventHandler(this._helpButton_Click);
 			//
 			// _cancelButton
 			//

@@ -18,6 +18,7 @@ namespace Chorus.UI.Misc
 		public ServerSettingsControl()
 		{
 			InitializeComponent();
+			SynchronizePasswordControls();
 		}
 
 		public ServerSettingsModel Model
@@ -96,6 +97,16 @@ namespace Chorus.UI.Misc
 				return;
 
 			UpdateDisplay();
+		}
+
+		private void _showCharacters_CheckedChanged(object sender, EventArgs e)
+		{
+			SynchronizePasswordControls();
+		}
+
+		private void SynchronizePasswordControls()
+		{
+			_password.UseSystemPasswordChar = !_showCharacters.Checked;
 		}
 	}
 }
