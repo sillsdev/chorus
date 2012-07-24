@@ -197,7 +197,7 @@ namespace LibChorus.Tests.merge.xml.lift
 				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation) { EventListener = listener };
 				XmlMergeService.Do3WayMerge(mergeOrder, new LiftEntryMergingStrategy(situation), false,
 					"header",
-					"entry", "guid", LiftFileHandler.WritePreliminaryInformation);
+					"entry", "guid");
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
 				XmlTestHelper.AssertXPathMatchesExactlyOne(result, "lift/entry[@id='usOnly']");
 				AssertThatXmlIn.String(result).HasSpecifiedNumberOfMatchesForXpath(@"lift/header/ranges/range", 4);
@@ -216,7 +216,7 @@ namespace LibChorus.Tests.merge.xml.lift
 				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation) { EventListener = listener };
 				XmlMergeService.Do3WayMerge(mergeOrder, new LiftEntryMergingStrategy(situation), false,
 					"header",
-					"entry", "guid", LiftFileHandler.WritePreliminaryInformation);
+					"entry", "guid");
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
 				XmlTestHelper.AssertXPathMatchesExactlyOne(result, "lift/header/fields/field[@tag='ournew']");
 				XmlTestHelper.AssertXPathMatchesExactlyOne(result, "lift/header/fields/field[@tag='theirnewfield']");

@@ -1,9 +1,6 @@
 using System;
 using System.IO;
-using System.Text;
-using System.Xml;
 using Chorus.FileTypeHanders.lift;
-using Chorus.FileTypeHanders.xml;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
 using LibChorus.TestUtilities;
@@ -95,7 +92,7 @@ namespace LibChorus.Tests.merge.xml.lift
 				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation) { EventListener = listener };
 				XmlMergeService.Do3WayMerge(mergeOrder, new DropTheirsMergeStrategy(), false,
 					"header",
-					"entry", "guid", LiftFileHandler.WritePreliminaryInformation);
+					"entry", "guid");
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
 				Assert.IsTrue(result.ToLower().Contains("utf-8"));
 			}
@@ -113,7 +110,7 @@ namespace LibChorus.Tests.merge.xml.lift
 				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation) { EventListener = listener };
 				XmlMergeService.Do3WayMerge(mergeOrder, new DropTheirsMergeStrategy(), false,
 					"header",
-					"entry", "guid", LiftFileHandler.WritePreliminaryInformation);
+					"entry", "guid");
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
 				XmlTestHelper.AssertXPathMatchesExactlyOne(result, "lift/entry[@id='usOnly']");
 			}
@@ -145,7 +142,7 @@ namespace LibChorus.Tests.merge.xml.lift
 				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation) { EventListener = listener };
 				XmlMergeService.Do3WayMerge(mergeOrder, new DropTheirsMergeStrategy(), false,
 					"header",
-					"entry", "guid", LiftFileHandler.WritePreliminaryInformation);
+					"entry", "guid");
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
 				XmlTestHelper.AssertXPathMatchesExactlyOne(result, "lift/entry[@id='ourNew']");
 				listener.AssertExpectedConflictCount(0);
@@ -179,7 +176,7 @@ namespace LibChorus.Tests.merge.xml.lift
 				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation) { EventListener = listener };
 				XmlMergeService.Do3WayMerge(mergeOrder, new DropTheirsMergeStrategy(), false,
 					"header",
-					"entry", "guid", LiftFileHandler.WritePreliminaryInformation);
+					"entry", "guid");
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
 				XmlTestHelper.AssertXPathMatchesExactlyOne(result, "lift/entry[@id='theirNew']");
 				listener.AssertExpectedConflictCount(0);
@@ -213,7 +210,7 @@ namespace LibChorus.Tests.merge.xml.lift
 				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation) { EventListener = listener };
 				XmlMergeService.Do3WayMerge(mergeOrder, new DropTheirsMergeStrategy(), false,
 					"header",
-					"entry", "guid", LiftFileHandler.WritePreliminaryInformation);
+					"entry", "guid");
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
 				XmlTestHelper.AssertXPathMatchesExactlyOne(result, "lift/entry[@id='ourNew']");
 				listener.AssertExpectedConflictCount(0);
@@ -247,7 +244,7 @@ namespace LibChorus.Tests.merge.xml.lift
 				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation) { EventListener = listener };
 				XmlMergeService.Do3WayMerge(mergeOrder, new DropTheirsMergeStrategy(), false,
 					"header",
-					"entry", "guid", LiftFileHandler.WritePreliminaryInformation);
+					"entry", "guid");
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
 				XmlTestHelper.AssertXPathMatchesExactlyOne(result, "lift/entry[@id='theirNew']");
 				listener.AssertExpectedConflictCount(0);
@@ -267,7 +264,7 @@ namespace LibChorus.Tests.merge.xml.lift
 				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation) { EventListener = listener };
 				XmlMergeService.Do3WayMerge(mergeOrder, new DropTheirsMergeStrategy(), false,
 					"header",
-					"entry", "guid", LiftFileHandler.WritePreliminaryInformation);
+					"entry", "guid");
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
 				XmlTestHelper.AssertXPathMatchesExactlyOne(result, "lift/entry[@id='themOnly']");
 			}
@@ -296,7 +293,7 @@ namespace LibChorus.Tests.merge.xml.lift
 				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation) { EventListener = listener };
 				XmlMergeService.Do3WayMerge(mergeOrder, new DropTheirsMergeStrategy(), false,
 					"header",
-					"entry", "guid", LiftFileHandler.WritePreliminaryInformation);
+					"entry", "guid");
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
 				XmlTestHelper.AssertXPathMatchesExactlyOne(result, "lift/entry[@id='sameInBoth']");
 				XmlTestHelper.AssertXPathMatchesExactlyOne(result, "lift/entry/lexical-unit");
@@ -316,7 +313,7 @@ namespace LibChorus.Tests.merge.xml.lift
 				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation) { EventListener = listener };
 				XmlMergeService.Do3WayMerge(mergeOrder, new DropTheirsMergeStrategy(), false,
 					"header",
-					"entry", "guid", LiftFileHandler.WritePreliminaryInformation);
+					"entry", "guid");
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
 				XmlTestHelper.AssertXPathMatchesExactlyOne(result, "lift[not(entry/@id='doomedByOther')]");
 			}
@@ -334,7 +331,7 @@ namespace LibChorus.Tests.merge.xml.lift
 				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation) { EventListener = listener };
 				XmlMergeService.Do3WayMerge(mergeOrder, new PoorMansMergeStrategy(), false,
 					"header",
-					"entry", "guid", LiftFileHandler.WritePreliminaryInformation);
+					"entry", "guid");
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
 				XmlTestHelper.AssertXPathMatchesExactlyOne(result, "lift[not(entry/@id='doomedByUs')]");
 			}
@@ -357,7 +354,7 @@ namespace LibChorus.Tests.merge.xml.lift
 				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation) { EventListener = listener };
 				XmlMergeService.Do3WayMerge(mergeOrder, new LiftEntryMergingStrategy(situation), false,
 					"header",
-					"entry", "guid", LiftFileHandler.WritePreliminaryInformation);
+					"entry", "guid");
 				Assert.AreEqual(0, listener.Conflicts.Count);
 				Assert.AreEqual(0, listener.Changes.Count);
 			}
@@ -387,7 +384,7 @@ namespace LibChorus.Tests.merge.xml.lift
 				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation) { EventListener = listener };
 				XmlMergeService.Do3WayMerge(mergeOrder, new LiftEntryMergingStrategy(situation), false,
 					"header",
-					"entry", "guid", LiftFileHandler.WritePreliminaryInformation);
+					"entry", "guid");
 				listener.AssertExpectedConflictCount(1);
 				listener.AssertFirstConflictType<XmlTextBothEditedTextConflict>();
 				listener.AssertExpectedChangesCount(0);
@@ -415,7 +412,7 @@ namespace LibChorus.Tests.merge.xml.lift
 				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation) { EventListener = listener };
 				XmlMergeService.Do3WayMerge(mergeOrder, new PoorMansMergeStrategy(), false,
 					"header",
-					"entry", "guid", LiftFileHandler.WritePreliminaryInformation);
+					"entry", "guid");
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
 				// REVIEW JohnT(RandyR): Should new entries from 'loser' register an addition change?
 				XmlTestHelper.AssertXPathMatchesExactlyOne(result, "lift[entry/@id='usOnly']");
@@ -486,7 +483,7 @@ namespace LibChorus.Tests.merge.xml.lift
 				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation) { EventListener = listener };
 				XmlMergeService.Do3WayMerge(mergeOrder, new DropTheirsMergeStrategy(), false,
 					"header",
-					"entry", "guid", LiftFileHandler.WritePreliminaryInformation);
+					"entry", "guid");
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
 				Assert.IsTrue(result.ToLower().Contains("utf-8"));
 			}
@@ -556,7 +553,7 @@ namespace LibChorus.Tests.merge.xml.lift
 				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation) { EventListener = listener };
 				XmlMergeService.Do3WayMerge(mergeOrder, new DropTheirsMergeStrategy(), false,
 					"header",
-					"entry", "guid", LiftFileHandler.WritePreliminaryInformation);
+					"entry", "guid");
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
 				Assert.IsTrue(result.ToLower().Contains("utf-8"));
 			}
@@ -625,7 +622,7 @@ namespace LibChorus.Tests.merge.xml.lift
 				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation) { EventListener = listener };
 				XmlMergeService.Do3WayMerge(mergeOrder, new DropTheirsMergeStrategy(), false,
 					"header",
-					"entry", "guid", LiftFileHandler.WritePreliminaryInformation);
+					"entry", "guid");
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
 				Assert.IsTrue(result.ToLower().Contains("utf-8"));
 			}
@@ -693,7 +690,7 @@ namespace LibChorus.Tests.merge.xml.lift
 				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation) { EventListener = listener };
 				XmlMergeService.Do3WayMerge(mergeOrder, new DropTheirsMergeStrategy(), false,
 					"header",
-					"entry", "guid", LiftFileHandler.WritePreliminaryInformation);
+					"entry", "guid");
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
 				Assert.IsTrue(result.ToLower().Contains("utf-8"));
 			}
@@ -755,7 +752,7 @@ namespace LibChorus.Tests.merge.xml.lift
 				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation) { EventListener = listener };
 				XmlMergeService.Do3WayMerge(mergeOrder, new DropTheirsMergeStrategy(), false,
 					"header",
-					"entry", "guid", LiftFileHandler.WritePreliminaryInformation);
+					"entry", "guid");
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
 				Assert.IsTrue(result.ToLower().Contains("utf-8"));
 			}
@@ -816,7 +813,7 @@ namespace LibChorus.Tests.merge.xml.lift
 				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation) { EventListener = listener };
 				XmlMergeService.Do3WayMerge(mergeOrder, new DropTheirsMergeStrategy(), false,
 					"header",
-					"entry", "guid", LiftFileHandler.WritePreliminaryInformation);
+					"entry", "guid");
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
 				Assert.IsTrue(result.ToLower().Contains("utf-8"));
 			}
@@ -874,7 +871,7 @@ namespace LibChorus.Tests.merge.xml.lift
 				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation) { EventListener = listener };
 				XmlMergeService.Do3WayMerge(mergeOrder, new LiftEntryMergingStrategy(situation), false,
 											"header",
-											"entry", "guid", LiftFileHandler.WritePreliminaryInformation);
+											"entry", "guid");
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
 				Assert.IsTrue(result.Contains("<header>"));
 				Assert.IsTrue(result.Contains("<description>"));
@@ -908,7 +905,7 @@ namespace LibChorus.Tests.merge.xml.lift
 				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation) { EventListener = listener };
 				XmlMergeService.Do3WayMerge(mergeOrder, new LiftEntryMergingStrategy(situation), false,
 											"header",
-											"entry", "guid", LiftFileHandler.WritePreliminaryInformation);
+											"entry", "guid");
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
 				Assert.IsTrue(result.Contains("form alpha"));
 				listener.AssertExpectedChangesCount(0);
@@ -940,7 +937,7 @@ namespace LibChorus.Tests.merge.xml.lift
 				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation) { EventListener = listener };
 				XmlMergeService.Do3WayMerge(mergeOrder, new LiftEntryMergingStrategy(situation), false,
 											"header",
-											"entry", "guid", LiftFileHandler.WritePreliminaryInformation);
+											"entry", "guid");
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
 				Assert.IsTrue(result.Contains("form beta"));
 				listener.AssertExpectedChangesCount(0);
@@ -978,8 +975,8 @@ namespace LibChorus.Tests.merge.xml.lift
 
 			string expectedResult =    ("<?xml version='1.0' encoding='utf-8'?>\r\n"
 										+ "<lift\r\n"
-										+ "\tversion='0.10'\r\n"
-										+ "\tproducer='WeSay 1.0.0.0'>\r\n"
+										+ "\tproducer='WeSay 1.0.0.0'\r\n"
+										+ "\tversion='0.10'>\r\n"
 										+ "\t<entry\r\n"
 										+ "\t\tid='alpha'\r\n"
 										+ "\t\tguid='c1ed1fa3-e382-11de-8a39-0800200c9a66'>\r\n"
@@ -1011,7 +1008,7 @@ namespace LibChorus.Tests.merge.xml.lift
 				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation) { EventListener = listener };
 				XmlMergeService.Do3WayMerge(mergeOrder, new LiftEntryMergingStrategy(situation), false,
 											"header",
-											"entry", "guid", LiftFileHandler.WritePreliminaryInformation);
+											"entry", "guid");
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
 				Console.WriteLine(result);
 				Assert.AreEqual(expectedResult, result);
@@ -1057,8 +1054,8 @@ namespace LibChorus.Tests.merge.xml.lift
 
 			string expectedResult =    ("<?xml version='1.0' encoding='utf-8'?>\r\n" +
 										"<lift\r\n" +
-										"\tversion='0.10'\r\n" +
-										"\tproducer='WeSay 1.0.0.0'>\r\n" +
+										"\tproducer='WeSay 1.0.0.0'\r\n" +
+										"\tversion='0.10'>\r\n" +
 										"\t<entry\r\n" +
 										"\t\tid='alpha'\r\n" +
 										"\t\tguid='c1ed1fa5-e382-11de-8a39-0800200c9a66'>\r\n" +
@@ -1081,7 +1078,7 @@ namespace LibChorus.Tests.merge.xml.lift
 									{EventListener = listener};
 				XmlMergeService.Do3WayMerge(mergeOrder, new LiftEntryMergingStrategy(situation), false,
 											"header",
-											"entry", "guid", LiftFileHandler.WritePreliminaryInformation);
+											"entry", "guid");
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
 				Console.WriteLine(result);
 				Assert.AreEqual(expectedResult, result);
@@ -1126,8 +1123,8 @@ namespace LibChorus.Tests.merge.xml.lift
 
 			string expectedResult =    ("<?xml version='1.0' encoding='utf-8'?>\r\n" +
 										"<lift\r\n" +
-										"\tversion='0.10'\r\n" +
-										"\tproducer='WeSay 1.0.0.0'>\r\n" +
+										"\tproducer='WeSay 1.0.0.0'\r\n" +
+										"\tversion='0.10'>\r\n" +
 										"\t<entry\r\n" +
 										"\t\tid='alpha'\r\n" +
 										"\t\tguid='c1ed1fa6-e382-11de-8a39-0800200c9a66'>\r\n" +
@@ -1149,7 +1146,7 @@ namespace LibChorus.Tests.merge.xml.lift
 				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation) { EventListener = listener };
 				XmlMergeService.Do3WayMerge(mergeOrder, new LiftEntryMergingStrategy(situation), false,
 											"header",
-											"entry", "guid", LiftFileHandler.WritePreliminaryInformation);
+											"entry", "guid");
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
 				Console.WriteLine(result);
 				Assert.AreEqual(expectedResult, result);
@@ -1215,7 +1212,7 @@ namespace LibChorus.Tests.merge.xml.lift
 				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation) { EventListener = listener };
 				XmlMergeService.Do3WayMerge(mergeOrder, new PoorMansMergeStrategy(), false,
 					"header",
-					"entry", "guid", LiftFileHandler.WritePreliminaryInformation);
+					"entry", "guid");
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
 
 				XmlTestHelper.AssertXPathMatchesExactlyOne(result, "//entry[@id='newGuy']");
@@ -1313,7 +1310,7 @@ namespace LibChorus.Tests.merge.xml.lift
 				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation) { EventListener = listener };
 				XmlMergeService.Do3WayMerge(mergeOrder, new LiftEntryMergingStrategy(situation), false,
 					"header",
-					"entry", "guid", LiftFileHandler.WritePreliminaryInformation);
+					"entry", "guid");
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
 				XmlTestHelper.AssertXPathMatchesExactlyOne(result, "lift/entry[@id='dull']");
 				XmlTestHelper.AssertXPathMatchesExactlyOne(result, "lift/entry[@id='foo']/lexical-unit/form/text[text()='ourfoo']");
@@ -1345,7 +1342,7 @@ namespace LibChorus.Tests.merge.xml.lift
 				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation) { EventListener = listener };
 				XmlMergeService.Do3WayMerge(mergeOrder, new LiftEntryMergingStrategy(situation), false,
 					"header",
-					"entry", "guid", LiftFileHandler.WritePreliminaryInformation);
+					"entry", "guid");
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
 				XmlTestHelper.AssertXPathMatchesExactlyOne(result, "lift/entry[@id='dull']");
 				XmlTestHelper.AssertXPathMatchesExactlyOne(result, "lift/entry[@id='foo']/lexical-unit/form/text[text()='theirfoo']");
@@ -1396,7 +1393,7 @@ namespace LibChorus.Tests.merge.xml.lift
 				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation) { EventListener = listener };
 				XmlMergeService.Do3WayMerge(mergeOrder, new PoorMansMergeStrategy(), false,
 					"header",
-					"entry", "guid", LiftFileHandler.WritePreliminaryInformation);
+					"entry", "guid");
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
 				XmlTestHelper.AssertXPathMatchesExactlyOne(result, "//note/form[@lang='es']");
 				XmlTestHelper.AssertXPathMatchesExactlyOne(result, "//note/form[@lang='en']");

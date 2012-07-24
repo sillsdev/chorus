@@ -1,9 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Xml;
-using Chorus.FileTypeHanders.lift;
-using Chorus.FileTypeHanders.text;
 using Chorus.merge;
 using Chorus.Utilities;
 using Chorus.Utilities.code;
@@ -66,7 +63,7 @@ namespace Chorus.FileTypeHanders
 				new LiftRangesMergingStrategy(mergeOrder.MergeSituation),
 				false,
 				null,
-				"range", "id", WritePreliminaryInformation);
+				"range", "id");
 		}
 
 		public IEnumerable<IChangeReport> Find2WayDifferences(FileInRevision parent, FileInRevision child, HgRepository repository)
@@ -102,13 +99,6 @@ namespace Chorus.FileTypeHanders
 		public uint MaximumFileSize
 		{
 			get { return UInt32.MaxValue; }
-		}
-
-		internal static void WritePreliminaryInformation(XmlReader reader, XmlWriter writer)
-		{
-			reader.MoveToContent();
-			writer.WriteStartElement("lift-ranges");
-			reader.Read();
 		}
 	}
 }

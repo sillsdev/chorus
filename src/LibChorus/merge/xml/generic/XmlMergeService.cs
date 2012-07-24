@@ -15,7 +15,7 @@ namespace Chorus.merge.xml.generic
 	/// </summary>
 	public static class XmlMergeService
 	{
-		private static readonly XmlReaderSettings ReaderSettings = new XmlReaderSettings
+		private static readonly XmlReaderSettings ReaderSettingsForDocumentFragment = new XmlReaderSettings
 				{
 					CheckCharacters = false,
 					ConformanceLevel = ConformanceLevel.Fragment,
@@ -24,6 +24,16 @@ namespace Chorus.merge.xml.generic
 					CloseInput = true,
 					IgnoreWhitespace = true
 				};
+
+		private static readonly XmlReaderSettings ReaderSettingsForDocument = new XmlReaderSettings
+		{
+			CheckCharacters = false,
+			ConformanceLevel = ConformanceLevel.Document,
+			ProhibitDtd = true,
+			ValidationType = ValidationType.None,
+			CloseInput = true,
+			IgnoreWhitespace = true
+		};
 
 		private static readonly Encoding Utf8 = Encoding.UTF8;
 
@@ -60,8 +70,7 @@ namespace Chorus.merge.xml.generic
 		public static void Do3WayMerge(MergeOrder mergeOrder, IMergeStrategy mergeStrategy, // Get from mergeOrder: IMergeEventListener listener,
 			bool sortRepeatingRecordOutputByKeyIdentifier,
 			string optionalFirstElementMarker,
-			string repeatingRecordElementName, string repeatingRecordKeyIdentifier,
-			Action<XmlReader, XmlWriter> writePreliminaryInformationDelegate)
+			string repeatingRecordElementName, string repeatingRecordKeyIdentifier)
 		{
 			// NB: The FailureSimulator is *only* used in tests.
 			FailureSimulator.IfTestRequestsItThrowNow("LiftMerger.FindEntryById");
@@ -69,14 +78,11 @@ namespace Chorus.merge.xml.generic
 			Guard.AgainstNull(mergeStrategy, string.Format("'{0}' is null.", mergeStrategy));
 			Guard.AgainstNull(mergeOrder, string.Format("'{0}' is null.", mergeOrder));
 			Guard.AgainstNull(mergeOrder.EventListener, string.Format("'{0}' is null.", "mergeOrder.EventListener"));
-			Guard.AgainstNull(writePreliminaryInformationDelegate, string.Format("'{0}' is null.", writePreliminaryInformationDelegate));
 			Guard.AgainstNullOrEmptyString(repeatingRecordElementName, "No primary record element name.");
 			Guard.AgainstNullOrEmptyString(repeatingRecordKeyIdentifier, "No identifier attribute for primary record element.");
 
 			var commonAncestorPathname = mergeOrder.pathToCommonAncestor;
 			Require.That(File.Exists(commonAncestorPathname), string.Format("'{0}' does not exist.", commonAncestorPathname));
-			// Do not change outputPathname, or be ready to fix SyncScenarioTests.CanCollaborateOnLift()!
-			var outputPathname = mergeOrder.pathToOurs;
 
 			string pathToWinner;
 			string pathToLoser;
@@ -99,7 +105,9 @@ namespace Chorus.merge.xml.generic
 			}
 			Require.That(File.Exists(pathToWinner), string.Format("'{0}' does not exist.", pathToWinner));
 			Require.That(File.Exists(pathToLoser), string.Format("'{0}' does not exist.", pathToLoser));
-			EnsureCommonAncestorFileHasMimimalContent(commonAncestorPathname, pathToWinner);
+			SortedDictionary<string, string> sortedAttributes;
+			var rootElementName = GetRootElementData(mergeOrder.pathToOurs, mergeOrder.pathToTheirs, mergeOrder.pathToCommonAncestor, out sortedAttributes);
+			EnsureCommonAncestorFileHasMinimalXmlContent(commonAncestorPathname, rootElementName, sortedAttributes);
 
 			// Step 1. Load each of the three files.
 			Dictionary<string, string> allLoserData;
@@ -143,7 +151,7 @@ namespace Chorus.merge.xml.generic
 			HashSet<string> allDeletedByLoserButEditedByWinnerIds;
 			CollectIdsOfEditVsDelete(allIdsRemovedByLoser, allIdsWinnerModified, allIdsLoserModified, allIdsRemovedByWinner, out allDeletedByWinnerButEditedByLoserIds, out allDeletedByLoserButEditedByWinnerIds);
 
-			// Step 6. Do merging and report conflcits.
+			// Step 6. Do merging and report conflicts.
 			var fluffedUpAncestorNodes = new Dictionary<string, XmlNode>();
 			ReportEditConflictsForBothAddedNewObjectsWithDifferentContent(mergeOrder, mergeStrategy, pathToWinner,
 				allLoserData, fluffedUpLoserNodes,
@@ -211,26 +219,57 @@ namespace Chorus.merge.xml.generic
 			GC.Collect(2, GCCollectionMode.Forced);
 
 			// Step 9. Write all objects.
-			WriteMainOutputData(optionalFirstElementMarker, writePreliminaryInformationDelegate, allWritableData, commonAncestorPathname, outputPathname);
+			// Do not change outputPathname, or be ready to fix SyncScenarioTests.CanCollaborateOnLift()!
+			var outputPathname = mergeOrder.pathToOurs;
+			WriteMainOutputData(allWritableData, outputPathname, optionalFirstElementMarker, rootElementName, sortedAttributes);
 		}
 
-		private static void WriteMainOutputData(string optionalFirstElementMarker, Action<XmlReader, XmlWriter> writePreliminaryInformationDelegate,
-												IDictionary<string, string> allWritableData, string commonAncestorPathname,
-												string outputPathname)
+		private static string GetRootElementData(string pathToOurs, string pathToTheirs, string pathToCommon, out SortedDictionary<string, string> sortedAttributes)
+		{
+			return GetRootElementData(pathToOurs, out sortedAttributes)
+				?? GetRootElementData(pathToTheirs, out sortedAttributes)
+				?? GetRootElementData(pathToCommon, out sortedAttributes);
+		}
+
+		private static string GetRootElementData(string pathname, out SortedDictionary<string, string> sortedAttributes)
+		{
+			string rootElementName;
+			sortedAttributes = new SortedDictionary<string, string>();
+			try
+			{
+				using (var reader = XmlReader.Create(new FileStream(pathname, FileMode.Open), ReaderSettingsForDocument))
+				{
+					reader.MoveToContent();
+					rootElementName = reader.Name;
+					if (reader.HasAttributes)
+					{
+						reader.MoveToFirstAttribute();
+						do
+						{
+							sortedAttributes.Add(reader.Name, reader.Value);
+						} while (reader.MoveToNextAttribute());
+					}
+				}
+			}
+			catch (XmlException)
+			{
+				sortedAttributes = null;
+				rootElementName = null;
+			}
+			return rootElementName;
+		}
+
+		private static void WriteMainOutputData(IDictionary<string, string> allWritableData,
+			string outputPathname, string optionalFirstElementMarker,
+			string rootElementName, SortedDictionary<string, string> sortedAttributes)
 		{
 			using (var writer = XmlWriter.Create(outputPathname, CanonicalXmlSettings.CreateXmlWriterSettings()))
 			{
-				using (var reader = XmlReader.Create(new FileStream(commonAncestorPathname, FileMode.Open), new XmlReaderSettings
-								{
-									CheckCharacters = false,
-									ConformanceLevel = ConformanceLevel.Document,
-									ProhibitDtd = true,
-									ValidationType = ValidationType.None,
-									CloseInput = true,
-									IgnoreWhitespace = true}))
+				writer.WriteStartDocument();
+				writer.WriteStartElement(rootElementName);
+				foreach (var attrKvp in sortedAttributes)
 				{
-					// This must be client specific behavior to rebuild the root element, plus any of its attributes.
-					writePreliminaryInformationDelegate(reader, writer);
+					writer.WriteAttributeString(attrKvp.Key, attrKvp.Value);
 				}
 
 				if (!string.IsNullOrEmpty(optionalFirstElementMarker))
@@ -246,6 +285,8 @@ namespace Chorus.merge.xml.generic
 				{
 					WriteNode(writer, dataKvp.Value);
 				}
+				writer.WriteEndElement();
+				writer.WriteEndDocument();
 			}
 		}
 
@@ -379,18 +420,6 @@ namespace Chorus.merge.xml.generic
 				{
 					mergeOrder.EventListener.EnteringContext(generator.GenerateContextDescriptor(allWinnerData[identifier], pathToWinner));
 				}
-				//AddConflictToListener(
-				//    mergeOrder.EventListener,
-				//    new BothAddedMainElementButWithDifferentContentConflict(
-				//        winnerNode.Name,
-				//        winnerNode,
-				//        loserNode,
-				//        mergeOrder.MergeSituation,
-				//        elementStrategy,
-				//        winnerId),
-				//    winnerNode,
-				//    loserNode,
-				//    null);
 				var mergedResult = mergeStrategy.MakeMergedEntry(
 					mergeOrder.EventListener,
 					mergeOrder.MergeSituation.ConflictHandlingMode == MergeOrder.ConflictHandlingModeChoices.WeWin ? winnerNode : loserNode,
@@ -606,16 +635,7 @@ namespace Chorus.merge.xml.generic
 		private static string GetAttribute(string identifierAttribute, string data)
 		{
 			string attributeValue = null;
-			var readerSettings = new XmlReaderSettings
-			{
-				CheckCharacters = false,
-				ConformanceLevel = ConformanceLevel.Document,
-				ProhibitDtd = true,
-				ValidationType = ValidationType.None,
-				CloseInput = true,
-				IgnoreWhitespace = true
-			};
-			using (var reader = XmlReader.Create(new StringReader(data), readerSettings))
+			using (var reader = XmlReader.Create(new StringReader(data), ReaderSettingsForDocument))
 			{
 				reader.MoveToContent();
 				if (reader.MoveToAttribute(identifierAttribute))
@@ -626,50 +646,41 @@ namespace Chorus.merge.xml.generic
 			return attributeValue;
 		}
 
-		private static void EnsureCommonAncestorFileHasMimimalContent(string commonAncestorPathname, string pathToWinner)
+		private static void EnsureCommonAncestorFileHasMinimalXmlContent(string commonAncestorPathname, string rootElementName, SortedDictionary<string, string> sortedAttributes)
 		{
 			using(var reader = new XmlTextReader(commonAncestorPathname))
 			{
 				try
 				{
-					if (reader.Read())
-					{
-						return;
-					}
+					reader.Read();
+					return;
 				}
 				catch (XmlException)
 				{
 					//we need to build the ancestor document if it was empty of xml
 				}
 			}
-			BuildAncestorDocument(commonAncestorPathname, pathToWinner);
+			BuildAncestorDocument(commonAncestorPathname, rootElementName, sortedAttributes);
 		}
 
-		private static void BuildAncestorDocument(string commonAncestorDoc, string pathToOtherFile)
+		private static void BuildAncestorDocument(string commonAncestorDoc, string rootElementName, SortedDictionary<string, string> sortedAttributes)
 		{
 			using(var writer = XmlWriter.Create(commonAncestorDoc))
-			using (var reader = new XmlTextReader(pathToOtherFile))
 			{
-				//suck in the first node
-				reader.MoveToContent();
 				writer.WriteStartDocument();
-				writer.WriteStartElement(reader.Name, reader.NamespaceURI);
-				//move to the first attribute of the element.
-				while (reader.MoveToNextAttribute())
+				writer.WriteStartElement(rootElementName);
+				foreach (var attrKvp in sortedAttributes)
 				{
-					writer.WriteAttributeString(reader.Name, reader.NamespaceURI, reader.Value);
+					writer.WriteAttributeString(attrKvp.Key, attrKvp.Value);
 				}
 				writer.WriteEndElement();
 				writer.WriteEndDocument();
-				writer.Flush();
-				writer.Close();
-				reader.Close();
 			}
 		}
 
 		private static void WriteNode(XmlWriter writer, string dataToWrite)
 		{
-			using (var nodeReader = XmlReader.Create(new MemoryStream(Utf8.GetBytes(dataToWrite)), ReaderSettings))
+			using (var nodeReader = XmlReader.Create(new MemoryStream(Utf8.GetBytes(dataToWrite)), ReaderSettingsForDocumentFragment))
 			{
 				writer.WriteNode(nodeReader, false);
 			}

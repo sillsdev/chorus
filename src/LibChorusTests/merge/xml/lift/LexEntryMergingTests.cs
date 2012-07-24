@@ -2,7 +2,6 @@
 using Chorus.FileTypeHanders.lift;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
-using LibChorus.Tests.merge.xml.generic;
 using LibChorus.TestUtilities;
 using NUnit.Framework;
 using Palaso.IO;
@@ -80,7 +79,7 @@ namespace LibChorus.Tests.merge.xml.lift
 				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation) { EventListener = listener };
 				XmlMergeService.Do3WayMerge(mergeOrder, new LiftEntryMergingStrategy(situation), false,
 					"header",
-					"entry", "guid", LiftFileHandler.WritePreliminaryInformation);
+					"entry", "guid");
 				//this doesn't seem particular relevant, but senses are, in fact, ordered, so there is some ambiguity here
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
 				//Assert.AreEqual(typeof(AmbiguousInsertConflict), listener.Conflicts[0].GetType());
@@ -157,7 +156,7 @@ namespace LibChorus.Tests.merge.xml.lift
 				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation) { EventListener = listener };
 				XmlMergeService.Do3WayMerge(mergeOrder, new LiftEntryMergingStrategy(situation), false,
 					"header",
-					"entry", "guid", LiftFileHandler.WritePreliminaryInformation);
+					"entry", "guid");
 				//this doesn't seem particular relevant, but senses are, in fact, ordered, so there is some ambiguity here
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
 				//Assert.AreEqual(typeof(AmbiguousInsertConflict), listener.Conflicts[0].GetType());

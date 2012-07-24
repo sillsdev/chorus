@@ -37,7 +37,7 @@ namespace LibChorus.Tests.merge.xml.generic
 					};
 				XmlMergeService.Do3WayMerge(mergeOrder, mergeStrategy, false,
 					"header",
-					"entry", "guid", LiftFileHandler.WritePreliminaryInformation);
+					"entry", "guid");
 				result = File.ReadAllText(mergeOrder.pathToOurs);
 			}
 

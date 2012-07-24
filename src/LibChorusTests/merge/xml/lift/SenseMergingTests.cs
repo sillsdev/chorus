@@ -51,7 +51,7 @@ namespace LibChorus.Tests.merge.xml.lift
 									{EventListener = listener};
 				XmlMergeService.Do3WayMerge(mergeOrder, new LiftEntryMergingStrategy(situation), false,
 					"header",
-					"entry", "guid", LiftFileHandler.WritePreliminaryInformation);
+					"entry", "guid");
 				//this doesn't seem particular relevant, but senses are, in fact, ordered, so there is some ambiguity here
 				Assert.AreEqual(typeof(AmbiguousInsertConflict), listener.Conflicts[0].GetType());
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
@@ -105,7 +105,7 @@ namespace LibChorus.Tests.merge.xml.lift
 				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation) { EventListener = listener };
 				XmlMergeService.Do3WayMerge(mergeOrder, new LiftEntryMergingStrategy(situation), false,
 					"header",
-					"entry", "guid", LiftFileHandler.WritePreliminaryInformation);
+					"entry", "guid");
 				var conflict = listener.Conflicts[0];
 				AssertConflictType<XmlTextBothEditedTextConflict>(conflict);
 				const string expectedContext = "lift://unknown?type=entry&id=F169EB3D-16F2-4eb0-91AA-FDB91636F8F6";
@@ -478,7 +478,7 @@ namespace LibChorus.Tests.merge.xml.lift
 				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation) { EventListener = listener };
 				XmlMergeService.Do3WayMerge(mergeOrder, new LiftEntryMergingStrategy(situation), false,
 					"header",
-					"entry", "guid", LiftFileHandler.WritePreliminaryInformation);
+					"entry", "guid");
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
 				//each of these are things we saw go wrong in the user's failed merge. we combined all the missing data
 				//into a single entry.  This never did demonstrate the problem, but it ruled out that the problem
@@ -552,7 +552,7 @@ namespace LibChorus.Tests.merge.xml.lift
 					var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation) { EventListener = listener };
 					XmlMergeService.Do3WayMerge(mergeOrder, new LiftEntryMergingStrategy(situation), false,
 						"header",
-						"entry", "guid", LiftFileHandler.WritePreliminaryInformation);
+						"entry", "guid");
 					var result = File.ReadAllText(mergeOrder.pathToOurs);
 					AssertThatXmlIn.String(result).HasSpecifiedNumberOfMatchesForXpath(@"/lift/entry/relation", 2);
 				}
