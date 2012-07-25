@@ -24,7 +24,7 @@ namespace Chorus.FileTypeHanders
 	public class ChorusNotesFileHandler : IChorusFileTypeHandler
 	{
 		internal ChorusNotesFileHandler()
-		{}
+		{ }
 
 		public bool CanDiffFile(string pathToFile)
 		{
@@ -53,24 +53,11 @@ namespace Chorus.FileTypeHanders
 
 		public void Do3WayMerge(MergeOrder order)
 		{
-			XmlMerger merger = new XmlMerger(order.MergeSituation);
-			SetupElementStrategies(merger);
-			var r = merger.MergeFiles(order.pathToOurs, order.pathToTheirs, order.pathToCommonAncestor);
-			// No. This does not write it out using CanonicalXmlSettings
-			//File.WriteAllText(order.pathToOurs, r.MergedNode.OuterXml);
-			using (var writer = XmlWriter.Create(order.pathToOurs, CanonicalXmlSettings.CreateXmlWriterSettings()))
-			{
-				writer.WriteStartDocument();
-				writer.WriteNode(r.MergedNode.CreateNavigator(), true);
-			}
-		}
-
-		private void SetupElementStrategies(XmlMerger merger)
-		{
-			merger.MergeStrategies.SetStrategy("annotation", ElementStrategy.CreateForKeyedElement("guid", false));
-			ElementStrategy messageStrategy = ElementStrategy.CreateForKeyedElement("guid", false);
-			messageStrategy.IsImmutable = true;
-			merger.MergeStrategies.SetStrategy("message", messageStrategy);
+			XmlMergeService.Do3WayMerge(order,
+				new ChorusNotesAnnotationMergingStrategy(order.MergeSituation),
+				false,
+				null,
+				"annotation", "guid");
 		}
 
 		public IEnumerable<IChangeReport> Find2WayDifferences(FileInRevision parent, FileInRevision child, HgRepository repository)
@@ -85,13 +72,8 @@ namespace Chorus.FileTypeHanders
 			{
 				return new NotePresenter(report as IXmlChangeReport, repository);
 			}
-			else
-			{
-				return new DefaultChangePresenter(report, repository);
-			}
+			return new DefaultChangePresenter(report, repository);
 		}
-
-
 
 		public IEnumerable<IChangeReport> DescribeInitialContents(FileInRevision fileInRevision, TempFile file)
 		{

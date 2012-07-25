@@ -165,7 +165,7 @@ namespace Chorus.FileTypeHanders
 			{
 				prepper.ShouldContinueAfterDuplicateKey = s =>
 															{
-																_eventListener.WarningOccurred(new MergeWarning(s));
+																_eventListener.WarningOccurred(new MergeWarning(_childPathname + ": " + s));
 																return true;
 															};
 				prepper.Run();
@@ -314,8 +314,8 @@ namespace Chorus.FileTypeHanders
 			foreach (var child in childIndex.Values)
 			{
 				// Route tested
-				_eventListener.ChangeOccurred(new XmlAdditionChangeReport(
-												_childFileInRevision,
+					_eventListener.ChangeOccurred(new XmlAdditionChangeReport(
+													_childFileInRevision,
 												XmlUtilities.GetDocumentNodeFromRawXml(enc.GetString(child), childDoc)));
 			}
 		}

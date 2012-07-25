@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Xml;
 using Chorus.FileTypeHanders.xml;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
@@ -48,8 +47,9 @@ namespace Chorus.FileTypeHanders.lift
 		{
 			XmlMergeService.Do3WayMerge(mergeOrder,
 				new LiftEntryMergingStrategy(mergeOrder.MergeSituation),
+				false,
 				"header",
-				"entry", "guid", WritePreliminaryInformation);
+				"entry", "guid");
 		}
 
 		public IEnumerable<IChangeReport> Find2WayDifferences(FileInRevision parent, FileInRevision child, HgRepository repository)
@@ -63,14 +63,11 @@ namespace Chorus.FileTypeHanders.lift
 			{
 				return new LiftChangePresenter(report as IXmlChangeReport);
 			}
-			else if (report is ErrorDeterminingChangeReport)
+			if (report is ErrorDeterminingChangeReport)
 			{
 				return (IChangePresenter)report;
 			}
-			else
-			{
-				return new DefaultChangePresenter(report, repository);
-			}
+			return new DefaultChangePresenter(report, repository);
 		}
 
 
@@ -98,20 +95,6 @@ namespace Chorus.FileTypeHanders.lift
 		public uint MaximumFileSize
 		{
 			get { return UInt32.MaxValue; }
-		}
-
-		internal static void WritePreliminaryInformation(XmlReader reader, XmlWriter writer)
-		{
-			reader.MoveToContent();
-			writer.WriteStartElement("lift");
-			if (reader.MoveToAttribute("version"))
-				writer.WriteAttributeString("version", reader.Value);
-			if (reader.MoveToAttribute("producer"))
-				writer.WriteAttributeString("producer", reader.Value);
-			reader.MoveToElement();
-			reader.Read();
-			if (!reader.IsStartElement())
-				reader.Read();
 		}
 	}
 }

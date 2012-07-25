@@ -127,6 +127,7 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
+	<Compile Include="FileTypeHanders\ChorusNotesAnnotationMergingStrategy.cs" />
 	<Compile Include="FileTypeHanders\ldml\LdmlFileHandler.cs" />
 	<Compile Include="FileTypeHanders\ldml\LdmlKeyFinder.cs" />
 	<Compile Include="FileTypeHanders\ldml\LdmlMergingStrategy.cs" />

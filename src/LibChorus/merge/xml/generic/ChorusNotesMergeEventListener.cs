@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Xml;
 using Chorus.Utilities.code;
+using Palaso.IO;
 using Palaso.Xml;
 
 namespace Chorus.merge.xml.generic
@@ -14,7 +15,9 @@ namespace Chorus.merge.xml.generic
 	public class ChorusNotesMergeEventListener : IMergeEventListener, IDisposable
 	{
 		private XmlWriter _writer;
-		private XmlDocument _xmlDoc;
+		private XmlReader _reader;
+		private FileStream _readerStream;
+		private TempFile _tempFile;
 		private string _path;
 		static public string TimeFormatNoTimeZone = "yyyy-MM-ddTHH:mm:ssZ";
 		private const int FormatVersionNumber = 0;
@@ -51,9 +54,88 @@ namespace Chorus.merge.xml.generic
 				//todo log that the xml was the wrong format
 			}
 
-			_xmlDoc = new XmlDocument();
-			_xmlDoc.Load(path);
-			_writer = _xmlDoc.CreateNavigator().SelectSingleNode("notes").AppendChild();
+			_tempFile = new TempFile();
+			_readerStream = new FileStream(path, FileMode.Open);
+			var readerSettings = new XmlReaderSettings
+			{
+				CheckCharacters = false,
+				ConformanceLevel = ConformanceLevel.Document,
+				ProhibitDtd = true,
+				ValidationType = ValidationType.None,
+				CloseInput = true,
+				IgnoreWhitespace = true
+			};
+			_reader = XmlReader.Create(_readerStream, readerSettings);
+			_writer = XmlWriter.Create(_tempFile.Path, CanonicalXmlSettings.CreateXmlWriterSettings());
+			StreamToInsertionPoint(_reader, _writer);
+		}
+
+		private void StreamToInsertionPoint(XmlReader reader, XmlWriter writer)
+		{
+			if ( reader == null )
+			{
+				throw new ArgumentNullException("reader");
+			}
+			if ( writer == null )
+			{
+				throw new ArgumentNullException("writer");
+			}
+
+			while (reader.Read())
+			{
+				if(reader.LocalName == "notes" && reader.IsEmptyElement)
+				{
+					writer.WriteStartElement("notes");
+					writer.WriteAttributes(reader, false);
+					return;
+				}
+				if(reader.LocalName == "notes" && !reader.IsStartElement())
+				{
+					return;
+				}
+				StreamNode(reader, writer);
+			}
+		}
+
+		private void StreamNode(XmlReader reader, XmlWriter writer)
+		{
+			switch (reader.NodeType)
+			{
+				case XmlNodeType.Element:
+					writer.WriteStartElement(reader.Prefix, reader.LocalName, reader.NamespaceURI);
+					writer.WriteAttributes(reader, false);
+					if (reader.IsEmptyElement)
+					{
+						writer.WriteEndElement();
+					}
+					break;
+				case XmlNodeType.Text:
+					writer.WriteString(reader.Value);
+					break;
+				case XmlNodeType.Whitespace:
+				case XmlNodeType.SignificantWhitespace:
+					writer.WriteWhitespace(reader.Value);
+					break;
+				case XmlNodeType.CDATA:
+					writer.WriteCData(reader.Value);
+					break;
+				case XmlNodeType.EntityReference:
+					writer.WriteEntityRef(reader.Name);
+					break;
+				case XmlNodeType.XmlDeclaration:
+				case XmlNodeType.ProcessingInstruction:
+					writer.WriteProcessingInstruction(reader.Name, reader.Value);
+					break;
+				case XmlNodeType.DocumentType:
+					writer.WriteDocType(reader.Name, reader.GetAttribute("PUBLIC"), reader.GetAttribute("SYSTEM"), reader.Value);
+					break;
+				case XmlNodeType.Comment:
+					writer.WriteComment(reader.Value);
+					break;
+				case XmlNodeType.EndElement:
+					writer.WriteFullEndElement();
+					break;
+			}
 		}
 
 		public void RecordContextInConflict(IConflict conflict)
@@ -75,6 +157,9 @@ namespace Chorus.merge.xml.generic
 
 		public void ChangeOccurred(IChangeReport change)
 		{
+			// N.B.: If you ever decide to write out the change reports,
+			// then be prepared to revise XmlMergeService, as it doesn't bother to add them at all,
+			// in order to save a ton of memory and avoid 'out of memory' exceptions.
 		}
 
 		public void EnteringContext(ContextDescriptor context)
@@ -84,18 +169,33 @@ namespace Chorus.merge.xml.generic
 
 		public void Dispose()
 		{
+			StreamClosingData(_reader, _writer);
+			_readerStream.Close();
+			_reader.Close();
 			_writer.Close();
-			if (_xmlDoc.DocumentElement.ChildNodes.Count == 0 && _xmlDoc.DocumentElement.Attributes["version"].Value == "0")
+			bool docIsEmpty;
+			using (var fs = new FileStream(_tempFile.Path, FileMode.Open))
+			using (var testEmptyDoc = XmlReader.Create(fs))
 			{
-				// Get rid of empty file.
-				File.Delete(_path);
+				testEmptyDoc.MoveToContent();
+				docIsEmpty = testEmptyDoc.IsEmptyElement;
+			}
+			if (!docIsEmpty)
+			{
+				File.Copy(_tempFile.Path, _path, true);
 			}
 			else
 			{
-				using (var fileWriter = XmlWriter.Create(_path, CanonicalXmlSettings.CreateXmlWriterSettings()))
-				{
-					_xmlDoc.Save(fileWriter);
-				}
+				File.Delete(_path);
+			}
+		}
+
+		private void StreamClosingData(XmlReader xmlDoc, XmlWriter writer)
+		{
+			writer.WriteEndElement();
+			while(xmlDoc.Read())
+			{
+				StreamNode(xmlDoc, writer);
 			}
 		}
 	}
