@@ -656,11 +656,12 @@ namespace Chorus.merge.xml.generic
 		{
 			message = null;
 
+			var attrValues = GetAttribute(data, new HashSet<string> { "dateDeleted", identifierAttribute });
 			// Skip tombstones.
-			if (GetAttribute("dateDeleted", data) != null)
+			if (attrValues["dateDeleted"] != null)
 				return;
 
-			var identifier = GetAttribute(identifierAttribute, data);
+			var identifier = attrValues[identifierAttribute];
 			if (string.IsNullOrEmpty(identifierAttribute))
 			{
 				message = "There was no identifier for the record";
@@ -678,18 +679,22 @@ namespace Chorus.merge.xml.generic
 			}
 		}
 
-		private static string GetAttribute(string identifierAttribute, string data)
+		private static Dictionary<string, string> GetAttribute(string data, HashSet<string> attributes)
 		{
-			string attributeValue = null;
+			var results = new Dictionary<string, string>(attributes.Count);
 			using (var reader = XmlReader.Create(new StringReader(data), ReaderSettingsForDocument))
 			{
 				reader.MoveToContent();
-				if (reader.MoveToAttribute(identifierAttribute))
+				foreach (var attr in attributes)
 				{
-					attributeValue = reader.Value;
+					results.Add(attr, null);
+					if (reader.MoveToAttribute(attr))
+					{
+						results[attr] = reader.Value;
+					}
 				}
 			}
-			return attributeValue;
+			return results;
 		}
 
 		private static void EnsureCommonAncestorFileHasMinimalXmlContent(string commonAncestorPathname, string rootElementName, SortedDictionary<string, string> sortedAttributes)
