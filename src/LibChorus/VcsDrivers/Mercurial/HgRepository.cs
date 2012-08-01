@@ -1848,9 +1848,14 @@ namespace Chorus.VcsDrivers.Mercurial
 			Execute(false, SecondsBeforeTimeoutOnLocalOperation, "tag -r " + revisionNumber + " \"" + tag + "\"");
 		}
 
+		protected static string EscapeDoubleQuotes(string message)
+		{
+			return message.Replace("\"", "\\\"");
+		}
+
 		protected static string SurroundWithQuotes(string path)
 		{
-			return "\"" + path + "\"";
+			return "\"" + EscapeDoubleQuotes(path) + "\"";
 		}
 
 		/// <summary>
