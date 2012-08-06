@@ -98,6 +98,20 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		}
 
 		[Test]
+		public void CommitCommentWithDoubleQuotes_HasCorrectComment()
+		{
+			using (var setup = new HgTestSetup())
+			{
+				var path = setup.Root.GetNewTempFile(true).Path;
+				setup.Repository.AddAndCheckinFile(path);
+				File.WriteAllText(path, "new stuff");
+				const string message = "New \"double quoted\" comment";
+				setup.Repository.Commit(true, message);
+				setup.AssertCommitMessageOfRevision("1", message);
+			}
+		}
+
+		[Test]
 		public void GetRevisionWorkingSetIsBasedOn_NoCheckinsYet_GivesNull()
 		{
 			using (var testRoot = new TemporaryFolder("ChorusHgWrappingTest"))
