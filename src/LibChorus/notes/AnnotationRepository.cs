@@ -96,7 +96,15 @@ namespace Chorus.notes
 
 		public void Dispose()
 		{
+			if (_doc.Root != null)
+			{
+				foreach (var element in _doc.Root.Elements())
+				{
+					element.Changed -= AnnotationElement_Changed;
+				}
+			}
 			SaveNowIfNeeded(new NullProgress());
+			_doc = null;
 		}
 
 		/// <summary>
