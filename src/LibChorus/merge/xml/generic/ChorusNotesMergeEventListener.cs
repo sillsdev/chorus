@@ -56,16 +56,7 @@ namespace Chorus.merge.xml.generic
 
 			_tempFile = new TempFile();
 			_readerStream = new FileStream(path, FileMode.Open);
-			var readerSettings = new XmlReaderSettings
-			{
-				CheckCharacters = false,
-				ConformanceLevel = ConformanceLevel.Document,
-				ProhibitDtd = true,
-				ValidationType = ValidationType.None,
-				CloseInput = true,
-				IgnoreWhitespace = true
-			};
-			_reader = XmlReader.Create(_readerStream, readerSettings);
+			_reader = XmlReader.Create(_readerStream, CanonicalXmlSettings.CreateXmlReaderSettings());
 			_writer = XmlWriter.Create(_tempFile.Path, CanonicalXmlSettings.CreateXmlWriterSettings());
 			StreamToInsertionPoint(_reader, _writer);
 		}

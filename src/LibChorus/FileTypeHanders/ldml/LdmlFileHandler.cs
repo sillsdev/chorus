@@ -68,16 +68,10 @@ namespace Chorus.FileTypeHanders.ldml
 				nameSpaceManager.AddNamespace("palaso", "urn://palaso.org/ldmlExtensions/v1");
 				nameSpaceManager.AddNamespace("fw", "urn://fieldworks.sil.org/ldmlExtensions/v1");
 
-				var readerSettings = new XmlReaderSettings
-										{
-											NameTable = nameSpaceManager.NameTable,
-											IgnoreWhitespace = true,
-											ConformanceLevel = ConformanceLevel.Auto,
-											ValidationType = ValidationType.None,
-											XmlResolver = null,
-											CloseInput = true,
-											ProhibitDtd = false
-										};
+				var readerSettings = CanonicalXmlSettings.CreateXmlReaderSettings(ConformanceLevel.Auto);
+				readerSettings.NameTable = nameSpaceManager.NameTable;
+				readerSettings.XmlResolver = null;
+				readerSettings.ProhibitDtd = false;
 				using (var nodeReader = XmlReader.Create(new MemoryStream(Encoding.UTF8.GetBytes(result.MergedNode.OuterXml)), readerSettings))
 				{
 					writer.WriteNode(nodeReader, false);
@@ -105,8 +99,7 @@ namespace Chorus.FileTypeHanders.ldml
 		{
 			try
 			{
-				var settings = new XmlReaderSettings { ValidationType = ValidationType.None };
-				using (var reader = XmlReader.Create(pathToFile, settings))
+				using (var reader = XmlReader.Create(pathToFile, CanonicalXmlSettings.CreateXmlReaderSettings()))
 				{
 					reader.MoveToContent();
 					if (reader.LocalName == "ldml")
