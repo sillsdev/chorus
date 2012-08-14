@@ -160,13 +160,16 @@
 	  <SpecificVersion>False</SpecificVersion>
 	  <HintPath>..\..\lib\$(Configuration)\Palaso.dll</HintPath>
 	</Reference>
-	<Reference Include="geckofx-13">
-	  <HintPath>..\..\lib\$(Configuration)\geckofx-13.dll</HintPath>
+	<Reference Include="geckofx-core-14">
+	  <HintPath>\usr\lib\fieldworks\geckofx-core-14.dll</HintPath>
 	</Reference>
-	<None Condition="'$(Configuration)' == 'DebugMono' Or '$(Configuration)' == 'ReleaseMono' " Include="..\..\lib\$(Configuration)\geckofix.so">
+	<Reference Include="Geckofx-Winforms-14">
+	  <HintPath>\usr\lib\fieldworks\Geckofx-Winforms-14.dll</HintPath>
+	</Reference>
+	<None Condition="'$(Configuration)' == 'DebugMono' Or '$(Configuration)' == 'ReleaseMono' " Include="\usr\lib\fieldworks\geckofix.so">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</None>
-	<None Condition="'$(Configuration)' == 'DebugMono' Or '$(Configuration)' == 'ReleaseMono' " Include="..\..\lib\$(Configuration)\geckofx-13.dll.config">
+	<None Condition="'$(Configuration)' == 'DebugMono' Or '$(Configuration)' == 'ReleaseMono' " Include="\usr\lib\fieldworks\geckofx-core-14.dll.config">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</None>
 	<Reference Include="System" />
