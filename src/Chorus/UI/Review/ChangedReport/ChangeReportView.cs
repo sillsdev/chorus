@@ -26,7 +26,7 @@ namespace Chorus.UI.Review.ChangedReport
 			InitializeComponent();
 			_normalChangeDescriptionRenderer.Font = SystemFonts.MessageBoxFont;
 			changedRecordSelectedEvent.Subscribe(r=>LoadReport(r));
-			_normalChangeDescriptionRenderer.Navigated += webBrowser1_Navigated;
+			//_normalChangeDescriptionRenderer.Navigated += webBrowser1_Navigated;
 
 			_styleSheet = CreateStyleSheet(writingSystems);
 		}
@@ -104,18 +104,7 @@ namespace Chorus.UI.Review.ChangedReport
 					System.Console.WriteLine("rawCDpath="+path);
 					try
 					{
-						// the first Navigate on a GeckoWebBrowser will not work unless it is being shown
-						if (this.tabControl1.SelectedTab != this.tabPageRaw)
-						{
-							this.tabControl1.SelectedTab = this.tabPageRaw;
-							Application.DoEvents();
-							this._rawChangeDescriptionRenderer.Navigate(path);
-							this.tabControl1.SelectedTab = this.tabPage1;
-						}
-						else
-						{
-							this._rawChangeDescriptionRenderer.Navigate(path);
-						}
+						this._rawChangeDescriptionRenderer.Navigate(path);
 					}
 					catch(InvalidOperationException)
 					{
