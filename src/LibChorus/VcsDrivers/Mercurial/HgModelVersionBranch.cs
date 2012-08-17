@@ -8,21 +8,24 @@ namespace Chorus.VcsDrivers.Mercurial
 {
 	internal class HgModelVersionBranch
 	{
-		private string _userName;
 		private HgRepository _repo;
 
-		public HgModelVersionBranch(HgRepository repo, string userName)
+		public HgModelVersionBranch(HgRepository repo)
 		{
 			_repo = repo;
-			_userName = userName;
 		}
 
 		public string ClientVersion { get; set; }
 
+		public string UserId
+		{
+			get { return _repo.GetUserIdInUse(); }
+		}
+
 		internal List<Revision> GetBranches(IProgress progress)
 		{
 			string what = "branches";
-			progress.WriteVerbose("Getting {0} of {1}", what, _userName);
+			progress.WriteVerbose("Getting {0} of {1}", what, UserId);
 			string result = _repo.GetTextFromQuery(what);
 
 			string[] lines = result.Split('\n');
@@ -41,17 +44,23 @@ namespace Chorus.VcsDrivers.Mercurial
 			return branches;
 		}
 
+		internal void Branch(IProgress progress, string branchName)
+		{
+			progress.WriteVerbose("{0} changing working dir to branch: {1}", UserId, branchName);
+			_repo.Execute(_repo.SecondsBeforeTimeoutOnLocalOperation, "branch -f ", HgRepository.SurroundWithQuotes(branchName));
+		}
+
 		internal void CreateNewBranch(string versionNumber)
 		{
-			var cmdString = "hg branch";
-			var paramArray = new string[] { versionNumber };
-			var result = _repo.Execute(_repo.SecondsBeforeTimeoutOnLocalOperation, cmdString, paramArray);
-			// TODO: This is a stub!
-			if (result.ExitCode != 0)
-			{
-				throw new ApplicationException(string.Format("Failed to create new branch: exit code = {0} Message: {1}",
-					result.ExitCode, result.StandardError));
-			}
+			_repo.Branch(versionNumber);
+			ClientVersion = versionNumber;
+		}
+
+		internal bool IsLatestBranchDifferent(string myVersion, out string revNum)
+		{
+			var latestRevision = _repo.GetRevisionWorkingSetIsBasedOn();
+			revNum = latestRevision.Number.LocalRevisionNumber;
+			return latestRevision.Branch != myVersion;
 		}
 	}
 }

@@ -39,7 +39,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			:this(repository)
 		{
 			UserId = name;
-			Number = new RevisionNumber(localRevisionNumber,hash);
+			Number = new RevisionNumber(localRevisionNumber, hash);
 			Summary = comment;
 		}
 

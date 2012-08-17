@@ -1815,12 +1815,12 @@ namespace Chorus.VcsDrivers.Mercurial
 			Execute(false, SecondsBeforeTimeoutOnLocalOperation, "tag -r " + revisionNumber + " \"" + tag + "\"");
 		}
 
-		private static string EscapeDoubleQuotes(string message)
+		internal static string EscapeDoubleQuotes(string message)
 		{
 			return message.Replace("\"", "\\\"");
 		}
 
-		private static string SurroundWithQuotes(string path)
+		internal static string SurroundWithQuotes(string path)
 		{
 			return "\"" + EscapeDoubleQuotes(path) + "\"";
 		}
