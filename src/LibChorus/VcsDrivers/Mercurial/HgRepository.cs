@@ -14,16 +14,15 @@ using Nini.Ini;
 using Palaso.IO;
 using Palaso.Network;
 using Palaso.Progress.LogBox;
-using Palaso.Reporting;
 
 namespace Chorus.VcsDrivers.Mercurial
 {
 
 	public class HgRepository : IRetrieveFileVersionsFromRepository
 	{
-		protected readonly string _pathToRepository;
-		protected string _userName;
-		protected IProgress _progress;
+		private readonly string _pathToRepository;
+		private string _userName;
+		private IProgress _progress;
 		public  int SecondsBeforeTimeoutOnLocalOperation = 15 * 60;
 		public int SecondsBeforeTimeoutOnMergeOperation = 15 * 60;
 		public const int SecondsBeforeTimeoutOnRemoteOperation = 40 * 60;
@@ -269,7 +268,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			return GetFileExistsInRepo(subPath);
 		}
 
-		protected void SetupPerson(string pathToRepository, string userName)
+		private void SetupPerson(string pathToRepository, string userName)
 		{
 			_progress.WriteVerbose("setting name and branch");
 			CheckAndUpdateHgrc();
@@ -409,28 +408,6 @@ namespace Chorus.VcsDrivers.Mercurial
 			return !(uri.StartsWith("http") || uri.StartsWith("ssh"));
 		}
 
-		private List<Revision> GetBranches()
-		{
-			string what = "branches";
-			_progress.WriteVerbose("Getting {0} of {1}", what, _userName);
-			string result = GetTextFromQuery(what);
-
-			string[] lines = result.Split('\n');
-			List<Revision> branches = new List<Revision>();
-			foreach (string line in lines)
-			{
-				if (line.Trim() == "")
-					continue;
-
-				string[] parts = line.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-				if (parts.Length < 2)
-					continue;
-				string[] revisionParts = parts[1].Split(':');
-				branches.Add(new Revision(this, parts[0], revisionParts[0], revisionParts[1], "unknown"));
-			}
-			return branches;
-		}
-
 		public Revision GetTip()
 		{
 			var rev = GetRevisionsFromQuery("tip").FirstOrDefault();
@@ -466,8 +443,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			return false;
 		}
 
-
-		protected string GetTextFromQuery(string query)
+		internal string GetTextFromQuery(string query)
 		{
 			ExecutionResult result = ExecuteErrorsOk(query, _pathToRepository, SecondsBeforeTimeoutOnLocalOperation, _progress);
 			// Debug.Assert(string.IsNullOrEmpty(result.StandardError), result.StandardError);
@@ -483,7 +459,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			return result.StandardOutput;
 		}
 
-		protected string GetTextFromQuery(string query, int secondsBeforeTimeoutOnLocalOperation, IProgress progress)
+		private string GetTextFromQuery(string query, int secondsBeforeTimeoutOnLocalOperation, IProgress progress)
 		{
 			ExecutionResult result = ExecuteErrorsOk(query, _pathToRepository, secondsBeforeTimeoutOnLocalOperation, _progress);
 			progress.WriteVerbose(result.StandardOutput);
@@ -545,7 +521,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			Execute(SecondsBeforeTimeoutOnLocalOperation, "branch -f ", SurroundWithQuotes(branchName));
 		}
 
-		protected ExecutionResult Execute(int secondsBeforeTimeout, string cmd, params string[] rest)
+		internal ExecutionResult Execute(int secondsBeforeTimeout, string cmd, params string[] rest)
 		{
 			return Execute(false, secondsBeforeTimeout, cmd, rest);
 		}
@@ -555,7 +531,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		/// </summary>
 		/// <exception cref="System.TimeoutException"/>
 		/// <returns></returns>
-		protected ExecutionResult Execute(bool failureIsOk, int secondsBeforeTimeout, string cmd, params string[] rest)
+		private ExecutionResult Execute(bool failureIsOk, int secondsBeforeTimeout, string cmd, params string[] rest)
 		{
 			if(_progress.CancelRequested)
 			{
@@ -610,7 +586,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		}
 
 		/// <exception cref="System.TimeoutException"/>
-		protected static ExecutionResult ExecuteErrorsOk(string command, string fromDirectory, int secondsBeforeTimeout, IProgress progress)
+		private static ExecutionResult ExecuteErrorsOk(string command, string fromDirectory, int secondsBeforeTimeout, IProgress progress)
 		{
 			if (progress.CancelRequested)
 			{
@@ -652,15 +628,6 @@ namespace Chorus.VcsDrivers.Mercurial
 #endif
 			return result;
 		}
-
-		//        /// <exception cref="System.TimeoutException"/>
-		//        protected static ExecutionResult ExecuteErrorsOk(string command, int secondsBeforeTimeout, IProgress progress)
-		//        {
-		//            return ExecuteErrorsOk(command, null, secondsBeforeTimeout, progress);
-		//        }
-
-
-
 
 		public string PathWithQuotes
 		{
@@ -1848,12 +1815,12 @@ namespace Chorus.VcsDrivers.Mercurial
 			Execute(false, SecondsBeforeTimeoutOnLocalOperation, "tag -r " + revisionNumber + " \"" + tag + "\"");
 		}
 
-		protected static string EscapeDoubleQuotes(string message)
+		private static string EscapeDoubleQuotes(string message)
 		{
 			return message.Replace("\"", "\\\"");
 		}
 
-		protected static string SurroundWithQuotes(string path)
+		private static string SurroundWithQuotes(string path)
 		{
 			return "\"" + EscapeDoubleQuotes(path) + "\"";
 		}

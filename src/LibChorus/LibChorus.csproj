@@ -247,6 +247,7 @@
 	<Compile Include="sync\ProjectFolderConfiguration.cs" />
 	<Compile Include="sync\Synchronizer.cs" />
 	<Compile Include="VcsDrivers\Mercurial\HgNormalTransport.cs" />
+	<Compile Include="VcsDrivers\Mercurial\HgModelVersionBranch.cs" />
 	<Compile Include="VcsDrivers\Mercurial\HgResumeRestApiServer.cs" />
 	<Compile Include="VcsDrivers\Mercurial\HgResumeTransport.cs" />
 	<Compile Include="VcsDrivers\Mercurial\IApiServer.cs" />

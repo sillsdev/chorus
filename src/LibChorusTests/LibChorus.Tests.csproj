@@ -176,6 +176,7 @@
 	<Compile Include="VcsDrivers\Mercurial\HgResumeRestApiServerTests.cs" />
 	<Compile Include="VcsDrivers\Mercurial\HgResumeTestUtilities.cs" />
 	<Compile Include="VcsDrivers\Mercurial\HgResumeTransportTests.cs" />
+	<Compile Include="VcsDrivers\Mercurial\HgVersionBranchingTests.cs" />
 	<Compile Include="VcsDrivers\Mercurial\PullStorageManagerTests.cs" />
 	<Compile Include="VcsDrivers\Mercurial\HgTestSetup.cs" />
 	<Compile Include="VcsDrivers\Mercurial\IncludeExcludeTests.cs" />
