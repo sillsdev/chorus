@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+using Chorus.VcsDrivers.Mercurial;
 using Palaso.Progress.LogBox;
 
 namespace Chorus.sync
@@ -34,6 +37,14 @@ namespace Chorus.sync
 		/// </summary>
 		/// <remarks>This method not be called at all, if there was no merging.</remarks>
 		public void PrepareForPostMergeCommit(IProgress progress)
+		{ /* Do nothing at all. */ }
+
+		public string GetModelVersion()
+		{
+			return "default";
+		}
+
+		public void CheckRepositoryBranches(IEnumerable<Revision> branches)
 		{ /* Do nothing at all. */ }
 
 		#endregion

@@ -296,7 +296,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			try
 			{
 				CheckAndUpdateHgrc();
-				Execute(SecondsBeforeTimeoutOnRemoteOperation, "push --debug " + GetProxyConfigParameterString(targetUri), SurroundWithQuotes(targetUri));
+				Execute(SecondsBeforeTimeoutOnRemoteOperation, "push -f --debug " + GetProxyConfigParameterString(targetUri), SurroundWithQuotes(targetUri));
 			}
 			catch (Exception err)
 			{

@@ -120,6 +120,8 @@ namespace Chorus.sync
 				RemoveLocks(repo);
 				repo.RecoverFromInterruptedTransactionIfNeeded();
 				repo.FixUnicodeAudio();
+				string modelVersion = _sychronizerAdjunct.GetModelVersion();
+				ChangeBranchIfNecessary(modelVersion);
 				Commit(options);
 
 				var workingRevBeforeSync = repo.GetRevisionWorkingSetIsBasedOn();
@@ -179,6 +181,16 @@ namespace Chorus.sync
 				results.ErrorEncountered = error;
 			}
 			return results;
+		}
+
+		private void ChangeBranchIfNecessary(string modelVersion)
+		{
+			if (Repository.GetRevisionWorkingSetIsBasedOn() == null ||
+				Repository.GetRevisionWorkingSetIsBasedOn().Branch != modelVersion)
+			{
+				var temp = new HgModelVersionBranch(Repository, new NullProgress());
+				temp.CreateNewBranch(modelVersion);
+			}
 		}
 
 		private static void CreateRepositoryOnLocalAreaNetworkFolderIfNeededThrowIfFails(HgRepository repo, string repoProjectName, List<RepositoryAddress> sourcesToTry)

@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using Chorus.VcsDrivers.Mercurial;
 using Palaso.Progress.LogBox;
 
 namespace Chorus.sync
@@ -35,5 +37,21 @@ namespace Chorus.sync
 		/// </summary>
 		/// <remarks>This method is not be called at all, if there was no merging.</remarks>
 		void PrepareForPostMergeCommit(IProgress progress);
+
+		/// <summary>
+		/// Return a version string for the model of the client. Used to create a version branch in the repository.
+		/// </summary>
+		/// <returns></returns>
+		string GetModelVersion();
+
+		/// <summary>
+		/// During a Send/Receive when Chorus has completed a pull and there is more than one branch on the repository
+		/// it will pass the revision of the head of each branch to the client.
+		/// The client can use this to display messages to the users when other branches are active other than their own.
+		/// i.e. "Someone else has a new version you should update"
+		/// or "Your colleague needs to update, you won't see their changes until they do."
+		/// </summary>
+		/// <param name="branches"></param>
+		void CheckRepositoryBranches(IEnumerable<Revision> branches);
 	}
 }

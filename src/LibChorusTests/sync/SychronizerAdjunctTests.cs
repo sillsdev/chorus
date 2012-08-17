@@ -1,7 +1,8 @@
+using System.Collections.Generic;
 using System.IO;
 using Chorus.Utilities;
 using Chorus.sync;
-using Chorus.VcsDrivers;
+using Chorus.VcsDrivers.Mercurial;
 using LibChorus.TestUtilities;
 using NUnit.Framework;
 using Palaso.IO;
@@ -101,7 +102,7 @@ namespace LibChorus.Tests.sync
 
 				var syncResults = bob.SyncWithOptions(options, synchronizer);
 				Assert.IsFalse(syncResults.DidGetChangesFromOthers);
-				CheckExistanceOfAdjunctFiles(syncAdjunct, true, false, false, false);
+				CheckExistanceOfAdjunctFiles(syncAdjunct, true, false, false, false, true, false);
 			}
 		}
 
@@ -129,7 +130,7 @@ namespace LibChorus.Tests.sync
 				synchronizer.SynchronizerAdjunct = syncAdjunct;
 				var syncResults = bob.SyncWithOptions(options, synchronizer);
 				Assert.IsFalse(syncResults.DidGetChangesFromOthers);
-				CheckExistanceOfAdjunctFiles(syncAdjunct, true, false, false, false);
+				CheckExistanceOfAdjunctFiles(syncAdjunct, true, false, false, false, true, false);
 			}
 		}
 
@@ -168,7 +169,7 @@ namespace LibChorus.Tests.sync
 				susanna.ReplaceSomethingElse("no problems.");
 				var syncResults = susanna.SyncWithOptions(bobOptions, synchronizer);
 				Assert.IsTrue(syncResults.DidGetChangesFromOthers);
-				CheckExistanceOfAdjunctFiles(syncAdjunct, true, true, false, true);
+				CheckExistanceOfAdjunctFiles(syncAdjunct, true, true, false, true, true, false);
 			}
 		}
 
@@ -202,7 +203,7 @@ namespace LibChorus.Tests.sync
 
 				var syncResults = sally.SyncWithOptions(options, synchronizer);
 				Assert.IsTrue(syncResults.DidGetChangesFromOthers);
-				CheckExistanceOfAdjunctFiles(syncAdjunct, true, true, false, true);
+				CheckExistanceOfAdjunctFiles(syncAdjunct, true, true, false, true, true, false);
 			}
 		}
 
@@ -235,7 +236,7 @@ namespace LibChorus.Tests.sync
 
 				var syncResults = sally.SyncWithOptions(options, synchronizer);
 				Assert.IsTrue(syncResults.DidGetChangesFromOthers);
-				CheckExistanceOfAdjunctFiles(syncAdjunct, true, true, false, true);
+				CheckExistanceOfAdjunctFiles(syncAdjunct, true, true, false, true, true, false);
 			}
 		}
 
@@ -266,7 +267,7 @@ namespace LibChorus.Tests.sync
 
 				var syncResults = sally.SyncWithOptions(options, synchronizer);
 				Assert.IsTrue(syncResults.DidGetChangesFromOthers);
-				CheckExistanceOfAdjunctFiles(syncAdjunct, true, true, false, false);
+				CheckExistanceOfAdjunctFiles(syncAdjunct, true, true, false, false, true, false);
 			}
 		}
 
@@ -302,7 +303,7 @@ namespace LibChorus.Tests.sync
 					Assert.IsTrue(syncResults.DidGetChangesFromOthers);
 					Assert.IsFalse(syncResults.Cancelled);
 					Assert.IsFalse(syncResults.Succeeded);
-					CheckExistanceOfAdjunctFiles(syncAdjunct, true, false, true, false);
+					CheckExistanceOfAdjunctFiles(syncAdjunct, true, false, true, false, true, false);
 				}
 			}
 		}
@@ -334,11 +335,14 @@ namespace LibChorus.Tests.sync
 				Assert.IsFalse(syncResults.Cancelled);
 				Assert.IsFalse(syncResults.DidGetChangesFromOthers);
 				Assert.IsFalse(syncResults.Succeeded);
-				CheckExistanceOfAdjunctFiles(syncAdjunct, true, false, true, false);
+				CheckExistanceOfAdjunctFiles(syncAdjunct, true, false, true, false, true, false);
 			}
 		}
 
-		private static void CheckExistanceOfAdjunctFiles(FileWriterSychronizerAdjunct syncAdjunct, bool commitFileShouldExist, bool pullFileShouldExist, bool rollbackFileShouldExist, bool mergeFileShouldExist)
+		private static void CheckExistanceOfAdjunctFiles(FileWriterSychronizerAdjunct syncAdjunct, bool commitFileShouldExist,
+														 bool pullFileShouldExist, bool rollbackFileShouldExist,
+														 bool mergeFileShouldExist, bool versionFileShouldExist,
+														 bool branchesFileShouldExist)
 		{
 			if (commitFileShouldExist)
 				Assert.IsTrue(File.Exists(syncAdjunct.CommitPathname), "CommitFile should exist.");
@@ -359,6 +363,16 @@ namespace LibChorus.Tests.sync
 				Assert.IsTrue(File.Exists(syncAdjunct.MergePathname), "MergeFile should exist.");
 			else
 				Assert.IsFalse(File.Exists(syncAdjunct.MergePathname), "MergeFile shouldn't exist.");
+
+			if (versionFileShouldExist)
+				Assert.IsTrue(File.Exists(syncAdjunct.GetVersionPathName), "GetVersionFile should exist.");
+			else
+				Assert.IsFalse(File.Exists(syncAdjunct.GetVersionPathName), "GetVersionFile shouldn't exist.");
+
+			if (branchesFileShouldExist)
+				Assert.IsTrue(File.Exists(syncAdjunct.BranchesPathName), "BranchesFile should exist.");
+			else
+				Assert.IsFalse(File.Exists(syncAdjunct.BranchesPathName), "BranchesFile shouldn't exist.");
 		}
 
 		private static void CheckNoFilesExist(FileWriterSychronizerAdjunct syncAdjunct)
@@ -367,6 +381,8 @@ namespace LibChorus.Tests.sync
 			Assert.IsFalse(File.Exists(syncAdjunct.PullPathname));
 			Assert.IsFalse(File.Exists(syncAdjunct.RollbackPathname));
 			Assert.IsFalse(File.Exists(syncAdjunct.MergePathname));
+			Assert.IsFalse(File.Exists(syncAdjunct.GetVersionPathName));
+			Assert.IsFalse(File.Exists(syncAdjunct.BranchesPathName));
 		}
 
 		private class FileWriterSychronizerAdjunct : ISychronizerAdjunct
@@ -396,6 +412,16 @@ namespace LibChorus.Tests.sync
 			internal string MergePathname
 			{
 				get { return Path.Combine(_pathToRepository, "Merge.txt"); }
+			}
+
+			internal string GetVersionPathName
+			{
+				get { return Path.Combine(_pathToRepository, "Version.txt"); }
+			}
+
+			internal string BranchesPathName
+			{
+				get { return Path.Combine(_pathToRepository, "Branches.txt"); }
 			}
 
 			#region Implementation of ISychronizerAdjunct
@@ -431,6 +457,20 @@ namespace LibChorus.Tests.sync
 			public void PrepareForPostMergeCommit(IProgress progress)
 			{
 				File.WriteAllText(MergePathname, "Merged");
+			}
+
+			public string GetModelVersion()
+			{
+				File.WriteAllText(GetVersionPathName, "default");
+				return "default";
+			}
+
+			public void CheckRepositoryBranches(IEnumerable<Revision> branches)
+			{
+				foreach (var revision in branches)
+				{
+					File.AppendAllText(BranchesPathName, revision.ToString());
+				}
 			}
 
 			#endregion
