@@ -25,13 +25,26 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		public void GetBranchesTest()
 		{
 			// Setup
-			var a = new HgModelVersionBranch(_repoWithFilesSetup.Repository, stestUser);
+			var branchingHelper = new HgModelVersionBranch(_repoWithFilesSetup.Repository, stestUser);
 
 			// SUT
-			var result = a.GetBranches(new NullProgress());
+			var result = branchingHelper.GetBranches(new NullProgress());
 
 			// Verification
 			Assert.AreEqual(1, result.Count);
+		}
+
+		[Test]
+		public void CreateBranchesTest()
+		{
+			// Setup
+			var branchingHelper = new HgModelVersionBranch(_repoWithFilesSetup.Repository, stestUser);
+
+			// SUT
+			var result = branchingHelper.CreateNewBranch("FLEx70000059");
+
+			// Verification
+			Assert.IsNotNull(result, "This should be a new branch revision.");
 		}
 	}
 }

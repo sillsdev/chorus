@@ -41,10 +41,10 @@ namespace Chorus.VcsDrivers.Mercurial
 			return branches;
 		}
 
-		private Revision CreateNewBranch(string versionNumber)
+		internal Revision CreateNewBranch(string versionNumber)
 		{
 			var cmdString = "hg branch";
-			var paramArray = new string[] { "-switch" };
+			var paramArray = new string[] { versionNumber };
 			var result = _repo.Execute(_repo.SecondsBeforeTimeoutOnLocalOperation, cmdString, paramArray);
 			// TODO: This is a stub!
 			if (result.ExitCode != 0)
