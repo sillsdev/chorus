@@ -9,10 +9,12 @@ namespace Chorus.VcsDrivers.Mercurial
 	internal class HgModelVersionBranch
 	{
 		private HgRepository _repo;
+		private IProgress _progress;
 
-		public HgModelVersionBranch(HgRepository repo)
+		public HgModelVersionBranch(HgRepository repo, IProgress progress)
 		{
 			_repo = repo;
+			_progress = progress;
 		}
 
 		public string ClientVersion { get; set; }
@@ -22,10 +24,10 @@ namespace Chorus.VcsDrivers.Mercurial
 			get { return _repo.GetUserIdInUse(); }
 		}
 
-		internal List<Revision> GetBranches(IProgress progress)
+		internal List<Revision> GetBranches()
 		{
 			string what = "branches";
-			progress.WriteVerbose("Getting {0} of {1}", what, UserId);
+			_progress.WriteVerbose("Getting {0} of {1}", what, UserId);
 			string result = _repo.GetTextFromQuery(what);
 
 			string[] lines = result.Split('\n');
@@ -47,12 +49,12 @@ namespace Chorus.VcsDrivers.Mercurial
 		internal void Branch(IProgress progress, string branchName)
 		{
 			progress.WriteVerbose("{0} changing working dir to branch: {1}", UserId, branchName);
-			_repo.Execute(_repo.SecondsBeforeTimeoutOnLocalOperation, "branch -f ", HgRepository.SurroundWithQuotes(branchName));
+			_repo.Execute(_repo.SecondsBeforeTimeoutOnLocalOperation, "branch ", HgRepository.SurroundWithQuotes(branchName));
 		}
 
 		internal void CreateNewBranch(string versionNumber)
 		{
-			_repo.Branch(versionNumber);
+			Branch(new NullProgress(), versionNumber);
 			ClientVersion = versionNumber;
 		}
 

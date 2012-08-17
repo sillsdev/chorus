@@ -1,10 +1,6 @@
-﻿
-using System;
-using Chorus.sync;
+﻿using Chorus.sync;
 using Chorus.VcsDrivers.Mercurial;
 using LibChorus.TestUtilities;
-using Palaso.Progress.LogBox;
-
 using NUnit.Framework;
 
 namespace LibChorus.Tests.VcsDrivers.Mercurial
@@ -20,10 +16,10 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			// Setup
 			using (var repoWithFiles = RepositoryWithFilesSetup.CreateWithLiftFile(stestUser))
 			{
-				var branchingHelper = new HgModelVersionBranch(repoWithFiles.Repository);
+				var branchingHelper = new HgModelVersionBranch(repoWithFiles.Repository, repoWithFiles.Progress);
 
 				// SUT
-				var result = branchingHelper.GetBranches(new NullProgress());
+				var result = branchingHelper.GetBranches();
 
 				// Verification
 				Assert.AreEqual(1, result.Count);
@@ -36,8 +32,8 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			// Setup
 			using (var repoWithFiles = RepositoryWithFilesSetup.CreateWithLiftFile(stestUser))
 			{
-				var branchingHelper = new HgModelVersionBranch(repoWithFiles.Repository);
-				Assert.AreEqual(1, branchingHelper.GetBranches(new NullProgress()).Count,
+				var branchingHelper = new HgModelVersionBranch(repoWithFiles.Repository, repoWithFiles.Progress);
+				Assert.AreEqual(1, branchingHelper.GetBranches().Count,
 								"Setup problem in test, should be starting with one branch.");
 				const string newBranchName = "FLEx70000059";
 
@@ -52,7 +48,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 					});
 
 				// Verification
-				var revs = branchingHelper.GetBranches(new NullProgress());
+				var revs = branchingHelper.GetBranches();
 				Assert.AreEqual(2, revs.Count, "Should be 2 branches now.");
 				Assert.AreEqual(newBranchName, revs[0].Branch, "Should be a branch with this name.");
 				var localRevNum = revs[0].Number.LocalRevisionNumber;
@@ -67,8 +63,8 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			// Setup
 			using (var repoWithFiles = RepositoryWithFilesSetup.CreateWithLiftFile(stestUser))
 			{
-				var branchingHelper = new HgModelVersionBranch(repoWithFiles.Repository);
-				Assert.AreEqual(1, branchingHelper.GetBranches(new NullProgress()).Count,
+				var branchingHelper = new HgModelVersionBranch(repoWithFiles.Repository, repoWithFiles.Progress);
+				Assert.AreEqual(1, branchingHelper.GetBranches().Count,
 								"Setup problem in test, should be starting with one branch.");
 				// Make a new branch (should technically be on the remote with a different user...)
 				const string newBranchName = "New Branch";
@@ -100,8 +96,8 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			// Setup
 			using (var repoWithFiles = RepositoryWithFilesSetup.CreateWithLiftFile(stestUser))
 			{
-				var branchingHelper = new HgModelVersionBranch(repoWithFiles.Repository);
-				Assert.AreEqual(1, branchingHelper.GetBranches(new NullProgress()).Count,
+				var branchingHelper = new HgModelVersionBranch(repoWithFiles.Repository, repoWithFiles.Progress);
+				Assert.AreEqual(1, branchingHelper.GetBranches().Count,
 								"Setup problem in test, should be starting with one branch.");
 
 				const string myVersion = ""; // Equivalent to 'default'
