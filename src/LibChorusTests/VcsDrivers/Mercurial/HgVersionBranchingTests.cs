@@ -1,12 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Text;
-
-using Chorus.Utilities;
-using Chorus.VcsDrivers;
+﻿
+using Chorus.sync;
 using Chorus.VcsDrivers.Mercurial;
 using LibChorus.TestUtilities;
 using Palaso.Progress.LogBox;
@@ -37,14 +30,20 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		[Test]
 		public void CreateBranchesTest()
 		{
-			// Setup
 			var branchingHelper = new HgModelVersionBranch(_repoWithFilesSetup.Repository, stestUser);
+			Assert.AreEqual(1, branchingHelper.GetBranches(new NullProgress()).Count, "Setup problem in test, should be starting with one branch.");
 
 			// SUT
 			var result = branchingHelper.CreateNewBranch("FLEx70000059");
-
+			_repoWithFilesSetup.ReplaceSomething("nottheoriginal");
+			_repoWithFilesSetup.SyncWithOptions(new SyncOptions
+			{
+				DoPullFromOthers = false,
+				CheckinDescription = "new local branch",
+				DoSendToOthers = false
+			});
 			// Verification
-			Assert.IsNotNull(result, "This should be a new branch revision.");
+			Assert.AreEqual(2, branchingHelper.GetBranches(new NullProgress()).Count, "Should be 2 branches now.");
 		}
 	}
 }
