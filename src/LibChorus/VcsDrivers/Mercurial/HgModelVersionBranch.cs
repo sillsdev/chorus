@@ -15,6 +15,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		{
 			_repo = repo;
 			_progress = progress;
+			SetCurrentClientVersion();
 		}
 
 		public string ClientVersion { get; set; }
@@ -22,6 +23,12 @@ namespace Chorus.VcsDrivers.Mercurial
 		public string UserId
 		{
 			get { return _repo.GetUserIdInUse(); }
+		}
+
+		private void SetCurrentClientVersion()
+		{
+			var currentRevision = _repo.GetRevisionWorkingSetIsBasedOn();
+			ClientVersion = currentRevision.Branch;
 		}
 
 		internal List<Revision> GetBranches()

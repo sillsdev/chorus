@@ -36,6 +36,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				Assert.AreEqual(1, branchingHelper.GetBranches().Count,
 								"Setup problem in test, should be starting with one branch.");
 				const string newBranchName = "FLEx70000059";
+				var oldversion = branchingHelper.ClientVersion;
 
 				// SUT
 				branchingHelper.CreateNewBranch(newBranchName);
@@ -54,6 +55,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				var localRevNum = revs[0].Number.LocalRevisionNumber;
 				var lastRev = repoWithFiles.Repository.GetRevision(localRevNum);
 				Assert.AreEqual(stestUser, lastRev.UserId, "User name should be set.");
+				Assert.AreNotEqual(oldversion, branchingHelper.ClientVersion, "Should have updated ClientVersion");
 			}
 		}
 
