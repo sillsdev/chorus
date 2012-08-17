@@ -43,6 +43,12 @@ namespace Chorus.VcsDrivers.Mercurial
 			Summary = comment;
 		}
 
+		public Revision(HgRepository repository, string branchName, string userName, string localRevisionNumber, string hash, string comment)
+			:this(repository, userName, localRevisionNumber, hash, comment)
+		{
+			Branch = branchName;
+		}
+
 		public void SetRevisionAndHashFromCombinedDescriptor(string descriptor)
 		{
 			Number = new RevisionNumber(descriptor);

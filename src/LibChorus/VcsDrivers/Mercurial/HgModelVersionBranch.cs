@@ -36,12 +36,12 @@ namespace Chorus.VcsDrivers.Mercurial
 				if (parts.Length < 2)
 					continue;
 				string[] revisionParts = parts[1].Split(':');
-				branches.Add(new Revision(_repo, parts[0], revisionParts[0], revisionParts[1], "unknown"));
+				branches.Add(new Revision(_repo, parts[0], "", revisionParts[0], revisionParts[1], "unknown"));
 			}
 			return branches;
 		}
 
-		internal Revision CreateNewBranch(string versionNumber)
+		internal void CreateNewBranch(string versionNumber)
 		{
 			var cmdString = "hg branch";
 			var paramArray = new string[] { versionNumber };
@@ -52,7 +52,6 @@ namespace Chorus.VcsDrivers.Mercurial
 				throw new ApplicationException(string.Format("Failed to create new branch: exit code = {0} Message: {1}",
 					result.ExitCode, result.StandardError));
 			}
-			return GetBranches(new NullProgress())[0];
 		}
 	}
 }

@@ -32,9 +32,9 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		{
 			var branchingHelper = new HgModelVersionBranch(_repoWithFilesSetup.Repository, stestUser);
 			Assert.AreEqual(1, branchingHelper.GetBranches(new NullProgress()).Count, "Setup problem in test, should be starting with one branch.");
-
+			const string newBranchName = "FLEx70000059";
 			// SUT
-			var result = branchingHelper.CreateNewBranch("FLEx70000059");
+			branchingHelper.CreateNewBranch(newBranchName);
 			_repoWithFilesSetup.ReplaceSomething("nottheoriginal");
 			_repoWithFilesSetup.SyncWithOptions(new SyncOptions
 			{
@@ -43,7 +43,9 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				DoSendToOthers = false
 			});
 			// Verification
-			Assert.AreEqual(2, branchingHelper.GetBranches(new NullProgress()).Count, "Should be 2 branches now.");
+			var revs = branchingHelper.GetBranches(new NullProgress());
+			Assert.AreEqual(2, revs.Count, "Should be 2 branches now.");
+			Assert.AreEqual(newBranchName, revs[0].Branch, "Should be a branch with this name.");
 		}
 	}
 }
