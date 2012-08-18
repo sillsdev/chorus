@@ -521,7 +521,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			CheckAndUpdateHgrc();
 			message = string.Format(message, args);
 			_progress.WriteVerbose("{0} committing with comment: {1}", _userName, message);
-			ExecutionResult result = Execute(SecondsBeforeTimeoutOnLocalOperation, "ci", "-m " + SurroundWithQuotes(message));
+			ExecutionResult result = Execute(SecondsBeforeTimeoutOnLocalOperation, "ci", "-u " + _userName, "-m " + SurroundWithQuotes(message));
 			_progress.WriteVerbose(result.StandardOutput);
 		}
 

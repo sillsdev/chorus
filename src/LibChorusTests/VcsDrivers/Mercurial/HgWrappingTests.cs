@@ -112,6 +112,18 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		}
 
 		[Test]
+		public void CommitWithNoUsernameInHgrcFileUsesDefaultFromEnvironment()
+		{
+			using (var setup = new HgTestSetup())
+			{
+				var path = setup.Root.GetNewTempFile(true).Path;
+				setup.Repository.AddAndCheckinFile(path);
+				var rev = setup.Repository.GetAllRevisions()[0];
+				Assert.AreEqual(Environment.UserName, rev.UserId);
+			}
+		}
+
+		[Test]
 		public void GetRevisionWorkingSetIsBasedOn_NoCheckinsYet_GivesNull()
 		{
 			using (var testRoot = new TemporaryFolder("ChorusHgWrappingTest"))
