@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.IO;
 using Chorus.sync;
 using Chorus.VcsDrivers;
@@ -27,6 +28,15 @@ namespace LibChorus.Tests.sync
 		{
 			Directory.Delete(_pathToTestRoot, true);
 		}
+
+		#region Test Utilities
+
+		public static void SetAdjunctModelVersion(Synchronizer synchronizer, string modelVersion)
+		{
+			synchronizer.SynchronizerAdjunct = new ProgrammableSynchronizerAdjunct(modelVersion);
+		}
+
+		#endregion
 
 		class BobSetup
 		{
@@ -163,6 +173,168 @@ namespace LibChorus.Tests.sync
 			options.RepositorySourcesToTry.Add(otherDirPath);
 			bob.SyncNow(options);
 			Assert.IsTrue(File.Exists(Path.Combine(bobSetup._languageProjectPath, "incoming.abc")));
+		}
+
+		[Test]
+		public void TestNewVersion_SallyUpgrades_BobNotYet()
+		{
+			ConsoleProgress progress = new ConsoleProgress();
+			BobSetup bobSetup = new BobSetup(progress, _pathToTestRoot);
+
+			bobSetup.ChangeTextFile();
+
+			//Ok, this is unrealistic, but we just clone Bob onto Sally
+			string sallyMachineRoot = Path.Combine(_pathToTestRoot, "sally");
+			Directory.CreateDirectory(sallyMachineRoot);
+			string sallyProjectRoot = bobSetup.SetupClone(sallyMachineRoot);
+			ProjectFolderConfiguration sallyProject = new ProjectFolderConfiguration(sallyProjectRoot);
+			sallyProject.IncludePatterns.Add("**.abc");
+			sallyProject.IncludePatterns.Add("**.lift");
+
+			var repository = HgRepository.CreateOrLocate(sallyProject.FolderPath, progress);
+			repository.SetUserNameInIni("sally", progress);
+
+			// bob makes a change and syncs
+			File.WriteAllText(bobSetup._pathToLift, "<lift version='0.12'><entry id='dog' guid='c1ed1fa9-e382-11de-8a39-0800200c9a66'><lexical-unit><form lang='en'><text>dog</text></form></lexical-unit></entry></lift>");
+			var bobOptions = new SyncOptions
+			{
+				CheckinDescription = "added 'dog'",
+				DoMergeWithOthers = false, // just want a fast checkin
+				DoSendToOthers = false, // just want a fast checkin
+				DoPullFromOthers = false // just want a fast checkin
+			};
+			var bobSyncer = bobSetup.GetSynchronizer();
+			SetAdjunctModelVersion(bobSyncer, ""); // Bob is on 'default' branch
+			bobSyncer.SyncNow(bobOptions);
+
+			//now Sally modifies the original file, not having seen Bob's changes yet
+			var sallyPathToLift = Path.Combine(sallyProject.FolderPath, "lexicon/foo.lift");
+			File.WriteAllText(sallyPathToLift, "<lift version='0.13'><entry id='cat' guid='c1ed1faa-e382-11de-8a39-0800200c9a66'><lexical-unit><form lang='en'><text>cat</text></form></lexical-unit></entry></lift>");
+
+			//Sally syncs, pulling in Bob's change, and encountering a need to merge (no conflicts)
+			var sallyOptions = new SyncOptions
+			{
+				CheckinDescription = "adding cat",
+				DoPullFromOthers = true,
+				DoSendToOthers = true,
+				DoMergeWithOthers = true
+			};
+			sallyOptions.RepositorySourcesToTry.Add(RepositoryAddress.Create("bob's machine", bobSetup.BobProjectPath, false));
+
+			var synchronizer = Synchronizer.FromProjectConfiguration(sallyProject, progress);
+			SetAdjunctModelVersion(synchronizer, "LIFT0.13");
+			synchronizer.SyncNow(sallyOptions);
+
+			// So what's supposed to happen?
+			var bobContents = File.ReadAllText(bobSetup._pathToLift);
+			Assert.IsFalse(bobContents.Contains("cat"), "'cat' should only be on Sally's branch.");
+			Assert.IsTrue(bobContents.Contains("dog"));
+			var sallyContents = File.ReadAllText(sallyPathToLift);
+			//Debug.WriteLine("sally's: " + sallyContents);
+			Assert.IsTrue(sallyContents.Contains("cat"));
+			Assert.IsFalse(sallyContents.Contains("dog"), "'dog' should only be in Bob's repo.");
+		}
+
+		[Test]
+		public void TestNewVersion_SallyUpgradesToBobVersion()
+		{
+			ConsoleProgress progress = new ConsoleProgress();
+			BobSetup bobSetup = new BobSetup(progress, _pathToTestRoot);
+
+			bobSetup.ChangeTextFile();
+
+			//Ok, this is unrealistic, but we just clone Bob onto Sally
+			string sallyMachineRoot = Path.Combine(_pathToTestRoot, "sally");
+			Directory.CreateDirectory(sallyMachineRoot);
+			string sallyProjectRoot = bobSetup.SetupClone(sallyMachineRoot);
+			ProjectFolderConfiguration sallyProject = new ProjectFolderConfiguration(sallyProjectRoot);
+			sallyProject.IncludePatterns.Add("**.abc");
+			sallyProject.IncludePatterns.Add("**.lift");
+
+			var repository = HgRepository.CreateOrLocate(sallyProject.FolderPath, progress);
+			repository.SetUserNameInIni("sally", progress);
+
+			// bob makes a change and syncs
+			File.WriteAllText(bobSetup._pathToLift, "<lift version='0.13'><entry id='dog' guid='c1ed1fa9-e382-11de-8a39-0800200c9a66'><lexical-unit><form lang='en'><text>dog</text></form></lexical-unit></entry></lift>");
+			var bobOptions = new SyncOptions
+			{
+				CheckinDescription = "added 'dog'",
+				DoMergeWithOthers = false, // just want a fast checkin
+				DoSendToOthers = false, // just want a fast checkin
+				DoPullFromOthers = false // just want a fast checkin
+			};
+			var bobsyncer = bobSetup.GetSynchronizer();
+			SetAdjunctModelVersion(bobsyncer, "LIFT0.13"); // Bob is still on an older branch
+			bobsyncer.SyncNow(bobOptions);
+
+			// bob makes another change and syncs
+			File.WriteAllText(bobSetup._pathToLift, "<lift version='0.14'><entry id='dog' guid='c1ed1fa9-e382-11de-8a39-0800200c9a66'><lexical-unit><form lang='en'><text>dog</text></form></lexical-unit></entry><entry id='herring' guid='d194fdff-707e-42ef-a70f-4e91db2dffd8'><lexical-unit><form lang='en'><text>herring</text></form></lexical-unit></entry></lift>");
+			var newBobOptions = new SyncOptions
+			{
+				CheckinDescription = "added 'herring'",
+				DoMergeWithOthers = false, // just want a fast checkin
+				DoSendToOthers = false, // just want a fast checkin
+				DoPullFromOthers = false // just want a fast checkin
+			};
+			SetAdjunctModelVersion(bobsyncer, "LIFT0.14"); // Bob is now on a new branch
+			bobsyncer.SyncNow(newBobOptions);
+
+			//now Sally modifies the original file, not having seen Bob's changes yet
+			var sallyPathToLift = Path.Combine(sallyProject.FolderPath, "lexicon/foo.lift");
+			File.WriteAllText(sallyPathToLift, "<lift version='0.13'><entry id='cat' guid='c1ed1faa-e382-11de-8a39-0800200c9a66'><lexical-unit><form lang='en'><text>cat</text></form></lexical-unit></entry></lift>");
+
+			//Sally syncs, pulling in Bob's 1st change, and encountering a need to merge (no conflicts)
+			var sallyOptions = new SyncOptions
+			{
+				CheckinDescription = "adding cat",
+				DoPullFromOthers = true,
+				DoSendToOthers = true,
+				DoMergeWithOthers = true
+			};
+			sallyOptions.RepositorySourcesToTry.Add(RepositoryAddress.Create("bob's machine", bobSetup.BobProjectPath, false));
+
+			var synchronizer = Synchronizer.FromProjectConfiguration(sallyProject, progress);
+			SetAdjunctModelVersion(synchronizer, "LIFT0.13"); // Sally is still on the initial branch
+			synchronizer.SyncNow(sallyOptions);
+
+			// So what's supposed to happen?
+			var bobContents = File.ReadAllText(bobSetup._pathToLift);
+			Assert.IsFalse(bobContents.Contains("cat"), "'cat' should only be on Sally's branch.");
+			Assert.IsTrue(bobContents.Contains("dog"));
+			var sallyContents = File.ReadAllText(sallyPathToLift);
+			Debug.WriteLine("sally's: " + sallyContents);
+			Assert.IsTrue(sallyContents.Contains("cat"));
+			Assert.IsTrue(sallyContents.Contains("dog"), "Sally should have merged in older branch to hers.");
+			Assert.IsFalse(sallyContents.Contains("herring"), "The red herring is only in Bob's repo; 2nd branch.");
+
+			// Now Sally upgrades her LIFT-capable program to Bob's version!
+			File.WriteAllText(sallyPathToLift, "<lift version='0.14'><entry id='pig' guid='f6a02b2b-f501-4433-93a6-a1aa40146f63'><lexical-unit><form lang='en'><text>pig</text></form></lexical-unit></entry><entry id='dog' guid='c1ed1fa9-e382-11de-8a39-0800200c9a66'><lexical-unit><form lang='en'><text>dog</text></form></lexical-unit></entry><entry id='cat' guid='c1ed1faa-e382-11de-8a39-0800200c9a66'><lexical-unit><form lang='en'><text>cat</text></form></lexical-unit></entry></lift>");
+
+			//Sally syncs, pulling in Bob's change, and encountering a need to merge (no conflicts)
+			sallyOptions = new SyncOptions
+			{
+				CheckinDescription = "adding pig",
+				DoPullFromOthers = true,
+				DoSendToOthers = true,
+				DoMergeWithOthers = true
+			};
+			sallyOptions.RepositorySourcesToTry.Add(RepositoryAddress.Create("bob's machine", bobSetup.BobProjectPath, false));
+
+			SetAdjunctModelVersion(synchronizer, "LIFT0.14"); // Sally is still on the initial branch
+			synchronizer.SyncNow(sallyOptions);
+
+			// So what's supposed to happen?
+			bobContents = File.ReadAllText(bobSetup._pathToLift);
+			Assert.IsFalse(bobContents.Contains("cat"), "'cat' should only be on Sally's branch.");
+			Assert.IsTrue(bobContents.Contains("dog"));
+			Assert.IsFalse(bobContents.Contains("pig"), "'pig' should only be on Sally's branch.");
+			sallyContents = File.ReadAllText(sallyPathToLift);
+			//Debug.WriteLine("sally's: " + sallyContents);
+			Assert.IsTrue(sallyContents.Contains("cat"));
+			Assert.IsTrue(sallyContents.Contains("dog"), "'dog' should be from Bob's older repo.");
+			Assert.IsTrue(sallyContents.Contains("herring"), "Now we should have everything from Bob's repo.");
+			Assert.IsTrue(sallyContents.Contains("pig"), "'pig' should only be in Sally's new branch.");
+
 		}
 
 #if forscreenshot
