@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
+using Chorus.sync;
 using Chorus.Utilities;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
@@ -550,6 +551,99 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				var transport = provider.Transport;
 				transport.Push();
 				Assert.That(e.Progress.AllMessages, Contains.Item("Finished sending"));
+			}
+		}
+
+		[Test]
+		public void Push_RemoteOnNewBranch_DoesNotThrow()
+		{
+			using (var e = new TestEnvironment("hgresumetest", ApiServerType.Push))
+			using (var provider = GetTransportProviderForTest(e))
+			{
+				e.LocalAddAndCommit();
+				e.CloneRemoteFromLocal();
+				e.SetRemoteAdjunct(new BranchTestAdjunct() { BranchName = "newRemoteBranch"});
+				e.RemoteAddAndCommit();
+				var transport = provider.Transport;
+				Assert.That(() => transport.Push(), Throws.Nothing);
+			}
+		}
+
+		[Test]
+		public void Push_RemoteOnNewBranch_SendsData()
+		{
+			using (var e = new TestEnvironment("hgresumetest", ApiServerType.Push))
+			using (var provider = GetTransportProviderForTest(e))
+			{
+				e.LocalAddAndCommit();
+				e.CloneRemoteFromLocal();
+				e.SetRemoteAdjunct(new BranchTestAdjunct() { BranchName = "newRemoteBranch" });
+				e.RemoteAddAndCommit();
+				e.LocalAddAndCommit();
+				var transport = provider.Transport;
+				Assert.That(() => transport.Push(), Throws.Nothing);
+				Assert.That(e.Progress.AllMessages, !Contains.Item("No changes to send.  Push operation completed"));
+			}
+		}
+
+		[Test]
+		public void Push_LocalOnNewBranch_DoesNotThrow()
+		{
+			using (var e = new TestEnvironment("hgresumetest", ApiServerType.Push))
+			using (var provider = GetTransportProviderForTest(e))
+			{
+				e.LocalAddAndCommit();
+				e.CloneRemoteFromLocal();
+				e.SetLocalAdjunct(new BranchTestAdjunct() { BranchName = "newLocalBranch" });
+				e.LocalAddAndCommit();
+				var transport = provider.Transport;
+				Assert.That(() => transport.Push(), Throws.Nothing);
+			}
+		}
+
+		[Test]
+		public void Push_LocalOnNewBranch_SendsData()
+		{
+			using (var e = new TestEnvironment("hgresumetest", ApiServerType.Push))
+			using (var provider = GetTransportProviderForTest(e))
+			{
+				e.LocalAddAndCommit();
+				e.CloneRemoteFromLocal();
+				e.SetLocalAdjunct(new BranchTestAdjunct() { BranchName = "newLocalBranch" });
+				e.RemoteAddAndCommit();
+				e.LocalAddAndCommit();
+				var transport = provider.Transport;
+				Assert.That(() => transport.Push(), Throws.Nothing);
+				Assert.That(e.Progress.AllMessages, !Contains.Item("No changes to send.  Push operation completed"));
+			}
+		}
+
+		private class BranchTestAdjunct : ISychronizerAdjunct
+		{
+			public string BranchName { get; set; }
+			public void PrepareForInitialCommit(IProgress progress)
+			{
+				;
+			}
+
+			public void SimpleUpdate(IProgress progress, bool isRollback)
+			{
+				;
+			}
+
+			public void PrepareForPostMergeCommit(IProgress progress)
+			{
+				;
+			}
+
+			public string GetModelVersion()
+			{
+				return BranchName;
+			}
+
+			public void CheckRepositoryBranches(IEnumerable<Revision> branches)
+			{
+				;
 			}
 		}
 	}

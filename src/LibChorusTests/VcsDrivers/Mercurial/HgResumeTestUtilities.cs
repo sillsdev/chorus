@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading;
+using Chorus.sync;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using LibChorus.TestUtilities;
@@ -73,6 +74,20 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		{
 			Local.Dispose();
 			Remote.Dispose();
+		}
+
+		public void SetLocalAdjunct(ISychronizerAdjunct adjunct)
+		{
+			if (Local.Synchronizer == null)
+				Local.Synchronizer = Local.CreateSynchronizer();
+			Local.Synchronizer.SynchronizerAdjunct = adjunct;
+		}
+
+		public void SetRemoteAdjunct(ISychronizerAdjunct adjunct)
+		{
+			if (Remote.Synchronizer == null)
+				Remote.Synchronizer = Remote.CreateSynchronizer();
+			Remote.Synchronizer.SynchronizerAdjunct = adjunct;
 		}
 
 		public void LocalAddAndCommit()
