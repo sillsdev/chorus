@@ -161,6 +161,7 @@
 	<Compile Include="notes\AnnotationRepositoryTests.cs" />
 	<Compile Include="sync\CommitCopTests.cs" />
 	<Compile Include="sync\LargeFileFilterTests.cs" />
+	<Compile Include="sync\ProgrammableSynchronizerAdjunct.cs" />
 	<Compile Include="sync\ProxyTests.cs" />
 	<Compile Include="sync\RevisionMergeBehaviorTests.cs" />
 	<Compile Include="sync\SychronizerAdjunctTests.cs" />

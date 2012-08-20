@@ -461,8 +461,8 @@ namespace LibChorus.Tests.sync
 
 			public string GetModelVersion()
 			{
-				File.WriteAllText(GetVersionPathName, "default");
-				return "default";
+				File.WriteAllText(GetVersionPathName, "(default)");
+				return ""; // Hg 'default' branch is empty string.
 			}
 
 			public void CheckRepositoryBranches(IEnumerable<Revision> branches)
