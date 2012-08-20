@@ -618,6 +618,40 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			}
 		}
 
+		[Test]
+		public void Pull_LocalOnNewBranch_Success()
+		{
+			using (var e = new TestEnvironment("hgresumetest", ApiServerType.Pull))
+			using (var provider = GetTransportProviderForTest(e))
+			{
+				e.LocalAddAndCommit();
+				e.CloneRemoteFromLocal();
+				e.SetLocalAdjunct(new BranchTestAdjunct { BranchName = "localBranch"});
+				e.LocalAddAndCommit();
+				e.RemoteAddAndCommit();
+				var transport = provider.Transport;
+				transport.Pull();
+				Assert.That(e.Progress.AllMessages, Contains.Item("Pull operation completed successfully"));
+			}
+		}
+
+		[Test]
+		public void Pull_RemoteOnNewBranch_Success()
+		{
+			using (var e = new TestEnvironment("hgresumetest", ApiServerType.Pull))
+			using (var provider = GetTransportProviderForTest(e))
+			{
+				e.LocalAddAndCommit();
+				e.CloneRemoteFromLocal();
+				e.SetRemoteAdjunct(new BranchTestAdjunct { BranchName = "remoteBranch" });
+				e.LocalAddAndCommit();
+				e.RemoteAddAndCommit();
+				var transport = provider.Transport;
+				transport.Pull();
+				Assert.That(e.Progress.AllMessages, Contains.Item("Pull operation completed successfully"));
+			}
+		}
+
 		private class BranchTestAdjunct : ISychronizerAdjunct
 		{
 			public string BranchName { get; set; }
