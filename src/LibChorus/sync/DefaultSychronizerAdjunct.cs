@@ -41,7 +41,7 @@ namespace Chorus.sync
 
 		public string GetModelVersion()
 		{
-			return "default";
+			return ""; // Hg default branch name
 		}
 
 		public void CheckRepositoryBranches(IEnumerable<Revision> branches)

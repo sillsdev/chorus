@@ -79,7 +79,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 					DoSendToOthers = false
 				});
 
-				const string myVersion = "default";
+				const string myVersion = ""; // Hg default branch name
 
 				// SUT
 				string revNum;

@@ -28,7 +28,8 @@ namespace Chorus.VcsDrivers.Mercurial
 		private void SetCurrentClientVersion()
 		{
 			var currentRevision = _repo.GetRevisionWorkingSetIsBasedOn();
-			ClientVersion = currentRevision.Branch;
+			if (currentRevision != null)
+				ClientVersion = currentRevision.Branch;
 		}
 
 		internal List<Revision> GetBranches()
@@ -61,7 +62,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		internal void CreateNewBranch(string versionNumber)
 		{
-			Branch(new NullProgress(), versionNumber);
+			Branch(_progress, versionNumber);
 			ClientVersion = versionNumber;
 		}
 
