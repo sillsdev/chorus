@@ -121,7 +121,7 @@ namespace Chorus.sync
 				repo.RecoverFromInterruptedTransactionIfNeeded();
 				repo.FixUnicodeAudio();
 				string modelVersion = _sychronizerAdjunct.GetModelVersion();
-				ChangeBranchIfNecessary(modelVersion);
+				ChangeBranchIfNecessary(modelVersion, options);
 				Commit(options);
 
 				var workingRevBeforeSync = repo.GetRevisionWorkingSetIsBasedOn();
@@ -183,12 +183,16 @@ namespace Chorus.sync
 			return results;
 		}
 
-		private void ChangeBranchIfNecessary(string modelVersion)
+		private void ChangeBranchIfNecessary(string modelVersion, SyncOptions options)
 		{
 			if (Repository.GetRevisionWorkingSetIsBasedOn() == null ||
 				Repository.GetRevisionWorkingSetIsBasedOn().Branch != modelVersion)
 			{
-				Repository.BranchingHelper.CreateNewBranch(modelVersion);
+				var revision = Repository.BranchingHelper.CreateNewBranch(modelVersion);
+				if(revision != null)
+				{
+					MergeBranch(revision, options);
+				}
 			}
 		}
 
@@ -675,6 +679,63 @@ namespace Chorus.sync
 				_progress.WriteError("Rolling back...");
 				UpdateToTheDescendantRevision(repo, workingRevBeforeSync); //rollback
 				throw;
+			}
+		}
+
+		private void MergeBranch(Revision otherBranchRevision, SyncOptions options)
+		{
+			try
+			{
+				List<string> peopleWeMergedWith = new List<string>();
+				//We need to commit before we can merge the branch, but we don't want to commit new model files into an old model branch
+				//so make a temp branch and commit and merge that one into the new version banch.
+				var tempBranchName = otherBranchRevision.Branch + Repository.GetUserIdInUse() + DateTime.Now;
+				Repository.Branch(tempBranchName);
+				Commit(options);
+				Revision myHead = Repository.GetRevisionWorkingSetIsBasedOn();
+				Repository.Update(otherBranchRevision.Number.Hash);
+				if (myHead == default(Revision))
+					return;
+
+				//this is for posterity, on other people's machines, so use the hashes instead of local numbers
+				MergeSituation.PushRevisionsToEnvironmentVariables(otherBranchRevision.UserId, otherBranchRevision.Number.Hash,
+					myHead.UserId, myHead.Number.Hash);
+
+				MergeOrder.PushToEnvironmentVariables(_localRepositoryPath);
+				_progress.WriteMessage("Merging {0} and {1}...", otherBranchRevision.UserId, myHead.UserId);
+				_progress.WriteVerbose("   Revisions {0}:{1} with {2}:{3}...", otherBranchRevision.Number.LocalRevisionNumber, otherBranchRevision.Number.Hash,
+					myHead.Number.LocalRevisionNumber, myHead.Number.Hash);
+				RemoveMergeObstacles(otherBranchRevision, myHead);
+
+				//if(CheckAndWarnIfNoCommonAncestor(myHead, head))
+				//{
+				//    continue;
+				//}
+
+				if (!MergeTwoChangeSets(otherBranchRevision, myHead))
+					return; // Nothing to merge.
+
+				peopleWeMergedWith.Add(myHead.UserId);
+
+				//that merge may have generated notes files where they didn't exist before,
+				//and we want these merged
+				//version + updated/created notes files to go right back into the repository
+
+				//  args.Append(" -X " + SurroundWithQuotes(Path.Combine(_pathToRepository, "**.ChorusRescuedFile")));
+
+				AppendAnyNewNotes(_localRepositoryPath);
+
+				_sychronizerAdjunct.PrepareForPostMergeCommit(_progress);
+
+				AddAndCommitFiles(GetMergeCommitSummary(myHead.UserId, Repository));
+			}
+			catch (UserCancelledException)
+			{
+				throw;
+			}
+			catch (Exception error)
+			{
+				ExplainAndThrow(error, WhatToDo.NeedExpertHelp, "Unable to complete the send/receive.");
 			}
 		}
 

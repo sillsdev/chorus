@@ -61,7 +61,13 @@ namespace Chorus.VcsDrivers.Mercurial
 			_repo.Execute(_repo.SecondsBeforeTimeoutOnLocalOperation, "branch ", HgRepository.SurroundWithQuotes(branchName));
 		}
 
-		internal void CreateNewBranch(string versionNumber)
+		/// <summary>
+		/// This will create a new branch if no branch exists for version number.
+		/// If the version number branch does exist, it will return false.
+		/// </summary>
+		/// <param name="versionNumber"></param>
+		/// <returns></returns>
+		internal Revision CreateNewBranch(string versionNumber)
 		{
 			var branches = GetBranches();
 			Revision existingBranch = null;
@@ -80,15 +86,13 @@ namespace Chorus.VcsDrivers.Mercurial
 					break;
 			}
 
+			ClientVersion = versionNumber;
 			if (existingBranch != null && oldBranch != null)
 			{
-				//The branch exists, we need to merge into it, not create a new one
+				return existingBranch; //The branch exists, we need to merge into it, not create a new one
 			}
-			else
-			{
-				Branch(_progress, versionNumber);
-			}
-			ClientVersion = versionNumber;
+			Branch(_progress, versionNumber);
+			return null;
 		}
 
 		internal bool IsLatestBranchDifferent(string myVersion, out string revNum)
