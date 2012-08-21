@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using Palaso.Progress.LogBox;
@@ -62,7 +63,35 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		internal void CreateNewBranch(string versionNumber)
 		{
-			Branch(_progress, versionNumber);
+			var branches = GetBranches();
+			Revision existingBranch = null;
+			Revision oldBranch = null;
+			foreach (var revision in branches)
+			{
+				if(revision.Branch == versionNumber)
+				{
+					existingBranch = revision;
+				}
+				if(revision.Branch == ClientVersion)
+				{
+					oldBranch = revision;
+				}
+				if(oldBranch != null && existingBranch != null)
+					break;
+			}
+
+			if (existingBranch != null && oldBranch != null)
+			{
+				_repo.Commit(true, "commit triggering upgrade to " + existingBranch.Branch);
+				//merge branch.
+				_repo.Update(existingBranch.Number.Hash);
+				_repo.Merge(_repo.PathToRepo, oldBranch.Number.Hash); //This merge fails, because it isn't the right thing to do.
+				_repo.Commit(true, "merged version " + oldBranch.Branch + " into version " + existingBranch.Branch);
+			}
+			else
+			{
+				Branch(_progress, versionNumber);
+			}
 			ClientVersion = versionNumber;
 		}
 

@@ -295,6 +295,7 @@ namespace LibChorus.Tests.sync
 
 			var synchronizer = Synchronizer.FromProjectConfiguration(sallyProject, progress);
 			SetAdjunctModelVersion(synchronizer, "LIFT0.13"); // Sally is still on the initial branch
+			Debug.Print("Sally now synchronizing under LIFt13");
 			synchronizer.SyncNow(sallyOptions);
 
 			// So what's supposed to happen?
@@ -318,9 +319,8 @@ namespace LibChorus.Tests.sync
 				DoSendToOthers = true,
 				DoMergeWithOthers = true
 			};
-			sallyOptions.RepositorySourcesToTry.Add(RepositoryAddress.Create("bob's machine", bobSetup.BobProjectPath, false));
 
-			SetAdjunctModelVersion(synchronizer, "LIFT0.14"); // Sally is still on the initial branch
+			SetAdjunctModelVersion(synchronizer, "LIFT0.14"); // Sally updates to the new version (branch)
 			synchronizer.SyncNow(sallyOptions);
 
 			// So what's supposed to happen?
@@ -333,7 +333,7 @@ namespace LibChorus.Tests.sync
 			Assert.IsTrue(sallyContents.Contains("cat"));
 			Assert.IsTrue(sallyContents.Contains("dog"), "'dog' should be from Bob's older repo.");
 			Assert.IsTrue(sallyContents.Contains("herring"), "Now we should have everything from Bob's repo.");
-			Assert.IsTrue(sallyContents.Contains("pig"), "'pig' should only be in Sally's new branch.");
+			Assert.IsTrue(sallyContents.Contains("pig"), "'pig' should have survived the upgrade.");
 
 		}
 
