@@ -319,6 +319,7 @@ namespace LibChorus.Tests.sync
 				DoSendToOthers = true,
 				DoMergeWithOthers = true
 			};
+			sallyOptions.RepositorySourcesToTry.Add(RepositoryAddress.Create("bob's machine", bobSetup.BobProjectPath, false));
 
 			SetAdjunctModelVersion(synchronizer, "LIFT0.14"); // Sally updates to the new version (branch)
 			synchronizer.SyncNow(sallyOptions);

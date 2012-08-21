@@ -188,8 +188,7 @@ namespace Chorus.sync
 			if (Repository.GetRevisionWorkingSetIsBasedOn() == null ||
 				Repository.GetRevisionWorkingSetIsBasedOn().Branch != modelVersion)
 			{
-				var temp = new HgModelVersionBranch(Repository, new NullProgress());
-				temp.CreateNewBranch(modelVersion);
+				Repository.BranchingHelper.CreateNewBranch(modelVersion);
 			}
 		}
 

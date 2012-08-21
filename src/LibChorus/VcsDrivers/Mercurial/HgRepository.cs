@@ -30,6 +30,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		private string _proxyCongfigParameterString = string.Empty;
 		private bool _alreadyUpdatedHgrc;
 		private static bool _alreadyCheckedMercurialIni;
+		private HgModelVersionBranch _branchHelper;
 
 		public static string GetEnvironmentReadinessMessage(string messageLanguageId)
 		{
@@ -44,6 +45,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			return null;
 		}
 
+		internal HgModelVersionBranch BranchingHelper { get { return _branchHelper; } }
 
 		/// <exception cref="Exception">This will throw when the hgrc is locked</exception>
 		public RepositoryAddress GetDefaultNetworkAddress<T>()
@@ -150,6 +152,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			_progress = progress;
 
 			_userName = GetUserIdInUse();
+			_branchHelper = new HgModelVersionBranch(this, _progress);
 		}
 
 		/// <summary>
