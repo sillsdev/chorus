@@ -62,8 +62,8 @@ namespace Chorus.VcsDrivers.Mercurial
 		}
 
 		/// <summary>
-		/// This will create a new branch if no branch exists for version number.
-		/// If the version number branch does exist, it will return false.
+		/// This will create a new branch if no branch exists for version number and return null.
+		/// If the version number branch does exist, it will return the revision.
 		/// </summary>
 		/// <param name="versionNumber"></param>
 		/// <returns></returns>

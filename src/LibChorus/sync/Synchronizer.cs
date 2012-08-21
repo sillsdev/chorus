@@ -189,10 +189,8 @@ namespace Chorus.sync
 				Repository.GetRevisionWorkingSetIsBasedOn().Branch != modelVersion)
 			{
 				var revision = Repository.BranchingHelper.CreateNewBranch(modelVersion);
-				if(revision != null)
-				{
+				if (revision != null)
 					MergeBranch(revision, options);
-				}
 			}
 		}
 
@@ -707,11 +705,6 @@ namespace Chorus.sync
 					myHead.Number.LocalRevisionNumber, myHead.Number.Hash);
 				RemoveMergeObstacles(otherBranchRevision, myHead);
 
-				//if(CheckAndWarnIfNoCommonAncestor(myHead, head))
-				//{
-				//    continue;
-				//}
-
 				if (!MergeTwoChangeSets(otherBranchRevision, myHead))
 					return; // Nothing to merge.
 
@@ -760,24 +753,6 @@ namespace Chorus.sync
 
 				foreach (Revision head in heads)
 				{
-					// Note: These are all removed, above.
-					//if (head.Number.LocalRevisionNumber == myHead.Number.LocalRevisionNumber)
-					//{
-					//    continue;
-					//}
-
-					//if (head.Tag.Contains(RejectTagSubstring))
-					//{
-					//    continue;
-					//}
-
-					////note: what we're checking here is actually the *name* of the branch...important: remmber in hg,
-					////you can have multiple heads on the same branch
-					//if (head.Branch != myHead.Branch) //Chorus policy is to only auto-merge on branches with same name
-					//{
-					//    continue;
-					//}
-
 					//this is for posterity, on other people's machines, so use the hashes instead of local numbers
 					MergeSituation.PushRevisionsToEnvironmentVariables(myHead.UserId, myHead.Number.Hash, head.UserId,
 																		head.Number.Hash);
@@ -786,11 +761,6 @@ namespace Chorus.sync
 					_progress.WriteMessage("Merging {0} and {1}...", myHead.UserId, head.UserId);
 					_progress.WriteVerbose("   Revisions {0}:{1} with {2}:{3}...", myHead.Number.LocalRevisionNumber, myHead.Number.Hash, head.Number.LocalRevisionNumber, head.Number.Hash);
 					RemoveMergeObstacles(myHead, head);
-
-					//if(CheckAndWarnIfNoCommonAncestor(myHead, head))
-					//{
-					//    continue;
-					//}
 
 					if (!MergeTwoChangeSets(myHead, head))
 						continue; // Nothing to merge.
