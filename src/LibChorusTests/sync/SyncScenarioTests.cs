@@ -83,7 +83,7 @@ namespace LibChorus.Tests.sync
 				options.DoMergeWithOthers = false;
 				options.CheckinDescription = "Added";
 
-				RepositorySetup.MakeRepositoryForTest(languageProjectPath, "bob",_progress);
+				RepositorySetup.MakeRepositoryForTest(languageProjectPath, "bob", _progress);
 
 				//SyncManager bobManager = SyncManager.FromChildPath(_lexiconProjectPath, progress, "bob");
 				SyncResults results = GetSynchronizer().SyncNow(options);
@@ -91,8 +91,9 @@ namespace LibChorus.Tests.sync
 
 			public string BobProjectPath
 			{
-				get { return Path.Combine(BobSourcePath, RepositoryAddress.ProjectNameVariable); }
-			}
+				//get { return Path.Combine(BobSourcePath, RepositoryAddress.ProjectNameVariable); }
+				get { return _languageProjectPath; }
+		   }
 
 			public void ChangeTextFile()
 			{
@@ -219,7 +220,8 @@ namespace LibChorus.Tests.sync
 				DoSendToOthers = true,
 				DoMergeWithOthers = true
 			};
-			sallyOptions.RepositorySourcesToTry.Add(RepositoryAddress.Create("bob's machine", bobSetup.BobProjectPath, false));
+			var bobAddress = RepositoryAddress.Create("bob's machine", bobSetup.BobProjectPath, false);
+			sallyOptions.RepositorySourcesToTry.Add(bobAddress);
 
 			var synchronizer = Synchronizer.FromProjectConfiguration(sallyProject, progress);
 			SetAdjunctModelVersion(synchronizer, "LIFT0.13");

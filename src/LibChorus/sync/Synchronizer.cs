@@ -121,8 +121,8 @@ namespace Chorus.sync
 				repo.RecoverFromInterruptedTransactionIfNeeded();
 				repo.FixUnicodeAudio();
 				string modelVersion = _sychronizerAdjunct.GetModelVersion();
-				Commit(options);
 				ChangeBranchIfNecessary(modelVersion);
+				Commit(options);
 
 				var workingRevBeforeSync = repo.GetRevisionWorkingSetIsBasedOn();
 
