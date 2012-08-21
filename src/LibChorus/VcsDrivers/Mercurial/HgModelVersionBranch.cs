@@ -82,11 +82,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 			if (existingBranch != null && oldBranch != null)
 			{
-				_repo.Commit(true, "commit triggering upgrade to " + existingBranch.Branch);
-				//merge branch.
-				_repo.Update(existingBranch.Number.Hash);
-				_repo.Merge(_repo.PathToRepo, oldBranch.Number.Hash); //This merge fails, because it isn't the right thing to do.
-				_repo.Commit(true, "merged version " + oldBranch.Branch + " into version " + existingBranch.Branch);
+				//The branch exists, we need to merge into it, not create a new one
 			}
 			else
 			{
