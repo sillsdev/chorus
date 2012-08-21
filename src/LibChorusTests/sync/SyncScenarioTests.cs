@@ -29,6 +29,7 @@ namespace LibChorus.Tests.sync
 			Directory.Delete(_pathToTestRoot, true);
 		}
 
+
 		#region Test Utilities
 
 		public static void SetAdjunctModelVersion(Synchronizer synchronizer, string modelVersion)
@@ -307,7 +308,6 @@ namespace LibChorus.Tests.sync
 
 			var synchronizer = Synchronizer.FromProjectConfiguration(sallyProject, progress);
 			SetAdjunctModelVersion(synchronizer, "LIFT0.13"); // Sally is still on the initial branch
-			Debug.Print("Sally now synchronizing under LIFt13");
 			synchronizer.SyncNow(sallyOptions);
 
 			// So what's supposed to happen?
@@ -331,12 +331,14 @@ namespace LibChorus.Tests.sync
 				DoSendToOthers = true,
 				DoMergeWithOthers = true
 			};
-			sallyOptions.RepositorySourcesToTry.Add(RepositoryAddress.Create("bob's machine", bobSetup.BobProjectPath, false));
 
-			const string sallyNewVersion = "LIFT0.14";
-			SetAdjunctModelVersion(synchronizer, sallyNewVersion); // Sally updates to the new version (branch)
+			const string lift14version = "LIFT0.14";
+			SetAdjunctModelVersion(synchronizer, lift14version); // Sally updates to the new version (branch)
 			synchronizer.SyncNow(sallyOptions);
+			newBobOptions.DoPullFromOthers = true;
+			newBobOptions.RepositorySourcesToTry.Add(RepositoryAddress.Create("sally's machine", sallyProjectRoot, false));
 
+			bobsyncer.SyncNow(newBobOptions);
 			// Verification
 			bobContents = File.ReadAllText(bobSetup._pathToLift);
 			//Debug.Print("Bob's: " + bobContents);
@@ -352,11 +354,11 @@ namespace LibChorus.Tests.sync
 
 			// Verify Bob is on the latest branch
 			string dummy;
-			var result = bobsyncer.Repository.BranchingHelper.IsLatestBranchDifferent(sallyNewVersion, out dummy);
+			var result = bobsyncer.Repository.BranchingHelper.IsLatestBranchDifferent(lift14version, out dummy);
 			Assert.IsFalse(result, "Bob should be on the latest LIFT0.14 branch.");
 
 			// Verify Sally is on the right branch
-			result = synchronizer.Repository.BranchingHelper.IsLatestBranchDifferent(sallyNewVersion, out dummy);
+			result = synchronizer.Repository.BranchingHelper.IsLatestBranchDifferent(lift14version, out dummy);
 			Assert.IsFalse(result, "Sally should be on the latest LIFT0.14 branch.");
 		}
 

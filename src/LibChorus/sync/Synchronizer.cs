@@ -680,47 +680,33 @@ namespace Chorus.sync
 			}
 		}
 
+		/// <summary>
+		/// This method will merge the head revision of the current repository into another branch leaving the repository
+		/// on that other branch.
+		/// This helps handle the case where a user updates to a new model version and the branch is already there because someone
+		/// else is already using the new version.
+		/// </summary>
+		/// <param name="otherBranchRevision">The head revision of the branch we are merging into</param>
+		/// <param name="options">The options that were requested by the commit that triggered the branch merge</param>
 		private void MergeBranch(Revision otherBranchRevision, SyncOptions options)
 		{
 			try
 			{
-				List<string> peopleWeMergedWith = new List<string>();
 				//We need to commit before we can merge the branch, but we don't want to commit new model files into an old model branch
-				//so make a temp branch and commit and merge that one into the new version banch.
-				var tempBranchName = otherBranchRevision.Branch + Repository.GetUserIdInUse() + DateTime.Now;
+				//so make a 'temp' branch, commit there, and merge it into the new version banch.
+				var tempBranchName = otherBranchRevision.Branch + Repository.GetUserIdInUse() + DateTime.Now.ToString("yyyy_MMMM_dd_hh_ss");
 				Repository.Branch(tempBranchName);
 				Commit(options);
-				Revision myHead = Repository.GetRevisionWorkingSetIsBasedOn();
+				var myHead = Repository.GetRevisionWorkingSetIsBasedOn();
 				Repository.Update(otherBranchRevision.Number.Hash);
 				if (myHead == default(Revision))
 					return;
 
-				//this is for posterity, on other people's machines, so use the hashes instead of local numbers
-				MergeSituation.PushRevisionsToEnvironmentVariables(otherBranchRevision.UserId, otherBranchRevision.Number.Hash,
-					myHead.UserId, myHead.Number.Hash);
-
-				MergeOrder.PushToEnvironmentVariables(_localRepositoryPath);
-				_progress.WriteMessage("Merging {0} and {1}...", otherBranchRevision.UserId, myHead.UserId);
-				_progress.WriteVerbose("   Revisions {0}:{1} with {2}:{3}...", otherBranchRevision.Number.LocalRevisionNumber, otherBranchRevision.Number.Hash,
-					myHead.Number.LocalRevisionNumber, myHead.Number.Hash);
-				RemoveMergeObstacles(otherBranchRevision, myHead);
-
+				PrepareForMergeAttempt(otherBranchRevision, myHead);
 				if (!MergeTwoChangeSets(otherBranchRevision, myHead))
 					return; // Nothing to merge.
 
-				peopleWeMergedWith.Add(myHead.UserId);
-
-				//that merge may have generated notes files where they didn't exist before,
-				//and we want these merged
-				//version + updated/created notes files to go right back into the repository
-
-				//  args.Append(" -X " + SurroundWithQuotes(Path.Combine(_pathToRepository, "**.ChorusRescuedFile")));
-
-				AppendAnyNewNotes(_localRepositoryPath);
-
-				_sychronizerAdjunct.PrepareForPostMergeCommit(_progress);
-
-				AddAndCommitFiles(GetMergeCommitSummary(myHead.UserId, Repository));
+				DoPostMergeCommit(myHead);
 			}
 			catch (UserCancelledException)
 			{
@@ -730,6 +716,44 @@ namespace Chorus.sync
 			{
 				ExplainAndThrow(error, WhatToDo.NeedExpertHelp, "Unable to complete the send/receive.");
 			}
+		}
+
+		/// <summary>
+		/// Sets up everything necessary for a call out to the ChorusMerge executable
+		/// </summary>
+		/// <param name="targetHead"></param>
+		/// <param name="sourceHead"></param>
+		private void PrepareForMergeAttempt(Revision targetHead, Revision sourceHead)
+		{
+			//this is for posterity, on other people's machines, so use the hashes instead of local numbers
+			MergeSituation.PushRevisionsToEnvironmentVariables(targetHead.UserId, targetHead.Number.Hash,
+															   sourceHead.UserId, sourceHead.Number.Hash);
+
+			MergeOrder.PushToEnvironmentVariables(_localRepositoryPath);
+			_progress.WriteMessage("Merging {0} and {1}...", targetHead.UserId, sourceHead.UserId);
+			_progress.WriteVerbose("   Revisions {0}:{1} with {2}:{3}...", targetHead.Number.LocalRevisionNumber, targetHead.Number.Hash,
+								   sourceHead.Number.LocalRevisionNumber, sourceHead.Number.Hash);
+			RemoveMergeObstacles(targetHead, sourceHead);
+		}
+
+		/// <summary>
+		/// This method handles post merge tasks including the commit after the merge
+		/// </summary>
+		/// <param name="head"></param>
+		/// <param name="peopleWeMergedWith"></param>
+		private void DoPostMergeCommit(Revision head)
+		{
+			//that merge may have generated notes files where they didn't exist before,
+			//and we want these merged
+			//version + updated/created notes files to go right back into the repository
+
+			//  args.Append(" -X " + SurroundWithQuotes(Path.Combine(_pathToRepository, "**.ChorusRescuedFile")));
+
+			AppendAnyNewNotes(_localRepositoryPath);
+
+			_sychronizerAdjunct.PrepareForPostMergeCommit(_progress);
+
+			AddAndCommitFiles(GetMergeCommitSummary(head.UserId, Repository));
 		}
 
 		private void MergeHeads()
@@ -753,31 +777,13 @@ namespace Chorus.sync
 
 				foreach (Revision head in heads)
 				{
-					//this is for posterity, on other people's machines, so use the hashes instead of local numbers
-					MergeSituation.PushRevisionsToEnvironmentVariables(myHead.UserId, myHead.Number.Hash, head.UserId,
-																		head.Number.Hash);
-
-					MergeOrder.PushToEnvironmentVariables(_localRepositoryPath);
-					_progress.WriteMessage("Merging {0} and {1}...", myHead.UserId, head.UserId);
-					_progress.WriteVerbose("   Revisions {0}:{1} with {2}:{3}...", myHead.Number.LocalRevisionNumber, myHead.Number.Hash, head.Number.LocalRevisionNumber, head.Number.Hash);
-					RemoveMergeObstacles(myHead, head);
+					PrepareForMergeAttempt(myHead, head);
 
 					if (!MergeTwoChangeSets(myHead, head))
 						continue; // Nothing to merge.
 
 					peopleWeMergedWith.Add(head.UserId);
-
-					//that merge may have generated notes files where they didn't exist before,
-					//and we want these merged
-					//version + updated/created notes files to go right back into the repository
-
-					//  args.Append(" -X " + SurroundWithQuotes(Path.Combine(_pathToRepository, "**.ChorusRescuedFile")));
-
-					AppendAnyNewNotes(_localRepositoryPath);
-
-					_sychronizerAdjunct.PrepareForPostMergeCommit(_progress);
-
-					AddAndCommitFiles(GetMergeCommitSummary(head.UserId, Repository));
+					DoPostMergeCommit(head);
 				}
 			}
 			catch (UserCancelledException)
@@ -789,6 +795,7 @@ namespace Chorus.sync
 				ExplainAndThrow(error,WhatToDo.NeedExpertHelp, "Unable to complete the send/receive.");
 			}
 		}
+
 
 		/// <summary>
 		/// Find any .NewChorusNotes files which were created by the MergeChorus.exe and either rename them to .ChorusNotes
