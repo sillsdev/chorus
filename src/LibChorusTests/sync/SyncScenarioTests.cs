@@ -224,10 +224,11 @@ namespace LibChorus.Tests.sync
 			sallyOptions.RepositorySourcesToTry.Add(bobAddress);
 
 			var synchronizer = Synchronizer.FromProjectConfiguration(sallyProject, progress);
-			SetAdjunctModelVersion(synchronizer, "LIFT0.13");
+			const string sallyNewVersion = "LIFT0.13";
+			SetAdjunctModelVersion(synchronizer, sallyNewVersion);
 			synchronizer.SyncNow(sallyOptions);
 
-			// So what's supposed to happen?
+			// Verification
 			var bobContents = File.ReadAllText(bobSetup._pathToLift);
 			Assert.IsFalse(bobContents.Contains("cat"), "'cat' should only be on Sally's branch.");
 			Assert.IsTrue(bobContents.Contains("dog"));
@@ -235,6 +236,15 @@ namespace LibChorus.Tests.sync
 			//Debug.WriteLine("sally's: " + sallyContents);
 			Assert.IsTrue(sallyContents.Contains("cat"));
 			Assert.IsFalse(sallyContents.Contains("dog"), "'dog' should only be in Bob's repo.");
+
+			// Verify Bob is still on the default branch (empty string)
+			string dummy;
+			var result = bobSyncer.Repository.BranchingHelper.IsLatestBranchDifferent("", out dummy);
+			Assert.IsFalse(result, "Bob should be on default branch.");
+
+			// Verify Sally is on the right branch
+			result = synchronizer.Repository.BranchingHelper.IsLatestBranchDifferent(sallyNewVersion, out dummy);
+			Assert.IsFalse(result, "Sally should be on LIFT0.13 branch.");
 		}
 
 		[Test]
@@ -323,21 +333,31 @@ namespace LibChorus.Tests.sync
 			};
 			sallyOptions.RepositorySourcesToTry.Add(RepositoryAddress.Create("bob's machine", bobSetup.BobProjectPath, false));
 
-			SetAdjunctModelVersion(synchronizer, "LIFT0.14"); // Sally updates to the new version (branch)
+			const string sallyNewVersion = "LIFT0.14";
+			SetAdjunctModelVersion(synchronizer, sallyNewVersion); // Sally updates to the new version (branch)
 			synchronizer.SyncNow(sallyOptions);
 
-			// So what's supposed to happen?
+			// Verification
 			bobContents = File.ReadAllText(bobSetup._pathToLift);
-			Assert.IsFalse(bobContents.Contains("cat"), "'cat' should only be on Sally's branch.");
+			//Debug.Print("Bob's: " + bobContents);
+			Assert.IsTrue(bobContents.Contains("cat"), "'cat' survived the upgrade to Bob's repo.");
 			Assert.IsTrue(bobContents.Contains("dog"));
-			Assert.IsFalse(bobContents.Contains("pig"), "'pig' should only be on Sally's branch.");
+			Assert.IsTrue(bobContents.Contains("pig"), "'pig' survived the upgrade to Bob's repo.");
 			sallyContents = File.ReadAllText(sallyPathToLift);
-			//Debug.WriteLine("sally's: " + sallyContents);
+			//Debug.Print("Sally's: " + sallyContents);
 			Assert.IsTrue(sallyContents.Contains("cat"));
 			Assert.IsTrue(sallyContents.Contains("dog"), "'dog' should be from Bob's older repo.");
 			Assert.IsTrue(sallyContents.Contains("herring"), "Now we should have everything from Bob's repo.");
 			Assert.IsTrue(sallyContents.Contains("pig"), "'pig' should have survived the upgrade.");
 
+			// Verify Bob is on the latest branch
+			string dummy;
+			var result = bobsyncer.Repository.BranchingHelper.IsLatestBranchDifferent(sallyNewVersion, out dummy);
+			Assert.IsFalse(result, "Bob should be on the latest LIFT0.14 branch.");
+
+			// Verify Sally is on the right branch
+			result = synchronizer.Repository.BranchingHelper.IsLatestBranchDifferent(sallyNewVersion, out dummy);
+			Assert.IsFalse(result, "Sally should be on the latest LIFT0.14 branch.");
 		}
 
 #if forscreenshot
