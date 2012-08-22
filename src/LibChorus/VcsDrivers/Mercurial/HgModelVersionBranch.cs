@@ -56,6 +56,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		{
 			progress.WriteVerbose("{0} changing working dir to branch: {1}", UserId, branchName);
 			_repo.Execute(_repo.SecondsBeforeTimeoutOnLocalOperation, "branch -f", HgRepository.SurroundWithQuotes(branchName));
+			ClientVersion = branchName;
 		}
 
 		internal bool IsLatestBranchDifferent(string myVersion, out string revNum)
