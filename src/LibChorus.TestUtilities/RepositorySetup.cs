@@ -309,7 +309,7 @@ namespace LibChorus.TestUtilities
 		public void ChangeFileOnNamedBranchAndComeBack(string fileName, string contents, string branchName)
 		{
 			string previousRevisionNumber = Repository.GetRevisionWorkingSetIsBasedOn().Number.LocalRevisionNumber;
-			Repository.Branch(branchName);
+			Repository.BranchingHelper.Branch(new NullProgress(), branchName);
 			ChangeFileAndCommit(fileName, contents, "Created by ChangeFileOnNamedBranchAndComeBack()");
 			Repository.Update(previousRevisionNumber);//go back
 		}

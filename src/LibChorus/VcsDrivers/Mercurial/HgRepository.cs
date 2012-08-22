@@ -45,7 +45,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			return null;
 		}
 
-		internal HgModelVersionBranch BranchingHelper { get { return _branchHelper; } }
+		public HgModelVersionBranch BranchingHelper { get { return _branchHelper; } }
 
 		/// <exception cref="Exception">This will throw when the hgrc is locked</exception>
 		public RepositoryAddress GetDefaultNetworkAddress<T>()
@@ -516,12 +516,6 @@ namespace Chorus.VcsDrivers.Mercurial
 			CheckAndUpdateHgrc();
 			_progress.WriteWarning("{0} is removing {1} from system. The file will remmain in the history and on disk.", _userName, Path.GetFileName(filepath));
 			Execute(SecondsBeforeTimeoutOnLocalOperation, "forget ", SurroundWithQuotes(filepath));
-		}
-
-		public void Branch(string branchName)
-		{
-			_progress.WriteVerbose("{0} changing working dir to branch: {1}", _userName, branchName);
-			Execute(SecondsBeforeTimeoutOnLocalOperation, "branch -f ", SurroundWithQuotes(branchName));
 		}
 
 		internal ExecutionResult Execute(int secondsBeforeTimeout, string cmd, params string[] rest)

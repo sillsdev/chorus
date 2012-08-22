@@ -7,12 +7,12 @@ using Palaso.Progress.LogBox;
 
 namespace Chorus.VcsDrivers.Mercurial
 {
-	internal class HgModelVersionBranch
+	public class HgModelVersionBranch
 	{
 		private HgRepository _repo;
 		private IProgress _progress;
 
-		public HgModelVersionBranch(HgRepository repo, IProgress progress)
+		internal HgModelVersionBranch(HgRepository repo, IProgress progress)
 		{
 			_repo = repo;
 			_progress = progress;
@@ -55,7 +55,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			return branches;
 		}
 
-		internal void Branch(IProgress progress, string branchName)
+		public void Branch(IProgress progress, string branchName)
 		{
 			progress.WriteVerbose("{0} changing working dir to branch: {1}", UserId, branchName);
 			_repo.Execute(_repo.SecondsBeforeTimeoutOnLocalOperation, "branch -f", HgRepository.SurroundWithQuotes(branchName));
