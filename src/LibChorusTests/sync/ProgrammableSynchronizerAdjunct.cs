@@ -40,9 +40,9 @@ namespace LibChorus.Tests.sync
 		public void PrepareForPostMergeCommit(IProgress progress)
 		{ /* Do nothing at all. */ }
 
-		public string GetModelVersion()
+		public string ModelVersion
 		{
-			return _modelVersion ?? ""; // Hg default branch name
+			get { return _modelVersion ?? ""; } // Hg default branch name
 		}
 
 		public void CheckRepositoryBranches(IEnumerable<Revision> branches)

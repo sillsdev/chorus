@@ -42,7 +42,7 @@ namespace Chorus.sync
 		/// Return a version string for the model of the client. Used to create a version branch in the repository.
 		/// </summary>
 		/// <returns></returns>
-		string GetModelVersion();
+		string ModelVersion { get; }
 
 		/// <summary>
 		/// During a Send/Receive when Chorus has completed a pull and there is more than one branch on the repository

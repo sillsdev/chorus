@@ -459,10 +459,13 @@ namespace LibChorus.Tests.sync
 				File.WriteAllText(MergePathname, "Merged");
 			}
 
-			public string GetModelVersion()
+			public string ModelVersion
 			{
-				File.WriteAllText(GetVersionPathName, "(default)");
-				return ""; // Hg 'default' branch is empty string.
+				get
+				{
+					File.WriteAllText(GetVersionPathName, "(default)");
+					return ""; // Hg 'default' branch is empty string.
+				}
 			}
 
 			public void CheckRepositoryBranches(IEnumerable<Revision> branches)
