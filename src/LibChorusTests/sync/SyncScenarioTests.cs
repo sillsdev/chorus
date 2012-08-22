@@ -37,6 +37,23 @@ namespace LibChorus.Tests.sync
 			synchronizer.SynchronizerAdjunct = new ProgrammableSynchronizerAdjunct(modelVersion);
 		}
 
+		/// <summary>
+		/// Returns a new SyncOptions object with checkin description filled and all flags set to true
+		/// (DoPullFromOthers, DoSendToOthers, DoMergeWithOthers)
+		/// </summary>
+		/// <param name="checkinComment"></param>
+		/// <returns></returns>
+		public SyncOptions GetFullSyncOptions(string checkinComment)
+		{
+			return new SyncOptions
+			{
+				CheckinDescription = checkinComment,
+				DoPullFromOthers = true,
+				DoSendToOthers = true,
+				DoMergeWithOthers = true
+			};
+		}
+
 		#endregion
 
 		class BobSetup
@@ -86,7 +103,6 @@ namespace LibChorus.Tests.sync
 
 				RepositorySetup.MakeRepositoryForTest(languageProjectPath, "bob", _progress);
 
-				//SyncManager bobManager = SyncManager.FromChildPath(_lexiconProjectPath, progress, "bob");
 				SyncResults results = GetSynchronizer().SyncNow(options);
 			}
 
@@ -94,7 +110,7 @@ namespace LibChorus.Tests.sync
 			{
 				//get { return Path.Combine(BobSourcePath, RepositoryAddress.ProjectNameVariable); }
 				get { return _languageProjectPath; }
-		   }
+			}
 
 			public void ChangeTextFile()
 			{
@@ -121,24 +137,12 @@ namespace LibChorus.Tests.sync
 			{
 				ProjectFolderConfiguration project = new ProjectFolderConfiguration(_lexiconProjectPath);
 				project.IncludePatterns.Add("**.abc");
-				 project.IncludePatterns.Add("**.lift");
-			   Synchronizer repo= Synchronizer.FromProjectConfiguration(project, _progress);
+				project.IncludePatterns.Add("**.lift");
+				Synchronizer repo= Synchronizer.FromProjectConfiguration(project, _progress);
 				repo.Repository.SetUserNameInIni("bob", _progress);
 				return repo;
 			}
 		}
-
-//        [Test]
-//        public void CloneShouldHaveSameDirectoryName()
-//        {
-//            ConsoleProgress progress = new ConsoleProgress();
-//            BobSetup bobSetup = new BobSetup(progress, _pathToTestRoot);
-//
-//            Synchronizer repo = Synchronizer.FromProjectConfiguration(bobSetup._projectFolderConfiguration);
-//            string usbPath = Path.Combine(_pathToTestRoot, "USB-A");
-//            repo.MakeCloneFromLocalToLocal(usbPath, false, progress);
-//            Assert.IsTrue(Directory.Exists(Path.Combine(usbPath, BobSetup.ProjectFolderName)));
-//        }
 
 		[Test]
 		public void CanGetNewFileFromAnotherRep()
@@ -157,21 +161,17 @@ namespace LibChorus.Tests.sync
 
 			//now stick a new file over in the "usb", so we can see if it comes back to us
 			File.WriteAllText(Path.Combine(otherDirPath.GetPotentialRepoUri(bob.Repository.Identifier, BobSetup.ProjectFolderName, progress), "incoming.abc"), "this would be a file coming in");
-			SyncOptions options = new SyncOptions();
+			var options = GetFullSyncOptions("adding a file to the usb for some reason");
 			ProjectFolderConfiguration usbProject = new ProjectFolderConfiguration(Path.Combine(usbPath, BobSetup.ProjectFolderName));
 			usbProject.IncludePatterns.Add("**.abc");
-			options.CheckinDescription = "adding a file to the usb for some reason";
 			var synchronizer = Synchronizer.FromProjectConfiguration(usbProject, progress);
 			synchronizer.Repository.SetUserNameInIni("usba", progress);
 			synchronizer.SyncNow(options);
 
-
 			//now we should get that file
-
-			options.DoPullFromOthers = true;
+			options = GetFullSyncOptions("test getting new file from usb");
 			options.DoMergeWithOthers = false;
 			options.DoSendToOthers = false;
-			options.CheckinDescription = "test getting new file from usb";
 			options.RepositorySourcesToTry.Add(otherDirPath);
 			bob.SyncNow(options);
 			Assert.IsTrue(File.Exists(Path.Combine(bobSetup._languageProjectPath, "incoming.abc")));
@@ -197,30 +197,23 @@ namespace LibChorus.Tests.sync
 			repository.SetUserNameInIni("sally", progress);
 
 			// bob makes a change and syncs
-			File.WriteAllText(bobSetup._pathToLift, "<lift version='0.12'><entry id='dog' guid='c1ed1fa9-e382-11de-8a39-0800200c9a66'><lexical-unit><form lang='en'><text>dog</text></form></lexical-unit></entry></lift>");
-			var bobOptions = new SyncOptions
-			{
-				CheckinDescription = "added 'dog'",
-				DoMergeWithOthers = false, // just want a fast checkin
-				DoSendToOthers = false, // just want a fast checkin
-				DoPullFromOthers = false // just want a fast checkin
-			};
+			File.WriteAllText(bobSetup._pathToLift, LiftFileStrings.lift12Dog);
+
+			var bobOptions = GetFullSyncOptions("added dog");
+			bobOptions.DoMergeWithOthers = false; // just want a fast checkin
+			bobOptions.DoSendToOthers = false; // just want a fast checkin
+			bobOptions.DoPullFromOthers = false; // just want a fast checkin
+
 			var bobSyncer = bobSetup.GetSynchronizer();
 			SetAdjunctModelVersion(bobSyncer, ""); // Bob is on 'default' branch
 			bobSyncer.SyncNow(bobOptions);
 
 			//now Sally modifies the original file, not having seen Bob's changes yet
 			var sallyPathToLift = Path.Combine(sallyProject.FolderPath, "lexicon/foo.lift");
-			File.WriteAllText(sallyPathToLift, "<lift version='0.13'><entry id='cat' guid='c1ed1faa-e382-11de-8a39-0800200c9a66'><lexical-unit><form lang='en'><text>cat</text></form></lexical-unit></entry></lift>");
+			File.WriteAllText(sallyPathToLift, LiftFileStrings.lift12Cat);
 
 			//Sally syncs, pulling in Bob's change, and encountering a need to merge (no conflicts)
-			var sallyOptions = new SyncOptions
-			{
-				CheckinDescription = "adding cat",
-				DoPullFromOthers = true,
-				DoSendToOthers = true,
-				DoMergeWithOthers = true
-			};
+			var sallyOptions = GetFullSyncOptions("adding cat");
 			var bobAddress = RepositoryAddress.Create("bob's machine", bobSetup.BobProjectPath, false);
 			sallyOptions.RepositorySourcesToTry.Add(bobAddress);
 
@@ -268,49 +261,38 @@ namespace LibChorus.Tests.sync
 			repository.SetUserNameInIni("sally", progress);
 
 			// bob makes a change and syncs
-			File.WriteAllText(bobSetup._pathToLift, "<lift version='0.13'><entry id='dog' guid='c1ed1fa9-e382-11de-8a39-0800200c9a66'><lexical-unit><form lang='en'><text>dog</text></form></lexical-unit></entry></lift>");
-			var bobOptions = new SyncOptions
-			{
-				CheckinDescription = "added 'dog'",
-				DoMergeWithOthers = false, // just want a fast checkin
-				DoSendToOthers = false, // just want a fast checkin
-				DoPullFromOthers = false // just want a fast checkin
-			};
+			File.WriteAllText(bobSetup._pathToLift, LiftFileStrings.lift12Dog);
+			var bobOptions = GetFullSyncOptions("added dog");
+			bobOptions.DoMergeWithOthers = false; // just want a fast checkin
+			bobOptions.DoSendToOthers = false; // just want a fast checkin
+			bobOptions.DoPullFromOthers = false; // just want a fast checkin
+
 			var bobsyncer = bobSetup.GetSynchronizer();
-			SetAdjunctModelVersion(bobsyncer, "LIFT0.13"); // Bob is still on an older branch
+			SetAdjunctModelVersion(bobsyncer, "LIFT0.12"); // Bob is still on an older branch
 			bobsyncer.SyncNow(bobOptions);
 
 			// bob makes another change and syncs
-			File.WriteAllText(bobSetup._pathToLift, "<lift version='0.14'><entry id='dog' guid='c1ed1fa9-e382-11de-8a39-0800200c9a66'><lexical-unit><form lang='en'><text>dog</text></form></lexical-unit></entry><entry id='herring' guid='d194fdff-707e-42ef-a70f-4e91db2dffd8'><lexical-unit><form lang='en'><text>herring</text></form></lexical-unit></entry></lift>");
-			var newBobOptions = new SyncOptions
-			{
-				CheckinDescription = "added 'herring'",
-				DoMergeWithOthers = false, // just want a fast checkin
-				DoSendToOthers = false, // just want a fast checkin
-				DoPullFromOthers = false // just want a fast checkin
-			};
-			SetAdjunctModelVersion(bobsyncer, "LIFT0.14"); // Bob is now on a new branch
-			bobsyncer.SyncNow(newBobOptions);
+			File.WriteAllText(bobSetup._pathToLift, LiftFileStrings.lift13DogHerring);
+			bobOptions.CheckinDescription = "added 'herring'"; // still just want a fast checkin
+
+			SetAdjunctModelVersion(bobsyncer, "LIFT0.13"); // Bob is now on a new branch
+			bobsyncer.SyncNow(bobOptions);
 
 			//now Sally modifies the original file, not having seen Bob's changes yet
 			var sallyPathToLift = Path.Combine(sallyProject.FolderPath, "lexicon/foo.lift");
-			File.WriteAllText(sallyPathToLift, "<lift version='0.13'><entry id='cat' guid='c1ed1faa-e382-11de-8a39-0800200c9a66'><lexical-unit><form lang='en'><text>cat</text></form></lexical-unit></entry></lift>");
+			File.WriteAllText(sallyPathToLift, LiftFileStrings.lift12Cat);
 
 			//Sally syncs, pulling in Bob's 1st change, and encountering a need to merge (no conflicts)
-			var sallyOptions = new SyncOptions
-			{
-				CheckinDescription = "adding cat",
-				DoPullFromOthers = true,
-				DoSendToOthers = true,
-				DoMergeWithOthers = true
-			};
+			var sallyOptions = GetFullSyncOptions("adding cat");
 			sallyOptions.RepositorySourcesToTry.Add(RepositoryAddress.Create("bob's machine", bobSetup.BobProjectPath, false));
 
 			var synchronizer = Synchronizer.FromProjectConfiguration(sallyProject, progress);
-			SetAdjunctModelVersion(synchronizer, "LIFT0.13"); // Sally is still on the initial branch
+			SetAdjunctModelVersion(synchronizer, "LIFT0.12"); // Sally is still on the initial branch
+
+			// SUT
 			synchronizer.SyncNow(sallyOptions);
 
-			// So what's supposed to happen?
+			// Verification stage 1
 			var bobContents = File.ReadAllText(bobSetup._pathToLift);
 			Assert.IsFalse(bobContents.Contains("cat"), "'cat' should only be on Sally's branch.");
 			Assert.IsTrue(bobContents.Contains("dog"));
@@ -319,6 +301,150 @@ namespace LibChorus.Tests.sync
 			Assert.IsTrue(sallyContents.Contains("cat"));
 			Assert.IsTrue(sallyContents.Contains("dog"), "Sally should have merged in older branch to hers.");
 			Assert.IsFalse(sallyContents.Contains("herring"), "The red herring is only in Bob's repo; 2nd branch.");
+
+			// Now Sally upgrades her LIFT-capable program to Bob's version!
+			File.WriteAllText(sallyPathToLift, LiftFileStrings.lift13PigDogCat);
+
+			//Sally syncs, pulling in Bob's change, and encountering a need to merge (no conflicts)
+			sallyOptions = GetFullSyncOptions("adding pig");
+
+			const string lift13version = "LIFT0.13";
+			SetAdjunctModelVersion(synchronizer, lift13version); // Sally updates to the new version (branch)
+			synchronizer.SyncNow(sallyOptions);
+			bobOptions.DoPullFromOthers = true;
+			bobOptions.RepositorySourcesToTry.Add(RepositoryAddress.Create("sally's machine", sallyProjectRoot, false));
+
+			// SUT
+			bobsyncer.SyncNow(bobOptions);
+
+			// Verification stage 2
+			bobContents = File.ReadAllText(bobSetup._pathToLift);
+			//Debug.Print("Bob's: " + bobContents);
+			Assert.IsTrue(bobContents.Contains("cat"), "'cat' survived the upgrade to Bob's repo.");
+			Assert.IsTrue(bobContents.Contains("dog"));
+			Assert.IsTrue(bobContents.Contains("pig"), "'pig' survived the upgrade to Bob's repo.");
+			sallyContents = File.ReadAllText(sallyPathToLift);
+			//Debug.Print("Sally's: " + sallyContents);
+			Assert.IsTrue(sallyContents.Contains("cat"));
+			Assert.IsTrue(sallyContents.Contains("dog"), "'dog' should be from Bob's older repo.");
+			Assert.IsTrue(sallyContents.Contains("herring"), "Now we should have everything from Bob's repo.");
+			Assert.IsTrue(sallyContents.Contains("pig"), "'pig' should have survived the upgrade.");
+
+			// Verify Bob is on the latest branch
+			string dummy;
+			var result = bobsyncer.Repository.BranchingHelper.IsLatestBranchDifferent(lift13version, out dummy);
+			Assert.IsFalse(result, "Bob should be on the latest LIFT0.13 branch.");
+
+			// Verify Sally is on the right branch
+			result = synchronizer.Repository.BranchingHelper.IsLatestBranchDifferent(lift13version, out dummy);
+			Assert.IsFalse(result, "Sally should be on the latest LIFT0.13 branch.");
+		}
+
+		[Test]
+		public void TestNewVersion_SallyAndBobUpgradeButFredDelays()
+		{
+			ConsoleProgress progress = new ConsoleProgress();
+			BobSetup bobSetup = new BobSetup(progress, _pathToTestRoot);
+
+			// clone Bob onto Sally
+			string sallyMachineRoot = Path.Combine(_pathToTestRoot, "sally");
+			Directory.CreateDirectory(sallyMachineRoot);
+			string sallyProjectRoot = bobSetup.SetupClone(sallyMachineRoot);
+			ProjectFolderConfiguration sallyProject = new ProjectFolderConfiguration(sallyProjectRoot);
+			sallyProject.IncludePatterns.Add("**.abc");
+			sallyProject.IncludePatterns.Add("**.lift");
+
+			// clone Bob onto Fred
+			string fredMachineRoot = Path.Combine(_pathToTestRoot, "fred");
+			Directory.CreateDirectory(fredMachineRoot);
+			string fredProjectRoot = bobSetup.SetupClone(fredMachineRoot);
+			ProjectFolderConfiguration fredProject = new ProjectFolderConfiguration(fredProjectRoot);
+			fredProject.IncludePatterns.Add("**.abc");
+			fredProject.IncludePatterns.Add("**.lift");
+
+			// Setup Sally and Fred repositories
+			var sallyRepository = HgRepository.CreateOrLocate(sallyProject.FolderPath, progress);
+			sallyRepository.SetUserNameInIni("sally", progress);
+			var fredRepository = HgRepository.CreateOrLocate(fredProject.FolderPath, progress);
+			fredRepository.SetUserNameInIni("fred", progress);
+			var sallyRepoAddress = RepositoryAddress.Create("sally's machine", sallyProjectRoot, false);
+			var fredRepoAddress = RepositoryAddress.Create("fred's machine", fredProjectRoot, false);
+			var bobRepoAddress = RepositoryAddress.Create("bob's machine", bobSetup.BobProjectPath, false);
+
+			// bob makes a change and syncs to everybody
+			File.WriteAllText(bobSetup._pathToLift, LiftFileStrings.lift12Dog);
+			var bobOptions = GetFullSyncOptions("added 'dog'");
+			bobOptions.RepositorySourcesToTry.Add(sallyRepoAddress);
+			bobOptions.RepositorySourcesToTry.Add(fredRepoAddress);
+
+			var bobsyncer = bobSetup.GetSynchronizer();
+			bobsyncer.SyncNow(bobOptions); // Bob syncs with everybody on 'default' branch
+
+			// Verification Step 1
+			var sallyPathToLift = Path.Combine(sallyProject.FolderPath, "lexicon/foo.lift");
+			var fredPathToLift = Path.Combine(fredProject.FolderPath, "lexicon/foo.lift");
+			var sallyContents = File.ReadAllText(sallyPathToLift);
+			Assert.IsTrue(sallyContents.Contains("dog"), "'dog' should be in Sally repo.");
+			var fredContents = File.ReadAllText(fredPathToLift);
+			Assert.IsTrue(fredContents.Contains("dog"), "'dog' should be in Fred repo.");
+
+			// bob makes another change and syncs to new version
+			File.WriteAllText(bobSetup._pathToLift, LiftFileStrings.lift13DogCat);
+			var newBobOptions = GetFullSyncOptions("added 'cat'");
+			newBobOptions.DoMergeWithOthers = false; // just want a fast checkin
+			newBobOptions.DoPullFromOthers = false; // just want a fast checkin
+			newBobOptions.DoSendToOthers = false; // just want a fast checkin
+
+			SetAdjunctModelVersion(bobsyncer, "LIFT0.13"); // Bob is now on the new version of LIFT
+			bobsyncer.SyncNow(newBobOptions);
+
+			// now Fred modifies default branch to add 'ant'
+			File.WriteAllText(fredPathToLift, LiftFileStrings.lift12DogAnt);
+			var fredOptions = GetFullSyncOptions("added 'ant'");
+			fredOptions.RepositorySourcesToTry.Add(bobRepoAddress);
+			fredOptions.RepositorySourcesToTry.Add(sallyRepoAddress);
+			var fredsyncer = Synchronizer.FromProjectConfiguration(fredProject, progress);
+			fredsyncer.SyncNow(fredOptions);
+
+			// Verification Step 2
+			fredContents = File.ReadAllText(fredPathToLift);
+			Assert.IsFalse(fredContents.Contains("cat"), "'cat' should only be on Bob's branch.");
+			Assert.IsTrue(fredContents.Contains("ant"));
+			sallyContents = File.ReadAllText(sallyPathToLift);
+			Assert.IsTrue(sallyContents.Contains("ant"), "'ant' was propogated to Sally's branch.");
+			Assert.IsFalse(sallyContents.Contains("cat"), "'cat' should only be on Bob's branch.");
+			var bobContents = File.ReadAllText(bobSetup._pathToLift);
+			Assert.IsFalse(bobContents.Contains("ant"), "'ant' is only on 'default' branch.");
+
+			// Now Sally modifies the file, not having seen Bob's changes yet, but having seen Fred's changes.
+			// She adds 'herring' and has upgraded to Bob's version of LIFT
+			File.WriteAllText(sallyPathToLift, LiftFileStrings.lift13DogAntHerring);
+
+			//Sally syncs, pulling in Bob's 1st change, and encountering a need to merge (no conflicts)
+			var sallyOptions = GetFullSyncOptions("adding 'herring'");
+			sallyOptions.RepositorySourcesToTry.Add(bobRepoAddress);
+			sallyOptions.RepositorySourcesToTry.Add(fredRepoAddress); // Why not? Even though he's still on 'default' branch
+
+			var synchronizer = Synchronizer.FromProjectConfiguration(sallyProject, progress);
+			SetAdjunctModelVersion(synchronizer, "LIFT0.13"); // Sally is now on the Bob's later version
+			// We're good to here ****************************************************
+			// Below is the line with the hg error
+			synchronizer.SyncNow(sallyOptions);
+
+			// Verification Step 3
+			bobContents = File.ReadAllText(bobSetup._pathToLift);
+
+			Assert.IsTrue(bobContents.Contains("herring"), "'herring' should be pulled in from Sally's branch.");
+			Assert.IsFalse(bobContents.Contains("ant"), "'ant' still should only be on 'default' branch.");
+			sallyContents = File.ReadAllText(sallyPathToLift);
+			Assert.IsTrue(sallyContents.Contains("cat"), "'cat' should be pulled in from Bob's branch.");
+			Assert.IsTrue(sallyContents.Contains("dog"), "Everybody should have 'dog' from before.");
+			fredContents = File.ReadAllText(fredPathToLift);
+			Assert.IsFalse(fredContents.Contains("herring"), "The red herring is only in the new version for now.");
+			Assert.IsFalse(fredContents.Contains("cat"), "'cat' is only in the new version for now.");
+
+			// Stop here temporarily **********************************************************************************************
+			return;
 
 			// Now Sally upgrades her LIFT-capable program to Bob's version!
 			File.WriteAllText(sallyPathToLift, "<lift version='0.14'><entry id='pig' guid='f6a02b2b-f501-4433-93a6-a1aa40146f63'><lexical-unit><form lang='en'><text>pig</text></form></lexical-unit></entry><entry id='dog' guid='c1ed1fa9-e382-11de-8a39-0800200c9a66'><lexical-unit><form lang='en'><text>dog</text></form></lexical-unit></entry><entry id='cat' guid='c1ed1faa-e382-11de-8a39-0800200c9a66'><lexical-unit><form lang='en'><text>cat</text></form></lexical-unit></entry></lift>");
@@ -495,7 +621,7 @@ namespace LibChorus.Tests.sync
 
 
 			// bob makes a change and syncs
-			File.WriteAllText(bobSetup._pathToLift, "<lift version='0.12'><entry id='dog' guid='c1ed1fa9-e382-11de-8a39-0800200c9a66'><lexical-unit><form lang='en'><text>dog</text></form></lexical-unit></entry></lift>");
+			File.WriteAllText(bobSetup._pathToLift, LiftFileStrings.lift12Dog);
 			var bobOptions = new SyncOptions
 										{
 											CheckinDescription = "added 'dog'",
@@ -507,7 +633,7 @@ namespace LibChorus.Tests.sync
 
 			//now Sally modifies the original file, not having seen Bob's changes yet
 			var sallyPathToLift = Path.Combine(sallyProject.FolderPath, "lexicon/foo.lift");
-			File.WriteAllText(sallyPathToLift, "<lift version='0.12'><entry id='cat' guid='c1ed1faa-e382-11de-8a39-0800200c9a66'><lexical-unit><form lang='en'><text>cat</text></form></lexical-unit></entry></lift>");
+			File.WriteAllText(sallyPathToLift, LiftFileStrings.lift12Cat);
 
 			//Sally syncs, pulling in Bob's change, and encountering a need to merge (no conflicts)
 			var sallyOptions = new SyncOptions
@@ -554,5 +680,72 @@ namespace LibChorus.Tests.sync
 //            repo.Commit(false, "Change line " + lineNumber1Based + " of " + fileName /*repo.GetFilePath(fileName)*/ + " to " + newText);
 //        }
 
+	}
+
+	public static class LiftFileStrings
+	{
+		public static string liftClosing = "</lift>";
+		public static string lift12Header = "<lift version='0.12'>";
+		public static string lift13Header = "<lift version='0.13'>";
+
+		public static string dogEntry =
+			@"<entry id='dog' guid='c1ed1fa9-e382-11de-8a39-0800200c9a66'>
+				<lexical-unit>
+					<form lang='en'><text>dog</text></form>
+				</lexical-unit>
+			</entry>";
+
+		public static string catEntry =
+			@"<entry id='cat' guid='c1ed1faa-e382-11de-8a39-0800200c9a66'>
+				<lexical-unit>
+					<form lang='en'><text>cat</text></form>
+				</lexical-unit>
+			</entry>";
+
+		public static string antEntry =
+			@"<entry id='ant' guid='3525f996-c711-42ac-896e-d7fef8296e1d'>
+				<lexical-unit>
+					<form lang='en'><text>ant</text></form>
+				</lexical-unit>
+			</entry>";
+
+		public static string herringEntry =
+			@"<entry id='herring' guid='d194fdff-707e-42ef-a70f-4e91db2dffd8'>
+				<lexical-unit>
+					<form lang='en'><text>herring</text></form>
+				</lexical-unit>
+			</entry>";
+
+		public static string pigEntry =
+			@"<entry id='pig' guid='f6a02b2b-f501-4433-93a6-a1aa40146f63'>
+				<lexical-unit>
+					<form lang='en'><text>pig</text></form>
+				</lexical-unit>
+			</entry>";
+
+		public static string deerEntry =
+			@"<entry id='deer' guid='7a3c7608-f33d-40f3-9000-36d97021f140'>
+				<lexical-unit>
+					<form lang='en'><text>deer</text></form>
+				</lexical-unit>
+			</entry>";
+
+		public static string foxEntry =
+			@"<entry id='fox' guid='76f4f768-d64f-4bc9-a236-acd0618064ff'>
+				<lexical-unit>
+					<form lang='en'><text>fox</text></form>
+				</lexical-unit>
+			</entry>";
+
+		public static string lift12Dog = lift12Header + dogEntry + liftClosing;
+		public static string lift12Cat = lift12Header + catEntry + liftClosing;
+		public static string lift12DogAnt = lift12Header + dogEntry + antEntry + liftClosing;
+		public static string lift12DogAntPig = lift12Header + dogEntry + antEntry + pigEntry + liftClosing;
+		public static string lift13DogHerring = lift13Header + dogEntry + herringEntry + liftClosing;
+		public static string lift13DogAntHerring = lift13Header + dogEntry + antEntry + herringEntry + liftClosing;
+		public static string lift13DogCatHerringDeer = lift13Header + dogEntry + catEntry + herringEntry + deerEntry + liftClosing;
+		public static string lift13DogAntPigFox = lift13Header + dogEntry + antEntry + pigEntry + foxEntry + liftClosing;
+		public static string lift13DogCat = lift13Header + dogEntry + catEntry + liftClosing;
+		public static string lift13PigDogCat = lift13Header + pigEntry + dogEntry + catEntry + liftClosing;
 	}
 }
