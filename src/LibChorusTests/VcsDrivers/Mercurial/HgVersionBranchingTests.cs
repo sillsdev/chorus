@@ -2,6 +2,7 @@
 using Chorus.VcsDrivers.Mercurial;
 using LibChorus.TestUtilities;
 using NUnit.Framework;
+using Palaso.Progress.LogBox;
 
 namespace LibChorus.Tests.VcsDrivers.Mercurial
 {
@@ -39,7 +40,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				var oldversion = branchingHelper.ClientVersion;
 
 				// SUT
-				branchingHelper.CreateNewBranch(newBranchName);
+				branchingHelper.Branch(new NullProgress(), newBranchName);
 				repoWithFiles.ReplaceSomething("nottheoriginal");
 				repoWithFiles.SyncWithOptions(new SyncOptions
 					{
@@ -70,7 +71,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 								"Setup problem in test, should be starting with one branch.");
 				// Make a new branch (should technically be on the remote with a different user...)
 				const string newBranchName = "New Branch";
-				branchingHelper.CreateNewBranch(newBranchName);
+				branchingHelper.Branch(new NullProgress(), newBranchName);
 				repoWithFiles.ReplaceSomething("nottheoriginal");
 				repoWithFiles.SyncWithOptions(new SyncOptions
 				{

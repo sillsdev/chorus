@@ -58,41 +58,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		internal void Branch(IProgress progress, string branchName)
 		{
 			progress.WriteVerbose("{0} changing working dir to branch: {1}", UserId, branchName);
-			_repo.Execute(_repo.SecondsBeforeTimeoutOnLocalOperation, "branch ", HgRepository.SurroundWithQuotes(branchName));
-		}
-
-		/// <summary>
-		/// This will create a new branch if no branch exists for version number and return null.
-		/// If the version number branch does exist, it will return the revision.
-		/// </summary>
-		/// <param name="versionNumber"></param>
-		/// <returns></returns>
-		internal Revision CreateNewBranch(string versionNumber)
-		{
-			var branches = GetBranches();
-			Revision existingBranch = null;
-			Revision oldBranch = null;
-			foreach (var revision in branches)
-			{
-				if(revision.Branch == versionNumber)
-				{
-					existingBranch = revision;
-				}
-				if(revision.Branch == ClientVersion)
-				{
-					oldBranch = revision;
-				}
-				if(oldBranch != null && existingBranch != null)
-					break;
-			}
-
-			ClientVersion = versionNumber;
-			if (existingBranch != null && oldBranch != null)
-			{
-				return existingBranch; //The branch exists, we need to merge into it, not create a new one
-			}
-			Branch(_progress, versionNumber);
-			return null;
+			_repo.Execute(_repo.SecondsBeforeTimeoutOnLocalOperation, "branch -f", HgRepository.SurroundWithQuotes(branchName));
 		}
 
 		internal bool IsLatestBranchDifferent(string myVersion, out string revNum)

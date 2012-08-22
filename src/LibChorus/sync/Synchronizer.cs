@@ -188,9 +188,7 @@ namespace Chorus.sync
 			if (Repository.GetRevisionWorkingSetIsBasedOn() == null ||
 				Repository.GetRevisionWorkingSetIsBasedOn().Branch != modelVersion)
 			{
-				var revision = Repository.BranchingHelper.CreateNewBranch(modelVersion);
-				if (revision != null)
-					MergeBranch(revision, options);
+				Repository.BranchingHelper.Branch(_progress, modelVersion);
 			}
 		}
 
@@ -677,44 +675,6 @@ namespace Chorus.sync
 				_progress.WriteError("Rolling back...");
 				UpdateToTheDescendantRevision(repo, workingRevBeforeSync); //rollback
 				throw;
-			}
-		}
-
-		/// <summary>
-		/// This method will merge the head revision of the current repository into another branch leaving the repository
-		/// on that other branch.
-		/// This helps handle the case where a user updates to a new model version and the branch is already there because someone
-		/// else is already using the new version.
-		/// </summary>
-		/// <param name="otherBranchRevision">The head revision of the branch we are merging into</param>
-		/// <param name="options">The options that were requested by the commit that triggered the branch merge</param>
-		private void MergeBranch(Revision otherBranchRevision, SyncOptions options)
-		{
-			try
-			{
-				//We need to commit before we can merge the branch, but we don't want to commit new model files into an old model branch
-				//so make a 'temp' branch, commit there, and merge it into the new version banch.
-				var tempBranchName = otherBranchRevision.Branch + Repository.GetUserIdInUse() + DateTime.Now.ToString("yyyy_MMMM_dd_hh_ss");
-				Repository.Branch(tempBranchName);
-				Commit(options);
-				var myHead = Repository.GetRevisionWorkingSetIsBasedOn();
-				Repository.Update(otherBranchRevision.Number.Hash);
-				if (myHead == default(Revision))
-					return;
-
-				PrepareForMergeAttempt(otherBranchRevision, myHead);
-				if (!MergeTwoChangeSets(otherBranchRevision, myHead))
-					return; // Nothing to merge.
-
-				DoPostMergeCommit(myHead);
-			}
-			catch (UserCancelledException)
-			{
-				throw;
-			}
-			catch (Exception error)
-			{
-				ExplainAndThrow(error, WhatToDo.NeedExpertHelp, "Unable to complete the send/receive.");
 			}
 		}
 
