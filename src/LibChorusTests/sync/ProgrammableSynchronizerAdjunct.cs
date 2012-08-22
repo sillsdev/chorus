@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Chorus.VcsDrivers.Mercurial;
 using Chorus.sync;
 using Palaso.Progress.LogBox;
@@ -40,9 +41,9 @@ namespace LibChorus.Tests.sync
 		public void PrepareForPostMergeCommit(IProgress progress)
 		{ /* Do nothing at all. */ }
 
-		public string GetModelVersion()
+		string ISychronizerAdjunct.GetModelVersion
 		{
-			return _modelVersion ?? ""; // Hg default branch name
+			get { return ""; }
 		}
 
 		public void CheckRepositoryBranches(IEnumerable<Revision> branches)

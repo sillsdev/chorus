@@ -120,7 +120,7 @@ namespace Chorus.sync
 				RemoveLocks(repo);
 				repo.RecoverFromInterruptedTransactionIfNeeded();
 				repo.FixUnicodeAudio();
-				string modelVersion = _sychronizerAdjunct.GetModelVersion();
+				string modelVersion = _sychronizerAdjunct.GetModelVersion;
 				ChangeBranchIfNecessary(modelVersion, options);
 				Commit(options);
 

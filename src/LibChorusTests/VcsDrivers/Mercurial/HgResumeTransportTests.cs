@@ -670,9 +670,9 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				;
 			}
 
-			public string GetModelVersion()
+			string ISychronizerAdjunct.GetModelVersion
 			{
-				return BranchName;
+				get { return BranchName; }
 			}
 
 			public void CheckRepositoryBranches(IEnumerable<Revision> branches)

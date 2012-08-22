@@ -39,9 +39,9 @@ namespace Chorus.sync
 		public void PrepareForPostMergeCommit(IProgress progress)
 		{ /* Do nothing at all. */ }
 
-		public string GetModelVersion()
+		string ISychronizerAdjunct.GetModelVersion
 		{
-			return ""; // Hg default branch name
+			get { return ""; }
 		}
 
 		public void CheckRepositoryBranches(IEnumerable<Revision> branches)

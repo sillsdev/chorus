@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using Chorus.Utilities;
@@ -459,10 +460,9 @@ namespace LibChorus.Tests.sync
 				File.WriteAllText(MergePathname, "Merged");
 			}
 
-			public string GetModelVersion()
+			string ISychronizerAdjunct.GetModelVersion
 			{
-				File.WriteAllText(GetVersionPathName, "(default)");
-				return ""; // Hg 'default' branch is empty string.
+				get { File.WriteAllText(GetVersionPathName, "(default)"); return ""; }
 			}
 
 			public void CheckRepositoryBranches(IEnumerable<Revision> branches)
