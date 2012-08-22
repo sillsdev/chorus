@@ -39,7 +39,7 @@ namespace Chorus.sync
 		void PrepareForPostMergeCommit(IProgress progress);
 
 		/// <summary>
-		/// Return a version string for the model of the client. Used to create a version branch in the repository.
+		/// The version string for the model of the client. Used to create a version branch in the repository.
 		/// </summary>
 		/// <returns></returns>
 		string ModelVersion { get; }
