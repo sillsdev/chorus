@@ -131,7 +131,7 @@ namespace LibChorus.Tests.sync
 				synchronizer.SynchronizerAdjunct = syncAdjunct;
 				var syncResults = bob.SyncWithOptions(options, synchronizer);
 				Assert.IsFalse(syncResults.DidGetChangesFromOthers);
-				CheckExistanceOfAdjunctFiles(syncAdjunct, true, false, false, false, true, false);
+				CheckExistanceOfAdjunctFiles(syncAdjunct, true, false, false, false, true, true);
 			}
 		}
 
@@ -170,7 +170,7 @@ namespace LibChorus.Tests.sync
 				susanna.ReplaceSomethingElse("no problems.");
 				var syncResults = susanna.SyncWithOptions(bobOptions, synchronizer);
 				Assert.IsTrue(syncResults.DidGetChangesFromOthers);
-				CheckExistanceOfAdjunctFiles(syncAdjunct, true, true, false, true, true, false);
+				CheckExistanceOfAdjunctFiles(syncAdjunct, true, true, false, true, true, true);
 			}
 		}
 
@@ -204,7 +204,7 @@ namespace LibChorus.Tests.sync
 
 				var syncResults = sally.SyncWithOptions(options, synchronizer);
 				Assert.IsTrue(syncResults.DidGetChangesFromOthers);
-				CheckExistanceOfAdjunctFiles(syncAdjunct, true, true, false, true, true, false);
+				CheckExistanceOfAdjunctFiles(syncAdjunct, true, true, false, true, true, true);
 			}
 		}
 
@@ -237,7 +237,7 @@ namespace LibChorus.Tests.sync
 
 				var syncResults = sally.SyncWithOptions(options, synchronizer);
 				Assert.IsTrue(syncResults.DidGetChangesFromOthers);
-				CheckExistanceOfAdjunctFiles(syncAdjunct, true, true, false, true, true, false);
+				CheckExistanceOfAdjunctFiles(syncAdjunct, true, true, false, true, true, true);
 			}
 		}
 
@@ -268,7 +268,7 @@ namespace LibChorus.Tests.sync
 
 				var syncResults = sally.SyncWithOptions(options, synchronizer);
 				Assert.IsTrue(syncResults.DidGetChangesFromOthers);
-				CheckExistanceOfAdjunctFiles(syncAdjunct, true, true, false, false, true, false);
+				CheckExistanceOfAdjunctFiles(syncAdjunct, true, true, false, false, true, true);
 			}
 		}
 
@@ -309,6 +309,36 @@ namespace LibChorus.Tests.sync
 			}
 		}
 
+		[Test]
+		public void CheckBranchesGetsRightNumberOfBranches()
+		{
+			using (var bob = RepositoryWithFilesSetup.CreateWithLiftFile("bob"))
+			using (var sally = RepositoryWithFilesSetup.CreateByCloning("sally", bob))
+			{
+				bob.ReplaceSomething("bobWasHere");
+				bob.Synchronizer.SynchronizerAdjunct = new ProgrammableSynchronizerAdjunct("NOTDEFAULT");
+				bob.AddAndCheckIn();
+				sally.ReplaceSomething("sallyWasHere");
+
+				var syncAdjunct = new FileWriterSychronizerAdjunct(sally.RootFolder.Path);
+
+				var options = new SyncOptions
+				{
+					DoMergeWithOthers = true,
+					DoPullFromOthers = true,
+					DoSendToOthers = true
+				};
+				options.RepositorySourcesToTry.Add(bob.RepoPath);
+				var synchronizer = sally.Synchronizer;
+				synchronizer.SynchronizerAdjunct = syncAdjunct;
+
+				var syncResults = sally.SyncWithOptions(options, synchronizer);
+				Assert.IsTrue(syncResults.DidGetChangesFromOthers);
+				CheckExistanceOfAdjunctFiles(syncAdjunct, true, false, true, false, true, true);
+				var lines = File.ReadAllLines(syncAdjunct.BranchesPathName);
+				Assert.AreEqual(lines.Length, 2, "Wrong number of branches on CheckBranches call");
+			}
+		}
 
 		[Test]
 		public void OurCommitOnlyFailsCommitCopCheck()
@@ -473,7 +503,7 @@ namespace LibChorus.Tests.sync
 			{
 				foreach (var revision in branches)
 				{
-					File.AppendAllText(BranchesPathName, revision.ToString());
+					File.AppendAllText(BranchesPathName, revision.Branch + Environment.NewLine);
 				}
 			}
 

@@ -115,13 +115,13 @@ namespace Chorus.sync
 				{
 					_progress.ProgressIndicator.IndicateUnknownProgress();
 				}
-				HgRepository repo = new HgRepository(_localRepositoryPath, _progress);
+				var repo = new HgRepository(_localRepositoryPath, _progress);
 
 				RemoveLocks(repo);
 				repo.RecoverFromInterruptedTransactionIfNeeded();
 				repo.FixUnicodeAudio();
 				string modelVersion = _sychronizerAdjunct.ModelVersion;
-				ChangeBranchIfNecessary(modelVersion, options);
+				ChangeBranchIfNecessary(modelVersion);
 				Commit(options);
 
 				var workingRevBeforeSync = repo.GetRevisionWorkingSetIsBasedOn();
@@ -149,6 +149,7 @@ namespace Chorus.sync
 				{
 					UpdateToTheDescendantRevision(repo, workingRevBeforeSync);
 				}
+				_sychronizerAdjunct.CheckRepositoryBranches(repo.BranchingHelper.GetBranches());
 
 				results.Succeeded = true;
 			   _progress.WriteMessage("Done");
@@ -183,7 +184,7 @@ namespace Chorus.sync
 			return results;
 		}
 
-		private void ChangeBranchIfNecessary(string modelVersion, SyncOptions options)
+		private void ChangeBranchIfNecessary(string modelVersion)
 		{
 			if (Repository.GetRevisionWorkingSetIsBasedOn() == null ||
 				Repository.GetRevisionWorkingSetIsBasedOn().Branch != modelVersion)
