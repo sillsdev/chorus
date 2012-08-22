@@ -297,7 +297,6 @@ namespace LibChorus.Tests.sync
 			Assert.IsFalse(bobContents.Contains("cat"), "'cat' should only be on Sally's branch.");
 			Assert.IsTrue(bobContents.Contains("dog"));
 			var sallyContents = File.ReadAllText(sallyPathToLift);
-			Debug.WriteLine("sally's: " + sallyContents);
 			Assert.IsTrue(sallyContents.Contains("cat"));
 			Assert.IsTrue(sallyContents.Contains("dog"), "Sally should have merged in older branch to hers.");
 			Assert.IsFalse(sallyContents.Contains("herring"), "The red herring is only in Bob's repo; 2nd branch.");
@@ -377,8 +376,8 @@ namespace LibChorus.Tests.sync
 			bobOptions.RepositorySourcesToTry.Add(sallyRepoAddress);
 			bobOptions.RepositorySourcesToTry.Add(fredRepoAddress);
 
-			var bobsyncer = bobSetup.GetSynchronizer();
-			bobsyncer.SyncNow(bobOptions); // Bob syncs with everybody on 'default' branch
+			var bobSyncer = bobSetup.GetSynchronizer();
+			bobSyncer.SyncNow(bobOptions); // Bob syncs with everybody on 'default' branch
 
 			// Verification Step 1
 			var sallyPathToLift = Path.Combine(sallyProject.FolderPath, "lexicon/foo.lift");
@@ -394,17 +393,18 @@ namespace LibChorus.Tests.sync
 			newBobOptions.DoMergeWithOthers = false; // just want a fast checkin
 			newBobOptions.DoPullFromOthers = false; // just want a fast checkin
 			newBobOptions.DoSendToOthers = false; // just want a fast checkin
+			const string lift13version = "LIFT0.13";
 
-			SetAdjunctModelVersion(bobsyncer, "LIFT0.13"); // Bob is now on the new version of LIFT
-			bobsyncer.SyncNow(newBobOptions);
+			SetAdjunctModelVersion(bobSyncer, lift13version); // Bob is now on the new version of LIFT
+			bobSyncer.SyncNow(newBobOptions);
 
 			// now Fred modifies default branch to add 'ant'
 			File.WriteAllText(fredPathToLift, LiftFileStrings.lift12DogAnt);
 			var fredOptions = GetFullSyncOptions("added 'ant'");
 			fredOptions.RepositorySourcesToTry.Add(bobRepoAddress);
 			fredOptions.RepositorySourcesToTry.Add(sallyRepoAddress);
-			var fredsyncer = Synchronizer.FromProjectConfiguration(fredProject, progress);
-			fredsyncer.SyncNow(fredOptions);
+			var fredSyncer = Synchronizer.FromProjectConfiguration(fredProject, progress);
+			fredSyncer.SyncNow(fredOptions);
 
 			// Verification Step 2
 			fredContents = File.ReadAllText(fredPathToLift);
@@ -415,6 +415,13 @@ namespace LibChorus.Tests.sync
 			Assert.IsFalse(sallyContents.Contains("cat"), "'cat' should only be on Bob's branch.");
 			var bobContents = File.ReadAllText(bobSetup._pathToLift);
 			Assert.IsFalse(bobContents.Contains("ant"), "'ant' is only on 'default' branch.");
+			// Verify Bob is on the latest branch
+			string dummy;
+			var result = bobSyncer.Repository.BranchingHelper.IsLatestBranchDifferent(lift13version, out dummy);
+			Assert.IsFalse(result, "Bob should be on the new LIFT0.13 branch.");
+			// And Fred isn't
+			result = fredSyncer.Repository.BranchingHelper.IsLatestBranchDifferent(lift13version, out dummy);
+			Assert.IsTrue(result, "Fred should still be on the 'default' branch.");
 
 			// Now Sally modifies the file, not having seen Bob's changes yet, but having seen Fred's changes.
 			// She adds 'herring' and has upgraded to Bob's version of LIFT
@@ -425,67 +432,106 @@ namespace LibChorus.Tests.sync
 			sallyOptions.RepositorySourcesToTry.Add(bobRepoAddress);
 			sallyOptions.RepositorySourcesToTry.Add(fredRepoAddress); // Why not? Even though he's still on 'default' branch
 
-			var synchronizer = Synchronizer.FromProjectConfiguration(sallyProject, progress);
-			SetAdjunctModelVersion(synchronizer, "LIFT0.13"); // Sally is now on the Bob's later version
-			// We're good to here ****************************************************
+			var sallySyncer = Synchronizer.FromProjectConfiguration(sallyProject, progress);
+			SetAdjunctModelVersion(sallySyncer, lift13version); // Sally is now on the Bob's later version
 			// Below is the line with the hg error
-			synchronizer.SyncNow(sallyOptions);
+			sallySyncer.SyncNow(sallyOptions);
 
 			// Verification Step 3
 			bobContents = File.ReadAllText(bobSetup._pathToLift);
-
 			Assert.IsTrue(bobContents.Contains("herring"), "'herring' should be pulled in from Sally's branch.");
-			Assert.IsFalse(bobContents.Contains("ant"), "'ant' still should only be on 'default' branch.");
+			Assert.IsTrue(bobContents.Contains("ant"), "'ant' should be pulled in from Sally's branch.");
 			sallyContents = File.ReadAllText(sallyPathToLift);
 			Assert.IsTrue(sallyContents.Contains("cat"), "'cat' should be pulled in from Bob's branch.");
 			Assert.IsTrue(sallyContents.Contains("dog"), "Everybody should have 'dog' from before.");
 			fredContents = File.ReadAllText(fredPathToLift);
 			Assert.IsFalse(fredContents.Contains("herring"), "The red herring is only in the new version for now.");
 			Assert.IsFalse(fredContents.Contains("cat"), "'cat' is only in the new version for now.");
+			// Verify Sally is now on the latest branch
+			result = sallySyncer.Repository.BranchingHelper.IsLatestBranchDifferent(lift13version, out dummy);
+			Assert.IsFalse(result, "Sally should be on the new LIFT0.13 branch.");
+			// And Fred still shouldn't be
+			result = fredSyncer.Repository.BranchingHelper.IsLatestBranchDifferent(lift13version, out dummy);
+			Assert.IsTrue(result, "Fred should still be on the 'default' branch.");
 
-			// Stop here temporarily **********************************************************************************************
-			return;
+			// Now Fred checks in 'pig' to the 'default' branch
+			File.WriteAllText(fredPathToLift, LiftFileStrings.lift12DogAntPig);
 
-			// Now Sally upgrades her LIFT-capable program to Bob's version!
-			File.WriteAllText(sallyPathToLift, "<lift version='0.14'><entry id='pig' guid='f6a02b2b-f501-4433-93a6-a1aa40146f63'><lexical-unit><form lang='en'><text>pig</text></form></lexical-unit></entry><entry id='dog' guid='c1ed1fa9-e382-11de-8a39-0800200c9a66'><lexical-unit><form lang='en'><text>dog</text></form></lexical-unit></entry><entry id='cat' guid='c1ed1faa-e382-11de-8a39-0800200c9a66'><lexical-unit><form lang='en'><text>cat</text></form></lexical-unit></entry></lift>");
+			// Fred syncs, not finding anybody else's changes
+			fredOptions.CheckinDescription = "adding 'pig'";
+			fredSyncer.SyncNow(fredOptions);
 
-			//Sally syncs, pulling in Bob's change, and encountering a need to merge (no conflicts)
-			sallyOptions = new SyncOptions
-			{
-				CheckinDescription = "adding pig",
-				DoPullFromOthers = true,
-				DoSendToOthers = true,
-				DoMergeWithOthers = true
-			};
-
-			const string lift14version = "LIFT0.14";
-			SetAdjunctModelVersion(synchronizer, lift14version); // Sally updates to the new version (branch)
-			synchronizer.SyncNow(sallyOptions);
-			newBobOptions.DoPullFromOthers = true;
-			newBobOptions.RepositorySourcesToTry.Add(RepositoryAddress.Create("sally's machine", sallyProjectRoot, false));
-
-			bobsyncer.SyncNow(newBobOptions);
-			// Verification
+			// Verification Step 4
 			bobContents = File.ReadAllText(bobSetup._pathToLift);
-			//Debug.Print("Bob's: " + bobContents);
-			Assert.IsTrue(bobContents.Contains("cat"), "'cat' survived the upgrade to Bob's repo.");
-			Assert.IsTrue(bobContents.Contains("dog"));
-			Assert.IsTrue(bobContents.Contains("pig"), "'pig' survived the upgrade to Bob's repo.");
+			Assert.IsFalse(bobContents.Contains("pig"), "'pig' should only be on 'default' branch.");
 			sallyContents = File.ReadAllText(sallyPathToLift);
-			//Debug.Print("Sally's: " + sallyContents);
-			Assert.IsTrue(sallyContents.Contains("cat"));
-			Assert.IsTrue(sallyContents.Contains("dog"), "'dog' should be from Bob's older repo.");
-			Assert.IsTrue(sallyContents.Contains("herring"), "Now we should have everything from Bob's repo.");
-			Assert.IsTrue(sallyContents.Contains("pig"), "'pig' should have survived the upgrade.");
+			Assert.IsFalse(sallyContents.Contains("pig"), "'pig' should only be on 'default' branch.");
+			fredContents = File.ReadAllText(fredPathToLift);
+			Assert.IsFalse(fredContents.Contains("herring"), "'herring' should still only be in the new version.");
+			// Just check Fred hasn't changed branches
+			result = fredSyncer.Repository.BranchingHelper.IsLatestBranchDifferent(lift13version, out dummy);
+			Assert.IsTrue(result, "Fred should still be on the 'default' branch.");
+
+			// Now Bob checks in 'deer' in the new version
+			File.WriteAllText(bobSetup._pathToLift, LiftFileStrings.lift13DogCatHerringAntDeer);
+			bobOptions.CheckinDescription = "adding 'deer'";
+			bobSyncer.SyncNow(bobOptions);
+
+			// Verification Step 5
+			// Check that Fred hasn't changed
+			fredContents = File.ReadAllText(fredPathToLift);
+			Assert.IsFalse(fredContents.Contains("deer"), "'deer' should only be on new version.");
+			result = fredSyncer.Repository.BranchingHelper.IsLatestBranchDifferent(lift13version, out dummy);
+			Assert.IsTrue(result, "Fred should still be on the 'default' branch.");
+			// Check that Sally got her 'deer'
+			sallyContents = File.ReadAllText(sallyPathToLift);
+			Assert.IsTrue(sallyContents.Contains("deer"), "'deer' should have propagated to Sally.");
+			// Make sure that 'pig' hasn't migrated to the new version
+			Assert.IsFalse(sallyContents.Contains("pig"), "'pig' should still only be on 'default' branch.");
+
+			// Now Fred has finally upgraded and will check in 'fox' -- LAST CHECK-IN FOR THIS TEST!
+			File.WriteAllText(fredPathToLift, LiftFileStrings.lift13DogAntPigFox);
+			fredOptions.CheckinDescription = "adding 'fox'";
+			SetAdjunctModelVersion(fredSyncer, lift13version); // Fred finally updates to the new version (branch)
+			fredSyncer.SyncNow(fredOptions);
+
+			// Verification Step 6 (Last)
+			bobContents = File.ReadAllText(bobSetup._pathToLift);
+			Assert.IsTrue(bobContents.Contains("cat"), "'cat' should survive the big hairy test in Bob's repo.");
+			Assert.IsTrue(bobContents.Contains("dog"), "'dog' should survive the big hairy test in Bob's repo.");
+			Assert.IsTrue(bobContents.Contains("pig"), "'pig' should survive the big hairy test in Bob's repo.");
+			Assert.IsTrue(bobContents.Contains("herring"), "'herring' should survive the big hairy test in Bob's repo.");
+			Assert.IsTrue(bobContents.Contains("deer"), "'deer' should survive the big hairy test in Bob's repo.");
+			Assert.IsTrue(bobContents.Contains("ant"), "'ant' should survive the big hairy test in Bob's repo.");
+			Assert.IsTrue(bobContents.Contains("fox"), "'fox' should survive the big hairy test in Bob's repo.");
+			sallyContents = File.ReadAllText(sallyPathToLift);
+			Assert.IsTrue(sallyContents.Contains("cat"), "'cat' should survive the big hairy test in Sally's repo.");
+			Assert.IsTrue(sallyContents.Contains("dog"), "'dog' should survive the big hairy test in Sally's repo.");
+			Assert.IsTrue(sallyContents.Contains("herring"), "'herring' should survive the big hairy test in Sally's repo.");
+			Assert.IsTrue(sallyContents.Contains("pig"), "'pig' should survive the big hairy test in Sally's repo.");
+			Assert.IsTrue(sallyContents.Contains("deer"), "'deer' should survive the big hairy test in Sally's repo.");
+			Assert.IsTrue(sallyContents.Contains("ant"), "'ant' should survive the big hairy test in Sally's repo.");
+			Assert.IsTrue(sallyContents.Contains("fox"), "'fox' should survive the big hairy test in Sally's repo.");
+			fredContents = File.ReadAllText(fredPathToLift);
+			Assert.IsTrue(fredContents.Contains("cat"), "'cat' should survive the big hairy test in Fred's repo.");
+			Assert.IsTrue(fredContents.Contains("dog"), "'dog' should survive the big hairy test in Fred's repo.");
+			Assert.IsTrue(fredContents.Contains("herring"), "'herring' should survive the big hairy test in Fred's repo.");
+			Assert.IsTrue(fredContents.Contains("pig"), "'pig' should survive the big hairy test in Fred's repo.");
+			Assert.IsTrue(fredContents.Contains("deer"), "'deer' should survive the big hairy test in Fred's repo.");
+			Assert.IsTrue(fredContents.Contains("ant"), "'ant' should survive the big hairy test in Fred's repo.");
+			Assert.IsTrue(fredContents.Contains("fox"), "'fox' should survive the big hairy test in Fred's repo.");
 
 			// Verify Bob is on the latest branch
-			string dummy;
-			var result = bobsyncer.Repository.BranchingHelper.IsLatestBranchDifferent(lift14version, out dummy);
-			Assert.IsFalse(result, "Bob should be on the latest LIFT0.14 branch.");
+			result = bobSyncer.Repository.BranchingHelper.IsLatestBranchDifferent(lift13version, out dummy);
+			Assert.IsFalse(result, "Bob should be on the new LIFT0.13 branch.");
 
 			// Verify Sally is on the right branch
-			result = synchronizer.Repository.BranchingHelper.IsLatestBranchDifferent(lift14version, out dummy);
-			Assert.IsFalse(result, "Sally should be on the latest LIFT0.14 branch.");
+			result = sallySyncer.Repository.BranchingHelper.IsLatestBranchDifferent(lift13version, out dummy);
+			Assert.IsFalse(result, "Sally should be on the new LIFT0.13 branch.");
+
+			// Verify Fred is finally on the new branch
+			result = fredSyncer.Repository.BranchingHelper.IsLatestBranchDifferent(lift13version, out dummy);
+			Assert.IsFalse(result, "Fred should finally be on the new LIFT0.13 branch.");
 		}
 
 #if forscreenshot
@@ -743,7 +789,7 @@ namespace LibChorus.Tests.sync
 		public static string lift12DogAntPig = lift12Header + dogEntry + antEntry + pigEntry + liftClosing;
 		public static string lift13DogHerring = lift13Header + dogEntry + herringEntry + liftClosing;
 		public static string lift13DogAntHerring = lift13Header + dogEntry + antEntry + herringEntry + liftClosing;
-		public static string lift13DogCatHerringDeer = lift13Header + dogEntry + catEntry + herringEntry + deerEntry + liftClosing;
+		public static string lift13DogCatHerringAntDeer = lift13Header + dogEntry + catEntry + herringEntry + antEntry + deerEntry + liftClosing;
 		public static string lift13DogAntPigFox = lift13Header + dogEntry + antEntry + pigEntry + foxEntry + liftClosing;
 		public static string lift13DogCat = lift13Header + dogEntry + catEntry + liftClosing;
 		public static string lift13PigDogCat = lift13Header + pigEntry + dogEntry + catEntry + liftClosing;
