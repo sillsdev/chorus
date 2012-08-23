@@ -490,7 +490,7 @@ namespace LibChorus.Tests.sync
 				File.WriteAllText(MergePathname, "Merged");
 			}
 
-			public string ModelVersion
+			public string BranchName
 			{
 				get
 				{

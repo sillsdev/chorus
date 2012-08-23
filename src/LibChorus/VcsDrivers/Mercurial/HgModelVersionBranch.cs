@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Palaso.Progress.LogBox;
 
 namespace Chorus.VcsDrivers.Mercurial
@@ -30,26 +31,25 @@ namespace Chorus.VcsDrivers.Mercurial
 				ClientVersion = currentRevision.Branch;
 		}
 
-		internal List<Revision> GetBranches()
+		internal IEnumerable<Revision> GetBranches()
 		{
-			string what = "branches";
-			_progress.WriteVerbose("Getting {0} of {1}", what, UserId);
-			string result = _repo.GetTextFromQuery(what);
-
-			string[] lines = result.Split('\n');
-			List<Revision> branches = new List<Revision>();
-			foreach (string line in lines)
+			var heads = _repo.GetHeads(); // Heads gets more information than Branches, including summary and userID
+			// But now we have to make sure that if there is more than one head for a branch, we only show the latest.
+			var branchDict = new Dictionary<string, Revision>();
+			foreach (var head in heads)
 			{
-				if (line.Trim() == "")
-					continue;
-
-				string[] parts = line.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-				if (parts.Length < 2)
-					continue;
-				string[] revisionParts = parts[1].Split(':');
-				branches.Add(new Revision(_repo, parts[0], "", revisionParts[0], revisionParts[1], "unknown"));
+				Revision previousHeadSameBranch;
+				if (branchDict.TryGetValue(head.Branch, out previousHeadSameBranch))
+				{
+					var prevHeadRevNum = previousHeadSameBranch.Number.LocalRevisionNumber;
+					if (Convert.ToInt32(head.Number.LocalRevisionNumber) > Convert.ToInt32(prevHeadRevNum))
+					{
+						branchDict.Remove(previousHeadSameBranch.Branch);
+						branchDict.Add(head.Branch, head);
+					}
+				}
 			}
-			return branches;
+			return branchDict.Values;
 		}
 
 		public void Branch(IProgress progress, string branchName)

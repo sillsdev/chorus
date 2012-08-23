@@ -39,10 +39,11 @@ namespace Chorus.sync
 		void PrepareForPostMergeCommit(IProgress progress);
 
 		/// <summary>
-		/// The version string for the model of the client. Used to create a version branch in the repository.
+		/// Get the branch name the client wants to use. This might be (for example) a current version label
+		/// of the client's data model. Used to create a version branch in the repository.
 		/// </summary>
 		/// <returns></returns>
-		string ModelVersion { get; }
+		string BranchName { get; }
 
 		/// <summary>
 		/// During a Send/Receive when Chorus has completed a pull and there is more than one branch on the repository

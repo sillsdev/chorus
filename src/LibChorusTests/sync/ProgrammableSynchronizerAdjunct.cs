@@ -8,11 +8,11 @@ namespace LibChorus.Tests.sync
 {
 	class ProgrammableSynchronizerAdjunct : ISychronizerAdjunct
 	{
-		private string _modelVersion;
+		private string _branchName;
 
 		public ProgrammableSynchronizerAdjunct(string modelVersion)
 		{
-			_modelVersion = modelVersion;
+			_branchName = modelVersion;
 		}
 
 		#region Implementation of ISychronizerAdjunct
@@ -41,9 +41,9 @@ namespace LibChorus.Tests.sync
 		public void PrepareForPostMergeCommit(IProgress progress)
 		{ /* Do nothing at all. */ }
 
-		public string ModelVersion
+		public string BranchName
 		{
-			get { return _modelVersion ?? ""; } // Hg default branch name
+			get { return _branchName ?? ""; } // Hg default branch name
 		}
 
 		public void CheckRepositoryBranches(IEnumerable<Revision> branches)

@@ -120,8 +120,8 @@ namespace Chorus.sync
 				RemoveLocks(repo);
 				repo.RecoverFromInterruptedTransactionIfNeeded();
 				repo.FixUnicodeAudio();
-				string modelVersion = _sychronizerAdjunct.ModelVersion;
-				ChangeBranchIfNecessary(modelVersion);
+				string branchName = _sychronizerAdjunct.BranchName;
+				ChangeBranchIfNecessary(branchName);
 				Commit(options);
 
 				var workingRevBeforeSync = repo.GetRevisionWorkingSetIsBasedOn();
@@ -184,12 +184,12 @@ namespace Chorus.sync
 			return results;
 		}
 
-		private void ChangeBranchIfNecessary(string modelVersion)
+		private void ChangeBranchIfNecessary(string branchName)
 		{
 			if (Repository.GetRevisionWorkingSetIsBasedOn() == null ||
-				Repository.GetRevisionWorkingSetIsBasedOn().Branch != modelVersion)
+				Repository.GetRevisionWorkingSetIsBasedOn().Branch != branchName)
 			{
-				Repository.BranchingHelper.Branch(_progress, modelVersion);
+				Repository.BranchingHelper.Branch(_progress, branchName);
 			}
 		}
 

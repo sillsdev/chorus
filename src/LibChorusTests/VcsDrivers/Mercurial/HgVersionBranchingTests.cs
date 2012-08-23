@@ -1,4 +1,5 @@
-﻿using Chorus.sync;
+﻿using System.Linq;
+using Chorus.sync;
 using Chorus.VcsDrivers.Mercurial;
 using LibChorus.TestUtilities;
 using NUnit.Framework;
@@ -23,7 +24,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				var result = branchingHelper.GetBranches();
 
 				// Verification
-				Assert.AreEqual(1, result.Count);
+				Assert.AreEqual(1, result.Count());
 			}
 		}
 
@@ -34,7 +35,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			using (var repoWithFiles = RepositoryWithFilesSetup.CreateWithLiftFile(stestUser))
 			{
 				var branchingHelper = repoWithFiles.Repository.BranchingHelper;
-				Assert.AreEqual(1, branchingHelper.GetBranches().Count,
+				Assert.AreEqual(1, branchingHelper.GetBranches().Count(),
 								"Setup problem in test, should be starting with one branch.");
 				const string newBranchName = "FLEx70000059";
 				var oldversion = branchingHelper.ClientVersion;
@@ -51,9 +52,9 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 
 				// Verification
 				var revs = branchingHelper.GetBranches();
-				Assert.AreEqual(2, revs.Count, "Should be 2 branches now.");
-				Assert.AreEqual(newBranchName, revs[0].Branch, "Should be a branch with this name.");
-				var localRevNum = revs[0].Number.LocalRevisionNumber;
+				Assert.AreEqual(2, revs.Count(), "Should be 2 branches now.");
+				Assert.AreEqual(newBranchName, revs.First().Branch, "Should be a branch with this name.");
+				var localRevNum = revs.First().Number.LocalRevisionNumber;
 				var lastRev = repoWithFiles.Repository.GetRevision(localRevNum);
 				Assert.AreEqual(stestUser, lastRev.UserId, "User name should be set.");
 				Assert.AreNotEqual(oldversion, branchingHelper.ClientVersion, "Should have updated ClientVersion");
@@ -67,7 +68,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			using (var repoWithFiles = RepositoryWithFilesSetup.CreateWithLiftFile(stestUser))
 			{
 				var branchingHelper = repoWithFiles.Repository.BranchingHelper;
-				Assert.AreEqual(1, branchingHelper.GetBranches().Count,
+				Assert.AreEqual(1, branchingHelper.GetBranches().Count(),
 								"Setup problem in test, should be starting with one branch.");
 				// Make a new branch (should technically be on the remote with a different user...)
 				const string newBranchName = "New Branch";
@@ -100,7 +101,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			using (var repoWithFiles = RepositoryWithFilesSetup.CreateWithLiftFile(stestUser))
 			{
 				var branchingHelper = repoWithFiles.Repository.BranchingHelper;
-				Assert.AreEqual(1, branchingHelper.GetBranches().Count,
+				Assert.AreEqual(1, branchingHelper.GetBranches().Count(),
 								"Setup problem in test, should be starting with one branch.");
 
 				const string myVersion = ""; // Equivalent to 'default'
