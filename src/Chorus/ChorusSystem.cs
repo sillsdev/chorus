@@ -54,7 +54,7 @@ namespace Chorus
 
 			_dataFolderPath = dataFolderPath;
 			Repository = HgRepository.CreateOrLocate(dataFolderPath, new NullProgress());
-			var builder = new Autofac.Builder.ContainerBuilder();
+			var builder = new Autofac.ContainerBuilder();
 
 			builder.Register<ProjectFolderConfiguration>(c => new ProjectFolderConfiguration(dataFolderPath));
 			builder.Register<IEnumerable<IWritingSystem>>(c=>WritingSystems);
@@ -66,7 +66,7 @@ namespace Chorus
 				userNameForHistoryAndNotes = Repository.GetUserIdInUse();
 			}
 			_user = new ChorusUser(userNameForHistoryAndNotes);
-			builder.Register<IChorusUser>(_user);
+			builder.RegisterInstance(_user).As<IChorusUser>();
 //            builder.RegisterGeneratedFactory<NotesInProjectView.Factory>().ContainerScoped();
 //            builder.RegisterGeneratedFactory<NotesInProjectViewModel.Factory>().ContainerScoped();
 //            builder.RegisterGeneratedFactory<NotesBrowserPage.Factory>().ContainerScoped();
@@ -76,9 +76,9 @@ namespace Chorus
 
 
 			//add the container itself
-			var builder2 = new Autofac.Builder.ContainerBuilder();
-			builder2.Register<IContainer>(_container);
-			builder2.Build(_container);
+			var builder2 = new Autofac.ContainerBuilder();
+			builder2.RegisterInstance(_container).As<IContainer>();
+			builder2.Update(_container);
 		}
 
 		/// <summary>
