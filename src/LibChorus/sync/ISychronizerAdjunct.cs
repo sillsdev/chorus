@@ -42,7 +42,6 @@ namespace Chorus.sync
 		/// Get the branch name the client wants to use. This might be (for example) a current version label
 		/// of the client's data model. Used to create a version branch in the repository.
 		/// </summary>
-		/// <returns></returns>
 		string BranchName { get; }
 
 		/// <summary>
@@ -52,7 +51,7 @@ namespace Chorus.sync
 		/// i.e. "Someone else has a new version you should update"
 		/// or "Your colleague needs to update, you won't see their changes until they do."
 		/// </summary>
-		/// <param name="branches"></param>
+		/// <param name="branches">A list (IEnumerable really) of all the open branches in this repo.</param>
 		void CheckRepositoryBranches(IEnumerable<Revision> branches);
 	}
 }

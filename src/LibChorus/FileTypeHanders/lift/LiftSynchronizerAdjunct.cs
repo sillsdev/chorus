@@ -9,9 +9,13 @@ namespace Chorus.FileTypeHanders.lift
 {
 	class LiftSynchronizerAdjunct : ISychronizerAdjunct
 	{
-		private string _branchName;
-		private string _liftPathName;
+		private readonly string _branchName;
+		private readonly string _liftPathName;
 
+		/// <summary>
+		/// Synchronizer Adjunct for use processing LIFT files
+		/// </summary>
+		/// <param name="liftFileFullPathName">Please provide a full pathname to the LIFT file.</param>
 		public LiftSynchronizerAdjunct(string liftFileFullPathName)
 		{
 			_liftPathName = liftFileFullPathName;
@@ -57,13 +61,22 @@ namespace Chorus.FileTypeHanders.lift
 		{ /* Do nothing at all. */ }
 
 		/// <summary>
-		/// Returns the name of the Hg branch we are working in.
+		/// Get the branch name the client wants to use. This might be (for example) a current version label
+		/// of the client's data model. Used to create a version branch in the repository.
 		/// </summary>
 		public string BranchName
 		{
 			get { return _branchName ?? ""; } // Hg default branch name
 		}
 
+		/// <summary>
+		/// During a Send/Receive when Chorus has completed a pull and there is more than one branch on the repository
+		/// it will pass the revision of the head of each branch to the client.
+		/// The client can use this to display messages to the users when other branches are active other than their own.
+		/// i.e. "Someone else has a new version you should update"
+		/// or "Your colleague needs to update, you won't see their changes until they do."
+		/// </summary>
+		/// <param name="branches">A list (IEnumerable really) of all the open branches in this repo.</param>
 		public void CheckRepositoryBranches(IEnumerable<Revision> branches)
 		{ /* Do nothing at all. */ }
 
