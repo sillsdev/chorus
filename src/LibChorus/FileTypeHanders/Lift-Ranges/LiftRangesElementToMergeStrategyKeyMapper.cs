@@ -6,7 +6,7 @@ using Chorus.merge.xml.generic;
 
 namespace Chorus.FileTypeHanders
 {
-	internal class LiftRangesKeyFinder : IKeyFinder
+	internal class LiftRangesElementToMergeStrategyKeyMapper : IElementToMergeStrategyKeyMapper
 	{
 		#region Implementation of IKeyFinder
 
