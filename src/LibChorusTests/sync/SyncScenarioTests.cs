@@ -32,9 +32,9 @@ namespace LibChorus.Tests.sync
 
 		#region Test Utilities
 
-		public static void SetAdjunctModelVersion(Synchronizer synchronizer, string modelVersion)
+		public static void SetAdjunctModelVersion(Synchronizer synchronizer, string branchName)
 		{
-			synchronizer.SynchronizerAdjunct = new ProgrammableSynchronizerAdjunct(modelVersion);
+			synchronizer.SynchronizerAdjunct = new ProgrammableSynchronizerAdjunct(branchName);
 		}
 
 		/// <summary>

@@ -1,18 +1,33 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Xml;
 using Chorus.VcsDrivers.Mercurial;
 using Chorus.sync;
 using Palaso.Progress.LogBox;
+using Palaso.Xml;
 
-namespace LibChorus.Tests.sync
+namespace Chorus.FileTypeHanders.lift
 {
-	class ProgrammableSynchronizerAdjunct : ISychronizerAdjunct
+	class LiftSynchronizerAdjunct : ISychronizerAdjunct
 	{
 		private string _branchName;
+		private string _liftPathName;
 
-		public ProgrammableSynchronizerAdjunct(string branchName)
+		public LiftSynchronizerAdjunct(string liftFileFullPathName)
 		{
-			_branchName = branchName;
+			_liftPathName = liftFileFullPathName;
+			_branchName = GetBranchNameFromLiftFile();
+		}
+
+		private string GetBranchNameFromLiftFile()
+		{
+			const string LIFT = "LIFT";
+			using (var rdr = XmlReader.Create(_liftPathName, CanonicalXmlSettings.CreateXmlReaderSettings()))
+			{
+				rdr.MoveToContent();
+				rdr.MoveToAttribute("version");
+				var fileVersion = rdr.Value;
+				return LIFT + fileVersion;
+			}
 		}
 
 		#region Implementation of ISychronizerAdjunct
@@ -41,6 +56,9 @@ namespace LibChorus.Tests.sync
 		public void PrepareForPostMergeCommit(IProgress progress)
 		{ /* Do nothing at all. */ }
 
+		/// <summary>
+		/// Returns the name of the Hg branch we are working in.
+		/// </summary>
 		public string BranchName
 		{
 			get { return _branchName ?? ""; } // Hg default branch name

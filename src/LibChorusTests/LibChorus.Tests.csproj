@@ -119,6 +119,7 @@
 	<Compile Include="FileHandlers\ldml\LdmlFileHandlerTests.cs" />
 	<Compile Include="FileHandlers\LiftRanges\LiftRangesFileHandlerTests.cs" />
 	<Compile Include="FileHandlers\Lift\FilePrettyPrintTests.cs" />
+	<Compile Include="FileHandlers\Lift\LiftSynchronizerAdjunctTests.cs" />
 	<Compile Include="MercurialPathHelp.cs" />
 	<Compile Include="merge\xml\ConflictXmlRecordRetrievalTests.cs" />
 	<Compile Include="merge\GroupOfConflictFiles.cs" />

@@ -335,7 +335,7 @@ namespace LibChorus.Tests.sync
 				var syncResults = sally.SyncWithOptions(options, synchronizer);
 				Assert.IsTrue(syncResults.DidGetChangesFromOthers);
 				CheckExistanceOfAdjunctFiles(syncAdjunct, true, false, true, false, true, true);
-				var lines = File.ReadAllLines(syncAdjunct.BranchesPathName);
+				var lines = File.ReadAllLines(syncAdjunct.CheckRepoBranchesPathName);
 				Assert.AreEqual(lines.Length, 2, "Wrong number of branches on CheckBranches call");
 			}
 		}
@@ -372,7 +372,7 @@ namespace LibChorus.Tests.sync
 
 		private static void CheckExistanceOfAdjunctFiles(FileWriterSychronizerAdjunct syncAdjunct, bool commitFileShouldExist,
 														 bool pullFileShouldExist, bool rollbackFileShouldExist,
-														 bool mergeFileShouldExist, bool versionFileShouldExist,
+														 bool mergeFileShouldExist, bool branchNameFileShouldExist,
 														 bool branchesFileShouldExist)
 		{
 			if (commitFileShouldExist)
@@ -395,15 +395,15 @@ namespace LibChorus.Tests.sync
 			else
 				Assert.IsFalse(File.Exists(syncAdjunct.MergePathname), "MergeFile shouldn't exist.");
 
-			if (versionFileShouldExist)
-				Assert.IsTrue(File.Exists(syncAdjunct.GetVersionPathName), "GetVersionFile should exist.");
+			if (branchNameFileShouldExist)
+				Assert.IsTrue(File.Exists(syncAdjunct.BranchNamePathName), "BranchNameFile should exist.");
 			else
-				Assert.IsFalse(File.Exists(syncAdjunct.GetVersionPathName), "GetVersionFile shouldn't exist.");
+				Assert.IsFalse(File.Exists(syncAdjunct.BranchNamePathName), "BranchNameFile shouldn't exist.");
 
 			if (branchesFileShouldExist)
-				Assert.IsTrue(File.Exists(syncAdjunct.BranchesPathName), "BranchesFile should exist.");
+				Assert.IsTrue(File.Exists(syncAdjunct.CheckRepoBranchesPathName), "CheckRepoBranchesFile should exist.");
 			else
-				Assert.IsFalse(File.Exists(syncAdjunct.BranchesPathName), "BranchesFile shouldn't exist.");
+				Assert.IsFalse(File.Exists(syncAdjunct.CheckRepoBranchesPathName), "CheckRepoBranchesFile shouldn't exist.");
 		}
 
 		private static void CheckNoFilesExist(FileWriterSychronizerAdjunct syncAdjunct)
@@ -412,8 +412,8 @@ namespace LibChorus.Tests.sync
 			Assert.IsFalse(File.Exists(syncAdjunct.PullPathname));
 			Assert.IsFalse(File.Exists(syncAdjunct.RollbackPathname));
 			Assert.IsFalse(File.Exists(syncAdjunct.MergePathname));
-			Assert.IsFalse(File.Exists(syncAdjunct.GetVersionPathName));
-			Assert.IsFalse(File.Exists(syncAdjunct.BranchesPathName));
+			Assert.IsFalse(File.Exists(syncAdjunct.BranchNamePathName));
+			Assert.IsFalse(File.Exists(syncAdjunct.CheckRepoBranchesPathName));
 		}
 
 		private class FileWriterSychronizerAdjunct : ISychronizerAdjunct
@@ -445,14 +445,14 @@ namespace LibChorus.Tests.sync
 				get { return Path.Combine(_pathToRepository, "Merge.txt"); }
 			}
 
-			internal string GetVersionPathName
+			internal string BranchNamePathName
 			{
-				get { return Path.Combine(_pathToRepository, "Version.txt"); }
+				get { return Path.Combine(_pathToRepository, "BranchName.txt"); }
 			}
 
-			internal string BranchesPathName
+			internal string CheckRepoBranchesPathName
 			{
-				get { return Path.Combine(_pathToRepository, "Branches.txt"); }
+				get { return Path.Combine(_pathToRepository, "CheckRepoBranches.txt"); }
 			}
 
 			#region Implementation of ISychronizerAdjunct
@@ -494,7 +494,7 @@ namespace LibChorus.Tests.sync
 			{
 				get
 				{
-					File.WriteAllText(GetVersionPathName, "(default)");
+					File.WriteAllText(BranchNamePathName, "(default)");
 					return ""; // Hg 'default' branch is empty string.
 				}
 			}
@@ -503,7 +503,7 @@ namespace LibChorus.Tests.sync
 			{
 				foreach (var revision in branches)
 				{
-					File.AppendAllText(BranchesPathName, revision.Branch + Environment.NewLine);
+					File.AppendAllText(CheckRepoBranchesPathName, revision.Branch + Environment.NewLine);
 				}
 			}
 

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using Palaso.Progress.LogBox;
 
 namespace Chorus.VcsDrivers.Mercurial
