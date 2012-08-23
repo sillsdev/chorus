@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Chorus.FileTypeHanders.lift;
+﻿using Chorus.FileTypeHanders.lift;
 using NUnit.Framework;
 using Palaso.IO;
 
