@@ -48,6 +48,10 @@ namespace Chorus.VcsDrivers.Mercurial
 						branchDict.Add(head.Branch, head);
 					}
 				}
+				else
+				{
+					branchDict.Add(head.Branch, head);
+				}
 			}
 			return branchDict.Values;
 		}
