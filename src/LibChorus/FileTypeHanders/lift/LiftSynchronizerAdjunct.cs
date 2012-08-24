@@ -1,21 +1,37 @@
 ﻿using System.Collections.Generic;
+using System.Xml;
 using Chorus.VcsDrivers.Mercurial;
 using Chorus.sync;
 using Palaso.Progress.LogBox;
+using Palaso.Xml;
 
-namespace LibChorus.Tests.sync
+namespace Chorus.FileTypeHanders.lift
 {
-	class ProgrammableSynchronizerAdjunct : ISychronizerAdjunct
+	class LiftSynchronizerAdjunct : ISychronizerAdjunct
 	{
 		private readonly string _branchName;
+		private readonly string _liftPathName;
 
 		/// <summary>
-		/// Synchronizer Adjunct for test purposes.
+		/// Synchronizer Adjunct for use processing LIFT files
 		/// </summary>
-		/// <param name="branchName">The name of the branch we are committing to.</param>
-		public ProgrammableSynchronizerAdjunct(string branchName)
+		/// <param name="liftFileFullPathName">Please provide a full pathname to the LIFT file.</param>
+		public LiftSynchronizerAdjunct(string liftFileFullPathName)
 		{
-			_branchName = branchName;
+			_liftPathName = liftFileFullPathName;
+			_branchName = GetBranchNameFromLiftFile();
+		}
+
+		private string GetBranchNameFromLiftFile()
+		{
+			const string LIFT = "LIFT";
+			using (var rdr = XmlReader.Create(_liftPathName, CanonicalXmlSettings.CreateXmlReaderSettings()))
+			{
+				rdr.MoveToContent();
+				rdr.MoveToAttribute("version");
+				var fileVersion = rdr.Value;
+				return LIFT + fileVersion;
+			}
 		}
 
 		#region Implementation of ISychronizerAdjunct
