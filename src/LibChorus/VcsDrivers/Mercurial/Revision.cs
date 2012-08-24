@@ -5,8 +5,10 @@ using System.Linq;
 
 namespace Chorus.VcsDrivers.Mercurial
 {
+	[Serializable]
 	public class Revision
 	{
+		[NonSerialized]
 		private readonly HgRepository _repository;
 		public string UserId { get; set; }
 		public RevisionNumber Number;
@@ -97,6 +99,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		}
 	}
 
+	[Serializable]
 	public class RevisionNumber
 	{
 		public RevisionNumber(string local, string hash)

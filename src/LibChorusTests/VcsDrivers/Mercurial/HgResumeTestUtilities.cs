@@ -157,7 +157,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		void AddServerUnavailableResponse(int executeCount, string serverMessage);
 		void AddFailResponse(int executeCount);
 		void AddCancelResponse(int executeCount);
-		void PrepareBundle(string revHash);
+		void PrepareBundle(string[] revHash);
 		void AddResponse(HgResumeApiResponse response);
 		void AddTimeOut();
 		string StoragePath { get; }
@@ -179,7 +179,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			else if (method == "pullBundleChunk")
 			{
 				Assert.That(request.RepoId, Is.Not.Empty);
-				Assert.That(request.BaseHash, Is.Not.Empty);
+				Assert.That(request.BaseHashes, Is.Not.Empty);
 				Assert.That(request.ChunkSize, Is.GreaterThan(0));
 				Assert.That(request.StartOfWindow, Is.GreaterThanOrEqualTo(0));
 				Assert.That(request.TransId, Is.Not.Empty);
@@ -275,7 +275,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			throw new NotImplementedException();
 		}
 
-		public void PrepareBundle(string revHash)
+		public void PrepareBundle(string[] revHash)
 		{
 			throw new NotImplementedException();
 		}
@@ -315,7 +315,6 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 
 	internal class PushHandlerApiServerForTest : ApiServerForTest, IApiServerForTest, IDisposable
 	{
-
 
 		private PullStorageManager _helper;  // yes, we DO want to use the PullStorageManager for the PushHandler (this is the other side of the API, so it's opposite)
 		private readonly HgRepository _repo;
@@ -466,7 +465,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			_cancelCount = executeCount;
 		}
 
-		public void PrepareBundle(string revHash)
+		public void PrepareBundle(string[] revHash)
 		{
 			throw new NotImplementedException();
 		}
@@ -532,7 +531,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			_cancelCount = executeCount;
 		}
 
-		public void PrepareBundle(string revHash)
+		public void PrepareBundle(string[] revHash)
 		{
 			if(File.Exists(_helper.BundlePath))
 			{
@@ -560,7 +559,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			{
 				if (CurrentTip != OriginalTip)
 				{
-					PrepareBundle(OriginalTip);
+					PrepareBundle(HgResumeTransport.GetHashStringsFromRevisions(_repo.BranchingHelper.GetBranches()));
 					return ApiResponses.Reset(); // repo changed in between pulls
 				}
 				return ApiResponses.Custom(HttpStatusCode.OK);
@@ -591,16 +590,15 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 							_serverUnavailableList.Where(i => i.ExecuteCount == _executeCount).First().Message
 							);
 				}
-				if (request.BaseHash == CurrentTip)
+				if (Array.BinarySearch(request.BaseHashes, 0, request.BaseHashes.Length, CurrentTip) >= 0)
 				{
 					return ApiResponses.PullNoChange();
 				}
 
-
 				var bundleFileInfo = new FileInfo(_helper.BundlePath);
 				if (bundleFileInfo.Exists && bundleFileInfo.Length == 0  || !bundleFileInfo.Exists)
 				{
-					PrepareBundle(request.BaseHash);
+					PrepareBundle(request.BaseHashes);
 				}
 				//int offset = Convert.ToInt32(request["offset"]);
 				//int chunkSize = Convert.ToInt32(request["chunkSize"]);

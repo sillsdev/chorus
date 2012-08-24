@@ -425,15 +425,21 @@ namespace Chorus.VcsDrivers.Mercurial
 			return GetRevisionsFromQuery("heads");
 		}
 
-		public bool MakeBundle(string baseRevision, string filePath)
+		public bool MakeBundle(string[] baseRevisions, string filePath)
 		{
 			string command;
-			if (baseRevision == "0") // special hash meaning "all revisions"
+			if (baseRevisions.Length == 0 || baseRevisions.Contains("0")) // empty list or "0" means "all revisions"
 			{
 				command = string.Format("bundle --all \"{0}\"", filePath);
-			} else
+			}
+			else
 			{
-				command = string.Format("bundle --base {0} \"{1}\"", baseRevision, filePath);
+				var revisionFlags = "";
+				foreach (var baseRevision in baseRevisions)
+				{
+					revisionFlags += string.Format("--base {0} \"{1}\" ", baseRevision, filePath);
+				}
+				command = "bundle " + revisionFlags;
 			}
 
 			string result = GetTextFromQuery(command);
