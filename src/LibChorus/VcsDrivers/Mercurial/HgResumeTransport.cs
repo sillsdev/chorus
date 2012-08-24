@@ -119,6 +119,10 @@ namespace Chorus.VcsDrivers.Mercurial
 			}
 		}
 
+		/// <summary>
+		/// Used to retrieve the cache of revisions for each server and branch
+		/// </summary>
+		/// <returns>The contents of the cache file if it exists, or an empty list</returns>
 		internal static List<ServerRevision> ReadServerRevisionCache(string filePath)
 		{
 			try
@@ -170,8 +174,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				branches.Add(rev.Branch);
 			}
 
-			//Get tip of each branch.
-			//find common base for each tip (or discover that the branch is on client only) and then quit.
+			//The goal here is to to return the first common revision of each branch.
 			List<Revision> commonBase = null;
 
 			while (branches.Count > 0)
@@ -181,7 +184,6 @@ namespace Chorus.VcsDrivers.Mercurial
 				{
 					// special case when remote repo is empty (initialized with no changesets)
 					return new List<Revision>();
-					break;
 				}
 				foreach (var rev in localRevisions)
 				{
