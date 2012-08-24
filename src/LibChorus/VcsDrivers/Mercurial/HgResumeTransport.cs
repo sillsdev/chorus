@@ -395,7 +395,7 @@ namespace Chorus.VcsDrivers.Mercurial
 					_progress.ProgressIndicator.Finish();
 
 					// update our local knowledge of what the server has
-					LastKnownCommonBases = _repo.BranchingHelper.GetBranches(); // This may be a little optimistic, the server may still be unbundling the data.
+					LastKnownCommonBases = new List<Revision>(_repo.BranchingHelper.GetBranches()); // This may be a little optimistic, the server may still be unbundling the data.
 					//FinishPush(req.TransId);  // We can't really tell when the server has finished processing our pulled data.  The server cleans up after itself. CP 2012-07
 					bundleHelper.Cleanup();
 					return;
@@ -737,7 +737,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 				// REVIEW: I'm not sure why this was set to the server tip before, if we just pulled then won't our head
 				// be the correct common base? Maybe not if a merge needs to happen,
-				LastKnownCommonBases = _repo.BranchingHelper.GetBranches();
+				LastKnownCommonBases = new List<Revision>(_repo.BranchingHelper.GetBranches());
 				return true;
 			}
 			_progress.WriteError("Received all data but local unbundle operation failed or resulted in multiple heads!");
@@ -748,10 +748,10 @@ namespace Chorus.VcsDrivers.Mercurial
 			throw new HgResumeOperationFailed(errorMessage);
 		}
 
-		internal static string[] GetHashStringsFromRevisions(List<Revision> branchHeadRevisions)
+		internal static string[] GetHashStringsFromRevisions(IEnumerable<Revision> branchHeadRevisions)
 		{
-			var hashes = new string[branchHeadRevisions.Count];
-			for(var index = 0; index < branchHeadRevisions.Count; ++index)
+			var hashes = new string[branchHeadRevisions.Count()];
+			for(var index = 0; index < branchHeadRevisions.Count(); ++index)
 			{
 				hashes[index] = branchHeadRevisions.ElementAt(index).Number.Hash;
 			}
