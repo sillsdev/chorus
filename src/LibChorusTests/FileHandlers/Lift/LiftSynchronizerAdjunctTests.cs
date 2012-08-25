@@ -4,7 +4,8 @@ using Palaso.IO;
 
 namespace LibChorus.Tests.FileHandlers.Lift
 {
-	class LiftSynchronizerAdjunctTests
+	[TestFixture]
+	public class LiftSynchronizerAdjunctTests
 	{
 		private const string testLiftFile =
 			@"<?xml version='1.0' encoding='UTF-8'?>

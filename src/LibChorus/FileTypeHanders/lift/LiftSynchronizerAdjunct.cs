@@ -66,7 +66,7 @@ namespace Chorus.FileTypeHanders.lift
 		/// </summary>
 		public string BranchName
 		{
-			get { return _branchName ?? ""; } // Hg default branch name
+			get { return _branchName; }
 		}
 
 		/// <summary>
