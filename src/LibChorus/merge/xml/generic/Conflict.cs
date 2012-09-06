@@ -7,6 +7,7 @@ using Autofac;
 using Chorus.Utilities.code;
 using Chorus.VcsDrivers;
 using Palaso.IO;
+using Palaso.Xml;
 
 namespace Chorus.merge.xml.generic
 {
