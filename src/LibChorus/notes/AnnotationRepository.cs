@@ -5,7 +5,7 @@ using System.Xml;
 using System.Linq;
 using System.Xml.Linq;
 using Chorus.Utilities;
-using Chorus.Utilities.code;
+using Palaso.Code;
 using Palaso.Progress.LogBox;
 using Palaso.Xml;
 

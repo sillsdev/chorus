@@ -1,10 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Windows.Forms;
 using Autofac;
-using Autofac.Builder;
 using Chorus.notes;
 using Chorus.sync;
 using Chorus.UI.Notes;
@@ -12,9 +10,8 @@ using Chorus.UI.Notes.Bar;
 using Chorus.UI.Notes.Browser;
 using Chorus.UI.Review;
 using Chorus.UI.Sync;
-using Chorus.Utilities;
-using Chorus.Utilities.code;
 using Chorus.VcsDrivers.Mercurial;
+using Palaso.Code;
 using Palaso.Progress.LogBox;
 
 namespace Chorus

@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Xml;
 using Autofac;
-using Chorus.Utilities.code;
 using Chorus.VcsDrivers;
 using Palaso.IO;
 using Palaso.Xml;
+using Palaso.Code;
 
 namespace Chorus.merge.xml.generic
 {
