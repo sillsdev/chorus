@@ -30,6 +30,10 @@ namespace Chorus.VcsDrivers.Mercurial
 				ClientVersion = currentRevision.Branch;
 		}
 
+		/// <summary>
+		/// Returns the head revision for each branch in _repo
+		/// </summary>
+		/// <returns></returns>
 		internal IEnumerable<Revision> GetBranches()
 		{
 			var heads = _repo.GetHeads(); // Heads gets more information than Branches, including summary and userID
@@ -55,6 +59,12 @@ namespace Chorus.VcsDrivers.Mercurial
 			return branchDict.Values;
 		}
 
+		/// <summary>
+		/// For use when updating a model version for the repository,
+		/// sets the current branch on the repo and the ClientVersion property to the given branch name
+		/// </summary>
+		/// <param name="progress"></param>
+		/// <param name="branchName"></param>
 		public void Branch(IProgress progress, string branchName)
 		{
 			progress.WriteVerbose("{0} changing working dir to branch: {1}", UserId, branchName);

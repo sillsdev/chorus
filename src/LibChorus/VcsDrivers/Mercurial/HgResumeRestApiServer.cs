@@ -12,7 +12,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 	public class HgResumeRestApiServer : IApiServer
 	{
-		public const string APIVERSION = "02";
+		public const string APIVERSION = "03";
 
 		private readonly Uri _url;
 		private string _urlExecuted;
