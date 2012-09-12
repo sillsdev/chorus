@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
+using Chorus.sync;
 using Chorus.Utilities;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
@@ -135,14 +136,16 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				var transport = provider.Transport;
 
 				string dbStoragePath = transport.PathToLocalStorage;
-				string dbFilePath = Path.Combine(dbStoragePath, "remoteRepo.db");
+				string dbFilePath = Path.Combine(dbStoragePath, HgResumeTransport.RevisionCacheFilename);
 				Assert.That(File.Exists(dbFilePath), Is.False);
 
 				var tipHash = e.Local.Repository.GetTip().Number.Hash;
 				transport.Push();
 				Assert.That(File.Exists(dbFilePath), Is.True);
-				string dbContents = File.ReadAllText(dbFilePath).Trim();
-				Assert.That(dbContents, Is.EqualTo(e.ApiServer.Host + "|" + tipHash));
+				var cacheContents = HgResumeTransport.ReadServerRevisionCache(dbFilePath);
+				Assert.True(cacheContents.Count == 1, "should only be one entry in the cache.");
+				Assert.True(cacheContents.FirstOrDefault().RemoteId == e.ApiServer.Host
+						 && cacheContents.FirstOrDefault().Revision.Number.Hash == tipHash, "Cache contents incorrect");
 				Assert.That(e.Progress.AllMessages, Contains.Item("Finished sending"));
 			}
 		}
@@ -162,9 +165,12 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				transport.Push();
 
 				string dbStoragePath = transport.PathToLocalStorage;
-				string dbFilePath = Path.Combine(dbStoragePath, "remoteRepo.db");
-				string dbContents = File.ReadAllText(dbFilePath).Trim();
-				Assert.That(dbContents, Is.EqualTo(e.ApiServer.Host + "|" + tipHash));
+				string dbFilePath = Path.Combine(dbStoragePath, HgResumeTransport.RevisionCacheFilename);
+
+				var cacheContents = HgResumeTransport.ReadServerRevisionCache(dbFilePath);
+				Assert.True(cacheContents.Count == 1, "should only be one entry in the cache.");
+				Assert.True(cacheContents.FirstOrDefault().RemoteId == e.ApiServer.Host
+						 && cacheContents.FirstOrDefault().Revision.Number.Hash == tipHash, "Cache contents incorrect");
 
 				Assert.That(e.Progress.AllMessages, Contains.Item("Finished sending"));
 
@@ -174,8 +180,10 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				e.ApiServer.AddResponse(ApiResponses.PushAccepted(1));
 				e.ApiServer.AddResponse(ApiResponses.PushComplete());
 				transport.Push();
-				dbContents = File.ReadAllText(dbFilePath).Trim();
-				Assert.That(dbContents, Is.EqualTo(e.ApiServer.Host + "|" + tipHash2));
+				cacheContents = HgResumeTransport.ReadServerRevisionCache(dbFilePath);
+				Assert.True(cacheContents.Count == 1, "should only be one entry in the cache.");
+				Assert.True(cacheContents.FirstOrDefault().RemoteId == e.ApiServer.Host
+						 && cacheContents.FirstOrDefault().Revision.Number.Hash == tipHash2, "Cache contents incorrect");
 				Assert.That(e.Progress.AllMessages, Contains.Item("Finished sending"));
 			}
 		}
@@ -207,10 +215,11 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 
 				// check contents of remoteRepoDb
 				string dbStoragePath = transport.PathToLocalStorage;
-				string dbFilePath = Path.Combine(dbStoragePath, "remoteRepo.db");
-				string[] dbContents = File.ReadAllLines(dbFilePath);
-				Assert.That(dbContents, Contains.Item(e1.ApiServer.Host + "|" + tipHash1));
-				Assert.That(dbContents, Contains.Item(api2.Host + "|" + tipHash1));
+				string dbFilePath = Path.Combine(dbStoragePath, HgResumeTransport.RevisionCacheFilename);
+				var cacheContents = HgResumeTransport.ReadServerRevisionCache(dbFilePath);
+				Assert.True(cacheContents.Count == 2, "should be two api server entries in the cache.");
+				Assert.True(cacheContents.SingleOrDefault(x => x.RemoteId == e1.ApiServer.Host).Revision.Number.Hash == tipHash1, "Cache contents incorrect");
+				Assert.True(cacheContents.SingleOrDefault(x => x.RemoteId == api2.Host).Revision.Number.Hash == tipHash1, "Cache contents incorrect");
 
 				// second push
 				e1.LocalAddAndCommit();
@@ -220,9 +229,10 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				e1.ApiServer.AddResponse(ApiResponses.PushComplete());
 				transport.Push();
 
-				dbContents = File.ReadAllLines(dbFilePath);
-				Assert.That(dbContents, Contains.Item(e1.ApiServer.Host + "|" + tipHash2));
-				Assert.That(dbContents, Contains.Item(api2.Host + "|" + tipHash1));
+				cacheContents = HgResumeTransport.ReadServerRevisionCache(dbFilePath);
+				Assert.True(cacheContents.Count == 2, "should be two api server entries in the cache.");
+				Assert.True(cacheContents.SingleOrDefault(x => x.RemoteId == e1.ApiServer.Host).Revision.Number.Hash == tipHash2, "Cache contents incorrect");
+				Assert.True(cacheContents.SingleOrDefault(x => x.RemoteId == api2.Host).Revision.Number.Hash == tipHash1, "Cache contents incorrect");
 
 				Assert.That(e1.Progress.AllMessages, Contains.Item("Finished sending"));
 			}
@@ -550,6 +560,128 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				var transport = provider.Transport;
 				transport.Push();
 				Assert.That(e.Progress.AllMessages, Contains.Item("Finished sending"));
+			}
+		}
+
+		[Test]
+		public void Push_RemoteOnNewBranch_DoesNotThrow()
+		{
+			using (var e = new TestEnvironment("hgresumetest", ApiServerType.Push))
+			using (var provider = GetTransportProviderForTest(e))
+			{
+				e.LocalAddAndCommit();
+				e.CloneRemoteFromLocal();
+				e.SetRemoteAdjunct(new BranchTestAdjunct() { BranchName = "newRemoteBranch"});
+				e.RemoteAddAndCommit();
+				var transport = provider.Transport;
+				Assert.That(() => transport.Push(), Throws.Nothing);
+			}
+		}
+
+		[Test]
+		public void Push_RemoteOnNewBranch_SendsData()
+		{
+			using (var e = new TestEnvironment("hgresumetest", ApiServerType.Push))
+			using (var provider = GetTransportProviderForTest(e))
+			{
+				e.LocalAddAndCommit();
+				e.CloneRemoteFromLocal();
+				e.SetRemoteAdjunct(new BranchTestAdjunct() { BranchName = "newRemoteBranch" });
+				e.RemoteAddAndCommit();
+				e.LocalAddAndCommit();
+				var transport = provider.Transport;
+				Assert.That(() => transport.Push(), Throws.Nothing);
+				Assert.That(e.Progress.AllMessages, !Contains.Item("No changes to send.  Push operation completed"));
+			}
+		}
+
+		[Test]
+		public void Push_LocalOnNewBranch_DoesNotThrow()
+		{
+			using (var e = new TestEnvironment("hgresumetest", ApiServerType.Push))
+			using (var provider = GetTransportProviderForTest(e))
+			{
+				e.LocalAddAndCommit();
+				e.CloneRemoteFromLocal();
+				e.SetLocalAdjunct(new BranchTestAdjunct() { BranchName = "newLocalBranch" });
+				e.LocalAddAndCommit();
+				var transport = provider.Transport;
+				Assert.That(() => transport.Push(), Throws.Nothing);
+			}
+		}
+
+		[Test]
+		public void Push_LocalOnNewBranch_SendsData()
+		{
+			using (var e = new TestEnvironment("hgresumetest", ApiServerType.Push))
+			using (var provider = GetTransportProviderForTest(e))
+			{
+				e.LocalAddAndCommit();
+				e.CloneRemoteFromLocal();
+				e.SetLocalAdjunct(new BranchTestAdjunct() { BranchName = "newLocalBranch" });
+				e.RemoteAddAndCommit();
+				e.LocalAddAndCommit();
+				var transport = provider.Transport;
+				Assert.That(() => transport.Push(), Throws.Nothing);
+				Assert.That(e.Progress.AllMessages, !Contains.Item("No changes to send.  Push operation completed"));
+			}
+		}
+
+		[Test]
+		public void Pull_LocalOnNewBranch_Success()
+		{
+			using (var e = new TestEnvironment("hgresumetest", ApiServerType.Pull))
+			using (var provider = GetTransportProviderForTest(e))
+			{
+				e.LocalAddAndCommit();
+				e.CloneRemoteFromLocal();
+				e.SetLocalAdjunct(new BranchTestAdjunct { BranchName = "localBranch"});
+				e.LocalAddAndCommit();
+				e.RemoteAddAndCommit();
+				var transport = provider.Transport;
+				transport.Pull();
+				Assert.That(e.Progress.AllMessages, Contains.Item("Pull operation completed successfully"));
+			}
+		}
+
+		[Test]
+		public void Pull_RemoteOnNewBranch_Success()
+		{
+			using (var e = new TestEnvironment("hgresumetest", ApiServerType.Pull))
+			using (var provider = GetTransportProviderForTest(e))
+			{
+				e.LocalAddAndCommit();
+				e.CloneRemoteFromLocal();
+				e.SetRemoteAdjunct(new BranchTestAdjunct { BranchName = "remoteBranch" });
+				e.LocalAddAndCommit();
+				e.RemoteAddAndCommit();
+				var transport = provider.Transport;
+				transport.Pull();
+				Assert.That(e.Progress.AllMessages, Contains.Item("Pull operation completed successfully"));
+			}
+		}
+
+		private class BranchTestAdjunct : ISychronizerAdjunct
+		{
+			public string BranchName { get; set; }
+			public void PrepareForInitialCommit(IProgress progress)
+			{
+				;
+			}
+
+			public void SimpleUpdate(IProgress progress, bool isRollback)
+			{
+				;
+			}
+
+			public void PrepareForPostMergeCommit(IProgress progress)
+			{
+				;
+			}
+
+			public void CheckRepositoryBranches(IEnumerable<Revision> branches)
+			{
+				;
 			}
 		}
 	}

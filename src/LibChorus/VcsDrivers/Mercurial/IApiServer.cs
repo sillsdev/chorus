@@ -37,7 +37,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		public int BundleSize { get; set; }
 
 		public string TransId { get; set; }
-		public string BaseHash { get; set; }
+		public string[] BaseHashes { get; set; }
 		public string RepoId { get; set; }
 
 		// used only by getRevisions API
@@ -66,9 +66,15 @@ namespace Chorus.VcsDrivers.Mercurial
 			{
 				query += String.Format("transId={0}&", TransId);
 			}
-			if (!String.IsNullOrEmpty(BaseHash))
+			if (BaseHashes.Length != 0)
 			{
-				query += String.Format("baseHash={0}&", BaseHash);
+				query += "baseHashes=";
+				foreach (var baseHash in BaseHashes)
+				{
+					query += baseHash + ',';
+				}
+				query.TrimEnd(',');
+				query += "&";
 			}
 			if (!String.IsNullOrEmpty(RepoId))
 			{

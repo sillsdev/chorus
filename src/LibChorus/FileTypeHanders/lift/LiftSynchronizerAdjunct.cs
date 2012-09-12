@@ -1,17 +1,39 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Xml;
 using Chorus.VcsDrivers.Mercurial;
+using Chorus.sync;
 using Palaso.Progress.LogBox;
+using Palaso.Xml;
 
-namespace Chorus.sync
+namespace Chorus.FileTypeHanders.lift
 {
-	/// <summary>
-	/// Default implementation of the ISychronizerAdjunct interface that is used,
-	/// when the client does not provide another implementation.
-	///
-	/// This implementation does nothing at all for either method.
-	/// </summary>
-	internal class DefaultSychronizerAdjunct : ISychronizerAdjunct
+	class LiftSynchronizerAdjunct : ISychronizerAdjunct
 	{
+		private readonly string _branchName;
+		private readonly string _liftPathName;
+
+		/// <summary>
+		/// Synchronizer Adjunct for use processing LIFT files
+		/// </summary>
+		/// <param name="liftFileFullPathName">Please provide a full pathname to the LIFT file.</param>
+		public LiftSynchronizerAdjunct(string liftFileFullPathName)
+		{
+			_liftPathName = liftFileFullPathName;
+			_branchName = GetBranchNameFromLiftFile();
+		}
+
+		private string GetBranchNameFromLiftFile()
+		{
+			const string LIFT = "LIFT";
+			using (var rdr = XmlReader.Create(_liftPathName, CanonicalXmlSettings.CreateXmlReaderSettings()))
+			{
+				rdr.MoveToContent();
+				rdr.MoveToAttribute("version");
+				var fileVersion = rdr.Value;
+				return LIFT + fileVersion;
+			}
+		}
+
 		#region Implementation of ISychronizerAdjunct
 
 		/// <summary>
@@ -40,12 +62,11 @@ namespace Chorus.sync
 
 		/// <summary>
 		/// Get the branch name the client wants to use. This might be (for example) a current version label
-		/// of the client's data model. Used to create a version branch in the repository. This one
-		/// returns the default Hg branch.
+		/// of the client's data model. Used to create a version branch in the repository.
 		/// </summary>
 		public string BranchName
 		{
-			get { return ""; } // Hg default branch name
+			get { return _branchName; }
 		}
 
 		/// <summary>

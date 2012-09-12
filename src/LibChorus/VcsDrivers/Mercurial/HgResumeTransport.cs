@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using Chorus.Utilities;
 using Palaso.Progress.LogBox;
@@ -30,6 +31,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		private const int MaximumChunkSize = 250000;
 		private const int TimeoutInSeconds = 15;
 		private const int TargetTimeInSeconds = TimeoutInSeconds / 3;
+		internal const string RevisionCacheFilename = "revisioncache.db";
 
 		///<summary>
 		///</summary>
@@ -59,7 +61,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		///
 		/// TODO: implement this using an object serialization class like system.xml.serialization
 		///</summary>
-		private string LastKnownCommonBase
+		private List<Revision> LastKnownCommonBases
 		{
 			get
 			{
@@ -68,103 +70,148 @@ namespace Chorus.VcsDrivers.Mercurial
 				{
 					Directory.CreateDirectory(storagePath);
 				}
-				string filePath = Path.Combine(storagePath, "remoteRepo.db");
+				string filePath = Path.Combine(storagePath, RevisionCacheFilename);
 				if (File.Exists(filePath))
 				{
-					string[] dbFileContents = File.ReadAllLines(filePath);
-					string remoteId = _apiServer.Host;
-					var db = dbFileContents.Select(i => i.Split('|'));
-					var result = db.Where(x => x[0] == remoteId);
-					if (result.Count() > 0)
+					List<ServerRevision> revisions = ReadServerRevisionCache(filePath);
+					if(revisions != null)
 					{
-						return result.First()[1];
+						var remoteId = _apiServer.Host;
+						var result = revisions.Where(x => x.RemoteId == remoteId);
+						if (result.Count() > 0)
+						{
+							var results = new List<Revision>(result.Count());
+							foreach (var rev in result)
+							{
+								results.Add(rev.Revision);
+							}
+							return results;
+						}
 					}
 				}
-				return "";
+				return new List<Revision>();
 			}
 			set
 			{
-				string storagePath = PathToLocalStorage;
+				string remoteId = _apiServer.Host;
+				var serverRevs = new List<ServerRevision>();
+				foreach (var revision in value)
+				{
+					serverRevs.Add(new ServerRevision(remoteId, revision));
+				}
+				var storagePath = PathToLocalStorage;
 				if (!Directory.Exists(storagePath))
 				{
 					Directory.CreateDirectory(storagePath);
 				}
-				string filePath = Path.Combine(storagePath, "remoteRepo.db");
 
-				string remoteId = _apiServer.Host;
-				if (!File.Exists(filePath))
+				var filePath = Path.Combine(storagePath, RevisionCacheFilename);
+				var fileContents = ReadServerRevisionCache(filePath);
+				fileContents.RemoveAll(x => x.RemoteId == remoteId);
+				serverRevs.AddRange(fileContents);
+				using(Stream stream = File.Open(filePath, FileMode.Create))
 				{
-					// this is the first time "set" has been called.  Write value and exit.
-					File.WriteAllText(filePath, remoteId + @"|" + value);
-					return;
+					var bFormatter = new BinaryFormatter();
+					bFormatter.Serialize(stream, serverRevs);
+					stream.Close();
 				}
-
-				var dbFileContents = File.ReadAllLines(filePath);
-				var db = dbFileContents.Select(i => i.Split('|'));
-				var result = db.Where(x => x[0] == remoteId);
-				if (result.Count() > 0)
-				{
-					string oldRev = result.Single()[1];
-					if (oldRev == value)
-					{
-						return;
-					}
-					int indexToChange = Array.IndexOf(dbFileContents, remoteId + "|" + oldRev);
-					dbFileContents[indexToChange] = remoteId + "|" + value;
-				} else
-				{
-					var dbFileContentsAsList = dbFileContents.ToList();
-					dbFileContentsAsList.Add(remoteId + "|" + value);
-					dbFileContents = dbFileContentsAsList.ToArray();
-				}
-				File.WriteAllLines(filePath, dbFileContents);
+				return;
 			}
 		}
 
-		private string GetCommonBaseHashWithRemoteRepo()
+		/// <summary>
+		/// Used to retrieve the cache of revisions for each server and branch
+		/// </summary>
+		/// <returns>The contents of the cache file if it exists, or an empty list</returns>
+		internal static List<ServerRevision> ReadServerRevisionCache(string filePath)
 		{
-			return GetCommonBaseHashWithRemoteRepo(true);
+			try
+			{
+				using(Stream stream = File.Open(filePath, FileMode.Open))
+				{
+					var bFormatter = new BinaryFormatter();
+					var revisions = bFormatter.Deserialize(stream) as List<ServerRevision>;
+					stream.Close();
+					return revisions;
+				}
+			}
+			catch(FileNotFoundException)
+			{
+				return new List<ServerRevision>();
+			}
 		}
 
-		private string GetCommonBaseHashWithRemoteRepo(bool useCache)
+		[Serializable]
+		internal class ServerRevision
 		{
-			if (useCache && !string.IsNullOrEmpty(LastKnownCommonBase))
+			public readonly string RemoteId;
+			public readonly Revision Revision;
+
+			public ServerRevision(string id, Revision rev)
 			{
-				return LastKnownCommonBase;
+				RemoteId = id;
+				Revision = rev;
+			}
+		}
+
+		private List<Revision> GetCommonBaseHashesWithRemoteRepo()
+		{
+			return GetCommonBaseHashesWithRemoteRepo(true);
+		}
+
+		private List<Revision> GetCommonBaseHashesWithRemoteRepo(bool useCache)
+		{
+			if (useCache && LastKnownCommonBases.Count > 0)
+			{
+				return LastKnownCommonBases;
 			}
 			int offset = 0;
 			const int quantity = 200;
-			IEnumerable<string> localRevisions = _repo.GetAllRevisions().Select(rev => rev.Number.Hash);
-			string commonBase = "";
-			while (string.IsNullOrEmpty(commonBase))
+			var localRevisions = new MultiMap<string, Revision>();
+			foreach (var rev in  _repo.GetAllRevisions())
+			{
+				localRevisions.Add(rev.Branch, rev);
+			}
+
+			//The goal here is to to return the first common revision of each branch.
+			var commonBase = new List<Revision>();
+			var localBranches = new List<string>(localRevisions.Keys);
+
+			while (commonBase.Count < localRevisions.Keys.Count())
 			{
 				var remoteRevisions = GetRemoteRevisions(offset, quantity);
-				if (remoteRevisions.Count() == 1 && remoteRevisions.First() == "0")
+				if (remoteRevisions.Keys.Count() == 1 && remoteRevisions.Current.Value == "0")
 				{
 					// special case when remote repo is empty (initialized with no changesets)
-					commonBase = "0";
-					break;
+					return new List<Revision>();
 				}
-				foreach (var rev in remoteRevisions)
+				foreach (var key in localBranches)
 				{
-					if (localRevisions.Contains(rev))
+					var localList = localRevisions[key];
+					var remoteList = remoteRevisions[key];
+					foreach (var revision in remoteList)
 					{
-						commonBase = rev;
-						break;
+						var remoteRevision = revision; //copy to local for use in predicate
+						var commonRevision = localList.Find(localRev => localRev.Number.Hash == remoteRevision);
+						if (commonRevision != null)
+						{
+							localBranches.Remove(key);
+							commonBase.Add(commonRevision);
+						}
 					}
 				}
-				if (string.IsNullOrEmpty(commonBase) && remoteRevisions.Count() < quantity)
+				if(remoteRevisions.Count() < quantity)
 				{
-					commonBase = localRevisions.Last();
+					break; //we did not find a common revision for each branch, but we ran out of revisions from the repo
 				}
 				offset += quantity;
 			}
-			LastKnownCommonBase = commonBase;
+			LastKnownCommonBases = commonBase;
 			return commonBase;
 		}
 
 
-		private IEnumerable<string> GetRemoteRevisions(int offset, int quantity)
+		private MultiMap<string, string> GetRemoteRevisions(int offset, int quantity)
 		{
 			const int totalNumOfAttempts = 2;
 			for (int attempt = 1; attempt <= totalNumOfAttempts; attempt++)
@@ -193,12 +240,19 @@ namespace Chorus.VcsDrivers.Mercurial
 							var msg = String.Format("Server temporarily unavailable: {0}",
 							Encoding.UTF8.GetString(response.Content));
 							_progress.WriteError(msg);
-							return new List<string>();
+							return new MultiMap<string, string>();
 						}
 						if (response.HttpStatus == HttpStatusCode.OK && response.Content.Length > 0)
 						{
 							string revString = Encoding.UTF8.GetString(response.Content);
-							return revString.Split('|').ToList();
+							var pairs = revString.Split('|').ToList();
+							var revisions = new MultiMap<string, string>();
+							foreach (var pair in pairs)
+							{
+								var hashRevCombo = pair.Split(':');
+								revisions.Add(hashRevCombo[1], hashRevCombo[0]);
+							}
+							return revisions;
 						}
 						if (response.HttpStatus == HttpStatusCode.BadRequest && response.ResumableResponse.Status == "UNKNOWNID")
 						{
@@ -226,8 +280,8 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		public void Push()
 		{
-			string baseRevision = GetCommonBaseHashWithRemoteRepo();
-			if (String.IsNullOrEmpty(baseRevision))
+			var baseRevisions = GetCommonBaseHashesWithRemoteRepo();
+			if (baseRevisions == null)
 			{
 				const string errorMessage = "Push failed: A common revision could not be found with the server.";
 				_progress.WriteError(errorMessage);
@@ -236,19 +290,23 @@ namespace Chorus.VcsDrivers.Mercurial
 
 			// create a bundle to push
 			string tip = _repo.GetTip().Number.Hash;
-			var bundleId = String.Format("{0}-{1}", baseRevision, tip);
+			string bundleId = "";
+			foreach (var revision in baseRevisions)
+			{
+				bundleId += String.Format("{0}-{1}", revision.Number.Hash, tip);
+			}
 			var bundleHelper = new PushStorageManager(PathToLocalStorage, bundleId);
 			var bundleFileInfo = new FileInfo(bundleHelper.BundlePath);
 			if (bundleFileInfo.Length == 0)
 			{
 				_progress.WriteStatus("Preparing data to send");
-				bool bundleCreatedSuccessfully = _repo.MakeBundle(baseRevision, bundleHelper.BundlePath);
+				bool bundleCreatedSuccessfully = _repo.MakeBundle(GetHashStringsFromRevisions(baseRevisions), bundleHelper.BundlePath);
 				if (!bundleCreatedSuccessfully)
 				{
 					// try again after clearing revision cache
-					LastKnownCommonBase = "";
-					baseRevision = GetCommonBaseHashWithRemoteRepo();
-					bundleCreatedSuccessfully = _repo.MakeBundle(baseRevision, bundleHelper.BundlePath);
+					LastKnownCommonBases = new List<Revision>();
+					baseRevisions = GetCommonBaseHashesWithRemoteRepo();
+					bundleCreatedSuccessfully = _repo.MakeBundle(GetHashStringsFromRevisions(baseRevisions), bundleHelper.BundlePath);
 					if (!bundleCreatedSuccessfully)
 					{
 						const string errorMessage = "Push failed: Unable to create local bundle.";
@@ -273,7 +331,7 @@ namespace Chorus.VcsDrivers.Mercurial
 						  BundleSize = (int) bundleFileInfo.Length
 					  };
 			req.ChunkSize = (req.BundleSize < InitialChunkSize) ? req.BundleSize : InitialChunkSize;
-			req.BaseHash = baseRevision;
+//            req.BaseHash = baseRevisions; <-- Unless I'm not reading the php right we don't need to set this on push.  JLN Aug-12
 			_progress.ProgressIndicator.Initialize();
 
 			_progress.WriteStatus("Sending data");
@@ -312,7 +370,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				{
 					// this should not happen...but sometimes it gets into a state where it remembers the wrong basehash of the server (CJH Feb-12)
 					_progress.WriteVerbose("Invalid basehash response received from server... clearing cache and retrying");
-					req.BaseHash = GetCommonBaseHashWithRemoteRepo(false);
+//                    req.BaseHash = GetCommonBaseHashesWithRemoteRepo(false); <-- Unless I'm misreading the php we don't need to set this on a push. JLN Aug-12
 					continue;
 				}
 				if (response.Status == PushStatus.Fail)
@@ -344,7 +402,7 @@ namespace Chorus.VcsDrivers.Mercurial
 					_progress.ProgressIndicator.Finish();
 
 					// update our local knowledge of what the server has
-					LastKnownCommonBase = _repo.GetTip().Number.Hash; // This may be a little optimistic, the server may still be unbundling the data.
+					LastKnownCommonBases = new List<Revision>(_repo.BranchingHelper.GetBranches()); // This may be a little optimistic, the server may still be unbundling the data.
 					//FinishPush(req.TransId);  // We can't really tell when the server has finished processing our pulled data.  The server cleans up after itself. CP 2012-07
 					bundleHelper.Cleanup();
 					return;
@@ -525,17 +583,17 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		public bool Pull()
 		{
-			var baseHash = GetCommonBaseHashWithRemoteRepo();
-			if (baseHash == "0")
+			var baseHash = GetCommonBaseHashesWithRemoteRepo();
+			if (baseHash.Count == 0)
 			{
-				// a baseHash of 0 indicates that the server has an empty repo
+				// an empty list indicates that the server has an empty repo
 				// in this case there is no reason to Pull
 				return false;
 			}
-			return Pull(baseHash);
+			return Pull(GetHashStringsFromRevisions(baseHash));
 		}
 
-		public bool Pull(string baseRevision)
+		public bool Pull(string[] baseRevisions)
 		{
 			var tipRevision = _repo.GetTip();
 			string localTip = "0";
@@ -545,18 +603,24 @@ namespace Chorus.VcsDrivers.Mercurial
 				localTip = tipRevision.Number.Hash;
 			}
 
-			if (String.IsNullOrEmpty(baseRevision))
+			if (baseRevisions.Length == 0)
 			{
 				errorMessage = "Pull failed: No base revision.";
 				_progress.WriteError(errorMessage);
 				throw new HgResumeOperationFailed(errorMessage);
 			}
 
-			var bundleHelper = new PullStorageManager(PathToLocalStorage, baseRevision + "_" + localTip);
+			string bundleId = "";
+			foreach (var revision in baseRevisions)
+			{
+				bundleId += revision + "_" + localTip + '-';
+			}
+			bundleId = bundleId.TrimEnd('-');
+			var bundleHelper = new PullStorageManager(PathToLocalStorage, bundleId);
 			var req = new HgResumeApiParameters
 					  {
 						  RepoId = _apiServer.ProjectId,
-						  BaseHash = baseRevision,
+						  BaseHashes = baseRevisions,
 						  TransId = bundleHelper.TransactionId,
 						  StartOfWindow = bundleHelper.StartOfWindow,
 						  ChunkSize = InitialChunkSize
@@ -607,7 +671,7 @@ namespace Chorus.VcsDrivers.Mercurial
 					// this should not happen...but sometimes it gets into a state where it remembers the wrong basehash of the server (CJH Feb-12)
 					retryLoop = true;
 					_progress.WriteVerbose("Invalid basehash response received from server... clearing cache and retrying");
-					req.BaseHash = GetCommonBaseHashWithRemoteRepo(false);
+					req.BaseHashes = GetHashStringsFromRevisions(GetCommonBaseHashesWithRemoteRepo(false));
 					continue;
 				}
 				if (response.Status == PullStatus.Fail)
@@ -678,8 +742,9 @@ namespace Chorus.VcsDrivers.Mercurial
 					return Pull();
 				}
 
-				// TODO: we could avoid another network operation if we sent along the bundle's "tip" as chunk metadata
-				LastKnownCommonBase = GetRemoteTip();
+				// REVIEW: I'm not sure why this was set to the server tip before, if we just pulled then won't our head
+				// be the correct common base? Maybe not if a merge needs to happen,
+				LastKnownCommonBases = new List<Revision>(_repo.BranchingHelper.GetBranches());
 				return true;
 			}
 			_progress.WriteError("Received all data but local unbundle operation failed or resulted in multiple heads!");
@@ -690,9 +755,14 @@ namespace Chorus.VcsDrivers.Mercurial
 			throw new HgResumeOperationFailed(errorMessage);
 		}
 
-		private string GetRemoteTip()
+		internal static string[] GetHashStringsFromRevisions(IEnumerable<Revision> branchHeadRevisions)
 		{
-			return GetRemoteRevisions(0, 1).FirstOrDefault();
+			var hashes = new string[branchHeadRevisions.Count()];
+			for(var index = 0; index < branchHeadRevisions.Count(); ++index)
+			{
+				hashes[index] = branchHeadRevisions.ElementAt(index).Number.Hash;
+			}
+			return hashes;
 		}
 
 		private PullStatus FinishPull(string transactionId)
@@ -825,7 +895,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			}
 			try
 			{
-				Pull("0");
+				Pull(new []{"0"});
 			}
 			catch(HgResumeOperationFailed)
 			{

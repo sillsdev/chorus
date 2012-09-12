@@ -18,6 +18,7 @@ namespace LibChorus.TestUtilities
 		public TemporaryFolder RootFolder;
 		public TemporaryFolder ProjectFolder;
 		public ProjectFolderConfiguration ProjectFolderConfig;
+		public Synchronizer Synchronizer;
 
 		private void Init(string name)
 		{
@@ -141,7 +142,9 @@ namespace LibChorus.TestUtilities
 
 		public SyncResults SyncWithOptions(SyncOptions options)
 		{
-			return SyncWithOptions(options, CreateSynchronizer());
+			if (Synchronizer == null)
+				Synchronizer = CreateSynchronizer();
+			return SyncWithOptions(options, Synchronizer);
 		}
 
 		public SyncResults SyncWithOptions(SyncOptions options, Synchronizer synchronizer)
@@ -279,14 +282,14 @@ namespace LibChorus.TestUtilities
 			ChangeFile("test.txt", "bad");
 			var options = new SyncOptions()
 							  {DoMergeWithOthers = true, DoPullFromOthers = true, DoSendToOthers = true};
-			var synchronizer = CreateSynchronizer();
-			synchronizer.SyncNow(options);
+			Synchronizer = CreateSynchronizer();
+			Synchronizer.SyncNow(options);
 			var badRev = Repository.GetTip();
 
 			//notice that we're putting changeset which does the tagging over on the original branch
 			Repository.RollbackWorkingDirectoryToRevision(originalTip.Number.Hash);
 			Repository.TagRevision(badRev.Number.Hash, Synchronizer.RejectTagSubstring);// this adds a new changeset
-			synchronizer.SyncNow(options);
+			Synchronizer.SyncNow(options);
 
 			Revision revision = Repository.GetRevisionWorkingSetIsBasedOn();
 			revision.EnsureParentRevisionInfo();
@@ -306,7 +309,7 @@ namespace LibChorus.TestUtilities
 		public void ChangeFileOnNamedBranchAndComeBack(string fileName, string contents, string branchName)
 		{
 			string previousRevisionNumber = Repository.GetRevisionWorkingSetIsBasedOn().Number.LocalRevisionNumber;
-			Repository.Branch(branchName);
+			Repository.BranchingHelper.Branch(new NullProgress(), branchName);
 			ChangeFileAndCommit(fileName, contents, "Created by ChangeFileOnNamedBranchAndComeBack()");
 			Repository.Update(previousRevisionNumber);//go back
 		}
