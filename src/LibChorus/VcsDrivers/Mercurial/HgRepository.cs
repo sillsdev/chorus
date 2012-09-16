@@ -1398,7 +1398,8 @@ namespace Chorus.VcsDrivers.Mercurial
 		/// See http://mercurial.selenic.com/wiki/UpgradingMercurial
 		/// Default for this value is True, so new apps will get this improved format.
 		/// </summary>
-		public bool AllowDotEncodeRepositoryFormat { get; set; }
+		public static bool AllowDotEncodeRepositoryFormat { get; set; }
+
 		private string AllowDotEncodeRepositoryFormatStringValue { get { return AllowDotEncodeRepositoryFormat ? "True":"False"; } }
 
 		private static void SetExtensions(IniDocument doc, IEnumerable<KeyValuePair<string, string>> extensionDeclarations)
