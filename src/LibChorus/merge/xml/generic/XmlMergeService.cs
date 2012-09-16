@@ -5,13 +5,14 @@ using System.Linq;
 using System.Text;
 using System.Xml;
 using Chorus.Utilities;
-using Chorus.Utilities.code;
+using Palaso.Code;
 using Palaso.Xml;
 
 namespace Chorus.merge.xml.generic
 {
 	/// <summary>
-	/// Service that manages Xml merging.
+	/// Service that manages Xml merging for formats that are basically a long list of the
+	/// same element type, like a database table.
 	/// </summary>
 	public static class XmlMergeService
 	{
@@ -47,6 +48,13 @@ namespace Chorus.merge.xml.generic
 		/// <summary>
 		/// Perform the 3-way merge.
 		/// </summary>
+		/// <param name="mergeOrder"></param>
+		/// <param name="mergeStrategy"></param>
+		/// <param name="firstElementMarker"></param>
+		/// <param name="recordElementName"></param>
+		/// <param name="id"></param>
+		/// <param name="writePreliminaryInformationDelegate">TODO: Improve this: "allows the client to manage writing the root element and any of its attrs". When do you need this?</param>
+
 		public static void Do3WayMerge(MergeOrder mergeOrder, IMergeStrategy mergeStrategy, // Get from mergeOrder: IMergeEventListener listener,
 			bool sortRepeatingRecordOutputByKeyIdentifier,
 			string optionalFirstElementMarker,

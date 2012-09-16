@@ -129,7 +129,7 @@
   <ItemGroup>
 	<Compile Include="FileTypeHanders\ChorusNotesAnnotationMergingStrategy.cs" />
 	<Compile Include="FileTypeHanders\ldml\LdmlFileHandler.cs" />
-	<Compile Include="FileTypeHanders\ldml\LdmlKeyFinder.cs" />
+	<Compile Include="FileTypeHanders\ldml\LdmlElementToMergeStrategyKeyMapper.cs" />
 	<Compile Include="FileTypeHanders\ldml\LdmlMergingStrategy.cs" />
 	<Compile Include="FileTypeHanders\Lift-Ranges\LiftRangesMergingStrategy.cs" />
 	<Compile Include="FileTypeHanders\lift\LiftHeaderContextGenerator.cs" />
@@ -138,11 +138,11 @@
 	<Compile Include="FileTypeHanders\lift\LiftBasicElementStrategiesMethod.cs" />
 	<Compile Include="FileTypeHanders\Lift-Ranges\LiftRangesElementStrategiesMethod.cs" />
 	<Compile Include="FileTypeHanders\Lift-Ranges\LiftRangesFileTypeHandler.cs" />
-	<Compile Include="FileTypeHanders\Lift-Ranges\LiftRangesKeyFinder.cs" />
+	<Compile Include="FileTypeHanders\Lift-Ranges\LiftRangesElementToMergeStrategyKeyMapper.cs" />
 	<Compile Include="FileTypeHanders\lift\LiftElementStrategiesMethod.cs" />
 	<Compile Include="FileTypeHanders\lift\LiftFileServices.cs" />
 	<Compile Include="FileTypeHanders\lift\LiftFolder.cs" />
-	<Compile Include="FileTypeHanders\lift\LiftKeyFinder.cs" />
+	<Compile Include="FileTypeHanders\lift\LiftElementToMergeStrategyKeyMapper.cs" />
 	<Compile Include="merge\xml\generic\MergeLimitedChildrenService.cs" />
 	<Compile Include="merge\xml\generic\OptionalKeyAttrFinder.cs" />
 	<Compile Include="FileTypeHanders\Xml2WayDiffer.cs" />
@@ -151,8 +151,8 @@
 	<Compile Include="FileTypeHanders\xml\XmlAttributeChange.cs" />
 	<Compile Include="FileTypeHanders\xml\XmlBothAddedSameChangeReport.cs" />
 	<Compile Include="FileTypeHanders\xml\XmlTextChange.cs" />
-	<Compile Include="merge\xml\generic\DefaultKeyFinder.cs" />
-	<Compile Include="merge\xml\generic\IKeyFinder.cs" />
+	<Compile Include="merge\xml\generic\DefaultElementToMergeStrategyKeyMapper.cs" />
+	<Compile Include="merge\xml\generic\IElementToMergeStrategyKeyMapper.cs" />
 	<Compile Include="merge\xml\generic\MergeAtomicElementService.cs" />
 	<Compile Include="merge\xml\generic\MergeTextNodesMethod.cs" />
 	<Compile Include="merge\xml\generic\MergeXmlAttributesService.cs" />
@@ -231,7 +231,6 @@
 	<Compile Include="sync\CommitCop.cs" />
 	<Compile Include="Utilities\ProcessOutputReader.cs" />
 	<Compile Include="Utilities\FailureSimulator.cs" />
-	<Compile Include="Utilities\code\Guard.cs" />
 	<Compile Include="merge\IChangeReport.cs" />
 	<Compile Include="merge\MergeOrder.cs" />
 	<Compile Include="merge\xml\generic\DropTheirsMergeStrategy.cs" />
@@ -240,7 +239,6 @@
 	<Compile Include="merge\MergeSituation.cs" />
 	<Compile Include="merge\xml\generic\MergeSort.cs" />
 	<Compile Include="merge\xml\generic\PoorMansMergeStrategy.cs" />
-	<Compile Include="Utilities\code\RequireThat.cs" />
 	<Compile Include="Utilities\XmlValidation.cs" />
 	<Compile Include="VcsDrivers\IRetrieveFileVersionsFromRepository.cs" />
 	<Compile Include="retrieval\RevisionInspector.cs" />

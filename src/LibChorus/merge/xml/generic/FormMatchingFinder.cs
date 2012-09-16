@@ -1,4 +1,5 @@
 using System.Xml;
+using Palaso.Xml;
 
 namespace Chorus.merge.xml.generic
 {
@@ -31,7 +32,7 @@ namespace Chorus.merge.xml.generic
 		{
 			foreach (XmlNode form in list1)
 			{
-				var x = example.SafeSelectNodes("form[@lang='{0}']", form.GetStringAttribute("lang"));
+				var x = example.SafeSelectNodesWithParms("form[@lang='{0}']", form.GetStringAttribute("lang"));
 				if (x.Count == 0)
 					break;
 				var lang = form.GetStringAttribute("lang");

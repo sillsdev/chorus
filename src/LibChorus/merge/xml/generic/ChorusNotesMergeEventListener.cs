@@ -2,7 +2,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Xml;
-using Chorus.Utilities.code;
+using Palaso.Code;
 using Palaso.IO;
 using Palaso.Xml;
 

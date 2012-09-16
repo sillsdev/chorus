@@ -2,11 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows.Forms;
-using Chorus.sync;
-using Chorus.UI.Review;
-using Chorus.Utilities;
-using Chorus.Utilities.code;
 using Chorus.VcsDrivers.Mercurial;
+using Palaso.Code;
 using Palaso.Progress.LogBox;
 
 namespace Chorus.UI.Review.RevisionsInRepository

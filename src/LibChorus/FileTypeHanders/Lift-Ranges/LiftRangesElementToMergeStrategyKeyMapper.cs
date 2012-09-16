@@ -1,16 +1,12 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Xml;
-using Chorus.Utilities.code;
 using Chorus.merge.xml.generic;
+using Palaso.Code;
 
-namespace Chorus.FileTypeHanders.ldml
+namespace Chorus.FileTypeHanders
 {
-	/// <summary>
-	/// IKeyFinder implementation that can handle the quirks of in an ldml file.
-	/// </summary>
-	internal class LdmlKeyFinder : IKeyFinder
+	internal class LiftRangesElementToMergeStrategyKeyMapper : IElementToMergeStrategyKeyMapper
 	{
 		#region Implementation of IKeyFinder
 
@@ -28,19 +24,7 @@ namespace Chorus.FileTypeHanders.ldml
 
 			var key = element.Name;
 
-			if (key == "special")
-			{
-				foreach (var attrName in from XmlNode attr in element.Attributes select attr.Name)
-				{
-					switch (attrName)
-					{
-						case "xmlns:palaso":
-						case "xmlns:fw":
-							key += "_" + attrName;
-							return key;
-					}
-				}
-			}
+			// TODO: Add expected new key finding code, as the lift ranges element strategies get implemented.
 
 			return key;
 		}

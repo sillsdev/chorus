@@ -155,7 +155,7 @@ namespace Chorus.FileTypeHanders.ldml
 
 		private static void SetupElementStrategies(XmlMerger merger)
 		{
-			merger.MergeStrategies.KeyFinder = new LdmlKeyFinder();
+			merger.MergeStrategies.ElementToMergeStrategyKeyMapper = new LdmlElementToMergeStrategyKeyMapper();
 
 			merger.MergeStrategies.SetStrategy("ldml", ElementStrategy.CreateSingletonElement());
 			merger.MergeStrategies.SetStrategy("identity", ElementStrategy.CreateSingletonElement());
@@ -187,6 +187,10 @@ namespace Chorus.FileTypeHanders.ldml
 			merger.MergeStrategies.SetStrategy("special_xmlns:fw", strategy);
 		}
 
+		/// <summary>
+		/// handles that date business, so it doesn't overwhelm the poor user with conflict reports
+		/// </summary>
+		/// <param name="mergeOrder"></param>
 		private static void PreMergeFile(MergeOrder mergeOrder)
 		{
 			var ourDoc = File.Exists(mergeOrder.pathToOurs) ? XDocument.Load(mergeOrder.pathToOurs) : null;
