@@ -266,6 +266,28 @@ namespace Chorus.UI.Sync
 		{
 			_synchronizer.SynchronizerAdjunct = adjunct;
 		}
+
+
+		/// <summary>
+		/// Check in, to the local disk repository, any changes to this point.
+		/// </summary>
+		/// <param name="checkinDescription">A description of what work was done that you're wanting to checkin. E.g. "Delete a Book"</param>
+		/// <param name="progress">Can be null if you don't want any progress report</param>
+		public void AsyncLocalCheckIn(string checkinDescription, Action<SyncResults> callbackWhenFinished)
+		{
+		   var options = new SyncOptions()
+			{
+				CheckinDescription = checkinDescription,
+				DoMergeWithOthers = false,
+				DoPullFromOthers = false,
+				DoSendToOthers = false
+			};
+		   var result = _synchronizer.SyncNow(options);
+			if (callbackWhenFinished != null)
+			{
+				callbackWhenFinished(result);
+			}
+		}
 	}
 
 	[Flags]

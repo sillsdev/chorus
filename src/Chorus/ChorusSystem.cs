@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Windows.Forms;
-using Autofac;
 using Chorus.notes;
 using Chorus.sync;
 using Chorus.UI.Notes;
@@ -13,6 +13,7 @@ using Chorus.UI.Sync;
 using Chorus.VcsDrivers.Mercurial;
 using Palaso.Code;
 using Palaso.Progress.LogBox;
+using IContainer = Autofac.IContainer;
 
 namespace Chorus
 {
@@ -231,6 +232,16 @@ namespace Chorus
 			repo = AnnotationRepository.FromFile("id", pathToFileBeingAnnotated, progress);
 			_annotationRepositories.Add(pathToFileBeingAnnotated, repo);
 			return repo;
+		}
+
+		/// <summary>
+		/// Check in, to the local disk repository, any changes to this point.
+		/// </summary>
+		/// <param name="checkinDescription">A description of what work was done that you're wanting to checkin. E.g. "Delete a Book"</param>
+		public void AsyncLocalCheckIn(string checkinDescription,  Action<SyncResults> callbackWhenFinished)
+		{
+			var model = _container.Resolve<SyncControlModel>();
+			model.AsyncLocalCheckIn(checkinDescription,callbackWhenFinished);
 		}
 
 		#region Implementation of IDisposable
