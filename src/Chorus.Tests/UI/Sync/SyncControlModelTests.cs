@@ -136,6 +136,24 @@ namespace Chorus.Tests
 			Assert.IsNull(results.ErrorEncountered);
 		}
 
+		[Test]
+		public void AsyncLocalCheckIn_GivesGoodResult()
+		{
+			SyncResults result=null;
+			_model.AsyncLocalCheckIn("testing", (r)=>result=r);
+			var start = DateTime.Now;
+			while (result == null)
+			{
+				Thread.Sleep(100);
+				Application.DoEvents();//without this, the background worker starves 'cause their's no UI
+				if ((DateTime.Now.Subtract(start).Minutes > 0))
+				{
+					Assert.Fail("Gave up waiting.");
+				}
+			}
+			Assert.IsTrue(result.Succeeded);
+		}
+
 		private void _model_SynchronizeOver(object sender, EventArgs e)
 		{
 			throw new NotImplementedException();

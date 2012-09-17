@@ -137,5 +137,12 @@ namespace SampleApp
 				}
 			}
 		}
+
+
+		private void button1_Click(object sender, EventArgs e)
+		{
+			_dataEditor.SaveNow();
+			_chorusSystem.AsyncLocalCheckIn("background checkin", null);
+		}
 	}
 }
