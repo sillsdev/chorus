@@ -9,6 +9,8 @@ using Chorus.sync;
 using Chorus.Utilities;
 using System.Linq;
 using Chorus.VcsDrivers;
+using Palaso.Code;
+using Palaso.Extensions;
 using Palaso.Progress;
 using Palaso.Progress.LogBox;
 
@@ -276,6 +278,9 @@ namespace Chorus.UI.Sync
 		/// <param name="progress">Can be null if you don't want any progress report</param>
 		public void AsyncLocalCheckIn(string checkinDescription, Action<SyncResults> callbackWhenFinished)
 		{
+			var repoPath = this._synchronizer.Repository.PathToRepo.CombineForPath(".hg");
+			Require.That(Directory.Exists(repoPath), "The repository should already exist before calling AsyncLocalCheckIn(). Expected to find the hg folder at " + repoPath);
+
 			//NB: if someone were to call this fast and repeatedly, I won't vouch for any kind of safety here.
 			//This is just designed for checking in occasionally, like as users do some major new thing, or finish some task.
 			if (_asyncLocalCheckInWorker != null && !_asyncLocalCheckInWorker.IsBusy)

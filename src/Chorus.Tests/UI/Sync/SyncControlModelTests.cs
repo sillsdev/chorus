@@ -7,6 +7,7 @@ using Chorus.UI.Sync;
 using Chorus.VcsDrivers;
 using LibChorus.TestUtilities;
 using NUnit.Framework;
+using Palaso.Extensions;
 using Palaso.Progress.LogBox;
 
 namespace Chorus.Tests
@@ -152,6 +153,19 @@ namespace Chorus.Tests
 				}
 			}
 			Assert.IsTrue(result.Succeeded);
+		}
+
+
+		[Test]
+		public void AsyncLocalCheckIn_NoPreviousRepoCreation_Throws()
+		{
+			Assert.Throws<InvalidOperationException>(() =>
+										 {
+											 //simulate not having previously created a repository
+											 Palaso.IO.DirectoryUtilities.DeleteDirectoryRobust(
+												 _pathToTestRoot.CombineForPath(".hg"));
+											 _model.AsyncLocalCheckIn("testing", null);
+										 });
 		}
 
 		private void _model_SynchronizeOver(object sender, EventArgs e)
