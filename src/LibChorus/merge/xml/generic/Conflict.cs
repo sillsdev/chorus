@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Xml;
 using Autofac;
+using Autofac.Core;
 using Chorus.VcsDrivers;
 using Palaso.IO;
 using Palaso.Xml;
@@ -307,8 +308,8 @@ namespace Chorus.merge.xml.generic
 			{
 				if (_conflictFactory == null)
 				{
-					var builder = new Autofac.Builder.ContainerBuilder();
-					builder.SetDefaultScope(InstanceScope.Factory);
+					var builder = new Autofac.ContainerBuilder();
+					//moved this down into Register for autofac 2: builder.SetDefaultScope(InstanceScope.Factory);
 
 					Register<RemovedVsEditedElementConflict>(builder);
 					Register<EditedVsRemovedElementConflict>(builder);
@@ -356,7 +357,8 @@ namespace Chorus.merge.xml.generic
 			try
 			{
 				var typeGuid = conflictNode.GetStringAttribute("typeGuid");
-				return ConflictFactory.Resolve<IConflict>(typeGuid, new Parameter[] {new TypedParameter(typeof (XmlNode), conflictNode)});
+			//	return ConflictFactory.Resolve<IConflict>(typeGuid, new Parameter[] {new TypedParameter(typeof (XmlNode), conflictNode)});
+				return ConflictFactory.ResolveNamed<IConflict>(typeGuid, new TypedParameter(typeof(XmlNode), conflictNode));
 			}
 			catch (Exception error)
 			{
@@ -364,14 +366,15 @@ namespace Chorus.merge.xml.generic
 			}
 		}
 
-		private static void Register<T>(Autofac.Builder.ContainerBuilder builder)
+		private static void Register<T>(Autofac.ContainerBuilder builder)
 		{
-			Register(builder, typeof(T));
+			//Register(builder, typeof(T));
+			builder.RegisterType<T>().As<IConflict>().Named<IConflict>(GetTypeGuid(typeof(T))).InstancePerDependency();
 		}
 
-		private static void Register(Autofac.Builder.ContainerBuilder builder, Type type)
+		private static void Register(Autofac.ContainerBuilder builder, Type type)
 		{
-			builder.Register(type).Named(GetTypeGuid(type));
+			builder.RegisterType(type).As<IConflict>().Named<IConflict>(GetTypeGuid(type)).InstancePerDependency();
 		}
 
 		public bool Equals(Conflict other)
