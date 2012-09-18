@@ -22,6 +22,7 @@ namespace Chorus.UI.Sync
 		public event EventHandler SynchronizeOver;
 		private readonly MultiProgress _progress;
 		private SyncOptions _syncOptions;
+		private BackgroundWorker _asyncLocalCheckInWorker;
 
 		public SimpleStatusProgress StatusProgress { get; set; }
 
@@ -275,6 +276,16 @@ namespace Chorus.UI.Sync
 		/// <param name="progress">Can be null if you don't want any progress report</param>
 		public void AsyncLocalCheckIn(string checkinDescription, Action<SyncResults> callbackWhenFinished)
 		{
+			//NB: if someone were to call this fast and repeatedly, I won't vouch for any kind of safety here.
+			//This is just designed for checking in occasionally, like as users do some major new thing, or finish some task.
+			if (_asyncLocalCheckInWorker != null && !_asyncLocalCheckInWorker.IsBusy)
+			{
+				_asyncLocalCheckInWorker.Dispose(); //timidly avoid a leak
+			}
+			_asyncLocalCheckInWorker = new BackgroundWorker();
+			_asyncLocalCheckInWorker.DoWork += new DoWorkEventHandler((o, args) =>
+														{
+
 		   var options = new SyncOptions()
 			{
 				CheckinDescription = checkinDescription,
@@ -287,6 +298,8 @@ namespace Chorus.UI.Sync
 			{
 				callbackWhenFinished(result);
 			}
+														});
+			_asyncLocalCheckInWorker.RunWorkerAsync();
 		}
 	}
 

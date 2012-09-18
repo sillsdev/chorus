@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Windows.Forms;
+using Autofac;
 using Chorus.notes;
 using Chorus.sync;
 using Chorus.UI.Notes;
