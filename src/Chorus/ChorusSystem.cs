@@ -53,7 +53,6 @@ namespace Chorus
 			Repository = HgRepository.CreateOrLocate(dataFolderPath, new NullProgress());
 			var builder = new Autofac.Builder.ContainerBuilder();
 
-			builder.Register<ProjectFolderConfiguration>(c => new ProjectFolderConfiguration(dataFolderPath));
 			builder.Register<IEnumerable<IWritingSystem>>(c=>WritingSystems);
 
 			ChorusUIComponentsInjector.Inject(builder, dataFolderPath);
