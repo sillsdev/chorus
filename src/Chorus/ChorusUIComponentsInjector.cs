@@ -35,7 +35,7 @@ namespace Chorus
 			//below, with SyncUIFeatures
 
 			builder.Register<ProjectFolderConfiguration>(
-			   c => new ProjectFolderConfiguration(projectPath));
+			   c => new ProjectFolderConfiguration(projectPath)).InstancePerLifetimeScope();
 
 			builder.RegisterType<NavigateToRecordEvent>();
 
