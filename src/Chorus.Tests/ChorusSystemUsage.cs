@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Windows.Forms;
 using Chorus.notes;
 using NUnit.Framework;
 using Palaso.IO;
@@ -76,6 +77,27 @@ namespace Chorus.Tests
 			{
 				dlg.ShowDialog();
 			}
+		}
+
+		[Test, Ignore("Sample Code")]
+		public void QuitelyMilestoneSomeRecentWork()
+		{
+			_chorusSystem.AsyncLocalCheckIn("Made a new book called 'surrounded by bitterness'", null);
+
+			//OR, Better:
+
+			_chorusSystem.AsyncLocalCheckIn("Made a new book called 'surrounded by bitterness'",
+				(result) =>
+					{
+						if (result.ErrorEncountered!=null)
+						{
+							Control yourCurrentUIControl=null;
+							yourCurrentUIControl.BeginInvoke(new Action(()=>
+								Palaso.Reporting.ErrorReport.NotifyUserOfProblem(result.ErrorEncountered,
+										  "Error while checking in your work to the local repository")))
+							;
+						 }
+					});
 		}
 		#endregion
 

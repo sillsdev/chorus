@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Windows.Forms;
 using Autofac;
@@ -13,6 +14,7 @@ using Chorus.UI.Sync;
 using Chorus.VcsDrivers.Mercurial;
 using Palaso.Code;
 using Palaso.Progress.LogBox;
+using IContainer = Autofac.IContainer;
 
 namespace Chorus
 {
@@ -51,7 +53,7 @@ namespace Chorus
 
 			_dataFolderPath = dataFolderPath;
 			Repository = HgRepository.CreateOrLocate(dataFolderPath, new NullProgress());
-			var builder = new Autofac.Builder.ContainerBuilder();
+			var builder = new Autofac.ContainerBuilder();
 
 			builder.Register<IEnumerable<IWritingSystem>>(c=>WritingSystems);
 
@@ -62,7 +64,7 @@ namespace Chorus
 				userNameForHistoryAndNotes = Repository.GetUserIdInUse();
 			}
 			_user = new ChorusUser(userNameForHistoryAndNotes);
-			builder.Register<IChorusUser>(_user);
+			builder.RegisterInstance(_user).As<IChorusUser>();
 //            builder.RegisterGeneratedFactory<NotesInProjectView.Factory>().ContainerScoped();
 //            builder.RegisterGeneratedFactory<NotesInProjectViewModel.Factory>().ContainerScoped();
 //            builder.RegisterGeneratedFactory<NotesBrowserPage.Factory>().ContainerScoped();
@@ -72,9 +74,9 @@ namespace Chorus
 
 
 			//add the container itself
-			var builder2 = new Autofac.Builder.ContainerBuilder();
-			builder2.Register<IContainer>(_container);
-			builder2.Build(_container);
+			var builder2 = new Autofac.ContainerBuilder();
+			builder2.RegisterInstance(_container).As<IContainer>();
+			builder2.Update(_container);
 		}
 
 		/// <summary>
@@ -230,6 +232,16 @@ namespace Chorus
 			repo = AnnotationRepository.FromFile("id", pathToFileBeingAnnotated, progress);
 			_annotationRepositories.Add(pathToFileBeingAnnotated, repo);
 			return repo;
+		}
+
+		/// <summary>
+		/// Check in, to the local disk repository, any changes to this point.
+		/// </summary>
+		/// <param name="checkinDescription">A description of what work was done that you're wanting to checkin. E.g. "Delete a Book"</param>
+		public void AsyncLocalCheckIn(string checkinDescription,  Action<SyncResults> callbackWhenFinished)
+		{
+			var model = _container.Resolve<SyncControlModel>();
+			model.AsyncLocalCheckIn(checkinDescription,callbackWhenFinished);
 		}
 
 		#region Implementation of IDisposable
