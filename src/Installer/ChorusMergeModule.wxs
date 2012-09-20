@@ -47,5 +47,11 @@ http://blogs.msdn.com/robmen/archive/2003/10/04/56479.aspx -->
 	<ComponentGroupRef Id="Mercurial"/>
 	<ComponentGroupRef Id="MercurialExtensions"/>
 	<ComponentRef Id="mercurial.ini" />
+
+	<ComponentRef Id="libchorus.dll"/>
+	<ComponentRef Id="chorus.exe"/>
+	<ComponentRef Id="chorusmerge.exe"/>
+	<ComponentRef Id="chorushelp.chm" />
+
   </Module>
 </Wix>
