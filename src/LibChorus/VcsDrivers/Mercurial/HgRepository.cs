@@ -941,7 +941,8 @@ namespace Chorus.VcsDrivers.Mercurial
 				if (colonIndex > 0)
 				{
 					string label = line.Substring(0, colonIndex);
-					string value = line.Substring(colonIndex + 1).Trim();
+					//specific BOM removal required in .net 4 onwards
+					string value = line.Substring(colonIndex + 1).Trim().Trim(new char[] { '\uFEFF', '\u200B' }).Trim();
 					switch (label)
 					{
 						default:
