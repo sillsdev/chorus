@@ -286,6 +286,12 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				setup.AssertLocalNumberOfTip("2");
 				setup.AssertHeadOfWorkingDirNumber("2");
 				setup.AssertHeadCount(1);
+
+				//for debuging a weird TeamCity failure of this
+				Assert.AreEqual((int)'t', (int)(setup.Repository.GetRevision("2").Summary.Trim())[0]);
+				Assert.AreEqual((int)'t', (int)(setup.Repository.GetRevision("2").Summary)[0]);
+				Assert.AreEqual("testing", setup.Repository.GetRevision("2").Summary);
+
 				setup.AssertCommitMessageOfRevision("2","testing");
 			}
 		}
