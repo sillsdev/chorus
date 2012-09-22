@@ -39,9 +39,13 @@ namespace Chorus.merge.xml.generic
 					}
 					// They deleted. We did zip.
 					// Route tested (x1).
-					merger.EventListener.ChangeOccurred(new XmlAttributeDeletedReport(merger.MergeSituation.PathToFileInRepository, ancestorAttr));
-					ancestor.Attributes.Remove(ancestorAttr);
-					ours.Attributes.Remove(ourAttr);
+					if(theirs != null) //if there is no theirs node, then attributes weren't actually removed
+					{
+						//Route tested (x1)
+						merger.EventListener.ChangeOccurred(new XmlAttributeDeletedReport(merger.MergeSituation.PathToFileInRepository, ancestorAttr));
+						ancestor.Attributes.Remove(ancestorAttr);
+						ours.Attributes.Remove(ourAttr);
+					}
 					continue;
 				}
 				if (ourAttr != null)
