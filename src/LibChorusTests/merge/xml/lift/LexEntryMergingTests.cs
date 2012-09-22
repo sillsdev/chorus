@@ -166,5 +166,127 @@ namespace LibChorus.Tests.merge.xml.lift
 			}
 
 		}
+
+		[Test]
+		public void Merge_TheirDuplicateRelationDoesNotResultInEmptyRelationElement()
+		{
+			const string ours =
+				@"<?xml version='1.0' encoding='utf-8'?>
+				<lift version='0.10' producer='Whoever'>
+					<entry
+						dateCreated='2012-04-16T07:27:11Z'
+						dateModified='2012-08-12T09:46:54Z'
+						id='आप्‍चो_27fcb6ac-b509-4463-aa12-36427ac9b427'
+						guid='27fcb6ac-b509-4463-aa12-36427ac9b427'>
+						<lexical-unit>
+							<form
+								lang='bhj'>
+								<text>आप्‍चो</text>
+							</form>
+						</lexical-unit>
+						<relation
+							type='Compare'
+							ref='आम्‌मे_1cc3b8eb-cc46-4ee9-9a53-9195a30cb6b4' />
+						<sense
+							id='d4c1b46b-554a-4fc6-846b-b136b118817b'
+							order='1'>
+							<definition>
+								<form
+									lang='en'>
+									<text>shoot</text>
+								</form>
+								<form
+									lang='ne'>
+									<text>हिर्काउ</text>
+								</form>
+							</definition>
+						</sense>
+					</entry>
+				</lift>";
+			const string theirs = @"<?xml version='1.0' encoding='utf-8'?>
+				<lift version='0.10' producer='Whoever'>
+					<entry
+						dateCreated='2012-04-16T07:27:11Z'
+						dateModified='2012-06-21T01:37:26Z'
+						id='आप्‍चो_27fcb6ac-b509-4463-aa12-36427ac9b427'
+						guid='27fcb6ac-b509-4463-aa12-36427ac9b427'>
+						<lexical-unit>
+							<form
+								lang='bhj'>
+								<text>आप्‍चो</text>
+							</form>
+						</lexical-unit>
+						<relation
+							type='Compare'
+							ref='आम्‌मे_1cc3b8eb-cc46-4ee9-9a53-9195a30cb6b4' />
+						<relation
+							type='Compare'
+							ref='आम्‌मे_1cc3b8eb-cc46-4ee9-9a53-9195a30cb6b4' />
+						<sense
+							id='d4c1b46b-554a-4fc6-846b-b136b118817b'
+							order='1'>
+							<definition>
+								<form
+									lang='en'>
+									<text>shoot</text>
+								</form>
+								<form
+									lang='ne'>
+									<text>हीर्काउँ</text>
+								</form>
+							</definition>
+						</sense>
+					</entry>
+				</lift>";
+			const string ancestor = @"<?xml version='1.0' encoding='utf-8'?>
+				<lift version='0.10' producer='Whoever'>
+					<entry
+						dateCreated='2012-04-16T07:27:11Z'
+						dateModified='2012-06-21T01:37:26Z'
+						id='आप्‍चो_27fcb6ac-b509-4463-aa12-36427ac9b427'
+						guid='27fcb6ac-b509-4463-aa12-36427ac9b427'>
+						<lexical-unit>
+							<form
+								lang='bhj'>
+								<text>आप्‍चो</text>
+							</form>
+						</lexical-unit>
+						<relation
+							type='Compare'
+							ref='आम्‌मे_1cc3b8eb-cc46-4ee9-9a53-9195a30cb6b4' />
+						<sense
+							id='d4c1b46b-554a-4fc6-846b-b136b118817b'
+							order='1'>
+							<definition>
+								<form
+									lang='en'>
+									<text>shoot</text>
+								</form>
+								<form
+									lang='ne'>
+									<text>हीर्काउँ</text>
+								</form>
+							</definition>
+						</sense>
+					</entry>
+				</lift>";
+
+			using (var oursTemp = new TempFile(ours))
+			using (var theirsTemp = new TempFile(theirs))
+			using (var ancestorTemp = new TempFile(ancestor))
+			{
+				var listener = new ListenerForUnitTests();
+				var situation = new NullMergeSituation();
+				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation) { EventListener = listener };
+				XmlMergeService.Do3WayMerge(mergeOrder, new LiftEntryMergingStrategy(situation), false,
+					"header",
+					"entry", "guid");
+				//this doesn't seem particular relevant, but senses are, in fact, ordered, so there is some ambiguity here
+				var result = File.ReadAllText(mergeOrder.pathToOurs);
+				//Assert.AreEqual(typeof(AmbiguousInsertConflict), listener.Conflicts[0].GetType());
+				// Check that the audio made it into the merge.
+				XmlTestHelper.AssertXPathIsNull(result, "//relation[not(@type)]");
+			}
+		}
 	}
 }
