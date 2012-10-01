@@ -56,6 +56,40 @@ namespace Chorus.VcsDrivers.Mercurial
 		}
 	}
 
+	public class PortProblemException : HgCommonException
+	{
+		private readonly string _targetUri;
+
+		public PortProblemException(string targetUri)
+		{
+			_targetUri = targetUri;
+		}
+
+		public static bool ErrorMatches(Exception error)
+		{
+			return error.Message.Contains("refused");//"No connection could be made because the target machine actively refused it
+		}
+
+		public override string Message
+		{
+			get
+			{
+				if(_targetUri.ToLower().Contains("chorushub"))
+				{
+					return "Your computer could reach the ChorusHub computer, but couldn't communicate with ChorusHub itself. Possible causes:\r\n1) Something is wrong with ChorusHub.  Go to the machine running ChorusHub, and try quitting ChorusHub and running it again. 2) A firewall on your machine or on your network is blocking the communication on this port (the number after the colon here: "+_targetUri+").";
+				}
+				else if(_targetUri.ToLower().Contains("languagedepot"))
+				{
+					return "Your computer could reach LanguageDepot.org, but couldn't communicate with the Chorus server there. Possible causes:\r\n1) The Chorus server on LanguageDepot might be temporarily out of order. If it is, try again later/tomorrow. \r\n2) A firewall on your machine or on your network is blocking the communication with LanguageDepot.org.";
+				}
+				else
+				{
+					return "Your computer could reach the target computer, but they couldn't communicate. Possible causes:\r\n1) on the target machine, the service is not running.\r\n2) A firewall on your machine or on your network is blocking the communication on this port (the number after the colon here: " + _targetUri + ").";
+				}
+			}
+		}
+	}
+
 		public class UriProblemException : HgCommonException
 	{
 			private readonly string _sourceUri;

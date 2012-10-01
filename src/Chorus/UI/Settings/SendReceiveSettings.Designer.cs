@@ -30,6 +30,7 @@ namespace Chorus.UI.Settings
 		/// </summary>
 		private void InitializeComponent()
 		{
+			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SendReceiveSettings));
 			this.nameLabel = new System.Windows.Forms.Label();
 			this.userNameTextBox = new System.Windows.Forms.TextBox();
 			this.settingsTabs = new System.Windows.Forms.TabControl();
@@ -38,6 +39,9 @@ namespace Chorus.UI.Settings
 			this._internetSettingsFlow = new System.Windows.Forms.FlowLayoutPanel();
 			this._internetButtonEnabledCheckBox = new System.Windows.Forms.CheckBox();
 			this._serverSettingsControl = new Chorus.UI.Misc.ServerSettingsControl();
+			this.chorusHubTab = new System.Windows.Forms.TabPage();
+			this.betterLabel1 = new Chorus.UI.BetterLabel();
+			this.pictureBox4 = new System.Windows.Forms.PictureBox();
 			this.networkFolderTab = new System.Windows.Forms.TabPage();
 			this.pictureBox2 = new System.Windows.Forms.PictureBox();
 			this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
@@ -52,6 +56,8 @@ namespace Chorus.UI.Settings
 			this.internetTab.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
 			this._internetSettingsFlow.SuspendLayout();
+			this.chorusHubTab.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.pictureBox4)).BeginInit();
 			this.networkFolderTab.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
 			this.flowLayoutPanel1.SuspendLayout();
@@ -78,9 +84,10 @@ namespace Chorus.UI.Settings
 			// settingsTabs
 			//
 			this.settingsTabs.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-						| System.Windows.Forms.AnchorStyles.Left)
-						| System.Windows.Forms.AnchorStyles.Right)));
+			| System.Windows.Forms.AnchorStyles.Left)
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this.settingsTabs.Controls.Add(this.internetTab);
+			this.settingsTabs.Controls.Add(this.chorusHubTab);
 			this.settingsTabs.Controls.Add(this.networkFolderTab);
 			this.settingsTabs.Location = new System.Drawing.Point(13, 77);
 			this.settingsTabs.Name = "settingsTabs";
@@ -140,6 +147,45 @@ namespace Chorus.UI.Settings
 			this._serverSettingsControl.Name = "_serverSettingsControl";
 			this._serverSettingsControl.Size = new System.Drawing.Size(363, 200);
 			this._serverSettingsControl.TabIndex = 1;
+			//
+			// chorusHubTab
+			//
+			this.chorusHubTab.Controls.Add(this.betterLabel1);
+			this.chorusHubTab.Controls.Add(this.pictureBox4);
+			this.chorusHubTab.Location = new System.Drawing.Point(4, 22);
+			this.chorusHubTab.Name = "chorusHubTab";
+			this.chorusHubTab.Padding = new System.Windows.Forms.Padding(3);
+			this.chorusHubTab.Size = new System.Drawing.Size(476, 268);
+			this.chorusHubTab.TabIndex = 2;
+			this.chorusHubTab.Text = "Chorus Hub";
+			this.chorusHubTab.UseVisualStyleBackColor = true;
+			//
+			// betterLabel1
+			//
+			this.betterLabel1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+			| System.Windows.Forms.AnchorStyles.Left)
+			| System.Windows.Forms.AnchorStyles.Right)));
+			this.betterLabel1.BackColor = System.Drawing.Color.White;
+			this.betterLabel1.BorderStyle = System.Windows.Forms.BorderStyle.None;
+			this.betterLabel1.Font = new System.Drawing.Font("Segoe UI", 9F);
+			this.betterLabel1.Location = new System.Drawing.Point(85, 17);
+			this.betterLabel1.Multiline = true;
+			this.betterLabel1.Name = "betterLabel1";
+			this.betterLabel1.ReadOnly = true;
+			this.betterLabel1.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+			this.betterLabel1.Size = new System.Drawing.Size(365, 228);
+			this.betterLabel1.TabIndex = 4;
+			this.betterLabel1.TabStop = false;
+			this.betterLabel1.Text = resources.GetString("betterLabel1.Text");
+			//
+			// pictureBox4
+			//
+			this.pictureBox4.Image = global::Chorus.Properties.Resources.chorusHubLarge;
+			this.pictureBox4.Location = new System.Drawing.Point(6, 17);
+			this.pictureBox4.Name = "pictureBox4";
+			this.pictureBox4.Size = new System.Drawing.Size(64, 66);
+			this.pictureBox4.TabIndex = 3;
+			this.pictureBox4.TabStop = false;
 			//
 			// networkFolderTab
 			//
@@ -271,6 +317,9 @@ namespace Chorus.UI.Settings
 			((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
 			this._internetSettingsFlow.ResumeLayout(false);
 			this._internetSettingsFlow.PerformLayout();
+			this.chorusHubTab.ResumeLayout(false);
+			this.chorusHubTab.PerformLayout();
+			((System.ComponentModel.ISupportInitialize)(this.pictureBox4)).EndInit();
 			this.networkFolderTab.ResumeLayout(false);
 			((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
 			this.flowLayoutPanel1.ResumeLayout(false);
@@ -301,5 +350,8 @@ namespace Chorus.UI.Settings
 		private System.Windows.Forms.PictureBox pictureBox1;
 		private System.Windows.Forms.PictureBox pictureBox2;
 		private System.Windows.Forms.PictureBox pictureBox3;
+		private System.Windows.Forms.TabPage chorusHubTab;
+		private BetterLabel betterLabel1;
+		private System.Windows.Forms.PictureBox pictureBox4;
 	}
 }
