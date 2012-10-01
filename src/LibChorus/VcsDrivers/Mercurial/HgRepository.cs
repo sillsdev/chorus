@@ -352,6 +352,10 @@ namespace Chorus.VcsDrivers.Mercurial
 				{
 					specificError = new ServerErrorException();
 				}
+				else if (PortProblemException.ErrorMatches(error))
+				{
+					specificError = new PortProblemException(targetUri);
+				}
 				else if (RepositoryAuthorizationException.ErrorMatches(error))
 				{
 					specificError = new RepositoryAuthorizationException();
@@ -852,6 +856,10 @@ namespace Chorus.VcsDrivers.Mercurial
 				else if (ServerErrorException.ErrorMatches(error))
 				{
 					throw new ServerErrorException();
+				}
+				else if (PortProblemException.ErrorMatches(error))
+				{
+					throw new PortProblemException(sourceUri);
 				}
 				else if (RepositoryAuthorizationException.ErrorMatches(error))
 				{

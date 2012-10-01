@@ -2,11 +2,14 @@
 using System.Drawing;
 using System.Threading;
 using System.Windows.Forms;
+using Chorus.Properties;
 using Chorus.UI.Misc;
 using Chorus.UI.Settings;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
+using ChorusHub;
 using Palaso.Code;
+using System.IO;
 
 namespace Chorus.UI.Sync
 {
@@ -29,13 +32,15 @@ namespace Chorus.UI.Sync
 		private bool _networkWorkerStarted = false; // Has worker been started?
 
 		private bool _exiting; // Dialog is in the process of exiting, stop the threads!
+		private LANMode lanMode = LANMode.ChorusHub;
+		private ChorusHubInfo _chorusHubInfo;
 
 		private const int STATECHECKINTERVAL = 2000; // 2 sec interval between checks of USB status.
 		private const int INITIALINTERVAL = 1000; // only wait 1 sec, the first time
 
 		private delegate void UpdateInternetUICallback(bool enabled, string btnLabel, string message, string tooltip, string diagnostics);
 
-		private delegate void UpdateNetworkUICallback(bool enabled, string message, string tooltip, string diagnostics);
+		private delegate void UpdateNetworkUICallback(bool enabled, string message, string tooltip, string diagnostics, LANMode mode);
 
 		//designer only
 		public SyncStartControl()
@@ -150,6 +155,13 @@ namespace Chorus.UI.Sync
 			}
 		}
 
+		private enum LANMode
+		{
+			Folder,
+			ChorusHub
+		};
+
+
 		/// <summary>
 		/// Called by our worker thread to avoid inordinate pauses in the UI while checking the
 		/// Shared Network Folder to determine its status.
@@ -158,16 +170,33 @@ namespace Chorus.UI.Sync
 		{
 			// Check network Shared Folder status
 			string message, tooltip, diagnostics;
-			Monitor.Enter(_model);
-			bool result = _model.GetNetworkStatusLink(out message, out tooltip, out diagnostics);
-			Monitor.Exit(_model);
+			bool isReady=false;
+			LANMode mode=LANMode.ChorusHub;
+
+			var finder = new ChorusHub.Finder();
+			_chorusHubInfo = finder.Find();
+			if (_chorusHubInfo != null)
+			{
+				isReady = true;
+				message = string.Format("Found Chorus Hub at {0}", _chorusHubInfo.HostName);
+				tooltip = _chorusHubInfo.GetUri(Path.GetFileName(Path.GetDirectoryName(_repository.PathToRepo)));
+				diagnostics = "";
+			}
+			else
+			{
+				Monitor.Enter(_model);
+				 isReady = _model.GetNetworkStatusLink(out message, out tooltip, out diagnostics);
+				if(isReady)
+					mode = LANMode.Folder;
+				Monitor.Exit(_model);
+			}
 
 			Monitor.Enter(this);
 			// Using a callback and Invoke ensures that we avoid cross-threading updates.
 			if (!_exiting)
 			{
 				var callback = new UpdateNetworkUICallback(UpdateNetworkUI);
-				this.Invoke(callback, new object[] {result, message, tooltip, diagnostics});
+				this.Invoke(callback, new object[] { isReady, message, tooltip, diagnostics, mode });
 			}
 			Monitor.Exit(this);
 		}
@@ -179,8 +208,10 @@ namespace Chorus.UI.Sync
 		/// <param name="message"></param>
 		/// <param name="tooltip"></param>
 		/// <param name="diagnostics"></param>
-		private void UpdateNetworkUI(bool enabled, string message, string tooltip, string diagnostics)
+		private void UpdateNetworkUI(bool enabled, string message, string tooltip, string diagnostics, LANMode mode)
 		{
+			_useSharedFolderButton.Text = mode == LANMode.ChorusHub ? "Chorus Hub" : "Shared Network Folder";
+			_useSharedFolderButton.Image = mode == LANMode.ChorusHub ? Resources.chorusHubMedium : Resources.networkFolder29x32;
 			_useSharedFolderButton.Enabled = enabled;
 			if (!string.IsNullOrEmpty(diagnostics))
 				SetupNetworkDiagnosticLink(diagnostics);
@@ -318,7 +349,16 @@ namespace Chorus.UI.Sync
 		{
 			if (RepositoryChosen != null)
 			{
-				var address = _repository.GetDefaultNetworkAddress<DirectoryRepositorySource>();
+				RepositoryAddress address;
+
+				if (lanMode == LANMode.Folder)
+				{
+					address = _repository.GetDefaultNetworkAddress<DirectoryRepositorySource>();
+				}
+				else
+				{
+					address = new HttpRepositoryPath(_chorusHubInfo.HostName, _chorusHubInfo.GetUri(Path.GetFileName(Path.GetDirectoryName(_repository.PathToRepo))), false);
+				}
 				RepositoryChosen.Invoke(this, new SyncStartArgs(address, _commitMessageText.Text));
 			}
 		}

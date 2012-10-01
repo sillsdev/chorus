@@ -4,6 +4,7 @@ using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using System.Web;
 using Chorus.VcsDrivers.Mercurial;
 using Palaso.CommandLineProcessing;
@@ -11,16 +12,12 @@ using Palaso.Progress.LogBox;
 
 namespace ChorusHub
 {
-	public class ChorusHubStarter
+	public class HgServeRunner
 	{
-		string kPort = "8000";
+		public static string Port = "8000";
 		private Process _hgServeProcess;
 		private ConsoleProgress _consoleProgress = new ConsoleProgress();
 		const string kChorusrepositories = "C:\\ChorusHub";
-		public ChorusHubStarter()
-		{
-
-		}
 
 		public void Start()
 		{
@@ -53,7 +50,7 @@ namespace ChorusHub
 			_hgServeProcess.StartInfo.WorkingDirectory = kChorusrepositories;
 			_hgServeProcess.StartInfo.FileName = Chorus.MercurialLocation.PathToHgExecutable;
 
-			_hgServeProcess.StartInfo.Arguments = "serve -A accessLog.txt -E log.txt -p "+kPort+" ";
+			_hgServeProcess.StartInfo.Arguments = "serve -A accessLog.txt -E log.txt -p "+Port+" ";
 
 			const float kHgVersion = (float) 1.5;
 			if(kHgVersion < 1.9)
@@ -76,8 +73,6 @@ namespace ChorusHub
 			_hgServeProcess.StartInfo.UseShellExecute = false;
 			_hgServeProcess.StartInfo.RedirectStandardOutput = true;
 			 _hgServeProcess.Start();
-
-			 Console.WriteLine("Serving at http://" + GetLocalIpAddress()+ ":"+kPort);
 		}
 
 
@@ -105,14 +100,6 @@ namespace ChorusHub
 			File.WriteAllText(path,sb.ToString());
 		}
 
-		protected void OnStop()
-		{
-			if(_hgServeProcess!=null && !_hgServeProcess.HasExited)
-			{
-				_hgServeProcess.Kill();
-				_hgServeProcess.WaitForExit(10*1000);
-			}
-		}
 		private string AccessLogPath { get { return Path.Combine(kChorusrepositories, "accessLog.txt"); } }
 
 		public void CheckForFailedPushes()
@@ -168,28 +155,19 @@ namespace ChorusHub
 
 		public void Stop()
 		{
-
-		}
-
-		private string GetLocalIpAddress()
-		{
-			IPHostEntry host;
-			string localIP = null;
-			host = Dns.GetHostEntry(Dns.GetHostName());
-
-			foreach (IPAddress ip in host.AddressList)
+			if (_hgServeProcess != null && !_hgServeProcess.HasExited)
 			{
-				if (ip.AddressFamily == AddressFamily.InterNetwork)
+				Debug.WriteLine("Hg Server Stopping...");
+				_hgServeProcess.Kill();
+				if(_hgServeProcess.WaitForExit(1 * 1000))
 				{
-					if(localIP!=null)
-					{
-						if (host.AddressList.Length>1)
-							Console.WriteLine("Warning: this machine has more than one IP address");
-					}
-					localIP = ip.ToString();
+					Debug.WriteLine("Hg Server Stopped");
+				}
+				else
+				{
+					Debug.WriteLine("***Gave up on hg server stopping");
 				}
 			}
-			return localIP ?? "Could not determine IP Address!";
 		}
 	}
 }
