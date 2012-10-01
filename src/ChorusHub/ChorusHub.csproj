@@ -85,20 +85,15 @@
 	<CodeAnalysisIgnoreBuiltInRules>false</CodeAnalysisIgnoreBuiltInRules>
   </PropertyGroup>
   <ItemGroup>
-	<Reference Include="Palaso">
-	  <HintPath>..\..\..\Bloom\lib\dotnet\Palaso.dll</HintPath>
+	<Reference Include="Palaso, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86">
+	  <SpecificVersion>False</SpecificVersion>
+	  <HintPath>..\..\lib\Release\Palaso.dll</HintPath>
 	</Reference>
 	<Reference Include="System" />
 	<Reference Include="System.Core" />
-	<Reference Include="System.Data.Services.Client" />
-	<Reference Include="System.ServiceModel" />
-	<Reference Include="System.ServiceModel.Discovery" />
 	<Reference Include="System.Web" />
 	<Reference Include="System.Xml.Linq" />
-	<Reference Include="System.Data.DataSetExtensions" />
-	<Reference Include="Microsoft.CSharp" />
 	<Reference Include="System.Data" />
-	<Reference Include="System.ServiceProcess" />
 	<Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
