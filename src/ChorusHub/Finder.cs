@@ -25,7 +25,10 @@ namespace ChorusHub
 		{
 			_state = new State();
 			_state.Endpoint = new IPEndPoint(IPAddress.Any, Advertiser.Port);
-			_state.udpClient = new UdpClient(_state.Endpoint);
+			_state.udpClient = new UdpClient();
+			//This reuse business is in hopes of avoiding the dreaded "Only one usage of each socket address is normally permitted"
+			_state.udpClient.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress,true);
+			_state.udpClient.Client.Bind(_state.Endpoint);
 			_asyncResult = _state.udpClient.BeginReceive(ReceiveCallback, _state);
 		}
 

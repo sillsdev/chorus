@@ -179,7 +179,7 @@ namespace Chorus.UI.Sync
 			{
 				isReady = true;
 				message = string.Format("Found Chorus Hub at {0}", _chorusHubInfo.HostName);
-				tooltip = _chorusHubInfo.GetUri(Path.GetFileName(Path.GetDirectoryName(_repository.PathToRepo)));
+				tooltip = _chorusHubInfo.GetUri(Path.GetFileName(_repository.PathToRepo));
 				diagnostics = "";
 			}
 			else
@@ -357,7 +357,7 @@ namespace Chorus.UI.Sync
 				}
 				else
 				{
-					address = new HttpRepositoryPath(_chorusHubInfo.HostName, _chorusHubInfo.GetUri(Path.GetFileName(Path.GetDirectoryName(_repository.PathToRepo))), false);
+					address = new HttpRepositoryPath(_chorusHubInfo.HostName, _chorusHubInfo.GetUri(Path.GetFileName(_repository.PathToRepo)), false);
 				}
 				RepositoryChosen.Invoke(this, new SyncStartArgs(address, _commitMessageText.Text));
 			}

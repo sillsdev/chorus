@@ -76,7 +76,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			{
 				if(_targetUri.ToLower().Contains("chorushub"))
 				{
-					return "Your computer could reach the ChorusHub computer, but couldn't communicate with ChorusHub itself. Possible causes:\r\n1) Something is wrong with ChorusHub.  Go to the machine running ChorusHub, and try quitting ChorusHub and running it again. 2) A firewall on your machine or on your network is blocking the communication on this port (the number after the colon here: "+_targetUri+").";
+					return "Your computer could reach the Chorus Hub computer, but couldn't communicate with ChorusHub itself. Possible causes:\r\n1) Something is wrong with Chorus Hub.  Go to the machine running ChorusHub, and try quitting ChorusHub and running it again. 2) A firewall on your machine or on your network is blocking the communication on this port (the number after the colon here: "+_targetUri+").";
 				}
 				else if(_targetUri.ToLower().Contains("languagedepot"))
 				{
@@ -133,7 +133,15 @@ namespace Chorus.VcsDrivers.Mercurial
 			get
 			{
 				var x = new Uri(_sourceUri);
-				return string.Format("Check that {0} really hosts a project labeled '{1}'", x.Host, x.PathAndQuery.Trim('/'));
+				if (_sourceUri.ToLower().Contains("chorushub"))
+				{
+					return string.Format("That Chorus Hub does not yet host a project labeled '{0}'. It may be busy making a place for it now, so try again in 5 minutes.", x.PathAndQuery.Trim('/').Replace("%20"," "));
+				}
+				else
+				{
+					return string.Format("Check that {0} really hosts a project labeled '{1}'", x.Host,
+										 x.PathAndQuery.Trim('/'));
+				}
 			}
 		}
 	}
