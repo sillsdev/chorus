@@ -869,6 +869,10 @@ namespace Chorus.VcsDrivers.Mercurial
 				{
 					throw new PortProblemException(sourceUri);
 				}
+				else if (PortProblemException.ErrorMatches(error))
+				{
+					throw new PortProblemException(sourceUri);
+				}
 				else if (RepositoryAuthorizationException.ErrorMatches(error))
 				{
 					throw new RepositoryAuthorizationException();
