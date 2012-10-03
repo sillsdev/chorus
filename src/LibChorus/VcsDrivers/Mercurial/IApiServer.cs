@@ -66,14 +66,14 @@ namespace Chorus.VcsDrivers.Mercurial
 			{
 				query += String.Format("transId={0}&", TransId);
 			}
-			if (BaseHashes.Length != 0)
+			if (BaseHashes != null && BaseHashes.Length != 0)
 			{
 				query += "baseHashes=";
 				foreach (var baseHash in BaseHashes)
 				{
 					query += baseHash + ',';
 				}
-				query.TrimEnd(',');
+				query = query.TrimEnd(',');
 				query += "&";
 			}
 			if (!String.IsNullOrEmpty(RepoId))

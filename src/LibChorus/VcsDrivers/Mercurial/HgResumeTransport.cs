@@ -180,7 +180,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			while (commonBase.Count < localRevisions.Keys.Count())
 			{
 				var remoteRevisions = GetRemoteRevisions(offset, quantity);
-				if (remoteRevisions.Keys.Count() == 1 && remoteRevisions.Current.Value == "0")
+				if (remoteRevisions.Keys.Count() == 1 && remoteRevisions[remoteRevisions.Keys.First()].First() == "0")
 				{
 					// special case when remote repo is empty (initialized with no changesets)
 					return new List<Revision>();
@@ -195,8 +195,8 @@ namespace Chorus.VcsDrivers.Mercurial
 						var commonRevision = localList.Find(localRev => localRev.Number.Hash == remoteRevision);
 						if (commonRevision != null)
 						{
-							localBranches.Remove(key);
 							commonBase.Add(commonRevision);
+							break;
 						}
 					}
 				}
