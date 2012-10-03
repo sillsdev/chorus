@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
-using Chorus.Utilities.code;
 using Chorus.merge.xml.generic;
+using Palaso.Code;
 
 namespace Chorus.FileTypeHanders.ldml
 {

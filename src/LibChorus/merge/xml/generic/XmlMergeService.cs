@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Xml;
 using Chorus.Utilities;
-using Chorus.Utilities.code;
+using Palaso.Code;
 using Palaso.Xml;
 
 namespace Chorus.merge.xml.generic

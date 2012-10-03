@@ -164,6 +164,17 @@ namespace LibChorus.Tests.sync
 			File.Delete(Path.Combine(Path.GetTempPath(), "TextMerger-bbb.txt"));
 		}
 
+		//Regression test: used to fail based on looking at the revision history and finding it null
+		[Test]
+		public void Sync_FirstCheckInButNoFilesAdded_NoProblem()
+		{
+			using (var bob = new RepositorySetup("bob"))
+			{
+				var result = bob.CheckinAndPullAndMerge();
+				Assert.IsTrue(result.Succeeded, result.ErrorEncountered==null?"":result.ErrorEncountered.Message);
+			}
+		}
+
 		/// <summary>
 		/// regression test: there was a bug (found before we released) where on rollback
 		/// we were going to the tip, which if this was the *second* attempt, could be the other guy's work!

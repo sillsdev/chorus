@@ -145,7 +145,9 @@ namespace Chorus.sync
 
 				//If we did pull any data or a trivial merge succeeded we should call UpdateToTheDescendantRevision
 				if (results.DidGetChangesFromOthers || //we pulled something
-					!repo.GetRevisionWorkingSetIsBasedOn().Number.Hash.Equals(workingRevBeforeSync.Number.Hash)) //a merge happened
+					(
+					workingRevBeforeSync!=null //will be null if this is the 1st checkin ever, but no files were added so there was no actual rev created
+					&& !repo.GetRevisionWorkingSetIsBasedOn().Number.Hash.Equals(workingRevBeforeSync.Number.Hash))) //a merge happened
 				{
 					UpdateToTheDescendantRevision(repo, workingRevBeforeSync);
 				}

@@ -143,6 +143,9 @@ namespace Chorus.UI.Review.RevisionsInRepository
 					case "FieldWorks":
 						image = HistoryRowIcons.FieldWorks;
 						break;
+					case "Bloom":
+						image = HistoryRowIcons.Bloom16x16;
+						break;
 					default:
 						image = HistoryRowIcons.GenericCheckin;
 						break;

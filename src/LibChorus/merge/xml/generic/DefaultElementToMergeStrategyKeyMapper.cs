@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Xml;
-using Chorus.Utilities.code;
+using Palaso.Code;
 
 namespace Chorus.merge.xml.generic
 {
