@@ -7,8 +7,7 @@ namespace ChorusHub
 	static class Program
 	{
 		private static bool _isClosing;
-		private static HgServeRunner _hgServer;
-		private static Advertiser _advertiser;
+		private static ChorusHubService _service;
 
 		/// <summary>
 		/// The main entry point for the application.
@@ -17,26 +16,20 @@ namespace ChorusHub
 		{
 			SetConsoleCtrlHandler(new HandlerRoutine(ConsoleCtrlCheck), true);
 
-			_hgServer = new HgServeRunner();
-			_advertiser = new Advertiser();
-
+			_service = new ChorusHubService("C:\\ChorusHub");
 			try
 			{
-				_hgServer.Start();
-				_advertiser.Start();
-
+				_service.Start(true);
 				while (!_isClosing)
 				{
-					_hgServer.CheckForFailedPushes();
+					_service.Tick();
 					Thread.Sleep(1000);
 				}
-
 			}
 			finally
 			{
 				CloseDown();
 			}
-
 		}
 
 		private static bool ConsoleCtrlCheck(CtrlTypes ctrlType)
@@ -63,8 +56,7 @@ namespace ChorusHub
 		private static void CloseDown()
 		{
 			Console.WriteLine("Stopping...");
-			_advertiser.Stop();
-			_hgServer.Stop();
+			_service.Stop();
 		}
 
 		#region unmanaged

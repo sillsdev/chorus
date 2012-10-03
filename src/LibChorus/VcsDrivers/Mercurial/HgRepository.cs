@@ -878,7 +878,14 @@ namespace Chorus.VcsDrivers.Mercurial
 			}
 		}
 
-		public static void Clone(RepositoryAddress source, string targetPath, IProgress progress)
+		/// <summary>
+		/// Attempt to clone to the target, making a new target folder if that one already exists
+		/// </summary>
+		/// <param name="source"></param>
+		/// <param name="targetPath"></param>
+		/// <param name="progress"></param>
+		/// <returns>because this automatically changes the target name if it already exists, it returns the *actual* target used</returns>
+		public static string Clone(RepositoryAddress source, string targetPath, IProgress progress)
 		{
 			progress.WriteMessage("Getting project...");
 			targetPath = GetUniqueFolderPath(progress,
@@ -890,6 +897,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			transport.Clone();
 			repo.Update();
 			progress.WriteMessage("Finished copying to this computer at {0}", targetPath);
+			return targetPath;
 		}
 
 		/// <summary>

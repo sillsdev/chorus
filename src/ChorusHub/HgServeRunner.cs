@@ -1,24 +1,24 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
-using System.Net;
-using System.Net.Sockets;
 using System.Text;
-using System.Threading;
-using System.Web;
+//using System.Web;
 using Chorus.VcsDrivers.Mercurial;
-using Palaso.CommandLineProcessing;
 using Palaso.Progress.LogBox;
 
 namespace ChorusHub
 {
-	public class HgServeRunner
+	public class HgServeRunner :IDisposable
 	{
 		public static string Port = "8000";
 		private Process _hgServeProcess;
 		private ConsoleProgress _consoleProgress = new ConsoleProgress();
-		const string kChorusrepositories = "C:\\ChorusHub";
+		private string _rootFolder;
 
+		public HgServeRunner(string rootFolder)
+		{
+			_rootFolder = rootFolder;
+		}
 		public void Start()
 		{
 			foreach (var hg  in Process.GetProcessesByName("hg")  )
@@ -40,14 +40,14 @@ namespace ChorusHub
 			if (File.Exists(AccessLogPath))
 				File.Delete(AccessLogPath);
 
-			if (!Directory.Exists(kChorusrepositories))
-				Directory.CreateDirectory(kChorusrepositories);
+			if (!Directory.Exists(_rootFolder))
+				Directory.CreateDirectory(_rootFolder);
 
 			Console.WriteLine("Starting hg");
 
-			WriteConfigFile(kChorusrepositories);
+			WriteConfigFile(_rootFolder);
 			_hgServeProcess = new Process();
-			_hgServeProcess.StartInfo.WorkingDirectory = kChorusrepositories;
+			_hgServeProcess.StartInfo.WorkingDirectory = _rootFolder;
 			_hgServeProcess.StartInfo.FileName = Chorus.MercurialLocation.PathToHgExecutable;
 
 			_hgServeProcess.StartInfo.Arguments = "serve -A accessLog.txt -E log.txt -p "+Port+" ";
@@ -65,7 +65,7 @@ namespace ChorusHub
 
 //            var result = CommandLineRunner.Run(Chorus.MercurialLocation.PathToHgExecutable,
 //                                  "serve  -A accessLog.txt -E log.txt --web-conf hgweb.config",
-//                                  Encoding.UTF8, kChorusrepositories, -1,
+//                                  Encoding.UTF8, _rootFolder, -1,
 //                                  _consoleProgress, (s)=>_consoleProgress.WriteMessage(s));
 //
 
@@ -76,7 +76,7 @@ namespace ChorusHub
 		}
 
 
-		private static void WriteConfigFile(string kChorusrepositories)
+		private static void WriteConfigFile(string _rootFolder)
 		{
 			var sb = new StringBuilder();
 			sb.AppendLine("[web]");
@@ -85,22 +85,22 @@ namespace ChorusHub
 			sb.AppendLine();
 
 			sb.AppendLine("[paths]");
-			sb.AppendLine("/ = " + kChorusrepositories + "/*");
+			sb.AppendLine("/ = " + _rootFolder + "/*");
 
-//            foreach (var directory in Directory.GetDirectories(kChorusrepositories))
+//            foreach (var directory in Directory.GetDirectories(_rootFolder))
 //            {
 //                string directoryName = Path.GetDirectoryName(directory);
 //                sb.AppendLine(directoryName + "/ = " + directoryName+"/");
 //            }
 
-			var path = Path.Combine(kChorusrepositories, "hgweb.config");
+			var path = Path.Combine(_rootFolder, "hgweb.config");
 			if (File.Exists(path))
 				File.Delete(path);
 
 			File.WriteAllText(path,sb.ToString());
 		}
 
-		private string AccessLogPath { get { return Path.Combine(kChorusrepositories, "accessLog.txt"); } }
+		private string AccessLogPath { get { return Path.Combine(_rootFolder, "accessLog.txt"); } }
 
 		public void CheckForFailedPushes()
 		{
@@ -125,8 +125,10 @@ namespace ChorusHub
 							if (line.Contains("404") && start > 9 & end > 0)
 							{
 								var name = line.Substring(start, end - start);
-								string directory = Path.Combine(kChorusrepositories, name);
-								directory = HttpUtility.UrlDecode(directory);//convert %20 --> space
+								string directory = Path.Combine(_rootFolder, name);
+
+								//requires full .net framework: directory = HttpUtility.UrlDecode(directory);//convert %20 --> space
+								directory = Palaso.Network.HttpUtilityFromMono.UrlDecode(directory);
 								if (!Directory.Exists(directory))
 								{
 									Console.WriteLine("Creating new folder '" + name+"'");
@@ -167,7 +169,13 @@ namespace ChorusHub
 				{
 					Debug.WriteLine("***Gave up on hg server stopping");
 				}
+				_hgServeProcess = null;
 			}
+		}
+
+		public void Dispose()
+		{
+			Stop();
 		}
 	}
 }

@@ -98,9 +98,10 @@
   </ItemGroup>
   <ItemGroup>
 	<Compile Include="Advertiser.cs" />
+	<Compile Include="ChorusHubClient.cs" />
 	<Compile Include="ChorusHubInfo.cs" />
-	<Compile Include="Finder.cs" />
 	<Compile Include="HgServeRunner.cs" />
+	<Compile Include="ChorusHubService.cs" />
 	<Compile Include="Program.cs" />
 	<Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -10,7 +10,7 @@ using ThreadState = System.Threading.ThreadState;
 
 namespace ChorusHub
 {
-	class Advertiser
+	public class Advertiser :IDisposable
 	{
 		private Thread _thread;
 		private UdpClient _client;
@@ -105,10 +105,19 @@ namespace ChorusHub
 
 		public void Stop()
 		{
-			Debug.WriteLine("Advertiser Stopping...");
-		   _thread.Abort();
-		   _thread.Join();
-			//Debug.WriteLine("Advertiser Stopped");
+			if (_thread != null)
+			{
+				Debug.WriteLine("Advertiser Stopping...");
+				_thread.Abort();
+				_thread.Join();
+				//Debug.WriteLine("Advertiser Stopped");
+				_thread = null;
+			}
+		}
+
+		public void Dispose()
+		{
+			Stop();
 		}
 	}
 }

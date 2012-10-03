@@ -173,13 +173,23 @@ namespace Chorus.UI.Sync
 			bool isReady=false;
 			LANMode mode=LANMode.ChorusHub;
 
-			var finder = new ChorusHub.Finder();
-			_chorusHubInfo = finder.Find();
+			try
+			{
+				var client = new ChorusHub.ChorusHubClient();
+				_chorusHubInfo = client.FindServer();
+			}
+			catch (Exception)
+			{
+				//not worth complaining about
+#if DEBUG
+				throw;
+#endif
+			}
 			if (_chorusHubInfo != null)
 			{
 				isReady = true;
 				message = string.Format("Found Chorus Hub at {0}", _chorusHubInfo.HostName);
-				tooltip = _chorusHubInfo.GetUri(Path.GetFileName(_repository.PathToRepo));
+				tooltip = _chorusHubInfo.GetHgHttpUri(Path.GetFileName(_repository.PathToRepo));
 				diagnostics = "";
 			}
 			else
@@ -357,7 +367,7 @@ namespace Chorus.UI.Sync
 				}
 				else
 				{
-					address = new HttpRepositoryPath(_chorusHubInfo.HostName, _chorusHubInfo.GetUri(Path.GetFileName(_repository.PathToRepo)), false);
+					address = new HttpRepositoryPath(_chorusHubInfo.HostName, _chorusHubInfo.GetHgHttpUri(Path.GetFileName(_repository.PathToRepo)), false);
 				}
 				RepositoryChosen.Invoke(this, new SyncStartArgs(address, _commitMessageText.Text));
 			}

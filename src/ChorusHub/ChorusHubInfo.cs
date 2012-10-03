@@ -16,6 +16,7 @@ namespace ChorusHub
 		private readonly string Port;
 		public string HostName;
 
+
 		public static ChorusHubInfo Parse(string parameters)
 		{
 			int start = parameters.IndexOf('?');
@@ -65,7 +66,12 @@ namespace ChorusHub
 			return string.Format("ChorusHubInfo?version=1&address={0}&port={1}&hostname={2}", IpAddress, Port, HostName);
 		}
 
-		public string GetUri(string directoryName)
+		public string ServiceUri
+		{
+			get { return string.Format("net.tcp://{0}:{1}", IpAddress, ChorusHubService.ServicePort); }
+		}
+
+		public string GetHgHttpUri(string directoryName)
 		{
 
 			//the "chorushub" pretend user name here is to help build helpful error reports if somethig
