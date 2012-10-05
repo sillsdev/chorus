@@ -53,11 +53,34 @@ namespace ChorusHub
 
 		public void ReceiveFindingCallback(IAsyncResult args)
 		{
-			Byte[] receiveBytes = _udpClient.EndReceive(args, ref _ipEndPoint);
-			string s = Encoding.ASCII.GetString(receiveBytes);
-			if (ChorusHubInfo.IsChorusHubInfo(s))
+
+			Byte[] receiveBytes;
+			try
 			{
-				_foundHubInfo = ChorusHubInfo.Parse(s);
+			   receiveBytes  = _udpClient.EndReceive(args, ref _ipEndPoint);
+			}
+			catch(ObjectDisposedException)
+			{
+				//this is actually the expect behavior, if there is no chorus hub out there!
+				//http://stackoverflow.com/questions/4662553/how-to-abort-sockets-beginreceive
+
+				return;
+			}
+
+			try
+			{
+				string s = Encoding.ASCII.GetString(receiveBytes);
+				if (ChorusHubInfo.IsChorusHubInfo(s))
+				{
+					_foundHubInfo = ChorusHubInfo.Parse(s);
+				}
+			}
+			catch (Exception)
+			{
+#if DEBUG
+				throw;
+#endif
+				//else, not worth doing any more than, well, not finding the hub.
 			}
 		}
 
