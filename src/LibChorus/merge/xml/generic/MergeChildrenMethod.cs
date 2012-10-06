@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Xml;
 using System.Collections;
 using Chorus.FileTypeHanders.xml;
@@ -39,6 +40,12 @@ namespace Chorus.merge.xml.generic
 		/// </summary>
 		public void Run()
 		{
+			// Pre-process three nodes to handle duplicates in each node, But only if finder is one of these:
+			//		FindFirstElementWithSameName, FindByKeyAttribute, or FindByMultipleKeyAttributes.
+			ProcessForDuplicateChildren(_ancestor);
+			ProcessForDuplicateChildren(_ours);
+			ProcessForDuplicateChildren(_theirs);
+
 			// Initialise lists of keepers to current ancestorChildren, ourChildren, theirChildren
 			CopyChildrenToList(_ancestor, _childrenOfAncestorKeepers);
 			CopyChildrenToList(_ours, _childrenOfOurKeepers);
@@ -201,6 +208,47 @@ namespace Chorus.merge.xml.generic
 			// Remove any leftovers.
 			while (_ours.ChildNodes.Count > resultsChildren.Count)
 				_ours.RemoveChild(_ours.ChildNodes[resultsChildren.Count]);
+		}
+
+		private void ProcessForDuplicateChildren(XmlNode parent)
+		{
+			if (parent == null || !parent.HasChildNodes)
+				return; // Route checked.
+			var duplicateNodes = new List<XmlNode>();
+			foreach (XmlNode childNode in parent.ChildNodes)
+			{
+				if (duplicateNodes.Contains(childNode))
+					continue;
+				var finder = _merger.MergeStrategies.GetMergePartnerFinder(childNode);
+				string query;
+				switch (finder.GetType().Name)
+				{
+					case "FindFirstElementWithSameName":
+						// Route checked.
+						query = childNode.Name;
+						break;
+					case "FindByKeyAttribute":
+						// Route checked.
+						query = ((FindByKeyAttribute)finder).GetQuery(childNode);
+						break;
+					case "FindByMultipleKeyAttributes":
+						query = ((FindByMultipleKeyAttributes)finder).GetQuery(childNode);
+						break;
+					default:
+						continue;
+				}
+				if (string.IsNullOrEmpty(query))
+					continue; // Route checked.
+
+				var matches = parent.SelectNodes(query);
+				duplicateNodes.AddRange(matches.Cast<XmlNode>().Where(match => match != childNode));
+			}
+			foreach (var duplicateNode in duplicateNodes)
+			{
+				// Route checked.
+				_merger.WarningOccurred(new MergeWarning(string.Format("{0} occurs more than once in parent {1}.", duplicateNode.Name, parent.Name)));
+				parent.RemoveChild(duplicateNode);
+			}
 		}
 
 		private bool ChildrenAreSame(XmlNode ourChild, XmlNode theirChild)

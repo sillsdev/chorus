@@ -17,9 +17,9 @@ namespace LibChorus.Tests.merge.xml.generic
 	[TestFixture]
 	public class XmlMergeServiceTests
 	{
-		private void DoMerge(string ancestorXml, string ourXml, string theirXml,
+
+		private void DoMergeWithLiftEntryMergingStrategy(string ancestorXml, string ourXml, string theirXml,
 			MergeSituation mergeSituation,
-			IMergeStrategy mergeStrategy,
 			IEnumerable<string> xpathQueriesThatMatchExactlyOneNode,
 			IEnumerable<string> xpathQueriesThatReturnNull,
 			int expectedConflictCount, List<Type> expectedConflictTypes,
@@ -32,10 +32,11 @@ namespace LibChorus.Tests.merge.xml.generic
 			using (var ancestorTemp = new TempFile(ancestorXml))
 			{
 				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, mergeSituation)
-					{
-						EventListener = listener
-					};
-				XmlMergeService.Do3WayMerge(mergeOrder, mergeStrategy, false,
+				{
+					EventListener = listener
+				};
+				XmlMergeService.Do3WayMerge(mergeOrder, new LiftEntryMergingStrategy(mergeOrder),
+					false,
 					"header",
 					"entry", "guid");
 				result = File.ReadAllText(mergeOrder.pathToOurs);
@@ -75,18 +76,16 @@ namespace LibChorus.Tests.merge.xml.generic
 
 			// We win merge situation.
 			MergeSituation mergeSit = new NullMergeSituation();
-			DoMerge(null, ours, theirs,
+			DoMergeWithLiftEntryMergingStrategy(null, ours, theirs,
 				mergeSit,
-				new LiftEntryMergingStrategy(mergeSit),
 				new[] { "lift/entry[@id='addedByBoth']/sense/gloss/text[text()='our gloss']" }, new[] { "lift/entry[@id='addedByBoth']/sense/gloss/text[text()='their gloss']" },
 				1, new List<Type> { typeof(XmlTextBothAddedTextConflict) },
 				4, new List<Type> { typeof(XmlAttributeBothAddedReport), typeof(XmlAttributeBothAddedReport), typeof(XmlAttributeBothAddedReport), typeof(XmlAttributeBothAddedReport) });
 
 			// They win merge situation.
 			mergeSit = new NullMergeSituationTheyWin();
-			DoMerge(null, ours, theirs,
+			DoMergeWithLiftEntryMergingStrategy(null, ours, theirs,
 				mergeSit,
-				new LiftEntryMergingStrategy(mergeSit),
 				new[] { "lift/entry[@id='addedByBoth']/sense/gloss/text[text()='their gloss']" }, new[] { "lift/entry[@id='addedByBoth']/sense/gloss/text[text()='our gloss']" },
 				1, new List<Type> { typeof(XmlTextBothAddedTextConflict) },
 				4, new List<Type> { typeof(XmlAttributeBothAddedReport), typeof(XmlAttributeBothAddedReport), typeof(XmlAttributeBothAddedReport), typeof(XmlAttributeBothAddedReport) });
@@ -120,18 +119,16 @@ namespace LibChorus.Tests.merge.xml.generic
 
 			// We win merge situation.
 			MergeSituation mergeSit = new NullMergeSituation();
-			DoMerge(null, ours, theirs,
+			DoMergeWithLiftEntryMergingStrategy(null, ours, theirs,
 				mergeSit,
-				new LiftEntryMergingStrategy(mergeSit),
 				new[] { "lift/entry[@id='addedByUs']/sense/gloss/text[text()='our gloss']", "lift/entry[@id='addedByUs']/sense/gloss/text[text()='our gloss']" }, new string[0],
 				0, null,
 				0, null);
 
 			// They win merge situation.
 			mergeSit = new NullMergeSituationTheyWin();
-			DoMerge(null, ours, theirs,
+			DoMergeWithLiftEntryMergingStrategy(null, ours, theirs,
 				mergeSit,
-				new LiftEntryMergingStrategy(mergeSit),
 				new[] { "lift/entry[@id='addedByUs']/sense/gloss/text[text()='our gloss']", "lift/entry[@id='addedByUs']/sense/gloss/text[text()='our gloss']" }, new string[0],
 				0, null,
 				0, null);
@@ -171,18 +168,16 @@ namespace LibChorus.Tests.merge.xml.generic
 
 			// We win merge situation.
 			MergeSituation mergeSit = new NullMergeSituation();
-			DoMerge(ancestor, ours, theirs,
+			DoMergeWithLiftEntryMergingStrategy(ancestor, ours, theirs,
 				mergeSit,
-				new LiftEntryMergingStrategy(mergeSit),
 				new[] { "lift/entry[@id='doomedByUsEditedByThem']/sense/gloss/text[text()='editedByThem']" }, new[] { "lift/entry[@id='doomedByUsEditedByThem' and @dateDeleted='2011-03-15T12:15:05Z']" },
 				1, new List<Type> {typeof (RemovedVsEditedElementConflict)},
 				0, null);
 
 			// They win merge situation.
 			mergeSit = new NullMergeSituationTheyWin();
-			DoMerge(ancestor, ours, theirs,
+			DoMergeWithLiftEntryMergingStrategy(ancestor, ours, theirs,
 				mergeSit,
-				new LiftEntryMergingStrategy(mergeSit),
 				new[] { "lift/entry[@id='doomedByUsEditedByThem']/sense/gloss/text[text()='editedByThem']" }, new[] { "lift/entry[@id='doomedByUsEditedByThem' and @dateDeleted='2011-03-15T12:15:05Z']" },
 				1, new List<Type> { typeof(EditedVsRemovedElementConflict) },
 				0, null);
@@ -223,18 +218,16 @@ namespace LibChorus.Tests.merge.xml.generic
 
 			// We win merge situation.
 			MergeSituation mergeSit = new NullMergeSituation();
-			DoMerge(ancestor, ours, theirs,
+			DoMergeWithLiftEntryMergingStrategy(ancestor, ours, theirs,
 				mergeSit,
-				new LiftEntryMergingStrategy(mergeSit),
 				new[] { "lift/entry[@id='doomedByThemEditedByUs']/sense/gloss/text[text()='editedByUs']" }, new[] { "lift/entry[@id='doomedByThemEditedByUs' and @dateDeleted='2011-03-15T12:15:05Z']" },
 				1, new List<Type> { typeof(EditedVsRemovedElementConflict) },
 				0, null);
 
 			// They win merge situation.
 			mergeSit = new NullMergeSituationTheyWin();
-			DoMerge(ancestor, ours, theirs,
+			DoMergeWithLiftEntryMergingStrategy(ancestor, ours, theirs,
 				mergeSit,
-				new LiftEntryMergingStrategy(mergeSit),
 				new[] { "lift/entry[@id='doomedByThemEditedByUs']/sense/gloss/text[text()='editedByUs']" }, new[] { "lift/entry[@id='doomedByThemEditedByUs' and @dateDeleted='2011-03-15T12:15:05Z']" },
 				1, new List<Type> { typeof(RemovedVsEditedElementConflict) },
 				0, null);
@@ -273,18 +266,16 @@ namespace LibChorus.Tests.merge.xml.generic
 
 			// We win merge situation.
 			MergeSituation mergeSit = new NullMergeSituation();
-			DoMerge(ancestor, ours, theirs,
+			DoMergeWithLiftEntryMergingStrategy(ancestor, ours, theirs,
 				mergeSit,
-				new LiftEntryMergingStrategy(mergeSit),
 				new[] { "lift/entry[@id='doomedByThemEditedByUs']/sense/gloss/text[text()='editedByUs']" }, null,
 				1, new List<Type> { typeof(EditedVsRemovedElementConflict) },
 				0, null);
 
 			// They win merge situation.
 			mergeSit = new NullMergeSituationTheyWin();
-			DoMerge(ancestor, ours, theirs,
+			DoMergeWithLiftEntryMergingStrategy(ancestor, ours, theirs,
 				mergeSit,
-				new LiftEntryMergingStrategy(mergeSit),
 				new[] { "lift/entry[@id='doomedByThemEditedByUs']/sense/gloss/text[text()='editedByUs']" }, null,
 				1, new List<Type> { typeof(RemovedVsEditedElementConflict) },
 				0, null);
@@ -323,18 +314,16 @@ namespace LibChorus.Tests.merge.xml.generic
 
 			// We win merge situation.
 			MergeSituation mergeSit = new NullMergeSituation();
-			DoMerge(ancestor, ours, theirs,
+			DoMergeWithLiftEntryMergingStrategy(ancestor, ours, theirs,
 				mergeSit,
-				new LiftEntryMergingStrategy(mergeSit),
 				new[] { "lift/entry[@id='doomedByUsEditedByThem']/sense/gloss/text[text()='editedByThem']" }, null,
 				1, new List<Type> { typeof(RemovedVsEditedElementConflict) },
 				0, null);
 
 			// They win merge situation.
 			mergeSit = new NullMergeSituationTheyWin();
-			DoMerge(ancestor, ours, theirs,
+			DoMergeWithLiftEntryMergingStrategy(ancestor, ours, theirs,
 				mergeSit,
-				new LiftEntryMergingStrategy(mergeSit),
 				new[] { "lift/entry[@id='doomedByUsEditedByThem']/sense/gloss/text[text()='editedByThem']" }, null,
 				1, new List<Type> { typeof(EditedVsRemovedElementConflict) },
 				0, null);
@@ -372,18 +361,16 @@ namespace LibChorus.Tests.merge.xml.generic
 
 			// We win merge situation
 			MergeSituation mergeSit = new NullMergeSituation();
-			DoMerge(ancestor, ours, theirs,
+			DoMergeWithLiftEntryMergingStrategy(ancestor, ours, theirs,
 				mergeSit,
-				new LiftEntryMergingStrategy(mergeSit),
 				new[] { "lift/entry[@id='addedByUs']/sense/gloss/text[text()='addedByUs']", "lift/entry[@id='addedByThem']/sense/gloss/text[text()='addedByThem']" }, null,
 				0, null,
 				0, null);
 
 			// They win merge situation.
 			mergeSit = new NullMergeSituationTheyWin();
-			DoMerge(ancestor, ours, theirs,
+			DoMergeWithLiftEntryMergingStrategy(ancestor, ours, theirs,
 				mergeSit,
-				new LiftEntryMergingStrategy(mergeSit),
 				new[] { "lift/entry[@id='addedByUs']/sense/gloss/text[text()='addedByUs']", "lift/entry[@id='addedByThem']/sense/gloss/text[text()='addedByThem']" }, null,
 				0, null,
 				0, null);
@@ -421,18 +408,16 @@ namespace LibChorus.Tests.merge.xml.generic
 
 			// We win merge situation.
 			MergeSituation mergeSit = new NullMergeSituation();
-			DoMerge(ancestor, ours, theirs,
+			DoMergeWithLiftEntryMergingStrategy(ancestor, ours, theirs,
 				mergeSit,
-				new LiftEntryMergingStrategy(mergeSit),
 				new[] { "lift/entry[@id='addedByBoth']/sense/gloss/text[text()='editedByBoth']" }, null,
 				0, null,
 				0, null);
 
 			// They win merge situation.
 			mergeSit = new NullMergeSituationTheyWin();
-			DoMerge(ancestor, ours, theirs,
+			DoMergeWithLiftEntryMergingStrategy(ancestor, ours, theirs,
 				mergeSit,
-				new LiftEntryMergingStrategy(mergeSit),
 				new[] { "lift/entry[@id='addedByBoth']/sense/gloss/text[text()='editedByBoth']" }, null,
 				0, null,
 				0, null);
@@ -470,18 +455,16 @@ namespace LibChorus.Tests.merge.xml.generic
 
 			// We win merge situation.
 			MergeSituation mergeSit = new NullMergeSituation();
-			DoMerge(ancestor, ours, theirs,
+			DoMergeWithLiftEntryMergingStrategy(ancestor, ours, theirs,
 				mergeSit,
-				new LiftEntryMergingStrategy(mergeSit),
 				new[] { "lift/entry[@id='addedByBoth']/sense/gloss/text[text()='editedByUs']" }, new[] { "lift/entry[@id='addedByBoth']/sense/gloss/text[text()='editedByThem']" },
 				1, new List<Type> { typeof(XmlTextBothAddedTextConflict) },
 				4, new List<Type> { typeof(XmlAttributeBothAddedReport), typeof(XmlAttributeBothAddedReport), typeof(XmlAttributeBothAddedReport), typeof(XmlAttributeBothAddedReport) });
 
 			// They win merge situation.
 			mergeSit = new NullMergeSituationTheyWin();
-			DoMerge(ancestor, ours, theirs,
+			DoMergeWithLiftEntryMergingStrategy(ancestor, ours, theirs,
 				mergeSit,
-				new LiftEntryMergingStrategy(mergeSit),
 				new[] { "lift/entry[@id='addedByBoth']/sense/gloss/text[text()='editedByThem']" }, new[] { "lift/entry[@id='addedByBoth']/sense/gloss/text[text()='editedByUs']" },
 				1, new List<Type> { typeof(XmlTextBothAddedTextConflict) },
 				4, new List<Type> { typeof(XmlAttributeBothAddedReport), typeof(XmlAttributeBothAddedReport), typeof(XmlAttributeBothAddedReport), typeof(XmlAttributeBothAddedReport) });
@@ -506,18 +489,16 @@ namespace LibChorus.Tests.merge.xml.generic
 
 			// We win merge situation.
 			MergeSituation mergeSit = new NullMergeSituation();
-			DoMerge(ancestor, ours, theirs,
+			DoMergeWithLiftEntryMergingStrategy(ancestor, ours, theirs,
 				mergeSit,
-				new LiftEntryMergingStrategy(mergeSit),
 				new[] { "lift/entry[@id='noChangesInEither']" }, new[] { "lift/entry[@id='bothDeleted']" },
 				0, null,
 				0, null);
 
 			// They win merge situation.
 			mergeSit = new NullMergeSituationTheyWin();
-			DoMerge(ancestor, ours, theirs,
+			DoMergeWithLiftEntryMergingStrategy(ancestor, ours, theirs,
 				mergeSit,
-				new LiftEntryMergingStrategy(mergeSit),
 				new[] { "lift/entry[@id='noChangesInEither']" }, new[] { "lift/entry[@id='bothDeleted']" },
 				0, null,
 				0, null);
@@ -543,18 +524,16 @@ namespace LibChorus.Tests.merge.xml.generic
 
 			// We win merge situation.
 			MergeSituation mergeSit = new NullMergeSituation();
-			DoMerge(ancestor, ours, theirs,
+			DoMergeWithLiftEntryMergingStrategy(ancestor, ours, theirs,
 				mergeSit,
-				new LiftEntryMergingStrategy(mergeSit),
 				new[] { "lift/entry[@id='noChangesInEither']" }, new[] { "lift/entry[@id='onlyOneDeleted']" },
 				0, null,
 				0, null);
 
 			// They win merge situation.
 			mergeSit = new NullMergeSituationTheyWin();
-			DoMerge(ancestor, ours, theirs,
+			DoMergeWithLiftEntryMergingStrategy(ancestor, ours, theirs,
 				mergeSit,
-				new LiftEntryMergingStrategy(mergeSit),
 				new[] { "lift/entry[@id='noChangesInEither']" }, new[] { "lift/entry[@id='onlyOneDeleted']" },
 				0, null,
 				0, null);
@@ -573,18 +552,16 @@ namespace LibChorus.Tests.merge.xml.generic
 
 			// We win merge situation.
 			MergeSituation mergeSit = new NullMergeSituation();
-			DoMerge(ancestor, ours, theirs,
+			DoMergeWithLiftEntryMergingStrategy(ancestor, ours, theirs,
 				mergeSit,
-				new LiftEntryMergingStrategy(mergeSit),
 				new[] { "lift/header", "lift/entry[@id='noChangesInEither']" }, null,
 				0, null,
 				0, null);
 
 			// They win merge situation.
 			mergeSit = new NullMergeSituationTheyWin();
-			DoMerge(ancestor, ours, theirs,
+			DoMergeWithLiftEntryMergingStrategy(ancestor, ours, theirs,
 				mergeSit,
-				new LiftEntryMergingStrategy(mergeSit),
 				new[] { "lift/header", "lift/entry[@id='noChangesInEither']" }, null,
 				0, null,
 				0, null);
@@ -609,18 +586,16 @@ namespace LibChorus.Tests.merge.xml.generic
 
 			// We win merge situation.
 			MergeSituation mergeSit = new NullMergeSituation();
-			DoMerge(ancestor, ours, theirs,
+			DoMergeWithLiftEntryMergingStrategy(ancestor, ours, theirs,
 				mergeSit,
-				new LiftEntryMergingStrategy(mergeSit),
 				new[] { "lift/entry[@id='noChangesInEither']" }, new[] { "lift/header" },
 				0, null,
 				0, null);
 
 			// They win merge situation.
 			mergeSit = new NullMergeSituationTheyWin();
-			DoMerge(ancestor, ours, theirs,
+			DoMergeWithLiftEntryMergingStrategy(ancestor, ours, theirs,
 				mergeSit,
-				new LiftEntryMergingStrategy(mergeSit),
 				new[] { "lift/entry[@id='noChangesInEither']" }, new[] { "lift/header" },
 				0, null,
 				0, null);
@@ -646,18 +621,16 @@ namespace LibChorus.Tests.merge.xml.generic
 
 			// We win merge situation.
 			MergeSituation mergeSit = new NullMergeSituation();
-			DoMerge(ancestor, ours, theirs,
+			DoMergeWithLiftEntryMergingStrategy(ancestor, ours, theirs,
 				mergeSit,
-				new LiftEntryMergingStrategy(mergeSit),
 				new[] { "lift/entry[@id='noChangesInEither']" }, new[] { "lift/header" },
 				0, null,
 				0, null);
 
 			// They win merge situation.
 			mergeSit = new NullMergeSituationTheyWin();
-			DoMerge(ancestor, ours, theirs,
+			DoMergeWithLiftEntryMergingStrategy(ancestor, ours, theirs,
 				mergeSit,
-				new LiftEntryMergingStrategy(mergeSit),
 				new[] { "lift/entry[@id='noChangesInEither']" }, new[] { "lift/header" },
 				0, null,
 				0, null);
@@ -683,18 +656,16 @@ namespace LibChorus.Tests.merge.xml.generic
 
 			// We win merge situation.
 			MergeSituation mergeSit = new NullMergeSituation();
-			DoMerge(ancestor, ours, theirs,
+			DoMergeWithLiftEntryMergingStrategy(ancestor, ours, theirs,
 				mergeSit,
-				new LiftEntryMergingStrategy(mergeSit),
 				new[] { "lift/header", "lift/entry[@id='noChangesInEither']" }, null,
 				0, null,
 				0, null);
 
 			// They win merge situation.
 			mergeSit = new NullMergeSituationTheyWin();
-			DoMerge(ancestor, ours, theirs,
+			DoMergeWithLiftEntryMergingStrategy(ancestor, ours, theirs,
 				mergeSit,
-				new LiftEntryMergingStrategy(mergeSit),
 				new[] { "lift/header", "lift/entry[@id='noChangesInEither']" }, null,
 				0, null,
 				0, null);
@@ -719,18 +690,16 @@ namespace LibChorus.Tests.merge.xml.generic
 
 			// We win merge situation.
 			MergeSituation mergeSit = new NullMergeSituation();
-			DoMerge(ancestor, ours, theirs,
+			DoMergeWithLiftEntryMergingStrategy(ancestor, ours, theirs,
 				mergeSit,
-				new LiftEntryMergingStrategy(mergeSit),
 				new[] { "lift/header", "lift/entry[@id='noChangesInEither']" }, null,
 				0, null,
 				0, null);
 
 			// They win merge situation.
 			mergeSit = new NullMergeSituationTheyWin();
-			DoMerge(ancestor, ours, theirs,
+			DoMergeWithLiftEntryMergingStrategy(ancestor, ours, theirs,
 				mergeSit,
-				new LiftEntryMergingStrategy(mergeSit),
 				new[] { "lift/header", "lift/entry[@id='noChangesInEither']" }, null,
 				0, null,
 				0, null);
@@ -756,18 +725,16 @@ namespace LibChorus.Tests.merge.xml.generic
 
 			// We win merge situation.
 			MergeSituation mergeSit = new NullMergeSituation();
-			DoMerge(ancestor, ours, theirs,
+			DoMergeWithLiftEntryMergingStrategy(ancestor, ours, theirs,
 				mergeSit,
-				new LiftEntryMergingStrategy(mergeSit),
 				new[] { "lift/entry[@id='noChangesInEither']" }, new[] { "lift/header" },
 				0, null,
 				0, null);
 
 			// They win merge situation.
 			mergeSit = new NullMergeSituationTheyWin();
-			DoMerge(ancestor, ours, theirs,
+			DoMergeWithLiftEntryMergingStrategy(ancestor, ours, theirs,
 				mergeSit,
-				new LiftEntryMergingStrategy(mergeSit),
 				new[] { "lift/entry[@id='noChangesInEither']" }, new[] { "lift/header" },
 				0, null,
 				0, null);
@@ -793,18 +760,16 @@ namespace LibChorus.Tests.merge.xml.generic
 
 			// We win merge situation.
 			MergeSituation mergeSit = new NullMergeSituation();
-			DoMerge(ancestor, ours, theirs,
+			DoMergeWithLiftEntryMergingStrategy(ancestor, ours, theirs,
 				mergeSit,
-				new LiftEntryMergingStrategy(mergeSit),
 				new[] { "lift/header[@id='ourNewHeader']", "lift/entry[@id='noChangesInEither']" }, new[] { "lift/header[@id='theirNewHeader']" },
 				1, new List<Type> { typeof(BothAddedAttributeConflict) },
 				0, null);
 
 			// They win merge situation.
 			mergeSit = new NullMergeSituationTheyWin();
-			DoMerge(ancestor, ours, theirs,
+			DoMergeWithLiftEntryMergingStrategy(ancestor, ours, theirs,
 				mergeSit,
-				new LiftEntryMergingStrategy(mergeSit),
 				new[] { "lift/header[@id='theirNewHeader']", "lift/entry[@id='noChangesInEither']" }, new[] { "lift/header[@id='ourNewHeader']" },
 				1, new List<Type> { typeof(BothAddedAttributeConflict) },
 				0, null);
@@ -831,18 +796,16 @@ namespace LibChorus.Tests.merge.xml.generic
 
 			// We win merge situation.
 			MergeSituation mergeSit = new NullMergeSituation();
-			DoMerge(ancestor, ours, theirs,
+			DoMergeWithLiftEntryMergingStrategy(ancestor, ours, theirs,
 				mergeSit,
-				new LiftEntryMergingStrategy(mergeSit),
 				new[] { "lift/header[@id='ourNewHeader']", "lift/entry[@id='noChangesInEither']" }, new[] { "lift/header[@id='originalHeader']", "lift/header[@id='theirNewHeader']" },
 				1, new List<Type> { typeof(BothEditedAttributeConflict) },
 				0, null);
 
 			// They win merge situation.
 			mergeSit = new NullMergeSituationTheyWin();
-			DoMerge(ancestor, ours, theirs,
+			DoMergeWithLiftEntryMergingStrategy(ancestor, ours, theirs,
 				mergeSit,
-				new LiftEntryMergingStrategy(mergeSit),
 				new[] { "lift/header[@id='theirNewHeader']", "lift/entry[@id='noChangesInEither']" }, new[] { "lift/header[@id='originalHeader']", "lift/header[@id='ourNewHeader']" },
 				1, new List<Type> { typeof(BothEditedAttributeConflict) },
 				0, null);
@@ -869,18 +832,16 @@ namespace LibChorus.Tests.merge.xml.generic
 
 			// We win merge situation.
 			MergeSituation mergeSit = new NullMergeSituation();
-			DoMerge(ancestor, ours, theirs,
+			DoMergeWithLiftEntryMergingStrategy(ancestor, ours, theirs,
 				mergeSit,
-				new LiftEntryMergingStrategy(mergeSit),
 				new[] { "lift/header[@id='ourNewHeader']", "lift/entry[@id='noChangesInEither']" }, new[] { "lift/header[@id='originalHeader']", "lift/header[@id='theirNewHeader']" },
 				1, new List<Type> { typeof(BothEditedAttributeConflict) },
 				0, null);
 
 			// They win merge situation.
 			mergeSit = new NullMergeSituationTheyWin();
-			DoMerge(ancestor, ours, theirs,
+			DoMergeWithLiftEntryMergingStrategy(ancestor, ours, theirs,
 				mergeSit,
-				new LiftEntryMergingStrategy(mergeSit),
 				new[] { "lift/header[@id='theirNewHeader']", "lift/entry[@id='noChangesInEither']" }, new[] { "lift/header[@id='originalHeader']", "lift/header[@id='ourNewHeader']" },
 				1, new List<Type> { typeof(BothEditedAttributeConflict) },
 				0, null);
@@ -907,18 +868,16 @@ namespace LibChorus.Tests.merge.xml.generic
 
 			// We win merge situation.
 			MergeSituation mergeSit = new NullMergeSituation();
-			DoMerge(ancestor, ours, theirs,
+			DoMergeWithLiftEntryMergingStrategy(ancestor, ours, theirs,
 				mergeSit,
-				new LiftEntryMergingStrategy(mergeSit),
 				new[] { "lift/header[@id='ourNewHeader']", "lift/entry[@id='noChangesInEither']" }, new[] { "lift/header[@id='originalHeader']" },
 				0, null, // Since we use NullMergeStrategy, there are no reports, but we know we called the MakeMergedEntry
 				0, null);
 
 			// They win merge situation.
 			mergeSit = new NullMergeSituationTheyWin();
-			DoMerge(ancestor, ours, theirs,
+			DoMergeWithLiftEntryMergingStrategy(ancestor, ours, theirs,
 				mergeSit,
-				new LiftEntryMergingStrategy(mergeSit),
 				new[] { "lift/header[@id='ourNewHeader']", "lift/entry[@id='noChangesInEither']" }, new[] { "lift/header[@id='originalHeader']" },
 				0, null, // Since we use NullMergeStrategy, there are no reports, but we know we called the MakeMergedEntry
 				0, null);
@@ -945,18 +904,16 @@ namespace LibChorus.Tests.merge.xml.generic
 
 			// We win merge situation.
 			MergeSituation mergeSit = new NullMergeSituation();
-			DoMerge(ancestor, ours, theirs,
+			DoMergeWithLiftEntryMergingStrategy(ancestor, ours, theirs,
 				mergeSit,
-				new LiftEntryMergingStrategy(mergeSit),
 				new[] { "lift/header[@id='theirNewHeader']", "lift/entry[@id='noChangesInEither']" }, null,
 				0, null,
 				0, null);
 
 			// They win merge situation.
 			mergeSit = new NullMergeSituationTheyWin();
-			DoMerge(ancestor, ours, theirs,
+			DoMergeWithLiftEntryMergingStrategy(ancestor, ours, theirs,
 				mergeSit,
-				new LiftEntryMergingStrategy(mergeSit),
 				new[] { "lift/header[@id='theirNewHeader']", "lift/entry[@id='noChangesInEither']" }, null,
 				0, null,
 				0, null);
@@ -1002,18 +959,16 @@ namespace LibChorus.Tests.merge.xml.generic
 
 			// We win merge situation.
 			MergeSituation mergeSit = new NullMergeSituation();
-			DoMerge(ancestor, ours, theirs,
+			DoMergeWithLiftEntryMergingStrategy(ancestor, ours, theirs,
 				mergeSit,
-				new LiftEntryMergingStrategy(mergeSit),
 				new[] { "lift/entry[@id='bothEdited']/sense/gloss/text[text()='ourNewGloss']" }, null,
 				1, new List<Type> { typeof(XmlTextBothEditedTextConflict) },
 				0, null);
 
 			// They win merge situation.
 			mergeSit = new NullMergeSituationTheyWin();
-			DoMerge(ancestor, ours, theirs,
+			DoMergeWithLiftEntryMergingStrategy(ancestor, ours, theirs,
 				mergeSit,
-				new LiftEntryMergingStrategy(mergeSit),
 				new[] { "lift/entry[@id='bothEdited']/sense/gloss/text[text()='theirNewGloss']" }, null,
 				1, new List<Type> { typeof(XmlTextBothEditedTextConflict) },
 				0, null);
@@ -1059,18 +1014,16 @@ namespace LibChorus.Tests.merge.xml.generic
 
 			// We win merge situation.
 			MergeSituation mergeSit = new NullMergeSituation();
-			DoMerge(ancestor, ours, theirs,
+			DoMergeWithLiftEntryMergingStrategy(ancestor, ours, theirs,
 				mergeSit,
-				new LiftEntryMergingStrategy(mergeSit),
 				new[] { "lift/entry[@id='oneEdited']/sense/gloss/text[text()='ourNewGloss']" }, new[] { "lift/entry[@id='oneEdited']/sense/gloss/text[text()='original']" },
 				0, null,
 				0, null);
 
 			// They win merge situation.
 			mergeSit = new NullMergeSituationTheyWin();
-			DoMerge(ancestor, ours, theirs,
+			DoMergeWithLiftEntryMergingStrategy(ancestor, ours, theirs,
 				mergeSit,
-				new LiftEntryMergingStrategy(mergeSit),
 				new[] { "lift/entry[@id='oneEdited']/sense/gloss/text[text()='ourNewGloss']" }, new[] { "lift/entry[@id='oneEdited']/sense/gloss/text[text()='original']" },
 				0, null,
 				0, null);
@@ -1116,18 +1069,16 @@ namespace LibChorus.Tests.merge.xml.generic
 
 			// We win merge situation.
 			MergeSituation mergeSit = new NullMergeSituation();
-			DoMerge(ancestor, ours, theirs,
+			DoMergeWithLiftEntryMergingStrategy(ancestor, ours, theirs,
 				mergeSit,
-				new LiftEntryMergingStrategy(mergeSit),
 				new[] { "lift/entry[@id='oneEdited']/sense/gloss/text[text()='theirNewGloss']" }, new[] { "lift/entry[@id='oneEdited']/sense/gloss/text[text()='original']" },
 				0, null,
 				0, null);
 
 			// They win merge situation.
 			mergeSit = new NullMergeSituationTheyWin();
-			DoMerge(ancestor, ours, theirs,
+			DoMergeWithLiftEntryMergingStrategy(ancestor, ours, theirs,
 				mergeSit,
-				new LiftEntryMergingStrategy(mergeSit),
 				new[] { "lift/entry[@id='oneEdited']/sense/gloss/text[text()='theirNewGloss']" }, new[] { "lift/entry[@id='oneEdited']/sense/gloss/text[text()='original']" },
 				0, null,
 				0, null);

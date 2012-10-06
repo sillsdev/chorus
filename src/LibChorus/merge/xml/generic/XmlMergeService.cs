@@ -46,15 +46,19 @@ namespace Chorus.merge.xml.generic
 		}
 
 		/// <summary>
+		/// Add warning.
+		/// </summary>
+		public static void AddWarningToListener(IMergeEventListener listener, IConflict warning, XmlNode oursContext, XmlNode theirsContext, XmlNode ancestorContext, IGenerateHtmlContext htmlContextGenerator)
+		{
+			// NB: All three of these are crucially ordered.
+			listener.RecordContextInConflict(warning);
+			warning.MakeHtmlDetails(oursContext, theirsContext, ancestorContext, htmlContextGenerator);
+			listener.WarningOccurred(warning);
+		}
+
+		/// <summary>
 		/// Perform the 3-way merge.
 		/// </summary>
-		/// <param name="mergeOrder"></param>
-		/// <param name="mergeStrategy"></param>
-		/// <param name="firstElementMarker"></param>
-		/// <param name="recordElementName"></param>
-		/// <param name="id"></param>
-		/// <param name="writePreliminaryInformationDelegate">TODO: Improve this: "allows the client to manage writing the root element and any of its attrs". When do you need this?</param>
-
 		public static void Do3WayMerge(MergeOrder mergeOrder, IMergeStrategy mergeStrategy, // Get from mergeOrder: IMergeEventListener listener,
 			bool sortRepeatingRecordOutputByKeyIdentifier,
 			string optionalFirstElementMarker,
@@ -111,10 +115,10 @@ namespace Chorus.merge.xml.generic
 		}
 
 		private static IDictionary<string, string> DoMerge(MergeOrder mergeOrder, IMergeStrategy mergeStrategy,
-										   bool sortRepeatingRecordOutputByKeyIdentifier, string optionalFirstElementMarker,
-										   string repeatingRecordElementName, string repeatingRecordKeyIdentifier,
-										   string pathToLoser, string winnerId, string pathToWinner, string loserId,
-										   string commonAncestorPathname)
+			bool sortRepeatingRecordOutputByKeyIdentifier, string optionalFirstElementMarker,
+			string repeatingRecordElementName, string repeatingRecordKeyIdentifier,
+			string pathToLoser, string winnerId, string pathToWinner, string loserId,
+			string commonAncestorPathname)
 		{
 			// Step 1. Load each of the three files.
 			HashSet<string> allCommonAncestorIds;
@@ -124,11 +128,11 @@ namespace Chorus.merge.xml.generic
 			Dictionary<string, string> allWinnerData;
 			Dictionary<string, string> allCommonAncestorData;
 			LoadDataFiles(mergeOrder,
-						  optionalFirstElementMarker, repeatingRecordElementName, repeatingRecordKeyIdentifier,
-						  commonAncestorPathname, pathToWinner, pathToLoser,
-						  out allCommonAncestorData, out allCommonAncestorIds,
-						  out allWinnerData, out allWinnerIds,
-						  out allLoserData, out allLoserIds);
+				optionalFirstElementMarker, repeatingRecordElementName, repeatingRecordKeyIdentifier,
+				commonAncestorPathname, pathToWinner, pathToLoser,
+				out allCommonAncestorData, out allCommonAncestorIds,
+				out allWinnerData, out allWinnerIds,
+				out allLoserData, out allLoserIds);
 
 			// Step 2. Collect up new items from winner and loser and report relevant conflicts.
 			var fluffedUpAncestorNodes = new Dictionary<string, XmlNode>();
@@ -540,14 +544,16 @@ namespace Chorus.merge.xml.generic
 			out Dictionary<string, string> allLoserData, out HashSet<string> allLoserIds)
 		{
 			allCommonAncestorData = MakeRecordDictionary(mergeOrder.EventListener,
-																					commonAncestorPathname, optionalFirstElementMarker,
-																					repeatingRecordElementName, repeatingRecordKeyIdentifier);
+				commonAncestorPathname, optionalFirstElementMarker,
+				repeatingRecordElementName, repeatingRecordKeyIdentifier);
 			allCommonAncestorIds = new HashSet<string>(allCommonAncestorData.Keys, StringComparer.InvariantCultureIgnoreCase);
-			allWinnerData = MakeRecordDictionary(mergeOrder.EventListener, pathToWinner, optionalFirstElementMarker,
-												 repeatingRecordElementName, repeatingRecordKeyIdentifier);
+			allWinnerData = MakeRecordDictionary(mergeOrder.EventListener,
+				pathToWinner, optionalFirstElementMarker,
+				repeatingRecordElementName, repeatingRecordKeyIdentifier);
 			allWinnerIds = new HashSet<string>(allWinnerData.Keys, StringComparer.InvariantCultureIgnoreCase);
-			allLoserData = MakeRecordDictionary(mergeOrder.EventListener, pathToLoser, optionalFirstElementMarker, repeatingRecordElementName,
-												repeatingRecordKeyIdentifier);
+			allLoserData = MakeRecordDictionary(mergeOrder.EventListener,
+				pathToLoser, optionalFirstElementMarker, repeatingRecordElementName,
+				repeatingRecordKeyIdentifier);
 			allLoserIds = new HashSet<string>(allLoserData.Keys, StringComparer.InvariantCultureIgnoreCase);
 		}
 
@@ -595,18 +601,9 @@ namespace Chorus.merge.xml.generic
 			allNewIdsFromLoser.ExceptWith(allNewIdsFromBothWithSameData);
 		}
 
-		/// <summary>
-		/// This function should return true if the Run method should continue on
-		/// If this function is not provide by the client an exception will be thrown if a duplicate is encountered.
-		/// </summary>
-		private static Func<string, bool> ShouldContinueAfterDuplicateKey;
-		private static Dictionary<string, string> MakeRecordDictionary(IMergeEventListener mainMergeEventListener, string pathname, string firstElementMarker, string recordStartingTag, string identifierAttribute)
+		private static Dictionary<string, string> MakeRecordDictionary(IMergeEventListener mainMergeEventListener,
+			string pathname, string firstElementMarker, string recordStartingTag, string identifierAttribute)
 		{
-			ShouldContinueAfterDuplicateKey = message =>
-				{
-					mainMergeEventListener.WarningOccurred(new MergeWarning(pathname + ": " + message));
-					return true;
-				};
 			var records = new Dictionary<string, string>(EstimatedObjectCount(pathname), StringComparer.InvariantCultureIgnoreCase);
 			using (var fastSplitter = new FastXmlElementSplitter(pathname))
 			{
@@ -615,16 +612,38 @@ namespace Chorus.merge.xml.generic
 				{
 					if (foundOptionalFirstElement)
 					{
-						records.Add(firstElementMarker.ToLowerInvariant(), record);
+						var key = firstElementMarker.ToLowerInvariant();
+						if (records.ContainsKey(key))
+						{
+							mainMergeEventListener.WarningOccurred(new MergeWarning(string.Format("{0}: There is more than one optional first element '{1}'", pathname, key)));
+						}
+						else
+						{
+							records.Add(key, record);
+						}
 						foundOptionalFirstElement = false;
 					}
 					else
 					{
-						string message;
-						AddKeyToIndex(records, identifierAttribute, record, out message);
-						if (!string.IsNullOrEmpty(message) && !ShouldContinueAfterDuplicateKey(message))
+						var attrValues = XmlUtils.GetAttributes(record, new HashSet<string> { "dateDeleted", identifierAttribute });
+
+						// Eat tombstones.
+						if (attrValues["dateDeleted"] != null)
+							continue;
+
+						var identifier = attrValues[identifierAttribute];
+						if (string.IsNullOrEmpty(identifierAttribute))
 						{
-							throw new ArgumentException(message);
+							mainMergeEventListener.WarningOccurred(new MergeWarning(string.Format("{0}: There was no identifier for the record", pathname)));
+							continue;
+						}
+						if (records.ContainsKey(identifier))
+						{
+							mainMergeEventListener.WarningOccurred(new MergeWarning(string.Format("{0}: There is more than one element with the identifier '{1}'", pathname, identifier)));
+						}
+						else
+						{
+							records.Add(identifier, record);
 						}
 					}
 				}
@@ -638,33 +657,6 @@ namespace Chorus.merge.xml.generic
 			const int estimatedObjectSize = 400;
 			var fileInfo = new FileInfo(pathname);
 			return (int)(fileInfo.Length / estimatedObjectSize);
-		}
-
-		private static void AddKeyToIndex(IDictionary<string, string> records, string identifierAttribute, string data, out string message)
-		{
-			message = null;
-
-			var attrValues = XmlUtils.GetAttributes(data, new HashSet<string> { "dateDeleted", identifierAttribute });
-			// Skip tombstones.
-			if (attrValues["dateDeleted"] != null)
-				return;
-
-			var identifier = attrValues[identifierAttribute];
-			if (string.IsNullOrEmpty(identifierAttribute))
-			{
-				message = "There was no identifier for the record";
-			}
-			else
-			{
-				if (!records.ContainsKey(identifier))
-				{
-					records.Add(identifier, data);
-				}
-				else
-				{
-					message = "There is more than one element with the identifier '" + identifier + "'";
-				}
-			}
 		}
 
 		private static void EnsureCommonAncestorFileHasMinimalXmlContent(string commonAncestorPathname, string rootElementName, SortedDictionary<string, string> sortedAttributes)

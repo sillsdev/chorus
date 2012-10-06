@@ -11,11 +11,12 @@ namespace Chorus.FileTypeHanders.lift
 		/// <summary>
 		/// Produce a string that represents the 3-way merger of the given three elements.
 		/// </summary>
-		public LiftEntryMergingStrategy(MergeSituation mergeSituation)
+		public LiftEntryMergingStrategy(MergeOrder mergeOrder)
 		{
-			_entryMerger = new XmlMerger(mergeSituation)
+			_entryMerger = new XmlMerger(mergeOrder.MergeSituation)
 							{
-								MergeStrategies = {ElementToMergeStrategyKeyMapper = new LiftElementToMergeStrategyKeyMapper()}
+								MergeStrategies = {ElementToMergeStrategyKeyMapper = new LiftElementToMergeStrategyKeyMapper()},
+								EventListener = mergeOrder.EventListener
 							};
 
 			LiftElementStrategiesMethod.AddLiftElementStrategies(_entryMerger.MergeStrategies);

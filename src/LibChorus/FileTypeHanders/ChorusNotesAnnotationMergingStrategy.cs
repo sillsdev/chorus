@@ -11,9 +11,12 @@ namespace Chorus.FileTypeHanders
 		/// <summary>
 		/// Produce a string that represents the 3-way merger of the given three elements.
 		/// </summary>
-		public ChorusNotesAnnotationMergingStrategy(MergeSituation mergeSituation)
+		public ChorusNotesAnnotationMergingStrategy(MergeOrder order)
 		{
-			_annotationMerger = new XmlMerger(mergeSituation);
+			_annotationMerger = new XmlMerger(order.MergeSituation)
+				{
+					EventListener = order.EventListener
+				};
 
 			SetupElementStrategies();
 		}
@@ -21,7 +24,7 @@ namespace Chorus.FileTypeHanders
 		private void SetupElementStrategies()
 		{
 			_annotationMerger.MergeStrategies.SetStrategy("annotation", ElementStrategy.CreateForKeyedElement("guid", false));
-			ElementStrategy messageStrategy = ElementStrategy.CreateForKeyedElement("guid", false);
+			var messageStrategy = ElementStrategy.CreateForKeyedElement("guid", false);
 			messageStrategy.IsImmutable = true;
 			_annotationMerger.MergeStrategies.SetStrategy("message", messageStrategy);
 		}

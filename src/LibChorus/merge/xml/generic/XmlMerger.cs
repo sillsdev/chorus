@@ -75,6 +75,20 @@ namespace Chorus.merge.xml.generic
 				_htmlContextGenerator);
 		}
 
+		internal void WarningOccurred(IConflict warning)
+		{
+			if (_htmlContextGenerator == null)
+				_htmlContextGenerator = new SimpleHtmlGenerator();
+
+			XmlMergeService.AddWarningToListener(
+				EventListener,
+				warning,
+				_oursContext,
+				_theirsContext,
+				_ancestorContext,
+				_htmlContextGenerator);
+		}
+
 		/// <summary>
 		/// This method does the actual work for the various public entry points of XmlMerge
 		/// and from the various Method-type classes, as it processes child nodes, if any.

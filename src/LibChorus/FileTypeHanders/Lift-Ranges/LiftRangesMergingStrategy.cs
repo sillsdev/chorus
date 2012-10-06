@@ -15,9 +15,12 @@ namespace Chorus.FileTypeHanders
 		/// <summary>
 		/// Constructor
 		/// </summary>
-		public LiftRangesMergingStrategy(MergeSituation mergeSituation)
+		public LiftRangesMergingStrategy(MergeOrder mergeOrder)
 		{
-			_merger = new XmlMerger(mergeSituation);
+			_merger = new XmlMerger(mergeOrder.MergeSituation)
+				{
+					EventListener = mergeOrder.EventListener
+				};
 
 			LiftBasicElementStrategiesMethod.AddLiftBasicElementStrategies(_merger.MergeStrategies);
 			LiftRangesElementStrategiesMethod.AddLiftRangeElementStrategies(_merger.MergeStrategies);
