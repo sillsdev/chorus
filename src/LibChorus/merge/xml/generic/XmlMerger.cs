@@ -31,11 +31,10 @@ namespace Chorus.merge.xml.generic
 			MergeStrategies = new MergeStrategies();
 		}
 
-
 		public NodeMergeResult Merge(XmlNode ours, XmlNode theirs, XmlNode ancestor)
 		{
 			var result = new NodeMergeResult();
-			if (EventListener != null && EventListener is DispatchingMergeEventListener)
+			if (EventListener is DispatchingMergeEventListener)
 			{
 				((DispatchingMergeEventListener)EventListener).AddEventListener(result);
 			}
@@ -49,6 +48,9 @@ namespace Chorus.merge.xml.generic
 				}
 				EventListener = dispatcher;
 			}
+			XmlMergeService.ProcessForDuplicateChildren(EventListener, MergeStrategies, ours);
+			XmlMergeService.ProcessForDuplicateChildren(EventListener, MergeStrategies, theirs);
+			XmlMergeService.ProcessForDuplicateChildren(EventListener, MergeStrategies, ancestor);
 			MergeInner(ref ours, theirs, ancestor);
 			result.MergedNode = ours;
 			return result;

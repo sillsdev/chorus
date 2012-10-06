@@ -511,21 +511,12 @@ namespace Chorus.merge.xml.generic
 			}
 		}
 
-		private static void ReportEditConflictsForBothAddedNewObjectsWithDifferentContent(MergeOrder mergeOrder,
-																						  IMergeStrategy mergeStrategy,
-																						  string pathToWinner,
-																						  IDictionary<string, string>
-																							  allLoserData,
-																						  IDictionary<string, XmlNode>
-																							  fluffedUpLoserNodes,
-																						  IEnumerable<string>
-																							  allNewIdsFromBothWithSameData,
-																						  IEnumerable<string>
-																							  allNewIdsFromBoth,
-																						  IDictionary<string, string>
-																							  allWinnerData,
-																						  IDictionary<string, XmlNode>
-																							  fluffedUpWinnerNodes)
+		private static void ReportEditConflictsForBothAddedNewObjectsWithDifferentContent(
+			MergeOrder mergeOrder, IMergeStrategy mergeStrategy,
+			string pathToWinner,
+			IDictionary<string, string> allLoserData, IDictionary<string, XmlNode> fluffedUpLoserNodes,
+			IEnumerable<string> allNewIdsFromBothWithSameData, IEnumerable<string> allNewIdsFromBoth,
+			IDictionary<string, string> allWinnerData, IDictionary<string, XmlNode> fluffedUpWinnerNodes)
 		{
 			foreach (var identifier in allNewIdsFromBoth.Except(allNewIdsFromBothWithSameData))
 			{
