@@ -43,5 +43,13 @@ namespace Chorus.FileTypeHanders
 		{
 			return _merger.MergeStrategies.GetElementStrategy(element);
 		}
+
+		/// <summary>
+		/// Gets the collection of element merge strategies.
+		/// </summary>
+		public MergeStrategies GetStrategies()
+		{
+			return _merger.MergeStrategies;
+		}
 	}
 }

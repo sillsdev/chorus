@@ -49,6 +49,14 @@ namespace Chorus.FileTypeHanders
 			return _annotationMerger.MergeStrategies.GetElementStrategy(element);
 		}
 
+		/// <summary>
+		/// Gets the collection of element merge strategies.
+		/// </summary>
+		public MergeStrategies GetStrategies()
+		{
+			return _annotationMerger.MergeStrategies;
+		}
+
 		#endregion
 	}
 }

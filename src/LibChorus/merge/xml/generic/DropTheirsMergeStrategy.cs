@@ -30,5 +30,19 @@ namespace Chorus.merge.xml.generic
 						};
 			return def;
 		}
+
+		/// <summary>
+		/// Gets the collection of element merge strategies.
+		/// </summary>
+		public MergeStrategies GetStrategies()
+		{
+			var merger = new XmlMerger(new MergeSituation(null, null, null, null, null, MergeOrder.ConflictHandlingModeChoices.WeWin));
+			var def = new ElementStrategy(true)
+						{
+							MergePartnerFinder = new FindByEqualityOfTree()
+						};
+			merger.MergeStrategies.SetStrategy("def", def);
+			return merger.MergeStrategies;
+		}
 	}
 }

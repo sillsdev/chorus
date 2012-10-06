@@ -36,5 +36,13 @@ namespace Chorus.FileTypeHanders.lift
 		{
 			return _entryMerger.MergeStrategies.GetElementStrategy(element);
 		}
+
+		/// <summary>
+		/// Gets the collection of element merge strategies.
+		/// </summary>
+		public MergeStrategies GetStrategies()
+		{
+			return _entryMerger.MergeStrategies;
+		}
 	}
 }
