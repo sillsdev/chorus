@@ -216,6 +216,56 @@ namespace LibChorus.Tests.merge.xml.lift
 		}
 
 		[Test] // See http://jira.palaso.org/issues/browse/CHR-18
+		public void Merge_DuplicateRelationsInEntry_ResultHasWarningReport()
+		{
+			const string ours = @"<?xml version='1.0' encoding='utf-8'?>
+				<lift version='0.10' producer='WeSay 1.0.0.0'>
+					<entry
+						id='00853b73-fda2-4b12-8a89-6957cc7e7e79'
+						guid='00853b73-fda2-4b12-8a89-6957cc7e7e79'>
+						<relation type='t1' ref='r1' />
+						<relation type='t1' ref='r1' />
+					</entry>
+				</lift>";
+
+			const string theirs = @"<?xml version='1.0' encoding='utf-8'?>
+				<lift version='0.10' producer='WeSay 1.0.0.0'>
+					<entry
+						id='00853b73-fda2-4b12-8a89-6957cc7e7e79'
+						guid='00853b73-fda2-4b12-8a89-6957cc7e7e79'>
+						<relation type='t1' ref='r1' />
+					</entry>
+				</lift>";
+
+			const string ancestor = @"<?xml version='1.0' encoding='utf-8'?>
+				<lift version='0.10' producer='WeSay 1.0.0.0'>
+					<entry
+						id='00853b73-fda2-4b12-8a89-6957cc7e7e79'
+						guid='00853b73-fda2-4b12-8a89-6957cc7e7e79'>
+						<relation type='t1' ref='r1' />
+					</entry>
+				</lift>";
+
+			using (var oursTemp = new TempFile(ours))
+			using (var theirsTemp = new TempFile(theirs))
+			using (var ancestorTemp = new TempFile(ancestor))
+			{
+				var listener = new ListenerForUnitTests();
+				var situation = new NullMergeSituation();
+				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation) { EventListener = listener };
+				XmlMergeService.Do3WayMerge(mergeOrder, new LiftEntryMergingStrategy(mergeOrder),
+					false,
+					"header",
+					"entry", "guid");
+				var result = File.ReadAllText(mergeOrder.pathToOurs);
+				// Check that there is only one entry in the merged file.
+				XmlTestHelper.AssertXPathMatchesExactlyOne(result, "lift/entry/relation");
+				Assert.AreEqual(1, listener.Warnings.Count);
+				Assert.AreEqual(typeof(MergeWarning), listener.Warnings[0].GetType());
+			}
+		}
+
+		[Test] // See http://jira.palaso.org/issues/browse/CHR-18
 		public void Merge_MultiTextInFormInEntry_ResultHasWarningReport()
 		{
 			const string ours = @"<?xml version='1.0' encoding='utf-8'?>

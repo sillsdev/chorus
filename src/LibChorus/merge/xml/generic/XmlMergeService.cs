@@ -805,6 +805,7 @@ namespace Chorus.merge.xml.generic
 						query = ((FindByKeyAttribute)finder).GetQuery(childNode);
 						break;
 					case "FindByMultipleKeyAttributes":
+						// Route checked.
 						query = ((FindByMultipleKeyAttributes)finder).GetQuery(childNode);
 						break;
 					default:
