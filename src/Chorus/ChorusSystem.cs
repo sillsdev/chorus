@@ -25,39 +25,36 @@ namespace Chorus
 	public class ChorusSystem :IDisposable
 	{
 		private readonly string _dataFolderPath;
-		private readonly IChorusUser _user;
-		private readonly IContainer _container;
+		private IChorusUser _user;
+		private IContainer _container;
 		internal readonly Dictionary<string, AnnotationRepository> _annotationRepositories = new Dictionary<string, AnnotationRepository>();
 		private bool _searchedForAllExistingNotesFiles;
 
 		/// <summary>
-		/// Constructor
+		/// Constructor. Need to Init after this
 		/// </summary>
 		/// <param name="dataFolderPath">The root of the project</param>
 		public ChorusSystem(string dataFolderPath)
-			:this(dataFolderPath, string.Empty)
 		{
-
+			WritingSystems = new List<IWritingSystem> {new EnglishWritingSystem(), new ThaiWritingSystem()};
+			_dataFolderPath = dataFolderPath;
 		}
 
-		/// <summary>
-		/// Constructor
-		/// </summary>
-		/// <param name="dataFolderPath">The root of the project</param>
-		/// <param name="userNameForHistoryAndNotes">This is not the same name as that used for any given network
-		/// repository credentials. Rather, it's the name which will show in the history, and besides Notes that this user makes.
-		///</param>
-		public ChorusSystem(string dataFolderPath, string userNameForHistoryAndNotes)
+		  /// <summary>
+		  /// Constructor
+		  /// </summary>
+		  /// <param name="dataFolderPath">The root of the project</param>
+		  /// <param name="userNameForHistoryAndNotes">This is not the same name as that used for any given network
+		  /// repository credentials. Rather, it's the name which will show in the history, and besides Notes that this user makes.
+		  ///</param>
+		  public void Init(string userNameForHistoryAndNotes)
 		{
-			WritingSystems = new List<IWritingSystem>{new EnglishWritingSystem(), new ThaiWritingSystem()};
-
-			_dataFolderPath = dataFolderPath;
-			Repository = HgRepository.CreateOrLocate(dataFolderPath, new NullProgress());
+			Repository = HgRepository.CreateOrLocate(_dataFolderPath, new NullProgress());
 			var builder = new Autofac.ContainerBuilder();
 
 			builder.Register<IEnumerable<IWritingSystem>>(c=>WritingSystems);
 
-			ChorusUIComponentsInjector.Inject(builder, dataFolderPath);
+			ChorusUIComponentsInjector.Inject(builder, _dataFolderPath);
 
 			if (String.IsNullOrEmpty(userNameForHistoryAndNotes))
 			{
@@ -72,12 +69,14 @@ namespace Chorus
 		   // builder.Register(new NullProgress());//TODO
 			_container = builder.Build();
 
-
 			//add the container itself
 			var builder2 = new Autofac.ContainerBuilder();
 			builder2.RegisterInstance(_container).As<IContainer>();
 			builder2.Update(_container);
+			DidLoadUpCorrectly = true;
 		}
+
+		public bool DidLoadUpCorrectly;
 
 		/// <summary>
 		/// Set this if you want something other than English

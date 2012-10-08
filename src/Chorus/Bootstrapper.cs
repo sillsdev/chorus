@@ -49,6 +49,7 @@ namespace Chorus
 			var shell= _container.Resolve<Shell>();
 
 			var system = new ChorusSystem(_projectPath);
+			system.Init(string.Empty);
 
 			shell.AddPage("Review", system.WinForms.CreateHistoryPage());
 			shell.AddPage("Notes", system.WinForms.CreateNotesBrowser());
