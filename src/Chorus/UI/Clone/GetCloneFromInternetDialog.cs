@@ -121,6 +121,7 @@ namespace Chorus.UI.Clone
 					_okButton.Visible = false;
 					_progressBar.Visible = false;
 					_targetFolderControl.Visible = true;
+					_targetFolderControl.UpdateDisplay(); // Make the Download btn enabled, if it is ready. (cf: https://jira.sil.org/browse/LT-13676)
 					_cancelButton.Enabled = true;
 					_cancelButton.Visible = true;
 					_cancelTaskButton.Visible = false;
