@@ -762,72 +762,79 @@ namespace Chorus.merge.xml.generic
 			return records;
 		}
 
-		private static string ProcessForDuplicateChildren(IMergeEventListener mainMergeEventListener,
+		/// <summary>
+		/// Called by this class on the string records. Turn it into an XmlNode and call the main method.
+		/// </summary>
+		private static string ProcessForDuplicateChildren(IMergeEventListener eventListener,
 			MergeStrategies mergeStrategies,
 			string parent)
 		{
-			var node = XmlUtilities.GetDocumentNodeFromRawXml(parent, new XmlDocument());
+			var parentNode = XmlUtilities.GetDocumentNodeFromRawXml(parent, new XmlDocument());
 			ProcessForDuplicateChildren(
-				mainMergeEventListener,
+				eventListener,
 				mergeStrategies,
-				node);
-			return node.OuterXml;
+				parentNode);
+			return parentNode.OuterXml;
 		}
 
 		/// <summary>
 		/// Make sure that select child elements are unique in the parent.
+		/// The implementations of IFindNodeToMerge then return a query in the GetDuplicateFindingQuery,
+		/// if they want this method to check for duplicates that ought not be present.
+		/// If an implementation of the IFindNodeToMerge interface's don't care if
+		/// there are duplicates or not, they should return null or an empty string for the GetDuplicateFindingQuery method,
+		/// which will skip the checking done here.
 		/// </summary>
 		/// <remarks>
 		/// This is recursive, since it moves on down to all child nodes.
 		/// </remarks>
-		public static void ProcessForDuplicateChildren(IMergeEventListener mainMergeEventListener,
+		public static void ProcessForDuplicateChildren(IMergeEventListener eventListener,
 			MergeStrategies mergeStrategies,
 			XmlNode parent)
 		{
 			if (parent == null || !parent.HasChildNodes)
-				return; // Route checked.
+				return;
 
 			var duplicateNodes = new List<XmlNode>();
 			foreach (XmlNode childNode in parent.ChildNodes)
 			{
 				if (duplicateNodes.Contains(childNode))
-					continue;
+					continue; // Already found it, so don't bother processing it again.
+
 				var finder = mergeStrategies.GetElementStrategy(childNode).MergePartnerFinder;
-				string query;
-				switch (finder.GetType().Name)
-				{
-					case "FindFirstElementWithSameName":
-						// Route checked.
-						query = childNode.Name;
-						break;
-					case "FindByKeyAttribute":
-						// Route checked.
-						query = ((FindByKeyAttribute)finder).GetQuery(childNode);
-						break;
-					case "FindByMultipleKeyAttributes":
-						// Route checked.
-						query = ((FindByMultipleKeyAttributes)finder).GetQuery(childNode);
-						break;
-					default:
-						continue;
-				}
+				var query = finder.GetDuplicateFindingQuery(childNode);
 				if (string.IsNullOrEmpty(query))
-					continue; // Route checked.
+					continue; // Finder isn't concerned with duplicates, so keep going.
 
 				var matches = parent.SelectNodes(query);
+				if (matches == null || matches.Count < 2)
+					continue; // No duplicates were found, so keep going.
+
+				// The following code implements the "DropDuplicatesAndAddErrorNote" option of a possible three in "DuplicateIdPolicy"
+				// TODO (maybe): If we ever implement the "ThrowException" option, then throw here instead of adding the warning and eating the duplicates.
+				// TODO (maybe): If we ever implement the "LiveWithIt" option, then just do a return at the start of this method, or don't bother calling the method at all.
+				// Since they are duplicates (at least as far as the finder is concerned),
+				// we really only need one warning. Add the count, so the user knows how many there were, though
+				AddWarningToListener(eventListener,
+									 new MergeWarning(string.Format("Parent element '{0}' contains {1} duplicate child elements where: {2}. Only the first one was retained",
+																	parent.Name,
+																	matches.Count,
+																	finder.GetDuplicateWarningMessage(matches[0]))));
+				// Add all but the current on (the first one), so they can be removed in the next loop.
 				duplicateNodes.AddRange(matches.Cast<XmlNode>().Where(match => match != childNode));
 			}
+
 			foreach (var duplicateNode in duplicateNodes)
 			{
-				// Route checked.
-				AddWarningToListener(mainMergeEventListener,
-									 new MergeWarning(string.Format("{0} occurs more than once in parent {1}.", duplicateNode.Name,
-																	parent.Name)));
+				// Remove all but the first one from the parent.
 				parent.RemoveChild(duplicateNode);
 			}
+
 			foreach (XmlNode childNode in parent.ChildNodes)
 			{
-				ProcessForDuplicateChildren(mainMergeEventListener, mergeStrategies, childNode);
+				// Drill on down the child nodes to see if there are any other duplicates in lower-level nodes.
+				// Since the duplicates have been removed from parent, they won't get processed for more duplicates.
+				ProcessForDuplicateChildren(eventListener, mergeStrategies, childNode);
 			}
 		}
 
