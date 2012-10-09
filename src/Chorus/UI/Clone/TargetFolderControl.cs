@@ -20,7 +20,7 @@ namespace Chorus.UI.Clone
 			InitializeComponent();
 		}
 
-		private void UpdateDisplay()
+		internal void UpdateDisplay()
 		{
 			_localFolderName.Text = _model.LocalFolderName;
 			_downloadButton.Enabled = _model.ReadyToDownload;
