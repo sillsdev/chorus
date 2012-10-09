@@ -724,7 +724,7 @@ namespace Chorus.merge.xml.generic
 						}
 						else
 						{
-							ProcessForDuplicateChildren(mainMergeEventListener, mergeStrategy.GetStrategies(), record);
+							RemoveAmbiguousChildren(mainMergeEventListener, mergeStrategy.GetStrategies(), record);
 							records.Add(key, record);
 						}
 						foundOptionalFirstElement = false;
@@ -752,8 +752,8 @@ namespace Chorus.merge.xml.generic
 						}
 						else
 						{
-							var possibleyRevisedRecord = ProcessForDuplicateChildren(mainMergeEventListener, mergeStrategy.GetStrategies(), record);
-							records.Add(identifier, possibleyRevisedRecord);
+							var possiblyRevisedRecord = RemoveAmbiguousChildren(mainMergeEventListener, mergeStrategy.GetStrategies(), record);
+							records.Add(identifier, possiblyRevisedRecord);
 						}
 					}
 				}
@@ -765,12 +765,12 @@ namespace Chorus.merge.xml.generic
 		/// <summary>
 		/// Called by this class on the string records. Turn it into an XmlNode and call the main method.
 		/// </summary>
-		private static string ProcessForDuplicateChildren(IMergeEventListener eventListener,
+		private static string RemoveAmbiguousChildren(IMergeEventListener eventListener,
 			MergeStrategies mergeStrategies,
 			string parent)
 		{
 			var parentNode = XmlUtilities.GetDocumentNodeFromRawXml(parent, new XmlDocument());
-			ProcessForDuplicateChildren(
+			RemoveAmbiguousChildren(
 				eventListener,
 				mergeStrategies,
 				parentNode);
@@ -778,31 +778,31 @@ namespace Chorus.merge.xml.generic
 		}
 
 		/// <summary>
-		/// Make sure that select child elements are unique in the parent.
-		/// The implementations of IFindNodeToMerge then return a query in the GetDuplicateFindingQuery,
-		/// if they want this method to check for duplicates that ought not be present.
-		/// If an implementation of the IFindNodeToMerge interface's don't care if
-		/// there are duplicates or not, they should return null or an empty string for the GetDuplicateFindingQuery method,
-		/// which will skip the checking done here.
+		/// <para>Before we attempt to compare a node with a corresponding one from another revision,
+		/// we want to make sure that it is in a good state for matching its children with the children of the corresponding node.</para>
+		///
+		/// <para>To do this, for each child, we allow the Finder which will be used to find a corresponding child in
+		/// another revision to provide a query, which can be used to check whether the parent node has 'ambiguous' children,
+		/// that is, groups of children which the finder would consider indistinguisable.</para>
 		/// </summary>
 		/// <remarks>
 		/// This is recursive, since it moves on down to all child nodes.
 		/// </remarks>
-		public static void ProcessForDuplicateChildren(IMergeEventListener eventListener,
+		public static void RemoveAmbiguousChildren(IMergeEventListener eventListener,
 			MergeStrategies mergeStrategies,
 			XmlNode parent)
 		{
 			if (parent == null || !parent.HasChildNodes)
 				return;
 
-			var duplicateNodes = new List<XmlNode>();
+			var ambiguousNodes = new List<XmlNode>();
 			foreach (XmlNode childNode in parent.ChildNodes)
 			{
-				if (duplicateNodes.Contains(childNode))
+				if (ambiguousNodes.Contains(childNode))
 					continue; // Already found it, so don't bother processing it again.
 
 				var finder = mergeStrategies.GetElementStrategy(childNode).MergePartnerFinder;
-				var query = finder.GetDuplicateFindingQuery(childNode);
+				var query = finder.GetMatchingNodeFindingQuery(childNode);
 				if (string.IsNullOrEmpty(query))
 					continue; // Finder isn't concerned with duplicates, so keep going.
 
@@ -810,31 +810,32 @@ namespace Chorus.merge.xml.generic
 				if (matches == null || matches.Count < 2)
 					continue; // No duplicates were found, so keep going.
 
-				// The following code implements the "DropDuplicatesAndAddErrorNote" option of a possible three in "DuplicateIdPolicy"
-				// TODO (maybe): If we ever implement the "ThrowException" option, then throw here instead of adding the warning and eating the duplicates.
+				// The following code implements the "DropAmbiguitiesAndAddErrorNote" option of a possible three in "AmbiguousSiblingPolicy"
+				// TODO (maybe): If we ever implement the "ThrowException" option, then throw here instead of adding the warning and eating the ambiguities.
 				// TODO (maybe): If we ever implement the "LiveWithIt" option, then just do a return at the start of this method, or don't bother calling the method at all.
-				// Since they are duplicates (at least as far as the finder is concerned),
-				// we really only need one warning. Add the count, so the user knows how many there were, though
+				// Since they are ambiguities (at least as far as the finder is concerned),
+				// we really only need one warning. Add the count, so the user knows how many there were, though.
+				// Possible enhancement: Generate reports that go into the details of what might be different between the keeper and each ambiguous sibling.
 				AddWarningToListener(eventListener,
-									 new MergeWarning(string.Format("Parent element '{0}' contains {1} duplicate child elements where: {2}. Only the first one was retained",
+									 new MergeWarning(string.Format("Parent element '{0}' contains {1} ambiguous child elements. Only the first one is retained. Details: {2}.",
 																	parent.Name,
 																	matches.Count,
-																	finder.GetDuplicateWarningMessage(matches[0]))));
-				// Add all but the current on (the first one), so they can be removed in the next loop.
-				duplicateNodes.AddRange(matches.Cast<XmlNode>().Where(match => match != childNode));
+																	finder.GetWarningMessageForAmbiguousNodes(matches[0]))));
+				// Add all but the current one (the first one), so they can be removed in the next loop.
+				ambiguousNodes.AddRange(matches.Cast<XmlNode>().Where(match => match != childNode));
 			}
 
-			foreach (var duplicateNode in duplicateNodes)
+			foreach (var ambiguousNode in ambiguousNodes)
 			{
 				// Remove all but the first one from the parent.
-				parent.RemoveChild(duplicateNode);
+				parent.RemoveChild(ambiguousNode);
 			}
 
 			foreach (XmlNode childNode in parent.ChildNodes)
 			{
-				// Drill on down the child nodes to see if there are any other duplicates in lower-level nodes.
-				// Since the duplicates have been removed from parent, they won't get processed for more duplicates.
-				ProcessForDuplicateChildren(eventListener, mergeStrategies, childNode);
+				// Drill on down the child nodes to see if there are any other ambiguities in lower-level nodes.
+				// Since the ambiguous nodes have been removed from parent, they won't get processed again.
+				RemoveAmbiguousChildren(eventListener, mergeStrategies, childNode);
 			}
 		}
 

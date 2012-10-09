@@ -22,14 +22,14 @@ namespace Chorus.merge.xml.generic
 		/// <summary>
 		/// Get the query that is used to find a matching XmlNode
 		/// </summary>
-		/// <returns>A query fo find a matching node, or null/empty string, if duplicate nodes aren't to be from a parent.</returns>
-		string GetDuplicateFindingQuery(XmlNode nodeToMatch);
+		/// <returns>A query fo find a matching node, or null/empty string, if ambiguous nodes aren't to be from a parent.</returns>
+		string GetMatchingNodeFindingQuery(XmlNode nodeToMatch);
 
 		/// <summary>
-		/// Get a basic message that is suitable for use in a warning report where duplicates of a node are found in the same parent node.
+		/// Get a basic message that is suitable for use in a warning report where ambiguous nodes are found in the same parent node.
 		/// </summary>
-		/// <returns>A message string or null/empty string, if no message is needed for duplicate nodes.</returns>
-		string GetDuplicateWarningMessage(XmlNode nodeForMessage);
+		/// <returns>A message string or null/empty string, if no message is needed for ambiguous nodes.</returns>
+		string GetWarningMessageForAmbiguousNodes(XmlNode nodeForMessage);
 	}
 
 	/// <summary>
@@ -87,7 +87,7 @@ namespace Chorus.merge.xml.generic
 			_indexedSoughtAfterNodes[parentIdx].TryGetValue(key, out matchingNode);
 			return matchingNode; // May be null, which is fine.
 #else
-			var query = GetDuplicateFindingQuery(nodeToMatch);
+			var query = GetMatchingNodeFindingQuery(nodeToMatch);
 			return string.IsNullOrEnpty(query)
 				? null
 				: parentToSearchIn.SelectSingleNode();
@@ -97,8 +97,8 @@ namespace Chorus.merge.xml.generic
 		/// <summary>
 		/// Get the query that is used to find a matching XmlNode
 		/// </summary>
-		/// <returns>A query fo find a matching node, or null/empty string, if duplicate nodes aren't to be from a parent.</returns>
-		public string GetDuplicateFindingQuery(XmlNode nodeToMatch)
+		/// <returns>A query fo find a matching node, or null/empty string, if ambiguous nodes aren't to be from a parent.</returns>
+		public string GetMatchingNodeFindingQuery(XmlNode nodeToMatch)
 		{
 			Guard.AgainstNull(nodeToMatch, "nodeToMatch");
 
@@ -118,16 +118,15 @@ namespace Chorus.merge.xml.generic
 		}
 
 		/// <summary>
-		/// Get a basic message that is suitable for use in a warning report where duplicates of a node are found in the same parent node.
+		/// Get a basic message that is suitable for use in a warning report where ambiguous nodes are found in the same parent node.
 		/// </summary>
-		/// <param name="nodeForMessage"></param>
-		/// <returns>A message string or null/empty string, if no message is needed for duplicate nodes.</returns>
-		public string GetDuplicateWarningMessage(XmlNode nodeForMessage)
+		/// <returns>A message string or null/empty string, if no message is needed for ambiguous nodes.</returns>
+		public string GetWarningMessageForAmbiguousNodes(XmlNode nodeForMessage)
 		{
 			Guard.AgainstNull(nodeForMessage, "nodeForMessage");
 
-			return string.Format("The key attribute '{0}' has values that are the same '{1}' for siblings of the parent element named '{2}'",
-				_keyAttribute, nodeForMessage.Attributes[_keyAttribute].Value, nodeForMessage.ParentNode.Name);
+			return string.Format("The key attribute '{0}' has values that are the same '{1}'",
+				_keyAttribute, nodeForMessage.Attributes[_keyAttribute].Value);
 		}
 	}
 
@@ -203,17 +202,17 @@ namespace Chorus.merge.xml.generic
 		/// <summary>
 		/// Get the query that is used to find a matching XmlNode
 		/// </summary>
-		/// <returns>A query fo find a matching node, or null/empty string, if duplicate nodes aren't to be from a parent.</returns>
-		public string GetDuplicateFindingQuery(XmlNode nodeToMatch)
+		/// <returns>A query fo find a matching node, or null/empty string, if ambiguous nodes aren't to be from a parent.</returns>
+		public string GetMatchingNodeFindingQuery(XmlNode nodeToMatch)
 		{
 			return null;
 		}
 
 		/// <summary>
-		/// Get a basic message that is suitable for use in a warning report where duplicates of a node are found in the same parent node.
+		/// Get a basic message that is suitable for use in a warning report where ambiguous nodes are found in the same parent node.
 		/// </summary>
-		/// <returns>A message string or null/empty string, if no message is needed for duplicate nodes.</returns>
-		public string GetDuplicateWarningMessage(XmlNode nodeForMessage)
+		/// <returns>A message string or null/empty string, if no message is needed for ambiguous nodes.</returns>
+		public string GetWarningMessageForAmbiguousNodes(XmlNode nodeForMessage)
 		{
 			return null;
 		}
@@ -302,17 +301,17 @@ namespace Chorus.merge.xml.generic
 		/// <summary>
 		/// Get the query that is used to find a matching XmlNode
 		/// </summary>
-		/// <returns>A query fo find a matching node, or null/empty string, if duplicate nodes aren't to be from a parent.</returns>
-		public string GetDuplicateFindingQuery(XmlNode nodeToMatch)
+		/// <returns>A query fo find a matching node, or null/empty string, if ambiguous nodes aren't to be from a parent.</returns>
+		public string GetMatchingNodeFindingQuery(XmlNode nodeToMatch)
 		{
 			return null;
 		}
 
 		/// <summary>
-		/// Get a basic message that is suitable for use in a warning report where duplicates of a node are found in the same parent node.
+		/// Get a basic message that is suitable for use in a warning report where ambiguous nodes are found in the same parent node.
 		/// </summary>
-		/// <returns>A message string or null/empty string, if no message is needed for duplicate nodes.</returns>
-		public string GetDuplicateWarningMessage(XmlNode nodeForMessage)
+		/// <returns>A message string or null/empty string, if no message is needed for ambiguous nodes.</returns>
+		public string GetWarningMessageForAmbiguousNodes(XmlNode nodeForMessage)
 		{
 			return null;
 		}
@@ -338,14 +337,14 @@ namespace Chorus.merge.xml.generic
 			if (parentToSearchIn == null)
 				return null;
 
-			return parentToSearchIn.SelectSingleNode(GetDuplicateFindingQuery(nodeToMatch));
+			return parentToSearchIn.SelectSingleNode(GetMatchingNodeFindingQuery(nodeToMatch));
 		}
 
 		/// <summary>
 		/// Get the query that is used to find a matching XmlNode
 		/// </summary>
-		/// <returns>A query fo find a matching node, or null/empty string, if duplicate nodes aren't to be from a parent.</returns>
-		public string GetDuplicateFindingQuery(XmlNode nodeToMatch)
+		/// <returns>A query fo find a matching node, or null/empty string, if ambiguous nodes aren't to be from a parent.</returns>
+		public string GetMatchingNodeFindingQuery(XmlNode nodeToMatch)
 		{
 			Guard.AgainstNull(nodeToMatch, "nodeToMatch");
 
@@ -362,10 +361,10 @@ namespace Chorus.merge.xml.generic
 		}
 
 		/// <summary>
-		/// Get a basic message that is suitable for use in a warning report where duplicates of a node are found in the same parent node.
+		/// Get a basic message that is suitable for use in a warning report where ambiguous nodes are found in the same parent node.
 		/// </summary>
-		/// <returns>A message string or null/empty string, if no message is needed for duplicate nodes.</returns>
-		public string GetDuplicateWarningMessage(XmlNode nodeForMessage)
+		/// <returns>A message string or null/empty string, if no message is needed for ambiguous nodes.</returns>
+		public string GetWarningMessageForAmbiguousNodes(XmlNode nodeForMessage)
 		{
 			Guard.AgainstNull(nodeForMessage, "nodeForMessage");
 
@@ -381,8 +380,7 @@ namespace Chorus.merge.xml.generic
 				bldr.AppendFormat("attribute '{0}' with value of '{1}'", currentAttrName, currentAttrValue);
 			}
 
-			return string.Format("The key attribute(s) have value(s) that are the same {0} for siblings of the parent element named '{1}'",
-				bldr, nodeForMessage.ParentNode.Name);
+			return string.Format("The key attribute(s) have value(s) that are the same: {0}", bldr);
 		}
 	}
 
@@ -402,8 +400,8 @@ namespace Chorus.merge.xml.generic
 		/// <summary>
 		/// Get the query that is used to find a matching XmlNode
 		/// </summary>
-		/// <returns>A query fo find a matching node, or null/empty string, if duplicate nodes aren't to be from a parent.</returns>
-		public string GetDuplicateFindingQuery(XmlNode nodeToMatch)
+		/// <returns>A query fo find a matching node, or null/empty string, if ambiguous nodes aren't to be from a parent.</returns>
+		public string GetMatchingNodeFindingQuery(XmlNode nodeToMatch)
 		{
 			Guard.AgainstNull(nodeToMatch, "nodeToMatch");
 
@@ -411,14 +409,14 @@ namespace Chorus.merge.xml.generic
 		}
 
 		/// <summary>
-		/// Get a basic message that is suitable for use in a warning report where duplicates of a node are found in the same parent node.
+		/// Get a basic message that is suitable for use in a warning report where ambiguous nodes are found in the same parent node.
 		/// </summary>
-		/// <returns>A message string or null/empty string, if no message is needed for duplicate nodes.</returns>
-		public string GetDuplicateWarningMessage(XmlNode nodeForMessage)
+		/// <returns>A message string or null/empty string, if no message is needed for ambiguous nodes.</returns>
+		public string GetWarningMessageForAmbiguousNodes(XmlNode nodeForMessage)
 		{
 			Guard.AgainstNull(nodeForMessage, "nodeForMessage");
 
-			return string.Format("The element named '{0}' is duplicated in the parent element '{1}'", nodeForMessage.Name, nodeForMessage.ParentNode.Name);
+			return string.Format("The elements are named: '{0}'", nodeForMessage.Name);
 		}
 	}
 
@@ -455,17 +453,17 @@ namespace Chorus.merge.xml.generic
 		/// <summary>
 		/// Get the query that is used to find a matching XmlNode
 		/// </summary>
-		/// <returns>A query fo find a matching node, or null/empty string, if duplicate nodes aren't to be from a parent.</returns>
-		public string GetDuplicateFindingQuery(XmlNode nodeToMatch)
+		/// <returns>A query fo find a matching node, or null/empty string, if ambiguous nodes aren't to be from a parent.</returns>
+		public string GetMatchingNodeFindingQuery(XmlNode nodeToMatch)
 		{
 			return null;
 		}
 
 		/// <summary>
-		/// Get a basic message that is suitable for use in a warning report where duplicates of a node are found in the same parent node.
+		/// Get a basic message that is suitable for use in a warning report where ambiguous nodes are found in the same parent node.
 		/// </summary>
-		/// <returns>A message string or null/empty string, if no message is needed for duplicate nodes.</returns>
-		public string GetDuplicateWarningMessage(XmlNode nodeForMessage)
+		/// <returns>A message string or null/empty string, if no message is needed for ambiguous nodes.</returns>
+		public string GetWarningMessageForAmbiguousNodes(XmlNode nodeForMessage)
 		{
 			return null;
 		}
@@ -529,17 +527,17 @@ namespace Chorus.merge.xml.generic
 		/// <summary>
 		/// Get the query that is used to find a matching XmlNode
 		/// </summary>
-		/// <returns>A query fo find a matching node, or null/empty string, if duplicate nodes aren't to be from a parent.</returns>
-		public string GetDuplicateFindingQuery(XmlNode nodeToMatch)
+		/// <returns>A query fo find a matching node, or null/empty string, if ambiguous nodes aren't to be from a parent.</returns>
+		public string GetMatchingNodeFindingQuery(XmlNode nodeToMatch)
 		{
 			return null;
 		}
 
 		/// <summary>
-		/// Get a basic message that is suitable for use in a warning report where duplicates of a node are found in the same parent node.
+		/// Get a basic message that is suitable for use in a warning report where ambiguous nodes are found in the same parent node.
 		/// </summary>
-		/// <returns>A message string or null/empty string, if no message is needed for duplicate nodes.</returns>
-		public string GetDuplicateWarningMessage(XmlNode nodeForMessage)
+		/// <returns>A message string or null/empty string, if no message is needed for ambiguous nodes.</returns>
+		public string GetWarningMessageForAmbiguousNodes(XmlNode nodeForMessage)
 		{
 			return null;
 		}
