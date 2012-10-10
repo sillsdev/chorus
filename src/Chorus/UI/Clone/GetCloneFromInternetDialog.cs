@@ -121,15 +121,16 @@ namespace Chorus.UI.Clone
 					_okButton.Visible = false;
 					_progressBar.Visible = false;
 					_targetFolderControl.Visible = true;
-					_targetFolderControl.UpdateDisplay(); // Make the Download btn enabled, if it is ready. (cf: https://jira.sil.org/browse/LT-13676)
 					_cancelButton.Enabled = true;
 					_cancelButton.Visible = true;
 					_cancelTaskButton.Visible = false;
 					_statusProgress.Visible = false;
 					_statusProgress.Text = "";
+					_serverSettingsControl.DisplayUpdated += ServerSettingsControlOnDisplayUpdated;
 
 					break;
 				case State.MakingClone:
+					_serverSettingsControl.DisplayUpdated -= ServerSettingsControlOnDisplayUpdated;
 					_progressBar.Focus();
 					_progressBar.Select();
 					_targetFolderControl.Visible = false;
@@ -151,6 +152,7 @@ namespace Chorus.UI.Clone
 					_statusProgress.Visible = true;
 					break;
 				case State.Success:
+					_serverSettingsControl.DisplayUpdated -= ServerSettingsControlOnDisplayUpdated;
 					_cancelTaskButton.Visible = false;
 					_statusLabel.Visible = true;
 					_statusLabel.Text = "Done.";
@@ -166,6 +168,7 @@ namespace Chorus.UI.Clone
 					_statusProgress.Visible = false;
 					break;
 				case State.Error:
+					_serverSettingsControl.DisplayUpdated -= ServerSettingsControlOnDisplayUpdated;
 					_fixSettingsButton.Visible = true;
 					_fixSettingsButton.Focus();
 					_cancelButton.Visible = true;
@@ -182,6 +185,7 @@ namespace Chorus.UI.Clone
 					_statusProgress.Visible = false;
 					break;
 				case State.Cancelled:
+					_serverSettingsControl.DisplayUpdated -= ServerSettingsControlOnDisplayUpdated;
 					_cancelButton.Visible = true;
 					_cancelButton.Text = "&Close";
 					_cancelButton.Select();
@@ -199,6 +203,11 @@ namespace Chorus.UI.Clone
 			}
 
 			_serverSettingsControl.Visible = _targetFolderControl.Visible;
+		}
+
+		private void ServerSettingsControlOnDisplayUpdated(object sender, EventArgs eventArgs)
+		{
+			_targetFolderControl.UpdateDisplay();
 		}
 
 		private void OnLoad(object sender, EventArgs e)
