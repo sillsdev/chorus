@@ -22,7 +22,8 @@ namespace Chorus.UI.Clone
 
 		internal void UpdateDisplay()
 		{
-			_localFolderName.Text = _model.LocalFolderName;
+			if (_localFolderName.Text != _model.LocalFolderName)
+				_localFolderName.Text = _model.LocalFolderName;
 			_downloadButton.Enabled = _model.ReadyToDownload;
 			_localFolderName.Enabled = true;
 			_targetInfoLabel.Visible = true;
@@ -64,7 +65,8 @@ namespace Chorus.UI.Clone
 
 		private void _localName_TextChanged(object sender, EventArgs e)
 		{
-			_model.LocalFolderName = _localFolderName.Text;
+			if (_model.LocalFolderName != _localFolderName.Text)
+				_model.LocalFolderName = _localFolderName.Text;
 		   UpdateDisplay();
 		}
 
