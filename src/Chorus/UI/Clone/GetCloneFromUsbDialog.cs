@@ -4,11 +4,12 @@ using System.IO;
 using System.Media;
 using System.Windows.Forms;
 using System.Linq;
+using Palaso.Extensions;
 using Palaso.Progress.LogBox;
 
 namespace Chorus.UI.Clone
 {
-	public partial class GetCloneFromUsbDialog : Form
+	public partial class GetCloneFromUsbDialog : Form, ICloneSourceDialog
 	{
 		private readonly string _parentDirectoryToPutCloneIn;
 		private CloneFromUsb _model;
@@ -148,7 +149,10 @@ namespace Chorus.UI.Clone
 			}
 		}
 
-		public string PathToNewProject { get; private set; }
+		/// <summary>
+		/// After a successful clone, this will have the path to the folder that we just copied to the computer
+		/// </summary>
+		public string PathToNewlyClonedFolder { get; private set; }
 
 		private void _cancelButton_Click(object sender, EventArgs e)
 		{
@@ -174,7 +178,7 @@ namespace Chorus.UI.Clone
 			{
 				UpdateDisplay(State.MakingClone);
 
-				PathToNewProject = _model.MakeClone(SelectedPath, _parentDirectoryToPutCloneIn, _progress);
+				PathToNewlyClonedFolder = _model.MakeClone(SelectedPath, _parentDirectoryToPutCloneIn, _progress);
 
 				UpdateDisplay(State.Success);
 
@@ -206,5 +210,21 @@ namespace Chorus.UI.Clone
 		}
 
 
+
+		/// <summary>
+		/// Used to check if the repository is the right kind for your program, so that the only projects that can be chosen are ones
+		/// you application is prepared to open. The delegate is given the path to each mercurial project.
+		///
+		/// Note: the comparison is based on how hg stores the file name/extenion, not the original form!
+		/// </summary>
+		/// <example>Bloom uses "*.bloom_collection.i" to test if there is a ".BloomCollection" file</example>
+		public void SetFilePatternWhichMustBeFoundInHgDataFolder(string pattern)
+		{
+			_model.ProjectFilter = folder =>
+									   {
+										   var hgDataFolder = folder.CombineForPath(".hg","store", "data");
+										   return Directory.GetFiles(hgDataFolder, pattern).Length > 0;
+									   };
+		}
 	}
 }

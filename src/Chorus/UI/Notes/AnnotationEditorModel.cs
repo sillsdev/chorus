@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Design;
 using System.Drawing;
 using System.Linq;
 using System.Text;
-using System.Windows.Forms;
 using Chorus.notes;
 using Chorus.UI.Notes.Html;
 using Chorus.UI.Review;
