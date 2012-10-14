@@ -9,6 +9,7 @@ using NUnit.Framework;
 using Palaso.IO;
 using Palaso.Progress.LogBox;
 using Palaso.TestUtilities;
+using Palaso.Xml;
 
 namespace LibChorus.TestUtilities
 {

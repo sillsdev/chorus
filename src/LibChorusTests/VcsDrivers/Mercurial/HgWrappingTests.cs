@@ -112,6 +112,18 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		}
 
 		[Test]
+		public void CommitWithNoUsernameInHgrcFileUsesDefaultFromEnvironment()
+		{
+			using (var setup = new HgTestSetup())
+			{
+				var path = setup.Root.GetNewTempFile(true).Path;
+				setup.Repository.AddAndCheckinFile(path);
+				var rev = setup.Repository.GetAllRevisions()[0];
+				Assert.AreEqual(Environment.UserName, rev.UserId);
+			}
+		}
+
+		[Test]
 		public void GetRevisionWorkingSetIsBasedOn_NoCheckinsYet_GivesNull()
 		{
 			using (var testRoot = new TemporaryFolder("ChorusHgWrappingTest"))
@@ -270,11 +282,18 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				setup.Repository.AddAndCheckinFile(path);
 				File.WriteAllText(path,"2");
 				setup.Repository.AddAndCheckinFile(path);
-				setup.Repository.BackoutHead("1", "testing");
+				var theMessage = "testing";
+				setup.Repository.BackoutHead("1", theMessage);
 				setup.AssertLocalNumberOfTip("2");
 				setup.AssertHeadOfWorkingDirNumber("2");
 				setup.AssertHeadCount(1);
-				setup.AssertCommitMessageOfRevision("2","testing");
+
+				//for debuging a weird TeamCity failure of this
+				Assert.AreEqual((int)'t', (int)(setup.Repository.GetRevision("2").Summary.Trim())[0]);
+				Assert.AreEqual((int)'t', (int)(setup.Repository.GetRevision("2").Summary)[0]);
+				Assert.AreEqual(theMessage, setup.Repository.GetRevision("2").Summary);
+
+				setup.AssertCommitMessageOfRevision("2",theMessage);
 			}
 		}
 

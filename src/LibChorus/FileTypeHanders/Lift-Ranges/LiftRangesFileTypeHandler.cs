@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using Chorus.merge;
 using Chorus.Utilities;
-using Chorus.Utilities.code;
 using Chorus.VcsDrivers.Mercurial;
 using Chorus.merge.xml.generic;
+using Palaso.Code;
 using Palaso.IO;
 using Palaso.Progress.LogBox;
 

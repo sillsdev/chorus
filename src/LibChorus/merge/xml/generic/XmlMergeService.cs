@@ -5,36 +5,17 @@ using System.Linq;
 using System.Text;
 using System.Xml;
 using Chorus.Utilities;
-using Chorus.Utilities.code;
+using Palaso.Code;
 using Palaso.Xml;
 
 namespace Chorus.merge.xml.generic
 {
 	/// <summary>
-	/// Service that manages Xml merging.
+	/// Service that manages Xml merging for formats that are basically a long list of the
+	/// same element type, like a database table.
 	/// </summary>
 	public static class XmlMergeService
 	{
-		private static readonly XmlReaderSettings ReaderSettingsForDocumentFragment = new XmlReaderSettings
-				{
-					CheckCharacters = false,
-					ConformanceLevel = ConformanceLevel.Fragment,
-					ProhibitDtd = true,
-					ValidationType = ValidationType.None,
-					CloseInput = true,
-					IgnoreWhitespace = true
-				};
-
-		private static readonly XmlReaderSettings ReaderSettingsForDocument = new XmlReaderSettings
-		{
-			CheckCharacters = false,
-			ConformanceLevel = ConformanceLevel.Document,
-			ProhibitDtd = true,
-			ValidationType = ValidationType.None,
-			CloseInput = true,
-			IgnoreWhitespace = true
-		};
-
 		private static readonly Encoding Utf8 = Encoding.UTF8;
 
 		/// <summary>
@@ -67,6 +48,13 @@ namespace Chorus.merge.xml.generic
 		/// <summary>
 		/// Perform the 3-way merge.
 		/// </summary>
+		/// <param name="mergeOrder"></param>
+		/// <param name="mergeStrategy"></param>
+		/// <param name="firstElementMarker"></param>
+		/// <param name="recordElementName"></param>
+		/// <param name="id"></param>
+		/// <param name="writePreliminaryInformationDelegate">TODO: Improve this: "allows the client to manage writing the root element and any of its attrs". When do you need this?</param>
+
 		public static void Do3WayMerge(MergeOrder mergeOrder, IMergeStrategy mergeStrategy, // Get from mergeOrder: IMergeEventListener listener,
 			bool sortRepeatingRecordOutputByKeyIdentifier,
 			string optionalFirstElementMarker,
@@ -290,7 +278,7 @@ namespace Chorus.merge.xml.generic
 			sortedAttributes = new SortedDictionary<string, string>();
 			try
 			{
-				using (var reader = XmlReader.Create(new FileStream(pathname, FileMode.Open), ReaderSettingsForDocument))
+				using (var reader = XmlReader.Create(new FileStream(pathname, FileMode.Open), CanonicalXmlSettings.CreateXmlReaderSettings()))
 				{
 					reader.MoveToContent();
 					rootElementName = reader.Name;
@@ -656,7 +644,7 @@ namespace Chorus.merge.xml.generic
 		{
 			message = null;
 
-			var attrValues = GetAttribute(data, new HashSet<string> { "dateDeleted", identifierAttribute });
+			var attrValues = XmlUtils.GetAttributes(data, new HashSet<string> { "dateDeleted", identifierAttribute });
 			// Skip tombstones.
 			if (attrValues["dateDeleted"] != null)
 				return;
@@ -677,24 +665,6 @@ namespace Chorus.merge.xml.generic
 					message = "There is more than one element with the identifier '" + identifier + "'";
 				}
 			}
-		}
-
-		private static Dictionary<string, string> GetAttribute(string data, HashSet<string> attributes)
-		{
-			var results = new Dictionary<string, string>(attributes.Count);
-			using (var reader = XmlReader.Create(new StringReader(data), ReaderSettingsForDocument))
-			{
-				reader.MoveToContent();
-				foreach (var attr in attributes)
-				{
-					results.Add(attr, null);
-					if (reader.MoveToAttribute(attr))
-					{
-						results[attr] = reader.Value;
-					}
-				}
-			}
-			return results;
 		}
 
 		private static void EnsureCommonAncestorFileHasMinimalXmlContent(string commonAncestorPathname, string rootElementName, SortedDictionary<string, string> sortedAttributes)
@@ -731,7 +701,7 @@ namespace Chorus.merge.xml.generic
 
 		private static void WriteNode(XmlWriter writer, string dataToWrite)
 		{
-			using (var nodeReader = XmlReader.Create(new MemoryStream(Utf8.GetBytes(dataToWrite)), ReaderSettingsForDocumentFragment))
+			using (var nodeReader = XmlReader.Create(new MemoryStream(Utf8.GetBytes(dataToWrite)), CanonicalXmlSettings.CreateXmlReaderSettings(ConformanceLevel.Fragment)))
 			{
 				writer.WriteNode(nodeReader, false);
 			}

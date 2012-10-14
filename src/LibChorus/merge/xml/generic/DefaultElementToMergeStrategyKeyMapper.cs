@@ -1,12 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Xml;
-using Chorus.Utilities.code;
-using Chorus.merge.xml.generic;
+using Palaso.Code;
 
-namespace Chorus.FileTypeHanders
+namespace Chorus.merge.xml.generic
 {
-	internal class LiftRangesKeyFinder : IKeyFinder
+	internal class DefaultElementToMergeStrategyKeyMapper : IElementToMergeStrategyKeyMapper
 	{
 		#region Implementation of IKeyFinder
 
@@ -19,14 +18,9 @@ namespace Chorus.FileTypeHanders
 		/// <exception cref="ArgumentNullException">Thrown if <param name="element" /> is null.</exception>
 		public string GetKeyFromElement(IEnumerable<string> keys, XmlNode element)
 		{
-			Guard.AgainstNull(keys, "keys is null.");
 			Guard.AgainstNull(element, "Element is null.");
 
-			var key = element.Name;
-
-			// TODO: Add expected new key finding code, as the lift ranges element strategies get implemented.
-
-			return key;
+			return element.Name;
 		}
 
 		#endregion

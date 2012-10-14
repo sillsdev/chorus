@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Xml;
-using Chorus.Utilities.code;
 using Chorus.merge.xml.generic;
+using Palaso.Code;
 
 namespace Chorus.FileTypeHanders.lift
 {
-	internal class LiftKeyFinder : IKeyFinder
+	internal class LiftElementToMergeStrategyKeyMapper : IElementToMergeStrategyKeyMapper
 	{
 		#region Implementation of IKeyFinder
 

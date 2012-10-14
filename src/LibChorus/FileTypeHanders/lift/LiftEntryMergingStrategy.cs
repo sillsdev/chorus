@@ -15,7 +15,7 @@ namespace Chorus.FileTypeHanders.lift
 		{
 			_entryMerger = new XmlMerger(mergeSituation)
 							{
-								MergeStrategies = {KeyFinder = new LiftKeyFinder()}
+								MergeStrategies = {ElementToMergeStrategyKeyMapper = new LiftElementToMergeStrategyKeyMapper()}
 							};
 
 			LiftElementStrategiesMethod.AddLiftElementStrategies(_entryMerger.MergeStrategies);
