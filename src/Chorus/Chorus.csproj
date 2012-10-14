@@ -143,6 +143,7 @@
 	  <DependentUpon>GetCloneFromNetworkFolderDlg.cs</DependentUpon>
 	</Compile>
 	<Compile Include="UI\Clone\GetSharedProject.cs" />
+	<Compile Include="UI\Clone\ICloneSourceDialog.cs" />
 	<Compile Include="UI\Clone\IGetSharedProject.cs" />
 	<Compile Include="UI\Misc\NetworkFolderSettingsControl.cs">
 	  <SubType>UserControl</SubType>

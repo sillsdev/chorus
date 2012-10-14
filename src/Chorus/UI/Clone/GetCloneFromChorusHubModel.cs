@@ -20,9 +20,9 @@ namespace Chorus.UI.Clone
 		///</summary>
 		public bool CloneSucceeded { get; set; }
 
-		///<summary>
-		/// The path to the local copy of a cloned repository.
-		///</summary>
+		/// <summary>
+		/// After a successful clone, this will have the path to the folder that we just copied to the computer
+		/// </summary>
 		public string NewlyClonedFolder { get; private set; }
 
 		// Parent folder to use for cloned repository:

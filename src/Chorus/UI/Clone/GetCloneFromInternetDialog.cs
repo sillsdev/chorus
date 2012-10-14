@@ -8,7 +8,7 @@ using Chorus.VcsDrivers.Mercurial;
 
 namespace Chorus.UI.Clone
 {
-	public partial class GetCloneFromInternetDialog : Form
+	public partial class GetCloneFromInternetDialog : Form, ICloneSourceDialog
 	{
 		private readonly GetCloneFromInternetModel _model;
 		private readonly BackgroundWorker _backgroundWorker;
@@ -76,7 +76,7 @@ namespace Chorus.UI.Clone
 
 			_logBox.GetDiagnosticsMethod = (progress) =>
 											{
-												var hg = new HgRepository(PathToNewProject, progress);
+												var hg = new HgRepository(PathToNewlyClonedFolder, progress);
 												hg.GetDiagnosticInformationForRemoteProject(progress, ThreadSafeUrl);
 											};
 
@@ -212,9 +212,24 @@ namespace Chorus.UI.Clone
 			Close();
 		}
 
-		public string PathToNewProject
+
+		/// <summary>
+		/// After a successful clone, this will have the path to the folder that we just copied to the computer
+		/// </summary>
+		public string PathToNewlyClonedFolder
 		{
 			get { return _model.TargetDestination; }
+		}
+
+		/// <summary>
+		/// **** Currently this is not implemented on this class
+		/// </summary>
+		public void SetFilePatternWhichMustBeFoundInHgDataFolder(string pattern)
+		{
+			//TODO
+			//no don't do throw. doing it means client need special code for each clone method
+			//  throw new NotImplementedException();
+
 		}
 
 		private void _cancelButton_Click(object sender, EventArgs e)
@@ -274,5 +289,6 @@ namespace Chorus.UI.Clone
 		{
 			_logBox.BackColor  =this.BackColor;
 		}
+
 	}
 }
