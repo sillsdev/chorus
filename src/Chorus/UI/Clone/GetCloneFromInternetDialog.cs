@@ -210,6 +210,11 @@ namespace Chorus.UI.Clone
 			_targetFolderControl.UpdateDisplay();
 		}
 
+		private void ServerSettingsControlOnDisplayUpdated(object sender, EventArgs eventArgs)
+		{
+			_targetFolderControl.UpdateDisplay();
+		}
+
 		private void OnLoad(object sender, EventArgs e)
 		{
 			UpdateDisplay(State.AskingUserForURL);

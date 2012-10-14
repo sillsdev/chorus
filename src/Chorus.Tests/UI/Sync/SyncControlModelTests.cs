@@ -50,7 +50,7 @@ namespace Chorus.Tests
 			Directory.Delete(_pathToTestRoot, true);
 		}
 
-		[Test]
+		[Test, Category("KnownMonoIssue")]
 		public void AfterSyncLogNotEmpty()
 		{
 			_model.Sync(false);
@@ -110,7 +110,7 @@ namespace Chorus.Tests
 			Assert.IsNotNull(results.ErrorEncountered);
 		}
 
-		[Test]
+		[Test, Category("KnownMonoIssue")]
 		public void Sync_Cancelled_ResultsHaveCancelledEqualsTrue()
 		{
 			_model = new SyncControlModel(_project, SyncUIFeatures.Minimal, null);
