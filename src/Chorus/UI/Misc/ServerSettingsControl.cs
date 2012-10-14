@@ -43,7 +43,7 @@ namespace Chorus.UI.Misc
 		{
 			if (Model.SelectedServerLabel != (string)_serverCombo.SelectedItem)
 			{
-				Model.SelectedServerLabel = (string) _serverCombo.SelectedItem;
+				Model.SelectedServerLabel = (string)_serverCombo.SelectedItem;
 
 				UpdateDisplay();
 			}
@@ -65,6 +65,7 @@ namespace Chorus.UI.Misc
 			_accountName.Visible = Model.NeedProjectDetails;
 			_projectId.Visible = Model.NeedProjectDetails;
 			_password.Visible = Model.NeedProjectDetails;
+			_showCharacters.Visible = Model.NeedProjectDetails;
 			_accountLabel.Visible = Model.NeedProjectDetails;
 			_projectIdLabel.Visible = Model.NeedProjectDetails;
 			_passwordLabel.Visible = Model.NeedProjectDetails;
