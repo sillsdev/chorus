@@ -1,13 +1,13 @@
-//#define USEOPTIMIZEDVERSION
+#define USEOPTIMIZEDVERSION
 using System;
 using System.Collections.Generic;
 #if USEOPTIMIZEDVERSION
 using System.Linq;
 #endif
 using System.Text;
-using System.Web;
 using System.Xml;
 using Chorus.merge.xml.generic.xmldiff;
+using Palaso.Code;
 
 
 namespace Chorus.merge.xml.generic
@@ -18,6 +18,18 @@ namespace Chorus.merge.xml.generic
 		/// Should return null if parentToSearchIn is null
 		/// </summary>
 		XmlNode GetNodeToMerge(XmlNode nodeToMatch, XmlNode parentToSearchIn);
+
+		/// <summary>
+		/// Get the query that is used to find a matching XmlNode
+		/// </summary>
+		/// <returns>A query fo find a matching node, or null/empty string, if ambiguous nodes aren't to be from a parent.</returns>
+		string GetMatchingNodeFindingQuery(XmlNode nodeToMatch);
+
+		/// <summary>
+		/// Get a basic message that is suitable for use in a warning report where ambiguous nodes are found in the same parent node.
+		/// </summary>
+		/// <returns>A message string or null/empty string, if no message is needed for ambiguous nodes.</returns>
+		string GetWarningMessageForAmbiguousNodes(XmlNode nodeForMessage);
 	}
 
 	/// <summary>
@@ -31,10 +43,10 @@ namespace Chorus.merge.xml.generic
 
 	public class FindByKeyAttribute : IFindNodeToMerge
 	{
-		private string _keyAttribute;
+		private readonly string _keyAttribute;
 #if USEOPTIMIZEDVERSION
-		private List<XmlNode> _parentsToSearchIn = new List<XmlNode>();
-		private Dictionary<int, Dictionary<string, XmlNode>> _indexedSoughtAfterNodes = new Dictionary<int, Dictionary<string, XmlNode>>();
+		private readonly List<XmlNode> _parentsToSearchIn = new List<XmlNode>();
+		private readonly Dictionary<int, Dictionary<string, XmlNode>> _indexedSoughtAfterNodes = new Dictionary<int, Dictionary<string, XmlNode>>();
 #endif
 
 		public FindByKeyAttribute(string keyAttribute)
@@ -42,13 +54,12 @@ namespace Chorus.merge.xml.generic
 			_keyAttribute = keyAttribute;
 		}
 
-
 		public XmlNode GetNodeToMerge(XmlNode nodeToMatch, XmlNode parentToSearchIn)
 		{
 			if (parentToSearchIn == null)
 				return null;
 
-			string key = XmlUtilities.GetOptionalAttributeString(nodeToMatch, _keyAttribute);
+			var key = XmlUtilities.GetOptionalAttributeString(nodeToMatch, _keyAttribute);
 			if (string.IsNullOrEmpty(key))
 			{
 				return null;
@@ -66,30 +77,56 @@ namespace Chorus.merge.xml.generic
 				var childrenWithKeyAttr = (from XmlNode childNode in parentToSearchIn.ChildNodes
 										   where childNode.Name == matchingName && childNode.Attributes[_keyAttribute] != null
 										   select childNode).ToList();
-				foreach (XmlNode nodeWithKeyAttribute in childrenWithKeyAttr)
+				foreach (var nodeWithKeyAttribute in childrenWithKeyAttr)
+				{
 					childrenWithKeys.Add(nodeWithKeyAttribute.Attributes[_keyAttribute].Value, nodeWithKeyAttribute);
+				}
 			}
 
 			XmlNode matchingNode;
 			_indexedSoughtAfterNodes[parentIdx].TryGetValue(key, out matchingNode);
 			return matchingNode; // May be null, which is fine.
+#else
+			var query = GetMatchingNodeFindingQuery(nodeToMatch);
+			return string.IsNullOrEnpty(query)
+				? null
+				: parentToSearchIn.SelectSingleNode();
 #endif
-#if USE_DOUBLEQUOTE_VERSION // seems to trade one vulnerability (internal ') for another (internal ")
+		}
 
+		/// <summary>
+		/// Get the query that is used to find a matching XmlNode
+		/// </summary>
+		/// <returns>A query fo find a matching node, or null/empty string, if ambiguous nodes aren't to be from a parent.</returns>
+		public string GetMatchingNodeFindingQuery(XmlNode nodeToMatch)
+		{
+			Guard.AgainstNull(nodeToMatch, "nodeToMatch");
+
+			var key = XmlUtilities.GetOptionalAttributeString(nodeToMatch, _keyAttribute);
+			return string.IsNullOrEmpty(key) ? null :
+#if USE_DOUBLEQUOTE_VERSION // seems to trade one vulnerability (internal ') for another (internal ")
 			// I (CP) changed this to use double quotes to allow attributes to contain single quotes.
 			// My understanding is that double quotes are illegal inside attributes so this should be fine.
 			// See: http://jira.palaso.org/issues/browse/WS-33895
 			//string xpath = string.Format("{0}[@{1}='{2}']", nodeToMatch.Name, _keyAttribute, key);
-			string xpath = string.Format("{0}[@{1}=\"{2}\"]", nodeToMatch.Name, _keyAttribute, key);
-
-			return parentToSearchIn.SelectSingleNode(xpath);
+			string.Format("{0}[@{1}=\"{2}\"]", nodeToMatch.Name, _keyAttribute, key);
 #else
 			// See CHR17 xpath refering to attribute with single or double quote
 			// INTERESTING COVERAGE OF THE PROBLEM: http://stackoverflow.com/a/1352556/723299
-			string xpath = string.Format("{0}[@{1}={2}]", nodeToMatch.Name, _keyAttribute, XmlUtilities.GetSafeXPathLiteral(key));
-
-			return parentToSearchIn.SelectSingleNode(xpath);
+			string.Format("{0}[@{1}={2}]", nodeToMatch.Name, _keyAttribute, XmlUtilities.GetSafeXPathLiteral(key));
 #endif
+		}
+
+		/// <summary>
+		/// Get a basic message that is suitable for use in a warning report where ambiguous nodes are found in the same parent node.
+		/// </summary>
+		/// <returns>A message string or null/empty string, if no message is needed for ambiguous nodes.</returns>
+		public string GetWarningMessageForAmbiguousNodes(XmlNode nodeForMessage)
+		{
+			Guard.AgainstNull(nodeForMessage, "nodeForMessage");
+
+			return string.Format("The key attribute '{0}' has values that are the same '{1}'",
+				_keyAttribute, nodeForMessage.Attributes[_keyAttribute].Value);
 		}
 	}
 
@@ -160,6 +197,24 @@ namespace Chorus.merge.xml.generic
 			XmlNode result;
 			_parentMap.TryGetValue(targetKp, out result);
 			return result;
+		}
+
+		/// <summary>
+		/// Get the query that is used to find a matching XmlNode
+		/// </summary>
+		/// <returns>A query fo find a matching node, or null/empty string, if ambiguous nodes aren't to be from a parent.</returns>
+		public string GetMatchingNodeFindingQuery(XmlNode nodeToMatch)
+		{
+			return null;
+		}
+
+		/// <summary>
+		/// Get a basic message that is suitable for use in a warning report where ambiguous nodes are found in the same parent node.
+		/// </summary>
+		/// <returns>A message string or null/empty string, if no message is needed for ambiguous nodes.</returns>
+		public string GetWarningMessageForAmbiguousNodes(XmlNode nodeForMessage)
+		{
+			return null;
 		}
 
 		private void GetKeyPositions(XmlNode parent, Action<XmlNode, KeyPosition> saveIt)
@@ -243,6 +298,24 @@ namespace Chorus.merge.xml.generic
 			return null;
 		}
 
+		/// <summary>
+		/// Get the query that is used to find a matching XmlNode
+		/// </summary>
+		/// <returns>A query fo find a matching node, or null/empty string, if ambiguous nodes aren't to be from a parent.</returns>
+		public string GetMatchingNodeFindingQuery(XmlNode nodeToMatch)
+		{
+			return null;
+		}
+
+		/// <summary>
+		/// Get a basic message that is suitable for use in a warning report where ambiguous nodes are found in the same parent node.
+		/// </summary>
+		/// <returns>A message string or null/empty string, if no message is needed for ambiguous nodes.</returns>
+		public string GetWarningMessageForAmbiguousNodes(XmlNode nodeForMessage)
+		{
+			return null;
+		}
+
 		#endregion
 	}
 
@@ -264,6 +337,17 @@ namespace Chorus.merge.xml.generic
 			if (parentToSearchIn == null)
 				return null;
 
+			return parentToSearchIn.SelectSingleNode(GetMatchingNodeFindingQuery(nodeToMatch));
+		}
+
+		/// <summary>
+		/// Get the query that is used to find a matching XmlNode
+		/// </summary>
+		/// <returns>A query fo find a matching node, or null/empty string, if ambiguous nodes aren't to be from a parent.</returns>
+		public string GetMatchingNodeFindingQuery(XmlNode nodeToMatch)
+		{
+			Guard.AgainstNull(nodeToMatch, "nodeToMatch");
+
 			var bldr = new StringBuilder(nodeToMatch.Name + "[");
 			for (var i = 0; i < _keyAttributes.Count; ++i)
 			{
@@ -273,8 +357,30 @@ namespace Chorus.merge.xml.generic
 				bldr.AppendFormat("@{0}={1}", currentAttrName, XmlUtilities.GetSafeXPathLiteral(XmlUtilities.GetStringAttribute(nodeToMatch, currentAttrName)));
 			}
 			bldr.Append("]");
+			return bldr.ToString();
+		}
 
-			return parentToSearchIn.SelectSingleNode(bldr.ToString());
+		/// <summary>
+		/// Get a basic message that is suitable for use in a warning report where ambiguous nodes are found in the same parent node.
+		/// </summary>
+		/// <returns>A message string or null/empty string, if no message is needed for ambiguous nodes.</returns>
+		public string GetWarningMessageForAmbiguousNodes(XmlNode nodeForMessage)
+		{
+			Guard.AgainstNull(nodeForMessage, "nodeForMessage");
+
+			var bldr = new StringBuilder();
+			for (var i = 0; i < _keyAttributes.Count; ++i)
+			{
+				if (i > 0)
+					bldr.Append(", ");
+				if (i == _keyAttributes.Count - 1)
+					bldr.Append(" and ");
+				var currentAttrName = _keyAttributes[i];
+				var currentAttrValue = nodeForMessage.Attributes[currentAttrName].Value;
+				bldr.AppendFormat("attribute '{0}' with value of '{1}'", currentAttrName, currentAttrValue);
+			}
+
+			return string.Format("The key attribute(s) have value(s) that are the same: {0}", bldr);
 		}
 	}
 
@@ -289,6 +395,28 @@ namespace Chorus.merge.xml.generic
 				return null;
 
 			return parentToSearchIn.SelectSingleNode(nodeToMatch.Name);
+		}
+
+		/// <summary>
+		/// Get the query that is used to find a matching XmlNode
+		/// </summary>
+		/// <returns>A query fo find a matching node, or null/empty string, if ambiguous nodes aren't to be from a parent.</returns>
+		public string GetMatchingNodeFindingQuery(XmlNode nodeToMatch)
+		{
+			Guard.AgainstNull(nodeToMatch, "nodeToMatch");
+
+			return nodeToMatch.Name;
+		}
+
+		/// <summary>
+		/// Get a basic message that is suitable for use in a warning report where ambiguous nodes are found in the same parent node.
+		/// </summary>
+		/// <returns>A message string or null/empty string, if no message is needed for ambiguous nodes.</returns>
+		public string GetWarningMessageForAmbiguousNodes(XmlNode nodeForMessage)
+		{
+			Guard.AgainstNull(nodeForMessage, "nodeForMessage");
+
+			return string.Format("The elements are named: '{0}'", nodeForMessage.Name);
 		}
 	}
 
@@ -319,6 +447,24 @@ namespace Chorus.merge.xml.generic
 					return node;
 				}
 			}
+			return null;
+		}
+
+		/// <summary>
+		/// Get the query that is used to find a matching XmlNode
+		/// </summary>
+		/// <returns>A query fo find a matching node, or null/empty string, if ambiguous nodes aren't to be from a parent.</returns>
+		public string GetMatchingNodeFindingQuery(XmlNode nodeToMatch)
+		{
+			return null;
+		}
+
+		/// <summary>
+		/// Get a basic message that is suitable for use in a warning report where ambiguous nodes are found in the same parent node.
+		/// </summary>
+		/// <returns>A message string or null/empty string, if no message is needed for ambiguous nodes.</returns>
+		public string GetWarningMessageForAmbiguousNodes(XmlNode nodeForMessage)
+		{
 			return null;
 		}
 
@@ -375,6 +521,24 @@ namespace Chorus.merge.xml.generic
 				if (node.NodeType == XmlNodeType.Text)
 					return node;
 			}
+			return null;
+		}
+
+		/// <summary>
+		/// Get the query that is used to find a matching XmlNode
+		/// </summary>
+		/// <returns>A query fo find a matching node, or null/empty string, if ambiguous nodes aren't to be from a parent.</returns>
+		public string GetMatchingNodeFindingQuery(XmlNode nodeToMatch)
+		{
+			return null;
+		}
+
+		/// <summary>
+		/// Get a basic message that is suitable for use in a warning report where ambiguous nodes are found in the same parent node.
+		/// </summary>
+		/// <returns>A message string or null/empty string, if no message is needed for ambiguous nodes.</returns>
+		public string GetWarningMessageForAmbiguousNodes(XmlNode nodeForMessage)
+		{
 			return null;
 		}
 	}

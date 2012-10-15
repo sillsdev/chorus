@@ -19,7 +19,7 @@ namespace Chorus.merge.xml.generic
 		private static readonly Encoding Utf8 = Encoding.UTF8;
 
 		/// <summary>
-		/// Do some repeated lines in one place.
+		/// Add conflict.
 		/// </summary>
 		public static void AddConflictToListener(IMergeEventListener listener, IConflict conflict)
 		{
@@ -27,17 +27,20 @@ namespace Chorus.merge.xml.generic
 		}
 
 		/// <summary>
-		/// Do some repeated lines in one place.
+		/// Add conflict.
 		/// </summary>
-		public static void AddConflictToListener(IMergeEventListener listener, IConflict conflict, XmlNode oursContext, XmlNode theirsContext, XmlNode ancestorContext)
+		public static void AddConflictToListener(IMergeEventListener listener, IConflict conflict, XmlNode oursContext,
+												 XmlNode theirsContext, XmlNode ancestorContext)
 		{
 			AddConflictToListener(listener, conflict, oursContext, theirsContext, ancestorContext, new SimpleHtmlGenerator());
 		}
 
 		/// <summary>
-		/// Do some repeated lines in one place.
+		/// Add conflict.
 		/// </summary>
-		public static void AddConflictToListener(IMergeEventListener listener, IConflict conflict, XmlNode oursContext, XmlNode theirsContext, XmlNode ancestorContext, IGenerateHtmlContext htmlContextGenerator)
+		public static void AddConflictToListener(IMergeEventListener listener, IConflict conflict, XmlNode oursContext,
+												 XmlNode theirsContext, XmlNode ancestorContext,
+												 IGenerateHtmlContext htmlContextGenerator)
 		{
 			// NB: All three of these are crucially ordered.
 			listener.RecordContextInConflict(conflict);
@@ -46,19 +49,43 @@ namespace Chorus.merge.xml.generic
 		}
 
 		/// <summary>
+		/// Add warning.
+		/// </summary>
+		public static void AddWarningToListener(IMergeEventListener listener, IConflict warning)
+		{
+			AddWarningToListener(listener, warning, null, null, null);
+		}
+
+		/// <summary>
+		/// Add warning.
+		/// </summary>
+		public static void AddWarningToListener(IMergeEventListener listener, IConflict warning, XmlNode oursContext,
+												 XmlNode theirsContext, XmlNode ancestorContext)
+		{
+			AddWarningToListener(listener, warning, oursContext, theirsContext, ancestorContext, new SimpleHtmlGenerator());
+		}
+
+		/// <summary>
+		/// Add warning.
+		/// </summary>
+		public static void AddWarningToListener(IMergeEventListener listener, IConflict warning, XmlNode oursContext,
+												XmlNode theirsContext, XmlNode ancestorContext,
+												IGenerateHtmlContext htmlContextGenerator)
+		{
+			// NB: All three of these are crucially ordered.
+			listener.RecordContextInConflict(warning);
+			warning.MakeHtmlDetails(oursContext, theirsContext, ancestorContext, htmlContextGenerator);
+			listener.WarningOccurred(warning);
+		}
+
+		/// <summary>
 		/// Perform the 3-way merge.
 		/// </summary>
-		/// <param name="mergeOrder"></param>
-		/// <param name="mergeStrategy"></param>
-		/// <param name="firstElementMarker"></param>
-		/// <param name="recordElementName"></param>
-		/// <param name="id"></param>
-		/// <param name="writePreliminaryInformationDelegate">TODO: Improve this: "allows the client to manage writing the root element and any of its attrs". When do you need this?</param>
-
-		public static void Do3WayMerge(MergeOrder mergeOrder, IMergeStrategy mergeStrategy, // Get from mergeOrder: IMergeEventListener listener,
-			bool sortRepeatingRecordOutputByKeyIdentifier,
-			string optionalFirstElementMarker,
-			string repeatingRecordElementName, string repeatingRecordKeyIdentifier)
+		public static void Do3WayMerge(MergeOrder mergeOrder, IMergeStrategy mergeStrategy,
+									   // Get from mergeOrder: IMergeEventListener listener,
+									   bool sortRepeatingRecordOutputByKeyIdentifier,
+									   string optionalFirstElementMarker,
+									   string repeatingRecordElementName, string repeatingRecordKeyIdentifier)
 		{
 			// NB: The FailureSimulator is *only* used in tests.
 			FailureSimulator.IfTestRequestsItThrowNow("LiftMerger.FindEntryById");
@@ -94,27 +121,33 @@ namespace Chorus.merge.xml.generic
 			Require.That(File.Exists(pathToWinner), string.Format("'{0}' does not exist.", pathToWinner));
 			Require.That(File.Exists(pathToLoser), string.Format("'{0}' does not exist.", pathToLoser));
 			SortedDictionary<string, string> sortedAttributes;
-			var rootElementName = GetRootElementData(mergeOrder.pathToOurs, mergeOrder.pathToTheirs, mergeOrder.pathToCommonAncestor, out sortedAttributes);
+			var rootElementName = GetRootElementData(mergeOrder.pathToOurs, mergeOrder.pathToTheirs,
+													 mergeOrder.pathToCommonAncestor, out sortedAttributes);
 			EnsureCommonAncestorFileHasMinimalXmlContent(commonAncestorPathname, rootElementName, sortedAttributes);
 
 			// Do main merge work.
 			var allWritableData = DoMerge(mergeOrder, mergeStrategy,
-				sortRepeatingRecordOutputByKeyIdentifier, optionalFirstElementMarker, repeatingRecordElementName, repeatingRecordKeyIdentifier,
-				pathToLoser, winnerId, pathToWinner, loserId, commonAncestorPathname);
+										  sortRepeatingRecordOutputByKeyIdentifier, optionalFirstElementMarker,
+										  repeatingRecordElementName, repeatingRecordKeyIdentifier,
+										  pathToLoser, winnerId, pathToWinner, loserId, commonAncestorPathname);
 
 			GC.Collect(2, GCCollectionMode.Forced); // Not nice, but required for the 164Meg ChorusNotes file.
 
 			// Write all objects.
 			WriteMainOutputData(allWritableData,
-				mergeOrder.pathToOurs, // Do not change to another output file, or be ready to fix SyncScenarioTests.CanCollaborateOnLift()!
-				optionalFirstElementMarker, rootElementName, sortedAttributes);
+								mergeOrder.pathToOurs,
+								// Do not change to another output file, or be ready to fix SyncScenarioTests.CanCollaborateOnLift()!
+								optionalFirstElementMarker, rootElementName, sortedAttributes);
 		}
 
 		private static IDictionary<string, string> DoMerge(MergeOrder mergeOrder, IMergeStrategy mergeStrategy,
-										   bool sortRepeatingRecordOutputByKeyIdentifier, string optionalFirstElementMarker,
-										   string repeatingRecordElementName, string repeatingRecordKeyIdentifier,
-										   string pathToLoser, string winnerId, string pathToWinner, string loserId,
-										   string commonAncestorPathname)
+														   bool sortRepeatingRecordOutputByKeyIdentifier,
+														   string optionalFirstElementMarker,
+														   string repeatingRecordElementName,
+														   string repeatingRecordKeyIdentifier,
+														   string pathToLoser, string winnerId, string pathToWinner,
+														   string loserId,
+														   string commonAncestorPathname)
 		{
 			// Step 1. Load each of the three files.
 			HashSet<string> allCommonAncestorIds;
@@ -123,7 +156,7 @@ namespace Chorus.merge.xml.generic
 			Dictionary<string, string> allLoserData;
 			Dictionary<string, string> allWinnerData;
 			Dictionary<string, string> allCommonAncestorData;
-			LoadDataFiles(mergeOrder,
+			LoadDataFiles(mergeOrder, mergeStrategy,
 						  optionalFirstElementMarker, repeatingRecordElementName, repeatingRecordKeyIdentifier,
 						  commonAncestorPathname, pathToWinner, pathToLoser,
 						  out allCommonAncestorData, out allCommonAncestorIds,
@@ -134,8 +167,16 @@ namespace Chorus.merge.xml.generic
 			var fluffedUpAncestorNodes = new Dictionary<string, XmlNode>();
 			var fluffedUpLoserNodes = new Dictionary<string, XmlNode>();
 			var fluffedUpWinnerNodes = new Dictionary<string, XmlNode>();
-			var allNewIdsFromBoth = CollectDataAndReportEditConflictsForBothAddedNewObjectsWithDifferentContent(mergeOrder, mergeStrategy, pathToWinner, fluffedUpWinnerNodes,
-				fluffedUpLoserNodes, allCommonAncestorIds, allWinnerIds, allWinnerData, allLoserData, allLoserIds);
+			var allNewIdsFromBoth = CollectDataAndReportEditConflictsForBothAddedNewObjectsWithDifferentContent(mergeOrder,
+																												mergeStrategy,
+																												pathToWinner,
+																												fluffedUpWinnerNodes,
+																												fluffedUpLoserNodes,
+																												allCommonAncestorIds,
+																												allWinnerIds,
+																												allWinnerData,
+																												allLoserData,
+																												allLoserIds);
 
 			// Step 3. Collect up deleted items from winner and loser.
 			HashSet<string> allIdsRemovedByWinner;
@@ -147,9 +188,14 @@ namespace Chorus.merge.xml.generic
 			// Step 4. Collect up modified items from winner and loser and report all other conflicts.
 			HashSet<string> allDeletedByLoserButEditedByWinnerIds;
 			HashSet<string> allDeletedByWinnerButEditedByLoserIds;
-			var allIdsForUniqueLoserChanges = CollectDataAndReportAllConflicts(mergeOrder, mergeStrategy, winnerId, loserId, allLoserIds, allWinnerData,
-				allIdsRemovedByWinner, allIdsRemovedByLoser, allCommonAncestorIds, allCommonAncestorData, fluffedUpLoserNodes, allWinnerIds, allLoserData,
-				fluffedUpWinnerNodes, fluffedUpAncestorNodes, out allDeletedByLoserButEditedByWinnerIds, out allDeletedByWinnerButEditedByLoserIds);
+			var allIdsForUniqueLoserChanges = CollectDataAndReportAllConflicts(mergeOrder, mergeStrategy, winnerId, loserId,
+																			   allLoserIds, allWinnerData,
+																			   allIdsRemovedByWinner, allIdsRemovedByLoser,
+																			   allCommonAncestorIds, allCommonAncestorData,
+																			   fluffedUpLoserNodes, allWinnerIds, allLoserData,
+																			   fluffedUpWinnerNodes, fluffedUpAncestorNodes,
+																			   out allDeletedByLoserButEditedByWinnerIds,
+																			   out allDeletedByWinnerButEditedByLoserIds);
 
 			// Step 5. Collect all ids that are to be written out.
 			var allWritableIds = new HashSet<string>(allCommonAncestorIds, StringComparer.InvariantCultureIgnoreCase);
@@ -163,8 +209,9 @@ namespace Chorus.merge.xml.generic
 			allWritableIds.UnionWith(allDeletedByLoserButEditedByWinnerIds); // Puts back the winner edited vs loser deleted ids.
 			// Write out data in sorted identifier order or 'ot luck' order.
 			var allWritableData = sortRepeatingRecordOutputByKeyIdentifier
-									? new SortedDictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
-									: new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase) as IDictionary<string, string>;
+									  ? new SortedDictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
+									  : new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase) as
+										IDictionary<string, string>;
 			foreach (var identifier in allWritableIds)
 			{
 				string updatedData;
@@ -188,15 +235,22 @@ namespace Chorus.merge.xml.generic
 		}
 
 		private static HashSet<string> CollectDataAndReportAllConflicts(MergeOrder mergeOrder, IMergeStrategy mergeStrategy,
-																string winnerId, string loserId, IEnumerable<string> allLoserIds,
-																IDictionary<string, string> allWinnerData, IEnumerable<string> allIdsRemovedByWinner,
-																IEnumerable<string> allIdsRemovedByLoser, HashSet<string> allCommonAncestorIds,
-																IDictionary<string, string> allCommonAncestorData, IDictionary<string, XmlNode> fluffedUpLoserNodes,
-																IEnumerable<string> allWinnerIds, IDictionary<string, string> allLoserData,
-																IDictionary<string, XmlNode> fluffedUpWinnerNodes,
-																IDictionary<string, XmlNode> fluffedUpAncestorNodes,
-																out HashSet<string> allDeletedByLoserButEditedByWinnerIds,
-																out HashSet<string> allDeletedByWinnerButEditedByLoserIds)
+																		string winnerId, string loserId,
+																		IEnumerable<string> allLoserIds,
+																		IDictionary<string, string> allWinnerData,
+																		IEnumerable<string> allIdsRemovedByWinner,
+																		IEnumerable<string> allIdsRemovedByLoser,
+																		HashSet<string> allCommonAncestorIds,
+																		IDictionary<string, string> allCommonAncestorData,
+																		IDictionary<string, XmlNode> fluffedUpLoserNodes,
+																		IEnumerable<string> allWinnerIds,
+																		IDictionary<string, string> allLoserData,
+																		IDictionary<string, XmlNode> fluffedUpWinnerNodes,
+																		IDictionary<string, XmlNode> fluffedUpAncestorNodes,
+																		out HashSet<string>
+																			allDeletedByLoserButEditedByWinnerIds,
+																		out HashSet<string>
+																			allDeletedByWinnerButEditedByLoserIds)
 		{
 			HashSet<string> allIdsForUniqueLoserChanges;
 			HashSet<string> allIdsWinnerModified;
@@ -225,15 +279,23 @@ namespace Chorus.merge.xml.generic
 			return allIdsForUniqueLoserChanges;
 		}
 
-		private static HashSet<string> CollectDataAndReportNormalEditConflicts(MergeOrder mergeOrder, IMergeStrategy mergeStrategy,
-																	   IDictionary<string, XmlNode> fluffedUpLoserNodes,
-																	   IDictionary<string, string> allCommonAncestorData,
-																	   IDictionary<string, XmlNode> fluffedUpAncestorNodes,
-																	   IDictionary<string, XmlNode> fluffedUpWinnerNodes, IDictionary<string, string> allLoserData,
-																	   IDictionary<string, string> allWinnerData, IEnumerable<string> allWinnerIds,
-																	   IEnumerable<string> allLoserIds, HashSet<string> allCommonAncestorIds,
-																	   out HashSet<string> allIdsForUniqueLoserChanges,
-																	   out HashSet<string> allIdsWinnerModified)
+		private static HashSet<string> CollectDataAndReportNormalEditConflicts(MergeOrder mergeOrder,
+																			   IMergeStrategy mergeStrategy,
+																			   IDictionary<string, XmlNode>
+																				   fluffedUpLoserNodes,
+																			   IDictionary<string, string>
+																				   allCommonAncestorData,
+																			   IDictionary<string, XmlNode>
+																				   fluffedUpAncestorNodes,
+																			   IDictionary<string, XmlNode>
+																				   fluffedUpWinnerNodes,
+																			   IDictionary<string, string> allLoserData,
+																			   IDictionary<string, string> allWinnerData,
+																			   IEnumerable<string> allWinnerIds,
+																			   IEnumerable<string> allLoserIds,
+																			   HashSet<string> allCommonAncestorIds,
+																			   out HashSet<string> allIdsForUniqueLoserChanges,
+																			   out HashSet<string> allIdsWinnerModified)
 		{
 			HashSet<string> allIdsLoserModified;
 			HashSet<string> allIdsWhereUsersMadeDifferentChanges;
@@ -249,8 +311,10 @@ namespace Chorus.merge.xml.generic
 		}
 
 		private static IEnumerable<string> CollectDataAndReportEditConflictsForBothAddedNewObjectsWithDifferentContent(
-			MergeOrder mergeOrder, IMergeStrategy mergeStrategy, string pathToWinner, IDictionary<string, XmlNode> fluffedUpWinnerNodes,
-			IDictionary<string, XmlNode> fluffedUpLoserNodes, HashSet<string> allCommonAncestorIds, IEnumerable<string> allWinnerIds, IDictionary<string, string> allWinnerData,
+			MergeOrder mergeOrder, IMergeStrategy mergeStrategy, string pathToWinner,
+			IDictionary<string, XmlNode> fluffedUpWinnerNodes,
+			IDictionary<string, XmlNode> fluffedUpLoserNodes, HashSet<string> allCommonAncestorIds,
+			IEnumerable<string> allWinnerIds, IDictionary<string, string> allWinnerData,
 			IDictionary<string, string> allLoserData, IEnumerable<string> allLoserIds)
 		{
 			HashSet<string> allNewIdsFromBoth;
@@ -265,11 +329,12 @@ namespace Chorus.merge.xml.generic
 			return allNewIdsFromBoth;
 		}
 
-		private static string GetRootElementData(string pathToOurs, string pathToTheirs, string pathToCommon, out SortedDictionary<string, string> sortedAttributes)
+		private static string GetRootElementData(string pathToOurs, string pathToTheirs, string pathToCommon,
+												 out SortedDictionary<string, string> sortedAttributes)
 		{
 			return GetRootElementData(pathToOurs, out sortedAttributes)
-				?? GetRootElementData(pathToTheirs, out sortedAttributes)
-				?? GetRootElementData(pathToCommon, out sortedAttributes);
+				   ?? GetRootElementData(pathToTheirs, out sortedAttributes)
+				   ?? GetRootElementData(pathToCommon, out sortedAttributes);
 		}
 
 		private static string GetRootElementData(string pathname, out SortedDictionary<string, string> sortedAttributes)
@@ -278,7 +343,9 @@ namespace Chorus.merge.xml.generic
 			sortedAttributes = new SortedDictionary<string, string>();
 			try
 			{
-				using (var reader = XmlReader.Create(new FileStream(pathname, FileMode.Open), CanonicalXmlSettings.CreateXmlReaderSettings()))
+				using (
+					var reader = XmlReader.Create(new FileStream(pathname, FileMode.Open),
+												  CanonicalXmlSettings.CreateXmlReaderSettings()))
 				{
 					reader.MoveToContent();
 					rootElementName = reader.Name;
@@ -301,8 +368,8 @@ namespace Chorus.merge.xml.generic
 		}
 
 		private static void WriteMainOutputData(IDictionary<string, string> allWritableData,
-			string outputPathname, string optionalFirstElementMarker,
-			string rootElementName, SortedDictionary<string, string> sortedAttributes)
+												string outputPathname, string optionalFirstElementMarker,
+												string rootElementName, SortedDictionary<string, string> sortedAttributes)
 		{
 			using (var writer = XmlWriter.Create(outputPathname, CanonicalXmlSettings.CreateXmlWriterSettings()))
 			{
@@ -330,9 +397,12 @@ namespace Chorus.merge.xml.generic
 		}
 
 		private static void ReportEditVsDeleteConflicts(MergeOrder mergeOrder, IMergeStrategy mergeStrategy,
-														IDictionary<string, XmlNode> fluffedUpWinnerNodes, IDictionary<string, string> allWinnerData,
-														string winnerId, IEnumerable<string> allDeletedByLoserButEditedByWinnerIds,
-														IDictionary<string, string> allCommonAncestorData, IDictionary<string, XmlNode> fluffedUpAncestorNodes)
+														IDictionary<string, XmlNode> fluffedUpWinnerNodes,
+														IDictionary<string, string> allWinnerData,
+														string winnerId,
+														IEnumerable<string> allDeletedByLoserButEditedByWinnerIds,
+														IDictionary<string, string> allCommonAncestorData,
+														IDictionary<string, XmlNode> fluffedUpAncestorNodes)
 		{
 			foreach (var allDeletedByLoserButEditedByWinnerId in allDeletedByLoserButEditedByWinnerIds)
 			{
@@ -360,9 +430,11 @@ namespace Chorus.merge.xml.generic
 		}
 
 		private static void ReportDeleteVsEditConflicts(MergeOrder mergeOrder, IMergeStrategy mergeStrategy,
-														IDictionary<string, XmlNode> fluffedUpLoserNodes, IDictionary<string, string> allLoserData, string loserId,
+														IDictionary<string, XmlNode> fluffedUpLoserNodes,
+														IDictionary<string, string> allLoserData, string loserId,
 														IEnumerable<string> allDeletedByWinnerButEditedByLoserIds,
-														IDictionary<string, string> allCommonAncestorData, IDictionary<string, XmlNode> fluffedUpAncestorNodes)
+														IDictionary<string, string> allCommonAncestorData,
+														IDictionary<string, XmlNode> fluffedUpAncestorNodes)
 		{
 			foreach (var allDeletedByWinnerButEditedByLoserId in allDeletedByWinnerButEditedByLoserIds)
 			{
@@ -390,10 +462,12 @@ namespace Chorus.merge.xml.generic
 		}
 
 		private static void ReportNormalEditConflicts(MergeOrder mergeOrder, IMergeStrategy mergeStrategy,
-													  IDictionary<string, string> allLoserData, IDictionary<string, XmlNode> fluffedUpAncestorNodes,
+													  IDictionary<string, string> allLoserData,
+													  IDictionary<string, XmlNode> fluffedUpAncestorNodes,
 													  IDictionary<string, string> allCommonAncestorData,
 													  IEnumerable<string> allIdsWhereUsersMadeDifferentChanges,
-													  IDictionary<string, XmlNode> fluffedUpWinnerNodes, IDictionary<string, XmlNode> fluffedUpLoserNodes,
+													  IDictionary<string, XmlNode> fluffedUpWinnerNodes,
+													  IDictionary<string, XmlNode> fluffedUpLoserNodes,
 													  IDictionary<string, string> allWinnerData)
 		{
 			foreach (var identifier in allIdsWhereUsersMadeDifferentChanges)
@@ -419,23 +493,30 @@ namespace Chorus.merge.xml.generic
 				}
 				var mergedResult = mergeStrategy.MakeMergedEntry(
 					mergeOrder.EventListener,
-					mergeOrder.MergeSituation.ConflictHandlingMode == MergeOrder.ConflictHandlingModeChoices.WeWin ? winnerNode : loserNode,
-					mergeOrder.MergeSituation.ConflictHandlingMode == MergeOrder.ConflictHandlingModeChoices.WeWin ? loserNode : winnerNode,
+					mergeOrder.MergeSituation.ConflictHandlingMode == MergeOrder.ConflictHandlingModeChoices.WeWin
+						? winnerNode
+						: loserNode,
+					mergeOrder.MergeSituation.ConflictHandlingMode == MergeOrder.ConflictHandlingModeChoices.WeWin
+						? loserNode
+						: winnerNode,
 					commonNode);
 				allWinnerData[identifier] = mergedResult;
 				fluffedUpWinnerNodes.Remove(identifier);
-				allLoserData[identifier] = mergedResult; // They really are the same now, but is it a good idea to make them the same?
+				allLoserData[identifier] = mergedResult;
+					// They really are the same now, but is it a good idea to make them the same?
 				fluffedUpLoserNodes.Remove(identifier);
 				allCommonAncestorData[identifier] = mergedResult;
-					// They really are the same now, but is it a good idea to make them the same?
+				// They really are the same now, but is it a good idea to make them the same?
 				fluffedUpAncestorNodes.Remove(identifier);
 			}
 		}
 
-		private static void ReportEditConflictsForBothAddedNewObjectsWithDifferentContent(MergeOrder mergeOrder, IMergeStrategy mergeStrategy, string pathToWinner,
-																IDictionary<string, string> allLoserData, IDictionary<string, XmlNode> fluffedUpLoserNodes,
-																IEnumerable<string> allNewIdsFromBothWithSameData, IEnumerable<string> allNewIdsFromBoth,
-																IDictionary<string, string> allWinnerData, IDictionary<string, XmlNode> fluffedUpWinnerNodes)
+		private static void ReportEditConflictsForBothAddedNewObjectsWithDifferentContent(
+			MergeOrder mergeOrder, IMergeStrategy mergeStrategy,
+			string pathToWinner,
+			IDictionary<string, string> allLoserData, IDictionary<string, XmlNode> fluffedUpLoserNodes,
+			IEnumerable<string> allNewIdsFromBothWithSameData, IEnumerable<string> allNewIdsFromBoth,
+			IDictionary<string, string> allWinnerData, IDictionary<string, XmlNode> fluffedUpWinnerNodes)
 		{
 			foreach (var identifier in allNewIdsFromBoth.Except(allNewIdsFromBothWithSameData))
 			{
@@ -457,22 +538,30 @@ namespace Chorus.merge.xml.generic
 				var generator = elementStrategy.ContextDescriptorGenerator;
 				if (generator != null)
 				{
-					mergeOrder.EventListener.EnteringContext(generator.GenerateContextDescriptor(allWinnerData[identifier], pathToWinner));
+					mergeOrder.EventListener.EnteringContext(generator.GenerateContextDescriptor(allWinnerData[identifier],
+																								 pathToWinner));
 				}
 				var mergedResult = mergeStrategy.MakeMergedEntry(
 					mergeOrder.EventListener,
-					mergeOrder.MergeSituation.ConflictHandlingMode == MergeOrder.ConflictHandlingModeChoices.WeWin ? winnerNode : loserNode,
-					mergeOrder.MergeSituation.ConflictHandlingMode == MergeOrder.ConflictHandlingModeChoices.WeWin ? loserNode : winnerNode,
+					mergeOrder.MergeSituation.ConflictHandlingMode == MergeOrder.ConflictHandlingModeChoices.WeWin
+						? winnerNode
+						: loserNode,
+					mergeOrder.MergeSituation.ConflictHandlingMode == MergeOrder.ConflictHandlingModeChoices.WeWin
+						? loserNode
+						: winnerNode,
 					null);
 				allWinnerData[identifier] = mergedResult;
 				fluffedUpWinnerNodes.Remove(identifier);
-				allLoserData[identifier] = mergedResult; // They really are the same now, but is it a good idea to make them the same?
+				allLoserData[identifier] = mergedResult;
+					// They really are the same now, but is it a good idea to make them the same?
 				fluffedUpLoserNodes.Remove(identifier);
 			}
 		}
 
-		private static void CollectIdsOfEditVsDelete(IEnumerable<string> allIdsRemovedByLoser, IEnumerable<string> allIdsWinnerModified,
-													 IEnumerable<string> allIdsLoserModified, IEnumerable<string> allIdsRemovedByWinner,
+		private static void CollectIdsOfEditVsDelete(IEnumerable<string> allIdsRemovedByLoser,
+													 IEnumerable<string> allIdsWinnerModified,
+													 IEnumerable<string> allIdsLoserModified,
+													 IEnumerable<string> allIdsRemovedByWinner,
 													 out HashSet<string> allDeletedByWinnerButEditedByLoserIds,
 													 out HashSet<string> allDeletedByLoserButEditedByWinnerIds)
 		{
@@ -482,48 +571,54 @@ namespace Chorus.merge.xml.generic
 																		StringComparer.InvariantCultureIgnoreCase);
 		}
 
-		private static void CollectModifiedIdsFromWinnerAndLoser(IDictionary<string, string> allWinnerData, IDictionary<string, string> allLoserData,
-																 IEnumerable<string> allWinnerIds, HashSet<string> allCommonAncestorIds,
-																 IEnumerable<string> allLoserIds, IDictionary<string, string> allCommonAncestorData,
+		private static void CollectModifiedIdsFromWinnerAndLoser(IDictionary<string, string> allWinnerData,
+																 IDictionary<string, string> allLoserData,
+																 IEnumerable<string> allWinnerIds,
+																 HashSet<string> allCommonAncestorIds,
+																 IEnumerable<string> allLoserIds,
+																 IDictionary<string, string> allCommonAncestorData,
 																 out HashSet<string> allIdsWhereUsersMadeDifferentChanges,
 																 out HashSet<string> allIdsLoserModified,
 																 out HashSet<string> allIdsWinnerModified,
 																 out HashSet<string> allIdsForUniqueLoserChanges)
 		{
 			allIdsWinnerModified = new HashSet<string>(allCommonAncestorIds
-														.Intersect(allWinnerIds)
-														.Where(
-															identifier =>
-															!XmlUtilities.AreXmlElementsEqual(allCommonAncestorData[identifier],
-																							  allWinnerData[identifier])),
+														   .Intersect(allWinnerIds)
+														   .Where(
+															   identifier =>
+															   !XmlUtilities.AreXmlElementsEqual(allCommonAncestorData[identifier],
+																								 allWinnerData[identifier])),
 													   StringComparer.InvariantCultureIgnoreCase);
 			allIdsLoserModified = new HashSet<string>(allCommonAncestorIds
-														.Intersect(allLoserIds)
-														.Where(
-															identifier =>
-															!XmlUtilities.AreXmlElementsEqual(allCommonAncestorData[identifier],
-																							  allLoserData[identifier])),
+														  .Intersect(allLoserIds)
+														  .Where(
+															  identifier =>
+															  !XmlUtilities.AreXmlElementsEqual(allCommonAncestorData[identifier],
+																								allLoserData[identifier])),
 													  StringComparer.InvariantCultureIgnoreCase);
 			var allBothUsersMadeSameChanges = new HashSet<string>(allIdsWinnerModified
-																.Intersect(allIdsLoserModified)
-																.Where(
-																	identifier =>
-																	XmlUtilities.AreXmlElementsEqual(allWinnerData[identifier],
-																									 allLoserData[identifier])),
-															  StringComparer.InvariantCultureIgnoreCase);
+																	  .Intersect(allIdsLoserModified)
+																	  .Where(
+																		  identifier =>
+																		  XmlUtilities.AreXmlElementsEqual(allWinnerData[identifier],
+																										   allLoserData[identifier])),
+																  StringComparer.InvariantCultureIgnoreCase);
 			allIdsWhereUsersMadeDifferentChanges = new HashSet<string>(allIdsWinnerModified
-																		.Intersect(allIdsLoserModified)
-																		.Where(
-																			identifier =>
-																			!XmlUtilities.AreXmlElementsEqual(
-																				allWinnerData[identifier], allLoserData[identifier])),
+																		   .Intersect(allIdsLoserModified)
+																		   .Where(
+																			   identifier =>
+																			   !XmlUtilities.AreXmlElementsEqual(
+																				   allWinnerData[identifier], allLoserData[identifier])),
 																	   StringComparer.InvariantCultureIgnoreCase);
-			allIdsForUniqueLoserChanges = new HashSet<string>(allIdsLoserModified.Except(allBothUsersMadeSameChanges).Except(allIdsWhereUsersMadeDifferentChanges));
+			allIdsForUniqueLoserChanges =
+				new HashSet<string>(
+					allIdsLoserModified.Except(allBothUsersMadeSameChanges).Except(allIdsWhereUsersMadeDifferentChanges));
 		}
 
 		private static void CollectDeletedIdsFromWinnerAndLoser(
 			IEnumerable<string> allLoserIds, HashSet<string> allCommonAncestorIds, IEnumerable<string> allWinnerIds,
-			out HashSet<string> allIdsRemovedByWinner, out HashSet<string> allIdsRemovedByLoser, out HashSet<string> allIdsRemovedByBoth)
+			out HashSet<string> allIdsRemovedByWinner, out HashSet<string> allIdsRemovedByLoser,
+			out HashSet<string> allIdsRemovedByBoth)
 		{
 			allIdsRemovedByWinner =
 				new HashSet<string>(allCommonAncestorIds.Except(allWinnerIds, StringComparer.InvariantCultureIgnoreCase));
@@ -532,27 +627,34 @@ namespace Chorus.merge.xml.generic
 			allIdsRemovedByBoth = new HashSet<string>(allIdsRemovedByWinner.Intersect(allIdsRemovedByLoser));
 		}
 
-		private static void LoadDataFiles(MergeOrder mergeOrder,
-			string optionalFirstElementMarker, string repeatingRecordElementName, string repeatingRecordKeyIdentifier,
-			string commonAncestorPathname, string pathToWinner, string pathToLoser,
-			out Dictionary<string, string> allCommonAncestorData, out HashSet<string> allCommonAncestorIds,
-			out Dictionary<string, string> allWinnerData, out HashSet<string> allWinnerIds,
-			out Dictionary<string, string> allLoserData, out HashSet<string> allLoserIds)
+		private static void LoadDataFiles(MergeOrder mergeOrder, IMergeStrategy mergeStrategy,
+										  string optionalFirstElementMarker, string repeatingRecordElementName,
+										  string repeatingRecordKeyIdentifier,
+										  string commonAncestorPathname, string pathToWinner, string pathToLoser,
+										  out Dictionary<string, string> allCommonAncestorData,
+										  out HashSet<string> allCommonAncestorIds,
+										  out Dictionary<string, string> allWinnerData, out HashSet<string> allWinnerIds,
+										  out Dictionary<string, string> allLoserData, out HashSet<string> allLoserIds)
 		{
-			allCommonAncestorData = MakeRecordDictionary(mergeOrder.EventListener,
-																					commonAncestorPathname, optionalFirstElementMarker,
-																					repeatingRecordElementName, repeatingRecordKeyIdentifier);
+			allCommonAncestorData = MakeRecordDictionary(mergeOrder.EventListener, mergeStrategy,
+														 commonAncestorPathname, optionalFirstElementMarker,
+														 repeatingRecordElementName, repeatingRecordKeyIdentifier);
 			allCommonAncestorIds = new HashSet<string>(allCommonAncestorData.Keys, StringComparer.InvariantCultureIgnoreCase);
-			allWinnerData = MakeRecordDictionary(mergeOrder.EventListener, pathToWinner, optionalFirstElementMarker,
+			allWinnerData = MakeRecordDictionary(mergeOrder.EventListener, mergeStrategy,
+												 pathToWinner, optionalFirstElementMarker,
 												 repeatingRecordElementName, repeatingRecordKeyIdentifier);
 			allWinnerIds = new HashSet<string>(allWinnerData.Keys, StringComparer.InvariantCultureIgnoreCase);
-			allLoserData = MakeRecordDictionary(mergeOrder.EventListener, pathToLoser, optionalFirstElementMarker, repeatingRecordElementName,
+			allLoserData = MakeRecordDictionary(mergeOrder.EventListener, mergeStrategy,
+												pathToLoser, optionalFirstElementMarker, repeatingRecordElementName,
 												repeatingRecordKeyIdentifier);
 			allLoserIds = new HashSet<string>(allLoserData.Keys, StringComparer.InvariantCultureIgnoreCase);
 		}
 
-		private static void CollectNewItemsFromWinnerAndLoser(IDictionary<string, string> allWinnerData, IEnumerable<string> allWinnerIds, IEnumerable<string> allLoserIds,
-															  IDictionary<string, string> allLoserData, HashSet<string> allCommonAncestorIds,
+		private static void CollectNewItemsFromWinnerAndLoser(IDictionary<string, string> allWinnerData,
+															  IEnumerable<string> allWinnerIds,
+															  IEnumerable<string> allLoserIds,
+															  IDictionary<string, string> allLoserData,
+															  HashSet<string> allCommonAncestorIds,
 															  out HashSet<string> allNewIdsFromBoth,
 															  out HashSet<string> allNewIdsFromBothWithSameData,
 															  IDictionary<string, XmlNode> fluffedUpLoserNodes,
@@ -563,68 +665,95 @@ namespace Chorus.merge.xml.generic
 			var allNewIdsFromLoser = new HashSet<string>(allLoserIds, StringComparer.InvariantCultureIgnoreCase);
 			allNewIdsFromLoser.ExceptWith(allCommonAncestorIds);
 			// Step 2A. Should be quite rare, and they may be the same or different.
-			allNewIdsFromBoth = new HashSet<string>(allNewIdsFromWinner.Intersect(allNewIdsFromLoser, StringComparer.InvariantCultureIgnoreCase));
+			allNewIdsFromBoth =
+				new HashSet<string>(allNewIdsFromWinner.Intersect(allNewIdsFromLoser, StringComparer.InvariantCultureIgnoreCase));
 			allNewIdsFromBothWithSameData = new HashSet<string>(allNewIdsFromBoth
 																	.Where(identifier =>
-																	{
-																		XmlNode winnerNode;
-																		if (
-																			!fluffedUpWinnerNodes.TryGetValue(identifier,
-																											  out winnerNode))
 																		{
-																			winnerNode =
-																				XmlUtilities.GetDocumentNodeFromRawXml(
-																					allWinnerData[identifier], new XmlDocument());
-																			fluffedUpWinnerNodes.Add(identifier, winnerNode);
-																		}
-																		XmlNode loserNode;
-																		if (
-																			!fluffedUpLoserNodes.TryGetValue(identifier,
-																											 out loserNode))
-																		{
-																			loserNode =
-																				XmlUtilities.GetDocumentNodeFromRawXml(
-																					allLoserData[identifier], new XmlDocument());
-																			fluffedUpLoserNodes.Add(identifier, loserNode);
-																		}
-																		return XmlUtilities.AreXmlElementsEqual(winnerNode,
-																												loserNode);
-																	}), StringComparer.InvariantCultureIgnoreCase);
+																			XmlNode winnerNode;
+																			if (
+																				!fluffedUpWinnerNodes.TryGetValue(identifier,
+																												  out winnerNode))
+																			{
+																				winnerNode =
+																					XmlUtilities.GetDocumentNodeFromRawXml(
+																						allWinnerData[identifier], new XmlDocument());
+																				fluffedUpWinnerNodes.Add(identifier, winnerNode);
+																			}
+																			XmlNode loserNode;
+																			if (
+																				!fluffedUpLoserNodes.TryGetValue(identifier,
+																												 out loserNode))
+																			{
+																				loserNode =
+																					XmlUtilities.GetDocumentNodeFromRawXml(
+																						allLoserData[identifier], new XmlDocument());
+																				fluffedUpLoserNodes.Add(identifier, loserNode);
+																			}
+																			return XmlUtilities.AreXmlElementsEqual(winnerNode,
+																													loserNode);
+																		}), StringComparer.InvariantCultureIgnoreCase);
 
 			allNewIdsFromWinner.ExceptWith(allNewIdsFromBothWithSameData);
 			allNewIdsFromLoser.ExceptWith(allNewIdsFromBothWithSameData);
 		}
 
-		/// <summary>
-		/// This function should return true if the Run method should continue on
-		/// If this function is not provide by the client an exception will be thrown if a duplicate is encountered.
-		/// </summary>
-		private static Func<string, bool> ShouldContinueAfterDuplicateKey;
-		private static Dictionary<string, string> MakeRecordDictionary(IMergeEventListener mainMergeEventListener, string pathname, string firstElementMarker, string recordStartingTag, string identifierAttribute)
+		private static Dictionary<string, string> MakeRecordDictionary(IMergeEventListener mainMergeEventListener,
+			IMergeStrategy mergeStrategy,
+			string pathname,
+			string firstElementMarker,
+			string recordStartingTag,
+			string identifierAttribute)
 		{
-			ShouldContinueAfterDuplicateKey = message =>
-				{
-					mainMergeEventListener.WarningOccurred(new MergeWarning(pathname + ": " + message));
-					return true;
-				};
-			var records = new Dictionary<string, string>(EstimatedObjectCount(pathname), StringComparer.InvariantCultureIgnoreCase);
+			var records = new Dictionary<string, string>(EstimatedObjectCount(pathname),
+														 StringComparer.InvariantCultureIgnoreCase);
 			using (var fastSplitter = new FastXmlElementSplitter(pathname))
 			{
 				bool foundOptionalFirstElement;
-				foreach (var record in fastSplitter.GetSecondLevelElementStrings(firstElementMarker, recordStartingTag, out foundOptionalFirstElement))
+				foreach (
+					var record in
+						fastSplitter.GetSecondLevelElementStrings(firstElementMarker, recordStartingTag, out foundOptionalFirstElement))
 				{
 					if (foundOptionalFirstElement)
 					{
-						records.Add(firstElementMarker.ToLowerInvariant(), record);
+						var key = firstElementMarker.ToLowerInvariant();
+						if (records.ContainsKey(key))
+						{
+							mainMergeEventListener.WarningOccurred(
+								new MergeWarning(string.Format("{0}: There is more than one optional first element '{1}'", pathname, key)));
+						}
+						else
+						{
+							RemoveAmbiguousChildren(mainMergeEventListener, mergeStrategy.GetStrategies(), record);
+							records.Add(key, record);
+						}
 						foundOptionalFirstElement = false;
 					}
 					else
 					{
-						string message;
-						AddKeyToIndex(records, identifierAttribute, record, out message);
-						if (!string.IsNullOrEmpty(message) && !ShouldContinueAfterDuplicateKey(message))
+						var attrValues = XmlUtils.GetAttributes(record, new HashSet<string> {"dateDeleted", identifierAttribute});
+
+						// Eat tombstones.
+						if (attrValues["dateDeleted"] != null)
+							continue;
+
+						var identifier = attrValues[identifierAttribute];
+						if (string.IsNullOrEmpty(identifierAttribute))
 						{
-							throw new ArgumentException(message);
+							mainMergeEventListener.WarningOccurred(
+								new MergeWarning(string.Format("{0}: There was no identifier for the record", pathname)));
+							continue;
+						}
+						if (records.ContainsKey(identifier))
+						{
+							mainMergeEventListener.WarningOccurred(
+								new MergeWarning(string.Format("{0}: There is more than one element with the identifier '{1}'", pathname,
+															   identifier)));
+						}
+						else
+						{
+							var possiblyRevisedRecord = RemoveAmbiguousChildren(mainMergeEventListener, mergeStrategy.GetStrategies(), record);
+							records.Add(identifier, possiblyRevisedRecord);
 						}
 					}
 				}
@@ -633,38 +762,96 @@ namespace Chorus.merge.xml.generic
 			return records;
 		}
 
+		/// <summary>
+		/// <para>Before we attempt to compare a node with a corresponding one from another revision,
+		/// we want to make sure that it is in a good state for matching its children with the children of the corresponding node.</para>
+		///
+		/// <para>To do this, for each child, we allow the Finder which will be used to find a corresponding child in
+		/// another revision to provide a query, which can be used to check whether the parent node has 'ambiguous' children,
+		/// that is, groups of children which the finder would consider indistinguisable.</para>
+		/// </summary>
+		/// <remarks>
+		/// This is recursive, since it moves on down to all child nodes.
+		/// </remarks>
+		public static string RemoveAmbiguousChildren(IMergeEventListener eventListener,
+			MergeStrategies mergeStrategies,
+			string parent)
+		{
+			var parentNode = XmlUtilities.GetDocumentNodeFromRawXml(parent, new XmlDocument());
+			RemoveAmbiguousChildren(
+				eventListener,
+				mergeStrategies,
+				parentNode);
+			return parentNode.OuterXml;
+		}
+
+		/// <summary>
+		/// <para>Before we attempt to compare a node with a corresponding one from another revision,
+		/// we want to make sure that it is in a good state for matching its children with the children of the corresponding node.</para>
+		///
+		/// <para>To do this, for each child, we allow the Finder which will be used to find a corresponding child in
+		/// another revision to provide a query, which can be used to check whether the parent node has 'ambiguous' children,
+		/// that is, groups of children which the finder would consider indistinguisable.</para>
+		/// </summary>
+		/// <remarks>
+		/// This is recursive, since it moves on down to all child nodes.
+		/// </remarks>
+		public static void RemoveAmbiguousChildren(IMergeEventListener eventListener,
+			MergeStrategies mergeStrategies,
+			XmlNode parent)
+		{
+			if (parent == null || !parent.HasChildNodes)
+				return;
+
+			var ambiguousNodes = new List<XmlNode>();
+			foreach (XmlNode childNode in parent.ChildNodes)
+			{
+				if (ambiguousNodes.Contains(childNode))
+					continue; // Already found it, so don't bother processing it again.
+
+				var finder = mergeStrategies.GetElementStrategy(childNode).MergePartnerFinder;
+				var query = finder.GetMatchingNodeFindingQuery(childNode);
+				if (string.IsNullOrEmpty(query))
+					continue; // Finder isn't concerned with duplicates, so keep going.
+
+				var matches = parent.SelectNodes(query);
+				if (matches == null || matches.Count < 2)
+					continue; // No duplicates were found, so keep going.
+
+				// The following code implements the "DropAmbiguitiesAndAddErrorNote" option of a possible three in "AmbiguousSiblingPolicy"
+				// TODO (maybe): If we ever implement the "ThrowException" option, then throw here instead of adding the warning and eating the ambiguities.
+				// TODO (maybe): If we ever implement the "LiveWithIt" option, then just do a return at the start of this method, or don't bother calling the method at all.
+				// Since they are ambiguities (at least as far as the finder is concerned),
+				// we really only need one warning. Add the count, so the user knows how many there were, though.
+				// Possible enhancement: Generate reports that go into the details of what might be different between the keeper and each ambiguous sibling.
+				AddWarningToListener(eventListener,
+									 new MergeWarning(string.Format("Parent element '{0}' contains {1} ambiguous child elements. Only the first one is retained. Details: {2}.",
+																	parent.Name,
+																	matches.Count,
+																	finder.GetWarningMessageForAmbiguousNodes(matches[0]))));
+				// Add all but the current one (the first one), so they can be removed in the next loop.
+				ambiguousNodes.AddRange(matches.Cast<XmlNode>().Where(match => match != childNode));
+			}
+
+			foreach (var ambiguousNode in ambiguousNodes)
+			{
+				// Remove all but the first one from the parent.
+				parent.RemoveChild(ambiguousNode);
+			}
+
+			foreach (XmlNode childNode in parent.ChildNodes)
+			{
+				// Drill on down the child nodes to see if there are any other ambiguities in lower-level nodes.
+				// Since the ambiguous nodes have been removed from parent, they won't get processed again.
+				RemoveAmbiguousChildren(eventListener, mergeStrategies, childNode);
+			}
+		}
+
 		private static int EstimatedObjectCount(string pathname)
 		{
 			const int estimatedObjectSize = 400;
 			var fileInfo = new FileInfo(pathname);
 			return (int)(fileInfo.Length / estimatedObjectSize);
-		}
-
-		private static void AddKeyToIndex(IDictionary<string, string> records, string identifierAttribute, string data, out string message)
-		{
-			message = null;
-
-			var attrValues = XmlUtils.GetAttributes(data, new HashSet<string> { "dateDeleted", identifierAttribute });
-			// Skip tombstones.
-			if (attrValues["dateDeleted"] != null)
-				return;
-
-			var identifier = attrValues[identifierAttribute];
-			if (string.IsNullOrEmpty(identifierAttribute))
-			{
-				message = "There was no identifier for the record";
-			}
-			else
-			{
-				if (!records.ContainsKey(identifier))
-				{
-					records.Add(identifier, data);
-				}
-				else
-				{
-					message = "There is more than one element with the identifier '" + identifier + "'";
-				}
-			}
 		}
 
 		private static void EnsureCommonAncestorFileHasMinimalXmlContent(string commonAncestorPathname, string rootElementName, SortedDictionary<string, string> sortedAttributes)

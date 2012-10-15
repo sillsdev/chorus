@@ -131,15 +131,19 @@ namespace Chorus.merge.xml.generic
 
 		public static ElementStrategy CreateForKeyedElement(string keyAttributeName, bool orderIsRelevant)
 		{
-			ElementStrategy strategy = new ElementStrategy(orderIsRelevant);
-			strategy.MergePartnerFinder = new FindByKeyAttribute(keyAttributeName);
+			var strategy = new ElementStrategy(orderIsRelevant)
+				{
+					MergePartnerFinder = new FindByKeyAttribute(keyAttributeName)
+				};
 			return strategy;
 		}
 
 		public static ElementStrategy CreateForKeyedElementInList(string keyAttributeName)
 		{
-			ElementStrategy strategy = new ElementStrategy(true);
-			strategy.MergePartnerFinder = new FindByKeyAttributeInList(keyAttributeName);
+			var strategy = new ElementStrategy(true)
+				{
+					MergePartnerFinder = new FindByKeyAttributeInList(keyAttributeName)
+				};
 			return strategy;
 		}
 
@@ -148,8 +152,10 @@ namespace Chorus.merge.xml.generic
 		/// </summary>
 		public static ElementStrategy CreateSingletonElement()
 		{
-			ElementStrategy strategy = new ElementStrategy(false);
-			strategy.MergePartnerFinder = new FindFirstElementWithSameName();
+			var strategy = new ElementStrategy(false)
+				{
+					MergePartnerFinder = new FindFirstElementWithSameName()
+				};
 			return strategy;
 		}
 

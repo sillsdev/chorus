@@ -31,11 +31,10 @@ namespace Chorus.merge.xml.generic
 			MergeStrategies = new MergeStrategies();
 		}
 
-
 		public NodeMergeResult Merge(XmlNode ours, XmlNode theirs, XmlNode ancestor)
 		{
 			var result = new NodeMergeResult();
-			if (EventListener != null && EventListener is DispatchingMergeEventListener)
+			if (EventListener is DispatchingMergeEventListener)
 			{
 				((DispatchingMergeEventListener)EventListener).AddEventListener(result);
 			}
@@ -49,6 +48,12 @@ namespace Chorus.merge.xml.generic
 				}
 				EventListener = dispatcher;
 			}
+
+			// Remove any duplicate child nodes in all three.
+			XmlMergeService.RemoveAmbiguousChildren(EventListener, MergeStrategies, ours);
+			XmlMergeService.RemoveAmbiguousChildren(EventListener, MergeStrategies, theirs);
+			XmlMergeService.RemoveAmbiguousChildren(EventListener, MergeStrategies, ancestor);
+
 			MergeInner(ref ours, theirs, ancestor);
 			result.MergedNode = ours;
 			return result;
@@ -69,6 +74,20 @@ namespace Chorus.merge.xml.generic
 			XmlMergeService.AddConflictToListener(
 				EventListener,
 				conflict,
+				_oursContext,
+				_theirsContext,
+				_ancestorContext,
+				_htmlContextGenerator);
+		}
+
+		internal void WarningOccurred(IConflict warning)
+		{
+			if (_htmlContextGenerator == null)
+				_htmlContextGenerator = new SimpleHtmlGenerator();
+
+			XmlMergeService.AddWarningToListener(
+				EventListener,
+				warning,
 				_oursContext,
 				_theirsContext,
 				_ancestorContext,
