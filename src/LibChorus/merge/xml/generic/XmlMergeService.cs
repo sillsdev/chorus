@@ -763,9 +763,17 @@ namespace Chorus.merge.xml.generic
 		}
 
 		/// <summary>
-		/// Called by this class on the string records. Turn it into an XmlNode and call the main method.
+		/// <para>Before we attempt to compare a node with a corresponding one from another revision,
+		/// we want to make sure that it is in a good state for matching its children with the children of the corresponding node.</para>
+		///
+		/// <para>To do this, for each child, we allow the Finder which will be used to find a corresponding child in
+		/// another revision to provide a query, which can be used to check whether the parent node has 'ambiguous' children,
+		/// that is, groups of children which the finder would consider indistinguisable.</para>
 		/// </summary>
-		private static string RemoveAmbiguousChildren(IMergeEventListener eventListener,
+		/// <remarks>
+		/// This is recursive, since it moves on down to all child nodes.
+		/// </remarks>
+		public static string RemoveAmbiguousChildren(IMergeEventListener eventListener,
 			MergeStrategies mergeStrategies,
 			string parent)
 		{
