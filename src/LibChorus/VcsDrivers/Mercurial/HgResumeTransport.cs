@@ -583,14 +583,14 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		public bool Pull()
 		{
-			var baseHash = GetCommonBaseHashesWithRemoteRepo();
-			if (baseHash.Count == 0)
+			var baseHashes = GetCommonBaseHashesWithRemoteRepo();
+			if (baseHashes.Count == 0)
 			{
 				// an empty list indicates that the server has an empty repo
 				// in this case there is no reason to Pull
 				return false;
 			}
-			return Pull(GetHashStringsFromRevisions(baseHash));
+			return Pull(GetHashStringsFromRevisions(baseHashes));
 		}
 
 		public bool Pull(string[] baseRevisions)
