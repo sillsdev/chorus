@@ -1,78 +1,65 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.Serialization;
 using System.ServiceModel;
-using System.Text;
-using ChorusHub;
+using Palaso.Progress;
 
 namespace ChorusHub
 {
 	 [ServiceContract]
 	public interface IChorusHubService
 	{
-		[OperationContract]
+		  [OperationContract]
 		 IEnumerable<string> GetRepositoryNames();
+
+		[OperationContract]
+		bool PrepareToReceiveRepository(string name);
 	}
 
-	 [ServiceBehavior(InstanceContextMode = InstanceContextMode.PerSession)]
-	 internal class ServiceImplementation : IChorusHubService
-	 {
-		 public IEnumerable<string> GetRepositoryNames()
-		 {
-			 Console.WriteLine("Client requested repository names.");
-
-			 foreach (var directory in Directory.GetDirectories(ChorusHubService._rootPath))
-			 {
-				 yield return Path.GetFileName(directory);
-			 }
-		 }
-	 }
-
-	 //[ServiceBehavior(InstanceContextMode = InstanceContextMode.Single)]
-	public class ChorusHubService:IDisposable//, IChorusHubService
+	public class ChorusHubService:IDisposable
 	{
 		internal static string _rootPath;
 		private ServiceHost _serviceHost;
 		public const int ServicePort = 8002;
 		private static HgServeRunner _hgServer;
 		private static Advertiser _advertiser;
+		public IProgress Progress = new ConsoleProgress();
 
 		public ChorusHubService(string rootPath)
 		{
 			_rootPath = rootPath;
 		}
-//         public IEnumerable<string> GetRepositoryNames()
-//         {
-//             Console.WriteLine("Client requested repository names.");
-//
-//             foreach (var directory in Directory.GetDirectories(_rootPath))
-//             {
-//                 yield return directory;
-//             }
-//         }
 
 		/// <summary>
 		///
 		/// </summary>
 		/// <param name="includeMercurialServer">During tests that don't actually involve send/receive/clone, you can speed things
 		/// up by setting this to false</param>
-		public void Start(bool includeMercurialServer)
+		public bool Start(bool includeMercurialServer)
 		{
-			if(includeMercurialServer)
+			try
 			{
-				_hgServer = new HgServeRunner(_rootPath);
-				_hgServer.Start();
-			}
-			_advertiser = new Advertiser();
-			_advertiser.Start();
+				if (includeMercurialServer)
+				{
+					_hgServer = new HgServeRunner(_rootPath) { Progress = Progress };
+					if (!_hgServer.Start())
+						return false;
+				}
+				_advertiser = new Advertiser() { Progress = Progress };
+				_advertiser.Start();
 
-			//gave security error _serviceHost = new ServiceHost(this);
-			_serviceHost = new ServiceHost(typeof(ServiceImplementation));
-			//_serviceHost.AddServiceEndpointtypeof(IChorusHubService), new NetTcpBinding(), "net.tcp://localhost:" + ServicePort.ToString());
-			_serviceHost.AddServiceEndpoint(typeof(IChorusHubService), new NetTcpBinding(), "net.tcp://localhost:" + ServicePort.ToString());
-			_serviceHost.Open();
+				//gave security error _serviceHost = new ServiceHost(this);
+				_serviceHost = new ServiceHost(typeof(ServiceImplementation));
+				string address = "net.tcp://localhost:" + ServicePort.ToString();
+				_serviceHost.AddServiceEndpoint(typeof(IChorusHubService), new NetTcpBinding(), address);
+				Progress.WriteVerbose("Starting extra chorus hub services on {0}", address);
+				_serviceHost.Open();
+				return true;
+			}
+			catch (Exception error)
+			{
+				Progress.WriteException(error);
+				return false;
+			}
 		}
 
 

@@ -6,7 +6,7 @@
 	<ProductVersion>8.0.30703</ProductVersion>
 	<SchemaVersion>2.0</SchemaVersion>
 	<ProjectGuid>{EB8C974D-B1C6-4CE0-BFD4-170EFE18790C}</ProjectGuid>
-	<OutputType>Exe</OutputType>
+	<OutputType>WinExe</OutputType>
 	<AppDesignerFolder>Properties</AppDesignerFolder>
 	<RootNamespace>ChorusHub</RootNamespace>
 	<AssemblyName>ChorusHub</AssemblyName>
@@ -83,15 +83,24 @@
 	<CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
 	<CodeAnalysisIgnoreBuiltInRules>false</CodeAnalysisIgnoreBuiltInRules>
   </PropertyGroup>
+  <PropertyGroup>
+	<ApplicationIcon>chorusHubIcon.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
 	<Reference Include="Palaso, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86">
 	  <SpecificVersion>False</SpecificVersion>
 	  <HintPath>..\..\lib\Release\Palaso.dll</HintPath>
 	</Reference>
+	<Reference Include="PalasoUIWindowsForms, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86">
+	  <SpecificVersion>False</SpecificVersion>
+	  <HintPath>..\..\lib\Debug\PalasoUIWindowsForms.dll</HintPath>
+	</Reference>
 	<Reference Include="System" />
 	<Reference Include="System.Core" />
+	<Reference Include="System.Drawing" />
 	<Reference Include="System.Runtime.Serialization" />
 	<Reference Include="System.ServiceModel" />
+	<Reference Include="System.Windows.Forms" />
 	<Reference Include="System.Xml.Linq" />
 	<Reference Include="System.Data" />
 	<Reference Include="System.Xml" />
@@ -100,10 +109,17 @@
 	<Compile Include="Advertiser.cs" />
 	<Compile Include="ChorusHubClient.cs" />
 	<Compile Include="ChorusHubInfo.cs" />
+	<Compile Include="ChorusHubWindow.cs">
+	  <SubType>Form</SubType>
+	</Compile>
+	<Compile Include="ChorusHubWindow.Designer.cs">
+	  <DependentUpon>ChorusHubWindow.cs</DependentUpon>
+	</Compile>
 	<Compile Include="HgServeRunner.cs" />
 	<Compile Include="ChorusHubService.cs" />
 	<Compile Include="Program.cs" />
 	<Compile Include="Properties\AssemblyInfo.cs" />
+	<Compile Include="ServiceImplementation.cs" />
   </ItemGroup>
   <ItemGroup>
 	<BootstrapperPackage Include=".NETFramework,Version=v4.0,Profile=Client">
@@ -135,6 +151,14 @@
   </ItemGroup>
   <ItemGroup>
 	<None Include="app.config" />
+  </ItemGroup>
+  <ItemGroup>
+	<EmbeddedResource Include="ChorusHubWindow.resx">
+	  <DependentUpon>ChorusHubWindow.cs</DependentUpon>
+	</EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+	<Content Include="chorusHubIcon.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.

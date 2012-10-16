@@ -3,8 +3,10 @@ using System.Diagnostics;
 using System.IO;
 using System.Text;
 //using System.Web;
+using System.Threading;
 using Chorus.VcsDrivers.Mercurial;
-using Palaso.Progress.LogBox;
+using Palaso.CommandLineProcessing;
+using Palaso.Progress;
 
 namespace ChorusHub
 {
@@ -12,67 +14,101 @@ namespace ChorusHub
 	{
 		public static string Port = "8000";
 		private Process _hgServeProcess;
-		private ConsoleProgress _consoleProgress = new ConsoleProgress();
+		public IProgress Progress = new ConsoleProgress();
 		private string _rootFolder;
+		private Thread _hgServeThread
+			;
 
 		public HgServeRunner(string rootFolder)
 		{
 			_rootFolder = rootFolder;
 		}
-		public void Start()
+		/// <summary>
+		///
+		/// </summary>
+		/// <returns>false if it couldn't start</returns>
+		public bool Start()
 		{
-			foreach (var hg  in Process.GetProcessesByName("hg")  )
+			try
 			{
-				Console.WriteLine("Killing old hg...");
-				hg.Kill();
-				if(!hg.WaitForExit(10000))
+				foreach (var hg in Process.GetProcessesByName("hg"))
 				{
-					Console.WriteLine("ChorusHub was unable to stop an old hg from running. It will now give up and exit.\r\nPlease press a key.");
-					Console.ReadKey();
-					Process.GetCurrentProcess().Kill();
+					Progress.WriteMessage("Killing old hg...");
+					hg.Kill();
+					if (!hg.WaitForExit(10000))
+					{
+						Progress.WriteError(
+							"ChorusHub was unable to stop an old hg from running. It will now give up. You should stop the server and run it again after killing whatever 'hg.exe' process is running.");
+						return false;
+					}
 				}
+
+
+				//we make directories based on what we see in there, so start it afresh lest we re-create folder names
+				//that the user long ago stopped using
+
+				if (File.Exists(AccessLogPath))
+					File.Delete(AccessLogPath);
+
+				if (!Directory.Exists(_rootFolder))
+					Directory.CreateDirectory(_rootFolder);
+
+				Progress.WriteMessage("Starting Mercurial Server");
+
+				WriteConfigFile(_rootFolder);
+
+				var arguments = "serve -A accessLog.txt -E log.txt -p " + Port + " ";
+
+				const float kHgVersion = (float)1.5;
+				if (kHgVersion < 1.9)
+				{
+					arguments += "--webdir-conf hgweb.config";
+				}
+				else
+				{
+					arguments += "--web-conf hgweb.config";
+				}
+
+#if CommandWindow
+				_hgServeProcess = new Process();
+				_hgServeProcess.StartInfo.WorkingDirectory = _rootFolder;
+				_hgServeProcess.StartInfo.FileName = Chorus.MercurialLocation.PathToHgExecutable;
+				_hgServeProcess.StartInfo.Arguments = arguments;
+				_hgServeProcess.StartInfo.ErrorDialog = true;
+				_hgServeProcess.StartInfo.UseShellExecute = false;
+				_hgServeProcess.StartInfo.RedirectStandardOutput = true;
+				_hgServeProcess.Start();
+#else
+				_hgServeThread = new Thread(() =>
+												{
+													var commandLineRunner = new CommandLineRunner();
+													try
+													{
+														commandLineRunner.Start(
+															Chorus.MercurialLocation.PathToHgExecutable,
+															arguments,
+															Encoding.UTF8, _rootFolder, -1,
+															Progress, (s) => Progress.WriteMessage(s));
+													}
+													catch (ThreadAbortException)
+													{
+														Progress.WriteVerbose("Hg Serve command Thread Aborting (that's normal when stopping)");
+														if(!commandLineRunner.Abort(1))
+														{
+															Progress.WriteWarning("Hg Serve might not have closed down.");
+														}
+													}
+												});
+				_hgServeThread.Start();
+#endif
+
+				return true;
 			}
-
-
-			//we make directories based on what we see in there, so start it afresh lest we re-create folder names
-			//that the user long ago stopped using
-
-			if (File.Exists(AccessLogPath))
-				File.Delete(AccessLogPath);
-
-			if (!Directory.Exists(_rootFolder))
-				Directory.CreateDirectory(_rootFolder);
-
-			Console.WriteLine("Starting hg");
-
-			WriteConfigFile(_rootFolder);
-			_hgServeProcess = new Process();
-			_hgServeProcess.StartInfo.WorkingDirectory = _rootFolder;
-			_hgServeProcess.StartInfo.FileName = Chorus.MercurialLocation.PathToHgExecutable;
-
-			_hgServeProcess.StartInfo.Arguments = "serve -A accessLog.txt -E log.txt -p "+Port+" ";
-
-			const float kHgVersion = (float) 1.5;
-			if(kHgVersion < 1.9)
+			catch (Exception error)
 			{
-				_hgServeProcess.StartInfo.Arguments += "--webdir-conf hgweb.config";
+				Progress.WriteException(error);
+				return false;
 			}
-			else
-			{
-				_hgServeProcess.StartInfo.Arguments += "--web-conf hgweb.config";
-			}
-			_hgServeProcess.StartInfo.ErrorDialog = true;
-
-//            var result = CommandLineRunner.Run(Chorus.MercurialLocation.PathToHgExecutable,
-//                                  "serve  -A accessLog.txt -E log.txt --web-conf hgweb.config",
-//                                  Encoding.UTF8, _rootFolder, -1,
-//                                  _consoleProgress, (s)=>_consoleProgress.WriteMessage(s));
-//
-
-
-			_hgServeProcess.StartInfo.UseShellExecute = false;
-			_hgServeProcess.StartInfo.RedirectStandardOutput = true;
-			 _hgServeProcess.Start();
 		}
 
 
@@ -131,14 +167,14 @@ namespace ChorusHub
 								directory = Palaso.Network.HttpUtilityFromMono.UrlDecode(directory);
 								if (!Directory.Exists(directory))
 								{
-									Console.WriteLine("Creating new folder '" + name+"'");
+									Progress.WriteMessage("Creating new folder '" + name + "'");
 									Directory.CreateDirectory(directory);
 								}
 								if (!Directory.Exists(Path.Combine(directory, ".hg")))
 								{
-									Console.WriteLine("Initializing blank repository: " + name +
+									Progress.WriteMessage("Initializing blank repository: " + name +
 													  ". Try Sending again in a few minutes, when hg notices the new directory.");
-									HgRepository.CreateRepositoryInExistingDir(directory, _consoleProgress);
+									HgRepository.CreateRepositoryInExistingDir(directory, Progress);
 								}
 							}
 						}
@@ -149,25 +185,27 @@ namespace ChorusHub
 					}
 				}
 			}
-			catch (Exception)
+			catch (Exception error)
 			{
-				//swallow
+				Progress.WriteException(error);
 			}
 		}
 
 		public void Stop()
 		{
-			if (_hgServeProcess != null && !_hgServeProcess.HasExited)
+			//if (_hgServeProcess != null && !_hgServeProcess.HasExited)
 			{
-				Debug.WriteLine("Hg Server Stopping...");
-				_hgServeProcess.Kill();
-				if(_hgServeProcess.WaitForExit(1 * 1000))
+				Progress.WriteMessage("Hg Server Stopping...");
+				//_hgServeProcess.Kill();
+				_hgServeThread.Abort();
+
+				if(_hgServeThread.Join(2*1000))
 				{
-					Debug.WriteLine("Hg Server Stopped");
+					Progress.WriteMessage("Hg Server Stopped");
 				}
 				else
 				{
-					Debug.WriteLine("***Gave up on hg server stopping");
+					Progress.WriteError("***Gave up on hg server stopping");
 				}
 				_hgServeProcess = null;
 			}

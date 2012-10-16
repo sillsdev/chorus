@@ -51,18 +51,21 @@ namespace ChorusHub
 			}
 		}
 
-		public void ReceiveFindingCallback(IAsyncResult args)
+		private void ReceiveFindingCallback(IAsyncResult args)
 		{
 
 			Byte[] receiveBytes;
 			try
 			{
-			   receiveBytes  = _udpClient.EndReceive(args, ref _ipEndPoint);
+				if (_udpClient.Client == null)
+					return;
+				receiveBytes  = _udpClient.EndReceive(args, ref _ipEndPoint);
 			}
 			catch(ObjectDisposedException)
 			{
-				//this is actually the expect behavior, if there is no chorus hub out there!
+				//this is actually the expected behavior, if there is no chorus hub out there!
 				//http://stackoverflow.com/questions/4662553/how-to-abort-sockets-beginreceive
+				//note the check for Client == null above seems to help some...
 
 				return;
 			}
@@ -123,6 +126,31 @@ namespace ChorusHub
 		public string GetUrl(string repositoryName)
 		{
 			return _foundHubInfo.GetHgHttpUri(repositoryName);
+		}
+
+		/// <summary>
+		/// Since Hg Serve doesn't provide a way to make new repositories, this asks our ChorusHub wrapper
+		/// to do create the repository. The complexity comes in the timing; hg serve will eventually
+		/// notice the new server, but we don't really know when.
+		/// </summary>
+		/// <param name="directoryName"></param>
+		public bool PrepareHubToSync(string directoryName)
+		{
+			//Enchance: after creating and init'ing the folder, it would be possible to keep asking
+			//hg serve if it knows about the repository until finally it says "yes", instead of just
+			//guessing at a single amount of time to wait
+			var factory = new ChannelFactory<IChorusHubService>(new NetTcpBinding(), _foundHubInfo.ServiceUri);
+
+			var channel = factory.CreateChannel();
+			try
+			{
+				var doWait = channel.PrepareToReceiveRepository(directoryName);
+				return doWait;
+			}
+			finally
+			{
+				(channel as ICommunicationObject).Close();
+			}
 		}
 	}
 }

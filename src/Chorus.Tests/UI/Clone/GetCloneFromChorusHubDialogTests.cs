@@ -6,7 +6,7 @@ using Chorus.VcsDrivers.Mercurial;
 using ChorusHub;
 using LibChorus.TestUtilities;
 using NUnit.Framework;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
 using Palaso.TestUtilities;
 
 namespace Chorus.Tests.UI.Clone

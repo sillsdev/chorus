@@ -7,7 +7,9 @@ using System.Threading;
 using System.Windows.Forms;
 using ChorusHub;
 using Palaso.Progress;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
+using Palaso.UI.WindowsForms.Progress;
+
 
 namespace Chorus.UI.Clone
 {

@@ -1,5 +1,7 @@
 ﻿using System;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
+using Palaso.UI.WindowsForms.Progress;
+
 
 namespace Chorus.UI.Clone
 {

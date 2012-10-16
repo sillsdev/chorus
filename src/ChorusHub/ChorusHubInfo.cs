@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Specialized;
+﻿using System.Collections.Specialized;
 using System.Linq;
-using System.Text;
-using Chorus.Utilities;
 
 namespace ChorusHub
 {
@@ -73,7 +69,6 @@ namespace ChorusHub
 
 		public string GetHgHttpUri(string directoryName)
 		{
-
 			//the "chorushub" pretend user name here is to help build helpful error reports if somethig
 			//goes wrong. The error-explainer can look at the url and know that we were trying to reach
 			//a chorus hub, and give more helpful advise.

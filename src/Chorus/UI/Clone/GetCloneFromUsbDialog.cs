@@ -5,7 +5,7 @@ using System.Media;
 using System.Windows.Forms;
 using System.Linq;
 using Palaso.Extensions;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
 
 namespace Chorus.UI.Clone
 {

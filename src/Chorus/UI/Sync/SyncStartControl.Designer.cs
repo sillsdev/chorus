@@ -36,7 +36,7 @@ namespace Chorus.UI.Sync
 		private void InitializeComponent()
 		{
 			this.components = new System.ComponentModel.Container();
-			this._useSharedFolderButton = new System.Windows.Forms.Button();
+			this._useLocalNetworkButton = new System.Windows.Forms.Button();
 			this._useInternetButton = new System.Windows.Forms.Button();
 			this._useUSBButton = new System.Windows.Forms.Button();
 			this._updateDisplayTimer = new System.Windows.Forms.Timer(this.components);
@@ -55,20 +55,20 @@ namespace Chorus.UI.Sync
 			((System.ComponentModel.ISupportInitialize)(this.usbDriveLocator)).BeginInit();
 			this.SuspendLayout();
 			//
-			// _useSharedFolderButton
+			// _useLocalNetworkButton
 			//
-			this._useSharedFolderButton.BackColor = System.Drawing.Color.White;
-			this._useSharedFolderButton.Enabled = false;
-			this._useSharedFolderButton.Image = global::Chorus.Properties.Resources.networkFolder29x32;
-			this._useSharedFolderButton.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-			this._useSharedFolderButton.Location = new System.Drawing.Point(3, 228);
-			this._useSharedFolderButton.Name = "_useSharedFolderButton";
-			this._useSharedFolderButton.Size = new System.Drawing.Size(167, 38);
-			this._useSharedFolderButton.TabIndex = 3;
-			this._useSharedFolderButton.Text = "&Shared Network Folder";
-			this._useSharedFolderButton.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
-			this._useSharedFolderButton.UseVisualStyleBackColor = false;
-			this._useSharedFolderButton.Click += new System.EventHandler(this._useSharedFolderButton_Click);
+			this._useLocalNetworkButton.BackColor = System.Drawing.Color.White;
+			this._useLocalNetworkButton.Enabled = false;
+			this._useLocalNetworkButton.Image = global::Chorus.Properties.Resources.chorusHubMedium;
+			this._useLocalNetworkButton.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			this._useLocalNetworkButton.Location = new System.Drawing.Point(3, 228);
+			this._useLocalNetworkButton.Name = "_useLocalNetworkButton";
+			this._useLocalNetworkButton.Size = new System.Drawing.Size(167, 38);
+			this._useLocalNetworkButton.TabIndex = 3;
+			this._useLocalNetworkButton.Text = "&Chorus Hub";
+			this._useLocalNetworkButton.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
+			this._useLocalNetworkButton.UseVisualStyleBackColor = false;
+			this._useLocalNetworkButton.Click += new System.EventHandler(this._useSharedFolderButton_Click);
 			//
 			// _useInternetButton
 			//
@@ -116,7 +116,7 @@ namespace Chorus.UI.Sync
 			this._tableLayoutPanel.Controls.Add(this._usbStatusLabel, 0, 3);
 			this._tableLayoutPanel.Controls.Add(this._useInternetButton, 0, 4);
 			this._tableLayoutPanel.Controls.Add(this._internetStatusLabel, 0, 5);
-			this._tableLayoutPanel.Controls.Add(this._useSharedFolderButton, 0, 6);
+			this._tableLayoutPanel.Controls.Add(this._useLocalNetworkButton, 0, 6);
 			this._tableLayoutPanel.Controls.Add(this._useSharedFolderStatusLabel, 0, 7);
 			this._tableLayoutPanel.Controls.Add(this._internetDiagnosticsLink, 1, 4);
 			this._tableLayoutPanel.Controls.Add(this._sharedNetworkDiagnosticsLink, 1, 6);
@@ -274,7 +274,7 @@ namespace Chorus.UI.Sync
 
 		private System.Windows.Forms.Button _useUSBButton;
 		private System.Windows.Forms.Button _useInternetButton;
-		private System.Windows.Forms.Button _useSharedFolderButton;
+		private System.Windows.Forms.Button _useLocalNetworkButton;
 		private System.Windows.Forms.Timer _updateDisplayTimer;
 		private BetterLabel _usbStatusLabel;
 		private System.Windows.Forms.TableLayoutPanel _tableLayoutPanel;

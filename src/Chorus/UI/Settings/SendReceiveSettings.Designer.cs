@@ -45,13 +45,14 @@ namespace Chorus.UI.Settings
 			this.networkFolderTab = new System.Windows.Forms.TabPage();
 			this.pictureBox2 = new System.Windows.Forms.PictureBox();
 			this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
-			this._sharedFolderButtonEnabledCheckBox = new System.Windows.Forms.CheckBox();
+			this._showSharedFolderInSendReceive = new System.Windows.Forms.CheckBox();
 			this._sharedFolderSettingsControl = new Chorus.UI.Misc.NetworkFolderSettingsControl();
 			this._helpButton = new System.Windows.Forms.Button();
 			this._cancelButton = new System.Windows.Forms.Button();
 			this._okButton = new System.Windows.Forms.Button();
 			this.settingsProtectionButton = new Palaso.UI.WindowsForms.SettingProtection.SettingsProtectionLauncherButton();
 			this.pictureBox3 = new System.Windows.Forms.PictureBox();
+			this._showChorusHubInSendReceive = new System.Windows.Forms.CheckBox();
 			this.settingsTabs.SuspendLayout();
 			this.internetTab.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
@@ -150,6 +151,7 @@ namespace Chorus.UI.Settings
 			//
 			// chorusHubTab
 			//
+			this.chorusHubTab.Controls.Add(this._showChorusHubInSendReceive);
 			this.chorusHubTab.Controls.Add(this.betterLabel1);
 			this.chorusHubTab.Controls.Add(this.pictureBox4);
 			this.chorusHubTab.Location = new System.Drawing.Point(4, 22);
@@ -168,12 +170,12 @@ namespace Chorus.UI.Settings
 			this.betterLabel1.BackColor = System.Drawing.Color.White;
 			this.betterLabel1.BorderStyle = System.Windows.Forms.BorderStyle.None;
 			this.betterLabel1.Font = new System.Drawing.Font("Segoe UI", 9F);
-			this.betterLabel1.Location = new System.Drawing.Point(85, 17);
+			this.betterLabel1.Location = new System.Drawing.Point(85, 44);
 			this.betterLabel1.Multiline = true;
 			this.betterLabel1.Name = "betterLabel1";
 			this.betterLabel1.ReadOnly = true;
 			this.betterLabel1.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-			this.betterLabel1.Size = new System.Drawing.Size(365, 228);
+			this.betterLabel1.Size = new System.Drawing.Size(365, 201);
 			this.betterLabel1.TabIndex = 4;
 			this.betterLabel1.TabStop = false;
 			this.betterLabel1.Text = resources.GetString("betterLabel1.Text");
@@ -210,7 +212,7 @@ namespace Chorus.UI.Settings
 			//
 			// flowLayoutPanel1
 			//
-			this.flowLayoutPanel1.Controls.Add(this._sharedFolderButtonEnabledCheckBox);
+			this.flowLayoutPanel1.Controls.Add(this._showSharedFolderInSendReceive);
 			this.flowLayoutPanel1.Controls.Add(this._sharedFolderSettingsControl);
 			this.flowLayoutPanel1.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
 			this.flowLayoutPanel1.Location = new System.Drawing.Point(89, 15);
@@ -219,16 +221,16 @@ namespace Chorus.UI.Settings
 			this.flowLayoutPanel1.TabIndex = 1;
 			this.flowLayoutPanel1.WrapContents = false;
 			//
-			// _sharedFolderButtonEnabledCheckBox
+			// _showSharedFolderTargetOption
 			//
-			this._sharedFolderButtonEnabledCheckBox.AutoSize = true;
-			this._sharedFolderButtonEnabledCheckBox.Location = new System.Drawing.Point(10, 3);
-			this._sharedFolderButtonEnabledCheckBox.Margin = new System.Windows.Forms.Padding(10, 3, 3, 3);
-			this._sharedFolderButtonEnabledCheckBox.Name = "_sharedFolderButtonEnabledCheckBox";
-			this._sharedFolderButtonEnabledCheckBox.Size = new System.Drawing.Size(247, 17);
-			this._sharedFolderButtonEnabledCheckBox.TabIndex = 0;
-			this._sharedFolderButtonEnabledCheckBox.Text = "Show Network Folder as Send/Receive option";
-			this._sharedFolderButtonEnabledCheckBox.UseVisualStyleBackColor = true;
+			this._showSharedFolderInSendReceive.AutoSize = true;
+			this._showSharedFolderInSendReceive.Location = new System.Drawing.Point(10, 3);
+			this._showSharedFolderInSendReceive.Margin = new System.Windows.Forms.Padding(10, 3, 3, 3);
+			this._showSharedFolderInSendReceive.Name = "_showSharedFolderInSendReceive";
+			this._showSharedFolderInSendReceive.Size = new System.Drawing.Size(256, 17);
+			this._showSharedFolderInSendReceive.TabIndex = 0;
+			this._showSharedFolderInSendReceive.Text = "Show Network Folder as a Send/Receive option";
+			this._showSharedFolderInSendReceive.UseVisualStyleBackColor = true;
 			//
 			// _sharedFolderSettingsControl
 			//
@@ -291,6 +293,17 @@ namespace Chorus.UI.Settings
 			this.pictureBox3.TabIndex = 6;
 			this.pictureBox3.TabStop = false;
 			//
+			// _showChorusHubAsTargetOption
+			//
+			this._showChorusHubInSendReceive.AutoSize = true;
+			this._showChorusHubInSendReceive.Location = new System.Drawing.Point(85, 17);
+			this._showChorusHubInSendReceive.Margin = new System.Windows.Forms.Padding(10, 3, 3, 3);
+			this._showChorusHubInSendReceive.Name = "_showChorusHubInSendReceive";
+			this._showChorusHubInSendReceive.Size = new System.Drawing.Size(240, 17);
+			this._showChorusHubInSendReceive.TabIndex = 5;
+			this._showChorusHubInSendReceive.Text = "Show Chorus Hub as a Send/Receive option";
+			this._showChorusHubInSendReceive.UseVisualStyleBackColor = true;
+			//
 			// SendReceiveSettings
 			//
 			this.AcceptButton = this._okButton;
@@ -345,7 +358,7 @@ namespace Chorus.UI.Settings
 		private System.Windows.Forms.CheckBox _internetButtonEnabledCheckBox;
 		private Misc.ServerSettingsControl _serverSettingsControl;
 		private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
-		private System.Windows.Forms.CheckBox _sharedFolderButtonEnabledCheckBox;
+		private System.Windows.Forms.CheckBox _showSharedFolderInSendReceive;
 		private Misc.NetworkFolderSettingsControl _sharedFolderSettingsControl;
 		private System.Windows.Forms.PictureBox pictureBox1;
 		private System.Windows.Forms.PictureBox pictureBox2;
@@ -353,5 +366,6 @@ namespace Chorus.UI.Settings
 		private System.Windows.Forms.TabPage chorusHubTab;
 		private BetterLabel betterLabel1;
 		private System.Windows.Forms.PictureBox pictureBox4;
+		private System.Windows.Forms.CheckBox _showChorusHubInSendReceive;
 	}
 }

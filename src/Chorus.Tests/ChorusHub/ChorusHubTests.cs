@@ -6,7 +6,7 @@ using Chorus.UI.Clone;
 using ChorusHub;
 using LibChorus.TestUtilities;
 using NUnit.Framework;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
 using Palaso.TestUtilities;
 using System.Linq;
 
