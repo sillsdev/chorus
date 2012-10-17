@@ -802,14 +802,19 @@ namespace Chorus.merge.xml.generic
 		{
 			if (parent == null || !parent.HasChildNodes)
 				return;
-
+			var elementStrat = mergeStrategies.GetElementStrategy(parent);
+			if (elementStrat.IsImmutable)
+				return;
 			var ambiguousNodes = new List<XmlNode>();
 			foreach (XmlNode childNode in parent.ChildNodes)
 			{
 				if (ambiguousNodes.Contains(childNode))
 					continue; // Already found it, so don't bother processing it again.
 
-				var finder = mergeStrategies.GetElementStrategy(childNode).MergePartnerFinder;
+				elementStrat = mergeStrategies.GetElementStrategy(childNode);
+				if (elementStrat.IsImmutable)
+					continue;
+				var finder = elementStrat.MergePartnerFinder;
 				var query = finder.GetMatchingNodeFindingQuery(childNode);
 				if (string.IsNullOrEmpty(query))
 					continue; // Finder isn't concerned with duplicates, so keep going.
