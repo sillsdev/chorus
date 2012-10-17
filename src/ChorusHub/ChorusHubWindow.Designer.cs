@@ -31,7 +31,7 @@ namespace ChorusHub
 		private void InitializeComponent()
 		{
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ChorusHubWindow));
-			this._logBox = new LogBox();
+			this._logBox = new Palaso.UI.WindowsForms.Progress.LogBox();
 			this._stopChorusHub = new System.Windows.Forms.LinkLabel();
 			this.SuspendLayout();
 			//
@@ -89,7 +89,7 @@ namespace ChorusHub
 
 		#endregion
 
-		private LogBox _logBox;
+		private Palaso.UI.WindowsForms.Progress.LogBox _logBox;
 		private System.Windows.Forms.LinkLabel _stopChorusHub;
 	}
 }
