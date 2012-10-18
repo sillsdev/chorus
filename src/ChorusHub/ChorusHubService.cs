@@ -88,9 +88,10 @@ namespace ChorusHub
 			Stop();
 		}
 
-		public void Tick()
+		public void DoOccasionalBackgroundTasks()
 		{
-			_hgServer.CheckForFailedPushes();
+			if(_hgServer!=null)
+				_hgServer.CheckForFailedPushes();
 		}
 	}
 }

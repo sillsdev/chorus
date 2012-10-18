@@ -29,6 +29,7 @@ namespace ChorusHub
 			{
 				_logBox.WriteMessageWithColor(Color.Blue, "Chorus Hub Started");
 			}
+			_serviceTimer.Enabled = true;
 		}
 
 		protected override void OnClosing(CancelEventArgs e)
@@ -46,12 +47,18 @@ namespace ChorusHub
 		{
 			if (_running)
 				_service.Stop();
+			_serviceTimer.Enabled = false;
 			_running = false;
 			_stopChorusHub.Enabled = false;
 			_stopChorusHub.Text = "Stopped";
 			_logBox.WriteMessageWithColor(Color.Blue,"Chorus Hub Stopped");
 			_logBox.WriteMessage("Quit and run Chorus Hub to start again.");
 			//Close();
+		}
+
+		private void timer1_Tick(object sender, EventArgs e)
+		{
+			_service.DoOccasionalBackgroundTasks();
 		}
 	}
 }

@@ -30,9 +30,11 @@ namespace ChorusHub
 		/// </summary>
 		private void InitializeComponent()
 		{
+			this.components = new System.ComponentModel.Container();
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ChorusHubWindow));
 			this._logBox = new Palaso.UI.WindowsForms.Progress.LogBox();
 			this._stopChorusHub = new System.Windows.Forms.LinkLabel();
+			this._serviceTimer = new System.Windows.Forms.Timer(this.components);
 			this.SuspendLayout();
 			//
 			// _logBox
@@ -69,6 +71,10 @@ namespace ChorusHub
 			this._stopChorusHub.Text = "Stop Chorus Hub";
 			this._stopChorusHub.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this._stopChorusHub_LinkClicked);
 			//
+			// timer1
+			//
+			this._serviceTimer.Tick += new System.EventHandler(this.timer1_Tick);
+			//
 			// ChorusHubWindow
 			//
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -91,5 +97,6 @@ namespace ChorusHub
 
 		private Palaso.UI.WindowsForms.Progress.LogBox _logBox;
 		private System.Windows.Forms.LinkLabel _stopChorusHub;
+		private System.Windows.Forms.Timer _serviceTimer;
 	}
 }
