@@ -13,11 +13,10 @@ namespace ChorusHub
 		private ChorusHubService _service;
 		private bool _running;
 
-		public ChorusHubWindow(string path)
+		public ChorusHubWindow(ChorusHubParameters parameters)
 		{
 			InitializeComponent();
-			_service = new ChorusHubService(path);
-			_service.Progress = _logBox;
+			_service = new ChorusHubService(parameters) {Progress = _logBox};
 			_logBox.ShowDetailsMenuItem = true;
 			_logBox.ShowCopyToClipboardMenuItem = true;
 		}

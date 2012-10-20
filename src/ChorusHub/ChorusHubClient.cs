@@ -22,10 +22,15 @@ namespace ChorusHub
 			get { return _foundHubInfo!=null ? _foundHubInfo.HostName : ""; }
 		}
 
+		public bool ServerIsCompatibleWithThisClient
+		{
+			get { return _foundHubInfo.ServerIsCompatibleWithThisClient; }
+		}
+
 		public void StartFinding()
 		{
 
-			_ipEndPoint = new IPEndPoint(IPAddress.Any, Advertiser.Port);
+			_ipEndPoint = new IPEndPoint(IPAddress.Any, ChorusHubParameters.kAdvertisingPort);
 			_udpClient = new UdpClient();
 
 			//This reuse business is in hopes of avoiding the dreaded "Only one usage of each socket address is normally permitted"

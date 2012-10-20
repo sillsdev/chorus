@@ -12,16 +12,16 @@ namespace ChorusHub
 {
 	public class HgServeRunner :IDisposable
 	{
-		public static string Port = "8000";
-		private Process _hgServeProcess;
+		public readonly int Port;
+//        private Process _hgServeProcess;
 		public IProgress Progress = new ConsoleProgress();
-		private string _rootFolder;
-		private Thread _hgServeThread
-			;
+		private readonly string _rootFolder;
+		private Thread _hgServeThread;
 
-		public HgServeRunner(string rootFolder)
+		public HgServeRunner(string rootFolder, int port)
 		{
 			_rootFolder = rootFolder;
+			Port = port;
 		}
 		/// <summary>
 		///
@@ -57,7 +57,7 @@ namespace ChorusHub
 
 				WriteConfigFile(_rootFolder);
 
-				var arguments = "serve -A accessLog.txt -E log.txt -p " + Port + " ";
+				var arguments = "serve -A accessLog.txt -E log.txt -p " + Port.ToString() + " ";
 
 				const float kHgVersion = (float)1.5;
 				if (kHgVersion < 1.9)
@@ -194,6 +194,7 @@ namespace ChorusHub
 		public void Stop()
 		{
 			//if (_hgServeProcess != null && !_hgServeProcess.HasExited)
+			if(_hgServeThread !=null && _hgServeThread.IsAlive)
 			{
 				Progress.WriteMessage("Hg Server Stopping...");
 				//_hgServeProcess.Kill();
@@ -207,7 +208,8 @@ namespace ChorusHub
 				{
 					Progress.WriteError("***Gave up on hg server stopping");
 				}
-				_hgServeProcess = null;
+				//_hgServeProcess = null;
+				_hgServeThread = null;
 			}
 		}
 

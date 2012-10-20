@@ -208,6 +208,10 @@ namespace Chorus.UI.Sync
 			{
 				message = "No Chorus Hub found on local network.";
 			}
+			else if (!_chorusHubInfo.ServerIsCompatibleWithThisClient)
+			{
+				message = "Found Chorus Hub but it is not compatible with this version of "+Application.ProductName;
+			}
 			else
 			{
 				isReady = true;

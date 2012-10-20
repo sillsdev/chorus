@@ -9,7 +9,7 @@ using Palaso.Progress;
 namespace ChorusHub
 {
 	[ServiceBehavior(InstanceContextMode = InstanceContextMode.PerSession)]
-	internal class ServiceImplementation : IChorusHubService
+	internal class ChorusHubServiceImplementation : IChorusHubService
 	{
 		public IProgress Progress = new ConsoleProgress();
 
@@ -17,7 +17,7 @@ namespace ChorusHub
 		{
 			Progress.WriteMessage("Client requested repository names.");
 
-			foreach (var directory in Directory.GetDirectories(ChorusHubService._rootPath))
+			foreach (var directory in Directory.GetDirectories(ChorusHubService.Parameters.RootDirectory))
 			{
 				yield return Path.GetFileName(directory);
 			}
@@ -34,7 +34,7 @@ namespace ChorusHub
 			{
 				return false;
 			}
-			var directory = Path.Combine(ChorusHubService._rootPath, name);
+			var directory = Path.Combine(ChorusHubService.Parameters.RootDirectory, name);
 			Progress.WriteMessage("PrepareToReceiveRepository() is preparing a place for '" + name + "'");
 			Directory.CreateDirectory(directory);
 			HgRepository.CreateRepositoryInExistingDir(directory, new ConsoleProgress());

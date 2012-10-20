@@ -14,10 +14,13 @@ namespace ChorusHub
 		private IPEndPoint _endPoint;
 		private byte[] _sendBytes;
 		private string _currentIpAddress;
-		public const int Port=8883;
+		public int Port;
 		public IProgress Progress = new ConsoleProgress();
 
-
+		public Advertiser(int port)
+		{
+			Port = port;
+		}
 		public void Start()
 		{
 			_client = new UdpClient();
@@ -64,10 +67,10 @@ namespace ChorusHub
 			if (_currentIpAddress != GetLocalIpAddress())
 			{
 				_currentIpAddress = GetLocalIpAddress();
-				ChorusHubInfo info = new ChorusHubInfo(_currentIpAddress, HgServeRunner.Port.ToString(),
-													   System.Environment.MachineName);
+				ChorusHubInfo info = new ChorusHubInfo(_currentIpAddress, ChorusHubParameters.kMercurialPort.ToString(),
+													   System.Environment.MachineName, ChorusHubInfo.kVersionOfThisCode);
 				_sendBytes = Encoding.ASCII.GetBytes(info.ToString());
-				Progress.WriteMessage("Serving at http://" + _currentIpAddress + ":" + HgServeRunner.Port);
+				Progress.WriteMessage("Serving at http://" + _currentIpAddress + ":" + ChorusHubParameters.kMercurialPort);
 			}
 		}
 

@@ -56,7 +56,7 @@ namespace Chorus.Tests.ChorusHub
 				RepositorySetup.MakeRepositoryForTest(repo1.Path, "bob", new ConsoleProgress());
 				RepositorySetup.MakeRepositoryForTest(repo2.Path, "bob", new ConsoleProgress());
 
-				using (var service = new ChorusHubService(chorusHubSourceFolder.Path))
+				using (var service = new ChorusHubService(new ChorusHubParameters(){RootDirectory = chorusHubSourceFolder.Path}))
 				{
 					service.Start(false/* hg server plays no role in telling us what repositories are available */);
 					var client = new ChorusHubClient();

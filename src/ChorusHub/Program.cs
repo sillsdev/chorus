@@ -1,23 +1,81 @@
 ﻿using System;
+using System.IO;
 using System.Windows.Forms;
+using ChorusHub.Properties;
+using Palaso.Reporting;
+using CommandLine;
 
 namespace ChorusHub
 {
 	static class Program
 	{
-//        private static bool _isClosing;
-//        private static ChorusHubService _service;
 
-		/// <summary>
-		/// The main entry point for the application.
-		/// </summary>
 		[STAThread]
-		static void Main()
+		static void Main(string[] args)
+		{   var parameters = new ChorusHubParameters();
+			if(Parser.ParseHelp(args))
+			{
+				MessageBox.Show(Parser.ArgumentsUsage(parameters.GetType()),"Chorus Hub Command Line Parameters");
+				return;
+			}
+			if (!Parser.ParseArguments(args, parameters, ShowCommandLineError))
+			{
+				return;
+			}
+
+			string parentOfRoot = Path.GetDirectoryName(parameters.RootDirectory);
+			if(!Path.IsPathRooted(parameters.RootDirectory))
+			{
+			  Palaso.Reporting.ErrorReport.NotifyUserOfProblem("You supplied '{0}' for the root directory, but that doesn't have a drive letter.",
+																 parameters.RootDirectory);
+				return;
+			}
+			if(!Directory.Exists(parentOfRoot))
+			{
+				Palaso.Reporting.ErrorReport.NotifyUserOfProblem("In order to use '{0}', '{1}' must already exist",
+																 parameters.RootDirectory, parentOfRoot);
+				return;
+			}
+
+			SetupErrorHandling(parameters);
+			SetUpReporting();
+
+			Application.Run(mainForm: new ChorusHubWindow(parameters));
+		}
+
+		private static void ShowCommandLineError(string e)
 		{
+			MessageBox.Show(e + Environment.NewLine + Environment.NewLine + "Command Line Arguments are: "+ Environment.NewLine+Parser.ArgumentsUsage(typeof(ChorusHubParameters)), "Chorus Hub Command Line Problem");
+		}
 
-			Application.Run(new ChorusHubWindow("C:\\ChorusHub"));
+		private static void SetUpReporting()
+		{
+			if (Settings.Default.Reporting == null)
+			{
+				Settings.Default.Reporting = new ReportingSettings();
+				Settings.Default.Save();
+			}
+		 //TODO: set up Google Analytics account
+//            UsageReporter.Init(Settings.Default.Reporting, "hub.chorus.palaso.org", "UA-22170471-6",
+//#if DEBUG
+// true
+//#else
+// false
+//#endif
+//        );
+//            UsageReporter.AppNameToUseInDialogs = "Chorus Hub";
+//            UsageReporter.AppNameToUseInReporting = "ChorusHub";
+		}
 
-			//   SetConsoleCtrlHandler(new HandlerRoutine(ConsoleCtrlCheck), true);
+		private static void SetupErrorHandling(ChorusHubParameters chorusHubParameters)
+		{
+			ErrorReport.EmailAddress = "issues@chorus.palaso.org";
+			ErrorReport.AddProperty("Application", "ChorusHub");
+			ErrorReport.AddProperty("Directory", chorusHubParameters.RootDirectory);
+			ErrorReport.AddProperty("AdvertisingPort", ChorusHubParameters.kAdvertisingPort.ToString());
+			ErrorReport.AddProperty("MercurialPort", ChorusHubParameters.kMercurialPort.ToString());
+			ErrorReport.AddStandardProperties();
+			ExceptionHandler.Init();
 		}
 
 //

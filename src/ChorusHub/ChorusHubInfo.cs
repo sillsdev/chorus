@@ -11,6 +11,8 @@ namespace ChorusHub
 		private readonly string IpAddress;
 		private readonly string Port;
 		public string HostName;
+		public int VersionOfServerChorusHub;
+		internal const int kVersionOfThisCode = 1;
 
 
 		public static ChorusHubInfo Parse(string parameters)
@@ -20,8 +22,9 @@ namespace ChorusHub
 			var host = GetValue(parameters, "hostname");
 			var address = GetValue(parameters, "address");
 			var port = GetValue(parameters, "port");
+			var version =1+ int.Parse(GetValue(parameters, "version"));
 
-			return new ChorusHubInfo(address, port, host);
+			return new ChorusHubInfo(address, port, host,version);
 		}
 
 		private static string GetValue(string parameters, string name)
@@ -50,21 +53,27 @@ namespace ChorusHub
 			return parameters.StartsWith("ChorusHubInfo");
 		}
 
-		public ChorusHubInfo(string ipAddress, string port, string hostName)
+		public ChorusHubInfo(string ipAddress, string port, string hostName, int version)
 		{
 			IpAddress = ipAddress;
 			Port = port;
 			HostName = hostName;
+			VersionOfServerChorusHub = version;
+		}
+
+		public bool ServerIsCompatibleWithThisClient
+		{
+			get { return VersionOfServerChorusHub == kVersionOfThisCode; }
 		}
 
 		public override string ToString()
 		{
-			return string.Format("ChorusHubInfo?version=1&address={0}&port={1}&hostname={2}", IpAddress, Port, HostName);
+			return string.Format("ChorusHubInfo?version={0}&address={1}&port={2}&hostname={3}", kVersionOfThisCode, IpAddress, Port, HostName);
 		}
 
 		public string ServiceUri
 		{
-			get { return string.Format("net.tcp://{0}:{1}", IpAddress, ChorusHubService.ServicePort); }
+			get { return string.Format("net.tcp://{0}:{1}", IpAddress, ChorusHubParameters.kServicePort); }
 		}
 
 		public string GetHgHttpUri(string directoryName)

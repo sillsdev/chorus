@@ -31,7 +31,7 @@ namespace Chorus.Tests.UI.Clone
 		{
 			using (var testRoot = new TemporaryFolder("ChorusHubCloneTest"))
 			using (var chorusHubSourceFolder =  new TemporaryFolder(testRoot,"ChorusHub"))
-			using (var server = new ChorusHubService(chorusHubSourceFolder.Path))
+			using (var server = new ChorusHubService(new ChorusHubParameters(){RootDirectory=chorusHubSourceFolder.Path}))
 			using (var repo1 = new TemporaryFolder(chorusHubSourceFolder, "repo1"))
 			using (var repo2 = new TemporaryFolder(chorusHubSourceFolder, "repo2"))
 			{

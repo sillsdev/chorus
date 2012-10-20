@@ -17,16 +17,18 @@ namespace ChorusHub
 
 	public class ChorusHubService:IDisposable
 	{
-		internal static string _rootPath;
+		public static ChorusHubParameters Parameters;
 		private ServiceHost _serviceHost;
-		public const int ServicePort = 8002;
+		public int ServicePort;// = 8002;
+
 		private static HgServeRunner _hgServer;
 		private static Advertiser _advertiser;
 		public IProgress Progress = new ConsoleProgress();
 
-		public ChorusHubService(string rootPath)
+		public ChorusHubService(ChorusHubParameters parameters)
 		{
-			_rootPath = rootPath;
+			Parameters = parameters;
+			ServicePort = ChorusHubParameters.kServicePort;
 		}
 
 		/// <summary>
@@ -40,15 +42,15 @@ namespace ChorusHub
 			{
 				if (includeMercurialServer)
 				{
-					_hgServer = new HgServeRunner(_rootPath) { Progress = Progress };
+					_hgServer = new HgServeRunner(Parameters.RootDirectory, ChorusHubParameters.kMercurialPort) { Progress = Progress };
 					if (!_hgServer.Start())
 						return false;
 				}
-				_advertiser = new Advertiser() { Progress = Progress };
+				_advertiser = new Advertiser(ChorusHubParameters.kAdvertisingPort) { Progress = Progress };
 				_advertiser.Start();
 
 				//gave security error _serviceHost = new ServiceHost(this);
-				_serviceHost = new ServiceHost(typeof(ServiceImplementation));
+				_serviceHost = new ServiceHost(typeof(ChorusHubServiceImplementation));
 				string address = "net.tcp://localhost:" + ServicePort.ToString();
 				_serviceHost.AddServiceEndpoint(typeof(IChorusHubService), new NetTcpBinding(), address);
 				Progress.WriteVerbose("Starting extra chorus hub services on {0}", address);

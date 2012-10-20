@@ -192,6 +192,10 @@ namespace Chorus.UI.Clone
 			{
 				Text = "Sorry, no Chorus Hub was found.";
 			}
+			else if(!client.ServerIsCompatibleWithThisClient)
+			{
+				Text = "Found Chorus Hub but it is not compatible with this version of "+Application.ProductName;;
+			}
 			else
 			{
 				Text = string.Format("Get {0} from Chorus Hub on {1}", RepositoryKindLabel, client.HostName);
