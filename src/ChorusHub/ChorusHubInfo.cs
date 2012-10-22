@@ -22,7 +22,7 @@ namespace ChorusHub
 			var host = GetValue(parameters, "hostname");
 			var address = GetValue(parameters, "address");
 			var port = GetValue(parameters, "port");
-			var version =1+ int.Parse(GetValue(parameters, "version"));
+			var version =int.Parse(GetValue(parameters, "version"));
 
 			return new ChorusHubInfo(address, port, host,version);
 		}

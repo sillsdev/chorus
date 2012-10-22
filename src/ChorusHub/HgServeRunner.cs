@@ -57,7 +57,7 @@ namespace ChorusHub
 
 				WriteConfigFile(_rootFolder);
 
-				var arguments = "serve -A accessLog.txt -E log.txt -p " + Port.ToString() + " ";
+				var arguments = "serve -A accessLog.txt -E log.txt -p " + Port.ToString() + " --verbose ";
 
 				const float kHgVersion = (float)1.5;
 				if (kHgVersion < 1.9)
