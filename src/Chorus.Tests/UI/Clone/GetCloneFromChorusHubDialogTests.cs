@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Windows.Forms;
 using Chorus.UI.Clone;
@@ -21,9 +22,23 @@ namespace Chorus.Tests.UI.Clone
 		}
 
 		[Test, Ignore("By hand only")]
-		public void Open()
+		public void RunChorusHubServerAndOpenCloneDialog()
 		{
 			Launch();
+		}
+
+		[Test, Ignore("By hand only")]
+		public void OpenCloneDialog()
+		{
+			var testRoot = Path.Combine(Path.GetTempPath(), "ChorusHubCloneTest");
+			//using(var testRoot = new TemporaryFolder("ChorusHubCloneTest"))
+			{
+				using (var dlg = new GetCloneFromChorusHubDialog(new GetCloneFromChorusHubModel(testRoot)))
+				{
+					dlg.ShowDialog();
+				}
+			}
+			Process.Start(testRoot);
 		}
 
 

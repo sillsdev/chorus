@@ -346,6 +346,10 @@ namespace Chorus.VcsDrivers.Mercurial
 				{
 					specificError = new ProjectLabelErrorException(targetUri);
 				}
+				else if(UnrelatedRepositoryErrorException.ErrorMatches(error))
+				{
+					specificError = new UnrelatedRepositoryErrorException(targetUri);
+				}
 				else if (FirewallProblemSuspectedException.ErrorMatches(error))
 				{
 					specificError = new FirewallProblemSuspectedException();

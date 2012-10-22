@@ -114,6 +114,32 @@ namespace Chorus.VcsDrivers.Mercurial
 		}
 	}
 
+
+	public class UnrelatedRepositoryErrorException : HgCommonException
+	{
+		private readonly string _sourceUri;
+
+		public UnrelatedRepositoryErrorException(string sourceUri)
+		{
+			_sourceUri = sourceUri;
+		}
+
+		public static bool ErrorMatches(Exception error)
+		{
+			return error.Message.Contains("unrelated");
+		}
+
+		public override string Message
+		{
+			get
+			{
+				return
+					string.Format(
+						"The repository(a.k.a 'project' or 'collection') that you tried to synchronize with has the same name as yours, but it does not have the same heritage, so it cannot be synchronized. In order to Send/Receive projects, you have to start with a single project/collection, then copy that around. Don't feel bad if this is confusing, just ask for some technical help.");
+			}
+		}
+	}
+
 	public class ProjectLabelErrorException : HgCommonException
 	{
 		private readonly string _sourceUri;
