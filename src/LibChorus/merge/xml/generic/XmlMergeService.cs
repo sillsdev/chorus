@@ -637,15 +637,15 @@ namespace Chorus.merge.xml.generic
 										  out Dictionary<string, string> allLoserData, out HashSet<string> allLoserIds)
 		{
 			allCommonAncestorData = MakeRecordDictionary(mergeOrder.EventListener, mergeStrategy,
-														 commonAncestorPathname, optionalFirstElementMarker,
+														 commonAncestorPathname, false, optionalFirstElementMarker,
 														 repeatingRecordElementName, repeatingRecordKeyIdentifier);
 			allCommonAncestorIds = new HashSet<string>(allCommonAncestorData.Keys, StringComparer.InvariantCultureIgnoreCase);
 			allWinnerData = MakeRecordDictionary(mergeOrder.EventListener, mergeStrategy,
-												 pathToWinner, optionalFirstElementMarker,
+												 pathToWinner, true, optionalFirstElementMarker,
 												 repeatingRecordElementName, repeatingRecordKeyIdentifier);
 			allWinnerIds = new HashSet<string>(allWinnerData.Keys, StringComparer.InvariantCultureIgnoreCase);
 			allLoserData = MakeRecordDictionary(mergeOrder.EventListener, mergeStrategy,
-												pathToLoser, optionalFirstElementMarker, repeatingRecordElementName,
+												pathToLoser, true, optionalFirstElementMarker, repeatingRecordElementName,
 												repeatingRecordKeyIdentifier);
 			allLoserIds = new HashSet<string>(allLoserData.Keys, StringComparer.InvariantCultureIgnoreCase);
 		}
@@ -701,6 +701,7 @@ namespace Chorus.merge.xml.generic
 		private static Dictionary<string, string> MakeRecordDictionary(IMergeEventListener mainMergeEventListener,
 			IMergeStrategy mergeStrategy,
 			string pathname,
+			bool removeAmbiguousChildren,
 			string firstElementMarker,
 			string recordStartingTag,
 			string identifierAttribute)
@@ -724,8 +725,15 @@ namespace Chorus.merge.xml.generic
 						}
 						else
 						{
-							RemoveAmbiguousChildren(mainMergeEventListener, mergeStrategy.GetStrategies(), record);
-							records.Add(key, record);
+							if (removeAmbiguousChildren)
+							{
+								var possiblyRevisedRecord = RemoveAmbiguousChildren(mainMergeEventListener, mergeStrategy.GetStrategies(), record);
+								records.Add(key, possiblyRevisedRecord);
+							}
+							else
+							{
+								records.Add(key, record);
+							}
 						}
 						foundOptionalFirstElement = false;
 					}
@@ -752,8 +760,15 @@ namespace Chorus.merge.xml.generic
 						}
 						else
 						{
-							var possiblyRevisedRecord = RemoveAmbiguousChildren(mainMergeEventListener, mergeStrategy.GetStrategies(), record);
-							records.Add(identifier, possiblyRevisedRecord);
+							if (removeAmbiguousChildren)
+							{
+								var possiblyRevisedRecord = RemoveAmbiguousChildren(mainMergeEventListener, mergeStrategy.GetStrategies(), record);
+								records.Add(identifier, possiblyRevisedRecord);
+							}
+							else
+							{
+								records.Add(identifier, record);
+							}
 						}
 					}
 				}
@@ -815,12 +830,11 @@ namespace Chorus.merge.xml.generic
 				if (elementStrat.IsImmutable)
 					continue;
 				var finder = elementStrat.MergePartnerFinder;
-				var query = finder.GetMatchingNodeFindingQuery(childNode);
-				if (string.IsNullOrEmpty(query))
-					continue; // Finder isn't concerned with duplicates, so keep going.
-
-				var matches = parent.SelectNodes(query);
-				if (matches == null || matches.Count < 2)
+				if (!(finder is IFindMatchingNodesToMerge))
+					continue;
+				var finderOfMultiples = (IFindMatchingNodesToMerge) finder;
+				var matches = finderOfMultiples.GetMatchingNodes(childNode, parent).ToList();
+				if (matches.Count < 2)
 					continue; // No duplicates were found, so keep going.
 
 				// The following code implements the "DropAmbiguitiesAndAddErrorNote" option of a possible three in "AmbiguousSiblingPolicy"
@@ -833,9 +847,9 @@ namespace Chorus.merge.xml.generic
 									 new MergeWarning(string.Format("Parent element '{0}' contains {1} ambiguous child elements. Only the first one is retained. Details: {2}.",
 																	parent.Name,
 																	matches.Count,
-																	finder.GetWarningMessageForAmbiguousNodes(matches[0]))));
+																	finderOfMultiples.GetWarningMessageForAmbiguousNodes(matches[0]))));
 				// Add all but the current one (the first one), so they can be removed in the next loop.
-				ambiguousNodes.AddRange(matches.Cast<XmlNode>().Where(match => match != childNode));
+				ambiguousNodes.AddRange(matches.Where(match => match != childNode));
 			}
 
 			foreach (var ambiguousNode in ambiguousNodes)
