@@ -11,7 +11,10 @@ namespace ChorusHub
 	[ServiceBehavior(InstanceContextMode = InstanceContextMode.PerSession)]
 	internal class ChorusHubServiceImplementation : IChorusHubService
 	{
-		public IProgress Progress = new ConsoleProgress();
+		//this is static because at the moment, I don't know how to construct or access
+		//this class; the WCF service just does it for me.
+
+		public static IProgress Progress = new ConsoleProgress();
 
 		public IEnumerable<string> GetRepositoryNames()
 		{

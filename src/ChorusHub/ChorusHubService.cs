@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ServiceModel;
+using System.ServiceModel.Description;
 using Palaso.Progress;
 
 namespace ChorusHub
@@ -38,6 +39,8 @@ namespace ChorusHub
 		/// up by setting this to false</param>
 		public bool Start(bool includeMercurialServer)
 		{
+			ChorusHubServiceImplementation.Progress = Progress;
+
 			try
 			{
 				if (includeMercurialServer)
@@ -51,8 +54,13 @@ namespace ChorusHub
 
 				//gave security error _serviceHost = new ServiceHost(this);
 				_serviceHost = new ServiceHost(typeof(ChorusHubServiceImplementation));
+
+			   EnableSendingExceptionsToClient();
+
 				string address = "net.tcp://localhost:" + ServicePort.ToString();
-				_serviceHost.AddServiceEndpoint(typeof(IChorusHubService), new NetTcpBinding(), address);
+				var binding = new NetTcpBinding();
+				binding.Security.Mode = SecurityMode.None;
+				_serviceHost.AddServiceEndpoint(typeof(IChorusHubService), binding, address);
 				Progress.WriteVerbose("Starting extra chorus hub services on {0}", address);
 				_serviceHost.Open();
 				return true;
@@ -61,6 +69,26 @@ namespace ChorusHub
 			{
 				Progress.WriteException(error);
 				return false;
+			}
+		}
+
+		private void EnableSendingExceptionsToClient()
+		{
+			ServiceDebugBehavior debug = _serviceHost.Description.Behaviors.Find<ServiceDebugBehavior>();
+
+			// if not found - add behavior with setting turned on
+			if (debug == null)
+			{
+				_serviceHost.Description.Behaviors.Add(
+					new ServiceDebugBehavior() {IncludeExceptionDetailInFaults = true});
+			}
+			else
+			{
+				// make sure setting is turned ON
+				if (!debug.IncludeExceptionDetailInFaults)
+				{
+					debug.IncludeExceptionDetailInFaults = true;
+				}
 			}
 		}
 

@@ -114,7 +114,10 @@ namespace ChorusHub
 			if(_foundHubInfo==null)
 				throw new ApplicationException("Programmer, call Find() and get a non-null response before GetRepositoryNames");
 
-			var factory = new ChannelFactory<IChorusHubService>(new NetTcpBinding(), _foundHubInfo.ServiceUri);
+			var binding = new NetTcpBinding();
+			binding.Security.Mode = SecurityMode.None;
+
+			var factory = new ChannelFactory<IChorusHubService>(binding, _foundHubInfo.ServiceUri);
 
 			var channel = factory.CreateChannel();
 			try
@@ -144,13 +147,19 @@ namespace ChorusHub
 			//Enchance: after creating and init'ing the folder, it would be possible to keep asking
 			//hg serve if it knows about the repository until finally it says "yes", instead of just
 			//guessing at a single amount of time to wait
-			var factory = new ChannelFactory<IChorusHubService>(new NetTcpBinding(), _foundHubInfo.ServiceUri);
+			var binding = new NetTcpBinding();
+			binding.Security.Mode = SecurityMode.None;
+			var factory = new ChannelFactory<IChorusHubService>(binding, _foundHubInfo.ServiceUri);
 
 			var channel = factory.CreateChannel();
 			try
 			{
 				var doWait = channel.PrepareToReceiveRepository(directoryName);
 				return doWait;
+			}
+			catch(Exception error)
+			{
+				throw new ApplicationException("There was an error on the Chorus Hub Server, which was transmitted to the client.",error);
 			}
 			finally
 			{
