@@ -37,10 +37,10 @@ namespace Chorus.UI.Misc
 		{
 			RequireThat.Directory(path).Exists();
 
-			var repo = HgRepository.CreateOrLocate(path, new NullProgress());
+			var repo = HgRepository.CreateOrReconstitute(path, new NullProgress());
 			_pathToRepo = repo.PathToRepo;
 
-			var address =repo.GetDefaultNetworkAddress<HttpRepositoryPath>();
+			var address = repo.GetDefaultNetworkAddress<HttpRepositoryPath>();
 			if (address != null)
 			{
 				InitFromUri(address.URI);
@@ -185,7 +185,8 @@ namespace Chorus.UI.Misc
 				throw new ArgumentException("SaveSettings() only works if you InitFromProjectPath()");
 			}
 
-			var repo = HgRepository.CreateOrLocate(_pathToRepo, new NullProgress());
+			var repo = HgRepository.CreateOrReconstitute(_pathToRepo, new NullProgress());
+
 			// Use safer SetTheOnlyAddressOfThisType method, as it won't clobber a shared network setting, if that was the clone source.
 			repo.SetTheOnlyAddressOfThisType(new HttpRepositoryPath(AliasName, URL, false));
 		}

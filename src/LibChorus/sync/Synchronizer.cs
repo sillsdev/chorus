@@ -92,7 +92,7 @@ namespace Chorus.sync
 
 		public static Synchronizer FromProjectConfiguration(ProjectFolderConfiguration project, IProgress progress)
 		{
-			var hg = HgRepository.CreateOrLocate(project.FolderPath, progress);
+			var hg = HgRepository.CreateOrReconstitute(project.FolderPath, progress);
 			return new Synchronizer(hg.PathToRepo, project, progress);
 
 		}
