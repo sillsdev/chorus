@@ -87,7 +87,7 @@ namespace Chorus.UI.Misc
 				// otherwise it complains
 				if (Directory.Exists(Path.Combine(projectInFolder, ".hg")))
 				{
-					var root = HgRepository.CreateOrLocate(projectInFolder, new NullProgress());
+					var root = HgRepository.CreateOrReconstitute(projectInFolder, new NullProgress());
 					if (repository.Identifier == root.Identifier)
 					{
 						path = projectInFolder;
@@ -122,7 +122,7 @@ namespace Chorus.UI.Misc
 		{
 			RequireThat.Directory(repositoryLocation).Exists();
 
-			_repo = HgRepository.CreateOrLocate(repositoryLocation, new NullProgress());
+			_repo = HgRepository.CreateOrReconstitute(repositoryLocation, new NullProgress());
 
 			var address = _repo.GetDefaultNetworkAddress<DirectoryRepositorySource>();
 

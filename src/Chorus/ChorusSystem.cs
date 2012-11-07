@@ -53,7 +53,7 @@ namespace Chorus
 			WritingSystems = new List<IWritingSystem>{new EnglishWritingSystem(), new ThaiWritingSystem()};
 
 			_dataFolderPath = dataFolderPath;
-			Repository = HgRepository.CreateOrLocate(dataFolderPath, new NullProgress());
+			Repository = HgRepository.CreateOrReconstitute(dataFolderPath, new NullProgress());
 			var builder = new Autofac.Builder.ContainerBuilder();
 
 			builder.Register<ProjectFolderConfiguration>(c => new ProjectFolderConfiguration(dataFolderPath));

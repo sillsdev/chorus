@@ -64,9 +64,7 @@ namespace LibChorus.Tests.sync
 				Directory.CreateDirectory(cachePath);
 				File.WriteAllText(Path.Combine(cachePath, "cache.abc"), "Some cache stuff");
 
-				_projectFolderConfiguration = new ProjectFolderConfiguration(languageProjectPath);
-				_projectFolderConfiguration.IncludePatterns.Add(_lexiconProjectPath);
-				_projectFolderConfiguration.ExcludePatterns.Add("**/cache");
+				_projectFolderConfiguration = CreateFolderConfig(languageProjectPath);
 
 				SyncOptions options = new SyncOptions();
 				options.DoPullFromOthers = false;
@@ -77,6 +75,15 @@ namespace LibChorus.Tests.sync
 
 				//SyncManager bobManager = SyncManager.FromChildPath(_lexiconProjectPath, progress, "bob");
 				SyncResults results = GetSynchronizer().SyncNow(options);
+			}
+
+			public static ProjectFolderConfiguration CreateFolderConfig(string baseDir)
+			{
+				var config = new ProjectFolderConfiguration(baseDir);
+				config.ExcludePatterns.Add(Path.Combine("**", "cache"));
+				config.IncludePatterns.Add("**.abc");
+				config.IncludePatterns.Add("**.lift");
+				return config;
 			}
 
 			public string BobProjectPath
@@ -107,9 +114,7 @@ namespace LibChorus.Tests.sync
 
 			public Synchronizer GetSynchronizer()
 			{
-				ProjectFolderConfiguration project = new ProjectFolderConfiguration(_lexiconProjectPath);
-				project.IncludePatterns.Add("**.abc");
-				 project.IncludePatterns.Add("**.lift");
+				ProjectFolderConfiguration project = CreateFolderConfig(_languageProjectPath);
 			   Synchronizer repo= Synchronizer.FromProjectConfiguration(project, _progress);
 				repo.Repository.SetUserNameInIni("bob", _progress);
 				return repo;
@@ -146,8 +151,7 @@ namespace LibChorus.Tests.sync
 			//now stick a new file over in the "usb", so we can see if it comes back to us
 			File.WriteAllText(Path.Combine(otherDirPath.GetPotentialRepoUri(bob.Repository.Identifier, BobSetup.ProjectFolderName, progress), "incoming.abc"), "this would be a file coming in");
 			SyncOptions options = new SyncOptions();
-			ProjectFolderConfiguration usbProject = new ProjectFolderConfiguration(Path.Combine(usbPath, BobSetup.ProjectFolderName));
-			usbProject.IncludePatterns.Add("**.abc");
+			ProjectFolderConfiguration usbProject = BobSetup.CreateFolderConfig(Path.Combine(usbPath, BobSetup.ProjectFolderName));
 			options.CheckinDescription = "adding a file to the usb for some reason";
 			var synchronizer = Synchronizer.FromProjectConfiguration(usbProject, progress);
 			synchronizer.Repository.SetUserNameInIni("usba", progress);
@@ -210,7 +214,7 @@ namespace LibChorus.Tests.sync
 			string usbSourcePath = Path.Combine(_pathToTestRoot, "USB-A");
 			Directory.CreateDirectory(usbSourcePath);
 			string usbProjectPath = bobSetup.SetupClone(usbSourcePath);
-			Synchronizer usbRepo = Synchronizer.FromProjectConfiguration(new ProjectFolderConfiguration(usbProjectPath), progress);
+			Synchronizer usbRepo = Synchronizer.FromProjectConfiguration(BobSetup.CreateFolderConfig(usbProjectPath), progress);
 
 			Synchronizer bobSynchronizer =  bobSetup.GetSynchronizer();
 
@@ -233,14 +237,13 @@ namespace LibChorus.Tests.sync
 			bobOptions.RepositorySourcesToTry.Add(usbPath);
 			bobSynchronizer.SyncNow(bobOptions);
 
-			ProjectFolderConfiguration sallyProject = new ProjectFolderConfiguration(sallyRepoPath);
-			sallyProject.IncludePatterns.Add("**.abc");
+			ProjectFolderConfiguration sallyProject = BobSetup.CreateFolderConfig(sallyRepoPath);
 
 			Synchronizer sallySynchronizer = Synchronizer.FromProjectConfiguration(sallyProject, progress);
 			sallySynchronizer.Repository.SetUserNameInIni("sally", new NullProgress());
 
 			//now she modifies a file
-			File.WriteAllText(Path.Combine(sallyRepoPath, "lexicon/foo.abc"), "Sally was here");
+			File.WriteAllText(Path.Combine(sallyRepoPath, Path.Combine("lexicon", "foo.abc")), "Sally was here");
 
 			//and syncs, which pushes back to the usb key
 			SyncOptions sallyOptions = new SyncOptions();
@@ -267,14 +270,13 @@ namespace LibChorus.Tests.sync
 
 			//The conflict has now been created, in the merge with Bob, make a new conflict and make sure that when Sally does the next sync both conflicts are
 			//present in the ChorusNotes.
-			File.WriteAllText(Path.Combine(sallyRepoPath, "lexicon/foo.abc"), "Sally changed her mind");
+			File.WriteAllText(Path.Combine(sallyRepoPath, Path.Combine("lexicon", "foo.abc")), "Sally changed her mind");
 			File.WriteAllText(bobSetup.PathToText, "Bob changed his mind.");
 			bobOptions.CheckinDescription = "Bob makes conflicting change.";
 			bobSynchronizer.SyncNow(bobOptions);
 			sallyOptions.CheckinDescription = "Sally makes conflicting change.";
 			sallySynchronizer.SyncNow(sallyOptions);
 			AssertThatXmlIn.File(notesPath).HasSpecifiedNumberOfMatchesForXpath("//notes/annotation[@class='mergeConflict']", 2);
-
 		}
 
 		[Test]
@@ -289,13 +291,10 @@ namespace LibChorus.Tests.sync
 			string sallyMachineRoot = Path.Combine(_pathToTestRoot, "sally");
 			Directory.CreateDirectory(sallyMachineRoot);
 			string sallyProjectRoot = bobSetup.SetupClone(sallyMachineRoot);
-			ProjectFolderConfiguration sallyProject = new ProjectFolderConfiguration(sallyProjectRoot);
-			sallyProject.IncludePatterns.Add("**.abc");
-			sallyProject.IncludePatterns.Add("**.lift");
+			ProjectFolderConfiguration sallyProject = BobSetup.CreateFolderConfig(sallyProjectRoot);
 
-			var repository = HgRepository.CreateOrLocate(sallyProject.FolderPath, progress);
+			var repository = HgRepository.CreateOrReconstitute(sallyProject.FolderPath, progress);
 			repository.SetUserNameInIni("sally",progress);
-
 
 			// bob makes a change and syncs
 			File.WriteAllText(bobSetup._pathToLift, "<lift version='0.12'><entry id='dog' guid='c1ed1fa9-e382-11de-8a39-0800200c9a66'><lexical-unit><form lang='en'><text>dog</text></form></lexical-unit></entry></lift>");
@@ -309,7 +308,7 @@ namespace LibChorus.Tests.sync
 			bobSetup.GetSynchronizer().SyncNow(bobOptions);
 
 			//now Sally modifies the original file, not having seen Bob's changes yet
-			var sallyPathToLift = Path.Combine(sallyProject.FolderPath, "lexicon/foo.lift");
+			var sallyPathToLift = Path.Combine(sallyProject.FolderPath, Path.Combine("lexicon", "foo.lift"));
 			File.WriteAllText(sallyPathToLift, "<lift version='0.12'><entry id='cat' guid='c1ed1faa-e382-11de-8a39-0800200c9a66'><lexical-unit><form lang='en'><text>cat</text></form></lexical-unit></entry></lift>");
 
 			//Sally syncs, pulling in Bob's change, and encountering a need to merge (no conflicts)
