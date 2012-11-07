@@ -73,6 +73,8 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		{
 			Local.Dispose();
 			Remote.Dispose();
+			if (ApiServer is IDisposable)
+				(ApiServer as IDisposable).Dispose();
 		}
 
 		public void LocalAddAndCommit()
