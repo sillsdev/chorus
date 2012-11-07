@@ -99,8 +99,14 @@ namespace LibChorus.TestUtilities
 			{
 				Assert.IsFalse(Repository.GetHasLocks(), "A lock was left over, after the test.");
 			}
-			ProjectFolder.Dispose();
-			RootFolder.Dispose();
+			if (ProjectFolder != null)
+			{
+				ProjectFolder.Dispose();
+			}
+			if (RootFolder != null)
+			{
+				RootFolder.Dispose();
+			}
 		}
 
 		public void WriteIniContents(string s)
