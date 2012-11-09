@@ -8,7 +8,7 @@ using Chorus.notes;
 using Chorus.sync;
 using NUnit.Framework;
 using Palaso.IO;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
 using Palaso.TestUtilities;
 
 namespace Chorus.Tests
@@ -37,6 +37,7 @@ namespace Chorus.Tests
 				</notes>");
 
 			_system = new ChorusSystem(_folder.Path);
+			_system.Init(string.Empty);
 		}
 
 		[TearDown]

@@ -6,7 +6,8 @@ using Chorus.Utilities;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using Palaso.Code;
-using Palaso.Progress.LogBox;
+using Palaso.Network;
+using Palaso.Progress;
 
 namespace Chorus.UI.Misc
 {
@@ -96,9 +97,9 @@ namespace Chorus.UI.Misc
 				else
 				{
 					return "http://" +
-						   HttpUtility.UrlEncode((string) AccountName) + ":" +
-						   HttpUtility.UrlEncode((string) Password) + "@" + SelectedServerPath + "/" +
-						   HttpUtility.UrlEncode(ProjectId);
+						   HttpUtilityFromMono.UrlEncode((string)AccountName) + ":" +
+						   HttpUtilityFromMono.UrlEncode((string)Password) + "@" + SelectedServerPath + "/" +
+						   HttpUtilityFromMono.UrlEncode(ProjectId);
 				}
 			}
 		}
@@ -186,7 +187,6 @@ namespace Chorus.UI.Misc
 			}
 
 			var repo = HgRepository.CreateOrReconstitute(_pathToRepo, new NullProgress());
-
 			// Use safer SetTheOnlyAddressOfThisType method, as it won't clobber a shared network setting, if that was the clone source.
 			repo.SetTheOnlyAddressOfThisType(new HttpRepositoryPath(AliasName, URL, false));
 		}

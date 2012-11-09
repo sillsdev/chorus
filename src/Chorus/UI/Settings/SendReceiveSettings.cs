@@ -4,7 +4,7 @@ using Chorus.UI.Misc;
 using Chorus.Utilities.Help;
 using Chorus.VcsDrivers.Mercurial;
 using Palaso.Code;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
 
 namespace Chorus.UI.Settings
 {
@@ -43,9 +43,11 @@ namespace Chorus.UI.Settings
 			_sharedFolderModel.InitFromProjectPath(repositoryLocation);
 			_sharedFolderSettingsControl.Model = _sharedFolderModel;
 
-			_sharedFolderButtonEnabledCheckBox.CheckedChanged += networkFolderCheckChanged;
-			_sharedFolderButtonEnabledCheckBox.Checked = Properties.Settings.Default.SharedFolderEnabled;
-			_sharedFolderSettingsControl.Enabled = _sharedFolderButtonEnabledCheckBox.Checked;
+			_showSharedFolderInSendReceive.Checked = Properties.Settings.Default.SharedFolderEnabled;
+			_showSharedFolderInSendReceive.CheckedChanged += networkFolderCheckChanged;
+			_sharedFolderSettingsControl.Enabled = _showSharedFolderInSendReceive.Checked;
+
+			_showChorusHubInSendReceive.Checked = Properties.Settings.Default.ShowChorusHubInSendReceive;
 		}
 
 
@@ -55,13 +57,14 @@ namespace Chorus.UI.Settings
 			{
 				_internetModel.SaveSettings();
 			}
-			if (_sharedFolderButtonEnabledCheckBox.Checked)
+			if (_showSharedFolderInSendReceive.Checked)
 			{
 				_sharedFolderModel.SaveSettings();
 			}
 			_model.SaveSettings();
 			Properties.Settings.Default.InternetEnabled = _internetButtonEnabledCheckBox.Checked;
-			Properties.Settings.Default.SharedFolderEnabled = _sharedFolderButtonEnabledCheckBox.Checked;
+			Properties.Settings.Default.SharedFolderEnabled = _showSharedFolderInSendReceive.Checked;
+			Properties.Settings.Default.ShowChorusHubInSendReceive = _showChorusHubInSendReceive.Checked;
 			Properties.Settings.Default.Save();
 			DialogResult = DialogResult.OK;
 			Close();
@@ -89,7 +92,7 @@ namespace Chorus.UI.Settings
 
 		private void networkFolderCheckChanged(object sender, EventArgs e)
 		{
-			_sharedFolderSettingsControl.Enabled = _sharedFolderButtonEnabledCheckBox.Checked;
+			_sharedFolderSettingsControl.Enabled = _showSharedFolderInSendReceive.Checked;
 		}
 
 		private void _helpButton_Click(object sender, EventArgs e)

@@ -4,7 +4,7 @@ using Chorus.sync;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using NUnit.Framework;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
 using Palaso.TestUtilities;
 
 namespace LibChorus.TestUtilities
@@ -101,12 +101,12 @@ namespace LibChorus.TestUtilities
 			}
 			if (ProjectFolder != null)
 			{
-				ProjectFolder.Dispose();
+			ProjectFolder.Dispose();
 			}
 			if (RootFolder != null)
 			{
-				RootFolder.Dispose();
-			}
+			RootFolder.Dispose();
+		}
 		}
 
 		public void WriteIniContents(string s)

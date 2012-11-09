@@ -6,7 +6,7 @@ using System.Linq;
 using System.Xml.Linq;
 using Chorus.Utilities;
 using Palaso.Code;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
 using Palaso.Xml;
 
 namespace Chorus.notes
