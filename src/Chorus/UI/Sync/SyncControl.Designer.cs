@@ -1,5 +1,7 @@
 ﻿using Palaso.Progress;
 using Palaso.Progress.LogBox;
+using Palaso.UI.WindowsForms.Progress;
+using Palaso.UI.WindowsForms.Reporting.LogBox;
 
 namespace Chorus.UI.Sync
 {

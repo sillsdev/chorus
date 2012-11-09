@@ -1,4 +1,5 @@
 ﻿using Palaso.Progress.LogBox;
+using Palaso.UI.WindowsForms.Reporting.LogBox;
 
 namespace Chorus.UI.Clone
 {
