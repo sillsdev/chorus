@@ -25,8 +25,8 @@ namespace Chorus
 	public class ChorusSystem :IDisposable
 	{
 		private readonly string _dataFolderPath;
-		private readonly IChorusUser _user;
-		private readonly IContainer _container;
+		private IChorusUser _user;
+		private IContainer _container;
 		internal readonly Dictionary<string, AnnotationRepository> _annotationRepositories = new Dictionary<string, AnnotationRepository>();
 		private bool _searchedForAllExistingNotesFiles;
 
