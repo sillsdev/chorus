@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using Chorus.Utilities;
-using Chorus.Utilities.code;
+using Palaso.Code;
 
 namespace Chorus// DON'T MOVE THIS! It needs to be super easy for the client to find
 {
@@ -71,7 +69,7 @@ namespace Chorus// DON'T MOVE THIS! It needs to be super easy for the client to 
 			var guess = Path.Combine(ExecutionEnvironment.DirectoryOfExecutingAssembly,"mercurial");
 			if(Directory.Exists(guess))
 			{
-				MercurialLocation.PathToMercurialFolder = guess;
+				PathToMercurialFolder = guess;
 				return;
 			}
 
@@ -79,7 +77,7 @@ namespace Chorus// DON'T MOVE THIS! It needs to be super easy for the client to 
 			guess = Path.Combine(ExecutionEnvironment.DirectoryOfExecutingAssembly+"\\..\\..\\common", "mercurial");
 			if (Directory.Exists(guess))
 			{
-				MercurialLocation.PathToMercurialFolder = guess;
+				PathToMercurialFolder = guess;
 				return;
 			}
 
@@ -87,7 +85,7 @@ namespace Chorus// DON'T MOVE THIS! It needs to be super easy for the client to 
 			guess = Path.Combine(ExecutionEnvironment.DirectoryOfExecutingAssembly + "\\..\\..\\", "mercurial");
 			if (Directory.Exists(guess))
 			{
-				MercurialLocation.PathToMercurialFolder = guess;
+				PathToMercurialFolder = guess;
 				return;
 			}
 #endif

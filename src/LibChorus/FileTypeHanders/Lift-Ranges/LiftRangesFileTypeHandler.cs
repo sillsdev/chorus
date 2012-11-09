@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using Chorus.merge;
 using Chorus.Utilities;
-using Chorus.Utilities.code;
 using Chorus.VcsDrivers.Mercurial;
 using Chorus.merge.xml.generic;
+using Palaso.Code;
 using Palaso.IO;
 using Palaso.Progress.LogBox;
 
@@ -60,7 +60,7 @@ namespace Chorus.FileTypeHanders
 			Guard.AgainstNull(mergeOrder, "mergeOrder");
 
 			XmlMergeService.Do3WayMerge(mergeOrder,
-				new LiftRangesMergingStrategy(mergeOrder.MergeSituation),
+				new LiftRangesMergingStrategy(mergeOrder),
 				false,
 				null,
 				"range", "id");

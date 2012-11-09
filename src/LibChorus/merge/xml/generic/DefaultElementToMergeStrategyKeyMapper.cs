@@ -1,12 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Xml;
-using Chorus.Utilities.code;
-using Chorus.merge.xml.generic;
+using Palaso.Code;
 
-namespace Chorus.FileTypeHanders.lift
+namespace Chorus.merge.xml.generic
 {
-	internal class LiftKeyFinder : IKeyFinder
+	internal class DefaultElementToMergeStrategyKeyMapper : IElementToMergeStrategyKeyMapper
 	{
 		#region Implementation of IKeyFinder
 
@@ -17,16 +16,11 @@ namespace Chorus.FileTypeHanders.lift
 		/// <param name="element">The element currently being processed, that the key if needed for.</param>
 		/// <returns>The key in the MergeStrategies disctionary that is used to look up the ElementStrategy.</returns>
 		/// <exception cref="ArgumentNullException">Thrown if <param name="element" /> is null.</exception>
-		public string GetKeyFromElement(IEnumerable<string> keys, XmlNode element)
+		public string GetKeyFromElement(HashSet<string> keys, XmlNode element)
 		{
-			Guard.AgainstNull(keys, "keys is null.");
 			Guard.AgainstNull(element, "Element is null.");
 
-			return element.Name == "field"
-					? (element.Attributes["type"] == null
-						? "headerfield" // Fetch the strategy for the header "field" with its 'tag' key attr.
-						: "mainfield") // Fetch the strategy for the main data (entry or sense) "field" with its 'type' key attr.
-					: element.Name;
+			return element.Name;
 		}
 
 		#endregion

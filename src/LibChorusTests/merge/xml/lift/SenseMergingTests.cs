@@ -49,7 +49,8 @@ namespace LibChorus.Tests.merge.xml.lift
 				var situation = new NullMergeSituation();
 				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation)
 									{EventListener = listener};
-				XmlMergeService.Do3WayMerge(mergeOrder, new LiftEntryMergingStrategy(situation), false,
+				XmlMergeService.Do3WayMerge(mergeOrder, new LiftEntryMergingStrategy(mergeOrder),
+					false,
 					"header",
 					"entry", "guid");
 				//this doesn't seem particular relevant, but senses are, in fact, ordered, so there is some ambiguity here
@@ -103,7 +104,8 @@ namespace LibChorus.Tests.merge.xml.lift
 				var listener = new ListenerForUnitTests();
 				var situation = new NullMergeSituation();
 				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation) { EventListener = listener };
-				XmlMergeService.Do3WayMerge(mergeOrder, new LiftEntryMergingStrategy(situation), false,
+				XmlMergeService.Do3WayMerge(mergeOrder, new LiftEntryMergingStrategy(mergeOrder),
+					false,
 					"header",
 					"entry", "guid");
 				var conflict = listener.Conflicts[0];
@@ -476,7 +478,8 @@ namespace LibChorus.Tests.merge.xml.lift
 				var listener = new ListenerForUnitTests();
 				var situation = new NullMergeSituation();
 				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation) { EventListener = listener };
-				XmlMergeService.Do3WayMerge(mergeOrder, new LiftEntryMergingStrategy(situation), false,
+				XmlMergeService.Do3WayMerge(mergeOrder, new LiftEntryMergingStrategy(mergeOrder),
+					false,
 					"header",
 					"entry", "guid");
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
@@ -550,7 +553,8 @@ namespace LibChorus.Tests.merge.xml.lift
 					var listener = new ListenerForUnitTests();
 					var situation = new NullMergeSituation();
 					var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation) { EventListener = listener };
-					XmlMergeService.Do3WayMerge(mergeOrder, new LiftEntryMergingStrategy(situation), false,
+					XmlMergeService.Do3WayMerge(mergeOrder, new LiftEntryMergingStrategy(mergeOrder),
+						false,
 						"header",
 						"entry", "guid");
 					var result = File.ReadAllText(mergeOrder.pathToOurs);

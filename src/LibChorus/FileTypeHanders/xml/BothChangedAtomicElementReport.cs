@@ -2,7 +2,7 @@ using System;
 using System.Xml;
 using Chorus.VcsDrivers.Mercurial;
 using Chorus.merge;
-using Chorus.merge.xml.generic;
+using Palaso.Xml;
 
 namespace Chorus.FileTypeHanders.xml
 {

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
-using Chorus.Utilities.code;
 using Chorus.sync;
 using Chorus.VcsDrivers.Mercurial;
 using Palaso.Progress.LogBox;

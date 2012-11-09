@@ -5,7 +5,7 @@ using System.Xml;
 using System.Linq;
 using System.Xml.Linq;
 using Chorus.Utilities;
-using Chorus.Utilities.code;
+using Palaso.Code;
 using Palaso.Progress.LogBox;
 using Palaso.Xml;
 
@@ -96,7 +96,15 @@ namespace Chorus.notes
 
 		public void Dispose()
 		{
+			if (_doc.Root != null)
+			{
+				foreach (var element in _doc.Root.Elements())
+				{
+					element.Changed -= AnnotationElement_Changed;
+				}
+			}
 			SaveNowIfNeeded(new NullProgress());
+			_doc = null;
 		}
 
 		/// <summary>

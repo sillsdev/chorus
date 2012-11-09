@@ -9,8 +9,8 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using Chorus.Utilities;
-using Chorus.Utilities.code;
 using Nini.Ini;
+using Palaso.Code;
 using Palaso.IO;
 using Palaso.Network;
 using Palaso.Progress.LogBox;
@@ -521,7 +521,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			CheckAndUpdateHgrc();
 			message = string.Format(message, args);
 			_progress.WriteVerbose("{0} committing with comment: {1}", _userName, message);
-			ExecutionResult result = Execute(SecondsBeforeTimeoutOnLocalOperation, "ci", "-m " + SurroundWithQuotes(message));
+			ExecutionResult result = Execute(SecondsBeforeTimeoutOnLocalOperation, "ci", "-u " + _userName, "-m " + SurroundWithQuotes(message));
 			_progress.WriteVerbose(result.StandardOutput);
 		}
 
@@ -933,7 +933,12 @@ namespace Chorus.VcsDrivers.Mercurial
 				if (colonIndex > 0)
 				{
 					string label = line.Substring(0, colonIndex);
-					string value = line.Substring(colonIndex + 1).Trim();
+
+					//On the Palaso TeamCity server, we found that the summary was coming in with a leading Byte Order Mark.
+					//With .net 3.5, this is removed by Trim(). With .net 4, it is not(!!!).
+					//This lead to a failing test. We have no idea where it comes from, nor the cause.
+					//The only thing that should be different on the server is that it is Windows XP.
+					string value = line.Substring(colonIndex + 1).Trim().Trim(new char[] { '\uFEFF', '\u200B' }).Trim();
 					switch (label)
 					{
 						default:

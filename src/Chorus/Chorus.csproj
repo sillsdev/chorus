@@ -513,6 +513,8 @@
 	<None Include="Resources\chorus16x16.png" />
 	<None Include="Resources\FieldWorksBridge.bmp" />
 	<None Include="Resources\Committer Person.png" />
+	<None Include="Resources\icon16x16.png" />
+	<None Include="Resources\Bloom16x16.png" />
 	<Content Include="Resources\menuButton.png" />
 	<None Include="Resources\sendReceiveCircle16x16png.png" />
 	<None Include="Resources\Merge16x16.png" />
