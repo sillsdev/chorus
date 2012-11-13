@@ -8,7 +8,7 @@ using Chorus.notes;
 using Chorus.sync;
 using NUnit.Framework;
 using Palaso.IO;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
 using Palaso.TestUtilities;
 
 namespace Chorus.Tests

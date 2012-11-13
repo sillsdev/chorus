@@ -4,7 +4,7 @@ using Chorus.UI.Misc;
 using Chorus.Utilities.Help;
 using Chorus.VcsDrivers.Mercurial;
 using Palaso.Code;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
 
 namespace Chorus.UI.Settings
 {

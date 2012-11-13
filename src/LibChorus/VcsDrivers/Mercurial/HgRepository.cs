@@ -13,7 +13,7 @@ using Nini.Ini;
 using Palaso.Code;
 using Palaso.IO;
 using Palaso.Network;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
 using Palaso.Reporting;
 
 namespace Chorus.VcsDrivers.Mercurial

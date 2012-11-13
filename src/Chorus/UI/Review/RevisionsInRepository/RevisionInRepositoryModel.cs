@@ -4,7 +4,7 @@ using System.ComponentModel;
 using System.Windows.Forms;
 using Chorus.VcsDrivers.Mercurial;
 using Palaso.Code;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
 
 namespace Chorus.UI.Review.RevisionsInRepository
 {
