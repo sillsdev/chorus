@@ -6,7 +6,7 @@ using System.Windows.Forms;
 using Chorus.notes;
 using NUnit.Framework;
 using Palaso.IO;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
 using Palaso.TestUtilities;
 
 namespace Chorus.Tests

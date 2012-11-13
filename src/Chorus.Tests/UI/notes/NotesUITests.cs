@@ -9,7 +9,7 @@ using Chorus.UI.Notes.Html;
 using Chorus.UI.Review;
 using NUnit.Framework;
 using Palaso.IO;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
 using Palaso.TestUtilities;
 
 namespace Chorus.Tests.notes

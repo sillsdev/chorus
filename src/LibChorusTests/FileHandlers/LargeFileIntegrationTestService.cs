@@ -8,7 +8,7 @@ using Chorus.sync;
 using LibChorus.TestUtilities;
 using NUnit.Framework;
 using Palaso.IO;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
 
 namespace LibChorus.Tests.FileHandlers
 {
