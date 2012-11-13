@@ -11,6 +11,7 @@ using System.Linq;
 using Chorus.VcsDrivers;
 using Palaso.Progress;
 using Palaso.Progress.LogBox;
+using Palaso.UI.WindowsForms.Progress;
 
 namespace Chorus.UI.Sync
 {

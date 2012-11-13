@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
-using System.Windows.Forms;
 using System.Xml;
 using Chorus.FileTypeHanders;
 using Chorus.merge;
@@ -530,9 +529,13 @@ namespace Chorus.sync
 				{
 					if (HgRepository.IntegrityResults.Bad == repository.CheckIntegrity(progress))
 					{
-						MessageBox.Show(
-							"Bad news: The mecurial repository is damaged.  You will need to seek expert help to resolve this problem.", "Chorus", MessageBoxButtons.OK, MessageBoxIcon.Error);
-						return;//don't suggest anything else
+						throw new ApplicationException(
+							"Bad news: The mecurial repository is damaged.  You will need to seek expert help to resolve this problem."
+						);
+						// Removing windows forms dependency CP 2012-08
+						//MessageBox.Show(
+						//    "Bad news: The mecurial repository is damaged.  You will need to seek expert help to resolve this problem.", "Chorus", MessageBoxButtons.OK, MessageBoxIcon.Error);
+						//return;//don't suggest anything else
 					}
 				}
 
