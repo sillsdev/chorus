@@ -3,7 +3,7 @@ using Chorus.UI.Misc;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using NUnit.Framework;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
 using Palaso.TestUtilities;
 
 namespace Chorus.Tests.UI.Misc
@@ -45,7 +45,7 @@ namespace Chorus.Tests.UI.Misc
 		{
 			var m = new ServerSettingsModel();
 			m.InitFromUri("http://joe:pass@hg-public.languagedepot.org/tpi");
-			Assert.AreEqual("languagedepot.org [legacy sync]", m.SelectedServerLabel.ToLower());
+			Assert.AreEqual("languagedepot.org [safe mode]", m.SelectedServerLabel.ToLower());
 		}
 		[Test]
 		public void InitFromUri_FullPrivateLangDepot_SelectedServerLabel()
@@ -107,9 +107,9 @@ namespace Chorus.Tests.UI.Misc
 				m.SaveSettings();
 				Assert.IsTrue(Directory.Exists(folder.Combine(".hg")));
 				Assert.IsTrue(File.Exists(folder.Combine(".hg","hgrc")));
-				var repo =HgRepository.CreateOrLocate(folder.Path, new NullProgress());
+				var repo = HgRepository.CreateOrReconstitute(folder.Path, new NullProgress());
 				var address = repo.GetDefaultNetworkAddress<HttpRepositoryPath>();
-				Assert.AreEqual("languageDepot.org[legacysync]".ToLower(), address.Name.ToLower());
+				Assert.AreEqual("languageDepot.org[safemode]".ToLower(), address.Name.ToLower());
 				Assert.AreEqual(url, address.URI);
 			}
 		}
@@ -120,7 +120,7 @@ namespace Chorus.Tests.UI.Misc
 			using (var folder = new TemporaryFolder("ServerSettingsModel"))
 			{
 				// Precondition is some url that is not our default from the ServerSettingsModel
-				var original = HgRepository.CreateOrLocate(folder.Path, new NullProgress());
+				var original = HgRepository.CreateOrReconstitute(folder.Path, new NullProgress());
 				original.SetKnownRepositoryAddresses(new[] { new HttpRepositoryPath("languagedepot.org [legacy sync]", "http://joe:oldPassword@hg-public.languagedepot.org/tpi", false) });
 
 				var m = new ServerSettingsModel();
@@ -129,7 +129,7 @@ namespace Chorus.Tests.UI.Misc
 				m.SaveSettings();
 				Assert.IsTrue(Directory.Exists(folder.Combine(".hg")));
 				Assert.IsTrue(File.Exists(folder.Combine(".hg", "hgrc")));
-				var repo = HgRepository.CreateOrLocate(folder.Path, new NullProgress());
+				var repo = HgRepository.CreateOrReconstitute(folder.Path, new NullProgress());
 				var address = repo.GetDefaultNetworkAddress<HttpRepositoryPath>();
 				Assert.AreEqual("http://joe:newPassword@hg-public.languagedepot.org/tpi", address.URI);
 				Assert.AreEqual("newPassword", address.Password);
@@ -141,9 +141,9 @@ namespace Chorus.Tests.UI.Misc
 		{
 			using (var folder = new TemporaryFolder("ServerSettingsModel"))
 			{
-				var original = HgRepository.CreateOrLocate(folder.Path, new NullProgress());
+				var original = HgRepository.CreateOrReconstitute(folder.Path, new NullProgress());
 				var existing = "http://abc.com";
-				original.SetKnownRepositoryAddresses(new[] { new HttpRepositoryPath("languagedepot.org [legacy sync]", existing, false) });
+				original.SetKnownRepositoryAddresses(new[] { new HttpRepositoryPath("languagedepot.org [Safe Mode]", existing, false) });
 
 				var m = new ServerSettingsModel();
 				var url = "http://joe:pass@hg-public.languagedepot.org/tpi";
@@ -161,7 +161,7 @@ namespace Chorus.Tests.UI.Misc
 		{
 			using (var folder = new TemporaryFolder("ServerSettingsModel"))
 			{
-				var original = HgRepository.CreateOrLocate(folder.Path, new NullProgress());
+				var original = HgRepository.CreateOrReconstitute(folder.Path, new NullProgress());
 				var existing = "c://abc.com";
 				original.SetKnownRepositoryAddresses(new[] { new HttpRepositoryPath("default", existing, false) });
 
@@ -171,6 +171,16 @@ namespace Chorus.Tests.UI.Misc
 				m.SetUrlToUseIfSettingsAreEmpty(url);
 				Assert.AreEqual(url, m.URL);
 			}
+		}
+
+		/// <summary>
+		/// The new default (as of 8 Nov 2012) is resumable.
+		/// </summary>
+		[Test]
+		public void DefaultIsResumable()
+		{
+			var m = new ServerSettingsModel();
+			Assert.AreEqual("resumable.languagedepot.org", m.Servers[m.SelectedServerLabel]);
 		}
 	}
 }

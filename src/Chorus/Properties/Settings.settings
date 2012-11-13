@@ -9,6 +9,9 @@
 	  <Value Profile="(Default)">True</Value>
 	</Setting>
 	<Setting Name="SharedFolderEnabled" Type="System.Boolean" Scope="User">
+	  <Value Profile="(Default)">False</Value>
+	</Setting>
+	<Setting Name="ShowChorusHubInSendReceive" Type="System.Boolean" Scope="User">
 	  <Value Profile="(Default)">True</Value>
 	</Setting>
   </Settings>

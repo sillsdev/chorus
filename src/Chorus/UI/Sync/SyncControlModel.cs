@@ -9,8 +9,10 @@ using Chorus.sync;
 using Chorus.Utilities;
 using System.Linq;
 using Chorus.VcsDrivers;
+using Palaso.Code;
+using Palaso.Extensions;
 using Palaso.Progress;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
 
 namespace Chorus.UI.Sync
 {
@@ -22,6 +24,7 @@ namespace Chorus.UI.Sync
 		public event EventHandler SynchronizeOver;
 		private readonly MultiProgress _progress;
 		private SyncOptions _syncOptions;
+		private BackgroundWorker _asyncLocalCheckInWorker;
 
 		public SimpleStatusProgress StatusProgress { get; set; }
 
@@ -265,6 +268,43 @@ namespace Chorus.UI.Sync
 		public void SetSynchronizerAdjunct(ISychronizerAdjunct adjunct)
 		{
 			_synchronizer.SynchronizerAdjunct = adjunct;
+		}
+
+
+		/// <summary>
+		/// Check in, to the local disk repository, any changes to this point.
+		/// </summary>
+		/// <param name="checkinDescription">A description of what work was done that you're wanting to checkin. E.g. "Delete a Book"</param>
+		/// <param name="progress">Can be null if you don't want any progress report</param>
+		public void AsyncLocalCheckIn(string checkinDescription, Action<SyncResults> callbackWhenFinished)
+		{
+			var repoPath = this._synchronizer.Repository.PathToRepo.CombineForPath(".hg");
+			Require.That(Directory.Exists(repoPath), "The repository should already exist before calling AsyncLocalCheckIn(). Expected to find the hg folder at " + repoPath);
+
+			//NB: if someone were to call this fast and repeatedly, I won't vouch for any kind of safety here.
+			//This is just designed for checking in occasionally, like as users do some major new thing, or finish some task.
+			if (_asyncLocalCheckInWorker != null && !_asyncLocalCheckInWorker.IsBusy)
+			{
+				_asyncLocalCheckInWorker.Dispose(); //timidly avoid a leak
+			}
+			_asyncLocalCheckInWorker = new BackgroundWorker();
+			_asyncLocalCheckInWorker.DoWork += new DoWorkEventHandler((o, args) =>
+														{
+
+		   var options = new SyncOptions()
+			{
+				CheckinDescription = checkinDescription,
+				DoMergeWithOthers = false,
+				DoPullFromOthers = false,
+				DoSendToOthers = false
+			};
+		   var result = _synchronizer.SyncNow(options);
+			if (callbackWhenFinished != null)
+			{
+				callbackWhenFinished(result);
+			}
+														});
+			_asyncLocalCheckInWorker.RunWorkerAsync();
 		}
 	}
 

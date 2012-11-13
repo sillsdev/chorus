@@ -6,7 +6,7 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
 using ThreadState=System.Threading.ThreadState;
 
 namespace Chorus.Utilities

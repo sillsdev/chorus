@@ -18,5 +18,10 @@ namespace Chorus.merge.xml.generic
 		/// def.MergePartnerFinder = new FindByEqualityOfTree();
 		/// </summary>
 		ElementStrategy GetElementStrategy(XmlNode element);
+
+		/// <summary>
+		/// Gets the collection of element merge strategies.
+		/// </summary>
+		MergeStrategies GetStrategies();
 	}
 }

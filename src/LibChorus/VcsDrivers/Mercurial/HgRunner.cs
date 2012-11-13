@@ -7,7 +7,7 @@ using System.IO;
 using System.Net.Mime;
 using System.Threading;
 using Chorus.Utilities;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
 
 namespace Chorus.VcsDrivers.Mercurial
 {

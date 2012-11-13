@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Chorus.Utilities;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
 
 namespace Chorus.notes
 {

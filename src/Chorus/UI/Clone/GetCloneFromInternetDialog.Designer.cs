@@ -1,5 +1,6 @@
 ﻿using Palaso.Progress;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
+using Palaso.UI.WindowsForms.Progress;
 
 namespace Chorus.UI.Clone
 {
@@ -41,8 +42,8 @@ namespace Chorus.UI.Clone
 			this._progressBar = new Palaso.Progress.SimpleProgressIndicator();
 			this._cancelTaskButton = new System.Windows.Forms.Button();
 			this._fixSettingsButton = new System.Windows.Forms.Button();
-			this._logBox = new Palaso.Progress.LogBox.LogBox();
-			this._statusProgress = new Palaso.Progress.LogBox.SimpleStatusProgress();
+			this._logBox = new LogBox();
+			this._statusProgress = new Palaso.Progress.SimpleStatusProgress();
 			this.SuspendLayout();
 			//
 			// _cancelButton
