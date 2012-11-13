@@ -18,6 +18,7 @@ namespace LibChorus.TestUtilities
 		public TemporaryFolder RootFolder;
 		public TemporaryFolder ProjectFolder;
 		public ProjectFolderConfiguration ProjectFolderConfig;
+		private HgRepository _hgRepository;
 
 		private void Init(string name)
 		{
@@ -90,7 +91,7 @@ namespace LibChorus.TestUtilities
 
 		public HgRepository Repository
 		{
-			get { return new HgRepository(ProjectFolderConfig.FolderPath, Progress); }
+			get { return _hgRepository ?? (_hgRepository = new HgRepository(ProjectFolderConfig.FolderPath, Progress)); }
 		}
 
 		public void Dispose()
@@ -211,8 +212,7 @@ namespace LibChorus.TestUtilities
 
 		public static void MakeRepositoryForTest(string newRepositoryPath, string userId, IProgress progress)
 		{
-			HgRepository.CreateRepositoryInExistingDir(newRepositoryPath,progress);
-			var hg = new HgRepository(newRepositoryPath, progress);
+			var hg = HgRepository.CreateRepositoryInExistingDir(newRepositoryPath, progress);
 			hg.SetUserNameInIni(userId,  progress);
 		}
 
