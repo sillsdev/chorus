@@ -2,8 +2,8 @@
 using System.Xml;
 using Chorus.VcsDrivers.Mercurial;
 using Chorus.sync;
-using Palaso.Progress.LogBox;
 using Palaso.Xml;
+using Palaso.Progress;
 
 namespace Chorus.FileTypeHanders.lift
 {

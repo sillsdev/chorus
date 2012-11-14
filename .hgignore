@@ -4,6 +4,7 @@ glob:output/
 glob:obj/
 glob:_Resharper*
 glob:Debug/
+glob:Release/
 glob:_ReSharper.Chorus VS2008/
 glob:*.suo
 glob:*.user
@@ -23,3 +24,4 @@ relre:src/SampleApp/bin/*
 glob:CopyTo Dev WeSay.bat
 MercurialExtensions/fixutf8/cpmap.pyo
 MercurialExtensions/fixutf8/cpmap.py
+src/LibChorusTests/test-results/LibChorus.Tests.csproj.test-cache

@@ -4,7 +4,7 @@ using Chorus.sync;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using NUnit.Framework;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
 using Palaso.TestUtilities;
 
 namespace LibChorus.TestUtilities
@@ -18,6 +18,7 @@ namespace LibChorus.TestUtilities
 		public TemporaryFolder RootFolder;
 		public TemporaryFolder ProjectFolder;
 		public ProjectFolderConfiguration ProjectFolderConfig;
+		private HgRepository _hgRepository;
 		public Synchronizer Synchronizer;
 
 		private void Init(string name)
@@ -91,7 +92,7 @@ namespace LibChorus.TestUtilities
 
 		public HgRepository Repository
 		{
-			get { return new HgRepository(ProjectFolderConfig.FolderPath, Progress); }
+			get { return _hgRepository ?? (_hgRepository = new HgRepository(ProjectFolderConfig.FolderPath, Progress)); }
 		}
 
 		public void Dispose()
@@ -100,8 +101,14 @@ namespace LibChorus.TestUtilities
 			{
 				Assert.IsFalse(Repository.GetHasLocks(), "A lock was left over, after the test.");
 			}
-			ProjectFolder.Dispose();
-			RootFolder.Dispose();
+			if (ProjectFolder != null)
+			{
+				ProjectFolder.Dispose();
+			}
+			if (RootFolder != null)
+			{
+				RootFolder.Dispose();
+			}
 		}
 
 		public void WriteIniContents(string s)
@@ -208,8 +215,7 @@ namespace LibChorus.TestUtilities
 
 		public static void MakeRepositoryForTest(string newRepositoryPath, string userId, IProgress progress)
 		{
-			HgRepository.CreateRepositoryInExistingDir(newRepositoryPath,progress);
-			var hg = new HgRepository(newRepositoryPath, progress);
+			var hg = HgRepository.CreateRepositoryInExistingDir(newRepositoryPath, progress);
 			hg.SetUserNameInIni(userId,  progress);
 		}
 

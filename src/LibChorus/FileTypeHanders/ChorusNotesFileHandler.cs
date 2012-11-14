@@ -8,7 +8,7 @@ using Chorus.merge.xml.generic;
 using Chorus.VcsDrivers.Mercurial;
 using Chorus.notes;
 using Palaso.IO;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
 using Palaso.Xml;
 
 namespace Chorus.FileTypeHanders
@@ -54,7 +54,7 @@ namespace Chorus.FileTypeHanders
 		public void Do3WayMerge(MergeOrder order)
 		{
 			XmlMergeService.Do3WayMerge(order,
-				new ChorusNotesAnnotationMergingStrategy(order.MergeSituation),
+				new ChorusNotesAnnotationMergingStrategy(order),
 				false,
 				null,
 				"annotation", "guid");

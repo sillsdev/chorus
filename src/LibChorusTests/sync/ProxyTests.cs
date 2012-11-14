@@ -2,7 +2,7 @@ using System.IO;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using NUnit.Framework;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
 using Palaso.TestUtilities;
 
 namespace LibChorus.Tests.sync
@@ -43,7 +43,7 @@ namespace LibChorus.Tests.sync
 			//RobustNetworkOperation.ClearCredentialSettings();
 			using (var f = new TemporaryFolder("pulltest"))
 			{
-				var repo = HgRepository.CreateOrLocate(f.Path, _progress);
+				var repo = HgRepository.CreateOrUseExisting(f.Path, _progress);
 				var address = new HttpRepositoryPath("default", _cloneableTestProjectUrl, false);
 				repo.Pull(address, _cloneableTestProjectUrl);
 				Assert.IsTrue(Directory.Exists(f.Combine(f.Path, ".hg")));
@@ -56,7 +56,7 @@ namespace LibChorus.Tests.sync
 		  //  RobustNetworkOperation.ClearCredentialSettings();
 			using (var f = new TemporaryFolder("pulltest"))
 			{
-				var repo = HgRepository.CreateOrLocate(f.Path, _progress);
+				var repo = HgRepository.CreateOrUseExisting(f.Path, _progress);
 				var address = new HttpRepositoryPath("default", _cloneableTestProjectUrl, false);
 				repo.Pull(address, _cloneableTestProjectUrl);
 				Assert.IsTrue(Directory.Exists(f.Combine(f.Path, ".hg")));

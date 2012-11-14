@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
-using System.Windows.Forms;
 using System.Xml;
 using Chorus.FileTypeHanders;
 using Chorus.merge;
@@ -11,7 +10,7 @@ using Chorus.Utilities;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using System.Linq;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
 using Palaso.Reporting;
 using Palaso.Xml;
 
@@ -92,7 +91,7 @@ namespace Chorus.sync
 
 		public static Synchronizer FromProjectConfiguration(ProjectFolderConfiguration project, IProgress progress)
 		{
-			var hg = HgRepository.CreateOrLocate(project.FolderPath, progress);
+			var hg = HgRepository.CreateOrUseExisting(project.FolderPath, progress);
 			return new Synchronizer(hg.PathToRepo, project, progress);
 
 		}
@@ -177,8 +176,9 @@ namespace Chorus.sync
 					_progress.WriteVerbose(error.InnerException.StackTrace);
 				}
 
-				_progress.WriteError(error.Message);
-				_progress.WriteVerbose(error.StackTrace);
+				_progress.WriteException(error);//this preserves the whole exception for later retrieval by the client
+				_progress.WriteError(error.Message);//review still needed if we have this new WriteException?
+				_progress.WriteVerbose(error.StackTrace);//review still needed if we have this new WriteException?
 
 				results.Succeeded = false;
 				results.ErrorEncountered = error;
@@ -544,9 +544,13 @@ namespace Chorus.sync
 				{
 					if (HgRepository.IntegrityResults.Bad == repository.CheckIntegrity(progress))
 					{
-						MessageBox.Show(
-							"Bad news: The mecurial repository is damaged.  You will need to seek expert help to resolve this problem.", "Chorus", MessageBoxButtons.OK, MessageBoxIcon.Error);
-						return;//don't suggest anything else
+						throw new ApplicationException(
+							"Bad news: The mecurial repository is damaged.  You will need to seek expert help to resolve this problem."
+						);
+						// Removing windows forms dependency CP 2012-08
+						//MessageBox.Show(
+						//    "Bad news: The mecurial repository is damaged.  You will need to seek expert help to resolve this problem.", "Chorus", MessageBoxButtons.OK, MessageBoxIcon.Error);
+						//return;//don't suggest anything else
 					}
 				}
 

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Xml;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
 using Palaso.Xml;
 
 namespace Chorus.Utilities

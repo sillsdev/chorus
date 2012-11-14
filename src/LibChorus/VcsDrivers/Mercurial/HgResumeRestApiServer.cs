@@ -139,7 +139,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			{
 				if (_url.Query.Contains("repoId="))
 				{
-					return HttpUtility.ParseQueryString(_url.Query).Get("repoId");
+					return Palaso.Network.HttpUtilityFromMono.ParseQueryString(_url.Query).Get("repoId");
 				}
 				if (_url.Segments[1].ToLower() != "projects/")
 				{

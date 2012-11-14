@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Chorus.VcsDrivers.Mercurial;
 using Chorus.sync;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
 
 namespace LibChorus.Tests.sync
 {

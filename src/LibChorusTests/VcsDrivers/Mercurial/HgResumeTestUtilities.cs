@@ -11,9 +11,8 @@ using Chorus.VcsDrivers.Mercurial;
 using LibChorus.TestUtilities;
 using NUnit.Framework;
 using Palaso.Progress;
-using Palaso.Progress.LogBox;
 using Palaso.TestUtilities;
-using ConsoleProgress = Palaso.Progress.LogBox.ConsoleProgress;
+
 
 namespace LibChorus.Tests.VcsDrivers.Mercurial
 {
@@ -74,6 +73,8 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		{
 			Local.Dispose();
 			Remote.Dispose();
+			if (ApiServer is IDisposable)
+				(ApiServer as IDisposable).Dispose();
 		}
 
 		public void SetLocalAdjunct(ISychronizerAdjunct adjunct)

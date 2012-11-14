@@ -3,7 +3,7 @@ using Chorus.VcsDrivers.Mercurial;
 using NUnit.Framework;
 using System.Linq;
 using Palaso.IO;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
 using Palaso.TestUtilities;
 
 namespace LibChorus.Tests.VcsDrivers.Mercurial

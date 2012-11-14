@@ -21,6 +21,8 @@ namespace Chorus.FileTypeHanders.lift
 			config.ExcludePatterns.Add("*.WeSayUserMemory");
 			config.ExcludePatterns.Add("*.tmp");
 			config.ExcludePatterns.Add("*.bak");
+			config.ExcludePatterns.Add("**.log");
+			config.ExcludePatterns.Add("*-ImportLog.htm");
 			config.ExcludePatterns.Add(Path.Combine("export", "*.lift"));
 			config.ExcludePatterns.Add("*.plift");//normally in /export
 			config.ExcludePatterns.Add("*.pdf");//normally in /export

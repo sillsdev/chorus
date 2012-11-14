@@ -6,7 +6,7 @@ using System.Net;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using Chorus.Utilities;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
 
 namespace Chorus.VcsDrivers.Mercurial
 {

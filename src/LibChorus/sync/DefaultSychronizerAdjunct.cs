@@ -1,6 +1,6 @@
+using Palaso.Progress;
 using System.Collections.Generic;
 using Chorus.VcsDrivers.Mercurial;
-using Palaso.Progress.LogBox;
 
 namespace Chorus.sync
 {

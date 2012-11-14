@@ -29,6 +29,14 @@ namespace Chorus.FileTypeHanders.ldml
 			throw new NotImplementedException();
 		}
 
+		/// <summary>
+		/// Gets the collection of element merge strategies.
+		/// </summary>
+		public MergeStrategies GetStrategies()
+		{
+			throw new NotImplementedException();
+		}
+
 		#endregion
 	}
 }

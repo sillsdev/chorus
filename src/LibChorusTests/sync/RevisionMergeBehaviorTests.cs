@@ -1,6 +1,6 @@
 ﻿using LibChorus.TestUtilities;
 using NUnit.Framework;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
 
 namespace LibChorus.Tests.sync
 {
