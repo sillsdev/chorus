@@ -41,7 +41,7 @@ namespace Chorus
 			builder.Register<IProgress>(new NullProgress());
 			builder.Register<Synchronizer>(c => Chorus.sync.Synchronizer.FromProjectConfiguration(
 													c.Resolve<ProjectFolderConfiguration>(), new NullProgress()));
-			builder.Register<HgRepository>(c => HgRepository.CreateOrReconstitute(projectPath, new NullProgress()));
+			builder.Register<HgRepository>(c => HgRepository.CreateOrUseExisting(projectPath, new NullProgress()));
 
 
 			//this is a sad hack... I don't know how to simly override the default using the container,
@@ -140,7 +140,7 @@ namespace Chorus
 			builder.Register<ChangeReportView>();
 			builder.Register<RevisionInspector>();
 
-			builder.Register(c => HgRepository.CreateOrReconstitute(projectPath, c.Resolve<IProgress>()));
+			builder.Register(c => HgRepository.CreateOrUseExisting(projectPath, c.Resolve<IProgress>()));
 
 			var container = builder.Build();
 			var shell = container.Resolve<Shell>();

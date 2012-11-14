@@ -14,7 +14,6 @@ using Nini.Ini;
 using Palaso.IO;
 using Palaso.Network;
 using Palaso.Progress.LogBox;
-using Palaso.Reporting;
 
 namespace Chorus.VcsDrivers.Mercurial
 {
@@ -80,20 +79,13 @@ namespace Chorus.VcsDrivers.Mercurial
 		}
 
 		/// <summary>
-		/// Given a file path or directory path, create (or reconstiute) one at this location.
+		/// Given a file path or directory path, create (or use existing) repository at this location.
 		/// </summary>
 		/// <returns></returns>
-		public static HgRepository CreateOrReconstitute(string startingPointForPathSearch, IProgress progress)
+		public static HgRepository CreateOrUseExisting(string startingPointForPathSearch, IProgress progress)
 		{
-			if (string.IsNullOrEmpty(startingPointForPathSearch))
-			{
-				throw new ArgumentNullException("Parameter is null or empty", "startingPointForPathSearch");
-			}
-
-			if (!Directory.Exists(startingPointForPathSearch) && !File.Exists(startingPointForPathSearch))
-			{
-				throw new ArgumentException("File or directory wasn't found", startingPointForPathSearch);
-			}
+			Guard.AgainstNullOrEmptyString(startingPointForPathSearch, "startingPointForPathSearch");
+			Guard.Against(!Directory.Exists(startingPointForPathSearch) && !File.Exists(startingPointForPathSearch), "File or directory wasn't found");
 
 			/*
 			 I'm leaning away from this intervention at the moment.

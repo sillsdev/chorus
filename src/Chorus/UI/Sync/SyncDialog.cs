@@ -38,7 +38,7 @@ namespace Chorus.UI.Sync
 					SyncResult = new SyncResults();
 					SyncResult.Succeeded = false;
 
-					_syncStartControl.Init(HgRepository.CreateOrReconstitute(projectFolderConfiguration.FolderPath, new NullProgress()));
+					_syncStartControl.Init(HgRepository.CreateOrUseExisting(projectFolderConfiguration.FolderPath, new NullProgress()));
 
 					_syncControl.Dock = DockStyle.Fill;//in designer, we don't want it to cover up everything, but we do at runtime
 					_syncStartControl.Visible = true;

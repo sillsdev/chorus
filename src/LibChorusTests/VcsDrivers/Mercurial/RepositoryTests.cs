@@ -23,7 +23,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 
 				var parentFolder = tempParent.Path;
 				var dirInfo = Directory.CreateDirectory(Path.Combine(parentFolder, "Child"));
-				var childRepo = HgRepository.CreateOrReconstitute(dirInfo.FullName, new NullProgress());
+				var childRepo = HgRepository.CreateOrUseExisting(dirInfo.FullName, new NullProgress());
 				Assert.AreNotEqual(parentFolder, childRepo.PathToRepo);
 			}
 		}
@@ -43,7 +43,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				var dirInfo = Directory.CreateDirectory(Path.Combine(parentFolder, "Child"));
 				var childPathname = Path.Combine(dirInfo.FullName, "Child.txt");
 				File.WriteAllText(childPathname, "New child content.");
-				var childRepo = HgRepository.CreateOrReconstitute(childPathname, new NullProgress());
+				var childRepo = HgRepository.CreateOrUseExisting(childPathname, new NullProgress());
 				Assert.AreNotEqual(parentFolder, childRepo.PathToRepo);
 			}
 		}
@@ -61,7 +61,24 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 
 				var parentFolder = tempParent.Path;
 				var nonexistantDirectory = Path.Combine(parentFolder, "Child");
-				Assert.Throws<ArgumentException>(() => HgRepository.CreateOrReconstitute(nonexistantDirectory, new NullProgress()));
+				Assert.Throws<InvalidOperationException>(() => HgRepository.CreateOrUseExisting(nonexistantDirectory, new NullProgress()));
+			}
+		}
+
+		[Test]
+		public void AddingRepositoryWithinAnotherRepositoryWithNonexistantFileThrows()
+		{
+			using (var tempParent = new TemporaryFolder("ChorusParent"))
+			{
+				var parentRepo = new HgRepository(tempParent.Path, new NullProgress());
+				parentRepo.Init();
+				var parentFile = tempParent.GetNewTempFile(true);
+				File.WriteAllText(parentFile.Path, "New Content");
+				parentRepo.AddAndCheckinFile(parentFile.Path);
+
+				var parentFolder = tempParent.Path;
+				var nonexistantFile = Path.Combine(parentFolder, "bogusfile.txt");
+				Assert.Throws<InvalidOperationException>(() => HgRepository.CreateOrUseExisting(nonexistantFile, new NullProgress()));
 			}
 		}
 
@@ -76,7 +93,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				File.WriteAllText(parentFile.Path, "New Content");
 				parentRepo.AddAndCheckinFile(parentFile.Path);
 
-				Assert.Throws<ArgumentNullException>(() => HgRepository.CreateOrReconstitute(null, new NullProgress()));
+				Assert.Throws<ArgumentNullException>(() => HgRepository.CreateOrUseExisting(null, new NullProgress()));
 			}
 		}
 
@@ -91,7 +108,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				File.WriteAllText(parentFile.Path, "New Content");
 				parentRepo.AddAndCheckinFile(parentFile.Path);
 
-				Assert.Throws<ArgumentNullException>(() => HgRepository.CreateOrReconstitute("", new NullProgress()));
+				Assert.Throws<ArgumentNullException>(() => HgRepository.CreateOrUseExisting("", new NullProgress()));
 			}
 		}
 	}

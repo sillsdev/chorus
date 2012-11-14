@@ -27,7 +27,7 @@ namespace Chorus.UI.Settings
 			InitializeComponent();
 
 			RequireThat.Directory(repositoryLocation).Exists();
-			var repository = HgRepository.CreateOrReconstitute(repositoryLocation, new NullProgress());
+			var repository = HgRepository.CreateOrUseExisting(repositoryLocation, new NullProgress());
 			_model = new SettingsModel(repository);
 			userNameTextBox.Text = _model.GetUserName(new NullProgress());
 
