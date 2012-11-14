@@ -208,8 +208,8 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				string path = Path.Combine(testRoot.Path, "ไก่ projéct");
 				Directory.CreateDirectory(path);
 
-				Assert.NotNull(HgRepository.CreateOrReconstitute(path, new ConsoleProgress()));
-				Assert.NotNull(HgRepository.CreateOrReconstitute(path, new ConsoleProgress()));
+				Assert.NotNull(HgRepository.CreateOrUseExisting(path, new ConsoleProgress()));
+				Assert.NotNull(HgRepository.CreateOrUseExisting(path, new ConsoleProgress()));
 			}
 		}
 
@@ -222,8 +222,8 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				string path = Path.Combine(testRoot.Path, "projéct");
 				Directory.CreateDirectory(path);
 
-				Assert.NotNull(HgRepository.CreateOrReconstitute(path, new ConsoleProgress()));
-				Assert.NotNull(HgRepository.CreateOrReconstitute(path, new ConsoleProgress()));
+				Assert.NotNull(HgRepository.CreateOrUseExisting(path, new ConsoleProgress()));
+				Assert.NotNull(HgRepository.CreateOrUseExisting(path, new ConsoleProgress()));
 			}
 
 		}
@@ -237,8 +237,8 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				//string path = Path.Combine(testRoot.Path, "projéct");
 				Directory.CreateDirectory(path);
 
-				Assert.NotNull(HgRepository.CreateOrReconstitute(path, new ConsoleProgress()));
-				Assert.NotNull(HgRepository.CreateOrReconstitute(path, new ConsoleProgress()));
+				Assert.NotNull(HgRepository.CreateOrUseExisting(path, new ConsoleProgress()));
+				Assert.NotNull(HgRepository.CreateOrUseExisting(path, new ConsoleProgress()));
 			}
 
 		}
