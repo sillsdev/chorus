@@ -10,7 +10,8 @@ using Chorus.Utilities;
 using System.Linq;
 using Chorus.VcsDrivers;
 using Palaso.Progress;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
+using Palaso.UI.WindowsForms.Progress;
 
 namespace Chorus.UI.Sync
 {
@@ -31,6 +32,8 @@ namespace Chorus.UI.Sync
 		{
 			_user = user;
 			_progress = new MultiProgress();
+			StatusProgress = new SimpleStatusProgress();
+			_progress.Add(StatusProgress);
 			Features = uiFeatureFlags;
 			_synchronizer = Synchronizer.FromProjectConfiguration(projectFolderConfiguration, _progress);
 			_backgroundWorker = new BackgroundWorker();

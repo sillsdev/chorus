@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Xml;
-using Chorus.Utilities.code;
 using Chorus.merge.xml.generic;
+using Palaso.Code;
 
 namespace Chorus.FileTypeHanders
 {
-	internal class LiftRangesKeyFinder : IKeyFinder
+	internal class LiftRangesElementToMergeStrategyKeyMapper : IElementToMergeStrategyKeyMapper
 	{
 		#region Implementation of IKeyFinder
 
@@ -17,7 +17,7 @@ namespace Chorus.FileTypeHanders
 		/// <param name="element">The element currently being processed, that the key if needed for.</param>
 		/// <returns>The key in the MergeStrategies disctionary that is used to look up the ElementStrategy.</returns>
 		/// <exception cref="ArgumentNullException">Thrown if <param name="element" /> is null.</exception>
-		public string GetKeyFromElement(IEnumerable<string> keys, XmlNode element)
+		public string GetKeyFromElement(HashSet<string> keys, XmlNode element)
 		{
 			Guard.AgainstNull(keys, "keys is null.");
 			Guard.AgainstNull(element, "Element is null.");

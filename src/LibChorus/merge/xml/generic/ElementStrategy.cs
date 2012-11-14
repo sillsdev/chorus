@@ -1,7 +1,6 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Xml;
+using Palaso.Xml;
 
 namespace Chorus.merge.xml.generic
 {
@@ -10,23 +9,34 @@ namespace Chorus.merge.xml.generic
 	/// </summary>
 	public class MergeStrategies
 	{
+		private Dictionary<string, ElementStrategy> _elementStrategies;
+		private readonly HashSet<string> _elementStrategyKeys = new HashSet<string>();
+
 		/// <summary>
 		/// the list of custom strategies that have been installed
 		/// </summary>
-		public Dictionary<string, ElementStrategy> ElementStrategies{get;set;}
+		public Dictionary<string, ElementStrategy> ElementStrategies
+		{
+			get { return _elementStrategies; }
+			set
+			{
+				_elementStrategies = value;
+				_elementStrategyKeys.UnionWith(_elementStrategies.Keys);
+			}
+		}
 
 		public MergeStrategies()
 		{
 			ElementStrategies = new Dictionary<string, ElementStrategy>();
 			ElementStrategy s = new ElementStrategy(true);//review: this says the default is to consider order relevant
 			s.MergePartnerFinder = new FindTextDumb();
-			this.SetStrategy("_"+XmlNodeType.Text, s);
+			SetStrategy("_"+XmlNodeType.Text, s);
 
 			ElementStrategy def = new ElementStrategy(true);//review: this says the default is to consider order relevant
 			def.MergePartnerFinder = new FindByEqualityOfTree();
-			this.SetStrategy("_defaultElement", def);
+			SetStrategy("_defaultElement", def);
 
-			KeyFinder = new DefaultKeyFinder();
+			ElementToMergeStrategyKeyMapper = new DefaultElementToMergeStrategyKeyMapper();
 		}
 
 		/// <summary>
@@ -34,11 +44,12 @@ namespace Chorus.merge.xml.generic
 		///
 		/// It starts out using the DefaultKeyFinder, which uses the element's name.
 		/// </summary>
-		public IKeyFinder KeyFinder { get; set; }
+		public IElementToMergeStrategyKeyMapper ElementToMergeStrategyKeyMapper { get; set; }
 
 		public void SetStrategy(string key, ElementStrategy strategy)
 		{
 			ElementStrategies[key] = strategy;
+			_elementStrategyKeys.Add(key);
 		}
 
 		public ElementStrategy GetElementStrategy(XmlNode element)
@@ -47,7 +58,7 @@ namespace Chorus.merge.xml.generic
 			switch (element.NodeType)
 			{
 				case XmlNodeType.Element:
-					key = KeyFinder.GetKeyFromElement(ElementStrategies.Keys, element);
+					key = ElementToMergeStrategyKeyMapper.GetKeyFromElement(_elementStrategyKeys, element);
 					break;
 				default:
 					key = "_"+element.NodeType;
@@ -132,15 +143,19 @@ namespace Chorus.merge.xml.generic
 
 		public static ElementStrategy CreateForKeyedElement(string keyAttributeName, bool orderIsRelevant)
 		{
-			ElementStrategy strategy = new ElementStrategy(orderIsRelevant);
-			strategy.MergePartnerFinder = new FindByKeyAttribute(keyAttributeName);
+			var strategy = new ElementStrategy(orderIsRelevant)
+				{
+					MergePartnerFinder = new FindByKeyAttribute(keyAttributeName)
+				};
 			return strategy;
 		}
 
 		public static ElementStrategy CreateForKeyedElementInList(string keyAttributeName)
 		{
-			ElementStrategy strategy = new ElementStrategy(true);
-			strategy.MergePartnerFinder = new FindByKeyAttributeInList(keyAttributeName);
+			var strategy = new ElementStrategy(true)
+				{
+					MergePartnerFinder = new FindByKeyAttributeInList(keyAttributeName)
+				};
 			return strategy;
 		}
 
@@ -149,8 +164,10 @@ namespace Chorus.merge.xml.generic
 		/// </summary>
 		public static ElementStrategy CreateSingletonElement()
 		{
-			ElementStrategy strategy = new ElementStrategy(false);
-			strategy.MergePartnerFinder = new FindFirstElementWithSameName();
+			var strategy = new ElementStrategy(false)
+				{
+					MergePartnerFinder = new FindFirstElementWithSameName()
+				};
 			return strategy;
 		}
 

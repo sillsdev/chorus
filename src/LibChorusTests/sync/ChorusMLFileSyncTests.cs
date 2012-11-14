@@ -7,6 +7,7 @@ using Chorus.merge.xml.generic;
 using LibChorus.TestUtilities;
 using LibChorus.Tests.merge;
 using NUnit.Framework;
+using Palaso.Xml;
 
 namespace LibChorus.Tests.sync
 {

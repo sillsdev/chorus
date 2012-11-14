@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Xml;
 using System.Collections;
 using Chorus.FileTypeHanders.xml;
@@ -39,6 +40,9 @@ namespace Chorus.merge.xml.generic
 		/// </summary>
 		public void Run()
 		{
+			// Pre-process three nodes to handle duplicates in each node, But only if finder is one of these:
+			//		FindFirstElementWithSameName, FindByKeyAttribute, or FindByMultipleKeyAttributes.
+
 			// Initialise lists of keepers to current ancestorChildren, ourChildren, theirChildren
 			CopyChildrenToList(_ancestor, _childrenOfAncestorKeepers);
 			CopyChildrenToList(_ours, _childrenOfOurKeepers);

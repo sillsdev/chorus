@@ -6,6 +6,7 @@ using Chorus.merge.xml.generic;
 using Chorus.VcsDrivers;
 using NUnit.Framework;
 using Palaso.IO;
+using Palaso.Xml;
 
 namespace LibChorus.Tests.merge
 {

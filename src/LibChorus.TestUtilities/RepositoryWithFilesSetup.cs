@@ -7,8 +7,9 @@ using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using NUnit.Framework;
 using Palaso.IO;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
 using Palaso.TestUtilities;
+using Palaso.Xml;
 
 namespace LibChorus.TestUtilities
 {

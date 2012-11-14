@@ -6,7 +6,7 @@ using Chorus.Utilities;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using Palaso.Code;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
 
 namespace Chorus.UI.Misc
 {
@@ -17,9 +17,9 @@ namespace Chorus.UI.Misc
 
 		public ServerSettingsModel()
 		{
-			const string languageDepotLabel = "LanguageDepot.org [legacy sync]";
-			Servers.Add(languageDepotLabel, "hg-public.languagedepot.org");
-			Servers.Add("LanguageDepot.org [resumable sync]", "resumable.languagedepot.org");
+			const string languageDepotLabel = "LanguageDepot.org";
+			Servers.Add(languageDepotLabel, "resumable.languagedepot.org");
+			Servers.Add("LanguageDepot.org [Safe Mode]", "hg-public.languagedepot.org");
 			Servers.Add("LanguageDepot.org [private]", "hg-private.languagedepot.org");
 			Servers.Add("LanguageForge", "hg.languageforge.org");
 

@@ -4,7 +4,7 @@ using System.IO;
 using Chorus.VcsDrivers.Mercurial;
 using LibChorus.TestUtilities;
 using NUnit.Framework;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
 using Palaso.TestUtilities;
 
 namespace LibChorus.Tests.VcsDrivers.Mercurial
@@ -108,6 +108,18 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				const string message = "New \"double quoted\" comment";
 				setup.Repository.Commit(true, message);
 				setup.AssertCommitMessageOfRevision("1", message);
+			}
+		}
+
+		[Test]
+		public void CommitWithNoUsernameInHgrcFileUsesDefaultFromEnvironment()
+		{
+			using (var setup = new HgTestSetup())
+			{
+				var path = setup.Root.GetNewTempFile(true).Path;
+				setup.Repository.AddAndCheckinFile(path);
+				var rev = setup.Repository.GetAllRevisions()[0];
+				Assert.AreEqual(Environment.UserName, rev.UserId);
 			}
 		}
 

@@ -9,7 +9,7 @@ using Chorus.merge;
 using Chorus.merge.xml.generic;
 using Chorus.VcsDrivers.Mercurial;
 using Palaso.IO;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
 using Palaso.Xml;
 
 namespace Chorus.FileTypeHanders.ldml
@@ -68,16 +68,10 @@ namespace Chorus.FileTypeHanders.ldml
 				nameSpaceManager.AddNamespace("palaso", "urn://palaso.org/ldmlExtensions/v1");
 				nameSpaceManager.AddNamespace("fw", "urn://fieldworks.sil.org/ldmlExtensions/v1");
 
-				var readerSettings = new XmlReaderSettings
-										{
-											NameTable = nameSpaceManager.NameTable,
-											IgnoreWhitespace = true,
-											ConformanceLevel = ConformanceLevel.Auto,
-											ValidationType = ValidationType.None,
-											XmlResolver = null,
-											CloseInput = true,
-											ProhibitDtd = false
-										};
+				var readerSettings = CanonicalXmlSettings.CreateXmlReaderSettings(ConformanceLevel.Auto);
+				readerSettings.NameTable = nameSpaceManager.NameTable;
+				readerSettings.XmlResolver = null;
+				readerSettings.ProhibitDtd = false;
 				using (var nodeReader = XmlReader.Create(new MemoryStream(Encoding.UTF8.GetBytes(result.MergedNode.OuterXml)), readerSettings))
 				{
 					writer.WriteNode(nodeReader, false);
@@ -105,8 +99,7 @@ namespace Chorus.FileTypeHanders.ldml
 		{
 			try
 			{
-				var settings = new XmlReaderSettings { ValidationType = ValidationType.None };
-				using (var reader = XmlReader.Create(pathToFile, settings))
+				using (var reader = XmlReader.Create(pathToFile, CanonicalXmlSettings.CreateXmlReaderSettings()))
 				{
 					reader.MoveToContent();
 					if (reader.LocalName == "ldml")
@@ -162,7 +155,7 @@ namespace Chorus.FileTypeHanders.ldml
 
 		private static void SetupElementStrategies(XmlMerger merger)
 		{
-			merger.MergeStrategies.KeyFinder = new LdmlKeyFinder();
+			merger.MergeStrategies.ElementToMergeStrategyKeyMapper = new LdmlElementToMergeStrategyKeyMapper();
 
 			merger.MergeStrategies.SetStrategy("ldml", ElementStrategy.CreateSingletonElement());
 			merger.MergeStrategies.SetStrategy("identity", ElementStrategy.CreateSingletonElement());
@@ -194,6 +187,10 @@ namespace Chorus.FileTypeHanders.ldml
 			merger.MergeStrategies.SetStrategy("special_xmlns:fw", strategy);
 		}
 
+		/// <summary>
+		/// handles that date business, so it doesn't overwhelm the poor user with conflict reports
+		/// </summary>
+		/// <param name="mergeOrder"></param>
 		private static void PreMergeFile(MergeOrder mergeOrder)
 		{
 			var ourDoc = File.Exists(mergeOrder.pathToOurs) ? XDocument.Load(mergeOrder.pathToOurs) : null;
