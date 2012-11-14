@@ -41,15 +41,14 @@ namespace Chorus
 		}
 
 		/// <summary>
-		/// Constructor
+		/// Initialize system with user's name.
 		/// </summary>
-		/// <param name="dataFolderPath">The root of the project</param>
 		/// <param name="userNameForHistoryAndNotes">This is not the same name as that used for any given network
 		/// repository credentials. Rather, it's the name which will show in the history, and besides Notes that this user makes.
 		///</param>
 		  public void Init(string userNameForHistoryAndNotes)
 		{
-			Repository = HgRepository.CreateOrReconstitute(_dataFolderPath, new NullProgress());
+			Repository = HgRepository.CreateOrUseExisting(_dataFolderPath, new NullProgress());
 			var builder = new Autofac.ContainerBuilder();
 
 			builder.Register<IEnumerable<IWritingSystem>>(c=>WritingSystems);

@@ -293,7 +293,7 @@ namespace LibChorus.Tests.sync
 			string sallyProjectRoot = bobSetup.SetupClone(sallyMachineRoot);
 			ProjectFolderConfiguration sallyProject = BobSetup.CreateFolderConfig(sallyProjectRoot);
 
-			var repository = HgRepository.CreateOrReconstitute(sallyProject.FolderPath, progress);
+			var repository = HgRepository.CreateOrUseExisting(sallyProject.FolderPath, progress);
 			repository.SetUserNameInIni("sally",progress);
 
 			// bob makes a change and syncs
