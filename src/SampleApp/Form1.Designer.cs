@@ -28,6 +28,7 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
+			this.components = new System.ComponentModel.Container();
 			this.tabControl1 = new System.Windows.Forms.TabControl();
 			this._frontPage = new System.Windows.Forms.TabPage();
 			this._notesPage = new System.Windows.Forms.TabPage();
@@ -37,21 +38,22 @@
 			this._viewTestDataDirectory = new System.Windows.Forms.LinkLabel();
 			this._syncButton = new System.Windows.Forms.Button();
 			this.button1 = new System.Windows.Forms.Button();
+			this._helpProvider = new Vulcan.Uczniowie.HelpProvider.HelpComponent(this.components);
 			this.tabControl1.SuspendLayout();
 			this.SuspendLayout();
 			//
 			// tabControl1
 			//
 			this.tabControl1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-			| System.Windows.Forms.AnchorStyles.Left)
-			| System.Windows.Forms.AnchorStyles.Right)));
+						| System.Windows.Forms.AnchorStyles.Left)
+						| System.Windows.Forms.AnchorStyles.Right)));
 			this.tabControl1.Controls.Add(this._frontPage);
 			this.tabControl1.Controls.Add(this._notesPage);
 			this.tabControl1.Controls.Add(this._historyPage);
 			this.tabControl1.Location = new System.Drawing.Point(0, 41);
 			this.tabControl1.Name = "tabControl1";
 			this.tabControl1.SelectedIndex = 0;
-			this.tabControl1.Size = new System.Drawing.Size(749, 357);
+			this.tabControl1.Size = new System.Drawing.Size(620, 357);
 			this.tabControl1.TabIndex = 0;
 			//
 			// _frontPage
@@ -59,7 +61,7 @@
 			this._frontPage.Location = new System.Drawing.Point(4, 22);
 			this._frontPage.Name = "_frontPage";
 			this._frontPage.Padding = new System.Windows.Forms.Padding(3);
-			this._frontPage.Size = new System.Drawing.Size(741, 331);
+			this._frontPage.Size = new System.Drawing.Size(612, 331);
 			this._frontPage.TabIndex = 0;
 			this._frontPage.Text = "Data";
 			this._frontPage.UseVisualStyleBackColor = true;
@@ -109,7 +111,7 @@
 			// _viewTestDataDirectory
 			//
 			this._viewTestDataDirectory.AutoSize = true;
-			this._viewTestDataDirectory.Location = new System.Drawing.Point(290, 9);
+			this._viewTestDataDirectory.Location = new System.Drawing.Point(290, 13);
 			this._viewTestDataDirectory.Name = "_viewTestDataDirectory";
 			this._viewTestDataDirectory.Size = new System.Drawing.Size(125, 13);
 			this._viewTestDataDirectory.TabIndex = 3;
@@ -119,7 +121,7 @@
 			//
 			// _syncButton
 			//
-			this._syncButton.Location = new System.Drawing.Point(484, 9);
+			this._syncButton.Location = new System.Drawing.Point(511, 9);
 			this._syncButton.Name = "_syncButton";
 			this._syncButton.Size = new System.Drawing.Size(105, 31);
 			this._syncButton.TabIndex = 4;
@@ -141,7 +143,7 @@
 			//
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(749, 398);
+			this.ClientSize = new System.Drawing.Size(620, 398);
 			this.Controls.Add(this.button1);
 			this.Controls.Add(this._syncButton);
 			this.Controls.Add(this._viewTestDataDirectory);
@@ -168,5 +170,6 @@
 		private System.Windows.Forms.LinkLabel _viewTestDataDirectory;
 		private System.Windows.Forms.Button _syncButton;
 		private System.Windows.Forms.Button button1;
+		private Vulcan.Uczniowie.HelpProvider.HelpComponent _helpProvider;
 	}
 }
