@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
 
 namespace Chorus.Utilities
 {

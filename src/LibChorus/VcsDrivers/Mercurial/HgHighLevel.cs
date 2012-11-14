@@ -2,7 +2,7 @@
 using Chorus.Utilities;
 using Chorus.Utilities.code;
 using Palaso.IO;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
 
 namespace Chorus.VcsDrivers.Mercurial
 {

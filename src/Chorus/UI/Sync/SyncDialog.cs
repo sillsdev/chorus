@@ -4,7 +4,8 @@ using System.Windows.Forms;
 using Chorus.Utilities.code;
 using Chorus.sync;
 using Chorus.VcsDrivers.Mercurial;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
+using Palaso.UI.WindowsForms.Progress;
 
 namespace Chorus.UI.Sync
 {

@@ -4,7 +4,7 @@ using System.Windows.Forms;
 using Chorus.UI.Misc;
 using LibChorus.TestUtilities;
 using NUnit.Framework;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
 using Palaso.TestUtilities;
 
 namespace Chorus.Tests.UI.Misc

@@ -6,7 +6,7 @@ using System.Xml;
 using Chorus;
 using Chorus.UI.Notes.Bar;
 using Chorus.Utilities;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
 using Palaso.Xml;
 
 namespace SampleApp
