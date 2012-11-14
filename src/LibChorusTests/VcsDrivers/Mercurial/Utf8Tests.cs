@@ -5,6 +5,8 @@ using Chorus.VcsDrivers.Mercurial;
 using LibChorus.TestUtilities;
 using NUnit.Framework;
 using Palaso.IO;
+using Palaso.Progress;
+using Palaso.TestUtilities;
 
 namespace LibChorus.Tests.VcsDrivers.Mercurial
 {
@@ -194,6 +196,45 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 
 			}
 		}
+
+
+
+		[Test]        public void CreateOrLocate_FolderHasThaiAndAccentedLetter2_FindsIt()        {            using (var testRoot = new TemporaryFolder("chorus utf8 folder test"))            {
+				//string path = Path.Combine(testRoot.Path, "Abé Books");
+				string path = Path.Combine(testRoot.Path, "ไก่ projéct");
+				Directory.CreateDirectory(path);                Assert.NotNull(HgRepository.CreateOrLocate(path, new ConsoleProgress()));                Assert.NotNull(HgRepository.CreateOrLocate(path, new ConsoleProgress()));            }
+		}
+
+		[Test]
+		public void CreateOrLocate_FolderHasAccentedLetter2_FindsIt()
+		{
+			using (var testRoot = new TemporaryFolder("chorus utf8 folder test"))
+			{
+				//string path = Path.Combine(testRoot.Path, "Abé Books");
+				string path = Path.Combine(testRoot.Path, "projéct");
+				Directory.CreateDirectory(path);
+
+				Assert.NotNull(HgRepository.CreateOrLocate(path, new ConsoleProgress()));
+				Assert.NotNull(HgRepository.CreateOrLocate(path, new ConsoleProgress()));
+			}
+
+		}
+
+		[Test]
+		public void CreateOrLocate_FolderHasAccentedLetterAbeBooks_FindsIt()
+		{
+			using (var testRoot = new TemporaryFolder("chorus utf8 folder test"))
+			{
+				string path = Path.Combine(testRoot.Path, "Abé Books");
+				//string path = Path.Combine(testRoot.Path, "projéct");
+				Directory.CreateDirectory(path);
+
+				Assert.NotNull(HgRepository.CreateOrLocate(path, new ConsoleProgress()));
+				Assert.NotNull(HgRepository.CreateOrLocate(path, new ConsoleProgress()));
+			}
+
+		}
+
 
 
 	}
