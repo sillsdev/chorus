@@ -1,10 +1,10 @@
 using System;
-using System.IO;
 using System.Text;
 using System.Xml;
 using Chorus.FileTypeHanders.xml;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
+using Palaso.Xml;
 
 namespace Chorus.FileTypeHanders.lift
 {

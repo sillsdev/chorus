@@ -109,6 +109,7 @@
   </ItemGroup>
   <ItemGroup>
 	<Compile Include="FileHandlers\audio\AudioFileTypeHandlerTests.cs" />
+	<Compile Include="FileHandlers\ChorusNotesFileHandlerTests.cs" />
 	<Compile Include="FileHandlers\ChorusTestFileHanderTests.cs" />
 	<Compile Include="FileHandlers\default\DefaultFileTypeHandlerTests.cs" />
 	<Compile Include="FileHandlers\LargeFileIntegrationTestService.cs" />

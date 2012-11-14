@@ -1,5 +1,5 @@
 ﻿using System;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
 
 namespace Chorus.VcsDrivers.Mercurial
 {

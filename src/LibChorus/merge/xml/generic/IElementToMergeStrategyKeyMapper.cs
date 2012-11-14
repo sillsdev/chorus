@@ -7,10 +7,10 @@ namespace Chorus.merge.xml.generic
 	/// <summary>
 	/// Interface that domains can implement, if they have any special keys they have used in populating the MergeStrategies collection of ElementStrategy instances.
 	///
-	/// Implementers of this interface need to add the implemtation to the KeyFinder property of MergeStrategies, when theyh set up its ElementStrategies.
+	/// Implementers of this interface need to add the implementation to the KeyFinder property of MergeStrategies, when they set up its ElementStrategies.
 	/// The implementation will then be called, so the domain can sort out the key to use from the given XmlNode element.
 	/// </summary>
-	public interface IKeyFinder
+	public interface IElementToMergeStrategyKeyMapper
 	{
 		/// <summary>
 		/// Get key to use to find ElementStrategy in the collection held by MergeStrategies
@@ -19,6 +19,6 @@ namespace Chorus.merge.xml.generic
 		/// <param name="element">The element currently being processed, that the key if needed for.</param>
 		/// <returns>The key in the MergeStrategies disctionary that is used to look up the ElementStrategy.</returns>
 		/// <exception cref="ArgumentNullException">Thrown if <param name="element" /> is null.</exception>
-		string GetKeyFromElement(IEnumerable<string> keys, XmlNode element);
+		string GetKeyFromElement(HashSet<string> keys, XmlNode element);
 	}
 }

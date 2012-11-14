@@ -100,8 +100,13 @@ def mapconvert(convert, canconvert, doc):
 	_convert.__doc__ = doc
 	return _convert
 
+tounicode1252 = mapconvert(
+	lambda s: s.decode('cp1252', 'strict'),
+	lambda s: isinstance(s, str),
+	"Convert a CP1252 byte string to Unicode")
+
 tounicode = mapconvert(
-	lambda s: s.decode('utf-8', 'ignore'),
+	lambda s: s.decode('utf-8', 'strict'),
 	lambda s: isinstance(s, str),
 	"Convert a UTF-8 byte string to Unicode")
 
@@ -125,12 +130,20 @@ def utf8wrapper(orig, *args, **kargs):
 		#print 'encoded =', repr(x)
 		return x
 	except UnicodeDecodeError:
-		print "utf8wrapper: While calling %s" % orig.__name__
+		#print "utf8wrapper UTF8 decode error: While calling %s" % orig.__name__
+		try:
+			x = orig(*tounicode1252(args), **tounicode1252(kargs))
+			#print '[result]'
+			#print 'raw =', repr(x)
+			x = fromunicode(x)
+			#print 'encoded =', repr(x)
+			return x
+		except Exception, e:
+			#print "utf8wrapper 1252 decode error: Exception: ", repr(e)
+			raise
+	except Exception, e:
+		#print "utf8wrapper: Exception: ", repr(e)
 		raise
-	#except Exception, e:
-	#    print "utf8wrapper: Exception: ", repr(e)
-	#    raise
-
 
 def popen_wrapper(orig, cmd, *args, **kargs):
 	#print '[[', orig.__name__, ']]'

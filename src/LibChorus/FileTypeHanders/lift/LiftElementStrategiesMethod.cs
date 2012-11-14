@@ -56,7 +56,7 @@ namespace Chorus.FileTypeHanders.lift
 			// <field-defn (aka <field> in 0.13)
 			//		tag [Required, key]
 			// !!!!!!!!! HACK ALERT !!!!!!!!!
-			AddKeyedElementType(mergeStrategies, "headerfield", "tag", false);
+			LiftBasicElementStrategiesMethod.AddKeyedElementType(mergeStrategies, "headerfield", "tag", false);
 			// !!!!!!!!! END HACK ALERT !!!!!!!!!
 			//		<form> [optional, multiple]
 			// </field-defn>
@@ -85,7 +85,7 @@ namespace Chorus.FileTypeHanders.lift
 			// <field
 			//		type [Required, sig=key]
 			// !!!!!!!!! HACK ALERT !!!!!!!!!
-			elementStrategy = AddKeyedElementType(mergeStrategies, "mainfield", "type", false);
+			elementStrategy = LiftBasicElementStrategiesMethod.AddKeyedElementType(mergeStrategies, "mainfield", "type", false);
 			// !!!!!!!!! END HACK ALERT !!!!!!!!!
 			//		dateCreated [Optional, sig=datetime, inherited from <extensible>]
 			//		dateModified [Optional, sig=datetime, inherited from <extensible>]
@@ -163,7 +163,7 @@ namespace Chorus.FileTypeHanders.lift
 			// ******************************* <entry> **************************************************
 			// <entry
 			//		id [Optional, refid] This gives a unique identifier to this Entry. Notice that this is unique across all Entrys and **all Senses**.
-			elementStrategy = AddKeyedElementType(mergeStrategies, "entry", "id", false);
+			elementStrategy = LiftBasicElementStrategiesMethod.AddKeyedElementType(mergeStrategies, "entry", "id", false);
 			elementStrategy.ContextDescriptorGenerator = new LexEntryContextGenerator();
 			//		order [Optional, int]
 			//		guid [Optional, string]
@@ -215,7 +215,7 @@ namespace Chorus.FileTypeHanders.lift
 			//		<form> [Optional, Multiple, sig=form, inherited from <multitext>]
 			//		<media> [Optional, Multiple, sig=URLRef] NAME OVERRIDE
 			// Not ever in lift file, as <pronunciation> wraps it. AddPhoneticStrategy(mergeStrategies);
-			AddKeyedElementType(mergeStrategies, "media", "href", false);
+			LiftBasicElementStrategiesMethod.AddKeyedElementType(mergeStrategies, "media", "href", false);
 			// </phonetic>
 			// ******************************* </phonetic> **************************************************
 
@@ -248,7 +248,7 @@ namespace Chorus.FileTypeHanders.lift
 			// ******************************* <sense> **************************************************
 			// <sense
 			//		id [Optional, refid] The id is unique across all Senses in the lexicon and all Entries as well.
-			elementStrategy = AddKeyedElementType(mergeStrategies, "sense", "id", true);// main sense and nested senses, according to doc
+			elementStrategy = LiftBasicElementStrategiesMethod.AddKeyedElementType(mergeStrategies, "sense", "id", true);// main sense and nested senses, according to doc
 			//		order [Optional int]
 			//		dateCreated [Optional, sig=datetime, inherited from <extensible>]
 			//		dateModified [Optional, sig=datetime, inherited from <extensible>]
@@ -258,7 +258,7 @@ namespace Chorus.FileTypeHanders.lift
 			//		<annotation> [Optional, Multiple, sig=annotation, inherited from <extensible>]
 			//		<grammatical-info> [Optional, grammi] grammi? Better go with grammatical-info. (Added below)
 			//		<gloss> [Optional, Multiple, form]
-			AddKeyedElementType(mergeStrategies, "gloss", "lang", false);
+			LiftBasicElementStrategiesMethod.AddKeyedElementType(mergeStrategies, "gloss", "lang", false);
 			//		<definition> [Optional, multitext]
 			AddSingletonElementType(mergeStrategies, "definition");
 			//		<relation> [Optional, Multiple, relation] (Added below)
@@ -266,9 +266,9 @@ namespace Chorus.FileTypeHanders.lift
 			//		<example> [Optional, Multiple, example] (Must use default element strategy, or some other hand-made one.)
 			//		<reversal> [Optional, Multiple, reversal] (Added below)
 			//		<illustration> [Optional, Multiple, URLref] NAME OVERRIDE
-			AddKeyedElementType(mergeStrategies, "illustration", "href", false);
+			LiftBasicElementStrategiesMethod.AddKeyedElementType(mergeStrategies, "illustration", "href", false);
 			//		<subsense> [Optional, Multiple, sense] NAME OVERRIDE
-			AddKeyedElementType(mergeStrategies, "subsense", "id", true); // nested sense in a <sense>, according to rng
+			LiftBasicElementStrategiesMethod.AddKeyedElementType(mergeStrategies, "subsense", "id", true); // nested sense in a <sense>, according to rng
 			// </sense>
 			// ******************************* </sense> **************************************************
 
@@ -379,16 +379,6 @@ namespace Chorus.FileTypeHanders.lift
 							};
 			strategy.AttributesToIgnoreForMerging.Add("dateModified");
 			mergeStrategies.SetStrategy("example", strategy);
-		}
-
-		private static ElementStrategy AddKeyedElementType(MergeStrategies mergeStrategies, string name, string attribute, bool orderOfTheseIsRelevant)
-		{
-			var strategy = new ElementStrategy(orderOfTheseIsRelevant)
-							{
-								MergePartnerFinder = new FindByKeyAttribute(attribute)
-							};
-			mergeStrategies.SetStrategy(name, strategy);
-			return strategy;
 		}
 
 		private static ElementStrategy AddSingletonElementType(MergeStrategies mergeStrategies, string name)
