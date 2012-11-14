@@ -173,8 +173,9 @@ namespace Chorus.sync
 					_progress.WriteVerbose(error.InnerException.StackTrace);
 				}
 
-				_progress.WriteError(error.Message);
-				_progress.WriteVerbose(error.StackTrace);
+				_progress.WriteException(error);//this preserves the whole exception for later retrieval by the client
+				_progress.WriteError(error.Message);//review still needed if we have this new WriteException?
+				_progress.WriteVerbose(error.StackTrace);//review still needed if we have this new WriteException?
 
 				results.Succeeded = false;
 				results.ErrorEncountered = error;

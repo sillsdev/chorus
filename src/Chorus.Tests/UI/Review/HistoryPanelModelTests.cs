@@ -46,8 +46,8 @@ namespace Chorus.Tests
 			revisionListOptions.RevisionsToShowFilter = ShowRevisionPredicate;
 
 			_model = new RevisionInRepositoryModel(HgRepository.CreateOrUseExisting(_project.FolderPath, new NullProgress()),
-					null,
-					revisionListOptions);
+													null,
+													revisionListOptions);
 			_model.ProgressDisplay = _progress;
 		}
 

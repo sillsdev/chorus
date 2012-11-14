@@ -12,6 +12,7 @@ using NUnit.Framework;
 using Palaso.Progress;
 using Palaso.TestUtilities;
 
+
 namespace LibChorus.Tests.VcsDrivers.Mercurial
 {
 	internal enum ApiServerType

@@ -40,7 +40,7 @@ namespace Chorus.UI.Clone
 								return new CloneResult(null, CloneStatus.Cancelled);
 							case DialogResult.OK:
 								// It made a clone, but maybe in the wrong name, grab the project name.
-								actualCloneLocation = internetCloneDlg.PathToNewProject;
+								actualCloneLocation = internetCloneDlg.PathToNewlyClonedFolder;
 								break;
 						}
 					}
@@ -81,7 +81,7 @@ namespace Chorus.UI.Clone
 								return new CloneResult(null, CloneStatus.Cancelled);
 							case DialogResult.OK:
 								// It made a clone, grab the project name.
-								actualCloneLocation = usbCloneDlg.PathToNewProject;
+								actualCloneLocation = usbCloneDlg.PathToNewlyClonedFolder;
 								break;
 						}
 					}

@@ -4,6 +4,7 @@ glob:output/
 glob:obj/
 glob:_Resharper*
 glob:Debug/
+glob:Release/
 glob:_ReSharper.Chorus VS2008/
 glob:*.suo
 glob:*.user

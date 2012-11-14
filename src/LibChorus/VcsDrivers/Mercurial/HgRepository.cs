@@ -125,6 +125,8 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		public HgRepository(string pathToRepository, IProgress progress)
 		{
+			AllowDotEncodeRepositoryFormat = true;//older apps can change this
+
 			Guard.AgainstNull(progress, "progress");
 			_pathToRepository = pathToRepository;
 
@@ -328,6 +330,10 @@ namespace Chorus.VcsDrivers.Mercurial
 				{
 					specificError = new ProjectLabelErrorException(targetUri);
 				}
+				else if(UnrelatedRepositoryErrorException.ErrorMatches(error))
+				{
+					specificError = new UnrelatedRepositoryErrorException(targetUri);
+				}
 				else if (FirewallProblemSuspectedException.ErrorMatches(error))
 				{
 					specificError = new FirewallProblemSuspectedException();
@@ -335,6 +341,10 @@ namespace Chorus.VcsDrivers.Mercurial
 				else if (ServerErrorException.ErrorMatches(error))
 				{
 					specificError = new ServerErrorException();
+				}
+				else if (PortProblemException.ErrorMatches(error))
+				{
+					specificError = new PortProblemException(targetUri);
 				}
 				else if (RepositoryAuthorizationException.ErrorMatches(error))
 				{
@@ -713,21 +723,26 @@ namespace Chorus.VcsDrivers.Mercurial
 		//            Execute("cat", _pathToRepository, "-o ",fullOutputPath," -r ",revision,absolutePathToFile);
 		//        }
 
+		/// <summary>
+		/// Note, this uses the value of AllowDotEncodeRepositoryFormat
+		/// </summary>
 		public static HgRepository CreateRepositoryInExistingDir(string path, IProgress progress)
 		{
 			CheckMercurialIni();
 			var repo = new HgRepository(path, progress);
-			//dotencode is a good thing, but until we have all clients to 1.7 or later, it would leave some out in the cold.
-			//see also: DisableNewRepositoryFormats()
 			repo.Init();
 
 			return repo;
 		}
 
+		/// <summary>
+		/// Note, this uses the value of AllowDotEncodeRepositoryFormat
+		/// </summary>
 		public void Init()
 		{
 			CheckMercurialIni();
-			Execute(20, "init", "--config format.dotencode=False " + SurroundWithQuotes(_pathToRepository));
+			var formatLimitation = AllowDotEncodeRepositoryFormat ? "" : "--config format.dotencode=False ";
+			Execute(20, "init", formatLimitation + SurroundWithQuotes(_pathToRepository));
 			CheckAndUpdateHgrc();
 		}
 
@@ -839,6 +854,14 @@ namespace Chorus.VcsDrivers.Mercurial
 				{
 					throw new ServerErrorException();
 				}
+				else if (PortProblemException.ErrorMatches(error))
+				{
+					throw new PortProblemException(sourceUri);
+				}
+				else if (PortProblemException.ErrorMatches(error))
+				{
+					throw new PortProblemException(sourceUri);
+				}
 				else if (RepositoryAuthorizationException.ErrorMatches(error))
 				{
 					throw new RepositoryAuthorizationException();
@@ -848,7 +871,14 @@ namespace Chorus.VcsDrivers.Mercurial
 			}
 		}
 
-		public static void Clone(RepositoryAddress source, string targetPath, IProgress progress)
+		/// <summary>
+		/// Attempt to clone to the target, making a new target folder if that one already exists
+		/// </summary>
+		/// <param name="source"></param>
+		/// <param name="targetPath"></param>
+		/// <param name="progress"></param>
+		/// <returns>because this automatically changes the target name if it already exists, it returns the *actual* target used</returns>
+		public static string Clone(RepositoryAddress source, string targetPath, IProgress progress)
 		{
 			progress.WriteMessage("Getting project...");
 			targetPath = GetUniqueFolderPath(progress,
@@ -860,6 +890,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			transport.Clone();
 			repo.Update();
 			progress.WriteMessage("Finished copying to this computer at {0}", targetPath);
+			return targetPath;
 		}
 
 		/// <summary>
@@ -1358,25 +1389,32 @@ namespace Chorus.VcsDrivers.Mercurial
 
 			IniSection section = doc.Sections.GetOrCreate("format");
 
-			if (CheckExtensions(doc, extensions) && section.GetValue("dotencode") == "False")
+			if (CheckExtensions(doc, extensions) && section.GetValue("dotencode") == AllowDotEncodeRepositoryFormatStringValue)
 			{
 				return;
 			}
 
 			SetExtensions(doc, extensions);
 
-			//see http://mercurial.selenic.com/wiki/UpgradingMercurial
-
-			//Mercurial 1.7 introduced a new repository format, "dotencode", which is a good thing. But old clients can't read it (if they
-			//are just talking to the server, they don't notice. But since we push actually repositories around on USB drive, they will!)
-			//For Linux, it's hard to ship a specific version, which is our windows approach to ensuring everyone has the same versino of hg.
-			//So instead, we here disable the dotencode, so that new projects created on Linux won't use that feature.
-
 			//see also: CreateRepositoryInExistingDir
 
-			section.Set("dotencode", "False");
+			//review: could we have a comment explaining why we are putting this in the .ini if we're also putting it on the command line?
+			section.Set("dotencode", AllowDotEncodeRepositoryFormatStringValue);
 			doc.SaveAndThrowIfCannot();
 		}
+
+		/// <summary>
+		/// HG 1.7 introduced the "dotencode" repository format, which "avoids issues with filenames starting with ._ on
+		/// Mac OS X and spaces on Windows." We have this option so as not to require people to have
+		/// the newest version of their app in order to get a new repository.
+		/// Note: Regardless of this setting, no change is made to existing projects.
+		/// Note: This only effects USB file sharing (or LAN without a server)).
+		/// See http://mercurial.selenic.com/wiki/UpgradingMercurial
+		/// Default for this value is True, so new apps will get this improved format.
+		/// </summary>
+		public static bool AllowDotEncodeRepositoryFormat { get; set; }
+
+		private string AllowDotEncodeRepositoryFormatStringValue { get { return AllowDotEncodeRepositoryFormat ? "True":"False"; } }
 
 		private static void SetExtensions(IniDocument doc, IEnumerable<KeyValuePair<string, string>> extensionDeclarations)
 		{
