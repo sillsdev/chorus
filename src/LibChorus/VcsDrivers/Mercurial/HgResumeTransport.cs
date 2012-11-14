@@ -244,12 +244,18 @@ namespace Chorus.VcsDrivers.Mercurial
 						}
 						if (response.HttpStatus == HttpStatusCode.OK && response.Content.Length > 0)
 						{
+							//The expected response from API version 3 follows the format of
+							//revisionhash:branch|revisionhash:branch|...
 							string revString = Encoding.UTF8.GetString(response.Content);
 							var pairs = revString.Split('|').ToList();
 							var revisions = new MultiMap<string, string>();
 							foreach (var pair in pairs)
 							{
 								var hashRevCombo = pair.Split(':');
+								if(hashRevCombo.Length < 2)
+								{
+									throw new HgResumeOperationFailed("Failed to get remote revisions. Server/Client API format mismatch.");
+								}
 								revisions.Add(hashRevCombo[1], hashRevCombo[0]);
 							}
 							return revisions;

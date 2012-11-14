@@ -28,7 +28,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			using (var provider = GetTransportProviderForTest(e))
 			{
 				e.LocalAddAndCommit();
-				e.ApiServer.AddResponse(ApiResponses.Revisions(e.Local.Repository.GetTip().Number.Hash));
+				e.ApiServer.AddResponse(ApiResponses.Revisions(e.Local.Repository.GetTip().Number.Hash + ':' + e.Local.Repository.GetTip().Branch));
 				e.LocalAddAndCommit();
 				e.ApiServer.AddResponse(ApiResponses.PushComplete());
 				var transport = provider.Transport;
@@ -77,7 +77,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			{
 				e.LocalAddAndCommit();
 				e.ApiServer.AddTimeOut();
-				e.ApiServer.AddResponse(ApiResponses.Revisions(e.Local.Repository.GetTip().Number.Hash));
+				e.ApiServer.AddResponse(ApiResponses.Revisions(e.Local.Repository.GetTip().Number.Hash + ':' + e.Local.Repository.GetTip().Branch));
 				e.LocalAddAndCommit();
 				e.ApiServer.AddTimeOut();
 				e.ApiServer.AddTimeOut();
@@ -112,7 +112,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			using (var provider = GetTransportProviderForTest(e))
 			{
 				e.LocalAddAndCommit();
-				e.ApiServer.AddResponse(ApiResponses.Revisions(e.Local.Repository.GetTip().Number.Hash));
+				e.ApiServer.AddResponse(ApiResponses.Revisions(e.Local.Repository.GetTip().Number.Hash + ':' + e.Local.Repository.GetTip().Branch));
 				e.LocalAddAndCommit();
 				e.ApiServer.AddResponse(ApiResponses.PushAccepted(1));
 				e.ApiServer.AddResponse(ApiResponses.PushAccepted(2));
@@ -129,7 +129,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			using (var provider = GetTransportProviderForTest(e))
 			{
 				e.LocalAddAndCommit();
-				e.ApiServer.AddResponse(ApiResponses.Revisions(e.Local.Repository.GetTip().Number.Hash));
+				e.ApiServer.AddResponse(ApiResponses.Revisions(e.Local.Repository.GetTip().Number.Hash + ':' + e.Local.Repository.GetTip().Branch));
 				e.LocalAddAndCommit();
 				e.ApiServer.AddResponse(ApiResponses.PushComplete());
 
@@ -157,7 +157,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			using (var provider = GetTransportProviderForTest(e))
 			{
 				e.LocalAddAndCommit();
-				e.ApiServer.AddResponse(ApiResponses.Revisions(e.Local.Repository.GetTip().Number.Hash));
+				e.ApiServer.AddResponse(ApiResponses.Revisions(e.Local.Repository.GetTip().Number.Hash + ':' + e.Local.Repository.GetTip().Branch));
 				e.LocalAddAndCommit();
 				e.ApiServer.AddResponse(ApiResponses.PushComplete());
 				var tipHash = e.Local.Repository.GetTip().Number.Hash;
@@ -194,12 +194,12 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			using (var e1 = new TestEnvironment("api1", ApiServerType.Dummy))
 			using (var provider = GetTransportProviderForTest(e1))
 			{
-				var api2 = new DummyApiServerForTest("api2");
-				var transport2 = new HgResumeTransport(e1.Local.Repository, "api2", api2, e1.MultiProgress);
+				var api2 = new DummyApiServerForTest("api3");
+				var transport2 = new HgResumeTransport(e1.Local.Repository, "api3", api2, e1.MultiProgress);
 
 				// push to ApiServer 1
 				e1.LocalAddAndCommit();
-				var revisionResponse = ApiResponses.Revisions(e1.Local.Repository.GetTip().Number.Hash);
+				var revisionResponse = ApiResponses.Revisions(e1.Local.Repository.GetTip().Number.Hash + ':' + e1.Local.Repository.GetTip().Branch);
 				e1.ApiServer.AddResponse(revisionResponse);
 				e1.LocalAddAndCommit();
 				e1.ApiServer.AddResponse(ApiResponses.PushComplete());

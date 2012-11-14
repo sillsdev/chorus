@@ -874,14 +874,15 @@ namespace Chorus.VcsDrivers.Mercurial
 		public List<Revision> GetAllRevisions()
 		{
 			/*
-				changeset:   0:7ee3570760cd
-				tag:         tip
-				user:        hattonjohn@gmail.com
-				date:        Wed Jul 02 16:40:26 2008 -0600
-				summary:     bob: first one
+				changeset:0:074a37a5bbaf
+				branch:default
+				user:chirt
+				date:Thu, 08 Sep 2011 14:35:53 +0700
+				tag:
+				summary:base checkin
 			 */
 
-			string result = GetTextFromQuery("log");
+			string result = GetTextFromQuery("log --template \"changeset:{rev}:{node|short}\nbranch:{branch}\nuser:{author}\ndate:{date|rfc822date}\ntag:{tags}\nsummary:{desc}\n\"");
 			return GetRevisionsFromQueryResultText(result);
 		}
 
