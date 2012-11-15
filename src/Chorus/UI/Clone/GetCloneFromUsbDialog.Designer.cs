@@ -1,4 +1,9 @@
-﻿namespace Chorus.UI.Clone
+﻿using System;
+using Palaso.Progress;
+using Palaso.UI.WindowsForms.Progress;
+
+
+namespace Chorus.UI.Clone
 {
 	partial class GetCloneFromUsbDialog
 	{
@@ -41,7 +46,7 @@
 			this._statusImage = new System.Windows.Forms.Button();
 			this._lookingForUsbTimer = new System.Windows.Forms.Timer(this.components);
 			this._statusLabel = new System.Windows.Forms.TextBox();
-			this._logBox = new Chorus.UI.Misc.LogBox();
+			this._logBox = new LogBox();
 			this.SuspendLayout();
 			//
 			// listView1
@@ -183,8 +188,8 @@
 			this.MinimumSize = new System.Drawing.Size(322, 300);
 			this.Name = "GetCloneFromUsbDialog";
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-			this.Text = "Get Project From USB Flash Drive";
-			this.Load += new System.EventHandler(this.GetCloneDialog_Load);
+			this.Text = "Get Project From USB Drive";
+			this.Load += new System.EventHandler(this.GetCloneFromUsbDialog_Load);
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -203,6 +208,8 @@
 		private System.Windows.Forms.Button _statusImage;
 		private System.Windows.Forms.Timer _lookingForUsbTimer;
 		private System.Windows.Forms.TextBox _statusLabel;
-		private Chorus.UI.Misc.LogBox _logBox;
+		private LogBox _logBox;
+
+
 	}
 }

@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Chorus.merge;
-using Chorus.Utilities;
+using Palaso.TestUtilities;
 
 namespace LibChorus.Tests.merge
 {
@@ -11,11 +8,11 @@ namespace LibChorus.Tests.merge
 		public TempLiftFile BobFile;
 		public TempLiftFile SallyFile;
 		public TempLiftFile AncestorFile;
-		public TempFolder Folder;
+		public TemporaryFolder Folder;
 
 		public GroupOfConflictingLiftFiles()
 		{
-			Folder = new TempFolder("ChorusTest");
+			Folder = new TemporaryFolder("ChorusTest");
 
 			string ancestor = @"<entry id='one' guid='F169EB3D-16F2-4eb0-91AA-FDB91636F8F6'>
 						<lexical-unit>
@@ -31,17 +28,17 @@ namespace LibChorus.Tests.merge
 			SallyFile = new TempLiftFile("sally.lift", Folder, sally, "0.12");
 		}
 
-
 		public string BobTextConflictsPath
 		{
-			get { return Folder.Combine("bob.lift.ChorusNotes"); }
+			get { return Folder.Combine("bob.lift.NewChorusNotes"); }
 		}
 
 		public void Dispose()
 		{
-			AncestorFile.Dispose();
-			BobFile.Dispose();
-			SallyFile.Dispose();
+			Folder.Dispose();
+			// Folder Dispose took care of Bob. BobFile.Dispose();
+			// Folder Dispose took care of Sally. SallyFile.Dispose();
+			// Folder Dispose took care of Ancestor. AncestorFile.Dispose();
 		}
 
 

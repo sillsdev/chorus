@@ -1,5 +1,6 @@
 ﻿
 using System;
+using System.Drawing;
 
 namespace Chorus
 {
@@ -32,8 +33,8 @@ namespace Chorus
 
 		public string FontName
 		{
-			get { return "Broadway"; }
-			//   get { return SystemFonts.MessageBoxFont.FontName.Name; }
+			//get { return "Broadway"; }
+			get { return SystemFonts.MessageBoxFont.Name; }
 		}
 
 		public int FontSize

@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--This file is generated and then updated by an MSBuild task.  It preserves the automatically-generated guids assigned files that will be installed on user machines. So it should be held in source control.-->
+<InstallerMetadata>
+  <File Id="_.hgignore" Guid="e79cfe96-c451-48c9-a896-aa3ec8c34b0c" />
+  <File Id="_.hg_archival.txt" Guid="109e36d6-8dcf-44b8-880f-f22d44191b0c" />
+  <File Id="buildcpmap.py" Guid="6105e839-dbdd-4035-810f-b5686b34ed4c" />
+  <File Id="cpmap.pyc" Guid="952b2286-4312-48e3-8637-8f10fdfacb60" />
+  <File Id="fixutf8.py" Guid="f70bc2d0-4e40-403e-8806-2ff320e0c005" />
+  <File Id="fixutf8.pyc" Guid="812d37c0-9d19-4bfd-ae3d-d7abf82a6c2a" />
+  <File Id="fixutf8.pyo" Guid="bd371c48-32af-493d-921b-aaa50b7656ee" />
+  <File Id="osutil.py" Guid="8f5b60df-0742-498f-b7da-213d1ffdaefb" />
+  <File Id="osutil.pyc" Guid="450b339a-e76f-45c2-aad8-bf5afe1e2414" />
+  <File Id="osutil.pyo" Guid="9d23a9ed-2a92-4450-827c-572f4f874d91" />
+  <File Id="README" Guid="f4d2e7d8-7608-47b7-99a0-ddb68cee3797" />
+  <File Id="win32helper.py" Guid="1bfc3f08-eed2-4c80-9ae6-2cf6993adaf2" />
+  <File Id="win32helper.pyc" Guid="0fb5d787-016d-4fa0-b68f-9e117606cab6" />
+  <File Id="win32helper.pyo" Guid="20da0825-1a7f-4948-a1b7-70f29d8d0d16" />
+</InstallerMetadata>
