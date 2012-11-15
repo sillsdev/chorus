@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Chorus.FileTypeHanders;
+using Chorus.FileTypeHanders.xml;
 using Chorus.merge;
+using Chorus.merge.xml.generic;
 using LibChorus.TestUtilities;
 using NUnit.Framework;
 using Palaso.IO;
@@ -74,6 +76,9 @@ namespace LibChorus.Tests.FileHandlers.ldml
 			const string commonAncestor =
 @"<?xml version='1.0' encoding='utf-8'?>
 <ldml>
+<identity>
+<generation date='2012-06-08T09:36:30' />
+</identity>
 <special xmlns:palaso='urn://palaso.org/ldmlExtensions/v1'>
 <palaso:languageName value='German' />
 <palaso:version value='1' />
@@ -91,17 +96,55 @@ namespace LibChorus.Tests.FileHandlers.ldml
 									{"fw", "urn://fieldworks.sil.org/ldmlExtensions/v1"}
 								};
 
-			var result = DoMerge(commonAncestor, ourContent, theirContent,
+			DoMerge(commonAncestor, ourContent, theirContent,
 				namespaces,
 				new List<string> { @"ldml/special/palaso:version[@value='2']", @"ldml/special/palaso:languageName[@value='German']", @"ldml/special/fw:windowsLCID[@value='1']" },
 				new List<string> { @"ldml/special/palaso:version[@value='1']", @"ldml/special/palaso:languageName[@value='Spanish']" },
-				1, 0);
+				1, new List<Type> { typeof(BothEditedTheSameAtomicElement) },
+				0, null);
+		}
+
+		[Test]
+		public void GenerateDateAttr_IsPreMerged()
+		{
+			const string commonAncestor =
+@"<?xml version='1.0' encoding='utf-8'?>
+<ldml>
+<identity>
+<generation date='2012-06-08T09:36:30' />
+</identity>
+</ldml>";
+
+			var ourContent = commonAncestor.Replace("09:36:30", "09:37:30");
+			var theirContent = commonAncestor.Replace("09:36:30", "09:38:30");
+			var namespaces = new Dictionary<string, string>
+								{
+									{"palaso", "urn://palaso.org/ldmlExtensions/v1"},
+									{"fw", "urn://fieldworks.sil.org/ldmlExtensions/v1"}
+								};
+
+			// We made the change
+			DoMerge(commonAncestor, ourContent, theirContent,
+				namespaces,
+				new List<string> { @"ldml/identity/generation[@date='2012-06-08T09:38:30']" },
+				new List<string> { @"ldml/identity/generation[@date='2012-06-08T09:36:30']", @"ldml/identity/generation[@date='2012-06-08T09:37:30']" },
+				0, null,
+				1, new List<Type> { typeof(XmlAttributeBothMadeSameChangeReport) });
+
+			// They made the change
+			DoMerge(commonAncestor, theirContent, ourContent,
+				namespaces,
+				new List<string> { @"ldml/identity/generation[@date='2012-06-08T09:38:30']" },
+				new List<string> { @"ldml/identity/generation[@date='2012-06-08T09:36:30']", @"ldml/identity/generation[@date='2012-06-08T09:37:30']" },
+				0, null,
+				1, new List<Type> { typeof(XmlAttributeBothMadeSameChangeReport) });
 		}
 
 		private string DoMerge(string commonAncestor, string ourContent, string theirContent,
 			Dictionary<string, string> namespaces,
 			IEnumerable<string> matchesExactlyOne, IEnumerable<string> isNull,
-			int expectedConflictCount, int expectedChangesCount)
+			int expectedConflictCount, List<Type> expectedConflictTypes,
+			int expectedChangesCount, List<Type> expectedChangeTypes)
 		{
 			string result;
 			using (var ours = new TempFile(ourContent))
@@ -123,7 +166,18 @@ namespace LibChorus.Tests.FileHandlers.ldml
 						XmlTestHelper.AssertXPathIsNull(result, query, namespaces);
 				}
 				_eventListener.AssertExpectedConflictCount(expectedConflictCount);
+				expectedConflictTypes = expectedConflictTypes ?? new List<Type>();
+				Assert.AreEqual(expectedConflictTypes.Count, _eventListener.Conflicts.Count,
+								"Expected conflict count and actual number found differ.");
+				for (var idx = 0; idx < expectedConflictTypes.Count; ++idx)
+					Assert.AreSame(expectedConflictTypes[idx], _eventListener.Conflicts[idx].GetType());
+
 				_eventListener.AssertExpectedChangesCount(expectedChangesCount);
+				expectedChangeTypes = expectedChangeTypes ?? new List<Type>();
+				Assert.AreEqual(expectedChangeTypes.Count, _eventListener.Changes.Count,
+								"Expected change count and actual number found differ.");
+				for (var idx = 0; idx < expectedChangeTypes.Count; ++idx)
+					Assert.AreSame(expectedChangeTypes[idx], _eventListener.Changes[idx].GetType());
 			}
 			return result;
 		}

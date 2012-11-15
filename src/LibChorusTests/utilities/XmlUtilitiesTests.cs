@@ -7,6 +7,142 @@ namespace LibChorus.Tests.utilities
 	[TestFixture]
 	public class XmlUtilitiesTests
 	{
+		[Test]
+		public void ClosedNodeAndEmptyNodeAreEqual()
+		{
+			const string ours =
+@"<foo />";
+			const string theirs =
+@"<foo></foo>";
+			Assert.True(XmlUtilities.AreXmlElementsEqual(ours, theirs));
+			Assert.True(XmlUtilities.AreXmlElementsEqual(theirs, ours));
+		}
+
+		[Test]
+		public void ClosedNodeAndNewTextAreNotEqual()
+		{
+			const string ours =
+@"<foo />";
+			const string theirs =
+@"<foo>New foo text.</foo>";
+			Assert.IsFalse(XmlUtilities.AreXmlElementsEqual(ours, theirs));
+			Assert.IsFalse(XmlUtilities.AreXmlElementsEqual(theirs, ours));
+		}
+
+		[Test]
+		public void ClosedNodeAndEmptyNodeWithAttrsAreEqual()
+		{
+			const string ours =
+@"<foo attr='val' />";
+			const string theirs =
+@"<foo attr='val'></foo>";
+			Assert.True(XmlUtilities.AreXmlElementsEqual(ours, theirs));
+			Assert.True(XmlUtilities.AreXmlElementsEqual(theirs, ours));
+		}
+
+		[Test]
+		public void ClosedNodeAndNewTextWithAttributesAreNotEqual()
+		{
+			const string ours =
+@"<foo attr='val' />";
+			const string theirs =
+@"<foo attr='val' >New foo text.</foo>";
+			Assert.IsFalse(XmlUtilities.AreXmlElementsEqual(ours, theirs));
+			Assert.IsFalse(XmlUtilities.AreXmlElementsEqual(theirs, ours));
+		}
+
+		[Test]
+		public void NestedClosedNodeAndEmptyWithAttributesAreEqual()
+		{
+			const string ours =
+@"<foo attr='val'>
+<bar attr='val'/>
+</foo>";
+			const string theirs =
+@"<foo attr='val'>
+<bar attr='val'></bar>
+</foo>";
+			Assert.True(XmlUtilities.AreXmlElementsEqual(ours, theirs));
+			Assert.True(XmlUtilities.AreXmlElementsEqual(theirs, ours));
+		}
+
+		[Test]
+		public void NestedClosedNodeAndTextWithAttributesAreNotEqual()
+		{
+			const string ours =
+@"<foo attr='val'>
+<bar attr='val'/>
+</foo>";
+			const string theirs =
+@"<foo attr='val'>
+<bar attr='val'>new stuff.</bar>
+</foo>";
+			Assert.IsFalse(XmlUtilities.AreXmlElementsEqual(ours, theirs));
+			Assert.IsFalse(XmlUtilities.AreXmlElementsEqual(theirs, ours));
+		}
+
+		[Test]
+		public void MoveToFirstAttributeFix_HasElementsEqual()
+		{
+			const string ours =
+@"<rt class='ScrTxtPara' guid='0030a77d-63cd-4d51-b26a-27bac7d64f17' ownerguid='046d6079-2337-425f-a8bd-b0af047fb5e5'>
+<Contents>
+<Str>
+<Run ws='tuz'></Run>
+</Str>
+</Contents>
+<ParseIsCurrent val='False' />
+<StyleRules>
+<Prop namedStyle='Section Head' />
+</StyleRules>
+<Translations>
+<objsur guid='fe6f0999-ecb9-403f-abab-e934318542bc' t='o' />
+</Translations>
+</rt>";
+			const string theirs =
+@"<rt class='ScrTxtPara' guid='0030a77d-63cd-4d51-b26a-27bac7d64f17' ownerguid='046d6079-2337-425f-a8bd-b0af047fb5e5'>
+<Contents>
+<Str>
+<Run ws='tuz' />
+</Str>
+</Contents>
+<ParseIsCurrent val='False' />
+<StyleRules>
+<Prop namedStyle='Section Head' />
+</StyleRules>
+<Translations>
+<objsur guid='fe6f0999-ecb9-403f-abab-e934318542bc' t='o' />
+</Translations>
+</rt>";
+			Assert.True(XmlUtilities.AreXmlElementsEqual(ours, theirs));
+			Assert.True(XmlUtilities.AreXmlElementsEqual(theirs, ours));
+		}
+
+		[Test]
+		public void MoreMinimal_MoveToFirstAttributeFix_HasElementsEqual()
+		{
+			const string ours =
+@"<rt class='ScrTxtPara' guid='0030a77d-63cd-4d51-b26a-27bac7d64f17' ownerguid='046d6079-2337-425f-a8bd-b0af047fb5e5'>
+<Contents>
+<Str>
+<Run ws='tuz'></Run>
+</Str>
+</Contents>
+<ParseIsCurrent val='False' />
+</rt>";
+			const string theirs =
+@"<rt class='ScrTxtPara' guid='0030a77d-63cd-4d51-b26a-27bac7d64f17' ownerguid='046d6079-2337-425f-a8bd-b0af047fb5e5'>
+<Contents>
+<Str>
+<Run ws='tuz' />
+</Str>
+</Contents>
+<ParseIsCurrent val='False' />
+</rt>";
+			Assert.True(XmlUtilities.AreXmlElementsEqual(ours, theirs));
+			Assert.True(XmlUtilities.AreXmlElementsEqual(theirs, ours));
+		}
+
 		#region IsTextNodeContainer
 
 		[Test]

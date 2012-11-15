@@ -1,17 +1,18 @@
-﻿using System;
+using System;
 using System.IO;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using LibChorus.TestUtilities;
 using NUnit.Framework;
 using Palaso.IO;
+using Palaso.Progress;
+using Palaso.TestUtilities;
 
 namespace LibChorus.Tests.VcsDrivers.Mercurial
 {
 	[TestFixture]
 	public class Utf8Tests
 	{
-
 		class MercurialExtensionHider : IDisposable
 		{
 			private readonly string _extensionPath;
@@ -76,14 +77,20 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		public void Utf8ExtensionNotPresent_MercurialOperationReportsError()
 		{
 			using (new MercurialExtensionHider())
-			using (var setup = new RepositorySetup("Dan"))
+			using (var setup = new RepositorySetup("Dan", false))
 			{
-				const string utf8FilePath = "açesbsun.wav";
-				setup.ChangeFile(utf8FilePath, "hello1");
-				setup.ProjectFolderConfig.IncludePatterns.Add("*.wav");
-				setup.AddAndCheckIn();
-				setup.AssertFileDoesNotExistInRepository(utf8FilePath);
-				Assert.IsTrue(setup.GetProgressString().Contains("Failed to set up extensions"));
+				Assert.Throws<ApplicationException>(
+					() =>
+					RepositorySetup.MakeRepositoryForTest(
+						setup.ProjectFolder.Path, "Dan", setup.Progress
+					)
+				);
+				//const string utf8FilePath = "açesbsun.wav";
+				//setup.ChangeFile(utf8FilePath, "hello1");
+				//setup.ProjectFolderConfig.IncludePatterns.Add("*.wav");
+				//setup.AddAndCheckIn();
+				//setup.AssertFileDoesNotExistInRepository(utf8FilePath);
+				//Assert.IsTrue(setup.GetProgressString().Contains("Failed to set up extensions"));
 			}
 		}
 #endif
@@ -160,7 +167,6 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 					//var uri = new Uri(String.Format("file:///{0}", setup.ProjectFolder.Path));
 					HgRepository.Clone(new HttpRepositoryPath("utf test repo", setup.ProjectFolder.Path, false), other.ProjectFolder.Path, other.Progress);
 					other.Repository.Update();
-					string log = other.GetProgressString();
 
 					other.AssertFileExists(utf8FilePath);
 					string[] fileNames = Directory.GetFiles(other.ProjectFolder.Path, "*.wav");
@@ -172,7 +178,63 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			}
 		}
 
+		/// <summary>
+		/// The local clone works as it uses the settings of the source repo. i.e. It is a clone to not a clone from.
+		/// </summary>
+		[Test, Ignore("May not be able to test it, if the ini file is created by the installer.")]
+		public void Utf8ExtensionPresent_LocalMercurialIniIncorrect_MercurialOpStillWorks()
+		{
+			using (new MercurialIniHider())
+			using (var setup = new RepositorySetup("Dan"))
+			{
+				const string utf8FilePath = "açesbsun.wav";
+				setup.ChangeFile(utf8FilePath, "hello1");
+				setup.ProjectFolderConfig.IncludePatterns.Add("*.wav");
+				setup.AddAndCheckIn();
 
+				setup.AssertFileExistsInRepository("açesbsun.wav");
+
+			}
+		}
+
+
+
+		[Test]        public void CreateOrLocate_FolderHasThaiAndAccentedLetter2_FindsIt()        {            using (var testRoot = new TemporaryFolder("chorus utf8 folder test"))            {
+				//string path = Path.Combine(testRoot.Path, "Abé Books");
+				string path = Path.Combine(testRoot.Path, "ไก่ projéct");
+				Directory.CreateDirectory(path);                Assert.NotNull(HgRepository.CreateOrUseExisting(path, new ConsoleProgress()));
+				Assert.NotNull(HgRepository.CreateOrUseExisting(path, new ConsoleProgress()));            }
+		}
+
+		[Test]
+		public void CreateOrLocate_FolderHasAccentedLetter2_FindsIt()
+		{
+			using (var testRoot = new TemporaryFolder("chorus utf8 folder test"))
+			{
+				//string path = Path.Combine(testRoot.Path, "Abé Books");
+				string path = Path.Combine(testRoot.Path, "projéct");
+				Directory.CreateDirectory(path);
+
+				Assert.NotNull(HgRepository.CreateOrUseExisting(path, new ConsoleProgress()));
+				Assert.NotNull(HgRepository.CreateOrUseExisting(path, new ConsoleProgress()));
+			}
+
+		}
+
+		[Test]
+		public void CreateOrLocate_FolderHasAccentedLetterAbeBooks_FindsIt()
+		{
+			using (var testRoot = new TemporaryFolder("chorus utf8 folder test"))
+			{
+				string path = Path.Combine(testRoot.Path, "Abé Books");
+				//string path = Path.Combine(testRoot.Path, "projéct");
+				Directory.CreateDirectory(path);
+
+				Assert.NotNull(HgRepository.CreateOrUseExisting(path, new ConsoleProgress()));
+				Assert.NotNull(HgRepository.CreateOrUseExisting(path, new ConsoleProgress()));
+			}
+
+		}
 	}
 
 

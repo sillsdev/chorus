@@ -7,8 +7,9 @@ using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using NUnit.Framework;
 using Palaso.IO;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
 using Palaso.TestUtilities;
+using Palaso.Xml;
 
 namespace LibChorus.TestUtilities
 {
@@ -37,6 +38,9 @@ namespace LibChorus.TestUtilities
 						<lexical-unit>
 							<form lang='a'>
 								<text>original</text>
+							</form>
+							<form lang='b'>
+								<text>other</text>
 							</form>
 						</lexical-unit>
 					 </entry>";
@@ -130,31 +134,55 @@ namespace LibChorus.TestUtilities
 			File.WriteAllText(UserFile.Path, File.ReadAllText(UserFile.Path).Replace("original", replacement));
 		}
 
+		/// <summary>
+		/// replaces all occurrences of "other" with replacement
+		/// </summary>
+		/// <param name="replacement"></param>
+		public void ReplaceSomethingElse(string replacement)
+		{
+			File.WriteAllText(UserFile.Path, File.ReadAllText(UserFile.Path).Replace("other", replacement));
+		}
+
 		public void WriteNewContentsToTestFile(string replacement)
 		{
 			File.WriteAllText(UserFile.Path, replacement);
 		}
 
+		public SyncResults SyncWithOptions(SyncOptions options)
+		{
+			return SyncWithOptions(options, Synchronizer);
+		}
+
+		public SyncResults SyncWithOptions(SyncOptions options, Synchronizer synchronizer)
+		{
+			return synchronizer.SyncNow(options);
+		}
+
 		public SyncResults CheckinAndPullAndMerge(RepositoryWithFilesSetup syncWithUser)
 		{
-			SyncOptions options = new SyncOptions();
-			options.DoMergeWithOthers = true;
-			options.DoPullFromOthers = true;
-			options.DoSendToOthers = false;
+			var options = new SyncOptions
+							{
+								DoMergeWithOthers = true,
+								DoPullFromOthers = true,
+								DoSendToOthers = false
+							};
 
 			options.RepositorySourcesToTry.Add(syncWithUser.RepoPath);
-			return Synchronizer.SyncNow(options);
+
+			return SyncWithOptions(options);
 		}
 
 
 		public void AddAndCheckIn()
 		{
-			SyncOptions options = new SyncOptions();
-			options.DoMergeWithOthers = false;
-			options.DoPullFromOthers = false;
-			options.DoSendToOthers = false;
+			var options = new SyncOptions
+							{
+								DoMergeWithOthers = false,
+								DoPullFromOthers = false,
+								DoSendToOthers = false
+							};
 
-			Synchronizer.SyncNow(options);
+			SyncWithOptions(options);
 		}
 
 		public void WriteIniContents(string s)

@@ -3,7 +3,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using Chorus.notes;
 using Chorus.Utilities;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
 
 
 namespace Chorus.UI.Notes.Browser

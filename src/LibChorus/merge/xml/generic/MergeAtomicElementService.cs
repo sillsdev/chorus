@@ -18,7 +18,7 @@ namespace Chorus.merge.xml.generic
 		/// if <param name="ours"/> is null and <param name="theirs"/> is not null.
 		/// </remarks>
 		/// <returns>'True' if the given elements were 'atomic'. Otherwise 'false'.</returns>
-		internal static bool Run(XmlMerger merger, ref XmlNode ours, XmlNode theirs, XmlNode commonAncestor)
+		internal static void Run(XmlMerger merger, ref XmlNode ours, XmlNode theirs, XmlNode commonAncestor)
 		{
 			if (merger == null)
 				throw new ArgumentNullException("merger"); // Route tested.
@@ -33,13 +33,13 @@ namespace Chorus.merge.xml.generic
 			// 1. Fetch the relevant ElementStrategy
 			var elementStrategy = merger.MergeStrategies.GetElementStrategy(nodeForStrategy);
 			if (!elementStrategy.IsAtomic)
-				return false; // Route tested.
+				throw new InvalidOperationException("This method class only handles elements that are atomic (basically binary type data that can't really be merged.)");
 
 			if (commonAncestor == null)
 			{
 				if (ours == null)
 				{
-					// They can't all be null, or there woudl have bene an expected thrown, above.
+					// They can't all be null, or there would have bene an expected thrown, above.
 					//if (theirs == null)
 					//{
 					//    // Nobody did anything.
@@ -87,7 +87,7 @@ namespace Chorus.merge.xml.generic
 						merger.EventListener.ChangeOccurred(new XmlAdditionChangeReport(merger.MergeSituation.PathToFileInRepository, ours));
 					}
 				}
-				return true; // Routed used (x2).
+				return; // Routed used (x2).
 			}
 
 			// commonAncestor != null from here on out.
@@ -96,7 +96,7 @@ namespace Chorus.merge.xml.generic
 				// No problemo, since both deleted it.
 				// Route tested (x2).
 				merger.EventListener.ChangeOccurred(new XmlBothDeletionChangeReport(merger.MergeSituation.PathToFileInRepository, commonAncestor));
-				return true;
+				return;
 			}
 
 			// 2A1. Compare 'ours' with 'theirs'.
@@ -111,7 +111,7 @@ namespace Chorus.merge.xml.generic
 																						 merger.MergeSituation, elementStrategy,
 																						 merger.MergeSituation.BetaUserId));
 				ours = theirs;
-				return true;
+				return;
 			}
 
 			var oursAndCommonAreEqual = XmlUtilities.AreXmlElementsEqual(ours, commonAncestor);
@@ -122,7 +122,7 @@ namespace Chorus.merge.xml.generic
 				merger.ConflictOccurred(new EditedVsRemovedElementConflict(ours.Name, ours, null, commonAncestor,
 																			   merger.MergeSituation, elementStrategy,
 																			   merger.MergeSituation.AlphaUserId));
-				return true;
+				return;
 			}
 
 			var oursAndTheirsAreEqual = XmlUtilities.AreXmlElementsEqual(ours, theirs);
@@ -131,7 +131,7 @@ namespace Chorus.merge.xml.generic
 				// Both made same changes.
 				// Route tested (x2).
 				merger.EventListener.ChangeOccurred(new BothChangedAtomicElementReport(merger.MergeSituation.PathToFileInRepository, ours));
-				return true;
+				return;
 			}
 
 			if (!oursAndTheirsAreEqual)
@@ -170,7 +170,6 @@ namespace Chorus.merge.xml.generic
 
 			// No changes.
 			// Route tested (x2).
-			return true;
 		}
 	}
 }

@@ -7,7 +7,7 @@ using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
 using LibChorus.TestUtilities;
 using NUnit.Framework;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
 using Palaso.TestUtilities;
 
 namespace LibChorus.Tests.sync
@@ -112,14 +112,14 @@ namespace LibChorus.Tests.sync
 		public void Sync_MergeTimeoutExceeded_LeavesNoChorusMergeProcessAlive()
 		{
 			HgRunner.TimeoutSecondsOverrideForUnitTests = 1;
-			using (var bob = RepositoryWithFilesSetup.CreateWithLiftFile("bob"))
+			using (var fred = RepositoryWithFilesSetup.CreateWithLiftFile("fred"))
 			{
-				using (var sally = RepositoryWithFilesSetup.CreateByCloning("sally", bob))
+				using (var betty = RepositoryWithFilesSetup.CreateByCloning("betty", fred))
 				{
-					bob.ReplaceSomething("bobWasHere");
-					bob.AddAndCheckIn();
-					sally.ReplaceSomething("sallyWasHere");
-					sally.CheckinAndPullAndMerge(bob);
+					fred.ReplaceSomething("fredWasHere");
+					fred.AddAndCheckIn();
+					betty.ReplaceSomething("bettyWasHere");
+					betty.CheckinAndPullAndMerge(fred);
 					Assert.AreEqual(0, Process.GetProcessesByName("ChorusMerge").Length);
 				}
 			}
@@ -162,6 +162,17 @@ namespace LibChorus.Tests.sync
 				}
 			}
 			File.Delete(Path.Combine(Path.GetTempPath(), "TextMerger-bbb.txt"));
+		}
+
+		//Regression test: used to fail based on looking at the revision history and finding it null
+		[Test]
+		public void Sync_FirstCheckInButNoFilesAdded_NoProblem()
+		{
+			using (var bob = new RepositorySetup("bob"))
+			{
+				var result = bob.CheckinAndPullAndMerge();
+				Assert.IsTrue(result.Succeeded, result.ErrorEncountered==null?"":result.ErrorEncountered.Message);
+			}
 		}
 
 		/// <summary>

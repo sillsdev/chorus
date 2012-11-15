@@ -22,7 +22,6 @@ namespace Chorus.UI.Sync
 			InitializeComponent();
 			_cancelButton.Visible = false;
 			_tabControl.TabPages.Remove(_tasksTab);
-			DesiredHeight = 320;
 			_successIcon.Left = _warningIcon.Left;
 			// _cancelButton.Top = _sendReceiveButton.Top;
 		   _closeButton.Bounds = _sendReceiveButton.Bounds;
@@ -30,8 +29,6 @@ namespace Chorus.UI.Sync
 			_statusText.Visible = false;
 			_statusText.Text = "";  // clear the label
 			_updateDisplayTimer.Enabled = true;
-
-
 		}
 		public SyncControl(SyncControlModel model)
 			:this()
@@ -87,7 +84,8 @@ namespace Chorus.UI.Sync
 			}
 			progressBar1.Visible = Model.SynchronizingNow;// || _didAttemptSync;
 			_statusText.Visible = progressBar1.Visible;
-			_logBox.ShowDetailsMenuItem = _didAttemptSync;
+			_logBox.ShowDetailsMenuItem = true;
+			_logBox.ShowDiagnosticsMenuItem = true;
 			_syncTargets.Enabled = Model != null;
 
 
