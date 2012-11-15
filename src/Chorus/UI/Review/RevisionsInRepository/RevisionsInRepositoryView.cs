@@ -5,7 +5,7 @@ using System.Windows.Forms;
 using Chorus.sync;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
 
 namespace Chorus.UI.Review.RevisionsInRepository
 {
@@ -142,6 +142,9 @@ namespace Chorus.UI.Review.RevisionsInRepository
 						break;
 					case "FieldWorks":
 						image = HistoryRowIcons.FieldWorks;
+						break;
+					case "Bloom":
+						image = HistoryRowIcons.Bloom16x16;
 						break;
 					default:
 						image = HistoryRowIcons.GenericCheckin;

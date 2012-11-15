@@ -6,7 +6,7 @@ using Chorus.sync;
 using Chorus.VcsDrivers.Mercurial;
 using System.Linq;
 using Palaso.IO;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
 
 namespace Chorus.FileTypeHanders.image
 {

@@ -5,14 +5,14 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading;
+using Chorus.sync;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using LibChorus.TestUtilities;
 using NUnit.Framework;
 using Palaso.Progress;
-using Palaso.Progress.LogBox;
 using Palaso.TestUtilities;
-using ConsoleProgress = Palaso.Progress.LogBox.ConsoleProgress;
+
 
 namespace LibChorus.Tests.VcsDrivers.Mercurial
 {
@@ -45,20 +45,20 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		{
 			Local = new RepositorySetup(testName + "-local");
 			Remote = new RepositorySetup(testName + "-remote");
+			Progress = new ProgressForTest();
 			switch (type)
 			{
 				case ApiServerType.Dummy:
 					ApiServer = new DummyApiServerForTest(testName);
 					break;
 				case ApiServerType.Pull:
-					ApiServer = new PullHandlerApiServerForTest(Remote.Repository);
+					ApiServer = new PullHandlerApiServerForTest(Remote.Repository, Progress);
 					break;
 				case ApiServerType.Push:
-					ApiServer = new PushHandlerApiServerForTest(Remote.Repository);
+					ApiServer = new PushHandlerApiServerForTest(Remote.Repository, Progress);
 					break;
 			}
 			Label = testName;
-			Progress = new ProgressForTest();
 			MultiProgress = new MultiProgress(new IProgress[] { new ConsoleProgress { ShowVerbose = true }, Progress });
 		}
 
@@ -73,6 +73,22 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		{
 			Local.Dispose();
 			Remote.Dispose();
+			if (ApiServer is IDisposable)
+				(ApiServer as IDisposable).Dispose();
+		}
+
+		public void SetLocalAdjunct(ISychronizerAdjunct adjunct)
+		{
+			if (Local.Synchronizer == null)
+				Local.Synchronizer = Local.CreateSynchronizer();
+			Local.Synchronizer.SynchronizerAdjunct = adjunct;
+		}
+
+		public void SetRemoteAdjunct(ISychronizerAdjunct adjunct)
+		{
+			if (Remote.Synchronizer == null)
+				Remote.Synchronizer = Remote.CreateSynchronizer();
+			Remote.Synchronizer.SynchronizerAdjunct = adjunct;
 		}
 
 		public void LocalAddAndCommit()
@@ -141,7 +157,8 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		void AddTimeoutResponse(int executeCount);
 		void AddServerUnavailableResponse(int executeCount, string serverMessage);
 		void AddFailResponse(int executeCount);
-		void PrepareBundle(string revHash);
+		void AddCancelResponse(int executeCount);
+		void PrepareBundle(string[] revHash);
 		void AddResponse(HgResumeApiResponse response);
 		void AddTimeOut();
 		string StoragePath { get; }
@@ -163,7 +180,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			else if (method == "pullBundleChunk")
 			{
 				Assert.That(request.RepoId, Is.Not.Empty);
-				Assert.That(request.BaseHash, Is.Not.Empty);
+				Assert.That(request.BaseHashes, Is.Not.Empty);
 				Assert.That(request.ChunkSize, Is.GreaterThan(0));
 				Assert.That(request.StartOfWindow, Is.GreaterThanOrEqualTo(0));
 				Assert.That(request.TransId, Is.Not.Empty);
@@ -218,13 +235,13 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			if (_responseQueue.Count > 0)
 			{
 				response = _responseQueue.Dequeue();
-				if (response.StatusCode == HttpStatusCode.RequestTimeout)
+				if (response.HttpStatus == HttpStatusCode.RequestTimeout)
 				{
 					return null;
 				}
 			} else
 			{
-				response = new HgResumeApiResponse {StatusCode = HttpStatusCode.InternalServerError};
+				response = new HgResumeApiResponse {HttpStatus = HttpStatusCode.InternalServerError};
 			}
 			response.ResponseTimeInMilliseconds = 200;
 			return response;
@@ -254,7 +271,12 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			throw new NotImplementedException();
 		}
 
-		public void PrepareBundle(string revHash)
+		public void AddCancelResponse(int executeCount)
+		{
+			throw new NotImplementedException();
+		}
+
+		public void PrepareBundle(string[] revHash)
 		{
 			throw new NotImplementedException();
 		}
@@ -268,7 +290,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		{
 			// we are hijacking the HTTP 408 request timeout to mean a client-side networking timeout...
 			// it works for our testing purposes even though that's not what the status code means
-			_responseQueue.Enqueue(new HgResumeApiResponse {StatusCode = HttpStatusCode.RequestTimeout});
+			_responseQueue.Enqueue(new HgResumeApiResponse {HttpStatus = HttpStatusCode.RequestTimeout});
 		}
 
 		public string StoragePath
@@ -295,24 +317,28 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 	internal class PushHandlerApiServerForTest : ApiServerForTest, IApiServerForTest, IDisposable
 	{
 
-
 		private PullStorageManager _helper;  // yes, we DO want to use the PullStorageManager for the PushHandler (this is the other side of the API, so it's opposite)
 		private readonly HgRepository _repo;
-		private TemporaryFolder _localStorage;
+		private readonly TemporaryFolder _localStorage;
 		private int _executeCount;
-		private List<int> _timeoutList;
-		private List<ServerUnavailableResponse> _serverUnavailableList;
+		private readonly List<int> _timeoutList;
+		private readonly List<ServerUnavailableResponse> _serverUnavailableList;
 		private int _failCount;
+		private int _cancelCount;
 
-		public PushHandlerApiServerForTest(HgRepository repo)
+		private ProgressForTest _progress;
+
+		public PushHandlerApiServerForTest(HgRepository repo, ProgressForTest progress)
 		{
 			const string identifier = "PushHandlerApiServerForTest";
 			_localStorage = new TemporaryFolder(identifier);
 			_repo = repo;
+			_progress = progress;
 			Host = identifier;
 			ProjectId = "SampleProject";
 			_executeCount = 0;
 			_failCount = -1;
+			_cancelCount = -1;
 			_timeoutList = new List<int>();
 			_serverUnavailableList = new List<ServerUnavailableResponse>();
 		}
@@ -327,10 +353,10 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			ValidateParameters(method, request, bytesToWrite, secondsBeforeTimeout);
 			if (method == "getRevisions")
 			{
-				IEnumerable<string> revisions = _repo.GetAllRevisions().Select(rev => rev.Number.Hash);
+				IEnumerable<string> revisions = _repo.BranchingHelper.GetBranches().Select(rev => rev.Number.Hash + ':' + rev.Branch);
 				if (revisions.Count() == 0)
 				{
-					return ApiResponses.Revisions("0");
+					return ApiResponses.Revisions("0:default");
 				}
 				return ApiResponses.Revisions(string.Join("|", revisions.ToArray()));
 			}
@@ -341,6 +367,11 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			if (method == "pushBundleChunk")
 			{
 				_executeCount++;
+				if (_cancelCount == _executeCount)
+				{
+					_progress.CancelRequested = true;
+					return ApiResponses.Failed("");
+				}
 				if (_failCount == _executeCount)
 				{
 					return ApiResponses.Failed("");
@@ -430,7 +461,12 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			_failCount = executeCount;
 		}
 
-		public void PrepareBundle(string revHash)
+		public void AddCancelResponse(int executeCount)
+		{
+			_cancelCount = executeCount;
+		}
+
+		public void PrepareBundle(string[] revHash)
 		{
 			throw new NotImplementedException();
 		}
@@ -447,16 +483,20 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		private readonly HgRepository _repo;
 		private int _executeCount;
 		private int _failCount;
-		private List<int> _timeoutList;
-		private List<ServerUnavailableResponse> _serverUnavailableList;
-		private TemporaryFolder _storageFolder;
+		private int _cancelCount;
+		private readonly List<int> _timeoutList;
+		private readonly List<ServerUnavailableResponse> _serverUnavailableList;
+		private readonly TemporaryFolder _storageFolder;
 		public string OriginalTip;
 
-		public PullHandlerApiServerForTest(HgRepository repo)
+		private ProgressForTest _progress;
+
+		public PullHandlerApiServerForTest(HgRepository repo, ProgressForTest progress)
 		{
 			const string identifier = "PullHandlerApiServerForTest";
 			_storageFolder = new TemporaryFolder(identifier);
 			_repo = repo;
+			_progress = progress;
 			_helper = new PushStorageManager(_storageFolder.Path, "randomHash");
 			Host = identifier;
 			ProjectId = "SampleProject";
@@ -487,7 +527,12 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			get { return CurrentTip; }
 		}
 
-		public void PrepareBundle(string revHash)
+		public void AddCancelResponse(int executeCount)
+		{
+			_cancelCount = executeCount;
+		}
+
+		public void PrepareBundle(string[] revHash)
 		{
 			if(File.Exists(_helper.BundlePath))
 			{
@@ -515,18 +560,23 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			{
 				if (CurrentTip != OriginalTip)
 				{
-					PrepareBundle(OriginalTip);
+					PrepareBundle(HgResumeTransport.GetHashStringsFromRevisions(_repo.BranchingHelper.GetBranches()));
 					return ApiResponses.Reset(); // repo changed in between pulls
 				}
 				return ApiResponses.Custom(HttpStatusCode.OK);
 			}
 			if (method == "getRevisions")
 			{
-				IEnumerable<string> revisions = _repo.GetAllRevisions().Select(rev => rev.Number.Hash);
+				IEnumerable<string> revisions = _repo.GetAllRevisions().Select(rev => rev.Number.Hash + ':' + rev.Branch);
 				return ApiResponses.Revisions(string.Join("|", revisions.ToArray()));
 			}
 			if (method == "pullBundleChunk")
 			{
+				if (_cancelCount == _executeCount)
+				{
+					_progress.CancelRequested = true;
+					return ApiResponses.Failed("");
+				}
 				if (_failCount == _executeCount)
 				{
 					return ApiResponses.Failed("");
@@ -541,16 +591,15 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 							_serverUnavailableList.Where(i => i.ExecuteCount == _executeCount).First().Message
 							);
 				}
-				if (request.BaseHash == CurrentTip)
+				if (Array.BinarySearch(request.BaseHashes, 0, request.BaseHashes.Length, CurrentTip) >= 0)
 				{
 					return ApiResponses.PullNoChange();
 				}
 
-
 				var bundleFileInfo = new FileInfo(_helper.BundlePath);
 				if (bundleFileInfo.Exists && bundleFileInfo.Length == 0  || !bundleFileInfo.Exists)
 				{
-					PrepareBundle(request.BaseHash);
+					PrepareBundle(request.BaseHashes);
 				}
 				//int offset = Convert.ToInt32(request["offset"]);
 				//int chunkSize = Convert.ToInt32(request["chunkSize"]);
@@ -672,11 +721,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			return String.Join(" ", _all.ToArray());
 		}
 
-		public bool CancelRequested
-		{
-			get { return false; }
-			set { }
-		}
+		public bool CancelRequested { get; set; }
 
 		public bool ErrorEncountered
 		{
@@ -712,9 +757,9 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		{
 			return new HgResumeApiResponse
 			{
-				StatusCode = HttpStatusCode.OK,
+				HttpStatus = HttpStatusCode.OK,
 				ResponseTimeInMilliseconds = 200,
-				Headers = new HgResumeApiResponseHeaders(
+				ResumableResponse = new HgResumeApiResponseHeaders(
 					GetWebHeaderCollection(
 						new Dictionary<string, string>
 										 {
@@ -728,8 +773,8 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		{
 			return new HgResumeApiResponse
 			{
-				StatusCode = HttpStatusCode.Accepted,
-				Headers = new HgResumeApiResponseHeaders(
+				HttpStatus = HttpStatusCode.Accepted,
+				ResumableResponse = new HgResumeApiResponseHeaders(
 					GetWebHeaderCollection(
 						new Dictionary<string, string>
 										 {
@@ -745,8 +790,8 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		{
 			return new HgResumeApiResponse
 			{
-				StatusCode = HttpStatusCode.BadRequest,
-				Headers = new HgResumeApiResponseHeaders(
+				HttpStatus = HttpStatusCode.BadRequest,
+				ResumableResponse = new HgResumeApiResponseHeaders(
 					GetWebHeaderCollection(
 						new Dictionary<string, string>
 										 {
@@ -771,8 +816,8 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			}
 			var response = new HgResumeApiResponse
 			{
-				StatusCode = HttpStatusCode.BadRequest,
-				Headers = new HgResumeApiResponseHeaders(GetWebHeaderCollection(parameters)),
+				HttpStatus = HttpStatusCode.BadRequest,
+				ResumableResponse = new HgResumeApiResponseHeaders(GetWebHeaderCollection(parameters)),
 				ResponseTimeInMilliseconds = 200
 			};
 			return response;
@@ -782,8 +827,8 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		{
 			return new HgResumeApiResponse
 					   {
-						   StatusCode = status,
-						   Headers = new HgResumeApiResponseHeaders(new WebHeaderCollection()),
+						   HttpStatus = status,
+						   ResumableResponse = new HgResumeApiResponseHeaders(new WebHeaderCollection()),
 						   Content = new byte[0],
 						   ResponseTimeInMilliseconds = 200
 			};
@@ -793,8 +838,8 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		{
 			return new HgResumeApiResponse
 			{
-				StatusCode = HttpStatusCode.OK,
-				Headers = new HgResumeApiResponseHeaders(GetWebHeaderCollection(
+				HttpStatus = HttpStatusCode.OK,
+				ResumableResponse = new HgResumeApiResponseHeaders(GetWebHeaderCollection(
 				new Dictionary<string, string>
 										 {
 											 {"X-HgR-Status", "SUCCESS"},
@@ -814,8 +859,8 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 
 			return new HgResumeApiResponse
 			{
-				StatusCode = HttpStatusCode.OK,
-				Headers = new HgResumeApiResponseHeaders(GetWebHeaderCollection(
+				HttpStatus = HttpStatusCode.OK,
+				ResumableResponse = new HgResumeApiResponseHeaders(GetWebHeaderCollection(
 						new Dictionary<string, string>
 										 {
 											 {"X-HgR-Status", "SUCCESS"},
@@ -832,8 +877,8 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		{
 			return new HgResumeApiResponse
 			{
-				StatusCode = HttpStatusCode.NotModified,
-				Headers = new HgResumeApiResponseHeaders(GetWebHeaderCollection(
+				HttpStatus = HttpStatusCode.NotModified,
+				ResumableResponse = new HgResumeApiResponseHeaders(GetWebHeaderCollection(
 						new Dictionary<string, string>
 										 {
 											 {"X-HgR-Status", "NOCHANGE"},
@@ -847,8 +892,8 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		{
 			return new HgResumeApiResponse
 			{
-				StatusCode = HttpStatusCode.ServiceUnavailable,
-				Headers = new HgResumeApiResponseHeaders(GetWebHeaderCollection(
+				HttpStatus = HttpStatusCode.ServiceUnavailable,
+				ResumableResponse = new HgResumeApiResponseHeaders(GetWebHeaderCollection(
 						new Dictionary<string, string>
 										 {
 											 {"X-HgR-Status", "NOTAVAILABLE"},

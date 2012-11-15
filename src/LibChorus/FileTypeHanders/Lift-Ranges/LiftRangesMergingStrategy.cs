@@ -15,9 +15,12 @@ namespace Chorus.FileTypeHanders
 		/// <summary>
 		/// Constructor
 		/// </summary>
-		public LiftRangesMergingStrategy(MergeSituation mergeSituation)
+		public LiftRangesMergingStrategy(MergeOrder mergeOrder)
 		{
-			_merger = new XmlMerger(mergeSituation);
+			_merger = new XmlMerger(mergeOrder.MergeSituation)
+				{
+					EventListener = mergeOrder.EventListener
+				};
 
 			LiftBasicElementStrategiesMethod.AddLiftBasicElementStrategies(_merger.MergeStrategies);
 			LiftRangesElementStrategiesMethod.AddLiftRangeElementStrategies(_merger.MergeStrategies);
@@ -33,12 +36,20 @@ namespace Chorus.FileTypeHanders
 
 		/// <summary>
 		/// Return the ElementStrategy instance for the given <param name="element"/>, or a default instance set up like this:
-		/// ElementStrategy def = new ElementStrategy(true);//review: this says the default is to consder order relevant
+		/// ElementStrategy def = new ElementStrategy(true);//review: this says the default is to consider order relevant
 		/// def.MergePartnerFinder = new FindByEqualityOfTree();
 		/// </summary>
 		public ElementStrategy GetElementStrategy(XmlNode element)
 		{
 			return _merger.MergeStrategies.GetElementStrategy(element);
+		}
+
+		/// <summary>
+		/// Gets the collection of element merge strategies.
+		/// </summary>
+		public MergeStrategies GetStrategies()
+		{
+			return _merger.MergeStrategies;
 		}
 	}
 }

@@ -76,7 +76,7 @@ namespace Chorus.FileTypeHanders.lift
 				writer.WriteStartElement("lift");
 
 				// 2. Write root element attrs from *temp* file, since it is the latest.
-				using (var tempReader = XmlReader.Create(tempPathname, new XmlReaderSettings {IgnoreWhitespace = true}))
+				using (var tempReader = XmlReader.Create(tempPathname, CanonicalXmlSettings.CreateXmlReaderSettings()))
 				{
 					tempReader.MoveToContent();
 					for (var i = 0; i < tempReader.AttributeCount; ++i)
@@ -87,7 +87,7 @@ namespace Chorus.FileTypeHanders.lift
 				}
 
 				// 3. Write all child elements, including optional 'header'.
-				using (var reader = XmlReader.Create(bakPathname, new XmlReaderSettings { IgnoreWhitespace = true }))
+				using (var reader = XmlReader.Create(bakPathname, CanonicalXmlSettings.CreateXmlReaderSettings()))
 				{
 					reader.MoveToContent();
 					// Write all root element child elements.

@@ -29,6 +29,56 @@ namespace LibChorus.Tests.merge.xml
 		}
 
 		[Test]
+		public void GetNodeToMerge_WithDoubleQuoteInAttribute_FindsIt()
+		{
+			string xml =
+				@"<lift>
+					<entry id='she said &quot;Hi!&quot;' />
+				</lift>";
+
+			var doc1 = new XmlDocument();
+			doc1.LoadXml(xml);
+
+			var finder = new FindByKeyAttribute("id");
+			var node = doc1.SelectSingleNode("//entry");
+			var result = finder.GetNodeToMerge(node, doc1.DocumentElement);
+			Assert.AreEqual(node,result);
+		}
+
+		[Test]
+		public void GetNodeToMerge_WithoutKeyAttr_ReturnsNull()
+		{
+			const string xml =
+				@"<a>
+					<b />
+				</a>";
+
+			var doc1 = new XmlDocument();
+			doc1.LoadXml(xml);
+
+			var finder = new FindByKeyAttribute("id");
+			var node = doc1.SelectSingleNode("//b");
+			Assert.IsNull(finder.GetNodeToMerge(node, doc1.DocumentElement));
+		}
+
+		[Test]
+		public void GetNodeToMerge_WithDoubleAndSingleQuotesInAttribute_FindsIt()
+		{
+			string xml =
+				@"<lift>
+					<entry id='she said &quot;It&apos;s raining!&quot;' />
+				</lift>";
+
+			var doc1 = new XmlDocument();
+			doc1.LoadXml(xml);
+
+			var finder = new FindByKeyAttribute("id");
+			var node = doc1.SelectSingleNode("//entry");
+			var result = finder.GetNodeToMerge(node, doc1.DocumentElement);
+			Assert.AreEqual(node, result);
+		}
+
+		[Test]
 		public void GetNodeToMerge_ReturnsNode()
 		{
 			string xml =

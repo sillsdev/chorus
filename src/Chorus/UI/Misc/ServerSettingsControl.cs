@@ -13,11 +13,14 @@ namespace Chorus.UI.Misc
 	///</summary>
 	public partial class ServerSettingsControl : UserControl
 	{
+		public event EventHandler DisplayUpdated;
+
 		private ServerSettingsModel _model;
 
 		public ServerSettingsControl()
 		{
 			InitializeComponent();
+			SynchronizePasswordControls();
 		}
 
 		public ServerSettingsModel Model
@@ -40,7 +43,7 @@ namespace Chorus.UI.Misc
 		{
 			if (Model.SelectedServerLabel != (string)_serverCombo.SelectedItem)
 			{
-				Model.SelectedServerLabel = (string) _serverCombo.SelectedItem;
+				Model.SelectedServerLabel = (string)_serverCombo.SelectedItem;
 
 				UpdateDisplay();
 			}
@@ -62,9 +65,13 @@ namespace Chorus.UI.Misc
 			_accountName.Visible = Model.NeedProjectDetails;
 			_projectId.Visible = Model.NeedProjectDetails;
 			_password.Visible = Model.NeedProjectDetails;
+			_showCharacters.Visible = Model.NeedProjectDetails;
 			_accountLabel.Visible = Model.NeedProjectDetails;
 			_projectIdLabel.Visible = Model.NeedProjectDetails;
 			_passwordLabel.Visible = Model.NeedProjectDetails;
+
+			if (DisplayUpdated != null)
+				DisplayUpdated.Invoke(this, null);
 		}
 
 		private void _customUrl_TextChanged(object sender, EventArgs e)
@@ -88,6 +95,7 @@ namespace Chorus.UI.Misc
 		private void _password_TextChanged(object sender, EventArgs e)
 		{
 			Model.Password = _password.Text.Trim();
+			UpdateDisplay();
 		}
 
 		private void OnLoad(object sender, EventArgs e)
@@ -96,6 +104,16 @@ namespace Chorus.UI.Misc
 				return;
 
 			UpdateDisplay();
+		}
+
+		private void _showCharacters_CheckedChanged(object sender, EventArgs e)
+		{
+			SynchronizePasswordControls();
+		}
+
+		private void SynchronizePasswordControls()
+		{
+			_password.UseSystemPasswordChar = !_showCharacters.Checked;
 		}
 	}
 }

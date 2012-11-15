@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
-using System.Windows.Forms;
 using System.Xml;
 using Chorus.FileTypeHanders;
 using Chorus.merge;
@@ -11,7 +10,7 @@ using Chorus.Utilities;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using System.Linq;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
 using Palaso.Reporting;
 using Palaso.Xml;
 
@@ -23,6 +22,8 @@ namespace Chorus.sync
 	public class Synchronizer
 	{
 		#region Fields
+
+		private ISychronizerAdjunct _sychronizerAdjunct = new DefaultSychronizerAdjunct();
 		private DoWorkEventArgs _backgroundWorkerArguments;
 		private BackgroundWorker _backgroundWorker;
 		private string _localRepositoryPath;
@@ -59,6 +60,22 @@ namespace Chorus.sync
 		}
 		public List<RepositoryAddress> ExtraRepositorySources { get; private set; }
 
+		/// <summary>
+		/// Sets the SychronizerAdjunct property to the given ISychronizerAdjunct instance.
+		/// </summary>
+		/// <remarks>
+		/// Setting the property to null will result in the default, do-nothing, interface implementation.
+		///
+		/// </remarks>
+		public ISychronizerAdjunct SynchronizerAdjunct
+		{
+			internal get { return _sychronizerAdjunct; } // For testing.
+			set
+			{
+				_sychronizerAdjunct = value ?? new DefaultSychronizerAdjunct();
+			}
+		}
+
 		#endregion
 
 		#region Construction
@@ -74,7 +91,7 @@ namespace Chorus.sync
 
 		public static Synchronizer FromProjectConfiguration(ProjectFolderConfiguration project, IProgress progress)
 		{
-			var hg = HgRepository.CreateOrLocate(project.FolderPath, progress);
+			var hg = HgRepository.CreateOrUseExisting(project.FolderPath, progress);
 			return new Synchronizer(hg.PathToRepo, project, progress);
 
 		}
@@ -97,11 +114,13 @@ namespace Chorus.sync
 				{
 					_progress.ProgressIndicator.IndicateUnknownProgress();
 				}
-				HgRepository repo = new HgRepository(_localRepositoryPath, _progress);
+				var repo = new HgRepository(_localRepositoryPath, _progress);
 
 				RemoveLocks(repo);
 				repo.RecoverFromInterruptedTransactionIfNeeded();
 				repo.FixUnicodeAudio();
+				string branchName = _sychronizerAdjunct.BranchName;
+				ChangeBranchIfNecessary(branchName);
 				Commit(options);
 
 				var workingRevBeforeSync = repo.GetRevisionWorkingSetIsBasedOn();
@@ -123,7 +142,15 @@ namespace Chorus.sync
 					SendToOthers(repo, sourcesToTry, connectionAttempts);
 				}
 
-				UpdateToTheDescendantRevision(repo, workingRevBeforeSync);
+				//If we did pull any data or a trivial merge succeeded we should call UpdateToTheDescendantRevision
+				if (results.DidGetChangesFromOthers || //we pulled something
+					(
+					workingRevBeforeSync!=null //will be null if this is the 1st checkin ever, but no files were added so there was no actual rev created
+					&& !repo.GetRevisionWorkingSetIsBasedOn().Number.Hash.Equals(workingRevBeforeSync.Number.Hash))) //a merge happened
+				{
+					UpdateToTheDescendantRevision(repo, workingRevBeforeSync);
+				}
+				_sychronizerAdjunct.CheckRepositoryBranches(repo.BranchingHelper.GetBranches());
 
 				results.Succeeded = true;
 			   _progress.WriteMessage("Done");
@@ -149,13 +176,23 @@ namespace Chorus.sync
 					_progress.WriteVerbose(error.InnerException.StackTrace);
 				}
 
-				_progress.WriteError(error.Message);
-				_progress.WriteVerbose(error.StackTrace);
+				_progress.WriteException(error);//this preserves the whole exception for later retrieval by the client
+				_progress.WriteError(error.Message);//review still needed if we have this new WriteException?
+				_progress.WriteVerbose(error.StackTrace);//review still needed if we have this new WriteException?
 
 				results.Succeeded = false;
 				results.ErrorEncountered = error;
 			}
 			return results;
+		}
+
+		private void ChangeBranchIfNecessary(string branchName)
+		{
+			if (Repository.GetRevisionWorkingSetIsBasedOn() == null ||
+				Repository.GetRevisionWorkingSetIsBasedOn().Branch != branchName)
+			{
+				Repository.BranchingHelper.Branch(_progress, branchName);
+			}
 		}
 
 		private static void CreateRepositoryOnLocalAreaNetworkFolderIfNeededThrowIfFails(HgRepository repo, string repoProjectName, List<RepositoryAddress> sourcesToTry)
@@ -340,24 +377,32 @@ namespace Chorus.sync
 			ThrowIfCancelPending();
 			_progress.WriteMessage("Storing changes in local repository...");
 
+			_sychronizerAdjunct.PrepareForInitialCommit(_progress);
+
 			// Must be done, before "AddAndCommitFiles" call.
 			// It could be here, or first thing inside the 'using' for CommitCop.
 			var newlyFilteredFiles = LargeFileFilter.FilterFiles(Repository, _project, _handlers);
 			if (!string.IsNullOrEmpty(newlyFilteredFiles))
 				_progress.WriteWarning(newlyFilteredFiles);
 
+			var commitCopValidationResult = "";
 			using (var commitCop = new CommitCop(Repository, _handlers, _progress))
 			{
 				// NB: The commit must take place in order for CommitCop to work properly.
 				// Ergo, don't even think of moving this after the commitCop.ValidationResult check.
 				// Too bad I (RBR) already thought of it, and asked, and found out it ought not be moved. :-)
 				AddAndCommitFiles(options.CheckinDescription);
-
-				if (!string.IsNullOrEmpty(commitCop.ValidationResult))
-				{
-					throw new ApplicationException( "The changed data did not pass validation tests. Your project will be moved back to the last Send/Receive before this problem occurred, so that you can keep working.  Please notify whoever provides you with computer support. Error was: " + commitCop.ValidationResult);
-				}
+				commitCopValidationResult = commitCop.ValidationResult;
 			}
+			if (string.IsNullOrEmpty(commitCopValidationResult))
+				return;
+
+			// Commit cop reported a validation failure, but deal with it here, rather than inside the 'using', as the rollback won't have happened,
+			// until Dispose, and that is way too early for the "SimpleUpdate" call.
+			_sychronizerAdjunct.SimpleUpdate(_progress, true);
+			throw new ApplicationException(
+					"The changed data did not pass validation tests. Your project will be moved back to the last Send/Receive before this problem occurred, so that you can keep working.  Please notify whoever provides you with computer support. Error was: " +
+					commitCopValidationResult);
 		}
 
 		/// <returns>true if there was a successful pull</returns>
@@ -499,9 +544,13 @@ namespace Chorus.sync
 				{
 					if (HgRepository.IntegrityResults.Bad == repository.CheckIntegrity(progress))
 					{
-						MessageBox.Show(
-							"Bad news: The mecurial repository is damaged.  You will need to seek expert help to resolve this problem.", "Chorus", MessageBoxButtons.OK, MessageBoxIcon.Error);
-						return;//don't suggest anything else
+						throw new ApplicationException(
+							"Bad news: The mecurial repository is damaged.  You will need to seek expert help to resolve this problem."
+						);
+						// Removing windows forms dependency CP 2012-08
+						//MessageBox.Show(
+						//    "Bad news: The mecurial repository is damaged.  You will need to seek expert help to resolve this problem.", "Chorus", MessageBoxButtons.OK, MessageBoxIcon.Error);
+						//return;//don't suggest anything else
 					}
 				}
 
@@ -518,7 +567,7 @@ namespace Chorus.sync
 
 		/// <summary>
 		/// If everything got merged, then this is trivial. But in case of a merge failure,
-		/// the "tip" might be the other guy's unmergable data (mabye because he has a newer
+		/// the "tip" might be the other guy's unmergable data (maybe because he has a newer
 		/// version of some application than we do) We don't want to switch to that!
 		///
 		/// So if there are more than one head out there, we update to the one that is a descendant
@@ -534,6 +583,7 @@ namespace Chorus.sync
 				if (heads.Count == 1)
 				{
 					repository.Update(); //update to the tip
+					_sychronizerAdjunct.SimpleUpdate(_progress, false);
 					return;
 				}
 				if (heads.Count == 0)
@@ -548,6 +598,7 @@ namespace Chorus.sync
 					if (parent.Number.Hash == head.Number.Hash || head.IsDirectDescendantOf(parent))
 					{
 						repository.RollbackWorkingDirectoryToRevision(head.Number.LocalRevisionNumber);
+						_sychronizerAdjunct.SimpleUpdate(_progress, true);
 						return;
 					}
 				}
@@ -634,6 +685,44 @@ namespace Chorus.sync
 			}
 		}
 
+		/// <summary>
+		/// Sets up everything necessary for a call out to the ChorusMerge executable
+		/// </summary>
+		/// <param name="targetHead"></param>
+		/// <param name="sourceHead"></param>
+		private void PrepareForMergeAttempt(Revision targetHead, Revision sourceHead)
+		{
+			//this is for posterity, on other people's machines, so use the hashes instead of local numbers
+			MergeSituation.PushRevisionsToEnvironmentVariables(targetHead.UserId, targetHead.Number.Hash,
+															   sourceHead.UserId, sourceHead.Number.Hash);
+
+			MergeOrder.PushToEnvironmentVariables(_localRepositoryPath);
+			_progress.WriteMessage("Merging {0} and {1}...", targetHead.UserId, sourceHead.UserId);
+			_progress.WriteVerbose("   Revisions {0}:{1} with {2}:{3}...", targetHead.Number.LocalRevisionNumber, targetHead.Number.Hash,
+								   sourceHead.Number.LocalRevisionNumber, sourceHead.Number.Hash);
+			RemoveMergeObstacles(targetHead, sourceHead);
+		}
+
+		/// <summary>
+		/// This method handles post merge tasks including the commit after the merge
+		/// </summary>
+		/// <param name="head"></param>
+		/// <param name="peopleWeMergedWith"></param>
+		private void DoPostMergeCommit(Revision head)
+		{
+			//that merge may have generated notes files where they didn't exist before,
+			//and we want these merged
+			//version + updated/created notes files to go right back into the repository
+
+			//  args.Append(" -X " + SurroundWithQuotes(Path.Combine(_pathToRepository, "**.ChorusRescuedFile")));
+
+			AppendAnyNewNotes(_localRepositoryPath);
+
+			_sychronizerAdjunct.PrepareForPostMergeCommit(_progress);
+
+			AddAndCommitFiles(GetMergeCommitSummary(head.UserId, Repository));
+		}
+
 		private void MergeHeads()
 		{
 			try
@@ -645,47 +734,23 @@ namespace Chorus.sync
 				if (myHead == default(Revision))
 					return;
 
+				var skippedHeads = (heads.Where(
+					head => head.Number.LocalRevisionNumber == myHead.Number.LocalRevisionNumber
+						|| head.Tag.Contains(RejectTagSubstring)
+						|| head.Branch != myHead.Branch
+						|| CheckAndWarnIfNoCommonAncestor(myHead, head))).ToArray();
+				foreach (var skippedHead in skippedHeads)
+					heads.Remove(skippedHead);
+
 				foreach (Revision head in heads)
 				{
-					if (head.Number.LocalRevisionNumber == myHead.Number.LocalRevisionNumber)
-						continue;
+					PrepareForMergeAttempt(myHead, head);
 
-					if (head.Tag.Contains(RejectTagSubstring))
-						continue;
+					if (!MergeTwoChangeSets(myHead, head))
+						continue; // Nothing to merge.
 
-					//note: what we're checking here is actualy the *name* of the branch...important: remmber in hg,
-					//you can have multiple heads on the same branch
-					if (head.Branch != myHead.Branch) //Chorus policy is to only auto-merge on branches with same name
-						continue;
-
-					//this is for posterity, on other people's machines, so use the hashes instead of local numbers
-					MergeSituation.PushRevisionsToEnvironmentVariables(myHead.UserId, myHead.Number.Hash, head.UserId,
-																		head.Number.Hash);
-
-					MergeOrder.PushToEnvironmentVariables(_localRepositoryPath);
-					_progress.WriteMessage("Merging {0} and {1}...", myHead.UserId, head.UserId);
-					_progress.WriteVerbose("   Revisions {0}:{1} with {2}:{3}...", myHead.Number.LocalRevisionNumber, myHead.Number.Hash, head.Number.LocalRevisionNumber, head.Number.Hash);
-					RemoveMergeObstacles(myHead, head);
-
-					if(CheckAndWarnIfNoCommonAncestor(myHead, head))
-					{
-						continue;
-					}
-
-					bool didMerge = MergeTwoChangeSets(myHead, head);
-					if (didMerge)
-					{
-						peopleWeMergedWith.Add(head.UserId);
-
-						//that merge may have generated notes files where they didn't exist before,
-						//and we want these merged
-						//version + updated/created notes files to go right back into the repository
-
-						//  args.Append(" -X " + SurroundWithQuotes(Path.Combine(_pathToRepository, "**.ChorusRescuedFile")));
-
-						AppendAnyNewNotes(_localRepositoryPath);
-						AddAndCommitFiles(GetMergeCommitSummary(head.UserId, Repository));
-					}
+					peopleWeMergedWith.Add(head.UserId);
+					DoPostMergeCommit(head);
 				}
 			}
 			catch (UserCancelledException)
@@ -697,6 +762,7 @@ namespace Chorus.sync
 				ExplainAndThrow(error,WhatToDo.NeedExpertHelp, "Unable to complete the send/receive.");
 			}
 		}
+
 
 		/// <summary>
 		/// Find any .NewChorusNotes files which were created by the MergeChorus.exe and either rename them to .ChorusNotes
@@ -763,14 +829,16 @@ namespace Chorus.sync
 #endif
 			using (new ShortTermEnvironmentalVariable("HGMERGE", '"' + chorusMergeFilePath + '"'))
 			{
-				// Theory has it that is a tossup on who ought to win, umless there is some more principled way to decide.
+				// Theory has it that is a tossup on who ought to win, unless there is some more principled way to decide.
 				// If 'they' end up being the right answer, or if it ends up being more exotic,
 				// then be sure to change the alpha and beta info in the MergeSituation class.
 				//using (new ShortTermEnvironmentalVariable(MergeOrder.kConflictHandlingModeEnvVarName, MergeOrder.ConflictHandlingModeChoices.TheyWin.ToString()))
 				// Go with 'WeWin', since that is the default and that is how the alpha and beta data of MergeSituation is set, right before this method is called.
 				using (new ShortTermEnvironmentalVariable(MergeOrder.kConflictHandlingModeEnvVarName, MergeOrder.ConflictHandlingModeChoices.WeWin.ToString()))
 				{
-					return Repository.Merge(_localRepositoryPath, theirHead.Number.LocalRevisionNumber);
+					var didMerge = Repository.Merge(_localRepositoryPath, theirHead.Number.LocalRevisionNumber);
+					FailureSimulator.IfTestRequestsItThrowNow("SychronizerAdjunct");
+					return didMerge;
 				}
 			}
 		}

@@ -6,7 +6,7 @@ using Chorus.merge;
 using LibChorus.TestUtilities;
 using NUnit.Framework;
 using Palaso.IO;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
 
 namespace LibChorus.Tests.FileHandlers.LiftRanges
 {
@@ -173,7 +173,7 @@ namespace LibChorus.Tests.FileHandlers.LiftRanges
 		id='theone'
 		attr='data' />
 </lift-ranges>";
-			var result = DoMerge(common, ours, theirs, 0, 1);
+			var result = DoMerge(common, ours, theirs, 0, 0);
 			result = result.Replace("\"", "'");
 			Assert.AreEqual(ours, result);
 			Assert.AreEqual(theirs, result);
@@ -199,7 +199,7 @@ namespace LibChorus.Tests.FileHandlers.LiftRanges
 <lift-ranges>
 <range id='theone'/>
 </lift-ranges>";
-			var result = DoMerge(common, ours, theirs, 0, 1);
+			var result = DoMerge(common, ours, theirs, 0, 0);
 			result = result.Replace("\"", "'");
 			Assert.AreEqual(ours, result);
 		}
@@ -224,7 +224,7 @@ namespace LibChorus.Tests.FileHandlers.LiftRanges
 		attr='data'
 		id='theone' />
 </lift-ranges>";
-			var result = DoMerge(common, ours, theirs, 0, 1);
+			var result = DoMerge(common, ours, theirs, 0, 0);
 			result = result.Replace("\"", "'");
 			Assert.AreEqual(theirs, result);
 		}

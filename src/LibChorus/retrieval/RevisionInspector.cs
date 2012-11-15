@@ -7,7 +7,7 @@ using Chorus.merge;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
 using System.Linq;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
 
 namespace Chorus.retrieval
 {

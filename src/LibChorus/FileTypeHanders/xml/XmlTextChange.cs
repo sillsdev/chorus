@@ -53,7 +53,7 @@ namespace Chorus.FileTypeHanders.xml
 
 		public override string GetFullHumanReadableDescription()
 		{
-			return string.Format(FormattedMessageForFullHumanReadableDescription, ChildNode.Name, ParentNode.Name);
+			return string.Format(FormattedMessageForFullHumanReadableDescription, ChildNode.Name, ParentNode != null ? ParentNode.Name : "");
 		}
 
 		#endregion

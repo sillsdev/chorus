@@ -1,8 +1,8 @@
 using System;
 using System.Xml;
 using Chorus.merge;
-using Chorus.merge.xml.generic;
 using Chorus.VcsDrivers.Mercurial;
+using Palaso.Xml;
 
 namespace Chorus.FileTypeHanders.xml
 {

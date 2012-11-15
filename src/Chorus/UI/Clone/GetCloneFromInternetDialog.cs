@@ -1,21 +1,14 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Drawing;
-using System.Media;
 using System.Threading;
 using System.Windows.Forms;
-using Chorus.clone;
 using Chorus.UI.Misc;
-using Chorus.Utilities;
-using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
-using Palaso.Progress;
-using Palaso.Progress.LogBox;
-using Palaso.Reporting;
 
 namespace Chorus.UI.Clone
 {
-	public partial class GetCloneFromInternetDialog : Form
+	public partial class GetCloneFromInternetDialog : Form, ICloneSourceDialog
 	{
 		private readonly GetCloneFromInternetModel _model;
 		private readonly BackgroundWorker _backgroundWorker;
@@ -83,7 +76,7 @@ namespace Chorus.UI.Clone
 
 			_logBox.GetDiagnosticsMethod = (progress) =>
 											{
-												var hg = new HgRepository(PathToNewProject, progress);
+												var hg = new HgRepository(PathToNewlyClonedFolder, progress);
 												hg.GetDiagnosticInformationForRemoteProject(progress, ThreadSafeUrl);
 											};
 
@@ -133,9 +126,11 @@ namespace Chorus.UI.Clone
 					_cancelTaskButton.Visible = false;
 					_statusProgress.Visible = false;
 					_statusProgress.Text = "";
+					_serverSettingsControl.DisplayUpdated += ServerSettingsControlOnDisplayUpdated;
 
 					break;
 				case State.MakingClone:
+					_serverSettingsControl.DisplayUpdated -= ServerSettingsControlOnDisplayUpdated;
 					_progressBar.Focus();
 					_progressBar.Select();
 					_targetFolderControl.Visible = false;
@@ -157,6 +152,7 @@ namespace Chorus.UI.Clone
 					_statusProgress.Visible = true;
 					break;
 				case State.Success:
+					_serverSettingsControl.DisplayUpdated -= ServerSettingsControlOnDisplayUpdated;
 					_cancelTaskButton.Visible = false;
 					_statusLabel.Visible = true;
 					_statusLabel.Text = "Done.";
@@ -172,6 +168,7 @@ namespace Chorus.UI.Clone
 					_statusProgress.Visible = false;
 					break;
 				case State.Error:
+					_serverSettingsControl.DisplayUpdated -= ServerSettingsControlOnDisplayUpdated;
 					_fixSettingsButton.Visible = true;
 					_fixSettingsButton.Focus();
 					_cancelButton.Visible = true;
@@ -188,6 +185,7 @@ namespace Chorus.UI.Clone
 					_statusProgress.Visible = false;
 					break;
 				case State.Cancelled:
+					_serverSettingsControl.DisplayUpdated -= ServerSettingsControlOnDisplayUpdated;
 					_cancelButton.Visible = true;
 					_cancelButton.Text = "&Close";
 					_cancelButton.Select();
@@ -207,6 +205,11 @@ namespace Chorus.UI.Clone
 			_serverSettingsControl.Visible = _targetFolderControl.Visible;
 		}
 
+		private void ServerSettingsControlOnDisplayUpdated(object sender, EventArgs eventArgs)
+		{
+			_targetFolderControl.UpdateDisplay();
+		}
+
 		private void OnLoad(object sender, EventArgs e)
 		{
 			UpdateDisplay(State.AskingUserForURL);
@@ -219,9 +222,24 @@ namespace Chorus.UI.Clone
 			Close();
 		}
 
-		public string PathToNewProject
+
+		/// <summary>
+		/// After a successful clone, this will have the path to the folder that we just copied to the computer
+		/// </summary>
+		public string PathToNewlyClonedFolder
 		{
 			get { return _model.TargetDestination; }
+		}
+
+		/// <summary>
+		/// **** Currently this is not implemented on this class
+		/// </summary>
+		public void SetFilePatternWhichMustBeFoundInHgDataFolder(string pattern)
+		{
+			//TODO
+			//no don't do throw. doing it means client need special code for each clone method
+			//  throw new NotImplementedException();
+
 		}
 
 		private void _cancelButton_Click(object sender, EventArgs e)
@@ -281,5 +299,6 @@ namespace Chorus.UI.Clone
 		{
 			_logBox.BackColor  =this.BackColor;
 		}
+
 	}
 }
