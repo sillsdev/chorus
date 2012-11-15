@@ -111,6 +111,15 @@ namespace Chorus.Utilities
 			}
 		}
 
+		/// <summary>
+		/// Returns the total number of values in the multimap.
+		/// </summary>
+		/// <returns></returns>
+		public int Count()
+		{
+			return _dictionary.Sum(listValuePair => listValuePair.Value.Count);
+		}
+
 
 		public void Dispose()
 		{

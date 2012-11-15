@@ -2,11 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Chorus.merge;
+using Chorus.merge.xml.generic;
 using Chorus.sync;
-using Chorus.Utilities.code;
 using Chorus.VcsDrivers.Mercurial;
+using Palaso.Code;
 using Palaso.IO;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
 
 namespace Chorus.FileTypeHanders
 {
@@ -42,9 +43,8 @@ namespace Chorus.FileTypeHanders
 		{
 		  //  Debug.Fail("john");
 			Guard.AgainstNull(mergeOrder, "mergeOrder");
-			var unmergableFileTypeConflict = new UnmergableFileTypeConflict(mergeOrder.MergeSituation);
-			mergeOrder.EventListener.RecordContextInConflict(unmergableFileTypeConflict);
-			mergeOrder.EventListener.ConflictOccurred(unmergableFileTypeConflict);
+
+			XmlMergeService.AddConflictToListener(mergeOrder.EventListener, new UnmergableFileTypeConflict(mergeOrder.MergeSituation));
 			switch (mergeOrder.MergeSituation.ConflictHandlingMode)
 			{
 				default: // just leave our file there
@@ -56,7 +56,6 @@ namespace Chorus.FileTypeHanders
 					break;
 
 			}
-
 		}
 
 		public IEnumerable<IChangeReport> Find2WayDifferences(FileInRevision parent, FileInRevision child, HgRepository repository)
@@ -64,14 +63,10 @@ namespace Chorus.FileTypeHanders
 			throw new ApplicationException(string.Format("Chorus could not find a handler to diff files like '{0}'", child.FullPath));
 		}
 
-
 		public IChangePresenter GetChangePresenter(IChangeReport report, HgRepository repository)
 		{
 			return new DefaultChangePresenter(report, repository);
 		}
-
-
-
 
 		public IEnumerable<IChangeReport> DescribeInitialContents(FileInRevision fileInRevision, TempFile file)
 		{

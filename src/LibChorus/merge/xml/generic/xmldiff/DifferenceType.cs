@@ -70,5 +70,8 @@ namespace Chorus.merge.xml.generic.xmldiff
 
 		/** Comparing 2 Documents only one of which has an XML Prefix Declaration */
 		HAS_XML_DECLARATION_PREFIX_ID = 22,
+
+		/* Comparing 2 nodes that look like this: <Foo /> vs <Foo></Foo> */
+		EMPTY_NODE_ID = 24,
 	} ;
 }

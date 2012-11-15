@@ -4,9 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Xml;
 using Autofac;
-using Chorus.Utilities.code;
+using Autofac.Core;
 using Chorus.VcsDrivers;
 using Palaso.IO;
+using Palaso.Xml;
+using Palaso.Code;
 
 namespace Chorus.merge.xml.generic
 {
@@ -175,7 +177,9 @@ namespace Chorus.merge.xml.generic
 
 		public void MakeHtmlDetails(XmlNode oursContext, XmlNode theirsContext, XmlNode ancestorContext, IGenerateHtmlContext htmlMaker)
 		{
-			StringBuilder sb = new StringBuilder("<head><style type='text/css'>div.alternative {margin-left:  0.3in} </style></head><body><div class='description'>");
+			StringBuilder sb = new StringBuilder("<head><style type='text/css'>");
+			sb.Append(htmlMaker.HtmlContextStyles(oursContext));
+			sb.Append("</style></head><body><div class='description'>");
 			sb.Append(GetFullHumanReadableDescription());
 			sb.Append("</div>");
 			var ancestorHtml = "";
@@ -206,7 +210,10 @@ namespace Chorus.merge.xml.generic
 		/// <param name="sb"></param>
 		protected virtual void AppendWhatHappened(StringBuilder sb)
 		{
-			sb.Append(string.Format("The merger kept the change made by {0}", WinnerId));
+			var winnerId = WinnerId;
+			if (!string.IsNullOrEmpty(_whoWon) && _whoWon != winnerId)
+				winnerId = _whoWon; // Can happen if loser edited and winner deleted.
+			sb.Append(string.Format("The merger kept the change made by {0}", winnerId));
 		}
 
 		private void AppendAlternative(StringBuilder sb, XmlNode changedContext, XmlNode ancestorContext,
@@ -236,6 +243,7 @@ namespace Chorus.merge.xml.generic
 				sb.Append("<div class='alternative'>");
 				sb.Append(string.Format("{0}'s version: ", label));
 				sb.Append(oursHtml);
+				sb.Append("</div>");
 			}
 		}
 
@@ -281,7 +289,6 @@ namespace Chorus.merge.xml.generic
 		}
 
 		private static IContainer _conflictFactory;
-
 		static List<Type> _additionalConflictTypes = new List<Type>();
 
 		/// <summary>
@@ -301,7 +308,8 @@ namespace Chorus.merge.xml.generic
 			{
 				if (_conflictFactory == null)
 				{
-					var builder = new Autofac.Builder.ContainerBuilder();
+					var builder = new Autofac.ContainerBuilder();
+					//moved this down into Register for autofac 2: builder.SetDefaultScope(InstanceScope.Factory);
 
 					Register<RemovedVsEditedElementConflict>(builder);
 					Register<EditedVsRemovedElementConflict>(builder);
@@ -317,6 +325,7 @@ namespace Chorus.merge.xml.generic
 
 					Register<BothReorderedElementConflict>(builder);
 					Register<BothInsertedAtDifferentPlaceConflict>(builder);
+					Register<BothAddedMainElementButWithDifferentContentConflict>(builder);
 
 					Register<RemovedVsEditedAttributeConflict>(builder);
 					Register<EditedVsRemovedAttributeConflict>(builder);
@@ -331,10 +340,11 @@ namespace Chorus.merge.xml.generic
 
 					Register<BothEditedDifferentPartsOfDependentPiecesOfDataWarning>(builder);
 					Register<UnmergableFileTypeConflict>(builder);
+					Register<MergeWarning>(builder);
 
 					foreach (var conflictType in _additionalConflictTypes)
 					{
-						builder.Register(conflictType).Named(GetTypeGuid(conflictType));
+						Register(builder, conflictType);
 					}
 					_conflictFactory = builder.Build();
 				}
@@ -346,8 +356,9 @@ namespace Chorus.merge.xml.generic
 		{
 			try
 			{
-			var typeGuid = conflictNode.GetStringAttribute("typeGuid");
-			return ConflictFactory.Resolve<IConflict>(typeGuid, new Parameter[] { new TypedParameter(typeof(XmlNode), conflictNode) });
+				var typeGuid = conflictNode.GetStringAttribute("typeGuid");
+			//	return ConflictFactory.Resolve<IConflict>(typeGuid, new Parameter[] {new TypedParameter(typeof (XmlNode), conflictNode)});
+				return ConflictFactory.ResolveNamed<IConflict>(typeGuid, new TypedParameter(typeof(XmlNode), conflictNode));
 			}
 			catch (Exception error)
 			{
@@ -355,10 +366,15 @@ namespace Chorus.merge.xml.generic
 			}
 		}
 
-
-		private static void Register<T>(Autofac.Builder.ContainerBuilder builder)
+		private static void Register<T>(Autofac.ContainerBuilder builder)
 		{
-			builder.Register<T>().Named(GetTypeGuid(typeof(T)));
+			//Register(builder, typeof(T));
+			builder.RegisterType<T>().As<IConflict>().Named<IConflict>(GetTypeGuid(typeof(T))).InstancePerDependency();
+		}
+
+		private static void Register(Autofac.ContainerBuilder builder, Type type)
+		{
+			builder.RegisterType(type).As<IConflict>().Named<IConflict>(GetTypeGuid(type)).InstancePerDependency();
 		}
 
 		public bool Equals(Conflict other)
@@ -777,10 +793,17 @@ namespace Chorus.merge.xml.generic
 	[TypeGuid("c1ed6dc1-e382-11de-8a39-0800200c9a66")]
 	sealed public class BothAddedAttributeConflict : AttributeConflict // NB: Be sure to register any new instances in CreateFromConflictElement method.
 	{
-		public BothAddedAttributeConflict(string attributeName, string alphaValue, string betaValue, string ancestorValue, MergeSituation mergeSituation, string whoWon)
-			: base(attributeName, alphaValue, betaValue, ancestorValue, mergeSituation, whoWon)
+		public BothAddedAttributeConflict(string attributeName, string alphaValue, string betaValue, MergeSituation mergeSituation, string whoWon)
+			: base(attributeName, alphaValue, betaValue, null, mergeSituation, whoWon)
 		{
 		}
+
+		// Constructor required for regenerating conflict object from XML.
+		public BothAddedAttributeConflict(XmlNode xmlRepresentation):
+			base(xmlRepresentation)
+		{
+		}
+
 		public override string Description
 		{
 			get { return string.Format("Both Added Attribute Conflict"); }
@@ -792,6 +815,11 @@ namespace Chorus.merge.xml.generic
 	{
 		public RemovedVsEditedAttributeConflict(string attributeName, string alphaValue, string betaValue, string ancestorValue, MergeSituation mergeSituation, string whoWon)
 			: base(attributeName, alphaValue, betaValue, ancestorValue, mergeSituation, whoWon)
+		{
+		}
+		// Constructor required for regenerating conflict object from XML.
+		public RemovedVsEditedAttributeConflict(XmlNode xmlRepresentation)
+			: base(xmlRepresentation)
 		{
 		}
 		public override string Description
@@ -807,6 +835,11 @@ namespace Chorus.merge.xml.generic
 			: base(attributeName, alphaValue, betaValue, ancestorValue, mergeSituation, whoWon)
 		{
 		}
+		// Constructor required for regenerating conflict object from XML.
+		public EditedVsRemovedAttributeConflict(XmlNode xmlRepresentation)
+			: base(xmlRepresentation)
+		{
+		}
 		public override string Description
 		{
 			get { return string.Format("Removed Vs Edited Attribute Conflict"); }
@@ -820,7 +853,11 @@ namespace Chorus.merge.xml.generic
 			: base(attributeName, alphaValue, betaValue, ancestorValue, mergeSituation, whoWon)
 		{
 		}
-
+		// Constructor required for regenerating conflict object from XML.
+		public BothEditedAttributeConflict(XmlNode xmlRepresentation)
+			: base(xmlRepresentation)
+		{
+		}
 		public override string Description
 		{
 			get { return string.Format("Both Edited Attribute Conflict"); }
@@ -923,6 +960,35 @@ namespace Chorus.merge.xml.generic
 		}
 	}
 
+	[TypeGuid("c1ed94d6-e382-11de-8a39-0800200c9a66")]
+	public class BothAddedMainElementButWithDifferentContentConflict : ElementConflict
+	{
+		public BothAddedMainElementButWithDifferentContentConflict(string elementName, XmlNode alphaNode, XmlNode betaNode,
+			MergeSituation mergeSituation, IElementDescriber elementDescriber, string whoWon)
+			: base(elementName, alphaNode, betaNode, null, mergeSituation, elementDescriber, whoWon)
+		{
+		}
+
+		public BothAddedMainElementButWithDifferentContentConflict(XmlNode xmlRepresentation)
+			: base(xmlRepresentation)
+		{
+		}
+
+		public override string Description
+		{
+			get { return "Both added the same element, but with different content conflict"; }
+		}
+
+		public override string WhatHappened
+		{
+			get
+			{
+				return string.Format("{0} and {1} added the same element, but with different content.",
+					Situation.AlphaUserId, Situation.BetaUserId);
+			}
+		}
+	}
+
 	[TypeGuid("14262878-270A-4E27-BA5F-7D232B979D6B")]
 	public class BothReorderedElementConflict : ElementConflict // NB: Be sure to register any new instances in CreateFromConflictElement method.
 	{
@@ -936,6 +1002,7 @@ namespace Chorus.merge.xml.generic
 		{
 
 		}
+
 		public override string Description
 		{
 			get { return "Both Reordered Conflict"; }
@@ -982,7 +1049,7 @@ namespace Chorus.merge.xml.generic
 	{
 		public AmbiguousInsertConflict(string elementName, XmlNode alphaNode, XmlNode betaNode,
 			XmlNode ancestorElement, MergeSituation mergeSituation, IElementDescriber elementDescriber, string whoWon)
-			: base(elementName, alphaNode, betaNode, ancestorElement, mergeSituation, elementDescriber, whoWon)
+			: base(elementName, alphaNode, betaNode, ancestorElement, mergeSituation, elementDescriber, "both users")
 		{
 		}
 
@@ -997,13 +1064,13 @@ namespace Chorus.merge.xml.generic
 
 		public override string WhatHappened
 		{
-			get { return string.Format("{0} and {1} both inserted material in this element in the same place. The automated merger cannot be sure of the correct order for the inserted material.",
+			get { return string.Format("{0} and {1} both inserted material in this element in the same place. The automated merger cannot be sure of the correct order for the inserted material, but kept both of them.",
 				Situation.AlphaUserId, Situation.BetaUserId);
 			}
 		}
 		public override string ToString()
 		{
-			return GetType().ToString() + ":" + _elementName+" (or lower?)";
+			return GetType() + ":" + _elementName + " (or lower?)";
 		}
 	}
 
@@ -1034,6 +1101,43 @@ namespace Chorus.merge.xml.generic
 				Situation.AlphaUserId, Situation.BetaUserId);
 			}
 		}
+	}
+
+	/// <summary>
+	/// This not really a conflict but is used to store warnings that occur during merge
+	/// </summary>
+	[TypeGuid("2E7B7307-B316-4644-8565-1B667372E269")]
+	public class MergeWarning : Conflict // NB: Be sure to register any new instances in CreateFromConflictElement method.
+	{
+		private readonly string _message;
+
+		public MergeWarning(string message)
+			: base(new NullMergeSituation(), string.Empty)
+		{
+			_message = message;
+		}
+
+		public MergeWarning(XmlNode xmlRepresentation)
+			: base(xmlRepresentation)
+		{
+
+		}
+
+		public override string Description
+		{
+			get { return "Merge Warning"; }
+		}
+
+		public override string GetConflictingRecordOutOfSourceControl(IRetrieveFileVersionsFromRepository fileRetriever, ThreeWayMergeSources.Source mergeSource)
+		{
+			throw new NotImplementedException();
+		}
+
+		public override string GetFullHumanReadableDescription()
+		{
+			return _message;
+		}
+
 	}
 
 	/// <summary>

@@ -1,9 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Web;
 using System.Linq;
-using System.Windows.Forms;
 using System.Xml;
 using Chorus.merge.xml.generic;
 
@@ -70,7 +68,7 @@ namespace Chorus.notes
 		public string Data;
 	}
 
-
+	/*
 	public class MergeConflictEmbeddedMessageContentHandler : IEmbeddedMessageContentHandler
 	{
 		/// <summary>
@@ -145,12 +143,12 @@ namespace Chorus.notes
 			return cDataContent.TrimStart().StartsWith("<conflict");
 		}
 	}
-
+	*/
 	public class EmbeddedMessageContentHandlerFactory
 	{
 		readonly List<IEmbeddedMessageContentHandler> _knownHandlers = new List<IEmbeddedMessageContentHandler>(new IEmbeddedMessageContentHandler[]
 		{
-			new MergeConflictEmbeddedMessageContentHandler(),
+	 //       new MergeConflictEmbeddedMessageContentHandler(),
 			new DefaultEmbeddedMessageContentHandler()
 		});
 
