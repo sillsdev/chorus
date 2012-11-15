@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Design;
 using System.Drawing;
 using System.Linq;
 using System.Text;
-using System.Windows.Forms;
 using Chorus.notes;
 using Chorus.UI.Notes.Html;
 using Chorus.UI.Review;
@@ -179,7 +177,7 @@ namespace Chorus.UI.Notes
 			return builder.ToString();
 		}
 
-		public bool IsClosed
+		public bool IsResolved
 		{
 			get { return _annotation.Status == "closed";}
 			set

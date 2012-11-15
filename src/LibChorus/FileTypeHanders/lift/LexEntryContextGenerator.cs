@@ -1,7 +1,7 @@
-using System;
 using System.IO;
 using System.Xml;
 using Chorus.merge.xml.generic;
+using Palaso.Xml;
 
 namespace Chorus.FileTypeHanders.lift
 {

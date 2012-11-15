@@ -5,7 +5,9 @@ using System.Xml;
 using System.Linq;
 using System.Xml.Linq;
 using Chorus.Utilities;
-using Chorus.Utilities.code;
+using Palaso.Code;
+using Palaso.Progress;
+using Palaso.Xml;
 
 namespace Chorus.notes
 {
@@ -94,11 +96,19 @@ namespace Chorus.notes
 
 		public void Dispose()
 		{
-
+			if (_doc.Root != null)
+			{
+				foreach (var element in _doc.Root.Elements())
+				{
+					element.Changed -= AnnotationElement_Changed;
+				}
+			}
+			SaveNowIfNeeded(new NullProgress());
+			_doc = null;
 		}
 
 		/// <summary>
-		/// a typical observer is an index
+		/// a typical observer is an index or a user-interface element
 		/// </summary>
 		public void AddObserver(IAnnotationRepositoryObserver observer, IProgress progress)
 		{
@@ -137,14 +147,26 @@ namespace Chorus.notes
 
 		public void Save(IProgress progress)
 		{
-			if(string.IsNullOrEmpty(AnnotationFilePath))
+			try
 			{
-				throw new InvalidOperationException("Cannot save if the repository was created from a string");
+				if (string.IsNullOrEmpty(AnnotationFilePath))
+				{
+					throw new InvalidOperationException("Cannot save if the repository was created from a string");
+				}
+				progress.WriteStatus("Saving Chorus Notes...");
+				using (var writer = XmlWriter.Create(AnnotationFilePath, CanonicalXmlSettings.CreateXmlWriterSettings())
+					)
+				{
+					_doc.Save(writer);
+				}
+				progress.WriteStatus("");
+				_isDirty = false;
 			}
-			progress.WriteStatus("Saving Chorus Notes...");
-			_doc.Save(AnnotationFilePath);
-			progress.WriteStatus("");
-			_isDirty = false;
+			catch(Exception e)
+			{
+				Palaso.Reporting.ErrorReport.NotifyUserOfProblem(e, "Chorus has a problem saving notes for {0}.",
+																 _annotationFilePath);
+			}
 		}
 
 		public void AddAnnotation(Annotation annotation)
@@ -229,6 +251,10 @@ namespace Chorus.notes
 		}
 
 
+		public bool ContainsAnnotation(Annotation annotation)
+		{
+			return null!= _doc.Root.Elements().FirstOrDefault(e => e.GetAttributeValue("guid") == annotation.Guid);
+		}
 	}
 
 	public class AnnotationFormatException : ApplicationException

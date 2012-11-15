@@ -4,12 +4,15 @@ using System.IO;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
 using NUnit.Framework;
+using Palaso.IO;
+using Palaso.Progress;
+using Palaso.TestUtilities;
 
 namespace LibChorus.Tests.VcsDrivers.Mercurial
 {
 	public class HgTestSetup  :IDisposable
 	{
-		public TempFolder Root;
+		public TemporaryFolder Root;
 		public HgRepository Repository;
 		private ConsoleProgress _progress;
 
@@ -17,7 +20,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		public HgTestSetup()
 		{
 			_progress = new ConsoleProgress();
-			Root = new TempFolder("ChorusHgWrappingTest");
+			Root = new TemporaryFolder("ChorusHgWrappingTest");
 			HgRepository.CreateRepositoryInExistingDir(Root.Path,_progress);
 			Repository = new HgRepository(Root.Path, new NullProgress());
 		}
@@ -30,11 +33,11 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 
 		public IDisposable GetWLock()
 		{
-			return TempFile.CreateAt(Root.Combine(".hg", "wlock"), "blah");
+			return TempFileFromFolder.CreateAt(Root.Combine(".hg", "wlock"), "blah");
 		}
 		public IDisposable GetLock()
 		{
-			return TempFile.CreateAt(Root.Combine(".hg", "store", "lock"), "blah");
+			return TempFileFromFolder.CreateAt(Root.Combine(".hg", "store", "lock"), "blah");
 		}
 
 

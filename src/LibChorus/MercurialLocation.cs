@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using Chorus.Utilities;
-using Chorus.Utilities.code;
+using Palaso.Code;
 
 namespace Chorus// DON'T MOVE THIS! It needs to be super easy for the client to find
 {
@@ -62,21 +60,35 @@ namespace Chorus// DON'T MOVE THIS! It needs to be super easy for the client to 
 			{
 				return;
 			}
-
+#if MONO
+			// Currently on linux systems the system mercurial is used.
+			// pso (or ppo) is obliged to offer the appropriate version of hg that
+			// will work with chorus.
+			_pathToMercurialFolder = "/usr/bin";
+#else
 			var guess = Path.Combine(ExecutionEnvironment.DirectoryOfExecutingAssembly,"mercurial");
 			if(Directory.Exists(guess))
 			{
-				MercurialLocation.PathToMercurialFolder = guess;
+				PathToMercurialFolder = guess;
 				return;
 			}
 
-			//in case we're running off the source code directory
-			guess = Path.Combine(ExecutionEnvironment.DirectoryOfExecutingAssembly+"//..//common", "mercurial");
+			//in case we're running off the wesay source code directory
+			guess = Path.Combine(ExecutionEnvironment.DirectoryOfExecutingAssembly+"\\..\\..\\common", "mercurial");
 			if (Directory.Exists(guess))
 			{
-				MercurialLocation.PathToMercurialFolder = guess;
+				PathToMercurialFolder = guess;
 				return;
 			}
+
+			//in case we're running in chorus's solution directory
+			guess = Path.Combine(ExecutionEnvironment.DirectoryOfExecutingAssembly + "\\..\\..\\", "mercurial");
+			if (Directory.Exists(guess))
+			{
+				PathToMercurialFolder = guess;
+				return;
+			}
+#endif
 		}
 	}
 }

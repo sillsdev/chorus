@@ -918,7 +918,7 @@ namespace Rainbow.HtmlDiffEngine
 				else
 					++bwdMin;
 
-				if(bwdMax < maxDiag)
+				if(bwdMax < (maxDiag - 1))
 					bwdVector[++bwdMax +1] = int.MaxValue;
 				else
 					--bwdMax;

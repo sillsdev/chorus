@@ -1,11 +1,10 @@
-﻿using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.Windows.Forms;
 using Chorus.UI.Clone;
-using Chorus.Utilities;
-using Chorus.Utilities.UsbDrive;
 using Chorus.VcsDrivers.Mercurial;
 using NUnit.Framework;
+using Palaso.Progress;
+using Palaso.TestUtilities;
 
 namespace Chorus.Tests.UI.Clone
 {
@@ -55,7 +54,7 @@ namespace Chorus.Tests.UI.Clone
 		[Test, Ignore("Run by hand only")]
 		public void LaunchDialog_CustomUrlSourceWontBeFound()//gives HTTP Error 404: Not Found
 		{
-			using (var source = new TempFolder("CloneDialogTest"))
+			using (var source = new TemporaryFolder("CloneDialogTest"))
 			{
 				Directory.CreateDirectory(source.Combine("repo1"));
 				HgRepository.CreateRepositoryInExistingDir(source.Combine("repo1"), new NullProgress());
@@ -66,7 +65,7 @@ namespace Chorus.Tests.UI.Clone
 		[Test, Ignore("Run by hand only")]
 		public void LaunchDialog_CustomSourceWillBeFound()
 		{
-			using (var source = new TempFolder("CloneDialogTest"))
+			using (var source = new TemporaryFolder("CloneDialogTest"))
 			{
 				Directory.CreateDirectory(source.Combine("repo1"));
 				HgRepository.CreateRepositoryInExistingDir(source.Combine("repo1"), new NullProgress());
@@ -76,7 +75,7 @@ namespace Chorus.Tests.UI.Clone
 
 		private void LaunchCustomUrl(string url)
 		{
-			using (var targetComputer = new TempFolder("clonetest-targetComputer"))
+			using (var targetComputer = new TemporaryFolder("clonetest-targetComputer"))
 			{
 				var model = new GetCloneFromInternetModel(targetComputer.Path);
 				model.InitFromUri(url);
@@ -103,8 +102,8 @@ namespace Chorus.Tests.UI.Clone
 
 		private void Launch()
 		{
-			using (var targetComputer = new TempFolder("clonetest-targetComputer"))
-			using (var dest = new TempFolder("clonetest"))
+			using (var targetComputer = new TemporaryFolder("clonetest-targetComputer"))
+			using (var dest = new TemporaryFolder("clonetest"))
 			{
 				Directory.CreateDirectory(dest.Combine("repo1"));
 				HgRepository.CreateRepositoryInExistingDir(dest.Combine("repo1"), new NullProgress());

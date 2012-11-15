@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Windows.Forms;
-using Chorus.Utilities;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using System.Linq;
+using Palaso.Progress;
 
 namespace Chorus.UI.Settings
 {
@@ -17,6 +17,21 @@ namespace Chorus.UI.Settings
 		{
 			_repository = repository;
 		}
+
+		/// <summary>
+		/// User preference for showing the Internet Button on Send/Receive
+		/// </summary>
+		public bool DisplayInternetButton { get; set; }
+
+		/// <summary>
+		/// User preference for showing the Shared Folder Button on Send/Receive
+		/// </summary>
+		public bool DisplaySharedFolderButton { get; set; }
+
+		/// <summary>
+		/// User preference for showing the USB Button on Send/Receive
+		/// </summary>
+		public bool DisplayUSBButton { get; set; }
 
 		public void SetUserName(string name, IProgress progress)
 		{
@@ -58,11 +73,18 @@ namespace Chorus.UI.Settings
 			{
 				var response = MessageBox.Show(
 					"Repository Paths is being cleared.  If you did that on purpose, fine, click 'Yes'.  If not, please click 'No' and report this to issues@wesay.org (we're trying to track down a bug).",
-					"Pleaes confirm", MessageBoxButtons.YesNo);
+					"Please confirm", MessageBoxButtons.YesNo);
 				if(response == DialogResult.No)
 					return;
 			}
 			_repository.SetKnownRepositoryAddresses(aliases);
+		}
+
+		internal void SaveSettings()
+		{
+			//The repository settings are already done directly
+
+
 		}
 	}
 }

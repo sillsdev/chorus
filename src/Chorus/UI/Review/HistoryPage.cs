@@ -1,14 +1,20 @@
-﻿using System.Windows.Forms;
+﻿using System;
+using System.Windows.Forms;
 using Chorus.UI.Review.ChangedReport;
 using Chorus.UI.Review.ChangesInRevision;
 using Chorus.UI.Review.RevisionsInRepository;
+using Chorus.VcsDrivers.Mercurial;
 
 namespace Chorus.UI.Review
 {
 	public partial class HistoryPage : UserControl
 	{
+		public delegate HistoryPage Factory(HistoryPageOptions options);//used by autofac
 
-		public HistoryPage(RevisionsInRepositoryView revisionsInRepositoryView, ChangesInRevisionView changesInRevisionView, ChangeReportView changeReportView)
+		public HistoryPage(RevisionInRepositoryModel.Factory revisionsInRepositoryModelFactory,
+			ChangesInRevisionView changesInRevisionView,
+			ChangeReportView changeReportView,
+			HistoryPageOptions options)
 		{
 			InitializeComponent();
 
@@ -16,9 +22,6 @@ namespace Chorus.UI.Review
 			this.Padding = new Padding(20, 20,20,20);
 			var lowerContainer = new SplitContainer();
 			lowerContainer.Orientation = Orientation.Vertical;
-			lowerContainer.Dock = DockStyle.Fill;
-			changesInRevisionView.Dock = DockStyle.Fill;
-			changeReportView.Dock = DockStyle.Fill;
 
 //             var group = new GroupBox();
 //             group.Text = "Changes in Revision";
@@ -28,15 +31,24 @@ namespace Chorus.UI.Review
 			lowerContainer.Panel1.Controls.Add(changesInRevisionView);
 			lowerContainer.Panel2.Controls.Add(changeReportView);
 
+			var revisionListModel = revisionsInRepositoryModelFactory(options.RevisionListOptions);
+			var revisionsInRepositoryView = new RevisionsInRepositoryView(revisionListModel);
 
-			var verticalContainer = new SplitContainer();
-			verticalContainer.Orientation = Orientation.Horizontal;
+			var mainContainer = new SplitContainer();
+			mainContainer.Orientation = Orientation.Horizontal;
+
+			mainContainer.Panel1.Controls.Add(revisionsInRepositoryView);
+			mainContainer.Panel2.Controls.Add(lowerContainer);
+			mainContainer.Dock = DockStyle.Fill;
+
+			lowerContainer.Dock = DockStyle.Fill;
+			changesInRevisionView.Dock = DockStyle.Fill;
+			changeReportView.Dock = DockStyle.Fill;
 			revisionsInRepositoryView.Dock = DockStyle.Fill;
-			verticalContainer.Panel1.Controls.Add(revisionsInRepositoryView);
-			verticalContainer.Panel2.Controls.Add(lowerContainer);
-			verticalContainer.Dock = DockStyle.Fill;
-			Controls.Add(verticalContainer);
+
+			Controls.Add(mainContainer);
 			ResumeLayout();
 		}
 	}
+
 }

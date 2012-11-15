@@ -2,10 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Xml;
 using Chorus.notes;
-using Chorus.Utilities;
 using NUnit.Framework;
+using Palaso.IO;
+using Palaso.Progress;
+using Palaso.Reporting;
 
 namespace LibChorus.Tests.notes
 {
@@ -14,10 +15,13 @@ namespace LibChorus.Tests.notes
 	{
 		private IProgress _progress = new ConsoleProgress();
 
-		[Test, ExpectedException(typeof(ArgumentException))]
+		[Test]
 		public void FromPath_ParentDirectoryPathDoesntExist_Throws()
 		{
-			AnnotationRepository.FromFile("id", Path.Combine("blah","bogus.xml"), new ConsoleProgress());
+			Assert.Throws<ArgumentException>(() =>
+
+											 AnnotationRepository.FromFile("id", Path.Combine("blah", "bogus.xml"),
+																		   new ConsoleProgress()));
 		}
 
 		[Test]
@@ -32,16 +36,34 @@ namespace LibChorus.Tests.notes
 			}
 		}
 
-		[Test, ExpectedException(typeof(AnnotationFormatException))]
-		public void FromString_FormatIsTooNew_Throws()
+		[Test]
+		public void Save_DoesntExistYet_CreatesAndSavesAsCanonicalXml()
 		{
-			AnnotationRepository.FromString("id", "<notes version='99'/>");
+			string expected = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n"
+				+ "<notes\r\n"
+				+ "\tversion=\"0\" />";
+			using (var f = new TempFile())
+			{
+				File.Delete(f.Path);
+				var repo = AnnotationRepository.FromFile("id", f.Path, new ConsoleProgress());
+				repo.Save(new ConsoleProgress());
+				string result = File.ReadAllText(f.Path);
+				Assert.AreEqual(expected, result);
+			}
 		}
 
-		[Test, ExpectedException(typeof(AnnotationFormatException))]
+		[Test]
+		public void FromString_FormatIsTooNew_Throws()
+		{
+			Assert.Throws<AnnotationFormatException>(() =>
+													 AnnotationRepository.FromString("id", "<notes version='99'/>"));
+		}
+
+		[Test]
 		public void FromString_FormatIsBadXml_Throws()
 		{
-			AnnotationRepository.FromString("id", "<notes version='99'>");
+			Assert.Throws<AnnotationFormatException>(() =>
+				AnnotationRepository.FromString("id", "<notes version='99'>"));
 		}
 
 		[Test]
@@ -91,13 +113,15 @@ namespace LibChorus.Tests.notes
 			}
 		}
 
-		[Test, ExpectedException(typeof(InvalidOperationException))]
-		public void Save_AfterCreatingFromString_Throws()
+		[Test]
+		public void Save_AfterCreatingFromString_GivesMessage()
 		{
+			using(new ErrorReport.NonFatalErrorReportExpected())
 			using (var r =AnnotationRepository.FromString("id", @"<notes version='0'><annotation guid='123'>
 <message guid='234'>&lt;p&gt;hello</message></annotation></notes>"))
 			{
-				r.Save(new ConsoleProgress());
+			  //  Assert.Throws<InvalidOperationException>(() =>
+					r.Save(new ConsoleProgress());
 			}
 		}
 
@@ -124,7 +148,7 @@ namespace LibChorus.Tests.notes
 
 		#region IndexHandlingTests
 
-		[Test, ExpectedException(typeof(ApplicationException))]
+		[Test]
 		public void AddIndex_AddSameIndexTwice_Throws()
 		{
 			using (var r = AnnotationRepository.FromString("id", @"<notes version='0'/>"))
@@ -132,7 +156,7 @@ namespace LibChorus.Tests.notes
 				var index1 = new IndexOfAllOpenConflicts();
 				r.AddObserver(index1, _progress);
 				var index2 = new IndexOfAllOpenConflicts();
-				r.AddObserver(index2, _progress);
+			  Assert.Throws<ApplicationException>(() => r.AddObserver(index2, _progress));
 			}
 		}
 
@@ -261,7 +285,7 @@ namespace LibChorus.Tests.notes
 				r.Save(new NullProgress());
 				w.Stop();
 				Console.WriteLine("Elapsed Time:"+w.ElapsedMilliseconds.ToString()+" milliseconds");
-				Assert.IsTrue(w.ElapsedMilliseconds < 200); //it's around 70 on my laptop
+				Assert.IsTrue(w.ElapsedMilliseconds < 250); //it's around 70 on my laptop, and around 225 on mono desktop
 
 				w.Reset();
 				Console.WriteLine("Reading Large File...");
@@ -269,7 +293,7 @@ namespace LibChorus.Tests.notes
 				var rToRead = AnnotationRepository.FromFile("id", f.Path, new NullProgress());
 				w.Stop();
 				Console.WriteLine("Elapsed Time:"+w.ElapsedMilliseconds.ToString()+" milliseconds");
-				Assert.IsTrue(w.ElapsedMilliseconds < 1000); //it's around 240 on my laptop
+				Assert.IsTrue(w.ElapsedMilliseconds < 1000); //it's around 240 on my laptop, and around 800 on mono desktop
 			}
 		}
 

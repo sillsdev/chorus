@@ -50,7 +50,7 @@ namespace Chorus.UI.Notes
 				// we can do some parsing for extra bits that XSLT won't do.
 				a.AddParam("xmlinput", string.Empty, element.ToString());
 				var stringBuilder = new StringBuilder();
-				XmlWriter xmlWriter = XmlWriter.Create(stringBuilder);
+				XmlWriter xmlWriter = XmlWriter.Create(stringBuilder); // Target not a chorus file so Palaso.Xml.CanonicalXmlSettings not needed here.
 				xslCompiledTransform.Transform(element.CreateReader(), a, xmlWriter);
 				return stringBuilder.ToString();
 			}
