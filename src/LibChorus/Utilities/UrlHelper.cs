@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using Palaso.Reporting;
 
 namespace Chorus.Utilities
 {
@@ -47,6 +48,9 @@ namespace Chorus.Utilities
 			if(String.IsNullOrEmpty(url))
 				return defaultIfCannotGetIt;
 
+			if (url == "unknown") //some previous step couldn't come up with the url... review: why not just string.empty then? see CHR-2
+				return defaultIfCannotGetIt;
+
 			string originalUrl = url;
 			try
 			{
@@ -60,7 +64,7 @@ namespace Chorus.Utilities
 				{
 					//Could not parse the url lift://FTeam.lift?type=entry&label=نویس&id=e824f0ae-6d36-4c52-b30b-eb845d6c120a
 
-					var parse = System.Web.HttpUtility.ParseQueryString(uri.Query);
+					var parse = Palaso.Network.HttpUtilityFromMono.ParseQueryString(uri.Query);
 
 					var r = parse.GetValues(name);
 					var label = r == null ? defaultIfCannotGetIt : r.First();
@@ -71,8 +75,7 @@ namespace Chorus.Utilities
 			{
 #if DEBUG
 				var message = String.Format("Debug mode only: GetValueFromQueryStringOfRef({0},{1}) {2}", originalUrl, name, e.Message);
-				Debug.Fail(message);
-				throw new ApplicationException(message,e);//vs2010 is not actually showing a failure box for me, so next hope is to throw
+				ErrorReport.NotifyUserOfProblem(new Palaso.Reporting.ShowOncePerSessionBasedOnExactMessagePolicy(), message);
 #endif
 				return defaultIfCannotGetIt;
 			}
@@ -89,7 +92,7 @@ namespace Chorus.Utilities
 		{
 			int startOfQuery = url.IndexOf('?');
 			if (startOfQuery < 0)
-				return url;
+				startOfQuery = url.Length;
 			string host = url.Substring(0, startOfQuery);
 			string rest = url.Substring(startOfQuery, url.Length - startOfQuery);
 			return host.Replace("%20", "").Replace(" ",String.Empty) + rest;

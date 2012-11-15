@@ -1,20 +1,18 @@
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
-using Palaso.Code;
-using Palaso.Progress.LogBox;
+using System.Text;
 
-namespace Chorus.VcsDrivers.Git
+#if notyet
+namespace Chorus
 {
-	/// <summary>
-	/// Implementation if IDVCSRepository interface which uses Git for DVCS.
-	/// </summary>
-	internal class GitRepository : IDVCSRepository
+	public partial class GitRepository
 	{
-		private readonly string _pathToRepository;
-		private readonly string _userName;
-		private IProgress _progress;
+		protected readonly string _pathToRepository;
+		protected readonly string _userName;
 
-#if TODO
+
 		protected RevisionDescriptor GetMyHead()
 		{
 //            using (new ConsoleProgress("Getting real head of {0}", _userName))
@@ -26,6 +24,7 @@ namespace Chorus.VcsDrivers.Git
 //                return descriptor;
 //            }
 		}
+
 
 		public static GitRepository CreateNewDirectoryAndRepository(string parentDirOfNewRepository, string userName)
 		{
@@ -51,9 +50,8 @@ namespace Chorus.VcsDrivers.Git
 				File.WriteAllText(fake, DateTime.Now.Ticks.ToString().Substring(14));
 				AddAndCheckinFile(fake);
 		}
-#endif
 
-		private void UpdateFake()
+		protected void UpdateFake()
 		{
 			//hack to force a changeset
 			string fake = Path.Combine(_pathToRepository, _userName + "_fake");
@@ -61,7 +59,6 @@ namespace Chorus.VcsDrivers.Git
 			File.WriteAllText(fake, DateTime.Now.Ticks.ToString().Substring(14));
 		}
 
-#if TODO
 		public static GitRepository CreateNewByCloning(GitRepository sourceRepo, string parentDirOfNewRepository, string newPersonName)
 		{
 			string repositoryPath = Path.Combine(parentDirOfNewRepository, newPersonName );
@@ -74,7 +71,6 @@ namespace Chorus.VcsDrivers.Git
 				return repository;
 			}
 		}
-#endif
 
 		private static string MakeDirectoryForUser(string parentDirOfNewRepository, string userName)
 		{
@@ -83,21 +79,19 @@ namespace Chorus.VcsDrivers.Git
 			return repositoryPath;
 		}
 
-		internal GitRepository(string pathToRepository, IProgress progress)
+
+
+		public GitRepository(string pathToRepository, string userName /*todo: figure this out from the repo*/)
 		{
-			Guard.AgainstNull(progress, "progress");
 			_pathToRepository = pathToRepository;
+			_userName = userName; //todo: figure out the user name from the repo
 
-			//// Make sure it exists
-			//if (GetIsLocalUri(_pathToRepository) && !Directory.Exists(_pathToRepository))
-			//    Directory.CreateDirectory(_pathToRepository);
-
-			_progress = progress;
-
-			//_userName = GetUserIdInUse();
+//            _progress.WriteMessage(
+//                "ATTENTION: if the real kdiff3.exe comes up while running this, you're doomed.  Find it and rename it.");
 		}
 
-#if TODO
+
+
 		static private void SetupPerson(string pathToRepository, string userName)
 		{
 			using (new ConsoleProgress("setting name and branch"))
@@ -109,13 +103,14 @@ namespace Chorus.VcsDrivers.Git
 		}
 
 
-		private void PullFromRepository(GitRepository otherRepository)
+		protected void PullFromRepository(GitRepository otherRepository)
 		{
 			using (new ConsoleProgress("{0} pulling from {1}", _userName,otherRepository.UserName))
 			{
 				Execute("pull", _pathToRepository, otherRepository.PathWithQuotes);
 			}
 		}
+
 
 		private List<RevisionDescriptor> GetBranches()
 		{
@@ -146,7 +141,7 @@ namespace Chorus.VcsDrivers.Git
 //            return GetRevisionsFromQuery("tip")[0];
 //        }
 
-		private List<RevisionDescriptor> GetHeads()
+		protected List<RevisionDescriptor> GetHeads()
 		{
 			using (new ConsoleProgress("Getting heads of {0}", _userName))
 			{
@@ -160,7 +155,8 @@ namespace Chorus.VcsDrivers.Git
 			return RevisionDescriptor.GetRevisionsFromQueryOutput(result);
 		}
 
-		private static string GetTextFromQuery(string repositoryPath, string s)
+
+		protected static string GetTextFromQuery(string repositoryPath, string s)
 		{
 			ExecutionResult result= ExecuteErrorsOk(s + " -R " + SurroundWithQuotes(repositoryPath));
 			Debug.Assert(string.IsNullOrEmpty(result.StandardError), result.StandardError);
@@ -203,6 +199,7 @@ namespace Chorus.VcsDrivers.Git
 			}
 		}
 
+
 		public void Branch(string branchName)
 		{
 			using (new ConsoleProgress("{0} changing working dir to branch: {1}", _userName, branchName))
@@ -211,12 +208,11 @@ namespace Chorus.VcsDrivers.Git
 			}
 		}
 
-		private static ExecutionResult Execute(string cmd, string repositoryPath, params string[] rest)
+		protected static ExecutionResult Execute(string cmd, string repositoryPath, params string[] rest)
 		{
 			return Execute(false, cmd, repositoryPath, rest);
 		}
-
-		private static ExecutionResult Execute(bool failureIsOk, string cmd, string repositoryPath, params string[] rest)
+		protected static ExecutionResult Execute(bool failureIsOk, string cmd, string repositoryPath, params string[] rest)
 		{
 			StringBuilder b = new StringBuilder();
 			b.Append(cmd + " ");
@@ -244,15 +240,16 @@ namespace Chorus.VcsDrivers.Git
 			return result;
 		}
 
-		private static ExecutionResult ExecuteErrorsOk(string command)
+
+		protected static ExecutionResult ExecuteErrorsOk(string command)
 		{
 			_progress.WriteMessage("git "+command);
 
 			return WrapShellCall.WrapShellCallRunner.Run("git " + command);
 		}
-#endif
 
-		private static string SurroundWithQuotes(string path)
+
+		protected static string SurroundWithQuotes(string path)
 		{
 			return "\"" + path + "\"";
 		}
@@ -280,7 +277,6 @@ namespace Chorus.VcsDrivers.Git
 			return Path.Combine(_pathToRepository, name);
 		}
 
-#if TODO
 		public List<string> GetChangedFiles()
 		{
 			ExecutionResult result= Execute("status", _pathToRepository);
@@ -319,18 +315,6 @@ namespace Chorus.VcsDrivers.Git
 
 			Execute("is it show?", _pathToRepository, "-o ",fullOutputPath," -r ",revision,absolutePathToFile);
 		}
-#endif
-
-		#region Implementation of IDVCSRepository
-
-		/// <summary>
-		/// Initialize a newly created repository.
-		/// </summary>
-		public void Init(string newRepositoryPath, IProgress progress)
-		{
-			throw new NotImplementedException();
-		}
-
-		#endregion
 	}
 }
+#endif

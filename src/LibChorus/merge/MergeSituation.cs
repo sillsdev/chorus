@@ -1,21 +1,32 @@
 using System;
 using System.IO;
-using System.Text;
 using System.Xml;
-using Chorus.merge.xml.generic;
+using Palaso.Xml;
 
 namespace Chorus.merge
 {
 	/// <summary>
 	/// for unit tests that don't need this
 	/// </summary>
-	public class NullMergeSituation: MergeSituation
+	public class NullMergeSituation : MergeSituation
 	{
 		public NullMergeSituation()
 			: base(null, null, null, null, null, MergeOrder.ConflictHandlingModeChoices.WeWin)
 		{
 		}
 	}
+
+	/// <summary>
+	/// for unit tests that don't need this
+	/// </summary>
+	public class NullMergeSituationTheyWin : MergeSituation
+	{
+		public NullMergeSituationTheyWin()
+			: base(null, null, null, null, null, MergeOrder.ConflictHandlingModeChoices.TheyWin)
+		{
+		}
+	}
+
 	/// <summary>
 	/// The context for the conflict that occurred.
 	/// This information will be useful to help the user later determined exactly what happened.

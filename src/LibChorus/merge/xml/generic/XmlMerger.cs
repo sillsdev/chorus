@@ -1,12 +1,10 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Xml;
-using Chorus.FileTypeHanders.text;
 
 namespace Chorus.merge.xml.generic
 {
-	 public class NodeMergeResult : ChangeAndConflictAccumulator
+	public class NodeMergeResult : ChangeAndConflictAccumulator
 		{
 				public XmlNode MergedNode { get; internal set; }
 		}
@@ -17,6 +15,15 @@ namespace Chorus.merge.xml.generic
 		public MergeSituation MergeSituation{ get; set;}
 		public MergeStrategies MergeStrategies { get; set; }
 
+		/// <summary>
+		/// The nodes we were merging on the last MergeChildren call; these (specifically _oursContext) are the
+		/// nodes that are the basis of the Context we set in calling the Listener's EnteringContext method.
+		/// They are used to allow any Conflict objects we generate to BuildHtmlDetails.
+		/// </summary>
+		private XmlNode _oursContext, _theirsContext, _ancestorContext;
+
+		private IGenerateHtmlContext _htmlContextGenerator;
+
 		public XmlMerger(MergeSituation mergeSituation)
 		{
 			MergeSituation = mergeSituation;
@@ -24,11 +31,10 @@ namespace Chorus.merge.xml.generic
 			MergeStrategies = new MergeStrategies();
 		}
 
-
 		public NodeMergeResult Merge(XmlNode ours, XmlNode theirs, XmlNode ancestor)
 		{
 			var result = new NodeMergeResult();
-			if (EventListener != null && EventListener is DispatchingMergeEventListener)
+			if (EventListener is DispatchingMergeEventListener)
 			{
 				((DispatchingMergeEventListener)EventListener).AddEventListener(result);
 			}
@@ -42,12 +48,16 @@ namespace Chorus.merge.xml.generic
 				}
 				EventListener = dispatcher;
 			}
+
+			// Remove any duplicate child nodes in all three.
+			XmlMergeService.RemoveAmbiguousChildren(EventListener, MergeStrategies, ours);
+			XmlMergeService.RemoveAmbiguousChildren(EventListener, MergeStrategies, theirs);
+			//XmlMergeService.RemoveAmbiguousChildren(EventListener, MergeStrategies, ancestor);
+
 			MergeInner(ref ours, theirs, ancestor);
 			result.MergedNode = ours;
 			return result;
 		}
-
-		//review: don't know if this is going to want the result or not
 
 		public XmlNode Merge(IMergeEventListener eventListener, XmlNode ours, XmlNode theirs, XmlNode ancestor)
 		{
@@ -56,17 +66,104 @@ namespace Chorus.merge.xml.generic
 			return ours;
 		}
 
+		internal void ConflictOccurred(IConflict conflict)
+		{
+			if (_htmlContextGenerator == null)
+				_htmlContextGenerator = new SimpleHtmlGenerator();
+
+			XmlMergeService.AddConflictToListener(
+				EventListener,
+				conflict,
+				_oursContext,
+				_theirsContext,
+				_ancestorContext,
+				_htmlContextGenerator);
+		}
+
+		internal void WarningOccurred(IConflict warning)
+		{
+			if (_htmlContextGenerator == null)
+				_htmlContextGenerator = new SimpleHtmlGenerator();
+
+			XmlMergeService.AddWarningToListener(
+				EventListener,
+				warning,
+				_oursContext,
+				_theirsContext,
+				_ancestorContext,
+				_htmlContextGenerator);
+		}
+
 		/// <summary>
 		/// This method does the actual work for the various public entry points of XmlMerge
-		/// and from the MergeChildrenMethod class, as it processes child nodes.
+		/// and from the various Method-type classes, as it processes child nodes, if any.
 		/// </summary>
 		internal void MergeInner(ref XmlNode ours, XmlNode theirs, XmlNode ancestor)
 		{
-			if (MergeAtomicElementService.Run(this, ref ours, theirs, ancestor))
+			_oursContext = ours;
+			_theirsContext = theirs;
+			_ancestorContext = ancestor;
+
+			var elementStrat = MergeStrategies.GetElementStrategy(ours ?? theirs ?? ancestor);
+			if (elementStrat.IsImmutable)
+				return; // Can't merge something that can't change.
+
+			if (elementStrat.IsAtomic)
+			{
+				MergeAtomicElementService.Run(this, ref ours, theirs, ancestor);
+				return;
+			}
+
+			MergeXmlAttributesService.MergeAttributes(this, ref ours, theirs, ancestor);
+
+			// It could be possible for the elements to have no children, in which case, there is nothing more to merge, so just return.
+			if (ours != null && !ours.HasChildNodes && theirs != null && !theirs.HasChildNodes && ancestor != null && !ancestor.HasChildNodes)
 				return;
 
-			MergeAttributes(ref ours, theirs, ancestor);
-			MergeChildren(ref ours, theirs, ancestor);
+			var generator = elementStrat.ContextDescriptorGenerator;
+			if (generator != null)
+			{
+				//review: question: does this not get called at levels below the entry?
+				//this would seem to fail at, say, a sense. I'm confused. (JH 30june09)
+				ContextDescriptor descriptor;
+				if (generator is IGenerateContextDescriptorFromNode)
+				{
+					// If the generator prefers the XmlNode, get the context that way.
+					descriptor = ((IGenerateContextDescriptorFromNode)generator).GenerateContextDescriptor(ours,
+						MergeSituation.PathToFileInRepository);
+				}
+				else
+				{
+					descriptor = generator.GenerateContextDescriptor(ours.OuterXml, MergeSituation.PathToFileInRepository);
+				}
+				EventListener.EnteringContext(descriptor);
+				_htmlContextGenerator = (generator as IGenerateHtmlContext); // null is OK.
+			}
+
+			if (XmlUtilities.IsTextLevel(ours, theirs, ancestor))
+			{
+				new MergeTextNodesMethod(this, elementStrat, new HashSet<XmlNode>(), ref ours, new List<XmlNode>(), theirs, new List<XmlNode>(), ancestor, new List<XmlNode>()).Run();
+			}
+			else
+			{
+				switch (elementStrat.NumberOfChildren)
+				{
+					case NumberOfChildrenAllowed.Zero:
+					case NumberOfChildrenAllowed.ZeroOrOne:
+						MergeLimitedChildrenService.Run(this, elementStrat, ref ours, theirs, ancestor);
+						break;
+					case NumberOfChildrenAllowed.ZeroOrMore:
+						//is this a level of the xml file that would consitute the minimal unit conflict-understanding
+						//from a user perspecitve?
+						//e.g., in a dictionary, this is the lexical entry.  In a text, it might be  a paragraph.
+						new MergeChildrenMethod(ours, theirs, ancestor, this).Run();
+						break;
+				}
+			}
+			// At some point, it may be necessary here to restore the pre-existing values of
+			// _oursContext, _theirsContext, _ancestorContext, and _htmlContextGenerator.
+			// and somehow restore the EventListener's Context.
+			// Currently however no client generates further conflicts after calling MergeChildren.
 		}
 
 		public NodeMergeResult Merge(string ourXml, string theirXml, string ancestorXml)
@@ -105,220 +202,12 @@ namespace Chorus.merge.xml.generic
 					{
 						throw e;
 					}
-					//otherwise, it's likely an artifact of how hg seems to create an emty file
+					//otherwise, it's likely an artifact of how hg seems to create an empty file
 					//for the ancestor, if there wasn't one there before, and empty = not well-formed xml!
 				}
 			 }
 
 			return Merge(ourNode, theirNode, ancestorNode);
 		}
-
-		private static List<XmlAttribute> GetAttrs(XmlNode node)
-		{
-			//need to copy so we can iterate while changing
-			List<XmlAttribute> attrs = new List<XmlAttribute>();
-			foreach (XmlAttribute attr in node.Attributes)
-			{
-				attrs.Add(attr);
-			}
-			return attrs;
-		}
-
-		private static XmlAttribute GetAttributeOrNull(XmlNode node, string name)
-		{
-			if (node == null)
-				return null;
-			return node.Attributes.GetNamedItem(name) as XmlAttribute;
-		}
-
-		private void MergeAttributes(ref XmlNode ours, XmlNode theirs, XmlNode ancestor)
-		{
-			foreach (XmlAttribute theirAttr in GetAttrs(theirs))
-			{
-				XmlAttribute ourAttr = GetAttributeOrNull(ours, theirAttr.Name);
-				XmlAttribute ancestorAttr = GetAttributeOrNull(ancestor, theirAttr.Name);
-
-				if (ourAttr == null)
-				{
-					if (ancestorAttr == null)
-					{
-						var importedAttribute = (XmlAttribute)ours.OwnerDocument.ImportNode(theirAttr, true);
-						ours.Attributes.Append(importedAttribute);
-					}
-					else if (ancestorAttr.Value == theirAttr.Value)
-					{
-						continue; // we deleted it, they didn't touch it
-					}
-					else //we deleted it, but at the same time, they changed it. So just add theirs in, under the principle of
-						//least data loss (an attribute can be a huge text element)
-					{
-						var importedAttribute = (XmlAttribute)ours.OwnerDocument.ImportNode(theirAttr, true);
-						ours.Attributes.Append(importedAttribute);
-
-						EventListener.ConflictOccurred(new RemovedVsEditedAttributeConflict(theirAttr.Name, null, theirAttr.Value, ancestorAttr.Value, MergeSituation,
-							MergeSituation.BetaUserId));
-						continue;
-					}
-				}
-				else if (ancestorAttr == null) // we both introduced this attribute
-				{
-					if (ourAttr.Value == theirAttr.Value)
-					{
-						//nothing to do
-						continue;
-					}
-					else
-					{
-						EventListener.ConflictOccurred(new BothEditedAttributeConflict(theirAttr.Name, ourAttr.Value, theirAttr.Value, null,  MergeSituation,
-							MergeSituation.AlphaUserId));
-					}
-				}
-				else if (ancestorAttr.Value == ourAttr.Value)
-				{
-					if (ourAttr.Value == theirAttr.Value)
-					{
-						//nothing to do
-						continue;
-					}
-					else //theirs is a change
-					{
-						ourAttr.Value = theirAttr.Value;
-					}
-				}
-				else if (ourAttr.Value == theirAttr.Value)
-				{
-					//both changed to same value
-					continue;
-				}
-				else if (ancestorAttr.Value == theirAttr.Value)
-				{
-					//only we changed the value
-					continue;
-				}
-				else
-				{
-					var strat = this.MergeStrategies.GetElementStrategy(ours);
-
-					//for unit test see Merge_RealConflictPlusModDateConflict_ModDateNotReportedAsConflict()
-					if (strat == null || !strat.AttributesToIgnoreForMerging.Contains(ourAttr.Name))
-					{
-						EventListener.ConflictOccurred(new BothEditedAttributeConflict(theirAttr.Name, ourAttr.Value,
-																						theirAttr.Value,
-																						ancestorAttr.Value,
-																						MergeSituation,
-																						MergeSituation.AlphaUserId));
-					}
-				}
-			}
-
-			// deal with their deletions
-			foreach (XmlAttribute ourAttr in GetAttrs(ours))
-			{
-
-				XmlAttribute theirAttr = GetAttributeOrNull(theirs, ourAttr.Name);
-				XmlAttribute ancestorAttr = GetAttributeOrNull(ancestor,ourAttr.Name);
-
-				if (theirAttr == null && ancestorAttr != null)
-				{
-					if (ourAttr.Value == ancestorAttr.Value) //we didn't change it, they deleted it
-					{
-						ours.Attributes.Remove(ourAttr);
-					}
-					else
-					{
-						EventListener.ConflictOccurred(new RemovedVsEditedAttributeConflict(ourAttr.Name, ourAttr.Value, null, ancestorAttr.Value, MergeSituation, MergeSituation.AlphaUserId));
-					}
-				}
-			}
-		}
-
-		internal void MergeTextNodes(ref XmlNode ours, XmlNode theirs, XmlNode ancestor)
-		{
-
-			if (ours.InnerText.Trim() == theirs.InnerText.Trim())
-			{
-				return; // we agree
-			}
-			if (string.IsNullOrEmpty(ours.InnerText.Trim()))
-			{
-				if (ancestor == null || ancestor.InnerText ==null || ancestor.InnerText.Trim()==string.Empty)
-				{
-					ours.InnerText = theirs.InnerText; //we had it empty
-					return;
-				}
-				else  //we deleted it.
-				{
-					if (ancestor.InnerText.Trim() == theirs.InnerText.Trim())
-					{
-						//and they didn't touch it. So leave it deleted
-						return;
-					}
-					else
-					{
-						//they edited it. Keep theirs under the principle of least data loss.
-						ours.InnerText = theirs.InnerText;
-						EventListener.ConflictOccurred(new RemovedVsEditedTextConflict(ours, theirs, ancestor, MergeSituation,
-							MergeSituation.BetaUserId));
-						return;
-					}
-				}
-			}
-			else if ((ancestor == null) || (ours.InnerText != ancestor.InnerText))
-			{
-				//we're not empty, we edited it, and we don't equal theirs
-
-				EventListener.ChangeOccurred(new TextEditChangeReport(this.MergeSituation.PathToFileInRepository, SafelyGetStringTextNode(ancestor), SafelyGetStringTextNode(ours)));
-
-				if (theirs.InnerText == null || string.IsNullOrEmpty(theirs.InnerText.Trim()))
-				{
-					//we edited, they deleted it. Keep ours.
-					EventListener.ConflictOccurred(new RemovedVsEditedTextConflict(ours, theirs, ancestor, MergeSituation,
-						MergeSituation.AlphaUserId));
-					return;
-				}
-				else
-				{
-					// We know: ours is different from theirs; ours is not empty; ours is different from ancestor;
-					// theirs is not empty.
-					if (ancestor!=null && theirs.InnerText == ancestor.InnerText)
-						return; // we edited it, they did not, keep ours.
-					//both edited it. Keep ours, but report conflict.
-					EventListener.ConflictOccurred(new BothEditedTextConflict(ours, theirs, ancestor, MergeSituation, MergeSituation.AlphaUserId));
-					return;
-				}
-			}
-			else // we didn't edit it, they did
-			{
-				ours.InnerText = theirs.InnerText;
-			}
-		}
-
-		private static string SafelyGetStringTextNode(XmlNode node)
-		{
-			if(node==null || node.InnerText==null)
-				return String.Empty;
-			return node.InnerText.Trim();
-		}
-
-		private void MergeChildren(ref XmlNode ours, XmlNode theirs, XmlNode ancestor)
-		{
-			//is this a level of the xml file that would consitute the minimal unit conflict-understanding
-			//from a user perspecitve?
-			//e.g., in a dictionary, this is the lexical entry.  In a text, it might be  a paragraph.
-			var generator = MergeStrategies.GetElementStrategy(ours).ContextDescriptorGenerator;
-			if(generator!=null)
-			{
-				//review: question: does this not get called at levels below the entry?
-				//this would seem to fail at, say, a sense. I'm confused. (JH 30june09)
-
-				var descriptor = generator.GenerateContextDescriptor(ours.OuterXml, MergeSituation.PathToFileInRepository);
-				EventListener.EnteringContext(descriptor);
-			}
-
-			new MergeChildrenMethod(ours, theirs, ancestor, this).Run();
-		}
-
-
-
 	}
 }

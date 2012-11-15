@@ -2,7 +2,7 @@ using System.IO;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using NUnit.Framework;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
 using Palaso.TestUtilities;
 
 namespace LibChorus.Tests.sync
@@ -31,7 +31,7 @@ namespace LibChorus.Tests.sync
 		   // RobustNetworkOperation.ClearCredentialSettings();
 			using (var f = new TemporaryFolder("clonetest"))
 			{
-				HgRepository.Clone(_cloneableTestProjectUrl, f.Path, _progress);
+				HgRepository.Clone(new HttpRepositoryPath("cloneableTestProjectUrl", _cloneableTestProjectUrl, false), f.Path, _progress);
 				Assert.IsTrue(Directory.Exists(f.Combine(f.Path, ".hg")));
 			}
 		}
@@ -43,8 +43,9 @@ namespace LibChorus.Tests.sync
 			//RobustNetworkOperation.ClearCredentialSettings();
 			using (var f = new TemporaryFolder("pulltest"))
 			{
-				var repo = HgRepository.CreateOrLocate(f.Path, _progress);
-				repo.TryToPull("default", _cloneableTestProjectUrl);
+				var repo = HgRepository.CreateOrUseExisting(f.Path, _progress);
+				var address = new HttpRepositoryPath("default", _cloneableTestProjectUrl, false);
+				repo.Pull(address, _cloneableTestProjectUrl);
 				Assert.IsTrue(Directory.Exists(f.Combine(f.Path, ".hg")));
 			}
 		}
@@ -55,14 +56,14 @@ namespace LibChorus.Tests.sync
 		  //  RobustNetworkOperation.ClearCredentialSettings();
 			using (var f = new TemporaryFolder("pulltest"))
 			{
-				var repo = HgRepository.CreateOrLocate(f.Path, _progress);
-				repo.TryToPull("default", _cloneableTestProjectUrl);
+				var repo = HgRepository.CreateOrUseExisting(f.Path, _progress);
+				var address = new HttpRepositoryPath("default", _cloneableTestProjectUrl, false);
+				repo.Pull(address, _cloneableTestProjectUrl);
 				Assert.IsTrue(Directory.Exists(f.Combine(f.Path, ".hg")));
-				var address =RepositoryAddress.Create("default", _cloneableTestProjectUrl);
 
 				//nb: this is safe to do over an over, because it will just say "no changes found", never actually add a changeset
 
-				repo.Push(address, _cloneableTestProjectUrl, _progress);
+				repo.Push(address, _cloneableTestProjectUrl);
 			}
 		}
 	}

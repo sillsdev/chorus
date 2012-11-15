@@ -9,7 +9,7 @@ using Chorus.UI.Notes.Html;
 using Chorus.UI.Review;
 using NUnit.Framework;
 using Palaso.IO;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
 using Palaso.TestUtilities;
 
 namespace Chorus.Tests.notes
@@ -35,7 +35,7 @@ namespace Chorus.Tests.notes
 							It's fine.
 						</message>
 					</annotation>
-					<annotation ref='somwhere://foo?id=x' class='mergeConflict'>
+					<annotation ref='lift://name%20with%20space.lift?id=x' class='mergeConflict'>
 						<message guid='123' author='merger' status='open' date='2009-07-18T23:53:04Z'>
 							some description of the conflict
 						</message>
@@ -87,7 +87,7 @@ namespace Chorus.Tests.notes
 			using (var folder = new TemporaryFolder("NotesModelTests"))
 			using (new TempFileFromFolder(folder, "one." + AnnotationRepository.FileExtension,
 				@"<notes version='0'>
-					<annotation ref='somwhere://foo?label=korupsen' class='question'>
+					<annotation xref='somwhere://foo?label=korupsen' class='question'>
 						<message guid='123' author='john' status='open' date='2009-07-18T23:53:04Z'>
 							Suzie, is this ok?
 						</message>
@@ -95,7 +95,7 @@ namespace Chorus.Tests.notes
 							It's fine.
 						</message>
 					</annotation>
-					<annotation ref='somwhere://foo2' class='note'>
+					<annotation ref='lift://name%20with%20space.lift' class='note'>
 						<message guid='342' author='john' status='closed' date='2009-07-18T23:53:04Z'>
 							This is fun.
 						</message>

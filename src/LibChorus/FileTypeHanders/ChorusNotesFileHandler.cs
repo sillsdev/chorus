@@ -1,14 +1,15 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Xml;
 using Chorus.FileTypeHanders.xml;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
 using Chorus.VcsDrivers.Mercurial;
+using Chorus.notes;
 using Palaso.IO;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
+using Palaso.Xml;
 
 namespace Chorus.FileTypeHanders
 {
@@ -22,6 +23,9 @@ namespace Chorus.FileTypeHanders
 	/// </summary>
 	public class ChorusNotesFileHandler : IChorusFileTypeHandler
 	{
+		internal ChorusNotesFileHandler()
+		{ }
+
 		public bool CanDiffFile(string pathToFile)
 		{
 			return CanMergeFile(pathToFile);
@@ -49,17 +53,11 @@ namespace Chorus.FileTypeHanders
 
 		public void Do3WayMerge(MergeOrder order)
 		{
-			XmlMerger merger  = new XmlMerger(order.MergeSituation);
-			SetupElementStrategies(merger);
-			var r = merger.MergeFiles(order.pathToOurs, order.pathToTheirs, order.pathToCommonAncestor);
-			File.WriteAllText(order.pathToOurs, r.MergedNode.OuterXml);
-		}
-		private void SetupElementStrategies(XmlMerger merger)
-		{
-			merger.MergeStrategies.SetStrategy("annotation", ElementStrategy.CreateForKeyedElement("guid", false));
-			ElementStrategy messageStrategy = ElementStrategy.CreateForKeyedElement("guid", false);
-			messageStrategy.IsImmutable = true;
-			merger.MergeStrategies.SetStrategy("message", messageStrategy);
+			XmlMergeService.Do3WayMerge(order,
+				new ChorusNotesAnnotationMergingStrategy(order),
+				false,
+				null,
+				"annotation", "guid");
 		}
 
 		public IEnumerable<IChangeReport> Find2WayDifferences(FileInRevision parent, FileInRevision child, HgRepository repository)
@@ -74,13 +72,8 @@ namespace Chorus.FileTypeHanders
 			{
 				return new NotePresenter(report as IXmlChangeReport, repository);
 			}
-			else
-			{
-				return new DefaultChangePresenter(report, repository);
-			}
+			return new DefaultChangePresenter(report, repository);
 		}
-
-
 
 		public IEnumerable<IChangeReport> DescribeInitialContents(FileInRevision fileInRevision, TempFile file)
 		{
@@ -94,9 +87,13 @@ namespace Chorus.FileTypeHanders
 			}
 		}
 
+		/// <summary>
+		/// Get a list or one, or more, extensions this file type handler can process
+		/// </summary>
+		/// <returns>A collection of extensions (without leading period (.)) that can be processed.</returns>
 		public IEnumerable<string> GetExtensionsOfKnownTextFileTypes()
 		{
-			yield return ".ChorusNotes";
+			yield return AnnotationRepository.FileExtension;
 		}
 
 		/// <summary>

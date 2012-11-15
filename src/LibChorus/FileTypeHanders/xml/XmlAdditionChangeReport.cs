@@ -1,8 +1,8 @@
 using System;
 using System.Xml;
 using Chorus.merge;
-using Chorus.merge.xml.generic;
 using Chorus.VcsDrivers.Mercurial;
+using Palaso.Xml;
 
 namespace Chorus.FileTypeHanders.xml
 {
@@ -23,7 +23,6 @@ namespace Chorus.FileTypeHanders.xml
 			_addedElement = addedElement;
 			_url = url;
 		}
-
 
 		//when merging, the eventual revision is unknown
 		public XmlAdditionChangeReport(string fullPath, XmlNode addedElement)
@@ -76,11 +75,7 @@ namespace Chorus.FileTypeHanders.xml
 			if(r==null)
 				return false;
 			var otherGuid = r._addedElement.GetOptionalStringAttribute("guid",string.Empty);
-			// REVIEW JohnH(RandyR): Why is it checking 'guid' again, since it has done it already? Is it to supposed to check 'otherGuid' instead?
-			if (guid == string.Empty)
-				return base.Equals(obj);
-
-			return String.Equals(guid, otherGuid, StringComparison.InvariantCultureIgnoreCase); // Make sure case is ignored.
+			return otherGuid == string.Empty ? base.Equals(obj) : String.Equals(guid, otherGuid, StringComparison.OrdinalIgnoreCase);
 		}
 	}
 }

@@ -1,17 +1,19 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
 using Chorus.notes;
+using Chorus.sync;
 using NUnit.Framework;
 using Palaso.IO;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
 using Palaso.TestUtilities;
 
 namespace Chorus.Tests
 {
-	[TestFixture]
+	[TestFixture, RequiresSTA]
 	public class ChorusSystemTests
 	{
 		private TemporaryFolder _folder;
@@ -35,6 +37,7 @@ namespace Chorus.Tests
 				</notes>");
 
 			_system = new ChorusSystem(_folder.Path);
+			_system.Init(string.Empty);
 		}
 
 		[TearDown]
@@ -52,6 +55,7 @@ namespace Chorus.Tests
 		/// found at compile time
 		/// </summary>
 		[Test]
+		[Category("KnownMonoIssue")] //running CreateNotesBrowser twice in a mono test session causes a crash
 		public void CanShowNotesBrowserPage()
 		{
 			var page = _system.WinForms.CreateNotesBrowser();
@@ -69,6 +73,17 @@ namespace Chorus.Tests
 			ShowWindowWithControlThenClose(view);
 		}
 
+		/// <summary>
+		/// Regression test. Once, the autofac container was generating new ProjectFolderConfiguration's with each call
+		/// </summary>
+		[Test]
+		public void ProjectFolderConfiguration_IsNotNewEachMorning()
+		{
+			var originalCount = _system.ProjectFolderConfiguration.IncludePatterns.Count;
+			_system.ProjectFolderConfiguration.IncludePatterns.Add("x");
+			_system.ProjectFolderConfiguration.IncludePatterns.Add("y");
+			Assert.AreEqual(originalCount + 2,_system.ProjectFolderConfiguration.IncludePatterns.Count);
+		}
 
 		private static void ShowWindowWithControlThenClose(Control control)
 		{
@@ -91,6 +106,7 @@ namespace Chorus.Tests
 		/// This tests hat we're using the same repositories for all instances of Notes UI components
 		/// </summary>
 		[Test]
+		[Category("KnownMonoIssue")] //running CreateNotesBrowser twice in a mono test session causes a crash
 		public void GetNotesBarAndBrowser_MakeNewAnnotationWithBar_BrowserSeesIt()
 		{
 				NotesToRecordMapping mapping =  NotesToRecordMapping.SimpleForTest();

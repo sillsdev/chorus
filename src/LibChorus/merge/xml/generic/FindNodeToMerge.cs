@@ -1,8 +1,13 @@
+#define USEOPTIMIZEDVERSION
 using System;
 using System.Collections.Generic;
+#if USEOPTIMIZEDVERSION
+using System.Linq;
+#endif
 using System.Text;
 using System.Xml;
 using Chorus.merge.xml.generic.xmldiff;
+using Palaso.Code;
 
 
 namespace Chorus.merge.xml.generic
@@ -16,6 +21,25 @@ namespace Chorus.merge.xml.generic
 	}
 
 	/// <summary>
+	/// An additional interface that extends IFindNodeToMerge to return multiple matches.
+	/// </summary>
+	public interface IFindMatchingNodesToMerge : IFindNodeToMerge
+	{
+		/// <summary>
+		/// Get all matching nodes, or an empty collection, if there are no matches.
+		/// </summary>
+		/// <returns>A collection of zero, or more, matching nodes.</returns>
+		/// <remarks><paramref name="nodeToMatch" /> may, or may not, be a child of <paramref name="parentToSearchIn"/>.</remarks>
+		IEnumerable<XmlNode> GetMatchingNodes(XmlNode nodeToMatch, XmlNode parentToSearchIn);
+
+		/// <summary>
+		/// Get a basic message that is suitable for use in a warning report where ambiguous nodes are found in the same parent node.
+		/// </summary>
+		/// <returns>A message string or null/empty string, if no message is needed for ambiguous nodes.</returns>
+		string GetWarningMessageForAmbiguousNodes(XmlNode nodeForMessage);
+	}
+
+	/// <summary>
 	/// Defines a secondary algorithm for finding less ideal matches, e.g., we allow an empty
 	/// node to match a non-empty (but no duplicates).
 	/// </summary>
@@ -24,15 +48,136 @@ namespace Chorus.merge.xml.generic
 		XmlNode GetPossibleNodeToMerge(XmlNode nodeToMatch, List<XmlNode> possibleMatches);
 	}
 
-	public class FindByKeyAttribute : IFindNodeToMerge
+	public class FindByKeyAttribute : IFindMatchingNodesToMerge
 	{
-		private string _keyAttribute;
+		private readonly string _keyAttribute;
+#if USEOPTIMIZEDVERSION
+		private readonly List<XmlNode> _parentsToSearchIn = new List<XmlNode>();
+		private readonly Dictionary<int, Dictionary<string, XmlNode>> _indexedSoughtAfterNodes = new Dictionary<int, Dictionary<string, XmlNode>>();
+#endif
 
 		public FindByKeyAttribute(string keyAttribute)
 		{
 			_keyAttribute = keyAttribute;
 		}
 
+		public XmlNode GetNodeToMerge(XmlNode nodeToMatch, XmlNode parentToSearchIn)
+		{
+			if (parentToSearchIn == null)
+				return null;
+
+			var key = XmlUtilities.GetOptionalAttributeString(nodeToMatch, _keyAttribute);
+			if (string.IsNullOrEmpty(key))
+			{
+				return null;
+			}
+
+#if USEOPTIMIZEDVERSION
+			var parentIdx = _parentsToSearchIn.IndexOf(parentToSearchIn);
+			if (parentIdx == -1)
+			{
+				_parentsToSearchIn.Add(parentToSearchIn);
+				parentIdx = _parentsToSearchIn.IndexOf(parentToSearchIn);
+				var childrenWithKeys = new Dictionary<string, XmlNode>(); // StringComparer.OrdinalIgnoreCase NO: Bad idea, since I (RBR) saw a case in a data file that had both upper and lower-cased variations.
+				_indexedSoughtAfterNodes.Add(parentIdx, childrenWithKeys);
+				var matchingName = nodeToMatch.Name;
+				var childrenWithKeyAttr = (from XmlNode childNode in parentToSearchIn.ChildNodes
+										   where childNode.Name == matchingName && childNode.Attributes[_keyAttribute] != null
+										   select childNode).ToList();
+				foreach (var nodeWithKeyAttribute in childrenWithKeyAttr)
+				{
+					childrenWithKeys.Add(nodeWithKeyAttribute.Attributes[_keyAttribute].Value, nodeWithKeyAttribute);
+			}
+			}
+
+			XmlNode matchingNode;
+			_indexedSoughtAfterNodes[parentIdx].TryGetValue(key, out matchingNode);
+			return matchingNode; // May be null, which is fine.
+#else
+			var matches = GetMatchingNodes(nodeToMatch, parentToSearchIn).toList();
+			return (matches.Count > 0) ? matches[0] : null;
+#endif
+		}
+
+		/// <summary>
+		/// Get all matching nodes, or an empty collection, if there are no matches.
+		/// </summary>
+		/// <returns>A collection of zero, or more, matching nodes.</returns>
+		/// <remarks><paramref name="nodeToMatch" /> may, or may not, be a child of <paramref name="parentToSearchIn"/>.</remarks>
+		public IEnumerable<XmlNode> GetMatchingNodes(XmlNode nodeToMatch, XmlNode parentToSearchIn)
+		{
+			if (parentToSearchIn == null)
+				return new List<XmlNode>();
+
+			var key = XmlUtilities.GetOptionalAttributeString(nodeToMatch, _keyAttribute);
+			if (string.IsNullOrEmpty(key))
+			{
+				return new List<XmlNode>();
+			}
+
+			var matches = new List<XmlNode>();
+			foreach (XmlNode childNode in parentToSearchIn.ChildNodes)
+			{
+				if (childNode.NodeType != XmlNodeType.Element)
+					continue;
+				if (nodeToMatch == childNode)
+				{
+					matches.Add(childNode);
+					continue;
+				}
+				var keyAttr = childNode.Attributes[_keyAttribute];
+				if (keyAttr == null || keyAttr.Value != key)
+					continue;
+				matches.Add(childNode);
+			}
+			return matches;
+		}
+
+		/// <summary>
+		/// Get a basic message that is suitable for use in a warning report where ambiguous nodes are found in the same parent node.
+		/// </summary>
+		/// <returns>A message string or null/empty string, if no message is needed for ambiguous nodes.</returns>
+		public string GetWarningMessageForAmbiguousNodes(XmlNode nodeForMessage)
+		{
+			Guard.AgainstNull(nodeForMessage, "nodeForMessage");
+
+			return string.Format("The key attribute '{0}' has values that are the same '{1}'",
+				_keyAttribute, nodeForMessage.Attributes[_keyAttribute].Value);
+		}
+	}
+
+	/// <summary>
+	/// Assuming the children of the parent to search in form a list (order matters, duplicates allowed), and so do the
+	/// children of the nodeToMatch, find the corresponding object in the list. A corresponding node will have the same key,
+	/// and the same number of preceding siblings with the same key. This is fairly simplistic, but good enough for merging
+	/// lists of objsur elements in FieldWorks reference sequence properties.
+	/// </summary>
+	public class FindByKeyAttributeInList : IFindNodeToMerge
+	{
+		private string _keyAttribute;
+
+		public FindByKeyAttributeInList(string keyAttribute)
+		{
+			_keyAttribute = keyAttribute;
+		}
+
+		/// <summary>
+		/// The parent of the most recent target node (if any).
+		/// </summary>
+		private XmlNode _sourceNode;
+		/// <summary>
+		/// Map from each child of _sourceNode that has a key to its KeyPosition in the children of SourceNode.
+		/// </summary>
+		Dictionary<XmlNode, KeyPosition> _sourceMap = new Dictionary<XmlNode, KeyPosition>();
+
+		/// <summary>
+		/// Most recent parentNodeToSearchIn, if any.
+		/// </summary>
+		private XmlNode _parentNode;
+		/// <summary>
+		/// Map from KeyPosition in _parentNode to corresponding node (for each node that has a key).
+		/// </summary>
+		Dictionary<KeyPosition, XmlNode> _parentMap = new Dictionary<KeyPosition, XmlNode>();
 
 		public XmlNode GetNodeToMerge(XmlNode nodeToMatch, XmlNode parentToSearchIn)
 		{
@@ -44,22 +189,121 @@ namespace Chorus.merge.xml.generic
 			{
 				return null;
 			}
-			// I (CP) changed this to use double quotes to allow attributes to contain single quotes.
-			// My understanding is that double quotes are illegal inside attributes so this should be fine.
-			// See: http://jira.palaso.org/issues/browse/WS-33895
-			//string xpath = string.Format("{0}[@{1}='{2}']", nodeToMatch.Name, _keyAttribute, key);
-			string xpath = string.Format("{0}[@{1}=\"{2}\"]", nodeToMatch.Name, _keyAttribute, key);
 
-			return parentToSearchIn.SelectSingleNode(xpath);
+			if (nodeToMatch.ParentNode == null)
+				return null;
+
+			if (_sourceNode != nodeToMatch.ParentNode)
+			{
+				_sourceMap.Clear();
+				_sourceNode = nodeToMatch.ParentNode;
+				GetKeyPositions(_sourceNode, (node, kp) => _sourceMap[node] = kp);
+			}
+
+			if (_parentNode != parentToSearchIn)
+			{
+				_parentMap.Clear();
+				_parentNode = parentToSearchIn;
+				GetKeyPositions(_parentNode, (node, kp) => _parentMap[kp] = node);
+			}
+
+			KeyPosition targetKp;
+			if (!_sourceMap.TryGetValue(nodeToMatch, out targetKp))
+				return null;
+			XmlNode result;
+			_parentMap.TryGetValue(targetKp, out result);
+			return result;
 		}
 
+		private void GetKeyPositions(XmlNode parent, Action<XmlNode, KeyPosition> saveIt)
+		{
+			Dictionary<string, int> Occurrences = new Dictionary<string, int>();
+			foreach (XmlNode node in parent.ChildNodes)
+			{
+				if (node.Attributes == null)
+					continue;
+				var key1 = XmlUtilities.GetOptionalAttributeString(node, _keyAttribute);
+				if (string.IsNullOrEmpty(key1))
+					continue;
+				int oldCount;
+				Occurrences.TryGetValue(key1, out oldCount);
+				saveIt(node, new KeyPosition(key1, oldCount));
+				Occurrences[key1] = oldCount + 1;
+			}
+		}
+	}
+
+	class KeyPosition
+	{
+		public string Key; // Key attribute of some XmlNode
+		// Position of the XmlNode among those children of its parent that have the same key.
+		// Technically, a count of the number of preceding nodes among its siblings that have the same key.
+		public int Position;
+		public KeyPosition(string key, int position)
+		{
+			Key = key;
+			Position = position;
+		}
+
+		public override bool Equals(object obj)
+		{
+			var other = obj as KeyPosition;
+			if (other == null)
+				return false;
+			return other.Key == Key && other.Position == Position;
+		}
+
+		public override int GetHashCode()
+		{
+			return Key.GetHashCode() ^ Position;
+		}
+	}
+
+	///<summary>
+	/// Search for a matching elment where multiple attribute names (not values) combine
+	/// to make a single "key" to identify a matching elment.
+	///</summary>
+	public class FindByMatchingAttributeNames : IFindNodeToMerge
+	{
+		private readonly HashSet<string> _keyAttributes;
+
+		public FindByMatchingAttributeNames(HashSet<string> keyAttributes)
+		{
+			_keyAttributes = keyAttributes;
+		}
+
+		#region Implementation of IFindNodeToMerge
+
+		/// <summary>
+		/// Should return null if parentToSearchIn is null
+		/// </summary>
+		public XmlNode GetNodeToMerge(XmlNode nodeToMatch, XmlNode parentToSearchIn)
+		{
+			if (parentToSearchIn == null)
+				return null;
+
+
+			foreach (var possibleMatch in parentToSearchIn.SelectNodes(nodeToMatch.Name))
+			{
+				var retval = (XmlNode)possibleMatch;
+				var actualAttrs = new HashSet<string>();
+				foreach (XmlNode attr in retval.Attributes)
+					actualAttrs.Add(attr.Name);
+				if (_keyAttributes.IsSubsetOf(actualAttrs))
+					return retval;
+			}
+
+			return null;
+		}
+
+		#endregion
 	}
 
 	/// <summary>
 	/// Search for a matching elment where multiple attributes combine
 	/// to make a single "key" to identify a matching elment.
 	/// </summary>
-	public class FindByMultipleKeyAttributes : IFindNodeToMerge
+	public class FindByMultipleKeyAttributes : IFindMatchingNodesToMerge
 	{
 		private readonly List<string> _keyAttributes;
 
@@ -73,31 +317,126 @@ namespace Chorus.merge.xml.generic
 			if (parentToSearchIn == null)
 				return null;
 
-			var bldr = new StringBuilder(nodeToMatch.Name + "[");
-			for (var i = 0; i < _keyAttributes.Count; ++i )
+			var matches = GetMatchingNodes(nodeToMatch, parentToSearchIn).ToList();
+			return (matches.Count > 0)
+				? matches[0]
+				: null;
+		}
+
+		/// <summary>
+		/// Get all matching nodes, or an empty collection, if there are no matches.
+		/// </summary>
+		/// <returns>A collection of zero, or more, matching nodes.</returns>
+		/// <remarks><paramref name="nodeToMatch" /> may, or may not, be a child of <paramref name="parentToSearchIn"/>.</remarks>
+		public IEnumerable<XmlNode> GetMatchingNodes(XmlNode nodeToMatch, XmlNode parentToSearchIn)
+		{
+			if (parentToSearchIn == null)
+				return new List<XmlNode>();
+
+			var extantValues = _keyAttributes.ToDictionary(keyAttribute => keyAttribute, keyAttribute => nodeToMatch.Attributes[keyAttribute].Value);
+			var matches = new List<XmlNode>();
+			foreach (XmlNode childNode in parentToSearchIn.ChildNodes)
+			{
+				if (childNode.NodeType != XmlNodeType.Element)
+					continue;
+				if (nodeToMatch == childNode)
+				{
+					matches.Add(nodeToMatch);
+					continue;
+				}
+				var isMatch = true;
+				foreach (var kvp in extantValues)
+				{
+					var keyAttr = childNode.Attributes[kvp.Key];
+					if (keyAttr == null || keyAttr.Value != kvp.Value)
+					{
+						isMatch = false;
+						break;
+					}
+				}
+				if (!isMatch)
+					continue;
+				matches.Add(childNode);
+			}
+			return matches;
+		}
+
+		/// <summary>
+		/// Get a basic message that is suitable for use in a warning report where ambiguous nodes are found in the same parent node.
+		/// </summary>
+		/// <returns>A message string or null/empty string, if no message is needed for ambiguous nodes.</returns>
+		public string GetWarningMessageForAmbiguousNodes(XmlNode nodeForMessage)
+		{
+			Guard.AgainstNull(nodeForMessage, "nodeForMessage");
+
+			var bldr = new StringBuilder();
+			for (var i = 0; i < _keyAttributes.Count; ++i)
 			{
 				if (i > 0)
+					bldr.Append(", ");
+				if (i == _keyAttributes.Count - 1)
 					bldr.Append(" and ");
 				var currentAttrName = _keyAttributes[i];
-				bldr.AppendFormat("@{0}='{1}'", currentAttrName, XmlUtilities.GetStringAttribute(nodeToMatch, currentAttrName));
+				var currentAttrValue = nodeForMessage.Attributes[currentAttrName].Value;
+				bldr.AppendFormat("attribute '{0}' with value of '{1}'", currentAttrName, currentAttrValue);
 			}
-			bldr.Append("]");
 
-			return parentToSearchIn.SelectSingleNode(bldr.ToString());
+			return string.Format("The key attribute(s) have value(s) that are the same: {0}", bldr);
 		}
 	}
 
 	/// <summary>
 	/// e.g. <grammatical-info>  there can only be one
 	/// </summary>
-	public class FindFirstElementWithSameName : IFindNodeToMerge
+	public class FindFirstElementWithSameName : IFindMatchingNodesToMerge
 	{
 		public XmlNode GetNodeToMerge(XmlNode nodeToMatch, XmlNode parentToSearchIn)
 		{
 			if (parentToSearchIn == null)
 				return null;
 
-			return parentToSearchIn.SelectSingleNode(nodeToMatch.Name);
+			var matches = GetMatchingNodes(nodeToMatch, parentToSearchIn).ToList();
+			return (matches.Count > 0)
+				? matches[0]
+				: null;
+		}
+
+		/// <summary>
+		/// Get all matching nodes, or an empty collection, if there are no matches.
+		/// </summary>
+		/// <returns>A collection of zero, or more, matching nodes.</returns>
+		/// <remarks><paramref name="nodeToMatch" /> may, or may not, be a child of <paramref name="parentToSearchIn"/>.</remarks>
+		public IEnumerable<XmlNode> GetMatchingNodes(XmlNode nodeToMatch, XmlNode parentToSearchIn)
+		{
+			if (parentToSearchIn == null)
+				return new List<XmlNode>();
+
+			var matches = new List<XmlNode>();
+			foreach (XmlNode childNode in parentToSearchIn.ChildNodes)
+			{
+				if (childNode.NodeType != XmlNodeType.Element)
+					continue;
+				if (nodeToMatch == childNode)
+				{
+					matches.Add(childNode);
+					continue;
+				}
+				if (nodeToMatch.Name != childNode.Name)
+					continue;
+				matches.Add(childNode);
+			}
+			return matches;
+		}
+
+		/// <summary>
+		/// Get a basic message that is suitable for use in a warning report where ambiguous nodes are found in the same parent node.
+		/// </summary>
+		/// <returns>A message string or null/empty string, if no message is needed for ambiguous nodes.</returns>
+		public string GetWarningMessageForAmbiguousNodes(XmlNode nodeForMessage)
+		{
+			Guard.AgainstNull(nodeForMessage, "nodeForMessage");
+
+			return string.Format("The elements are named: '{0}'", nodeForMessage.Name);
 		}
 	}
 
@@ -112,7 +451,7 @@ namespace Chorus.merge.xml.generic
 
 			foreach (XmlNode node in parentToSearchIn.ChildNodes)
 			{
-				if(nodeToMatch.Name != node.Name)
+				if (nodeToMatch.Name != node.Name)
 				{
 					continue; // can't be equal if they don't even have the same name
 				}
@@ -169,7 +508,8 @@ namespace Chorus.merge.xml.generic
 
 	public class FindTextDumb : IFindNodeToMerge
 	{
-		//todo: this won't cope with multiple text child nodes in the same element
+		// This won't cope with multiple text child nodes in the same element
+		// No, but then use FormMatchingFinder for that scenario.
 
 		public XmlNode GetNodeToMerge(XmlNode nodeToMatch, XmlNode parentToSearchIn)
 		{
@@ -180,7 +520,7 @@ namespace Chorus.merge.xml.generic
 
 			foreach (XmlNode node in parentToSearchIn.ChildNodes)
 			{
-				if(node.NodeType == XmlNodeType.Text)
+				if (node.NodeType == XmlNodeType.Text)
 					return node;
 			}
 			return null;

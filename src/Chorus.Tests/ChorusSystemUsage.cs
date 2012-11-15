@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Windows.Forms;
 using Chorus.notes;
 using NUnit.Framework;
 using Palaso.IO;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
 using Palaso.TestUtilities;
 
 namespace Chorus.Tests
@@ -13,7 +14,7 @@ namespace Chorus.Tests
 	/// These are not really tests!  They are documented, compilable, runable set of samples to
 	/// help you get started incorporating Chorus into your application.
 	/// </summary>
-	[TestFixture]
+	[TestFixture, RequiresSTA]
 	public class ChorusSystemUsage
 	{
 		private ChorusSystem _chorusSystem;
@@ -35,6 +36,7 @@ namespace Chorus.Tests
 			_someDataFilePath = _someDataFile.Path;
 
 			_chorusSystem = new ChorusSystem(_dataFolderRoot);
+			_chorusSystem.Init("john");
 		}
 
 		[TearDown]
@@ -52,6 +54,7 @@ namespace Chorus.Tests
 		public void CreateARepositoryIfOneDoesntAlreadyExist()
 		{
 			var cs = new ChorusSystem(_dataFolderRoot);
+			cs.Init(string.Empty);
 			//before your application closes, call:
 			cs.Dispose();
 		}
@@ -76,6 +79,27 @@ namespace Chorus.Tests
 			{
 				dlg.ShowDialog();
 			}
+		}
+
+		[Test, Ignore("Sample Code")]
+		public void QuitelyMilestoneSomeRecentWork()
+		{
+			_chorusSystem.AsyncLocalCheckIn("Made a new book called 'surrounded by bitterness'", null);
+
+			//OR, Better:
+
+			_chorusSystem.AsyncLocalCheckIn("Made a new book called 'surrounded by bitterness'",
+				(result) =>
+					{
+						if (result.ErrorEncountered!=null)
+						{
+							Control yourCurrentUIControl=null;
+							yourCurrentUIControl.BeginInvoke(new Action(()=>
+								Palaso.Reporting.ErrorReport.NotifyUserOfProblem(result.ErrorEncountered,
+										  "Error while checking in your work to the local repository")))
+							;
+						 }
+					});
 		}
 		#endregion
 
@@ -137,6 +161,7 @@ namespace Chorus.Tests
 		/// tools to search and filter them.
 		/// </summary>
 		[Test]
+		[Category("KnownMonoIssue")] //running CreateNotesBrowser twice in a mono test session causes a crash
 		public void CreateNotesBrowser()
 		{
 			var browser = _chorusSystem.WinForms.CreateNotesBrowser();

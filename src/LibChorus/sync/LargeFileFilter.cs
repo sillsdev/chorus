@@ -1,10 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using Chorus.FileTypeHanders;
 using Chorus.VcsDrivers.Mercurial;
-using Palaso.Progress.LogBox;
 
 namespace Chorus.sync
 {
@@ -68,7 +68,7 @@ namespace Chorus.sync
 		/// Filter the files, before the commit. Files that are too large are added to the exclude section of the configuration.
 		///</summary>
 		///<returns>An empty string or a string with a listing of files that were not added/modified.</returns>
-		public static string FilterFiles(HgRepository repository, ProjectFolderConfiguration configuration, ChorusFileTypeHandlerCollection handlers, IProgress progress)
+		public static string FilterFiles(HgRepository repository, ProjectFolderConfiguration configuration, ChorusFileTypeHandlerCollection handlerCollection)
 		{
 			var builder = new StringBuilder();
 
@@ -81,33 +81,176 @@ namespace Chorus.sync
 				// Remaining options are: Added, Modified, and Unknown.
 				// It will likely be Unknown when called by Synchronizer's Commit method,
 				// as it will deal with the includes/excludes stuff and mark new stuff as 'add'.
+				FilterFiles(repository, configuration, builder, fir, handlerCollection.Handlers.ToList());
+			}
 
-				// This part of the full path must *not* be included in the exclude list,
-				// as it is prepended by HgRepository.
-				var pathToRepository = repository.PathToRepo + Path.PathSeparator;// This part of the full path must *not* be included in the exclude list,
-				var filename = Path.GetFileName(fir.FullPath);
-				var fileInfo = new FileInfo(fir.FullPath);
-				var fileSize = fileInfo.Length;
-				foreach (var msg in from handler in handlers.Handlers
-									where (handler.CanValidateFile(fir.FullPath) && handler.MaximumFileSize != UInt32.MaxValue) && fileSize >= handler.MaximumFileSize
-									select (fir.ActionThatHappened == FileInRevision.Action.Added || fir.ActionThatHappened == FileInRevision.Action.Unknown) ? String.Format("File '{0}' is too large to add to Chorus.", filename) : String.Format("File '{0}' is too large to be updated in Chorus.", filename))
+			var result = builder.ToString();
+			return string.IsNullOrEmpty(result) ? null : result;
+		}
+
+		private static void FilterFiles(HgRepository repository, ProjectFolderConfiguration configuration,
+											StringBuilder builder, FileInRevision fir, List<IChorusFileTypeHandler> handlers)
+		{
+			var filename = Path.GetFileName(fir.FullPath);
+			var fileExtension = Path.GetExtension(filename);
+			if (!string.IsNullOrEmpty(fileExtension))
+			{
+				fileExtension = fileExtension.Replace(".", null);
+				if (fileExtension == "wav")
+					return; // Nasty hack, but "wav" is put into repo no matter its size. TODO: FIX THIS, if Hg ever works right for "wav" files.
+			}
+
+			var pathToRepository = PathToRepository(repository);
+			var fileInfo = new FileInfo(fir.FullPath);
+			var fileSize = fileInfo.Length;
+			handlers.Add(new DefaultFileTypeHandler());
+			var allKnownExtensions = new HashSet<string>();
+			foreach (var handler in handlers)
+				allKnownExtensions.UnionWith(handler.GetExtensionsOfKnownTextFileTypes());
+
+			HashSet<string> allNormallyExcludedPathNames = null;
+			foreach (var handler in handlers)
+			{
+				// NB: we don't care if the handler can do anything with the file, or not.
+				// We only care if it claims to handle the given extension.
+				var knownExtensions = handler.GetExtensionsOfKnownTextFileTypes().ToList();
+				if (handler.GetType() == typeof(DefaultFileTypeHandler) && !allKnownExtensions.Contains(fileExtension))
 				{
-					progress.WriteVerbose(msg);
-					builder.AppendLine(msg);
-					configuration.ExcludePatterns.Add(fir.FullPath.Replace(pathToRepository, ""));
+					if (fileSize <= handler.MaximumFileSize)
+						continue;
 
-					// TODO: What to do, if the file is "Modified" but now too big?
-					// "remove" actually deletes the file in repo and in working folder, which seems a bit rude.
-					// "forget" removes it from repo (history remains) and leaves it in working folder.
-					if (fir.ActionThatHappened == FileInRevision.Action.Modified)
+					if (allNormallyExcludedPathNames == null)
+						allNormallyExcludedPathNames = CollectAllNormallyExcludedPathnamesOnce(configuration, pathToRepository);
+					RegisterLargeFile(repository, configuration, builder, fir, filename, allNormallyExcludedPathNames);
+				}
+				else
+				{
+					foreach (var knownExtension in knownExtensions)
 					{
-						// Tell Hg to 'forget' it.
-						repository.ForgetFile(fir.FullPath.Replace(pathToRepository, ""));
+						if ((knownExtension.ToLowerInvariant() != fileExtension.ToLowerInvariant()
+							|| fileSize <= handler.MaximumFileSize))
+						{
+							continue;
+						}
+
+						if (allNormallyExcludedPathNames == null)
+							allNormallyExcludedPathNames = CollectAllNormallyExcludedPathnamesOnce(configuration, pathToRepository);
+						RegisterLargeFile(repository, configuration, builder, fir, filename, allNormallyExcludedPathNames);
 					}
 				}
 			}
+		}
 
-			return builder.ToString();
+		/// <summary>
+		/// Warning: This is a REALLY REALLY REALLY expensive function. It should only be called once, and only if needed.
+		///
+		/// Before we say "that's too big", we need to make sure we wouldn't have used it anyhow, that is, that hg would
+		/// have filtered it out.
+		///
+		/// NB: this could be rewritten to be fast; but at the moment a GetFiles is called for every filter. We could
+		/// instead do a single GetFiles, and do our own filtering.
+		/// </summary>
+		/// <returns></returns>
+		private static HashSet<string> CollectAllNormallyExcludedPathnamesOnce(ProjectFolderConfiguration configuration,
+																string pathToRepository)
+		{
+			var allNormallyExcludedPathnames = new HashSet<string>();
+			foreach (var currentExclusion in configuration.ExcludePatterns)
+			{
+				// Gather up all normally excluded files, so they are not reported as being filtered out for being large.
+				// That extra/un-needed warning message will only serve to confuse users.
+				if (currentExclusion.StartsWith("**" + Path.DirectorySeparatorChar))
+				{
+					// Something like the lift exclusion of **\Cache. (Or worse: **\foo\**\Cache. Not currently supported)
+					var nestedFolderName = currentExclusion.Replace("**" + Path.DirectorySeparatorChar, null);
+					var adjustedBaseDir = pathToRepository;
+					CollectExcludedFilesFromDirectory(pathToRepository, adjustedBaseDir, nestedFolderName, allNormallyExcludedPathnames);
+				}
+				else if (currentExclusion.Contains(Path.DirectorySeparatorChar + "**" + Path.DirectorySeparatorChar))
+				{
+					// Some other filter like: foo\**\Cache.
+					var idx = currentExclusion.IndexOf(Path.DirectorySeparatorChar + "**" + Path.DirectorySeparatorChar, StringComparison.Ordinal);
+					var nestedFolderName = currentExclusion.Substring(idx + 4);
+					var adjustedBaseDir = Path.Combine(pathToRepository, currentExclusion.Substring(0, idx));
+					CollectExcludedFilesFromDirectory(pathToRepository, adjustedBaseDir, nestedFolderName, allNormallyExcludedPathnames);
+				}
+				else if (currentExclusion.Contains("*"))
+				{
+					// May be "*.*" or "**.*", but not "**".
+					var adjustedBasePath = currentExclusion.Contains(Path.DirectorySeparatorChar)
+											? Path.GetDirectoryName(Path.Combine(pathToRepository, currentExclusion))
+											: pathToRepository;
+					if (!Directory.Exists(adjustedBasePath))
+						continue;
+					var useNestingFilter = currentExclusion.Contains("**");
+					foreach (var excludedPathname in Directory.GetFiles(pathToRepository,
+																		useNestingFilter
+																			? currentExclusion.Replace("**", "*")
+																			: currentExclusion,
+																		useNestingFilter
+																			? SearchOption.AllDirectories
+																			: SearchOption.TopDirectoryOnly))
+					{
+						allNormallyExcludedPathnames.Add(excludedPathname.Replace(pathToRepository, null));
+					}
+				}
+				else
+				{
+					// An explicitly specified file with no wildcards, such as foo\some.txt
+					var singletonPathname = Path.Combine(pathToRepository, currentExclusion);
+					if (File.Exists(singletonPathname))
+						allNormallyExcludedPathnames.Add(singletonPathname.Replace(pathToRepository, null));
+				}
+			}
+			return allNormallyExcludedPathnames;
+		}
+
+		private static void CollectExcludedFilesFromDirectory(string pathToRepository, string adjustedBaseDir,
+															  string nestedFolderName, HashSet<string> allNormallyExcludedPathnames	)
+		{
+			foreach (var directory in Directory.GetDirectories(adjustedBaseDir, nestedFolderName, SearchOption.AllDirectories))
+			{
+				foreach (var excludedPathname in Directory.GetFiles(directory, "*.*", SearchOption.AllDirectories))
+					allNormallyExcludedPathnames.Add(excludedPathname.Replace(pathToRepository, null));
+			}
+		}
+
+		private static void RegisterLargeFile(HgRepository repository, ProjectFolderConfiguration configuration,
+											StringBuilder builder,
+											FileInRevision fir, string filename,
+											ICollection<string> allExtantExcludedPathnames)
+		{
+			var longPathname = RemoveBasePath(repository, fir);
+			if (allExtantExcludedPathnames.Contains(longPathname))
+				return; // Standard "exclude" covers it, so skip the warning.
+
+			configuration.ExcludePatterns.Add(longPathname);
+			switch (fir.ActionThatHappened)
+			{
+				case FileInRevision.Action.Added:
+				case FileInRevision.Action.Unknown:
+					builder.AppendLine(String.Format("File '{0}' is too large to add to Chorus.", filename));
+					break;
+				case FileInRevision.Action.Modified:
+					builder.AppendLine(String.Format("File '{0}' is too large to add to Chorus.", filename));
+					// TODO: What to do, if the file is "Modified" but now too big?
+					// "remove" actually deletes the file in repo and in working folder, which seems a bit rude.
+					// "forget" removes it from repo (history remains) and leaves it in working folder.
+					// Tell Hg to 'forget' it, for now.
+					repository.ForgetFile(longPathname);
+					break;
+			}
+		}
+
+		private static string RemoveBasePath(HgRepository repository, FileInRevision fir)
+		{
+			var pathToRepository = PathToRepository(repository);
+			return fir.FullPath.Replace(pathToRepository, null);
+		}
+
+		private static string PathToRepository(HgRepository repository)
+		{
+			return repository.PathToRepo + Path.DirectorySeparatorChar;// This part of the full path must *not* be included in the exclude list. (Other code adds it, right before the commit.)
 		}
 	}
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -18,7 +19,7 @@ namespace Chorus.FileTypeHanders.lift
 
 		/// <summary>
 		/// Make sure the newly exported LIFT file:
-		///		1) conforms to the Palas0 canonical XML writer settings, and
+		///		1) conforms to the Palaso canonical XML writer settings, and
 		///		2) retains the order of entries in the original file.
 		///
 		/// Both of these adjustments are needed to make life easier on Mercurial.
@@ -32,13 +33,24 @@ namespace Chorus.FileTypeHanders.lift
 
 			// Diff the original file (now bak) and the newly exported file (temp).
 			var parentIndex = new Dictionary<string, byte[]>(StringComparer.OrdinalIgnoreCase);
-			using (var parentPrepper = new DifferDictionaryPrepper(parentIndex, bakPathname, "header", "entry", "id"))
+			using (var parentPrepper = new MakeRecordDictionary(parentIndex, bakPathname, "header", "entry", "guid"))
 			{
+				parentPrepper.ShouldContinueAfterDuplicateKey = s =>
+																	{
+																		Debug.Fail("Duplicate GUID");
+																		return true;
+																	};
+
 				parentPrepper.Run();
 			}
 			var childIndex = new Dictionary<string, byte[]>(StringComparer.OrdinalIgnoreCase);
-			using (var childPrepper = new DifferDictionaryPrepper(childIndex, tempPathname, "header", "entry", "id"))
+			using (var childPrepper = new MakeRecordDictionary(childIndex, tempPathname, "header", "entry", "guid"))
 			{
+				childPrepper.ShouldContinueAfterDuplicateKey = s =>
+																{
+																	Debug.Fail("Duplicate GUID");
+																	return true;
+																};
 				childPrepper.Run();
 			}
 
@@ -64,7 +76,7 @@ namespace Chorus.FileTypeHanders.lift
 				writer.WriteStartElement("lift");
 
 				// 2. Write root element attrs from *temp* file, since it is the latest.
-				using (var tempReader = XmlReader.Create(tempPathname, new XmlReaderSettings {IgnoreWhitespace = true}))
+				using (var tempReader = XmlReader.Create(tempPathname, CanonicalXmlSettings.CreateXmlReaderSettings()))
 				{
 					tempReader.MoveToContent();
 					for (var i = 0; i < tempReader.AttributeCount; ++i)
@@ -75,7 +87,7 @@ namespace Chorus.FileTypeHanders.lift
 				}
 
 				// 3. Write all child elements, including optional 'header'.
-				using (var reader = XmlReader.Create(bakPathname, new XmlReaderSettings { IgnoreWhitespace = true }))
+				using (var reader = XmlReader.Create(bakPathname, CanonicalXmlSettings.CreateXmlReaderSettings()))
 				{
 					reader.MoveToContent();
 					// Write all root element child elements.
@@ -86,7 +98,7 @@ namespace Chorus.FileTypeHanders.lift
 					var keepReading = reader.Read();
 					while (keepReading)
 					{
-						var currentId = handledHeader ? reader.GetAttribute("id").ToLowerInvariant() : "header";
+						var currentId = handledHeader ? reader.GetAttribute("guid").ToLowerInvariant() : "header";
 						// Optional header element.
 						if (!handledHeader)
 						{
@@ -118,8 +130,7 @@ namespace Chorus.FileTypeHanders.lift
 							else
 							{
 								// If they were not removed, then they are extant, so use version from childIndex,
-								// which may be the same or different, but that is not relevant.
-								// Write out childIndex version.
+								// which may be the same or different.
 								// Skip over reader (parentIndex) version
 								reader.ReadOuterXml();
 								// and use childIndex version

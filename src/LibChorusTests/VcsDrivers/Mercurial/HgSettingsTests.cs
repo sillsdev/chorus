@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
+using LibChorus.TestUtilities;
 using NUnit.Framework;
 using System.Linq;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
 using Palaso.TestUtilities;
 
 namespace LibChorus.Tests.VcsDrivers.Mercurial
@@ -17,6 +18,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 	[TestFixture]
 	public class HgSettingsTests
 	{
+
 		private ConsoleProgress _progress;
 
 		[SetUp]
@@ -27,6 +29,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 
 		[Test] public void GetKnownRepositories_NoneKnown_GivesNone()
 		{
+			using (new MercurialIniForTests())
 			using (var testRoot = new TemporaryFolder("ChorusHgSettingsTest"))
 			{
 				HgRepository.CreateRepositoryInExistingDir(testRoot.Path, _progress);
@@ -39,6 +42,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		[Test]
 		public void GetKnownRepositories_TwoInRepoSettings_GivesThem()
 		{
+			using (new MercurialIniForTests())
 			using (var testRoot = new TemporaryFolder("ChorusHgSettingsTest"))
 			{
 				HgRepository.CreateRepositoryInExistingDir(testRoot.Path, _progress);
@@ -98,24 +102,34 @@ two = http://foo.com");
 		[Test]
 		public void GetIsReadyForInternetSendReceive_NoPaths_ReturnsFalse()
 		{
-			Assert.IsFalse(GetIsReady(@""));
+			using (new MercurialIniForTests())
+			{
+				Assert.IsFalse(GetIsReady(@""));
+			}
 		}
 
 		[Test]
 		public void GetIsReadyForInternetSendReceive_MissingUserName_ReturnsFalse()
 		{
-			Assert.IsFalse(GetIsReady(@"LanguageDepot = http://hg-public.languagedepot.org/xyz"));
+			using (new MercurialIniForTests())
+			{
+				Assert.IsFalse(GetIsReady(@"LanguageDepot = http://hg-public.languagedepot.org/xyz"));
+			}
 		}
 
 		[Test]
 		public void GetIsReadyForInternetSendReceive_HasFullLangDepotUrl_ReturnsTrue()
 		{
-			Assert.IsTrue(GetIsReady(@"LanguageDepot = http://joe_user:xyz@hg-public.languagedepot.org/xyz"));
+			using (new MercurialIniForTests())
+			{
+				Assert.IsTrue(GetIsReady(@"LanguageDepot = http://joe_user:xyz@hg-public.languagedepot.org/xyz"));
+			}
 		}
 
 		[Test]
 		public void GetUserName_NameInLocalReop_GetsName()
 		{
+			using (new MercurialIniForTests())
 			using (var setup = new RepositorySetup("Dan"))
 			{
 				setup.WriteIniContents(@"[ui]
@@ -128,6 +142,7 @@ username = joe
 		[Test]
 		public void GetUserName_EmptyHgrc_ReturnsDefault()
 		{
+			using (new MercurialIniForTests())
 			using (var setup = new RepositorySetup("Dan"))
 			{
 				setup.WriteIniContents(@"");
@@ -138,6 +153,7 @@ username = joe
 		[Test]
 		public void GetUserName_NoHgrcYet_ReturnsDefault()
 		{
+			using (new MercurialIniForTests())
 			using (var setup = new RepositorySetup("Dan"))
 			{
 				setup.EnsureNoHgrcExists();
@@ -148,6 +164,7 @@ username = joe
 		[Test]
 		public void SetUserNameInIni_SetsName()
 		{
+			using (new MercurialIniForTests())
 			using (var setup = new RepositorySetup("Dan"))
 			{
 				setup.EnsureNoHgrcExists();
@@ -178,6 +195,7 @@ username = joe
 		[Test]
 		public void SetRepositoryAliases()
 		{
+			using (new MercurialIniForTests())
 			using (var setup = new RepositorySetup("Dan"))
 			{
 				setup.EnsureNoHgrcExists();
@@ -203,6 +221,7 @@ username = joe
 		[Test]
 		public void SetTheOnlyAddressOfThisType_WasEmtpy_HasNewAddress()
 		{
+			using (new MercurialIniForTests())
 			using (var setup = new RepositorySetup("Dan"))
 			{
 				setup.EnsureNoHgrcExists();
@@ -217,6 +236,7 @@ username = joe
 		[Test]
 		public void SetTheOnlyAddressOfThisType_HadAnotherType_HasOldAddressAndNew()
 		{
+			using (new MercurialIniForTests())
 			using (var setup = new RepositorySetup("Dan"))
 			{
 				setup.EnsureNoHgrcExists();
@@ -235,6 +255,7 @@ username = joe
 		[Test]
 		public void SetTheOnlyAddressOfThisType_SettingLANPathHadSameType_IsReplacedByNew()
 		{
+			using (new MercurialIniForTests())
 			using (var setup = new RepositorySetup("Dan"))
 			{
 				setup.EnsureNoHgrcExists();
@@ -255,6 +276,7 @@ username = joe
 		[Test]
 		public void SetTheOnlyAddressOfThisType_SettingInternetPathHadSameType_IsReplacedByNew()
 		{
+			using (new MercurialIniForTests())
 			using (var setup = new RepositorySetup("Dan"))
 			{
 				setup.EnsureNoHgrcExists();
@@ -280,6 +302,7 @@ username = joe
 		[Test]
 		public void SetAndGetDefaultSyncRepositories()
 		{
+			using (new MercurialIniForTests())
 			using (var setup = new RepositorySetup("Dan"))
 			{
 				setup.EnsureNoHgrcExists();
@@ -301,11 +324,14 @@ username = joe
 		[Test]
 		public void EnsureTheseExtensionAreEnabled_noExistingExtensions_AddsThem()
 		{
+			using (new MercurialIniForTests())
 			using (var setup = new RepositorySetup("Dan"))
 			{
 				setup.EnsureNoHgrcExists();
-
-				setup.Repository.EnsureTheseExtensionAreEnabled(new string[] { "a","b" });
+				var extensions = new Dictionary<string, string>();
+				extensions.Add("a","");
+				extensions.Add("b", "");
+				setup.Repository.EnsureTheseExtensionsAndFormatSet(extensions);
 				Assert.AreEqual("a", setup.Repository.GetEnabledExtension().First());
 				Assert.AreEqual("b", setup.Repository.GetEnabledExtension().ToArray()[1]);
 			}
@@ -314,6 +340,7 @@ username = joe
 		[Test]
 		public void EnsureTheseExtensionAreEnabled_someOthersEnabledAlready_StayEnabled()
 		{
+			using (new MercurialIniForTests())
 			using (var testRoot = new TemporaryFolder("ChorusHgSettingsTest"))
 			{
 				HgRepository.CreateRepositoryInExistingDir(testRoot.Path, _progress);
@@ -323,13 +350,31 @@ username = joe
 a =
 x =
 ");
+				var extensions = new Dictionary<string, string>();
+				extensions.Add("a", "");
+				extensions.Add("b", "");
+				repository.EnsureTheseExtensionsAndFormatSet(extensions);
 
-				repository.EnsureTheseExtensionAreEnabled(new string[] { "a", "b" });
 				Assert.AreEqual(3, repository.GetEnabledExtension().Count());
 				Assert.AreEqual("a", repository.GetEnabledExtension().ToArray()[0]);
 				Assert.AreEqual("x", repository.GetEnabledExtension().ToArray()[1]);
 				Assert.AreEqual("b", repository.GetEnabledExtension().ToArray()[2]);
 			}
 		}
+
+		// This test won't throw as expected because the HgRepository code attempts to write
+		// a good ini file, and we can't make it bad without it fixing it again.
+		[Test, Ignore]
+		public void BadMercurialIni_Throws()
+		{
+			using (new MercurialIniHider())
+			using (var testRoot = new TemporaryFolder("ChorusHgSettingsTest"))
+			{
+				Assert.Throws<ApplicationException>(() =>
+					HgRepository.CreateRepositoryInExistingDir(testRoot.Path, _progress)
+				);
+			}
+		}
+
 	}
 }

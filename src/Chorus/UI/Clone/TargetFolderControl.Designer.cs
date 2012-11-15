@@ -113,7 +113,7 @@
 
 		#endregion
 
-		private System.Windows.Forms.TextBox _localFolderName;
+		internal System.Windows.Forms.TextBox _localFolderName; //internal for testing purposes
 		private System.Windows.Forms.PictureBox _targetWarningImage;
 		private BetterLabel _targetInfoLabel;
 		private System.Windows.Forms.Label _localFolderLabel;
