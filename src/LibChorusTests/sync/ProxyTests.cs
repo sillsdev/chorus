@@ -43,7 +43,7 @@ namespace LibChorus.Tests.sync
 			//RobustNetworkOperation.ClearCredentialSettings();
 			using (var f = new TemporaryFolder("pulltest"))
 			{
-				var repo = HgRepository.CreateOrLocate(f.Path, _progress);
+				var repo = HgRepository.CreateOrUseExisting(f.Path, _progress);
 				var address = new HttpRepositoryPath("default", _cloneableTestProjectUrl, false);
 				repo.Pull(address, _cloneableTestProjectUrl);
 				Assert.IsTrue(Directory.Exists(f.Combine(f.Path, ".hg")));
@@ -56,7 +56,7 @@ namespace LibChorus.Tests.sync
 		  //  RobustNetworkOperation.ClearCredentialSettings();
 			using (var f = new TemporaryFolder("pulltest"))
 			{
-				var repo = HgRepository.CreateOrLocate(f.Path, _progress);
+				var repo = HgRepository.CreateOrUseExisting(f.Path, _progress);
 				var address = new HttpRepositoryPath("default", _cloneableTestProjectUrl, false);
 				repo.Pull(address, _cloneableTestProjectUrl);
 				Assert.IsTrue(Directory.Exists(f.Combine(f.Path, ".hg")));

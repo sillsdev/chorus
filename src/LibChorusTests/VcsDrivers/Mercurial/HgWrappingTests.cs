@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using Chorus.VcsDrivers.Mercurial;
@@ -389,7 +390,8 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				File.WriteAllText(path, "original");
 				setup.Repository.AddAndCheckinFile(path);
 				string bundleFilePath = setup.Root.GetNewTempFile(false).Path;
-				Assert.That(setup.Repository.MakeBundle("fakehashstring", bundleFilePath), Is.False);
+				Assert.That(setup.Repository.MakeBundle(new []{"fakehash"},
+					bundleFilePath), Is.False);
 				Assert.That(File.Exists(bundleFilePath), Is.False);
 			}
 		}
@@ -406,7 +408,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				setup.ChangeAndCheckinFile(path, "bad");
 
 				var bundleFilePath = setup.Root.GetNewTempFile(true).Path;
-				Assert.That(setup.Repository.MakeBundle(revision.Number.Hash, bundleFilePath), Is.True);
+				Assert.That(setup.Repository.MakeBundle(new []{revision.Number.Hash}, bundleFilePath), Is.True);
 				Assert.That(File.Exists(bundleFilePath), Is.True);
 			}
 		}
@@ -420,7 +422,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				setup.AddAndCheckinFile(setup.ProjectFolder.GetNewTempFile(true).Path, "some file we don't care about");
 				var hash = setup.Repository.GetTip().Number.Hash;
 				setup.AddAndCheckinFile(setup.ProjectFolder.GetNewTempFile(true).Path, "another file we don't care about");
-				setup.Repository.MakeBundle(hash, bundleFilePath);
+				setup.Repository.MakeBundle(new []{hash}, bundleFilePath);
 				setup.Repository.RollbackWorkingDirectoryToLastCheckin();
 				Assert.That(setup.Repository.Unbundle(bundleFilePath), Is.True);
 			}

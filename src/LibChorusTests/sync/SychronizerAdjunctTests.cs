@@ -1,7 +1,9 @@
+using System;
+using System.Collections.Generic;
 using System.IO;
 using Chorus.Utilities;
 using Chorus.sync;
-using Chorus.VcsDrivers;
+using Chorus.VcsDrivers.Mercurial;
 using LibChorus.TestUtilities;
 using NUnit.Framework;
 using Palaso.IO;
@@ -101,7 +103,7 @@ namespace LibChorus.Tests.sync
 
 				var syncResults = bob.SyncWithOptions(options, synchronizer);
 				Assert.IsFalse(syncResults.DidGetChangesFromOthers);
-				CheckExistanceOfAdjunctFiles(syncAdjunct, true, false, false, false);
+				CheckExistanceOfAdjunctFiles(syncAdjunct, true, false, false, false, true, false);
 			}
 		}
 
@@ -129,7 +131,7 @@ namespace LibChorus.Tests.sync
 				synchronizer.SynchronizerAdjunct = syncAdjunct;
 				var syncResults = bob.SyncWithOptions(options, synchronizer);
 				Assert.IsFalse(syncResults.DidGetChangesFromOthers);
-				CheckExistanceOfAdjunctFiles(syncAdjunct, true, false, false, false);
+				CheckExistanceOfAdjunctFiles(syncAdjunct, true, false, false, false, true, true);
 			}
 		}
 
@@ -168,7 +170,7 @@ namespace LibChorus.Tests.sync
 				susanna.ReplaceSomethingElse("no problems.");
 				var syncResults = susanna.SyncWithOptions(bobOptions, synchronizer);
 				Assert.IsTrue(syncResults.DidGetChangesFromOthers);
-				CheckExistanceOfAdjunctFiles(syncAdjunct, true, true, false, true);
+				CheckExistanceOfAdjunctFiles(syncAdjunct, true, true, false, true, true, true);
 			}
 		}
 
@@ -202,7 +204,7 @@ namespace LibChorus.Tests.sync
 
 				var syncResults = sally.SyncWithOptions(options, synchronizer);
 				Assert.IsTrue(syncResults.DidGetChangesFromOthers);
-				CheckExistanceOfAdjunctFiles(syncAdjunct, true, true, false, true);
+				CheckExistanceOfAdjunctFiles(syncAdjunct, true, true, false, true, true, true);
 			}
 		}
 
@@ -235,7 +237,7 @@ namespace LibChorus.Tests.sync
 
 				var syncResults = sally.SyncWithOptions(options, synchronizer);
 				Assert.IsTrue(syncResults.DidGetChangesFromOthers);
-				CheckExistanceOfAdjunctFiles(syncAdjunct, true, true, false, true);
+				CheckExistanceOfAdjunctFiles(syncAdjunct, true, true, false, true, true, true);
 			}
 		}
 
@@ -266,7 +268,7 @@ namespace LibChorus.Tests.sync
 
 				var syncResults = sally.SyncWithOptions(options, synchronizer);
 				Assert.IsTrue(syncResults.DidGetChangesFromOthers);
-				CheckExistanceOfAdjunctFiles(syncAdjunct, true, true, false, false);
+				CheckExistanceOfAdjunctFiles(syncAdjunct, true, true, false, false, true, true);
 			}
 		}
 
@@ -302,11 +304,41 @@ namespace LibChorus.Tests.sync
 					Assert.IsTrue(syncResults.DidGetChangesFromOthers);
 					Assert.IsFalse(syncResults.Cancelled);
 					Assert.IsFalse(syncResults.Succeeded);
-					CheckExistanceOfAdjunctFiles(syncAdjunct, true, false, true, false);
+					CheckExistanceOfAdjunctFiles(syncAdjunct, true, false, true, false, true, false);
 				}
 			}
 		}
 
+		[Test]
+		public void CheckBranchesGetsRightNumberOfBranches()
+		{
+			using (var bob = RepositoryWithFilesSetup.CreateWithLiftFile("bob"))
+			using (var sally = RepositoryWithFilesSetup.CreateByCloning("sally", bob))
+			{
+				bob.ReplaceSomething("bobWasHere");
+				bob.Synchronizer.SynchronizerAdjunct = new ProgrammableSynchronizerAdjunct("NOTDEFAULT");
+				bob.AddAndCheckIn();
+				sally.ReplaceSomething("sallyWasHere");
+
+				var syncAdjunct = new FileWriterSychronizerAdjunct(sally.RootFolder.Path);
+
+				var options = new SyncOptions
+				{
+					DoMergeWithOthers = true,
+					DoPullFromOthers = true,
+					DoSendToOthers = true
+				};
+				options.RepositorySourcesToTry.Add(bob.RepoPath);
+				var synchronizer = sally.Synchronizer;
+				synchronizer.SynchronizerAdjunct = syncAdjunct;
+
+				var syncResults = sally.SyncWithOptions(options, synchronizer);
+				Assert.IsTrue(syncResults.DidGetChangesFromOthers);
+				CheckExistanceOfAdjunctFiles(syncAdjunct, true, false, true, false, true, true);
+				var lines = File.ReadAllLines(syncAdjunct.CheckRepoBranchesPathName);
+				Assert.AreEqual(lines.Length, 2, "Wrong number of branches on CheckBranches call");
+			}
+		}
 
 		[Test]
 		public void OurCommitOnlyFailsCommitCopCheck()
@@ -334,11 +366,14 @@ namespace LibChorus.Tests.sync
 				Assert.IsFalse(syncResults.Cancelled);
 				Assert.IsFalse(syncResults.DidGetChangesFromOthers);
 				Assert.IsFalse(syncResults.Succeeded);
-				CheckExistanceOfAdjunctFiles(syncAdjunct, true, false, true, false);
+				CheckExistanceOfAdjunctFiles(syncAdjunct, true, false, true, false, true, false);
 			}
 		}
 
-		private static void CheckExistanceOfAdjunctFiles(FileWriterSychronizerAdjunct syncAdjunct, bool commitFileShouldExist, bool pullFileShouldExist, bool rollbackFileShouldExist, bool mergeFileShouldExist)
+		private static void CheckExistanceOfAdjunctFiles(FileWriterSychronizerAdjunct syncAdjunct, bool commitFileShouldExist,
+														 bool pullFileShouldExist, bool rollbackFileShouldExist,
+														 bool mergeFileShouldExist, bool branchNameFileShouldExist,
+														 bool branchesFileShouldExist)
 		{
 			if (commitFileShouldExist)
 				Assert.IsTrue(File.Exists(syncAdjunct.CommitPathname), "CommitFile should exist.");
@@ -359,6 +394,16 @@ namespace LibChorus.Tests.sync
 				Assert.IsTrue(File.Exists(syncAdjunct.MergePathname), "MergeFile should exist.");
 			else
 				Assert.IsFalse(File.Exists(syncAdjunct.MergePathname), "MergeFile shouldn't exist.");
+
+			if (branchNameFileShouldExist)
+				Assert.IsTrue(File.Exists(syncAdjunct.BranchNamePathName), "BranchNameFile should exist.");
+			else
+				Assert.IsFalse(File.Exists(syncAdjunct.BranchNamePathName), "BranchNameFile shouldn't exist.");
+
+			if (branchesFileShouldExist)
+				Assert.IsTrue(File.Exists(syncAdjunct.CheckRepoBranchesPathName), "CheckRepoBranchesFile should exist.");
+			else
+				Assert.IsFalse(File.Exists(syncAdjunct.CheckRepoBranchesPathName), "CheckRepoBranchesFile shouldn't exist.");
 		}
 
 		private static void CheckNoFilesExist(FileWriterSychronizerAdjunct syncAdjunct)
@@ -367,6 +412,8 @@ namespace LibChorus.Tests.sync
 			Assert.IsFalse(File.Exists(syncAdjunct.PullPathname));
 			Assert.IsFalse(File.Exists(syncAdjunct.RollbackPathname));
 			Assert.IsFalse(File.Exists(syncAdjunct.MergePathname));
+			Assert.IsFalse(File.Exists(syncAdjunct.BranchNamePathName));
+			Assert.IsFalse(File.Exists(syncAdjunct.CheckRepoBranchesPathName));
 		}
 
 		private class FileWriterSychronizerAdjunct : ISychronizerAdjunct
@@ -396,6 +443,16 @@ namespace LibChorus.Tests.sync
 			internal string MergePathname
 			{
 				get { return Path.Combine(_pathToRepository, "Merge.txt"); }
+			}
+
+			internal string BranchNamePathName
+			{
+				get { return Path.Combine(_pathToRepository, "BranchName.txt"); }
+			}
+
+			internal string CheckRepoBranchesPathName
+			{
+				get { return Path.Combine(_pathToRepository, "CheckRepoBranches.txt"); }
 			}
 
 			#region Implementation of ISychronizerAdjunct
@@ -431,6 +488,36 @@ namespace LibChorus.Tests.sync
 			public void PrepareForPostMergeCommit(IProgress progress)
 			{
 				File.WriteAllText(MergePathname, "Merged");
+			}
+
+			/// <summary>
+			/// Get the branch name the client wants to use. This might be (for example) a current version label
+			/// of the client's data model. Used to create a version branch in the repository
+			/// (for these tests always the default branch).
+			/// </summary>
+			public string BranchName
+			{
+				get
+				{
+					File.WriteAllText(BranchNamePathName, "(default)");
+					return ""; // Hg 'default' branch is empty string.
+				}
+			}
+
+			/// <summary>
+			/// During a Send/Receive when Chorus has completed a pull and there is more than one branch on the repository
+			/// it will pass the revision of the head of each branch to the client.
+			/// The client can use this to display messages to the users when other branches are active other than their own.
+			/// i.e. "Someone else has a new version you should update"
+			/// or "Your colleague needs to update, you won't see their changes until they do."
+			/// </summary>
+			/// <param name="branches">A list (IEnumerable really) of all the open branches in this repo.</param>
+			public void CheckRepositoryBranches(IEnumerable<Revision> branches)
+			{
+				foreach (var revision in branches)
+				{
+					File.AppendAllText(CheckRepoBranchesPathName, revision.Branch + Environment.NewLine);
+				}
 			}
 
 			#endregion

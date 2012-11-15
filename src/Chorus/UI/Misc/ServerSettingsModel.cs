@@ -18,9 +18,9 @@ namespace Chorus.UI.Misc
 
 		public ServerSettingsModel()
 		{
-			const string languageDepotLabel = "LanguageDepot.org [legacy sync]";
-			Servers.Add(languageDepotLabel, "hg-public.languagedepot.org");
-			Servers.Add("LanguageDepot.org [resumable sync]", "resumable.languagedepot.org");
+			const string languageDepotLabel = "LanguageDepot.org";
+			Servers.Add(languageDepotLabel, "resumable.languagedepot.org");
+			Servers.Add("LanguageDepot.org [Safe Mode]", "hg-public.languagedepot.org");
 			Servers.Add("LanguageDepot.org [private]", "hg-private.languagedepot.org");
 			Servers.Add("LanguageForge", "hg.languageforge.org");
 
@@ -38,10 +38,10 @@ namespace Chorus.UI.Misc
 		{
 			RequireThat.Directory(path).Exists();
 
-			var repo = HgRepository.CreateOrLocate(path, new NullProgress());
+			var repo = HgRepository.CreateOrUseExisting(path, new NullProgress());
 			_pathToRepo = repo.PathToRepo;
 
-			var address =repo.GetDefaultNetworkAddress<HttpRepositoryPath>();
+			var address = repo.GetDefaultNetworkAddress<HttpRepositoryPath>();
 			if (address != null)
 			{
 				InitFromUri(address.URI);
@@ -186,7 +186,8 @@ namespace Chorus.UI.Misc
 				throw new ArgumentException("SaveSettings() only works if you InitFromProjectPath()");
 			}
 
-			var repo = HgRepository.CreateOrLocate(_pathToRepo, new NullProgress());
+			var repo = HgRepository.CreateOrUseExisting(_pathToRepo, new NullProgress());
+
 			// Use safer SetTheOnlyAddressOfThisType method, as it won't clobber a shared network setting, if that was the clone source.
 			repo.SetTheOnlyAddressOfThisType(new HttpRepositoryPath(AliasName, URL, false));
 		}

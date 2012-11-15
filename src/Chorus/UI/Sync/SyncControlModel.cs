@@ -13,6 +13,7 @@ using Palaso.Code;
 using Palaso.Extensions;
 using Palaso.Progress;
 using Palaso.UI.WindowsForms.Progress;
+using Palaso.UI.WindowsForms.Progress;
 
 namespace Chorus.UI.Sync
 {

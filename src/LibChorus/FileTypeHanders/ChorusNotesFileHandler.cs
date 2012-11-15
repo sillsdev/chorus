@@ -54,7 +54,7 @@ namespace Chorus.FileTypeHanders
 		public void Do3WayMerge(MergeOrder order)
 		{
 			XmlMergeService.Do3WayMerge(order,
-				new ChorusNotesAnnotationMergingStrategy(order.MergeSituation),
+				new ChorusNotesAnnotationMergingStrategy(order),
 				false,
 				null,
 				"annotation", "guid");

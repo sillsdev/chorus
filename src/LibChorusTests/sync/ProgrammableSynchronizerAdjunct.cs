@@ -1,26 +1,30 @@
-using Palaso.Progress;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Chorus.VcsDrivers.Mercurial;
+using Chorus.sync;
+using Palaso.Progress;
 
-namespace Chorus.sync
+namespace LibChorus.Tests.sync
 {
-	/// <summary>
-	/// Interface that allows Chorus clients to do something special at one or two points in a Send/Receive operation.
-	///
-	/// One point is right before the initial local commit.
-	/// The other point is after an optional merge, but before its commit (cf. remarks and remarks on 'PrepareForPostMergeCommit' method).
-	/// <remarks>
-	/// NB: A merge is optional in a couple of ways:
-	///		1. The client may not have asked for it to be done at all (e.g., WeSay's autosave, does not ask for the pull, merge, or push).
-	///		2. Even if the client asks for a merge to be done, a merge may not actually be needed, so isn't done.
-	/// </remarks>
-	/// </summary>
-	public interface ISychronizerAdjunct
+	class ProgrammableSynchronizerAdjunct : ISychronizerAdjunct
 	{
+		private readonly string _branchName;
+
+		/// <summary>
+		/// Synchronizer Adjunct for test purposes.
+		/// </summary>
+		/// <param name="branchName">The name of the branch we are committing to.</param>
+		public ProgrammableSynchronizerAdjunct(string branchName)
+		{
+			_branchName = branchName;
+		}
+
+		#region Implementation of ISychronizerAdjunct
+
 		/// <summary>
 		/// Allow the client to do something right before the initial local commit.
 		/// </summary>
-		void PrepareForInitialCommit(IProgress progress);
+		public void PrepareForInitialCommit(IProgress progress)
+		{ /* Do nothing at all. */ }
 
 		/// <summary>
 		/// Allow the client to do something in one of two cases:
@@ -29,20 +33,25 @@ namespace Chorus.sync
 		/// In both cases, the client may need to do something.
 		/// </summary>
 		///<param name="progress">A progress mechanism.</param>
-		///<param name="isRollback">"True" if there was a merge failure, and the repo is being rolled back to an earlier state. Otherwise "False".</param>
-		void SimpleUpdate(IProgress progress, bool isRollback);
+		/// <param name="isRollback">"True" if there was a merge failure, and the repo is being rolled back to an earlier state. Otherwise "False".</param>
+		public void SimpleUpdate(IProgress progress, bool isRollback)
+		{ /* Do nothing at all. */ }
 
 		/// <summary>
 		/// Allow the client to do something right after a merge, but before the merge is committed.
 		/// </summary>
-		/// <remarks>This method is not be called at all, if there was no merging.</remarks>
-		void PrepareForPostMergeCommit(IProgress progress);
+		/// <remarks>This method not be called at all, if there was no merging.</remarks>
+		public void PrepareForPostMergeCommit(IProgress progress)
+		{ /* Do nothing at all. */ }
 
 		/// <summary>
 		/// Get the branch name the client wants to use. This might be (for example) a current version label
 		/// of the client's data model. Used to create a version branch in the repository.
 		/// </summary>
-		string BranchName { get; }
+		public string BranchName
+		{
+			get { return _branchName ?? ""; } // Hg default branch name
+		}
 
 		/// <summary>
 		/// During a Send/Receive when Chorus has completed a pull and there is more than one branch on the repository
@@ -52,6 +61,9 @@ namespace Chorus.sync
 		/// or "Your colleague needs to update, you won't see their changes until they do."
 		/// </summary>
 		/// <param name="branches">A list (IEnumerable really) of all the open branches in this repo.</param>
-		void CheckRepositoryBranches(IEnumerable<Revision> branches);
+		public void CheckRepositoryBranches(IEnumerable<Revision> branches)
+		{ /* Do nothing at all. */ }
+
+		#endregion
 	}
 }

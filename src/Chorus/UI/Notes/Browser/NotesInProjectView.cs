@@ -19,7 +19,7 @@ namespace Chorus.UI.Notes.Browser
 			_model = model;
 			//       _model.ProgressDisplay = new NullProgress();
 			InitializeComponent();
-			_messageListView.SmallImageList = AnnotationClassFactory.CreateImageListContainingAnnotationImages();
+			_messageListView.SmallImageList = AnnotationClassFactoryUI.CreateImageListContainingAnnotationImages();
 			showClosedNotesToolStripMenuItem1.Checked = _model.ShowClosedNotes;
 			timer1.Interval = 1000;
 			timer1.Tick += new EventHandler(timer1_Tick);

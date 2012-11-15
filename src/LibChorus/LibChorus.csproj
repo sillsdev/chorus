@@ -120,7 +120,6 @@
 	<Reference Include="System.Drawing" />
 	<Reference Include="System.Management" />
 	<Reference Include="System.Runtime.Serialization" />
-	<Reference Include="System.Windows.Forms" />
 	<Reference Include="System.Xml" />
 	<Reference Include="System.Xml.Linq">
 	  <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -134,6 +133,7 @@
 	<Compile Include="FileTypeHanders\Lift-Ranges\LiftRangesMergingStrategy.cs" />
 	<Compile Include="FileTypeHanders\lift\LiftHeaderContextGenerator.cs" />
 	<Compile Include="FileTypeHanders\Lift-Ranges\LiftRangeContextGenerator.cs" />
+	<Compile Include="FileTypeHanders\lift\LiftSynchronizerAdjunct.cs" />
 	<Compile Include="merge\xml\generic\FormMatchingFinder.cs" />
 	<Compile Include="FileTypeHanders\lift\LiftBasicElementStrategiesMethod.cs" />
 	<Compile Include="FileTypeHanders\Lift-Ranges\LiftRangesElementStrategiesMethod.cs" />
@@ -158,12 +158,6 @@
 	<Compile Include="merge\xml\generic\MergeXmlAttributesService.cs" />
 	<Compile Include="merge\xml\generic\SimpleHtmlGenerator.cs" />
 	<Compile Include="merge\xml\generic\XmlMergeService.cs" />
-	<Compile Include="notes\ConflictDetailsForm.cs">
-	  <SubType>Form</SubType>
-	</Compile>
-	<Compile Include="notes\ConflictDetailsForm.Designer.cs">
-	  <DependentUpon>ConflictDetailsForm.cs</DependentUpon>
-	</Compile>
 	<Compile Include="Properties\Resources.Designer.cs">
 	  <AutoGen>True</AutoGen>
 	  <DesignTime>True</DesignTime>
@@ -245,6 +239,7 @@
 	<Compile Include="sync\ProjectFolderConfiguration.cs" />
 	<Compile Include="sync\Synchronizer.cs" />
 	<Compile Include="VcsDrivers\Mercurial\HgNormalTransport.cs" />
+	<Compile Include="VcsDrivers\Mercurial\HgModelVersionBranch.cs" />
 	<Compile Include="VcsDrivers\Mercurial\HgResumeRestApiServer.cs" />
 	<Compile Include="VcsDrivers\Mercurial\HgResumeTransport.cs" />
 	<Compile Include="VcsDrivers\Mercurial\IApiServer.cs" />
@@ -312,10 +307,6 @@
 	</BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-	<EmbeddedResource Include="notes\ConflictDetailsForm.resx">
-	  <DependentUpon>ConflictDetailsForm.cs</DependentUpon>
-	  <SubType>Designer</SubType>
-	</EmbeddedResource>
 	<EmbeddedResource Include="Properties\AnnotationImages.resx">
 	  <Generator>PublicResXFileCodeGenerator</Generator>
 	  <LastGenOutput>AnnotationImages.Designer.cs</LastGenOutput>
