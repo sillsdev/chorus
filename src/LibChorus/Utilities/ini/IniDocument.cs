@@ -11,7 +11,6 @@
 using System;
 using System.IO;
 using System.Collections;
-using System.Windows.Forms;
 
 
 namespace Nini.Ini
@@ -196,6 +195,7 @@ namespace Nini.Ini
 		{
 			Save(_filePath);
 		}
+
 		public bool SaveAndGiveMessageIfCannot()
 		{
 			try
@@ -205,9 +205,14 @@ namespace Nini.Ini
 			}
 			catch (Exception e)
 			{
-				MessageBox.Show("There was a problem saving mercurial settings to "+_filePath+". "+Environment.NewLine+e.Message,"Error", MessageBoxButtons.OK,MessageBoxIcon.Warning);
+				Palaso.Reporting.ErrorReport.NotifyUserOfProblem(e, "There was a problem saving mercurial settings to "+_filePath+". ");
 				return false;
 			}
+		}
+
+		public void Save()
+		{
+			Save(_filePath);
 		}
 
 		/// <include file='IniDocument.xml' path='//Method[@name="SaveStream"]/docs/*' />
@@ -244,7 +249,7 @@ namespace Nini.Ini
 						sectionFound = true;
 						// If section already exists then overwrite it
 						if (sections[reader.Name] != null) {
-							sections.Remove (reader.Name);
+							sections.RemoveSection (reader.Name);
 						}
 						section = new IniSection (reader.Name, reader.Comment);
 						sections.Add (section);

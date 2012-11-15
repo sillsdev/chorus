@@ -1,13 +1,14 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.IO;
 using Chorus.FileTypeHanders.test;
 using Chorus.merge;
 using Chorus.sync;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
-using LibChorus.Tests.merge;
-using LibChorus.Tests.VcsDrivers.Mercurial;
+using LibChorus.TestUtilities;
 using NUnit.Framework;
+using Palaso.Progress;
+using Palaso.TestUtilities;
 
 namespace LibChorus.Tests.sync
 {
@@ -19,11 +20,16 @@ namespace LibChorus.Tests.sync
 	[Category("Sync")]
 	public class SynchronizerBadSituationTests
 	{
+		[SetUp]
+		public void Setup()
+		{
+			HgRunner.TimeoutSecondsOverrideForUnitTests = 10000;//reset it in between tests
+		}
 
 		[Test]//regression
 		public void RepoProjectName_SourceHasDotInName_IsNotLost()
 		{
-			using (TempFolder f = new TempFolder("SourceHasDotInName_IsNotLost.x.y"))
+			using (var f = new TemporaryFolder("SourceHasDotInName_IsNotLost.x.y"))
 			{
 				Synchronizer m = new Synchronizer(f.Path, new ProjectFolderConfiguration("blah"), new ConsoleProgress());
 
@@ -47,7 +53,6 @@ namespace LibChorus.Tests.sync
 				}
 			}
 		}
-
 
 		[Test]
 		public void Sync_ExceptionInMergeCode_LeftWith2HeadsAndErrorOutputToProgress()
@@ -80,8 +85,45 @@ namespace LibChorus.Tests.sync
 					Assert.IsTrue(File.ReadAllText(bob.UserFile.Path).Contains("bobWasHere"));
 				}
 			}
+			File.Delete(Path.Combine(Path.GetTempPath(), "LiftMerger.FindEntryById"));
 		}
 
+		[Test]
+		public void Sync_MergeFailure_LeavesNoChorusMergeProcessAlive()
+		{
+			using (RepositoryWithFilesSetup bob = RepositoryWithFilesSetup.CreateWithLiftFile("bob"))
+			{
+				using (RepositoryWithFilesSetup sally = RepositoryWithFilesSetup.CreateByCloning("sally", bob))
+				{
+					bob.ReplaceSomething("bobWasHere");
+					bob.AddAndCheckIn();
+					sally.ReplaceSomething("sallyWasHere");
+					using (new FailureSimulator("LiftMerger.FindEntryById"))
+					{
+						sally.CheckinAndPullAndMerge(bob);
+					}
+					Assert.AreEqual(0, Process.GetProcessesByName("ChorusMerge").Length);
+				}
+			}
+			File.Delete(Path.Combine(Path.GetTempPath(), "LiftMerger.FindEntryById"));
+		}
+
+		[Test]
+		public void Sync_MergeTimeoutExceeded_LeavesNoChorusMergeProcessAlive()
+		{
+			HgRunner.TimeoutSecondsOverrideForUnitTests = 1;
+			using (var fred = RepositoryWithFilesSetup.CreateWithLiftFile("fred"))
+			{
+				using (var betty = RepositoryWithFilesSetup.CreateByCloning("betty", fred))
+				{
+					fred.ReplaceSomething("fredWasHere");
+					fred.AddAndCheckIn();
+					betty.ReplaceSomething("bettyWasHere");
+					betty.CheckinAndPullAndMerge(fred);
+					Assert.AreEqual(0, Process.GetProcessesByName("ChorusMerge").Length);
+				}
+			}
+		}
 
 		[Test]
 		public void Sync_MergeFailure_NoneOfTheOtherGuysFilesMakeItIntoWorkingDirectory()
@@ -119,8 +161,19 @@ namespace LibChorus.Tests.sync
 					}
 				}
 			}
+			File.Delete(Path.Combine(Path.GetTempPath(), "TextMerger-bbb.txt"));
 		}
 
+		//Regression test: used to fail based on looking at the revision history and finding it null
+		[Test]
+		public void Sync_FirstCheckInButNoFilesAdded_NoProblem()
+		{
+			using (var bob = new RepositorySetup("bob"))
+			{
+				var result = bob.CheckinAndPullAndMerge();
+				Assert.IsTrue(result.Succeeded, result.ErrorEncountered==null?"":result.ErrorEncountered.Message);
+			}
+		}
 
 		/// <summary>
 		/// regression test: there was a bug (found before we released) where on rollback
@@ -159,6 +212,7 @@ namespace LibChorus.Tests.sync
 				//sally.ShowInTortoise();
 
 			}
+			File.Delete(Path.Combine(Path.GetTempPath(), "TextMerger-test.txt"));
 		}
 
 		[Test]
@@ -232,13 +286,14 @@ namespace LibChorus.Tests.sync
 					//sally.AssertSingleConflict(c => c.GetType == typeof (UnmergableFileTypeConflict));
 					sally.AssertSingleConflictType<UnmergableFileTypeConflict>();
 
-					//nb: this is bob becuase the conflict handling mode is (at the time of this test
-					//writing) set to TheyWin.
-					Assert.IsTrue(File.ReadAllText(sally.UserFile.Path).Contains("bobWasHere"));
+					// nb: this is sally because the conflict handling mode is (at the time of this test
+					// writing) set to WeWin.
+					Assert.IsTrue(File.ReadAllText(sally.UserFile.Path).Contains("sallyWasHere"));
 				}
 
 			}
 		}
+
 
 
 		[Test]
@@ -446,7 +501,19 @@ namespace LibChorus.Tests.sync
 //            }
 //        }
 
-
+		/// <summary>
+		/// Regression test: WS-34181
+		/// </summary
+		[Test]
+		public void Sync_NewFileWithNonAsciCharacters_FileAdded()
+		{
+			string name = "ŭburux.txt";
+			using (RepositoryWithFilesSetup bob = new RepositoryWithFilesSetup("bob", name, "original"))
+			{
+					   bob.AddAndCheckIn();
+					   bob.AssertNoErrorsReported();
+			}
+		}
 
 	}
 }

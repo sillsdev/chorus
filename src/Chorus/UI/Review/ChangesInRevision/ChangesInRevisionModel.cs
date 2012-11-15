@@ -80,7 +80,7 @@ namespace Chorus.UI.Review.ChangesInRevision
 			IChorusFileTypeHandler handler;
 			if (string.IsNullOrEmpty(report.PathToFile))
 			{
-				Debug.Fail("Report had empty path (only seeing this becuase in Debug Mode)");
+				Debug.Fail("Report had empty path (only seeing this because in Debug Mode)");
 				handler = new DefaultFileTypeHandler();
 			}
 			else

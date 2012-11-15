@@ -3,7 +3,7 @@ using System.IO;
 using System.Reflection;
 using System.Windows.Forms;
 
-namespace Chorus.UI
+namespace Chorus.UI.Notes.Html
 {
 	public class StyleSheet
 	{

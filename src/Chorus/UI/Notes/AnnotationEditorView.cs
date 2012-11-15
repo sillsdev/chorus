@@ -19,8 +19,19 @@ namespace Chorus.UI.Notes
 			Visible = model.IsVisible;
 			ModalDialogMode = true;
 			//needs to be primed this way
-			_existingMessagesDisplay.DocumentText = "<html></html>";
+			SetDocumentText("<html><head></head><body></body></html>");
 			_newMessage.Font = model.FontForNewMessage;
+		}
+
+		protected void SetDocumentText(string text)
+		{
+			// Using _existingMessagesDisplay.DocumentText =  causes an exception on mono
+#if MONO
+			text = text.Replace("'", "\'");
+			_existingMessagesDisplay.Navigate("javascript:{document.body.outerHTML = '" + text + "';}");
+#else
+			_existingMessagesDisplay.DocumentText = text;
+#endif
 		}
 
 		public bool ModalDialogMode
@@ -40,7 +51,7 @@ namespace Chorus.UI.Notes
 			{
 				_annotationLogo.Image = _model.GetAnnotationLogoImage();
 				_annotationLabel.Text = _model.AnnotationLabel;
-				_existingMessagesDisplay.DocumentText = _model.GetExistingMessagesHtml();
+				SetDocumentText(_model.GetExistingMessagesHtml());
 				_newMessage.Text = _model.NewMessageText;
 			}
 			OnUpdateStates(sender,e);
@@ -51,8 +62,8 @@ namespace Chorus.UI.Notes
 			Visible = _model.IsVisible;
 			if (_model.IsVisible)
 			{
-				_closedCheckBox.Checked = _model.IsClosed;
-				_closedCheckBox.Visible = _model.ResolvedControlShouldBeVisible;
+				_resolvedCheckBox.Checked = _model.IsResolved;
+				_resolvedCheckBox.Visible = _model.ResolvedControlShouldBeVisible;
 				_addButton.Enabled = _model.AddButtonEnabled;
 				_addButton.Visible = _model.ShowNewMessageControls;
 				_newMessage.Visible = _model.ShowNewMessageControls;
@@ -84,9 +95,9 @@ namespace Chorus.UI.Notes
 			x.Document.BackColor = this.BackColor;
 		}
 
-		private void OnClosedCheckBox_CheckedChanged(object sender, EventArgs e)
+		private void OnResolvedCheckBox_CheckedChanged(object sender, EventArgs e)
 		{
-			_model.IsClosed = (_closedCheckBox.Checked);
+			_model.IsResolved = (_resolvedCheckBox.Checked);
 		}
 
 		private void _addButton_Click(object sender, EventArgs e)
@@ -104,7 +115,7 @@ namespace Chorus.UI.Notes
 
 		private void _annotationLogo_Paint(object sender, PaintEventArgs e)
 		{
-			if (_model.IsClosed)
+			if (_model.IsResolved)
 			{
 				e.Graphics.DrawImage(Properties.Resources.check16x16, new Rectangle(2, 2, 28, 28));
 			}

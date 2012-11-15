@@ -26,7 +26,13 @@ namespace Chorus.UI.Notes
 		private void AnnotationInspector_Load(object sender, EventArgs e)
 		{
 			this._pathLabel.Text = _annotation.AnnotationFilePath;
+#if MONO
+			string htmlText = Render(_annotation.Element).Replace("'", "\'");
+			webBrowser1.Navigate("javascript:{document.body.outerHTML = '" +
+								 htmlText + "';}");
+#else
 			webBrowser1.DocumentText = Render(_annotation.Element);
+#endif
 		}
 
 		internal static string Render(XElement element)
@@ -44,7 +50,7 @@ namespace Chorus.UI.Notes
 				// we can do some parsing for extra bits that XSLT won't do.
 				a.AddParam("xmlinput", string.Empty, element.ToString());
 				var stringBuilder = new StringBuilder();
-				XmlWriter xmlWriter = XmlWriter.Create(stringBuilder);
+				XmlWriter xmlWriter = XmlWriter.Create(stringBuilder); // Target not a chorus file so Palaso.Xml.CanonicalXmlSettings not needed here.
 				xslCompiledTransform.Transform(element.CreateReader(), a, xmlWriter);
 				return stringBuilder.ToString();
 			}

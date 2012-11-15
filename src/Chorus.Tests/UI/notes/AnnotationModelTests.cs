@@ -9,6 +9,7 @@ using Chorus.notes;
 using Chorus.sync;
 using Chorus.UI;
 using Chorus.UI.Notes;
+using Chorus.UI.Notes.Html;
 using Chorus.UI.Review;
 using Chorus.Utilities;
 using NUnit.Framework;
@@ -25,12 +26,12 @@ namespace Chorus.Tests.notes
 			var messageSelected = new MessageSelectedEvent();
 			AnnotationEditorModel annotationModel = CreateAnnotationModel(messageSelected);
 			messageSelected.Raise(annotation, annotation.Messages.First());
-			Assert.IsFalse(annotationModel.IsClosed);
+			Assert.IsFalse(annotationModel.IsResolved);
 			Assert.IsFalse(annotation.IsClosed);
 			Assert.AreEqual(1, annotation.Messages.Count());
 			annotationModel.NewMessageText = "hello";
 			annotationModel.AddButtonClicked();
-			Assert.IsFalse(annotationModel.IsClosed,"should not have changed status");
+			Assert.IsFalse(annotationModel.IsResolved,"should not have changed status");
 			Assert.AreEqual(2,annotation.Messages.Count());
 			Assert.AreEqual("bob", annotation.Messages.Last().GetAuthor(""));
 			Assert.AreEqual("hello", annotation.Messages.Last().Text);
@@ -44,10 +45,10 @@ namespace Chorus.Tests.notes
 			var messageSelected = new MessageSelectedEvent();
 			AnnotationEditorModel annotationModel = CreateAnnotationModel(messageSelected);
 			messageSelected.Raise(annotation, annotation.Messages.First());
-			Assert.IsFalse(annotationModel.IsClosed);
+			Assert.IsFalse(annotationModel.IsResolved);
 			Assert.IsFalse(annotation.IsClosed);
-			annotationModel.IsClosed = true;
-			Assert.IsTrue(annotationModel.IsClosed);
+			annotationModel.IsResolved = true;
+			Assert.IsTrue(annotationModel.IsResolved);
 			Assert.IsTrue(annotation.IsClosed);
 		}
 

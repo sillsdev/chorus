@@ -1,12 +1,15 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
+using System.Linq;
 using System.Xml;
 using Chorus.FileTypeHanders.xml;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
-using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
+using Chorus.notes;
+using Palaso.IO;
+using Palaso.Progress;
+using Palaso.Xml;
 
 namespace Chorus.FileTypeHanders
 {
@@ -20,6 +23,9 @@ namespace Chorus.FileTypeHanders
 	/// </summary>
 	public class ChorusNotesFileHandler : IChorusFileTypeHandler
 	{
+		internal ChorusNotesFileHandler()
+		{ }
+
 		public bool CanDiffFile(string pathToFile)
 		{
 			return CanMergeFile(pathToFile);
@@ -47,32 +53,17 @@ namespace Chorus.FileTypeHanders
 
 		public void Do3WayMerge(MergeOrder order)
 		{
-			XmlMerger merger  = new XmlMerger(order.MergeSituation);
-			SetupElementStrategies(merger);
-			var r = merger.MergeFiles(order.pathToOurs, order.pathToTheirs, order.pathToCommonAncestor);
-			File.WriteAllText(order.pathToOurs, r.MergedNode.OuterXml);
-		}
-		private void SetupElementStrategies(XmlMerger merger)
-		{
-			merger.MergeStrategies.SetStrategy("annotation", ElementStrategy.CreateForKeyedElement("guid", false));
-			ElementStrategy messageStrategy = ElementStrategy.CreateForKeyedElement("guid", false);
-			messageStrategy.IsImmutable = true;
-			merger.MergeStrategies.SetStrategy("message", messageStrategy);
+			XmlMergeService.Do3WayMerge(order,
+				new ChorusNotesAnnotationMergingStrategy(order),
+				false,
+				null,
+				"annotation", "guid");
 		}
 
 		public IEnumerable<IChangeReport> Find2WayDifferences(FileInRevision parent, FileInRevision child, HgRepository repository)
 		{
-			var listener = new ChangeAndConflictAccumulator();
-						//pull the files out of the repository so we can read them
-			using (var childFile = child.CreateTempFile(repository))
-			using (var parentFile = parent.CreateTempFile(repository))
-			{
-
-			 //   var differ = ChorusNotesDiffer.CreateFromFiles(parentFile.Path, childFile.Path, listener);
-				var differ = ChorusNotesDiffer.CreateFromFiles(parent, child, parentFile.Path, childFile.Path, listener);
-				differ.ReportDifferencesToListener();
-				return listener.Changes;
-			}
+			return Xml2WayDiffService.ReportDifferences(repository, parent, child, null, "annotation", "guid")
+				.Where(change => !(change is XmlDeletionChangeReport)); // Remove any deletion reports.
 		}
 
 		public IChangePresenter GetChangePresenter(IChangeReport report, HgRepository repository)
@@ -81,13 +72,8 @@ namespace Chorus.FileTypeHanders
 			{
 				return new NotePresenter(report as IXmlChangeReport, repository);
 			}
-			else
-			{
-				return new DefaultChangePresenter(report, repository);
-			}
+			return new DefaultChangePresenter(report, repository);
 		}
-
-
 
 		public IEnumerable<IChangeReport> DescribeInitialContents(FileInRevision fileInRevision, TempFile file)
 		{
@@ -101,9 +87,24 @@ namespace Chorus.FileTypeHanders
 			}
 		}
 
+		/// <summary>
+		/// Get a list or one, or more, extensions this file type handler can process
+		/// </summary>
+		/// <returns>A collection of extensions (without leading period (.)) that can be processed.</returns>
 		public IEnumerable<string> GetExtensionsOfKnownTextFileTypes()
 		{
-			yield return ".ChorusNotes";
+			yield return AnnotationRepository.FileExtension;
+		}
+
+		/// <summary>
+		/// Return the maximum file size that can be added to the repository.
+		/// </summary>
+		/// <remarks>
+		/// Return UInt32.MaxValue for no limit.
+		/// </remarks>
+		public uint MaximumFileSize
+		{
+			get { return UInt32.MaxValue; }
 		}
 	}
 }

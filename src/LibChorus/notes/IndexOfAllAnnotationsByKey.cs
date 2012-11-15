@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Web;
+using Chorus.Utilities;
 
 namespace Chorus.notes
 {
@@ -14,7 +15,7 @@ namespace Chorus.notes
 		{
 			if(string.IsNullOrEmpty(annotation.RefStillEscaped))
 				return string.Empty;
-			return annotation.GetValueFromQueryStringOfRef(nameOfParameterInRefToIndex, string.Empty);
+			return UrlHelper.GetValueFromQueryStringOfRef(annotation.RefStillEscaped,nameOfParameterInRefToIndex, string.Empty);
 //            var parse =HttpUtility.ParseQueryString(annotation.RefStillEscaped);
 //            var values = parse.GetValues(nameOfParameterInRefToIndex);
 //            if(values==null || values.Length == 0)

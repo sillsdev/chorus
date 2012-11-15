@@ -1,25 +1,22 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Windows.Forms;
-using Chorus.Utilities;
 using NUnit.Framework;
+using Palaso.TestUtilities;
 
 namespace Chorus.Tests
 {
-	[TestFixture]
+	[TestFixture, RequiresSTA]
 	public class ChorusApplicationTests
 	{
 		[Test]
 		[Category("SkipOnBuildServer")]
 		public void Launch_CloseAfterAFewSeconds_DoesntCrash()
 		{
-			using (var folder = new TempFolder("ChorusApplicationTests"))
+			using (var folder = new TemporaryFolder("ChorusApplicationTests"))
 			{
 				Application.Idle += new EventHandler(Application_Idle);
-				new Program.Runner().Run(folder.Path);
+				new Program.Runner().Run(folder.Path, new Arguments(new object[]{}));
 			}
 		}
 

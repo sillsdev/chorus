@@ -20,6 +20,8 @@ namespace Chorus
 
 			SetUpErrorHandling();
 
+		//	throw new ApplicationException("test");
+
 			//is mercurial set up?
 			var s = HgRepository.GetEnvironmentReadinessMessage("en");
 			if (!string.IsNullOrEmpty(s))
@@ -54,18 +56,22 @@ namespace Chorus
 
 			Properties.Settings.Default.PathToRepository = pathToRepository;
 			Properties.Settings.Default.Save();
-			new Runner().Run(pathToRepository);
+			new Runner().Run(pathToRepository, new Arguments(args));
 
 			Properties.Settings.Default.Save();
 		}
 
 		private static void SetUpErrorHandling()
 		{
+			try
+			{
+//				Palaso.Reporting.ErrorReport.AddProperty("EmailAddress", "issues@wesay.org");
+//				Palaso.Reporting.ErrorReport.AddStandardProperties();
+//				Palaso.Reporting.ExceptionHandler.Init();
+
 			/* until we decide to require palaso.dll, we can at least make use of it if it happens
 			 * to be there (as it is with WeSay)
 			 */
-			try
-			{
 				Assembly asm = Assembly.LoadFrom("Palaso.dll");
 				Type errorReportType = asm.GetType("Palaso.Reporting.ErrorReport");
 				PropertyInfo emailAddress = errorReportType.GetProperty("EmailAddress");
@@ -82,14 +88,14 @@ namespace Chorus
 
 		internal class Runner
 		{
-			public void Run(string pathToRepository)
+			public void Run(string pathToRepository, Arguments arguments)
 			{
 
 				BrowseForRepositoryEvent browseForRepositoryEvent = new BrowseForRepositoryEvent();
 				browseForRepositoryEvent.Subscribe(BrowseForRepository);
 				using (var bootStrapper = new BootStrapper(pathToRepository))
 				{
-					Application.Run(bootStrapper.CreateShell(browseForRepositoryEvent));
+					Application.Run(bootStrapper.CreateShell(browseForRepositoryEvent, arguments));
 				}
 			}
 

@@ -1,11 +1,10 @@
-﻿using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.Windows.Forms;
 using Chorus.UI.Clone;
-using Chorus.Utilities;
-using Chorus.Utilities.UsbDrive;
 using Chorus.VcsDrivers.Mercurial;
 using NUnit.Framework;
+using Palaso.Progress;
+using Palaso.TestUtilities;
 
 namespace Chorus.Tests.UI.Clone
 {
@@ -18,11 +17,17 @@ namespace Chorus.Tests.UI.Clone
 			Application.EnableVisualStyles();//make progress bar work correctly
 		}
 
-//        [Test, Ignore("Run by hand only")]
-//        public void LaunchDialog_GoodAddressLargeRepot()
-//        {
-//            Launch("http://hg-public.languagedepot.org/tpi");
-//        }
+		[Test, Ignore("Run by hand only")]
+		public void LaunchDialog_GoodAddressNoFolder()
+		{
+			LaunchCustomUrl("http://hg-public.languagedepot.org/tpi");
+		}
+
+		[Test, Ignore("Run by hand only")]
+		public void LaunchDialog_GoodAddressWithFolderName()
+		{
+			LaunchCustomUrl("http://hg-public.languagedepot.org/tpi?localFolder=TokPisin");
+		}
 //
 //        [Test, Ignore("Run by hand only")]
 //        public void LaunchDialog_GoodAddressSmallRepot()
@@ -46,22 +51,36 @@ namespace Chorus.Tests.UI.Clone
 //            Launch("http://hg-public.languagedepot.org/NOTHERE");
 //        }
 
-		private void Launch(string url)
+		[Test, Ignore("Run by hand only")]
+		public void LaunchDialog_CustomUrlSourceWontBeFound()//gives HTTP Error 404: Not Found
 		{
-			using (var targetComputer = new TempFolder("clonetest-targetComputer"))
-			using (var usb = new TempFolder("clonetest-Usb"))
+			using (var source = new TemporaryFolder("CloneDialogTest"))
 			{
-				Directory.CreateDirectory(usb.Combine("repo1"));
-				HgRepository.CreateRepositoryInExistingDir(usb.Combine("repo1"), new NullProgress());
+				Directory.CreateDirectory(source.Combine("repo1"));
+				HgRepository.CreateRepositoryInExistingDir(source.Combine("repo1"), new NullProgress());
+				LaunchCustomUrl(@"somewhereElse");
+			}
+		}
 
-				//ok, the point here is that we already haved something called "repo1"
-				Directory.CreateDirectory(targetComputer.Combine("repo1"));
+		[Test, Ignore("Run by hand only")]
+		public void LaunchDialog_CustomSourceWillBeFound()
+		{
+			using (var source = new TemporaryFolder("CloneDialogTest"))
+			{
+				Directory.CreateDirectory(source.Combine("repo1"));
+				HgRepository.CreateRepositoryInExistingDir(source.Combine("repo1"), new NullProgress());
+				LaunchCustomUrl(source.Combine("repo1"));
+			}
+		}
 
-				using (var dlg = new GetCloneFromInternetDialog(targetComputer.Path))
+		private void LaunchCustomUrl(string url)
+		{
+			using (var targetComputer = new TemporaryFolder("clonetest-targetComputer"))
+			{
+				var model = new GetCloneFromInternetModel(targetComputer.Path);
+				model.InitFromUri(url);
+				using (var dlg = new GetCloneFromInternetDialog(model))
 				{
-
-			 //       dlg.URL = url;
-
 					if (DialogResult.OK != dlg.ShowDialog())
 						return;
 				}
@@ -69,7 +88,13 @@ namespace Chorus.Tests.UI.Clone
 		}
 
 		[Test,Ignore("By hand only")]
-		public void LaunchUI()
+		public void LaunchUI_Blank()
+		{
+			Launch();
+		}
+
+		[Test, Ignore("By hand only")]
+		public void LaunchWithPreformedSettings()
 		{
 			Launch();
 		}
@@ -77,8 +102,8 @@ namespace Chorus.Tests.UI.Clone
 
 		private void Launch()
 		{
-			using (var targetComputer = new TempFolder("clonetest-targetComputer"))
-			using (var dest = new TempFolder("clonetest"))
+			using (var targetComputer = new TemporaryFolder("clonetest-targetComputer"))
+			using (var dest = new TemporaryFolder("clonetest"))
 			{
 				Directory.CreateDirectory(dest.Combine("repo1"));
 				HgRepository.CreateRepositoryInExistingDir(dest.Combine("repo1"), new NullProgress());

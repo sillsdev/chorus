@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Chorus.FileTypeHanders.lift;
-using Chorus.Utilities;
+﻿using Chorus.FileTypeHanders.lift;
 using NUnit.Framework;
+using Palaso.IO;
+using Palaso.Progress;
 
 namespace LibChorus.Tests.merge.xml.lift
 {
