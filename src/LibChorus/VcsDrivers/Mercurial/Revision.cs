@@ -5,8 +5,10 @@ using System.Linq;
 
 namespace Chorus.VcsDrivers.Mercurial
 {
+	[Serializable]
 	public class Revision
 	{
+		[NonSerialized]
 		private readonly HgRepository _repository;
 		public string UserId { get; set; }
 		public RevisionNumber Number;
@@ -39,8 +41,14 @@ namespace Chorus.VcsDrivers.Mercurial
 			:this(repository)
 		{
 			UserId = name;
-			Number = new RevisionNumber(localRevisionNumber,hash);
+			Number = new RevisionNumber(localRevisionNumber, hash);
 			Summary = comment;
+		}
+
+		public Revision(HgRepository repository, string branchName, string userName, string localRevisionNumber, string hash, string comment)
+			:this(repository, userName, localRevisionNumber, hash, comment)
+		{
+			Branch = branchName;
 		}
 
 		public void SetRevisionAndHashFromCombinedDescriptor(string descriptor)
@@ -91,6 +99,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		}
 	}
 
+	[Serializable]
 	public class RevisionNumber
 	{
 		public RevisionNumber(string local, string hash)

@@ -1,8 +1,8 @@
-using System;
 using System.Xml;
+using Chorus.FileTypeHanders.xml;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
-using LibChorus.Tests.merge.xml;
+using LibChorus.TestUtilities;
 using NUnit.Framework;
 
 namespace LibChorus.Tests.merge.xml.generic
@@ -15,17 +15,31 @@ namespace LibChorus.Tests.merge.xml.generic
 	public class MergeChildrenMethodTests
 	{
 		[Test]
-		public void Run_BothChangedSingletonNode_GetBothEditedConflict()
+		public void Run_BothDeletedNonTextNodeHasChangeReport()
 		{
+			const string ancestor = @"<gloss lang='a'>
+									<text id='me' />
+								 </gloss>";
+			const string ours = @"<gloss lang='a'>
+							</gloss>";
+			const string theirs = ours;
+
+			var merger = new XmlMerger(new NullMergeSituation());
+
+			TestMergeWithChange<XmlBothDeletionChangeReport>(merger, ours, theirs, ancestor, "//gloss");
+		}
+
+		[Test]
+		public void Run_WeRemoved_TheyEdited_TextNode_GetConflictReport()
+		{
+			string ancestor = @"<gloss lang='a'>
+									<text>original</text>
+								 </gloss>";
 			string ours = @"<gloss lang='a'>
-									<text>ourGloss</text>
 							</gloss>";
 
 			string theirs = @"<gloss lang='a'>
 									<text>theirGloss</text>
-								 </gloss>";
-			string ancestor = @"<gloss lang='a'>
-									<text>original</text>
 								 </gloss>";
 
 			XmlMerger merger = new XmlMerger(new NullMergeSituation());
@@ -33,7 +47,45 @@ namespace LibChorus.Tests.merge.xml.generic
 			//without this stategy, we'd get an AmbiguousInsertConflict
 			merger.MergeStrategies.SetStrategy("text", ElementStrategy.CreateSingletonElement());
 
-			TestMerge<BothEditedTextConflict>(merger, ours, theirs, ancestor, "//gloss");
+			TestMerge<XmlTextRemovedVsEditConflict>(merger, ours, theirs, ancestor, "//gloss");
+		}
+
+		[Test]
+		public void Run_BothChangedSingletonNode_GetBothEditedConflict()
+		{
+			string ancestor = @"<gloss lang='a'>
+									<text>original</text>
+								 </gloss>";
+			string ours = @"<gloss lang='a'>
+									<text>ourGloss</text>
+							</gloss>";
+
+			string theirs = @"<gloss lang='a'>
+									<text>theirGloss</text>
+								 </gloss>";
+
+			XmlMerger merger = new XmlMerger(new NullMergeSituation());
+
+			//without this stategy, we'd get an AmbiguousInsertConflict
+			merger.MergeStrategies.SetStrategy("text", ElementStrategy.CreateSingletonElement());
+
+			TestMerge<XmlTextBothEditedTextConflict>(merger, ours, theirs, ancestor, "//gloss");
+		}
+
+		private void TestMergeWithChange<TChangeType>(XmlMerger merger, string ours, string theirs, string ancestors, string xpathToElementsToMerge)
+		{
+			var listener = new ListenerForUnitTests();
+			merger.EventListener = listener;
+
+			var ourNode = GetNode(ours, xpathToElementsToMerge);
+			var method = new MergeChildrenMethod(ourNode,
+												 GetNode(theirs, xpathToElementsToMerge),
+												 GetNode(ancestors, xpathToElementsToMerge),
+												 merger);
+			method.Run();
+			listener.AssertExpectedChangesCount(1);
+			var change = listener.Changes[0];
+			Assert.AreEqual(typeof(TChangeType), change.GetType());
 		}
 
 		private void TestMerge<TConflictType>(XmlMerger merger, string ours, string theirs, string ancestors, string xpathToElementsToMerge)
@@ -51,6 +103,7 @@ namespace LibChorus.Tests.merge.xml.generic
 		   var conflict = listener.Conflicts[0];
 			Assert.AreEqual(typeof(TConflictType), conflict.GetType());
 		}
+
 		private void TestMergeWithoutConflicts(XmlMerger merger, string ours, string theirs, string ancestors, string xpathToElementsToMerge)
 		{
 			var listener = new ListenerForUnitTests();
@@ -86,7 +139,7 @@ namespace LibChorus.Tests.merge.xml.generic
 			merger.MergeStrategies.SetStrategy("sense", ElementStrategy.CreateForKeyedElement("id", true));
 			merger.MergeStrategies.SetStrategy("gloss", ElementStrategy.CreateForKeyedElement("lang", true));
 
-			TestMerge<BothEditedTextConflict>(merger, ours, theirs, ancestor, "//sense");
+			TestMerge<XmlTextBothEditedTextConflict>(merger, ours, theirs, ancestor, "//sense");
 		}
 		[Test]
 		public void Run_BothAddedDifferentKeyedNodes_OrderIrrelevant_NoConflict()

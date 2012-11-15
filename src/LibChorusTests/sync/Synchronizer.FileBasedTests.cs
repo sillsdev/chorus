@@ -1,11 +1,11 @@
 ﻿using System.IO;
 using Chorus.sync;
-using Chorus.Utilities;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
+using LibChorus.TestUtilities;
 using NUnit.Framework;
 using System.Linq;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
 
 namespace LibChorus.Tests.sync
 {
@@ -50,6 +50,14 @@ namespace LibChorus.Tests.sync
 			Directory.CreateDirectory(_pathToBackupFolder);
 			_directorySource = new DirectoryRepositorySource("SD Backup Card", Path.Combine(_pathToBackupFolder,RepositoryAddress.ProjectNameVariable), false);
 
+		}
+
+		[TearDown]
+		public void Teardown()
+		{
+			Directory.Delete(_pathToTestRoot, true);
+			// No. It goes away when _pathToTestRoot goes away.
+			//Directory.Delete(_pathToProjectRoot, true);
 		}
 
 		private string WriteTestFile(string contents)
@@ -115,10 +123,6 @@ namespace LibChorus.Tests.sync
 		{
 			using (var setup = new RepositorySetup("Dan"))
 			{
-				//it's fine if this stops being true, but hten we need to fix the rest of this test
-				Assert.AreEqual(0, setup.Repository.GetEnabledExtension().Count());
-
-			   setup.AddAndCheckIn();
 			   Assert.Contains("hgext.graphlog", setup.Repository.GetEnabledExtension().ToArray());
 			   Assert.Contains("convert", setup.Repository.GetEnabledExtension().ToArray());
 			}

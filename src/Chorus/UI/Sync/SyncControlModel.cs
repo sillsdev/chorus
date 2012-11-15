@@ -9,7 +9,11 @@ using Chorus.sync;
 using Chorus.Utilities;
 using System.Linq;
 using Chorus.VcsDrivers;
-using Palaso.Progress.LogBox;
+using Palaso.Code;
+using Palaso.Extensions;
+using Palaso.Progress;
+using Palaso.Progress;
+using Palaso.UI.WindowsForms.Progress;
 
 namespace Chorus.UI.Sync
 {
@@ -21,16 +25,18 @@ namespace Chorus.UI.Sync
 		public event EventHandler SynchronizeOver;
 		private readonly MultiProgress _progress;
 		private SyncOptions _syncOptions;
+		private BackgroundWorker _asyncLocalCheckInWorker;
 
-		public StatusProgress StatusProgress { get; private set; }
+		public SimpleStatusProgress StatusProgress { get; set; }
 
 		public SyncControlModel(ProjectFolderConfiguration projectFolderConfiguration,
 			SyncUIFeatures uiFeatureFlags,
 			IChorusUser user)
 		{
 			_user = user;
-			StatusProgress = new StatusProgress();
-			_progress = new MultiProgress(new[] { StatusProgress });
+			_progress = new MultiProgress();
+			StatusProgress = new SimpleStatusProgress();
+			_progress.Add(StatusProgress);
 			Features = uiFeatureFlags;
 			_synchronizer = Synchronizer.FromProjectConfiguration(projectFolderConfiguration, _progress);
 			_backgroundWorker = new BackgroundWorker();
@@ -40,7 +46,7 @@ namespace Chorus.UI.Sync
 
 			//clients will normally change these
 			SyncOptions = new SyncOptions();
-			SyncOptions.CheckinDescription = "["+Application.ProductName+"] sync";
+			SyncOptions.CheckinDescription = "[" + Application.ProductName + ": " + Application.ProductVersion + "] sync";
 			SyncOptions.DoPullFromOthers = true;
 			SyncOptions.DoMergeWithOthers = true;
 			SyncOptions.RepositorySourcesToTry.AddRange(GetRepositoriesToList().Where(r => r.Enabled));
@@ -51,11 +57,12 @@ namespace Chorus.UI.Sync
 			if (SynchronizeOver != null)
 			{
 				UnmanagedMemoryStream stream=null;
-				if (this.StatusProgress.ErrorEncountered)
+
+				if (_progress.ErrorEncountered)
 				{
 					stream = Properties.Resources.errorSound;
 				}
-				else if (this.StatusProgress.WarningEncountered)
+				else if (_progress.WarningsEncountered)
 				{
 					stream = Properties.Resources.warningSound;
 				}
@@ -159,6 +166,21 @@ namespace Chorus.UI.Sync
 			get { return _backgroundWorker.CancellationPending;  }
 		}
 
+		public IProgressIndicator ProgressIndicator
+		{
+			get { return _progress.ProgressIndicator; }
+			set { _progress.ProgressIndicator = value; }
+		}
+
+		public SynchronizationContext UIContext
+		{
+			set { _progress.SyncContext = value; }
+		}
+
+		public bool ErrorsOrWarningsEncountered
+		{
+			get { return _progress.ErrorEncountered || _progress.WarningsEncountered; }
+		}
 
 		public bool HasFeature(SyncUIFeatures feature)
 		{
@@ -181,6 +203,7 @@ namespace Chorus.UI.Sync
 		/// sites the user has indicated</param>
 		public void Sync(bool useTargetsAsSpecifiedInSyncOptions)
 		{
+			_progress.WriteStatus("Syncing...");
 			lock (this)
 			{
 				if(_backgroundWorker.IsBusy)
@@ -228,14 +251,61 @@ namespace Chorus.UI.Sync
 			_synchronizer.SetIsOneOfDefaultSyncAddresses(address, address.Enabled);
 		}
 
-		public void AddProgressDisplay(IProgress progress)
+		public void AddMessagesDisplay(IProgress progress)
 		{
-			_progress.Add(progress);
+			_progress.AddMessageProgress(progress);
+		}
+
+		public void AddStatusDisplay(IProgress progress)
+		{
+			_progress.AddStatusProgress(progress);
 		}
 
 		public void GetDiagnostics(IProgress progress)
 		{
 			_synchronizer.Repository.GetDiagnosticInformation(progress);
+		}
+
+		public void SetSynchronizerAdjunct(ISychronizerAdjunct adjunct)
+		{
+			_synchronizer.SynchronizerAdjunct = adjunct;
+		}
+
+
+		/// <summary>
+		/// Check in, to the local disk repository, any changes to this point.
+		/// </summary>
+		/// <param name="checkinDescription">A description of what work was done that you're wanting to checkin. E.g. "Delete a Book"</param>
+		/// <param name="progress">Can be null if you don't want any progress report</param>
+		public void AsyncLocalCheckIn(string checkinDescription, Action<SyncResults> callbackWhenFinished)
+		{
+			var repoPath = this._synchronizer.Repository.PathToRepo.CombineForPath(".hg");
+			Require.That(Directory.Exists(repoPath), "The repository should already exist before calling AsyncLocalCheckIn(). Expected to find the hg folder at " + repoPath);
+
+			//NB: if someone were to call this fast and repeatedly, I won't vouch for any kind of safety here.
+			//This is just designed for checking in occasionally, like as users do some major new thing, or finish some task.
+			if (_asyncLocalCheckInWorker != null && !_asyncLocalCheckInWorker.IsBusy)
+			{
+				_asyncLocalCheckInWorker.Dispose(); //timidly avoid a leak
+			}
+			_asyncLocalCheckInWorker = new BackgroundWorker();
+			_asyncLocalCheckInWorker.DoWork += new DoWorkEventHandler((o, args) =>
+														{
+
+		   var options = new SyncOptions()
+			{
+				CheckinDescription = checkinDescription,
+				DoMergeWithOthers = false,
+				DoPullFromOthers = false,
+				DoSendToOthers = false
+			};
+		   var result = _synchronizer.SyncNow(options);
+			if (callbackWhenFinished != null)
+			{
+				callbackWhenFinished(result);
+			}
+														});
+			_asyncLocalCheckInWorker.RunWorkerAsync();
 		}
 	}
 

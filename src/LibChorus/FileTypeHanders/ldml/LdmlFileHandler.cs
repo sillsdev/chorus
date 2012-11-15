@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Xml;
+using System.Xml.Linq;
 using Chorus.FileTypeHanders.xml;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
 using Chorus.VcsDrivers.Mercurial;
 using Palaso.IO;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
 using Palaso.Xml;
 
 namespace Chorus.FileTypeHanders.ldml
@@ -19,7 +19,10 @@ namespace Chorus.FileTypeHanders.ldml
 	///</summary>
 	public class LdmlFileHandler : IChorusFileTypeHandler
 	{
-		private const string kExtension = "ldml";
+		internal LdmlFileHandler()
+		{}
+
+		private const string Extension = "ldml";
 
 		#region Implementation of IChorusFileTypeHandler
 
@@ -40,7 +43,7 @@ namespace Chorus.FileTypeHanders.ldml
 
 		public bool CanValidateFile(string pathToFile)
 		{
-			return FileUtils.CheckValidPathname(pathToFile, kExtension);
+			return FileUtils.CheckValidPathname(pathToFile, Extension);
 		}
 
 		/// <summary>
@@ -52,6 +55,7 @@ namespace Chorus.FileTypeHanders.ldml
 		{
 			if (mergeOrder == null)
 				throw new ArgumentNullException("mergeOrder");
+			PreMergeFile(mergeOrder);
 
 			var merger = new XmlMerger(mergeOrder.MergeSituation);
 			SetupElementStrategies(merger);
@@ -64,16 +68,10 @@ namespace Chorus.FileTypeHanders.ldml
 				nameSpaceManager.AddNamespace("palaso", "urn://palaso.org/ldmlExtensions/v1");
 				nameSpaceManager.AddNamespace("fw", "urn://fieldworks.sil.org/ldmlExtensions/v1");
 
-				var readerSettings = new XmlReaderSettings
-										{
-											NameTable = nameSpaceManager.NameTable,
-											IgnoreWhitespace = true,
-											ConformanceLevel = ConformanceLevel.Auto,
-											ValidationType = ValidationType.None,
-											XmlResolver = null,
-											CloseInput = true,
-											ProhibitDtd = false
-										};
+				var readerSettings = CanonicalXmlSettings.CreateXmlReaderSettings(ConformanceLevel.Auto);
+				readerSettings.NameTable = nameSpaceManager.NameTable;
+				readerSettings.XmlResolver = null;
+				readerSettings.ProhibitDtd = false;
 				using (var nodeReader = XmlReader.Create(new MemoryStream(Encoding.UTF8.GetBytes(result.MergedNode.OuterXml)), readerSettings))
 				{
 					writer.WriteNode(nodeReader, false);
@@ -101,8 +99,7 @@ namespace Chorus.FileTypeHanders.ldml
 		{
 			try
 			{
-				var settings = new XmlReaderSettings { ValidationType = ValidationType.None };
-				using (var reader = XmlReader.Create(pathToFile, settings))
+				using (var reader = XmlReader.Create(pathToFile, CanonicalXmlSettings.CreateXmlReaderSettings()))
 				{
 					reader.MoveToContent();
 					if (reader.LocalName == "ldml")
@@ -134,9 +131,13 @@ namespace Chorus.FileTypeHanders.ldml
 			return new IChangeReport[] { new DefaultChangeReport(fileInRevision, "Added") };
 		}
 
+		/// <summary>
+		/// Get a list or one, or more, extensions this file type handler can process
+		/// </summary>
+		/// <returns>A collection of extensions (without leading period (.)) that can be processed.</returns>
 		public IEnumerable<string> GetExtensionsOfKnownTextFileTypes()
 		{
-			yield return kExtension;
+			yield return Extension;
 		}
 
 		/// <summary>
@@ -154,6 +155,8 @@ namespace Chorus.FileTypeHanders.ldml
 
 		private static void SetupElementStrategies(XmlMerger merger)
 		{
+			merger.MergeStrategies.ElementToMergeStrategyKeyMapper = new LdmlElementToMergeStrategyKeyMapper();
+
 			merger.MergeStrategies.SetStrategy("ldml", ElementStrategy.CreateSingletonElement());
 			merger.MergeStrategies.SetStrategy("identity", ElementStrategy.CreateSingletonElement());
 			// Child elements of "identity".
@@ -182,6 +185,49 @@ namespace Chorus.FileTypeHanders.ldml
 				MergePartnerFinder = new FindByMatchingAttributeNames(new HashSet<string> { "xmlns:fw" })
 			};
 			merger.MergeStrategies.SetStrategy("special_xmlns:fw", strategy);
+		}
+
+		/// <summary>
+		/// handles that date business, so it doesn't overwhelm the poor user with conflict reports
+		/// </summary>
+		/// <param name="mergeOrder"></param>
+		private static void PreMergeFile(MergeOrder mergeOrder)
+		{
+			var ourDoc = File.Exists(mergeOrder.pathToOurs) ? XDocument.Load(mergeOrder.pathToOurs) : null;
+			var theirDoc = File.Exists(mergeOrder.pathToTheirs) ? XDocument.Load(mergeOrder.pathToTheirs) : null;
+
+			if (ourDoc == null || theirDoc == null)
+				return;
+
+			// Pre-merge <generation> date attr to newest.
+			string ourRawGenDate;
+			var ourGenDate = GetGenDate(ourDoc, out ourRawGenDate);
+			string theirRawGenDate;
+			var theirGenDate = GetGenDate(theirDoc, out theirRawGenDate);
+			if (ourGenDate == theirGenDate)
+				return;
+			if (ourGenDate < theirGenDate)
+			{
+				var ourData = File.ReadAllText(mergeOrder.pathToOurs).Replace(ourRawGenDate, theirRawGenDate);
+				File.WriteAllText(mergeOrder.pathToOurs, ourData);
+				return;
+			}
+			var theirData = File.ReadAllText(mergeOrder.pathToTheirs).Replace(theirRawGenDate, ourRawGenDate);
+			File.WriteAllText(mergeOrder.pathToTheirs, theirData);
+		}
+
+		private static DateTime GetGenDate(XDocument doc, out string rawGenDate)
+		{
+			rawGenDate = doc.Root.Element("identity").Element("generation").Attribute("date").Value;
+			var splitData = GetDateTimeInts(rawGenDate);
+			return new DateTime(splitData[0], splitData[1], splitData[2], splitData[3], splitData[4], splitData[5]);
+		}
+
+		private static int[] GetDateTimeInts(string ldmlDate)
+		{
+			// date="2012-06-08T09:36:30"
+			var splitData = ldmlDate.Split(new[] {"-", "T", ":"}, StringSplitOptions.RemoveEmptyEntries);
+			return new[] { Int32.Parse(splitData[0]), Int32.Parse(splitData[1]), Int32.Parse(splitData[2]), Int32.Parse(splitData[3]), Int32.Parse(splitData[4]), Int32.Parse(splitData[5]) };
 		}
 	}
 }

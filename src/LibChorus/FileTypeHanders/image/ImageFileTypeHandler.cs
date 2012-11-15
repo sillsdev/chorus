@@ -6,12 +6,15 @@ using Chorus.sync;
 using Chorus.VcsDrivers.Mercurial;
 using System.Linq;
 using Palaso.IO;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
 
 namespace Chorus.FileTypeHanders.image
 {
 	public class ImageFileTypeHandler : IChorusFileTypeHandler
 	{
+		internal ImageFileTypeHandler()
+		{}
+
 		public bool CanDiffFile(string pathToFile)
 		{
 			return false;
@@ -24,8 +27,9 @@ namespace Chorus.FileTypeHanders.image
 
 		public bool CanPresentFile(string pathToFile)
 		{
-			var ext = Path.GetExtension(pathToFile);
-			return string.IsNullOrEmpty(ext) ? false : GetExtensionsOfKnownTextFileTypes().Contains(ext);}
+			var ext = Path.GetExtension(pathToFile); // NB: has the '.'
+			return !string.IsNullOrEmpty(ext) && GetExtensionsOfKnownTextFileTypes().Contains(ext.Replace(".", null));
+		}
 
 		public bool CanValidateFile(string pathToFile)
 		{
@@ -60,9 +64,13 @@ namespace Chorus.FileTypeHanders.image
 			return new IChangeReport[] { new DefaultChangeReport(fileInRevision, "Added") };
 		}
 
+		/// <summary>
+		/// Get a list or one, or more, extensions this file type handler can process
+		/// </summary>
+		/// <returns>A collection of extensions (without leading period (.)) that can be processed.</returns>
 		public IEnumerable<string> GetExtensionsOfKnownTextFileTypes()
 		{
-			return new List<string> { ".tif", ".jpg", ".png", ".bmp" };
+			return new List<string> { "bmp", "jpg", "jpeg", "gif", "png", "tif", "tiff", "ico", "wmf", "pcx", "cgm" };
 		}
 
 		/// <summary>

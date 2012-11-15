@@ -47,12 +47,46 @@ namespace Chorus.VcsDrivers.Mercurial
 	{
 		public static bool ErrorMatches(Exception error)
 		{
-			return error.Message.Contains("500");
+			return error.Message.Contains("500") || error.Message.Contains("503");
 		}
 
 		public override string Message
 		{
 			get { return "The internet server reported that it is having problems. There isn't anything you can do about that except try again later."; }
+		}
+	}
+
+	public class PortProblemException : HgCommonException
+	{
+		private readonly string _targetUri;
+
+		public PortProblemException(string targetUri)
+		{
+			_targetUri = targetUri;
+		}
+
+		public static bool ErrorMatches(Exception error)
+		{
+			return error.Message.Contains("refused");//"No connection could be made because the target machine actively refused it
+		}
+
+		public override string Message
+		{
+			get
+			{
+				if(_targetUri.ToLower().Contains("chorushub"))
+				{
+					return "Your computer could reach the Chorus Hub computer, but couldn't communicate with ChorusHub itself. Possible causes:\r\n1) Something is wrong with Chorus Hub.  Go to the machine running ChorusHub, and try quitting ChorusHub and running it again. 2) A firewall on your machine or on your network is blocking the communication on this port (the number after the colon here: "+_targetUri+").";
+				}
+				else if(_targetUri.ToLower().Contains("languagedepot"))
+				{
+					return "Your computer could reach LanguageDepot.org, but couldn't communicate with the Chorus server there. Possible causes:\r\n1) The Chorus server on LanguageDepot might be temporarily out of order. If it is, try again later/tomorrow. \r\n2) A firewall on your machine or on your network is blocking the communication with LanguageDepot.org.";
+				}
+				else
+				{
+					return "Your computer could reach the target computer, but they couldn't communicate. Possible causes:\r\n1) on the target machine, the service is not running.\r\n2) A firewall on your machine or on your network is blocking the communication on this port (the number after the colon here: " + _targetUri + ").";
+				}
+			}
 		}
 	}
 
@@ -80,6 +114,32 @@ namespace Chorus.VcsDrivers.Mercurial
 		}
 	}
 
+
+	public class UnrelatedRepositoryErrorException : HgCommonException
+	{
+		private readonly string _sourceUri;
+
+		public UnrelatedRepositoryErrorException(string sourceUri)
+		{
+			_sourceUri = sourceUri;
+		}
+
+		public static bool ErrorMatches(Exception error)
+		{
+			return error.Message.Contains("unrelated");
+		}
+
+		public override string Message
+		{
+			get
+			{
+				return
+					string.Format(
+						"The repository(a.k.a 'project' or 'collection') that you tried to synchronize with has the same name as yours, but it does not have the same heritage, so it cannot be synchronized. In order to Send/Receive projects, you have to start with a single project/collection, then copy that around. Don't feel bad if this is confusing, just ask for some technical help.");
+			}
+		}
+	}
+
 	public class ProjectLabelErrorException : HgCommonException
 	{
 		private readonly string _sourceUri;
@@ -99,7 +159,15 @@ namespace Chorus.VcsDrivers.Mercurial
 			get
 			{
 				var x = new Uri(_sourceUri);
-				return string.Format("Check that {0} really hosts a project labeled '{1}'", x.Host, x.PathAndQuery.Trim('/'));
+				if (_sourceUri.ToLower().Contains("chorushub"))
+				{
+					return string.Format("That Chorus Hub does not yet host a project labeled '{0}'. It may be busy making a place for it now, so try again in 5 minutes.", x.PathAndQuery.Trim('/').Replace("%20"," "));
+				}
+				else
+				{
+					return string.Format("Check that {0} really hosts a project labeled '{1}'", x.Host,
+										 x.PathAndQuery.Trim('/'));
+				}
 			}
 		}
 	}

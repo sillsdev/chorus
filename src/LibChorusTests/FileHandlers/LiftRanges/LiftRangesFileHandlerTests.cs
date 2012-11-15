@@ -3,9 +3,10 @@ using System.IO;
 using System.Linq;
 using Chorus.FileTypeHanders;
 using Chorus.merge;
-using LibChorus.Tests.merge.xml.generic;
+using LibChorus.TestUtilities;
 using NUnit.Framework;
 using Palaso.IO;
+using Palaso.Progress;
 
 namespace LibChorus.Tests.FileHandlers.LiftRanges
 {
@@ -65,24 +66,41 @@ namespace LibChorus.Tests.FileHandlers.LiftRanges
 		[Test]
 		public void CanMergeAFile()
 		{
-			var goodXmlPathname = Path.ChangeExtension(Path.GetTempFileName(), ".lift-ranges");
-			try
+			using (var tempFile = TempFile.WithExtension(".lift-ranges"))
 			{
-// ReSharper disable LocalizableElement
-				File.WriteAllText(goodXmlPathname, "<?xml version='1.0' encoding='utf-8'?>" + Environment.NewLine + "<lift-ranges />");
-// ReSharper restore LocalizableElement
-				Assert.IsTrue(_liftRangesFileHandler.CanMergeFile(goodXmlPathname));
-			}
-			finally
-			{
-				File.Delete(goodXmlPathname);
+				File.WriteAllText(tempFile.Path, "<?xml version='1.0' encoding='utf-8'?>" + Environment.NewLine + "<lift-ranges />");
+				Assert.IsTrue(_liftRangesFileHandler.CanMergeFile(tempFile.Path));
 			}
 		}
 
 		[Test]
-		public void CanPresentAFile()
+		public void CannotPresentANullFile()
 		{
-			Assert.IsTrue(_liftRangesFileHandler.CanPresentFile(null));
+			Assert.IsFalse(_liftRangesFileHandler.CanPresentFile(null));
+		}
+
+		[Test]
+		public void CannotPresentAnEmptyFileName()
+		{
+			Assert.IsFalse(_liftRangesFileHandler.CanPresentFile(""));
+		}
+
+		[Test]
+		public void CannotPresentAFileWithOtherExtension()
+		{
+			using (var tempFile = TempFile.WithExtension(".ClassData"))
+			{
+				Assert.IsFalse(_liftRangesFileHandler.CanPresentFile(tempFile.Path));
+			}
+		}
+
+		[Test]
+		public void CanPresentAGoodFile()
+		{
+			using (var tempFile = TempFile.WithExtension(".ClassData"))
+			{
+				Assert.IsFalse(_liftRangesFileHandler.CanPresentFile(tempFile.Path));
+			}
 		}
 
 		public void Find2WayDifferencesThrows()
@@ -91,9 +109,18 @@ namespace LibChorus.Tests.FileHandlers.LiftRanges
 		}
 
 		[Test]
-		public void ValidateFileThrows()
+		public void ValidateFileHasNoResultsForValiidFile()
 		{
-			Assert.Throws<NotImplementedException>(() => _liftRangesFileHandler.ValidateFile(null, null));
+			const string data =
+@"<?xml version='1.0' encoding='utf-8'?>
+<lift-ranges>
+	<range
+		id='theone' />
+</lift-ranges>";
+			using (var tempFile = new TempFile(data))
+			{
+				Assert.IsNull(_liftRangesFileHandler.ValidateFile(tempFile.Path, new NullProgress()));
+			}
 		}
 
 		[Test]
@@ -102,19 +129,23 @@ namespace LibChorus.Tests.FileHandlers.LiftRanges
 			const string common =
 @"<?xml version='1.0' encoding='utf-8'?>
 <lift-ranges>
-<range />
-</>";
+	<range
+		id='theone' />
+</lift-ranges>";
 			const string ours =
 @"<?xml version='1.0' encoding='utf-8'?>
 <lift-ranges>
-<range />
-</>";
+	<range
+		id='theone' />
+</lift-ranges>";
 			const string theirs =
 @"<?xml version='1.0' encoding='utf-8'?>
 <lift-ranges>
-<range />
-</>";
+	<range
+		id='theone' />
+</lift-ranges>";
 			var result = DoMerge(common, ours, theirs, 0, 0);
+			result = result.Replace("\"", "'");
 			Assert.AreEqual(common, result);
 			Assert.AreEqual(ours, result);
 			Assert.AreEqual(theirs, result);
@@ -126,19 +157,24 @@ namespace LibChorus.Tests.FileHandlers.LiftRanges
 			const string common =
 @"<?xml version='1.0' encoding='utf-8'?>
 <lift-ranges>
-<range />
-</>";
+<range id='theone'/>
+</lift-ranges>";
 			const string ours =
 @"<?xml version='1.0' encoding='utf-8'?>
 <lift-ranges>
-<range attr='data' />
-</>";
+	<range
+		id='theone'
+		attr='data' />
+</lift-ranges>";
 			const string theirs =
 @"<?xml version='1.0' encoding='utf-8'?>
 <lift-ranges>
-<range attr='data' />
-</>";
-			var result = DoMerge(common, ours, theirs, 0, 1);
+	<range
+		id='theone'
+		attr='data' />
+</lift-ranges>";
+			var result = DoMerge(common, ours, theirs, 0, 0);
+			result = result.Replace("\"", "'");
 			Assert.AreEqual(ours, result);
 			Assert.AreEqual(theirs, result);
 		}
@@ -149,19 +185,22 @@ namespace LibChorus.Tests.FileHandlers.LiftRanges
 			const string common =
 @"<?xml version='1.0' encoding='utf-8'?>
 <lift-ranges>
-<range />
-</>";
+<range id='theone'/>
+</lift-ranges>";
 			const string ours =
 @"<?xml version='1.0' encoding='utf-8'?>
 <lift-ranges>
-<range attr='data' />
-</>";
+	<range
+		id='theone'
+		attr='data' />
+</lift-ranges>";
 			const string theirs =
 @"<?xml version='1.0' encoding='utf-8'?>
 <lift-ranges>
-<range />
-</>";
-			var result = DoMerge(common, ours, theirs, 0, 1);
+<range id='theone'/>
+</lift-ranges>";
+			var result = DoMerge(common, ours, theirs, 0, 0);
+			result = result.Replace("\"", "'");
 			Assert.AreEqual(ours, result);
 		}
 
@@ -171,19 +210,22 @@ namespace LibChorus.Tests.FileHandlers.LiftRanges
 			const string common =
 @"<?xml version='1.0' encoding='utf-8'?>
 <lift-ranges>
-<range />
-</>";
+<range id='theone' />
+</lift-ranges>";
 			const string ours =
 @"<?xml version='1.0' encoding='utf-8'?>
 <lift-ranges>
-<range />
-</>";
+<range id='theone'/>
+</lift-ranges>";
 			const string theirs =
 @"<?xml version='1.0' encoding='utf-8'?>
 <lift-ranges>
-<range attr='data' />
-</>";
-			var result = DoMerge(common, ours, theirs, 0, 1);
+	<range
+		attr='data'
+		id='theone' />
+</lift-ranges>";
+			var result = DoMerge(common, ours, theirs, 0, 0);
+			result = result.Replace("\"", "'");
 			Assert.AreEqual(theirs, result);
 		}
 
@@ -193,19 +235,24 @@ namespace LibChorus.Tests.FileHandlers.LiftRanges
 			const string common =
 @"<?xml version='1.0' encoding='utf-8'?>
 <lift-ranges>
-<range />
-</>";
+<range id='theone'/>
+</lift-ranges>";
 			const string ours =
 @"<?xml version='1.0' encoding='utf-8'?>
 <lift-ranges>
-<range attr='ourdata' />
-</>";
+	<range
+		attr='ourdata'
+		id='theone' />
+</lift-ranges>";
 			const string theirs =
 @"<?xml version='1.0' encoding='utf-8'?>
 <lift-ranges>
-<range attr='theirdata' />
-</>";
+	<range
+		attr='theirdata'
+		id='theone' />
+</lift-ranges>";
 			var result = DoMerge(common, ours, theirs, 1, 0);
+			result = result.Replace("\"", "'");
 			Assert.AreEqual(ours, result);
 		}
 

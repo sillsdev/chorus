@@ -2,11 +2,10 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Windows.Forms;
-using Chorus.Utilities;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using System.Linq;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
 
 namespace Chorus.UI.Settings
 {
@@ -18,6 +17,21 @@ namespace Chorus.UI.Settings
 		{
 			_repository = repository;
 		}
+
+		/// <summary>
+		/// User preference for showing the Internet Button on Send/Receive
+		/// </summary>
+		public bool DisplayInternetButton { get; set; }
+
+		/// <summary>
+		/// User preference for showing the Shared Folder Button on Send/Receive
+		/// </summary>
+		public bool DisplaySharedFolderButton { get; set; }
+
+		/// <summary>
+		/// User preference for showing the USB Button on Send/Receive
+		/// </summary>
+		public bool DisplayUSBButton { get; set; }
 
 		public void SetUserName(string name, IProgress progress)
 		{
@@ -64,6 +78,13 @@ namespace Chorus.UI.Settings
 					return;
 			}
 			_repository.SetKnownRepositoryAddresses(aliases);
+		}
+
+		internal void SaveSettings()
+		{
+			//The repository settings are already done directly
+
+
 		}
 	}
 }

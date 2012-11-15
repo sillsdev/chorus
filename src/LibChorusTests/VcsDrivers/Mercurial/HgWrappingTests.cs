@@ -1,9 +1,11 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using Chorus.VcsDrivers.Mercurial;
+using LibChorus.TestUtilities;
 using NUnit.Framework;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
 using Palaso.TestUtilities;
 
 namespace LibChorus.Tests.VcsDrivers.Mercurial
@@ -24,17 +26,14 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			_progress = new ConsoleProgress();
 		}
 
-
 		[Test, Ignore("By Hand only")]
 		public void Test_GetProxyAndCredentials()
 		{
 			using (var setup = new HgTestSetup())
 			{
-				var result =setup.Repository.GetProxyConfigParameterString("http://proxycheck.palaso.org/", new NullProgress());
-
+				var result =setup.Repository.GetProxyConfigParameterString("http://proxycheck.palaso.org/");
 			}
 		}
-
 
 		[Test]
 		public void RemoveOldLocks_NoLocks_ReturnsTrue()
@@ -96,6 +95,32 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				{
 					Assert.IsFalse(setup.Repository.RemoveOldLocks(ourName, true));
 				}
+			}
+		}
+
+		[Test]
+		public void CommitCommentWithDoubleQuotes_HasCorrectComment()
+		{
+			using (var setup = new HgTestSetup())
+			{
+				var path = setup.Root.GetNewTempFile(true).Path;
+				setup.Repository.AddAndCheckinFile(path);
+				File.WriteAllText(path, "new stuff");
+				const string message = "New \"double quoted\" comment";
+				setup.Repository.Commit(true, message);
+				setup.AssertCommitMessageOfRevision("1", message);
+			}
+		}
+
+		[Test]
+		public void CommitWithNoUsernameInHgrcFileUsesDefaultFromEnvironment()
+		{
+			using (var setup = new HgTestSetup())
+			{
+				var path = setup.Root.GetNewTempFile(true).Path;
+				setup.Repository.AddAndCheckinFile(path);
+				var rev = setup.Repository.GetAllRevisions()[0];
+				Assert.AreEqual(Environment.UserName, rev.UserId);
 			}
 		}
 
@@ -258,11 +283,18 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				setup.Repository.AddAndCheckinFile(path);
 				File.WriteAllText(path,"2");
 				setup.Repository.AddAndCheckinFile(path);
-				setup.Repository.BackoutHead("1", "testing");
+				var theMessage = "testing";
+				setup.Repository.BackoutHead("1", theMessage);
 				setup.AssertLocalNumberOfTip("2");
 				setup.AssertHeadOfWorkingDirNumber("2");
 				setup.AssertHeadCount(1);
-				setup.AssertCommitMessageOfRevision("2","testing");
+
+				//for debuging a weird TeamCity failure of this
+				Assert.AreEqual((int)'t', (int)(setup.Repository.GetRevision("2").Summary.Trim())[0]);
+				Assert.AreEqual((int)'t', (int)(setup.Repository.GetRevision("2").Summary)[0]);
+				Assert.AreEqual(theMessage, setup.Repository.GetRevision("2").Summary);
+
+				setup.AssertCommitMessageOfRevision("2",theMessage);
 			}
 		}
 
@@ -349,9 +381,72 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 //        }
 
 
+		[Test]
+		public void MakeBundle_InvalidBase_FalseAndFileDoesNotExist()
+		{
+			using (var setup = new HgTestSetup())
+			{
+				var path = setup.Root.GetNewTempFile(true).Path;
+				File.WriteAllText(path, "original");
+				setup.Repository.AddAndCheckinFile(path);
+				string bundleFilePath = setup.Root.GetNewTempFile(false).Path;
+				Assert.That(setup.Repository.MakeBundle(new []{"fakehash"},
+					bundleFilePath), Is.False);
+				Assert.That(File.Exists(bundleFilePath), Is.False);
+			}
+		}
 
+		[Test]
+		public void MakeBundle_ValidBase_BundleFileExistsAndReturnsTrue()
+		{
+			using (var setup = new HgTestSetup())
+			{
+				var path = setup.Root.GetNewTempFile(true).Path;
+				File.WriteAllText(path, "original");
+				setup.Repository.AddAndCheckinFile(path);
+				Revision revision = setup.Repository.GetTip();
+				setup.ChangeAndCheckinFile(path, "bad");
 
+				var bundleFilePath = setup.Root.GetNewTempFile(true).Path;
+				Assert.That(setup.Repository.MakeBundle(new []{revision.Number.Hash}, bundleFilePath), Is.True);
+				Assert.That(File.Exists(bundleFilePath), Is.True);
+			}
+		}
+
+		[Test]
+		public void Unbundle_ValidBundleFile_ReturnsTrue()
+		{
+			using (var setup = new RepositorySetup("unbundleTests"))
+			{
+				var bundleFilePath = setup.RootFolder.GetNewTempFile(false).Path;
+				setup.AddAndCheckinFile(setup.ProjectFolder.GetNewTempFile(true).Path, "some file we don't care about");
+				var hash = setup.Repository.GetTip().Number.Hash;
+				setup.AddAndCheckinFile(setup.ProjectFolder.GetNewTempFile(true).Path, "another file we don't care about");
+				setup.Repository.MakeBundle(new []{hash}, bundleFilePath);
+				setup.Repository.RollbackWorkingDirectoryToLastCheckin();
+				Assert.That(setup.Repository.Unbundle(bundleFilePath), Is.True);
+			}
+		}
+
+		[Test]
+		public void Unbundle_BadPath_ReturnsFalse()
+		{
+			using (var setup = new RepositorySetup("unbundleTests"))
+			{
+				var bundleFilePath = "bad file path";
+				Assert.That(setup.Repository.Unbundle(bundleFilePath), Is.False);
+			}
+		}
+
+		[Test]
+		public void Unbundle_BadBundleFile_ReturnsFalse()
+		{
+			using (var setup = new RepositorySetup("unbundleTests"))
+			{
+				var bundleFilePath = setup.RootFolder.GetNewTempFile(false).Path;
+				File.WriteAllText(bundleFilePath, "bogus bundle file contents");
+				Assert.That(setup.Repository.Unbundle(bundleFilePath), Is.False);
+			}
+		}
 	}
-
-
 }

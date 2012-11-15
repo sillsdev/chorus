@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Xml;
+﻿using System.Xml;
 using Chorus.merge.xml.generic;
+using LibChorus.TestUtilities;
 using NUnit.Framework;
 
 namespace LibChorus.Tests.merge.xml
@@ -48,6 +45,21 @@ namespace LibChorus.Tests.merge.xml
 			Assert.AreEqual(node,result);
 		}
 
+		[Test]
+		public void GetNodeToMerge_WithoutKeyAttr_ReturnsNull()
+		{
+			const string xml =
+				@"<a>
+					<b />
+				</a>";
+
+			var doc1 = new XmlDocument();
+			doc1.LoadXml(xml);
+
+			var finder = new FindByKeyAttribute("id");
+			var node = doc1.SelectSingleNode("//b");
+			Assert.IsNull(finder.GetNodeToMerge(node, doc1.DocumentElement));
+		}
 
 		[Test]
 		public void GetNodeToMerge_WithDoubleAndSingleQuotesInAttribute_FindsIt()

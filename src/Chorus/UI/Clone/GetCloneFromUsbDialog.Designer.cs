@@ -1,4 +1,7 @@
-﻿using Palaso.Progress.LogBox;
+﻿using System;
+using Palaso.Progress;
+using Palaso.UI.WindowsForms.Progress;
+
 
 namespace Chorus.UI.Clone
 {
@@ -186,7 +189,7 @@ namespace Chorus.UI.Clone
 			this.Name = "GetCloneFromUsbDialog";
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
 			this.Text = "Get Project From USB Drive";
-			this.Load += new System.EventHandler(this.GetCloneDialog_Load);
+			this.Load += new System.EventHandler(this.GetCloneFromUsbDialog_Load);
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -206,5 +209,7 @@ namespace Chorus.UI.Clone
 		private System.Windows.Forms.Timer _lookingForUsbTimer;
 		private System.Windows.Forms.TextBox _statusLabel;
 		private LogBox _logBox;
+
+
 	}
 }

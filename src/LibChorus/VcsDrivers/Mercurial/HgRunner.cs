@@ -7,7 +7,7 @@ using System.IO;
 using System.Net.Mime;
 using System.Threading;
 using Chorus.Utilities;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
 
 namespace Chorus.VcsDrivers.Mercurial
 {
@@ -47,7 +47,13 @@ namespace Chorus.VcsDrivers.Mercurial
 		{
 			ExecutionResult result = new ExecutionResult();
 			Process process = new Process();
+			if (String.IsNullOrEmpty(MercurialLocation.PathToMercurialFolder))
+			{
+				throw new ApplicationException("Mercurial location has not been configured.");
+			}
 			process.StartInfo.EnvironmentVariables["PYTHONPATH"] = Path.Combine(MercurialLocation.PathToMercurialFolder, "library.zip");
+			process.StartInfo.EnvironmentVariables["HGENCODING"] = "UTF-8"; // See mercurial/encoding.py
+			process.StartInfo.EnvironmentVariables["HGENCODINGMODE"] = "strict";
 			process.StartInfo.RedirectStandardError = true;
 			process.StartInfo.RedirectStandardOutput = true;
 			process.StartInfo.UseShellExecute = false;
@@ -99,7 +105,7 @@ namespace Chorus.VcsDrivers.Mercurial
 					}
 					else
 					{
-						progress.WriteWarning("Killing Process...");
+						progress.WriteWarning("Killing Hg Process...");
 						process.Kill();
 					}
 				}

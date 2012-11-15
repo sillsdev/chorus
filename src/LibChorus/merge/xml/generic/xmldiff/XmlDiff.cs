@@ -132,14 +132,33 @@ namespace Chorus.merge.xml.generic.xmldiff
 				}
 				else
 				{
-					DifferenceFound(DifferenceType.CHILD_NODELIST_LENGTH_ID, result);
+					if (_testReader.NodeType == XmlNodeType.None && _controlReader.NodeType == XmlNodeType.EndElement)
+					{
+						DifferenceFound(DifferenceType.EMPTY_NODE_ID, result);
+					}
+					else
+					{
+						DifferenceFound(DifferenceType.CHILD_NODELIST_LENGTH_ID, result);
+					}
+					return;
 				}
 			}
 			//jh added this; under a condition I haven't got into an xdiff test yet, the
 			// 'test' guy still had more children, and this fact was being missed by the above code
+			// I (RBR) discovered the context in which this happens. it is:
+			// Control: <Run />
+			// Test:    <Run></Run>
+			// At this point Control is at node type 'none', while test is at EndElement.
 			if (controlRead != testRead)
 			{
-				DifferenceFound(DifferenceType.CHILD_NODELIST_LENGTH_ID, result);
+				if (_controlReader.NodeType == XmlNodeType.None && _testReader.NodeType == XmlNodeType.EndElement)
+				{
+					DifferenceFound(DifferenceType.EMPTY_NODE_ID, result);
+				}
+				else
+				{
+					DifferenceFound(DifferenceType.CHILD_NODELIST_LENGTH_ID, result);
+				}
 			}
 		}
 
@@ -215,9 +234,9 @@ namespace Chorus.merge.xml.generic.xmldiff
 			string controlAttrValue, controlAttrName;
 			string testAttrValue, testAttrName;
 
-			_controlReader.MoveToFirstAttribute();
-			_testReader.MoveToFirstAttribute();
-			for (int i = 0; i < controlAttributeCount; ++i)
+			var movedToControlAttr = _controlReader.MoveToFirstAttribute();
+			var movedToTestAttr = _testReader.MoveToFirstAttribute();
+			for (int i = 0; _continueComparing && i < controlAttributeCount; ++i)
 			{
 
 				controlAttrName = _controlReader.Name;
@@ -252,6 +271,10 @@ namespace Chorus.merge.xml.generic.xmldiff
 				_controlReader.MoveToNextAttribute();
 				_testReader.MoveToNextAttribute();
 			}
+			if (movedToControlAttr)
+				_controlReader.MoveToElement();
+			if (movedToTestAttr)
+				_testReader.MoveToElement();
 		}
 
 		private void CompareText(DiffResult result)
@@ -318,7 +341,10 @@ namespace Chorus.merge.xml.generic.xmldiff
 			readResult = reader.Read();
 			if (!readResult || reader.NodeType != XmlNodeType.EndElement)
 			{
-				DifferenceFound(DifferenceType.CHILD_NODELIST_LENGTH_ID, result);
+				DifferenceFound(
+					reader.NodeType == XmlNodeType.Text
+						? DifferenceType.TEXT_VALUE_ID
+						: DifferenceType.CHILD_NODELIST_LENGTH_ID, result);
 			}
 		}
 

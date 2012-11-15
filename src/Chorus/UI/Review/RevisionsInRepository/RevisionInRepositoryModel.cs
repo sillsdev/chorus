@@ -2,12 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows.Forms;
-using Chorus.sync;
-using Chorus.UI.Review;
-using Chorus.Utilities;
-using Chorus.Utilities.code;
 using Chorus.VcsDrivers.Mercurial;
-using Palaso.Progress.LogBox;
+using Palaso.Code;
+using Palaso.Progress;
 
 namespace Chorus.UI.Review.RevisionsInRepository
 {
@@ -106,18 +103,18 @@ namespace Chorus.UI.Review.RevisionsInRepository
 		/// </summary>
 		public void BeginGettingRevisions()
 		{
+			if (RevisionGetter != null)
+			{
+				// RevisionGetter.Dispose();//review
+				return; // Let the poor thing do its job. Otherwise, repeated Refresh attempts will throw a null reference exception, when doing its RunWorkerCompleted event.
+			}
+
 			Guard.AgainstNull(ProgressDisplay, "ProgressDisplay");
 			SanityCheck();//review: remove?
 
-			if(RevisionGetter!=null)
-			{
-				RevisionGetter.Dispose();//review
-			}
 			RevisionGetter = new BackgroundWorker();
-			RevisionGetter.DoWork += new DoWorkEventHandler(RevisionGetter_DoWork);
-			RevisionGetter.RunWorkerCompleted+= delegate { RevisionGetter.Dispose();
-															RevisionGetter = null;
-															ProgressDisplay.WriteStatus("");};
+			RevisionGetter.DoWork += RevisionGetter_DoWork;
+			RevisionGetter.RunWorkerCompleted += RevisionGetter_RunWorkerCompleted;
 			var tip = _repository.GetTip();
 			if (tip != null)
 			{
@@ -126,6 +123,19 @@ namespace Chorus.UI.Review.RevisionsInRepository
 
 			ProgressDisplay.WriteStatus("Getting history...");
 			RevisionGetter.RunWorkerAsync();
+		}
+
+		void RevisionGetter_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+		{
+			// Make sure those puppies aren't used any more.
+			// And, let the GC do its thing on the old thread.
+			// Otherwise, we will hang onto it, until we go away.
+			RevisionGetter.DoWork -= RevisionGetter_DoWork;
+			RevisionGetter.RunWorkerCompleted -= RevisionGetter_RunWorkerCompleted;
+
+			ProgressDisplay.WriteStatus("");
+			RevisionGetter.Dispose();
+			RevisionGetter = null;
 		}
 
 		private void SanityCheck()
