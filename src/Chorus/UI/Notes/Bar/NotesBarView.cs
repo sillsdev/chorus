@@ -6,6 +6,7 @@ using System.Windows.Forms;
 using Chorus.notes;
 using Chorus.Properties;
 using Chorus.Utilities;
+using Palaso.Progress;
 
 namespace Chorus.UI.Notes.Bar
 {

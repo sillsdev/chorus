@@ -1,12 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
-using Chorus.sync;
-using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
 using NUnit.Framework;
 using System.Linq;
+using Palaso.IO;
+using Palaso.Progress;
+using Palaso.TestUtilities;
 
 namespace LibChorus.Tests.VcsDrivers.Mercurial
 {
@@ -30,8 +28,8 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		[Test]
 		public void GetFilesInRevision_OnlyOneRevisionInRepo_GivesAllFiles()
 		{
-			using (var testRoot = new TempFolder("ChorusRetrieveTest"))
-			using (var f = new TempFile(testRoot))
+			using (var testRoot = new TemporaryFolder("ChorusRetrieveTest"))
+			using (var f = new TempFileFromFolder(testRoot))
 				{
 					File.WriteAllText(f.Path, "one");
 
@@ -51,7 +49,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		[Test]
 		public void GetFilesInRevision_MultipleRevisionsInRepo_GivesCorrectFiles()
 		{
-			using (var testRoot = new TempFolder("ChorusRetrieveTest"))
+			using (var testRoot = new TemporaryFolder("ChorusRetrieveTest"))
 			{
 				var temp = testRoot.Combine("filename with spaces");
 				File.WriteAllText(temp, "one");

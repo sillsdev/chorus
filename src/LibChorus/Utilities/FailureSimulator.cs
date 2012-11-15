@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
+using System.Threading;
 
 namespace Chorus.Utilities
 {
@@ -20,7 +21,7 @@ namespace Chorus.Utilities
 		{
 			_desiredFailureLocation = desiredFailureLocation;
 
-			//using files becuase even environment variables can't be propogated up
+			//using files because even environment variables can't be propogated up
 			//from this child process to the caller
 			if(File.Exists(GetTriggerIndicatorPath(desiredFailureLocation)))
 				File.Delete(GetTriggerIndicatorPath(desiredFailureLocation));
@@ -31,15 +32,14 @@ namespace Chorus.Utilities
 
 		public static void IfTestRequestsItThrowNow(string name)
 		{
-#if DEBUG
 			string s = System.Environment.GetEnvironmentVariable(Inducechorusfailure);
 			if (s != null && s == name)
 			{
-				File.Create(GetTriggerIndicatorPath(name));
+				var triggerStream = File.Create(GetTriggerIndicatorPath(name));
+				triggerStream.Close(); // Don't leave it open, or the test runner keeps hold of it, and it can't be deleted.
 				Environment.SetEnvironmentVariable(InducechorusFailureTriggered, name);
 				throw new Exception("Exception Induced By InduceChorusFailure Environment Variable");
 			}
-#endif
 		}
 
 		private static string GetTriggerIndicatorPath(string name)
@@ -51,18 +51,14 @@ namespace Chorus.Utilities
 		{
 			base.Dispose();
 
-			if (!File.Exists(GetTriggerIndicatorPath(_desiredFailureLocation)))
+			var tempPathname = GetTriggerIndicatorPath(_desiredFailureLocation);
+			if (File.Exists(tempPathname))
 			{
-				throw new ApplicationException("FailureSimulator was not tiggered: "+ _desiredFailureLocation );
+				File.Delete(tempPathname);
 			}
-			try
+			else
 			{
-				File.Delete(GetTriggerIndicatorPath(_desiredFailureLocation));
-
-			}
-			catch (IOException e)
-			{
-				Debug.WriteLine("Could not delete the file used to indicate that the failure was successfully induced: "+ e.Message);
+				throw new ApplicationException("FailureSimulator was not tiggered: " + _desiredFailureLocation);
 			}
 		}
 	}

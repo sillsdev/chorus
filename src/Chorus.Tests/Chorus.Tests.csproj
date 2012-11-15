@@ -3,25 +3,26 @@
   <PropertyGroup>
 	<Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
 	<Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-	<ProductVersion>9.0.30729</ProductVersion>
+	<ProductVersion>9.0.21022</ProductVersion>
 	<SchemaVersion>2.0</SchemaVersion>
 	<ProjectGuid>{887A58D6-E5C5-4BA1-9C9B-41C6E8F0B915}</ProjectGuid>
 	<OutputType>Library</OutputType>
 	<AppDesignerFolder>Properties</AppDesignerFolder>
 	<RootNamespace>Chorus.Tests</RootNamespace>
 	<AssemblyName>Chorus.Tests</AssemblyName>
-	<TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+	<TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
 	<FileAlignment>512</FileAlignment>
 	<FileUpgradeFlags>
 	</FileUpgradeFlags>
 	<OldToolsVersion>3.5</OldToolsVersion>
 	<UpgradeBackupLocation />
+	<TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
 	<DebugSymbols>true</DebugSymbols>
 	<DebugType>full</DebugType>
 	<Optimize>false</Optimize>
-	<OutputPath>..\..\output\Debug\</OutputPath>
+	<OutputPath>..\..\output\$(Configuration)</OutputPath>
 	<DefineConstants>DEBUG;TRACE</DefineConstants>
 	<ErrorReport>prompt</ErrorReport>
 	<WarningLevel>4</WarningLevel>
@@ -35,7 +36,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
 	<DebugType>pdbonly</DebugType>
 	<Optimize>true</Optimize>
-	<OutputPath>bin\Release\</OutputPath>
+	<OutputPath>..\..\output\$(Configuration)</OutputPath>
 	<DefineConstants>TRACE</DefineConstants>
 	<ErrorReport>prompt</ErrorReport>
 	<WarningLevel>4</WarningLevel>
@@ -45,19 +46,47 @@
 	<RootNamespace>Chorus.Tests</RootNamespace>
 	<AllowUnsafeBlocks>false</AllowUnsafeBlocks>
 	<CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+	<PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'DebugMono|AnyCPU' ">
+	<DebugSymbols>true</DebugSymbols>
+	<OutputPath>..\..\output\$(Configuration)</OutputPath>
+	<DefineConstants>DEBUG;TRACE;MONO</DefineConstants>
+	<CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+	<DebugType>full</DebugType>
+	<PlatformTarget>x86</PlatformTarget>
+	<ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'ReleaseMono|AnyCPU' ">
+	<DebugSymbols>true</DebugSymbols>
+	<OutputPath>..\..\output\$(Configuration)</OutputPath>
+	<DefineConstants>TRACE;MONO</DefineConstants>
+	<CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+	<Optimize>true</Optimize>
+	<DebugType>pdbonly</DebugType>
+	<PlatformTarget>x86</PlatformTarget>
+	<ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <ItemGroup>
 	<Reference Include="Autofac, Version=1.4.4.561, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
 	  <SpecificVersion>False</SpecificVersion>
-	  <HintPath>..\..\lib\net2.0\Autofac.dll</HintPath>
+	  <HintPath>..\..\lib\$(Configuration)\Autofac.dll</HintPath>
 	</Reference>
-	<Reference Include="nunit.framework, Version=2.2.8.0, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77">
+	<Reference Include="nunit.framework, Version=2.5.5.10112, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
 	  <SpecificVersion>False</SpecificVersion>
 	  <HintPath>..\..\lib\common\nunit.framework.dll</HintPath>
 	</Reference>
 	<Reference Include="Palaso, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86">
 	  <SpecificVersion>False</SpecificVersion>
-	  <HintPath>..\..\lib\net2.0\Palaso.dll</HintPath>
+	  <HintPath>..\..\lib\$(Configuration)\Palaso.dll</HintPath>
+	</Reference>
+	<Reference Include="Palaso.TestUtilities, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86">
+	  <SpecificVersion>False</SpecificVersion>
+	  <HintPath>..\..\lib\$(Configuration)\Palaso.TestUtilities.dll</HintPath>
+	</Reference>
+	<Reference Include="PalasoUIWindowsForms, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86">
+	  <SpecificVersion>False</SpecificVersion>
+	  <HintPath>..\..\lib\$(Configuration)\PalasoUIWindowsForms.dll</HintPath>
 	</Reference>
 	<Reference Include="System" />
 	<Reference Include="System.Core">
@@ -76,9 +105,15 @@
   </ItemGroup>
   <ItemGroup>
 	<Compile Include="ChorusApplicationTests.cs" />
+	<Compile Include="ChorusHub\ChorusHubTests.cs" />
 	<Compile Include="ChorusSystemTests.cs" />
 	<Compile Include="ChorusSystemUsage.cs" />
+	<Compile Include="clone\ClonerTests.cs" />
+	<Compile Include="UI\Clone\GetCloneFromChorusHubDialogTests.cs" />
 	<Compile Include="UI\Clone\GetCloneFromInternetModelTest.cs" />
+	<Compile Include="UI\Clone\GetCloneFromNetworkModelTest.cs" />
+	<Compile Include="UI\Clone\TargetFolderControlTests.cs" />
+	<Compile Include="UI\Misc\NetworkFolderSettingsModelTests.cs" />
 	<Compile Include="UI\Misc\ServerSettingsModelTests.cs" />
 	<Compile Include="UI\Misc\ServerSettingsDialogTests.cs" />
 	<Compile Include="UI\Misc\ReadinessPanelTests.cs" />
@@ -94,13 +129,22 @@
 	<Compile Include="UI\Settings\SettingsModelTests.cs" />
 	<Compile Include="Properties\AssemblyInfo.cs" />
 	<Compile Include="UI\Review\HistoryPanelModelTests.cs" />
+	<Compile Include="UI\Sync\MockUsbDriveLocator.cs" />
 	<Compile Include="UI\Sync\SyncDialogTests.cs" />
 	<Compile Include="UI\Sync\SyncControlModelTests.cs" />
   </ItemGroup>
   <ItemGroup>
+	<ProjectReference Include="..\ChorusHub\ChorusHub.csproj">
+	  <Project>{EB8C974D-B1C6-4CE0-BFD4-170EFE18790C}</Project>
+	  <Name>ChorusHub</Name>
+	</ProjectReference>
 	<ProjectReference Include="..\Chorus\Chorus.csproj">
 	  <Project>{9DA5A655-1881-4BE1-81BA-256E47CF7537}</Project>
 	  <Name>Chorus</Name>
+	</ProjectReference>
+	<ProjectReference Include="..\LibChorus.TestUtilities\LibChorus.TestUtilities.csproj">
+	  <Project>{0681E722-1856-44A1-B585-220E6AEC85CB}</Project>
+	  <Name>LibChorus.TestUtilities</Name>
 	</ProjectReference>
 	<ProjectReference Include="..\LibChorusTests\LibChorus.Tests.csproj">
 	  <Project>{F9671F8B-8556-44EA-81A7-C236D871B471}</Project>
@@ -110,9 +154,6 @@
 	  <Project>{94245366-8F1E-475C-810D-FE89BB3948E0}</Project>
 	  <Name>LibChorus</Name>
 	</ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-	<None Include="App.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.

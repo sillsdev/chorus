@@ -54,7 +54,11 @@ namespace Chorus.FileTypeHanders.lift
 		{
 			foreach (XmlNode node in _parentDom.SafeSelectNodes("lift/entry"))
 			{
-				_parentIdToNodeIndex.Add(LiftUtils.GetId(node), node);
+				string strId = LiftUtils.GetId(node);
+				if (!_parentIdToNodeIndex.ContainsKey(strId))
+					_parentIdToNodeIndex.Add(strId, node);
+				else
+					System.Diagnostics.Debug.WriteLine(String.Format("Found ID multiple times: {0}", strId));
 			}
 
 			foreach (XmlNode childNode in _childDom.SafeSelectNodes("lift/entry"))

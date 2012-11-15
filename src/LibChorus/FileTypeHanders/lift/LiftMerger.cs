@@ -4,8 +4,10 @@ using System.IO;
 using System.Text;
 using System.Xml;
 using Chorus.FileTypeHanders.xml;
+using Chorus.merge;
 using Chorus.merge.xml.generic;
 using Chorus.Utilities;
+using Palaso.Xml;
 
 namespace Chorus.FileTypeHanders.lift
 {
@@ -20,56 +22,32 @@ namespace Chorus.FileTypeHanders.lift
 	/// I (JH) wonder if we could move more down to the generic level.
 	///
 	/// Eventually, we may want a non-dom way to handle the top level, in which case having this class would be handy.
+	/// [ANS RBR: You get a non-dom way in 'default', but the result is these FooMerger classes all go away. :-)]
 	/// </summary>
 	public class LiftMerger
 	{
 		private readonly string _alphaLift;
 		private readonly string _betaLift;
 		private readonly string _ancestorLift;
-		// only one index for now...
-		private readonly Dictionary<string, XmlNode> _betaIdToNodeIndex;
-		private readonly Dictionary<string,bool> _processedIds;
-		private readonly XmlDocument _alphaDom;
-		private readonly XmlDocument _betaDom;
-		private readonly XmlDocument _ancestorDom;
-		private IMergeStrategy _mergingStrategy;
+		private readonly IMergeStrategy _mergingStrategy;
 		public IMergeEventListener EventListener = new NullMergeEventListener();
 
 		/// <summary>
 		/// Here, "alpha" is the guy who wins when there's no better way to decide, and "beta" is the loser.
 		/// </summary>
 		public LiftMerger(IMergeStrategy mergeStrategy, string alphaLiftPath, string betaLiftPath, string ancestorLiftPath)
+			: this(File.ReadAllText(alphaLiftPath), File.ReadAllText(betaLiftPath), File.ReadAllText(ancestorLiftPath), mergeStrategy)
 		{
-			_processedIds = new Dictionary<string,bool>();
-			_alphaLift = File.ReadAllText(alphaLiftPath);
-			_betaLift =  File.ReadAllText(betaLiftPath);
-			_ancestorLift = File.ReadAllText(ancestorLiftPath);
-			_betaIdToNodeIndex = new Dictionary<string, XmlNode>();
-			_alphaDom = new XmlDocument();
-			_betaDom = new XmlDocument();
-			_ancestorDom = new XmlDocument();
-
-			_mergingStrategy = mergeStrategy;
-
-//            string path = Path.Combine(System.Environment.GetEnvironmentVariable("temp"),
-//                           @"chorusMergeOrder" + Path.GetFileName(_alphaLiftPath) + ".txt");
-//            File.WriteAllText(path, "Merging alphaS\r\n" + _alphaLift + "\r\n----------betaS\r\n" + _betaLift + "\r\n----------ANCESTOR\r\n" + _ancestorLift);
 		}
 
 		/// <summary>
-		/// Used by tests, which prefer to give us raw contents rather than paths
+		/// Used by tests (and public constructor), which prefer to give us raw contents rather than paths
 		/// </summary>
-		public LiftMerger(string alphaLiftContents, string betaLiftContents, string ancestorLiftContents, IMergeStrategy mergeStrategy)
+		internal LiftMerger(string alphaLiftContents, string betaLiftContents, string ancestorLiftContents, IMergeStrategy mergeStrategy)
 		{
-			_processedIds = new Dictionary<string,bool>();
 			_alphaLift = alphaLiftContents;
 			_betaLift = betaLiftContents;
 			_ancestorLift = ancestorLiftContents;
-			_betaIdToNodeIndex = new Dictionary<string, XmlNode>();
-			_alphaDom = new XmlDocument();
-			_betaDom = new XmlDocument();
-			_ancestorDom = new XmlDocument();
-
 			_mergingStrategy = mergeStrategy;
 		}
 
@@ -80,136 +58,179 @@ namespace Chorus.FileTypeHanders.lift
 //
 //            File.WriteAllText(path, "ENter GetMergedLift()");
 
-			_alphaDom.LoadXml(_alphaLift);
-			_betaDom.LoadXml(_betaLift);
-			_ancestorDom.LoadXml(_ancestorLift);
+			var ancestorDom = new XmlDocument();
+			ancestorDom.LoadXml(_ancestorLift);
+			//var comonIdToNodeIndex = new Dictionary<string, XmlNode>(StringComparer.OrdinalIgnoreCase);
 
+			var alphaDom = new XmlDocument();
+			alphaDom.LoadXml(_alphaLift);
+			var alphaIdToNodeIndex = new Dictionary<string, XmlNode>(StringComparer.OrdinalIgnoreCase);
 
-			Encoding utf8NoBom = new UTF8Encoding(false);
-			XmlWriterSettings settings = new XmlWriterSettings();
-			settings.Encoding = utf8NoBom;//the lack of a bom is probably no big deal either way
+			var betaDom = new XmlDocument();
+			betaDom.LoadXml(_betaLift);
+			var betaIdToNodeIndex = new Dictionary<string, XmlNode>(StringComparer.OrdinalIgnoreCase);
 
-			//this, rather than a string builder, is needed to avoid utf-16 coming out
-			using (MemoryStream memoryStream = new MemoryStream())
+			var processedIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+			// The memory stream, rather than a string builder, is needed to avoid utf-16 coming out
+			using (var memoryStream = new MemoryStream())
 			{
-				foreach (XmlNode b in _betaDom.SafeSelectNodes("lift/entry"))
-				{
-					_betaIdToNodeIndex[LiftUtils.GetId(b)] = b;
-				}
-				using (XmlWriter writer = XmlWriter.Create(memoryStream, settings))
-				{
-					WriteStartOfLiftElement(writer);
-					foreach (XmlNode e in _alphaDom.SafeSelectNodes("lift/entry"))
-					{
-						ProcessEntry(writer, e);
-					}
+				//foreach (XmlNode commonNode in _ancestorDom.SafeSelectNodes("lift/entry"))
+				//	comonIdToNodeIndex[LiftUtils.GetId(commonNode)] = commonNode;
+				foreach (XmlNode alphaNode in alphaDom.SafeSelectNodes("lift/entry"))
+					alphaIdToNodeIndex[LiftUtils.GetId(alphaNode)] = alphaNode;
+				foreach (XmlNode betaNode in betaDom.SafeSelectNodes("lift/entry"))
+					betaIdToNodeIndex[LiftUtils.GetId(betaNode)] = betaNode;
 
-					//now process any remaining elements in "betas"
-					foreach (XmlNode e in _betaDom.SafeSelectNodes("lift/entry"))
-					{
-						string id = LiftUtils.GetId(e);
-						if (!_processedIds.ContainsKey(id))
-						{
-							ProcessEntryWeKnowDoesntNeedMerging(e, id, writer);
-						}
-					}
+				var settings = CanonicalXmlSettings.CreateXmlWriterSettings();
+				settings.CloseOutput = false;
+				using (var writer = XmlWriter.Create(memoryStream, settings))
+				{
+					WriteStartOfLiftElement(writer, alphaDom);
+
+					ProcessHeaderNodeHACK(writer, alphaDom, betaDom);
+					// Process alpha's entries
+					ProcessEntries(writer, EventListener, _mergingStrategy, ancestorDom, processedIds,
+								   alphaDom, "alpha", _alphaLift,
+								   betaIdToNodeIndex, "beta", _betaLift);
+					// Process beta's entries
+					ProcessEntries(writer, EventListener, _mergingStrategy, ancestorDom, processedIds,
+								   betaDom, "beta", _betaLift,
+								   alphaIdToNodeIndex, "alpha", _alphaLift);
 					writer.WriteEndElement();
 					writer.Close();
 				}
 
-				//don't use GetBuffer()!!! it pads the results with nulls:  return Encoding.UTF8.GetString(memoryStream.ToArray());
-				//this works but doubles the ram use: return Encoding.UTF8.GetString(memoryStream.ToArray());
+				// Don't use GetBuffer()!!! it pads the results with nulls:  return Encoding.UTF8.GetString(memoryStream.ToArray());
+				// This works but doubles the ram use: return Encoding.UTF8.GetString(memoryStream.ToArray());
 				return Encoding.UTF8.GetString(memoryStream.GetBuffer(), 0, (int)memoryStream.Position);
 			}
 		}
 
+		private static void ProcessHeaderNodeHACK(XmlWriter writer, XmlNode alphaDom, XmlNode betaDom)
+		{
+			// Without a principled merge system for the header element,
+			// just pick the longest one from alpha/beta.
+			// NB: This has *no* tests, since it is such a hack.
+			var alphaHeader = alphaDom.SelectSingleNode("lift/header");
+			var betaHeader = betaDom.SelectSingleNode("lift/header");
+			XmlNode winningHeader;
+			if (alphaHeader == null && betaHeader == null)
+				winningHeader = null;
+			else if (alphaHeader == null & betaHeader != null)
+				winningHeader = betaHeader;
+			else if (betaHeader == null)
+				winningHeader = alphaHeader;
+			else if (alphaHeader.ChildNodes.Count > betaHeader.ChildNodes.Count)
+				winningHeader = alphaHeader;
+			else
+				winningHeader = betaHeader;
+			if (winningHeader != null)
+				writer.WriteNode(winningHeader.CreateNavigator(), false);
+		}
 
-//        public void Do2WayDiffOfLift()
-//        {
-//            _alphaDom.LoadXml(_alphaLift);
-//            _betaDom.LoadXml(_ancestorLift);//nb: putting the ancestor in there is intentional
-//            _ancestorDom.LoadXml(_ancestorLift);
-//
-//            //NB: we dont' actually have any interest in writing anything,
-//            //but for now, this lets us reuse the merger code
-//
-//            using(MemoryStream memoryStream = new MemoryStream())
-//            using (XmlWriter writer = XmlWriter.Create(memoryStream))
-//            {
-//                WriteStartOfLiftElement(writer);
-//
-//                foreach (XmlNode e in _alphaDom.SelectNodes("lift/entry"))
-//                {
-//                        ProcessEntry(writer, e);
-//                }
-//
-//                //now detect any deleted elements
-//                foreach (XmlNode e in _ancestorDom.SelectNodes("lift/entry"))
-//                {
-//                    if (!_processedIds.Contains(LiftUtils.GetId(e)))
-//                    {
-//                        EventListener.ChangeOccurred(new XmlDeletionChangeReport(e));
-//                    }
-//                }
-//                writer.WriteEndElement();
-//            }
-//        }
+		private static void ProcessEntries(XmlWriter writer, IMergeEventListener eventListener, IMergeStrategy mergingStrategy,
+			XmlNode ancestorDom, HashSet<string> processedIds,
+			XmlNode sourceDom, string sourceLabel, string sourcePath,
+			IDictionary<string, XmlNode> otherIdNodeIndex, string otherLabel, string otherPath)
+		{
+			foreach (XmlNode sourceEntry in sourceDom.SafeSelectNodes("lift/entry"))
+			{
+				ProcessEntry(writer, eventListener, mergingStrategy, ancestorDom, processedIds,
+							 sourceEntry, sourceLabel, sourcePath,
+							 otherIdNodeIndex, otherLabel, otherPath);
+			}
+		}
+
+		private static void ProcessEntry(XmlWriter writer, IMergeEventListener eventListener, IMergeStrategy mergingStrategy,
+			XmlNode ancestorDom, HashSet<string> processedIds,
+			XmlNode sourceEntry, string sourceLabel, string sourcePath,
+			IDictionary<string, XmlNode> otherIdNodeIndex, string otherLabel, string otherPath)
+		{
+			var id = LiftUtils.GetId(sourceEntry);
+			if (processedIds.Contains(id))
+				return; // Already handled the id.
+			XmlNode otherEntry;
+			var commonEntry = FindEntry(ancestorDom, id);
+			if (!otherIdNodeIndex.TryGetValue(id, out otherEntry))
+			{
+				// It is in source, but not in target, so it clearly has been deleted by target (new style deletion).
+				if (LiftUtils.GetIsMarkedAsDeleted(sourceEntry))
+				{
+					if (!LiftUtils.GetIsMarkedAsDeleted(commonEntry))
+					{
+						// source and target both deleted but in different ways, so make deletion change report.
+						// There is no need to write anything.
+						eventListener.ChangeOccurred(new XmlDeletionChangeReport(sourcePath, commonEntry, sourceEntry));
+					}
+					//else
+					//{
+					//    // Make it go away without fanfare by doing nothing to writer, since target actually removed the dead entry.
+					//}
+					processedIds.Add(id);
+					return;
+				}
+
+				if (commonEntry == null)
+				{
+					// source added it
+					eventListener.ChangeOccurred(new XmlAdditionChangeReport(sourcePath, sourceEntry));
+					writer.WriteNode(sourceEntry.CreateNavigator(), false);
+				}
+				else
+				{
+					if (AreTheSame(sourceEntry, commonEntry))
+					{
+						// target's deletion wins with a plain vanilla deletion report.
+						eventListener.ChangeOccurred(new XmlDeletionChangeReport(sourcePath, commonEntry, otherEntry));
+					}
+					else
+					{
+						// source wins over target's new style deletion on the least loss priciple.
+						// Add an edit vs remove conflict report.
+						eventListener.ConflictOccurred(new RemovedVsEditedElementConflict("entry", sourceEntry, otherEntry, commonEntry, new MergeSituation(sourcePath, sourceLabel, "", otherLabel, "", MergeOrder.ConflictHandlingModeChoices.WeWin), null, sourceLabel));
+						writer.WriteNode(sourceEntry.CreateNavigator(), false);
+					}
+					processedIds.Add(id);
+					return;
+				}
+			}
+			else if (AreTheSame(sourceEntry, otherEntry))
+			{
+				//unchanged or both made same change
+				writer.WriteNode(sourceEntry.CreateNavigator(), false);
+			}
+			else if (LiftUtils.GetIsMarkedAsDeleted(otherEntry))
+			{
+				// source edited, target deleted (old style deletion using dateDeleted attr).
+				eventListener.ConflictOccurred(new RemovedVsEditedElementConflict("entry", sourceEntry, otherEntry, commonEntry, new MergeSituation(sourcePath, sourceLabel, "", otherLabel, "", MergeOrder.ConflictHandlingModeChoices.WeWin), null, sourceLabel));
+			}
+			else if (LiftUtils.GetIsMarkedAsDeleted(sourceEntry))
+			{
+				// source deleted (old style), but target edited.
+				// target wins with the least loss principle.
+				// But generate a conflict report.
+				eventListener.ConflictOccurred(new RemovedVsEditedElementConflict("entry", otherEntry, sourceEntry, commonEntry, new MergeSituation(otherPath, otherLabel, "", sourceLabel, "", MergeOrder.ConflictHandlingModeChoices.TheyWin), null, sourceLabel));
+				writer.WriteNode(otherEntry.CreateNavigator(), false);
+			}
+			else
+			{
+				// One or both of them edited it, so merge the hard way.
+				using (var reader = XmlReader.Create(new StringReader(
+					mergingStrategy.MakeMergedEntry(eventListener, sourceEntry, otherEntry, commonEntry)
+				)))
+				{
+					writer.WriteNode(reader, false);
+				}
+			}
+			processedIds.Add(id);
+		}
 
 		private static XmlNode FindEntry(XmlNode doc, string id)
 		{
 			FailureSimulator.IfTestRequestsItThrowNow("LiftMerger.FindEntryById");
 			return doc.SelectSingleNode("lift/entry[@id=\""+id+"\"]");
 		}
-
-
-
-
-		private void ProcessEntry(XmlWriter writer, XmlNode alphaEntry)
-		{
-			string id = LiftUtils.GetId(alphaEntry);
-			XmlNode betaEntry;
-
-			if(!_betaIdToNodeIndex.TryGetValue(id, out betaEntry))
-			{
-				//enchance: we know this at this point only in the 2-way diff mode
-				EventListener.ChangeOccurred(new XmlAdditionChangeReport("hackFixThis.lift", alphaEntry));
-				ProcessEntryWeKnowDoesntNeedMerging(alphaEntry, id, writer);
-			}
-			else if (AreTheSame(alphaEntry, betaEntry))//unchanged or both made same change
-			{
-				writer.WriteRaw(alphaEntry.OuterXml);
-			}
-			else //one or both changed
-			{
-
-				/* TODO: put this back after figuring out the exact situation it was for an adding a unit test
-				 if (!LiftUtils.GetIsMarkedAsDeleted(alphaEntry))
-				{
-					EventListener.ChangeOccurred(new XmlChangedRecordReport("hackFixThis.lift",  FindEntryById(_ancestorDom, id), alphaEntry));
-				}
-				 */
-
-				XmlNode commonEntry = FindEntry(_ancestorDom, id);
-
-				writer.WriteRaw(_mergingStrategy.MakeMergedEntry(this.EventListener, alphaEntry, betaEntry, commonEntry));
-			}
-			_processedIds[id] = true;
-		}
-
-
-		private void ProcessEntryWeKnowDoesntNeedMerging(XmlNode entry, string id, XmlWriter writer)
-		{
-			if(FindEntry(_ancestorDom,id) ==null)
-			{
-				writer.WriteRaw(entry.OuterXml); //it's new
-			}
-			else
-			{
-				// it must have been deleted by the other guy
-			}
-		}
-
-
 
 		internal static void AddDateCreatedAttribute(XmlNode elementNode)
 		{
@@ -233,11 +254,9 @@ namespace Chorus.FileTypeHanders.lift
 			return XmlUtilities.AreXmlElementsEqual(alphaEntry.OuterXml, betaEntry.OuterXml);
 		}
 
-
-
-		private void WriteStartOfLiftElement(XmlWriter writer)
+		private static void WriteStartOfLiftElement(XmlWriter writer, XmlNode alphaDom)
 		{
-			XmlNode liftNode = _alphaDom.SelectSingleNode("lift");
+			XmlNode liftNode = alphaDom.SelectSingleNode("lift");
 
 			writer.WriteStartElement(liftNode.Name);
 			foreach (XmlAttribute attribute in liftNode.Attributes)
@@ -245,6 +264,5 @@ namespace Chorus.FileTypeHanders.lift
 				writer.WriteAttributeString(attribute.Name, attribute.Value);
 			}
 		}
-
 	}
 }

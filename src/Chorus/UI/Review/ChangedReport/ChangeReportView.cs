@@ -110,7 +110,7 @@ namespace Chorus.UI.Review.ChangedReport
 
 				string url = e.Url.LocalPath;
 				var player = new SoundPlayer(e.Url.LocalPath);
-				player.Play();
+				player.PlaySync();
 			}
 
 		}

@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using Chorus.notes;
 using Chorus.Utilities;
-using Chorus.Utilities.code;
+using Palaso.Code;
+using Palaso.Progress;
 
 namespace Chorus.UI.Notes.Bar
 {

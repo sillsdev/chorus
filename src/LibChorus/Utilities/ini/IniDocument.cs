@@ -11,7 +11,6 @@
 using System;
 using System.IO;
 using System.Collections;
-using System.Windows.Forms;
 
 
 namespace Nini.Ini
@@ -196,6 +195,7 @@ namespace Nini.Ini
 		{
 			Save(_filePath);
 		}
+
 		public bool SaveAndGiveMessageIfCannot()
 		{
 			try
@@ -208,6 +208,11 @@ namespace Nini.Ini
 				Palaso.Reporting.ErrorReport.NotifyUserOfProblem(e, "There was a problem saving mercurial settings to "+_filePath+". ");
 				return false;
 			}
+		}
+
+		public void Save()
+		{
+			Save(_filePath);
 		}
 
 		/// <include file='IniDocument.xml' path='//Method[@name="SaveStream"]/docs/*' />
