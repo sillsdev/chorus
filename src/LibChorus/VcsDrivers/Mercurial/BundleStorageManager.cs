@@ -41,10 +41,11 @@ namespace Chorus.VcsDrivers.Mercurial
 		private void CleanUpExpiredData()
 		{
 			DateTime currentTime = DateTime.Now;
-			foreach (string filePath in Directory.GetFiles(_dataFolderPath))
+			var fileList = Directory.GetFiles(_dataFolderPath);
+			foreach (string filePath in fileList)
 			{
-				DateTime fileCreateTime = (new FileInfo(filePath)).CreationTime.AddHours(_numberOfHoursToKeepIncompleteData);
-				if (currentTime.CompareTo(fileCreateTime) > 0)
+				DateTime fileLastWriteTime = (new FileInfo(filePath)).LastWriteTime.AddHours(_numberOfHoursToKeepIncompleteData);
+				if (currentTime.CompareTo(fileLastWriteTime) > 0)
 				{
 					File.Delete(filePath);
 				}

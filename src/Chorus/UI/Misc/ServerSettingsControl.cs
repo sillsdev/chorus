@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Windows.Forms;
 
 
@@ -12,32 +13,37 @@ namespace Chorus.UI.Misc
 	///</summary>
 	public partial class ServerSettingsControl : UserControl
 	{
-		private readonly ServerSettingsModel _model;
+		public event EventHandler DisplayUpdated;
 
-		[Obsolete("for forms designer only")]
+		private ServerSettingsModel _model;
+
 		public ServerSettingsControl()
 		{
 			InitializeComponent();
+			SynchronizePasswordControls();
 		}
 
-		public ServerSettingsControl(ServerSettingsModel model)
+		public ServerSettingsModel Model
 		{
-			_model = model;
-
-			InitializeComponent();
-
-			foreach (KeyValuePair<string, string> pair in _model.Servers)
+			get { return _model; }
+			set
 			{
-				_serverCombo.Items.Add(pair.Key);
+				_model = value;
+				if (value == null)
+					return;
+				foreach (KeyValuePair<string, string> pair in Model.Servers)
+				{
+					_serverCombo.Items.Add(pair.Key);
+				}
+				_serverCombo.SelectedIndexChanged += OnSelectedIndexChanged;
 			}
-			_serverCombo.SelectedIndexChanged += OnSelectedIndexChanged;
 		}
 
 		private void OnSelectedIndexChanged(object sender, EventArgs e)
 		{
-			if (_model.SelectedServerLabel != (string)_serverCombo.SelectedItem)
+			if (Model.SelectedServerLabel != (string)_serverCombo.SelectedItem)
 			{
-				_model.SelectedServerLabel = (string) _serverCombo.SelectedItem;
+				Model.SelectedServerLabel = (string)_serverCombo.SelectedItem;
 
 				UpdateDisplay();
 			}
@@ -45,51 +51,69 @@ namespace Chorus.UI.Misc
 
 		private void UpdateDisplay()
 		{
-			_serverCombo.SelectedItem = _model.SelectedServerLabel;
+			_serverCombo.SelectedItem = Model.SelectedServerLabel;
 
-			_customUrl.Text = _model.URL;
-			_customUrl.Visible = _model.CustomUrlSelected;
-			_customUrlLabel.Visible = _model.CustomUrlSelected;
+			_customUrl.Text = Model.URL;
+			_customUrl.Visible = Model.CustomUrlSelected;
+			_customUrlLabel.Visible = Model.CustomUrlSelected;
 
-			_accountName.Text = _model.AccountName;
-			_password.Text = _model.Password;
-			_projectId.Text = _model.ProjectId;
+			_accountName.Text = Model.AccountName;
+			_password.Text = Model.Password;
+			_projectId.Text = Model.ProjectId;
 
 
-			_accountName.Visible = _model.NeedProjectDetails;
-			_projectId.Visible = _model.NeedProjectDetails;
-			_password.Visible = _model.NeedProjectDetails;
-			_accountLabel.Visible = _model.NeedProjectDetails;
-			_projectIdLabel.Visible = _model.NeedProjectDetails;
-			_passwordLabel.Visible = _model.NeedProjectDetails;
+			_accountName.Visible = Model.NeedProjectDetails;
+			_projectId.Visible = Model.NeedProjectDetails;
+			_password.Visible = Model.NeedProjectDetails;
+			_showCharacters.Visible = Model.NeedProjectDetails;
+			_accountLabel.Visible = Model.NeedProjectDetails;
+			_projectIdLabel.Visible = Model.NeedProjectDetails;
+			_passwordLabel.Visible = Model.NeedProjectDetails;
+
+			if (DisplayUpdated != null)
+				DisplayUpdated.Invoke(this, null);
 		}
 
 		private void _customUrl_TextChanged(object sender, EventArgs e)
 		{
-			_model.CustomUrl = _customUrl.Text.Trim();
+			Model.CustomUrl = _customUrl.Text.Trim();
 			UpdateDisplay();
 		}
 
 		private void _projectId_TextChanged(object sender, EventArgs e)
 		{
-			_model.ProjectId = _projectId.Text.Trim();
+			Model.ProjectId = _projectId.Text.Trim();
 			UpdateDisplay();
 		}
 
 		private void _accountName_TextChanged(object sender, EventArgs e)
 		{
-			_model.AccountName = _accountName.Text.Trim();
+			Model.AccountName = _accountName.Text.Trim();
 			UpdateDisplay();
 		}
 
 		private void _password_TextChanged(object sender, EventArgs e)
 		{
-			_model.Password = _password.Text.Trim();
+			Model.Password = _password.Text.Trim();
+			UpdateDisplay();
 		}
 
 		private void OnLoad(object sender, EventArgs e)
 		{
+			if (DesignMode || LicenseManager.UsageMode == LicenseUsageMode.Designtime)
+				return;
+
 			UpdateDisplay();
+		}
+
+		private void _showCharacters_CheckedChanged(object sender, EventArgs e)
+		{
+			SynchronizePasswordControls();
+		}
+
+		private void SynchronizePasswordControls()
+		{
+			_password.UseSystemPasswordChar = !_showCharacters.Checked;
 		}
 	}
 }

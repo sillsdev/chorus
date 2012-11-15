@@ -2,12 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Xml;
-using Chorus.FileTypeHanders.xml;
 using Chorus.merge.xml.generic;
-using Chorus.merge.xml.generic.xmldiff;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
 
@@ -28,9 +23,6 @@ namespace Chorus.FileTypeHanders
 			FromMixed
 		}
 
-		//TODO: this is a LIFT-only thing, we shouldn't have it hard coded here
-		private readonly static string _deletedAttr = "dateDeleted=";
-
 		private readonly IMergeEventListener _eventListener;
 		private readonly HgRepository _repository;
 		private readonly FileInRevision _parentFileInRevision;
@@ -43,6 +35,9 @@ namespace Chorus.FileTypeHanders
 		private readonly DiffingMode _diffingMode;
 		private readonly Dictionary<string, byte[]> _parentIndex;
 
+		/// <summary>
+		/// Create instance of Xml2WayDiffer
+		/// </summary>
 		public static Xml2WayDiffer CreateFromFileInRevision(FileInRevision parent, FileInRevision child,
 			IMergeEventListener eventListener, HgRepository repository,
 			string firstElementMarker,
@@ -68,6 +63,9 @@ namespace Chorus.FileTypeHanders
 			_eventListener = eventListener;
 		}
 
+		/// <summary>
+		/// Create instance of Xml2WayDiffer
+		/// </summary>
 		public static Xml2WayDiffer CreateFromFiles(string parentPathname, string childPathname,
 			IMergeEventListener eventListener,
 			string firstElementMarker,
@@ -92,6 +90,9 @@ namespace Chorus.FileTypeHanders
 			_eventListener = eventListener;
 		}
 
+		/// <summary>
+		/// Create instance of Xml2WayDiffer
+		/// </summary>
 		public static Xml2WayDiffer CreateFromMixed(Dictionary<string, byte[]> parentIndex, string childPathname,
 			IMergeEventListener eventListener,
 			string firstElementMarker,
@@ -144,7 +145,12 @@ namespace Chorus.FileTypeHanders
 					break;
 			}
 
-			DoDiff(parentIndex, childIndex);
+			foreach (var difference in Xml2WayDiffService.ReportDifferences(
+								_parentFileInRevision, parentIndex,
+								_childFileInRevision, childIndex))
+			{
+				_eventListener.ChangeOccurred(difference);
+			}
 			return parentIndex;
 		}
 
@@ -153,10 +159,15 @@ namespace Chorus.FileTypeHanders
 			const int estimatedObjectCount = 400;
 			var fileInfo = new FileInfo(_childPathname);
 			childIndex = new Dictionary<string, byte[]>((int)(fileInfo.Length / estimatedObjectCount), StringComparer.OrdinalIgnoreCase);
-			using (var prepper = new DifferDictionaryPrepper(childIndex, _childPathname,
+			using (var prepper = new MakeRecordDictionary(childIndex, _childPathname,
 				_firstElementTag,
 				_startTag, _identfierAttribute))
 			{
+				prepper.ShouldContinueAfterDuplicateKey = s =>
+															{
+																_eventListener.WarningOccurred(new MergeWarning(_childPathname + ": " + s));
+																return true;
+															};
 				prepper.Run();
 			}
 		}
@@ -185,108 +196,31 @@ namespace Chorus.FileTypeHanders
 			const int estimatedObjectCount = 400;
 			var fileInfo = new FileInfo(parentPathname);
 			parentIndex = new Dictionary<string, byte[]>((int)(fileInfo.Length / estimatedObjectCount), StringComparer.OrdinalIgnoreCase);
-			using (var prepper = new DifferDictionaryPrepper(parentIndex, parentPathname,
+			using (var prepper = new MakeRecordDictionary(parentIndex, parentPathname,
 				_firstElementTag,
 				_startTag, _identfierAttribute))
 			{
+				prepper.ShouldContinueAfterDuplicateKey = s =>
+				{
+					_eventListener.WarningOccurred(new MergeWarning(parentPathname +": "+s));
+					return true;
+				};
+
 				prepper.Run();
 			}
 			fileInfo = new FileInfo(childPathname);
 			childIndex = new Dictionary<string, byte[]>((int)(fileInfo.Length / estimatedObjectCount), StringComparer.OrdinalIgnoreCase);
-			using (var prepper = new DifferDictionaryPrepper(childIndex, childPathname,
+			using (var prepper = new MakeRecordDictionary(childIndex, childPathname,
 				_firstElementTag,
 				_startTag, _identfierAttribute))
 			{
+				prepper.ShouldContinueAfterDuplicateKey = s =>
+				{
+					_eventListener.WarningOccurred(new MergeWarning(childPathname + ": " + s));
+					return true;
+				};
+
 				prepper.Run();
-			}
-		}
-
-		private void DoDiff(Dictionary<string, byte[]> parentIndex, Dictionary<string, byte[]> childIndex)
-		{
-			var enc = Encoding.UTF8;
-			var parentDoc = new XmlDocument();
-			var childDoc = new XmlDocument();
-			foreach (var kvpParent in parentIndex)
-			{
-				var parentKey = kvpParent.Key;
-				var parentValue = kvpParent.Value;
-				byte[] childValue;
-				if (childIndex.TryGetValue(parentKey, out childValue))
-				{
-					childIndex.Remove(parentKey);
-					// It is faster to skip this and just turn them into strings and then do the check.
-					//if (!parentValue.Where((t, i) => t != childValue[i]).Any())
-					//    continue; // Bytes are all the same.
-
-					var parentStr = enc.GetString(parentValue);
-					var childStr = enc.GetString(childValue);
-					if (parentStr == childStr)
-						continue;
-					// May have added 'dateDeleted' attr, in which case treat it as deleted, not changed.
-					// TODO: This is only for Lift diffing, not FW diffing,
-					// so figure a way to have the client do this kind of check.
-					if (childStr.Contains(_deletedAttr))
-					{
-						// Only report it as deleted, if it is not already marked as deleted in the parent.
-						if (!parentStr.Contains(_deletedAttr))
-						{
-							_eventListener.ChangeOccurred(new XmlDeletionChangeReport(
-															_parentFileInRevision,
-															XmlUtilities.GetDocumentNodeFromRawXml(enc.GetString(kvpParent.Value), parentDoc),
-															XmlUtilities.GetDocumentNodeFromRawXml(childStr, childDoc)));
-
-						}
-					}
-					else
-					{
-						try
-						{
-							if (XmlUtilities.AreXmlElementsEqual(new XmlInput(childStr), new XmlInput(parentStr)))
-								continue;
-						}
-						catch (Exception error)
-						{
-							_eventListener.ChangeOccurred(new ErrorDeterminingChangeReport(
-															_parentFileInRevision,
-															_childFileInRevision,
-															XmlUtilities.GetDocumentNodeFromRawXml(parentStr, parentDoc),
-															XmlUtilities.GetDocumentNodeFromRawXml(childStr, childDoc),
-															error));
-							continue;
-						}
-						// NB: This comment is from the class description of XmlChangedRecordReport
-						// This may only be useful for quick, high-level identification that an entry changed,
-						// leaving *what* changed to a second pass, if needed by the user
-						// I (RBR), believe this can overproduce, otherwise useless change reports in a merge, if the merger uses it.
-						_eventListener.ChangeOccurred(new XmlChangedRecordReport(
-														_parentFileInRevision,
-														_childFileInRevision,
-														XmlUtilities.GetDocumentNodeFromRawXml(parentStr, parentDoc),
-														XmlUtilities.GetDocumentNodeFromRawXml(childStr, childDoc)));
-					}
-				}
-				else
-				{
-					//don't report deletions where there was a tombstone, but then someone removed the entry (which is what FLEx does)
-					var parentStr = enc.GetString(parentValue);
-					if (parentStr.Contains(_deletedAttr))
-					{
-						continue;
-					}
-					_eventListener.ChangeOccurred(new XmlDeletionChangeReport(
-													_parentFileInRevision,
-													XmlUtilities.GetDocumentNodeFromRawXml(enc.GetString(kvpParent.Value), parentDoc),
-													null)); // Child Node? How can we put it in, if it was deleted?
-				}
-			}
-
-			// Values that are still in childIndex are new,
-			// since values that were not new have been removed by now.
-			foreach (var child in childIndex.Values)
-			{
-				_eventListener.ChangeOccurred(new XmlAdditionChangeReport(
-												_childFileInRevision,
-												XmlUtilities.GetDocumentNodeFromRawXml(enc.GetString(child), childDoc)));
 			}
 		}
 	}

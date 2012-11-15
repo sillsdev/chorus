@@ -22,14 +22,13 @@ namespace Chorus.UI.Sync
 			InitializeComponent();
 			_cancelButton.Visible = false;
 			_tabControl.TabPages.Remove(_tasksTab);
-			DesiredHeight = 320;
 			_successIcon.Left = _warningIcon.Left;
 			// _cancelButton.Top = _sendReceiveButton.Top;
 		   _closeButton.Bounds = _sendReceiveButton.Bounds;
 			progressBar1.Visible = false;
 			_statusText.Visible = false;
+			_statusText.Text = "";  // clear the label
 			_updateDisplayTimer.Enabled = true;
-
 		}
 		public SyncControl(SyncControlModel model)
 			:this()
@@ -48,6 +47,10 @@ namespace Chorus.UI.Sync
 				if(_model ==null)
 					return;
 				_model.SynchronizeOver += new EventHandler(_model_SynchronizeOver);
+				_model.AddMessagesDisplay(_logBox);
+				_model.AddStatusDisplay(_statusText);
+				_model.ProgressIndicator = new MultiPhaseProgressIndicator(progressBar1, 2);  // for now we only specify 2 phases (pull, then push).
+				_model.UIContext = SynchronizationContext.Current;
 				UpdateDisplay();
 			}
 		}
@@ -71,8 +74,8 @@ namespace Chorus.UI.Sync
 			}
 			_sendReceiveButton.Visible =  Model.EnableSendReceive;
 			_cancelButton.Visible =  Model.EnableCancel && !_showCancelButtonTimer.Enabled;
-			_successIcon.Visible = _didAttemptSync  && !(_statusText.ErrorEncountered);
-			_warningIcon.Visible = (_statusText.ErrorEncountered || _statusText.WarningEncountered);
+			_successIcon.Visible = _didAttemptSync  && !(Model.ErrorsOrWarningsEncountered);
+			_warningIcon.Visible = Model.ErrorsOrWarningsEncountered;
 			_closeButton.Visible = Model.EnableClose;
 			if (_closeButton.Visible && Parent!=null && (Parent is Form))
 			{
@@ -80,9 +83,12 @@ namespace Chorus.UI.Sync
 				((Form) Parent).CancelButton = _closeButton;
 			}
 			progressBar1.Visible = Model.SynchronizingNow;// || _didAttemptSync;
-			_statusText.Visible = progressBar1.Visible || _didAttemptSync;
-			_logBox.ShowDetailsMenuItem = _didAttemptSync;
+			_statusText.Visible = progressBar1.Visible;
+			_logBox.ShowDetailsMenuItem = true;
+			_logBox.ShowDiagnosticsMenuItem = true;
 			_syncTargets.Enabled = Model != null;
+
+
 //
 //            if (_sendReceiveButton.Enabled)
 //            {
@@ -146,11 +152,6 @@ namespace Chorus.UI.Sync
 				this._logBox.WriteError(message);
 				return;
 			}
-
-			Model.AddProgressDisplay(_logBox);
-			Model.AddProgressDisplay(_statusText);
-			Model.ProgressIndicator = new MultiPhaseProgressIndicator(progressBar1, 2);  // for now we only specify 2 phases (pull, then push).
-			Model.UIContext = SynchronizationContext.Current;
 
 			LoadChoices();
 
@@ -232,7 +233,6 @@ namespace Chorus.UI.Sync
 			}
 
 			_logBox.Clear();
-			_logBox.WriteStatus("Syncing...");
 			Cursor.Current = Cursors.WaitCursor;
 			Model.Sync(useTargetsAsSpecifiedInSyncOptions);
 		}
@@ -256,7 +256,11 @@ namespace Chorus.UI.Sync
 
 		private void SyncControl_Resize(object sender, EventArgs e)
 		{
-			_statusText.MaximumSize = new Size((_sendReceiveButton.Left-_statusText.Left) - 20, _statusText.Height);
+			// cjh feb-2012: I'm not sure what the purpose of resizing the statustext was, but I commented it
+			// out because it was making the Label invisible!
+			// after commenting the line below out, I can see the status text again.
+
+			//_statusText.MaximumSize = new Size((_sendReceiveButton.Left-_statusText.Left) - 20, _statusText.Height);
 		}
 
 		private void _showCancelButtonTimer_Tick(object sender, EventArgs e)

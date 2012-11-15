@@ -1,5 +1,6 @@
 ﻿using Palaso.Progress;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
+using Palaso.UI.WindowsForms.Progress;
 
 namespace Chorus.UI.Sync
 {
@@ -363,7 +364,7 @@ namespace Chorus.UI.Sync
 			this.tableLayoutPanel3.RowCount = 2;
 			this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle());
 			this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-			this.tableLayoutPanel3.Size = new System.Drawing.Size(516, 320);
+			this.tableLayoutPanel3.Size = new System.Drawing.Size(516, 300);
 			this.tableLayoutPanel3.TabIndex = 20;
 			//
 			// SyncControl
@@ -373,7 +374,7 @@ namespace Chorus.UI.Sync
 			this.BackColor = System.Drawing.SystemColors.GradientInactiveCaption;
 			this.Controls.Add(this.tableLayoutPanel3);
 			this.Name = "SyncControl";
-			this.Size = new System.Drawing.Size(516, 320);
+			this.Size = new System.Drawing.Size(516, 300);
 			this.Load += new System.EventHandler(this.OnLoad);
 			this.Resize += new System.EventHandler(this.SyncControl_Resize);
 			this._tabControl.ResumeLayout(false);

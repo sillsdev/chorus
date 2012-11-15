@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Xml;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
+using Palaso.Xml;
 
 namespace Chorus.Utilities
 {
@@ -13,10 +12,10 @@ namespace Chorus.Utilities
 		/// </summary>
 		public static string ValidateFile(string pathToFile, IProgress progress)
 		{
-			XmlReaderSettings settings = new XmlReaderSettings { ValidationType = ValidationType.None };
-			XmlReader reader = XmlReader.Create(pathToFile, settings);
+			XmlReader reader = null;
 			try
 			{
+				reader = XmlReader.Create(pathToFile, CanonicalXmlSettings.CreateXmlReaderSettings());
 				while (reader.Read())
 				{
 				}
@@ -27,7 +26,8 @@ namespace Chorus.Utilities
 			}
 			finally
 			{
-				reader.Close();
+				if (reader != null)
+					reader.Close();
 			}
 			return null;
 		}

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
+﻿using System.IO;
 using Chorus.sync;
 
 namespace Chorus.FileTypeHanders.lift
@@ -25,20 +21,16 @@ namespace Chorus.FileTypeHanders.lift
 			config.ExcludePatterns.Add("*.WeSayUserMemory");
 			config.ExcludePatterns.Add("*.tmp");
 			config.ExcludePatterns.Add("*.bak");
+			config.ExcludePatterns.Add("**.log");
+			config.ExcludePatterns.Add("*-ImportLog.htm");
 			config.ExcludePatterns.Add(Path.Combine("export", "*.lift"));
 			config.ExcludePatterns.Add("*.plift");//normally in /export
 			config.ExcludePatterns.Add("*.pdf");//normally in /export
 			config.ExcludePatterns.Add("*.html");//normally in /export
 			config.ExcludePatterns.Add("*.odt");//normally in /export
 			config.ExcludePatterns.Add("*.ldml"); // Supposed to be in 'WritingSystems' folder now.
-			// Exclude these video extensions, for now at least.
-			// One can get a list of all sorts of extensions at: http://www.fileinfo.com/filetypes/video
-			config.ExcludePatterns.Add("**.mpg");
-			config.ExcludePatterns.Add("**.mov");
-			config.ExcludePatterns.Add("**.wmv");
-			config.ExcludePatterns.Add("**.rm");
-			config.ExcludePatterns.Add("**.mp4");
-			config.ExcludePatterns.Add("**.avi");
+
+			ProjectFolderConfiguration.AddExcludedVideoExtensions(config); // For now at least.
 
 			config.IncludePatterns.Add("*.lift");
 			config.IncludePatterns.Add("*.lift-ranges");

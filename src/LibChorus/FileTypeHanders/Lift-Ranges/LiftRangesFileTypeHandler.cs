@@ -1,12 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Chorus.FileTypeHanders.text;
 using Chorus.merge;
-using Chorus.Utilities.code;
+using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
+using Chorus.merge.xml.generic;
+using Palaso.Code;
 using Palaso.IO;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
 
 namespace Chorus.FileTypeHanders
 {
@@ -22,72 +23,53 @@ namespace Chorus.FileTypeHanders
 
 		public bool CanDiffFile(string pathToFile)
 		{
-			return false;
+			return CanValidateFile(pathToFile);
 		}
 
 		public bool CanMergeFile(string pathToFile)
 		{
-			return FileUtils.CheckValidPathname(pathToFile, Extension);
+			return CanValidateFile(pathToFile);
 		}
 
 		public bool CanPresentFile(string pathToFile)
 		{
-			if (!FileUtils.CheckValidPathname(pathToFile, Extension))
-				return false;
-			return true;
+			return CanValidateFile(pathToFile);
 		}
 		public bool CanValidateFile(string pathToFile)
 		{
-			return false;
+			if (string.IsNullOrEmpty(pathToFile))
+				return false;
+			if (!File.Exists(pathToFile))
+				return false;
+			var extension = Path.GetExtension(pathToFile);
+			if (string.IsNullOrEmpty(extension))
+				return false;
+			if (extension[0] != '.')
+				return false;
+
+			return FileUtils.CheckValidPathname(pathToFile, Extension);
 		}
 		public string ValidateFile(string pathToFile, IProgress progress)
 		{
-			throw new NotImplementedException();
+			// TODO: Decide how we want to do validation. For now, just make sure it is well-formed xml.
+			return XmlValidation.ValidateFile(pathToFile, progress);
 		}
 
 		public void Do3WayMerge(MergeOrder mergeOrder)
 		{
 			Guard.AgainstNull(mergeOrder, "mergeOrder");
 
-			var commonAncestor = File.ReadAllText(mergeOrder.pathToCommonAncestor);
-			var ours = File.ReadAllText(mergeOrder.pathToOurs);
-			var theirs = File.ReadAllText(mergeOrder.pathToTheirs);
-
-			if (commonAncestor == ours && commonAncestor == theirs)
-				return; // Nothing to do.
-
-			if (ours == theirs)
-			{
-				// Both made same change(s).
-				mergeOrder.EventListener.ChangeOccurred(new TextEditChangeReport(mergeOrder.pathToOurs, commonAncestor, ours));
-				return;
-			}
-
-			if (ours != commonAncestor & theirs == commonAncestor)
-			{
-				// We changed, they did nothing.
-				mergeOrder.EventListener.ChangeOccurred(new TextEditChangeReport(mergeOrder.pathToOurs, commonAncestor, ours));
-				return;
-			}
-
-			if (ours == commonAncestor && theirs != commonAncestor)
-			{
-				// They changed, we did nothing.
-				mergeOrder.EventListener.ChangeOccurred(new TextEditChangeReport(mergeOrder.pathToTheirs, commonAncestor, theirs));
-				File.Copy(mergeOrder.pathToTheirs, mergeOrder.pathToOurs, true);
-				return;
-			}
-
-			mergeOrder.EventListener.ConflictOccurred(new UnmergableFileTypeConflict(mergeOrder.MergeSituation));
-			if (mergeOrder.MergeSituation.ConflictHandlingMode == MergeOrder.ConflictHandlingModeChoices.TheyWin)
-				File.Copy(mergeOrder.pathToTheirs, mergeOrder.pathToOurs, true);
+			XmlMergeService.Do3WayMerge(mergeOrder,
+				new LiftRangesMergingStrategy(mergeOrder),
+				false,
+				null,
+				"range", "id");
 		}
 
 		public IEnumerable<IChangeReport> Find2WayDifferences(FileInRevision parent, FileInRevision child, HgRepository repository)
 		{
-			throw new ApplicationException(string.Format("Chorus could not find a handler to diff files like '{0}'", child.FullPath));
+			return Xml2WayDiffService.ReportDifferences(repository, parent, child, null, "range", "id");
 		}
-
 
 		public IChangePresenter GetChangePresenter(IChangeReport report, HgRepository repository)
 		{
@@ -99,6 +81,10 @@ namespace Chorus.FileTypeHanders
 			return new IChangeReport[] { new DefaultChangeReport(fileInRevision, "Added") };
 		}
 
+		/// <summary>
+		/// Get a list or one, or more, extensions this file type handler can process
+		/// </summary>
+		/// <returns>A collection of extensions (without leading period (.)) that can be processed.</returns>
 		public IEnumerable<string> GetExtensionsOfKnownTextFileTypes()
 		{
 			yield return Extension;

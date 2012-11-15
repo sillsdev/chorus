@@ -1,4 +1,4 @@
-//#define USEOPTIMIZEDVERSION
+#define USEOPTIMIZEDVERSION
 using System;
 using System.Collections.Generic;
 #if USEOPTIMIZEDVERSION
@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Xml;
 using Chorus.merge.xml.generic.xmldiff;
+using Palaso.Code;
 
 
 namespace Chorus.merge.xml.generic
@@ -20,6 +21,25 @@ namespace Chorus.merge.xml.generic
 	}
 
 	/// <summary>
+	/// An additional interface that extends IFindNodeToMerge to return multiple matches.
+	/// </summary>
+	public interface IFindMatchingNodesToMerge : IFindNodeToMerge
+	{
+		/// <summary>
+		/// Get all matching nodes, or an empty collection, if there are no matches.
+		/// </summary>
+		/// <returns>A collection of zero, or more, matching nodes.</returns>
+		/// <remarks><paramref name="nodeToMatch" /> may, or may not, be a child of <paramref name="parentToSearchIn"/>.</remarks>
+		IEnumerable<XmlNode> GetMatchingNodes(XmlNode nodeToMatch, XmlNode parentToSearchIn);
+
+		/// <summary>
+		/// Get a basic message that is suitable for use in a warning report where ambiguous nodes are found in the same parent node.
+		/// </summary>
+		/// <returns>A message string or null/empty string, if no message is needed for ambiguous nodes.</returns>
+		string GetWarningMessageForAmbiguousNodes(XmlNode nodeForMessage);
+	}
+
+	/// <summary>
 	/// Defines a secondary algorithm for finding less ideal matches, e.g., we allow an empty
 	/// node to match a non-empty (but no duplicates).
 	/// </summary>
@@ -28,12 +48,12 @@ namespace Chorus.merge.xml.generic
 		XmlNode GetPossibleNodeToMerge(XmlNode nodeToMatch, List<XmlNode> possibleMatches);
 	}
 
-	public class FindByKeyAttribute : IFindNodeToMerge
+	public class FindByKeyAttribute : IFindMatchingNodesToMerge
 	{
-		private string _keyAttribute;
+		private readonly string _keyAttribute;
 #if USEOPTIMIZEDVERSION
-		private List<XmlNode> _parentsToSearchIn = new List<XmlNode>();
-		private Dictionary<int, Dictionary<string, XmlNode>> _indexedSoughtAfterNodes = new Dictionary<int, Dictionary<string, XmlNode>>();
+		private readonly List<XmlNode> _parentsToSearchIn = new List<XmlNode>();
+		private readonly Dictionary<int, Dictionary<string, XmlNode>> _indexedSoughtAfterNodes = new Dictionary<int, Dictionary<string, XmlNode>>();
 #endif
 
 		public FindByKeyAttribute(string keyAttribute)
@@ -41,13 +61,12 @@ namespace Chorus.merge.xml.generic
 			_keyAttribute = keyAttribute;
 		}
 
-
 		public XmlNode GetNodeToMerge(XmlNode nodeToMatch, XmlNode parentToSearchIn)
 		{
 			if (parentToSearchIn == null)
 				return null;
 
-			string key = XmlUtilities.GetOptionalAttributeString(nodeToMatch, _keyAttribute);
+			var key = XmlUtilities.GetOptionalAttributeString(nodeToMatch, _keyAttribute);
 			if (string.IsNullOrEmpty(key))
 			{
 				return null;
@@ -65,24 +84,66 @@ namespace Chorus.merge.xml.generic
 				var childrenWithKeyAttr = (from XmlNode childNode in parentToSearchIn.ChildNodes
 										   where childNode.Name == matchingName && childNode.Attributes[_keyAttribute] != null
 										   select childNode).ToList();
-				foreach (XmlNode nodeWithKeyAttribute in childrenWithKeyAttr)
+				foreach (var nodeWithKeyAttribute in childrenWithKeyAttr)
+				{
 					childrenWithKeys.Add(nodeWithKeyAttribute.Attributes[_keyAttribute].Value, nodeWithKeyAttribute);
+			}
 			}
 
 			XmlNode matchingNode;
 			_indexedSoughtAfterNodes[parentIdx].TryGetValue(key, out matchingNode);
 			return matchingNode; // May be null, which is fine.
 #else
-			// I (CP) changed this to use double quotes to allow attributes to contain single quotes.
-			// My understanding is that double quotes are illegal inside attributes so this should be fine.
-			// See: http://jira.palaso.org/issues/browse/WS-33895
-			//string xpath = string.Format("{0}[@{1}='{2}']", nodeToMatch.Name, _keyAttribute, key);
-			string xpath = string.Format("{0}[@{1}=\"{2}\"]", nodeToMatch.Name, _keyAttribute, key);
-
-			return parentToSearchIn.SelectSingleNode(xpath);
+			var matches = GetMatchingNodes(nodeToMatch, parentToSearchIn).toList();
+			return (matches.Count > 0) ? matches[0] : null;
 #endif
 		}
 
+		/// <summary>
+		/// Get all matching nodes, or an empty collection, if there are no matches.
+		/// </summary>
+		/// <returns>A collection of zero, or more, matching nodes.</returns>
+		/// <remarks><paramref name="nodeToMatch" /> may, or may not, be a child of <paramref name="parentToSearchIn"/>.</remarks>
+		public IEnumerable<XmlNode> GetMatchingNodes(XmlNode nodeToMatch, XmlNode parentToSearchIn)
+		{
+			if (parentToSearchIn == null)
+				return new List<XmlNode>();
+
+			var key = XmlUtilities.GetOptionalAttributeString(nodeToMatch, _keyAttribute);
+			if (string.IsNullOrEmpty(key))
+			{
+				return new List<XmlNode>();
+			}
+
+			var matches = new List<XmlNode>();
+			foreach (XmlNode childNode in parentToSearchIn.ChildNodes)
+			{
+				if (childNode.NodeType != XmlNodeType.Element)
+					continue;
+				if (nodeToMatch == childNode)
+				{
+					matches.Add(childNode);
+					continue;
+				}
+				var keyAttr = childNode.Attributes[_keyAttribute];
+				if (keyAttr == null || keyAttr.Value != key)
+					continue;
+				matches.Add(childNode);
+			}
+			return matches;
+		}
+
+		/// <summary>
+		/// Get a basic message that is suitable for use in a warning report where ambiguous nodes are found in the same parent node.
+		/// </summary>
+		/// <returns>A message string or null/empty string, if no message is needed for ambiguous nodes.</returns>
+		public string GetWarningMessageForAmbiguousNodes(XmlNode nodeForMessage)
+		{
+			Guard.AgainstNull(nodeForMessage, "nodeForMessage");
+
+			return string.Format("The key attribute '{0}' has values that are the same '{1}'",
+				_keyAttribute, nodeForMessage.Attributes[_keyAttribute].Value);
+		}
 	}
 
 	/// <summary>
@@ -242,7 +303,7 @@ namespace Chorus.merge.xml.generic
 	/// Search for a matching elment where multiple attributes combine
 	/// to make a single "key" to identify a matching elment.
 	/// </summary>
-	public class FindByMultipleKeyAttributes : IFindNodeToMerge
+	public class FindByMultipleKeyAttributes : IFindMatchingNodesToMerge
 	{
 		private readonly List<string> _keyAttributes;
 
@@ -256,31 +317,126 @@ namespace Chorus.merge.xml.generic
 			if (parentToSearchIn == null)
 				return null;
 
-			var bldr = new StringBuilder(nodeToMatch.Name + "[");
-			for (var i = 0; i < _keyAttributes.Count; ++i )
+			var matches = GetMatchingNodes(nodeToMatch, parentToSearchIn).ToList();
+			return (matches.Count > 0)
+				? matches[0]
+				: null;
+		}
+
+		/// <summary>
+		/// Get all matching nodes, or an empty collection, if there are no matches.
+		/// </summary>
+		/// <returns>A collection of zero, or more, matching nodes.</returns>
+		/// <remarks><paramref name="nodeToMatch" /> may, or may not, be a child of <paramref name="parentToSearchIn"/>.</remarks>
+		public IEnumerable<XmlNode> GetMatchingNodes(XmlNode nodeToMatch, XmlNode parentToSearchIn)
+		{
+			if (parentToSearchIn == null)
+				return new List<XmlNode>();
+
+			var extantValues = _keyAttributes.ToDictionary(keyAttribute => keyAttribute, keyAttribute => nodeToMatch.Attributes[keyAttribute].Value);
+			var matches = new List<XmlNode>();
+			foreach (XmlNode childNode in parentToSearchIn.ChildNodes)
+			{
+				if (childNode.NodeType != XmlNodeType.Element)
+					continue;
+				if (nodeToMatch == childNode)
+				{
+					matches.Add(nodeToMatch);
+					continue;
+				}
+				var isMatch = true;
+				foreach (var kvp in extantValues)
+				{
+					var keyAttr = childNode.Attributes[kvp.Key];
+					if (keyAttr == null || keyAttr.Value != kvp.Value)
+					{
+						isMatch = false;
+						break;
+					}
+				}
+				if (!isMatch)
+					continue;
+				matches.Add(childNode);
+			}
+			return matches;
+		}
+
+		/// <summary>
+		/// Get a basic message that is suitable for use in a warning report where ambiguous nodes are found in the same parent node.
+		/// </summary>
+		/// <returns>A message string or null/empty string, if no message is needed for ambiguous nodes.</returns>
+		public string GetWarningMessageForAmbiguousNodes(XmlNode nodeForMessage)
+		{
+			Guard.AgainstNull(nodeForMessage, "nodeForMessage");
+
+			var bldr = new StringBuilder();
+			for (var i = 0; i < _keyAttributes.Count; ++i)
 			{
 				if (i > 0)
+					bldr.Append(", ");
+				if (i == _keyAttributes.Count - 1)
 					bldr.Append(" and ");
 				var currentAttrName = _keyAttributes[i];
-				bldr.AppendFormat("@{0}='{1}'", currentAttrName, XmlUtilities.GetStringAttribute(nodeToMatch, currentAttrName));
+				var currentAttrValue = nodeForMessage.Attributes[currentAttrName].Value;
+				bldr.AppendFormat("attribute '{0}' with value of '{1}'", currentAttrName, currentAttrValue);
 			}
-			bldr.Append("]");
 
-			return parentToSearchIn.SelectSingleNode(bldr.ToString());
+			return string.Format("The key attribute(s) have value(s) that are the same: {0}", bldr);
 		}
 	}
 
 	/// <summary>
 	/// e.g. <grammatical-info>  there can only be one
 	/// </summary>
-	public class FindFirstElementWithSameName : IFindNodeToMerge
+	public class FindFirstElementWithSameName : IFindMatchingNodesToMerge
 	{
 		public XmlNode GetNodeToMerge(XmlNode nodeToMatch, XmlNode parentToSearchIn)
 		{
 			if (parentToSearchIn == null)
 				return null;
 
-			return parentToSearchIn.SelectSingleNode(nodeToMatch.Name);
+			var matches = GetMatchingNodes(nodeToMatch, parentToSearchIn).ToList();
+			return (matches.Count > 0)
+				? matches[0]
+				: null;
+		}
+
+		/// <summary>
+		/// Get all matching nodes, or an empty collection, if there are no matches.
+		/// </summary>
+		/// <returns>A collection of zero, or more, matching nodes.</returns>
+		/// <remarks><paramref name="nodeToMatch" /> may, or may not, be a child of <paramref name="parentToSearchIn"/>.</remarks>
+		public IEnumerable<XmlNode> GetMatchingNodes(XmlNode nodeToMatch, XmlNode parentToSearchIn)
+		{
+			if (parentToSearchIn == null)
+				return new List<XmlNode>();
+
+			var matches = new List<XmlNode>();
+			foreach (XmlNode childNode in parentToSearchIn.ChildNodes)
+			{
+				if (childNode.NodeType != XmlNodeType.Element)
+					continue;
+				if (nodeToMatch == childNode)
+				{
+					matches.Add(childNode);
+					continue;
+				}
+				if (nodeToMatch.Name != childNode.Name)
+					continue;
+				matches.Add(childNode);
+			}
+			return matches;
+		}
+
+		/// <summary>
+		/// Get a basic message that is suitable for use in a warning report where ambiguous nodes are found in the same parent node.
+		/// </summary>
+		/// <returns>A message string or null/empty string, if no message is needed for ambiguous nodes.</returns>
+		public string GetWarningMessageForAmbiguousNodes(XmlNode nodeForMessage)
+		{
+			Guard.AgainstNull(nodeForMessage, "nodeForMessage");
+
+			return string.Format("The elements are named: '{0}'", nodeForMessage.Name);
 		}
 	}
 
@@ -295,7 +451,7 @@ namespace Chorus.merge.xml.generic
 
 			foreach (XmlNode node in parentToSearchIn.ChildNodes)
 			{
-				if(nodeToMatch.Name != node.Name)
+				if (nodeToMatch.Name != node.Name)
 				{
 					continue; // can't be equal if they don't even have the same name
 				}
@@ -352,7 +508,8 @@ namespace Chorus.merge.xml.generic
 
 	public class FindTextDumb : IFindNodeToMerge
 	{
-		//todo: this won't cope with multiple text child nodes in the same element
+		// This won't cope with multiple text child nodes in the same element
+		// No, but then use FormMatchingFinder for that scenario.
 
 		public XmlNode GetNodeToMerge(XmlNode nodeToMatch, XmlNode parentToSearchIn)
 		{
@@ -363,7 +520,7 @@ namespace Chorus.merge.xml.generic
 
 			foreach (XmlNode node in parentToSearchIn.ChildNodes)
 			{
-				if(node.NodeType == XmlNodeType.Text)
+				if (node.NodeType == XmlNodeType.Text)
 					return node;
 			}
 			return null;

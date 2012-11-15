@@ -3,13 +3,13 @@ using System.Drawing;
 using System.IO;
 using System.Media;
 using System.Windows.Forms;
-using Chorus.clone;
 using System.Linq;
-using Palaso.Progress.LogBox;
+using Palaso.Extensions;
+using Palaso.Progress;
 
 namespace Chorus.UI.Clone
 {
-	public partial class GetCloneFromUsbDialog : Form
+	public partial class GetCloneFromUsbDialog : Form, ICloneSourceDialog
 	{
 		private readonly string _parentDirectoryToPutCloneIn;
 		private CloneFromUsb _model;
@@ -149,7 +149,10 @@ namespace Chorus.UI.Clone
 			}
 		}
 
-		public string PathToNewProject { get; private set; }
+		/// <summary>
+		/// After a successful clone, this will have the path to the folder that we just copied to the computer
+		/// </summary>
+		public string PathToNewlyClonedFolder { get; private set; }
 
 		private void _cancelButton_Click(object sender, EventArgs e)
 		{
@@ -171,19 +174,11 @@ namespace Chorus.UI.Clone
 			}
 
 			var target = Path.Combine(_parentDirectoryToPutCloneIn, Path.GetFileName(SelectedPath));
-			if (Directory.Exists(target))
-			{
-				MessageBox.Show(string.Format(@"Sorry, a project with the same name already exists on this computer at the default location ({0}).
-This tool is only for getting the project there in the first place, not for synchronizing with it.
-If you want to use the version on the USB flash drive you will need to first delete, move, or rename the copy that is on your computer.",
-_parentDirectoryToPutCloneIn), "Problem", MessageBoxButtons.OK, MessageBoxIcon.Stop);
-				return;
-			}
 			try
 			{
 				UpdateDisplay(State.MakingClone);
 
-				PathToNewProject = _model.MakeClone(SelectedPath, _parentDirectoryToPutCloneIn, _progress);
+				PathToNewlyClonedFolder = _model.MakeClone(SelectedPath, _parentDirectoryToPutCloneIn, _progress);
 
 				UpdateDisplay(State.Success);
 
@@ -215,5 +210,21 @@ _parentDirectoryToPutCloneIn), "Problem", MessageBoxButtons.OK, MessageBoxIcon.S
 		}
 
 
+
+		/// <summary>
+		/// Used to check if the repository is the right kind for your program, so that the only projects that can be chosen are ones
+		/// you application is prepared to open. The delegate is given the path to each mercurial project.
+		///
+		/// Note: the comparison is based on how hg stores the file name/extenion, not the original form!
+		/// </summary>
+		/// <example>Bloom uses "*.bloom_collection.i" to test if there is a ".BloomCollection" file</example>
+		public void SetFilePatternWhichMustBeFoundInHgDataFolder(string pattern)
+		{
+			_model.ProjectFilter = folder =>
+									   {
+										   var hgDataFolder = folder.CombineForPath(".hg","store", "data");
+										   return Directory.GetFiles(hgDataFolder, pattern).Length > 0;
+									   };
+		}
 	}
 }

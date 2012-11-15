@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Windows.Forms;
+using System.Net.NetworkInformation;
 using Chorus.Utilities;
 using Chorus.Utilities.UsbDrive;
 using Chorus.VcsDrivers.Mercurial;
 using Palaso.IO;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
 using Palaso.Reporting;
 
 namespace Chorus.VcsDrivers
@@ -88,7 +88,7 @@ namespace Chorus.VcsDrivers
 
 		public static bool IsKnownResumableRepository(string uri)
 		{
-			return uri.ToLower().Contains("languageforge.org") || uri.ToLower().Contains("resumable");
+			return uri.ToLower().Contains("hg-test.languageforge.org") || uri.ToLower().Contains("resumable");
 		}
 
 
@@ -174,11 +174,14 @@ namespace Chorus.VcsDrivers
 
 	public class DirectoryRepositorySource : RepositoryAddress
 	{
+		private readonly string _networkMachineSpecifier;
+		private readonly string _alternativeMachineSpecifier;
 
 		public DirectoryRepositorySource(string name, string uri, bool readOnly)
 			: base(name, uri, readOnly)
 		{
-
+			_networkMachineSpecifier = new string(Path.DirectorySeparatorChar, 2);
+			_alternativeMachineSpecifier = new string(Path.AltDirectorySeparatorChar, 2);
 		}
 
 		/// <summary>
@@ -186,22 +189,33 @@ namespace Chorus.VcsDrivers
 		/// </summary>
 		public override string GetPotentialRepoUri(string repoIdentifier, string projectName, IProgress progress)
 		{
-			return URI.Replace(ProjectNameVariable, projectName);
+			return URI.Replace(ProjectNameVariable, projectName).TrimEnd(Path.DirectorySeparatorChar);
 		}
 
 		public override bool CanConnect(HgRepository localRepository, string projectName, IProgress progress)
 		{
 			var path = GetPotentialRepoUri(localRepository.Identifier, projectName, progress);
-			if (this.URI.StartsWith(@"\\"))
+			if (URI.StartsWith(_networkMachineSpecifier) || URI.StartsWith(_alternativeMachineSpecifier))
 			{
 				progress.WriteStatus("Checking to see if we can connect with {0}...", path);
+				if (!NetworkInterface.GetIsNetworkAvailable())
+				{
+					progress.WriteWarning("This machine does not have a live network connection.");
+					return false;
+				}
 			}
-			return Directory.Exists(path);
+
+			var result = Directory.Exists(path);
+			if (!result)
+			{
+				progress.WriteWarning("Cannot find the specified file folder.");
+			}
+			return result;
 		}
 
 		public bool LooksLikeLocalDirectory
 		{
-			get { return !(this.URI.StartsWith(@"\\")); }
+			get { return !(this.URI.StartsWith(_networkMachineSpecifier)); }
 		}
 
 		public override List<string> GetPossibleCloneUris(string repoIdentifier, string projectName, IProgress progress)
@@ -290,18 +304,35 @@ namespace Chorus.VcsDrivers
 				{
 					try
 					{
+						if (File.Exists(Path.Combine(path, "SharedRepositoryInfo.xml")))
+						{
+							progress.WriteVerbose("Not checking folder that looks like paratext project: "+path);
+							continue;
+						}
+
 						// Need to create an HgRepository for each so we can get its Id.
 						var usbRepo = new HgRepository(path, progress);
 						if (usbRepo.Identifier == null)
-						{   // bad repository -- should report somehow
-							//MessageBox.Show("Repository at "+path+" is damaged, it did not return an id.","Chorus - Bad News",MessageBoxButtons.OK,MessageBoxIcon.Information);
-							// this dialog likes to hide under other windows; looks like a hung app.
+						{
+							// Null indicates a new repo, with no commits yet.
+							continue;
 						}
 						else if (repoIdentifier.ToLowerInvariant() == usbRepo.Identifier.ToLowerInvariant())
+						{
 							return path;
+						}
+					}
+					catch (UserCancelledException )
+					{   // deal with this separately to avoid an error report - the user didn't ask for that.
+						throw; // if not thrown now, more folders could be searched in FLExBridge
 					}
 					catch (Exception e)
 					{
+						if(e.Message.Contains("not supported"))
+						{
+							progress.WriteWarning("Could not check the repository at {0} because it has some unsupported feature (e.g. made with a new versin of this or some other software?). Error was: {1}", path, e.Message);
+							continue;
+						}
 						ErrorReport.ReportNonFatalExceptionWithMessage(e, "Error while processing USB folder '{0}'", path);
 					}
 				}

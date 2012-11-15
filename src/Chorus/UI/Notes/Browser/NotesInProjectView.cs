@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 using Chorus.notes;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
 
 namespace Chorus.UI.Notes.Browser
 {
@@ -19,7 +19,7 @@ namespace Chorus.UI.Notes.Browser
 			_model = model;
 			//       _model.ProgressDisplay = new NullProgress();
 			InitializeComponent();
-			_messageListView.SmallImageList = AnnotationClassFactory.CreateImageListContainingAnnotationImages();
+			_messageListView.SmallImageList = AnnotationClassFactoryUI.CreateImageListContainingAnnotationImages();
 			showClosedNotesToolStripMenuItem1.Checked = _model.ShowClosedNotes;
 			timer1.Interval = 1000;
 			timer1.Tick += new EventHandler(timer1_Tick);
@@ -38,9 +38,11 @@ namespace Chorus.UI.Notes.Browser
 		void OnReloadMessages(object sender, EventArgs e)
 		{
 			ListMessage previousItem = null;
+			int previousIndex = -1;
 			if (_messageListView.SelectedIndices.Count > 0)
 			{
 				previousItem = _messageListView.SelectedItems[0].Tag as ListMessage;
+				previousIndex = _messageListView.SelectedIndices[0];
 			}
 
 			Cursor.Current = Cursors.WaitCursor;
@@ -59,13 +61,26 @@ namespace Chorus.UI.Notes.Browser
 			//restore the previous selection
 			if (previousItem !=null)
 			{
+				bool gotIt = false;
 				foreach (ListViewItem listViewItem in _messageListView.Items)
 				{
 					if (((ListMessage)(listViewItem.Tag)).Message.Guid == previousItem.Message.Guid)
 					{
 						listViewItem.Selected = true;
+						gotIt = true;
 						break;
 					}
+				}
+				if (_messageListView.Items.Count > 0 && !gotIt)
+				{
+					// Likely we hid the item that was previously selected.
+					// Select something, preferably the item at the same position.
+					if (previousIndex < 0)
+						_messageListView.Items[0].Selected = true;
+					else if (_messageListView.Items.Count > previousIndex) // usual case, if we deleted one thing and not the last
+						_messageListView.Items[previousIndex].Selected = true;
+					else
+						_messageListView.Items[_messageListView.Items.Count - 1].Selected = true; // closest to original index
 				}
 			}
 			//enhance...we could, if the message is not found, go looking for the owning annotation. But since

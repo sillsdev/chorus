@@ -3,14 +3,14 @@
   <PropertyGroup>
 	<Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
 	<Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-	<ProductVersion>9.0.30729</ProductVersion>
+	<ProductVersion>9.0.21022</ProductVersion>
 	<SchemaVersion>2.0</SchemaVersion>
 	<ProjectGuid>{9DA5A655-1881-4BE1-81BA-256E47CF7537}</ProjectGuid>
 	<OutputType>WinExe</OutputType>
 	<AppDesignerFolder>Properties</AppDesignerFolder>
 	<RootNamespace>Chorus</RootNamespace>
 	<AssemblyName>Chorus</AssemblyName>
-	<TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+	<TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
 	<FileAlignment>512</FileAlignment>
 	<StartupObject>Chorus.Program</StartupObject>
 	<ApplicationIcon>chorus.ico</ApplicationIcon>
@@ -33,6 +33,7 @@
 	<IsWebBootstrapper>false</IsWebBootstrapper>
 	<UseApplicationTrust>false</UseApplicationTrust>
 	<BootstrapperEnabled>true</BootstrapperEnabled>
+	<TargetFrameworkProfile>Client</TargetFrameworkProfile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
 	<DebugSymbols>true</DebugSymbols>
@@ -85,7 +86,7 @@
 	<CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
 	<Optimize>true</Optimize>
 	<DebugType>pdbonly</DebugType>
-	<PlatformTarget>AnyCPU</PlatformTarget>
+	<PlatformTarget>x86</PlatformTarget>
 	<ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <ItemGroup>
@@ -97,15 +98,17 @@
 	  <SpecificVersion>False</SpecificVersion>
 	  <HintPath>..\..\lib\$(Configuration)\Palaso.dll</HintPath>
 	</Reference>
+	<Reference Include="PalasoUIWindowsForms, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86">
+	  <SpecificVersion>False</SpecificVersion>
+	  <HintPath>..\..\lib\$(Configuration)\PalasoUIWindowsForms.dll</HintPath>
+	</Reference>
 	<Reference Include="System" />
 	<Reference Include="System.Core">
 	  <RequiredTargetFramework>3.5</RequiredTargetFramework>
 	</Reference>
 	<Reference Include="System.Data" />
 	<Reference Include="System.Deployment" />
-	<Reference Include="System.Design" />
 	<Reference Include="System.Drawing" />
-	<Reference Include="System.Web" />
 	<Reference Include="System.Windows.Forms" />
 	<Reference Include="System.Xml" />
 	<Reference Include="System.Xml.Linq">
@@ -124,6 +127,31 @@
 	<Compile Include="UI\BetterLabel.designer.cs">
 	  <DependentUpon>BetterLabel.cs</DependentUpon>
 	</Compile>
+	<Compile Include="UI\Clone\CloneFromUsb.cs" />
+	<Compile Include="UI\Clone\GetCloneFromChorusHubModel.cs" />
+	<Compile Include="UI\Clone\GetCloneFromChorusHubDialog.cs">
+	  <SubType>Form</SubType>
+	</Compile>
+	<Compile Include="UI\Clone\GetCloneFromChorusHubDialog.Designer.cs">
+	  <DependentUpon>GetCloneFromChorusHubDialog.cs</DependentUpon>
+	</Compile>
+	<Compile Include="UI\Clone\GetCloneFromNetworkFolderModel.cs" />
+	<Compile Include="UI\Clone\GetCloneFromNetworkFolderDlg.cs">
+	  <SubType>Form</SubType>
+	</Compile>
+	<Compile Include="UI\Clone\GetCloneFromNetworkFolderDlg.Designer.cs">
+	  <DependentUpon>GetCloneFromNetworkFolderDlg.cs</DependentUpon>
+	</Compile>
+	<Compile Include="UI\Clone\GetSharedProject.cs" />
+	<Compile Include="UI\Clone\ICloneSourceDialog.cs" />
+	<Compile Include="UI\Clone\IGetSharedProject.cs" />
+	<Compile Include="UI\Misc\NetworkFolderSettingsControl.cs">
+	  <SubType>UserControl</SubType>
+	</Compile>
+	<Compile Include="UI\Misc\NetworkFolderSettingsControl.Designer.cs">
+	  <DependentUpon>NetworkFolderSettingsControl.cs</DependentUpon>
+	</Compile>
+	<Compile Include="UI\Misc\NetworkFolderSettingsModel.cs" />
 	<Compile Include="UI\Misc\ServerSettingsControl.cs">
 	  <SubType>UserControl</SubType>
 	</Compile>
@@ -162,6 +190,7 @@
 	<Compile Include="UI\Misc\ReadinessPanel.Designer.cs">
 	  <DependentUpon>ReadinessPanel.cs</DependentUpon>
 	</Compile>
+	<Compile Include="UI\Notes\AnnotationClassFactoryUI.cs" />
 	<Compile Include="UI\Notes\AnnotationInspector.cs">
 	  <SubType>Form</SubType>
 	</Compile>
@@ -169,6 +198,12 @@
 	  <DependentUpon>AnnotationInspector.cs</DependentUpon>
 	</Compile>
 	<Compile Include="UI\Notes\AnnotationEditorModel.cs" />
+	<Compile Include="UI\Notes\ConflictDetailsForm.cs">
+	  <SubType>Form</SubType>
+	</Compile>
+	<Compile Include="UI\Notes\ConflictDetailsForm.Designer.cs">
+	  <DependentUpon>ConflictDetailsForm.cs</DependentUpon>
+	</Compile>
 	<Compile Include="UI\Notes\Events.cs" />
 	<Compile Include="UI\Notes\ListMessage.cs" />
 	<Compile Include="UI\Notes\Bar\NoteDetailDialog.cs">
@@ -245,6 +280,17 @@
 	</Compile>
 	<Compile Include="Program.cs" />
 	<Compile Include="Properties\AssemblyInfo.cs" />
+	<EmbeddedResource Include="UI\Clone\GetCloneFromChorusHubDialog.resx">
+	  <DependentUpon>GetCloneFromChorusHubDialog.cs</DependentUpon>
+	  <SubType>Designer</SubType>
+	</EmbeddedResource>
+	<EmbeddedResource Include="UI\Clone\GetCloneFromNetworkFolderDlg.resx">
+	  <DependentUpon>GetCloneFromNetworkFolderDlg.cs</DependentUpon>
+	  <SubType>Designer</SubType>
+	</EmbeddedResource>
+	<EmbeddedResource Include="UI\Misc\NetworkFolderSettingsControl.resx">
+	  <DependentUpon>NetworkFolderSettingsControl.cs</DependentUpon>
+	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Review\ChangedReport\ChangeReportView.resx">
 	  <DependentUpon>ChangeReportView.cs</DependentUpon>
 	  <SubType>Designer</SubType>
@@ -256,6 +302,7 @@
 	<EmbeddedResource Include="UI\Review\RevisionsInRepository\HistoryRowIcons.resx">
 	  <Generator>ResXFileCodeGenerator</Generator>
 	  <LastGenOutput>HistoryRowIcons.Designer.cs</LastGenOutput>
+	  <SubType>Designer</SubType>
 	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Review\RevisionsInRepository\RevisionsInRepositoryView.resx">
 	  <DependentUpon>RevisionsInRepositoryView.cs</DependentUpon>
@@ -273,6 +320,9 @@
 	<EmbeddedResource Include="Shell.resx">
 	  <DependentUpon>Shell.cs</DependentUpon>
 	  <SubType>Designer</SubType>
+	</EmbeddedResource>
+	<EmbeddedResource Include="UI\Settings\SendReceiveSettings.resx">
+	  <DependentUpon>SendReceiveSettings.cs</DependentUpon>
 	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Settings\SettingsView.resx">
 	  <DependentUpon>SettingsView.cs</DependentUpon>
@@ -302,6 +352,12 @@
 	  <DesignTimeSharedInput>True</DesignTimeSharedInput>
 	</Compile>
 	<Compile Include="UI\Review\Events.cs" />
+	<Compile Include="UI\Settings\SendReceiveSettings.cs">
+	  <SubType>Form</SubType>
+	</Compile>
+	<Compile Include="UI\Settings\SendReceiveSettings.Designer.cs">
+	  <DependentUpon>SendReceiveSettings.cs</DependentUpon>
+	</Compile>
 	<Compile Include="UI\Settings\SettingsModel.cs" />
 	<Compile Include="Shell.cs">
 	  <SubType>Form</SubType>
@@ -327,6 +383,7 @@
 	<Compile Include="UI\Misc\ServerSettingsDialog.Designer.cs">
 	  <DependentUpon>ServerSettingsDialog.cs</DependentUpon>
 	</Compile>
+	<Compile Include="UI\IUsbDriveLocator.cs" />
 	<Compile Include="UI\Sync\SyncControl.cs">
 	  <SubType>UserControl</SubType>
 	</Compile>
@@ -361,6 +418,10 @@
 	</Compile>
   </ItemGroup>
   <ItemGroup>
+	<ProjectReference Include="..\ChorusHub\ChorusHub.csproj">
+	  <Project>{EB8C974D-B1C6-4CE0-BFD4-170EFE18790C}</Project>
+	  <Name>ChorusHub</Name>
+	</ProjectReference>
 	<ProjectReference Include="..\LibChorus\LibChorus.csproj">
 	  <Project>{94245366-8F1E-475C-810D-FE89BB3948E0}</Project>
 	  <Name>LibChorus</Name>
@@ -426,6 +487,11 @@
 	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Misc\ServerSettingsDialog.resx">
 	  <DependentUpon>ServerSettingsDialog.cs</DependentUpon>
+	  <SubType>Designer</SubType>
+	</EmbeddedResource>
+	<EmbeddedResource Include="UI\Notes\ConflictDetailsForm.resx">
+	  <DependentUpon>ConflictDetailsForm.cs</DependentUpon>
+	  <SubType>Designer</SubType>
 	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Sync\SyncControl.resx">
 	  <DependentUpon>SyncControl.cs</DependentUpon>
@@ -437,6 +503,9 @@
 	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Sync\SyncStartControl.resx">
 	  <DependentUpon>SyncStartControl.cs</DependentUpon>
+	  <SubType>Designer</SubType>
+	</EmbeddedResource>
+	<EmbeddedResource Include="Resources\chorus.helpmap">
 	  <SubType>Designer</SubType>
 	</EmbeddedResource>
 	<None Include="Resources\error.wav" />
@@ -461,6 +530,11 @@
 	<None Include="Resources\expand.png" />
 	<None Include="Resources\chorus16x16.png" />
 	<None Include="Resources\FieldWorksBridge.bmp" />
+	<None Include="Resources\Committer Person.png" />
+	<None Include="Resources\icon16x16.png" />
+	<None Include="Resources\Bloom16x16.png" />
+	<None Include="Resources\chorusHubLarge.png" />
+	<None Include="Resources\chorusHubMedium.png" />
 	<Content Include="Resources\menuButton.png" />
 	<None Include="Resources\sendReceiveCircle16x16png.png" />
 	<None Include="Resources\Merge16x16.png" />
@@ -469,6 +543,8 @@
 	<None Include="Resources\wesay16x16.png" />
 	<None Include="Resources\wesayconfigDoc16x16.png" />
 	<None Include="Resources\WeSayConfig16x16.png" />
+	<None Include="Resources\warning16x161.png" />
+	<None Include="Resources\warning24x24.png" />
 	<Content Include="UI\Notes\Html\bl.gif">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</Content>
