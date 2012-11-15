@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Xml;
 using System.Collections;
 using Chorus.FileTypeHanders.xml;
@@ -13,10 +14,10 @@ namespace Chorus.merge.xml.generic
 		private XmlNode _theirs;
 		private XmlNode _ancestor;
 		private XmlMerger _merger;
-		private List<XmlNode> _ourKeepers = new List<XmlNode>();
-		private List<XmlNode> _theirKeepers = new List<XmlNode>();
-		private List<XmlNode> _ancestorKeepers = new List<XmlNode>();
-
+		private List<XmlNode> _childrenOfOurKeepers = new List<XmlNode>();
+		private List<XmlNode> _childrenOfTheirKeepers = new List<XmlNode>();
+		private List<XmlNode> _childrenOfAncestorKeepers = new List<XmlNode>();
+		private HashSet<XmlNode> _skipInnerMergeFor = new HashSet<XmlNode>();
 
 		/// <summary>
 		/// Use this one for a diff of one xml node against another
@@ -39,91 +40,152 @@ namespace Chorus.merge.xml.generic
 		/// </summary>
 		public void Run()
 		{
+			// Pre-process three nodes to handle duplicates in each node, But only if finder is one of these:
+			//		FindFirstElementWithSameName, FindByKeyAttribute, or FindByMultipleKeyAttributes.
+
 			// Initialise lists of keepers to current ancestorChildren, ourChildren, theirChildren
-			CopyChildrenToList(_ancestor, _ancestorKeepers);
-			CopyChildrenToList(_ours, _ourKeepers);
-			CopyChildrenToList(_theirs, _theirKeepers);
+			CopyChildrenToList(_ancestor, _childrenOfAncestorKeepers);
+			CopyChildrenToList(_ours, _childrenOfOurKeepers);
+			CopyChildrenToList(_theirs, _childrenOfTheirKeepers);
 
 			// Deal with deletions.
 			DoDeletions();
 
-			ChildOrderer oursOrderer = new ChildOrderer(_ourKeepers, _theirKeepers,
-				MakeCorrespondences(_ourKeepers, _theirKeepers, _theirs), _merger);
+			ChildOrderer oursOrderer = new ChildOrderer(_childrenOfOurKeepers, _childrenOfTheirKeepers,
+				MakeCorrespondences(_childrenOfOurKeepers, _childrenOfTheirKeepers, _theirs), _merger);
 
 			ChildOrderer resultOrderer = oursOrderer; // default
 
 			if (oursOrderer.OrderIsDifferent)
 			{
 				// The order of the two lists is not consistent. Compare with ancestor to see who changed.
-				ChildOrderer ancestorOursOrderer = new ChildOrderer(_ancestorKeepers, _ourKeepers,
-					MakeCorrespondences(_ancestorKeepers, _ourKeepers, _ours), _merger);
+				ChildOrderer ancestorOursOrderer = new ChildOrderer(_childrenOfAncestorKeepers, _childrenOfOurKeepers,
+					MakeCorrespondences(_childrenOfAncestorKeepers, _childrenOfOurKeepers, _ours), _merger);
 
-				ChildOrderer ancestorTheirsOrderer = new ChildOrderer(_ancestorKeepers, _theirKeepers,
-					MakeCorrespondences(_ancestorKeepers, _theirKeepers, _theirs), _merger);
+				ChildOrderer ancestorTheirsOrderer = new ChildOrderer(_childrenOfAncestorKeepers, _childrenOfTheirKeepers,
+					MakeCorrespondences(_childrenOfAncestorKeepers, _childrenOfTheirKeepers, _theirs), _merger);
 
 				if (ancestorTheirsOrderer.OrderIsDifferent)
 				{
 					if (ancestorOursOrderer.OrderIsDifferent)
 					{
 						// stick with our orderer (we win), but report conflict.
-						_merger.EventListener.ConflictOccurred(new BothReorderedElementConflict(_ours.Name, _ours,
-							_theirs, _ancestor, _merger.MergeSituation, _merger.MergeStrategies.GetElementStrategy(_ours)));
+						// Route tested (XmlMergerTests).
+						_merger.ConflictOccurred(new BothReorderedElementConflict(_ours.Name, _ours,
+							_theirs, _ancestor, _merger.MergeSituation, _merger.MergeStrategies.GetElementStrategy(_ours),
+							_merger.MergeSituation.AlphaUserId));
 					}
 					else
 					{
 						// only they re-ordered; take their order as primary.
-						resultOrderer = new ChildOrderer(_theirKeepers, _ourKeepers,
-							MakeCorrespondences(_theirKeepers, _ourKeepers, _ours), _merger);
+						resultOrderer = new ChildOrderer(_childrenOfTheirKeepers, _childrenOfOurKeepers,
+							MakeCorrespondences(_childrenOfTheirKeepers, _childrenOfOurKeepers, _ours), _merger);
 					}
 				}
+				else if(!ancestorOursOrderer.OrderIsDifferent)
+				{
+					// our order is different from theirs, but neither is different from the ancestor.
+					// the only way this can be true is if both inserted the same thing, but in
+					// different places. Stick with our orderer (we win), but report conflict.
+					// Route tested (XmlMergerTests).
+					_merger.ConflictOccurred(new BothInsertedAtDifferentPlaceConflict(_ours.Name, _ours,
+						_theirs, _ancestor, _merger.MergeSituation, _merger.MergeStrategies.GetElementStrategy(_ours),
+						_merger.MergeSituation.AlphaUserId));
+				}
+				// otherwise we re-ordered, but they didn't. That's not a problem, unless it resulted
+				// in inconsistency or ambiguity in other stuff that someone added.
 			}
 
 			if (!resultOrderer.OrderIsConsistent ||
 				(resultOrderer.OrderIsDifferent && resultOrderer.OrderIsAmbiguous))
 			{
-				_merger.EventListener.ConflictOccurred(new AmbiguousInsertReorderConflict(_ours.Name, _ours,
-					_theirs, _ancestor, _merger.MergeSituation, _merger.MergeStrategies.GetElementStrategy(_ours)));
+				// Route tested (XmlMergerTests[x2]).
+				_merger.ConflictOccurred(new AmbiguousInsertReorderConflict(_ours.Name, _ours,
+					_theirs, _ancestor, _merger.MergeSituation, _merger.MergeStrategies.GetElementStrategy(_ours),
+					_merger.MergeSituation.AlphaUserId));
 			}
 			else if (resultOrderer.OrderIsAmbiguous)
 			{
-				_merger.EventListener.ConflictOccurred(new AmbiguousInsertConflict(_ours.Name, _ours,
-					_theirs, _ancestor, _merger.MergeSituation, _merger.MergeStrategies.GetElementStrategy(_ours)));
+				// Route tested (MergeChildrenMethodTests, XmlMergerTests).
+				_merger.ConflictOccurred(new AmbiguousInsertConflict(_ours.Name, _ours,
+					_theirs, _ancestor, _merger.MergeSituation, _merger.MergeStrategies.GetElementStrategy(_ours),
+					_merger.MergeSituation.AlphaUserId));
 			}
 
-			List<XmlNode> newChildren = resultOrderer.GetResultList();
-
-
-
 			// Merge corresponding nodes.
-			for (int i = 0; i < newChildren.Count; i++)
+			// 'resultsChildren' may contain nodes from either 'ours', 'theirs', or both,
+			// as the 'resultsChildren' collection has been combined in the ordereing operation.
+			List<XmlNode> resultsChildren = resultOrderer.GetResultList();
+			for (int i = 0; i < resultsChildren.Count; i++)
 			{
-				XmlNode ourChild = newChildren[i];
+				XmlNode ourChild = resultsChildren[i];
+				// The 'DoDeletions' method call, above, possibly called MergeTextNodesMethod.DoDeletions,
+				// which may have added 'ourChild' to _skipInnerMergeFor,
+				// as it did some fairly exotic work with full and partial deletions.
+				// So, don't do those again here.
+				if (_skipInnerMergeFor.Contains(ourChild))
+					continue;
+
 				XmlNode theirChild;
-				XmlNode ancestorChild = FindMatchingNode(ourChild, _ancestor);
-				if (resultOrderer.Correspondences.TryGetValue(ourChild, out theirChild)
-					&& !XmlUtilities.AreXmlElementsEqual(ourChild, theirChild))
+				var ancestorChild = FindMatchingNode(ourChild, _ancestor);
+
+				if (resultOrderer.Correspondences.TryGetValue(ourChild, out theirChild) && !ChildrenAreSame(ourChild, theirChild))
 				{
+					// Both 'ourChild' and 'theirChild exist. 'ancestorChild' may, or, may not, exist.
 					// There's a corresponding node and it isn't the same as ours...
-					if (theirChild.NodeType == XmlNodeType.Text)
-						_merger.MergeTextNodes(ref ourChild, theirChild, ancestorChild);
-					else
-						_merger.MergeInner(ref ourChild, theirChild, ancestorChild);
-					newChildren[i] = ourChild;
+					// Route tested: MergeChildrenMethod_DiffOnlyTests.
+					_merger.MergeInner(ref ourChild, theirChild, ancestorChild);
+					resultsChildren[i] = ourChild;
 				}
 				else
 				{
+					// 'theirChild' may, or may not, exist. But if it does exist, it is the same as 'ourChild'.
+
 					//Review JohnT (jh): Is this the correct interpretation?
-					if (ancestorChild==null)
+					if (ancestorChild == null)
 					{
-						_merger.EventListener.ChangeOccurred(new XmlAdditionChangeReport(_merger.MergeSituation.PathToFileInRepository, ourChild));
+						if (XmlUtilities.IsTextNodeContainer(ourChild) == TextNodeStatus.IsTextNodeContainer) // No, it hasn't. MergeTextNodesMethod has already added the addition report.
+						{
+							if (theirChild == null)
+							{
+								// Route tested: MergeChildrenMethod_DiffOnlyTests & XmlMergerTests.
+								_merger.EventListener.ChangeOccurred(new XmlTextAddedReport(_merger.MergeSituation.PathToFileInRepository, ourChild)); // Route tested (x2).
+							}
+							else
+							{
+								_merger.EventListener.ChangeOccurred(new XmlTextBothAddedReport(_merger.MergeSituation.PathToFileInRepository, ourChild)); // Route tested
+							}
+						}
+						else if (!(ourChild is XmlCharacterData))
+						{
+							if (theirChild == null)
+								// Route tested (MergeChildrenMethodTests, XmlMergerTests).
+								_merger.EventListener.ChangeOccurred(new XmlAdditionChangeReport(_merger.MergeSituation.PathToFileInRepository, ourChild));
+							else
+								_merger.EventListener.ChangeOccurred(new XmlBothAddedSameChangeReport(_merger.MergeSituation.PathToFileInRepository, ourChild));
+						}
+					}
+					else
+					{
+						// ancestorChild is not null.
+						if (XmlUtilities.IsTextNodeContainer(ourChild) == TextNodeStatus.IsTextNodeContainer)
+						{
+							if (theirChild != null && !XmlUtilities.AreXmlElementsEqual(ourChild, ancestorChild))
+								_merger.EventListener.ChangeOccurred(new XmlTextBothMadeSameChangeReport(_merger.MergeSituation.PathToFileInRepository, ourChild)); // Route tested
+						}
+						else
+						{
+							_merger.MergeInner(ref ourChild, theirChild, ancestorChild);
+							resultsChildren[i] = ourChild;
+						}
 					}
 				}
 			}
 
 			// Plug results back into 'ours'
-			for (int i = 0; i < newChildren.Count; i++)
+			for (int i = 0; i < resultsChildren.Count; i++)
 			{
-				XmlNode ourChild = newChildren[i];
+				XmlNode ourChild = resultsChildren[i];
 				while (_ours.ChildNodes.Count > i && ourChild != _ours.ChildNodes[i])
 					_ours.RemoveChild(_ours.ChildNodes[i]);
 				if (_ours.ChildNodes.Count > i)
@@ -141,101 +203,19 @@ namespace Chorus.merge.xml.generic
 				}
 			}
 			// Remove any leftovers.
-			while (_ours.ChildNodes.Count > newChildren.Count)
-				_ours.RemoveChild(_ours.ChildNodes[newChildren.Count]);
+			while (_ours.ChildNodes.Count > resultsChildren.Count)
+				_ours.RemoveChild(_ours.ChildNodes[resultsChildren.Count]);
+		}
 
-
-
-			//    foreach (XmlNode theirChild in _theirs.ChildNodes)
-			//    {
-
-
-
-			//        IFindNodeToMerge finder = _merger.MergeSituation.GetMergePartnerFinder(theirChild);
-			//        XmlNode ourChild = finder.GetNodeToMerge(theirChild, _ours);
-			//        XmlNode ancestorChild = finder.GetNodeToMerge(theirChild, _ancestor);
-
-
-			//        if (theirChild.NodeType == XmlNodeType.Text)
-			//        {
-			//            _merger.MergeTextNodes(ref ourChild, theirChild, ancestorChild);
-			//            continue;
-			//        }
-
-			//        if (ourChild == null)
-			//        {
-			//            if (ancestorChild == null)
-			//            {
-			//                _ours.AppendChild(XmlUtilities.GetDocumentNodeFromRawXml(theirChild.OuterXml, _ours.OwnerDocument));
-			//            }
-			//            else if (XmlUtilities.AreXmlElementsEqual(ancestorChild, theirChild))
-			//            {
-			//                continue; // we deleted it, they didn't touch it
-			//            }
-			//            else //we deleted it, but at the same time, they changed it
-			//            {
-			//                _merger.EventListener.ConflictOccurred(new RemovedVsEditedElementConflict(theirChild.Name, null,
-			//                    theirChild, ancestorChild, _merger.MergeSituation));
-			//                continue;
-			//            }
-			//        }
-			//        else if ((ancestorChild != null) && XmlUtilities.AreXmlElementsEqual(ourChild, ancestorChild))
-			//        {
-			//            if (XmlUtilities.AreXmlElementsEqual(ourChild, theirChild))
-			//            {
-			//                //nothing to do
-			//                continue;
-			//            }
-			//            else //theirs is new
-			//            {
-			//                _merger.MergeInner(ref ourChild, theirChild, ancestorChild);
-			//            }
-			//        }
-			//        else
-			//        {
-			//            _merger.MergeInner(ref ourChild, theirChild, ancestorChild);
-			//        }
-			//    }
-
-			//// deal with their deletions (elements and text)
-			//foreach (XmlNode ourChild in _ours.ChildNodes)
-			//{
-			//    if (ourChild.NodeType != XmlNodeType.Element && ourChild.NodeType != XmlNodeType.Text)
-			//    {
-			//        continue;
-			//    }
-			//    IFindNodeToMerge finder = _merger.MergeSituation.GetMergePartnerFinder(ourChild);
-			//    XmlNode ancestorChild = finder.GetNodeToMerge(ourChild, _ancestor);
-			//    XmlNode theirChild = finder.GetNodeToMerge(ourChild, _theirs);
-
-			//    if (theirChild == null && ancestorChild != null)
-			//    {
-			//        if (XmlUtilities.AreXmlElementsEqual(ourChild, ancestorChild))
-			//        {
-			//            _ours.RemoveChild(ourChild);
-			//        }
-			//        else
-			//        {
-			//            if (ourChild.NodeType == XmlNodeType.Element)
-			//            {
-			//                _merger.EventListener.ConflictOccurred(
-			//                    new RemovedVsEditedElementConflict(ourChild.Name, ourChild, null, ancestorChild,
-			//                    _merger.MergeSituation));
-			//            }
-			//            else
-			//            {
-			//                _merger.EventListener.ConflictOccurred(
-			//                    new RemovedVsEdittedTextConflict(ourChild, null, ancestorChild, _merger.MergeSituation));
-			//            }
-			//        }
-			//    }
-			//}
-
+		private bool ChildrenAreSame(XmlNode ourChild, XmlNode theirChild)
+		{
+			return  _merger.MergeStrategies.GetElementStrategy(ourChild).IsImmutable // don't bother comparing
+					|| XmlUtilities.AreXmlElementsEqual(ourChild, theirChild);
 		}
 
 		private Dictionary<XmlNode, XmlNode> MakeCorrespondences(List<XmlNode> primary, List<XmlNode> others, XmlNode otherParent)
 		{
-			Dictionary<XmlNode, XmlNode> result = new Dictionary<XmlNode, XmlNode>(_ourKeepers.Count);
+			Dictionary<XmlNode, XmlNode> result = new Dictionary<XmlNode, XmlNode>(_childrenOfOurKeepers.Count);
 			foreach (XmlNode node in primary)
 			{
 				XmlNode other = FindMatchingNode(node, otherParent);
@@ -260,36 +240,71 @@ namespace Chorus.merge.xml.generic
 		private void DoDeletions()
 		{
 			// loop over a copy of the list, since we may modify ancestorKeepers.
-			List<XmlNode> loopSource = new List<XmlNode>(_ancestorKeepers);
+			List<XmlNode> loopSource = new List<XmlNode>(_childrenOfAncestorKeepers);
 			foreach (XmlNode ancestorChild in loopSource)
 			{
-				IFindNodeToMerge finder = _merger.MergeStrategies.GetMergePartnerFinder(ancestorChild);
+				ElementStrategy mergeStrategy = _merger.MergeStrategies.GetElementStrategy(ancestorChild);
+				IFindNodeToMerge finder = mergeStrategy.MergePartnerFinder;
 				XmlNode ourChild = finder.GetNodeToMerge(ancestorChild, _ours);
 				XmlNode theirChild = finder.GetNodeToMerge(ancestorChild, _theirs);
 
-				if (ourChild == null)
-				{
-					_merger.EventListener.ChangeOccurred(new XmlDeletionChangeReport(_merger.MergeSituation.PathToFileInRepository, ancestorChild, ourChild));
+				var extantNode = ancestorChild ?? ourChild ?? theirChild;
+				if (extantNode is XmlCharacterData)
+					return; // Already done.
 
+				if (XmlUtilities.IsTextLevel(ourChild, theirChild, ancestorChild))
+				{
+					new MergeTextNodesMethod(_merger, mergeStrategy, _skipInnerMergeFor,
+						ref ourChild, _childrenOfOurKeepers,
+						theirChild, _childrenOfTheirKeepers,
+						ancestorChild, _childrenOfAncestorKeepers).DoDeletions();
+				}
+				else if (ourChild == null)
+				{
 					// We deleted it.
 					if (theirChild == null)
 					{
 						// We both deleted it. Forget it ever existed.
-						_ancestorKeepers.Remove(ancestorChild);
+						// Route tested: MergeChildrenMethodTests.
+						_merger.EventListener.ChangeOccurred(new XmlBothDeletionChangeReport(_merger.MergeSituation.PathToFileInRepository, ancestorChild));
+						_childrenOfAncestorKeepers.Remove(ancestorChild);
 					}
 					else
 					{
 						if (!XmlUtilities.AreXmlElementsEqual(ancestorChild, theirChild))
 						{
 							// We deleted, they modified, report conflict.
-							_merger.EventListener.ConflictOccurred(new RemovedVsEditedElementConflict(theirChild.Name, null,
-																								theirChild, ancestorChild,
-																								_merger.MergeSituation,
-																								_merger.MergeStrategies.GetElementStrategy(theirChild)));
+							if (theirChild.NodeType == XmlNodeType.Element)
+							{
+								// Route tested (XmlMergerTests).
+								_merger.ConflictOccurred(
+									new RemovedVsEditedElementConflict(theirChild.Name, null,
+																	   theirChild, ancestorChild,
+																	   _merger.MergeSituation,
+																	   _merger.MergeStrategies.GetElementStrategy(theirChild),
+																	   _merger.MergeSituation.BetaUserId));
+								_skipInnerMergeFor.Add(theirChild);
+							}
+							else
+							{
+								// Never used. But then, there isn't plain text in an xml file.
+								_merger.ConflictOccurred(
+									new RemovedVsEditedTextConflict(null, theirChild,
+																	   ancestorChild,
+																	   _merger.MergeSituation,
+																	   _merger.MergeSituation.BetaUserId));
+								_skipInnerMergeFor.Add(theirChild);
+							}
+							_childrenOfAncestorKeepers.Remove(ancestorChild);//review hatton added dec 2009, wanting whoever edited it to win (previously "we" always won)
 						}
-						// In any case, we deleted it, forget it existed.
-						_ancestorKeepers.Remove(ancestorChild);
-						_theirKeepers.Remove(theirChild);
+						else
+						{
+							//We deleted it, they didn't edit it. So just make it go away.
+							// Route tested in TextElementMergeTests, MergeChildrenMethod_DiffOnlyTests, XmlMergerTests
+							_merger.EventListener.ChangeOccurred(new XmlDeletionChangeReport(_merger.MergeSituation.PathToFileInRepository, ancestorChild, theirChild));
+							_childrenOfAncestorKeepers.Remove(ancestorChild);
+							_childrenOfTheirKeepers.Remove(theirChild);
+						}
 					}
 				}
 				else if (theirChild == null)
@@ -298,22 +313,28 @@ namespace Chorus.merge.xml.generic
 					if (XmlUtilities.AreXmlElementsEqual(ancestorChild, ourChild))
 					{
 						// We didn't touch it, allow their deletion to go forward, forget it existed.
-						_ancestorKeepers.Remove(ancestorChild);
-						_ourKeepers.Remove(ourChild);
+						// Route tested (XmlMergerTests).
+						_merger.EventListener.ChangeOccurred(new XmlDeletionChangeReport(_merger.MergeSituation.PathToFileInRepository, ancestorChild, ourChild));
+						_childrenOfAncestorKeepers.Remove(ancestorChild);
+						_childrenOfOurKeepers.Remove(ourChild);
 					}
 					else
 					{
 						// We changed it, ignore their deletion and report conflict.
 						if (ourChild.NodeType == XmlNodeType.Element)
 						{
-							_merger.EventListener.ConflictOccurred(
-								new RemovedVsEditedElementConflict(ourChild.Name, ourChild, null, ancestorChild,
-																   _merger.MergeSituation, _merger.MergeStrategies.GetElementStrategy(ourChild)));
+							// Route tested (XmlMergerTests).
+							_merger.ConflictOccurred(
+								new EditedVsRemovedElementConflict(ourChild.Name, ourChild, null, ancestorChild,
+																   _merger.MergeSituation, _merger.MergeStrategies.GetElementStrategy(ourChild), _merger.MergeSituation.AlphaUserId));
+							_skipInnerMergeFor.Add(ourChild);
 						}
 						else
 						{
-							_merger.EventListener.ConflictOccurred(
-								new RemovedVsEdittedTextConflict(ourChild, null, ancestorChild, _merger.MergeSituation));
+							// Never used. But then, there isn't plain text in an xml file.
+							_merger.ConflictOccurred(
+								new EditedVsRemovedTextConflict(ourChild, null, ancestorChild, _merger.MergeSituation, _merger.MergeSituation.AlphaUserId));
+							_skipInnerMergeFor.Add(ourChild);
 						}
 					}
 				}
@@ -332,20 +353,20 @@ namespace Chorus.merge.xml.generic
 				return;
 			foreach (XmlNode child in parent.ChildNodes)
 			{
-				if (child.NodeType != XmlNodeType.Element && (child.NodeType != XmlNodeType.Text))
+				switch (child.NodeType)
 				{
-					if (child.NodeType == XmlNodeType.Whitespace)
-					{
-						continue;
-					}
-					if (child.NodeType == XmlNodeType.Comment)
-					{
-						continue;
-					}
-					Debug.Fail("We don't know how to merge this type of child: " + child.NodeType.ToString());
-					continue; //we don't know about merging other kinds of things
+					case XmlNodeType.Element:
+					case XmlNodeType.Text:
+						list.Add(child); // Lift has one case that has a mix of Element & Text.
+						break;
+					case XmlNodeType.Whitespace:
+					case XmlNodeType.Comment:
+						// Do nothing.
+						break;
+					default:
+						Debug.Fail("We don't know how to merge this type of child: " + child.NodeType.ToString());
+						break;
 				}
-				list.Add(child);
 			}
 		}
 	}
@@ -728,7 +749,7 @@ namespace Chorus.merge.xml.generic
 		// Sort _positions by Key, then if keys are equal, by current position (just use merge sort).
 		private void SortPositions()
 		{
-			com.focuspoint.collections.algorithms.MergeSort.Sort(_positions, new PositionRecordComparer());
+			MergeSort.Sort(_positions, new PositionRecordComparer());
 		}
 
 		internal List<XmlNode> GetResultList()

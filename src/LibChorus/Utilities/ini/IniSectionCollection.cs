@@ -18,38 +18,38 @@ namespace Nini.Ini
 	public class IniSectionCollection : ICollection, IEnumerable
 	{
 		#region Private variables
-		OrderedList list = new OrderedList ();
+		OrderedList _sectionNames = new OrderedList ();
 		#endregion
 
 		#region Public properties
 		/// <include file='IniSectionCollection.xml' path='//Property[@name="ItemIndex"]/docs/*' />
 		public IniSection this[int index]
 		{
-			get { return (IniSection)list[index]; }
+			get { return (IniSection)_sectionNames[index]; }
 		}
 
 		/// <include file='IniSectionCollection.xml' path='//Property[@name="ItemName"]/docs/*' />
 		public IniSection this[string configName]
 		{
-			get { return (IniSection)list[configName]; }
+			get { return (IniSection)_sectionNames[configName]; }
 		}
 
 		/// <include file='IniSectionCollection.xml' path='//Property[@name="Count"]/docs/*' />
 		public int Count
 		{
-			get { return list.Count; }
+			get { return _sectionNames.Count; }
 		}
 
 		/// <include file='IniSectionCollection.xml' path='//Property[@name="SyncRoot"]/docs/*' />
 		public object SyncRoot
 		{
-			get { return list.SyncRoot; }
+			get { return _sectionNames.SyncRoot; }
 		}
 
 		/// <include file='IniSectionCollection.xml' path='//Property[@name="IsSynchronized"]/docs/*' />
 		public bool IsSynchronized
 		{
-			get { return list.IsSynchronized; }
+			get { return _sectionNames.IsSynchronized; }
 		}
 		#endregion
 
@@ -57,46 +57,46 @@ namespace Nini.Ini
 		/// <include file='IniSectionCollection.xml' path='//Method[@name="Add"]/docs/*' />
 		public void Add (IniSection section)
 		{
-			if (list.Contains (section)) {
+			if (_sectionNames.Contains (section)) {
 				throw new ArgumentException ("IniSection already exists");
 			}
 
-			list.Add (section.Name, section);
+			_sectionNames.Add (section.Name, section);
 		}
 
 		//added by hatton for Chorus
 		public IniSection GetOrCreate(string name)
 		{
-			if (list.Contains(name))
-				return (IniSection)list[name];
+			if (_sectionNames.Contains(name))
+				return (IniSection)_sectionNames[name];
 			var s = new IniSection(name);
 			Add(s);
 			return s;
 		}
 
 		/// <include file='IniSectionCollection.xml' path='//Method[@name="Remove"]/docs/*' />
-		public void Remove (string config)
+		public void RemoveSection (string sectionName)
 		{
-			if(list.Contains(config))
-				list.Remove (config);
+			if(_sectionNames.Contains(sectionName))
+				_sectionNames.Remove (sectionName);
 		}
 
 		/// <include file='IniSectionCollection.xml' path='//Method[@name="CopyTo"]/docs/*' />
 		public void CopyTo (Array array, int index)
 		{
-			list.CopyTo (array, index);
+			_sectionNames.CopyTo (array, index);
 		}
 
 		/// <include file='IniSectionCollection.xml' path='//Method[@name="CopyToStrong"]/docs/*' />
 		public void CopyTo (IniSection[] array, int index)
 		{
-			((ICollection)list).CopyTo (array, index);
+			((ICollection)_sectionNames).CopyTo (array, index);
 		}
 
 		/// <include file='IniSectionCollection.xml' path='//Method[@name="GetEnumerator"]/docs/*' />
 		public IEnumerator GetEnumerator ()
 		{
-			return list.GetEnumerator ();
+			return _sectionNames.GetEnumerator ();
 		}
 		#endregion
 

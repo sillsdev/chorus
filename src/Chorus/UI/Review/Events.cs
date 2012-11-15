@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System;
+using System.Text;
 using Chorus.merge;
 using Chorus.VcsDrivers.Mercurial;
 
@@ -11,5 +12,7 @@ namespace Chorus.UI.Review
 	{ }
 
 	public class NavigateToRecordEvent : Event<string>
-	{ }
+	{
+
+	}
 }

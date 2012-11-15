@@ -7,7 +7,7 @@ using Chorus.VcsDrivers;
 namespace Chorus.merge
 {
 	[TypeGuid("18C7E1A2-2F69-442F-9057-6B3AC9833675")]
-	public class UnmergableFileTypeConflict :Conflict
+	public class UnmergableFileTypeConflict : Conflict // NB: Be sure to register any new instances in CreateFromConflictElement method.
 	{
 		public UnmergableFileTypeConflict(MergeSituation situation )
 			: base(situation)
@@ -29,13 +29,13 @@ namespace Chorus.merge
 
 			string loserId = (Situation.ConflictHandlingMode != MergeOrder.ConflictHandlingModeChoices.TheyWin)
 								 ?
-									 Situation.UserYId
-								 :Situation.UserXId;
+									 Situation.BetaUserId
+								 :Situation.AlphaUserId;
 
 			string loserRev = (Situation.ConflictHandlingMode != MergeOrder.ConflictHandlingModeChoices.TheyWin)
 								 ?
-									 Situation.UserYRevision
-								 :Situation.UserXRevision;
+									 Situation.BetaUserRevision
+								 :Situation.AlphaUserRevision;
 
 			b.AppendFormat("The merger gave both users the copy from '{0}'.", WinnerId);
 			b.AppendLine();

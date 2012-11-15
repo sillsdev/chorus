@@ -26,11 +26,13 @@
 #endregion
 
 #region Include directives
+
 using System;
 using System.Collections;
+
 #endregion
 
-namespace com.focuspoint.collections.algorithms {
+namespace Chorus.merge.xml.generic {
   /// <summary>
   /// </summary>
   public class MergeSort {

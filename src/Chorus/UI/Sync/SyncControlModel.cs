@@ -3,27 +3,40 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Media;
+using System.Threading;
 using System.Windows.Forms;
 using Chorus.sync;
 using Chorus.Utilities;
 using System.Linq;
 using Chorus.VcsDrivers;
+using Palaso.Code;
+using Palaso.Extensions;
+using Palaso.Progress;
+using Palaso.Progress;
+using Palaso.UI.WindowsForms.Progress;
 
 namespace Chorus.UI.Sync
 {
 	public class SyncControlModel
 	{
+		private readonly IChorusUser _user;
 		private readonly Synchronizer _synchronizer;
 		private readonly BackgroundWorker _backgroundWorker;
 		public event EventHandler SynchronizeOver;
 		private readonly MultiProgress _progress;
 		private SyncOptions _syncOptions;
-		public StatusProgress StatusProgress { get; private set; }
+		private BackgroundWorker _asyncLocalCheckInWorker;
 
-		public SyncControlModel(ProjectFolderConfiguration projectFolderConfiguration, SyncUIFeatures uiFeatureFlags)
+		public SimpleStatusProgress StatusProgress { get; set; }
+
+		public SyncControlModel(ProjectFolderConfiguration projectFolderConfiguration,
+			SyncUIFeatures uiFeatureFlags,
+			IChorusUser user)
 		{
-			StatusProgress = new StatusProgress();
-			_progress = new MultiProgress(new[] { StatusProgress });
+			_user = user;
+			_progress = new MultiProgress();
+			StatusProgress = new SimpleStatusProgress();
+			_progress.Add(StatusProgress);
 			Features = uiFeatureFlags;
 			_synchronizer = Synchronizer.FromProjectConfiguration(projectFolderConfiguration, _progress);
 			_backgroundWorker = new BackgroundWorker();
@@ -33,7 +46,7 @@ namespace Chorus.UI.Sync
 
 			//clients will normally change these
 			SyncOptions = new SyncOptions();
-			SyncOptions.CheckinDescription = "["+Application.ProductName+"] sync";
+			SyncOptions.CheckinDescription = "[" + Application.ProductName + ": " + Application.ProductVersion + "] sync";
 			SyncOptions.DoPullFromOthers = true;
 			SyncOptions.DoMergeWithOthers = true;
 			SyncOptions.RepositorySourcesToTry.AddRange(GetRepositoriesToList().Where(r => r.Enabled));
@@ -44,11 +57,12 @@ namespace Chorus.UI.Sync
 			if (SynchronizeOver != null)
 			{
 				UnmanagedMemoryStream stream=null;
-				if (this.StatusProgress.ErrorEncountered)
+
+				if (_progress.ErrorEncountered)
 				{
 					stream = Properties.Resources.errorSound;
 				}
-				else if (this.StatusProgress.WarningEncountered)
+				else if (_progress.WarningsEncountered)
 				{
 					stream = Properties.Resources.warningSound;
 				}
@@ -62,13 +76,35 @@ namespace Chorus.UI.Sync
 				{
 					using (SoundPlayer player = new SoundPlayer(stream))
 					{
-						player.Play();
+						player.PlaySync();
 					}
 					stream.Dispose();
 				}
 
-				var synchResults = e.Result as SyncResults;
-				SynchronizeOver.Invoke(synchResults, null);
+				if (e.Cancelled)
+				{
+					var r = new SyncResults();
+					r.Succeeded = false;
+					r.Cancelled = true;
+					SynchronizeOver.Invoke(r, null);
+				}
+				else //checking e.Result if there was a cancellation causes an InvalidOperationException
+				{
+					SynchronizeOver.Invoke(e.Result as SyncResults, null);
+				}
+			}
+		}
+
+		public string UserName
+		{
+			get
+			{
+				if(_user==null)
+				{
+					return "anonymous";
+				}
+
+				return _user.Name;
 			}
 		}
 
@@ -82,7 +118,13 @@ namespace Chorus.UI.Sync
 
 		public bool EnableCancel
 		{
-			get { return _backgroundWorker.IsBusy; }
+			get
+			{
+				if (_backgroundWorker.IsBusy)
+					return true;
+				else
+					return false;
+			}
 		}
 
 		public bool ShowTabs
@@ -119,6 +161,26 @@ namespace Chorus.UI.Sync
 			set { _syncOptions = value; }
 		}
 
+		public bool CancellationPending
+		{
+			get { return _backgroundWorker.CancellationPending;  }
+		}
+
+		public IProgressIndicator ProgressIndicator
+		{
+			get { return _progress.ProgressIndicator; }
+			set { _progress.ProgressIndicator = value; }
+		}
+
+		public SynchronizationContext UIContext
+		{
+			set { _progress.SyncContext = value; }
+		}
+
+		public bool ErrorsOrWarningsEncountered
+		{
+			get { return _progress.ErrorEncountered || _progress.WarningsEncountered; }
+		}
 
 		public bool HasFeature(SyncUIFeatures feature)
 		{
@@ -141,18 +203,21 @@ namespace Chorus.UI.Sync
 		/// sites the user has indicated</param>
 		public void Sync(bool useTargetsAsSpecifiedInSyncOptions)
 		{
+			_progress.WriteStatus("Syncing...");
 			lock (this)
 			{
 				if(_backgroundWorker.IsBusy)
 					return;
 				if (!useTargetsAsSpecifiedInSyncOptions)
 				{
-					foreach (var address in GetRepositoriesToList().Where(r => !r.Enabled))
-					{
-						SyncOptions.RepositorySourcesToTry.RemoveAll(x => x.URI == address.URI);
-					}
+//                    foreach (var address in GetRepositoriesToList().Where(r => !r.Enabled))
+//                    {
+//                        SyncOptions.RepositorySourcesToTry.RemoveAll(x => x.URI == address.URI);
+//                    }
+				   // SyncOptions.RepositorySourcesToTry.AddRange(GetRepositoriesToList().Where(r => r.Enabled && !SyncOptions.RepositorySourcesToTry.Any(x=>x.URI ==r.URI)));
+					SyncOptions.RepositorySourcesToTry.Clear();
+					SyncOptions.RepositorySourcesToTry.AddRange(GetRepositoriesToList().Where(r => r.Enabled ));
 
-					SyncOptions.RepositorySourcesToTry.AddRange(GetRepositoriesToList().Where(r => r.Enabled && !SyncOptions.RepositorySourcesToTry.Any(x=>x.URI ==r.URI)));
 				}
 				_backgroundWorker.RunWorkerAsync(new object[] {_synchronizer, SyncOptions, _progress});
 			}
@@ -165,7 +230,8 @@ namespace Chorus.UI.Sync
 				if(!_backgroundWorker.IsBusy)
 					return;
 
-				_backgroundWorker.CancelAsync();
+				_backgroundWorker.CancelAsync();//this only gets picked up when the synchronizer checks it, which may be after some long operation is finished
+				_progress.CancelRequested = true;//this gets picked up by the low-level process reader
 			}
 		}
 
@@ -185,9 +251,61 @@ namespace Chorus.UI.Sync
 			_synchronizer.SetIsOneOfDefaultSyncAddresses(address, address.Enabled);
 		}
 
-		public void AddProgressDisplay(IProgress progress)
+		public void AddMessagesDisplay(IProgress progress)
 		{
-			_progress.Add(progress);
+			_progress.AddMessageProgress(progress);
+		}
+
+		public void AddStatusDisplay(IProgress progress)
+		{
+			_progress.AddStatusProgress(progress);
+		}
+
+		public void GetDiagnostics(IProgress progress)
+		{
+			_synchronizer.Repository.GetDiagnosticInformation(progress);
+		}
+
+		public void SetSynchronizerAdjunct(ISychronizerAdjunct adjunct)
+		{
+			_synchronizer.SynchronizerAdjunct = adjunct;
+		}
+
+
+		/// <summary>
+		/// Check in, to the local disk repository, any changes to this point.
+		/// </summary>
+		/// <param name="checkinDescription">A description of what work was done that you're wanting to checkin. E.g. "Delete a Book"</param>
+		/// <param name="progress">Can be null if you don't want any progress report</param>
+		public void AsyncLocalCheckIn(string checkinDescription, Action<SyncResults> callbackWhenFinished)
+		{
+			var repoPath = this._synchronizer.Repository.PathToRepo.CombineForPath(".hg");
+			Require.That(Directory.Exists(repoPath), "The repository should already exist before calling AsyncLocalCheckIn(). Expected to find the hg folder at " + repoPath);
+
+			//NB: if someone were to call this fast and repeatedly, I won't vouch for any kind of safety here.
+			//This is just designed for checking in occasionally, like as users do some major new thing, or finish some task.
+			if (_asyncLocalCheckInWorker != null && !_asyncLocalCheckInWorker.IsBusy)
+			{
+				_asyncLocalCheckInWorker.Dispose(); //timidly avoid a leak
+			}
+			_asyncLocalCheckInWorker = new BackgroundWorker();
+			_asyncLocalCheckInWorker.DoWork += new DoWorkEventHandler((o, args) =>
+														{
+
+		   var options = new SyncOptions()
+			{
+				CheckinDescription = checkinDescription,
+				DoMergeWithOthers = false,
+				DoPullFromOthers = false,
+				DoSendToOthers = false
+			};
+		   var result = _synchronizer.SyncNow(options);
+			if (callbackWhenFinished != null)
+			{
+				callbackWhenFinished(result);
+			}
+														});
+			_asyncLocalCheckInWorker.RunWorkerAsync();
 		}
 	}
 

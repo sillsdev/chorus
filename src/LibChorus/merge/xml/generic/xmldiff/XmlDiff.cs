@@ -11,6 +11,7 @@ namespace Chorus.merge.xml.generic.xmldiff
 {
 	public class XmlDiff
 	{
+		private bool _continueComparing;
 		private readonly XmlReader _controlReader;
 		private readonly XmlReader _testReader;
 		private readonly DiffConfiguration _diffConfiguration;
@@ -73,7 +74,14 @@ namespace Chorus.merge.xml.generic.xmldiff
 				_diffResult = new DiffResult();
 				if (!_controlReader.Equals(_testReader))
 				{
-					Compare(_diffResult);
+					try
+					{
+						Compare(_diffResult);
+					}
+					catch(Exception e)
+					{
+						throw e;//just need a place to put a breakpoint
+					}
 				}
 			}
 			return _diffResult;
@@ -81,22 +89,36 @@ namespace Chorus.merge.xml.generic.xmldiff
 
 		private void Compare(DiffResult result)
 		{
+			_continueComparing = true;
 			bool controlRead, testRead;
-			try
-			{
+			// Yuck! (Says RandyR) Exceptions are too expensive to use to control program flow like this.
+			// Compare these times with and without the exceptions:
+			// ZPI data set, DM09->DM10
+			// With 19K exceptions: RevisionInspector.GetChangeRecords: 00:02:31.5675604
+			// Use bool (_continueComparing) to control it, not exception: RevisionInspector.GetChangeRecords: 00:00:30.9605999
+			// The bool code is two minutes faster.
+			//try
+			//{
 				do
 				{
 					controlRead = _controlReader.Read();
-					testRead = _testReader.Read();
+					try
+					{
+						testRead = _testReader.Read();
+					}
+					catch(Exception e)
+					{
+						throw e;//just need a place to put a breakpoint
+					}
 					Compare(result, ref controlRead, ref testRead);
-				} while (controlRead && testRead);
-			}
-			catch (FlowControlException e)
-			{
-				//what is this? it's how this class stops looking for more differences,
-				//by throwing this exception, making us jump back up here.
-				//Console.Out.WriteLine(e.Message);
-			}
+				} while (_continueComparing && controlRead && testRead);
+			//}
+			//catch (FlowControlException e)
+			//{
+			//    //what is this? it's how this class stops looking for more differences,
+			//    //by throwing this exception, making us jump back up here.
+			//    //Console.Out.WriteLine(e.Message);
+			//}
 		}
 
 		private void Compare(DiffResult result, ref bool controlRead, ref bool testRead)
@@ -110,14 +132,33 @@ namespace Chorus.merge.xml.generic.xmldiff
 				}
 				else
 				{
-					DifferenceFound(DifferenceType.CHILD_NODELIST_LENGTH_ID, result);
+					if (_testReader.NodeType == XmlNodeType.None && _controlReader.NodeType == XmlNodeType.EndElement)
+					{
+						DifferenceFound(DifferenceType.EMPTY_NODE_ID, result);
+					}
+					else
+					{
+						DifferenceFound(DifferenceType.CHILD_NODELIST_LENGTH_ID, result);
+					}
+					return;
 				}
 			}
 			//jh added this; under a condition I haven't got into an xdiff test yet, the
 			// 'test' guy still had more children, and this fact was being missed by the above code
+			// I (RBR) discovered the context in which this happens. it is:
+			// Control: <Run />
+			// Test:    <Run></Run>
+			// At this point Control is at node type 'none', while test is at EndElement.
 			if (controlRead != testRead)
 			{
-				DifferenceFound(DifferenceType.CHILD_NODELIST_LENGTH_ID, result);
+				if (_controlReader.NodeType == XmlNodeType.None && _testReader.NodeType == XmlNodeType.EndElement)
+				{
+					DifferenceFound(DifferenceType.EMPTY_NODE_ID, result);
+				}
+				else
+				{
+					DifferenceFound(DifferenceType.CHILD_NODELIST_LENGTH_ID, result);
+				}
 			}
 		}
 
@@ -193,9 +234,9 @@ namespace Chorus.merge.xml.generic.xmldiff
 			string controlAttrValue, controlAttrName;
 			string testAttrValue, testAttrName;
 
-			_controlReader.MoveToFirstAttribute();
-			_testReader.MoveToFirstAttribute();
-			for (int i = 0; i < controlAttributeCount; ++i)
+			var movedToControlAttr = _controlReader.MoveToFirstAttribute();
+			var movedToTestAttr = _testReader.MoveToFirstAttribute();
+			for (int i = 0; _continueComparing && i < controlAttributeCount; ++i)
 			{
 
 				controlAttrName = _controlReader.Name;
@@ -230,6 +271,10 @@ namespace Chorus.merge.xml.generic.xmldiff
 				_controlReader.MoveToNextAttribute();
 				_testReader.MoveToNextAttribute();
 			}
+			if (movedToControlAttr)
+				_controlReader.MoveToElement();
+			if (movedToTestAttr)
+				_testReader.MoveToElement();
 		}
 
 		private void CompareText(DiffResult result)
@@ -252,7 +297,9 @@ namespace Chorus.merge.xml.generic.xmldiff
 			result.DifferenceFound(this, difference);
 			if (!ContinueComparison(difference))
 			{
-				throw new FlowControlException(difference);
+				// Don't even think of using exceptions to control program flow. They are too expensive!
+				//throw new FlowControlException(difference);
+				_continueComparing = false;
 			}
 		}
 
@@ -294,15 +341,10 @@ namespace Chorus.merge.xml.generic.xmldiff
 			readResult = reader.Read();
 			if (!readResult || reader.NodeType != XmlNodeType.EndElement)
 			{
-				DifferenceFound(DifferenceType.CHILD_NODELIST_LENGTH_ID, result);
-			}
-		}
-
-		private class FlowControlException : ApplicationException
-		{
-			public FlowControlException(Difference cause)
-				: base(cause.ToString())
-			{
+				DifferenceFound(
+					reader.NodeType == XmlNodeType.Text
+						? DifferenceType.TEXT_VALUE_ID
+						: DifferenceType.CHILD_NODELIST_LENGTH_ID, result);
 			}
 		}
 

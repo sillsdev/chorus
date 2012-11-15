@@ -14,6 +14,7 @@ namespace Chorus.UI
 		public BetterLabel()
 		{
 			InitializeComponent();
+			Font = SystemFonts.DialogFont;
 		}
 
 		//make it transparent
@@ -23,8 +24,16 @@ namespace Chorus.UI
 			{
 				if (DesignMode)
 					return;
-				BackColor = Parent.BackColor;
-				Parent.BackColorChanged += ((x, y) => BackColor = Parent.BackColor);
+				Control backgroundColorSource = FindForm();
+				if (backgroundColorSource == null)
+				{   //if we can't get the form, the next best thing is our container (e.g., a table)
+					backgroundColorSource = Parent;
+				}
+				if (backgroundColorSource != null)
+				{
+					BackColor = backgroundColorSource.BackColor;
+					backgroundColorSource.BackColorChanged += ((x, y) => BackColor = backgroundColorSource.BackColor);
+				}
 			}
 			catch (Exception error)
 			{

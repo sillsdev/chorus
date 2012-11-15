@@ -3,9 +3,10 @@ using System.IO;
 using System.Xml;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
-using Chorus.Utilities;
 using Chorus.VcsDrivers;
 using NUnit.Framework;
+using Palaso.IO;
+using Palaso.Xml;
 
 namespace LibChorus.Tests.merge
 {
@@ -17,50 +18,83 @@ namespace LibChorus.Tests.merge
 		{
 			using (TempFile logFile = TempFile.CreateAndGetPathButDontMakeTheFile())
 			{
-				using (XmlLogMergeEventListener log = new XmlLogMergeEventListener(logFile.Path))
+				using (ChorusNotesMergeEventListener log = new ChorusNotesMergeEventListener(logFile.Path))
 				{
 					log.ConflictOccurred(new DummyConflict());
 					log.ConflictOccurred(new DummyConflict());
 				}
-				using (XmlLogMergeEventListener log2 = new XmlLogMergeEventListener(logFile.Path))
+				using (ChorusNotesMergeEventListener log2 = new ChorusNotesMergeEventListener(logFile.Path))
 				{
 					log2.ConflictOccurred(new DummyConflict());
 					log2.ConflictOccurred(new DummyConflict());
 				}
 				XmlDocument doc = new XmlDocument();
 				doc.Load(logFile.Path);
-				Assert.AreEqual(4, doc.SafeSelectNodes("conflicts/conflict").Count);
+				Assert.AreEqual(4, doc.SafeSelectNodes("notes/annotation").Count);
 			}
 		}
+
+		[Test]
+		public void FileOutput_WithContent_UsesCanonicalXmlSettings()
+		{
+			string expected = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n"
+				+ "<notes\r\n"
+				+ "\tversion=\"0\">\r\n"
+				+ "\t<annotation>Dummy</annotation>\r\n"
+				+ "</notes>";
+			using (var logFile = TempFile.CreateAndGetPathButDontMakeTheFile())
+			{
+				using (var log = new ChorusNotesMergeEventListener(logFile.Path))
+				{
+					log.ConflictOccurred(new DummyConflict());
+				}
+				string result = File.ReadAllText(logFile.Path);
+				Assert.AreEqual(expected, result);
+			}
+		}
+
+		//[Test] The new implementation keeps a stream open, and empty files are removed, I don't think this can be tested anymore,
+		// also I don't think it is relevant since an empty file will never be written out.
+		//public void FileOutput_DefaultFile_UsesCanonicalXmlSettings()
+		//{
+		//    string expected = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n"
+		//                      + "<notes\r\n"
+		//                      + "\tversion=\"0\" />";
+		//    using (var logFile = TempFile.CreateAndGetPathButDontMakeTheFile())
+		//    {
+		//        using (new ChorusNotesMergeEventListener(logFile.Path))
+		//        {
+		//            string result = File.ReadAllText(logFile.Path);
+		//            Assert.AreEqual(expected, result);
+		//        }
+		//    }
+		//}
 
 		[Test]
 		public void FileDidNotExist_CreatesCorrectFile()
 		{
-			using (TempFile logFile =  TempFile.CreateAndGetPathButDontMakeTheFile())
+			using (TempFile logFile = TempFile.CreateAndGetPathButDontMakeTheFile())
 			{
-				using(XmlLogMergeEventListener log = new XmlLogMergeEventListener(logFile.Path))
+				using (ChorusNotesMergeEventListener log = new ChorusNotesMergeEventListener(logFile.Path))
 				{
 					log.ConflictOccurred(new DummyConflict());
 					log.ConflictOccurred(new DummyConflict());
 				}
 				XmlDocument doc = new XmlDocument();
 				doc.Load(logFile.Path);
-				Assert.AreEqual(2, doc.SelectNodes("conflicts/conflict").Count);
+				Assert.AreEqual(2, doc.SelectNodes("notes/annotation").Count);
 			}
 		}
 
 		[Test]
-		public void FileDidNotExist_NoConflicts_CreatesCorrectFile()
+		public void FileDidNotExist_NoConflicts_DoesNotCreatesEmptyNotesFile()
 		{
-			using (TempFile logFile = TempFile.CreateAndGetPathButDontMakeTheFile())
+			var tempFile = Path.GetTempFileName();
+			File.Delete(tempFile);
+			using (ChorusNotesMergeEventListener log = new ChorusNotesMergeEventListener(tempFile))
 			{
-				using (XmlLogMergeEventListener log = new XmlLogMergeEventListener(logFile.Path))
-				{
-				 }
-				XmlDocument doc = new XmlDocument();
-				doc.Load(logFile.Path);
-				Assert.AreEqual(1, doc.SelectNodes("conflicts").Count);
 			}
+			Assert.IsFalse(File.Exists(tempFile));
 		}
 
 	}
@@ -86,6 +120,16 @@ namespace LibChorus.Tests.merge
 		public string Description
 		{
 			get { return "dummy"; }
+		}
+
+		public string HtmlDetails
+		{
+			get { return "<body>dummy</body>"; }
+		}
+
+		public void MakeHtmlDetails(XmlNode oursContext, XmlNode theirsContext, XmlNode ancestorContext, IGenerateHtmlContext htmlMaker)
+		{
+
 		}
 
 		public string WinnerId
@@ -119,9 +163,9 @@ namespace LibChorus.Tests.merge
 			throw new System.NotImplementedException();
 		}
 
-		public void WriteAsXml(XmlWriter writer)
+		public void WriteAsChorusNotesAnnotation(XmlWriter writer)
 		{
-			writer.WriteElementString("conflict", string.Empty, "Dummy");
+			writer.WriteElementString("annotation", string.Empty, "Dummy");
 		}
 	}
 }

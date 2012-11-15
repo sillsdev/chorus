@@ -1,10 +1,13 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using Chorus.merge;
-using Chorus.Utilities;
+using Chorus.merge.xml.generic;
+using Chorus.sync;
 using Chorus.VcsDrivers.Mercurial;
+using Palaso.Code;
+using Palaso.IO;
+using Palaso.Progress;
 
 namespace Chorus.FileTypeHanders
 {
@@ -27,12 +30,21 @@ namespace Chorus.FileTypeHanders
 		{
 			return true;
 		}
+		public bool CanValidateFile(string pathToFile)
+		{
+			return false;
+		}
+		public string ValidateFile(string pathToFile, IProgress progress)
+		{
+			throw new NotImplementedException();
+		}
 
 		public void Do3WayMerge(MergeOrder mergeOrder)
 		{
 		  //  Debug.Fail("john");
 			Guard.AgainstNull(mergeOrder, "mergeOrder");
-			mergeOrder.EventListener.ConflictOccurred(new UnmergableFileTypeConflict(mergeOrder.MergeSituation));
+
+			XmlMergeService.AddConflictToListener(mergeOrder.EventListener, new UnmergableFileTypeConflict(mergeOrder.MergeSituation));
 			switch (mergeOrder.MergeSituation.ConflictHandlingMode)
 			{
 				default: // just leave our file there
@@ -44,7 +56,6 @@ namespace Chorus.FileTypeHanders
 					break;
 
 			}
-
 		}
 
 		public IEnumerable<IChangeReport> Find2WayDifferences(FileInRevision parent, FileInRevision child, HgRepository repository)
@@ -52,14 +63,10 @@ namespace Chorus.FileTypeHanders
 			throw new ApplicationException(string.Format("Chorus could not find a handler to diff files like '{0}'", child.FullPath));
 		}
 
-
 		public IChangePresenter GetChangePresenter(IChangeReport report, HgRepository repository)
 		{
 			return new DefaultChangePresenter(report, repository);
 		}
-
-
-
 
 		public IEnumerable<IChangeReport> DescribeInitialContents(FileInRevision fileInRevision, TempFile file)
 		{
@@ -69,6 +76,17 @@ namespace Chorus.FileTypeHanders
 		public IEnumerable<string> GetExtensionsOfKnownTextFileTypes()
 		{
 			yield break;
+		}
+
+		/// <summary>
+		/// Return the maximum file size that can be added to the repository.
+		/// </summary>
+		/// <remarks>
+		/// Return UInt32.MaxValue for no limit.
+		/// </remarks>
+		public uint MaximumFileSize
+		{
+			get { return LargeFileFilter.Megabyte; }
 		}
 	}
 }

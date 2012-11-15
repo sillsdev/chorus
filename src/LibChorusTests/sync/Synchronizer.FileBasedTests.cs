@@ -1,9 +1,11 @@
 ﻿using System.IO;
 using Chorus.sync;
-using Chorus.Utilities;
 using Chorus.VcsDrivers;
+using Chorus.VcsDrivers.Mercurial;
+using LibChorus.TestUtilities;
 using NUnit.Framework;
 using System.Linq;
+using Palaso.Progress;
 
 namespace LibChorus.Tests.sync
 {
@@ -15,7 +17,7 @@ namespace LibChorus.Tests.sync
 	public class Synchronizer_FileBasedTests
 	{
 		private ProjectFolderConfiguration _project;
-		private StringBuilderProgress _progress;
+		private IProgress _progress;
 		private string _pathToTestRoot;
 		private string _pathToProjectRoot;
 		private Synchronizer _synchronizer;
@@ -25,7 +27,7 @@ namespace LibChorus.Tests.sync
 		[SetUp]
 		public void Setup()
 		{
-			_progress = new StringBuilderProgress();
+			_progress = new ConsoleProgress();
 			_pathToTestRoot = Path.Combine(Path.GetTempPath(), "ChorusTest");
 			if (Directory.Exists(_pathToTestRoot))
 				Directory.Delete(_pathToTestRoot, true);
@@ -50,6 +52,14 @@ namespace LibChorus.Tests.sync
 
 		}
 
+		[TearDown]
+		public void Teardown()
+		{
+			Directory.Delete(_pathToTestRoot, true);
+			// No. It goes away when _pathToTestRoot goes away.
+			//Directory.Delete(_pathToProjectRoot, true);
+		}
+
 		private string WriteTestFile(string contents)
 		{
 			string pathToText = Path.Combine(_pathToProjectRoot, "foo.txt");
@@ -58,13 +68,14 @@ namespace LibChorus.Tests.sync
 		}
 
 
-		[Test]
+		[Test, Ignore("Doesn't really test a repository on another computer. Cf. Synchronizer.SendToOneOther that fails on the Update attempt on a shared network folder.")]
 		public void SyncNow_BackupAlreadySetUp_GetsSync()
 		{
 			SyncOptions options = new SyncOptions();
 			_synchronizer.SyncNow(options);
 			string projectDirOnBackup = Path.Combine(_pathToBackupFolder, "foo project.2");
-			_synchronizer.MakeClone(projectDirOnBackup, true);
+			//_synchronizer.MakeClone(projectDirOnBackup, true);
+			HgHighLevel.MakeCloneFromLocalToLocal(_synchronizer.Repository.PathToRepo, projectDirOnBackup, true, _progress);
 
 			string contents = File.ReadAllText(Path.Combine(projectDirOnBackup, "foo.txt"));
 			Assert.AreEqual("version one", contents);
@@ -102,7 +113,7 @@ namespace LibChorus.Tests.sync
 
 		   // WriteTestFile("version two");
 
-			_synchronizer.SyncNow(options);
+			Assert.IsTrue(_synchronizer.SyncNow(options).Succeeded);
 			string dir = Path.Combine(_pathToBackupFolder, "foo project.2");
 			Assert.IsTrue(Directory.Exists(dir));
 		}
@@ -112,10 +123,6 @@ namespace LibChorus.Tests.sync
 		{
 			using (var setup = new RepositorySetup("Dan"))
 			{
-				//it's fine if this stops being true, but hten we need to fix the rest of this test
-				Assert.AreEqual(0, setup.Repository.GetEnabledExtension().Count());
-
-			   setup.AddAndCheckIn();
 			   Assert.Contains("hgext.graphlog", setup.Repository.GetEnabledExtension().ToArray());
 			   Assert.Contains("convert", setup.Repository.GetEnabledExtension().ToArray());
 			}

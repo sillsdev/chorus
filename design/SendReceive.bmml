@@ -1,0 +1,128 @@
+<mockup version="1.0" skin="sketch" measuredW="1304" measuredH="633" mockupW="1244" mockupH="613">
+  <controls>
+	<control controlID="0" controlTypeID="com.balsamiq.mockups::TitleWindow" x="60" y="20" w="376" h="400" measuredW="450" measuredH="400" zOrder="0" locked="false" isInGroup="-1">
+	  <controlProperties>
+		<bottomheight>0</bottomheight>
+		<close>true</close>
+		<text>Send/Receive</text>
+	  </controlProperties>
+	</control>
+	<control controlID="1" controlTypeID="com.balsamiq.mockups::Button" x="106" y="145" w="158" h="55" measuredW="114" measuredH="27" zOrder="1" locked="false" isInGroup="-1">
+	  <controlProperties>
+		<text>USB%20Flash%20Drive</text>
+	  </controlProperties>
+	</control>
+	<control controlID="2" controlTypeID="com.balsamiq.mockups::Button" x="106" y="215" w="158" h="55" measuredW="71" measuredH="27" zOrder="2" locked="false" isInGroup="-1">
+	  <controlProperties>
+		<text>Internet</text>
+	  </controlProperties>
+	</control>
+	<control controlID="3" controlTypeID="com.balsamiq.mockups::Button" x="925" y="75" w="158" h="55" measuredW="157" measuredH="27" zOrder="3" locked="false" isInGroup="-1">
+	  <controlProperties>
+		<text>Shared%20Network%20Folder</text>
+	  </controlProperties>
+	</control>
+	<control controlID="4" controlTypeID="com.balsamiq.mockups::TextArea" x="106" y="101" w="285" h="27" measuredW="200" measuredH="140" zOrder="4" locked="false" isInGroup="-1"/>
+	<control controlID="5" controlTypeID="com.balsamiq.mockups::TextArea" x="933" y="243" w="285" h="27" measuredW="200" measuredH="140" zOrder="9" locked="false" isInGroup="-1">
+	  <controlProperties>
+		<text/>
+	  </controlProperties>
+	</control>
+	<control controlID="6" controlTypeID="com.balsamiq.mockups::Label" x="933" y="222" w="-1" h="-1" measuredW="259" measuredH="21" zOrder="10" locked="false" isInGroup="-1">
+	  <controlProperties>
+		<text>The%20Name%20to%20show%20in%20the%20change%20history%20log%3A</text>
+	  </controlProperties>
+	</control>
+	<control controlID="7" controlTypeID="com.balsamiq.mockups::Label" x="106" y="80" w="-1" h="-1" measuredW="271" measuredH="21" zOrder="5" locked="false" isInGroup="-1">
+	  <controlProperties>
+		<text>Label%20this%20point%20in%20the%20project%20history%20%28optional%29%3A</text>
+	  </controlProperties>
+	</control>
+	<control controlID="8" controlTypeID="com.balsamiq.mockups::IconLabel" x="106" y="364" w="-1" h="-1" measuredW="121" measuredH="24" zOrder="6" locked="false" isInGroup="-1">
+	  <controlProperties>
+		<icon>LockIcon%7Csmall</icon>
+		<labelPosition>right</labelPosition>
+		<text>More%20Settings...</text>
+	  </controlProperties>
+	</control>
+	<control controlID="9" controlTypeID="com.balsamiq.mockups::TitleWindow" x="910" y="184" w="394" h="400" measuredW="450" measuredH="400" zOrder="7" locked="false" isInGroup="-1">
+	  <controlProperties>
+		<bottomheight>0</bottomheight>
+		<text>Send/Receive%20Settings</text>
+	  </controlProperties>
+	</control>
+	<control controlID="10" controlTypeID="com.balsamiq.mockups::IconLabel" x="952" y="533" w="-1" h="-1" measuredW="36" measuredH="24" zOrder="8" locked="false" isInGroup="-1">
+	  <controlProperties>
+		<icon>LockOpenIcon%7Csmall</icon>
+		<labelPosition>right</labelPosition>
+		<text>%20</text>
+	  </controlProperties>
+	</control>
+	<control controlID="17" controlTypeID="com.balsamiq.mockups::Label" x="959" y="314" w="-1" h="-1" measuredW="248" measuredH="21" zOrder="11" locked="false" isInGroup="-1">
+	  <controlProperties>
+		<text>%28some%20kind%20of%20set%20up%20for%20the%20other%20options%20%29</text>
+	  </controlProperties>
+	</control>
+	<control controlID="18" controlTypeID="com.balsamiq.mockups::IconLabel" x="168" y="487" w="-1" h="-1" measuredW="36" measuredH="24" zOrder="12" locked="false" isInGroup="-1">
+	  <controlProperties>
+		<icon>LockOpenIcon%7Csmall</icon>
+		<labelPosition>right</labelPosition>
+		<text>%20</text>
+	  </controlProperties>
+	</control>
+	<control controlID="19" controlTypeID="com.balsamiq.mockups::Label" x="204" y="488" w="-1" h="-1" measuredW="115" measuredH="21" zOrder="13" locked="false" isInGroup="-1">
+	  <controlProperties>
+		<text>Settings%20Protection</text>
+	  </controlProperties>
+	</control>
+	<control controlID="20" controlTypeID="com.balsamiq.mockups::ComboBox" x="219" y="571" w="318" h="-1" measuredW="227" measuredH="62" zOrder="14" locked="false" isInGroup="-1">
+	  <controlProperties>
+		<text>Anyone%20can%20change%20these%20settings%0ARequire%20password%0ARequire%20password%20and%20hide%20unless%20shift%20key%20is%20down</text>
+	  </controlProperties>
+	</control>
+	<control controlID="22" controlTypeID="com.balsamiq.mockups::TitleWindow" x="520" y="36" w="364" h="298" measuredW="450" measuredH="400" zOrder="15" locked="false" isInGroup="-1">
+	  <controlProperties>
+		<bottomheight>0</bottomheight>
+		<text>Settings%20Protection</text>
+	  </controlProperties>
+	</control>
+	<control controlID="23" controlTypeID="com.balsamiq.mockups::Link" x="626" y="104" w="-1" h="-1" measuredW="189" measuredH="21" zOrder="16" locked="false" isInGroup="-1">
+	  <controlProperties>
+		<text>Learn%20About%20Settings%20Protection</text>
+	  </controlProperties>
+	</control>
+	<control controlID="24" controlTypeID="com.balsamiq.mockups::CheckBox" x="545" y="130" w="288" h="39" measuredW="411" measuredH="22" zOrder="17" locked="false" isInGroup="-1">
+	  <controlProperties>
+		<text>Hide%20the%20button%20that%20opens%20settings%2C%20unless%20the%20Ctrl%20Key%20is%20held%20down</text>
+	  </controlProperties>
+	</control>
+	<control controlID="25" controlTypeID="com.balsamiq.mockups::CheckBox" x="545" y="176" w="315" h="39" measuredW="305" measuredH="22" zOrder="18" locked="false" isInGroup="-1">
+	  <controlProperties>
+		<text>Require%20the%20factory%20password%20to%20get%20into%20settings</text>
+	  </controlProperties>
+	</control>
+	<control controlID="26" controlTypeID="com.balsamiq.mockups::Label" x="593" y="210" w="255" h="60" measuredW="707" measuredH="21" zOrder="19" locked="false" isInGroup="-1">
+	  <controlProperties>
+		<color>10066329</color>
+		<text>Factory%20password%20for%20these%20settings%20is%20%22cho7rus%22.%20%20If%20you%20forget%20it%2C%20you%20can%20always%20google%20for%20%22chorus%22%20and%20%22factory%20password%22</text>
+	  </controlProperties>
+	</control>
+	<control controlID="27" controlTypeID="com.balsamiq.mockups::IconLabel" x="545" y="75" w="-1" h="-1" measuredW="60" measuredH="48" zOrder="20" locked="false" isInGroup="-1">
+	  <controlProperties>
+		<icon>LockOpenIcon%7Clarge</icon>
+		<labelPosition>right</labelPosition>
+		<text>%20</text>
+	  </controlProperties>
+	</control>
+	<control controlID="28" controlTypeID="com.balsamiq.mockups::Button" x="1013" y="276" w="63" h="27" measuredW="43" measuredH="27" zOrder="21" locked="false" isInGroup="-1">
+	  <controlProperties>
+		<text>OK</text>
+	  </controlProperties>
+	</control>
+	<control controlID="29" controlTypeID="com.balsamiq.mockups::Link" x="988" y="538" w="-1" h="-1" measuredW="171" measuredH="21" zOrder="22" locked="false" isInGroup="-1">
+	  <controlProperties>
+		<text>Change%20Settings%20Protection...</text>
+	  </controlProperties>
+	</control>
+  </controls>
+</mockup>

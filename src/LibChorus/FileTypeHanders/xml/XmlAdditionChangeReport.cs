@@ -1,7 +1,8 @@
+using System;
 using System.Xml;
 using Chorus.merge;
-using Chorus.merge.xml.generic;
 using Chorus.VcsDrivers.Mercurial;
+using Palaso.Xml;
 
 namespace Chorus.FileTypeHanders.xml
 {
@@ -22,7 +23,6 @@ namespace Chorus.FileTypeHanders.xml
 			_addedElement = addedElement;
 			_url = url;
 		}
-
 
 		//when merging, the eventual revision is unknown
 		public XmlAdditionChangeReport(string fullPath, XmlNode addedElement)
@@ -61,9 +61,9 @@ namespace Chorus.FileTypeHanders.xml
 		public override int GetHashCode()
 		{
 			var guid = _addedElement.GetOptionalStringAttribute("guid",string.Empty);
-			if(guid!=string.Empty)
-				return guid.GetHashCode();
-			return base.GetHashCode();
+			return (guid != string.Empty)
+				? guid.ToLowerInvariant().GetHashCode()
+				: base.GetHashCode();
 		}
 		public override bool Equals(object obj)
 		{
@@ -75,10 +75,7 @@ namespace Chorus.FileTypeHanders.xml
 			if(r==null)
 				return false;
 			var otherGuid = r._addedElement.GetOptionalStringAttribute("guid",string.Empty);
-			if (guid == string.Empty)
-				return base.Equals(obj);
-
-			return guid.Equals(otherGuid);
+			return otherGuid == string.Empty ? base.Equals(obj) : String.Equals(guid, otherGuid, StringComparison.OrdinalIgnoreCase);
 		}
 	}
 }

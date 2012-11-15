@@ -6,8 +6,7 @@ using Chorus.FileTypeHanders.xml;
 using Chorus.merge.xml.generic;
 using Chorus.VcsDrivers.Mercurial;
 
-
-namespace Chorus.merge.xml.lift
+namespace Chorus.FileTypeHanders.lift
 {
 
 	/// <summary>
@@ -21,6 +20,7 @@ namespace Chorus.merge.xml.lift
 		private readonly XmlDocument _childDom;
 		private readonly XmlDocument _parentDom;
 		private IMergeEventListener EventListener;
+		private readonly Dictionary<string, XmlNode> _parentIdToNodeIndex;
 
 		public static Lift2WayDiffer CreateFromFileInRevision(IMergeStrategy mergeStrategy, FileInRevision parent, FileInRevision child, IMergeEventListener eventListener, HgRepository repository)
 		{
@@ -38,6 +38,7 @@ namespace Chorus.merge.xml.lift
 
 			_childDom.LoadXml(childXml);
 			_parentDom.LoadXml(parentXml);
+			_parentIdToNodeIndex = new Dictionary<string, XmlNode>();
 
 			EventListener = eventListener;
 		}
@@ -51,6 +52,15 @@ namespace Chorus.merge.xml.lift
 
 		public void ReportDifferencesToListener()
 		{
+			foreach (XmlNode node in _parentDom.SafeSelectNodes("lift/entry"))
+			{
+				string strId = LiftUtils.GetId(node);
+				if (!_parentIdToNodeIndex.ContainsKey(strId))
+					_parentIdToNodeIndex.Add(strId, node);
+				else
+					System.Diagnostics.Debug.WriteLine(String.Format("Found ID multiple times: {0}", strId));
+			}
+
 			foreach (XmlNode childNode in _childDom.SafeSelectNodes("lift/entry"))
 			{
 				try
@@ -66,7 +76,7 @@ namespace Chorus.merge.xml.lift
 			}
 
 			//now detect any removed (not just marked as deleted) elements
-			foreach (XmlNode parentNode in _parentDom.SafeSelectNodes("lift/entry"))
+			foreach (XmlNode parentNode in _parentIdToNodeIndex.Values)// _parentDom.SafeSelectNodes("lift/entry"))
 			{
 				try
 				{
@@ -91,7 +101,9 @@ namespace Chorus.merge.xml.lift
 		private void ProcessEntry(XmlNode child)
 		{
 			string id = LiftUtils.GetId(child);
-			XmlNode parent = LiftUtils.FindEntryById(_parentDom, id);
+			XmlNode parent=null;// = LiftUtils.FindEntryById(_parentDom, id);
+			_parentIdToNodeIndex.TryGetValue(id, out parent);
+
 			string path = string.Empty;
 			if (_childFileInRevision != null && !string.IsNullOrEmpty(_childFileInRevision.FullPath))
 			{

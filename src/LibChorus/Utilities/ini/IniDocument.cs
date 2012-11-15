@@ -191,6 +191,25 @@ namespace Nini.Ini
 		}
 
 		//added by hatton for Chorus
+		public void SaveAndThrowIfCannot()
+		{
+			Save(_filePath);
+		}
+
+		public bool SaveAndGiveMessageIfCannot()
+		{
+			try
+			{
+				Save(_filePath);
+				return true;
+			}
+			catch (Exception e)
+			{
+				Palaso.Reporting.ErrorReport.NotifyUserOfProblem(e, "There was a problem saving mercurial settings to "+_filePath+". ");
+				return false;
+			}
+		}
+
 		public void Save()
 		{
 			Save(_filePath);
@@ -230,7 +249,7 @@ namespace Nini.Ini
 						sectionFound = true;
 						// If section already exists then overwrite it
 						if (sections[reader.Name] != null) {
-							sections.Remove (reader.Name);
+							sections.RemoveSection (reader.Name);
 						}
 						section = new IniSection (reader.Name, reader.Comment);
 						sections.Add (section);

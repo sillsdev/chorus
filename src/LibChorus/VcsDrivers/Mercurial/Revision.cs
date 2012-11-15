@@ -5,14 +5,17 @@ using System.Linq;
 
 namespace Chorus.VcsDrivers.Mercurial
 {
+	[Serializable]
 	public class Revision
 	{
+		[NonSerialized]
 		private readonly HgRepository _repository;
 		public string UserId { get; set; }
 		public RevisionNumber Number;
 		public string Summary { get; set; }
 		public string Tag{ get; set;}
 		public string DateString { get; set; }
+		public string Branch { get; set; }
 		public List<RevisionNumber> Parents { get; private set; }
 
 		/// <summary>
@@ -23,19 +26,29 @@ namespace Chorus.VcsDrivers.Mercurial
 			get { return GetLocalNumbersOfParents().Count() > 0; }
 		}
 
+
 		public Revision(HgRepository repository)
 		{
 			_repository = repository;
 			Parents = new List<RevisionNumber>();
+			Tag = string.Empty;
+			Branch = string.Empty;
+			Summary = string.Empty;
+			UserId = string.Empty;
 		}
 
 		public Revision(HgRepository repository, string name, string localRevisionNumber, string hash, string comment)
 			:this(repository)
 		{
 			UserId = name;
-			Number = new RevisionNumber(localRevisionNumber,hash);
+			Number = new RevisionNumber(localRevisionNumber, hash);
 			Summary = comment;
-			Tag = "";
+		}
+
+		public Revision(HgRepository repository, string branchName, string userName, string localRevisionNumber, string hash, string comment)
+			:this(repository, userName, localRevisionNumber, hash, comment)
+		{
+			Branch = branchName;
 		}
 
 		public void SetRevisionAndHashFromCombinedDescriptor(string descriptor)
@@ -79,8 +92,14 @@ namespace Chorus.VcsDrivers.Mercurial
 				Parents.AddRange(_repository.GetParentsRevisionNumbers(this.Number.LocalRevisionNumber));
 			}
 		}
+
+		public bool GetMatchesLocalOrHash(string localOrHash)
+		{
+			return Number.Hash == localOrHash || Number.LocalRevisionNumber == localOrHash;
+		}
 	}
 
+	[Serializable]
 	public class RevisionNumber
 	{
 		public RevisionNumber(string local, string hash)

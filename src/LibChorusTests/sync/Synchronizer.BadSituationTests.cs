@@ -1,14 +1,14 @@
-using System;
+﻿using System.Diagnostics;
 using System.IO;
-using System.Text;
-using System.Xml;
+using Chorus.FileTypeHanders.test;
 using Chorus.merge;
-using Chorus.merge.xml.lift;
 using Chorus.sync;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
-using LibChorus.Tests.merge;
+using LibChorus.TestUtilities;
 using NUnit.Framework;
+using Palaso.Progress;
+using Palaso.TestUtilities;
 
 namespace LibChorus.Tests.sync
 {
@@ -20,11 +20,16 @@ namespace LibChorus.Tests.sync
 	[Category("Sync")]
 	public class SynchronizerBadSituationTests
 	{
+		[SetUp]
+		public void Setup()
+		{
+			HgRunner.TimeoutSecondsOverrideForUnitTests = 10000;//reset it in between tests
+		}
 
 		[Test]//regression
 		public void RepoProjectName_SourceHasDotInName_IsNotLost()
 		{
-			using (TempFolder f = new TempFolder("SourceHasDotInName_IsNotLost.x.y"))
+			using (var f = new TemporaryFolder("SourceHasDotInName_IsNotLost.x.y"))
 			{
 				Synchronizer m = new Synchronizer(f.Path, new ProjectFolderConfiguration("blah"), new ConsoleProgress());
 
@@ -32,6 +37,22 @@ namespace LibChorus.Tests.sync
 			}
 		}
 
+		/// <summary>
+		/// regression of WS-15036
+		/// </summary>
+		[Test]
+		public void Sync_HgrcInUseByOther_FailsGracefully()
+		{
+			HgRunner.TimeoutSecondsOverrideForUnitTests = 1;
+			using (var setup = new RepositorySetup("bob"))
+			{
+				using (new StreamWriter(setup.ProjectFolder.Combine(".hg", "hgrc")))
+				{
+					var results = setup.CheckinAndPullAndMerge();
+					Assert.IsFalse(results.Succeeded);
+				}
+			}
+		}
 
 		[Test]
 		public void Sync_ExceptionInMergeCode_LeftWith2HeadsAndErrorOutputToProgress()
@@ -64,8 +85,45 @@ namespace LibChorus.Tests.sync
 					Assert.IsTrue(File.ReadAllText(bob.UserFile.Path).Contains("bobWasHere"));
 				}
 			}
+			File.Delete(Path.Combine(Path.GetTempPath(), "LiftMerger.FindEntryById"));
 		}
 
+		[Test]
+		public void Sync_MergeFailure_LeavesNoChorusMergeProcessAlive()
+		{
+			using (RepositoryWithFilesSetup bob = RepositoryWithFilesSetup.CreateWithLiftFile("bob"))
+			{
+				using (RepositoryWithFilesSetup sally = RepositoryWithFilesSetup.CreateByCloning("sally", bob))
+				{
+					bob.ReplaceSomething("bobWasHere");
+					bob.AddAndCheckIn();
+					sally.ReplaceSomething("sallyWasHere");
+					using (new FailureSimulator("LiftMerger.FindEntryById"))
+					{
+						sally.CheckinAndPullAndMerge(bob);
+					}
+					Assert.AreEqual(0, Process.GetProcessesByName("ChorusMerge").Length);
+				}
+			}
+			File.Delete(Path.Combine(Path.GetTempPath(), "LiftMerger.FindEntryById"));
+		}
+
+		[Test]
+		public void Sync_MergeTimeoutExceeded_LeavesNoChorusMergeProcessAlive()
+		{
+			HgRunner.TimeoutSecondsOverrideForUnitTests = 1;
+			using (var fred = RepositoryWithFilesSetup.CreateWithLiftFile("fred"))
+			{
+				using (var betty = RepositoryWithFilesSetup.CreateByCloning("betty", fred))
+				{
+					fred.ReplaceSomething("fredWasHere");
+					fred.AddAndCheckIn();
+					betty.ReplaceSomething("bettyWasHere");
+					betty.CheckinAndPullAndMerge(fred);
+					Assert.AreEqual(0, Process.GetProcessesByName("ChorusMerge").Length);
+				}
+			}
+		}
 
 		[Test]
 		public void Sync_MergeFailure_NoneOfTheOtherGuysFilesMakeItIntoWorkingDirectory()
@@ -103,8 +161,19 @@ namespace LibChorus.Tests.sync
 					}
 				}
 			}
+			File.Delete(Path.Combine(Path.GetTempPath(), "TextMerger-bbb.txt"));
 		}
 
+		//Regression test: used to fail based on looking at the revision history and finding it null
+		[Test]
+		public void Sync_FirstCheckInButNoFilesAdded_NoProblem()
+		{
+			using (var bob = new RepositorySetup("bob"))
+			{
+				var result = bob.CheckinAndPullAndMerge();
+				Assert.IsTrue(result.Succeeded, result.ErrorEncountered==null?"":result.ErrorEncountered.Message);
+			}
+		}
 
 		/// <summary>
 		/// regression test: there was a bug (found before we released) where on rollback
@@ -143,6 +212,7 @@ namespace LibChorus.Tests.sync
 				//sally.ShowInTortoise();
 
 			}
+			File.Delete(Path.Combine(Path.GetTempPath(), "TextMerger-test.txt"));
 		}
 
 		[Test]
@@ -216,13 +286,14 @@ namespace LibChorus.Tests.sync
 					//sally.AssertSingleConflict(c => c.GetType == typeof (UnmergableFileTypeConflict));
 					sally.AssertSingleConflictType<UnmergableFileTypeConflict>();
 
-					//nb: this is bob becuase the conflict handling mode is (at the time of this test
-					//writing) set to TheyWin.
-					Assert.IsTrue(File.ReadAllText(sally.UserFile.Path).Contains("bobWasHere"));
+					// nb: this is sally because the conflict handling mode is (at the time of this test
+					// writing) set to WeWin.
+					Assert.IsTrue(File.ReadAllText(sally.UserFile.Path).Contains("sallyWasHere"));
 				}
 
 			}
 		}
+
 
 
 		[Test]
@@ -244,7 +315,7 @@ namespace LibChorus.Tests.sync
 
 					sally.AssertNoErrorsReported();
 
-					var rescueFiles = Directory.GetFiles(sally.ProjectFolder.Path, "*.chorusRescue");
+					var rescueFiles = Directory.GetFiles(sally.ProjectFolder.Path, "*.ChorusRescuedFile");
 					Assert.AreEqual(1, rescueFiles.Length);
 					Assert.AreEqual("sally's problem", File.ReadAllText(rescueFiles[0]));
 					sally.AssertFileContents("problem.txt", "bobs problem");
@@ -272,7 +343,7 @@ namespace LibChorus.Tests.sync
 
 					sally.AssertNoErrorsReported();
 
-					var rescueFiles = Directory.GetFiles(sally.ProjectFolder.Path, "*.chorusRescue");
+					var rescueFiles = Directory.GetFiles(sally.ProjectFolder.Path, "*.ChorusRescuedFile");
 					Assert.AreEqual(0, rescueFiles.Length);
 				}
 			}
@@ -292,17 +363,14 @@ namespace LibChorus.Tests.sync
 				sally.AddAndCheckIn();
 				 sally.Repository.Update(tip.Number.Hash);
 
-				sally.Repository.Branch("branch1");
 				sally.ReplaceSomething("forbranch1");
 				sally.AddAndCheckIn();
 				 sally.Repository.Update(tip.Number.Hash);
 
-			   sally.Repository.Branch("branch2");
 				sally.ReplaceSomething("forbranch2");
 				sally.AddAndCheckIn();
 				sally.Repository.Update(tip.Number.Hash);
 
-				sally.Repository.Branch("branch3");
 				sally.ReplaceSomething("forbranch3");
 				sally.AddAndCheckIn();
 				sally.Repository.Update(tip.Number.Hash);
@@ -316,13 +384,65 @@ namespace LibChorus.Tests.sync
 
 				sally.AssertNoErrorsReported();
 
-				var rescueFiles = Directory.GetFiles(sally.ProjectFolder.Path, "*.chorusRescue");
+				var rescueFiles = Directory.GetFiles(sally.ProjectFolder.Path, "*.ChorusRescuedFile");
 				Assert.AreEqual(0, rescueFiles.Length);
 
 				sally.AssertHeadCount(1);
 			}
 
 		}
+
+		/// <summary>
+		/// The scenario here, as of 2 Nov 09, is that someone has manually tagged a branch as bad.
+		/// </summary>
+		[Test]
+		public void Sync_ExistingRejectChangeSet_NotMergedIn()
+		{
+			using (var bob = new RepositorySetup("bob"))
+			{
+				bob.AddAndCheckinFile("test.txt", "original");
+
+				bob.CreateRejectForkAndComeBack();
+
+				bob.ChangeFileAndCommit("test.txt", "ok", "goodGuy"); //move on so we have two distinct branches
+				bob.AssertHeadCount(2);
+
+				bob.CheckinAndPullAndMerge(null);
+
+				Assert.AreEqual("goodGuy", bob.Repository.GetRevisionWorkingSetIsBasedOn().Summary);
+				bob.AssertLocalRevisionNumber(3);
+				bob.AssertHeadCount(2);
+			}
+		}
+
+
+		[Test]
+		public void Sync_ModifiedFileIsInvalid_CheckedInButThenBackedOut()
+		{
+			/*
+				@  changeset:   2
+				|  summary:     [Backout due to validation Failure]
+				|
+				o  changeset:   1
+				|  summary:     missing checkin description
+				|
+				o  changeset:   0
+				summary:     Add test.chorusTest
+			 */
+			using (var bob = new RepositorySetup("bob"))
+			{
+				bob.AddAndCheckinFile("test.chorusTest", "original");
+				bob.AssertLocalRevisionNumber(0);
+				bob.ChangeFile("test.chorusTest", ChorusTestFileHandler.GetInvalidContents());
+				bob.CheckinAndPullAndMerge();
+				bob.AssertLocalRevisionNumber(2);
+				bob.AssertHeadCount(1);
+				bob.AssertLocalRevisionNumber(int.Parse(bob.Repository.GetTip().Number.LocalRevisionNumber));
+				Debug.WriteLine(bob.Repository.GetLog(-1));
+
+			}
+		}
+
 
 		/// <summary>
 		/// the diff here with the previous test is that while sally is still the one who is the driver
@@ -355,7 +475,7 @@ namespace LibChorus.Tests.sync
 
 					bob.CheckinAndPullAndMerge(sally);
 
-					var rescueFiles = Directory.GetFiles(bob.ProjectFolder.Path, "*.chorusRescue");
+					var rescueFiles = Directory.GetFiles(bob.ProjectFolder.Path, "*.ChorusRescuedFile");
 					Assert.AreEqual(1, rescueFiles.Length);
 					Assert.AreEqual("bob's problem", File.ReadAllText(rescueFiles[0]));
 					sally.AssertFileContents("problem.txt", "sally's problem");
@@ -380,5 +500,20 @@ namespace LibChorus.Tests.sync
 //                Assert.IsFalse(xmlString.Contains("\0"));
 //            }
 //        }
+
+		/// <summary>
+		/// Regression test: WS-34181
+		/// </summary
+		[Test]
+		public void Sync_NewFileWithNonAsciCharacters_FileAdded()
+		{
+			string name = "ŭburux.txt";
+			using (RepositoryWithFilesSetup bob = new RepositoryWithFilesSetup("bob", name, "original"))
+			{
+					   bob.AddAndCheckIn();
+					   bob.AssertNoErrorsReported();
+			}
+		}
+
 	}
 }

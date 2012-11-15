@@ -1,11 +1,19 @@
 using System;
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
+using System.Xml;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
-using LibChorus.Tests.merge.xml;
+using LibChorus.TestUtilities;
 using NUnit.Framework;
 
 namespace LibChorus.Tests.merge.xml.generic
 {
+	/// <summary>
+	/// Various notes on merging. Note that because of the way CheckOneWay is implemented, for all tests using it,
+	/// elements a, b, c, and d are special: they expect the attribute 'key' to identify matching elements
+	/// in other branches.
+	/// </summary>
 	[TestFixture]
 	public class XmlMergerTests
 	{
@@ -47,10 +55,21 @@ namespace LibChorus.Tests.merge.xml.generic
 
 		private ChangeAndConflictAccumulator CheckOneWay(string ours, string theirs, string ancestor, params string[] xpaths)
 		{
-			XmlMerger m = new XmlMerger(new NullMergeSituation());
-			m.MergeStrategies.ElementStrategies.Add("a", ElementStrategy.CreateForKeyedElement("key", true));
-			m.MergeStrategies.ElementStrategies.Add("b", ElementStrategy.CreateForKeyedElement("key", true));
-			m.MergeStrategies.ElementStrategies.Add("c", ElementStrategy.CreateForKeyedElement("key", true));
+			return CheckOneWay(ours, theirs, ancestor, new NullMergeSituation(), null, xpaths);
+		}
+
+		private ChangeAndConflictAccumulator CheckOneWay(string ours, string theirs, string ancestor, MergeSituation situation,
+			Dictionary<string, ElementStrategy> specialMergeStrategies,
+			params string[] xpaths)
+		{
+			var m = new XmlMerger(situation);
+			AddMergeStrategies(m);
+			if (specialMergeStrategies != null)
+			{
+				foreach (var kvp in specialMergeStrategies)
+					m.MergeStrategies.ElementStrategies[kvp.Key] = kvp.Value; // don't use add, some may replace standard ones.
+			}
+
 			var result = m.Merge(ours, theirs, ancestor);
 			foreach (string xpath in xpaths)
 			{
@@ -59,8 +78,222 @@ namespace LibChorus.Tests.merge.xml.generic
 			return result;
 		}
 
+		protected virtual void AddMergeStrategies(XmlMerger m)
+		{
+			m.MergeStrategies.ElementStrategies.Add("a", ElementStrategy.CreateForKeyedElement("key", true));
+			m.MergeStrategies.ElementStrategies.Add("b", ElementStrategy.CreateForKeyedElement("key", true));
+			m.MergeStrategies.ElementStrategies.Add("c", ElementStrategy.CreateForKeyedElement("key", true));
+			m.MergeStrategies.ElementStrategies.Add("d", ElementStrategy.CreateForKeyedElement("key", true));
+		}
+
 		[Test]
-		public void TextElement_OneAdded()
+		public void DefaultHtmlDetails_ContainsDiffsOfversions()
+		{
+			string ancestor = @"<a>
+								<b key='one'>
+									<c key='two'>data</c>
+								</b>
+							</a>";
+			string red = @"<a>
+								<b key='one'>
+									<c key='two'>change1</c>
+								</b>
+							</a>";
+
+			string blue = @"<a>
+								<b key='one'>
+									<c key='two'>change2</c>
+								</b>
+							</a>";
+
+			// blue wins
+			ChangeAndConflictAccumulator r = CheckOneWay(blue, red, ancestor,
+										"a/b[@key='one']/c[@key='two' and text()='change2']");
+			Assert.AreEqual(typeof(XmlTextBothEditedTextConflict), r.Conflicts[0].GetType());
+			// red wins
+			var mergeSituation = new MergeSituation("somepath", "red", "some rev", "blue", "another rev",
+				MergeOrder.ConflictHandlingModeChoices.WeWin);
+			r = CheckOneWay(red, blue, ancestor, mergeSituation, null,
+										"a/b[@key='one']/c[@key='two' and text()='change1']");
+			Assert.AreEqual(typeof(XmlTextBothEditedTextConflict), r.Conflicts[0].GetType());
+
+			var c = r.Conflicts[0];
+			Assert.That(c.HtmlDetails.StartsWith("<head>"));
+			Assert.That(c.HtmlDetails, Contains.Substring(c.GetFullHumanReadableDescription()));
+			var ancestorHml = XmlUtilities.GetXmlForShowingInHtml("<c key='two'>data</c>");
+			// For now decided that with diffs we don't need the ancestor
+			//Assert.That(c.HtmlDetails, Contains.Substring(ancestorHml));
+			Assert.That(c.HtmlDetails.EndsWith("</body>"));
+			var oursHtml = XmlUtilities.GetXmlForShowingInHtml("<c key='two'>change1</c>");
+			var m = new Rainbow.HtmlDiffEngine.Merger(ancestorHml, oursHtml);
+			Assert.That(c.HtmlDetails, Contains.Substring(m.merge()));
+
+			var theirsHtml = XmlUtilities.GetXmlForShowingInHtml("<c key='two'>change2</c>");
+			m = new Rainbow.HtmlDiffEngine.Merger(ancestorHml, theirsHtml);
+			Assert.That(c.HtmlDetails, Contains.Substring(m.merge()));
+
+			Assert.That(c.HtmlDetails, Contains.Substring("kept the change made by red"));
+			AssertDivsMatch(c.HtmlDetails);
+		}
+
+		[Test]
+		public void DefaultHtmlDetails_ReportsOneDeleted()
+		{
+			string ancestor = @"<a key='one'>
+								<b key='one'>
+									<c key='two'>data</c>
+								</b>
+							</a>";
+			string red = @"<a key='one'>
+								<b key='one'>
+									<c key='two'>change1</c>
+								</b>
+							</a>";
+
+			string blue = @"<a key='one'>
+							</a>";
+
+			// blue would normally win, but this is a delete vs edit.
+			ChangeAndConflictAccumulator r = CheckOneWay(blue, red, ancestor,
+										"a[@key='one']/b[@key='one']/c[@key='two' and text()='change1']");
+			Assert.AreEqual(typeof(RemovedVsEditedElementConflict), r.Conflicts[0].GetType());
+			// red wins
+			var mergeSituation = new MergeSituation("somepath", "red", "some rev", "blue", "another rev",
+				MergeOrder.ConflictHandlingModeChoices.WeWin);
+			r = CheckOneWay(red, blue, ancestor, mergeSituation, null,
+										"a[@key='one']/b[@key='one']/c[@key='two' and text()='change1']");
+			Assert.AreEqual(typeof(EditedVsRemovedElementConflict), r.Conflicts[0].GetType());
+
+			var c = r.Conflicts[0];
+			Assert.That(c.HtmlDetails.StartsWith("<head>"));
+			Assert.That(c.HtmlDetails, Contains.Substring(c.GetFullHumanReadableDescription()));
+			var ancestorHml = XmlUtilities.GetXmlForShowingInHtml("<c key='two'>data</c>");
+			// For now decided that with diffs we don't need the ancestor
+			//Assert.That(c.HtmlDetails, Contains.Substring(ancestorHml));
+			Assert.That(c.HtmlDetails.EndsWith("</body>"));
+			var oursHtml = XmlUtilities.GetXmlForShowingInHtml("<c key='two'>change1</c>");
+			var m = new Rainbow.HtmlDiffEngine.Merger(ancestorHml, oursHtml);
+			Assert.That(c.HtmlDetails, Contains.Substring(m.merge()));
+
+			Assert.That(c.HtmlDetails, Contains.Substring("kept the change made by red"));
+			AssertDivsMatch(c.HtmlDetails);
+		}
+
+		private void AssertDivsMatch(string input)
+		{
+			var reDiv = new Regex("<div[^>]*>");
+			var reEndDiv = new Regex("</div>");
+			Assert.That(reDiv.Matches(input).Count, Is.EqualTo(reEndDiv.Matches(input).Count), "<div>s should match </div>s");
+		}
+
+		[Test]
+		public void DefaultHtmlDetails_UsesClientHtmlGenerator()
+		{
+			string ancestor = @"<a key='one'>
+								<b key='one'>
+									<c key='two'>data</c>
+								</b>
+							</a>";
+			string red = @"<a key='one'>
+								<b key='one'>
+									<c key='two'>change1</c>
+								</b>
+							</a>";
+
+			string blue = @"<a key='one'>
+								<b key='one'>
+									<c key='two'>change2</c>
+								</b>
+							</a>";
+
+			// blue wins
+			ChangeAndConflictAccumulator r = CheckOneWay(blue, red, ancestor,
+										"a/b[@key='one']/c[@key='two' and text()='change2']");
+			Assert.AreEqual(typeof(XmlTextBothEditedTextConflict), r.Conflicts[0].GetType());
+			// red wins
+			var mergeSituation = new MergeSituation("somepath", "red", "some rev", "blue", "another rev",
+				MergeOrder.ConflictHandlingModeChoices.WeWin);
+			var specialStrategies = new Dictionary<string, ElementStrategy>();
+			var strategy = ElementStrategy.CreateForKeyedElement("key", true);
+			strategy.ContextDescriptorGenerator = new MockContextGenerator2();
+			specialStrategies.Add("c", strategy);
+			r = CheckOneWay(red, blue, ancestor, mergeSituation, specialStrategies,
+										"a/b[@key='one']/c[@key='two' and text()='change1']");
+			Assert.AreEqual(typeof(XmlTextBothEditedTextConflict), r.Conflicts[0].GetType());
+
+			var c = r.Conflicts[0];
+			Assert.That(c.HtmlDetails.StartsWith("<head><style type='text/css'>div.myStyle {margin-left:  0.2in}</style>"));
+			Assert.That(c.HtmlDetails, Contains.Substring(c.GetFullHumanReadableDescription()));
+			var ancestorHml = "<div class='test'>" + XmlUtilities.GetXmlForShowingInHtml("<c key='two'>data</c>") + "</div>";
+			// For now decided that with diffs we don't need the ancestor
+			//Assert.That(c.HtmlDetails, Contains.Substring(ancestorHml));
+			Assert.That(c.HtmlDetails.EndsWith("</body>"));
+			var oursHtml = "<div class='test'>" + XmlUtilities.GetXmlForShowingInHtml("<c key='two'>change1</c>") + "</div>";
+			var m = new Rainbow.HtmlDiffEngine.Merger(ancestorHml, oursHtml);
+			Assert.That(c.HtmlDetails, Contains.Substring(m.merge()));
+
+			var theirsHtml = "<div class='test'>" + XmlUtilities.GetXmlForShowingInHtml("<c key='two'>change2</c>") + "</div>";
+			m = new Rainbow.HtmlDiffEngine.Merger(ancestorHml, theirsHtml);
+			Assert.That(c.HtmlDetails, Contains.Substring(m.merge()));
+
+			Assert.That(c.HtmlDetails, Contains.Substring("kept the change made by red"));
+			AssertDivsMatch(c.HtmlDetails);
+		}
+
+		class MockContextGenerator2 : IGenerateContextDescriptor, IGenerateHtmlContext
+		{
+			public ContextDescriptor GenerateContextDescriptor(string mergeElement, string filePath)
+			{
+				return new ContextDescriptor("dummy context", filePath);
+			}
+
+			public string HtmlContext(XmlNode mergeElement)
+			{
+				return "<div class='test'>" + XmlUtilities.GetXmlForShowingInHtml(mergeElement.OuterXml) + "</div>";
+			}
+
+			public string HtmlContextStyles(XmlNode mergeElement)
+			{
+				return "div.myStyle {margin-left:  0.2in}";
+			}
+		}
+		[Test]
+		public void OneEditedDeepChildOfElementOtherDeleted()
+		{
+			string ancestor = @"<a>
+								<b key='one'>
+									<c key='two'>
+										<d key='three'>
+											<e>data</e>
+										</d>
+									</c>
+								</b>
+							</a>";
+			string red = @"<a>
+								<b key='one'>
+									<c key='two'>
+										<d key='three'>
+											<e>changed</e>
+										</d>
+									</c>
+								</b>
+							</a>";
+
+			string blue = @"<a>
+							</a>";
+
+			// blue wins
+			ChangeAndConflictAccumulator r = CheckOneWay(blue, red, ancestor,
+										"a/b[@key='one']/c[@key='two']/d[@key='three']/e[text()='changed']");
+			Assert.AreEqual(typeof(RemovedVsEditedElementConflict), r.Conflicts[0].GetType());
+			// red wins
+			r = CheckOneWay(red, blue, ancestor,
+										"a/b[@key='one']/c[@key='two']/d[@key='three']/e[text()='changed']");
+			Assert.AreEqual(typeof(EditedVsRemovedElementConflict), r.Conflicts[0].GetType());
+		}
+
+		[Test]
+		public void TextElement_OneAdded_NoConflicts()
 		{
 			CheckBothWaysNoConflicts("<r><t>hello</t></r>", "<r/>", "<r/>",
 									 "r[count(t)=1]",
@@ -76,7 +309,7 @@ namespace LibChorus.Tests.merge.xml.generic
 		}
 
 		[Test]
-		public void TextElement_BothDeleted()
+		public void TextElement_BothDeleted_NoConflicts()
 		{
 			CheckBothWaysNoConflicts("<r><t/></r>", "<r><t></t></r>", "<r><t>hello</t></r>",
 									 "r/t[not(text())]",
@@ -84,21 +317,7 @@ namespace LibChorus.Tests.merge.xml.generic
 		}
 
 		[Test]
-		public void TextElement_OneEditted()
-		{
-			CheckBothWaysNoConflicts("<r><t>after</t></r>", "<r><t>before</t></r>", "<r><t>before</t></r>",
-									 "r/t[contains(text(),'after')]");
-		}
-
-		[Test, Ignore("Not yet. The matcher using xmldiff sees the parent objects as different")]
-		public void TextElement_BothEditted_OuterWhiteSpaceIgnored()
-		{
-			CheckBothWaysNoConflicts("<r><t>   flub</t></r>", "<r><t> flub      </t></r>", "<r><t/></r>",
-									 "r/t[contains(text(),'flub')]");
-		}
-
-		[Test]
-		public void TextElement_EachEditted_OursKept_ConflictRegistered()
+		public void TextElement_EachEdited_OursKept_ConflictRegistered()
 		{
 			string ancestor = @"<t>original</t>";
 			string ours = @"<t>mine</t>";
@@ -109,11 +328,11 @@ namespace LibChorus.Tests.merge.xml.generic
 			XmlTestHelper.AssertXPathMatchesExactlyOne(result.MergedNode, "t[text()='mine']");
 			Assert.AreEqual("pretendPath", result.Conflicts[0].RelativeFilePath);
 
-			Assert.AreEqual(typeof (BothEdittedTextConflict), result.Conflicts[0].GetType());
+			Assert.AreEqual(typeof(XmlTextBothEditedTextConflict), result.Conflicts[0].GetType());
 		}
 
 		[Test]
-		public void TextElement_WeEdittedTheyDeleted_OursKept_ConflictRegistered()
+		public void TextElement_WeEditedTheyDeleted_OursKept_ConflictRegistered()
 		{
 			string ancestor = @"<t>original</t>";
 			string ours = @"<t>mine</t>";
@@ -123,9 +342,22 @@ namespace LibChorus.Tests.merge.xml.generic
 			var result = m.Merge(ours, theirs, ancestor);
 			XmlTestHelper.AssertXPathMatchesExactlyOne(result.MergedNode, "t[text()='mine']");
 
-			Assert.AreEqual(typeof(RemovedVsEdittedTextConflict), result.Conflicts[0].GetType());
+			Assert.AreEqual(typeof(XmlTextEditVsRemovedConflict), result.Conflicts[0].GetType());
 		}
 
+		[Test]
+		public void TextElement_TheyEditedWeDeleted_EditedIsKept_ConflictRegistered()
+		{
+			string ancestor = @"<t>original</t>";
+			string ours = @"<t></t>";
+			string theirs = @"<t>change</t>";
+
+			XmlMerger m = new XmlMerger(new NullMergeSituation());
+			var result = m.Merge(ours, theirs, ancestor);
+			XmlTestHelper.AssertXPathMatchesExactlyOne(result.MergedNode, "t[text()='change']");
+
+			Assert.AreEqual(typeof(XmlTextRemovedVsEditConflict), result.Conflicts[0].GetType());
+		}
 
 		[Test]
 		public void EachAddedDifferentSyblings_GetBoth()
@@ -159,20 +391,20 @@ namespace LibChorus.Tests.merge.xml.generic
 		[Test]
 		public void OneAddedASyblingElement_GetBoth()
 		{
-			string red = @"<a>
+			string red = @"<a key='one'>
 								<b key='one'>
-									<c>first</c>
+									<c key='one'>first</c>
 								</b>
 							</a>";
 
 			string ancestor = red;
 
-			string blue = @"<a>
+			string blue = @"<a key='one'>
 								<b key='one'>
-									<c>first</c>
+									<c key='one'>first</c>
 								</b>
 								<b key='two'>
-									<c>second</c>
+									<c key='two'>second</c>
 								</b>
 							</a>";
 
@@ -253,60 +485,6 @@ namespace LibChorus.Tests.merge.xml.generic
 			string ancestor = blue;
 
 			CheckOneWay(blue, red, ancestor, "a[ not(b)]");
-		}
-
-
-		[Test]
-		public void OneAddedAttribute()
-		{
-			string red = @"<a/>";
-			string ancestor = red;
-			string blue = @"<a one='1'/>";
-
-			CheckBothWaysNoConflicts(blue, red, ancestor, "a[@one='1']");
-		}
-
-		[Test]
-		public void BothAddedSameAttributeSameValue()
-		{
-			string ancestor = @"<a/>";
-			string red = @"<a one='1'/>";
-			string blue = @"<a one='1'/>";
-
-			CheckBothWaysNoConflicts(blue, red, ancestor, "a[@one='1']");
-		}
-
-		[Test]
-		public void BothAddedSameAttributeDifferentValue()
-		{
-			string ancestor = @"<a/>";
-			string red = @"<a one='r'/>";
-			string blue = @"<a one='b'/>";
-
-			ChangeAndConflictAccumulator r = CheckOneWay(blue, red, ancestor, "a[@one='b']");
-			Assert.AreEqual(typeof(BothEdittedAttributeConflict), r.Conflicts[0].GetType());
-
-			r =CheckOneWay(red, blue, ancestor, "a[@one='r']");
-			Assert.AreEqual(typeof(BothEdittedAttributeConflict), r.Conflicts[0].GetType());
-		}
-
-		[Test]
-		public void OneRemovedAttribute()
-		{
-			string red = @"<a one='1'/>";
-			string ancestor = red;
-			string blue = @"<a/>";
-
-			CheckBothWaysNoConflicts(blue, red, ancestor, "a[not(@one)]");
-		}
-		[Test]
-		public void OneMovedAndChangedAttribute()
-		{
-			string red = @"<a one='1' two='2'/>";
-			string ancestor = red;
-			string blue = @"<a two='22' one='1'/>";
-
-			CheckBothWaysNoConflicts(blue, red, ancestor, "a[@one='1' and @two='22']");
 		}
 
 		[Test]
@@ -419,7 +597,6 @@ namespace LibChorus.Tests.merge.xml.generic
 									 "a/b[@key='one']/c[1][@key='x' and text()='first']",
 									 "a/b[@key='one']/c[2][@key='z' and text()='third']",
 									 "a/b[@key='one']/c[3][@key='y' and text()='second']");
-
 		}
 		[Test]
 		public void InsertAtStartInOrder()
@@ -480,12 +657,8 @@ namespace LibChorus.Tests.merge.xml.generic
 									 "a/b[@key='one']/c[3][@key='z' and text()='third']");
 		}
 
-		/// <summary>
-		/// Red deletes two adjacent items; blue inserts a new item between them. Output should show the missing
-		/// items deleted and the new one inserted in the right place.
-		/// </summary>
 		[Test]
-		public void DeleteNeighborsAndInsertInOrder()
+		public void HattonTempCheck()
 		{
 			string ancestor = @"<a>
 								<b key='one'>
@@ -613,8 +786,8 @@ namespace LibChorus.Tests.merge.xml.generic
 		}
 
 		/// <summary>
-		/// Red deleted an item, and blue modified it. Either way we get a conflict report. Red wins should
-		/// show it deleted, blue wins should show it modified.
+		/// Red deleted an item, and blue edited it. Regardless of who initiated the merge,
+		/// we should keep the edit.
 		/// </summary>
 		[Test]
 		public void ElementDeleteAndModifyConflict()
@@ -640,19 +813,57 @@ namespace LibChorus.Tests.merge.xml.generic
 							   </b>
 							</a>";
 
-			// blue wins
 			ChangeAndConflictAccumulator r = CheckOneWay(blue, red, ancestor,
 										"a[count(b)='1']",
 										"a/b[count(c)='2']",
 										"a/b[@key='one']/c[1][@key='x' and text()='first']",
 										"a/b[@key='one']/c[2][@key='y' and text()='blue']");
-			Assert.AreEqual(typeof(RemovedVsEditedElementConflict), r.Conflicts[0].GetType());
+			Assert.AreEqual(typeof(XmlTextEditVsRemovedConflict), r.Conflicts[0].GetType());
+
+			ChangeAndConflictAccumulator r2 = CheckOneWay(red, blue, ancestor,
+										"a[count(b)='1']",
+										"a/b[count(c)='2']",
+										"a/b[@key='one']/c[1][@key='x' and text()='first']",
+										"a/b[@key='one']/c[2][@key='y' and text()='blue']");
+			Assert.AreEqual(typeof(XmlTextRemovedVsEditConflict), r2.Conflicts[0].GetType());
+		}
+
+		[Test]
+		public void BothInsertedSameInDifferentPlaces()
+		{
+			string ancestor = @"<a key='one'>
+								<b key='one'>
+									<c key='one'>first</c>
+								</b>
+							</a>";
+			string red = @"<a key='one'>
+							  <b key='two'>
+									<c key='two'>second</c>
+								</b>
+							   <b key='one'>
+									<c key='one'>first</c>
+								</b>
+							</a>";
+
+			string blue = @"<a key='one'>
+								<b key='one'>
+									<c key='one'>first</c>
+								</b>
+								<b key='two'>
+									<c key='two'>second</c>
+								</b>
+						  </a>";
+
+			// blue wins
+			ChangeAndConflictAccumulator r = CheckOneWay(blue, red, ancestor,
+										 "a/b[@key='one']/c[text()='first']",
+				"a/b[@key='one']/following-sibling::b/c[text()='second']");
+			Assert.AreEqual(typeof(BothInsertedAtDifferentPlaceConflict), r.Conflicts[0].GetType());
 			// red wins
 			ChangeAndConflictAccumulator r2 = CheckOneWay(red, blue, ancestor,
-										 "a[count(b)='1']",
-										 "a/b[count(c)='1']",
-										 "a/b[@key='one']/c[1][@key='x' and text()='first']");
-			Assert.AreEqual(typeof(RemovedVsEditedElementConflict), r2.Conflicts[0].GetType());
+										 "a/b[@key='two']/c[text()='second']",
+				"a/b[@key='two']/following-sibling::b/c[text()='first']");
+			Assert.AreEqual(typeof(BothInsertedAtDifferentPlaceConflict), r.Conflicts[0].GetType());
 		}
 
 		/// <summary>
@@ -818,9 +1029,9 @@ namespace LibChorus.Tests.merge.xml.generic
 		}
 
 		/// <summary>
-		/// This one is subtle. Red re-ordered fourth before second. Blue inserted something after fourth.
+		/// This one is subtle. Red re-ordered fourth (d) before second. Blue inserted something (z) after fourth.
 		/// Since only red re-ordered things, red's order basically wins. But we don't really know whether
-		/// to insert 'z' after 'e' or before 'e', since those are no longer the same position.
+		/// to insert 'z' after 'd' or before 'e', since those are no longer the same position.
 		/// Arbitrarily, after 'd' currently wins out.
 		/// </summary>
 		[Test]
@@ -882,6 +1093,54 @@ namespace LibChorus.Tests.merge.xml.generic
 										 "a/b[@key='one']/c[6][@key='e' and text()='fifth']"
 				);
 			Assert.AreEqual(typeof(AmbiguousInsertReorderConflict), r2.Conflicts[0].GetType());
+		}
+
+		[Test]
+		public void MergeChildren_UsesNodeToGenerateContextDescriptorIfPossible()
+		{
+			string ancestor = @"<a>
+								<b key='one'>
+									<c key='a'>first</c>
+							   </b>
+							</a>";
+
+			string red = ancestor;
+
+
+			string blue = @"<a>
+								<b key='one'>
+									<c key='a'>first</c>
+									<c key='b'>second</c>
+								</b>
+							</a>";
+			XmlMerger m = new XmlMerger(new NullMergeSituation());
+			m.MergeStrategies.ElementStrategies.Add("a", ElementStrategy.CreateForKeyedElementInList("key"));
+			var strategy = ElementStrategy.CreateForKeyedElementInList("key");
+			var contextGenerator = new MockContextGenerator();
+			strategy.ContextDescriptorGenerator = contextGenerator;
+			m.MergeStrategies.ElementStrategies.Add("b", strategy);
+			m.MergeStrategies.ElementStrategies.Add("c", ElementStrategy.CreateForKeyedElementInList("key"));
+			m.MergeStrategies.ElementStrategies.Add("d", ElementStrategy.CreateForKeyedElementInList("key"));
+			m.Merge(red, blue, ancestor);
+			Assert.That(contextGenerator.InputNode, Is.Not.Null);
+			Assert.That(contextGenerator.InputNode.Name, Is.EqualTo("b"));
+		}
+	}
+
+	internal class MockContextGenerator : IGenerateContextDescriptor, IGenerateContextDescriptorFromNode
+	{
+		public ContextDescriptor GenerateContextDescriptor(string mergeElement, string filePath)
+		{
+			Assert.Fail("should not call the string version when an XmlNode version is available");
+			return null; // to satisfy compiler
+		}
+
+		public XmlNode InputNode;
+
+		public ContextDescriptor GenerateContextDescriptor(XmlNode mergeElement, string filePath)
+		{
+			InputNode = mergeElement;
+			return null;
 		}
 	}
 }

@@ -1,9 +1,12 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
+using LibChorus.TestUtilities;
 using NUnit.Framework;
+using Palaso.Progress;
+using Palaso.TestUtilities;
 
 namespace LibChorus.Tests.VcsDrivers.Mercurial
 {
@@ -19,13 +22,23 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		[SetUp]
 		public void Setup()
 		{
+			HgRunner.TimeoutSecondsOverrideForUnitTests = 10000;//reset it in between tests
 			_progress = new ConsoleProgress();
+		}
+
+		[Test, Ignore("By Hand only")]
+		public void Test_GetProxyAndCredentials()
+		{
+			using (var setup = new HgTestSetup())
+			{
+				var result =setup.Repository.GetProxyConfigParameterString("http://proxycheck.palaso.org/");
+			}
 		}
 
 		[Test]
 		public void RemoveOldLocks_NoLocks_ReturnsTrue()
 		{
-			using (var setup = new HgSetup())
+			using (var setup = new HgTestSetup())
 			{
 				Assert.IsTrue(setup.Repository.RemoveOldLocks());
 			}
@@ -34,9 +47,9 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		[Test]
 		public void RemoveOldLocks_WLockButNotRunningHg_LockRemoved()
 		{
-			using (var setup = new HgSetup())
+			using (var setup = new HgTestSetup())
 			{
-				var file = TempFile.CreateAt(setup.Root.Combine(".hg", "wlock"), "blah");
+				var file = TempFileFromFolder.CreateAt(setup.Root.Combine(".hg", "wlock"), "blah");
 				Assert.IsTrue(setup.Repository.RemoveOldLocks());
 				Assert.IsFalse(File.Exists(file.Path));
 			}
@@ -45,10 +58,10 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		[Test]
 		public void RemoveOldLocks_WLockAndLockButNotRunningHg_BothLocksRemoved()
 		{
-			using (var setup = new HgSetup())
+			using (var setup = new HgTestSetup())
 			{
-				var file1 = TempFile.CreateAt(setup.Root.Combine(".hg", "wlock"), "blah");
-				var file2 = TempFile.CreateAt(setup.Root.Combine(".hg", "store","lock"), "blah");
+				var file1 = TempFileFromFolder.CreateAt(setup.Root.Combine(".hg", "wlock"), "blah");
+				var file2 = TempFileFromFolder.CreateAt(setup.Root.Combine(".hg", "store", "lock"), "blah");
 				Assert.IsTrue(setup.Repository.RemoveOldLocks());
 				Assert.IsFalse(File.Exists(file1.Path));
 				Assert.IsFalse(File.Exists(file2.Path));
@@ -58,37 +71,63 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		[Test]
 		public void RemoveOldLocks_WLockAndHgIsRunning_ReturnsFalse()
 		{
-			using (var setup = new HgSetup())
+			using (var setup = new HgTestSetup())
 			{
 				//we have to pretent to be hg
 				var ourName =System.Diagnostics.Process.GetCurrentProcess().ProcessName;
 
-				var file = TempFile.CreateAt(setup.Root.Combine(".hg", "wlock"), "blah");
-
-				Assert.IsFalse(setup.Repository.RemoveOldLocks(ourName, true));
-				file.Dispose();
+				using(var file = TempFileFromFolder.CreateAt(setup.Root.Combine(".hg", "wlock"), "blah"))
+				{
+					Assert.IsFalse(setup.Repository.RemoveOldLocks(ourName, true));
+				}
 			}
 		}
 
 		[Test]
 		public void RemoveOldLocks_LockAndHgIsRunning_ReturnsFalse()
 		{
-			using (var setup = new HgSetup())
+			using (var setup = new HgTestSetup())
 			{
 				//we have to pretent to be hg
-				var ourName = System.Diagnostics.Process.GetCurrentProcess().ProcessName;
+				var ourName = Process.GetCurrentProcess().ProcessName;
 
-				var file = TempFile.CreateAt(setup.Root.Combine(".hg", "store", "lock"), "blah");
+				using(var file = TempFileFromFolder.CreateAt(setup.Root.Combine(".hg", "store", "lock"), "blah"))
+				{
+					Assert.IsFalse(setup.Repository.RemoveOldLocks(ourName, true));
+				}
+			}
+		}
 
-				Assert.IsFalse(setup.Repository.RemoveOldLocks(ourName, true));
-				file.Dispose();
+		[Test]
+		public void CommitCommentWithDoubleQuotes_HasCorrectComment()
+		{
+			using (var setup = new HgTestSetup())
+			{
+				var path = setup.Root.GetNewTempFile(true).Path;
+				setup.Repository.AddAndCheckinFile(path);
+				File.WriteAllText(path, "new stuff");
+				const string message = "New \"double quoted\" comment";
+				setup.Repository.Commit(true, message);
+				setup.AssertCommitMessageOfRevision("1", message);
+			}
+		}
+
+		[Test]
+		public void CommitWithNoUsernameInHgrcFileUsesDefaultFromEnvironment()
+		{
+			using (var setup = new HgTestSetup())
+			{
+				var path = setup.Root.GetNewTempFile(true).Path;
+				setup.Repository.AddAndCheckinFile(path);
+				var rev = setup.Repository.GetAllRevisions()[0];
+				Assert.AreEqual(Environment.UserName, rev.UserId);
 			}
 		}
 
 		[Test]
 		public void GetRevisionWorkingSetIsBasedOn_NoCheckinsYet_GivesNull()
 		{
-			using (var testRoot = new TempFolder("ChorusHgWrappingTest"))
+			using (var testRoot = new TemporaryFolder("ChorusHgWrappingTest"))
 			{
 				HgRepository.CreateRepositoryInExistingDir(testRoot.Path, _progress);
 				var repo = new HgRepository(testRoot.Path, new NullProgress());
@@ -100,7 +139,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		[Test]
 		public void GetRevisionWorkingSetIsBasedOn_OneCheckin_Gives0()
 		{
-			using (var testRoot = new TempFolder("ChorusHgWrappingTest"))
+			using (var testRoot = new TemporaryFolder("ChorusHgWrappingTest"))
 			{
 				HgRepository.CreateRepositoryInExistingDir(testRoot.Path, _progress);
 				var repo = new HgRepository(testRoot.Path, new NullProgress());
@@ -122,6 +161,33 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				Assert.IsNull(setup.Repository.GetRevision("1"));
 			}
 		}
+
+		[Test]
+		public void EnsureRepoIdIsCorrect()
+		{
+			using (var setup = new RepositorySetup("Dan"))
+			{
+				var id = setup.Repository.Identifier;
+				Assert.IsTrue(String.IsNullOrEmpty(id));
+
+				var path = setup.ProjectFolder.Combine("test.1w1");
+				File.WriteAllText(path, "hello");
+				setup.ProjectFolderConfig.IncludePatterns.Clear();
+				setup.ProjectFolderConfig.ExcludePatterns.Clear();
+				setup.ProjectFolderConfig.IncludePatterns.Add("*.1w1");
+				setup.AddAndCheckIn(); // Need to have one commit.
+
+				id = setup.Repository.Identifier;
+				Assert.IsFalse(String.IsNullOrEmpty(id));
+
+				var results = HgRunner.Run("log -r0 --template " + "\"{node}\"", setup.Repository.PathToRepo, 10, setup.Progress);
+				// This will probably fail, if some other version of Hg is used,
+				// as it may include multiple lines (complaining about deprecated extension Chorus uses),
+				// where the last one will be the id.
+				Assert.AreEqual(results.StandardOutput.Trim(), id);
+			}
+		}
+
 		[Test]
 		public void GetRevision_RevisionDoesExist_Ok()
 		{
@@ -132,63 +198,177 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			}
 		}
 
-		[Test, ExpectedException(typeof(TimeoutException))]
+		[Test]
 		public void AddAndCheckinFile_WLockExists_GetTimeoutException()
 		{
 			HgRunner.TimeoutSecondsOverrideForUnitTests = 1;
-			using (var setup = new HgSetup())
+			using (var setup = new HgTestSetup())
 			using (setup.GetWLock())
 			{
-				setup.Repository.AddAndCheckinFile(setup.Root.GetNewTempFile(true).Path);
+				Assert.Throws<TimeoutException>(() =>
+					setup.Repository.AddAndCheckinFile(setup.Root.GetNewTempFile(true).Path));
 			}
 		}
 
 
-		[Test, ExpectedException(typeof(TimeoutException))]
+		[Test]
 		public void Commit_WLockExists_GetTimeoutException()
 		{
 			HgRunner.TimeoutSecondsOverrideForUnitTests = 1;
-			using (var setup = new HgSetup())
+			using (var setup = new HgTestSetup())
 			using (setup.GetWLock())
 			{
-				setup.Repository.Commit(false, "test");
+			   Assert.Throws<TimeoutException>(() => setup.Repository.Commit(false, "test"));
 			}
 		}
 
-		[Test, ExpectedException(typeof(TimeoutException))]
+		[Test, Ignore("TODO: new nunit detects that actually we get threadabort, not timeout. Is that ok or not?")]
 		public void Pull_FileIsLocked_GetTimeoutException()
 		{
 			HgRunner.TimeoutSecondsOverrideForUnitTests = 1;
-			using (var setup = new HgSetup())
+			using (var setup = new HgTestSetup())
 			using (setup.GetWLock())
 			{
 				var path = setup.Root.GetNewTempFile(true).Path;
 				setup.Repository.AddAndCheckinFile(path);
 				using (new StreamWriter(path))
 				{
-					setup.Repository.Update();
+				   Assert.Throws<TimeoutException>(() => setup.Repository.Update());
 				}
 			}
 		}
 
-		[Test, ExpectedException(typeof(TimeoutException))]
+		[Test]
 		public void SetUserNameInIni_HgrcIsOpenFromAnotherProcess_GetTimeoutException()
 		{
 			HgRunner.TimeoutSecondsOverrideForUnitTests = 1;
-			using (var setup = new HgSetup())
+			using (var setup = new HgTestSetup())
 			{
 				setup.Repository.SetUserNameInIni("me", new NullProgress());
 				using (new StreamWriter(setup.Root.Combine(".hg", "hgrc")))
 				{
-					setup.Repository.SetUserNameInIni("otherme", new NullProgress());
+					Assert.Throws<TimeoutException>(() =>
+						setup.Repository.SetUserNameInIni("otherme", new NullProgress()));
 				}
 			}
 		}
 
-		[Test, Ignore("I'm too lazy at the moment to set up the test conditions")]
+		[Test, Ignore("I'm too lazy at the moment to figure out how to set up the test conditions")]
 		public void GetCommonAncestorOfRevisions_Have3rdAsCommon_Get3rd()
 		{
 
+		}
+
+		/// <summary>
+		/// This is a special boundary case because hg backout fails with "cannot backout a change with no parents"
+		/// </summary>
+		[Test]
+		public void BackoutHead_FirstChangeSetInTheRepo_Throws()
+		{
+			using (var setup = new HgTestSetup())
+			{
+				var path = setup.Root.GetNewTempFile(true).Path;
+				setup.Repository.AddAndCheckinFile(path);
+				Assert.Throws<ApplicationException>(() =>
+					setup.Repository.BackoutHead("0", "testing"));
+			}
+		}
+
+		[Test]
+		public void BackoutHead_UsesCommitMessage()
+		{
+			using (var setup = new HgTestSetup())
+			{
+				var path = setup.Root.GetNewTempFile(true).Path;
+				setup.Repository.AddAndCheckinFile(path);
+				File.WriteAllText(path,"2");
+				setup.Repository.AddAndCheckinFile(path);
+				var theMessage = "testing";
+				setup.Repository.BackoutHead("1", theMessage);
+				setup.AssertLocalNumberOfTip("2");
+				setup.AssertHeadOfWorkingDirNumber("2");
+				setup.AssertHeadCount(1);
+
+				//for debuging a weird TeamCity failure of this
+				Assert.AreEqual((int)'t', (int)(setup.Repository.GetRevision("2").Summary.Trim())[0]);
+				Assert.AreEqual((int)'t', (int)(setup.Repository.GetRevision("2").Summary)[0]);
+				Assert.AreEqual(theMessage, setup.Repository.GetRevision("2").Summary);
+
+				setup.AssertCommitMessageOfRevision("2",theMessage);
+			}
+		}
+
+		/// <summary>
+		/// The thing here is that its easy to get an hg error if we are currently on a different branch,
+		/// but this is something backout can take care of. Also, the behavior of this method is specified
+		/// to take us back to the branch we were on.
+		/// </summary>
+		[Test]
+		public void BackoutHead_CurrentlyOnAnotherBranch_LeaveUsWhereWeWere()
+		{
+			/*
+			o  changeset:   3:61688974b0c3
+			|  tag:         tip
+			|  summary:     backout
+			|
+			| @  changeset:   2:79a705ba0bbd
+			| |  summary:     daeao4yo.zb2-->ok
+			| |
+			o |  changeset:   1:0be0d43dd824
+			|/    summary:     daeao4yo.zb2-->bad
+			|
+			o  changeset:   0:534055cd5da5
+				summary:     Add daeao4yo.zb2
+			*/
+			using (var setup = new HgTestSetup())
+			{
+				var path = setup.Root.GetNewTempFile(true).Path;
+				File.WriteAllText(path, "original");
+				setup.Repository.AddAndCheckinFile(path);
+				setup.ChangeAndCheckinFile(path, "bad");
+				setup.AssertHeadOfWorkingDirNumber("1");
+				setup.Repository.Update("0");//go back to start a new branch
+				setup.ChangeAndCheckinFile(path, "ok");
+				setup.AssertHeadCount(2);
+
+				string backoutRev = setup.Repository.BackoutHead("1", "backout");
+				Assert.AreEqual("3",backoutRev);
+				setup.AssertHeadCount(2);
+
+				setup.AssertHeadOfWorkingDirNumber("2");//expect to be left on the branch we were on, not the backed out one
+				Assert.AreEqual("0", setup.Repository.GetRevisionWorkingSetIsBasedOn().Parents[0].LocalRevisionNumber);
+			}
+		}
+
+		[Test]
+		public void BackoutHead_BackingOutTheCurrentHead_LeaveUsOnTheNewHead()
+		{
+			/*
+			@  changeset:   2:0ced43559525
+			|  tag:         tip
+			|  summary:     backout
+			|
+			o  changeset:   1:ddc098603f64
+			|  summary:     tuetcscw.u0v-->bad
+			|
+			o  changeset:   0:999cb7368d7a
+			   summary:     Add tuetcscw.u0v
+			*/
+			using (var setup = new HgTestSetup())
+			{
+				var path = setup.Root.GetNewTempFile(true).Path;
+				File.WriteAllText(path, "original");
+				setup.Repository.AddAndCheckinFile(path);
+				setup.ChangeAndCheckinFile(path, "bad");
+				setup.AssertHeadOfWorkingDirNumber("1");
+				setup.AssertHeadCount(1);
+
+				string backoutRev = setup.Repository.BackoutHead("1", "backout");
+				Assert.AreEqual("2", backoutRev);
+				setup.AssertHeadCount(1);
+
+				setup.AssertHeadOfWorkingDirNumber("2");
+			}
 		}
 //
 //        [Test]
@@ -199,37 +379,74 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 //            hg.GetTip();
 //            Assert.IsTrue(progress.Text.Contains("Error"));
 //        }
-	}
-
-	public class HgSetup  :IDisposable
-	{
-		public TempFolder Root;
-		public HgRepository Repository;
-		private ConsoleProgress _progress;
 
 
-		public HgSetup()
+		[Test]
+		public void MakeBundle_InvalidBase_FalseAndFileDoesNotExist()
 		{
-			_progress = new ConsoleProgress();
-			Root = new TempFolder("ChorusHgWrappingTest");
-			HgRepository.CreateRepositoryInExistingDir(Root.Path,_progress);
-			Repository = new HgRepository(Root.Path, new NullProgress());
+			using (var setup = new HgTestSetup())
+			{
+				var path = setup.Root.GetNewTempFile(true).Path;
+				File.WriteAllText(path, "original");
+				setup.Repository.AddAndCheckinFile(path);
+				string bundleFilePath = setup.Root.GetNewTempFile(false).Path;
+				Assert.That(setup.Repository.MakeBundle(new []{"fakehash"},
+					bundleFilePath), Is.False);
+				Assert.That(File.Exists(bundleFilePath), Is.False);
+			}
 		}
 
-		public void Dispose()
+		[Test]
+		public void MakeBundle_ValidBase_BundleFileExistsAndReturnsTrue()
 		{
-			Root.Dispose();
+			using (var setup = new HgTestSetup())
+			{
+				var path = setup.Root.GetNewTempFile(true).Path;
+				File.WriteAllText(path, "original");
+				setup.Repository.AddAndCheckinFile(path);
+				Revision revision = setup.Repository.GetTip();
+				setup.ChangeAndCheckinFile(path, "bad");
 
+				var bundleFilePath = setup.Root.GetNewTempFile(true).Path;
+				Assert.That(setup.Repository.MakeBundle(new []{revision.Number.Hash}, bundleFilePath), Is.True);
+				Assert.That(File.Exists(bundleFilePath), Is.True);
+			}
 		}
 
-		public IDisposable GetWLock()
+		[Test]
+		public void Unbundle_ValidBundleFile_ReturnsTrue()
 		{
-			return TempFile.CreateAt(Root.Combine(".hg", "wlock"), "blah");
-		}
-		public IDisposable GetLock()
-		{
-			return TempFile.CreateAt(Root.Combine(".hg", "store", "lock"), "blah");
+			using (var setup = new RepositorySetup("unbundleTests"))
+			{
+				var bundleFilePath = setup.RootFolder.GetNewTempFile(false).Path;
+				setup.AddAndCheckinFile(setup.ProjectFolder.GetNewTempFile(true).Path, "some file we don't care about");
+				var hash = setup.Repository.GetTip().Number.Hash;
+				setup.AddAndCheckinFile(setup.ProjectFolder.GetNewTempFile(true).Path, "another file we don't care about");
+				setup.Repository.MakeBundle(new []{hash}, bundleFilePath);
+				setup.Repository.RollbackWorkingDirectoryToLastCheckin();
+				Assert.That(setup.Repository.Unbundle(bundleFilePath), Is.True);
+			}
 		}
 
+		[Test]
+		public void Unbundle_BadPath_ReturnsFalse()
+		{
+			using (var setup = new RepositorySetup("unbundleTests"))
+			{
+				var bundleFilePath = "bad file path";
+				Assert.That(setup.Repository.Unbundle(bundleFilePath), Is.False);
+			}
+		}
+
+		[Test]
+		public void Unbundle_BadBundleFile_ReturnsFalse()
+		{
+			using (var setup = new RepositorySetup("unbundleTests"))
+			{
+				var bundleFilePath = setup.RootFolder.GetNewTempFile(false).Path;
+				File.WriteAllText(bundleFilePath, "bogus bundle file contents");
+				Assert.That(setup.Repository.Unbundle(bundleFilePath), Is.False);
+			}
+		}
 	}
 }

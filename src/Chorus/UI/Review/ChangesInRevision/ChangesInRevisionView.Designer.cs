@@ -82,8 +82,9 @@
 			this.imageList1.Images.SetKeyName(2, "file");
 			this.imageList1.Images.SetKeyName(3, "WesayConfig");
 			this.imageList1.Images.SetKeyName(4, "WeSay");
-			this.imageList1.Images.SetKeyName(5, "conflict");
+			this.imageList1.Images.SetKeyName(5, "mergeConflict");
 			this.imageList1.Images.SetKeyName(6, "error");
+			this.imageList1.Images.SetKeyName(7, "question");
 			//
 			// ChangesInRevisionView
 			//

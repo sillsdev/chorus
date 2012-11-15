@@ -1,11 +1,10 @@
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Threading;
-using System.Windows.Forms;
+using Palaso.Progress;
 using ThreadState=System.Threading.ThreadState;
 
 namespace Chorus.Utilities
@@ -51,7 +50,9 @@ namespace Chorus.Utilities
 			}
 
 			var end = DateTime.Now.AddSeconds(secondsBeforeTimeOut);
-			while (_outputReader.ThreadState == ThreadState.Running || (_errorReader != null && _errorReader.ThreadState == ThreadState.Running))
+
+			//nb: at one point I (jh) tried adding !process.HasExited, but that made things less stable.
+			while (/*!process.HasExited &&*/ (_outputReader.ThreadState == ThreadState.Running || (_errorReader != null && _errorReader.ThreadState == ThreadState.Running)))
 			{
 				if(progress.CancelRequested)
 					return false;

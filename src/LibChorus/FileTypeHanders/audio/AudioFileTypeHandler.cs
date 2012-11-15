@@ -2,14 +2,19 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Chorus.merge;
-using Chorus.Utilities;
+using Chorus.sync;
 using Chorus.VcsDrivers.Mercurial;
 using System.Linq;
+using Palaso.IO;
+using Palaso.Progress;
 
 namespace Chorus.FileTypeHanders.audio
 {
 	public class AudioFileTypeHandler : IChorusFileTypeHandler
 	{
+		internal AudioFileTypeHandler()
+		{}
+
 		public bool CanDiffFile(string pathToFile)
 		{
 			return false;
@@ -22,8 +27,17 @@ namespace Chorus.FileTypeHanders.audio
 
 		public bool CanPresentFile(string pathToFile)
 		{
-			var ext = Path.GetExtension(pathToFile);
-			return ((new string[] {".wav",".mp3"}.Contains(ext)));
+			var ext = Path.GetExtension(pathToFile); // NB: has the '.'
+			return !string.IsNullOrEmpty(ext) && GetExtensionsOfKnownTextFileTypes().Contains(ext.Replace(".", null));
+		}
+
+		public bool CanValidateFile(string pathToFile)
+		{
+			return false;
+		}
+		public string ValidateFile(string pathToFile, IProgress progress)
+		{
+			throw new NotImplementedException();
 		}
 
 		public void Do3WayMerge(MergeOrder mergeOrder)
@@ -34,26 +48,36 @@ namespace Chorus.FileTypeHanders.audio
 		public IEnumerable<IChangeReport> Find2WayDifferences(FileInRevision parent, FileInRevision child, HgRepository repository)
 		{
 			throw new ApplicationException(string.Format("Chorus could not find a handler to diff files like '{0}'", child.FullPath));
-
 		}
-
 
 		public IChangePresenter GetChangePresenter(IChangeReport report, HgRepository repository)
 		{
 			return new AudioChangePresenter(report);
 		}
 
-
-
-
 		public IEnumerable<IChangeReport> DescribeInitialContents(FileInRevision fileInRevision, TempFile file)
 		{
 			return new IChangeReport[] { new DefaultChangeReport(fileInRevision, "Added") };
 		}
 
+		/// <summary>
+		/// Get a list or one, or more, extensions this file type handler can process
+		/// </summary>
+		/// <returns>A collection of extensions (without leading period (.)) that can be processed.</returns>
 		public IEnumerable<string> GetExtensionsOfKnownTextFileTypes()
 		{
-			yield break;
+			return new List<string> { "wav", "snd", "au", "aif", "aifc", "aiff", "wma", "mp3" };
+		}
+
+		/// <summary>
+		/// Return the maximum file size that can be added to the repository.
+		/// </summary>
+		/// <remarks>
+		/// Return UInt32.MaxValue for no limit.
+		/// </remarks>
+		public uint MaximumFileSize
+		{
+			get { return LargeFileFilter.Megabyte; }
 		}
 	}
 }

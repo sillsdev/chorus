@@ -1,17 +1,18 @@
 ﻿using System;
 using System.Drawing;
+using System.Threading;
 using System.Windows.Forms;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
+using Palaso.Progress;
 
 namespace Chorus.UI.Sync
 {
 	public partial class SyncControl : UserControl
 	{
 		private SyncControlModel _model;
-		private String _userName="anonymous";
 		private int _desiredHeight;
-		private bool _didSync=false;
+		private bool _didAttemptSync=false;
 		public event EventHandler CloseButtonClicked;
 
 
@@ -21,31 +22,20 @@ namespace Chorus.UI.Sync
 			InitializeComponent();
 			_cancelButton.Visible = false;
 			_tabControl.TabPages.Remove(_tasksTab);
-			DesiredHeight = 320;
 			_successIcon.Left = _warningIcon.Left;
 			// _cancelButton.Top = _sendReceiveButton.Top;
 		   _closeButton.Bounds = _sendReceiveButton.Bounds;
 			progressBar1.Visible = false;
 			_statusText.Visible = false;
+			_statusText.Text = "";  // clear the label
 			_updateDisplayTimer.Enabled = true;
-
 		}
 		public SyncControl(SyncControlModel model)
 			:this()
 		{
 			Model = model;
+			_logBox.GetDiagnosticsMethod = model.GetDiagnostics;
 			UpdateDisplay();
-		}
-
-
-
-		/// <summary>
-		/// most client apps won't have anything to put in here, that's ok
-		/// </summary>
-		public string UserName
-		{
-			get { return _userName; }
-			set { _userName = value; }
 		}
 
 		public SyncControlModel Model
@@ -57,18 +47,20 @@ namespace Chorus.UI.Sync
 				if(_model ==null)
 					return;
 				_model.SynchronizeOver += new EventHandler(_model_SynchronizeOver);
+				_model.AddMessagesDisplay(_logBox);
+				_model.AddStatusDisplay(_statusText);
+				_model.ProgressIndicator = new MultiPhaseProgressIndicator(progressBar1, 2);  // for now we only specify 2 phases (pull, then push).
+				_model.UIContext = SynchronizationContext.Current;
 				UpdateDisplay();
 			}
 		}
 
 		void _model_SynchronizeOver(object sender, EventArgs e)
 		{
-				Cursor.Current = Cursors.Default;
-				progressBar1.MarqueeAnimationSpeed = 0;
-				progressBar1.Style = ProgressBarStyle.Continuous;
-				progressBar1.Maximum = 100;
-				progressBar1.Value = progressBar1.Maximum;
-			_didSync = true;
+			Cursor.Current = Cursors.Default;
+			//Model.ProgressIndicator.Finish();
+			_didAttemptSync = true;
+			UpdateDisplay();
 		}
 
 
@@ -76,21 +68,27 @@ namespace Chorus.UI.Sync
 		{
 			if (_model == null)
 				return;
+			if(_model.CancellationPending)
+			{
+				_cancelButton.Text = "Cancelling..";
+			}
 			_sendReceiveButton.Visible =  Model.EnableSendReceive;
 			_cancelButton.Visible =  Model.EnableCancel && !_showCancelButtonTimer.Enabled;
-			_successIcon.Visible = _didSync  && !(Model.StatusProgress.WarningEncountered || Model.StatusProgress.ErrorEncountered);
-			_warningIcon.Visible = (Model.StatusProgress.WarningEncountered || Model.StatusProgress.ErrorEncountered);
+			_successIcon.Visible = _didAttemptSync  && !(Model.ErrorsOrWarningsEncountered);
+			_warningIcon.Visible = Model.ErrorsOrWarningsEncountered;
 			_closeButton.Visible = Model.EnableClose;
 			if (_closeButton.Visible && Parent!=null && (Parent is Form))
 			{
 				((Form) Parent).AcceptButton = _closeButton;
 				((Form) Parent).CancelButton = _closeButton;
 			}
-			progressBar1.Visible = Model.SynchronizingNow;// || _didSync;
-			_statusText.Visible = progressBar1.Visible || _didSync;
-			_statusText.Text = Model.StatusProgress.LastStatus;
-
+			progressBar1.Visible = Model.SynchronizingNow;// || _didAttemptSync;
+			_statusText.Visible = progressBar1.Visible;
+			_logBox.ShowDetailsMenuItem = true;
+			_logBox.ShowDiagnosticsMenuItem = true;
 			_syncTargets.Enabled = Model != null;
+
+
 //
 //            if (_sendReceiveButton.Enabled)
 //            {
@@ -154,8 +152,6 @@ namespace Chorus.UI.Sync
 				this._logBox.WriteError(message);
 				return;
 			}
-
-			Model.AddProgressDisplay(_logBox);
 
 			LoadChoices();
 
@@ -224,7 +220,7 @@ namespace Chorus.UI.Sync
 		/// sites the user has indicated</param>
 		public void Synchronize(bool useTargetsAsSpecifiedInSyncOptions)
 		{
-			_didSync = false;
+			_didAttemptSync = false;
 
 			//show something useful during the sync (ok to leave it on the log tab, but not any config ones)
 			if (_tabControl.Visible && _tabControl.SelectedTab != _logTab && _tabControl.TabPages.Contains(_tasksTab))
@@ -236,14 +232,7 @@ namespace Chorus.UI.Sync
 				_tabControl.SelectedTab = _logTab;
 			}
 
-			progressBar1.Style = ProgressBarStyle.Marquee;
-#if MONO
-			progressBar1.MarqueeAnimationSpeed = 3000;
-#else
-			progressBar1.MarqueeAnimationSpeed = 50;
-#endif
 			_logBox.Clear();
-			_logBox.WriteStatus("Syncing...");
 			Cursor.Current = Cursors.WaitCursor;
 			Model.Sync(useTargetsAsSpecifiedInSyncOptions);
 		}
@@ -267,12 +256,21 @@ namespace Chorus.UI.Sync
 
 		private void SyncControl_Resize(object sender, EventArgs e)
 		{
-			_statusText.MaximumSize = new Size(_sendReceiveButton.Left - 20, 0);
+			// cjh feb-2012: I'm not sure what the purpose of resizing the statustext was, but I commented it
+			// out because it was making the Label invisible!
+			// after commenting the line below out, I can see the status text again.
+
+			//_statusText.MaximumSize = new Size((_sendReceiveButton.Left-_statusText.Left) - 20, _statusText.Height);
 		}
 
 		private void _showCancelButtonTimer_Tick(object sender, EventArgs e)
 		{
 			_showCancelButtonTimer.Enabled = false;
+		}
+
+		private void _statusText_Click(object sender, EventArgs e)
+		{
+
 		}
 	}
 }
