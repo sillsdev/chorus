@@ -8,7 +8,7 @@ using Chorus.Utilities;
 using Chorus.Utilities.UsbDrive;
 using Chorus.VcsDrivers.Mercurial;
 using Palaso.IO;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
 using Palaso.Reporting;
 
 namespace Chorus.VcsDrivers
@@ -304,6 +304,12 @@ namespace Chorus.VcsDrivers
 				{
 					try
 					{
+						if (File.Exists(Path.Combine(path, "SharedRepositoryInfo.xml")))
+						{
+							progress.WriteVerbose("Not checking folder that looks like paratext project: "+path);
+							continue;
+						}
+
 						// Need to create an HgRepository for each so we can get its Id.
 						var usbRepo = new HgRepository(path, progress);
 						if (usbRepo.Identifier == null)
@@ -322,6 +328,11 @@ namespace Chorus.VcsDrivers
 					}
 					catch (Exception e)
 					{
+						if(e.Message.Contains("not supported"))
+						{
+							progress.WriteWarning("Could not check the repository at {0} because it has some unsupported feature (e.g. made with a new versin of this or some other software?). Error was: {1}", path, e.Message);
+							continue;
+						}
 						ErrorReport.ReportNonFatalExceptionWithMessage(e, "Error while processing USB folder '{0}'", path);
 					}
 				}

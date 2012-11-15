@@ -1,16 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Xml;
-using Chorus.FileTypeHanders.lift;
-using Chorus.FileTypeHanders.text;
 using Chorus.merge;
 using Chorus.Utilities;
-using Chorus.Utilities.code;
 using Chorus.VcsDrivers.Mercurial;
 using Chorus.merge.xml.generic;
+using Palaso.Code;
 using Palaso.IO;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
 
 namespace Chorus.FileTypeHanders
 {
@@ -63,9 +60,10 @@ namespace Chorus.FileTypeHanders
 			Guard.AgainstNull(mergeOrder, "mergeOrder");
 
 			XmlMergeService.Do3WayMerge(mergeOrder,
-				new LiftRangesMergingStrategy(mergeOrder.MergeSituation),
+				new LiftRangesMergingStrategy(mergeOrder),
+				false,
 				null,
-				"range", "id", WritePreliminaryInformation);
+				"range", "id");
 		}
 
 		public IEnumerable<IChangeReport> Find2WayDifferences(FileInRevision parent, FileInRevision child, HgRepository repository)
@@ -101,13 +99,6 @@ namespace Chorus.FileTypeHanders
 		public uint MaximumFileSize
 		{
 			get { return UInt32.MaxValue; }
-		}
-
-		internal static void WritePreliminaryInformation(XmlReader reader, XmlWriter writer)
-		{
-			reader.MoveToContent();
-			writer.WriteStartElement("lift-ranges");
-			reader.Read();
 		}
 	}
 }

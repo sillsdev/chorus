@@ -1,15 +1,13 @@
 ﻿using System;
 using System.IO;
 using System.Media;
-using System.Text;
 using System.Threading;
-using System.Windows.Forms;
 using Chorus.UI.Misc;
 using Chorus.Utilities;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using Palaso.Progress;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
 using Palaso.Reporting;
 
 namespace Chorus.UI.Clone
@@ -45,9 +43,10 @@ namespace Chorus.UI.Clone
 		{
 			get
 			{
-				return HaveNeededAccountInfo && TargetLocationIsUnused && HaveWellFormedTargetLocation;
+				return HaveNeededAccountInfo && HaveWellFormedTargetLocation && TargetLocationIsUnused;
 			}
 		}
+
 		public bool TargetLocationIsUnused
 		{
 			get
@@ -73,7 +72,7 @@ namespace Chorus.UI.Clone
 		{
 			get
 			{
-				return (!string.IsNullOrEmpty(LocalFolderName) && LocalFolderName.LastIndexOfAny(Path.GetInvalidFileNameChars()) == -1);
+				return (!string.IsNullOrEmpty(LocalFolderName) && LocalFolderName.LastIndexOfAny(Path.GetInvalidPathChars()) == -1);
 			}
 		}
 
@@ -95,7 +94,7 @@ namespace Chorus.UI.Clone
 		public bool TargetHasProblem
 		{
 			get {
-				return !TargetLocationIsUnused || !HaveWellFormedTargetLocation;
+				return !HaveWellFormedTargetLocation || !TargetLocationIsUnused;
 			}
 		}
 

@@ -7,7 +7,8 @@ using Chorus.UI.Sync;
 using Chorus.VcsDrivers;
 using LibChorus.TestUtilities;
 using NUnit.Framework;
-using Palaso.Progress.LogBox;
+using Palaso.Extensions;
+using Palaso.Progress;
 
 namespace Chorus.Tests
 {
@@ -49,7 +50,7 @@ namespace Chorus.Tests
 			Directory.Delete(_pathToTestRoot, true);
 		}
 
-		[Test]
+		[Test, Category("KnownMonoIssue")]
 		public void AfterSyncLogNotEmpty()
 		{
 			_model.Sync(false);
@@ -109,7 +110,7 @@ namespace Chorus.Tests
 			Assert.IsNotNull(results.ErrorEncountered);
 		}
 
-		[Test]
+		[Test, Category("KnownMonoIssue")]
 		public void Sync_Cancelled_ResultsHaveCancelledEqualsTrue()
 		{
 			_model = new SyncControlModel(_project, SyncUIFeatures.Minimal, null);
@@ -134,6 +135,37 @@ namespace Chorus.Tests
 			Assert.IsFalse(results.Succeeded);
 			Assert.IsTrue(results.Cancelled);
 			Assert.IsNull(results.ErrorEncountered);
+		}
+
+		[Test]
+		public void AsyncLocalCheckIn_GivesGoodResult()
+		{
+			SyncResults result=null;
+			_model.AsyncLocalCheckIn("testing", (r)=>result=r);
+			var start = DateTime.Now;
+			while (result == null)
+			{
+				Thread.Sleep(100);
+				Application.DoEvents();//without this, the background worker starves 'cause their's no UI
+				if ((DateTime.Now.Subtract(start).Minutes > 0))
+				{
+					Assert.Fail("Gave up waiting.");
+				}
+			}
+			Assert.IsTrue(result.Succeeded);
+		}
+
+
+		[Test]
+		public void AsyncLocalCheckIn_NoPreviousRepoCreation_Throws()
+		{
+			Assert.Throws<InvalidOperationException>(() =>
+										 {
+											 //simulate not having previously created a repository
+											 Palaso.IO.DirectoryUtilities.DeleteDirectoryRobust(
+												 _pathToTestRoot.CombineForPath(".hg"));
+											 _model.AsyncLocalCheckIn("testing", null);
+										 });
 		}
 
 		private void _model_SynchronizeOver(object sender, EventArgs e)

@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using System.Xml;
 using Chorus.FileTypeHanders.xml;
 
@@ -12,8 +11,7 @@ namespace Chorus.merge.xml.generic
 	{
 		internal static void MergeAttributes(XmlMerger merger, ref XmlNode ours, XmlNode theirs, XmlNode ancestor)
 		{
-			var extantNode = ours ?? theirs ?? ancestor;
-
+			// Review: What happens if 'ours' is null?
 			var skipProcessingInOurs = new HashSet<string>();
 
 			// Deletions from ancestor, no matter who did it.
@@ -41,9 +39,13 @@ namespace Chorus.merge.xml.generic
 					}
 					// They deleted. We did zip.
 					// Route tested (x1).
-					merger.EventListener.ChangeOccurred(new XmlAttributeDeletedReport(merger.MergeSituation.PathToFileInRepository, ancestorAttr));
-					ancestor.Attributes.Remove(ancestorAttr);
-					ours.Attributes.Remove(ourAttr);
+					if(theirs != null) //if there is no theirs node, then attributes weren't actually removed
+					{
+						//Route tested (x1)
+						merger.EventListener.ChangeOccurred(new XmlAttributeDeletedReport(merger.MergeSituation.PathToFileInRepository, ancestorAttr));
+						ancestor.Attributes.Remove(ancestorAttr);
+						ours.Attributes.Remove(ourAttr);
+					}
 					continue;
 				}
 				if (ourAttr != null)
@@ -68,6 +70,7 @@ namespace Chorus.merge.xml.generic
 				theirs.Attributes.Remove(theirAttr);
 			}
 
+			var extantNode = ours ?? theirs ?? ancestor;
 			foreach (var theirAttr in XmlUtilities.GetAttrs(theirs))
 			{
 				// Will never return null, since it will use the default one, if it can't find a better one.
@@ -85,7 +88,7 @@ namespace Chorus.merge.xml.generic
 						ours.Attributes.Append(importedAttribute);
 						merger.EventListener.ChangeOccurred(new XmlAttributeAddedReport(merger.MergeSituation.PathToFileInRepository, theirAttr));
 					}
-					// NB: Deletes are all handles above in first loop.
+					// NB: Deletes are all handled above in first loop.
 					continue;
 				}
 

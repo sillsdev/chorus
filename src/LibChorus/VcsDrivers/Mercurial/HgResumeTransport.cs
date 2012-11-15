@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using Chorus.Utilities;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
 
 namespace Chorus.VcsDrivers.Mercurial
 {
@@ -13,6 +14,7 @@ namespace Chorus.VcsDrivers.Mercurial
 	{
 		public HgResumeException(string message) : base(message) {}
 	}
+
 	class HgResumeOperationFailed : HgResumeException
 	{
 		public HgResumeOperationFailed(string message) : base(message) {}
@@ -20,16 +22,16 @@ namespace Chorus.VcsDrivers.Mercurial
 
 	public class HgResumeTransport : IHgTransport
 	{
-		private IProgress _progress;
-		private HgRepository _repo;
-		private string _targetLabel;
-		private IApiServer _apiServer;
+		private readonly IProgress _progress;
+		private readonly HgRepository _repo;
+		private readonly string _targetLabel;
+		private readonly IApiServer _apiServer;
 
-		private const int initialChunkSize = 5000;
-		private const int maximumChunkSize = 250000;
-		private const int timeoutInSeconds = 15;
-		private const int targetTimeInSeconds = timeoutInSeconds/3;
-
+		private const int InitialChunkSize = 5000;
+		private const int MaximumChunkSize = 250000;
+		private const int TimeoutInSeconds = 15;
+		private const int TargetTimeInSeconds = TimeoutInSeconds / 3;
+		internal const string RevisionCacheFilename = "revisioncache.db";
 
 		///<summary>
 		///</summary>
@@ -59,7 +61,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		///
 		/// TODO: implement this using an object serialization class like system.xml.serialization
 		///</summary>
-		private string LastKnownCommonBase
+		private List<Revision> LastKnownCommonBases
 		{
 			get
 			{
@@ -68,103 +70,148 @@ namespace Chorus.VcsDrivers.Mercurial
 				{
 					Directory.CreateDirectory(storagePath);
 				}
-				string filePath = Path.Combine(storagePath, "remoteRepo.db");
+				string filePath = Path.Combine(storagePath, RevisionCacheFilename);
 				if (File.Exists(filePath))
 				{
-					string[] dbFileContents = File.ReadAllLines(filePath);
-					string remoteId = _apiServer.Host;
-					var db = dbFileContents.Select(i => i.Split('|'));
-					var result = db.Where(x => x[0] == remoteId);
-					if (result.Count() > 0)
+					List<ServerRevision> revisions = ReadServerRevisionCache(filePath);
+					if(revisions != null)
 					{
-						return result.First()[1];
+						var remoteId = _apiServer.Host;
+						var result = revisions.Where(x => x.RemoteId == remoteId);
+						if (result.Count() > 0)
+						{
+							var results = new List<Revision>(result.Count());
+							foreach (var rev in result)
+							{
+								results.Add(rev.Revision);
+							}
+							return results;
+						}
 					}
 				}
-				return "";
+				return new List<Revision>();
 			}
 			set
 			{
-				string storagePath = PathToLocalStorage;
+				string remoteId = _apiServer.Host;
+				var serverRevs = new List<ServerRevision>();
+				foreach (var revision in value)
+				{
+					serverRevs.Add(new ServerRevision(remoteId, revision));
+				}
+				var storagePath = PathToLocalStorage;
 				if (!Directory.Exists(storagePath))
 				{
 					Directory.CreateDirectory(storagePath);
 				}
-				string filePath = Path.Combine(storagePath, "remoteRepo.db");
 
-				string remoteId = _apiServer.Host;
-				if (!File.Exists(filePath))
+				var filePath = Path.Combine(storagePath, RevisionCacheFilename);
+				var fileContents = ReadServerRevisionCache(filePath);
+				fileContents.RemoveAll(x => x.RemoteId == remoteId);
+				serverRevs.AddRange(fileContents);
+				using(Stream stream = File.Open(filePath, FileMode.Create))
 				{
-					// this is the first time "set" has been called.  Write value and exit.
-					File.WriteAllText(filePath, remoteId + "|" + value);
-					return;
+					var bFormatter = new BinaryFormatter();
+					bFormatter.Serialize(stream, serverRevs);
+					stream.Close();
 				}
-
-				var dbFileContents = File.ReadAllLines(filePath);
-				var db = dbFileContents.Select(i => i.Split('|'));
-				var result = db.Where(x => x[0] == remoteId);
-				if (result.Count() > 0)
-				{
-					string oldRev = result.Single()[1];
-					if (oldRev == value)
-					{
-						return;
-					}
-					int indexToChange = Array.IndexOf(dbFileContents, remoteId + "|" + oldRev);
-					dbFileContents[indexToChange] = remoteId + "|" + value;
-				} else
-				{
-					var dbFileContentsAsList = dbFileContents.ToList();
-					dbFileContentsAsList.Add(remoteId + "|" + value);
-					dbFileContents = dbFileContentsAsList.ToArray();
-				}
-				File.WriteAllLines(filePath, dbFileContents);
+				return;
 			}
 		}
 
-		private string GetCommonBaseHashWithRemoteRepo()
+		/// <summary>
+		/// Used to retrieve the cache of revisions for each server and branch
+		/// </summary>
+		/// <returns>The contents of the cache file if it exists, or an empty list</returns>
+		internal static List<ServerRevision> ReadServerRevisionCache(string filePath)
 		{
-			return GetCommonBaseHashWithRemoteRepo(true);
+			try
+			{
+				using(Stream stream = File.Open(filePath, FileMode.Open))
+				{
+					var bFormatter = new BinaryFormatter();
+					var revisions = bFormatter.Deserialize(stream) as List<ServerRevision>;
+					stream.Close();
+					return revisions;
+				}
+			}
+			catch(FileNotFoundException)
+			{
+				return new List<ServerRevision>();
+			}
 		}
 
-		private string GetCommonBaseHashWithRemoteRepo(bool useCache)
+		[Serializable]
+		internal class ServerRevision
 		{
-			if (useCache && !string.IsNullOrEmpty(LastKnownCommonBase))
+			public readonly string RemoteId;
+			public readonly Revision Revision;
+
+			public ServerRevision(string id, Revision rev)
 			{
-				return LastKnownCommonBase;
+				RemoteId = id;
+				Revision = rev;
+			}
+		}
+
+		private List<Revision> GetCommonBaseHashesWithRemoteRepo()
+		{
+			return GetCommonBaseHashesWithRemoteRepo(true);
+		}
+
+		private List<Revision> GetCommonBaseHashesWithRemoteRepo(bool useCache)
+		{
+			if (useCache && LastKnownCommonBases.Count > 0)
+			{
+				return LastKnownCommonBases;
 			}
 			int offset = 0;
 			const int quantity = 200;
-			IEnumerable<string> localRevisions = _repo.GetAllRevisions().Select(rev => rev.Number.Hash);
-			string commonBase = "";
-			while (string.IsNullOrEmpty(commonBase))
+			var localRevisions = new MultiMap<string, Revision>();
+			foreach (var rev in  _repo.GetAllRevisions())
+			{
+				localRevisions.Add(rev.Branch, rev);
+			}
+
+			//The goal here is to to return the first common revision of each branch.
+			var commonBase = new List<Revision>();
+			var localBranches = new List<string>(localRevisions.Keys);
+
+			while (commonBase.Count < localRevisions.Keys.Count())
 			{
 				var remoteRevisions = GetRemoteRevisions(offset, quantity);
-				if (remoteRevisions.Count() == 1 && remoteRevisions.First() == "0")
+				if (remoteRevisions.Keys.Count() == 1 && remoteRevisions[remoteRevisions.Keys.First()].First() == "0")
 				{
 					// special case when remote repo is empty (initialized with no changesets)
-					commonBase = "0";
-					break;
+					return new List<Revision>();
 				}
-				foreach (var rev in remoteRevisions)
+				foreach (var key in localBranches)
 				{
-					if (localRevisions.Contains(rev))
+					var localList = localRevisions[key];
+					var remoteList = remoteRevisions[key];
+					foreach (var revision in remoteList)
 					{
-						commonBase = rev;
-						break;
+						var remoteRevision = revision; //copy to local for use in predicate
+						var commonRevision = localList.Find(localRev => localRev.Number.Hash == remoteRevision);
+						if (commonRevision != null)
+						{
+							commonBase.Add(commonRevision);
+							break;
+						}
 					}
 				}
-				if (string.IsNullOrEmpty(commonBase) && remoteRevisions.Count() < quantity)
+				if(remoteRevisions.Count() < quantity)
 				{
-					commonBase = localRevisions.Last();
+					break; //we did not find a common revision for each branch, but we ran out of revisions from the repo
 				}
 				offset += quantity;
 			}
-			LastKnownCommonBase = commonBase;
+			LastKnownCommonBases = commonBase;
 			return commonBase;
 		}
 
 
-		private IEnumerable<string> GetRemoteRevisions(int offset, int quantity)
+		private MultiMap<string, string> GetRemoteRevisions(int offset, int quantity)
 		{
 			const int totalNumOfAttempts = 2;
 			for (int attempt = 1; attempt <= totalNumOfAttempts; attempt++)
@@ -181,26 +228,39 @@ namespace Chorus.VcsDrivers.Mercurial
 																			  StartOfWindow = offset,
 																			  Quantity = quantity
 																		  },
-																		  timeoutInSeconds);
+																		  TimeoutInSeconds);
 					_progress.WriteVerbose("API URL: {0}", _apiServer.Url);
 					// API returns either 200 OK or 400 Bad Request
 					// HgR status can be: SUCCESS (200), FAIL (400) or UNKNOWNID (400)
 
 					if (response != null) // null means server timed out
 					{
-						if (response.StatusCode == HttpStatusCode.ServiceUnavailable && response.Content.Length > 0)
+						if (response.HttpStatus == HttpStatusCode.ServiceUnavailable && response.Content.Length > 0)
 						{
 							var msg = String.Format("Server temporarily unavailable: {0}",
 							Encoding.UTF8.GetString(response.Content));
 							_progress.WriteError(msg);
-							return new List<string>();
+							return new MultiMap<string, string>();
 						}
-						if (response.StatusCode == HttpStatusCode.OK && response.Content.Length > 0)
+						if (response.HttpStatus == HttpStatusCode.OK && response.Content.Length > 0)
 						{
+							//The expected response from API version 3 follows the format of
+							//revisionhash:branch|revisionhash:branch|...
 							string revString = Encoding.UTF8.GetString(response.Content);
-							return revString.Split('|').ToList();
+							var pairs = revString.Split('|').ToList();
+							var revisions = new MultiMap<string, string>();
+							foreach (var pair in pairs)
+							{
+								var hashRevCombo = pair.Split(':');
+								if(hashRevCombo.Length < 2)
+								{
+									throw new HgResumeOperationFailed("Failed to get remote revisions. Server/Client API format mismatch.");
+								}
+								revisions.Add(hashRevCombo[1], hashRevCombo[0]);
+							}
+							return revisions;
 						}
-						if (response.StatusCode == HttpStatusCode.BadRequest && response.Headers.Status == "UNKNOWNID")
+						if (response.HttpStatus == HttpStatusCode.BadRequest && response.ResumableResponse.Status == "UNKNOWNID")
 						{
 							_progress.WriteWarning("The remote server {0} does not have repoId '{1}'", _targetLabel, _apiServer.ProjectId);
 						}
@@ -226,32 +286,36 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		public void Push()
 		{
-			string baseRevision = GetCommonBaseHashWithRemoteRepo();
-			if (String.IsNullOrEmpty(baseRevision))
+			var baseRevisions = GetCommonBaseHashesWithRemoteRepo();
+			if (baseRevisions == null)
 			{
-				var errorMessage = "Push operation failed";
+				const string errorMessage = "Push failed: A common revision could not be found with the server.";
 				_progress.WriteError(errorMessage);
 				throw new HgResumeOperationFailed(errorMessage);
 			}
 
 			// create a bundle to push
 			string tip = _repo.GetTip().Number.Hash;
-			var bundleId = String.Format("{0}-{1}", baseRevision, tip);
+			string bundleId = "";
+			foreach (var revision in baseRevisions)
+			{
+				bundleId += String.Format("{0}-{1}", revision.Number.Hash, tip);
+			}
 			var bundleHelper = new PushStorageManager(PathToLocalStorage, bundleId);
 			var bundleFileInfo = new FileInfo(bundleHelper.BundlePath);
 			if (bundleFileInfo.Length == 0)
 			{
-				bool bundleCreatedSuccessfully = _repo.MakeBundle(baseRevision, bundleHelper.BundlePath);
+				_progress.WriteStatus("Preparing data to send");
+				bool bundleCreatedSuccessfully = _repo.MakeBundle(GetHashStringsFromRevisions(baseRevisions), bundleHelper.BundlePath);
 				if (!bundleCreatedSuccessfully)
 				{
 					// try again after clearing revision cache
-					LastKnownCommonBase = "";
-					baseRevision = GetCommonBaseHashWithRemoteRepo();
-					bundleCreatedSuccessfully = _repo.MakeBundle(baseRevision, bundleHelper.BundlePath);
+					LastKnownCommonBases = new List<Revision>();
+					baseRevisions = GetCommonBaseHashesWithRemoteRepo();
+					bundleCreatedSuccessfully = _repo.MakeBundle(GetHashStringsFromRevisions(baseRevisions), bundleHelper.BundlePath);
 					if (!bundleCreatedSuccessfully)
 					{
-						_progress.WriteError("Unable to create bundle for Push");
-						const string errorMessage = "Push operation failed";
+						const string errorMessage = "Push failed: Unable to create local bundle.";
 						_progress.WriteError(errorMessage);
 						throw new HgResumeOperationFailed(errorMessage);
 					}
@@ -265,15 +329,18 @@ namespace Chorus.VcsDrivers.Mercurial
 				}
 			}
 
-			var req = new HgResumeApiParameters();
-			req.RepoId = _apiServer.ProjectId;
-			req.TransId = bundleHelper.TransactionId;
-			req.StartOfWindow = 0;
-			req.BundleSize = (int) bundleFileInfo.Length;
-			req.ChunkSize = (req.BundleSize < initialChunkSize) ? req.BundleSize : initialChunkSize;
-			req.BaseHash = baseRevision;
+			var req = new HgResumeApiParameters
+					  {
+						  RepoId = _apiServer.ProjectId,
+						  TransId = bundleHelper.TransactionId,
+						  StartOfWindow = 0,
+						  BundleSize = (int) bundleFileInfo.Length
+					  };
+			req.ChunkSize = (req.BundleSize < InitialChunkSize) ? req.BundleSize : InitialChunkSize;
+//            req.BaseHash = baseRevisions; <-- Unless I'm not reading the php right we don't need to set this on push.  JLN Aug-12
 			_progress.ProgressIndicator.Initialize();
 
+			_progress.WriteStatus("Sending data");
 			int loopCtr = 0;
 			do // loop until finished... or until the user cancels
 			{
@@ -309,36 +376,43 @@ namespace Chorus.VcsDrivers.Mercurial
 				{
 					// this should not happen...but sometimes it gets into a state where it remembers the wrong basehash of the server (CJH Feb-12)
 					_progress.WriteVerbose("Invalid basehash response received from server... clearing cache and retrying");
-					req.BaseHash = GetCommonBaseHashWithRemoteRepo(false);
+//                    req.BaseHash = GetCommonBaseHashesWithRemoteRepo(false); <-- Unless I'm misreading the php we don't need to set this on a push. JLN Aug-12
 					continue;
 				}
 				if (response.Status == PushStatus.Fail)
 				{
-					var errorMessage = "Push operation failed";
-					_progress.WriteError(errorMessage);
-					throw new HgResumeOperationFailed(errorMessage);
+					// This 'Fail' intentionally aborts the push attempt.  I think we can continue to go around the loop and retry. See Pull also. CP 2012-06
+					continue;
+					//var errorMessage = "Push operation failed";
+					//_progress.WriteError(errorMessage);
+					//throw new HgResumeOperationFailed(errorMessage);
 				}
 				if (response.Status == PushStatus.Reset)
 				{
 					FinishPush(req.TransId);
 					bundleHelper.Cleanup();
-					var errorMessage = "Push operation failed";
+					const string errorMessage = "Push failed: Server reset.";
 					_progress.WriteError(errorMessage);
 					throw new HgResumeOperationFailed(errorMessage);
 				}
-				if (response.Status == PushStatus.Complete)
+
+				if (response.Status == PushStatus.Complete || req.StartOfWindow >= req.BundleSize)
 				{
-					_progress.WriteMessage("Finished Sending");
+					if (response.Status == PushStatus.Complete)
+					{
+						_progress.WriteMessage("Finished sending");
+					} else
+					{
+						_progress.WriteMessage("Finished sending. Server unpacking data");
+					}
 					_progress.ProgressIndicator.Finish();
-					_progress.WriteVerbose("Push operation completed successfully");
 
 					// update our local knowledge of what the server has
-					LastKnownCommonBase = _repo.GetTip().Number.Hash;
-					FinishPush(req.TransId);
+					LastKnownCommonBases = new List<Revision>(_repo.BranchingHelper.GetBranches()); // This may be a little optimistic, the server may still be unbundling the data.
+					//FinishPush(req.TransId);  // We can't really tell when the server has finished processing our pulled data.  The server cleans up after itself. CP 2012-07
 					bundleHelper.Cleanup();
 					return;
 				}
-
 
 				req.ChunkSize = response.ChunkSize;
 				req.StartOfWindow = response.StartOfWindow;
@@ -359,7 +433,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			{
 				return ""; // wait until we've transferred 80K before calculating an ETA
 			}
-			int secondsRemaining = targetTimeInSeconds*(bundleSize - startOfWindow)/chunkSize;
+			int secondsRemaining = TargetTimeInSeconds*(bundleSize - startOfWindow)/chunkSize;
 			if (secondsRemaining < 60)
 			{
 				//secondsRemaining = (secondsRemaining/5+1)*5;
@@ -384,7 +458,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				}
 				return String.Format("{0:0.#}{1}", length, sizes[order]);
 			}
-			catch(Exception) // I'm not sure why I would get an overflow exception, but I did once and so I'm trying to catch it here
+			catch(OverflowException) // I'm not sure why I would get an overflow exception, but I did once and so I swallow it here.
 			{
 				return "...";
 			}
@@ -394,7 +468,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		{
 			var apiResponse = _apiServer.Execute("finishPushBundle", new HgResumeApiParameters { TransId = transactionId, RepoId = _apiServer.ProjectId }, 20);
 			_progress.WriteVerbose("API URL: {0}", _apiServer.Url);
-			switch (apiResponse.StatusCode)
+			switch (apiResponse.HttpStatus)
 			{
 				case HttpStatusCode.OK:
 					return PushStatus.Complete;
@@ -411,82 +485,81 @@ namespace Chorus.VcsDrivers.Mercurial
 			var pushResponse = new PushResponse(PushStatus.Fail);
 			try
 			{
-				var response = _apiServer.Execute("pushBundleChunk", request, dataToPush, timeoutInSeconds);
-				_progress.WriteVerbose("API URL: {0}", _apiServer.Url);
-				/* API returns the following HTTP codes:
-					* 200 OK (SUCCESS)
-					* 202 Accepted (RECEIVED)
-					* 412 Precondition Failed (RESEND)
-					* 400 Bad Request (FAIL, UNKNOWNID, and RESET)
-					*/
-				if (response != null) // null means server timed out
+				HgResumeApiResponse response = _apiServer.Execute("pushBundleChunk", request, dataToPush, TimeoutInSeconds);
+				if (response == null)
 				{
-					if (response.Headers.HasNote)
-					{
-						_progress.WriteMessage(String.Format("Server replied: {0}", response.Headers.Note));
-					}
-
-					if (response.StatusCode == HttpStatusCode.ServiceUnavailable && response.Content.Length > 0)
-					{
-						var msg = String.Format("Server temporarily unavailable: {0}",
-												Encoding.UTF8.GetString(response.Content));
-						_progress.WriteError(msg);
-						pushResponse.Status = PushStatus.NotAvailable;
-						return pushResponse;
-					}
-					// the chunk was received successfully
-					if (response.StatusCode == HttpStatusCode.Accepted)
-					{
-						pushResponse.StartOfWindow = response.Headers.StartOfWindow;
-						pushResponse.Status = PushStatus.Received;
-						pushResponse.ChunkSize = CalculateChunkSize(request.ChunkSize, response.ResponseTimeInMilliseconds);
-						return pushResponse;
-					}
-
-					// the final chunk was received successfully
-					if (response.StatusCode == HttpStatusCode.OK)
-					{
-						pushResponse.Status = PushStatus.Complete;
-						return pushResponse;
-					}
-
-					if (response.StatusCode == HttpStatusCode.BadRequest)
-					{
-						if (response.Headers.Status == "UNKNOWNID")
-						{
-							_progress.WriteError("The server {0} does not have the project '{1}'", _targetLabel, _apiServer.ProjectId);
-							return pushResponse;
-						}
-						if (response.Headers.Status == "RESET")
-						{
-							_progress.WriteError("All chunks were pushed to the server, but the unbundle operation failed.  Try again later.");
-							pushResponse.Status = PushStatus.Reset;
-							return pushResponse;
-						}
-						if (response.Headers.HasError)
-						{
-							if (response.Headers.Error == "invalid baseHash")
-							{
-								pushResponse.Status = PushStatus.InvalidHash;
-							}
-							else
-							{
-								_progress.WriteWarning("Server Error: {0}", response.Headers.Error);
-							}
-							return pushResponse;
-						}
-
-					}
-					_progress.WriteWarning("Invalid Server Response '{0}'", response.StatusCode);
+					_progress.WriteVerbose("API REQ: {0} Timeout");
+					pushResponse.Status = PushStatus.Timeout;
 					return pushResponse;
 				}
-				pushResponse.Status = PushStatus.Timeout;
+				/* API returns the following HTTP codes:
+				 * 200 OK (SUCCESS)
+				 * 202 Accepted (RECEIVED)
+				 * 412 Precondition Failed (RESEND)
+				 * 400 Bad Request (FAIL, UNKNOWNID, and RESET)
+				 */
+				_progress.WriteVerbose("API REQ: {0} RSP: {1} in {2}ms", _apiServer.Url, response.HttpStatus, response.ResponseTimeInMilliseconds);
+				if (response.HttpStatus == HttpStatusCode.ServiceUnavailable && response.Content.Length > 0)
+				{
+					var msg = String.Format("Server temporarily unavailable: {0}",
+											Encoding.UTF8.GetString(response.Content));
+					_progress.WriteError(msg);
+					pushResponse.Status = PushStatus.NotAvailable;
+					return pushResponse;
+				}
+				if (response.ResumableResponse.HasNote)
+				{
+					_progress.WriteWarning(String.Format("Server replied: {0}", response.ResumableResponse.Note));
+				}
+				// the chunk was received successfully
+				if (response.HttpStatus == HttpStatusCode.Accepted)
+				{
+					pushResponse.StartOfWindow = response.ResumableResponse.StartOfWindow;
+					pushResponse.Status = PushStatus.Received;
+					pushResponse.ChunkSize = CalculateChunkSize(request.ChunkSize, response.ResponseTimeInMilliseconds);
+					return pushResponse;
+				}
+
+				// the final chunk was received successfully
+				if (response.HttpStatus == HttpStatusCode.OK)
+				{
+					pushResponse.Status = PushStatus.Complete;
+					return pushResponse;
+				}
+
+				if (response.HttpStatus == HttpStatusCode.BadRequest)
+				{
+					if (response.ResumableResponse.Status == "UNKNOWNID")
+					{
+						_progress.WriteError("The server {0} does not have the project '{1}'", _targetLabel, _apiServer.ProjectId);
+						return pushResponse;
+					}
+					if (response.ResumableResponse.Status == "RESET")
+					{
+						_progress.WriteError("Push failed: All chunks were pushed to the server, but the unbundle operation failed.  Try again later.");
+						pushResponse.Status = PushStatus.Reset;
+						return pushResponse;
+					}
+					if (response.ResumableResponse.HasError)
+					{
+						if (response.ResumableResponse.Error == "invalid baseHash")
+						{
+							pushResponse.Status = PushStatus.InvalidHash;
+						}
+						else
+						{
+							_progress.WriteError("Server Error: {0}", response.ResumableResponse.Error);
+						}
+						return pushResponse;
+					}
+
+				}
+				_progress.WriteWarning("Invalid Server Response '{0}'", response.HttpStatus);
 				return pushResponse;
 			}
 			catch (WebException e)
 			{
-				_progress.WriteError(e.Message);
-				_progress.WriteWarning("The push operation failed on the server");
+				_progress.WriteWarning(String.Format("Push data chunk failed: {0}", e.Message));
 				return pushResponse;
 			}
 		}
@@ -499,11 +572,11 @@ namespace Chorus.VcsDrivers.Mercurial
 				responseTimeInMilliseconds = 1;
 			}
 
-			long newChunkSize = targetTimeInSeconds*1000*chunkSize/responseTimeInMilliseconds;
+			long newChunkSize = TargetTimeInSeconds*1000*chunkSize/responseTimeInMilliseconds;
 
-			if (newChunkSize > maximumChunkSize)
+			if (newChunkSize > MaximumChunkSize)
 			{
-				newChunkSize = maximumChunkSize;
+				newChunkSize = MaximumChunkSize;
 			}
 
 			// if the difference between the new chunksize value is less than 10K, don't suggest a new chunkSize, to avoid fluxuations in chunksizes
@@ -516,17 +589,17 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		public bool Pull()
 		{
-			var baseHash = GetCommonBaseHashWithRemoteRepo();
-			if (baseHash == "0")
+			var baseHashes = GetCommonBaseHashesWithRemoteRepo();
+			if (baseHashes.Count == 0)
 			{
-				// a baseHash of 0 indicates that the server has an empty repo
+				// an empty list indicates that the server has an empty repo
 				// in this case there is no reason to Pull
 				return false;
 			}
-			return Pull(baseHash);
+			return Pull(GetHashStringsFromRevisions(baseHashes));
 		}
 
-		public bool Pull(string baseRevision)
+		public bool Pull(string[] baseRevisions)
 		{
 			var tipRevision = _repo.GetTip();
 			string localTip = "0";
@@ -536,20 +609,28 @@ namespace Chorus.VcsDrivers.Mercurial
 				localTip = tipRevision.Number.Hash;
 			}
 
-			if (String.IsNullOrEmpty(baseRevision))
+			if (baseRevisions.Length == 0)
 			{
-				errorMessage = "Pull operation failed";
+				errorMessage = "Pull failed: No base revision.";
 				_progress.WriteError(errorMessage);
 				throw new HgResumeOperationFailed(errorMessage);
 			}
 
-			var bundleHelper = new PullStorageManager(PathToLocalStorage, baseRevision + "_" + localTip);
-			var req = new HgResumeApiParameters();
-			req.RepoId = _apiServer.ProjectId;
-			req.BaseHash = baseRevision;
-			req.TransId = bundleHelper.TransactionId;
-			req.StartOfWindow = bundleHelper.StartOfWindow;
-			req.ChunkSize = initialChunkSize; // size in bytes
+			string bundleId = "";
+			foreach (var revision in baseRevisions)
+			{
+				bundleId += revision + "_" + localTip + '-';
+			}
+			bundleId = bundleId.TrimEnd('-');
+			var bundleHelper = new PullStorageManager(PathToLocalStorage, bundleId);
+			var req = new HgResumeApiParameters
+					  {
+						  RepoId = _apiServer.ProjectId,
+						  BaseHashes = baseRevisions,
+						  TransId = bundleHelper.TransactionId,
+						  StartOfWindow = bundleHelper.StartOfWindow,
+						  ChunkSize = InitialChunkSize
+					  };
 			int bundleSize = 0;
 
 			int loopCtr = 1;
@@ -596,16 +677,20 @@ namespace Chorus.VcsDrivers.Mercurial
 					// this should not happen...but sometimes it gets into a state where it remembers the wrong basehash of the server (CJH Feb-12)
 					retryLoop = true;
 					_progress.WriteVerbose("Invalid basehash response received from server... clearing cache and retrying");
-					req.BaseHash = GetCommonBaseHashWithRemoteRepo(false);
+					req.BaseHashes = GetHashStringsFromRevisions(GetCommonBaseHashesWithRemoteRepo(false));
 					continue;
 				}
 				if (response.Status == PullStatus.Fail)
 				{
-					errorMessage = "Pull operation failed";
+					// Not sure that we need to abort the attempts just because .Net web request says so.  See Push also. CP 2012-06
+					errorMessage = "Pull data chunk failed";
 					_progress.WriteError(errorMessage);
-					_progress.ProgressIndicator.Initialize();
-					_progress.ProgressIndicator.Finish();
-					throw new HgResumeOperationFailed(errorMessage);
+					retryLoop = true;
+					req.StartOfWindow = bundleHelper.StartOfWindow;
+					//_progress.ProgressIndicator.Initialize();
+					//_progress.ProgressIndicator.Finish();
+					//throw new HgResumeOperationFailed(errorMessage);
+					continue;
 				}
 				if (response.Status == PullStatus.Reset)
 				{
@@ -663,8 +748,9 @@ namespace Chorus.VcsDrivers.Mercurial
 					return Pull();
 				}
 
-				// TODO: we could avoid another network operation if we sent along the bundle's "tip" as chunk metadata
-				LastKnownCommonBase = GetRemoteTip();
+				// REVIEW: I'm not sure why this was set to the server tip before, if we just pulled then won't our head
+				// be the correct common base? Maybe not if a merge needs to happen,
+				LastKnownCommonBases = new List<Revision>(_repo.BranchingHelper.GetBranches());
 				return true;
 			}
 			_progress.WriteError("Received all data but local unbundle operation failed or resulted in multiple heads!");
@@ -675,20 +761,25 @@ namespace Chorus.VcsDrivers.Mercurial
 			throw new HgResumeOperationFailed(errorMessage);
 		}
 
-		private string GetRemoteTip()
+		internal static string[] GetHashStringsFromRevisions(IEnumerable<Revision> branchHeadRevisions)
 		{
-			return GetRemoteRevisions(0, 1).FirstOrDefault();
+			var hashes = new string[branchHeadRevisions.Count()];
+			for(var index = 0; index < branchHeadRevisions.Count(); ++index)
+			{
+				hashes[index] = branchHeadRevisions.ElementAt(index).Number.Hash;
+			}
+			return hashes;
 		}
 
 		private PullStatus FinishPull(string transactionId)
 		{
 			var apiResponse = _apiServer.Execute("finishPullBundle", new HgResumeApiParameters {TransId  = transactionId, RepoId = _apiServer.ProjectId }, 20);
-			switch (apiResponse.StatusCode)
+			switch (apiResponse.HttpStatus)
 			{
 				case HttpStatusCode.OK:
 					return PullStatus.OK;
 				case HttpStatusCode.BadRequest:
-					if (apiResponse.Headers.Status == "RESET")
+					if (apiResponse.ResumableResponse.Status == "RESET")
 					{
 						return PullStatus.Reset;
 					}
@@ -704,84 +795,85 @@ namespace Chorus.VcsDrivers.Mercurial
 			var pullResponse = new PullResponse(PullStatus.Fail);
 			try
 			{
-				var response = _apiServer.Execute("pullBundleChunk", request, timeoutInSeconds);
-				_progress.WriteVerbose("API URL: {0}", _apiServer.Url);
-				/* API returns the following HTTP codes:
-					* 200 OK (SUCCESS)
-					* 304 Not Modified (NOCHANGE)
-					* 400 Bad Request (FAIL, UNKNOWNID)
-					*/
-				if (response != null) // null means server timed out
+
+				HgResumeApiResponse response = _apiServer.Execute("pullBundleChunk", request, TimeoutInSeconds);
+				if (response == null)
 				{
-					if (response.Headers.HasNote)
-					{
-						_progress.WriteMessage(String.Format("Server replied: {0}", response.Headers.Note));
-					}
-
-					if (response.StatusCode == HttpStatusCode.ServiceUnavailable && response.Content.Length > 0)
-					{
-						var msg = String.Format("Server temporarily unavailable: {0}",
-						Encoding.UTF8.GetString(response.Content));
-						_progress.WriteError(msg);
-						pullResponse.Status = PullStatus.NotAvailable;
-						return pullResponse;
-					}
-					if (response.StatusCode == HttpStatusCode.NotModified)
-					{
-						pullResponse.Status = PullStatus.NoChange;
-						return pullResponse;
-					}
-					if (response.StatusCode == HttpStatusCode.Accepted)
-					{
-						pullResponse.Status = PullStatus.InProgress;
-						return pullResponse;
-					}
-
-					// chunk pulled OK
-					if (response.StatusCode == HttpStatusCode.OK)
-					{
-						pullResponse.BundleSize = response.Headers.BundleSize;
-						pullResponse.Status = PullStatus.OK;
-						pullResponse.ChunkSize = CalculateChunkSize(request.ChunkSize, response.ResponseTimeInMilliseconds);
-
-						pullResponse.Chunk = response.Content;
-						return pullResponse;
-					}
-					if (response.StatusCode == HttpStatusCode.BadRequest && response.Headers.Status == "UNKNOWNID")
-					{
-						// this is not implemented currently (feb 2012 cjh)
-						_progress.WriteError("The server {0} does not have the project '{1}'", _targetLabel, request.RepoId);
-						return pullResponse;
-					}
-					if (response.StatusCode == HttpStatusCode.BadRequest && response.Headers.Status == "RESET")
-					{
-						pullResponse.Status = PullStatus.Reset;
-						return pullResponse;
-					}
-					if (response.StatusCode == HttpStatusCode.BadRequest)
-					{
-						if (response.Headers.HasError)
-						{
-							if (response.Headers.Error == "invalid baseHash")
-							{
-								pullResponse.Status = PullStatus.InvalidHash;
-							} else
-							{
-								_progress.WriteWarning("Server Error: {0}", response.Headers.Error);
-							}
-						}
-						return pullResponse;
-					}
-					_progress.WriteWarning("Invalid Server Response '{0}'", response.StatusCode);
+					_progress.WriteVerbose("API REQ: {0} Timeout", _apiServer.Url);
+					pullResponse.Status = PullStatus.Timeout;
 					return pullResponse;
 				}
-				pullResponse.Status = PullStatus.Timeout;
+				/* API returns the following HTTP codes:
+				 * 200 OK (SUCCESS)
+				 * 304 Not Modified (NOCHANGE)
+				 * 400 Bad Request (FAIL, UNKNOWNID)
+				 */
+				_progress.WriteVerbose("API REQ: {0} RSP: {1} in {2}ms", _apiServer.Url, response.HttpStatus, response.ResponseTimeInMilliseconds);
+				if (response.ResumableResponse.HasNote)
+				{
+					_progress.WriteMessage(String.Format("Server replied: {0}", response.ResumableResponse.Note));
+				}
+
+				if (response.HttpStatus == HttpStatusCode.ServiceUnavailable && response.Content.Length > 0)
+				{
+					var msg = String.Format("Server temporarily unavailable: {0}",
+											Encoding.UTF8.GetString(response.Content));
+					_progress.WriteError(msg);
+					pullResponse.Status = PullStatus.NotAvailable;
+					return pullResponse;
+				}
+				if (response.HttpStatus == HttpStatusCode.NotModified)
+				{
+					pullResponse.Status = PullStatus.NoChange;
+					return pullResponse;
+				}
+				if (response.HttpStatus == HttpStatusCode.Accepted)
+				{
+					pullResponse.Status = PullStatus.InProgress;
+					return pullResponse;
+				}
+
+				// chunk pulled OK
+				if (response.HttpStatus == HttpStatusCode.OK)
+				{
+					pullResponse.BundleSize = response.ResumableResponse.BundleSize;
+					pullResponse.Status = PullStatus.OK;
+					pullResponse.ChunkSize = CalculateChunkSize(request.ChunkSize, response.ResponseTimeInMilliseconds);
+
+					pullResponse.Chunk = response.Content;
+					return pullResponse;
+				}
+				if (response.HttpStatus == HttpStatusCode.BadRequest && response.ResumableResponse.Status == "UNKNOWNID")
+				{
+					// this is not implemented currently (feb 2012 cjh)
+					_progress.WriteError("The server {0} does not have the project '{1}'", _targetLabel, request.RepoId);
+					return pullResponse;
+				}
+				if (response.HttpStatus == HttpStatusCode.BadRequest && response.ResumableResponse.Status == "RESET")
+				{
+					pullResponse.Status = PullStatus.Reset;
+					return pullResponse;
+				}
+				if (response.HttpStatus == HttpStatusCode.BadRequest)
+				{
+					if (response.ResumableResponse.HasError)
+					{
+						if (response.ResumableResponse.Error == "invalid baseHash")
+						{
+							pullResponse.Status = PullStatus.InvalidHash;
+						} else
+						{
+							_progress.WriteWarning("Server Error: {0}", response.ResumableResponse.Error);
+						}
+					}
+					return pullResponse;
+				}
+				_progress.WriteWarning("Invalid Server Response '{0}'", response.HttpStatus);
 				return pullResponse;
 			}
 			catch (WebException e)
 			{
-				_progress.WriteError(e.Message);
-				_progress.WriteWarning("The pull operation failed on the server");
+				_progress.WriteWarning(String.Format("Pull data chunk failed: {0}", e.Message));
 				return pullResponse;
 			}
 		}
@@ -809,7 +901,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			}
 			try
 			{
-				Pull("0");
+				Pull(new []{"0"});
 			}
 			catch(HgResumeOperationFailed)
 			{

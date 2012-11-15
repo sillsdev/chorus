@@ -26,7 +26,7 @@ namespace LibChorus.Tests.merge.xml.generic
 
 			var merger = new XmlMerger(new NullMergeSituation());
 
-			TestMergeWithChange<XmlDeletionChangeReport>(merger, ours, theirs, ancestor, "//gloss");
+			TestMergeWithChange<XmlBothDeletionChangeReport>(merger, ours, theirs, ancestor, "//gloss");
 		}
 
 		[Test]

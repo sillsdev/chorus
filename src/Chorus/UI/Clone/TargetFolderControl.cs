@@ -20,11 +20,12 @@ namespace Chorus.UI.Clone
 			InitializeComponent();
 		}
 
-		private void UpdateDisplay()
+		internal void UpdateDisplay()
 		{
-			_localFolderName.Text = _model.LocalFolderName;
+			if (_localFolderName.Text != _model.LocalFolderName)
+				_localFolderName.Text = _model.LocalFolderName;
 			_downloadButton.Enabled = _model.ReadyToDownload;
-		   _localFolderName.Enabled =  _model.HaveNeededAccountInfo;
+			_localFolderName.Enabled = true;
 			_targetInfoLabel.Visible = true;
 
 			if (string.IsNullOrEmpty(_model.LocalFolderName))
@@ -34,16 +35,11 @@ namespace Chorus.UI.Clone
 
 			if (_model.HaveGoodUrl)
 			{
-			  _targetWarningImage.Visible = _model.TargetHasProblem;
-			  if (!Directory.Exists(_model.ParentDirectoryToPutCloneIn))
+				_targetWarningImage.Visible = _model.TargetHasProblem;
+				if (!Directory.Exists(_model.ParentDirectoryToPutCloneIn))
 				{
 					_targetInfoLabel.Text = string.Format("The directory {0} doesn't exist, but should have been created by the application.",
-														  _model.ParentDirectoryToPutCloneIn);
-				}
-				else if (!_model.TargetLocationIsUnused)
-				{
-					_targetInfoLabel.Text = string.Format("There is a already a project with that name at {0}",
-														  _model.TargetDestination);
+															_model.ParentDirectoryToPutCloneIn);
 				}
 				else if (!_model.HaveWellFormedTargetLocation)
 				{
@@ -52,6 +48,11 @@ namespace Chorus.UI.Clone
 					else
 						_targetInfoLabel.Text = string.Format("That name contains characters which are not allowed.");
 				}
+				else if (!_model.TargetLocationIsUnused)
+				{
+					_targetInfoLabel.Text = string.Format("There is a already a project with that name at {0}",
+															_model.TargetDestination);
+				}
 				else
 				{
 					_targetWarningImage.Visible = false;
@@ -59,14 +60,13 @@ namespace Chorus.UI.Clone
 				}
 			}
 
-			_localFolderName.Enabled = true;
-
 			toolTip1.SetToolTip(_downloadButton, _model.URL);
 		}
 
 		private void _localName_TextChanged(object sender, EventArgs e)
 		{
-			_model.LocalFolderName = _localFolderName.Text.Trim();
+			if (_model.LocalFolderName != _localFolderName.Text)
+				_model.LocalFolderName = _localFolderName.Text;
 		   UpdateDisplay();
 		}
 

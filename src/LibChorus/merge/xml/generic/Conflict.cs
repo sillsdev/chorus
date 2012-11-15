@@ -4,9 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Xml;
 using Autofac;
-using Chorus.Utilities.code;
+using Autofac.Core;
 using Chorus.VcsDrivers;
 using Palaso.IO;
+using Palaso.Xml;
+using Palaso.Code;
 
 namespace Chorus.merge.xml.generic
 {
@@ -287,7 +289,6 @@ namespace Chorus.merge.xml.generic
 		}
 
 		private static IContainer _conflictFactory;
-
 		static List<Type> _additionalConflictTypes = new List<Type>();
 
 		/// <summary>
@@ -307,7 +308,8 @@ namespace Chorus.merge.xml.generic
 			{
 				if (_conflictFactory == null)
 				{
-					var builder = new Autofac.Builder.ContainerBuilder();
+					var builder = new Autofac.ContainerBuilder();
+					//moved this down into Register for autofac 2: builder.SetDefaultScope(InstanceScope.Factory);
 
 					Register<RemovedVsEditedElementConflict>(builder);
 					Register<EditedVsRemovedElementConflict>(builder);
@@ -342,7 +344,7 @@ namespace Chorus.merge.xml.generic
 
 					foreach (var conflictType in _additionalConflictTypes)
 					{
-						builder.Register(conflictType).Named(GetTypeGuid(conflictType));
+						Register(builder, conflictType);
 					}
 					_conflictFactory = builder.Build();
 				}
@@ -354,8 +356,9 @@ namespace Chorus.merge.xml.generic
 		{
 			try
 			{
-			var typeGuid = conflictNode.GetStringAttribute("typeGuid");
-			return ConflictFactory.Resolve<IConflict>(typeGuid, new Parameter[] { new TypedParameter(typeof(XmlNode), conflictNode) });
+				var typeGuid = conflictNode.GetStringAttribute("typeGuid");
+			//	return ConflictFactory.Resolve<IConflict>(typeGuid, new Parameter[] {new TypedParameter(typeof (XmlNode), conflictNode)});
+				return ConflictFactory.ResolveNamed<IConflict>(typeGuid, new TypedParameter(typeof(XmlNode), conflictNode));
 			}
 			catch (Exception error)
 			{
@@ -363,10 +366,15 @@ namespace Chorus.merge.xml.generic
 			}
 		}
 
-
-		private static void Register<T>(Autofac.Builder.ContainerBuilder builder)
+		private static void Register<T>(Autofac.ContainerBuilder builder)
 		{
-			builder.Register<T>().Named(GetTypeGuid(typeof(T)));
+			//Register(builder, typeof(T));
+			builder.RegisterType<T>().As<IConflict>().Named<IConflict>(GetTypeGuid(typeof(T))).InstancePerDependency();
+		}
+
+		private static void Register(Autofac.ContainerBuilder builder, Type type)
+		{
+			builder.RegisterType(type).As<IConflict>().Named<IConflict>(GetTypeGuid(type)).InstancePerDependency();
 		}
 
 		public bool Equals(Conflict other)
@@ -1041,7 +1049,7 @@ namespace Chorus.merge.xml.generic
 	{
 		public AmbiguousInsertConflict(string elementName, XmlNode alphaNode, XmlNode betaNode,
 			XmlNode ancestorElement, MergeSituation mergeSituation, IElementDescriber elementDescriber, string whoWon)
-			: base(elementName, alphaNode, betaNode, ancestorElement, mergeSituation, elementDescriber, whoWon)
+			: base(elementName, alphaNode, betaNode, ancestorElement, mergeSituation, elementDescriber, "both users")
 		{
 		}
 
@@ -1056,13 +1064,13 @@ namespace Chorus.merge.xml.generic
 
 		public override string WhatHappened
 		{
-			get { return string.Format("{0} and {1} both inserted material in this element in the same place. The automated merger cannot be sure of the correct order for the inserted material.",
+			get { return string.Format("{0} and {1} both inserted material in this element in the same place. The automated merger cannot be sure of the correct order for the inserted material, but kept both of them.",
 				Situation.AlphaUserId, Situation.BetaUserId);
 			}
 		}
 		public override string ToString()
 		{
-			return GetType().ToString() + ":" + _elementName+" (or lower?)";
+			return GetType() + ":" + _elementName + " (or lower?)";
 		}
 	}
 

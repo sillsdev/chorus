@@ -6,7 +6,8 @@ using Chorus.Utilities;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using Palaso.Code;
-using Palaso.Progress.LogBox;
+using Palaso.Network;
+using Palaso.Progress;
 
 namespace Chorus.UI.Misc
 {
@@ -17,9 +18,9 @@ namespace Chorus.UI.Misc
 
 		public ServerSettingsModel()
 		{
-			const string languageDepotLabel = "LanguageDepot.org [legacy sync]";
-			Servers.Add(languageDepotLabel, "hg-public.languagedepot.org");
-			Servers.Add("LanguageDepot.org [resumable sync]", "resumable.languagedepot.org");
+			const string languageDepotLabel = "LanguageDepot.org";
+			Servers.Add(languageDepotLabel, "resumable.languagedepot.org");
+			Servers.Add("LanguageDepot.org [Safe Mode]", "hg-public.languagedepot.org");
 			Servers.Add("LanguageDepot.org [private]", "hg-private.languagedepot.org");
 			Servers.Add("LanguageForge", "hg.languageforge.org");
 
@@ -37,18 +38,15 @@ namespace Chorus.UI.Misc
 		{
 			RequireThat.Directory(path).Exists();
 
-			var repo = HgRepository.CreateOrLocate(path, new NullProgress());
+			var repo = HgRepository.CreateOrUseExisting(path, new NullProgress());
 			_pathToRepo = repo.PathToRepo;
 
-			var address =repo.GetDefaultNetworkAddress<HttpRepositoryPath>();
-			if(address==null)
-			{
-				address = repo.GetDefaultNetworkAddress<DirectoryRepositorySource>();
-			}
-			if(address!=null)
+			var address = repo.GetDefaultNetworkAddress<HttpRepositoryPath>();
+			if (address != null)
 			{
 				InitFromUri(address.URI);
 			}
+
 			//otherwise, just leave everything in the default state
 		}
 
@@ -99,9 +97,9 @@ namespace Chorus.UI.Misc
 				else
 				{
 					return "http://" +
-						   HttpUtility.UrlEncode((string) AccountName) + ":" +
-						   HttpUtility.UrlEncode((string) Password) + "@" + SelectedServerPath + "/" +
-						   HttpUtility.UrlEncode(ProjectId);
+						   HttpUtilityFromMono.UrlEncode((string)AccountName) + ":" +
+						   HttpUtilityFromMono.UrlEncode((string)Password) + "@" + SelectedServerPath + "/" +
+						   HttpUtilityFromMono.UrlEncode(ProjectId);
 				}
 			}
 		}
@@ -188,7 +186,8 @@ namespace Chorus.UI.Misc
 				throw new ArgumentException("SaveSettings() only works if you InitFromProjectPath()");
 			}
 
-			var repo = HgRepository.CreateOrLocate(_pathToRepo, new NullProgress());
+			var repo = HgRepository.CreateOrUseExisting(_pathToRepo, new NullProgress());
+
 			// Use safer SetTheOnlyAddressOfThisType method, as it won't clobber a shared network setting, if that was the clone source.
 			repo.SetTheOnlyAddressOfThisType(new HttpRepositoryPath(AliasName, URL, false));
 		}

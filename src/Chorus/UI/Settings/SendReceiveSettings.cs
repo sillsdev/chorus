@@ -1,10 +1,10 @@
 ﻿using System;
-using System.Drawing;
 using System.Windows.Forms;
 using Chorus.UI.Misc;
-using Chorus.Utilities.code;
+using Chorus.Utilities.Help;
 using Chorus.VcsDrivers.Mercurial;
-using Palaso.Progress.LogBox;
+using Palaso.Code;
+using Palaso.Progress;
 
 namespace Chorus.UI.Settings
 {
@@ -15,7 +15,6 @@ namespace Chorus.UI.Settings
 		private ServerSettingsModel _internetModel;
 
 		private NetworkFolderSettingsModel _sharedFolderModel;
-
 
 		[Obsolete("for designer support only")]
 		public SendReceiveSettings()
@@ -28,7 +27,7 @@ namespace Chorus.UI.Settings
 			InitializeComponent();
 
 			RequireThat.Directory(repositoryLocation).Exists();
-			var repository = HgRepository.CreateOrLocate(repositoryLocation, new NullProgress());
+			var repository = HgRepository.CreateOrUseExisting(repositoryLocation, new NullProgress());
 			_model = new SettingsModel(repository);
 			userNameTextBox.Text = _model.GetUserName(new NullProgress());
 
@@ -44,9 +43,11 @@ namespace Chorus.UI.Settings
 			_sharedFolderModel.InitFromProjectPath(repositoryLocation);
 			_sharedFolderSettingsControl.Model = _sharedFolderModel;
 
-			_sharedFolderButtonEnabledCheckBox.CheckedChanged += networkFolderCheckChanged;
-			_sharedFolderButtonEnabledCheckBox.Checked = Properties.Settings.Default.SharedFolderEnabled;
-			_sharedFolderSettingsControl.Enabled = _sharedFolderButtonEnabledCheckBox.Checked;
+			_showSharedFolderInSendReceive.Checked = Properties.Settings.Default.SharedFolderEnabled;
+			_showSharedFolderInSendReceive.CheckedChanged += networkFolderCheckChanged;
+			_sharedFolderSettingsControl.Enabled = _showSharedFolderInSendReceive.Checked;
+
+			_showChorusHubInSendReceive.Checked = Properties.Settings.Default.ShowChorusHubInSendReceive;
 		}
 
 
@@ -56,13 +57,14 @@ namespace Chorus.UI.Settings
 			{
 				_internetModel.SaveSettings();
 			}
-			if (_sharedFolderButtonEnabledCheckBox.Checked)
+			if (_showSharedFolderInSendReceive.Checked)
 			{
 				_sharedFolderModel.SaveSettings();
 			}
 			_model.SaveSettings();
 			Properties.Settings.Default.InternetEnabled = _internetButtonEnabledCheckBox.Checked;
-			Properties.Settings.Default.SharedFolderEnabled = _sharedFolderButtonEnabledCheckBox.Checked;
+			Properties.Settings.Default.SharedFolderEnabled = _showSharedFolderInSendReceive.Checked;
+			Properties.Settings.Default.ShowChorusHubInSendReceive = _showChorusHubInSendReceive.Checked;
 			Properties.Settings.Default.Save();
 			DialogResult = DialogResult.OK;
 			Close();
@@ -90,7 +92,23 @@ namespace Chorus.UI.Settings
 
 		private void networkFolderCheckChanged(object sender, EventArgs e)
 		{
-			_sharedFolderSettingsControl.Enabled = _sharedFolderButtonEnabledCheckBox.Checked;
+			_sharedFolderSettingsControl.Enabled = _showSharedFolderInSendReceive.Checked;
+		}
+
+		private void _helpButton_Click(object sender, EventArgs e)
+		{
+			string helpFile = HelpUtils.GetHelpFile();
+
+			if (settingsTabs.SelectedTab == internetTab)
+			{
+				Help.ShowHelp(this, helpFile,
+					"Tasks/Internet_tab.htm");
+			}
+			else if (settingsTabs.SelectedTab == networkFolderTab)
+			{
+				Help.ShowHelp(this, helpFile,
+					"Tasks/Network_Folder_tab.htm");
+			}
 		}
 	}
 }

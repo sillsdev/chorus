@@ -36,7 +36,7 @@ namespace LibChorus.Tests.merge.xml.generic
 
 			ListenerForUnitTests listener;
 			var merger = GetMerger(mergeSituation, out listener);
-			Assert.IsTrue(MergeAtomicElementService.Run(merger, ref ourNode, theirNode, ancestorNode));
+			Assert.DoesNotThrow(() => MergeAtomicElementService.Run(merger, ref ourNode, theirNode, ancestorNode));
 
 			var results = ourNode == null ? ancestorNode.OuterXml : ourNode.OuterXml;
 
@@ -169,7 +169,7 @@ namespace LibChorus.Tests.merge.xml.generic
 
 			ListenerForUnitTests listener;
 			var merger = GetMerger(out listener, false);
-			Assert.IsFalse(MergeAtomicElementService.Run(merger, ref ourNode, theirNode, ancestorNode));
+			Assert.Throws<InvalidOperationException>(() => MergeAtomicElementService.Run(merger, ref ourNode, theirNode, ancestorNode));
 		}
 
 		#endregion Basic tests

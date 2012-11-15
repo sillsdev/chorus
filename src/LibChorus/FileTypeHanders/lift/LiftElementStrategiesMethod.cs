@@ -56,7 +56,7 @@ namespace Chorus.FileTypeHanders.lift
 			// <field-defn (aka <field> in 0.13)
 			//		tag [Required, key]
 			// !!!!!!!!! HACK ALERT !!!!!!!!!
-			AddKeyedElementType(mergeStrategies, "headerfield", "tag", false);
+			LiftBasicElementStrategiesMethod.AddKeyedElementType(mergeStrategies, "headerfield", "tag", false);
 			// !!!!!!!!! END HACK ALERT !!!!!!!!!
 			//		<form> [optional, multiple]
 			// </field-defn>
@@ -85,7 +85,7 @@ namespace Chorus.FileTypeHanders.lift
 			// <field
 			//		type [Required, sig=key]
 			// !!!!!!!!! HACK ALERT !!!!!!!!!
-			elementStrategy = AddKeyedElementType(mergeStrategies, "mainfield", "type", false);
+			elementStrategy = LiftBasicElementStrategiesMethod.AddKeyedElementType(mergeStrategies, "mainfield", "type", false);
 			// !!!!!!!!! END HACK ALERT !!!!!!!!!
 			//		dateCreated [Optional, sig=datetime, inherited from <extensible>]
 			//		dateModified [Optional, sig=datetime, inherited from <extensible>]
@@ -121,7 +121,10 @@ namespace Chorus.FileTypeHanders.lift
 			// <note
 			//		type [Optional, sig=key] There is only one note with a given type in any parent element.
 			//									Thus translations of the note are held as different forms of the one note.
-			elementStrategy = AddKeyedElementType(mergeStrategies, "note", "type", false);
+			elementStrategy = new ElementStrategy(false)
+								{
+									MergePartnerFinder = new OptionalKeyAttrFinder("type", new FormMatchingFinder())
+								};
 			//		dateCreated [Optional, sig=datetime, inherited from <extensible>]
 			//		dateModified [Optional, sig=datetime, inherited from <extensible>]
 			elementStrategy.AttributesToIgnoreForMerging.Add("dateModified");
@@ -129,6 +132,7 @@ namespace Chorus.FileTypeHanders.lift
 			//		<trait> [Optional, Multiple, sig=trait, inherited from <extensible>]
 			//		<annotation> [Optional, Multiple, sig=annotation, inherited from <extensible>]
 			//		<form> [Optional, Multiple, sig=form, inherited from <multitext>]
+			mergeStrategies.SetStrategy("note", elementStrategy);
 			// </note>
 			// ******************************* </note> **************************************************
 
@@ -159,7 +163,7 @@ namespace Chorus.FileTypeHanders.lift
 			// ******************************* <entry> **************************************************
 			// <entry
 			//		id [Optional, refid] This gives a unique identifier to this Entry. Notice that this is unique across all Entrys and **all Senses**.
-			elementStrategy = AddKeyedElementType(mergeStrategies, "entry", "id", false);
+			elementStrategy = LiftBasicElementStrategiesMethod.AddKeyedElementType(mergeStrategies, "entry", "id", false);
 			elementStrategy.ContextDescriptorGenerator = new LexEntryContextGenerator();
 			//		order [Optional, int]
 			//		guid [Optional, string]
@@ -201,6 +205,7 @@ namespace Chorus.FileTypeHanders.lift
 			// ******************************* </variant> **************************************************
 
 			// ******************************* <phonetic> **************************************************
+			// NB: Element name changed to <pronunciation>
 			// <phonetic
 			//		dateCreated [Optional, sig=datetime, inherited from <extensible>]
 			//		dateModified [Optional, sig=datetime, inherited from <extensible>] ignored in phonetic strategy
@@ -209,11 +214,9 @@ namespace Chorus.FileTypeHanders.lift
 			//		<annotation> [Optional, Multiple, sig=annotation, inherited from <extensible>]
 			//		<form> [Optional, Multiple, sig=form, inherited from <multitext>]
 			//		<media> [Optional, Multiple, sig=URLRef] NAME OVERRIDE
-			AddPhoneticStrategy(mergeStrategies);
-			AddKeyedElementType(mergeStrategies, "media", "href", false);
+			// Not ever in lift file, as <pronunciation> wraps it. AddPhoneticStrategy(mergeStrategies);
+			LiftBasicElementStrategiesMethod.AddKeyedElementType(mergeStrategies, "media", "href", false);
 			// </phonetic>
-			// No suitable key attr(s)
-			// The default Element Strategy will be used, for good, or ill.
 			// ******************************* </phonetic> **************************************************
 
 			// ******************************* <etymology> **************************************************
@@ -245,7 +248,7 @@ namespace Chorus.FileTypeHanders.lift
 			// ******************************* <sense> **************************************************
 			// <sense
 			//		id [Optional, refid] The id is unique across all Senses in the lexicon and all Entries as well.
-			elementStrategy = AddKeyedElementType(mergeStrategies, "sense", "id", true);// main sense and nested senses, according to doc
+			elementStrategy = LiftBasicElementStrategiesMethod.AddKeyedElementType(mergeStrategies, "sense", "id", true);// main sense and nested senses, according to doc
 			//		order [Optional int]
 			//		dateCreated [Optional, sig=datetime, inherited from <extensible>]
 			//		dateModified [Optional, sig=datetime, inherited from <extensible>]
@@ -255,7 +258,7 @@ namespace Chorus.FileTypeHanders.lift
 			//		<annotation> [Optional, Multiple, sig=annotation, inherited from <extensible>]
 			//		<grammatical-info> [Optional, grammi] grammi? Better go with grammatical-info. (Added below)
 			//		<gloss> [Optional, Multiple, form]
-			AddKeyedElementType(mergeStrategies, "gloss", "lang", false);
+			LiftBasicElementStrategiesMethod.AddKeyedElementType(mergeStrategies, "gloss", "lang", false);
 			//		<definition> [Optional, multitext]
 			AddSingletonElementType(mergeStrategies, "definition");
 			//		<relation> [Optional, Multiple, relation] (Added below)
@@ -263,9 +266,9 @@ namespace Chorus.FileTypeHanders.lift
 			//		<example> [Optional, Multiple, example] (Must use default element strategy, or some other hand-made one.)
 			//		<reversal> [Optional, Multiple, reversal] (Added below)
 			//		<illustration> [Optional, Multiple, URLref] NAME OVERRIDE
-			AddKeyedElementType(mergeStrategies, "illustration", "href", false);
+			LiftBasicElementStrategiesMethod.AddKeyedElementType(mergeStrategies, "illustration", "href", false);
 			//		<subsense> [Optional, Multiple, sense] NAME OVERRIDE
-			AddKeyedElementType(mergeStrategies, "subsense", "id", true); // nested sense in a <sense>, according to rng
+			LiftBasicElementStrategiesMethod.AddKeyedElementType(mergeStrategies, "subsense", "id", true); // nested sense in a <sense>, according to rng
 			// </sense>
 			// ******************************* </sense> **************************************************
 
@@ -321,37 +324,36 @@ namespace Chorus.FileTypeHanders.lift
 
 		private static void AddReversalStrategy(MergeStrategies mergeStrategies)
 		{
-			// No. There can be multiple ones with the same 'type', AddKeyedElementType("reversal", "type", true);
-			var strategy = new ElementStrategy(true)
+			var strategy = new ElementStrategy(false)
 							{
-								MergePartnerFinder = new FormMatchingFinder()
+								MergePartnerFinder = new OptionalKeyAttrFinder("type", new FormMatchingFinder())
 							};
 			mergeStrategies.SetStrategy("reversal", strategy);
-			//elementStrategy.MergePartnerFinder = new FindByKeyAttributeInList();
 		}
 
 		private static void AddTranslationStrategy(MergeStrategies mergeStrategies)
 		{
-			var strategy = new ElementStrategy(true)
+			var strategy = new ElementStrategy(false)
 							{
 								MergePartnerFinder = new OptionalKeyAttrFinder("type", new FormMatchingFinder())
 							};
 			mergeStrategies.SetStrategy("translation", strategy);
 		}
 
+		/* Called <pronunciation> in lift file.
 		private static void AddPhoneticStrategy(MergeStrategies mergeStrategies)
 		{
-			var strategy = new ElementStrategy(true)
+			var strategy = new ElementStrategy(false)
 							{
 								MergePartnerFinder = new FormMatchingFinder()
 							};
 			strategy.AttributesToIgnoreForMerging.Add("dateModified");
 			mergeStrategies.SetStrategy("phonetic", strategy);
-		}
+		}*/
 
 		private static void AddPronunciationStrategy(MergeStrategies mergeStrategies)
 		{
-			var strategy = new ElementStrategy(true)
+			var strategy = new ElementStrategy(false)
 							{
 								MergePartnerFinder = new FormMatchingFinder()
 							};
@@ -361,7 +363,7 @@ namespace Chorus.FileTypeHanders.lift
 
 		private static void AddVariantStrategy(MergeStrategies mergeStrategies)
 		{
-			var strategy = new ElementStrategy(true)
+			var strategy = new ElementStrategy(false)
 							{
 								MergePartnerFinder = new OptionalKeyAttrFinder("ref", new FormMatchingFinder())
 							};
@@ -371,22 +373,12 @@ namespace Chorus.FileTypeHanders.lift
 
 		private static void AddExampleSentenceStrategy(MergeStrategies mergeStrategies)
 		{
-			var strategy = new ElementStrategy(true)
+			var strategy = new ElementStrategy(false)
 							{
 								MergePartnerFinder = new OptionalKeyAttrFinder("source", new FormMatchingFinder())
 							};
 			strategy.AttributesToIgnoreForMerging.Add("dateModified");
 			mergeStrategies.SetStrategy("example", strategy);
-		}
-
-		private static ElementStrategy AddKeyedElementType(MergeStrategies mergeStrategies, string name, string attribute, bool orderOfTheseIsRelevant)
-		{
-			var strategy = new ElementStrategy(orderOfTheseIsRelevant)
-							{
-								MergePartnerFinder = new FindByKeyAttribute(attribute)
-							};
-			mergeStrategies.SetStrategy(name, strategy);
-			return strategy;
 		}
 
 		private static ElementStrategy AddSingletonElementType(MergeStrategies mergeStrategies, string name)

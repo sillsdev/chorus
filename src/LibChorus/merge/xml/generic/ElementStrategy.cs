@@ -1,7 +1,6 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Xml;
+using Palaso.Xml;
 
 namespace Chorus.merge.xml.generic
 {
@@ -10,23 +9,34 @@ namespace Chorus.merge.xml.generic
 	/// </summary>
 	public class MergeStrategies
 	{
+		private Dictionary<string, ElementStrategy> _elementStrategies;
+		private readonly HashSet<string> _elementStrategyKeys = new HashSet<string>();
+
 		/// <summary>
 		/// the list of custom strategies that have been installed
 		/// </summary>
-		public Dictionary<string, ElementStrategy> ElementStrategies{get;set;}
+		public Dictionary<string, ElementStrategy> ElementStrategies
+		{
+			get { return _elementStrategies; }
+			set
+			{
+				_elementStrategies = value;
+				_elementStrategyKeys.UnionWith(_elementStrategies.Keys);
+			}
+		}
 
 		public MergeStrategies()
 		{
 			ElementStrategies = new Dictionary<string, ElementStrategy>();
-			ElementStrategy s = new ElementStrategy(true);//review: this says the default is to consder order relevant
+			ElementStrategy s = new ElementStrategy(true);//review: this says the default is to consider order relevant
 			s.MergePartnerFinder = new FindTextDumb();
-			this.SetStrategy("_"+XmlNodeType.Text, s);
+			SetStrategy("_"+XmlNodeType.Text, s);
 
-			ElementStrategy def = new ElementStrategy(true);//review: this says the default is to consder order relevant
+			ElementStrategy def = new ElementStrategy(true);//review: this says the default is to consider order relevant
 			def.MergePartnerFinder = new FindByEqualityOfTree();
-			this.SetStrategy("_defaultElement", def);
+			SetStrategy("_defaultElement", def);
 
-			KeyFinder = new DefaultKeyFinder();
+			ElementToMergeStrategyKeyMapper = new DefaultElementToMergeStrategyKeyMapper();
 		}
 
 		/// <summary>
@@ -34,11 +44,12 @@ namespace Chorus.merge.xml.generic
 		///
 		/// It starts out using the DefaultKeyFinder, which uses the element's name.
 		/// </summary>
-		public IKeyFinder KeyFinder { get; set; }
+		public IElementToMergeStrategyKeyMapper ElementToMergeStrategyKeyMapper { get; set; }
 
 		public void SetStrategy(string key, ElementStrategy strategy)
 		{
 			ElementStrategies[key] = strategy;
+			_elementStrategyKeys.Add(key);
 		}
 
 		public ElementStrategy GetElementStrategy(XmlNode element)
@@ -47,7 +58,7 @@ namespace Chorus.merge.xml.generic
 			switch (element.NodeType)
 			{
 				case XmlNodeType.Element:
-					key = KeyFinder.GetKeyFromElement(ElementStrategies.Keys, element);
+					key = ElementToMergeStrategyKeyMapper.GetKeyFromElement(_elementStrategyKeys, element);
 					break;
 				default:
 					key = "_"+element.NodeType;
@@ -81,6 +92,13 @@ namespace Chorus.merge.xml.generic
 
 	public class ElementStrategy : IElementDescriber
 	{
+		public ElementStrategy(bool orderIsRelevant)
+		{
+			OrderIsRelevant = orderIsRelevant;
+			AttributesToIgnoreForMerging = new List<string>();
+			NumberOfChildren = NumberOfChildrenAllowed.ZeroOrMore;
+		}
+
 		/// <summary>
 		/// Given a node in "ours" that we want to merge with "theirs", how do we identify the one in "theirs"?
 		/// </summary>
@@ -91,12 +109,10 @@ namespace Chorus.merge.xml.generic
 		//e.g., in a dictionary, this is the lexical entry.  In a text, it might be  a paragraph.
 		public IGenerateContextDescriptor ContextDescriptorGenerator { get; set; }
 
-		public  ElementStrategy(bool orderIsRelevant)
-		{
-			OrderIsRelevant = orderIsRelevant;
-			AttributesToIgnoreForMerging = new List<string>();
-		}
-
+		/// <summary>
+		/// Get or set the number of allowed child elements. Default is: <see cref="NumberOfChildrenAllowed.ZeroOrMore"/>.
+		/// </summary>
+		public NumberOfChildrenAllowed NumberOfChildren { get; set; }
 
 		/// <summary>
 		/// Is the order of this element among its peers relevant (this says nothing about its children)
@@ -118,7 +134,7 @@ namespace Chorus.merge.xml.generic
 		/// <summary>
 		/// This allows for an element to be declared 'atomic'.
 		/// When set to true, no merging will be done.
-		/// If the compared elemetns are not the same,
+		/// If the compared elements are not the same,
 		/// then a conflict report will be produced.
 		///
 		/// The default is 'false'.
@@ -127,15 +143,19 @@ namespace Chorus.merge.xml.generic
 
 		public static ElementStrategy CreateForKeyedElement(string keyAttributeName, bool orderIsRelevant)
 		{
-			ElementStrategy strategy = new ElementStrategy(orderIsRelevant);
-			strategy.MergePartnerFinder = new FindByKeyAttribute(keyAttributeName);
+			var strategy = new ElementStrategy(orderIsRelevant)
+				{
+					MergePartnerFinder = new FindByKeyAttribute(keyAttributeName)
+				};
 			return strategy;
 		}
 
 		public static ElementStrategy CreateForKeyedElementInList(string keyAttributeName)
 		{
-			ElementStrategy strategy = new ElementStrategy(true);
-			strategy.MergePartnerFinder = new FindByKeyAttributeInList(keyAttributeName);
+			var strategy = new ElementStrategy(true)
+				{
+					MergePartnerFinder = new FindByKeyAttributeInList(keyAttributeName)
+				};
 			return strategy;
 		}
 
@@ -144,8 +164,10 @@ namespace Chorus.merge.xml.generic
 		/// </summary>
 		public static ElementStrategy CreateSingletonElement()
 		{
-			ElementStrategy strategy = new ElementStrategy(false);
-			strategy.MergePartnerFinder = new FindFirstElementWithSameName();
+			var strategy = new ElementStrategy(false)
+				{
+					MergePartnerFinder = new FindFirstElementWithSameName()
+				};
 			return strategy;
 		}
 
@@ -159,6 +181,25 @@ namespace Chorus.merge.xml.generic
 //            return null;
 //        }
 
+	}
+
+	/// <summary>
+	/// The number of chldren allowed in some xml element.
+	/// </summary>
+	public enum NumberOfChildrenAllowed
+	{
+		/// <summary>
+		/// Allow zero or more (no limit) child elements.
+		/// </summary>
+		ZeroOrMore,
+		/// <summary>
+		/// Allows no children at all.
+		/// </summary>
+		Zero,
+		/// <summary>
+		/// Allows one optional child element.
+		/// </summary>
+		ZeroOrOne
 	}
 
 	public interface IElementDescriber
