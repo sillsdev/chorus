@@ -3,7 +3,7 @@ using System.IO;
 using System.Text;
 using Chorus.VcsDrivers.Mercurial;
 
-namespace Chorus.FileTypeHanders
+namespace Chorus.FileTypeHanders.text
 {
 	public class TextEditChangePresenter : IChangePresenter
 	{

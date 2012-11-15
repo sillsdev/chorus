@@ -1,16 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Reflection;
 using Chorus.merge;
-using Chorus.merge.xml.generic;
-using Chorus.Utilities;
+using Chorus.sync;
 using Chorus.VcsDrivers.Mercurial;
+using Palaso.IO;
+using Palaso.Progress;
 
 namespace Chorus.FileTypeHanders.test
 {
 	public class ChorusTestFileHandler : IChorusFileTypeHandler
 	{
+		internal ChorusTestFileHandler()
+		{}
+
 		public bool CanDiffFile(string pathToFile)
 		{
 			return false;
@@ -65,9 +68,24 @@ namespace Chorus.FileTypeHanders.test
 			throw new NotImplementedException();
 		}
 
+		/// <summary>
+		/// Get a list or one, or more, extensions this file type handler can process
+		/// </summary>
+		/// <returns>A collection of extensions (without leading period (.)) that can be processed.</returns>
 		public IEnumerable<string> GetExtensionsOfKnownTextFileTypes()
 		{
 			yield return "chorusTest";
+		}
+
+		/// <summary>
+		/// Return the maximum file size that can be added to the repository.
+		/// </summary>
+		/// <remarks>
+		/// Return UInt32.MaxValue for no limit.
+		/// </remarks>
+		public uint MaximumFileSize
+		{
+			get { return LargeFileFilter.Megabyte / 1024; }
 		}
 	}
 }

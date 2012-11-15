@@ -1,46 +1,66 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
-using System.Linq;
 using System.Windows.Forms;
 using Autofac;
-using Autofac.Builder;
 using Chorus.notes;
 using Chorus.sync;
 using Chorus.UI.Notes;
 using Chorus.UI.Notes.Bar;
 using Chorus.UI.Notes.Browser;
 using Chorus.UI.Review;
-using Chorus.Utilities;
-using Chorus.Utilities.code;
+using Chorus.UI.Sync;
 using Chorus.VcsDrivers.Mercurial;
+using Palaso.Code;
+using Palaso.Progress;
+using IContainer = Autofac.IContainer;
 
 namespace Chorus
 {
+	/// <summary>
+	/// A ChorusSystem object hides a lot of the complexity of Chorus from the client programmer.  It offers
+	/// up the most common controls and services of Chorus. See the SampleApp for examples of using it.
+	/// </summary>
 	public class ChorusSystem :IDisposable
 	{
-		private readonly string _folderPath;
-		private readonly IChorusUser _user;
-		private readonly IContainer _container;
+		private readonly string _dataFolderPath;
+		private IChorusUser _user;
+		private IContainer _container;
 		internal readonly Dictionary<string, AnnotationRepository> _annotationRepositories = new Dictionary<string, AnnotationRepository>();
 		private bool _searchedForAllExistingNotesFiles;
 
-
-		public ChorusSystem(string folderPath)
+		/// <summary>
+		/// Constructor. Need to Init after this
+		/// </summary>
+		/// <param name="dataFolderPath">The root of the project</param>
+		public ChorusSystem(string dataFolderPath)
 		{
-			WritingSystems = new List<IWritingSystem>(new []{new EnglishWritingSystem()});
+			WritingSystems = new List<IWritingSystem> {new EnglishWritingSystem(), new ThaiWritingSystem()};
+			_dataFolderPath = dataFolderPath;
+		}
 
-			_folderPath = folderPath;
-			var hgrepo = HgRepository.CreateOrLocate(folderPath, new NullProgress());
-			var builder = new Autofac.Builder.ContainerBuilder();
+		/// <summary>
+		/// Initialize system with user's name.
+		/// </summary>
+		/// <param name="userNameForHistoryAndNotes">This is not the same name as that used for any given network
+		/// repository credentials. Rather, it's the name which will show in the history, and besides Notes that this user makes.
+		///</param>
+		  public void Init(string userNameForHistoryAndNotes)
+		{
+			Repository = HgRepository.CreateOrUseExisting(_dataFolderPath, new NullProgress());
+			var builder = new Autofac.ContainerBuilder();
 
-			builder.Register<ProjectFolderConfiguration>(c => new ProjectFolderConfiguration(folderPath));
 			builder.Register<IEnumerable<IWritingSystem>>(c=>WritingSystems);
 
-			ChorusUIComponentsInjector.Inject(builder, folderPath);
+			ChorusUIComponentsInjector.Inject(builder, _dataFolderPath);
 
-			_user  =new ChorusUser(hgrepo.GetUserIdInUse());
-			builder.Register<IChorusUser>(_user);
+			if (String.IsNullOrEmpty(userNameForHistoryAndNotes))
+			{
+				userNameForHistoryAndNotes = Repository.GetUserIdInUse();
+			}
+			_user = new ChorusUser(userNameForHistoryAndNotes);
+			builder.RegisterInstance(_user).As<IChorusUser>();
 //            builder.RegisterGeneratedFactory<NotesInProjectView.Factory>().ContainerScoped();
 //            builder.RegisterGeneratedFactory<NotesInProjectViewModel.Factory>().ContainerScoped();
 //            builder.RegisterGeneratedFactory<NotesBrowserPage.Factory>().ContainerScoped();
@@ -48,12 +68,14 @@ namespace Chorus
 		   // builder.Register(new NullProgress());//TODO
 			_container = builder.Build();
 
-
 			//add the container itself
-			var builder2 = new Autofac.Builder.ContainerBuilder();
-			builder2.Register<IContainer>(_container);
-			builder2.Build(_container);
+			var builder2 = new Autofac.ContainerBuilder();
+			builder2.RegisterInstance(_container).As<IContainer>();
+			builder2.Update(_container);
+			DidLoadUpCorrectly = true;
 		}
+
+		public bool DidLoadUpCorrectly;
 
 		/// <summary>
 		/// Set this if you want something other than English
@@ -68,9 +90,39 @@ namespace Chorus
 		{
 			get { return _container.Resolve<NavigateToRecordEvent>(); }
 		}
+
+		/// <summary>
+		/// Use this to set things like what file types to include/exclude
+		/// </summary>
+		public ProjectFolderConfiguration ProjectFolderConfiguration
+		{
+			get { return _container.Resolve<ProjectFolderConfiguration>(); }
+		}
+
+		/// <summary>
+		/// Various factories for creating WinForms controls, already wired to the other parts of Chorus
+		/// </summary>
 		public WinFormsFactory WinForms
 		{
 			get { return new WinFormsFactory(this, _container); }
+		}
+
+		public HgRepository Repository
+		{
+			get; private set;
+		}
+
+		public string UserNameForHistoryAndNotes
+		{
+			get
+			{
+				return _user.Name;
+			}
+//  it's too late to set it, the name is already in the DI container
+//            set
+//            {
+//                Repository.SetUserNameInIni(value, new NullProgress());
+//            }
 		}
 
 		/// <summary>
@@ -89,11 +141,22 @@ namespace Chorus
 				_container = container;
 			}
 
-			public Chorus.UI.Sync.SyncDialog CreateSynchronizationDialog()
+			public Form CreateSynchronizationDialog()
 			{
-				return _container.Resolve<Chorus.UI.Sync.SyncDialog>();
+				return _container.Resolve<SyncDialog.Factory>()(SyncUIDialogBehaviors.Lazy, SyncUIFeatures.NormalRecommended);
 			}
 
+			public Form CreateSynchronizationDialog(SyncUIDialogBehaviors behavior, SyncUIFeatures uiFeaturesFlags)
+			{
+				return _container.Resolve<SyncDialog.Factory>()(behavior, uiFeaturesFlags);
+			}
+
+			/// <summary>
+			/// Get a UI control designed to live near some data (e.g., a lexical entry);
+			/// it provides buttons
+			/// to let users see and open and existing notes attached to that data,
+			/// or create new notes related to the data.
+			/// </summary>
 			public NotesBarView CreateNotesBar(string pathToAnnotatedFile, NotesToRecordMapping mapping, IProgress progress)
 			{
 				var repo = _parent.GetNotesRepository(pathToAnnotatedFile, progress);
@@ -101,22 +164,36 @@ namespace Chorus
 				return new NotesBarView(model, _container.Resolve<AnnotationEditorModel.Factory>());
 			}
 
+			/// <summary>
+			/// Get a UI control which shows all notes in the project (including conflicts), and
+			/// lets the user filter them and interact with them.
+			/// </summary>
 			public NotesBrowserPage CreateNotesBrowser()
 			{
 				_parent.EnsureAllNotesRepositoriesLoaded();
 				return _container.Resolve<NotesBrowserPage.Factory>()(_parent._annotationRepositories.Values);
 			}
 
-
+			/// <summary>
+			/// Get a UI control which shows all the revisions in the repository, and
+			/// lets the user select one to see what changed.
+			/// </summary>
 			public HistoryPage CreateHistoryPage()
 			{
-				return _container.Resolve<HistoryPage>();
+				return _container.Resolve<HistoryPage.Factory>()(new HistoryPageOptions());
 			}
 
-			public Form CreateSettingDialog()
+
+			/// <summary>
+			/// Get a UI control which shows all the revisions in the repository, and
+			/// lets the user select one to see what changed.
+			/// </summary>
+			public HistoryPage CreateHistoryPage(HistoryPageOptions options)
 			{
-				throw new NotImplementedException();
+				return _container.Resolve<HistoryPage.Factory>()(options);
 			}
+
+
 		}
 
 		public void EnsureAllNotesRepositoriesLoaded()
@@ -124,7 +201,7 @@ namespace Chorus
 			if(!_searchedForAllExistingNotesFiles)
 			{
 				var progress = new NullProgress();
-				foreach (var repo in AnnotationRepository.CreateRepositoriesFromFolder(_folderPath, progress))
+				foreach (var repo in AnnotationRepository.CreateRepositoriesFromFolder(_dataFolderPath, progress))
 				{
 					if (!_annotationRepositories.ContainsKey(repo.AnnotationFilePath))
 					{
@@ -155,10 +232,28 @@ namespace Chorus
 			return repo;
 		}
 
+		/// <summary>
+		/// Check in, to the local disk repository, any changes to this point.
+		/// </summary>
+		/// <param name="checkinDescription">A description of what work was done that you're wanting to checkin. E.g. "Delete a Book"</param>
+		public void AsyncLocalCheckIn(string checkinDescription,  Action<SyncResults> callbackWhenFinished)
+		{
+			var model = _container.Resolve<SyncControlModel>();
+			model.AsyncLocalCheckIn(checkinDescription,callbackWhenFinished);
+		}
+
 		#region Implementation of IDisposable
 
 		public void Dispose()
 		{
+			if (!DidLoadUpCorrectly)
+				return;
+
+			foreach (AnnotationRepository repository in _annotationRepositories.Values)
+			{
+				repository.Dispose();
+			}
+			_annotationRepositories.Clear();
 			_container.Dispose();
 		}
 
@@ -166,41 +261,4 @@ namespace Chorus
 
 
 	}
-
-
-
-	public class NotesToRecordMapping
-	{
-
-		static internal NotesToRecordMapping SimpleForTest()
-		{
-			var m = new NotesToRecordMapping();
-			m.FunctionToGoFromObjectToItsId = DefaultIdGeneratorUsingObjectToStringAsId;
-			m.FunctionToGetCurrentUrlForNewNotes = DefaultUrlGenerator;
-			return m;
-		}
-
-		 public delegate string UrlGeneratorFunction(object target, string escapedId);
-
-		public delegate string IdGeneratorFunction(object targetOfAnnotation);
-
-
-		public static IdGeneratorFunction DefaultIdGeneratorUsingObjectToStringAsId = (target) => target.ToString();
-		internal static UrlGeneratorFunction DefaultUrlGenerator = (unused, id) => string.Format("chorus://object?id={0}", id);
-
-	   /// <summary>
-		/// Used to figure out which existing notes to show
-		/// The Id is what normally comes after the "id=" in the url
-		/// </summary>
-		public IdGeneratorFunction FunctionToGoFromObjectToItsId = o => { throw new ArgumentNullException("FunctionToGoFromObjectToItsId", "You need to supply a function for FunctionToGoFromObjectToItsId."); };
-
-		/// <summary>
-		/// Used to make new annotations with a url refelctign the current object/insertion-point/whatever
-		/// Note, the key will be "escaped" (made safe for going in a url) for you, so don't make
-		/// your UrlGeneratorFunction do that.
-		/// <example>(escapedId) => string.Format("myimages://image?id={0}&amp;type=jpg",escapedId)</example>
-		/// <example>(ignoreIt) => string.Format("myimages://image?id={0}&amp;type={1}",_currentImage.Guid, _currentImage.FileType)</example>
-		public UrlGeneratorFunction FunctionToGetCurrentUrlForNewNotes = DefaultUrlGenerator;
-	}
-
 }

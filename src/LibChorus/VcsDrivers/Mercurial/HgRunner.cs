@@ -4,8 +4,10 @@ using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Net.Mime;
 using System.Threading;
 using Chorus.Utilities;
+using Palaso.Progress;
 
 namespace Chorus.VcsDrivers.Mercurial
 {
@@ -45,14 +47,24 @@ namespace Chorus.VcsDrivers.Mercurial
 		{
 			ExecutionResult result = new ExecutionResult();
 			Process process = new Process();
+			if (String.IsNullOrEmpty(MercurialLocation.PathToMercurialFolder))
+			{
+				throw new ApplicationException("Mercurial location has not been configured.");
+			}
+			process.StartInfo.EnvironmentVariables["PYTHONPATH"] = Path.Combine(MercurialLocation.PathToMercurialFolder, "library.zip");
+			process.StartInfo.EnvironmentVariables["HGENCODING"] = "UTF-8"; // See mercurial/encoding.py
+			process.StartInfo.EnvironmentVariables["HGENCODINGMODE"] = "strict";
 			process.StartInfo.RedirectStandardError = true;
 			process.StartInfo.RedirectStandardOutput = true;
 			process.StartInfo.UseShellExecute = false;
 			process.StartInfo.CreateNoWindow = true;
 			process.StartInfo.WorkingDirectory = fromDirectory;
-			process.StartInfo.FileName = "hg";
+			process.StartInfo.FileName = MercurialLocation.PathToHgExecutable;
 			process.StartInfo.Arguments = commandLine.Replace("hg ", ""); //we don't want the whole command line, just the args portion
 
+			//The fixutf8 extension's job is to get hg to talk in this encoding
+			process.StartInfo.StandardOutputEncoding = System.Text.Encoding.UTF8;
+			process.StartInfo.StandardErrorEncoding = System.Text.Encoding.UTF8;
 			try
 			{
 				process.Start();
@@ -61,7 +73,8 @@ namespace Chorus.VcsDrivers.Mercurial
 			{
 				const int ERROR_FILE_NOT_FOUND = 2;
 
-				if (error.NativeErrorCode == ERROR_FILE_NOT_FOUND)
+				if (error.NativeErrorCode == ERROR_FILE_NOT_FOUND &&
+					!commandLine.Contains("version"))//don't recurse if the readinessMessage itself is what failed
 				{
 					string msg = HgRepository.GetEnvironmentReadinessMessage("en");
 					if(!string.IsNullOrEmpty(msg))
@@ -84,7 +97,23 @@ namespace Chorus.VcsDrivers.Mercurial
 			if (!processReader.Read(ref process, secondsBeforeTimeOut, progress))
 			{
 				timedOut = !progress.CancelRequested;
-				process.Kill();
+				try
+				{
+					if (process.HasExited)
+					{
+						progress.WriteWarning("Process exited, cancelRequested was {0}", progress.CancelRequested);
+					}
+					else
+					{
+						progress.WriteWarning("Killing Hg Process...");
+						process.Kill();
+					}
+				}
+				catch(Exception e)
+				{
+					progress.WriteWarning("Exception while killing process, as though the process reader failed to notice that the process was over: {0}", e.Message);
+					progress.WriteWarning("Process.HasExited={0}", process.HasExited.ToString());
+				}
 			}
 			result.StandardOutput = processReader.StandardOutput;
 			result.StandardError = processReader.StandardError;

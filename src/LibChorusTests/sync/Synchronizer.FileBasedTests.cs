@@ -1,10 +1,11 @@
 ﻿using System.IO;
 using Chorus.sync;
-using Chorus.Utilities;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
+using LibChorus.TestUtilities;
 using NUnit.Framework;
 using System.Linq;
+using Palaso.Progress;
 
 namespace LibChorus.Tests.sync
 {
@@ -51,6 +52,14 @@ namespace LibChorus.Tests.sync
 
 		}
 
+		[TearDown]
+		public void Teardown()
+		{
+			Directory.Delete(_pathToTestRoot, true);
+			// No. It goes away when _pathToTestRoot goes away.
+			//Directory.Delete(_pathToProjectRoot, true);
+		}
+
 		private string WriteTestFile(string contents)
 		{
 			string pathToText = Path.Combine(_pathToProjectRoot, "foo.txt");
@@ -59,7 +68,7 @@ namespace LibChorus.Tests.sync
 		}
 
 
-		[Test]
+		[Test, Ignore("Doesn't really test a repository on another computer. Cf. Synchronizer.SendToOneOther that fails on the Update attempt on a shared network folder.")]
 		public void SyncNow_BackupAlreadySetUp_GetsSync()
 		{
 			SyncOptions options = new SyncOptions();
@@ -114,10 +123,6 @@ namespace LibChorus.Tests.sync
 		{
 			using (var setup = new RepositorySetup("Dan"))
 			{
-				//it's fine if this stops being true, but hten we need to fix the rest of this test
-				Assert.AreEqual(0, setup.Repository.GetEnabledExtension().Count());
-
-			   setup.AddAndCheckIn();
 			   Assert.Contains("hgext.graphlog", setup.Repository.GetEnabledExtension().ToArray());
 			   Assert.Contains("convert", setup.Repository.GetEnabledExtension().ToArray());
 			}

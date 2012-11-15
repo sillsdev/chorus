@@ -1,7 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using LibChorus.TestUtilities;
 using NUnit.Framework;
+using Palaso.Progress;
 
 namespace LibChorus.Tests.sync
 {
@@ -18,8 +17,11 @@ namespace LibChorus.Tests.sync
 			using (var repo = new RepositorySetup("bob"))
 			{
 				repo.AddAndCheckinFile("test.txt", "hello");
-				repo.ChangeFileOnNamedBranchAndComeBack("test.txt", "blah", "mybranch");
 				repo.AssertHeadCount(1);
+				repo.ChangeFileOnNamedBranchAndComeBack("test.txt", "blah", "mybranch");
+			   //NB: this used to pass prior to hg 1.5, but, well, it shouldn't!
+				//	Shouldn't there be two heads after the branch, above? (jh, April 2010)
+				//			repo.AssertHeadCount(1);
 				repo.ChangeFileAndCommit("test.txt", "hello there", "second");
 				repo.AssertHeadCount(2);
 				repo.CheckinAndPullAndMerge();
@@ -37,7 +39,7 @@ namespace LibChorus.Tests.sync
 				repo.ChangeFileAndCommit("test.txt", "pear", "second on default");
 
 				afterFirstCheckin.Go();
-				repo.Repository.Branch("animals");
+				repo.Repository.BranchingHelper.Branch(new NullProgress(), "animals");
 				repo.ChangeFileAndCommit("test.txt", "dog", "first on animals");
 				var animalHead = repo.CreateBookmarkHere();
 

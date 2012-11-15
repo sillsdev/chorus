@@ -1,19 +1,18 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
 using System.Text;
-using Chorus.FileTypeHanders.lift;
 using Chorus.merge;
-using Chorus.merge.xml.generic;
-using Chorus.merge.xml.lift;
-using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
+using Palaso.IO;
+using Palaso.Progress;
 
 namespace Chorus.FileTypeHanders.lift
 {
 	public class WeSayConfigFileHandler : IChorusFileTypeHandler
 	{
+		internal WeSayConfigFileHandler()
+		{}
+
 		public bool CanDiffFile(string pathToFile)
 		{
 			return false;
@@ -60,11 +59,26 @@ namespace Chorus.FileTypeHanders.lift
 			return new IChangeReport[] { new DefaultChangeReport(fileInRevision, "Added") };
 		}
 
+		/// <summary>
+		/// Get a list or one, or more, extensions this file type handler can process
+		/// </summary>
+		/// <returns>A collection of extensions (without leading period (.)) that can be processed.</returns>
 		public IEnumerable<string> GetExtensionsOfKnownTextFileTypes()
 		{
 			yield return "WeSayConfig";
 			yield return "xml";
 			yield return "css";
+		}
+
+		/// <summary>
+		/// Return the maximum file size that can be added to the repository.
+		/// </summary>
+		/// <remarks>
+		/// Return UInt32.MaxValue for no limit.
+		/// </remarks>
+		public uint MaximumFileSize
+		{
+			get { return UInt32.MaxValue; }
 		}
 	}
 

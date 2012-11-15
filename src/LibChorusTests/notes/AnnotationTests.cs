@@ -19,25 +19,6 @@ namespace LibChorus.Tests.notes
 			Assert.AreEqual(url,  a.RefUnEscaped);
 		}
 
-		[Test]
-		public void EscapeUrlForUseInXmlAttribute_Empty_ReturnEmpty()
-		{
-			Assert.AreEqual(string.Empty, Annotation.GetEscapedUrl(string.Empty));
-		}
-
-		[Test]
-		public void EscapeUrlForUseInXmlAttribute_HasQueryPortionWithAmpersand_ProperlyEscaped()
-		{
-			var x = Annotation.GetEscapedUrl("lift://somefile.lift?label=blah&somethingelse=3");
-			Assert.AreEqual("lift://somefile.lift?label=blah&amp;somethingelse=3", x);
-		}
-
-		[Test]
-		public void EscapeUrlForUseInXmlAttribute_HasQueryPortionWithSingleQuote_ProperlyEscaped()
-		{
-			var x = Annotation.GetEscapedUrl("lift://somefile.lift?label=it's");
-			Assert.AreEqual("lift://somefile.lift?label=it&apos;s", x);
-		}
 
 		[Test]
 		public void Class_HasClass_ReturnsClass()

@@ -33,18 +33,18 @@ namespace Chorus.UI.Notes.Browser
 			this.components = new System.ComponentModel.Container();
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(NotesInProjectView));
 			this._messageListView = new System.Windows.Forms.ListView();
-			this.label = new System.Windows.Forms.ColumnHeader();
-			this.author = new System.Windows.Forms.ColumnHeader();
-			this.date = new System.Windows.Forms.ColumnHeader();
+			this.label = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+			this.author = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+			this.date = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this._stateImageList = new System.Windows.Forms.ImageList(this.components);
 			this.timer1 = new System.Windows.Forms.Timer(this.components);
 			this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
-			this.searchBox1 = new Chorus.UI.Notes.Browser.SearchBox();
 			this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
 			this.showClosedNotesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.menuStrip1 = new System.Windows.Forms.MenuStrip();
 			this.filterToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.showClosedNotesToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+			this.searchBox1 = new Chorus.UI.Notes.Browser.SearchBox();
 			this.contextMenuStrip1.SuspendLayout();
 			this.menuStrip1.SuspendLayout();
 			this.SuspendLayout();
@@ -65,7 +65,7 @@ namespace Chorus.UI.Notes.Browser
 			this._messageListView.MultiSelect = false;
 			this._messageListView.Name = "_messageListView";
 			this._messageListView.ShowItemToolTips = true;
-			this._messageListView.Size = new System.Drawing.Size(462, 321);
+			this._messageListView.Size = new System.Drawing.Size(342, 342);
 			this._messageListView.TabIndex = 2;
 			this._messageListView.UseCompatibleStateImageBehavior = false;
 			this._messageListView.View = System.Windows.Forms.View.Details;
@@ -95,17 +95,6 @@ namespace Chorus.UI.Notes.Browser
 			// timer1
 			//
 			this.timer1.Interval = 500;
-			//
-			// searchBox1
-			//
-			this.searchBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.searchBox1.BackColor = System.Drawing.Color.White;
-			this.searchBox1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-			this.searchBox1.Location = new System.Drawing.Point(295, 3);
-			this.searchBox1.Name = "searchBox1";
-			this.searchBox1.Size = new System.Drawing.Size(175, 20);
-			this.searchBox1.TabIndex = 3;
-			this.searchBox1.SearchTextChanged += new System.EventHandler(this.searchBox1_SearchTextChanged);
 			//
 			// contextMenuStrip1
 			//
@@ -152,6 +141,17 @@ namespace Chorus.UI.Notes.Browser
 			this.showClosedNotesToolStripMenuItem1.Text = "Show Closed Notes";
 			this.showClosedNotesToolStripMenuItem1.Click += new System.EventHandler(this.showClosedNotesToolStripMenuItem1_Click);
 			//
+			// searchBox1
+			//
+			this.searchBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.searchBox1.BackColor = System.Drawing.Color.White;
+			this.searchBox1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.searchBox1.Location = new System.Drawing.Point(175, 3);
+			this.searchBox1.Name = "searchBox1";
+			this.searchBox1.Size = new System.Drawing.Size(175, 20);
+			this.searchBox1.TabIndex = 3;
+			this.searchBox1.SearchTextChanged += new System.EventHandler(this.searchBox1_SearchTextChanged);
+			//
 			// NotesInProjectView
 			//
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -160,8 +160,9 @@ namespace Chorus.UI.Notes.Browser
 			this.Controls.Add(this.menuStrip1);
 			this.Controls.Add(this.searchBox1);
 			this.Controls.Add(this._messageListView);
+			this.MinimumSize = new System.Drawing.Size(350, 200);
 			this.Name = "NotesInProjectView";
-			this.Size = new System.Drawing.Size(470, 348);
+			this.Size = new System.Drawing.Size(350, 369);
 			this.Load += new System.EventHandler(this.OnLoad);
 			this.VisibleChanged += new System.EventHandler(this.NotesInProjectView_VisibleChanged);
 			this.contextMenuStrip1.ResumeLayout(false);

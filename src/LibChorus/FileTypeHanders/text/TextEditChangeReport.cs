@@ -1,7 +1,7 @@
 using Chorus.merge;
 using Chorus.VcsDrivers.Mercurial;
 
-namespace Chorus.FileTypeHanders
+namespace Chorus.FileTypeHanders.text
 {
 	public class TextEditChangeReport : ChangeReport
 	{

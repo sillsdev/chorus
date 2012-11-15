@@ -1,10 +1,10 @@
 using System;
-using System.IO;
 using System.Text;
 using System.Xml;
 using Chorus.FileTypeHanders.xml;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
+using Palaso.Xml;
 
 namespace Chorus.FileTypeHanders.lift
 {
@@ -62,7 +62,7 @@ namespace Chorus.FileTypeHanders.lift
 		public string GetHtml(string style, string styleSheet)
 		{
 			var builder = new StringBuilder();
-			builder.Append("<html><head>"+styleSheet+"</head>");
+			builder.Append("<html><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">"+styleSheet+"</head>");
 
 			if (_report is XmlAdditionChangeReport)
 			{
@@ -108,7 +108,8 @@ namespace Chorus.FileTypeHanders.lift
 
 		private static XmlNode GetFormNodeForReferencedEntry(XmlDocument dom, string entryId)
 		{
-			return dom.SelectSingleNode("//entry[@id=\"" + entryId + "\"]/lexical-unit");
+			// TODO XPath Review for &apos; and &quot;
+			return dom.SelectSingleNode(String.Format("//entry[@id={0}]/lexical-unit", XmlUtilities.GetSafeXPathLiteral(entryId)));
 		}
 
 		private void GetHtmlForChange(string style, StringBuilder builder)

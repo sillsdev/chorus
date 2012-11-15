@@ -1,0 +1,551 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+	<Fragment>
+		<DirectoryRef Id="mercurial">
+			<Component Id="hg.exe" Guid="E1C7BB72-8FF6-4B6B-AC22-C2CB7CCD9F12">
+				<File Id="hg.exe" Name="hg.exe" KeyPath="yes" Source="..\..\mercurial\hg.exe" />
+			</Component>
+			<Component Id="library.zip" Guid="4DBAD190-0B10-418C-B1E6-8CD0162788E3">
+				<File Id="library.zip" Name="library.zip" Source="..\..\mercurial\library.zip" />
+			</Component>
+			<Component Id="python26.dll" Guid="57498171-216B-48AD-9597-5727FF8C8E42">
+				<File Id="python26.dll" Name="python26.dll" Source="..\..\mercurial\python26.dll" />
+			</Component>
+			<Component Id="ReadMe.html" Guid="92D092BE-8C6E-4C2D-A47C-71C6AF58416B">
+				<File Id="ReadMe.html" Name="ReadMe.html" Source="..\..\mercurial\ReadMe.html" />
+			</Component>
+			<Directory Id="mercurial.hgrc.d" Name="hgrc.d">
+				<Component Id="Mercurial.rc" Guid="E95E73CF-AC03-40B0-A529-4CA0849F2A27">
+					<File Id="Mercurial.rc" Name="Mercurial.rc" KeyPath="yes" Source="..\..\mercurial\hgrc.d\Mercurial.rc" />
+				</Component>
+				<Component Id="MergeTools.rc" Guid="727639AE-AE7A-48AC-A143-6A029DBC3E90">
+					<File Id="MergeTools.rc" Name="MergeTools.rc" Source="..\..\mercurial\hgrc.d\MergeTools.rc" />
+				</Component>
+			</Directory>
+			<Directory Id="mercurial.templates" Name="templates">
+				<Component Id="map_cmdline.changelog" Guid="19191CC4-818D-44A0-AF3C-17A8F716951A">
+					<File Id="map_cmdline.changelog" Name="map-cmdline.changelog" KeyPath="yes" Source="..\..\mercurial\templates\map-cmdline.changelog" />
+				</Component>
+				<Component Id="map_cmdline.compact" Guid="162E5298-34FC-4290-B637-575333AF8CF3">
+					<File Id="map_cmdline.compact" Name="map-cmdline.compact" Source="..\..\mercurial\templates\map-cmdline.compact" />
+				</Component>
+				<Component Id="map_cmdline.default" Guid="9CD4C10E-BD25-4EF1-8E83-9A1F1E0BDF04">
+					<File Id="map_cmdline.default" Name="map-cmdline.default" Source="..\..\mercurial\templates\map-cmdline.default" />
+				</Component>
+				<Component Id="map_cmdline.xml" Guid="3C03E184-E0DA-4B9A-AE03-44344F846667">
+					<File Id="map_cmdline.xml" Name="map-cmdline.xml" Source="..\..\mercurial\templates\map-cmdline.xml" />
+				</Component>
+				<Component Id="template_vars.txt" Guid="7E12428B-B026-4759-89D0-67DF2763B05C">
+					<File Id="template_vars.txt" Name="template-vars.txt" Source="..\..\mercurial\templates\template-vars.txt" />
+				</Component>
+				<Directory Id="mercurial.templates.atom" Name="atom">
+					<Component Id="changelog.tmpl" Guid="3D3CECD0-922C-4D74-9E2B-230B6A3D6BD9">
+						<File Id="changelog.tmpl" Name="changelog.tmpl" KeyPath="yes" Source="..\..\mercurial\templates\atom\changelog.tmpl" />
+					</Component>
+					<Component Id="changelogentry.tmpl" Guid="E7A1A059-CAEA-4F0C-8CD0-6470E70D6FEB">
+						<File Id="changelogentry.tmpl" Name="changelogentry.tmpl" Source="..\..\mercurial\templates\atom\changelogentry.tmpl" />
+					</Component>
+					<Component Id="error.tmpl" Guid="E8E74435-2F4E-4045-9552-3205545A36A8">
+						<File Id="error.tmpl" Name="error.tmpl" Source="..\..\mercurial\templates\atom\error.tmpl" />
+					</Component>
+					<Component Id="filelog.tmpl" Guid="6FC6E9EE-E524-40C0-B8AB-22FD32893D28">
+						<File Id="filelog.tmpl" Name="filelog.tmpl" Source="..\..\mercurial\templates\atom\filelog.tmpl" />
+					</Component>
+					<Component Id="header.tmpl" Guid="5F849ACC-8F25-44CF-B7F1-E18609EAAEC7">
+						<File Id="header.tmpl" Name="header.tmpl" Source="..\..\mercurial\templates\atom\header.tmpl" />
+					</Component>
+					<Component Id="map" Guid="011C44AA-144D-41AE-8B75-3E3FF6918EAD">
+						<File Id="map" Name="map" Source="..\..\mercurial\templates\atom\map" />
+					</Component>
+					<Component Id="tagentry.tmpl" Guid="4B92A0B3-526B-41C8-AD92-ABCEFFFC45B6">
+						<File Id="tagentry.tmpl" Name="tagentry.tmpl" Source="..\..\mercurial\templates\atom\tagentry.tmpl" />
+					</Component>
+					<Component Id="tags.tmpl" Guid="88A5CDE4-8979-475B-8A62-CCF2001DAE4B">
+						<File Id="tags.tmpl" Name="tags.tmpl" Source="..\..\mercurial\templates\atom\tags.tmpl" />
+					</Component>
+				</Directory>
+				<Directory Id="mercurial.templates.coal" Name="coal">
+					<Component Id="header.tmpl1" Guid="C807E406-A4F7-4545-B018-18E9E65FD930">
+						<File Id="header.tmpl1" Name="header.tmpl" KeyPath="yes" Source="..\..\mercurial\templates\coal\header.tmpl" />
+					</Component>
+					<Component Id="map1" Guid="1709B30D-73E5-48A4-9FC0-ADC2AA7715A8">
+						<File Id="map1" Name="map" Source="..\..\mercurial\templates\coal\map" />
+					</Component>
+				</Directory>
+				<Directory Id="mercurial.templates.gitweb" Name="gitweb">
+					<Component Id="branches.tmpl" Guid="B4DEB102-4CB3-42A9-AC45-F33FC9AF7529">
+						<File Id="branches.tmpl" Name="branches.tmpl" KeyPath="yes" Source="..\..\mercurial\templates\gitweb\branches.tmpl" />
+					</Component>
+					<Component Id="changelog.tmpl1" Guid="716B6075-7AF7-45DB-A78C-472D1D2CDF96">
+						<File Id="changelog.tmpl1" Name="changelog.tmpl" Source="..\..\mercurial\templates\gitweb\changelog.tmpl" />
+					</Component>
+					<Component Id="changelogentry.tmpl1" Guid="66A1A2A0-DDF4-48D9-8B41-85015364A0C5">
+						<File Id="changelogentry.tmpl1" Name="changelogentry.tmpl" Source="..\..\mercurial\templates\gitweb\changelogentry.tmpl" />
+					</Component>
+					<Component Id="changeset.tmpl" Guid="E554F378-07C5-4A36-9070-4CEB79775130">
+						<File Id="changeset.tmpl" Name="changeset.tmpl" Source="..\..\mercurial\templates\gitweb\changeset.tmpl" />
+					</Component>
+					<Component Id="error.tmpl1" Guid="1AE0D622-FEB1-4D69-A24E-96219AEE9CE8">
+						<File Id="error.tmpl1" Name="error.tmpl" Source="..\..\mercurial\templates\gitweb\error.tmpl" />
+					</Component>
+					<Component Id="fileannotate.tmpl" Guid="F67C06A3-C44D-4E82-9359-F08C80E1965E">
+						<File Id="fileannotate.tmpl" Name="fileannotate.tmpl" Source="..\..\mercurial\templates\gitweb\fileannotate.tmpl" />
+					</Component>
+					<Component Id="filediff.tmpl" Guid="30EB5714-BFDE-4075-8BEF-F3F022B01D54">
+						<File Id="filediff.tmpl" Name="filediff.tmpl" Source="..\..\mercurial\templates\gitweb\filediff.tmpl" />
+					</Component>
+					<Component Id="filelog.tmpl1" Guid="47AE33C1-9A06-483F-A072-CFD5F1EC14CE">
+						<File Id="filelog.tmpl1" Name="filelog.tmpl" Source="..\..\mercurial\templates\gitweb\filelog.tmpl" />
+					</Component>
+					<Component Id="filerevision.tmpl" Guid="540977C2-2C9B-4C36-9526-AA1CA1AB7A92">
+						<File Id="filerevision.tmpl" Name="filerevision.tmpl" Source="..\..\mercurial\templates\gitweb\filerevision.tmpl" />
+					</Component>
+					<Component Id="footer.tmpl" Guid="D4E4813D-36FE-4FCB-857E-C8A96DFCE706">
+						<File Id="footer.tmpl" Name="footer.tmpl" Source="..\..\mercurial\templates\gitweb\footer.tmpl" />
+					</Component>
+					<Component Id="graph.tmpl" Guid="17EBE84F-AF71-462D-A9DE-983F2EF4572E">
+						<File Id="graph.tmpl" Name="graph.tmpl" Source="..\..\mercurial\templates\gitweb\graph.tmpl" />
+					</Component>
+					<Component Id="header.tmpl2" Guid="E9B822A6-8756-410E-8279-E1F8A3BE8044">
+						<File Id="header.tmpl2" Name="header.tmpl" Source="..\..\mercurial\templates\gitweb\header.tmpl" />
+					</Component>
+					<Component Id="index.tmpl" Guid="08574BA4-7407-4299-A9E1-AE7CDF301EAC">
+						<File Id="index.tmpl" Name="index.tmpl" Source="..\..\mercurial\templates\gitweb\index.tmpl" />
+					</Component>
+					<Component Id="manifest.tmpl" Guid="3D023DF8-C07A-46A1-A0CD-C776F3BBE90B">
+						<File Id="manifest.tmpl" Name="manifest.tmpl" Source="..\..\mercurial\templates\gitweb\manifest.tmpl" />
+					</Component>
+					<Component Id="map2" Guid="5AC6C2D5-78D4-4F75-B8E9-A21289D877CC">
+						<File Id="map2" Name="map" Source="..\..\mercurial\templates\gitweb\map" />
+					</Component>
+					<Component Id="notfound.tmpl" Guid="ACA99707-209B-4908-BD23-8555CC525B39">
+						<File Id="notfound.tmpl" Name="notfound.tmpl" Source="..\..\mercurial\templates\gitweb\notfound.tmpl" />
+					</Component>
+					<Component Id="search.tmpl" Guid="C6B03A22-A0F8-45A3-A517-3E92B9E729CB">
+						<File Id="search.tmpl" Name="search.tmpl" Source="..\..\mercurial\templates\gitweb\search.tmpl" />
+					</Component>
+					<Component Id="shortlog.tmpl" Guid="DBE22BEB-F0E7-4270-A2EA-6FC6A18D5F07">
+						<File Id="shortlog.tmpl" Name="shortlog.tmpl" Source="..\..\mercurial\templates\gitweb\shortlog.tmpl" />
+					</Component>
+					<Component Id="summary.tmpl" Guid="426758AF-F20E-43BD-A0A5-B5FF969078B5">
+						<File Id="summary.tmpl" Name="summary.tmpl" Source="..\..\mercurial\templates\gitweb\summary.tmpl" />
+					</Component>
+					<Component Id="tags.tmpl1" Guid="74E066B8-6C11-42D4-A99B-75F61DFA1141">
+						<File Id="tags.tmpl1" Name="tags.tmpl" Source="..\..\mercurial\templates\gitweb\tags.tmpl" />
+					</Component>
+				</Directory>
+				<Directory Id="mercurial.templates.monoblue" Name="monoblue">
+					<Component Id="branches.tmpl1" Guid="6913EAF4-1822-4239-823D-4C0CA1EC2640">
+						<File Id="branches.tmpl1" Name="branches.tmpl" KeyPath="yes" Source="..\..\mercurial\templates\monoblue\branches.tmpl" />
+					</Component>
+					<Component Id="changelog.tmpl2" Guid="F7081A74-FBB1-4ABD-9824-4B5A57FA8FE2">
+						<File Id="changelog.tmpl2" Name="changelog.tmpl" Source="..\..\mercurial\templates\monoblue\changelog.tmpl" />
+					</Component>
+					<Component Id="changelogentry.tmpl2" Guid="1C7B476B-0ACC-4B33-92B0-483556A934E7">
+						<File Id="changelogentry.tmpl2" Name="changelogentry.tmpl" Source="..\..\mercurial\templates\monoblue\changelogentry.tmpl" />
+					</Component>
+					<Component Id="changeset.tmpl1" Guid="ED076CC1-4CD5-4426-830B-DF5B917E4A05">
+						<File Id="changeset.tmpl1" Name="changeset.tmpl" Source="..\..\mercurial\templates\monoblue\changeset.tmpl" />
+					</Component>
+					<Component Id="error.tmpl2" Guid="6277FBAC-2DDC-4D30-B963-94398006A638">
+						<File Id="error.tmpl2" Name="error.tmpl" Source="..\..\mercurial\templates\monoblue\error.tmpl" />
+					</Component>
+					<Component Id="fileannotate.tmpl1" Guid="26C97080-C2AE-4959-A3E9-D7BE09A7AB6E">
+						<File Id="fileannotate.tmpl1" Name="fileannotate.tmpl" Source="..\..\mercurial\templates\monoblue\fileannotate.tmpl" />
+					</Component>
+					<Component Id="filediff.tmpl1" Guid="65AA0B5E-607F-4F24-B752-4249BB86D860">
+						<File Id="filediff.tmpl1" Name="filediff.tmpl" Source="..\..\mercurial\templates\monoblue\filediff.tmpl" />
+					</Component>
+					<Component Id="filelog.tmpl2" Guid="44E598C1-7AF4-486C-9BC2-B1222C66B17A">
+						<File Id="filelog.tmpl2" Name="filelog.tmpl" Source="..\..\mercurial\templates\monoblue\filelog.tmpl" />
+					</Component>
+					<Component Id="filerevision.tmpl1" Guid="4D00B400-C09B-4041-B96E-2BE3F0792017">
+						<File Id="filerevision.tmpl1" Name="filerevision.tmpl" Source="..\..\mercurial\templates\monoblue\filerevision.tmpl" />
+					</Component>
+					<Component Id="footer.tmpl1" Guid="B3D96834-2DDB-4674-B40E-5BF6156577F4">
+						<File Id="footer.tmpl1" Name="footer.tmpl" Source="..\..\mercurial\templates\monoblue\footer.tmpl" />
+					</Component>
+					<Component Id="graph.tmpl1" Guid="418AC52C-8AB7-4750-A303-D2082F9C6B23">
+						<File Id="graph.tmpl1" Name="graph.tmpl" Source="..\..\mercurial\templates\monoblue\graph.tmpl" />
+					</Component>
+					<Component Id="header.tmpl3" Guid="B802FD89-3703-467B-98FE-03633F647B76">
+						<File Id="header.tmpl3" Name="header.tmpl" Source="..\..\mercurial\templates\monoblue\header.tmpl" />
+					</Component>
+					<Component Id="index.tmpl1" Guid="53871295-4170-42BE-91F9-55335CB4F25D">
+						<File Id="index.tmpl1" Name="index.tmpl" Source="..\..\mercurial\templates\monoblue\index.tmpl" />
+					</Component>
+					<Component Id="manifest.tmpl1" Guid="1DC91B2C-7580-49D9-BE92-F6591F8782EF">
+						<File Id="manifest.tmpl1" Name="manifest.tmpl" Source="..\..\mercurial\templates\monoblue\manifest.tmpl" />
+					</Component>
+					<Component Id="map3" Guid="FB5BA5D5-1CF5-4DA6-B9F8-6450C142C375">
+						<File Id="map3" Name="map" Source="..\..\mercurial\templates\monoblue\map" />
+					</Component>
+					<Component Id="notfound.tmpl1" Guid="50D14EAA-D3C0-468C-A787-0609088C44F3">
+						<File Id="notfound.tmpl1" Name="notfound.tmpl" Source="..\..\mercurial\templates\monoblue\notfound.tmpl" />
+					</Component>
+					<Component Id="search.tmpl1" Guid="F4C75F87-9575-41B3-B7CF-F3E5B7199898">
+						<File Id="search.tmpl1" Name="search.tmpl" Source="..\..\mercurial\templates\monoblue\search.tmpl" />
+					</Component>
+					<Component Id="shortlog.tmpl1" Guid="D51C6E8B-AF99-4157-AADB-1FA68A9C925B">
+						<File Id="shortlog.tmpl1" Name="shortlog.tmpl" Source="..\..\mercurial\templates\monoblue\shortlog.tmpl" />
+					</Component>
+					<Component Id="summary.tmpl1" Guid="212EC8DF-0C45-414F-8B32-76777821C562">
+						<File Id="summary.tmpl1" Name="summary.tmpl" Source="..\..\mercurial\templates\monoblue\summary.tmpl" />
+					</Component>
+					<Component Id="tags.tmpl2" Guid="EEFB5CEE-5036-4B22-8106-3C66EA8EBFA5">
+						<File Id="tags.tmpl2" Name="tags.tmpl" Source="..\..\mercurial\templates\monoblue\tags.tmpl" />
+					</Component>
+				</Directory>
+				<Directory Id="mercurial.templates.paper" Name="paper">
+					<Component Id="branches.tmpl2" Guid="EAE2BFA3-7172-4443-A751-30630EE3586E">
+						<File Id="branches.tmpl2" Name="branches.tmpl" KeyPath="yes" Source="..\..\mercurial\templates\paper\branches.tmpl" />
+					</Component>
+					<Component Id="changeset.tmpl2" Guid="85C41733-4874-4D91-9CFF-5CB0C33A08AD">
+						<File Id="changeset.tmpl2" Name="changeset.tmpl" Source="..\..\mercurial\templates\paper\changeset.tmpl" />
+					</Component>
+					<Component Id="error.tmpl3" Guid="8B0E0392-9125-4703-ADE7-70DEE857EA57">
+						<File Id="error.tmpl3" Name="error.tmpl" Source="..\..\mercurial\templates\paper\error.tmpl" />
+					</Component>
+					<Component Id="fileannotate.tmpl2" Guid="63015D13-7569-45CD-AD3E-E38214F36989">
+						<File Id="fileannotate.tmpl2" Name="fileannotate.tmpl" Source="..\..\mercurial\templates\paper\fileannotate.tmpl" />
+					</Component>
+					<Component Id="filediff.tmpl2" Guid="B602058C-B7D8-44D2-9CDA-BC4A11C5D313">
+						<File Id="filediff.tmpl2" Name="filediff.tmpl" Source="..\..\mercurial\templates\paper\filediff.tmpl" />
+					</Component>
+					<Component Id="filelog.tmpl3" Guid="2E2B2AC5-892F-49FB-A197-4B7B59910B73">
+						<File Id="filelog.tmpl3" Name="filelog.tmpl" Source="..\..\mercurial\templates\paper\filelog.tmpl" />
+					</Component>
+					<Component Id="filelogentry.tmpl" Guid="F889EE04-C85F-431B-88C5-4294A75EDF11">
+						<File Id="filelogentry.tmpl" Name="filelogentry.tmpl" Source="..\..\mercurial\templates\paper\filelogentry.tmpl" />
+					</Component>
+					<Component Id="filerevision.tmpl2" Guid="96E7B1BE-63C3-43E1-96C8-70D25138659B">
+						<File Id="filerevision.tmpl2" Name="filerevision.tmpl" Source="..\..\mercurial\templates\paper\filerevision.tmpl" />
+					</Component>
+					<Component Id="footer.tmpl2" Guid="F6E0804D-C176-4546-9822-2907F86AEA7C">
+						<File Id="footer.tmpl2" Name="footer.tmpl" Source="..\..\mercurial\templates\paper\footer.tmpl" />
+					</Component>
+					<Component Id="graph.tmpl2" Guid="CAC8888B-AE4D-458F-9526-6F3C59699FED">
+						<File Id="graph.tmpl2" Name="graph.tmpl" Source="..\..\mercurial\templates\paper\graph.tmpl" />
+					</Component>
+					<Component Id="header.tmpl4" Guid="8D614DC0-1193-4D3C-AE3F-A633F33AE1D6">
+						<File Id="header.tmpl4" Name="header.tmpl" Source="..\..\mercurial\templates\paper\header.tmpl" />
+					</Component>
+					<Component Id="index.tmpl2" Guid="56968B8D-A28E-43A4-928C-46AFBDB40630">
+						<File Id="index.tmpl2" Name="index.tmpl" Source="..\..\mercurial\templates\paper\index.tmpl" />
+					</Component>
+					<Component Id="manifest.tmpl2" Guid="6C332ECF-9626-40F5-BF1D-61967A7E4EE9">
+						<File Id="manifest.tmpl2" Name="manifest.tmpl" Source="..\..\mercurial\templates\paper\manifest.tmpl" />
+					</Component>
+					<Component Id="map4" Guid="D11E2604-EA11-49C9-9727-19C3C6792F48">
+						<File Id="map4" Name="map" Source="..\..\mercurial\templates\paper\map" />
+					</Component>
+					<Component Id="notfound.tmpl2" Guid="86873975-EF2B-4D4B-A36B-B20224C1D189">
+						<File Id="notfound.tmpl2" Name="notfound.tmpl" Source="..\..\mercurial\templates\paper\notfound.tmpl" />
+					</Component>
+					<Component Id="search.tmpl2" Guid="FFEB9E2A-7325-4A22-A9D8-928ADBC0E47B">
+						<File Id="search.tmpl2" Name="search.tmpl" Source="..\..\mercurial\templates\paper\search.tmpl" />
+					</Component>
+					<Component Id="shortlog.tmpl2" Guid="D7A0E0BA-2805-4943-B61A-CF07C0E11512">
+						<File Id="shortlog.tmpl2" Name="shortlog.tmpl" Source="..\..\mercurial\templates\paper\shortlog.tmpl" />
+					</Component>
+					<Component Id="shortlogentry.tmpl" Guid="B13DDC82-D5C9-48F8-BDEC-79575F9179B2">
+						<File Id="shortlogentry.tmpl" Name="shortlogentry.tmpl" Source="..\..\mercurial\templates\paper\shortlogentry.tmpl" />
+					</Component>
+					<Component Id="tags.tmpl3" Guid="F15546DA-C4E6-406C-AF25-7CD8AAE8B438">
+						<File Id="tags.tmpl3" Name="tags.tmpl" Source="..\..\mercurial\templates\paper\tags.tmpl" />
+					</Component>
+				</Directory>
+				<Directory Id="mercurial.templates.raw" Name="raw">
+					<Component Id="changeset.tmpl3" Guid="DA04B1CC-1396-4870-93A5-2D7F7296C0C0">
+						<File Id="changeset.tmpl3" Name="changeset.tmpl" KeyPath="yes" Source="..\..\mercurial\templates\raw\changeset.tmpl" />
+					</Component>
+					<Component Id="error.tmpl4" Guid="EE2DC991-2FC5-4CD3-8A97-4FB71C18EECD">
+						<File Id="error.tmpl4" Name="error.tmpl" Source="..\..\mercurial\templates\raw\error.tmpl" />
+					</Component>
+					<Component Id="fileannotate.tmpl3" Guid="01D4954C-823F-4352-BDB2-F4DD91619A76">
+						<File Id="fileannotate.tmpl3" Name="fileannotate.tmpl" Source="..\..\mercurial\templates\raw\fileannotate.tmpl" />
+					</Component>
+					<Component Id="filediff.tmpl3" Guid="9E66A632-ACF3-4AE5-990A-0880CE56BAF4">
+						<File Id="filediff.tmpl3" Name="filediff.tmpl" Source="..\..\mercurial\templates\raw\filediff.tmpl" />
+					</Component>
+					<Component Id="index.tmpl3" Guid="89147E07-902C-4EA6-8169-3087FD139FED">
+						<File Id="index.tmpl3" Name="index.tmpl" Source="..\..\mercurial\templates\raw\index.tmpl" />
+					</Component>
+					<Component Id="manifest.tmpl3" Guid="EB4EEC25-0DFB-4D60-9FE6-E5CB579F1D9E">
+						<File Id="manifest.tmpl3" Name="manifest.tmpl" Source="..\..\mercurial\templates\raw\manifest.tmpl" />
+					</Component>
+					<Component Id="map5" Guid="2BFDA4F0-A7E7-497C-93B8-39895671F51C">
+						<File Id="map5" Name="map" Source="..\..\mercurial\templates\raw\map" />
+					</Component>
+					<Component Id="notfound.tmpl3" Guid="CB94D5BF-69DF-442E-98C2-3845A94F0154">
+						<File Id="notfound.tmpl3" Name="notfound.tmpl" Source="..\..\mercurial\templates\raw\notfound.tmpl" />
+					</Component>
+				</Directory>
+				<Directory Id="mercurial.templates.rss" Name="rss">
+					<Component Id="changelog.tmpl3" Guid="DE58956C-8807-46B6-8699-851FC7EA63A9">
+						<File Id="changelog.tmpl3" Name="changelog.tmpl" KeyPath="yes" Source="..\..\mercurial\templates\rss\changelog.tmpl" />
+					</Component>
+					<Component Id="changelogentry.tmpl3" Guid="DB8F2522-8903-42C5-91C2-21C33D4CA166">
+						<File Id="changelogentry.tmpl3" Name="changelogentry.tmpl" Source="..\..\mercurial\templates\rss\changelogentry.tmpl" />
+					</Component>
+					<Component Id="error.tmpl5" Guid="34938B15-D48C-4F12-9922-C9FF4B857F3E">
+						<File Id="error.tmpl5" Name="error.tmpl" Source="..\..\mercurial\templates\rss\error.tmpl" />
+					</Component>
+					<Component Id="filelog.tmpl4" Guid="5EEA74E0-CFCC-4E53-8540-1293801510CD">
+						<File Id="filelog.tmpl4" Name="filelog.tmpl" Source="..\..\mercurial\templates\rss\filelog.tmpl" />
+					</Component>
+					<Component Id="filelogentry.tmpl1" Guid="BB79FACF-843D-42E0-A503-B7B9FBB7971B">
+						<File Id="filelogentry.tmpl1" Name="filelogentry.tmpl" Source="..\..\mercurial\templates\rss\filelogentry.tmpl" />
+					</Component>
+					<Component Id="header.tmpl5" Guid="5E5F4E4D-AB68-4799-8B1E-C0224D5D2069">
+						<File Id="header.tmpl5" Name="header.tmpl" Source="..\..\mercurial\templates\rss\header.tmpl" />
+					</Component>
+					<Component Id="map6" Guid="FF9579C0-EAA0-4002-8A32-9653FA119C83">
+						<File Id="map6" Name="map" Source="..\..\mercurial\templates\rss\map" />
+					</Component>
+					<Component Id="tagentry.tmpl1" Guid="E9D6C92B-E11F-41F1-9E9B-4B8C36FA5A6E">
+						<File Id="tagentry.tmpl1" Name="tagentry.tmpl" Source="..\..\mercurial\templates\rss\tagentry.tmpl" />
+					</Component>
+					<Component Id="tags.tmpl4" Guid="33022E31-7150-45BD-93B5-F6143583C422">
+						<File Id="tags.tmpl4" Name="tags.tmpl" Source="..\..\mercurial\templates\rss\tags.tmpl" />
+					</Component>
+				</Directory>
+				<Directory Id="mercurial.templates.spartan" Name="spartan">
+					<Component Id="branches.tmpl3" Guid="363A0D74-7339-403F-AC07-E559CDB05F81">
+						<File Id="branches.tmpl3" Name="branches.tmpl" KeyPath="yes" Source="..\..\mercurial\templates\spartan\branches.tmpl" />
+					</Component>
+					<Component Id="changelog.tmpl4" Guid="4D6A307D-7765-4F96-B583-4C4D6F715D0D">
+						<File Id="changelog.tmpl4" Name="changelog.tmpl" Source="..\..\mercurial\templates\spartan\changelog.tmpl" />
+					</Component>
+					<Component Id="changelogentry.tmpl4" Guid="CAF04745-635C-4BAF-A2FB-33A3251003E2">
+						<File Id="changelogentry.tmpl4" Name="changelogentry.tmpl" Source="..\..\mercurial\templates\spartan\changelogentry.tmpl" />
+					</Component>
+					<Component Id="changeset.tmpl4" Guid="7BAA888D-A3FE-449A-BCCA-B4D669AC8CF5">
+						<File Id="changeset.tmpl4" Name="changeset.tmpl" Source="..\..\mercurial\templates\spartan\changeset.tmpl" />
+					</Component>
+					<Component Id="error.tmpl6" Guid="9CD89794-043B-4738-A111-4087A504BE20">
+						<File Id="error.tmpl6" Name="error.tmpl" Source="..\..\mercurial\templates\spartan\error.tmpl" />
+					</Component>
+					<Component Id="fileannotate.tmpl4" Guid="412AAA33-C6E1-4448-B571-D290968C5D1A">
+						<File Id="fileannotate.tmpl4" Name="fileannotate.tmpl" Source="..\..\mercurial\templates\spartan\fileannotate.tmpl" />
+					</Component>
+					<Component Id="filediff.tmpl4" Guid="90C49B38-4B50-45EE-947B-AC1EC37769DC">
+						<File Id="filediff.tmpl4" Name="filediff.tmpl" Source="..\..\mercurial\templates\spartan\filediff.tmpl" />
+					</Component>
+					<Component Id="filelog.tmpl5" Guid="0D796B5A-786D-4192-ADFC-7D09EE328E0B">
+						<File Id="filelog.tmpl5" Name="filelog.tmpl" Source="..\..\mercurial\templates\spartan\filelog.tmpl" />
+					</Component>
+					<Component Id="filelogentry.tmpl2" Guid="B643623B-F67C-44FF-9412-8B7A7F72D1AF">
+						<File Id="filelogentry.tmpl2" Name="filelogentry.tmpl" Source="..\..\mercurial\templates\spartan\filelogentry.tmpl" />
+					</Component>
+					<Component Id="filerevision.tmpl3" Guid="5D670F0A-AABF-4D40-A7F8-89BDF7697529">
+						<File Id="filerevision.tmpl3" Name="filerevision.tmpl" Source="..\..\mercurial\templates\spartan\filerevision.tmpl" />
+					</Component>
+					<Component Id="footer.tmpl3" Guid="516BCCE2-4859-4D71-8772-5DFBC8603208">
+						<File Id="footer.tmpl3" Name="footer.tmpl" Source="..\..\mercurial\templates\spartan\footer.tmpl" />
+					</Component>
+					<Component Id="graph.tmpl3" Guid="C2818BD1-DD70-4984-B624-68BDCAEA127E">
+						<File Id="graph.tmpl3" Name="graph.tmpl" Source="..\..\mercurial\templates\spartan\graph.tmpl" />
+					</Component>
+					<Component Id="header.tmpl6" Guid="7A51362D-97BC-4BF3-9AAE-8CFB968E9815">
+						<File Id="header.tmpl6" Name="header.tmpl" Source="..\..\mercurial\templates\spartan\header.tmpl" />
+					</Component>
+					<Component Id="index.tmpl4" Guid="3D3F6FF9-1204-4B71-80B3-20A88561EFD5">
+						<File Id="index.tmpl4" Name="index.tmpl" Source="..\..\mercurial\templates\spartan\index.tmpl" />
+					</Component>
+					<Component Id="manifest.tmpl4" Guid="558FE7A3-BF0F-45BA-B329-8F0E79F61AB0">
+						<File Id="manifest.tmpl4" Name="manifest.tmpl" Source="..\..\mercurial\templates\spartan\manifest.tmpl" />
+					</Component>
+					<Component Id="map7" Guid="4E55442F-5DC9-42D0-A170-FCF182A4D50B">
+						<File Id="map7" Name="map" Source="..\..\mercurial\templates\spartan\map" />
+					</Component>
+					<Component Id="notfound.tmpl4" Guid="4D875894-0BFE-465A-A064-B838155679F8">
+						<File Id="notfound.tmpl4" Name="notfound.tmpl" Source="..\..\mercurial\templates\spartan\notfound.tmpl" />
+					</Component>
+					<Component Id="search.tmpl3" Guid="6D287045-0A6B-44C2-8165-DA789600AC0E">
+						<File Id="search.tmpl3" Name="search.tmpl" Source="..\..\mercurial\templates\spartan\search.tmpl" />
+					</Component>
+					<Component Id="shortlog.tmpl3" Guid="E4E49473-45ED-4F92-B9A5-F4590E49E091">
+						<File Id="shortlog.tmpl3" Name="shortlog.tmpl" Source="..\..\mercurial\templates\spartan\shortlog.tmpl" />
+					</Component>
+					<Component Id="shortlogentry.tmpl1" Guid="D906A548-7B0A-4D5A-B8F4-790AE076FE23">
+						<File Id="shortlogentry.tmpl1" Name="shortlogentry.tmpl" Source="..\..\mercurial\templates\spartan\shortlogentry.tmpl" />
+					</Component>
+					<Component Id="tags.tmpl5" Guid="2F4538AF-CF6F-49C2-A508-1880FC6AC233">
+						<File Id="tags.tmpl5" Name="tags.tmpl" Source="..\..\mercurial\templates\spartan\tags.tmpl" />
+					</Component>
+				</Directory>
+				<Directory Id="mercurial.templates.static" Name="static">
+					<Component Id="background.png" Guid="8209130A-4CEC-4AC9-A674-419FE0803B41">
+						<File Id="background.png" Name="background.png" KeyPath="yes" Source="..\..\mercurial\templates\static\background.png" />
+					</Component>
+					<Component Id="coal_file.png" Guid="CBACEA48-AE09-4EA2-AF24-4CEEA209D101">
+						<File Id="coal_file.png" Name="coal-file.png" Source="..\..\mercurial\templates\static\coal-file.png" />
+					</Component>
+					<Component Id="coal_folder.png" Guid="99E38445-7D1E-40A2-ABA6-998758C91371">
+						<File Id="coal_folder.png" Name="coal-folder.png" Source="..\..\mercurial\templates\static\coal-folder.png" />
+					</Component>
+					<Component Id="excanvas.js" Guid="C1BFF03F-7286-4F3A-835B-CE6C55E89E3E">
+						<File Id="excanvas.js" Name="excanvas.js" Source="..\..\mercurial\templates\static\excanvas.js" />
+					</Component>
+					<Component Id="graph.js" Guid="B6F4711F-D64D-4CC7-99C2-4B39B6EA5F50">
+						<File Id="graph.js" Name="graph.js" Source="..\..\mercurial\templates\static\graph.js" />
+					</Component>
+					<Component Id="hgicon.png" Guid="A100B1DB-65AA-49C8-9BCB-433604945AC2">
+						<File Id="hgicon.png" Name="hgicon.png" Source="..\..\mercurial\templates\static\hgicon.png" />
+					</Component>
+					<Component Id="hglogo.png" Guid="6D015759-86F4-4F14-8EFB-136B0B2318D0">
+						<File Id="hglogo.png" Name="hglogo.png" Source="..\..\mercurial\templates\static\hglogo.png" />
+					</Component>
+					<Component Id="style_coal.css" Guid="A8916E19-EAB8-4A97-8AA1-8925FB33EAE7">
+						<File Id="style_coal.css" Name="style-coal.css" Source="..\..\mercurial\templates\static\style-coal.css" />
+					</Component>
+					<Component Id="style_gitweb.css" Guid="FC5059C1-F461-4F81-A4A9-67866C39AC07">
+						<File Id="style_gitweb.css" Name="style-gitweb.css" Source="..\..\mercurial\templates\static\style-gitweb.css" />
+					</Component>
+					<Component Id="style_monoblue.css" Guid="EAFAE848-AEBE-4F7A-A766-12F9E875DD07">
+						<File Id="style_monoblue.css" Name="style-monoblue.css" Source="..\..\mercurial\templates\static\style-monoblue.css" />
+					</Component>
+					<Component Id="style_paper.css" Guid="EE275FC5-1AF8-4A67-B81F-31E3CC6FC561">
+						<File Id="style_paper.css" Name="style-paper.css" Source="..\..\mercurial\templates\static\style-paper.css" />
+					</Component>
+					<Component Id="style.css" Guid="84A42E63-47A3-4BB3-AF26-38EB08A5C5C4">
+						<File Id="style.css" Name="style.css" Source="..\..\mercurial\templates\static\style.css" />
+					</Component>
+				</Directory>
+			</Directory>
+		</DirectoryRef>
+		<ComponentGroup Id="Mercurial">
+			<ComponentRef Id="hg.exe" />
+			<ComponentRef Id="library.zip" />
+			<ComponentRef Id="python26.dll" />
+			<ComponentRef Id="ReadMe.html" />
+			<ComponentRef Id="Mercurial.rc" />
+			<ComponentRef Id="MergeTools.rc" />
+			<ComponentRef Id="map_cmdline.changelog" />
+			<ComponentRef Id="map_cmdline.compact" />
+			<ComponentRef Id="map_cmdline.default" />
+			<ComponentRef Id="map_cmdline.xml" />
+			<ComponentRef Id="template_vars.txt" />
+			<ComponentRef Id="changelog.tmpl" />
+			<ComponentRef Id="changelogentry.tmpl" />
+			<ComponentRef Id="error.tmpl" />
+			<ComponentRef Id="filelog.tmpl" />
+			<ComponentRef Id="header.tmpl" />
+			<ComponentRef Id="map" />
+			<ComponentRef Id="tagentry.tmpl" />
+			<ComponentRef Id="tags.tmpl" />
+			<ComponentRef Id="header.tmpl1" />
+			<ComponentRef Id="map1" />
+			<ComponentRef Id="branches.tmpl" />
+			<ComponentRef Id="changelog.tmpl1" />
+			<ComponentRef Id="changelogentry.tmpl1" />
+			<ComponentRef Id="changeset.tmpl" />
+			<ComponentRef Id="error.tmpl1" />
+			<ComponentRef Id="fileannotate.tmpl" />
+			<ComponentRef Id="filediff.tmpl" />
+			<ComponentRef Id="filelog.tmpl1" />
+			<ComponentRef Id="filerevision.tmpl" />
+			<ComponentRef Id="footer.tmpl" />
+			<ComponentRef Id="graph.tmpl" />
+			<ComponentRef Id="header.tmpl2" />
+			<ComponentRef Id="index.tmpl" />
+			<ComponentRef Id="manifest.tmpl" />
+			<ComponentRef Id="map2" />
+			<ComponentRef Id="notfound.tmpl" />
+			<ComponentRef Id="search.tmpl" />
+			<ComponentRef Id="shortlog.tmpl" />
+			<ComponentRef Id="summary.tmpl" />
+			<ComponentRef Id="tags.tmpl1" />
+			<ComponentRef Id="branches.tmpl1" />
+			<ComponentRef Id="changelog.tmpl2" />
+			<ComponentRef Id="changelogentry.tmpl2" />
+			<ComponentRef Id="changeset.tmpl1" />
+			<ComponentRef Id="error.tmpl2" />
+			<ComponentRef Id="fileannotate.tmpl1" />
+			<ComponentRef Id="filediff.tmpl1" />
+			<ComponentRef Id="filelog.tmpl2" />
+			<ComponentRef Id="filerevision.tmpl1" />
+			<ComponentRef Id="footer.tmpl1" />
+			<ComponentRef Id="graph.tmpl1" />
+			<ComponentRef Id="header.tmpl3" />
+			<ComponentRef Id="index.tmpl1" />
+			<ComponentRef Id="manifest.tmpl1" />
+			<ComponentRef Id="map3" />
+			<ComponentRef Id="notfound.tmpl1" />
+			<ComponentRef Id="search.tmpl1" />
+			<ComponentRef Id="shortlog.tmpl1" />
+			<ComponentRef Id="summary.tmpl1" />
+			<ComponentRef Id="tags.tmpl2" />
+			<ComponentRef Id="branches.tmpl2" />
+			<ComponentRef Id="changeset.tmpl2" />
+			<ComponentRef Id="error.tmpl3" />
+			<ComponentRef Id="fileannotate.tmpl2" />
+			<ComponentRef Id="filediff.tmpl2" />
+			<ComponentRef Id="filelog.tmpl3" />
+			<ComponentRef Id="filelogentry.tmpl" />
+			<ComponentRef Id="filerevision.tmpl2" />
+			<ComponentRef Id="footer.tmpl2" />
+			<ComponentRef Id="graph.tmpl2" />
+			<ComponentRef Id="header.tmpl4" />
+			<ComponentRef Id="index.tmpl2" />
+			<ComponentRef Id="manifest.tmpl2" />
+			<ComponentRef Id="map4" />
+			<ComponentRef Id="notfound.tmpl2" />
+			<ComponentRef Id="search.tmpl2" />
+			<ComponentRef Id="shortlog.tmpl2" />
+			<ComponentRef Id="shortlogentry.tmpl" />
+			<ComponentRef Id="tags.tmpl3" />
+			<ComponentRef Id="changeset.tmpl3" />
+			<ComponentRef Id="error.tmpl4" />
+			<ComponentRef Id="fileannotate.tmpl3" />
+			<ComponentRef Id="filediff.tmpl3" />
+			<ComponentRef Id="index.tmpl3" />
+			<ComponentRef Id="manifest.tmpl3" />
+			<ComponentRef Id="map5" />
+			<ComponentRef Id="notfound.tmpl3" />
+			<ComponentRef Id="changelog.tmpl3" />
+			<ComponentRef Id="changelogentry.tmpl3" />
+			<ComponentRef Id="error.tmpl5" />
+			<ComponentRef Id="filelog.tmpl4" />
+			<ComponentRef Id="filelogentry.tmpl1" />
+			<ComponentRef Id="header.tmpl5" />
+			<ComponentRef Id="map6" />
+			<ComponentRef Id="tagentry.tmpl1" />
+			<ComponentRef Id="tags.tmpl4" />
+			<ComponentRef Id="branches.tmpl3" />
+			<ComponentRef Id="changelog.tmpl4" />
+			<ComponentRef Id="changelogentry.tmpl4" />
+			<ComponentRef Id="changeset.tmpl4" />
+			<ComponentRef Id="error.tmpl6" />
+			<ComponentRef Id="fileannotate.tmpl4" />
+			<ComponentRef Id="filediff.tmpl4" />
+			<ComponentRef Id="filelog.tmpl5" />
+			<ComponentRef Id="filelogentry.tmpl2" />
+			<ComponentRef Id="filerevision.tmpl3" />
+			<ComponentRef Id="footer.tmpl3" />
+			<ComponentRef Id="graph.tmpl3" />
+			<ComponentRef Id="header.tmpl6" />
+			<ComponentRef Id="index.tmpl4" />
+			<ComponentRef Id="manifest.tmpl4" />
+			<ComponentRef Id="map7" />
+			<ComponentRef Id="notfound.tmpl4" />
+			<ComponentRef Id="search.tmpl3" />
+			<ComponentRef Id="shortlog.tmpl3" />
+			<ComponentRef Id="shortlogentry.tmpl1" />
+			<ComponentRef Id="tags.tmpl5" />
+			<ComponentRef Id="background.png" />
+			<ComponentRef Id="coal_file.png" />
+			<ComponentRef Id="coal_folder.png" />
+			<ComponentRef Id="excanvas.js" />
+			<ComponentRef Id="graph.js" />
+			<ComponentRef Id="hgicon.png" />
+			<ComponentRef Id="hglogo.png" />
+			<ComponentRef Id="style_coal.css" />
+			<ComponentRef Id="style_gitweb.css" />
+			<ComponentRef Id="style_monoblue.css" />
+			<ComponentRef Id="style_paper.css" />
+			<ComponentRef Id="style.css" />
+		</ComponentGroup>
+	</Fragment>
+</Wix>

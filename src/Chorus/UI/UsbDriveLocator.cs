@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
-using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -11,9 +9,8 @@ namespace Chorus.UI
 {
   //  [Designer(typeof (LocalizationHelperDesigner))]
 	[ToolboxItem(true)]
-	public partial class UsbDriveLocator : Component, ISupportInitialize, IExtenderProvider
+	public partial class UsbDriveLocator : Component, ISupportInitialize, IExtenderProvider, IUsbDriveLocator
 	{
-
 
 		#region Extender Stuff
 		public UsbDriveLocator()
@@ -109,8 +106,8 @@ namespace Chorus.UI
 			   _keepRunning = false ;
 #endif
 			}
-		#endregion
 
 		}
+		#endregion
 	}
 }

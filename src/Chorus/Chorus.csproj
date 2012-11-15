@@ -1,27 +1,45 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
 	<Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
 	<Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-	<ProductVersion>9.0.30729</ProductVersion>
+	<ProductVersion>9.0.21022</ProductVersion>
 	<SchemaVersion>2.0</SchemaVersion>
 	<ProjectGuid>{9DA5A655-1881-4BE1-81BA-256E47CF7537}</ProjectGuid>
 	<OutputType>WinExe</OutputType>
 	<AppDesignerFolder>Properties</AppDesignerFolder>
 	<RootNamespace>Chorus</RootNamespace>
 	<AssemblyName>Chorus</AssemblyName>
-	<TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+	<TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
 	<FileAlignment>512</FileAlignment>
-	<TargetFrameworkSubset>
-	</TargetFrameworkSubset>
 	<StartupObject>Chorus.Program</StartupObject>
 	<ApplicationIcon>chorus.ico</ApplicationIcon>
+	<FileUpgradeFlags>
+	</FileUpgradeFlags>
+	<OldToolsVersion>3.5</OldToolsVersion>
+	<UpgradeBackupLocation />
+	<PublishUrl>publish\</PublishUrl>
+	<Install>true</Install>
+	<InstallFrom>Disk</InstallFrom>
+	<UpdateEnabled>false</UpdateEnabled>
+	<UpdateMode>Foreground</UpdateMode>
+	<UpdateInterval>7</UpdateInterval>
+	<UpdateIntervalUnits>Days</UpdateIntervalUnits>
+	<UpdatePeriodically>false</UpdatePeriodically>
+	<UpdateRequired>false</UpdateRequired>
+	<MapFileExtensions>true</MapFileExtensions>
+	<ApplicationRevision>0</ApplicationRevision>
+	<ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+	<IsWebBootstrapper>false</IsWebBootstrapper>
+	<UseApplicationTrust>false</UseApplicationTrust>
+	<BootstrapperEnabled>true</BootstrapperEnabled>
+	<TargetFrameworkProfile>Client</TargetFrameworkProfile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
 	<DebugSymbols>true</DebugSymbols>
 	<DebugType>full</DebugType>
 	<Optimize>false</Optimize>
-	<OutputPath>..\..\output\Debug\</OutputPath>
+	<OutputPath>..\..\output\$(Configuration)</OutputPath>
 	<DefineConstants>DEBUG;TRACE</DefineConstants>
 	<ErrorReport>prompt</ErrorReport>
 	<WarningLevel>4</WarningLevel>
@@ -32,11 +50,13 @@
 	<CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
 	<ApplicationIcon>chorus.ico</ApplicationIcon>
 	<PlatformTarget>x86</PlatformTarget>
+	<DocumentationFile>..\..\output\$(Configuration)\Chorus.XML</DocumentationFile>
+	<UseVSHostingProcess>true</UseVSHostingProcess>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
 	<DebugType>pdbonly</DebugType>
 	<Optimize>true</Optimize>
-	<OutputPath>..\..\output\Release\</OutputPath>
+	<OutputPath>..\..\output\$(Configuration)</OutputPath>
 	<DefineConstants>TRACE</DefineConstants>
 	<ErrorReport>prompt</ErrorReport>
 	<WarningLevel>4</WarningLevel>
@@ -47,11 +67,40 @@
 	<AllowUnsafeBlocks>false</AllowUnsafeBlocks>
 	<CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
 	<ApplicationIcon>chorus.ico</ApplicationIcon>
+	<PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'DebugMono|AnyCPU' ">
+	<DebugSymbols>true</DebugSymbols>
+	<OutputPath>..\..\output\$(Configuration)</OutputPath>
+	<DefineConstants>DEBUG;TRACE;MONO</DefineConstants>
+	<CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+	<DocumentationFile>..\..\output\$(Configuration)\Chorus.XML</DocumentationFile>
+	<DebugType>full</DebugType>
+	<PlatformTarget>x86</PlatformTarget>
+	<ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'ReleaseMono|AnyCPU' ">
+	<DebugSymbols>true</DebugSymbols>
+	<OutputPath>..\..\output\$(Configuration)</OutputPath>
+	<DefineConstants>TRACE;MONO</DefineConstants>
+	<CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+	<Optimize>true</Optimize>
+	<DebugType>pdbonly</DebugType>
+	<PlatformTarget>x86</PlatformTarget>
+	<ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <ItemGroup>
 	<Reference Include="Autofac, Version=1.4.4.561, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
 	  <SpecificVersion>False</SpecificVersion>
-	  <HintPath>..\..\lib\net2.0\Autofac.dll</HintPath>
+	  <HintPath>..\..\lib\$(Configuration)\Autofac.dll</HintPath>
+	</Reference>
+	<Reference Include="Palaso, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86">
+	  <SpecificVersion>False</SpecificVersion>
+	  <HintPath>..\..\lib\$(Configuration)\Palaso.dll</HintPath>
+	</Reference>
+	<Reference Include="PalasoUIWindowsForms, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86">
+	  <SpecificVersion>False</SpecificVersion>
+	  <HintPath>..\..\lib\$(Configuration)\PalasoUIWindowsForms.dll</HintPath>
 	</Reference>
 	<Reference Include="System" />
 	<Reference Include="System.Core">
@@ -59,9 +108,7 @@
 	</Reference>
 	<Reference Include="System.Data" />
 	<Reference Include="System.Deployment" />
-	<Reference Include="System.Design" />
 	<Reference Include="System.Drawing" />
-	<Reference Include="System.Web" />
 	<Reference Include="System.Windows.Forms" />
 	<Reference Include="System.Xml" />
 	<Reference Include="System.Xml.Linq">
@@ -73,17 +120,50 @@
 	<Compile Include="Bootstrapper.cs" />
 	<Compile Include="ChorusSystem.cs" />
 	<Compile Include="ChorusUIComponentsInjector.cs" />
+	<Compile Include="NotesToRecordMapping.cs" />
 	<Compile Include="UI\BetterLabel.cs">
 	  <SubType>Component</SubType>
 	</Compile>
 	<Compile Include="UI\BetterLabel.designer.cs">
 	  <DependentUpon>BetterLabel.cs</DependentUpon>
 	</Compile>
-	<Compile Include="UI\Clone\InternetCloneInstructionsControl.cs">
+	<Compile Include="UI\Clone\CloneFromUsb.cs" />
+	<Compile Include="UI\Clone\GetCloneFromChorusHubModel.cs" />
+	<Compile Include="UI\Clone\GetCloneFromChorusHubDialog.cs">
+	  <SubType>Form</SubType>
+	</Compile>
+	<Compile Include="UI\Clone\GetCloneFromChorusHubDialog.Designer.cs">
+	  <DependentUpon>GetCloneFromChorusHubDialog.cs</DependentUpon>
+	</Compile>
+	<Compile Include="UI\Clone\GetCloneFromNetworkFolderModel.cs" />
+	<Compile Include="UI\Clone\GetCloneFromNetworkFolderDlg.cs">
+	  <SubType>Form</SubType>
+	</Compile>
+	<Compile Include="UI\Clone\GetCloneFromNetworkFolderDlg.Designer.cs">
+	  <DependentUpon>GetCloneFromNetworkFolderDlg.cs</DependentUpon>
+	</Compile>
+	<Compile Include="UI\Clone\GetSharedProject.cs" />
+	<Compile Include="UI\Clone\ICloneSourceDialog.cs" />
+	<Compile Include="UI\Clone\IGetSharedProject.cs" />
+	<Compile Include="UI\Misc\NetworkFolderSettingsControl.cs">
 	  <SubType>UserControl</SubType>
 	</Compile>
-	<Compile Include="UI\Clone\InternetCloneInstructionsControl.Designer.cs">
-	  <DependentUpon>InternetCloneInstructionsControl.cs</DependentUpon>
+	<Compile Include="UI\Misc\NetworkFolderSettingsControl.Designer.cs">
+	  <DependentUpon>NetworkFolderSettingsControl.cs</DependentUpon>
+	</Compile>
+	<Compile Include="UI\Misc\NetworkFolderSettingsModel.cs" />
+	<Compile Include="UI\Misc\ServerSettingsControl.cs">
+	  <SubType>UserControl</SubType>
+	</Compile>
+	<Compile Include="UI\Misc\ServerSettingsControl.Designer.cs">
+	  <DependentUpon>ServerSettingsControl.cs</DependentUpon>
+	</Compile>
+	<Compile Include="UI\Clone\GetCloneFromInternetModel.cs" />
+	<Compile Include="UI\Clone\TargetFolderControl.cs">
+	  <SubType>UserControl</SubType>
+	</Compile>
+	<Compile Include="UI\Clone\TargetFolderControl.Designer.cs">
+	  <DependentUpon>TargetFolderControl.cs</DependentUpon>
 	</Compile>
 	<Compile Include="UI\Clone\GetCloneFromInternetDialog.cs">
 	  <SubType>Form</SubType>
@@ -97,25 +177,7 @@
 	<Compile Include="UI\Clone\GetCloneFromUsbDialog.Designer.cs">
 	  <DependentUpon>GetCloneFromUsbDialog.cs</DependentUpon>
 	</Compile>
-	<Compile Include="UI\Misc\LogBox.cs">
-	  <SubType>UserControl</SubType>
-	</Compile>
-	<Compile Include="UI\Misc\LogBox.Designer.cs">
-	  <DependentUpon>LogBox.cs</DependentUpon>
-	</Compile>
-	<Compile Include="UI\Misc\ProxySettingsModel.cs" />
-	<Compile Include="UI\Misc\ProxySettingsView.cs">
-	  <SubType>UserControl</SubType>
-	</Compile>
-	<Compile Include="UI\Misc\ProxySettingsView.Designer.cs">
-	  <DependentUpon>ProxySettingsView.cs</DependentUpon>
-	</Compile>
-	<Compile Include="UI\Misc\ReadinessDialog.cs">
-	  <SubType>Form</SubType>
-	</Compile>
-	<Compile Include="UI\Misc\ReadinessDialog.Designer.cs">
-	  <DependentUpon>ReadinessDialog.cs</DependentUpon>
-	</Compile>
+	<Compile Include="UI\Misc\ServerSettingsModel.cs" />
 	<Compile Include="UI\Misc\TroubleshootingView.cs">
 	  <SubType>UserControl</SubType>
 	</Compile>
@@ -128,6 +190,7 @@
 	<Compile Include="UI\Misc\ReadinessPanel.Designer.cs">
 	  <DependentUpon>ReadinessPanel.cs</DependentUpon>
 	</Compile>
+	<Compile Include="UI\Notes\AnnotationClassFactoryUI.cs" />
 	<Compile Include="UI\Notes\AnnotationInspector.cs">
 	  <SubType>Form</SubType>
 	</Compile>
@@ -135,6 +198,12 @@
 	  <DependentUpon>AnnotationInspector.cs</DependentUpon>
 	</Compile>
 	<Compile Include="UI\Notes\AnnotationEditorModel.cs" />
+	<Compile Include="UI\Notes\ConflictDetailsForm.cs">
+	  <SubType>Form</SubType>
+	</Compile>
+	<Compile Include="UI\Notes\ConflictDetailsForm.Designer.cs">
+	  <DependentUpon>ConflictDetailsForm.cs</DependentUpon>
+	</Compile>
 	<Compile Include="UI\Notes\Events.cs" />
 	<Compile Include="UI\Notes\ListMessage.cs" />
 	<Compile Include="UI\Notes\Bar\NoteDetailDialog.cs">
@@ -190,6 +259,12 @@
 	<Compile Include="UI\Notes\Browser\NotesInProjectView.Designer.cs">
 	  <DependentUpon>NotesInProjectView.cs</DependentUpon>
 	</Compile>
+	<Compile Include="UI\Review\HistoryPageOptions.cs" />
+	<Compile Include="UI\Review\RevisionsInRepository\HistoryRowIcons.Designer.cs">
+	  <AutoGen>True</AutoGen>
+	  <DesignTime>True</DesignTime>
+	  <DependentUpon>HistoryRowIcons.resx</DependentUpon>
+	</Compile>
 	<Compile Include="UI\Review\RevisionsInRepository\RevisionsInRepositoryView.cs">
 	  <SubType>UserControl</SubType>
 	</Compile>
@@ -205,12 +280,28 @@
 	</Compile>
 	<Compile Include="Program.cs" />
 	<Compile Include="Properties\AssemblyInfo.cs" />
+	<EmbeddedResource Include="UI\Clone\GetCloneFromChorusHubDialog.resx">
+	  <DependentUpon>GetCloneFromChorusHubDialog.cs</DependentUpon>
+	  <SubType>Designer</SubType>
+	</EmbeddedResource>
+	<EmbeddedResource Include="UI\Clone\GetCloneFromNetworkFolderDlg.resx">
+	  <DependentUpon>GetCloneFromNetworkFolderDlg.cs</DependentUpon>
+	  <SubType>Designer</SubType>
+	</EmbeddedResource>
+	<EmbeddedResource Include="UI\Misc\NetworkFolderSettingsControl.resx">
+	  <DependentUpon>NetworkFolderSettingsControl.cs</DependentUpon>
+	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Review\ChangedReport\ChangeReportView.resx">
 	  <DependentUpon>ChangeReportView.cs</DependentUpon>
 	  <SubType>Designer</SubType>
 	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Review\HistoryPage.resx">
 	  <DependentUpon>HistoryPage.cs</DependentUpon>
+	  <SubType>Designer</SubType>
+	</EmbeddedResource>
+	<EmbeddedResource Include="UI\Review\RevisionsInRepository\HistoryRowIcons.resx">
+	  <Generator>ResXFileCodeGenerator</Generator>
+	  <LastGenOutput>HistoryRowIcons.Designer.cs</LastGenOutput>
 	  <SubType>Designer</SubType>
 	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Review\RevisionsInRepository\RevisionsInRepositoryView.resx">
@@ -229,6 +320,9 @@
 	<EmbeddedResource Include="Shell.resx">
 	  <DependentUpon>Shell.cs</DependentUpon>
 	  <SubType>Designer</SubType>
+	</EmbeddedResource>
+	<EmbeddedResource Include="UI\Settings\SendReceiveSettings.resx">
+	  <DependentUpon>SendReceiveSettings.cs</DependentUpon>
 	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Settings\SettingsView.resx">
 	  <DependentUpon>SettingsView.cs</DependentUpon>
@@ -258,6 +352,12 @@
 	  <DesignTimeSharedInput>True</DesignTimeSharedInput>
 	</Compile>
 	<Compile Include="UI\Review\Events.cs" />
+	<Compile Include="UI\Settings\SendReceiveSettings.cs">
+	  <SubType>Form</SubType>
+	</Compile>
+	<Compile Include="UI\Settings\SendReceiveSettings.Designer.cs">
+	  <DependentUpon>SendReceiveSettings.cs</DependentUpon>
+	</Compile>
 	<Compile Include="UI\Settings\SettingsModel.cs" />
 	<Compile Include="Shell.cs">
 	  <SubType>Form</SubType>
@@ -277,6 +377,13 @@
 	<Compile Include="UI\Settings\SetupPanel.Designer.cs">
 	  <DependentUpon>SetupPanel.cs</DependentUpon>
 	</Compile>
+	<Compile Include="UI\Misc\ServerSettingsDialog.cs">
+	  <SubType>Form</SubType>
+	</Compile>
+	<Compile Include="UI\Misc\ServerSettingsDialog.Designer.cs">
+	  <DependentUpon>ServerSettingsDialog.cs</DependentUpon>
+	</Compile>
+	<Compile Include="UI\IUsbDriveLocator.cs" />
 	<Compile Include="UI\Sync\SyncControl.cs">
 	  <SubType>UserControl</SubType>
 	</Compile>
@@ -302,6 +409,7 @@
 	<Compile Include="UI\Sync\SyncStartControl.Designer.cs">
 	  <DependentUpon>SyncStartControl.cs</DependentUpon>
 	</Compile>
+	<Compile Include="UI\Sync\SyncStartModel.cs" />
 	<Compile Include="UI\UsbDriveLocator.cs">
 	  <SubType>Component</SubType>
 	</Compile>
@@ -310,6 +418,10 @@
 	</Compile>
   </ItemGroup>
   <ItemGroup>
+	<ProjectReference Include="..\ChorusHub\ChorusHub.csproj">
+	  <Project>{EB8C974D-B1C6-4CE0-BFD4-170EFE18790C}</Project>
+	  <Name>ChorusHub</Name>
+	</ProjectReference>
 	<ProjectReference Include="..\LibChorus\LibChorus.csproj">
 	  <Project>{94245366-8F1E-475C-810D-FE89BB3948E0}</Project>
 	  <Name>LibChorus</Name>
@@ -319,9 +431,14 @@
 	<Content Include="chorus.ico" />
 	<EmbeddedResource Include="UI\BetterLabel.resx">
 	  <DependentUpon>BetterLabel.cs</DependentUpon>
+	  <SubType>Designer</SubType>
 	</EmbeddedResource>
-	<EmbeddedResource Include="UI\Clone\InternetCloneInstructionsControl.resx">
-	  <DependentUpon>InternetCloneInstructionsControl.cs</DependentUpon>
+	<EmbeddedResource Include="UI\Misc\ServerSettingsControl.resx">
+	  <DependentUpon>ServerSettingsControl.cs</DependentUpon>
+	  <SubType>Designer</SubType>
+	</EmbeddedResource>
+	<EmbeddedResource Include="UI\Clone\TargetFolderControl.resx">
+	  <DependentUpon>TargetFolderControl.cs</DependentUpon>
 	  <SubType>Designer</SubType>
 	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Clone\GetCloneFromInternetDialog.resx">
@@ -332,17 +449,9 @@
 	  <DependentUpon>GetCloneFromUsbDialog.cs</DependentUpon>
 	  <SubType>Designer</SubType>
 	</EmbeddedResource>
-	<EmbeddedResource Include="UI\Misc\LogBox.resx">
-	  <DependentUpon>LogBox.cs</DependentUpon>
-	</EmbeddedResource>
-	<EmbeddedResource Include="UI\Misc\ProxySettingsView.resx">
-	  <DependentUpon>ProxySettingsView.cs</DependentUpon>
-	</EmbeddedResource>
-	<EmbeddedResource Include="UI\Misc\ReadinessDialog.resx">
-	  <DependentUpon>ReadinessDialog.cs</DependentUpon>
-	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Misc\TroubleshootingView.resx">
 	  <DependentUpon>TroubleshootingView.cs</DependentUpon>
+	  <SubType>Designer</SubType>
 	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Misc\ReadinessPanel.resx">
 	  <DependentUpon>ReadinessPanel.cs</DependentUpon>
@@ -350,15 +459,19 @@
 	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Notes\AnnotationInspector.resx">
 	  <DependentUpon>AnnotationInspector.cs</DependentUpon>
+	  <SubType>Designer</SubType>
 	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Notes\AnnotationEditorView.resx">
 	  <DependentUpon>AnnotationEditorView.cs</DependentUpon>
+	  <SubType>Designer</SubType>
 	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Notes\Bar\NoteDetailDialog.resx">
 	  <DependentUpon>NoteDetailDialog.cs</DependentUpon>
+	  <SubType>Designer</SubType>
 	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Notes\Bar\NotesBarView.resx">
 	  <DependentUpon>NotesBarView.cs</DependentUpon>
+	  <SubType>Designer</SubType>
 	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Notes\Browser\NotesInProjectView.resx">
 	  <DependentUpon>NotesInProjectView.cs</DependentUpon>
@@ -370,6 +483,15 @@
 	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Notes\Browser\SearchBox.resx">
 	  <DependentUpon>SearchBox.cs</DependentUpon>
+	  <SubType>Designer</SubType>
+	</EmbeddedResource>
+	<EmbeddedResource Include="UI\Misc\ServerSettingsDialog.resx">
+	  <DependentUpon>ServerSettingsDialog.cs</DependentUpon>
+	  <SubType>Designer</SubType>
+	</EmbeddedResource>
+	<EmbeddedResource Include="UI\Notes\ConflictDetailsForm.resx">
+	  <DependentUpon>ConflictDetailsForm.cs</DependentUpon>
+	  <SubType>Designer</SubType>
 	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Sync\SyncControl.resx">
 	  <DependentUpon>SyncControl.cs</DependentUpon>
@@ -381,6 +503,10 @@
 	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Sync\SyncStartControl.resx">
 	  <DependentUpon>SyncStartControl.cs</DependentUpon>
+	  <SubType>Designer</SubType>
+	</EmbeddedResource>
+	<EmbeddedResource Include="Resources\chorus.helpmap">
+	  <SubType>Designer</SubType>
 	</EmbeddedResource>
 	<None Include="Resources\error.wav" />
 	<None Include="Resources\chorus32x32.png" />
@@ -402,8 +528,23 @@
 	<None Include="Resources\check12x12.png" />
 	<None Include="Resources\Filter2HS.png" />
 	<None Include="Resources\expand.png" />
+	<None Include="Resources\chorus16x16.png" />
+	<None Include="Resources\FieldWorksBridge.bmp" />
+	<None Include="Resources\Committer Person.png" />
+	<None Include="Resources\icon16x16.png" />
+	<None Include="Resources\Bloom16x16.png" />
+	<None Include="Resources\chorusHubLarge.png" />
+	<None Include="Resources\chorusHubMedium.png" />
 	<Content Include="Resources\menuButton.png" />
 	<None Include="Resources\sendReceiveCircle16x16png.png" />
+	<None Include="Resources\Merge16x16.png" />
+	<None Include="Resources\MergeConflict16x16.png" />
+	<None Include="Resources\warning16x16.png" />
+	<None Include="Resources\wesay16x16.png" />
+	<None Include="Resources\wesayconfigDoc16x16.png" />
+	<None Include="Resources\WeSayConfig16x16.png" />
+	<None Include="Resources\warning16x161.png" />
+	<None Include="Resources\warning24x24.png" />
 	<Content Include="UI\Notes\Html\bl.gif">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</Content>
@@ -427,6 +568,23 @@
 	<Content Include="UI\Notes\Html\tr.gif">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</Content>
+  </ItemGroup>
+  <ItemGroup>
+	<BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+	  <Visible>False</Visible>
+	  <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+	  <Install>false</Install>
+	</BootstrapperPackage>
+	<BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+	  <Visible>False</Visible>
+	  <ProductName>.NET Framework 3.5 SP1</ProductName>
+	  <Install>true</Install>
+	</BootstrapperPackage>
+	<BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
+	  <Visible>False</Visible>
+	  <ProductName>Windows Installer 3.1</ProductName>
+	  <Install>true</Install>
+	</BootstrapperPackage>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.

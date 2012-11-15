@@ -1,4 +1,4 @@
-﻿namespace Chorus.UI.Notes
+﻿namespace Chorus.UI.Notes.Bar
 {
 	partial class NotesBarView
 	{

@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Xml;
+﻿using System.Xml;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
 using Chorus.VcsDrivers;
 using NUnit.Framework;
-using Palaso.TestUtilities;
-using TempFile=Chorus.Utilities.TempFile;
+using Palaso.IO;
 
 namespace LibChorus.Tests.merge
 {
