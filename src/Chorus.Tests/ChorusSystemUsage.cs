@@ -5,7 +5,7 @@ using System.Windows.Forms;
 using Chorus.notes;
 using NUnit.Framework;
 using Palaso.IO;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
 using Palaso.TestUtilities;
 
 namespace Chorus.Tests
@@ -36,6 +36,7 @@ namespace Chorus.Tests
 			_someDataFilePath = _someDataFile.Path;
 
 			_chorusSystem = new ChorusSystem(_dataFolderRoot);
+			_chorusSystem.Init("john");
 		}
 
 		[TearDown]
@@ -53,6 +54,7 @@ namespace Chorus.Tests
 		public void CreateARepositoryIfOneDoesntAlreadyExist()
 		{
 			var cs = new ChorusSystem(_dataFolderRoot);
+			cs.Init(string.Empty);
 			//before your application closes, call:
 			cs.Dispose();
 		}

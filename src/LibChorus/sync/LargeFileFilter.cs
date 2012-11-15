@@ -107,8 +107,8 @@ namespace Chorus.sync
 			var allKnownExtensions = new HashSet<string>();
 			foreach (var handler in handlers)
 				allKnownExtensions.UnionWith(handler.GetExtensionsOfKnownTextFileTypes());
-			var allNormallyExcludedPathnames = CollectAllNormallyExcludedPathnames(configuration, pathToRepository);
 
+			HashSet<string> allNormallyExcludedPathNames = null;
 			foreach (var handler in handlers)
 			{
 				// NB: we don't care if the handler can do anything with the file, or not.
@@ -119,7 +119,9 @@ namespace Chorus.sync
 					if (fileSize <= handler.MaximumFileSize)
 						continue;
 
-					RegisterLargeFile(repository, configuration, builder, fir, filename, allNormallyExcludedPathnames);
+					if (allNormallyExcludedPathNames == null)
+						allNormallyExcludedPathNames = CollectAllNormallyExcludedPathnamesOnce(configuration, pathToRepository);
+					RegisterLargeFile(repository, configuration, builder, fir, filename, allNormallyExcludedPathNames);
 				}
 				else
 				{
@@ -131,13 +133,25 @@ namespace Chorus.sync
 							continue;
 						}
 
-						RegisterLargeFile(repository, configuration, builder, fir, filename, allNormallyExcludedPathnames);
+						if (allNormallyExcludedPathNames == null)
+							allNormallyExcludedPathNames = CollectAllNormallyExcludedPathnamesOnce(configuration, pathToRepository);
+						RegisterLargeFile(repository, configuration, builder, fir, filename, allNormallyExcludedPathNames);
 					}
 				}
 			}
 		}
 
-		private static HashSet<string> CollectAllNormallyExcludedPathnames(ProjectFolderConfiguration configuration,
+		/// <summary>
+		/// Warning: This is a REALLY REALLY REALLY expensive function. It should only be called once, and only if needed.
+		///
+		/// Before we say "that's too big", we need to make sure we wouldn't have used it anyhow, that is, that hg would
+		/// have filtered it out.
+		///
+		/// NB: this could be rewritten to be fast; but at the moment a GetFiles is called for every filter. We could
+		/// instead do a single GetFiles, and do our own filtering.
+		/// </summary>
+		/// <returns></returns>
+		private static HashSet<string> CollectAllNormallyExcludedPathnamesOnce(ProjectFolderConfiguration configuration,
 																string pathToRepository)
 		{
 			var allNormallyExcludedPathnames = new HashSet<string>();

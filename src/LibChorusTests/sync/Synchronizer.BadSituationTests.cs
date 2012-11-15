@@ -7,7 +7,7 @@ using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
 using LibChorus.TestUtilities;
 using NUnit.Framework;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
 using Palaso.TestUtilities;
 
 namespace LibChorus.Tests.sync
@@ -162,6 +162,17 @@ namespace LibChorus.Tests.sync
 				}
 			}
 			File.Delete(Path.Combine(Path.GetTempPath(), "TextMerger-bbb.txt"));
+		}
+
+		//Regression test: used to fail based on looking at the revision history and finding it null
+		[Test]
+		public void Sync_FirstCheckInButNoFilesAdded_NoProblem()
+		{
+			using (var bob = new RepositorySetup("bob"))
+			{
+				var result = bob.CheckinAndPullAndMerge();
+				Assert.IsTrue(result.Succeeded, result.ErrorEncountered==null?"":result.ErrorEncountered.Message);
+			}
 		}
 
 		/// <summary>
