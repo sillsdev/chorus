@@ -108,9 +108,7 @@
 	</Reference>
 	<Reference Include="System.Data" />
 	<Reference Include="System.Deployment" />
-	<Reference Include="System.Design" />
 	<Reference Include="System.Drawing" />
-	<Reference Include="System.Web" />
 	<Reference Include="System.Windows.Forms" />
 	<Reference Include="System.Xml" />
 	<Reference Include="System.Xml.Linq">
@@ -130,6 +128,13 @@
 	  <DependentUpon>BetterLabel.cs</DependentUpon>
 	</Compile>
 	<Compile Include="UI\Clone\CloneFromUsb.cs" />
+	<Compile Include="UI\Clone\GetCloneFromChorusHubModel.cs" />
+	<Compile Include="UI\Clone\GetCloneFromChorusHubDialog.cs">
+	  <SubType>Form</SubType>
+	</Compile>
+	<Compile Include="UI\Clone\GetCloneFromChorusHubDialog.Designer.cs">
+	  <DependentUpon>GetCloneFromChorusHubDialog.cs</DependentUpon>
+	</Compile>
 	<Compile Include="UI\Clone\GetCloneFromNetworkFolderModel.cs" />
 	<Compile Include="UI\Clone\GetCloneFromNetworkFolderDlg.cs">
 	  <SubType>Form</SubType>
@@ -138,6 +143,7 @@
 	  <DependentUpon>GetCloneFromNetworkFolderDlg.cs</DependentUpon>
 	</Compile>
 	<Compile Include="UI\Clone\GetSharedProject.cs" />
+	<Compile Include="UI\Clone\ICloneSourceDialog.cs" />
 	<Compile Include="UI\Clone\IGetSharedProject.cs" />
 	<Compile Include="UI\Misc\NetworkFolderSettingsControl.cs">
 	  <SubType>UserControl</SubType>
@@ -184,6 +190,7 @@
 	<Compile Include="UI\Misc\ReadinessPanel.Designer.cs">
 	  <DependentUpon>ReadinessPanel.cs</DependentUpon>
 	</Compile>
+	<Compile Include="UI\Notes\AnnotationClassFactoryUI.cs" />
 	<Compile Include="UI\Notes\AnnotationInspector.cs">
 	  <SubType>Form</SubType>
 	</Compile>
@@ -191,6 +198,12 @@
 	  <DependentUpon>AnnotationInspector.cs</DependentUpon>
 	</Compile>
 	<Compile Include="UI\Notes\AnnotationEditorModel.cs" />
+	<Compile Include="UI\Notes\ConflictDetailsForm.cs">
+	  <SubType>Form</SubType>
+	</Compile>
+	<Compile Include="UI\Notes\ConflictDetailsForm.Designer.cs">
+	  <DependentUpon>ConflictDetailsForm.cs</DependentUpon>
+	</Compile>
 	<Compile Include="UI\Notes\Events.cs" />
 	<Compile Include="UI\Notes\ListMessage.cs" />
 	<Compile Include="UI\Notes\Bar\NoteDetailDialog.cs">
@@ -267,6 +280,10 @@
 	</Compile>
 	<Compile Include="Program.cs" />
 	<Compile Include="Properties\AssemblyInfo.cs" />
+	<EmbeddedResource Include="UI\Clone\GetCloneFromChorusHubDialog.resx">
+	  <DependentUpon>GetCloneFromChorusHubDialog.cs</DependentUpon>
+	  <SubType>Designer</SubType>
+	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Clone\GetCloneFromNetworkFolderDlg.resx">
 	  <DependentUpon>GetCloneFromNetworkFolderDlg.cs</DependentUpon>
 	  <SubType>Designer</SubType>
@@ -401,6 +418,10 @@
 	</Compile>
   </ItemGroup>
   <ItemGroup>
+	<ProjectReference Include="..\ChorusHub\ChorusHub.csproj">
+	  <Project>{EB8C974D-B1C6-4CE0-BFD4-170EFE18790C}</Project>
+	  <Name>ChorusHub</Name>
+	</ProjectReference>
 	<ProjectReference Include="..\LibChorus\LibChorus.csproj">
 	  <Project>{94245366-8F1E-475C-810D-FE89BB3948E0}</Project>
 	  <Name>LibChorus</Name>
@@ -468,6 +489,10 @@
 	  <DependentUpon>ServerSettingsDialog.cs</DependentUpon>
 	  <SubType>Designer</SubType>
 	</EmbeddedResource>
+	<EmbeddedResource Include="UI\Notes\ConflictDetailsForm.resx">
+	  <DependentUpon>ConflictDetailsForm.cs</DependentUpon>
+	  <SubType>Designer</SubType>
+	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Sync\SyncControl.resx">
 	  <DependentUpon>SyncControl.cs</DependentUpon>
 	  <SubType>Designer</SubType>
@@ -478,6 +503,9 @@
 	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Sync\SyncStartControl.resx">
 	  <DependentUpon>SyncStartControl.cs</DependentUpon>
+	  <SubType>Designer</SubType>
+	</EmbeddedResource>
+	<EmbeddedResource Include="Resources\chorus.helpmap">
 	  <SubType>Designer</SubType>
 	</EmbeddedResource>
 	<None Include="Resources\error.wav" />
@@ -505,6 +533,8 @@
 	<None Include="Resources\Committer Person.png" />
 	<None Include="Resources\icon16x16.png" />
 	<None Include="Resources\Bloom16x16.png" />
+	<None Include="Resources\chorusHubLarge.png" />
+	<None Include="Resources\chorusHubMedium.png" />
 	<Content Include="Resources\menuButton.png" />
 	<None Include="Resources\sendReceiveCircle16x16png.png" />
 	<None Include="Resources\Merge16x16.png" />

@@ -84,6 +84,10 @@
 	  <SpecificVersion>False</SpecificVersion>
 	  <HintPath>..\..\lib\$(Configuration)\Palaso.TestUtilities.dll</HintPath>
 	</Reference>
+	<Reference Include="PalasoUIWindowsForms, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86">
+	  <SpecificVersion>False</SpecificVersion>
+	  <HintPath>..\..\lib\$(Configuration)\PalasoUIWindowsForms.dll</HintPath>
+	</Reference>
 	<Reference Include="System" />
 	<Reference Include="System.Core">
 	  <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -101,9 +105,11 @@
   </ItemGroup>
   <ItemGroup>
 	<Compile Include="ChorusApplicationTests.cs" />
+	<Compile Include="ChorusHub\ChorusHubTests.cs" />
 	<Compile Include="ChorusSystemTests.cs" />
 	<Compile Include="ChorusSystemUsage.cs" />
 	<Compile Include="clone\ClonerTests.cs" />
+	<Compile Include="UI\Clone\GetCloneFromChorusHubDialogTests.cs" />
 	<Compile Include="UI\Clone\GetCloneFromInternetModelTest.cs" />
 	<Compile Include="UI\Clone\GetCloneFromNetworkModelTest.cs" />
 	<Compile Include="UI\Clone\TargetFolderControlTests.cs" />
@@ -128,6 +134,10 @@
 	<Compile Include="UI\Sync\SyncControlModelTests.cs" />
   </ItemGroup>
   <ItemGroup>
+	<ProjectReference Include="..\ChorusHub\ChorusHub.csproj">
+	  <Project>{EB8C974D-B1C6-4CE0-BFD4-170EFE18790C}</Project>
+	  <Name>ChorusHub</Name>
+	</ProjectReference>
 	<ProjectReference Include="..\Chorus\Chorus.csproj">
 	  <Project>{9DA5A655-1881-4BE1-81BA-256E47CF7537}</Project>
 	  <Name>Chorus</Name>

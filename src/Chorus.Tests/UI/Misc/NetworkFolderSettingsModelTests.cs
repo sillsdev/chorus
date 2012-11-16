@@ -4,7 +4,7 @@ using System.Windows.Forms;
 using Chorus.UI.Misc;
 using LibChorus.TestUtilities;
 using NUnit.Framework;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
 using Palaso.TestUtilities;
 
 namespace Chorus.Tests.UI.Misc
@@ -87,16 +87,20 @@ namespace Chorus.Tests.UI.Misc
 		public void ExistingSameRepoGivesNoMessage()
 		{
 			var model = new NetworkFolderSettingsModel { MessageBoxService = new MessageBoxService() };
-			var firstRepo = new RepositorySetup("bert", "OrigRepoFolder");
-			firstRepo.AddAndCheckinFile("dummyFile", "makeid");
-			model.InitFromProjectPath(firstRepo.ProjectFolder.Path);
-			//clone repository files into other directory.
-			var secondRepo = new RepositorySetup("ernie", firstRepo);
-			model.SharedFolder = secondRepo.ProjectFolder.Path;
-			model.SaveSettings();
-			Assert.Null(((MessageBoxService)model.MessageBoxService).LastMessage,
-						"Unexpected message {0} when selecting a folder containing the same repo",
-						((MessageBoxService)model.MessageBoxService).LastMessage);
+			using (var firstRepo = new RepositorySetup("bert", "OrigRepoFolder"))
+			{
+				firstRepo.AddAndCheckinFile("dummyFile", "makeid");
+				model.InitFromProjectPath(firstRepo.ProjectFolder.Path);
+				//clone repository files into other directory.
+				using (var secondRepo = new RepositorySetup("ernie", firstRepo))
+				{
+					model.SharedFolder = secondRepo.ProjectFolder.Path;
+					model.SaveSettings();
+					Assert.Null(((MessageBoxService)model.MessageBoxService).LastMessage,
+								"Unexpected message {0} when selecting a folder containing the same repo",
+								((MessageBoxService)model.MessageBoxService).LastMessage);
+				}
+			}
 		}
 
 		[Test]
@@ -104,33 +108,38 @@ namespace Chorus.Tests.UI.Misc
 //									 since their contents was identical. If it has failed on Mono again I was wrong.
 		public void ExistingWrongRepoGivesWrongRepoPrompt()
 		{
-
 			var model = new NetworkFolderSettingsModel { MessageBoxService = new MessageBoxService() };
-				var firstRepo = new RepositorySetup("bob", "OrigRepoFolder");
+			using (var firstRepo = new RepositorySetup("bob", "OrigRepoFolder"))
+			{
 				firstRepo.AddAndCheckinFile("this.file", "filetext");
 				model.InitFromProjectPath(firstRepo.ProjectFolder.Path);
-				var secondRepo = new RepositorySetup("bob", "OtherRepoFolder");
-				secondRepo.AddAndCheckinFile("that.file", "othertext");
-				model.SharedFolder = secondRepo.ProjectFolder.Path;
-				model.SaveSettings();
-				Assert.True(((MessageBoxService)model.MessageBoxService).LastMessage != null &&
-						   ((MessageBoxService)model.MessageBoxService).LastMessage.StartsWith("You selected a repository for a different project."),
-						   "Selecting an unrelated repository did not complain.");
+				using (var secondRepo = new RepositorySetup("bob", "OtherRepoFolder"))
+				{
+					secondRepo.AddAndCheckinFile("that.file", "othertext");
+					model.SharedFolder = secondRepo.ProjectFolder.Path;
+					model.SaveSettings();
+					Assert.True(((MessageBoxService)model.MessageBoxService).LastMessage != null &&
+							   ((MessageBoxService)model.MessageBoxService).LastMessage.StartsWith("You selected a repository for a different project."),
+							   "Selecting an unrelated repository did not complain.");
+				}
+			}
 		}
 
 		[Test]
 		public void SelectedHgFolderTriesParent()
 		{
 			var model = new NetworkFolderSettingsModel { MessageBoxService = new MessageBoxService() };
-			var firstRepo = new RepositorySetup("bert", "OrigRepoFolder");
-			firstRepo.AddAndCheckinFile("dummyFile", "makeid");
-			model.InitFromProjectPath(firstRepo.ProjectFolder.Path);
-			//clone repository files into other directory.
-			model.SharedFolder = Path.Combine(firstRepo.ProjectFolder.Path, ".hg");
-			model.SaveSettings();
-			Assert.Null(((MessageBoxService)model.MessageBoxService).LastMessage,
-						"Unexpected message {0} when selecting a folder containing the same repo",
-						((MessageBoxService)model.MessageBoxService).LastMessage);
+			using (var firstRepo = new RepositorySetup("bert", "OrigRepoFolder"))
+			{
+				firstRepo.AddAndCheckinFile("dummyFile", "makeid");
+				model.InitFromProjectPath(firstRepo.ProjectFolder.Path);
+				//clone repository files into other directory.
+				model.SharedFolder = Path.Combine(firstRepo.ProjectFolder.Path, ".hg");
+				model.SaveSettings();
+				Assert.Null(((MessageBoxService)model.MessageBoxService).LastMessage,
+							"Unexpected message {0} when selecting a folder containing the same repo",
+							((MessageBoxService)model.MessageBoxService).LastMessage);
+			}
 		}
 
 		private class MessageBoxService : NetworkFolderSettingsModel.IMessageBoxService

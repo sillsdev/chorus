@@ -7,7 +7,7 @@ using Chorus.sync;
 using Chorus.VcsDrivers.Mercurial;
 using Palaso.Code;
 using Palaso.IO;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
 
 namespace Chorus.FileTypeHanders
 {

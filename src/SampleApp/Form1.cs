@@ -40,6 +40,7 @@ namespace SampleApp
 			UnZipToDirectory(serverDir);
 			_serverRepository = new DirectoryRepositorySource("server", Path.Combine(serverDir,"ShoppingList"), false);
 			_userPicker.SelectedIndex = 0;
+			_helpProvider.RegisterPrimaryHelpFileMapping("chorus.helpmap");
 		}
 
 		private void ChangeSimulatedUser(string userName)
@@ -57,7 +58,8 @@ namespace SampleApp
 			//note: if you don't have a user name, you can just let chorus try to figure one out.
 			//Also note that this is not the same name as that used for any given network repository credentials;
 			//Rather, it's the name which will show in the history, and besides Notes that this user makes.
-			_chorusSystem = new ChorusSystem(shoppingListDir, userName);
+			_chorusSystem = new ChorusSystem(shoppingListDir);
+			_chorusSystem.Init(userName);
 
 
 			_chorusSystem.Repository.SetKnownRepositoryAddresses(new RepositoryAddress[] {_serverRepository});
@@ -136,6 +138,13 @@ namespace SampleApp
 					ChangeSimulatedUser(_userNames[_userPicker.SelectedIndex]);
 				}
 			}
+		}
+
+
+		private void button1_Click(object sender, EventArgs e)
+		{
+			_dataEditor.SaveNow();
+			_chorusSystem.AsyncLocalCheckIn("background checkin", null);
 		}
 	}
 }

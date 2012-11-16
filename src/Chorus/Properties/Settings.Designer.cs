@@ -49,13 +49,25 @@ namespace Chorus.Properties {
 
 		[global::System.Configuration.UserScopedSettingAttribute()]
 		[global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-		[global::System.Configuration.DefaultSettingValueAttribute("True")]
+		[global::System.Configuration.DefaultSettingValueAttribute("False")]
 		public bool SharedFolderEnabled {
 			get {
 				return ((bool)(this["SharedFolderEnabled"]));
 			}
 			set {
 				this["SharedFolderEnabled"] = value;
+			}
+		}
+
+		[global::System.Configuration.UserScopedSettingAttribute()]
+		[global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+		[global::System.Configuration.DefaultSettingValueAttribute("True")]
+		public bool ShowChorusHubInSendReceive {
+			get {
+				return ((bool)(this["ShowChorusHubInSendReceive"]));
+			}
+			set {
+				this["ShowChorusHubInSendReceive"] = value;
 			}
 		}
 	}
