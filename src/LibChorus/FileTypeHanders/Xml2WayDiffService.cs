@@ -136,14 +136,14 @@ namespace Chorus.FileTypeHanders
 				changeAndConflictAccumulator,
 				firstElementMarker,
 				recordMarker, identfierAttribute);
-			try
-			{
+//			try
+//			{
 				differ.ReportDifferencesToListener();
-			}
-			catch
-			{
-				// Eat exception.
-			}
+//			}
+//			catch
+//			{
+//				// Eat exception.
+//			}
 
 			if (changeAndConflictAccumulator is ChangeAndConflictAccumulator)
 				return ((ChangeAndConflictAccumulator)changeAndConflictAccumulator).Changes;

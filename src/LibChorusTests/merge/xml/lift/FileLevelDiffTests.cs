@@ -117,7 +117,7 @@ namespace LibChorus.Tests.merge.xml.lift
 			}
 		}
 
-		[Test]
+		[Test, Ignore("This no longer is supposed to throw. The Test is fixed in more recent version 1.3, but not worth fixing here.")]
 		public void DuplicateIdInParentEntryThrows()
 		{
 			var parent = @"<?xml version='1.0' encoding='utf-8'?>
@@ -141,8 +141,8 @@ namespace LibChorus.Tests.merge.xml.lift
 			}
 		}
 
-		[Test]
-		public void DuplicateIdInChildtEntryThrows()
+		[Test, Ignore("This no longer is supposed to throw. The Test is fixed in more recent version 1.3, but not worth fixing here.")]
+		public void DuplicateIdInChildEntryThrows()
 		{
 			var parent = @"<?xml version='1.0' encoding='utf-8'?>
 					<lift version='0.10' producer='WeSay 1.0.0.0'>
@@ -159,8 +159,7 @@ namespace LibChorus.Tests.merge.xml.lift
 			{
 				var listener = new ListenerForUnitTests();
 				var differ = Xml2WayDiffer.CreateFromFiles(parentTempFile.Path, childTempFile.Path, listener,
-					"header",
-															 "entry", "id");
+					"header","entry", "id");
 				Assert.Throws<ArgumentException>(() => differ.ReportDifferencesToListener());
 			}
 		}

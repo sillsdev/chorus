@@ -48,6 +48,8 @@ namespace Chorus.VcsDrivers.Mercurial
 			ExecutionResult result = new ExecutionResult();
 			Process process = new Process();
 			process.StartInfo.EnvironmentVariables["PYTHONPATH"] = Path.Combine(MercurialLocation.PathToMercurialFolder, "library.zip");
+			process.StartInfo.EnvironmentVariables["HGENCODING"] = "UTF-8"; // See mercurial/encoding.py
+			process.StartInfo.EnvironmentVariables["HGENCODINGMODE"] = "strict";
 			process.StartInfo.RedirectStandardError = true;
 			process.StartInfo.RedirectStandardOutput = true;
 			process.StartInfo.UseShellExecute = false;

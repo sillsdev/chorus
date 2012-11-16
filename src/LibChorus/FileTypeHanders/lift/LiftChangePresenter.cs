@@ -108,7 +108,8 @@ namespace Chorus.FileTypeHanders.lift
 
 		private static XmlNode GetFormNodeForReferencedEntry(XmlDocument dom, string entryId)
 		{
-			return dom.SelectSingleNode("//entry[@id=\"" + entryId + "\"]/lexical-unit");
+			// TODO XPath Review for &apos; and &quot;
+			return dom.SelectSingleNode(String.Format("//entry[@id={0}]/lexical-unit", XmlUtilities.GetSafeXPathLiteral(entryId)));
 		}
 
 		private void GetHtmlForChange(string style, StringBuilder builder)

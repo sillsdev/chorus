@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Web;
 using System.Xml;
 using Chorus.merge.xml.generic.xmldiff;
 
@@ -44,6 +45,7 @@ namespace Chorus.merge.xml.generic
 			{
 				return null;
 			}
+#if USE_DOUBLEQUOTE_VERSION // seems to trade one vulnerability (internal ') for another (internal ")
 			// I (CP) changed this to use double quotes to allow attributes to contain single quotes.
 			// My understanding is that double quotes are illegal inside attributes so this should be fine.
 			// See: http://jira.palaso.org/issues/browse/WS-33895
@@ -51,6 +53,36 @@ namespace Chorus.merge.xml.generic
 			string xpath = string.Format("{0}[@{1}=\"{2}\"]", nodeToMatch.Name, _keyAttribute, key);
 
 			return parentToSearchIn.SelectSingleNode(xpath);
+#else
+			//hatton, working on chr-17, &quot in the lift file gets turned into " when the attribute is read, and then in the above "DOUBLEQUOTE" approach
+
+			//INTERESTING COVERAGE OF THE PROBLEM: http://stackoverflow.com/a/1352556/723299
+
+			//Approach 1: Returns the key to what was in the xml file, but then doesn't actually match anything: key = HttpUtility.HtmlEncode(key);
+
+			//Approach 2:  from http://stackoverflow.com/questions/642125/encoding-xpath-expressions-with-both-single-and-double-quotes?answertab=active#tab-top
+			//there isn't always an ownerdocument, so we can't use the idea from stackoverflow:
+			//				parentToSearchIn.OwnerDocument.DocumentElement.SetAttribute("searchName", key);
+			//				string xpath = string.Format("{0}[@{1}=/*/@searchName]", nodeToMatch.Name, _keyAttribute);
+			// And nor did this attempt to just stick the attribut on the parentToSearchIn (and remove it) work either, in many tests (reason unknown)
+			//			try
+			//        	{
+			//				((XmlElement)parentToSearchIn).SetAttribute("searchName", key);
+			//				string xpath = string.Format("{0}[@{1}=/*/@searchName]", nodeToMatch.Name, _keyAttribute);
+			//				return parentToSearchIn.SelectSingleNode(xpath);
+			//			}
+			//        	finally
+			//        	{
+			//				((XmlElement)parentToSearchIn).RemoveAttribute("searchName");
+			//        	}
+
+			//Approach 3: Use a bunch of Concat's as needed (see GetSafeXPathLiteral())
+
+			string xpath = string.Format("{0}[@{1}={2}]", nodeToMatch.Name, _keyAttribute, XmlUtilities.GetSafeXPathLiteral(key));
+
+			return parentToSearchIn.SelectSingleNode(xpath);
+
+#endif
 		}
 
 	}
@@ -119,7 +151,7 @@ namespace Chorus.merge.xml.generic
 				if (i > 0)
 					bldr.Append(" and ");
 				var currentAttrName = _keyAttributes[i];
-				bldr.AppendFormat("@{0}='{1}'", currentAttrName, XmlUtilities.GetStringAttribute(nodeToMatch, currentAttrName));
+				bldr.AppendFormat("@{0}={1}", currentAttrName, XmlUtilities.GetSafeXPathLiteral(XmlUtilities.GetStringAttribute(nodeToMatch, currentAttrName)));
 			}
 			bldr.Append("]");
 
