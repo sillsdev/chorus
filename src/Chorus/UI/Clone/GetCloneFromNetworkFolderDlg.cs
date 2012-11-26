@@ -10,7 +10,6 @@ using System.Windows.Forms;
 using Palaso.Progress;
 using Palaso.Progress;
 using Palaso.UI.WindowsForms.Progress;
-using Palaso.UI.WindowsForms.Progress;
 
 namespace Chorus.UI.Clone
 {

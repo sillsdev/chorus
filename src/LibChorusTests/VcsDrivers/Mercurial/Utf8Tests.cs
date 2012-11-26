@@ -235,9 +235,6 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			}
 
 		}
-
-
-
 	}
 
 

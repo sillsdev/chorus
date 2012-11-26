@@ -87,7 +87,7 @@ namespace Chorus.merge.xml.generic
 				foreach (var nodeWithKeyAttribute in childrenWithKeyAttr)
 				{
 					childrenWithKeys.Add(nodeWithKeyAttribute.Attributes[_keyAttribute].Value, nodeWithKeyAttribute);
-				}
+			}
 			}
 
 			XmlNode matchingNode;
