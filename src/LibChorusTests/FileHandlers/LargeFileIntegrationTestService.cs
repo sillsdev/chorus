@@ -72,7 +72,7 @@ namespace LibChorus.Tests.FileHandlers
 				Assert.IsTrue(syncResults.Succeeded);
 
 				projectFolderConfiguration.ExcludePatterns.Remove(ProjectFolderConfiguration.BareFolderReadmeFileName);
-				Assert.AreEqual(1, projectFolderConfiguration.ExcludePatterns.Count);
+				Assert.AreEqual(2, projectFolderConfiguration.ExcludePatterns.Count);
 				Assert.IsTrue(projectFolderConfiguration.ExcludePatterns[0].Contains(whopperFileName));
 
 				var repo = new HgRepository(pathToTestRoot, progress);

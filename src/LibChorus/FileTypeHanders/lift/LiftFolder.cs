@@ -29,6 +29,7 @@ namespace Chorus.FileTypeHanders.lift
 			config.ExcludePatterns.Add("*.html");//normally in /export
 			config.ExcludePatterns.Add("*.odt");//normally in /export
 			config.ExcludePatterns.Add("*.ldml"); // Supposed to be in 'WritingSystems' folder now.
+			config.ExcludePatterns.Add("*.orig"); // Lift Bridge creates this backup, which ought to be excluded.
 
 			ProjectFolderConfiguration.AddExcludedVideoExtensions(config); // For now at least.
 
