@@ -45,6 +45,11 @@ namespace Chorus.sync
 		string BranchName { get; }
 
 		/// <summary>
+		/// Gets a value telling if the adjunct processed anything.
+		/// </summary>
+		bool WasUpdated { get; }
+
+		/// <summary>
 		/// During a Send/Receive when Chorus has completed a pull and there is more than one branch on the repository
 		/// it will pass the revision of the head of each branch to the client.
 		/// The client can use this to display messages to the users when other branches are active other than their own.
