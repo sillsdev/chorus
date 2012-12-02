@@ -17,6 +17,7 @@ namespace Chorus.merge.xml.generic
 	public static class XmlMergeService
 	{
 		private static readonly Encoding Utf8 = Encoding.UTF8;
+		public static bool RemoveAmbiguousChildNodes = true;
 
 		/// <summary>
 		/// Add conflict.
@@ -711,9 +712,7 @@ namespace Chorus.merge.xml.generic
 			using (var fastSplitter = new FastXmlElementSplitter(pathname))
 			{
 				bool foundOptionalFirstElement;
-				foreach (
-					var record in
-						fastSplitter.GetSecondLevelElementStrings(firstElementMarker, recordStartingTag, out foundOptionalFirstElement))
+				foreach (var record in fastSplitter.GetSecondLevelElementStrings(firstElementMarker, recordStartingTag, out foundOptionalFirstElement))
 				{
 					if (foundOptionalFirstElement)
 					{
@@ -792,6 +791,8 @@ namespace Chorus.merge.xml.generic
 			MergeStrategies mergeStrategies,
 			string parent)
 		{
+			if (!RemoveAmbiguousChildNodes)
+				return parent;
 			var parentNode = XmlUtilities.GetDocumentNodeFromRawXml(parent, new XmlDocument());
 			RemoveAmbiguousChildren(
 				eventListener,
@@ -815,8 +816,9 @@ namespace Chorus.merge.xml.generic
 			MergeStrategies mergeStrategies,
 			XmlNode parent)
 		{
-			if (parent == null || !parent.HasChildNodes)
+			if (parent == null || !parent.HasChildNodes || !RemoveAmbiguousChildNodes)
 				return;
+
 			var elementStrat = mergeStrategies.GetElementStrategy(parent);
 			if (elementStrat.IsImmutable)
 				return;
