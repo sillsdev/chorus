@@ -5,8 +5,8 @@ namespace Chorus.sync
 	public class ProjectFolderConfiguration
 	{
 		public const string BareFolderReadmeFileName = "~~*.txt";
-		private readonly List<string> _includePatterns = new List<string>(new[] { "**.ChorusNotes", "**.NewChorusNotes" });
-		private readonly List<string> _excludePatterns = new List<string>(new[] { BareFolderReadmeFileName /* for bare folder readme file */});
+		private readonly List<string> _includePatterns = new List<string>(new[] { "**.ChorusNotes" });
+		private readonly List<string> _excludePatterns = new List<string>(new[] { BareFolderReadmeFileName /* for bare folder readme file */, "**.NewChorusNotes" });
 		private string _folderPath;
 
 		public ProjectFolderConfiguration(string folderPath)
