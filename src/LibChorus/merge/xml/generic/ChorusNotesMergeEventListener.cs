@@ -2,7 +2,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Xml;
-using Chorus.Utilities.code;
+using Palaso.Code;
 using Palaso.IO;
 using Palaso.Xml;
 
@@ -56,16 +56,7 @@ namespace Chorus.merge.xml.generic
 
 			_tempFile = new TempFile();
 			_readerStream = new FileStream(path, FileMode.Open);
-			var readerSettings = new XmlReaderSettings
-			{
-				CheckCharacters = false,
-				ConformanceLevel = ConformanceLevel.Document,
-				ProhibitDtd = true,
-				ValidationType = ValidationType.None,
-				CloseInput = true,
-				IgnoreWhitespace = true
-			};
-			_reader = XmlReader.Create(_readerStream, readerSettings);
+			_reader = XmlReader.Create(_readerStream, CanonicalXmlSettings.CreateXmlReaderSettings());
 			_writer = XmlWriter.Create(_tempFile.Path, CanonicalXmlSettings.CreateXmlWriterSettings());
 			StreamToInsertionPoint(_reader, _writer);
 		}
@@ -188,6 +179,7 @@ namespace Chorus.merge.xml.generic
 			{
 				File.Delete(_path);
 			}
+			_tempFile.Dispose();
 		}
 
 		private void StreamClosingData(XmlReader xmlDoc, XmlWriter writer)

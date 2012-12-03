@@ -2,11 +2,14 @@
 using System.Drawing;
 using System.Threading;
 using System.Windows.Forms;
+using Chorus.Properties;
 using Chorus.UI.Misc;
 using Chorus.UI.Settings;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
+using ChorusHub;
 using Palaso.Code;
+using System.IO;
 
 namespace Chorus.UI.Sync
 {
@@ -29,6 +32,9 @@ namespace Chorus.UI.Sync
 		private bool _networkWorkerStarted = false; // Has worker been started?
 
 		private bool _exiting; // Dialog is in the process of exiting, stop the threads!
+		private LANMode _lanMode = LANMode.ChorusHub;
+		private ChorusHubInfo _chorusHubInfo;
+		private ChorusHubClient _chorusHubClient;
 
 		private const int STATECHECKINTERVAL = 2000; // 2 sec interval between checks of USB status.
 		private const int INITIALINTERVAL = 1000; // only wait 1 sec, the first time
@@ -72,6 +78,13 @@ namespace Chorus.UI.Sync
 			_updateDisplayTimer.Enabled = true;
 
 			_settingsButton.LaunchSettingsCallback = DisplaySRSettingsDlg;
+
+			if(!Properties.Settings.Default.ShowChorusHubInSendReceive)
+			{
+				_useLocalNetworkButton.Image = Resources.networkFolder29x32;
+				_useLocalNetworkButton.Text = "Shared Network Folder";
+			}
+
 		}
 
 		private DialogResult DisplaySRSettingsDlg()
@@ -103,19 +116,23 @@ namespace Chorus.UI.Sync
 			_tableLayoutPanel.RowStyles[buttonRow].Height = internetState ? BUTTON_HEIGHT : 0;
 
 			_sharedNetworkDiagnosticsLink.Visible = false;
-			var folderState = Properties.Settings.Default.SharedFolderEnabled;
-			_useSharedFolderStatusLabel.Visible = _useSharedFolderButton.Visible = folderState;
+
+			//Enhance: currently, if you have either chorushub or lan-folder enabled, you'll see the button which they share
+
+			var showFolderOrChorusHubButton = Properties.Settings.Default.SharedFolderEnabled || Properties.Settings.Default.ShowChorusHubInSendReceive;
+
+			_useSharedFolderStatusLabel.Visible = _useLocalNetworkButton.Visible = showFolderOrChorusHubButton;
 			statusRow = _tableLayoutPanel.GetRow(_useSharedFolderStatusLabel);
-			buttonRow = _tableLayoutPanel.GetRow(_useSharedFolderButton);
-			_tableLayoutPanel.RowStyles[statusRow].Height = folderState ? LABEL_HEIGHT : 0;
-			_tableLayoutPanel.RowStyles[buttonRow].Height = folderState ? BUTTON_HEIGHT : 0;
+			buttonRow = _tableLayoutPanel.GetRow(_useLocalNetworkButton);
+			_tableLayoutPanel.RowStyles[statusRow].Height = showFolderOrChorusHubButton ? LABEL_HEIGHT : 0;
+			_tableLayoutPanel.RowStyles[buttonRow].Height = showFolderOrChorusHubButton ? BUTTON_HEIGHT : 0;
 		}
 
 		private void SetupSharedFolderAndInternetUI()
 		{
 			const string checkingConnection = "Checking connection...";
 			_useSharedFolderStatusLabel.Text = checkingConnection;
-			_useSharedFolderButton.Enabled = false;
+			_useLocalNetworkButton.Enabled = false;
 
 			_internetStatusLabel.Text = checkingConnection;
 			_useInternetButton.Enabled = false;
@@ -138,7 +155,7 @@ namespace Chorus.UI.Sync
 
 		public bool ShouldShowNetworkSetUpButton
 		{
-			get { return (!_useSharedFolderButton.Enabled || Control.ModifierKeys == Keys.Shift); }
+			get { return (!_useLocalNetworkButton.Enabled || Control.ModifierKeys == Keys.Shift); }
 		}
 
 		private void UpdateLocalNetworkSituation()
@@ -150,6 +167,13 @@ namespace Chorus.UI.Sync
 			}
 		}
 
+		private enum LANMode
+		{
+			Folder,
+			ChorusHub
+		};
+
+
 		/// <summary>
 		/// Called by our worker thread to avoid inordinate pauses in the UI while checking the
 		/// Shared Network Folder to determine its status.
@@ -158,16 +182,62 @@ namespace Chorus.UI.Sync
 		{
 			// Check network Shared Folder status
 			string message, tooltip, diagnostics;
-			Monitor.Enter(_model);
-			bool result = _model.GetNetworkStatusLink(out message, out tooltip, out diagnostics);
-			Monitor.Exit(_model);
+			message = tooltip = diagnostics = "";
+			bool isReady=false;
+			_lanMode = LANMode.ChorusHub;
+
+			if (Properties.Settings.Default.ShowChorusHubInSendReceive)
+			{
+				try
+				{
+					if (_chorusHubClient == null)
+					{
+						_chorusHubClient = new ChorusHub.ChorusHubClient();
+					}
+					_chorusHubInfo = _chorusHubClient.FindServer();
+				}
+				catch (Exception)
+				{
+					//not worth complaining about
+#if DEBUG
+					throw;
+#endif
+				}
+			}
+			if(_chorusHubInfo==null)
+			{
+				message = "No Chorus Hub found on local network.";
+			}
+			else if (!_chorusHubInfo.ServerIsCompatibleWithThisClient)
+			{
+				message = "Found Chorus Hub but it is not compatible with this version of "+Application.ProductName;
+			}
+			else
+			{
+				isReady = true;
+				message = string.Format("Found Chorus Hub at {0}", _chorusHubInfo.HostName);
+				tooltip = _chorusHubInfo.GetHgHttpUri(Path.GetFileName(_repository.PathToRepo));
+
+			}
+
+			if (_chorusHubInfo == null)
+			{
+				if (Properties.Settings.Default.SharedFolderEnabled)
+				{
+					Monitor.Enter(_model);
+					isReady = _model.GetNetworkStatusLink(out message, out tooltip, out diagnostics);
+					if (isReady)
+						_lanMode = LANMode.Folder;
+					Monitor.Exit(_model);
+				}
+			}
 
 			Monitor.Enter(this);
 			// Using a callback and Invoke ensures that we avoid cross-threading updates.
 			if (!_exiting)
 			{
 				var callback = new UpdateNetworkUICallback(UpdateNetworkUI);
-				this.Invoke(callback, new object[] {result, message, tooltip, diagnostics});
+				this.Invoke(callback, new object[] { isReady, message, tooltip, diagnostics });
 			}
 			Monitor.Exit(this);
 		}
@@ -181,7 +251,9 @@ namespace Chorus.UI.Sync
 		/// <param name="diagnostics"></param>
 		private void UpdateNetworkUI(bool enabled, string message, string tooltip, string diagnostics)
 		{
-			_useSharedFolderButton.Enabled = enabled;
+			_useLocalNetworkButton.Text = _lanMode == LANMode.ChorusHub ? "Chorus Hub" : "Shared Network Folder";
+			_useLocalNetworkButton.Image = _lanMode == LANMode.ChorusHub ? Resources.chorusHubMedium : Resources.networkFolder29x32;
+			_useLocalNetworkButton.Enabled = enabled;
 			if (!string.IsNullOrEmpty(diagnostics))
 				SetupNetworkDiagnosticLink(diagnostics);
 			else
@@ -189,7 +261,7 @@ namespace Chorus.UI.Sync
 
 			_useSharedFolderStatusLabel.Text = message;
 			_useSharedFolderStatusLabel.LinkArea = new LinkArea(message.Length + 1, 1000);
-			toolTip1.SetToolTip(_useSharedFolderButton, tooltip);
+			toolTip1.SetToolTip(_useLocalNetworkButton, tooltip);
 		}
 
 		private void SetupNetworkDiagnosticLink(string diagnosticText)
@@ -318,7 +390,26 @@ namespace Chorus.UI.Sync
 		{
 			if (RepositoryChosen != null)
 			{
-				var address = _repository.GetDefaultNetworkAddress<DirectoryRepositorySource>();
+				RepositoryAddress address;
+
+				if (_lanMode == LANMode.Folder)
+				{
+					address = _repository.GetDefaultNetworkAddress<DirectoryRepositorySource>();
+				}
+				else
+				{
+					string directoryName = Path.GetFileName(_repository.PathToRepo);
+					var doWait  = _chorusHubClient.PrepareHubToSync(directoryName);
+					if(doWait)
+					{
+						//enhance: sorry, I regret that this is all kludgy, ux-wise.
+						MessageBox.Show("After you press OK, we will give the ChorusHub 10 seconds to get ready to receive this repository.");
+						Cursor.Current = Cursors.WaitCursor;
+						Thread.Sleep(10*1000);
+						Cursor.Current = Cursors.Default;
+					}
+					address = new HttpRepositoryPath(_chorusHubInfo.HostName, _chorusHubInfo.GetHgHttpUri(directoryName), false);
+				}
 				RepositoryChosen.Invoke(this, new SyncStartArgs(address, _commitMessageText.Text));
 			}
 		}

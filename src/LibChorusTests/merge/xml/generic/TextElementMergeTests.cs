@@ -428,7 +428,7 @@ namespace LibChorus.Tests.merge.xml.generic
 							   </b>
 							</a>";
 
-			_mergeStrategies.ElementStrategies.Clear();
+			_mergeStrategies = new MergeStrategies();
 			_mergeStrategies.ElementStrategies.Add("a", ElementStrategy.CreateSingletonElement());
 			_mergeStrategies.ElementStrategies.Add("b", ElementStrategy.CreateForKeyedElement("key", true));
 			_mergeStrategies.ElementStrategies.Add("c", ElementStrategy.CreateForKeyedElement("key", true));
@@ -478,7 +478,7 @@ namespace LibChorus.Tests.merge.xml.generic
 							   </b>
 							</a>";
 
-			_mergeStrategies.ElementStrategies.Clear();
+			_mergeStrategies = new MergeStrategies();
 			_mergeStrategies.ElementStrategies.Add("a", ElementStrategy.CreateSingletonElement());
 			_mergeStrategies.ElementStrategies.Add("b", ElementStrategy.CreateForKeyedElement("key", true));
 			_mergeStrategies.ElementStrategies.Add("c", ElementStrategy.CreateForKeyedElement("key", true));

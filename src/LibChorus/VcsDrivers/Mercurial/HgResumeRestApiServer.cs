@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
-using System.Text;
-using System.Text.RegularExpressions;
 using System.Web;
 
 namespace Chorus.VcsDrivers.Mercurial
@@ -12,7 +9,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 	public class HgResumeRestApiServer : IApiServer
 	{
-		public const string APIVERSION = "02";
+		public const string APIVERSION = "03";
 
 		private readonly Uri _url;
 		private string _urlExecuted;
@@ -152,7 +149,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			{
 				if (_url.Query.Contains("repoId="))
 				{
-					return HttpUtility.ParseQueryString(_url.Query).Get("repoId");
+					return Palaso.Network.HttpUtilityFromMono.ParseQueryString(_url.Query).Get("repoId");
 				}
 				if (_url.Segments[1].ToLower() != "projects/")
 				{

@@ -34,47 +34,6 @@ namespace Chorus.merge.xml.generic
 		}
 	}
 
-	public static class XmlNodeExtensions
-	{
-		/// <summary>
-		/// this is safe to use with foreach, unlike SelectNodes
-		/// </summary>
-		public static XmlNodeList SafeSelectNodes(this XmlNode node, string path, params object[] args)
-		{
-			var x = node.SelectNodes(string.Format(path,args));
-			if (x == null)
-				return new NullXMlNodeList();
-			return x;
-		}
-
-		public static string SelectTextPortion(this XmlNode node, string path, params object[] args)
-		{
-			var x = node.SelectNodes(string.Format(path, args));
-			if (x == null || x.Count ==0)
-				return string.Empty;
-			return x[0].InnerText;
-		}
-
-		public static string GetStringAttribute(this XmlNode node, string attr)
-		{
-			try
-			{
-				return node.Attributes[attr].Value;
-			}
-			catch (NullReferenceException)
-			{
-				throw new XmlFormatException(string.Format("Expected a '{0}' attribute on {1}.", attr, node.OuterXml));
-			}
-		}
-		public static string GetOptionalStringAttribute(this XmlNode node, string attributeName, string defaultValue)
-		{
-			XmlAttribute attr = node.Attributes[attributeName];
-			if (attr == null)
-				return defaultValue;
-			return attr.Value;
-		}
-	}
-
 	public static class XmlUtilities
 	{
 		public static bool AreXmlElementsEqual(string ours, string theirs)

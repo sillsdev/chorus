@@ -43,7 +43,8 @@ namespace LibChorus.Tests.merge.xml.lift
 				var situation = new NullMergeSituation();
 				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation)
 					{ EventListener = listener };
-				XmlMergeService.Do3WayMerge(mergeOrder, new LiftEntryMergingStrategy(situation), false,
+				XmlMergeService.Do3WayMerge(mergeOrder, new LiftEntryMergingStrategy(mergeOrder),
+					false,
 					"header",
 					"entry", "guid");
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
@@ -81,7 +82,8 @@ namespace LibChorus.Tests.merge.xml.lift
 				var situation = new NullMergeSituation();
 				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation)
 					{ EventListener = listener };
-				XmlMergeService.Do3WayMerge(mergeOrder, new LiftEntryMergingStrategy(situation), false,
+				XmlMergeService.Do3WayMerge(mergeOrder, new LiftEntryMergingStrategy(mergeOrder),
+					false,
 					"header",
 					"entry", "guid");
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
@@ -105,7 +107,7 @@ namespace LibChorus.Tests.merge.xml.lift
 	</entry>
 </lift>";
 			var ours = ancestor.Replace(@"This is my example", @"This was your example");
-			var theirs = ancestor.Replace(@"</example>", @"<form lang='chorus'><text>hello new entry</text></form></example>");
+			var theirs = ancestor.Replace(@"</example>", @"<form lang='en'><text>hello new entry</text></form></example>");
 
 			using (var oursTemp = new TempFile(ours))
 			using (var theirsTemp = new TempFile(theirs))
@@ -114,7 +116,8 @@ namespace LibChorus.Tests.merge.xml.lift
 				var listener = new ListenerForUnitTests();
 				var situation = new NullMergeSituation();
 				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation) { EventListener = listener };
-				XmlMergeService.Do3WayMerge(mergeOrder, new LiftEntryMergingStrategy(situation), false,
+				XmlMergeService.Do3WayMerge(mergeOrder, new LiftEntryMergingStrategy(mergeOrder),
+					false,
 					"header",
 					"entry", "guid");
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
@@ -148,7 +151,8 @@ namespace LibChorus.Tests.merge.xml.lift
 				var listener = new ListenerForUnitTests();
 				var situation = new NullMergeSituation();
 				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation) { EventListener = listener };
-				XmlMergeService.Do3WayMerge(mergeOrder, new LiftEntryMergingStrategy(situation), false,
+				XmlMergeService.Do3WayMerge(mergeOrder, new LiftEntryMergingStrategy(mergeOrder),
+					false,
 					"header",
 					"entry", "guid");
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
