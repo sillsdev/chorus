@@ -28,6 +28,7 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
+			this.components = new System.ComponentModel.Container();
 			this.tabControl1 = new System.Windows.Forms.TabControl();
 			this._frontPage = new System.Windows.Forms.TabPage();
 			this._notesPage = new System.Windows.Forms.TabPage();
@@ -36,14 +37,15 @@
 			this._userPicker = new System.Windows.Forms.ComboBox();
 			this._viewTestDataDirectory = new System.Windows.Forms.LinkLabel();
 			this._syncButton = new System.Windows.Forms.Button();
+			this._helpProvider = new Vulcan.Uczniowie.HelpProvider.HelpComponent(this.components);
 			this.tabControl1.SuspendLayout();
 			this.SuspendLayout();
 			//
 			// tabControl1
 			//
 			this.tabControl1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-						| System.Windows.Forms.AnchorStyles.Left)
-						| System.Windows.Forms.AnchorStyles.Right)));
+			| System.Windows.Forms.AnchorStyles.Left)
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this.tabControl1.Controls.Add(this._frontPage);
 			this.tabControl1.Controls.Add(this._notesPage);
 			this.tabControl1.Controls.Add(this._historyPage);
@@ -155,5 +157,6 @@
 		private System.Windows.Forms.ComboBox _userPicker;
 		private System.Windows.Forms.LinkLabel _viewTestDataDirectory;
 		private System.Windows.Forms.Button _syncButton;
+		private Vulcan.Uczniowie.HelpProvider.HelpComponent _helpProvider;
 	}
 }

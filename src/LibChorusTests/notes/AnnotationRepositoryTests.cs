@@ -5,7 +5,7 @@ using System.Linq;
 using Chorus.notes;
 using NUnit.Framework;
 using Palaso.IO;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
 using Palaso.Reporting;
 
 namespace LibChorus.Tests.notes
