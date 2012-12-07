@@ -1,4 +1,5 @@
 using System.Xml;
+using Chorus.FileTypeHanders.lift;
 using Chorus.FileTypeHanders.xml;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
@@ -186,6 +187,104 @@ namespace LibChorus.Tests.merge.xml.generic
 			XmlDocument doc = new XmlDocument();
 			doc.LoadXml(contents);
 			return doc.SelectSingleNode(xpath);
+		}
+
+		/// <summary>
+		/// Test for LT-13794.
+		/// </summary>
+		[Test]
+		public void DuplicateRelationElementsDoesNotThrow()
+		{
+			const string ours =
+@"<sense id='ours'>
+<grammatical-info value='Noun' />
+<gloss lang='en' />
+<gloss lang='tpi' />
+<definition />
+<note type='encyclopedic' />
+<note>
+<form lang='en'>
+<text>myform</text>
+</form>
+</note>
+<relation type='P' ref='dupid1' order='1'/>
+<relation type='P' ref='dupid3' order='2'/>
+<relation type='P' ref='dupid2' order='1'/>
+<relation type='P' ref='dupid4' order='2'/>
+<relation type='P' ref='dupid5' order='3'/>
+<relation type='P' ref='dupid1' order='4'/>
+<relation type='P' ref='dupid3' order='5'/>
+<relation type='C' ref='nondupdupid1' order='1'/>
+<relation type='C' ref='dupid2' order='2'/>
+<relation type='C' ref='dupid4' order='3'/>
+<relation type='C' ref='dupid5' order='4'/>
+<relation type='C' ref='dupid1' order='5'/>
+<relation type='P' ref='dupid2' order='1'/>
+<relation type='P' ref='dupid4' order='2'/>
+<relation type='P' ref='dupid5' order='3'/>
+<relation type='P' ref='dupid1' order='4'/>
+<relation type='P' ref='nondupid2' order='5'/>
+</sense>";
+			const string theirs =
+@"<sense id='theirs'>
+<grammatical-info value='Noun' />
+<gloss lang='en' />
+<gloss lang='tpi' />
+<definition />
+<note type='encyclopedic' />
+<note>
+<form lang='en'>
+<text>myform</text>
+</form>
+</note>
+<relation type='C' ref='nondupdupid1' order='1'/>
+<relation type='C' ref='dupid2' order='2'/>
+<relation type='C' ref='dupid4' order='3'/>
+<relation type='C' ref='dupid5' order='4'/>
+<relation type='C' ref='dupid1' order='5'/>
+<relation type='P' ref='dupid2' order='1'/>
+<relation type='P' ref='dupid4' order='2'/>
+<relation type='P' ref='dupid5' order='3'/>
+<relation type='P' ref='dupid1' order='4'/>
+<relation type='P' ref='nondupid2' order='5'/>
+</sense>";
+			const string common =
+@"<sense id='common'>
+<grammatical-info value='Noun' />
+<gloss lang='en' />
+<gloss lang='tpi' />
+<definition />
+<note type='encyclopedic' />
+<note>
+<form lang='en'>
+<text>myform</text>
+</form>
+</note>
+<relation type='P' ref='dupid1' order='1'/>
+<relation type='P' ref='dupid1' order='1'/>
+<relation type='P' ref='dupid3' order='2'/>
+<relation type='P' ref='dupid1' order='1'/>
+<relation type='P' ref='dupid1' order='1'/>
+<relation type='P' ref='dupid3' order='2'/>
+<relation type='P' ref='dupid1' order='1'/>
+<relation type='P' ref='dupid3' order='1'/>
+<relation type='P' ref='dupid1' order='2'/>
+<relation type='C' ref='nondupdupid1' order='1'/>
+<relation type='C' ref='dupid2' order='2'/>
+<relation type='C' ref='dupid4' order='3'/>
+<relation type='C' ref='dupid5' order='4'/>
+<relation type='C' ref='dupid1' order='5'/>
+<relation type='P' ref='dupid2' order='1'/>
+<relation type='P' ref='dupid4' order='2'/>
+<relation type='P' ref='dupid5' order='3'/>
+<relation type='P' ref='dupid1' order='4'/>
+<relation type='P' ref='dupid3' order='5'/>
+</sense>";
+
+			var merger = new XmlMerger(new NullMergeSituation());
+			LiftElementStrategiesMethod.AddLiftElementStrategies(merger.MergeStrategies);
+			// Note: I assume it will have conflicts, once it gets past the key not found exception, but I (RBR) don't know what they are.
+			TestMergeWithoutConflicts(merger, ours, theirs, common, "//sense");
 		}
 	}
 }
