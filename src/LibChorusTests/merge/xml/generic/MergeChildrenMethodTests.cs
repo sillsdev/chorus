@@ -248,7 +248,7 @@ namespace LibChorus.Tests.merge.xml.generic
 <relation type='P' ref='dupid1' order='4'/>
 <relation type='P' ref='nondupid2' order='5'/>
 </sense>";
-			const string common =
+			const string ancestors =
 @"<sense id='common'>
 <grammatical-info value='Noun' />
 <gloss lang='en' />
@@ -283,8 +283,53 @@ namespace LibChorus.Tests.merge.xml.generic
 
 			var merger = new XmlMerger(new NullMergeSituation());
 			LiftElementStrategiesMethod.AddLiftElementStrategies(merger.MergeStrategies);
-			// Note: I assume it will have conflicts, once it gets past the key not found exception, but I (RBR) don't know what they are.
-			TestMergeWithoutConflicts(merger, ours, theirs, common, "//sense");
+			var listener = new ListenerForUnitTests();
+			merger.EventListener = listener;
+			var xpathToElementsToMerge = "//sense";
+
+			var ourNode = GetNode(ours, xpathToElementsToMerge);
+			var method = new MergeChildrenMethod(ourNode,
+												 GetNode(theirs, xpathToElementsToMerge),
+												 GetNode(ancestors, xpathToElementsToMerge),
+												 merger);
+			method.Run();
+			// This is such a mess that the desirable outcome is not at all obvious. We created this test because
+			// at one point data like this was producing crashes. It remains valuable as a torture test, but
+			// rather than locking in some exact outcome, let's just check a few basic expectations.
+			Assert.That(listener.Conflicts, Has.Count.GreaterThan(0)); // should find SOME problems!
+
+			// Common has six nodes with type='P' ref='dupid1', which are supposed to be the key attributes.
+			// theirs has only one, while ours has three. Seems pretty clear that at least one and not more than three should survive.
+			Assert.That(CountNodesWithKeys("relation", "P", "dupid1", ourNode.ChildNodes), Is.GreaterThan(0).And.LessThanOrEqualTo(3));
+			// Common has four nodes with type='P' an ref='dupid3'. Theirs has none, while ours has two. One of the survivors
+			// has been "modified" (different order) so that at least should survive.
+			Assert.That(CountNodesWithKeys("relation", "P", "dupid3", ourNode.ChildNodes), Is.GreaterThan(0).And.LessThanOrEqualTo(2));
+			// There is exactly one node with type='C' ref='nondupdupid1'. It should certainly survive.
+			Assert.That(CountNodesWithKeys("relation", "C", "nondupdupid1", ourNode.ChildNodes), Is.EqualTo(1));
+			// Likewise for the pair (C, dupid2), (C, dupid4), (C, dupid5), and (C, dupid1)
+			Assert.That(CountNodesWithKeys("relation", "C", "dupid2", ourNode.ChildNodes), Is.EqualTo(1));
+			Assert.That(CountNodesWithKeys("relation", "C", "dupid4", ourNode.ChildNodes), Is.EqualTo(1));
+			Assert.That(CountNodesWithKeys("relation", "C", "dupid5", ourNode.ChildNodes), Is.EqualTo(1));
+			Assert.That(CountNodesWithKeys("relation", "C", "dupid1", ourNode.ChildNodes), Is.EqualTo(1));
+			// Started with one (P, dupid4), which survived in theirs; ours has two. Similarly with (P, dupid5). Two should survive.
+			Assert.That(CountNodesWithKeys("relation", "P", "dupid4", ourNode.ChildNodes), Is.EqualTo(2));
+			Assert.That(CountNodesWithKeys("relation", "P", "dupid5", ourNode.ChildNodes), Is.EqualTo(2));
+		}
+
+		int CountNodesWithKeys(string name, string typeKey, string refKey, XmlNodeList nodes)
+		{
+			int result = 0;
+			foreach (XmlNode node in nodes)
+			{
+				if (node.Name != name)
+					continue;
+				if (XmlUtilities.GetOptionalAttributeString(node, "type") != typeKey)
+					continue;
+				if (XmlUtilities.GetOptionalAttributeString(node, "ref") != refKey)
+					continue;
+				result++;
+			}
+			return result;
 		}
 	}
 }

@@ -25,7 +25,7 @@ namespace LibChorus.Tests.merge.xml.lift
 			var parent = dom.SelectSingleNode("//sense");
 			var guyToMatch = dom.SelectSingleNode("//example");
 			var finder = new ExampleSentenceFinder();
-			var match = finder.GetNodeToMerge(guyToMatch, parent);
+			var match = finder.GetNodeToMerge(guyToMatch, parent, SetFromChildren.Get(parent));
 			Assert.AreEqual(guyToMatch.OuterXml, match.OuterXml);
 		}
 	}
