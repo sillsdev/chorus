@@ -109,6 +109,10 @@
 	  <SpecificVersion>False</SpecificVersion>
 	  <HintPath>..\..\lib\$(Configuration)\Palaso.dll</HintPath>
 	</Reference>
+	<Reference Include="Palaso.Lift">
+	  <SpecificVersion>False</SpecificVersion>
+	  <HintPath>..\..\lib\$(Configuration)\Palaso.Lift.dll</HintPath>
+	</Reference>
 	<Reference Include="System" />
 	<Reference Include="System.Core">
 	  <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -140,7 +144,6 @@
 	<Compile Include="FileTypeHanders\Lift-Ranges\LiftRangesFileTypeHandler.cs" />
 	<Compile Include="FileTypeHanders\Lift-Ranges\LiftRangesElementToMergeStrategyKeyMapper.cs" />
 	<Compile Include="FileTypeHanders\lift\LiftElementStrategiesMethod.cs" />
-	<Compile Include="FileTypeHanders\lift\LiftFileServices.cs" />
 	<Compile Include="FileTypeHanders\lift\LiftFolder.cs" />
 	<Compile Include="FileTypeHanders\lift\LiftElementToMergeStrategyKeyMapper.cs" />
 	<Compile Include="merge\xml\generic\MergeLimitedChildrenService.cs" />

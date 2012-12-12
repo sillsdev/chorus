@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Xml;
 using Chorus.VcsDrivers.Mercurial;
 using Chorus.sync;
+using Palaso.Lift;
 using Palaso.Xml;
 using Palaso.Progress;
 
@@ -33,13 +35,21 @@ namespace Chorus.FileTypeHanders.lift
 			}
 		}
 
+		private void PutFilesInFixedOrder()
+		{
+			LiftSorter.SortLiftFile(_liftPathName);
+			LiftSorter.SortLiftRangesFile(Path.ChangeExtension(_liftPathName, "lift-ranges"));
+		}
+
 		#region Implementation of ISychronizerAdjunct
 
 		/// <summary>
 		/// Allow the client to do something right before the initial local commit.
 		/// </summary>
 		public void PrepareForInitialCommit(IProgress progress)
-		{ /* Do nothing at all. */ }
+		{
+			PutFilesInFixedOrder();
+		}
 
 		/// <summary>
 		/// Allow the client to do something in one of two cases:
@@ -61,6 +71,7 @@ namespace Chorus.FileTypeHanders.lift
 		public void PrepareForPostMergeCommit(IProgress progress)
 		{
 			WasUpdated = true;
+			PutFilesInFixedOrder();
 		}
 
 		/// <summary>
