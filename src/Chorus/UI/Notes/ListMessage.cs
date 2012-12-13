@@ -23,6 +23,28 @@ namespace Chorus.UI.Notes
 			get { return Message.Date; }
 		}
 
+		/// <summary>
+		/// This sort key groups messages about the same annotation (LT-13518), then by the date of individual messages.
+		/// Groups are ordered by the last (presumably most recent) message in the group.
+		/// </summary>
+		public Tuple<DateTime, DateTime> SortKey
+		{
+			get
+			{
+				return new Tuple<DateTime, DateTime>(SortDate, Date);
+			}
+		}
+
+		public DateTime SortDate
+		{
+			get
+			{
+				if (ParentAnnotation != null)
+					return ParentAnnotation.Date;
+				return Date;
+			}
+		}
+
 		public ListViewItem GetListViewItem()
 		{
 			var i = new ListViewItem(ParentAnnotation.GetLabelFromRef(""));

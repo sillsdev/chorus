@@ -25,6 +25,7 @@ namespace Chorus.UI.Notes
 		private string _newMessageText;
 		private EmbeddedMessageContentHandlerFactory _embeddedMessageContentHandlerFactory;
 		private bool _showLabelAsHyperLink=true;
+		public MessageSelectedEvent EventToRaiseForChangedMessage { get; private set; }
 
 		internal event EventHandler UpdateContent;
 		internal event EventHandler UpdateStates;
@@ -66,6 +67,7 @@ namespace Chorus.UI.Notes
 			_writingSystems = writingSystems;
 			 CurrentWritingSystem = _writingSystems.First();
 			messageSelectedEventToSubscribeTo.Subscribe((annotation, message) => SetAnnotationAndFocussedMessage(annotation, message));
+			EventToRaiseForChangedMessage = messageSelectedEventToSubscribeTo;
 			NewMessageText = string.Empty;
 		}
 

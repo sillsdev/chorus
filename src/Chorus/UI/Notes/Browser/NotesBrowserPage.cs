@@ -27,6 +27,7 @@ namespace Chorus.UI.Notes.Browser
 			splitContainer1.Panel2.Padding = new Padding(3,34,3,3);//drop it below the search box of the other pain
 
 			_notesInProjectModel = notesInProjectViewModelFactory(repositories, new NullProgress());
+			_notesInProjectModel.EventToRaiseForChangedMessage = annotationView.EventToRaiseForChangedMessage;
 			var notesInProjectView = new NotesInProjectView(_notesInProjectModel);
 			notesInProjectView.Dock = DockStyle.Fill;
 			splitContainer1.Panel1.Controls.Add(notesInProjectView);
