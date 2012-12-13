@@ -124,7 +124,7 @@ namespace Chorus.merge.xml.generic
 
 				// Both ourChild and theirChild exist, and may or may not be the same.
 				var mergeStrategy = merger.MergeStrategies.GetElementStrategy(ourChild);
-				var match = mergeStrategy.MergePartnerFinder.GetNodeToMerge(ourChild, theirs);
+				var match = mergeStrategy.MergePartnerFinder.GetNodeToMerge(ourChild, theirs, SetFromChildren.Get(theirs));
 				if (match == null)
 				{
 					XmlNode winner;
