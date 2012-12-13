@@ -127,7 +127,7 @@ namespace Chorus.merge.xml.generic
 					continue;
 
 				XmlNode theirChild;
-				var ancestorChild = FindMatchingNode(ourChild, _ancestor);
+				var ancestorChild = FindMatchingNode(ourChild, _ancestor, new HashSet<XmlNode>(_childrenOfAncestorKeepers));
 
 				if (resultOrderer.Correspondences.TryGetValue(ourChild, out theirChild) && !ChildrenAreSame(ourChild, theirChild))
 				{
@@ -216,19 +216,28 @@ namespace Chorus.merge.xml.generic
 		private Dictionary<XmlNode, XmlNode> MakeCorrespondences(List<XmlNode> primary, List<XmlNode> others, XmlNode otherParent)
 		{
 			Dictionary<XmlNode, XmlNode> result = new Dictionary<XmlNode, XmlNode>(_childrenOfOurKeepers.Count);
+			var acceptableTargets = new HashSet<XmlNode>(others);
 			foreach (XmlNode node in primary)
 			{
-				XmlNode other = FindMatchingNode(node, otherParent);
+				XmlNode other = FindMatchingNode(node, otherParent, acceptableTargets);
 				if (other != null)
+				{
+					Debug.Assert(others.Contains(other));
 					result[node] = other;
+				}
 			}
 			return result;
 		}
 
-		private XmlNode FindMatchingNode(XmlNode node, XmlNode otherParent)
+		private XmlNode FindMatchingNode(XmlNode node, XmlNode otherParent, HashSet<XmlNode> acceptableTargets)
 		{
 			IFindNodeToMerge finder = _merger.MergeStrategies.GetMergePartnerFinder(node);
-			return finder.GetNodeToMerge(node, otherParent);
+			var result = finder.GetNodeToMerge(node, otherParent, acceptableTargets);
+			// This check allows implementations where there is only one possible match to ignore acceptableTargets
+			// and just give us the one match from otherParent. If we don't want it, we discard it.
+			if (!acceptableTargets.Contains(result))
+				return null;
+			return result;
 		}
 
 		/// <summary>
@@ -241,12 +250,14 @@ namespace Chorus.merge.xml.generic
 		{
 			// loop over a copy of the list, since we may modify ancestorKeepers.
 			List<XmlNode> loopSource = new List<XmlNode>(_childrenOfAncestorKeepers);
+			var ourChildSet = new HashSet<XmlNode>(_ours == null ? new XmlNode[0] : _ours.ChildNodes.Cast<XmlNode>());
+			var theirChildSet = new HashSet<XmlNode>(_theirs== null ? new XmlNode[0] : _theirs.ChildNodes.Cast<XmlNode>());
 			foreach (XmlNode ancestorChild in loopSource)
 			{
 				ElementStrategy mergeStrategy = _merger.MergeStrategies.GetElementStrategy(ancestorChild);
 				IFindNodeToMerge finder = mergeStrategy.MergePartnerFinder;
-				XmlNode ourChild = finder.GetNodeToMerge(ancestorChild, _ours);
-				XmlNode theirChild = finder.GetNodeToMerge(ancestorChild, _theirs);
+				XmlNode ourChild = finder.GetNodeToMerge(ancestorChild, _ours, ourChildSet);
+				XmlNode theirChild = finder.GetNodeToMerge(ancestorChild, _theirs, theirChildSet);
 
 				var extantNode = ancestorChild ?? ourChild ?? theirChild;
 				if (extantNode is XmlCharacterData)

@@ -45,7 +45,10 @@ namespace Chorus.VcsDrivers.Mercurial
 			return null;
 		}
 
-		public HgModelVersionBranch BranchingHelper { get { return _branchHelper; } }
+		public HgModelVersionBranch BranchingHelper
+		{
+			get { return _branchHelper ?? (_branchHelper = new HgModelVersionBranch(this, _progress)); }
+		}
 
 		/// <exception cref="Exception">This will throw when the hgrc is locked</exception>
 		public RepositoryAddress GetDefaultNetworkAddress<T>()
@@ -139,7 +142,6 @@ namespace Chorus.VcsDrivers.Mercurial
 			_progress = progress;
 
 			_userName = GetUserIdInUse();
-			_branchHelper = new HgModelVersionBranch(this, _progress);
 		}
 
 		/// <summary>
