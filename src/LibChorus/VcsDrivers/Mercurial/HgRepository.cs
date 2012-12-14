@@ -141,8 +141,6 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		public HgRepository(string pathToRepository, IProgress progress)
 		{
-			AllowDotEncodeRepositoryFormat = true;//older apps can change this
-
 			Guard.AgainstNull(progress, "progress");
 			_pathToRepository = pathToRepository;
 
@@ -1398,7 +1396,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		/// See http://mercurial.selenic.com/wiki/UpgradingMercurial
 		/// Default for this value is True, so new apps will get this improved format.
 		/// </summary>
-		public static bool AllowDotEncodeRepositoryFormat { get; set; }
+		public static bool AllowDotEncodeRepositoryFormat = true;
 
 		private string AllowDotEncodeRepositoryFormatStringValue { get { return AllowDotEncodeRepositoryFormat ? "True":"False"; } }
 
