@@ -67,7 +67,8 @@ namespace LibChorus.Tests.sync
 		/// or "Your colleague needs to update, you won't see their changes until they do."
 		/// </summary>
 		/// <param name="branches">A list (IEnumerable really) of all the open branches in this repo.</param>
-		public void CheckRepositoryBranches(IEnumerable<Revision> branches)
+		/// <param name="progress"></param>
+		public void CheckRepositoryBranches(IEnumerable<Revision> branches, IProgress progress)
 		{ /* Do nothing at all. */ }
 
 		#endregion

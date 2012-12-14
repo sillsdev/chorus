@@ -150,7 +150,7 @@ namespace Chorus.sync
 				{
 					UpdateToTheDescendantRevision(repo, workingRevBeforeSync);
 				}
-				_sychronizerAdjunct.CheckRepositoryBranches(repo.BranchingHelper.GetBranches());
+				_sychronizerAdjunct.CheckRepositoryBranches(repo.BranchingHelper.GetBranches(), _progress);
 
 				results.Succeeded = true;
 			   _progress.WriteMessage("Done");
