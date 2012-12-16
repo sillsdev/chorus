@@ -23,6 +23,11 @@ namespace Chorus.UI.Notes
 			_newMessage.Font = model.FontForNewMessage;
 		}
 
+		public MessageSelectedEvent EventToRaiseForChangedMessage
+		{
+			get { return _model.EventToRaiseForChangedMessage; }
+		}
+
 		protected void SetDocumentText(string text)
 		{
 			// Using _existingMessagesDisplay.DocumentText =  causes an exception on mono

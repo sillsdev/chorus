@@ -7,7 +7,7 @@ using Palaso.Progress;
 
 namespace Chorus.FileTypeHanders.lift
 {
-	class LiftSynchronizerAdjunct : ISychronizerAdjunct
+	public class LiftSynchronizerAdjunct : ISychronizerAdjunct
 	{
 		private readonly string _branchName;
 		private readonly string _liftPathName;
@@ -25,12 +25,11 @@ namespace Chorus.FileTypeHanders.lift
 		private string GetBranchNameFromLiftFile()
 		{
 			const string LIFT = "LIFT";
-			using (var rdr = XmlReader.Create(_liftPathName, CanonicalXmlSettings.CreateXmlReaderSettings()))
+			using (var reader = XmlReader.Create(_liftPathName, CanonicalXmlSettings.CreateXmlReaderSettings()))
 			{
-				rdr.MoveToContent();
-				rdr.MoveToAttribute("version");
-				var fileVersion = rdr.Value;
-				return LIFT + fileVersion;
+				reader.MoveToContent();
+				reader.MoveToAttribute("version");
+				return LIFT + reader.Value;
 			}
 		}
 
@@ -51,14 +50,18 @@ namespace Chorus.FileTypeHanders.lift
 		///<param name="progress">A progress mechanism.</param>
 		/// <param name="isRollback">"True" if there was a merge failure, and the repo is being rolled back to an earlier state. Otherwise "False".</param>
 		public void SimpleUpdate(IProgress progress, bool isRollback)
-		{ /* Do nothing at all. */ }
+		{
+			WasUpdated = true;
+		}
 
 		/// <summary>
 		/// Allow the client to do something right after a merge, but before the merge is committed.
 		/// </summary>
 		/// <remarks>This method not be called at all, if there was no merging.</remarks>
 		public void PrepareForPostMergeCommit(IProgress progress)
-		{ /* Do nothing at all. */ }
+		{
+			WasUpdated = true;
+		}
 
 		/// <summary>
 		/// Get the branch name the client wants to use. This might be (for example) a current version label
@@ -68,6 +71,8 @@ namespace Chorus.FileTypeHanders.lift
 		{
 			get { return _branchName; }
 		}
+
+		public bool WasUpdated { get; private set; }
 
 		/// <summary>
 		/// During a Send/Receive when Chorus has completed a pull and there is more than one branch on the repository

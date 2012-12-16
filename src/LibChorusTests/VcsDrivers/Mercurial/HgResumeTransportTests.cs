@@ -663,26 +663,23 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 
 		private class BranchTestAdjunct : ISychronizerAdjunct
 		{
+			public bool WasUpdated { get; private set; }
 			public string BranchName { get; set; }
 			public void PrepareForInitialCommit(IProgress progress)
-			{
-				;
-			}
+			{}
 
 			public void SimpleUpdate(IProgress progress, bool isRollback)
 			{
-				;
+				WasUpdated = true;
 			}
 
 			public void PrepareForPostMergeCommit(IProgress progress)
 			{
-				;
+				WasUpdated = true;
 			}
 
 			public void CheckRepositoryBranches(IEnumerable<Revision> branches)
-			{
-				;
-			}
+			{}
 		}
 	}
 }

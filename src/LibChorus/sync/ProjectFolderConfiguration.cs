@@ -5,8 +5,8 @@ namespace Chorus.sync
 	public class ProjectFolderConfiguration
 	{
 		public const string BareFolderReadmeFileName = "~~*.txt";
-		private readonly List<string> _includePatterns = new List<string>(new [] {"**.ChorusNotes"});
-		private readonly List<string> _excludePatterns = new List<string>(new[] { BareFolderReadmeFileName /* for bare folder readme file */});
+		private readonly List<string> _includePatterns = new List<string>(new[] { "**.ChorusNotes" });
+		private readonly List<string> _excludePatterns = new List<string>(new[] { BareFolderReadmeFileName /* for bare folder readme file */, "**.NewChorusNotes" });
 		private string _folderPath;
 
 		public ProjectFolderConfiguration(string folderPath)
@@ -57,6 +57,8 @@ namespace Chorus.sync
 				projectFolderConfiguration._includePatterns.Add("**.ChorusNotes");
 			if (!projectFolderConfiguration._excludePatterns.Contains(BareFolderReadmeFileName))
 				projectFolderConfiguration._excludePatterns.Add(BareFolderReadmeFileName);
+			if (!projectFolderConfiguration._excludePatterns.Contains("**.NewChorusNotes"))
+				projectFolderConfiguration._excludePatterns.Add("**.NewChorusNotes");
 		}
 
 		public static void AddExcludedVideoExtensions(ProjectFolderConfiguration projectFolderConfiguration)

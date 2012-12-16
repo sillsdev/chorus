@@ -475,6 +475,7 @@ namespace LibChorus.Tests.sync
 			/// <param name="isRollback">"True" if there was a merge failure, and the repo is being rolled back to an earlier state. Otherwise "False".</param>
 			public void SimpleUpdate(IProgress progress, bool isRollback)
 			{
+				WasUpdated = true;
 				if (isRollback)
 					File.WriteAllText(RollbackPathname, "Rollback");
 				else
@@ -487,6 +488,7 @@ namespace LibChorus.Tests.sync
 			/// <remarks>This method not be called at all, if there was no merging.</remarks>
 			public void PrepareForPostMergeCommit(IProgress progress)
 			{
+				WasUpdated = true;
 				File.WriteAllText(MergePathname, "Merged");
 			}
 
@@ -503,6 +505,8 @@ namespace LibChorus.Tests.sync
 					return ""; // Hg 'default' branch is empty string.
 				}
 			}
+
+			public bool WasUpdated { get; private set; }
 
 			/// <summary>
 			/// During a Send/Receive when Chorus has completed a pull and there is more than one branch on the repository

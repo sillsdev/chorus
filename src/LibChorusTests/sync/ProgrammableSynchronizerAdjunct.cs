@@ -5,7 +5,7 @@ using Palaso.Progress;
 
 namespace LibChorus.Tests.sync
 {
-	class ProgrammableSynchronizerAdjunct : ISychronizerAdjunct
+	internal class ProgrammableSynchronizerAdjunct : ISychronizerAdjunct
 	{
 		private readonly string _branchName;
 
@@ -35,14 +35,18 @@ namespace LibChorus.Tests.sync
 		///<param name="progress">A progress mechanism.</param>
 		/// <param name="isRollback">"True" if there was a merge failure, and the repo is being rolled back to an earlier state. Otherwise "False".</param>
 		public void SimpleUpdate(IProgress progress, bool isRollback)
-		{ /* Do nothing at all. */ }
+		{
+			WasUpdated = true;
+		}
 
 		/// <summary>
 		/// Allow the client to do something right after a merge, but before the merge is committed.
 		/// </summary>
 		/// <remarks>This method not be called at all, if there was no merging.</remarks>
 		public void PrepareForPostMergeCommit(IProgress progress)
-		{ /* Do nothing at all. */ }
+		{
+			WasUpdated = true;
+		}
 
 		/// <summary>
 		/// Get the branch name the client wants to use. This might be (for example) a current version label
@@ -52,6 +56,8 @@ namespace LibChorus.Tests.sync
 		{
 			get { return _branchName ?? ""; } // Hg default branch name
 		}
+
+		public bool WasUpdated { get; private set; }
 
 		/// <summary>
 		/// During a Send/Receive when Chorus has completed a pull and there is more than one branch on the repository
