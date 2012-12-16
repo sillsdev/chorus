@@ -139,6 +139,22 @@ username = joe
 				Assert.AreEqual("joe", repository.GetUserNameFromIni(_progress, "anonymous"));
 			}
 		}
+
+
+		[Test]
+		public void GetUserName_NameInLocalReopHasSpace_GetsName()
+		{
+			using (new MercurialIniForTests())
+			using (var setup = new RepositorySetup("Joe Schmoe"))
+			{
+				setup.WriteIniContents(@"[ui]
+username = Joe Schmoe
+");
+				var repository = setup.CreateSynchronizer().Repository;
+				Assert.AreEqual("Joe Schmoe", repository.GetUserNameFromIni(_progress, "anonymous"));
+			}
+		}
+
 		[Test]
 		public void GetUserName_EmptyHgrc_ReturnsDefault()
 		{
