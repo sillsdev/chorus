@@ -70,7 +70,7 @@ namespace Chorus.sync
 		///<returns>An empty string or a string with a listing of files that were not added/modified.</returns>
 		public static string FilterFiles(HgRepository repository, ProjectFolderConfiguration configuration, ChorusFileTypeHandlerCollection handlerCollection)
 		{
-			var builder = new StringBuilder();
+			var messageBuilder = new StringBuilder();
 
 			foreach (var fileInRevision in repository.GetFilesInRevisionFromQuery(null, "status"))
 			{
@@ -81,15 +81,15 @@ namespace Chorus.sync
 				// Remaining options are: Added, Modified, and Unknown.
 				// It will likely be Unknown when called by Synchronizer's Commit method,
 				// as it will deal with the includes/excludes stuff and mark new stuff as 'add'.
-				FilterFiles(repository, configuration, builder, fir, handlerCollection.Handlers.ToList());
+				FilterFiles(repository, configuration, messageBuilder, fir, handlerCollection.Handlers.ToList());
 			}
 
-			var result = builder.ToString();
+			var result = messageBuilder.ToString();
 			return string.IsNullOrEmpty(result) ? null : result;
 		}
 
 		private static void FilterFiles(HgRepository repository, ProjectFolderConfiguration configuration,
-											StringBuilder builder, FileInRevision fir, List<IChorusFileTypeHandler> handlers)
+											StringBuilder messageBuilder, FileInRevision fir, List<IChorusFileTypeHandler> handlers)
 		{
 			var filename = Path.GetFileName(fir.FullPath);
 			var fileExtension = Path.GetExtension(filename);
@@ -121,7 +121,7 @@ namespace Chorus.sync
 
 					if (allNormallyExcludedPathNames == null)
 						allNormallyExcludedPathNames = CollectAllNormallyExcludedPathnamesOnce(configuration, pathToRepository);
-					RegisterLargeFile(repository, configuration, builder, fir, filename, allNormallyExcludedPathNames);
+					RegisterLargeFile(repository, configuration, messageBuilder, fir, filename, fileSize, handler.MaximumFileSize, allNormallyExcludedPathNames);
 				}
 				else
 				{
@@ -135,7 +135,7 @@ namespace Chorus.sync
 
 						if (allNormallyExcludedPathNames == null)
 							allNormallyExcludedPathNames = CollectAllNormallyExcludedPathnamesOnce(configuration, pathToRepository);
-						RegisterLargeFile(repository, configuration, builder, fir, filename, allNormallyExcludedPathNames);
+						RegisterLargeFile(repository, configuration, messageBuilder, fir, filename, fileSize, handler.MaximumFileSize, allNormallyExcludedPathNames);
 					}
 				}
 			}
@@ -217,22 +217,26 @@ namespace Chorus.sync
 
 		private static void RegisterLargeFile(HgRepository repository, ProjectFolderConfiguration configuration,
 											StringBuilder builder,
-											FileInRevision fir, string filename,
+											FileInRevision fileInRevision, string filename,
+											long fileSize, uint maxSize,
 											ICollection<string> allExtantExcludedPathnames)
 		{
-			var longPathname = RemoveBasePath(repository, fir);
+			var longPathname = RemoveBasePath(repository, fileInRevision);
 			if (allExtantExcludedPathnames.Contains(longPathname))
 				return; // Standard "exclude" covers it, so skip the warning.
 
+			var fileSizeString = (fileSize / (float)(1024*1024)).ToString("0.00") + " Megabytes";
+			var maxSizeString = (maxSize / (float)(1024*1024)).ToString("0.0") + " Megabytes";
+
 			configuration.ExcludePatterns.Add(longPathname);
-			switch (fir.ActionThatHappened)
+			switch (fileInRevision.ActionThatHappened)
 			{
 				case FileInRevision.Action.Added:
 				case FileInRevision.Action.Unknown:
-					builder.AppendLine(String.Format("File '{0}' is too large to add to Chorus.", filename));
+					builder.AppendLine(String.Format("File '{0}' is too large to include in the Send/Receive system. It is {1}, but the maximum allowed is {2}. The file is at {3}.", filename, fileSizeString, maxSizeString, fileInRevision.FullPath));
 					break;
 				case FileInRevision.Action.Modified:
-					builder.AppendLine(String.Format("File '{0}' is too large to add to Chorus.", filename));
+					builder.AppendLine(String.Format("File '{0}' has grown too large to include in the Send/Receive system.  It is {1}, but the maximum allowed is {2}. The file is at {3}.", filename, fileSizeString, maxSizeString, fileInRevision.FullPath));
 					// TODO: What to do, if the file is "Modified" but now too big?
 					// "remove" actually deletes the file in repo and in working folder, which seems a bit rude.
 					// "forget" removes it from repo (history remains) and leaves it in working folder.
