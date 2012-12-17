@@ -34,15 +34,15 @@ namespace LibChorus.Tests.sync
 		}
 
 		[Test]
-		public void ShortAddedFileIsAllowed()
+		public void LongUnknownFileIsfilteredOut()
 		{
 			using (var bob = new RepositorySetup("bob"))
 			{
 				const string fileName = "test.chorusTest";
-				bob.ChangeFile(fileName, _goodData);
+				bob.ChangeFile(fileName, _longData);
 				var fullPathname = Path.Combine(bob.ProjectFolderConfig.FolderPath, fileName);
 				var pathToRepo = bob.Repository.PathToRepo + Path.DirectorySeparatorChar;
-				bob.Repository.TestOnlyAddSansCommit(fullPathname);
+
 				var config = bob.ProjectFolderConfig;
 				config.ExcludePatterns.Clear();
 				config.IncludePatterns.Clear();
@@ -52,9 +52,9 @@ namespace LibChorus.Tests.sync
 					bob.Repository,
 					config,
 					_handlersColl);
-				Assert.IsTrue(string.IsNullOrEmpty(result));
+				Assert.IsFalse(string.IsNullOrEmpty(result));
 				var shortpath = fullPathname.Replace(pathToRepo, "");
-				Assert.IsFalse(config.ExcludePatterns.Contains(shortpath));
+				Assert.IsTrue(config.ExcludePatterns.Contains(shortpath));
 				Assert.IsFalse(config.IncludePatterns.Contains(shortpath));
 			}
 		}
@@ -123,7 +123,7 @@ namespace LibChorus.Tests.sync
 		}
 
 		[Test]
-		public void ShortUnknownFileIsAllowed()
+		public void ShortAddedFileIsAllowed()
 		{
 			using (var bob = new RepositorySetup("bob"))
 			{
@@ -131,7 +131,7 @@ namespace LibChorus.Tests.sync
 				bob.ChangeFile(fileName, _goodData);
 				var fullPathname = Path.Combine(bob.ProjectFolderConfig.FolderPath, fileName);
 				var pathToRepo = bob.Repository.PathToRepo + Path.DirectorySeparatorChar;
-				//bob.Repository.TestOnlyAddSansCommit(fullPathname);
+				bob.Repository.TestOnlyAddSansCommit(fullPathname);
 				var config = bob.ProjectFolderConfig;
 				config.ExcludePatterns.Clear();
 				config.IncludePatterns.Clear();
@@ -149,16 +149,14 @@ namespace LibChorus.Tests.sync
 		}
 
 		[Test]
-		public void LongUnknownFileIsfilteredOut()
+		public void ShortUnknownFileIsAllowed()
 		{
 			using (var bob = new RepositorySetup("bob"))
 			{
 				const string fileName = "test.chorusTest";
-				bob.ChangeFile(fileName, _longData);
+				bob.ChangeFile(fileName, _goodData);
 				var fullPathname = Path.Combine(bob.ProjectFolderConfig.FolderPath, fileName);
 				var pathToRepo = bob.Repository.PathToRepo + Path.DirectorySeparatorChar;
-				//bob.Repository.TestOnlyAddSansCommit(fullPathname);
-
 				var config = bob.ProjectFolderConfig;
 				config.ExcludePatterns.Clear();
 				config.IncludePatterns.Clear();
@@ -168,9 +166,9 @@ namespace LibChorus.Tests.sync
 					bob.Repository,
 					config,
 					_handlersColl);
-				Assert.IsFalse(string.IsNullOrEmpty(result));
+				Assert.IsTrue(string.IsNullOrEmpty(result));
 				var shortpath = fullPathname.Replace(pathToRepo, "");
-				Assert.IsTrue(config.ExcludePatterns.Contains(shortpath));
+				Assert.IsFalse(config.ExcludePatterns.Contains(shortpath));
 				Assert.IsFalse(config.IncludePatterns.Contains(shortpath));
 			}
 		}
@@ -180,7 +178,6 @@ namespace LibChorus.Tests.sync
 		{
 			Assert.AreEqual(1048576, LargeFileFilter.Megabyte);
 		}
-
 
 		/// <summary>
 		/// Regression test: WS-34181
@@ -208,6 +205,38 @@ namespace LibChorus.Tests.sync
 				var shortpath = fullPathname.Replace(pathToRepo, "");
 				Assert.IsFalse(config.ExcludePatterns.Contains(shortpath));
 				Assert.IsFalse(config.IncludePatterns.Contains(shortpath));
+			}
+		}
+
+		[Test]
+		public void LongWavFileIsFilteredOutAndNotInRepo()
+		{
+			using (var bob = new RepositorySetup("bob"))
+			{
+				var megabyteLongData = "long" + Environment.NewLine;
+				while (megabyteLongData.Length < LargeFileFilter.Megabyte)
+					megabyteLongData += megabyteLongData;
+
+				const string fileName = "big.wav";
+				bob.ChangeFile(fileName, megabyteLongData);
+				var fullPathname = Path.Combine(bob.ProjectFolderConfig.FolderPath, fileName);
+				var pathToRepo = bob.Repository.PathToRepo + Path.DirectorySeparatorChar;
+				bob.Repository.TestOnlyAddSansCommit(fullPathname);
+				var config = bob.ProjectFolderConfig;
+				config.ExcludePatterns.Clear();
+				config.IncludePatterns.Clear();
+				config.IncludePatterns.Add("**.wav");
+
+				var result = LargeFileFilter.FilterFiles(
+					bob.Repository,
+					config,
+					ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers());
+				Assert.IsFalse(string.IsNullOrEmpty(result));
+				var shortpath = fullPathname.Replace(pathToRepo, "");
+				Assert.IsTrue(config.ExcludePatterns.Contains(shortpath));
+				Assert.IsFalse(config.IncludePatterns.Contains(shortpath));
+				bob.Repository.AddAndCheckinFiles(config.IncludePatterns, config.ExcludePatterns, "Some commit");
+				bob.AssertFileDoesNotExistInRepository("big.wav");
 			}
 		}
 
@@ -263,7 +292,8 @@ namespace LibChorus.Tests.sync
 
 				var config = bob.ProjectFolderConfig;
 				config.ExcludePatterns.Clear();
-				config.ExcludePatterns.Add(Path.Combine("**", "Cache"));
+				//config.ExcludePatterns.Add(Path.Combine("**", "Cache"));
+				config.ExcludePatterns.Add("**Cache");
 				config.IncludePatterns.Clear();
 				config.IncludePatterns.Add("**.*");
 
@@ -300,7 +330,8 @@ namespace LibChorus.Tests.sync
 
 				var config = bob.ProjectFolderConfig;
 				config.ExcludePatterns.Clear();
-				config.ExcludePatterns.Add(Path.Combine("**", "Cache"));
+				//config.ExcludePatterns.Add(Path.Combine("**", "Cache"));
+				config.ExcludePatterns.Add("**Cache");
 				config.IncludePatterns.Clear();
 				config.IncludePatterns.Add("**.*");
 
@@ -317,7 +348,7 @@ namespace LibChorus.Tests.sync
 		}
 
 		[Test]
-		public void LargeFileInNonExcludedFolderNotFilteredByExclusionAtDeeperNesting()
+		public void SmallFileInNonExcludedFolderNotFilteredByExclusionAtDeeperNesting()
 		{
 			//Put a small file in [repo]\Cache and a large file in [repo]\foo\SomeLayer\Cache
 			//exclude \foo\**\Cache, make sure that [repo]\Cache\smallFile was not filtered out.
@@ -632,8 +663,10 @@ namespace LibChorus.Tests.sync
 				bob.ChangeFile(fileName, megabyteLongData);
 				var fullPathname = Path.Combine(bob.ProjectFolderConfig.FolderPath, fileName);
 				var pathToRepo = bob.Repository.PathToRepo + Path.DirectorySeparatorChar;
-				bob.Repository.TestOnlyAddSansCommit(fullPathname);
+				bob.Repository.TestOnlyAddSansCommit(fileName);
 				var config = bob.ProjectFolderConfig;
+				config.ExcludePatterns.Clear();
+				config.IncludePatterns.Clear();
 				LiftFolder.AddLiftFileInfoToFolderConfiguration(config);
 
 				var result = LargeFileFilter.FilterFiles(
@@ -644,6 +677,67 @@ namespace LibChorus.Tests.sync
 				var shortpath = fullPathname.Replace(pathToRepo, "");
 				Assert.IsTrue(config.ExcludePatterns.Contains(shortpath));
 				Assert.IsFalse(config.IncludePatterns.Contains(shortpath));
+			}
+		}
+
+		[Test]
+		public void GetFilteredStatusForFilesHasExpectedResults()
+		{
+			using (var repo = new RepositorySetup("BigFiles", true))
+			{
+				// 'clean' - C
+				repo.AddAndCheckinFile("control.txt", "original");
+				repo.AddAndCheckinFile("modified.txt", "original");
+				repo.AddAndCheckinFile("removed.txt", "removed properly");
+				repo.AddAndCheckinFile("goner.txt", "short lived");
+				File.WriteAllText(Path.Combine(repo.ProjectFolder.Path, "added.txt"), "added file");
+
+				// 'modified' - M
+				repo.ChangeFile("modified.txt", "updated");
+
+				// 'added' - A
+				repo.Repository.Execute(10, "add", "added.txt");
+
+				// 'removed' - R
+				repo.Repository.Execute(10, "rm", "removed.txt");
+
+				// 'missing' - !
+				File.Delete(Path.Combine(repo.ProjectFolder.Path, "goner.txt"));
+
+				// 'unknown' - ?
+				File.WriteAllText(Path.Combine(repo.ProjectFolder.Path, "unknown.txt"), "new data");
+
+				// excluded
+				File.WriteAllText(Path.Combine(repo.ProjectFolder.Path, "unknown.jpg"), "some binary data");
+
+				repo.ProjectFolderConfig.ExcludePatterns.Add("*.jpg");
+				repo.ProjectFolderConfig.IncludePatterns.Add("*.txt");
+
+				var results = LargeFileFilter.GetFilteredStatusForFiles(repo.Repository, repo.ProjectFolderConfig);
+				Assert.AreEqual(3, results.Keys.Count);
+				Assert.IsTrue(results.ContainsKey("M")); // tracked and modifed
+				Assert.IsTrue(results.ContainsKey("A")); // Added with hg add
+				Assert.IsTrue(results.ContainsKey("?")); // untracked
+
+				foreach (var resultKvp in results)
+				{
+					var resultValue = resultKvp.Value;
+					Assert.AreEqual(1, resultValue.Keys.Count);
+					Assert.IsTrue(resultValue.ContainsKey("txt"));
+					Assert.AreEqual(1, resultValue.Values.Count);
+					switch (resultKvp.Key)
+					{
+						case "M":
+							Assert.AreEqual("modified.txt", resultValue["txt"][0]);
+							break;
+						case "A":
+							Assert.AreEqual("added.txt", resultValue["txt"][0]);
+							break;
+						case "?":
+							Assert.AreEqual("unknown.txt", resultValue["txt"][0]);
+							break;
+					}
+				}
 			}
 		}
 	}
