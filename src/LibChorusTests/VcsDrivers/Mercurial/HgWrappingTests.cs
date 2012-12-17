@@ -260,6 +260,20 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		}
 
 		/// <summary>
+		/// regression
+		/// </summary>
+		[Test]
+		public void AddAndCheckinFiles_UserNameHasASpace_DoesnotDie()
+		{
+			using (var setup = new HgTestSetup())
+			{
+				setup.Repository.SetUserNameInIni("charlie brown", new NullProgress());
+				var path = setup.Root.GetNewTempFile(true).Path;
+				setup.ChangeAndCheckinFile(path, "hello");
+				//setup.Repository.AddAndCheckinFiles(new List<string>(new[]{}), );
+			}
+		}
+		/// <summary>
 		/// This is a special boundary case because hg backout fails with "cannot backout a change with no parents"
 		/// </summary>
 		[Test]

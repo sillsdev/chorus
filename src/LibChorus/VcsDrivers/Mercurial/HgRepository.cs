@@ -501,7 +501,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			CheckAndUpdateHgrc();
 			message = string.Format(message, args);
 			_progress.WriteVerbose("{0} committing with comment: {1}", _userName, message);
-			ExecutionResult result = Execute(SecondsBeforeTimeoutOnLocalOperation, "ci", "-u " + _userName, "-m " + SurroundWithQuotes(message));
+			ExecutionResult result = Execute(SecondsBeforeTimeoutOnLocalOperation, "ci", "-u " + SurroundWithQuotes(_userName), "-m " + SurroundWithQuotes(message));
 			_progress.WriteVerbose(result.StandardOutput);
 		}
 
@@ -1265,6 +1265,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				var doc = GetMercurialConfigForRepository();
 				doc.Sections.GetOrCreate("ui").Set("username", name);
 				doc.SaveAndGiveMessageIfCannot();
+				_userName = GetUserIdInUse();//update the _userName we're using (would expect it to change to this name)
 			}
 			catch (IOException e)
 			{
