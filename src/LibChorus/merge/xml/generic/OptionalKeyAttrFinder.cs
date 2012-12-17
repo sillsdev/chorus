@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Xml;
 
 namespace Chorus.merge.xml.generic
@@ -17,19 +18,23 @@ namespace Chorus.merge.xml.generic
 			_backup = backupFinder;
 		}
 
-		public XmlNode GetNodeToMerge(XmlNode nodeToMatch, XmlNode parentToSearchIn)
+		public XmlNode GetNodeToMerge(XmlNode nodeToMatch, XmlNode parentToSearchIn, HashSet<XmlNode> acceptableTargets)
 		{
 			if (parentToSearchIn == null || nodeToMatch == null)
 				return null;
 			var keyVal = nodeToMatch.Attributes[_key];
 			if( keyVal != null)
 			{
-				var match = parentToSearchIn.SelectSingleNode(nodeToMatch.LocalName + "[" + keyVal + "]");
-				if (match != null)
-					return match;
+				foreach (XmlNode node in parentToSearchIn.ChildNodes)
+				{
+					if (!acceptableTargets.Contains(node) || !(node is XmlElement))
+						continue;
+					if (XmlUtilities.GetOptionalAttributeString(node, _key) == keyVal.Value)
+						return node;
+				}
 			}
 
-			return _backup.GetNodeToMerge(nodeToMatch, parentToSearchIn);
+			return _backup.GetNodeToMerge(nodeToMatch, parentToSearchIn, acceptableTargets);
 
 		}
 

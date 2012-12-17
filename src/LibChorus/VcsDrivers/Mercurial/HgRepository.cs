@@ -92,13 +92,13 @@ namespace Chorus.VcsDrivers.Mercurial
 			Guard.AgainstNullOrEmptyString(startingPointForPathSearch, "startingPointForPathSearch");
 			Guard.Against(!Directory.Exists(startingPointForPathSearch) && !File.Exists(startingPointForPathSearch), "File or directory wasn't found");
 
-			/*
-			 I'm leaning away from this intervention at the moment.
-				string newRepositoryPath = AskUserForNewRepositoryPath(startingPath);
+				/*
+				 I'm leaning away from this intervention at the moment.
+					string newRepositoryPath = AskUserForNewRepositoryPath(startingPath);
 
-			 Let's see how far we can get by just silently creating it, and leave it to the future
-			 or user documentation/training to know to set up a repository at the level they want.
-			*/
+				 Let's see how far we can get by just silently creating it, and leave it to the future
+				 or user documentation/training to know to set up a repository at the level they want.
+				*/
 			var newRepositoryPath = startingPointForPathSearch;
 			if (File.Exists(startingPointForPathSearch))
 				newRepositoryPath = Path.GetDirectoryName(startingPointForPathSearch);
@@ -108,11 +108,11 @@ namespace Chorus.VcsDrivers.Mercurial
 
 			var hg = CreateRepositoryInExistingDir(newRepositoryPath, progress);
 
-			//review: Machine name would be more accurate, but most people have, like "Compaq" as their machine name
-			//but in any case, this is just a default until they set the name explicity
-			hg.SetUserNameInIni(Environment.UserName, progress);
-			return hg;
-		}
+					//review: Machine name would be more accurate, but most people have, like "Compaq" as their machine name
+					//but in any case, this is just a default until they set the name explicity
+					hg.SetUserNameInIni(Environment.UserName, progress);
+					return hg;
+				}
 
 		//        protected Revision GetMyHead()
 		//        {
@@ -130,8 +130,6 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		public HgRepository(string pathToRepository, IProgress progress)
 		{
-			AllowDotEncodeRepositoryFormat = true;//older apps can change this
-
 			Guard.AgainstNull(progress, "progress");
 			_pathToRepository = pathToRepository;
 
@@ -149,7 +147,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		/// Note: Maybe we could ship the mercurial.ini separately, some how.... there is some value in modifying the hgrc itself, since that way technians doing
 		/// hg stuff by hand will get the right extensions in play.
 		/// </summary>
-		private void CheckAndUpdateHgrc()
+		internal void CheckAndUpdateHgrc()
 		{
 			CheckMercurialIni();
 
@@ -433,7 +431,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			{
 				var revisionFlags = "";
 				foreach (var baseRevision in baseRevisions)
-				{
+			{
 					revisionFlags += string.Format("--base {0} \"{1}\" ", baseRevision, filePath);
 				}
 				command = "bundle " + revisionFlags;
@@ -503,7 +501,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			CheckAndUpdateHgrc();
 			message = string.Format(message, args);
 			_progress.WriteVerbose("{0} committing with comment: {1}", _userName, message);
-			ExecutionResult result = Execute(SecondsBeforeTimeoutOnLocalOperation, "ci", "-u " + _userName, "-m " + SurroundWithQuotes(message));
+			ExecutionResult result = Execute(SecondsBeforeTimeoutOnLocalOperation, "ci", "-u " + SurroundWithQuotes(_userName), "-m " + SurroundWithQuotes(message));
 			_progress.WriteVerbose(result.StandardOutput);
 		}
 
@@ -517,7 +515,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		public void ForgetFile(string filepath)
 		{
 			CheckAndUpdateHgrc();
-			_progress.WriteWarning("{0} is removing {1} from system. The file will remmain in the history and on disk.", _userName, Path.GetFileName(filepath));
+			_progress.WriteWarning("{0} is removing {1} from system. The file will remain in the history and on disk.", _userName, Path.GetFileName(filepath));
 			Execute(SecondsBeforeTimeoutOnLocalOperation, "forget ", SurroundWithQuotes(filepath));
 		}
 
@@ -900,7 +898,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				date:Thu, 08 Sep 2011 14:35:53 +0700
 				tag:
 				summary:base checkin
-			 */
+			*/
 
 			string result = GetTextFromQuery("log --template \"changeset:{rev}:{node|short}\nbranch:{branch}\nuser:{author}\ndate:{date|rfc822date}\ntag:{tags}\nsummary:{desc}\n\"");
 			return GetRevisionsFromQueryResultText(result);
@@ -1267,6 +1265,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				var doc = GetMercurialConfigForRepository();
 				doc.Sections.GetOrCreate("ui").Set("username", name);
 				doc.SaveAndGiveMessageIfCannot();
+				_userName = GetUserIdInUse();//update the _userName we're using (would expect it to change to this name)
 			}
 			catch (IOException e)
 			{
@@ -1386,7 +1385,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		/// See http://mercurial.selenic.com/wiki/UpgradingMercurial
 		/// Default for this value is True, so new apps will get this improved format.
 		/// </summary>
-		public static bool AllowDotEncodeRepositoryFormat { get; set; }
+		public static bool AllowDotEncodeRepositoryFormat = true;
 
 		private string AllowDotEncodeRepositoryFormatStringValue { get { return AllowDotEncodeRepositoryFormat ? "True":"False"; } }
 
@@ -1843,8 +1842,6 @@ namespace Chorus.VcsDrivers.Mercurial
 		/// <summary>
 		/// NB: this adds a new changeset
 		/// </summary>
-		/// <param name="number"></param>
-		/// <param name="tag"></param>
 		public void TagRevision(string revisionNumber, string tag)
 		{
 			CheckAndUpdateHgrc();

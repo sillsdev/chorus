@@ -14,7 +14,7 @@ namespace Chorus.UI.Notes.Browser
 		internal event EventHandler ReloadMessages;
 
 		private readonly IChorusUser _user;
-		private readonly MessageSelectedEvent _messageSelectedEvent;
+		private MessageSelectedEvent _messageSelectedEvent;
 		private IEnumerable<AnnotationRepository> _repositories;
 		private string _searchText;
 		private bool _reloadPending=true;
@@ -32,6 +32,17 @@ namespace Chorus.UI.Notes.Browser
 			}
 		}
 
+		/// <summary>
+		/// Where this AND the AnnotationEditorModel are both created by Autofac, they get created with different
+		/// instances of MessageSelectedEvent. It's necessary to patch things up (currently in NotesBrowerPage constructor)
+		/// so this one is given the instance that the AnnotationEditorModel is subscribed to.
+		/// Don't know what we can do if we ever have other subscribers...
+		/// </summary>
+		public MessageSelectedEvent EventToRaiseForChangedMessage
+		{
+			get { return _messageSelectedEvent; }
+			set { _messageSelectedEvent = value; }
+		}
 
 		private bool _showClosedNotes;
 		public bool ShowClosedNotes
@@ -46,7 +57,7 @@ namespace Chorus.UI.Notes.Browser
 
 		public IEnumerable<ListMessage> GetMessages()
 		{
-			return GetMessagesUnsorted().OrderByDescending((msg) => msg.Date);
+			return GetMessagesUnsorted().OrderByDescending((msg) => msg.SortKey);
 		}
 
 		private IEnumerable<ListMessage> GetMessagesUnsorted()

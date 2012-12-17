@@ -150,7 +150,7 @@ namespace Chorus.sync
 				{
 					UpdateToTheDescendantRevision(repo, workingRevBeforeSync);
 				}
-				_sychronizerAdjunct.CheckRepositoryBranches(repo.BranchingHelper.GetBranches());
+				_sychronizerAdjunct.CheckRepositoryBranches(repo.BranchingHelper.GetBranches(), _progress);
 
 				results.Succeeded = true;
 			   _progress.WriteMessage("Done");
@@ -381,9 +381,13 @@ namespace Chorus.sync
 
 			// Must be done, before "AddAndCommitFiles" call.
 			// It could be here, or first thing inside the 'using' for CommitCop.
-			var newlyFilteredFiles = LargeFileFilter.FilterFiles(Repository, _project, _handlers);
-			if (!string.IsNullOrEmpty(newlyFilteredFiles))
-				_progress.WriteWarning(newlyFilteredFiles);
+			string tooLargeFilesMessage = LargeFileFilter.FilterFiles(Repository, _project, _handlers);
+			if (!string.IsNullOrEmpty(tooLargeFilesMessage))
+			{
+				var msg = "We're sorry, but the Send/Receive system can't handle large files. The following files won't be stored or shared by this system until you can shrink them down below the maximum: "+Environment.NewLine;
+				msg+= tooLargeFilesMessage;
+				_progress.WriteWarning(msg);
+			}
 
 			var commitCopValidationResult = "";
 			using (var commitCop = new CommitCop(Repository, _handlers, _progress))

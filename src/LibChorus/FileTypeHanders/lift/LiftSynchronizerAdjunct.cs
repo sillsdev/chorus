@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using System.Xml;
+using Chorus.Properties;
 using Chorus.VcsDrivers.Mercurial;
 using Chorus.sync;
 using Palaso.Lift;
@@ -91,10 +93,71 @@ namespace Chorus.FileTypeHanders.lift
 		/// The client can use this to display messages to the users when other branches are active other than their own.
 		/// i.e. "Someone else has a new version you should update"
 		/// or "Your colleague needs to update, you won't see their changes until they do."
+		/// Note: partly because it modifies the global Settings file, I haven't made a unit test for this method.
+		/// Most of the functionality is deliberately in the GetRepositoryBranchCheckData, which is tested.
 		/// </summary>
 		/// <param name="branches">A list (IEnumerable really) of all the open branches in this repo.</param>
-		public void CheckRepositoryBranches(IEnumerable<Revision> branches)
-		{ /* Do nothing at all. */ }
+		/// <param name="progress">Where we will write a warning if changes in other branches</param>
+		public void CheckRepositoryBranches(IEnumerable<Revision> branches, IProgress progress)
+		{
+			string savedSettings = Settings.Default.OtherBranchRevisions;
+			string conflictingUser = GetRepositoryBranchCheckData(branches, _branchName, ref savedSettings);
+			if (!string.IsNullOrEmpty(conflictingUser))
+				progress.WriteWarning(string.Format("Other users of this repository (most recently {0}) are using a different version of FieldWorks or WeSay. Changes from users with more recent versions will not be merged into projects using older versions. We strongly recommend that all users upgrade to the same version as soon as possible.", conflictingUser));
+			Settings.Default.OtherBranchRevisions = savedSettings;
+			Settings.Default.Save();
+		}
+
+
+		/// <summary>
+		/// This method (also used by FlexBridge) is passed a set of revision branches, as made available to CheckRepositoryBranches,
+		/// and the name of the branch that we currently use, and a string of the form branch:revision number;branch:revision number
+		/// which records any other branches which were notified in a previous call to CheckRepositoryBranches.
+		/// It detects whether there are new changes to a branch other than ours, and if so, returns the ID of (one of) the users who
+		/// has made a change. Otherwise it returns null.
+		/// It also updates the savedSettings string to match the incoming information about current branches.
+		/// </summary>
+		/// <param name="branches"></param>
+		/// <param name="currentBranch"></param>
+		/// <param name="savedSettings"></param>
+		/// <returns></returns>
+		public static string GetRepositoryBranchCheckData(IEnumerable<Revision> branches, string currentBranch, ref string savedSettings)
+		{
+			var sb = new StringBuilder();
+			string result = null;
+			foreach (var rev in branches)
+			{
+				if (rev.Branch == currentBranch)
+					continue; // Changes on our own branch aren't a problem
+				int revision;
+				if (!int.TryParse(rev.Number.LocalRevisionNumber, out revision))
+					continue; // or crash?
+				if (sb.Length > 0)
+					sb.Append(";");
+				sb.Append(rev.Branch);
+				sb.Append(":");
+				sb.Append(rev.Number.LocalRevisionNumber);
+				foreach (var otherRev in (savedSettings ?? "").Split(';'))
+				{
+					var parts = otherRev.Split(':');
+					if (parts.Length != 2)
+						continue; // weird, ignore
+					if (parts[0] != rev.Branch)
+						continue;
+					int otherRevision;
+					if (!int.TryParse(parts[1], out otherRevision))
+						continue;
+					if (revision > otherRevision)
+					{
+						result = rev.UserId;
+						// Loop must continue to build the complete new OtherBranchRevisions string and write it out.
+					}
+				}
+			}
+			savedSettings = sb.ToString();
+			return result;
+		}
+
 
 		#endregion
 	}

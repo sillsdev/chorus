@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Xml;
 using Palaso.Xml;
 
@@ -8,7 +9,7 @@ namespace Chorus.merge.xml.generic
 	/// </summary>
 	public class FormMatchingFinder : IFindNodeToMerge
 	{
-		public XmlNode GetNodeToMerge(XmlNode nodeToMatch, XmlNode parentToSearchIn)
+		public XmlNode GetNodeToMerge(XmlNode nodeToMatch, XmlNode parentToSearchIn, HashSet<XmlNode> acceptableTargets)
 		{
 			if (nodeToMatch == null || parentToSearchIn == null)
 				return null;
@@ -17,6 +18,8 @@ namespace Chorus.merge.xml.generic
 
 			foreach (XmlNode example in parentToSearchIn.SafeSelectNodes(nodeName))
 			{
+				if (!acceptableTargets.Contains(example))
+					continue;
 				XmlNodeList forms = example.SafeSelectNodes("form");
 				if(!SameForms(example, forms, ourForms))
 					continue;
