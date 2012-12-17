@@ -180,7 +180,7 @@ namespace Chorus.sync
 		}
 
 		/// <summary>
-		/// Gets the status for the default 'status' settings (currently in Hg 1.5: -mardu modified/added/removed/deleted/unknown, M/A/R/D/?)
+		/// Gets the status for the files marked as 'modified', 'added', and 'unknown/untracked' (-mau option)
 		/// </summary>
 		/// <returns>A dictionary of hg status codes --> (a dictionary of file extensions --> a list of files)</returns>
 		internal static Dictionary<string, Dictionary<string, List<string>>> GetStatusOfFilesOfInterest(HgRepository repository, ProjectFolderConfiguration configuration)
