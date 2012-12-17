@@ -30,6 +30,7 @@ namespace Chorus.UI.Settings
 		/// </summary>
 		private void InitializeComponent()
 		{
+			this.components = new System.ComponentModel.Container();
 			this.nameLabel = new System.Windows.Forms.Label();
 			this.userNameTextBox = new System.Windows.Forms.TextBox();
 			this.settingsTabs = new System.Windows.Forms.TabControl();
@@ -48,6 +49,7 @@ namespace Chorus.UI.Settings
 			this._okButton = new System.Windows.Forms.Button();
 			this.settingsProtectionButton = new Palaso.UI.WindowsForms.SettingProtection.SettingsProtectionLauncherButton();
 			this.pictureBox3 = new System.Windows.Forms.PictureBox();
+			this._helpProvider = new Vulcan.Uczniowie.HelpProvider.HelpComponent(this.components);
 			this.settingsTabs.SuspendLayout();
 			this.internetTab.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
@@ -78,8 +80,8 @@ namespace Chorus.UI.Settings
 			// settingsTabs
 			//
 			this.settingsTabs.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-						| System.Windows.Forms.AnchorStyles.Left)
-						| System.Windows.Forms.AnchorStyles.Right)));
+			| System.Windows.Forms.AnchorStyles.Left)
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this.settingsTabs.Controls.Add(this.internetTab);
 			this.settingsTabs.Controls.Add(this.networkFolderTab);
 			this.settingsTabs.Location = new System.Drawing.Point(13, 77);
@@ -301,5 +303,6 @@ namespace Chorus.UI.Settings
 		private System.Windows.Forms.PictureBox pictureBox1;
 		private System.Windows.Forms.PictureBox pictureBox2;
 		private System.Windows.Forms.PictureBox pictureBox3;
+		private Vulcan.Uczniowie.HelpProvider.HelpComponent _helpProvider;
 	}
 }

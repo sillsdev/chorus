@@ -43,6 +43,7 @@ namespace Chorus.UI.Clone
 			this._fixSettingsButton = new System.Windows.Forms.Button();
 			this._logBox = new Palaso.Progress.LogBox.LogBox();
 			this._statusProgress = new Palaso.Progress.LogBox.SimpleStatusProgress();
+			this._helpProvider = new Vulcan.Uczniowie.HelpProvider.HelpComponent(this.components);
 			this.SuspendLayout();
 			//
 			// _cancelButton
@@ -172,6 +173,7 @@ namespace Chorus.UI.Clone
 			this._statusProgress.CancelRequested = false;
 			this._statusProgress.ErrorEncountered = false;
 			this._statusProgress.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this._statusProgress.LastException = null;
 			this._statusProgress.Location = new System.Drawing.Point(58, 36);
 			this._statusProgress.Name = "_statusProgress";
 			this._statusProgress.ProgressIndicator = null;
@@ -222,5 +224,6 @@ namespace Chorus.UI.Clone
 		private LogBox _logBox;
 		private System.Windows.Forms.Button _fixSettingsButton;
 		private SimpleStatusProgress _statusProgress;
+		private Vulcan.Uczniowie.HelpProvider.HelpComponent _helpProvider;
 	}
 }

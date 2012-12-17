@@ -115,6 +115,7 @@
 	<Reference Include="System.Xml.Linq">
 	  <RequiredTargetFramework>3.5</RequiredTargetFramework>
 	</Reference>
+	<Reference Include="Vulcan.Uczniowie.HelpProvider, Version=0.9.999.0, Culture=neutral, processorArchitecture=x86" />
   </ItemGroup>
   <ItemGroup>
 	<Compile Include="Arguments.cs" />

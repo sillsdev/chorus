@@ -14,6 +14,7 @@ namespace Chorus.notes
 		public ConflictDetailsForm()
 		{
 			InitializeComponent();
+			_helpProvider.RegisterPrimaryHelpFileMapping("chorus.helpmap");
 		}
 
 		public void SetDocumentText(string text)

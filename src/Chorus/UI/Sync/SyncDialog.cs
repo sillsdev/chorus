@@ -15,6 +15,7 @@ namespace Chorus.UI.Sync
 			SyncUIDialogBehaviors behavior, SyncUIFeatures uiFeatureFlags)
 		{
 			InitializeComponent();
+			_helpProvider.RegisterPrimaryHelpFileMapping("chorus.helpmap");
 			try
 			{
 				Behavior = behavior;

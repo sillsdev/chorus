@@ -43,6 +43,7 @@
 			this.cancelButton = new System.Windows.Forms.Button();
 			this.getButton = new System.Windows.Forms.Button();
 			this.updateProgress = new System.Windows.Forms.Timer(this.components);
+			this._helpProvider = new Vulcan.Uczniowie.HelpProvider.HelpComponent(this.components);
 			this.panel.SuspendLayout();
 			this.SuspendLayout();
 			//
@@ -227,5 +228,6 @@
 		private System.Windows.Forms.Label lookInLabel;
 		private System.Windows.Forms.Label chooseRepositoryLabel;
 		private System.Windows.Forms.Timer updateProgress;
+		private Vulcan.Uczniowie.HelpProvider.HelpComponent _helpProvider;
 	}
 }
