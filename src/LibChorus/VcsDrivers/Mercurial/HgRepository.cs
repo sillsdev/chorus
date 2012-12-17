@@ -92,13 +92,13 @@ namespace Chorus.VcsDrivers.Mercurial
 			Guard.AgainstNullOrEmptyString(startingPointForPathSearch, "startingPointForPathSearch");
 			Guard.Against(!Directory.Exists(startingPointForPathSearch) && !File.Exists(startingPointForPathSearch), "File or directory wasn't found");
 
-			/*
-			 I'm leaning away from this intervention at the moment.
-				string newRepositoryPath = AskUserForNewRepositoryPath(startingPath);
+				/*
+				 I'm leaning away from this intervention at the moment.
+					string newRepositoryPath = AskUserForNewRepositoryPath(startingPath);
 
-			 Let's see how far we can get by just silently creating it, and leave it to the future
-			 or user documentation/training to know to set up a repository at the level they want.
-			*/
+				 Let's see how far we can get by just silently creating it, and leave it to the future
+				 or user documentation/training to know to set up a repository at the level they want.
+				*/
 			var newRepositoryPath = startingPointForPathSearch;
 			if (File.Exists(startingPointForPathSearch))
 				newRepositoryPath = Path.GetDirectoryName(startingPointForPathSearch);
@@ -108,11 +108,11 @@ namespace Chorus.VcsDrivers.Mercurial
 
 			var hg = CreateRepositoryInExistingDir(newRepositoryPath, progress);
 
-			//review: Machine name would be more accurate, but most people have, like "Compaq" as their machine name
-			//but in any case, this is just a default until they set the name explicity
-			hg.SetUserNameInIni(Environment.UserName, progress);
-			return hg;
-		}
+					//review: Machine name would be more accurate, but most people have, like "Compaq" as their machine name
+					//but in any case, this is just a default until they set the name explicity
+					hg.SetUserNameInIni(Environment.UserName, progress);
+					return hg;
+				}
 
 		//        protected Revision GetMyHead()
 		//        {
@@ -130,8 +130,6 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		public HgRepository(string pathToRepository, IProgress progress)
 		{
-			AllowDotEncodeRepositoryFormat = true;//older apps can change this
-
 			Guard.AgainstNull(progress, "progress");
 			_pathToRepository = pathToRepository;
 
@@ -433,7 +431,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			{
 				var revisionFlags = "";
 				foreach (var baseRevision in baseRevisions)
-				{
+			{
 					revisionFlags += string.Format("--base {0} \"{1}\" ", baseRevision, filePath);
 				}
 				command = "bundle " + revisionFlags;
@@ -1387,7 +1385,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		/// See http://mercurial.selenic.com/wiki/UpgradingMercurial
 		/// Default for this value is True, so new apps will get this improved format.
 		/// </summary>
-		public static bool AllowDotEncodeRepositoryFormat { get; set; }
+		public static bool AllowDotEncodeRepositoryFormat = true;
 
 		private string AllowDotEncodeRepositoryFormatStringValue { get { return AllowDotEncodeRepositoryFormat ? "True":"False"; } }
 
