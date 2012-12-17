@@ -70,15 +70,15 @@ namespace Chorus.sync
 		public static string FilterFiles(HgRepository repository, ProjectFolderConfiguration configuration, ChorusFileTypeHandlerCollection handlerCollection)
 		{
 			var messageBuilder = new StringBuilder();
-			var statusData = GetFilteredStatusForFiles(repository, configuration);
-			var extensionToMaximumSize = CacheMaxSizesOfExtension(handlerCollection);
+			Dictionary<string, Dictionary<string, List<string>>> fileStatusDictionary = GetStatusOfFilesOfInterest(repository, configuration);
+			Dictionary<string, uint> extensionToMaximumSize = CacheMaxSizesOfExtension(handlerCollection);
 
-			foreach (var statusCheckResultKvp in statusData)
+			foreach (KeyValuePair<string, Dictionary<string, List<string>>> filesOfOneStatus in fileStatusDictionary)
 			{
 				var userNotificationMessageBase = "File '{0}' is too large to include in the Send/Receive system. It is {1}, but the maximum allowed is {2}. The file is at {3}.";
 				var forgetItIfTooLarge = false;
 
-				switch (statusCheckResultKvp.Key)
+				switch (filesOfOneStatus.Key)
 				{
 					case "M": // modified
 						// May have grown too large.
@@ -103,8 +103,9 @@ namespace Chorus.sync
 					//	break;
 					// If there are other keys, we don't really care about them.
 				}
+				Dictionary<string, List<string>> extensionToFilesDictionary = filesOfOneStatus.Value;
 				FilterFiles(repository, configuration, extensionToMaximumSize, messageBuilder, PathToRepository(repository),
-							statusCheckResultKvp.Value, userNotificationMessageBase, forgetItIfTooLarge);
+							extensionToFilesDictionary, userNotificationMessageBase, forgetItIfTooLarge);
 			}
 
 			var result = messageBuilder.ToString();
@@ -112,13 +113,13 @@ namespace Chorus.sync
 		}
 
 		private static void FilterFiles(HgRepository repository, ProjectFolderConfiguration configuration,
-				IDictionary<string, uint> extensionToMaximumSize, StringBuilder messageBuilder, string repositoryBasePath, Dictionary<string, List<string>> extensionToFilesMap,
-				string userNotificationMessageBase, bool forgetItIfTooLarge)
+				IDictionary<string, uint> extensionToMaximumSize, StringBuilder messageBuilder, string repositoryBasePath,
+				Dictionary<string, List<string>> extensionToFilesMap, string userNotificationMessageBase, bool forgetItIfTooLarge)
 		{
-			foreach (var extensionToFilesMapKvp in extensionToFilesMap)
+			foreach (var filesOfOneExtension in extensionToFilesMap)
 			{
-				var maxForExtension = GetMaxSizeForExtension(extensionToMaximumSize, extensionToFilesMapKvp.Key);
-				foreach (var partialPathname in extensionToFilesMapKvp.Value)
+				var maxForExtension = GetMaxSizeForExtension(extensionToMaximumSize, filesOfOneExtension.Key);
+				foreach (var partialPathname in filesOfOneExtension.Value)
 				{
 					var fullPathname = Path.Combine(repositoryBasePath, partialPathname);
 					var fileInfo = new FileInfo(fullPathname);
@@ -181,9 +182,10 @@ namespace Chorus.sync
 		/// <summary>
 		/// Gets the status for the default 'status' settings (currently in Hg 1.5: -mardu modified/added/removed/deleted/unknown, M/A/R/D/?)
 		/// </summary>
-		internal static Dictionary<string, Dictionary<string, List<string>>> GetFilteredStatusForFiles(HgRepository repository, ProjectFolderConfiguration configuration)
+		/// <returns>A dictionary of hg status codes --> (a dictionary of file extensions --> a list of files)</returns>
+		internal static Dictionary<string, Dictionary<string, List<string>>> GetStatusOfFilesOfInterest(HgRepository repository, ProjectFolderConfiguration configuration)
 		{
-			var retVal = new Dictionary<string, Dictionary<string, List<string>>>(StringComparer.InvariantCultureIgnoreCase);
+			var statusOfFilesByExtension = new Dictionary<string, Dictionary<string, List<string>>>(StringComparer.InvariantCultureIgnoreCase);
 
 			repository.CheckAndUpdateHgrc();
 			var args = new StringBuilder();
@@ -208,10 +210,10 @@ namespace Chorus.sync
 
 				var status = line.Substring(0, 1);
 				Dictionary<string, List<string>> statusToFilesMap;
-				if (!retVal.TryGetValue(status, out statusToFilesMap))
+				if (!statusOfFilesByExtension.TryGetValue(status, out statusToFilesMap))
 				{
 					statusToFilesMap = new Dictionary<string, List<string>>(StringComparer.InvariantCultureIgnoreCase);
-					retVal.Add(status, statusToFilesMap);
+					statusOfFilesByExtension.Add(status, statusToFilesMap);
 				}
 				var filename = line.Substring(2); // ! data.txt
 				var extension = Path.GetExtension(filename);
@@ -227,7 +229,7 @@ namespace Chorus.sync
 				fileList.Add(filename);
 			}
 
-			return retVal;
+			return statusOfFilesByExtension;
 		}
 	}
 }

@@ -713,7 +713,7 @@ namespace LibChorus.Tests.sync
 				repo.ProjectFolderConfig.ExcludePatterns.Add("*.jpg");
 				repo.ProjectFolderConfig.IncludePatterns.Add("*.txt");
 
-				var results = LargeFileFilter.GetFilteredStatusForFiles(repo.Repository, repo.ProjectFolderConfig);
+				var results = LargeFileFilter.GetStatusOfFilesOfInterest(repo.Repository, repo.ProjectFolderConfig);
 				Assert.AreEqual(3, results.Keys.Count);
 				Assert.IsTrue(results.ContainsKey("M")); // tracked and modifed
 				Assert.IsTrue(results.ContainsKey("A")); // Added with hg add
