@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Chorus.FileTypeHanders.lift;
 using Chorus.Utilities;
 using Chorus.sync;
 using Chorus.VcsDrivers.Mercurial;
@@ -370,6 +371,76 @@ namespace LibChorus.Tests.sync
 			}
 		}
 
+		[Test]
+		public void SynchronizerWithOnlyCurrentBranchRevision_ReportsNothing()
+		{
+			var rev1 = new Revision(null, "default", "Fred", "1234", "hash1234", "change something");
+			var revs = new[] { rev1 };
+			string savedSettings = "";
+			Assert.That(LiftSynchronizerAdjunct.GetRepositoryBranchCheckData(revs, "default", ref savedSettings), Is.Null);
+			Assert.That(savedSettings,Is.EqualTo(""));
+
+			// Even if we have remembered a previous revision on our own branch, we don't report problems on the current branch.
+			var rev2 = new Revision(null, "default", "Fred", "1235", "hash1234", "change something else");
+			revs = new[] { rev2 };
+			savedSettings = "default";
+			Assert.That(LiftSynchronizerAdjunct.GetRepositoryBranchCheckData(revs, "default", ref savedSettings), Is.Null);
+			Assert.That(savedSettings, Is.EqualTo("")); // still no revs on other branches to save.
+		}
+
+		[Test]
+		public void Synchronizer_ReportsNewChangeOnOtherBranch()
+		{
+			string savedSettings = "";
+			var rev1 = new Revision(null, "default", "Fred", "1234", "hash1234", "change something");
+			// The first revision we see on another branch doesn't produce a warning...it might be something old everyone has upgraded from.
+			var revs = new[] { rev1 };
+			Assert.That(LiftSynchronizerAdjunct.GetRepositoryBranchCheckData(revs, "7.2.1", ref savedSettings), Is.Null);
+			//Assert.That(savedSettings, Is.EqualTo("7.2.1:1234")); // Don't really care what is here as long as it works
+
+			var rev2 = new Revision(null, "default", "Fred", "1235", "hash1235", "change something else");
+			revs = new[] { rev2 };
+			Assert.That(LiftSynchronizerAdjunct.GetRepositoryBranchCheckData(revs, "7.2.1", ref savedSettings), Is.StringContaining("Fred"));
+		}
+
+		[Test]
+		public void Synchronizer_DoesNotReportOldChangeOnOtherBranch()
+		{
+			string savedSettings = "";
+			var rev1 = new Revision(null, "default", "Fred", "1234", "hash1234", "change something");
+			// The first revision we see on another branch doesn't produce a warning...it might be something old everyone has upgraded from.
+			var revs = new[] { rev1 };
+			Assert.That(LiftSynchronizerAdjunct.GetRepositoryBranchCheckData(revs, "7.2.1", ref savedSettings), Is.Null);
+			//Assert.That(savedSettings, Is.EqualTo("default:1234")); // Don't really care what is here as long as it works
+
+			var rev2 = new Revision(null, "default", "Fred", "1234", "hash1234", "change something else");
+			revs = new[] { rev2 };
+			Assert.That(LiftSynchronizerAdjunct.GetRepositoryBranchCheckData(revs, "7.2.1", ref savedSettings), Is.Null);
+		}
+
+		[Test]
+		public void Synchronizer_HandlesMultipleBranches()
+		{
+			string savedSettings = "";
+			var rev1 = new Revision(null, "default", "Fred", "1234", "hash1234", "change something");
+			// The first revision we see on another branch doesn't produce a warning...it might be something old everyone has upgraded from.
+			var revs = new[] { rev1 };
+			Assert.That(LiftSynchronizerAdjunct.GetRepositoryBranchCheckData(revs, "7.2.1", ref savedSettings), Is.Null);
+
+			var rev2 = new Revision(null, "7.2.0", "Joe", "1235", "hash1235", "change something else");
+			// To get the right result this time, the list of revisions must include both branches we are pretending are in the repo.
+			revs = new[] { rev1, rev2 };
+			Assert.That(LiftSynchronizerAdjunct.GetRepositoryBranchCheckData(revs, "7.2.1", ref savedSettings), Is.Null); // first change we've seen on this branch
+
+			var rev3 = new Revision(null, "default", "Fred", "1236", "hash1236", "Fred's second change");
+			revs = new[] { rev2, rev3 };
+			Assert.That(LiftSynchronizerAdjunct.GetRepositoryBranchCheckData(revs, "7.2.1", ref savedSettings), Is.EqualTo("Fred"));
+
+			var rev4 = new Revision(null, "7.2.0", "Joe", "1236", "hash1237", "Joe's second change");
+			revs = new[] { rev3, rev4 };
+			Assert.That(LiftSynchronizerAdjunct.GetRepositoryBranchCheckData(revs, "7.2.1", ref savedSettings), Is.EqualTo("Joe"));
+		}
+
 		private static void CheckExistanceOfAdjunctFiles(FileWriterSychronizerAdjunct syncAdjunct, bool commitFileShouldExist,
 														 bool pullFileShouldExist, bool rollbackFileShouldExist,
 														 bool mergeFileShouldExist, bool branchNameFileShouldExist,
@@ -516,7 +587,7 @@ namespace LibChorus.Tests.sync
 			/// or "Your colleague needs to update, you won't see their changes until they do."
 			/// </summary>
 			/// <param name="branches">A list (IEnumerable really) of all the open branches in this repo.</param>
-			public void CheckRepositoryBranches(IEnumerable<Revision> branches)
+			public void CheckRepositoryBranches(IEnumerable<Revision> branches, IProgress progress)
 			{
 				foreach (var revision in branches)
 				{

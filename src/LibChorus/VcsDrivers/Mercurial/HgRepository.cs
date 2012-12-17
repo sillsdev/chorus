@@ -147,7 +147,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		/// Note: Maybe we could ship the mercurial.ini separately, some how.... there is some value in modifying the hgrc itself, since that way technians doing
 		/// hg stuff by hand will get the right extensions in play.
 		/// </summary>
-		private void CheckAndUpdateHgrc()
+		internal void CheckAndUpdateHgrc()
 		{
 			CheckMercurialIni();
 
@@ -515,7 +515,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		public void ForgetFile(string filepath)
 		{
 			CheckAndUpdateHgrc();
-			_progress.WriteWarning("{0} is removing {1} from system. The file will remmain in the history and on disk.", _userName, Path.GetFileName(filepath));
+			_progress.WriteWarning("{0} is removing {1} from system. The file will remain in the history and on disk.", _userName, Path.GetFileName(filepath));
 			Execute(SecondsBeforeTimeoutOnLocalOperation, "forget ", SurroundWithQuotes(filepath));
 		}
 
@@ -898,7 +898,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				date:Thu, 08 Sep 2011 14:35:53 +0700
 				tag:
 				summary:base checkin
-			 */
+			*/
 
 			string result = GetTextFromQuery("log --template \"changeset:{rev}:{node|short}\nbranch:{branch}\nuser:{author}\ndate:{date|rfc822date}\ntag:{tags}\nsummary:{desc}\n\"");
 			return GetRevisionsFromQueryResultText(result);
@@ -1841,8 +1841,6 @@ namespace Chorus.VcsDrivers.Mercurial
 		/// <summary>
 		/// NB: this adds a new changeset
 		/// </summary>
-		/// <param name="number"></param>
-		/// <param name="tag"></param>
 		public void TagRevision(string revisionNumber, string tag)
 		{
 			CheckAndUpdateHgrc();

@@ -678,7 +678,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				WasUpdated = true;
 			}
 
-			public void CheckRepositoryBranches(IEnumerable<Revision> branches)
+			public void CheckRepositoryBranches(IEnumerable<Revision> branches, IProgress progress)
 			{}
 		}
 	}
