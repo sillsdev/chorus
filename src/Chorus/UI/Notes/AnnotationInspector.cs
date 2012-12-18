@@ -20,6 +20,7 @@ namespace Chorus.UI.Notes
 		public AnnotationInspector(Annotation annotation)
 		{
 			InitializeComponent();
+			_helpProvider.RegisterPrimaryHelpFileMapping("chorus.helpmap");
 			_annotation = annotation;
 		}
 

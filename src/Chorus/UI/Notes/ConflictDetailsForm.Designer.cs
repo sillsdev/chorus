@@ -28,8 +28,10 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
+			this.components = new System.ComponentModel.Container();
 			this._okButton = new System.Windows.Forms.Button();
 			this._conflictDisplay = new System.Windows.Forms.WebBrowser();
+			this._helpProvider = new Vulcan.Uczniowie.HelpProvider.HelpComponent(this.components);
 			this.SuspendLayout();
 			//
 			// _okButton
@@ -47,8 +49,8 @@
 			//
 			this._conflictDisplay.AllowWebBrowserDrop = false;
 			this._conflictDisplay.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-						| System.Windows.Forms.AnchorStyles.Left)
-						| System.Windows.Forms.AnchorStyles.Right)));
+			| System.Windows.Forms.AnchorStyles.Left)
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this._conflictDisplay.Location = new System.Drawing.Point(0, 2);
 			this._conflictDisplay.MinimumSize = new System.Drawing.Size(20, 20);
 			this._conflictDisplay.Name = "_conflictDisplay";
@@ -74,5 +76,6 @@
 
 		private System.Windows.Forms.Button _okButton;
 		private System.Windows.Forms.WebBrowser _conflictDisplay;
+		private Vulcan.Uczniowie.HelpProvider.HelpComponent _helpProvider;
 	}
 }

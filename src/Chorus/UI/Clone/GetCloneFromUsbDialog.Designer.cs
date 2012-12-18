@@ -36,8 +36,8 @@ namespace Chorus.UI.Clone
 			this.components = new System.ComponentModel.Container();
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(GetCloneFromUsbDialog));
 			this.listView1 = new System.Windows.Forms.ListView();
-			this.columnHeader1 = new System.Windows.Forms.ColumnHeader();
-			this.columnHeader2 = new System.Windows.Forms.ColumnHeader();
+			this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+			this.columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.imageList1 = new System.Windows.Forms.ImageList(this.components);
 			this._cancelButton = new System.Windows.Forms.Button();
 			this._okButton = new System.Windows.Forms.Button();
@@ -47,13 +47,14 @@ namespace Chorus.UI.Clone
 			this._lookingForUsbTimer = new System.Windows.Forms.Timer(this.components);
 			this._statusLabel = new System.Windows.Forms.TextBox();
 			this._logBox = new LogBox();
+			this._helpProvider = new Vulcan.Uczniowie.HelpProvider.HelpComponent(this.components);
 			this.SuspendLayout();
 			//
 			// listView1
 			//
 			this.listView1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-						| System.Windows.Forms.AnchorStyles.Left)
-						| System.Windows.Forms.AnchorStyles.Right)));
+			| System.Windows.Forms.AnchorStyles.Left)
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this.listView1.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
 			this.columnHeader1,
 			this.columnHeader2});
@@ -149,8 +150,8 @@ namespace Chorus.UI.Clone
 			// _statusLabel
 			//
 			this._statusLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-						| System.Windows.Forms.AnchorStyles.Left)
-						| System.Windows.Forms.AnchorStyles.Right)));
+			| System.Windows.Forms.AnchorStyles.Left)
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this._statusLabel.BackColor = System.Drawing.SystemColors.Control;
 			this._statusLabel.BorderStyle = System.Windows.Forms.BorderStyle.None;
 			this._statusLabel.Location = new System.Drawing.Point(65, 7);
@@ -163,8 +164,20 @@ namespace Chorus.UI.Clone
 			//
 			// _logBox
 			//
+			this._logBox.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+			this._logBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(171)))), ((int)(((byte)(173)))), ((int)(((byte)(179)))));
+			this._logBox.CancelRequested = false;
+			this._logBox.ErrorEncountered = false;
+			this._logBox.Font = new System.Drawing.Font("Segoe UI", 9F);
+			this._logBox.GetDiagnosticsMethod = null;
 			this._logBox.Location = new System.Drawing.Point(78, 29);
 			this._logBox.Name = "_logBox";
+			this._logBox.ProgressIndicator = null;
+			this._logBox.ShowCopyToClipboardMenuItem = false;
+			this._logBox.ShowDetailsMenuItem = false;
+			this._logBox.ShowDiagnosticsMenuItem = false;
+			this._logBox.ShowFontMenuItem = false;
+			this._logBox.ShowMenu = true;
 			this._logBox.Size = new System.Drawing.Size(231, 150);
 			this._logBox.TabIndex = 19;
 			//
@@ -209,7 +222,7 @@ namespace Chorus.UI.Clone
 		private System.Windows.Forms.Timer _lookingForUsbTimer;
 		private System.Windows.Forms.TextBox _statusLabel;
 		private LogBox _logBox;
-
+		private Vulcan.Uczniowie.HelpProvider.HelpComponent _helpProvider;
 
 	}
 }

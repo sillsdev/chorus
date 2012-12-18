@@ -37,7 +37,7 @@
 			this._userPicker = new System.Windows.Forms.ComboBox();
 			this._viewTestDataDirectory = new System.Windows.Forms.LinkLabel();
 			this._syncButton = new System.Windows.Forms.Button();
-			this.button1 = new System.Windows.Forms.Button();
+			this._helpProvider = new Vulcan.Uczniowie.HelpProvider.HelpComponent(this.components);
 			this._helpProvider = new Vulcan.Uczniowie.HelpProvider.HelpComponent(this.components);
 			this.tabControl1.SuspendLayout();
 			this.SuspendLayout();

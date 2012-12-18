@@ -12,6 +12,7 @@ namespace Chorus
 
 			_browseForRepositoryEvent = browseForRepositoryEvent;
 			InitializeComponent();
+			_helpProvider.RegisterPrimaryHelpFileMapping("chorus.helpmap");
 			Text = Application.ProductName + " "+Application.ProductVersion +" - "+ repository.PathToRepo;
 			_tabControl.TabPages.Clear();
 		}

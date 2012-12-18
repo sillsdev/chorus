@@ -79,7 +79,8 @@
 	<DebugType>full</DebugType>
 	<PlatformTarget>x86</PlatformTarget>
 	<ErrorReport>prompt</ErrorReport>
-	<TargetFrameworkProfile></TargetFrameworkProfile>
+	<TargetFrameworkProfile>
+	</TargetFrameworkProfile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'ReleaseMono|AnyCPU' ">
 	<DebugSymbols>true</DebugSymbols>
@@ -90,7 +91,8 @@
 	<DebugType>pdbonly</DebugType>
 	<PlatformTarget>x86</PlatformTarget>
 	<ErrorReport>prompt</ErrorReport>
-	<TargetFrameworkProfile></TargetFrameworkProfile>
+	<TargetFrameworkProfile>
+	</TargetFrameworkProfile>
   </PropertyGroup>
   <ItemGroup>
 	<Reference Include="Autofac, Version=1.4.4.561, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
@@ -117,6 +119,7 @@
 	<Reference Include="System.Xml.Linq">
 	  <RequiredTargetFramework>3.5</RequiredTargetFramework>
 	</Reference>
+	<Reference Include="Vulcan.Uczniowie.HelpProvider, Version=0.9.999.0, Culture=neutral, processorArchitecture=x86" />
   </ItemGroup>
   <ItemGroup>
 	<Compile Include="Arguments.cs" />

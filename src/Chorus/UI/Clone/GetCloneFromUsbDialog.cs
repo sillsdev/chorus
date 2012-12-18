@@ -25,6 +25,7 @@ namespace Chorus.UI.Clone
 			Font = SystemFonts.MessageBoxFont;
 
 			InitializeComponent();
+			_helpProvider.RegisterPrimaryHelpFileMapping("chorus.helpmap");
 			_model = new CloneFromUsb();
 			UpdateDisplay(State.LookingForUsb);
 			_progress = _logBox;
