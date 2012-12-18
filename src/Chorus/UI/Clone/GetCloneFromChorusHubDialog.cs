@@ -29,6 +29,7 @@ namespace Chorus.UI.Clone
 
 			_model = model;
 			InitializeComponent();
+			_helpProvider.RegisterPrimaryHelpFileMapping("chorus.helpmap");
 		}
 
 		private void OnGetButtonClick(object sender, EventArgs e)
