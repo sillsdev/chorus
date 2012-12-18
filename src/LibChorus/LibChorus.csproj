@@ -131,7 +131,9 @@
 	<Reference Include="System.Xml.Linq">
 	  <RequiredTargetFramework>3.5</RequiredTargetFramework>
 	</Reference>
-	<Reference Include="Vulcan.Uczniowie.HelpProvider, Version=0.9.999.0, Culture=neutral, processorArchitecture=x86" />
+	<Reference Include="Vulcan.Uczniowie.HelpProvider, Version=0.9.999.0, Culture=neutral, processorArchitecture=x86">
+	  <HintPath>..\..\lib\$(Configuration)\Vulcan.Uczniowie.HelpProvider.dll</HintPath>
+	</Reference>
   </ItemGroup>
   <ItemGroup>
 	<Compile Include="FileTypeHanders\ChorusNotesAnnotationMergingStrategy.cs" />
