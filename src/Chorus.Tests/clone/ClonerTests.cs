@@ -5,7 +5,7 @@ using Chorus.UI.Clone;
 using Chorus.Utilities.UsbDrive;
 using LibChorus.TestUtilities;
 using NUnit.Framework;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
 using Palaso.TestUtilities;
 
 namespace Chorus.Tests.clone

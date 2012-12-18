@@ -1,5 +1,6 @@
 ﻿using LibChorus.TestUtilities;
 using NUnit.Framework;
+using Palaso.Progress;
 
 namespace LibChorus.Tests.sync
 {
@@ -38,7 +39,7 @@ namespace LibChorus.Tests.sync
 				repo.ChangeFileAndCommit("test.txt", "pear", "second on default");
 
 				afterFirstCheckin.Go();
-				repo.Repository.Branch("animals");
+				repo.Repository.BranchingHelper.Branch(new NullProgress(), "animals");
 				repo.ChangeFileAndCommit("test.txt", "dog", "first on animals");
 				var animalHead = repo.CreateBookmarkHere();
 

@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
-using System.Text;
-using System.Text.RegularExpressions;
 using System.Web;
 
 namespace Chorus.VcsDrivers.Mercurial
@@ -12,7 +9,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 	public class HgResumeRestApiServer : IApiServer
 	{
-		public const string APIVERSION = "02";
+		public const string APIVERSION = "03";
 
 		private readonly Uri _url;
 		private string _urlExecuted;
@@ -28,6 +25,16 @@ namespace Chorus.VcsDrivers.Mercurial
 			return Execute(method, request, new byte[0], secondsBeforeTimeout);
 		}
 
+		public string UserName
+		{
+			get { return Uri.UnescapeDataString(_url.UserInfo.Split(':')[0]); }
+		}
+
+		public string Password
+		{
+			get { return Uri.UnescapeDataString(_url.UserInfo.Split(':')[1]); }
+		}
+
 		public HgResumeApiResponse Execute(string method, HgResumeApiParameters parameters, byte[] contentToSend, int secondsBeforeTimeout)
 		{
 			string queryString = parameters.BuildQueryString();
@@ -39,7 +46,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			{
 				throw new HgResumeException("Username or password were not supplied in custom location");
 			}
-			req.Credentials = new NetworkCredential(_url.UserInfo.Split(':')[0], _url.UserInfo.Split(':')[1]);
+			req.Credentials = new NetworkCredential(UserName, Password);
 			req.Timeout = secondsBeforeTimeout * 1000; // timeout is in milliseconds
 			if (contentToSend.Length == 0)
 			{
@@ -142,7 +149,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			{
 				if (_url.Query.Contains("repoId="))
 				{
-					return HttpUtility.ParseQueryString(_url.Query).Get("repoId");
+					return Palaso.Network.HttpUtilityFromMono.ParseQueryString(_url.Query).Get("repoId");
 				}
 				if (_url.Segments[1].ToLower() != "projects/")
 				{

@@ -25,7 +25,7 @@ namespace LibChorus.Tests.merge.xml
 
 			var node = doc2.SelectSingleNode("//textHolder");
 			var finder = new FindByEqualityOfTree();
-			finder.GetNodeToMerge(doc1, node);
+			finder.GetNodeToMerge(doc1, node, SetFromChildren.Get(node));
 		}
 
 	}

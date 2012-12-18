@@ -4,7 +4,7 @@ using Chorus.sync;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using NUnit.Framework;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
 using Palaso.TestUtilities;
 
 namespace LibChorus.TestUtilities
@@ -18,6 +18,8 @@ namespace LibChorus.TestUtilities
 		public TemporaryFolder RootFolder;
 		public TemporaryFolder ProjectFolder;
 		public ProjectFolderConfiguration ProjectFolderConfig;
+		private HgRepository _hgRepository;
+		public Synchronizer Synchronizer;
 
 		private void Init(string name)
 		{
@@ -90,7 +92,7 @@ namespace LibChorus.TestUtilities
 
 		public HgRepository Repository
 		{
-			get { return new HgRepository(ProjectFolderConfig.FolderPath, Progress); }
+			get { return _hgRepository ?? (_hgRepository = new HgRepository(ProjectFolderConfig.FolderPath, Progress)); }
 		}
 
 		public void Dispose()
@@ -99,8 +101,14 @@ namespace LibChorus.TestUtilities
 			{
 				Assert.IsFalse(Repository.GetHasLocks(), "A lock was left over, after the test.");
 			}
-			ProjectFolder.Dispose();
-			RootFolder.Dispose();
+			if (ProjectFolder != null)
+			{
+				ProjectFolder.Dispose();
+			}
+			if (RootFolder != null)
+			{
+				RootFolder.Dispose();
+			}
 		}
 
 		public void WriteIniContents(string s)
@@ -141,7 +149,9 @@ namespace LibChorus.TestUtilities
 
 		public SyncResults SyncWithOptions(SyncOptions options)
 		{
-			return SyncWithOptions(options, CreateSynchronizer());
+			if (Synchronizer == null)
+				Synchronizer = CreateSynchronizer();
+			return SyncWithOptions(options, Synchronizer);
 		}
 
 		public SyncResults SyncWithOptions(SyncOptions options, Synchronizer synchronizer)
@@ -205,8 +215,7 @@ namespace LibChorus.TestUtilities
 
 		public static void MakeRepositoryForTest(string newRepositoryPath, string userId, IProgress progress)
 		{
-			HgRepository.CreateRepositoryInExistingDir(newRepositoryPath,progress);
-			var hg = new HgRepository(newRepositoryPath, progress);
+			var hg = HgRepository.CreateRepositoryInExistingDir(newRepositoryPath, progress);
 			hg.SetUserNameInIni(userId,  progress);
 		}
 
@@ -279,14 +288,14 @@ namespace LibChorus.TestUtilities
 			ChangeFile("test.txt", "bad");
 			var options = new SyncOptions()
 							  {DoMergeWithOthers = true, DoPullFromOthers = true, DoSendToOthers = true};
-			var synchronizer = CreateSynchronizer();
-			synchronizer.SyncNow(options);
+			Synchronizer = CreateSynchronizer();
+			Synchronizer.SyncNow(options);
 			var badRev = Repository.GetTip();
 
 			//notice that we're putting changeset which does the tagging over on the original branch
 			Repository.RollbackWorkingDirectoryToRevision(originalTip.Number.Hash);
 			Repository.TagRevision(badRev.Number.Hash, Synchronizer.RejectTagSubstring);// this adds a new changeset
-			synchronizer.SyncNow(options);
+			Synchronizer.SyncNow(options);
 
 			Revision revision = Repository.GetRevisionWorkingSetIsBasedOn();
 			revision.EnsureParentRevisionInfo();
@@ -306,7 +315,7 @@ namespace LibChorus.TestUtilities
 		public void ChangeFileOnNamedBranchAndComeBack(string fileName, string contents, string branchName)
 		{
 			string previousRevisionNumber = Repository.GetRevisionWorkingSetIsBasedOn().Number.LocalRevisionNumber;
-			Repository.Branch(branchName);
+			Repository.BranchingHelper.Branch(new NullProgress(), branchName);
 			ChangeFileAndCommit(fileName, contents, "Created by ChangeFileOnNamedBranchAndComeBack()");
 			Repository.Update(previousRevisionNumber);//go back
 		}

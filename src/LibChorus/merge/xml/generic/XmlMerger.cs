@@ -52,7 +52,7 @@ namespace Chorus.merge.xml.generic
 			// Remove any duplicate child nodes in all three.
 			XmlMergeService.RemoveAmbiguousChildren(EventListener, MergeStrategies, ours);
 			XmlMergeService.RemoveAmbiguousChildren(EventListener, MergeStrategies, theirs);
-			XmlMergeService.RemoveAmbiguousChildren(EventListener, MergeStrategies, ancestor);
+			//XmlMergeService.RemoveAmbiguousChildren(EventListener, MergeStrategies, ancestor);
 
 			MergeInner(ref ours, theirs, ancestor);
 			result.MergedNode = ours;

@@ -112,12 +112,20 @@
 	<value>2.0</value>
   </resheader>
   <resheader name="reader">
-	<value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+	<value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <resheader name="writer">
-	<value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+	<value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <metadata name="_helpProvider.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
 	<value>17, 17</value>
   </metadata>
+  <data name="betterLabel1.Text" xml:space="preserve">
+	<value>Chorus Hub is a simple way to Send/Receive on a local network, like an office or home. Better instructions will follow in a future version, but for now, this should get you started:
+First designate one computer on your network as "the server", and make sure this product is installed on it. Next, look in the directory where this product is installed, and run the program labeled "ChorusHub.exe". If all goes well, there's nothing more to do! Now from any other computer on the network, you can Click "ChorusHub" to Send/Receive to it.
+
+ChorusHub does everything it can to be "Plug n Play". However, some things that may need your attention.
+1) ChorusHub will attempt to create a folder at "C:\ChorusHub". It may need administrator-levl permissions to do that. Any technical support person can help you run ChorusHub.exe with the necessary permissions.
+2) Your firewall may need to give permission for the server and the client machines to talk to each other on this 'port'.</value>
+  </data>
 </root>

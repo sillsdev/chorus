@@ -3,7 +3,8 @@ using System.Drawing;
 using System.Windows.Forms;
 using Chorus.sync;
 using Chorus.VcsDrivers.Mercurial;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
+using Palaso.UI.WindowsForms.Progress;
 
 namespace Chorus.UI.Sync
 {
@@ -38,7 +39,7 @@ namespace Chorus.UI.Sync
 					SyncResult = new SyncResults();
 					SyncResult.Succeeded = false;
 
-					_syncStartControl.Init(HgRepository.CreateOrLocate(projectFolderConfiguration.FolderPath, new NullProgress()));
+					_syncStartControl.Init(HgRepository.CreateOrUseExisting(projectFolderConfiguration.FolderPath, new NullProgress()));
 
 					_syncControl.Dock = DockStyle.Fill;//in designer, we don't want it to cover up everything, but we do at runtime
 					_syncStartControl.Visible = true;

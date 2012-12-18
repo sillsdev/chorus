@@ -64,7 +64,7 @@ namespace Chorus.Utilities
 				{
 					//Could not parse the url lift://FTeam.lift?type=entry&label=نویس&id=e824f0ae-6d36-4c52-b30b-eb845d6c120a
 
-					var parse = System.Web.HttpUtility.ParseQueryString(uri.Query);
+					var parse = Palaso.Network.HttpUtilityFromMono.ParseQueryString(uri.Query);
 
 					var r = parse.GetValues(name);
 					var label = r == null ? defaultIfCannotGetIt : r.First();

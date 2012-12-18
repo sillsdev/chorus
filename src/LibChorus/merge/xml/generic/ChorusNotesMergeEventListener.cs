@@ -179,6 +179,7 @@ namespace Chorus.merge.xml.generic
 			{
 				File.Delete(_path);
 			}
+			_tempFile.Dispose();
 		}
 
 		private void StreamClosingData(XmlReader xmlDoc, XmlWriter writer)

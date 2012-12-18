@@ -1,11 +1,14 @@
+using System;
+using System.Collections.Generic;
 using System.IO;
+using Chorus.FileTypeHanders.lift;
 using Chorus.Utilities;
 using Chorus.sync;
-using Chorus.VcsDrivers;
+using Chorus.VcsDrivers.Mercurial;
 using LibChorus.TestUtilities;
 using NUnit.Framework;
 using Palaso.IO;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
 
 namespace LibChorus.Tests.sync
 {
@@ -101,7 +104,7 @@ namespace LibChorus.Tests.sync
 
 				var syncResults = bob.SyncWithOptions(options, synchronizer);
 				Assert.IsFalse(syncResults.DidGetChangesFromOthers);
-				CheckExistanceOfAdjunctFiles(syncAdjunct, true, false, false, false);
+				CheckExistanceOfAdjunctFiles(syncAdjunct, true, false, false, false, true, false);
 			}
 		}
 
@@ -129,7 +132,7 @@ namespace LibChorus.Tests.sync
 				synchronizer.SynchronizerAdjunct = syncAdjunct;
 				var syncResults = bob.SyncWithOptions(options, synchronizer);
 				Assert.IsFalse(syncResults.DidGetChangesFromOthers);
-				CheckExistanceOfAdjunctFiles(syncAdjunct, true, false, false, false);
+				CheckExistanceOfAdjunctFiles(syncAdjunct, true, false, false, false, true, true);
 			}
 		}
 
@@ -168,7 +171,7 @@ namespace LibChorus.Tests.sync
 				susanna.ReplaceSomethingElse("no problems.");
 				var syncResults = susanna.SyncWithOptions(bobOptions, synchronizer);
 				Assert.IsTrue(syncResults.DidGetChangesFromOthers);
-				CheckExistanceOfAdjunctFiles(syncAdjunct, true, true, false, true);
+				CheckExistanceOfAdjunctFiles(syncAdjunct, true, true, false, true, true, true);
 			}
 		}
 
@@ -202,7 +205,7 @@ namespace LibChorus.Tests.sync
 
 				var syncResults = sally.SyncWithOptions(options, synchronizer);
 				Assert.IsTrue(syncResults.DidGetChangesFromOthers);
-				CheckExistanceOfAdjunctFiles(syncAdjunct, true, true, false, true);
+				CheckExistanceOfAdjunctFiles(syncAdjunct, true, true, false, true, true, true);
 			}
 		}
 
@@ -235,7 +238,7 @@ namespace LibChorus.Tests.sync
 
 				var syncResults = sally.SyncWithOptions(options, synchronizer);
 				Assert.IsTrue(syncResults.DidGetChangesFromOthers);
-				CheckExistanceOfAdjunctFiles(syncAdjunct, true, true, false, true);
+				CheckExistanceOfAdjunctFiles(syncAdjunct, true, true, false, true, true, true);
 			}
 		}
 
@@ -266,7 +269,7 @@ namespace LibChorus.Tests.sync
 
 				var syncResults = sally.SyncWithOptions(options, synchronizer);
 				Assert.IsTrue(syncResults.DidGetChangesFromOthers);
-				CheckExistanceOfAdjunctFiles(syncAdjunct, true, true, false, false);
+				CheckExistanceOfAdjunctFiles(syncAdjunct, true, true, false, false, true, true);
 			}
 		}
 
@@ -302,11 +305,41 @@ namespace LibChorus.Tests.sync
 					Assert.IsTrue(syncResults.DidGetChangesFromOthers);
 					Assert.IsFalse(syncResults.Cancelled);
 					Assert.IsFalse(syncResults.Succeeded);
-					CheckExistanceOfAdjunctFiles(syncAdjunct, true, false, true, false);
+					CheckExistanceOfAdjunctFiles(syncAdjunct, true, false, true, false, true, false);
 				}
 			}
 		}
 
+		[Test]
+		public void CheckBranchesGetsRightNumberOfBranches()
+		{
+			using (var bob = RepositoryWithFilesSetup.CreateWithLiftFile("bob"))
+			using (var sally = RepositoryWithFilesSetup.CreateByCloning("sally", bob))
+			{
+				bob.ReplaceSomething("bobWasHere");
+				bob.Synchronizer.SynchronizerAdjunct = new ProgrammableSynchronizerAdjunct("NOTDEFAULT");
+				bob.AddAndCheckIn();
+				sally.ReplaceSomething("sallyWasHere");
+
+				var syncAdjunct = new FileWriterSychronizerAdjunct(sally.RootFolder.Path);
+
+				var options = new SyncOptions
+				{
+					DoMergeWithOthers = true,
+					DoPullFromOthers = true,
+					DoSendToOthers = true
+				};
+				options.RepositorySourcesToTry.Add(bob.RepoPath);
+				var synchronizer = sally.Synchronizer;
+				synchronizer.SynchronizerAdjunct = syncAdjunct;
+
+				var syncResults = sally.SyncWithOptions(options, synchronizer);
+				Assert.IsTrue(syncResults.DidGetChangesFromOthers);
+				CheckExistanceOfAdjunctFiles(syncAdjunct, true, false, true, false, true, true);
+				var lines = File.ReadAllLines(syncAdjunct.CheckRepoBranchesPathName);
+				Assert.AreEqual(lines.Length, 2, "Wrong number of branches on CheckBranches call");
+			}
+		}
 
 		[Test]
 		public void OurCommitOnlyFailsCommitCopCheck()
@@ -334,11 +367,84 @@ namespace LibChorus.Tests.sync
 				Assert.IsFalse(syncResults.Cancelled);
 				Assert.IsFalse(syncResults.DidGetChangesFromOthers);
 				Assert.IsFalse(syncResults.Succeeded);
-				CheckExistanceOfAdjunctFiles(syncAdjunct, true, false, true, false);
+				CheckExistanceOfAdjunctFiles(syncAdjunct, true, false, true, false, true, false);
 			}
 		}
 
-		private static void CheckExistanceOfAdjunctFiles(FileWriterSychronizerAdjunct syncAdjunct, bool commitFileShouldExist, bool pullFileShouldExist, bool rollbackFileShouldExist, bool mergeFileShouldExist)
+		[Test]
+		public void SynchronizerWithOnlyCurrentBranchRevision_ReportsNothing()
+		{
+			var rev1 = new Revision(null, "default", "Fred", "1234", "hash1234", "change something");
+			var revs = new[] { rev1 };
+			string savedSettings = "";
+			Assert.That(LiftSynchronizerAdjunct.GetRepositoryBranchCheckData(revs, "default", ref savedSettings), Is.Null);
+			Assert.That(savedSettings,Is.EqualTo(""));
+
+			// Even if we have remembered a previous revision on our own branch, we don't report problems on the current branch.
+			var rev2 = new Revision(null, "default", "Fred", "1235", "hash1234", "change something else");
+			revs = new[] { rev2 };
+			savedSettings = "default";
+			Assert.That(LiftSynchronizerAdjunct.GetRepositoryBranchCheckData(revs, "default", ref savedSettings), Is.Null);
+			Assert.That(savedSettings, Is.EqualTo("")); // still no revs on other branches to save.
+		}
+
+		[Test]
+		public void Synchronizer_ReportsNewChangeOnOtherBranch()
+		{
+			string savedSettings = "";
+			var rev1 = new Revision(null, "default", "Fred", "1234", "hash1234", "change something");
+			// The first revision we see on another branch doesn't produce a warning...it might be something old everyone has upgraded from.
+			var revs = new[] { rev1 };
+			Assert.That(LiftSynchronizerAdjunct.GetRepositoryBranchCheckData(revs, "7.2.1", ref savedSettings), Is.Null);
+			//Assert.That(savedSettings, Is.EqualTo("7.2.1:1234")); // Don't really care what is here as long as it works
+
+			var rev2 = new Revision(null, "default", "Fred", "1235", "hash1235", "change something else");
+			revs = new[] { rev2 };
+			Assert.That(LiftSynchronizerAdjunct.GetRepositoryBranchCheckData(revs, "7.2.1", ref savedSettings), Is.StringContaining("Fred"));
+		}
+
+		[Test]
+		public void Synchronizer_DoesNotReportOldChangeOnOtherBranch()
+		{
+			string savedSettings = "";
+			var rev1 = new Revision(null, "default", "Fred", "1234", "hash1234", "change something");
+			// The first revision we see on another branch doesn't produce a warning...it might be something old everyone has upgraded from.
+			var revs = new[] { rev1 };
+			Assert.That(LiftSynchronizerAdjunct.GetRepositoryBranchCheckData(revs, "7.2.1", ref savedSettings), Is.Null);
+			//Assert.That(savedSettings, Is.EqualTo("default:1234")); // Don't really care what is here as long as it works
+
+			var rev2 = new Revision(null, "default", "Fred", "1234", "hash1234", "change something else");
+			revs = new[] { rev2 };
+			Assert.That(LiftSynchronizerAdjunct.GetRepositoryBranchCheckData(revs, "7.2.1", ref savedSettings), Is.Null);
+		}
+
+		[Test]
+		public void Synchronizer_HandlesMultipleBranches()
+		{
+			string savedSettings = "";
+			var rev1 = new Revision(null, "default", "Fred", "1234", "hash1234", "change something");
+			// The first revision we see on another branch doesn't produce a warning...it might be something old everyone has upgraded from.
+			var revs = new[] { rev1 };
+			Assert.That(LiftSynchronizerAdjunct.GetRepositoryBranchCheckData(revs, "7.2.1", ref savedSettings), Is.Null);
+
+			var rev2 = new Revision(null, "7.2.0", "Joe", "1235", "hash1235", "change something else");
+			// To get the right result this time, the list of revisions must include both branches we are pretending are in the repo.
+			revs = new[] { rev1, rev2 };
+			Assert.That(LiftSynchronizerAdjunct.GetRepositoryBranchCheckData(revs, "7.2.1", ref savedSettings), Is.Null); // first change we've seen on this branch
+
+			var rev3 = new Revision(null, "default", "Fred", "1236", "hash1236", "Fred's second change");
+			revs = new[] { rev2, rev3 };
+			Assert.That(LiftSynchronizerAdjunct.GetRepositoryBranchCheckData(revs, "7.2.1", ref savedSettings), Is.EqualTo("Fred"));
+
+			var rev4 = new Revision(null, "7.2.0", "Joe", "1236", "hash1237", "Joe's second change");
+			revs = new[] { rev3, rev4 };
+			Assert.That(LiftSynchronizerAdjunct.GetRepositoryBranchCheckData(revs, "7.2.1", ref savedSettings), Is.EqualTo("Joe"));
+		}
+
+		private static void CheckExistanceOfAdjunctFiles(FileWriterSychronizerAdjunct syncAdjunct, bool commitFileShouldExist,
+														 bool pullFileShouldExist, bool rollbackFileShouldExist,
+														 bool mergeFileShouldExist, bool branchNameFileShouldExist,
+														 bool branchesFileShouldExist)
 		{
 			if (commitFileShouldExist)
 				Assert.IsTrue(File.Exists(syncAdjunct.CommitPathname), "CommitFile should exist.");
@@ -359,6 +465,16 @@ namespace LibChorus.Tests.sync
 				Assert.IsTrue(File.Exists(syncAdjunct.MergePathname), "MergeFile should exist.");
 			else
 				Assert.IsFalse(File.Exists(syncAdjunct.MergePathname), "MergeFile shouldn't exist.");
+
+			if (branchNameFileShouldExist)
+				Assert.IsTrue(File.Exists(syncAdjunct.BranchNamePathName), "BranchNameFile should exist.");
+			else
+				Assert.IsFalse(File.Exists(syncAdjunct.BranchNamePathName), "BranchNameFile shouldn't exist.");
+
+			if (branchesFileShouldExist)
+				Assert.IsTrue(File.Exists(syncAdjunct.CheckRepoBranchesPathName), "CheckRepoBranchesFile should exist.");
+			else
+				Assert.IsFalse(File.Exists(syncAdjunct.CheckRepoBranchesPathName), "CheckRepoBranchesFile shouldn't exist.");
 		}
 
 		private static void CheckNoFilesExist(FileWriterSychronizerAdjunct syncAdjunct)
@@ -367,6 +483,8 @@ namespace LibChorus.Tests.sync
 			Assert.IsFalse(File.Exists(syncAdjunct.PullPathname));
 			Assert.IsFalse(File.Exists(syncAdjunct.RollbackPathname));
 			Assert.IsFalse(File.Exists(syncAdjunct.MergePathname));
+			Assert.IsFalse(File.Exists(syncAdjunct.BranchNamePathName));
+			Assert.IsFalse(File.Exists(syncAdjunct.CheckRepoBranchesPathName));
 		}
 
 		private class FileWriterSychronizerAdjunct : ISychronizerAdjunct
@@ -398,6 +516,16 @@ namespace LibChorus.Tests.sync
 				get { return Path.Combine(_pathToRepository, "Merge.txt"); }
 			}
 
+			internal string BranchNamePathName
+			{
+				get { return Path.Combine(_pathToRepository, "BranchName.txt"); }
+			}
+
+			internal string CheckRepoBranchesPathName
+			{
+				get { return Path.Combine(_pathToRepository, "CheckRepoBranches.txt"); }
+			}
+
 			#region Implementation of ISychronizerAdjunct
 
 			/// <summary>
@@ -418,6 +546,7 @@ namespace LibChorus.Tests.sync
 			/// <param name="isRollback">"True" if there was a merge failure, and the repo is being rolled back to an earlier state. Otherwise "False".</param>
 			public void SimpleUpdate(IProgress progress, bool isRollback)
 			{
+				WasUpdated = true;
 				if (isRollback)
 					File.WriteAllText(RollbackPathname, "Rollback");
 				else
@@ -430,7 +559,40 @@ namespace LibChorus.Tests.sync
 			/// <remarks>This method not be called at all, if there was no merging.</remarks>
 			public void PrepareForPostMergeCommit(IProgress progress)
 			{
+				WasUpdated = true;
 				File.WriteAllText(MergePathname, "Merged");
+			}
+
+			/// <summary>
+			/// Get the branch name the client wants to use. This might be (for example) a current version label
+			/// of the client's data model. Used to create a version branch in the repository
+			/// (for these tests always the default branch).
+			/// </summary>
+			public string BranchName
+			{
+				get
+				{
+					File.WriteAllText(BranchNamePathName, "(default)");
+					return ""; // Hg 'default' branch is empty string.
+				}
+			}
+
+			public bool WasUpdated { get; private set; }
+
+			/// <summary>
+			/// During a Send/Receive when Chorus has completed a pull and there is more than one branch on the repository
+			/// it will pass the revision of the head of each branch to the client.
+			/// The client can use this to display messages to the users when other branches are active other than their own.
+			/// i.e. "Someone else has a new version you should update"
+			/// or "Your colleague needs to update, you won't see their changes until they do."
+			/// </summary>
+			/// <param name="branches">A list (IEnumerable really) of all the open branches in this repo.</param>
+			public void CheckRepositoryBranches(IEnumerable<Revision> branches, IProgress progress)
+			{
+				foreach (var revision in branches)
+				{
+					File.AppendAllText(CheckRepoBranchesPathName, revision.Branch + Environment.NewLine);
+				}
 			}
 
 			#endregion

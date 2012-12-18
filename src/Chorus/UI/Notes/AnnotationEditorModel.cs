@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Design;
 using System.Drawing;
 using System.Linq;
 using System.Text;
-using System.Windows.Forms;
 using Chorus.notes;
 using Chorus.UI.Notes.Html;
 using Chorus.UI.Review;
@@ -27,6 +25,7 @@ namespace Chorus.UI.Notes
 		private string _newMessageText;
 		private EmbeddedMessageContentHandlerFactory _embeddedMessageContentHandlerFactory;
 		private bool _showLabelAsHyperLink=true;
+		public MessageSelectedEvent EventToRaiseForChangedMessage { get; private set; }
 
 		internal event EventHandler UpdateContent;
 		internal event EventHandler UpdateStates;
@@ -68,6 +67,7 @@ namespace Chorus.UI.Notes
 			_writingSystems = writingSystems;
 			 CurrentWritingSystem = _writingSystems.First();
 			messageSelectedEventToSubscribeTo.Subscribe((annotation, message) => SetAnnotationAndFocussedMessage(annotation, message));
+			EventToRaiseForChangedMessage = messageSelectedEventToSubscribeTo;
 			NewMessageText = string.Empty;
 		}
 

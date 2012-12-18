@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
-using System.Windows.Forms;
 using System.Xml;
 using Chorus.FileTypeHanders;
 using Chorus.merge;
@@ -11,7 +10,7 @@ using Chorus.Utilities;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using System.Linq;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
 using Palaso.Reporting;
 using Palaso.Xml;
 
@@ -92,7 +91,7 @@ namespace Chorus.sync
 
 		public static Synchronizer FromProjectConfiguration(ProjectFolderConfiguration project, IProgress progress)
 		{
-			var hg = HgRepository.CreateOrLocate(project.FolderPath, progress);
+			var hg = HgRepository.CreateOrUseExisting(project.FolderPath, progress);
 			return new Synchronizer(hg.PathToRepo, project, progress);
 
 		}
@@ -115,11 +114,13 @@ namespace Chorus.sync
 				{
 					_progress.ProgressIndicator.IndicateUnknownProgress();
 				}
-				HgRepository repo = new HgRepository(_localRepositoryPath, _progress);
+				var repo = new HgRepository(_localRepositoryPath, _progress);
 
 				RemoveLocks(repo);
 				repo.RecoverFromInterruptedTransactionIfNeeded();
 				repo.FixUnicodeAudio();
+				string branchName = _sychronizerAdjunct.BranchName;
+				ChangeBranchIfNecessary(branchName);
 				Commit(options);
 
 				var workingRevBeforeSync = repo.GetRevisionWorkingSetIsBasedOn();
@@ -149,6 +150,7 @@ namespace Chorus.sync
 				{
 					UpdateToTheDescendantRevision(repo, workingRevBeforeSync);
 				}
+				_sychronizerAdjunct.CheckRepositoryBranches(repo.BranchingHelper.GetBranches(), _progress);
 
 				results.Succeeded = true;
 			   _progress.WriteMessage("Done");
@@ -174,13 +176,23 @@ namespace Chorus.sync
 					_progress.WriteVerbose(error.InnerException.StackTrace);
 				}
 
-				_progress.WriteError(error.Message);
-				_progress.WriteVerbose(error.StackTrace);
+				_progress.WriteException(error);//this preserves the whole exception for later retrieval by the client
+				_progress.WriteError(error.Message);//review still needed if we have this new WriteException?
+				_progress.WriteVerbose(error.StackTrace);//review still needed if we have this new WriteException?
 
 				results.Succeeded = false;
 				results.ErrorEncountered = error;
 			}
 			return results;
+		}
+
+		private void ChangeBranchIfNecessary(string branchName)
+		{
+			if (Repository.GetRevisionWorkingSetIsBasedOn() == null ||
+				Repository.GetRevisionWorkingSetIsBasedOn().Branch != branchName)
+			{
+				Repository.BranchingHelper.Branch(_progress, branchName);
+			}
 		}
 
 		private static void CreateRepositoryOnLocalAreaNetworkFolderIfNeededThrowIfFails(HgRepository repo, string repoProjectName, List<RepositoryAddress> sourcesToTry)
@@ -369,9 +381,13 @@ namespace Chorus.sync
 
 			// Must be done, before "AddAndCommitFiles" call.
 			// It could be here, or first thing inside the 'using' for CommitCop.
-			var newlyFilteredFiles = LargeFileFilter.FilterFiles(Repository, _project, _handlers);
-			if (!string.IsNullOrEmpty(newlyFilteredFiles))
-				_progress.WriteWarning(newlyFilteredFiles);
+			string tooLargeFilesMessage = LargeFileFilter.FilterFiles(Repository, _project, _handlers);
+			if (!string.IsNullOrEmpty(tooLargeFilesMessage))
+			{
+				var msg = "We're sorry, but the Send/Receive system can't handle large files. The following files won't be stored or shared by this system until you can shrink them down below the maximum: "+Environment.NewLine;
+				msg+= tooLargeFilesMessage;
+				_progress.WriteWarning(msg);
+			}
 
 			var commitCopValidationResult = "";
 			using (var commitCop = new CommitCop(Repository, _handlers, _progress))
@@ -532,9 +548,13 @@ namespace Chorus.sync
 				{
 					if (HgRepository.IntegrityResults.Bad == repository.CheckIntegrity(progress))
 					{
-						MessageBox.Show(
-							"Bad news: The mecurial repository is damaged.  You will need to seek expert help to resolve this problem.", "Chorus", MessageBoxButtons.OK, MessageBoxIcon.Error);
-						return;//don't suggest anything else
+						throw new ApplicationException(
+							"Bad news: The mecurial repository is damaged.  You will need to seek expert help to resolve this problem."
+						);
+						// Removing windows forms dependency CP 2012-08
+						//MessageBox.Show(
+						//    "Bad news: The mecurial repository is damaged.  You will need to seek expert help to resolve this problem.", "Chorus", MessageBoxButtons.OK, MessageBoxIcon.Error);
+						//return;//don't suggest anything else
 					}
 				}
 
@@ -669,6 +689,44 @@ namespace Chorus.sync
 			}
 		}
 
+		/// <summary>
+		/// Sets up everything necessary for a call out to the ChorusMerge executable
+		/// </summary>
+		/// <param name="targetHead"></param>
+		/// <param name="sourceHead"></param>
+		private void PrepareForMergeAttempt(Revision targetHead, Revision sourceHead)
+		{
+			//this is for posterity, on other people's machines, so use the hashes instead of local numbers
+			MergeSituation.PushRevisionsToEnvironmentVariables(targetHead.UserId, targetHead.Number.Hash,
+															   sourceHead.UserId, sourceHead.Number.Hash);
+
+			MergeOrder.PushToEnvironmentVariables(_localRepositoryPath);
+			_progress.WriteMessage("Merging {0} and {1}...", targetHead.UserId, sourceHead.UserId);
+			_progress.WriteVerbose("   Revisions {0}:{1} with {2}:{3}...", targetHead.Number.LocalRevisionNumber, targetHead.Number.Hash,
+								   sourceHead.Number.LocalRevisionNumber, sourceHead.Number.Hash);
+			RemoveMergeObstacles(targetHead, sourceHead);
+		}
+
+		/// <summary>
+		/// This method handles post merge tasks including the commit after the merge
+		/// </summary>
+		/// <param name="head"></param>
+		/// <param name="peopleWeMergedWith"></param>
+		private void DoPostMergeCommit(Revision head)
+		{
+			//that merge may have generated notes files where they didn't exist before,
+			//and we want these merged
+			//version + updated/created notes files to go right back into the repository
+
+			//  args.Append(" -X " + SurroundWithQuotes(Path.Combine(_pathToRepository, "**.ChorusRescuedFile")));
+
+			AppendAnyNewNotes(_localRepositoryPath);
+
+			_sychronizerAdjunct.PrepareForPostMergeCommit(_progress);
+
+			AddAndCommitFiles(GetMergeCommitSummary(head.UserId, Repository));
+		}
+
 		private void MergeHeads()
 		{
 			try
@@ -690,54 +748,13 @@ namespace Chorus.sync
 
 				foreach (Revision head in heads)
 				{
-					// Note: These are all removed, above.
-					//if (head.Number.LocalRevisionNumber == myHead.Number.LocalRevisionNumber)
-					//{
-					//    continue;
-					//}
-
-					//if (head.Tag.Contains(RejectTagSubstring))
-					//{
-					//    continue;
-					//}
-
-					////note: what we're checking here is actually the *name* of the branch...important: remmber in hg,
-					////you can have multiple heads on the same branch
-					//if (head.Branch != myHead.Branch) //Chorus policy is to only auto-merge on branches with same name
-					//{
-					//    continue;
-					//}
-
-					//this is for posterity, on other people's machines, so use the hashes instead of local numbers
-					MergeSituation.PushRevisionsToEnvironmentVariables(myHead.UserId, myHead.Number.Hash, head.UserId,
-																		head.Number.Hash);
-
-					MergeOrder.PushToEnvironmentVariables(_localRepositoryPath);
-					_progress.WriteMessage("Merging {0} and {1}...", myHead.UserId, head.UserId);
-					_progress.WriteVerbose("   Revisions {0}:{1} with {2}:{3}...", myHead.Number.LocalRevisionNumber, myHead.Number.Hash, head.Number.LocalRevisionNumber, head.Number.Hash);
-					RemoveMergeObstacles(myHead, head);
-
-					//if(CheckAndWarnIfNoCommonAncestor(myHead, head))
-					//{
-					//    continue;
-					//}
+					PrepareForMergeAttempt(myHead, head);
 
 					if (!MergeTwoChangeSets(myHead, head))
 						continue; // Nothing to merge.
 
 					peopleWeMergedWith.Add(head.UserId);
-
-					//that merge may have generated notes files where they didn't exist before,
-					//and we want these merged
-					//version + updated/created notes files to go right back into the repository
-
-					//  args.Append(" -X " + SurroundWithQuotes(Path.Combine(_pathToRepository, "**.ChorusRescuedFile")));
-
-					AppendAnyNewNotes(_localRepositoryPath);
-
-					_sychronizerAdjunct.PrepareForPostMergeCommit(_progress);
-
-					AddAndCommitFiles(GetMergeCommitSummary(head.UserId, Repository));
+					DoPostMergeCommit(head);
 				}
 			}
 			catch (UserCancelledException)
@@ -749,6 +766,7 @@ namespace Chorus.sync
 				ExplainAndThrow(error,WhatToDo.NeedExpertHelp, "Unable to complete the send/receive.");
 			}
 		}
+
 
 		/// <summary>
 		/// Find any .NewChorusNotes files which were created by the MergeChorus.exe and either rename them to .ChorusNotes
