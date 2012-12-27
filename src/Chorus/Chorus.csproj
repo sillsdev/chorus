@@ -136,6 +136,7 @@
 	<Compile Include="UI\BetterLabel.designer.cs">
 	  <DependentUpon>BetterLabel.cs</DependentUpon>
 	</Compile>
+	<Compile Include="UI\Notes\ChorusNotesDisplaySettings.cs" />
 	<Compile Include="UI\Clone\CloneFromUsb.cs" />
 	<Compile Include="UI\Clone\GetCloneFromChorusHubModel.cs" />
 	<Compile Include="UI\Clone\GetCloneFromChorusHubDialog.cs">

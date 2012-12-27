@@ -20,7 +20,7 @@ namespace Chorus.UI.Notes
 		private readonly StyleSheet _styleSheet;
 		private Annotation _annotation;
 		private readonly NavigateToRecordEvent _navigateToRecordEventToRaise;
-		private readonly IEnumerable<IWritingSystem> _writingSystems;
+		private readonly ChorusNotesDisplaySettings _displaySettings;
 		private Message _currentFocussedMessage; //this is the part of the annotation in focus
 		private string _newMessageText;
 		private EmbeddedMessageContentHandlerFactory _embeddedMessageContentHandlerFactory;
@@ -39,7 +39,7 @@ namespace Chorus.UI.Notes
 		   EmbeddedMessageContentHandlerFactory embeddedMessageContentHandlerFactory,
 			Annotation annotation,
 			NavigateToRecordEvent navigateToRecordEventToRaise,
-			IEnumerable<IWritingSystem> writingSystems,
+			ChorusNotesDisplaySettings displaySettings,
 			bool showLabelAsHyperlink)
 		{
 			_user = user;
@@ -48,8 +48,8 @@ namespace Chorus.UI.Notes
 			NewMessageText = string.Empty;
 			_annotation = annotation;
 			_navigateToRecordEventToRaise = navigateToRecordEventToRaise;
-			_writingSystems = writingSystems;
-			CurrentWritingSystem = _writingSystems.First();
+			_displaySettings = displaySettings;
+			//CurrentWritingSystem = _displaySettings.First();
 			_showLabelAsHyperLink = showLabelAsHyperlink;
 		}
 
@@ -58,14 +58,14 @@ namespace Chorus.UI.Notes
 							StyleSheet styleSheet,
 							EmbeddedMessageContentHandlerFactory embeddedMessageContentHandlerFactory,
 							NavigateToRecordEvent navigateToRecordEventToRaise,
-						IEnumerable<IWritingSystem> writingSystems)
+						ChorusNotesDisplaySettings displaySettings)
 		{
 			_user = user;
 			_embeddedMessageContentHandlerFactory = embeddedMessageContentHandlerFactory;
 			_navigateToRecordEventToRaise = navigateToRecordEventToRaise;
 			_styleSheet = styleSheet;
-			_writingSystems = writingSystems;
-			 CurrentWritingSystem = _writingSystems.First();
+			_displaySettings = displaySettings;
+			 //CurrentWritingSystem = _displaySettings.First();
 			messageSelectedEventToSubscribeTo.Subscribe((annotation, message) => SetAnnotationAndFocussedMessage(annotation, message));
 			EventToRaiseForChangedMessage = messageSelectedEventToSubscribeTo;
 			NewMessageText = string.Empty;
@@ -256,7 +256,11 @@ namespace Chorus.UI.Notes
 
 		public Font FontForNewMessage
 		{
-			get { return new Font(CurrentWritingSystem.FontName, 10); }
+			get { return new Font(_displaySettings.WritingSystemForNoteContent.FontName, _displaySettings.WritingSystemForNoteContent.FontSize); }
+		}
+		public Font FontForLabel
+		{
+			get { return new Font(_displaySettings.WritingSystemForNoteLabel.FontName, 14); }
 		}
 
 		public Image GetAnnotationLogoImage()
@@ -353,15 +357,9 @@ namespace Chorus.UI.Notes
 			_navigateToRecordEventToRaise.Raise(_annotation.RefUnEscaped);
 		}
 
-		private IWritingSystem CurrentWritingSystem
-		{
-			get;
-			set;
-		}
-
 		public void ActivateKeyboard()
 		{
-			CurrentWritingSystem.ActivateKeyboard();
+			_displaySettings.WritingSystemForNoteContent.ActivateKeyboard();
 		}
 	}
 }
