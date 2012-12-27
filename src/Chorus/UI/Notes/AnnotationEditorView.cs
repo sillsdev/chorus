@@ -21,6 +21,7 @@ namespace Chorus.UI.Notes
 			//needs to be primed this way
 			SetDocumentText("<html><head></head><body></body></html>");
 			_newMessage.Font = model.FontForNewMessage;
+			_annotationLabel.Font = model.FontForLabel;
 		}
 
 		public MessageSelectedEvent EventToRaiseForChangedMessage

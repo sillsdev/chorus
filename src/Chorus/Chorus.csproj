@@ -79,7 +79,8 @@
 	<DebugType>full</DebugType>
 	<PlatformTarget>x86</PlatformTarget>
 	<ErrorReport>prompt</ErrorReport>
-	<TargetFrameworkProfile></TargetFrameworkProfile>
+	<TargetFrameworkProfile>
+	</TargetFrameworkProfile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'ReleaseMono|AnyCPU' ">
 	<DebugSymbols>true</DebugSymbols>
@@ -90,7 +91,8 @@
 	<DebugType>pdbonly</DebugType>
 	<PlatformTarget>x86</PlatformTarget>
 	<ErrorReport>prompt</ErrorReport>
-	<TargetFrameworkProfile></TargetFrameworkProfile>
+	<TargetFrameworkProfile>
+	</TargetFrameworkProfile>
   </PropertyGroup>
   <ItemGroup>
 	<Reference Include="Autofac, Version=1.4.4.561, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
@@ -130,6 +132,7 @@
 	<Compile Include="UI\BetterLabel.designer.cs">
 	  <DependentUpon>BetterLabel.cs</DependentUpon>
 	</Compile>
+	<Compile Include="UI\Notes\ChorusNotesDisplaySettings.cs" />
 	<Compile Include="UI\Clone\CloneFromUsb.cs" />
 	<Compile Include="UI\Clone\GetCloneFromChorusHubModel.cs" />
 	<Compile Include="UI\Clone\GetCloneFromChorusHubDialog.cs">
