@@ -67,7 +67,7 @@
 			// _newMessage
 			//
 			this._newMessage.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
-						| System.Windows.Forms.AnchorStyles.Right)));
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this._newMessage.Location = new System.Drawing.Point(4, 325);
 			this._newMessage.Multiline = true;
 			this._newMessage.Name = "_newMessage";
@@ -91,8 +91,8 @@
 			//
 			this._existingMessagesDisplay.AllowWebBrowserDrop = false;
 			this._existingMessagesDisplay.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-						| System.Windows.Forms.AnchorStyles.Left)
-						| System.Windows.Forms.AnchorStyles.Right)));
+			| System.Windows.Forms.AnchorStyles.Left)
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this._existingMessagesDisplay.Location = new System.Drawing.Point(5, 47);
 			this._existingMessagesDisplay.MinimumSize = new System.Drawing.Size(20, 20);
 			this._existingMessagesDisplay.Name = "_existingMessagesDisplay";
@@ -124,6 +124,7 @@
 			this._annotationLabel.TabIndex = 10;
 			this._annotationLabel.TabStop = true;
 			this._annotationLabel.Text = "Target of Note";
+			this._annotationLabel.UseMnemonic = false;
 			this._annotationLabel.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this._annotationLabel_LinkClicked);
 			//
 			// _addNewMessageLabel
