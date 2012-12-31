@@ -13,7 +13,7 @@ namespace Chorus.FileTypeHanders.lift
 {
 	public class LiftSynchronizerAdjunct : ISychronizerAdjunct
 	{
-		private readonly string _branchName;
+		private readonly string _branchName = "default";
 		private readonly string _liftPathName;
 
 		/// <summary>

@@ -573,7 +573,7 @@ namespace LibChorus.Tests.sync
 				get
 				{
 					File.WriteAllText(BranchNamePathName, "(default)");
-					return ""; // Hg 'default' branch is empty string.
+					return "default"; // Hg 'default' branch is empty string.
 				}
 			}
 

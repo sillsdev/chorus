@@ -54,7 +54,7 @@ namespace LibChorus.Tests.sync
 		/// </summary>
 		public string BranchName
 		{
-			get { return _branchName ?? ""; } // Hg default branch name
+			get { return _branchName ?? "default"; } // Hg default branch name
 		}
 
 		public bool WasUpdated { get; private set; }

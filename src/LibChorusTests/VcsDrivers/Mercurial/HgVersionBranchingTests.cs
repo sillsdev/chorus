@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using Chorus.sync;
 using LibChorus.TestUtilities;
+using LibChorus.Tests.sync;
 using NUnit.Framework;
 using Palaso.Progress;
 
@@ -33,6 +34,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			// Setup
 			using (var repoWithFiles = RepositoryWithFilesSetup.CreateWithLiftFile(stestUser))
 			{
+				repoWithFiles.Synchronizer.SynchronizerAdjunct = new ProgrammableSynchronizerAdjunct("default");
 				var branchingHelper = repoWithFiles.Repository.BranchingHelper;
 				Assert.AreEqual(1, branchingHelper.GetBranches().Count(),
 								"Setup problem in test, should be starting with one branch.");
@@ -40,7 +42,8 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				var oldversion = branchingHelper.ClientVersion;
 
 				// SUT
-				branchingHelper.Branch(new NullProgress(), newBranchName);
+				branchingHelper.Branch(new ConsoleProgress(), newBranchName);
+				repoWithFiles.Synchronizer.SynchronizerAdjunct = new ProgrammableSynchronizerAdjunct(newBranchName);
 				repoWithFiles.ReplaceSomething("nottheoriginal");
 				repoWithFiles.SyncWithOptions(new SyncOptions
 					{
@@ -66,12 +69,14 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			// Setup
 			using (var repoWithFiles = RepositoryWithFilesSetup.CreateWithLiftFile(stestUser))
 			{
+				repoWithFiles.Synchronizer.SynchronizerAdjunct = new ProgrammableSynchronizerAdjunct("default");
 				var branchingHelper = repoWithFiles.Repository.BranchingHelper;
 				Assert.AreEqual(1, branchingHelper.GetBranches().Count(),
 								"Setup problem in test, should be starting with one branch.");
 				// Make a new branch (should technically be on the remote with a different user...)
 				const string newBranchName = "New Branch";
 				branchingHelper.Branch(new NullProgress(), newBranchName);
+				repoWithFiles.Synchronizer.SynchronizerAdjunct = new ProgrammableSynchronizerAdjunct(newBranchName);
 				repoWithFiles.ReplaceSomething("nottheoriginal");
 				repoWithFiles.SyncWithOptions(new SyncOptions
 				{
