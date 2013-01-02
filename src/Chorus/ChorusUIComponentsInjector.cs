@@ -49,7 +49,7 @@ namespace Chorus
 			//which I'd rather do, and just leave this to pushing in the "normal"
 			builder.Register<SyncUIFeatures>(c => syncDialogFeatures).As<SyncUIFeatures>().SingleInstance();
 
-			builder.RegisterInstance(new EmbeddedMessageContentHandlerFactory());
+			builder.RegisterInstance(new EmbeddedMessageContentHandlerRepository());
 
 			builder.RegisterInstance(ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers());
 
@@ -73,7 +73,7 @@ namespace Chorus
 		public static void InjectNotesUI(ContainerBuilder builder)
 		{
 			builder.RegisterType<MessageSelectedEvent>();
-			builder.RegisterType<Chorus.notes.EmbeddedMessageContentHandlerFactory>();
+			builder.RegisterType<Chorus.notes.EmbeddedMessageContentHandlerRepository>();
 			builder.RegisterType<NotesInProjectViewModel>();
 			builder.RegisterType<NotesInProjectView>();
 			builder.RegisterType<Chorus.UI.Notes.AnnotationEditorView>();

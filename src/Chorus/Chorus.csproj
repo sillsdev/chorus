@@ -242,6 +242,7 @@
 	  <DependentUpon>SearchBox.cs</DependentUpon>
 	</Compile>
 	<Compile Include="UI\Notes\Html\StyleSheet.cs" />
+	<Compile Include="UI\Notes\MergeConflictEmbeddedMessageContentHandler.cs" />
 	<Compile Include="UI\Review\ChangedReport\ChangeReportView.cs">
 	  <SubType>UserControl</SubType>
 	</Compile>
