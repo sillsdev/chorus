@@ -8,12 +8,6 @@ namespace Chorus.FileTypeHanders.lift
 	{
 		static public string LiftTimeFormatNoTimeZone = "yyyy-MM-ddTHH:mm:ssZ";
 
-		// Not used after Randy's overhaul.
-		//public static bool GetIsMarkedAsDeleted(XmlNode entry)
-		//{
-		//    return !string.IsNullOrEmpty(XmlUtilities.GetOptionalAttributeString(entry, "dateDeleted"));
-		//}
-
 		public static string GetId(XmlNode e)
 		{
 			return e.GetOptionalStringAttribute("id", string.Empty);
@@ -59,39 +53,20 @@ namespace Chorus.FileTypeHanders.lift
 			var form = GetFormForEntry(entryNode);
 			if (!string.IsNullOrEmpty(form))
 			{
-				url += "label=" + form + "&";
+				url += "label=" + Uri.EscapeDataString(form) + "&";
 			}
 			url = url.Trim('&');
 			return url;
 		}
-
-		// Not used after Randy's overhaul.
-		//public static XmlNode FindEntryById(XmlNode doc, string id)
-		//{
-		//        return doc.SelectSingleNode("lift/entry[@id=\""+id+"\"]");
-		//}
-		//public static XmlNode FindEntryByGuid(XmlNode doc, string guid)
-		//{
-		//        return doc.SelectSingleNode("lift/entry[@guid=\""+guid+"\"]");
-		//}
-		//public static bool AreTheSame(XmlNode ourEntry, XmlNode theirEntry)
-		//{
-		//    //for now...
-		//    if (GetModifiedDate(theirEntry) == GetModifiedDate(ourEntry)
-		//        && !(GetModifiedDate(theirEntry) == default(DateTime))
-		//        && !GetIsMarkedAsDeleted(ourEntry))
-		//        return true;
-
-		//    return XmlUtilities.AreXmlElementsEqual(ourEntry.OuterXml, theirEntry.OuterXml);
-		//}
-
 
 		public static string GetUrl(XmlNode child, string unescaped, string label)
 		{
 			var x = GetUrl(child, unescaped);
 			if(string.IsNullOrEmpty(label))
 				return x;
-			return x + "&label=" + Uri.EscapeDataString(label);
+			if (!x.Contains("&label="))
+				x = x + "&label=" + Uri.EscapeDataString(label);
+			return x;
 		}
 	}
 }
