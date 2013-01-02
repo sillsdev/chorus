@@ -83,8 +83,11 @@ namespace LibChorus.Tests.sync
 		/// The presence or absence of the two files tells us whether the Synchronizer class called the new interface methods.
 		/// </summary>
 		[Test]
+
 #if MONO
 		[Ignore]
+#else
+		[Ignore("Block until V03 server API is restored")]
 #endif
 		public void BasicCommitHasCommitFileButNotMergeFile()
 		{
@@ -115,6 +118,8 @@ namespace LibChorus.Tests.sync
 		[Test]
 #if MONO
 		[Ignore]
+#else
+		[Ignore("Block until V03 server API is restored")]
 #endif
 		public void SendReceiveWithNoRemoteChangesGetsNoFiles()
 		{
@@ -143,6 +148,8 @@ namespace LibChorus.Tests.sync
 		[Test]
 #if MONO
 		[Ignore]
+#else
+		[Ignore("Block until V03 server API is restored")]
 #endif
 		public void SendReceiveWithTrivialMergeCallsSimpleUpdate()
 		{
@@ -181,6 +188,7 @@ namespace LibChorus.Tests.sync
 		/// The presence or absence of the two files tells us whether the Synchronizer class called the new interface methods.
 		/// </summary>
 		[Test]
+		[Ignore("Block until V03 server API is restored")]
 		public void CommitWithMergeHasCommitFileAndMergeFile()
 		{
 			using (var bob = RepositoryWithFilesSetup.CreateWithLiftFile("bob"))
@@ -210,6 +218,7 @@ namespace LibChorus.Tests.sync
 		}
 
 		[Test]
+		[Ignore("Block until V03 server API is restored")]
 		public void EachOneChangedOrAddedFileButNotSameFile_HasCommitAndPullAndMergeFilesOnly()
 		{
 			using (var bob = RepositoryWithFilesSetup.CreateWithLiftFile("bob"))
@@ -243,6 +252,7 @@ namespace LibChorus.Tests.sync
 		}
 
 		[Test]
+		[Ignore("Block until V03 server API is restored")]
 		public void TheyMadeChanges_WeDidNothing_Fires_SimpleUpdate_WithFalse()
 		{
 			// 1. Simple pull got new stuff, while we changed nothing
@@ -274,6 +284,7 @@ namespace LibChorus.Tests.sync
 		}
 
 		[Test]
+		[Ignore("Block until V03 server API is restored")]
 		public void BothMadeChanges_MergeFailure_Fires_SimpleUpdate_WithTrue()
 		{
 			// 2. Rollback on merge failure, when we changed stuff.
@@ -311,6 +322,7 @@ namespace LibChorus.Tests.sync
 		}
 
 		[Test]
+		[Ignore("Block until V03 server API is restored")]
 		public void CheckBranchesGetsRightNumberOfBranches()
 		{
 			using (var bob = RepositoryWithFilesSetup.CreateWithLiftFile("bob"))
@@ -342,6 +354,7 @@ namespace LibChorus.Tests.sync
 		}
 
 		[Test]
+		[Ignore("Block until V03 server API is restored")]
 		public void OurCommitOnlyFailsCommitCopCheck()
 		{
 			// 3. Backout after CommitCop bailout.
