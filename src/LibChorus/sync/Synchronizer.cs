@@ -119,8 +119,11 @@ namespace Chorus.sync
 				RemoveLocks(repo);
 				repo.RecoverFromInterruptedTransactionIfNeeded();
 				repo.FixUnicodeAudio();
-				string branchName = _sychronizerAdjunct.BranchName;
-				ChangeBranchIfNecessary(branchName);
+
+				// TODO: Restore, when V03 of the server API is restored.
+				//string branchName = _sychronizerAdjunct.BranchName;
+				//ChangeBranchIfNecessary(branchName);
+
 				Commit(options);
 
 				var workingRevBeforeSync = repo.GetRevisionWorkingSetIsBasedOn();
@@ -150,7 +153,8 @@ namespace Chorus.sync
 				{
 					UpdateToTheDescendantRevision(repo, workingRevBeforeSync);
 				}
-				_sychronizerAdjunct.CheckRepositoryBranches(repo.BranchingHelper.GetBranches(), _progress);
+				// TODO: Restore, when V03 of the server API is restored.
+				//_sychronizerAdjunct.CheckRepositoryBranches(repo.BranchingHelper.GetBranches(), _progress);
 
 				results.Succeeded = true;
 			   _progress.WriteMessage("Done");
