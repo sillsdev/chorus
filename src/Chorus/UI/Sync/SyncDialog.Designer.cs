@@ -35,6 +35,7 @@ namespace Chorus.UI.Sync
 			this._closeWhenDoneTimer = new System.Windows.Forms.Timer(this.components);
 			this._syncStartControl = new Chorus.UI.Sync.SyncStartControl();
 			this._syncControl = new Chorus.UI.Sync.SyncControl();
+			this._helpProvider = new Vulcan.Uczniowie.HelpProvider.HelpComponent(this.components);
 			this.SuspendLayout();
 			//
 			// _closeWhenDoneTimer
@@ -95,6 +96,7 @@ namespace Chorus.UI.Sync
 		private SyncControl _syncControl;
 		private System.Windows.Forms.Timer _closeWhenDoneTimer;
 		private SyncStartControl _syncStartControl;
+		private Vulcan.Uczniowie.HelpProvider.HelpComponent _helpProvider;
 
 	}
 }

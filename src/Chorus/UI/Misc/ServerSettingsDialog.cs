@@ -27,6 +27,7 @@ namespace Chorus.UI.Misc
 		private void Init()
 		{
 			InitializeComponent();
+			_helpProvider.RegisterPrimaryHelpFileMapping("chorus.helpmap");
 			_serverSettingsControl = new ServerSettingsControl() { Model = _model };
 			_serverSettingsControl.TabIndex = 0;
 			_serverSettingsControl.Anchor = (AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right);
