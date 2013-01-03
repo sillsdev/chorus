@@ -251,12 +251,14 @@ namespace Chorus.VcsDrivers.Mercurial
 							var revisions = new MultiMap<string, string>();
 							foreach (var pair in pairs)
 							{
-								var hashRevCombo = pair.Split(':');
-								if(hashRevCombo.Length < 2)
-								{
-									throw new HgResumeOperationFailed("Failed to get remote revisions. Server/Client API format mismatch.");
-								}
-								revisions.Add(hashRevCombo[1], hashRevCombo[0]);
+								//Uncomment when v03 api is working again
+								//var hashRevCombo = pair.Split(':');
+								//if(hashRevCombo.Length < 2)
+								//{
+								//    throw new HgResumeOperationFailed("Failed to get remote revisions. Server/Client API format mismatch.");
+								//}
+								//revisions.Add(hashRevCombo[1], hashRevCombo[0]);
+								revisions.Add("", pair);
 							}
 							return revisions;
 						}

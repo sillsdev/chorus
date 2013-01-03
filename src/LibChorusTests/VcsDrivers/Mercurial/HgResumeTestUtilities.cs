@@ -567,7 +567,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			}
 			if (method == "getRevisions")
 			{
-				IEnumerable<string> revisions = _repo.GetAllRevisions().Select(rev => rev.Number.Hash + ':' + rev.Branch);
+				IEnumerable<string> revisions = _repo.GetAllRevisions().Select(rev => rev.Number.Hash);// reverted until v03 api is fixed + ':' + rev.Branch);
 				return ApiResponses.Revisions(string.Join("|", revisions.ToArray()));
 			}
 			if (method == "pullBundleChunk")
