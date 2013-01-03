@@ -142,7 +142,7 @@ namespace Chorus.Tests.notes
 			NotesInProjectViewModel notesInProjectModel = new NotesInProjectViewModel(new ChorusUser("Bob"), repositories, messageSelected, chorusNotesDisplaySettings, new ConsoleProgress());
 
 			var annotationModel = new AnnotationEditorModel(new ChorusUser("bob"), messageSelected, StyleSheet.CreateFromDisk(),
-				new EmbeddedMessageContentHandlerFactory(), new NavigateToRecordEvent(), chorusNotesDisplaySettings);
+				new EmbeddedMessageContentHandlerRepository(), new NavigateToRecordEvent(), chorusNotesDisplaySettings);
 			AnnotationEditorView annotationView = new AnnotationEditorView(annotationModel);
 			annotationView.ModalDialogMode=false;
 			var page = new NotesBrowserPage((unusedRepos,progress)=>notesInProjectModel, repositories, annotationView);
