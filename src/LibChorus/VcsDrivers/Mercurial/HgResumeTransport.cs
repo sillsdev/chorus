@@ -258,7 +258,7 @@ namespace Chorus.VcsDrivers.Mercurial
 								//    throw new HgResumeOperationFailed("Failed to get remote revisions. Server/Client API format mismatch.");
 								//}
 								//revisions.Add(hashRevCombo[1], hashRevCombo[0]);
-								revisions.Add("default", pair);
+								revisions.Add("", pair);
 							}
 							return revisions;
 						}
