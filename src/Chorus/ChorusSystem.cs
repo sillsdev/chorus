@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Windows.Forms;
 using Autofac;
+using Chorus.UI;
 using Chorus.notes;
 using Chorus.sync;
 using Chorus.UI.Notes;
@@ -36,7 +37,7 @@ namespace Chorus
 		/// <param name="dataFolderPath">The root of the project</param>
 		public ChorusSystem(string dataFolderPath)
 		{
-			WritingSystems = new List<IWritingSystem> {new EnglishWritingSystem(), new ThaiWritingSystem()};
+			DisplaySettings = new ChorusNotesDisplaySettings();
 			_dataFolderPath = dataFolderPath;
 		}
 
@@ -51,7 +52,7 @@ namespace Chorus
 			Repository = HgRepository.CreateOrUseExisting(_dataFolderPath, new NullProgress());
 			var builder = new Autofac.ContainerBuilder();
 
-			builder.Register<IEnumerable<IWritingSystem>>(c=>WritingSystems);
+			builder.Register<ChorusNotesDisplaySettings>(c => DisplaySettings);
 
 			ChorusUIComponentsInjector.Inject(builder, _dataFolderPath);
 
@@ -77,14 +78,7 @@ namespace Chorus
 
 		public bool DidLoadUpCorrectly;
 
-		/// <summary>
-		/// Set this if you want something other than English
-		/// </summary>
-		public IEnumerable<IWritingSystem> WritingSystems
-		{
-			get;
-			set;
-		}
+		public ChorusNotesDisplaySettings DisplaySettings;
 
 		public NavigateToRecordEvent NavigateToRecordEvent
 		{

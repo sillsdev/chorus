@@ -181,6 +181,7 @@ namespace LibChorus.Tests.sync
 		}
 
 		[Test]
+		[Ignore("Block until V03 server API is restored")]
 		public void TestNewVersion_SallyUpgrades_BobNotYet()
 		{
 			ConsoleProgress progress = new ConsoleProgress();
@@ -246,6 +247,7 @@ namespace LibChorus.Tests.sync
 
 		[Test]
 		[Category("KnownMonoIssue")] // Actually, it is an unknown mono issue.
+		[Ignore("Block until V03 server API is restored")]
 		public void TestNewVersion_SallyUpgradesToBobVersion()
 		{
 			ConsoleProgress progress = new ConsoleProgress();
@@ -344,6 +346,7 @@ namespace LibChorus.Tests.sync
 		}
 
 		[Test]
+		[Ignore("Block until V03 server API is restored")]
 		public void TestNewVersion_SallyAndBobUpgradeButFredDelays()
 		{
 			ConsoleProgress progress = new ConsoleProgress();
