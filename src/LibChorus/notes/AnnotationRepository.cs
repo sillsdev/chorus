@@ -247,7 +247,24 @@ namespace Chorus.notes
 
 		private static IEnumerable<string> GetChorusNotesFilePaths(string path)
 		{
-			return Directory.GetFiles(path, "*." + AnnotationRepository.FileExtension, SearchOption.AllDirectories);
+			var mercurialFolders = Directory.GetDirectories(path, ".hg", SearchOption.AllDirectories).ToList();
+			var mainRepositoryPath = Path.Combine(path, ".hg");
+			mercurialFolders.Remove(mainRepositoryPath);
+			foreach (var mercurialFolder in mercurialFolders.ToList())
+			{
+				mercurialFolders.Remove(mercurialFolder);
+				mercurialFolders.Add(Directory.GetParent(mercurialFolder).FullName);
+			}
+
+			var chorusNotesPathnames = Directory.GetFiles(path, "*." + FileExtension, SearchOption.AllDirectories).ToList();
+			foreach (var chorusNotesPathname in chorusNotesPathnames.ToList())
+			{
+				if (mercurialFolders.Any(mercurialFolder => chorusNotesPathname.Contains(mercurialFolder)))
+				{
+					chorusNotesPathnames.Remove(chorusNotesPathname);
+				}
+			}
+			return chorusNotesPathnames;
 		}
 
 

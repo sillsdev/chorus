@@ -49,7 +49,7 @@ namespace Chorus.sync
 		/// </summary>
 		public string BranchName
 		{
-			get { return ""; } // Hg default branch name
+			get { return "default"; } // Hg default branch name
 		}
 
 		public bool WasUpdated { get; private set; }

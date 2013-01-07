@@ -119,7 +119,10 @@
 	<Reference Include="System.Xml.Linq">
 	  <RequiredTargetFramework>3.5</RequiredTargetFramework>
 	</Reference>
-	<Reference Include="Vulcan.Uczniowie.HelpProvider, Version=0.9.999.0, Culture=neutral, processorArchitecture=x86" />
+	<Reference Include="Vulcan.Uczniowie.HelpProvider">
+	  <SpecificVersion>False</SpecificVersion>
+	  <HintPath>..\..\lib\common\Vulcan.Uczniowie.HelpProvider.dll</HintPath>
+	</Reference>
   </ItemGroup>
   <ItemGroup>
 	<Compile Include="Arguments.cs" />
@@ -133,6 +136,7 @@
 	<Compile Include="UI\BetterLabel.designer.cs">
 	  <DependentUpon>BetterLabel.cs</DependentUpon>
 	</Compile>
+	<Compile Include="UI\Notes\ChorusNotesDisplaySettings.cs" />
 	<Compile Include="UI\Clone\CloneFromUsb.cs" />
 	<Compile Include="UI\Clone\GetCloneFromChorusHubModel.cs" />
 	<Compile Include="UI\Clone\GetCloneFromChorusHubDialog.cs">
@@ -238,6 +242,7 @@
 	  <DependentUpon>SearchBox.cs</DependentUpon>
 	</Compile>
 	<Compile Include="UI\Notes\Html\StyleSheet.cs" />
+	<Compile Include="UI\Notes\MergeConflictEmbeddedMessageContentHandler.cs" />
 	<Compile Include="UI\Review\ChangedReport\ChangeReportView.cs">
 	  <SubType>UserControl</SubType>
 	</Compile>

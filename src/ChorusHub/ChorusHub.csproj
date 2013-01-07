@@ -128,7 +128,8 @@
 	<Reference Include="System.Data" />
 	<Reference Include="System.Xml" />
 	<Reference Include="Vulcan.Uczniowie.HelpProvider">
-	  <HintPath>..\..\output\Debug\Vulcan.Uczniowie.HelpProvider.dll</HintPath>
+	  <SpecificVersion>False</SpecificVersion>
+	  <HintPath>..\..\lib\common\Vulcan.Uczniowie.HelpProvider.dll</HintPath>
 	</Reference>
   </ItemGroup>
   <ItemGroup>
