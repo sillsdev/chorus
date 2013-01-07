@@ -40,7 +40,6 @@ namespace SampleApp
 			UnZipToDirectory(serverDir);
 			_serverRepository = new DirectoryRepositorySource("server", Path.Combine(serverDir,"ShoppingList"), false);
 			_userPicker.SelectedIndex = 0;
-			_helpProvider.RegisterPrimaryHelpFileMapping("chorus.helpmap");
 		}
 
 		private void ChangeSimulatedUser(string userName)
