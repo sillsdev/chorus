@@ -50,7 +50,6 @@ namespace Chorus.UI.Clone
 		public GetCloneFromNetworkFolderDlg()
 		{
 			InitializeComponent();
-			_helpProvider.RegisterPrimaryHelpFileMapping("chorus.helpmap");
 
 			progressBar.Maximum = MaxProgressValue;
 			_progressBarColor = progressBar.ForeColor;
