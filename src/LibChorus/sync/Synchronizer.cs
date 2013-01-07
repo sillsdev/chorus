@@ -33,6 +33,7 @@ namespace Chorus.sync
 		public static readonly string RejectTagSubstring = "[reject]";
 		//hack to prevent making change to custer repose when diagnosing problems... activated by -noPush commandline arg.
 		public static bool s_testingDoNotPush;
+		private bool _hasUnrelatedbranches;
 		#endregion
 
 		#region Properties
@@ -140,7 +141,7 @@ namespace Chorus.sync
 					MergeHeadsOrRollbackAndThrow(repo, workingRevBeforeSync);
 				}
 
-				if (options.DoSendToOthers)
+				if (options.DoSendToOthers && !_hasUnrelatedbranches) // If the repo has unrelated heads, then don't push it.
 				{
 					SendToOthers(repo, sourcesToTry, connectionAttempts);
 				}
@@ -818,6 +819,7 @@ namespace Chorus.sync
 					"This repository has an anomaly:  the two heads we want to merge have no common ancestor.  You should get help from the developers of this application.");
 				_progress.WriteWarning("1) \"{0}\" on {1} by {2} ({3}). ", a.GetHashCode(), a.Summary, a.DateString, a.UserId);
 				_progress.WriteWarning("2) \"{0}\" on {1} by {2} ({3}). ", b.GetHashCode(), b.Summary, b.DateString, b.UserId);
+				_hasUnrelatedbranches = true;
 				return true;
 			}
 			return false;
