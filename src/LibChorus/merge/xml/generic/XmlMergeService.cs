@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Xml;
+using System.Xml.Linq;
 using Chorus.Utilities;
 using Palaso.Code;
 using Palaso.Xml;
@@ -138,7 +139,7 @@ namespace Chorus.merge.xml.generic
 			WriteMainOutputData(allWritableData,
 								mergeOrder.pathToOurs,
 								// Do not change to another output file, or be ready to fix SyncScenarioTests.CanCollaborateOnLift()!
-								optionalFirstElementMarker, rootElementName, sortedAttributes);
+								optionalFirstElementMarker, rootElementName, sortedAttributes, mergeStrategy.SuppressIndentingChildren());
 		}
 
 		private static IDictionary<string, string> DoMerge(MergeOrder mergeOrder, IMergeStrategy mergeStrategy,
@@ -370,7 +371,8 @@ namespace Chorus.merge.xml.generic
 
 		private static void WriteMainOutputData(IDictionary<string, string> allWritableData,
 												string outputPathname, string optionalFirstElementMarker,
-												string rootElementName, SortedDictionary<string, string> sortedAttributes)
+												string rootElementName, SortedDictionary<string, string> sortedAttributes,
+												HashSet<string> suppressIndentingChildren)
 		{
 			using (var writer = XmlWriter.Create(outputPathname, CanonicalXmlSettings.CreateXmlWriterSettings()))
 			{
@@ -385,12 +387,12 @@ namespace Chorus.merge.xml.generic
 				{
 					// [NB: Write optional element first, if found.]
 					if (allWritableData.ContainsKey(optionalFirstElementMarker))
-						WriteNode(writer, allWritableData[optionalFirstElementMarker]);
+						WriteNode(writer, allWritableData[optionalFirstElementMarker], suppressIndentingChildren);
 					allWritableData.Remove(optionalFirstElementMarker);
 				}
 				foreach (var record in allWritableData.Values)
 				{
-					WriteNode(writer, record);
+					WriteNode(writer, record, suppressIndentingChildren);
 				}
 				writer.WriteEndElement();
 				writer.WriteEndDocument();
@@ -907,12 +909,64 @@ namespace Chorus.merge.xml.generic
 			}
 		}
 
-		private static void WriteNode(XmlWriter writer, string dataToWrite)
+		/// <summary>
+		/// Write a node out containing the XML in dataToWrite, pretty-printed according to the rules of writer, except
+		/// that we suppress indentation for children of nodes whose names are listed in suppressIndentingChildren,
+		/// and also for "mixed" nodes (where some children are text).
+		/// </summary>
+		/// <param name="writer"></param>
+		/// <param name="dataToWrite"></param>
+		/// <param name="suppressIndentingChildren"></param>
+		internal static void WriteNode(XmlWriter writer, string dataToWrite, HashSet<string> suppressIndentingChildren)
 		{
-			using (var nodeReader = XmlReader.Create(new MemoryStream(Utf8.GetBytes(dataToWrite)), CanonicalXmlSettings.CreateXmlReaderSettings(ConformanceLevel.Fragment)))
+			XElement element = XDocument.Parse(dataToWrite).Root;
+			if (element == null)
+				return;
+			WriteElementTo(writer, element, suppressIndentingChildren);
+
+			// This is the original code of this method. It is probably more efficient, and does ALMOST the same thing. But not quite.
+			// See the unit tests WriteNode_DoesNotIndentFirstChildOfMixedNode and WriteNode_DoesNotIndentChildWhenSuppressed.
+			// If a mixed (text and element children) node has an element as its FIRST
+			// child, WriteNode will indent it. This is wrong, since it adds a newline and tabs to the body of a parent where text is significant.
+			// Even if a node is not mixed, it may be wrong to indent it, if white space is significant.
+			//using (var nodeReader = XmlReader.Create(new MemoryStream(Utf8.GetBytes(dataToWrite)), CanonicalXmlSettings.CreateXmlReaderSettings(ConformanceLevel.Fragment)))
+			//{
+			//    writer.WriteNode(nodeReader, false);
+			//}
+		}
+
+		/// <summary>
+		/// Recursively write an element to the writer, suppressing indentation of children when required.
+		/// </summary>
+		/// <param name="writer"></param>
+		/// <param name="element"></param>
+		/// <param name="suppressIndentingChildren"></param>
+		private static void WriteElementTo(XmlWriter writer, XElement element, HashSet<string> suppressIndentingChildren)
+		{
+			writer.WriteStartElement(element.Name.LocalName);
+			foreach (var attr in element.Attributes())
+				writer.WriteAttributeString(attr.Name.LocalName, attr.Value);
+			// The writer automatically suppresses indenting children for any element that it detects has text children.
+			// However, it won't do this for the first child if that is an element, even if it later encounters text children.
+			// Also, there may be a parent where text including white space is significant, yet it is possible for the
+			// WHOLE content to be an element. For example, a <text> or <AStr> element may consist entirely of a <span>.
+			// In such cases there is NO way to tell from the content that it should not be indented, so all we can do
+			// is pass a list of such elements.
+			bool suppressIndenting = suppressIndentingChildren.Contains(element.Name.LocalName) || element.Nodes().Any(x => x is XText);
+			// In either case, we implement the suppression by making the first child a fake text element.
+			// Calling this method, even with an empty string, has proved to be enough to make the writer treat the parent
+			// as "mixed" which prevents indenting its children.
+			if (suppressIndenting)
+				writer.WriteString("");
+			foreach (var child in element.Nodes())
 			{
-				writer.WriteNode(nodeReader, false);
+				var xElement = child as XElement;
+				if (xElement != null)
+					WriteElementTo(writer, xElement, suppressIndentingChildren);
+				else
+					child.WriteTo(writer); // defaults are fine for everything else.
 			}
+			writer.WriteEndElement();
 		}
 	}
 }

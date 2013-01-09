@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Xml;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
@@ -56,6 +57,11 @@ namespace LibChorus.Tests.merge.xml.generic
 			};
 			merger.MergeStrategies.SetStrategy("def", def);
 			return merger.MergeStrategies;
+		}
+
+		public HashSet<string> SuppressIndentingChildren()
+		{
+			return new HashSet<string>();
 		}
 
 		#endregion

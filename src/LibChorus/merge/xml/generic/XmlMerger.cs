@@ -110,6 +110,11 @@ namespace Chorus.merge.xml.generic
 
 			if (elementStrat.IsAtomic)
 			{
+				if (elementStrat.AllowAtomicTextMerge && XmlUtilities.IsTextLevel(ours, theirs, ancestor))
+				{
+					DoTextMerge(ref ours, theirs, ancestor, elementStrat);
+					return;
+				}
 				MergeAtomicElementService.Run(this, ref ours, theirs, ancestor);
 				return;
 			}
@@ -142,7 +147,7 @@ namespace Chorus.merge.xml.generic
 
 			if (XmlUtilities.IsTextLevel(ours, theirs, ancestor))
 			{
-				new MergeTextNodesMethod(this, elementStrat, new HashSet<XmlNode>(), ref ours, new List<XmlNode>(), theirs, new List<XmlNode>(), ancestor, new List<XmlNode>()).Run();
+				DoTextMerge(ref ours, theirs, ancestor, elementStrat);
 			}
 			else
 			{
@@ -164,6 +169,12 @@ namespace Chorus.merge.xml.generic
 			// _oursContext, _theirsContext, _ancestorContext, and _htmlContextGenerator.
 			// and somehow restore the EventListener's Context.
 			// Currently however no client generates further conflicts after calling MergeChildren.
+		}
+
+		private void DoTextMerge(ref XmlNode ours, XmlNode theirs, XmlNode ancestor, ElementStrategy elementStrat)
+		{
+			new MergeTextNodesMethod(this, elementStrat, new HashSet<XmlNode>(), ref ours, new List<XmlNode>(), theirs,
+				new List<XmlNode>(), ancestor, new List<XmlNode>()).Run();
 		}
 
 		public NodeMergeResult Merge(string ourXml, string theirXml, string ancestorXml)
