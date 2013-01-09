@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Xml;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
+using Palaso.Lift;
 
 namespace Chorus.FileTypeHanders.lift
 {
@@ -48,13 +49,12 @@ namespace Chorus.FileTypeHanders.lift
 
 		/// <summary>
 		/// We must not pretty-print text elements, even if the only children are spans.
+		/// Spans can theoretically nest, so suppress pretty-printing those, too.
 		/// </summary>
 		/// <returns></returns>
 		public HashSet<string> SuppressIndentingChildren()
 		{
-			var result = new HashSet<string>();
-			result.Add("text");
-			return result;
+			return LiftSorter.LiftSuppressIndentingChildren;
 		}
 	}
 }

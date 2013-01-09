@@ -919,13 +919,10 @@ namespace Chorus.merge.xml.generic
 		/// <param name="suppressIndentingChildren"></param>
 		internal static void WriteNode(XmlWriter writer, string dataToWrite, HashSet<string> suppressIndentingChildren)
 		{
-			XElement element = XDocument.Parse(dataToWrite).Root;
-			if (element == null)
-				return;
-			WriteElementTo(writer, element, suppressIndentingChildren);
+			XmlUtils.WriteNode(writer, dataToWrite, suppressIndentingChildren);
 
 			// This is the original code of this method. It is probably more efficient, and does ALMOST the same thing. But not quite.
-			// See the unit tests WriteNode_DoesNotIndentFirstChildOfMixedNode and WriteNode_DoesNotIndentChildWhenSuppressed.
+			// See the unit tests WriteNode_DoesNotIndentFirstChildOfMixedNode and WriteNode_DoesNotIndentChildWhenSuppressed for WriteNode.
 			// If a mixed (text and element children) node has an element as its FIRST
 			// child, WriteNode will indent it. This is wrong, since it adds a newline and tabs to the body of a parent where text is significant.
 			// Even if a node is not mixed, it may be wrong to indent it, if white space is significant.
@@ -933,40 +930,6 @@ namespace Chorus.merge.xml.generic
 			//{
 			//    writer.WriteNode(nodeReader, false);
 			//}
-		}
-
-		/// <summary>
-		/// Recursively write an element to the writer, suppressing indentation of children when required.
-		/// </summary>
-		/// <param name="writer"></param>
-		/// <param name="element"></param>
-		/// <param name="suppressIndentingChildren"></param>
-		private static void WriteElementTo(XmlWriter writer, XElement element, HashSet<string> suppressIndentingChildren)
-		{
-			writer.WriteStartElement(element.Name.LocalName);
-			foreach (var attr in element.Attributes())
-				writer.WriteAttributeString(attr.Name.LocalName, attr.Value);
-			// The writer automatically suppresses indenting children for any element that it detects has text children.
-			// However, it won't do this for the first child if that is an element, even if it later encounters text children.
-			// Also, there may be a parent where text including white space is significant, yet it is possible for the
-			// WHOLE content to be an element. For example, a <text> or <AStr> element may consist entirely of a <span>.
-			// In such cases there is NO way to tell from the content that it should not be indented, so all we can do
-			// is pass a list of such elements.
-			bool suppressIndenting = suppressIndentingChildren.Contains(element.Name.LocalName) || element.Nodes().Any(x => x is XText);
-			// In either case, we implement the suppression by making the first child a fake text element.
-			// Calling this method, even with an empty string, has proved to be enough to make the writer treat the parent
-			// as "mixed" which prevents indenting its children.
-			if (suppressIndenting)
-				writer.WriteString("");
-			foreach (var child in element.Nodes())
-			{
-				var xElement = child as XElement;
-				if (xElement != null)
-					WriteElementTo(writer, xElement, suppressIndentingChildren);
-				else
-					child.WriteTo(writer); // defaults are fine for everything else.
-			}
-			writer.WriteEndElement();
 		}
 	}
 }
