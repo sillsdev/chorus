@@ -646,6 +646,10 @@ namespace Chorus.VcsDrivers.Mercurial
 				}
 				retryLoop = false;
 				var response = PullOneChunk(req);
+				if (response.Status == PullStatus.Unauthorized)
+				{
+					throw new UnauthorizedAccessException();
+				}
 				if (response.Status == PullStatus.NotAvailable)
 				{
 					_progress.ProgressIndicator.Initialize();
@@ -869,6 +873,11 @@ namespace Chorus.VcsDrivers.Mercurial
 						}
 					}
 					return pullResponse;
+				}
+				if (response.HttpStatus == HttpStatusCode.Unauthorized)
+				{
+					_progress.WriteWarning("There is an authorization problem accessing this project. Check the project ID as well as your username and password. Alternatively, you may not be authorized to access this project.");
+					pullResponse.Status =  PullStatus.Unauthorized;
 				}
 				_progress.WriteWarning("Invalid Server Response '{0}'", response.HttpStatus);
 				return pullResponse;
