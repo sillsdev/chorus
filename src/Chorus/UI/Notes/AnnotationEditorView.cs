@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
 using System.Linq;
@@ -21,6 +22,11 @@ namespace Chorus.UI.Notes
 			//needs to be primed this way
 			SetDocumentText("<html><head></head><body></body></html>");
 			_newMessage.Font = model.FontForNewMessage;
+
+			//a signal to keep palaso localiztion helper from messing with our font
+			_annotationLabel.UseMnemonic = false;
+
+			_annotationLabel.Font = model.FontForLabel;
 		}
 
 		public MessageSelectedEvent EventToRaiseForChangedMessage

@@ -1,4 +1,5 @@
 using System;
+using System.Drawing;
 using System.Windows.Forms;
 using Chorus.notes;
 using Message=Chorus.notes.Message;
@@ -10,6 +11,7 @@ namespace Chorus.UI.Notes
 	/// </summary>
 	public class ListMessage
 	{
+		private static Font _sLabelFont;
 		public Annotation ParentAnnotation { get; private set; }
 		public Message Message { get; private set; }
 
@@ -45,11 +47,19 @@ namespace Chorus.UI.Notes
 			}
 		}
 
-		public ListViewItem GetListViewItem()
+		public ListViewItem GetListViewItem(ChorusNotesDisplaySettings displaySettings)
 		{
 			var i = new ListViewItem(ParentAnnotation.GetLabelFromRef(""));
 			i.Tag = this;
-			i.SubItems.Add(Message.GetAuthor("?"));
+			if(_sLabelFont==null)
+			{
+				//we cache this to save memory
+				_sLabelFont = new Font(displaySettings.WritingSystemForNoteLabel.FontName, 10);
+			}
+			//note: while we would like to just use this font for the label column, this winform ui component
+			//doesn't support different fonts.
+			i.Font = _sLabelFont;
+			var sub = i.SubItems.Add(Message.GetAuthor("?"));
 			i.SubItems.Add(Message.Date.ToShortDateString());
 			i.ImageKey = ParentAnnotation.ClassName.ToLower();
 			if(ParentAnnotation.IsClosed)

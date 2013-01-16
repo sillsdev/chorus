@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Chorus.VcsDrivers.Mercurial;
 using Chorus.notes;
+using LibChorus.TestUtilities;
 using NUnit.Framework;
 using Palaso.IO;
 using Palaso.Progress;
@@ -143,6 +145,29 @@ namespace LibChorus.Tests.notes
 					Assert.AreEqual("<p>hello", x.GetAllAnnotations().First().Messages.First().GetSimpleHtmlText());
 					Assert.AreEqual("fooClass", x.GetAllAnnotations().ToArray()[1].ClassName);
 				}
+			}
+		}
+
+		[Test]
+		public void NotesFileInOtherHgRepoNotInThisAnnotationrepository()
+		{
+			using (var fred = new RepositorySetup("fred"))
+			{
+				var fredNotesPathname = Path.Combine(fred.ProjectFolder.Path, "fred.ChorusNotes");
+				File.WriteAllText(fredNotesPathname, "<notes version='0'><annotation><message/></annotation></notes>");
+				fred.Repository.AddAndCheckinFile(fredNotesPathname);
+
+				var sallyRepoPath = Path.Combine(fred.ProjectFolder.Path, "SallyRepo");
+				Directory.CreateDirectory(sallyRepoPath);
+				var sallyRepo = new HgRepository(sallyRepoPath, new NullProgress());
+				sallyRepo.Init();
+				var sallyNotesPathname = Path.Combine(sallyRepoPath, "sally.ChorusNotes");
+				File.WriteAllText(sallyNotesPathname, "<notes version='0'><annotation><message/></annotation></notes>");
+				sallyRepo.AddAndCheckinFile(sallyNotesPathname);
+
+				var annRepositories = AnnotationRepository.CreateRepositoriesFromFolder(fred.ProjectFolder.Path, new NullProgress()).ToList();
+				Assert.AreEqual(1, annRepositories.Count);
+				Assert.AreEqual("fred.ChorusNotes", Path.GetFileName(annRepositories[0].AnnotationFilePath));
 			}
 		}
 

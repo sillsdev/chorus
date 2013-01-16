@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
+using System.Xml;
 using Chorus.FileTypeHanders.lift;
 using Chorus.FileTypeHanders.xml;
 using Chorus.merge;
@@ -8,6 +10,7 @@ using Chorus.merge.xml.generic;
 using LibChorus.TestUtilities;
 using NUnit.Framework;
 using Palaso.IO;
+using Palaso.Xml;
 
 namespace LibChorus.Tests.merge.xml.generic
 {
@@ -17,6 +20,58 @@ namespace LibChorus.Tests.merge.xml.generic
 	[TestFixture]
 	public class XmlMergeServiceTests
 	{
+		/// <summary>
+		/// This is a regression test for (FLEx) LT-13962, a problem caused by importing white space introduced by pretty-printing.
+		/// </summary>
+		[Test]
+		public void WriteNode_DoesNotIndentFirstChildOfMixedNode()
+		{
+			string input = @"<text><span class='bold'>bt</span> more text</text>";
+			string expectedOutput =
+				"<?xml version=\"1.0\" encoding=\"utf-16\"?>\r\n"
+				+"<root>\r\n"
+				+"	<text><span\r\n"
+				+"			class=\"bold\">bt</span> more text</text>\r\n"
+				+"</root>";
+			var output = new StringBuilder();
+			using (var writer = XmlWriter.Create(output, CanonicalXmlSettings.CreateXmlWriterSettings()))
+			{
+				writer.WriteStartDocument();
+				writer.WriteStartElement("root");
+				XmlMergeService.WriteNode(writer, input, new HashSet<string>());
+				writer.WriteEndElement();
+				writer.WriteEndDocument();
+			}
+			Assert.That(output.ToString(), Is.EqualTo(expectedOutput));
+		}
+
+		/// <summary>
+		/// This verifies the special case of (FLEx) LT-13962 where the ONLY child of an element that can contain significant text
+		/// is an element.
+		/// </summary>
+		[Test]
+		public void WriteNode_DoesNotIndentChildWhenSuppressed()
+		{
+			string input = @"<text><span class='bold'>bt</span></text>";
+			string expectedOutput =
+				"<?xml version=\"1.0\" encoding=\"utf-16\"?>\r\n"
+				+ "<root>\r\n"
+				+ "	<text><span\r\n"
+				+ "			class=\"bold\">bt</span></text>\r\n"
+				+ "</root>";
+			var output = new StringBuilder();
+			var suppressIndentingChildren = new HashSet<string>();
+			suppressIndentingChildren.Add("text");
+			using (var writer = XmlWriter.Create(output, CanonicalXmlSettings.CreateXmlWriterSettings()))
+			{
+				writer.WriteStartDocument();
+				writer.WriteStartElement("root");
+				XmlMergeService.WriteNode(writer, input, suppressIndentingChildren);
+				writer.WriteEndElement();
+				writer.WriteEndDocument();
+			}
+			Assert.That(output.ToString(), Is.EqualTo(expectedOutput));
+		}
 
 		private void DoMergeWithLiftEntryMergingStrategy(string ancestorXml, string ourXml, string theirXml,
 			MergeSituation mergeSituation,

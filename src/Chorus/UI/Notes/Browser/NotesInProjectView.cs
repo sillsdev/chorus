@@ -51,7 +51,7 @@ namespace Chorus.UI.Notes.Browser
 
 			foreach (var item in _model.GetMessages())
 			{
-				rows.Add(item.GetListViewItem());
+				rows.Add(item.GetListViewItem(_model.DisplaySettings));
 			}
 			_messageListView.Items.Clear(); // Don't even think of moving this before the loop, as the items are doubled for reasons unknown.
 			_messageListView.Items.AddRange(rows.ToArray());

@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Xml;
+using System.Xml.Linq;
 using Chorus.Utilities;
 using Palaso.Code;
 using Palaso.Xml;
@@ -138,7 +139,7 @@ namespace Chorus.merge.xml.generic
 			WriteMainOutputData(allWritableData,
 								mergeOrder.pathToOurs,
 								// Do not change to another output file, or be ready to fix SyncScenarioTests.CanCollaborateOnLift()!
-								optionalFirstElementMarker, rootElementName, sortedAttributes);
+								optionalFirstElementMarker, rootElementName, sortedAttributes, mergeStrategy.SuppressIndentingChildren());
 		}
 
 		private static IDictionary<string, string> DoMerge(MergeOrder mergeOrder, IMergeStrategy mergeStrategy,
@@ -370,7 +371,8 @@ namespace Chorus.merge.xml.generic
 
 		private static void WriteMainOutputData(IDictionary<string, string> allWritableData,
 												string outputPathname, string optionalFirstElementMarker,
-												string rootElementName, SortedDictionary<string, string> sortedAttributes)
+												string rootElementName, SortedDictionary<string, string> sortedAttributes,
+												HashSet<string> suppressIndentingChildren)
 		{
 			using (var writer = XmlWriter.Create(outputPathname, CanonicalXmlSettings.CreateXmlWriterSettings()))
 			{
@@ -385,12 +387,12 @@ namespace Chorus.merge.xml.generic
 				{
 					// [NB: Write optional element first, if found.]
 					if (allWritableData.ContainsKey(optionalFirstElementMarker))
-						WriteNode(writer, allWritableData[optionalFirstElementMarker]);
+						WriteNode(writer, allWritableData[optionalFirstElementMarker], suppressIndentingChildren);
 					allWritableData.Remove(optionalFirstElementMarker);
 				}
 				foreach (var record in allWritableData.Values)
 				{
-					WriteNode(writer, record);
+					WriteNode(writer, record, suppressIndentingChildren);
 				}
 				writer.WriteEndElement();
 				writer.WriteEndDocument();
@@ -907,12 +909,27 @@ namespace Chorus.merge.xml.generic
 			}
 		}
 
-		private static void WriteNode(XmlWriter writer, string dataToWrite)
+		/// <summary>
+		/// Write a node out containing the XML in dataToWrite, pretty-printed according to the rules of writer, except
+		/// that we suppress indentation for children of nodes whose names are listed in suppressIndentingChildren,
+		/// and also for "mixed" nodes (where some children are text).
+		/// </summary>
+		/// <param name="writer"></param>
+		/// <param name="dataToWrite"></param>
+		/// <param name="suppressIndentingChildren"></param>
+		internal static void WriteNode(XmlWriter writer, string dataToWrite, HashSet<string> suppressIndentingChildren)
 		{
-			using (var nodeReader = XmlReader.Create(new MemoryStream(Utf8.GetBytes(dataToWrite)), CanonicalXmlSettings.CreateXmlReaderSettings(ConformanceLevel.Fragment)))
-			{
-				writer.WriteNode(nodeReader, false);
-			}
+			XmlUtils.WriteNode(writer, dataToWrite, suppressIndentingChildren);
+
+			// This is the original code of this method. It is probably more efficient, and does ALMOST the same thing. But not quite.
+			// See the unit tests WriteNode_DoesNotIndentFirstChildOfMixedNode and WriteNode_DoesNotIndentChildWhenSuppressed for WriteNode.
+			// If a mixed (text and element children) node has an element as its FIRST
+			// child, WriteNode will indent it. This is wrong, since it adds a newline and tabs to the body of a parent where text is significant.
+			// Even if a node is not mixed, it may be wrong to indent it, if white space is significant.
+			//using (var nodeReader = XmlReader.Create(new MemoryStream(Utf8.GetBytes(dataToWrite)), CanonicalXmlSettings.CreateXmlReaderSettings(ConformanceLevel.Fragment)))
+			//{
+			//    writer.WriteNode(nodeReader, false);
+			//}
 		}
 	}
 }
