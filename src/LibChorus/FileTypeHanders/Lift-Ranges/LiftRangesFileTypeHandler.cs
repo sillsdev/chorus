@@ -59,11 +59,19 @@ namespace Chorus.FileTypeHanders
 		{
 			Guard.AgainstNull(mergeOrder, "mergeOrder");
 
-			XmlMergeService.Do3WayMerge(mergeOrder,
-				new LiftRangesMergingStrategy(mergeOrder.MergeSituation),
-				false,
-				null,
-				"range", "id");
+			XmlMergeService.CurrentSuppressIndentingChildren = XmlMergeService.LiftSuppressIndentingChildren;
+			try
+			{
+				XmlMergeService.Do3WayMerge(mergeOrder,
+					new LiftRangesMergingStrategy(mergeOrder.MergeSituation),
+					false,
+					null,
+					"range", "id");
+			}
+			finally
+			{
+				XmlMergeService.CurrentSuppressIndentingChildren = XmlMergeService.DefaultSuppressIndentingChildren;
+			}
 		}
 
 		public IEnumerable<IChangeReport> Find2WayDifferences(FileInRevision parent, FileInRevision child, HgRepository repository)

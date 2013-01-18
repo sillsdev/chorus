@@ -82,7 +82,7 @@ namespace LibChorus.Tests.FileHandlers.Lift
 #else
 			const string wellformedHeader =
 @"	<header>
-		<stuff></stuff>
+		<stuff />
 	</header>";
 #endif
 
@@ -141,7 +141,7 @@ namespace LibChorus.Tests.FileHandlers.Lift
 #else
 			const string replacedHeader =
 @"	<header>
-		<newstuff></newstuff>
+		<newstuff />
 	</header>";
 #endif
 			using (var tempParent = new TempFile(parent))

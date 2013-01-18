@@ -45,11 +45,19 @@ namespace Chorus.FileTypeHanders.lift
 
 		public void Do3WayMerge(MergeOrder mergeOrder)
 		{
-			XmlMergeService.Do3WayMerge(mergeOrder,
-				new LiftEntryMergingStrategy(mergeOrder.MergeSituation),
-				false,
-				"header",
-				"entry", "guid");
+			XmlMergeService.CurrentSuppressIndentingChildren = XmlMergeService.LiftSuppressIndentingChildren;
+			try
+			{
+				XmlMergeService.Do3WayMerge(mergeOrder,
+					new LiftEntryMergingStrategy(mergeOrder.MergeSituation),
+					false,
+					"header",
+					"entry", "guid");
+			}
+			finally
+			{
+				XmlMergeService.CurrentSuppressIndentingChildren = XmlMergeService.DefaultSuppressIndentingChildren;
+			}
 		}
 
 		public IEnumerable<IChangeReport> Find2WayDifferences(FileInRevision parent, FileInRevision child, HgRepository repository)
