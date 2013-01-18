@@ -155,7 +155,10 @@ namespace Chorus.FileTypeHanders.lift
 
 		private static void WriteNode(XmlWriter writer, byte[] dataToWrite)
 		{
+			// <mergenotice>
+			// This whole file has been deleted in the .Net4 enabled branches, so please don't put it back, when merging into a .Net4 enabled bracnh.
 			XmlUtils.WriteNode(writer, _enc.GetString(dataToWrite), XmlMergeService.LiftSuppressIndentingChildren);
+			// </mergenotice>
 		}
 
 		private static void RemoveItem(string key, IDictionary<string, byte[]> childIndex, ICollection<string> newbies, ICollection<string> goners)
