@@ -737,17 +737,14 @@ namespace Chorus.merge.xml.generic
 		/// </summary>
 		internal static void WriteNode(XmlWriter writer, string dataToWrite)
 		{
-			XElement element = XDocument.Parse(dataToWrite).Root;
-			if (element == null)
-				return;
 			// <mergenotice>
 			// When this gets merged into any .Net4 enabled branch,
 			// replace "CurrentSuppressIndentingChildren" with the new 'suppressIndentingChildren' parm of this method.
-			XmlUtils.WriteNode(writer, element, CurrentSuppressIndentingChildren);
+			XmlUtils.WriteNode(writer, dataToWrite, CurrentSuppressIndentingChildren);
 			// </mergenotice>
 
 			// This is the original code of this method. It is probably more efficient, and does ALMOST the same thing. But not quite.
-			// See the unit tests WriteNode_DoesNotIndentFirstChildOfMixedNode and WriteNode_DoesNotIndentChildWhenSuppressed.
+			// See the unit tests WriteNode_DoesNotIndentFirstChildOfMixedNode and WriteNode_DoesNotIndentChildWhenSuppressed for WriteNode.
 			// If a mixed (text and element children) node has an element as its FIRST
 			// child, WriteNode will indent it. This is wrong, since it adds a newline and tabs to the body of a parent where text is significant.
 			// Even if a node is not mixed, it may be wrong to indent it, if white space is significant.
