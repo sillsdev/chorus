@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Xml;
 using Chorus.Utilities;
+using Chorus.merge.xml.generic;
 using Palaso.Xml;
 
 namespace Chorus.FileTypeHanders.lift
@@ -154,9 +155,10 @@ namespace Chorus.FileTypeHanders.lift
 
 		private static void WriteNode(XmlWriter writer, byte[] dataToWrite)
 		{
-			var doc = new XmlDocument();
-			doc.LoadXml(_enc.GetString(dataToWrite));
-			writer.WriteNode(doc.CreateNavigator(), true);
+			// <mergenotice>
+			// This whole file has been deleted in the .Net4 enabled branches, so please don't put it back, when merging into a .Net4 enabled bracnh.
+			XmlUtils.WriteNode(writer, _enc.GetString(dataToWrite), XmlMergeService.LiftSuppressIndentingChildren);
+			// </mergenotice>
 		}
 
 		private static void RemoveItem(string key, IDictionary<string, byte[]> childIndex, ICollection<string> newbies, ICollection<string> goners)

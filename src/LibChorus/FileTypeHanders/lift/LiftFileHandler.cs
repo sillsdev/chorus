@@ -45,11 +45,24 @@ namespace Chorus.FileTypeHanders.lift
 
 		public void Do3WayMerge(MergeOrder mergeOrder)
 		{
-			XmlMergeService.Do3WayMerge(mergeOrder,
-				new LiftEntryMergingStrategy(mergeOrder.MergeSituation),
-				false,
-				"header",
-				"entry", "guid");
+			// <mergenotice>
+			// When merging these changes into any .Net4 enabled branch, reject all of these changes.
+			// Only the XmlMergeService.Do3WayMerge call shuoold be kept.
+			// The .Net4 enabled branches handle the indent suppression in a different way and it is to be kept.
+			XmlMergeService.CurrentSuppressIndentingChildren = XmlMergeService.LiftSuppressIndentingChildren;
+			try
+			{
+				XmlMergeService.Do3WayMerge(mergeOrder,
+					new LiftEntryMergingStrategy(mergeOrder.MergeSituation),
+					false,
+					"header",
+					"entry", "guid");
+			}
+			finally
+			{
+				XmlMergeService.CurrentSuppressIndentingChildren = XmlMergeService.DefaultSuppressIndentingChildren;
+			}
+			// </mergenotice>
 		}
 
 		public IEnumerable<IChangeReport> Find2WayDifferences(FileInRevision parent, FileInRevision child, HgRepository repository)

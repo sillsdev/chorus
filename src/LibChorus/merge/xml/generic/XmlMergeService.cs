@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Xml;
+using System.Xml.Linq;
 using Chorus.Utilities;
 using Chorus.Utilities.code;
 using Palaso.Xml;
@@ -729,12 +730,34 @@ namespace Chorus.merge.xml.generic
 			}
 		}
 
-		private static void WriteNode(XmlWriter writer, string dataToWrite)
+		/// <summary>
+		/// Write a node out containing the XML in dataToWrite, pretty-printed according to the rules of writer, except
+		/// that we suppress indentation for children of nodes whose names are listed in suppressIndentingChildren,
+		/// and also for "mixed" nodes (where some children are text).
+		/// </summary>
+		internal static void WriteNode(XmlWriter writer, string dataToWrite)
 		{
-			using (var nodeReader = XmlReader.Create(new MemoryStream(Utf8.GetBytes(dataToWrite)), ReaderSettingsForDocumentFragment))
-			{
-				writer.WriteNode(nodeReader, false);
-			}
+			// <mergenotice>
+			// When this gets merged into any .Net4 enabled branch,
+			// replace "CurrentSuppressIndentingChildren" with the new 'suppressIndentingChildren' parm of this method.
+			XmlUtils.WriteNode(writer, dataToWrite, CurrentSuppressIndentingChildren);
+			// </mergenotice>
+
+			// This is the original code of this method. It is probably more efficient, and does ALMOST the same thing. But not quite.
+			// See the unit tests WriteNode_DoesNotIndentFirstChildOfMixedNode and WriteNode_DoesNotIndentChildWhenSuppressed for WriteNode.
+			// If a mixed (text and element children) node has an element as its FIRST
+			// child, WriteNode will indent it. This is wrong, since it adds a newline and tabs to the body of a parent where text is significant.
+			// Even if a node is not mixed, it may be wrong to indent it, if white space is significant.
+			//using (var nodeReader = XmlReader.Create(new MemoryStream(Utf8.GetBytes(dataToWrite)), CanonicalXmlSettings.CreateXmlReaderSettings(ConformanceLevel.Fragment)))
+			//{
+			//    writer.WriteNode(nodeReader, false);
+			//}
 		}
+		// <mergenotice>
+		// Do not merge this into any .net4 enabled branch
+		internal static HashSet<string> LiftSuppressIndentingChildren = new HashSet<string> { "text", "span" }; // Used for lift and lift-ranges files.
+		internal static HashSet<string> DefaultSuppressIndentingChildren = new HashSet<string>(); // Used for all other file types.
+		internal static HashSet<string> CurrentSuppressIndentingChildren = DefaultSuppressIndentingChildren; // Assume it is not lift related.
+		// </mergenotice>
 	}
 }
