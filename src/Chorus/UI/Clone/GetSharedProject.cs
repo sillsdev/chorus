@@ -29,10 +29,13 @@ namespace Chorus.UI.Clone
 			switch (extantRepoSource)
 			{
 				case ExtantRepoSource.Internet:
-					var cloneModel = new GetCloneFromInternetModel(baseProjectDir) { LocalFolderName = preferredClonedFolderName };
-					using (var internetCloneDlg = new GetCloneFromInternetDialog(cloneModel))
+					var cloneFromInternetModel = new GetCloneFromInternetModel(baseProjectDir)
+						{
+							LocalFolderName = preferredClonedFolderName
+						};
+					using (var cloneFromInternetDialog = new GetCloneFromInternetDialog(cloneFromInternetModel))
 					{
-						switch (internetCloneDlg.ShowDialog(parent))
+						switch (cloneFromInternetDialog.ShowDialog(parent))
 						{
 							default:
 								return new CloneResult(null, CloneStatus.NotCreated);
@@ -40,40 +43,40 @@ namespace Chorus.UI.Clone
 								return new CloneResult(null, CloneStatus.Cancelled);
 							case DialogResult.OK:
 								// It made a clone, but maybe in the wrong name, grab the project name.
-								actualCloneLocation = internetCloneDlg.PathToNewlyClonedFolder;
+								actualCloneLocation = cloneFromInternetDialog.PathToNewlyClonedFolder;
 								break;
 						}
 					}
 					break;
 				case ExtantRepoSource.LocalNetwork:
 					var cloneFromNetworkFolderModel = new GetCloneFromNetworkFolderModel(baseProjectDir)
-					{
-						ProjectFilter = projectFilter ?? DefaultProjectFilter
-					};
+						{
+							ProjectFilter = projectFilter ?? DefaultProjectFilter
+						};
 
-					using (var openFileDlg = new GetCloneFromNetworkFolderDlg())
+					using (var cloneFromNetworkFolderDlg = new GetCloneFromNetworkFolderDlg())
 					{
 						// We don't have a GetCloneFromNetworkFolderDlg constructor that takes the model because
 						// it would inexplicably mess up Visual Studio's designer view of the dialog:
-						openFileDlg.LoadFromModel(cloneFromNetworkFolderModel);
+						cloneFromNetworkFolderDlg.LoadFromModel(cloneFromNetworkFolderModel);
 
-						switch (openFileDlg.ShowDialog(parent))
+						switch (cloneFromNetworkFolderDlg.ShowDialog(parent))
 						{
 							default:
 								return new CloneResult(null, CloneStatus.NotCreated);
 							case DialogResult.Cancel:
 								return new CloneResult(null, CloneStatus.Cancelled);
 							case DialogResult.OK:
-								actualCloneLocation = cloneFromNetworkFolderModel.ActualClonedFolder;
+								actualCloneLocation = cloneFromNetworkFolderDlg.PathToNewlyClonedFolder;
 								break;
 						}
 					}
 					break;
 				case ExtantRepoSource.Usb:
-					using (var usbCloneDlg = new GetCloneFromUsbDialog(baseProjectDir))
+					using (var cloneFromUsbDialog = new GetCloneFromUsbDialog(baseProjectDir))
 					{
-						usbCloneDlg.Model.ProjectFilter = projectFilter ?? DefaultProjectFilter;
-						switch (usbCloneDlg.ShowDialog(parent))
+						cloneFromUsbDialog.Model.ProjectFilter = projectFilter ?? DefaultProjectFilter;
+						switch (cloneFromUsbDialog.ShowDialog(parent))
 						{
 							default:
 								return new CloneResult(null, CloneStatus.NotCreated);
@@ -81,7 +84,7 @@ namespace Chorus.UI.Clone
 								return new CloneResult(null, CloneStatus.Cancelled);
 							case DialogResult.OK:
 								// It made a clone, grab the project name.
-								actualCloneLocation = usbCloneDlg.PathToNewlyClonedFolder;
+								actualCloneLocation = cloneFromUsbDialog.PathToNewlyClonedFolder;
 								break;
 						}
 					}

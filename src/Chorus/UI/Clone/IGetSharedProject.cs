@@ -44,7 +44,7 @@ namespace Chorus.UI.Clone
 		Internet,
 		/// <summary>Get a clone from a USB drive</summary>
 		Usb,
-		/// <summary>Get a clone from a sharded network folder</summary>
+		/// <summary>Get a clone from a shared network folder</summary>
 		LocalNetwork
 	}
 
