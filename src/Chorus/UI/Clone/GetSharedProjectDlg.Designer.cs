@@ -31,7 +31,7 @@
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(GetSharedProjectDlg));
 			this._useUSBButton = new System.Windows.Forms.Button();
 			this._useInternetButton = new System.Windows.Forms.Button();
-			this._useLocalNetworkButton = new System.Windows.Forms.Button();
+			this._useChorusHubButton = new System.Windows.Forms.Button();
 			this.SuspendLayout();
 			//
 			// _useUSBButton
@@ -63,20 +63,20 @@
 			this._useInternetButton.UseVisualStyleBackColor = false;
 			this._useInternetButton.Click += new System.EventHandler(this.BtnInternetClicked);
 			//
-			// _useLocalNetworkButton
+			// _useChorusHubButton
 			//
-			this._useLocalNetworkButton.BackColor = System.Drawing.Color.White;
-			this._useLocalNetworkButton.Enabled = false;
-			this._useLocalNetworkButton.Image = global::Chorus.Properties.Resources.chorusHubMedium;
-			this._useLocalNetworkButton.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-			this._useLocalNetworkButton.Location = new System.Drawing.Point(28, 171);
-			this._useLocalNetworkButton.Name = "_useLocalNetworkButton";
-			this._useLocalNetworkButton.Size = new System.Drawing.Size(167, 38);
-			this._useLocalNetworkButton.TabIndex = 7;
-			this._useLocalNetworkButton.Text = "&Chorus Hub";
-			this._useLocalNetworkButton.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
-			this._useLocalNetworkButton.UseVisualStyleBackColor = false;
-			this._useLocalNetworkButton.Click += new System.EventHandler(this.BtnChorusHubClicked);
+			this._useChorusHubButton.BackColor = System.Drawing.Color.White;
+			this._useChorusHubButton.Enabled = false;
+			this._useChorusHubButton.Image = global::Chorus.Properties.Resources.chorusHubMedium;
+			this._useChorusHubButton.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			this._useChorusHubButton.Location = new System.Drawing.Point(28, 171);
+			this._useChorusHubButton.Name = "_useChorusHubButton";
+			this._useChorusHubButton.Size = new System.Drawing.Size(167, 38);
+			this._useChorusHubButton.TabIndex = 7;
+			this._useChorusHubButton.Text = "&Chorus Hub";
+			this._useChorusHubButton.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
+			this._useChorusHubButton.UseVisualStyleBackColor = false;
+			this._useChorusHubButton.Click += new System.EventHandler(this.BtnChorusHubClicked);
 			//
 			// GetSharedProjectDlg
 			//
@@ -84,7 +84,7 @@
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.BackColor = System.Drawing.SystemColors.GradientInactiveCaption;
 			this.ClientSize = new System.Drawing.Size(223, 245);
-			this.Controls.Add(this._useLocalNetworkButton);
+			this.Controls.Add(this._useChorusHubButton);
 			this.Controls.Add(this._useUSBButton);
 			this.Controls.Add(this._useInternetButton);
 			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
@@ -101,6 +101,6 @@
 
 		private System.Windows.Forms.Button _useUSBButton;
 		private System.Windows.Forms.Button _useInternetButton;
-		private System.Windows.Forms.Button _useLocalNetworkButton;
+		private System.Windows.Forms.Button _useChorusHubButton;
 	}
 }

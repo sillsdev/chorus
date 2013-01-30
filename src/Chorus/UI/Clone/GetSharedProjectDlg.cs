@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net.NetworkInformation;
 using System.Windows.Forms;
 
 namespace Chorus.UI.Clone
@@ -11,6 +12,9 @@ namespace Chorus.UI.Clone
 		{
 			InitializeComponent();
 			DialogResult = DialogResult.Cancel;
+			_useUSBButton.Enabled = new CloneFromUsb().GetHaveOneOrMoreUsbDrives();
+			_useInternetButton.Enabled = NetworkInterface.GetIsNetworkAvailable();
+			_useChorusHubButton.Enabled = false;
 		}
 
 		internal void InitFromModel(GetSharedProjectModel model)
