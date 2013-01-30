@@ -364,6 +364,15 @@
 	<None Include="Resources\MergeConflict16x16Closed.png" />
   </ItemGroup>
   <ItemGroup>
+	<None Include="Resources\DataLossMerge16x16.png" />
+  </ItemGroup>
+  <ItemGroup>
+	<None Include="Resources\DataLossMerge32x32.png" />
+  </ItemGroup>
+  <ItemGroup>
+	<None Include="Resources\DataLossMerge16x16Closed.png" />
+  </ItemGroup>
+  <ItemGroup>
 	<None Include="Resources\question16x16Closed.png" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

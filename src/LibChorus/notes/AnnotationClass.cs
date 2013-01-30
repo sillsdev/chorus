@@ -81,9 +81,9 @@ namespace Chorus.notes
 		public override Image GetImage(int pixelsOfSquare)
 		{
 			if (pixelsOfSquare <= 16)
-				return Chorus.Properties.AnnotationImages.MergeConflict16x16;
+				return Chorus.Properties.AnnotationImages.DataLossMerge16x16;
 			else
-				return Chorus.Properties.AnnotationImages.MergeConflict32x32;
+				return Chorus.Properties.AnnotationImages.DataLossMerge32x32;
 		}
 
 		public override string GetLongLabel(string labelOfThingAnnotated)
@@ -93,4 +93,28 @@ namespace Chorus.notes
 
 		public override bool UserCanResolve { get { return true; } }
 	}
+
+	public class NotificationAnnotationClass : AnnotationClass
+	{
+		public NotificationAnnotationClass()
+			: base("Merge Report")
+		{
+		}
+
+		public override Image GetImage(int pixelsOfSquare)
+		{
+			if (pixelsOfSquare <= 16)
+				return Chorus.Properties.AnnotationImages.Warning16x16;
+			else
+				return Chorus.Properties.AnnotationImages.Warning32x32;
+		}
+
+		public override string GetLongLabel(string labelOfThingAnnotated)
+		{
+			return String.Format("Merge Report on {1}", NameInEnglish, labelOfThingAnnotated);
+		}
+
+		public override bool UserCanResolve { get { return true; } }
+	}
+
 }

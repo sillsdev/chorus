@@ -9,6 +9,7 @@ using System.Xml;
 using System.Xml.Linq;
 using System.Xml.XPath;
 using Chorus.Utilities;
+using Chorus.merge.xml.generic;
 
 namespace Chorus.notes
 {
@@ -21,23 +22,41 @@ namespace Chorus.notes
         public Annotation(XElement element)
         {
             _element = element;
-            _class = AnnotationClassFactory.GetClassOrDefault(ClassName);
+			_class = GetAnnotationClass();
         }
 
-        public Annotation(string annotationClass, string refUrl, string path)
+		public Annotation(string annotationClass, string refUrl, string path)
         {
                 refUrl = UrlHelper.GetEscapedUrl(refUrl);
              _element = XElement.Parse(string.Format("<annotation class='{0}' ref='{1}' guid='{2}'/>", annotationClass,refUrl, System.Guid.NewGuid().ToString()));
 
-            _class = AnnotationClassFactory.GetClassOrDefault(ClassName);
+			 _class = GetAnnotationClass();
             AnnotationFilePath = path; //TODO: this awkward, and not avail in the XElement constructor
         }
 
+		private AnnotationClass GetAnnotationClass()
+		{
+			return AnnotationClassFactory.GetClassOrDefault(IconClassName);
+		}
 
-        public string ClassName
+		public string ClassName
         {
             get { return _element.GetAttributeValue("class"); }
         }
+
+		/// <summary>
+		/// The class name that should be used to select an icon.
+		/// Two varieties of merge conflict are distinguished.
+		/// </summary>
+		public string IconClassName
+		{
+			get {
+				var result = ClassName;
+				if (result == Conflict.ConflictAnnotationClassName && IsNotification)
+					result = Conflict.NotificationFakeClassName;
+				return result;
+			}
+		}
 
         public string Guid
         {
@@ -62,9 +81,56 @@ namespace Chorus.notes
             }
         }
 
- 
+		/// <summary>
+		/// Notifications are low-priority annotations.
+		/// Typically "conflicts" where both users added something, we aren't quite sure of the order, but no actual data loss
+		/// has occurred.
+		/// Optimize JohnT: If this proves annoyingly slow (seems possible, but hasn't with a hundred or so notifications),
+		/// consider avoiding fluffing up a Conflict object, and maybe even not parsing the content into an XML document;
+		/// instead, just search the content for one of the class names or type guids we know are Notifications.
+		/// This would be a rather sad kludge, though, and would require trickery rather than just a method override
+		/// if some client wants to implement its own Conflict class which is a Notification.
+		/// </summary>
+		public bool IsNotification
+		{
+			get
+			{
+				if (ClassName != "mergeConflict")
+					return false;
+				var firstMessage = Messages.FirstOrDefault();
+				if (firstMessage == null)
+					return false; // paranoia
+				var cdata = firstMessage.Element.Nodes().OfType<XCData>().FirstOrDefault();
+				if (cdata == null)
+					return false; // test case needed
+				var content = cdata.Value; // This is the text that represents a Conflict object.
+				var doc = new XmlDocument();
+				var conflict = Conflict.CreateFromConflictElement(XmlUtilities.GetDocumentNodeFromRawXml(content, doc));
+				return conflict.IsNotification;
+			}
+		}
 
-        public static string GetStatusOfLastMessage(XElement annotation)
+		/// <summary>
+		/// This covers all kinds of merge conflicts, including notifications. Use IsNotification to distinguish
+		/// the more critical ones. This differs slightly from the UI, where "Show Merge Conflicts" just controls
+		/// the critical ones. But the classes all inherit from Conflict, so it seems better in the code to consider
+		/// anything that wraps a Conflict to be a conflict annotation.
+		/// </summary>
+		public bool IsConflict
+		{
+			get { return ClassName == "mergeConflict"; }
+		}
+
+		/// <summary>
+		/// These are what the user thinks of as merge conflict reports.
+		/// </summary>
+		public bool IsCriticalConflict
+		{
+			get { return IsConflict && !IsNotification; }
+		}
+
+
+		public static string GetStatusOfLastMessage(XElement annotation)
         {
             XElement last = LastMessage(annotation);
             return last == null ? string.Empty : last.Attribute("status").Value;
