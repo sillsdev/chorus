@@ -178,9 +178,24 @@ namespace Chorus
 			/// </summary>
 			public NotesBarView CreateNotesBar(string pathToAnnotatedFile, NotesToRecordMapping mapping, IProgress progress)
 			{
+				var model = CreateNotesBarModel(pathToAnnotatedFile, mapping, progress);
+				return new NotesBarView(model, _container.Resolve<AnnotationEditorModel.Factory>());
+			}
+
+			/// <summary>
+			/// Get the model that would be needed if we go on to create a NotesBarView.
+			/// FLEx (at least) needs this to help it figure out, before we go to create the actual NotesBar,
+			/// whether there are any notes to show for the current entry.
+			/// </summary>
+			/// <param name="pathToAnnotatedFile"></param>
+			/// <param name="mapping"></param>
+			/// <param name="progress"></param>
+			/// <returns></returns>
+			public NotesBarModel CreateNotesBarModel(string pathToAnnotatedFile, NotesToRecordMapping mapping, IProgress progress)
+			{
 				var repo = _parent.GetNotesRepository(pathToAnnotatedFile, progress);
 				var model = _container.Resolve<NotesBarModel.Factory>()(repo, mapping);
-				return new NotesBarView(model, _container.Resolve<AnnotationEditorModel.Factory>());
+				return model;
 			}
 
 			/// <summary>
