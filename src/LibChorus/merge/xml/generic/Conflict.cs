@@ -47,7 +47,17 @@ namespace Chorus.merge.xml.generic
 
 	   // protected string _shortDataDescription;
 		protected Guid _guid = Guid.NewGuid();
+		// The value used for the "class" attribute in Annotation XML created to wrap conflicts other than notifications.
 		public  const string ConflictAnnotationClassName="mergeConflict";
+		// The value used for the "class" attribute in Annotation XML created to wrap conflicts that are notifications.
+		public const string NotificationAnnotationClassName = "notification";
+		/// <summary>
+		/// The value that should be used for the "class" attribute in Annotation XML created to wrap this conflict.
+		/// </summary>
+		public string AnnotationClassName
+		{
+			get { return IsNotification ? NotificationAnnotationClassName : ConflictAnnotationClassName; }
+		}
 		// public string PathToUnitOfConflict { get; set; }
 		public string RelativeFilePath { get { return Situation.PathToFileInRepository; } }
 
@@ -61,6 +71,16 @@ namespace Chorus.merge.xml.generic
 
 		public ContextDescriptor Context { get; set; }
 		protected string _whoWon;
+
+		/// <summary>
+		/// Notifications are low-priority conflicts.
+		/// Typically where both users added something, we aren't quite sure of the order, but no actual data loss
+		/// has occurred. Override this in classes which you think it is not too unreasonable for users to ignore.
+		/// </summary>
+		public virtual bool IsNotification
+		{
+			get { return false; }
+		}
 
 		protected Conflict(XmlNode xmlRepresentation)
 		{
@@ -105,7 +125,7 @@ namespace Chorus.merge.xml.generic
 		public void WriteAsChorusNotesAnnotation(XmlWriter writer)
 		{
 			writer.WriteStartElement("annotation");
-			writer.WriteAttributeString("class", string.Empty, Conflict.ConflictAnnotationClassName);
+			writer.WriteAttributeString("class", string.Empty, AnnotationClassName);
 			Guard.AgainstNull(Context,"Context");
 			Guard.AgainstNull(Context.PathToUserUnderstandableElement, "Context.PathToUserUnderstandableElement");
 			writer.WriteAttributeString("ref", Context.PathToUserUnderstandableElement);
@@ -494,6 +514,8 @@ namespace Chorus.merge.xml.generic
 		{
 			throw new NotImplementedException("UnreadableConflict is not intended to be ever saved");
 		}
+
+		public bool IsNotification { get { return false; } }
 	}
 
 	#region  TextConflicts
@@ -1043,6 +1065,10 @@ namespace Chorus.merge.xml.generic
 					Situation.AlphaUserId, Situation.BetaUserId);
 			}
 		}
+		public override bool IsNotification
+		{
+			get { return true; }
+		}
 	}
 	[TypeGuid("B77C0D86-2368-4380-B2E4-7943F3E7553C")]
 	public class AmbiguousInsertConflict : ElementConflict // NB: Be sure to register any new instances in CreateFromConflictElement method.
@@ -1072,6 +1098,11 @@ namespace Chorus.merge.xml.generic
 		{
 			return GetType() + ":" + _elementName + " (or lower?)";
 		}
+
+		public override bool IsNotification
+		{
+			get {return true;}
+		}
 	}
 
 	[TypeGuid("A5CE68F5-ED0D-4732-BAA8-A04A99ED35B3")]
@@ -1100,6 +1131,11 @@ namespace Chorus.merge.xml.generic
 			get { return string.Format("{0} inserted material in this element, but {1} re-ordered things. The automated merger cannot be sure of the correct position for the inserted material.",
 				Situation.AlphaUserId, Situation.BetaUserId);
 			}
+		}
+
+		public override bool IsNotification
+		{
+			get { return true; }
 		}
 	}
 

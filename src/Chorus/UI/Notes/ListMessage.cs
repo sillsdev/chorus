@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
+using Chorus.merge.xml.generic;
 using Chorus.notes;
 using Message=Chorus.notes.Message;
 
@@ -61,13 +62,18 @@ namespace Chorus.UI.Notes
 			i.Font = _sLabelFont;
 			var sub = i.SubItems.Add(Message.GetAuthor("?"));
 			i.SubItems.Add(Message.Date.ToShortDateString());
-			i.ImageKey = ParentAnnotation.ClassName.ToLower();
-			if(ParentAnnotation.IsClosed)
-			{
-				i.ImageKey += "Closed";
-				//i.StateImageIndex = 0;
-			}
+			SetListViewImage(i);
 			return i;
+		}
+
+		private void SetListViewImage(ListViewItem i)
+		{
+			// See AnnotationClassFactoryUI.CreateImageListContainingAnnotationImages(), which puts the necessary
+			// images into the list with the appropriate names.
+			var imageKey = ParentAnnotation.IconClassName.ToLower();
+			if (ParentAnnotation.IsClosed)
+				imageKey += "Closed";
+			i.ImageKey = imageKey;
 		}
 	}
 }
