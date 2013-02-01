@@ -157,7 +157,7 @@ namespace Chorus.Tests.notes
 			{
 				string contents = @"<annotation class='question' date='2013-01-17T20:37:30Z'><message author='john'></message></annotation>
 					<annotation
-		class='mergeConflict'
+		class='notification'
 		ref='unknown'
 		guid='1bed8a50-faaa-4814-bcc4-3f6958d0b25e'>
 		<message

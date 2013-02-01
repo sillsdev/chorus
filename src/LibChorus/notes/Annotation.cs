@@ -46,15 +46,13 @@ namespace Chorus.notes
 
 		/// <summary>
 		/// The class name that should be used to select an icon.
-		/// Two varieties of merge conflict are distinguished.
+		/// At one stage two varieties of merge conflict were distinguished.
 		/// </summary>
 		public string IconClassName
 		{
-			get {
-				var result = ClassName;
-				if (result == Conflict.ConflictAnnotationClassName && IsNotification)
-					result = Conflict.NotificationFakeClassName;
-				return result;
+			get
+			{
+				return ClassName;
 			}
 		}
 
@@ -85,29 +83,10 @@ namespace Chorus.notes
 		/// Notifications are low-priority annotations.
 		/// Typically "conflicts" where both users added something, we aren't quite sure of the order, but no actual data loss
 		/// has occurred.
-		/// Optimize JohnT: If this proves annoyingly slow (seems possible, but hasn't with a hundred or so notifications),
-		/// consider avoiding fluffing up a Conflict object, and maybe even not parsing the content into an XML document;
-		/// instead, just search the content for one of the class names or type guids we know are Notifications.
-		/// This would be a rather sad kludge, though, and would require trickery rather than just a method override
-		/// if some client wants to implement its own Conflict class which is a Notification.
 		/// </summary>
 		public bool IsNotification
 		{
-			get
-			{
-				if (ClassName != "mergeConflict")
-					return false;
-				var firstMessage = Messages.FirstOrDefault();
-				if (firstMessage == null)
-					return false; // paranoia
-				var cdata = firstMessage.Element.Nodes().OfType<XCData>().FirstOrDefault();
-				if (cdata == null)
-					return false; // test case needed
-				var content = cdata.Value; // This is the text that represents a Conflict object.
-				var doc = new XmlDocument();
-				var conflict = Conflict.CreateFromConflictElement(XmlUtilities.GetDocumentNodeFromRawXml(content, doc));
-				return conflict.IsNotification;
-			}
+			get {return (ClassName == Conflict.NotificationAnnotationClassName);}
 		}
 
 		/// <summary>
@@ -118,7 +97,7 @@ namespace Chorus.notes
 		/// </summary>
 		public bool IsConflict
 		{
-			get { return ClassName == "mergeConflict"; }
+			get { return IsCriticalConflict || IsNotification; }
 		}
 
 		/// <summary>
@@ -126,7 +105,7 @@ namespace Chorus.notes
 		/// </summary>
 		public bool IsCriticalConflict
 		{
-			get { return IsConflict && !IsNotification; }
+			get { return ClassName == Conflict.ConflictAnnotationClassName; }
 		}
 
 

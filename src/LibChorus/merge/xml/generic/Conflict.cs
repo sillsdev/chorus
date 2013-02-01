@@ -47,13 +47,17 @@ namespace Chorus.merge.xml.generic
 
 	   // protected string _shortDataDescription;
 		protected Guid _guid = Guid.NewGuid();
+		// The value used for the "class" attribute in Annotation XML created to wrap conflicts other than notifications.
 		public  const string ConflictAnnotationClassName="mergeConflict";
-		// We have not set up a different conflict class (used as the class name in the XML representation of an
-		// annotation) for non-critical conflicts, partly because there are a lot of
-		// files out there which contain the class names ending in Conflict, and also because there are a lot
-		// of files out there which contain the kinds of mergeConflict we'd now like to treat as "merge report".
-		// But in a couple of places where we treat notifications differently we use this key instead of mergeConflict.
-		public const string NotificationFakeClassName = "notification";
+		// The value used for the "class" attribute in Annotation XML created to wrap conflicts that are notifications.
+		public const string NotificationAnnotationClassName = "notification";
+		/// <summary>
+		/// The value that should be used for the "class" attribute in Annotation XML created to wrap this conflict.
+		/// </summary>
+		public string AnnotationClassName
+		{
+			get { return IsNotification ? NotificationAnnotationClassName : ConflictAnnotationClassName; }
+		}
 		// public string PathToUnitOfConflict { get; set; }
 		public string RelativeFilePath { get { return Situation.PathToFileInRepository; } }
 
@@ -121,7 +125,7 @@ namespace Chorus.merge.xml.generic
 		public void WriteAsChorusNotesAnnotation(XmlWriter writer)
 		{
 			writer.WriteStartElement("annotation");
-			writer.WriteAttributeString("class", string.Empty, Conflict.ConflictAnnotationClassName);
+			writer.WriteAttributeString("class", string.Empty, AnnotationClassName);
 			Guard.AgainstNull(Context,"Context");
 			Guard.AgainstNull(Context.PathToUserUnderstandableElement, "Context.PathToUserUnderstandableElement");
 			writer.WriteAttributeString("ref", Context.PathToUserUnderstandableElement);

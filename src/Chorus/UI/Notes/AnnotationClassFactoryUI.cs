@@ -14,8 +14,8 @@ namespace Chorus.UI.Notes
 			// one with "Closed" added to the name, used when the note is closed (resolved).
 			list.Images.Add("question", Chorus.Properties.AnnotationImages.question16x16);
 			list.Images.Add("questionClosed", Chorus.Properties.AnnotationImages.question16x16Closed);
-			list.Images.Add(Conflict.NotificationFakeClassName, Chorus.Properties.AnnotationImages.Warning16x16);
-			list.Images.Add(Conflict.NotificationFakeClassName + "Closed", Chorus.Properties.AnnotationImages.Warning16x16Closed);
+			list.Images.Add(Conflict.NotificationAnnotationClassName, Chorus.Properties.AnnotationImages.Warning16x16);
+			list.Images.Add(Conflict.NotificationAnnotationClassName + "Closed", Chorus.Properties.AnnotationImages.Warning16x16Closed);
 			list.Images.Add("note", Chorus.Properties.AnnotationImages.note16x16);
 			list.Images.Add("noteClosed", Chorus.Properties.AnnotationImages.note16x16);
 			list.Images.Add(Conflict.ConflictAnnotationClassName, Chorus.Properties.AnnotationImages.DataLossMerge16x16);
