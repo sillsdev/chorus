@@ -27,24 +27,58 @@ namespace LibChorus.Tests.merge.xml.generic
 			int expectedConflictCount, List<Type> expectedConflictTypes,
 			int expectedChangesCount, List<Type> expectedChangeTypes)
 		{
-			XmlNode ourNode;
-			XmlNode theirNode;
 			XmlNode ancestorNode;
-			CreateThreeNodes(ours, out ourNode,
-							 theirs, out theirNode,
-							 common, out ancestorNode);
-
 			ListenerForUnitTests listener;
-			var merger = GetMerger(mergeSituation, out listener);
-			Assert.DoesNotThrow(() => MergeAtomicElementService.Run(merger, ref ourNode, theirNode, ancestorNode));
+			XmlNode result = RunServiceCore(common, ours, theirs, mergeSituation, out ancestorNode, out listener);
 
-			var results = ourNode == null ? ancestorNode.OuterXml : ourNode.OuterXml;
+			var results = result == null ? ancestorNode.OuterXml : result.OuterXml;
 
 			XmlTestHelper.CheckMergeResults(results, listener,
 				xpathQueriesThatMatchExactlyOneNode,
 				xpathQueriesThatReturnNull,
 				expectedConflictCount, expectedConflictTypes,
 				expectedChangesCount, expectedChangeTypes);
+		}
+
+		/// <summary>
+		/// Runs the service for a test case where we expect a successful deletion.
+		/// Deletions only happen where no conflicts are expected, so we verify that.
+		/// Currently we generate no change reports either.
+		/// There might plausibly be a change report generated, probably XmlDeletionChangeReport,
+		/// but we are in the process (at least Randy has started) phasing out change reports, so I didn't
+		/// add one for this case.
+		/// </summary>
+		/// <param name="common"></param>
+		/// <param name="ours"></param>
+		/// <param name="theirs"></param>
+		/// <param name="mergeSituation"></param>
+		private static void RunServiceExpectingDeletion(string common, string ours, string theirs,
+			MergeSituation mergeSituation)
+		{
+			XmlNode ancestorNode;
+			ListenerForUnitTests listener;
+			XmlNode result = RunServiceCore(common, ours, theirs, mergeSituation, out ancestorNode, out listener);
+
+			Assert.That(result, Is.Null, "Deletion merge failed to delete");
+			listener.AssertExpectedConflictCount(0);
+			listener.AssertExpectedChangesCount(0);
+		}
+
+		private static XmlNode RunServiceCore(string common, string ours, string theirs,
+			MergeSituation mergeSituation, out XmlNode returnAncestorNode, out ListenerForUnitTests listener)
+		{
+			XmlNode ourNode;
+			XmlNode theirNode;
+			XmlNode ancestorNode;
+			CreateThreeNodes(ours, out ourNode,
+							 theirs, out theirNode,
+							 common, out ancestorNode);
+			returnAncestorNode = ancestorNode;
+
+			var merger = GetMerger(mergeSituation, out listener);
+			Assert.DoesNotThrow(() => MergeAtomicElementService.Run(merger, ref ourNode, theirNode, ancestorNode));
+
+			return ourNode;
 		}
 
 		private static void CreateThreeNodes(string ourXml, out XmlNode ourNode, string theirXml, out XmlNode theirNode, string ancestorXml, out XmlNode ancestorNode)
@@ -194,6 +228,17 @@ namespace LibChorus.Tests.merge.xml.generic
 				new[] { "topatomic[@originalAttr='originalValue']", "topatomic[@thirdAttr='thirdValue']" }, new[] { "topatomic[@newAttr='newValue']" },
 				1, new List<Type> { typeof(BothEditedTheSameAtomicElement) },
 				0, null);
+		}
+
+		[Test]
+		public void OneDeletedOtherDidNothingAtomicElement_DeletesWithNoConflict()
+		{
+			const string common = @"<topatomic originalAttr='originalValue' />";
+
+			RunServiceExpectingDeletion(common, null, common,
+				new NullMergeSituation());
+			RunServiceExpectingDeletion(common, common, null,
+				new NullMergeSituation());
 		}
 
 		[Test]
