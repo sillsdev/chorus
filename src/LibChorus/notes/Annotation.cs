@@ -192,16 +192,26 @@ namespace Chorus.notes
             _element.Add(m.Element);
             return m;
         }
+
         public string LabelOfThingAnnotated
         {
             get { return GetLabelFromRef("?"); }
         }
+
         public string GetLabelFromRef(string defaultIfCannotGetIt)
         {
         	return UrlHelper.GetValueFromQueryStringOfRef(RefStillEscaped, "label", defaultIfCannotGetIt);
         }
 
-       
+		public Image GetOpenOrClosedImage(int pixels)
+		{
+			if (!IsClosed)
+				return _class.GetImage(pixels);
+			if (pixels > 16)
+				return _class.GetImage(pixels); // something else will need to provide the checkmark overlay
+			return _class.GetSmallClosedImage();
+		}
+
         public Image GetImage(int pixels)
         {
             return _class.GetImage(pixels);

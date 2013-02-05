@@ -30,6 +30,11 @@ namespace Chorus.notes
 		{
 			return String.Format("{0} on {1}", NameInEnglish, labelOfThingAnnotated);
 		}
+
+		virtual public Image GetSmallClosedImage()
+		{
+			return GetImage(16); // Base class doesn't have closed versions
+		}
 	}
 
 	public class QuestionAnnotationClass:AnnotationClass
@@ -50,6 +55,12 @@ namespace Chorus.notes
 		{
 			return String.Format("Question about {1}", NameInEnglish, labelOfThingAnnotated);
 		}
+
+		public override Image GetSmallClosedImage()
+		{
+			return Chorus.Properties.AnnotationImages.question16x16Closed;
+		}
+
 		public override bool UserCanResolve { get { return true; } }
 	}
 
@@ -92,6 +103,11 @@ namespace Chorus.notes
 		}
 
 		public override bool UserCanResolve { get { return true; } }
+
+		public override Image GetSmallClosedImage()
+		{
+			return Chorus.Properties.AnnotationImages.DataLossMerge16x16Closed;
+		}
 	}
 
 	public class NotificationAnnotationClass : AnnotationClass
@@ -112,6 +128,11 @@ namespace Chorus.notes
 		public override string GetLongLabel(string labelOfThingAnnotated)
 		{
 			return String.Format("Merge Report on {1}", NameInEnglish, labelOfThingAnnotated);
+		}
+
+		public override Image GetSmallClosedImage()
+		{
+			return Chorus.Properties.AnnotationImages.Warning16x16Closed;
 		}
 
 		public override bool UserCanResolve { get { return true; } }
