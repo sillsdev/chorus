@@ -1386,12 +1386,12 @@ namespace Chorus.merge.xml.generic
 
 		public override string GetFullHumanReadableDescription()
 		{
-			return string.Format("{0}: The identifier of one was changed, and the object is in both places.", Description);
+			return string.Format("{0}: A copy was made so that the object can be in both places.", Description);
 		}
 
 		public override string Description
 		{
-			get { return "Each person moved something, but to different locations." ; }
+			get { return "Two users both moved something, but to different locations" ; }
 		}
 
 		public override string GetConflictingRecordOutOfSourceControl(IRetrieveFileVersionsFromRepository fileRetriever, ThreeWayMergeSources.Source mergeSource)
