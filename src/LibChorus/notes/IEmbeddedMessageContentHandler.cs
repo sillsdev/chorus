@@ -122,6 +122,11 @@ namespace Chorus.notes
 		{
 			return _knownHandlers.FirstOrDefault(h => h.CanHandleUrl(uri));
 		}
+
+		public IEnumerable<IEmbeddedMessageContentHandler> KnownHandlers
+		{
+			get { return _knownHandlers; }
+		}
 	}
 
 //    public class DummyEmbeddedMessageContentHandler : IEmbeddedMessageContentHandler

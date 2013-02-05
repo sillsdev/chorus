@@ -51,6 +51,12 @@ namespace Chorus.UI.Notes
 			return uri.Host == fakeHost;
 		}
 
+		/// <summary>
+		/// This functor may be set in order to adjust the HtmlDetails of a Conflict before they are used in setting the
+		/// Details link of the conflict report. Flex uses this to substitute the actual project ID for "database=current".
+		/// </summary>
+		public Func<string, string> HtmlAdjuster { get; set; }
+
 		public void HandleUrl(Uri uri)
 		{
 			var key = uri.Query.Substring(uri.Query.IndexOf('=') + 1);
@@ -66,6 +72,8 @@ namespace Chorus.UI.Notes
 				var doc = new XmlDocument();
 				var conflict = Conflict.CreateFromConflictElement(XmlUtilities.GetDocumentNodeFromRawXml(content, doc));
 				var html = conflict.HtmlDetails;
+				if (HtmlAdjuster != null)
+					html = HtmlAdjuster(html);
 				if (string.IsNullOrEmpty(html))
 				{
 					MessageBox.Show("Sorry, no conflict details are recorded for this conflict (it might be an old one). Here's the content:\r\n" + content);

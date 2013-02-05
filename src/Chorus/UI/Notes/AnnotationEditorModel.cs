@@ -71,6 +71,11 @@ namespace Chorus.UI.Notes
 			NewMessageText = string.Empty;
 		}
 
+		public EmbeddedMessageContentHandlerRepository MesageContentHandlerRepository
+		{
+			get { return m_embeddedMessageContentHandlerRepository; }
+		}
+
 		private void SetAnnotationAndFocussedMessage(Annotation annotation, Message message)
 		{
 			_annotation = annotation;
