@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-
+using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Text;
 
@@ -207,12 +207,26 @@ namespace Chorus.notes
 		{
 			if (!IsClosed)
 				return _class.GetImage(pixels);
-			if (pixels > 16)
-				return _class.GetImage(pixels); // something else will need to provide the checkmark overlay
-			return _class.GetSmallClosedImage();
+			if (pixels <= 16)
+				return _class.GetSmallClosedImage();
+			return OverlayCheckmarkOnLargeIcon(pixels);
 		}
 
-        public Image GetImage(int pixels)
+		private Image OverlayCheckmarkOnLargeIcon(int pixels)
+		{
+			var baseImage = _class.GetImage(pixels);
+			var result = new Bitmap(pixels, pixels);
+			using (var canvas = Graphics.FromImage(result))
+			{
+				canvas.InterpolationMode = InterpolationMode.HighQualityBicubic;
+				canvas.DrawImage(baseImage, 0, 0, pixels, pixels);
+				canvas.DrawImage(Chorus.Properties.AnnotationImages.check16x16, 3, 3, pixels, pixels);
+				canvas.Save();
+			}
+			return result;
+		}
+
+		public Image GetImage(int pixels)
         {
             return _class.GetImage(pixels);
         }

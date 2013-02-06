@@ -74,6 +74,13 @@ namespace Chorus.Properties {
 			}
 		}
 
+		public static System.Drawing.Bitmap check16x16 {
+			get {
+				object obj = ResourceManager.GetObject("check16x16", resourceCulture);
+				return ((System.Drawing.Bitmap)(obj));
+			}
+		}
+
 		public static System.Drawing.Bitmap DataLossMerge16x16 {
 			get {
 				object obj = ResourceManager.GetObject("DataLossMerge16x16", resourceCulture);

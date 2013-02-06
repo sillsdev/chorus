@@ -22,7 +22,5 @@ namespace Chorus.UI.Notes
 			list.Images.Add(Conflict.ConflictAnnotationClassName + "Closed", Chorus.Properties.AnnotationImages.DataLossMerge16x16Closed);
 			return list;
 		}
-
-
 	}
 }
