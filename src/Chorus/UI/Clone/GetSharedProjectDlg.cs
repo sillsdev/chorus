@@ -1,6 +1,8 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Net.NetworkInformation;
 using System.Windows.Forms;
+using ChorusHub;
 
 namespace Chorus.UI.Clone
 {
@@ -12,9 +14,18 @@ namespace Chorus.UI.Clone
 		{
 			InitializeComponent();
 			DialogResult = DialogResult.Cancel;
-			_useUSBButton.Enabled = new CloneFromUsb().GetHaveOneOrMoreUsbDrives();
-			_useInternetButton.Enabled = NetworkInterface.GetIsNetworkAvailable();
-			_useChorusHubButton.Enabled = false;
+			//disable all initially
+			_useUSBButton.Enabled = _useInternetButton.Enabled = _useChorusHubButton.Enabled = false;
+			//Handle the button enabling in a background thread to let the dialog appear quicker
+			var worker = new BackgroundWorker();
+			worker.DoWork += (sender, e) =>
+			{
+				_useUSBButton.Enabled = new CloneFromUsb().GetHaveOneOrMoreUsbDrives();
+				_useInternetButton.Enabled = NetworkInterface.GetIsNetworkAvailable();
+				var client = new ChorusHubClient();
+				_useChorusHubButton.Enabled = client.FindServer() != null;
+			};
+			worker.RunWorkerAsync();
 		}
 
 		internal void InitFromModel(GetSharedProjectModel model)
@@ -38,6 +49,7 @@ namespace Chorus.UI.Clone
 
 		private void BtnChorusHubClicked(object sender, EventArgs e)
 		{
+			MessageBox.Show("Tada!");
 			_model.RepositorySource = ExtantRepoSource.ChorusHub;
 			DialogResult = DialogResult.OK;
 			Close();
