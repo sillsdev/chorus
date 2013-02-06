@@ -209,18 +209,19 @@ namespace Chorus.notes
 				return _class.GetImage(pixels);
 			if (pixels <= 16)
 				return _class.GetSmallClosedImage();
-			return OverlayCheckmarkOnLargeIcon(pixels);
+			return OverlayCheckmarkOnLargeIcon();
 		}
 
-		private Image OverlayCheckmarkOnLargeIcon(int pixels)
+		private Image OverlayCheckmarkOnLargeIcon()
 		{
+			const int pixels = 32; // large size icon
 			var baseImage = _class.GetImage(pixels);
 			var result = new Bitmap(pixels, pixels);
 			using (var canvas = Graphics.FromImage(result))
 			{
 				canvas.InterpolationMode = InterpolationMode.HighQualityBicubic;
 				canvas.DrawImage(baseImage, 0, 0, pixels, pixels);
-				canvas.DrawImage(Chorus.Properties.AnnotationImages.check16x16, new Rectangle(2, 2, 28, 28));
+				canvas.DrawImage(Chorus.Properties.AnnotationImages.check16x16, new Rectangle(2, 2, pixels - 2, pixels - 2));
 				canvas.Save();
 			}
 			return result;
