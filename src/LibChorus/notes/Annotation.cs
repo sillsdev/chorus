@@ -220,7 +220,7 @@ namespace Chorus.notes
 			{
 				canvas.InterpolationMode = InterpolationMode.HighQualityBicubic;
 				canvas.DrawImage(baseImage, 0, 0, pixels, pixels);
-				canvas.DrawImage(Chorus.Properties.AnnotationImages.check16x16, 3, 3, pixels, pixels);
+				canvas.DrawImage(Chorus.Properties.AnnotationImages.check16x16, new Rectangle(2, 2, 28, 28));
 				canvas.Save();
 			}
 			return result;
