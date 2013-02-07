@@ -67,7 +67,7 @@ namespace Chorus.UI.Notes.Browser
 				bool gotIt = false;
 				foreach (ListViewItem listViewItem in _messageListView.Items)
 				{
-					if (((ListMessage)(listViewItem.Tag)).Message.Guid == previousItem.Message.Guid)
+					if (((ListMessage)(listViewItem.Tag)).ParentAnnotation.Guid == previousItem.ParentAnnotation.Guid)
 					{
 						listViewItem.Selected = true;
 						gotIt = true;

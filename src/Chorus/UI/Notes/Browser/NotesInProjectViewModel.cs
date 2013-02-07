@@ -156,16 +156,19 @@ namespace Chorus.UI.Notes.Browser
 					annotations = annotations.Where(a => !a.IsNotification);
 				}
 
-
 				foreach (var annotation in annotations)
 				{
+					Message messageToShow = null;
 					foreach (var message in annotation.Messages)
 					{
 						if (GetShouldBeShown(annotation, message))
 						{
-							yield return new ListMessage(annotation, message);
+							if (messageToShow == null || messageToShow.Date < message.Date)
+								messageToShow = message;
 						}
 					}
+					if (messageToShow != null)
+						yield return new ListMessage(annotation, messageToShow);
 				}
 			}
 		}
