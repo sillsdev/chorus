@@ -173,6 +173,7 @@
 	<Compile Include="sync\DefaultSychronizerAdjunct.cs" />
 	<Compile Include="sync\ISychronizerAdjunct.cs" />
 	<Compile Include="sync\LargeFileFilter.cs" />
+	<Compile Include="Utilities\code\LinuxUtils.cs" />
 	<Compile Include="Utilities\Help\HelpUtils.cs" />
 	<Compile Include="Utilities\MakeRecordDictionary.cs" />
 	<Compile Include="FileTypeHanders\NotePresenter.cs" />
