@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Windows.Forms;
 using Autofac;
+using Chorus.UI;
 using Chorus.notes;
 using Chorus.sync;
 using Chorus.UI.Notes;
@@ -36,8 +37,22 @@ namespace Chorus
 		/// <param name="dataFolderPath">The root of the project</param>
 		public ChorusSystem(string dataFolderPath)
 		{
-			WritingSystems = new List<IWritingSystem> {new EnglishWritingSystem(), new ThaiWritingSystem()};
+			DisplaySettings = new ChorusNotesDisplaySettings();
 			_dataFolderPath = dataFolderPath;
+		}
+
+		/// <summary>
+		/// This is a special init used for functions (such as setting up a NotesBar) which do not actually require
+		/// Mercurial. Crashes are likely if you use this and then try functions like Send/Receive which DO need Hg.
+		/// This version must be passed a reasonable userNameForHistoryAndNotes, since there is no way to obtain
+		/// a default one.
+		/// </summary>
+		/// <param name="userNameForHistoryAndNotes"></param>
+		public void InitWithoutHg(string userNameForHistoryAndNotes)
+		{
+			Require.That(!string.IsNullOrWhiteSpace(userNameForHistoryAndNotes), "Must have a user name to init Chorus without a repo");
+			var builder = InitContainerBuilder();
+			FinishInit(userNameForHistoryAndNotes, builder);
 		}
 
 		/// <summary>
@@ -49,23 +64,24 @@ namespace Chorus
 		  public void Init(string userNameForHistoryAndNotes)
 		{
 			Repository = HgRepository.CreateOrUseExisting(_dataFolderPath, new NullProgress());
-			var builder = new Autofac.ContainerBuilder();
-
-			builder.Register<IEnumerable<IWritingSystem>>(c=>WritingSystems);
-
-			ChorusUIComponentsInjector.Inject(builder, _dataFolderPath);
+			var builder = InitContainerBuilder();
 
 			if (String.IsNullOrEmpty(userNameForHistoryAndNotes))
 			{
 				userNameForHistoryAndNotes = Repository.GetUserIdInUse();
 			}
+			FinishInit(userNameForHistoryAndNotes, builder);
+		}
+
+		private void FinishInit(string userNameForHistoryAndNotes, ContainerBuilder builder)
+		{
 			_user = new ChorusUser(userNameForHistoryAndNotes);
 			builder.RegisterInstance(_user).As<IChorusUser>();
 //            builder.RegisterGeneratedFactory<NotesInProjectView.Factory>().ContainerScoped();
 //            builder.RegisterGeneratedFactory<NotesInProjectViewModel.Factory>().ContainerScoped();
 //            builder.RegisterGeneratedFactory<NotesBrowserPage.Factory>().ContainerScoped();
 
-		   // builder.Register(new NullProgress());//TODO
+			// builder.Register(new NullProgress());//TODO
 			_container = builder.Build();
 
 			//add the container itself
@@ -75,16 +91,19 @@ namespace Chorus
 			DidLoadUpCorrectly = true;
 		}
 
+		private ContainerBuilder InitContainerBuilder()
+		{
+			var builder = new Autofac.ContainerBuilder();
+
+			builder.Register<ChorusNotesDisplaySettings>(c => DisplaySettings);
+
+			ChorusUIComponentsInjector.Inject(builder, _dataFolderPath);
+			return builder;
+		}
+
 		public bool DidLoadUpCorrectly;
 
-		/// <summary>
-		/// Set this if you want something other than English
-		/// </summary>
-		public IEnumerable<IWritingSystem> WritingSystems
-		{
-			get;
-			set;
-		}
+		public ChorusNotesDisplaySettings DisplaySettings;
 
 		public NavigateToRecordEvent NavigateToRecordEvent
 		{
@@ -159,9 +178,24 @@ namespace Chorus
 			/// </summary>
 			public NotesBarView CreateNotesBar(string pathToAnnotatedFile, NotesToRecordMapping mapping, IProgress progress)
 			{
+				var model = CreateNotesBarModel(pathToAnnotatedFile, mapping, progress);
+				return new NotesBarView(model, _container.Resolve<AnnotationEditorModel.Factory>());
+			}
+
+			/// <summary>
+			/// Get the model that would be needed if we go on to create a NotesBarView.
+			/// FLEx (at least) needs this to help it figure out, before we go to create the actual NotesBar,
+			/// whether there are any notes to show for the current entry.
+			/// </summary>
+			/// <param name="pathToAnnotatedFile"></param>
+			/// <param name="mapping"></param>
+			/// <param name="progress"></param>
+			/// <returns></returns>
+			public NotesBarModel CreateNotesBarModel(string pathToAnnotatedFile, NotesToRecordMapping mapping, IProgress progress)
+			{
 				var repo = _parent.GetNotesRepository(pathToAnnotatedFile, progress);
 				var model = _container.Resolve<NotesBarModel.Factory>()(repo, mapping);
-				return new NotesBarView(model, _container.Resolve<AnnotationEditorModel.Factory>());
+				return model;
 			}
 
 			/// <summary>

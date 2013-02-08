@@ -499,6 +499,108 @@ namespace LibChorus.Tests.merge.xml.lift
 			}
 		}
 
+		/// <summary>
+		/// This is a regression test for FW LT-13958. It also tests the path in XmlMerger.MergeInner where the element strategy is atomic
+		/// and AllowAtomicTextMerge is true, but the children do not allow a text merge.
+		/// </summary>
+		[Test]
+		public void ClassSpansMerge()
+		{
+			var ancestor =
+				@"<?xml version='1.0' encoding='utf-8'?>
+				<lift version='0.13' producer='FLEx 7.2.4'>
+				<entry id='lovely_f1c5a4c8-a24f-4351-8551-2b70d53a9256' guid='f1c5a4c8-a24f-4351-8551-2b70d53a9256'>
+				<lexical-unit>
+				<form lang='fr'><text>lovely</text></form>
+				</lexical-unit>
+				<trait name='morph-type' value='stem'/>
+				<sense id='de53a9a1-5b70-49e5-8dbe-171bff37d624'>
+				<example>
+				<form lang='fr'>
+				<text>This is <span
+					class='Strong'>an</span> example.</text>
+				</form>
+				<translation
+				  type='Free translation'>
+				  <form
+					lang='en'>
+					<text>A translation of <span
+						class='Strong'>the</span> example</text>
+				  </form>
+				</translation>
+				</example>
+				</sense>
+				</entry>
+				</lift>";
+			var ours = // add 'sentence' to example
+				@"<?xml version='1.0' encoding='utf-8'?>
+				<lift version='0.13' producer='FLEx 7.2.4'>
+				<entry id='lovely_f1c5a4c8-a24f-4351-8551-2b70d53a9256' guid='f1c5a4c8-a24f-4351-8551-2b70d53a9256'>
+				<lexical-unit>
+				<form lang='fr'><text>lovely</text></form>
+				</lexical-unit>
+				<trait name='morph-type' value='stem'/>
+				<sense id='de53a9a1-5b70-49e5-8dbe-171bff37d624'>
+				<example>
+				<form lang='fr'>
+				<text>This is <span
+					class='Strong'>an</span> example sentence.</text>
+				</form>
+				<translation
+				  type='Free translation'>
+				  <form
+					lang='en'>
+					<text>A translation of <span
+						class='Strong'>the</span> example</text>
+				  </form>
+				</translation>
+				</example>
+				</sense>
+				</entry>
+				</lift>";
+			var theirs = // add 'sentence' to TRANSLATION of example
+				@"<?xml version='1.0' encoding='utf-8'?>
+				<lift version='0.13' producer='FLEx 7.2.4'>
+				<entry id='lovely_f1c5a4c8-a24f-4351-8551-2b70d53a9256' guid='f1c5a4c8-a24f-4351-8551-2b70d53a9256'>
+				<lexical-unit>
+				<form lang='fr'><text>lovely</text></form>
+				</lexical-unit>
+				<trait name='morph-type' value='stem'/>
+				<sense id='de53a9a1-5b70-49e5-8dbe-171bff37d624'>
+				<example>
+				<form lang='fr'>
+				<text>This is <span
+					class='Strong'>an</span> example.</text>
+				</form>
+				<translation
+				  type='Free translation'>
+				  <form
+					lang='en'>
+					<text>A translation of <span
+						class='Strong'>the</span> example sentence</text>
+				  </form>
+				</translation>
+				</example>
+				</sense>
+				</entry>
+				</lift>";
+			using (var oursTemp = new TempFile(ours))
+			using (var theirsTemp = new TempFile(theirs))
+			using (var ancestorTemp = new TempFile(ancestor))
+			{
+				var listener = new ListenerForUnitTests();
+				var situation = new NullMergeSituation();
+				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation) { EventListener = listener };
+				XmlMergeService.Do3WayMerge(mergeOrder, new LiftEntryMergingStrategy(mergeOrder),
+					false,
+					"header",
+					"entry", "guid");
+				var result = File.ReadAllText(mergeOrder.pathToOurs);
+				AssertThatXmlIn.String(result).HasSpecifiedNumberOfMatchesForXpath(@"/lift/entry/sense/example/form/text/span", 1);
+				AssertThatXmlIn.String(result).HasSpecifiedNumberOfMatchesForXpath(@"/lift/entry/sense/example/translation/form/text/span", 1);
+			}
+		}
+
 
 		[Test]
 		public void RelationsMergeWithoutThrowing()

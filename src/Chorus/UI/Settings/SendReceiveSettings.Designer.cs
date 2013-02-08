@@ -30,6 +30,7 @@ namespace Chorus.UI.Settings
 		/// </summary>
 		private void InitializeComponent()
 		{
+			this.components = new System.ComponentModel.Container();
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SendReceiveSettings));
 			this.nameLabel = new System.Windows.Forms.Label();
 			this.userNameTextBox = new System.Windows.Forms.TextBox();
@@ -52,6 +53,7 @@ namespace Chorus.UI.Settings
 			this._okButton = new System.Windows.Forms.Button();
 			this.settingsProtectionButton = new Palaso.UI.WindowsForms.SettingProtection.SettingsProtectionLauncherButton();
 			this.pictureBox3 = new System.Windows.Forms.PictureBox();
+			this._helpProvider = new Vulcan.Uczniowie.HelpProvider.HelpComponent(this.components);
 			this._showChorusHubInSendReceive = new System.Windows.Forms.CheckBox();
 			this.settingsTabs.SuspendLayout();
 			this.internetTab.SuspendLayout();
@@ -363,6 +365,7 @@ namespace Chorus.UI.Settings
 		private System.Windows.Forms.PictureBox pictureBox1;
 		private System.Windows.Forms.PictureBox pictureBox2;
 		private System.Windows.Forms.PictureBox pictureBox3;
+		private Vulcan.Uczniowie.HelpProvider.HelpComponent _helpProvider;
 		private System.Windows.Forms.TabPage chorusHubTab;
 		private BetterLabel betterLabel1;
 		private System.Windows.Forms.PictureBox pictureBox4;

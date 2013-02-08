@@ -41,6 +41,18 @@ namespace LibChorus.TestUtilities
 //        {
 //            Contexts.Add(context);
 //        }
+		private ContextDescriptor _currentContext;
+		public override void EnteringContext(ContextDescriptor context)
+		{
+			_currentContext = context;
+			base.EnteringContext(context);
+		}
+
+		public override void RecordContextInConflict(IConflict conflict)
+		{
+			base.RecordContextInConflict(conflict);
+			conflict.Context = _currentContext; // conforms to an expectation created by ChorusNotesMergeEventListener
+		}
 		public void AssertExpectedConflictCount(int count)
 		{
 			if (count != Conflicts.Count)

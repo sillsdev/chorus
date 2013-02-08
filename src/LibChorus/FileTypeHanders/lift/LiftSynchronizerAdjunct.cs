@@ -13,7 +13,7 @@ namespace Chorus.FileTypeHanders.lift
 {
 	public class LiftSynchronizerAdjunct : ISychronizerAdjunct
 	{
-		private readonly string _branchName;
+		private readonly string _branchName = "default";
 		private readonly string _liftPathName;
 
 		/// <summary>
@@ -101,7 +101,8 @@ namespace Chorus.FileTypeHanders.lift
 		public void CheckRepositoryBranches(IEnumerable<Revision> branches, IProgress progress)
 		{
 			string savedSettings = Settings.Default.OtherBranchRevisions;
-			string conflictingUser = GetRepositoryBranchCheckData(branches, _branchName, ref savedSettings);
+			//note: change the "" back to BranchName when branching is added back to Chorus
+			string conflictingUser = GetRepositoryBranchCheckData(branches, "", ref savedSettings);
 			if (!string.IsNullOrEmpty(conflictingUser))
 				progress.WriteWarning(string.Format("Other users of this repository (most recently {0}) are using a different version of FieldWorks or WeSay. Changes from users with more recent versions will not be merged into projects using older versions. We strongly recommend that all users upgrade to the same version as soon as possible.", conflictingUser));
 			Settings.Default.OtherBranchRevisions = savedSettings;

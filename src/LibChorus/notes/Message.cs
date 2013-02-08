@@ -68,19 +68,19 @@ namespace Chorus.notes
 			}
 		}
 
-		public string GetHtmlText(EmbeddedMessageContentHandlerFactory embeddedMessageContentHandlerFactory)
+		public string GetHtmlText(EmbeddedMessageContentHandlerRepository embeddedMessageContentHandlerRepository)
 		{
 			var b = new StringBuilder();
 			b.Append(Text);
 
-			if (embeddedMessageContentHandlerFactory != null)
+			if (embeddedMessageContentHandlerRepository != null)
 			{
 				XCData cdata = _element.Nodes().OfType<XCData>().FirstOrDefault();
 
 				if (cdata != null)
 				{
 					string content = cdata.Value;
-					var handler = embeddedMessageContentHandlerFactory.GetHandlerOrDefaultForCData(content);
+					var handler = embeddedMessageContentHandlerRepository.GetHandlerOrDefaultForCData(content);
 					b.AppendLine("<div/>");
 					b.AppendLine(handler.GetHyperLink(content));
 				}

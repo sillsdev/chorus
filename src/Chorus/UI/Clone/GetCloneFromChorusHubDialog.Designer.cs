@@ -38,6 +38,7 @@
 			this.updateProgress = new System.Windows.Forms.Timer(this.components);
 			this.progressBar = new System.Windows.Forms.ProgressBar();
 			this._getChorusHubInfoBackgroundWorker = new System.ComponentModel.BackgroundWorker();
+			this._helpProvider = new Vulcan.Uczniowie.HelpProvider.HelpComponent(this.components);
 			this.panel.SuspendLayout();
 			this.SuspendLayout();
 			//
@@ -148,5 +149,6 @@
 		private System.Windows.Forms.Timer updateProgress;
 		private System.Windows.Forms.ProgressBar progressBar;
 		private System.ComponentModel.BackgroundWorker _getChorusHubInfoBackgroundWorker;
+		private Vulcan.Uczniowie.HelpProvider.HelpComponent _helpProvider;
 	}
 }

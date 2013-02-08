@@ -79,7 +79,8 @@
 	<DebugType>full</DebugType>
 	<PlatformTarget>x86</PlatformTarget>
 	<ErrorReport>prompt</ErrorReport>
-	<TargetFrameworkProfile></TargetFrameworkProfile>
+	<TargetFrameworkProfile>
+	</TargetFrameworkProfile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'ReleaseMono|AnyCPU' ">
 	<DebugSymbols>true</DebugSymbols>
@@ -90,12 +91,13 @@
 	<DebugType>pdbonly</DebugType>
 	<PlatformTarget>x86</PlatformTarget>
 	<ErrorReport>prompt</ErrorReport>
-	<TargetFrameworkProfile></TargetFrameworkProfile>
+	<TargetFrameworkProfile>
+	</TargetFrameworkProfile>
   </PropertyGroup>
   <ItemGroup>
-	<Reference Include="Autofac, Version=1.4.4.561, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
+	<Reference Include="Autofac">
 	  <SpecificVersion>False</SpecificVersion>
-	  <HintPath>..\..\lib\$(Configuration)\Autofac.dll</HintPath>
+	  <HintPath>..\..\lib\common\Autofac.dll</HintPath>
 	</Reference>
 	<Reference Include="Palaso, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86">
 	  <SpecificVersion>False</SpecificVersion>
@@ -106,16 +108,16 @@
 	  <HintPath>..\..\lib\$(Configuration)\PalasoUIWindowsForms.dll</HintPath>
 	</Reference>
 	<Reference Include="System" />
-	<Reference Include="System.Core">
-	  <RequiredTargetFramework>3.5</RequiredTargetFramework>
-	</Reference>
+	<Reference Include="System.Core" />
 	<Reference Include="System.Data" />
 	<Reference Include="System.Deployment" />
 	<Reference Include="System.Drawing" />
 	<Reference Include="System.Windows.Forms" />
 	<Reference Include="System.Xml" />
-	<Reference Include="System.Xml.Linq">
-	  <RequiredTargetFramework>3.5</RequiredTargetFramework>
+	<Reference Include="System.Xml.Linq" />
+	<Reference Include="Vulcan.Uczniowie.HelpProvider">
+	  <SpecificVersion>False</SpecificVersion>
+	  <HintPath>..\..\lib\common\Vulcan.Uczniowie.HelpProvider.dll</HintPath>
 	</Reference>
   </ItemGroup>
   <ItemGroup>
@@ -130,6 +132,13 @@
 	<Compile Include="UI\BetterLabel.designer.cs">
 	  <DependentUpon>BetterLabel.cs</DependentUpon>
 	</Compile>
+	<Compile Include="UI\Clone\GetSharedProjectDlg.cs">
+	  <SubType>Form</SubType>
+	</Compile>
+	<Compile Include="UI\Clone\GetSharedProjectDlg.Designer.cs">
+	  <DependentUpon>GetSharedProjectDlg.cs</DependentUpon>
+	</Compile>
+	<Compile Include="UI\Notes\ChorusNotesDisplaySettings.cs" />
 	<Compile Include="UI\Clone\CloneFromUsb.cs" />
 	<Compile Include="UI\Clone\GetCloneFromChorusHubModel.cs" />
 	<Compile Include="UI\Clone\GetCloneFromChorusHubDialog.cs">
@@ -145,9 +154,8 @@
 	<Compile Include="UI\Clone\GetCloneFromNetworkFolderDlg.Designer.cs">
 	  <DependentUpon>GetCloneFromNetworkFolderDlg.cs</DependentUpon>
 	</Compile>
-	<Compile Include="UI\Clone\GetSharedProject.cs" />
+	<Compile Include="UI\Clone\GetSharedProjectModel.cs" />
 	<Compile Include="UI\Clone\ICloneSourceDialog.cs" />
-	<Compile Include="UI\Clone\IGetSharedProject.cs" />
 	<Compile Include="UI\Misc\NetworkFolderSettingsControl.cs">
 	  <SubType>UserControl</SubType>
 	</Compile>
@@ -235,6 +243,7 @@
 	  <DependentUpon>SearchBox.cs</DependentUpon>
 	</Compile>
 	<Compile Include="UI\Notes\Html\StyleSheet.cs" />
+	<Compile Include="UI\Notes\MergeConflictEmbeddedMessageContentHandler.cs" />
 	<Compile Include="UI\Review\ChangedReport\ChangeReportView.cs">
 	  <SubType>UserControl</SubType>
 	</Compile>
@@ -290,6 +299,9 @@
 	<EmbeddedResource Include="UI\Clone\GetCloneFromNetworkFolderDlg.resx">
 	  <DependentUpon>GetCloneFromNetworkFolderDlg.cs</DependentUpon>
 	  <SubType>Designer</SubType>
+	</EmbeddedResource>
+	<EmbeddedResource Include="UI\Clone\GetSharedProjectDlg.resx">
+	  <DependentUpon>GetSharedProjectDlg.cs</DependentUpon>
 	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Misc\NetworkFolderSettingsControl.resx">
 	  <DependentUpon>NetworkFolderSettingsControl.cs</DependentUpon>

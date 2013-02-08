@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading;
-using System.Windows.Forms;
-using Chorus.UI.Clone;
 using ChorusHub;
 using LibChorus.TestUtilities;
 using NUnit.Framework;
@@ -13,6 +10,7 @@ using System.Linq;
 namespace Chorus.Tests.ChorusHub
 {
 	[TestFixture]
+	[Category("KnownMonoIssue")] // cross-process comms doesn't work in mono.
 	public class ChorusHubClientTests
 	{
 		[SetUp]

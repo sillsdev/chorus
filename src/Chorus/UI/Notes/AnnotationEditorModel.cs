@@ -20,10 +20,10 @@ namespace Chorus.UI.Notes
 		private readonly StyleSheet _styleSheet;
 		private Annotation _annotation;
 		private readonly NavigateToRecordEvent _navigateToRecordEventToRaise;
-		private readonly IEnumerable<IWritingSystem> _writingSystems;
+		private readonly ChorusNotesDisplaySettings _displaySettings;
 		private Message _currentFocussedMessage; //this is the part of the annotation in focus
 		private string _newMessageText;
-		private EmbeddedMessageContentHandlerFactory _embeddedMessageContentHandlerFactory;
+		private EmbeddedMessageContentHandlerRepository m_embeddedMessageContentHandlerRepository;
 		private bool _showLabelAsHyperLink=true;
 		public MessageSelectedEvent EventToRaiseForChangedMessage { get; private set; }
 
@@ -36,39 +36,44 @@ namespace Chorus.UI.Notes
 		//showing the control with a single annotation... it isn't tied to a list of messages.
 		public AnnotationEditorModel(IChorusUser user,
 		   StyleSheet styleSheet,
-		   EmbeddedMessageContentHandlerFactory embeddedMessageContentHandlerFactory,
+		   EmbeddedMessageContentHandlerRepository embeddedMessageContentHandlerRepository,
 			Annotation annotation,
 			NavigateToRecordEvent navigateToRecordEventToRaise,
-			IEnumerable<IWritingSystem> writingSystems,
+			ChorusNotesDisplaySettings displaySettings,
 			bool showLabelAsHyperlink)
 		{
 			_user = user;
-			_embeddedMessageContentHandlerFactory = embeddedMessageContentHandlerFactory;
+			m_embeddedMessageContentHandlerRepository = embeddedMessageContentHandlerRepository;
 			_styleSheet = styleSheet;
 			NewMessageText = string.Empty;
 			_annotation = annotation;
 			_navigateToRecordEventToRaise = navigateToRecordEventToRaise;
-			_writingSystems = writingSystems;
-			CurrentWritingSystem = _writingSystems.First();
+			_displaySettings = displaySettings;
+			//CurrentWritingSystem = _displaySettings.First();
 			_showLabelAsHyperLink = showLabelAsHyperlink;
 		}
 
 		public AnnotationEditorModel(IChorusUser user,
 							MessageSelectedEvent messageSelectedEventToSubscribeTo,
 							StyleSheet styleSheet,
-							EmbeddedMessageContentHandlerFactory embeddedMessageContentHandlerFactory,
+							EmbeddedMessageContentHandlerRepository embeddedMessageContentHandlerRepository,
 							NavigateToRecordEvent navigateToRecordEventToRaise,
-						IEnumerable<IWritingSystem> writingSystems)
+						ChorusNotesDisplaySettings displaySettings)
 		{
 			_user = user;
-			_embeddedMessageContentHandlerFactory = embeddedMessageContentHandlerFactory;
+			m_embeddedMessageContentHandlerRepository = embeddedMessageContentHandlerRepository;
 			_navigateToRecordEventToRaise = navigateToRecordEventToRaise;
 			_styleSheet = styleSheet;
-			_writingSystems = writingSystems;
-			 CurrentWritingSystem = _writingSystems.First();
+			_displaySettings = displaySettings;
+			 //CurrentWritingSystem = _displaySettings.First();
 			messageSelectedEventToSubscribeTo.Subscribe((annotation, message) => SetAnnotationAndFocussedMessage(annotation, message));
 			EventToRaiseForChangedMessage = messageSelectedEventToSubscribeTo;
 			NewMessageText = string.Empty;
+		}
+
+		public EmbeddedMessageContentHandlerRepository MesageContentHandlerRepository
+		{
+			get { return m_embeddedMessageContentHandlerRepository; }
 		}
 
 		private void SetAnnotationAndFocussedMessage(Annotation annotation, Message message)
@@ -150,7 +155,7 @@ namespace Chorus.UI.Notes
 					builder.AppendFormat("<span class='sender'>{0}</span> <span class='when'> - {1}</span>", message.Author, message.Date.ToLongDateString());
 
 					builder.AppendLine("<div class='messageContents'>");
-					builder.AppendLine(message.GetHtmlText(_embeddedMessageContentHandlerFactory));
+					builder.AppendLine(message.GetHtmlText(m_embeddedMessageContentHandlerRepository));
 //                    if(message.HasEmbeddedData)
 //                    {
 //                        builder.AppendLine(message.HtmlText);
@@ -256,9 +261,19 @@ namespace Chorus.UI.Notes
 
 		public Font FontForNewMessage
 		{
-			get { return new Font(CurrentWritingSystem.FontName, 10); }
+			get { return new Font(_displaySettings.WritingSystemForNoteContent.FontName, _displaySettings.WritingSystemForNoteContent.FontSize); }
+		}
+		public Font FontForLabel
+		{
+			get { return new Font(_displaySettings.WritingSystemForNoteLabel.FontName, 14); }
 		}
 
+		/// <summary>
+		/// Note that the icon used is independent of whether the annotation is resolved/closed or not.
+		/// AnnotationEditorView._annotationLogo_Paint paints the check mark over the top if needed.
+		/// (This is different from the 16x16 strategy, where we have fine-tuned distinct icons.)
+		/// </summary>
+		/// <returns></returns>
 		public Image GetAnnotationLogoImage()
 		{
 			return _annotation.GetImage(32);
@@ -341,7 +356,7 @@ namespace Chorus.UI.Notes
 //        }
 		public void HandleLinkClicked(Uri uri)
 		{
-			var handler = _embeddedMessageContentHandlerFactory.GetHandlerOrDefaultForUrl(uri);
+			var handler = m_embeddedMessageContentHandlerRepository.GetHandlerOrDefaultForUrl(uri);
 			if(handler!=null)
 			{
 				handler.HandleUrl(uri);
@@ -353,15 +368,9 @@ namespace Chorus.UI.Notes
 			_navigateToRecordEventToRaise.Raise(_annotation.RefUnEscaped);
 		}
 
-		private IWritingSystem CurrentWritingSystem
-		{
-			get;
-			set;
-		}
-
 		public void ActivateKeyboard()
 		{
-			CurrentWritingSystem.ActivateKeyboard();
+			_displaySettings.WritingSystemForNoteContent.ActivateKeyboard();
 		}
 	}
 }
