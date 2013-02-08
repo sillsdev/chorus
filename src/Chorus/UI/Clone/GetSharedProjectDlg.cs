@@ -16,16 +16,21 @@ namespace Chorus.UI.Clone
 			DialogResult = DialogResult.Cancel;
 			//disable all initially
 			_useUSBButton.Enabled = _useInternetButton.Enabled = _useChorusHubButton.Enabled = false;
-			//Handle the button enabling in a background thread to let the dialog appear quicker
-			var worker = new BackgroundWorker();
-			worker.DoWork += (sender, e) =>
-			{
-				_useUSBButton.Enabled = new CloneFromUsb().GetHaveOneOrMoreUsbDrives();
-				_useInternetButton.Enabled = NetworkInterface.GetIsNetworkAvailable();
-				var client = new ChorusHubClient();
-				_useChorusHubButton.Enabled = client.FindServer() != null;
-			};
-			worker.RunWorkerAsync();
+			Shown += GetSharedProjectDlgShown;
+		}
+
+		void GetSharedProjectDlgShown(object sender, EventArgs e)
+		{
+			Shown -= GetSharedProjectDlgShown;
+			SetButtonStates();
+		}
+
+		private void SetButtonStates()
+		{
+			_useUSBButton.Enabled = new CloneFromUsb().GetHaveOneOrMoreUsbDrives();
+			_useInternetButton.Enabled = NetworkInterface.GetIsNetworkAvailable();
+			var client = new ChorusHubClient();
+			_useChorusHubButton.Enabled = client.FindServer() != null;
 		}
 
 		internal void InitFromModel(GetSharedProjectModel model)
@@ -49,7 +54,6 @@ namespace Chorus.UI.Clone
 
 		private void BtnChorusHubClicked(object sender, EventArgs e)
 		{
-			MessageBox.Show("Tada!");
 			_model.RepositorySource = ExtantRepoSource.ChorusHub;
 			DialogResult = DialogResult.OK;
 			Close();
