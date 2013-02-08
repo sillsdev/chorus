@@ -153,8 +153,7 @@ namespace Chorus.sync
 				{
 					UpdateToTheDescendantRevision(repo, workingRevBeforeSync);
 				}
-				// TODO: Restore, when V03 of the server API is restored.
-				//_sychronizerAdjunct.CheckRepositoryBranches(repo.BranchingHelper.GetBranches(), _progress);
+				_sychronizerAdjunct.CheckRepositoryBranches(repo.BranchingHelper.GetBranches(), _progress);
 
 				results.Succeeded = true;
 			   _progress.WriteMessage("Done");

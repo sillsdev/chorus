@@ -59,6 +59,65 @@ namespace Chorus.UI.Notes.Browser
 			}
 		}
 
+		private bool _hideQuestions;
+		public bool HideQuestions
+		{
+			get { return _hideQuestions; }
+			set
+			{
+				_hideQuestions = value;
+				ReloadMessagesNow();
+			}
+		}
+
+		private bool _hideNotifications;
+		/// <summary>
+		/// Notifications are a type of Conflict considered to be lower priority.
+		/// Typically where both users added something, we aren't quite sure of the order, but no actual data loss
+		/// has occurred.
+		/// </summary>
+		public bool HideNotifications
+		{
+			get { return _hideNotifications; }
+			set
+			{
+				_hideNotifications = value;
+				ReloadMessagesNow();
+			}
+		}
+
+		private bool _hideConflicts;
+		public string FilterStateMessage
+		{
+			get
+			{
+				var items = new List<string>();
+				if (!HideQuestions)
+					items.Add("Questions");
+				if (!HideCriticalConflicts)
+					items.Add("Conflicts");
+				if (!HideNotifications)
+					items.Add("Notifications");
+				if (ShowClosedNotes && items.Count > 0)
+					items.Add("including Resolved");
+				if (items.Count > 3)
+					return "All";
+				return string.Join(", ", items.ToArray());
+			}
+		}
+		/// <summary>
+		/// This controls just the more serious conflicts (those that are not notifications).
+		/// </summary>
+		public bool HideCriticalConflicts
+		{
+			get { return _hideConflicts; }
+			set
+			{
+				_hideConflicts = value;
+				ReloadMessagesNow();
+			}
+		}
+
 		public IEnumerable<ListMessage> GetMessages()
 		{
 			return GetMessagesUnsorted().OrderByDescending((msg) => msg.SortKey);
@@ -73,16 +132,43 @@ namespace Chorus.UI.Notes.Browser
 				{
 					annotations= annotations.Where(a=>a.Status!="closed");
 				}
+				if (HideQuestions)
+				{
+					annotations = annotations.Where(a => a.ClassName != "question");
+				}
+
+				if (HideCriticalConflicts)
+				{
+					if (HideNotifications)
+					{
+						// Hiding all conflicts, critical and otherwise
+						annotations = annotations.Where(a => !a.IsConflict);
+					}
+					else
+					{
+						// Hiding critical conflicts only!
+						annotations = annotations.Where(a => !a.IsCriticalConflict);
+					}
+				}
+				else if (HideNotifications)
+				{
+					// Hiding non-critical conflicts (notifications) only
+					annotations = annotations.Where(a => !a.IsNotification);
+				}
 
 				foreach (var annotation in annotations)
 				{
+					Message messageToShow = null;
 					foreach (var message in annotation.Messages)
 					{
 						if (GetShouldBeShown(annotation, message))
 						{
-							yield return new ListMessage(annotation, message);
+							if (messageToShow == null || messageToShow.Date < message.Date)
+								messageToShow = message;
 						}
 					}
+					if (messageToShow != null)
+						yield return new ListMessage(annotation, messageToShow);
 				}
 			}
 		}

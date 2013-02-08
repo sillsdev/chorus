@@ -112,12 +112,12 @@
 	<value>2.0</value>
   </resheader>
   <resheader name="reader">
-	<value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+	<value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <resheader name="writer">
-	<value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+	<value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
   <data name="approve16x16" type="System.Resources.ResXFileRef, System.Windows.Forms">
 	<value>..\Resources\approve16x16.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
@@ -142,34 +142,46 @@
   <data name="generic32x32" type="System.Resources.ResXFileRef, System.Windows.Forms">
 	<value>..\Resources\generic32x32.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="MergeConflict32x32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+  <data name="Warning32x32" type="System.Resources.ResXFileRef, System.Windows.Forms">
 	<value>..\Resources\mergeConflict32x32.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="MergeConflict16x16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+  <data name="Warning16x16" type="System.Resources.ResXFileRef, System.Windows.Forms">
 	<value>..\Resources\MergeConflict16x16.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="MergeConflict16x16Closed" type="System.Resources.ResXFileRef, System.Windows.Forms">
+  <data name="Warning16x16Closed" type="System.Resources.ResXFileRef, System.Windows.Forms">
 	<value>..\Resources\MergeConflict16x16Closed.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="question16x16Closed" type="System.Resources.ResXFileRef, System.Windows.Forms">
 	<value>..\Resources\question16x16Closed.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-	<data name="kNullOrEmptyString">
-		<value xml:space="preserve">Parameter is null or an empty string.</value>
-	</data>
-	<data name="kFileDoesNotExist">
-		<value xml:space="preserve">File does not exist.</value>
-	</data>
-	<data name="kModelVersion">
-		<value><![CDATA[{"modelversion": 7000044}]]></value>
-	</data>
-	<data name="kInvalidArgument">
-		<value xml:space="preserve">Invalid argument</value>
-	</data>
-  <data name="kNotATextElement">
-	<value xml:space="preserve">Not a Text element.</value>
+  <data name="kNullOrEmptyString" xml:space="preserve">
+	<value>Parameter is null or an empty string.</value>
   </data>
-  <data name="kElementNotTextElement">
-	<value xml:space="preserve">Element is not a text element</value>
+  <data name="kFileDoesNotExist" xml:space="preserve">
+	<value>File does not exist.</value>
+  </data>
+  <data name="kModelVersion" xml:space="preserve">
+	<value>{"modelversion": 7000044}</value>
+  </data>
+  <data name="kInvalidArgument" xml:space="preserve">
+	<value>Invalid argument</value>
+  </data>
+  <data name="kNotATextElement" xml:space="preserve">
+	<value>Not a Text element.</value>
+  </data>
+  <data name="kElementNotTextElement" xml:space="preserve">
+	<value>Element is not a text element</value>
+  </data>
+  <data name="DataLossMerge16x16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+	<value>..\Resources\DataLossMerge16x16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="DataLossMerge32x32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+	<value>..\Resources\DataLossMerge32x32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="DataLossMerge16x16Closed" type="System.Resources.ResXFileRef, System.Windows.Forms">
+	<value>..\Resources\DataLossMerge16x16Closed.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="check16x16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+	<value>..\Resources\check16x16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
 </root>

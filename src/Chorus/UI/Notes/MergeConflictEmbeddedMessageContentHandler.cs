@@ -23,6 +23,8 @@ namespace Chorus.UI.Notes
 
 		private int _nextKey;
 
+		private const string fakeHost = "mergeconflict"; // keep lower case, something somewhere converts it anyway.
+
 		public virtual string GetHyperLink(string cDataContent)
 		{
 			var key = "K" + _nextKey++;
@@ -30,7 +32,7 @@ namespace Chorus.UI.Notes
 			// for now just keep the most recent 20 links. This is why it is a list not a dictionary.
 			if (_recentLinks.Count > 20)
 				_recentLinks.RemoveAt(0);
-			return string.Format("<a href={0}>{1}</a>", "http://mergeConflict?data=" + key, "Conflict Details...");
+			return string.Format("<a href={0}>{1}</a>", "http://" + fakeHost + "?data=" + key, "Conflict Details...");
 
 			// Old approach, fails with IE if cDataContent is more than about 2038 characters (http://www.codingforums.com/showthread.php?t=18499).
 			//NB: this is ugly, pretending it's http and all, but when I used a custom scheme,
@@ -46,8 +48,14 @@ namespace Chorus.UI.Notes
 
 		public bool CanHandleUrl(Uri uri)
 		{
-			return uri.Host == Conflict.ConflictAnnotationClassName.ToLower();//it seems something automatically changes the host to lowercase
+			return uri.Host == fakeHost;
 		}
+
+		/// <summary>
+		/// This functor may be set in order to adjust the HtmlDetails of a Conflict before they are used in setting the
+		/// Details link of the conflict report. Flex uses this to substitute the actual project ID for "database=current".
+		/// </summary>
+		public Func<string, string> HtmlAdjuster { get; set; }
 
 		public void HandleUrl(Uri uri)
 		{
@@ -64,6 +72,8 @@ namespace Chorus.UI.Notes
 				var doc = new XmlDocument();
 				var conflict = Conflict.CreateFromConflictElement(XmlUtilities.GetDocumentNodeFromRawXml(content, doc));
 				var html = conflict.HtmlDetails;
+				if (HtmlAdjuster != null)
+					html = HtmlAdjuster(html);
 				if (string.IsNullOrEmpty(html))
 				{
 					MessageBox.Show("Sorry, no conflict details are recorded for this conflict (it might be an old one). Here's the content:\r\n" + content);

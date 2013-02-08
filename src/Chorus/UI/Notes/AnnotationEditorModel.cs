@@ -71,6 +71,11 @@ namespace Chorus.UI.Notes
 			NewMessageText = string.Empty;
 		}
 
+		public EmbeddedMessageContentHandlerRepository MesageContentHandlerRepository
+		{
+			get { return m_embeddedMessageContentHandlerRepository; }
+		}
+
 		private void SetAnnotationAndFocussedMessage(Annotation annotation, Message message)
 		{
 			_annotation = annotation;
@@ -263,6 +268,12 @@ namespace Chorus.UI.Notes
 			get { return new Font(_displaySettings.WritingSystemForNoteLabel.FontName, 14); }
 		}
 
+		/// <summary>
+		/// Note that the icon used is independent of whether the annotation is resolved/closed or not.
+		/// AnnotationEditorView._annotationLogo_Paint paints the check mark over the top if needed.
+		/// (This is different from the 16x16 strategy, where we have fine-tuned distinct icons.)
+		/// </summary>
+		/// <returns></returns>
 		public Image GetAnnotationLogoImage()
 		{
 			return _annotation.GetImage(32);

@@ -2,9 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Xml;
-using System.Xml.Linq;
 using Chorus.Utilities;
 using Palaso.Code;
 using Palaso.Xml;
@@ -17,7 +15,6 @@ namespace Chorus.merge.xml.generic
 	/// </summary>
 	public static class XmlMergeService
 	{
-		private static readonly Encoding Utf8 = Encoding.UTF8;
 		public static bool RemoveAmbiguousChildNodes = true;
 
 		/// <summary>
@@ -914,12 +911,14 @@ namespace Chorus.merge.xml.generic
 		/// that we suppress indentation for children of nodes whose names are listed in suppressIndentingChildren,
 		/// and also for "mixed" nodes (where some children are text).
 		/// </summary>
-		/// <param name="writer"></param>
-		/// <param name="dataToWrite"></param>
-		/// <param name="suppressIndentingChildren"></param>
 		internal static void WriteNode(XmlWriter writer, string dataToWrite, HashSet<string> suppressIndentingChildren)
 		{
+			// <mergenotice>
+			// When the WeSay1.3 branch gets merged, do this:
+			// 1. Pick the 'suppressIndentingChildren' parameter, not the temporary partial port of "CurrentSuppressIndentingChildren"
+			// 2. Remove this <mergenotice> comment and its 'end tag' comment.
 			XmlUtils.WriteNode(writer, dataToWrite, suppressIndentingChildren);
+			// </mergenotice>
 
 			// This is the original code of this method. It is probably more efficient, and does ALMOST the same thing. But not quite.
 			// See the unit tests WriteNode_DoesNotIndentFirstChildOfMixedNode and WriteNode_DoesNotIndentChildWhenSuppressed for WriteNode.

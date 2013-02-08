@@ -45,11 +45,17 @@ namespace Chorus.FileTypeHanders.lift
 
 		public void Do3WayMerge(MergeOrder mergeOrder)
 		{
+			// <mergenotice>
+			// When the WeSay1.3 branch gets merged, do this:
+			// 1. Keep this code and reject the WeSay1.3 changes. They were done as a partial port of some other code changes.
+			// 2. Remove this <mergenotice> comment and its 'end tag' comment.
+			// 3. The parm change from 'false' to 'true' is to be kept.
 			XmlMergeService.Do3WayMerge(mergeOrder,
 				new LiftEntryMergingStrategy(mergeOrder),
-				false,
+				true,
 				"header",
 				"entry", "guid");
+			// </mergenotice>
 		}
 
 		public IEnumerable<IChangeReport> Find2WayDifferences(FileInRevision parent, FileInRevision child, HgRepository repository)

@@ -12,7 +12,8 @@ namespace ChorusHub
 
 		[STAThread]
 		static void Main(string[] args)
-		{   var parameters = new ChorusHubParameters();
+		{
+			var parameters = new ChorusHubParameters();
 			if(Parser.ParseHelp(args))
 			{
 				MessageBox.Show(Parser.ArgumentsUsage(parameters.GetType()),"Chorus Hub Command Line Parameters");
@@ -26,14 +27,21 @@ namespace ChorusHub
 			string parentOfRoot = Path.GetDirectoryName(parameters.RootDirectory);
 			if(!Path.IsPathRooted(parameters.RootDirectory))
 			{
-			  Palaso.Reporting.ErrorReport.NotifyUserOfProblem("You supplied '{0}' for the root directory, but that doesn't have a drive letter.",
-																 parameters.RootDirectory);
+				ErrorReport.NotifyUserOfProblem("You supplied '{0}' for the root directory, but that doesn't have a drive letter.",
+																	parameters.RootDirectory);
 				return;
 			}
 			if(!Directory.Exists(parentOfRoot))
 			{
-				Palaso.Reporting.ErrorReport.NotifyUserOfProblem("In order to use '{0}', '{1}' must already exist",
-																 parameters.RootDirectory, parentOfRoot);
+				ErrorReport.NotifyUserOfProblem("In order to use '{0}', '{1}' must already exist",
+																	parameters.RootDirectory, parentOfRoot);
+				return;
+			}
+			var server = new ChorusHubClient().FindServer();
+			if (server != null)
+			{
+				ErrorReport.NotifyUserOfProblem("Only one ChorusHub can be run on a network and there is already one running on {0}",
+												server.HostName);
 				return;
 			}
 
