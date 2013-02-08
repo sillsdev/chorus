@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Chorus.notes;
 using Chorus.UI.Notes;
@@ -215,24 +216,49 @@ namespace Chorus.Tests.notes
 				{
 					var repos = AnnotationRepository.CreateRepositoriesFromFolder(folder.Path, _progress);
 					var m = new NotesInProjectViewModel(TheUser, repos, new MessageSelectedEvent(), new ChorusNotesDisplaySettings(), new ConsoleProgress());
-					Assert.AreEqual(5, m.GetMessages().Count(), "should get 3 annotations by default");
+					Assert.AreEqual(3, m.GetMessages().Count(), "should get 1 from each of 3 annotations by default");
 					m.HideNotifications = true;
-					Assert.AreEqual(3, m.GetMessages().Count(), "notification and response should not be shown");
+					Assert.AreEqual(2, m.GetMessages().Count(), "one from the notification should not be shown, leaving 2");
 					// They are sorted by date in descending order
-					Assert.AreEqual("fred", m.GetMessages().First().Message.Author);
-					Assert.AreEqual("AE0EF57E-DBBE-4BAA-B530-ADD1E1F29873", m.GetMessages().ToArray()[1].Message.Guid);
-					Assert.AreEqual("john", m.GetMessages().ToArray()[2].Message.Author);
+					Assert.AreEqual("fred", m.GetMessages().First().Message.Author, "should get only most recent message from annotation");
+					Assert.AreEqual("john", m.GetMessages().ToArray()[1].Message.Author);
 
 					m.HideCriticalConflicts = true;
-					Assert.AreEqual(1, m.GetMessages().Count(), "notification and response should not be shown");
+					Assert.AreEqual(1, m.GetMessages().Count(), "conflict and notification should not be shown");
 					Assert.AreEqual("john", m.GetMessages().First().Message.Author);
 
 					m.HideNotifications = false;
-					Assert.AreEqual(3, m.GetMessages().Count(), "conflict and response should not be shown");
+					Assert.AreEqual(2, m.GetMessages().Count(), "conflict should not be shown");
 					Assert.AreEqual("jill", m.GetMessages().First().Message.Author);
-					Assert.AreEqual("5274ae0b-01b2-4472-bbd0-207c112f57d1", m.GetMessages().ToArray()[1].Message.Guid);
-					Assert.AreEqual("john", m.GetMessages().ToArray()[2].Message.Author);
+					Assert.AreEqual("john", m.GetMessages().ToArray()[1].Message.Author);
+				}
+			}
+		}
 
+		[Test]
+		public void GetMessages_ReturnsMostRecentMessagePassingFilterInAnnotation()
+		{
+			using (var folder = new TemporaryFolder("NotesModelTests"))
+			{
+				string contents = @"<annotation class='question'>
+					<message author='fred' date='2013-01-22T20:37:30Z'/>
+					<message author='john' date='2013-01-22T20:37:36Z'/>
+					<message author='john' date='2013-01-22T20:37:35Z'/>
+					<message author='bill' date='2013-01-22T20:37:39Z'/>
+				</annotation>
+				<annotation class='note'><message author='bob' date='2013-01-22T20:37:20Z'></message></annotation>";
+				using (CreateNotesFile(folder, contents))
+				{
+					var repos = AnnotationRepository.CreateRepositoriesFromFolder(folder.Path, _progress);
+					var m = new NotesInProjectViewModel(TheUser, repos, new MessageSelectedEvent(), new ChorusNotesDisplaySettings(),
+						new ConsoleProgress());
+					Assert.AreEqual(2, m.GetMessages().Count(), "Should get one from each annotation by default");
+					Assert.That(m.GetMessages().First().Message.Author, Is.EqualTo("bill"), "bill's is the newest message");
+					Assert.That(m.GetMessages().Last().Message.Author, Is.EqualTo("bob"), "bob's is the oldest message");
+					m.SearchTextChanged("john");
+					Assert.AreEqual(1, m.GetMessages().Count(), "Should only get a message from the annotation where one passes filter");
+					Assert.That(m.GetMessages().First().Message.Author, Is.EqualTo("john"), "Should get one of John's messages (that pass filter)");
+					Assert.That(m.GetMessages().First().Message.Date.Second, Is.EqualTo(36), "Should the newest message passing the filter");
 				}
 			}
 		}
