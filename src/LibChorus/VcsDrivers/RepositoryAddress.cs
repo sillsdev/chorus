@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Net.NetworkInformation;
 using Chorus.Utilities;
-using Chorus.Utilities.UsbDrive;
+using Palaso.UsbDrive;
 using Chorus.VcsDrivers.Mercurial;
 using Palaso.IO;
 using Palaso.Progress;
@@ -284,7 +284,7 @@ namespace Chorus.VcsDrivers
 				return Path.Combine(RootDirForUsbSourceDuringUnitTest, projectName);
 			}
 
-			var drives = Chorus.Utilities.UsbDrive.UsbDriveInfo.GetDrives();
+			var drives = UsbDriveInfo.GetDrives();
 			if (drives.Count == 0)
 				return null;
 

@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <PropertyGroup>
-	<Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-	<Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+	<Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
+	<Platform Condition=" '$(Platform)' == '' ">x86</Platform>
 	<ProductVersion>9.0.21022</ProductVersion>
 	<SchemaVersion>2.0</SchemaVersion>
 	<ProjectGuid>{94245366-8F1E-475C-810D-FE89BB3948E0}</ProjectGuid>
@@ -47,7 +47,7 @@
 	<RootNamespace>Chorus</RootNamespace>
 	<AllowUnsafeBlocks>false</AllowUnsafeBlocks>
 	<CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
-	<PlatformTarget>x86</PlatformTarget>
+	<PlatformTarget>AnyCPU</PlatformTarget>
 	<DocumentationFile>..\..\output\$(Configuration)\LibChorus.XML</DocumentationFile>
 	<TargetFrameworkProfile>Client</TargetFrameworkProfile>
   </PropertyGroup>
@@ -64,7 +64,7 @@
 	<RootNamespace>Chorus</RootNamespace>
 	<AllowUnsafeBlocks>false</AllowUnsafeBlocks>
 	<CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
-	<PlatformTarget>x86</PlatformTarget>
+	<PlatformTarget>AnyCPU</PlatformTarget>
 	<TargetFrameworkProfile>Client</TargetFrameworkProfile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'DebugMono|AnyCPU' ">
@@ -74,7 +74,7 @@
 	<CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
 	<DocumentationFile>..\..\output\$(Configuration)\LibChorus.XML</DocumentationFile>
 	<DebugType>full</DebugType>
-	<PlatformTarget>x86</PlatformTarget>
+	<PlatformTarget>AnyCPU</PlatformTarget>
 	<ErrorReport>prompt</ErrorReport>
 	<TargetFrameworkProfile>
 	</TargetFrameworkProfile>
@@ -86,23 +86,85 @@
 	<CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
 	<Optimize>true</Optimize>
 	<DebugType>pdbonly</DebugType>
-	<PlatformTarget>x86</PlatformTarget>
+	<PlatformTarget>AnyCPU</PlatformTarget>
 	<ErrorReport>prompt</ErrorReport>
-	<TargetFrameworkProfile>
-	</TargetFrameworkProfile>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+	<DebugSymbols>true</DebugSymbols>
+	<OutputPath>..\..\output\$(Configuration)</OutputPath>
+	<DefineConstants>DEBUG;TRACE</DefineConstants>
+	<CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+	<DocumentationFile>..\..\output\Debug\LibChorus.XML</DocumentationFile>
+	<DebugType>full</DebugType>
+	<PlatformTarget>x86</PlatformTarget>
+	<CodeAnalysisLogFile>..\..\output\Debug\LibChorus.dll.CodeAnalysisLog.xml</CodeAnalysisLogFile>
+	<CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+	<CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
+	<ErrorReport>prompt</ErrorReport>
+	<CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+	<CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
+	<CodeAnalysisIgnoreBuiltInRuleSets>true</CodeAnalysisIgnoreBuiltInRuleSets>
+	<CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
+	<CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+	<DebugSymbols>true</DebugSymbols>
+	<OutputPath>..\..\output\$(Configuration)</OutputPath>
+	<DefineConstants>TRACE</DefineConstants>
+	<CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+	<Optimize>true</Optimize>
+	<DebugType>pdbonly</DebugType>
+	<PlatformTarget>x86</PlatformTarget>
+	<CodeAnalysisLogFile>..\..\output\Release\LibChorus.dll.CodeAnalysisLog.xml</CodeAnalysisLogFile>
+	<CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+	<CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
+	<ErrorReport>prompt</ErrorReport>
+	<CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+	<CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
+	<CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
+	<CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DebugMono|x86'">
+	<DebugSymbols>true</DebugSymbols>
+	<OutputPath>..\..\output\$(Configuration)</OutputPath>
+	<DefineConstants>DEBUG;TRACE;MONO</DefineConstants>
+	<CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+	<DocumentationFile>..\..\output\DebugMono\LibChorus.XML</DocumentationFile>
+	<DebugType>full</DebugType>
+	<PlatformTarget>x86</PlatformTarget>
+	<CodeAnalysisLogFile>..\..\output\DebugMono\LibChorus.dll.CodeAnalysisLog.xml</CodeAnalysisLogFile>
+	<CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+	<CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
+	<ErrorReport>prompt</ErrorReport>
+	<CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+	<CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
+	<CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'ReleaseMono|x86'">
+	<DebugSymbols>true</DebugSymbols>
+	<OutputPath>..\..\output\$(Configuration)</OutputPath>
+	<DefineConstants>TRACE;MONO</DefineConstants>
+	<CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+	<Optimize>true</Optimize>
+	<DebugType>pdbonly</DebugType>
+	<PlatformTarget>x86</PlatformTarget>
+	<CodeAnalysisLogFile>..\..\output\ReleaseMono\LibChorus.dll.CodeAnalysisLog.xml</CodeAnalysisLogFile>
+	<CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+	<CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
+	<ErrorReport>prompt</ErrorReport>
+	<CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+	<CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
+	<CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
   </PropertyGroup>
   <ItemGroup>
 	<Reference Include="Autofac, Version=2.6.3.862, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
 	  <SpecificVersion>False</SpecificVersion>
 	  <HintPath>..\..\lib\Release\Autofac.dll</HintPath>
 	</Reference>
-	<Reference Include="icu.net, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+	<Reference Condition="'$(Configuration)' == 'Debug' Or '$(Configuration)' == 'Release' " Include="icu.net, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
 	  <SpecificVersion>False</SpecificVersion>
 	  <HintPath>..\..\lib\$(Configuration)\icu.net.dll</HintPath>
 	</Reference>
-	<None Include="..\..\lib\$(Configuration)\icu.net.dll.config">
-	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	</None>
 	<Reference Condition="'$(Configuration)' == 'DebugMono' Or '$(Configuration)' == 'ReleaseMono' " Include="NDesk.DBus, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f6716e4f9b2ed099, processorArchitecture=MSIL">
 	  <SpecificVersion>False</SpecificVersion>
 	  <HintPath>..\..\lib\$(Configuration)\NDesk.DBus.dll</HintPath>
@@ -133,6 +195,7 @@
 	<Reference Include="System.Xml.Linq">
 	  <RequiredTargetFramework>3.5</RequiredTargetFramework>
 	</Reference>
+	<Reference Condition="'$(Configuration)' == 'DebugMono' Or '$(Configuration)' == 'ReleaseMono' " Include="icu.net" />
   </ItemGroup>
   <ItemGroup>
 	<Compile Include="FileTypeHanders\ChorusNotesAnnotationMergingStrategy.cs" />

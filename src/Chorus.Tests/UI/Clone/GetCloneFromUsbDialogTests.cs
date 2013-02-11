@@ -2,7 +2,7 @@
 using System.IO;
 using System.Windows.Forms;
 using Chorus.UI.Clone;
-using Chorus.Utilities.UsbDrive;
+using Palaso.UsbDrive;
 using Chorus.VcsDrivers.Mercurial;
 using NUnit.Framework;
 using Palaso.Progress;

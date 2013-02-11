@@ -24,5 +24,7 @@ relre:src/SampleApp/bin/*
 glob:CopyTo Dev WeSay.bat
 MercurialExtensions/fixutf8/cpmap.pyo
 MercurialExtensions/fixutf8/cpmap.py
+test-results
+glob:*.mdb
 src/LibChorusTests/test-results/LibChorus.Tests.csproj.test-cache
 **.orig

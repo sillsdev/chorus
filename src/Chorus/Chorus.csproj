@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-	<Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-	<Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+	<Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
+	<Platform Condition=" '$(Platform)' == '' ">x86</Platform>
 	<ProductVersion>9.0.21022</ProductVersion>
 	<SchemaVersion>2.0</SchemaVersion>
 	<ProjectGuid>{9DA5A655-1881-4BE1-81BA-256E47CF7537}</ProjectGuid>
@@ -48,7 +48,7 @@
 	<AllowUnsafeBlocks>false</AllowUnsafeBlocks>
 	<CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
 	<ApplicationIcon>chorus.ico</ApplicationIcon>
-	<PlatformTarget>x86</PlatformTarget>
+	<PlatformTarget>AnyCPU</PlatformTarget>
 	<DocumentationFile>..\..\output\$(Configuration)\Chorus.XML</DocumentationFile>
 	<UseVSHostingProcess>true</UseVSHostingProcess>
 	<TargetFrameworkProfile>Client</TargetFrameworkProfile>
@@ -67,7 +67,7 @@
 	<AllowUnsafeBlocks>false</AllowUnsafeBlocks>
 	<CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
 	<ApplicationIcon>chorus.ico</ApplicationIcon>
-	<PlatformTarget>x86</PlatformTarget>
+	<PlatformTarget>AnyCPU</PlatformTarget>
 	<TargetFrameworkProfile>Client</TargetFrameworkProfile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'DebugMono|AnyCPU' ">
@@ -77,7 +77,7 @@
 	<CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
 	<DocumentationFile>..\..\output\$(Configuration)\Chorus.XML</DocumentationFile>
 	<DebugType>full</DebugType>
-	<PlatformTarget>x86</PlatformTarget>
+	<PlatformTarget>AnyCPU</PlatformTarget>
 	<ErrorReport>prompt</ErrorReport>
 	<TargetFrameworkProfile>
 	</TargetFrameworkProfile>
@@ -94,6 +94,70 @@
 	<TargetFrameworkProfile>
 	</TargetFrameworkProfile>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+	<DebugSymbols>true</DebugSymbols>
+	<OutputPath>..\..\output\$(Configuration)</OutputPath>
+	<DefineConstants>DEBUG;TRACE</DefineConstants>
+	<CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+	<DocumentationFile>..\..\output\Debug\Chorus.XML</DocumentationFile>
+	<DebugType>full</DebugType>
+	<PlatformTarget>x86</PlatformTarget>
+	<CodeAnalysisLogFile>..\..\output\Debug\Chorus.exe.CodeAnalysisLog.xml</CodeAnalysisLogFile>
+	<CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+	<CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
+	<ErrorReport>prompt</ErrorReport>
+	<CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+	<CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
+	<CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+	<DebugSymbols>true</DebugSymbols>
+	<OutputPath>..\..\output\$(Configuration)</OutputPath>
+	<DefineConstants>TRACE</DefineConstants>
+	<CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+	<Optimize>true</Optimize>
+	<DebugType>pdbonly</DebugType>
+	<PlatformTarget>x86</PlatformTarget>
+	<CodeAnalysisLogFile>..\..\output\Release\Chorus.exe.CodeAnalysisLog.xml</CodeAnalysisLogFile>
+	<CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+	<CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
+	<ErrorReport>prompt</ErrorReport>
+	<CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+	<CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
+	<CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DebugMono|x86'">
+	<DebugSymbols>true</DebugSymbols>
+	<OutputPath>..\..\output\$(Configuration)</OutputPath>
+	<DefineConstants>DEBUG;TRACE;MONO</DefineConstants>
+	<CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+	<DocumentationFile>..\..\output\DebugMono\Chorus.XML</DocumentationFile>
+	<DebugType>full</DebugType>
+	<PlatformTarget>x86</PlatformTarget>
+	<CodeAnalysisLogFile>..\..\output\DebugMono\Chorus.exe.CodeAnalysisLog.xml</CodeAnalysisLogFile>
+	<CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+	<CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
+	<ErrorReport>prompt</ErrorReport>
+	<CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+	<CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
+	<CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'ReleaseMono|x86'">
+	<DebugSymbols>true</DebugSymbols>
+	<OutputPath>..\..\output\$(Configuration)</OutputPath>
+	<DefineConstants>TRACE;MONO</DefineConstants>
+	<CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+	<Optimize>true</Optimize>
+	<DebugType>pdbonly</DebugType>
+	<PlatformTarget>x86</PlatformTarget>
+	<CodeAnalysisLogFile>..\..\output\ReleaseMono\Chorus.exe.CodeAnalysisLog.xml</CodeAnalysisLogFile>
+	<CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+	<CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
+	<ErrorReport>prompt</ErrorReport>
+	<CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+	<CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
+	<CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
+  </PropertyGroup>
   <ItemGroup>
 	<Reference Include="Autofac, Version=1.4.4.561, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
 	  <SpecificVersion>False</SpecificVersion>
@@ -103,10 +167,18 @@
 	  <SpecificVersion>False</SpecificVersion>
 	  <HintPath>..\..\lib\$(Configuration)\Palaso.dll</HintPath>
 	</Reference>
-	<Reference Include="PalasoUIWindowsForms, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86">
-	  <SpecificVersion>False</SpecificVersion>
-	  <HintPath>..\..\lib\$(Configuration)\PalasoUIWindowsForms.dll</HintPath>
+	<Reference Include="geckofx-core-14">
+	  <HintPath>\usr\lib\fieldworks\geckofx-core-14.dll</HintPath>
 	</Reference>
+	<Reference Include="Geckofx-Winforms-14">
+	  <HintPath>\usr\lib\fieldworks\Geckofx-Winforms-14.dll</HintPath>
+	</Reference>
+	<None Condition="'$(Configuration)' == 'DebugMono' Or '$(Configuration)' == 'ReleaseMono' " Include="\usr\lib\fieldworks\geckofix.so">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</None>
+	<None Condition="'$(Configuration)' == 'DebugMono' Or '$(Configuration)' == 'ReleaseMono' " Include="\usr\lib\fieldworks\geckofx-core-14.dll.config">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</None>
 	<Reference Include="System" />
 	<Reference Include="System.Core">
 	  <RequiredTargetFramework>3.5</RequiredTargetFramework>

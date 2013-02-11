@@ -90,7 +90,6 @@ namespace Chorus.UI.Clone
 			}
 		}
 
-
 		public bool TargetHasProblem
 		{
 			get {
@@ -98,11 +97,19 @@ namespace Chorus.UI.Clone
 			}
 		}
 
-
 		public bool ShowCloneOnlyControls
 		{
 			get { return _showCloneSpecificSettings; }
 		}
+
+			public void CleanUpAfterErrorOrCancel()
+		{
+				if (Directory.Exists(TargetDestination))
+				{
+					Directory.Delete(TargetDestination, true);
+				}
+		}
+
 
 		public bool CancelRequested
 		{

@@ -1,8 +1,8 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <PropertyGroup>
-	<Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-	<Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+	<Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
+	<Platform Condition=" '$(Platform)' == '' ">x86</Platform>
 	<ProductVersion>9.0.21022</ProductVersion>
 	<SchemaVersion>2.0</SchemaVersion>
 	<ProjectGuid>{F9671F8B-8556-44EA-81A7-C236D871B471}</ProjectGuid>
@@ -31,7 +31,7 @@
 	<RootNamespace>LibChorus.Tests</RootNamespace>
 	<AllowUnsafeBlocks>false</AllowUnsafeBlocks>
 	<CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
-	<PlatformTarget>x86</PlatformTarget>
+	<PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
 	<DebugType>pdbonly</DebugType>
@@ -46,7 +46,7 @@
 	<RootNamespace>LibChorus.Tests</RootNamespace>
 	<AllowUnsafeBlocks>false</AllowUnsafeBlocks>
 	<CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
-	<PlatformTarget>x86</PlatformTarget>
+	<PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'DebugMono|AnyCPU' ">
 	<DebugSymbols>true</DebugSymbols>
@@ -54,7 +54,7 @@
 	<DefineConstants>DEBUG;TRACE;MONO</DefineConstants>
 	<CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
 	<DebugType>full</DebugType>
-	<PlatformTarget>x86</PlatformTarget>
+	<PlatformTarget>AnyCPU</PlatformTarget>
 	<ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'ReleaseMono|AnyCPU' ">
@@ -64,9 +64,54 @@
 	<CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
 	<Optimize>true</Optimize>
 	<DebugType>pdbonly</DebugType>
-	<PlatformTarget>x86</PlatformTarget>
+	<PlatformTarget>AnyCPU</PlatformTarget>
 	<ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+	<DebugSymbols>true</DebugSymbols>
+	<OutputPath>..\..\output\$(Configuration)</OutputPath>
+	<DefineConstants>DEBUG;TRACE</DefineConstants>
+	<CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+	<DebugType>full</DebugType>
+	<PlatformTarget>x86</PlatformTarget>
+	<CodeAnalysisLogFile>..\..\output\Debug\LibChorus.Tests.dll.CodeAnalysisLog.xml</CodeAnalysisLogFile>
+	<CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+	<CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
+	<ErrorReport>prompt</ErrorReport>
+	<CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+	<CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
+	<CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+	<DebugSymbols>true</DebugSymbols>
+	<OutputPath>..\..\output\$(Configuration)</OutputPath>
+	<DefineConstants>TRACE</DefineConstants>
+	<CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+	<Optimize>true</Optimize>
+	<DebugType>pdbonly</DebugType>
+	<PlatformTarget>x86</PlatformTarget>
+	<CodeAnalysisLogFile>..\..\output\Release\LibChorus.Tests.dll.CodeAnalysisLog.xml</CodeAnalysisLogFile>
+	<CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+	<CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
+	<ErrorReport>prompt</ErrorReport>
+	<CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+	<CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
+	<CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DebugMono|x86'">
+	<CodeAnalysisLogFile>..\..\output\DebugMono\LibChorus.Tests.dll.CodeAnalysisLog.xml</CodeAnalysisLogFile>
+	<CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+	<CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
+	<CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+	<CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
+	<CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'ReleaseMono|x86'">
+	<CodeAnalysisLogFile>..\..\output\ReleaseMono\LibChorus.Tests.dll.CodeAnalysisLog.xml</CodeAnalysisLogFile>
+	<CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+	<CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
+	<CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+	<CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
+	<CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
   <ItemGroup>
 	<Reference Include="Autofac, Version=2.6.3.862, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
 	  <SpecificVersion>False</SpecificVersion>
@@ -135,6 +180,7 @@
 	<Compile Include="merge\xml\lift\FileLevelMergeTests.cs" />
 	<Compile Include="merge\xml\lift\LexEntryContextGeneratorTests.cs" />
 	<Compile Include="merge\xml\lift\LexEntryMergingTests.cs" />
+	<Compile Include="merge\xml\lift\LexEntryMergingTests.cs" />
 	<Compile Include="merge\xml\lift\MultiTextMergingTests.cs" />
 	<Compile Include="merge\xml\lift\PoorMansMergingStrategyTests.cs" />
 	<Compile Include="merge\xml\lift\SenseMergingTests.cs" />
@@ -194,9 +240,6 @@
 	</ProjectReference>
   </ItemGroup>
   <ItemGroup>
-	<None Include="..\..\build\MonoRunnerForTest\chorusmerge">
-	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	</None>
   </ItemGroup>
   <ItemGroup>
 	<None Include="..\..\build\MonoRunnerForTest\chorusmerge">

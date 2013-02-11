@@ -87,6 +87,12 @@ namespace Chorus.UI.Clone
 		{
 			if (_statusProgress.ErrorEncountered)
 			{
+				_model.CleanUpAfterErrorOrCancel();
+			}
+			{
+				_model.CleanUpAfterErrorOrCancel();
+			}
+			{
 				UpdateDisplay(State.Error);
 				_model.CleanUpAfterErrorOrCancel();
 				_statusProgress.Reset();
@@ -173,7 +179,7 @@ namespace Chorus.UI.Clone
 					_fixSettingsButton.Visible = true;
 					_fixSettingsButton.Focus();
 					_cancelButton.Visible = true;
-					_cancelButton.Text = "&Cancel";
+					//_cancelButton.Text = "&Cancel";
 					//_cancelButton.Select();
 					_cancelTaskButton.Visible = false;
 					_statusLabel.Visible = true;
@@ -299,6 +305,11 @@ namespace Chorus.UI.Clone
 		private void GetCloneFromInternetDialog_BackColorChanged(object sender, EventArgs e)
 		{
 			_logBox.BackColor  =this.BackColor;
+		}
+
+		private void Click_FixSettingsButton()
+		{
+			_progress.CancelRequested = false;
 		}
 
 	}

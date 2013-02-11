@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Windows.Forms;
-using Chorus.Utilities.UsbDrive;
+using Palaso.UsbDrive;
 using Chorus.VcsDrivers.Mercurial;
 using Palaso.IO;
 using Palaso.Progress;
