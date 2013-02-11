@@ -40,7 +40,7 @@ namespace ChorusHub
 			var server = new ChorusHubClient().FindServer();
 			if (server != null)
 			{
-				ErrorReport.NotifyUserOfProblem("Only one ChorusHub can be run on a network and there is already one running on {0}",
+				ErrorReport.NotifyUserOfProblem("Only one ChorusHub can be run on a network but there is already one running on {0}",
 												server.HostName);
 				return;
 			}
