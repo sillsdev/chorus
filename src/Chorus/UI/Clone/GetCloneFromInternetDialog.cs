@@ -87,12 +87,6 @@ namespace Chorus.UI.Clone
 		{
 			if (_statusProgress.ErrorEncountered)
 			{
-				_model.CleanUpAfterErrorOrCancel();
-			}
-			{
-				_model.CleanUpAfterErrorOrCancel();
-			}
-			{
 				UpdateDisplay(State.Error);
 				_model.CleanUpAfterErrorOrCancel();
 				_statusProgress.Reset();
@@ -306,11 +300,5 @@ namespace Chorus.UI.Clone
 		{
 			_logBox.BackColor  =this.BackColor;
 		}
-
-		private void Click_FixSettingsButton()
-		{
-			_progress.CancelRequested = false;
-		}
-
 	}
 }

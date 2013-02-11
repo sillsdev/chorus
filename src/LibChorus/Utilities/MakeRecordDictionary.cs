@@ -69,6 +69,10 @@ namespace Chorus.Utilities
 					{
 						AddKeyToIndex(record);
 					}
+					catch (ArgumentException exception)
+					{
+						Palaso.Reporting.ErrorReport.NotifyUserOfProblem(exception, exception.Message + " Please seek expert help in removing the duplicate GUID. The process will now continue.");
+					}
 					catch (Exception error)
 					{
 						if (ShouldContinueAfterDuplicateKey != null)
@@ -82,12 +86,6 @@ namespace Chorus.Utilities
 						{
 							throw;
 						}
-					}
-
-					}
-					catch (ArgumentException exception)
-					{
-						Palaso.Reporting.ErrorReport.NotifyUserOfProblem(exception, exception.Message + " Please seek expert help in removing the duplicate GUID. The process will now continue.");
 					}
 				}
 			}
@@ -103,8 +101,6 @@ namespace Chorus.Utilities
 				   ?? GetAttribute(_identifierWithSingleQuote, _closeSingleQuote, data);
 			try
 			{
-				throw new ArgumentException("Guid "+guid+" appears more than once in this file.");
-			}
 				_dictionary.Add(guid, data);
 			}
 			catch (ArgumentException error)

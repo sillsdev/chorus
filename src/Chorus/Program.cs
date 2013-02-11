@@ -28,12 +28,15 @@ namespace Chorus
 
 			// Set up Xpcom for geckofx
 #if MONO
+#if false // TODO: renable this - when making geckofx work in Chorus
 			DummyFunction();
+
 			if (!Environment.GetEnvironmentVariable("LD_LIBRARY_PATH").Contains("/usr/lib/firefox/"))
 				throw new ApplicationException(String.Format("LD_LIBRARY_PATH must contain {0}", "/usr/lib/firefox/"));
 
 			Xpcom.Initialize("/usr/lib/firefox/");
 			GeckoPreferences.User["gfx.font_rendering.graphite.enabled"] = true;
+#endif
 #else
 			Xpcom.Initialize(XULRunnerLocator.GetXULRunnerLocation());
 #endif

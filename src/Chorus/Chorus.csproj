@@ -167,18 +167,17 @@
 	  <SpecificVersion>False</SpecificVersion>
 	  <HintPath>..\..\lib\$(Configuration)\Palaso.dll</HintPath>
 	</Reference>
-	<Reference Include="geckofx-core-14">
-	  <HintPath>\usr\lib\fieldworks\geckofx-core-14.dll</HintPath>
+	<Reference Include="geckofx-core-11">
+	  <HintPath>..\..\lib\$(Configuration)\geckofx-11.dll</HintPath>
 	</Reference>
-	<Reference Include="Geckofx-Winforms-14">
-	  <HintPath>\usr\lib\fieldworks\Geckofx-Winforms-14.dll</HintPath>
-	</Reference>
+<!-- TODO: renable this latter
 	<None Condition="'$(Configuration)' == 'DebugMono' Or '$(Configuration)' == 'ReleaseMono' " Include="\usr\lib\fieldworks\geckofix.so">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</None>
 	<None Condition="'$(Configuration)' == 'DebugMono' Or '$(Configuration)' == 'ReleaseMono' " Include="\usr\lib\fieldworks\geckofx-core-14.dll.config">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</None>
+-->
 	<Reference Include="System" />
 	<Reference Include="System.Core">
 	  <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -499,6 +498,10 @@
 	</Compile>
   </ItemGroup>
   <ItemGroup>
+ <Reference Include="ChorusHub, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+	  <SpecificVersion>False</SpecificVersion>
+	  <HintPath>..\..\output\$(Configuration)\ChorusHub.dll</HintPath>
+	</Reference>
 	<ProjectReference Include="..\ChorusHub\ChorusHub.csproj">
 	  <Project>{EB8C974D-B1C6-4CE0-BFD4-170EFE18790C}</Project>
 	  <Name>ChorusHub</Name>

@@ -71,7 +71,13 @@ namespace Chorus.UI
 			}
 		}
 
-		public IEnumerable<IUsbDriveInfo> UsbDrives
+		// TODO: resolve merge problems...
+		public IEnumerable<DriveInfo> UsbDrives
+		{
+			get { throw new NotImplementedException(); }
+		}
+
+		public IEnumerable<IUsbDriveInfo> UsbDrivesLinux
 		{
 			get
 			{

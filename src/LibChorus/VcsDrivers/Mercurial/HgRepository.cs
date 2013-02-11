@@ -34,6 +34,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		private string _proxyCongfigParameterString = string.Empty;
 		private bool _alreadyUpdatedHgrc;
 		private static bool _alreadyCheckedMercurialIni;
+		private bool _mercurialTwoCompatible;
 		private HgModelVersionBranch _branchHelper;
 
 		public static string GetEnvironmentReadinessMessage(string messageLanguageId)

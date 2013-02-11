@@ -13,7 +13,7 @@
 		<Solution>Chorus VS2010.sln</Solution>
 		<ApplicationName>Chorus</ApplicationName>
 		<ApplicationNameLC>chorus</ApplicationNameLC>
-		<Configuration>ReleaseMono</Configuration>
+		<Configuration>DebugMono</Configuration>
 	</PropertyGroup>
 
 	<Import Project="$(RootDir)/build/build.common.proj" />

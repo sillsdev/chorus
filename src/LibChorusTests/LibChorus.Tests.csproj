@@ -105,6 +105,7 @@
 	<CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
 	<CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
 	<CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'ReleaseMono|x86'">
 	<CodeAnalysisLogFile>..\..\output\ReleaseMono\LibChorus.Tests.dll.CodeAnalysisLog.xml</CodeAnalysisLogFile>
 	<CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
@@ -112,6 +113,7 @@
 	<CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
 	<CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
 	<CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
+  </PropertyGroup>
   <ItemGroup>
 	<Reference Include="Autofac, Version=2.6.3.862, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
 	  <SpecificVersion>False</SpecificVersion>
@@ -180,7 +182,6 @@
 	<Compile Include="merge\xml\lift\FileLevelMergeTests.cs" />
 	<Compile Include="merge\xml\lift\LexEntryContextGeneratorTests.cs" />
 	<Compile Include="merge\xml\lift\LexEntryMergingTests.cs" />
-	<Compile Include="merge\xml\lift\LexEntryMergingTests.cs" />
 	<Compile Include="merge\xml\lift\MultiTextMergingTests.cs" />
 	<Compile Include="merge\xml\lift\PoorMansMergingStrategyTests.cs" />
 	<Compile Include="merge\xml\lift\SenseMergingTests.cs" />
@@ -226,6 +227,10 @@
 	<Compile Include="VcsDrivers\Mercurial\Utf8Tests.cs" />
   </ItemGroup>
   <ItemGroup>
+	<Reference Include="LibChorus.TestUtilities, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+	  <SpecificVersion>False</SpecificVersion>
+	  <HintPath>..\..\output\$(Configuration)\LibChorus.TestUtilities.dll</HintPath>
+	</Reference>
 	<ProjectReference Include="..\LibChorus.TestUtilities\LibChorus.TestUtilities.csproj">
 	  <Project>{0681E722-1856-44A1-B585-220E6AEC85CB}</Project>
 	  <Name>LibChorus.TestUtilities</Name>
@@ -238,8 +243,6 @@
 	  <Project>{1264E294-F719-491C-863A-703CB48385D8}</Project>
 	  <Name>ChorusMerge</Name>
 	</ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
   </ItemGroup>
   <ItemGroup>
 	<None Include="..\..\build\MonoRunnerForTest\chorusmerge">
