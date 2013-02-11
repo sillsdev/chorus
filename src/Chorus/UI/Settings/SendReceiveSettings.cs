@@ -20,7 +20,6 @@ namespace Chorus.UI.Settings
 		public SendReceiveSettings()
 		{
 			InitializeComponent();
-			_helpProvider.RegisterPrimaryHelpFileMapping("chorus.helpmap");
 		}
 
 		public SendReceiveSettings(string repositoryLocation)

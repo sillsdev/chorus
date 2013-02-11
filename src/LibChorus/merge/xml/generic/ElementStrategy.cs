@@ -141,6 +141,13 @@ namespace Chorus.merge.xml.generic
 		/// </summary>
 		public bool IsAtomic { get; set; }
 
+		/// <summary>
+		/// This is relevant only when IsAtomic is true. It allows a special case when the atomic element has only text children,
+		/// which is common for nodes like [text] nodes in LIFT, so that we can get more helpful text conflict reports etc.
+		/// We fall back to the atomic strategy if the element has non-text children, e.g., [span] elements within [text].
+		/// </summary>
+		public bool AllowAtomicTextMerge { get; set; }
+
 		public static ElementStrategy CreateForKeyedElement(string keyAttributeName, bool orderIsRelevant)
 		{
 			var strategy = new ElementStrategy(orderIsRelevant)

@@ -14,7 +14,6 @@ namespace Chorus.notes
 		public ConflictDetailsForm()
 		{
 			InitializeComponent();
-			_helpProvider.RegisterPrimaryHelpFileMapping("chorus.helpmap");
 		}
 
 		public void SetDocumentText(string text)
@@ -26,7 +25,13 @@ namespace Chorus.notes
 			_conflictDisplay.Navigate("javascript:{document.body.outerHTML = '" + text + "';}");
 #else
 			_conflictDisplay.DocumentText = text;
+			_conflictDisplay.WebBrowserShortcutsEnabled = true;
 #endif
+		}
+
+		private void copyToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			_conflictDisplay.Document.ExecCommand("Copy", false, null);
 		}
 	}
 }

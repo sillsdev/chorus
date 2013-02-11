@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Threading;
 using System.Windows.Forms;
 using Chorus.notes;
 using Chorus.UI.Notes;
@@ -62,7 +63,7 @@ namespace Chorus.Tests.notes
 			}
 		}
 
-		[Test, Ignore("By Hand only")]
+		[Test, RequiresSTA, Ignore("By Hand only")]
 		public void ShowNotesBrowser_LargeNumber()
 		{
 			using (var f = new TempFile("<notes version='0'/>"))
@@ -81,7 +82,7 @@ namespace Chorus.Tests.notes
 			}
 		}
 
-		[Test, Ignore("By Hand only")]
+		[Test, Ignore("By Hand only"), RequiresSTA]
 		public void ShowNotesBrowser_SmallNumber()
 		{
 			using (var folder = new TemporaryFolder("NotesModelTests"))
@@ -132,11 +133,16 @@ namespace Chorus.Tests.notes
 			//TODO (jh/jh): something here seems screwed up... we create a NotesInProjectViewModel here, and yet so does the NotesBrowserPage
 
 			var messageSelected = new MessageSelectedEvent();
-			NotesInProjectViewModel notesInProjectModel = new NotesInProjectViewModel(new ChorusUser("Bob"), repositories, messageSelected, new ConsoleProgress());
+			var chorusNotesDisplaySettings = new ChorusNotesDisplaySettings()
+			{
+				WritingSystemForNoteLabel = new TestWritingSystem("Algerian"),
+				WritingSystemForNoteContent = new TestWritingSystem("Bradley Hand ITC")
+			};
 
-			var writingSystems= new List<IWritingSystem>(new []{new EnglishWritingSystem()});
+			NotesInProjectViewModel notesInProjectModel = new NotesInProjectViewModel(new ChorusUser("Bob"), repositories, messageSelected, chorusNotesDisplaySettings, new ConsoleProgress());
+
 			var annotationModel = new AnnotationEditorModel(new ChorusUser("bob"), messageSelected, StyleSheet.CreateFromDisk(),
-				new EmbeddedMessageContentHandlerFactory(), new NavigateToRecordEvent(), writingSystems);
+				new EmbeddedMessageContentHandlerRepository(), new NavigateToRecordEvent(), chorusNotesDisplaySettings);
 			AnnotationEditorView annotationView = new AnnotationEditorView(annotationModel);
 			annotationView.ModalDialogMode=false;
 			var page = new NotesBrowserPage((unusedRepos,progress)=>notesInProjectModel, repositories, annotationView);
@@ -150,5 +156,38 @@ namespace Chorus.Tests.notes
 		}
 	}
 
+	internal class TestWritingSystem : IWritingSystem
+	{
+		private readonly string _fontName;
 
+		public TestWritingSystem(string fontName)
+		{
+			_fontName = fontName;
+		}
+
+		public string Name
+		{
+			get { return "test"; }
+		}
+
+		public string Code
+		{
+			get { return "tst"; }
+		}
+
+		public string FontName
+		{
+			get { return _fontName; }
+		}
+
+		public int FontSize
+		{
+			get { return 24; }
+		}
+
+		public void ActivateKeyboard()
+		{
+
+		}
+	}
 }

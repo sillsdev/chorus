@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
 using System.Linq;
+using Chorus.notes;
 
 namespace Chorus.UI.Notes
 {
@@ -21,12 +23,23 @@ namespace Chorus.UI.Notes
 			//needs to be primed this way
 			SetDocumentText("<html><head></head><body></body></html>");
 			_newMessage.Font = model.FontForNewMessage;
+
+			//a signal to keep palaso localiztion helper from messing with our font
+			_annotationLabel.UseMnemonic = false;
+
+			_annotationLabel.Font = model.FontForLabel;
 		}
 
 		public MessageSelectedEvent EventToRaiseForChangedMessage
 		{
 			get { return _model.EventToRaiseForChangedMessage; }
 		}
+
+		public EmbeddedMessageContentHandlerRepository MesageContentHandlerRepository
+		{
+			get { return _model.MesageContentHandlerRepository; }
+		}
+
 
 		protected void SetDocumentText(string text)
 		{

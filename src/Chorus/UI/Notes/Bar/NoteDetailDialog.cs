@@ -15,7 +15,6 @@ namespace Chorus.UI.Notes.Bar
 		public NoteDetailDialog(Annotation annotation, AnnotationEditorModel.Factory viewModelFactory)
 		{
 			InitializeComponent();
-			_helpProvider.RegisterPrimaryHelpFileMapping("chorus.helpmap");
 			var model = viewModelFactory(annotation, false);
 			Text = model.GetLongLabel();
 			var view = new AnnotationEditorView(model);

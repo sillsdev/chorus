@@ -157,9 +157,9 @@
 	<CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
   </PropertyGroup>
   <ItemGroup>
-	<Reference Include="Autofac, Version=2.6.3.862, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
+	<Reference Include="Autofac">
 	  <SpecificVersion>False</SpecificVersion>
-	  <HintPath>..\..\lib\Release\Autofac.dll</HintPath>
+	  <HintPath>..\..\lib\common\Autofac.dll</HintPath>
 	</Reference>
 	<Reference Condition="'$(Configuration)' == 'Debug' Or '$(Configuration)' == 'Release' " Include="icu.net, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
 	  <SpecificVersion>False</SpecificVersion>
@@ -181,20 +181,14 @@
 	  <HintPath>..\..\lib\$(Configuration)\Palaso.Lift.dll</HintPath>
 	</Reference>
 	<Reference Include="System" />
-	<Reference Include="System.Core">
-	  <RequiredTargetFramework>3.5</RequiredTargetFramework>
-	</Reference>
+	<Reference Include="System.Core" />
 	<Reference Include="System.Data" />
-	<Reference Include="System.Data.Linq">
-	  <RequiredTargetFramework>3.5</RequiredTargetFramework>
-	</Reference>
+	<Reference Include="System.Data.Linq" />
 	<Reference Include="System.Drawing" />
 	<Reference Include="System.Management" />
 	<Reference Include="System.Runtime.Serialization" />
 	<Reference Include="System.Xml" />
-	<Reference Include="System.Xml.Linq">
-	  <RequiredTargetFramework>3.5</RequiredTargetFramework>
-	</Reference>
+	<Reference Include="System.Xml.Linq" />
 	<Reference Condition="'$(Configuration)' == 'DebugMono' Or '$(Configuration)' == 'ReleaseMono' " Include="icu.net" />
   </ItemGroup>
   <ItemGroup>
@@ -242,6 +236,7 @@
 	<Compile Include="sync\DefaultSychronizerAdjunct.cs" />
 	<Compile Include="sync\ISychronizerAdjunct.cs" />
 	<Compile Include="sync\LargeFileFilter.cs" />
+	<Compile Include="Utilities\code\LinuxUtils.cs" />
 	<Compile Include="Utilities\Help\HelpUtils.cs" />
 	<Compile Include="Utilities\MakeRecordDictionary.cs" />
 	<Compile Include="FileTypeHanders\NotePresenter.cs" />
@@ -433,7 +428,19 @@
 	<None Include="Resources\MergeConflict16x16Closed.png" />
   </ItemGroup>
   <ItemGroup>
+	<None Include="Resources\DataLossMerge16x16.png" />
+  </ItemGroup>
+  <ItemGroup>
+	<None Include="Resources\DataLossMerge32x32.png" />
+  </ItemGroup>
+  <ItemGroup>
+	<None Include="Resources\DataLossMerge16x16Closed.png" />
+  </ItemGroup>
+  <ItemGroup>
 	<None Include="Resources\question16x16Closed.png" />
+  </ItemGroup>
+  <ItemGroup>
+	<None Include="Resources\check16x16.png" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
