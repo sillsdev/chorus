@@ -64,5 +64,10 @@ namespace Chorus.FileTypeHanders
 		{
 			return LiftSorter.LiftSuppressIndentingChildren;
 		}
+
+		public bool ShouldCreateConflictReport(XmlNode ancestor, XmlNode survivor)
+		{
+			return true;
+		}
 	}
 }

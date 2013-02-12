@@ -35,5 +35,14 @@ namespace Chorus.merge.xml.generic
 		/// </summary>
 		/// <returns></returns>
 		HashSet<string> SuppressIndentingChildren();
+
+		/// <summary>
+		/// This gives the merge process the information it needs to decide if an edit is serious enough to cause a conflict
+		/// (for now this is used in edit vs delete situations to decide whether or not to keep the edit).
+		/// </summary>
+		/// <param name="commonAncestor"></param>
+		/// <param name="survivor"></param>
+		/// <returns></returns>
+		bool ShouldCreateConflictReport(XmlNode commonAncestor, XmlNode survivor);
 	}
 }
