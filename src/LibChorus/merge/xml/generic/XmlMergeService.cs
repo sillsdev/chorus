@@ -437,7 +437,7 @@ namespace Chorus.merge.xml.generic
 					mergeOrder.EventListener,
 					new EditedVsRemovedElementConflict(commonNode.Name, winnerNode, null, commonNode, mergeOrder.MergeSituation,
 													   mergeStrategy.GetElementStrategy(commonNode), winnerId),
-					winnerNode, winnerNode, commonNode);
+					winnerNode, winnerNode, commonNode, generator as IGenerateHtmlContext ?? new SimpleHtmlGenerator());
 			}
 		}
 
@@ -477,7 +477,7 @@ namespace Chorus.merge.xml.generic
 					mergeOrder.EventListener,
 					new RemovedVsEditedElementConflict(commonNode.Name, null, loserNode, commonNode, mergeOrder.MergeSituation,
 													   mergeStrategy.GetElementStrategy(commonNode), loserId),
-					null, loserNode, commonNode);
+					null, loserNode, commonNode, generator as IGenerateHtmlContext ?? new SimpleHtmlGenerator());
 			}
 		}
 

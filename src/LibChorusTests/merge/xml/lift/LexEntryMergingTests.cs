@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Xml;
 using Chorus.FileTypeHanders.lift;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
@@ -125,13 +126,18 @@ namespace LibChorus.Tests.merge.xml.lift
 				var listener = new ListenerForUnitTests();
 				var situation = new NullMergeSituation();
 				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation) { EventListener = listener };
-				XmlMergeService.Do3WayMerge(mergeOrder, new LiftEntryMergingStrategy(mergeOrder),
+				var mergeStrategy = new LiftEntryMergingStrategy(mergeOrder);
+				var strategies = mergeStrategy.GetStrategies();
+				var entryStrategy = strategies.ElementStrategies["entry"];
+				entryStrategy.ContextDescriptorGenerator = new EnhancedEntrycontextGenerator();
+				XmlMergeService.Do3WayMerge(mergeOrder, mergeStrategy,
 					false,
 					"header",
 					"entry", "guid");
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
 				var conflict = listener.Conflicts[0];
 				Assert.That(conflict, Is.InstanceOf<EditedVsRemovedElementConflict>());
+				Assert.That(conflict.HtmlDetails, Is.StringContaining("my silly context"), "merger should have used the context generator to make the html details");
 				var context = conflict.Context;
 
 				Assert.That(context, Is.Not.Null, "the merge should supply a context for the conflict");
@@ -174,13 +180,18 @@ namespace LibChorus.Tests.merge.xml.lift
 				var listener = new ListenerForUnitTests();
 				var situation = new NullMergeSituation();
 				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation) { EventListener = listener };
-				XmlMergeService.Do3WayMerge(mergeOrder, new LiftEntryMergingStrategy(mergeOrder),
+				var mergeStrategy = new LiftEntryMergingStrategy(mergeOrder);
+				var strategies = mergeStrategy.GetStrategies();
+				var entryStrategy = strategies.ElementStrategies["entry"];
+				entryStrategy.ContextDescriptorGenerator = new EnhancedEntrycontextGenerator();
+				XmlMergeService.Do3WayMerge(mergeOrder, mergeStrategy,
 					false,
 					"header",
 					"entry", "guid");
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
 				var conflict = listener.Conflicts[0];
 				Assert.That(conflict, Is.InstanceOf<RemovedVsEditedElementConflict>());
+				Assert.That(conflict.HtmlDetails, Is.StringContaining("my silly context"), "merger should have used the context generator to make the html details");
 				var context = conflict.Context;
 
 				Assert.That(context, Is.Not.Null, "the merge should supply a context for the conflict");
@@ -188,6 +199,20 @@ namespace LibChorus.Tests.merge.xml.lift
 				XmlTestHelper.AssertXPathMatchesExactlyOne(result, "lift/entry/lexical-unit/form[@lang='ldb-fonipa-x-emic']/text[text()='asaten']");
 			}
 		}
+
+		class EnhancedEntrycontextGenerator : LexEntryContextGenerator, IGenerateHtmlContext
+		{
+			public string HtmlContext(XmlNode mergeElement)
+			{
+				return "my silly context";
+			}
+
+			public string HtmlContextStyles(XmlNode mergeElement)
+			{
+				return "";
+			}
+		}
+
 		[Test] // See http://jira.palaso.org/issues/browse/CHR-18
 		public void Merge_DuplicateGuidsInEntry_ResultHasWarningReport()
 		{
