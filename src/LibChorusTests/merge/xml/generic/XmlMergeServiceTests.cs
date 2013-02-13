@@ -1085,7 +1085,7 @@ namespace LibChorus.Tests.merge.xml.generic
 		}
 
 		[Test]
-		public void TheyEditWeDeleteEndsWithDeletionAndNoConflcit()
+		public void IsDifferenceSignificantAnswersFalseDeleteVsEdit_DeleteProceedsWithoutConflict()
 		{
 			const string ancestor = @"<?xml version='1.0' encoding='utf-8'?>
 					<lift version='0.10' producer='WeSay 1.0.0.0'>
@@ -1129,11 +1129,13 @@ namespace LibChorus.Tests.merge.xml.generic
 				// Check that the audio made it into the merge.
 				XmlTestHelper.AssertXPathMatchesExactlyOne(result, "lift/entry[@id='noChangesInEither']");
 				XmlTestHelper.AssertXPathIsNull(result, "lift/entry[@id='oneEdited']");
+				listener.AssertExpectedChangesCount(0);
+				listener.AssertExpectedConflictCount(0);
 			}
 		}
 
 		[Test]
-		public void WeEditTheyDeleteEndsWithDeletionAndNoConflcit()
+		public void IsDifferenceSignificantAnswersFalseEditVsDelete_DeleteProceedsWithoutConflict()
 		{
 			const string ancestor = @"<?xml version='1.0' encoding='utf-8'?>
 					<lift version='0.10' producer='WeSay 1.0.0.0'>
@@ -1177,6 +1179,8 @@ namespace LibChorus.Tests.merge.xml.generic
 				// Check that the audio made it into the merge.
 				XmlTestHelper.AssertXPathMatchesExactlyOne(result, "lift/entry[@id='noChangesInEither']");
 				XmlTestHelper.AssertXPathIsNull(result, "lift/entry[@id='oneEdited']");
+				listener.AssertExpectedChangesCount(0);
+				listener.AssertExpectedConflictCount(0);
 			}
 		}
 

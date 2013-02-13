@@ -63,7 +63,7 @@ namespace Chorus.FileTypeHanders
 			return new HashSet<string>();
 		}
 
-		public bool ShouldCreateConflictReport(XmlNode ancestor, XmlNode survivor)
+		public bool IsDifferenceSignificant(XmlNode ancestor, XmlNode survivor)
 		{
 			return true;
 		}

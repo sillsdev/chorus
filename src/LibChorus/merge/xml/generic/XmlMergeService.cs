@@ -421,7 +421,7 @@ namespace Chorus.merge.xml.generic
 					fluffedUpWinnerNodes.Add(allDeletedByLoserButEditedByWinnerId, winnerNode);
 				}
 
-				if (!mergeStrategy.ShouldCreateConflictReport(commonNode, winnerNode))
+				if (!mergeStrategy.IsDifferenceSignificant(commonNode, winnerNode))
 				{
 					reallyWereDeletedEvenIfEdited.Add(allDeletedByLoserButEditedByWinnerId);
 					continue;
@@ -465,7 +465,7 @@ namespace Chorus.merge.xml.generic
 					fluffedUpLoserNodes.Add(allDeletedByWinnerButEditedByLoserId, loserNode);
 				}
 
-				if (!mergeStrategy.ShouldCreateConflictReport(commonNode, loserNode))
+				if (!mergeStrategy.IsDifferenceSignificant(commonNode, loserNode))
 				{
 					reallyWereDeletedEvenIfEdited.Add(allDeletedByWinnerButEditedByLoserId);
 					continue;

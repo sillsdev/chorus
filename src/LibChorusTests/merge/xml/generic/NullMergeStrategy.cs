@@ -64,7 +64,7 @@ namespace LibChorus.Tests.merge.xml.generic
 			return new HashSet<string>();
 		}
 
-		public bool ShouldCreateConflictReport(XmlNode commonAncestor, XmlNode survivor)
+		public bool IsDifferenceSignificant(XmlNode commonAncestor, XmlNode survivor)
 		{
 			return true;
 		}

@@ -47,6 +47,6 @@ namespace Chorus.merge.xml.generic
 		/// This method was added in the context of the edit vs delete methods, so only one 'survivor' node is given.
 		/// It could be enhanced for more general use, but then all three nodes needs parameters, evn if the 'loser' is null.
 		/// </remarks>
-		bool ShouldCreateConflictReport(XmlNode commonAncestor, XmlNode survivor);
+		bool IsDifferenceSignificant(XmlNode commonAncestor, XmlNode survivor);
 	}
 }
