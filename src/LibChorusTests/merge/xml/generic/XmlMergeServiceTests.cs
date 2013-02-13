@@ -1085,6 +1085,102 @@ namespace LibChorus.Tests.merge.xml.generic
 		}
 
 		[Test]
+		public void TheyEditWeDeleteEndsWithDeletionAndNoConflcit()
+		{
+			const string ancestor = @"<?xml version='1.0' encoding='utf-8'?>
+					<lift version='0.10' producer='WeSay 1.0.0.0'>
+						<entry id='noChangesInEither' guid='c1ed1f9d-e382-11de-8a39-0800200c9a66' />
+						<entry id='oneEdited' guid='c1ed1f9e-e382-11de-8a39-0800200c9a66' >
+							<sense>
+								 <gloss lang='a'>
+									<text>original</text>
+								 </gloss>
+							</sense>
+						</entry>
+					</lift>";
+			const string ours = @"<?xml version='1.0' encoding='utf-8'?>
+					<lift version='0.10' producer='WeSay 1.0.0.0'>
+						<entry id='noChangesInEither' guid='c1ed1f9d-e382-11de-8a39-0800200c9a66' />
+						<entry id='oneEdited' guid='c1ed1f9e-e382-11de-8a39-0800200c9a66' >
+							<sense>
+								 <gloss lang='a'>
+									<text>ourNewGloss</text>
+								 </gloss>
+							</sense>
+						</entry>
+					</lift>";
+			const string theirs = @"<?xml version='1.0' encoding='utf-8'?>
+					<lift version='0.10' producer='WeSay 1.0.0.0'>
+						<entry id='noChangesInEither' guid='c1ed1f9d-e382-11de-8a39-0800200c9a66' />
+					</lift>";
+
+			using (var oursTemp = new TempFile(ours))
+			using (var theirsTemp = new TempFile(theirs))
+			using (var ancestorTemp = new TempFile(ancestor))
+			{
+				var listener = new ListenerForUnitTests();
+				var situation = new NullMergeSituation();
+				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation) { EventListener = listener };
+				XmlMergeService.Do3WayMerge(mergeOrder, new RejectConflictsMergeStrategy(),
+					true,
+					"header",
+					"entry", "guid");
+				var result = File.ReadAllText(mergeOrder.pathToOurs);
+				// Check that the audio made it into the merge.
+				XmlTestHelper.AssertXPathMatchesExactlyOne(result, "lift/entry[@id='noChangesInEither']");
+				XmlTestHelper.AssertXPathIsNull(result, "lift/entry[@id='oneEdited']");
+			}
+		}
+
+		[Test]
+		public void WeEditTheyDeleteEndsWithDeletionAndNoConflcit()
+		{
+			const string ancestor = @"<?xml version='1.0' encoding='utf-8'?>
+					<lift version='0.10' producer='WeSay 1.0.0.0'>
+						<entry id='noChangesInEither' guid='c1ed1f9d-e382-11de-8a39-0800200c9a66' />
+						<entry id='oneEdited' guid='c1ed1f9e-e382-11de-8a39-0800200c9a66' >
+							<sense>
+								 <gloss lang='a'>
+									<text>original</text>
+								 </gloss>
+							</sense>
+						</entry>
+					</lift>";
+			const string ours = @"<?xml version='1.0' encoding='utf-8'?>
+					<lift version='0.10' producer='WeSay 1.0.0.0'>
+						<entry id='noChangesInEither' guid='c1ed1f9d-e382-11de-8a39-0800200c9a66' />
+					</lift>";
+			const string theirs = @"<?xml version='1.0' encoding='utf-8'?>
+					<lift version='0.10' producer='WeSay 1.0.0.0'>
+						<entry id='noChangesInEither' guid='c1ed1f9d-e382-11de-8a39-0800200c9a66' />
+						<entry id='oneEdited' guid='c1ed1f9e-e382-11de-8a39-0800200c9a66' >
+							<sense>
+								 <gloss lang='a'>
+									<text>ourNewGloss</text>
+								 </gloss>
+							</sense>
+						</entry>
+					</lift>";
+
+			using (var oursTemp = new TempFile(ours))
+			using (var theirsTemp = new TempFile(theirs))
+			using (var ancestorTemp = new TempFile(ancestor))
+			{
+				var listener = new ListenerForUnitTests();
+				var situation = new NullMergeSituation();
+				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation) { EventListener = listener };
+				XmlMergeService.Do3WayMerge(mergeOrder, new RejectConflictsMergeStrategy(),
+					true,
+					"header",
+					"entry", "guid");
+				var result = File.ReadAllText(mergeOrder.pathToOurs);
+				// Check that the audio made it into the merge.
+				XmlTestHelper.AssertXPathMatchesExactlyOne(result, "lift/entry[@id='noChangesInEither']");
+				XmlTestHelper.AssertXPathIsNull(result, "lift/entry[@id='oneEdited']");
+			}
+		}
+
+		[Test]
 		public void TheyEditedMainItemSenseGlossWeDidNothingHasNoReports()
 		{
 			// New Style means the deleted entry was really removed from the file, not just marked as deleted.

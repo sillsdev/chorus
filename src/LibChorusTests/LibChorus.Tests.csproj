@@ -117,6 +117,7 @@
 	<Compile Include="merge\xml\generic\MergeChildrenMethod_DiffOnlyTests.cs" />
 	<Compile Include="merge\xml\generic\MergeLimitedChildrenServiceTests.cs" />
 	<Compile Include="merge\xml\generic\NullMergeStrategy.cs" />
+	<Compile Include="merge\xml\generic\RejectConflictsMergeStrategy.cs" />
 	<Compile Include="merge\xml\generic\TextElementMergeTests.cs" />
 	<Compile Include="merge\xml\generic\XmlAttributeMergeTests.cs" />
 	<Compile Include="merge\xml\generic\xmldiff\Xml2WayDifferTests.cs" />

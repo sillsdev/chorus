@@ -40,9 +40,13 @@ namespace Chorus.merge.xml.generic
 		/// This gives the merge process the information it needs to decide if an edit is serious enough to cause a conflict
 		/// (for now this is used in edit vs delete situations to decide whether or not to keep the edit).
 		/// </summary>
-		/// <param name="commonAncestor"></param>
-		/// <param name="survivor"></param>
-		/// <returns></returns>
+		/// <param name="commonAncestor">This is the common ancestor node.</param>
+		/// <param name="survivor">This can be either ours or theirs, depending on the caller</param>
+		/// <returns>'true' if the client should create a conflict report, otherwise 'false'.</returns>
+		/// <remarks>
+		/// This method was added in the context of the edit vs delete methods, so only one 'survivor' node is given.
+		/// It could be enhanced for more general use, but then all three nodes needs parameters, evn if the 'loser' is null.
+		/// </remarks>
 		bool ShouldCreateConflictReport(XmlNode commonAncestor, XmlNode survivor);
 	}
 }
