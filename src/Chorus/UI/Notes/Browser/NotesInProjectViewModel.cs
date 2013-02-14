@@ -100,6 +100,8 @@ namespace Chorus.UI.Notes.Browser
 					items.Add("Notifications");
 				if (ShowClosedNotes && items.Count > 0)
 					items.Add("incl. Resolved");
+
+				// NB: If we add another category, this number needs bumping.
 				if (items.Count > 3)
 					return "All";
 				if (items.Count == 0)
