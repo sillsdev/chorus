@@ -71,7 +71,7 @@ namespace Chorus.UI.Notes
 			{
 				var doc = new XmlDocument();
 				var conflict = Conflict.CreateFromConflictElement(XmlUtilities.GetDocumentNodeFromRawXml(content, doc));
-				var html = conflict.HtmlDetails;
+				var html = "<html>" + conflict.HtmlDetails + "</html>";
 				if (HtmlAdjuster != null)
 					html = HtmlAdjuster(html);
 				if (string.IsNullOrEmpty(html))
