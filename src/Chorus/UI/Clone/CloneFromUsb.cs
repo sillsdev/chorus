@@ -29,7 +29,7 @@ namespace Chorus.UI.Clone
 		/// Use this to inject a custom filter, so that the only projects that can be chosen are ones
 		/// you application is prepared to open.  The delegate is given the path to each mercurial project.
 		/// </summary>
-		public Func<string, bool> ProjectFilter = GetSharedProject.DefaultProjectFilter;
+		public Func<string, bool> ProjectFilter = GetSharedProjectModel.DefaultProjectFilter;
 
 
 		public bool GetHaveOneOrMoreUsbDrives()

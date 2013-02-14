@@ -30,7 +30,6 @@ namespace Chorus.UI.Clone
 			Font = SystemFonts.MessageBoxFont;
 //#endif
 			InitializeComponent();
-			_helpProvider.RegisterPrimaryHelpFileMapping("chorus.helpmap");
 
 			Font = SystemFonts.MessageBoxFont;
 

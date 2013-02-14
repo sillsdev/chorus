@@ -8,7 +8,6 @@ using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
 using Palaso.Progress;
-using Palaso.Progress;
 using Palaso.UI.WindowsForms.Progress;
 
 namespace Chorus.UI.Clone
@@ -16,7 +15,7 @@ namespace Chorus.UI.Clone
 	///<summary>
 	/// Dialog to allow user to find and select an Hg repository via a folder browser.
 	///</summary>
-	public partial class GetCloneFromNetworkFolderDlg : Form
+	public partial class GetCloneFromNetworkFolderDlg : Form, ICloneSourceDialog
 	{
 		// Data model for this view:
 		private GetCloneFromNetworkFolderModel _model;
@@ -50,7 +49,6 @@ namespace Chorus.UI.Clone
 		public GetCloneFromNetworkFolderDlg()
 		{
 			InitializeComponent();
-			_helpProvider.RegisterPrimaryHelpFileMapping("chorus.helpmap");
 
 			progressBar.Maximum = MaxProgressValue;
 			_progressBarColor = progressBar.ForeColor;
@@ -574,6 +572,16 @@ namespace Chorus.UI.Clone
 					_progressData.CurrentRepositories.Add(item);
 				}
 			}
+		}
+
+		public string PathToNewlyClonedFolder
+		{
+			get { return _model.ActualClonedFolder; }
+		}
+
+		public void SetFilePatternWhichMustBeFoundInHgDataFolder(string pattern)
+		{
+			// Not implemented yet.
 		}
 	}
 }

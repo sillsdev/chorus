@@ -12,7 +12,7 @@
 	<PropertyGroup>
 		<Solution>Chorus VS2008.sln</Solution>
 		<ApplicationName>Chorus</ApplicationName>
-		<Configuration>DebugMono</Configuration>
+		<Configuration>ReleaseMono</Configuration>
 	</PropertyGroup>
 
 	<Import Project="$(RootDir)/build/build.common.proj" />

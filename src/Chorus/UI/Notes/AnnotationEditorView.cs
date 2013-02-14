@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
 using System.Linq;
+using Chorus.notes;
 
 namespace Chorus.UI.Notes
 {
@@ -33,6 +34,12 @@ namespace Chorus.UI.Notes
 		{
 			get { return _model.EventToRaiseForChangedMessage; }
 		}
+
+		public EmbeddedMessageContentHandlerRepository MesageContentHandlerRepository
+		{
+			get { return _model.MesageContentHandlerRepository; }
+		}
+
 
 		protected void SetDocumentText(string text)
 		{

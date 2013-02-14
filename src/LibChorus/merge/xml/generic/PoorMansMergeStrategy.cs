@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Text;
 using System.Xml;
 
@@ -52,6 +53,11 @@ namespace Chorus.merge.xml.generic
 			};
 			merger.MergeStrategies.SetStrategy("def", def);
 			return merger.MergeStrategies;
+		}
+
+		public HashSet<string> SuppressIndentingChildren()
+		{
+			return new HashSet<string>();
 		}
 	}
 }

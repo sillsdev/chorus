@@ -14,6 +14,8 @@ namespace Chorus.notes
 					return new NoteAnnotationClass();
 				case Conflict.ConflictAnnotationClassName:
 					return new ConflictAnnotationClass();
+				case Conflict.NotificationAnnotationClassName:
+					return new NotificationAnnotationClass();
 				default:
 					return new AnnotationClass(name);
 			}
