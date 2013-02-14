@@ -8,12 +8,6 @@ namespace Chorus.FileTypeHanders.lift
 	{
 		static public string LiftTimeFormatNoTimeZone = "yyyy-MM-ddTHH:mm:ssZ";
 
-		// Not used after Randy's overhaul.
-		//public static bool GetIsMarkedAsDeleted(XmlNode entry)
-		//{
-		//    return !string.IsNullOrEmpty(XmlUtilities.GetOptionalAttributeString(entry, "dateDeleted"));
-		//}
-
 		public static string GetId(XmlNode e)
 		{
 			return e.GetOptionalStringAttribute("id", string.Empty);
@@ -38,8 +32,8 @@ namespace Chorus.FileTypeHanders.lift
 
 		public static string GetUrl(XmlNode entryNode, string fileNameUnescaped)
 		{
-			fileNameUnescaped = fileNameUnescaped==null?"unknown": Uri.EscapeDataString(fileNameUnescaped);
-			string url = string.Format("lift://{0}?type=entry&", fileNameUnescaped);
+			var fileNameEscaped = (fileNameUnescaped == null) ? "unknown" : Uri.EscapeDataString(fileNameUnescaped);
+			string url = string.Format("lift://{0}?type=entry&", fileNameEscaped);
 
 			var guid = GetGuid(entryNode);
 			if (!string.IsNullOrEmpty(guid))
@@ -55,43 +49,28 @@ namespace Chorus.FileTypeHanders.lift
 				}
 			}
 
-
 			var form = GetFormForEntry(entryNode);
 			if (!string.IsNullOrEmpty(form))
 			{
-				url += "label=" + form + "&";
+				// Q: Should this be "$form=", since the caller wants to add its own "&label=" part of the query?
+				url += "label=" + Uri.EscapeDataString(form) + "&";
 			}
 			url = url.Trim('&');
 			return url;
 		}
 
-		// Not used after Randy's overhaul.
-		//public static XmlNode FindEntryById(XmlNode doc, string id)
-		//{
-		//        return doc.SelectSingleNode("lift/entry[@id=\""+id+"\"]");
-		//}
-		//public static XmlNode FindEntryByGuid(XmlNode doc, string guid)
-		//{
-		//        return doc.SelectSingleNode("lift/entry[@guid=\""+guid+"\"]");
-		//}
-		//public static bool AreTheSame(XmlNode ourEntry, XmlNode theirEntry)
-		//{
-		//    //for now...
-		//    if (GetModifiedDate(theirEntry) == GetModifiedDate(ourEntry)
-		//        && !(GetModifiedDate(theirEntry) == default(DateTime))
-		//        && !GetIsMarkedAsDeleted(ourEntry))
-		//        return true;
-
-		//    return XmlUtilities.AreXmlElementsEqual(ourEntry.OuterXml, theirEntry.OuterXml);
-		//}
-
-
 		public static string GetUrl(XmlNode child, string unescaped, string label)
 		{
-			var x = GetUrl(child, unescaped);
+			var url = GetUrl(child, unescaped);
 			if(string.IsNullOrEmpty(label))
-				return x;
-			return x + "&label=" + Uri.EscapeDataString(label);
+				return url;
+
+			// The call, above, to GetUrl, adds "&label=", and the provided "label" returns the same 'form' of the entry in its xpath,
+			// as is used in the above call to GetUrl.
+			// Do URLs support two duplicate parts of the query? Even if the contents of "&label=" are not the same, is that supported?
+			if (!url.Contains("&label="))
+				url = url + "&label=" + Uri.EscapeDataString(label);
+			return url;
 		}
 	}
 }
