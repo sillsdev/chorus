@@ -99,9 +99,11 @@ namespace Chorus.UI.Notes.Browser
 				if (!HideNotifications)
 					items.Add("Notifications");
 				if (ShowClosedNotes && items.Count > 0)
-					items.Add("including Resolved");
+					items.Add("incl. Resolved");
 				if (items.Count > 3)
 					return "All";
+				if (items.Count == 0)
+					return "Nothing selected to display";
 				return string.Join(", ", items.ToArray());
 			}
 		}

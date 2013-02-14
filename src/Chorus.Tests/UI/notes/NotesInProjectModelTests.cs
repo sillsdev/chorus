@@ -152,6 +152,32 @@ namespace Chorus.Tests.notes
 		}
 
 		[Test]
+		public void FilterStateMessage_HideAll_HideNone()
+		{
+			using (var folder = new TemporaryFolder("NotesModelTests"))
+			{
+				string contents = @"<annotation class='question'><message author='john'></message></annotation>
+				<annotation class='note'><message author='bob'></message></annotation>";
+				using (CreateNotesFile(folder, contents))
+				{
+					var repos = AnnotationRepository.CreateRepositoriesFromFolder(folder.Path, _progress);
+					var m = new NotesInProjectViewModel(TheUser, repos, new MessageSelectedEvent(), new ChorusNotesDisplaySettings(), new ConsoleProgress());
+					m.HideCriticalConflicts = true;
+					m.HideNotifications = true;
+					m.HideQuestions = true;
+					Assert.AreEqual("Nothing selected to display", m.FilterStateMessage,
+						"Wrong filter state message when nothing can be displayed");
+					m.HideQuestions = false;
+					m.HideCriticalConflicts = false;
+					m.HideNotifications = false;
+					m.ShowClosedNotes = true;
+					Assert.AreEqual("All", m.FilterStateMessage,
+						"Wrong filter state message when all annotations should be displayed");
+				}
+			}
+		}
+
+		[Test]
 		public void GetMessages_HideNotificationsAndConflicts_HidesCorrectItems()
 		{
 			using (var folder = new TemporaryFolder("NotesModelTests"))
