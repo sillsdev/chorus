@@ -437,7 +437,7 @@ namespace Chorus.merge.xml.generic
 					mergeOrder.EventListener,
 					new EditedVsRemovedElementConflict(commonNode.Name, winnerNode, null, commonNode, mergeOrder.MergeSituation,
 													   mergeStrategy.GetElementStrategy(commonNode), winnerId),
-					winnerNode, winnerNode, commonNode, generator as IGenerateHtmlContext ?? new SimpleHtmlGenerator());
+					winnerNode, null, commonNode, generator as IGenerateHtmlContext ?? new SimpleHtmlGenerator());
 			}
 		}
 
