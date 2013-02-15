@@ -106,7 +106,10 @@ namespace Chorus.merge.xml.generic
 
 			var elementStrat = MergeStrategies.GetElementStrategy(ours ?? theirs ?? ancestor);
 			if (elementStrat.IsImmutable)
-				return; // Can't merge something that can't change.
+			{
+				ImmutableElementMergeService.DoMerge(this, ref ours, theirs, ancestor);
+				return; // Don't go any further, since it is immutable.
+			}
 
 			if (elementStrat.IsAtomic)
 			{

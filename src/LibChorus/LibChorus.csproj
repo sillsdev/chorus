@@ -145,6 +145,7 @@
 	<Compile Include="FileTypeHanders\lift\LiftElementStrategiesMethod.cs" />
 	<Compile Include="FileTypeHanders\lift\LiftFolder.cs" />
 	<Compile Include="FileTypeHanders\lift\LiftElementToMergeStrategyKeyMapper.cs" />
+	<Compile Include="merge\xml\generic\ImmutableElementMergeService.cs" />
 	<Compile Include="merge\xml\generic\MergeLimitedChildrenService.cs" />
 	<Compile Include="merge\xml\generic\OptionalKeyAttrFinder.cs" />
 	<Compile Include="FileTypeHanders\Xml2WayDiffer.cs" />
