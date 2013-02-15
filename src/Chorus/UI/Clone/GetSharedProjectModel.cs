@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
+using Chorus.VcsDrivers.Mercurial;
 using Palaso.Code;
+using Palaso.Progress;
 
 namespace Chorus.UI.Clone
 {
@@ -18,10 +20,10 @@ namespace Chorus.UI.Clone
 		/// <returns>
 		/// A CloneResult that provides the clone results (e.g., success or failure) and the actual clone location (null if not created).
 		/// </returns>
-		public CloneResult GetSharedProjectUsing(Form parent, HashSet<string> existingRepositoryIdentifiers, Func<string, bool> projectFilter, string baseProjectDir, string preferredClonedFolderName)
+		public CloneResult GetSharedProjectUsing(Form parent, Dictionary<string, string> existingRepositories, HashSet<string> existingProjectNames, Func<string, bool> projectFilter, string baseProjectDir, string preferredClonedFolderName)
 		{
 			Guard.AgainstNull(parent, "parent");
-			Guard.AgainstNull(existingRepositoryIdentifiers, "existingRepositoryIdentifiers");
+			Guard.AgainstNull(existingRepositories, "existingRepositories");
 			Guard.Against(string.IsNullOrEmpty(baseProjectDir), "'baseProjectDir' is null or an empty string.");
 			if (preferredClonedFolderName == string.Empty)
 				preferredClonedFolderName = null;
@@ -100,7 +102,8 @@ namespace Chorus.UI.Clone
 				case ExtantRepoSource.ChorusHub:
 					var getCloneFromChorusHubModel = new GetCloneFromChorusHubModel(baseProjectDir)
 					{
-						ProjectFilter = projectFilter ?? DefaultProjectFilter
+						ProjectFilter = projectFilter ?? DefaultProjectFilter,
+						ExistingProjects = existingProjectNames
 					};
 
 					using (var getCloneFromChorusHubDialog = new GetCloneFromChorusHubDialog(getCloneFromChorusHubModel))
@@ -132,6 +135,8 @@ namespace Chorus.UI.Clone
 					using (var cloneFromUsbDialog = new GetCloneFromUsbDialog(baseProjectDir))
 					{
 						cloneFromUsbDialog.Model.ProjectFilter = projectFilter ?? DefaultProjectFilter;
+						cloneFromUsbDialog.Model.ReposInUse = existingRepositories;
+						cloneFromUsbDialog.Model.ExistingProjects = existingProjectNames;
 						switch (cloneFromUsbDialog.ShowDialog(parent))
 						{
 							default:
@@ -147,6 +152,18 @@ namespace Chorus.UI.Clone
 						}
 					}
 					break;
+
+			}
+			// Warn the user if they already have this by another name. Not currently possible if USB.
+			if (RepositorySource != ExtantRepoSource.Usb && cloneStatus == CloneStatus.Created)
+			{
+				var repo = new HgRepository(actualCloneLocation, new NullProgress());
+				string projectWithExistingRepo;
+				if (existingRepositories.TryGetValue(repo.Identifier, out projectWithExistingRepo))
+				{
+					MessageBox.Show(string.Format("The project {0} is already using this repository. Using Send/Receive in both will combine all the changes you make in either.", projectWithExistingRepo),
+						"Multiple Projects", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+				}
 
 			}
 			return new CloneResult(actualCloneLocation, cloneStatus);
