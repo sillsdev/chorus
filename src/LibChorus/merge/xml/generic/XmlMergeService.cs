@@ -41,7 +41,7 @@ namespace Chorus.merge.xml.generic
 												 XmlNode theirsContext, XmlNode ancestorContext,
 												 IGenerateHtmlContext htmlContextGenerator)
 		{
-			// NB: All three of these are crucially ordered.
+			// NB: All three of these are crucially ordered. Additions here should possibly be added also to XmlMerger.ConflictOccurred(conflict, node).
 			listener.RecordContextInConflict(conflict);
 			conflict.MakeHtmlDetails(oursContext, theirsContext, ancestorContext, htmlContextGenerator);
 			listener.ConflictOccurred(conflict);

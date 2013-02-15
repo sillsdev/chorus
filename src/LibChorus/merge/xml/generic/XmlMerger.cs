@@ -80,6 +80,25 @@ namespace Chorus.merge.xml.generic
 				_htmlContextGenerator);
 		}
 
+		internal void ConflictOccurred(IConflict conflict, XmlNode nodeToFindGeneratorFrom)
+		{
+			var contextDescriptorGenerator = MergeStrategies.GetElementStrategy(nodeToFindGeneratorFrom).ContextDescriptorGenerator;
+			IGenerateHtmlContext htmlGenerator = contextDescriptorGenerator as IGenerateHtmlContext;
+			if (htmlGenerator == null)
+				htmlGenerator = new SimpleHtmlGenerator();
+
+			// This is very to the body of XmlMergeService.AddConflictToListener, but with the extra step of checking the conflict gets a context.
+			EventListener.RecordContextInConflict(conflict);
+			if (conflict.Context == null)
+			{
+				// We are too far up the stack for the listener to have been told a context.
+				// Make one out of the current node.
+				conflict.Context = GetContextDescriptor(nodeToFindGeneratorFrom, contextDescriptorGenerator);
+			}
+			conflict.MakeHtmlDetails(_oursContext, _theirsContext, _ancestorContext, htmlGenerator);
+			EventListener.ConflictOccurred(conflict);
+		}
+
 		internal void WarningOccurred(IConflict warning)
 		{
 			if (_htmlContextGenerator == null)
@@ -131,16 +150,7 @@ namespace Chorus.merge.xml.generic
 				//review: question: does this not get called at levels below the entry?
 				//this would seem to fail at, say, a sense. I'm confused. (JH 30june09)
 				ContextDescriptor descriptor;
-				if (generator is IGenerateContextDescriptorFromNode)
-				{
-					// If the generator prefers the XmlNode, get the context that way.
-					descriptor = ((IGenerateContextDescriptorFromNode)generator).GenerateContextDescriptor(ours,
-						MergeSituation.PathToFileInRepository);
-				}
-				else
-				{
-					descriptor = generator.GenerateContextDescriptor(ours.OuterXml, MergeSituation.PathToFileInRepository);
-				}
+				descriptor = GetContextDescriptor(ours, generator);
 				EventListener.EnteringContext(descriptor);
 				_htmlContextGenerator = (generator as IGenerateHtmlContext); // null is OK.
 			}
@@ -169,6 +179,22 @@ namespace Chorus.merge.xml.generic
 			// _oursContext, _theirsContext, _ancestorContext, and _htmlContextGenerator.
 			// and somehow restore the EventListener's Context.
 			// Currently however no client generates further conflicts after calling MergeChildren.
+		}
+
+		private ContextDescriptor GetContextDescriptor(XmlNode ours, IGenerateContextDescriptor generator)
+		{
+			ContextDescriptor descriptor;
+			if (generator is IGenerateContextDescriptorFromNode)
+			{
+				// If the generator prefers the XmlNode, get the context that way.
+				descriptor = ((IGenerateContextDescriptorFromNode) generator).GenerateContextDescriptor(ours,
+					MergeSituation.PathToFileInRepository);
+			}
+			else
+			{
+				descriptor = generator.GenerateContextDescriptor(ours.OuterXml, MergeSituation.PathToFileInRepository);
+			}
+			return descriptor;
 		}
 
 		private void DoTextMerge(ref XmlNode ours, XmlNode theirs, XmlNode ancestor, ElementStrategy elementStrat)
