@@ -34,19 +34,20 @@ namespace Chorus.merge.xml.generic
 		public NodeMergeResult Merge(XmlNode ours, XmlNode theirs, XmlNode ancestor)
 		{
 			var result = new NodeMergeResult();
-			if (EventListener is DispatchingMergeEventListener)
+			var listener = EventListener as DispatchingMergeEventListener;
+			if (listener == null)
 			{
-				((DispatchingMergeEventListener)EventListener).AddEventListener(result);
-			}
-			else
-			{
-				DispatchingMergeEventListener dispatcher = new DispatchingMergeEventListener();
+				var dispatcher = new DispatchingMergeEventListener();
 				dispatcher.AddEventListener(result);
 				if (EventListener != null)
 				{
 					dispatcher.AddEventListener(EventListener);
 				}
 				EventListener = dispatcher;
+			}
+			else
+			{
+				listener.AddEventListener(result);
 			}
 
 			// Remove any duplicate child nodes in all three.
@@ -105,6 +106,19 @@ namespace Chorus.merge.xml.generic
 			_ancestorContext = ancestor;
 
 			var elementStrat = MergeStrategies.GetElementStrategy(ours ?? theirs ?? ancestor);
+			var generator = elementStrat.ContextDescriptorGenerator;
+			if (generator != null)
+			{
+				//review: question: does this not get called at levels below the entry?
+				//this would seem to fail at, say, a sense. I'm confused. (JH 30june09)
+				var node = generator as IGenerateContextDescriptorFromNode;
+				ContextDescriptor descriptor = (node != null)
+												   ? node.GenerateContextDescriptor(ours, MergeSituation.PathToFileInRepository)
+												   : generator.GenerateContextDescriptor(ours.OuterXml, MergeSituation.PathToFileInRepository);
+				EventListener.EnteringContext(descriptor);
+				_htmlContextGenerator = (generator as IGenerateHtmlContext); // null is OK.
+			}
+
 			if (elementStrat.IsImmutable)
 				return; // Can't merge something that can't change.
 
@@ -124,26 +138,6 @@ namespace Chorus.merge.xml.generic
 			// It could be possible for the elements to have no children, in which case, there is nothing more to merge, so just return.
 			if (ours != null && !ours.HasChildNodes && theirs != null && !theirs.HasChildNodes && ancestor != null && !ancestor.HasChildNodes)
 				return;
-
-			var generator = elementStrat.ContextDescriptorGenerator;
-			if (generator != null)
-			{
-				//review: question: does this not get called at levels below the entry?
-				//this would seem to fail at, say, a sense. I'm confused. (JH 30june09)
-				ContextDescriptor descriptor;
-				if (generator is IGenerateContextDescriptorFromNode)
-				{
-					// If the generator prefers the XmlNode, get the context that way.
-					descriptor = ((IGenerateContextDescriptorFromNode)generator).GenerateContextDescriptor(ours,
-						MergeSituation.PathToFileInRepository);
-				}
-				else
-				{
-					descriptor = generator.GenerateContextDescriptor(ours.OuterXml, MergeSituation.PathToFileInRepository);
-				}
-				EventListener.EnteringContext(descriptor);
-				_htmlContextGenerator = (generator as IGenerateHtmlContext); // null is OK.
-			}
 
 			if (XmlUtilities.IsTextLevel(ours, theirs, ancestor))
 			{
