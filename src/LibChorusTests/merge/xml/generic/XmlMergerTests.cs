@@ -33,6 +33,36 @@ namespace LibChorus.Tests.merge.xml.generic
 			CheckBothWaysNoConflicts(red, blue, ancestor, "a/b[@key='one']/c[text()='first']");
 		}
 
+		[Test]
+		public void PreMergeCalledBeforeMerging()
+		{
+			string red = @"<a/>";
+			string ancestor = red;
+			string blue = @"<a>
+								<b key='one'>
+									<c>first</c>
+								</b>
+							</a>";
+			var specialMergeStrategies = new Dictionary<string, ElementStrategy>();
+			specialMergeStrategies["a"] = new SillyMergeStrategy(true);
+			CheckOneWay(red, blue, ancestor, new NullMergeSituation(), specialMergeStrategies, (Action<string, ElementStrategy>)null,
+				"a[@silly='nonsense']/b[@key='one']/c[text()='first']");
+		}
+
+		class SillyMergeStrategy : ElementStrategy
+		{
+			public SillyMergeStrategy(bool orderIsRelevant) : base(orderIsRelevant)
+			{
+			}
+
+			public override void PreMerge(XmlNode ours, XmlNode theirs, XmlNode ancestor)
+			{
+				((XmlElement)ours).SetAttribute("silly", "nonsense");
+				((XmlElement)theirs).SetAttribute("silly", "nonsense");
+				((XmlElement)ancestor).SetAttribute("silly", "nonsense");
+			}
+		}
+
 		private void CheckBothWaysNoConflicts(string red, string blue, string ancestor, params string[] xpaths)
 		{
 			ChangeAndConflictAccumulator r = CheckOneWay(red, blue, ancestor, xpaths);

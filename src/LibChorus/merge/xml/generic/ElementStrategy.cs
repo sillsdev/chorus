@@ -142,6 +142,17 @@ namespace Chorus.merge.xml.generic
 		public bool IsAtomic { get; set; }
 
 		/// <summary>
+		/// This is done before we start the regular merge process. Specialized subclasses can do something. The default does not.
+		/// </summary>
+		/// <param name="ours"></param>
+		/// <param name="theirs"></param>
+		/// <param name="ancestor"></param>
+		public virtual void PreMerge(XmlNode ours, XmlNode theirs, XmlNode ancestor)
+		{
+
+		}
+
+		/// <summary>
 		/// This is relevant only when IsAtomic is true. It allows a special case when the atomic element has only text children,
 		/// which is common for nodes like [text] nodes in LIFT, so that we can get more helpful text conflict reports etc.
 		/// We fall back to the atomic strategy if the element has non-text children, e.g., [span] elements within [text].

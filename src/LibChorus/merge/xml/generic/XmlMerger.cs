@@ -138,6 +138,10 @@ namespace Chorus.merge.xml.generic
 			_ancestorContext = ancestor;
 
 			var elementStrat = MergeStrategies.GetElementStrategy(ours ?? theirs ?? ancestor);
+
+			// Do anything special the strategy wants to do before regular merging. This may modify the nodes.
+			elementStrat.PreMerge(ours, theirs, ancestor);
+
 			if (elementStrat.IsImmutable)
 				return; // Can't merge something that can't change.
 
