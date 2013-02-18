@@ -22,7 +22,7 @@ namespace LibChorus.Tests.merge.xml.generic
 		}
 
 		[Test]
-		public void AncestorNullOursNullTheirsNotNullHasChangeReportAndTheirsSetToOurs()
+		public void AncestorNull_OursNull_TheirsNotNull_HasChangeReport_AndTheirsIsKeptInMerge()
 		{
 			var listener = new ListenerForUnitTests();
 			XmlNode ours;
@@ -38,7 +38,7 @@ namespace LibChorus.Tests.merge.xml.generic
 		}
 
 		[Test]
-		public void AncestorNullOursNotNullTheirsNullHasChangeReportAnd()
+		public void AncestorNull_OursNotNull_TheirsNull_HasChangeReport_AndOursIsKeptInMerge()
 		{
 			var listener = new ListenerForUnitTests();
 			XmlNode ours;
@@ -54,7 +54,7 @@ namespace LibChorus.Tests.merge.xml.generic
 		}
 
 		[Test]
-		public void AncestorNullOursNotNullTheirsNotNullAndSameAsOursHasChangeReport()
+		public void AncestorNull_BothAddSameElementAndContent_HasChangeReport()
 		{
 			var listener = new ListenerForUnitTests();
 			XmlNode ours;
@@ -70,7 +70,7 @@ namespace LibChorus.Tests.merge.xml.generic
 		}
 
 		[Test]
-		public void BothAddedButNotTheSameHasConflictForWeWin()
+		public void BothAdded_ButNotTheSame_HasConflictForWeWin_OurChangeIsKept()
 		{
 			var listener = new ListenerForUnitTests();
 			XmlNode ours;
@@ -86,7 +86,7 @@ namespace LibChorus.Tests.merge.xml.generic
 		}
 
 		[Test]
-		public void BothAddedButNotTheSameHasConflictForTheyWin()
+		public void BothAdded_ButNotTheSame_HasConflictForTheyWin_TheirChangeIsKept()
 		{
 			var listener = new ListenerForUnitTests();
 			XmlNode ours;
@@ -102,7 +102,7 @@ namespace LibChorus.Tests.merge.xml.generic
 		}
 
 		[Test]
-		public void BothDeletedHasChangeReport()
+		public void BothDeletedElement_HasChangeReport()
 		{
 			var listener = new ListenerForUnitTests();
 			XmlNode ours;
@@ -117,7 +117,7 @@ namespace LibChorus.Tests.merge.xml.generic
 		}
 
 		[Test]
-		public void WeDeletedHasChangeReport()
+		public void WeDeleted_HasChangeReport()
 		{
 			var listener = new ListenerForUnitTests();
 			XmlNode ours;
@@ -132,7 +132,7 @@ namespace LibChorus.Tests.merge.xml.generic
 		}
 
 		[Test]
-		public void TheyDeletedHasChangeReport()
+		public void TheyDeleted_HasChangeReport()
 		{
 			var listener = new ListenerForUnitTests();
 			XmlNode ours;
@@ -147,7 +147,7 @@ namespace LibChorus.Tests.merge.xml.generic
 		}
 
 		[Test]
-		public void WeChangedButAncestroHasBeenRetoredHasNoReports()
+		public void WeMadeIllegalChange_ButAncestorHasBeenRetored_HasNoReports()
 		{
 			var listener = new ListenerForUnitTests();
 			XmlNode ours;
@@ -163,7 +163,7 @@ namespace LibChorus.Tests.merge.xml.generic
 		}
 
 		[Test]
-		public void XmlMergerCallsImmutableElementMergeService()
+		public void XmlMergerCallsImmutableElementMergeServiceForImmutableElement()
 		{
 			var listener = new ListenerForUnitTests();
 			var merger = new XmlMerger(new NullMergeSituation())
@@ -186,7 +186,7 @@ namespace LibChorus.Tests.merge.xml.generic
 		}
 
 		[Test]
-		public void XmlMergerDoesNotCallImmutableElementMergeService()
+		public void XmlMergerDoesNotCallImmutableElementMergeServiceForMutableElement()
 		{
 			var listener = new ListenerForUnitTests();
 			var merger = new XmlMerger(new NullMergeSituation())
