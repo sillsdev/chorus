@@ -82,21 +82,35 @@ namespace Chorus.merge.xml.generic
 
 		internal void ConflictOccurred(IConflict conflict, XmlNode nodeToFindGeneratorFrom)
 		{
-			var contextDescriptorGenerator = MergeStrategies.GetElementStrategy(nodeToFindGeneratorFrom).ContextDescriptorGenerator;
+			var contextDescriptorGenerator = GetContextDescriptorGenerator(nodeToFindGeneratorFrom);
 			IGenerateHtmlContext htmlGenerator = contextDescriptorGenerator as IGenerateHtmlContext;
 			if (htmlGenerator == null)
 				htmlGenerator = new SimpleHtmlGenerator();
 
-			// This is very to the body of XmlMergeService.AddConflictToListener, but with the extra step of checking the conflict gets a context.
-			EventListener.RecordContextInConflict(conflict);
-			if (conflict.Context == null)
-			{
-				// We are too far up the stack for the listener to have been told a context.
-				// Make one out of the current node.
-				conflict.Context = GetContextDescriptor(nodeToFindGeneratorFrom, contextDescriptorGenerator);
-			}
-			conflict.MakeHtmlDetails(_oursContext, _theirsContext, _ancestorContext, htmlGenerator);
-			EventListener.ConflictOccurred(conflict);
+			XmlMergeService.AddConflictToListener(
+				EventListener,
+				conflict,
+				_oursContext,
+				_theirsContext,
+				_ancestorContext,
+				htmlGenerator,
+				this,
+				nodeToFindGeneratorFrom);
+		}
+
+		/// <summary>
+		/// Get a context based on the given node. This should only be used when we are at the outer level (typically the EventListener has no context to add).
+		/// </summary>
+		/// <param name="nodeToFindGeneratorFrom"></param>
+		/// <returns></returns>
+		internal ContextDescriptor GetContext(XmlNode nodeToFindGeneratorFrom)
+		{
+			return GetContextDescriptor(nodeToFindGeneratorFrom, GetContextDescriptorGenerator(nodeToFindGeneratorFrom));
+		}
+
+		private IGenerateContextDescriptor GetContextDescriptorGenerator(XmlNode nodeToFindGeneratorFrom)
+		{
+			return MergeStrategies.GetElementStrategy(nodeToFindGeneratorFrom).ContextDescriptorGenerator;
 		}
 
 		internal void WarningOccurred(IConflict warning)
@@ -181,7 +195,7 @@ namespace Chorus.merge.xml.generic
 			// Currently however no client generates further conflicts after calling MergeChildren.
 		}
 
-		private ContextDescriptor GetContextDescriptor(XmlNode ours, IGenerateContextDescriptor generator)
+		internal ContextDescriptor GetContextDescriptor(XmlNode ours, IGenerateContextDescriptor generator)
 		{
 			ContextDescriptor descriptor;
 			if (generator is IGenerateContextDescriptorFromNode)

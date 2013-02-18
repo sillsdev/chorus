@@ -41,8 +41,25 @@ namespace Chorus.merge.xml.generic
 												 XmlNode theirsContext, XmlNode ancestorContext,
 												 IGenerateHtmlContext htmlContextGenerator)
 		{
-			// NB: All three of these are crucially ordered. Additions here should possibly be added also to XmlMerger.ConflictOccurred(conflict, node).
+			AddConflictToListener(listener, conflict, oursContext, theirsContext, ancestorContext, htmlContextGenerator, null, null);
+		}
+
+		/// <summary>
+		/// Add conflict. If RecordContextInConflict fails to set a context, and nodeToFindGeneratorFrom is non-null,
+		/// attempt to add a context based on the argument.
+		/// </summary>
+		public static void AddConflictToListener(IMergeEventListener listener, IConflict conflict, XmlNode oursContext,
+												 XmlNode theirsContext, XmlNode ancestorContext,
+												 IGenerateHtmlContext htmlContextGenerator, XmlMerger merger, XmlNode nodeToFindGeneratorFrom)
+		{
+			// NB: All these steps are crucially ordered.
 			listener.RecordContextInConflict(conflict);
+			if (conflict.Context == null && nodeToFindGeneratorFrom != null)
+			{
+				// We are too far up the stack for the listener to have been told a context.
+				// Make one out of the current node.
+				conflict.Context = merger.GetContext(nodeToFindGeneratorFrom);
+			}
 			conflict.MakeHtmlDetails(oursContext, theirsContext, ancestorContext, htmlContextGenerator);
 			listener.ConflictOccurred(conflict);
 		}
