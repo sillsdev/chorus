@@ -84,9 +84,7 @@ namespace Chorus.merge.xml.generic
 		internal void ConflictOccurred(IConflict conflict, XmlNode nodeToFindGeneratorFrom)
 		{
 			var contextDescriptorGenerator = GetContextDescriptorGenerator(nodeToFindGeneratorFrom);
-			IGenerateHtmlContext htmlGenerator = contextDescriptorGenerator as IGenerateHtmlContext;
-			if (htmlGenerator == null)
-				htmlGenerator = new SimpleHtmlGenerator();
+			var htmlGenerator = contextDescriptorGenerator as IGenerateHtmlContext ?? new SimpleHtmlGenerator();
 
 			XmlMergeService.AddConflictToListener(
 				EventListener,
@@ -144,7 +142,7 @@ namespace Chorus.merge.xml.generic
 			{
 				//review: question: does this not get called at levels below the entry?
 				//this would seem to fail at, say, a sense. I'm confused. (JH 30june09)
-				var descriptor = = GetContextDescriptor(ours, generator);
+				var descriptor = GetContextDescriptor(ours, generator);
 				EventListener.EnteringContext(descriptor);
 				_htmlContextGenerator = (generator as IGenerateHtmlContext); // null is OK.
 			}
@@ -200,20 +198,13 @@ namespace Chorus.merge.xml.generic
 
 		internal ContextDescriptor GetContextDescriptor(XmlNode ours, IGenerateContextDescriptor generator)
 		{
-			ContextDescriptor descriptor;
 			if (generator == null)
 				return null; // can't produce one.
-			if (generator is IGenerateContextDescriptorFromNode)
-			{
-				// If the generator prefers the XmlNode, get the context that way.
-				descriptor = ((IGenerateContextDescriptorFromNode) generator).GenerateContextDescriptor(ours,
-					MergeSituation.PathToFileInRepository);
-			}
-			else
-			{
-				descriptor = generator.GenerateContextDescriptor(ours.OuterXml, MergeSituation.PathToFileInRepository);
-			}
-			return descriptor;
+
+			var contextDescriptorFromNode = generator as IGenerateContextDescriptorFromNode;
+			return (contextDescriptorFromNode != null)
+											   ? contextDescriptorFromNode.GenerateContextDescriptor(ours, MergeSituation.PathToFileInRepository)
+											   : generator.GenerateContextDescriptor(ours.OuterXml, MergeSituation.PathToFileInRepository);
 		}
 
 		private void DoTextMerge(ref XmlNode ours, XmlNode theirs, XmlNode ancestor, ElementStrategy elementStrat)
