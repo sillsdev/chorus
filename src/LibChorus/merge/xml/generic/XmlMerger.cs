@@ -198,6 +198,8 @@ namespace Chorus.merge.xml.generic
 		internal ContextDescriptor GetContextDescriptor(XmlNode ours, IGenerateContextDescriptor generator)
 		{
 			ContextDescriptor descriptor;
+			if (generator == null)
+				return null; // can't produce one.
 			if (generator is IGenerateContextDescriptorFromNode)
 			{
 				// If the generator prefers the XmlNode, get the context that way.
