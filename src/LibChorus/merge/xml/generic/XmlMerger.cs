@@ -111,9 +111,9 @@ namespace Chorus.merge.xml.generic
 			{
 				//review: question: does this not get called at levels below the entry?
 				//this would seem to fail at, say, a sense. I'm confused. (JH 30june09)
-				var node = generator as IGenerateContextDescriptorFromNode;
-				ContextDescriptor descriptor = (node != null)
-												   ? node.GenerateContextDescriptor(ours, MergeSituation.PathToFileInRepository)
+				var contextDescriptorFromNode = generator as IGenerateContextDescriptorFromNode;
+				ContextDescriptor descriptor = (contextDescriptorFromNode != null)
+												   ? contextDescriptorFromNode.GenerateContextDescriptor(ours, MergeSituation.PathToFileInRepository)
 												   : generator.GenerateContextDescriptor(ours.OuterXml, MergeSituation.PathToFileInRepository);
 				EventListener.EnteringContext(descriptor);
 				_htmlContextGenerator = (generator as IGenerateHtmlContext); // null is OK.
