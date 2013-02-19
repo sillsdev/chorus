@@ -55,7 +55,7 @@ namespace LibChorus.Tests.merge.xml.generic
 
 		private class SillyPremerger : IPremerger
 		{
-			public void Premerge(ref XmlNode ours, XmlNode theirs, XmlNode ancestor)
+			public void Premerge(IMergeEventListener listener, ref XmlNode ours, XmlNode theirs, XmlNode ancestor)
 			{
 				((XmlElement)ours).SetAttribute("silly", "nonsense");
 				((XmlElement)theirs).SetAttribute("silly", "nonsense");

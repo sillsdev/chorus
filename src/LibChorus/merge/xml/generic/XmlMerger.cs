@@ -139,7 +139,7 @@ namespace Chorus.merge.xml.generic
 			var elementStrat = MergeStrategies.GetElementStrategy(ours ?? theirs ?? ancestor);
 
 			// Do anything special the strategy wants to do before regular merging. This may modify the nodes.
-			elementStrat.Premerger.Premerge(ref ours, theirs, ancestor);
+			elementStrat.Premerger.Premerge(EventListener, ref ours, theirs, ancestor);
 
 			var generator = elementStrat.ContextDescriptorGenerator;
 			if (generator != null)

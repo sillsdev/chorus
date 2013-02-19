@@ -228,12 +228,12 @@ namespace Chorus.merge.xml.generic
 		/// <summary>
 		/// Premerge the given elements.
 		/// </summary>
-		void Premerge(ref XmlNode ours, XmlNode theirs, XmlNode ancestor);
+		void Premerge(IMergeEventListener listener, ref XmlNode ours, XmlNode theirs, XmlNode ancestor);
 	}
 
 	internal class DefaultPremerger : IPremerger
 	{
-		public void Premerge(ref XmlNode ours, XmlNode theirs, XmlNode ancestor)
+		public void Premerge(IMergeEventListener listener, ref XmlNode ours, XmlNode theirs, XmlNode ancestor)
 		{ /* Do nothing at all. */ }
 	}
 
