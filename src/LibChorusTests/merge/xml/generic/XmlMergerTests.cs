@@ -44,18 +44,18 @@ namespace LibChorus.Tests.merge.xml.generic
 								</b>
 							</a>";
 			var specialMergeStrategies = new Dictionary<string, ElementStrategy>();
-			specialMergeStrategies["a"] = new SillyMergeStrategy(true);
+			var elementStrat = new ElementStrategy(true)
+				{
+					Premerger = new SillyPremerger()
+				};
+			specialMergeStrategies["a"] = elementStrat;
 			CheckOneWay(red, blue, ancestor, new NullMergeSituation(), specialMergeStrategies, (Action<string, ElementStrategy>)null,
 				"a[@silly='nonsense']/b[@key='one']/c[text()='first']");
 		}
 
-		class SillyMergeStrategy : ElementStrategy
+		private class SillyPremerger : IPremerger
 		{
-			public SillyMergeStrategy(bool orderIsRelevant) : base(orderIsRelevant)
-			{
-			}
-
-			public override void PreMerge(XmlNode ours, XmlNode theirs, XmlNode ancestor)
+			public void Premerge(ref XmlNode ours, XmlNode theirs, XmlNode ancestor)
 			{
 				((XmlElement)ours).SetAttribute("silly", "nonsense");
 				((XmlElement)theirs).SetAttribute("silly", "nonsense");
