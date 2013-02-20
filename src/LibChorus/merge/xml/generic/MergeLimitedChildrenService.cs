@@ -198,7 +198,16 @@ namespace Chorus.merge.xml.generic
 			ourReplacementChild = ourChild;
 			merger.MergeInner(ref ourReplacementChild, theirChild, ancestorChild);
 			if (!ReferenceEquals(ourChild, ourReplacementChild))
-				ours.ReplaceChild(ours.OwnerDocument.ImportNode(ourReplacementChild, true), ourChild);
+			{
+				if (ourChild != null)
+				{
+					ours.ReplaceChild(ours.OwnerDocument.ImportNode(ourReplacementChild, true), ourChild);
+				}
+				else //We deleted the child, they modified it, we'll append the replacement in.
+				{
+					ours.AppendChild(ours.OwnerDocument.ImportNode(ourReplacementChild, true));
+				}
+			}
 
 // Route tested. (UsingWith_NumberOfChildrenAllowed_ZeroOrOne_DoesNotThrowWhenParentHasOneChildNode)
 			return ours;

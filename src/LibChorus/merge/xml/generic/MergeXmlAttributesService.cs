@@ -11,7 +11,9 @@ namespace Chorus.merge.xml.generic
 	{
 		internal static void MergeAttributes(XmlMerger merger, ref XmlNode ours, XmlNode theirs, XmlNode ancestor)
 		{
-			// Review: What happens if 'ours' is null?
+			if (ours == null)
+				return;
+
 			var skipProcessingInOurs = new HashSet<string>();
 
 			// Deletions from ancestor, no matter who did it.
