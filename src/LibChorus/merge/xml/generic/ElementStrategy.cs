@@ -97,6 +97,7 @@ namespace Chorus.merge.xml.generic
 			OrderIsRelevant = orderIsRelevant;
 			AttributesToIgnoreForMerging = new List<string>();
 			NumberOfChildren = NumberOfChildrenAllowed.ZeroOrMore;
+			Premerger = new DefaultPremerger();
 		}
 
 		/// <summary>
@@ -140,6 +141,11 @@ namespace Chorus.merge.xml.generic
 		/// The default is 'false'.
 		/// </summary>
 		public bool IsAtomic { get; set; }
+
+		/// <summary>
+		/// Allow clients to do something special to the nodes before regular merging takes place.
+		/// </summary>
+		public IPremerger Premerger { internal get; set; }
 
 		/// <summary>
 		/// This is relevant only when IsAtomic is true. It allows a special case when the atomic element has only text children,
@@ -212,6 +218,23 @@ namespace Chorus.merge.xml.generic
 	public interface IElementDescriber
 	{
 		string GetHumanDescription(XmlNode element);
+	}
+
+	/// <summary>
+	/// Interface that allows for pre-merging work to be done on eleemnts, before any other merging work is done.
+	/// </summary>
+	public interface IPremerger
+	{
+		/// <summary>
+		/// Premerge the given elements.
+		/// </summary>
+		void Premerge(IMergeEventListener listener, ref XmlNode ours, XmlNode theirs, XmlNode ancestor);
+	}
+
+	internal class DefaultPremerger : IPremerger
+	{
+		public void Premerge(IMergeEventListener listener, ref XmlNode ours, XmlNode theirs, XmlNode ancestor)
+		{ /* Do nothing at all. */ }
 	}
 
 	//Given an element (however that is defined for a given file type (e.g. xml element for xml files)...

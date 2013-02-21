@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Xml;
+using Chorus.FileTypeHanders.lift;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
 using LibChorus.TestUtilities;
@@ -32,6 +33,36 @@ namespace LibChorus.Tests.merge.xml.generic
 			CheckBothWaysNoConflicts(red, blue, ancestor, "a/b[@key='one']/c[text()='first']");
 		}
 
+		[Test]
+		public void PreMergeCalledBeforeMerging()
+		{
+			string red = @"<a/>";
+			string ancestor = red;
+			string blue = @"<a>
+								<b key='one'>
+									<c>first</c>
+								</b>
+							</a>";
+			var specialMergeStrategies = new Dictionary<string, ElementStrategy>();
+			var elementStrat = new ElementStrategy(true)
+				{
+					Premerger = new SillyPremerger()
+				};
+			specialMergeStrategies["a"] = elementStrat;
+			CheckOneWay(red, blue, ancestor, new NullMergeSituation(), specialMergeStrategies, (Action<string, ElementStrategy>)null,
+				"a[@silly='nonsense']/b[@key='one']/c[text()='first']");
+		}
+
+		private class SillyPremerger : IPremerger
+		{
+			public void Premerge(IMergeEventListener listener, ref XmlNode ours, XmlNode theirs, XmlNode ancestor)
+			{
+				((XmlElement)ours).SetAttribute("silly", "nonsense");
+				((XmlElement)theirs).SetAttribute("silly", "nonsense");
+				((XmlElement)ancestor).SetAttribute("silly", "nonsense");
+			}
+		}
+
 		private void CheckBothWaysNoConflicts(string red, string blue, string ancestor, params string[] xpaths)
 		{
 			ChangeAndConflictAccumulator r = CheckOneWay(red, blue, ancestor, xpaths);
@@ -58,8 +89,17 @@ namespace LibChorus.Tests.merge.xml.generic
 			return CheckOneWay(ours, theirs, ancestor, new NullMergeSituation(), null, xpaths);
 		}
 
+		private ChangeAndConflictAccumulator CheckOneWay(string ours, string theirs, string ancestor,
+			MergeSituation situation,
+			Dictionary<string, ElementStrategy> specialMergeStrategies,
+			params string[] xpaths)
+		{
+			return CheckOneWay(ours, theirs, ancestor, situation, specialMergeStrategies, null, xpaths);
+		}
+
 		private ChangeAndConflictAccumulator CheckOneWay(string ours, string theirs, string ancestor, MergeSituation situation,
 			Dictionary<string, ElementStrategy> specialMergeStrategies,
+			Action<string, ElementStrategy> adjustStrategy,
 			params string[] xpaths)
 		{
 			var m = new XmlMerger(situation);
@@ -68,6 +108,11 @@ namespace LibChorus.Tests.merge.xml.generic
 			{
 				foreach (var kvp in specialMergeStrategies)
 					m.MergeStrategies.ElementStrategies[kvp.Key] = kvp.Value; // don't use add, some may replace standard ones.
+			}
+			if (adjustStrategy != null)
+			{
+				foreach (var kvp in m.MergeStrategies.ElementStrategies)
+					adjustStrategy(kvp.Key, kvp.Value);
 			}
 
 			var result = m.Merge(ours, theirs, ancestor);
@@ -283,13 +328,59 @@ namespace LibChorus.Tests.merge.xml.generic
 							</a>";
 
 			// blue wins
-			ChangeAndConflictAccumulator r = CheckOneWay(blue, red, ancestor,
+			ChangeAndConflictAccumulator r = CheckOneWay(blue, red, ancestor, new NullMergeSituation(), null, AddContextGenForB,
 										"a/b[@key='one']/c[@key='two']/d[@key='three']/e[text()='changed']");
 			Assert.AreEqual(typeof(RemovedVsEditedElementConflict), r.Conflicts[0].GetType());
+			CheckEditVsDeleteDetails(r.Conflicts[0].HtmlDetails);
+			var context = r.Conflicts[0].Context;
+			Assert.That(context, Is.Not.Null);
 			// red wins
-			r = CheckOneWay(red, blue, ancestor,
+			r = CheckOneWay(red, blue, ancestor, new NullMergeSituation(), null, AddContextGenForB,
 										"a/b[@key='one']/c[@key='two']/d[@key='three']/e[text()='changed']");
 			Assert.AreEqual(typeof(EditedVsRemovedElementConflict), r.Conflicts[0].GetType());
+			CheckEditVsDeleteDetails(r.Conflicts[0].HtmlDetails);
+		}
+
+		/// <summary>
+		/// Put in a special context generator for 'b', the element that is deleted.
+		/// This should be used to generate the HTML.
+		/// </summary>
+		/// <param name="key"></param>
+		/// <param name="strategy"></param>
+		private void AddContextGenForB(string key, ElementStrategy strategy)
+		{
+			if (key != "b")
+				return;
+			strategy.ContextDescriptorGenerator = new EditDeleteContextGenerator();
+		}
+
+		class EditDeleteContextGenerator : IGenerateContextDescriptor, IGenerateHtmlContext
+		{
+			public ContextDescriptor GenerateContextDescriptor(string mergeElement, string filePath)
+			{
+				return new ContextDescriptor("my label", "my url");
+			}
+
+			public string HtmlContext(XmlNode mergeElement)
+			{
+				return "my html";
+			}
+
+			public string HtmlContextStyles(XmlNode mergeElement)
+			{
+				return "";
+			}
+		}
+
+		private static void CheckEditVsDeleteDetails(string html)
+		{
+			Assert.That(html, Is.StringContaining("changes:"));
+			Assert.That(html, Is.Not.StringContaining("version"),
+				"This appears if we try to do HTML diffs on the representation of <a></a>");
+			Assert.That(html.IndexOf("changes", StringComparison.InvariantCulture),
+				Is.EqualTo(html.LastIndexOf("changes", StringComparison.InvariantCulture)),
+				"On EditVsDelete, we should display only one set of changes in details");
+			Assert.That(html, Is.StringContaining("my html"), "Should have used the custom HTML generator we configured for B");
 		}
 
 		[Test]

@@ -111,6 +111,7 @@
 	<Compile Include="merge\xml\generic\ElementStrategyTests.cs" />
 	<Compile Include="merge\xml\generic\FindByKeyAttributeInListTests.cs" />
 	<Compile Include="merge\xml\generic\FindNodeToMergeTests.cs" />
+	<Compile Include="merge\xml\generic\ImmutableElementMergeServiceTests.cs" />
 	<Compile Include="merge\xml\generic\MergeAtomicElementServiceTests.cs" />
 	<Compile Include="merge\xml\generic\ConflictIOTest.cs" />
 	<Compile Include="merge\xml\generic\MergeChildrenMethodTests.cs" />

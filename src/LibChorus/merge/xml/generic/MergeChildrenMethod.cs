@@ -293,7 +293,8 @@ namespace Chorus.merge.xml.generic
 																	   theirChild, ancestorChild,
 																	   _merger.MergeSituation,
 																	   _merger.MergeStrategies.GetElementStrategy(theirChild),
-																	   _merger.MergeSituation.BetaUserId));
+																	   _merger.MergeSituation.BetaUserId),
+									theirChild);
 								_skipInnerMergeFor.Add(theirChild);
 							}
 							else
@@ -337,7 +338,8 @@ namespace Chorus.merge.xml.generic
 							// Route tested (XmlMergerTests).
 							_merger.ConflictOccurred(
 								new EditedVsRemovedElementConflict(ourChild.Name, ourChild, null, ancestorChild,
-																   _merger.MergeSituation, _merger.MergeStrategies.GetElementStrategy(ourChild), _merger.MergeSituation.AlphaUserId));
+																   _merger.MergeSituation, _merger.MergeStrategies.GetElementStrategy(ourChild), _merger.MergeSituation.AlphaUserId),
+								ourChild);
 							_skipInnerMergeFor.Add(ourChild);
 						}
 						else
