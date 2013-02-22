@@ -138,25 +138,32 @@ namespace Chorus.merge.xml.generic
 
 			var elementStrat = MergeStrategies.GetElementStrategy(ours ?? theirs ?? ancestor);
 
-			// Do anything special the strategy wants to do before regular merging. This may modify the nodes.
+			// Step 0: Do anything special the strategy wants to do before regular merging. This may modify the nodes.
+			// For instance clinets may want to ensure 'our' and 'their' have the latest date stamp available.
 			elementStrat.Premerger.Premerge(EventListener, ref ours, theirs, ancestor);
 
+			// Step 0.1: Set up a context, if available.
 			var generator = elementStrat.ContextDescriptorGenerator;
 			if (generator != null)
 			{
 				//review: question: does this not get called at levels below the entry?
 				//this would seem to fail at, say, a sense. I'm confused. (JH 30june09)
 				var descriptor = GetContextDescriptor(ours, generator);
-				EventListener.EnteringContext(descriptor);
+				EventListener.EnteringContext(descriptor); // TODO: If the context is ever redone as a stack, then this call with push the context onto the stack.
 				_htmlContextGenerator = (generator as IGenerateHtmlContext); // null is OK.
 			}
 
+			// Step 1: If the current set of nodes are immutable,
+			// then make sure no changes took place (among a few other things).
 			if (elementStrat.IsImmutable)
 			{
 				ImmutableElementMergeService.DoMerge(this, ref ours, theirs, ancestor);
 				return; // Don't go any further, since it is immutable.
 			}
 
+			// Step 2: If the current set of elements is 'atomic'
+			// (only one user can make changes to the node, or anything it contains),
+			// then make sure only set of changes have been made.
 			if (elementStrat.IsAtomic)
 			{
 				if (elementStrat.AllowAtomicTextMerge && XmlUtilities.IsTextLevel(ours, theirs, ancestor))
@@ -168,14 +175,21 @@ namespace Chorus.merge.xml.generic
 				return;
 			}
 
+			// Step 3: Go ahead and merge the attributes, as needed.
 			MergeXmlAttributesService.MergeAttributes(this, ref ours, theirs, ancestor);
 
+			// Step 4: Hmm, trouble is, a node might be required to have one or more child nodes.
+			// I suppose a real validator would have picked up on that, and not allowed
+			// the first commit, so we wouldn't then be doing a merge operation.
+			// So, not to worry here, if the validator doesn't care enough to prevent the first commit.
 			// It could be possible for the elements to have no children, in which case, there is nothing more to merge, so just return.
 			if (ours != null && !ours.HasChildNodes && theirs != null && !theirs.HasChildNodes && ancestor != null && !ancestor.HasChildNodes)
 				return;
 
+			// Step 5: DO some kind of merge on the child node.
 			if (XmlUtilities.IsTextLevel(ours, theirs, ancestor))
 			{
+				// Step 5A: Merge the text element.
 				DoTextMerge(ref ours, theirs, ancestor, elementStrat);
 			}
 			else
@@ -184,20 +198,26 @@ namespace Chorus.merge.xml.generic
 				{
 					case NumberOfChildrenAllowed.Zero:
 					case NumberOfChildrenAllowed.ZeroOrOne:
+						// Step 5B: Merge the "special needs" nodes.
 						MergeLimitedChildrenService.Run(this, elementStrat, ref ours, theirs, ancestor);
 						break;
 					case NumberOfChildrenAllowed.ZeroOrMore:
-						//is this a level of the xml file that would consitute the minimal unit conflict-understanding
-						//from a user perspecitve?
-						//e.g., in a dictionary, this is the lexical entry.  In a text, it might be  a paragraph.
+						// Step 5B:
+						// Q: is this a level of the xml file that would consitute the minimal unit conflict-understanding
+						// from a user perspecitve?
+						// e.g., in a dictionary, this is the lexical entry.  In a text, it might be  a paragraph.
+						// A (RandyR): Definitely it may not be such a level of node.
 						new MergeChildrenMethod(ours, theirs, ancestor, this).Run();
 						break;
 				}
 			}
+
 			// At some point, it may be necessary here to restore the pre-existing values of
 			// _oursContext, _theirsContext, _ancestorContext, and _htmlContextGenerator.
 			// and somehow restore the EventListener's Context.
 			// Currently however no client generates further conflicts after calling MergeChildren.
+
+			// Step 6: TODO: If the context is ever redone as a stack, then pop the stack here to return to the outer context via some new LeavingContext method on EventListener.
 		}
 
 		internal ContextDescriptor GetContextDescriptor(XmlNode ours, IGenerateContextDescriptor generator)

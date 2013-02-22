@@ -203,7 +203,7 @@ namespace Chorus.merge.xml.generic
 				}
 			}
 			// Remove any leftovers.
-			while (_ours != null && _ours.ChildNodes.Count > resultsChildren.Count)
+			while (_ours.ChildNodes.Count > resultsChildren.Count)
 				_ours.RemoveChild(_ours.ChildNodes[resultsChildren.Count]);
 		}
 

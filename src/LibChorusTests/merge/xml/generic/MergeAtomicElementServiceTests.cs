@@ -300,7 +300,7 @@ namespace LibChorus.Tests.merge.xml.generic
 		}
 
 		[Test]
-		public void DeleteAtomicElementVsModifyDoesNotThrow()
+		public void DeleteAtomicElementVsModifyHasConflict()
 		{
 			const string commonAncestor =
 @"<Lexicon>
@@ -374,12 +374,13 @@ namespace LibChorus.Tests.merge.xml.generic
 			strat.IsAtomic = true;
 			merger.MergeStrategies.SetStrategy("objsur", strat);
 
-			Assert.DoesNotThrow(() => XmlTestHelper.DoMerge(merger.MergeStrategies, merger.MergeSituation,
-															commonAncestor, lee, matthew,
-															new[] { "Lexicon/LexEntry/MorphoSyntaxAnalyses/MoStemMsa/PartOfSpeech" },
-															null,
-															1, new List<Type> { typeof(RemovedVsEditedElementConflict) },
-															0, new List<Type>()));
+			XmlTestHelper.DoMerge(merger.MergeStrategies,
+				merger.MergeSituation,
+				commonAncestor, lee, matthew,
+				new[] { "Lexicon/LexEntry/MorphoSyntaxAnalyses/MoStemMsa/PartOfSpeech/objsur[@guid='f92dbc59-e93f-4df2-b6bd-39a53e331201']" },
+				null,
+				1, new List<Type> { typeof(RemovedVsEditedElementConflict) },
+				0, new List<Type>());
 		}
 
 		#endregion Conflicts produced
