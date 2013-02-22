@@ -97,6 +97,7 @@ namespace Chorus.merge.xml.generic
 			OrderIsRelevant = orderIsRelevant;
 			AttributesToIgnoreForMerging = new List<string>();
 			NumberOfChildren = NumberOfChildrenAllowed.ZeroOrMore;
+			ChildOrderPolicy = new AskChildrenOrderPolicy();
 			Premerger = new DefaultPremerger();
 		}
 
@@ -116,9 +117,17 @@ namespace Chorus.merge.xml.generic
 		public NumberOfChildrenAllowed NumberOfChildren { get; set; }
 
 		/// <summary>
-		/// Is the order of this element among its peers relevant (this says nothing about its children)
+		/// Is the order of this element among its peers relevant (this says nothing about its children).
+		/// This may be overridden if the parent element specifies a ChildOrderPolicy other than AskChildren (the default).
 		/// </summary>
 		public bool OrderIsRelevant { get; set; }
+
+		/// <summary>
+		/// Set this to one of the three simple policies or something more complex to determine the
+		/// relevance of the order of the children of this element. This takes priority over the OrderIsRelevant
+		/// value for the children (unless the policy returns AskChildren, the default).
+		/// </summary>
+		public IChildOrderPolicy ChildOrderPolicy { get; set; }
 
 		/// <summary>
 		/// The modified data is often an attribute that is worth ignoring
@@ -324,6 +333,57 @@ namespace Chorus.merge.xml.generic
 	{
 		public NullContextDescriptor() : base("unknown", "unknown")
 		{
+		}
+	}
+
+	/// <summary>
+	/// Responses that an implementation of IChildOrderPolicy may give to control how the children are ordered.
+	/// </summary>
+	public enum ChildOrder
+	{
+		AskChildren, // Obtain a strategy for each child and let this determine whether order is significant
+		Significant, // Order is significant for all children
+		NotSignificant // Order is not significant for any children
+	}
+
+	/// <summary>
+	/// Policy which may be implemented to allow a parent to control the significance of the order of its children.
+	/// </summary>
+	public interface IChildOrderPolicy
+	{
+		ChildOrder OrderSignificance(XmlNode parent);
+	}
+
+	/// <summary>
+	/// The default policy is to ask the children.
+	/// </summary>
+	public class AskChildrenOrderPolicy : IChildOrderPolicy
+	{
+		public ChildOrder OrderSignificance(XmlNode parent)
+		{
+			return ChildOrder.AskChildren;
+		}
+	}
+
+	/// <summary>
+	/// This is another simple policy that can be used to avoid asking each child
+	/// </summary>
+	public class SignificantOrderPolicy : IChildOrderPolicy
+	{
+		public ChildOrder OrderSignificance(XmlNode parent)
+		{
+			return ChildOrder.Significant;
+		}
+	}
+
+	/// <summary>
+	/// This is another simple policy that can be used to avoid asking each child
+	/// </summary>
+	public class NotSignificantOrderPolicy : IChildOrderPolicy
+	{
+		public ChildOrder OrderSignificance(XmlNode parent)
+		{
+			return ChildOrder.NotSignificant;
 		}
 	}
 }

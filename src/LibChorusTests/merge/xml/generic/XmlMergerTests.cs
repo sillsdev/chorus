@@ -232,6 +232,76 @@ namespace LibChorus.Tests.merge.xml.generic
 		}
 
 		[Test]
+		public void ParentOrderIsRelevant_TrumpsChildOrderIsRelevant()
+		{
+			string ancestor = @"<a key='one'>
+								<b key='one'>
+									<c key='two'>data</c>
+									<c key='three'>data</c>
+								</b>
+							</a>";
+			string red = @"<a key='one'>
+								<b key='one'>
+									<c key='two'>data</c>
+									<c key='four'>data</c>
+									<c key='three'>data</c>
+								</b>
+							</a>";
+			string blue = @"<a key='one'>
+								<b key='one'>
+									<c key='two'>data</c>
+									<c key='five'>data</c>
+									<c key='three'>data</c>
+								</b>
+							</a>";
+			// With no override, order is significant for c, so we get a conflict.
+			ChangeAndConflictAccumulator r = CheckOneWay(blue, red, ancestor,
+										"a/b[@key='one']/c[@key='four' and text()='data']", "a/b[@key='one']/c[@key='five' and text()='data']");
+			var conflicts = r.Conflicts;
+			Assert.That(conflicts[0], Is.InstanceOf<AmbiguousInsertConflict>());
+
+			var strategyForB = ElementStrategy.CreateForKeyedElement("key", true);
+			var childOrderNotRelevantStrategy = new MockChildOrderer() {Answer = ChildOrder.NotSignificant};
+			strategyForB.ChildOrderPolicy = childOrderNotRelevantStrategy;
+			var specialMergeStrategies = new Dictionary<string, ElementStrategy>();
+			specialMergeStrategies["b"] = strategyForB;
+
+			// Overriding so that order is not significant for children of B, we should not get an ambiguous insert conflict.
+			r = CheckOneWay(blue, red, ancestor, new NullMergeSituation(), specialMergeStrategies,
+										"a/b[@key='one']/c[@key='four' and text()='data']", "a/b[@key='one']/c[@key='five' and text()='data']");
+			Assert.That(r.Conflicts.Count, Is.EqualTo(0), "order is significant should have been overridden by the parent policy");
+			Assert.That(childOrderNotRelevantStrategy.Parent.Name, Is.EqualTo("b"));
+
+			// Overriding so that order is not significant for C's should also prevent it.
+			specialMergeStrategies.Remove("b");
+			var strategyForC = ElementStrategy.CreateForKeyedElement("key", false);
+			specialMergeStrategies["c"] = strategyForC;
+			r = CheckOneWay(blue, red, ancestor, new NullMergeSituation(), specialMergeStrategies,
+										"a/b[@key='one']/c[@key='four' and text()='data']", "a/b[@key='one']/c[@key='five' and text()='data']");
+			Assert.That(r.Conflicts.Count, Is.EqualTo(0), "order is significant should have been overridden by the parent policy");
+			Assert.That(childOrderNotRelevantStrategy.Parent.Name, Is.EqualTo("b"));
+
+			// But we should get it back by overriding B the other way.
+			childOrderNotRelevantStrategy.Answer = ChildOrder.Significant;
+			specialMergeStrategies["b"] = strategyForB;
+			r = CheckOneWay(blue, red, ancestor, new NullMergeSituation(), specialMergeStrategies,
+										"a/b[@key='one']/c[@key='four' and text()='data']", "a/b[@key='one']/c[@key='five' and text()='data']");
+			Assert.That(r.Conflicts.Count, Is.EqualTo(1), "order is not significant should have been overridden by the parent policy");
+			Assert.That(childOrderNotRelevantStrategy.Parent.Name, Is.EqualTo("b"));
+		}
+
+		class MockChildOrderer : IChildOrderPolicy
+		{
+			public ChildOrder Answer;
+			public XmlNode Parent;
+			public ChildOrder OrderSignificance(XmlNode parent)
+			{
+				Parent = parent;
+				return Answer;
+			}
+		}
+
+		[Test]
 		public void DefaultHtmlDetails_UsesClientHtmlGenerator()
 		{
 			string ancestor = @"<a key='one'>
