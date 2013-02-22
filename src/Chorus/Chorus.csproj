@@ -132,6 +132,12 @@
 	<Compile Include="UI\BetterLabel.designer.cs">
 	  <DependentUpon>BetterLabel.cs</DependentUpon>
 	</Compile>
+	<Compile Include="UI\Clone\DuplicateProjectWarningDialog.cs">
+	  <SubType>Form</SubType>
+	</Compile>
+	<Compile Include="UI\Clone\DuplicateProjectWarningDialog.Designer.cs">
+	  <DependentUpon>DuplicateProjectWarningDialog.cs</DependentUpon>
+	</Compile>
 	<Compile Include="UI\Clone\GetSharedProjectDlg.cs">
 	  <SubType>Form</SubType>
 	</Compile>
@@ -292,6 +298,9 @@
 	</Compile>
 	<Compile Include="Program.cs" />
 	<Compile Include="Properties\AssemblyInfo.cs" />
+	<EmbeddedResource Include="UI\Clone\DuplicateProjectWarningDialog.resx">
+	  <DependentUpon>DuplicateProjectWarningDialog.cs</DependentUpon>
+	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Clone\GetCloneFromChorusHubDialog.resx">
 	  <DependentUpon>GetCloneFromChorusHubDialog.cs</DependentUpon>
 	  <SubType>Designer</SubType>
