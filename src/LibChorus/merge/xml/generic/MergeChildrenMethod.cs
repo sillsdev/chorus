@@ -728,7 +728,7 @@ namespace Chorus.merge.xml.generic
 				bool bypassAmbiguityStuff;
 				if (_parentOrder == ChildOrder.AskChildren)
 				{
-					var strategy = _merger.MergeStrategies.GetElementStrategy(pr._other);
+				var strategy = _merger.MergeStrategies.GetElementStrategy(pr._other);
 					bypassAmbiguityStuff = (strategy != null && !strategy.OrderIsRelevant);
 				}
 				else

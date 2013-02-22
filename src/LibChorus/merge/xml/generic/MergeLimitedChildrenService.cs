@@ -195,10 +195,7 @@ namespace Chorus.merge.xml.generic
 			}
 
 			// ours, theirs, and ancestor all exist here.
-			ourReplacementChild = ourChild;
-			merger.MergeInner(ref ourReplacementChild, theirChild, ancestorChild);
-			if (!ReferenceEquals(ourChild, ourReplacementChild))
-				ours.ReplaceChild(ours.OwnerDocument.ImportNode(ourReplacementChild, true), ourChild);
+			new MergeChildrenMethod(ours, theirs, ancestor, merger).Run();
 
 // Route tested. (UsingWith_NumberOfChildrenAllowed_ZeroOrOne_DoesNotThrowWhenParentHasOneChildNode)
 			return ours;
