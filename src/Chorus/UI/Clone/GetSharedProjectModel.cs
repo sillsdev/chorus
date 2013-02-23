@@ -1,7 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Windows.Forms;
+using Chorus.Utilities.Help;
+using Chorus.VcsDrivers.Mercurial;
 using Palaso.Code;
+using Palaso.Progress;
 
 namespace Chorus.UI.Clone
 {
@@ -15,16 +20,27 @@ namespace Chorus.UI.Clone
 		/// <summary>
 		/// Get a teammate's shared project from the specified source.
 		/// </summary>
+		/// <param name="parent">Window that will be parent of progress window</param>
+		/// <param name="projectFilter">Function taking a directory path and telling whether it contains the right sort of repo</param>
+		/// <param name="baseProjectDir">The directory which contains projects we already have, and where the result should go</param>
+		/// <param name="otherRepoPath">Optionally specifies another place to look for existing repos: look in this subfolder of each folder in baseProjectDir.
+		/// This is used in FLEx (passing "OtherRepositories") so existing LIFT repos linked to FW projects can be found. Pass null if not used.</param>
+		/// <param name="preferredClonedFolderName"></param>
+		/// <param name="howToSendReceiveMessageText">This string is appended to the message we build when we have received a repo and can't keep it, because
+		/// it has the same hash as an existing project. We think it is likely the user actually intended to Send/Receive that project rather than obtaining
+		/// a duplicate. This message thus typically tells him how to do so, in the particular client program. May also be empty.</param>
 		/// <returns>
 		/// A CloneResult that provides the clone results (e.g., success or failure) and the actual clone location (null if not created).
 		/// </returns>
-		public CloneResult GetSharedProjectUsing(Form parent, HashSet<string> existingRepositoryIdentifiers, Func<string, bool> projectFilter, string baseProjectDir, string preferredClonedFolderName)
+		public CloneResult GetSharedProjectUsing(Form parent, Func<string, bool> projectFilter, string baseProjectDir, string otherRepoPath, string preferredClonedFolderName,
+			string howToSendReceiveMessageText)
 		{
 			Guard.AgainstNull(parent, "parent");
-			Guard.AgainstNull(existingRepositoryIdentifiers, "existingRepositoryIdentifiers");
 			Guard.Against(string.IsNullOrEmpty(baseProjectDir), "'baseProjectDir' is null or an empty string.");
 			if (preferredClonedFolderName == string.Empty)
 				preferredClonedFolderName = null;
+			var existingRepositories = ExtantRepoIdentifiers(baseProjectDir, otherRepoPath);
+			var existingProjectNames = new HashSet<string>(from dir in Directory.GetDirectories(baseProjectDir) select Path.GetFileName(dir));
 
 			// "existingRepositoryIdentifiers" is currently not used, but the expectation is that the various models/views could use it how they see fit.
 			// "Seeing fit' may mean to warn the user they already have some repository, or as a filter to not show ones that already exist.
@@ -100,7 +116,8 @@ namespace Chorus.UI.Clone
 				case ExtantRepoSource.ChorusHub:
 					var getCloneFromChorusHubModel = new GetCloneFromChorusHubModel(baseProjectDir)
 					{
-						ProjectFilter = projectFilter ?? DefaultProjectFilter
+						ProjectFilter = projectFilter ?? DefaultProjectFilter,
+						ExistingProjects = existingProjectNames
 					};
 
 					using (var getCloneFromChorusHubDialog = new GetCloneFromChorusHubDialog(getCloneFromChorusHubModel))
@@ -132,6 +149,8 @@ namespace Chorus.UI.Clone
 					using (var cloneFromUsbDialog = new GetCloneFromUsbDialog(baseProjectDir))
 					{
 						cloneFromUsbDialog.Model.ProjectFilter = projectFilter ?? DefaultProjectFilter;
+						cloneFromUsbDialog.Model.ReposInUse = existingRepositories;
+						cloneFromUsbDialog.Model.ExistingProjects = existingProjectNames;
 						switch (cloneFromUsbDialog.ShowDialog(parent))
 						{
 							default:
@@ -149,6 +168,21 @@ namespace Chorus.UI.Clone
 					break;
 
 			}
+			// Warn the user if they already have this by another name. Not currently possible if USB.
+			if (RepositorySource != ExtantRepoSource.Usb && cloneStatus == CloneStatus.Created)
+			{
+				var repo = new HgRepository(actualCloneLocation, new NullProgress());
+				string projectWithExistingRepo;
+				if (existingRepositories.TryGetValue(repo.Identifier, out projectWithExistingRepo))
+				{
+					using (var warningDlg = new DuplicateProjectWarningDialog())
+						warningDlg.Run(projectWithExistingRepo, howToSendReceiveMessageText);
+					Directory.Delete(actualCloneLocation, true);
+					actualCloneLocation = "";
+					cloneStatus = CloneStatus.Cancelled;
+				}
+
+			}
 			return new CloneResult(actualCloneLocation, cloneStatus);
 		}
 
@@ -156,6 +190,46 @@ namespace Chorus.UI.Clone
 		{
 			return true;
 		}
+
+		public static Dictionary<string, string> ExtantRepoIdentifiers(string baseProjectDir, string otherRepoLocation)
+		{
+			var extantRepoIdentifiers = new Dictionary<string, string>();
+
+			foreach (var mainFwProjectFolder in Directory.GetDirectories(baseProjectDir, "*", SearchOption.TopDirectoryOnly))
+			{
+				var hgfolder = Path.Combine(mainFwProjectFolder, ".hg");
+				if (Directory.Exists(hgfolder))
+				{
+					CheckForMatchingRepo(mainFwProjectFolder, extantRepoIdentifiers);
+				}
+
+				if (string.IsNullOrWhiteSpace(otherRepoLocation))
+					continue;
+				var otherRepoFolder = Path.Combine(mainFwProjectFolder, otherRepoLocation);
+				if (!Directory.Exists(otherRepoFolder))
+					continue;
+
+				foreach (var sharedFolder in Directory.GetDirectories(otherRepoFolder, "*", SearchOption.TopDirectoryOnly))
+				{
+					hgfolder = Path.Combine(sharedFolder, ".hg");
+					if (Directory.Exists(hgfolder))
+					{
+						CheckForMatchingRepo(sharedFolder, extantRepoIdentifiers);
+					}
+				}
+			}
+			return extantRepoIdentifiers;
+		}
+
+		private static void CheckForMatchingRepo(string repoContainingFolder, Dictionary<string, string> extantRepoIdentifiers)
+		{
+			var repo = new HgRepository(repoContainingFolder, new NullProgress());
+			var identifier = repo.Identifier;
+			// Pathologically we may already have a duplicate. If so we can only record one name; just keep the last encountered.
+			if (identifier != null)
+				extantRepoIdentifiers[identifier] = Path.GetFileName(repoContainingFolder);
+		}
+
 	}
 
 	/// <summary>

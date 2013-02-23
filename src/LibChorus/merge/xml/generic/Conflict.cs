@@ -195,7 +195,7 @@ namespace Chorus.merge.xml.generic
 			return attribute.GuidString;
 		}
 
-		public void MakeHtmlDetails(XmlNode oursContext, XmlNode theirsContext, XmlNode ancestorContext, IGenerateHtmlContext htmlMaker)
+		public virtual void MakeHtmlDetails(XmlNode oursContext, XmlNode theirsContext, XmlNode ancestorContext, IGenerateHtmlContext htmlMaker)
 		{
 			StringBuilder sb = new StringBuilder("<head><style type='text/css'>");
 			sb.Append(htmlMaker.HtmlContextStyles(oursContext));
@@ -930,9 +930,29 @@ namespace Chorus.merge.xml.generic
 	[TypeGuid("56F9C347-C4FA-48F4-8028-729F3CFF48EF")]
 	public class RemovedVsEditedElementConflict : ElementConflict // NB: Be sure to register any new instances in CreateFromConflictElement method.
 	{
+		private XmlNode _theirs; // node we deleted. only set by original constructor, not from XML
+		private XmlNode _ancestor;  // ancestor they changed, we deleted. only set by original constructor, not from XML
 		public RemovedVsEditedElementConflict(string elementName, XmlNode alphaNode, XmlNode betaNode, XmlNode ancestorElement, MergeSituation mergeSituation, IElementDescriber elementDescriber, string whoWon)
 			: base(elementName, alphaNode, betaNode, ancestorElement, mergeSituation, elementDescriber, whoWon)
 		{
+			_theirs = betaNode;
+			_ancestor = ancestorElement;
+		}
+
+		/// <summary>
+		/// For a removed vs edited, we get a better version of this by passing as context the actual node they modified (and null as the first
+		/// argument, indicating we deleted. This produces just one subsection of changes, corresponding to the claim that they edited.
+		/// The context nodes are typiclly one layer further out, and passing them leads to two sets of changes.
+		///
+		/// </summary>
+		/// <param name="oursContext"></param>
+		/// <param name="theirsContext"></param>
+		/// <param name="ancestorContext"></param>
+		/// <param name="htmlMaker"></param>
+		public override void MakeHtmlDetails(XmlNode oursContext, XmlNode theirsContext, XmlNode ancestorContext, IGenerateHtmlContext htmlMaker)
+		{
+			// (Minimally) route tested, XmlMergerTests.OneEditedDeepChildOfElementOtherDeleted.
+			base.MakeHtmlDetails(null, _theirs, _ancestor, htmlMaker);
 		}
 
 
@@ -958,9 +978,13 @@ namespace Chorus.merge.xml.generic
 	[TypeGuid("3d9ba4ac-4a25-11df-9879-0800200c9a66")]
 	public class EditedVsRemovedElementConflict : ElementConflict // NB: Be sure to register any new instances in CreateFromConflictElement method.
 	{
+		private XmlNode _ours; // node they deleted. only set by original constructor, not from XML
+		private XmlNode _ancestor;  // ancestor they changed, we deleted. only set by original constructor, not from XML
 		public EditedVsRemovedElementConflict(string elementName, XmlNode alphaNode, XmlNode betaNode, XmlNode ancestorElement, MergeSituation mergeSituation, IElementDescriber elementDescriber, string whoWon)
 			: base(elementName, alphaNode, betaNode, ancestorElement, mergeSituation, elementDescriber, whoWon)
 		{
+			_ours = alphaNode;
+			_ancestor = ancestorElement;
 		}
 
 		public EditedVsRemovedElementConflict(XmlNode xmlRepresentation)
@@ -968,6 +992,22 @@ namespace Chorus.merge.xml.generic
 		{
 
 		}
+		/// <summary>
+		/// For a edited vs removed, we get a better version of this by passing as context the actual node we modified (and null as the second
+		/// argument, indicating they deleted. This produces just one subsection of changes, corresponding to the claim that we edited.
+		/// The context nodes are typiclly one layer further out, and passing them leads to two sets of changes.
+		///
+		/// </summary>
+		/// <param name="oursContext"></param>
+		/// <param name="theirsContext"></param>
+		/// <param name="ancestorContext"></param>
+		/// <param name="htmlMaker"></param>
+		public override void MakeHtmlDetails(XmlNode oursContext, XmlNode theirsContext, XmlNode ancestorContext, IGenerateHtmlContext htmlMaker)
+		{
+			// (Minimally) route tested, XmlMergerTests.OneEditedDeepChildOfElementOtherDeleted.
+			base.MakeHtmlDetails(_ours, null, _ancestor, htmlMaker);
+		}
+
 		public override string Description
 		{
 			get { return "Removed Vs Edited Element Conflict"; }

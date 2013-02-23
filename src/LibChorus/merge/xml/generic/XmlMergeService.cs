@@ -41,8 +41,25 @@ namespace Chorus.merge.xml.generic
 												 XmlNode theirsContext, XmlNode ancestorContext,
 												 IGenerateHtmlContext htmlContextGenerator)
 		{
-			// NB: All three of these are crucially ordered.
+			AddConflictToListener(listener, conflict, oursContext, theirsContext, ancestorContext, htmlContextGenerator, null, null);
+		}
+
+		/// <summary>
+		/// Add conflict. If RecordContextInConflict fails to set a context, and nodeToFindGeneratorFrom is non-null,
+		/// attempt to add a context based on the argument.
+		/// </summary>
+		public static void AddConflictToListener(IMergeEventListener listener, IConflict conflict, XmlNode oursContext,
+												 XmlNode theirsContext, XmlNode ancestorContext,
+												 IGenerateHtmlContext htmlContextGenerator, XmlMerger merger, XmlNode nodeToFindGeneratorFrom)
+		{
+			// NB: All these steps are crucially ordered.
 			listener.RecordContextInConflict(conflict);
+			if (conflict.Context == null && nodeToFindGeneratorFrom != null)
+			{
+				// We are too far up the stack for the listener to have been told a context.
+				// Make one out of the current node.
+				conflict.Context = merger.GetContext(nodeToFindGeneratorFrom);
+			}
 			conflict.MakeHtmlDetails(oursContext, theirsContext, ancestorContext, htmlContextGenerator);
 			listener.ConflictOccurred(conflict);
 		}
@@ -193,6 +210,8 @@ namespace Chorus.merge.xml.generic
 																			   allCommonAncestorIds, allCommonAncestorData,
 																			   fluffedUpLoserNodes, allWinnerIds, allLoserData,
 																			   fluffedUpWinnerNodes, fluffedUpAncestorNodes,
+																			   pathToWinner,
+																			   pathToLoser,
 																			   out allDeletedByLoserButEditedByWinnerIds,
 																			   out allDeletedByWinnerButEditedByLoserIds);
 
@@ -246,8 +265,12 @@ namespace Chorus.merge.xml.generic
 																		IDictionary<string, string> allLoserData,
 																		IDictionary<string, XmlNode> fluffedUpWinnerNodes,
 																		IDictionary<string, XmlNode> fluffedUpAncestorNodes,
-																		out HashSet<string> allDeletedByLoserButEditedByWinnerIds,
-																		out HashSet<string> allDeletedByWinnerButEditedByLoserIds)
+																		string pathToWinner,
+																		string pathToLoser,
+																		out HashSet<string>
+																			allDeletedByLoserButEditedByWinnerIds,
+																		out HashSet<string>
+																			allDeletedByWinnerButEditedByLoserIds)
 		{
 			HashSet<string> allIdsForUniqueLoserChanges;
 			HashSet<string> allIdsWinnerModified;
@@ -268,10 +291,10 @@ namespace Chorus.merge.xml.generic
 			// Step 6. Do merging and report conflicts.
 			ReportDeleteVsEditConflicts(mergeOrder, mergeStrategy,
 										fluffedUpLoserNodes, allLoserData, loserId, allDeletedByWinnerButEditedByLoserIds,
-										allCommonAncestorData, fluffedUpAncestorNodes);
+										allCommonAncestorData, fluffedUpAncestorNodes, pathToLoser);
 			ReportEditVsDeleteConflicts(mergeOrder, mergeStrategy,
 										fluffedUpWinnerNodes, allWinnerData, winnerId, allDeletedByLoserButEditedByWinnerIds,
-										allCommonAncestorData, fluffedUpAncestorNodes);
+										allCommonAncestorData, fluffedUpAncestorNodes, pathToWinner);
 
 			return allIdsForUniqueLoserChanges;
 		}
@@ -398,11 +421,11 @@ namespace Chorus.merge.xml.generic
 														IDictionary<string, XmlNode> fluffedUpWinnerNodes,
 														IDictionary<string, string> allWinnerData,
 														string winnerId,
-														HashSet<string> allDeletedByLoserButEditedByWinnerIds,
+														IEnumerable<string> allDeletedByLoserButEditedByWinnerIds,
 														IDictionary<string, string> allCommonAncestorData,
-														IDictionary<string, XmlNode> fluffedUpAncestorNodes)
+														IDictionary<string, XmlNode> fluffedUpAncestorNodes,
+														string pathToWinner)
 		{
-			var reallyWereDeletedEvenIfEdited = new HashSet<string>();
 			foreach (var allDeletedByLoserButEditedByWinnerId in allDeletedByLoserButEditedByWinnerIds)
 			{
 				// Report winner edited vs loser deleted
@@ -420,33 +443,28 @@ namespace Chorus.merge.xml.generic
 																		new XmlDocument());
 					fluffedUpWinnerNodes.Add(allDeletedByLoserButEditedByWinnerId, winnerNode);
 				}
-
-				if (!mergeStrategy.IsDifferenceSignificant(commonNode, winnerNode))
+				var elementStrategy = mergeStrategy.GetElementStrategy(winnerNode);
+				var generator = elementStrategy.ContextDescriptorGenerator;
+				if (generator != null)
 				{
-					reallyWereDeletedEvenIfEdited.Add(allDeletedByLoserButEditedByWinnerId);
-					continue;
+					mergeOrder.EventListener.EnteringContext(generator.GenerateContextDescriptor(allWinnerData[allDeletedByLoserButEditedByWinnerId],
+																								 pathToWinner));
 				}
-
 				AddConflictToListener(
 					mergeOrder.EventListener,
 					new EditedVsRemovedElementConflict(commonNode.Name, winnerNode, null, commonNode, mergeOrder.MergeSituation,
 													   mergeStrategy.GetElementStrategy(commonNode), winnerId),
-					winnerNode, winnerNode, commonNode);
-			}
-			foreach (var reallyDeletedId in reallyWereDeletedEvenIfEdited)
-			{
-				allDeletedByLoserButEditedByWinnerIds.Remove(reallyDeletedId);
+					winnerNode, null, commonNode, generator as IGenerateHtmlContext ?? new SimpleHtmlGenerator());
 			}
 		}
 
 		private static void ReportDeleteVsEditConflicts(MergeOrder mergeOrder, IMergeStrategy mergeStrategy,
 														IDictionary<string, XmlNode> fluffedUpLoserNodes,
 														IDictionary<string, string> allLoserData, string loserId,
-														HashSet<string> allDeletedByWinnerButEditedByLoserIds,
+														IEnumerable<string> allDeletedByWinnerButEditedByLoserIds,
 														IDictionary<string, string> allCommonAncestorData,
-														IDictionary<string, XmlNode> fluffedUpAncestorNodes)
+														IDictionary<string, XmlNode> fluffedUpAncestorNodes, string pathToLoser)
 		{
-			var reallyWereDeletedEvenIfEdited = new HashSet<string>();
 			foreach (var allDeletedByWinnerButEditedByLoserId in allDeletedByWinnerButEditedByLoserIds)
 			{
 				// Report winner deleted vs loser edited.
@@ -464,22 +482,19 @@ namespace Chorus.merge.xml.generic
 																	   new XmlDocument());
 					fluffedUpLoserNodes.Add(allDeletedByWinnerButEditedByLoserId, loserNode);
 				}
-
-				if (!mergeStrategy.IsDifferenceSignificant(commonNode, loserNode))
+				var elementStrategy = mergeStrategy.GetElementStrategy(loserNode);
+				var generator = elementStrategy.ContextDescriptorGenerator;
+				if (generator != null)
 				{
-					reallyWereDeletedEvenIfEdited.Add(allDeletedByWinnerButEditedByLoserId);
-					continue;
+					mergeOrder.EventListener.EnteringContext(generator.GenerateContextDescriptor(allLoserData[allDeletedByWinnerButEditedByLoserId],
+																								 pathToLoser));
 				}
 
 				AddConflictToListener(
 					mergeOrder.EventListener,
 					new RemovedVsEditedElementConflict(commonNode.Name, null, loserNode, commonNode, mergeOrder.MergeSituation,
 													   mergeStrategy.GetElementStrategy(commonNode), loserId),
-					null, loserNode, commonNode);
-			}
-			foreach (var reallyDeletedId in reallyWereDeletedEvenIfEdited)
-			{
-				allDeletedByWinnerButEditedByLoserIds.Remove(reallyDeletedId);
+					null, loserNode, commonNode, generator as IGenerateHtmlContext ?? new SimpleHtmlGenerator());
 			}
 		}
 

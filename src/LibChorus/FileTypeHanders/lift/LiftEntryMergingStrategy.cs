@@ -56,10 +56,5 @@ namespace Chorus.FileTypeHanders.lift
 		{
 			return LiftSorter.LiftSuppressIndentingChildren;
 		}
-
-		public bool IsDifferenceSignificant(XmlNode ancestor, XmlNode survivor)
-		{
-			return true;
-		}
 	}
 }

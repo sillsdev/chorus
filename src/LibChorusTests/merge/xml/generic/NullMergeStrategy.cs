@@ -64,10 +64,6 @@ namespace LibChorus.Tests.merge.xml.generic
 			return new HashSet<string>();
 		}
 
-		public bool IsDifferenceSignificant(XmlNode commonAncestor, XmlNode survivor)
-		{
-			return true;
-		}
 		#endregion
 	}
 }

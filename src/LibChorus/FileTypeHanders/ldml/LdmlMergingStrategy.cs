@@ -43,11 +43,6 @@ namespace Chorus.FileTypeHanders.ldml
 			return new HashSet<string>();
 		}
 
-		public bool IsDifferenceSignificant(XmlNode ancestor, XmlNode survivor)
-		{
-			return true;
-		}
-
 		#endregion
 	}
 }

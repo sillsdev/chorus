@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Media;
 using Chorus.VcsDrivers;
@@ -77,6 +78,12 @@ namespace Chorus.UI.Clone
 //
 //            return ActualClonedFolder;
 		}
+
+		/// <summary>
+		/// Set this to the names of existing projects. Items on the USB with the same names will be disabled.
+		/// </summary>
+		public HashSet<string> ExistingProjects { get; set; }
+
 
 	}
 }
