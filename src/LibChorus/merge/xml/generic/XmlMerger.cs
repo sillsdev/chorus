@@ -1,6 +1,8 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Xml;
+using Chorus.FileTypeHanders.xml;
 
 namespace Chorus.merge.xml.generic
 {
@@ -33,6 +35,9 @@ namespace Chorus.merge.xml.generic
 
 		public NodeMergeResult Merge(XmlNode ours, XmlNode theirs, XmlNode ancestor)
 		{
+			if (ours == null && theirs == null && ancestor == null)
+				throw new InvalidOperationException("At least one node has to exist.");
+
 			var result = new NodeMergeResult();
 			var listener = EventListener as DispatchingMergeEventListener;
 			if (listener == null)
@@ -55,6 +60,66 @@ namespace Chorus.merge.xml.generic
 			XmlMergeService.RemoveAmbiguousChildren(EventListener, MergeStrategies, theirs);
 			//XmlMergeService.RemoveAmbiguousChildren(EventListener, MergeStrategies, ancestor);
 
+			if (ancestor == null)
+			{
+				if (ours == null)
+				{
+					EventListener.ChangeOccurred(new XmlAdditionChangeReport(MergeSituation.PathToFileInRepository, theirs));
+					result.MergedNode = theirs;
+				}
+				else if (theirs == null)
+				{
+					EventListener.ChangeOccurred(new XmlAdditionChangeReport(MergeSituation.PathToFileInRepository, ours));
+					result.MergedNode = ours;
+				}
+				else
+				{
+					// Both added.
+					if (XmlUtilities.AreXmlElementsEqual(ours, theirs))
+					{
+						EventListener.ChangeOccurred(new XmlBothAddedSameChangeReport(MergeSituation.PathToFileInRepository, ours));
+						result.MergedNode = ours;
+					}
+					else
+					{
+						// But, not the same thing.
+						if (MergeSituation.ConflictHandlingMode == MergeOrder.ConflictHandlingModeChoices.WeWin)
+						{
+							ConflictOccurred(new BothAddedMainElementButWithDifferentContentConflict(ours.Name, ours, theirs, MergeSituation, MergeStrategies.GetElementStrategy(ours), MergeSituation.AlphaUserId));
+							result.MergedNode = ours;
+
+						}
+						else
+						{
+							ConflictOccurred(new BothAddedMainElementButWithDifferentContentConflict(theirs.Name, theirs, ours, MergeSituation, MergeStrategies.GetElementStrategy(ours), MergeSituation.BetaUserId));
+							result.MergedNode = theirs;
+						}
+					}
+				}
+				return result;
+			}
+
+			// ancestor exists
+			if (ours == null && theirs == null)
+			{
+				EventListener.ChangeOccurred(new XmlBothDeletionChangeReport(MergeSituation.PathToFileInRepository, ancestor));
+				result.MergedNode = null;
+				return result;
+			}
+			if (ours == null)
+			{
+				EventListener.ChangeOccurred(new XmlAdditionChangeReport(MergeSituation.PathToFileInRepository, theirs));
+				result.MergedNode = theirs;
+				return result;
+			}
+			if (theirs == null)
+			{
+				EventListener.ChangeOccurred(new XmlAdditionChangeReport(MergeSituation.PathToFileInRepository, ours));
+				result.MergedNode = ours;
+				return result;
+			}
+
+			// All three nodes exist.
 			MergeInner(ref ours, theirs, ancestor);
 			result.MergedNode = ours;
 			return result;
@@ -249,36 +314,41 @@ namespace Chorus.merge.xml.generic
 
 		public NodeMergeResult MergeFiles(string ourPath, string theirPath, string ancestorPath)
 		{
-			//Debug.Fail("time to attach");
-			XmlDocument ourDoc = new XmlDocument();
-			ourDoc.Load(ourPath);
-			XmlNode ourNode = ourDoc.DocumentElement;
+			// Either user (or both users) could have created/edited/deleted the document.
+			var ancestorNode = LoadXmlDocumentAndGetRootNode(ancestorPath);
+			var ourNode = LoadXmlDocumentAndGetRootNode(ourPath);
+			var theirNode = LoadXmlDocumentAndGetRootNode(theirPath);
 
-			XmlDocument theirDoc = new XmlDocument();
-			theirDoc.Load(theirPath);
-			XmlNode theirNode = theirDoc.DocumentElement;
+			return Merge(ourNode, theirNode, ancestorNode);
+		}
 
-			XmlNode ancestorNode = null;
-			if (File.Exists(ancestorPath)) // it's possible for the file to be created independently by each user, with no common ancestor
+		private static XmlNode LoadXmlDocumentAndGetRootNode(string pathname)
+		{
+			if (File.Exists(pathname))
 			{
-				XmlDocument ancestorDoc = new XmlDocument();
+				var fileInfo = new FileInfo(pathname);
+				if (fileInfo.Length == 0)
+				{
+					return null;
+				}
+
 				try
 				{
-					ancestorDoc.Load(ancestorPath);
-					ancestorNode = ancestorDoc.DocumentElement;
+					var doc = new XmlDocument();
+					doc.Load(pathname);
+					return doc.DocumentElement;
 				}
-				catch (XmlException e)
+				catch (XmlException)
 				{
-					if(File.ReadAllText(ancestorPath).Length>1 )
+					if (File.ReadAllText(pathname).Length > 1)
 					{
-						throw e;
+						throw;
 					}
 					//otherwise, it's likely an artifact of how hg seems to create an empty file
 					//for the ancestor, if there wasn't one there before, and empty = not well-formed xml!
 				}
-			 }
-
-			return Merge(ourNode, theirNode, ancestorNode);
+			}
+			return null;
 		}
 	}
 }
