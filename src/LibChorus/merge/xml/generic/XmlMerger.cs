@@ -64,11 +64,13 @@ namespace Chorus.merge.xml.generic
 			{
 				if (ours == null)
 				{
+					// tested
 					EventListener.ChangeOccurred(new XmlAdditionChangeReport(MergeSituation.PathToFileInRepository, theirs));
 					result.MergedNode = theirs;
 				}
 				else if (theirs == null)
 				{
+					// tested
 					EventListener.ChangeOccurred(new XmlAdditionChangeReport(MergeSituation.PathToFileInRepository, ours));
 					result.MergedNode = ours;
 				}
@@ -77,6 +79,7 @@ namespace Chorus.merge.xml.generic
 					// Both added.
 					if (XmlUtilities.AreXmlElementsEqual(ours, theirs))
 					{
+						// Same thing. (tested)
 						EventListener.ChangeOccurred(new XmlBothAddedSameChangeReport(MergeSituation.PathToFileInRepository, ours));
 						result.MergedNode = ours;
 					}
@@ -85,12 +88,14 @@ namespace Chorus.merge.xml.generic
 						// But, not the same thing.
 						if (MergeSituation.ConflictHandlingMode == MergeOrder.ConflictHandlingModeChoices.WeWin)
 						{
+							// tested
 							ConflictOccurred(new BothAddedMainElementButWithDifferentContentConflict(ours.Name, ours, theirs, MergeSituation, MergeStrategies.GetElementStrategy(ours), MergeSituation.AlphaUserId));
 							result.MergedNode = ours;
 
 						}
 						else
 						{
+							// tested
 							ConflictOccurred(new BothAddedMainElementButWithDifferentContentConflict(theirs.Name, theirs, ours, MergeSituation, MergeStrategies.GetElementStrategy(ours), MergeSituation.BetaUserId));
 							result.MergedNode = theirs;
 						}
@@ -102,26 +107,48 @@ namespace Chorus.merge.xml.generic
 			// ancestor exists
 			if (ours == null && theirs == null)
 			{
+				// tested
 				EventListener.ChangeOccurred(new XmlBothDeletionChangeReport(MergeSituation.PathToFileInRepository, ancestor));
 				result.MergedNode = null;
 				return result;
 			}
 			if (ours == null)
 			{
-				EventListener.ChangeOccurred(new XmlAdditionChangeReport(MergeSituation.PathToFileInRepository, theirs));
-				result.MergedNode = theirs;
+				if (XmlUtilities.AreXmlElementsEqual(ancestor, theirs))
+				{
+					// tested
+					EventListener.ChangeOccurred(new XmlDeletionChangeReport(MergeSituation.PathToFileInRepository, ancestor, theirs));
+					result.MergedNode = null;
+				}
+				else
+				{
+					// tested
+					ConflictOccurred(new RemovedVsEditedElementConflict(ancestor.Name, theirs, null, ancestor, MergeSituation, MergeStrategies.GetElementStrategy(ancestor), MergeSituation.BetaUserId));
+					result.MergedNode = theirs;
+				}
 				return result;
 			}
 			if (theirs == null)
 			{
-				EventListener.ChangeOccurred(new XmlAdditionChangeReport(MergeSituation.PathToFileInRepository, ours));
-				result.MergedNode = ours;
+				if (XmlUtilities.AreXmlElementsEqual(ancestor, ours))
+				{
+					// tested
+					EventListener.ChangeOccurred(new XmlDeletionChangeReport(MergeSituation.PathToFileInRepository, ancestor, ours));
+					result.MergedNode = null;
+				}
+				else
+				{
+					// tested
+					ConflictOccurred(new EditedVsRemovedElementConflict(ancestor.Name, ours, null, ancestor, MergeSituation, MergeStrategies.GetElementStrategy(ancestor), MergeSituation.AlphaUserId));
+					result.MergedNode = ours;
+				}
 				return result;
 			}
 
 			// All three nodes exist.
 			MergeInner(ref ours, theirs, ancestor);
 			result.MergedNode = ours;
+
 			return result;
 		}
 
