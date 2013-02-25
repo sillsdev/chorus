@@ -351,31 +351,20 @@ namespace Chorus.merge.xml.generic
 
 		private static XmlNode LoadXmlDocumentAndGetRootNode(string pathname)
 		{
+			XmlNode documentRootNode = null;
 			if (File.Exists(pathname))
 			{
 				var fileInfo = new FileInfo(pathname);
-				if (fileInfo.Length == 0)
-				{
-					return null;
-				}
-
-				try
+				if (fileInfo.Length > 0)
 				{
 					var doc = new XmlDocument();
-					doc.Load(pathname);
-					return doc.DocumentElement;
+					doc.Load(pathname); // Will throw XmlException, if the file is not valid xml.
+					documentRootNode = doc.DocumentElement;
 				}
-				catch (XmlException)
-				{
-					if (File.ReadAllText(pathname).Length > 1)
-					{
-						throw;
-					}
-					//otherwise, it's likely an artifact of how hg seems to create an empty file
-					//for the ancestor, if there wasn't one there before, and empty = not well-formed xml!
-				}
+				// Otherwise file is empty. Perhaps because of how Hg creates one for ancestor,
+				// or because it was deleted (ours/theirs)
 			}
-			return null;
+			return documentRootNode;
 		}
 	}
 }
