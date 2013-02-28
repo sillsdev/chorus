@@ -170,7 +170,8 @@ namespace Chorus.UI.Clone
 					break;
 
 			}
-			// Warn the user if they already have this by another name. Not currently possible if USB.
+			// Warn the user if they already have this by another name.
+			// Not currently needed for USB, since those have already been checked.
 			if (RepositorySource != ExtantRepoSource.Usb && cloneStatus == CloneStatus.Created)
 			{
 				var repo = new HgRepository(actualCloneLocation, new NullProgress());
@@ -180,7 +181,7 @@ namespace Chorus.UI.Clone
 					using (var warningDlg = new DuplicateProjectWarningDialog())
 						warningDlg.Run(projectWithExistingRepo, howToSendReceiveMessageText);
 					Directory.Delete(actualCloneLocation, true);
-					actualCloneLocation = "";
+					actualCloneLocation = null;
 					cloneStatus = CloneStatus.Cancelled;
 				}
 
