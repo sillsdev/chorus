@@ -16,7 +16,7 @@ namespace ChorusHub
 
 		public static IProgress Progress = new ConsoleProgress();
 
-		public IEnumerable<string> GetRepositoryNames()
+		public IEnumerable<string> GetRepositoryNames(Func<string, bool> filter)
 		{
 			Progress.WriteMessage("Client requested repository names.");
 
@@ -33,7 +33,7 @@ namespace ChorusHub
 		/// <returns>true if client should wait for hg to notice</returns>
 		public bool PrepareToReceiveRepository(string name)
 		{
-			if (GetRepositoryNames().Contains(name))
+			if (GetRepositoryNames(filter).Contains(name))
 			{
 				return false;
 			}
@@ -43,6 +43,5 @@ namespace ChorusHub
 			HgRepository.CreateRepositoryInExistingDir(directory, new ConsoleProgress());
 			return true;
 		}
-
 	}
 }

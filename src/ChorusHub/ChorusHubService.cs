@@ -6,11 +6,11 @@ using Palaso.Progress;
 
 namespace ChorusHub
 {
-	 [ServiceContract]
+	[ServiceContract]
 	public interface IChorusHubService
 	{
-		  [OperationContract]
-		 IEnumerable<string> GetRepositoryNames();
+		[OperationContract]
+		IEnumerable<string> GetRepositoryNames(Func<string, bool> filter);
 
 		[OperationContract]
 		bool PrepareToReceiveRepository(string name);

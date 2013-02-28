@@ -199,7 +199,7 @@ namespace Chorus.UI.Clone
 			else
 			{
 				Text = string.Format("Get {0} from Chorus Hub on {1}", RepositoryKindLabel, client.HostName);
-				foreach (var name in (IEnumerable<string>)client.GetRepositoryNames())
+				foreach (var name in (IEnumerable<string>)client.GetRepositoryNames(_model.ProjectFilter))
 				{
 					var item = new ListViewItem(name);
 					if (_model.ExistingProjects!= null && _model.ExistingProjects.Contains(name))
@@ -218,7 +218,7 @@ namespace Chorus.UI.Clone
 			var client = new ChorusHubClient();
 			if(client.FindServer()!=null)
 			{
-				client.GetRepositoryNames();
+				client.GetRepositoryNames(_model.ProjectFilter);
 				e.Result = client;
 			}
 			else
