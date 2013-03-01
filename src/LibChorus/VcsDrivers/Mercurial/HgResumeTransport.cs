@@ -202,7 +202,8 @@ namespace Chorus.VcsDrivers.Mercurial
 				}
 				if(remoteRevisions.Count() < quantity)
 				{
-					break; //we did not find a common revision for each branch, but we ran out of revisions from the repo
+					//we did not find a common revision for each branch, but we ran out of revisions from the repo
+					throw new HgResumeException("The remote repo is unrelated");
 				}
 				offset += quantity;
 			}
