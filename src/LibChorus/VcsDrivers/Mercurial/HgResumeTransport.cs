@@ -174,13 +174,12 @@ namespace Chorus.VcsDrivers.Mercurial
 			}
 
 			//The goal here is to to return the first common revision of each branch.
-			var commonBase = new List<Revision>();
+			var commonBases = new List<Revision>();
 			var localBranches = new List<string>(localRevisions.Keys);
-
-			while (commonBase.Count < localRevisions.Keys.Count())
+			while (commonBases.Count < localRevisions.Keys.Count())
 			{
 				var remoteRevisions = GetRemoteRevisions(offset, quantity);
-				if (remoteRevisions.Keys.Count() == 1 && remoteRevisions[remoteRevisions.Keys.First()].First() == "0")
+				if (remoteRevisions.Keys.Count() == 1 && remoteRevisions[remoteRevisions.Keys.First()].First().Split(':')[0] == "0")
 				{
 					// special case when remote repo is empty (initialized with no changesets)
 					return new List<Revision>();
@@ -195,20 +194,28 @@ namespace Chorus.VcsDrivers.Mercurial
 						var commonRevision = localList.Find(localRev => localRev.Number.Hash == remoteRevision);
 						if (commonRevision != null)
 						{
-							commonBase.Add(commonRevision);
+							commonBases.Add(commonRevision);
 							break;
 						}
 					}
 				}
 				if(remoteRevisions.Count() < quantity)
 				{
+					break;
 					//we did not find a common revision for each branch, but we ran out of revisions from the repo
-					throw new HgResumeException("The remote repo is unrelated");
+					//throw new HgResumeException("The remote repo is unrelated");
 				}
 				offset += quantity;
 			}
-			LastKnownCommonBases = commonBase;
-			return commonBase;
+
+			// If we have found no common bases at this point, the remote repo is unrelated
+			if (commonBases.Count == 0)
+			{
+				return null;
+			}
+
+			LastKnownCommonBases = commonBases;
+			return commonBases;
 		}
 
 

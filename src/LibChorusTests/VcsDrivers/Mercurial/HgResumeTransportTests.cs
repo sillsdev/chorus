@@ -661,6 +661,20 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			}
 		}
 
+		[Test]
+		public void Push_RemoteRepoIsUnrelated_Throws()
+		{
+			using (var e1 = new TestEnvironment("hgresumetest", ApiServerType.Push))
+			using (var provider = GetTransportProviderForTest(e1))
+			{
+				e1.LocalAddAndCommit();
+				e1.RemoteAddAndCommit();
+				var transport = provider.Transport;
+				Assert.That(() => transport.Push(), Throws.TypeOf<HgResumeOperationFailed>());
+			}
+		}
+
+
 		private class BranchTestAdjunct : ISychronizerAdjunct
 		{
 			public bool WasUpdated { get; private set; }
