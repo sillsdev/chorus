@@ -106,7 +106,7 @@ namespace ChorusHub
 			return _foundHubInfo; //will be null if none found
 		}
 
-		public IEnumerable<string> GetRepositoryNames(string searchFilter)
+		public IEnumerable<string> GetRepositoryNames(string queryString)
 		{
 			if(_repositoryNames!=null)
 				return _repositoryNames; //for now, there's no way to get an updated list except by making a new client
@@ -114,6 +114,10 @@ namespace ChorusHub
 			if(_foundHubInfo==null)
 				throw new ApplicationException("Programmer, call Find() and get a non-null response before GetRepositoryNames");
 
+			const string genericUrl = "scheme://path?";
+			var finalUrl = string.IsNullOrEmpty(queryString)
+							   ? queryString
+							   : genericUrl + queryString;
 			var binding = new NetTcpBinding();
 			binding.Security.Mode = SecurityMode.None;
 
@@ -122,7 +126,7 @@ namespace ChorusHub
 			var channel = factory.CreateChannel();
 			try
 			{
-				_repositoryNames = channel.GetRepositoryNames(searchFilter);
+				_repositoryNames = channel.GetRepositoryNames(finalUrl);
 			}
 			finally
 			{
