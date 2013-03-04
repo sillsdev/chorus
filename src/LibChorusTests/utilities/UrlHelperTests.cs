@@ -94,5 +94,33 @@ namespace LibChorus.Tests.utilities
 			Assert.AreEqual("2", UrlHelper.GetValueFromQueryStringOfRef(@"lift://some %20 file.lift?one=1&two=2", "two", string.Empty));
 		}
 
+		[Test]
+		public void GetMultipleValuesFromQueryStringOfRef_GetsSingleValue()
+		{
+			string[] resultArray = UrlHelper.GetMultipleValuesFromQueryStringOfRef(
+				@"lift://somefile.lift?one=1&two=2", "two", string.Empty);
+			Assert.AreEqual(1, resultArray.Length);
+			Assert.AreEqual("2", resultArray[0]);
+		}
+
+		[Test]
+		public void GetMultipleValuesFromQueryStringOfRef_GetsDefaultValue()
+		{
+			string[] resultArray = UrlHelper.GetMultipleValuesFromQueryStringOfRef(
+				@"lift://somefile.lift?one=1&three=3", "two", "defaultTwo");
+			Assert.AreEqual(1, resultArray.Length);
+			Assert.AreEqual("defaultTwo", resultArray[0]);
+		}
+
+		[Test]
+		public void GetMultipleValuesFromQueryStringOfRef_GetsMultipleValues()
+		{
+			string[] resultArray = UrlHelper.GetMultipleValuesFromQueryStringOfRef(
+				@"lift://somefile.lift?one=1&two=2&three=3&two=deux", "two", string.Empty);
+			Assert.AreEqual(2, resultArray.Length);
+			Assert.AreEqual("2", resultArray[0]);
+			Assert.AreEqual("deux", resultArray[1]);
+		}
+
 	}
 }

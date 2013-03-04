@@ -399,7 +399,7 @@ namespace Chorus.UI.Sync
 				else
 				{
 					string directoryName = Path.GetFileName(_repository.PathToRepo);
-					var doWait  = _chorusHubClient.PrepareHubToSync(directoryName, dummy => true);
+					var doWait  = _chorusHubClient.PrepareHubToSync(directoryName);
 					if(doWait)
 					{
 						//enhance: sorry, I regret that this is all kludgy, ux-wise.

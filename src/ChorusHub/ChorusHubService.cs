@@ -9,8 +9,14 @@ namespace ChorusHub
 	[ServiceContract]
 	public interface IChorusHubService
 	{
+		/// <summary>
+		/// Returns the names of Hg repositories that the ChorusHub knows about.
+		/// The search can be trimmed by use of the 'searchUrl' parameter.
+		/// </summary>
+		/// <param name="searchUrl"></param>
+		/// <returns></returns>
 		[OperationContract]
-		IEnumerable<string> GetRepositoryNames(Func<string, bool> filter);
+		IEnumerable<string> GetRepositoryNames(string searchUrl);
 
 		[OperationContract]
 		bool PrepareToReceiveRepository(string name);

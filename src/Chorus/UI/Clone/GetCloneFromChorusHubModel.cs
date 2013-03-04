@@ -31,10 +31,12 @@ namespace Chorus.UI.Clone
 
 		/// <summary>
 		/// Use this to inject a custom filter, so that the only projects that can be chosen are ones
-		/// you application is prepared to open. The delegate is given the path to each mercurial project.
-		/// The default filter is simply true, in that it will accept any folder.
+		/// your application is prepared to open. The usual method of passing a filter delegate doesn't
+		/// work with ChorusHub's cross-process communication, so our ProjectFilter is a string which
+		/// gets parsed by the server to determine whether a given mercurial project can be chosen or not.
+		/// The default filter is simply empty string, which returns any folder name.
 		/// </summary>
-		public Func<string, bool> ProjectFilter = GetSharedProjectModel.DefaultProjectFilter;
+		public string ProjectFilter = string.Empty;
 
 		public GetCloneFromChorusHubModel(string pathToFolderWhichWillContainClonedFolder)
 		{

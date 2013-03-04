@@ -40,16 +40,25 @@ namespace Chorus.Utilities
 		}
 
 		/// <summary>
-		/// get at the value in a URL, which are listed the collection of name=value pairs after the ?
+		/// Get at the values in a URL, which are listed the collection of name=value pairs after the ?
+		/// This method returns a string array containing all of the values for the given name key.
+		/// If the name key is not found, it returns an array of length 1 containing the
+		/// defaultIfCannotGetIt string.
 		/// </summary>
-		/// <example>GetValueFromQueryStringOfRef("id", ""lift://blah.lift?id=foo") returns "foo"</example>
-		public static string GetValueFromQueryStringOfRef(string url, string name, string defaultIfCannotGetIt)
+		/// <example>GetMultipleValuesFromQueryStringOfRef("lift://blah.lift?id=foo&id=bar", "id", "")
+		/// returns string[] {"foo", "bar"}</example>
+		/// <param name="url"></param>
+		/// <param name="name"></param>
+		/// <param name="defaultIfCannotGetIt"></param>
+		/// <returns></returns>
+		public static string[] GetMultipleValuesFromQueryStringOfRef(string url, string name, string defaultIfCannotGetIt)
 		{
-			if(String.IsNullOrEmpty(url))
-				return defaultIfCannotGetIt;
+			var defaultResult = new[] { defaultIfCannotGetIt };
+			if (String.IsNullOrEmpty(url))
+				return defaultResult;
 
 			if (url == "unknown") //some previous step couldn't come up with the url... review: why not just string.empty then? see CHR-2
-				return defaultIfCannotGetIt;
+				return defaultResult;
 
 			string originalUrl = url;
 			try
@@ -67,8 +76,7 @@ namespace Chorus.Utilities
 					var parse = Palaso.Network.HttpUtilityFromMono.ParseQueryString(uri.Query);
 
 					var r = parse.GetValues(name);
-					var label = r == null ? defaultIfCannotGetIt : r.First();
-					return string.IsNullOrEmpty(label) ? defaultIfCannotGetIt : label;
+					return r ?? defaultResult;
 				}
 			}
 			catch (Exception e)
@@ -77,8 +85,20 @@ namespace Chorus.Utilities
 				var message = String.Format("Debug mode only: GetValueFromQueryStringOfRef({0},{1}) {2}", originalUrl, name, e.Message);
 				ErrorReport.NotifyUserOfProblem(new Palaso.Reporting.ShowOncePerSessionBasedOnExactMessagePolicy(), message);
 #endif
-				return defaultIfCannotGetIt;
+				return new[] { defaultIfCannotGetIt };
 			}
+		}
+
+		/// <summary>
+		/// get at the value in a URL, which are listed the collection of name=value pairs after the ?
+		/// N.B. If the same name is listed twice, this method returns the first value.
+		/// </summary>
+		/// <example>GetValueFromQueryStringOfRef("lift://blah.lift?id=foo", "id", "") returns "foo"</example>
+		public static string GetValueFromQueryStringOfRef(string url, string name, string defaultIfCannotGetIt)
+		{
+			var r = GetMultipleValuesFromQueryStringOfRef(url, name, defaultIfCannotGetIt);
+			var label = r == null ? defaultIfCannotGetIt : r.First();
+			return string.IsNullOrEmpty(label) ? defaultIfCannotGetIt : label;
 		}
 
 		/// <summary>

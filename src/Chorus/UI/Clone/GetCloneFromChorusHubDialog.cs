@@ -234,16 +234,17 @@ namespace Chorus.UI.Clone
 
 		/// <summary>
 		/// Used to check if the repository is the right kind for your program, so that the only projects that can be chosen are ones
-		/// you application is prepared to open.
+		/// your application is prepared to open.
 		///
 		/// Note: the comparison is based on how hg stores the file name/extenion, not the original form!
 		/// </summary>
 		/// <example>Bloom uses "*.bloom_collection.i" to test if there is a ".BloomCollection" file</example>
 		public void SetFilePatternWhichMustBeFoundInHgDataFolder(string pattern)
 		{
-			//TODO
-			//no don't do throw. doing it means client need special code for each clone method
-			//  throw new NotImplementedException();
+			if (!string.IsNullOrEmpty(pattern))
+			{
+				_model.ProjectFilter = pattern;
+			}
 		}
 	}
 }

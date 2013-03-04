@@ -106,7 +106,7 @@ namespace ChorusHub
 			return _foundHubInfo; //will be null if none found
 		}
 
-		public IEnumerable<string> GetRepositoryNames(Func<string, bool> filter)
+		public IEnumerable<string> GetRepositoryNames(string searchFilter)
 		{
 			if(_repositoryNames!=null)
 				return _repositoryNames; //for now, there's no way to get an updated list except by making a new client
@@ -122,7 +122,7 @@ namespace ChorusHub
 			var channel = factory.CreateChannel();
 			try
 			{
-				_repositoryNames = channel.GetRepositoryNames(filter);
+				_repositoryNames = channel.GetRepositoryNames(searchFilter);
 			}
 			finally
 			{
@@ -142,8 +142,7 @@ namespace ChorusHub
 		/// notice the new server, but we don't really know when.
 		/// </summary>
 		/// <param name="directoryName"></param>
-		/// <param name="filterFunction"></param>
-		public bool PrepareHubToSync(string directoryName, Func<string, bool> filterFunction)
+		public bool PrepareHubToSync(string directoryName)
 		{
 			//Enchance: after creating and init'ing the folder, it would be possible to keep asking
 			//hg serve if it knows about the repository until finally it says "yes", instead of just
@@ -155,7 +154,7 @@ namespace ChorusHub
 			var channel = factory.CreateChannel();
 			try
 			{
-				var doWait = channel.PrepareToReceiveRepository(filterFunction, directoryName);
+				var doWait = channel.PrepareToReceiveRepository(directoryName);
 				return doWait;
 			}
 			catch(Exception error)

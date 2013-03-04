@@ -116,7 +116,7 @@ namespace Chorus.UI.Clone
 				case ExtantRepoSource.ChorusHub:
 					var getCloneFromChorusHubModel = new GetCloneFromChorusHubModel(baseProjectDir)
 					{
-						ProjectFilter = projectFilter ?? DefaultProjectFilter,
+						//ProjectFilter = hubProjectFilter ?? string.Empty,
 						ExistingProjects = existingProjectNames
 					};
 

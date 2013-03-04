@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.ServiceModel;
+using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
 using Palaso.Progress;
 
@@ -16,14 +17,35 @@ namespace ChorusHub
 
 		public static IProgress Progress = new ConsoleProgress();
 
-		public IEnumerable<string> GetRepositoryNames(Func<string, bool> filter)
+		public IEnumerable<string> GetRepositoryNames(string searchUrl)
 		{
 			Progress.WriteMessage("Client requested repository names.");
 
-			foreach (var directory in Directory.GetDirectories(ChorusHubService.Parameters.RootDirectory))
+			var allDirectories = GetAllDirectories();
+			if (string.IsNullOrEmpty(searchUrl))
 			{
-				yield return Path.GetFileName(directory);
+				return allDirectories;
 			}
+			var filteredDirectories = new List<string>();
+			try
+			{
+				var fileExtensions = UrlHelper.GetValueFromQueryStringOfRef(searchUrl, "fileExtension", string.Empty);
+
+			}
+			catch (ApplicationException e)
+			{
+				// Url parser couldn't parse the url.
+				Progress.WriteMessage("GetRepositoryNames(): " + e.Message);
+				return filteredDirectories;
+			}
+			//Progress.WriteMessage("GetRepositoryNames(): Client sent unknown search parameter '" + param + "'");
+			return new List<string>();
+		}
+
+		private static IEnumerable<string> GetAllDirectories()
+		{
+			return Directory.GetDirectories(ChorusHubService.Parameters.RootDirectory).Select(
+				directory => Path.GetFileName(directory));
 		}
 
 		/// <summary>
@@ -33,7 +55,7 @@ namespace ChorusHub
 		/// <returns>true if client should wait for hg to notice</returns>
 		public bool PrepareToReceiveRepository(string name)
 		{
-			if (GetRepositoryNames(filter).Contains(name))
+			if (GetRepositoryNames(string.Empty).Contains(name))
 			{
 				return false;
 			}
