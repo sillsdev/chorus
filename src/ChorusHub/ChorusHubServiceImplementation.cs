@@ -26,20 +26,74 @@ namespace ChorusHub
 			{
 				return allDirectories;
 			}
-			var filteredDirectories = new List<string>();
 			try
 			{
-				var fileExtensions = UrlHelper.GetValueFromQueryStringOfRef(searchUrl, "fileExtension", string.Empty);
-
+				var fileExtensions = UrlHelper.GetMultipleValuesFromQueryStringOfRef(searchUrl, "fileExtension", string.Empty);
+				var repoID = UrlHelper.GetValueFromQueryStringOfRef(searchUrl, "repoID", string.Empty);
+				return CombRepositoriesForMatchingNames(allDirectories, fileExtensions, repoID);
 			}
 			catch (ApplicationException e)
 			{
 				// Url parser couldn't parse the url.
 				Progress.WriteMessage("GetRepositoryNames(): " + e.Message);
-				return filteredDirectories;
+				return new List<string>();
 			}
-			//Progress.WriteMessage("GetRepositoryNames(): Client sent unknown search parameter '" + param + "'");
-			return new List<string>();
+		}
+
+		private IEnumerable<string> CombRepositoriesForMatchingNames(IEnumerable<string> allDirectories,
+			string[] fileExtensions, string repoID)
+		{
+			if (fileExtensions.Length == 1 && fileExtensions[0] == string.Empty && repoID == string.Empty)
+			{
+				return allDirectories; // Well THAT was a waste of time!
+			}
+
+			var result = new List<string>();
+
+			if (fileExtensions.Length > 1 || fileExtensions[0] != string.Empty)
+			{
+				// Include repositories that contain files with these fileExtensions
+				result.AddRange(allDirectories.Where(dirName => FindFileWithExtensionIn(dirName, fileExtensions)));
+				if (result.Count == 0)
+				{
+					return result;
+				}
+			}
+			else
+			{
+				// No fileExtension filter; include them all and try filtering out by repoID
+				result.AddRange(allDirectories);
+			}
+
+			if (repoID != string.Empty)
+			{
+				// Filter out repositories that don't match the given 'repoID'
+				foreach (var dirName in result.Where(dirName => !FindRepoIDIn(dirName, repoID)))
+				{
+					result.Remove(dirName);
+				}
+			}
+			return result;
+		}
+
+		private bool FindFileWithExtensionIn(string dirName, IEnumerable<string> fileExtensions)
+		{
+			// Try files in the directory itself first
+			var topLevelFiles = Directory.GetFiles(dirName);
+
+			// Compare as lowercase
+
+			// TODO: Keep working on this one....
+
+			// If we still haven't found a match, try looking in .hg/store/data
+			// for a file with the extension + .i
+			return false;
+		}
+
+		private bool FindRepoIDIn(string dirName, string repoId)
+		{
+			// Presently does nothing
+			return true;
 		}
 
 		private static IEnumerable<string> GetAllDirectories()

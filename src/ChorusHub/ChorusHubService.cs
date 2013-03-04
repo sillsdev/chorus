@@ -12,7 +12,13 @@ namespace ChorusHub
 		/// <summary>
 		/// Returns the names of Hg repositories that the ChorusHub knows about.
 		/// The search can be trimmed by use of the 'searchUrl' parameter.
+		/// Everything about the searchUrl except the query string is fabricated
+		/// by the ChorusHubClient. The query string is fed in by the application.
+		/// The possible search values are:
+		/// fileExtension -- This key can have multiple values
+		/// repoID        -- This is a single key that is unused at this time
 		/// </summary>
+		/// <example>scheme://path?fileExtension=lift&fileExtension=modelversion</example>
 		/// <param name="searchUrl"></param>
 		/// <returns></returns>
 		[OperationContract]
