@@ -593,12 +593,13 @@ namespace Chorus.VcsDrivers.Mercurial
 			{
 				return System.Environment.NewLine + "Status:" + Environment.NewLine + (GetTextFromQuery("status"));
 			}
-			catch (Exception)
+			catch (Exception e)
 			{
 #if DEBUG
-				throw;
+				throw e;
 #endif
 				//else swallow
+				return "Error in SafeGetStatus(): " + e.Message;
 			}
 		}
 
