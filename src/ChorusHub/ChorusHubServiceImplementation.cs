@@ -24,13 +24,13 @@ namespace ChorusHub
 			var allDirectories = GetAllDirectories();
 			if (string.IsNullOrEmpty(searchUrl))
 			{
-				return allDirectories;
+				return allDirectories.Select(Path.GetFileName);
 			}
 			try
 			{
 				var fileExtensions = UrlHelper.GetMultipleValuesFromQueryStringOfRef(searchUrl, "fileExtension", string.Empty);
 				var repoID = UrlHelper.GetValueFromQueryStringOfRef(searchUrl, "repoID", string.Empty);
-				return CombRepositoriesForMatchingNames(allDirectories, fileExtensions, repoID);
+				return CombRepositoriesForMatchingNames(allDirectories, fileExtensions, repoID).Select(Path.GetFileName);
 			}
 			catch (ApplicationException e)
 			{
@@ -78,28 +78,53 @@ namespace ChorusHub
 
 		private bool FindFileWithExtensionIn(string dirName, IEnumerable<string> fileExtensions)
 		{
+			var lcFileExtensions = ConvertExtensionsToLowercase(fileExtensions);
+
 			// Try files in the directory itself first
-			var topLevelFiles = Directory.GetFiles(dirName);
-
-			// Compare as lowercase
-
-			// TODO: Keep working on this one....
+			var topLevelFileNames = Directory.GetFiles(dirName);
+			if (FindExtensionMatch(topLevelFileNames, lcFileExtensions))
+			{
+				return true;
+			}
 
 			// If we still haven't found a match, try looking in .hg/store/data
-			// for a file with the extension + .i
-			return false;
+			// Check that the internal directory exists first!
+			var internalDirectory = Path.Combine(".hg", "store", "data", dirName);
+			if (!Directory.Exists(internalDirectory))
+			{
+				return false;
+			}
+			// Look for a match where a file has the extension + .i
+			var internalFileExtensions = ConvertExtensionsToInternal(lcFileExtensions);
+			var internalHgFileNames = Directory.GetFiles(internalDirectory);
+			return FindExtensionMatch(internalHgFileNames, internalFileExtensions);
+		}
+
+		private IEnumerable<string> ConvertExtensionsToInternal(IEnumerable<string> lcFileExtensions)
+		{
+			return lcFileExtensions.Select(extension => extension + ".i");
+		}
+
+		private bool FindExtensionMatch(IEnumerable<string> fileNames, IEnumerable<string> lcExtensions)
+		{
+			return fileNames.Any(fileName => lcExtensions.Any(
+				fileExtension => fileName.ToLowerInvariant().EndsWith(fileExtension)));
+		}
+
+		private IEnumerable<string> ConvertExtensionsToLowercase(IEnumerable<string> fileExtensions)
+		{
+			return fileExtensions.Select(fileExtension => fileExtension.ToLowerInvariant());
 		}
 
 		private bool FindRepoIDIn(string dirName, string repoId)
 		{
-			// Presently does nothing
+			// Does nothing for now
 			return true;
 		}
 
 		private static IEnumerable<string> GetAllDirectories()
 		{
-			return Directory.GetDirectories(ChorusHubService.Parameters.RootDirectory).Select(
-				directory => Path.GetFileName(directory));
+			return Directory.GetDirectories(ChorusHubService.Parameters.RootDirectory);
 		}
 
 		/// <summary>
