@@ -573,6 +573,10 @@ namespace Chorus.VcsDrivers.Mercurial
 
 				if (!string.IsNullOrEmpty(result.StandardError))
 				{
+					if (result.StandardError.Contains("No such file or directory"))// trying to track down http://jira.palaso.org/issues/browse/BL-284
+					{
+						details += SafeGetStatus();
+					}
 					throw new ApplicationException(result.StandardError + details);
 				}
 				else
@@ -581,6 +585,21 @@ namespace Chorus.VcsDrivers.Mercurial
 				}
 			}
 			return result;
+		}
+
+		private string SafeGetStatus()
+		{
+			try
+			{
+				return System.Environment.NewLine + "Status:" + Environment.NewLine + (GetTextFromQuery("status"));
+			}
+			catch (Exception)
+			{
+#if DEBUG
+				throw;
+#endif
+				//else swallow
+			}
 		}
 
 		/// <exception cref="System.TimeoutException"/>
