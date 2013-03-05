@@ -1,12 +1,14 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text.RegularExpressions;
 using System.Xml;
-using Chorus.FileTypeHanders.lift;
+using Chorus.FileTypeHanders.xml;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
 using LibChorus.TestUtilities;
 using NUnit.Framework;
+using Palaso.IO;
 
 namespace LibChorus.Tests.merge.xml.generic
 {
@@ -1285,6 +1287,334 @@ namespace LibChorus.Tests.merge.xml.generic
 			m.Merge(red, blue, ancestor);
 			Assert.That(contextGenerator.InputNode, Is.Not.Null);
 			Assert.That(contextGenerator.InputNode.Name, Is.EqualTo("b"));
+		}
+
+		[Test]
+		public void AllFilesMissingThrows()
+		{
+			var merger = new XmlMerger(new NullMergeSituation());
+			Assert.Throws<InvalidOperationException>(() => merger.MergeFiles(null, null, null));
+		}
+
+		[Test]
+		public void AncestorIsNotXmlThrows()
+		{
+			const string data =
+@"<?xml version='1.0' encoding='utf-8'?>
+<data />";
+			using (var ancestor = new TempFile())
+			using (var ours = new TempFile())
+			using (var theirs = new TempFile())
+			{
+				File.WriteAllText(ancestor.Path, "Not xml stuff.");
+				File.WriteAllText(ours.Path, data);
+				File.WriteAllText(theirs.Path, data);
+				var merger = new XmlMerger(new NullMergeSituation());
+				Assert.Throws<XmlException>(() => merger.MergeFiles(ours.Path, theirs.Path, ancestor.Path));
+			}
+		}
+
+		[Test]
+		public void OursIsNotXmlThrows()
+		{
+			const string data =
+@"<?xml version='1.0' encoding='utf-8'?>
+<data />";
+			using (var ancestor = new TempFile())
+			using (var ours = new TempFile())
+			using (var theirs = new TempFile())
+			{
+				File.WriteAllText(ancestor.Path, data);
+				File.WriteAllText(ours.Path, "Not xml stuff.");
+				File.WriteAllText(theirs.Path, data);
+				var merger = new XmlMerger(new NullMergeSituation());
+				Assert.Throws<XmlException>(() => merger.MergeFiles(ours.Path, theirs.Path, ancestor.Path));
+			}
+		}
+
+		[Test]
+		public void TheirsIsNotXmlThrows()
+		{
+			const string data =
+@"<?xml version='1.0' encoding='utf-8'?>
+<data />";
+			using (var ancestor = new TempFile())
+			using (var ours = new TempFile())
+			using (var theirs = new TempFile())
+			{
+				File.WriteAllText(ancestor.Path, data);
+				File.WriteAllText(ours.Path, data);
+				File.WriteAllText(theirs.Path, "Not xml stuff.");
+				var merger = new XmlMerger(new NullMergeSituation());
+				Assert.Throws<XmlException>(() => merger.MergeFiles(ours.Path, theirs.Path, ancestor.Path));
+			}
+		}
+
+		[Test]
+		public void AncestorIsEmptyFileAndBothAddedSameThingHasOneChangeReport()
+		{
+			const string data =
+@"<?xml version='1.0' encoding='utf-8'?>
+<data />";
+			using (var ancestor = new TempFile())
+			using (var ours = new TempFile())
+			using (var theirs = new TempFile())
+			{
+				File.WriteAllText(ancestor.Path, "");
+				File.WriteAllText(ours.Path, data);
+				File.WriteAllText(theirs.Path, data);
+				var listener = new ListenerForUnitTests();
+				var merger = new XmlMerger(new NullMergeSituation())
+					{
+						EventListener = listener
+					};
+				var result = merger.MergeFiles(ours.Path, theirs.Path, ancestor.Path);
+				Assert.IsNotNull(result);
+				listener.AssertExpectedChangesCount(1);
+				listener.AssertFirstChangeType<XmlBothAddedSameChangeReport>();
+				listener.AssertExpectedConflictCount(0);
+			}
+		}
+
+		[Test]
+		public void AncestorAndOursAreEmptyFileAndTheyAddedHasOneChangeReport()
+		{
+			const string data =
+@"<?xml version='1.0' encoding='utf-8'?>
+<data />";
+			using (var ancestor = new TempFile())
+			using (var ours = new TempFile())
+			using (var theirs = new TempFile())
+			{
+				File.WriteAllText(ancestor.Path, "");
+				File.WriteAllText(ours.Path, "");
+				File.WriteAllText(theirs.Path, data);
+				var listener = new ListenerForUnitTests();
+				var merger = new XmlMerger(new NullMergeSituation())
+				{
+					EventListener = listener
+				};
+				var result = merger.MergeFiles(ours.Path, theirs.Path, ancestor.Path);
+				Assert.IsNotNull(result);
+				listener.AssertExpectedChangesCount(1);
+				listener.AssertFirstChangeType<XmlAdditionChangeReport>();
+				listener.AssertExpectedConflictCount(0);
+			}
+		}
+
+		[Test]
+		public void AncestorAndTheirsAreEmptyFileAndWeAddedHasOneChangeReport()
+		{
+			const string data =
+@"<?xml version='1.0' encoding='utf-8'?>
+<data />";
+			using (var ancestor = new TempFile())
+			using (var ours = new TempFile())
+			using (var theirs = new TempFile())
+			{
+				File.WriteAllText(ancestor.Path, "");
+				File.WriteAllText(ours.Path, data);
+				File.WriteAllText(theirs.Path, "");
+				var listener = new ListenerForUnitTests();
+				var merger = new XmlMerger(new NullMergeSituation())
+				{
+					EventListener = listener
+				};
+				var result = merger.MergeFiles(ours.Path, theirs.Path, ancestor.Path);
+				Assert.IsNotNull(result);
+				listener.AssertExpectedChangesCount(1);
+				listener.AssertFirstChangeType<XmlAdditionChangeReport>();
+				listener.AssertExpectedConflictCount(0);
+			}
+		}
+
+		[Test]
+		public void AncestorIsEmptyFileAndWeBothAddedDifferentContentHasOneConflictReport()
+		{
+			const string data =
+@"<?xml version='1.0' encoding='utf-8'?>
+<data />";
+			using (var ancestor = new TempFile())
+			using (var ours = new TempFile())
+			using (var theirs = new TempFile())
+			{
+				File.WriteAllText(ancestor.Path, "");
+				File.WriteAllText(ours.Path, data.Replace("<data />", "<data>our addition</data>"));
+				File.WriteAllText(theirs.Path, data.Replace("<data />", "<data>their addition</data>"));
+				var listener = new ListenerForUnitTests();
+				var merger = new XmlMerger(new NullMergeSituation())
+				{
+					EventListener = listener
+				};
+				var result = merger.MergeFiles(ours.Path, theirs.Path, ancestor.Path);
+				Assert.IsNotNull(result);
+				listener.AssertExpectedChangesCount(0);
+				listener.AssertExpectedConflictCount(1);
+				listener.AssertFirstConflictType<BothAddedMainElementButWithDifferentContentConflict>();
+				Assert.IsTrue(result.MergedNode.OuterXml.Contains("our addition"));
+			}
+		}
+
+		[Test]
+		public void AncestorIsEmptyFileAndWeBothAddedDifferentContentWithTheyWinHasOneConflictReport()
+		{
+			const string data =
+@"<?xml version='1.0' encoding='utf-8'?>
+<data />";
+			using (var ancestor = new TempFile())
+			using (var ours = new TempFile())
+			using (var theirs = new TempFile())
+			{
+				File.WriteAllText(ancestor.Path, "");
+				File.WriteAllText(ours.Path, data.Replace("<data />", "<data>our addition</data>"));
+				File.WriteAllText(theirs.Path, data.Replace("<data />", "<data>their addition</data>"));
+				var listener = new ListenerForUnitTests();
+				var merger = new XmlMerger(new NullMergeSituationTheyWin())
+				{
+					EventListener = listener
+				};
+				var result = merger.MergeFiles(ours.Path, theirs.Path, ancestor.Path);
+				Assert.IsNotNull(result);
+				listener.AssertExpectedChangesCount(0);
+				listener.AssertExpectedConflictCount(1);
+				listener.AssertFirstConflictType<BothAddedMainElementButWithDifferentContentConflict>();
+				Assert.IsTrue(result.MergedNode.OuterXml.Contains("their addition"));
+			}
+		}
+
+		[Test]
+		public void AncestorHasDataAndWeBothDeletedFileHasOneChangeReport()
+		{
+			const string data =
+@"<?xml version='1.0' encoding='utf-8'?>
+<data />";
+			using (var ancestor = new TempFile())
+			using (var ours = new TempFile())
+			using (var theirs = new TempFile())
+			{
+				File.WriteAllText(ancestor.Path, data);
+				File.WriteAllText(ours.Path, "");
+				File.WriteAllText(theirs.Path, "");
+				var listener = new ListenerForUnitTests();
+				var merger = new XmlMerger(new NullMergeSituation())
+				{
+					EventListener = listener
+				};
+				var result = merger.MergeFiles(ours.Path, theirs.Path, ancestor.Path);
+				Assert.IsNotNull(result);
+				listener.AssertExpectedChangesCount(1);
+				listener.AssertFirstChangeType<XmlBothDeletionChangeReport>();
+				listener.AssertExpectedConflictCount(0);
+				Assert.IsNull(result.MergedNode);
+			}
+		}
+
+		[Test]
+		public void WeDeletedFileTheyDidNothingHasOneChangeReport()
+		{
+			const string data =
+@"<?xml version='1.0' encoding='utf-8'?>
+<data />";
+			using (var ancestor = new TempFile())
+			using (var ours = new TempFile())
+			using (var theirs = new TempFile())
+			{
+				File.WriteAllText(ancestor.Path, data);
+				File.WriteAllText(ours.Path, "");
+				File.WriteAllText(theirs.Path, data);
+				var listener = new ListenerForUnitTests();
+				var merger = new XmlMerger(new NullMergeSituation())
+				{
+					EventListener = listener
+				};
+				var result = merger.MergeFiles(ours.Path, theirs.Path, ancestor.Path);
+				Assert.IsNotNull(result);
+				listener.AssertExpectedChangesCount(1);
+				listener.AssertFirstChangeType<XmlDeletionChangeReport>();
+				listener.AssertExpectedConflictCount(0);
+				Assert.IsNull(result.MergedNode);
+			}
+		}
+
+		[Test]
+		public void TheyChangedWeDeletedFileHasOneConflictReport()
+		{
+			const string data =
+@"<?xml version='1.0' encoding='utf-8'?>
+<data />";
+			using (var ancestor = new TempFile())
+			using (var ours = new TempFile())
+			using (var theirs = new TempFile())
+			{
+				File.WriteAllText(ancestor.Path, data);
+				File.WriteAllText(ours.Path, "");
+				File.WriteAllText(theirs.Path, data.Replace("<data />", "<data>their change</data>"));
+				var listener = new ListenerForUnitTests();
+				var merger = new XmlMerger(new NullMergeSituation())
+				{
+					EventListener = listener
+				};
+				var result = merger.MergeFiles(ours.Path, theirs.Path, ancestor.Path);
+				Assert.IsNotNull(result);
+				listener.AssertExpectedChangesCount(0);
+				listener.AssertExpectedConflictCount(1);
+				listener.AssertFirstConflictType<RemovedVsEditedElementConflict>();
+				Assert.IsTrue(result.MergedNode.OuterXml.Contains("their change"));
+			}
+		}
+
+		[Test]
+		public void TheyDeletedFileWeDidNothingHasOneChangeReport()
+		{
+			const string data =
+@"<?xml version='1.0' encoding='utf-8'?>
+<data />";
+			using (var ancestor = new TempFile())
+			using (var ours = new TempFile())
+			using (var theirs = new TempFile())
+			{
+				File.WriteAllText(ancestor.Path, data);
+				File.WriteAllText(ours.Path, data);
+				File.WriteAllText(theirs.Path, "");
+				var listener = new ListenerForUnitTests();
+				var merger = new XmlMerger(new NullMergeSituation())
+				{
+					EventListener = listener
+				};
+				var result = merger.MergeFiles(ours.Path, theirs.Path, ancestor.Path);
+				Assert.IsNotNull(result);
+				listener.AssertExpectedChangesCount(1);
+				listener.AssertFirstChangeType<XmlDeletionChangeReport>();
+				listener.AssertExpectedConflictCount(0);
+				Assert.IsNull(result.MergedNode);
+			}
+		}
+
+		[Test]
+		public void WeChangedTheyDeletedFileHasOneConflictReport()
+		{
+			const string data =
+@"<?xml version='1.0' encoding='utf-8'?>
+<data />";
+			using (var ancestor = new TempFile())
+			using (var ours = new TempFile())
+			using (var theirs = new TempFile())
+			{
+				File.WriteAllText(ancestor.Path, data);
+				File.WriteAllText(ours.Path, data.Replace("<data />", "<data>our change</data>"));
+				File.WriteAllText(theirs.Path, "");
+				var listener = new ListenerForUnitTests();
+				var merger = new XmlMerger(new NullMergeSituation())
+				{
+					EventListener = listener
+				};
+				var result = merger.MergeFiles(ours.Path, theirs.Path, ancestor.Path);
+				Assert.IsNotNull(result);
+				listener.AssertExpectedChangesCount(0);
+				listener.AssertExpectedConflictCount(1);
+				listener.AssertFirstConflictType<EditedVsRemovedElementConflict>();
+				Assert.IsTrue(result.MergedNode.OuterXml.Contains("our change"));
+			}
 		}
 	}
 
