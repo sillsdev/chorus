@@ -99,15 +99,21 @@ namespace Chorus.UI.Settings
 		{
 			string helpFile = HelpUtils.GetHelpFile();
 
-			if (settingsTabs.SelectedTab == internetTab)
+			var selectedTab = settingsTabs.SelectedTab;
+			if (selectedTab == internetTab)
 			{
 				Help.ShowHelp(this, helpFile,
 					"Tasks/Internet_tab.htm");
 			}
-			else if (settingsTabs.SelectedTab == networkFolderTab)
+			else if (selectedTab == networkFolderTab)
 			{
 				Help.ShowHelp(this, helpFile,
 					"Tasks/Network_Folder_tab.htm");
+			}
+			else if (selectedTab == chorusHubTab)
+			{
+				Help.ShowHelp(this, helpFile,
+					"/Tasks/Chorus_Hub_tab.htm");
 			}
 		}
 	}
