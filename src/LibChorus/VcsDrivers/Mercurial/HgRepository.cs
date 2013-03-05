@@ -1515,7 +1515,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				_progress.WriteVerbose("Recover may have left a lock, which was removed unless otherwise reported.");
 			}
 
-			if (result.StandardError.StartsWith("no interrupted"))
+			if (result.StandardError.Contains("no interrupted"))//constains rather than starts with because there may be a preceding message about locks (bl-292)
 			{
 				return;
 			}
