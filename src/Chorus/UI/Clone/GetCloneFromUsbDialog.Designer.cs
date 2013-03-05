@@ -46,7 +46,7 @@ namespace Chorus.UI.Clone
 			this._statusImage = new System.Windows.Forms.Button();
 			this._lookingForUsbTimer = new System.Windows.Forms.Timer(this.components);
 			this._statusLabel = new System.Windows.Forms.TextBox();
-			this._logBox = new LogBox();
+			this._logBox = new Palaso.UI.WindowsForms.Progress.LogBox();
 			this._helpProvider = new Vulcan.Uczniowie.HelpProvider.HelpComponent(this.components);
 			this.SuspendLayout();
 			//
@@ -87,6 +87,8 @@ namespace Chorus.UI.Clone
 			this.imageList1.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imageList1.ImageStream")));
 			this.imageList1.TransparentColor = System.Drawing.Color.Magenta;
 			this.imageList1.Images.SetKeyName(0, "Project");
+			this.imageList1.Images.SetKeyName(1, "ProjectSelected.png");
+			this.imageList1.Images.SetKeyName(2, "Folder_Disabled.png");
 			//
 			// _cancelButton
 			//

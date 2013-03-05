@@ -12,6 +12,10 @@ namespace Chorus.merge.xml.generic
 		internal static void MergeAttributes(XmlMerger merger, ref XmlNode ours, XmlNode theirs, XmlNode ancestor)
 		{
 			// Review: What happens if 'ours' is null?
+			// My (RandyR) theory is that deletions are handled in the MergeChildrenMethod code, as are additions.
+			//	That being the case, then that code will only call back to the XmlMerger MergerInner code when all three nodes are present,
+			//	and will thus never get here.
+
 			var skipProcessingInOurs = new HashSet<string>();
 
 			// Deletions from ancestor, no matter who did it.

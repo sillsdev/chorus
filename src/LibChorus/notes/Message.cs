@@ -1,7 +1,7 @@
 using System;
 using System.Linq;
+using System.Security;
 using System.Text;
-using System.Xml;
 using System.Xml.Linq;
 using Chorus.Utilities;
 
@@ -19,7 +19,8 @@ namespace Chorus.notes
 		public Message(string author, string status, string contents)
 		{
 			var s = String.Format("<message author='{0}' status ='{1}' date='{2}' guid='{3}'>{4}</message>",
-								  author, status, DateTime.Now.ToString(Annotation.TimeFormatNoTimeZone), System.Guid.NewGuid(), contents);
+								  author, status, DateTime.Now.ToString(Annotation.TimeFormatNoTimeZone),
+								  System.Guid.NewGuid(), SecurityElement.Escape(contents));
 			_element = XElement.Parse(s);
 		}
 

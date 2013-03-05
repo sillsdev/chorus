@@ -65,8 +65,8 @@ namespace Chorus.UI.Clone
 
 		private void OnRepositoryListViewSelectionChange(object sender, EventArgs e)
 		{
-			// Deal with case when user didn't really select anything:
-			if (_projectRepositoryListView.SelectedItems.Count == 0)
+			// Deal with case when user didn't really select anything they can clone:
+			if (_projectRepositoryListView.SelectedItems.Count == 0 || _projectRepositoryListView.SelectedItems[0].ForeColor == CloneFromUsb.DisabledItemForeColor)
 			{
 				getButton.Enabled = false;
 				return;
@@ -201,7 +201,13 @@ namespace Chorus.UI.Clone
 				Text = string.Format("Get {0} from Chorus Hub on {1}", RepositoryKindLabel, client.HostName);
 				foreach (var name in (IEnumerable<string>)client.GetRepositoryNames())
 				{
-					_projectRepositoryListView.Items.Add(name);
+					var item = new ListViewItem(name);
+					if (_model.ExistingProjects!= null && _model.ExistingProjects.Contains(name))
+					{
+						item.ForeColor = CloneFromUsb.DisabledItemForeColor;
+						item.ToolTipText = CloneFromUsb.ProjectWithSameNameExists;
+					}
+					_projectRepositoryListView.Items.Add(item);
 				}
 			}
 		}

@@ -34,19 +34,20 @@ namespace Chorus.merge.xml.generic
 		public NodeMergeResult Merge(XmlNode ours, XmlNode theirs, XmlNode ancestor)
 		{
 			var result = new NodeMergeResult();
-			if (EventListener is DispatchingMergeEventListener)
+			var listener = EventListener as DispatchingMergeEventListener;
+			if (listener == null)
 			{
-				((DispatchingMergeEventListener)EventListener).AddEventListener(result);
-			}
-			else
-			{
-				DispatchingMergeEventListener dispatcher = new DispatchingMergeEventListener();
+				var dispatcher = new DispatchingMergeEventListener();
 				dispatcher.AddEventListener(result);
 				if (EventListener != null)
 				{
 					dispatcher.AddEventListener(EventListener);
 				}
 				EventListener = dispatcher;
+			}
+			else
+			{
+				listener.AddEventListener(result);
 			}
 
 			// Remove any duplicate child nodes in all three.
@@ -80,6 +81,37 @@ namespace Chorus.merge.xml.generic
 				_htmlContextGenerator);
 		}
 
+		internal void ConflictOccurred(IConflict conflict, XmlNode nodeToFindGeneratorFrom)
+		{
+			var contextDescriptorGenerator = GetContextDescriptorGenerator(nodeToFindGeneratorFrom);
+			var htmlGenerator = contextDescriptorGenerator as IGenerateHtmlContext ?? new SimpleHtmlGenerator();
+
+			XmlMergeService.AddConflictToListener(
+				EventListener,
+				conflict,
+				_oursContext,
+				_theirsContext,
+				_ancestorContext,
+				htmlGenerator,
+				this,
+				nodeToFindGeneratorFrom);
+		}
+
+		/// <summary>
+		/// Get a context based on the given node. This should only be used when we are at the outer level (typically the EventListener has no context to add).
+		/// </summary>
+		/// <param name="nodeToFindGeneratorFrom"></param>
+		/// <returns></returns>
+		internal ContextDescriptor GetContext(XmlNode nodeToFindGeneratorFrom)
+		{
+			return GetContextDescriptor(nodeToFindGeneratorFrom, GetContextDescriptorGenerator(nodeToFindGeneratorFrom));
+		}
+
+		private IGenerateContextDescriptor GetContextDescriptorGenerator(XmlNode nodeToFindGeneratorFrom)
+		{
+			return MergeStrategies.GetElementStrategy(nodeToFindGeneratorFrom).ContextDescriptorGenerator;
+		}
+
 		internal void WarningOccurred(IConflict warning)
 		{
 			if (_htmlContextGenerator == null)
@@ -105,9 +137,33 @@ namespace Chorus.merge.xml.generic
 			_ancestorContext = ancestor;
 
 			var elementStrat = MergeStrategies.GetElementStrategy(ours ?? theirs ?? ancestor);
-			if (elementStrat.IsImmutable)
-				return; // Can't merge something that can't change.
 
+			// Step 0: Do anything special the strategy wants to do before regular merging. This may modify the nodes.
+			// For instance clinets may want to ensure 'our' and 'their' have the latest date stamp available.
+			elementStrat.Premerger.Premerge(EventListener, ref ours, theirs, ancestor);
+
+			// Step 0.1: Set up a context, if available.
+			var generator = elementStrat.ContextDescriptorGenerator;
+			if (generator != null)
+			{
+				//review: question: does this not get called at levels below the entry?
+				//this would seem to fail at, say, a sense. I'm confused. (JH 30june09)
+				var descriptor = GetContextDescriptor(ours, generator);
+				EventListener.EnteringContext(descriptor); // TODO: If the context is ever redone as a stack, then this call with push the context onto the stack.
+				_htmlContextGenerator = (generator as IGenerateHtmlContext); // null is OK.
+			}
+
+			// Step 1: If the current set of nodes are immutable,
+			// then make sure no changes took place (among a few other things).
+			if (elementStrat.IsImmutable)
+			{
+				ImmutableElementMergeService.DoMerge(this, ref ours, theirs, ancestor);
+				return; // Don't go any further, since it is immutable.
+			}
+
+			// Step 2: If the current set of elements is 'atomic'
+			// (only one user can make changes to the node, or anything it contains),
+			// then make sure only set of changes have been made.
 			if (elementStrat.IsAtomic)
 			{
 				if (elementStrat.AllowAtomicTextMerge && XmlUtilities.IsTextLevel(ours, theirs, ancestor))
@@ -119,34 +175,21 @@ namespace Chorus.merge.xml.generic
 				return;
 			}
 
+			// Step 3: Go ahead and merge the attributes, as needed.
 			MergeXmlAttributesService.MergeAttributes(this, ref ours, theirs, ancestor);
 
+			// Step 4: Hmm, trouble is, a node might be required to have one or more child nodes.
+			// I suppose a real validator would have picked up on that, and not allowed
+			// the first commit, so we wouldn't then be doing a merge operation.
+			// So, not to worry here, if the validator doesn't care enough to prevent the first commit.
 			// It could be possible for the elements to have no children, in which case, there is nothing more to merge, so just return.
 			if (ours != null && !ours.HasChildNodes && theirs != null && !theirs.HasChildNodes && ancestor != null && !ancestor.HasChildNodes)
 				return;
 
-			var generator = elementStrat.ContextDescriptorGenerator;
-			if (generator != null)
-			{
-				//review: question: does this not get called at levels below the entry?
-				//this would seem to fail at, say, a sense. I'm confused. (JH 30june09)
-				ContextDescriptor descriptor;
-				if (generator is IGenerateContextDescriptorFromNode)
-				{
-					// If the generator prefers the XmlNode, get the context that way.
-					descriptor = ((IGenerateContextDescriptorFromNode)generator).GenerateContextDescriptor(ours,
-						MergeSituation.PathToFileInRepository);
-				}
-				else
-				{
-					descriptor = generator.GenerateContextDescriptor(ours.OuterXml, MergeSituation.PathToFileInRepository);
-				}
-				EventListener.EnteringContext(descriptor);
-				_htmlContextGenerator = (generator as IGenerateHtmlContext); // null is OK.
-			}
-
+			// Step 5: DO some kind of merge on the child node.
 			if (XmlUtilities.IsTextLevel(ours, theirs, ancestor))
 			{
+				// Step 5A: Merge the text element.
 				DoTextMerge(ref ours, theirs, ancestor, elementStrat);
 			}
 			else
@@ -155,20 +198,37 @@ namespace Chorus.merge.xml.generic
 				{
 					case NumberOfChildrenAllowed.Zero:
 					case NumberOfChildrenAllowed.ZeroOrOne:
+						// Step 5B: Merge the "special needs" nodes.
 						MergeLimitedChildrenService.Run(this, elementStrat, ref ours, theirs, ancestor);
 						break;
 					case NumberOfChildrenAllowed.ZeroOrMore:
-						//is this a level of the xml file that would consitute the minimal unit conflict-understanding
-						//from a user perspecitve?
-						//e.g., in a dictionary, this is the lexical entry.  In a text, it might be  a paragraph.
+						// Step 5B:
+						// Q: is this a level of the xml file that would consitute the minimal unit conflict-understanding
+						// from a user perspecitve?
+						// e.g., in a dictionary, this is the lexical entry.  In a text, it might be  a paragraph.
+						// A (RandyR): Definitely it may not be such a level of node.
 						new MergeChildrenMethod(ours, theirs, ancestor, this).Run();
 						break;
 				}
 			}
+
 			// At some point, it may be necessary here to restore the pre-existing values of
 			// _oursContext, _theirsContext, _ancestorContext, and _htmlContextGenerator.
 			// and somehow restore the EventListener's Context.
 			// Currently however no client generates further conflicts after calling MergeChildren.
+
+			// Step 6: TODO: If the context is ever redone as a stack, then pop the stack here to return to the outer context via some new LeavingContext method on EventListener.
+		}
+
+		internal ContextDescriptor GetContextDescriptor(XmlNode ours, IGenerateContextDescriptor generator)
+		{
+			if (generator == null)
+				return null; // can't produce one.
+
+			var contextDescriptorFromNode = generator as IGenerateContextDescriptorFromNode;
+			return (contextDescriptorFromNode != null)
+											   ? contextDescriptorFromNode.GenerateContextDescriptor(ours, MergeSituation.PathToFileInRepository)
+											   : generator.GenerateContextDescriptor(ours.OuterXml, MergeSituation.PathToFileInRepository);
 		}
 
 		private void DoTextMerge(ref XmlNode ours, XmlNode theirs, XmlNode ancestor, ElementStrategy elementStrat)

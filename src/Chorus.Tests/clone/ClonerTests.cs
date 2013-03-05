@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using Chorus.UI.Clone;
@@ -160,6 +162,85 @@ namespace Chorus.Tests.clone
 				drives.Add(new UsbDriveInfoForTests(usb1.Path));
 				model.DriveInfoRetriever = new RetrieveUsbDriveInfoForTests(drives);
 				Assert.AreEqual(0, model.GetDirectoriesWithMecurialRepos().Count());
+			}
+		}
+
+		[Test]
+		public void MakeListItem_MakesNormalItem()
+		{
+			using (var usb = new TemporaryFolder("clonetestUsb"))
+			{
+				var path = usb.Combine("test1");
+				Directory.CreateDirectory(path);
+				Directory.CreateDirectory(usb.Combine("test1", ".hg"));
+				var model = new CloneFromUsb();
+				var item = model.CreateListItemFor(path);
+				Assert.That(item, Is.Not.Null, "model should have made a list item");
+				Assert.That(item.Text, Is.EqualTo("test1"));
+				Assert.That(item.Tag, Is.EqualTo(path));
+				var last = File.GetLastWriteTime(path);
+				string expectedSubitem = last.ToShortDateString() + " " + last.ToShortTimeString(); // Not a great test, basically duplicates the impl
+				Assert.That(item.SubItems[1].Text, Is.EqualTo(expectedSubitem));
+				Assert.That(item.ToolTipText, Is.EqualTo(path));
+				Assert.That(item.ImageIndex, Is.EqualTo(0));
+				Assert.That(item.BackColor, Is.EqualTo(Color.FromKnownColor(KnownColor.Window)));
+				Assert.That(item.ForeColor, Is.EqualTo(Color.FromKnownColor(KnownColor.WindowText)));
+			}
+		}
+
+		[Test]
+		public void MakeListItemWhenAlreadyHaveProjectName_MakesDisabledItem()
+		{
+			using (var usb = new TemporaryFolder("clonetestUsb"))
+			{
+				var path = usb.Combine("test1");
+				Directory.CreateDirectory(path);
+				Directory.CreateDirectory(usb.Combine("test1", ".hg"));
+				var model = new CloneFromUsb();
+				model.ExistingProjects = new HashSet<string> {"test1"};
+				var item = model.CreateListItemFor(path);
+				Assert.That(item, Is.Not.Null, "model should have made a list item");
+				Assert.That(item.Text, Is.EqualTo("test1"));
+				Assert.That(item.Tag, Is.EqualTo(path));
+				var last = File.GetLastWriteTime(path);
+				string expectedSubitem = last.ToShortDateString() + " " + last.ToShortTimeString();
+					// Not a great test, basically duplicates the impl
+				Assert.That(item.SubItems[1].Text, Is.EqualTo(expectedSubitem));
+				Assert.That(item.ToolTipText, Is.EqualTo(CloneFromUsb.ProjectWithSameNameExists));
+				Assert.That(item.ImageIndex, Is.EqualTo(2));
+				Assert.That(item.ForeColor, Is.EqualTo(CloneFromUsb.DisabledItemForeColor));
+			}
+		}
+
+		[Test]
+		public void MakeListItemWhenRepoInUse_MakesDisabledItem()
+		{
+			using (var setup = new RepositorySetup("Dan"))
+			{
+				// Set a project up sufficiently to have an ID.
+				var tempFilePath = setup.ProjectFolder.Combine("test.1w1");
+				File.WriteAllText(tempFilePath, "hello");
+				setup.ProjectFolderConfig.IncludePatterns.Clear();
+				setup.ProjectFolderConfig.ExcludePatterns.Clear();
+				setup.ProjectFolderConfig.IncludePatterns.Add("*.1w1");
+				setup.AddAndCheckIn(); // Need to have one commit.
+				var id = setup.Repository.Identifier;
+				var path = setup.Repository.PathToRepo;
+
+				var model = new CloneFromUsb();
+				model.ReposInUse = new Dictionary<string, string>();
+				model.ReposInUse[id] = "myname";
+				var item = model.CreateListItemFor(path);
+				Assert.That(item, Is.Not.Null, "model should have made a list item");
+				Assert.That(item.Text, Is.EqualTo(Path.GetFileName(path)));
+				Assert.That(item.Tag, Is.EqualTo(path));
+				var last = File.GetLastWriteTime(path);
+				string expectedSubitem = last.ToShortDateString() + " " + last.ToShortTimeString();
+				// Not a great test, basically duplicates the impl
+				Assert.That(item.SubItems[1].Text, Is.EqualTo(expectedSubitem));
+				Assert.That(item.ToolTipText, Is.EqualTo(string.Format(CloneFromUsb.ProjectInUseTemplate, "myname")));
+				Assert.That(item.ImageIndex, Is.EqualTo(1));
+				Assert.That(item.ForeColor, Is.EqualTo(CloneFromUsb.DisabledItemForeColor));
 			}
 		}
 	}
