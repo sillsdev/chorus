@@ -14,8 +14,9 @@ namespace ChorusHub
 	{
 		//this is static because at the moment, I don't know how to construct or access
 		//this class; the WCF service just does it for me.
-
 		public static IProgress Progress = new ConsoleProgress();
+
+		const char OrChar = '|';
 
 		public IEnumerable<string> GetRepositoryNames(string searchUrl)
 		{
@@ -28,7 +29,7 @@ namespace ChorusHub
 			}
 			try
 			{
-				var fileExtensions = UrlHelper.GetMultipleValuesFromQueryStringOfRef(searchUrl, "fileExtension", string.Empty);
+				var fileExtensions = UrlHelper.GetValueFromQueryStringOfRef(searchUrl, "fileExtension", string.Empty);
 				var repoID = UrlHelper.GetValueFromQueryStringOfRef(searchUrl, "repoID", string.Empty);
 				return CombRepositoriesForMatchingNames(allDirectories, fileExtensions, repoID).Select(Path.GetFileName);
 			}
@@ -41,28 +42,26 @@ namespace ChorusHub
 		}
 
 		private IEnumerable<string> CombRepositoriesForMatchingNames(IEnumerable<string> allDirectories,
-			string[] fileExtensions, string repoID)
+			string fileExtensionQuery, string repoID)
 		{
-			if (fileExtensions.Length == 1 && fileExtensions[0] == string.Empty && repoID == string.Empty)
+			if (fileExtensionQuery == string.Empty && repoID == string.Empty)
 			{
 				return allDirectories; // Well THAT was a waste of time!
 			}
 
-			var result = new List<string>();
+			var result = allDirectories.ToList();
 
-			if (fileExtensions.Length > 1 || fileExtensions[0] != string.Empty)
+			if (fileExtensionQuery != string.Empty)
 			{
-				// Include repositories that contain files with these fileExtensions
-				result.AddRange(allDirectories.Where(dirName => FindFileWithExtensionIn(dirName, fileExtensions)));
+				var fileExtensions = PreProcessExtensions(fileExtensionQuery).ToArray();
+				// Remove repositories that don't contain a file with one of these fileExtensions
+				var intermediateResult =
+					allDirectories.Where(dirName => !FindFileWithExtensionIn(dirName, fileExtensions));
+				result.RemoveAll(intermediateResult.Contains);
 				if (result.Count == 0)
 				{
 					return result;
 				}
-			}
-			else
-			{
-				// No fileExtension filter; include them all and try filtering out by repoID
-				result.AddRange(allDirectories);
 			}
 
 			if (repoID != string.Empty)
@@ -76,44 +75,28 @@ namespace ChorusHub
 			return result;
 		}
 
+		private  IEnumerable<string> PreProcessExtensions(string fileExtensionQuery)
+		{
+			return fileExtensionQuery.ToLowerInvariant().Split(OrChar).Select(extension => extension + ".i");
+		}
+
 		private bool FindFileWithExtensionIn(string dirName, IEnumerable<string> fileExtensions)
 		{
-			var lcFileExtensions = ConvertExtensionsToLowercase(fileExtensions);
-
-			// Try files in the directory itself first
-			var topLevelFileNames = Directory.GetFiles(dirName);
-			if (FindExtensionMatch(topLevelFileNames, lcFileExtensions))
-			{
-				return true;
-			}
-
 			// If we still haven't found a match, try looking in .hg/store/data
 			// Check that the internal directory exists first!
-			var internalDirectory = Path.Combine(".hg", "store", "data", dirName);
+			var internalDirectory = Path.Combine(dirName, ".hg", "store", "data");
 			if (!Directory.Exists(internalDirectory))
 			{
 				return false;
 			}
-			// Look for a match where a file has the extension + .i
-			var internalFileExtensions = ConvertExtensionsToInternal(lcFileExtensions);
 			var internalHgFileNames = Directory.GetFiles(internalDirectory);
-			return FindExtensionMatch(internalHgFileNames, internalFileExtensions);
-		}
-
-		private IEnumerable<string> ConvertExtensionsToInternal(IEnumerable<string> lcFileExtensions)
-		{
-			return lcFileExtensions.Select(extension => extension + ".i");
+			return FindExtensionMatch(internalHgFileNames, fileExtensions);
 		}
 
 		private bool FindExtensionMatch(IEnumerable<string> fileNames, IEnumerable<string> lcExtensions)
 		{
 			return fileNames.Any(fileName => lcExtensions.Any(
 				fileExtension => fileName.ToLowerInvariant().EndsWith(fileExtension)));
-		}
-
-		private IEnumerable<string> ConvertExtensionsToLowercase(IEnumerable<string> fileExtensions)
-		{
-			return fileExtensions.Select(fileExtension => fileExtension.ToLowerInvariant());
 		}
 
 		private bool FindRepoIDIn(string dirName, string repoId)

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using Chorus.VcsDrivers.Mercurial;
 using ChorusHub;
 using LibChorus.TestUtilities;
 using NUnit.Framework;
@@ -48,7 +49,8 @@ namespace Chorus.Tests.ChorusHub
 		public void GetRepostoryNames_TwoItemsInHubFolder_GetOneItemWithProjectFilter()
 		{
 			// only accept folders containing a file with the name "randomName.someExt"
-			const string queryString = "fileExtension=someExt";
+			// Hg munges filenames to take out caps and inserts _ before them
+			const string queryString = "fileExtension=some_ext";
 
 			using (var testRoot = new TemporaryFolder("ChorusHubCloneTest"))
 			using (var chorusHubSourceFolder = new TemporaryFolder(testRoot, "ChorusHub"))
@@ -63,8 +65,8 @@ namespace Chorus.Tests.ChorusHub
 				RepositorySetup.MakeRepositoryForTest(repo1.Path, "bob", new ConsoleProgress());
 				RepositorySetup.MakeRepositoryForTest(repo2.Path, "bob", new ConsoleProgress());
 
-				using (var writer = new StreamWriter(tempFile.Path))
-					writer.Write("Another line of random text.");
+				var r1 = HgRepository.CreateOrUseExisting(repo1.Path, new ConsoleProgress());
+				r1.AddAndCheckinFile(tempFile.Path); // need this to create store/data/files
 
 				using (var service = new ChorusHubService(new ChorusHubParameters() { RootDirectory = chorusHubSourceFolder.Path }))
 				{
@@ -111,6 +113,92 @@ namespace Chorus.Tests.ChorusHub
 					Assert.AreEqual(2, repositoryNames.Count());
 					Assert.IsTrue(repositoryNames.Contains("repo1"));
 					Assert.IsTrue(repositoryNames.Contains("repo2"));
+				}
+			}
+		}
+
+		[Test]
+		public void GetRepostoryNames_ThreeItemsInHubFolder_GetTwoItemsWithProjectFilter()
+		{
+			// only accept folders containing a file with the name "randomName.ext1" or "randomName_ext2"
+			const string queryString = "fileExtension=ext1|_ext2";
+
+			using (var testRoot = new TemporaryFolder("ChorusHubCloneTest"))
+			using (var chorusHubSourceFolder = new TemporaryFolder(testRoot, "ChorusHub"))
+			using (var repo1 = new TemporaryFolder(chorusHubSourceFolder, "repo1"))
+			using (var tempFile1 = TempFile.WithExtension("ext1"))
+			using (var repo2 = new TemporaryFolder(chorusHubSourceFolder, "repo2"))
+			using (var tempFile2 = TempFile.WithExtension("unwanted"))
+			using (var repo3 = new TemporaryFolder(chorusHubSourceFolder, "repo3"))
+			using (var tempFile3 = TempFile.WithExtension("_ext2"))
+			{
+				tempFile1.MoveTo(Path.Combine(repo1.Path, Path.GetFileName(tempFile1.Path)));
+				using (var writer = new StreamWriter(tempFile1.Path))
+					writer.Write("Some random text.");
+				// Does it work if the file is empty?
+				tempFile2.MoveTo(Path.Combine(repo2.Path, Path.GetFileName(tempFile2.Path)));
+				tempFile3.MoveTo(Path.Combine(repo3.Path, Path.GetFileName(tempFile3.Path)));
+
+				RepositorySetup.MakeRepositoryForTest(repo1.Path, "bob", new ConsoleProgress());
+				RepositorySetup.MakeRepositoryForTest(repo2.Path, "bob", new ConsoleProgress());
+				RepositorySetup.MakeRepositoryForTest(repo3.Path, "bob", new ConsoleProgress());
+				var r1 = HgRepository.CreateOrUseExisting(repo1.Path, new ConsoleProgress());
+				r1.AddAndCheckinFile(tempFile1.Path); // need this to create store/data/files
+				var r2 = HgRepository.CreateOrUseExisting(repo2.Path, new ConsoleProgress());
+				r2.AddAndCheckinFile(tempFile2.Path); // need this to create store/data/files
+				var r3 = HgRepository.CreateOrUseExisting(repo3.Path, new ConsoleProgress());
+				r3.AddAndCheckinFile(tempFile3.Path); // need this to create store/data/files
+
+				using (var service = new ChorusHubService(new ChorusHubParameters() { RootDirectory = chorusHubSourceFolder.Path }))
+				{
+					service.Start(true);
+
+					// Make sure filter works
+					var client = new ChorusHubClient();
+					Assert.NotNull(client.FindServer());
+					IEnumerable<string> repositoryNames = client.GetRepositoryNames(queryString);
+					Assert.AreEqual(2, repositoryNames.Count());
+					Assert.IsTrue(repositoryNames.Contains("repo1"));
+					Assert.IsFalse(repositoryNames.Contains("repo2"));
+					Assert.IsTrue(repositoryNames.Contains("repo3"));
+				}
+			}
+		}
+
+		[Test]
+		public void GetRepostoryNames_TwoItemsInHubFolder_GetNoneForProjectFilter()
+		{
+			// only accept folders containing a file with the name "randomName.ext1"
+			// but there aren't any.
+			const string queryString = "fileExtension=ext1";
+
+			using (var testRoot = new TemporaryFolder("ChorusHubCloneTest"))
+			using (var chorusHubSourceFolder = new TemporaryFolder(testRoot, "ChorusHub"))
+			using (var repo1 = new TemporaryFolder(chorusHubSourceFolder, "repo1"))
+			using (var tempFile1 = TempFile.WithExtension("other"))
+			using (var repo2 = new TemporaryFolder(chorusHubSourceFolder, "repo2"))
+			using (var tempFile2 = TempFile.WithExtension("unwanted"))
+			{
+				tempFile1.MoveTo(Path.Combine(repo1.Path, Path.GetFileName(tempFile1.Path)));
+				using (var writer = new StreamWriter(tempFile1.Path))
+					writer.Write("Some random text.");
+				// Does it work if the file is empty?
+				tempFile2.MoveTo(Path.Combine(repo2.Path, Path.GetFileName(tempFile2.Path)));
+				RepositorySetup.MakeRepositoryForTest(repo1.Path, "bob", new ConsoleProgress());
+				RepositorySetup.MakeRepositoryForTest(repo2.Path, "bob", new ConsoleProgress());
+				var r1 = HgRepository.CreateOrUseExisting(repo1.Path, new ConsoleProgress());
+				r1.AddAndCheckinFile(tempFile1.Path); // need this to create store/data/files
+				var r2 = HgRepository.CreateOrUseExisting(repo2.Path, new ConsoleProgress());
+				r2.AddAndCheckinFile(tempFile2.Path); // need this to create store/data/files
+				using (var service = new ChorusHubService(new ChorusHubParameters() { RootDirectory = chorusHubSourceFolder.Path }))
+				{
+					service.Start(true);
+
+					// Make sure filter works
+					var client = new ChorusHubClient();
+					Assert.NotNull(client.FindServer());
+					IEnumerable<string> repositoryNames = client.GetRepositoryNames(queryString);
+					Assert.AreEqual(0, repositoryNames.Count());
 				}
 			}
 		}

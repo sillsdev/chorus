@@ -21,6 +21,8 @@ namespace Chorus.UI.Clone
 		/// </summary>
 		/// <param name="parent">Window that will be parent of progress window</param>
 		/// <param name="projectFilter">Function taking a directory path and telling whether it contains the right sort of repo</param>
+		/// <param name="hubQuery">String on which to build a URL query to ChorusHub to accomplish the purpose of 'projectFilter'
+		/// in the ChorusHub environment</param>
 		/// <param name="baseProjectDirForNewClone">The base folder for the new clone, if created.</param>
 		/// <param name="baseProjectDirInWhichToSearchForRepositories">The directory which contains projects we already have, and where the result should go</param>
 		/// <param name="lowerLevelRepoPath">Optionally specifies another place to look for existing repos: look in this subfolder of each folder in baseProjectDirInWhichToSearchForRepositories.
@@ -32,8 +34,9 @@ namespace Chorus.UI.Clone
 		/// <returns>
 		/// A CloneResult that provides the clone results (e.g., success or failure) and the actual clone location (null if not created).
 		/// </returns>
-		public CloneResult GetSharedProjectUsing(Form parent, string baseProjectDirForNewClone, string preferredClonedFolderName, Func<string, bool> projectFilter,
-			string baseProjectDirInWhichToSearchForRepositories, string lowerLevelRepoPath, string howToSendReceiveMessageText)
+		public CloneResult GetSharedProjectUsing(Form parent, string baseProjectDirForNewClone, string preferredClonedFolderName,
+			Func<string, bool> projectFilter, string hubQuery, string baseProjectDirInWhichToSearchForRepositories, string lowerLevelRepoPath,
+			string howToSendReceiveMessageText)
 		{
 			Guard.AgainstNull(parent, "parent");
 			Guard.AgainstNullOrEmptyString(baseProjectDirForNewClone, "baseProjectDirForNewClone");
@@ -118,7 +121,7 @@ namespace Chorus.UI.Clone
 				case ExtantRepoSource.ChorusHub:
 					var getCloneFromChorusHubModel = new GetCloneFromChorusHubModel(baseProjectDirForNewClone)
 					{
-						//ProjectFilter = hubProjectFilter ?? string.Empty,
+						ProjectFilter = hubQuery,
 						ExistingProjects = existingProjectNames
 					};
 
