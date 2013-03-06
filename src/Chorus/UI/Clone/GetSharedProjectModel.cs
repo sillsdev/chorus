@@ -23,6 +23,8 @@ namespace Chorus.UI.Clone
 		/// <param name="projectFilter">Function taking a directory path and telling whether it contains the right sort of repo</param>
 		/// <param name="hubQuery">String on which to build a URL query to ChorusHub to accomplish the purpose of 'projectFilter'
 		/// in the ChorusHub environment</param>
+		/// <example>FLExBridge sends "fileExtension=lift|_model_version" to get both LIFT and FLExBridge repos, but not Bloom ones,
+		/// for instance. The server looks in the project's .hg/store/data folder for a file ending in lift.i or _model_version.i</example>
 		/// <param name="baseProjectDirForNewClone">The base folder for the new clone, if created.</param>
 		/// <param name="baseProjectDirInWhichToSearchForRepositories">The directory which contains projects we already have, and where the result should go</param>
 		/// <param name="lowerLevelRepoPath">Optionally specifies another place to look for existing repos: look in this subfolder of each folder in baseProjectDirInWhichToSearchForRepositories.

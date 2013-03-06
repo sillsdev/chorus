@@ -53,6 +53,7 @@ namespace ChorusHub
 
 			if (fileExtensionQuery != string.Empty)
 			{
+				// preprocessing changes to lowercase and appends .i to the extensions
 				var fileExtensions = PreProcessExtensions(fileExtensionQuery).ToArray();
 				// Remove repositories that don't contain a file with one of these fileExtensions
 				var intermediateResult =
@@ -101,8 +102,13 @@ namespace ChorusHub
 
 		private bool FindRepoIDIn(string dirName, string repoId)
 		{
-			// Does nothing for now
-			return true;
+			// Currently unused. If you use it, add some tests!
+			if (!File.Exists(Path.Combine(dirName, ".hg")))
+			{
+				return false;
+			}
+			var repo = HgRepository.CreateOrUseExisting(dirName, new ConsoleProgress());
+			return repoId == repo.Identifier;
 		}
 
 		private static IEnumerable<string> GetAllDirectories()
