@@ -40,25 +40,18 @@ namespace Chorus.Utilities
 		}
 
 		/// <summary>
-		/// Get at the values in a URL, which are listed the collection of name=value pairs after the ?
-		/// This method returns a string array containing all of the values for the given name key.
-		/// If the name key is not found, it returns an array of length 1 containing the
-		/// defaultIfCannotGetIt string.
+		/// Get at the value in a URL, which is listed in the collection of name=value pairs after the ?
+		/// If the name key is not found, it returns 'defaultIfCannotGetIt'.
+		/// N.B. If the same name is listed twice, this method returns the first value.
 		/// </summary>
-		/// <example>GetMultipleValuesFromQueryStringOfRef("lift://blah.lift?id=foo&id=bar", "id", "")
-		/// returns string[] {"foo", "bar"}</example>
-		/// <param name="url"></param>
-		/// <param name="name"></param>
-		/// <param name="defaultIfCannotGetIt"></param>
-		/// <returns></returns>
-		public static string[] GetMultipleValuesFromQueryStringOfRef(string url, string name, string defaultIfCannotGetIt)
+		/// <example>GetValueFromQueryStringOfRef("lift://blah.lift?id=foo", "id", "") returns "foo"</example>
+		public static string GetValueFromQueryStringOfRef(string url, string name, string defaultIfCannotGetIt)
 		{
-			var defaultResult = new[] { defaultIfCannotGetIt };
 			if (String.IsNullOrEmpty(url))
-				return defaultResult;
+				return defaultIfCannotGetIt;
 
 			if (url == "unknown") //some previous step couldn't come up with the url... review: why not just string.empty then? see CHR-2
-				return defaultResult;
+				return defaultIfCannotGetIt;
 
 			string originalUrl = url;
 			try
@@ -69,15 +62,13 @@ namespace Chorus.Utilities
 				{
 					throw new ApplicationException("Could not parse the url " + url);
 				}
-				else
-				{
-					//Could not parse the url lift://FTeam.lift?type=entry&label=نویس&id=e824f0ae-6d36-4c52-b30b-eb845d6c120a
+				//Could not parse the url lift://FTeam.lift?type=entry&label=نویس&id=e824f0ae-6d36-4c52-b30b-eb845d6c120a
 
-					var parse = Palaso.Network.HttpUtilityFromMono.ParseQueryString(uri.Query);
+				var parse = Palaso.Network.HttpUtilityFromMono.ParseQueryString(uri.Query);
 
-					var r = parse.GetValues(name);
-					return r ?? defaultResult;
-				}
+				var r = parse.GetValues(name);
+				var label = r == null ? defaultIfCannotGetIt : r.First();
+				return string.IsNullOrEmpty(label) ? defaultIfCannotGetIt : label;
 			}
 			catch (Exception e)
 			{
@@ -85,20 +76,8 @@ namespace Chorus.Utilities
 				var message = String.Format("Debug mode only: GetValueFromQueryStringOfRef({0},{1}) {2}", originalUrl, name, e.Message);
 				ErrorReport.NotifyUserOfProblem(new Palaso.Reporting.ShowOncePerSessionBasedOnExactMessagePolicy(), message);
 #endif
-				return new[] { defaultIfCannotGetIt };
+				return defaultIfCannotGetIt;
 			}
-		}
-
-		/// <summary>
-		/// get at the value in a URL, which are listed the collection of name=value pairs after the ?
-		/// N.B. If the same name is listed twice, this method returns the first value.
-		/// </summary>
-		/// <example>GetValueFromQueryStringOfRef("lift://blah.lift?id=foo", "id", "") returns "foo"</example>
-		public static string GetValueFromQueryStringOfRef(string url, string name, string defaultIfCannotGetIt)
-		{
-			var r = GetMultipleValuesFromQueryStringOfRef(url, name, defaultIfCannotGetIt);
-			var label = r == null ? defaultIfCannotGetIt : r.First();
-			return string.IsNullOrEmpty(label) ? defaultIfCannotGetIt : label;
 		}
 
 		/// <summary>
