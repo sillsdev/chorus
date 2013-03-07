@@ -201,14 +201,13 @@ namespace Chorus.VcsDrivers.Mercurial
 				}
 				if(remoteRevisions.Count() < quantity)
 				{
-					break;
 					//we did not find a common revision for each branch, but we ran out of revisions from the repo
-					//throw new HgResumeException("The remote repo is unrelated");
+					break;
 				}
 				offset += quantity;
 			}
 
-			// If we have found no common bases at this point, the remote repo is unrelated
+			// If we have found no common revisions at this point, the remote repo is unrelated
 			if (commonBases.Count == 0)
 			{
 				return null;
@@ -598,9 +597,9 @@ namespace Chorus.VcsDrivers.Mercurial
 		public bool Pull()
 		{
 			var baseHashes = GetCommonBaseHashesWithRemoteRepo();
-			if (baseHashes.Count == 0)
+			if (baseHashes == null || baseHashes.Count == 0)
 			{
-				// an empty list indicates that the server has an empty repo
+				// a null or empty list indicates that the server has an empty repo
 				// in this case there is no reason to Pull
 				return false;
 			}
