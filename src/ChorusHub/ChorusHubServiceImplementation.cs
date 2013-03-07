@@ -16,7 +16,14 @@ namespace ChorusHub
 		//this class; the WCF service just does it for me.
 		public static IProgress Progress = new ConsoleProgress();
 
-		const char OrChar = '|';
+		private const char OrChar = '|';
+		private const string key1 = "fileExtension";
+		private const string key2 = "repoID";
+
+		// These are the keys found in the submitted url's search query.
+		private string[] _searchKeys;
+		// These functions tell the repository 'comber' how to determine matches for each of the search keys.
+		private Func<string, IEnumerable<string>, bool>[] _keyFunctions;
 
 		public IEnumerable<string> GetRepositoryNames(string searchUrl)
 		{
@@ -29,9 +36,13 @@ namespace ChorusHub
 			}
 			try
 			{
-				var fileExtensions = UrlHelper.GetValueFromQueryStringOfRef(searchUrl, "fileExtension", string.Empty);
-				var repoID = UrlHelper.GetValueFromQueryStringOfRef(searchUrl, "repoID", string.Empty);
-				return CombRepositoriesForMatchingNames(allDirectories, fileExtensions, repoID).Select(Path.GetFileName);
+				var ckeys = InitKeyAndFunctions();
+				var parsedParams = new string[ckeys];
+				for (var i = 0; i < ckeys; i++)
+				{
+					parsedParams[i] = UrlHelper.GetValueFromQueryStringOfRef(searchUrl, _searchKeys[i], string.Empty);
+				}
+				return CombRepositoriesForMatchingNames(allDirectories, parsedParams).Select(Path.GetFileName);
 			}
 			catch (ApplicationException e)
 			{
@@ -41,44 +52,49 @@ namespace ChorusHub
 			}
 		}
 
-		private IEnumerable<string> CombRepositoriesForMatchingNames(IEnumerable<string> allDirectories,
-			string fileExtensionQuery, string repoID)
+		private int InitKeyAndFunctions()
 		{
-			if (fileExtensionQuery == string.Empty && repoID == string.Empty)
+			// To add a new search key, simply add the string to _searchKeys and the name of the
+			// method that determines if a directory matches or not in _keyFunctions AT THE SAME PLACE IN THE ARRAYS!
+			_searchKeys = new[] { key1, key2 };
+			var ckeys = _searchKeys.Length;
+			_keyFunctions = new Func<string, IEnumerable<string>, bool>[] { FindFileWithExtensionIn, FindRepoIDIn };
+			return ckeys;
+		}
+
+		private IEnumerable<string> CombRepositoriesForMatchingNames(IEnumerable<string> allDirectories,
+			string[] queries)
+		{
+			if (queries.All(string.IsNullOrEmpty))
 			{
+				Progress.WriteMessage("Client search string contained only unknown keys or empty values.");
 				return allDirectories; // Well THAT was a waste of time!
 			}
 
 			var result = allDirectories.ToList();
 
-			if (fileExtensionQuery != string.Empty)
+			for (var i = 0; i < _searchKeys.Length; i++)
 			{
-				// preprocessing changes to lowercase and appends .i to the extensions
-				var fileExtensions = PreProcessExtensions(fileExtensionQuery).ToArray();
-				// Remove repositories that don't contain a file with one of these fileExtensions
-				var intermediateResult =
-					allDirectories.Where(dirName => !FindFileWithExtensionIn(dirName, fileExtensions));
-				result.RemoveAll(intermediateResult.Contains);
+				if (queries[i] == string.Empty)
+				{
+					continue;
+				}
+				// preprocessing changes to lowercase and splits 'or'd search values
+				var thisKeysQueries = PreProcessQueriesForOneKey(queries[i]).ToArray();
+				var reposToDiscard = result.Where(dirName => !_keyFunctions[i](dirName, thisKeysQueries));
+				result.RemoveAll(reposToDiscard.Contains);
 				if (result.Count == 0)
 				{
 					return result;
 				}
 			}
-
-			if (repoID != string.Empty)
-			{
-				// Filter out repositories that don't match the given 'repoID'
-				foreach (var dirName in result.Where(dirName => !FindRepoIDIn(dirName, repoID)))
-				{
-					result.Remove(dirName);
-				}
-			}
 			return result;
 		}
 
-		private  IEnumerable<string> PreProcessExtensions(string fileExtensionQuery)
+		private  IEnumerable<string> PreProcessQueriesForOneKey(string query)
 		{
-			return fileExtensionQuery.ToLowerInvariant().Split(OrChar).Select(extension => extension + ".i");
+			// there could be several search terms 'or'd together
+			return query.ToLowerInvariant().Split(OrChar);
 		}
 
 		private bool FindFileWithExtensionIn(string dirName, IEnumerable<string> fileExtensions)
@@ -91,7 +107,7 @@ namespace ChorusHub
 				return false;
 			}
 			var internalHgFileNames = Directory.GetFiles(internalDirectory);
-			return FindExtensionMatch(internalHgFileNames, fileExtensions);
+			return FindExtensionMatch(internalHgFileNames, fileExtensions.Select(ext => ext + ".i"));
 		}
 
 		private bool FindExtensionMatch(IEnumerable<string> fileNames, IEnumerable<string> lcExtensions)
@@ -100,7 +116,7 @@ namespace ChorusHub
 				fileExtension => fileName.ToLowerInvariant().EndsWith(fileExtension)));
 		}
 
-		private bool FindRepoIDIn(string dirName, string repoId)
+		private bool FindRepoIDIn(string dirName, IEnumerable<string> repoIdStrings)
 		{
 			// Currently unused. If you use it, add some tests!
 			if (!File.Exists(Path.Combine(dirName, ".hg")))
@@ -108,7 +124,7 @@ namespace ChorusHub
 				return false;
 			}
 			var repo = HgRepository.CreateOrUseExisting(dirName, new ConsoleProgress());
-			return repoId == repo.Identifier;
+			return repoIdStrings.Contains(repo.Identifier);
 		}
 
 		private static IEnumerable<string> GetAllDirectories()

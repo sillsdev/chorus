@@ -36,6 +36,8 @@ namespace Chorus.UI.Clone
 		/// gets parsed by the server to determine whether a given mercurial project can be chosen or not.
 		/// The default filter is simply empty string, which returns any folder name.
 		/// </summary>
+		/// <example>Set this to "fileExtension=.lift" to get LIFT repos, but not Bloom ones, for instance.
+		/// The server looks in the project's .hg/store/data folder for a file ending in .lift.i</example>
 		public string ProjectFilter = string.Empty;
 
 		public GetCloneFromChorusHubModel(string pathToFolderWhichWillContainClonedFolder)
@@ -65,27 +67,12 @@ namespace Chorus.UI.Clone
 				CloneSucceeded = false;
 				throw;
 			}
-//
-//			// These next two calls are fine in how they treat the hgrc update, as a bootstrap clone has no old stuff to fret about.
-//			// SetKnownRepositoryAddresses blows away entire 'paths' section, including the "default" one that hg puts in, which we don't really want anyway.
-//			repo.SetKnownRepositoryAddresses(new[] { address });
-//			// SetIsOneDefaultSyncAddresses adds 'address' to another section (ChorusDefaultRepositories) in hgrc.
-//			// 'true' then writes the "address.Name=" (section.Set(address.Name, string.Empty);).
-//			// I (RandyR) think this then uses that address.Name as the new 'default' for that particular repo source type.
-//			repo.SetIsOneDefaultSyncAddresses(address, true);
-//
-//
-//            if (ActualClonedFolder.Length > 0)
-//				CloneSucceeded = true;
-//
-//            return ActualClonedFolder;
 		}
 
 		/// <summary>
 		/// Set this to the names of existing projects. Items on the USB with the same names will be disabled.
 		/// </summary>
 		public HashSet<string> ExistingProjects { get; set; }
-
 
 	}
 }
