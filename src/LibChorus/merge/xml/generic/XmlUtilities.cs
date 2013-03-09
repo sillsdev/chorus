@@ -1,15 +1,12 @@
 using System;
-using System.CodeDom.Compiler;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using System.Xml;
 using System.Xml.Linq;
-using System.Xml.Xsl;
 using Chorus.FileTypeHanders.lift;
 using Chorus.merge.xml.generic.xmldiff;
 
@@ -56,6 +53,29 @@ namespace Chorus.merge.xml.generic
 			return AreXmlElementsEqual(@on, tn);
 		}
 
+		public static bool AreXmlElementsEqual(byte[] ours, byte[] theirs)
+		{
+			if (ours.Length != theirs.Length)
+				return false;
+			IStructuralEquatable equate = ours;
+			if (equate.Equals(theirs, EqualityComparer<byte>.Default))
+				return true;
+
+			MemoryStream omr = new MemoryStream(ours);
+			XmlReader or = XmlReader.Create(omr);
+			XmlDocument od = new XmlDocument();
+			XmlNode on = od.ReadNode(or);
+			@on.Normalize();
+
+			MemoryStream tsr = new MemoryStream(theirs);
+			XmlReader tr = XmlReader.Create(tsr);
+			XmlDocument td = new XmlDocument();
+			XmlNode tn = td.ReadNode(tr);
+			tn.Normalize();//doesn't do much
+
+			return AreXmlElementsEqual(@on, tn);
+		}
+
 		/// <summary>
 		/// this version of AreXmlElementsEqual is used to compare two xml strings
 		/// and have it ignore certain specified attributes (if the corresponding string
@@ -70,6 +90,9 @@ namespace Chorus.merge.xml.generic
 		public static bool AreXmlElementsEqual(string ours, string theirs,
 			string[] astrElementXPath, string[] astrAttributeToIgnore)
 		{
+			if (ours == theirs)
+				return true;
+
 			StringReader osr = new StringReader(ours);
 			XmlReader or = XmlReader.Create(osr);
 			XmlDocument od = new XmlDocument();
@@ -114,20 +137,26 @@ namespace Chorus.merge.xml.generic
 		{
 			if (ours.NodeType == XmlNodeType.Text)
 			{
-				if (ours.NodeType != XmlNodeType.Text)
+				if (theirs.NodeType != XmlNodeType.Text)
 				{
 					return false;
 				}
-				bool oursIsEmpty = (ours.InnerText == null || ours.InnerText.Trim() == String.Empty);
-				bool theirsIsEmpty = (theirs.InnerText == null || theirs.InnerText.Trim() == String.Empty);
-				if(oursIsEmpty != theirsIsEmpty)
+				bool oursIsEmpty = (ours.InnerText.Trim() == String.Empty);
+				bool theirsIsEmpty = (theirs.InnerText.Trim() == String.Empty);
+				if (oursIsEmpty != theirsIsEmpty)
 				{
 					return false;
 				}
 				return ours.InnerText.Trim() == theirs.InnerText.Trim();
 			}
+			if (theirs.NodeType == XmlNodeType.Text)
+				return false; // Theirs is text, but ours is not.
 
-			return AreXmlElementsEqual(new XmlInput(ours.OuterXml), new XmlInput(theirs.OuterXml));
+			var ourOuterXml = ours.OuterXml;
+			var theirOuterXml = theirs.OuterXml;
+			if (ourOuterXml == theirOuterXml)
+				return true;
+			return AreXmlElementsEqual(new XmlInput(ourOuterXml), new XmlInput(theirOuterXml));
 		}
 
 
