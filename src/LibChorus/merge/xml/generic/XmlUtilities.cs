@@ -9,6 +9,7 @@ using System.Xml;
 using System.Xml.Linq;
 using Chorus.FileTypeHanders.lift;
 using Chorus.merge.xml.generic.xmldiff;
+using Palaso.Extensions;
 
 
 namespace Chorus.merge.xml.generic
@@ -55,22 +56,23 @@ namespace Chorus.merge.xml.generic
 
 		public static bool AreXmlElementsEqual(byte[] ours, byte[] theirs)
 		{
-			if (ours.Length != theirs.Length)
-				return false;
-			IStructuralEquatable equate = ours;
-			if (equate.Equals(theirs, EqualityComparer<byte>.Default))
+			// Painfully slow.
+			//IStructuralEquatable equate = ours;
+			//if (equate.Equals(theirs, EqualityComparer<byte>.Default))
+			//    return true;
+			if (ours.AreByteArraysEqual(theirs))
 				return true;
 
 			MemoryStream omr = new MemoryStream(ours);
-			XmlReader or = XmlReader.Create(omr);
 			XmlDocument od = new XmlDocument();
-			XmlNode on = od.ReadNode(or);
+			od.Load(omr); // This loads the MemoryStream as Utf8 xml. (I checked.)
+			XmlNode on = od.DocumentElement;
 			@on.Normalize();
 
 			MemoryStream tsr = new MemoryStream(theirs);
-			XmlReader tr = XmlReader.Create(tsr);
 			XmlDocument td = new XmlDocument();
-			XmlNode tn = td.ReadNode(tr);
+			td.Load(tsr); // This loads the MemoryStream as Utf8 xml. (I checked.)
+			XmlNode tn = td.DocumentElement;
 			tn.Normalize();//doesn't do much
 
 			return AreXmlElementsEqual(@on, tn);
