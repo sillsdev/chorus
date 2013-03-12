@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Drawing;
+using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
 using ChorusHub;
-using Palaso.Progress;
 using Palaso.Progress;
 using Palaso.UI.WindowsForms.Progress;
 
@@ -199,10 +197,12 @@ namespace Chorus.UI.Clone
 			else
 			{
 				Text = string.Format("Get {0} from Chorus Hub on {1}", RepositoryKindLabel, client.HostName);
-				foreach (var name in (IEnumerable<string>)client.GetRepositoryNames())
+				foreach (var repoInfo in client.GetRepositoryInformation(_model.ProjectFilter))
 				{
-					var item = new ListViewItem(name);
-					if (_model.ExistingProjects!= null && _model.ExistingProjects.Contains(name))
+					var item = new ListViewItem(repoInfo.RepoName);
+					string dummy;
+					if (_model.ExistingRepositoryIdentifiers != null &&
+						_model.ExistingRepositoryIdentifiers.TryGetValue(repoInfo.RepoID, out dummy))
 					{
 						item.ForeColor = CloneFromUsb.DisabledItemForeColor;
 						item.ToolTipText = CloneFromUsb.ProjectWithSameNameExists;
@@ -214,11 +214,12 @@ namespace Chorus.UI.Clone
 
 		void OnChorusHubInfo_DoWork(object sender, DoWorkEventArgs e)
 		{
-			Thread.CurrentThread.Name = "GetRepositoryNames";
+			Thread.CurrentThread.Name = "GetRepositoryInformation";
 			var client = new ChorusHubClient();
 			if(client.FindServer()!=null)
 			{
-				client.GetRepositoryNames();
+				// Why do we do this? The returned information isn't used.
+				client.GetRepositoryInformation(_model.ProjectFilter);
 				e.Result = client;
 			}
 			else
@@ -234,16 +235,17 @@ namespace Chorus.UI.Clone
 
 		/// <summary>
 		/// Used to check if the repository is the right kind for your program, so that the only projects that can be chosen are ones
-		/// you application is prepared to open.
+		/// your application is prepared to open.
 		///
 		/// Note: the comparison is based on how hg stores the file name/extenion, not the original form!
 		/// </summary>
 		/// <example>Bloom uses "*.bloom_collection.i" to test if there is a ".BloomCollection" file</example>
 		public void SetFilePatternWhichMustBeFoundInHgDataFolder(string pattern)
 		{
-			//TODO
-			//no don't do throw. doing it means client need special code for each clone method
-			//  throw new NotImplementedException();
+			if (!string.IsNullOrEmpty(pattern))
+			{
+				_model.ProjectFilter = pattern;
+			}
 		}
 	}
 }

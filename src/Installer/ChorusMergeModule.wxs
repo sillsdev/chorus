@@ -71,7 +71,6 @@ http://blogs.msdn.com/robmen/archive/2003/10/04/56479.aspx -->
 		<Component Id="PalasoUIWindowsForms.dll" Guid="c1ee09fa-e382-11de-8a39-0800200c9a66">
 		  <File Id="PalasoUIWindowsForms.dll" Name="PalasoUIWindowsForms.dll" KeyPath="yes" Source="..\..\output\release\PalasoUIWindowsForms.dll" />
 		</Component>
-
 	  </Directory>
 	</Directory>
 	<ComponentGroupRef Id="Mercurial"/>

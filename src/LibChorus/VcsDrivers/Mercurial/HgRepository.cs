@@ -573,6 +573,10 @@ namespace Chorus.VcsDrivers.Mercurial
 
 				if (!string.IsNullOrEmpty(result.StandardError))
 				{
+					if (result.StandardError.Contains("No such file or directory"))// trying to track down http://jira.palaso.org/issues/browse/BL-284
+					{
+						details += SafeGetStatus();
+					}
 					throw new ApplicationException(result.StandardError + details);
 				}
 				else
@@ -581,6 +585,22 @@ namespace Chorus.VcsDrivers.Mercurial
 				}
 			}
 			return result;
+		}
+
+		private string SafeGetStatus()
+		{
+			try
+			{
+				return System.Environment.NewLine + "Status:" + Environment.NewLine + (GetTextFromQuery("status"));
+			}
+			catch (Exception e)
+			{
+#if DEBUG
+				throw e;
+#endif
+				//else swallow
+				return "Error in SafeGetStatus(): " + e.Message;
+			}
 		}
 
 		/// <exception cref="System.TimeoutException"/>
@@ -1515,7 +1535,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				_progress.WriteVerbose("Recover may have left a lock, which was removed unless otherwise reported.");
 			}
 
-			if (result.StandardError.StartsWith("no interrupted"))
+			if (result.StandardError.Contains("no interrupted"))//constains rather than starts with because there may be a preceding message about locks (bl-292)
 			{
 				return;
 			}
