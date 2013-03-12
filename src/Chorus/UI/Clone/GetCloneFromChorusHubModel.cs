@@ -70,9 +70,14 @@ namespace Chorus.UI.Clone
 		}
 
 		/// <summary>
-		/// Set this to the names of existing projects. Items on the USB with the same names will be disabled.
+		/// Set this to the names of existing projects. Items on the Hub with the same names will be disabled.
 		/// </summary>
 		public HashSet<string> ExistingProjects { get; set; }
+
+		/// <summary>
+		/// Set this to the IDs of existing projects. Items on the Hub with the same IDs will be disabled.
+		/// </summary>
+		public Dictionary<string, string> ExistingRepositoryIdentifiers { get; set; }
 
 	}
 }

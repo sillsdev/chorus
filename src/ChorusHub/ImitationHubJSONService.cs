@@ -17,10 +17,6 @@ namespace ChorusHub
 		// Serialize
 		internal static string MakeJsonString(string name, string id)
 		{
-			if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(id))
-			{
-				throw new ArgumentException("Can't make JSON string with empty parameters.");
-			}
 			return format1 + name + format2 + id + format3;
 		}
 

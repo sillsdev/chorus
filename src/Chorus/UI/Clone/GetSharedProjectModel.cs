@@ -124,7 +124,8 @@ namespace Chorus.UI.Clone
 					var getCloneFromChorusHubModel = new GetCloneFromChorusHubModel(baseProjectDirForNewClone)
 					{
 						ProjectFilter = hubQuery,
-						ExistingProjects = existingProjectNames
+						ExistingProjects = existingProjectNames,
+						ExistingRepositoryIdentifiers = existingRepositories
 					};
 
 					using (var getCloneFromChorusHubDialog = new GetCloneFromChorusHubDialog(getCloneFromChorusHubModel))

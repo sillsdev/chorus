@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
 using ChorusHub;
-using Palaso.Progress;
 using Palaso.Progress;
 using Palaso.UI.WindowsForms.Progress;
 
@@ -200,10 +197,12 @@ namespace Chorus.UI.Clone
 			else
 			{
 				Text = string.Format("Get {0} from Chorus Hub on {1}", RepositoryKindLabel, client.HostName);
-				foreach (var name in client.GetRepositoryInformation(_model.ProjectFilter).Select(info => info.RepoName))
+				foreach (var repoInfo in client.GetRepositoryInformation(_model.ProjectFilter))
 				{
-					var item = new ListViewItem(name);
-					if (_model.ExistingProjects!= null && _model.ExistingProjects.Contains(name))
+					var item = new ListViewItem(repoInfo.RepoName);
+					string dummy;
+					if (_model.ExistingRepositoryIdentifiers != null &&
+						_model.ExistingRepositoryIdentifiers.TryGetValue(repoInfo.RepoID, out dummy))
 					{
 						item.ForeColor = CloneFromUsb.DisabledItemForeColor;
 						item.ToolTipText = CloneFromUsb.ProjectWithSameNameExists;
