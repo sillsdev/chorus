@@ -47,7 +47,7 @@ namespace ChorusHub
 		/// <returns></returns>
 		public IEnumerable<string> GetRepositoryInformation(string searchUrl)
 		{
-			Progress.WriteMessage("Client requested repository names.");
+			Progress.WriteMessage("Client requested repository information.");
 
 			var allDirectoryTuples = GetAllDirectoriesWithRepos();
 			if (string.IsNullOrEmpty(searchUrl))
@@ -57,6 +57,7 @@ namespace ChorusHub
 			try
 			{
 				var searchPatternString = UrlHelper.GetValueFromQueryStringOfRef(searchUrl, FilePattern, string.Empty);
+				Progress.WriteMessage("Client requested repositories matching {0}.", searchPatternString);
 				return CombRepositoriesForMatchingNames(allDirectoryTuples, searchPatternString);
 			}
 			catch (ApplicationException e)
