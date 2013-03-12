@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
+using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
 using ChorusHub;
@@ -199,7 +200,7 @@ namespace Chorus.UI.Clone
 			else
 			{
 				Text = string.Format("Get {0} from Chorus Hub on {1}", RepositoryKindLabel, client.HostName);
-				foreach (var name in (IEnumerable<string>)client.GetRepositoryNames(_model.ProjectFilter))
+				foreach (var name in client.GetRepositoryInformation(_model.ProjectFilter).Select(info => info.RepoName))
 				{
 					var item = new ListViewItem(name);
 					if (_model.ExistingProjects!= null && _model.ExistingProjects.Contains(name))
@@ -214,11 +215,12 @@ namespace Chorus.UI.Clone
 
 		void OnChorusHubInfo_DoWork(object sender, DoWorkEventArgs e)
 		{
-			Thread.CurrentThread.Name = "GetRepositoryNames";
+			Thread.CurrentThread.Name = "GetRepositoryInformation";
 			var client = new ChorusHubClient();
 			if(client.FindServer()!=null)
 			{
-				client.GetRepositoryNames(_model.ProjectFilter);
+				// Why do we do this? The returned information isn't used.
+				client.GetRepositoryInformation(_model.ProjectFilter);
 				e.Result = client;
 			}
 			else
