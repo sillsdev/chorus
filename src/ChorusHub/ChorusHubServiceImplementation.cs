@@ -183,7 +183,10 @@ namespace ChorusHub
 		/// <returns>true if client should wait for hg to notice</returns>
 		public bool PrepareToReceiveRepository(string name)
 		{
-			if (GetRepositoryInformation(string.Empty).Contains(name))
+			// Enhance GJM: If it turns out that the caller has the repoID, it'd be better to use that here!
+			var jsonStrings = GetRepositoryInformation(string.Empty);
+			var hubInfo = ImitationHubJSONService.ParseJsonStringsToChorusHubRepoInfos(jsonStrings);
+			if (hubInfo.Any(info => info.RepoName == name))
 			{
 				return false;
 			}

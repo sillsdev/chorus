@@ -12,7 +12,7 @@ namespace ChorusHub
 		private readonly string Port;
 		public string HostName;
 		public int VersionOfServerChorusHub;
-		internal const int kVersionOfThisCode = 1;
+		internal const int kVersionOfThisCode = 2;
 
 
 		public static ChorusHubInfo Parse(string parameters)
