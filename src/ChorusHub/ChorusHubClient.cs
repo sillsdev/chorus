@@ -163,13 +163,17 @@ namespace ChorusHub
 				var doWait = channel.PrepareToReceiveRepository(directoryName);
 				return doWait;
 			}
-			catch(Exception error)
+			catch (Exception error)
 			{
-				throw new ApplicationException("There was an error on the Chorus Hub Server, which was transmitted to the client.",error);
+				throw new ApplicationException("There was an error on the Chorus Hub Server, which was transmitted to the client.", error);
 			}
 			finally
 			{
-				(channel as ICommunicationObject).Close();
+				var comChannel = (ICommunicationObject)channel;
+				if (comChannel.State == CommunicationState.Opened)
+				{
+					comChannel.Close();
+				}
 			}
 		}
 	}
