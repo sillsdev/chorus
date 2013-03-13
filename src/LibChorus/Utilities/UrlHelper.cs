@@ -40,12 +40,14 @@ namespace Chorus.Utilities
 		}
 
 		/// <summary>
-		/// get at the value in a URL, which are listed the collection of name=value pairs after the ?
+		/// Get at the value in a URL, which is listed in the collection of name=value pairs after the ?
+		/// If the name key is not found, it returns 'defaultIfCannotGetIt'.
+		/// N.B. If the same name is listed twice, this method returns the first value.
 		/// </summary>
-		/// <example>GetValueFromQueryStringOfRef("id", ""lift://blah.lift?id=foo") returns "foo"</example>
+		/// <example>GetValueFromQueryStringOfRef("lift://blah.lift?id=foo", "id", "") returns "foo"</example>
 		public static string GetValueFromQueryStringOfRef(string url, string name, string defaultIfCannotGetIt)
 		{
-			if(String.IsNullOrEmpty(url))
+			if (String.IsNullOrEmpty(url))
 				return defaultIfCannotGetIt;
 
 			if (url == "unknown") //some previous step couldn't come up with the url... review: why not just string.empty then? see CHR-2
@@ -60,16 +62,13 @@ namespace Chorus.Utilities
 				{
 					throw new ApplicationException("Could not parse the url " + url);
 				}
-				else
-				{
-					//Could not parse the url lift://FTeam.lift?type=entry&label=نویس&id=e824f0ae-6d36-4c52-b30b-eb845d6c120a
+				//Could not parse the url lift://FTeam.lift?type=entry&label=نویس&id=e824f0ae-6d36-4c52-b30b-eb845d6c120a
 
-					var parse = Palaso.Network.HttpUtilityFromMono.ParseQueryString(uri.Query);
+				var parse = Palaso.Network.HttpUtilityFromMono.ParseQueryString(uri.Query);
 
-					var r = parse.GetValues(name);
-					var label = r == null ? defaultIfCannotGetIt : r.First();
-					return string.IsNullOrEmpty(label) ? defaultIfCannotGetIt : label;
-				}
+				var r = parse.GetValues(name);
+				var label = r == null ? defaultIfCannotGetIt : r.First();
+				return string.IsNullOrEmpty(label) ? defaultIfCannotGetIt : label;
 			}
 			catch (Exception e)
 			{

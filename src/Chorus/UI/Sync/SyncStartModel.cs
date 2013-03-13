@@ -99,7 +99,7 @@ namespace Chorus.UI.Sync
 				return false;
 			}
 			if (address == null)
-				message = "No Chorus Hub found on this network.";//" and his project is not yet associated with a shared folder.";
+				message = "No Chorus Hub found on this network.";//" and this project is not yet associated with a shared folder.";
 			else
 			{
 				ready = IsSharedFolderRepositoryReachable(address, out diagnosticNotes);
