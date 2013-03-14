@@ -54,7 +54,7 @@ namespace Chorus.merge.xml.generic
 		{
 			// NB: All these steps are crucially ordered.
 			listener.RecordContextInConflict(conflict);
-			if (conflict.Context == null && nodeToFindGeneratorFrom != null)
+			if ((conflict.Context == null || conflict.Context is NullContextDescriptor) && nodeToFindGeneratorFrom != null)
 			{
 				// We are too far up the stack for the listener to have been told a context.
 				// Make one out of the current node.
