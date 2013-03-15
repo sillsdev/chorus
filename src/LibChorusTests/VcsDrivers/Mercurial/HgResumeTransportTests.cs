@@ -474,7 +474,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				e.ApiServer.AddResponse(ApiResponses.NotAvailable(serverMessage));
 				e.ApiServer.AddResponse(ApiResponses.PushComplete());
 				var transport = provider.Transport;
-				transport.Push();
+				Assert.Throws <HgResumeOperationFailed>(transport.Push);
 				Assert.That(e.Progress.AllMessages, Contains.Item("Server temporarily unavailable: " + serverMessage));
 				Assert.That(e.Progress.AllMessages, Has.No.Member("The pull operation completed successfully"));
 			}
@@ -566,7 +566,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		[Test]
 		public void Push_RemoteOnNewBranch_DoesNotThrow()
 		{
-			using (var e = new TestEnvironment("hgresumetest", ApiServerType.Push))
+			using (var e = new BranchingTestEnvironment("hgresumetest", ApiServerType.Push))
 			using (var provider = GetTransportProviderForTest(e))
 			{
 				e.LocalAddAndCommit();
@@ -581,7 +581,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		[Test]
 		public void Push_RemoteOnNewBranch_SendsData()
 		{
-			using (var e = new TestEnvironment("hgresumetest", ApiServerType.Push))
+			using (var e = new BranchingTestEnvironment("hgresumetest", ApiServerType.Push))
 			using (var provider = GetTransportProviderForTest(e))
 			{
 				e.LocalAddAndCommit();
@@ -598,7 +598,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		[Test]
 		public void Push_LocalOnNewBranch_DoesNotThrow()
 		{
-			using (var e = new TestEnvironment("hgresumetest", ApiServerType.Push))
+			using (var e = new BranchingTestEnvironment("hgresumetest", ApiServerType.Push))
 			using (var provider = GetTransportProviderForTest(e))
 			{
 				e.LocalAddAndCommit();
@@ -613,7 +613,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		[Test]
 		public void Push_LocalOnNewBranch_SendsData()
 		{
-			using (var e = new TestEnvironment("hgresumetest", ApiServerType.Push))
+			using (var e = new BranchingTestEnvironment("localonnewbranch", ApiServerType.Push))
 			using (var provider = GetTransportProviderForTest(e))
 			{
 				e.LocalAddAndCommit();
@@ -630,7 +630,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		[Test]
 		public void Pull_LocalOnNewBranch_Success()
 		{
-			using (var e = new TestEnvironment("hgresumetest", ApiServerType.Pull))
+			using (var e = new BranchingTestEnvironment("hgresumetest", ApiServerType.Pull))
 			using (var provider = GetTransportProviderForTest(e))
 			{
 				e.LocalAddAndCommit();
@@ -647,7 +647,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		[Test]
 		public void Pull_RemoteOnNewBranch_Success()
 		{
-			using (var e = new TestEnvironment("hgresumetest", ApiServerType.Pull))
+			using (var e = new BranchingTestEnvironment("hgresumetest", ApiServerType.Pull))
 			using (var provider = GetTransportProviderForTest(e))
 			{
 				e.LocalAddAndCommit();
@@ -660,6 +660,20 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				Assert.That(e.Progress.AllMessages, Contains.Item("Pull operation completed successfully"));
 			}
 		}
+
+		[Test]
+		public void Push_RemoteRepoIsUnrelated_Throws()
+		{
+			using (var e1 = new TestEnvironment("hgresumetest", ApiServerType.Push))
+			using (var provider = GetTransportProviderForTest(e1))
+			{
+				e1.LocalAddAndCommit();
+				e1.RemoteAddAndCommit();
+				var transport = provider.Transport;
+				Assert.That(() => transport.Push(), Throws.TypeOf<HgResumeOperationFailed>());
+			}
+		}
+
 
 		private class BranchTestAdjunct : ISychronizerAdjunct
 		{
