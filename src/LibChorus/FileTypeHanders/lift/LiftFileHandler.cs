@@ -1,14 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Xml;
 using Chorus.FileTypeHanders.xml;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
 using Palaso.IO;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
 
 namespace Chorus.FileTypeHanders.lift
 {
@@ -46,10 +45,17 @@ namespace Chorus.FileTypeHanders.lift
 
 		public void Do3WayMerge(MergeOrder mergeOrder)
 		{
+			// <mergenotice>
+			// When the WeSay1.3 branch gets merged, do this:
+			// 1. Keep this code and reject the WeSay1.3 changes. They were done as a partial port of some other code changes.
+			// 2. Remove this <mergenotice> comment and its 'end tag' comment.
+			// 3. The parm change from 'false' to 'true' is to be kept.
 			XmlMergeService.Do3WayMerge(mergeOrder,
-				new LiftEntryMergingStrategy(mergeOrder.MergeSituation),
+				new LiftEntryMergingStrategy(mergeOrder),
+				true,
 				"header",
-				"entry", "guid", WritePreliminaryInformation);
+				"entry", "guid");
+			// </mergenotice>
 		}
 
 		public IEnumerable<IChangeReport> Find2WayDifferences(FileInRevision parent, FileInRevision child, HgRepository repository)
@@ -63,14 +69,11 @@ namespace Chorus.FileTypeHanders.lift
 			{
 				return new LiftChangePresenter(report as IXmlChangeReport);
 			}
-			else if (report is ErrorDeterminingChangeReport)
+			if (report is ErrorDeterminingChangeReport)
 			{
 				return (IChangePresenter)report;
 			}
-			else
-			{
-				return new DefaultChangePresenter(report, repository);
-			}
+			return new DefaultChangePresenter(report, repository);
 		}
 
 
@@ -80,6 +83,10 @@ namespace Chorus.FileTypeHanders.lift
 			return new IChangeReport[] { new DefaultChangeReport(fileInRevision, "Added") };
 		}
 
+		/// <summary>
+		/// Get a list or one, or more, extensions this file type handler can process
+		/// </summary>
+		/// <returns>A collection of extensions (without leading period (.)) that can be processed.</returns>
 		public IEnumerable<string> GetExtensionsOfKnownTextFileTypes()
 		{
 			yield return "lift";
@@ -94,20 +101,6 @@ namespace Chorus.FileTypeHanders.lift
 		public uint MaximumFileSize
 		{
 			get { return UInt32.MaxValue; }
-		}
-
-		internal static void WritePreliminaryInformation(XmlReader reader, XmlWriter writer)
-		{
-			reader.MoveToContent();
-			writer.WriteStartElement("lift");
-			if (reader.MoveToAttribute("version"))
-				writer.WriteAttributeString("version", reader.Value);
-			if (reader.MoveToAttribute("producer"))
-				writer.WriteAttributeString("producer", reader.Value);
-			reader.MoveToElement();
-			reader.Read();
-			if (!reader.IsStartElement())
-				reader.Read();
 		}
 	}
 }

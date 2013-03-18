@@ -5,8 +5,8 @@ using System.Xml;
 using System.Linq;
 using System.Xml.Linq;
 using Chorus.Utilities;
-using Chorus.Utilities.code;
-using Palaso.Progress.LogBox;
+using Palaso.Code;
+using Palaso.Progress;
 using Palaso.Xml;
 
 namespace Chorus.notes
@@ -96,7 +96,15 @@ namespace Chorus.notes
 
 		public void Dispose()
 		{
+			if (_doc.Root != null)
+			{
+				foreach (var element in _doc.Root.Elements())
+				{
+					element.Changed -= AnnotationElement_Changed;
+				}
+			}
 			SaveNowIfNeeded(new NullProgress());
+			_doc = null;
 		}
 
 		/// <summary>
@@ -239,7 +247,24 @@ namespace Chorus.notes
 
 		private static IEnumerable<string> GetChorusNotesFilePaths(string path)
 		{
-			return Directory.GetFiles(path, "*." + AnnotationRepository.FileExtension, SearchOption.AllDirectories);
+			var mercurialFolders = Directory.GetDirectories(path, ".hg", SearchOption.AllDirectories).ToList();
+			var mainRepositoryPath = Path.Combine(path, ".hg");
+			mercurialFolders.Remove(mainRepositoryPath);
+			foreach (var mercurialFolder in mercurialFolders.ToList())
+			{
+				mercurialFolders.Remove(mercurialFolder);
+				mercurialFolders.Add(Directory.GetParent(mercurialFolder).FullName);
+			}
+
+			var chorusNotesPathnames = Directory.GetFiles(path, "*." + FileExtension, SearchOption.AllDirectories).ToList();
+			foreach (var chorusNotesPathname in chorusNotesPathnames.ToList())
+			{
+				if (mercurialFolders.Any(mercurialFolder => chorusNotesPathname.Contains(mercurialFolder)))
+				{
+					chorusNotesPathnames.Remove(chorusNotesPathname);
+				}
+			}
+			return chorusNotesPathnames;
 		}
 
 

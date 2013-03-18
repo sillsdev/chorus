@@ -6,7 +6,7 @@ using System.Windows.Forms;
 using Chorus.notes;
 using Chorus.Properties;
 using Chorus.Utilities;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
 
 namespace Chorus.UI.Notes.Bar
 {
@@ -96,26 +96,15 @@ namespace Chorus.UI.Notes.Bar
 			var b = new Button();
 
 			b.Size = new Size(ButtonHeight, ButtonHeight);
-			b.Image = annotation.GetImage(ButtonImageHeight);
+			b.Image = annotation.GetOpenOrClosedImage(ButtonImageHeight);
 			b.Tag = annotation;
 			b.FlatStyle = FlatStyle.Flat;
 			b.FlatAppearance.BorderSize = 0;
 			toolTip1.SetToolTip(b, annotation.GetTextForToolTip());
 
 			b.Click += new EventHandler(OnExistingAnnotationButtonClick);
-			b.Paint += new PaintEventHandler(OnPaintAnnotationButton);
 			_buttonsPanel.Controls.Add(b);
 			return b;
-		}
-
-		void OnPaintAnnotationButton(object sender, PaintEventArgs e)
-		{
-			Button b = (Button) sender;
-			Annotation a = b.Tag as Annotation;
-			if (a.IsClosed)
-			{
-				e.Graphics.DrawImage(Properties.Resources.check16x16, new Rectangle(9, 3, 14, 14));
-			}
 		}
 
 		protected int ButtonHeight

@@ -15,7 +15,8 @@
 	<OldToolsVersion>3.5</OldToolsVersion>
 	<UpgradeBackupLocation>
 	</UpgradeBackupLocation>
-	<TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+	<TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+	<TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
 	<DebugSymbols>true</DebugSymbols>
@@ -66,26 +67,11 @@
 	<PlatformTarget>x86</PlatformTarget>
 	<ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'DebugMono|AnyCPU' ">
-	<DebugSymbols>true</DebugSymbols>
-	<OutputPath>..\..\output\$(Configuration)</OutputPath>
-	<DefineConstants>DEBUG;TRACE;MONO</DefineConstants>
-	<CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
-	<DebugType>full</DebugType>
-	<PlatformTarget>x86</PlatformTarget>
-	<ErrorReport>prompt</ErrorReport>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'ReleaseMono|AnyCPU' ">
-	<DebugSymbols>true</DebugSymbols>
-	<OutputPath>..\..\output\$(Configuration)</OutputPath>
-	<DefineConstants>TRACE;MONO</DefineConstants>
-	<CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
-	<Optimize>true</Optimize>
-	<DebugType>pdbonly</DebugType>
-	<PlatformTarget>x86</PlatformTarget>
-	<ErrorReport>prompt</ErrorReport>
-  </PropertyGroup>
   <ItemGroup>
+	<Reference Include="Autofac">
+	  <SpecificVersion>False</SpecificVersion>
+	  <HintPath>..\..\lib\common\Autofac.dll</HintPath>
+	</Reference>
 	<Reference Include="nunit.framework, Version=2.5.5.10112, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
 	  <SpecificVersion>False</SpecificVersion>
 	  <HintPath>..\..\lib\common\nunit.framework.dll</HintPath>
@@ -99,65 +85,69 @@
 	  <HintPath>..\..\lib\$(Configuration)\Palaso.TestUtilities.dll</HintPath>
 	</Reference>
 	<Reference Include="System" />
-	<Reference Include="System.Core">
-	  <RequiredTargetFramework>3.5</RequiredTargetFramework>
-	</Reference>
-	<Reference Include="System.Data" />
+	<Reference Include="System.Core" />
 	<Reference Include="System.Xml" />
-	<Reference Include="System.Xml.Linq">
-	  <RequiredTargetFramework>3.5</RequiredTargetFramework>
-	</Reference>
+	<Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
-	<Compile Include="clone\ClonerTests.cs" />
+	<Compile Include="FileHandlers\audio\AudioFileTypeHandlerTests.cs" />
+	<Compile Include="FileHandlers\ChorusNotesFileHandlerTests.cs" />
 	<Compile Include="FileHandlers\ChorusTestFileHanderTests.cs" />
+	<Compile Include="FileHandlers\default\DefaultFileTypeHandlerTests.cs" />
+	<Compile Include="FileHandlers\LargeFileIntegrationTestService.cs" />
+	<Compile Include="FileHandlers\image\ImageFileTypeHandlerTests.cs" />
 	<Compile Include="FileHandlers\ldml\LdmlFileMergeTests.cs" />
 	<Compile Include="FileHandlers\ldml\LdmlFileValidationTests.cs" />
 	<Compile Include="FileHandlers\ldml\LdmlFileHandlerTests.cs" />
 	<Compile Include="FileHandlers\LiftRanges\LiftRangesFileHandlerTests.cs" />
-	<Compile Include="FileHandlers\Lift\FilePrettyPrintTests.cs" />
+	<Compile Include="FileHandlers\Lift\LiftSynchronizerAdjunctTests.cs" />
 	<Compile Include="MercurialPathHelp.cs" />
-	<Compile Include="merge\xml\adaptIt\FileLevelAdaptItKnowlegeBaseMergeTests.cs" />
 	<Compile Include="merge\xml\ConflictXmlRecordRetrievalTests.cs" />
 	<Compile Include="merge\GroupOfConflictFiles.cs" />
 	<Compile Include="merge\XmlLogMergeEventListenerTests.cs" />
 	<Compile Include="merge\GroupOfConflictingLiftFiles.cs" />
 	<Compile Include="merge\xml\FindByKeyAttributeTests.cs" />
 	<Compile Include="merge\xml\FindByEqualityOfTreeTests.cs" />
+	<Compile Include="merge\xml\generic\ElementStrategyTests.cs" />
 	<Compile Include="merge\xml\generic\FindByKeyAttributeInListTests.cs" />
 	<Compile Include="merge\xml\generic\FindNodeToMergeTests.cs" />
+	<Compile Include="merge\xml\generic\ImmutableElementMergeServiceTests.cs" />
 	<Compile Include="merge\xml\generic\MergeAtomicElementServiceTests.cs" />
 	<Compile Include="merge\xml\generic\ConflictIOTest.cs" />
 	<Compile Include="merge\xml\generic\MergeChildrenMethodTests.cs" />
 	<Compile Include="merge\xml\generic\MergeChildrenMethod_DiffOnlyTests.cs" />
+	<Compile Include="merge\xml\generic\MergeLimitedChildrenServiceTests.cs" />
+	<Compile Include="merge\xml\generic\NullMergeStrategy.cs" />
 	<Compile Include="merge\xml\generic\TextElementMergeTests.cs" />
 	<Compile Include="merge\xml\generic\XmlAttributeMergeTests.cs" />
+	<Compile Include="merge\xml\generic\xmldiff\Xml2WayDifferTests.cs" />
 	<Compile Include="merge\xml\generic\xmldiff\XmlDiffTests.cs" />
 	<Compile Include="merge\xml\generic\XmlListMergerTests.cs" />
 	<Compile Include="merge\xml\generic\XmlMergerTests.cs" />
-	<Compile Include="merge\xml\generic\XmlTestHelper.cs" />
+	<Compile Include="merge\xml\generic\XmlMergeServiceTests.cs" />
+	<Compile Include="merge\xml\lift\LiftHeaderMergingTests.cs" />
 	<Compile Include="merge\xml\lift\ExampleSentenceFinderTests.cs" />
 	<Compile Include="merge\xml\lift\ExampleSentenceMergingTests.cs" />
 	<Compile Include="merge\xml\lift\FileLevelDiffTests.cs" />
 	<Compile Include="merge\xml\lift\FileLevelMergeTests.cs" />
 	<Compile Include="merge\xml\lift\LexEntryContextGeneratorTests.cs" />
-	<Compile Include="merge\xml\generic\ListenerForUnitTests.cs" />
+	<Compile Include="merge\xml\lift\LexEntryMergingTests.cs" />
 	<Compile Include="merge\xml\lift\MultiTextMergingTests.cs" />
 	<Compile Include="merge\xml\lift\PoorMansMergingStrategyTests.cs" />
 	<Compile Include="merge\xml\lift\SenseMergingTests.cs" />
 	<Compile Include="merge\xml\lift\ValidationTests.cs" />
-	<Compile Include="merge\xml\ourStory\FileLevelMergeTests.cs" />
 	<Compile Include="notes\AnnotationTests.cs" />
 	<Compile Include="notes\AnnotationIndexTests.cs" />
 	<Compile Include="notes\IndexOfAllAnnotationsByKeyTests.cs" />
 	<Compile Include="notes\IndexOfOpenConflictsTests.cs" />
 	<Compile Include="notes\MessageTests.cs" />
 	<Compile Include="notes\AnnotationRepositoryTests.cs" />
-	<Compile Include="RepositorySetup.cs" />
 	<Compile Include="sync\CommitCopTests.cs" />
 	<Compile Include="sync\LargeFileFilterTests.cs" />
+	<Compile Include="sync\ProgrammableSynchronizerAdjunct.cs" />
 	<Compile Include="sync\ProxyTests.cs" />
 	<Compile Include="sync\RevisionMergeBehaviorTests.cs" />
+	<Compile Include="sync\SychronizerAdjunctTests.cs" />
 	<Compile Include="sync\Synchronizer.FileBasedTests.cs" />
 	<Compile Include="sync\ChorusMLFileSyncTests.cs" />
 	<Compile Include="sync\Synchronizer.BadSituationTests.cs" />
@@ -166,9 +156,11 @@
 	<Compile Include="utilities\UrlHelperTests.cs" />
 	<Compile Include="utilities\MultiMapTests.cs" />
 	<Compile Include="utilities\XmlUtilitiesTests.cs" />
+	<Compile Include="VcsDrivers\Mercurial\BundleStorageManagerTests.cs" />
 	<Compile Include="VcsDrivers\Mercurial\HgResumeRestApiServerTests.cs" />
 	<Compile Include="VcsDrivers\Mercurial\HgResumeTestUtilities.cs" />
 	<Compile Include="VcsDrivers\Mercurial\HgResumeTransportTests.cs" />
+	<Compile Include="VcsDrivers\Mercurial\HgVersionBranchingTests.cs" />
 	<Compile Include="VcsDrivers\Mercurial\PullStorageManagerTests.cs" />
 	<Compile Include="VcsDrivers\Mercurial\HgTestSetup.cs" />
 	<Compile Include="VcsDrivers\Mercurial\IncludeExcludeTests.cs" />
@@ -176,14 +168,19 @@
 	<Compile Include="VcsDrivers\Mercurial\HgSettingsTests.cs" />
 	<Compile Include="VcsDrivers\Mercurial\FileInRevisionTests.cs" />
 	<Compile Include="VcsDrivers\Mercurial\HistoryTests.cs" />
-	<Compile Include="RepositoryWithFilesSetup.cs" />
 	<Compile Include="utilities\ChorusDiff3Tests.cs" />
 	<Compile Include="Properties\AssemblyInfo.cs" />
 	<Compile Include="VcsDrivers\Mercurial\PushStorageManagerTests.cs" />
+	<Compile Include="VcsDrivers\Mercurial\MercurialTestUtilities.cs" />
+	<Compile Include="VcsDrivers\Mercurial\RepositoryTests.cs" />
 	<Compile Include="VcsDrivers\Mercurial\RetrieveVersionTests.cs" />
 	<Compile Include="VcsDrivers\Mercurial\Utf8Tests.cs" />
   </ItemGroup>
   <ItemGroup>
+	<ProjectReference Include="..\LibChorus.TestUtilities\LibChorus.TestUtilities.csproj">
+	  <Project>{0681E722-1856-44A1-B585-220E6AEC85CB}</Project>
+	  <Name>LibChorus.TestUtilities</Name>
+	</ProjectReference>
 	<ProjectReference Include="..\LibChorus\LibChorus.csproj">
 	  <Project>{94245366-8F1E-475C-810D-FE89BB3948E0}</Project>
 	  <Name>LibChorus</Name>

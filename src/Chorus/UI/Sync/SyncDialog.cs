@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Drawing;
-using System.Threading;
 using System.Windows.Forms;
 using Chorus.sync;
-using Chorus.Utilities;
-using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
+using Palaso.UI.WindowsForms.Progress;
 
 namespace Chorus.UI.Sync
 {
@@ -40,29 +38,37 @@ namespace Chorus.UI.Sync
 					SyncResult = new SyncResults();
 					SyncResult.Succeeded = false;
 
-					_syncStartControl1.Init(HgRepository.CreateOrLocate(projectFolderConfiguration.FolderPath,
-																				new NullProgress()));
+					_syncStartControl.Init(HgRepository.CreateOrUseExisting(projectFolderConfiguration.FolderPath, new NullProgress()));
+
 					_syncControl.Dock = DockStyle.Fill;//in designer, we don't want it to cover up everything, but we do at runtime
-					_syncStartControl1.Visible = true;
+					_syncStartControl.Visible = true;
 					_syncControl.Visible = false;
+					Height = _syncStartControl.DesiredHeight;
 				}
 				else
 				{
-					_syncStartControl1.Visible = false;
+					_syncStartControl.Visible = false;
 					_syncControl.Visible = true;
+					Height = _syncControl.DesiredHeight;
 				}
-
+				ResumeLayout(true);
 				this.Text = string.Format("Send/Receive ({0})", _syncControl.Model.UserName);
 			}
 			catch (Exception)
 			{
-				_syncStartControl1.Dispose();//without this, the usbdetector just goes on and on
+				_syncStartControl.Dispose();//without this, the usbdetector just goes on and on
 				throw;
 			}
 		}
 
+		public void SetSynchronizerAdjunct(ISychronizerAdjunct adjunct)
+		{
+			_syncControl.Model.SetSynchronizerAdjunct(adjunct);
+		}
+
 		public SyncOptions SyncOptions
-		{ get { return _syncControl.Model.SyncOptions; }
+		{
+			get { return _syncControl.Model.SyncOptions; }
 		}
 
 
@@ -119,14 +125,16 @@ namespace Chorus.UI.Sync
 
 		private void SyncDialog_Load(object sender, EventArgs e)
 		{
-			this.ClientSize = new Size( 490, _syncControl.DesiredHeight+10);
-
+			var height = _syncControl.Visible ? _syncControl.DesiredHeight + 10 : _syncStartControl.DesiredHeight + 10;
+			ClientSize = new Size( 490, height);
 		}
 
 		private void _syncStartControl1_RepositoryChosen(object sender, SyncStartArgs args)
 		{
-			_syncStartControl1.Visible = false;
+			_syncStartControl.Visible = false;
 			_syncControl.Visible = true;
+			Height = _syncControl.DesiredHeight;
+			ResumeLayout(true);
 #if MONO
 			_syncControl.Refresh();
 #endif
@@ -138,9 +146,6 @@ namespace Chorus.UI.Sync
 			}
 			_syncControl.Synchronize(true);
 		}
-
-
-
 	}
 
 	public enum SyncUIDialogBehaviors

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Chorus.FileTypeHanders;
+using LibChorus.TestUtilities;
 using NUnit.Framework;
 
 namespace LibChorus.Tests.FileHandlers.ldml
@@ -65,7 +66,7 @@ namespace LibChorus.Tests.FileHandlers.ldml
 <special xmlns:fw='urn://fieldworks.sil.org/ldmlExtensions/v1' />
 <special xmlns:palaso='urn://palaso.org/ldmlExtensions/v1' />
 </ldml>";
-			using (var repositorySetup = new RepositorySetup("randy"))
+			using (var repositorySetup = new RepositorySetup("randy-" + Guid.NewGuid()))
 			{
 				repositorySetup.AddAndCheckinFile("some.ldml", parent);
 				repositorySetup.ChangeFileAndCommit("some.ldml", child, "change it");
@@ -92,7 +93,7 @@ namespace LibChorus.Tests.FileHandlers.ldml
 <ldml>
 <special xmlns:palaso='urn://palaso.org/ldmlExtensions/v1' />
 </ldml>";
-			using (var repositorySetup = new RepositorySetup("randy"))
+			using (var repositorySetup = new RepositorySetup("randy-" + Guid.NewGuid()))
 			{
 				repositorySetup.AddAndCheckinFile("some.ldml", parent);
 				repositorySetup.ChangeFileAndCommit("some.ldml", parent, "change it");

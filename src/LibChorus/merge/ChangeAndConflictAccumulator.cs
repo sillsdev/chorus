@@ -11,6 +11,16 @@ namespace Chorus.merge
 		public List<IConflict> Warnings = new List<IConflict>();
 		public List<ContextDescriptor> Contexts = new List<ContextDescriptor>();
 
+		/// <summary>
+		/// Historically, this class's implementation of ConflictOccurred (before it was split into two
+		/// interface members) did not push any context.
+		/// To keep the behavior the same, RecordContextInConflict does nothing.
+		/// </summary>
+		/// <param name="conflict"></param>
+		public virtual void RecordContextInConflict(IConflict conflict)
+		{
+		}
+
 		public void ConflictOccurred(IConflict conflict)
 		{
 			Conflicts.Add(conflict);
@@ -28,7 +38,7 @@ namespace Chorus.merge
 			Changes.Add(change);
 		}
 
-		public void EnteringContext(ContextDescriptor context)
+		public virtual void EnteringContext(ContextDescriptor context)
 		{
 			Contexts.Add(context);
 		}

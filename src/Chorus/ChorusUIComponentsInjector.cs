@@ -1,4 +1,5 @@
 using System;
+using Autofac;
 using Autofac.Builder;
 using Chorus.notes;
 using Chorus.FileTypeHanders;
@@ -18,7 +19,7 @@ using Chorus.UI.Settings;
 using Chorus.UI.Sync;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
-using Palaso.Progress.LogBox;
+using Palaso.Progress;
 
 namespace Chorus
 {
@@ -34,29 +35,29 @@ namespace Chorus
 			//below, with SyncUIFeatures
 
 			builder.Register<ProjectFolderConfiguration>(
-			   c => new ProjectFolderConfiguration(projectPath));
+			   c => new ProjectFolderConfiguration(projectPath)).InstancePerLifetimeScope();
 
-			builder.Register<NavigateToRecordEvent>();
+			builder.RegisterType<NavigateToRecordEvent>().InstancePerLifetimeScope();
 
-			builder.Register<IProgress>(new NullProgress());
+			builder.RegisterInstance(new NullProgress()).As<IProgress>();
 			builder.Register<Synchronizer>(c => Chorus.sync.Synchronizer.FromProjectConfiguration(
 													c.Resolve<ProjectFolderConfiguration>(), new NullProgress()));
-			builder.Register<HgRepository>(c => HgRepository.CreateOrLocate(projectPath, new NullProgress()));
+			builder.Register<HgRepository>(c => HgRepository.CreateOrUseExisting(projectPath, new NullProgress())).InstancePerLifetimeScope();
 
 
 			//this is a sad hack... I don't know how to simly override the default using the container,
 			//which I'd rather do, and just leave this to pushing in the "normal"
-			builder.Register<SyncUIFeatures>(syncDialogFeatures).SingletonScoped();
+			builder.Register<SyncUIFeatures>(c => syncDialogFeatures).As<SyncUIFeatures>().SingleInstance();
 
-			builder.Register(new EmbeddedMessageContentHandlerFactory());
+			builder.RegisterInstance(new EmbeddedMessageContentHandlerRepository());
 
-			builder.Register(ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers());
+			builder.RegisterInstance(ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers()).SingleInstance();
 
-			builder.Register<SyncPanel>();
-			builder.Register<SyncControlModel>();
-			builder.Register<SyncDialog>().FactoryScoped();
-			builder.RegisterGeneratedFactory<SyncDialog.Factory>();
-			builder.Register<Chorus.UI.Misc.TroubleshootingView>();
+			builder.RegisterType<SyncPanel>().InstancePerLifetimeScope();
+			builder.RegisterType<SyncControlModel>().InstancePerLifetimeScope();
+			builder.RegisterType<SyncDialog>().InstancePerDependency();//NB: was FactoryScoped() before switch to autofac 2, which corresponds to this InstancePerDependency
+			builder.RegisterGeneratedFactory<SyncDialog.Factory>().InstancePerLifetimeScope();
+			builder.RegisterType<Chorus.UI.Misc.TroubleshootingView>().InstancePerLifetimeScope();
 
 			RegisterSyncStuff(builder);
 			RegisterReviewStuff(builder);
@@ -71,23 +72,23 @@ namespace Chorus
 		/// <param name="builder"></param>
 		public static void InjectNotesUI(ContainerBuilder builder)
 		{
-			builder.Register<MessageSelectedEvent>();
-			builder.Register<Chorus.notes.EmbeddedMessageContentHandlerFactory>();
-			builder.Register<NotesInProjectViewModel>();
-			builder.Register<NotesInProjectView>();
-			builder.Register<Chorus.UI.Notes.AnnotationEditorView>();
-			builder.Register<Chorus.UI.Notes.AnnotationEditorModel>().FactoryScoped();
-			builder.Register<NotesBrowserPage>();
-			builder.Register<StyleSheet>(c =>  StyleSheet.CreateFromDisk());
-			builder.RegisterGeneratedFactory<AnnotationEditorModel.Factory>();
-			builder.Register<NotesBarModel>();
-			builder.RegisterGeneratedFactory<NotesBarModel.Factory>();
-			builder.Register<NotesBarView>();
-			builder.RegisterGeneratedFactory<NotesBarView.Factory>();
+			builder.RegisterType<MessageSelectedEvent>().InstancePerLifetimeScope();
+			builder.RegisterType<Chorus.notes.EmbeddedMessageContentHandlerRepository>().InstancePerLifetimeScope();
+			builder.RegisterType<NotesInProjectViewModel>().InstancePerLifetimeScope();
+			builder.RegisterType<NotesInProjectView>().InstancePerLifetimeScope();
+			builder.RegisterType<Chorus.UI.Notes.AnnotationEditorView>().InstancePerLifetimeScope();
+			builder.RegisterType<Chorus.UI.Notes.AnnotationEditorModel>().InstancePerDependency();
+			builder.RegisterType<NotesBrowserPage>().InstancePerLifetimeScope();
+			builder.Register<StyleSheet>(c => StyleSheet.CreateFromDisk()).InstancePerLifetimeScope();
+			builder.RegisterGeneratedFactory<AnnotationEditorModel.Factory>().InstancePerLifetimeScope();
+			builder.RegisterType<NotesBarModel>().InstancePerLifetimeScope();
+			builder.RegisterGeneratedFactory<NotesBarModel.Factory>().InstancePerLifetimeScope();
+			builder.RegisterType<NotesBarView>().InstancePerLifetimeScope();
+			builder.RegisterGeneratedFactory<NotesBarView.Factory>().InstancePerLifetimeScope();
 
-			builder.RegisterGeneratedFactory<NotesInProjectView.Factory>().ContainerScoped();
-			builder.RegisterGeneratedFactory<NotesInProjectViewModel.Factory>().ContainerScoped();
-			builder.RegisterGeneratedFactory<NotesBrowserPage.Factory>().ContainerScoped();
+			builder.RegisterGeneratedFactory<NotesInProjectView.Factory>().InstancePerLifetimeScope();
+			builder.RegisterGeneratedFactory<NotesInProjectViewModel.Factory>().InstancePerLifetimeScope();
+			builder.RegisterGeneratedFactory<NotesBrowserPage.Factory>().InstancePerLifetimeScope();
 
 		}
 
@@ -99,59 +100,59 @@ namespace Chorus
 
 		private static void RegisterSettingsStuff(ContainerBuilder builder)
 		{
-			builder.Register<SettingsModel>();
-			builder.Register<SettingsView>();
+			builder.RegisterType<SettingsModel>().InstancePerLifetimeScope();
+			builder.RegisterType<SettingsView>().InstancePerLifetimeScope();
 		}
 
 		private static void RegisterSyncStuff(ContainerBuilder builder)
 		{
-			builder.Register<SyncControlModel>();
+			builder.RegisterType<SyncControlModel>().InstancePerLifetimeScope();
 		}
 
 		internal static void RegisterReviewStuff(ContainerBuilder builder)
 		{
-			builder.Register<IProgress>(new ConsoleProgress( ));
-			builder.Register<RevisionInspector>();
-			builder.Register<ChangesInRevisionModel>();
-			builder.Register<HistoryPage>();
+			builder.RegisterInstance(new ConsoleProgress( )).As<IProgress>();
+			builder.RegisterType<RevisionInspector>().InstancePerLifetimeScope();
+			builder.RegisterType<ChangesInRevisionModel>().InstancePerLifetimeScope();
+			builder.RegisterType<HistoryPage>().InstancePerLifetimeScope();
 			builder.RegisterGeneratedFactory<HistoryPage.Factory>();
 
-			builder.Register<ChangesInRevisionView>();
-			builder.Register<ChangeReportView>();
+			builder.RegisterType<ChangesInRevisionView>().InstancePerLifetimeScope();
+			builder.RegisterType<ChangeReportView>().InstancePerLifetimeScope();
 
 			//review-related events
-			builder.Register<RevisionSelectedEvent>();
-			builder.Register<ChangedRecordSelectedEvent>();
+			builder.RegisterType<RevisionSelectedEvent>().InstancePerLifetimeScope();
+			builder.RegisterType<ChangedRecordSelectedEvent>().InstancePerLifetimeScope();
 
-			builder.Register<RevisionInRepositoryModel>();
+			builder.RegisterType<RevisionInRepositoryModel>().InstancePerLifetimeScope();
 			builder.RegisterGeneratedFactory<RevisionInRepositoryModel.Factory>();
-			builder.Register<RevisionsInRepositoryView>();
+			builder.RegisterType<RevisionsInRepositoryView>().InstancePerLifetimeScope();
 
 		}
 
-		private static Shell CreateShell(string projectPath, Autofac.Builder.ContainerBuilder builder)
-		{
-			builder.Register<Shell>();
-			builder.Register<HistoryPage>();
-			builder.Register<RevisionsInRepositoryView>();
-			builder.Register<RevisionInRepositoryModel>();
-			builder.Register<ChangesInRevisionModel>();
-			builder.Register<ChangesInRevisionView>();
-			builder.Register<ChangeReportView>();
-			builder.Register<RevisionInspector>();
-
-			builder.Register(c => HgRepository.CreateOrLocate(projectPath, c.Resolve<IProgress>()));
-
-			var container = builder.Build();
-			var shell = container.Resolve<Shell>();
-
-			shell.AddPage("Review", container.Resolve<HistoryPage>());
-			shell.AddPage("Send/Receive", container.Resolve<SyncPanel>());
-			shell.AddPage("Settings", container.Resolve<SettingsView>());
-			shell.AddPage("Troubleshooting", container.Resolve<TroubleshootingView>());
-
-			return shell;
-		}
+//        private static Shell CreateShell(string projectPath, Autofac.ContainerBuilder builder)
+//        {
+//            builder.RegisterType<Shell>();
+//            builder.RegisterType<HistoryPage>();
+//            builder.RegisterType<RevisionsInRepositoryView>();
+//            builder.RegisterType<RevisionInRepositoryModel>();
+//            builder.RegisterType<ChangesInRevisionModel>();
+//            builder.RegisterType<ChangesInRevisionView>();
+//            builder.RegisterType<ChangeReportView>();
+//            builder.RegisterType<RevisionInspector>();
+//
+//            builder.Register(c => HgRepository.CreateOrUseExisting(projectPath, c.Resolve<IProgress>()));
+//
+//            var container = builder.Build();
+//            var shell = container.Resolve<Shell>();
+//
+//            shell.AddPage("Review", container.Resolve<HistoryPage>());
+//            shell.AddPage("Send/Receive", container.Resolve<SyncPanel>());
+//            shell.AddPage("Settings", container.Resolve<SettingsView>());
+//            shell.AddPage("Troubleshooting", container.Resolve<TroubleshootingView>());
+//
+//            return shell;
+//        }
 
 
 	}

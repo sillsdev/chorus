@@ -93,6 +93,5 @@ namespace LibChorus.Tests.utilities
 			Assert.AreEqual("2", UrlHelper.GetValueFromQueryStringOfRef(@"lift://some%20file.lift?one=1&two=2", "two", string.Empty));
 			Assert.AreEqual("2", UrlHelper.GetValueFromQueryStringOfRef(@"lift://some %20 file.lift?one=1&two=2", "two", string.Empty));
 		}
-
 	}
 }

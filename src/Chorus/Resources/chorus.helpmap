@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<XmlHelp xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" HelpFile="Chorus_Help.chm" xmlns="http://vulcan.edu.pl/HelpDescription">
+  <Control Name="SampleApp.Form1" HelpKeyword="Chorus\Chorus_overview.htm" HelpNavigator="Topic" ShowHelp="true" />
+  <Control Name="SampleApp.Form2" HelpKeyword="Chorus\Chorus_overview.htm" HelpNavigator="Topic" ShowHelp="true" />
+  <Control Name="Chorus.UI.Sync.SyncDialog" HelpKeyword="Tasks\Use_the_Send_Receive_Project_dialog_box.htm" HelpNavigator="Topic" ShowHelp="true" />
+  <Control Name="Chorus.UI.Settings.SendReceiveSettings" HelpKeyword="Tasks\Use_Send_Receive_Settings_dialog_box.htm" HelpNavigator="Topic" ShowHelp="true">
+	<Control Name="settingsTabs" HelpKeyword="Tasks\Use_Send_Receive_Settings_dialog_box.htm" HelpNavigator="Topic" ShowHelp="true">
+	  <BindingContext ContextName="Internet" HelpKeyword="Tasks\Internet_tab.htm" HelpNavigator="Topic" ShowHelp="true" />
+	</Control>
+  </Control>
+  <MappingFile>chorus.helpmap</MappingFile>
+</XmlHelp>

@@ -1,7 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Chorus.sync;
+using LibChorus.TestUtilities;
 using NUnit.Framework;
+using Palaso.Progress;
 
 namespace LibChorus.Tests.sync
 {
@@ -35,12 +35,16 @@ namespace LibChorus.Tests.sync
 		{
 			using (var repo = new RepositorySetup("bob"))
 			{
+				if (repo.Synchronizer == null)
+					repo.Synchronizer = repo.CreateSynchronizer();
+				repo.Synchronizer.SynchronizerAdjunct = new ProgrammableSynchronizerAdjunct("default");
 				repo.AddAndCheckinFile("test.txt", "apple");
 				var afterFirstCheckin = repo.CreateBookmarkHere();
 				repo.ChangeFileAndCommit("test.txt", "pear", "second on default");
 
 				afterFirstCheckin.Go();
-				repo.Repository.Branch("animals");
+				repo.Repository.BranchingHelper.Branch(new ConsoleProgress(), "animals");
+				repo.Synchronizer.SynchronizerAdjunct = new ProgrammableSynchronizerAdjunct("animals");
 				repo.ChangeFileAndCommit("test.txt", "dog", "first on animals");
 				var animalHead = repo.CreateBookmarkHere();
 

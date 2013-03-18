@@ -1,10 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
 using Chorus.FileTypeHanders;
 using Chorus.VcsDrivers.Mercurial;
-using Palaso.Progress.LogBox;
 
 namespace Chorus.sync
 {
@@ -68,46 +67,169 @@ namespace Chorus.sync
 		/// Filter the files, before the commit. Files that are too large are added to the exclude section of the configuration.
 		///</summary>
 		///<returns>An empty string or a string with a listing of files that were not added/modified.</returns>
-		public static string FilterFiles(HgRepository repository, ProjectFolderConfiguration configuration, ChorusFileTypeHandlerCollection handlers, IProgress progress)
+		public static string FilterFiles(HgRepository repository, ProjectFolderConfiguration configuration, ChorusFileTypeHandlerCollection handlerCollection)
 		{
-			var builder = new StringBuilder();
+			var messageBuilder = new StringBuilder();
+			Dictionary<string, Dictionary<string, List<string>>> fileStatusDictionary = GetStatusOfFilesOfInterest(repository, configuration);
+			Dictionary<string, uint> extensionToMaximumSize = CacheMaxSizesOfExtension(handlerCollection);
 
-			foreach (var fileInRevision in repository.GetFilesInRevisionFromQuery(null, "status"))
+			foreach (KeyValuePair<string, Dictionary<string, List<string>>> filesOfOneStatus in fileStatusDictionary)
 			{
-				var fir = fileInRevision;
-				if (fir.ActionThatHappened == FileInRevision.Action.Deleted || fir.ActionThatHappened == FileInRevision.Action.NoChanges || fir.ActionThatHappened == FileInRevision.Action.Parent)
-					continue; // Don't fret about the size of any these types of files.
+				var userNotificationMessageBase = "File '{0}' is too large to include in the Send/Receive system. It is {1}, but the maximum allowed is {2}. The file is at {3}.";
+				var forgetItIfTooLarge = false;
 
-				// Remaining options are: Added, Modified, and Unknown.
-				// It will likely be Unknown when called by Synchronizer's Commit method,
-				// as it will deal with the includes/excludes stuff and mark new stuff as 'add'.
-
-				// This part of the full path must *not* be included in the exclude list,
-				// as it is prepended by HgRepository.
-				var pathToRepository = repository.PathToRepo + Path.PathSeparator;// This part of the full path must *not* be included in the exclude list,
-				var filename = Path.GetFileName(fir.FullPath);
-				var fileInfo = new FileInfo(fir.FullPath);
-				var fileSize = fileInfo.Length;
-				foreach (var msg in from handler in handlers.Handlers
-									where (handler.CanValidateFile(fir.FullPath) && handler.MaximumFileSize != UInt32.MaxValue) && fileSize >= handler.MaximumFileSize
-									select (fir.ActionThatHappened == FileInRevision.Action.Added || fir.ActionThatHappened == FileInRevision.Action.Unknown) ? String.Format("File '{0}' is too large to add to Chorus.", filename) : String.Format("File '{0}' is too large to be updated in Chorus.", filename))
+				switch (filesOfOneStatus.Key)
 				{
-					progress.WriteWarning(msg);
-					builder.AppendLine(msg);
-					configuration.ExcludePatterns.Add(fir.FullPath.Replace(pathToRepository, ""));
+					case "M": // modified
+						// May have grown too large.
+						// Untrack it (forget), if is too large and keep out.
+						forgetItIfTooLarge = true;
+						userNotificationMessageBase = "File '{0}' has grown too large to include in the Send/Receive system.  It is {1}, but the maximum allowed is {2}. The file is at {3}.";
+						//FilterModifiedFiles(repository, configuration, extensionToMaximumSize, messageBuilder, PathToRepository(repository), statusCheckResultKvp.Value);
+						break;
+					case "A": // marked for 'add' with; hg add
+						// Untrack it (forget), if is too large and keep out.
+						forgetItIfTooLarge = true;
+						//FilterAddedFiles(repository, configuration, extensionToMaximumSize, messageBuilder, PathToRepository(repository), statusCheckResultKvp.Value);
+						break;
+					case "?": // untracked, but going to be added.
+						// Keep out, if too large.
+						//FilterUntrackedFiles(configuration, extensionToMaximumSize, messageBuilder, PathToRepository(repository), statusCheckResultKvp.Value);
+						break;
 
-					// TODO: What to do, if the file is "Modified" but now too big?
-					// "remove" actually deletes the file in repo and in working folder, which seems a bit rude.
-					// "forget" removes it from repo (history remains) and leaves it in working folder.
-					if (fir.ActionThatHappened == FileInRevision.Action.Modified)
+					//case "!": // tracked but deleted. Fall through
+					//case "R": // tracked, and marked for removal with: hg rm
+						// No need to mess with these ones.
+					//	break;
+					// If there are other keys, we don't really care about them.
+				}
+				Dictionary<string, List<string>> extensionToFilesDictionary = filesOfOneStatus.Value;
+				FilterFiles(repository, configuration, extensionToMaximumSize, messageBuilder, PathToRepository(repository),
+							extensionToFilesDictionary, userNotificationMessageBase, forgetItIfTooLarge);
+			}
+
+			var result = messageBuilder.ToString();
+			return string.IsNullOrEmpty(result) ? null : result;
+		}
+
+		private static void FilterFiles(HgRepository repository, ProjectFolderConfiguration configuration,
+				IDictionary<string, uint> extensionToMaximumSize, StringBuilder messageBuilder, string repositoryBasePath,
+				Dictionary<string, List<string>> extensionToFilesMap, string userNotificationMessageBase, bool forgetItIfTooLarge)
+		{
+			foreach (var filesOfOneExtension in extensionToFilesMap)
+			{
+				var maxForExtension = GetMaxSizeForExtension(extensionToMaximumSize, filesOfOneExtension.Key);
+				foreach (var partialPathname in filesOfOneExtension.Value)
+				{
+					var fullPathname = Path.Combine(repositoryBasePath, partialPathname);
+					var fileInfo = new FileInfo(fullPathname);
+					var fileSize = fileInfo.Length;
+					if (fileSize <= maxForExtension)
+						continue;
+
+					var fileSizeString = (fileSize / (float)Megabyte).ToString("0.00") + " Megabytes";
+					var maxSizeString = (maxForExtension / (float)Megabyte).ToString("0.0") + " Megabytes";
+					messageBuilder.AppendLine(String.Format(userNotificationMessageBase, Path.GetFileName(fullPathname), fileSizeString, maxSizeString, fullPathname));
+
+					var shortPathname = fullPathname.Replace(repositoryBasePath, null);
+					configuration.ExcludePatterns.Add(shortPathname);
+					if (forgetItIfTooLarge)
+						repository.ForgetFile(shortPathname);
+				}
+			}
+		}
+
+		private static uint GetMaxSizeForExtension(IDictionary<string, uint> extensionToMaximumSize, string extension)
+		{
+			uint maxForExtension;
+			if (!extensionToMaximumSize.TryGetValue(extension, out maxForExtension))
+			{
+				maxForExtension = Megabyte;
+			}
+			return maxForExtension;
+		}
+
+		private static Dictionary<string, uint> CacheMaxSizesOfExtension(ChorusFileTypeHandlerCollection handlerCollection)
+		{
+			var cacheExtensionToMaxSize = new Dictionary<string, uint>(StringComparer.InvariantCultureIgnoreCase);
+
+			foreach (var handler in handlerCollection.Handlers)
+			{
+				var maxForHandler = handler.MaximumFileSize;
+				foreach (var extension in handler.GetExtensionsOfKnownTextFileTypes())
+				{
+					uint extantMax;
+					if (cacheExtensionToMaxSize.TryGetValue(extension, out extantMax))
 					{
-						// Tell Hg to 'forget' it.
-						repository.ForgetFile(fir.FullPath.Replace(pathToRepository, ""));
+						// Use larger value, if two handlers are fighting for it.
+						cacheExtensionToMaxSize[extension] = (maxForHandler >= extantMax) ? maxForHandler : extantMax;
+					}
+					else
+					{
+						cacheExtensionToMaxSize.Add(extension, maxForHandler);
 					}
 				}
 			}
 
-			return builder.ToString();
+			return cacheExtensionToMaxSize;
+		}
+
+		private static string PathToRepository(HgRepository repository)
+		{
+			return repository.PathToRepo + Path.DirectorySeparatorChar;// This part of the full path must *not* be included in the exclude list. (Other code adds it, right before the commit.)
+		}
+
+		/// <summary>
+		/// Gets the status for the files marked as 'modified', 'added', and 'unknown/untracked' (-mau option)
+		/// </summary>
+		/// <returns>A dictionary of hg status codes --> (a dictionary of file extensions --> a list of files)</returns>
+		internal static Dictionary<string, Dictionary<string, List<string>>> GetStatusOfFilesOfInterest(HgRepository repository, ProjectFolderConfiguration configuration)
+		{
+			var statusOfFilesByExtension = new Dictionary<string, Dictionary<string, List<string>>>(StringComparer.InvariantCultureIgnoreCase);
+
+			repository.CheckAndUpdateHgrc();
+			var args = new StringBuilder();
+			args.Append(" -mau "); // Only modified, added, and unknown (not tracked).
+
+			// Don't use these, as they may mask some large files that are outside the included space, but that are too large, and already tracked.
+			//foreach (var pattern in configuration.IncludePatterns) //.Select(pattern => Path.Combine(_pathToRepository, pattern)))
+			//{
+			//    args.Append(" -I " + SurroundWithQuotes(pattern));
+			//}
+			foreach (var pattern in configuration.ExcludePatterns) //.Select(pattern => Path.Combine(_pathToRepository, pattern)))
+			{
+				args.Append(" -X " + HgRepository.SurroundWithQuotes(pattern));
+			}
+			var result = repository.Execute(repository.SecondsBeforeTimeoutOnLocalOperation, "status", args.ToString());
+
+			var lines = result.StandardOutput.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+			foreach (var line in lines)
+			{
+				if (line.Trim() == string.Empty)
+					continue;
+
+				var status = line.Substring(0, 1);
+				Dictionary<string, List<string>> statusToFilesMap;
+				if (!statusOfFilesByExtension.TryGetValue(status, out statusToFilesMap))
+				{
+					statusToFilesMap = new Dictionary<string, List<string>>(StringComparer.InvariantCultureIgnoreCase);
+					statusOfFilesByExtension.Add(status, statusToFilesMap);
+				}
+				var filename = line.Substring(2); // ! data.txt
+				var extension = Path.GetExtension(filename);
+				if (string.IsNullOrEmpty(extension))
+					extension = "noextensionforfile";
+				extension = extension.Replace(".", null).ToLowerInvariant();
+				List<string> fileList;
+				if (!statusToFilesMap.TryGetValue(extension, out fileList))
+				{
+					fileList = new List<string>();
+					statusToFilesMap.Add(extension, fileList);
+				}
+				fileList.Add(filename);
+			}
+
+			return statusOfFilesByExtension;
 		}
 	}
 }

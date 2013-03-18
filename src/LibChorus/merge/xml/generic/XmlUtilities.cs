@@ -1,16 +1,15 @@
 using System;
-using System.CodeDom.Compiler;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using System.Xml;
 using System.Xml.Linq;
-using System.Xml.Xsl;
+using Chorus.FileTypeHanders.lift;
 using Chorus.merge.xml.generic.xmldiff;
+using Palaso.Extensions;
 
 
 namespace Chorus.merge.xml.generic
@@ -33,71 +32,48 @@ namespace Chorus.merge.xml.generic
 		}
 	}
 
-	public static class XmlNodeExtensions
-	{
-		/// <summary>
-		/// this is safe to use with foreach, unlike SelectNodes
-		/// </summary>
-		public static XmlNodeList SafeSelectNodes(this XmlNode node, string path, params object[] args)
-		{
-			var x = node.SelectNodes(string.Format(path,args));
-			if (x == null)
-				return new NullXMlNodeList();
-			return x;
-		}
-
-		public static string SelectTextPortion(this XmlNode node, string path, params object[] args)
-		{
-			var x = node.SelectNodes(string.Format(path, args));
-			if (x == null || x.Count ==0)
-				return string.Empty;
-			return x[0].InnerText;
-		}
-
-		public static string GetStringAttribute(this XmlNode node, string attr)
-		{
-			try
-			{
-				return node.Attributes[attr].Value;
-			}
-			catch (NullReferenceException)
-			{
-				throw new XmlFormatException(string.Format("Expected a '{0}' attribute on {1}.", attr, node.OuterXml));
-			}
-		}
-		public static string GetOptionalStringAttribute(this XmlNode node, string attributeName, string defaultValue)
-		{
-			XmlAttribute attr = node.Attributes[attributeName];
-			if (attr == null)
-				return defaultValue;
-			return attr.Value;
-		}
-	}
-
 	public static class XmlUtilities
 	{
 		public static bool AreXmlElementsEqual(string ours, string theirs)
 		{
-			if (ours == theirs)
-				return true;
+			return (ours == theirs) || AreXmlElementsEqual(CreateNode(ours), CreateNode(theirs));
+		}
 
-			StringReader osr = new StringReader(ours);
-			XmlReader or = XmlReader.Create(osr);
-			XmlDocument od = new XmlDocument();
-			XmlNode on = od.ReadNode(or);
-			@on.Normalize();
+		private static XmlNode CreateNode(string data)
+		{
+			using (var stringReader = new StringReader(data))
+			using (var xmlReader = XmlReader.Create(stringReader))
+			{
+				var xmlDocument = new XmlDocument();
+				var xmlNode = xmlDocument.ReadNode(xmlReader);
+				xmlNode.Normalize();
+				return xmlNode;
+			}
+		}
 
-			StringReader tsr = new StringReader(theirs);
-			XmlReader tr = XmlReader.Create(tsr);
-			XmlDocument td = new XmlDocument();
-			XmlNode tn = td.ReadNode(tr);
-			tn.Normalize();//doesn't do much
+		private static XmlNode CreateNode(byte[] data)
+		{
+			using (var memoryStream = new MemoryStream(data))
+			{
+				var xmlDocument = new XmlDocument();
+				xmlDocument.Load(memoryStream); // This loads the MemoryStream as Utf8 xml. (I checked.)
+				XmlNode xmlNode = xmlDocument.DocumentElement;
+				xmlNode.Normalize();
+				return xmlNode;
+			}
+		}
 
-			return AreXmlElementsEqual(@on, tn);
+		public static bool AreXmlElementsEqual(byte[] ours, byte[] theirs)
+		{
+			// Painfully slow.
+			//IStructuralEquatable equate = ours;
+			//if (equate.Equals(theirs, EqualityComparer<byte>.Default))
+			//    return true;
+			return ours.AreByteArraysEqual(theirs) || AreXmlElementsEqual(CreateNode(ours), CreateNode(theirs));
 		}
 
 		/// <summary>
-		/// this version of AreXmlElementsEqual is used to compare two xml strings
+		/// This version of AreXmlElementsEqual is used to compare two xml strings
 		/// and have it ignore certain specified attributes (if the corresponding string
 		/// in astrAttributeToIgnore is non-null) or elements (if the corresponding string
 		/// in astrAttributeToIgnore is null)
@@ -110,26 +86,20 @@ namespace Chorus.merge.xml.generic
 		public static bool AreXmlElementsEqual(string ours, string theirs,
 			string[] astrElementXPath, string[] astrAttributeToIgnore)
 		{
-			StringReader osr = new StringReader(ours);
-			XmlReader or = XmlReader.Create(osr);
-			XmlDocument od = new XmlDocument();
-			XmlNode on = od.ReadNode(or);
-			@on.Normalize();
+			if (ours == theirs)
+				return true;
 
-			StringReader tsr = new StringReader(theirs);
-			XmlReader tr = XmlReader.Create(tsr);
-			XmlDocument td = new XmlDocument();
-			XmlNode tn = td.ReadNode(tr);
-			tn.Normalize();//doesn't do much
+			var ourNode = CreateNode(ours);
+			var theirNode = CreateNode(theirs);
 
 			Debug.Assert(astrElementXPath.Length == astrAttributeToIgnore.Length);
 			for (int i = 0; i < astrElementXPath.Length; i++)
 			{
-				RemoveItem(@on, astrElementXPath[i], astrAttributeToIgnore[i]);
-				RemoveItem(tn, astrElementXPath[i], astrAttributeToIgnore[i]);
+				RemoveItem(ourNode, astrElementXPath[i], astrAttributeToIgnore[i]);
+				RemoveItem(theirNode, astrElementXPath[i], astrAttributeToIgnore[i]);
 			}
 
-			return AreXmlElementsEqual(@on, tn);
+			return AreXmlElementsEqual(ourNode, theirNode);
 		}
 
 		private static void RemoveItem(XmlNode node, string strXPath, string strAttribute)
@@ -154,20 +124,28 @@ namespace Chorus.merge.xml.generic
 		{
 			if (ours.NodeType == XmlNodeType.Text)
 			{
-				if (ours.NodeType != XmlNodeType.Text)
+				if (theirs.NodeType != XmlNodeType.Text)
 				{
 					return false;
 				}
-				bool oursIsEmpty = (ours.InnerText == null || ours.InnerText.Trim() == String.Empty);
-				bool theirsIsEmpty = (theirs.InnerText == null || theirs.InnerText.Trim() == String.Empty);
-				if(oursIsEmpty != theirsIsEmpty)
+				var oursInnerTrimmed = ours.InnerText.Trim();
+				var theirsInnerTrimmed = theirs.InnerText.Trim();
+				var oursIsEmpty = string.IsNullOrEmpty(oursInnerTrimmed);
+				var theirsIsEmpty = string.IsNullOrEmpty(theirsInnerTrimmed);
+				if (oursIsEmpty != theirsIsEmpty)
 				{
 					return false;
 				}
-				return ours.InnerText.Trim() == theirs.InnerText.Trim();
+				return oursInnerTrimmed == theirsInnerTrimmed;
 			}
+			if (theirs.NodeType == XmlNodeType.Text)
+				return false; // Theirs is text, but ours is not.
 
-			return AreXmlElementsEqual(new XmlInput(ours.OuterXml), new XmlInput(theirs.OuterXml));
+			var ourOuterXml = ours.OuterXml;
+			var theirOuterXml = theirs.OuterXml;
+			if (ourOuterXml == theirOuterXml)
+				return true;
+			return AreXmlElementsEqual(new XmlInput(ourOuterXml), new XmlInput(theirOuterXml));
 		}
 
 
@@ -231,6 +209,66 @@ namespace Chorus.merge.xml.generic
 			return XElement.Parse(xml).ToString();
 		}
 
+		/// <summary>
+		/// From http://stackoverflow.com/a/1352556/723299
+		/// Produce an XPath literal equal to the value if possible; if not, produce
+		/// an XPath expression that will match the value.
+		///
+		/// Note that this function will produce very long XPath expressions if a value
+		/// contains a long run of double quotes.
+		/// </summary>
+		/// <param name="value">The value to match.</param>
+		/// <returns>If the value contains only single or double quotes, an XPath
+		/// literal equal to the value.  If it contains both, an XPath expression,
+		/// using concat(), that evaluates to the value.</returns>
+		public static string GetSafeXPathLiteral(string value)
+		{
+			// if the value contains only single or double quotes, construct
+			// an XPath literal
+			if (!value.Contains("\""))
+			{
+				return "\"" + value + "\"";
+			}
+			if (!value.Contains("'"))
+			{
+				return "'" + value + "'";
+			}
+
+			// if the value contains both single and double quotes, construct an
+			// expression that concatenates all non-double-quote substrings with
+			// the quotes, e.g.:
+			//
+			//    concat("foo", '"', "bar")
+			StringBuilder sb = new StringBuilder();
+			sb.Append("concat(");
+			string[] substrings = value.Split('\"');
+			for (int i = 0; i < substrings.Length; i++)
+			{
+				bool needComma = (i > 0);
+				if (substrings[i] != "")
+				{
+					if (i > 0)
+					{
+						sb.Append(", ");
+					}
+					sb.Append("\"");
+					sb.Append(substrings[i]);
+					sb.Append("\"");
+					needComma = true;
+				}
+				if (i < substrings.Length - 1)
+				{
+					if (needComma)
+					{
+						sb.Append(", ");
+					}
+					sb.Append("'\"'");
+				}
+
+			}
+			sb.Append(")");
+			return sb.ToString();
+		}
 		public static string SafelyGetStringTextNode(XmlNode node)
 		{
 			return (node == null || node.InnerText == String.Empty) ? String.Empty : node.InnerText.Trim();
@@ -286,6 +324,9 @@ namespace Chorus.merge.xml.generic
 									XmlNodeType.EndEntity,
 									XmlNodeType.XmlDeclaration
 								};
+			if (node.ChildNodes.Cast<XmlNode>().Any(childNode => badNodeTypes.Contains(childNode.NodeType)))
+				return TextNodeStatus.IsNotTextNodeContainer;
+
 			if (node.NodeType != XmlNodeType.Element)
 				return TextNodeStatus.IsNotTextNodeContainer;
 
@@ -303,9 +344,40 @@ namespace Chorus.merge.xml.generic
 			// Text, Whitespace, and SignificantWhitespace.
 			// Alternatively, one might be able to use the XmlText, XmlWhitespace,
 			// and XmlSignificantWhitespace subclasses of XmlCharacterData (leaving out XmlCDataSection and XmlComment), which match well with those legal enums
+			//return node.ChildNodes.Cast<XmlNode>().Any(childNode => !goodNodeTypes.Contains(childNode.NodeType))
+			//    ? TextNodeStatus.IsNotTextNodeContainer
+			//    : TextNodeStatus.IsTextNodeContainer;
+
+			// It should have at least one XmlNodeType.Text
+			if (node.InnerXml.Trim() == string.Empty)
+				return TextNodeStatus.IsAmbiguous;
 			return node.ChildNodes.Cast<XmlNode>().Any(childNode => !goodNodeTypes.Contains(childNode.NodeType))
 				? TextNodeStatus.IsNotTextNodeContainer
 				: TextNodeStatus.IsTextNodeContainer;
+		}
+
+		internal static void AddDateCreatedAttribute(XmlNode elementNode)
+		{
+			AddAttribute(elementNode, "dateCreated", DateTime.Now.ToString(LiftUtils.LiftTimeFormatNoTimeZone));
+		}
+
+		internal static void AddAttribute(XmlNode element, string name, string value)
+		{
+			var attr = element.OwnerDocument.CreateAttribute(name);
+			attr.Value = value;
+			element.Attributes.Append(attr);
+		}
+
+		internal static IEnumerable<XmlAttribute> GetAttrs(XmlNode node)
+		{
+			return (node is XmlCharacterData || node == null)
+					? new List<XmlAttribute>()
+					: new List<XmlAttribute>(node.Attributes.Cast<XmlAttribute>()); // Need to copy so we can iterate while changing.
+		}
+
+		internal static XmlAttribute GetAttributeOrNull(XmlNode node, string name)
+		{
+			return node == null ? null : node.Attributes.GetNamedItem(name) as XmlAttribute;
 		}
 	}
 

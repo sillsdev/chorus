@@ -1,15 +1,12 @@
 ﻿using System;
 using System.IO;
 using System.Media;
-using System.Text;
 using System.Threading;
-using System.Windows.Forms;
 using Chorus.UI.Misc;
 using Chorus.Utilities;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using Palaso.Progress;
-using Palaso.Progress.LogBox;
 using Palaso.Reporting;
 
 namespace Chorus.UI.Clone
@@ -45,9 +42,10 @@ namespace Chorus.UI.Clone
 		{
 			get
 			{
-				return HaveNeededAccountInfo && TargetLocationIsUnused && HaveWellFormedTargetLocation;
+				return HaveNeededAccountInfo && HaveWellFormedTargetLocation && TargetLocationIsUnused;
 			}
 		}
+
 		public bool TargetLocationIsUnused
 		{
 			get
@@ -73,7 +71,7 @@ namespace Chorus.UI.Clone
 		{
 			get
 			{
-				return (!string.IsNullOrEmpty(LocalFolderName) && LocalFolderName.LastIndexOfAny(Path.GetInvalidFileNameChars()) == -1);
+				return (!string.IsNullOrEmpty(LocalFolderName) && LocalFolderName.LastIndexOfAny(Path.GetInvalidPathChars()) == -1);
 			}
 		}
 
@@ -95,7 +93,7 @@ namespace Chorus.UI.Clone
 		public bool TargetHasProblem
 		{
 			get {
-				return !TargetLocationIsUnused || !HaveWellFormedTargetLocation;
+				return !HaveWellFormedTargetLocation || !TargetLocationIsUnused;
 			}
 		}
 
@@ -109,11 +107,6 @@ namespace Chorus.UI.Clone
 		{
 			get { return _progress.CancelRequested; }
 			set { _progress.CancelRequested = value; }
-		}
-
-		public void AddDisplay(IProgress progress)
-		{
-			_progress.Add(progress);
 		}
 
 		public IProgressIndicator ProgressIndicator
@@ -163,7 +156,8 @@ namespace Chorus.UI.Clone
 			try
 			{
 				//review: do we need to get these out of the DoWorkEventArgs instead?
-				HgRepository.Clone(new HttpRepositoryPath(URL, URL, false), TargetDestination, _progress);
+				var actualCloneLocation = HgRepository.Clone(new HttpRepositoryPath(URL, URL, false), TargetDestination, _progress);
+				LocalFolderName = Path.GetFileName(actualCloneLocation.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
 				using (SoundPlayer player = new SoundPlayer(Properties.Resources.finishedSound))
 				{
 					player.PlaySync();
@@ -189,11 +183,43 @@ namespace Chorus.UI.Clone
 					_progress.WriteError(error.Message);
 					ErrorReport.NotifyUserOfProblem(error.Message);
 				}
+				else if (error is UserCancelledException)
+				{
+					_progress.WriteMessage(error.Message);
+				}
 				else
 				{
 					_progress.WriteError(error.Message);
 				}
 			}
+		}
+
+		public void Click_FixSettingsButton()
+		{
+			_progress.CancelRequested = false;
+		}
+
+		public void CleanUpAfterErrorOrCancel()
+		{
+			if (Directory.Exists(TargetDestination))
+			{
+				Directory.Delete(TargetDestination, true);
+			}
+		}
+
+		public void AddMessageProgress(IProgress p)
+		{
+			_progress.AddMessageProgress(p);
+		}
+
+		public void AddStatusProgress(IProgress p)
+		{
+			_progress.AddStatusProgress(p);
+		}
+
+		public void AddProgress(IProgress p)
+		{
+			_progress.Add(p);
 		}
 	}
 }

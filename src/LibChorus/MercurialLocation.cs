@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using Chorus.Utilities;
-using Chorus.Utilities.code;
+using Palaso.Code;
 
 namespace Chorus// DON'T MOVE THIS! It needs to be super easy for the client to find
 {
@@ -68,26 +66,28 @@ namespace Chorus// DON'T MOVE THIS! It needs to be super easy for the client to 
 			// will work with chorus.
 			_pathToMercurialFolder = "/usr/bin";
 #else
-			var guess = Path.Combine(ExecutionEnvironment.DirectoryOfExecutingAssembly,"mercurial");
+			var executingAssemblyPath = ExecutionEnvironment.DirectoryOfExecutingAssembly;
+			var guess = Path.Combine(executingAssemblyPath, "mercurial");
 			if(Directory.Exists(guess))
 			{
-				MercurialLocation.PathToMercurialFolder = guess;
+				PathToMercurialFolder = guess;
 				return;
 			}
 
 			//in case we're running off the wesay source code directory
-			guess = Path.Combine(ExecutionEnvironment.DirectoryOfExecutingAssembly+"\\..\\..\\common", "mercurial");
+			var grandparentPath = Directory.GetParent(executingAssemblyPath).Parent.FullName;
+			guess = Path.Combine(grandparentPath, "common", "mercurial");
 			if (Directory.Exists(guess))
 			{
-				MercurialLocation.PathToMercurialFolder = guess;
+				PathToMercurialFolder = guess;
 				return;
 			}
 
 			//in case we're running in chorus's solution directory
-			guess = Path.Combine(ExecutionEnvironment.DirectoryOfExecutingAssembly + "\\..\\..\\", "mercurial");
+			guess = Path.Combine(grandparentPath, "mercurial");
 			if (Directory.Exists(guess))
 			{
-				MercurialLocation.PathToMercurialFolder = guess;
+				PathToMercurialFolder = guess;
 				return;
 			}
 #endif

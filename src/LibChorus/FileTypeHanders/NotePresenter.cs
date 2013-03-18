@@ -1,10 +1,8 @@
-using System;
-using System.Text;
 using System.Xml.Linq;
 using Chorus.FileTypeHanders.xml;
 using Chorus.notes;
-using Chorus.Utilities.code;
 using Chorus.VcsDrivers;
+using Palaso.Code;
 
 
 namespace Chorus.FileTypeHanders

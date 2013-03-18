@@ -3,13 +3,13 @@ using System.Drawing;
 using System.IO;
 using System.Media;
 using System.Windows.Forms;
-using Chorus.clone;
 using System.Linq;
-using Palaso.Progress.LogBox;
+using Palaso.Extensions;
+using Palaso.Progress;
 
 namespace Chorus.UI.Clone
 {
-	public partial class GetCloneFromUsbDialog : Form
+	public partial class GetCloneFromUsbDialog : Form, ICloneSourceDialog
 	{
 		private readonly string _parentDirectoryToPutCloneIn;
 		private CloneFromUsb _model;
@@ -88,7 +88,7 @@ namespace Chorus.UI.Clone
 					throw new ArgumentOutOfRangeException();
 			}
 
-			_copyToComputerButton.Enabled = listView1.SelectedItems.Count == 1;
+			_copyToComputerButton.Enabled = IsEnabledItemSelected();
 		}
 
 		private void GetCloneFromUsbDialog_Load(object sender, EventArgs e)
@@ -114,15 +114,7 @@ namespace Chorus.UI.Clone
 				return;
 			}
 			foreach (string path in paths)
-			{
-				var item = new ListViewItem(System.IO.Path.GetFileName(path));
-				item.Tag = path;
-				var last = File.GetLastWriteTime(path);
-				item.SubItems.Add(last.ToShortDateString() + " " + last.ToShortTimeString());
-				item.ToolTipText = path;
-				item.ImageIndex = 0;
-				listView1.Items.Add(item);
-			}
+				listView1.Items.Add(_model.CreateListItemFor(path));
 			UpdateDisplay(State.WaitingForUserSelection);
 		}
 
@@ -149,17 +141,33 @@ namespace Chorus.UI.Clone
 			}
 		}
 
-		public string PathToNewProject { get; private set; }
+		/// <summary>
+		/// After a successful clone, this will have the path to the folder that we just copied to the computer
+		/// </summary>
+		public string PathToNewlyClonedFolder { get; private set; }
 
 		private void _cancelButton_Click(object sender, EventArgs e)
 		{
 			DialogResult = DialogResult.Cancel;
 		}
 
+		private bool IsEnabledItemSelected()
+		{
+			if (listView1.SelectedItems.Count != 1)
+				return false;
+			 var item = listView1.SelectedItems[0] as ListViewItem;
+			return item.ForeColor != CloneFromUsb.DisabledItemForeColor;
+		}
+
 		private void OnMakeCloneClick(object sender, EventArgs e)
 		{
 			if (string.IsNullOrEmpty(SelectedPath))
 				return;
+			if (!IsEnabledItemSelected())
+			{
+				//MessageBox.Show(item.ToolTipText, "Problem", MessageBoxButtons.OK, MessageBoxIcon.Stop);
+				return;
+			}
 
 			if (!Directory.Exists(_parentDirectoryToPutCloneIn))
 			{
@@ -171,19 +179,11 @@ namespace Chorus.UI.Clone
 			}
 
 			var target = Path.Combine(_parentDirectoryToPutCloneIn, Path.GetFileName(SelectedPath));
-			if (Directory.Exists(target))
-			{
-				MessageBox.Show(string.Format(@"Sorry, a project with the same name already exists on this computer at the default location ({0}).
-This tool is only for getting the project there in the first place, not for synchronizing with it.
-If you want to use the version on the USB flash drive you will need to first delete, move, or rename the copy that is on your computer.",
-_parentDirectoryToPutCloneIn), "Problem", MessageBoxButtons.OK, MessageBoxIcon.Stop);
-				return;
-			}
 			try
 			{
 				UpdateDisplay(State.MakingClone);
 
-				PathToNewProject = _model.MakeClone(SelectedPath, _parentDirectoryToPutCloneIn, _progress);
+				PathToNewlyClonedFolder = _model.MakeClone(SelectedPath, _parentDirectoryToPutCloneIn, _progress);
 
 				UpdateDisplay(State.Success);
 
@@ -215,5 +215,21 @@ _parentDirectoryToPutCloneIn), "Problem", MessageBoxButtons.OK, MessageBoxIcon.S
 		}
 
 
+
+		/// <summary>
+		/// Used to check if the repository is the right kind for your program, so that the only projects that can be chosen are ones
+		/// you application is prepared to open. The delegate is given the path to each mercurial project.
+		///
+		/// Note: the comparison is based on how hg stores the file name/extenion, not the original form!
+		/// </summary>
+		/// <example>Bloom uses "*.bloom_collection.i" to test if there is a ".BloomCollection" file</example>
+		public void SetFilePatternWhichMustBeFoundInHgDataFolder(string pattern)
+		{
+			_model.ProjectFilter = folder =>
+									   {
+										   var hgDataFolder = folder.CombineForPath(".hg","store", "data");
+										   return Directory.GetFiles(hgDataFolder, pattern).Length > 0;
+									   };
+		}
 	}
 }
