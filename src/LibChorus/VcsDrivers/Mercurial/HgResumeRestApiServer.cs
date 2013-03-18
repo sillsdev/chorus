@@ -21,6 +21,10 @@ namespace Chorus.VcsDrivers.Mercurial
 		{
 			_url = new Uri(url);
 			_urlExecuted = "";
+
+			// http://jira.palaso.org/issues/browse/CHR-26
+			// Fix to support HTTP/1.0 proxy servers (ipcop) that stand between the client an our server (and that fail with a HTTP 417 Expectation Failed error, if you don't have this fix)
+			ServicePointManager.Expect100Continue = false;
 		}
 
 		public HgResumeApiResponse Execute(string method, IDictionary<string, string> parameters, int secondsBeforeTimeout)
