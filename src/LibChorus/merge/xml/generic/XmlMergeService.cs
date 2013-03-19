@@ -859,19 +859,25 @@ namespace Chorus.merge.xml.generic
 			if (elementStrat.IsImmutable)
 				return;
 			var ambiguousNodes = new List<XmlNode>();
-			foreach (XmlNode childNode in parent.ChildNodes)
+			var copyOfChildNodes = new List<XmlNode>(parent.ChildNodes.Count);
+			copyOfChildNodes.AddRange(parent.ChildNodes.Cast<XmlNode>());
+
+			foreach (var childNode in copyOfChildNodes)
 			{
-				if (ambiguousNodes.Contains(childNode))
+				var childNodeAsVariable = childNode;
+				if (ambiguousNodes.Contains(childNodeAsVariable))
 					continue; // Already found it, so don't bother processing it again.
 
-				elementStrat = mergeStrategies.GetElementStrategy(childNode);
+				childNodeAsVariable = PossiblyRenameElementHack(parent, childNodeAsVariable);
+
+				elementStrat = mergeStrategies.GetElementStrategy(childNodeAsVariable);
 				if (elementStrat.IsImmutable)
 					continue;
 				var finder = elementStrat.MergePartnerFinder;
 				if (!(finder is IFindMatchingNodesToMerge))
 					continue;
 				var finderOfMultiples = (IFindMatchingNodesToMerge) finder;
-				var matches = finderOfMultiples.GetMatchingNodes(childNode, parent).ToList();
+				var matches = finderOfMultiples.GetMatchingNodes(childNodeAsVariable, parent).ToList();
 				if (matches.Count < 2)
 					continue; // No duplicates were found, so keep going.
 
@@ -887,7 +893,7 @@ namespace Chorus.merge.xml.generic
 																	matches.Count,
 																	finderOfMultiples.GetWarningMessageForAmbiguousNodes(matches[0]))));
 				// Add all but the current one (the first one), so they can be removed in the next loop.
-				ambiguousNodes.AddRange(matches.Where(match => match != childNode));
+				ambiguousNodes.AddRange(matches.Where(match => match != childNodeAsVariable));
 			}
 
 			foreach (var ambiguousNode in ambiguousNodes)
@@ -902,6 +908,40 @@ namespace Chorus.merge.xml.generic
 				// Since the ambiguous nodes have been removed from parent, they won't get processed again.
 				RemoveAmbiguousChildren(eventListener, mergeStrategies, childNode);
 			}
+		}
+
+		/// <summary>
+		///  Flex had been writing some 'text' elements in lift/lift-ranges files using the RelaxNg gramamr spec, but as a literal,
+		/// not what the grammar was saying. This method fixes those, if needed.
+		///
+		/// There is not really good place to do that, so here is where it happens.
+		/// </summary>
+		private static XmlNode PossiblyRenameElementHack(XmlNode parent, XmlNode childNodeAsVariable)
+		{
+			if (childNodeAsVariable.NodeType != XmlNodeType.Element)
+				return childNodeAsVariable;
+			// Do nothing at all, if it isn't <element>.
+			if (childNodeAsVariable.Name != "element")
+				return childNodeAsVariable;
+
+			var doc = childNodeAsVariable.OwnerDocument;
+			var docRoot = doc.DocumentElement;
+			if (docRoot.Name != "lift" && docRoot.Name != "lift-ranges")
+				return childNodeAsVariable; // Skip data that isn't lift or lift-range
+
+			var newElement = doc.CreateElement("text");
+			while (childNodeAsVariable.HasChildNodes)
+			{
+				newElement.AppendChild(childNodeAsVariable.FirstChild);
+			}
+
+			// Removes bogus 'text' attribute, by ignoring it.
+
+			parent.InsertBefore(newElement, childNodeAsVariable);
+			parent.RemoveChild(childNodeAsVariable);
+			childNodeAsVariable = newElement;
+
+			return childNodeAsVariable;
 		}
 
 		private static int EstimatedObjectCount(string pathname)
