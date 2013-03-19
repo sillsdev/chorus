@@ -37,8 +37,8 @@ namespace LiftIO.Tests.Merging
 			doc.LoadXml(data);
 			XmlMergeService.RemoveAmbiguousChildren(new ListenerForUnitTests(), new MergeStrategies(), doc.DocumentElement);
 			XmlMergeService.RemoveAmbiguousChildNodes = originalValue;
-			Assert.IsFalse(doc.DocumentElement.OuterXml.Contains("<element name=\"text\">first</element>"), "Still has bogus element");
-			Assert.IsTrue(doc.DocumentElement.OuterXml.Contains("<text>myStuff</text>"), "Missing converted element");
+			Assert.IsFalse(doc.DocumentElement.OuterXml.Contains("<element name=\"text\">first</element>"), "Still has bogus <element> element.");
+			Assert.IsTrue(doc.DocumentElement.OuterXml.Contains("<text>myStuff</text>"), "Converted <text> element is not present.");
 		}
 
 		[Test]
@@ -63,8 +63,8 @@ namespace LiftIO.Tests.Merging
 			doc.LoadXml(data);
 			XmlMergeService.RemoveAmbiguousChildren(new ListenerForUnitTests(), new MergeStrategies(), doc.DocumentElement);
 			XmlMergeService.RemoveAmbiguousChildNodes = originalValue;
-			Assert.IsFalse(doc.DocumentElement.OuterXml.Contains("<element name=\"text\">first</element>"), "Still has bogus element");
-			Assert.IsTrue(doc.DocumentElement.OuterXml.Contains("<text>myStuff</text>"), "Missing converted element");
+			Assert.IsFalse(doc.DocumentElement.OuterXml.Contains("<element name=\"text\">first</element>"), "Still has bogus <element> element.");
+			Assert.IsTrue(doc.DocumentElement.OuterXml.Contains("<text>myStuff</text>"), "Converted <text> element is not present.");
 		}
 
 		[Test]
@@ -89,8 +89,8 @@ namespace LiftIO.Tests.Merging
 			doc.LoadXml(data);
 			XmlMergeService.RemoveAmbiguousChildren(new ListenerForUnitTests(), new MergeStrategies(), doc.DocumentElement);
 			XmlMergeService.RemoveAmbiguousChildNodes = originalValue;
-			Assert.IsTrue(doc.DocumentElement.OuterXml.Contains("<element name=\"text\">myStuff</element>"), "Still has bogus element");
-			Assert.IsFalse(doc.DocumentElement.OuterXml.Contains("<text>myStuff</text>"), "Missing converted element");
+			Assert.IsFalse(doc.DocumentElement.OuterXml.Contains("<text>myStuff</text>"), "Converted <element> element to <text>, but should not have.");
+			Assert.IsTrue(doc.DocumentElement.OuterXml.Contains("<element name=\"text\">myStuff</element>"), "Element <element> went away, but should have been present.");
 		}
 /*
 		[Test]

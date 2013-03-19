@@ -868,24 +868,7 @@ namespace Chorus.merge.xml.generic
 				if (ambiguousNodes.Contains(childNodeAsVariable))
 					continue; // Already found it, so don't bother processing it again.
 
-				if (childNodeAsVariable.Name == "element"
-						&& childNodeAsVariable.Attributes["name"] != null
-						&& childNodeAsVariable.Attributes["name"].Value == "text"
-						&& (childNodeAsVariable.OwnerDocument.DocumentElement.Name == "lift" || childNodeAsVariable.OwnerDocument.DocumentElement.Name == "lift-ranges"))
-				{
-					var doc = childNodeAsVariable.OwnerDocument;
-					var newElement = doc.CreateElement("text");
-					while (childNodeAsVariable.HasChildNodes)
-					{
-						newElement.AppendChild(childNodeAsVariable.FirstChild);
-					}
-
-					// Removes bogus 'text' attribute, by ignoring it.
-
-					parent.InsertBefore(newElement, childNodeAsVariable);
-					parent.RemoveChild(childNodeAsVariable);
-					childNodeAsVariable = newElement;
-				}
+				childNodeAsVariable = PossiblyRenameElementHack(parent, childNodeAsVariable);
 
 				elementStrat = mergeStrategies.GetElementStrategy(childNodeAsVariable);
 				if (elementStrat.IsImmutable)
@@ -925,6 +908,40 @@ namespace Chorus.merge.xml.generic
 				// Since the ambiguous nodes have been removed from parent, they won't get processed again.
 				RemoveAmbiguousChildren(eventListener, mergeStrategies, childNode);
 			}
+		}
+
+		/// <summary>
+		///  Flex had been writing some 'text' elements in lift/lift-ranges files using the RelaxNg gramamr spec, but as a literal,
+		/// not what the grammar was saying. This method fixes those, if needed.
+		///
+		/// There is not really good place to do that, so here is where it happens.
+		/// </summary>
+		private static XmlNode PossiblyRenameElementHack(XmlNode parent, XmlNode childNodeAsVariable)
+		{
+			if (childNodeAsVariable.NodeType != XmlNodeType.Element)
+				return childNodeAsVariable;
+			// Do nothing at all, if it isn't <element>.
+			if (childNodeAsVariable.Name != "element")
+				return childNodeAsVariable;
+
+			var doc = childNodeAsVariable.OwnerDocument;
+			var docRoot = doc.DocumentElement;
+			if (docRoot.Name != "lift" && docRoot.Name != "lift-ranges")
+				return childNodeAsVariable; // Skip data that isn't lift or lift-range
+
+			var newElement = doc.CreateElement("text");
+			while (childNodeAsVariable.HasChildNodes)
+			{
+				newElement.AppendChild(childNodeAsVariable.FirstChild);
+			}
+
+			// Removes bogus 'text' attribute, by ignoring it.
+
+			parent.InsertBefore(newElement, childNodeAsVariable);
+			parent.RemoveChild(childNodeAsVariable);
+			childNodeAsVariable = newElement;
+
+			return childNodeAsVariable;
 		}
 
 		private static int EstimatedObjectCount(string pathname)
