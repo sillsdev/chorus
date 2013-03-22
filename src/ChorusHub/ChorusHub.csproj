@@ -34,7 +34,7 @@
 	<DebugSymbols>true</DebugSymbols>
 	<DebugType>full</DebugType>
 	<Optimize>false</Optimize>
-	<OutputPath>..\output\debug\</OutputPath>
+	<OutputPath>..\..\output\$(Configuration)\</OutputPath>
 	<DefineConstants>DEBUG;TRACE</DefineConstants>
 	<ErrorReport>prompt</ErrorReport>
 	<WarningLevel>4</WarningLevel>
@@ -43,7 +43,7 @@
 	<PlatformTarget>x86</PlatformTarget>
 	<DebugType>pdbonly</DebugType>
 	<Optimize>true</Optimize>
-	<OutputPath>bin\Release\</OutputPath>
+	<OutputPath>..\..\output\$(Configuration)\</OutputPath>
 	<DefineConstants>TRACE</DefineConstants>
 	<ErrorReport>prompt</ErrorReport>
 	<WarningLevel>4</WarningLevel>
@@ -53,11 +53,11 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
 	<DebugSymbols>true</DebugSymbols>
-	<OutputPath>..\..\output\Debug\</OutputPath>
+	<OutputPath>..\..\output\$(Configuration)\</OutputPath>
 	<DefineConstants>DEBUG;TRACE</DefineConstants>
 	<DebugType>full</DebugType>
 	<PlatformTarget>x86</PlatformTarget>
-	<CodeAnalysisLogFile>bin\Debug\ChorusHub.exe.CodeAnalysisLog.xml</CodeAnalysisLogFile>
+	<CodeAnalysisLogFile>..\..\output\$(Configuration)\ChorusHub.exe.CodeAnalysisLog.xml</CodeAnalysisLogFile>
 	<CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
 	<CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
 	<ErrorReport>prompt</ErrorReport>
@@ -68,12 +68,12 @@
 	<CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
-	<OutputPath>..\..\output\Release\</OutputPath>
+	<OutputPath>..\..\output\$(Configuration)\</OutputPath>
 	<DefineConstants>TRACE</DefineConstants>
 	<Optimize>true</Optimize>
 	<DebugType>pdbonly</DebugType>
 	<PlatformTarget>x86</PlatformTarget>
-	<CodeAnalysisLogFile>bin\Release\ChorusHub.exe.CodeAnalysisLog.xml</CodeAnalysisLogFile>
+	<CodeAnalysisLogFile>..\..\output\$(Configuration)\ChorusHub.exe.CodeAnalysisLog.xml</CodeAnalysisLogFile>
 	<CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
 	<CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
 	<ErrorReport>prompt</ErrorReport>
@@ -136,6 +136,7 @@
 	<Compile Include="Advertiser.cs" />
 	<Compile Include="ChorusHubClient.cs" />
 	<Compile Include="ChorusHubInfo.cs" />
+	<Compile Include="ChorusHubRepositoryInformation.cs" />
 	<Compile Include="ChorusHubWindow.cs">
 	  <SubType>Form</SubType>
 	</Compile>
@@ -146,6 +147,7 @@
 	<Compile Include="CommandLineParser.cs" />
 	<Compile Include="HgServeRunner.cs" />
 	<Compile Include="ChorusHubService.cs" />
+	<Compile Include="ImitationHubJSONService.cs" />
 	<Compile Include="Program.cs" />
 	<Compile Include="Properties\AssemblyInfo.cs" />
 	<Compile Include="ChorusHubServiceImplementation.cs" />

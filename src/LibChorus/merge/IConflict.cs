@@ -47,6 +47,13 @@ namespace Chorus.merge
 
 		string GetConflictingRecordOutOfSourceControl(IRetrieveFileVersionsFromRepository fileRetriever, ThreeWayMergeSources.Source mergeSource);
 		void WriteAsChorusNotesAnnotation(XmlWriter writer);
+
+		/// <summary>
+		/// Notifications are low-priority conflicts.
+		/// Typically where both users added something, we aren't quite sure of the order, but no actual data loss
+		/// has occurred. Override this in classes which you think it is not too unreasonable for users to ignore.
+		/// </summary>
+		bool IsNotification { get; }
 	}
 
 	public class TypeGuidAttribute : Attribute

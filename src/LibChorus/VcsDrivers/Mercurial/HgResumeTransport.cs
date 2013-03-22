@@ -174,13 +174,12 @@ namespace Chorus.VcsDrivers.Mercurial
 			}
 
 			//The goal here is to to return the first common revision of each branch.
-			var commonBase = new List<Revision>();
+			var commonBases = new List<Revision>();
 			var localBranches = new List<string>(localRevisions.Keys);
-
-			while (commonBase.Count < localRevisions.Keys.Count())
+			while (commonBases.Count < localRevisions.Keys.Count())
 			{
 				var remoteRevisions = GetRemoteRevisions(offset, quantity);
-				if (remoteRevisions.Keys.Count() == 1 && remoteRevisions[remoteRevisions.Keys.First()].First() == "0")
+				if (remoteRevisions.Keys.Count() == 1 && remoteRevisions[remoteRevisions.Keys.First()].First().Split(':')[0] == "0")
 				{
 					// special case when remote repo is empty (initialized with no changesets)
 					return new List<Revision>();
@@ -195,19 +194,27 @@ namespace Chorus.VcsDrivers.Mercurial
 						var commonRevision = localList.Find(localRev => localRev.Number.Hash == remoteRevision);
 						if (commonRevision != null)
 						{
-							commonBase.Add(commonRevision);
+							commonBases.Add(commonRevision);
 							break;
 						}
 					}
 				}
 				if(remoteRevisions.Count() < quantity)
 				{
-					break; //we did not find a common revision for each branch, but we ran out of revisions from the repo
+					//we did not find a common revision for each branch, but we ran out of revisions from the repo
+					break;
 				}
 				offset += quantity;
 			}
-			LastKnownCommonBases = commonBase;
-			return commonBase;
+
+			// If we have found no common revisions at this point, the remote repo is unrelated
+			if (commonBases.Count == 0)
+			{
+				return null;
+			}
+
+			LastKnownCommonBases = commonBases;
+			return commonBases;
 		}
 
 
@@ -251,14 +258,12 @@ namespace Chorus.VcsDrivers.Mercurial
 							var revisions = new MultiMap<string, string>();
 							foreach (var pair in pairs)
 							{
-								//Uncomment when v03 api is working again
-								//var hashRevCombo = pair.Split(':');
-								//if(hashRevCombo.Length < 2)
-								//{
-								//    throw new HgResumeOperationFailed("Failed to get remote revisions. Server/Client API format mismatch.");
-								//}
-								//revisions.Add(hashRevCombo[1], hashRevCombo[0]);
-								revisions.Add("", pair);
+								var hashRevCombo = pair.Split(':');
+								if(hashRevCombo.Length < 2)
+								{
+									throw new HgResumeOperationFailed("Failed to get remote revisions. Server/Client API format mismatch.");
+								}
+								revisions.Add(hashRevCombo[1], hashRevCombo[0]);
 							}
 							return revisions;
 						}
@@ -592,9 +597,9 @@ namespace Chorus.VcsDrivers.Mercurial
 		public bool Pull()
 		{
 			var baseHashes = GetCommonBaseHashesWithRemoteRepo();
-			if (baseHashes.Count == 0)
+			if (baseHashes == null || baseHashes.Count == 0)
 			{
-				// an empty list indicates that the server has an empty repo
+				// a null or empty list indicates that the server has an empty repo
 				// in this case there is no reason to Pull
 				return false;
 			}
@@ -646,6 +651,10 @@ namespace Chorus.VcsDrivers.Mercurial
 				}
 				retryLoop = false;
 				var response = PullOneChunk(req);
+				if (response.Status == PullStatus.Unauthorized)
+				{
+					throw new UnauthorizedAccessException();
+				}
 				if (response.Status == PullStatus.NotAvailable)
 				{
 					_progress.ProgressIndicator.Initialize();
@@ -869,6 +878,11 @@ namespace Chorus.VcsDrivers.Mercurial
 						}
 					}
 					return pullResponse;
+				}
+				if (response.HttpStatus == HttpStatusCode.Unauthorized)
+				{
+					_progress.WriteWarning("There is an authorization problem accessing this project. Check the project ID as well as your username and password. Alternatively, you may not be authorized to access this project.");
+					pullResponse.Status =  PullStatus.Unauthorized;
 				}
 				_progress.WriteWarning("Invalid Server Response '{0}'", response.HttpStatus);
 				return pullResponse;

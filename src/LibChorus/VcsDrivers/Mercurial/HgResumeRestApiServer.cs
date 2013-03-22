@@ -9,7 +9,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 	public class HgResumeRestApiServer : IApiServer
 	{
-		public const string APIVERSION = "02";
+		public const string APIVERSION = "03";
 
 		private readonly Uri _url;
 		private string _urlExecuted;
@@ -18,6 +18,10 @@ namespace Chorus.VcsDrivers.Mercurial
 		{
 			_url = new Uri(url);
 			_urlExecuted = "";
+
+			// http://jira.palaso.org/issues/browse/CHR-26
+			// Fix to support HTTP/1.0 proxy servers (ipcop) that stand between the client an our server (and that fail with a HTTP 417 Expectation Failed error, if you don't have this fix)
+			ServicePointManager.Expect100Continue = false;
 		}
 
 		public HgResumeApiResponse Execute(string method, HgResumeApiParameters request, int secondsBeforeTimeout)

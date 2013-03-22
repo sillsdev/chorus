@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Xml;
 using Chorus.FileTypeHanders.lift;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
@@ -88,6 +89,134 @@ namespace LibChorus.Tests.merge.xml.lift
 				XmlTestHelper.AssertXPathMatchesExactlyOne(result, "lift/entry/lexical-unit/form[@lang='ldb-Zxxx-x-audio']");
 			}
 
+		}
+
+		[Test]
+		public void Merge_EditAndDeleteEntry_GeneratesConflictWithContext()
+		{
+			const string pattern = @"<?xml version='1.0' encoding='utf-8'?>
+				<lift version='0.10' producer='WeSay 1.0.0.0'>
+					<entry
+						dateCreated='2011-03-09T17:08:44Z'
+						dateModified='2012-05-18T08:31:54Z'
+						id='00853b73-fda2-4b12-8a89-6957cc7e7e79'
+						guid='00853b73-fda2-4b12-8a89-6957cc7e7e79'>
+						<lexical-unit>
+							<form
+								lang='ldb-fonipa-x-emic'>
+								<text>{0}</text>
+							</form>
+						</lexical-unit>
+
+					</entry>
+				</lift>";
+			// We edited the text of the form slightly.
+			string ours = string.Format(pattern, "asaten");
+			string ancestor = string.Format(pattern, "asat");
+
+			// they deleted the whole entry
+			const string theirs = @"<?xml version='1.0' encoding='utf-8'?>
+				<lift version='0.10' producer='WeSay 1.0.0.0'>
+				</lift>";
+
+			using (var oursTemp = new TempFile(ours))
+			using (var theirsTemp = new TempFile(theirs))
+			using (var ancestorTemp = new TempFile(ancestor))
+			{
+				var listener = new ListenerForUnitTests();
+				var situation = new NullMergeSituation();
+				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation) { EventListener = listener };
+				var mergeStrategy = new LiftEntryMergingStrategy(mergeOrder);
+				var strategies = mergeStrategy.GetStrategies();
+				var entryStrategy = strategies.ElementStrategies["entry"];
+				entryStrategy.ContextDescriptorGenerator = new EnhancedEntrycontextGenerator();
+				XmlMergeService.Do3WayMerge(mergeOrder, mergeStrategy,
+					false,
+					"header",
+					"entry", "guid");
+				var result = File.ReadAllText(mergeOrder.pathToOurs);
+				var conflict = listener.Conflicts[0];
+				Assert.That(conflict, Is.InstanceOf<EditedVsRemovedElementConflict>());
+				Assert.That(conflict.HtmlDetails, Is.StringContaining("my silly context"), "merger should have used the context generator to make the html details");
+				Assert.That(conflict.HtmlDetails.IndexOf("my silly context"),
+					Is.EqualTo(conflict.HtmlDetails.LastIndexOf("my silly context")),
+					"since one change is a delete, the details should only be present once");
+				var context = conflict.Context;
+
+				Assert.That(context, Is.Not.Null, "the merge should supply a context for the conflict");
+				Assert.That(context.PathToUserUnderstandableElement, Is.Not.Null);
+				XmlTestHelper.AssertXPathMatchesExactlyOne(result, "lift/entry/lexical-unit/form[@lang='ldb-fonipa-x-emic']/text[text()='asaten']");
+			}
+		}
+		[Test]
+		public void Merge_DeleteAndEditEntry_GeneratesConflictWithContext()
+		{
+			const string pattern = @"<?xml version='1.0' encoding='utf-8'?>
+				<lift version='0.10' producer='WeSay 1.0.0.0'>
+					<entry
+						dateCreated='2011-03-09T17:08:44Z'
+						dateModified='2012-05-18T08:31:54Z'
+						id='00853b73-fda2-4b12-8a89-6957cc7e7e79'
+						guid='00853b73-fda2-4b12-8a89-6957cc7e7e79'>
+						<lexical-unit>
+							<form
+								lang='ldb-fonipa-x-emic'>
+								<text>{0}</text>
+							</form>
+						</lexical-unit>
+
+					</entry>
+				</lift>";
+			// We edited the text of the form slightly.
+			string theirs = string.Format(pattern, "asaten");
+			string ancestor = string.Format(pattern, "asat");
+
+			// they deleted the whole entry
+			const string ours = @"<?xml version='1.0' encoding='utf-8'?>
+				<lift version='0.10' producer='WeSay 1.0.0.0'>
+				</lift>";
+
+			using (var oursTemp = new TempFile(ours))
+			using (var theirsTemp = new TempFile(theirs))
+			using (var ancestorTemp = new TempFile(ancestor))
+			{
+				var listener = new ListenerForUnitTests();
+				var situation = new NullMergeSituation();
+				var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation) { EventListener = listener };
+				var mergeStrategy = new LiftEntryMergingStrategy(mergeOrder);
+				var strategies = mergeStrategy.GetStrategies();
+				var entryStrategy = strategies.ElementStrategies["entry"];
+				entryStrategy.ContextDescriptorGenerator = new EnhancedEntrycontextGenerator();
+				XmlMergeService.Do3WayMerge(mergeOrder, mergeStrategy,
+					false,
+					"header",
+					"entry", "guid");
+				var result = File.ReadAllText(mergeOrder.pathToOurs);
+				var conflict = listener.Conflicts[0];
+				Assert.That(conflict, Is.InstanceOf<RemovedVsEditedElementConflict>());
+				Assert.That(conflict.HtmlDetails, Is.StringContaining("my silly context"), "merger should have used the context generator to make the html details");
+				Assert.That(conflict.HtmlDetails.IndexOf("my silly context"),
+					Is.EqualTo(conflict.HtmlDetails.LastIndexOf("my silly context")),
+					"since one change is a delete, the details should only be present once");
+				var context = conflict.Context;
+
+				Assert.That(context, Is.Not.Null, "the merge should supply a context for the conflict");
+				Assert.That(context.PathToUserUnderstandableElement, Is.Not.Null);
+				XmlTestHelper.AssertXPathMatchesExactlyOne(result, "lift/entry/lexical-unit/form[@lang='ldb-fonipa-x-emic']/text[text()='asaten']");
+			}
+		}
+
+		class EnhancedEntrycontextGenerator : LexEntryContextGenerator, IGenerateHtmlContext
+		{
+			public string HtmlContext(XmlNode mergeElement)
+			{
+				return "my silly context";
+			}
+
+			public string HtmlContextStyles(XmlNode mergeElement)
+			{
+				return "";
+			}
 		}
 
 		[Test] // See http://jira.palaso.org/issues/browse/CHR-18

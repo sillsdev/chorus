@@ -33,7 +33,6 @@ namespace Chorus.sync
 		public static readonly string RejectTagSubstring = "[reject]";
 		//hack to prevent making change to custer repose when diagnosing problems... activated by -noPush commandline arg.
 		public static bool s_testingDoNotPush;
-		private bool _hasUnrelatedbranches;
 		#endregion
 
 		#region Properties
@@ -120,11 +119,8 @@ namespace Chorus.sync
 				RemoveLocks(repo);
 				repo.RecoverFromInterruptedTransactionIfNeeded();
 				repo.FixUnicodeAudio();
-
-				// TODO: Restore, when V03 of the server API is restored.
-				//string branchName = _sychronizerAdjunct.BranchName;
-				//ChangeBranchIfNecessary(branchName);
-
+				string branchName = _sychronizerAdjunct.BranchName;
+				ChangeBranchIfNecessary(branchName);
 				Commit(options);
 
 				var workingRevBeforeSync = repo.GetRevisionWorkingSetIsBasedOn();
@@ -141,7 +137,7 @@ namespace Chorus.sync
 					MergeHeadsOrRollbackAndThrow(repo, workingRevBeforeSync);
 				}
 
-				if (options.DoSendToOthers && !_hasUnrelatedbranches) // If the repo has unrelated heads, then don't push it.
+				if (options.DoSendToOthers)
 				{
 					SendToOthers(repo, sourcesToTry, connectionAttempts);
 				}
@@ -154,8 +150,7 @@ namespace Chorus.sync
 				{
 					UpdateToTheDescendantRevision(repo, workingRevBeforeSync);
 				}
-				// TODO: Restore, when V03 of the server API is restored.
-				//_sychronizerAdjunct.CheckRepositoryBranches(repo.BranchingHelper.GetBranches(), _progress);
+				_sychronizerAdjunct.CheckRepositoryBranches(repo.BranchingHelper.GetBranches(), _progress);
 
 				results.Succeeded = true;
 			   _progress.WriteMessage("Done");
@@ -819,7 +814,6 @@ namespace Chorus.sync
 					"This repository has an anomaly:  the two heads we want to merge have no common ancestor.  You should get help from the developers of this application.");
 				_progress.WriteWarning("1) \"{0}\" on {1} by {2} ({3}). ", a.GetHashCode(), a.Summary, a.DateString, a.UserId);
 				_progress.WriteWarning("2) \"{0}\" on {1} by {2} ({3}). ", b.GetHashCode(), b.Summary, b.DateString, b.UserId);
-				_hasUnrelatedbranches = true;
 				return true;
 			}
 			return false;

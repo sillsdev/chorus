@@ -7,7 +7,6 @@ using Chorus.Utilities;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using Palaso.Progress;
-using Palaso.Progress;
 using Palaso.Reporting;
 
 namespace Chorus.UI.Clone
@@ -157,7 +156,8 @@ namespace Chorus.UI.Clone
 			try
 			{
 				//review: do we need to get these out of the DoWorkEventArgs instead?
-				HgRepository.Clone(new HttpRepositoryPath(URL, URL, false), TargetDestination, _progress);
+				var actualCloneLocation = HgRepository.Clone(new HttpRepositoryPath(URL, URL, false), TargetDestination, _progress);
+				LocalFolderName = Path.GetFileName(actualCloneLocation.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
 				using (SoundPlayer player = new SoundPlayer(Properties.Resources.finishedSound))
 				{
 					player.PlaySync();

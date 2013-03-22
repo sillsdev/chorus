@@ -37,12 +37,12 @@ namespace Chorus
 			builder.Register<ProjectFolderConfiguration>(
 			   c => new ProjectFolderConfiguration(projectPath)).InstancePerLifetimeScope();
 
-			builder.RegisterType<NavigateToRecordEvent>();
+			builder.RegisterType<NavigateToRecordEvent>().InstancePerLifetimeScope();
 
 			builder.RegisterInstance(new NullProgress()).As<IProgress>();
 			builder.Register<Synchronizer>(c => Chorus.sync.Synchronizer.FromProjectConfiguration(
 													c.Resolve<ProjectFolderConfiguration>(), new NullProgress()));
-			builder.Register<HgRepository>(c => HgRepository.CreateOrUseExisting(projectPath, new NullProgress()));
+			builder.Register<HgRepository>(c => HgRepository.CreateOrUseExisting(projectPath, new NullProgress())).InstancePerLifetimeScope();
 
 
 			//this is a sad hack... I don't know how to simly override the default using the container,
@@ -51,13 +51,13 @@ namespace Chorus
 
 			builder.RegisterInstance(new EmbeddedMessageContentHandlerRepository());
 
-			builder.RegisterInstance(ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers());
+			builder.RegisterInstance(ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers()).SingleInstance();
 
-			builder.RegisterType<SyncPanel>();
-			builder.RegisterType<SyncControlModel>();
-			builder.RegisterType<SyncDialog>().InstancePerDependency();
-			builder.RegisterGeneratedFactory<SyncDialog.Factory>();
-			builder.RegisterType<Chorus.UI.Misc.TroubleshootingView>();
+			builder.RegisterType<SyncPanel>().InstancePerLifetimeScope();
+			builder.RegisterType<SyncControlModel>().InstancePerLifetimeScope();
+			builder.RegisterType<SyncDialog>().InstancePerDependency();//NB: was FactoryScoped() before switch to autofac 2, which corresponds to this InstancePerDependency
+			builder.RegisterGeneratedFactory<SyncDialog.Factory>().InstancePerLifetimeScope();
+			builder.RegisterType<Chorus.UI.Misc.TroubleshootingView>().InstancePerLifetimeScope();
 
 			RegisterSyncStuff(builder);
 			RegisterReviewStuff(builder);
@@ -72,19 +72,19 @@ namespace Chorus
 		/// <param name="builder"></param>
 		public static void InjectNotesUI(ContainerBuilder builder)
 		{
-			builder.RegisterType<MessageSelectedEvent>();
-			builder.RegisterType<Chorus.notes.EmbeddedMessageContentHandlerRepository>();
-			builder.RegisterType<NotesInProjectViewModel>();
-			builder.RegisterType<NotesInProjectView>();
-			builder.RegisterType<Chorus.UI.Notes.AnnotationEditorView>();
+			builder.RegisterType<MessageSelectedEvent>().InstancePerLifetimeScope();
+			builder.RegisterType<Chorus.notes.EmbeddedMessageContentHandlerRepository>().InstancePerLifetimeScope();
+			builder.RegisterType<NotesInProjectViewModel>().InstancePerLifetimeScope();
+			builder.RegisterType<NotesInProjectView>().InstancePerLifetimeScope();
+			builder.RegisterType<Chorus.UI.Notes.AnnotationEditorView>().InstancePerLifetimeScope();
 			builder.RegisterType<Chorus.UI.Notes.AnnotationEditorModel>().InstancePerDependency();
-			builder.RegisterType<NotesBrowserPage>();
-			builder.Register<StyleSheet>(c =>  StyleSheet.CreateFromDisk());
-			builder.RegisterGeneratedFactory<AnnotationEditorModel.Factory>();
-			builder.RegisterType<NotesBarModel>();
-			builder.RegisterGeneratedFactory<NotesBarModel.Factory>();
-			builder.RegisterType<NotesBarView>();
-			builder.RegisterGeneratedFactory<NotesBarView.Factory>();
+			builder.RegisterType<NotesBrowserPage>().InstancePerLifetimeScope();
+			builder.Register<StyleSheet>(c => StyleSheet.CreateFromDisk()).InstancePerLifetimeScope();
+			builder.RegisterGeneratedFactory<AnnotationEditorModel.Factory>().InstancePerLifetimeScope();
+			builder.RegisterType<NotesBarModel>().InstancePerLifetimeScope();
+			builder.RegisterGeneratedFactory<NotesBarModel.Factory>().InstancePerLifetimeScope();
+			builder.RegisterType<NotesBarView>().InstancePerLifetimeScope();
+			builder.RegisterGeneratedFactory<NotesBarView.Factory>().InstancePerLifetimeScope();
 
 			builder.RegisterGeneratedFactory<NotesInProjectView.Factory>().InstancePerLifetimeScope();
 			builder.RegisterGeneratedFactory<NotesInProjectViewModel.Factory>().InstancePerLifetimeScope();
@@ -100,59 +100,59 @@ namespace Chorus
 
 		private static void RegisterSettingsStuff(ContainerBuilder builder)
 		{
-			builder.RegisterType<SettingsModel>();
-			builder.RegisterType<SettingsView>();
+			builder.RegisterType<SettingsModel>().InstancePerLifetimeScope();
+			builder.RegisterType<SettingsView>().InstancePerLifetimeScope();
 		}
 
 		private static void RegisterSyncStuff(ContainerBuilder builder)
 		{
-			builder.RegisterType<SyncControlModel>();
+			builder.RegisterType<SyncControlModel>().InstancePerLifetimeScope();
 		}
 
 		internal static void RegisterReviewStuff(ContainerBuilder builder)
 		{
 			builder.RegisterInstance(new ConsoleProgress( )).As<IProgress>();
-			builder.RegisterType<RevisionInspector>();
-			builder.RegisterType<ChangesInRevisionModel>();
-			builder.RegisterType<HistoryPage>();
+			builder.RegisterType<RevisionInspector>().InstancePerLifetimeScope();
+			builder.RegisterType<ChangesInRevisionModel>().InstancePerLifetimeScope();
+			builder.RegisterType<HistoryPage>().InstancePerLifetimeScope();
 			builder.RegisterGeneratedFactory<HistoryPage.Factory>();
 
-			builder.RegisterType<ChangesInRevisionView>();
-			builder.RegisterType<ChangeReportView>();
+			builder.RegisterType<ChangesInRevisionView>().InstancePerLifetimeScope();
+			builder.RegisterType<ChangeReportView>().InstancePerLifetimeScope();
 
 			//review-related events
-			builder.RegisterType<RevisionSelectedEvent>();
-			builder.RegisterType<ChangedRecordSelectedEvent>();
+			builder.RegisterType<RevisionSelectedEvent>().InstancePerLifetimeScope();
+			builder.RegisterType<ChangedRecordSelectedEvent>().InstancePerLifetimeScope();
 
-			builder.RegisterType<RevisionInRepositoryModel>();
+			builder.RegisterType<RevisionInRepositoryModel>().InstancePerLifetimeScope();
 			builder.RegisterGeneratedFactory<RevisionInRepositoryModel.Factory>();
-			builder.RegisterType<RevisionsInRepositoryView>();
+			builder.RegisterType<RevisionsInRepositoryView>().InstancePerLifetimeScope();
 
 		}
 
-		private static Shell CreateShell(string projectPath, Autofac.ContainerBuilder builder)
-		{
-			builder.RegisterType<Shell>();
-			builder.RegisterType<HistoryPage>();
-			builder.RegisterType<RevisionsInRepositoryView>();
-			builder.RegisterType<RevisionInRepositoryModel>();
-			builder.RegisterType<ChangesInRevisionModel>();
-			builder.RegisterType<ChangesInRevisionView>();
-			builder.RegisterType<ChangeReportView>();
-			builder.RegisterType<RevisionInspector>();
-
-			builder.Register(c => HgRepository.CreateOrUseExisting(projectPath, c.Resolve<IProgress>()));
-
-			var container = builder.Build();
-			var shell = container.Resolve<Shell>();
-
-			shell.AddPage("Review", container.Resolve<HistoryPage>());
-			shell.AddPage("Send/Receive", container.Resolve<SyncPanel>());
-			shell.AddPage("Settings", container.Resolve<SettingsView>());
-			shell.AddPage("Troubleshooting", container.Resolve<TroubleshootingView>());
-
-			return shell;
-		}
+//        private static Shell CreateShell(string projectPath, Autofac.ContainerBuilder builder)
+//        {
+//            builder.RegisterType<Shell>();
+//            builder.RegisterType<HistoryPage>();
+//            builder.RegisterType<RevisionsInRepositoryView>();
+//            builder.RegisterType<RevisionInRepositoryModel>();
+//            builder.RegisterType<ChangesInRevisionModel>();
+//            builder.RegisterType<ChangesInRevisionView>();
+//            builder.RegisterType<ChangeReportView>();
+//            builder.RegisterType<RevisionInspector>();
+//
+//            builder.Register(c => HgRepository.CreateOrUseExisting(projectPath, c.Resolve<IProgress>()));
+//
+//            var container = builder.Build();
+//            var shell = container.Resolve<Shell>();
+//
+//            shell.AddPage("Review", container.Resolve<HistoryPage>());
+//            shell.AddPage("Send/Receive", container.Resolve<SyncPanel>());
+//            shell.AddPage("Settings", container.Resolve<SettingsView>());
+//            shell.AddPage("Troubleshooting", container.Resolve<TroubleshootingView>());
+//
+//            return shell;
+//        }
 
 
 	}

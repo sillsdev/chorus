@@ -43,8 +43,13 @@ namespace Chorus.UI.Notes.Browser
 			this.showClosedNotesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.menuStrip1 = new System.Windows.Forms.MenuStrip();
 			this.filterToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.showClosedNotesToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+			this.showQuestionsMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.showMergeConflictsMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.showMergeNotifcationsMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+			this.showResolvedNotesMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.searchBox1 = new Chorus.UI.Notes.Browser.SearchBox();
+			this.filterStateLabel = new System.Windows.Forms.Label();
 			this.contextMenuStrip1.SuspendLayout();
 			this.menuStrip1.SuspendLayout();
 			this.SuspendLayout();
@@ -52,8 +57,8 @@ namespace Chorus.UI.Notes.Browser
 			// _messageListView
 			//
 			this._messageListView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-						| System.Windows.Forms.AnchorStyles.Left)
-						| System.Windows.Forms.AnchorStyles.Right)));
+			| System.Windows.Forms.AnchorStyles.Left)
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this._messageListView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
 			this.label,
 			this.author,
@@ -127,30 +132,71 @@ namespace Chorus.UI.Notes.Browser
 			// filterToolStripMenuItem
 			//
 			this.filterToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-			this.showClosedNotesToolStripMenuItem1});
+			this.showQuestionsMenuItem,
+			this.showMergeConflictsMenuItem,
+			this.showMergeNotifcationsMenuItem,
+			this.toolStripSeparator1,
+			this.showResolvedNotesMenuItem});
 			this.filterToolStripMenuItem.Image = global::Chorus.Properties.Resources.Filter;
 			this.filterToolStripMenuItem.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
 			this.filterToolStripMenuItem.Name = "filterToolStripMenuItem";
 			this.filterToolStripMenuItem.Size = new System.Drawing.Size(28, 20);
 			//
-			// showClosedNotesToolStripMenuItem1
+			// showQuestionsMenuItem
 			//
-			this.showClosedNotesToolStripMenuItem1.CheckOnClick = true;
-			this.showClosedNotesToolStripMenuItem1.Name = "showClosedNotesToolStripMenuItem1";
-			this.showClosedNotesToolStripMenuItem1.Size = new System.Drawing.Size(176, 22);
-			this.showClosedNotesToolStripMenuItem1.Text = "Show Closed Notes";
-			this.showClosedNotesToolStripMenuItem1.Click += new System.EventHandler(this.showClosedNotesToolStripMenuItem1_Click);
+			this.showQuestionsMenuItem.CheckOnClick = true;
+			this.showQuestionsMenuItem.Name = "showQuestionsMenuItem";
+			this.showQuestionsMenuItem.Size = new System.Drawing.Size(211, 22);
+			this.showQuestionsMenuItem.Text = "Show Questions";
+			this.showQuestionsMenuItem.Click += new System.EventHandler(this.showQuestionsMenuItem_Click);
+			//
+			// showMergeConflictsMenuItem
+			//
+			this.showMergeConflictsMenuItem.CheckOnClick = true;
+			this.showMergeConflictsMenuItem.Name = "showMergeConflictsMenuItem";
+			this.showMergeConflictsMenuItem.Size = new System.Drawing.Size(211, 22);
+			this.showMergeConflictsMenuItem.Text = "Show Merge Conflicts";
+			this.showMergeConflictsMenuItem.Click += new System.EventHandler(this.showMergeConflictsMenuItem_Click);
+			//
+			// showMergeNotifcationsMenuItem
+			//
+			this.showMergeNotifcationsMenuItem.CheckOnClick = true;
+			this.showMergeNotifcationsMenuItem.Name = "showMergeNotifcationsMenuItem";
+			this.showMergeNotifcationsMenuItem.Size = new System.Drawing.Size(211, 22);
+			this.showMergeNotifcationsMenuItem.Text = "Show Merge Notifications";
+			this.showMergeNotifcationsMenuItem.Click += new System.EventHandler(this.showMergeNotificationsMenuItem_Click);
+			//
+			// toolStripSeparator1
+			//
+			this.toolStripSeparator1.Name = "toolStripSeparator1";
+			this.toolStripSeparator1.Size = new System.Drawing.Size(208, 6);
+			//
+			// showResolvedNotesMenuItem
+			//
+			this.showResolvedNotesMenuItem.CheckOnClick = true;
+			this.showResolvedNotesMenuItem.Name = "showResolvedNotesMenuItem";
+			this.showResolvedNotesMenuItem.Size = new System.Drawing.Size(211, 22);
+			this.showResolvedNotesMenuItem.Text = "Show Resolved Items";
+			this.showResolvedNotesMenuItem.Click += new System.EventHandler(this.showClosedNotesMenuItem_Click);
 			//
 			// searchBox1
 			//
 			this.searchBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
 			this.searchBox1.BackColor = System.Drawing.Color.White;
 			this.searchBox1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-			this.searchBox1.Location = new System.Drawing.Point(175, 3);
+			this.searchBox1.Location = new System.Drawing.Point(199, 3);
 			this.searchBox1.Name = "searchBox1";
-			this.searchBox1.Size = new System.Drawing.Size(175, 20);
+			this.searchBox1.Size = new System.Drawing.Size(151, 20);
 			this.searchBox1.TabIndex = 3;
 			this.searchBox1.SearchTextChanged += new System.EventHandler(this.searchBox1_SearchTextChanged);
+			//
+			// filterStateLabel
+			//
+			this.filterStateLabel.AutoSize = true;
+			this.filterStateLabel.Location = new System.Drawing.Point(34, 6);
+			this.filterStateLabel.Name = "filterStateLabel";
+			this.filterStateLabel.Size = new System.Drawing.Size(0, 13);
+			this.filterStateLabel.TabIndex = 6;
 			//
 			// NotesInProjectView
 			//
@@ -160,6 +206,7 @@ namespace Chorus.UI.Notes.Browser
 			this.Controls.Add(this.menuStrip1);
 			this.Controls.Add(this.searchBox1);
 			this.Controls.Add(this._messageListView);
+			this.Controls.Add(this.filterStateLabel);
 			this.MinimumSize = new System.Drawing.Size(350, 200);
 			this.Name = "NotesInProjectView";
 			this.Size = new System.Drawing.Size(350, 369);
@@ -187,7 +234,12 @@ namespace Chorus.UI.Notes.Browser
 		private System.Windows.Forms.ToolStripMenuItem showClosedNotesToolStripMenuItem;
 		private System.Windows.Forms.MenuStrip menuStrip1;
 		private System.Windows.Forms.ToolStripMenuItem filterToolStripMenuItem;
-		private System.Windows.Forms.ToolStripMenuItem showClosedNotesToolStripMenuItem1;
+		private System.Windows.Forms.ToolStripMenuItem showResolvedNotesMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem showQuestionsMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem showMergeConflictsMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem showMergeNotifcationsMenuItem;
+		private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
+		private System.Windows.Forms.Label filterStateLabel;
 
 	}
 }

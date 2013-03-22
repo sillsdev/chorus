@@ -23,7 +23,7 @@ namespace LibChorus.Tests.FileHandlers
 	{
 		public static void TestThatALargeFileIsNotInRepository(string extension)
 		{
-			var pathToTestRoot = Path.Combine(Path.GetTempPath(), "LargeFileFilterTestFolder");
+			var pathToTestRoot = Path.Combine(Path.GetTempPath(), "LargeFileFilterTestFolder_" + extension);
 			try
 			{
 				if (Directory.Exists(pathToTestRoot))
