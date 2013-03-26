@@ -31,7 +31,12 @@ namespace Chorus.VcsDrivers.Mercurial
 				{
 					// string userIdForCLone = string.Empty; /* don't assume it's this user... a repo on a usb key probably shouldn't have a user default */
 					var clone = new HgRepository(targetDirectory, progress);
-					clone.Update();
+					var tip = clone.GetTip();
+					if (tip != null)
+					{
+						clone.Update(tip.Number.LocalRevisionNumber);
+					}
+					//else Skip update for repo with no revisions.
 				}
 				return targetDirectory;
 			}
