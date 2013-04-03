@@ -70,8 +70,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			{
 				foreach (var baseHash in BaseHashes)
 				{
-					query += "baseHashes[]=";
-					query += baseHash + '&';
+					query += String.Format("baseHashes[]={0}&", baseHash);
 				}
 			}
 			if (!String.IsNullOrEmpty(RepoId))
