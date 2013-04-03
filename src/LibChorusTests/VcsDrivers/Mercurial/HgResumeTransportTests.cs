@@ -662,6 +662,40 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		}
 
 		[Test]
+		public void Pull_OneLocalChangeNothingToPullOn2BranchRemote_Success()
+		{
+			using (var e = new BranchingTestEnvironment("hgresumetest", ApiServerType.Pull))
+			using (var provider = GetTransportProviderForTest(e))
+			{
+				e.LocalAddAndCommit();
+				e.SetLocalAdjunct(new BranchTestAdjunct { BranchName = "branch2" });
+				e.LocalAddAndCommit();
+				e.CloneRemoteFromLocal();
+				e.LocalAddAndCommit();
+				var transport = provider.Transport;
+				transport.Pull();
+				Assert.That(e.Progress.AllMessages, Contains.Item("No changes"));
+			}
+		}
+
+		[Test]
+		public void Push_OneLocalChangeNothingToPullOn2BranchRemote_Success()
+		{
+			using (var e = new BranchingTestEnvironment("hgresumetest", ApiServerType.Push))
+			using (var provider = GetTransportProviderForTest(e))
+			{
+				e.LocalAddAndCommit();
+				e.SetLocalAdjunct(new BranchTestAdjunct { BranchName = "branch2" });
+				e.LocalAddAndCommit();
+				e.CloneRemoteFromLocal();
+				e.LocalAddAndCommit();
+				var transport = provider.Transport;
+				transport.Push();
+				Assert.That(e.Progress.AllMessages, Contains.Item("Finished sending"));
+			}
+		}
+
+		[Test]
 		public void Push_RemoteRepoIsUnrelated_Throws()
 		{
 			using (var e1 = new TestEnvironment("hgresumetest", ApiServerType.Push))
