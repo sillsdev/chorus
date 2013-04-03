@@ -920,7 +920,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				summary:base checkin
 			*/
 
-			string result = GetTextFromQuery("log --template \"changeset:{rev}:{node|short}\nbranch:{branch}\nuser:{author}\ndate:{date|rfc822date}\ntag:{tags}\nsummary:{desc}\n\"");
+			string result = GetTextFromQuery("log --template \"changeset:{rev}:{node|short}\nbranch:{branches}\nuser:{author}\ndate:{date|rfc822date}\ntag:{tags}\nsummary:{desc}\n\"");
 			return GetRevisionsFromQueryResultText(result);
 		}
 
