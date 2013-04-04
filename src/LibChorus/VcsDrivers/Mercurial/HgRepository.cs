@@ -429,12 +429,12 @@ namespace Chorus.VcsDrivers.Mercurial
 			}
 			else
 			{
-				var revisionFlags = "";
+				var revisionFlags = @"";
 				foreach (var baseRevision in baseRevisions)
-			{
-					revisionFlags += string.Format("--base {0} \"{1}\" ", baseRevision, filePath);
+				{
+					revisionFlags += string.Format(@"--base {0} ", baseRevision);
 				}
-				command = "bundle " + revisionFlags;
+				command = string.Format("bundle {0} \"{1}\"", revisionFlags, filePath);
 			}
 
 			string result = GetTextFromQuery(command);
@@ -920,7 +920,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				summary:base checkin
 			*/
 
-			string result = GetTextFromQuery("log --template \"changeset:{rev}:{node|short}\nbranch:{branch}\nuser:{author}\ndate:{date|rfc822date}\ntag:{tags}\nsummary:{desc}\n\"");
+			string result = GetTextFromQuery("log --template \"changeset:{rev}:{node|short}\nbranch:{branches}\nuser:{author}\ndate:{date|rfc822date}\ntag:{tags}\nsummary:{desc}\n\"");
 			return GetRevisionsFromQueryResultText(result);
 		}
 

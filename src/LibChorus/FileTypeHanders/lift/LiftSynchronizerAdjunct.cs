@@ -101,10 +101,9 @@ namespace Chorus.FileTypeHanders.lift
 		public void CheckRepositoryBranches(IEnumerable<Revision> branches, IProgress progress)
 		{
 			string savedSettings = Settings.Default.OtherBranchRevisions;
-			//note: change the "" back to BranchName when branching is added back to Chorus
-			string conflictingUser = GetRepositoryBranchCheckData(branches, "", ref savedSettings);
+			string conflictingUser = GetRepositoryBranchCheckData(branches, BranchName, ref savedSettings);
 			if (!string.IsNullOrEmpty(conflictingUser))
-				progress.WriteWarning(string.Format("Other users of this repository (most recently {0}) are using a different version of FieldWorks or WeSay. Changes from users with more recent versions will not be merged into projects using older versions. We strongly recommend that all users upgrade to the same version as soon as possible.", conflictingUser));
+				progress.WriteWarning(string.Format("Other users of this LIFT repository (most recently {0}) are using a different version of FieldWorks or WeSay. Changes from users with more recent versions will not be merged into projects using older versions. We strongly recommend that all users upgrade to the same version as soon as possible.", conflictingUser));
 			Settings.Default.OtherBranchRevisions = savedSettings;
 			Settings.Default.Save();
 		}
