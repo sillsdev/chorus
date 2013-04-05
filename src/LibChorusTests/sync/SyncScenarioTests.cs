@@ -737,9 +737,9 @@ namespace LibChorus.Tests.sync
 			var bobOptions = new SyncOptions
 			{
 				CheckinDescription = "added 'dog'",
-				DoMergeWithOthers = true, // just want a fast checkin
-				DoSendToOthers = true, // just want a fast checkin
-				DoPullFromOthers = true // just want a fast checkin
+				DoMergeWithOthers = true,
+				DoSendToOthers = true,
+				DoPullFromOthers = true
 			};
 			bobOptions.RepositorySourcesToTry.Add(RepositoryAddress.Create("Hub", hubProject.FolderPath, false));
 
