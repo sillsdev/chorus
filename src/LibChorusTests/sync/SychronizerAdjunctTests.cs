@@ -335,7 +335,7 @@ namespace LibChorus.Tests.sync
 
 				var syncResults = sally.SyncWithOptions(options, synchronizer);
 				Assert.IsTrue(syncResults.DidGetChangesFromOthers);
-				CheckExistanceOfAdjunctFiles(syncAdjunct, true, false, true, false, true, true);
+				CheckExistanceOfAdjunctFiles(syncAdjunct, true, true, false, false, true, true);
 				var lines = File.ReadAllLines(syncAdjunct.CheckRepoBranchesPathName);
 				Assert.AreEqual(lines.Length, 2, "Wrong number of branches on CheckBranches call");
 			}
