@@ -1,7 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
-using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
 using ChorusHub;
@@ -185,29 +185,40 @@ namespace Chorus.UI.Clone
 
 		void OnGetChorusHubInfo_Completed(object sender, RunWorkerCompletedEventArgs e)
 		{
-			var client = e.Result as ChorusHubClient;
-			if (client == null)
+			var results = e.Result as object[];
+			if (results == null)
 			{
 				Text = "Sorry, no Chorus Hub was found.";
 			}
-			else if(!client.ServerIsCompatibleWithThisClient)
-			{
-				Text = "Found Chorus Hub but it is not compatible with this version of "+Application.ProductName;;
-			}
 			else
 			{
-				Text = string.Format("Get {0} from Chorus Hub on {1}", RepositoryKindLabel, client.HostName);
-				foreach (var repoInfo in client.GetRepositoryInformation(_model.ProjectFilter))
+				var client = results[0] as ChorusHubClient;
+				if (client == null)
 				{
-					var item = new ListViewItem(repoInfo.RepoName);
-					string dummy;
-					if (_model.ExistingRepositoryIdentifiers != null &&
-						_model.ExistingRepositoryIdentifiers.TryGetValue(repoInfo.RepoID, out dummy))
+					Text = "Sorry, no Chorus Hub was found.";
+				}
+				else if (!client.ServerIsCompatibleWithThisClient)
+				{
+					Text = "Found Chorus Hub but it is not compatible with this version of " + Application.ProductName;
+				}
+				else
+				{
+					Text = string.Format("Get {0} from Chorus Hub on {1}", RepositoryKindLabel, client.HostName);
+					_model.ChorusHubRepositoryInformation = (IEnumerable<ChorusHubRepositoryInformation>)results[1];
+					foreach (var repoInfo in _model.ChorusHubRepositoryInformation)
 					{
-						item.ForeColor = CloneFromUsb.DisabledItemForeColor;
-						item.ToolTipText = CloneFromUsb.ProjectWithSameNameExists;
+						if (repoInfo.RepoID == "newRepo")
+							continue; // Empty repo exists. It can receive any real repo, but cannot return a useful clone, however, so don't list it.
+						var item = new ListViewItem(repoInfo.RepoName);
+						string dummy;
+						if (_model.ExistingRepositoryIdentifiers != null &&
+							_model.ExistingRepositoryIdentifiers.TryGetValue(repoInfo.RepoID, out dummy))
+						{
+							item.ForeColor = CloneFromUsb.DisabledItemForeColor;
+							item.ToolTipText = CloneFromUsb.ProjectWithSameNameExists;
+						}
+						_projectRepositoryListView.Items.Add(item);
 					}
-					_projectRepositoryListView.Items.Add(item);
 				}
 			}
 		}
@@ -216,15 +227,18 @@ namespace Chorus.UI.Clone
 		{
 			Thread.CurrentThread.Name = "GetRepositoryInformation";
 			var client = new ChorusHubClient();
-			if(client.FindServer()!=null)
+			var server = client.FindServer();
+
+			if (server == null || !server.ServerIsCompatibleWithThisClient)
 			{
-				// Why do we do this? The returned information isn't used.
-				client.GetRepositoryInformation(_model.ProjectFilter);
-				e.Result = client;
+				e.Result = null;
 			}
 			else
 			{
-				e.Result = null;
+				var results = new object[2];
+				results[0] = client;
+				results[1] = client.GetRepositoryInformation(_model.ProjectFilter);
+				e.Result = results;
 			}
 		}
 
