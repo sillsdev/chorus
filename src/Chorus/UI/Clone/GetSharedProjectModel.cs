@@ -46,7 +46,22 @@ namespace Chorus.UI.Clone
 			if (preferredClonedFolderName == string.Empty)
 				preferredClonedFolderName = null;
 
-			var existingRepositories = ExtantRepoIdentifiers(baseProjectDirInWhichToSearchForRepositories, lowerLevelRepoPath);
+			Dictionary<string, string> existingRepositories;
+			try
+			{
+				existingRepositories = ExtantRepoIdentifiers(baseProjectDirInWhichToSearchForRepositories, lowerLevelRepoPath);
+			}
+			catch (ApplicationException e)
+			{
+				// FLEx isue LT-14301: one reason we may throw is that we can't get the identifier of some project because we don't have
+				// sufficient permissions.
+				MessageBox.Show(
+					string.Format(
+						"You can't get a project from a colleague at present, because some required information about the projects you already have is unavailable. This may be because you don't have permission to access a file in one of the projects in {0}.",
+						baseProjectDirInWhichToSearchForRepositories),
+						"Cannot get project");
+				return new CloneResult(null, CloneStatus.NotCreated);
+			}
 			var existingProjectNames = new HashSet<string>(from dir in Directory.GetDirectories(baseProjectDirInWhichToSearchForRepositories) select Path.GetFileName(dir));
 
 			// "existingRepositoryIdentifiers" is currently not used, but the expectation is that the various models/views could use it how they see fit.
