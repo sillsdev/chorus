@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Media;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using ChorusHub;
@@ -15,6 +14,7 @@ namespace Chorus.UI.Clone
 	public class GetCloneFromChorusHubModel
 	{
 		public string RepositoryName { get; set; }
+		public IEnumerable<ChorusHubRepositoryInformation> ChorusHubRepositoryInformation { get; set; }
 
 		///<summary>
 		/// Flag indicating success or otherwise of MakeClone call
@@ -48,9 +48,16 @@ namespace Chorus.UI.Clone
 		public void MakeClone(IProgress progress)
 		{
 			 var client = new ChorusHubClient();
-			if(client.FindServer()==null)
+			var server = client.FindServer();
+			if (server == null)
 			{
-				progress.WriteError("The Chorus Server is no longer available.");
+				progress.WriteError("The Chorus Server is not available.");
+				CloneSucceeded = false;
+				return;
+			}
+			if (!server.ServerIsCompatibleWithThisClient)
+			{
+				progress.WriteError("The Chorus Server is not compatible with ths client.");
 				CloneSucceeded = false;
 				return;
 			}

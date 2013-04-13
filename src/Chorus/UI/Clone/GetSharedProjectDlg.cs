@@ -29,7 +29,8 @@ namespace Chorus.UI.Clone
 			_useUSBButton.Enabled = new CloneFromUsb().GetHaveOneOrMoreUsbDrives();
 			_useInternetButton.Enabled = NetworkInterface.GetIsNetworkAvailable();
 			var client = new ChorusHubClient();
-			_useChorusHubButton.Enabled = client.FindServer() != null;
+			var server = client.FindServer();
+			_useChorusHubButton.Enabled = ((server != null) && (server.ServerIsCompatibleWithThisClient));
 		}
 
 		internal void InitFromModel(GetSharedProjectModel model)
