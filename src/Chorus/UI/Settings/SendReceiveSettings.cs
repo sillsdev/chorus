@@ -14,8 +14,6 @@ namespace Chorus.UI.Settings
 
 		private ServerSettingsModel _internetModel;
 
-		private NetworkFolderSettingsModel _sharedFolderModel;
-
 		[Obsolete("for designer support only")]
 		public SendReceiveSettings()
 		{
@@ -38,9 +36,6 @@ namespace Chorus.UI.Settings
 			_internetButtonEnabledCheckBox.CheckedChanged += internetCheckChanged;
 			_internetButtonEnabledCheckBox.Checked = Properties.Settings.Default.InternetEnabled;
 			_serverSettingsControl.Enabled = _internetButtonEnabledCheckBox.Checked;
-
-			_sharedFolderModel = new NetworkFolderSettingsModel();
-			_sharedFolderModel.InitFromProjectPath(repositoryLocation);
 
 			_showChorusHubInSendReceive.Checked = Properties.Settings.Default.ShowChorusHubInSendReceive;
 		}
