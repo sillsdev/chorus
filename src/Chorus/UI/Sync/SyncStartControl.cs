@@ -117,13 +117,13 @@ namespace Chorus.UI.Sync
 
 			_sharedNetworkDiagnosticsLink.Visible = false;
 
-			var showFolderOrChorusHubButton = Properties.Settings.Default.ShowChorusHubInSendReceive;
+			var showChorusHubButton = Properties.Settings.Default.ShowChorusHubInSendReceive;
 
-			_useSharedFolderStatusLabel.Visible = _useLocalNetworkButton.Visible = showFolderOrChorusHubButton;
+			_useSharedFolderStatusLabel.Visible = _useLocalNetworkButton.Visible = showChorusHubButton;
 			statusRow = _tableLayoutPanel.GetRow(_useSharedFolderStatusLabel);
 			buttonRow = _tableLayoutPanel.GetRow(_useLocalNetworkButton);
-			_tableLayoutPanel.RowStyles[statusRow].Height = showFolderOrChorusHubButton ? LABEL_HEIGHT : 0;
-			_tableLayoutPanel.RowStyles[buttonRow].Height = showFolderOrChorusHubButton ? BUTTON_HEIGHT : 0;
+			_tableLayoutPanel.RowStyles[statusRow].Height = showChorusHubButton ? LABEL_HEIGHT : 0;
+			_tableLayoutPanel.RowStyles[buttonRow].Height = showChorusHubButton ? BUTTON_HEIGHT : 0;
 		}
 
 		private void SetupSharedFolderAndInternetUI()

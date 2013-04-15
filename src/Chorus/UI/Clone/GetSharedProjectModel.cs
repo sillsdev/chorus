@@ -262,9 +262,6 @@ namespace Chorus.UI.Clone
 		Internet,
 		/// <summary>Get a clone from a USB drive</summary>
 		Usb,
-		/// <summary>Get a clone from a shared network folder. This is obsolete, but I'm not removing it because I don't know
-		/// whether the values of this enumeration might be used in a file somewhere.</summary>
-		LocalNetwork,
 		/// <summary>Get a clone from ChorusHub</summary>
 		ChorusHub
 	}
