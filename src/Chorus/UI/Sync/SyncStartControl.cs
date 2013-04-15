@@ -117,9 +117,7 @@ namespace Chorus.UI.Sync
 
 			_sharedNetworkDiagnosticsLink.Visible = false;
 
-			//Enhance: currently, if you have either chorushub or lan-folder enabled, you'll see the button which they share
-
-			var showFolderOrChorusHubButton = Properties.Settings.Default.SharedFolderEnabled || Properties.Settings.Default.ShowChorusHubInSendReceive;
+			var showFolderOrChorusHubButton = Properties.Settings.Default.ShowChorusHubInSendReceive;
 
 			_useSharedFolderStatusLabel.Visible = _useLocalNetworkButton.Visible = showFolderOrChorusHubButton;
 			statusRow = _tableLayoutPanel.GetRow(_useSharedFolderStatusLabel);
@@ -217,19 +215,6 @@ namespace Chorus.UI.Sync
 				isReady = true;
 				message = string.Format("Found Chorus Hub at {0}", _chorusHubInfo.HostName);
 				tooltip = _chorusHubInfo.GetHgHttpUri(Path.GetFileName(_repository.PathToRepo));
-
-			}
-
-			if (_chorusHubInfo == null)
-			{
-				if (Properties.Settings.Default.SharedFolderEnabled)
-				{
-					Monitor.Enter(_model);
-					isReady = _model.GetNetworkStatusLink(out message, out tooltip, out diagnostics);
-					if (isReady)
-						_lanMode = LANMode.Folder;
-					Monitor.Exit(_model);
-				}
 			}
 
 			Monitor.Enter(this);

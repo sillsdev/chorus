@@ -114,34 +114,6 @@ namespace Chorus.UI.Clone
 					}
 					break;
 
-				case ExtantRepoSource.LocalNetwork:
-					var cloneFromNetworkFolderModel = new GetCloneFromNetworkFolderModel(baseProjectDirForNewClone)
-						{
-							ProjectFilter = projectFilter ?? DefaultProjectFilter
-						};
-
-					using (var cloneFromNetworkFolderDlg = new GetCloneFromNetworkFolderDlg())
-					{
-						// We don't have a GetCloneFromNetworkFolderDlg constructor that takes the model because
-						// it would inexplicably mess up Visual Studio's designer view of the dialog:
-						cloneFromNetworkFolderDlg.LoadFromModel(cloneFromNetworkFolderModel);
-
-						switch (cloneFromNetworkFolderDlg.ShowDialog(parent))
-						{
-							default:
-								cloneStatus = CloneStatus.NotCreated;
-								break;
-							case DialogResult.Cancel:
-								cloneStatus = CloneStatus.Cancelled;
-								break;
-							case DialogResult.OK:
-								actualCloneLocation = cloneFromNetworkFolderDlg.PathToNewlyClonedFolder;
-								cloneStatus = CloneStatus.Created;
-								break;
-						}
-					}
-					break;
-
 				case ExtantRepoSource.ChorusHub:
 					var getCloneFromChorusHubModel = new GetCloneFromChorusHubModel(baseProjectDirForNewClone)
 					{
@@ -290,7 +262,8 @@ namespace Chorus.UI.Clone
 		Internet,
 		/// <summary>Get a clone from a USB drive</summary>
 		Usb,
-		/// <summary>Get a clone from a shared network folder</summary>
+		/// <summary>Get a clone from a shared network folder. This is obsolete, but I'm not removing it because I don't know
+		/// whether the values of this enumeration might be used in a file somewhere.</summary>
 		LocalNetwork,
 		/// <summary>Get a clone from ChorusHub</summary>
 		ChorusHub

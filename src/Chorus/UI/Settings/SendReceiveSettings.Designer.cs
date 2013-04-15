@@ -41,29 +41,21 @@ namespace Chorus.UI.Settings
 			this._internetButtonEnabledCheckBox = new System.Windows.Forms.CheckBox();
 			this._serverSettingsControl = new Chorus.UI.Misc.ServerSettingsControl();
 			this.chorusHubTab = new System.Windows.Forms.TabPage();
+			this._showChorusHubInSendReceive = new System.Windows.Forms.CheckBox();
 			this.betterLabel1 = new Chorus.UI.BetterLabel();
 			this.pictureBox4 = new System.Windows.Forms.PictureBox();
-			this.networkFolderTab = new System.Windows.Forms.TabPage();
-			this.pictureBox2 = new System.Windows.Forms.PictureBox();
-			this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
-			this._showSharedFolderInSendReceive = new System.Windows.Forms.CheckBox();
-			this._sharedFolderSettingsControl = new Chorus.UI.Misc.NetworkFolderSettingsControl();
 			this._helpButton = new System.Windows.Forms.Button();
 			this._cancelButton = new System.Windows.Forms.Button();
 			this._okButton = new System.Windows.Forms.Button();
 			this.settingsProtectionButton = new Palaso.UI.WindowsForms.SettingProtection.SettingsProtectionLauncherButton();
 			this.pictureBox3 = new System.Windows.Forms.PictureBox();
 			this._helpProvider = new Vulcan.Uczniowie.HelpProvider.HelpComponent(this.components);
-			this._showChorusHubInSendReceive = new System.Windows.Forms.CheckBox();
 			this.settingsTabs.SuspendLayout();
 			this.internetTab.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
 			this._internetSettingsFlow.SuspendLayout();
 			this.chorusHubTab.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.pictureBox4)).BeginInit();
-			this.networkFolderTab.SuspendLayout();
-			((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
-			this.flowLayoutPanel1.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).BeginInit();
 			this.SuspendLayout();
 			//
@@ -91,7 +83,6 @@ namespace Chorus.UI.Settings
 			| System.Windows.Forms.AnchorStyles.Right)));
 			this.settingsTabs.Controls.Add(this.internetTab);
 			this.settingsTabs.Controls.Add(this.chorusHubTab);
-			this.settingsTabs.Controls.Add(this.networkFolderTab);
 			this.settingsTabs.Location = new System.Drawing.Point(13, 77);
 			this.settingsTabs.Name = "settingsTabs";
 			this.settingsTabs.SelectedIndex = 0;
@@ -164,6 +155,17 @@ namespace Chorus.UI.Settings
 			this.chorusHubTab.Text = "Chorus Hub";
 			this.chorusHubTab.UseVisualStyleBackColor = true;
 			//
+			// _showChorusHubInSendReceive
+			//
+			this._showChorusHubInSendReceive.AutoSize = true;
+			this._showChorusHubInSendReceive.Location = new System.Drawing.Point(85, 17);
+			this._showChorusHubInSendReceive.Margin = new System.Windows.Forms.Padding(10, 3, 3, 3);
+			this._showChorusHubInSendReceive.Name = "_showChorusHubInSendReceive";
+			this._showChorusHubInSendReceive.Size = new System.Drawing.Size(240, 17);
+			this._showChorusHubInSendReceive.TabIndex = 5;
+			this._showChorusHubInSendReceive.Text = "Show Chorus Hub as a Send/Receive option";
+			this._showChorusHubInSendReceive.UseVisualStyleBackColor = true;
+			//
 			// betterLabel1
 			//
 			this.betterLabel1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
@@ -190,57 +192,6 @@ namespace Chorus.UI.Settings
 			this.pictureBox4.Size = new System.Drawing.Size(64, 66);
 			this.pictureBox4.TabIndex = 3;
 			this.pictureBox4.TabStop = false;
-			//
-			// networkFolderTab
-			//
-			this.networkFolderTab.Controls.Add(this.pictureBox2);
-			this.networkFolderTab.Controls.Add(this.flowLayoutPanel1);
-			this.networkFolderTab.Location = new System.Drawing.Point(4, 22);
-			this.networkFolderTab.Name = "networkFolderTab";
-			this.networkFolderTab.Padding = new System.Windows.Forms.Padding(3);
-			this.networkFolderTab.Size = new System.Drawing.Size(476, 268);
-			this.networkFolderTab.TabIndex = 1;
-			this.networkFolderTab.Text = "Network Folder";
-			this.networkFolderTab.UseVisualStyleBackColor = true;
-			//
-			// pictureBox2
-			//
-			this.pictureBox2.Image = global::Chorus.Properties.Resources.networkFolder58x64;
-			this.pictureBox2.Location = new System.Drawing.Point(6, 18);
-			this.pictureBox2.Name = "pictureBox2";
-			this.pictureBox2.Size = new System.Drawing.Size(64, 66);
-			this.pictureBox2.TabIndex = 2;
-			this.pictureBox2.TabStop = false;
-			//
-			// flowLayoutPanel1
-			//
-			this.flowLayoutPanel1.Controls.Add(this._showSharedFolderInSendReceive);
-			this.flowLayoutPanel1.Controls.Add(this._sharedFolderSettingsControl);
-			this.flowLayoutPanel1.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
-			this.flowLayoutPanel1.Location = new System.Drawing.Point(89, 15);
-			this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-			this.flowLayoutPanel1.Size = new System.Drawing.Size(377, 238);
-			this.flowLayoutPanel1.TabIndex = 1;
-			this.flowLayoutPanel1.WrapContents = false;
-			//
-			// _showSharedFolderTargetOption
-			//
-			this._showSharedFolderInSendReceive.AutoSize = true;
-			this._showSharedFolderInSendReceive.Location = new System.Drawing.Point(10, 3);
-			this._showSharedFolderInSendReceive.Margin = new System.Windows.Forms.Padding(10, 3, 3, 3);
-			this._showSharedFolderInSendReceive.Name = "_showSharedFolderInSendReceive";
-			this._showSharedFolderInSendReceive.Size = new System.Drawing.Size(256, 17);
-			this._showSharedFolderInSendReceive.TabIndex = 0;
-			this._showSharedFolderInSendReceive.Text = "Show Network Folder as a Send/Receive option";
-			this._showSharedFolderInSendReceive.UseVisualStyleBackColor = true;
-			//
-			// _sharedFolderSettingsControl
-			//
-			this._sharedFolderSettingsControl.Location = new System.Drawing.Point(3, 26);
-			this._sharedFolderSettingsControl.Model = null;
-			this._sharedFolderSettingsControl.Name = "_sharedFolderSettingsControl";
-			this._sharedFolderSettingsControl.Size = new System.Drawing.Size(326, 155);
-			this._sharedFolderSettingsControl.TabIndex = 1;
 			//
 			// _helpButton
 			//
@@ -295,17 +246,6 @@ namespace Chorus.UI.Settings
 			this.pictureBox3.TabIndex = 6;
 			this.pictureBox3.TabStop = false;
 			//
-			// _showChorusHubAsTargetOption
-			//
-			this._showChorusHubInSendReceive.AutoSize = true;
-			this._showChorusHubInSendReceive.Location = new System.Drawing.Point(85, 17);
-			this._showChorusHubInSendReceive.Margin = new System.Windows.Forms.Padding(10, 3, 3, 3);
-			this._showChorusHubInSendReceive.Name = "_showChorusHubInSendReceive";
-			this._showChorusHubInSendReceive.Size = new System.Drawing.Size(240, 17);
-			this._showChorusHubInSendReceive.TabIndex = 5;
-			this._showChorusHubInSendReceive.Text = "Show Chorus Hub as a Send/Receive option";
-			this._showChorusHubInSendReceive.UseVisualStyleBackColor = true;
-			//
 			// SendReceiveSettings
 			//
 			this.AcceptButton = this._okButton;
@@ -335,10 +275,6 @@ namespace Chorus.UI.Settings
 			this.chorusHubTab.ResumeLayout(false);
 			this.chorusHubTab.PerformLayout();
 			((System.ComponentModel.ISupportInitialize)(this.pictureBox4)).EndInit();
-			this.networkFolderTab.ResumeLayout(false);
-			((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
-			this.flowLayoutPanel1.ResumeLayout(false);
-			this.flowLayoutPanel1.PerformLayout();
 			((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).EndInit();
 			this.ResumeLayout(false);
 			this.PerformLayout();
@@ -351,7 +287,6 @@ namespace Chorus.UI.Settings
 		private System.Windows.Forms.TextBox userNameTextBox;
 		private System.Windows.Forms.TabControl settingsTabs;
 		private System.Windows.Forms.TabPage internetTab;
-		private System.Windows.Forms.TabPage networkFolderTab;
 		private System.Windows.Forms.Button _helpButton;
 		private System.Windows.Forms.Button _cancelButton;
 		private System.Windows.Forms.Button _okButton;
@@ -359,11 +294,7 @@ namespace Chorus.UI.Settings
 		private System.Windows.Forms.FlowLayoutPanel _internetSettingsFlow;
 		private System.Windows.Forms.CheckBox _internetButtonEnabledCheckBox;
 		private Misc.ServerSettingsControl _serverSettingsControl;
-		private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
-		private System.Windows.Forms.CheckBox _showSharedFolderInSendReceive;
-		private Misc.NetworkFolderSettingsControl _sharedFolderSettingsControl;
 		private System.Windows.Forms.PictureBox pictureBox1;
-		private System.Windows.Forms.PictureBox pictureBox2;
 		private System.Windows.Forms.PictureBox pictureBox3;
 		private Vulcan.Uczniowie.HelpProvider.HelpComponent _helpProvider;
 		private System.Windows.Forms.TabPage chorusHubTab;
