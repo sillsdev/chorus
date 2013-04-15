@@ -154,12 +154,6 @@
 	  <DependentUpon>GetCloneFromChorusHubDialog.cs</DependentUpon>
 	</Compile>
 	<Compile Include="UI\Clone\GetCloneFromNetworkFolderModel.cs" />
-	<Compile Include="UI\Clone\GetCloneFromNetworkFolderDlg.cs">
-	  <SubType>Form</SubType>
-	</Compile>
-	<Compile Include="UI\Clone\GetCloneFromNetworkFolderDlg.Designer.cs">
-	  <DependentUpon>GetCloneFromNetworkFolderDlg.cs</DependentUpon>
-	</Compile>
 	<Compile Include="UI\Clone\GetSharedProjectModel.cs" />
 	<Compile Include="UI\Clone\ICloneSourceDialog.cs" />
 	<Compile Include="UI\Misc\NetworkFolderSettingsControl.cs">
@@ -303,10 +297,6 @@
 	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Clone\GetCloneFromChorusHubDialog.resx">
 	  <DependentUpon>GetCloneFromChorusHubDialog.cs</DependentUpon>
-	  <SubType>Designer</SubType>
-	</EmbeddedResource>
-	<EmbeddedResource Include="UI\Clone\GetCloneFromNetworkFolderDlg.resx">
-	  <DependentUpon>GetCloneFromNetworkFolderDlg.cs</DependentUpon>
 	  <SubType>Designer</SubType>
 	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Clone\GetSharedProjectDlg.resx">
