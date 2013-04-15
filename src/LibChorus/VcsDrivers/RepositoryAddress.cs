@@ -172,6 +172,12 @@ namespace Chorus.VcsDrivers
 		}
 	}
 
+	/// <summary>
+	/// This class was created to support the now-obsolete option of using a shared network folder as a repository source.
+	/// Although this did not prove reliable enough to keep using (at least with Mercurial 1.5), DirectoryRepositorySource
+	/// continues to have a marginal usefulness in supporting some tests that would otherwise be difficult to do without
+	/// a USB stick or ChorusHub available.
+	/// </summary>
 	public class DirectoryRepositorySource : RepositoryAddress
 	{
 		private readonly string _networkMachineSpecifier;

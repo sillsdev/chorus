@@ -153,16 +153,8 @@
 	<Compile Include="UI\Clone\GetCloneFromChorusHubDialog.Designer.cs">
 	  <DependentUpon>GetCloneFromChorusHubDialog.cs</DependentUpon>
 	</Compile>
-	<Compile Include="UI\Clone\GetCloneFromNetworkFolderModel.cs" />
 	<Compile Include="UI\Clone\GetSharedProjectModel.cs" />
 	<Compile Include="UI\Clone\ICloneSourceDialog.cs" />
-	<Compile Include="UI\Misc\NetworkFolderSettingsControl.cs">
-	  <SubType>UserControl</SubType>
-	</Compile>
-	<Compile Include="UI\Misc\NetworkFolderSettingsControl.Designer.cs">
-	  <DependentUpon>NetworkFolderSettingsControl.cs</DependentUpon>
-	</Compile>
-	<Compile Include="UI\Misc\NetworkFolderSettingsModel.cs" />
 	<Compile Include="UI\Misc\ServerSettingsControl.cs">
 	  <SubType>UserControl</SubType>
 	</Compile>
@@ -301,9 +293,6 @@
 	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Clone\GetSharedProjectDlg.resx">
 	  <DependentUpon>GetSharedProjectDlg.cs</DependentUpon>
-	</EmbeddedResource>
-	<EmbeddedResource Include="UI\Misc\NetworkFolderSettingsControl.resx">
-	  <DependentUpon>NetworkFolderSettingsControl.cs</DependentUpon>
 	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Review\ChangedReport\ChangeReportView.resx">
 	  <DependentUpon>ChangeReportView.cs</DependentUpon>
