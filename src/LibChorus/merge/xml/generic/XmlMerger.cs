@@ -123,7 +123,7 @@ namespace Chorus.merge.xml.generic
 				else
 				{
 					// tested
-					ConflictOccurred(new RemovedVsEditedElementConflict(ancestor.Name, theirs, null, ancestor, MergeSituation, MergeStrategies.GetElementStrategy(ancestor), MergeSituation.BetaUserId));
+					ConflictOccurred(new RemovedVsEditedElementConflict(ancestor.Name, null, theirs, ancestor, MergeSituation, MergeStrategies.GetElementStrategy(ancestor), MergeSituation.BetaUserId));
 					result.MergedNode = theirs;
 				}
 				return result;
