@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Xml;
 using Autofac;
-using Autofac.Core;
 using Chorus.VcsDrivers;
 using Palaso.IO;
 using Palaso.Xml;
@@ -969,7 +968,7 @@ namespace Chorus.merge.xml.generic
 		{
 			get
 			{
-				return string.Format("{0} deleted this element, while {1} edited it. ", Situation.AlphaUserId, Situation.BetaUserId, _whoWon)+GetWhoWonText();
+				return string.Format("{0} deleted this element, while {1} edited it. ", Situation.AlphaUserId, Situation.BetaUserId) + GetWhoWonText();
 			}
 		}
 
@@ -979,7 +978,7 @@ namespace Chorus.merge.xml.generic
 	public class EditedVsRemovedElementConflict : ElementConflict // NB: Be sure to register any new instances in CreateFromConflictElement method.
 	{
 		private XmlNode _ours; // node they deleted. only set by original constructor, not from XML
-		private XmlNode _ancestor;  // ancestor they changed, we deleted. only set by original constructor, not from XML
+		private XmlNode _ancestor;  // ancestor we changed, they deleted. only set by original constructor, not from XML
 		public EditedVsRemovedElementConflict(string elementName, XmlNode alphaNode, XmlNode betaNode, XmlNode ancestorElement, MergeSituation mergeSituation, IElementDescriber elementDescriber, string whoWon)
 			: base(elementName, alphaNode, betaNode, ancestorElement, mergeSituation, elementDescriber, whoWon)
 		{

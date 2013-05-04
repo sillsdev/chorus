@@ -150,11 +150,12 @@ namespace Chorus.UI.Sync
 		internal bool GetUsbStatusLink(IUsbDriveLocator usbDriveLocator, out string message)
 		{
 			var ready = false;
-			if (!usbDriveLocator.UsbDrives.Any())
+			var usbDrives = usbDriveLocator.UsbDrives.ToList();
+			if (usbDrives.Count == 0)
 			{
 				message = "First insert a USB flash drive.";
 			}
-			else if (usbDriveLocator.UsbDrives.Count() > 1)
+			else if (usbDrives.Count > 1)
 			{
 				message = "More than one USB drive detected. Please remove one.";
 			}
@@ -162,7 +163,7 @@ namespace Chorus.UI.Sync
 			{
 				try
 				{
-					var first = usbDriveLocator.UsbDrives.First();
+					var first = usbDrives[0];
 #if !MONO
 					message = first.RootDirectory + " " + first.VolumeLabel + " (" +
 										   Math.Floor(first.TotalFreeSpace / 1024000.0) + " Megs Free Space)";
