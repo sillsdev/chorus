@@ -35,6 +35,7 @@ namespace Chorus.merge.xml.generic
 
 		public NodeMergeResult Merge(XmlNode ours, XmlNode theirs, XmlNode ancestor)
 		{
+			SendMergeHeartbeat();
 			if (ours == null && theirs == null && ancestor == null)
 				throw new InvalidOperationException("At least one node has to exist.");
 
@@ -154,9 +155,19 @@ namespace Chorus.merge.xml.generic
 
 		public XmlNode Merge(IMergeEventListener eventListener, XmlNode ours, XmlNode theirs, XmlNode ancestor)
 		{
+			SendMergeHeartbeat();
 			EventListener = eventListener;
 			MergeInner(ref ours, theirs, ancestor);
 			return ours;
+		}
+
+		/// <summary>
+		/// Writes out a merge heartbeat to the stream that the process that launched hg is listening on.
+		/// This lets us detect that work is still happening on a merge request.
+		/// </summary>
+		private static void SendMergeHeartbeat()
+		{
+			Console.Out.WriteLine(Properties.Resources.MergeHeartbeat);
 		}
 
 		internal void ConflictOccurred(IConflict conflict)
