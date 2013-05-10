@@ -258,9 +258,7 @@ namespace Chorus.FileTypeHanders.lift
 			//		<annotation> [Optional, Multiple, sig=annotation, inherited from <extensible>]
 			//		<grammatical-info> [Optional, grammi] grammi? Better go with grammatical-info. (Added below)
 			//		<gloss> [Optional, Multiple, form]
-			mergeStrategies.SetStrategy("gloss", ElementStrategy.CreateForKeyedElementInList("lang"));
-//			LiftBasicElementStrategiesMethod.AddKeyedElementType(mergeStrategies, "gloss", "lang", false);
-
+			LiftBasicElementStrategiesMethod.AddKeyedElementType(mergeStrategies, "gloss", "lang", false);
 			//		<definition> [Optional, multitext]
 			AddSingletonElementType(mergeStrategies, "definition");
 			//		<relation> [Optional, Multiple, relation] (Added below)

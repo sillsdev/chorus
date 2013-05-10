@@ -107,21 +107,8 @@ namespace Chorus.merge.xml.generic
 										   select childNode).ToList();
 				foreach (var nodeWithKeyAttribute in childrenWithKeyAttr)
 				{
-					var nodeKey = nodeWithKeyAttribute.Attributes[_keyAttribute].Value;
-					if (!childrenWithKeys.ContainsKey(nodeKey))
-					{
-						childrenWithKeys.Add(nodeKey, nodeWithKeyAttribute);
-					}
-					else
-					{
-						string message = String.Format(
-							"ERROR: There is more than one node with key '{0}' in element '{1}'\n  XML: {2}",
-							nodeKey, nodeWithKeyAttribute.Name, nodeWithKeyAttribute.InnerXml.Trim()
-						);
-						throw new Exception(message);
-//						Console.WriteLine(message);
-					}
-				}
+					childrenWithKeys.Add(nodeWithKeyAttribute.Attributes[_keyAttribute].Value, nodeWithKeyAttribute);
+			}
 			}
 
 			XmlNode matchingNode;
