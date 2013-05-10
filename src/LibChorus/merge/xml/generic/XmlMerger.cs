@@ -235,6 +235,7 @@ namespace Chorus.merge.xml.generic
 		/// </summary>
 		internal void MergeInner(ref XmlNode ours, XmlNode theirs, XmlNode ancestor)
 		{
+			SendMergeHeartbeat();
 			_oursContext = ours;
 			_theirsContext = theirs;
 			_ancestorContext = ancestor;
