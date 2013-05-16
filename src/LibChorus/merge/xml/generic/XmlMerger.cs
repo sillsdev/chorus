@@ -56,10 +56,13 @@ namespace Chorus.merge.xml.generic
 				listener.AddEventListener(result);
 			}
 
-			// Remove any duplicate child nodes in all three.
-			XmlMergeService.RemoveAmbiguousChildren(EventListener, MergeStrategies, ours);
-			XmlMergeService.RemoveAmbiguousChildren(EventListener, MergeStrategies, theirs);
-			//XmlMergeService.RemoveAmbiguousChildren(EventListener, MergeStrategies, ancestor);
+			if (XmlMergeService.RemoveAmbiguousChildNodes)
+			{
+				// Remove any duplicate child nodes in all three.
+				XmlMergeService.RemoveAmbiguousChildren(EventListener, MergeStrategies, ours);
+				XmlMergeService.RemoveAmbiguousChildren(EventListener, MergeStrategies, theirs);
+				XmlMergeService.RemoveAmbiguousChildren(EventListener, MergeStrategies, ancestor);
+			}
 
 			if (ancestor == null)
 			{

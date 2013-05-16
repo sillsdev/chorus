@@ -16,9 +16,7 @@ namespace LiftIO.Tests.Merging
 		public void ConvertBogusElementToTextElementInLiftFile()
 		{
 			// Hack conversion, because Flex exported some lift-ranges stuff that wasn't legal.
-			const string data = @"<?xml version='1.0' encoding='utf-8'?>
-				<lift version='0.10' producer='WeSay 1.0.0.0'>
-					<entry
+			const string data = @"<entry
 						dateCreated='2011-03-09T17:08:44Z'
 						dateModified='2012-05-18T08:31:54Z'
 						id='00853b73-fda2-4b12-8a89-6957cc7e7e79'
@@ -29,16 +27,13 @@ namespace LiftIO.Tests.Merging
 								<element name='text'>myStuff</element>
 							</form>
 						</lexical-unit>
-					</entry>
-				</lift>";
+					</entry>";
 			var originalValue = XmlMergeService.RemoveAmbiguousChildNodes;
 			XmlMergeService.RemoveAmbiguousChildNodes = true;
-			var doc = new XmlDocument();
-			doc.LoadXml(data);
-			XmlMergeService.RemoveAmbiguousChildren(new ListenerForUnitTests(), new MergeStrategies(), doc.DocumentElement);
+			var result = XmlMergeService.RemoveAmbiguousChildren(new ListenerForUnitTests(), new MergeStrategies(), data, "some.lift");
 			XmlMergeService.RemoveAmbiguousChildNodes = originalValue;
-			Assert.IsFalse(doc.DocumentElement.OuterXml.Contains("<element name=\"text\">first</element>"), "Still has bogus <element> element.");
-			Assert.IsTrue(doc.DocumentElement.OuterXml.Contains("<text>myStuff</text>"), "Converted <text> element is not present.");
+			Assert.IsFalse(result.Contains("<element name=\"text\">first</element>"), "Still has bogus <element> element.");
+			Assert.IsTrue(result.Contains("<text>myStuff</text>"), "Converted <text> element is not present.");
 		}
 
 		[Test]
@@ -46,25 +41,22 @@ namespace LiftIO.Tests.Merging
 		{
 			// Hack conversion, because Flex exported some lift-ranges stuff that wasn't legal.
 			const string data =
-@"<?xml version='1.0' encoding='utf-8'?>
-<lift-ranges>
-	<range
+@"<range
 		id='theone'
 		attr='data' >
 							<form
 								lang='ldb-fonipa-x-emic'>
 								<element name='text'>myStuff</element>
 							</form>
-	</range>
-</lift-ranges>";
+	</range>";
 			var originalValue = XmlMergeService.RemoveAmbiguousChildNodes;
 			XmlMergeService.RemoveAmbiguousChildNodes = true;
 			var doc = new XmlDocument();
 			doc.LoadXml(data);
-			XmlMergeService.RemoveAmbiguousChildren(new ListenerForUnitTests(), new MergeStrategies(), doc.DocumentElement);
+			var results = XmlMergeService.RemoveAmbiguousChildren(new ListenerForUnitTests(), new MergeStrategies(), data, "some.lift-ranges");
 			XmlMergeService.RemoveAmbiguousChildNodes = originalValue;
-			Assert.IsFalse(doc.DocumentElement.OuterXml.Contains("<element name=\"text\">first</element>"), "Still has bogus <element> element.");
-			Assert.IsTrue(doc.DocumentElement.OuterXml.Contains("<text>myStuff</text>"), "Converted <text> element is not present.");
+			Assert.IsFalse(results.Contains("<element name=\"text\">first</element>"), "Still has bogus <element> element.");
+			Assert.IsTrue(results.Contains("<text>myStuff</text>"), "Converted <text> element is not present.");
 		}
 
 		[Test]

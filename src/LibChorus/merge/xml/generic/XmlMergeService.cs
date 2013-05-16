@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Xml;
+using System.Xml.Linq;
 using Chorus.Utilities;
 using Palaso.Code;
 using Palaso.Xml;
@@ -179,6 +180,9 @@ namespace Chorus.merge.xml.generic
 						  out allWinnerData, out allWinnerIds,
 						  out allLoserData, out allLoserIds);
 
+			var originalValue = RemoveAmbiguousChildNodes;
+			RemoveAmbiguousChildNodes = false;
+
 			// Step 2. Collect up new items from winner and loser and report relevant conflicts.
 			var fluffedUpAncestorNodes = new Dictionary<string, XmlNode>();
 			var fluffedUpLoserNodes = new Dictionary<string, XmlNode>();
@@ -248,6 +252,8 @@ namespace Chorus.merge.xml.generic
 				allLoserData.Remove(identifier);
 				allWritableData.Add(identifier, updatedData);
 			}
+
+			RemoveAmbiguousChildNodes = originalValue;
 
 			return allWritableData;
 		}
@@ -674,15 +680,15 @@ namespace Chorus.merge.xml.generic
 										  out Dictionary<string, string> allLoserData, out HashSet<string> allLoserIds)
 		{
 			allCommonAncestorData = MakeRecordDictionary(mergeOrder.EventListener, mergeStrategy,
-														 commonAncestorPathname, false, optionalFirstElementMarker,
+														 commonAncestorPathname, optionalFirstElementMarker,
 														 repeatingRecordElementName, repeatingRecordKeyIdentifier);
 			allCommonAncestorIds = new HashSet<string>(allCommonAncestorData.Keys, StringComparer.InvariantCultureIgnoreCase);
 			allWinnerData = MakeRecordDictionary(mergeOrder.EventListener, mergeStrategy,
-												 pathToWinner, true, optionalFirstElementMarker,
+												 pathToWinner, optionalFirstElementMarker,
 												 repeatingRecordElementName, repeatingRecordKeyIdentifier);
 			allWinnerIds = new HashSet<string>(allWinnerData.Keys, StringComparer.InvariantCultureIgnoreCase);
 			allLoserData = MakeRecordDictionary(mergeOrder.EventListener, mergeStrategy,
-												pathToLoser, true, optionalFirstElementMarker, repeatingRecordElementName,
+												pathToLoser, optionalFirstElementMarker, repeatingRecordElementName,
 												repeatingRecordKeyIdentifier);
 			allLoserIds = new HashSet<string>(allLoserData.Keys, StringComparer.InvariantCultureIgnoreCase);
 		}
@@ -738,7 +744,6 @@ namespace Chorus.merge.xml.generic
 		private static Dictionary<string, string> MakeRecordDictionary(IMergeEventListener mainMergeEventListener,
 			IMergeStrategy mergeStrategy,
 			string pathname,
-			bool removeAmbiguousChildren,
 			string firstElementMarker,
 			string recordStartingTag,
 			string identifierAttribute)
@@ -760,9 +765,9 @@ namespace Chorus.merge.xml.generic
 						}
 						else
 						{
-							if (removeAmbiguousChildren)
+							if (RemoveAmbiguousChildNodes)
 							{
-								var possiblyRevisedRecord = RemoveAmbiguousChildren(mainMergeEventListener, mergeStrategy.GetStrategies(), record);
+								var possiblyRevisedRecord = RemoveAmbiguousChildren(mainMergeEventListener, mergeStrategy.GetStrategies(), record, pathname);
 								records.Add(key, possiblyRevisedRecord);
 							}
 							else
@@ -795,9 +800,9 @@ namespace Chorus.merge.xml.generic
 						}
 						else
 						{
-							if (removeAmbiguousChildren)
+							if (RemoveAmbiguousChildNodes)
 							{
-								var possiblyRevisedRecord = RemoveAmbiguousChildren(mainMergeEventListener, mergeStrategy.GetStrategies(), record);
+								var possiblyRevisedRecord = RemoveAmbiguousChildren(mainMergeEventListener, mergeStrategy.GetStrategies(), record, pathname);
 								records.Add(identifier, possiblyRevisedRecord);
 							}
 							else
@@ -825,10 +830,21 @@ namespace Chorus.merge.xml.generic
 		/// </remarks>
 		public static string RemoveAmbiguousChildren(IMergeEventListener eventListener,
 			MergeStrategies mergeStrategies,
-			string parent)
+			string parent, string pathname)
 		{
 			if (!RemoveAmbiguousChildNodes)
 				return parent;
+
+			if (pathname.ToLowerInvariant().EndsWith("lift") || pathname.ToLowerInvariant().EndsWith("lift-ranges"))
+			{
+				var parentElement = XElement.Parse(parent);
+				foreach (var misnamedElement in parentElement.Descendants("element"))
+				{
+					misnamedElement.Name = "text";
+					misnamedElement.Attribute("name").Remove();
+				}
+				parent = parentElement.ToString();
+			}
 			var parentNode = XmlUtilities.GetDocumentNodeFromRawXml(parent, new XmlDocument());
 			RemoveAmbiguousChildren(
 				eventListener,
@@ -868,8 +884,6 @@ namespace Chorus.merge.xml.generic
 				if (ambiguousNodes.Contains(childNodeAsVariable))
 					continue; // Already found it, so don't bother processing it again.
 
-				childNodeAsVariable = PossiblyRenameElementHack(parent, childNodeAsVariable);
-
 				elementStrat = mergeStrategies.GetElementStrategy(childNodeAsVariable);
 				if (elementStrat.IsImmutable)
 					continue;
@@ -908,40 +922,6 @@ namespace Chorus.merge.xml.generic
 				// Since the ambiguous nodes have been removed from parent, they won't get processed again.
 				RemoveAmbiguousChildren(eventListener, mergeStrategies, childNode);
 			}
-		}
-
-		/// <summary>
-		///  Flex had been writing some 'text' elements in lift/lift-ranges files using the RelaxNg gramamr spec, but as a literal,
-		/// not what the grammar was saying. This method fixes those, if needed.
-		///
-		/// There is not really good place to do that, so here is where it happens.
-		/// </summary>
-		private static XmlNode PossiblyRenameElementHack(XmlNode parent, XmlNode childNodeAsVariable)
-		{
-			if (childNodeAsVariable.NodeType != XmlNodeType.Element)
-				return childNodeAsVariable;
-			// Do nothing at all, if it isn't <element>.
-			if (childNodeAsVariable.Name != "element")
-				return childNodeAsVariable;
-
-			var doc = childNodeAsVariable.OwnerDocument;
-			var docRoot = doc.DocumentElement;
-			if (docRoot.Name != "lift" && docRoot.Name != "lift-ranges")
-				return childNodeAsVariable; // Skip data that isn't lift or lift-range
-
-			var newElement = doc.CreateElement("text");
-			while (childNodeAsVariable.HasChildNodes)
-			{
-				newElement.AppendChild(childNodeAsVariable.FirstChild);
-			}
-
-			// Removes bogus 'text' attribute, by ignoring it.
-
-			parent.InsertBefore(newElement, childNodeAsVariable);
-			parent.RemoveChild(childNodeAsVariable);
-			childNodeAsVariable = newElement;
-
-			return childNodeAsVariable;
 		}
 
 		private static int EstimatedObjectCount(string pathname)
