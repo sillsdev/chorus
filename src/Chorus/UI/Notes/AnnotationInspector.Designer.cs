@@ -28,7 +28,12 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
+			this.components = new System.ComponentModel.Container();
+#if MONO
 			this.webBrowser1 = new Gecko.GeckoWebBrowser();
+#else
+			this.webBrowser1 = new System.Windows.Forms.WebBrowser();
+#endif
 			this._pathLabel = new System.Windows.Forms.Label();
 			this._helpProvider = new Vulcan.Uczniowie.HelpProvider.HelpComponent(this.components);
 			this.SuspendLayout();
@@ -70,7 +75,11 @@
 
 		#endregion
 
+#if MONO
 		private Gecko.GeckoWebBrowser webBrowser1;
+#else
+		private System.Windows.Forms.WebBrowser webBrowser1;
+#endif
 		private System.Windows.Forms.Label _pathLabel;
 		private Vulcan.Uczniowie.HelpProvider.HelpComponent _helpProvider;
 	}

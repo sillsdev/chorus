@@ -43,6 +43,8 @@ namespace Chorus.UI.Notes
 
 		protected void SetDocumentText(string text)
 		{
+			// Using _existingMessagesDisplay.DocumentText =  causes an exception on mono
+#if MONO
 			// GECKOFX: is this replace needed or is it already done within geckofx?
 			text = text.Replace("'", "\'");
 			try
@@ -53,6 +55,9 @@ namespace Chorus.UI.Notes
 			{
 				System.Console.WriteLine("AnnotationEditorView:SetDocumentText Exception caught: {0}", e.Message);
 			}
+#else
+			_existingMessagesDisplay.DocumentText = text;
+#endif
 		}
 
 		public bool ModalDialogMode
@@ -150,6 +155,7 @@ namespace Chorus.UI.Notes
 			Cursor.Current = Cursors.Default;
 		}
 
+#if MONO
 		private void _existingMessagesDisplay_Navigating(object sender, Gecko.GeckoNavigatingEventArgs e)
 		{
 			if (e.Uri.Scheme == "about")
@@ -168,14 +174,31 @@ namespace Chorus.UI.Notes
 			//GECKOFX: looks like previous code is trying to scroll to bottom child
 			// does this do it for geckofx?
 			_existingMessagesDisplay.Document.Body.ScrollIntoView (false);
-/*
-			var c = _existingMessagesDisplay.Document.Body.ChildNodes.Count;
+		}
+#else
+		private void _existingMessagesDisplay_Navigating(object sender, WebBrowserNavigatingEventArgs e)
+		{
+			if (e.Url.Scheme == "about")
+				return;
+			e.Cancel = true;
+			_model.HandleLinkClicked(e.Url);
+		}
+
+		private void _existingMessagesDisplay_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e)
+		{
+			if(_waitingOnBrowserToBeReady)
+			{
+				_waitingOnBrowserToBeReady = false;
+				OnUpdateContent(null,null);
+			}
+
+			var c = _existingMessagesDisplay.Document.Body.Children.Count;
 			if (c > 0)
 			{
 				_existingMessagesDisplay.Document.Body.Children[c - 1].ScrollIntoView(false);
 			}
-			*/
 		}
+#endif
 
 		private void _closeButton_Click(object sender, EventArgs e)
 		{
