@@ -4,11 +4,17 @@ using System.IO;
 using System.Reflection;
 using System.Windows.Forms;
 using Chorus.VcsDrivers.Mercurial;
+using Gecko;
+using System.Runtime.InteropServices;
 
 namespace Chorus
 {
 	static class Program
 	{
+				// dummy function to dlopen geckofix
+		[DllImport("geckofix.so")]
+		static extern void DummyFunction();
+
 		/// <summary>
 		/// The main entry point for the application.
 		/// </summary>
@@ -19,6 +25,25 @@ namespace Chorus
 			Application.SetCompatibleTextRenderingDefault(false);
 
 			SetUpErrorHandling();
+
+			// Set up Xpcom for geckofx
+#if MONO
+#if false // TODO: renable this - when making geckofx work in Chorus
+			DummyFunction();
+
+			if (!Environment.GetEnvironmentVariable("LD_LIBRARY_PATH").Contains("/usr/lib/firefox/"))
+				throw new ApplicationException(String.Format("LD_LIBRARY_PATH must contain {0}", "/usr/lib/firefox/"));
+
+			Xpcom.Initialize("/usr/lib/firefox/");
+			GeckoPreferences.User["gfx.font_rendering.graphite.enabled"] = true;
+#endif
+#else
+			Xpcom.Initialize(XULRunnerLocator.GetXULRunnerLocation());
+#endif
+			Application.ApplicationExit += (sender, e) =>
+			{
+				Xpcom.Shutdown();
+			};
 
 		//	throw new ApplicationException("test");
 
@@ -59,6 +84,7 @@ namespace Chorus
 			new Runner().Run(pathToRepository, new Arguments(args));
 
 			Properties.Settings.Default.Save();
+			Application.Exit ();
 		}
 
 		private static void SetUpErrorHandling()

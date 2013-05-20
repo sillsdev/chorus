@@ -9,8 +9,10 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 {
 	public class MercurialIniForTests : IDisposable
 	{
+#if !MONO
 		private readonly string _mercurialIniFilePath;
 		private readonly string _mercurialIniBackupFilePath;
+#endif
 
 		public MercurialIniForTests()
 		{
@@ -33,7 +35,9 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		private static void UpdateExtensions()
 		{
 			var extensions = new Dictionary<string, string>();
+#if !MONO
 			extensions.Add("hgext.win32text", ""); //for converting line endings on windows machines
+#endif
 			extensions.Add("hgext.graphlog", ""); //for more easily readable diagnostic logs
 			extensions.Add("convert", ""); //for catastrophic repair in case of repo corruption
 #if !MONO
@@ -64,7 +68,16 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 
 		public MercurialIniHider()
 		{
+#if MONO
+			var home = Environment.GetEnvironmentVariable("HOME");
+			if (home == null)
+			{
+				throw new ApplicationException("The HOME environment variable is not set.");
+			}
+			_mercurialIniFilePath = Path.Combine(home, ".hgrc");
+#else
 			_mercurialIniFilePath = Path.Combine(Chorus.MercurialLocation.PathToMercurialFolder, "mercurial.ini");
+#endif
 			_mercurialIniBackupFilePath = _mercurialIniFilePath + ".bak";
 			File.Copy(_mercurialIniFilePath, _mercurialIniBackupFilePath, true);
 		}

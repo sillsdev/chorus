@@ -28,8 +28,7 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
-			this.components = new System.ComponentModel.Container();
-			this.webBrowser1 = new System.Windows.Forms.WebBrowser();
+			this.webBrowser1 = new Gecko.GeckoWebBrowser();
 			this._pathLabel = new System.Windows.Forms.Label();
 			this._helpProvider = new Vulcan.Uczniowie.HelpProvider.HelpComponent(this.components);
 			this.SuspendLayout();
@@ -71,7 +70,7 @@
 
 		#endregion
 
-		private System.Windows.Forms.WebBrowser webBrowser1;
+		private Gecko.GeckoWebBrowser webBrowser1;
 		private System.Windows.Forms.Label _pathLabel;
 		private Vulcan.Uczniowie.HelpProvider.HelpComponent _helpProvider;
 	}

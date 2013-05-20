@@ -172,7 +172,7 @@ namespace Chorus.UI.Clone
 					_fixSettingsButton.Visible = true;
 					_fixSettingsButton.Focus();
 					_cancelButton.Visible = true;
-					_cancelButton.Text = "&Cancel";
+					//_cancelButton.Text = "&Cancel";
 					//_cancelButton.Select();
 					_cancelTaskButton.Visible = false;
 					_statusLabel.Visible = true;
@@ -299,6 +299,5 @@ namespace Chorus.UI.Clone
 		{
 			_logBox.BackColor  =this.BackColor;
 		}
-
 	}
 }
