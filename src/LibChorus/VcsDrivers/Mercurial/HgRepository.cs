@@ -1,6 +1,6 @@
-#if MONO
-#define MERCURIAL2
-#endif
+//#if MONO
+//#define MERCURIAL2
+//#endif
 
 using System;
 using System.Linq;
@@ -1722,9 +1722,9 @@ namespace Chorus.VcsDrivers.Mercurial
 			progress.WriteMessage("Gathering diagnostics data (can't actually tell you anything about the remote server)...");
 			progress.WriteMessage(GetTextFromQuery("version", 30, _progress));
 
-#if !MONO
+//#if !MONO
 			progress.WriteMessage("Using Mercurial at: "+MercurialLocation.PathToHgExecutable);
-#endif
+//#endif
 			progress.WriteMessage("---------------------------------------------------");
 
 			progress.WriteMessage("remote url = " + url);
@@ -1752,9 +1752,9 @@ namespace Chorus.VcsDrivers.Mercurial
 		{
 			progress.WriteMessage("Gathering diagnostics data...");
 			progress.WriteMessage(GetTextFromQuery("version", 30, _progress));
-   #if !MONO
+//#if !MONO
 			progress.WriteMessage("Using Mercurial at: "+MercurialLocation.PathToHgExecutable);
-#endif
+//#endif
 			progress.WriteMessage("---------------------------------------------------");
 
 			progress.WriteMessage("path = " + _pathToRepository);

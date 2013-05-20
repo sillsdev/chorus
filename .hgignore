@@ -12,7 +12,7 @@ glob:CopyToWeSayDev.bat
 glob:lib/Palaso.TestUtilities.pdb
 glob:*~
 glob:*.pidb
-relre:^Mercurial/
+relre:^[Mm]ercurial/
 glob:*ReSharper*
 glob:build/old
 glob:lib/$(Configuration)
