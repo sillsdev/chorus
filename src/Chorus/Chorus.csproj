@@ -171,7 +171,7 @@
 	  <SpecificVersion>False</SpecificVersion>
 	  <HintPath>..\..\lib\$(Configuration)\PalasoUIWindowsForms.dll</HintPath>
 	</Reference>
-	<Reference Include="geckofx-core-11">
+	<Reference Include="geckofx-11">
 	  <HintPath>..\..\lib\$(Configuration)\geckofx-11.dll</HintPath>
 	</Reference>
 <!-- TODO: renable this latter
