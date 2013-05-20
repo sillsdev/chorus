@@ -163,7 +163,8 @@ namespace LibChorus.Tests.merge.xml.lift
 			{
 				var listener = new ListenerForUnitTests();
 				var differ = Xml2WayDiffer.CreateFromFiles(parentTempFile.Path, childTempFile.Path, listener,
-					"header","entry", "id");
+					"header",
+														 "entry", "id");
 				differ.ReportDifferencesToListener();
 				Assert.AreEqual(1, listener.Warnings.Count);
 			}
