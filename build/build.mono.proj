@@ -60,7 +60,7 @@
 		<DNZip Condition="'$(Not64BitCpu)'=='0'" TaskAction="Extract" ExtractPath="$(RootDir)" ZipFileName="$(RootDir)/lib/common/Mercurial-x86_64.zip"/>
 		<DNZip Condition="'$(Not32BitCpu)'=='0'" TaskAction="Extract" ExtractPath="$(RootDir)" ZipFileName="$(RootDir)/lib/common/Mercurial-i686.zip"/>
 		<!-- Zip doesn't seem to retain the permission bits we need. -->
-		<Exec Command="/bin/chmod +x $(RootDir)/mercurial/hg*" ContinueOnError="true"/>
+		<Exec Command="/bin/chmod +x $(RootDir)/Mercurial/hg*" ContinueOnError="true"/>
 	</Target>
 
 	<Target Name="Test" DependsOnTargets="Build">
