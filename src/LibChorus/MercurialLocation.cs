@@ -60,12 +60,9 @@ namespace Chorus// DON'T MOVE THIS! It needs to be super easy for the client to 
 			{
 				return;
 			}
-//#if MONO
-//			// Currently on linux systems the system mercurial is used.
-//			// pso (or ppo) is obliged to offer the appropriate version of hg that
-//			// will work with chorus.
-//			_pathToMercurialFolder = "/usr/bin";
-//#else
+
+			// We now try to use the same (antique) version of Mercurial on
+			// both Windows and Linux, to maintain bug-for-bug compatibility.
 			var executingAssemblyPath = ExecutionEnvironment.DirectoryOfExecutingAssembly;
 			var guess = Path.Combine(executingAssemblyPath, "mercurial");
 			if(Directory.Exists(guess))
@@ -90,7 +87,6 @@ namespace Chorus// DON'T MOVE THIS! It needs to be super easy for the client to 
 				PathToMercurialFolder = guess;
 				return;
 			}
-//#endif
 		}
 	}
 }

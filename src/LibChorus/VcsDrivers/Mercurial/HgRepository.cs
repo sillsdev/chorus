@@ -1,7 +1,3 @@
-//#if MONO
-//#define MERCURIAL2
-//#endif
-
 using System;
 using System.Linq;
 using System.Collections.Generic;
@@ -34,7 +30,6 @@ namespace Chorus.VcsDrivers.Mercurial
 		private string _proxyCongfigParameterString = string.Empty;
 		private bool _alreadyUpdatedHgrc;
 		private static bool _alreadyCheckedMercurialIni;
-		private bool _mercurialTwoCompatible;
 		private HgModelVersionBranch _branchHelper;
 
 		public static string GetEnvironmentReadinessMessage(string messageLanguageId)
@@ -145,14 +140,6 @@ namespace Chorus.VcsDrivers.Mercurial
 			_progress = progress;
 
 			_userName = GetUserIdInUse();
-
-
-#if MERCURIAL2
-			_mercurialTwoCompatible = true;
-#else
-			_mercurialTwoCompatible = false;
-#endif
-
 		}
 
 		/// <summary>
@@ -303,7 +290,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			try
 			{
 				CheckAndUpdateHgrc();
-				Execute(false, _mercurialTwoCompatible,SecondsBeforeTimeoutOnRemoteOperation, "push -f --debug " + GetProxyConfigParameterString(targetUri), SurroundWithQuotes(targetUri));
+				Execute(SecondsBeforeTimeoutOnRemoteOperation, "push -f --debug " + GetProxyConfigParameterString(targetUri), SurroundWithQuotes(targetUri));
 			}
 			catch (Exception err)
 			{
@@ -518,7 +505,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			CheckAndUpdateHgrc();
 			message = string.Format(message, args);
 			_progress.WriteVerbose("{0} committing with comment: {1}", _userName, message);
-			ExecutionResult result = Execute(false, _mercurialTwoCompatible,SecondsBeforeTimeoutOnLocalOperation, "ci", "-u " + SurroundWithQuotes(_userName), "-m " + SurroundWithQuotes(message));
+			ExecutionResult result = Execute(SecondsBeforeTimeoutOnLocalOperation, "ci", "-u " + SurroundWithQuotes(_userName), "-m " + SurroundWithQuotes(message));
 			_progress.WriteVerbose(result.StandardOutput);
 		}
 
@@ -538,12 +525,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		internal ExecutionResult Execute(int secondsBeforeTimeout, string cmd, params string[] rest)
 		{
-			return Execute(false, false, secondsBeforeTimeout, cmd, rest);
-		}
-
-		protected ExecutionResult Execute(bool failureIsOk, int secondsBeforeTimeout, string cmd, params string[] rest)
-		{
-			return Execute(failureIsOk, false, secondsBeforeTimeout, cmd, rest);
+			return Execute(false, secondsBeforeTimeout, cmd, rest);
 		}
 
 		/// <summary>
@@ -551,7 +533,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		/// </summary>
 		/// <exception cref="System.TimeoutException"/>
 		/// <returns></returns>
-		private ExecutionResult Execute(bool failureIsOk, bool noChangeIsOk, int secondsBeforeTimeout, string cmd, params string[] rest)
+		private ExecutionResult Execute(bool failureIsOk, int secondsBeforeTimeout, string cmd, params string[] rest)
 		{
 			if(_progress.CancelRequested)
 			{
@@ -576,7 +558,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				_progress.WriteWarning("User Cancelled");
 				return result;
 			}
-			if (0 != result.ExitCode && !failureIsOk && !(1 == result.ExitCode && noChangeIsOk))
+			if (0 != result.ExitCode && !failureIsOk)
 			{
 				var details = Environment.NewLine + "hg Command was " + Environment.NewLine + b.ToString();
 				try
@@ -1403,9 +1385,8 @@ namespace Chorus.VcsDrivers.Mercurial
 			var doc = GetMercurialConfigForRepository();
 
 			IniSection section = doc.Sections.GetOrCreate("format");
-			IniSection section_w32text = doc.Sections.GetOrCreate("win32text");
 
-			if (CheckExtensions(doc, extensions) && section.GetValue("dotencode") == AllowDotEncodeRepositoryFormatStringValue && section_w32text.GetValue("warn") == "False")
+			if (CheckExtensions(doc, extensions) && section.GetValue("dotencode") == AllowDotEncodeRepositoryFormatStringValue)
 			{
 				return;
 			}
@@ -1416,18 +1397,6 @@ namespace Chorus.VcsDrivers.Mercurial
 
 			//review: could we have a comment explaining why we are putting this in the .ini if we're also putting it on the command line?
 			section.Set("dotencode", AllowDotEncodeRepositoryFormatStringValue);
-
-			//see http://mercurial.selenic.com/wiki/Win32TextExtension
-			//Deprecation: The win32text extension requires each user to configure the extension again and again for each clone
-			//since the configuration is not copied when cloning.
-			//We have therefore made the EolExtension as an alternative. The EolExtension uses a version controlled file for
-			//its configuration and each clone will therefore use the right settings from the start. Mercurial 1.5.4+
-			//This extension may be removed in a future release of Mercurial.
-			//To disable deprecation warnings from this extension (until you get get around to replacing win32text with eol), add
-			// these two lines to your configuration file:
-
-			section_w32text.Set("warn", "False");
-
 			doc.SaveAndThrowIfCannot();
 		}
 
@@ -1742,9 +1711,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			progress.WriteMessage("Gathering diagnostics data (can't actually tell you anything about the remote server)...");
 			progress.WriteMessage(GetTextFromQuery("version", 30, _progress));
 
-//#if !MONO
 			progress.WriteMessage("Using Mercurial at: "+MercurialLocation.PathToHgExecutable);
-//#endif
 			progress.WriteMessage("---------------------------------------------------");
 
 			progress.WriteMessage("remote url = " + url);
@@ -1772,9 +1739,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		{
 			progress.WriteMessage("Gathering diagnostics data...");
 			progress.WriteMessage(GetTextFromQuery("version", 30, _progress));
-//#if !MONO
 			progress.WriteMessage("Using Mercurial at: "+MercurialLocation.PathToHgExecutable);
-//#endif
 			progress.WriteMessage("---------------------------------------------------");
 
 			progress.WriteMessage("path = " + _pathToRepository);
@@ -1900,7 +1865,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		public void TagRevision(string revisionNumber, string tag)
 		{
 			CheckAndUpdateHgrc();
-			Execute(false, SecondsBeforeTimeoutOnLocalOperation, "tag -f -r " + revisionNumber + " \"" + tag + "\"");
+			Execute(false, SecondsBeforeTimeoutOnLocalOperation, "tag -r " + revisionNumber + " \"" + tag + "\"");
 		}
 
 		internal static string EscapeDoubleQuotes(string message)

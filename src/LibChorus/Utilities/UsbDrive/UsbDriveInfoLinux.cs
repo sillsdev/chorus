@@ -1,5 +1,4 @@
-﻿#if CHORUSUSBDRIVE
-#if MONO
+﻿#if MONO
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -8,6 +7,7 @@ using org.freedesktop.DBus;
 
 namespace Chorus.Utilities.UsbDrive
 {
+	[CLSCompliant (false)]
 	internal class UsbDriveInfoLinux : UsbDriveInfo
 	{
 		private HalDevice _volumeDevice;
@@ -156,5 +156,4 @@ namespace Chorus.Utilities.UsbDrive
 		}
 	}
 }
-#endif
 #endif

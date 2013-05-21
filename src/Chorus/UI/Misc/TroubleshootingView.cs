@@ -94,9 +94,7 @@ namespace Chorus.UI.Misc
 		private void _copyLink_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
 		{
 			if (!string.IsNullOrEmpty(_outputBox.Text))
-			{
 				Clipboard.SetText(_outputBox.Text);
-			}
 		}
 		private void UpdateDisplay(State newState)
 		{

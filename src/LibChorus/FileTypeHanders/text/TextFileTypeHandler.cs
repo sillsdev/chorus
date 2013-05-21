@@ -159,8 +159,10 @@ namespace Chorus.FileTypeHanders.text
 #endif
 
 
+
 		public static string GetShortPath(string path)
 		{
+
 #if MONO
 			return path;
 #else
