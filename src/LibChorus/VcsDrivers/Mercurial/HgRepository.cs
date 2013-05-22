@@ -584,7 +584,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			var result = Execute(false, SecondsBeforeTimeoutOnMergeOperation, "resolve", "--all");
 			if (!String.IsNullOrEmpty(result.StandardError))
 			{
-				throw new ApplicationException("Unable to recover from failed merge.");
+				throw new ApplicationException(String.Format("Unable to recover from failed merge: [{0}]", result.StandardError));
 			}
 			_progress.WriteMessageWithColor(@"Green", "Successfully recovered from failed merge.");
 			return Execute(failureIsOk, secondsBeforeTimeout, cmd, rest);
