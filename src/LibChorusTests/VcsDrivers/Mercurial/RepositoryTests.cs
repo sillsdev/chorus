@@ -121,7 +121,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			{
 				var baseDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().CodeBase);
 #if MONO
-				baseDir = baseDir.Replace(@"file:/", null);
+				baseDir = baseDir.Replace(@"file:", null);
 #else
 				baseDir = baseDir.Replace(@"file:\", null);
 #endif
