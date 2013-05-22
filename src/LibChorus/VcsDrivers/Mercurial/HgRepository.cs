@@ -108,24 +108,11 @@ namespace Chorus.VcsDrivers.Mercurial
 
 			var hg = CreateRepositoryInExistingDir(newRepositoryPath, progress);
 
-					//review: Machine name would be more accurate, but most people have, like "Compaq" as their machine name
-					//but in any case, this is just a default until they set the name explicity
-					hg.SetUserNameInIni(Environment.UserName, progress);
-					return hg;
-				}
-
-		//        protected Revision GetMyHead()
-		//        {
-		//            using (new ConsoleProgress("Getting real head of {0}", _userName))
-		//            {
-		////                string result = GetTextFromQuery(_pathToRepository, "identify -nib");
-		////                string[] parts = result.Split(new char[] {' ','(',')'}, StringSplitOptions.RemoveEmptyEntries);
-		////                Revision descriptor = new Revision(this, parts[2],parts[1], parts[0], "unknown");
-		//
-		//
-		//                return descriptor;
-		//            }
-		//        }
+			//review: Machine name would be more accurate, but most people have, like "Compaq" as their machine name
+			//but in any case, this is just a default until they set the name explicity
+			hg.SetUserNameInIni(Environment.UserName, progress);
+			return hg;
+		}
 
 
 		public HgRepository(string pathToRepository, IProgress progress)
@@ -573,6 +560,10 @@ namespace Chorus.VcsDrivers.Mercurial
 
 				if (!string.IsNullOrEmpty(result.StandardError))
 				{
+					if (result.StandardError.Contains(@"unresolved merge conflicts"))
+					{
+						return RecoverFromFailedMerge(failureIsOk, secondsBeforeTimeout, cmd, rest);
+					}
 					if (result.StandardError.Contains("No such file or directory"))// trying to track down http://jira.palaso.org/issues/browse/BL-284
 					{
 						details += SafeGetStatus();
@@ -585,6 +576,18 @@ namespace Chorus.VcsDrivers.Mercurial
 				}
 			}
 			return result;
+		}
+
+		private ExecutionResult RecoverFromFailedMerge(bool failureIsOk, int secondsBeforeTimeout, string cmd, string[] rest)
+		{
+			_progress.WriteMessageWithColor(@"Blue", "Attempting to reover from failed merge.");
+			var result = Execute(false, SecondsBeforeTimeoutOnMergeOperation, "resolve", "--all");
+			if (!String.IsNullOrEmpty(result.StandardError))
+			{
+				throw new ApplicationException("Unable to recover from failed merge.");
+			}
+			_progress.WriteMessageWithColor(@"Green", "Successfully recovered from failed merge.");
+			return Execute(failureIsOk, secondsBeforeTimeout, cmd, rest);
 		}
 
 		private string SafeGetStatus()
