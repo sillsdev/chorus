@@ -580,7 +580,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		private ExecutionResult RecoverFromFailedMerge(bool failureIsOk, int secondsBeforeTimeout, string cmd, string[] rest)
 		{
-			_progress.WriteMessageWithColor(@"Blue", "Attempting to reover from failed merge.");
+			_progress.WriteMessageWithColor(@"Blue", "Attempting to recover from failed merge.");
 			var result = Execute(false, SecondsBeforeTimeoutOnMergeOperation, "resolve", "--all");
 			if (!String.IsNullOrEmpty(result.StandardError))
 			{
