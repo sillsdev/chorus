@@ -43,18 +43,8 @@ namespace Chorus.UI.Notes
 
 		protected void SetDocumentText(string text)
 		{
-			// Using _existingMessagesDisplay.DocumentText =  causes an exception on mono
 #if MONO
-			// GECKOFX: is this replace needed or is it already done within geckofx?
-			text = text.Replace("'", "\'");
-			try
-			{
-				_existingMessagesDisplay.LoadHtml("javascript:{document.body.outerHTML = '" + text + "';}");
-			}
-			catch (Exception e)
-			{
-				System.Console.WriteLine("AnnotationEditorView:SetDocumentText Exception caught: {0}", e.Message);
-			}
+			_existingMessagesDisplay.LoadHtml(text);
 #else
 			_existingMessagesDisplay.DocumentText = text;
 #endif
@@ -111,8 +101,6 @@ namespace Chorus.UI.Notes
 		private void AnnotationView_Load(object sender, EventArgs e)
 		{
 			_waitingOnBrowserToBeReady = true;
-//            if(_model.IsVisible)
-//                OnUpdateContent(null,null);
 		}
 
 		private void OnBrower_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e)
@@ -160,20 +148,20 @@ namespace Chorus.UI.Notes
 		{
 			if (e.Uri.Scheme == "about")
 				return;
-			e.Cancel = true;
+			// We do NOT want to cancel this operation -- that would prevent anything from displaying!
 			_model.HandleLinkClicked(e.Uri);
 		}
 
 		private void _existingMessagesDisplay_DocumentCompleted(object sender, EventArgs e)
 		{
-			if(_waitingOnBrowserToBeReady)
+			if (_waitingOnBrowserToBeReady)
 			{
 				_waitingOnBrowserToBeReady = false;
 				OnUpdateContent(null,null);
 			}
-			//GECKOFX: looks like previous code is trying to scroll to bottom child
-			// does this do it for geckofx?
-			_existingMessagesDisplay.Document.Body.ScrollIntoView (false);
+			// The Windows/.Net code appears to be trying to scroll to the bottom child.
+			// This has much the same effect for Gecko.
+			_existingMessagesDisplay.Document.Body.ScrollIntoView(false);
 		}
 #else
 		private void _existingMessagesDisplay_Navigating(object sender, WebBrowserNavigatingEventArgs e)

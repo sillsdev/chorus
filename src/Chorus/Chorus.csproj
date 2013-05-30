@@ -171,9 +171,18 @@
 	  <SpecificVersion>False</SpecificVersion>
 	  <HintPath>..\..\lib\$(Configuration)\PalasoUIWindowsForms.dll</HintPath>
 	</Reference>
-	<Reference Include="geckofx-11">
-	  <HintPath>..\..\lib\$(Configuration)\geckofx-11.dll</HintPath>
+	<Reference Condition="'$(Configuration)' == 'DebugMono' Or '$(Configuration)' == 'ReleaseMono' " Include="geckofx-core-14">
+	  <HintPath>..\..\lib\$(Configuration)\geckofx-core-14.dll</HintPath>
 	</Reference>
+	<Reference Condition="'$(Configuration)' == 'DebugMono' Or '$(Configuration)' == 'ReleaseMono' " Include="Geckofx-Winforms-14">
+	  <HintPath>..\..\lib\$(Configuration)\Geckofx-Winforms-14.dll</HintPath>
+	</Reference>
+	<None Condition="'$(Configuration)' == 'DebugMono' Or '$(Configuration)' == 'ReleaseMono' " Include="..\..\lib\$(Configuration)\geckofix.so">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</None>
+	<None Condition="'$(Configuration)' == 'DebugMono' Or '$(Configuration)' == 'ReleaseMono' " Include="..\..\lib\$(Configuration)\geckofx-core-14.dll.config">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</None>
 <!-- TODO: renable this latter
 	<None Condition="'$(Configuration)' == 'DebugMono' Or '$(Configuration)' == 'ReleaseMono' " Include="\usr\lib\fieldworks\geckofix.so">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
