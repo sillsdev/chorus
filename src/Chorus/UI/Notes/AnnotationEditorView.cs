@@ -21,7 +21,7 @@ namespace Chorus.UI.Notes
 			Visible = model.IsVisible;
 			ModalDialogMode = true;
 			//needs to be primed this way
-			SetDocumentText("<html><head></head><body></body></html>");
+			SetDocumentText(@"<html><head></head><body></body></html>");
 			_newMessage.Font = model.FontForNewMessage;
 
 			//a signal to keep palaso localiztion helper from messing with our font

@@ -4,6 +4,7 @@ using System.IO;
 using System.Reflection;
 using System.Windows.Forms;
 using Chorus.VcsDrivers.Mercurial;
+using L10NSharp;
 
 namespace Chorus
 {
@@ -118,7 +119,7 @@ namespace Chorus
 			public static string BrowseForRepository()
 			{
 				var dlg = new FolderBrowserDialog();
-				dlg.Description = "Select a chorus-enabled project to open:";
+				dlg.Description = LocalizationManager.GetString("Messages.SelectChorusProject", "Select a chorus-enabled project to open:");
 				dlg.ShowNewFolderButton = false;
 				if (DialogResult.OK != dlg.ShowDialog())
 					return null;

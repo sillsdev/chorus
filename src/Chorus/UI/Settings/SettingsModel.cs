@@ -5,6 +5,7 @@ using System.Windows.Forms;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using System.Linq;
+using L10NSharp;
 using Palaso.Progress;
 
 namespace Chorus.UI.Settings
@@ -72,8 +73,8 @@ namespace Chorus.UI.Settings
 			if (oldPaths.Count() > 0 && aliases.Count() == 0)
 			{
 				var response = MessageBox.Show(
-					"Repository Paths is being cleared.  If you did that on purpose, fine, click 'Yes'.  If not, please click 'No' and report this to issues@wesay.org (we're trying to track down a bug).",
-					"Please confirm", MessageBoxButtons.YesNo);
+					LocalizationManager.GetString("Messages.RepositoryPathCleared", "Repository Paths is being cleared.  If you did that on purpose, fine, click 'Yes'.  If not, please click 'No' and report this to issues@wesay.org (we're trying to track down a bug)."),
+					LocalizationManager.GetString("Common.PleaseConfirm", "Please confirm"), MessageBoxButtons.YesNo);
 				if(response == DialogResult.No)
 					return;
 			}

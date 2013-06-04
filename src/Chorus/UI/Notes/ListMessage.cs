@@ -72,7 +72,7 @@ namespace Chorus.UI.Notes
 			// images into the list with the appropriate names.
 			var imageKey = ParentAnnotation.IconClassName.ToLower();
 			if (ParentAnnotation.IsClosed)
-				imageKey += "Closed";
+				imageKey += @"Closed";
 			i.ImageKey = imageKey;
 		}
 	}

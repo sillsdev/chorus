@@ -7,6 +7,7 @@ using System.Windows.Forms;
 using System.Xml;
 using Chorus.merge.xml.generic;
 using Chorus.notes;
+using L10NSharp;
 
 namespace Chorus.UI.Notes
 {
@@ -32,7 +33,9 @@ namespace Chorus.UI.Notes
 			// for now just keep the most recent 20 links. This is why it is a list not a dictionary.
 			if (_recentLinks.Count > 20)
 				_recentLinks.RemoveAt(0);
-			return string.Format("<a href={0}>{1}</a>", "http://" + fakeHost + "?data=" + key, "Conflict Details...");
+			// Note that here we are using an ID which makes the text of the link the same as the text of the window title.
+			return string.Format("<a href={0}>{1}</a>", "http://" + fakeHost + "?data=" + key,
+				LocalizationManager.GetString("ConflictDetailsForm.WindowTitle", "Conflict Details") + "...");
 
 			// Old approach, fails with IE if cDataContent is more than about 2038 characters (http://www.codingforums.com/showthread.php?t=18499).
 			//NB: this is ugly, pretending it's http and all, but when I used a custom scheme,
@@ -71,12 +74,12 @@ namespace Chorus.UI.Notes
 			{
 				var doc = new XmlDocument();
 				var conflict = Conflict.CreateFromConflictElement(XmlUtilities.GetDocumentNodeFromRawXml(content, doc));
-				var html = "<html>" + conflict.HtmlDetails + "</html>";
+				var html = @"<html>" + conflict.HtmlDetails + @"</html>";
 				if (HtmlAdjuster != null)
 					html = HtmlAdjuster(html);
 				if (string.IsNullOrEmpty(html))
 				{
-					MessageBox.Show("Sorry, no conflict details are recorded for this conflict (it might be an old one). Here's the content:\r\n" + content);
+					MessageBox.Show(LocalizationManager.GetString("Messages.NoDetailsRecorded", "Sorry, no conflict details are recorded for this conflict (it might be an old one). Here's the content:") + "\r\n" + content);
 					return;
 				}
 				using (var conflictForm = new ConflictDetailsForm())
@@ -89,12 +92,12 @@ namespace Chorus.UI.Notes
 			catch (Exception)
 			{
 			}
-			MessageBox.Show("Sorry, conflict details aren't working for this conflict (it might be an old one). Here's the content:\r\n" + content);//uri.ToString());
+			MessageBox.Show(LocalizationManager.GetString("Messages.DetailsNotWorking", "Sorry, conflict details aren't working for this conflict (it might be an old one). Here's the content:") + "\r\n" + content);//uri.ToString());
 		}
 
 		public bool CanHandleContent(string cDataContent)
 		{
-			return cDataContent.TrimStart().StartsWith("<conflict");
+			return cDataContent.TrimStart().StartsWith(@"<conflict");
 		}
 	}
 

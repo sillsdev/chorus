@@ -1,4 +1,5 @@
 ﻿using Chorus.UI.Review.RevisionsInRepository;
+using L10NSharp;
 
 namespace Chorus.UI.Notes.Browser
 {
@@ -32,6 +33,8 @@ namespace Chorus.UI.Notes.Browser
 		{
 			this.components = new System.ComponentModel.Container();
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(NotesInProjectView));
+			this.l10NSharpExtender1 = new L10NSharp.UI.L10NSharpExtender(this.components);
+			((System.ComponentModel.ISupportInitialize)(this.l10NSharpExtender1)).BeginInit();
 			this._messageListView = new System.Windows.Forms.ListView();
 			this.label = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.author = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
@@ -79,16 +82,25 @@ namespace Chorus.UI.Notes.Browser
 			// label
 			//
 			this.label.Text = "Label";
+			this.l10NSharpExtender1.SetLocalizableToolTip(this.label, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this.label, null);
+			this.l10NSharpExtender1.SetLocalizingId(this.label, "NotesInProjectView.Label");
 			this.label.Width = 118;
 			//
 			// author
 			//
 			this.author.Text = "Author";
+			this.l10NSharpExtender1.SetLocalizableToolTip(this.author, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this.author, null);
+			this.l10NSharpExtender1.SetLocalizingId(this.author, "NotesInProjectView.Author");
 			this.author.Width = 110;
 			//
 			// date
 			//
 			this.date.Text = "Date";
+			this.l10NSharpExtender1.SetLocalizableToolTip(this.date, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this.date, null);
+			this.l10NSharpExtender1.SetLocalizingId(this.date, "NotesInProjectView.Date");
 			this.date.Width = 86;
 			//
 			// _stateImageList
@@ -108,12 +120,19 @@ namespace Chorus.UI.Notes.Browser
 			this.contextMenuStrip1.Name = "contextMenuStrip1";
 			this.contextMenuStrip1.Size = new System.Drawing.Size(177, 26);
 			this.contextMenuStrip1.Text = "Filter";
+			this.l10NSharpExtender1.SetLocalizableToolTip(this.contextMenuStrip1, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this.contextMenuStrip1, null);
+			this.l10NSharpExtender1.SetLocalizationPriority(this.contextMenuStrip1, LocalizationPriority.NotLocalizable);
+			this.l10NSharpExtender1.SetLocalizingId(this.contextMenuStrip1, "NotesInProjectView.Filter");
 			//
 			// showClosedNotesToolStripMenuItem
 			//
 			this.showClosedNotesToolStripMenuItem.Name = "showClosedNotesToolStripMenuItem";
 			this.showClosedNotesToolStripMenuItem.Size = new System.Drawing.Size(176, 22);
 			this.showClosedNotesToolStripMenuItem.Text = "Show Closed Notes";
+			this.l10NSharpExtender1.SetLocalizableToolTip(this.showClosedNotesToolStripMenuItem, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this.showClosedNotesToolStripMenuItem, null);
+			this.l10NSharpExtender1.SetLocalizingId(this.showClosedNotesToolStripMenuItem, "NotesInProjectView.ShowClosedNotes");
 			//
 			// menuStrip1
 			//
@@ -128,6 +147,10 @@ namespace Chorus.UI.Notes.Browser
 			this.menuStrip1.Size = new System.Drawing.Size(30, 24);
 			this.menuStrip1.TabIndex = 5;
 			this.menuStrip1.Text = "menuStrip1";
+			this.l10NSharpExtender1.SetLocalizableToolTip(this.menuStrip1, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this.menuStrip1, null);
+			this.l10NSharpExtender1.SetLocalizationPriority(this.menuStrip1, LocalizationPriority.Low);
+			this.l10NSharpExtender1.SetLocalizingId(this.menuStrip1, "NotesInProjectView.MenuStrip");
 			//
 			// filterToolStripMenuItem
 			//
@@ -140,6 +163,10 @@ namespace Chorus.UI.Notes.Browser
 			this.filterToolStripMenuItem.Image = global::Chorus.Properties.Resources.Filter;
 			this.filterToolStripMenuItem.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
 			this.filterToolStripMenuItem.Name = "filterToolStripMenuItem";
+			this.l10NSharpExtender1.SetLocalizableToolTip(this.showQuestionsMenuItem, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this.showQuestionsMenuItem, null);
+			this.l10NSharpExtender1.SetLocalizationPriority(this.showQuestionsMenuItem, LocalizationPriority.Low);
+			this.l10NSharpExtender1.SetLocalizingId(this.showQuestionsMenuItem, "NotesInProjectView.RootMenu");
 			this.filterToolStripMenuItem.Size = new System.Drawing.Size(28, 20);
 			//
 			// showQuestionsMenuItem
@@ -148,6 +175,9 @@ namespace Chorus.UI.Notes.Browser
 			this.showQuestionsMenuItem.Name = "showQuestionsMenuItem";
 			this.showQuestionsMenuItem.Size = new System.Drawing.Size(211, 22);
 			this.showQuestionsMenuItem.Text = "Show Questions";
+			this.l10NSharpExtender1.SetLocalizableToolTip(this.showQuestionsMenuItem, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this.showQuestionsMenuItem, null);
+			this.l10NSharpExtender1.SetLocalizingId(this.showQuestionsMenuItem, "NotesInProjectView.ShowQuestions");
 			this.showQuestionsMenuItem.Click += new System.EventHandler(this.showQuestionsMenuItem_Click);
 			//
 			// showMergeConflictsMenuItem
@@ -156,6 +186,9 @@ namespace Chorus.UI.Notes.Browser
 			this.showMergeConflictsMenuItem.Name = "showMergeConflictsMenuItem";
 			this.showMergeConflictsMenuItem.Size = new System.Drawing.Size(211, 22);
 			this.showMergeConflictsMenuItem.Text = "Show Merge Conflicts";
+			this.l10NSharpExtender1.SetLocalizableToolTip(this.showMergeConflictsMenuItem, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this.showMergeConflictsMenuItem, null);
+			this.l10NSharpExtender1.SetLocalizingId(this.showMergeConflictsMenuItem, "NotesInProjectView.ShowConflicts");
 			this.showMergeConflictsMenuItem.Click += new System.EventHandler(this.showMergeConflictsMenuItem_Click);
 			//
 			// showMergeNotifcationsMenuItem
@@ -164,6 +197,9 @@ namespace Chorus.UI.Notes.Browser
 			this.showMergeNotifcationsMenuItem.Name = "showMergeNotifcationsMenuItem";
 			this.showMergeNotifcationsMenuItem.Size = new System.Drawing.Size(211, 22);
 			this.showMergeNotifcationsMenuItem.Text = "Show Merge Notifications";
+			this.l10NSharpExtender1.SetLocalizableToolTip(this.showMergeNotifcationsMenuItem, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this.showMergeNotifcationsMenuItem, null);
+			this.l10NSharpExtender1.SetLocalizingId(this.showMergeNotifcationsMenuItem, "NotesInProjectView.ShowNotifications");
 			this.showMergeNotifcationsMenuItem.Click += new System.EventHandler(this.showMergeNotificationsMenuItem_Click);
 			//
 			// toolStripSeparator1
@@ -177,6 +213,9 @@ namespace Chorus.UI.Notes.Browser
 			this.showResolvedNotesMenuItem.Name = "showResolvedNotesMenuItem";
 			this.showResolvedNotesMenuItem.Size = new System.Drawing.Size(211, 22);
 			this.showResolvedNotesMenuItem.Text = "Show Resolved Items";
+			this.l10NSharpExtender1.SetLocalizableToolTip(this.showResolvedNotesMenuItem, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this.showResolvedNotesMenuItem, null);
+			this.l10NSharpExtender1.SetLocalizingId(this.showResolvedNotesMenuItem, "NotesInProjectView.ShowNotifications");
 			this.showResolvedNotesMenuItem.Click += new System.EventHandler(this.showClosedNotesMenuItem_Click);
 			//
 			// searchBox1
@@ -198,6 +237,11 @@ namespace Chorus.UI.Notes.Browser
 			this.filterStateLabel.Size = new System.Drawing.Size(0, 13);
 			this.filterStateLabel.TabIndex = 6;
 			//
+			// l10NSharpExtender1
+			//
+			this.l10NSharpExtender1.LocalizationManagerId = "Chorus";
+			this.l10NSharpExtender1.PrefixForNewItems = "NotesInProjectView";
+			//
 			// NotesInProjectView
 			//
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -215,6 +259,7 @@ namespace Chorus.UI.Notes.Browser
 			this.contextMenuStrip1.ResumeLayout(false);
 			this.menuStrip1.ResumeLayout(false);
 			this.menuStrip1.PerformLayout();
+			((System.ComponentModel.ISupportInitialize)(this.l10NSharpExtender1)).EndInit();
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -240,6 +285,6 @@ namespace Chorus.UI.Notes.Browser
 		private System.Windows.Forms.ToolStripMenuItem showMergeNotifcationsMenuItem;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
 		private System.Windows.Forms.Label filterStateLabel;
-
+		private L10NSharp.UI.L10NSharpExtender l10NSharpExtender1;
 	}
 }

@@ -5,6 +5,7 @@ using System.Web;
 using Chorus.Utilities;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
+using L10NSharp;
 using Palaso.Code;
 using Palaso.Network;
 using Palaso.Progress;
@@ -24,7 +25,7 @@ namespace Chorus.UI.Misc
 			Servers.Add("LanguageDepot.org [private]", "hg-private.languagedepot.org");
 			Servers.Add("LanguageForge", "hg.languageforge.org");
 
-			Servers.Add("Custom Location...", "");
+			Servers.Add(LocalizationManager.GetString("Messages.CustomLocation", "Custom Location..."), "");
 			SelectedServerLabel = languageDepotLabel;
 		}
 

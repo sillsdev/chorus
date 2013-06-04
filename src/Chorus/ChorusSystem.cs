@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 using Autofac;
@@ -13,6 +14,7 @@ using Chorus.UI.Notes.Browser;
 using Chorus.UI.Review;
 using Chorus.UI.Sync;
 using Chorus.VcsDrivers.Mercurial;
+using L10NSharp;
 using Palaso.Code;
 using Palaso.Progress;
 using IContainer = Autofac.IContainer;
@@ -99,6 +101,22 @@ namespace Chorus
 
 			ChorusUIComponentsInjector.Inject(builder, _dataFolderPath);
 			return builder;
+		}
+
+		public static void SetUpLocalization(string desiredUiLangId, string localizationFolder)
+		{
+			// Now set it up for the handful of localizable elements in FlexBridge itself.
+			string targetTmxFilePath = Path.Combine(localizationFolder, "Chorus");
+			// This is safer than Application.ProductVersion, which might contain words like 'alpha' or 'beta',
+			// which (on the SECOND run of the program) fail when L10NSharp tries to make a Version object out of them.
+			var version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
+			// Version will have 4 parts, but we don't need to reload strings for every build.
+			version = version.Substring(0, version.LastIndexOf('.'));
+			LocalizationManager.Create(desiredUiLangId, "Chorus", Application.ProductName,
+						   version, localizationFolder,
+						   targetTmxFilePath,
+						   Icon.FromHandle(Properties.Resources.chorus32x32.GetHicon()), // should call DestroyIcon, but when?
+						   "issues@chorus.palaso.org", "Chorus");
 		}
 
 		public bool DidLoadUpCorrectly;

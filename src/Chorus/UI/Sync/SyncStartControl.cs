@@ -8,6 +8,7 @@ using Chorus.UI.Settings;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using ChorusHub;
+using L10NSharp;
 using Palaso.Code;
 using System.IO;
 
@@ -388,7 +389,7 @@ namespace Chorus.UI.Sync
 					if(doWait)
 					{
 						//enhance: sorry, I regret that this is all kludgy, ux-wise.
-						MessageBox.Show("After you press OK, we will give the ChorusHub 10 seconds to get ready to receive this repository.");
+						MessageBox.Show(LocalizationManager.GetString("Messages.WaitForChorusHub","After you press OK, we will give the ChorusHub 10 seconds to get ready to receive this repository."));
 						Cursor.Current = Cursors.WaitCursor;
 						Thread.Sleep(10*1000);
 						Cursor.Current = Cursors.Default;
