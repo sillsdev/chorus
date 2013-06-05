@@ -1,5 +1,4 @@
 using System;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
@@ -13,6 +12,8 @@ namespace Chorus.Utilities
 	{
 		private Thread _outputReader;
 		private Thread _errorReader;
+
+		private static DateTime _heartbeat;
 
 		private string _standardOutput = "";
 		public string StandardOutput
@@ -49,11 +50,19 @@ namespace Chorus.Utilities
 				_errorReader.Start(errorReaderArgs);
 			}
 
-			var end = DateTime.Now.AddSeconds(secondsBeforeTimeOut);
+			lock(this)
+			{
+				_heartbeat = DateTime.Now;
+			}
 
 			//nb: at one point I (jh) tried adding !process.HasExited, but that made things less stable.
 			while (/*!process.HasExited &&*/ (_outputReader.ThreadState == ThreadState.Running || (_errorReader != null && _errorReader.ThreadState == ThreadState.Running)))
 			{
+				DateTime end;
+				lock (this)
+				{
+					end = _heartbeat.AddSeconds(secondsBeforeTimeOut);
+				}
 				if(progress.CancelRequested)
 					return false;
 
@@ -78,49 +87,9 @@ namespace Chorus.Utilities
 
 		}
 
-		//can't use this: that only gets called reliably if you have an application doevents going
-//        void _errorReader_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
-//        {
-//            if(!e.Cancelled)
-//             _standardError = e.Result as string;
-//        }
-
-		//can't use this: that only gets called reliably if you have an application doevents going
-//        void _outputReader_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
-//        {
-//            if(!e.Cancelled)
-//                _standardOutput = e.Result as string;
-//        }
-
-		void OnOutputReaderProgressChanged(object sender, ProgressChangedEventArgs e)
-		{
-//            if(e.UserState ==null)
-//                return;
-//            if (!string.IsNullOrEmpty(_standardOutput))
-			//                _standardOutput += "\n";
-//            _standardOutput += ((string)(e.UserState)).Trim();
-		}
-		void OnErrorReaderProgressChanged(object sender, ProgressChangedEventArgs e)
-		{
-			/*THESE TURNED OUT TO BE UNRELIABLE... now I'm just using the result
-				when I get back to look at this again... maybe this class was returning
-				before the last one of these was actually process?  Or something like that?
-			 *
-			 * Eventually, we want something giving progress real-time, rather than at the end,
-			 * so we'll have to figure this out
-			 */
-
-//            if(e.UserState ==null)
-//                return;
-//            if (!string.IsNullOrEmpty(_standardError))
-//                _standardError += "\n";
-//            _standardError += ((string)(e.UserState)).Trim();
-		}
-
 		private void ReadStream(object args)
 		{
-			StringBuilder result= new StringBuilder();
-			//BackgroundWorker worker = (BackgroundWorker)sender;
+			var result = new StringBuilder();
 			var readerArgs = args as ReaderArgs;
 
 			var reader = readerArgs.Reader;
@@ -129,22 +98,20 @@ namespace Chorus.Utilities
 			   var s = reader.ReadLine();
 			   if (s != null)
 			   {
-				   result.AppendLine(s.Trim());
-//                   worker.ReportProgress(0, s);
+				   // Eat up any heartbeat lines from the stream
+				   if (s != Properties.Resources.MergeHeartbeat)
+				   {
+					   result.AppendLine(s.Trim());
+				   }
+				   lock (this)
+				   {
+					   // set the last heartbeat if data was read from the stream
+					   _heartbeat = DateTime.Now;
+				   }
 			  }
 			} while (!reader.EndOfStream);// && !readerArgs.Proc.HasExited);
 
-
-//            if (worker.CancellationPending)
-//            {
-//                e.Cancel = true;
-//            }
-//            else
-			{
-				//this system doesn't work reliably if you have no UI pump: e.Result = result.ToString().Replace("\r\n", "\n");
-				readerArgs.Results = result.ToString().Replace("\r\n", "\n");
-
-			}
+			readerArgs.Results = result.ToString().Replace("\r\n", "\n");
 		}
 	}
 

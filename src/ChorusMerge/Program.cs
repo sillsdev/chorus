@@ -27,7 +27,6 @@ namespace ChorusMerge
 		{
 			try
 			{
-
 #if MONO
 				var ourFilePath = args[0];
 				var commonFilePath = args[1];
@@ -56,7 +55,7 @@ namespace ChorusMerge
 
 				//DispatchingMergeEventListener listenerDispatcher = new DispatchingMergeEventListener();
 				//using (HumanLogMergeEventListener humanListener = new HumanLogMergeEventListener(order.pathToOurs + ".ChorusNotes.txt"))
-				using (ChorusNotesMergeEventListener xmlListener = new ChorusNotesMergeEventListener(order.pathToOurs + ".NewChorusNotes"))
+				using (var xmlListener = new ChorusNotesMergeEventListener(order.pathToOurs + ".NewChorusNotes"))
 				{
 //                    listenerDispatcher.AddEventListener(humanListener);
 //                    listenerDispatcher.AddEventListener(xmlListener);

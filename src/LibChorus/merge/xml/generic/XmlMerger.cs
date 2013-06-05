@@ -35,6 +35,7 @@ namespace Chorus.merge.xml.generic
 
 		public NodeMergeResult Merge(XmlNode ours, XmlNode theirs, XmlNode ancestor)
 		{
+			SendMergeHeartbeat();
 			if (ours == null && theirs == null && ancestor == null)
 				throw new InvalidOperationException("At least one node has to exist.");
 
@@ -55,10 +56,13 @@ namespace Chorus.merge.xml.generic
 				listener.AddEventListener(result);
 			}
 
-			// Remove any duplicate child nodes in all three.
-			XmlMergeService.RemoveAmbiguousChildren(EventListener, MergeStrategies, ours);
-			XmlMergeService.RemoveAmbiguousChildren(EventListener, MergeStrategies, theirs);
-			//XmlMergeService.RemoveAmbiguousChildren(EventListener, MergeStrategies, ancestor);
+			if (XmlMergeService.RemoveAmbiguousChildNodes)
+			{
+				// Remove any duplicate child nodes in all three.
+				XmlMergeService.RemoveAmbiguousChildren(EventListener, MergeStrategies, ours);
+				XmlMergeService.RemoveAmbiguousChildren(EventListener, MergeStrategies, theirs);
+				XmlMergeService.RemoveAmbiguousChildren(EventListener, MergeStrategies, ancestor);
+			}
 
 			if (ancestor == null)
 			{
@@ -123,7 +127,7 @@ namespace Chorus.merge.xml.generic
 				else
 				{
 					// tested
-					ConflictOccurred(new RemovedVsEditedElementConflict(ancestor.Name, theirs, null, ancestor, MergeSituation, MergeStrategies.GetElementStrategy(ancestor), MergeSituation.BetaUserId));
+					ConflictOccurred(new RemovedVsEditedElementConflict(ancestor.Name, null, theirs, ancestor, MergeSituation, MergeStrategies.GetElementStrategy(ancestor), MergeSituation.BetaUserId));
 					result.MergedNode = theirs;
 				}
 				return result;
@@ -154,9 +158,19 @@ namespace Chorus.merge.xml.generic
 
 		public XmlNode Merge(IMergeEventListener eventListener, XmlNode ours, XmlNode theirs, XmlNode ancestor)
 		{
+			SendMergeHeartbeat();
 			EventListener = eventListener;
 			MergeInner(ref ours, theirs, ancestor);
 			return ours;
+		}
+
+		/// <summary>
+		/// Writes out a merge heartbeat to the stream that the process that launched hg is listening on.
+		/// This lets us detect that work is still happening on a merge request.
+		/// </summary>
+		private static void SendMergeHeartbeat()
+		{
+			Console.Out.WriteLine(Properties.Resources.MergeHeartbeat);
 		}
 
 		internal void ConflictOccurred(IConflict conflict)
@@ -224,6 +238,7 @@ namespace Chorus.merge.xml.generic
 		/// </summary>
 		internal void MergeInner(ref XmlNode ours, XmlNode theirs, XmlNode ancestor)
 		{
+			SendMergeHeartbeat();
 			_oursContext = ours;
 			_theirsContext = theirs;
 			_ancestorContext = ancestor;

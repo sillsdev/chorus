@@ -1,10 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 using Chorus.Utilities.Help;
 
@@ -30,8 +24,7 @@ namespace Chorus.UI.Clone
 
 		private void buttonHelp_Click(object sender, EventArgs e)
 		{
-			Help.ShowHelp(this, HelpUtils.GetHelpFile(),
-					"Tasks/Internet_tab.htm"); // Todo: replace with real address when topic created.
+			Help.ShowHelp(this, HelpUtils.GetHelpFile(), "/Chorus/Duplicate_Project_message.htm");
 		}
 	}
 }

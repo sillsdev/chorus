@@ -83,11 +83,8 @@ namespace LibChorus.Tests.sync
 		/// The presence or absence of the two files tells us whether the Synchronizer class called the new interface methods.
 		/// </summary>
 		[Test]
-
 #if MONO
 		[Ignore]
-#else
-		[Ignore("Block until V03 server API is restored")]
 #endif
 		public void BasicCommitHasCommitFileButNotMergeFile()
 		{
@@ -118,8 +115,6 @@ namespace LibChorus.Tests.sync
 		[Test]
 #if MONO
 		[Ignore]
-#else
-		[Ignore("Block until V03 server API is restored")]
 #endif
 		public void SendReceiveWithNoRemoteChangesGetsNoFiles()
 		{
@@ -148,8 +143,6 @@ namespace LibChorus.Tests.sync
 		[Test]
 #if MONO
 		[Ignore]
-#else
-		[Ignore("Block until V03 server API is restored")]
 #endif
 		public void SendReceiveWithTrivialMergeCallsSimpleUpdate()
 		{
@@ -188,7 +181,6 @@ namespace LibChorus.Tests.sync
 		/// The presence or absence of the two files tells us whether the Synchronizer class called the new interface methods.
 		/// </summary>
 		[Test]
-		[Ignore("Block until V03 server API is restored")]
 		public void CommitWithMergeHasCommitFileAndMergeFile()
 		{
 			using (var bob = RepositoryWithFilesSetup.CreateWithLiftFile("bob"))
@@ -218,7 +210,6 @@ namespace LibChorus.Tests.sync
 		}
 
 		[Test]
-		[Ignore("Block until V03 server API is restored")]
 		public void EachOneChangedOrAddedFileButNotSameFile_HasCommitAndPullAndMergeFilesOnly()
 		{
 			using (var bob = RepositoryWithFilesSetup.CreateWithLiftFile("bob"))
@@ -252,7 +243,6 @@ namespace LibChorus.Tests.sync
 		}
 
 		[Test]
-		[Ignore("Block until V03 server API is restored")]
 		public void TheyMadeChanges_WeDidNothing_Fires_SimpleUpdate_WithFalse()
 		{
 			// 1. Simple pull got new stuff, while we changed nothing
@@ -284,7 +274,6 @@ namespace LibChorus.Tests.sync
 		}
 
 		[Test]
-		[Ignore("Block until V03 server API is restored")]
 		public void BothMadeChanges_MergeFailure_Fires_SimpleUpdate_WithTrue()
 		{
 			// 2. Rollback on merge failure, when we changed stuff.
@@ -322,7 +311,6 @@ namespace LibChorus.Tests.sync
 		}
 
 		[Test]
-		[Ignore("Block until V03 server API is restored")]
 		public void CheckBranchesGetsRightNumberOfBranches()
 		{
 			using (var bob = RepositoryWithFilesSetup.CreateWithLiftFile("bob"))
@@ -347,14 +335,13 @@ namespace LibChorus.Tests.sync
 
 				var syncResults = sally.SyncWithOptions(options, synchronizer);
 				Assert.IsTrue(syncResults.DidGetChangesFromOthers);
-				CheckExistanceOfAdjunctFiles(syncAdjunct, true, false, true, false, true, true);
+				CheckExistanceOfAdjunctFiles(syncAdjunct, true, true, false, false, true, true);
 				var lines = File.ReadAllLines(syncAdjunct.CheckRepoBranchesPathName);
 				Assert.AreEqual(lines.Length, 2, "Wrong number of branches on CheckBranches call");
 			}
 		}
 
 		[Test]
-		[Ignore("Block until V03 server API is restored")]
 		public void OurCommitOnlyFailsCommitCopCheck()
 		{
 			// 3. Backout after CommitCop bailout.
@@ -452,6 +439,30 @@ namespace LibChorus.Tests.sync
 			var rev4 = new Revision(null, "7.2.0", "Joe", "1236", "hash1237", "Joe's second change");
 			revs = new[] { rev3, rev4 };
 			Assert.That(LiftSynchronizerAdjunct.GetRepositoryBranchCheckData(revs, "7.2.1", ref savedSettings), Is.EqualTo("Joe"));
+		}
+
+		[Test]
+		public void Synchronizer_HandlesBothDefaultBranchOptions()
+		{
+			// Revisions can come in with both default or empty string on the default branch depending on OS
+			string savedSettings = "";
+			var rev1 = new Revision(null, "default", "Fred", "1234", "hash1234", "change something");
+			// The first revision we see on another branch doesn't produce a warning...it might be something old everyone has upgraded from.
+			var revs = new[] { rev1 };
+			Assert.That(LiftSynchronizerAdjunct.GetRepositoryBranchCheckData(revs, "", ref savedSettings), Is.Null);
+
+			var rev2 = new Revision(null, "", "Joe", "1235", "hash1235", "change something else");
+			// To get the right result this time, the list of revisions must include both branches we are pretending are in the repo.
+			revs = new[] { rev1, rev2 };
+			Assert.That(LiftSynchronizerAdjunct.GetRepositoryBranchCheckData(revs, "default", ref savedSettings), Is.Null); // first change we've seen on this branch
+
+			var rev3 = new Revision(null, "default", "Fred", "1236", "hash1236", "Fred's second change");
+			revs = new[] { rev2, rev3 };
+			Assert.That(LiftSynchronizerAdjunct.GetRepositoryBranchCheckData(revs, "default", ref savedSettings), Is.Null);
+
+			var rev4 = new Revision(null, "", "Joe", "1236", "hash1237", "Joe's second change");
+			revs = new[] { rev3, rev4 };
+			Assert.That(LiftSynchronizerAdjunct.GetRepositoryBranchCheckData(revs, "", ref savedSettings), Is.Null);
 		}
 
 		private static void CheckExistanceOfAdjunctFiles(FileWriterSychronizerAdjunct syncAdjunct, bool commitFileShouldExist,

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.ServiceModel;
@@ -15,7 +16,7 @@ namespace ChorusHub
 		private IPEndPoint _ipEndPoint;
 		private UdpClient _udpClient;
 		private IAsyncResult _asyncResult;
-		private IEnumerable<string> _repositoryNames;
+		private IEnumerable<ChorusHubRepositoryInformation> _repositoryNames;
 
 		public string HostName
 		{
@@ -106,14 +107,18 @@ namespace ChorusHub
 			return _foundHubInfo; //will be null if none found
 		}
 
-		public IEnumerable<string> GetRepositoryNames()
+		public IEnumerable<ChorusHubRepositoryInformation> GetRepositoryInformation(string queryString)
 		{
 			if(_repositoryNames!=null)
 				return _repositoryNames; //for now, there's no way to get an updated list except by making a new client
 
 			if(_foundHubInfo==null)
-				throw new ApplicationException("Programmer, call Find() and get a non-null response before GetRepositoryNames");
+				throw new ApplicationException("Programmer, call Find() and get a non-null response before GetRepositoryInformation");
 
+			const string genericUrl = "scheme://path?";
+			var finalUrl = string.IsNullOrEmpty(queryString)
+							   ? queryString
+							   : genericUrl + queryString;
 			var binding = new NetTcpBinding();
 			binding.Security.Mode = SecurityMode.None;
 
@@ -122,7 +127,8 @@ namespace ChorusHub
 			var channel = factory.CreateChannel();
 			try
 			{
-				_repositoryNames = channel.GetRepositoryNames();
+				var jsonStrings = channel.GetRepositoryInformation(finalUrl);
+				_repositoryNames = ImitationHubJSONService.ParseJsonStringsToChorusHubRepoInfos(jsonStrings);
 			}
 			finally
 			{
@@ -157,13 +163,17 @@ namespace ChorusHub
 				var doWait = channel.PrepareToReceiveRepository(directoryName);
 				return doWait;
 			}
-			catch(Exception error)
+			catch (Exception error)
 			{
-				throw new ApplicationException("There was an error on the Chorus Hub Server, which was transmitted to the client.",error);
+				throw new ApplicationException("There was an error on the Chorus Hub Server, which was transmitted to the client.", error);
 			}
 			finally
 			{
-				(channel as ICommunicationObject).Close();
+				var comChannel = (ICommunicationObject)channel;
+				if (comChannel.State == CommunicationState.Opened)
+				{
+					comChannel.Close();
+				}
 			}
 		}
 	}

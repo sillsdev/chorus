@@ -13,7 +13,7 @@ namespace Chorus.FileTypeHanders.lift
 {
 	public class LiftSynchronizerAdjunct : ISychronizerAdjunct
 	{
-		private readonly string _branchName = "default";
+		private readonly string _branchName = @"default";
 		private readonly string _liftPathName;
 
 		/// <summary>
@@ -28,11 +28,16 @@ namespace Chorus.FileTypeHanders.lift
 
 		private string GetBranchNameFromLiftFile()
 		{
-			const string LIFT = "LIFT";
+			const string LIFT = @"LIFT";
 			using (var reader = XmlReader.Create(_liftPathName, CanonicalXmlSettings.CreateXmlReaderSettings()))
 			{
 				reader.MoveToContent();
-				reader.MoveToAttribute("version");
+				reader.MoveToAttribute(@"version");
+				var liftVersionString = reader.Value;
+				if (liftVersionString == @"0.13")
+				{
+					return @"default";
+				}
 				return LIFT + reader.Value;
 			}
 		}
@@ -101,10 +106,9 @@ namespace Chorus.FileTypeHanders.lift
 		public void CheckRepositoryBranches(IEnumerable<Revision> branches, IProgress progress)
 		{
 			string savedSettings = Settings.Default.OtherBranchRevisions;
-			//note: change the "" back to BranchName when branching is added back to Chorus
-			string conflictingUser = GetRepositoryBranchCheckData(branches, "", ref savedSettings);
+			string conflictingUser = GetRepositoryBranchCheckData(branches, BranchName, ref savedSettings);
 			if (!string.IsNullOrEmpty(conflictingUser))
-				progress.WriteWarning(string.Format("Other users of this repository (most recently {0}) are using a different version of FieldWorks or WeSay. Changes from users with more recent versions will not be merged into projects using older versions. We strongly recommend that all users upgrade to the same version as soon as possible.", conflictingUser));
+				progress.WriteWarning(string.Format("Other users of this LIFT repository (most recently {0}) are using a different version of FieldWorks or WeSay. Changes from users with more recent versions will not be merged into projects using older versions. We strongly recommend that all users upgrade to the same version as soon as possible.", conflictingUser));
 			Settings.Default.OtherBranchRevisions = savedSettings;
 			Settings.Default.Save();
 		}
@@ -128,14 +132,19 @@ namespace Chorus.FileTypeHanders.lift
 			string result = null;
 			foreach (var rev in branches)
 			{
-				if (rev.Branch == currentBranch)
+				// Due to Windows and Linux differences with mercurial we can't be sure if branch is going to be
+				// an empty string or 'default' for the default branch.
+				// Force both our currentBranch and the revision branch to say "default" in both conditions.
+				var revisionBranch = rev.Branch == string.Empty ? @"default" : rev.Branch;
+				currentBranch = currentBranch == string.Empty ? @"default" : currentBranch;
+				if (revisionBranch == currentBranch)
 					continue; // Changes on our own branch aren't a problem
 				int revision;
 				if (!int.TryParse(rev.Number.LocalRevisionNumber, out revision))
 					continue; // or crash?
 				if (sb.Length > 0)
 					sb.Append(";");
-				sb.Append(rev.Branch);
+				sb.Append(revisionBranch);
 				sb.Append(":");
 				sb.Append(rev.Number.LocalRevisionNumber);
 				foreach (var otherRev in (savedSettings ?? "").Split(';'))
@@ -143,7 +152,7 @@ namespace Chorus.FileTypeHanders.lift
 					var parts = otherRev.Split(':');
 					if (parts.Length != 2)
 						continue; // weird, ignore
-					if (parts[0] != rev.Branch)
+					if (parts[0] != revisionBranch)
 						continue;
 					int otherRevision;
 					if (!int.TryParse(parts[1], out otherRevision))

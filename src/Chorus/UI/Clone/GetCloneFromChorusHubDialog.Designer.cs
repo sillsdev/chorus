@@ -55,7 +55,8 @@
 			//
 			// _projectRepositoryListView
 			//
-			this._projectRepositoryListView.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+			this._projectRepositoryListView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+			| System.Windows.Forms.AnchorStyles.Left)
 			| System.Windows.Forms.AnchorStyles.Right)));
 			this._projectRepositoryListView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
 			this.projectHeader});

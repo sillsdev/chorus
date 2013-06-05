@@ -6,6 +6,7 @@ using System.Windows.Forms;
 using Chorus.VcsDrivers.Mercurial;
 using Palaso.Code;
 using Palaso.Progress;
+using Palaso.Reporting;
 
 namespace Chorus.UI.Clone
 {
@@ -21,6 +22,10 @@ namespace Chorus.UI.Clone
 		/// </summary>
 		/// <param name="parent">Window that will be parent of progress window</param>
 		/// <param name="projectFilter">Function taking a directory path and telling whether it contains the right sort of repo</param>
+		/// <param name="hubQuery">String on which to build a URL query to ChorusHub to accomplish the purpose of 'projectFilter'
+		/// in the ChorusHub environment</param>
+		/// <example>FLExBridge sends "fileExtension=.lift|._custom_properties" to get both LIFT and FLExBridge repos, but not Bloom ones,
+		/// for instance. The server looks in the project's .hg/store/data folder for a file ending in .lift.i or ._custom_properties.i</example>
 		/// <param name="baseProjectDirForNewClone">The base folder for the new clone, if created.</param>
 		/// <param name="baseProjectDirInWhichToSearchForRepositories">The directory which contains projects we already have, and where the result should go</param>
 		/// <param name="lowerLevelRepoPath">Optionally specifies another place to look for existing repos: look in this subfolder of each folder in baseProjectDirInWhichToSearchForRepositories.
@@ -32,8 +37,9 @@ namespace Chorus.UI.Clone
 		/// <returns>
 		/// A CloneResult that provides the clone results (e.g., success or failure) and the actual clone location (null if not created).
 		/// </returns>
-		public CloneResult GetSharedProjectUsing(Form parent, string baseProjectDirForNewClone, string preferredClonedFolderName, Func<string, bool> projectFilter,
-			string baseProjectDirInWhichToSearchForRepositories, string lowerLevelRepoPath, string howToSendReceiveMessageText)
+		public CloneResult GetSharedProjectUsing(Form parent, string baseProjectDirForNewClone, string preferredClonedFolderName,
+			Func<string, bool> projectFilter, string hubQuery, string baseProjectDirInWhichToSearchForRepositories, string lowerLevelRepoPath,
+			string howToSendReceiveMessageText)
 		{
 			Guard.AgainstNull(parent, "parent");
 			Guard.AgainstNullOrEmptyString(baseProjectDirForNewClone, "baseProjectDirForNewClone");
@@ -41,7 +47,28 @@ namespace Chorus.UI.Clone
 			if (preferredClonedFolderName == string.Empty)
 				preferredClonedFolderName = null;
 
-			var existingRepositories = ExtantRepoIdentifiers(baseProjectDirInWhichToSearchForRepositories, lowerLevelRepoPath);
+			Dictionary<string, string> existingRepositories;
+			try
+			{
+				existingRepositories = ExtantRepoIdentifiers(baseProjectDirInWhichToSearchForRepositories, lowerLevelRepoPath);
+			}
+			catch (ApplicationException e)
+			{
+				// FLEx isue LT-14301: one reason we may throw is that we can't get the identifier of some project because we don't have
+				// sufficient permissions.
+
+				// We think this will be very rare...try to get an automatic notification if it happens.
+				UsageReporter.SendEvent("UnusualProblems", "Chorus", "ExtantRepoIdentifiersFailed", null, 0);
+
+				MessageBox.Show(
+					string.Format(
+						"You can't get a project from a colleague at present, because some required information about the projects you already have is unavailable. "
+				+ "This may be because you don't have permission to access a file in one of the projects in {0}.\n\n"
+				+ "You will probably need technical support to resolve this problem. The following information may be helpful to tech support:\n\n{1}",
+						baseProjectDirInWhichToSearchForRepositories, e.Message),
+						"Cannot get project");
+				return new CloneResult(null, CloneStatus.NotCreated);
+			}
 			var existingProjectNames = new HashSet<string>(from dir in Directory.GetDirectories(baseProjectDirInWhichToSearchForRepositories) select Path.GetFileName(dir));
 
 			// "existingRepositoryIdentifiers" is currently not used, but the expectation is that the various models/views could use it how they see fit.
@@ -87,39 +114,12 @@ namespace Chorus.UI.Clone
 					}
 					break;
 
-				case ExtantRepoSource.LocalNetwork:
-					var cloneFromNetworkFolderModel = new GetCloneFromNetworkFolderModel(baseProjectDirForNewClone)
-						{
-							ProjectFilter = projectFilter ?? DefaultProjectFilter
-						};
-
-					using (var cloneFromNetworkFolderDlg = new GetCloneFromNetworkFolderDlg())
-					{
-						// We don't have a GetCloneFromNetworkFolderDlg constructor that takes the model because
-						// it would inexplicably mess up Visual Studio's designer view of the dialog:
-						cloneFromNetworkFolderDlg.LoadFromModel(cloneFromNetworkFolderModel);
-
-						switch (cloneFromNetworkFolderDlg.ShowDialog(parent))
-						{
-							default:
-								cloneStatus = CloneStatus.NotCreated;
-								break;
-							case DialogResult.Cancel:
-								cloneStatus = CloneStatus.Cancelled;
-								break;
-							case DialogResult.OK:
-								actualCloneLocation = cloneFromNetworkFolderDlg.PathToNewlyClonedFolder;
-								cloneStatus = CloneStatus.Created;
-								break;
-						}
-					}
-					break;
-
 				case ExtantRepoSource.ChorusHub:
 					var getCloneFromChorusHubModel = new GetCloneFromChorusHubModel(baseProjectDirForNewClone)
 					{
-						ProjectFilter = projectFilter ?? DefaultProjectFilter,
-						ExistingProjects = existingProjectNames
+						ProjectFilter = hubQuery,
+						ExistingProjects = existingProjectNames,
+						ExistingRepositoryIdentifiers = existingRepositories
 					};
 
 					using (var getCloneFromChorusHubDialog = new GetCloneFromChorusHubDialog(getCloneFromChorusHubModel))
@@ -262,8 +262,6 @@ namespace Chorus.UI.Clone
 		Internet,
 		/// <summary>Get a clone from a USB drive</summary>
 		Usb,
-		/// <summary>Get a clone from a shared network folder</summary>
-		LocalNetwork,
 		/// <summary>Get a clone from ChorusHub</summary>
 		ChorusHub
 	}

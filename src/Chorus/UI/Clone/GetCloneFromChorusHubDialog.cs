@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Drawing;
 using System.Threading;
 using System.Windows.Forms;
 using ChorusHub;
-using Palaso.Progress;
 using Palaso.Progress;
 using Palaso.UI.WindowsForms.Progress;
 
@@ -187,43 +185,60 @@ namespace Chorus.UI.Clone
 
 		void OnGetChorusHubInfo_Completed(object sender, RunWorkerCompletedEventArgs e)
 		{
-			var client = e.Result as ChorusHubClient;
-			if (client == null)
+			var results = e.Result as object[];
+			if (results == null)
 			{
 				Text = "Sorry, no Chorus Hub was found.";
 			}
-			else if(!client.ServerIsCompatibleWithThisClient)
-			{
-				Text = "Found Chorus Hub but it is not compatible with this version of "+Application.ProductName;;
-			}
 			else
 			{
-				Text = string.Format("Get {0} from Chorus Hub on {1}", RepositoryKindLabel, client.HostName);
-				foreach (var name in (IEnumerable<string>)client.GetRepositoryNames())
+				var client = results[0] as ChorusHubClient;
+				if (client == null)
 				{
-					var item = new ListViewItem(name);
-					if (_model.ExistingProjects!= null && _model.ExistingProjects.Contains(name))
+					Text = "Sorry, no Chorus Hub was found.";
+				}
+				else if (!client.ServerIsCompatibleWithThisClient)
+				{
+					Text = "Found Chorus Hub but it is not compatible with this version of " + Application.ProductName;
+				}
+				else
+				{
+					Text = string.Format("Get {0} from Chorus Hub on {1}", RepositoryKindLabel, client.HostName);
+					_model.ChorusHubRepositoryInformation = (IEnumerable<ChorusHubRepositoryInformation>)results[1];
+					foreach (var repoInfo in _model.ChorusHubRepositoryInformation)
 					{
-						item.ForeColor = CloneFromUsb.DisabledItemForeColor;
-						item.ToolTipText = CloneFromUsb.ProjectWithSameNameExists;
+						if (repoInfo.RepoID == "newRepo")
+							continue; // Empty repo exists. It can receive any real repo, but cannot return a useful clone, however, so don't list it.
+						var item = new ListViewItem(repoInfo.RepoName);
+						string dummy;
+						if (_model.ExistingRepositoryIdentifiers != null &&
+							_model.ExistingRepositoryIdentifiers.TryGetValue(repoInfo.RepoID, out dummy))
+						{
+							item.ForeColor = CloneFromUsb.DisabledItemForeColor;
+							item.ToolTipText = CloneFromUsb.ProjectWithSameNameExists;
+						}
+						_projectRepositoryListView.Items.Add(item);
 					}
-					_projectRepositoryListView.Items.Add(item);
 				}
 			}
 		}
 
 		void OnChorusHubInfo_DoWork(object sender, DoWorkEventArgs e)
 		{
-			Thread.CurrentThread.Name = "GetRepositoryNames";
+			Thread.CurrentThread.Name = "GetRepositoryInformation";
 			var client = new ChorusHubClient();
-			if(client.FindServer()!=null)
+			var server = client.FindServer();
+
+			if (server == null || !server.ServerIsCompatibleWithThisClient)
 			{
-				client.GetRepositoryNames();
-				e.Result = client;
+				e.Result = null;
 			}
 			else
 			{
-				e.Result = null;
+				var results = new object[2];
+				results[0] = client;
+				results[1] = client.GetRepositoryInformation(_model.ProjectFilter);
+				e.Result = results;
 			}
 		}
 
@@ -234,16 +249,17 @@ namespace Chorus.UI.Clone
 
 		/// <summary>
 		/// Used to check if the repository is the right kind for your program, so that the only projects that can be chosen are ones
-		/// you application is prepared to open.
+		/// your application is prepared to open.
 		///
 		/// Note: the comparison is based on how hg stores the file name/extenion, not the original form!
 		/// </summary>
 		/// <example>Bloom uses "*.bloom_collection.i" to test if there is a ".BloomCollection" file</example>
 		public void SetFilePatternWhichMustBeFoundInHgDataFolder(string pattern)
 		{
-			//TODO
-			//no don't do throw. doing it means client need special code for each clone method
-			//  throw new NotImplementedException();
+			if (!string.IsNullOrEmpty(pattern))
+			{
+				_model.ProjectFilter = pattern;
+			}
 		}
 	}
 }

@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Media;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using ChorusHub;
@@ -15,6 +14,7 @@ namespace Chorus.UI.Clone
 	public class GetCloneFromChorusHubModel
 	{
 		public string RepositoryName { get; set; }
+		public IEnumerable<ChorusHubRepositoryInformation> ChorusHubRepositoryInformation { get; set; }
 
 		///<summary>
 		/// Flag indicating success or otherwise of MakeClone call
@@ -31,10 +31,14 @@ namespace Chorus.UI.Clone
 
 		/// <summary>
 		/// Use this to inject a custom filter, so that the only projects that can be chosen are ones
-		/// you application is prepared to open. The delegate is given the path to each mercurial project.
-		/// The default filter is simply true, in that it will accept any folder.
+		/// your application is prepared to open. The usual method of passing a filter delegate doesn't
+		/// work with ChorusHub's cross-process communication, so our ProjectFilter is a string which
+		/// gets parsed by the server to determine whether a given mercurial project can be chosen or not.
+		/// The default filter is simply empty string, which returns any folder name.
 		/// </summary>
-		public Func<string, bool> ProjectFilter = GetSharedProjectModel.DefaultProjectFilter;
+		/// <example>Set this to "fileExtension=.lift" to get LIFT repos, but not Bloom ones, for instance.
+		/// The server looks in the project's .hg/store/data folder for a file ending in .lift.i</example>
+		public string ProjectFilter = string.Empty;
 
 		public GetCloneFromChorusHubModel(string pathToFolderWhichWillContainClonedFolder)
 		{
@@ -44,9 +48,16 @@ namespace Chorus.UI.Clone
 		public void MakeClone(IProgress progress)
 		{
 			 var client = new ChorusHubClient();
-			if(client.FindServer()==null)
+			var server = client.FindServer();
+			if (server == null)
 			{
-				progress.WriteError("The Chorus Server is no longer available.");
+				progress.WriteError("The Chorus Server is not available.");
+				CloneSucceeded = false;
+				return;
+			}
+			if (!server.ServerIsCompatibleWithThisClient)
+			{
+				progress.WriteError("The Chorus Server is not compatible with ths client.");
 				CloneSucceeded = false;
 				return;
 			}
@@ -63,27 +74,17 @@ namespace Chorus.UI.Clone
 				CloneSucceeded = false;
 				throw;
 			}
-//
-//			// These next two calls are fine in how they treat the hgrc update, as a bootstrap clone has no old stuff to fret about.
-//			// SetKnownRepositoryAddresses blows away entire 'paths' section, including the "default" one that hg puts in, which we don't really want anyway.
-//			repo.SetKnownRepositoryAddresses(new[] { address });
-//			// SetIsOneDefaultSyncAddresses adds 'address' to another section (ChorusDefaultRepositories) in hgrc.
-//			// 'true' then writes the "address.Name=" (section.Set(address.Name, string.Empty);).
-//			// I (RandyR) think this then uses that address.Name as the new 'default' for that particular repo source type.
-//			repo.SetIsOneDefaultSyncAddresses(address, true);
-//
-//
-//            if (ActualClonedFolder.Length > 0)
-//				CloneSucceeded = true;
-//
-//            return ActualClonedFolder;
 		}
 
 		/// <summary>
-		/// Set this to the names of existing projects. Items on the USB with the same names will be disabled.
+		/// Set this to the names of existing projects. Items on the Hub with the same names will be disabled.
 		/// </summary>
 		public HashSet<string> ExistingProjects { get; set; }
 
+		/// <summary>
+		/// Set this to the IDs of existing projects. Items on the Hub with the same IDs will be disabled.
+		/// </summary>
+		public Dictionary<string, string> ExistingRepositoryIdentifiers { get; set; }
 
 	}
 }

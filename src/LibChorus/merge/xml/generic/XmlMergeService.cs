@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Xml;
+using System.Xml.Linq;
 using Chorus.Utilities;
 using Palaso.Code;
 using Palaso.Xml;
@@ -54,7 +55,7 @@ namespace Chorus.merge.xml.generic
 		{
 			// NB: All these steps are crucially ordered.
 			listener.RecordContextInConflict(conflict);
-			if (conflict.Context == null && nodeToFindGeneratorFrom != null)
+			if ((conflict.Context == null || conflict.Context is NullContextDescriptor) && nodeToFindGeneratorFrom != null)
 			{
 				// We are too far up the stack for the listener to have been told a context.
 				// Make one out of the current node.
@@ -179,6 +180,9 @@ namespace Chorus.merge.xml.generic
 						  out allWinnerData, out allWinnerIds,
 						  out allLoserData, out allLoserIds);
 
+			var originalValue = RemoveAmbiguousChildNodes;
+			RemoveAmbiguousChildNodes = false;
+
 			// Step 2. Collect up new items from winner and loser and report relevant conflicts.
 			var fluffedUpAncestorNodes = new Dictionary<string, XmlNode>();
 			var fluffedUpLoserNodes = new Dictionary<string, XmlNode>();
@@ -248,6 +252,8 @@ namespace Chorus.merge.xml.generic
 				allLoserData.Remove(identifier);
 				allWritableData.Add(identifier, updatedData);
 			}
+
+			RemoveAmbiguousChildNodes = originalValue;
 
 			return allWritableData;
 		}
@@ -674,15 +680,15 @@ namespace Chorus.merge.xml.generic
 										  out Dictionary<string, string> allLoserData, out HashSet<string> allLoserIds)
 		{
 			allCommonAncestorData = MakeRecordDictionary(mergeOrder.EventListener, mergeStrategy,
-														 commonAncestorPathname, false, optionalFirstElementMarker,
+														 commonAncestorPathname, optionalFirstElementMarker,
 														 repeatingRecordElementName, repeatingRecordKeyIdentifier);
 			allCommonAncestorIds = new HashSet<string>(allCommonAncestorData.Keys, StringComparer.InvariantCultureIgnoreCase);
 			allWinnerData = MakeRecordDictionary(mergeOrder.EventListener, mergeStrategy,
-												 pathToWinner, true, optionalFirstElementMarker,
+												 pathToWinner, optionalFirstElementMarker,
 												 repeatingRecordElementName, repeatingRecordKeyIdentifier);
 			allWinnerIds = new HashSet<string>(allWinnerData.Keys, StringComparer.InvariantCultureIgnoreCase);
 			allLoserData = MakeRecordDictionary(mergeOrder.EventListener, mergeStrategy,
-												pathToLoser, true, optionalFirstElementMarker, repeatingRecordElementName,
+												pathToLoser, optionalFirstElementMarker, repeatingRecordElementName,
 												repeatingRecordKeyIdentifier);
 			allLoserIds = new HashSet<string>(allLoserData.Keys, StringComparer.InvariantCultureIgnoreCase);
 		}
@@ -738,7 +744,6 @@ namespace Chorus.merge.xml.generic
 		private static Dictionary<string, string> MakeRecordDictionary(IMergeEventListener mainMergeEventListener,
 			IMergeStrategy mergeStrategy,
 			string pathname,
-			bool removeAmbiguousChildren,
 			string firstElementMarker,
 			string recordStartingTag,
 			string identifierAttribute)
@@ -760,9 +765,9 @@ namespace Chorus.merge.xml.generic
 						}
 						else
 						{
-							if (removeAmbiguousChildren)
+							if (RemoveAmbiguousChildNodes)
 							{
-								var possiblyRevisedRecord = RemoveAmbiguousChildren(mainMergeEventListener, mergeStrategy.GetStrategies(), record);
+								var possiblyRevisedRecord = RemoveAmbiguousChildren(mainMergeEventListener, mergeStrategy.GetStrategies(), record, pathname);
 								records.Add(key, possiblyRevisedRecord);
 							}
 							else
@@ -795,9 +800,9 @@ namespace Chorus.merge.xml.generic
 						}
 						else
 						{
-							if (removeAmbiguousChildren)
+							if (RemoveAmbiguousChildNodes)
 							{
-								var possiblyRevisedRecord = RemoveAmbiguousChildren(mainMergeEventListener, mergeStrategy.GetStrategies(), record);
+								var possiblyRevisedRecord = RemoveAmbiguousChildren(mainMergeEventListener, mergeStrategy.GetStrategies(), record, pathname);
 								records.Add(identifier, possiblyRevisedRecord);
 							}
 							else
@@ -825,10 +830,21 @@ namespace Chorus.merge.xml.generic
 		/// </remarks>
 		public static string RemoveAmbiguousChildren(IMergeEventListener eventListener,
 			MergeStrategies mergeStrategies,
-			string parent)
+			string parent, string pathname)
 		{
 			if (!RemoveAmbiguousChildNodes)
 				return parent;
+
+			if (pathname.ToLowerInvariant().EndsWith("lift") || pathname.ToLowerInvariant().EndsWith("lift-ranges"))
+			{
+				var parentElement = XElement.Parse(parent);
+				foreach (var misnamedElement in parentElement.Descendants("element"))
+				{
+					misnamedElement.Name = "text";
+					misnamedElement.Attribute("name").Remove();
+				}
+				parent = parentElement.ToString();
+			}
 			var parentNode = XmlUtilities.GetDocumentNodeFromRawXml(parent, new XmlDocument());
 			RemoveAmbiguousChildren(
 				eventListener,
@@ -859,19 +875,23 @@ namespace Chorus.merge.xml.generic
 			if (elementStrat.IsImmutable)
 				return;
 			var ambiguousNodes = new List<XmlNode>();
-			foreach (XmlNode childNode in parent.ChildNodes)
+			var copyOfChildNodes = new List<XmlNode>(parent.ChildNodes.Count);
+			copyOfChildNodes.AddRange(parent.ChildNodes.Cast<XmlNode>());
+
+			foreach (var childNode in copyOfChildNodes)
 			{
-				if (ambiguousNodes.Contains(childNode))
+				var childNodeAsVariable = childNode;
+				if (ambiguousNodes.Contains(childNodeAsVariable))
 					continue; // Already found it, so don't bother processing it again.
 
-				elementStrat = mergeStrategies.GetElementStrategy(childNode);
+				elementStrat = mergeStrategies.GetElementStrategy(childNodeAsVariable);
 				if (elementStrat.IsImmutable)
 					continue;
 				var finder = elementStrat.MergePartnerFinder;
 				if (!(finder is IFindMatchingNodesToMerge))
 					continue;
 				var finderOfMultiples = (IFindMatchingNodesToMerge) finder;
-				var matches = finderOfMultiples.GetMatchingNodes(childNode, parent).ToList();
+				var matches = finderOfMultiples.GetMatchingNodes(childNodeAsVariable, parent).ToList();
 				if (matches.Count < 2)
 					continue; // No duplicates were found, so keep going.
 
@@ -887,7 +907,7 @@ namespace Chorus.merge.xml.generic
 																	matches.Count,
 																	finderOfMultiples.GetWarningMessageForAmbiguousNodes(matches[0]))));
 				// Add all but the current one (the first one), so they can be removed in the next loop.
-				ambiguousNodes.AddRange(matches.Where(match => match != childNode));
+				ambiguousNodes.AddRange(matches.Where(match => match != childNodeAsVariable));
 			}
 
 			foreach (var ambiguousNode in ambiguousNodes)

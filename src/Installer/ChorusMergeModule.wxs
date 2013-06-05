@@ -62,6 +62,18 @@ http://blogs.msdn.com/robmen/archive/2003/10/04/56479.aspx -->
 		<Component Id="icu.net.dll" Guid="C1EE09F7-E382-11DE-8A39-0800200C9A66">
 		  <File Id="icu.net.dll" Name="icu.net.dll" KeyPath="yes" Source="..\..\output\release\icu.net.dll" />
 		</Component>
+		<Component Id="icu.net.dll.config" Guid="C1EE3119-E382-11DE-8A39-0800200C9A66">
+		  <File Id="icu.net.dll.config" Name="icu.net.dll.config" KeyPath="yes" Source="..\..\output\release\icu.net.dll.config" />
+		</Component>
+		<Component Id="icudt40.dll" Guid="C1EE3118-E382-11DE-8A39-0800200C9A66">
+		  <File Id="icudt40.dll" Name="icudt40.dll" KeyPath="yes" Source="..\..\lib\Release\icudt40.dll" />
+		</Component>
+		<Component Id="icuin40.dll" Guid="C1EE3117-E382-11DE-8A39-0800200C9A66">
+		  <File Id="icuin40.dll" Name="icuin40.dll" KeyPath="yes" Source="..\..\lib\Release\icuin40.dll" />
+		</Component>
+		<Component Id="icuuc40.dll" Guid="C1EE3116-E382-11DE-8A39-0800200C9A66">
+		  <File Id="icuuc40.dll" Name="icuuc40.dll" KeyPath="yes" Source="..\..\lib\Release\icuuc40.dll" />
+		</Component>
 		<Component Id="Palaso.dll" Guid="C1EE09F8-E382-11DE-8A39-0800200C9A66">
 		  <File Id="Palaso.dll" Name="Palaso.dll" KeyPath="yes" Source="..\..\output\release\Palaso.dll" />
 		</Component>
@@ -79,6 +91,10 @@ http://blogs.msdn.com/robmen/archive/2003/10/04/56479.aspx -->
 	<ComponentRef Id="Vulcan.Uczniowie.HelpProvider.dll"/>
 	<ComponentRef Id="Autofac.dll"/>
 	<ComponentRef Id="icu.net.dll"/>
+	<ComponentRef Id="icu.net.dll.config"/>
+	<ComponentRef Id="icudt40.dll"/>
+	<ComponentRef Id="icuin40.dll"/>
+	<ComponentRef Id="icuuc40.dll"/>
 	<ComponentRef Id="Palaso.dll"/>
 	<ComponentRef Id="Palaso.Lift.dll"/>
 	<ComponentRef Id="PalasoUIWindowsForms.dll"/>
