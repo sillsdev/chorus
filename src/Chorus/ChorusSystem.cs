@@ -105,13 +105,12 @@ namespace Chorus
 
 		public static void SetUpLocalization(string desiredUiLangId, string localizationFolder)
 		{
-			// Now set it up for the handful of localizable elements in FlexBridge itself.
 			string targetTmxFilePath = Path.Combine(localizationFolder, "Chorus");
 			// This is safer than Application.ProductVersion, which might contain words like 'alpha' or 'beta',
 			// which (on the SECOND run of the program) fail when L10NSharp tries to make a Version object out of them.
-			var version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
-			// Version will have 4 parts, but we don't need to reload strings for every build.
-			version = version.Substring(0, version.LastIndexOf('.'));
+			var versionObj = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
+			// We don't need to reload strings for every "revision" (that might be every time we build).
+			var version = "" + versionObj.Major + "." + versionObj.Minor + "." + versionObj.Build;
 			LocalizationManager.Create(desiredUiLangId, "Chorus", Application.ProductName,
 						   version, localizationFolder,
 						   targetTmxFilePath,
