@@ -361,7 +361,7 @@ namespace Chorus.UI.Notes
 			var handler = m_embeddedMessageContentHandlerRepository.GetHandlerOrDefaultForUrl(uri);
 			if(handler!=null)
 			{
-				handler.HandleUrl(uri);
+				handler.HandleUrl(uri, _annotation.AnnotationFilePath);
 			}
 		}
 

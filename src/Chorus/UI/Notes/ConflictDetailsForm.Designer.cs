@@ -36,6 +36,7 @@
 			this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.copyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.l10NSharpExtender1 = new L10NSharp.UI.L10NSharpExtender(this.components);
+			this.technicalDetailsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.menuStrip1.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.l10NSharpExtender1)).BeginInit();
 			this.SuspendLayout();
@@ -87,7 +88,8 @@
 			// editToolStripMenuItem
 			//
 			this.editToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-			this.copyToolStripMenuItem});
+			this.copyToolStripMenuItem,
+			this.technicalDetailsToolStripMenuItem});
 			this.l10NSharpExtender1.SetLocalizableToolTip(this.editToolStripMenuItem, null);
 			this.l10NSharpExtender1.SetLocalizationComment(this.editToolStripMenuItem, null);
 			this.l10NSharpExtender1.SetLocalizingId(this.editToolStripMenuItem, "ConflictDetailsForm.EditMenu");
@@ -102,7 +104,7 @@
 			this.l10NSharpExtender1.SetLocalizingId(this.copyToolStripMenuItem, "ConflictDetailsForm.CopyMenuItem");
 			this.copyToolStripMenuItem.Name = "copyToolStripMenuItem";
 			this.copyToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.C)));
-			this.copyToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this.copyToolStripMenuItem.Size = new System.Drawing.Size(163, 22);
 			this.copyToolStripMenuItem.Text = "Copy";
 			this.copyToolStripMenuItem.Click += new System.EventHandler(this.copyToolStripMenuItem_Click);
 			//
@@ -110,6 +112,16 @@
 			//
 			this.l10NSharpExtender1.LocalizationManagerId = "Chorus";
 			this.l10NSharpExtender1.PrefixForNewItems = "ConflictDetailsForm";
+			//
+			// technicalDetailsToolStripMenuItem
+			//
+			this.l10NSharpExtender1.SetLocalizableToolTip(this.technicalDetailsToolStripMenuItem, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this.technicalDetailsToolStripMenuItem, null);
+			this.l10NSharpExtender1.SetLocalizingId(this.technicalDetailsToolStripMenuItem, "ConflictDetailsForm.ConflictDetailsForm.technicalDetailsToolStripMenuItem");
+			this.technicalDetailsToolStripMenuItem.Name = "technicalDetailsToolStripMenuItem";
+			this.technicalDetailsToolStripMenuItem.Size = new System.Drawing.Size(163, 22);
+			this.technicalDetailsToolStripMenuItem.Text = "Technical Details";
+			this.technicalDetailsToolStripMenuItem.Click += new System.EventHandler(this.technicalDetailsToolStripMenuItem_Click);
 			//
 			// ConflictDetailsForm
 			//
@@ -143,5 +155,6 @@
 		private System.Windows.Forms.ToolStripMenuItem editToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem copyToolStripMenuItem;
 		private L10NSharp.UI.L10NSharpExtender l10NSharpExtender1;
+		private System.Windows.Forms.ToolStripMenuItem technicalDetailsToolStripMenuItem;
 	}
 }

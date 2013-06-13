@@ -29,9 +29,16 @@ namespace Chorus.notes
 #endif
 		}
 
+		public string TechnicalDetails { get; set; }
+
 		private void copyToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			_conflictDisplay.Document.ExecCommand(@"Copy", false, null);
+		}
+
+		private void technicalDetailsToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			_conflictDisplay.DocumentText = TechnicalDetails;
 		}
 	}
 }
