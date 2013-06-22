@@ -264,16 +264,46 @@ namespace Chorus.merge.xml.generic
 			{
 				if (merger.MergeSituation.ConflictHandlingMode == MergeOrder.ConflictHandlingModeChoices.WeWin)
 				{
-					merger.ConflictOccurred(new BothAddedMainElementButWithDifferentContentConflict(ourChild.Name, ourChild, theirChild,
-																									mergeSituation, mergeStrategyForChild,
-																									mergeSituation.AlphaUserId));
+					var ourChildClone = MakeClone(ourChild);
+					var theirChildClone = MakeClone(theirChild);
+					if (XmlUtilities.AreXmlElementsEqual(ourChildClone, theirChildClone))
+					{
+						merger.EventListener.ChangeOccurred(new XmlAdditionChangeReport(pathToFileInRepository, ourChild));
+						var ourChildReplacement = ourChild;
+						merger.MergeInner(ref ourChildReplacement, theirChild, null);
+						if (!ReferenceEquals(ourChild, ourChildReplacement))
+						{
+							ours.ReplaceChild(ours.OwnerDocument.ImportNode(ourChildReplacement, true), ourChild);
+						}
+					}
+					else
+					{
+						merger.ConflictOccurred(new BothAddedMainElementButWithDifferentContentConflict(ourChild.Name, ourChild, theirChild,
+																										mergeSituation, mergeStrategyForChild,
+																										mergeSituation.AlphaUserId));
+					}
 				}
 				else
 				{
-					merger.ConflictOccurred(new BothAddedMainElementButWithDifferentContentConflict(theirChild.Name, theirChild, ourChild,
-																									mergeSituation, mergeStrategyForChild,
-																									mergeSituation.BetaUserId));
-					ours.ReplaceChild(ours.OwnerDocument.ImportNode(theirChild, true), ourChild);
+					var ourChildClone = MakeClone(ourChild);
+					var theirChildClone = MakeClone(theirChild);
+					if (XmlUtilities.AreXmlElementsEqual(ourChildClone, theirChildClone))
+					{
+						merger.EventListener.ChangeOccurred(new XmlAdditionChangeReport(pathToFileInRepository, theirChild));
+						var ourChildReplacement = ourChild;
+						merger.MergeInner(ref ourChildReplacement, theirChild, null);
+						if (!ReferenceEquals(ourChild, ourChildReplacement))
+						{
+							ours.ReplaceChild(ours.OwnerDocument.ImportNode(ourChildReplacement, true), ourChild);
+						}
+					}
+					else
+					{
+						merger.ConflictOccurred(new BothAddedMainElementButWithDifferentContentConflict(theirChild.Name, theirChild, ourChild,
+																										mergeSituation, mergeStrategyForChild,
+																										mergeSituation.BetaUserId));
+						ours.ReplaceChild(ours.OwnerDocument.ImportNode(theirChild, true), ourChild);
+					}
 				}
 			}
 			return ours;

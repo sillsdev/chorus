@@ -552,6 +552,47 @@ namespace LibChorus.Tests.merge.xml.generic
 		}
 
 		[Test]
+		public void BothAddedSameAtomicOwnedElementToExtantPropertyButWithDifferencesInTheInnards()
+		{
+			const string commonAncestor =
+@"<Lexicon>
+	<LexEntry guid='c1ed94c5-e382-11de-8a39-0800200c9a66'>
+		<ImportResidue />
+	</LexEntry>
+</Lexicon>";
+
+			var ours = commonAncestor.Replace("<ImportResidue />", "<ImportResidue><Str><Run ws='en'>OurAddition</Run></Str></ImportResidue>");
+			var theirs = commonAncestor.Replace("<ImportResidue />", "<ImportResidue><Str><Run ws='en'>TheirAddition</Run></Str></ImportResidue>");
+
+			var listener = new ListenerForUnitTests();
+			var merger = new XmlMerger(new NullMergeSituation())
+			{
+				EventListener = listener
+			};
+			merger.MergeStrategies.SetStrategy("Lexicon", ElementStrategy.CreateSingletonElement());
+
+			var strat = ElementStrategy.CreateForKeyedElement("guid", false);
+			strat.AttributesToIgnoreForMerging.Add("guid");
+			merger.MergeStrategies.SetStrategy("LexEntry", strat);
+
+			strat = ElementStrategy.CreateSingletonElement();
+			strat.NumberOfChildren = NumberOfChildrenAllowed.ZeroOrOne;
+			merger.MergeStrategies.SetStrategy("ImportResidue", strat);
+
+			strat = ElementStrategy.CreateSingletonElement();
+			strat.NumberOfChildren = NumberOfChildrenAllowed.ZeroOrOne;
+			strat.IsAtomic = true;
+			merger.MergeStrategies.SetStrategy("Str", strat);
+
+			XmlTestHelper.DoMerge(merger.MergeStrategies, merger.MergeSituation,
+								  commonAncestor, ours, theirs,
+								  new[] { "Lexicon/LexEntry/ImportResidue/Str/Run[text()='OurAddition']" },
+				new List<string> { @"Lexicon/LexEntry/ImportResidue/Str/Run[text()='TheirAddition']" },
+								  1, new List<Type> { typeof(BothEditedTheSameAtomicElement) },
+								  1, new List<Type> { typeof(XmlAdditionChangeReport) });
+		}
+
+		[Test]
 		public void BothAddedSameAtomicOwnedElementToNewPropertyButWithDifferencesInTheInnards()
 		{
 			const string commonAncestor =
@@ -621,6 +662,58 @@ namespace LibChorus.Tests.merge.xml.generic
 								  null,
 								  1, new List<Type> { typeof(XmlTextBothAddedTextConflict) },
 								  3, new List<Type> { typeof(XmlBothAddedSameChangeReport), typeof(XmlAttributeBothAddedReport), typeof(XmlBothAddedSameChangeReport) });
+		}
+
+		[Test]
+		public void MoStemMsaHasMergeConflictOnPartOfSpeechAddedByBoth()
+		{
+			const string commonAncestor =
+@"<Lexicon>
+	<LexEntry guid='c1ed94c5-e382-11de-8a39-0800200c9a66'>
+		<MorphoSyntaxAnalyses>
+			<MoStemMsa guid='2d6a109e-1178-4b31-bf5b-8dca5e843675' />
+		</MorphoSyntaxAnalyses>
+	</LexEntry>
+</Lexicon>";
+
+			var ours = commonAncestor.Replace("<MoStemMsa guid='2d6a109e-1178-4b31-bf5b-8dca5e843675' />", "<MoStemMsa guid='2d6a109e-1178-4b31-bf5b-8dca5e843675'><PartOfSpeech><objsur guid='c1ed94d4-e382-11de-8a39-0800200c9a66' t='r' /></PartOfSpeech></MoStemMsa>");
+			var theirs = commonAncestor.Replace("<MoStemMsa guid='2d6a109e-1178-4b31-bf5b-8dca5e843675' />", "<MoStemMsa guid='2d6a109e-1178-4b31-bf5b-8dca5e843675'><PartOfSpeech><objsur guid='c1ed94d5-e382-11de-8a39-0800200c9a66' t='r' /></PartOfSpeech></MoStemMsa>");
+
+			var listener = new ListenerForUnitTests();
+			var merger = new XmlMerger(new NullMergeSituation())
+			{
+				EventListener = listener
+			};
+			merger.MergeStrategies.SetStrategy("Lexicon", ElementStrategy.CreateSingletonElement());
+
+			var strat = ElementStrategy.CreateForKeyedElement("guid", false);
+			strat.AttributesToIgnoreForMerging.Add("guid");
+			merger.MergeStrategies.SetStrategy("LexEntry", strat);
+
+			strat = ElementStrategy.CreateSingletonElement();
+			strat.NumberOfChildren = NumberOfChildrenAllowed.ZeroOrOne;
+			merger.MergeStrategies.SetStrategy("MorphoSyntaxAnalyses", strat);
+
+			strat = ElementStrategy.CreateForKeyedElement("guid", false);
+			strat.AttributesToIgnoreForMerging.Add("guid");
+			strat.NumberOfChildren = NumberOfChildrenAllowed.ZeroOrMore;
+			merger.MergeStrategies.SetStrategy("MoStemMsa", strat);
+
+			strat = ElementStrategy.CreateSingletonElement();
+			strat.NumberOfChildren = NumberOfChildrenAllowed.ZeroOrOne;
+			merger.MergeStrategies.SetStrategy("PartOfSpeech", strat); ;
+
+			strat = ElementStrategy.CreateSingletonElement();
+			strat.NumberOfChildren = NumberOfChildrenAllowed.Zero;
+			strat.IsAtomic = true;
+			merger.MergeStrategies.SetStrategy("objsur", strat);
+
+			XmlTestHelper.DoMerge(merger.MergeStrategies, merger.MergeSituation,
+								  commonAncestor, ours, theirs,
+				new List<string> { @"Lexicon/LexEntry/MorphoSyntaxAnalyses/MoStemMsa/PartOfSpeech/objsur[@guid='c1ed94d4-e382-11de-8a39-0800200c9a66']" },
+				new List<string> { @"Lexicon/LexEntry/MorphoSyntaxAnalyses/MoStemMsa/PartOfSpeech/objsur[@guid='c1ed94d5-e382-11de-8a39-0800200c9a66']" },
+				1, new List<Type> { typeof(BothAddedMainElementButWithDifferentContentConflict) },
+				1, new List<Type> { typeof(XmlBothAddedSameChangeReport) });
 		}
 
 		[Test]
