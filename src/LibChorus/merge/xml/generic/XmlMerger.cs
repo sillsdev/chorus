@@ -293,7 +293,7 @@ namespace Chorus.merge.xml.generic
 			if (ours != null && !ours.HasChildNodes && theirs != null && !theirs.HasChildNodes && ancestor != null && !ancestor.HasChildNodes)
 				return;
 
-			// Step 5: DO some kind of merge on the child node.
+			// Step 5: Do some kind of merge on the child node.
 			if (XmlUtilities.IsTextLevel(ours, theirs, ancestor))
 			{
 				// Step 5A: Merge the text element.
