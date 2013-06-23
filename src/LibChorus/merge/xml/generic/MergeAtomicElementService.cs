@@ -40,7 +40,7 @@ namespace Chorus.merge.xml.generic
 			{
 				if (ours == null)
 				{
-					// They can't all be null, or there would have bene an expected thrown, above.
+					// They can't all be null, or there would have been an exception thrown, above.
 					//if (theirs == null)
 					//{
 					//    // Nobody did anything.
