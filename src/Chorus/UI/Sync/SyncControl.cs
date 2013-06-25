@@ -84,7 +84,6 @@ namespace Chorus.UI.Sync
 			}
 			progressBar1.Visible = Model.SynchronizingNow;// || _didAttemptSync;
 			_statusText.Visible = progressBar1.Visible;
-			_logBox.ShowMenu = true;
 			_logBox.ShowDetailsMenuItem = true;
 			_logBox.ShowDiagnosticsMenuItem = true;
 			_syncTargets.Enabled = Model != null;
