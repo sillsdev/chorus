@@ -176,7 +176,7 @@ namespace Chorus.UI.Clone
 			{
 				var repo = new HgRepository(actualCloneLocation, new NullProgress());
 				string projectWithExistingRepo;
-				if (existingRepositories.TryGetValue(repo.Identifier, out projectWithExistingRepo))
+				if (repo.Identifier != null && existingRepositories.TryGetValue(repo.Identifier, out projectWithExistingRepo))
 				{
 					using (var warningDlg = new DuplicateProjectWarningDialog())
 						warningDlg.Run(projectWithExistingRepo, howToSendReceiveMessageText);
