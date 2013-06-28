@@ -31,7 +31,7 @@ namespace Chorus.notes
 
 		private void copyToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			_conflictDisplay.Document.ExecCommand("Copy", false, null);
+			_conflictDisplay.Document.ExecCommand(@"Copy", false, null);
 		}
 	}
 }

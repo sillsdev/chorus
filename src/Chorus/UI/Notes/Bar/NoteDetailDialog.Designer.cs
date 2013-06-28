@@ -31,7 +31,14 @@
 			this.components = new System.ComponentModel.Container();
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(NoteDetailDialog));
 			this._helpProvider = new Vulcan.Uczniowie.HelpProvider.HelpComponent(this.components);
+			this.l10NSharpExtender1 = new L10NSharp.UI.L10NSharpExtender(this.components);
+			((System.ComponentModel.ISupportInitialize)(this.l10NSharpExtender1)).BeginInit();
 			this.SuspendLayout();
+			//
+			// l10NSharpExtender1
+			//
+			this.l10NSharpExtender1.LocalizationManagerId = "Chorus";
+			this.l10NSharpExtender1.PrefixForNewItems = "NoteDetailDialog";
 			//
 			// NoteDetailDialog
 			//
@@ -39,11 +46,15 @@
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(380, 373);
 			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+			this.l10NSharpExtender1.SetLocalizableToolTip(this, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this, null);
+			this.l10NSharpExtender1.SetLocalizingId(this, "NoteDetailDialog.WindowTitle");
 			this.MaximizeBox = false;
 			this.MinimizeBox = false;
 			this.Name = "NoteDetailDialog";
 			this.Text = "Note";
 			this.Load += new System.EventHandler(this.NoteDetailDialog_Load);
+			((System.ComponentModel.ISupportInitialize)(this.l10NSharpExtender1)).EndInit();
 			this.ResumeLayout(false);
 
 		}
@@ -51,6 +62,7 @@
 		#endregion
 
 		private Vulcan.Uczniowie.HelpProvider.HelpComponent _helpProvider;
+		private L10NSharp.UI.L10NSharpExtender l10NSharpExtender1;
 
 	}
 }

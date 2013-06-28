@@ -28,6 +28,7 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
+			this.components = new System.ComponentModel.Container();
 #if MONO
 			this._normalChangeDescriptionRenderer = new Gecko.GeckoWebBrowser();
 #else
@@ -41,9 +42,11 @@
 #else
 			this._rawChangeDescriptionRenderer = new System.Windows.Forms.WebBrowser();
 #endif
+			this.l10NSharpExtender1 = new L10NSharp.UI.L10NSharpExtender(this.components);
 			this.tabControl1.SuspendLayout();
 			this.tabPage1.SuspendLayout();
 			this.tabPageRaw.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.l10NSharpExtender1)).BeginInit();
 			this.SuspendLayout();
 			//
 			// _normalChangeDescriptionRenderer
@@ -64,6 +67,9 @@
 #else
 			this._normalChangeDescriptionRenderer.AllowWebBrowserDrop = false;
 			this._normalChangeDescriptionRenderer.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.l10NSharpExtender1.SetLocalizableToolTip(this._normalChangeDescriptionRenderer, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this._normalChangeDescriptionRenderer, null);
+			this.l10NSharpExtender1.SetLocalizingId(this._normalChangeDescriptionRenderer, "ChangeReportView.ChangeReportView._normalChangeDescriptionRenderer");
 			this._normalChangeDescriptionRenderer.Location = new System.Drawing.Point(3, 3);
 			this._normalChangeDescriptionRenderer.MinimumSize = new System.Drawing.Size(20, 20);
 			this._normalChangeDescriptionRenderer.Name = "_normalChangeDescriptionRenderer";
@@ -88,6 +94,9 @@
 			// tabPage1
 			//
 			this.tabPage1.Controls.Add(this._normalChangeDescriptionRenderer);
+			this.l10NSharpExtender1.SetLocalizableToolTip(this.tabPage1, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this.tabPage1, null);
+			this.l10NSharpExtender1.SetLocalizingId(this.tabPage1, "ChangeReportView.Normal");
 			this.tabPage1.Location = new System.Drawing.Point(4, 4);
 			this.tabPage1.Name = "tabPage1";
 			this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
@@ -99,6 +108,9 @@
 			// tabPageRaw
 			//
 			this.tabPageRaw.Controls.Add(this._rawChangeDescriptionRenderer);
+			this.l10NSharpExtender1.SetLocalizableToolTip(this.tabPageRaw, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this.tabPageRaw, null);
+			this.l10NSharpExtender1.SetLocalizingId(this.tabPageRaw, "ChangeReportView.Raw");
 			this.tabPageRaw.Location = new System.Drawing.Point(4, 4);
 			this.tabPageRaw.Name = "tabPageRaw";
 			this.tabPageRaw.Size = new System.Drawing.Size(142, 124);
@@ -122,6 +134,9 @@
 #else
 			this._rawChangeDescriptionRenderer.AllowWebBrowserDrop = false;
 			this._rawChangeDescriptionRenderer.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.l10NSharpExtender1.SetLocalizableToolTip(this._rawChangeDescriptionRenderer, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this._rawChangeDescriptionRenderer, null);
+			this.l10NSharpExtender1.SetLocalizingId(this._rawChangeDescriptionRenderer, "ChangeReportView.ChangeReportView._rawChangeDescriptionRenderer");
 			this._rawChangeDescriptionRenderer.Location = new System.Drawing.Point(0, 0);
 			this._rawChangeDescriptionRenderer.MinimumSize = new System.Drawing.Size(20, 20);
 			this._rawChangeDescriptionRenderer.Name = "_rawChangeDescriptionRenderer";
@@ -130,15 +145,24 @@
 			this._rawChangeDescriptionRenderer.WebBrowserShortcutsEnabled = false;
 #endif
 			//
+			// l10NSharpExtender1
+			//
+			this.l10NSharpExtender1.LocalizationManagerId = "Chorus";
+			this.l10NSharpExtender1.PrefixForNewItems = "ChangeReportView";
+			//
 			// ChangeReportView
 			//
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.Controls.Add(this.tabControl1);
+			this.l10NSharpExtender1.SetLocalizableToolTip(this, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this, null);
+			this.l10NSharpExtender1.SetLocalizingId(this, "ChangeReportView.ChangeReportView.ChangeReportView");
 			this.Name = "ChangeReportView";
 			this.tabControl1.ResumeLayout(false);
 			this.tabPage1.ResumeLayout(false);
 			this.tabPageRaw.ResumeLayout(false);
+			((System.ComponentModel.ISupportInitialize)(this.l10NSharpExtender1)).EndInit();
 			this.ResumeLayout(false);
 
 		}
@@ -158,6 +182,7 @@
 #else
 		private System.Windows.Forms.WebBrowser _rawChangeDescriptionRenderer;
 #endif
+		private L10NSharp.UI.L10NSharpExtender l10NSharpExtender1;
 
 	}
 }

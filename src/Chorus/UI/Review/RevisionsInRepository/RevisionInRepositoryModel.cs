@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows.Forms;
 using Chorus.VcsDrivers.Mercurial;
+using L10NSharp;
 using Palaso.Code;
 using Palaso.Progress;
 
@@ -121,7 +122,7 @@ namespace Chorus.UI.Review.RevisionsInRepository
 				_currentTipRev = tip.Number.LocalRevisionNumber;
 			}
 
-			ProgressDisplay.WriteStatus("Getting history...");
+			ProgressDisplay.WriteStatus(LocalizationManager.GetString("Messages.GettingHistory", "Getting history..."));
 			RevisionGetter.RunWorkerAsync();
 		}
 

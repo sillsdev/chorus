@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+	<UsingTask TaskName="DownloadFile" AssemblyFile="$(SolutionDir)/build/Palaso.BuildTasks.dll" />
+
+	<ItemGroup>
+		<DownloadedCommon Include="$(SolutionDir)/Download/L10NSharp.dll"/>
+		<DownloadedMono Include="$(SolutionDir)/Download/DefaultMono/Palaso.dll"/>
+		<DownloadedMono Include="$(SolutionDir)/Download/DefaultMono/Palaso.TestUtilities.dll"/>
+		<DownloadedMono Include="$(SolutionDir)/Download/DefaultMono/PalasoUIWindowsForms.dll"/>
+		<DownloadedMono Include="$(SolutionDir)/Download/DefaultMono/Palaso.Lift.dll"/>
+		<DownloadedDotNet Include="$(SolutionDir)/Download/DotNet/Palaso.dll"/>
+		<DownloadedDotNet Include="$(SolutionDir)/Download/DotNet/Palaso.TestUtilities.dll"/>
+		<DownloadedDotNet Include="$(SolutionDir)/Download/DotNet/PalasoUIWindowsForms.dll"/>
+		<DownloadedDotNet Include="$(SolutionDir)/Download/DotNet/Palaso.Lift.dll"/>
+	</ItemGroup>
+
+	<Target Name="BeforeBuild" Dependencies="DownloadMonoAssemblies;DownloadDotNetAssemblies">
+		<!-- bt196 is the output from L10NSharp continuous (Windows) build -->
+		<DownloadFile Address="http://build.palaso.org/guestAuth/repository/download/bt196/.lastSuccessful/L10NSharp.dll"
+					  LocalFilename="$(SolutionDir)/Download/L10NSharp.dll"/>
+		<Copy SourceFiles="@(DownloadedCommon)" DestinationFolder="$(SolutionDir)/lib/common"
+			  SkipUnchangedFiles="true"/>
+	</Target>
+
+	<Target Name="DownloadMonoAssemblies" Condition="'$(OS)'!='Windows_NT'">
+		<MakeDir Directories="$(SolutionDir)/Download"/>
+		<MakeDir Directories="$(SolutionDir)/Download/DefaultMono"/>
+		<!-- Palaso dlls. bt153 is the palaso-precise64-DefaultMono branch for Palaso. -->
+		<DownloadFile Address="http://build.palaso.org/guestAuth/repository/download/bt153/.lastSuccessful/Palaso.dll" LocalFilename="$(SolutionDir)/Download/DefaultMono/Palaso.dll"/>
+		<DownloadFile Address="http://build.palaso.org/guestAuth/repository/download/bt153/.lastSuccessful/Palaso.Lift.dll" LocalFilename="$(SolutionDir)/Download/DefaultMono/Palaso.Lift.dll"/>
+		<DownloadFile Address="http://build.palaso.org/guestAuth/repository/download/bt153/.lastSuccessful/Palaso.TestUtilities.dll" LocalFilename="$(SolutionDir)/Download/DefaultMono/Palaso.TestUtilities.dll"/>
+		<DownloadFile Address="http://build.palaso.org/guestAuth/repository/download/bt153/.lastSuccessful/PalasoUIWindowsForms.dll" LocalFilename="$(SolutionDir)/Download/DefaultMono/PalasoUIWindowsForms.dll"/>
+		<!-- split into two stages so that if the net connection fails, you still have the old files -->
+		<Copy SourceFiles="@(DownloadedMono)" DestinationFolder="$(SolutionDir)/lib/DebugMono"
+			SkipUnchangedFiles="true"/>
+		<Copy SourceFiles="@(DownloadedMono)" DestinationFolder="$(SolutionDir)/lib/ReleaseMono"
+			SkipUnchangedFiles="true"/>
+	</Target>
+
+	<Target Name="DownloadDotNetAssemblies" Condition="'$(OS)'=='Windows_NT'">
+		<MakeDir Directories="$(SolutionDir)/Download"/>
+		<MakeDir Directories="$(SolutionDir)/Download/DotNet"/>
+		<!-- Palaso dlls. bt247 is the palaso-win32-wesay1.4 Continuous branch for Palaso. -->
+		<DownloadFile Address="http://build.palaso.org/guestAuth/repository/download/bt247/.lastSuccessful/Palaso.dll" LocalFilename="$(SolutionDir)/Download/DotNet/Palaso.dll"/>
+		<DownloadFile Address="http://build.palaso.org/guestAuth/repository/download/bt247/.lastSuccessful/Palaso.Lift.dll" LocalFilename="$(SolutionDir)/Download/DotNet/Palaso.Lift.dll"/>
+		<DownloadFile Address="http://build.palaso.org/guestAuth/repository/download/bt247/.lastSuccessful/Palaso.TestUtilities.dll" LocalFilename="$(SolutionDir)/Download/DotNet/Palaso.TestUtilities.dll"/>
+		<DownloadFile Address="http://build.palaso.org/guestAuth/repository/download/bt247/.lastSuccessful/PalasoUIWindowsForms.dll" LocalFilename="$(SolutionDir)/Download/DotNet/PalasoUIWindowsForms.dll"/>
+		<!-- split into two stages so that if the net connection fails, you still have the old files -->
+		<Copy SourceFiles="@(DownloadedMono)" DestinationFolder="$(SolutionDir)/lib/Debug"
+			SkipUnchangedFiles="true"/>
+		<Copy SourceFiles="@(DownloadedMono)" DestinationFolder="$(SolutionDir)/lib/Release"
+			SkipUnchangedFiles="true"/>
+	</Target>
+
+</Project>

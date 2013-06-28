@@ -6,6 +6,7 @@ using System.Windows.Forms;
 using Chorus.notes;
 using Chorus.Properties;
 using Chorus.Utilities;
+using L10NSharp;
 using Palaso.Progress;
 
 namespace Chorus.UI.Notes.Bar
@@ -132,7 +133,7 @@ namespace Chorus.UI.Notes.Bar
 			b.Image = Resources.NewNote16x16;
 			b.FlatStyle = FlatStyle.Flat;
 			b.FlatAppearance.BorderSize = 0;
-			toolTip1.SetToolTip(b, "Add new question");
+			toolTip1.SetToolTip(b, LocalizationManager.GetString("Messages.AddQuestion", "Add new question"));
 			b.Click += new EventHandler(OnCreateNoteButtonClick);
 			_buttonsPanel.Controls.Add(b);
 		}

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 using Autofac;
@@ -13,6 +14,7 @@ using Chorus.UI.Notes.Browser;
 using Chorus.UI.Review;
 using Chorus.UI.Sync;
 using Chorus.VcsDrivers.Mercurial;
+using L10NSharp;
 using Palaso.Code;
 using Palaso.Progress;
 using IContainer = Autofac.IContainer;
@@ -99,6 +101,43 @@ namespace Chorus
 
 			ChorusUIComponentsInjector.Inject(builder, _dataFolderPath);
 			return builder;
+		}
+
+		/// <summary>
+		/// Typically root directory of installed files is something like [application exe directory]/localizations.
+		/// root directory of user modifiable tmx files has to be outside program files, something like
+		/// GetXAppDataFolder()/localizations, where GetXAppDataFolder would typically return something like
+		/// Program Data/Company/Program.
+		/// </summary>
+		/// <param name="desiredUiLangId"></param>
+		/// <param name="rootDirectoryOfInstalledTmxFiles"></param>
+		/// <param name="rootDirectoryOfUserModifiedTmxFiles"></param>
+		public static void SetUpLocalization(string desiredUiLangId, string rootDirectoryOfInstalledTmxFiles,
+			string rootDirectoryOfUserModifiedTmxFiles)
+		{
+			string directoryOfInstalledTmxFiles = Path.Combine(rootDirectoryOfInstalledTmxFiles, "Chorus");
+			string directoryOfUserModifiedTmxFiles = Path.Combine(rootDirectoryOfUserModifiedTmxFiles, "Chorus");
+			if (!Directory.Exists(directoryOfUserModifiedTmxFiles))
+			{
+				try
+				{
+					Directory.CreateDirectory(directoryOfUserModifiedTmxFiles);
+				}
+				catch (IOException)
+				{
+					// User won't be able to localize, but we can't do much about it.
+				}
+			}
+			// This is safer than Application.ProductVersion, which might contain words like 'alpha' or 'beta',
+			// which (on the SECOND run of the program) fail when L10NSharp tries to make a Version object out of them.
+			var versionObj = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
+			// We don't need to reload strings for every "revision" (that might be every time we build).
+			var version = "" + versionObj.Major + "." + versionObj.Minor + "." + versionObj.Build;
+			LocalizationManager.Create(desiredUiLangId, "Chorus", Application.ProductName,
+						   version, directoryOfInstalledTmxFiles,
+						   directoryOfUserModifiedTmxFiles,
+						   Icon.FromHandle(Properties.Resources.chorus32x32.GetHicon()), // should call DestroyIcon, but when?
+						   "issues@chorus.palaso.org", "Chorus");
 		}
 
 		public bool DidLoadUpCorrectly;

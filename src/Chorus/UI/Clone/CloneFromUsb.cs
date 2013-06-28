@@ -5,6 +5,7 @@ using System.IO;
 using System.Windows.Forms;
 using Chorus.Utilities.UsbDrive;
 using Chorus.VcsDrivers.Mercurial;
+using L10NSharp;
 using Palaso.IO;
 using Palaso.Progress;
 
@@ -54,8 +55,8 @@ namespace Chorus.UI.Clone
 				catch (Exception error)
 				{
 					MessageBox.Show(
-						string.Format("Error while looking at USB flash drive.  The drive root was {0}. The error was: {1}",
-									  drive.RootDirectory.FullName, error.Message), "Error", MessageBoxButtons.OK,
+						string.Format(LocalizationManager.GetString("Messages.UsbError", "Error while looking at USB flash drive.  The drive root was {0}. The error was: {1}"),
+									  drive.RootDirectory.FullName, error.Message), LocalizationManager.GetString("Common.Error", "Error"), MessageBoxButtons.OK,
 						MessageBoxIcon.Error);
 				}
 				foreach (var dir in directories)
@@ -159,7 +160,7 @@ namespace Chorus.UI.Clone
 		/// </summary>
 		public static string ProjectWithSameNameExists
 		{
-			get { return "A project with this name already exists on this computer.";}
+			get { return LocalizationManager.GetString("Messages.DuplicateName","A project with this name already exists on this computer.");}
 		}
 
 		/// <summary>
@@ -168,7 +169,7 @@ namespace Chorus.UI.Clone
 		/// </summary>
 		public static string ProjectInUseTemplate
 		{
-			get { return "The project {0} is already using this repository."; }
+			get { return LocalizationManager.GetString("Messages.RepositoryInUse","The project {0} is already using this repository."); }
 		}
 
 		/// <summary>

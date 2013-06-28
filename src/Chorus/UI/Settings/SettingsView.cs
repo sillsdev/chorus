@@ -1,6 +1,7 @@
 using System;
 using System.Windows.Forms;
 using Chorus.Utilities;
+using L10NSharp;
 using Palaso.Progress;
 
 namespace Chorus.UI.Settings
@@ -37,7 +38,7 @@ namespace Chorus.UI.Settings
 			}
 			catch (Exception)
 			{
-				MessageBox.Show("Could not change the name to that.");
+				MessageBox.Show(LocalizationManager.GetString("Messages.CouldNotChangeName", "Could not change the name to that."));
 				e.Cancel = true;
 				throw;
 			}
@@ -56,16 +57,25 @@ namespace Chorus.UI.Settings
 			}
 			catch (Exception error)
 			{
-				MessageBox.Show("Chorus encounterd a problem while trying to store these addresses:\r\n" + error.Message, "Chorus settings problem", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+				ReportProblemStoringAddresses(error);
 				e.Cancel = true;
 			}
+		}
+
+		private static void ReportProblemStoringAddresses(Exception error)
+		{
+			MessageBox.Show(
+				LocalizationManager.GetString("Messages.ProblemStoringAddresses",
+					"Chorus encounterd a problem while trying to store these addresses:") + "\r\n" + error.Message,
+				LocalizationManager.GetString("Messages.SettingsProblem", "Chorus settings problem"), MessageBoxButtons.OK,
+				MessageBoxIcon.Warning);
 		}
 
 		private void _repositoryAliases_Leave(object sender, EventArgs e)
 		{
 			if (!_didLoad && _repositoryAliases.Text.IndexOf("=") < 0)
 			{
-				MessageBox.Show("Please report to issues@wesay.org: mono is calling leave() on SettingsView which was never loaded");
+				MessageBox.Show(LocalizationManager.GetString("Messages.MonoCallingLeave", "Please report to issues@wesay.org: mono is calling leave() on SettingsView which was never loaded", "never seen in normal operation"));
 				return;
 			}
 			try
@@ -74,7 +84,7 @@ namespace Chorus.UI.Settings
 			}
 			catch (Exception error)
 			{
-				MessageBox.Show("Chorus encounterd a problem while trying to store these addresses:\r\n" + error.Message, "Chorus settings problem", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+				ReportProblemStoringAddresses(error);
 			}
 		}
 	}

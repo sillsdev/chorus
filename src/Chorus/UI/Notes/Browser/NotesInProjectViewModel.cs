@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Chorus.notes;
+using L10NSharp;
 using Palaso.Progress;
 using Palaso.Reporting;
 using Palaso.Reporting;
@@ -93,19 +94,25 @@ namespace Chorus.UI.Notes.Browser
 			{
 				var items = new List<string>();
 				if (!HideQuestions)
-					items.Add("Questions");
+					items.Add(LocalizationManager.GetString("NotesInProjectView.Questions", "Questions",
+						"Combined in list to show filter status"));
 				if (!HideCriticalConflicts)
-					items.Add("Conflicts");
+					items.Add(LocalizationManager.GetString("NotesInProjectView.Conflicts", "Conflicts",
+						"Combined in list to show filter status"));
 				if (!HideNotifications)
-					items.Add("Notifications");
+					items.Add(LocalizationManager.GetString("NotesInProjectView.Notifications", "Notifications",
+						"Combined in list to show filter status"));
 				if (ShowClosedNotes && items.Count > 0)
-					items.Add("incl. Resolved");
+					items.Add(LocalizationManager.GetString("NotesInProjectView.IncludeResolved", "incl. Resolved",
+						"Combined in list to show filter status (keep short!)"));
 
 				// NB: If we add another category, this number needs bumping.
 				if (items.Count > 3)
-					return "All";
+					return LocalizationManager.GetString("NotesInProjectView.All", "All",
+						"Used in place of list for filter status");
 				if (items.Count == 0)
-					return "Nothing selected to display";
+					return LocalizationManager.GetString("NotesInProjectView.Nothing", "Nothing selected to display",
+						"Used in place of list for filter status");
 				return string.Join(", ", items.ToArray());
 			}
 		}
@@ -282,7 +289,7 @@ namespace Chorus.UI.Notes.Browser
 			if(owningRepo ==null)
 			{
 				ErrorReport.NotifyUserOfProblem(
-					"A serious problem has occurred; Chorus cannot find the repository which owns this note, so it cannot be saved.");
+					LocalizationManager.GetString("Messages.CannotFindRepo", "A serious problem has occurred; Chorus cannot find the repository which owns this note, so it cannot be saved."));
 				return;
 			}
 

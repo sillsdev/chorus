@@ -4,6 +4,7 @@ using System.IO;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using ChorusHub;
+using L10NSharp;
 using Palaso.Progress;
 
 namespace Chorus.UI.Clone
@@ -51,13 +52,13 @@ namespace Chorus.UI.Clone
 			var server = client.FindServer();
 			if (server == null)
 			{
-				progress.WriteError("The Chorus Server is not available.");
+				progress.WriteError(LocalizationManager.GetString("Messages.ChorusServerNA", "The Chorus Server is not available."));
 				CloneSucceeded = false;
 				return;
 			}
 			if (!server.ServerIsCompatibleWithThisClient)
 			{
-				progress.WriteError("The Chorus Server is not compatible with ths client.");
+				progress.WriteError(LocalizationManager.GetString("Messages.ChorusServerIncompatible", "The Chorus Server is not compatible with ths client."));
 				CloneSucceeded = false;
 				return;
 			}

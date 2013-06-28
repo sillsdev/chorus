@@ -36,7 +36,12 @@ namespace Chorus.UI.Sync
 			this._syncStartControl = new Chorus.UI.Sync.SyncStartControl();
 			this._syncControl = new Chorus.UI.Sync.SyncControl();
 			this._helpProvider = new Vulcan.Uczniowie.HelpProvider.HelpComponent(this.components);
+			this.l10NSharpExtender1 = new L10NSharp.UI.L10NSharpExtender(this.components);
 			this.SuspendLayout();
+			//
+			// l10NSharpExtender1
+			//
+			this.l10NSharpExtender1.LocalizationManagerId = "Chorus";
 			//
 			// _closeWhenDoneTimer
 			//
@@ -83,6 +88,9 @@ namespace Chorus.UI.Sync
 			this.MaximizeBox = false;
 			this.MinimizeBox = false;
 			this.Name = "SyncDialog";
+			this.l10NSharpExtender1.SetLocalizableToolTip(this, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this, null);
+			this.l10NSharpExtender1.SetLocalizingId(this, "SyncDialog.WindowTitle");
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
 			this.Text = "Send/Receive";
 			this.Load += new System.EventHandler(this.SyncDialog_Load);
@@ -93,6 +101,7 @@ namespace Chorus.UI.Sync
 
 		#endregion
 
+		private L10NSharp.UI.L10NSharpExtender l10NSharpExtender1;
 		private SyncControl _syncControl;
 		private System.Windows.Forms.Timer _closeWhenDoneTimer;
 		private SyncStartControl _syncStartControl;

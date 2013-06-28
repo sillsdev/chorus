@@ -28,3 +28,5 @@ test-results
 glob:*.mdb
 src/LibChorusTests/test-results/LibChorus.Tests.csproj.test-cache
 **.orig
+glob:Download/
+L10NSharp.dll

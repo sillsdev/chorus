@@ -665,6 +665,55 @@ namespace LibChorus.Tests.merge.xml.lift
 			});
 		}
 
+		[Test]
+		public void Merge_DuplicateKeyInGloss_NoThrow()
+		{
+			var ancestor =
+				@"<?xml version='1.0' encoding='utf-8'?>
+				<lift version='0.13' producer='FLEx 7.2.4'><entry id='lovely_f1c5a4c8-a24f-4351-8551-2b70d53a9256' guid='f1c5a4c8-a24f-4351-8551-2b70d53a9256'>
+				<lexical-unit>
+				<form lang='fr'><text>lovely</text></form>
+				</lexical-unit>
+				<trait name='morph-type' value='stem'/>
+				<sense id='fist_0e0fc867-e56a-4df5-861a-1cb24d861037'>
+				<grammatical-info
+					value='Noun' />
+				<gloss
+					lang='en'>
+					<text>base</text>
+				</gloss>
+				<gloss
+					lang='swh'>
+					<text>ngumi / mangumi</text>
+				</gloss>
+				<gloss
+					lang='swh'>
+					<text>konde / makonde</text>
+				</gloss>
+				</sense>
+				</entry></lift>";
+			var ours = ancestor.Replace("base", "ours");
+			var theirs = ancestor.Replace("base", "theirs");
+
+			Assert.DoesNotThrow(() =>
+			{
+				using (var oursTemp = new TempFile(ours))
+				using (var theirsTemp = new TempFile(theirs))
+				using (var ancestorTemp = new TempFile(ancestor))
+				{
+					var listener = new ListenerForUnitTests();
+					var situation = new NullMergeSituation();
+					var mergeOrder = new MergeOrder(oursTemp.Path, ancestorTemp.Path, theirsTemp.Path, situation) { EventListener = listener };
+					XmlMergeService.Do3WayMerge(mergeOrder, new LiftEntryMergingStrategy(mergeOrder),
+						false,
+						"header",
+						"entry", "guid");
+					//var result = File.ReadAllText(mergeOrder.pathToOurs);
+					//AssertThatXmlIn.String(result).HasSpecifiedNumberOfMatchesForXpath(@"/lift/entry/relation", 2);
+				}
+			});
+		}
+
 		private void AssertConflictType<TConflictType>(IConflict conflict)
 		{
 				Assert.AreEqual(typeof(TConflictType), conflict.GetType(), conflict.ToString());
