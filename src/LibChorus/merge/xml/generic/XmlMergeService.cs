@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Xml;
+using System.Xml.Linq;
 using Chorus.Utilities;
 using Palaso.Code;
 using Palaso.Xml;
@@ -16,7 +16,6 @@ namespace Chorus.merge.xml.generic
 	/// </summary>
 	public static class XmlMergeService
 	{
-		private static readonly Encoding Utf8 = Encoding.UTF8;
 		public static bool RemoveAmbiguousChildNodes = true;
 
 		/// <summary>
@@ -43,8 +42,25 @@ namespace Chorus.merge.xml.generic
 												 XmlNode theirsContext, XmlNode ancestorContext,
 												 IGenerateHtmlContext htmlContextGenerator)
 		{
-			// NB: All three of these are crucially ordered.
+			AddConflictToListener(listener, conflict, oursContext, theirsContext, ancestorContext, htmlContextGenerator, null, null);
+		}
+
+		/// <summary>
+		/// Add conflict. If RecordContextInConflict fails to set a context, and nodeToFindGeneratorFrom is non-null,
+		/// attempt to add a context based on the argument.
+		/// </summary>
+		public static void AddConflictToListener(IMergeEventListener listener, IConflict conflict, XmlNode oursContext,
+												 XmlNode theirsContext, XmlNode ancestorContext,
+												 IGenerateHtmlContext htmlContextGenerator, XmlMerger merger, XmlNode nodeToFindGeneratorFrom)
+		{
+			// NB: All these steps are crucially ordered.
 			listener.RecordContextInConflict(conflict);
+			if ((conflict.Context == null || conflict.Context is NullContextDescriptor) && nodeToFindGeneratorFrom != null)
+			{
+				// We are too far up the stack for the listener to have been told a context.
+				// Make one out of the current node.
+				conflict.Context = merger.GetContext(nodeToFindGeneratorFrom);
+			}
 			conflict.MakeHtmlDetails(oursContext, theirsContext, ancestorContext, htmlContextGenerator);
 			listener.ConflictOccurred(conflict);
 		}
@@ -138,7 +154,7 @@ namespace Chorus.merge.xml.generic
 			WriteMainOutputData(allWritableData,
 								mergeOrder.pathToOurs,
 								// Do not change to another output file, or be ready to fix SyncScenarioTests.CanCollaborateOnLift()!
-								optionalFirstElementMarker, rootElementName, sortedAttributes);
+								optionalFirstElementMarker, rootElementName, sortedAttributes, mergeStrategy.SuppressIndentingChildren());
 		}
 
 		private static IDictionary<string, string> DoMerge(MergeOrder mergeOrder, IMergeStrategy mergeStrategy,
@@ -163,6 +179,9 @@ namespace Chorus.merge.xml.generic
 						  out allCommonAncestorData, out allCommonAncestorIds,
 						  out allWinnerData, out allWinnerIds,
 						  out allLoserData, out allLoserIds);
+
+			var originalValue = RemoveAmbiguousChildNodes;
+			RemoveAmbiguousChildNodes = false;
 
 			// Step 2. Collect up new items from winner and loser and report relevant conflicts.
 			var fluffedUpAncestorNodes = new Dictionary<string, XmlNode>();
@@ -195,6 +214,8 @@ namespace Chorus.merge.xml.generic
 																			   allCommonAncestorIds, allCommonAncestorData,
 																			   fluffedUpLoserNodes, allWinnerIds, allLoserData,
 																			   fluffedUpWinnerNodes, fluffedUpAncestorNodes,
+																			   pathToWinner,
+																			   pathToLoser,
 																			   out allDeletedByLoserButEditedByWinnerIds,
 																			   out allDeletedByWinnerButEditedByLoserIds);
 
@@ -232,6 +253,8 @@ namespace Chorus.merge.xml.generic
 				allWritableData.Add(identifier, updatedData);
 			}
 
+			RemoveAmbiguousChildNodes = originalValue;
+
 			return allWritableData;
 		}
 
@@ -248,6 +271,8 @@ namespace Chorus.merge.xml.generic
 																		IDictionary<string, string> allLoserData,
 																		IDictionary<string, XmlNode> fluffedUpWinnerNodes,
 																		IDictionary<string, XmlNode> fluffedUpAncestorNodes,
+																		string pathToWinner,
+																		string pathToLoser,
 																		out HashSet<string>
 																			allDeletedByLoserButEditedByWinnerIds,
 																		out HashSet<string>
@@ -272,10 +297,10 @@ namespace Chorus.merge.xml.generic
 			// Step 6. Do merging and report conflicts.
 			ReportDeleteVsEditConflicts(mergeOrder, mergeStrategy,
 										fluffedUpLoserNodes, allLoserData, loserId, allDeletedByWinnerButEditedByLoserIds,
-										allCommonAncestorData, fluffedUpAncestorNodes);
+										allCommonAncestorData, fluffedUpAncestorNodes, pathToLoser);
 			ReportEditVsDeleteConflicts(mergeOrder, mergeStrategy,
 										fluffedUpWinnerNodes, allWinnerData, winnerId, allDeletedByLoserButEditedByWinnerIds,
-										allCommonAncestorData, fluffedUpAncestorNodes);
+										allCommonAncestorData, fluffedUpAncestorNodes, pathToWinner);
 
 			return allIdsForUniqueLoserChanges;
 		}
@@ -370,7 +395,8 @@ namespace Chorus.merge.xml.generic
 
 		private static void WriteMainOutputData(IDictionary<string, string> allWritableData,
 												string outputPathname, string optionalFirstElementMarker,
-												string rootElementName, SortedDictionary<string, string> sortedAttributes)
+												string rootElementName, SortedDictionary<string, string> sortedAttributes,
+												HashSet<string> suppressIndentingChildren)
 		{
 			using (var writer = XmlWriter.Create(outputPathname, CanonicalXmlSettings.CreateXmlWriterSettings()))
 			{
@@ -385,12 +411,12 @@ namespace Chorus.merge.xml.generic
 				{
 					// [NB: Write optional element first, if found.]
 					if (allWritableData.ContainsKey(optionalFirstElementMarker))
-						WriteNode(writer, allWritableData[optionalFirstElementMarker]);
+						WriteNode(writer, allWritableData[optionalFirstElementMarker], suppressIndentingChildren);
 					allWritableData.Remove(optionalFirstElementMarker);
 				}
 				foreach (var record in allWritableData.Values)
 				{
-					WriteNode(writer, record);
+					WriteNode(writer, record, suppressIndentingChildren);
 				}
 				writer.WriteEndElement();
 				writer.WriteEndDocument();
@@ -403,7 +429,8 @@ namespace Chorus.merge.xml.generic
 														string winnerId,
 														IEnumerable<string> allDeletedByLoserButEditedByWinnerIds,
 														IDictionary<string, string> allCommonAncestorData,
-														IDictionary<string, XmlNode> fluffedUpAncestorNodes)
+														IDictionary<string, XmlNode> fluffedUpAncestorNodes,
+														string pathToWinner)
 		{
 			foreach (var allDeletedByLoserButEditedByWinnerId in allDeletedByLoserButEditedByWinnerIds)
 			{
@@ -422,11 +449,18 @@ namespace Chorus.merge.xml.generic
 																		new XmlDocument());
 					fluffedUpWinnerNodes.Add(allDeletedByLoserButEditedByWinnerId, winnerNode);
 				}
+				var elementStrategy = mergeStrategy.GetElementStrategy(winnerNode);
+				var generator = elementStrategy.ContextDescriptorGenerator;
+				if (generator != null)
+				{
+					mergeOrder.EventListener.EnteringContext(generator.GenerateContextDescriptor(allWinnerData[allDeletedByLoserButEditedByWinnerId],
+																								 pathToWinner));
+				}
 				AddConflictToListener(
 					mergeOrder.EventListener,
 					new EditedVsRemovedElementConflict(commonNode.Name, winnerNode, null, commonNode, mergeOrder.MergeSituation,
 													   mergeStrategy.GetElementStrategy(commonNode), winnerId),
-					winnerNode, winnerNode, commonNode);
+					winnerNode, null, commonNode, generator as IGenerateHtmlContext ?? new SimpleHtmlGenerator());
 			}
 		}
 
@@ -435,7 +469,7 @@ namespace Chorus.merge.xml.generic
 														IDictionary<string, string> allLoserData, string loserId,
 														IEnumerable<string> allDeletedByWinnerButEditedByLoserIds,
 														IDictionary<string, string> allCommonAncestorData,
-														IDictionary<string, XmlNode> fluffedUpAncestorNodes)
+														IDictionary<string, XmlNode> fluffedUpAncestorNodes, string pathToLoser)
 		{
 			foreach (var allDeletedByWinnerButEditedByLoserId in allDeletedByWinnerButEditedByLoserIds)
 			{
@@ -454,11 +488,19 @@ namespace Chorus.merge.xml.generic
 																	   new XmlDocument());
 					fluffedUpLoserNodes.Add(allDeletedByWinnerButEditedByLoserId, loserNode);
 				}
+				var elementStrategy = mergeStrategy.GetElementStrategy(loserNode);
+				var generator = elementStrategy.ContextDescriptorGenerator;
+				if (generator != null)
+				{
+					mergeOrder.EventListener.EnteringContext(generator.GenerateContextDescriptor(allLoserData[allDeletedByWinnerButEditedByLoserId],
+																								 pathToLoser));
+				}
+
 				AddConflictToListener(
 					mergeOrder.EventListener,
 					new RemovedVsEditedElementConflict(commonNode.Name, null, loserNode, commonNode, mergeOrder.MergeSituation,
 													   mergeStrategy.GetElementStrategy(commonNode), loserId),
-					null, loserNode, commonNode);
+					null, loserNode, commonNode, generator as IGenerateHtmlContext ?? new SimpleHtmlGenerator());
 			}
 		}
 
@@ -638,15 +680,15 @@ namespace Chorus.merge.xml.generic
 										  out Dictionary<string, string> allLoserData, out HashSet<string> allLoserIds)
 		{
 			allCommonAncestorData = MakeRecordDictionary(mergeOrder.EventListener, mergeStrategy,
-														 commonAncestorPathname, false, optionalFirstElementMarker,
+														 commonAncestorPathname, optionalFirstElementMarker,
 														 repeatingRecordElementName, repeatingRecordKeyIdentifier);
 			allCommonAncestorIds = new HashSet<string>(allCommonAncestorData.Keys, StringComparer.InvariantCultureIgnoreCase);
 			allWinnerData = MakeRecordDictionary(mergeOrder.EventListener, mergeStrategy,
-												 pathToWinner, true, optionalFirstElementMarker,
+												 pathToWinner, optionalFirstElementMarker,
 												 repeatingRecordElementName, repeatingRecordKeyIdentifier);
 			allWinnerIds = new HashSet<string>(allWinnerData.Keys, StringComparer.InvariantCultureIgnoreCase);
 			allLoserData = MakeRecordDictionary(mergeOrder.EventListener, mergeStrategy,
-												pathToLoser, true, optionalFirstElementMarker, repeatingRecordElementName,
+												pathToLoser, optionalFirstElementMarker, repeatingRecordElementName,
 												repeatingRecordKeyIdentifier);
 			allLoserIds = new HashSet<string>(allLoserData.Keys, StringComparer.InvariantCultureIgnoreCase);
 		}
@@ -702,7 +744,6 @@ namespace Chorus.merge.xml.generic
 		private static Dictionary<string, string> MakeRecordDictionary(IMergeEventListener mainMergeEventListener,
 			IMergeStrategy mergeStrategy,
 			string pathname,
-			bool removeAmbiguousChildren,
 			string firstElementMarker,
 			string recordStartingTag,
 			string identifierAttribute)
@@ -724,9 +765,9 @@ namespace Chorus.merge.xml.generic
 						}
 						else
 						{
-							if (removeAmbiguousChildren)
+							if (RemoveAmbiguousChildNodes)
 							{
-								var possiblyRevisedRecord = RemoveAmbiguousChildren(mainMergeEventListener, mergeStrategy.GetStrategies(), record);
+								var possiblyRevisedRecord = RemoveAmbiguousChildren(mainMergeEventListener, mergeStrategy.GetStrategies(), record, pathname);
 								records.Add(key, possiblyRevisedRecord);
 							}
 							else
@@ -759,9 +800,9 @@ namespace Chorus.merge.xml.generic
 						}
 						else
 						{
-							if (removeAmbiguousChildren)
+							if (RemoveAmbiguousChildNodes)
 							{
-								var possiblyRevisedRecord = RemoveAmbiguousChildren(mainMergeEventListener, mergeStrategy.GetStrategies(), record);
+								var possiblyRevisedRecord = RemoveAmbiguousChildren(mainMergeEventListener, mergeStrategy.GetStrategies(), record, pathname);
 								records.Add(identifier, possiblyRevisedRecord);
 							}
 							else
@@ -789,10 +830,21 @@ namespace Chorus.merge.xml.generic
 		/// </remarks>
 		public static string RemoveAmbiguousChildren(IMergeEventListener eventListener,
 			MergeStrategies mergeStrategies,
-			string parent)
+			string parent, string pathname)
 		{
 			if (!RemoveAmbiguousChildNodes)
 				return parent;
+
+			if (pathname.ToLowerInvariant().EndsWith("lift") || pathname.ToLowerInvariant().EndsWith("lift-ranges"))
+			{
+				var parentElement = XElement.Parse(parent);
+				foreach (var misnamedElement in parentElement.Descendants("element"))
+				{
+					misnamedElement.Name = "text";
+					misnamedElement.Attribute("name").Remove();
+				}
+				parent = parentElement.ToString();
+			}
 			var parentNode = XmlUtilities.GetDocumentNodeFromRawXml(parent, new XmlDocument());
 			RemoveAmbiguousChildren(
 				eventListener,
@@ -823,19 +875,23 @@ namespace Chorus.merge.xml.generic
 			if (elementStrat.IsImmutable)
 				return;
 			var ambiguousNodes = new List<XmlNode>();
-			foreach (XmlNode childNode in parent.ChildNodes)
+			var copyOfChildNodes = new List<XmlNode>(parent.ChildNodes.Count);
+			copyOfChildNodes.AddRange(parent.ChildNodes.Cast<XmlNode>());
+
+			foreach (var childNode in copyOfChildNodes)
 			{
-				if (ambiguousNodes.Contains(childNode))
+				var childNodeAsVariable = childNode;
+				if (ambiguousNodes.Contains(childNodeAsVariable))
 					continue; // Already found it, so don't bother processing it again.
 
-				elementStrat = mergeStrategies.GetElementStrategy(childNode);
+				elementStrat = mergeStrategies.GetElementStrategy(childNodeAsVariable);
 				if (elementStrat.IsImmutable)
 					continue;
 				var finder = elementStrat.MergePartnerFinder;
 				if (!(finder is IFindMatchingNodesToMerge))
 					continue;
 				var finderOfMultiples = (IFindMatchingNodesToMerge) finder;
-				var matches = finderOfMultiples.GetMatchingNodes(childNode, parent).ToList();
+				var matches = finderOfMultiples.GetMatchingNodes(childNodeAsVariable, parent).ToList();
 				if (matches.Count < 2)
 					continue; // No duplicates were found, so keep going.
 
@@ -851,7 +907,7 @@ namespace Chorus.merge.xml.generic
 																	matches.Count,
 																	finderOfMultiples.GetWarningMessageForAmbiguousNodes(matches[0]))));
 				// Add all but the current one (the first one), so they can be removed in the next loop.
-				ambiguousNodes.AddRange(matches.Where(match => match != childNode));
+				ambiguousNodes.AddRange(matches.Where(match => match != childNodeAsVariable));
 			}
 
 			foreach (var ambiguousNode in ambiguousNodes)
@@ -907,12 +963,29 @@ namespace Chorus.merge.xml.generic
 			}
 		}
 
-		private static void WriteNode(XmlWriter writer, string dataToWrite)
+		/// <summary>
+		/// Write a node out containing the XML in dataToWrite, pretty-printed according to the rules of writer, except
+		/// that we suppress indentation for children of nodes whose names are listed in suppressIndentingChildren,
+		/// and also for "mixed" nodes (where some children are text).
+		/// </summary>
+		internal static void WriteNode(XmlWriter writer, string dataToWrite, HashSet<string> suppressIndentingChildren)
 		{
-			using (var nodeReader = XmlReader.Create(new MemoryStream(Utf8.GetBytes(dataToWrite)), CanonicalXmlSettings.CreateXmlReaderSettings(ConformanceLevel.Fragment)))
-			{
-				writer.WriteNode(nodeReader, false);
-			}
+			// <mergenotice>
+			// When the WeSay1.3 branch gets merged, do this:
+			// 1. Pick the 'suppressIndentingChildren' parameter, not the temporary partial port of "CurrentSuppressIndentingChildren"
+			// 2. Remove this <mergenotice> comment and its 'end tag' comment.
+			XmlUtils.WriteNode(writer, dataToWrite, suppressIndentingChildren);
+			// </mergenotice>
+
+			// This is the original code of this method. It is probably more efficient, and does ALMOST the same thing. But not quite.
+			// See the unit tests WriteNode_DoesNotIndentFirstChildOfMixedNode and WriteNode_DoesNotIndentChildWhenSuppressed for WriteNode.
+			// If a mixed (text and element children) node has an element as its FIRST
+			// child, WriteNode will indent it. This is wrong, since it adds a newline and tabs to the body of a parent where text is significant.
+			// Even if a node is not mixed, it may be wrong to indent it, if white space is significant.
+			//using (var nodeReader = XmlReader.Create(new MemoryStream(Utf8.GetBytes(dataToWrite)), CanonicalXmlSettings.CreateXmlReaderSettings(ConformanceLevel.Fragment)))
+			//{
+			//    writer.WriteNode(nodeReader, false);
+			//}
 		}
 	}
 }

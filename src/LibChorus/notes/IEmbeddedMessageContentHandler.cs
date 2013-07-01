@@ -1,8 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Xml;
+using Chorus.FileTypeHanders;
 using Chorus.merge.xml.generic;
 
 namespace Chorus.notes
@@ -62,95 +65,53 @@ namespace Chorus.notes
 		}
 	}
 
-	class LinkData
+	/// <summary>
+	/// This class is a repository for finding a handler which can display additional information about a message
+	/// based on some interpretation of a CDATA section in the message.
+	/// The only current implementation (MergeConflictEmbeddedMessageContentHandler) uses WinForms and was therefore moved to Chorus,
+	/// since it is a current goal that LibChorus should not reference WinForms.
+	/// MergeConflictEmbeddedMessageContentHandler understands the CDATA that is embedded in MergeConflict notes,
+	/// and creates a link that offers more details of the conflict.
+	/// Configuring this repository to know about an implementation in an assembly which it does not reference is a problem.
+	/// It may eventually done using MEF or some more dynamic way of finding available Embedded Messsage Content Handlers.
+	/// Currently, it knows about DefaultEmbeddedMessageContentHandler, and that this should come last.
+	/// It also finds any implementations in Chorus.exe, if that is found in the same directory.
+	///
+	/// Note that the handlers are tried in order until we find one which CanHandleUrl for a particular URL. Thus the order
+	/// in which they are stored in _knownHandlers is potentially important. So far, all we need to know is that the Chorus
+	/// one comes before the default one, which trivially handles anything. If at some point we have multiple ones in Chorus
+	/// (or elsewhere) which could handle the same URLs, we will need to add an ordering mechanism...either by how we configure
+	/// MEF, or perhaps by adding a "priority" key to IEmbeddedMessageContentHandler.
+	/// </summary>
+	public class EmbeddedMessageContentHandlerRepository
 	{
-		public string Key;
-		public string Data;
-	}
-
-	/*
-	public class MergeConflictEmbeddedMessageContentHandler : IEmbeddedMessageContentHandler
-	{
-		/// <summary>
-		/// This class is currently only used to keep track of a few links shown in a single small page.
-		/// To keep it from accumulating forever, we record only the most recent few
-		/// </summary>
-		List<LinkData> _recentLinks = new List<LinkData>();
-
-		private int _nextKey;
-
-		public virtual string GetHyperLink(string cDataContent)
+		public EmbeddedMessageContentHandlerRepository()
 		{
-			var key = "K"+_nextKey++;
-			_recentLinks.Add(new LinkData() {Key = key, Data = cDataContent});
-			// for now just keep the most recent 20 links. This is why it is a list not a dictionary.
-			if (_recentLinks.Count > 20)
-				_recentLinks.RemoveAt(0);
-			return string.Format("<a href={0}>{1}</a>", "http://mergeConflict?data=" + key, "Conflict Details...");
+			_knownHandlers = new List<IEmbeddedMessageContentHandler>();
+			var libChorusAssembly = Assembly.GetExecutingAssembly();
+#if MONO
+			var codeBase = libChorusAssembly.CodeBase.Substring(7);
+#else
+			var codeBase = libChorusAssembly.CodeBase.Substring(8);
+#endif
+			var dirname = Path.GetDirectoryName(codeBase);
+			//var baseDir = new Uri(dirname).AbsolutePath; // NB: The Uri class in Windows and Mono are not the same.
 
-			// Old approach, fails with IE if cDataContent is more than about 2038 characters (http://www.codingforums.com/showthread.php?t=18499).
-			//NB: this is ugly, pretending it's http and all, but when I used a custom scheme,
-			//the resulting url that came to the navigating event had a bunch of junk prepended,
-			//so for now, who cares.
-			//
-			//Anyhow, what we're doing here is taking the cdata contents, making that
-			//safe to stick in a giant URL, and making a link of it.
-			//THat URL is then decoded in HandleUrl()
-			//var encodedData= HttpUtility.UrlEncode(cDataContent);
-			//return string.Format("<a href={0}>{1}</a>", "http://mergeConflict?data="+encodedData, "Conflict Details...");
-		}
-
-		public bool CanHandleUrl(Uri uri)
-		{
-			return uri.Host == Conflict.ConflictAnnotationClassName.ToLower();//it seems something automatically changes the host to lowercase
-		}
-
-		public void HandleUrl(Uri uri)
-		{
-			var key = uri.Query.Substring(uri.Query.IndexOf('=') + 1);
-			var data = (from item in _recentLinks where item.Key == key select item).FirstOrDefault();
-			if (data == null)
+			// We (sadly) know that the other handler is in Chorus.exe
+			var chorusDirName = Path.Combine(dirname, @"Chorus.exe");
+			if (File.Exists(chorusDirName))
 			{
-				Debug.Fail("page has more links than we can currently handle");
-				return; // give up.
+				var chorusAssembly = Assembly.LoadFrom(chorusDirName);
+				var messageHandlerTypes =
+					chorusAssembly.GetTypes().Where(typeof (IEmbeddedMessageContentHandler).IsAssignableFrom);
+				foreach (var type in messageHandlerTypes)
+					_knownHandlers.Add((IEmbeddedMessageContentHandler)Activator.CreateInstance(type));
 			}
-			var content = data.Data;
-			try
-			{
-				var doc = new XmlDocument();
-				var conflict = Conflict.CreateFromConflictElement(XmlUtilities.GetDocumentNodeFromRawXml(content, doc));
-				var html = conflict.HtmlDetails;
-				if (string.IsNullOrEmpty(html))
-				{
-					MessageBox.Show("Sorry, no conflict details are recorded for this conflict (it might be an old one). Here's the content:\r\n" + content);
-					return;
-				}
-				using (var conflictForm = new ConflictDetailsForm())
-				{
-					conflictForm.SetDocumentText(html);
-					conflictForm.ShowDialog(Form.ActiveForm);
-					return;
-				}
-			}
-			catch (Exception)
-			{
-			}
-			MessageBox.Show("Sorry, conflict details aren't working for this conflict (it might be an old one). Here's the content:\r\n"+content);//uri.ToString());
+			// this one must always be last. It provides a fall-back implementation.
+			_knownHandlers.Add(new DefaultEmbeddedMessageContentHandler());
 		}
 
-		public bool CanHandleContent(string cDataContent)
-		{
-			return cDataContent.TrimStart().StartsWith("<conflict");
-		}
-	}
-	*/
-	public class EmbeddedMessageContentHandlerFactory
-	{
-		readonly List<IEmbeddedMessageContentHandler> _knownHandlers = new List<IEmbeddedMessageContentHandler>(new IEmbeddedMessageContentHandler[]
-		{
-	 //       new MergeConflictEmbeddedMessageContentHandler(),
-			new DefaultEmbeddedMessageContentHandler()
-		});
+		readonly List<IEmbeddedMessageContentHandler> _knownHandlers;
 
 		public IEmbeddedMessageContentHandler GetHandlerOrDefaultForCData(string cDataContent)
 		{
@@ -160,6 +121,11 @@ namespace Chorus.notes
 		public IEmbeddedMessageContentHandler GetHandlerOrDefaultForUrl(Uri uri)
 		{
 			return _knownHandlers.FirstOrDefault(h => h.CanHandleUrl(uri));
+		}
+
+		public IEnumerable<IEmbeddedMessageContentHandler> KnownHandlers
+		{
+			get { return _knownHandlers; }
 		}
 	}
 

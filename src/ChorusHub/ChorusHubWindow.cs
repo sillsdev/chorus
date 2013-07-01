@@ -16,7 +16,6 @@ namespace ChorusHub
 		public ChorusHubWindow(ChorusHubParameters parameters)
 		{
 			InitializeComponent();
-			_helpProvider.RegisterPrimaryHelpFileMapping("chorus.helpmap");
 			_service = new ChorusHubService(parameters) {Progress = _logBox};
 			_logBox.ShowDetailsMenuItem = true;
 			_logBox.ShowCopyToClipboardMenuItem = true;

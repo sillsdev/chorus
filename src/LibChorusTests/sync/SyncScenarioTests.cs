@@ -120,11 +120,16 @@ namespace LibChorus.Tests.sync
 
 			public void ChangeTextFile()
 			{
+				ChangeTextFile(GetSynchronizer());
+			}
+
+			public void ChangeTextFile(Synchronizer sync)
+			{
 				SyncOptions options = new SyncOptions();
 				options.CheckinDescription = "a change to foo.abc";
 				string bobsFooTextPath = Path.Combine(_lexiconProjectPath, "foo.abc");
 				File.WriteAllText(bobsFooTextPath, "version two of my pretend txt");
-				GetSynchronizer().SyncNow(options);
+				sync.SyncNow(options);
 			}
 
 			/// <summary>
@@ -700,7 +705,73 @@ namespace LibChorus.Tests.sync
 			Assert.IsTrue(contents.Contains("dog"));
 		}
 
+		/// <summary>
+		/// If one collaborator does two S/R cycles including a merge and a further commit.
+		/// A collaborator "who has not made any changes" receiving those changes needs the tip updated
+		/// </summary>
+		[Test]
+		public void TipUpdatedPostMerge()
+		{
+			ConsoleProgress progress = new ConsoleProgress();
+			BobSetup bobSetup = new BobSetup(progress, _pathToTestRoot);
+			var bobSynchronizer = bobSetup.GetSynchronizer();
+			//set up two branches to trigger issue
+			SetAdjunctModelVersion(bobSynchronizer, "notdefault"); // Bob is on 'default' branch
+			bobSetup.ChangeTextFile(bobSynchronizer);
 
+			//Ok, this is unrealistic, but we just clone Bob onto Sally
+			var hubRoot = Path.Combine(_pathToTestRoot, "Hub");
+			var sallyMachineRoot = Path.Combine(_pathToTestRoot, "sally");
+			Directory.CreateDirectory(sallyMachineRoot);
+			Directory.CreateDirectory(hubRoot);
+			var sallyProjectRoot = bobSetup.SetupClone(sallyMachineRoot);
+			var hubProjectRoot = bobSetup.SetupClone(hubRoot);
+			var sallyProject = BobSetup.CreateFolderConfig(sallyProjectRoot);
+			var hubProject = BobSetup.CreateFolderConfig(hubProjectRoot);
+
+			var repository = HgRepository.CreateOrUseExisting(sallyProject.FolderPath, progress);
+			repository.SetUserNameInIni("sally", progress);
+
+			// bob makes a change and syncs
+			File.WriteAllText(bobSetup._pathToLift, LiftFileStrings.lift12Dog);
+			var bobOptions = new SyncOptions
+			{
+				CheckinDescription = "added 'dog'",
+				DoMergeWithOthers = true,
+				DoSendToOthers = true,
+				DoPullFromOthers = true
+			};
+			bobOptions.RepositorySourcesToTry.Add(RepositoryAddress.Create("Hub", hubProject.FolderPath, false));
+
+			//now Sally modifies the original file, not having seen Bob's changes yet
+			var sallyPathToLift = Path.Combine(sallyProject.FolderPath, Path.Combine("lexicon", "foo.lift"));
+			File.WriteAllText(sallyPathToLift, LiftFileStrings.lift12Cat);
+
+			//Sally syncs, pulling in Bob's change, and encountering a need to merge (no conflicts)
+			var sallyOptions = new SyncOptions
+			{
+				CheckinDescription = "adding cat",
+				DoPullFromOthers = true,
+				DoSendToOthers = true,
+				DoMergeWithOthers = true
+			};
+			sallyOptions.RepositorySourcesToTry.Add(RepositoryAddress.Create("Hub", hubProject.FolderPath, false));
+
+			var sallySyncer = Synchronizer.FromProjectConfiguration(sallyProject, progress);
+			SetAdjunctModelVersion(sallySyncer, "notdefault");
+			sallySyncer.SyncNow(sallyOptions);
+			bobSynchronizer.SyncNow(bobOptions);
+			// bob makes a change and syncs
+			File.WriteAllText(bobSetup._pathToLift, LiftFileStrings.lift12DogAnt);
+			bobSynchronizer.SyncNow(bobOptions);
+			sallyOptions.DoSendToOthers = false;
+			sallySyncer.SyncNow(sallyOptions);
+			//Debug.WriteLine("bob's: " + File.ReadAllText(bobSetup._pathToLift));
+			var contents = File.ReadAllText(sallyPathToLift);
+			//Debug.WriteLine("sally's: " + contents);
+			Assert.IsTrue(contents.Contains("ant"));
+			Assert.IsTrue(contents.Contains("dog"));
+		}
 
 		public void AssertLineOfFile(string filePath, int lineNumber1Based, string shouldEqual)
 		{

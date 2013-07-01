@@ -14,18 +14,24 @@ namespace Chorus.notes
 		public ConflictDetailsForm()
 		{
 			InitializeComponent();
-			_helpProvider.RegisterPrimaryHelpFileMapping("chorus.helpmap");
 		}
 
 		public void SetDocumentText(string text)
 		{
-			// Using _existingMessagesDisplay.DocumentText =  causes an exception on mono
 #if MONO
-			// Todo Linux (JohnT): is this the only thing that needs to be different?
-			text = text.Replace("'", "\'");
-			_conflictDisplay.Navigate("javascript:{document.body.outerHTML = '" + text + "';}");
+			_conflictDisplay.LoadHtml(text);
 #else
 			_conflictDisplay.DocumentText = text;
+			_conflictDisplay.WebBrowserShortcutsEnabled = true;
+#endif
+		}
+
+		private void copyToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+#if MONO
+			//GECKOFX: what to do?
+#else
+			_conflictDisplay.Document.ExecCommand(@"Copy", false, null);
 #endif
 		}
 	}

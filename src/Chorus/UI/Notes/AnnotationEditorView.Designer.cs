@@ -28,15 +28,22 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
+			this.components = new System.ComponentModel.Container();
 			this._resolvedCheckBox = new System.Windows.Forms.CheckBox();
 			this._addButton = new System.Windows.Forms.Button();
 			this._newMessage = new System.Windows.Forms.TextBox();
 			this._annotationLogo = new System.Windows.Forms.PictureBox();
+#if MONO
 			this._existingMessagesDisplay = new Gecko.GeckoWebBrowser();
+#else
+			this._existingMessagesDisplay = new System.Windows.Forms.WebBrowser();
+#endif
 			this._closeButton = new System.Windows.Forms.Button();
 			this._annotationLabel = new System.Windows.Forms.LinkLabel();
 			this._addNewMessageLabel = new Chorus.UI.BetterLabel();
+			this.l10NSharpExtender1 = new L10NSharp.UI.L10NSharpExtender(this.components);
 			((System.ComponentModel.ISupportInitialize)(this._annotationLogo)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.l10NSharpExtender1)).BeginInit();
 			this.SuspendLayout();
 			//
 			// _resolvedCheckBox
@@ -44,6 +51,9 @@
 			this._resolvedCheckBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
 			this._resolvedCheckBox.AutoSize = true;
 			this._resolvedCheckBox.Image = global::Chorus.Properties.Resources.check12x12;
+			this.l10NSharpExtender1.SetLocalizableToolTip(this._resolvedCheckBox, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this._resolvedCheckBox, null);
+			this.l10NSharpExtender1.SetLocalizingId(this._resolvedCheckBox, "AnnotationEditorView.Resolved");
 			this._resolvedCheckBox.Location = new System.Drawing.Point(4, 387);
 			this._resolvedCheckBox.Name = "_resolvedCheckBox";
 			this._resolvedCheckBox.Size = new System.Drawing.Size(83, 17);
@@ -56,6 +66,9 @@
 			// _addButton
 			//
 			this._addButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+			this.l10NSharpExtender1.SetLocalizableToolTip(this._addButton, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this._addButton, null);
+			this.l10NSharpExtender1.SetLocalizingId(this._addButton, "AnnotationEditorView.Add");
 			this._addButton.Location = new System.Drawing.Point(255, 325);
 			this._addButton.Name = "_addButton";
 			this._addButton.Size = new System.Drawing.Size(63, 45);
@@ -67,7 +80,10 @@
 			// _newMessage
 			//
 			this._newMessage.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
-						| System.Windows.Forms.AnchorStyles.Right)));
+			| System.Windows.Forms.AnchorStyles.Right)));
+			this.l10NSharpExtender1.SetLocalizableToolTip(this._newMessage, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this._newMessage, null);
+			this.l10NSharpExtender1.SetLocalizingId(this._newMessage, "AnnotationEditorView.AnnotationEditorView._newMessage");
 			this._newMessage.Location = new System.Drawing.Point(4, 325);
 			this._newMessage.Multiline = true;
 			this._newMessage.Name = "_newMessage";
@@ -79,6 +95,9 @@
 			// _annotationLogo
 			//
 			this._annotationLogo.Image = global::Chorus.Properties.Resources.NewNote16x16;
+			this.l10NSharpExtender1.SetLocalizableToolTip(this._annotationLogo, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this._annotationLogo, null);
+			this.l10NSharpExtender1.SetLocalizingId(this._annotationLogo, "AnnotationEditorView.AnnotationEditorView._annotationLogo");
 			this._annotationLogo.Location = new System.Drawing.Point(5, 8);
 			this._annotationLogo.Name = "_annotationLogo";
 			this._annotationLogo.Size = new System.Drawing.Size(32, 32);
@@ -89,28 +108,48 @@
 			//
 			// _existingMessagesDisplay
 			//
-			// GECKOFX: is this needed?
+#if MONO
+			//GECKOFX: Is this needed?
 			//this._existingMessagesDisplay.AllowWebBrowserDrop = false;
 			this._existingMessagesDisplay.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-						| System.Windows.Forms.AnchorStyles.Left)
-						| System.Windows.Forms.AnchorStyles.Right)));
+			| System.Windows.Forms.AnchorStyles.Left)
+			| System.Windows.Forms.AnchorStyles.Right)));
+			this.l10NSharpExtender1.SetLocalizableToolTip(this._existingMessagesDisplay, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this._existingMessagesDisplay, null);
+			this.l10NSharpExtender1.SetLocalizingId(this._existingMessagesDisplay, "AnnotationEditorView.AnnotationEditorView._existingMessagesDisplay");
 			this._existingMessagesDisplay.Location = new System.Drawing.Point(5, 47);
 			this._existingMessagesDisplay.MinimumSize = new System.Drawing.Size(20, 20);
 			this._existingMessagesDisplay.Name = "_existingMessagesDisplay";
 			this._existingMessagesDisplay.Size = new System.Drawing.Size(313, 250);
 			this._existingMessagesDisplay.TabIndex = 9;
-			// GECKOFX: is this needed?
+			//GECKOFX: Is this needed?
 			//this._existingMessagesDisplay.WebBrowserShortcutsEnabled = false;
-			// GECKOFX: does this do what is needed?
-			//this._existingMessagesDisplay.DocumentCompleted += new System.Windows.Forms.WebBrowserDocumentCompletedEventHandler(this._existingMessagesDisplay_DocumentCompleted);
 			this._existingMessagesDisplay.DocumentCompleted += new System.EventHandler(this._existingMessagesDisplay_DocumentCompleted);
-			// GECKOFX: does this do what is needed?
-			//this._existingMessagesDisplay.Navigating += new System.Windows.Forms.WebBrowserNavigatingEventHandler(this._existingMessagesDisplay_Navigating);
 			this._existingMessagesDisplay.Navigating += new System.EventHandler<Gecko.GeckoNavigatingEventArgs>(this._existingMessagesDisplay_Navigating);
+#else
+			this._existingMessagesDisplay.AllowWebBrowserDrop = false;
+			this._existingMessagesDisplay.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+			| System.Windows.Forms.AnchorStyles.Left)
+			| System.Windows.Forms.AnchorStyles.Right)));
+			this.l10NSharpExtender1.SetLocalizableToolTip(this._existingMessagesDisplay, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this._existingMessagesDisplay, null);
+			this.l10NSharpExtender1.SetLocalizingId(this._existingMessagesDisplay, "AnnotationEditorView.AnnotationEditorView._existingMessagesDisplay");
+			this._existingMessagesDisplay.Location = new System.Drawing.Point(5, 47);
+			this._existingMessagesDisplay.MinimumSize = new System.Drawing.Size(20, 20);
+			this._existingMessagesDisplay.Name = "_existingMessagesDisplay";
+			this._existingMessagesDisplay.Size = new System.Drawing.Size(313, 250);
+			this._existingMessagesDisplay.TabIndex = 9;
+			this._existingMessagesDisplay.WebBrowserShortcutsEnabled = false;
+			this._existingMessagesDisplay.DocumentCompleted += new System.Windows.Forms.WebBrowserDocumentCompletedEventHandler(this._existingMessagesDisplay_DocumentCompleted);
+			this._existingMessagesDisplay.Navigating += new System.Windows.Forms.WebBrowserNavigatingEventHandler(this._existingMessagesDisplay_Navigating);
+#endif
 			//
 			// _closeButton
 			//
 			this._closeButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+			this.l10NSharpExtender1.SetLocalizableToolTip(this._closeButton, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this._closeButton, null);
+			this.l10NSharpExtender1.SetLocalizingId(this._closeButton, "AnnotationEditorView.AddAndOk");
 			this._closeButton.Location = new System.Drawing.Point(189, 376);
 			this._closeButton.Name = "_closeButton";
 			this._closeButton.Size = new System.Drawing.Size(129, 36);
@@ -124,12 +163,17 @@
 			this._annotationLabel.AutoSize = true;
 			this._annotationLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this._annotationLabel.LinkColor = System.Drawing.Color.Black;
+			this.l10NSharpExtender1.SetLocalizableToolTip(this._annotationLabel, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this._annotationLabel, null);
+			this.l10NSharpExtender1.SetLocalizationPriority(this._annotationLabel, L10NSharp.LocalizationPriority.NotLocalizable);
+			this.l10NSharpExtender1.SetLocalizingId(this._annotationLabel, "AnnotationEditorView.AnnotationLabel");
 			this._annotationLabel.Location = new System.Drawing.Point(43, 8);
 			this._annotationLabel.Name = "_annotationLabel";
 			this._annotationLabel.Size = new System.Drawing.Size(129, 24);
 			this._annotationLabel.TabIndex = 10;
 			this._annotationLabel.TabStop = true;
 			this._annotationLabel.Text = "Target of Note";
+			this._annotationLabel.UseMnemonic = false;
 			this._annotationLabel.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this._annotationLabel_LinkClicked);
 			//
 			// _addNewMessageLabel
@@ -137,6 +181,9 @@
 			this._addNewMessageLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
 			this._addNewMessageLabel.BorderStyle = System.Windows.Forms.BorderStyle.None;
 			this._addNewMessageLabel.Font = new System.Drawing.Font("Segoe UI", 9F);
+			this.l10NSharpExtender1.SetLocalizableToolTip(this._addNewMessageLabel, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this._addNewMessageLabel, null);
+			this.l10NSharpExtender1.SetLocalizingId(this._addNewMessageLabel, "AnnotationEditorView.AddNewMessage");
 			this._addNewMessageLabel.Location = new System.Drawing.Point(4, 298);
 			this._addNewMessageLabel.Multiline = true;
 			this._addNewMessageLabel.Name = "_addNewMessageLabel";
@@ -145,6 +192,11 @@
 			this._addNewMessageLabel.TabIndex = 5;
 			this._addNewMessageLabel.TabStop = false;
 			this._addNewMessageLabel.Text = "Add new message:";
+			//
+			// l10NSharpExtender1
+			//
+			this.l10NSharpExtender1.LocalizationManagerId = "Chorus";
+			this.l10NSharpExtender1.PrefixForNewItems = "AnnotationEditorView";
 			//
 			// AnnotationEditorView
 			//
@@ -158,10 +210,14 @@
 			this.Controls.Add(this._addNewMessageLabel);
 			this.Controls.Add(this._resolvedCheckBox);
 			this.Controls.Add(this._annotationLogo);
+			this.l10NSharpExtender1.SetLocalizableToolTip(this, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this, null);
+			this.l10NSharpExtender1.SetLocalizingId(this, "AnnotationEditorView.AnnotationEditorView.AnnotationEditorView");
 			this.Name = "AnnotationEditorView";
 			this.Size = new System.Drawing.Size(321, 415);
 			this.Load += new System.EventHandler(this.AnnotationView_Load);
 			((System.ComponentModel.ISupportInitialize)(this._annotationLogo)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.l10NSharpExtender1)).EndInit();
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -174,8 +230,13 @@
 		private BetterLabel _addNewMessageLabel;
 		private System.Windows.Forms.Button _addButton;
 		private System.Windows.Forms.TextBox _newMessage;
+#if MONO
 		private Gecko.GeckoWebBrowser _existingMessagesDisplay;
+#else
+		private System.Windows.Forms.WebBrowser _existingMessagesDisplay;
+#endif
 		private System.Windows.Forms.Button _closeButton;
 		private System.Windows.Forms.LinkLabel _annotationLabel;
+		private L10NSharp.UI.L10NSharpExtender l10NSharpExtender1;
 	}
 }

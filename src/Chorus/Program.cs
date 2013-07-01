@@ -4,16 +4,25 @@ using System.IO;
 using System.Reflection;
 using System.Windows.Forms;
 using Chorus.VcsDrivers.Mercurial;
+using L10NSharp;
+#if MONO
 using Gecko;
+#if false
 using System.Runtime.InteropServices;
+#endif
+#endif
 
 namespace Chorus
 {
 	static class Program
 	{
-				// dummy function to dlopen geckofix
+#if MONO
+#if false
+		// dummy function to dlopen geckofix
 		[DllImport("geckofix.so")]
 		static extern void DummyFunction();
+#endif
+#endif
 
 		/// <summary>
 		/// The main entry point for the application.
@@ -26,26 +35,15 @@ namespace Chorus
 
 			SetUpErrorHandling();
 
-			// Set up Xpcom for geckofx
 #if MONO
-#if false // TODO: renable this - when making geckofx work in Chorus
-			DummyFunction();
-
-			if (!Environment.GetEnvironmentVariable("LD_LIBRARY_PATH").Contains("/usr/lib/firefox/"))
-				throw new ApplicationException(String.Format("LD_LIBRARY_PATH must contain {0}", "/usr/lib/firefox/"));
-
-			Xpcom.Initialize("/usr/lib/firefox/");
-			GeckoPreferences.User["gfx.font_rendering.graphite.enabled"] = true;
+			// Set up Xpcom for geckofx
+#if false
+			DummyFunction();	// Can we avoid the need for LD_PRELOAD?
 #endif
-#else
 			Xpcom.Initialize(XULRunnerLocator.GetXULRunnerLocation());
+			GeckoPreferences.User["gfx.font_rendering.graphite.enabled"] = true;
+			Application.ApplicationExit += (sender, e) => { Xpcom.Shutdown(); };
 #endif
-			Application.ApplicationExit += (sender, e) =>
-			{
-				Xpcom.Shutdown();
-			};
-
-		//	throw new ApplicationException("test");
 
 			//is mercurial set up?
 			var s = HgRepository.GetEnvironmentReadinessMessage("en");
@@ -144,7 +142,7 @@ namespace Chorus
 			public static string BrowseForRepository()
 			{
 				var dlg = new FolderBrowserDialog();
-				dlg.Description = "Select a chorus-enabled project to open:";
+				dlg.Description = LocalizationManager.GetString("Messages.SelectChorusProject", "Select a chorus-enabled project to open:");
 				dlg.ShowNewFolderButton = false;
 				if (DialogResult.OK != dlg.ShowDialog())
 					return null;

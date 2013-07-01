@@ -8,6 +8,7 @@ using Chorus.UI.Settings;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using ChorusHub;
+using L10NSharp;
 using Palaso.Code;
 using System.IO;
 
@@ -117,15 +118,13 @@ namespace Chorus.UI.Sync
 
 			_sharedNetworkDiagnosticsLink.Visible = false;
 
-			//Enhance: currently, if you have either chorushub or lan-folder enabled, you'll see the button which they share
+			var showChorusHubButton = Properties.Settings.Default.ShowChorusHubInSendReceive;
 
-			var showFolderOrChorusHubButton = Properties.Settings.Default.SharedFolderEnabled || Properties.Settings.Default.ShowChorusHubInSendReceive;
-
-			_useSharedFolderStatusLabel.Visible = _useLocalNetworkButton.Visible = showFolderOrChorusHubButton;
+			_useSharedFolderStatusLabel.Visible = _useLocalNetworkButton.Visible = showChorusHubButton;
 			statusRow = _tableLayoutPanel.GetRow(_useSharedFolderStatusLabel);
 			buttonRow = _tableLayoutPanel.GetRow(_useLocalNetworkButton);
-			_tableLayoutPanel.RowStyles[statusRow].Height = showFolderOrChorusHubButton ? LABEL_HEIGHT : 0;
-			_tableLayoutPanel.RowStyles[buttonRow].Height = showFolderOrChorusHubButton ? BUTTON_HEIGHT : 0;
+			_tableLayoutPanel.RowStyles[statusRow].Height = showChorusHubButton ? LABEL_HEIGHT : 0;
+			_tableLayoutPanel.RowStyles[buttonRow].Height = showChorusHubButton ? BUTTON_HEIGHT : 0;
 		}
 
 		private void SetupSharedFolderAndInternetUI()
@@ -217,19 +216,6 @@ namespace Chorus.UI.Sync
 				isReady = true;
 				message = string.Format("Found Chorus Hub at {0}", _chorusHubInfo.HostName);
 				tooltip = _chorusHubInfo.GetHgHttpUri(Path.GetFileName(_repository.PathToRepo));
-
-			}
-
-			if (_chorusHubInfo == null)
-			{
-				if (Properties.Settings.Default.SharedFolderEnabled)
-				{
-					Monitor.Enter(_model);
-					isReady = _model.GetNetworkStatusLink(out message, out tooltip, out diagnostics);
-					if (isReady)
-						_lanMode = LANMode.Folder;
-					Monitor.Exit(_model);
-				}
 			}
 
 			Monitor.Enter(this);
@@ -403,7 +389,7 @@ namespace Chorus.UI.Sync
 					if(doWait)
 					{
 						//enhance: sorry, I regret that this is all kludgy, ux-wise.
-						MessageBox.Show("After you press OK, we will give the ChorusHub 10 seconds to get ready to receive this repository.");
+						MessageBox.Show(LocalizationManager.GetString("Messages.WaitForChorusHub","After you press OK, we will give the ChorusHub 10 seconds to get ready to receive this repository."));
 						Cursor.Current = Cursors.WaitCursor;
 						Thread.Sleep(10*1000);
 						Cursor.Current = Cursors.Default;

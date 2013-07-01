@@ -48,7 +48,7 @@ namespace Chorus.merge.xml.generic
 						throw new InvalidOperationException("Using strategy with NumberOfChildren property of NumberOfChildrenAllowed.Zero is not legal, when there are child element nodes."); // Route tested.
 
 					// Don't merge deeper than merging the attributes, since there aren't supposed to be any children.
-					MergeXmlAttributesService.MergeAttributes(merger, ref ours, theirs, ancestor);
+					// Already done by caller MergeXmlAttributesService.MergeAttributes(merger, ref ours, theirs, ancestor);
 					// Route tested.
 					break;
 				case NumberOfChildrenAllowed.ZeroOrOne:
@@ -62,7 +62,7 @@ namespace Chorus.merge.xml.generic
 					if (ancestorChildren.Count > 1)
 						throw new InvalidOperationException("Using strategy with NumberOfChildren property of NumberOfChildrenAllowed.ZeroOrOne is not legal, when there are child element nodes."); // Route tested.
 
-					MergeXmlAttributesService.MergeAttributes(merger, ref ours, theirs, ancestor);
+					// Already done by caller MergeXmlAttributesService.MergeAttributes(merger, ref ours, theirs, ancestor);
 
 					if (!ourChildren.Any() && !theirChildren.Any() && ancestor != null)
 						return; // Route tested.
@@ -148,29 +148,25 @@ namespace Chorus.merge.xml.generic
 					merger.ConflictOccurred(new BothAddedMainElementButWithDifferentContentConflict(winner.Name, winner, loser, merger.MergeSituation, mergeStrategy, winnerId));
 					return ours;
 				}
-				else
-				{
-					// Matched nodes, as far as that goes. But, are they the same or not?
-					if (XmlUtilities.AreXmlElementsEqual(ourChild, theirChild))
-					{
-						// Both added the same thing.
-// Route tested.
-						merger.EventListener.ChangeOccurred(new XmlBothAddedSameChangeReport(merger.MergeSituation.PathToFileInRepository, ourChild));
-						return ours;
-					}
-					else
-					{
-						// Move on down and merge them.
-						// Both messed with the inner stuff, but not the same way.
-// Route tested.
-						ourReplacementChild = ourChild;
-						merger.MergeInner(ref ourReplacementChild, theirChild, ancestorChild);
-						if (!ReferenceEquals(ourChild, ourReplacementChild))
-							ours.ReplaceChild(ours.OwnerDocument.ImportNode(ourReplacementChild, true), ourChild);
 
-						return ours;
-					}
+				// Matched nodes, as far as that goes. But, are they the same or not?
+				if (XmlUtilities.AreXmlElementsEqual(ourChild, theirChild))
+				{
+					// Both added the same thing.
+// Route tested.
+					merger.EventListener.ChangeOccurred(new XmlBothAddedSameChangeReport(merger.MergeSituation.PathToFileInRepository, ourChild));
+					return ours;
 				}
+
+				// Move on down and merge them.
+				// Both messed with the inner stuff, but not the same way.
+// Route tested.
+				ourReplacementChild = ourChild;
+				merger.MergeInner(ref ourReplacementChild, theirChild, ancestorChild);
+				if (!ReferenceEquals(ourChild, ourReplacementChild))
+					ours.ReplaceChild(ours.OwnerDocument.ImportNode(ourReplacementChild, true), ourChild);
+
+				return ours;
 			}
 
 			// ancestor is not null at this point.
@@ -199,10 +195,7 @@ namespace Chorus.merge.xml.generic
 			}
 
 			// ours, theirs, and ancestor all exist here.
-			ourReplacementChild = ourChild;
-			merger.MergeInner(ref ourReplacementChild, theirChild, ancestorChild);
-			if (!ReferenceEquals(ourChild, ourReplacementChild))
-				ours.ReplaceChild(ours.OwnerDocument.ImportNode(ourReplacementChild, true), ourChild);
+			new MergeChildrenMethod(ours, theirs, ancestor, merger).Run();
 
 // Route tested. (UsingWith_NumberOfChildrenAllowed_ZeroOrOne_DoesNotThrowWhenParentHasOneChildNode)
 			return ours;

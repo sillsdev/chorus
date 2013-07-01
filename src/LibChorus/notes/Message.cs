@@ -1,7 +1,7 @@
 using System;
 using System.Linq;
+using System.Security;
 using System.Text;
-using System.Xml;
 using System.Xml.Linq;
 using Chorus.Utilities;
 
@@ -19,7 +19,8 @@ namespace Chorus.notes
 		public Message(string author, string status, string contents)
 		{
 			var s = String.Format("<message author='{0}' status ='{1}' date='{2}' guid='{3}'>{4}</message>",
-								  author, status, DateTime.Now.ToString(Annotation.TimeFormatNoTimeZone), System.Guid.NewGuid(), contents);
+								  author, status, DateTime.Now.ToString(Annotation.TimeFormatNoTimeZone),
+								  System.Guid.NewGuid(), SecurityElement.Escape(contents));
 			_element = XElement.Parse(s);
 		}
 
@@ -68,19 +69,19 @@ namespace Chorus.notes
 			}
 		}
 
-		public string GetHtmlText(EmbeddedMessageContentHandlerFactory embeddedMessageContentHandlerFactory)
+		public string GetHtmlText(EmbeddedMessageContentHandlerRepository embeddedMessageContentHandlerRepository)
 		{
 			var b = new StringBuilder();
 			b.Append(Text);
 
-			if (embeddedMessageContentHandlerFactory != null)
+			if (embeddedMessageContentHandlerRepository != null)
 			{
 				XCData cdata = _element.Nodes().OfType<XCData>().FirstOrDefault();
 
 				if (cdata != null)
 				{
 					string content = cdata.Value;
-					var handler = embeddedMessageContentHandlerFactory.GetHandlerOrDefaultForCData(content);
+					var handler = embeddedMessageContentHandlerRepository.GetHandlerOrDefaultForCData(content);
 					b.AppendLine("<div/>");
 					b.AppendLine(handler.GetHyperLink(content));
 				}

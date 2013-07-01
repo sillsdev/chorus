@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 using Autofac;
+using Chorus.UI;
 using Chorus.notes;
 using Chorus.sync;
 using Chorus.UI.Notes;
@@ -12,6 +14,7 @@ using Chorus.UI.Notes.Browser;
 using Chorus.UI.Review;
 using Chorus.UI.Sync;
 using Chorus.VcsDrivers.Mercurial;
+using L10NSharp;
 using Palaso.Code;
 using Palaso.Progress;
 using IContainer = Autofac.IContainer;
@@ -36,8 +39,22 @@ namespace Chorus
 		/// <param name="dataFolderPath">The root of the project</param>
 		public ChorusSystem(string dataFolderPath)
 		{
-			WritingSystems = new List<IWritingSystem> {new EnglishWritingSystem(), new ThaiWritingSystem()};
+			DisplaySettings = new ChorusNotesDisplaySettings();
 			_dataFolderPath = dataFolderPath;
+		}
+
+		/// <summary>
+		/// This is a special init used for functions (such as setting up a NotesBar) which do not actually require
+		/// Mercurial. Crashes are likely if you use this and then try functions like Send/Receive which DO need Hg.
+		/// This version must be passed a reasonable userNameForHistoryAndNotes, since there is no way to obtain
+		/// a default one.
+		/// </summary>
+		/// <param name="userNameForHistoryAndNotes"></param>
+		public void InitWithoutHg(string userNameForHistoryAndNotes)
+		{
+			Require.That(!string.IsNullOrWhiteSpace(userNameForHistoryAndNotes), "Must have a user name to init Chorus without a repo");
+			var builder = InitContainerBuilder();
+			FinishInit(userNameForHistoryAndNotes, builder);
 		}
 
 		/// <summary>
@@ -49,23 +66,24 @@ namespace Chorus
 		  public void Init(string userNameForHistoryAndNotes)
 		{
 			Repository = HgRepository.CreateOrUseExisting(_dataFolderPath, new NullProgress());
-			var builder = new Autofac.ContainerBuilder();
-
-			builder.Register<IEnumerable<IWritingSystem>>(c=>WritingSystems);
-
-			ChorusUIComponentsInjector.Inject(builder, _dataFolderPath);
+			var builder = InitContainerBuilder();
 
 			if (String.IsNullOrEmpty(userNameForHistoryAndNotes))
 			{
 				userNameForHistoryAndNotes = Repository.GetUserIdInUse();
 			}
+			FinishInit(userNameForHistoryAndNotes, builder);
+		}
+
+		private void FinishInit(string userNameForHistoryAndNotes, ContainerBuilder builder)
+		{
 			_user = new ChorusUser(userNameForHistoryAndNotes);
 			builder.RegisterInstance(_user).As<IChorusUser>();
 //            builder.RegisterGeneratedFactory<NotesInProjectView.Factory>().ContainerScoped();
 //            builder.RegisterGeneratedFactory<NotesInProjectViewModel.Factory>().ContainerScoped();
 //            builder.RegisterGeneratedFactory<NotesBrowserPage.Factory>().ContainerScoped();
 
-		   // builder.Register(new NullProgress());//TODO
+			// builder.Register(new NullProgress());//TODO
 			_container = builder.Build();
 
 			//add the container itself
@@ -75,16 +93,56 @@ namespace Chorus
 			DidLoadUpCorrectly = true;
 		}
 
-		public bool DidLoadUpCorrectly;
+		private ContainerBuilder InitContainerBuilder()
+		{
+			var builder = new Autofac.ContainerBuilder();
+
+			builder.Register<ChorusNotesDisplaySettings>(c => DisplaySettings);
+
+			ChorusUIComponentsInjector.Inject(builder, _dataFolderPath);
+			return builder;
+		}
 
 		/// <summary>
-		/// Set this if you want something other than English
+		/// Typically root directory of installed files is something like [application exe directory]/localizations.
+		/// root directory of user modifiable tmx files has to be outside program files, something like
+		/// GetXAppDataFolder()/localizations, where GetXAppDataFolder would typically return something like
+		/// Program Data/Company/Program.
 		/// </summary>
-		public IEnumerable<IWritingSystem> WritingSystems
+		/// <param name="desiredUiLangId"></param>
+		/// <param name="rootDirectoryOfInstalledTmxFiles"></param>
+		/// <param name="rootDirectoryOfUserModifiedTmxFiles"></param>
+		public static void SetUpLocalization(string desiredUiLangId, string rootDirectoryOfInstalledTmxFiles,
+			string rootDirectoryOfUserModifiedTmxFiles)
 		{
-			get;
-			set;
+			string directoryOfInstalledTmxFiles = Path.Combine(rootDirectoryOfInstalledTmxFiles, "Chorus");
+			string directoryOfUserModifiedTmxFiles = Path.Combine(rootDirectoryOfUserModifiedTmxFiles, "Chorus");
+			if (!Directory.Exists(directoryOfUserModifiedTmxFiles))
+			{
+				try
+				{
+					Directory.CreateDirectory(directoryOfUserModifiedTmxFiles);
+				}
+				catch (IOException)
+				{
+					// User won't be able to localize, but we can't do much about it.
+				}
+			}
+			// This is safer than Application.ProductVersion, which might contain words like 'alpha' or 'beta',
+			// which (on the SECOND run of the program) fail when L10NSharp tries to make a Version object out of them.
+			var versionObj = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
+			// We don't need to reload strings for every "revision" (that might be every time we build).
+			var version = "" + versionObj.Major + "." + versionObj.Minor + "." + versionObj.Build;
+			LocalizationManager.Create(desiredUiLangId, "Chorus", Application.ProductName,
+						   version, directoryOfInstalledTmxFiles,
+						   directoryOfUserModifiedTmxFiles,
+						   Icon.FromHandle(Properties.Resources.chorus32x32.GetHicon()), // should call DestroyIcon, but when?
+						   "issues@chorus.palaso.org", "Chorus");
 		}
+
+		public bool DidLoadUpCorrectly;
+
+		public ChorusNotesDisplaySettings DisplaySettings;
 
 		public NavigateToRecordEvent NavigateToRecordEvent
 		{
@@ -159,9 +217,24 @@ namespace Chorus
 			/// </summary>
 			public NotesBarView CreateNotesBar(string pathToAnnotatedFile, NotesToRecordMapping mapping, IProgress progress)
 			{
+				var model = CreateNotesBarModel(pathToAnnotatedFile, mapping, progress);
+				return new NotesBarView(model, _container.Resolve<AnnotationEditorModel.Factory>());
+			}
+
+			/// <summary>
+			/// Get the model that would be needed if we go on to create a NotesBarView.
+			/// FLEx (at least) needs this to help it figure out, before we go to create the actual NotesBar,
+			/// whether there are any notes to show for the current entry.
+			/// </summary>
+			/// <param name="pathToAnnotatedFile"></param>
+			/// <param name="mapping"></param>
+			/// <param name="progress"></param>
+			/// <returns></returns>
+			public NotesBarModel CreateNotesBarModel(string pathToAnnotatedFile, NotesToRecordMapping mapping, IProgress progress)
+			{
 				var repo = _parent.GetNotesRepository(pathToAnnotatedFile, progress);
 				var model = _container.Resolve<NotesBarModel.Factory>()(repo, mapping);
-				return new NotesBarView(model, _container.Resolve<AnnotationEditorModel.Factory>());
+				return model;
 			}
 
 			/// <summary>

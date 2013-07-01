@@ -80,11 +80,6 @@ namespace LibChorus.Tests.sync
 			string contents = File.ReadAllText(Path.Combine(projectDirOnBackup, "foo.txt"));
 			Assert.AreEqual("version one", contents);
 			WriteTestFile("version two");
-
-			options.RepositorySourcesToTry.Add(_directorySource);
-			_synchronizer.SyncNow(options);
-			contents = File.ReadAllText(Path.Combine(projectDirOnBackup, "foo.txt"));
-			Assert.AreEqual("version two", contents);
 		}
 
 		[Test]

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Xml;
 using Chorus.FileTypeHanders.xml;
 
@@ -114,10 +115,11 @@ namespace Chorus.merge.xml.generic
 				return;
 			}
 
-			var oursAndCommonAreEqual = XmlUtilities.AreXmlElementsEqual(ours, commonAncestor);
+			var oursAndCommonAreEqual = ours != null && XmlUtilities.AreXmlElementsEqual(ours, commonAncestor);
 			if (theirs == null && !oursAndCommonAreEqual)
 			{
 				// We edited, they deleted, so keep ours under the least loss principle.
+				Debug.Assert(ours != null, "We shoudn't come here if ours is also null...both deleted is handled elsewhere");
 				// Route tested (x2 WeWin & !WeWin)
 				merger.ConflictOccurred(new EditedVsRemovedElementConflict(ours.Name, ours, null, commonAncestor,
 																			   merger.MergeSituation, elementStrategy,
@@ -125,7 +127,7 @@ namespace Chorus.merge.xml.generic
 				return;
 			}
 
-			var oursAndTheirsAreEqual = XmlUtilities.AreXmlElementsEqual(ours, theirs);
+			var oursAndTheirsAreEqual = ours != null && theirs != null && XmlUtilities.AreXmlElementsEqual(ours, theirs);
 			if (oursAndTheirsAreEqual && !oursAndCommonAreEqual)
 			{
 				// Both made same changes.
@@ -136,6 +138,24 @@ namespace Chorus.merge.xml.generic
 
 			if (!oursAndTheirsAreEqual)
 			{
+				if (ours == null)
+				{
+					// We deleted. They did nothing.
+					Debug.Assert(theirs != null, "both deleted should be handled before this");
+					Debug.Assert(theirsAndCommonAreEqual, "we deleted and they edited should be handled before this");
+					// leave ours null, preserving the deletion.
+					// We could plausibly call ChangeOccurred with an XmlDeletionChangeReport, but we are phasing those out.
+					return; // Route tested
+				}
+				if (theirs == null)
+				{
+					// They deleted. We did nothing.
+					Debug.Assert(oursAndCommonAreEqual, "we edited and they deleted should be handled before this");
+					// Let the delete win.
+					ours = null;
+					// We could plausibly call ChangeOccurred with an XmlDeletionChangeReport, but we are phasing those out.
+					return;  // Route tested
+				}
 				// Compare with common ancestor to see who made the change, if only one made it.\
 				if (!oursAndCommonAreEqual && theirsAndCommonAreEqual)
 				{

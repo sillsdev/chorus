@@ -1,4 +1,7 @@
-﻿using System.Xml;
+﻿using System.Collections;
+using System.Collections.Generic;
+using System.Text;
+using System.Xml;
 using Chorus.merge.xml.generic;
 using NUnit.Framework;
 
@@ -141,6 +144,40 @@ namespace LibChorus.Tests.utilities
 </rt>";
 			Assert.True(XmlUtilities.AreXmlElementsEqual(ours, theirs));
 			Assert.True(XmlUtilities.AreXmlElementsEqual(theirs, ours));
+		}
+
+		[Test]
+		public void EquivalentByteArraysAreEqual()
+		{
+			var ours = Encoding.UTF8.GetBytes(@"<rt class='ScrTxtPara' guid='0030a77d-63cd-4d51-b26a-27bac7d64f17' ownerguid='046d6079-2337-425f-a8bd-b0af047fb5e5'>
+<Contents>
+<Str>
+<Run ws='tuz' />
+</Str>
+</Contents>
+<ParseIsCurrent val='False' />
+</rt>");
+			var theirs = Encoding.UTF8.GetBytes(@"<rt class='ScrTxtPara' guid='0030a77d-63cd-4d51-b26a-27bac7d64f17' ownerguid='046d6079-2337-425f-a8bd-b0af047fb5e5'>
+<Contents>
+<Str>
+<Run ws='tuz' />
+</Str>
+</Contents>
+<ParseIsCurrent val='False' />
+</rt>");
+
+			Assert.IsTrue(XmlUtilities.AreXmlElementsEqual(ours, theirs), "ours != theirs");
+			Assert.IsTrue(XmlUtilities.AreXmlElementsEqual(theirs, ours), "theirs != ours");
+		}
+
+		[Test]
+		public void NonEquivalentByteArraysAreNotEqual()
+		{
+			var ours = Encoding.UTF8.GetBytes(@"<rt class='ScrTxtPara' guid='0030a77d-63cd-4d51-b26a-27bac7d64f17' ownerguid='046d6079-2337-425f-a8bd-b0af047fb5e5' />");
+			var theirs = Encoding.UTF8.GetBytes(@"<rt class='LexEntry' guid='0030a77d-63cd-4d51-b26a-27bac7d64f18' ownerguid='046d6079-2337-425f-a8bd-b0af047fb5e5' />");
+
+			Assert.IsFalse(XmlUtilities.AreXmlElementsEqual(ours, theirs), "ours == theirs");
+			Assert.IsFalse(XmlUtilities.AreXmlElementsEqual(theirs, ours), "theirs == ours");
 		}
 
 		#region IsTextNodeContainer

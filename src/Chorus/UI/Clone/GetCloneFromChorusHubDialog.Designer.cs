@@ -39,7 +39,9 @@
 			this.progressBar = new System.Windows.Forms.ProgressBar();
 			this._getChorusHubInfoBackgroundWorker = new System.ComponentModel.BackgroundWorker();
 			this._helpProvider = new Vulcan.Uczniowie.HelpProvider.HelpComponent(this.components);
+			this.l10NSharpExtender1 = new L10NSharp.UI.L10NSharpExtender(this.components);
 			this.panel.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.l10NSharpExtender1)).BeginInit();
 			this.SuspendLayout();
 			//
 			// panel
@@ -55,7 +57,8 @@
 			//
 			// _projectRepositoryListView
 			//
-			this._projectRepositoryListView.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+			this._projectRepositoryListView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+			| System.Windows.Forms.AnchorStyles.Left)
 			| System.Windows.Forms.AnchorStyles.Right)));
 			this._projectRepositoryListView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
 			this.projectHeader});
@@ -75,6 +78,9 @@
 			//
 			// projectHeader
 			//
+			this.l10NSharpExtender1.SetLocalizableToolTip(this.projectHeader, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this.projectHeader, null);
+			this.l10NSharpExtender1.SetLocalizingId(this.projectHeader, "GetCloneFromChorusHubDialog.projectHeader");
 			this.projectHeader.Text = "Project";
 			this.projectHeader.Width = 411;
 			//
@@ -82,6 +88,9 @@
 			//
 			this.cancelButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
 			this.cancelButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+			this.l10NSharpExtender1.SetLocalizableToolTip(this.cancelButton, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this.cancelButton, null);
+			this.l10NSharpExtender1.SetLocalizingId(this.cancelButton, "Common.Cancel");
 			this.cancelButton.Location = new System.Drawing.Point(476, 347);
 			this.cancelButton.Name = "cancelButton";
 			this.cancelButton.Size = new System.Drawing.Size(75, 23);
@@ -93,6 +102,9 @@
 			//
 			this.getButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
 			this.getButton.Enabled = false;
+			this.l10NSharpExtender1.SetLocalizableToolTip(this.getButton, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this.getButton, null);
+			this.l10NSharpExtender1.SetLocalizingId(this.getButton, "GetCloneFromChorusHubDialog.Get");
 			this.getButton.Location = new System.Drawing.Point(395, 347);
 			this.getButton.Name = "getButton";
 			this.getButton.Size = new System.Drawing.Size(75, 23);
@@ -115,6 +127,11 @@
 			this.progressBar.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
 			this.progressBar.TabIndex = 1;
 			//
+			// l10NSharpExtender1
+			//
+			this.l10NSharpExtender1.LocalizationManagerId = "Chorus";
+			this.l10NSharpExtender1.PrefixForNewItems = "GetCloneFromChorusHubDialog";
+			//
 			// GetCloneFromChorusHubDialog
 			//
 			this.AcceptButton = this.getButton;
@@ -126,6 +143,9 @@
 			this.Controls.Add(this.cancelButton);
 			this.Controls.Add(this.progressBar);
 			this.Controls.Add(this.panel);
+			this.l10NSharpExtender1.SetLocalizableToolTip(this, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this, null);
+			this.l10NSharpExtender1.SetLocalizingId(this, "GetCloneFromChorusHubDialog.WindowTitle");
 			this.MaximizeBox = false;
 			this.MinimizeBox = false;
 			this.MinimumSize = new System.Drawing.Size(350, 250);
@@ -135,6 +155,7 @@
 			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.OnFormClosing);
 			this.Load += new System.EventHandler(this.OnLoad);
 			this.panel.ResumeLayout(false);
+			((System.ComponentModel.ISupportInitialize)(this.l10NSharpExtender1)).EndInit();
 			this.ResumeLayout(false);
 
 		}
@@ -150,5 +171,6 @@
 		private System.Windows.Forms.ProgressBar progressBar;
 		private System.ComponentModel.BackgroundWorker _getChorusHubInfoBackgroundWorker;
 		private Vulcan.Uczniowie.HelpProvider.HelpComponent _helpProvider;
+		private L10NSharp.UI.L10NSharpExtender l10NSharpExtender1;
 	}
 }

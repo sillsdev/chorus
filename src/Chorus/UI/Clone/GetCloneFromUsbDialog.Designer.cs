@@ -46,8 +46,10 @@ namespace Chorus.UI.Clone
 			this._statusImage = new System.Windows.Forms.Button();
 			this._lookingForUsbTimer = new System.Windows.Forms.Timer(this.components);
 			this._statusLabel = new System.Windows.Forms.TextBox();
-			this._logBox = new LogBox();
+			this._logBox = new Palaso.UI.WindowsForms.Progress.LogBox();
 			this._helpProvider = new Vulcan.Uczniowie.HelpProvider.HelpComponent(this.components);
+			this.l10NSharpExtender1 = new L10NSharp.UI.L10NSharpExtender(this.components);
+			((System.ComponentModel.ISupportInitialize)(this.l10NSharpExtender1)).BeginInit();
 			this.SuspendLayout();
 			//
 			// listView1
@@ -74,11 +76,17 @@ namespace Chorus.UI.Clone
 			//
 			// columnHeader1
 			//
+			this.l10NSharpExtender1.SetLocalizableToolTip(this.columnHeader1, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this.columnHeader1, null);
+			this.l10NSharpExtender1.SetLocalizingId(this.columnHeader1, "GetCloneFromUsbDialog.columnHeader1");
 			this.columnHeader1.Text = "Name";
 			this.columnHeader1.Width = 170;
 			//
 			// columnHeader2
 			//
+			this.l10NSharpExtender1.SetLocalizableToolTip(this.columnHeader2, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this.columnHeader2, null);
+			this.l10NSharpExtender1.SetLocalizingId(this.columnHeader2, "GetCloneFromUsbDialog.columnHeader2");
 			this.columnHeader2.Text = "Modified Date";
 			this.columnHeader2.Width = 120;
 			//
@@ -87,11 +95,16 @@ namespace Chorus.UI.Clone
 			this.imageList1.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imageList1.ImageStream")));
 			this.imageList1.TransparentColor = System.Drawing.Color.Magenta;
 			this.imageList1.Images.SetKeyName(0, "Project");
+			this.imageList1.Images.SetKeyName(1, "ProjectSelected.png");
+			this.imageList1.Images.SetKeyName(2, "Folder_Disabled.png");
 			//
 			// _cancelButton
 			//
 			this._cancelButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
 			this._cancelButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+			this.l10NSharpExtender1.SetLocalizableToolTip(this._cancelButton, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this._cancelButton, null);
+			this.l10NSharpExtender1.SetLocalizingId(this._cancelButton, "Common.Cancel");
 			this._cancelButton.Location = new System.Drawing.Point(218, 227);
 			this._cancelButton.Name = "_cancelButton";
 			this._cancelButton.Size = new System.Drawing.Size(75, 23);
@@ -103,6 +116,9 @@ namespace Chorus.UI.Clone
 			// _okButton
 			//
 			this._okButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+			this.l10NSharpExtender1.SetLocalizableToolTip(this._okButton, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this._okButton, null);
+			this.l10NSharpExtender1.SetLocalizingId(this._okButton, "Common.OK");
 			this._okButton.Location = new System.Drawing.Point(137, 227);
 			this._okButton.Name = "_okButton";
 			this._okButton.Size = new System.Drawing.Size(75, 23);
@@ -114,6 +130,9 @@ namespace Chorus.UI.Clone
 			// _copyToComputerButton
 			//
 			this._copyToComputerButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+			this.l10NSharpExtender1.SetLocalizableToolTip(this._copyToComputerButton, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this._copyToComputerButton, null);
+			this.l10NSharpExtender1.SetLocalizingId(this._copyToComputerButton, "GetCloneFromUsbDialog.CopyToComputer");
 			this._copyToComputerButton.Location = new System.Drawing.Point(15, 227);
 			this._copyToComputerButton.Name = "_copyToComputerButton";
 			this._copyToComputerButton.Size = new System.Drawing.Size(116, 23);
@@ -136,6 +155,9 @@ namespace Chorus.UI.Clone
 			this._statusImage.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this._statusImage.ImageKey = "UsbDriveNotFound";
 			this._statusImage.ImageList = this._statusImages;
+			this.l10NSharpExtender1.SetLocalizableToolTip(this._statusImage, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this._statusImage, null);
+			this.l10NSharpExtender1.SetLocalizingId(this._statusImage, "GetCloneFromUsbDialog.GetCloneFromUsbDialog._statusImage");
 			this._statusImage.Location = new System.Drawing.Point(8, 7);
 			this._statusImage.Name = "_statusImage";
 			this._statusImage.Size = new System.Drawing.Size(50, 36);
@@ -154,6 +176,9 @@ namespace Chorus.UI.Clone
 			| System.Windows.Forms.AnchorStyles.Right)));
 			this._statusLabel.BackColor = System.Drawing.SystemColors.Control;
 			this._statusLabel.BorderStyle = System.Windows.Forms.BorderStyle.None;
+			this.l10NSharpExtender1.SetLocalizableToolTip(this._statusLabel, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this._statusLabel, null);
+			this.l10NSharpExtender1.SetLocalizingId(this._statusLabel, "GetCloneFromUsbDialog.GetCloneFromUsbDialog._statusLabel");
 			this._statusLabel.Location = new System.Drawing.Point(65, 7);
 			this._statusLabel.Multiline = true;
 			this._statusLabel.Name = "_statusLabel";
@@ -170,6 +195,9 @@ namespace Chorus.UI.Clone
 			this._logBox.ErrorEncountered = false;
 			this._logBox.Font = new System.Drawing.Font("Segoe UI", 9F);
 			this._logBox.GetDiagnosticsMethod = null;
+			this.l10NSharpExtender1.SetLocalizableToolTip(this._logBox, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this._logBox, null);
+			this.l10NSharpExtender1.SetLocalizingId(this._logBox, "GetCloneFromUsbDialog.GetCloneFromUsbDialog.LogBox");
 			this._logBox.Location = new System.Drawing.Point(78, 29);
 			this._logBox.Name = "_logBox";
 			this._logBox.ProgressIndicator = null;
@@ -180,6 +208,11 @@ namespace Chorus.UI.Clone
 			this._logBox.ShowMenu = true;
 			this._logBox.Size = new System.Drawing.Size(231, 150);
 			this._logBox.TabIndex = 19;
+			//
+			// l10NSharpExtender1
+			//
+			this.l10NSharpExtender1.LocalizationManagerId = "Chorus";
+			this.l10NSharpExtender1.PrefixForNewItems = "GetCloneFromUsbDialog";
 			//
 			// GetCloneFromUsbDialog
 			//
@@ -196,6 +229,9 @@ namespace Chorus.UI.Clone
 			this.Controls.Add(this.listView1);
 			this.Controls.Add(this._statusLabel);
 			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+			this.l10NSharpExtender1.SetLocalizableToolTip(this, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this, null);
+			this.l10NSharpExtender1.SetLocalizingId(this, "GetCloneFromUsbDialog.WindowTitle");
 			this.MaximizeBox = false;
 			this.MinimizeBox = false;
 			this.MinimumSize = new System.Drawing.Size(322, 300);
@@ -203,6 +239,7 @@ namespace Chorus.UI.Clone
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
 			this.Text = "Get Project From USB Drive";
 			this.Load += new System.EventHandler(this.GetCloneFromUsbDialog_Load);
+			((System.ComponentModel.ISupportInitialize)(this.l10NSharpExtender1)).EndInit();
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -223,6 +260,7 @@ namespace Chorus.UI.Clone
 		private System.Windows.Forms.TextBox _statusLabel;
 		private LogBox _logBox;
 		private Vulcan.Uczniowie.HelpProvider.HelpComponent _helpProvider;
+		private L10NSharp.UI.L10NSharpExtender l10NSharpExtender1;
 
 	}
 }

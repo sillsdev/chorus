@@ -13,6 +13,10 @@ copy /Y ..\palaso\output\debug\palaso.dll lib\debug\
 copy /Y ..\palaso\output\debug\palaso.xml lib\debug\
 copy /Y ..\palaso\output\debug\palaso.pdb lib\debug\
 
+copy /Y ..\palaso\output\debug\Palaso.Lift.dll lib\debug\
+copy /Y ..\palaso\output\debug\Palaso.Lift.xml lib\debug\
+copy /Y ..\palaso\output\debug\Palaso.Lift.pdb lib\debug\
+
 copy /Y ..\palaso\output\debug\palasouiwindowsforms.dll  lib\debug
 copy /Y ..\palaso\output\debug\palasouiwindowsforms.xml  lib\debug
 copy /Y ..\palaso\output\debug\palasouiwindowsforms.pdb  lib\debug

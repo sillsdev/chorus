@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using System.Xml;
 using Chorus.FileTypeHanders.lift;
 using Chorus.FileTypeHanders.xml;
@@ -314,6 +316,89 @@ namespace LibChorus.Tests.merge.xml.generic
 			// Started with one (P, dupid4), which survived in theirs; ours has two. Similarly with (P, dupid5). Two should survive.
 			Assert.That(CountNodesWithKeys("relation", "P", "dupid4", ourNode.ChildNodes), Is.EqualTo(2));
 			Assert.That(CountNodesWithKeys("relation", "P", "dupid5", ourNode.ChildNodes), Is.EqualTo(2));
+		}
+
+		[Test]
+		public void DeleteNonAtomicElementVsModifyHasConflict()
+		{
+			const string commonAncestor =
+@"<Lexicon>
+	<LexEntry guid='ffdc58c9-5cc3-469f-9118-9f18c0138d02'>
+		<MorphoSyntaxAnalyses>
+			<MoStemMsa
+				guid='33adabe9-a02e-42cb-b942-277a7be5c841'>
+				<PartOfSpeech>
+					<objsur
+						guid='e72dbc59-e93f-4df2-b6bd-39a53e331201'
+						t='r' />
+				</PartOfSpeech>
+			</MoStemMsa>
+		</MorphoSyntaxAnalyses>
+		<Senses/>
+	</LexEntry>
+</Lexicon>";
+			const string matthew =
+@"<Lexicon>
+	<LexEntry guid='ffdc58c9-5cc3-469f-9118-9f18c0138d02'>
+		<MorphoSyntaxAnalyses>
+			<MoStemMsa
+				guid='33adabe9-a02e-42cb-b942-277a7be5c841'>
+				<PartOfSpeech>
+					<objsur
+						guid='f92dbc59-e93f-4df2-b6bd-39a53e331201'
+						t='r' />
+				</PartOfSpeech>
+			</MoStemMsa>
+		</MorphoSyntaxAnalyses>
+		<Senses/>
+	</LexEntry>
+</Lexicon>";
+			const string lee =
+@"<Lexicon>
+	<LexEntry guid='ffdc58c9-5cc3-469f-9118-9f18c0138d02'>
+		<MorphoSyntaxAnalyses>
+			<MoStemMsa
+				guid='33adabe9-a02e-42cb-b942-277a7be5c841'>
+				<PartOfSpeech />
+			</MoStemMsa>
+		</MorphoSyntaxAnalyses>
+		<Senses/>
+	</LexEntry>
+</Lexicon>";
+
+			var listener = new ListenerForUnitTests();
+			var merger = new XmlMerger(new NullMergeSituation())
+			{
+				EventListener = listener
+			};
+			merger.MergeStrategies.SetStrategy("Lexicon", ElementStrategy.CreateSingletonElement());
+
+			var strat = ElementStrategy.CreateForKeyedElement("guid", false);
+			strat.AttributesToIgnoreForMerging.Add("guid");
+			merger.MergeStrategies.SetStrategy("LexEntry", strat);
+
+			strat = ElementStrategy.CreateSingletonElement();
+			strat.NumberOfChildren = NumberOfChildrenAllowed.ZeroOrOne;
+			merger.MergeStrategies.SetStrategy("MorphoSyntaxAnalyses", strat);
+
+			strat = ElementStrategy.CreateForKeyedElement("guid", false);
+			strat.AttributesToIgnoreForMerging.Add("guid");
+			merger.MergeStrategies.SetStrategy("MoStemMsa", strat);
+
+			strat = ElementStrategy.CreateSingletonElement();
+			strat.NumberOfChildren = NumberOfChildrenAllowed.ZeroOrOne;
+			merger.MergeStrategies.SetStrategy("PartOfSpeech", strat);
+
+			strat = ElementStrategy.CreateSingletonElement();
+			merger.MergeStrategies.SetStrategy("objsur", strat);
+
+			XmlTestHelper.DoMerge(merger.MergeStrategies,
+				merger.MergeSituation,
+				commonAncestor, lee, matthew,
+				new[] { "Lexicon/LexEntry/MorphoSyntaxAnalyses/MoStemMsa/PartOfSpeech/objsur[@guid='f92dbc59-e93f-4df2-b6bd-39a53e331201']" },
+				null,
+				1, new List<Type> {typeof(RemovedVsEditedElementConflict)},
+				0, new List<Type>());
 		}
 
 		int CountNodesWithKeys(string name, string typeKey, string refKey, XmlNodeList nodes)

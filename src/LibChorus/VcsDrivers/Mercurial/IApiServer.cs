@@ -68,13 +68,10 @@ namespace Chorus.VcsDrivers.Mercurial
 			}
 			if (BaseHashes != null && BaseHashes.Length != 0)
 			{
-				query += "baseHashes=";
 				foreach (var baseHash in BaseHashes)
 				{
-					query += baseHash + ',';
+					query += String.Format("baseHashes[]={0}&", baseHash);
 				}
-				query = query.TrimEnd(',');
-				query += "&";
 			}
 			if (!String.IsNullOrEmpty(RepoId))
 			{

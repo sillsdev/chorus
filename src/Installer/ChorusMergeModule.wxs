@@ -48,11 +48,56 @@ http://blogs.msdn.com/robmen/archive/2003/10/04/56479.aspx -->
 		<Component Id="chorushelp.chm" Guid="C1EDBBE9-E382-11DE-8A39-0800200C9A66">
 		  <File Id="chorushelp.chm" Name="Chorus_Help.chm" KeyPath="yes" Source="..\..\lib\Chorus_Help.chm"/>
 		</Component>
+
+		<!-- used by chorus help -->
+		<Component Id="Vulcan.Uczniowie.HelpProvider.dll" Guid="{F8BCCD28-AB69-4C3D-B024-6B109ADC75B0}">
+		  <File Id="Vulcan.Uczniowie.HelpProvider.dll" Name="Vulcan.Uczniowie.HelpProvider.dll" KeyPath="yes" Source="..\..\output\release\Vulcan.Uczniowie.HelpProvider.dll" />
+		</Component>
+
+		<!-- used by chorus -->
+		<Component Id="Autofac.dll" Guid="C1EE09F6-E382-11DE-8A39-0800200C9A66">
+		  <File Id="Autofac.dll" Name="Autofac.dll" KeyPath="yes" Source="..\..\output\release\Autofac.dll" />
+		</Component>
+		<!-- Palaso assemblies used by chorus -->
+		<Component Id="icu.net.dll" Guid="C1EE09F7-E382-11DE-8A39-0800200C9A66">
+		  <File Id="icu.net.dll" Name="icu.net.dll" KeyPath="yes" Source="..\..\output\release\icu.net.dll" />
+		</Component>
+		<Component Id="icu.net.dll.config" Guid="C1EE3119-E382-11DE-8A39-0800200C9A66">
+		  <File Id="icu.net.dll.config" Name="icu.net.dll.config" KeyPath="yes" Source="..\..\output\release\icu.net.dll.config" />
+		</Component>
+		<Component Id="icudt40.dll" Guid="C1EE3118-E382-11DE-8A39-0800200C9A66">
+		  <File Id="icudt40.dll" Name="icudt40.dll" KeyPath="yes" Source="..\..\lib\Release\icudt40.dll" />
+		</Component>
+		<Component Id="icuin40.dll" Guid="C1EE3117-E382-11DE-8A39-0800200C9A66">
+		  <File Id="icuin40.dll" Name="icuin40.dll" KeyPath="yes" Source="..\..\lib\Release\icuin40.dll" />
+		</Component>
+		<Component Id="icuuc40.dll" Guid="C1EE3116-E382-11DE-8A39-0800200C9A66">
+		  <File Id="icuuc40.dll" Name="icuuc40.dll" KeyPath="yes" Source="..\..\lib\Release\icuuc40.dll" />
+		</Component>
+		<Component Id="Palaso.dll" Guid="C1EE09F8-E382-11DE-8A39-0800200C9A66">
+		  <File Id="Palaso.dll" Name="Palaso.dll" KeyPath="yes" Source="..\..\output\release\Palaso.dll" />
+		</Component>
+		<Component Id="Palaso.Lift.dll" Guid="C1EE09F9-E382-11DE-8A39-0800200C9A66">
+		  <File Id="Palaso.Lift.dll" Name="Palaso.Lift.dll" KeyPath="yes" Source="..\..\output\release\Palaso.Lift.dll" />
+		</Component>
+		<Component Id="PalasoUIWindowsForms.dll" Guid="c1ee09fa-e382-11de-8a39-0800200c9a66">
+		  <File Id="PalasoUIWindowsForms.dll" Name="PalasoUIWindowsForms.dll" KeyPath="yes" Source="..\..\output\release\PalasoUIWindowsForms.dll" />
+		</Component>
 	  </Directory>
 	</Directory>
 	<ComponentGroupRef Id="Mercurial"/>
 	<ComponentGroupRef Id="MercurialExtensions"/>
 	<ComponentRef Id="mercurial.ini" />
+	<ComponentRef Id="Vulcan.Uczniowie.HelpProvider.dll"/>
+	<ComponentRef Id="Autofac.dll"/>
+	<ComponentRef Id="icu.net.dll"/>
+	<ComponentRef Id="icu.net.dll.config"/>
+	<ComponentRef Id="icudt40.dll"/>
+	<ComponentRef Id="icuin40.dll"/>
+	<ComponentRef Id="icuuc40.dll"/>
+	<ComponentRef Id="Palaso.dll"/>
+	<ComponentRef Id="Palaso.Lift.dll"/>
+	<ComponentRef Id="PalasoUIWindowsForms.dll"/>
 
 	<ComponentRef Id="libchorus.dll"/>
 	<ComponentRef Id="chorus.exe"/>

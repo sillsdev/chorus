@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Windows.Forms;
 using Chorus;
+using Chorus.UI.Notes;
 using Chorus.UI.Notes.Browser;
 using Chorus.UI.Review;
 using Chorus.Utilities;
@@ -40,7 +41,6 @@ namespace SampleApp
 			UnZipToDirectory(serverDir);
 			_serverRepository = new DirectoryRepositorySource("server", Path.Combine(serverDir,"ShoppingList"), false);
 			_userPicker.SelectedIndex = 0;
-			_helpProvider.RegisterPrimaryHelpFileMapping("chorus.helpmap");
 		}
 
 		private void ChangeSimulatedUser(string userName)
@@ -59,6 +59,12 @@ namespace SampleApp
 			//Also note that this is not the same name as that used for any given network repository credentials;
 			//Rather, it's the name which will show in the history, and besides Notes that this user makes.
 			_chorusSystem = new ChorusSystem(shoppingListDir);
+			_chorusSystem.DisplaySettings = new ChorusNotesDisplaySettings()
+			{
+				WritingSystemForNoteLabel = new TestWritingSystem("Algerian"),
+				WritingSystemForNoteContent = new TestWritingSystem("Bradley Hand ITC")
+			};
+
 			_chorusSystem.Init(userName);
 
 
@@ -145,6 +151,41 @@ namespace SampleApp
 		{
 			_dataEditor.SaveNow();
 			_chorusSystem.AsyncLocalCheckIn("background checkin", null);
+		}
+
+		internal class TestWritingSystem : IWritingSystem
+		{
+			private readonly string _fontName;
+
+			public TestWritingSystem(string fontName)
+			{
+				_fontName = fontName;
+			}
+
+			public string Name
+			{
+				get { return "test"; }
+			}
+
+			public string Code
+			{
+				get { return "tst"; }
+			}
+
+			public string FontName
+			{
+				get { return _fontName; }
+			}
+
+			public int FontSize
+			{
+				get { return 24; }
+			}
+
+			public void ActivateKeyboard()
+			{
+
+			}
 		}
 	}
 }

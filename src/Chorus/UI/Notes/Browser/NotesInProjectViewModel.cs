@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Chorus.notes;
+using L10NSharp;
 using Palaso.Progress;
 using Palaso.Reporting;
 using Palaso.Reporting;
@@ -10,6 +11,8 @@ namespace Chorus.UI.Notes.Browser
 {
 	public class NotesInProjectViewModel : IDisposable, IAnnotationRepositoryObserver
 	{
+		public ChorusNotesDisplaySettings DisplaySettings { get; set; }
+
 		public delegate NotesInProjectViewModel Factory(IEnumerable<AnnotationRepository> repositories, IProgress progress);//autofac uses this
 		internal event EventHandler ReloadMessages;
 
@@ -20,8 +23,10 @@ namespace Chorus.UI.Notes.Browser
 		private bool _reloadPending=true;
 
 		public NotesInProjectViewModel( IChorusUser user, IEnumerable<AnnotationRepository> repositories,
-										MessageSelectedEvent messageSelectedEventToRaise, IProgress progress)
+										MessageSelectedEvent messageSelectedEventToRaise, ChorusNotesDisplaySettings displaySettings,
+									IProgress progress)
 		{
+			DisplaySettings = displaySettings;
 			_user = user;
 			_repositories = repositories;
 			_messageSelectedEvent = messageSelectedEventToRaise;
@@ -55,6 +60,75 @@ namespace Chorus.UI.Notes.Browser
 			}
 		}
 
+		private bool _hideQuestions;
+		public bool HideQuestions
+		{
+			get { return _hideQuestions; }
+			set
+			{
+				_hideQuestions = value;
+				ReloadMessagesNow();
+			}
+		}
+
+		private bool _hideNotifications;
+		/// <summary>
+		/// Notifications are a type of Conflict considered to be lower priority.
+		/// Typically where both users added something, we aren't quite sure of the order, but no actual data loss
+		/// has occurred.
+		/// </summary>
+		public bool HideNotifications
+		{
+			get { return _hideNotifications; }
+			set
+			{
+				_hideNotifications = value;
+				ReloadMessagesNow();
+			}
+		}
+
+		private bool _hideConflicts;
+		public string FilterStateMessage
+		{
+			get
+			{
+				var items = new List<string>();
+				if (!HideQuestions)
+					items.Add(LocalizationManager.GetString("NotesInProjectView.Questions", "Questions",
+						"Combined in list to show filter status"));
+				if (!HideCriticalConflicts)
+					items.Add(LocalizationManager.GetString("NotesInProjectView.Conflicts", "Conflicts",
+						"Combined in list to show filter status"));
+				if (!HideNotifications)
+					items.Add(LocalizationManager.GetString("NotesInProjectView.Notifications", "Notifications",
+						"Combined in list to show filter status"));
+				if (ShowClosedNotes && items.Count > 0)
+					items.Add(LocalizationManager.GetString("NotesInProjectView.IncludeResolved", "incl. Resolved",
+						"Combined in list to show filter status (keep short!)"));
+
+				// NB: If we add another category, this number needs bumping.
+				if (items.Count > 3)
+					return LocalizationManager.GetString("NotesInProjectView.All", "All",
+						"Used in place of list for filter status");
+				if (items.Count == 0)
+					return LocalizationManager.GetString("NotesInProjectView.Nothing", "Nothing selected to display",
+						"Used in place of list for filter status");
+				return string.Join(", ", items.ToArray());
+			}
+		}
+		/// <summary>
+		/// This controls just the more serious conflicts (those that are not notifications).
+		/// </summary>
+		public bool HideCriticalConflicts
+		{
+			get { return _hideConflicts; }
+			set
+			{
+				_hideConflicts = value;
+				ReloadMessagesNow();
+			}
+		}
+
 		public IEnumerable<ListMessage> GetMessages()
 		{
 			return GetMessagesUnsorted().OrderByDescending((msg) => msg.SortKey);
@@ -69,16 +143,43 @@ namespace Chorus.UI.Notes.Browser
 				{
 					annotations= annotations.Where(a=>a.Status!="closed");
 				}
+				if (HideQuestions)
+				{
+					annotations = annotations.Where(a => a.ClassName != "question");
+				}
+
+				if (HideCriticalConflicts)
+				{
+					if (HideNotifications)
+					{
+						// Hiding all conflicts, critical and otherwise
+						annotations = annotations.Where(a => !a.IsConflict);
+					}
+					else
+					{
+						// Hiding critical conflicts only!
+						annotations = annotations.Where(a => !a.IsCriticalConflict);
+					}
+				}
+				else if (HideNotifications)
+				{
+					// Hiding non-critical conflicts (notifications) only
+					annotations = annotations.Where(a => !a.IsNotification);
+				}
 
 				foreach (var annotation in annotations)
 				{
+					Message messageToShow = null;
 					foreach (var message in annotation.Messages)
 					{
 						if (GetShouldBeShown(annotation, message))
 						{
-							yield return new ListMessage(annotation, message);
+							if (messageToShow == null || messageToShow.Date < message.Date)
+								messageToShow = message;
 						}
 					}
+					if (messageToShow != null)
+						yield return new ListMessage(annotation, messageToShow);
 				}
 			}
 		}
@@ -188,7 +289,7 @@ namespace Chorus.UI.Notes.Browser
 			if(owningRepo ==null)
 			{
 				ErrorReport.NotifyUserOfProblem(
-					"A serious problem has occurred; Chorus cannot find the repository which owns this note, so it cannot be saved.");
+					LocalizationManager.GetString("Messages.CannotFindRepo", "A serious problem has occurred; Chorus cannot find the repository which owns this note, so it cannot be saved."));
 				return;
 			}
 

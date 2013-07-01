@@ -1,6 +1,8 @@
 using System;
 using System.IO;
+using System.Reflection;
 using Chorus.VcsDrivers.Mercurial;
+using Ionic.Zip;
 using NUnit.Framework;
 using Palaso.Progress;
 using Palaso.TestUtilities;
@@ -109,6 +111,28 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				parentRepo.AddAndCheckinFile(parentFile.Path);
 
 				Assert.Throws<ArgumentNullException>(() => HgRepository.CreateOrUseExisting("", new NullProgress()));
+			}
+		}
+
+		[Test]
+		public void RepositoryRecoversFromIncompleteMerge()
+		{
+			using (var tempRepo = new TemporaryFolder("ChorusIncompleteMerge"))
+			{
+				var baseDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().CodeBase);
+#if MONO
+				baseDir = baseDir.Replace(@"file:", null);
+#else
+				baseDir = baseDir.Replace(@"file:\", null);
+#endif
+				var zipFile = new ZipFile(Path.Combine(baseDir, Path.Combine("VcsDrivers", Path.Combine("TestData", "incompletemergerepo.zip"))));
+				zipFile.ExtractAll(tempRepo.Path);
+				var hgRepo = new HgRepository(tempRepo.Path, new NullProgress());
+				hgRepo.CheckAndUpdateHgrc();
+				var parentFile = tempRepo.GetNewTempFile(true);
+				File.WriteAllText(parentFile.Path, "New Content");
+				var exception = Assert.Throws<ApplicationException>(() => hgRepo.AddAndCheckinFile(parentFile.Path));
+				Assert.That(exception.Message.Contains("Unable to recover") && !exception.Message.Contains("unresolved merge"), "Repository should have conflict in retrying the merge, but not have an incomplete merge");
 			}
 		}
 	}

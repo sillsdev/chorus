@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
 	<Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
@@ -72,7 +72,7 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'DebugMono|AnyCPU' ">
 	<DebugSymbols>true</DebugSymbols>
-	<OutputPath>..\..\output\$(Configuration)</OutputPath>
+	<OutputPath>..\..\output\DebugMono</OutputPath>
 	<DefineConstants>DEBUG;TRACE;MONO</DefineConstants>
 	<CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
 	<DocumentationFile>..\..\output\$(Configuration)\Chorus.XML</DocumentationFile>
@@ -84,7 +84,7 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'ReleaseMono|AnyCPU' ">
 	<DebugSymbols>true</DebugSymbols>
-	<OutputPath>..\..\output\$(Configuration)</OutputPath>
+	<OutputPath>..\..\output\ReleaseMono</OutputPath>
 	<DefineConstants>TRACE;MONO</DefineConstants>
 	<CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
 	<Optimize>true</Optimize>
@@ -128,7 +128,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DebugMono|x86'">
 	<DebugSymbols>true</DebugSymbols>
-	<OutputPath>..\..\output\$(Configuration)</OutputPath>
+	<OutputPath>..\..\output\DebugMono)</OutputPath>
 	<DefineConstants>DEBUG;TRACE;MONO</DefineConstants>
 	<CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
 	<DocumentationFile>..\..\output\DebugMono\Chorus.XML</DocumentationFile>
@@ -144,7 +144,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'ReleaseMono|x86'">
 	<DebugSymbols>true</DebugSymbols>
-	<OutputPath>..\..\output\$(Configuration)</OutputPath>
+	<OutputPath>..\..\output\ReleaseMono</OutputPath>
 	<DefineConstants>TRACE;MONO</DefineConstants>
 	<CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
 	<Optimize>true</Optimize>
@@ -159,37 +159,42 @@
 	<CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
   </PropertyGroup>
   <ItemGroup>
-	<Reference Include="Autofac, Version=1.4.4.561, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
+	<Reference Include="Autofac">
 	  <SpecificVersion>False</SpecificVersion>
-	  <HintPath>..\..\lib\$(Configuration)\Autofac.dll</HintPath>
+	  <HintPath>..\..\lib\common\Autofac.dll</HintPath>
+	</Reference>
+	<Reference Include="L10NSharp, Version=1.1.4902.16423, Culture=neutral, processorArchitecture=MSIL">
+	  <SpecificVersion>False</SpecificVersion>
+	  <HintPath>..\..\lib\common\L10NSharp.dll</HintPath>
 	</Reference>
 	<Reference Include="Palaso, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86">
 	  <SpecificVersion>False</SpecificVersion>
 	  <HintPath>..\..\lib\$(Configuration)\Palaso.dll</HintPath>
 	</Reference>
-	<Reference Include="geckofx-core-11">
-	  <HintPath>..\..\lib\$(Configuration)\geckofx-11.dll</HintPath>
+	<Reference Include="PalasoUIWindowsForms, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86">
+	  <SpecificVersion>False</SpecificVersion>
+	  <HintPath>..\..\lib\$(Configuration)\PalasoUIWindowsForms.dll</HintPath>
 	</Reference>
-<!-- TODO: renable this latter
-	<None Condition="'$(Configuration)' == 'DebugMono' Or '$(Configuration)' == 'ReleaseMono' " Include="\usr\lib\fieldworks\geckofix.so">
+	<Reference Include="geckofx-core-14" Condition="'$(Configuration)' == 'DebugMono' Or '$(Configuration)' == 'ReleaseMono'">
+	  <HintPath>..\..\lib\$(Configuration)\geckofx-core-14.dll</HintPath>
+	</Reference>
+	<Reference Include="Geckofx-Winforms-14" Condition="'$(Configuration)' == 'DebugMono' Or '$(Configuration)' == 'ReleaseMono'">
+	  <HintPath>..\..\lib\$(Configuration)\Geckofx-Winforms-14.dll</HintPath>
+	</Reference>
+	<None Condition="'$(Configuration)' == 'DebugMono' Or '$(Configuration)' == 'ReleaseMono' " Include="..\..\lib\$(Configuration)\geckofix.so">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</None>
-	<None Condition="'$(Configuration)' == 'DebugMono' Or '$(Configuration)' == 'ReleaseMono' " Include="\usr\lib\fieldworks\geckofx-core-14.dll.config">
+	<None Condition="'$(Configuration)' == 'DebugMono' Or '$(Configuration)' == 'ReleaseMono' " Include="..\..\lib\$(Configuration)\geckofx-core-14.dll.config">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</None>
--->
 	<Reference Include="System" />
-	<Reference Include="System.Core">
-	  <RequiredTargetFramework>3.5</RequiredTargetFramework>
-	</Reference>
+	<Reference Include="System.Core" />
 	<Reference Include="System.Data" />
 	<Reference Include="System.Deployment" />
 	<Reference Include="System.Drawing" />
 	<Reference Include="System.Windows.Forms" />
 	<Reference Include="System.Xml" />
-	<Reference Include="System.Xml.Linq">
-	  <RequiredTargetFramework>3.5</RequiredTargetFramework>
-	</Reference>
+	<Reference Include="System.Xml.Linq" />
 	<Reference Include="Vulcan.Uczniowie.HelpProvider">
 	  <SpecificVersion>False</SpecificVersion>
 	  <HintPath>..\..\lib\common\Vulcan.Uczniowie.HelpProvider.dll</HintPath>
@@ -207,6 +212,19 @@
 	<Compile Include="UI\BetterLabel.designer.cs">
 	  <DependentUpon>BetterLabel.cs</DependentUpon>
 	</Compile>
+	<Compile Include="UI\Clone\DuplicateProjectWarningDialog.cs">
+	  <SubType>Form</SubType>
+	</Compile>
+	<Compile Include="UI\Clone\DuplicateProjectWarningDialog.Designer.cs">
+	  <DependentUpon>DuplicateProjectWarningDialog.cs</DependentUpon>
+	</Compile>
+	<Compile Include="UI\Clone\GetSharedProjectDlg.cs">
+	  <SubType>Form</SubType>
+	</Compile>
+	<Compile Include="UI\Clone\GetSharedProjectDlg.Designer.cs">
+	  <DependentUpon>GetSharedProjectDlg.cs</DependentUpon>
+	</Compile>
+	<Compile Include="UI\Notes\ChorusNotesDisplaySettings.cs" />
 	<Compile Include="UI\Clone\CloneFromUsb.cs" />
 	<Compile Include="UI\Clone\GetCloneFromChorusHubModel.cs" />
 	<Compile Include="UI\Clone\GetCloneFromChorusHubDialog.cs">
@@ -215,23 +233,8 @@
 	<Compile Include="UI\Clone\GetCloneFromChorusHubDialog.Designer.cs">
 	  <DependentUpon>GetCloneFromChorusHubDialog.cs</DependentUpon>
 	</Compile>
-	<Compile Include="UI\Clone\GetCloneFromNetworkFolderModel.cs" />
-	<Compile Include="UI\Clone\GetCloneFromNetworkFolderDlg.cs">
-	  <SubType>Form</SubType>
-	</Compile>
-	<Compile Include="UI\Clone\GetCloneFromNetworkFolderDlg.Designer.cs">
-	  <DependentUpon>GetCloneFromNetworkFolderDlg.cs</DependentUpon>
-	</Compile>
-	<Compile Include="UI\Clone\GetSharedProject.cs" />
+	<Compile Include="UI\Clone\GetSharedProjectModel.cs" />
 	<Compile Include="UI\Clone\ICloneSourceDialog.cs" />
-	<Compile Include="UI\Clone\IGetSharedProject.cs" />
-	<Compile Include="UI\Misc\NetworkFolderSettingsControl.cs">
-	  <SubType>UserControl</SubType>
-	</Compile>
-	<Compile Include="UI\Misc\NetworkFolderSettingsControl.Designer.cs">
-	  <DependentUpon>NetworkFolderSettingsControl.cs</DependentUpon>
-	</Compile>
-	<Compile Include="UI\Misc\NetworkFolderSettingsModel.cs" />
 	<Compile Include="UI\Misc\ServerSettingsControl.cs">
 	  <SubType>UserControl</SubType>
 	</Compile>
@@ -312,6 +315,7 @@
 	  <DependentUpon>SearchBox.cs</DependentUpon>
 	</Compile>
 	<Compile Include="UI\Notes\Html\StyleSheet.cs" />
+	<Compile Include="UI\Notes\MergeConflictEmbeddedMessageContentHandler.cs" />
 	<Compile Include="UI\Review\ChangedReport\ChangeReportView.cs">
 	  <SubType>UserControl</SubType>
 	</Compile>
@@ -360,16 +364,15 @@
 	</Compile>
 	<Compile Include="Program.cs" />
 	<Compile Include="Properties\AssemblyInfo.cs" />
+	<EmbeddedResource Include="UI\Clone\DuplicateProjectWarningDialog.resx">
+	  <DependentUpon>DuplicateProjectWarningDialog.cs</DependentUpon>
+	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Clone\GetCloneFromChorusHubDialog.resx">
 	  <DependentUpon>GetCloneFromChorusHubDialog.cs</DependentUpon>
 	  <SubType>Designer</SubType>
 	</EmbeddedResource>
-	<EmbeddedResource Include="UI\Clone\GetCloneFromNetworkFolderDlg.resx">
-	  <DependentUpon>GetCloneFromNetworkFolderDlg.cs</DependentUpon>
-	  <SubType>Designer</SubType>
-	</EmbeddedResource>
-	<EmbeddedResource Include="UI\Misc\NetworkFolderSettingsControl.resx">
-	  <DependentUpon>NetworkFolderSettingsControl.cs</DependentUpon>
+	<EmbeddedResource Include="UI\Clone\GetSharedProjectDlg.resx">
+	  <DependentUpon>GetSharedProjectDlg.cs</DependentUpon>
 	</EmbeddedResource>
 	<EmbeddedResource Include="UI\Review\ChangedReport\ChangeReportView.resx">
 	  <DependentUpon>ChangeReportView.cs</DependentUpon>

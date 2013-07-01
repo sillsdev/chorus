@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Xml;
 
 namespace Chorus.merge.xml.generic
@@ -23,5 +24,16 @@ namespace Chorus.merge.xml.generic
 		/// Gets the collection of element merge strategies.
 		/// </summary>
 		MergeStrategies GetStrategies();
+
+		/// <summary>
+		/// This provides information for the post-merge step of pretty-printing the XML in a way that minimizes spurious
+		/// conflicts. It provides a list of elements whose children should not be indented, typically because the extra
+		/// white space would be significant and cause problems. The pretty-printer automatically suppresses indentation
+		/// for nodes that have at least one text child, but this allows it to be further suppressed for nodes where
+		/// white space should not be added, even if the children are all elements (e.g., a text node where the whole content
+		/// is a span).
+		/// </summary>
+		/// <returns></returns>
+		HashSet<string> SuppressIndentingChildren();
 	}
 }

@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
 using System.Linq;
+using Chorus.notes;
 
 namespace Chorus.UI.Notes
 {
@@ -19,8 +21,13 @@ namespace Chorus.UI.Notes
 			Visible = model.IsVisible;
 			ModalDialogMode = true;
 			//needs to be primed this way
-			SetDocumentText("<html><head></head><body></body></html>");
+			SetDocumentText(@"<html><head></head><body></body></html>");
 			_newMessage.Font = model.FontForNewMessage;
+
+			//a signal to keep palaso localiztion helper from messing with our font
+			_annotationLabel.UseMnemonic = false;
+
+			_annotationLabel.Font = model.FontForLabel;
 		}
 
 		public MessageSelectedEvent EventToRaiseForChangedMessage
@@ -28,18 +35,19 @@ namespace Chorus.UI.Notes
 			get { return _model.EventToRaiseForChangedMessage; }
 		}
 
+		public EmbeddedMessageContentHandlerRepository MesageContentHandlerRepository
+		{
+			get { return _model.MesageContentHandlerRepository; }
+		}
+
+
 		protected void SetDocumentText(string text)
 		{
-			// GECKOFX: is this replace needed or is it already done within geckofx?
-			text = text.Replace("'", "\'");
-			try
-			{
-				_existingMessagesDisplay.LoadHtml("javascript:{document.body.outerHTML = '" + text + "';}");
-			}
-			catch (Exception e)
-			{
-				System.Console.WriteLine("AnnotationEditorView:SetDocumentText Exception caught: {0}", e.Message);
-			}
+#if MONO
+			_existingMessagesDisplay.LoadHtml(text);
+#else
+			_existingMessagesDisplay.DocumentText = text;
+#endif
 		}
 
 		public bool ModalDialogMode
@@ -137,32 +145,50 @@ namespace Chorus.UI.Notes
 			Cursor.Current = Cursors.Default;
 		}
 
+#if MONO
 		private void _existingMessagesDisplay_Navigating(object sender, Gecko.GeckoNavigatingEventArgs e)
 		{
 			if (e.Uri.Scheme == "about")
 				return;
-			e.Cancel = true;
+			// We do NOT want to cancel this operation -- that would prevent anything from displaying!
 			_model.HandleLinkClicked(e.Uri);
 		}
 
 		private void _existingMessagesDisplay_DocumentCompleted(object sender, EventArgs e)
+		{
+			if (_waitingOnBrowserToBeReady)
+			{
+				_waitingOnBrowserToBeReady = false;
+				OnUpdateContent(null,null);
+			}
+			// The Windows/.Net code appears to be trying to scroll to the bottom child.
+			// This has much the same effect for Gecko.
+			_existingMessagesDisplay.Document.Body.ScrollIntoView(false);
+		}
+#else
+		private void _existingMessagesDisplay_Navigating(object sender, WebBrowserNavigatingEventArgs e)
+		{
+			if (e.Url.Scheme == "about")
+				return;
+			e.Cancel = true;
+			_model.HandleLinkClicked(e.Url);
+		}
+
+		private void _existingMessagesDisplay_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e)
 		{
 			if(_waitingOnBrowserToBeReady)
 			{
 				_waitingOnBrowserToBeReady = false;
 				OnUpdateContent(null,null);
 			}
-			//GECKOFX: looks like previous code is trying to scroll to bottom child
-			// does this do it for geckofx?
-			_existingMessagesDisplay.Document.Body.ScrollIntoView (false);
-/*
-			var c = _existingMessagesDisplay.Document.Body.ChildNodes.Count;
+
+			var c = _existingMessagesDisplay.Document.Body.Children.Count;
 			if (c > 0)
 			{
 				_existingMessagesDisplay.Document.Body.Children[c - 1].ScrollIntoView(false);
 			}
-			*/
 		}
+#endif
 
 		private void _closeButton_Click(object sender, EventArgs e)
 		{

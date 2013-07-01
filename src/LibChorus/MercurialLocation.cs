@@ -60,14 +60,8 @@ namespace Chorus// DON'T MOVE THIS! It needs to be super easy for the client to 
 			{
 				return;
 			}
-#if MONO
-			// Currently on linux systems the system mercurial is used.
-			// pso (or ppo) is obliged to offer the appropriate version of hg that
-			// will work with chorus.
-			_pathToMercurialFolder = "/usr/bin";
-#else
 			var executingAssemblyPath = ExecutionEnvironment.DirectoryOfExecutingAssembly;
-			var guess = Path.Combine(executingAssemblyPath, "mercurial");
+			var guess = Path.Combine(executingAssemblyPath, "Mercurial");
 			if(Directory.Exists(guess))
 			{
 				PathToMercurialFolder = guess;
@@ -76,7 +70,7 @@ namespace Chorus// DON'T MOVE THIS! It needs to be super easy for the client to 
 
 			//in case we're running off the wesay source code directory
 			var grandparentPath = Directory.GetParent(executingAssemblyPath).Parent.FullName;
-			guess = Path.Combine(grandparentPath, "common", "mercurial");
+			guess = Path.Combine(grandparentPath, "common", "Mercurial");
 			if (Directory.Exists(guess))
 			{
 				PathToMercurialFolder = guess;
@@ -84,13 +78,18 @@ namespace Chorus// DON'T MOVE THIS! It needs to be super easy for the client to 
 			}
 
 			//in case we're running in chorus's solution directory
-			guess = Path.Combine(grandparentPath, "mercurial");
+			guess = Path.Combine(grandparentPath, "Mercurial");
 			if (Directory.Exists(guess))
 			{
 				PathToMercurialFolder = guess;
 				return;
 			}
-#endif
+//#if MONO
+//			// Currently on linux systems the system mercurial is used as a last resort.
+//			// pso (or ppo) is obliged to offer the appropriate version of hg that
+//			// will work with chorus.
+//			_pathToMercurialFolder = "/usr/bin";
+//#endif
 		}
 	}
 }
