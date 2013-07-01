@@ -452,20 +452,13 @@ namespace Chorus.sync
 				}
 				catch (HgCommonException err)
 				{
+					// These kinds of errors are worth an immediate dialog, to make sure we get the user's attention.
 					ErrorReport.NotifyUserOfProblem(err.Message);
-					return false;
+					// The main sync routine will catch the exception, abort any other parts of the Send/Receive,
+					// and log the problem.
+					throw;
 				}
-				catch (UserCancelledException)
-				{
-					// don't report anything
-					return false;
-				}
-				catch (Exception err)
-				{
-					_progress.WriteException(err);
-					return false;
-				}
-
+				// Any other kind of exception will be caught and logged at a higher level.
 			}
 			else
 			{
