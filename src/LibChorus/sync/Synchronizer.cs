@@ -452,20 +452,13 @@ namespace Chorus.sync
 				}
 				catch (HgCommonException err)
 				{
+					// These kinds of errors are worth an immediate dialog, to make sure we get the user's attention.
 					ErrorReport.NotifyUserOfProblem(err.Message);
-					return false;
+					// The main sync routine will catch the exception, abort any other parts of the Send/Receive,
+					// and log the problem.
+					throw;
 				}
-				catch (UserCancelledException)
-				{
-					// don't report anything
-					return false;
-				}
-				catch (Exception err)
-				{
-					_progress.WriteException(err);
-					return false;
-				}
-
+				// Any other kind of exception will be caught and logged at a higher level.
 			}
 			else
 			{
@@ -821,7 +814,15 @@ namespace Chorus.sync
 		/// <returns>false if nothing needed to be merged, true if the merge was done. Throws exception if there is an error.</returns>
 		private bool MergeTwoChangeSets(Revision head, Revision theirHead)
 		{
+#if MONO
+			string chorusMergeFilePath = Path.Combine(ExecutionEnvironment.DirectoryOfExecutingAssembly, "chorusmerge");
+			// The replace is only useful for use with the MonoDevelop environment whcih doesn't honor $(Configuration) in the csproj files.
+			// When this is exported as an environment var it needs escaping to prevent the shell from replacing it with an empty string.
+			// When MonoDevelop is fixed this can be removed.
+			chorusMergeFilePath = chorusMergeFilePath.Replace("$(Configuration)", "\\$(Configuration)");
+#else
 			string chorusMergeFilePath = Path.Combine(ExecutionEnvironment.DirectoryOfExecutingAssembly, "ChorusMerge.exe");
+#endif
 			using (new ShortTermEnvironmentalVariable("HGMERGE", '"' + chorusMergeFilePath + '"'))
 			{
 				// Theory has it that is a tossup on who ought to win, unless there is some more principled way to decide.
