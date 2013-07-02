@@ -139,11 +139,11 @@ namespace Chorus.UI.Review.ChangedReport
 #else
 		private void _normalChangeDescriptionRenderer_Navigating(object sender, WebBrowserNavigatingEventArgs e)
 		{
-			if (e.Uri.Scheme == "playaudio")
+			if (e.Url.Scheme == "playaudio")
 			{
 				e.Cancel = true;
-				string url = e.Uri.LocalPath;
-				var player = new SoundPlayer(e.Uri.LocalPath);
+				string url = e.Url.LocalPath;
+				var player = new SoundPlayer(e.Url.LocalPath);
 				player.PlaySync();
 			}
 		}

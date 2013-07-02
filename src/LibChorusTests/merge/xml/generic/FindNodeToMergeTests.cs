@@ -56,8 +56,14 @@ namespace LibChorus.Tests.merge.xml.generic
 
 			var nodeMatcher = new FindByMultipleKeyAttributes(new List<string> { "name", "class" });
 #if !MONO
-			var result = nodeMatcher.GetNodeToMerge(nodeToMatch, otherDoc.DocumentElement);
-			Assert.AreSame(otherDoc.DocumentElement.ChildNodes[1], result);
+			if (otherDoc.DocumentElement != null)
+			{
+				var acceptableTargets = new HashSet<XmlNode>();
+				foreach (XmlNode node in otherDoc.DocumentElement.ChildNodes)
+					acceptableTargets.Add(node);
+				var result = nodeMatcher.GetNodeToMerge(nodeToMatch, otherDoc.DocumentElement, acceptableTargets);
+				Assert.AreSame(otherDoc.DocumentElement.ChildNodes[1], result);
+			}
 #endif
 		}
 
