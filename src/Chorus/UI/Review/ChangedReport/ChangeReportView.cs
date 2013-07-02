@@ -82,12 +82,11 @@ namespace Chorus.UI.Review.ChangedReport
 				var presenter = _handlers.GetHandlerForPresentation(report.PathToFile).GetChangePresenter(report, _repository);
 				var path = Path.GetTempFileName();
 				File.WriteAllText(path, presenter.GetHtml("normal", _styleSheet));
-				System.Console.WriteLine("normalCDpath="+path);
 				try
 				{
 					this._normalChangeDescriptionRenderer.Navigate(path);
 				}
-				catch(InvalidOperationException)
+				catch (InvalidOperationException)
 				{
 					System.Console.WriteLine("_normalChangeDescriptionRenderer not ready");
 				}
@@ -110,12 +109,11 @@ namespace Chorus.UI.Review.ChangedReport
 						this.tabControl1.TabPages.Add(tabPageRaw);
 					}
 					File.WriteAllText(path, contents);
-					System.Console.WriteLine("rawCDpath="+path);
 					try
 					{
 						this._rawChangeDescriptionRenderer.Navigate(path);
 					}
-					catch(InvalidOperationException)
+					catch (InvalidOperationException)
 					{
 						System.Console.WriteLine("_rawChangeDescriptionRenderer not ready");
 					}
@@ -127,13 +125,8 @@ namespace Chorus.UI.Review.ChangedReport
 			}
 		}
 
-		private void _normalChangeDescriptionRenderer_Navigating(object sender
 #if MONO
-			, Gecko.GeckoNavigatingEventArgs e
-#else
-			, WebBrowserNavigatingEventArgs e
-#endif
-			)
+		private void _normalChangeDescriptionRenderer_Navigating(object sender, Gecko.GeckoNavigatingEventArgs e)
 		{
 			if (e.Uri.Scheme == "playaudio")
 			{
@@ -143,5 +136,17 @@ namespace Chorus.UI.Review.ChangedReport
 				player.PlaySync();
 			}
 		}
+#else
+		private void _normalChangeDescriptionRenderer_Navigating(object sender, WebBrowserNavigatingEventArgs e)
+		{
+			if (e.Uri.Scheme == "playaudio")
+			{
+				e.Cancel = true;
+				string url = e.Uri.LocalPath;
+				var player = new SoundPlayer(e.Uri.LocalPath);
+				player.PlaySync();
+			}
+		}
+#endif
 	}
 }

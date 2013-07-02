@@ -18,7 +18,7 @@ namespace Chorus
 	{
 #if MONO
 #if false
-		// dummy function to dlopen geckofix
+	// dummy function to dlopen geckofix
 		[DllImport("geckofix.so")]
 		static extern void DummyFunction();
 #endif

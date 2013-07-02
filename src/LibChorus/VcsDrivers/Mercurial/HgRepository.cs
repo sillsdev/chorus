@@ -1266,42 +1266,42 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		internal static IniDocument GetMercurialConfigInMercurialFolder()
 		{
-#if MONO
-			return GetMercurialConfigForUser();
-#else
+//#if MONO
+//            return GetMercurialConfigForUser();
+//#else
 			var mercurialIniFilePath = Path.Combine(MercurialLocation.PathToMercurialFolder, "mercurial.ini");
 			if (!File.Exists(mercurialIniFilePath))
 			{
 				File.WriteAllText(mercurialIniFilePath, "");
 			}
 			return new IniDocument(mercurialIniFilePath, IniFileType.MercurialStyle);
-#endif
+//#endif
 		}
 
-		private static IniDocument GetMercurialConfigForUser()
-		{
-#if MONO
-			var home = Environment.GetEnvironmentVariable("HOME");
-			if (home == null)
-			{
-				throw new ApplicationException("The HOME environment variable is not set.");
-			}
-			var p = Path.Combine(home, ".hgrc");
-#else
-			//NB: they're talking about moving this (but to WORSE place, my documents/mercurial)
-			var profile = Environment.GetEnvironmentVariable("USERPROFILE");
-			if (profile == null)
-			{
-				throw new ApplicationException("The %USERPROFILE% environment variable on this machine is not set.");
-			}
-			var p = Path.Combine(profile, "mercurial.ini");
-#endif
-			if (!File.Exists(p))
-			{
-				File.WriteAllText(p, "");
-			}
-			return new IniDocument(p, IniFileType.MercurialStyle);
-		}
+//        private static IniDocument GetMercurialConfigForUser()
+//        {
+//#if MONO
+//            var home = Environment.GetEnvironmentVariable("HOME");
+//            if (home == null)
+//            {
+//                throw new ApplicationException("The HOME environment variable is not set.");
+//            }
+//            var p = Path.Combine(home, ".hgrc");
+//#else
+//            //NB: they're talking about moving this (but to WORSE place, my documents/mercurial)
+//            var profile = Environment.GetEnvironmentVariable("USERPROFILE");
+//            if (profile == null)
+//            {
+//                throw new ApplicationException("The %USERPROFILE% environment variable on this machine is not set.");
+//            }
+//            var p = Path.Combine(profile, "mercurial.ini");
+//#endif
+//            if (!File.Exists(p))
+//            {
+//                File.WriteAllText(p, "");
+//            }
+//            return new IniDocument(p, IniFileType.MercurialStyle);
+//        }
 
 		public void SetUserNameInIni(string name, IProgress progress)
 		{
@@ -1745,9 +1745,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			progress.WriteMessage("Gathering diagnostics data (can't actually tell you anything about the remote server)...");
 			progress.WriteMessage(GetTextFromQuery("version", 30, _progress));
 
-#if !MONO
 			progress.WriteMessage("Using Mercurial at: "+MercurialLocation.PathToHgExecutable);
-#endif
 			progress.WriteMessage("---------------------------------------------------");
 
 			progress.WriteMessage("remote url = " + url);
@@ -1775,9 +1773,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		{
 			progress.WriteMessage("Gathering diagnostics data...");
 			progress.WriteMessage(GetTextFromQuery("version", 30, _progress));
-   #if !MONO
 			progress.WriteMessage("Using Mercurial at: "+MercurialLocation.PathToHgExecutable);
-#endif
 			progress.WriteMessage("---------------------------------------------------");
 
 			progress.WriteMessage("path = " + _pathToRepository);

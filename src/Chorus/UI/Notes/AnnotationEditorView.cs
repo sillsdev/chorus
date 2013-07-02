@@ -101,8 +101,6 @@ namespace Chorus.UI.Notes
 		private void AnnotationView_Load(object sender, EventArgs e)
 		{
 			_waitingOnBrowserToBeReady = true;
-//            if(_model.IsVisible)
-//                OnUpdateContent(null,null);
 		}
 
 		private void OnBrower_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e)

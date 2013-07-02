@@ -173,7 +173,9 @@ namespace Chorus.UI.Clone
 					_fixSettingsButton.Visible = true;
 					_fixSettingsButton.Focus();
 					_cancelButton.Visible = true;
+#if !MONO
 					_cancelButton.Text = LocalizationManager.GetString("Common.Cancel", "&Cancel");
+#endif
 					//_cancelButton.Select();
 					_cancelTaskButton.Visible = false;
 					_statusLabel.Visible = true;

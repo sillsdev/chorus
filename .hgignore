@@ -12,7 +12,7 @@ glob:CopyToWeSayDev.bat
 glob:lib/Palaso.TestUtilities.pdb
 glob:*~
 glob:*.pidb
-relre:^Mercurial/
+relre:^[Mm]ercurial/
 glob:*ReSharper*
 glob:build/old
 glob:lib/$(Configuration)
@@ -28,3 +28,5 @@ test-results
 glob:*.mdb
 src/LibChorusTests/test-results/LibChorus.Tests.csproj.test-cache
 **.orig
+glob:Download/
+L10NSharp.dll

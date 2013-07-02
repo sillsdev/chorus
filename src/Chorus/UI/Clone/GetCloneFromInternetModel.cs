@@ -90,12 +90,14 @@ namespace Chorus.UI.Clone
 			}
 		}
 
+
 		public bool TargetHasProblem
 		{
 			get {
 				return !HaveWellFormedTargetLocation || !TargetLocationIsUnused;
 			}
 		}
+
 
 		public bool ShowCloneOnlyControls
 		{
