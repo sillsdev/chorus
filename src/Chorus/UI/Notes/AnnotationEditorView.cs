@@ -43,10 +43,8 @@ namespace Chorus.UI.Notes
 
 		protected void SetDocumentText(string text)
 		{
-			// Using _existingMessagesDisplay.DocumentText =  causes an exception on mono
 #if MONO
-			text = text.Replace("'", "\'");
-			_existingMessagesDisplay.Navigate("javascript:{document.body.outerHTML = '" + text + "';}");
+			_existingMessagesDisplay.LoadHtml(text);
 #else
 			_existingMessagesDisplay.DocumentText = text;
 #endif
@@ -103,8 +101,6 @@ namespace Chorus.UI.Notes
 		private void AnnotationView_Load(object sender, EventArgs e)
 		{
 			_waitingOnBrowserToBeReady = true;
-//            if(_model.IsVisible)
-//                OnUpdateContent(null,null);
 		}
 
 		private void OnBrower_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e)
@@ -147,6 +143,27 @@ namespace Chorus.UI.Notes
 			Cursor.Current = Cursors.Default;
 		}
 
+#if MONO
+		private void _existingMessagesDisplay_Navigating(object sender, Gecko.GeckoNavigatingEventArgs e)
+		{
+			if (e.Uri.Scheme == "about")
+				return;
+			// We do NOT want to cancel this operation -- that would prevent anything from displaying!
+			_model.HandleLinkClicked(e.Uri);
+		}
+
+		private void _existingMessagesDisplay_DocumentCompleted(object sender, EventArgs e)
+		{
+			if (_waitingOnBrowserToBeReady)
+			{
+				_waitingOnBrowserToBeReady = false;
+				OnUpdateContent(null,null);
+			}
+			// The Windows/.Net code appears to be trying to scroll to the bottom child.
+			// This has much the same effect for Gecko.
+			_existingMessagesDisplay.Document.Body.ScrollIntoView(false);
+		}
+#else
 		private void _existingMessagesDisplay_Navigating(object sender, WebBrowserNavigatingEventArgs e)
 		{
 			if (e.Url.Scheme == "about")
@@ -169,6 +186,7 @@ namespace Chorus.UI.Notes
 				_existingMessagesDisplay.Document.Body.Children[c - 1].ScrollIntoView(false);
 			}
 		}
+#endif
 
 		private void _closeButton_Click(object sender, EventArgs e)
 		{

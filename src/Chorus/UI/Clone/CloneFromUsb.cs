@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
-using Chorus.Utilities.UsbDrive;
+using Palaso.UsbDrive;
 using Chorus.VcsDrivers.Mercurial;
 using L10NSharp;
 using Palaso.IO;

@@ -83,7 +83,6 @@ namespace Chorus.Utilities
 							throw;
 						}
 					}
-
 				}
 			}
 		}

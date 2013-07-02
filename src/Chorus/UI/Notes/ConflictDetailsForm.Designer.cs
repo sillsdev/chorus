@@ -30,7 +30,11 @@
 		{
 			this.components = new System.ComponentModel.Container();
 			this._okButton = new System.Windows.Forms.Button();
+#if MONO
+			this._conflictDisplay = new Gecko.GeckoWebBrowser();
+#else
 			this._conflictDisplay = new System.Windows.Forms.WebBrowser();
+#endif
 			this._helpProvider = new Vulcan.Uczniowie.HelpProvider.HelpComponent(this.components);
 			this.menuStrip1 = new System.Windows.Forms.MenuStrip();
 			this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -57,6 +61,23 @@
 			//
 			// _conflictDisplay
 			//
+#if MONO
+			//GECKOFX: Is this needed?
+			//this._conflictDisplay.AllowWebBrowserDrop = false;
+			this._conflictDisplay.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+			| System.Windows.Forms.AnchorStyles.Left)
+			| System.Windows.Forms.AnchorStyles.Right)));
+			this.l10NSharpExtender1.SetLocalizableToolTip(this._conflictDisplay, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this._conflictDisplay, null);
+			this.l10NSharpExtender1.SetLocalizingId(this._conflictDisplay, "ConflictDetailsForm.ConflictDetailsForm._conflictDisplay");
+			this._conflictDisplay.Location = new System.Drawing.Point(0, 27);
+			this._conflictDisplay.MinimumSize = new System.Drawing.Size(20, 20);
+			this._conflictDisplay.Name = "_conflictDisplay";
+			this._conflictDisplay.Size = new System.Drawing.Size(948, 487);
+			this._conflictDisplay.TabIndex = 10;
+			//GECKOFX: Is this needed?
+			//this._conflictDisplay.WebBrowserShortcutsEnabled = false;
+#else
 			this._conflictDisplay.AllowWebBrowserDrop = false;
 			this._conflictDisplay.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
 			| System.Windows.Forms.AnchorStyles.Left)
@@ -70,6 +91,7 @@
 			this._conflictDisplay.Size = new System.Drawing.Size(948, 487);
 			this._conflictDisplay.TabIndex = 10;
 			this._conflictDisplay.WebBrowserShortcutsEnabled = false;
+#endif
 			//
 			// menuStrip1
 			//
@@ -149,7 +171,11 @@
 		#endregion
 
 		private System.Windows.Forms.Button _okButton;
+#if MONO
+		private Gecko.GeckoWebBrowser _conflictDisplay;
+#else
 		private System.Windows.Forms.WebBrowser _conflictDisplay;
+#endif
 		private Vulcan.Uczniowie.HelpProvider.HelpComponent _helpProvider;
 		private System.Windows.Forms.MenuStrip menuStrip1;
 		private System.Windows.Forms.ToolStripMenuItem editToolStripMenuItem;

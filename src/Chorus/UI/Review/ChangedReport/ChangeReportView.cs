@@ -26,8 +26,9 @@ namespace Chorus.UI.Review.ChangedReport
 			InitializeComponent();
 			_normalChangeDescriptionRenderer.Font = SystemFonts.MessageBoxFont;
 			changedRecordSelectedEvent.Subscribe(r=>LoadReport(r));
+#if !MONO
 			_normalChangeDescriptionRenderer.Navigated += webBrowser1_Navigated;
-
+#endif
 			_styleSheet = CreateStyleSheet(writingSystems);
 		}
 
@@ -59,24 +60,36 @@ namespace Chorus.UI.Review.ChangedReport
 			return styleSheetBuilder.ToString();
 		}
 
+#if !MONO
 		private void webBrowser1_Navigated(object sender, WebBrowserNavigatedEventArgs e)
 		{
 			//didn't work, 'cuase is't actually still being held by the browser
 			//  File.Delete(e.URI.AbsoluteUri.Replace(@"file:///", string.Empty));
 		}
+#endif
 
 		public void LoadReport(IChangeReport report)
 		{
 			if (report == null)
 			{
+#if !MONO
+				// GECKOFX blank url does not blank page
 				_normalChangeDescriptionRenderer.Navigate(string.Empty);
+#endif
 			}
 			else
 			{
 				var presenter = _handlers.GetHandlerForPresentation(report.PathToFile).GetChangePresenter(report, _repository);
 				var path = Path.GetTempFileName();
 				File.WriteAllText(path, presenter.GetHtml("normal", _styleSheet));
-				this._normalChangeDescriptionRenderer.Navigate(path);
+				try
+				{
+					this._normalChangeDescriptionRenderer.Navigate(path);
+				}
+				catch (InvalidOperationException)
+				{
+					System.Console.WriteLine("_normalChangeDescriptionRenderer not ready");
+				}
 				path = Path.GetTempFileName();
 				string contents;
 				try
@@ -91,9 +104,19 @@ namespace Chorus.UI.Review.ChangedReport
 				if (!string.IsNullOrEmpty(contents))
 				{
 					if(!tabControl1.TabPages.Contains(tabPageRaw))
+					{
+						System.Console.WriteLine("adding raw tab back");
 						this.tabControl1.TabPages.Add(tabPageRaw);
+					}
 					File.WriteAllText(path, contents);
-					this._rawChangeDescriptionRenderer.Navigate(path);
+					try
+					{
+						this._rawChangeDescriptionRenderer.Navigate(path);
+					}
+					catch (InvalidOperationException)
+					{
+						System.Console.WriteLine("_rawChangeDescriptionRenderer not ready");
+					}
 				}
 				else
 				{
@@ -102,17 +125,28 @@ namespace Chorus.UI.Review.ChangedReport
 			}
 		}
 
-		private void _normalChangeDescriptionRenderer_Navigating(object sender, WebBrowserNavigatingEventArgs e)
+#if MONO
+		private void _normalChangeDescriptionRenderer_Navigating(object sender, Gecko.GeckoNavigatingEventArgs e)
 		{
-			if (e.Url.Scheme == "playaudio")
+			if (e.Uri.Scheme == "playaudio")
 			{
 				e.Cancel = true;
-
-				string url = e.Url.LocalPath;
-				var player = new SoundPlayer(e.Url.LocalPath);
+				string url = e.Uri.LocalPath;
+				var player = new SoundPlayer(e.Uri.LocalPath);
 				player.PlaySync();
 			}
-
 		}
+#else
+		private void _normalChangeDescriptionRenderer_Navigating(object sender, WebBrowserNavigatingEventArgs e)
+		{
+			if (e.Uri.Scheme == "playaudio")
+			{
+				e.Cancel = true;
+				string url = e.Uri.LocalPath;
+				var player = new SoundPlayer(e.Uri.LocalPath);
+				player.PlaySync();
+			}
+		}
+#endif
 	}
 }

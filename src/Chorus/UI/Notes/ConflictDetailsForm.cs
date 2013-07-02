@@ -18,11 +18,8 @@ namespace Chorus.notes
 
 		public void SetDocumentText(string text)
 		{
-			// Using _existingMessagesDisplay.DocumentText =  causes an exception on mono
 #if MONO
-			// Todo Linux (JohnT): is this the only thing that needs to be different?
-			text = text.Replace("'", "\'");
-			_conflictDisplay.Navigate("javascript:{document.body.outerHTML = '" + text + "';}");
+			_conflictDisplay.LoadHtml(text);
 #else
 			_conflictDisplay.DocumentText = text;
 			_conflictDisplay.WebBrowserShortcutsEnabled = true;
@@ -33,12 +30,20 @@ namespace Chorus.notes
 
 		private void copyToolStripMenuItem_Click(object sender, EventArgs e)
 		{
+#if MONO
+			//GECKOFX: what to do?
+#else
 			_conflictDisplay.Document.ExecCommand(@"Copy", false, null);
+#endif
 		}
 
 		private void technicalDetailsToolStripMenuItem_Click(object sender, EventArgs e)
 		{
+#if MONO
+			_conflictDisplay.LoadHtml(TechnicalDetails);
+#else
 			_conflictDisplay.DocumentText = TechnicalDetails;
+#endif
 		}
 	}
 }

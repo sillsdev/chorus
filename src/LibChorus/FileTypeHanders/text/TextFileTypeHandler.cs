@@ -140,6 +140,7 @@ namespace Chorus.FileTypeHanders.text
 	//Todo: not gonna work in Linux
 	class LongToShortConverter
 	{
+#if !MONO
 		[DllImport("kernel32.dll", CharSet = CharSet.Auto)]
 
 		public static extern int GetShortPathName(
@@ -155,16 +156,19 @@ namespace Chorus.FileTypeHanders.text
 				 int shortPathLength
 
 				 );
-
+#endif
 
 
 		public static string GetShortPath(string path)
 		{
-
+#if MONO
+			return path;
+#else
 			StringBuilder shortPath = new StringBuilder(255);
 
 			GetShortPathName(path, shortPath, shortPath.Capacity);
 			return shortPath.ToString();
+#endif
 		}
 	}
 }

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+	<UsingTask TaskName="DownloadFile" AssemblyFile="$(MSBuildProjectDirectory)/../../build/Palaso.BuildTasks.dll" />
+
+	<ItemGroup>
+		<DownloadedCommon Include="$(MSBuildProjectDirectory)/../../Download/L10NSharp.dll"/>
+		<DownloadedMono Include="$(MSBuildProjectDirectory)/../../Download/DefaultMono/Palaso.dll"/>
+		<DownloadedMono Include="$(MSBuildProjectDirectory)/../../Download/DefaultMono/Palaso.TestUtilities.dll"/>
+		<DownloadedMono Include="$(MSBuildProjectDirectory)/../../Download/DefaultMono/PalasoUIWindowsForms.dll"/>
+		<DownloadedMono Include="$(MSBuildProjectDirectory)/../../Download/DefaultMono/Palaso.Lift.dll"/>
+		<DownloadedDotNet Include="$(MSBuildProjectDirectory)/../../Download/DotNet/Palaso.dll"/>
+		<DownloadedDotNet Include="$(MSBuildProjectDirectory)/../../Download/DotNet/Palaso.TestUtilities.dll"/>
+		<DownloadedDotNet Include="$(MSBuildProjectDirectory)/../../Download/DotNet/PalasoUIWindowsForms.dll"/>
+		<DownloadedDotNet Include="$(MSBuildProjectDirectory)/../../Download/DotNet/Palaso.Lift.dll"/>
+	</ItemGroup>
+
+	<Target Name="BeforeBuild" DependsOnTargets="DownloadMonoAssemblies;DownloadDotNetAssemblies">
+		<!-- bt196 is the output from L10NSharp continuous (Windows) build -->
+		<MakeDir Directories="$(MSBuildProjectDirectory)/../../Download"/>
+		<Message Text="Downloading latest successful artifacts from L10NSharp build."/>
+		<DownloadFile Address="http://build.palaso.org/guestAuth/repository/download/bt196/.lastSuccessful/L10NSharp.dll"
+					  LocalFilename="$(MSBuildProjectDirectory)/../../Download/L10NSharp.dll"/>
+		<Message Text="Copying latest successful artifacts from L10NSharp build."/>
+		<Copy SourceFiles="@(DownloadedCommon)" DestinationFolder="$(MSBuildProjectDirectory)/../../lib/common"
+			  SkipUnchangedFiles="true"/>
+	</Target>
+
+	<Target Name="DownloadMonoAssemblies" Condition="'$(OS)'!='Windows_NT'">
+		<MakeDir Directories="$(MSBuildProjectDirectory)/../../Download"/>
+		<MakeDir Directories="$(MSBuildProjectDirectory)/../../Download/DefaultMono"/>
+		<!-- Palaso dlls. bt153 is the palaso-precise64-DefaultMono branch for Palaso. -->
+		<Message Text="Downloading latest successful artifacts from Palaso DefaultMono build."/>
+		<DownloadFile Address="http://build.palaso.org/guestAuth/repository/download/bt153/.lastSuccessful/Palaso.dll" LocalFilename="$(MSBuildProjectDirectory)/../../Download/DefaultMono/Palaso.dll"/>
+		<DownloadFile Address="http://build.palaso.org/guestAuth/repository/download/bt153/.lastSuccessful/Palaso.Lift.dll" LocalFilename="$(MSBuildProjectDirectory)/../../Download/DefaultMono/Palaso.Lift.dll"/>
+		<DownloadFile Address="http://build.palaso.org/guestAuth/repository/download/bt153/.lastSuccessful/Palaso.TestUtilities.dll" LocalFilename="$(MSBuildProjectDirectory)/../../Download/DefaultMono/Palaso.TestUtilities.dll"/>
+		<DownloadFile Address="http://build.palaso.org/guestAuth/repository/download/bt153/.lastSuccessful/PalasoUIWindowsForms.dll" LocalFilename="$(MSBuildProjectDirectory)/../../Download/DefaultMono/PalasoUIWindowsForms.dll"/>
+		<!-- split into two stages so that if the net connection fails, you still have the old files -->
+		<Message Text="Copying latest successful artifacts from Palaso DefaultMono build."/>
+		<Copy SourceFiles="@(DownloadedMono)" DestinationFolder="$(MSBuildProjectDirectory)/../../lib/DebugMono"
+			SkipUnchangedFiles="true"/>
+		<Copy SourceFiles="@(DownloadedMono)" DestinationFolder="$(MSBuildProjectDirectory)/../../lib/ReleaseMono"
+			SkipUnchangedFiles="true"/>
+	</Target>
+
+	<Target Name="DownloadDotNetAssemblies" Condition="'$(OS)'=='Windows_NT'">
+		<MakeDir Directories="$(MSBuildProjectDirectory)/../../Download"/>
+		<MakeDir Directories="$(MSBuildProjectDirectory)/../../Download/DotNet"/>
+		<!-- Palaso dlls. bt247 is the palaso-win32-wesay1.4 Continuous branch for Palaso. -->
+		<DownloadFile Address="http://build.palaso.org/guestAuth/repository/download/bt247/.lastSuccessful/Palaso.dll" LocalFilename="$(MSBuildProjectDirectory)/../../Download/DotNet/Palaso.dll"/>
+		<DownloadFile Address="http://build.palaso.org/guestAuth/repository/download/bt247/.lastSuccessful/Palaso.Lift.dll" LocalFilename="$(MSBuildProjectDirectory)/../../Download/DotNet/Palaso.Lift.dll"/>
+		<DownloadFile Address="http://build.palaso.org/guestAuth/repository/download/bt247/.lastSuccessful/Palaso.TestUtilities.dll" LocalFilename="$(MSBuildProjectDirectory)/../../Download/DotNet/Palaso.TestUtilities.dll"/>
+		<DownloadFile Address="http://build.palaso.org/guestAuth/repository/download/bt247/.lastSuccessful/PalasoUIWindowsForms.dll" LocalFilename="$(MSBuildProjectDirectory)/../../Download/DotNet/PalasoUIWindowsForms.dll"/>
+		<!-- split into two stages so that if the net connection fails, you still have the old files -->
+		<Copy SourceFiles="@(DownloadedDotNet)" DestinationFolder="$(MSBuildProjectDirectory)/../../lib/Debug"
+			SkipUnchangedFiles="true"/>
+		<Copy SourceFiles="@(DownloadedDotNet)" DestinationFolder="$(MSBuildProjectDirectory)/../../lib/Release"
+			SkipUnchangedFiles="true"/>
+	</Target>
+
+</Project>
