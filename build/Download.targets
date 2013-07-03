@@ -8,6 +8,11 @@
 		<DownloadedMono Include="$(MSBuildProjectDirectory)/../../Download/DefaultMono/Palaso.TestUtilities.dll"/>
 		<DownloadedMono Include="$(MSBuildProjectDirectory)/../../Download/DefaultMono/PalasoUIWindowsForms.dll"/>
 		<DownloadedMono Include="$(MSBuildProjectDirectory)/../../Download/DefaultMono/Palaso.Lift.dll"/>
+		<DownloadedDotNet Include="$(MSBuildProjectDirectory)/../../Download/DotNet/icu.net.dll"/>
+		<DownloadedDotNet Include="$(MSBuildProjectDirectory)/../../Download/DotNet/icu.net.dll.config"/>
+		<DownloadedDotNet Include="$(MSBuildProjectDirectory)/../../Download/DotNet/icudt40.dll"/>
+		<DownloadedDotNet Include="$(MSBuildProjectDirectory)/../../Download/DotNet/icuin40.dll"/>
+		<DownloadedDotNet Include="$(MSBuildProjectDirectory)/../../Download/DotNet/icuuc40.dll"/>
 		<DownloadedDotNet Include="$(MSBuildProjectDirectory)/../../Download/DotNet/Palaso.dll"/>
 		<DownloadedDotNet Include="$(MSBuildProjectDirectory)/../../Download/DotNet/Palaso.TestUtilities.dll"/>
 		<DownloadedDotNet Include="$(MSBuildProjectDirectory)/../../Download/DotNet/PalasoUIWindowsForms.dll"/>
@@ -45,11 +50,17 @@
 	<Target Name="DownloadDotNetAssemblies" Condition="'$(OS)'=='Windows_NT'">
 		<MakeDir Directories="$(MSBuildProjectDirectory)/../../Download"/>
 		<MakeDir Directories="$(MSBuildProjectDirectory)/../../Download/DotNet"/>
-		<!-- Palaso dlls. bt247 is the palaso-win32-wesay1.4 Continuous branch for Palaso. -->
-		<DownloadFile Address="http://build.palaso.org/guestAuth/repository/download/bt247/.lastSuccessful/Palaso.dll" LocalFilename="$(MSBuildProjectDirectory)/../../Download/DotNet/Palaso.dll"/>
-		<DownloadFile Address="http://build.palaso.org/guestAuth/repository/download/bt247/.lastSuccessful/Palaso.Lift.dll" LocalFilename="$(MSBuildProjectDirectory)/../../Download/DotNet/Palaso.Lift.dll"/>
-		<DownloadFile Address="http://build.palaso.org/guestAuth/repository/download/bt247/.lastSuccessful/Palaso.TestUtilities.dll" LocalFilename="$(MSBuildProjectDirectory)/../../Download/DotNet/Palaso.TestUtilities.dll"/>
-		<DownloadFile Address="http://build.palaso.org/guestAuth/repository/download/bt247/.lastSuccessful/PalasoUIWindowsForms.dll" LocalFilename="$(MSBuildProjectDirectory)/../../Download/DotNet/PalasoUIWindowsForms.dll"/>
+		<!-- icu dlls. bt14 is the icucil-win32-default Continuous branch for icu. -->
+		<DownloadFile Address="http://build.palaso.org/guestAuth/repository/download/bt14/.lastSuccessful/icu.net.dll" LocalFilename="$(MSBuildProjectDirectory)/../../Download/DotNet/icu.net.dll"/>
+		<DownloadFile Address="http://build.palaso.org/guestAuth/repository/download/bt14/.lastSuccessful/icu.net.dll.config" LocalFilename="$(MSBuildProjectDirectory)/../../Download/DotNet/icu.net.dll.config"/>
+		<DownloadFile Address="http://build.palaso.org/guestAuth/repository/download/bt14/.lastSuccessful/icudt40.dll" LocalFilename="$(MSBuildProjectDirectory)/../../Download/DotNet/icudt40.dll"/>
+		<DownloadFile Address="http://build.palaso.org/guestAuth/repository/download/bt14/.lastSuccessful/icuin40.dll" LocalFilename="$(MSBuildProjectDirectory)/../../Download/DotNet/icuin40.dll"/>
+		<DownloadFile Address="http://build.palaso.org/guestAuth/repository/download/bt14/.lastSuccessful/icuuc40.dll" LocalFilename="$(MSBuildProjectDirectory)/../../Download/DotNet/icuuc40.dll"/>
+		<!-- Palaso dlls. bt275 is the palaso-FlexBridge2.0 Continuous branch for Palaso. -->
+		<DownloadFile Address="http://build.palaso.org/guestAuth/repository/download/bt275/.lastSuccessful/Palaso.dll" LocalFilename="$(MSBuildProjectDirectory)/../../Download/DotNet/Palaso.dll"/>
+		<DownloadFile Address="http://build.palaso.org/guestAuth/repository/download/bt275/.lastSuccessful/Palaso.Lift.dll" LocalFilename="$(MSBuildProjectDirectory)/../../Download/DotNet/Palaso.Lift.dll"/>
+		<DownloadFile Address="http://build.palaso.org/guestAuth/repository/download/bt275/.lastSuccessful/Palaso.TestUtilities.dll" LocalFilename="$(MSBuildProjectDirectory)/../../Download/DotNet/Palaso.TestUtilities.dll"/>
+		<DownloadFile Address="http://build.palaso.org/guestAuth/repository/download/bt275/.lastSuccessful/PalasoUIWindowsForms.dll" LocalFilename="$(MSBuildProjectDirectory)/../../Download/DotNet/PalasoUIWindowsForms.dll"/>
 		<!-- split into two stages so that if the net connection fails, you still have the old files -->
 		<Copy SourceFiles="@(DownloadedDotNet)" DestinationFolder="$(MSBuildProjectDirectory)/../../lib/Debug"
 			SkipUnchangedFiles="true"/>
