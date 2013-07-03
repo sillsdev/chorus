@@ -70,7 +70,7 @@
 		<DNZip TaskAction="Extract" ExtractPath="$(RootDir)" ZipFileName="$(RootDir)/lib/Debug/Mercurial.zip"/>
 	</Target>
 
-	<Target Name="Installer" DependsOnTargets="CleanInstaller; VersionNumbers; MakeWixForDistFiles; Build ">
+	<Target Name="Installer" DependsOnTargets="CleanInstaller; VersionNumbers; Build ">
 
 		<!-- set the version number in the installer configuration program.  Perhaps there's a way to just send in the variables rather than this brute-force
 		changing of the script, but I haven't figured that out. -->
