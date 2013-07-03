@@ -1,5 +1,4 @@
-﻿#if CHORUSUSBDRIVE
-#if MONO
+﻿#if MONO
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -157,5 +156,4 @@ namespace Chorus.Utilities.UsbDrive
 		}
 	}
 }
-#endif
 #endif

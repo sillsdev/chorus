@@ -501,10 +501,10 @@
 	</Compile>
   </ItemGroup>
   <ItemGroup>
-	<Reference Include="ChorusHub, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-	  <SpecificVersion>False</SpecificVersion>
-	  <HintPath>..\..\output\$(Configuration)\ChorusHub.exe</HintPath>
-	</Reference>
+	<ProjectReference Include="..\ChorusHub\ChorusHub.csproj">
+	  <Project>{EB8C974D-B1C6-4CE0-BFD4-170EFE18790C}</Project>
+	  <Name>ChorusHub</Name>
+	</ProjectReference>
 	<ProjectReference Include="..\LibChorus\LibChorus.csproj">
 	  <Project>{94245366-8F1E-475C-810D-FE89BB3948E0}</Project>
 	  <Name>LibChorus</Name>
