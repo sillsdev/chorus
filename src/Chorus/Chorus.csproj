@@ -77,7 +77,6 @@
 	<CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
 	<DocumentationFile>..\..\output\$(Configuration)\Chorus.XML</DocumentationFile>
 	<DebugType>full</DebugType>
-	<PlatformTarget>AnyCPU</PlatformTarget>
 	<ErrorReport>prompt</ErrorReport>
 	<TargetFrameworkProfile>
 	</TargetFrameworkProfile>
@@ -89,7 +88,6 @@
 	<CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
 	<Optimize>true</Optimize>
 	<DebugType>pdbonly</DebugType>
-	<PlatformTarget>x86</PlatformTarget>
 	<ErrorReport>prompt</ErrorReport>
 	<TargetFrameworkProfile>
 	</TargetFrameworkProfile>
@@ -122,9 +120,6 @@
 	<CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
 	<CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
 	<ErrorReport>prompt</ErrorReport>
-	<CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-	<CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
-	<CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DebugMono|x86'">
 	<DebugSymbols>true</DebugSymbols>
@@ -138,9 +133,6 @@
 	<CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
 	<CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
 	<ErrorReport>prompt</ErrorReport>
-	<CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-	<CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
-	<CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'ReleaseMono|x86'">
 	<DebugSymbols>true</DebugSymbols>
@@ -199,6 +191,14 @@
 	  <SpecificVersion>False</SpecificVersion>
 	  <HintPath>..\..\lib\common\Vulcan.Uczniowie.HelpProvider.dll</HintPath>
 	</Reference>
+	<ProjectReference Include="..\ChorusHub\ChorusHub.csproj">
+	  <Project>{EB8C974D-B1C6-4CE0-BFD4-170EFE18790C}</Project>
+	  <Name>ChorusHub</Name>
+	</ProjectReference>
+	<ProjectReference Include="..\LibChorus\LibChorus.csproj">
+	  <Project>{94245366-8F1E-475C-810D-FE89BB3948E0}</Project>
+	  <Name>LibChorus</Name>
+	</ProjectReference>
   </ItemGroup>
   <ItemGroup>
 	<Compile Include="Arguments.cs" />
@@ -499,16 +499,6 @@
 	<Compile Include="UI\UsbDriveLocator.Designer.cs">
 	  <DependentUpon>UsbDriveLocator.cs</DependentUpon>
 	</Compile>
-  </ItemGroup>
-  <ItemGroup>
-	<ProjectReference Include="..\ChorusHub\ChorusHub.csproj">
-	  <Project>{EB8C974D-B1C6-4CE0-BFD4-170EFE18790C}</Project>
-	  <Name>ChorusHub</Name>
-	</ProjectReference>
-	<ProjectReference Include="..\LibChorus\LibChorus.csproj">
-	  <Project>{94245366-8F1E-475C-810D-FE89BB3948E0}</Project>
-	  <Name>LibChorus</Name>
-	</ProjectReference>
   </ItemGroup>
   <ItemGroup>
 	<Content Include="chorus.ico" />
