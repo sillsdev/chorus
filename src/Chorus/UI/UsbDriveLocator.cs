@@ -4,7 +4,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Threading;
 using System.Windows.Forms;
-using Chorus.Utilities.UsbDrive;
+using Palaso.UsbDrive;
 
 namespace Chorus.UI
 {

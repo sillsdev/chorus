@@ -4,7 +4,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using Chorus.UI.Clone;
-using Chorus.Utilities.UsbDrive;
+using Palaso.UsbDrive;
 using LibChorus.TestUtilities;
 using NUnit.Framework;
 using Palaso.Progress;
