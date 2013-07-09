@@ -24,7 +24,7 @@ namespace LibChorus.TestUtilities
 		private void Init(string name)
 		{
 			Progress = new MultiProgress(new IProgress[] { new ConsoleProgress {ShowVerbose=true}, _stringBuilderProgress });
-			RootFolder = new TemporaryFolder("ChorusTest-" + name);
+			RootFolder = new TemporaryFolder("ChorusTest-" + name + "-" + Guid.NewGuid());
 		}
 
 		public RepositorySetup(string userName) :
@@ -35,7 +35,7 @@ namespace LibChorus.TestUtilities
 		public RepositorySetup(string userName, string projectfolder)
 		{
 			Progress = new NullProgress();
-			ProjectFolder = new TemporaryFolder(projectfolder);
+			ProjectFolder = new TemporaryFolder(projectfolder + "-" + Guid.NewGuid());
 			MakeRepositoryForTest(ProjectFolder.Path, userName, Progress);
 			ProjectFolderConfig = new ProjectFolderConfiguration(ProjectFolder.Path);
 		}
