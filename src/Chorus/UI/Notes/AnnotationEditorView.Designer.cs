@@ -33,7 +33,11 @@
 			this._addButton = new System.Windows.Forms.Button();
 			this._newMessage = new System.Windows.Forms.TextBox();
 			this._annotationLogo = new System.Windows.Forms.PictureBox();
+#if MONO
+			this._existingMessagesDisplay = new Gecko.GeckoWebBrowser();
+#else
 			this._existingMessagesDisplay = new System.Windows.Forms.WebBrowser();
+#endif
 			this._closeButton = new System.Windows.Forms.Button();
 			this._annotationLabel = new System.Windows.Forms.LinkLabel();
 			this._addNewMessageLabel = new Chorus.UI.BetterLabel();
@@ -104,6 +108,25 @@
 			//
 			// _existingMessagesDisplay
 			//
+#if MONO
+			//GECKOFX: Is this needed?
+			//this._existingMessagesDisplay.AllowWebBrowserDrop = false;
+			this._existingMessagesDisplay.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+			| System.Windows.Forms.AnchorStyles.Left)
+			| System.Windows.Forms.AnchorStyles.Right)));
+			this.l10NSharpExtender1.SetLocalizableToolTip(this._existingMessagesDisplay, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this._existingMessagesDisplay, null);
+			this.l10NSharpExtender1.SetLocalizingId(this._existingMessagesDisplay, "AnnotationEditorView.AnnotationEditorView._existingMessagesDisplay");
+			this._existingMessagesDisplay.Location = new System.Drawing.Point(5, 47);
+			this._existingMessagesDisplay.MinimumSize = new System.Drawing.Size(20, 20);
+			this._existingMessagesDisplay.Name = "_existingMessagesDisplay";
+			this._existingMessagesDisplay.Size = new System.Drawing.Size(313, 250);
+			this._existingMessagesDisplay.TabIndex = 9;
+			//GECKOFX: Is this needed?
+			//this._existingMessagesDisplay.WebBrowserShortcutsEnabled = false;
+			this._existingMessagesDisplay.DocumentCompleted += new System.EventHandler(this._existingMessagesDisplay_DocumentCompleted);
+			this._existingMessagesDisplay.Navigating += new System.EventHandler<Gecko.GeckoNavigatingEventArgs>(this._existingMessagesDisplay_Navigating);
+#else
 			this._existingMessagesDisplay.AllowWebBrowserDrop = false;
 			this._existingMessagesDisplay.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
 			| System.Windows.Forms.AnchorStyles.Left)
@@ -119,6 +142,7 @@
 			this._existingMessagesDisplay.WebBrowserShortcutsEnabled = false;
 			this._existingMessagesDisplay.DocumentCompleted += new System.Windows.Forms.WebBrowserDocumentCompletedEventHandler(this._existingMessagesDisplay_DocumentCompleted);
 			this._existingMessagesDisplay.Navigating += new System.Windows.Forms.WebBrowserNavigatingEventHandler(this._existingMessagesDisplay_Navigating);
+#endif
 			//
 			// _closeButton
 			//
@@ -206,7 +230,11 @@
 		private BetterLabel _addNewMessageLabel;
 		private System.Windows.Forms.Button _addButton;
 		private System.Windows.Forms.TextBox _newMessage;
+#if MONO
+		private Gecko.GeckoWebBrowser _existingMessagesDisplay;
+#else
 		private System.Windows.Forms.WebBrowser _existingMessagesDisplay;
+#endif
 		private System.Windows.Forms.Button _closeButton;
 		private System.Windows.Forms.LinkLabel _annotationLabel;
 		private L10NSharp.UI.L10NSharpExtender l10NSharpExtender1;

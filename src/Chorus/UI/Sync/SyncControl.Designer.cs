@@ -86,7 +86,7 @@ namespace Chorus.UI.Sync
 			this._tabControl.Location = new System.Drawing.Point(3, 56);
 			this._tabControl.Name = "_tabControl";
 			this._tabControl.SelectedIndex = 0;
-			this._tabControl.Size = new System.Drawing.Size(510, 241);
+			this._tabControl.Size = new System.Drawing.Size(510, 261);
 			this._tabControl.TabIndex = 11;
 			//
 			// _chooseTargetsTab
@@ -97,7 +97,7 @@ namespace Chorus.UI.Sync
 			this.l10NSharpExtender1.SetLocalizingId(this._chooseTargetsTab, "SyncControl.ChooseRepos");
 			this._chooseTargetsTab.Location = new System.Drawing.Point(4, 22);
 			this._chooseTargetsTab.Name = "_chooseTargetsTab";
-			this._chooseTargetsTab.Size = new System.Drawing.Size(502, 215);
+			this._chooseTargetsTab.Size = new System.Drawing.Size(502, 235);
 			this._chooseTargetsTab.TabIndex = 2;
 			this._chooseTargetsTab.Text = "Choose Respositories";
 			this._chooseTargetsTab.UseVisualStyleBackColor = true;
@@ -111,11 +111,11 @@ namespace Chorus.UI.Sync
 			this.tableLayoutPanel5.Controls.Add(this.tableLayoutPanel4, 1, 0);
 			this.tableLayoutPanel5.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.tableLayoutPanel5.Location = new System.Drawing.Point(0, 0);
-			this.tableLayoutPanel5.Margin = new System.Windows.Forms.Padding(2);
+			this.tableLayoutPanel5.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
 			this.tableLayoutPanel5.Name = "tableLayoutPanel5";
 			this.tableLayoutPanel5.RowCount = 1;
 			this.tableLayoutPanel5.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-			this.tableLayoutPanel5.Size = new System.Drawing.Size(502, 215);
+			this.tableLayoutPanel5.Size = new System.Drawing.Size(502, 235);
 			this.tableLayoutPanel5.TabIndex = 12;
 			//
 			// pictureBox2
@@ -138,12 +138,12 @@ namespace Chorus.UI.Sync
 			this.tableLayoutPanel4.Controls.Add(this._syncTargets, 0, 1);
 			this.tableLayoutPanel4.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.tableLayoutPanel4.Location = new System.Drawing.Point(48, 2);
-			this.tableLayoutPanel4.Margin = new System.Windows.Forms.Padding(2);
+			this.tableLayoutPanel4.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
 			this.tableLayoutPanel4.Name = "tableLayoutPanel4";
 			this.tableLayoutPanel4.RowCount = 2;
 			this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle());
 			this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-			this.tableLayoutPanel4.Size = new System.Drawing.Size(452, 211);
+			this.tableLayoutPanel4.Size = new System.Drawing.Size(452, 231);
 			this.tableLayoutPanel4.TabIndex = 11;
 			//
 			// label1
@@ -170,7 +170,7 @@ namespace Chorus.UI.Sync
 			this._syncTargets.Location = new System.Drawing.Point(3, 16);
 			this._syncTargets.MinimumSize = new System.Drawing.Size(105, 79);
 			this._syncTargets.Name = "_syncTargets";
-			this._syncTargets.Size = new System.Drawing.Size(446, 192);
+			this._syncTargets.Size = new System.Drawing.Size(446, 212);
 			this._syncTargets.TabIndex = 6;
 			this._syncTargets.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this._syncTargets_ItemCheck);
 			this._syncTargets.VisibleChanged += new System.EventHandler(this.OnRepositoryChoicesVisibleChanged);
@@ -183,8 +183,8 @@ namespace Chorus.UI.Sync
 			this.l10NSharpExtender1.SetLocalizingId(this._tasksTab, "SyncControl.Tasks");
 			this._tasksTab.Location = new System.Drawing.Point(4, 22);
 			this._tasksTab.Name = "_tasksTab";
-			this._tasksTab.Padding = new System.Windows.Forms.Padding(3);
-			this._tasksTab.Size = new System.Drawing.Size(502, 215);
+			this._tasksTab.Padding = new System.Windows.Forms.Padding(3, 3, 3, 3);
+			this._tasksTab.Size = new System.Drawing.Size(502, 233);
 			this._tasksTab.TabIndex = 0;
 			this._tasksTab.Text = "Tasks";
 			this._tasksTab.UseVisualStyleBackColor = true;
@@ -194,7 +194,7 @@ namespace Chorus.UI.Sync
 			this._tasksListView.Dock = System.Windows.Forms.DockStyle.Fill;
 			this._tasksListView.Location = new System.Drawing.Point(3, 3);
 			this._tasksListView.Name = "_tasksListView";
-			this._tasksListView.Size = new System.Drawing.Size(496, 209);
+			this._tasksListView.Size = new System.Drawing.Size(498, 230);
 			this._tasksListView.TabIndex = 0;
 			this._tasksListView.UseCompatibleStateImageBehavior = false;
 			//
@@ -206,8 +206,8 @@ namespace Chorus.UI.Sync
 			this.l10NSharpExtender1.SetLocalizingId(this._logTab, "SyncControl.Log");
 			this._logTab.Location = new System.Drawing.Point(4, 22);
 			this._logTab.Name = "_logTab";
-			this._logTab.Padding = new System.Windows.Forms.Padding(3);
-			this._logTab.Size = new System.Drawing.Size(502, 215);
+			this._logTab.Padding = new System.Windows.Forms.Padding(3, 3, 3, 3);
+			this._logTab.Size = new System.Drawing.Size(502, 235);
 			this._logTab.TabIndex = 1;
 			this._logTab.Text = "Log";
 			this._logTab.UseVisualStyleBackColor = true;
@@ -215,26 +215,17 @@ namespace Chorus.UI.Sync
 			//
 			// _logBox
 			//
-			this._logBox.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
 			this._logBox.BackColor = System.Drawing.Color.Transparent;
 			this._logBox.CancelRequested = false;
 			this._logBox.Dock = System.Windows.Forms.DockStyle.Fill;
-			this._logBox.ErrorEncountered = false;
-			this._logBox.Font = new System.Drawing.Font("Segoe UI", 9F);
 			this._logBox.GetDiagnosticsMethod = null;
 			this.l10NSharpExtender1.SetLocalizableToolTip(this._logBox, null);
 			this.l10NSharpExtender1.SetLocalizationComment(this._logBox, null);
 			this.l10NSharpExtender1.SetLocalizingId(this._logBox, "SyncControl.LogBox");
 			this._logBox.Location = new System.Drawing.Point(3, 3);
-			this._logBox.Margin = new System.Windows.Forms.Padding(4);
+			this._logBox.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
 			this._logBox.Name = "_logBox";
-			this._logBox.ProgressIndicator = null;
-			this._logBox.ShowCopyToClipboardMenuItem = false;
-			this._logBox.ShowDetailsMenuItem = false;
-			this._logBox.ShowDiagnosticsMenuItem = false;
-			this._logBox.ShowFontMenuItem = false;
-			this._logBox.ShowMenu = false;
-			this._logBox.Size = new System.Drawing.Size(496, 209);
+			this._logBox.Size = new System.Drawing.Size(496, 229);
 			this._logBox.TabIndex = 0;
 			//
 			// progressBar1
@@ -243,13 +234,12 @@ namespace Chorus.UI.Sync
 			this.l10NSharpExtender1.SetLocalizationComment(this.progressBar1, null);
 			this.l10NSharpExtender1.SetLocalizingId(this.progressBar1, "SyncControl.progressBar1");
 			this.progressBar1.Location = new System.Drawing.Point(3, 29);
-			this.progressBar1.MarqueeAnimationSpeed = 50;
 			this.progressBar1.Name = "progressBar1";
-			this.progressBar1.PercentCompleted = 0;
 			this.progressBar1.Size = new System.Drawing.Size(302, 10);
 			this.progressBar1.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
-			this.progressBar1.SyncContext = null;
 			this.progressBar1.TabIndex = 13;
+			this.progressBar1.SyncContext = null;
+
 			//
 			// _cancelButton
 			//
@@ -287,9 +277,6 @@ namespace Chorus.UI.Sync
 			// _statusText
 			//
 			this._statusText.AutoSize = true;
-			this._statusText.CancelRequested = false;
-			this._statusText.ErrorEncountered = false;
-			this._statusText.LastException = null;
 			this.l10NSharpExtender1.SetLocalizableToolTip(this._statusText, null);
 			this.l10NSharpExtender1.SetLocalizationComment(this._statusText, null);
 			this.l10NSharpExtender1.SetLocalizationPriority(this._statusText, L10NSharp.LocalizationPriority.NotLocalizable);
@@ -297,12 +284,9 @@ namespace Chorus.UI.Sync
 			this._statusText.Location = new System.Drawing.Point(3, 0);
 			this._statusText.MaximumSize = new System.Drawing.Size(250, 26);
 			this._statusText.Name = "_statusText";
-			this._statusText.ProgressIndicator = null;
 			this._statusText.Size = new System.Drawing.Size(248, 26);
-			this._statusText.SyncContext = null;
 			this._statusText.TabIndex = 16;
 			this._statusText.Text = "This is very long right now to help me in positioning it.";
-			this._statusText.WarningEncountered = false;
 			//
 			// _showCancelButtonTimer
 			//
@@ -362,7 +346,7 @@ namespace Chorus.UI.Sync
 			this.tableLayoutPanel1.Controls.Add(this._statusText, 0, 0);
 			this.tableLayoutPanel1.Controls.Add(this.progressBar1, 0, 1);
 			this.tableLayoutPanel1.Location = new System.Drawing.Point(44, 5);
-			this.tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(2);
+			this.tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
 			this.tableLayoutPanel1.Name = "tableLayoutPanel1";
 			this.tableLayoutPanel1.RowCount = 2;
 			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
@@ -382,7 +366,7 @@ namespace Chorus.UI.Sync
 			this.tableLayoutPanel2.Controls.Add(this.tableLayoutPanel1, 1, 0);
 			this.tableLayoutPanel2.Controls.Add(this.panel2, 2, 0);
 			this.tableLayoutPanel2.Location = new System.Drawing.Point(2, 2);
-			this.tableLayoutPanel2.Margin = new System.Windows.Forms.Padding(2);
+			this.tableLayoutPanel2.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
 			this.tableLayoutPanel2.Name = "tableLayoutPanel2";
 			this.tableLayoutPanel2.RowCount = 1;
 			this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
@@ -395,7 +379,7 @@ namespace Chorus.UI.Sync
 			this.panel1.Controls.Add(this._successIcon);
 			this.panel1.Controls.Add(this._warningIcon);
 			this.panel1.Location = new System.Drawing.Point(2, 2);
-			this.panel1.Margin = new System.Windows.Forms.Padding(2);
+			this.panel1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
 			this.panel1.Name = "panel1";
 			this.panel1.Size = new System.Drawing.Size(38, 36);
 			this.panel1.TabIndex = 0;
@@ -407,7 +391,7 @@ namespace Chorus.UI.Sync
 			this.panel2.Controls.Add(this._cancelButton);
 			this.panel2.Controls.Add(this._closeButton);
 			this.panel2.Location = new System.Drawing.Point(372, 2);
-			this.panel2.Margin = new System.Windows.Forms.Padding(2);
+			this.panel2.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
 			this.panel2.Name = "panel2";
 			this.panel2.Size = new System.Drawing.Size(138, 45);
 			this.panel2.TabIndex = 1;
@@ -420,7 +404,7 @@ namespace Chorus.UI.Sync
 			this.tableLayoutPanel3.Controls.Add(this._tabControl, 0, 1);
 			this.tableLayoutPanel3.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.tableLayoutPanel3.Location = new System.Drawing.Point(0, 0);
-			this.tableLayoutPanel3.Margin = new System.Windows.Forms.Padding(2);
+			this.tableLayoutPanel3.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
 			this.tableLayoutPanel3.Name = "tableLayoutPanel3";
 			this.tableLayoutPanel3.RowCount = 2;
 			this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle());

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
@@ -60,7 +61,7 @@ namespace Chorus.UI.Notes
 		/// </summary>
 		public Func<string, string> HtmlAdjuster { get; set; }
 
-		public void HandleUrl(Uri uri)
+		public void HandleUrl(Uri uri, string annotationFilePath)
 		{
 			var key = uri.Query.Substring(uri.Query.IndexOf('=') + 1);
 			var data = (from item in _recentLinks where item.Key == key select item).FirstOrDefault();
@@ -84,6 +85,30 @@ namespace Chorus.UI.Notes
 				}
 				using (var conflictForm = new ConflictDetailsForm())
 				{
+					doc.LoadXml(content);
+					var detailAttr = doc.DocumentElement.Attributes["htmlDetails"];
+					if (detailAttr != null)
+						doc.DocumentElement.SetAttribute("htmlDetails", "...(see above)...");
+					MemoryStream mStream = new MemoryStream();
+					var settings = new XmlWriterSettings() {NewLineOnAttributes = true, Encoding = Encoding.UTF8, Indent = true};
+					var writer = XmlWriter.Create(mStream, settings);
+					doc.WriteContentTo(writer);
+					writer.Flush();
+					mStream.Flush();
+					mStream.Position = 0;
+					var prettyContent = new StreamReader(mStream).ReadToEnd();
+
+					// Insert the technical details into the original HTML right at the end.
+					int endOfBody = html.LastIndexOf("</body>");
+					var techHtml = html.Substring(0, endOfBody)
+						+ "<div style='margin-top:10pt'>Source file: "
+						+ annotationFilePath.Replace("<", "&lt;").Replace(">", "&gt;")
+						+ "</div><PRE>"
+						+ prettyContent.Replace("<", "&lt;").Replace(">", "&gt;")
+						+ "</PRE>"
+						+ html.Substring(endOfBody);
+
+					conflictForm.TechnicalDetails = techHtml;
 					conflictForm.SetDocumentText(html);
 					conflictForm.ShowDialog(Form.ActiveForm);
 					return;

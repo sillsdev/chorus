@@ -7,6 +7,7 @@ using Chorus.Utilities.UsbDrive;
 
 namespace Chorus.Utilities.UsbDrive
 {
+	[CLSCompliant (false)]
 	internal class UsbDriveInfoWindows : UsbDriveInfo
 	{
 		private DriveInfo _driveInfo;
