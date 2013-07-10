@@ -21,6 +21,7 @@
 
 	<Target Name="BeforeBuild" DependsOnTargets="DownloadMonoAssemblies;DownloadDotNetAssemblies">
 		<!-- bt196 is the output from L10NSharp continuous (Windows) build -->
+		<!-- (someday may need to use bt271 (L10NSharp Mono continuous) [precise64 agent]) -->
 		<MakeDir Directories="$(MSBuildProjectDirectory)/../../Download"/>
 		<Message Text="Downloading latest successful artifacts from L10NSharp build."/>
 		<DownloadFile Address="http://build.palaso.org/guestAuth/repository/download/bt196/.lastSuccessful/L10NSharp.dll"
@@ -33,12 +34,12 @@
 	<Target Name="DownloadMonoAssemblies" Condition="'$(OS)'!='Windows_NT'">
 		<MakeDir Directories="$(MSBuildProjectDirectory)/../../Download"/>
 		<MakeDir Directories="$(MSBuildProjectDirectory)/../../Download/DefaultMono"/>
-		<!-- Palaso dlls. bt153 is the palaso-precise64-DefaultMono branch for Palaso. -->
-		<Message Text="Downloading latest successful artifacts from Palaso DefaultMono build."/>
-		<DownloadFile Address="http://build.palaso.org/guestAuth/repository/download/bt153/.lastSuccessful/Palaso.dll" LocalFilename="$(MSBuildProjectDirectory)/../../Download/DefaultMono/Palaso.dll"/>
-		<DownloadFile Address="http://build.palaso.org/guestAuth/repository/download/bt153/.lastSuccessful/Palaso.Lift.dll" LocalFilename="$(MSBuildProjectDirectory)/../../Download/DefaultMono/Palaso.Lift.dll"/>
-		<DownloadFile Address="http://build.palaso.org/guestAuth/repository/download/bt153/.lastSuccessful/Palaso.TestUtilities.dll" LocalFilename="$(MSBuildProjectDirectory)/../../Download/DefaultMono/Palaso.TestUtilities.dll"/>
-		<DownloadFile Address="http://build.palaso.org/guestAuth/repository/download/bt153/.lastSuccessful/PalasoUIWindowsForms.dll" LocalFilename="$(MSBuildProjectDirectory)/../../Download/DefaultMono/PalasoUIWindowsForms.dll"/>
+		<!-- bt280 is the palaso-Precise64-FlexBridgeAlpha Continuous build -->
+		<Message Text="Downloading latest successful artifacts from the palaso-Precise64-FlexBridgeAlpha Continuous build."/>
+		<DownloadFile Address="http://build.palaso.org/guestAuth/repository/download/bt280/.lastSuccessful/Palaso.dll" LocalFilename="$(MSBuildProjectDirectory)/../../Download/DefaultMono/Palaso.dll"/>
+		<DownloadFile Address="http://build.palaso.org/guestAuth/repository/download/bt280/.lastSuccessful/Palaso.Lift.dll" LocalFilename="$(MSBuildProjectDirectory)/../../Download/DefaultMono/Palaso.Lift.dll"/>
+		<DownloadFile Address="http://build.palaso.org/guestAuth/repository/download/bt280/.lastSuccessful/Palaso.TestUtilities.dll" LocalFilename="$(MSBuildProjectDirectory)/../../Download/DefaultMono/Palaso.TestUtilities.dll"/>
+		<DownloadFile Address="http://build.palaso.org/guestAuth/repository/download/bt280/.lastSuccessful/PalasoUIWindowsForms.dll" LocalFilename="$(MSBuildProjectDirectory)/../../Download/DefaultMono/PalasoUIWindowsForms.dll"/>
 		<!-- split into two stages so that if the net connection fails, you still have the old files -->
 		<Message Text="Copying latest successful artifacts from Palaso DefaultMono build."/>
 		<Copy SourceFiles="@(DownloadedMono)" DestinationFolder="$(MSBuildProjectDirectory)/../../lib/DebugMono"
@@ -51,12 +52,14 @@
 		<MakeDir Directories="$(MSBuildProjectDirectory)/../../Download"/>
 		<MakeDir Directories="$(MSBuildProjectDirectory)/../../Download/DotNet"/>
 		<!-- icu dlls. bt14 is the icucil-win32-default Continuous branch for icu. -->
+		<Message Text="Downloading latest successful artifacts from the icucil-win32-default Continuous build."/>
 		<DownloadFile Address="http://build.palaso.org/guestAuth/repository/download/bt14/.lastSuccessful/icu.net.dll" LocalFilename="$(MSBuildProjectDirectory)/../../Download/DotNet/icu.net.dll"/>
 		<DownloadFile Address="http://build.palaso.org/guestAuth/repository/download/bt14/.lastSuccessful/icu.net.dll.config" LocalFilename="$(MSBuildProjectDirectory)/../../Download/DotNet/icu.net.dll.config"/>
 		<DownloadFile Address="http://build.palaso.org/guestAuth/repository/download/bt14/.lastSuccessful/icudt40.dll" LocalFilename="$(MSBuildProjectDirectory)/../../Download/DotNet/icudt40.dll"/>
 		<DownloadFile Address="http://build.palaso.org/guestAuth/repository/download/bt14/.lastSuccessful/icuin40.dll" LocalFilename="$(MSBuildProjectDirectory)/../../Download/DotNet/icuin40.dll"/>
 		<DownloadFile Address="http://build.palaso.org/guestAuth/repository/download/bt14/.lastSuccessful/icuuc40.dll" LocalFilename="$(MSBuildProjectDirectory)/../../Download/DotNet/icuuc40.dll"/>
-		<!-- Palaso dlls. bt275 is the palaso-FlexBridge2.0 Continuous branch for Palaso. -->
+		<!-- bt275 is the palaso-win32-FlexBridgeAlpha Continuous build. -->
+		<Message Text="Downloading latest successful artifacts from the palaso-win32-FlexBridgeAlpha Continuous build."/>
 		<DownloadFile Address="http://build.palaso.org/guestAuth/repository/download/bt275/.lastSuccessful/Palaso.dll" LocalFilename="$(MSBuildProjectDirectory)/../../Download/DotNet/Palaso.dll"/>
 		<DownloadFile Address="http://build.palaso.org/guestAuth/repository/download/bt275/.lastSuccessful/Palaso.Lift.dll" LocalFilename="$(MSBuildProjectDirectory)/../../Download/DotNet/Palaso.Lift.dll"/>
 		<DownloadFile Address="http://build.palaso.org/guestAuth/repository/download/bt275/.lastSuccessful/Palaso.TestUtilities.dll" LocalFilename="$(MSBuildProjectDirectory)/../../Download/DotNet/Palaso.TestUtilities.dll"/>
