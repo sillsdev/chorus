@@ -1295,6 +1295,14 @@ namespace Chorus.merge.xml.generic
 			return _message;
 		}
 
+		protected override void AppendWhatHappened(StringBuilder sb)
+		{
+			if (string.IsNullOrWhiteSpace(_whoWon))
+			{
+				return; // Do nothing about showing who won.
+			}
+			base.AppendWhatHappened(sb);
+		}
 	}
 
 	/// <summary>
