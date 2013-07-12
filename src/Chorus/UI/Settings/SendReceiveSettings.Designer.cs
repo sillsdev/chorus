@@ -50,6 +50,7 @@ namespace Chorus.UI.Settings
 			this.settingsProtectionButton = new Palaso.UI.WindowsForms.SettingProtection.SettingsProtectionLauncherButton();
 			this.pictureBox3 = new System.Windows.Forms.PictureBox();
 			this._helpProvider = new Vulcan.Uczniowie.HelpProvider.HelpComponent(this.components);
+			this.l10NSharpExtender1 = new L10NSharp.UI.L10NSharpExtender(this.components);
 			this.settingsTabs.SuspendLayout();
 			this.internetTab.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
@@ -57,11 +58,15 @@ namespace Chorus.UI.Settings
 			this.chorusHubTab.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.pictureBox4)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.l10NSharpExtender1)).BeginInit();
 			this.SuspendLayout();
 			//
 			// nameLabel
 			//
 			this.nameLabel.AutoSize = true;
+			this.l10NSharpExtender1.SetLocalizableToolTip(this.nameLabel, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this.nameLabel, null);
+			this.l10NSharpExtender1.SetLocalizingId(this.nameLabel, "SendReceiveSettings.NameToShow");
 			this.nameLabel.Location = new System.Drawing.Point(84, 9);
 			this.nameLabel.Name = "nameLabel";
 			this.nameLabel.Size = new System.Drawing.Size(161, 13);
@@ -70,6 +75,9 @@ namespace Chorus.UI.Settings
 			//
 			// userNameTextBox
 			//
+			this.l10NSharpExtender1.SetLocalizableToolTip(this.userNameTextBox, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this.userNameTextBox, null);
+			this.l10NSharpExtender1.SetLocalizingId(this.userNameTextBox, "SendReceiveSettings.SendReceiveSettings.userNameTextBox");
 			this.userNameTextBox.Location = new System.Drawing.Point(86, 25);
 			this.userNameTextBox.Name = "userNameTextBox";
 			this.userNameTextBox.Size = new System.Drawing.Size(158, 20);
@@ -93,6 +101,9 @@ namespace Chorus.UI.Settings
 			//
 			this.internetTab.Controls.Add(this.pictureBox1);
 			this.internetTab.Controls.Add(this._internetSettingsFlow);
+			this.l10NSharpExtender1.SetLocalizableToolTip(this.internetTab, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this.internetTab, null);
+			this.l10NSharpExtender1.SetLocalizingId(this.internetTab, "SendReceiveSettings.Internet");
 			this.internetTab.Location = new System.Drawing.Point(4, 22);
 			this.internetTab.Name = "internetTab";
 			this.internetTab.Padding = new System.Windows.Forms.Padding(3);
@@ -104,6 +115,9 @@ namespace Chorus.UI.Settings
 			// pictureBox1
 			//
 			this.pictureBox1.Image = global::Chorus.Properties.Resources.internet59x64;
+			this.l10NSharpExtender1.SetLocalizableToolTip(this.pictureBox1, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this.pictureBox1, null);
+			this.l10NSharpExtender1.SetLocalizingId(this.pictureBox1, "SendReceiveSettings.SendReceiveSettings.pictureBox1");
 			this.pictureBox1.Location = new System.Drawing.Point(6, 14);
 			this.pictureBox1.Name = "pictureBox1";
 			this.pictureBox1.Size = new System.Drawing.Size(64, 66);
@@ -124,6 +138,9 @@ namespace Chorus.UI.Settings
 			// _internetButtonEnabledCheckBox
 			//
 			this._internetButtonEnabledCheckBox.AutoSize = true;
+			this.l10NSharpExtender1.SetLocalizableToolTip(this._internetButtonEnabledCheckBox, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this._internetButtonEnabledCheckBox, null);
+			this.l10NSharpExtender1.SetLocalizingId(this._internetButtonEnabledCheckBox, "SendReceiveSettings.ShowInternetOption");
 			this._internetButtonEnabledCheckBox.Location = new System.Drawing.Point(88, 3);
 			this._internetButtonEnabledCheckBox.Margin = new System.Windows.Forms.Padding(88, 3, 3, 3);
 			this._internetButtonEnabledCheckBox.Name = "_internetButtonEnabledCheckBox";
@@ -135,6 +152,9 @@ namespace Chorus.UI.Settings
 			// _serverSettingsControl
 			//
 			this._serverSettingsControl.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+			this.l10NSharpExtender1.SetLocalizableToolTip(this._serverSettingsControl, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this._serverSettingsControl, null);
+			this.l10NSharpExtender1.SetLocalizingId(this._serverSettingsControl, "SendReceiveSettings.SendReceiveSettings.ServerSettingsControl");
 			this._serverSettingsControl.Location = new System.Drawing.Point(3, 26);
 			this._serverSettingsControl.MinimumSize = new System.Drawing.Size(363, 200);
 			this._serverSettingsControl.Model = null;
@@ -147,6 +167,9 @@ namespace Chorus.UI.Settings
 			this.chorusHubTab.Controls.Add(this._showChorusHubInSendReceive);
 			this.chorusHubTab.Controls.Add(this.betterLabel1);
 			this.chorusHubTab.Controls.Add(this.pictureBox4);
+			this.l10NSharpExtender1.SetLocalizableToolTip(this.chorusHubTab, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this.chorusHubTab, null);
+			this.l10NSharpExtender1.SetLocalizingId(this.chorusHubTab, "SendReceiveSettings.ChorusHub");
 			this.chorusHubTab.Location = new System.Drawing.Point(4, 22);
 			this.chorusHubTab.Name = "chorusHubTab";
 			this.chorusHubTab.Padding = new System.Windows.Forms.Padding(3);
@@ -158,6 +181,9 @@ namespace Chorus.UI.Settings
 			// _showChorusHubInSendReceive
 			//
 			this._showChorusHubInSendReceive.AutoSize = true;
+			this.l10NSharpExtender1.SetLocalizableToolTip(this._showChorusHubInSendReceive, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this._showChorusHubInSendReceive, null);
+			this.l10NSharpExtender1.SetLocalizingId(this._showChorusHubInSendReceive, "SendReceiveSettings.ShowChorusHub");
 			this._showChorusHubInSendReceive.Location = new System.Drawing.Point(85, 17);
 			this._showChorusHubInSendReceive.Margin = new System.Windows.Forms.Padding(10, 3, 3, 3);
 			this._showChorusHubInSendReceive.Name = "_showChorusHubInSendReceive";
@@ -174,6 +200,10 @@ namespace Chorus.UI.Settings
 			this.betterLabel1.BackColor = System.Drawing.Color.White;
 			this.betterLabel1.BorderStyle = System.Windows.Forms.BorderStyle.None;
 			this.betterLabel1.Font = new System.Drawing.Font("Segoe UI", 9F);
+			this.l10NSharpExtender1.SetLocalizableToolTip(this.betterLabel1, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this.betterLabel1, null);
+			this.l10NSharpExtender1.SetLocalizationPriority(this.betterLabel1, L10NSharp.LocalizationPriority.MediumLow);
+			this.l10NSharpExtender1.SetLocalizingId(this.betterLabel1, "SendReceiveSetting.ChorusHubDescription");
 			this.betterLabel1.Location = new System.Drawing.Point(85, 44);
 			this.betterLabel1.Multiline = true;
 			this.betterLabel1.Name = "betterLabel1";
@@ -187,6 +217,9 @@ namespace Chorus.UI.Settings
 			// pictureBox4
 			//
 			this.pictureBox4.Image = global::Chorus.Properties.Resources.chorusHubLarge;
+			this.l10NSharpExtender1.SetLocalizableToolTip(this.pictureBox4, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this.pictureBox4, null);
+			this.l10NSharpExtender1.SetLocalizingId(this.pictureBox4, "SendReceiveSettings.SendReceiveSettings.pictureBox4");
 			this.pictureBox4.Location = new System.Drawing.Point(6, 17);
 			this.pictureBox4.Name = "pictureBox4";
 			this.pictureBox4.Size = new System.Drawing.Size(64, 66);
@@ -196,6 +229,10 @@ namespace Chorus.UI.Settings
 			// _helpButton
 			//
 			this._helpButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+			this.l10NSharpExtender1.SetLocalizableToolTip(this._helpButton, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this._helpButton, null);
+			this.l10NSharpExtender1.SetLocalizationPriority(this._helpButton, L10NSharp.LocalizationPriority.High);
+			this.l10NSharpExtender1.SetLocalizingId(this._helpButton, "Common.Help");
 			this._helpButton.Location = new System.Drawing.Point(422, 399);
 			this._helpButton.Name = "_helpButton";
 			this._helpButton.Size = new System.Drawing.Size(75, 23);
@@ -208,6 +245,9 @@ namespace Chorus.UI.Settings
 			//
 			this._cancelButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
 			this._cancelButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+			this.l10NSharpExtender1.SetLocalizableToolTip(this._cancelButton, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this._cancelButton, null);
+			this.l10NSharpExtender1.SetLocalizingId(this._cancelButton, "Common.Cancel");
 			this._cancelButton.Location = new System.Drawing.Point(341, 399);
 			this._cancelButton.Name = "_cancelButton";
 			this._cancelButton.Size = new System.Drawing.Size(75, 23);
@@ -219,6 +259,9 @@ namespace Chorus.UI.Settings
 			// _okButton
 			//
 			this._okButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+			this.l10NSharpExtender1.SetLocalizableToolTip(this._okButton, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this._okButton, null);
+			this.l10NSharpExtender1.SetLocalizingId(this._okButton, "Common.OK");
 			this._okButton.Location = new System.Drawing.Point(260, 399);
 			this._okButton.Name = "_okButton";
 			this._okButton.Size = new System.Drawing.Size(75, 23);
@@ -230,6 +273,10 @@ namespace Chorus.UI.Settings
 			// settingsProtectionButton
 			//
 			this.settingsProtectionButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+			this.l10NSharpExtender1.SetLocalizableToolTip(this.settingsProtectionButton, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this.settingsProtectionButton, null);
+			this.l10NSharpExtender1.SetLocalizationPriority(this.settingsProtectionButton, L10NSharp.LocalizationPriority.NotLocalizable);
+			this.l10NSharpExtender1.SetLocalizingId(this.settingsProtectionButton, "SendReceiveSettings.SendReceiveSettings.SettingsProtectionLauncherButton");
 			this.settingsProtectionButton.Location = new System.Drawing.Point(14, 388);
 			this.settingsProtectionButton.Margin = new System.Windows.Forms.Padding(0);
 			this.settingsProtectionButton.Name = "settingsProtectionButton";
@@ -239,12 +286,20 @@ namespace Chorus.UI.Settings
 			// pictureBox3
 			//
 			this.pictureBox3.Image = global::Chorus.Properties.Resources.Committer_Person;
+			this.l10NSharpExtender1.SetLocalizableToolTip(this.pictureBox3, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this.pictureBox3, null);
+			this.l10NSharpExtender1.SetLocalizingId(this.pictureBox3, "SendReceiveSettings.SendReceiveSettings.pictureBox3");
 			this.pictureBox3.Location = new System.Drawing.Point(17, 9);
 			this.pictureBox3.Name = "pictureBox3";
 			this.pictureBox3.Size = new System.Drawing.Size(52, 51);
 			this.pictureBox3.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
 			this.pictureBox3.TabIndex = 6;
 			this.pictureBox3.TabStop = false;
+			//
+			// l10NSharpExtender1
+			//
+			this.l10NSharpExtender1.LocalizationManagerId = "Chorus";
+			this.l10NSharpExtender1.PrefixForNewItems = "SendReceiveSettings";
 			//
 			// SendReceiveSettings
 			//
@@ -261,6 +316,9 @@ namespace Chorus.UI.Settings
 			this.Controls.Add(this.userNameTextBox);
 			this.Controls.Add(this.nameLabel);
 			this.Controls.Add(this.settingsProtectionButton);
+			this.l10NSharpExtender1.SetLocalizableToolTip(this, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this, null);
+			this.l10NSharpExtender1.SetLocalizingId(this, "SendReceiveSettings.WindowTitle");
 			this.MaximizeBox = false;
 			this.MinimizeBox = false;
 			this.Name = "SendReceiveSettings";
@@ -276,6 +334,7 @@ namespace Chorus.UI.Settings
 			this.chorusHubTab.PerformLayout();
 			((System.ComponentModel.ISupportInitialize)(this.pictureBox4)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.l10NSharpExtender1)).EndInit();
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -301,5 +360,6 @@ namespace Chorus.UI.Settings
 		private BetterLabel betterLabel1;
 		private System.Windows.Forms.PictureBox pictureBox4;
 		private System.Windows.Forms.CheckBox _showChorusHubInSendReceive;
+		private L10NSharp.UI.L10NSharpExtender l10NSharpExtender1;
 	}
 }

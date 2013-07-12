@@ -4,11 +4,26 @@ using System.IO;
 using System.Reflection;
 using System.Windows.Forms;
 using Chorus.VcsDrivers.Mercurial;
+using L10NSharp;
+#if MONO
+using Gecko;
+#if false
+using System.Runtime.InteropServices;
+#endif
+#endif
 
 namespace Chorus
 {
 	static class Program
 	{
+#if MONO
+#if false
+	// dummy function to dlopen geckofix
+		[DllImport("geckofix.so")]
+		static extern void DummyFunction();
+#endif
+#endif
+
 		/// <summary>
 		/// The main entry point for the application.
 		/// </summary>
@@ -20,7 +35,15 @@ namespace Chorus
 
 			SetUpErrorHandling();
 
-		//	throw new ApplicationException("test");
+#if MONO
+			// Set up Xpcom for geckofx
+#if false
+			DummyFunction();	// Can we avoid the need for LD_PRELOAD?
+#endif
+			Xpcom.Initialize(XULRunnerLocator.GetXULRunnerLocation());
+			GeckoPreferences.User["gfx.font_rendering.graphite.enabled"] = true;
+			Application.ApplicationExit += (sender, e) => { Xpcom.Shutdown(); };
+#endif
 
 			//is mercurial set up?
 			var s = HgRepository.GetEnvironmentReadinessMessage("en");
@@ -59,6 +82,7 @@ namespace Chorus
 			new Runner().Run(pathToRepository, new Arguments(args));
 
 			Properties.Settings.Default.Save();
+			Application.Exit ();
 		}
 
 		private static void SetUpErrorHandling()
@@ -118,7 +142,7 @@ namespace Chorus
 			public static string BrowseForRepository()
 			{
 				var dlg = new FolderBrowserDialog();
-				dlg.Description = "Select a chorus-enabled project to open:";
+				dlg.Description = LocalizationManager.GetString("Messages.SelectChorusProject", "Select a chorus-enabled project to open:");
 				dlg.ShowNewFolderButton = false;
 				if (DialogResult.OK != dlg.ShowDialog())
 					return null;

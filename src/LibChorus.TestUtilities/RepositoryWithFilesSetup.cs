@@ -59,7 +59,7 @@ namespace LibChorus.TestUtilities
 		public RepositoryWithFilesSetup(string userName, string fileName, string fileContents)
 		{
 			Progress = new MultiProgress(new IProgress[] { new ConsoleProgress(), _stringProgress });
-			RootFolder = new TemporaryFolder("ChorusTest-" + userName);
+			RootFolder = new TemporaryFolder("ChorusTest-" + userName + "-" + Guid.NewGuid());
 			ProjectFolder = new TemporaryFolder(RootFolder, "foo project");
 			Console.WriteLine("TestRepository Created: {0}", RootFolder.Path);
 			var p = ProjectFolder.Combine(fileName);
@@ -83,7 +83,7 @@ namespace LibChorus.TestUtilities
 		private RepositoryWithFilesSetup(string userName, RepositoryWithFilesSetup cloneFromUser)
 		{
 			Progress= new MultiProgress(new IProgress[] { new ConsoleProgress(), _stringProgress });
-			RootFolder = new TemporaryFolder("ChorusTest-" + userName);
+			RootFolder = new TemporaryFolder("ChorusTest-" + userName + "-" + Guid.NewGuid());
 			Console.WriteLine("TestRepository Cloned: {0}", RootFolder.Path);
 			string pathToProject = RootFolder.Combine(Path.GetFileName(cloneFromUser.ProjectFolder.Path));
 			//cloneFromUser.Synchronizer.MakeClone(pathToProject, true);

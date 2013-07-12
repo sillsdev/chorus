@@ -31,10 +31,12 @@
 			this.components = new System.ComponentModel.Container();
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ChangesInRevisionView));
 			this.listView1 = new System.Windows.Forms.ListView();
-			this.columnHeader3 = new System.Windows.Forms.ColumnHeader();
-			this.columnHeader1 = new System.Windows.Forms.ColumnHeader();
-			this.columnHeader2 = new System.Windows.Forms.ColumnHeader();
+			this.columnHeader3 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+			this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+			this.columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.imageList1 = new System.Windows.Forms.ImageList(this.components);
+			this.l10NSharpExtender1 = new L10NSharp.UI.L10NSharpExtender(this.components);
+			((System.ComponentModel.ISupportInitialize)(this.l10NSharpExtender1)).BeginInit();
 			this.SuspendLayout();
 			//
 			// listView1
@@ -60,16 +62,25 @@
 			//
 			// columnHeader3
 			//
+			this.l10NSharpExtender1.SetLocalizableToolTip(this.columnHeader3, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this.columnHeader3, null);
+			this.l10NSharpExtender1.SetLocalizingId(this.columnHeader3, "ChangesInRevisionView.Type");
 			this.columnHeader3.Text = "Type";
 			this.columnHeader3.Width = 111;
 			//
 			// columnHeader1
 			//
+			this.l10NSharpExtender1.SetLocalizableToolTip(this.columnHeader1, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this.columnHeader1, null);
+			this.l10NSharpExtender1.SetLocalizingId(this.columnHeader1, "ChangesInRevisionView.Item");
 			this.columnHeader1.Text = "Item";
 			this.columnHeader1.Width = 98;
 			//
 			// columnHeader2
 			//
+			this.l10NSharpExtender1.SetLocalizableToolTip(this.columnHeader2, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this.columnHeader2, null);
+			this.l10NSharpExtender1.SetLocalizingId(this.columnHeader2, "ChangesInRevisionView.Action");
 			this.columnHeader2.Text = "Action";
 			this.columnHeader2.Width = 112;
 			//
@@ -86,13 +97,22 @@
 			this.imageList1.Images.SetKeyName(6, "error");
 			this.imageList1.Images.SetKeyName(7, "question");
 			//
+			// l10NSharpExtender1
+			//
+			this.l10NSharpExtender1.LocalizationManagerId = "Chorus";
+			this.l10NSharpExtender1.PrefixForNewItems = "ChangesInRevisionView";
+			//
 			// ChangesInRevisionView
 			//
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.Controls.Add(this.listView1);
+			this.l10NSharpExtender1.SetLocalizableToolTip(this, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this, null);
+			this.l10NSharpExtender1.SetLocalizingId(this, "ChangesInRevisionView.ChangesInRevisionView.ChangesInRevisionView");
 			this.Name = "ChangesInRevisionView";
 			this.Size = new System.Drawing.Size(327, 150);
+			((System.ComponentModel.ISupportInitialize)(this.l10NSharpExtender1)).EndInit();
 			this.ResumeLayout(false);
 
 		}
@@ -104,6 +124,7 @@
 		private System.Windows.Forms.ColumnHeader columnHeader2;
 		private System.Windows.Forms.ColumnHeader columnHeader3;
 		private System.Windows.Forms.ImageList imageList1;
+		private L10NSharp.UI.L10NSharpExtender l10NSharpExtender1;
 
 	}
 }

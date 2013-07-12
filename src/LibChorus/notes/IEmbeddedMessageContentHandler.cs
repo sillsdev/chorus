@@ -16,7 +16,7 @@ namespace Chorus.notes
 	   // Control CreateWinFormsControl(string contentXml, Annotation parentAnnotation, ChorusUser user);
 		string GetHyperLink(string cDataContent);
 		bool CanHandleUrl(Uri uri);
-		void HandleUrl(Uri uri);
+		void HandleUrl(Uri uri, string annotationFilePath);
 	}
 
 	public class NullEmbeddedContentLinkMaker : IEmbeddedMessageContentHandler
@@ -31,7 +31,7 @@ namespace Chorus.notes
 			throw new NotImplementedException();
 		}
 
-		public void HandleUrl(Uri uri)
+		public void HandleUrl(Uri uri, string annotationFilePath)
 		{
 			throw new NotImplementedException();
 		}
@@ -54,7 +54,7 @@ namespace Chorus.notes
 			return true;
 		}
 
-		public void HandleUrl(Uri uri)
+		public void HandleUrl(Uri uri, string annotationFilePath)
 		{
 
 		}

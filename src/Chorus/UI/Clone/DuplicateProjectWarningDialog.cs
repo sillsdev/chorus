@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
 using Chorus.Utilities.Help;
+using L10NSharp;
 
 namespace Chorus.UI.Clone
 {
@@ -16,7 +17,7 @@ namespace Chorus.UI.Clone
 			// Review JohnH: this is probably not generic enough to use for WeSay, Bloom, and other clients.
 			// If we need to fix it
 			_mainLabel.Text = string.Format(
-				"The project \"{0}\" on this computer is already using this repository. {1}",
+				LocalizationManager.GetString(@"Messages.RepositoryInUseByProject","The project \"{0}\" on this computer is already using this repository. {1}"),
 				projectWithExistingRepo, howToSendReceiveMessageText);
 			ShowDialog();
 		}
@@ -24,7 +25,7 @@ namespace Chorus.UI.Clone
 
 		private void buttonHelp_Click(object sender, EventArgs e)
 		{
-			Help.ShowHelp(this, HelpUtils.GetHelpFile(), "/Chorus/Duplicate_Project_message.htm");
+			Help.ShowHelp(this, HelpUtils.GetHelpFile(), @"/Chorus/Duplicate_Project_message.htm");
 		}
 	}
 }

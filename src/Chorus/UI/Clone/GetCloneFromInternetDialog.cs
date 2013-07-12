@@ -5,6 +5,7 @@ using System.Threading;
 using System.Windows.Forms;
 using Chorus.UI.Misc;
 using Chorus.VcsDrivers.Mercurial;
+using L10NSharp;
 
 namespace Chorus.UI.Clone
 {
@@ -143,7 +144,7 @@ namespace Chorus.UI.Clone
 					_progressBar.MarqueeAnimationSpeed = 50;
 #endif
 					_statusLabel.Visible = true;
-					_statusLabel.Text = "Getting project...";
+					_statusLabel.Text = LocalizationManager.GetString("Messages.GettingProject", "Getting project...");
 					_statusLabel.Left = _progressBar.Left;
 					_statusProgress.Left = _progressBar.Left;
 					_logBox.Visible = true;
@@ -155,13 +156,13 @@ namespace Chorus.UI.Clone
 					_serverSettingsControl.DisplayUpdated -= ServerSettingsControlOnDisplayUpdated;
 					_cancelTaskButton.Visible = false;
 					_statusLabel.Visible = true;
-					_statusLabel.Text = "Done.";
+					_statusLabel.Text = LocalizationManager.GetString("Messages.Done", "Done.");
 					_progressBar.Visible = false;
 					_targetFolderControl.Visible = false;
 					_statusLabel.Left = _statusImage.Right + 10;
 					_statusImage.Visible = true;
-					_statusImage.ImageKey="Success";
-					_statusLabel.Text = string.Format("Finished");
+					_statusImage.ImageKey=LocalizationManager.GetString("Messages.Success", "Success");
+					_statusLabel.Text = string.Format(LocalizationManager.GetString("Messages.Finished", "Finished"));
 					_okButton.Visible = true;
 					_cancelButton.Visible = false;
 					_logBox.Visible = true;
@@ -172,26 +173,28 @@ namespace Chorus.UI.Clone
 					_fixSettingsButton.Visible = true;
 					_fixSettingsButton.Focus();
 					_cancelButton.Visible = true;
-					_cancelButton.Text = "&Cancel";
+#if !MONO
+					_cancelButton.Text = LocalizationManager.GetString("Common.Cancel", "&Cancel");
+#endif
 					//_cancelButton.Select();
 					_cancelTaskButton.Visible = false;
 					_statusLabel.Visible = true;
-					_statusLabel.Text = "Failed.";
+					_statusLabel.Text = LocalizationManager.GetString("Messages.Failed", "Failed.");
 					_progressBar.Visible = false;
 					_targetFolderControl.Visible = false;
 					_statusLabel.Left = _statusImage.Right + 10;
-					_statusImage.ImageKey = "Error";
+					_statusImage.ImageKey = LocalizationManager.GetString("Common.Error", "Error");
 					_statusImage.Visible = true;
 					_statusProgress.Visible = false;
 					break;
 				case State.Cancelled:
 					_serverSettingsControl.DisplayUpdated -= ServerSettingsControlOnDisplayUpdated;
 					_cancelButton.Visible = true;
-					_cancelButton.Text = "&Close";
+					_cancelButton.Text = LocalizationManager.GetString("Common.Close", "&Close");
 					_cancelButton.Select();
 					_cancelTaskButton.Visible = false;
 					_statusLabel.Visible = true;
-					_statusLabel.Text = "Cancelled.";
+					_statusLabel.Text = LocalizationManager.GetString("Messages.Cancelled", "Cancelled.");
 					_progressBar.Visible = false;
 					_targetFolderControl.Visible = false;
 					_statusLabel.Left =  _progressBar.Left;
@@ -299,6 +302,5 @@ namespace Chorus.UI.Clone
 		{
 			_logBox.BackColor  =this.BackColor;
 		}
-
 	}
 }

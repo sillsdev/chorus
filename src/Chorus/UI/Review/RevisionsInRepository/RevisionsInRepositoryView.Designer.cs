@@ -43,7 +43,9 @@
 			this.ColumnAction = new System.Windows.Forms.DataGridViewTextBoxColumn();
 			this._rowAddingTimer = new System.Windows.Forms.Timer(this.components);
 			this._showAdvanced = new System.Windows.Forms.CheckBox();
+			this.l10NSharpExtender1 = new L10NSharp.UI.L10NSharpExtender(this.components);
 			((System.ComponentModel.ISupportInitialize)(this._historyGrid)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.l10NSharpExtender1)).BeginInit();
 			this.SuspendLayout();
 			//
 			// timer1
@@ -56,6 +58,9 @@
 			this.label3.AutoSize = true;
 			this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.label3.ForeColor = System.Drawing.Color.Black;
+			this.l10NSharpExtender1.SetLocalizableToolTip(this.label3, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this.label3, null);
+			this.l10NSharpExtender1.SetLocalizingId(this.label3, "RevisionsInRepository.ReviewChanges");
 			this.label3.Location = new System.Drawing.Point(3, 5);
 			this.label3.Name = "label3";
 			this.label3.Size = new System.Drawing.Size(181, 20);
@@ -69,6 +74,10 @@
 			this._loadButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this._loadButton.Image = ((System.Drawing.Image)(resources.GetObject("_loadButton.Image")));
 			this._loadButton.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
+			this.l10NSharpExtender1.SetLocalizableToolTip(this._loadButton, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this._loadButton, null);
+			this.l10NSharpExtender1.SetLocalizationPriority(this._loadButton, L10NSharp.LocalizationPriority.NotLocalizable);
+			this.l10NSharpExtender1.SetLocalizingId(this._loadButton, "RevisionsInRepository.Load");
 			this._loadButton.Location = new System.Drawing.Point(400, 1);
 			this._loadButton.Name = "_loadButton";
 			this._loadButton.Size = new System.Drawing.Size(65, 29);
@@ -95,6 +104,9 @@
 			this.ColumnDate,
 			this.ColumnPerson,
 			this.ColumnAction});
+			this.l10NSharpExtender1.SetLocalizableToolTip(this._historyGrid, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this._historyGrid, null);
+			this.l10NSharpExtender1.SetLocalizingId(this._historyGrid, "RevisionsInRepository.RevisionsInRepositoryView._historyGrid");
 			this._historyGrid.Location = new System.Drawing.Point(3, 32);
 			this._historyGrid.MultiSelect = false;
 			this._historyGrid.Name = "_historyGrid";
@@ -148,6 +160,9 @@
 			//
 			this._showAdvanced.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
 			this._showAdvanced.AutoSize = true;
+			this.l10NSharpExtender1.SetLocalizableToolTip(this._showAdvanced, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this._showAdvanced, null);
+			this.l10NSharpExtender1.SetLocalizingId(this._showAdvanced, "RevisionsInRepository.Advanced");
 			this._showAdvanced.Location = new System.Drawing.Point(7, 328);
 			this._showAdvanced.Name = "_showAdvanced";
 			this._showAdvanced.Size = new System.Drawing.Size(105, 17);
@@ -155,6 +170,11 @@
 			this._showAdvanced.Text = "Advanced Mode";
 			this._showAdvanced.UseVisualStyleBackColor = true;
 			this._showAdvanced.CheckedChanged += new System.EventHandler(this.OnShowAdvanced_CheckedChanged);
+			//
+			// l10NSharpExtender1
+			//
+			this.l10NSharpExtender1.LocalizationManagerId = "Chorus";
+			this.l10NSharpExtender1.PrefixForNewItems = "RevisionsInRepository";
 			//
 			// RevisionsInRepositoryView
 			//
@@ -165,11 +185,15 @@
 			this.Controls.Add(this._historyGrid);
 			this.Controls.Add(this.label3);
 			this.Controls.Add(this._loadButton);
+			this.l10NSharpExtender1.SetLocalizableToolTip(this, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this, null);
+			this.l10NSharpExtender1.SetLocalizingId(this, "RevisionsInRepository.RevisionsInRepositoryView.RevisionsInRepositoryView");
 			this.Name = "RevisionsInRepositoryView";
 			this.Size = new System.Drawing.Size(470, 348);
 			this.Load += new System.EventHandler(this.StartRefreshTimer);
 			this.VisibleChanged += new System.EventHandler(this.StartRefreshTimer);
 			((System.ComponentModel.ISupportInitialize)(this._historyGrid)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.l10NSharpExtender1)).EndInit();
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -190,6 +214,7 @@
 		private System.Windows.Forms.DataGridViewTextBoxColumn ColumnAction;
 		private System.Windows.Forms.Timer _rowAddingTimer;
 		private System.Windows.Forms.CheckBox _showAdvanced;
+		private L10NSharp.UI.L10NSharpExtender l10NSharpExtender1;
 
 	}
 }

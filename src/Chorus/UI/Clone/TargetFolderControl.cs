@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Windows.Forms;
+using L10NSharp;
 
 namespace Chorus.UI.Clone
 {
@@ -30,7 +31,7 @@ namespace Chorus.UI.Clone
 
 			if (string.IsNullOrEmpty(_model.LocalFolderName))
 			{
-				_targetInfoLabel.Text = "For example, 'Swahili Project'";
+				_targetInfoLabel.Text = LocalizationManager.GetString("Messages.ExampleSwahili", "For example, 'Swahili Project'");
 			}
 
 			if (_model.HaveGoodUrl)
@@ -38,25 +39,25 @@ namespace Chorus.UI.Clone
 				_targetWarningImage.Visible = _model.TargetHasProblem;
 				if (!Directory.Exists(_model.ParentDirectoryToPutCloneIn))
 				{
-					_targetInfoLabel.Text = string.Format("The directory {0} doesn't exist, but should have been created by the application.",
+					_targetInfoLabel.Text = string.Format(LocalizationManager.GetString("Messages.DirectoryShouldExist", "The directory {0} doesn't exist, but should have been created by the application."),
 															_model.ParentDirectoryToPutCloneIn);
 				}
 				else if (!_model.HaveWellFormedTargetLocation)
 				{
 					if (_localFolderName.Text.Trim().Length == 0)
-						_targetInfoLabel.Text = "Please enter a name";
+						_targetInfoLabel.Text = LocalizationManager.GetString("Messages.PleaseEnterName", "Please enter a name");
 					else
-						_targetInfoLabel.Text = string.Format("That name contains characters which are not allowed.");
+						_targetInfoLabel.Text = LocalizationManager.GetString("Messages.IllegalCharacters", "That name contains characters which are not allowed.");
 				}
 				else if (!_model.TargetLocationIsUnused)
 				{
-					_targetInfoLabel.Text = string.Format("There is a already a project with that name at {0}",
+					_targetInfoLabel.Text = string.Format(LocalizationManager.GetString("Messages.ProjectExists", "There is a already a project with that name at {0}"),
 															_model.TargetDestination);
 				}
 				else
 				{
 					_targetWarningImage.Visible = false;
-					_targetInfoLabel.Text = string.Format("Project will be downloaded to {0}", _model.TargetDestination);
+					_targetInfoLabel.Text = string.Format(LocalizationManager.GetString("Messages.ProjectWillGoTo", "Project will be downloaded to {0}"), _model.TargetDestination);
 				}
 			}
 

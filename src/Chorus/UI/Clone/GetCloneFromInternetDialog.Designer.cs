@@ -40,18 +40,23 @@ namespace Chorus.UI.Clone
 			this._statusImages = new System.Windows.Forms.ImageList(this.components);
 			this._statusImage = new System.Windows.Forms.Button();
 			this._statusLabel = new System.Windows.Forms.TextBox();
-			this._progressBar = new SimpleProgressIndicator();
+			this._progressBar = new Palaso.UI.WindowsForms.Progress.SimpleProgressIndicator();
 			this._cancelTaskButton = new System.Windows.Forms.Button();
 			this._fixSettingsButton = new System.Windows.Forms.Button();
-			this._logBox = new LogBox();
-			this._statusProgress = new SimpleStatusProgress();
+			this._logBox = new Palaso.UI.WindowsForms.Progress.LogBox();
+			this._statusProgress = new Palaso.UI.WindowsForms.Progress.SimpleStatusProgress();
 			this._helpProvider = new Vulcan.Uczniowie.HelpProvider.HelpComponent(this.components);
+			this.l10NSharpExtender1 = new L10NSharp.UI.L10NSharpExtender(this.components);
+			((System.ComponentModel.ISupportInitialize)(this.l10NSharpExtender1)).BeginInit();
 			this.SuspendLayout();
 			//
 			// _cancelButton
 			//
 			this._cancelButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
 			this._cancelButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+			this.l10NSharpExtender1.SetLocalizableToolTip(this._cancelButton, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this._cancelButton, null);
+			this.l10NSharpExtender1.SetLocalizingId(this._cancelButton, "Common.Cancel");
 			this._cancelButton.Location = new System.Drawing.Point(295, 240);
 			this._cancelButton.Name = "_cancelButton";
 			this._cancelButton.Size = new System.Drawing.Size(75, 23);
@@ -64,6 +69,9 @@ namespace Chorus.UI.Clone
 			//
 			this._okButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
 			this._okButton.DialogResult = System.Windows.Forms.DialogResult.OK;
+			this.l10NSharpExtender1.SetLocalizableToolTip(this._okButton, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this._okButton, null);
+			this.l10NSharpExtender1.SetLocalizingId(this._okButton, "Common.OK");
 			this._okButton.Location = new System.Drawing.Point(206, 240);
 			this._okButton.Name = "_okButton";
 			this._okButton.Size = new System.Drawing.Size(75, 23);
@@ -85,6 +93,9 @@ namespace Chorus.UI.Clone
 			this._statusImage.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this._statusImage.ImageIndex = 0;
 			this._statusImage.ImageList = this._statusImages;
+			this.l10NSharpExtender1.SetLocalizableToolTip(this._statusImage, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this._statusImage, null);
+			this.l10NSharpExtender1.SetLocalizingId(this._statusImage, "GetCloneFromInternetDialog.GetCloneFromInternetDialog._statusImage");
 			this._statusImage.Location = new System.Drawing.Point(8, 7);
 			this._statusImage.Name = "_statusImage";
 			this._statusImage.Size = new System.Drawing.Size(50, 36);
@@ -99,6 +110,9 @@ namespace Chorus.UI.Clone
 			this._statusLabel.BackColor = System.Drawing.SystemColors.Control;
 			this._statusLabel.BorderStyle = System.Windows.Forms.BorderStyle.None;
 			this._statusLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.l10NSharpExtender1.SetLocalizableToolTip(this._statusLabel, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this._statusLabel, null);
+			this.l10NSharpExtender1.SetLocalizingId(this._statusLabel, "GetCloneFromInternetDialog.GetCloneFromInternetDialog._statusLabel");
 			this._statusLabel.Location = new System.Drawing.Point(58, 7);
 			this._statusLabel.MaximumSize = new System.Drawing.Size(316, 71);
 			this._statusLabel.Multiline = true;
@@ -112,6 +126,9 @@ namespace Chorus.UI.Clone
 			//
 			this._progressBar.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
 			| System.Windows.Forms.AnchorStyles.Right)));
+			this.l10NSharpExtender1.SetLocalizableToolTip(this._progressBar, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this._progressBar, null);
+			this.l10NSharpExtender1.SetLocalizingId(this._progressBar, "GetCloneFromInternetDialog.GetCloneFromInternetDialog._progressBar");
 			this._progressBar.Location = new System.Drawing.Point(15, 54);
 			this._progressBar.MarqueeAnimationSpeed = 50;
 			this._progressBar.Name = "_progressBar";
@@ -124,6 +141,9 @@ namespace Chorus.UI.Clone
 			// _cancelTaskButton
 			//
 			this._cancelTaskButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.l10NSharpExtender1.SetLocalizableToolTip(this._cancelTaskButton, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this._cancelTaskButton, null);
+			this.l10NSharpExtender1.SetLocalizingId(this._cancelTaskButton, "Common.Cancel");
 			this._cancelTaskButton.Location = new System.Drawing.Point(295, 45);
 			this._cancelTaskButton.Name = "_cancelTaskButton";
 			this._cancelTaskButton.Size = new System.Drawing.Size(75, 23);
@@ -135,6 +155,9 @@ namespace Chorus.UI.Clone
 			// _fixSettingsButton
 			//
 			this._fixSettingsButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+			this.l10NSharpExtender1.SetLocalizableToolTip(this._fixSettingsButton, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this._fixSettingsButton, null);
+			this.l10NSharpExtender1.SetLocalizingId(this._fixSettingsButton, "GetCloneFromInternetDialog.FixSettings");
 			this._fixSettingsButton.Location = new System.Drawing.Point(113, 240);
 			this._fixSettingsButton.Name = "_fixSettingsButton";
 			this._fixSettingsButton.Size = new System.Drawing.Size(75, 23);
@@ -154,6 +177,9 @@ namespace Chorus.UI.Clone
 			this._logBox.ErrorEncountered = false;
 			this._logBox.Font = new System.Drawing.Font("Segoe UI", 9F);
 			this._logBox.GetDiagnosticsMethod = null;
+			this.l10NSharpExtender1.SetLocalizableToolTip(this._logBox, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this._logBox, null);
+			this.l10NSharpExtender1.SetLocalizingId(this._logBox, "GetCloneFromInternetDialog.GetCloneFromInternetDialog.LogBox");
 			this._logBox.Location = new System.Drawing.Point(15, 80);
 			this._logBox.Name = "_logBox";
 			this._logBox.ProgressIndicator = null;
@@ -176,6 +202,9 @@ namespace Chorus.UI.Clone
 			this._statusProgress.ErrorEncountered = false;
 			this._statusProgress.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this._statusProgress.LastException = null;
+			this.l10NSharpExtender1.SetLocalizableToolTip(this._statusProgress, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this._statusProgress, null);
+			this.l10NSharpExtender1.SetLocalizingId(this._statusProgress, "GetCloneFromInternetDialog.GetCloneFromInternetDialog._statusProgress");
 			this._statusProgress.Location = new System.Drawing.Point(58, 36);
 			this._statusProgress.Name = "_statusProgress";
 			this._statusProgress.ProgressIndicator = null;
@@ -184,6 +213,11 @@ namespace Chorus.UI.Clone
 			this._statusProgress.TabIndex = 24;
 			this._statusProgress.Text = "status text";
 			this._statusProgress.WarningEncountered = false;
+			//
+			// l10NSharpExtender1
+			//
+			this.l10NSharpExtender1.LocalizationManagerId = "Chorus";
+			this.l10NSharpExtender1.PrefixForNewItems = "GetCloneFromInternetDialog";
 			//
 			// GetCloneFromInternetDialog
 			//
@@ -201,6 +235,9 @@ namespace Chorus.UI.Clone
 			this.Controls.Add(this._logBox);
 			this.Controls.Add(this._statusLabel);
 			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+			this.l10NSharpExtender1.SetLocalizableToolTip(this, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this, null);
+			this.l10NSharpExtender1.SetLocalizingId(this, "GetCloneFromInternetDialog.WindowTitle");
 			this.MaximizeBox = false;
 			this.MinimizeBox = false;
 			this.MinimumSize = new System.Drawing.Size(322, 300);
@@ -209,6 +246,7 @@ namespace Chorus.UI.Clone
 			this.Text = "Get Project From Internet";
 			this.Load += new System.EventHandler(this.OnLoad);
 			this.BackColorChanged += new System.EventHandler(this.GetCloneFromInternetDialog_BackColorChanged);
+			((System.ComponentModel.ISupportInitialize)(this.l10NSharpExtender1)).EndInit();
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -227,5 +265,6 @@ namespace Chorus.UI.Clone
 		private System.Windows.Forms.Button _fixSettingsButton;
 		private SimpleStatusProgress _statusProgress;
 		private Vulcan.Uczniowie.HelpProvider.HelpComponent _helpProvider;
+		private L10NSharp.UI.L10NSharpExtender l10NSharpExtender1;
 	}
 }
