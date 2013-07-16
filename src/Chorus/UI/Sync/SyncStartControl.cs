@@ -394,7 +394,7 @@ namespace Chorus.UI.Sync
 						Thread.Sleep(10*1000);
 						Cursor.Current = Cursors.Default;
 					}
-					address = new HttpRepositoryPath(_chorusHubInfo.HostName, _chorusHubInfo.GetHgHttpUri(directoryName), false);
+					address = new ChorusHubRepositorySource(_chorusHubInfo.HostName, _chorusHubInfo.GetHgHttpUri(directoryName), false, _chorusHubClient.GetRepositoryInformation(null));
 				}
 				RepositoryChosen.Invoke(this, new SyncStartArgs(address, _commitMessageText.Text));
 			}

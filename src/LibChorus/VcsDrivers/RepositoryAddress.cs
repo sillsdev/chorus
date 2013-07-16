@@ -172,6 +172,45 @@ namespace Chorus.VcsDrivers
 		}
 	}
 
+	public class ChorusHubRepositorySource : RepositoryAddress
+	{
+		private readonly List<RepositoryInformation> _sourceRepositoryInformation;
+
+		public ChorusHubRepositorySource(string name, string uri, bool readOnly, IEnumerable<RepositoryInformation> repositoryInformations)
+			: base(name, uri, readOnly)
+		{
+			_sourceRepositoryInformation = new List<RepositoryInformation>(repositoryInformations);
+		}
+
+		/// <summary>
+		/// Gets what the uri of the named repository would be, on this source. I.e., gets the full path.
+		/// </summary>
+		public override string GetPotentialRepoUri(string repoIdentifier, string projectName, IProgress progress)
+		{
+			var match = _sourceRepositoryInformation.FirstOrDefault(repoInfo => repoInfo.RepoID == repoIdentifier);
+			if (match != null)
+				projectName = match.RepoName;
+			return URI.Replace(ProjectNameVariable, projectName);
+		}
+
+		public override bool CanConnect(HgRepository localRepository, string projectName, IProgress progress)
+		{
+			// It can connect for either of these reasons:
+			//		1. 'localRepository' Identifier matches one of the ids of _sourceRepositoryInformation. (Name may not be the same as 'projectName')
+			//		2. The name of one of _sourceRepositoryInformation matches 'projectName' AND the id is 'newRepo'. (A clone of this isn't useful.)
+			var match = _sourceRepositoryInformation.FirstOrDefault(repoInfo => repoInfo.RepoID == localRepository.Identifier);
+			if (match != null)
+				return true;
+			match = _sourceRepositoryInformation.FirstOrDefault(repoInfo => repoInfo.RepoName == projectName);
+			return match != null;
+		}
+
+		public override List<string> GetPossibleCloneUris(string repoIdentifier, string projectName, IProgress progress)
+		{
+			return new List<string>(new[] { GetPotentialRepoUri(repoIdentifier, projectName, progress) });
+		}
+	}
+
 	/// <summary>
 	/// This class was created to support the now-obsolete option of using a shared network folder as a repository source.
 	/// Although this did not prove reliable enough to keep using (at least with Mercurial 1.5), DirectoryRepositorySource

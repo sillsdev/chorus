@@ -44,6 +44,7 @@ namespace ChorusHub
 		/// <example>searchUrl: "scheme://path?filePattern=*.lift|*.CustomProperties"</example>
 		/// <example>returned repo info string: {"name": "someProject", "id": "123abc"}</example>
 		/// <param name="searchUrl"></param>
+		/// <remarks>A new (empty repo) will hav the folder name as 'name', and the id as 'newRepo'</remarks>
 		/// <returns></returns>
 		public IEnumerable<string> GetRepositoryInformation(string searchUrl)
 		{
@@ -150,14 +151,14 @@ namespace ChorusHub
 			foreach (var fullDirName in dirs)
 			{
 				string jsonRepoInfo;
-				if (ToTheBestOfOurKnowledgeANonEmptyHgRepoExists(fullDirName, out jsonRepoInfo))
+				if (HasRepo(fullDirName, out jsonRepoInfo))
 				{
 					yield return new Tuple<string, string>(fullDirName, jsonRepoInfo);
 				}
 			}
 		}
 
-		private static bool ToTheBestOfOurKnowledgeANonEmptyHgRepoExists(string dirName, out string jsonRepoInfo)
+		private static bool HasRepo(string dirName, out string jsonRepoInfo)
 		{
 			jsonRepoInfo = null;
 			var hgDir = Path.Combine(dirName, HgFolder);
@@ -168,9 +169,9 @@ namespace ChorusHub
 			var repo = HgRepository.CreateOrUseExisting(dirName, new ConsoleProgress());
 			var id = repo.Identifier;
 			var name = Path.GetFileName(dirName);
-			if (string.IsNullOrEmpty(id) || string.IsNullOrEmpty(name))
+			if (id == null)
 			{
-				return false;
+				id = "newRepo";
 			}
 			jsonRepoInfo = ImitationHubJSONService.MakeJsonString(name, id);
 			return true;

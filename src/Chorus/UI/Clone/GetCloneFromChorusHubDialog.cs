@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Threading;
 using System.Windows.Forms;
+using Chorus.VcsDrivers;
 using ChorusHub;
 using L10NSharp;
 using Palaso.Progress;
@@ -205,8 +206,8 @@ namespace Chorus.UI.Clone
 				else
 				{
 					Text = string.Format(LocalizationManager.GetString("Messages.GetFromChorusHub", "Get {0} from Chorus Hub on {1}"), RepositoryKindLabel, client.HostName);
-					_model.ChorusHubRepositoryInformation = (IEnumerable<ChorusHubRepositoryInformation>)results[1];
-					foreach (var repoInfo in _model.ChorusHubRepositoryInformation)
+					_model.HubRepositoryInformation = (IEnumerable<RepositoryInformation>) results[1];
+					foreach (var repoInfo in _model.HubRepositoryInformation)
 					{
 						if (repoInfo.RepoID == @"newRepo")
 							continue; // Empty repo exists. It can receive any real repo, but cannot return a useful clone, however, so don't list it.

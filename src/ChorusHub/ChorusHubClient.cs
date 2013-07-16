@@ -7,6 +7,7 @@ using System.Net.Sockets;
 using System.ServiceModel;
 using System.Text;
 using System.Threading;
+using Chorus.VcsDrivers;
 
 namespace ChorusHub
 {
@@ -16,7 +17,7 @@ namespace ChorusHub
 		private IPEndPoint _ipEndPoint;
 		private UdpClient _udpClient;
 		private IAsyncResult _asyncResult;
-		private IEnumerable<ChorusHubRepositoryInformation> _repositoryNames;
+		private IEnumerable<RepositoryInformation> _repositoryNames;
 
 		public string HostName
 		{
@@ -107,7 +108,7 @@ namespace ChorusHub
 			return _foundHubInfo; //will be null if none found
 		}
 
-		public IEnumerable<ChorusHubRepositoryInformation> GetRepositoryInformation(string queryString)
+		public IEnumerable<RepositoryInformation> GetRepositoryInformation(string queryString)
 		{
 			if(_repositoryNames!=null)
 				return _repositoryNames; //for now, there's no way to get an updated list except by making a new client
