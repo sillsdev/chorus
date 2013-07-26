@@ -384,17 +384,15 @@ namespace Chorus.UI.Sync
 				}
 				else
 				{
+					Cursor.Current = Cursors.WaitCursor;
 					string directoryName = Path.GetFileName(_repository.PathToRepo);
 					var doWait  = _chorusHubClient.PrepareHubToSync(directoryName);
 					if(doWait)
 					{
-						//enhance: sorry, I regret that this is all kludgy, ux-wise.
-						MessageBox.Show(LocalizationManager.GetString("Messages.WaitForChorusHub","After you press OK, we will give the ChorusHub 10 seconds to get ready to receive this repository."));
-						Cursor.Current = Cursors.WaitCursor;
 						Thread.Sleep(10*1000);
-						Cursor.Current = Cursors.Default;
 					}
 					address = new ChorusHubRepositorySource(_chorusHubInfo.HostName, _chorusHubInfo.GetHgHttpUri(directoryName), false, _chorusHubClient.GetRepositoryInformation(null));
+					Cursor.Current = Cursors.Default;
 				}
 				RepositoryChosen.Invoke(this, new SyncStartArgs(address, _commitMessageText.Text));
 			}
