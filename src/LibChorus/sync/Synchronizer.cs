@@ -125,7 +125,7 @@ namespace Chorus.sync
 
 				var workingRevBeforeSync = repo.GetRevisionWorkingSetIsBasedOn();
 
-				CreateRepositoryOnLocalAreaNetworkFolderIfNeededThrowIfFails(repo, RepoProjectName, sourcesToTry);
+				CreateRepositoryOnChorusHubIfNeededThrowIfFails(repo, RepoProjectName, sourcesToTry);
 
 				if (options.DoPullFromOthers)
 				{
@@ -194,21 +194,16 @@ namespace Chorus.sync
 			}
 		}
 
-		private static void CreateRepositoryOnLocalAreaNetworkFolderIfNeededThrowIfFails(HgRepository repo, string repoProjectName, List<RepositoryAddress> sourcesToTry)
+		private static void CreateRepositoryOnChorusHubIfNeededThrowIfFails(HgRepository repo, string repoProjectName, List<RepositoryAddress> sourcesToTry)
 		{
-			var directorySource = sourcesToTry.FirstOrDefault(s => s is DirectoryRepositorySource);
-			if (directorySource == null)
+			var hubSource = sourcesToTry.FirstOrDefault(s => s is ChorusHubRepositorySource);
+			if (hubSource == null)
 				return;
 
-			if (Directory.Exists(directorySource.URI) && Directory.Exists(Path.Combine(directorySource.URI, ".hg")))
-			{
-				var otherRepo = new HgRepository(directorySource.URI, new NullProgress());
-				if (repo.Identifier == otherRepo.Identifier)
-					return;
-			}
-
-			var actualTarget = repo.CloneLocalWithoutUpdate(directorySource.GetPotentialRepoUri(directorySource.URI, repoProjectName, new NullProgress()));
-			if (directorySource.URI != actualTarget)
+			//TODO: Check for matching repo before creating a new one willy-nilly!
+			// Also, somewhere in this method Hg complains about not being able to use URIs
+			var actualTarget = repo.CloneLocalWithoutUpdate(hubSource.GetPotentialRepoUri(hubSource.URI, repoProjectName, new NullProgress()));
+			if (hubSource.URI != actualTarget)
 			{
 				// Reset hgrc to new location.
 				var alias = HgRepository.GetAliasFromPath(actualTarget);
@@ -323,14 +318,16 @@ namespace Chorus.sync
 					// because the repo was locked.
 					// For now, at least, it is not a requirement to do the update on the shared folder.
 					// JDH Oct 2010: added this back in if it doesn't look like a shared folder
+					// GJM Jul 2013: If this works, it probably ought to be done... testing
 					if (address is UsbKeyRepositorySource  ||
-					(address is DirectoryRepositorySource && ((DirectoryRepositorySource)address).LooksLikeLocalDirectory))
+						(address is DirectoryRepositorySource && ((DirectoryRepositorySource)address).LooksLikeLocalDirectory) ||
+						(address is ChorusHubRepositorySource))
 					{
 						var otherRepo = new HgRepository(resolvedUri, _progress);
 						otherRepo.Update();
 					}
 				}
-				else if (address is DirectoryRepositorySource || address is UsbKeyRepositorySource)
+				else if (address is ChorusHubRepositorySource || address is UsbKeyRepositorySource || address is DirectoryRepositorySource)
 				{
 					TryToMakeCloneForSource(address);
 					//nb: no need to push if we just made a clone
@@ -629,31 +626,28 @@ namespace Chorus.sync
 									  repoDescriptor.Name);
 				return null;
 			}
-			else
+			foreach (string uri in possibleRepoCloneUris)
 			{
-				foreach (string uri in possibleRepoCloneUris)
+				// target may be uri, or some other folder.
+				var target = HgRepository.GetUniqueFolderPath(
+					_progress,
+					//"Folder at {0} already exists, so it can't be used. Creating clone in {1}, instead.",
+					"Warning: there is a project on the storage location (ChorusHub or USB flash drive) which has the right name ({0}), but it is actually unrelated to the one doing the Send/Receive. This usually indicates that the two repositories were created separately, by accident, which doesn't work. These repositories have to be descendants of each other, or else they can't be synchronized. Instead, create one then use 'Receive Project from a Colleague' from other programs and computers. You may want to get some expert help."
+				+ " In the meantime, the program will create a repository at {1} so you can maybe keep collaborating while you wait for help.",
+					uri);
+				try
 				{
-					// target may be uri, or some other folder.
-					var target = HgRepository.GetUniqueFolderPath(
-						_progress,
-						//"Folder at {0} already exists, so it can't be used. Creating clone in {1}, instead.",
-						"Warning: there is a project on the USB flash drive which has the right name ({0}), but it is actually unrelated to the one doing the Send/Receive. This usually indicates that the two repositories were created separately, which doesn't work. These repositories have to be descendants of each other, or else they can't be synchronized. This situation occurs when you create the repositories separately by accident. Instead, create one then use 'Get from USB' or 'Get from Internet' from other programs and computers. You may want to get some expert help."
-					+ " In the meantime, the program will create a repository at {1} so you can maybe keep collaborating while you wait for help.",
-						uri);
-					try
-					{
-						_progress.WriteMessage("Copying repository to {0}...", repoDescriptor.GetFullName(target));
-						_progress.WriteVerbose("({0})", target);
-						return HgHighLevel.MakeCloneFromLocalToLocal(_localRepositoryPath, target,
-							false, // No update on USB or shared network clones as of 16 Jan 2012.
-							_progress);
-					}
-					catch (Exception error)
-					{
-						_progress.WriteError("Could not create repository on {0}. Error follow:", target);
-						_progress.WriteException(error);
-						continue;
-					}
+					_progress.WriteMessage("Copying repository to {0}...", repoDescriptor.GetFullName(target));
+					_progress.WriteVerbose("({0})", target);
+					return HgHighLevel.MakeCloneFromLocalToLocal(_localRepositoryPath, target,
+						false, // No update on USB or shared network clones as of 16 Jan 2012.
+						_progress);
+				}
+				catch (Exception error)
+				{
+					_progress.WriteError("Could not create repository on {0}. Error follow:", target);
+					_progress.WriteException(error);
+					// keep looping
 				}
 			}
 			return null;

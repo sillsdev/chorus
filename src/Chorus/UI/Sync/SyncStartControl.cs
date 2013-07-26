@@ -389,7 +389,8 @@ namespace Chorus.UI.Sync
 					if(doWait)
 					{
 						//enhance: sorry, I regret that this is all kludgy, ux-wise.
-						MessageBox.Show(LocalizationManager.GetString("Messages.WaitForChorusHub","After you press OK, we will give the ChorusHub 10 seconds to get ready to receive this repository."));
+						MessageBox.Show(LocalizationManager.GetString("Messages.WaitForChorusHub",
+							"After you press OK, we will give the ChorusHub 10 seconds to get ready to receive this repository."));
 						Cursor.Current = Cursors.WaitCursor;
 						Thread.Sleep(10*1000);
 						Cursor.Current = Cursors.Default;

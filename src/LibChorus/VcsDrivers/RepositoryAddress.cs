@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net.NetworkInformation;
@@ -57,14 +58,8 @@ namespace Chorus.VcsDrivers
 		public static RepositoryAddress Create(string name, string uri, bool readOnly)
 		{
 			if (uri.Trim().StartsWith("http"))
-			{
 				return new HttpRepositoryPath(name, uri, readOnly);
-			}
-			else
-			{
-				return new DirectoryRepositorySource(name, uri, readOnly);
-			}
-
+			return new DirectoryRepositorySource(name, uri, readOnly);
 		}
 
 		public static RepositoryAddress Create(HardWiredSources hardWiredSource, string name, bool readOnly)
@@ -183,26 +178,62 @@ namespace Chorus.VcsDrivers
 		}
 
 		/// <summary>
+		/// Returns true unless no match is found by repoID OR repoName. If only RepoName matches, and this
+		/// is a new (empty) repo, then the supplied name is fine. If only RepoName matches,
+		/// but the repo is not empty then the matching repo name returned
+		/// in the 'out' var will have a unique digit appended to it.
+		/// </summary>
+		private bool TryGetBestRepoMatch(string repoIdentifier, string projectName, out string matchName)
+		{
+			matchName = projectName;
+			var match = _sourceRepositoryInformation.FirstOrDefault(repoInfo => repoInfo.RepoID == repoIdentifier);
+			if (match != null)
+			{
+				matchName = match.RepoName;
+				return true;
+			}
+			match = _sourceRepositoryInformation.FirstOrDefault(repoInfo => repoInfo.RepoName == projectName);
+			if (match == null)
+				return false;
+			if (match.RepoID != "newRepo")
+				matchName = GetSafeNewRepoName(match.RepoName);
+			return true;
+		}
+
+		private string GetSafeNewRepoName(string originalName)
+		{
+			var i = 0;
+			string newName;
+			do
+			{
+				i++;
+				newName = originalName + i.ToString(CultureInfo.InvariantCulture);
+			} while (_sourceRepositoryInformation.FirstOrDefault(repoInfo => repoInfo.RepoName == newName) != null);
+			return newName;
+		}
+
+		/// <summary>
 		/// Gets what the uri of the named repository would be, on this source. I.e., gets the full path.
 		/// </summary>
 		public override string GetPotentialRepoUri(string repoIdentifier, string projectName, IProgress progress)
 		{
-			var match = _sourceRepositoryInformation.FirstOrDefault(repoInfo => repoInfo.RepoID == repoIdentifier);
-			if (match != null)
-				projectName = match.RepoName;
-			return URI.Replace(ProjectNameVariable, projectName);
+			string matchName;
+			TryGetBestRepoMatch(repoIdentifier, projectName, out matchName);
+			return URI.Replace(ProjectNameVariable, matchName);
 		}
 
+		/// <summary>
+		/// Find out if ChorusHub can connect or not.
+		/// </summary>
 		public override bool CanConnect(HgRepository localRepository, string projectName, IProgress progress)
 		{
 			// It can connect for either of these reasons:
 			//		1. 'localRepository' Identifier matches one of the ids of _sourceRepositoryInformation. (Name may not be the same as 'projectName')
 			//		2. The name of one of _sourceRepositoryInformation matches 'projectName' AND the id is 'newRepo'. (A clone of this isn't useful.)
-			var match = _sourceRepositoryInformation.FirstOrDefault(repoInfo => repoInfo.RepoID == localRepository.Identifier);
-			if (match != null)
-				return true;
-			match = _sourceRepositoryInformation.FirstOrDefault(repoInfo => repoInfo.RepoName == projectName);
-			return match != null;
+			//		3. The name of one of _sourceRepositoryInformation matches 'projectName' AND
+			//			we're planning to modify projectName so it'll be unique (and notify the user)
+			string dummy;
+			return TryGetBestRepoMatch(localRepository.Identifier, projectName, out dummy);
 		}
 
 		public override List<string> GetPossibleCloneUris(string repoIdentifier, string projectName, IProgress progress)
@@ -265,7 +296,7 @@ namespace Chorus.VcsDrivers
 
 		public override List<string> GetPossibleCloneUris(string repoIdentifier, string projectName, IProgress progress)
 		{
-			return new List<string>(new string[]{GetPotentialRepoUri(repoIdentifier, projectName, progress)});
+			return new List<string>(new string[] { GetPotentialRepoUri(repoIdentifier, projectName, progress) });
 		}
 	}
 
@@ -291,14 +322,6 @@ namespace Chorus.VcsDrivers
 				return Path.Combine(_rootDirForAllSourcesDuringUnitTest, "usb");
 			}
 		}
-
-//        private string RootDirForUsbSourceDuringUnitTest
-//        {
-//            get {
-//                if(_rootDirForAllSourcesDuringUnitTest ==null)
-//                    return null;
-//                return
-//        }
 
 		public UsbKeyRepositorySource(string sourceLabel, string uri, bool readOnly)
 			: base(sourceLabel, uri, readOnly)
