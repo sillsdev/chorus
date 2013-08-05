@@ -112,48 +112,6 @@ namespace LibChorus.Tests.VcsDrivers
 			Assert.IsNotNullOrEmpty(warningMessage);
 		}
 
-		private class HgRepositoryProxy : HgRepository
-		{
-			new public string Identifier { get; private set; }
-
-			public HgRepositoryProxy(string projectName, string repositoryIdentifier, IProgress progress)
-				: base("C:\\temp\\" + projectName, progress)
-			{
-				Identifier = repositoryIdentifier;
-			}
-
-			public HgRepositoryProxy(RepositoryInformation info, IProgress progress)
-				: base("C:\\temp\\" + info.RepoName, progress)
-			{
-				Identifier = info.RepoID;
-			}
-		}
-
-		//public override bool CanConnect(HgRepository localRepository, string projectName, IProgress progress)
-		[Test]
-		public void TestCanConnect()
-		{
-			// Case 1: Repo name and ID both match
-			Assert.IsTrue(_source.CanConnect(new HgRepositoryProxy(_normalRepo, _progress),
-				_normalRepo.RepoName, _progress));
-
-			// Case 2: Repo ID matches, but name does not
-			Assert.IsTrue(_source.CanConnect(new HgRepositoryProxy("DifferentRepoName", _normalRepo.RepoID, _progress),
-				"DifferentProjectName", _progress));
-
-			// Case 3: There is a new repo with the correct name
-			Assert.IsTrue(_source.CanConnect(new HgRepositoryProxy(_newRepo.RepoName, "AnyIDWillDo", _progress),
-				_newRepo.RepoName, _progress));
-
-			// Case 4: There is a new repo with a properly-derived name
-			Assert.IsTrue(_source.CanConnect(new HgRepositoryProxy(_duplicateRepo.RepoName, "AnyIDWillDo", _progress),
-				_duplicateRepo.RepoName, _progress));
-
-			// Case 5: There is no matching repo
-			Assert.IsFalse(_source.CanConnect(new HgRepositoryProxy("DoesNotExist", "DoesNotExist", _progress),
-				"DoesNotExist", _progress));
-		}
-
 		[Test]
 		public void TestGetPotentialRepoUri()
 		{
@@ -176,7 +134,6 @@ namespace LibChorus.Tests.VcsDrivers
 			// Case 5: There is no matching repo
 			uri = _source.GetPotentialRepoUri("DoesNotExist", "DoesNotExist", _progress);
 			Assert.AreEqual(_chorusHubURL + "DoesNotExist", uri);
-			// Review GJM: Do we need a way to tell that it didn't find a Repo?
 		}
 	}
 }
