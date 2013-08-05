@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Reflection;
-using System.Text;
 using Chorus.VcsDrivers;
-using Chorus.VcsDrivers.Mercurial;
 using NUnit.Framework;
 using Palaso.Progress;
 
@@ -115,12 +111,36 @@ namespace LibChorus.Tests.VcsDrivers
 			Assert.IsNotNullOrEmpty(warningMessage);
 		}
 
-		// TODO pH 2013.07: test same scenarios w/ GetPotentialRepoURI and CanConnect?
-		//public override string GetPotentialRepoUri(string repoIdentifier, string projectName, IProgress progress)
+		// TODO pH 2013.07: test same scenarios w/ CanConnect?
 		//public override bool CanConnect(HgRepository localRepository, string projectName, IProgress progress)
 		[Test]
 		public void testCanConnect()
 		{
+		}
+
+		[Test]
+		public void testGetPotentialRepoUri()
+		{
+			// Case 1: Repo name and ID both match
+			var uri = _source.GetPotentialRepoUri(_normalRepo.RepoID, _normalRepo.RepoName, _progress);
+			Assert.AreEqual(_chorusHubURL + _normalRepo.RepoName, uri);
+
+			// Case 2: Repo ID matches, but name does not
+			uri = _source.GetPotentialRepoUri(_normalRepo.RepoID, "DifferentProjectName", _progress);
+			Assert.AreEqual(_chorusHubURL + _normalRepo.RepoName, uri);
+
+			// Case 3: There is a new repo with the correct name
+			uri = _source.GetPotentialRepoUri("AnyIDWillDo", _newRepo.RepoName, _progress);
+			Assert.AreEqual(_chorusHubURL + _newRepo.RepoName, uri);
+
+			// Case 4: There is a new repo with a properly-derived name
+			uri = _source.GetPotentialRepoUri("AnyIDWillDo", _duplicateRepo.RepoName, _progress);
+			Assert.AreEqual(_chorusHubURL + _newRepo.RepoName, uri);
+
+			// Case 5: There is no matching repo
+			uri = _source.GetPotentialRepoUri("DoesNotExist", "DoesNotExist", _progress);
+			Assert.AreEqual(_chorusHubURL + "DoesNotExist", uri);
+			// Review GJM: Do we need a way to tell that it didn't find a Repo?
 		}
 	}
 }
