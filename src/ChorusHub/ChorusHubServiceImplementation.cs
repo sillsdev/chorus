@@ -7,6 +7,7 @@ using System.ServiceModel;
 using System.Text;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
+using Palaso.IO;
 using Palaso.Progress;
 
 namespace ChorusHub
@@ -171,7 +172,7 @@ namespace ChorusHub
 			var name = Path.GetFileName(dirName);
 			if (id == null)
 			{
-				id = "newRepo";
+				id = Chorus.VcsDrivers.RepositoryInformation.NEW_REPO;
 			}
 			jsonRepoInfo = ImitationHubJSONService.MakeJsonString(name, id);
 			return true;
@@ -181,20 +182,28 @@ namespace ChorusHub
 		///
 		/// </summary>
 		/// <param name="name"></param>
+		/// <param name="id"></param>
 		/// <returns>true if client should wait for hg to notice</returns>
-		public bool PrepareToReceiveRepository(string name)
+		public bool PrepareToReceiveRepository(string name, string id)
 		{
-			// Enhance GJM: If it turns out that the caller has the repoID, it'd be better to use that here!
 			var jsonStrings = GetRepositoryInformation(string.Empty);
 			var hubInfo = ImitationHubJSONService.ParseJsonStringsToChorusHubRepoInfos(jsonStrings);
-			if (hubInfo.Any(info => info.RepoName == name))
+			if (hubInfo.Any(info => info.RepoID == id))
 			{
 				return false;
 			}
+
+			// since the repository doesn't exist, create it
 			var directory = Path.Combine(ChorusHubService.Parameters.RootDirectory, name);
-			Progress.WriteMessage("PrepareToReceiveRepository() is preparing a place for '" + name + "'");
-			Directory.CreateDirectory(directory);
-			HgRepository.CreateRepositoryInExistingDir(directory, new ConsoleProgress());
+			var uniqueDir = DirectoryUtilities.GetUniqueFolderPath(directory);
+			Progress.WriteMessage(String.Format("PrepareToReceiveRepository() is preparing a place for '{0}'.", name));
+			if (uniqueDir != directory)
+			{
+				Progress.WriteWarning(String.Format(
+					"{0} already exists! Creating repository for {1} at {2}.", directory, name, uniqueDir));
+			}
+			Directory.CreateDirectory(uniqueDir);
+			HgRepository.CreateRepositoryInExistingDir(uniqueDir, new ConsoleProgress());
 			return true;
 		}
 	}

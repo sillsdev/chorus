@@ -145,11 +145,13 @@ namespace ChorusHub
 
 		/// <summary>
 		/// Since Hg Serve doesn't provide a way to make new repositories, this asks our ChorusHub wrapper
-		/// to do create the repository. The complexity comes in the timing; hg serve will eventually
+		/// to create the repository. The complexity comes in the timing; hg serve will eventually
 		/// notice the new server, but we don't really know when.
 		/// </summary>
 		/// <param name="directoryName"></param>
-		public bool PrepareHubToSync(string directoryName)
+		/// <param name="repositoryId"></param>
+		/// <returns>true if we create a new repository and recommend the client wait until hg notices</returns>
+		public bool PrepareHubToSync(string directoryName, string repositoryID)
 		{
 			//Enchance: after creating and init'ing the folder, it would be possible to keep asking
 			//hg serve if it knows about the repository until finally it says "yes", instead of just
@@ -161,7 +163,7 @@ namespace ChorusHub
 			var channel = factory.CreateChannel();
 			try
 			{
-				var doWait = channel.PrepareToReceiveRepository(directoryName);
+				var doWait = channel.PrepareToReceiveRepository(directoryName, repositoryID);
 				return doWait;
 			}
 			catch (Exception error)

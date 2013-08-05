@@ -37,8 +37,9 @@ namespace Chorus.UI.Sync
 		private ChorusHubInfo _chorusHubInfo;
 		private ChorusHubClient _chorusHubClient;
 
+		private const int WAIT_CREATE_CH_REPO = 10000; // 10-sec wait for Chorus Hub to create a new repository
 		private const int STATECHECKINTERVAL = 2000; // 2 sec interval between checks of USB status.
-		private const int INITIALINTERVAL = 1000; // only wait 1 sec, the first time
+		private const int INITIALINTERVAL = 1000; // wait only 1 sec the first time
 
 		private delegate void UpdateInternetUICallback(bool enabled, string btnLabel, string message, string tooltip, string diagnostics);
 
@@ -372,26 +373,35 @@ namespace Chorus.UI.Sync
 			}
 		}
 
-		private void _useSharedFolderButton_Click(object sender, EventArgs e)
+		/// <summary>
+		/// Handles a click event on the Chorus Hub button
+		/// (Shared folder mode is used for only testing purposes)
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		private void _useLocalNetworkButton_Click(object sender, EventArgs e)
 		{
 			if (RepositoryChosen != null)
 			{
 				RepositoryAddress address;
 
-				if (_lanMode == LANMode.Folder)
+				if (_lanMode == LANMode.Folder) // used for only testing
 				{
 					address = _repository.GetDefaultNetworkAddress<DirectoryRepositorySource>();
 				}
-				else
+				else // if (_lanMode == LANMode.ChorusHub)
 				{
 					Cursor.Current = Cursors.WaitCursor;
 					string directoryName = Path.GetFileName(_repository.PathToRepo);
-					var doWait  = _chorusHubClient.PrepareHubToSync(directoryName);
+					var doWait  = _chorusHubClient.PrepareHubToSync(directoryName, _repository.Identifier);
 					if(doWait)
 					{
-						Thread.Sleep(10*1000);
+						// TODO: show indeterminate progress bar for this wait
+						Thread.Sleep(WAIT_CREATE_CH_REPO);
 					}
-					address = new ChorusHubRepositorySource(_chorusHubInfo.HostName, _chorusHubInfo.GetHgHttpUri(directoryName), false, _chorusHubClient.GetRepositoryInformation(null));
+					address = new ChorusHubRepositorySource(_chorusHubInfo.HostName,
+						_chorusHubInfo.GetHgHttpUri(RepositoryAddress.ProjectNameVariable), false,
+						_chorusHubClient.GetRepositoryInformation(null));
 					Cursor.Current = Cursors.Default;
 				}
 				RepositoryChosen.Invoke(this, new SyncStartArgs(address, _commitMessageText.Text));

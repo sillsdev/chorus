@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
 using Chorus.notes;
-using Chorus.sync;
 using NUnit.Framework;
 using Palaso.IO;
 using Palaso.Progress;
@@ -104,7 +102,7 @@ namespace Chorus.Tests
 			Application.Exit();
 		}
 		/// <summary>
-		/// This tests hat we're using the same repositories for all instances of Notes UI components
+		/// This tests that we're using the same repositories for all instances of Notes UI components
 		/// </summary>
 		[Test]
 		[Category("KnownMonoIssue")]

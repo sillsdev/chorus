@@ -194,7 +194,15 @@ namespace Chorus.sync
 			}
 		}
 
-		private static void CreateRepositoryOnLocalAreaNetworkFolderIfNeededThrowIfFails(HgRepository repo, string repoProjectName, List<RepositoryAddress> sourcesToTry)
+		// TODO pH 2013.07: move to test suite
+		/// <summary>
+		/// This method was created to support the now-obsolete option of using a shared network folder as a repository
+		/// source. Although this did not prove reliable enough to keep using (at least with Mercurial 1.5), LAN
+		/// DirectoryRepositorySource continues to have a marginal usefulness in supporting some tests that would
+		/// otherwise be difficult to do without a USB stick or ChorusHub available.
+		/// </summary>
+		private static void CreateRepositoryOnLocalAreaNetworkFolderIfNeededThrowIfFails(HgRepository repo,
+			string repoProjectName, List<RepositoryAddress> sourcesToTry)
 		{
 			var directorySource = sourcesToTry.FirstOrDefault(s => s is DirectoryRepositorySource);
 			if (directorySource == null)
@@ -207,7 +215,8 @@ namespace Chorus.sync
 					return;
 			}
 
-			var actualTarget = repo.CloneLocalWithoutUpdate(directorySource.GetPotentialRepoUri(directorySource.URI, repoProjectName, new NullProgress()));
+			var actualTarget = repo.CloneLocalWithoutUpdate(directorySource.GetPotentialRepoUri(directorySource.URI,
+				repoProjectName, new NullProgress()));
 			if (directorySource.URI != actualTarget)
 			{
 				// Reset hgrc to new location.
@@ -324,14 +333,16 @@ namespace Chorus.sync
 					// For now, at least, it is not a requirement to do the update on the shared folder.
 					// JDH Oct 2010: added this back in if it doesn't look like a shared folder
 					if (address is UsbKeyRepositorySource  ||
-					(address is DirectoryRepositorySource && ((DirectoryRepositorySource)address).LooksLikeLocalDirectory))
+						(address is DirectoryRepositorySource && ((DirectoryRepositorySource)address).LooksLikeLocalDirectory))
 					{
 						var otherRepo = new HgRepository(resolvedUri, _progress);
 						otherRepo.Update();
 					}
 				}
-				else if (address is DirectoryRepositorySource || address is UsbKeyRepositorySource)
+				else if (address is UsbKeyRepositorySource || address is DirectoryRepositorySource)
 				{
+					// If we cannot connect to a USB or Directory source (the repository doesn't exist),
+					// try to clone our repository onto the source
 					TryToMakeCloneForSource(address);
 					//nb: no need to push if we just made a clone
 				}
@@ -346,7 +357,7 @@ namespace Chorus.sync
 			}
 		}
 
-		/// <returns>true if there were successful pulls</returns>
+		/// <returns>true if there was at least one successful pull</returns>
 		private bool PullFromOthers(HgRepository repo,  List<RepositoryAddress> sourcesToTry, Dictionary<RepositoryAddress, bool> connectionAttempt)
 		{
 			bool didGetFromAtLeastOneSource = false;
@@ -417,13 +428,13 @@ namespace Chorus.sync
 			{
 				_progress.WriteMessage("Looking for USB flash drives...");
 				var potential = source.GetPotentialRepoUri(repo.Identifier, RepoProjectName, _progress);
-				if (null ==potential)
+				if (null == potential)
 				{
 					_progress.WriteWarning("No USB flash drive found");
 				}
 				else if (string.Empty == potential)
 				{
-					_progress.WriteMessage("Did not find existing project on any USB flash drive.");
+					_progress.WriteMessage("Did not find this project on any USB flash drive.");
 				}
 			}
 			else
@@ -637,8 +648,7 @@ namespace Chorus.sync
 					var target = HgRepository.GetUniqueFolderPath(
 						_progress,
 						//"Folder at {0} already exists, so it can't be used. Creating clone in {1}, instead.",
-						"Warning: there is a project on the USB flash drive which has the right name ({0}), but it is actually unrelated to the one doing the Send/Receive. This usually indicates that the two repositories were created separately, which doesn't work. These repositories have to be descendants of each other, or else they can't be synchronized. This situation occurs when you create the repositories separately by accident. Instead, create one then use 'Get from USB' or 'Get from Internet' from other programs and computers. You may want to get some expert help."
-					+ " In the meantime, the program will create a repository at {1} so you can maybe keep collaborating while you wait for help.",
+						RepositoryAddress.DuplicateWarningMessage.Replace(RepositoryAddress.MediumVariable, "USB flash drive"),
 						uri);
 					try
 					{
@@ -652,7 +662,7 @@ namespace Chorus.sync
 					{
 						_progress.WriteError("Could not create repository on {0}. Error follow:", target);
 						_progress.WriteException(error);
-						continue;
+						// keep looping
 					}
 				}
 			}
