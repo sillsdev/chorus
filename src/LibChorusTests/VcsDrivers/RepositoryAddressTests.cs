@@ -24,7 +24,7 @@ namespace LibChorus.Tests.VcsDrivers
 		{
 			// represents a normal repo
 			_normalRepo = new RepositoryInformation("AnotherProjectName", "RepoId1");
-			// representns a repo that already exists when a project with the same name is added
+			// represents a repo that already exists when a project with the same name is added
 			_duplicateRepo = new RepositoryInformation("DuplicateProject", "RepoId3");
 			// represents a new repo with the same name as the project being added;
 			// also represents a new repo with a name derived from the name of the duplicate project
@@ -44,12 +44,6 @@ namespace LibChorus.Tests.VcsDrivers
 			_source = new ChorusHubRepositorySource("localhost",
 				_chorusHubURL + RepositoryAddress.ProjectNameVariable,
 				false, _repositoryInformations);
-		}
-
-		[TearDown]
-		public void TearDown()
-		{
-			// TODO pH 2013.07: Nothing to do here; delete this method
 		}
 
 		// Allows us to access and test the private method
@@ -72,19 +66,20 @@ namespace LibChorus.Tests.VcsDrivers
 			Assert.IsFalse(InvokeIsMatchingName(new RepositoryInformation(name + "NaN", id), name));
 		}
 
-		// TODO pH 2013.07: test all scenarios of TryGetBestMatch
+		// Allows us to access and test the private method
 		private bool InvokeTryGetBestRepoMatch(
 			string repoIdentifier, string projectName, out string matchName, out string warningMessage)
 		{
 			object[] args = new object[] {repoIdentifier, projectName, null, null};
 			bool retval = (bool) typeof(ChorusHubRepositorySource).InvokeMember("TryGetBestRepoMatch",
 					BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static |
-					BindingFlags.InvokeMethod, null, _source, args);
+					BindingFlags.Instance | BindingFlags.InvokeMethod, null, _source, args);
 			matchName = (string) args[2];
 			warningMessage = (string) args[3];
 			return retval;
 		}
 
+		[Test]
 		public void TestTryGetBestRepoMatch()
 		{
 			// output variables
@@ -109,8 +104,15 @@ namespace LibChorus.Tests.VcsDrivers
 			Assert.IsNull(warningMessage);
 
 			// Case 4: There is a new repo with a properly-derived name
+			Assert.IsTrue(InvokeTryGetBestRepoMatch(
+				"AnyIDWillDo", _duplicateRepo.RepoName, out matchName, out warningMessage));
+			Assert.AreEqual(_newRepo.RepoName, matchName);
+			Assert.IsNotNullOrEmpty(warningMessage);
 
 			// Case 5: There is no matching repo
+			Assert.IsFalse(InvokeTryGetBestRepoMatch(
+				"DoesNotExist", "DoesNotExist", out matchName, out warningMessage));
+			Assert.IsNotNullOrEmpty(warningMessage);
 		}
 
 		// TODO pH 2013.07: test same scenarios w/ GetPotentialRepoURI and CanConnect?
