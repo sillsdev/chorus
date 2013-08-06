@@ -125,8 +125,6 @@ namespace Chorus.sync
 
 				var workingRevBeforeSync = repo.GetRevisionWorkingSetIsBasedOn();
 
-				CreateRepositoryOnLocalAreaNetworkFolderIfNeededThrowIfFails(repo, RepoProjectName, sourcesToTry);
-
 				if (options.DoPullFromOthers)
 				{
 					results.DidGetChangesFromOthers = PullFromOthers(repo, sourcesToTry, connectionAttempts);
@@ -191,37 +189,6 @@ namespace Chorus.sync
 				Repository.GetRevisionWorkingSetIsBasedOn().Branch != branchName)
 			{
 				Repository.BranchingHelper.Branch(_progress, branchName);
-			}
-		}
-
-		// TODO pH 2013.07: move to test suite
-		/// <summary>
-		/// This method was created to support the now-obsolete option of using a shared network folder as a repository
-		/// source. Although this did not prove reliable enough to keep using (at least with Mercurial 1.5), LAN
-		/// DirectoryRepositorySource continues to have a marginal usefulness in supporting some tests that would
-		/// otherwise be difficult to do without a USB stick or ChorusHub available.
-		/// </summary>
-		private static void CreateRepositoryOnLocalAreaNetworkFolderIfNeededThrowIfFails(HgRepository repo,
-			string repoProjectName, List<RepositoryAddress> sourcesToTry)
-		{
-			var directorySource = sourcesToTry.FirstOrDefault(s => s is DirectoryRepositorySource);
-			if (directorySource == null)
-				return;
-
-			if (Directory.Exists(directorySource.URI) && Directory.Exists(Path.Combine(directorySource.URI, ".hg")))
-			{
-				var otherRepo = new HgRepository(directorySource.URI, new NullProgress());
-				if (repo.Identifier == otherRepo.Identifier)
-					return;
-			}
-
-			var actualTarget = repo.CloneLocalWithoutUpdate(directorySource.GetPotentialRepoUri(directorySource.URI,
-				repoProjectName, new NullProgress()));
-			if (directorySource.URI != actualTarget)
-			{
-				// Reset hgrc to new location.
-				var alias = HgRepository.GetAliasFromPath(actualTarget);
-				repo.SetTheOnlyAddressOfThisType(RepositoryAddress.Create(alias, actualTarget));
 			}
 		}
 
