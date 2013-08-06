@@ -2,7 +2,6 @@
 using System.Diagnostics;
 using System.IO;
 using System.Text;
-//using System.Web;
 using System.Threading;
 using Chorus.VcsDrivers.Mercurial;
 using Palaso.CommandLineProcessing;
@@ -13,7 +12,6 @@ namespace ChorusHub
 	public class HgServeRunner :IDisposable
 	{
 		public readonly int Port;
-//        private Process _hgServeProcess;
 		public IProgress Progress = new ConsoleProgress();
 		private readonly string _rootFolder;
 		private Thread _hgServeThread;
@@ -123,12 +121,6 @@ namespace ChorusHub
 			sb.AppendLine("[paths]");
 			sb.AppendLine("/ = " + _rootFolder + "/*");
 
-//            foreach (var directory in Directory.GetDirectories(_rootFolder))
-//            {
-//                string directoryName = Path.GetDirectoryName(directory);
-//                sb.AppendLine(directoryName + "/ = " + directoryName+"/");
-//            }
-
 			var path = Path.Combine(_rootFolder, "hgweb.config");
 			if (File.Exists(path))
 				File.Delete(path);
@@ -163,8 +155,7 @@ namespace ChorusHub
 								var name = line.Substring(start, end - start);
 								string directory = Path.Combine(_rootFolder, name);
 
-								//requires full .net framework: directory = HttpUtility.UrlDecode(directory);//convert %20 --> space
-								directory = Palaso.Network.HttpUtilityFromMono.UrlDecode(directory);
+								directory = Palaso.Network.HttpUtilityFromMono.UrlDecode(directory); // convert %20 --> space
 								if (!Directory.Exists(directory))
 								{
 									Progress.WriteMessage("Creating new folder '" + name + "'");
@@ -193,11 +184,9 @@ namespace ChorusHub
 
 		public void Stop()
 		{
-			//if (_hgServeProcess != null && !_hgServeProcess.HasExited)
 			if(_hgServeThread !=null && _hgServeThread.IsAlive)
 			{
 				Progress.WriteMessage("Hg Server Stopping...");
-				//_hgServeProcess.Kill();
 				_hgServeThread.Abort();
 
 				if(_hgServeThread.Join(2*1000))
@@ -208,7 +197,6 @@ namespace ChorusHub
 				{
 					Progress.WriteError("***Gave up on hg server stopping");
 				}
-				//_hgServeProcess = null;
 				_hgServeThread = null;
 			}
 		}

@@ -14,8 +14,9 @@ namespace Chorus.UI.Clone
 	///</summary>
 	public class GetCloneFromChorusHubModel
 	{
+		public IEnumerable<RepositoryInformation> HubRepositoryInformation { get; set; }
+
 		public string RepositoryName { get; set; }
-		public IEnumerable<ChorusHubRepositoryInformation> ChorusHubRepositoryInformation { get; set; }
 
 		///<summary>
 		/// Flag indicating success or otherwise of MakeClone call
@@ -66,7 +67,7 @@ namespace Chorus.UI.Clone
 			var targetFolder = Path.Combine(_baseFolder, RepositoryName);
 			try
 			{
-				NewlyClonedFolder= HgRepository.Clone(new HttpRepositoryPath(RepositoryName, client.GetUrl(RepositoryName), false), targetFolder, progress);
+				NewlyClonedFolder = HgRepository.Clone(new ChorusHubRepositorySource(RepositoryName, client.GetUrl(RepositoryName), false, HubRepositoryInformation), targetFolder, progress);
 				CloneSucceeded = true;
 			}
 			catch (Exception)

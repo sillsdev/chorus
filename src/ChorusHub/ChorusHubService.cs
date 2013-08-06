@@ -29,8 +29,15 @@ namespace ChorusHub
 		[OperationContract]
 		IEnumerable<string> GetRepositoryInformation(string searchUrl);
 
+		/// <summary>
+		/// Prepares to receive a repository by checking that it exists on the server, and if not,
+		/// creating a new directory with that name.
+		/// </summary>
+		/// <param name="name"></param>
+		/// <param name="id"></param>
+		/// <returns>true if a new directory is created</returns>
 		[OperationContract]
-		bool PrepareToReceiveRepository(string name);
+		bool PrepareToReceiveRepository(string name, string id);
 	}
 
 	public class ChorusHubService:IDisposable

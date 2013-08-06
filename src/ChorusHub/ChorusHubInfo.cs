@@ -78,7 +78,7 @@ namespace ChorusHub
 
 		public string GetHgHttpUri(string directoryName)
 		{
-			//the "chorushub" pretend user name here is to help build helpful error reports if somethig
+			//the "chorushub" pretend user name here is to help build helpful error reports if something
 			//goes wrong. The error-explainer can look at the url and know that we were trying to reach
 			//a chorus hub, and give more helpful advise.
 			return string.Format("http://chorushub@{0}:{1}/{2}", IpAddress, Port, directoryName);
