@@ -50,7 +50,6 @@ namespace Chorus.UI.Notes
 			_annotation = annotation;
 			_navigateToRecordEventToRaise = navigateToRecordEventToRaise;
 			_displaySettings = displaySettings;
-			//CurrentWritingSystem = _displaySettings.First();
 			_showLabelAsHyperLink = showLabelAsHyperlink;
 		}
 
@@ -66,7 +65,6 @@ namespace Chorus.UI.Notes
 			_navigateToRecordEventToRaise = navigateToRecordEventToRaise;
 			_styleSheet = styleSheet;
 			_displaySettings = displaySettings;
-			 //CurrentWritingSystem = _displaySettings.First();
 			messageSelectedEventToSubscribeTo.Subscribe((annotation, message) => SetAnnotationAndFocussedMessage(annotation, message));
 			EventToRaiseForChangedMessage = messageSelectedEventToSubscribeTo;
 			NewMessageText = string.Empty;
@@ -233,6 +231,7 @@ namespace Chorus.UI.Notes
 			get { return _annotation != null; }
 		}
 
+		// TODO pH 2013.08: split to OK and Cancel
 		public string CloseButtonText
 		{
 			get
@@ -286,9 +285,7 @@ namespace Chorus.UI.Notes
 			return _annotation.GetLongLabel();
 		}
 
-
-
-		public void AddButtonClicked()
+		public void AddMessage()
 		{
 			_annotation.AddMessage(_user.Name, null, NewMessageText);
 			NewMessageText = string.Empty;

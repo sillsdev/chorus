@@ -30,7 +30,7 @@ namespace Chorus.Tests.notes
 			Assert.IsFalse(annotation.IsClosed);
 			Assert.AreEqual(1, annotation.Messages.Count());
 			annotationModel.NewMessageText = "hello";
-			annotationModel.AddButtonClicked();
+			annotationModel.AddMessage();
 			Assert.IsFalse(annotationModel.IsResolved,"should not have changed status");
 			Assert.AreEqual(2,annotation.Messages.Count());
 			Assert.AreEqual("bob", annotation.Messages.Last().GetAuthor(""));

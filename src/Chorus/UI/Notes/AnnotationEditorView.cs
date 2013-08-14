@@ -78,6 +78,7 @@ namespace Chorus.UI.Notes
 			Visible = _model.IsVisible;
 			if (_model.IsVisible)
 			{
+				// TODO pH 2013.08: this should be a button; toggle between "resolve Now|mark As Resolved|close" and "reopen"
 				_resolvedCheckBox.Checked = _model.IsResolved;
 				_resolvedCheckBox.Visible = _model.ResolvedControlShouldBeVisible;
 				_addButton.Enabled = _model.AddButtonEnabled;
@@ -109,14 +110,21 @@ namespace Chorus.UI.Notes
 			x.Document.BackColor = this.BackColor;
 		}
 
-		private void OnResolvedCheckBox_CheckedChanged(object sender, EventArgs e)
-		{
-			_model.IsResolved = (_resolvedCheckBox.Checked);
-		}
+		//// TODO pH 2013.08: Convert to button; implement changes in comments below
+		//// TODO pH 2013.08: OR, don't do anything here, but make sure we update on click OK
+		//private void OnResolvedCheckBox_CheckedChanged(object sender, EventArgs e)
+		//{
+		//    _model.IsResolved = (_resolvedCheckBox.Checked);
+		//    // invert _model.IsResolved
+		//    // update button label (OnUpdateStates(null, null)
+		//    // if applicable, add message
+		//    // if resolved, close?
+		//}
 
+		// TODO pH 2013.08: delete this and all references hereunto
 		private void _addButton_Click(object sender, EventArgs e)
 		{
-			_model.AddButtonClicked();
+			_model.AddMessage();
 			_newMessage.Text = _model.NewMessageText;
 
 		}
