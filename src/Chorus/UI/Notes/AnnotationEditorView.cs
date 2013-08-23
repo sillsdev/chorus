@@ -61,6 +61,22 @@ namespace Chorus.UI.Notes
 			get { return _closeButton; }
 		}
 
+		public bool NewMessageTextEntered
+		{
+			get { return !String.IsNullOrWhiteSpace(_newMessage.Text); }
+		}
+
+		public void AddMessage()
+		{
+			_model.AddMessage();
+			_newMessage.Text = _model.NewMessageText;
+		}
+
+		public void ClearNewMessageText()
+		{
+			_newMessage.Text = String.Empty;
+		}
+
 		void OnUpdateContent(object sender, EventArgs e)
 		{
 			if (_model.IsVisible)
@@ -110,23 +126,21 @@ namespace Chorus.UI.Notes
 			x.Document.BackColor = this.BackColor;
 		}
 
-		//// TODO pH 2013.08: Convert to button; implement changes in comments below
-		//// TODO pH 2013.08: OR, don't do anything here, but make sure we update on click OK
-		//private void OnResolvedCheckBox_CheckedChanged(object sender, EventArgs e)
-		//{
-		//    _model.IsResolved = (_resolvedCheckBox.Checked);
-		//    // invert _model.IsResolved
-		//    // update button label (OnUpdateStates(null, null)
-		//    // if applicable, add message
-		//    // if resolved, close?
-		//}
+		// TODO pH 2013.08: Convert to button; implement changes in comments below
+		private void OnResolvedCheckBox_CheckedChanged(object sender, EventArgs e)
+		{
+			_model.IsResolved = (_resolvedCheckBox.Checked);
+			// invert _model.IsResolved
+			// update button label (OnUpdateStates(null, null)
+			// if applicable, add message
+			_model.AddMessage();
+			// if resolved, close?
+		}
 
 		// TODO pH 2013.08: delete this and all references hereunto
 		private void _addButton_Click(object sender, EventArgs e)
 		{
-			_model.AddMessage();
-			_newMessage.Text = _model.NewMessageText;
-
+			AddMessage();
 		}
 
 		private void _newMessage_TextChanged(object sender, EventArgs e)

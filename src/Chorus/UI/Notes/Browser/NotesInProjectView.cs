@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 using Chorus.notes;
@@ -15,15 +16,16 @@ namespace Chorus.UI.Notes.Browser
 		public NotesInProjectView(NotesInProjectViewModel model)
 		{
 			this.Font = SystemFonts.MessageBoxFont;
-			model.ReloadMessages += new EventHandler(OnReloadMessages);
 			_model = model;
+			_model.ReloadMessages += new EventHandler(OnReloadMessages);
+			_model.CancelSelectedMessageChanged += SuspendLayout;
 			//       _model.ProgressDisplay = new NullProgress();
 			InitializeComponent();
 			_messageListView.SmallImageList = AnnotationClassFactoryUI.CreateImageListContainingAnnotationImages();
 			showResolvedNotesMenuItem.Checked = _model.ShowClosedNotes;
 			showQuestionsMenuItem.Checked = !_model.HideQuestions;
-			showMergeNotifcationsMenuItem.Checked = !model.HideNotifications;
-			showMergeConflictsMenuItem.Checked = !model.HideCriticalConflicts;
+			showMergeNotifcationsMenuItem.Checked = !_model.HideNotifications;
+			showMergeConflictsMenuItem.Checked = !_model.HideCriticalConflicts;
 			timer1.Interval = 1000;
 			timer1.Tick += new EventHandler(timer1_Tick);
 			timer1.Enabled = true;
@@ -50,50 +52,100 @@ namespace Chorus.UI.Notes.Browser
 
 			Cursor.Current = Cursors.WaitCursor;
 			_messageListView.SuspendLayout();
-			List<ListViewItem> rows = new List<ListViewItem>();
 
+			List<ListViewItem> rows = new List<ListViewItem>();
 			foreach (var item in _model.GetMessages())
 			{
 				rows.Add(item.GetListViewItem(_model.DisplaySettings));
 			}
 			_messageListView.Items.Clear(); // Don't even think of moving this before the loop, as the items are doubled for reasons unknown.
 			_messageListView.Items.AddRange(rows.ToArray());
-			_messageListView.ResumeLayout();
-			Cursor.Current = Cursors.Default;
 
 			//restore the previous selection
-			if (previousItem !=null)
+			if (_model.SelectedMessageGuid != null)
 			{
-				bool gotIt = false;
-				foreach (ListViewItem listViewItem in _messageListView.Items)
+				if (_messageListView.Items.Count > 0)
 				{
-					if (((ListMessage)(listViewItem.Tag)).ParentAnnotation.Guid == previousItem.ParentAnnotation.Guid)
+					// Enhance pH: if the message was not found, check if it was resolved and no longer met the filter,
+					// or if the user changed the filter to exclude the message.  Reselect only if the message was
+					// [un]resolved
+					if (!SilentSelectByGuid(_model.SelectedMessageGuid))
 					{
-						listViewItem.Selected = true;
-						gotIt = true;
-						break;
+						// Likely we hid the item that was previously selected.
+						// Select something, preferably the item at the same position.
+						if (previousIndex < 0)
+							_messageListView.Items[0].Selected = true;
+						else if (_messageListView.Items.Count > previousIndex) // usual case, if we deleted one thing and not the last
+							_messageListView.Items[previousIndex].Selected = true;
+						else
+							_messageListView.Items[_messageListView.Items.Count - 1].Selected = true; // closest to original index
 					}
 				}
-				if (_messageListView.Items.Count > 0 && !gotIt)
+				else
 				{
-					// Likely we hid the item that was previously selected.
-					// Select something, preferably the item at the same position.
-					if (previousIndex < 0)
-						_messageListView.Items[0].Selected = true;
-					else if (_messageListView.Items.Count > previousIndex) // usual case, if we deleted one thing and not the last
-						_messageListView.Items[previousIndex].Selected = true;
-					else
-						_messageListView.Items[_messageListView.Items.Count - 1].Selected = true; // closest to original index
+					// hides the annotationview when there was a message selected but are no more available (due to searching)
+					OnSelectedIndexChanged(null, null);
 				}
 			}
-			filterStateLabel.Text = _model.FilterStateMessage;
 			//enhance...we could, if the message is not found, go looking for the owning annotation. But since
 			//you can't currently delete a message, that wouldn't have any advantage yet.
+			filterStateLabel.Text = _model.FilterStateMessage;
 
-			//this leads to hiding the annotationview when nothing is actually selected anymore (because of searching)
-			OnSelectedIndexChanged(null, null);
+			_messageListView.ResumeLayout();
+			Cursor.Current = Cursors.Default;
 		}
 
+		/// <summary>
+		/// Selects the item with the specified GUID, if available, and temporarily disables
+		/// OnSelectedIndexChanged events while selecting
+		/// </summary>
+		/// <param name="guid"></param>
+		/// <returns>true iff the specified item is available to be selected</returns>
+		private bool SilentSelectByGuid(string guid)
+		{
+			foreach (ListViewItem listViewItem in _messageListView.Items)
+			{
+				if (((ListMessage)(listViewItem.Tag)).ParentAnnotation.Guid == guid)
+				{
+					var temporarilyDisabledEventHandlers = _model.EventToRaiseForChangedMessage;
+					_model.EventToRaiseForChangedMessage = null;
+					listViewItem.Selected = true;
+					_model.EventToRaiseForChangedMessage = temporarilyDisabledEventHandlers;
+					return true;
+				}
+			}
+			return false;
+		}
+
+		private void SilentSelectAndUnselectByGuid(object guid, CancelEventArgs e)
+		{
+			e.Cancel = true;
+
+			var temporarilyDisabledEventHandlers = _model.EventToRaiseForChangedMessage;
+			_model.EventToRaiseForChangedMessage = null;
+
+			foreach (ListViewItem listViewItem in _messageListView.Items)
+			{
+				if (((ListMessage)(listViewItem.Tag)).ParentAnnotation.Guid == (string)guid)
+				{
+					listViewItem.Selected = true;
+					e.Cancel = false;
+				}
+				else
+				{
+					listViewItem.Selected = false;
+				}
+			}
+
+			_model.EventToRaiseForChangedMessage = temporarilyDisabledEventHandlers;
+		}
+
+		private void SuspendLayout(object sender, CancelEventArgs e)
+		{
+			_messageListView.SuspendLayout();
+		}
+
+		// TODO pH 2013.08: make this event preventable
 		private void OnSelectedIndexChanged(object sender, EventArgs e)
 		{
 			if (_messageListView.SelectedItems.Count == 0)

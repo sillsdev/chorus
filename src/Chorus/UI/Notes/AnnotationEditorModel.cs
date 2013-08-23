@@ -65,7 +65,7 @@ namespace Chorus.UI.Notes
 			_navigateToRecordEventToRaise = navigateToRecordEventToRaise;
 			_styleSheet = styleSheet;
 			_displaySettings = displaySettings;
-			messageSelectedEventToSubscribeTo.Subscribe((annotation, message) => SetAnnotationAndFocussedMessage(annotation, message));
+			messageSelectedEventToSubscribeTo.Subscribe(SetAnnotationAndFocussedMessage);
 			EventToRaiseForChangedMessage = messageSelectedEventToSubscribeTo;
 			NewMessageText = string.Empty;
 		}

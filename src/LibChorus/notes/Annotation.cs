@@ -27,11 +27,12 @@ namespace Chorus.notes
 
 		public Annotation(string annotationClass, string refUrl, string path)
         {
-                refUrl = UrlHelper.GetEscapedUrl(refUrl);
-             _element = XElement.Parse(string.Format("<annotation class='{0}' ref='{1}' guid='{2}'/>", annotationClass,refUrl, System.Guid.NewGuid().ToString()));
+			refUrl = UrlHelper.GetEscapedUrl(refUrl);
+			_element = XElement.Parse(string.Format("<annotation class='{0}' ref='{1}' guid='{2}'/>",
+				annotationClass, refUrl, System.Guid.NewGuid().ToString()));
 
-			 _class = GetAnnotationClass();
-            AnnotationFilePath = path; //TODO: this awkward, and not avail in the XElement constructor
+			_class = GetAnnotationClass();
+			AnnotationFilePath = path; //TODO: this awkward, and not avail in the XElement constructor
         }
 
 		private AnnotationClass GetAnnotationClass()
@@ -62,7 +63,7 @@ namespace Chorus.notes
         }
 
         /// <summary>
-        /// Gets the ref with any reserved characters (e.g. &, <, >) till escaped to be safe in the xml
+		/// Gets the ref with any reserved characters (e.g. &, <, >) still escaped to be safe in the xml
         /// </summary>
         public string RefStillEscaped
         {

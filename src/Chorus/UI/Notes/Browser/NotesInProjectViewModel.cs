@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using Chorus.notes;
 using L10NSharp;
@@ -15,21 +16,21 @@ namespace Chorus.UI.Notes.Browser
 
 		public delegate NotesInProjectViewModel Factory(IEnumerable<AnnotationRepository> repositories, IProgress progress);//autofac uses this
 		internal event EventHandler ReloadMessages;
+		internal event CancelEventHandler CancelSelectedMessageChanged; // TODO pH: better way to handle this?
 
 		private readonly IChorusUser _user;
-		private MessageSelectedEvent _messageSelectedEvent;
+		private event CancelEventHandler _messageSelectedEvent;
 		private IEnumerable<AnnotationRepository> _repositories;
 		private string _searchText;
 		private bool _reloadPending=true;
+		public string SelectedMessageGuid { get; set; }
 
 		public NotesInProjectViewModel( IChorusUser user, IEnumerable<AnnotationRepository> repositories,
-										MessageSelectedEvent messageSelectedEventToRaise, ChorusNotesDisplaySettings displaySettings,
-									IProgress progress)
+										ChorusNotesDisplaySettings displaySettings, IProgress progress)
 		{
 			DisplaySettings = displaySettings;
 			_user = user;
 			_repositories = repositories;
-			_messageSelectedEvent = messageSelectedEventToRaise;
 
 			foreach (var repository in repositories)
 			{
@@ -43,7 +44,7 @@ namespace Chorus.UI.Notes.Browser
 		/// so this one is given the instance that the AnnotationEditorModel is subscribed to.
 		/// Don't know what we can do if we ever have other subscribers...
 		/// </summary>
-		public MessageSelectedEvent EventToRaiseForChangedMessage
+		public CancelEventHandler EventToRaiseForChangedMessage
 		{
 			get { return _messageSelectedEvent; }
 			set { _messageSelectedEvent = value; }
@@ -172,7 +173,7 @@ namespace Chorus.UI.Notes.Browser
 					Message messageToShow = null;
 					foreach (var message in annotation.Messages)
 					{
-						if (GetShouldBeShown(annotation, message))
+						if (MatchesSearchText(annotation, message))
 						{
 							if (messageToShow == null || messageToShow.Date < message.Date)
 								messageToShow = message;
@@ -184,14 +185,8 @@ namespace Chorus.UI.Notes.Browser
 			}
 		}
 
-		private bool GetShouldBeShown(Annotation annotation, Message message)
+		private bool MatchesSearchText(Annotation annotation, Message message)
 		{
-//            if (!ShowClosedNotes)
-//            {
-//                if (annotation.IsClosed)
-//                    return false;
-//            }
-
 			if (string.IsNullOrEmpty(_searchText))
 				return true;
 
@@ -208,21 +203,40 @@ namespace Chorus.UI.Notes.Browser
 			return false;
 		}
 
+		private bool UserCanceledSelectedMessageChange(ListMessage listMessage)
+		{
+			// if we are trying to switch to a new Message but the previous GUID
+			// has not been cleared, the user had requested a cancel last time
+			if (listMessage != null && SelectedMessageGuid != null &&
+				listMessage.ParentAnnotation.Guid != SelectedMessageGuid)
+				return true;// TODO pH 2103.08: does this check do anything useful?
+
+			var e = new CancelEventArgs();
+			_messageSelectedEvent.Invoke(listMessage, e);
+			return e.Cancel;
+		}
 
 		public void SelectedMessageChanged(ListMessage listMessage)
 		{
 			if (_messageSelectedEvent != null)
 			{
-				if (listMessage == null) //nothing is selected now
+				if (UserCanceledSelectedMessageChange(listMessage))
 				{
-					_messageSelectedEvent.Raise(null, null);
+					// reload messages to switch back, but wait _after_ the canceled selection change event completes
+					_reloadPending = true;
+
+					//// suspend layout (so the improperly-selected message doesn't blink)
+					//// TODO pH 2013.08: review this handler's args
+					//if (CancelSelectedMessageChanged != null)
+					//    CancelSelectedMessageChanged(SelectedMessageGuid, new CancelEventArgs());
 				}
 				else
 				{
-					_messageSelectedEvent.Raise(listMessage.ParentAnnotation, listMessage.Message);
+					SelectedMessageGuid = listMessage == null ? null : listMessage.ParentAnnotation.Guid;
 				}
 			}
-			GoodTimeToSave();
+
+			GoodTimeToSave(); // TODO pH 2013.08: do this only sometimes?
 		}
 
 		public void SearchTextChanged(string searchText)
