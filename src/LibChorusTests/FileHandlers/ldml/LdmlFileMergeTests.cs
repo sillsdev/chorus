@@ -105,6 +105,60 @@ namespace LibChorus.Tests.FileHandlers.ldml
 		}
 
 		[Test]
+		public void KnownKeyboards_AreMerged()
+		{
+			const string pattern =
+@"<?xml version='1.0' encoding='utf-8'?>
+<ldml>
+	<identity>
+		<generation date='2012-06-08T09:36:30' />
+	</identity>
+	<special xmlns:palaso2='urn://palaso.org/ldmlExtensions/v2'>
+		<palaso2:knownKeyboards>
+			<palaso2:keyboard
+				layout='MyFavoriteKeyboard'
+				locale='en-US'
+				os='MacOSX' />{0}
+		</palaso2:knownKeyboards>
+		<palaso2:version
+			value='2' />
+	</special>
+</ldml>";
+			const string ourExtra =
+				@"
+			<palaso2:keyboard
+				layout='SusannasFavoriteKeyboard'
+				locale='en-GB'
+				os='Unix' />";
+			const string theirExtra =
+			@"
+			<palaso2:keyboard
+				layout='KensFavoriteKeyboard'
+				locale='en-GB'
+				os='Unix' />";
+
+			var commonAncestor = string.Format(pattern, "");
+			var ourContent = string.Format(pattern, ourExtra);
+			var theirContent = string.Format(pattern, theirExtra);
+			var namespaces = new Dictionary<string, string>
+								{
+									{"palaso", "urn://palaso.org/ldmlExtensions/v1"},
+									{"palaso2", "urn://palaso.org/ldmlExtensions/v2"},
+									{"fw", "urn://fieldworks.sil.org/ldmlExtensions/v1"}
+								};
+
+			// We made the change
+			DoMerge(commonAncestor, ourContent, theirContent,
+				namespaces,
+				new List<string> { @"ldml/special/palaso2:knownKeyboards/palaso2:keyboard[@layout='SusannasFavoriteKeyboard']",
+				@"ldml/special/palaso2:knownKeyboards/palaso2:keyboard[@layout='KensFavoriteKeyboard']",
+				@"ldml/special/palaso2:knownKeyboards/palaso2:keyboard[@layout='MyFavoriteKeyboard']"},
+				new List<string>(0),
+				0, null,
+				2, new List<Type> { typeof(XmlAdditionChangeReport), typeof(XmlAdditionChangeReport) });
+		}
+
+		[Test]
 		public void GenerateDateAttr_IsPreMerged()
 		{
 			const string commonAncestor =
