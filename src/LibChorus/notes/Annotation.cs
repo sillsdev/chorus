@@ -8,6 +8,7 @@ using System.Text;
 using System.Xml;
 using System.Xml.Linq;
 using System.Xml.XPath;
+using Chorus.Properties;
 using Chorus.Utilities;
 using Chorus.merge.xml.generic;
 
@@ -15,7 +16,9 @@ namespace Chorus.notes
 {
     public class Annotation
     {
-        static public string TimeFormatNoTimeZone = "yyyy-MM-ddTHH:mm:ssZ";
+		public static readonly string Open = "open";
+		public static readonly string Closed = "closed";
+		public static string TimeFormatNoTimeZone = "yyyy-MM-ddTHH:mm:ssZ";
         internal readonly XElement _element;
         private AnnotationClass _class;
 
@@ -28,7 +31,7 @@ namespace Chorus.notes
 		public Annotation(string annotationClass, string refUrl, string path)
         {
 			refUrl = UrlHelper.GetEscapedUrl(refUrl);
-			_element = XElement.Parse(string.Format("<annotation class='{0}' ref='{1}' guid='{2}'/>",
+			_element = XElement.Parse(String.Format("<annotation class='{0}' ref='{1}' guid='{2}'/>",
 				annotationClass, refUrl, System.Guid.NewGuid().ToString()));
 
 			_class = GetAnnotationClass();
@@ -113,7 +116,7 @@ namespace Chorus.notes
 		public static string GetStatusOfLastMessage(XElement annotation)
         {
             XElement last = LastMessage(annotation);
-            return last == null ? string.Empty : last.Attribute("status").Value;
+			return last == null ? String.Empty : last.Attribute("status").Value;
         }
 
         private static XElement LastMessage(XElement annotation)
@@ -160,7 +163,7 @@ namespace Chorus.notes
             get
             {
                 var last = LastMessage();
-                return last == null ? string.Empty : last.GetAttributeValue("status");
+				return last == null ? String.Empty : last.GetAttributeValue("status");
             }
 
         }
@@ -169,7 +172,7 @@ namespace Chorus.notes
         {
             if(status!=Status)
             {
-                AddMessage(author, status, string.Empty);
+				AddMessage(author, status, String.Empty);
             }
         }
 
@@ -180,7 +183,7 @@ namespace Chorus.notes
 
         public bool IsClosed
         {
-            get { return Status.ToLower() == "closed"; }
+			get { return Status.ToLower() == Closed; }
         }
 
         public Message AddMessage(string author, string status, string contents)
@@ -222,7 +225,7 @@ namespace Chorus.notes
 			{
 				canvas.InterpolationMode = InterpolationMode.HighQualityBicubic;
 				canvas.DrawImage(baseImage, 0, 0, pixels, pixels);
-				canvas.DrawImage(Chorus.Properties.AnnotationImages.check16x16, new Rectangle(2, 2, pixels - 2, pixels - 2));
+				canvas.DrawImage(AnnotationImages.check16x16, new Rectangle(2, 2, pixels - 2, pixels - 2));
 				canvas.Save();
 			}
 			return result;
@@ -256,7 +259,7 @@ namespace Chorus.notes
 
         public void SetStatusToClosed(string userName)
         {
-            SetStatus(userName, "closed");
+			SetStatus(userName, Closed);
         }
 
 
@@ -314,6 +317,5 @@ namespace Chorus.notes
             }
             return b.ToString();
         }
-
     }
 }

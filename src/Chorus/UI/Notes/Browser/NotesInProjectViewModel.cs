@@ -142,7 +142,7 @@ namespace Chorus.UI.Notes.Browser
 				IEnumerable<Annotation> annotations=  repository.GetAllAnnotations();
 				if(!ShowClosedNotes)
 				{
-					annotations= annotations.Where(a=>a.Status!="closed");
+					annotations = annotations.Where(a => a.Status != Annotation.Closed);
 				}
 				if (HideQuestions)
 				{

@@ -22,7 +22,7 @@ namespace Chorus.UI.Notes.Bar
 			view.Dock = DockStyle.Fill;
 			//view.Size  = new Size(Width, Height - 50);
 			Controls.Add(view);
-			AcceptButton = view.CloseButton;
+			AcceptButton = view.OKButton;
 			view.OnClose += (CloseButton_Click);
 		}
 
