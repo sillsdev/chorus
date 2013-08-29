@@ -44,12 +44,12 @@ namespace Chorus.UI.Sync
 			this._tasksTab = new System.Windows.Forms.TabPage();
 			this._tasksListView = new System.Windows.Forms.ListView();
 			this._logTab = new System.Windows.Forms.TabPage();
-			this._logBox = new LogBox();
-			this.progressBar1 = new SimpleProgressIndicator();
+			this._logBox = new Palaso.UI.WindowsForms.Progress.LogBox();
+			this.progressBar1 = new Palaso.UI.WindowsForms.Progress.SimpleProgressIndicator();
 			this._cancelButton = new System.Windows.Forms.Button();
 			this._updateDisplayTimer = new System.Windows.Forms.Timer(this.components);
 			this._closeButton = new System.Windows.Forms.Button();
-			this._statusText = new SimpleStatusProgress();
+			this._statusText = new Palaso.UI.WindowsForms.Progress.SimpleStatusProgress();
 			this._showCancelButtonTimer = new System.Windows.Forms.Timer(this.components);
 			this._successIcon = new System.Windows.Forms.PictureBox();
 			this._warningIcon = new System.Windows.Forms.PictureBox();
@@ -59,6 +59,7 @@ namespace Chorus.UI.Sync
 			this.panel1 = new System.Windows.Forms.Panel();
 			this.panel2 = new System.Windows.Forms.Panel();
 			this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
+			this.l10NSharpExtender1 = new L10NSharp.UI.L10NSharpExtender(this.components);
 			this._tabControl.SuspendLayout();
 			this._chooseTargetsTab.SuspendLayout();
 			this.tableLayoutPanel5.SuspendLayout();
@@ -73,6 +74,7 @@ namespace Chorus.UI.Sync
 			this.panel1.SuspendLayout();
 			this.panel2.SuspendLayout();
 			this.tableLayoutPanel3.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.l10NSharpExtender1)).BeginInit();
 			this.SuspendLayout();
 			//
 			// _tabControl
@@ -90,6 +92,9 @@ namespace Chorus.UI.Sync
 			// _chooseTargetsTab
 			//
 			this._chooseTargetsTab.Controls.Add(this.tableLayoutPanel5);
+			this.l10NSharpExtender1.SetLocalizableToolTip(this._chooseTargetsTab, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this._chooseTargetsTab, null);
+			this.l10NSharpExtender1.SetLocalizingId(this._chooseTargetsTab, "SyncControl.ChooseRepos");
 			this._chooseTargetsTab.Location = new System.Drawing.Point(4, 22);
 			this._chooseTargetsTab.Name = "_chooseTargetsTab";
 			this._chooseTargetsTab.Size = new System.Drawing.Size(502, 235);
@@ -116,6 +121,9 @@ namespace Chorus.UI.Sync
 			// pictureBox2
 			//
 			this.pictureBox2.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox2.Image")));
+			this.l10NSharpExtender1.SetLocalizableToolTip(this.pictureBox2, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this.pictureBox2, null);
+			this.l10NSharpExtender1.SetLocalizingId(this.pictureBox2, "SyncControl.pictureBox2");
 			this.pictureBox2.Location = new System.Drawing.Point(3, 3);
 			this.pictureBox2.Name = "pictureBox2";
 			this.pictureBox2.Size = new System.Drawing.Size(40, 36);
@@ -141,6 +149,9 @@ namespace Chorus.UI.Sync
 			// label1
 			//
 			this.label1.AutoSize = true;
+			this.l10NSharpExtender1.SetLocalizableToolTip(this.label1, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this.label1, null);
+			this.l10NSharpExtender1.SetLocalizingId(this.label1, "SyncControl.PeopleToSendReceive");
 			this.label1.Location = new System.Drawing.Point(3, 0);
 			this.label1.Name = "label1";
 			this.label1.Size = new System.Drawing.Size(321, 13);
@@ -153,6 +164,9 @@ namespace Chorus.UI.Sync
 			this._syncTargets.FormattingEnabled = true;
 			this._syncTargets.Items.AddRange(new object[] {
 			"USB Drive"});
+			this.l10NSharpExtender1.SetLocalizableToolTip(this._syncTargets, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this._syncTargets, null);
+			this.l10NSharpExtender1.SetLocalizingId(this._syncTargets, "SyncControl._syncTargets");
 			this._syncTargets.Location = new System.Drawing.Point(3, 16);
 			this._syncTargets.MinimumSize = new System.Drawing.Size(105, 79);
 			this._syncTargets.Name = "_syncTargets";
@@ -164,6 +178,9 @@ namespace Chorus.UI.Sync
 			// _tasksTab
 			//
 			this._tasksTab.Controls.Add(this._tasksListView);
+			this.l10NSharpExtender1.SetLocalizableToolTip(this._tasksTab, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this._tasksTab, null);
+			this.l10NSharpExtender1.SetLocalizingId(this._tasksTab, "SyncControl.Tasks");
 			this._tasksTab.Location = new System.Drawing.Point(4, 22);
 			this._tasksTab.Name = "_tasksTab";
 			this._tasksTab.Padding = new System.Windows.Forms.Padding(3, 3, 3, 3);
@@ -184,6 +201,9 @@ namespace Chorus.UI.Sync
 			// _logTab
 			//
 			this._logTab.Controls.Add(this._logBox);
+			this.l10NSharpExtender1.SetLocalizableToolTip(this._logTab, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this._logTab, null);
+			this.l10NSharpExtender1.SetLocalizingId(this._logTab, "SyncControl.Log");
 			this._logTab.Location = new System.Drawing.Point(4, 22);
 			this._logTab.Name = "_logTab";
 			this._logTab.Padding = new System.Windows.Forms.Padding(3, 3, 3, 3);
@@ -199,6 +219,9 @@ namespace Chorus.UI.Sync
 			this._logBox.CancelRequested = false;
 			this._logBox.Dock = System.Windows.Forms.DockStyle.Fill;
 			this._logBox.GetDiagnosticsMethod = null;
+			this.l10NSharpExtender1.SetLocalizableToolTip(this._logBox, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this._logBox, null);
+			this.l10NSharpExtender1.SetLocalizingId(this._logBox, "SyncControl.LogBox");
 			this._logBox.Location = new System.Drawing.Point(3, 3);
 			this._logBox.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
 			this._logBox.Name = "_logBox";
@@ -207,6 +230,9 @@ namespace Chorus.UI.Sync
 			//
 			// progressBar1
 			//
+			this.l10NSharpExtender1.SetLocalizableToolTip(this.progressBar1, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this.progressBar1, null);
+			this.l10NSharpExtender1.SetLocalizingId(this.progressBar1, "SyncControl.progressBar1");
 			this.progressBar1.Location = new System.Drawing.Point(3, 29);
 			this.progressBar1.Name = "progressBar1";
 			this.progressBar1.Size = new System.Drawing.Size(302, 10);
@@ -218,6 +244,9 @@ namespace Chorus.UI.Sync
 			// _cancelButton
 			//
 			this._cancelButton.BackColor = System.Drawing.SystemColors.ButtonFace;
+			this.l10NSharpExtender1.SetLocalizableToolTip(this._cancelButton, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this._cancelButton, null);
+			this.l10NSharpExtender1.SetLocalizingId(this._cancelButton, "Common.Cancel");
 			this._cancelButton.Location = new System.Drawing.Point(3, 3);
 			this._cancelButton.Name = "_cancelButton";
 			this._cancelButton.Size = new System.Drawing.Size(132, 38);
@@ -234,6 +263,9 @@ namespace Chorus.UI.Sync
 			// _closeButton
 			//
 			this._closeButton.BackColor = System.Drawing.SystemColors.ButtonFace;
+			this.l10NSharpExtender1.SetLocalizableToolTip(this._closeButton, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this._closeButton, null);
+			this.l10NSharpExtender1.SetLocalizingId(this._closeButton, "Common.Close");
 			this._closeButton.Location = new System.Drawing.Point(3, 2);
 			this._closeButton.Name = "_closeButton";
 			this._closeButton.Size = new System.Drawing.Size(132, 38);
@@ -245,6 +277,10 @@ namespace Chorus.UI.Sync
 			// _statusText
 			//
 			this._statusText.AutoSize = true;
+			this.l10NSharpExtender1.SetLocalizableToolTip(this._statusText, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this._statusText, null);
+			this.l10NSharpExtender1.SetLocalizationPriority(this._statusText, L10NSharp.LocalizationPriority.NotLocalizable);
+			this.l10NSharpExtender1.SetLocalizingId(this._statusText, "SyncControl._statusText");
 			this._statusText.Location = new System.Drawing.Point(3, 0);
 			this._statusText.MaximumSize = new System.Drawing.Size(250, 26);
 			this._statusText.Name = "_statusText";
@@ -261,6 +297,9 @@ namespace Chorus.UI.Sync
 			// _successIcon
 			//
 			this._successIcon.Image = ((System.Drawing.Image)(resources.GetObject("_successIcon.Image")));
+			this.l10NSharpExtender1.SetLocalizableToolTip(this._successIcon, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this._successIcon, null);
+			this.l10NSharpExtender1.SetLocalizingId(this._successIcon, "SyncControl._successIcon");
 			this._successIcon.Location = new System.Drawing.Point(3, 3);
 			this._successIcon.Name = "_successIcon";
 			this._successIcon.Size = new System.Drawing.Size(32, 30);
@@ -271,6 +310,9 @@ namespace Chorus.UI.Sync
 			// _warningIcon
 			//
 			this._warningIcon.Image = ((System.Drawing.Image)(resources.GetObject("_warningIcon.Image")));
+			this.l10NSharpExtender1.SetLocalizableToolTip(this._warningIcon, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this._warningIcon, null);
+			this.l10NSharpExtender1.SetLocalizingId(this._warningIcon, "SyncControl._warningIcon");
 			this._warningIcon.Location = new System.Drawing.Point(3, 3);
 			this._warningIcon.Name = "_warningIcon";
 			this._warningIcon.Size = new System.Drawing.Size(32, 30);
@@ -283,6 +325,9 @@ namespace Chorus.UI.Sync
 			this._sendReceiveButton.BackColor = System.Drawing.SystemColors.ButtonFace;
 			this._sendReceiveButton.Image = ((System.Drawing.Image)(resources.GetObject("_sendReceiveButton.Image")));
 			this._sendReceiveButton.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			this.l10NSharpExtender1.SetLocalizableToolTip(this._sendReceiveButton, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this._sendReceiveButton, null);
+			this.l10NSharpExtender1.SetLocalizingId(this._sendReceiveButton, "SyncControl.SendReceiveButton");
 			this._sendReceiveButton.Location = new System.Drawing.Point(3, 3);
 			this._sendReceiveButton.Name = "_sendReceiveButton";
 			this._sendReceiveButton.Size = new System.Drawing.Size(132, 38);
@@ -367,12 +412,20 @@ namespace Chorus.UI.Sync
 			this.tableLayoutPanel3.Size = new System.Drawing.Size(516, 300);
 			this.tableLayoutPanel3.TabIndex = 20;
 			//
+			// l10NSharpExtender1
+			//
+			this.l10NSharpExtender1.LocalizationManagerId = "Chorus";
+			this.l10NSharpExtender1.PrefixForNewItems = "Chorus";
+			//
 			// SyncControl
 			//
 			this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
 			this.BackColor = System.Drawing.SystemColors.GradientInactiveCaption;
 			this.Controls.Add(this.tableLayoutPanel3);
+			this.l10NSharpExtender1.SetLocalizableToolTip(this, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this, null);
+			this.l10NSharpExtender1.SetLocalizingId(this, "SyncControl.SyncControl");
 			this.Name = "SyncControl";
 			this.Size = new System.Drawing.Size(516, 300);
 			this.Load += new System.EventHandler(this.OnLoad);
@@ -395,6 +448,7 @@ namespace Chorus.UI.Sync
 			this.panel2.ResumeLayout(false);
 			this.tableLayoutPanel3.ResumeLayout(false);
 			this.tableLayoutPanel3.PerformLayout();
+			((System.ComponentModel.ISupportInitialize)(this.l10NSharpExtender1)).EndInit();
 			this.ResumeLayout(false);
 
 		}
@@ -426,5 +480,6 @@ namespace Chorus.UI.Sync
 		private System.Windows.Forms.TableLayoutPanel tableLayoutPanel3;
 		private System.Windows.Forms.TableLayoutPanel tableLayoutPanel5;
 		private System.Windows.Forms.TableLayoutPanel tableLayoutPanel4;
+		private L10NSharp.UI.L10NSharpExtender l10NSharpExtender1;
 	}
 }

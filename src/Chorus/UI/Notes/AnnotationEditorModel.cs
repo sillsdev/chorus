@@ -6,6 +6,7 @@ using System.Text;
 using Chorus.notes;
 using Chorus.UI.Notes.Html;
 using Chorus.UI.Review;
+using L10NSharp;
 using Message=Chorus.notes.Message;
 
 namespace Chorus.UI.Notes
@@ -115,7 +116,7 @@ namespace Chorus.UI.Notes
 			if (_annotation == null)
 				return string.Empty;
 
-			return "<html><body></body></html>";
+			return @"<html><body></body></html>";
 
 		}
 
@@ -130,21 +131,21 @@ namespace Chorus.UI.Notes
 				return string.Empty;
 
 			var builder = new StringBuilder();
-			builder.AppendLine("<html>");
-			builder.AppendFormat("<head>{0}</head>", _styleSheet.TextForInsertingIntoHmtlHeadElement);
-			builder.AppendLine("<body>");
+			builder.AppendLine(@"<html>");
+			builder.AppendFormat(@"<head>{0}</head>", _styleSheet.TextForInsertingIntoHmtlHeadElement);
+			builder.AppendLine(@"<body>");
 
 			string status=string.Empty;
 			foreach (var message in _annotation.Messages)
 			{
-				builder.AppendLine("<hr/>");
+				builder.AppendLine(@"<hr/>");
 				if (_currentFocussedMessage!=null && message.Guid == _currentFocussedMessage.Guid) //REVIEW: guid shouldn't be needed
 				{
-					builder.AppendLine("<div class='selected message'>");
+					builder.AppendLine(@"<div class='selected message'>");
 				}
 				else
 				{
-					builder.AppendLine("<div class='message'>");
+					builder.AppendLine(@"<div class='message'>");
 				}
 
 				//add rounded borders CAN'T GET THIS STUFF TO WORK IN THE EMBEDDED BROWSER (BUT IT'S OK IN IE & FIREFOX)
@@ -152,9 +153,9 @@ namespace Chorus.UI.Notes
 //                    "<div class='t'><div class='b'><div class='l'><div class='r'><div class='bl'><div class='br'><div class='tl'><div class='tr'>");
 
 
-					builder.AppendFormat("<span class='sender'>{0}</span> <span class='when'> - {1}</span>", message.Author, message.Date.ToLongDateString());
+					builder.AppendFormat(@"<span class='sender'>{0}</span> <span class='when'> - {1}</span>", message.Author, message.Date.ToLongDateString());
 
-					builder.AppendLine("<div class='messageContents'>");
+					builder.AppendLine(@"<div class='messageContents'>");
 					builder.AppendLine(message.GetHtmlText(m_embeddedMessageContentHandlerRepository));
 //                    if(message.HasEmbeddedData)
 //                    {
@@ -163,11 +164,12 @@ namespace Chorus.UI.Notes
 
 				if (message.Status != status)
 					{
-						if (status != string.Empty || message.Status.ToLower() != "open")//don't show the first status if it's just 'open'
+						if (status != string.Empty || message.Status.ToLower() != @"open")//don't show the first status if it's just 'open'
 						{
 							builder.AppendFormat(
-								"<div class='statusChange'>{0} marked the note as <span class='status'>{1}</span>.</div>",
-								message.Author, message.Status);
+								@"<div class='statusChange'>" +
+								LocalizationManager.GetString("Messages.MarkedNotAs", "{0} marked the note as {1}.") + @"</div>",
+								message.Author, "<span class='status'>" + message.Status + "</span>");
 						}
 						status = message.Status;
 					}
@@ -237,11 +239,11 @@ namespace Chorus.UI.Notes
 			{
 				if (_newMessageText.Length > 0)
 				{
-					return "&Add && &OK";
+					return LocalizationManager.GetString("AnnotationEditorView.AddAndOK", "&Add && &OK");
 				}
 				else
 				{
-				   return "&OK";
+				   return LocalizationManager.GetString("Common.OK", "&OK");
 				}
 			}
 		}
@@ -297,69 +299,13 @@ namespace Chorus.UI.Notes
 		{
 			return _annotation.GetDiagnosticDump();
 		}
-//
-//        public Control GetControlForMessage(Message message)
-//        {
-//            var browser = new WebBrowser();
-//            browser.DocumentText = GetHtmlForMessage(message);
-//            return browser;
-//        }
-//        private string GetHtmlForMessage(Message message)
-//        {
-//            var builder = new StringBuilder();
-//            builder.AppendLine("<html>");
-//            builder.AppendFormat("<head>{0}</head>", _styleSheet.TextForInsertingIntoHmtlHeadElement);
-//            builder.AppendLine("<body>");
-//
-//            string status = string.Empty;
-//                builder.AppendLine("<hr/>");
-//                if (message.Guid == _currentFocussedMessage.Guid) //REVIEW: guid shouldn't be needed
-//                {
-//                    builder.AppendLine("<div class='selected message'>");
-//                }
-//                else
-//                {
-//                    builder.AppendLine("<div class='message'>");
-//                }
-//
-//                //add rounded borders CAN'T GET THIS STUFF TO WORK IN THE EMBEDDED BROWSER (BUT IT'S OK IN IE & FIREFOX)
-//                //                builder.AppendLine(
-//                //                    "<div class='t'><div class='b'><div class='l'><div class='r'><div class='bl'><div class='br'><div class='tl'><div class='tr'>");
-//
-//
-//                builder.AppendFormat("<span class='sender'>{0}</span> <span class='when'> on {1}</span>", message.Author, message.Date.ToLongDateString());
-//
-//                builder.AppendLine("<div class='messageContents'>");
-//                builder.AppendLine(message.HtmlText);
-//
-//                if (message.Status != status)
-//                {
-//                    if (status != string.Empty || message.Status.ToLower() != "open")//don't show the first status if it's just 'open'
-//                    {
-//                        builder.AppendFormat(
-//                            "<div class='statusChange'>{0} marked the note as <span class='status'>{1}</span>.</div>",
-//                            message.Author, message.Status);
-//                    }
-//                    status = message.Status;
-//                }
-//
-//                builder.AppendLine("</div>");
-//                //close off rounded borders
-//                //can't get it to work... builder.AppendLine("</div></div></div></div></div></div></div></div>");
-//                builder.AppendLine("</div>");
-//
-//
-//            builder.AppendLine("</body>");
-//            builder.AppendLine("</html>");
-//
-//            return builder.ToString();
-//        }
+
 		public void HandleLinkClicked(Uri uri)
 		{
 			var handler = m_embeddedMessageContentHandlerRepository.GetHandlerOrDefaultForUrl(uri);
 			if(handler!=null)
 			{
-				handler.HandleUrl(uri);
+				handler.HandleUrl(uri, _annotation.AnnotationFilePath);
 			}
 		}
 

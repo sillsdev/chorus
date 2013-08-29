@@ -4,6 +4,7 @@ using System.IO;
 using System.Media;
 using System.Windows.Forms;
 using System.Linq;
+using L10NSharp;
 using Palaso.Extensions;
 using Palaso.Progress;
 
@@ -37,7 +38,7 @@ namespace Chorus.UI.Clone
 			switch (_state)
 			{
 				case State.LookingForUsb:
-					_statusLabel.Text = "Please insert a USB Flash Drive..." ;
+					_statusLabel.Text = LocalizationManager.GetString("Messages.PleaseInsertUsb", "Please insert a USB Flash Drive...");
 					_statusImage.Visible   =true;
 					_statusImage.ImageIndex  =0;
 					_logBox.Visible = false;
@@ -47,20 +48,20 @@ namespace Chorus.UI.Clone
 				case State.FoundUsbButNoProjects:
 					_statusLabel.Left = listView1.Left;
 					_statusImage.Visible = false;
-					_statusLabel.Text = "No projects were found on the Usb Flash Drive." ;
+					_statusLabel.Text = LocalizationManager.GetString("Messages.NoProjectsOnUsb", "No projects were found on the Usb Flash Drive.");
 					listView1.Visible = false;
 					break;
 				case State.WaitingForUserSelection:
 					_statusLabel.Left = listView1.Left;
 					listView1.Visible = true;
 					_statusImage.Visible = false;
-					_statusLabel.Text = "Select one of the following:";
+					_statusLabel.Text = LocalizationManager.GetString("Messages.SelectOne", "Select one of the following:");
 					break;
 				case State.MakingClone:
 					_statusImage.Visible   =false;//we don't have an icond for this yet
 					_copyToComputerButton.Visible = false;
 
-					_statusLabel.Text = "Copying project";
+					_statusLabel.Text = LocalizationManager.GetString("Messages.CopyingProject", "Copying project");
 					listView1.Visible = false;
 
 					_logBox.Location = listView1.Location;
@@ -71,15 +72,15 @@ namespace Chorus.UI.Clone
 				case State.Success:
 					_statusLabel.Left = _statusImage.Right +10;
 					_statusImage.Visible = true;
-					_statusImage.ImageKey="Success";
-					_statusLabel.Text = string.Format("Finished copying {0} to this computer at {1}", Path.GetFileName(SelectedPath), _parentDirectoryToPutCloneIn);
+					_statusImage.ImageKey=LocalizationManager.GetString("Messages.Success", "Success");
+					_statusLabel.Text = string.Format(LocalizationManager.GetString("Messages.FinishedCopying", "Finished copying {0} to this computer at {1}"), Path.GetFileName(SelectedPath), _parentDirectoryToPutCloneIn);
 					_okButton.Visible = true;
 					_cancelButton.Enabled = false;
 					_logBox.Visible = false;
 					break;
 				case State.Error:
 					_statusLabel.Left = _statusImage.Right + 10;
-					_statusImage.ImageKey = "Error";
+					_statusImage.ImageKey = LocalizationManager.GetString("Common.Error", "Error");
 					_statusImage.Visible = true;
 					_statusLabel.Text = _failureMessage;
 					_logBox.Visible = true;
@@ -172,9 +173,9 @@ namespace Chorus.UI.Clone
 			if (!Directory.Exists(_parentDirectoryToPutCloneIn))
 			{
 				MessageBox.Show(
-					string.Format(
-						@"Sorry, the calling program told Chorus to place the new project inside {0}, but that directory does not exist.",
-						_parentDirectoryToPutCloneIn), "Problem", MessageBoxButtons.OK, MessageBoxIcon.Stop);
+					string.Format(LocalizationManager.GetString("Messages.MissingDirectoryError",
+						@"Sorry, the calling program told Chorus to place the new project inside {0}, but that directory does not exist."),
+						_parentDirectoryToPutCloneIn), LocalizationManager.GetString("Common.Problem", "Problem"), MessageBoxButtons.OK, MessageBoxIcon.Stop);
 				return;
 			}
 

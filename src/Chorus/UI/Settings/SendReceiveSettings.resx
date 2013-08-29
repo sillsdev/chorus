@@ -117,6 +117,9 @@
   <resheader name="writer">
 	<value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <metadata name="l10NSharpExtender1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+	<value>143, 17</value>
+  </metadata>
   <data name="betterLabel1.Text" xml:space="preserve">
 	<value>Chorus Hub is a simple way to Send/Receive on a local network, like an office or home. Better instructions will follow in a future version, but for now, this should get you started:
 First designate one computer on your network as "the server", and make sure this product is installed on it. Next, look in the directory where this product is installed, and run the program labeled "ChorusHub.exe". If all goes well, there's nothing more to do! Now from any other computer on the network, you can Click "ChorusHub" to Send/Receive to it.

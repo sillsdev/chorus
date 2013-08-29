@@ -4,6 +4,7 @@ using System.IO;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using ChorusHub;
+using L10NSharp;
 using Palaso.Progress;
 
 namespace Chorus.UI.Clone
@@ -13,8 +14,9 @@ namespace Chorus.UI.Clone
 	///</summary>
 	public class GetCloneFromChorusHubModel
 	{
+		public IEnumerable<RepositoryInformation> HubRepositoryInformation { get; set; }
+
 		public string RepositoryName { get; set; }
-		public IEnumerable<ChorusHubRepositoryInformation> ChorusHubRepositoryInformation { get; set; }
 
 		///<summary>
 		/// Flag indicating success or otherwise of MakeClone call
@@ -51,13 +53,13 @@ namespace Chorus.UI.Clone
 			var server = client.FindServer();
 			if (server == null)
 			{
-				progress.WriteError("The Chorus Server is not available.");
+				progress.WriteError(LocalizationManager.GetString("Messages.ChorusServerNA", "The Chorus Server is not available."));
 				CloneSucceeded = false;
 				return;
 			}
 			if (!server.ServerIsCompatibleWithThisClient)
 			{
-				progress.WriteError("The Chorus Server is not compatible with ths client.");
+				progress.WriteError(LocalizationManager.GetString("Messages.ChorusServerIncompatible", "The Chorus Server is not compatible with ths client."));
 				CloneSucceeded = false;
 				return;
 			}
@@ -65,7 +67,7 @@ namespace Chorus.UI.Clone
 			var targetFolder = Path.Combine(_baseFolder, RepositoryName);
 			try
 			{
-				NewlyClonedFolder= HgRepository.Clone(new HttpRepositoryPath(RepositoryName, client.GetUrl(RepositoryName), false), targetFolder, progress);
+				NewlyClonedFolder = HgRepository.Clone(new ChorusHubRepositorySource(RepositoryName, client.GetUrl(RepositoryName), false, HubRepositoryInformation), targetFolder, progress);
 				CloneSucceeded = true;
 			}
 			catch (Exception)

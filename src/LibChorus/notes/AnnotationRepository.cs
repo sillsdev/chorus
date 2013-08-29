@@ -130,7 +130,7 @@ namespace Chorus.notes
 
 		public IEnumerable<Annotation> GetAllAnnotations()
 		{
-			return from a in _doc.Root.Elements() select new Annotation(a);
+			return from a in _doc.Root.Elements() select new Annotation(a) {AnnotationFilePath = AnnotationFilePath};
 		}
 
 		public IEnumerable<Annotation> GetByCurrentStatus(string status)

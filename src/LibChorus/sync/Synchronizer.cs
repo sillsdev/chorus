@@ -125,8 +125,6 @@ namespace Chorus.sync
 
 				var workingRevBeforeSync = repo.GetRevisionWorkingSetIsBasedOn();
 
-				CreateRepositoryOnLocalAreaNetworkFolderIfNeededThrowIfFails(repo, RepoProjectName, sourcesToTry);
-
 				if (options.DoPullFromOthers)
 				{
 					results.DidGetChangesFromOthers = PullFromOthers(repo, sourcesToTry, connectionAttempts);
@@ -191,28 +189,6 @@ namespace Chorus.sync
 				Repository.GetRevisionWorkingSetIsBasedOn().Branch != branchName)
 			{
 				Repository.BranchingHelper.Branch(_progress, branchName);
-			}
-		}
-
-		private static void CreateRepositoryOnLocalAreaNetworkFolderIfNeededThrowIfFails(HgRepository repo, string repoProjectName, List<RepositoryAddress> sourcesToTry)
-		{
-			var directorySource = sourcesToTry.FirstOrDefault(s => s is DirectoryRepositorySource);
-			if (directorySource == null)
-				return;
-
-			if (Directory.Exists(directorySource.URI) && Directory.Exists(Path.Combine(directorySource.URI, ".hg")))
-			{
-				var otherRepo = new HgRepository(directorySource.URI, new NullProgress());
-				if (repo.Identifier == otherRepo.Identifier)
-					return;
-			}
-
-			var actualTarget = repo.CloneLocalWithoutUpdate(directorySource.GetPotentialRepoUri(directorySource.URI, repoProjectName, new NullProgress()));
-			if (directorySource.URI != actualTarget)
-			{
-				// Reset hgrc to new location.
-				var alias = HgRepository.GetAliasFromPath(actualTarget);
-				repo.SetTheOnlyAddressOfThisType(RepositoryAddress.Create(alias, actualTarget));
 			}
 		}
 
@@ -324,14 +300,16 @@ namespace Chorus.sync
 					// For now, at least, it is not a requirement to do the update on the shared folder.
 					// JDH Oct 2010: added this back in if it doesn't look like a shared folder
 					if (address is UsbKeyRepositorySource  ||
-					(address is DirectoryRepositorySource && ((DirectoryRepositorySource)address).LooksLikeLocalDirectory))
+						(address is DirectoryRepositorySource && ((DirectoryRepositorySource)address).LooksLikeLocalDirectory))
 					{
 						var otherRepo = new HgRepository(resolvedUri, _progress);
 						otherRepo.Update();
 					}
 				}
-				else if (address is DirectoryRepositorySource || address is UsbKeyRepositorySource)
+				else if (address is UsbKeyRepositorySource || address is DirectoryRepositorySource)
 				{
+					// If we cannot connect to a USB or Directory source (the repository doesn't exist),
+					// try to clone our repository onto the source
 					TryToMakeCloneForSource(address);
 					//nb: no need to push if we just made a clone
 				}
@@ -346,7 +324,7 @@ namespace Chorus.sync
 			}
 		}
 
-		/// <returns>true if there were successful pulls</returns>
+		/// <returns>true if there was at least one successful pull</returns>
 		private bool PullFromOthers(HgRepository repo,  List<RepositoryAddress> sourcesToTry, Dictionary<RepositoryAddress, bool> connectionAttempt)
 		{
 			bool didGetFromAtLeastOneSource = false;
@@ -417,13 +395,13 @@ namespace Chorus.sync
 			{
 				_progress.WriteMessage("Looking for USB flash drives...");
 				var potential = source.GetPotentialRepoUri(repo.Identifier, RepoProjectName, _progress);
-				if (null ==potential)
+				if (null == potential)
 				{
 					_progress.WriteWarning("No USB flash drive found");
 				}
 				else if (string.Empty == potential)
 				{
-					_progress.WriteMessage("Did not find existing project on any USB flash drive.");
+					_progress.WriteMessage("Did not find this project on any USB flash drive.");
 				}
 			}
 			else
@@ -452,20 +430,13 @@ namespace Chorus.sync
 				}
 				catch (HgCommonException err)
 				{
+					// These kinds of errors are worth an immediate dialog, to make sure we get the user's attention.
 					ErrorReport.NotifyUserOfProblem(err.Message);
-					return false;
+					// The main sync routine will catch the exception, abort any other parts of the Send/Receive,
+					// and log the problem.
+					throw;
 				}
-				catch (UserCancelledException)
-				{
-					// don't report anything
-					return false;
-				}
-				catch (Exception err)
-				{
-					_progress.WriteException(err);
-					return false;
-				}
-
+				// Any other kind of exception will be caught and logged at a higher level.
 			}
 			else
 			{
@@ -644,8 +615,7 @@ namespace Chorus.sync
 					var target = HgRepository.GetUniqueFolderPath(
 						_progress,
 						//"Folder at {0} already exists, so it can't be used. Creating clone in {1}, instead.",
-						"Warning: there is a project on the USB flash drive which has the right name ({0}), but it is actually unrelated to the one doing the Send/Receive. This usually indicates that the two repositories were created separately, which doesn't work. These repositories have to be descendants of each other, or else they can't be synchronized. This situation occurs when you create the repositories separately by accident. Instead, create one then use 'Get from USB' or 'Get from Internet' from other programs and computers. You may want to get some expert help."
-					+ " In the meantime, the program will create a repository at {1} so you can maybe keep collaborating while you wait for help.",
+						RepositoryAddress.DuplicateWarningMessage.Replace(RepositoryAddress.MediumVariable, "USB flash drive"),
 						uri);
 					try
 					{
@@ -659,7 +629,7 @@ namespace Chorus.sync
 					{
 						_progress.WriteError("Could not create repository on {0}. Error follow:", target);
 						_progress.WriteException(error);
-						continue;
+						// keep looping
 					}
 				}
 			}
@@ -821,14 +791,12 @@ namespace Chorus.sync
 		/// <returns>false if nothing needed to be merged, true if the merge was done. Throws exception if there is an error.</returns>
 		private bool MergeTwoChangeSets(Revision head, Revision theirHead)
 		{
+			string chorusMergeFilePath = Path.Combine(ExecutionEnvironment.DirectoryOfExecutingAssembly, "ChorusMerge.exe");
 #if MONO
-			string chorusMergeFilePath = Path.Combine(ExecutionEnvironment.DirectoryOfExecutingAssembly, "chorusmerge");
 			// The replace is only useful for use with the MonoDevelop environment whcih doesn't honor $(Configuration) in the csproj files.
 			// When this is exported as an environment var it needs escaping to prevent the shell from replacing it with an empty string.
 			// When MonoDevelop is fixed this can be removed.
 			chorusMergeFilePath = chorusMergeFilePath.Replace("$(Configuration)", "\\$(Configuration)");
-#else
-			string chorusMergeFilePath = Path.Combine(ExecutionEnvironment.DirectoryOfExecutingAssembly, "ChorusMerge.exe");
 #endif
 			using (new ShortTermEnvironmentalVariable("HGMERGE", '"' + chorusMergeFilePath + '"'))
 			{

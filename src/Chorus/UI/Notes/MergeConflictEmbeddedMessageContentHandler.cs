@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using System.Xml;
 using Chorus.merge.xml.generic;
 using Chorus.notes;
+using L10NSharp;
 
 namespace Chorus.UI.Notes
 {
@@ -32,7 +34,9 @@ namespace Chorus.UI.Notes
 			// for now just keep the most recent 20 links. This is why it is a list not a dictionary.
 			if (_recentLinks.Count > 20)
 				_recentLinks.RemoveAt(0);
-			return string.Format("<a href={0}>{1}</a>", "http://" + fakeHost + "?data=" + key, "Conflict Details...");
+			// Note that here we are using an ID which makes the text of the link the same as the text of the window title.
+			return string.Format("<a href={0}>{1}</a>", "http://" + fakeHost + "?data=" + key,
+				LocalizationManager.GetString("ConflictDetailsForm.WindowTitle", "Conflict Details") + "...");
 
 			// Old approach, fails with IE if cDataContent is more than about 2038 characters (http://www.codingforums.com/showthread.php?t=18499).
 			//NB: this is ugly, pretending it's http and all, but when I used a custom scheme,
@@ -57,7 +61,7 @@ namespace Chorus.UI.Notes
 		/// </summary>
 		public Func<string, string> HtmlAdjuster { get; set; }
 
-		public void HandleUrl(Uri uri)
+		public void HandleUrl(Uri uri, string annotationFilePath)
 		{
 			var key = uri.Query.Substring(uri.Query.IndexOf('=') + 1);
 			var data = (from item in _recentLinks where item.Key == key select item).FirstOrDefault();
@@ -71,16 +75,40 @@ namespace Chorus.UI.Notes
 			{
 				var doc = new XmlDocument();
 				var conflict = Conflict.CreateFromConflictElement(XmlUtilities.GetDocumentNodeFromRawXml(content, doc));
-				var html = "<html>" + conflict.HtmlDetails + "</html>";
+				var html = @"<html>" + conflict.HtmlDetails + @"</html>";
 				if (HtmlAdjuster != null)
 					html = HtmlAdjuster(html);
 				if (string.IsNullOrEmpty(html))
 				{
-					MessageBox.Show("Sorry, no conflict details are recorded for this conflict (it might be an old one). Here's the content:\r\n" + content);
+					MessageBox.Show(LocalizationManager.GetString("Messages.NoDetailsRecorded", "Sorry, no conflict details are recorded for this conflict (it might be an old one). Here's the content:") + "\r\n" + content);
 					return;
 				}
 				using (var conflictForm = new ConflictDetailsForm())
 				{
+					doc.LoadXml(content);
+					var detailAttr = doc.DocumentElement.Attributes["htmlDetails"];
+					if (detailAttr != null)
+						doc.DocumentElement.SetAttribute("htmlDetails", "...(see above)...");
+					MemoryStream mStream = new MemoryStream();
+					var settings = new XmlWriterSettings() {NewLineOnAttributes = true, Encoding = Encoding.UTF8, Indent = true};
+					var writer = XmlWriter.Create(mStream, settings);
+					doc.WriteContentTo(writer);
+					writer.Flush();
+					mStream.Flush();
+					mStream.Position = 0;
+					var prettyContent = new StreamReader(mStream).ReadToEnd();
+
+					// Insert the technical details into the original HTML right at the end.
+					int endOfBody = html.LastIndexOf("</body>");
+					var techHtml = html.Substring(0, endOfBody)
+						+ "<div style='margin-top:10pt'>Source file: "
+						+ annotationFilePath.Replace("<", "&lt;").Replace(">", "&gt;")
+						+ "</div><PRE>"
+						+ prettyContent.Replace("<", "&lt;").Replace(">", "&gt;")
+						+ "</PRE>"
+						+ html.Substring(endOfBody);
+
+					conflictForm.TechnicalDetails = techHtml;
 					conflictForm.SetDocumentText(html);
 					conflictForm.ShowDialog(Form.ActiveForm);
 					return;
@@ -89,12 +117,12 @@ namespace Chorus.UI.Notes
 			catch (Exception)
 			{
 			}
-			MessageBox.Show("Sorry, conflict details aren't working for this conflict (it might be an old one). Here's the content:\r\n" + content);//uri.ToString());
+			MessageBox.Show(LocalizationManager.GetString("Messages.DetailsNotWorking", "Sorry, conflict details aren't working for this conflict (it might be an old one). Here's the content:") + "\r\n" + content);//uri.ToString());
 		}
 
 		public bool CanHandleContent(string cDataContent)
 		{
-			return cDataContent.TrimStart().StartsWith("<conflict");
+			return cDataContent.TrimStart().StartsWith(@"<conflict");
 		}
 	}
 

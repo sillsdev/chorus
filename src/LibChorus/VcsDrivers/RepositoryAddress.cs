@@ -1,11 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net.NetworkInformation;
 using Chorus.Utilities;
-using Chorus.Utilities.UsbDrive;
+using Palaso.UsbDrive;
 using Chorus.VcsDrivers.Mercurial;
 using Palaso.IO;
 using Palaso.Progress;
@@ -28,6 +29,28 @@ namespace Chorus.VcsDrivers
 		public const string ProjectNameVariable = "%projectName%";
 
 		/// <summary>
+		/// This can be used in place of the name of the medium (USB flash drive, Chorus Hub server, etc)
+		/// </summary>
+		public const string MediumVariable = "%syncMedium%";
+
+		/// <summary>
+		/// This message is displayed when the user tries to create a new repository with the same name as an
+		/// unrelated, existing repository.  Because of the way this string is used, two customizations are necessary:
+		///  - replace <see cref="MediumVariable"/> with the name of the syncronization medium
+		///  - replace {0} and {0} with the URI's of the existing and new repositories, respectively
+		/// </summary>
+		public const string DuplicateWarningMessage = "Warning: There is a project repository on the " + MediumVariable
+			+ " which has the right name ({0}), but it is not related to your project.  So, the program created a"
+			+ " separate repository for your project at {1}. This happens when the project on your computer was not"
+			+ " created from the repository on the " + MediumVariable + ".\n\nYou can continue working or your own"
+			+ " project, but you will need expert help so you can work together without losing your work.\n\nTo work"
+			+ " together, only one person can create the shared repository, and all other collaborators must use"
+			+ " 'Get Project from Colleague...' to receive and create the project on their computers. Then, all"
+			+ " projects will be related to each other and will be able to Send/Receive to the same repository on the "
+			+ MediumVariable+ ".";
+
+
+		/// <summary>
 		/// In the case of a repo sitting on the user's machine, this will be a person's name.
 		/// It might also be the name of the web-based repo. It also gets the "alias" name, in the case of hg.
 		/// </summary>
@@ -48,10 +71,13 @@ namespace Chorus.VcsDrivers
 		}
 
 		/// <summary>
-		///
+		/// Creates a new HttpRepositoryPath or DirectoryRepositorySource.
 		/// </summary>
-		/// <param name="uri">examples: http://sil.org/chorus, c:\work, UsbKey, //GregSmith/public/language projects</param>
 		/// <param name="name">examples: SIL Language Depot, My Machine, USB Key, Greg</param>
+		/// <param name="uri">
+		/// examples: http://sil.org/chorus, c:\work, UsbKey, //GregSmith/public/language projects
+		/// Note: does not work for ChorusHub
+		/// </param>
 		/// <param name="readOnly">normally false for local repositories (usb, hard drive) and true for other people's repositories</param>
 		/// <returns></returns>
 		public static RepositoryAddress Create(string name, string uri, bool readOnly)
@@ -142,7 +168,7 @@ namespace Chorus.VcsDrivers
 		{
 			return Name;
 		}
-	}
+	} // end class RepositoryAddress
 
 	public class HttpRepositoryPath : RepositoryAddress
 	{
@@ -169,6 +195,133 @@ namespace Chorus.VcsDrivers
 		public override List<string> GetPossibleCloneUris(string repoIdentifier, string projectName, IProgress progress)
 		{
 			return new List<string>(new string[] { GetPotentialRepoUri(repoIdentifier, projectName, progress) });
+		}
+	}
+
+	public class ChorusHubRepositorySource : RepositoryAddress
+	{
+		private readonly List<RepositoryInformation> _sourceRepositoryInformation;
+
+		public ChorusHubRepositorySource(string name, string uri, bool readOnly, IEnumerable<RepositoryInformation> repositoryInformations)
+			: base(name, uri, readOnly)
+		{
+			_sourceRepositoryInformation = new List<RepositoryInformation>(repositoryInformations);
+		}
+
+		/// <summary>
+		/// Determines whether a repository is a potential match for the project name. The repository must not be null.
+		/// </summary>
+		/// <param name="repoInfo"></param>
+		/// <param name="projectName"></param>
+		/// <returns>
+		/// true iff the repository's name begins with the project name followed by only a number
+		/// </returns>
+		private static bool IsMatchingName(RepositoryInformation repoInfo, string projectName)
+		{
+			int dummy;
+			return repoInfo.RepoName.StartsWith(projectName)
+				   && int.TryParse(repoInfo.RepoName.Substring(projectName.Length), out dummy);
+		}
+
+		private string FormatWarningMessage(string projectName, string repoName)
+		{
+			return String.Format(DuplicateWarningMessage.Replace(MediumVariable, "Chorus Hub server"),
+				URI.Replace(ProjectNameVariable, projectName), URI.Replace(ProjectNameVariable, repoName));
+		}
+
+		/// <summary>
+		/// Determines a the proper repository name for a project on Chorus Hub, and whether that repository has been
+		/// created.  It does not matter if the repository has been initialized or not; it could be an empty hg
+		/// repository with an 'id' (within Chorus) of 'newRepo'.
+		///
+		/// First checks whether a repository has already been initialized for this project (by the hg repository ID).
+		/// If not, checks for an uninitialized repository whose name is <paramref name="projectName"/>, or begins with
+		/// <paramref name="projectName"/> followed by a number.  If none of the following are found, returns false.
+		/// </summary>
+		/// <param name="repoIdentifier">the unique repository identifier</param>
+		/// <param name="projectName">the name of the project on the user's computer</param>
+		/// <param name="matchName">(out) the name or potential name of the project repository on Chorus Hub</param>
+		/// <param name="warningMessage">
+		/// (out) a warning message if we cannot connect or if we are creating a new repository with a name other than the project name
+		/// (because the project name has been taken by an unrelated repository);
+		/// null otherwise (subsequent syncs, or we are creating a new repository with the correct name)
+		/// </param>
+		/// <returns>true iff a repository named <paramref name="matchName"/> exists on the Chorus Hub server</returns>
+		private bool TryGetBestRepoMatch(string repoIdentifier, string projectName, out string matchName, out string warningMessage)
+		{
+			// default repository name is projectName
+			matchName = projectName;
+			// default is no warning message
+			warningMessage = null;
+
+			// Our first (most likely) choice is an existing repository with the correct ID
+			var match = _sourceRepositoryInformation.FirstOrDefault(repoInfo => repoInfo.RepoID == repoIdentifier);
+			if (match != null)
+			{
+				matchName = match.RepoName;
+				return true;
+			}
+
+			// Our next choice is a new repository with the projetct name
+			// (which should already exist with the ID "newRepo")
+			match = _sourceRepositoryInformation.FirstOrDefault(repoInfo => repoInfo.RepoName == projectName);
+			if (match != null && match.IsNew()) // the repository exists and has not been initialized
+			{
+				matchName = match.RepoName;
+				return true;
+			}
+
+			// Our next choice is an existing "newRepo" whose name begins with the project name, followed by numbers.
+			// The user will be notified of the naming conflict.
+			// Enhance pH: check for multiple matches, which may indicate either
+			// a race condition or an incomplete creation in the past.
+			match = _sourceRepositoryInformation.FirstOrDefault(repoInfo =>
+				(repoInfo.IsNew() && IsMatchingName(repoInfo, projectName)));
+			if (match != null)
+			{
+				// We found a repository we can use
+				matchName = match.RepoName;
+				warningMessage = FormatWarningMessage(projectName, matchName);
+				return true;
+			}
+
+			// No repository has been created for this project, so we will be unable to connect now. If Chorus Hub and
+			// Mercurial are taking longer than we waited to create the repository, the user can try again later.
+			warningMessage = new ProjectLabelErrorException(URI.Replace(ProjectNameVariable, projectName)).Message;
+			return false;
+		}
+
+		/// <summary>
+		/// Gets what the uri of the named repository would be, on this source. I.e., gets the full path.
+		/// </summary>
+		public override string GetPotentialRepoUri(string repoIdentifier, string projectName, IProgress progress)
+		{
+			string matchName;
+			string warningMessage;
+			TryGetBestRepoMatch(repoIdentifier, projectName, out matchName, out warningMessage);
+			if (warningMessage != null)
+			{
+				progress.WriteWarning(warningMessage);
+			}
+			return URI.Replace(ProjectNameVariable, matchName);
+		}
+
+		/// <summary>
+		/// Find out if ChorusHub can connect or not.
+		/// </summary>
+		public override bool CanConnect(HgRepository localRepository, string projectName, IProgress progress)
+		{
+			// It can connect for either of these reasons:
+			//	1. 'localRepository' Identifier matches one of the ids of _sourceRepositoryInformation. (Name may not be the same as 'projectName')
+			//	2. The name of one of _sourceRepositoryInformation matches or begins with 'projectName' AND the id is 'newRepo'.
+			//     (A clone of this isn't useful.)
+			string dummy;
+			return TryGetBestRepoMatch(localRepository.Identifier, projectName, out dummy, out dummy);
+		}
+
+		public override List<string> GetPossibleCloneUris(string repoIdentifier, string projectName, IProgress progress)
+		{
+			return new List<string>(new[] { GetPotentialRepoUri(repoIdentifier, projectName, progress) });
 		}
 	}
 
@@ -253,14 +406,6 @@ namespace Chorus.VcsDrivers
 			}
 		}
 
-//        private string RootDirForUsbSourceDuringUnitTest
-//        {
-//            get {
-//                if(_rootDirForAllSourcesDuringUnitTest ==null)
-//                    return null;
-//                return
-//        }
-
 		public UsbKeyRepositorySource(string sourceLabel, string uri, bool readOnly)
 			: base(sourceLabel, uri, readOnly)
 		{
@@ -290,7 +435,7 @@ namespace Chorus.VcsDrivers
 				return Path.Combine(RootDirForUsbSourceDuringUnitTest, projectName);
 			}
 
-			var drives = Chorus.Utilities.UsbDrive.UsbDriveInfo.GetDrives();
+			var drives = UsbDriveInfo.GetDrives();
 			if (drives.Count == 0)
 				return null;
 

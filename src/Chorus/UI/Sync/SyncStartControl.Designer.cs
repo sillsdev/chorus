@@ -41,17 +41,19 @@ namespace Chorus.UI.Sync
 			this._useUSBButton = new System.Windows.Forms.Button();
 			this._updateDisplayTimer = new System.Windows.Forms.Timer(this.components);
 			this._tableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
-			this.commitMessageLabel = new Chorus.UI.BetterLabel();
 			this._commitMessageText = new System.Windows.Forms.TextBox();
-			this._usbStatusLabel = new Chorus.UI.BetterLabel();
 			this._internetStatusLabel = new System.Windows.Forms.LinkLabel();
 			this._useSharedFolderStatusLabel = new System.Windows.Forms.LinkLabel();
 			this._internetDiagnosticsLink = new System.Windows.Forms.LinkLabel();
 			this._sharedNetworkDiagnosticsLink = new System.Windows.Forms.LinkLabel();
 			this._settingsButton = new Palaso.UI.WindowsForms.SettingProtection.SettingsLauncherButton();
 			this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
+			this.l10NSharpExtender1 = new L10NSharp.UI.L10NSharpExtender(this.components);
+			this.commitMessageLabel = new Chorus.UI.BetterLabel();
+			this._usbStatusLabel = new Chorus.UI.BetterLabel();
 			this.usbDriveLocator = new Chorus.UI.UsbDriveLocator(this.components);
 			this._tableLayoutPanel.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.l10NSharpExtender1)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.usbDriveLocator)).BeginInit();
 			this.SuspendLayout();
 			//
@@ -61,6 +63,9 @@ namespace Chorus.UI.Sync
 			this._useLocalNetworkButton.Enabled = false;
 			this._useLocalNetworkButton.Image = global::Chorus.Properties.Resources.chorusHubMedium;
 			this._useLocalNetworkButton.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			this.l10NSharpExtender1.SetLocalizableToolTip(this._useLocalNetworkButton, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this._useLocalNetworkButton, null);
+			this.l10NSharpExtender1.SetLocalizingId(this._useLocalNetworkButton, "SyncStartControl.UseLocalNetworkButton");
 			this._useLocalNetworkButton.Location = new System.Drawing.Point(3, 228);
 			this._useLocalNetworkButton.Name = "_useLocalNetworkButton";
 			this._useLocalNetworkButton.Size = new System.Drawing.Size(167, 38);
@@ -68,13 +73,16 @@ namespace Chorus.UI.Sync
 			this._useLocalNetworkButton.Text = "&Chorus Hub";
 			this._useLocalNetworkButton.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
 			this._useLocalNetworkButton.UseVisualStyleBackColor = false;
-			this._useLocalNetworkButton.Click += new System.EventHandler(this._useSharedFolderButton_Click);
+			this._useLocalNetworkButton.Click += new System.EventHandler(this._useLocalNetworkButton_Click);
 			//
 			// _useInternetButton
 			//
 			this._useInternetButton.BackColor = System.Drawing.Color.White;
 			this._useInternetButton.Image = global::Chorus.Properties.Resources.internet29x32;
 			this._useInternetButton.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			this.l10NSharpExtender1.SetLocalizableToolTip(this._useInternetButton, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this._useInternetButton, null);
+			this.l10NSharpExtender1.SetLocalizingId(this._useInternetButton, "SyncStartControl.UseInternetButton");
 			this._useInternetButton.Location = new System.Drawing.Point(3, 143);
 			this._useInternetButton.Name = "_useInternetButton";
 			this._useInternetButton.Size = new System.Drawing.Size(167, 38);
@@ -89,6 +97,9 @@ namespace Chorus.UI.Sync
 			this._useUSBButton.BackColor = System.Drawing.Color.White;
 			this._useUSBButton.Image = global::Chorus.Properties.Resources.Usb32x28;
 			this._useUSBButton.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			this.l10NSharpExtender1.SetLocalizableToolTip(this._useUSBButton, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this._useUSBButton, null);
+			this.l10NSharpExtender1.SetLocalizingId(this._useUSBButton, "SyncStartControl.UseUSBButton");
 			this._useUSBButton.Location = new System.Drawing.Point(3, 58);
 			this._useUSBButton.Name = "_useUSBButton";
 			this._useUSBButton.Size = new System.Drawing.Size(167, 38);
@@ -137,49 +148,19 @@ namespace Chorus.UI.Sync
 			this._tableLayoutPanel.Size = new System.Drawing.Size(342, 351);
 			this._tableLayoutPanel.TabIndex = 0;
 			//
-			// commitMessageLabel
-			//
-			this.commitMessageLabel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
-			| System.Windows.Forms.AnchorStyles.Right)));
-			this.commitMessageLabel.BorderStyle = System.Windows.Forms.BorderStyle.None;
-			this._tableLayoutPanel.SetColumnSpan(this.commitMessageLabel, 2);
-			this.commitMessageLabel.Font = new System.Drawing.Font("Segoe UI", 9F);
-			this.commitMessageLabel.Location = new System.Drawing.Point(3, 3);
-			this.commitMessageLabel.Multiline = true;
-			this.commitMessageLabel.Name = "commitMessageLabel";
-			this.commitMessageLabel.ReadOnly = true;
-			this.commitMessageLabel.Size = new System.Drawing.Size(336, 14);
-			this.commitMessageLabel.TabIndex = 3;
-			this.commitMessageLabel.TabStop = false;
-			this.commitMessageLabel.Text = "Label this point in the project history (Optional) :";
-			//
 			// _commitMessageText
 			//
 			this._commitMessageText.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
 			| System.Windows.Forms.AnchorStyles.Right)));
 			this._tableLayoutPanel.SetColumnSpan(this._commitMessageText, 2);
+			this.l10NSharpExtender1.SetLocalizableToolTip(this._commitMessageText, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this._commitMessageText, null);
+			this.l10NSharpExtender1.SetLocalizingId(this._commitMessageText, "SyncStartControl.SyncStartControl._commitMessageText");
 			this._commitMessageText.Location = new System.Drawing.Point(3, 23);
 			this._commitMessageText.Margin = new System.Windows.Forms.Padding(3, 3, 20, 3);
 			this._commitMessageText.Name = "_commitMessageText";
 			this._commitMessageText.Size = new System.Drawing.Size(319, 20);
 			this._commitMessageText.TabIndex = 0;
-			//
-			// _usbStatusLabel
-			//
-			this._usbStatusLabel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-			| System.Windows.Forms.AnchorStyles.Right)));
-			this._usbStatusLabel.BorderStyle = System.Windows.Forms.BorderStyle.None;
-			this._tableLayoutPanel.SetColumnSpan(this._usbStatusLabel, 2);
-			this._usbStatusLabel.Font = new System.Drawing.Font("Segoe UI", 9F);
-			this._usbStatusLabel.ForeColor = System.Drawing.Color.DimGray;
-			this._usbStatusLabel.Location = new System.Drawing.Point(3, 103);
-			this._usbStatusLabel.Multiline = true;
-			this._usbStatusLabel.Name = "_usbStatusLabel";
-			this._usbStatusLabel.ReadOnly = true;
-			this._usbStatusLabel.Size = new System.Drawing.Size(336, 30);
-			this._usbStatusLabel.TabIndex = 1;
-			this._usbStatusLabel.TabStop = false;
-			this._usbStatusLabel.Text = "Checking...";
 			//
 			// _internetStatusLabel
 			//
@@ -190,6 +171,10 @@ namespace Chorus.UI.Sync
 			this._internetStatusLabel.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this._internetStatusLabel.ForeColor = System.Drawing.Color.DimGray;
 			this._internetStatusLabel.LinkArea = new System.Windows.Forms.LinkArea(20, 8);
+			this.l10NSharpExtender1.SetLocalizableToolTip(this._internetStatusLabel, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this._internetStatusLabel, null);
+			this.l10NSharpExtender1.SetLocalizationPriority(this._internetStatusLabel, L10NSharp.LocalizationPriority.NotLocalizable);
+			this.l10NSharpExtender1.SetLocalizingId(this._internetStatusLabel, "SyncStartControl._internetStatusLabel");
 			this._internetStatusLabel.Location = new System.Drawing.Point(3, 185);
 			this._internetStatusLabel.Name = "_internetStatusLabel";
 			this._internetStatusLabel.Size = new System.Drawing.Size(336, 21);
@@ -207,6 +192,10 @@ namespace Chorus.UI.Sync
 			this._useSharedFolderStatusLabel.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this._useSharedFolderStatusLabel.ForeColor = System.Drawing.Color.DimGray;
 			this._useSharedFolderStatusLabel.LinkArea = new System.Windows.Forms.LinkArea(20, 8);
+			this.l10NSharpExtender1.SetLocalizableToolTip(this._useSharedFolderStatusLabel, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this._useSharedFolderStatusLabel, null);
+			this.l10NSharpExtender1.SetLocalizationPriority(this._useSharedFolderStatusLabel, L10NSharp.LocalizationPriority.NotLocalizable);
+			this.l10NSharpExtender1.SetLocalizingId(this._useSharedFolderStatusLabel, "SyncStartControl._useSharedFolderStatusLabel");
 			this._useSharedFolderStatusLabel.Location = new System.Drawing.Point(3, 270);
 			this._useSharedFolderStatusLabel.Name = "_useSharedFolderStatusLabel";
 			this._useSharedFolderStatusLabel.Size = new System.Drawing.Size(336, 21);
@@ -219,6 +208,9 @@ namespace Chorus.UI.Sync
 			this._internetDiagnosticsLink.AccessibleName = "InternetDiagnosticsLink";
 			this._internetDiagnosticsLink.Anchor = System.Windows.Forms.AnchorStyles.Right;
 			this._internetDiagnosticsLink.AutoSize = true;
+			this.l10NSharpExtender1.SetLocalizableToolTip(this._internetDiagnosticsLink, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this._internetDiagnosticsLink, null);
+			this.l10NSharpExtender1.SetLocalizingId(this._internetDiagnosticsLink, "SyncStartControl.Diagnostics");
 			this._internetDiagnosticsLink.Location = new System.Drawing.Point(277, 156);
 			this._internetDiagnosticsLink.Name = "_internetDiagnosticsLink";
 			this._internetDiagnosticsLink.Size = new System.Drawing.Size(62, 13);
@@ -234,6 +226,9 @@ namespace Chorus.UI.Sync
 			this._sharedNetworkDiagnosticsLink.Anchor = System.Windows.Forms.AnchorStyles.Right;
 			this._sharedNetworkDiagnosticsLink.AutoSize = true;
 			this._sharedNetworkDiagnosticsLink.Enabled = false;
+			this.l10NSharpExtender1.SetLocalizableToolTip(this._sharedNetworkDiagnosticsLink, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this._sharedNetworkDiagnosticsLink, null);
+			this.l10NSharpExtender1.SetLocalizingId(this._sharedNetworkDiagnosticsLink, "SyncStartControl.Diagnostics");
 			this._sharedNetworkDiagnosticsLink.Location = new System.Drawing.Point(277, 241);
 			this._sharedNetworkDiagnosticsLink.Name = "_sharedNetworkDiagnosticsLink";
 			this._sharedNetworkDiagnosticsLink.RightToLeft = System.Windows.Forms.RightToLeft.No;
@@ -249,6 +244,10 @@ namespace Chorus.UI.Sync
 			this._settingsButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
 			this._tableLayoutPanel.SetColumnSpan(this._settingsButton, 2);
 			this._settingsButton.LaunchSettingsCallback = null;
+			this.l10NSharpExtender1.SetLocalizableToolTip(this._settingsButton, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this._settingsButton, null);
+			this.l10NSharpExtender1.SetLocalizationPriority(this._settingsButton, L10NSharp.LocalizationPriority.NotLocalizable);
+			this.l10NSharpExtender1.SetLocalizingId(this._settingsButton, "SyncStartControl.SettingsLauncherButton");
 			this._settingsButton.Location = new System.Drawing.Point(232, 310);
 			this._settingsButton.Margin = new System.Windows.Forms.Padding(0);
 			this._settingsButton.Name = "_settingsButton";
@@ -256,15 +255,63 @@ namespace Chorus.UI.Sync
 			this._settingsButton.Size = new System.Drawing.Size(110, 22);
 			this._settingsButton.TabIndex = 5;
 			//
+			// l10NSharpExtender1
+			//
+			this.l10NSharpExtender1.LocalizationManagerId = "Chorus";
+			this.l10NSharpExtender1.PrefixForNewItems = "SyncStartControl";
+			//
+			// commitMessageLabel
+			//
+			this.commitMessageLabel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
+			| System.Windows.Forms.AnchorStyles.Right)));
+			this.commitMessageLabel.BorderStyle = System.Windows.Forms.BorderStyle.None;
+			this._tableLayoutPanel.SetColumnSpan(this.commitMessageLabel, 2);
+			this.commitMessageLabel.Font = new System.Drawing.Font("Segoe UI", 9F);
+			this.l10NSharpExtender1.SetLocalizableToolTip(this.commitMessageLabel, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this.commitMessageLabel, null);
+			this.l10NSharpExtender1.SetLocalizingId(this.commitMessageLabel, "SyncStartControl.CommitMessage");
+			this.commitMessageLabel.Location = new System.Drawing.Point(3, 3);
+			this.commitMessageLabel.Multiline = true;
+			this.commitMessageLabel.Name = "commitMessageLabel";
+			this.commitMessageLabel.ReadOnly = true;
+			this.commitMessageLabel.Size = new System.Drawing.Size(336, 14);
+			this.commitMessageLabel.TabIndex = 3;
+			this.commitMessageLabel.TabStop = false;
+			this.commitMessageLabel.Text = "Label this point in the project history (Optional) :";
+			//
+			// _usbStatusLabel
+			//
+			this._usbStatusLabel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+			| System.Windows.Forms.AnchorStyles.Right)));
+			this._usbStatusLabel.BorderStyle = System.Windows.Forms.BorderStyle.None;
+			this._tableLayoutPanel.SetColumnSpan(this._usbStatusLabel, 2);
+			this._usbStatusLabel.Font = new System.Drawing.Font("Segoe UI", 9F);
+			this._usbStatusLabel.ForeColor = System.Drawing.Color.DimGray;
+			this.l10NSharpExtender1.SetLocalizableToolTip(this._usbStatusLabel, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this._usbStatusLabel, null);
+			this.l10NSharpExtender1.SetLocalizingId(this._usbStatusLabel, "SyncStartControl.Checking");
+			this._usbStatusLabel.Location = new System.Drawing.Point(3, 103);
+			this._usbStatusLabel.Multiline = true;
+			this._usbStatusLabel.Name = "_usbStatusLabel";
+			this._usbStatusLabel.ReadOnly = true;
+			this._usbStatusLabel.Size = new System.Drawing.Size(336, 30);
+			this._usbStatusLabel.TabIndex = 1;
+			this._usbStatusLabel.TabStop = false;
+			this._usbStatusLabel.Text = "Checking...";
+			//
 			// SyncStartControl
 			//
 			this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
 			this.Controls.Add(this._tableLayoutPanel);
+			this.l10NSharpExtender1.SetLocalizableToolTip(this, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this, null);
+			this.l10NSharpExtender1.SetLocalizingId(this, "SyncStartControl.SyncStartControl.SyncStartControl");
 			this.Name = "SyncStartControl";
 			this.Size = new System.Drawing.Size(384, 367);
 			this._tableLayoutPanel.ResumeLayout(false);
 			this._tableLayoutPanel.PerformLayout();
+			((System.ComponentModel.ISupportInitialize)(this.l10NSharpExtender1)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.usbDriveLocator)).EndInit();
 			this.ResumeLayout(false);
 
@@ -287,5 +334,6 @@ namespace Chorus.UI.Sync
 		private System.Windows.Forms.LinkLabel _sharedNetworkDiagnosticsLink;
 		private System.Windows.Forms.LinkLabel _internetDiagnosticsLink;
 		private SettingsLauncherButton _settingsButton;
+		private L10NSharp.UI.L10NSharpExtender l10NSharpExtender1;
 	}
 }

@@ -4,7 +4,9 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Threading;
 using System.Windows.Forms;
+using Chorus.VcsDrivers;
 using ChorusHub;
+using L10NSharp;
 using Palaso.Progress;
 using Palaso.UI.WindowsForms.Progress;
 
@@ -23,7 +25,7 @@ namespace Chorus.UI.Clone
 
 		public GetCloneFromChorusHubDialog(GetCloneFromChorusHubModel model)
 		{
-			RepositoryKindLabel = "Project";
+			RepositoryKindLabel = LocalizationManager.GetString("Messages.Project","Project");
 
 			_model = model;
 			InitializeComponent();
@@ -132,14 +134,14 @@ namespace Chorus.UI.Clone
 			logBox.ProgressIndicator = progressIndicator;
 			_clonerMultiProgess.ProgressIndicator = progressIndicator;
 
-			_clonerStatusLabel.Text = string.Format("Getting {0}...",RepositoryKindLabel);
+			_clonerStatusLabel.Text = string.Format(LocalizationManager.GetString("Messages.Getting","Getting {0}..."),RepositoryKindLabel);
 		}
 
 		private void OnClonerCompleted(object sender, RunWorkerCompletedEventArgs e)
 		{
 			if (_model.CloneSucceeded)
 			{
-				_clonerStatusLabel.Text = "Success.";
+				_clonerStatusLabel.Text = LocalizationManager.GetString("Messages.Success","Success.");
 				_clonerMultiProgess.ProgressIndicator.Initialize();
 				DialogResult = DialogResult.OK;
 				Close();
@@ -147,7 +149,7 @@ namespace Chorus.UI.Clone
 			else
 			{
 				cancelButton.Enabled = true;
-				_clonerStatusLabel.Text = "Failed.";
+				_clonerStatusLabel.Text = LocalizationManager.GetString("Messages.Failed","Failed.");
 				_clonerMultiProgess.ProgressIndicator.Initialize();
 				var error = e.Result as Exception;
 				if(error!=null)
@@ -171,7 +173,7 @@ namespace Chorus.UI.Clone
 
 		private void OnLoad(object sender, EventArgs e)
 		{
-			Text = string.Format("Looking for Chorus Hub...");
+			Text = string.Format(LocalizationManager.GetString("Messages.LookingForChorusHub","Looking for Chorus Hub..."));
 
 			_getChorusHubInfoBackgroundWorker.DoWork += OnChorusHubInfo_DoWork;
 			_getChorusHubInfoBackgroundWorker.RunWorkerCompleted += new RunWorkerCompletedEventHandler(OnGetChorusHubInfo_Completed);
@@ -188,26 +190,26 @@ namespace Chorus.UI.Clone
 			var results = e.Result as object[];
 			if (results == null)
 			{
-				Text = "Sorry, no Chorus Hub was found.";
+				Text = LocalizationManager.GetString("Messages.NoChorusHub","Sorry, no Chorus Hub was found.");
 			}
 			else
 			{
 				var client = results[0] as ChorusHubClient;
 				if (client == null)
 				{
-					Text = "Sorry, no Chorus Hub was found.";
+					Text = LocalizationManager.GetString("Messages.NoChorusHub", "Sorry, no Chorus Hub was found.");
 				}
 				else if (!client.ServerIsCompatibleWithThisClient)
 				{
-					Text = "Found Chorus Hub but it is not compatible with this version of " + Application.ProductName;
+					Text = string.Format(LocalizationManager.GetString("Messages.ChorusHubIncompatible", "Found Chorus Hub but it is not compatible with this version of {0}"), Application.ProductName);
 				}
 				else
 				{
-					Text = string.Format("Get {0} from Chorus Hub on {1}", RepositoryKindLabel, client.HostName);
-					_model.ChorusHubRepositoryInformation = (IEnumerable<ChorusHubRepositoryInformation>)results[1];
-					foreach (var repoInfo in _model.ChorusHubRepositoryInformation)
+					Text = string.Format(LocalizationManager.GetString("Messages.GetFromChorusHub", "Get {0} from Chorus Hub on {1}"), RepositoryKindLabel, client.HostName);
+					_model.HubRepositoryInformation = (IEnumerable<RepositoryInformation>) results[1];
+					foreach (var repoInfo in _model.HubRepositoryInformation)
 					{
-						if (repoInfo.RepoID == "newRepo")
+						if (repoInfo.RepoID == @"newRepo")
 							continue; // Empty repo exists. It can receive any real repo, but cannot return a useful clone, however, so don't list it.
 						var item = new ListViewItem(repoInfo.RepoName);
 						string dummy;
@@ -225,7 +227,7 @@ namespace Chorus.UI.Clone
 
 		void OnChorusHubInfo_DoWork(object sender, DoWorkEventArgs e)
 		{
-			Thread.CurrentThread.Name = "GetRepositoryInformation";
+			Thread.CurrentThread.Name = @"GetRepositoryInformation";
 			var client = new ChorusHubClient();
 			var server = client.FindServer();
 

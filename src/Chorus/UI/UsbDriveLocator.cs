@@ -62,7 +62,7 @@ namespace Chorus.UI
 			{
 				var usbDrives = new List<DriveInfo>();
 				var info =
-					new Chorus.Utilities.UsbDrive.RetrieveUsbDriveInfo();
+					new Palaso.UsbDrive.RetrieveUsbDriveInfo();
 				var drives = info.GetDrives();
 				if (drives.Count > 0)
 				{
