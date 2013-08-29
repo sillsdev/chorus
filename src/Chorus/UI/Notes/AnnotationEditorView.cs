@@ -135,7 +135,7 @@ namespace Chorus.UI.Notes
 					_closeButton.Location.X + _closeButton.Size.Width - _okButton.Size.Width,
 					_closeButton.Location.Y);
 			}
-			// No need to move back, b/c _closeButton.Visible is set only once.
+			// No need for an else clause to move the button back, b/c _closeButton.Visible is set only once.
 		}
 
 		private void _resolveButton_Click(object sender, EventArgs e)
@@ -143,7 +143,7 @@ namespace Chorus.UI.Notes
 			UnResolveAndAddMessage();
 
 			if (ModalDialogMode)
-				_closeButton_Click(sender, e);
+				_closeButton_Click(DialogResult.OK, e);
 		}
 
 		private void _okButton_Click(object sender, EventArgs e)
@@ -151,16 +151,17 @@ namespace Chorus.UI.Notes
 			AddMessage();
 
 			if (ModalDialogMode)
-				_closeButton_Click(sender, e);
+				_closeButton_Click(DialogResult.OK, e);
 		}
 
 		// Close without saving
 		private void _closeButton_Click(object sender, EventArgs e)
 		{
+			if (!(sender is DialogResult))
+				sender = DialogResult.Cancel;
+
 			if(OnClose!=null)
-			{ // TODO pH 2013.08: pass a DialogResult here
 				OnClose(sender, e);
-			}
 		}
 
 		private void _annotationLogo_Paint(object sender, PaintEventArgs e)
