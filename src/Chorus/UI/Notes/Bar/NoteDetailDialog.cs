@@ -1,10 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 using Chorus.notes;
 
@@ -28,6 +22,7 @@ namespace Chorus.UI.Notes.Bar
 
 		void CloseButton_Click(object sender, EventArgs e)
 		{
+			DialogResult = (DialogResult) sender;
 			//this relies on us being the second receiver of this message, after the view itself
 			this.Close();
 		}

@@ -158,7 +158,7 @@ namespace Chorus.UI.Notes
 		private void _closeButton_Click(object sender, EventArgs e)
 		{
 			if(OnClose!=null)
-			{
+			{ // TODO pH 2013.08: pass a DialogResult here
 				OnClose(sender, e);
 			}
 		}
