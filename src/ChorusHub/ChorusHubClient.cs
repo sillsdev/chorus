@@ -8,6 +8,7 @@ using System.ServiceModel;
 using System.Text;
 using System.Threading;
 using Chorus.VcsDrivers;
+using IPCFramework;
 
 namespace ChorusHub
 {
@@ -120,20 +121,23 @@ namespace ChorusHub
 			var finalUrl = string.IsNullOrEmpty(queryString)
 							   ? queryString
 							   : genericUrl + queryString;
-			var binding = new NetTcpBinding();
-			binding.Security.Mode = SecurityMode.None;
 
-			var factory = new ChannelFactory<IChorusHubService>(binding, _foundHubInfo.ServiceUri);
+			var client = IPCClientFactory.Create();
+			client.InitializeRemote<IChorusHubService>(_foundHubInfo.ServiceUri, null, null);
 
-			var channel = factory.CreateChannel();
 			try
 			{
-				var jsonStrings = channel.GetRepositoryInformation(finalUrl);
-				_repositoryNames = ImitationHubJSONService.ParseJsonStringsToChorusHubRepoInfos(jsonStrings);
+				object result;
+				if (client.RemoteCall("GetRepositoryInformation", new object[] {finalUrl}, out result))
+				{
+					var jsonStrings = (IEnumerable<string>)result;
+					_repositoryNames = ImitationHubJSONService.ParseJsonStringsToChorusHubRepoInfos(jsonStrings);
+				}
+				// otherwise what??
 			}
 			finally
 			{
-				(channel as ICommunicationObject).Close();
+				client.Close();
 			}
 			return _repositoryNames;
 		}
@@ -156,15 +160,16 @@ namespace ChorusHub
 			//Enchance: after creating and init'ing the folder, it would be possible to keep asking
 			//hg serve if it knows about the repository until finally it says "yes", instead of just
 			//guessing at a single amount of time to wait
-			var binding = new NetTcpBinding();
-			binding.Security.Mode = SecurityMode.None;
-			var factory = new ChannelFactory<IChorusHubService>(binding, _foundHubInfo.ServiceUri);
-
-			var channel = factory.CreateChannel();
+			var client = IPCClientFactory.Create();
+			client.InitializeRemote<IChorusHubService>(_foundHubInfo.ServiceUri, null, null);
 			try
 			{
-				var doWait = channel.PrepareToReceiveRepository(directoryName, repositoryID);
-				return doWait;
+				object doWait;
+				if (!client.RemoteCall("PrepareToReceiveRepository", new object[] {directoryName, repositoryID}, out doWait))
+				{
+					throw new ApplicationException("Failed to communicate with the Chorus Hub Server");
+				}
+				return (bool)doWait;
 			}
 			catch (Exception error)
 			{
@@ -172,11 +177,7 @@ namespace ChorusHub
 			}
 			finally
 			{
-				var comChannel = (ICommunicationObject)channel;
-				if (comChannel.State == CommunicationState.Opened)
-				{
-					comChannel.Close();
-				}
+				client.Close();
 			}
 		}
 	}
