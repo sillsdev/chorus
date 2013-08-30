@@ -166,6 +166,7 @@ namespace Chorus.UI.Notes.Bar
 			var dlg = new NoteDetailDialog(annotation, _annotationEditorModelFactory);
 			_dialogResult = dlg.ShowDialog();
 			if (_dialogResult == DialogResult.OK)
+			// Review pH 2013.08: is this check needed?
 			{
 				OnUpdateContent(null, null);
 				_model.SaveNowIfNeeded(new NullProgress());
