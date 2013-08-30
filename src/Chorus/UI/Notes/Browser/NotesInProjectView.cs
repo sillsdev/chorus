@@ -39,10 +39,10 @@ namespace Chorus.UI.Notes.Browser
 
 		void OnReloadMessages(object sender, EventArgs e)
 		{
-			int previousIndex = _messageListView.SelectedIndices.Count > 0 ? _messageListView.SelectedIndices[0] : -1;
-
 			Cursor.Current = Cursors.WaitCursor;
 			_messageListView.SuspendLayout();
+
+			int previousIndex = _messageListView.SelectedIndices.Count > 0 ? _messageListView.SelectedIndices[0] : -1;
 
 			List<ListViewItem> rows = new List<ListViewItem>();
 			foreach (var item in _model.GetMessages())
@@ -77,8 +77,7 @@ namespace Chorus.UI.Notes.Browser
 					OnSelectedIndexChanged(null, null);
 				}
 			}
-			//enhance...we could, if the message is not found, go looking for the owning annotation. But since
-			//you can't currently delete a message, that wouldn't have any advantage yet.
+
 			filterStateLabel.Text = _model.FilterStateMessage;
 
 			_messageListView.ResumeLayout();

@@ -36,6 +36,8 @@ namespace Chorus.UI.Notes.Browser
 			_user = user;
 			_repositories = repositories;
 
+			_showQuestions = _showConflicts = _showNotifications = true;
+
 			foreach (var repository in repositories)
 			{
 				repository.AddObserver(this, progress);
