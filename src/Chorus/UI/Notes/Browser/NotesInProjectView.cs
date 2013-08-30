@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
-using Chorus.notes;
 using Palaso.Progress;
 
 namespace Chorus.UI.Notes.Browser
@@ -19,13 +18,12 @@ namespace Chorus.UI.Notes.Browser
 			_model = model;
 			_model.ReloadMessages += new EventHandler(OnReloadMessages);
 			_model.CancelSelectedMessageChanged += SuspendLayout;
-			//       _model.ProgressDisplay = new NullProgress();
 			InitializeComponent();
 			_messageListView.SmallImageList = AnnotationClassFactoryUI.CreateImageListContainingAnnotationImages();
 			showResolvedNotesMenuItem.Checked = _model.ShowClosedNotes;
-			showQuestionsMenuItem.Checked = !_model.HideQuestions;
-			showMergeNotifcationsMenuItem.Checked = !_model.HideNotifications;
-			showMergeConflictsMenuItem.Checked = !_model.HideCriticalConflicts;
+			showQuestionsMenuItem.Checked = _model.ShowQuestions;
+			showMergeNotifcationsMenuItem.Checked = _model.ShowNotifications;
+			showMergeConflictsMenuItem.Checked = _model.ShowConflicts;
 			timer1.Interval = 1000;
 			timer1.Tick += new EventHandler(timer1_Tick);
 			timer1.Enabled = true;
@@ -42,13 +40,7 @@ namespace Chorus.UI.Notes.Browser
 
 		void OnReloadMessages(object sender, EventArgs e)
 		{
-			ListMessage previousItem = null;
-			int previousIndex = -1;
-			if (_messageListView.SelectedIndices.Count > 0)
-			{
-				previousItem = _messageListView.SelectedItems[0].Tag as ListMessage;
-				previousIndex = _messageListView.SelectedIndices[0];
-			}
+			int previousIndex = _messageListView.SelectedIndices.Count > 0 ? _messageListView.SelectedIndices[0] : -1;
 
 			Cursor.Current = Cursors.WaitCursor;
 			_messageListView.SuspendLayout();
@@ -67,12 +59,12 @@ namespace Chorus.UI.Notes.Browser
 				if (_messageListView.Items.Count > 0)
 				{
 					// Enhance pH: if the message was not found, check if it was resolved and no longer met the filter,
-					// or if the user changed the filter to exclude the message.  Reselect only if the message was
-					// [un]resolved
-					if (!SilentSelectByGuid(_model.SelectedMessageGuid))
+					// or if the user changed the filter to exclude the message.  Reselect only if the message was resolved
+					if (!SelectByGuid(_model.SelectedMessageGuid))
 					{
 						// Likely we hid the item that was previously selected.
 						// Select something, preferably the item at the same position.
+						_model.ClearSelectedMessage(); // must be cleared before another is selected
 						if (previousIndex < 0)
 							_messageListView.Items[0].Selected = true;
 						else if (_messageListView.Items.Count > previousIndex) // usual case, if we deleted one thing and not the last
@@ -96,48 +88,21 @@ namespace Chorus.UI.Notes.Browser
 		}
 
 		/// <summary>
-		/// Selects the item with the specified GUID, if available, and temporarily disables
-		/// OnSelectedIndexChanged events while selecting
+		/// Selects the item with the specified GUID, if available; otherwise, returns false
 		/// </summary>
 		/// <param name="guid"></param>
 		/// <returns>true iff the specified item is available to be selected</returns>
-		private bool SilentSelectByGuid(string guid)
+		private bool SelectByGuid(string guid)
 		{
 			foreach (ListViewItem listViewItem in _messageListView.Items)
 			{
 				if (((ListMessage)(listViewItem.Tag)).ParentAnnotation.Guid == guid)
 				{
-					var temporarilyDisabledEventHandlers = _model.EventToRaiseForChangedMessage;
-					_model.EventToRaiseForChangedMessage = null;
 					listViewItem.Selected = true;
-					_model.EventToRaiseForChangedMessage = temporarilyDisabledEventHandlers;
 					return true;
 				}
 			}
 			return false;
-		}
-
-		private void SilentSelectAndUnselectByGuid(object guid, CancelEventArgs e)
-		{
-			e.Cancel = true;
-
-			var temporarilyDisabledEventHandlers = _model.EventToRaiseForChangedMessage;
-			_model.EventToRaiseForChangedMessage = null;
-
-			foreach (ListViewItem listViewItem in _messageListView.Items)
-			{
-				if (((ListMessage)(listViewItem.Tag)).ParentAnnotation.Guid == (string)guid)
-				{
-					listViewItem.Selected = true;
-					e.Cancel = false;
-				}
-				else
-				{
-					listViewItem.Selected = false;
-				}
-			}
-
-			_model.EventToRaiseForChangedMessage = temporarilyDisabledEventHandlers;
 		}
 
 		private void SuspendLayout(object sender, CancelEventArgs e)
@@ -145,7 +110,6 @@ namespace Chorus.UI.Notes.Browser
 			_messageListView.SuspendLayout();
 		}
 
-		// TODO pH 2013.08: make this event preventable
 		private void OnSelectedIndexChanged(object sender, EventArgs e)
 		{
 			if (_messageListView.SelectedItems.Count == 0)
@@ -160,13 +124,7 @@ namespace Chorus.UI.Notes.Browser
 
 		private void OnLoad(object sender, EventArgs e)
 		{
-			//OnReloadMessages(null,null);
 			_model.CheckIfWeNeedToReload();
-		}
-
-		private void searchBox1_SearchTextChanged(object sender, EventArgs e)
-		{
-			_model.SearchTextChanged(sender as string);
 		}
 
 		private void NotesInProjectView_VisibleChanged(object sender, EventArgs e)
@@ -175,34 +133,47 @@ namespace Chorus.UI.Notes.Browser
 				_model.CheckIfWeNeedToReload();
 			else
 			{
-				//Enhance: this is never called (e.g. we get a call when we become visible, but not invisible)
+				//Enhance: this is never called (i.e. we get a call when we become visible, but not invisible)
 				_model.GoodTimeToSave();
 			}
-		}
-
-		private void _filterCombo_SelectedIndexChanged(object sender, EventArgs e)
-		{
-
 		}
 
 		private void showClosedNotesMenuItem_Click(object sender, EventArgs e)
 		{
 			_model.ShowClosedNotes = ((ToolStripMenuItem)sender).Checked;
+			// resync view, in case the event was canceled (due to an unsaved message)
+			((ToolStripMenuItem)sender).Checked = _model.ShowClosedNotes;
 		}
 
 		private void showQuestionsMenuItem_Click(object sender, EventArgs e)
 		{
-			_model.HideQuestions = !((ToolStripMenuItem)sender).Checked;
-		}
-
-		private void showMergeNotificationsMenuItem_Click(object sender, EventArgs e)
-		{
-			_model.HideNotifications = !((ToolStripMenuItem)sender).Checked;
+			_model.ShowQuestions = ((ToolStripMenuItem)sender).Checked;
+			// resync view, in case the event was canceled (due to an unsaved message)
+			((ToolStripMenuItem)sender).Checked = _model.ShowQuestions;
 		}
 
 		private void showMergeConflictsMenuItem_Click(object sender, EventArgs e)
 		{
-			_model.HideCriticalConflicts = !((ToolStripMenuItem)sender).Checked;
+			_model.ShowConflicts = ((ToolStripMenuItem)sender).Checked;
+			// resync view, in case the event was canceled (due to an unsaved message)
+			((ToolStripMenuItem)sender).Checked = _model.ShowConflicts;
+		}
+
+		private void showMergeNotificationsMenuItem_Click(object sender, EventArgs e)
+		{
+			_model.ShowNotifications = ((ToolStripMenuItem)sender).Checked;
+			// resync view, in case the event was canceled (due to an unsaved message)
+			((ToolStripMenuItem)sender).Checked = _model.ShowNotifications;
+		}
+
+		private void searchBox1_SearchTextChanged(object sender, EventArgs e)
+		{
+			// If there is no change (the previous change was canceled), don't waste time re-verifying the filter
+			if (_model.SearchText == sender as string) return;
+
+			_model.SearchText = sender as string;
+			// resync view, in case the event was canceled (due to an unsaved message)
+			searchBox1.SearchText = _model.SearchText;
 		}
 	}
 }

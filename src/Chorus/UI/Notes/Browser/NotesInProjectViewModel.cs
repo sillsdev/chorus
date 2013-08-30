@@ -21,9 +21,19 @@ namespace Chorus.UI.Notes.Browser
 		private readonly IChorusUser _user;
 		private event CancelEventHandler _messageSelectedEvent;
 		private IEnumerable<AnnotationRepository> _repositories;
-		private string _searchText;
 		private bool _reloadPending=true;
-		public string SelectedMessageGuid { get; set; }
+
+		/// <summary>
+		/// The GUID of the Message that *should* be selected;
+		/// this field must be explicitly cleared before another message can be selected.
+		///
+		/// </summary>
+		private ListMessage _selectedMessage;
+		public void ClearSelectedMessage() { _selectedMessage = null; }
+		public string SelectedMessageGuid
+		{
+			get { return _selectedMessage == null ? null : _selectedMessage.ParentAnnotation.Guid; }
+		}
 
 		public NotesInProjectViewModel( IChorusUser user, IEnumerable<AnnotationRepository> repositories,
 										ChorusNotesDisplaySettings displaySettings, IProgress progress)
@@ -54,79 +64,71 @@ namespace Chorus.UI.Notes.Browser
 		public bool ShowClosedNotes
 		{
 			get { return _showClosedNotes; }
-			set
-			{
-				_showClosedNotes = value;
-				ReloadMessagesNow();
-			}
+			set { FilterChanged(value, null, null, null, null); }
 		}
 
-		private bool _hideQuestions;
-		public bool HideQuestions
+		private bool _showQuestions;
+		public bool ShowQuestions
 		{
-			get { return _hideQuestions; }
-			set
-			{
-				_hideQuestions = value;
-				ReloadMessagesNow();
-			}
+			get { return _showQuestions; }
+			set { FilterChanged(null, value, null, null, null); }
 		}
 
-		private bool _hideNotifications;
+		private bool _showConflicts;
+		/// <summary>
+		/// This controls only critical conflicts (those that are not notifications).
+		/// </summary>
+		public bool ShowConflicts
+		{
+			get { return _showConflicts; }
+			set { FilterChanged(null, null, value, null, null); }
+		}
+
+		private bool _showNotifications;
 		/// <summary>
 		/// Notifications are a type of Conflict considered to be lower priority.
 		/// Typically where both users added something, we aren't quite sure of the order, but no actual data loss
 		/// has occurred.
 		/// </summary>
-		public bool HideNotifications
+		public bool ShowNotifications
 		{
-			get { return _hideNotifications; }
-			set
-			{
-				_hideNotifications = value;
-				ReloadMessagesNow();
-			}
+			get { return _showNotifications; }
+			set { FilterChanged(null, null, null, value, null); }
 		}
 
-		private bool _hideConflicts;
+		private string _searchText;
+		public string SearchText
+		{
+			get { return _searchText; }
+			set { FilterChanged(null, null, null, null, value); }
+		}
+
 		public string FilterStateMessage
 		{
 			get
 			{
 				var items = new List<string>();
-				if (!HideQuestions)
+				if (ShowQuestions)
 					items.Add(LocalizationManager.GetString("NotesInProjectView.Questions", "Questions",
-						"Combined in list to show filter status"));
-				if (!HideCriticalConflicts)
+						"Combined in list to show filter status (keep short!)"));
+				if (ShowConflicts)
 					items.Add(LocalizationManager.GetString("NotesInProjectView.Conflicts", "Conflicts",
-						"Combined in list to show filter status"));
-				if (!HideNotifications)
+						"Combined in list to show filter status (keep short!)"));
+				if (ShowNotifications)
 					items.Add(LocalizationManager.GetString("NotesInProjectView.Notifications", "Notifications",
-						"Combined in list to show filter status"));
+						"Combined in list to show filter status (keep short!)"));
 				if (ShowClosedNotes && items.Count > 0)
 					items.Add(LocalizationManager.GetString("NotesInProjectView.IncludeResolved", "incl. Resolved",
 						"Combined in list to show filter status (keep short!)"));
 
 				// NB: If we add another category, this number needs bumping.
-				if (items.Count > 3)
+				if (items.Count == 4)
 					return LocalizationManager.GetString("NotesInProjectView.All", "All",
 						"Used in place of list for filter status");
 				if (items.Count == 0)
 					return LocalizationManager.GetString("NotesInProjectView.Nothing", "Nothing selected to display",
 						"Used in place of list for filter status");
 				return string.Join(", ", items.ToArray());
-			}
-		}
-		/// <summary>
-		/// This controls just the more serious conflicts (those that are not notifications).
-		/// </summary>
-		public bool HideCriticalConflicts
-		{
-			get { return _hideConflicts; }
-			set
-			{
-				_hideConflicts = value;
-				ReloadMessagesNow();
 			}
 		}
 
@@ -139,34 +141,10 @@ namespace Chorus.UI.Notes.Browser
 		{
 			foreach (var repository in _repositories)
 			{
-				IEnumerable<Annotation> annotations=  repository.GetAllAnnotations();
-				if(!ShowClosedNotes)
-				{
-					annotations = annotations.Where(a => a.Status != Annotation.Closed);
-				}
-				if (HideQuestions)
-				{
-					annotations = annotations.Where(a => a.ClassName != "question");
-				}
+				IEnumerable<Annotation> annotations = repository.GetAllAnnotations();
 
-				if (HideCriticalConflicts)
-				{
-					if (HideNotifications)
-					{
-						// Hiding all conflicts, critical and otherwise
-						annotations = annotations.Where(a => !a.IsConflict);
-					}
-					else
-					{
-						// Hiding critical conflicts only!
-						annotations = annotations.Where(a => !a.IsCriticalConflict);
-					}
-				}
-				else if (HideNotifications)
-				{
-					// Hiding non-critical conflicts (notifications) only
-					annotations = annotations.Where(a => !a.IsNotification);
-				}
+				annotations = annotations.Where(a => MatchesFilterFlags(
+					a, _showClosedNotes, _showQuestions, ShowConflicts, ShowNotifications));
 
 				foreach (var annotation in annotations)
 				{
@@ -185,28 +163,53 @@ namespace Chorus.UI.Notes.Browser
 			}
 		}
 
+		private bool MatchesFilterFlags(Annotation annotation, bool showClosedNotes,
+			bool showQuestions, bool showConflicts, bool showNotifications)
+		{
+			return !((!showClosedNotes && annotation.IsClosed)
+					 || (!showQuestions && annotation.ClassName == "question")
+					 || (!showConflicts && annotation.IsCriticalConflict)
+					 || (!showNotifications && annotation.IsNotification));
+		}
+
 		private bool MatchesSearchText(Annotation annotation, Message message)
 		{
 			if (string.IsNullOrEmpty(_searchText))
 				return true;
 
 			string t = _searchText.ToLowerInvariant();
-			if(  annotation.LabelOfThingAnnotated.ToLowerInvariant().StartsWith(t)
+			if (annotation.LabelOfThingAnnotated.ToLowerInvariant().StartsWith(t)
 				   || annotation.ClassName.ToLowerInvariant().StartsWith(t)
 				   || message.Author.ToLowerInvariant().StartsWith(t))
 				return true;
 
 			if (t.Length > 2)//arbitrary, but don't want to search on ever last letter
-			{
 				return message.Text.ToLowerInvariant().Contains(t);
-			}
+
+			return false;
+		}
+
+		private bool MatchesSearchText(Annotation annotation, string searchText)
+		{
+			if (string.IsNullOrEmpty(searchText))
+				return true;
+
+			string t = searchText.ToLowerInvariant();
+			if(  annotation.LabelOfThingAnnotated.ToLowerInvariant().StartsWith(t)
+				   || annotation.ClassName.ToLowerInvariant().StartsWith(t)
+				   || annotation.Messages.Any(m => m.Author.ToLowerInvariant().StartsWith(t)))
+				return true;
+
+			if (t.Length > 2) // arbitrary, but don't want to search on ever last letter
+				return annotation.Messages.Any(m => m.Text.ToLowerInvariant().Contains(t));
+
 			return false;
 		}
 
 		private bool UserCanceledSelectedMessageChange(ListMessage listMessage)
 		{
 			// if we are trying to switch to a new Message but the previous GUID
-			// has not been cleared, the user had requested a cancel last time
+			// has not been cleared, the user has already requested a cancel
 			if (listMessage != null && SelectedMessageGuid != null &&
 				listMessage.ParentAnnotation.Guid != SelectedMessageGuid)
 				return true;// TODO pH 2103.08: does this check do anything useful?
@@ -222,25 +225,53 @@ namespace Chorus.UI.Notes.Browser
 			{
 				if (UserCanceledSelectedMessageChange(listMessage))
 				{
-					// reload messages to switch back, but wait _after_ the canceled selection change event completes
-					_reloadPending = true;
+					if ((listMessage == null ? null : listMessage.ParentAnnotation.Guid) != SelectedMessageGuid)
+					{
+						// if GUID's are different, reload messages to switch back,
+						// but wait _after_ the canceled selection change event completes.
+						// The View's Timer will pick this up
+						_reloadPending = true;
 
-					//// suspend layout (so the improperly-selected message doesn't blink)
-					//// TODO pH 2013.08: review this handler's args
-					//if (CancelSelectedMessageChanged != null)
-					//    CancelSelectedMessageChanged(SelectedMessageGuid, new CancelEventArgs());
+						// Enhance pH 2013.08: figure out how to keep the list view
+						// (or at least the canceled selection) from blinking during this refresh
+					}
 				}
 				else
 				{
-					SelectedMessageGuid = listMessage == null ? null : listMessage.ParentAnnotation.Guid;
+					_selectedMessage = listMessage;
 				}
 			}
 
-			GoodTimeToSave(); // TODO pH 2013.08: do this only sometimes?
+			GoodTimeToSave();
 		}
 
-		public void SearchTextChanged(string searchText)
+		private void FilterChanged(bool? showClosedNotes,
+			bool? showQuestions, bool? showConflicts, bool? showNotifications, string searchText)
 		{
+			// populate fields (we expect all but one to be null)
+			showClosedNotes = showClosedNotes ?? ShowClosedNotes;
+			showQuestions = showQuestions ?? ShowQuestions;
+			showConflicts = showConflicts ?? ShowConflicts;
+			showNotifications = showNotifications ?? ShowNotifications;
+			searchText = searchText ?? SearchText;
+
+			// Verify the user will not lose work:
+			if (_selectedMessage != null // There is an annotation selected
+				// The selected annotation would be hidden by the new filter
+				&& (!MatchesFilterFlags(_selectedMessage.ParentAnnotation, showClosedNotes.Value,
+										showQuestions.Value, showConflicts.Value,
+										showNotifications.Value) ||
+					!MatchesSearchText(_selectedMessage.ParentAnnotation, searchText))
+				// The user has typed a new Message and wants to continue working
+				&& UserCanceledSelectedMessageChange(null))
+				// Do nothing; the filter will not be changed, and the view should reset itself
+				return;
+
+			// update the filter and reload the message list
+			_showClosedNotes = showClosedNotes.Value;
+			_showQuestions = showQuestions.Value;
+			_showConflicts = showConflicts.Value;
+			_showNotifications = showNotifications.Value;
 			_searchText = searchText;
 			ReloadMessagesNow();
 		}

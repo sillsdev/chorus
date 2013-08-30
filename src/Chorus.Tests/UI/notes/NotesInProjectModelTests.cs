@@ -144,7 +144,7 @@ namespace Chorus.Tests.notes
 					var repos = AnnotationRepository.CreateRepositoriesFromFolder(folder.Path, _progress);
 					var m = new NotesInProjectViewModel(TheUser, repos, new MessageSelectedEvent(), new ChorusNotesDisplaySettings(), new ConsoleProgress());
 					Assert.AreEqual(2, m.GetMessages().Count(), "should get 2 annotations by default");
-					m.HideQuestions = true;
+					m.ShowQuestions = false;
 					Assert.AreEqual(1, m.GetMessages().Count());
 					Assert.AreEqual("bob", m.GetMessages().First().Message.Author, "question should not be shown");
 				}
@@ -162,14 +162,14 @@ namespace Chorus.Tests.notes
 				{
 					var repos = AnnotationRepository.CreateRepositoriesFromFolder(folder.Path, _progress);
 					var m = new NotesInProjectViewModel(TheUser, repos, new MessageSelectedEvent(), new ChorusNotesDisplaySettings(), new ConsoleProgress());
-					m.HideCriticalConflicts = true;
-					m.HideNotifications = true;
-					m.HideQuestions = true;
+					m.ShowConflicts = false;
+					m.ShowNotifications = false;
+					m.ShowQuestions = false;
 					Assert.AreEqual("Nothing selected to display", m.FilterStateMessage,
 						"Wrong filter state message when nothing can be displayed");
-					m.HideQuestions = false;
-					m.HideCriticalConflicts = false;
-					m.HideNotifications = false;
+					m.ShowQuestions = true;
+					m.ShowConflicts = true;
+					m.ShowNotifications = true;
 					m.ShowClosedNotes = true;
 					Assert.AreEqual("All", m.FilterStateMessage,
 						"Wrong filter state message when all annotations should be displayed");
@@ -243,17 +243,17 @@ namespace Chorus.Tests.notes
 					var repos = AnnotationRepository.CreateRepositoriesFromFolder(folder.Path, _progress);
 					var m = new NotesInProjectViewModel(TheUser, repos, new MessageSelectedEvent(), new ChorusNotesDisplaySettings(), new ConsoleProgress());
 					Assert.AreEqual(3, m.GetMessages().Count(), "should get 1 from each of 3 annotations by default");
-					m.HideNotifications = true;
+					m.ShowNotifications = false;
 					Assert.AreEqual(2, m.GetMessages().Count(), "one from the notification should not be shown, leaving 2");
 					// They are sorted by date in descending order
 					Assert.AreEqual("fred", m.GetMessages().First().Message.Author, "should get only most recent message from annotation");
 					Assert.AreEqual("john", m.GetMessages().ToArray()[1].Message.Author);
 
-					m.HideCriticalConflicts = true;
+					m.ShowConflicts = false;
 					Assert.AreEqual(1, m.GetMessages().Count(), "conflict and notification should not be shown");
 					Assert.AreEqual("john", m.GetMessages().First().Message.Author);
 
-					m.HideNotifications = false;
+					m.ShowNotifications = true;
 					Assert.AreEqual(2, m.GetMessages().Count(), "conflict should not be shown");
 					Assert.AreEqual("jill", m.GetMessages().First().Message.Author);
 					Assert.AreEqual("john", m.GetMessages().ToArray()[1].Message.Author);

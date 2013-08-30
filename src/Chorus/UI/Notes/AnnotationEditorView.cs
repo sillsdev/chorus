@@ -37,7 +37,7 @@ namespace Chorus.UI.Notes
 
 		public EmbeddedMessageContentHandlerRepository MesageContentHandlerRepository
 		{
-			get { return _model.MesageContentHandlerRepository; }
+			get { return _model.MessageContentHandlerRepository; }
 		}
 
 

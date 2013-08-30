@@ -68,7 +68,7 @@ namespace Chorus.UI.Notes
 			EventToRaiseForChangedMessage = messageSelectedEventToSubscribeTo;
 		}
 
-		public EmbeddedMessageContentHandlerRepository MesageContentHandlerRepository
+		public EmbeddedMessageContentHandlerRepository MessageContentHandlerRepository
 		{
 			get { return m_embeddedMessageContentHandlerRepository; }
 		}

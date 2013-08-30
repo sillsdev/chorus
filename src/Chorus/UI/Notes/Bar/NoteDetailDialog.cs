@@ -20,16 +20,14 @@ namespace Chorus.UI.Notes.Bar
 			view.OnClose += (CloseButton_Click);
 		}
 
+		/// <summary> Sets the DialogResult and closes the dialog </summary>
+		/// <param name="sender">must be a DialogResult</param>
+		/// <param name="e"></param>
 		void CloseButton_Click(object sender, EventArgs e)
 		{
 			DialogResult = (DialogResult) sender;
 			//this relies on us being the second receiver of this message, after the view itself
 			this.Close();
-		}
-
-		private void NoteDetailDialog_Load(object sender, EventArgs e)
-		{
-
 		}
 	}
 }
