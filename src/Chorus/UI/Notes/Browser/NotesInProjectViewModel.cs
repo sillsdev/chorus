@@ -6,7 +6,6 @@ using Chorus.notes;
 using L10NSharp;
 using Palaso.Progress;
 using Palaso.Reporting;
-using Palaso.Reporting;
 
 namespace Chorus.UI.Notes.Browser
 {
@@ -16,20 +15,15 @@ namespace Chorus.UI.Notes.Browser
 
 		public delegate NotesInProjectViewModel Factory(IEnumerable<AnnotationRepository> repositories, IProgress progress);//autofac uses this
 		internal event EventHandler ReloadMessages;
-		internal event CancelEventHandler CancelSelectedMessageChanged; // TODO pH: better way to handle this?
 
 		private readonly IChorusUser _user;
-		private event CancelEventHandler _messageSelectedEvent;
 		private IEnumerable<AnnotationRepository> _repositories;
 		private bool _reloadPending=true;
 
+		private ListMessage _selectedMessage;
 		/// <summary>
 		/// The GUID of the Message that *should* be selected;
-		/// this field must be explicitly cleared before another message can be selected.
-		///
 		/// </summary>
-		private ListMessage _selectedMessage;
-		public void ClearSelectedMessage() { _selectedMessage = null; }
 		public string SelectedMessageGuid
 		{
 			get { return _selectedMessage == null ? null : _selectedMessage.ParentAnnotation.Guid; }
@@ -48,11 +42,9 @@ namespace Chorus.UI.Notes.Browser
 			}
 		}
 
+		private event CancelEventHandler _messageSelectedEvent;
 		/// <summary>
-		/// Where this AND the AnnotationEditorModel are both created by Autofac, they get created with different
-		/// instances of MessageSelectedEvent. It's necessary to patch things up (currently in NotesBrowerPage constructor)
-		/// so this one is given the instance that the AnnotationEditorModel is subscribed to.
-		/// Don't know what we can do if we ever have other subscribers...
+		/// Param [sender] is the newly-selected ListMessage
 		/// </summary>
 		public CancelEventHandler EventToRaiseForChangedMessage
 		{
@@ -134,7 +126,7 @@ namespace Chorus.UI.Notes.Browser
 
 		public IEnumerable<ListMessage> GetMessages()
 		{
-			return GetMessagesUnsorted().OrderByDescending((msg) => msg.SortKey);
+			return GetMessagesUnsorted().OrderByDescending(msg => msg.SortKey);
 		}
 
 		private IEnumerable<ListMessage> GetMessagesUnsorted()
@@ -163,7 +155,7 @@ namespace Chorus.UI.Notes.Browser
 			}
 		}
 
-		private bool MatchesFilterFlags(Annotation annotation, bool showClosedNotes,
+		private static bool MatchesFilterFlags(Annotation annotation, bool showClosedNotes,
 			bool showQuestions, bool showConflicts, bool showNotifications)
 		{
 			return !((!showClosedNotes && annotation.IsClosed)
@@ -189,13 +181,13 @@ namespace Chorus.UI.Notes.Browser
 			return false;
 		}
 
-		private bool MatchesSearchText(Annotation annotation, string searchText)
+		private static bool MatchesSearchText(Annotation annotation, string searchText)
 		{
 			if (string.IsNullOrEmpty(searchText))
 				return true;
 
 			string t = searchText.ToLowerInvariant();
-			if(  annotation.LabelOfThingAnnotated.ToLowerInvariant().StartsWith(t)
+			if(annotation.LabelOfThingAnnotated.ToLowerInvariant().StartsWith(t)
 				   || annotation.ClassName.ToLowerInvariant().StartsWith(t)
 				   || annotation.Messages.Any(m => m.Author.ToLowerInvariant().StartsWith(t)))
 				return true;
@@ -208,12 +200,6 @@ namespace Chorus.UI.Notes.Browser
 
 		private bool UserCanceledSelectedMessageChange(ListMessage listMessage)
 		{
-			// if we are trying to switch to a new Message but the previous GUID
-			// has not been cleared, the user has already requested a cancel
-			if (listMessage != null && SelectedMessageGuid != null &&
-				listMessage.ParentAnnotation.Guid != SelectedMessageGuid)
-				return true;// TODO pH 2103.08: does this check do anything useful?
-
 			var e = new CancelEventArgs();
 			_messageSelectedEvent.Invoke(listMessage, e);
 			return e.Cancel;
@@ -259,9 +245,8 @@ namespace Chorus.UI.Notes.Browser
 			if (_selectedMessage != null // There is an annotation selected
 				// The selected annotation would be hidden by the new filter
 				&& (!MatchesFilterFlags(_selectedMessage.ParentAnnotation, showClosedNotes.Value,
-										showQuestions.Value, showConflicts.Value,
-										showNotifications.Value) ||
-					!MatchesSearchText(_selectedMessage.ParentAnnotation, searchText))
+										showQuestions.Value, showConflicts.Value, showNotifications.Value)
+					|| !MatchesSearchText(_selectedMessage.ParentAnnotation, searchText))
 				// The user has typed a new Message and wants to continue working
 				&& UserCanceledSelectedMessageChange(null))
 				// Do nothing; the filter will not be changed, and the view should reset itself

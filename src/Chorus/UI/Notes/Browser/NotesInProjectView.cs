@@ -17,7 +17,6 @@ namespace Chorus.UI.Notes.Browser
 			this.Font = SystemFonts.MessageBoxFont;
 			_model = model;
 			_model.ReloadMessages += new EventHandler(OnReloadMessages);
-			_model.CancelSelectedMessageChanged += SuspendLayout;
 			InitializeComponent();
 			_messageListView.SmallImageList = AnnotationClassFactoryUI.CreateImageListContainingAnnotationImages();
 			showResolvedNotesMenuItem.Checked = _model.ShowClosedNotes;
@@ -64,7 +63,6 @@ namespace Chorus.UI.Notes.Browser
 					{
 						// Likely we hid the item that was previously selected.
 						// Select something, preferably the item at the same position.
-						_model.ClearSelectedMessage(); // must be cleared before another is selected
 						if (previousIndex < 0)
 							_messageListView.Items[0].Selected = true;
 						else if (_messageListView.Items.Count > previousIndex) // usual case, if we deleted one thing and not the last
@@ -103,11 +101,6 @@ namespace Chorus.UI.Notes.Browser
 				}
 			}
 			return false;
-		}
-
-		private void SuspendLayout(object sender, CancelEventArgs e)
-		{
-			_messageListView.SuspendLayout();
 		}
 
 		private void OnSelectedIndexChanged(object sender, EventArgs e)
