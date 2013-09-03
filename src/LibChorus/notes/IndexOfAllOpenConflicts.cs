@@ -1,7 +1,4 @@
-using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
-using Chorus.Utilities;
 using Palaso.Progress;
 
 namespace Chorus.notes
@@ -13,7 +10,7 @@ namespace Chorus.notes
 	public class IndexOfAllOpenConflicts : AnnotationIndex
 	{
 		public IndexOfAllOpenConflicts()
-			: base( (a => a.ClassName == "conflict" && a.Status == Annotation.Closed), // includeIndexPredicate
+			: base( (a => a.ClassName == "conflict" && a.Status == Annotation.Open),  // includeIndexPredicate
 					(a => a.RefStillEscaped))                                           // keyMakingFunction
 		{
 		}

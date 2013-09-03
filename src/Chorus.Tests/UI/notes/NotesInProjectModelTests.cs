@@ -10,7 +10,7 @@ using Palaso.Progress;
 using Palaso.TestUtilities;
 
 namespace Chorus.Tests.notes
-{
+{ // TODO pH 2013.08: look for new, untested methods
 	[TestFixture]
 	public class NotesInProjectModelTests
 	{
@@ -25,7 +25,7 @@ namespace Chorus.Tests.notes
 		[Test]
 		public void GetMessages_NoNotesFiles_GivesZeroMessages()
 		{
-				var m = new NotesInProjectViewModel(TheUser, new List<AnnotationRepository>(), new MessageSelectedEvent(),new ChorusNotesDisplaySettings(), new ConsoleProgress());
+				var m = new NotesInProjectViewModel(TheUser, new List<AnnotationRepository>(), new ChorusNotesDisplaySettings(), new ConsoleProgress());
 				Assert.AreEqual(0, m.GetMessages().Count());
 		}
 
@@ -44,7 +44,7 @@ namespace Chorus.Tests.notes
 			using (new TempFileFromFolder(subfolder, "two." + AnnotationRepository.FileExtension, "<notes  version='0'><annotation><message/></annotation></notes>"))
 			{
 				var repos = AnnotationRepository.CreateRepositoriesFromFolder(folder.Path, _progress);
-				var m = new NotesInProjectViewModel(TheUser, repos, new MessageSelectedEvent(),new ChorusNotesDisplaySettings(), new ConsoleProgress());
+				var m = new NotesInProjectViewModel(TheUser, repos, new ChorusNotesDisplaySettings(), new ConsoleProgress());
 				Assert.AreEqual(2, m.GetMessages().Count());
 			}
 		}
@@ -62,8 +62,8 @@ namespace Chorus.Tests.notes
 				string contents = "<annotation><message author='john'></message></annotation>";
 				using (CreateNotesFile(folder, contents))
 				{
-					var m = new NotesInProjectViewModel(TheUser, AnnotationRepository.CreateRepositoriesFromFolder(folder.Path, _progress), new MessageSelectedEvent(), new ChorusNotesDisplaySettings(), new ConsoleProgress());
-					m.SearchTextChanged("john");
+					var m = new NotesInProjectViewModel(TheUser, AnnotationRepository.CreateRepositoriesFromFolder(folder.Path, _progress), new ChorusNotesDisplaySettings(), new ConsoleProgress());
+					m.SearchText = "john";
 					Assert.AreEqual(1, m.GetMessages().Count());
 				}
 			}
@@ -82,9 +82,9 @@ namespace Chorus.Tests.notes
 				using (CreateNotesFile(folder, contents))
 				{
 					var repos = AnnotationRepository.CreateRepositoriesFromFolder(folder.Path, _progress);
-					var m = new NotesInProjectViewModel(TheUser, repos, new MessageSelectedEvent(), new ChorusNotesDisplaySettings(), new ConsoleProgress());
-					 Assert.AreEqual(2, m.GetMessages().Count(), "should get 2 annotations when search box is empty");
-				   m.SearchTextChanged("ques");
+					var m = new NotesInProjectViewModel(TheUser, repos, new ChorusNotesDisplaySettings(), new ConsoleProgress());
+					Assert.AreEqual(2, m.GetMessages().Count(), "should get 2 annotations when search box is empty");
+					m.SearchText = "ques";
 					Assert.AreEqual(1, m.GetMessages().Count());
 					Assert.AreEqual("john",m.GetMessages().First().Message.Author);
 
@@ -102,9 +102,9 @@ namespace Chorus.Tests.notes
 				using (CreateNotesFile(folder, contents))
 				{
 					var repos = AnnotationRepository.CreateRepositoriesFromFolder(folder.Path, _progress);
-					var m = new NotesInProjectViewModel(TheUser, repos, new MessageSelectedEvent(), new ChorusNotesDisplaySettings(), new ConsoleProgress());
+					var m = new NotesInProjectViewModel(TheUser, repos, new ChorusNotesDisplaySettings(), new ConsoleProgress());
 					Assert.AreEqual(2, m.GetMessages().Count(), "should get 2 annotations when search box is empty");
-					m.SearchTextChanged("MesSAGE");//es is lower case
+					m.SearchText = "MesSAGE";//es is lower case
 					Assert.AreEqual(1, m.GetMessages().Count());
 					Assert.AreEqual("bob", m.GetMessages().First().Message.Author);
 
@@ -122,9 +122,9 @@ namespace Chorus.Tests.notes
 				using (CreateNotesFile(folder, contents))
 				{
 					var repos = AnnotationRepository.CreateRepositoriesFromFolder(folder.Path, _progress);
-					var m = new NotesInProjectViewModel(TheUser, repos, new MessageSelectedEvent(), new ChorusNotesDisplaySettings(), new ConsoleProgress());
+					var m = new NotesInProjectViewModel(TheUser, repos, new ChorusNotesDisplaySettings(), new ConsoleProgress());
 					Assert.AreEqual(2, m.GetMessages().Count(), "should get 2 annotations when search box is empty");
-					m.SearchTextChanged("Ques");
+					m.SearchText = "Ques";
 					Assert.AreEqual(1, m.GetMessages().Count());
 					Assert.AreEqual("john", m.GetMessages().First().Message.Author);
 
@@ -133,7 +133,7 @@ namespace Chorus.Tests.notes
 		}
 
 		[Test]
-		public void GetMessages_HideQuestionsTrue_HidesQuestions()
+		public void GetMessages_ShowQuestionsFalse_HidesQuestions()
 		{
 			using (var folder = new TemporaryFolder("NotesModelTests"))
 			{
@@ -142,7 +142,7 @@ namespace Chorus.Tests.notes
 				using (CreateNotesFile(folder, contents))
 				{
 					var repos = AnnotationRepository.CreateRepositoriesFromFolder(folder.Path, _progress);
-					var m = new NotesInProjectViewModel(TheUser, repos, new MessageSelectedEvent(), new ChorusNotesDisplaySettings(), new ConsoleProgress());
+					var m = new NotesInProjectViewModel(TheUser, repos, new ChorusNotesDisplaySettings(), new ConsoleProgress());
 					Assert.AreEqual(2, m.GetMessages().Count(), "should get 2 annotations by default");
 					m.ShowQuestions = false;
 					Assert.AreEqual(1, m.GetMessages().Count());
@@ -161,7 +161,7 @@ namespace Chorus.Tests.notes
 				using (CreateNotesFile(folder, contents))
 				{
 					var repos = AnnotationRepository.CreateRepositoriesFromFolder(folder.Path, _progress);
-					var m = new NotesInProjectViewModel(TheUser, repos, new MessageSelectedEvent(), new ChorusNotesDisplaySettings(), new ConsoleProgress());
+					var m = new NotesInProjectViewModel(TheUser, repos, new ChorusNotesDisplaySettings(), new ConsoleProgress());
 					m.ShowConflicts = false;
 					m.ShowNotifications = false;
 					m.ShowQuestions = false;
@@ -241,7 +241,7 @@ namespace Chorus.Tests.notes
 				using (CreateNotesFile(folder, contents))
 				{
 					var repos = AnnotationRepository.CreateRepositoriesFromFolder(folder.Path, _progress);
-					var m = new NotesInProjectViewModel(TheUser, repos, new MessageSelectedEvent(), new ChorusNotesDisplaySettings(), new ConsoleProgress());
+					var m = new NotesInProjectViewModel(TheUser, repos, new ChorusNotesDisplaySettings(), new ConsoleProgress());
 					Assert.AreEqual(3, m.GetMessages().Count(), "should get 1 from each of 3 annotations by default");
 					m.ShowNotifications = false;
 					Assert.AreEqual(2, m.GetMessages().Count(), "one from the notification should not be shown, leaving 2");
@@ -276,12 +276,12 @@ namespace Chorus.Tests.notes
 				using (CreateNotesFile(folder, contents))
 				{
 					var repos = AnnotationRepository.CreateRepositoriesFromFolder(folder.Path, _progress);
-					var m = new NotesInProjectViewModel(TheUser, repos, new MessageSelectedEvent(), new ChorusNotesDisplaySettings(),
+					var m = new NotesInProjectViewModel(TheUser, repos, new ChorusNotesDisplaySettings(),
 						new ConsoleProgress());
 					Assert.AreEqual(2, m.GetMessages().Count(), "Should get one from each annotation by default");
 					Assert.That(m.GetMessages().First().Message.Author, Is.EqualTo("bill"), "bill's is the newest message");
 					Assert.That(m.GetMessages().Last().Message.Author, Is.EqualTo("bob"), "bob's is the oldest message");
-					m.SearchTextChanged("john");
+					m.SearchText = "john";
 					Assert.AreEqual(1, m.GetMessages().Count(), "Should only get a message from the annotation where one passes filter");
 					Assert.That(m.GetMessages().First().Message.Author, Is.EqualTo("john"), "Should get one of John's messages (that pass filter)");
 					Assert.That(m.GetMessages().First().Message.Date.Second, Is.EqualTo(36), "Should the newest message passing the filter");
