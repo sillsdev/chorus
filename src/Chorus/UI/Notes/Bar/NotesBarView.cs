@@ -1,11 +1,9 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 using Chorus.notes;
 using Chorus.Properties;
-using Chorus.Utilities;
 using L10NSharp;
 using Palaso.Progress;
 
@@ -43,6 +41,8 @@ namespace Chorus.UI.Notes.Bar
 
 		internal readonly NotesBarModel _model;
 		private AnnotationEditorModel.Factory _annotationEditorModelFactory;
+		//When a new message(annotation) is being created, it should be removed if the user presses the red X in the dialog (NoteDetailDialog).
+		private DialogResult _dialogResult;
 
 		/// <summary>
 		/// Normally, don't use this, use the autofac-generated factory instead.
@@ -146,9 +146,10 @@ namespace Chorus.UI.Notes.Bar
 				var btn = AddAnnotationButton(newguy);
 				OnExistingAnnotationButtonClick(btn, null);
 				var annotation = ((Annotation)btn.Tag);
-				if (annotation.Messages.Count() == 0)
+				if (_dialogResult == DialogResult.Cancel || annotation.Messages.Count() == 0)
 				{
 					_model.RemoveAnnotation(annotation);
+					_buttonsPanel.Controls.Remove(btn);
 				}
 			}
 			catch (Exception)
@@ -164,12 +165,15 @@ namespace Chorus.UI.Notes.Bar
 		{
 			var annotation = (Annotation) ((Button)sender).Tag;
 			var dlg = new NoteDetailDialog(annotation, _annotationEditorModelFactory);
-			dlg.ShowDialog();
-			OnUpdateContent(null,null);
-			_model.SaveNowIfNeeded(new NullProgress());
-			Timer refreshTimer = new Timer() {Interval = 500, Enabled = true};
-			refreshTimer.Tick += new EventHandler(OnRefreshTimer_Tick);
-			components.Add(refreshTimer);
+			_dialogResult = dlg.ShowDialog();
+			if (_dialogResult == DialogResult.OK)
+			{
+				OnUpdateContent(null, null);
+				_model.SaveNowIfNeeded(new NullProgress());
+				Timer refreshTimer = new Timer() { Interval = 500, Enabled = true };
+				refreshTimer.Tick += new EventHandler(OnRefreshTimer_Tick);
+				components.Add(refreshTimer);
+			}
 		}
 
 		void OnRefreshTimer_Tick(object sender, EventArgs e)

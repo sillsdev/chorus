@@ -73,7 +73,7 @@ namespace Chorus.UI.Sync
 			this._useLocalNetworkButton.Text = "&Chorus Hub";
 			this._useLocalNetworkButton.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
 			this._useLocalNetworkButton.UseVisualStyleBackColor = false;
-			this._useLocalNetworkButton.Click += new System.EventHandler(this._useSharedFolderButton_Click);
+			this._useLocalNetworkButton.Click += new System.EventHandler(this._useLocalNetworkButton_Click);
 			//
 			// _useInternetButton
 			//

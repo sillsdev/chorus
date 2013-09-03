@@ -34,6 +34,7 @@ namespace Chorus.FileTypeHanders.ldml
 				{
 					switch (attrName)
 					{
+						case "xmlns:palaso2":
 						case "xmlns:palaso":
 						case "xmlns:fw":
 							key += "_" + attrName;

@@ -202,7 +202,7 @@ namespace Chorus.merge.xml.generic
 				else
 				{
 					if (ourChild is XmlElement)
-						_ours.AppendChild(XmlUtilities.GetDocumentNodeFromRawXml(ourChild.OuterXml, _ours.OwnerDocument));
+						_ours.AppendChild(_ours.OwnerDocument.ImportNode(ourChild, true));
 					else if (ourChild is XmlText)
 						_ours.AppendChild(_ours.OwnerDocument.CreateTextNode(ourChild.OuterXml));
 					else

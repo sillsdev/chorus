@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Chorus.VcsDrivers;
 
 namespace ChorusHub
 {
@@ -21,7 +22,7 @@ namespace ChorusHub
 		}
 
 		// Deserialize one
-		internal static ChorusHubRepositoryInformation DechipherJsonString(string jsonString)
+		internal static RepositoryInformation DechipherJsonString(string jsonString)
 		{
 			// Probably not the best way to do this, but...
 			// If the parse fails for any reason, will throw ArgumentException.
@@ -35,13 +36,13 @@ namespace ChorusHub
 			var name = strippedString.Substring(0, endOfNameIndex);
 			var begOfIdIndex = endOfNameIndex + 10;
 			var id = strippedString.Substring(begOfIdIndex, strippedString.Length - begOfIdIndex);
-			return new ChorusHubRepositoryInformation(name, id);
+			return new RepositoryInformation(name, id);
 		}
 
 		// Deserialize a bunch
-		internal static IEnumerable<ChorusHubRepositoryInformation> ParseJsonStringsToChorusHubRepoInfos(IEnumerable<string> jsonStrings)
+		internal static IEnumerable<RepositoryInformation> ParseJsonStringsToChorusHubRepoInfos(IEnumerable<string> jsonStrings)
 		{
-			var result = new List<ChorusHubRepositoryInformation>();
+			var result = new List<RepositoryInformation>();
 			foreach (var jsonString in jsonStrings)
 			{
 				try
