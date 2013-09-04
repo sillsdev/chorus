@@ -115,7 +115,6 @@
 	<Compile Include="Advertiser.cs" />
 	<Compile Include="ChorusHubClient.cs" />
 	<Compile Include="ChorusHubInfo.cs" />
-	<Compile Include="ChorusHubRepositoryInformation.cs" />
 	<Compile Include="ChorusHubWindow.cs">
 	  <SubType>Form</SubType>
 	</Compile>

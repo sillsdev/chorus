@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <PropertyGroup>
 	<Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
@@ -179,6 +179,7 @@
 	<Compile Include="VcsDrivers\Mercurial\RepositoryTests.cs" />
 	<Compile Include="VcsDrivers\Mercurial\RetrieveVersionTests.cs" />
 	<Compile Include="VcsDrivers\Mercurial\Utf8Tests.cs" />
+	<Compile Include="VcsDrivers\RepositoryAddressTests.cs" />
   </ItemGroup>
   <ItemGroup>
 	<Reference Include="LibChorus.TestUtilities, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">

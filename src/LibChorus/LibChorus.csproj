@@ -228,6 +228,7 @@
 	<Compile Include="Utilities\MultiMap.cs" />
 	<Compile Include="Utilities\UrlHelper.cs" />
 	<Compile Include="Utilities\XmlElementExtensions.cs" />
+	<Compile Include="VcsDrivers\RepositoryInformation.cs" />
 	<Compile Include="VcsDrivers\Mercurial\BundleStorageManager.cs" />
 	<Compile Include="VcsDrivers\Mercurial\HgExceptions.cs" />
 	<Compile Include="VcsDrivers\Mercurial\HgHighLevel.cs" />

@@ -66,6 +66,7 @@ namespace Chorus.FileTypeHanders.ldml
 			{
 				var nameSpaceManager = new XmlNamespaceManager(new NameTable());
 				nameSpaceManager.AddNamespace("palaso", "urn://palaso.org/ldmlExtensions/v1");
+				nameSpaceManager.AddNamespace("palaso2", "urn://palaso.org/ldmlExtensions/v2");
 				nameSpaceManager.AddNamespace("fw", "urn://fieldworks.sil.org/ldmlExtensions/v1");
 
 				var readerSettings = CanonicalXmlSettings.CreateXmlReaderSettings(ConformanceLevel.Auto);
@@ -178,6 +179,20 @@ namespace Chorus.FileTypeHanders.ldml
 				MergePartnerFinder = new FindByMatchingAttributeNames(new HashSet<string> { "xmlns:palaso" })
 			};
 			merger.MergeStrategies.SetStrategy("special_xmlns:palaso", strategy);
+			// special[palaso2]: want to merge knownKeyboards child. So the root element is not atomic.
+			strategy = new ElementStrategy(false)
+				{
+					MergePartnerFinder = new FindByMatchingAttributeNames(new HashSet<string> {"xmlns:palaso2"})
+				};
+			merger.MergeStrategies.SetStrategy("special_xmlns:palaso2", strategy);
+			// knownKeyboards:
+			merger.MergeStrategies.SetStrategy("palaso2:knownKeyboards", ElementStrategy.CreateSingletonElement());
+			// keyboard
+			strategy = new ElementStrategy(false)
+				{
+					MergePartnerFinder = new FindByMultipleKeyAttributes(new List<string> {"layout", "locale"})
+				};
+			merger.MergeStrategies.SetStrategy("palaso2:keyboard", strategy);
 			// Special "xmlns:fw"
 			strategy = new ElementStrategy(false)
 			{

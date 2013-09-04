@@ -60,7 +60,7 @@ namespace Chorus.UI.Notes
 			//note: while we would like to just use this font for the label column, this winform ui component
 			//doesn't support different fonts.
 			i.Font = _sLabelFont;
-			var sub = i.SubItems.Add(Message.GetAuthor("?"));
+			i.SubItems.Add(Message.GetAuthor("?"));
 			i.SubItems.Add(Message.Date.ToShortDateString());
 			SetListViewImage(i);
 			return i;

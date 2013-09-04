@@ -7,6 +7,7 @@ using System.Net.Sockets;
 using System.ServiceModel;
 using System.Text;
 using System.Threading;
+using Chorus.VcsDrivers;
 
 namespace ChorusHub
 {
@@ -16,7 +17,7 @@ namespace ChorusHub
 		private IPEndPoint _ipEndPoint;
 		private UdpClient _udpClient;
 		private IAsyncResult _asyncResult;
-		private IEnumerable<ChorusHubRepositoryInformation> _repositoryNames;
+		private IEnumerable<RepositoryInformation> _repositoryNames;
 
 		public string HostName
 		{
@@ -107,7 +108,7 @@ namespace ChorusHub
 			return _foundHubInfo; //will be null if none found
 		}
 
-		public IEnumerable<ChorusHubRepositoryInformation> GetRepositoryInformation(string queryString)
+		public IEnumerable<RepositoryInformation> GetRepositoryInformation(string queryString)
 		{
 			if(_repositoryNames!=null)
 				return _repositoryNames; //for now, there's no way to get an updated list except by making a new client
@@ -144,11 +145,13 @@ namespace ChorusHub
 
 		/// <summary>
 		/// Since Hg Serve doesn't provide a way to make new repositories, this asks our ChorusHub wrapper
-		/// to do create the repository. The complexity comes in the timing; hg serve will eventually
+		/// to create the repository. The complexity comes in the timing; hg serve will eventually
 		/// notice the new server, but we don't really know when.
 		/// </summary>
 		/// <param name="directoryName"></param>
-		public bool PrepareHubToSync(string directoryName)
+		/// <param name="repositoryId"></param>
+		/// <returns>true if we create a new repository and recommend the client wait until hg notices</returns>
+		public bool PrepareHubToSync(string directoryName, string repositoryID)
 		{
 			//Enchance: after creating and init'ing the folder, it would be possible to keep asking
 			//hg serve if it knows about the repository until finally it says "yes", instead of just
@@ -160,7 +163,7 @@ namespace ChorusHub
 			var channel = factory.CreateChannel();
 			try
 			{
-				var doWait = channel.PrepareToReceiveRepository(directoryName);
+				var doWait = channel.PrepareToReceiveRepository(directoryName, repositoryID);
 				return doWait;
 			}
 			catch (Exception error)
