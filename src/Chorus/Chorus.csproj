@@ -124,10 +124,10 @@
 	<Reference Include="L10NSharp">
 	  <HintPath>..\..\lib\common\L10NSharp.dll</HintPath>
 	</Reference>
-	<None Include="..\..\lib\%24%28Configuration%29\geckofix.so" Condition="'$(Configuration)' == 'DebugMono' Or '$(Configuration)' == 'ReleaseMono' ">
+	<None Include="..\..\lib\$(Configuration)\geckofix.so" Condition="'$(Configuration)' == 'DebugMono' Or '$(Configuration)' == 'ReleaseMono' ">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</None>
-	<None Include="..\..\lib\%24%28Configuration%29\geckofx-core-14.dll.config" Condition="'$(Configuration)' == 'DebugMono' Or '$(Configuration)' == 'ReleaseMono' ">
+	<None Include="..\..\lib\$(Configuration)\geckofx-core-14.dll.config" Condition="'$(Configuration)' == 'DebugMono' Or '$(Configuration)' == 'ReleaseMono' ">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</None>
   </ItemGroup>

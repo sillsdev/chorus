@@ -113,7 +113,7 @@
 	<Reference Include="L10NSharp">
 	  <HintPath>..\..\lib\common\L10NSharp.dll</HintPath>
 	</Reference>
-	<None Include="..\..\lib\%24%28Configuration%29\NDesk.DBus.dll.config" Condition="'$(Configuration)' == 'DebugMono' Or '$(Configuration)' == 'ReleaseMono' ">
+	<None Include="..\..\lib\$(Configuration)\NDesk.DBus.dll.config" Condition="'$(Configuration)' == 'DebugMono' Or '$(Configuration)' == 'ReleaseMono' ">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</None>
   </ItemGroup>
