@@ -24,13 +24,23 @@ namespace ChorusHub
 				return;
 			}
 
-			string parentOfRoot = Path.GetDirectoryName(parameters.RootDirectory);
+#if MONO // no paths are rooted on Mono. Not sure why Windows requires it.
+			if (parameters.RootDirectory.StartsWith("C:"))
+			{
+				// If it starts with c: on Linux, it's presumably the default.
+				// We can't supply a better default as an attribute on Linux, because the sensible
+				// default is not a constant. So supply it here. Ugly but I don't have a better answer.
+				parameters.RootDirectory = Path.Combine(Environment.GetEnvironmentVariable("HOME"), "ChorusHub");
+			}
+#else
 			if(!Path.IsPathRooted(parameters.RootDirectory))
 			{
 				ErrorReport.NotifyUserOfProblem("You supplied '{0}' for the root directory, but that doesn't have a drive letter.",
 																	parameters.RootDirectory);
 				return;
 			}
+#endif
+			string parentOfRoot = Path.GetDirectoryName(parameters.RootDirectory);
 			if(!Directory.Exists(parentOfRoot))
 			{
 				ErrorReport.NotifyUserOfProblem("In order to use '{0}', '{1}' must already exist",

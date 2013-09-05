@@ -24,6 +24,11 @@ namespace ChorusHub
 		public void Start()
 		{
 			_client = new UdpClient();
+			// The doc seems to indicate that EnableBroadcast is required for doing broadcasts.
+			// In practice it seems to be required on Mono but not on Windows.
+			// This may be fixed in a later version of one platform or the other, but please
+			// test both if tempted to remove it.
+			_client.EnableBroadcast = true;
 			_endPoint = new IPEndPoint(IPAddress.Parse("255.255.255.255"), Port);
 			 _thread = new Thread(Work);
 			_thread.Start();
