@@ -12,6 +12,12 @@ namespace Chorus.UI.Notes.Browser
 			InitializeComponent();
 		}
 
+		public string SearchText
+		{
+			get { return _searchText.Text; }
+			set { _searchText.Text = value; }
+		}
+
 		private void _searchText_TextChanged(object sender, EventArgs e)
 		{
 			if(SearchTextChanged !=null)

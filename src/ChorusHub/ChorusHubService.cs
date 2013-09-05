@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.ServiceModel;
 using System.ServiceModel.Description;
-using IPCFramework;
 using Palaso.Progress;
 
 namespace ChorusHub
@@ -44,7 +43,7 @@ namespace ChorusHub
 	public class ChorusHubService:IDisposable
 	{
 		public static ChorusHubParameters Parameters;
-		private IIPCHost _serviceHost;
+		private ServiceHost _serviceHost;
 		public int ServicePort;// = 8002;
 
 		private static HgServeRunner _hgServer;
@@ -78,11 +77,16 @@ namespace ChorusHub
 				_advertiser.Start();
 
 				//gave security error _serviceHost = new ServiceHost(this);
-				_serviceHost = IPCHostFactory.Create();
-				_serviceHost.InitializeRemote<ChorusHubServiceImplementation, IChorusHubService>(ServicePort.ToString(), null, null);
+				_serviceHost = new ServiceHost(typeof(ChorusHubServiceImplementation));
 
-			   //EnableSendingExceptionsToClient();
+			   EnableSendingExceptionsToClient();
 
+				string address = "net.tcp://localhost:" + ServicePort.ToString();
+				var binding = new NetTcpBinding();
+				binding.Security.Mode = SecurityMode.None;
+				_serviceHost.AddServiceEndpoint(typeof(IChorusHubService), binding, address);
+				Progress.WriteVerbose("Starting extra chorus hub services on {0}", address);
+				_serviceHost.Open();
 				return true;
 			}
 			catch (Exception error)
@@ -92,25 +96,25 @@ namespace ChorusHub
 			}
 		}
 
-		//private void EnableSendingExceptionsToClient()
-		//{
-		//    ServiceDebugBehavior debug = _serviceHost.Description.Behaviors.Find<ServiceDebugBehavior>();
+		private void EnableSendingExceptionsToClient()
+		{
+			ServiceDebugBehavior debug = _serviceHost.Description.Behaviors.Find<ServiceDebugBehavior>();
 
-		//    // if not found - add behavior with setting turned on
-		//    if (debug == null)
-		//    {
-		//        _serviceHost.Description.Behaviors.Add(
-		//            new ServiceDebugBehavior() {IncludeExceptionDetailInFaults = true});
-		//    }
-		//    else
-		//    {
-		//        // make sure setting is turned ON
-		//        if (!debug.IncludeExceptionDetailInFaults)
-		//        {
-		//            debug.IncludeExceptionDetailInFaults = true;
-		//        }
-		//    }
-		//}
+			// if not found - add behavior with setting turned on
+			if (debug == null)
+			{
+				_serviceHost.Description.Behaviors.Add(
+					new ServiceDebugBehavior() {IncludeExceptionDetailInFaults = true});
+			}
+			else
+			{
+				// make sure setting is turned ON
+				if (!debug.IncludeExceptionDetailInFaults)
+				{
+					debug.IncludeExceptionDetailInFaults = true;
+				}
+			}
+		}
 
 
 		public void Stop()

@@ -82,7 +82,6 @@ namespace Chorus.notes
 				{
 					string content = cdata.Value;
 					var handler = embeddedMessageContentHandlerRepository.GetHandlerOrDefaultForCData(content);
-					b.AppendLine("<div/>");
 					b.AppendLine(handler.GetHyperLink(content));
 				}
 			}
@@ -102,6 +101,4 @@ namespace Chorus.notes
 			return Author.OrDefault(defaultValue);
 		}
 	}
-
-
 }

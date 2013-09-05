@@ -29,8 +29,9 @@
 		private void InitializeComponent()
 		{
 			this.components = new System.ComponentModel.Container();
-			this._resolvedCheckBox = new System.Windows.Forms.CheckBox();
-			this._addButton = new System.Windows.Forms.Button();
+			this._okButton = new System.Windows.Forms.Button();
+			this._resolveButton = new System.Windows.Forms.Button();
+			this._closeButton = new System.Windows.Forms.Button();
 			this._newMessage = new System.Windows.Forms.TextBox();
 			this._annotationLogo = new System.Windows.Forms.PictureBox();
 #if MONO
@@ -38,7 +39,6 @@
 #else
 			this._existingMessagesDisplay = new System.Windows.Forms.WebBrowser();
 #endif
-			this._closeButton = new System.Windows.Forms.Button();
 			this._annotationLabel = new System.Windows.Forms.LinkLabel();
 			this._addNewMessageLabel = new Chorus.UI.BetterLabel();
 			this.l10NSharpExtender1 = new L10NSharp.UI.L10NSharpExtender(this.components);
@@ -46,36 +46,52 @@
 			((System.ComponentModel.ISupportInitialize)(this.l10NSharpExtender1)).BeginInit();
 			this.SuspendLayout();
 			//
-			// _resolvedCheckBox
+			// _okButton
 			//
-			this._resolvedCheckBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this._resolvedCheckBox.AutoSize = true;
-			this._resolvedCheckBox.Image = global::Chorus.Properties.Resources.check12x12;
-			this.l10NSharpExtender1.SetLocalizableToolTip(this._resolvedCheckBox, null);
-			this.l10NSharpExtender1.SetLocalizationComment(this._resolvedCheckBox, null);
-			this.l10NSharpExtender1.SetLocalizingId(this._resolvedCheckBox, "AnnotationEditorView.Resolved");
-			this._resolvedCheckBox.Location = new System.Drawing.Point(4, 387);
-			this._resolvedCheckBox.Name = "_resolvedCheckBox";
-			this._resolvedCheckBox.Size = new System.Drawing.Size(83, 17);
-			this._resolvedCheckBox.TabIndex = 2;
-			this._resolvedCheckBox.Text = "&Resolved";
-			this._resolvedCheckBox.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
-			this._resolvedCheckBox.UseVisualStyleBackColor = true;
-			this._resolvedCheckBox.CheckedChanged += new System.EventHandler(this.OnResolvedCheckBox_CheckedChanged);
+			this._okButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+			this.l10NSharpExtender1.SetLocalizableToolTip(this._okButton, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this._okButton, null);
+			this.l10NSharpExtender1.SetLocalizingId(this._okButton, "AnnotationEditorView.Add");
+			this._okButton.Location = new System.Drawing.Point(159, 389);
+			this._okButton.Name = "_okButton";
+			this._okButton.Size = new System.Drawing.Size(90, 23);
+			this._okButton.TabIndex = 1;
+			this._okButton.Text = "&Add && &OK";
+			this._okButton.UseVisualStyleBackColor = true;
+			this._okButton.Click += new System.EventHandler(this._okButton_Click);
 			//
-			// _addButton
+			// _resolveButton
 			//
-			this._addButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-			this.l10NSharpExtender1.SetLocalizableToolTip(this._addButton, null);
-			this.l10NSharpExtender1.SetLocalizationComment(this._addButton, null);
-			this.l10NSharpExtender1.SetLocalizingId(this._addButton, "AnnotationEditorView.Add");
-			this._addButton.Location = new System.Drawing.Point(255, 325);
-			this._addButton.Name = "_addButton";
-			this._addButton.Size = new System.Drawing.Size(63, 45);
-			this._addButton.TabIndex = 1;
-			this._addButton.Text = "&Add";
-			this._addButton.UseVisualStyleBackColor = true;
-			this._addButton.Click += new System.EventHandler(this._addButton_Click);
+			this._resolveButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+			this._resolveButton.AutoSize = true;
+			this._resolveButton.Image = global::Chorus.Properties.Resources.check12x12;
+			this.l10NSharpExtender1.SetLocalizableToolTip(this._resolveButton, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this._resolveButton, null);
+			this.l10NSharpExtender1.SetLocalizingId(this._resolveButton, "AnnotationEditorView.button1");
+			this._resolveButton.Location = new System.Drawing.Point(5, 389);
+			this._resolveButton.Name = "_resolveButton";
+			this._resolveButton.Size = new System.Drawing.Size(106, 23);
+			this._resolveButton.TabIndex = 2;
+			this._resolveButton.Text = "&Resolve Note";
+			this._resolveButton.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+			this._resolveButton.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
+			this._resolveButton.UseVisualStyleBackColor = true;
+			this._resolveButton.Click += new System.EventHandler(this._resolveButton_Click);
+			//
+			// _closeButton
+			//
+			this._closeButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+			this.l10NSharpExtender1.SetLocalizableToolTip(this._closeButton, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this._closeButton, null);
+			this.l10NSharpExtender1.SetLocalizingId(this._closeButton, "AnnotationEditorView.AddAndOk");
+			this._closeButton.Location = new System.Drawing.Point(255, 389);
+			this._closeButton.Name = "_closeButton";
+			this._closeButton.Size = new System.Drawing.Size(63, 23);
+			this._closeButton.TabIndex = 3;
+			this._closeButton.Text = "&Cancel";
+			this._closeButton.UseVisualStyleBackColor = true;
+			this._closeButton.VisibleChanged += new System.EventHandler(this._closeButton_VisibleChanged);
+			this._closeButton.Click += new System.EventHandler(this._closeButton_Click);
 			//
 			// _newMessage
 			//
@@ -84,12 +100,11 @@
 			this.l10NSharpExtender1.SetLocalizableToolTip(this._newMessage, null);
 			this.l10NSharpExtender1.SetLocalizationComment(this._newMessage, null);
 			this.l10NSharpExtender1.SetLocalizingId(this._newMessage, "AnnotationEditorView.AnnotationEditorView._newMessage");
-			this._newMessage.Location = new System.Drawing.Point(4, 325);
+			this._newMessage.Location = new System.Drawing.Point(7, 338);
 			this._newMessage.Multiline = true;
 			this._newMessage.Name = "_newMessage";
-			this._newMessage.Size = new System.Drawing.Size(248, 45);
+			this._newMessage.Size = new System.Drawing.Size(311, 45);
 			this._newMessage.TabIndex = 0;
-			this._newMessage.TextChanged += new System.EventHandler(this._newMessage_TextChanged);
 			this._newMessage.Enter += new System.EventHandler(this._newMessage_Enter);
 			//
 			// _annotationLogo
@@ -101,7 +116,7 @@
 			this._annotationLogo.Location = new System.Drawing.Point(5, 8);
 			this._annotationLogo.Name = "_annotationLogo";
 			this._annotationLogo.Size = new System.Drawing.Size(32, 32);
-			this._annotationLogo.TabIndex = 1;
+			this._annotationLogo.TabIndex = 10;
 			this._annotationLogo.TabStop = false;
 			this._annotationLogo.Paint += new System.Windows.Forms.PaintEventHandler(this._annotationLogo_Paint);
 			this._annotationLogo.DoubleClick += new System.EventHandler(this._annotationLogo_DoubleClick);
@@ -120,7 +135,7 @@
 			this._existingMessagesDisplay.Location = new System.Drawing.Point(5, 47);
 			this._existingMessagesDisplay.MinimumSize = new System.Drawing.Size(20, 20);
 			this._existingMessagesDisplay.Name = "_existingMessagesDisplay";
-			this._existingMessagesDisplay.Size = new System.Drawing.Size(313, 250);
+			this._existingMessagesDisplay.Size = new System.Drawing.Size(313, 264);
 			this._existingMessagesDisplay.TabIndex = 9;
 			//GECKOFX: Is this needed?
 			//this._existingMessagesDisplay.WebBrowserShortcutsEnabled = false;
@@ -137,26 +152,12 @@
 			this._existingMessagesDisplay.Location = new System.Drawing.Point(5, 47);
 			this._existingMessagesDisplay.MinimumSize = new System.Drawing.Size(20, 20);
 			this._existingMessagesDisplay.Name = "_existingMessagesDisplay";
-			this._existingMessagesDisplay.Size = new System.Drawing.Size(313, 250);
+			this._existingMessagesDisplay.Size = new System.Drawing.Size(313, 264);
 			this._existingMessagesDisplay.TabIndex = 9;
 			this._existingMessagesDisplay.WebBrowserShortcutsEnabled = false;
 			this._existingMessagesDisplay.DocumentCompleted += new System.Windows.Forms.WebBrowserDocumentCompletedEventHandler(this._existingMessagesDisplay_DocumentCompleted);
 			this._existingMessagesDisplay.Navigating += new System.Windows.Forms.WebBrowserNavigatingEventHandler(this._existingMessagesDisplay_Navigating);
 #endif
-			//
-			// _closeButton
-			//
-			this._closeButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-			this.l10NSharpExtender1.SetLocalizableToolTip(this._closeButton, null);
-			this.l10NSharpExtender1.SetLocalizationComment(this._closeButton, null);
-			this.l10NSharpExtender1.SetLocalizingId(this._closeButton, "AnnotationEditorView.AddAndOk");
-			this._closeButton.Location = new System.Drawing.Point(189, 376);
-			this._closeButton.Name = "_closeButton";
-			this._closeButton.Size = new System.Drawing.Size(129, 36);
-			this._closeButton.TabIndex = 1;
-			this._closeButton.Text = "Add && &OK";
-			this._closeButton.UseVisualStyleBackColor = true;
-			this._closeButton.Click += new System.EventHandler(this._closeButton_Click);
 			//
 			// _annotationLabel
 			//
@@ -184,12 +185,12 @@
 			this.l10NSharpExtender1.SetLocalizableToolTip(this._addNewMessageLabel, null);
 			this.l10NSharpExtender1.SetLocalizationComment(this._addNewMessageLabel, null);
 			this.l10NSharpExtender1.SetLocalizingId(this._addNewMessageLabel, "AnnotationEditorView.AddNewMessage");
-			this._addNewMessageLabel.Location = new System.Drawing.Point(4, 298);
+			this._addNewMessageLabel.Location = new System.Drawing.Point(7, 320);
 			this._addNewMessageLabel.Multiline = true;
 			this._addNewMessageLabel.Name = "_addNewMessageLabel";
 			this._addNewMessageLabel.ReadOnly = true;
-			this._addNewMessageLabel.Size = new System.Drawing.Size(293, 20);
-			this._addNewMessageLabel.TabIndex = 5;
+			this._addNewMessageLabel.Size = new System.Drawing.Size(293, 15);
+			this._addNewMessageLabel.TabIndex = 11;
 			this._addNewMessageLabel.TabStop = false;
 			this._addNewMessageLabel.Text = "Add new message:";
 			//
@@ -202,13 +203,13 @@
 			//
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			this.Controls.Add(this._okButton);
+			this.Controls.Add(this._resolveButton);
+			this.Controls.Add(this._closeButton);
 			this.Controls.Add(this._annotationLabel);
 			this.Controls.Add(this._existingMessagesDisplay);
 			this.Controls.Add(this._newMessage);
-			this.Controls.Add(this._closeButton);
-			this.Controls.Add(this._addButton);
 			this.Controls.Add(this._addNewMessageLabel);
-			this.Controls.Add(this._resolvedCheckBox);
 			this.Controls.Add(this._annotationLogo);
 			this.l10NSharpExtender1.SetLocalizableToolTip(this, null);
 			this.l10NSharpExtender1.SetLocalizationComment(this, null);
@@ -226,16 +227,16 @@
 		#endregion
 
 		private System.Windows.Forms.PictureBox _annotationLogo;
-		private System.Windows.Forms.CheckBox _resolvedCheckBox;
 		private BetterLabel _addNewMessageLabel;
-		private System.Windows.Forms.Button _addButton;
+		private System.Windows.Forms.Button _okButton;
+		private System.Windows.Forms.Button _resolveButton;
+		private System.Windows.Forms.Button _closeButton;
 		private System.Windows.Forms.TextBox _newMessage;
 #if MONO
 		private Gecko.GeckoWebBrowser _existingMessagesDisplay;
 #else
 		private System.Windows.Forms.WebBrowser _existingMessagesDisplay;
 #endif
-		private System.Windows.Forms.Button _closeButton;
 		private System.Windows.Forms.LinkLabel _annotationLabel;
 		private L10NSharp.UI.L10NSharpExtender l10NSharpExtender1;
 	}
