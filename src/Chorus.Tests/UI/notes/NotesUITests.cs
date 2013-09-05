@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Threading;
 using System.Windows.Forms;
 using Chorus.notes;
 using Chorus.UI.Notes;
@@ -139,7 +138,7 @@ namespace Chorus.Tests.notes
 				WritingSystemForNoteContent = new TestWritingSystem("Bradley Hand ITC")
 			};
 
-			NotesInProjectViewModel notesInProjectModel = new NotesInProjectViewModel(new ChorusUser("Bob"), repositories, messageSelected, chorusNotesDisplaySettings, new ConsoleProgress());
+			NotesInProjectViewModel notesInProjectModel = new NotesInProjectViewModel(new ChorusUser("Bob"), repositories, chorusNotesDisplaySettings, new ConsoleProgress());
 
 			var annotationModel = new AnnotationEditorModel(new ChorusUser("bob"), messageSelected, StyleSheet.CreateFromDisk(),
 				new EmbeddedMessageContentHandlerRepository(), new NavigateToRecordEvent(), chorusNotesDisplaySettings);
