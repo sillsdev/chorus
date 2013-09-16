@@ -77,10 +77,16 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				(ApiServer as IDisposable).Dispose();
 		}
 
-		public virtual void LocalAddAndCommit()
+		public virtual string LocalAddAndCommit()
 		{
-			string filename = Path.GetRandomFileName();
+			var filename = Path.GetRandomFileName();
 			Local.AddAndCheckinFile(filename, "localcheckin");
+			return filename;
+		}
+
+		public virtual void LocalChangeAndCommit(string fileToChange)
+		{
+			Local.ChangeFile(fileToChange, DateTime.Now.GetHashCode().ToString());
 		}
 
 		public virtual void RemoteAddAndCommit()
@@ -159,11 +165,11 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			Remote.Synchronizer.SynchronizerAdjunct = adjunct;
 		}
 
-		public override void LocalAddAndCommit()
+		public override string LocalAddAndCommit()
 		{
 			var opts = new SyncOptions {CheckinDescription = "localaddandcommit"};
 			Local.Synchronizer.SyncNow(opts);
-			base.LocalAddAndCommit();
+			return base.LocalAddAndCommit();
 		}
 
 		public override void RemoteAddAndCommit()
