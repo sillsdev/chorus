@@ -32,6 +32,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		private const int TimeoutInSeconds = 15;
 		private const int TargetTimeInSeconds = TimeoutInSeconds / 3;
 		internal const string RevisionCacheFilename = "revisioncache.db";
+		internal int RevisionRequestQuantity = 200;
 
 		///<summary>
 		///</summary>
@@ -125,9 +126,9 @@ namespace Chorus.VcsDrivers.Mercurial
 		/// <returns>The contents of the cache file if it exists, or an empty list</returns>
 		internal static List<ServerRevision> ReadServerRevisionCache(string filePath)
 		{
-			try
+			if (File.Exists(filePath))
 			{
-				using(Stream stream = File.Open(filePath, FileMode.Open))
+				using (Stream stream = File.Open(filePath, FileMode.Open))
 				{
 					var bFormatter = new BinaryFormatter();
 					var revisions = bFormatter.Deserialize(stream) as List<ServerRevision>;
@@ -135,7 +136,7 @@ namespace Chorus.VcsDrivers.Mercurial
 					return revisions;
 				}
 			}
-			catch(FileNotFoundException)
+			else
 			{
 				return new List<ServerRevision>();
 			}
@@ -166,7 +167,6 @@ namespace Chorus.VcsDrivers.Mercurial
 				return LastKnownCommonBases;
 			}
 			int offset = 0;
-			const int quantity = 200;
 			var localRevisions = new MultiMap<string, Revision>();
 			foreach (var rev in  _repo.GetAllRevisions())
 			{
@@ -178,16 +178,17 @@ namespace Chorus.VcsDrivers.Mercurial
 			var localBranches = new List<string>(localRevisions.Keys);
 			while (commonBases.Count < localRevisions.Keys.Count())
 			{
-				var remoteRevisions = GetRemoteRevisions(offset, quantity);
+				var remoteRevisions = GetRemoteRevisions(offset, RevisionRequestQuantity);
 				if (remoteRevisions.Keys.Count() == 1 && remoteRevisions[remoteRevisions.Keys.First()].First().Split(':')[0] == "0")
 				{
 					// special case when remote repo is empty (initialized with no changesets)
 					return new List<Revision>();
 				}
-				foreach (var key in localBranches)
+				var branchesMatched = new List<string>(); // track branches that we've already found a common revision for
+				foreach (var branch in localBranches)
 				{
-					var localList = localRevisions[key];
-					var remoteList = remoteRevisions[key];
+					var localList = localRevisions[branch];
+					var remoteList = remoteRevisions[branch];
 					foreach (var revision in remoteList)
 					{
 						var remoteRevision = revision; //copy to local for use in predicate
@@ -195,16 +196,18 @@ namespace Chorus.VcsDrivers.Mercurial
 						if (commonRevision != null)
 						{
 							commonBases.Add(commonRevision);
+							branchesMatched.Add(branch); // found a common revision for this branch
 							break;
 						}
 					}
 				}
-				if(remoteRevisions.Count() < quantity)
+				localBranches.RemoveAll(branchesMatched.Contains); // stop looking for common revisions in branches we matched
+				if(remoteRevisions.Count() < RevisionRequestQuantity)
 				{
 					//we did not find a common revision for each branch, but we ran out of revisions from the repo
 					break;
 				}
-				offset += quantity;
+				offset += RevisionRequestQuantity;
 			}
 
 			// If we have found no common revisions at this point, the remote repo is unrelated
@@ -253,7 +256,7 @@ namespace Chorus.VcsDrivers.Mercurial
 						{
 							//The expected response from API version 3 follows the format of
 							//revisionhash:branch|revisionhash:branch|...
-							string revString = Encoding.UTF8.GetString(response.Content);
+							var revString = Encoding.UTF8.GetString(response.Content);
 							var pairs = revString.Split('|').ToList();
 							var revisions = new MultiMap<string, string>();
 							foreach (var pair in pairs)
@@ -266,6 +269,11 @@ namespace Chorus.VcsDrivers.Mercurial
 								revisions.Add(hashRevCombo[1], hashRevCombo[0]);
 							}
 							return revisions;
+						}
+						if (response.HttpStatus == HttpStatusCode.OK && response.Content.Length == 0)
+						{
+							//There were no more revisions in the range requested [edge case]
+							return new MultiMap<string, string>();
 						}
 						if (response.HttpStatus == HttpStatusCode.BadRequest && response.ResumableResponse.Status == "UNKNOWNID")
 						{
