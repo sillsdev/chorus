@@ -18,8 +18,13 @@ namespace Chorus.UI.Notes.Html
 		{
 			get
 			{
-				var contents = GetContents();
-				return string.Format("<style type='text/css'><!-- {0} --></style>", contents);
+				var bldr = new System.Text.StringBuilder();
+				// Ensure that the control interprets our text as UTF-8 instead of ISO-8859-1.
+				bldr.AppendLine("<META http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">");
+				bldr.AppendLine("<style type='text/css'>");
+				bldr.AppendLine(String.Format("<!-- {0} -->", GetContents()));	// Question: why is the style content commented out?
+				bldr.AppendLine("</style>");
+				return bldr.ToString();
 			}
 		}
 
