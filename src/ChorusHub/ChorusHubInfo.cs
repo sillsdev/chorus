@@ -12,7 +12,9 @@ namespace ChorusHub
 		private readonly string Port;
 		public string HostName;
 		public int VersionOfServerChorusHub;
-		internal const int kVersionOfThisCode = 2;
+		// Updated JohnT September 2013 for change making GetRepositoryInformation return a single string instead of enumeration.
+		// Note: a few implementations with the code change but still having the old version may have escaped.
+		internal const int kVersionOfThisCode = 3;
 
 
 		public static ChorusHubInfo Parse(string parameters)
