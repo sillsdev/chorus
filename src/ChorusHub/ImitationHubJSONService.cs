@@ -39,7 +39,7 @@ namespace ChorusHub
 		}
 
 		// Deserialize a bunch
-		internal static IEnumerable<RepositoryInformation> ParseJsonStringsToChorusHubRepoInfos(string jsonInput)
+		internal static IEnumerable<ChorusHubRepositoryInformation> ParseJsonStringsToChorusHubRepoInfos(string jsonInput)
 		{
 			var jsonStrings = jsonInput.Split(new [] {'/'}, StringSplitOptions.RemoveEmptyEntries);
 			var result = new List<ChorusHubRepositoryInformation>();
