@@ -10,64 +10,53 @@
 	<AppDesignerFolder>Properties</AppDesignerFolder>
 	<RootNamespace>LibChorus.TestUtilities</RootNamespace>
 	<AssemblyName>LibChorus.TestUtilities</AssemblyName>
-	<TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
 	<FileAlignment>512</FileAlignment>
-	<TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-	<DebugSymbols>true</DebugSymbols>
+	<DebugSymbols>True</DebugSymbols>
 	<DebugType>full</DebugType>
-	<Optimize>false</Optimize>
+	<Optimize>False</Optimize>
 	<OutputPath>..\..\output\Debug</OutputPath>
 	<DefineConstants>DEBUG;TRACE</DefineConstants>
 	<ErrorReport>prompt</ErrorReport>
 	<WarningLevel>4</WarningLevel>
-	<OutputType>Library</OutputType>
-	<AssemblyName>LibChorus.TestUtilities</AssemblyName>
-	<RootNamespace>LibChorus.TestUtilities</RootNamespace>
-	<AllowUnsafeBlocks>false</AllowUnsafeBlocks>
-	<CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+	<CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
 	<PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
 	<DebugType>pdbonly</DebugType>
-	<Optimize>true</Optimize>
+	<Optimize>True</Optimize>
 	<OutputPath>..\..\output\Release</OutputPath>
 	<DefineConstants>TRACE</DefineConstants>
 	<ErrorReport>prompt</ErrorReport>
 	<WarningLevel>4</WarningLevel>
-	<OutputType>Library</OutputType>
-	<AssemblyName>LibChorus.TestUtilities</AssemblyName>
-	<DebugSymbols>true</DebugSymbols>
-	<RootNamespace>LibChorus.TestUtilities</RootNamespace>
-	<AllowUnsafeBlocks>false</AllowUnsafeBlocks>
-	<CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+	<DebugSymbols>True</DebugSymbols>
+	<CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
 	<PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'DebugMono|AnyCPU' ">
-	<DebugSymbols>true</DebugSymbols>
+	<DebugSymbols>True</DebugSymbols>
 	<OutputPath>..\..\output\DebugMono</OutputPath>
 	<DefineConstants>DEBUG;TRACE;MONO</DefineConstants>
-	<CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+	<CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
 	<DebugType>full</DebugType>
 	<PlatformTarget>AnyCPU</PlatformTarget>
 	<ErrorReport>prompt</ErrorReport>
+	<WarningLevel>4</WarningLevel>
+	<Optimize>False</Optimize>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'ReleaseMono|AnyCPU' ">
-	<DebugSymbols>true</DebugSymbols>
+	<DebugSymbols>True</DebugSymbols>
 	<OutputPath>..\..\output\ReleaseMono</OutputPath>
 	<DefineConstants>TRACE;MONO</DefineConstants>
-	<CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
-	<Optimize>true</Optimize>
+	<CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
+	<Optimize>True</Optimize>
 	<DebugType>pdbonly</DebugType>
 	<PlatformTarget>AnyCPU</PlatformTarget>
 	<ErrorReport>prompt</ErrorReport>
+	<WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-	<Reference Include="nunit.framework, Version=2.5.5.10112, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
-	  <SpecificVersion>False</SpecificVersion>
-	  <HintPath>..\..\lib\common\nunit.framework.dll</HintPath>
-	</Reference>
 	<Reference Include="Palaso, Version=1.0.0.0, Culture=neutral">
 	  <SpecificVersion>False</SpecificVersion>
 	  <HintPath>..\..\lib\$(Configuration)\Palaso.dll</HintPath>
@@ -80,6 +69,9 @@
 	<Reference Include="System.Core" />
 	<Reference Include="System.Data" />
 	<Reference Include="System.Xml" />
+	<Reference Include="nunit.framework">
+	  <HintPath>..\..\lib\common\nunit.framework.dll</HintPath>
+	</Reference>
   </ItemGroup>
   <ItemGroup>
 	<Compile Include="ListenerForUnitTests.cs" />

@@ -10,13 +10,12 @@
 	<AppDesignerFolder>Properties</AppDesignerFolder>
 	<RootNamespace>Tests_ChorusPlugin</RootNamespace>
 	<AssemblyName>Tests-ChorusPlugin</AssemblyName>
-	<TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
 	<FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-	<DebugSymbols>true</DebugSymbols>
+	<DebugSymbols>True</DebugSymbols>
 	<DebugType>full</DebugType>
-	<Optimize>false</Optimize>
+	<Optimize>False</Optimize>
 	<OutputPath>..\..\output\SamplePlugin\</OutputPath>
 	<DefineConstants>DEBUG;TRACE</DefineConstants>
 	<ErrorReport>prompt</ErrorReport>
@@ -26,7 +25,7 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
 	<DebugType>pdbonly</DebugType>
-	<Optimize>true</Optimize>
+	<Optimize>True</Optimize>
 	<OutputPath>..\..\output\SamplePlugin\</OutputPath>
 	<DefineConstants>TRACE</DefineConstants>
 	<ErrorReport>prompt</ErrorReport>
@@ -35,22 +34,27 @@
 	<TargetFrameworkProfile>Client</TargetFrameworkProfile>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DebugMono|AnyCPU'">
-	<DebugSymbols>true</DebugSymbols>
+	<DebugSymbols>True</DebugSymbols>
 	<OutputPath>..\..\output\SamplePlugin\</OutputPath>
 	<DefineConstants>TRACE;DEBUG;MONO</DefineConstants>
 	<ErrorReport>prompt</ErrorReport>
 	<DebugType>full</DebugType>
 	<PlatformTarget>AnyCPU</PlatformTarget>
-	<TargetFrameworkProfile></TargetFrameworkProfile>
+	<TargetFrameworkProfile>
+	</TargetFrameworkProfile>
+	<WarningLevel>4</WarningLevel>
+	<Optimize>False</Optimize>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'ReleaseMono|AnyCPU'">
 	<OutputPath>..\..\output\SamplePlugin\</OutputPath>
 	<DefineConstants>TRACE;MONO</DefineConstants>
 	<ErrorReport>prompt</ErrorReport>
-	<Optimize>true</Optimize>
+	<Optimize>True</Optimize>
 	<DebugType>pdbonly</DebugType>
 	<PlatformTarget>AnyCPU</PlatformTarget>
-	<TargetFrameworkProfile></TargetFrameworkProfile>
+	<TargetFrameworkProfile>
+	</TargetFrameworkProfile>
+	<WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
 	<Reference Include="Palaso, Version=1.0.0.0, Culture=neutral">

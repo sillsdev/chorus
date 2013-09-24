@@ -40,33 +40,35 @@ namespace ChorusHub
 		/// filePattern -- This key can have multiple values separated by the '|' character
 		///
 		/// Each repository generates a JSON string consisting of two name/value pairs.
-		/// The two names are "name" and "id".
+		/// The two names are "name" and "id". The JSON strings are concatenated with / between.
+		/// (An earlier version returned an enumeration of json strings. But Mono could not
+		/// marshal this.)
 		/// </summary>
 		/// <example>searchUrl: "scheme://path?filePattern=*.lift|*.CustomProperties"</example>
 		/// <example>returned repo info string: {"name": "someProject", "id": "123abc"}</example>
 		/// <param name="searchUrl"></param>
 		/// <remarks>A new (empty repo) will hav the folder name as 'name', and the id as 'newRepo'</remarks>
 		/// <returns></returns>
-		public IEnumerable<string> GetRepositoryInformation(string searchUrl)
+		public string GetRepositoryInformation(string searchUrl)
 		{
 			Progress.WriteMessage("Client requested repository information.");
 
 			var allDirectoryTuples = GetAllDirectoriesWithRepos();
 			if (string.IsNullOrEmpty(searchUrl))
 			{
-				return allDirectoryTuples.Select(dirInfo => dirInfo.Item2); // return the JSON strings
+				return string.Join("/", allDirectoryTuples.Select(dirInfo => dirInfo.Item2)); // return the JSON strings
 			}
 			try
 			{
 				var searchPatternString = UrlHelper.GetValueFromQueryStringOfRef(searchUrl, FilePattern, string.Empty);
 				Progress.WriteMessage("Client requested repositories matching {0}.", searchPatternString);
-				return CombRepositoriesForMatchingNames(allDirectoryTuples, searchPatternString);
+				return string.Join("/", CombRepositoriesForMatchingNames(allDirectoryTuples, searchPatternString).ToArray());
 			}
 			catch (ApplicationException e)
 			{
 				// Url parser couldn't parse the url.
 				Progress.WriteMessage("GetRepositoryInformation(): " + e.Message);
-				return new List<string>();
+				return "";
 			}
 		}
 
