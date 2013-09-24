@@ -1,11 +1,9 @@
-REM Since Palaso libraries change frequently, you will likely need to
-REM get that project and be able to build it, then run this script.
-REM This script assumes that the libraries project are on the same level as this project.
+REM Since Palaso libraries change frequently, you will likely need to get that project
+REM and be able to build it.  Run this script to build and copy those libraries.
+REM This script assumes that the Palaso project directory is on the same level as this one.
 REM It copies the needed libraries both into the lib folder and the debug folder.
 
-pushd .
-
-cd ..\palaso
+pushd ..\palaso
 call GetAndBuildThis.bat
 popd
 
