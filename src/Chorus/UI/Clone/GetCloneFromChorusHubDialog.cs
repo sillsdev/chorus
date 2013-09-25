@@ -227,7 +227,9 @@ namespace Chorus.UI.Clone
 
 		void OnChorusHubInfo_DoWork(object sender, DoWorkEventArgs e)
 		{
+#if !MONO // See https://bugzilla.xamarin.com/show_bug.cgi?id=4269. Remove #if when using mono that fixes this.
 			Thread.CurrentThread.Name = @"GetRepositoryInformation";
+#endif
 			var client = new ChorusHubClient();
 			var server = client.FindServer();
 
