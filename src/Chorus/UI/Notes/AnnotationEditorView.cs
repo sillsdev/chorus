@@ -148,6 +148,14 @@ namespace Chorus.UI.Notes
 
 		private void _okButton_Click(object sender, EventArgs e)
 		{
+			if (ModalDialogMode)
+			{
+				// We will close the dialog, so we don't need to update the contents of the controls;
+				// and doing so on Mono crashes Gecko, apparently because the window is gone before the
+				// update completes. We get stack overflow somehow, anyway.
+				_model.UpdateContent -= OnUpdateContent;
+			}
+
 			AddMessage();
 
 			if (ModalDialogMode)
