@@ -80,6 +80,9 @@ http://blogs.msdn.com/robmen/archive/2003/10/04/56479.aspx -->
 		<Component Id="PalasoUIWindowsForms.dll" Guid="c1ee09fa-e382-11de-8a39-0800200c9a66">
 		  <File Id="PalasoUIWindowsForms.dll" Name="PalasoUIWindowsForms.dll" KeyPath="yes" Source="..\..\output\release\PalasoUIWindowsForms.dll" />
 		</Component>
+		<Component Id="L10NSharp.dll" Guid="E53BAFB3-F793-43CB-B0AB-3CC784D19839">
+		  <File Id="L10NSharp.dll" Name="L10NSharp.dll" KeyPath="yes" Source="..\..\output\release\L10NSharp.dll" />
+		</Component>
 	  </Directory>
 	</Directory>
 	<ComponentGroupRef Id="Mercurial"/>
@@ -87,6 +90,7 @@ http://blogs.msdn.com/robmen/archive/2003/10/04/56479.aspx -->
 	<ComponentRef Id="mercurial.ini" />
 	<ComponentRef Id="Vulcan.Uczniowie.HelpProvider.dll"/>
 	<ComponentRef Id="Autofac.dll"/>
+	<ComponentRef Id="L10NSharp.dll"/>
 	<ComponentRef Id="icu.net.dll"/>
 	<ComponentRef Id="icudt40.dll"/>
 	<ComponentRef Id="icuin40.dll"/>
