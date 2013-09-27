@@ -34,12 +34,12 @@
 	<Target Name="DownloadMonoAssemblies" Condition="'$(OS)'!='Windows_NT'">
 		<MakeDir Directories="$(MSBuildProjectDirectory)/../../Download"/>
 		<MakeDir Directories="$(MSBuildProjectDirectory)/../../Download/DefaultMono"/>
-		<!-- bt280 is the palaso-Precise64-FlexBridgeAlpha Continuous build -->
-		<Message Text="Downloading latest successful artifacts from the palaso-Precise64-FlexBridgeAlpha Continuous build."/>
-		<DownloadFile Address="http://build.palaso.org/guestAuth/repository/download/bt280/.lastSuccessful/Palaso.dll" LocalFilename="$(MSBuildProjectDirectory)/../../Download/DefaultMono/Palaso.dll"/>
-		<DownloadFile Address="http://build.palaso.org/guestAuth/repository/download/bt280/.lastSuccessful/Palaso.Lift.dll" LocalFilename="$(MSBuildProjectDirectory)/../../Download/DefaultMono/Palaso.Lift.dll"/>
-		<DownloadFile Address="http://build.palaso.org/guestAuth/repository/download/bt280/.lastSuccessful/Palaso.TestUtilities.dll" LocalFilename="$(MSBuildProjectDirectory)/../../Download/DefaultMono/Palaso.TestUtilities.dll"/>
-		<DownloadFile Address="http://build.palaso.org/guestAuth/repository/download/bt280/.lastSuccessful/PalasoUIWindowsForms.dll" LocalFilename="$(MSBuildProjectDirectory)/../../Download/DefaultMono/PalasoUIWindowsForms.dll"/>
+		<!-- bt284 is the palaso-Precise64-FlexBridgeBeta Continuous build -->
+		<Message Text="Downloading latest successful artifacts from the palaso-Precise64-FlexBridgeBeta Continuous build."/>
+		<DownloadFile Address="http://build.palaso.org/guestAuth/repository/download/bt284/.lastSuccessful/Palaso.dll" LocalFilename="$(MSBuildProjectDirectory)/../../Download/DefaultMono/Palaso.dll"/>
+		<DownloadFile Address="http://build.palaso.org/guestAuth/repository/download/bt284/.lastSuccessful/Palaso.Lift.dll" LocalFilename="$(MSBuildProjectDirectory)/../../Download/DefaultMono/Palaso.Lift.dll"/>
+		<DownloadFile Address="http://build.palaso.org/guestAuth/repository/download/bt284/.lastSuccessful/Palaso.TestUtilities.dll" LocalFilename="$(MSBuildProjectDirectory)/../../Download/DefaultMono/Palaso.TestUtilities.dll"/>
+		<DownloadFile Address="http://build.palaso.org/guestAuth/repository/download/bt284/.lastSuccessful/PalasoUIWindowsForms.dll" LocalFilename="$(MSBuildProjectDirectory)/../../Download/DefaultMono/PalasoUIWindowsForms.dll"/>
 		<!-- split into two stages so that if the net connection fails, you still have the old files -->
 		<Message Text="Copying latest successful artifacts from Palaso DefaultMono build."/>
 		<Copy SourceFiles="@(DownloadedMono)" DestinationFolder="$(MSBuildProjectDirectory)/../../lib/DebugMono"
@@ -58,12 +58,12 @@
 		<DownloadFile Address="http://build.palaso.org/guestAuth/repository/download/bt14/.lastSuccessful/icudt40.dll" LocalFilename="$(MSBuildProjectDirectory)/../../Download/DotNet/icudt40.dll"/>
 		<DownloadFile Address="http://build.palaso.org/guestAuth/repository/download/bt14/.lastSuccessful/icuin40.dll" LocalFilename="$(MSBuildProjectDirectory)/../../Download/DotNet/icuin40.dll"/>
 		<DownloadFile Address="http://build.palaso.org/guestAuth/repository/download/bt14/.lastSuccessful/icuuc40.dll" LocalFilename="$(MSBuildProjectDirectory)/../../Download/DotNet/icuuc40.dll"/>
-		<!-- bt275 is the palaso-win32-FlexBridgeAlpha Continuous build. -->
-		<Message Text="Downloading latest successful artifacts from the palaso-win32-FlexBridgeAlpha Continuous build."/>
-		<DownloadFile Address="http://build.palaso.org/guestAuth/repository/download/bt275/.lastSuccessful/Palaso.dll" LocalFilename="$(MSBuildProjectDirectory)/../../Download/DotNet/Palaso.dll"/>
-		<DownloadFile Address="http://build.palaso.org/guestAuth/repository/download/bt275/.lastSuccessful/Palaso.Lift.dll" LocalFilename="$(MSBuildProjectDirectory)/../../Download/DotNet/Palaso.Lift.dll"/>
-		<DownloadFile Address="http://build.palaso.org/guestAuth/repository/download/bt275/.lastSuccessful/Palaso.TestUtilities.dll" LocalFilename="$(MSBuildProjectDirectory)/../../Download/DotNet/Palaso.TestUtilities.dll"/>
-		<DownloadFile Address="http://build.palaso.org/guestAuth/repository/download/bt275/.lastSuccessful/PalasoUIWindowsForms.dll" LocalFilename="$(MSBuildProjectDirectory)/../../Download/DotNet/PalasoUIWindowsForms.dll"/>
+		<!-- bt273 is the palaso-win32-FlexBridgeBeta Continuous build. -->
+		<Message Text="Downloading latest successful artifacts from the palaso-win32-FlexBridgeBeta Continuous build."/>
+		<DownloadFile Address="http://build.palaso.org/guestAuth/repository/download/bt273/.lastSuccessful/Palaso.dll" LocalFilename="$(MSBuildProjectDirectory)/../../Download/DotNet/Palaso.dll"/>
+		<DownloadFile Address="http://build.palaso.org/guestAuth/repository/download/bt273/.lastSuccessful/Palaso.Lift.dll" LocalFilename="$(MSBuildProjectDirectory)/../../Download/DotNet/Palaso.Lift.dll"/>
+		<DownloadFile Address="http://build.palaso.org/guestAuth/repository/download/bt273/.lastSuccessful/Palaso.TestUtilities.dll" LocalFilename="$(MSBuildProjectDirectory)/../../Download/DotNet/Palaso.TestUtilities.dll"/>
+		<DownloadFile Address="http://build.palaso.org/guestAuth/repository/download/bt273/.lastSuccessful/PalasoUIWindowsForms.dll" LocalFilename="$(MSBuildProjectDirectory)/../../Download/DotNet/PalasoUIWindowsForms.dll"/>
 		<!-- split into two stages so that if the net connection fails, you still have the old files -->
 		<Copy SourceFiles="@(DownloadedDotNet)" DestinationFolder="$(MSBuildProjectDirectory)/../../lib/Debug"
 			SkipUnchangedFiles="true"/>
