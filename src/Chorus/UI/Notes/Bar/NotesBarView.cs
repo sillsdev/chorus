@@ -165,6 +165,8 @@ namespace Chorus.UI.Notes.Bar
 		{
 			var annotation = (Annotation) ((Button)sender).Tag;
 			var dlg = new NoteDetailDialog(annotation, _annotationEditorModelFactory);
+			dlg.LabelWritingSystem = LabelWritingSystem;
+			dlg.MessageWritingSystem = MessageWritingSystem;
 			_dialogResult = dlg.ShowDialog();
 			if (_dialogResult == DialogResult.OK)
 			{
@@ -193,5 +195,17 @@ namespace Chorus.UI.Notes.Bar
 			_model.SaveNowIfNeeded(progress);
 		}
 	   */
+
+		public IWritingSystem LabelWritingSystem
+		{
+			get;
+			set;
+		}
+
+		public IWritingSystem MessageWritingSystem
+		{
+			get;
+			set;
+		}
 	}
 }

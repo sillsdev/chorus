@@ -243,5 +243,22 @@ namespace Chorus.UI.Notes
 			_model.ActivateKeyboard();
 		}
 
+		internal IWritingSystem LabelWritingSystem
+		{
+			set
+			{
+				_model.LabelWritingSystem = value;
+				_annotationLabel.Font = _model.FontForLabel;
+			}
+		}
+
+		internal IWritingSystem MessageWritingSystem
+		{
+			set
+			{
+				_model.MessageWritingSystem = value;
+				_newMessage.Font = _model.FontForNewMessage;
+			}
+		}
 	}
 }

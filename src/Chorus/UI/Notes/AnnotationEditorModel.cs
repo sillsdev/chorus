@@ -313,5 +313,15 @@ namespace Chorus.UI.Notes
 		{
 			_displaySettings.WritingSystemForNoteContent.ActivateKeyboard();
 		}
+
+		public IWritingSystem LabelWritingSystem
+		{
+			set { _displaySettings.WritingSystemForNoteLabel = value; }
+		}
+
+		public IWritingSystem MessageWritingSystem
+		{
+			set { _displaySettings.WritingSystemForNoteContent = value; }
+		}
 	}
 }

@@ -6,18 +6,20 @@ namespace Chorus.UI.Notes.Bar
 {
 	public partial class NoteDetailDialog : Form
 	{
+		AnnotationEditorView _view;
+
 		public NoteDetailDialog(Annotation annotation, AnnotationEditorModel.Factory viewModelFactory)
 		{
 			InitializeComponent();
 			var model = viewModelFactory(annotation, false);
 			Text = model.GetLongLabel();
-			var view = new AnnotationEditorView(model);
-			view.ModalDialogMode = true;
-			view.Dock = DockStyle.Fill;
-			//view.Size  = new Size(Width, Height - 50);
-			Controls.Add(view);
-			AcceptButton = view.OKButton;
-			view.OnClose += (CloseButton_Click);
+			_view = new AnnotationEditorView(model);
+			_view.ModalDialogMode = true;
+			_view.Dock = DockStyle.Fill;
+			//_view.Size  = new Size(Width, Height - 50);
+			Controls.Add(_view);
+			AcceptButton = _view.OKButton;
+			_view.OnClose += (CloseButton_Click);
 		}
 
 		/// <summary> Sets the DialogResult and closes the dialog </summary>
@@ -28,6 +30,16 @@ namespace Chorus.UI.Notes.Bar
 			DialogResult = (DialogResult) sender;
 			//this relies on us being the second receiver of this message, after the view itself
 			this.Close();
+		}
+
+		internal IWritingSystem LabelWritingSystem
+		{
+			set { _view.LabelWritingSystem = value; }
+		}
+
+		internal IWritingSystem MessageWritingSystem
+		{
+			set { _view.MessageWritingSystem = value; }
 		}
 	}
 }
