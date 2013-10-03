@@ -189,12 +189,14 @@ namespace Chorus.UI.Notes
 		}
 
 #if MONO
-		private void _existingMessagesDisplay_Navigating(object sender, Gecko.GeckoNavigatingEventArgs e)
+		private void _existingMessagesHandleLinkClick(object sender, Gecko.GeckoDomEventArgs e)
 		{
-			if (e.Uri.Scheme == "about")
-				return;
-			// We do NOT want to cancel this operation -- that would prevent anything from displaying!
-			_model.HandleLinkClicked(e.Uri);
+			Gecko.GeckoHtmlElement clicked = e.Target;
+			if(clicked != null && clicked.TagName == "A")
+			{
+				e.Handled = true;
+				_model.HandleLinkClicked(new Uri(clicked.GetAttribute("href")));
+			}
 		}
 
 		private void _existingMessagesDisplay_DocumentCompleted(object sender, EventArgs e)

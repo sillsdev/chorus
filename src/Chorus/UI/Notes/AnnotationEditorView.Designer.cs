@@ -140,7 +140,8 @@
 			//GECKOFX: Is this needed?
 			//this._existingMessagesDisplay.WebBrowserShortcutsEnabled = false;
 			this._existingMessagesDisplay.DocumentCompleted += new System.EventHandler(this._existingMessagesDisplay_DocumentCompleted);
-			this._existingMessagesDisplay.Navigating += new System.EventHandler<Gecko.GeckoNavigatingEventArgs>(this._existingMessagesDisplay_Navigating);
+			this._existingMessagesDisplay.DomClick += new System.EventHandler<Gecko.GeckoDomEventArgs>(this._existingMessagesHandleLinkClick);
+			this._existingMessagesDisplay.NoDefaultContextMenu = true;
 #else
 			this._existingMessagesDisplay.AllowWebBrowserDrop = false;
 			this._existingMessagesDisplay.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
