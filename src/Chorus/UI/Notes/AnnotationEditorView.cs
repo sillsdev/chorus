@@ -183,8 +183,10 @@ namespace Chorus.UI.Notes
 		private void _annotationLogo_DoubleClick(object sender, EventArgs e)
 		{
 			Cursor.Current = Cursors.WaitCursor;
-			var dlg = new AnnotationInspector(_model.Annotation);
-			dlg.ShowDialog();
+			using (var dlg = new AnnotationInspector(_model.Annotation))
+			{
+				dlg.ShowDialog();
+			}
 			Cursor.Current = Cursors.Default;
 		}
 

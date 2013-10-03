@@ -13,10 +13,14 @@
 		/// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
 		protected override void Dispose(bool disposing)
 		{
-			if (disposing && (components != null))
+			if (disposing)
 			{
-				components.Dispose();
+				if (_existingMessagesDisplay != null)
+					_existingMessagesDisplay.Dispose();
+				if (components != null)
+					components.Dispose();
 			}
+			_existingMessagesDisplay = null;
 			base.Dispose(disposing);
 		}
 
@@ -123,9 +127,6 @@
 			//
 			// _existingMessagesDisplay
 			//
-#if MONO
-			//GECKOFX: Is this needed?
-			//this._existingMessagesDisplay.AllowWebBrowserDrop = false;
 			this._existingMessagesDisplay.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
 			| System.Windows.Forms.AnchorStyles.Left)
 			| System.Windows.Forms.AnchorStyles.Right)));
@@ -137,24 +138,12 @@
 			this._existingMessagesDisplay.Name = "_existingMessagesDisplay";
 			this._existingMessagesDisplay.Size = new System.Drawing.Size(313, 264);
 			this._existingMessagesDisplay.TabIndex = 9;
-			//GECKOFX: Is this needed?
-			//this._existingMessagesDisplay.WebBrowserShortcutsEnabled = false;
+#if MONO
 			this._existingMessagesDisplay.DocumentCompleted += new System.EventHandler(this._existingMessagesDisplay_DocumentCompleted);
 			this._existingMessagesDisplay.DomClick += new System.EventHandler<Gecko.GeckoDomEventArgs>(this._existingMessagesHandleLinkClick);
 			this._existingMessagesDisplay.NoDefaultContextMenu = true;
 #else
 			this._existingMessagesDisplay.AllowWebBrowserDrop = false;
-			this._existingMessagesDisplay.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-			| System.Windows.Forms.AnchorStyles.Left)
-			| System.Windows.Forms.AnchorStyles.Right)));
-			this.l10NSharpExtender1.SetLocalizableToolTip(this._existingMessagesDisplay, null);
-			this.l10NSharpExtender1.SetLocalizationComment(this._existingMessagesDisplay, null);
-			this.l10NSharpExtender1.SetLocalizingId(this._existingMessagesDisplay, "AnnotationEditorView.AnnotationEditorView._existingMessagesDisplay");
-			this._existingMessagesDisplay.Location = new System.Drawing.Point(5, 47);
-			this._existingMessagesDisplay.MinimumSize = new System.Drawing.Size(20, 20);
-			this._existingMessagesDisplay.Name = "_existingMessagesDisplay";
-			this._existingMessagesDisplay.Size = new System.Drawing.Size(313, 264);
-			this._existingMessagesDisplay.TabIndex = 9;
 			this._existingMessagesDisplay.WebBrowserShortcutsEnabled = false;
 			this._existingMessagesDisplay.DocumentCompleted += new System.Windows.Forms.WebBrowserDocumentCompletedEventHandler(this._existingMessagesDisplay_DocumentCompleted);
 			this._existingMessagesDisplay.Navigating += new System.Windows.Forms.WebBrowserNavigatingEventHandler(this._existingMessagesDisplay_Navigating);

@@ -164,17 +164,19 @@ namespace Chorus.UI.Notes.Bar
 		private void OnExistingAnnotationButtonClick(object sender, EventArgs e)
 		{
 			var annotation = (Annotation) ((Button)sender).Tag;
-			var dlg = new NoteDetailDialog(annotation, _annotationEditorModelFactory);
-			dlg.LabelWritingSystem = LabelWritingSystem;
-			dlg.MessageWritingSystem = MessageWritingSystem;
-			_dialogResult = dlg.ShowDialog();
-			if (_dialogResult == DialogResult.OK)
+			using (var dlg = new NoteDetailDialog(annotation, _annotationEditorModelFactory))
 			{
-				OnUpdateContent(null, null);
-				_model.SaveNowIfNeeded(new NullProgress());
-				Timer refreshTimer = new Timer() { Interval = 500, Enabled = true };
-				refreshTimer.Tick += new EventHandler(OnRefreshTimer_Tick);
-				components.Add(refreshTimer);
+				dlg.LabelWritingSystem = LabelWritingSystem;
+				dlg.MessageWritingSystem = MessageWritingSystem;
+				_dialogResult = dlg.ShowDialog();
+				if (_dialogResult == DialogResult.OK)
+				{
+					OnUpdateContent(null, null);
+					_model.SaveNowIfNeeded(new NullProgress());
+					Timer refreshTimer = new Timer() { Interval = 500, Enabled = true };
+					refreshTimer.Tick += new EventHandler(OnRefreshTimer_Tick);
+					components.Add(refreshTimer);
+				}
 			}
 		}
 
