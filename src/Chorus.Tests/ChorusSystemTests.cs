@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Threading;
@@ -25,7 +26,7 @@ namespace Chorus.Tests
 		{
 			_folder = new TemporaryFolder("ChorusSystemTests");
 			_targetFile1 = new TempFileFromFolder(_folder,  "one.txt", "just a pretend file");
-			_existingNotesFile = new TempFileFromFolder(_folder, "one.txt" + AnnotationRepository.FileExtension,
+			_existingNotesFile = new TempFileFromFolder(_folder, "one.txt." + AnnotationRepository.FileExtension,
 						@"<notes version='0'>
 					<annotation ref='somwhere://foo?id=x' class='mergeConflict'>
 						<message guid='123' author='merger' status='open' date='2009-07-18T23:53:04Z'>
@@ -70,6 +71,29 @@ namespace Chorus.Tests
 		{
 			var view = _system.WinForms.CreateNotesBar(_targetFile1.Path, new NotesToRecordMapping(), _progress);
 			ShowWindowWithControlThenClose(view);
+		}
+
+		[Test]
+		public void CanMakeNotesBarWithOtherFiles()
+		{
+			var otherFile = new TempFileFromFolder(_folder, "two.txt", "just a pretend file");
+			var otherNotesFile = new TempFileFromFolder(_folder, "two.txt." + AnnotationRepository.FileExtension,
+						@"<notes version='0'>
+					<annotation ref='somwhere://foo?guid=x' class='mergeConflict'>
+						<message guid='123' author='merger' status='open' date='2009-07-18T23:53:04Z'>
+							some description of the conflict
+						</message>
+					</annotation>
+				</notes>");
+			var mapping = new NotesToRecordMapping();
+			mapping.FunctionToGoFromObjectToItsId = obj => "x"; // means it looks for "x" as the id in the one.txt urls and the guid in the two.txt urls.
+			var view = _system.WinForms.CreateNotesBar(_targetFile1.Path, (new List<String> {otherFile.Path}), "guid", mapping, _progress);
+			view._model.SetTargetObject("myobj");
+			var annotations = view._model.GetAnnotationsToShow().ToList();
+			Assert.That(annotations, Has.Count.EqualTo(2), "should have obtained annotations from both files");
+			ShowWindowWithControlThenClose(view);
+			otherFile.Dispose();
+			otherNotesFile.Dispose();
 		}
 
 		/// <summary>

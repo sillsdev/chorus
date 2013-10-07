@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 
 namespace Chorus
 {
@@ -24,15 +26,24 @@ namespace Chorus
 
 		public delegate string IdGeneratorFunction(object targetOfAnnotation);
 
+		public delegate IEnumerable<string> AdditionalIdGeneratorFunction(object targetOfAnnotation);
+
 
 		public static IdGeneratorFunction DefaultIdGeneratorUsingObjectToStringAsId = (target) => target.ToString();
 		public static UrlGeneratorFunction DefaultUrlGenerator = (unused, id) => string.Format("chorus://object?id={0}", id);
+		public static AdditionalIdGeneratorFunction DefaultAdditionalIdGeneratorFunction = (target) => new string[0];
 
 		/// <summary>
 		/// Used to figure out which existing notes to show
 		/// The Id is what normally comes after the "id=" in the url
 		/// </summary>
 		public IdGeneratorFunction FunctionToGoFromObjectToItsId = o => { throw new ArgumentNullException("FunctionToGoFromObjectToItsId", "You need to supply a function for FunctionToGoFromObjectToItsId."); };
+
+		/// <summary>
+		/// If the notes bar should show notes about additional object IDs (e.g., conflict reports for owned objects in FLEx),
+		/// supply a function that can generate them. If not, the default adds none and is fine.
+		/// </summary>
+		public AdditionalIdGeneratorFunction FunctionToGoFromObjectToAdditionalIds = DefaultAdditionalIdGeneratorFunction;
 
 		/// <summary>
 		/// Used to make new annotations with a url refelctign the current object/insertion-point/whatever.

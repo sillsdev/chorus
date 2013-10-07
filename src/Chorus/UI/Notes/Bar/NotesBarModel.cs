@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Chorus.notes;
 using Chorus.Utilities;
 using Palaso.Code;
@@ -11,9 +12,9 @@ namespace Chorus.UI.Notes.Bar
 	{
 		//use this one for apps that have just one file being edited, and thus on notes repository,
 		//which would have been pushed into the container
-		public delegate NotesBarModel Factory(AnnotationRepository repository, NotesToRecordMapping mapping);//autofac uses this
+		public delegate NotesBarModel Factory(IAnnotationRepository repository, NotesToRecordMapping mapping);//autofac uses this
 
-		private readonly AnnotationRepository _repository;
+		private readonly IAnnotationRepository _repository;
 		private readonly NotesToRecordMapping _mapping;
 		private object _targetObject;
 		private bool _reloadPending;
@@ -33,14 +34,14 @@ namespace Chorus.UI.Notes.Bar
 
 		internal event EventHandler UpdateContent;
 
-		public NotesBarModel(AnnotationRepository repository, NotesToRecordMapping mapping)
+		public NotesBarModel(IAnnotationRepository repository, NotesToRecordMapping mapping)
 		{
 			_repository = repository;
 			_mapping = mapping;
 
 			repository.AddObserver(this, new NullProgress());
 		}
-		internal NotesBarModel(AnnotationRepository repository)
+		internal NotesBarModel(IAnnotationRepository repository)
 			: this(repository, NotesToRecordMapping.SimpleForTest())
 		{
 		}
@@ -56,9 +57,12 @@ namespace Chorus.UI.Notes.Bar
 		{
 			if (null == _targetObject)
 				return new List<Annotation>();
+			var targets =
+				new [] {_mapping.FunctionToGoFromObjectToItsId(_targetObject)}
+					.Concat(_mapping.FunctionToGoFromObjectToAdditionalIds(_targetObject));
+			return targets.SelectMany(target => _repository.GetMatchesByPrimaryRefKey(target));
 
-			return _repository.GetMatchesByPrimaryRefKey(_mapping.FunctionToGoFromObjectToItsId(_targetObject));
-			//todo: add controls for adding new notes, showing closed ones, etc.
+			 //todo: add controls for adding new notes, showing closed ones, etc.
 		}
 
 		private void UpdateContentNow()
