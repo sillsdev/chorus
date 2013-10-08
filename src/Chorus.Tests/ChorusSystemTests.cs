@@ -136,12 +136,12 @@ namespace Chorus.Tests
 				NotesToRecordMapping mapping =  NotesToRecordMapping.SimpleForTest();
 				var bar = _system.WinForms.CreateNotesBar(_targetFile1.Path, mapping, _progress);
 				var browser = _system.WinForms.CreateNotesBrowser();
-				Assert.AreEqual(0, browser._notesInProjectModel.GetMessages().Count());
+				Assert.AreEqual(1, browser._notesInProjectModel.GetMessages().Count());
 
 				bar.SetTargetObject(this);
 				var a = bar._model.CreateAnnotation();
 				a.AddMessage("test", "open", "hello");
-				Assert.AreEqual(1, browser._notesInProjectModel.GetMessages().Count());
+				Assert.AreEqual(2, browser._notesInProjectModel.GetMessages().Count());
 		}
 
 	}
