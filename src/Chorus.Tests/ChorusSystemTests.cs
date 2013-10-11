@@ -133,15 +133,16 @@ namespace Chorus.Tests
 		[Platform(Exclude="Mono")] //running CreateNotesBrowser twice in a mono test session causes a crash
 		public void GetNotesBarAndBrowser_MakeNewAnnotationWithBar_BrowserSeesIt()
 		{
-				NotesToRecordMapping mapping =  NotesToRecordMapping.SimpleForTest();
-				var bar = _system.WinForms.CreateNotesBar(_targetFile1.Path, mapping, _progress);
-				var browser = _system.WinForms.CreateNotesBrowser();
-				Assert.AreEqual(1, browser._notesInProjectModel.GetMessages().Count());
+			NotesToRecordMapping mapping =  NotesToRecordMapping.SimpleForTest();
+			var bar = _system.WinForms.CreateNotesBar(_targetFile1.Path, mapping, _progress);
+			var browser = _system.WinForms.CreateNotesBrowser();
+			Assert.AreEqual(1, browser._notesInProjectModel.GetMessages().Count());
 
-				bar.SetTargetObject(this);
-				var a = bar._model.CreateAnnotation();
-				a.AddMessage("test", "open", "hello");
-				Assert.AreEqual(2, browser._notesInProjectModel.GetMessages().Count());
+			bar.SetTargetObject(this);
+			var a = bar._model.CreateAnnotation();
+			bar._model.AddAnnotation(a);
+			a.AddMessage("test", "open", "hello");
+			Assert.AreEqual(2, browser._notesInProjectModel.GetMessages().Count());
 		}
 
 	}

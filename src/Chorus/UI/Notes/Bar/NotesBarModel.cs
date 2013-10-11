@@ -73,6 +73,10 @@ namespace Chorus.UI.Notes.Bar
 			_reloadPending = false;
 		}
 
+		/// <summary>
+		/// Creates a new <c>Annotation</c>, but does not add it to the repository
+		/// </summary>
+		/// <returns>A new <c>Annotation</c></returns>
 		public Annotation CreateAnnotation()
 		{
 			Guard.AgainstNull(_targetObject, "The program tried to create a note when TargetObject was empty.");
@@ -83,9 +87,6 @@ namespace Chorus.UI.Notes.Bar
 			var escapedId = UrlHelper.GetEscapedUrl(id);
 			var url = _mapping.FunctionToGetCurrentUrlForNewNotes(_targetObject, escapedId);
 			var annotation = new Annotation("question", url, "doesntmakesense");
-			_repository.AddAnnotation(annotation);
-
-			_repository.SaveNowIfNeeded(new NullProgress());
 			return annotation;
 		}
 
@@ -94,6 +95,21 @@ namespace Chorus.UI.Notes.Bar
 			_repository.SaveNowIfNeeded(progress);
 		}
 
+		/// <summary>
+		/// Adds an <c>Annotation</c> to the repository.  Should be called only once per <c>Annotation</c>, and the
+		/// <c>Annotation</c> should have been created by calling <c>CreateAnnotation</c>
+		/// </summary>
+		/// <param name="annotation"></param>
+		public void AddAnnotation(Annotation annotation)
+		{
+			_repository.AddAnnotation(annotation);
+			_repository.SaveNowIfNeeded(new NullProgress());
+		}
+
+		/// <summary>
+		/// Removes an <c>Annotation</c> from the repository.  Unfortunately, this doesn't work at present.
+		/// </summary>
+		/// <param name="annotation"></param>
 		public void RemoveAnnotation(Annotation annotation)
 		{
 			_repository.Remove(annotation);
