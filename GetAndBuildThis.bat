@@ -11,6 +11,6 @@ IF "%2"=="" (
 	SET HaveCalledvcvarsall=True
 )
 
-call UpdateDependencies.bat %BUILD_CONFIG% %HaveCalledvcvarsall%
 hg pull -u --rebase
+call UpdateDependencies.bat %BUILD_CONFIG% %HaveCalledvcvarsall%
 msbuild "Chorus VS2010.sln" /verbosity:quiet /maxcpucount /p:Configuration=%BUILD_CONFIG%
