@@ -88,14 +88,6 @@ namespace Chorus.UI.Notes
 			}
 		}
 
-		private void UpdateStatesNow()
-		{
-			if (UpdateStates != null)
-			{
-				UpdateStates.Invoke(this, null);
-			}
-		}
-
 		public Annotation Annotation
 		{
 		   get { return _annotation; }
@@ -199,7 +191,7 @@ namespace Chorus.UI.Notes
 
 		public string DetailsText
 		{
-			get { return string.Format("ref={0  } status={1}", _annotation.RefStillEscaped, _annotation.Status); }
+			get { return string.Format("ref={0} status={1}", _annotation.RefStillEscaped, _annotation.Status); }
 		}
 
 		public bool IsVisible

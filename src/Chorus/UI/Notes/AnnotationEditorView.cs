@@ -80,7 +80,7 @@ namespace Chorus.UI.Notes
 		{
 			if (NewMessageTextEntered)
 				_model.UnResolveAndAddMessage(_newMessage.Text);
-			else
+			else if (_model.Messages.Any()) // don't resolve an empty Note
 				_model.IsResolved = !_model.IsResolved;
 			ClearNewMessageText();
 		}
