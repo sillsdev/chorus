@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
+using System.Linq;
 using System.Windows.Forms;
 using Chorus.sync;
 using Chorus.Utilities;
@@ -14,6 +16,7 @@ namespace Chorus.UI.Review.RevisionsInRepository
 		private RevisionInRepositoryModel _model;
 		private ProjectFolderConfiguration _project;
 		private String _userName="anonymous";
+		private List<HistoryColumnDefinition> _extraColumns;
 
 		public RevisionsInRepositoryView(RevisionInRepositoryModel model)
 		{
@@ -23,6 +26,16 @@ namespace Chorus.UI.Review.RevisionsInRepository
 			InitializeComponent();
 			UpdateDisplay();
 			_showAdvanced.Visible=false;
+
+			_extraColumns = model.ExtraColumns.ToList();
+			foreach (var columDefn in _extraColumns)
+			{
+				var textBoxColumn = new DataGridViewTextBoxColumn
+				{
+					Name = columDefn.ColumnLabel
+				};
+				_historyGrid.Columns.Add(textBoxColumn);
+			}
 		}
 
 		public ProjectFolderConfiguration ProjectFolderConfig
@@ -156,6 +169,12 @@ namespace Chorus.UI.Review.RevisionsInRepository
 			var row = _historyGrid.Rows[nIndex];
 			row.Tag = rev;
 			row.Cells[0].ToolTipText = rev.Number.LocalRevisionNumber + ": " + rev.Number.Hash;
+
+			var idx = row.Cells.Count - _extraColumns.Count;
+			foreach (var extraColumn in _extraColumns)
+			{
+				row.Cells[idx++].Value = extraColumn.StringSupplier.Invoke(rev);
+			}
 		}
 
 		private string GetDescriptionForListView(Revision rev)

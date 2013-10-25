@@ -73,6 +73,13 @@ namespace Chorus.UI.Review.RevisionsInRepository
 		private BackgroundWorker RevisionGetter;
 
 		/// <summary>
+		/// Get the list of optional extra columns to show.
+		/// </summary>
+		public IEnumerable<HistoryColumnDefinition> ExtraColumns
+		{
+			get { return _options.ExtraColumns; }
+		}
+		/// <summary>
 		/// This one will not return until every revision has been gathered up...
 		/// that can take a long time.  Use BeginGettingRevisions where possible.
 		/// </summary>
