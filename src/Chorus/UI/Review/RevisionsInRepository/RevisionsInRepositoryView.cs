@@ -5,7 +5,6 @@ using System.Globalization;
 using System.Linq;
 using System.Windows.Forms;
 using Chorus.sync;
-using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
 using Palaso.Progress;
 
@@ -17,6 +16,7 @@ namespace Chorus.UI.Review.RevisionsInRepository
 		private ProjectFolderConfiguration _project;
 		private String _userName="anonymous";
 		private List<HistoryColumnDefinition> _extraColumns;
+		internal event EventHandler<RevisionEventArgs> RevisionSelectionChanged;
 
 		public RevisionsInRepositoryView(RevisionInRepositoryModel model)
 		{
@@ -221,6 +221,7 @@ namespace Chorus.UI.Review.RevisionsInRepository
 			   {
 				   Revision revision = _historyGrid.SelectedRows[0].Tag as Revision;
 				   _model.SelectedRevisionChanged(revision);
+				   OnRevisionSelectionChangedEvent(new RevisionEventArgs(revision));
 			   }
 			   return;
 		   }
@@ -253,6 +254,10 @@ namespace Chorus.UI.Review.RevisionsInRepository
 		   UpdateDisplay();
 	   }
 
-
+		private void OnRevisionSelectionChangedEvent(RevisionEventArgs args)
+		{
+			if (RevisionSelectionChanged != null)
+				RevisionSelectionChanged(this, args);
+		}
 	}
 }
