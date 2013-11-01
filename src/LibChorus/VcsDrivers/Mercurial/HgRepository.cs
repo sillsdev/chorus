@@ -523,7 +523,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			Execute(SecondsBeforeTimeoutOnLocalOperation, "forget ", SurroundWithQuotes(filepath));
 		}
 
-		internal ExecutionResult Execute(int secondsBeforeTimeout, string cmd, params string[] rest)
+		public ExecutionResult Execute(int secondsBeforeTimeout, string cmd, params string[] rest)
 		{
 			return Execute(false, false, secondsBeforeTimeout, cmd, rest);
 		}
@@ -1628,32 +1628,6 @@ namespace Chorus.VcsDrivers.Mercurial
 				}
 			}
 			return true;
-		}
-
-		/// <summary>
-		/// Do a no-op merge. (See: http://mercurial.selenic.com/wiki/PruningDeadBranches#No-Op_Merges)
-		/// </summary>
-		public void NoopMerge(string localRepositoryPath, string additionalComment, string keeperRevisionNumber, string gonerRevisionNumber)
-		{
-			var keeperRevision = GetRevision(keeperRevisionNumber);
-			var gonerRevision = GetRevision(gonerRevisionNumber);
-			if (keeperRevision.Branch != gonerRevision.Branch)
-				return; // Don't even think of doing this on different branches.
-
-			// Make sure we are at 'keeperRevisionNumber'.
-			Update(keeperRevisionNumber);
-
-			// Merge goner into keeper.
-			Merge(localRepositoryPath, gonerRevisionNumber);
-
-			// Revert the merge.
-			Execute(true, SecondsBeforeTimeoutOnMergeOperation, "revert", "-a", "-r", keeperRevisionNumber);
-
-			// Commit
-			var comment = string.Format(@"No-Op Merge: Revert repository to revision '{0}'", keeperRevisionNumber);
-			if (!string.IsNullOrWhiteSpace(additionalComment))
-				comment = string.Format(@"{0}. {1}", comment, additionalComment);
-			Commit(true, comment);
 		}
 
 		/// <summary>
