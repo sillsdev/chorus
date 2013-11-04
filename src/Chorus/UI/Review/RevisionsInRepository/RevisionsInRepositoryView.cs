@@ -256,6 +256,10 @@ namespace Chorus.UI.Review.RevisionsInRepository
 
 		private void OnRevisionSelectionChangedEvent(RevisionEventArgs args)
 		{
+			// The reason this is handled on the view, rather than the model, is that the model and the view are not accessable to clients of HistoryPage,
+			// so some klunkyness is required to get the newly selected Revision out to the client.
+			// Autofac uses some factory methods and other 'magic' to put this subsytem together, and the preferred class that seems to be the right place for this,
+			// isn't available for adding new subscribers.
 			if (RevisionSelectionChanged != null)
 				RevisionSelectionChanged(this, args);
 		}
