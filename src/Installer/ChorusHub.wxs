@@ -59,7 +59,7 @@ http://blogs.msdn.com/robmen/archive/2003/10/04/56479.aspx -->
 
 					<!-- Main assemblies -->
 					<Component Id="ChorusHub.exe" Guid="C1EE5824-E382-11DE-8A39-0800200C9A66">
-						<Registry Root="HKCU" Key="SOFTWARE\Chorus Hub\Components\ChorusHub.exe" KeyPath="yes" />
+						<RegistryValue Root="HKCU" Key="SOFTWARE\[Manufacturer]\Chorus Hub\Components\ChorusHub.exe" KeyPath="yes" />
 						<File Id="ChorusHub.exe" Name="ChorusHub.exe" KeyPath="yes" Source="..\..\output\Release\ChorusHub.exe" />
 						<Shortcut Id="startmenuShortcut"  Directory="ChorusHubShortcutDir" Name="Chorus Hub"
 							WorkingDirectory="ProgramDir" Target="[!ChorusHub.exe]"  Icon ="ChorusHub.exe" />
