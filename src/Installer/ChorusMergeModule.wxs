@@ -39,6 +39,12 @@ http://blogs.msdn.com/robmen/archive/2003/10/04/56479.aspx -->
 		<Component Id="chorusmerge.exe" Guid="7A088F3F-411D-41f9-BBA3-4304E2865969">
 		  <File Id="chorusmerge.exe" Name="chorusmerge.exe" KeyPath="yes" Source="..\..\output\release\chorusmerge.exe" />
 		</Component>
+		<Component Id="chorushub.exe" Guid="E670CCC5-D5AF-438A-AEF1-D04C7084320E">
+		  <File Id="chorushub.exe" Name="chorushub.exe" KeyPath="yes" Source="..\..\output\release\chorushub.exe" />
+		  <fire:FirewallException Id="ChorusHubFireWallException" Name="Chorus Hub Server" Program="[#chorushub.exe]" Scope="localSubnet" IgnoreFailure="yes"/>
+		  <!-- TODO: is there a way we could also add the needed exception for the client here in the merge module? -->
+		  <!--<fire:FirewallException Id="ChorusHubFireWallException" Name="Chorus Hub Send/Receive Client" Program="[#chorushub.exe]" Scope="localSubnet" IgnoreFailure="yes"/> -->
+		</Component>
 		<Component Id="chorushelp.chm" Guid="C1EDBBE9-E382-11DE-8A39-0800200C9A66">
 		  <File Id="chorushelp.chm" Name="Chorus_Help.chm" KeyPath="yes" Source="..\..\lib\Chorus_Help.chm"/>
 		</Component>
@@ -92,6 +98,7 @@ http://blogs.msdn.com/robmen/archive/2003/10/04/56479.aspx -->
 	<ComponentRef Id="libchorus.dll"/>
 	<ComponentRef Id="chorus.exe"/>
 	<ComponentRef Id="chorusmerge.exe"/>
+	<ComponentRef Id="chorushub.exe"/>
 	<ComponentRef Id="chorushelp.chm" />
 
   </Module>
