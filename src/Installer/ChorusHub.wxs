@@ -74,14 +74,8 @@ http://blogs.msdn.com/robmen/archive/2003/10/04/56479.aspx -->
 					<Component Id="ChorusHub.exe.config" Guid="C1EECD41-E382-11DE-8A39-0800200C9A66">
 						<File Id="ChorusHub.exe.config" Name="ChorusHub.exe.config" KeyPath="yes" Source="..\..\output\Release\ChorusHub.exe.config"/>
 					</Component>
-					<Component Id="ChorusHub.pdb" Guid="C1EE5826-E382-11DE-8A39-0800200C9A66">
-						<File Id="ChorusHub.pdb" Name="ChorusHub.pdb" KeyPath="yes" Source="..\..\output\Release\ChorusHub.pdb"/>
-					</Component>
 					<Component Id="LibChorus.dll" Guid="C1EE5827-E382-11DE-8A39-0800200C9A66">
 						<File Id="LibChorus.dll" Name="LibChorus.dll" KeyPath="yes" Source="..\..\output\Release\LibChorus.dll" />
-					</Component>
-					<Component Id="LibChorus.pdb" Guid="C1EDBBD6-E382-11DE-8A39-0800200C9A66">
-						<File Id="LibChorus.pdb" Name="LibChorus.pdb" KeyPath="yes" Source="..\..\output\Release\LibChorus.pdb"/>
 					</Component>
 
 					<!-- used by chorus -->
@@ -99,20 +93,11 @@ http://blogs.msdn.com/robmen/archive/2003/10/04/56479.aspx -->
 					<Component Id="Palaso.dll" Guid="C1EE5828-E382-11DE-8A39-0800200C9A66">
 						<File Id="Palaso.dll" Name="Palaso.dll" KeyPath="yes" Source="..\..\output\Release\Palaso.dll" />
 					</Component>
-					<Component Id="Palaso.pdb" Guid="C1EE5829-E382-11DE-8A39-0800200C9A66">
-						<File Id="Palaso.pdb" Name="Palaso.pdb" KeyPath="yes" Source="..\..\output\Release\Palaso.pdb"/>
-					</Component>
 					<Component Id="PalasoUIWindowsForms.dll" Guid="C1EE582A-E382-11DE-8A39-0800200C9A66">
 						<File Id="PalasoUIWindowsForms.dll" Name="PalasoUIWindowsForms.dll" KeyPath="yes" Source="..\..\output\Release\PalasoUIWindowsForms.dll" />
 					</Component>
-					<Component Id="PalasoUIWindowsForms.pdb" Guid="C1EE7F20-E382-11DE-8A39-0800200C9A66">
-						<File Id="PalasoUIWindowsForms.pdb" Name="PalasoUIWindowsForms.pdb" KeyPath="yes" Source="..\..\output\Release\PalasoUIWindowsForms.pdb"/>
-					</Component>
 					<Component Id="Palaso.Lift.dll" Guid="C1EECD44-E382-11DE-8A39-0800200C9A66">
 						<File Id="Palaso.Lift.dll" Name="Palaso.Lift.dll" KeyPath="yes" Source="..\..\output\Release\Palaso.Lift.dll" />
-					</Component>
-					<Component Id="Palaso.Lift.pdb" Guid="C1EECD45-E382-11DE-8A39-0800200C9A66">
-						<File Id="Palaso.Lift.pdb" Name="Palaso.Lift.pdb" KeyPath="yes" Source="..\..\output\Release\Palaso.Lift.pdb" />
 					</Component>
 
 					<!-- ICU assemblies used by chorus/palaso -->
@@ -132,9 +117,6 @@ http://blogs.msdn.com/robmen/archive/2003/10/04/56479.aspx -->
 					<!-- L10NSharp assembly used by chorus/palaso -->
 					<Component Id="L10NSharp.dll" Guid="C1EECD4A-E382-11DE-8A39-0800200C9A66">
 						<File Id="L10NSharp.dll" Name="L10NSharp.dll" KeyPath="yes" Source="..\..\lib\common\L10NSharp.dll"/>
-					</Component>
-					<Component Id="L10NSharp.pdb" Guid="C1EECD4B-E382-11DE-8A39-0800200C9A66">
-						<File Id="L10NSharp.pdb" Name="L10NSharp.pdb" KeyPath="yes" Source="..\..\lib\common\L10NSharp.pdb"/>
 					</Component>
 				</Directory>
 			</Directory>
@@ -159,20 +141,15 @@ http://blogs.msdn.com/robmen/archive/2003/10/04/56479.aspx -->
 
 	<Feature Id="ProductFeature" Level="1" Title="Basic Stuff">
 		<ComponentRef Id="ChorusHub.exe"/>
-		<ComponentRef Id="ChorusHub.pdb"/>
 		<ComponentRef Id="ChorusHub.exe.config"/>
 		<ComponentRef Id="LibChorus.dll"/>
-		<ComponentRef Id="LibChorus.pdb"/>
 		<ComponentRef Id="Autofac.dll"/>
 		<ComponentRef Id="chorushelp.chm"/>
 		<ComponentRef Id="Vulcan.Uczniowie.HelpProvider.dll"/>
 
 		<ComponentRef Id="Palaso.dll"/>
-		<ComponentRef Id="Palaso.pdb"/>
 		<ComponentRef Id="Palaso.Lift.dll"/>
-		<ComponentRef Id="Palaso.Lift.pdb"/>
 		<ComponentRef Id="PalasoUIWindowsForms.dll"/>
-		<ComponentRef Id="PalasoUIWindowsForms.pdb"/>
 
 		<ComponentRef Id="icu.net.dll"/>
 		<ComponentRef Id="icudt40.dll"/>
@@ -180,7 +157,6 @@ http://blogs.msdn.com/robmen/archive/2003/10/04/56479.aspx -->
 		<ComponentRef Id="icuuc40.dll"/>
 
 		<ComponentRef Id="L10NSharp.dll"/>
-		<ComponentRef Id="L10NSharp.pdb"/>
 
 		<ComponentRef Id="ApplicationShortcut"/>
 		<ComponentRef Id="RegInstallationDir"/>
