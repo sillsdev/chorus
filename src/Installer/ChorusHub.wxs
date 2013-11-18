@@ -60,7 +60,7 @@ http://blogs.msdn.com/robmen/archive/2003/10/04/56479.aspx -->
 					<!-- Main assemblies -->
 					<Component Id="ChorusHub.exe" Guid="C1EE5824-E382-11DE-8A39-0800200C9A66">
 						<File Id="ChorusHub.exe" Name="ChorusHub.exe" KeyPath="yes" Source="..\..\output\Release\ChorusHub.exe" />
-						<Shortcut Id="startmenuShortcut"  Directory="ChorusHubShortcutDir" Name="Chorus Hub"
+						<Shortcut Id="desktopShortcut"  Directory="ChorusHubShortcutDir" Name="Chorus Hub"
 							WorkingDirectory="ProgramDir" Target="[!ChorusHub.exe]"  Icon ="chorusHubIcon.ico" />
 						<fire:FirewallException Id="ChorusHubFireWallException" Name="Chorus Hub Server" Program="[#ChorusHub.exe]" Scope="localSubnet" IgnoreFailure="yes"/>
 						<!-- TODO: is there a way we could also add the needed exception for the client here in the merge module? -->
@@ -123,7 +123,6 @@ http://blogs.msdn.com/robmen/archive/2003/10/04/56479.aspx -->
 		</Directory>
 
 		<Directory Id="ProgramMenuFolder" Name="Programs">
-			<Directory Id="DesktopFolder" SourceName="Desktop"/>
 			<Directory Id="ChorusHubShortcutDir" Name="Chorus Hub">
 				<Component Id="ApplicationShortcut" Guid="C1EECD40-E382-11DE-8A39-0800200C9A66">
 					<Shortcut Id="startmenuShortcut" Name="Chorus Hub" Target="[!ChorusHub.exe]" WorkingDirectory="INSTALLDIR" Icon="chorusHubIcon.ico"/>
