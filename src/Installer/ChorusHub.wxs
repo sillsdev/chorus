@@ -122,6 +122,23 @@ http://blogs.msdn.com/robmen/archive/2003/10/04/56479.aspx -->
 			</Directory>
 		</Directory>
 
+		<Directory Id="DesktopFolder" Name="Desktop">
+			<Component Id="ApplicationShortcutDesktop" Guid="C1EECD4E-E382-11DE-8A39-0800200C9A66">
+			<Shortcut Id="ApplicationDesktopShortcut"
+				Name="Chorus Hub"
+				Target="[!ChorusHub.exe]"
+				WorkingDirectory="ProgramDir"/>
+			<RemoveFolder Id="DesktopFolder" On="uninstall"/>
+			<RegistryValue
+				Root="HKCU"
+				Key="Software\[Manufacturer]\Chorus Hub\Components\CorusHub.exe"
+				Name="installed"
+				Type="integer"
+				Value="1"
+				KeyPath="yes"/>
+			</Component>
+		</Directory>
+
 		<Directory Id="ProgramMenuFolder" Name="Programs">
 			<Directory Id="ChorusHubShortcutDir" Name="Chorus Hub">
 				<Component Id="removeShortcutDir" Guid="C1EECD40-E382-11DE-8A39-0800200C9A66">
@@ -161,6 +178,7 @@ http://blogs.msdn.com/robmen/archive/2003/10/04/56479.aspx -->
 
 		<ComponentRef Id="L10NSharp.dll"/>
 
+		<ComponentRef Id="ApplicationShortcutDesktop"/>
 		<ComponentRef Id="removeShortcutDir"/>
 		<ComponentRef Id="RegInstallationDir"/>
 		<!--<MergeRef Id="CRT90"/>
