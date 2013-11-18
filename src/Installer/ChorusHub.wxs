@@ -150,10 +150,10 @@ http://blogs.msdn.com/robmen/archive/2003/10/04/56479.aspx -->
 			</Directory>
 		</Directory>
 
-		<!--<Directory Id="SystemFolder" Name="System32">
+		<Directory Id="SystemFolder" Name="System32">
 			<Merge Id="CRT90" Language="1033" SourceFile="..\..\lib\Microsoft_VC90_CRT_x86.msm" DiskId="1"/>
 			<Merge Id="CRT90Policy" Language="1033" SourceFile="..\..\lib\policy_9_0_Microsoft_VC90_CRT_x86.msm" DiskId="1"/>
-		</Directory>-->
+		</Directory>
 	</Directory>
 
 	<Feature Id="ProductFeature" Level="1" Title="Basic Stuff">
@@ -181,8 +181,8 @@ http://blogs.msdn.com/robmen/archive/2003/10/04/56479.aspx -->
 		<ComponentRef Id="ApplicationShortcutDesktop"/>
 		<ComponentRef Id="removeShortcutDir"/>
 		<ComponentRef Id="RegInstallationDir"/>
-		<!--<MergeRef Id="CRT90"/>
-		<MergeRef Id="CRT90Policy"/>-->
+		<MergeRef Id="CRT90"/>
+		<MergeRef Id="CRT90Policy"/>
 	</Feature>
 
 	<Icon Id="chorusHubIcon.ico" SourceFile="..\..\output\Release\ChorusHub.exe"/>
