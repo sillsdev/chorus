@@ -61,6 +61,7 @@ namespace Chorus.FileTypeHanders.ldml
 			SetupElementStrategies(merger);
 
 			merger.EventListener = mergeOrder.EventListener;
+			XmlMergeService.RemoveAmbiguousChildNodes = true;
 			var result = merger.MergeFiles(mergeOrder.pathToOurs, mergeOrder.pathToTheirs, mergeOrder.pathToCommonAncestor);
 			using (var writer = XmlWriter.Create(mergeOrder.pathToOurs, CanonicalXmlSettings.CreateXmlWriterSettings()))
 			{
@@ -154,7 +155,7 @@ namespace Chorus.FileTypeHanders.ldml
 
 		#endregion
 
-		private static void SetupElementStrategies(XmlMerger merger)
+		internal static void SetupElementStrategies(XmlMerger merger)
 		{
 			merger.MergeStrategies.ElementToMergeStrategyKeyMapper = new LdmlElementToMergeStrategyKeyMapper();
 

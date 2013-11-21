@@ -325,7 +325,7 @@ namespace Chorus.merge.xml.generic
 	/// Search for a matching elment where multiple attribute names (not values) combine
 	/// to make a single "key" to identify a matching elment.
 	///</summary>
-	public class FindByMatchingAttributeNames : IFindNodeToMerge
+	public class FindByMatchingAttributeNames : IFindMatchingNodesToMerge
 	{
 		private readonly HashSet<string> _keyAttributes;
 
@@ -358,6 +358,70 @@ namespace Chorus.merge.xml.generic
 			}
 
 			return null;
+		}
+
+		#endregion
+
+		#region Implementation of IFindMatchingNodesToMerge
+
+		/// <summary>
+		/// Get all matching nodes, or an empty collection, if there are no matches.
+		/// </summary>
+		/// <returns>A collection of zero, or more, matching nodes.</returns>
+		/// <remarks><paramref name="nodeToMatch" /> may, or may not, be a child of <paramref name="parentToSearchIn"/>.</remarks>
+		public IEnumerable<XmlNode> GetMatchingNodes(XmlNode nodeToMatch, XmlNode parentToSearchIn)
+		{
+			if (parentToSearchIn == null)
+				return new List<XmlNode>();
+
+			var matches = new List<XmlNode>();
+			foreach (XmlNode childNode in parentToSearchIn.ChildNodes)
+			{
+				if (childNode.NodeType != XmlNodeType.Element)
+					continue;
+				if (nodeToMatch == childNode)
+				{
+					matches.Add(nodeToMatch);
+					continue;
+				}
+				var isMatch = true;
+				foreach (var keyAttrName in _keyAttributes)
+				{
+					var keyAttr = childNode.Attributes[keyAttrName];
+					if (keyAttr == null)
+					{
+						isMatch = false;
+						break;
+					}
+				}
+				if (!isMatch)
+					continue;
+				matches.Add(childNode);
+			}
+			return matches;
+		}
+
+		/// <summary>
+		/// Get a basic message that is suitable for use in a warning report where ambiguous nodes are found in the same parent node.
+		/// </summary>
+		/// <returns>A message string or null/empty string, if no message is needed for ambiguous nodes.</returns>
+		public string GetWarningMessageForAmbiguousNodes(XmlNode nodeForMessage)
+		{
+			Guard.AgainstNull(nodeForMessage, "nodeForMessage");
+
+			var bldr = new StringBuilder();
+			var keyAttrsAsList = _keyAttributes.ToList();
+			for (var i = 0; i < keyAttrsAsList.Count; ++i)
+			{
+				if (i > 0)
+					bldr.Append(", ");
+				if (i == keyAttrsAsList.Count - 1)
+					bldr.Append(" and ");
+				var currentAttrName = keyAttrsAsList[i];
+				bldr.AppendFormat("attribute '{0}'", currentAttrName);
+			}
+
+			return string.Format("The key attribute(s) are the same: {0}", bldr);
 		}
 
 		#endregion

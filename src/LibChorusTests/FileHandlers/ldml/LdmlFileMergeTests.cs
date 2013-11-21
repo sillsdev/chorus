@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Xml;
 using Chorus.FileTypeHanders;
+using Chorus.FileTypeHanders.ldml;
 using Chorus.FileTypeHanders.xml;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
@@ -68,6 +70,48 @@ namespace LibChorus.Tests.FileHandlers.ldml
 		public void Do3WayMergeThrowsOnNullInput()
 		{
 			Assert.Throws<ArgumentNullException>(() => _ldmlFileHandler.Do3WayMerge(null));
+		}
+
+		[Test]
+		public void DuplicateSpecialElementsAreRemoved()
+		{
+			const string badData =
+@"<ldml>
+<special xmlns:palaso='urn://palaso.org/ldmlExtensions/v1' />
+<special xmlns:palaso='urn://palaso.org/ldmlExtensions/v1' goner='true' />
+<special xmlns:palaso2='urn://palaso.org/ldmlExtensions/v2' />
+<special xmlns:palaso2='urn://palaso.org/ldmlExtensions/v2' goner='true' />
+<special xmlns:fw='urn://fieldworks.sil.org/ldmlExtensions/v1' />
+<special xmlns:fw='urn://fieldworks.sil.org/ldmlExtensions/v1' goner='true' />
+</ldml>";
+			var doc = new XmlDocument();
+			var badRootNode = XmlUtilities.GetDocumentNodeFromRawXml(badData, doc);
+			var merger = new XmlMerger(new NullMergeSituation());
+			merger.EventListener = new ListenerForUnitTests();
+			LdmlFileHandler.SetupElementStrategies(merger);
+			var oldValue = XmlMergeService.RemoveAmbiguousChildNodes;
+			XmlMergeService.RemoveAmbiguousChildNodes = true;
+			XmlMergeService.RemoveAmbiguousChildren(merger.EventListener, merger.MergeStrategies, badRootNode);
+			XmlMergeService.RemoveAmbiguousChildNodes = oldValue;
+			var childNodes = badRootNode.SelectNodes("special");
+			Assert.IsTrue(childNodes.Count == 3);
+			for (var idx = 0; idx < 3; ++idx)
+			{
+				XmlNode currentNode = childNodes[idx];
+				switch (idx)
+				{
+					case 0:
+						Assert.IsNotNull(currentNode.Attributes["xmlns:palaso"]);
+						break;
+					case 1:
+						Assert.IsNotNull(currentNode.Attributes["xmlns:palaso2"]);
+						break;
+					case 2:
+						Assert.IsNotNull(currentNode.Attributes["xmlns:fw"]);
+						break;
+				}
+				Assert.IsNull(currentNode.Attributes["goner"]);
+			}
 		}
 
 		[Test]
