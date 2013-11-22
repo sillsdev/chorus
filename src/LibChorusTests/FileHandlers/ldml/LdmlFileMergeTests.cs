@@ -115,6 +115,33 @@ namespace LibChorus.Tests.FileHandlers.ldml
 		}
 
 		[Test]
+		public void KeyAttrAddedByCodeBeforeMergeIsRemoved()
+		{
+			const string commonAncestor =
+@"<?xml version='1.0' encoding='utf-8'?>
+<ldml>
+<identity>
+<generation date='2012-06-08T09:36:30' />
+</identity>
+<collations>
+<collation />
+</collations>
+</ldml>";
+			var namespaces = new Dictionary<string, string>
+								{
+									{"palaso", "urn://palaso.org/ldmlExtensions/v1"},
+									{"fw", "urn://fieldworks.sil.org/ldmlExtensions/v1"}
+								};
+
+			DoMerge(commonAncestor, commonAncestor, commonAncestor,
+				namespaces,
+				new List<string>(),
+				new List<string> { @"ldml/collations/collation[@type='standard']" }, // Should not be present, since the premerge code added it.
+				0, null,
+				0, null);
+		}
+
+		[Test]
 		public void NonConflictingEditsInAtomicSpecialHasConflictReport()
 		{
 			const string commonAncestor =
