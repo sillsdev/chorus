@@ -236,7 +236,7 @@ namespace Chorus.FileTypeHanders.ldml
 			// Children of 'strategy' xmlns:palaso2
 			// palaso2:knownKeyboards:
 			merger.MergeStrategies.SetStrategy("palaso2:knownKeyboards", ElementStrategy.CreateSingletonElement());
-			// Mulptiple children of "palaso2:knownKeyboards" element
+			// Multiple children of "palaso2:knownKeyboards" element
 			strategy = new ElementStrategy(false)
 			{
 				MergePartnerFinder = new FindByMultipleKeyAttributes(new List<string> {"layout", "locale"})
