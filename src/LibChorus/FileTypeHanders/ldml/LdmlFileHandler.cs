@@ -271,6 +271,7 @@ namespace Chorus.FileTypeHanders.ldml
 		/// handles that date business, so it doesn't overwhelm the poor user with conflict reports
 		/// </summary>
 		/// <param name="mergeOrder"></param>
+		/// <param name="addedCollationAttr"></param>
 		private static void PreMergeFile(MergeOrder mergeOrder, out bool addedCollationAttr)
 		{
 			addedCollationAttr = false;
@@ -285,7 +286,7 @@ namespace Chorus.FileTypeHanders.ldml
 			XElement defaultCollation;
 			if (commonDoc != null)
 			{
-				defaultCollation = commonDoc.Root.Element("collations").Elements("collation").FirstOrDefault(collation => collation.Attribute("type") == null);
+				defaultCollation = GetDefaultCollationNode(commonDoc);
 				if (defaultCollation != null)
 				{
 					defaultCollation.Add(new XAttribute("type", "standard"));
@@ -293,14 +294,14 @@ namespace Chorus.FileTypeHanders.ldml
 					addedCollationAttr = true;
 				}
 			}
-			defaultCollation = ourDoc.Root.Element("collations").Elements("collation").FirstOrDefault(collation => collation.Attribute("type") == null);
+			defaultCollation = GetDefaultCollationNode(ourDoc);
 			if (defaultCollation != null)
 			{
 				defaultCollation.Add(new XAttribute("type", "standard"));
 				ourDoc.Save(mergeOrder.pathToOurs);
 				addedCollationAttr = true;
 			}
-			defaultCollation = theirDoc.Root.Element("collations").Elements("collation").FirstOrDefault(collation => collation.Attribute("type") == null);
+			defaultCollation = GetDefaultCollationNode(theirDoc);
 			if (defaultCollation != null)
 			{
 				defaultCollation.Add(new XAttribute("type", "standard"));
@@ -323,6 +324,20 @@ namespace Chorus.FileTypeHanders.ldml
 			}
 			var theirData = File.ReadAllText(mergeOrder.pathToTheirs).Replace(theirRawGenDate, ourRawGenDate);
 			File.WriteAllText(mergeOrder.pathToTheirs, theirData);
+		}
+
+		private static XElement GetDefaultCollationNode(XDocument currentDocument)
+		{
+			var rootNode = currentDocument.Root;
+			if (rootNode == null)
+				return null;
+			var collationsNode = rootNode.Element("collations");
+			if (collationsNode == null)
+				return null;
+			var collationNodes = collationsNode.Elements("collation").ToList();
+			if (collationNodes.Count == 0)
+				return null;
+			return collationNodes.FirstOrDefault(collation => collation.Attribute("type") == null);
 		}
 
 		private static DateTime GetGenDate(XDocument doc, out string rawGenDate)
