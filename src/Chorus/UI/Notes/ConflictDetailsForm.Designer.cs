@@ -13,10 +13,14 @@
 		/// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
 		protected override void Dispose(bool disposing)
 		{
-			if (disposing && (components != null))
+			if (disposing)
 			{
-				components.Dispose();
+				if (_conflictDisplay != null)
+					_conflictDisplay.Dispose();
+				if (components != null)
+					components.Dispose();
 			}
+			_conflictDisplay = null;
 			base.Dispose(disposing);
 		}
 
@@ -61,9 +65,6 @@
 			//
 			// _conflictDisplay
 			//
-#if MONO
-			//GECKOFX: Is this needed?
-			//this._conflictDisplay.AllowWebBrowserDrop = false;
 			this._conflictDisplay.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
 			| System.Windows.Forms.AnchorStyles.Left)
 			| System.Windows.Forms.AnchorStyles.Right)));
@@ -75,21 +76,8 @@
 			this._conflictDisplay.Name = "_conflictDisplay";
 			this._conflictDisplay.Size = new System.Drawing.Size(948, 487);
 			this._conflictDisplay.TabIndex = 10;
-			//GECKOFX: Is this needed?
-			//this._conflictDisplay.WebBrowserShortcutsEnabled = false;
-#else
+#if !MONO
 			this._conflictDisplay.AllowWebBrowserDrop = false;
-			this._conflictDisplay.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-			| System.Windows.Forms.AnchorStyles.Left)
-			| System.Windows.Forms.AnchorStyles.Right)));
-			this.l10NSharpExtender1.SetLocalizableToolTip(this._conflictDisplay, null);
-			this.l10NSharpExtender1.SetLocalizationComment(this._conflictDisplay, null);
-			this.l10NSharpExtender1.SetLocalizingId(this._conflictDisplay, "ConflictDetailsForm.ConflictDetailsForm._conflictDisplay");
-			this._conflictDisplay.Location = new System.Drawing.Point(0, 27);
-			this._conflictDisplay.MinimumSize = new System.Drawing.Size(20, 20);
-			this._conflictDisplay.Name = "_conflictDisplay";
-			this._conflictDisplay.Size = new System.Drawing.Size(948, 487);
-			this._conflictDisplay.TabIndex = 10;
 			this._conflictDisplay.WebBrowserShortcutsEnabled = false;
 #endif
 			//

@@ -46,11 +46,9 @@ namespace Chorus.UI.Notes
 			_user = user;
 			m_embeddedMessageContentHandlerRepository = embeddedMessageContentHandlerRepository;
 			_styleSheet = styleSheet;
-			NewMessageText = string.Empty;
 			_annotation = annotation;
 			_navigateToRecordEventToRaise = navigateToRecordEventToRaise;
 			_displaySettings = displaySettings;
-			//CurrentWritingSystem = _displaySettings.First();
 			_showLabelAsHyperLink = showLabelAsHyperlink;
 		}
 
@@ -66,13 +64,11 @@ namespace Chorus.UI.Notes
 			_navigateToRecordEventToRaise = navigateToRecordEventToRaise;
 			_styleSheet = styleSheet;
 			_displaySettings = displaySettings;
-			 //CurrentWritingSystem = _displaySettings.First();
-			messageSelectedEventToSubscribeTo.Subscribe((annotation, message) => SetAnnotationAndFocussedMessage(annotation, message));
+			messageSelectedEventToSubscribeTo.Subscribe(SetAnnotationAndFocussedMessage);
 			EventToRaiseForChangedMessage = messageSelectedEventToSubscribeTo;
-			NewMessageText = string.Empty;
 		}
 
-		public EmbeddedMessageContentHandlerRepository MesageContentHandlerRepository
+		public EmbeddedMessageContentHandlerRepository MessageContentHandlerRepository
 		{
 			get { return m_embeddedMessageContentHandlerRepository; }
 		}
@@ -92,23 +88,10 @@ namespace Chorus.UI.Notes
 			}
 		}
 
-		private void UpdateStatesNow()
-		{
-			if (UpdateStates != null)
-			{
-				UpdateStates.Invoke(this, null);
-			}
-		}
-
 		public Annotation Annotation
 		{
 		   get { return _annotation; }
 
-		}
-
-		public bool AddButtonEnabled
-		{
-			get { return _annotation.Status!="closed" && NewMessageText.Length>0; }
 		}
 
 		public string GetNewMessageHtml()
@@ -157,19 +140,19 @@ namespace Chorus.UI.Notes
 
 					builder.AppendLine(@"<div class='messageContents'>");
 					builder.AppendLine(message.GetHtmlText(m_embeddedMessageContentHandlerRepository));
-//                    if(message.HasEmbeddedData)
-//                    {
-//                        builder.AppendLine(message.HtmlText);
-//                    }
 
-				if (message.Status != status)
+					if (message.Status != status)
 					{
-						if (status != string.Empty || message.Status.ToLower() != @"open")//don't show the first status if it's just 'open'
+						if (status != string.Empty || message.Status.ToLower() != Annotation.Open)//don't show the first status if it's just 'open'
 						{
+							// Enhance pH 2013.08: change this text to an image (check or red flag), similar to ParaTExt?
 							builder.AppendFormat(
 								@"<div class='statusChange'>" +
 								LocalizationManager.GetString("Messages.MarkedNotAs", "{0} marked the note as {1}.") + @"</div>",
-								message.Author, "<span class='status'>" + message.Status + "</span>");
+								message.Author,
+								// add span tags *after* localization; change "closed" to "resolved" to match the button
+								@"<span class='status'>" +
+								(message.Status.ToLower() == Annotation.Closed ? "resolved" : message.Status) + @"</span>");
 						}
 						status = message.Status;
 					}
@@ -188,10 +171,10 @@ namespace Chorus.UI.Notes
 
 		public bool IsResolved
 		{
-			get { return _annotation.Status == "closed";}
+			get { return _annotation.Status == Annotation.Closed; }
 			set
 			{
-				_annotation.SetStatus(_user.Name, value? "closed":"open");
+				_annotation.SetStatus(_user.Name, value ? Annotation.Closed : Annotation.Open);
 				UpdateContentNow();
 			}
 		}
@@ -208,24 +191,7 @@ namespace Chorus.UI.Notes
 
 		public string DetailsText
 		{
-			get { return string.Format("ref={0  } status={1}", _annotation.RefStillEscaped, _annotation.Status); }
-		}
-
-
-		public bool ShowNewMessageControls
-		{
-			get { return _annotation.Status != "closed"; }
-		}
-
-		public string NewMessageText
-		{
-			get {
-				return _newMessageText;
-			}
-			set {
-				_newMessageText = value;
-				UpdateStatesNow();
-			}
+			get { return string.Format("ref={0} status={1}", _annotation.RefStillEscaped, _annotation.Status); }
 		}
 
 		public bool IsVisible
@@ -233,18 +199,30 @@ namespace Chorus.UI.Notes
 			get { return _annotation != null; }
 		}
 
-		public string CloseButtonText
+		public string ResolveButtonText
 		{
 			get
 			{
-				if (_newMessageText.Length > 0)
+				if (IsResolved)
 				{
-					return LocalizationManager.GetString("AnnotationEditorView.AddAndOK", "&Add && &OK");
+					return LocalizationManager.GetString("AnnotationEditorView.UnresolveNote", "Un&resolve Note");
 				}
 				else
 				{
-				   return LocalizationManager.GetString("Common.OK", "&OK");
+					return LocalizationManager.GetString("AnnotationEditorView.ResolveNote", "&Resolve Note");
 				}
+			}
+		}
+
+		public string GetOKButtonText(bool closeButtonVisible)
+		{
+			if (closeButtonVisible)
+			{
+				return LocalizationManager.GetString("Common.OK", "&OK");
+			}
+			else
+			{
+				return LocalizationManager.GetString("AnnotationEditorView.AddMessage", "&Add Message");
 			}
 		}
 
@@ -286,12 +264,21 @@ namespace Chorus.UI.Notes
 			return _annotation.GetLongLabel();
 		}
 
-
-
-		public void AddButtonClicked()
+		public void AddMessage(string newMessageText)
 		{
-			_annotation.AddMessage(_user.Name, null, NewMessageText);
-			NewMessageText = string.Empty;
+			_annotation.AddMessage(_user.Name, null, newMessageText);
+			UpdateContentNow();
+		}
+
+		/// <summary>
+		/// Inverts whether the annotation is resolved or unresolved, adding the message text supplied
+		/// </summary>
+		/// <param name="newMessageText"></param>
+		public void UnResolveAndAddMessage(string newMessageText)
+		{
+			_annotation.AddMessage(_user.Name,
+				IsResolved ? Annotation.Open : Annotation.Closed, // Invert the status
+				newMessageText);
 			UpdateContentNow();
 		}
 
@@ -317,6 +304,16 @@ namespace Chorus.UI.Notes
 		public void ActivateKeyboard()
 		{
 			_displaySettings.WritingSystemForNoteContent.ActivateKeyboard();
+		}
+
+		public IWritingSystem LabelWritingSystem
+		{
+			set { _displaySettings.WritingSystemForNoteLabel = value; }
+		}
+
+		public IWritingSystem MessageWritingSystem
+		{
+			set { _displaySettings.WritingSystemForNoteContent = value; }
 		}
 	}
 }

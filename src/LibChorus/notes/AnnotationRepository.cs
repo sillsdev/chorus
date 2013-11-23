@@ -11,7 +11,7 @@ using Palaso.Xml;
 
 namespace Chorus.notes
 {
-	public class AnnotationRepository : IDisposable
+	public class AnnotationRepository : IDisposable, IAnnotationRepository
 	{
 		private XDocument _doc;
 		private readonly string _annotationFilePath;
@@ -184,7 +184,7 @@ namespace Chorus.notes
 			//what it was
 
 			var element = sender as XElement;
-			XElement annotationElement  =element.AncestorsAndSelf("annotation").First();
+			XElement annotationElement = element.AncestorsAndSelf("annotation").First();
 			_observers.ForEach(index => index.NotifyOfModification(new Annotation(annotationElement)));
 			_isDirty = true;
 		}

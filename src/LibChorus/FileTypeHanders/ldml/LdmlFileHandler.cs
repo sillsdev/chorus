@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Xml;
 using System.Xml.Linq;
@@ -55,12 +56,15 @@ namespace Chorus.FileTypeHanders.ldml
 		{
 			if (mergeOrder == null)
 				throw new ArgumentNullException("mergeOrder");
-			PreMergeFile(mergeOrder);
+
+			bool addedCollationAttr;
+			PreMergeFile(mergeOrder, out addedCollationAttr);
 
 			var merger = new XmlMerger(mergeOrder.MergeSituation);
 			SetupElementStrategies(merger);
 
 			merger.EventListener = mergeOrder.EventListener;
+			XmlMergeService.RemoveAmbiguousChildNodes = true;
 			var result = merger.MergeFiles(mergeOrder.pathToOurs, mergeOrder.pathToTheirs, mergeOrder.pathToCommonAncestor);
 			using (var writer = XmlWriter.Create(mergeOrder.pathToOurs, CanonicalXmlSettings.CreateXmlWriterSettings()))
 			{
@@ -73,6 +77,17 @@ namespace Chorus.FileTypeHanders.ldml
 				readerSettings.NameTable = nameSpaceManager.NameTable;
 				readerSettings.XmlResolver = null;
 				readerSettings.ProhibitDtd = false;
+				if (addedCollationAttr)
+				{
+					// Remove the optional 'key' attr we added.
+					var adjustedCollation = result.MergedNode.SelectSingleNode("collations")
+						.SelectNodes("collation")
+						.Cast<XmlNode>().FirstOrDefault(collation => collation.Attributes["type"].Value == "standard");
+					if (adjustedCollation != null)
+					{
+						adjustedCollation.Attributes.Remove(adjustedCollation.Attributes["type"]);
+					}
+				}
 				using (var nodeReader = XmlReader.Create(new MemoryStream(Encoding.UTF8.GetBytes(result.MergedNode.OuterXml)), readerSettings))
 				{
 					writer.WriteNode(nodeReader, false);
@@ -154,11 +169,13 @@ namespace Chorus.FileTypeHanders.ldml
 
 		#endregion
 
-		private static void SetupElementStrategies(XmlMerger merger)
+		internal static void SetupElementStrategies(XmlMerger merger)
 		{
 			merger.MergeStrategies.ElementToMergeStrategyKeyMapper = new LdmlElementToMergeStrategyKeyMapper();
 
+			// See: Palaso repo: palaso\Palaso\WritingSystems\LdmlDataMapper.cs
 			merger.MergeStrategies.SetStrategy("ldml", ElementStrategy.CreateSingletonElement());
+			// Child elemnts of ldml root.
 			merger.MergeStrategies.SetStrategy("identity", ElementStrategy.CreateSingletonElement());
 			// Child elements of "identity".
 			merger.MergeStrategies.SetStrategy("version", ElementStrategy.CreateSingletonElement());
@@ -167,52 +184,130 @@ namespace Chorus.FileTypeHanders.ldml
 			merger.MergeStrategies.SetStrategy("script", ElementStrategy.CreateSingletonElement());
 			merger.MergeStrategies.SetStrategy("territory", ElementStrategy.CreateSingletonElement());
 			merger.MergeStrategies.SetStrategy("variant", ElementStrategy.CreateSingletonElement());
+			merger.MergeStrategies.SetStrategy("layout", ElementStrategy.CreateSingletonElement());
+			// Child element of "layout".
+			merger.MergeStrategies.SetStrategy("orientation", ElementStrategy.CreateSingletonElement());
 			merger.MergeStrategies.SetStrategy("collations", ElementStrategy.CreateSingletonElement());
 			// Child element of collations
-			var strategy = ElementStrategy.CreateSingletonElement();
-			strategy.IsAtomic = true; // I (RBR) think it would be suicidal to try and merge this element.
+			var strategy = new ElementStrategy(false)
+			{
+				IsAtomic = true, // I (RBR) think it would be suicidal to try and merge this element.
+				MergePartnerFinder = new FindByKeyAttribute("type")
+			};
 			merger.MergeStrategies.SetStrategy("collation", strategy);
-			// Special "xmlns:palaso"
+			// Child of 'collation' element (They exist, but we don't care what they are, as long as the parent is 'atomic'.
+
+			// See: Palaso repo: palaso\Palaso\WritingSystems\LdmlDataMapper.cs
+			// There currently are up to three 'special' child elements of the 'ldml' root element.
+			// Special "xmlns:palaso" attr
 			strategy = new ElementStrategy(false)
 			{
 				IsAtomic = true, // May not be needed...
 				MergePartnerFinder = new FindByMatchingAttributeNames(new HashSet<string> { "xmlns:palaso" })
 			};
 			merger.MergeStrategies.SetStrategy("special_xmlns:palaso", strategy);
-			// special[palaso2]: want to merge knownKeyboards child. So the root element is not atomic.
+			/* Not needed, as long as the parent is 'atomic'.
+			// Children of 'special' xmlns:palaso
+			// palaso:abbreviation
+			merger.MergeStrategies.SetStrategy("palaso:abbreviation", ElementStrategy.CreateSingletonElement());
+			// palaso:defaultFontFamily
+			merger.MergeStrategies.SetStrategy("palaso:defaultFontFamily", ElementStrategy.CreateSingletonElement());
+			// palaso:defaultFontSize
+			merger.MergeStrategies.SetStrategy("palaso:defaultFontSize", ElementStrategy.CreateSingletonElement());
+			// palaso:defaultKeyboard
+			merger.MergeStrategies.SetStrategy("palaso:defaultKeyboard", ElementStrategy.CreateSingletonElement());
+			// palaso:isLegacyEncoded
+			merger.MergeStrategies.SetStrategy("palaso:isLegacyEncoded", ElementStrategy.CreateSingletonElement());
+			// palaso:languageName
+			merger.MergeStrategies.SetStrategy("palaso:languageName", ElementStrategy.CreateSingletonElement());
+			// palaso:spellCheckingId
+			merger.MergeStrategies.SetStrategy("palaso:spellCheckingId", ElementStrategy.CreateSingletonElement());
+			// palaso:version
+			merger.MergeStrategies.SetStrategy("palaso:version", ElementStrategy.CreateSingletonElement());
+			*/
+
+			// See: Palaso repo: palaso\Palaso\WritingSystems\LdmlDataMapper.cs
+			// special "xmlns:palaso2" attr: want to merge knownKeyboards child. So the root element is not atomic.
 			strategy = new ElementStrategy(false)
-				{
-					MergePartnerFinder = new FindByMatchingAttributeNames(new HashSet<string> {"xmlns:palaso2"})
-				};
+			{
+				MergePartnerFinder = new FindByMatchingAttributeNames(new HashSet<string> {"xmlns:palaso2"})
+			};
 			merger.MergeStrategies.SetStrategy("special_xmlns:palaso2", strategy);
-			// knownKeyboards:
+			// Children of 'strategy' xmlns:palaso2
+			// palaso2:knownKeyboards:
 			merger.MergeStrategies.SetStrategy("palaso2:knownKeyboards", ElementStrategy.CreateSingletonElement());
-			// keyboard
+			// Multiple children of "palaso2:knownKeyboards" element
 			strategy = new ElementStrategy(false)
-				{
-					MergePartnerFinder = new FindByMultipleKeyAttributes(new List<string> {"layout", "locale"})
-				};
+			{
+				MergePartnerFinder = new FindByMultipleKeyAttributes(new List<string> {"layout", "locale"})
+			};
 			merger.MergeStrategies.SetStrategy("palaso2:keyboard", strategy);
-			// Special "xmlns:fw"
+			merger.MergeStrategies.SetStrategy("palaso2:version", ElementStrategy.CreateSingletonElement());
+
+			// Special "xmlns:fw" attr (See FW source file: Src\Common\CoreImpl\PalasoWritingSystemManager.cs
 			strategy = new ElementStrategy(false)
 			{
 				IsAtomic = true, // Really is needed. At least it is for some child elements.
 				MergePartnerFinder = new FindByMatchingAttributeNames(new HashSet<string> { "xmlns:fw" })
 			};
 			merger.MergeStrategies.SetStrategy("special_xmlns:fw", strategy);
+			/* Not needed, as long as the parent is 'atomic'.
+			// Children for 'special' xmlns:fw
+			merger.MergeStrategies.SetStrategy("fw:defaultFontFeatures", ElementStrategy.CreateSingletonElement());
+			merger.MergeStrategies.SetStrategy("fw:graphiteEnabled", ElementStrategy.CreateSingletonElement());
+			merger.MergeStrategies.SetStrategy("fw:legacyMapping", ElementStrategy.CreateSingletonElement());
+			merger.MergeStrategies.SetStrategy("fw:matchedPairs", ElementStrategy.CreateSingletonElement());
+			merger.MergeStrategies.SetStrategy("fw:punctuationPatterns", ElementStrategy.CreateSingletonElement());
+			merger.MergeStrategies.SetStrategy("fw:quotationMarks", ElementStrategy.CreateSingletonElement());
+			merger.MergeStrategies.SetStrategy("fw:regionName", ElementStrategy.CreateSingletonElement());
+			merger.MergeStrategies.SetStrategy("fw:scriptName", ElementStrategy.CreateSingletonElement());
+			merger.MergeStrategies.SetStrategy("fw:validChars", ElementStrategy.CreateSingletonElement());
+			merger.MergeStrategies.SetStrategy("fw:variantName", ElementStrategy.CreateSingletonElement());
+			merger.MergeStrategies.SetStrategy("fw:windowsLCID", ElementStrategy.CreateSingletonElement());
+			*/
 		}
 
 		/// <summary>
 		/// handles that date business, so it doesn't overwhelm the poor user with conflict reports
 		/// </summary>
 		/// <param name="mergeOrder"></param>
-		private static void PreMergeFile(MergeOrder mergeOrder)
+		/// <param name="addedCollationAttr"></param>
+		private static void PreMergeFile(MergeOrder mergeOrder, out bool addedCollationAttr)
 		{
+			addedCollationAttr = false;
 			var ourDoc = File.Exists(mergeOrder.pathToOurs) ? XDocument.Load(mergeOrder.pathToOurs) : null;
 			var theirDoc = File.Exists(mergeOrder.pathToTheirs) ? XDocument.Load(mergeOrder.pathToTheirs) : null;
+			var commonDoc = File.Exists(mergeOrder.pathToCommonAncestor) ? XDocument.Load(mergeOrder.pathToCommonAncestor) : null;
 
 			if (ourDoc == null || theirDoc == null)
 				return;
+
+			// Add optional key attr and default value on 'collation' element that has no 'type' attr.
+			XElement defaultCollation;
+			if (commonDoc != null)
+			{
+				defaultCollation = GetDefaultCollationNode(commonDoc);
+				if (defaultCollation != null)
+				{
+					defaultCollation.Add(new XAttribute("type", "standard"));
+					commonDoc.Save(mergeOrder.pathToCommonAncestor);
+					addedCollationAttr = true;
+				}
+			}
+			defaultCollation = GetDefaultCollationNode(ourDoc);
+			if (defaultCollation != null)
+			{
+				defaultCollation.Add(new XAttribute("type", "standard"));
+				ourDoc.Save(mergeOrder.pathToOurs);
+				addedCollationAttr = true;
+			}
+			defaultCollation = GetDefaultCollationNode(theirDoc);
+			if (defaultCollation != null)
+			{
+				defaultCollation.Add(new XAttribute("type", "standard"));
+				ourDoc.Save(mergeOrder.pathToTheirs);
+				addedCollationAttr = true;
+			}
 
 			// Pre-merge <generation> date attr to newest.
 			string ourRawGenDate;
@@ -229,6 +324,20 @@ namespace Chorus.FileTypeHanders.ldml
 			}
 			var theirData = File.ReadAllText(mergeOrder.pathToTheirs).Replace(theirRawGenDate, ourRawGenDate);
 			File.WriteAllText(mergeOrder.pathToTheirs, theirData);
+		}
+
+		private static XElement GetDefaultCollationNode(XDocument currentDocument)
+		{
+			var rootNode = currentDocument.Root;
+			if (rootNode == null)
+				return null;
+			var collationsNode = rootNode.Element("collations");
+			if (collationsNode == null)
+				return null;
+			var collationNodes = collationsNode.Elements("collation").ToList();
+			if (collationNodes.Count == 0)
+				return null;
+			return collationNodes.FirstOrDefault(collation => collation.Attribute("type") == null);
 		}
 
 		private static DateTime GetGenDate(XDocument doc, out string rawGenDate)

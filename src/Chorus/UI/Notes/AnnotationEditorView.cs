@@ -37,7 +37,7 @@ namespace Chorus.UI.Notes
 
 		public EmbeddedMessageContentHandlerRepository MesageContentHandlerRepository
 		{
-			get { return _model.MesageContentHandlerRepository; }
+			get { return _model.MessageContentHandlerRepository; }
 		}
 
 
@@ -52,13 +52,42 @@ namespace Chorus.UI.Notes
 
 		public bool ModalDialogMode
 		{
-			set { _closeButton.Visible = value;}
-			get{return _closeButton.Visible;}
+			get { return _closeButton.Visible; }
+			set { _closeButton.Visible = value; }
 		}
 
-		public Button CloseButton
+		/// <summary>
+		/// Allows client code to access the OK button when presenting this control as a modal dialog
+		/// </summary>
+		public Button OKButton
 		{
-			get { return _closeButton; }
+			get { return _okButton; }
+		}
+
+		public bool NewMessageTextEntered
+		{
+			get { return !String.IsNullOrWhiteSpace(_newMessage.Text); }
+		}
+
+		public void AddMessage()
+		{
+			if (NewMessageTextEntered)
+				_model.AddMessage(_newMessage.Text);
+			ClearNewMessageText();
+		}
+
+		private void UnResolveAndAddMessage()
+		{
+			if (NewMessageTextEntered)
+				_model.UnResolveAndAddMessage(_newMessage.Text);
+			else if (_model.Messages.Any()) // don't resolve an empty Note
+				_model.IsResolved = !_model.IsResolved;
+			ClearNewMessageText();
+		}
+
+		public void ClearNewMessageText()
+		{
+			_newMessage.Text = String.Empty;
 		}
 
 		void OnUpdateContent(object sender, EventArgs e)
@@ -68,7 +97,6 @@ namespace Chorus.UI.Notes
 				_annotationLogo.Image = _model.GetAnnotationLogoImage();
 				_annotationLabel.Text = _model.AnnotationLabel;
 				SetDocumentText(_model.GetExistingMessagesHtml());
-				_newMessage.Text = _model.NewMessageText;
 			}
 			OnUpdateStates(sender,e);
 		}
@@ -78,23 +106,11 @@ namespace Chorus.UI.Notes
 			Visible = _model.IsVisible;
 			if (_model.IsVisible)
 			{
-				_resolvedCheckBox.Checked = _model.IsResolved;
-				_resolvedCheckBox.Visible = _model.ResolvedControlShouldBeVisible;
-				_addButton.Enabled = _model.AddButtonEnabled;
-				_addButton.Visible = _model.ShowNewMessageControls;
-				_newMessage.Visible = _model.ShowNewMessageControls;
-				_addNewMessageLabel.Visible = _model.ShowNewMessageControls;
+				_resolveButton.Visible = _model.ResolvedControlShouldBeVisible;
+				_resolveButton.Text = _model.ResolveButtonText;
 
-				_closeButton.Text = _model.CloseButtonText;
-
-				if (_model.ShowLabelAsHyperlink)
-				{
-					_annotationLabel.LinkBehavior = LinkBehavior.AlwaysUnderline;
-				}
-				else
-				{
-				   _annotationLabel.LinkBehavior = LinkBehavior.NeverUnderline;
-				}
+				_annotationLabel.LinkBehavior = _model.ShowLabelAsHyperlink ?
+					LinkBehavior.AlwaysUnderline : LinkBehavior.NeverUnderline;
 			}
 		}
 
@@ -109,22 +125,51 @@ namespace Chorus.UI.Notes
 			x.Document.BackColor = this.BackColor;
 		}
 
-		private void OnResolvedCheckBox_CheckedChanged(object sender, EventArgs e)
+		private void _closeButton_VisibleChanged(object sender, EventArgs e)
 		{
-			_model.IsResolved = (_resolvedCheckBox.Checked);
+			_okButton.Text = _model.GetOKButtonText(_closeButton.Visible);
+			if (!_closeButton.Visible)
+			{
+				// if the close button isn't visible, move the Add (OK) button over
+				_okButton.Location = new Point(
+					_closeButton.Location.X + _closeButton.Size.Width - _okButton.Size.Width,
+					_closeButton.Location.Y);
+			}
+			// No need for an else clause to move the button back, b/c _closeButton.Visible is set only once.
 		}
 
-		private void _addButton_Click(object sender, EventArgs e)
+		private void _resolveButton_Click(object sender, EventArgs e)
 		{
-			_model.AddButtonClicked();
-			_newMessage.Text = _model.NewMessageText;
+			UnResolveAndAddMessage();
 
+			if (ModalDialogMode)
+				_closeButton_Click(DialogResult.OK, e);
 		}
 
-		private void _newMessage_TextChanged(object sender, EventArgs e)
+		private void _okButton_Click(object sender, EventArgs e)
 		{
-			_model.NewMessageText = _newMessage.Text;
-			OnUpdateStates(null,null);
+			if (ModalDialogMode)
+			{
+				// We will close the dialog, so we don't need to update the contents of the controls;
+				// and doing so on Mono crashes Gecko, apparently because the window is gone before the
+				// update completes. We get stack overflow somehow, anyway.
+				_model.UpdateContent -= OnUpdateContent;
+			}
+
+			AddMessage();
+
+			if (ModalDialogMode)
+				_closeButton_Click(DialogResult.OK, e);
+		}
+
+		// Close without saving
+		private void _closeButton_Click(object sender, EventArgs e)
+		{
+			if (!(sender is DialogResult))
+				sender = DialogResult.Cancel;
+
+			if(OnClose!=null)
+				OnClose(sender, e);
 		}
 
 		private void _annotationLogo_Paint(object sender, PaintEventArgs e)
@@ -138,18 +183,22 @@ namespace Chorus.UI.Notes
 		private void _annotationLogo_DoubleClick(object sender, EventArgs e)
 		{
 			Cursor.Current = Cursors.WaitCursor;
-			var dlg = new AnnotationInspector(_model.Annotation);
-			dlg.ShowDialog();
+			using (var dlg = new AnnotationInspector(_model.Annotation))
+			{
+				dlg.ShowDialog();
+			}
 			Cursor.Current = Cursors.Default;
 		}
 
 #if MONO
-		private void _existingMessagesDisplay_Navigating(object sender, Gecko.GeckoNavigatingEventArgs e)
+		private void _existingMessagesHandleLinkClick(object sender, Gecko.GeckoDomEventArgs e)
 		{
-			if (e.Uri.Scheme == "about")
-				return;
-			// We do NOT want to cancel this operation -- that would prevent anything from displaying!
-			_model.HandleLinkClicked(e.Uri);
+			Gecko.GeckoHtmlElement clicked = e.Target;
+			if(clicked != null && clicked.TagName == "A")
+			{
+				e.Handled = true;
+				_model.HandleLinkClicked(new Uri(clicked.GetAttribute("href")));
+			}
 		}
 
 		private void _existingMessagesDisplay_DocumentCompleted(object sender, EventArgs e)
@@ -188,18 +237,6 @@ namespace Chorus.UI.Notes
 		}
 #endif
 
-		private void _closeButton_Click(object sender, EventArgs e)
-		{
-			if(_addButton.Enabled )
-			{
-				_addButton_Click(sender, e);
-			}
-			if(OnClose!=null)
-			{
-				OnClose(sender, e);
-			}
-		}
-
 		private void _annotationLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
 		{
 			_model.JumpToAnnotationTarget();
@@ -210,5 +247,22 @@ namespace Chorus.UI.Notes
 			_model.ActivateKeyboard();
 		}
 
+		internal IWritingSystem LabelWritingSystem
+		{
+			set
+			{
+				_model.LabelWritingSystem = value;
+				_annotationLabel.Font = _model.FontForLabel;
+			}
+		}
+
+		internal IWritingSystem MessageWritingSystem
+		{
+			set
+			{
+				_model.MessageWritingSystem = value;
+				_newMessage.Font = _model.FontForNewMessage;
+			}
+		}
 	}
 }

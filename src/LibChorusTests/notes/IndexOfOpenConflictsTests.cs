@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Linq;
 using Chorus.notes;
-using Chorus.Utilities;
 using NUnit.Framework;
 using Palaso.Progress;
 
@@ -41,7 +37,7 @@ namespace LibChorus.Tests.notes
 			{
 				var ann = new Annotation("conflict", "blah://blah?rid=12345", "somepath");
 				ann.AddMessage("merger", "open", string.Empty);
-				 r.AddAnnotation(ann);
+				r.AddAnnotation(ann);
 
 				var index = new IndexOfAllOpenConflicts();
 				r.AddObserver(index, _progress);

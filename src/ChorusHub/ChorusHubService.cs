@@ -20,14 +20,16 @@ namespace ChorusHub
 		/// filePattern -- This key can have multiple values separated by the '|' character
 		///
 		/// Each repository generates a JSON string consisting of two name/value pairs.
-		/// The two names are "name" and "id".
+		/// The two names are "name" and "id". The JSON strings are concatenated, separated by /.
+		/// (An earlier version returned an enumeration of json strings. But Mono could not
+		/// marshal this.)
 		/// </summary>
 		/// <example>searchUrl: "scheme://path?filePattern=*.lift|*.CustomProperties"</example>
 		/// <example>returned repo info string: {"name": "someProject", "id": "123abc"}</example>
 		/// <param name="searchUrl"></param>
 		/// <returns></returns>
 		[OperationContract]
-		IEnumerable<string> GetRepositoryInformation(string searchUrl);
+		string GetRepositoryInformation(string searchUrl);
 
 		/// <summary>
 		/// Prepares to receive a repository by checking that it exists on the server, and if not,

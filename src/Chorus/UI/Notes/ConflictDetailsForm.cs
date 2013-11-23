@@ -20,6 +20,8 @@ namespace Chorus.notes
 		{
 #if MONO
 			_conflictDisplay.LoadHtml(text);
+			// disable right click menu (it would stay up and never go away, and we don't want it)
+			_conflictDisplay.NoDefaultContextMenu = true;
 #else
 			_conflictDisplay.DocumentText = text;
 			_conflictDisplay.WebBrowserShortcutsEnabled = true;

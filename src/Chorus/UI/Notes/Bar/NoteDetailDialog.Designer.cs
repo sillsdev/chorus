@@ -53,7 +53,6 @@
 			this.MinimizeBox = false;
 			this.Name = "NoteDetailDialog";
 			this.Text = "Note";
-			this.Load += new System.EventHandler(this.NoteDetailDialog_Load);
 			((System.ComponentModel.ISupportInitialize)(this.l10NSharpExtender1)).EndInit();
 			this.ResumeLayout(false);
 

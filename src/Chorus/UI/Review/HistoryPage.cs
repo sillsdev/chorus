@@ -3,13 +3,13 @@ using System.Windows.Forms;
 using Chorus.UI.Review.ChangedReport;
 using Chorus.UI.Review.ChangesInRevision;
 using Chorus.UI.Review.RevisionsInRepository;
-using Chorus.VcsDrivers.Mercurial;
 
 namespace Chorus.UI.Review
 {
 	public partial class HistoryPage : UserControl
 	{
 		public delegate HistoryPage Factory(HistoryPageOptions options);//used by autofac
+		public event EventHandler<RevisionEventArgs> RevisionSelectionChanged;
 
 		public HistoryPage(RevisionInRepositoryModel.Factory revisionsInRepositoryModelFactory,
 			ChangesInRevisionView changesInRevisionView,
@@ -33,6 +33,7 @@ namespace Chorus.UI.Review
 
 			var revisionListModel = revisionsInRepositoryModelFactory(options.RevisionListOptions);
 			var revisionsInRepositoryView = new RevisionsInRepositoryView(revisionListModel);
+			revisionsInRepositoryView.RevisionSelectionChanged += HandleRevisionSelectionChanged;
 
 			var mainContainer = new SplitContainer();
 			mainContainer.Orientation = Orientation.Horizontal;
@@ -48,6 +49,12 @@ namespace Chorus.UI.Review
 
 			Controls.Add(mainContainer);
 			ResumeLayout();
+		}
+
+		private void HandleRevisionSelectionChanged(object sender, RevisionEventArgs e)
+		{
+			if (RevisionSelectionChanged != null)
+				RevisionSelectionChanged(this, e);
 		}
 	}
 
