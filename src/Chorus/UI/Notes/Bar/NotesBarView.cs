@@ -41,8 +41,6 @@ namespace Chorus.UI.Notes.Bar
 
 		internal readonly NotesBarModel _model;
 		private AnnotationEditorModel.Factory _annotationEditorModelFactory;
-		//When a new message(annotation) is being created, it should be removed if the user presses the red X in the dialog (NoteDetailDialog).
-		private DialogResult _dialogResult;
 
 		/// <summary>
 		/// Normally, don't use this, use the autofac-generated factory instead.
@@ -142,14 +140,11 @@ namespace Chorus.UI.Notes.Bar
 		{
 			try
 			{
-				var newguy = _model.CreateAnnotation();
-				var btn = AddAnnotationButton(newguy);
-				OnExistingAnnotationButtonClick(btn, null);
-				var annotation = ((Annotation)btn.Tag);
-				if (_dialogResult == DialogResult.Cancel || annotation.Messages.Count() == 0)
+				var newAnnotation = _model.CreateAnnotation();
+				if (ShowNoteDetailDialog(newAnnotation) == DialogResult.OK && newAnnotation.Messages.Any())
 				{
-					_model.RemoveAnnotation(annotation);
-					_buttonsPanel.Controls.Remove(btn);
+					_model.AddAnnotation(newAnnotation);
+					AddAnnotationButton(newAnnotation);
 				}
 			}
 			catch (Exception)
@@ -163,16 +158,24 @@ namespace Chorus.UI.Notes.Bar
 
 		private void OnExistingAnnotationButtonClick(object sender, EventArgs e)
 		{
-			var annotation = (Annotation) ((Button)sender).Tag;
-			var dlg = new NoteDetailDialog(annotation, _annotationEditorModelFactory);
-			_dialogResult = dlg.ShowDialog();
-			if (_dialogResult == DialogResult.OK)
+			ShowNoteDetailDialog((Annotation) ((Button) sender).Tag);
+		}
+
+		private DialogResult ShowNoteDetailDialog(Annotation annotation)
+		{
+			using (var dlg = new NoteDetailDialog(annotation, _annotationEditorModelFactory))
 			{
+				dlg.LabelWritingSystem = LabelWritingSystem;
+				dlg.MessageWritingSystem = MessageWritingSystem;
+				var result = dlg.ShowDialog();
+
 				OnUpdateContent(null, null);
 				_model.SaveNowIfNeeded(new NullProgress());
 				Timer refreshTimer = new Timer() { Interval = 500, Enabled = true };
-				refreshTimer.Tick += new EventHandler(OnRefreshTimer_Tick);
+				refreshTimer.Tick += OnRefreshTimer_Tick;
 				components.Add(refreshTimer);
+
+				return result;
 			}
 		}
 
@@ -187,11 +190,16 @@ namespace Chorus.UI.Notes.Bar
 		}
 
 
-	  /* for now, let's just autosave
-	   * public void SaveNowIfNeeded(IProgress progress)
+		public IWritingSystem LabelWritingSystem
 		{
-			_model.SaveNowIfNeeded(progress);
+			get;
+			set;
 		}
-	   */
+
+		public IWritingSystem MessageWritingSystem
+		{
+			get;
+			set;
+		}
 	}
 }

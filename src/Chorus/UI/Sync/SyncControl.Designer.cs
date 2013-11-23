@@ -1,5 +1,4 @@
 ﻿using Palaso.Progress;
-using Palaso.Progress;
 using Palaso.UI.WindowsForms.Progress;
 
 namespace Chorus.UI.Sync

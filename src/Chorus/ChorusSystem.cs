@@ -16,6 +16,7 @@ using Chorus.UI.Sync;
 using Chorus.VcsDrivers.Mercurial;
 using L10NSharp;
 using Palaso.Code;
+using Palaso.Extensions;
 using Palaso.Progress;
 using IContainer = Autofac.IContainer;
 
@@ -222,6 +223,21 @@ namespace Chorus
 			}
 
 			/// <summary>
+			/// Get a UI control designed to live near some data (e.g., a lexical entry);
+			/// it provides buttons
+			/// to let users see and open and existing notes attached to that data,
+			/// or create new notes related to the data.
+			/// New annotations will be created in primaryAnnotationsFilePath.
+			/// Annotations from all paths will be displayed.
+			/// idAttrForOtherFiles specifies the attr in annotation urls that identifies the target of the annotation for those files (in primary, hard-coded to "id")
+			/// </summary>
+			public NotesBarView CreateNotesBar(string pathToPrimaryFile, IEnumerable<string> pathsToOtherFiles, string idAttrForOtherFiles, NotesToRecordMapping mapping, IProgress progress)
+			{
+				var model = CreateNotesBarModel(pathToPrimaryFile, pathsToOtherFiles, idAttrForOtherFiles, mapping, progress);
+				return new NotesBarView(model, _container.Resolve<AnnotationEditorModel.Factory>());
+			}
+
+			/// <summary>
 			/// Get the model that would be needed if we go on to create a NotesBarView.
 			/// FLEx (at least) needs this to help it figure out, before we go to create the actual NotesBar,
 			/// whether there are any notes to show for the current entry.
@@ -233,6 +249,26 @@ namespace Chorus
 			public NotesBarModel CreateNotesBarModel(string pathToAnnotatedFile, NotesToRecordMapping mapping, IProgress progress)
 			{
 				var repo = _parent.GetNotesRepository(pathToAnnotatedFile, progress);
+				var model = _container.Resolve<NotesBarModel.Factory>()(repo, mapping);
+				return model;
+			}
+
+			/// <summary>
+			/// Get the model that would be needed if we go on to create a NotesBarView.
+			/// FLEx (at least) needs this to help it figure out, before we go to create the actual NotesBar,
+			/// whether there are any notes to show for the current entry.
+			/// New annotations will be created in primaryAnnotationsFilePath.
+			/// Annotations from all paths will be displayed.
+			/// </summary>
+			/// <param name="pathToPrimaryFile"></param>
+			/// <param name="pathsToOtherFiles"></param>
+			/// <param name="idAttrForOtherFiles">Attr in url that identifies the target of the annotation.</param>
+			/// <param name="mapping"></param>
+			/// <param name="progress"></param>
+			/// <returns></returns>
+			public NotesBarModel CreateNotesBarModel(string pathToPrimaryFile, IEnumerable<string> pathsToOtherFiles, string idAttrForOtherFiles, NotesToRecordMapping mapping, IProgress progress)
+			{
+				var repo = _parent.GetNotesRepository(pathToPrimaryFile, pathsToOtherFiles, idAttrForOtherFiles, progress);
 				var model = _container.Resolve<NotesBarModel.Factory>()(repo, mapping);
 				return model;
 			}
@@ -297,10 +333,36 @@ namespace Chorus
 			return repo;
 		}
 
-		private AnnotationRepository AddAnnotationRepository(string pathToFileBeingAnnotated, IProgress progress)
+		public IAnnotationRepository GetNotesRepository(string pathToPrimaryFile, IEnumerable<string> pathsToOtherFiles, string idAttrForOtherFiles, IProgress progress)
+		{
+			Require.That(File.Exists(pathToPrimaryFile));
+			foreach (var path in pathsToOtherFiles)
+				Require.That(File.Exists(path));
+
+			var pathToPrimaryAnnotationFile = pathToPrimaryFile + "."+AnnotationRepository.FileExtension;
+			AnnotationRepository primary;
+			if (!_annotationRepositories.TryGetValue(pathToPrimaryAnnotationFile, out primary))
+			{
+				primary = AddAnnotationRepository(pathToPrimaryAnnotationFile, progress);
+			}
+			var others = new List<IAnnotationRepository>();
+			foreach (var otherPath in pathsToOtherFiles)
+			{
+				var pathToOtherAnnotationFile = otherPath + "." + AnnotationRepository.FileExtension;
+				AnnotationRepository otherRepo;
+				if (!_annotationRepositories.TryGetValue(pathToOtherAnnotationFile, out otherRepo))
+				{
+					otherRepo = AddAnnotationRepository(pathToOtherAnnotationFile, progress, idAttrForOtherFiles);
+				}
+				others.Add(otherRepo);
+			}
+			return new MultiSourceAnnotationRepository(primary, others);
+		}
+
+		private AnnotationRepository AddAnnotationRepository(string pathToFileBeingAnnotated, IProgress progress, string idAttr = "id")
 		{
 			AnnotationRepository repo;
-			repo = AnnotationRepository.FromFile("id", pathToFileBeingAnnotated, progress);
+			repo = AnnotationRepository.FromFile(idAttr, pathToFileBeingAnnotated, progress);
 			_annotationRepositories.Add(pathToFileBeingAnnotated, repo);
 			return repo;
 		}

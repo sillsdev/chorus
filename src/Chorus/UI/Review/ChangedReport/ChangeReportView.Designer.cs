@@ -13,10 +13,17 @@
 		/// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
 		protected override void Dispose(bool disposing)
 		{
-			if (disposing && (components != null))
+			if (disposing)
 			{
-				components.Dispose();
+				if (_normalChangeDescriptionRenderer != null)
+					_normalChangeDescriptionRenderer.Dispose();
+				if (_rawChangeDescriptionRenderer != null)
+					_rawChangeDescriptionRenderer.Dispose();
+				if (components != null)
+					components.Dispose();
 			}
+			_normalChangeDescriptionRenderer = null;
+			_rawChangeDescriptionRenderer = null;
 			base.Dispose(disposing);
 		}
 
@@ -51,9 +58,6 @@
 			//
 			// _normalChangeDescriptionRenderer
 			//
-#if MONO
-			//GECKOFX: is this needed?
-			//this._normalChangeDescriptionRenderer.AllowWebBrowserDrop = false;
 			this._normalChangeDescriptionRenderer.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.l10NSharpExtender1.SetLocalizableToolTip(this._normalChangeDescriptionRenderer, null);
 			this.l10NSharpExtender1.SetLocalizationComment(this._normalChangeDescriptionRenderer, null);
@@ -63,21 +67,10 @@
 			this._normalChangeDescriptionRenderer.Name = "_normalChangeDescriptionRenderer";
 			this._normalChangeDescriptionRenderer.Size = new System.Drawing.Size(136, 118);
 			this._normalChangeDescriptionRenderer.TabIndex = 0;
-			//GECKOFX: is this needed?
-			//this._normalChangeDescriptionRenderer.WebBrowserShortcutsEnabled = false;
-			//GECKOFX: is this needed?
+#if MONO
 			this._normalChangeDescriptionRenderer.Navigating += new System.EventHandler<Gecko.GeckoNavigatingEventArgs>(this._normalChangeDescriptionRenderer_Navigating);
 #else
 			this._normalChangeDescriptionRenderer.AllowWebBrowserDrop = false;
-			this._normalChangeDescriptionRenderer.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.l10NSharpExtender1.SetLocalizableToolTip(this._normalChangeDescriptionRenderer, null);
-			this.l10NSharpExtender1.SetLocalizationComment(this._normalChangeDescriptionRenderer, null);
-			this.l10NSharpExtender1.SetLocalizingId(this._normalChangeDescriptionRenderer, "ChangeReportView.ChangeReportView._normalChangeDescriptionRenderer");
-			this._normalChangeDescriptionRenderer.Location = new System.Drawing.Point(3, 3);
-			this._normalChangeDescriptionRenderer.MinimumSize = new System.Drawing.Size(20, 20);
-			this._normalChangeDescriptionRenderer.Name = "_normalChangeDescriptionRenderer";
-			this._normalChangeDescriptionRenderer.Size = new System.Drawing.Size(136, 118);
-			this._normalChangeDescriptionRenderer.TabIndex = 0;
 			this._normalChangeDescriptionRenderer.WebBrowserShortcutsEnabled = false;
 			this._normalChangeDescriptionRenderer.Navigating += new System.Windows.Forms.WebBrowserNavigatingEventHandler(this._normalChangeDescriptionRenderer_Navigating);
 #endif
@@ -123,9 +116,6 @@
 			//
 			// _rawChangeDescriptionRenderer
 			//
-#if MONO
-			//GECKOFX: is this needed?
-			//this._rawChangeDescriptionRenderer.AllowWebBrowserDrop = false;
 			this._rawChangeDescriptionRenderer.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.l10NSharpExtender1.SetLocalizableToolTip(this._rawChangeDescriptionRenderer, null);
 			this.l10NSharpExtender1.SetLocalizationComment(this._rawChangeDescriptionRenderer, null);
@@ -135,19 +125,8 @@
 			this._rawChangeDescriptionRenderer.Name = "_rawChangeDescriptionRenderer";
 			this._rawChangeDescriptionRenderer.Size = new System.Drawing.Size(142, 124);
 			this._rawChangeDescriptionRenderer.TabIndex = 1;
-			//GECKOFX: is this needed?
-			//this._rawChangeDescriptionRenderer.WebBrowserShortcutsEnabled = false;
-#else
+#if !MONO
 			this._rawChangeDescriptionRenderer.AllowWebBrowserDrop = false;
-			this._rawChangeDescriptionRenderer.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.l10NSharpExtender1.SetLocalizableToolTip(this._rawChangeDescriptionRenderer, null);
-			this.l10NSharpExtender1.SetLocalizationComment(this._rawChangeDescriptionRenderer, null);
-			this.l10NSharpExtender1.SetLocalizingId(this._rawChangeDescriptionRenderer, "ChangeReportView.ChangeReportView._rawChangeDescriptionRenderer");
-			this._rawChangeDescriptionRenderer.Location = new System.Drawing.Point(0, 0);
-			this._rawChangeDescriptionRenderer.MinimumSize = new System.Drawing.Size(20, 20);
-			this._rawChangeDescriptionRenderer.Name = "_rawChangeDescriptionRenderer";
-			this._rawChangeDescriptionRenderer.Size = new System.Drawing.Size(142, 124);
-			this._rawChangeDescriptionRenderer.TabIndex = 1;
 			this._rawChangeDescriptionRenderer.WebBrowserShortcutsEnabled = false;
 #endif
 			//

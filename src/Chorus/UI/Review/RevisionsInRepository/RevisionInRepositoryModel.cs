@@ -47,8 +47,13 @@ namespace Chorus.UI.Review.RevisionsInRepository
 			set { _options.ShowRevisionChoiceControls = value; }
 		}
 
-		public void SelectedRevisionChanged(Revision descriptor)
+		internal void SelectedRevisionChanged(Revision descriptor)
 		{
+			// This was a public method, but it was changed to internal, since the whole model instance is effectively internal,
+			// since it is not exposed beyond its view, which is also not exposed to anyone.
+
+			// In an ideal world, the RevisionSelectedEvent instance in _revisionSelectedEvent would allow client code to add new subscribers,
+			// but that world doesn't exist yet, so the view has added a kludge Windows event and calls it, after callinng this method.
 			if (_revisionSelectedEvent!=null)
 				_revisionSelectedEvent.Raise(descriptor);
 		}
@@ -72,6 +77,13 @@ namespace Chorus.UI.Review.RevisionsInRepository
 
 		private BackgroundWorker RevisionGetter;
 
+		/// <summary>
+		/// Get the list of optional extra columns to show.
+		/// </summary>
+		public IEnumerable<HistoryColumnDefinition> ExtraColumns
+		{
+			get { return _options.ExtraColumns; }
+		}
 		/// <summary>
 		/// This one will not return until every revision has been gathered up...
 		/// that can take a long time.  Use BeginGettingRevisions where possible.

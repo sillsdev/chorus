@@ -6,13 +6,11 @@ using System.Media;
 using System.Threading;
 using System.Windows.Forms;
 using Chorus.sync;
-using Chorus.Utilities;
 using System.Linq;
 using Chorus.VcsDrivers;
 using Palaso.Code;
 using Palaso.Extensions;
 using Palaso.Progress;
-using Palaso.UI.WindowsForms.Progress;
 using Palaso.UI.WindowsForms.Progress;
 
 namespace Chorus.UI.Sync

@@ -523,7 +523,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			Execute(SecondsBeforeTimeoutOnLocalOperation, "forget ", SurroundWithQuotes(filepath));
 		}
 
-		internal ExecutionResult Execute(int secondsBeforeTimeout, string cmd, params string[] rest)
+		public ExecutionResult Execute(int secondsBeforeTimeout, string cmd, params string[] rest)
 		{
 			return Execute(false, false, secondsBeforeTimeout, cmd, rest);
 		}

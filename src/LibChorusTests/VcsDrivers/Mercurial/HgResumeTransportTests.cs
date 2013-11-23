@@ -8,6 +8,7 @@ using Chorus.sync;
 using Chorus.Utilities;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
+using LibChorus.Tests.sync;
 using NUnit.Framework;
 using Palaso.Progress;
 
@@ -119,6 +120,49 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				e.ApiServer.AddResponse(ApiResponses.Reset());
 				var transport = provider.Transport;
 				Assert.That(() => transport.Push(), Throws.Exception.TypeOf<HgResumeOperationFailed>());
+			}
+		}
+
+		[Test]
+		public void Push_RemoteRevisionCacheWorksWhenReceivingMoreThanRequestedRevisions()
+		{
+			using (var e = new BranchingTestEnvironment("hgresumetest", ApiServerType.Dummy))
+			using (var provider = GetTransportProviderForTest(e))
+			{
+				provider.Transport.RevisionRequestQuantity = 2;
+				var first2revs = "";
+				var changingFile = e.LocalAddAndCommit();
+				first2revs += e.Local.Repository.GetTip().Number.Hash + ':' + e.Local.Repository.GetTip().Branch + "|";
+				e.LocalChangeAndCommit(changingFile);
+				first2revs += e.Local.Repository.GetTip().Number.Hash + ':' + e.Local.Repository.GetTip().Branch;
+				var second2revs = "";
+				e.LocalChangeAndCommit(changingFile);
+				second2revs += e.Local.Repository.GetTip().Number.Hash + ':' + e.Local.Repository.GetTip().Branch + "|";
+				e.LocalChangeAndCommit(changingFile);
+				second2revs += e.Local.Repository.GetTip().Number.Hash + ':' + e.Local.Repository.GetTip().Branch;
+
+				e.ApiServer.AddResponse(ApiResponses.Revisions(first2revs));
+				e.ApiServer.AddResponse(ApiResponses.Revisions(second2revs));
+				e.ApiServer.AddResponse(ApiResponses.Revisions(""));
+				e.SetLocalAdjunct(new ProgrammableSynchronizerAdjunct("newbranch"));
+				e.LocalAddAndCommit();
+				e.ApiServer.AddResponse(ApiResponses.PushComplete());
+
+				var transport = provider.Transport;
+
+				var dbStoragePath = transport.PathToLocalStorage;
+				var dbFilePath = Path.Combine(dbStoragePath, HgResumeTransport.RevisionCacheFilename);
+				Assert.That(File.Exists(dbFilePath), Is.False);
+
+				var tipHash = e.Local.Repository.GetTip().Number.Hash;
+				var cacheContents = HgResumeTransport.ReadServerRevisionCache(dbFilePath);
+				transport.Push();
+				Assert.That(File.Exists(dbFilePath), Is.True);
+				cacheContents = HgResumeTransport.ReadServerRevisionCache(dbFilePath);
+				Assert.True(cacheContents.Count == 2, "should be 2 entries in the cache at this point.");
+				Assert.True(cacheContents.FirstOrDefault().RemoteId == e.ApiServer.Host
+						 && cacheContents.FirstOrDefault().Revision.Number.Hash == tipHash, "Cache contents incorrect");
+				Assert.That(e.Progress.AllMessages, Contains.Item("Finished sending"));
 			}
 		}
 
@@ -612,6 +656,23 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 
 		[Test]
 		public void Push_LocalOnNewBranch_SendsData()
+		{
+			using (var e = new BranchingTestEnvironment("localonnewbranch", ApiServerType.Push))
+			using (var provider = GetTransportProviderForTest(e))
+			{
+				e.LocalAddAndCommit();
+				e.CloneRemoteFromLocal();
+				e.SetLocalAdjunct(new BranchTestAdjunct() { BranchName = "newLocalBranch" });
+				e.RemoteAddAndCommit();
+				e.LocalAddAndCommit();
+				var transport = provider.Transport;
+				Assert.That(() => transport.Push(), Throws.Nothing);
+				Assert.That(e.Progress.AllMessages, !Contains.Item("No changes to send.  Push operation completed"));
+			}
+		}
+
+		[Test]
+		public void Push_LocalOnNewBranchRevisionsExceedQuantity_SendsData()
 		{
 			using (var e = new BranchingTestEnvironment("localonnewbranch", ApiServerType.Push))
 			using (var provider = GetTransportProviderForTest(e))
