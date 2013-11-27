@@ -124,17 +124,17 @@
 	<value>&lt;!DOCTYPE html&gt;
 &lt;html&gt;
 &lt;body lang=EN-US style='font-family:&quot;Microsoft Sans Serif&quot;,&quot;sans-serif&quot;;font-size:9pt'&gt;
+&lt;p style='margin:0in;'&gt;Chorus Hub is a simple way to Send/Receive on a local network, like an office or home. Better instructions will follow in a future version, but for now, this should get you started:&lt;/p&gt;
 &lt;ol&gt;
-&lt;p style='margin:0in;margin-left:-30pt;'&gt;Chorus Hub is a simple way to Send/Receive on a local network, like an office or home. Better instructions will follow in a future version, but for now, this should get you started:&lt;/p&gt;
 &lt;li style='margin-left:-10pt'&gt;Designate one computer on your network as &quot;the server,&quot; and make sure this product is installed on it.&lt;/li&gt;
 &lt;li style='margin-left:-10pt'&gt;On Windows, look in the directory where this product is installed, and run the program labelled &quot;ChorusHub.exe&quot;. On Linux, launch &quot;ChorusHub&quot;.&lt;/li&gt;
-&lt;p style='margin:0in;margin-left:-20pt;'&gt;If all goes well, there's nothing more to do! Now from any computer on the network, you can click &quot;ChorusHub&quot; to Send/Receive to your server.&lt;/p&gt;
 &lt;/ol&gt;
+&lt;p style='margin:0in;'&gt;If all goes well, there's nothing more to do! Now from any computer on the network, you can click &quot;ChorusHub&quot; to Send/Receive to your server.&lt;/p&gt;
 
 &lt;ul&gt;
-&lt;p style='margin:0in;margin-left:-30pt;'&gt;ChorusHub does everything it can to be &quot;Plug &amp;amp; Play.&quot; However, some things that may need your attention:&lt;/p&gt;
+&lt;p style='margin:0in;margin-left:-30pt;'&gt;ChorusHub does everything it can to be &quot;Plug &amp;amp; Play.&quot; However, some things may need your attention:&lt;/p&gt;
 &lt;li style='list-style-type:bullet;margin-left:-10pt'&gt;ChorusHub will attempt to create a folder at &quot;C:\ChorusHub&quot; on Windows, or &quot;/home/&amp;lt;username&amp;gt;/ChorusHub&quot; on Linux. It may need administrator permissions to do that. Any technical support person can help you run ChorusHub.exe with the necessary permissions.&lt;/li&gt;
-&lt;li style='list-style-type:bullet;margin-left:-10pt'&gt;Your firewall may need to give permission for the server and the client computers to talk to each other on this &quot;port.&quot;&lt;/li&gt;
+&lt;li style='list-style-type:bullet;margin-left:-10pt'&gt;Your firewall may need to give permission for the server and client computers to talk to each other on this &quot;port.&quot;&lt;/li&gt;
 &lt;ul&gt;
 &lt;/body&gt;
 &lt;/html&gt;</value>
