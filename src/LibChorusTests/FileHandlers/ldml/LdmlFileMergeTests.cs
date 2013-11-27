@@ -323,6 +323,45 @@ namespace LibChorus.Tests.FileHandlers.ldml
 				1, new List<Type> { typeof(XmlAttributeBothMadeSameChangeReport) });
 		}
 
+		[Test]
+		public void PreMergeCollationDoesNotDisruptDateOrLoseTheirChanges()
+		{
+			const string commonAncestor =
+@"<?xml version='1.0' encoding='utf-8'?>
+<ldml>
+<identity>
+<generation date='2012-06-08T09:36:30' />
+</identity>
+<collations>
+<collation></collation>
+</collations>
+</ldml>";
+
+			var ourContent = commonAncestor.Replace("09:36:30", "09:37:30");
+			var theirContent = commonAncestor.Replace("09:36:30", "09:38:30").Replace("</collations>", "</collations><special xmlns:fw='urn://fieldworks.sil.org/ldmlExtensions/v1'><fw:windowsLCID value='1' /></special>");
+			var namespaces = new Dictionary<string, string>
+								{
+									{"palaso", "urn://palaso.org/ldmlExtensions/v1"},
+									{"fw", "urn://fieldworks.sil.org/ldmlExtensions/v1"}
+								};
+
+			// We made the change
+			DoMerge(commonAncestor, ourContent, theirContent,
+				namespaces,
+				new List<string> { @"ldml/identity/generation[@date='2012-06-08T09:38:30']", @"ldml/special" },
+				new List<string> { @"ldml/identity/generation[@date='2012-06-08T09:36:30']", @"ldml/identity/generation[@date='2012-06-08T09:37:30']" },
+				0, null,
+				2, new List<Type> { typeof(XmlAttributeBothMadeSameChangeReport), typeof(XmlAdditionChangeReport) });
+
+			// They made the change
+			DoMerge(commonAncestor, theirContent, ourContent,
+				namespaces,
+				new List<string> { @"ldml/identity/generation[@date='2012-06-08T09:38:30']", @"ldml/special" },
+				new List<string> { @"ldml/identity/generation[@date='2012-06-08T09:36:30']", @"ldml/identity/generation[@date='2012-06-08T09:37:30']" },
+				0, null,
+				2, new List<Type> { typeof(XmlAttributeBothMadeSameChangeReport), typeof(XmlAdditionChangeReport) });
+		}
+
 		private string DoMerge(string commonAncestor, string ourContent, string theirContent,
 			Dictionary<string, string> namespaces,
 			IEnumerable<string> matchesExactlyOne, IEnumerable<string> isNull,
