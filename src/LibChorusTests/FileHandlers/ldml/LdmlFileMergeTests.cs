@@ -324,197 +324,21 @@ namespace LibChorus.Tests.FileHandlers.ldml
 		}
 
 		[Test]
-		public void GenerateDateAttr_IsPreMergedWhenOtherElementsConflict()
+		public void PreMergeCollationDoesNotDisruptDateOrLoseTheirChanges()
 		{
 			const string commonAncestor =
 @"<?xml version='1.0' encoding='utf-8'?>
 <ldml>
-	<identity>
-		<version
-			number='' />
-		<generation
-			date='2013-11-26T21:17:55' />
-		<language
-			type='pcf' />
-	</identity>
-	<collations>
-		<collation>
-			<base>
-				<alias
-					source='ta' />
-			</base>
-			<special
-				xmlns:palaso='urn://palaso.org/ldmlExtensions/v1'>
-				<palaso:sortRulesType
-					value='OtherLanguage' />
-			</special>
-		</collation>
-	</collations>
-	<special
-		xmlns:palaso='urn://palaso.org/ldmlExtensions/v1'>
-		<palaso:abbreviation
-			value='Tam' />
-		<palaso:defaultFontFamily
-			value='Latha' />
-		<palaso:defaultKeyboard
-			value='ISIS-Tamil' />
-		<palaso:languageName
-			value='Tamil' />
-		<palaso:spellCheckingId
-			value='pcf' />
-		<palaso:version
-			value='2' />
-	</special>
-	<special
-		xmlns:palaso2='urn://palaso.org/ldmlExtensions/v2'>
-		<palaso2:knownKeyboards>
-			<palaso2:keyboard
-				layout='ISIS-Tamil'
-				locale='ta-IN'
-				os='Win32NT' />
-			<palaso2:keyboard
-				layout='m17n:ta:tamil99'
-				locale='ta'
-				os='Unix' />
-			<palaso2:keyboard
-				layout='Tamil'
-				locale='ta-IN'
-				os='Win32NT' />
-		</palaso2:knownKeyboards>
-		<palaso2:version
-			value='2' />
-	</special>
-	<special
-		xmlns:fw='urn://fieldworks.sil.org/ldmlExtensions/v1'>
-		<fw:graphiteEnabled
-			value='False' />
-	</special>
+<identity>
+<generation date='2012-06-08T09:36:30' />
+</identity>
+<collations>
+<collation></collation>
+</collations>
 </ldml>";
 
-			var ourContent = @"<?xml version='1.0' encoding='utf-8'?>
-<ldml>
-	<identity>
-		<version
-			number='' />
-		<generation
-			date='2013-11-26T21:20:49' />
-		<language
-			type='pcf' />
-	</identity>
-	<collations>
-		<collation>
-			<base>
-				<alias
-					source='ta' />
-			</base>
-			<special xmlns:palaso='urn://palaso.org/ldmlExtensions/v1'>
-				<palaso:sortRulesType
-					value='OtherLanguage' />
-			</special>
-		</collation>
-	</collations>
-	<special xmlns:palaso='urn://palaso.org/ldmlExtensions/v1'>
-		<palaso:abbreviation
-			value='Tam' />
-		<palaso:defaultFontFamily
-			value='Latha' />
-		<palaso:defaultKeyboard
-			value='ISIS-Tamil' />
-		<palaso:languageName
-			value='Tamil' />
-		<palaso:spellCheckingId
-			value='pcf' />
-		<palaso:version
-			value='2' />
-	</special>
-	<special xmlns:palaso2='urn://palaso.org/ldmlExtensions/v2'>
-		<palaso2:knownKeyboards>
-			<palaso2:keyboard
-				layout='ISIS-Tamil'
-				locale='ta-IN'
-				os='Win32NT' />
-			<palaso2:keyboard
-				layout='m17n:ta:tamil99'
-				locale='ta'
-				os='Unix' />
-			<palaso2:keyboard
-				layout='Tamil'
-				locale='ta-IN'
-				os='Win32NT' />
-		</palaso2:knownKeyboards>
-		<palaso2:version
-			value='2' />
-	</special>
-	<special xmlns:fw='urn://fieldworks.sil.org/ldmlExtensions/v1'>
-		<fw:graphiteEnabled
-			value='False' />
-	</special>
-</ldml>";
-			var theirContent = @"<?xml version='1.0' encoding='utf-8'?>
-<ldml>
-	<identity>
-		<version
-			number='' />
-		<generation
-			date='2013-11-26T21:23:22' />
-		<language
-			type='pcf' />
-	</identity>
-	<collations>
-		<collation>
-			<base>
-				<alias
-					source='ta' />
-			</base>
-			<special
-				xmlns:palaso='urn://palaso.org/ldmlExtensions/v1'>
-				<palaso:sortRulesType
-					value='OtherLanguage' />
-			</special>
-		</collation>
-	</collations>
-	<special
-		xmlns:palaso='urn://palaso.org/ldmlExtensions/v1'>
-		<palaso:abbreviation
-			value='Tam' />
-		<palaso:defaultFontFamily
-			value='Latha' />
-		<palaso:defaultKeyboard
-			value='ISIS-Tamil' />
-		<palaso:languageName
-			value='Tamil' />
-		<palaso:spellCheckingId
-			value='pcf' />
-		<palaso:version
-			value='2' />
-	</special>
-	<special
-		xmlns:palaso2='urn://palaso.org/ldmlExtensions/v2'>
-		<palaso2:knownKeyboards>
-			<palaso2:keyboard
-				layout='ISIS-Tamil'
-				locale='ta-IN'
-				os='Win32NT' />
-			<palaso2:keyboard
-				layout='m17n:ta:tamil99'
-				locale='ta'
-				os='Unix' />
-			<palaso2:keyboard
-				layout='Tamil'
-				locale='ta-IN'
-				os='Win32NT' />
-		</palaso2:knownKeyboards>
-		<palaso2:version
-			value='2' />
-	</special>
-	<special
-		xmlns:fw='urn://fieldworks.sil.org/ldmlExtensions/v1'>
-		<fw:graphiteEnabled
-			value='False' />
-		<fw:validChars
-			value='&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-16&quot;?&gt;&#xA;&lt;ValidCharacters&gt;&#xA;  &lt;WordForming /&gt;&#xA;  &lt;Numeric /&gt;&#xA;  &lt;Other /&gt;&#xA;&lt;/ValidCharacters&gt;' />
-	</special>
-</ldml>";
+			var ourContent = commonAncestor.Replace("09:36:30", "09:37:30");
+			var theirContent = commonAncestor.Replace("09:36:30", "09:38:30").Replace("</collations>", "</collations><special xmlns:fw='urn://fieldworks.sil.org/ldmlExtensions/v1'><fw:windowsLCID value='1' /></special>");
 			var namespaces = new Dictionary<string, string>
 								{
 									{"palaso", "urn://palaso.org/ldmlExtensions/v1"},
@@ -524,18 +348,18 @@ namespace LibChorus.Tests.FileHandlers.ldml
 			// We made the change
 			DoMerge(commonAncestor, ourContent, theirContent,
 				namespaces,
-				new List<string> { @"ldml/identity/generation[@date='2013-11-26T21:23:22']" },
+				new List<string> { @"ldml/identity/generation[@date='2012-06-08T09:38:30']", @"ldml/special" },
 				new List<string> { @"ldml/identity/generation[@date='2012-06-08T09:36:30']", @"ldml/identity/generation[@date='2012-06-08T09:37:30']" },
 				0, null,
-				1, new List<Type> { typeof(XmlAttributeBothMadeSameChangeReport) });
+				2, new List<Type> { typeof(XmlAttributeBothMadeSameChangeReport), typeof(XmlAdditionChangeReport) });
 
 			// They made the change
 			DoMerge(commonAncestor, theirContent, ourContent,
 				namespaces,
-				new List<string> { @"ldml/identity/generation[@date='2013-11-26T21:23:22']" },
+				new List<string> { @"ldml/identity/generation[@date='2012-06-08T09:38:30']", @"ldml/special" },
 				new List<string> { @"ldml/identity/generation[@date='2012-06-08T09:36:30']", @"ldml/identity/generation[@date='2012-06-08T09:37:30']" },
 				0, null,
-				1, new List<Type> { typeof(XmlAttributeBothMadeSameChangeReport) });
+				2, new List<Type> { typeof(XmlAttributeBothMadeSameChangeReport), typeof(XmlAdditionChangeReport) });
 		}
 
 		private string DoMerge(string commonAncestor, string ourContent, string theirContent,

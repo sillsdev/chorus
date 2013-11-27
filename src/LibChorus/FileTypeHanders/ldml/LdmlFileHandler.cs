@@ -305,7 +305,7 @@ namespace Chorus.FileTypeHanders.ldml
 			if (defaultCollation != null)
 			{
 				defaultCollation.Add(new XAttribute("type", "standard"));
-				ourDoc.Save(mergeOrder.pathToTheirs);
+				theirDoc.Save(mergeOrder.pathToTheirs);
 				addedCollationAttr = true;
 			}
 
