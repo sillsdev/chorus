@@ -80,7 +80,7 @@ namespace Chorus.UI.Notes
 		{
 			if (NewMessageTextEntered)
 				_model.UnResolveAndAddMessage(_newMessage.Text);
-			else
+			else if (_model.Messages.Any()) // don't resolve an empty Note
 				_model.IsResolved = !_model.IsResolved;
 			ClearNewMessageText();
 		}
@@ -148,6 +148,14 @@ namespace Chorus.UI.Notes
 
 		private void _okButton_Click(object sender, EventArgs e)
 		{
+			if (ModalDialogMode)
+			{
+				// We will close the dialog, so we don't need to update the contents of the controls;
+				// and doing so on Mono crashes Gecko, apparently because the window is gone before the
+				// update completes. We get stack overflow somehow, anyway.
+				_model.UpdateContent -= OnUpdateContent;
+			}
+
 			AddMessage();
 
 			if (ModalDialogMode)
@@ -175,18 +183,22 @@ namespace Chorus.UI.Notes
 		private void _annotationLogo_DoubleClick(object sender, EventArgs e)
 		{
 			Cursor.Current = Cursors.WaitCursor;
-			var dlg = new AnnotationInspector(_model.Annotation);
-			dlg.ShowDialog();
+			using (var dlg = new AnnotationInspector(_model.Annotation))
+			{
+				dlg.ShowDialog();
+			}
 			Cursor.Current = Cursors.Default;
 		}
 
 #if MONO
-		private void _existingMessagesDisplay_Navigating(object sender, Gecko.GeckoNavigatingEventArgs e)
+		private void _existingMessagesHandleLinkClick(object sender, Gecko.GeckoDomEventArgs e)
 		{
-			if (e.Uri.Scheme == "about")
-				return;
-			// We do NOT want to cancel this operation -- that would prevent anything from displaying!
-			_model.HandleLinkClicked(e.Uri);
+			Gecko.GeckoHtmlElement clicked = e.Target;
+			if(clicked != null && clicked.TagName == "A")
+			{
+				e.Handled = true;
+				_model.HandleLinkClicked(new Uri(clicked.GetAttribute("href")));
+			}
 		}
 
 		private void _existingMessagesDisplay_DocumentCompleted(object sender, EventArgs e)
@@ -235,5 +247,22 @@ namespace Chorus.UI.Notes
 			_model.ActivateKeyboard();
 		}
 
+		internal IWritingSystem LabelWritingSystem
+		{
+			set
+			{
+				_model.LabelWritingSystem = value;
+				_annotationLabel.Font = _model.FontForLabel;
+			}
+		}
+
+		internal IWritingSystem MessageWritingSystem
+		{
+			set
+			{
+				_model.MessageWritingSystem = value;
+				_newMessage.Font = _model.FontForNewMessage;
+			}
+		}
 	}
 }

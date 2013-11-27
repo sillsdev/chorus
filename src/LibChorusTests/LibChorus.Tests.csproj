@@ -136,6 +136,7 @@
 	<Compile Include="notes\IndexOfOpenConflictsTests.cs" />
 	<Compile Include="notes\MessageTests.cs" />
 	<Compile Include="notes\AnnotationRepositoryTests.cs" />
+	<Compile Include="notes\MultiSourceAnnotationRepositoryTests.cs" />
 	<Compile Include="sync\CommitCopTests.cs" />
 	<Compile Include="sync\LargeFileFilterTests.cs" />
 	<Compile Include="sync\ProgrammableSynchronizerAdjunct.cs" />

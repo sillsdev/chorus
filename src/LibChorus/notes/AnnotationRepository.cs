@@ -11,7 +11,7 @@ using Palaso.Xml;
 
 namespace Chorus.notes
 {
-	public class AnnotationRepository : IDisposable
+	public class AnnotationRepository : IDisposable, IAnnotationRepository
 	{
 		private XDocument _doc;
 		private readonly string _annotationFilePath;

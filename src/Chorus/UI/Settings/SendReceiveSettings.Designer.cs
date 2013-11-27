@@ -42,7 +42,7 @@ namespace Chorus.UI.Settings
 			this._serverSettingsControl = new Chorus.UI.Misc.ServerSettingsControl();
 			this.chorusHubTab = new System.Windows.Forms.TabPage();
 			this._showChorusHubInSendReceive = new System.Windows.Forms.CheckBox();
-			this.betterLabel1 = new Chorus.UI.BetterLabel();
+			this.chorusHubSetup = new Chorus.UI.BetterBrowser();
 			this.pictureBox4 = new System.Windows.Forms.PictureBox();
 			this._helpButton = new System.Windows.Forms.Button();
 			this._cancelButton = new System.Windows.Forms.Button();
@@ -165,7 +165,7 @@ namespace Chorus.UI.Settings
 			// chorusHubTab
 			//
 			this.chorusHubTab.Controls.Add(this._showChorusHubInSendReceive);
-			this.chorusHubTab.Controls.Add(this.betterLabel1);
+			this.chorusHubTab.Controls.Add(this.chorusHubSetup);
 			this.chorusHubTab.Controls.Add(this.pictureBox4);
 			this.l10NSharpExtender1.SetLocalizableToolTip(this.chorusHubTab, null);
 			this.l10NSharpExtender1.SetLocalizationComment(this.chorusHubTab, null);
@@ -192,27 +192,23 @@ namespace Chorus.UI.Settings
 			this._showChorusHubInSendReceive.Text = "Show Chorus Hub as a Send/Receive option";
 			this._showChorusHubInSendReceive.UseVisualStyleBackColor = true;
 			//
-			// betterLabel1
+			// chorusHubSetup
 			//
-			this.betterLabel1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+			this.chorusHubSetup.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
 			| System.Windows.Forms.AnchorStyles.Left)
 			| System.Windows.Forms.AnchorStyles.Right)));
-			this.betterLabel1.BackColor = System.Drawing.Color.White;
-			this.betterLabel1.BorderStyle = System.Windows.Forms.BorderStyle.None;
-			this.betterLabel1.Font = new System.Drawing.Font("Segoe UI", 9F);
-			this.l10NSharpExtender1.SetLocalizableToolTip(this.betterLabel1, null);
-			this.l10NSharpExtender1.SetLocalizationComment(this.betterLabel1, null);
-			this.l10NSharpExtender1.SetLocalizationPriority(this.betterLabel1, L10NSharp.LocalizationPriority.MediumLow);
-			this.l10NSharpExtender1.SetLocalizingId(this.betterLabel1, "SendReceiveSetting.ChorusHubDescription");
-			this.betterLabel1.Location = new System.Drawing.Point(85, 44);
-			this.betterLabel1.Multiline = true;
-			this.betterLabel1.Name = "betterLabel1";
-			this.betterLabel1.ReadOnly = true;
-			this.betterLabel1.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-			this.betterLabel1.Size = new System.Drawing.Size(365, 201);
-			this.betterLabel1.TabIndex = 4;
-			this.betterLabel1.TabStop = false;
-			this.betterLabel1.Text = resources.GetString("betterLabel1.Text");
+			this.chorusHubSetup.BackColor = System.Drawing.Color.White;
+			this.chorusHubSetup.Font = new System.Drawing.Font("Segoe UI", 9F);
+			this.l10NSharpExtender1.SetLocalizableToolTip(this.chorusHubSetup, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this.chorusHubSetup, null);
+			this.l10NSharpExtender1.SetLocalizationPriority(this.chorusHubSetup, L10NSharp.LocalizationPriority.MediumLow);
+			this.l10NSharpExtender1.SetLocalizingId(this.chorusHubSetup, "SendReceiveSetting.ChorusHubDescription");
+			this.chorusHubSetup.Location = new System.Drawing.Point(85, 44);
+			this.chorusHubSetup.Name = "chorusHubSetup";
+			this.chorusHubSetup.Size = new System.Drawing.Size(365, 201);
+			this.chorusHubSetup.TabIndex = 4;
+			this.chorusHubSetup.TabStop = false;
+			this.chorusHubSetup.DocumentText = resources.GetString("chorusHubSetup.DocumentText");
 			//
 			// pictureBox4
 			//
@@ -357,7 +353,7 @@ namespace Chorus.UI.Settings
 		private System.Windows.Forms.PictureBox pictureBox3;
 		private Vulcan.Uczniowie.HelpProvider.HelpComponent _helpProvider;
 		private System.Windows.Forms.TabPage chorusHubTab;
-		private BetterLabel betterLabel1;
+		private BetterBrowser chorusHubSetup;
 		private System.Windows.Forms.PictureBox pictureBox4;
 		private System.Windows.Forms.CheckBox _showChorusHubInSendReceive;
 		private L10NSharp.UI.L10NSharpExtender l10NSharpExtender1;

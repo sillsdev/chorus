@@ -137,6 +137,12 @@
 	<Compile Include="ChorusSystem.cs" />
 	<Compile Include="ChorusUIComponentsInjector.cs" />
 	<Compile Include="NotesToRecordMapping.cs" />
+	<Compile Include="UI\BetterBrowser.cs">
+	  <SubType>Component</SubType>
+	</Compile>
+	<Compile Include="UI\BetterBrowser.Designer.cs">
+	  <DependentUpon>BetterBrowser.cs</DependentUpon>
+	</Compile>
 	<Compile Include="UI\BetterLabel.cs">
 	  <SubType>Component</SubType>
 	</Compile>

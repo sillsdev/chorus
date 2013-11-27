@@ -17,6 +17,35 @@ namespace Chorus
 		void ActivateKeyboard();
 	}
 
+	/// <summary>
+	/// Implement the Chorus idea of a minimal writing system.
+	/// </summary>
+	public class ChorusWritingSystem : IWritingSystem
+	{
+		/// <summary>
+		/// Initializes a new instance of the ChorusWritingSystem class.
+		/// </summary>
+		public ChorusWritingSystem(string name, string code, string fontname, int fontsize)
+		{
+			Name = name;
+			Code = code;
+			FontName = fontname;
+			FontSize = fontsize;
+		}
+		/// <summary></summary>
+		public string Name { get; private set; }
+		/// <summary></summary>
+		public string Code { get; private set; }
+		/// <summary></summary>
+		public string FontName { get; private set; }
+		/// <summary></summary>
+		public int FontSize { get; private set; }
+		/// <summary></summary>
+		public virtual void ActivateKeyboard()
+		{
+		}
+	}
+
 	public class EnglishWritingSystem: IWritingSystem
 	{
 		#region Implementation of IWritingSystem

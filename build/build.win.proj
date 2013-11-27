@@ -83,6 +83,19 @@
 
 	</Target>
 
+	<Target Name="ChorusHubInstaller" DependsOnTargets="CleanInstaller; VersionNumbers; Test ">
+
+		<!-- set the version number in the installer configuration program.  Perhaps there's a way to just send in the variables rather than this brute-force
+		changing of the script, but I haven't figured that out. -->
+
+		<FileUpdate File="$(RootDir)\src\Installer\ChorusHub.wxs" Regex='Property_ProductVersion = ".*"'
+				ReplacementText ="Property_ProductVersion = &quot;$(Version)&quot;" />
+		<Message Text="Making Chorus Hub installer with version: $(Version)" Importance="high"  />
+
+		<MSBuild Projects="$(RootDir)\src\Installer\ChorusHub.wixproj"/>
+
+	</Target>
+
 
 	<Target Name="MakeWixForDistFiles">
 		<MakeWixForDirTree

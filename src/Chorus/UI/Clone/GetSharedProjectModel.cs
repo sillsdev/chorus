@@ -55,7 +55,7 @@ namespace Chorus.UI.Clone
 			}
 			catch (ApplicationException e)
 			{
-				// FLEx isue LT-14301: one reason we may throw is that we can't get the identifier of some project because we don't have
+				// FLEx issue LT-14301: one reason we may throw is that we can't get the identifier of some project because we don't have
 				// sufficient permissions.
 
 				// We think this will be very rare...try to get an automatic notification if it happens.
