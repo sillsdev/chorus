@@ -3,16 +3,23 @@
 # Since Palaso libraries change frequently, you will likely need to
 # get that project and be able to build it, then run this script.
 # This script assumes that the libraries project are on the same level as this project.
-# It copies the needed libraries both into the lib folder and the DebugMono folder.
+# It copies the needed libraries both into the lib folder and the ${BUILD_CONFIG}Mono folder.
 
 # pushd Palaso
 # call GetAndBuildThis.bat
 # popd
 
-cp ../palaso/output/Debug/Palaso*.XML  lib/DebugMono
-cp ../palaso/output/DebugMono/Palaso.*  lib/DebugMono
-cp ../palaso/output/DebugMono/PalasoUIWindowsForms.*  lib/DebugMono
+if [ "$1" == "" ]
+then
+	BUILD_CONFIG=Debug
+else
+	BUILD_CONFIG=$1
+fi
 
-cp ../palaso/output/Debug/Palaso*.XML  output/DebugMono
-cp ../palaso/output/DebugMono/Palaso.*  output/DebugMono
-cp ../palaso/output/DebugMono/PalasoUIWindowsForms.*  output/DebugMono
+
+cp ../palaso/output/${BUILD_CONFIG}Mono/Palaso.*  lib/${BUILD_CONFIG}Mono
+cp ../palaso/output/${BUILD_CONFIG}Mono/PalasoUIWindowsForms.*  lib/${BUILD_CONFIG}Mono
+
+cp ../palaso/output/${BUILD_CONFIG}Mono/Palaso.*  output/${BUILD_CONFIG}Mono
+cp ../palaso/output/${BUILD_CONFIG}Mono/PalasoUIWindowsForms.*  output/${BUILD_CONFIG}Mono
+
