@@ -36,7 +36,7 @@ namespace Chorus.UI
 		/// <summary>Sets the HTML contents of the page displayed </summary>
 		public string DocumentText
 		{
-			get { return @"<!DOCTYPE HTML></HTML>"; /* TODO: GeckoFX implementation */ }
+			get { return @"<!DOCTYPE HTML><html/>"; /* TODO: GeckoFX implementation */ }
 			set { LoadHtml(value); }
 		}
 
