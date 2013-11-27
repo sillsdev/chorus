@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
+using System.Linq;
 using System.Windows.Forms;
 using Chorus.sync;
-using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
 using Palaso.Progress;
 
@@ -14,6 +15,8 @@ namespace Chorus.UI.Review.RevisionsInRepository
 		private RevisionInRepositoryModel _model;
 		private ProjectFolderConfiguration _project;
 		private String _userName="anonymous";
+		private List<HistoryColumnDefinition> _extraColumns;
+		internal event EventHandler<RevisionEventArgs> RevisionSelectionChanged;
 
 		public RevisionsInRepositoryView(RevisionInRepositoryModel model)
 		{
@@ -23,6 +26,16 @@ namespace Chorus.UI.Review.RevisionsInRepository
 			InitializeComponent();
 			UpdateDisplay();
 			_showAdvanced.Visible=false;
+
+			_extraColumns = model.ExtraColumns.ToList();
+			foreach (var columDefn in _extraColumns)
+			{
+				var textBoxColumn = new DataGridViewTextBoxColumn
+				{
+					Name = columDefn.ColumnLabel
+				};
+				_historyGrid.Columns.Add(textBoxColumn);
+			}
 		}
 
 		public ProjectFolderConfiguration ProjectFolderConfig
@@ -156,6 +169,12 @@ namespace Chorus.UI.Review.RevisionsInRepository
 			var row = _historyGrid.Rows[nIndex];
 			row.Tag = rev;
 			row.Cells[0].ToolTipText = rev.Number.LocalRevisionNumber + ": " + rev.Number.Hash;
+
+			var idx = row.Cells.Count - _extraColumns.Count;
+			foreach (var extraColumn in _extraColumns)
+			{
+				row.Cells[idx++].Value = extraColumn.StringSupplier.Invoke(rev);
+			}
 		}
 
 		private string GetDescriptionForListView(Revision rev)
@@ -202,6 +221,7 @@ namespace Chorus.UI.Review.RevisionsInRepository
 			   {
 				   Revision revision = _historyGrid.SelectedRows[0].Tag as Revision;
 				   _model.SelectedRevisionChanged(revision);
+				   OnRevisionSelectionChangedEvent(new RevisionEventArgs(revision));
 			   }
 			   return;
 		   }
@@ -234,6 +254,14 @@ namespace Chorus.UI.Review.RevisionsInRepository
 		   UpdateDisplay();
 	   }
 
-
+		private void OnRevisionSelectionChangedEvent(RevisionEventArgs args)
+		{
+			// The reason this is handled on the view, rather than the model, is that the model and the view are not accessable to clients of HistoryPage,
+			// so some klunkyness is required to get the newly selected Revision out to the client.
+			// Autofac uses some factory methods and other 'magic' to put this subsytem together, and the preferred class that seems to be the right place for this,
+			// isn't available for adding new subscribers.
+			if (RevisionSelectionChanged != null)
+				RevisionSelectionChanged(this, args);
+		}
 	}
 }
