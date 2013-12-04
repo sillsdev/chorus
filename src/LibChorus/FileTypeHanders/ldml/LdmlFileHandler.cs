@@ -174,8 +174,10 @@ namespace Chorus.FileTypeHanders.ldml
 			merger.MergeStrategies.ElementToMergeStrategyKeyMapper = new LdmlElementToMergeStrategyKeyMapper();
 
 			// See: Palaso repo: palaso\Palaso\WritingSystems\LdmlDataMapper.cs
-			merger.MergeStrategies.SetStrategy("ldml", ElementStrategy.CreateSingletonElement());
-			// Child elemnts of ldml root.
+			var strategy = ElementStrategy.CreateSingletonElement();
+			strategy.ContextDescriptorGenerator = new LdmlContextGenerator();
+			merger.MergeStrategies.SetStrategy("ldml", strategy);
+			// Child elements of ldml root.
 			merger.MergeStrategies.SetStrategy("identity", ElementStrategy.CreateSingletonElement());
 			// Child elements of "identity".
 			merger.MergeStrategies.SetStrategy("version", ElementStrategy.CreateSingletonElement());
@@ -189,7 +191,7 @@ namespace Chorus.FileTypeHanders.ldml
 			merger.MergeStrategies.SetStrategy("orientation", ElementStrategy.CreateSingletonElement());
 			merger.MergeStrategies.SetStrategy("collations", ElementStrategy.CreateSingletonElement());
 			// Child element of collations
-			var strategy = new ElementStrategy(false)
+			strategy = new ElementStrategy(false)
 			{
 				IsAtomic = true, // I (RBR) think it would be suicidal to try and merge this element.
 				MergePartnerFinder = new FindByKeyAttribute("type")
