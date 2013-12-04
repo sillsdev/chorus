@@ -142,6 +142,7 @@ namespace Chorus.merge.xml.generic
 
 		public void WarningOccurred(IConflict warning)
 		{
+			Guard.AgainstNull(_context, "_context");
 			warning.Context = _context;
 			warning.WriteAsChorusNotesAnnotation(_writer);
 		}
@@ -155,6 +156,9 @@ namespace Chorus.merge.xml.generic
 
 		public void EnteringContext(ContextDescriptor context)
 		{
+			if (context == null)
+				return;
+
 			_context = context;
 		}
 

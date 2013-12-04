@@ -130,10 +130,12 @@ namespace Chorus.merge.xml.generic
 
 		public void WriteAsChorusNotesAnnotation(XmlWriter writer)
 		{
+			Guard.AgainstNull(writer, @"writer");
+			Guard.AgainstNull(Context, @"Context");
+			Guard.AgainstNull(Context.PathToUserUnderstandableElement, @"Context.PathToUserUnderstandableElement");
+
 			writer.WriteStartElement(@"annotation");
 			writer.WriteAttributeString(@"class", string.Empty, AnnotationClassName);
-			Guard.AgainstNull(Context,@"Context");
-			Guard.AgainstNull(Context.PathToUserUnderstandableElement, @"Context.PathToUserUnderstandableElement");
 			writer.WriteAttributeString(@"ref", Context.PathToUserUnderstandableElement);
 			writer.WriteAttributeString(@"guid", Guid.NewGuid().ToString()); //nb: this is the guid of the enclosing annotation, not the conflict;
 

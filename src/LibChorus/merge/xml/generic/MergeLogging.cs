@@ -94,6 +94,8 @@ namespace Chorus.merge.xml.generic
 
 		public void EnteringContext(ContextDescriptor context)
 		{
+			if (context == null)
+				return;
 			 foreach (IMergeEventListener listener in _listeners)
 			{
 				listener.EnteringContext(context);

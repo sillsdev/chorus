@@ -60,6 +60,8 @@ namespace Chorus.merge.xml.generic
 				// We are too far up the stack for the listener to have been told a context.
 				// Make one out of the current node.
 				conflict.Context = merger.GetContext(nodeToFindGeneratorFrom);
+
+				// NB: "conflict.Context" can still be null, since "merger.GetContext" can return null.
 			}
 			conflict.MakeHtmlDetails(oursContext, theirsContext, ancestorContext, htmlContextGenerator);
 			listener.ConflictOccurred(conflict);

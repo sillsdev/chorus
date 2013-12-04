@@ -44,6 +44,9 @@ namespace LibChorus.TestUtilities
 		private ContextDescriptor _currentContext = new NullContextDescriptor();
 		public override void EnteringContext(ContextDescriptor context)
 		{
+			if (context == null)
+				return;
+
 			_currentContext = context;
 			base.EnteringContext(context);
 		}
