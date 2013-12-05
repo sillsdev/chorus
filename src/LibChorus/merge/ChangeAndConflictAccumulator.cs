@@ -40,10 +40,7 @@ namespace Chorus.merge
 
 		public virtual void EnteringContext(ContextDescriptor context)
 		{
-			if (context == null)
-				return;
-
-		Contexts.Add(context);
+			Contexts.Add(context ?? new NullContextDescriptor());
 		}
 	}
 }

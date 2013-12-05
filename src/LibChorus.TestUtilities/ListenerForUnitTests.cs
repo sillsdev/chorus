@@ -42,13 +42,11 @@ namespace LibChorus.TestUtilities
 //            Contexts.Add(context);
 //        }
 		private ContextDescriptor _currentContext = new NullContextDescriptor();
+
 		public override void EnteringContext(ContextDescriptor context)
 		{
-			if (context == null)
-				return;
-
-			_currentContext = context;
-			base.EnteringContext(context);
+			_currentContext = context ?? new NullContextDescriptor();
+			base.EnteringContext(_currentContext);
 		}
 
 		public override void RecordContextInConflict(IConflict conflict)
