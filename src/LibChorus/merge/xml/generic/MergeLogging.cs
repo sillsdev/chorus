@@ -94,11 +94,10 @@ namespace Chorus.merge.xml.generic
 
 		public void EnteringContext(ContextDescriptor context)
 		{
-			if (context == null)
-				context = new NullContextDescriptor();
+			var actualContextToUse = context ?? new NullContextDescriptor();
 			 foreach (IMergeEventListener listener in _listeners)
 			{
-				listener.EnteringContext(context);
+				listener.EnteringContext(actualContextToUse);
 			}
 		}
 	}

@@ -21,6 +21,8 @@ namespace LibChorus.Tests.sync
 		public void FixtureSetup()
 		{
 			_pathToTestRootBase = Path.Combine(Path.GetTempPath(), "ChorusSyncScenarioTests");
+			if (Directory.Exists(_pathToTestRootBase))
+				Directory.Delete(_pathToTestRoot, true); // Just in case is has lingered from the last test run.
 			Directory.CreateDirectory(_pathToTestRootBase);
 		}
 
