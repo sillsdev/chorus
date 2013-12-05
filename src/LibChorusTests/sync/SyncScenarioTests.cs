@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using Chorus.sync;
 using Chorus.VcsDrivers;
@@ -13,12 +14,26 @@ namespace LibChorus.Tests.sync
 	[Category("Sync")]
 	public class SyncScenarioTests
 	{
+		private string _pathToTestRootBase;
 		private string _pathToTestRoot;
+
+		[TestFixtureSetUp]
+		public void FixtureSetup()
+		{
+			_pathToTestRootBase = Path.Combine(Path.GetTempPath(), "ChorusSyncScenarioTests");
+			Directory.CreateDirectory(_pathToTestRootBase);
+		}
+
+		[TestFixtureTearDown]
+		public void FixtureTearDown()
+		{
+			Directory.Delete(_pathToTestRootBase, true);
+		}
 
 		[SetUp]
 		public void Setup()
 		{
-			_pathToTestRoot = Path.Combine(Path.GetTempPath(), "ChorusSyncScenarioTests");
+			_pathToTestRoot = Path.Combine(_pathToTestRootBase, Guid.NewGuid().ToString());
 			Directory.CreateDirectory(_pathToTestRoot);
 		}
 
