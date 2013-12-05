@@ -108,7 +108,7 @@ namespace LibChorus.Tests.merge
 
 		public ContextDescriptor Context
 		{
-			get { return null; }
+			get { return new NullContextDescriptor(); }
 			set { ; }
 		}
 

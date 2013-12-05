@@ -45,6 +45,7 @@ namespace Chorus.merge.xml.generic
 	{
 		static public string TimeFormatNoTimeZone = @"yyyy-MM-ddTHH:mm:ssZ";
 
+		private ContextDescriptor _context = new NullContextDescriptor();
 	   // protected string _shortDataDescription;
 		protected Guid _guid = Guid.NewGuid();
 		// The value used for the "class" attribute in Annotation XML created to wrap conflicts other than notifications.
@@ -69,7 +70,15 @@ namespace Chorus.merge.xml.generic
 		public MergeSituation Situation{get;set;}
 		public string RevisionWhereMergeWasCheckedIn { get;private set;}
 
-		public ContextDescriptor Context { get; set; }
+		public ContextDescriptor Context
+		{
+			get { return _context; }
+			set
+			{
+				_context = value ?? new NullContextDescriptor();
+			}
+		}
+
 		protected string _whoWon;
 
 		/// <summary>
@@ -130,10 +139,11 @@ namespace Chorus.merge.xml.generic
 
 		public void WriteAsChorusNotesAnnotation(XmlWriter writer)
 		{
+			Guard.AgainstNull(writer, @"writer");
+			Guard.AgainstNull(Context.PathToUserUnderstandableElement, @"Context.PathToUserUnderstandableElement");
+
 			writer.WriteStartElement(@"annotation");
 			writer.WriteAttributeString(@"class", string.Empty, AnnotationClassName);
-			Guard.AgainstNull(Context,@"Context");
-			Guard.AgainstNull(Context.PathToUserUnderstandableElement, @"Context.PathToUserUnderstandableElement");
 			writer.WriteAttributeString(@"ref", Context.PathToUserUnderstandableElement);
 			writer.WriteAttributeString(@"guid", Guid.NewGuid().ToString()); //nb: this is the guid of the enclosing annotation, not the conflict;
 

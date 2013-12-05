@@ -96,6 +96,7 @@
 	<Compile Include="FileHandlers\LiftRanges\LiftRangesFileHandlerTests.cs" />
 	<Compile Include="FileHandlers\Lift\LiftSynchronizerAdjunctTests.cs" />
 	<Compile Include="MercurialPathHelp.cs" />
+	<Compile Include="merge\xml\generic\ConflictTests.cs" />
 	<Compile Include="merge\xml\ConflictXmlRecordRetrievalTests.cs" />
 	<Compile Include="merge\GroupOfConflictFiles.cs" />
 	<Compile Include="merge\XmlLogMergeEventListenerTests.cs" />

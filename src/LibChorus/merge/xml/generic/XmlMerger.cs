@@ -190,7 +190,7 @@ namespace Chorus.merge.xml.generic
 		internal void ConflictOccurred(IConflict conflict, XmlNode nodeToFindGeneratorFrom)
 		{
 			var contextDescriptorGenerator = GetContextDescriptorGenerator(nodeToFindGeneratorFrom);
-			var htmlGenerator = contextDescriptorGenerator as IGenerateHtmlContext ?? new SimpleHtmlGenerator();
+			_htmlContextGenerator = (contextDescriptorGenerator as IGenerateHtmlContext) ?? new SimpleHtmlGenerator();
 
 			XmlMergeService.AddConflictToListener(
 				EventListener,
@@ -198,7 +198,7 @@ namespace Chorus.merge.xml.generic
 				_oursContext,
 				_theirsContext,
 				_ancestorContext,
-				htmlGenerator,
+				_htmlContextGenerator,
 				this,
 				nodeToFindGeneratorFrom);
 		}
@@ -250,15 +250,13 @@ namespace Chorus.merge.xml.generic
 			elementStrat.Premerger.Premerge(EventListener, ref ours, theirs, ancestor);
 
 			// Step 0.1: Set up a context, if available.
-			var generator = elementStrat.ContextDescriptorGenerator;
-			if (generator != null)
-			{
-				//review: question: does this not get called at levels below the entry?
-				//this would seem to fail at, say, a sense. I'm confused. (JH 30june09)
-				var descriptor = GetContextDescriptor(ours, generator);
-				EventListener.EnteringContext(descriptor); // TODO: If the context is ever redone as a stack, then this call with push the context onto the stack.
-				_htmlContextGenerator = (generator as IGenerateHtmlContext); // null is OK.
-			}
+			// Listeners are set to use NullContextDescriptor as the default context,
+			var contextDescriptorGenerator = elementStrat.ContextDescriptorGenerator; // May be null, which is fine in code, below, that uses it.
+			//review: question: does this not get called at levels below the entry?
+			//this would seem to fail at, say, a sense. I'm confused. (JH 30june09)
+			var descriptor = GetContextDescriptor(ours, contextDescriptorGenerator);
+			EventListener.EnteringContext(descriptor); // TODO: If the context is ever redone as a stack, then this call with push the context onto the stack.
+			_htmlContextGenerator = (contextDescriptorGenerator as IGenerateHtmlContext) ?? new SimpleHtmlGenerator();
 
 			// Step 1: If the current set of nodes are immutable,
 			// then make sure no changes took place (among a few other things).
@@ -327,15 +325,16 @@ namespace Chorus.merge.xml.generic
 			// Step 6: TODO: If the context is ever redone as a stack, then pop the stack here to return to the outer context via some new LeavingContext method on EventListener.
 		}
 
-		internal ContextDescriptor GetContextDescriptor(XmlNode ours, IGenerateContextDescriptor generator)
+		private ContextDescriptor GetContextDescriptor(XmlNode ours, IGenerateContextDescriptor generator)
 		{
 			if (generator == null)
-				return null; // can't produce one.
+				return new NullContextDescriptor(); // Can't produce one from 'generator', so use default.
 
 			var contextDescriptorFromNode = generator as IGenerateContextDescriptorFromNode;
-			return (contextDescriptorFromNode != null)
-											   ? contextDescriptorFromNode.GenerateContextDescriptor(ours, MergeSituation.PathToFileInRepository)
-											   : generator.GenerateContextDescriptor(ours.OuterXml, MergeSituation.PathToFileInRepository);
+			var retval = (contextDescriptorFromNode != null)
+				? contextDescriptorFromNode.GenerateContextDescriptor(ours, MergeSituation.PathToFileInRepository)
+				: generator.GenerateContextDescriptor(ours.OuterXml, MergeSituation.PathToFileInRepository);
+			return retval ?? new NullContextDescriptor();
 		}
 
 		private void DoTextMerge(ref XmlNode ours, XmlNode theirs, XmlNode ancestor, ElementStrategy elementStrat)

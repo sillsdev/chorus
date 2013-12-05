@@ -2,7 +2,6 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Xml;
-using Palaso.Code;
 using Palaso.IO;
 using Palaso.Xml;
 
@@ -131,7 +130,6 @@ namespace Chorus.merge.xml.generic
 
 		public void RecordContextInConflict(IConflict conflict)
 		{
-			Guard.AgainstNull(_context, "_context");
 			conflict.Context = _context;
 		}
 
@@ -155,7 +153,7 @@ namespace Chorus.merge.xml.generic
 
 		public void EnteringContext(ContextDescriptor context)
 		{
-			_context = context;
+			_context = context ?? new NullContextDescriptor();
 		}
 
 		public void Dispose()
