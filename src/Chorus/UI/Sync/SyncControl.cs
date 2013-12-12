@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿using System;
 using System.Drawing;
 using System.Threading;
 using System.Windows.Forms;
@@ -123,13 +123,16 @@ namespace Chorus.UI.Sync
 			}
 			else
 			{
- #if !MONO  // in mono 2.0, the log tab is forever empty if we do this
 				if (_model.HasFeature(SyncUIFeatures.SimpleRepositoryChooserInsteadOfAdvanced)
 					|| _model.Features == SyncUIFeatures.Minimal)
 				{
+#if MONO // in mono 2.0, the log tab is forever empty if we remove this tab
+					_chooseTargetsTab.Enabled = false;
+					_chooseTargetsTab.Visible = false;
+#else
 					_tabControl.TabPages.Remove(_chooseTargetsTab);
+#endif
 				}
- #endif
 				if (!_model.HasFeature(SyncUIFeatures.TaskList))
 				{
 					_tabControl.TabPages.Remove(_tasksTab);
