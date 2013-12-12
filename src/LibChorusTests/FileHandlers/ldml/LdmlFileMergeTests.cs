@@ -138,7 +138,7 @@ namespace LibChorus.Tests.FileHandlers.ldml
 				new List<string>(),
 				new List<string> { @"ldml/collations/collation[@type='standard']" }, // Should not be present, since the premerge code added it.
 				0, null,
-				0, null);
+				1, new List<Type> { typeof(XmlAttributeBothMadeSameChangeReport) });
 		}
 
 		[Test]
@@ -172,7 +172,7 @@ namespace LibChorus.Tests.FileHandlers.ldml
 				new List<string> { @"ldml/special/palaso:version[@value='2']", @"ldml/special/palaso:languageName[@value='German']", @"ldml/special/fw:windowsLCID[@value='1']" },
 				new List<string> { @"ldml/special/palaso:version[@value='1']", @"ldml/special/palaso:languageName[@value='Spanish']" },
 				1, new List<Type> { typeof(BothEditedTheSameAtomicElement) },
-				0, null);
+				1, new List<Type> { typeof(XmlAttributeBothMadeSameChangeReport) });
 		}
 
 		[Test]
@@ -226,7 +226,7 @@ namespace LibChorus.Tests.FileHandlers.ldml
 				@"ldml/special/palaso2:knownKeyboards/palaso2:keyboard[@layout='MyFavoriteKeyboard']"},
 				new List<string>(0),
 				0, null,
-				2, new List<Type> { typeof(XmlAdditionChangeReport), typeof(XmlAdditionChangeReport) });
+				3, new List<Type> { typeof(XmlAttributeBothMadeSameChangeReport), typeof(XmlAdditionChangeReport), typeof(XmlAdditionChangeReport) });
 		}
 
 		[Test]
@@ -284,7 +284,7 @@ namespace LibChorus.Tests.FileHandlers.ldml
 				@"ldml/special/palaso2:knownKeyboards/palaso2:keyboard[@layout='MyFavoriteKeyboard']"},
 				new List<string>(0),
 				0, null,
-				2, new List<Type> { typeof(XmlBothAddedSameChangeReport), typeof(XmlAdditionChangeReport) });
+				3, new List<Type> { typeof(XmlAttributeBothMadeSameChangeReport), typeof(XmlBothAddedSameChangeReport), typeof(XmlAdditionChangeReport) });
 		}
 
 		[Test]
@@ -309,7 +309,7 @@ namespace LibChorus.Tests.FileHandlers.ldml
 			// We made the change
 			DoMerge(commonAncestor, ourContent, theirContent,
 				namespaces,
-				new List<string> { @"ldml/identity/generation[@date='2012-06-08T09:38:30']" },
+				new List<string> { @"ldml/identity/generation[@date='2012-06-08T09:38:31']" },
 				new List<string> { @"ldml/identity/generation[@date='2012-06-08T09:36:30']", @"ldml/identity/generation[@date='2012-06-08T09:37:30']" },
 				0, null,
 				1, new List<Type> { typeof(XmlAttributeBothMadeSameChangeReport) });
@@ -317,7 +317,7 @@ namespace LibChorus.Tests.FileHandlers.ldml
 			// They made the change
 			DoMerge(commonAncestor, theirContent, ourContent,
 				namespaces,
-				new List<string> { @"ldml/identity/generation[@date='2012-06-08T09:38:30']" },
+				new List<string> { @"ldml/identity/generation[@date='2012-06-08T09:38:31']" },
 				new List<string> { @"ldml/identity/generation[@date='2012-06-08T09:36:30']", @"ldml/identity/generation[@date='2012-06-08T09:37:30']" },
 				0, null,
 				1, new List<Type> { typeof(XmlAttributeBothMadeSameChangeReport) });
@@ -348,7 +348,7 @@ namespace LibChorus.Tests.FileHandlers.ldml
 			// We made the change
 			DoMerge(commonAncestor, ourContent, theirContent,
 				namespaces,
-				new List<string> { @"ldml/identity/generation[@date='2012-06-08T09:38:30']", @"ldml/special" },
+				new List<string> { @"ldml/identity/generation[@date='2012-06-08T09:38:31']", @"ldml/special" },
 				new List<string> { @"ldml/identity/generation[@date='2012-06-08T09:36:30']", @"ldml/identity/generation[@date='2012-06-08T09:37:30']" },
 				0, null,
 				2, new List<Type> { typeof(XmlAttributeBothMadeSameChangeReport), typeof(XmlAdditionChangeReport) });
@@ -356,7 +356,7 @@ namespace LibChorus.Tests.FileHandlers.ldml
 			// They made the change
 			DoMerge(commonAncestor, theirContent, ourContent,
 				namespaces,
-				new List<string> { @"ldml/identity/generation[@date='2012-06-08T09:38:30']", @"ldml/special" },
+				new List<string> { @"ldml/identity/generation[@date='2012-06-08T09:38:31']", @"ldml/special" },
 				new List<string> { @"ldml/identity/generation[@date='2012-06-08T09:36:30']", @"ldml/identity/generation[@date='2012-06-08T09:37:30']" },
 				0, null,
 				2, new List<Type> { typeof(XmlAttributeBothMadeSameChangeReport), typeof(XmlAdditionChangeReport) });

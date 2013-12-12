@@ -311,20 +311,23 @@ namespace Chorus.FileTypeHanders.ldml
 				addedCollationAttr = true;
 			}
 
-			// Pre-merge <generation> date attr to newest.
+			// Pre-merge <generation> date attr to newest, plus one second.
 			string ourRawGenDate;
 			var ourGenDate = GetGenDate(ourDoc, out ourRawGenDate);
 			string theirRawGenDate;
 			var theirGenDate = GetGenDate(theirDoc, out theirRawGenDate);
-			if (ourGenDate == theirGenDate)
-				return;
-			if (ourGenDate < theirGenDate)
-			{
-				var ourData = File.ReadAllText(mergeOrder.pathToOurs).Replace(ourRawGenDate, theirRawGenDate);
-				File.WriteAllText(mergeOrder.pathToOurs, ourData);
-				return;
-			}
-			var theirData = File.ReadAllText(mergeOrder.pathToTheirs).Replace(theirRawGenDate, ourRawGenDate);
+
+			var newestGenDatePlusOneSecond = (ourGenDate == theirGenDate)
+				? ourGenDate
+				: ((ourGenDate > theirGenDate) ? ourGenDate : theirGenDate);
+			newestGenDatePlusOneSecond = newestGenDatePlusOneSecond.AddSeconds(1);
+			// date="2012-06-08T09:36:30"
+			var newestRawGenDatePlusOneSecond = String.Format("{0:s}", newestGenDatePlusOneSecond);
+
+			// Write it out as one second newer than newest of the two, since merging does change it.
+			var ourData = File.ReadAllText(mergeOrder.pathToOurs).Replace(ourRawGenDate, newestRawGenDatePlusOneSecond);
+			File.WriteAllText(mergeOrder.pathToOurs, ourData);
+			var theirData = File.ReadAllText(mergeOrder.pathToTheirs).Replace(theirRawGenDate, newestRawGenDatePlusOneSecond);
 			File.WriteAllText(mergeOrder.pathToTheirs, theirData);
 		}
 
