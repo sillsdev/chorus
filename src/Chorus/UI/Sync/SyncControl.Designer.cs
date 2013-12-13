@@ -98,7 +98,7 @@ namespace Chorus.UI.Sync
 			this._chooseTargetsTab.Name = "_chooseTargetsTab";
 			this._chooseTargetsTab.Size = new System.Drawing.Size(502, 235);
 			this._chooseTargetsTab.TabIndex = 2;
-			this._chooseTargetsTab.Text = "Choose Respositories";
+			this._chooseTargetsTab.Text = "Choose Repositories";
 			this._chooseTargetsTab.UseVisualStyleBackColor = true;
 			//
 			// tableLayoutPanel5
