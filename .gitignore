@@ -1,0 +1,32 @@
+
+CopyToWeSay.bat
+output/
+obj/
+_Resharper*
+Debug/
+Release/
+_ReSharper.Chorus VS2008/
+*.suo
+*.user
+CopyToWeSayDev.bat
+lib/Palaso.TestUtilities.pdb
+*~
+*.pidb
+^[Mm]ercurial/
+*ReSharper*
+build/old
+lib/$(Configuration)
+*.resources
+*.userprefs
+src/Chorus.Tests/bin/*
+src/ChorusMerge.Tests/bin/*
+src/SampleApp/bin/*
+CopyTo Dev WeSay.bat
+MercurialExtensions/fixutf8/cpmap.pyo
+MercurialExtensions/fixutf8/cpmap.py
+test-results
+*.mdb
+src/LibChorusTests/test-results/LibChorus.Tests.csproj.test-cache
+**.orig
+Download/
+L10NSharp.dll
