@@ -144,11 +144,10 @@ namespace LibChorus.Tests.FileHandlers.LiftRanges
 	<range
 		id='theone' />
 </lift-ranges>";
-			var result = DoMerge(common, ours, theirs, 0, 0);
-			result = result.Replace("\"", "'");
-			Assert.AreEqual(common, result);
-			Assert.AreEqual(ours, result);
-			Assert.AreEqual(theirs, result);
+			var result = DoMerge(common, ours, theirs, 0, 0).Replace("\"", "'").Replace("\r\n", "\n");
+			Assert.AreEqual(common.Replace("\r\n", "\n"), result);
+			Assert.AreEqual(ours.Replace("\r\n", "\n"), result);
+			Assert.AreEqual(theirs.Replace("\r\n", "\n"), result);
 		}
 
 		[Test]
@@ -173,10 +172,9 @@ namespace LibChorus.Tests.FileHandlers.LiftRanges
 		id='theone'
 		attr='data' />
 </lift-ranges>";
-			var result = DoMerge(common, ours, theirs, 0, 0);
-			result = result.Replace("\"", "'");
-			Assert.AreEqual(ours, result);
-			Assert.AreEqual(theirs, result);
+			var result = DoMerge(common, ours, theirs, 0, 0).Replace("\"", "'").Replace("\r\n", "\n");
+			Assert.AreEqual(ours.Replace("\r\n", "\n"), result);
+			Assert.AreEqual(theirs.Replace("\r\n", "\n"), result);
 		}
 
 		[Test]
@@ -199,9 +197,8 @@ namespace LibChorus.Tests.FileHandlers.LiftRanges
 <lift-ranges>
 <range id='theone'/>
 </lift-ranges>";
-			var result = DoMerge(common, ours, theirs, 0, 0);
-			result = result.Replace("\"", "'");
-			Assert.AreEqual(ours, result);
+			var result = DoMerge(common, ours, theirs, 0, 0).Replace("\"", "'").Replace("\r\n", "\n");
+			Assert.AreEqual(ours.Replace("\r\n", "\n"), result);
 		}
 
 		[Test]
@@ -224,9 +221,8 @@ namespace LibChorus.Tests.FileHandlers.LiftRanges
 		attr='data'
 		id='theone' />
 </lift-ranges>";
-			var result = DoMerge(common, ours, theirs, 0, 0);
-			result = result.Replace("\"", "'");
-			Assert.AreEqual(theirs, result);
+			var result = DoMerge(common, ours, theirs, 0, 0).Replace("\"", "'").Replace("\r\n", "\n");
+			Assert.AreEqual(theirs.Replace("\r\n", "\n"), result);
 		}
 
 		[Test]
@@ -251,9 +247,8 @@ namespace LibChorus.Tests.FileHandlers.LiftRanges
 		attr='theirdata'
 		id='theone' />
 </lift-ranges>";
-			var result = DoMerge(common, ours, theirs, 1, 0);
-			result = result.Replace("\"", "'");
-			Assert.AreEqual(ours, result);
+			var result = DoMerge(common, ours, theirs, 1, 0).Replace("\"", "'").Replace("\r\n", "\n");
+			Assert.AreEqual(ours.Replace("\r\n", "\n"), result);
 		}
 
 		private string DoMerge(string commonAncestor, string ourContent, string theirContent,
