@@ -91,8 +91,11 @@ namespace Chorus.UI.Sync
 
 		private DialogResult DisplaySRSettingsDlg()
 		{
-			var settingsDlg = new SendReceiveSettings(_repository.PathToRepo);
-			var result = settingsDlg.ShowDialog();
+			DialogResult result;
+			using (var settingsDlg = new SendReceiveSettings(_repository.PathToRepo))
+			{
+				result = settingsDlg.ShowDialog();
+			}
 			if(result == DialogResult.OK)
 			{
 				SetButtonStatesFromSettings();
