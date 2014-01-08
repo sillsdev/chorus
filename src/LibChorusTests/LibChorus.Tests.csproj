@@ -60,17 +60,49 @@
 	<ErrorReport>prompt</ErrorReport>
 	<WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <ItemGroup Condition="'$(Configuration)' == 'Debug'">
+	<Reference Include="Palaso">
+	  <SpecificVersion>False</SpecificVersion>
+	  <HintPath>..\..\lib\Debug\Palaso.dll</HintPath>
+	</Reference>
+	<Reference Include="Palaso.TestUtilities">
+	  <SpecificVersion>False</SpecificVersion>
+	  <HintPath>..\..\lib\Debug\Palaso.TestUtilities.dll</HintPath>
+	</Reference>
+  </ItemGroup>
+  <ItemGroup Condition="'$(Configuration)' == 'Release'">
+	<Reference Include="Palaso">
+	  <SpecificVersion>False</SpecificVersion>
+	  <HintPath>..\..\lib\Release\Palaso.dll</HintPath>
+	</Reference>
+	<Reference Include="Palaso.TestUtilities">
+	  <SpecificVersion>False</SpecificVersion>
+	  <HintPath>..\..\lib\Release\Palaso.TestUtilities.dll</HintPath>
+	</Reference>
+  </ItemGroup>
+  <ItemGroup Condition="'$(Configuration)' == 'DebugMono'">
+	<Reference Include="Palaso">
+	  <SpecificVersion>False</SpecificVersion>
+	  <HintPath>..\..\lib\DebugMono\Palaso.dll</HintPath>
+	</Reference>
+	<Reference Include="Palaso.TestUtilities">
+	  <SpecificVersion>False</SpecificVersion>
+	  <HintPath>..\..\lib\DebugMono\Palaso.TestUtilities.dll</HintPath>
+	</Reference>
+  </ItemGroup>
+  <ItemGroup Condition="'$(Configuration)' == 'ReleaseMono'">
+	<Reference Include="Palaso">
+	  <SpecificVersion>False</SpecificVersion>
+	  <HintPath>..\..\lib\ReleaseMono\Palaso.dll</HintPath>
+	</Reference>
+	<Reference Include="Palaso.TestUtilities">
+	  <SpecificVersion>False</SpecificVersion>
+	  <HintPath>..\..\lib\ReleaseMono\Palaso.TestUtilities.dll</HintPath>
+	</Reference>
+  </ItemGroup>
   <ItemGroup>
 	<Reference Include="Autofac">
 	  <HintPath>..\..\lib\common\Autofac.dll</HintPath>
-	</Reference>
-	<Reference Include="Palaso, Version=1.0.0.0, Culture=neutral">
-	  <SpecificVersion>False</SpecificVersion>
-	  <HintPath>..\..\lib\$(Configuration)\Palaso.dll</HintPath>
-	</Reference>
-	<Reference Include="Palaso.TestUtilities, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-	  <SpecificVersion>False</SpecificVersion>
-	  <HintPath>..\..\lib\$(Configuration)\Palaso.TestUtilities.dll</HintPath>
 	</Reference>
 	<Reference Include="System" />
 	<Reference Include="System.Core" />
@@ -174,10 +206,6 @@
 	<Compile Include="VcsDrivers\RepositoryAddressTests.cs" />
   </ItemGroup>
   <ItemGroup>
-	<Reference Include="LibChorus.TestUtilities, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-	  <SpecificVersion>False</SpecificVersion>
-	  <HintPath>..\..\output\$(Configuration)\LibChorus.TestUtilities.dll</HintPath>
-	</Reference>
 	<ProjectReference Include="..\LibChorus.TestUtilities\LibChorus.TestUtilities.csproj">
 	  <Project>{0681E722-1856-44A1-B585-220E6AEC85CB}</Project>
 	  <Name>LibChorus.TestUtilities</Name>
