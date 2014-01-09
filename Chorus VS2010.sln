@@ -22,7 +22,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibChorus.Tests", "src\LibC
 		{1E6F4881-AA72-4AC7-B411-7B7E00C30C25} = {1E6F4881-AA72-4AC7-B411-7B7E00C30C25}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChorusHub", "src\ChorusHub\ChorusHub.csproj", "{EB8C974D-B1C6-4CE0-BFD4-170EFE18790C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChorusHubApp", "src\ChorusHubApp\ChorusHubApp.csproj", "{EB8C974D-B1C6-4CE0-BFD4-170EFE18790C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
