@@ -12,7 +12,6 @@ namespace ChorusHub
 	public class HgServeRunner :IDisposable
 	{
 		public readonly int Port;
-		public IProgress Progress = new ConsoleProgress();
 		private readonly string _rootFolder;
 		private Thread _hgServeThread;
 
@@ -31,12 +30,11 @@ namespace ChorusHub
 			{
 				foreach (var hg in Process.GetProcessesByName("hg"))
 				{
-					Progress.WriteMessage("Killing old hg...");
+					EventLog.WriteEntry("Application", "Killing old hg...", EventLogEntryType.Information);
 					hg.Kill();
 					if (!hg.WaitForExit(10000))
 					{
-						Progress.WriteError(
-							"ChorusHub was unable to stop an old hg from running. It will now give up. You should stop the server and run it again after killing whatever 'hg.exe' process is running.");
+						EventLog.WriteEntry("Application", "ChorusHub was unable to stop an old hg from running. It will now give up. You should stop the server and run it again after killing whatever 'hg.exe' process is running.", EventLogEntryType.Error);
 						return false;
 					}
 				}
@@ -51,11 +49,11 @@ namespace ChorusHub
 				if (!Directory.Exists(_rootFolder))
 					Directory.CreateDirectory(_rootFolder);
 
-				Progress.WriteMessage("Starting Mercurial Server");
+				EventLog.WriteEntry("Application", "Starting Mercurial Server", EventLogEntryType.Information);
 
 				WriteConfigFile(_rootFolder);
 
-				var arguments = "serve -A accessLog.txt -E log.txt -p " + Port.ToString() + " --verbose ";
+				var arguments = "serve -A accessLog.txt -E log.txt -p " + Port + " --verbose ";
 
 				const float kHgVersion = (float)1.5;
 				if (kHgVersion < 1.9)
@@ -82,18 +80,19 @@ namespace ChorusHub
 													var commandLineRunner = new CommandLineRunner();
 													try
 													{
+														var progress = new ConsoleProgress();
 														commandLineRunner.Start(
 															Chorus.MercurialLocation.PathToHgExecutable,
 															arguments,
 															Encoding.UTF8, _rootFolder, -1,
-															Progress, (s) => Progress.WriteMessage(s));
+															progress, (s) => progress.WriteMessage(s));
 													}
 													catch (ThreadAbortException)
 													{
-														Progress.WriteVerbose("Hg Serve command Thread Aborting (that's normal when stopping)");
+														//Progress.WriteVerbose("Hg Serve command Thread Aborting (that's normal when stopping)");
 														if(!commandLineRunner.Abort(1))
 														{
-															Progress.WriteWarning("Hg Serve might not have closed down.");
+															EventLog.WriteEntry("Application", "Hg Serve might not have closed down.", EventLogEntryType.Information);
 														}
 													}
 												});
@@ -104,13 +103,13 @@ namespace ChorusHub
 			}
 			catch (Exception error)
 			{
-				Progress.WriteException(error);
+				EventLog.WriteEntry("Application", error.Message, EventLogEntryType.Error);
 				return false;
 			}
 		}
 
 
-		private static void WriteConfigFile(string _rootFolder)
+		private static void WriteConfigFile(string rootFolder)
 		{
 			var sb = new StringBuilder();
 			sb.AppendLine("[web]");
@@ -119,9 +118,9 @@ namespace ChorusHub
 			sb.AppendLine();
 
 			sb.AppendLine("[paths]");
-			sb.AppendLine("/ = " + _rootFolder + "/*");
+			sb.AppendLine("/ = " + rootFolder + "/*");
 
-			var path = Path.Combine(_rootFolder, "hgweb.config");
+			var path = Path.Combine(rootFolder, "hgweb.config");
 			if (File.Exists(path))
 				File.Delete(path);
 
@@ -158,14 +157,14 @@ namespace ChorusHub
 								directory = Palaso.Network.HttpUtilityFromMono.UrlDecode(directory); // convert %20 --> space
 								if (!Directory.Exists(directory))
 								{
-									Progress.WriteMessage("Creating new folder '" + name + "'");
+									//Progress.WriteMessage("Creating new folder '" + name + "'");
 									Directory.CreateDirectory(directory);
 								}
 								if (!Directory.Exists(Path.Combine(directory, ".hg")))
 								{
-									Progress.WriteMessage("Initializing blank repository: " + name +
-													  ". Try Sending again in a few minutes, when hg notices the new directory.");
-									HgRepository.CreateRepositoryInExistingDir(directory, Progress);
+									//Progress.WriteMessage("Initializing blank repository: " + name +
+									//				  ". Try Sending again in a few minutes, when hg notices the new directory.");
+									HgRepository.CreateRepositoryInExistingDir(directory, new ConsoleProgress());
 								}
 							}
 						}
@@ -178,7 +177,7 @@ namespace ChorusHub
 			}
 			catch (Exception error)
 			{
-				Progress.WriteException(error);
+				EventLog.WriteEntry("Application", error.Message, EventLogEntryType.Error);
 			}
 		}
 
@@ -186,16 +185,16 @@ namespace ChorusHub
 		{
 			if(_hgServeThread !=null && _hgServeThread.IsAlive)
 			{
-				Progress.WriteMessage("Hg Server Stopping...");
+				//Progress.WriteMessage("Hg Server Stopping...");
 				_hgServeThread.Abort();
 
-				if(_hgServeThread.Join(2*1000))
+				if(_hgServeThread.Join(2 * 1000))
 				{
-					Progress.WriteMessage("Hg Server Stopped");
+					//Progress.WriteMessage("Hg Server Stopped");
 				}
 				else
 				{
-					Progress.WriteError("***Gave up on hg server stopping");
+					//Progress.WriteError("***Gave up on hg server stopping");
 				}
 				_hgServeThread = null;
 			}

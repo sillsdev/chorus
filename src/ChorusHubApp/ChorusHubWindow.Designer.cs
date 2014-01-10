@@ -1,6 +1,4 @@
-﻿using Palaso.UI.WindowsForms.Progress;
-
-namespace ChorusHub
+﻿namespace ChorusHubApp
 {
 	partial class ChorusHubWindow
 	{

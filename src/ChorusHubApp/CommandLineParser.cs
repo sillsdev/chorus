@@ -202,193 +202,16 @@
 //////////////////////////////////////////////////////////////////////////////
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace CommandLine
+namespace ChorusHubApp
 {
-	/// <summary>
-	/// Used to control parsing of command line arguments.
-	/// </summary>
-	[Flags]
-	public enum ArgumentTypes
-	{
-		/// <summary>
-		/// Indicates that this field is required. An error will be displayed
-		/// if it is not present when parsing arguments.
-		/// </summary>
-		Required = 0x01,
-		/// <summary>
-		/// Only valid in conjunction with Multiple.
-		/// Duplicate values will result in an error.
-		/// </summary>
-		Unique = 0x02,
-		/// <summary>
-		/// Inidicates that the argument may be specified more than once.
-		/// Only valid if the argument is a collection
-		/// </summary>
-		Multiple = 0x04,
-
-		/// <summary>
-		/// The default type for non-collection arguments.
-		/// The argument is not required, but an error will be reported if it is specified more than once.
-		/// </summary>
-		AtMostOnce = 0x00,
-
-		/// <summary>
-		/// For non-collection arguments, when the argument is specified more than
-		/// once no error is reported and the value of the argument is the last
-		/// value which occurs in the argument list.
-		/// </summary>
-		LastOccurenceWins = Multiple,
-
-		/// <summary>
-		/// The default type for collection arguments.
-		/// The argument is permitted to occur multiple times, but duplicate
-		/// values will cause an error to be reported.
-		/// </summary>
-		MultipleUnique = Multiple | Unique,
-	}
-
-	/// <summary>
-	/// Allows control of command line parsing.
-	/// Attach this attribute to instance fields of types used
-	/// as the destination of command line argument parsing.
-	/// </summary>
-	[AttributeUsage(AttributeTargets.Field)]
-	public class ArgumentAttribute: Attribute
-	{
-		/// <summary>
-		/// Allows control of command line parsing.
-		/// </summary>
-		/// <param name="type"> Specifies the error checking to be done on the argument. </param>
-		public ArgumentAttribute(ArgumentTypes type)
-		{
-			this.type = type;
-		}
-
-		/// <summary>
-		/// The error checking to be done on the argument.
-		/// </summary>
-		public ArgumentTypes Type
-		{
-			get { return type; }
-		}
-
-		/// <summary>
-		/// Returns true if the argument did not have an explicit short name specified.
-		/// </summary>
-		public bool DefaultShortName
-		{
-			get { return null == shortName; }
-		}
-
-		/// <summary>
-		/// The short name of the argument.
-		/// Set to null means use the default short name if it does not
-		/// conflict with any other parameter name.
-		/// Set to String.Empty for no short name.
-		/// This property should not be set for DefaultArgumentAttributes.
-		/// </summary>
-		public string ShortName
-		{
-			get { return shortName; }
-			set
-			{
-				Debug.Assert(value == null || !(this is DefaultArgumentAttribute));
-				shortName = value;
-			}
-		}
-
-		/// <summary>
-		/// Returns true if the argument did not have an explicit long name specified.
-		/// </summary>
-		public bool DefaultLongName
-		{
-			get { return null == longName; }
-		}
-
-		/// <summary>
-		/// The long name of the argument.
-		/// Set to null means use the default long name.
-		/// The long name for every argument must be unique.
-		/// It is an error to specify a long name of String.Empty.
-		/// </summary>
-		public string LongName
-		{
-			get
-			{
-				Debug.Assert(!DefaultLongName);
-				return longName;
-			}
-			set
-			{
-				Debug.Assert(value.Length > 0);
-				longName = value;
-			}
-		}
-
-		/// <summary>
-		/// The default value of the argument.
-		/// </summary>
-		public object DefaultValue
-		{
-			get { return defaultValue; }
-			set { defaultValue = value; }
-		}
-
-		/// <summary>
-		/// Returns true if the argument has a default value.
-		/// </summary>
-		public bool HasDefaultValue
-		{
-			get { return null != defaultValue; }
-		}
-
-		/// <summary>
-		/// Returns true if the argument has help text specified.
-		/// </summary>
-		public bool HasHelpText
-		{
-			get { return null != helpText; }
-		}
-
-		/// <summary>
-		/// The help text for the argument.
-		/// </summary>
-		public string HelpText
-		{
-			get { return helpText; }
-			set { helpText = value; }
-		}
-
-		private string shortName;
-		private string longName;
-		private string helpText;
-		private object defaultValue;
-		private readonly ArgumentTypes type;
-	}
-
-	/// <summary>
-	/// Indicates that this argument is the default argument.
-	/// '/' or '-' prefix only the argument value is specified.
-	/// The ShortName property should not be set for DefaultArgumentAttribute
-	/// instances. The LongName property is used for usage text only and
-	/// does not affect the usage of the argument.
-	/// </summary>
-	[AttributeUsage(AttributeTargets.Field)]
-	public sealed class DefaultArgumentAttribute: ArgumentAttribute
-	{
-		/// <summary>
-		/// Indicates that this argument is the default argument.
-		/// </summary>
-		/// <param name="type"> Specifies the error checking to be done on the argument. </param>
-		public DefaultArgumentAttribute(ArgumentTypes type): base(type) {}
-	}
-
 	/// <summary>
 	/// A delegate used in error reporting.
 	/// </summary>
@@ -424,11 +247,6 @@ namespace CommandLine
 		/// The System Defined new line string.
 		/// </summary>
 		public const string NewLine = "\r\n";
-
-		/// <summary>
-		/// Don't ever call this.
-		/// </summary>
-		private Parser() {}
 
 		/// <summary>
 		/// Parses Command Line Arguments. Displays usage message to Console.Out
@@ -476,7 +294,7 @@ namespace CommandLine
 										  object destination,
 										  ReportError reporter)
 		{
-			Parser parser = new Parser(destination.GetType(), reporter);
+			var parser = new Parser(destination.GetType(), reporter);
 			return parser.Parse(arguments, destination);
 		}
 
@@ -626,7 +444,7 @@ namespace CommandLine
 			return -1;
 		}
 
-		private const int spaceBeforeParam = 2;
+		private const int SpaceBeforeParam = 2;
 
 		/// <summary>
 		/// Creates a new command line argument parser.
@@ -663,7 +481,7 @@ namespace CommandLine
 				argumentMap[argument.LongName] = argument;
 				if (argument.ExplicitShortName)
 				{
-					if (argument.ShortName != null && argument.ShortName.Length > 0)
+					if (!string.IsNullOrEmpty(argument.ShortName))
 					{
 						Debug.Assert(!argumentMap.ContainsKey(argument.ShortName));
 						argumentMap[argument.ShortName] = argument;
@@ -680,7 +498,7 @@ namespace CommandLine
 			{
 				if (!argument.ExplicitShortName)
 				{
-					if (argument.ShortName != null && argument.ShortName.Length > 0 &&
+					if (!string.IsNullOrEmpty(argument.ShortName) &&
 						!argumentMap.ContainsKey(argument.ShortName))
 					{
 						argumentMap[argument.ShortName] = argument;
@@ -716,79 +534,79 @@ namespace CommandLine
 		/// <param name="args"></param>
 		/// <param name="destination"></param>
 		/// <returns> true if an error occurred </returns>
-		private bool ParseArgumentList(string[] args, object destination)
+		private bool ParseArgumentList(IEnumerable<string> args, object destination)
 		{
-			bool hadError = false;
-			if (args != null)
+			if (args == null)
+				return false;
+
+			var hadError = false;
+			foreach (var argItem in args)
 			{
-				foreach (string argItem in args)
+				if (argItem.Length < 1)
+					continue;
+
+				//treat '/' as '-' if Windows but on Unix it is a directory separator
+				string argument;
+				if (Environment.OSVersion.Platform != PlatformID.Unix && argItem[0] == '/')
 				{
-					string argument;
-					if (argItem.Length > 0)
-					{
-						//treat '/' as '-' if Windows but on Unix it is a directory separator
-						if (Environment.OSVersion.Platform != PlatformID.Unix && argItem[0] == '/')
+					argument = '-' + argItem.Substring(1);
+				}
+				else
+				{
+					argument = argItem;
+				}
+
+				switch (argument[0])
+				{
+					case '-':
+						var endIndex = argument.IndexOfAny(new[] {':', '+', '-'}, 1);
+						var option = argument.Substring(1,
+							endIndex == -1
+								? argument.Length - 1
+								: endIndex - 1);
+						string optionArgument;
+						if (option.Length + 1 == argument.Length)
 						{
-							argument = '-' + argItem.Substring(1);
+							optionArgument = null;
+						}
+						else if (argument.Length > 1 + option.Length &&
+						         argument[1 + option.Length] == ':')
+						{
+							optionArgument = argument.Substring(option.Length + 2);
 						}
 						else
 						{
-							argument = argItem;
+							optionArgument = argument.Substring(option.Length + 1);
 						}
 
-						switch (argument[0])
+						var arg = argumentMap[option] as Argument;
+						if (arg == null)
 						{
-							case '-':
-								int endIndex = argument.IndexOfAny(new char[] {':', '+', '-'}, 1);
-								string option = argument.Substring(1,
-																   endIndex == -1
-																		   ? argument.Length - 1
-																		   : endIndex - 1);
-								string optionArgument;
-								if (option.Length + 1 == argument.Length)
-								{
-									optionArgument = null;
-								}
-								else if (argument.Length > 1 + option.Length &&
-										 argument[1 + option.Length] == ':')
-								{
-									optionArgument = argument.Substring(option.Length + 2);
-								}
-								else
-								{
-									optionArgument = argument.Substring(option.Length + 1);
-								}
-
-								Argument arg = (Argument) argumentMap[option];
-								if (arg == null)
-								{
-									ReportUnrecognizedArgument(argument);
-									hadError = true;
-								}
-								else
-								{
-									hadError |= !arg.SetValue(optionArgument, destination);
-								}
-								break;
-							case '@':
-								string[] nestedArguments;
-								hadError |= LexFileArguments(argument.Substring(1),
-															 out nestedArguments);
-								hadError |= ParseArgumentList(nestedArguments, destination);
-								break;
-							default:
-								if (defaultArgument != null)
-								{
-									hadError |= !defaultArgument.SetValue(argument, destination);
-								}
-								else
-								{
-									ReportUnrecognizedArgument(argument);
-									hadError = true;
-								}
-								break;
+							ReportUnrecognizedArgument(argument);
+							hadError = true;
 						}
-					}
+						else
+						{
+							hadError |= !arg.SetValue(optionArgument, destination);
+						}
+						break;
+					case '@':
+						string[] nestedArguments;
+						hadError |= LexFileArguments(argument.Substring(1),
+							out nestedArguments);
+						hadError |= ParseArgumentList(nestedArguments, destination);
+						break;
+					default:
+						if (defaultArgument != null)
+						{
+							hadError |= !defaultArgument.SetValue(argument, destination);
+						}
+						else
+						{
+							ReportUnrecognizedArgument(argument);
+							hadError = true;
+						}
+						break;
 				}
 			}
 
@@ -803,13 +621,10 @@ namespace CommandLine
 		/// <returns> true if no parse errors were encountered. </returns>
 		public bool Parse(string[] args, object destination)
 		{
-			bool hadError = ParseArgumentList(args, destination);
+			var hadError = ParseArgumentList(args, destination);
 
 			// check for missing required arguments
-			foreach (Argument arg in arguments)
-			{
-				hadError |= arg.Finish(destination);
-			}
+			hadError = arguments.Cast<Argument>().Aggregate(hadError, (current, arg) => current | arg.Finish(destination));
 			if (defaultArgument != null)
 			{
 				hadError |= defaultArgument.Finish(destination);
@@ -848,7 +663,7 @@ namespace CommandLine
 			const int minimumScreenWidth = minimumHelpTextColumn + minimumNumberOfCharsForHelpText;
 
 			int helpTextColumn;
-			int idealMinimumHelpTextColumn = maxParamLen + spaceBeforeParam;
+			int idealMinimumHelpTextColumn = maxParamLen + SpaceBeforeParam;
 			screenWidth = Math.Max(screenWidth, minimumScreenWidth);
 			if (screenWidth < (idealMinimumHelpTextColumn + minimumNumberOfCharsForHelpText))
 			{
@@ -1187,37 +1002,37 @@ namespace CommandLine
 		{
 			public Argument(ArgumentAttribute attribute, FieldInfo field, ReportError reporter)
 			{
-				longName = Parser.LongName(attribute, field);
-				explicitShortName = Parser.ExplicitShortName(attribute);
-				shortName = Parser.ShortName(attribute, field);
-				hasHelpText = Parser.HasHelpText(attribute);
-				helpText = Parser.HelpText(attribute, field);
-				defaultValue = Parser.DefaultValue(attribute, field);
+				longName = LongName(attribute, field);
+				explicitShortName = ExplicitShortName(attribute);
+				shortName = ShortName(attribute, field);
+				hasHelpText = HasHelpText(attribute);
+				helpText = HelpText(attribute, field);
+				defaultValue = DefaultValue(attribute, field);
 				elementType = ElementType(field);
 				flags = Flags(attribute, field);
 				this.field = field;
 				seenValue = false;
 				this.reporter = reporter;
-				isDefault = attribute != null && attribute is DefaultArgumentAttribute;
+				isDefault = attribute is DefaultArgumentAttribute;
 
 				if (IsCollection)
 				{
 					collectionValues = new ArrayList();
 				}
 
-				Debug.Assert(longName != null && longName.Length > 0);
-				Debug.Assert(!isDefault || !ExplicitShortName);
-				Debug.Assert(!IsCollection || AllowMultiple,
-							 "Collection arguments must have allow multiple");
-				Debug.Assert(!Unique || IsCollection,
-							 "Unique only applicable to collection arguments");
-				Debug.Assert(IsValidElementType(Type) || IsCollectionType(Type));
-				Debug.Assert((IsCollection && IsValidElementType(elementType)) ||
-							 (!IsCollection && elementType == null));
-				Debug.Assert(!(IsRequired && HasDefaultValue),
-							 "Required arguments cannot have default value");
-				Debug.Assert(!HasDefaultValue || (defaultValue.GetType() == field.FieldType),
-							 "Type of default value must match field type");
+				//Debug.Assert(longName != null && longName.Length > 0);
+				//Debug.Assert(!isDefault || !ExplicitShortName);
+				//Debug.Assert(!IsCollection || AllowMultiple,
+				//             "Collection arguments must have allow multiple");
+				//Debug.Assert(!Unique || IsCollection,
+				//             "Unique only applicable to collection arguments");
+				//Debug.Assert(IsValidElementType(Type) || IsCollectionType(Type));
+				//Debug.Assert((IsCollection && IsValidElementType(elementType)) ||
+				//             (!IsCollection && elementType == null));
+				//Debug.Assert(!(IsRequired && HasDefaultValue),
+				//             "Required arguments cannot have default value");
+				//Debug.Assert(!HasDefaultValue || (defaultValue.GetType() == field.FieldType),
+				//             "Type of default value must match field type");
 			}
 
 			public bool Finish(object destination)

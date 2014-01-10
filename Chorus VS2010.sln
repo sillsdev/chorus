@@ -26,6 +26,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChorusHubApp", "src\ChorusH
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChorusHub", "src\ChorusHub\ChorusHub.csproj", "{4D3ECD8D-431D-4B53-B635-017B36B002C9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChorusHubTests", "src\ChorusHubTests\ChorusHubTests.csproj", "{BE491193-6666-4A1C-A23A-FE962632F07D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -286,6 +288,26 @@ Global
 		{4D3ECD8D-431D-4B53-B635-017B36B002C9}.ReleaseMono|Mixed Platforms.Build.0 = Release|x86
 		{4D3ECD8D-431D-4B53-B635-017B36B002C9}.ReleaseMono|x86.ActiveCfg = Release|x86
 		{4D3ECD8D-431D-4B53-B635-017B36B002C9}.ReleaseMono|x86.Build.0 = Release|x86
+		{BE491193-6666-4A1C-A23A-FE962632F07D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BE491193-6666-4A1C-A23A-FE962632F07D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BE491193-6666-4A1C-A23A-FE962632F07D}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{BE491193-6666-4A1C-A23A-FE962632F07D}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{BE491193-6666-4A1C-A23A-FE962632F07D}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{BE491193-6666-4A1C-A23A-FE962632F07D}.DebugMono|Any CPU.ActiveCfg = Debug|Any CPU
+		{BE491193-6666-4A1C-A23A-FE962632F07D}.DebugMono|Any CPU.Build.0 = Debug|Any CPU
+		{BE491193-6666-4A1C-A23A-FE962632F07D}.DebugMono|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{BE491193-6666-4A1C-A23A-FE962632F07D}.DebugMono|Mixed Platforms.Build.0 = Debug|Any CPU
+		{BE491193-6666-4A1C-A23A-FE962632F07D}.DebugMono|x86.ActiveCfg = Debug|Any CPU
+		{BE491193-6666-4A1C-A23A-FE962632F07D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BE491193-6666-4A1C-A23A-FE962632F07D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BE491193-6666-4A1C-A23A-FE962632F07D}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{BE491193-6666-4A1C-A23A-FE962632F07D}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{BE491193-6666-4A1C-A23A-FE962632F07D}.Release|x86.ActiveCfg = Release|Any CPU
+		{BE491193-6666-4A1C-A23A-FE962632F07D}.ReleaseMono|Any CPU.ActiveCfg = Release|Any CPU
+		{BE491193-6666-4A1C-A23A-FE962632F07D}.ReleaseMono|Any CPU.Build.0 = Release|Any CPU
+		{BE491193-6666-4A1C-A23A-FE962632F07D}.ReleaseMono|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{BE491193-6666-4A1C-A23A-FE962632F07D}.ReleaseMono|Mixed Platforms.Build.0 = Release|Any CPU
+		{BE491193-6666-4A1C-A23A-FE962632F07D}.ReleaseMono|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

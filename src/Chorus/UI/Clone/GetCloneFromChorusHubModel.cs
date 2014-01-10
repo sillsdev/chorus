@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Chorus.ChorusHub;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
-using ChorusHub;
 using L10NSharp;
 using Palaso.Progress;
 
@@ -49,15 +49,14 @@ namespace Chorus.UI.Clone
 
 		public void MakeClone(IProgress progress)
 		{
-			 var client = new ChorusHubClient();
-			var server = client.FindServer();
-			if (server == null)
+			 var chorusHubServerInfo = ChorusHubServerInfo.FindServerInformation();
+			if (chorusHubServerInfo == null)
 			{
 				progress.WriteError(LocalizationManager.GetString("Messages.ChorusServerNA", "The Chorus Server is not available."));
 				CloneSucceeded = false;
 				return;
 			}
-			if (!server.ServerIsCompatibleWithThisClient)
+			if (!chorusHubServerInfo.ServerIsCompatibleWithThisClient)
 			{
 				progress.WriteError(LocalizationManager.GetString("Messages.ChorusServerIncompatible", "The Chorus Server is not compatible with ths client."));
 				CloneSucceeded = false;
@@ -67,6 +66,7 @@ namespace Chorus.UI.Clone
 			var targetFolder = Path.Combine(_baseFolder, RepositoryName);
 			try
 			{
+				var client = new ChorusHubClient(chorusHubServerInfo);
 				NewlyClonedFolder = HgRepository.Clone(new ChorusHubRepositorySource(RepositoryName, client.GetUrl(RepositoryName), false, HubRepositoryInformation), targetFolder, progress);
 				CloneSucceeded = true;
 			}

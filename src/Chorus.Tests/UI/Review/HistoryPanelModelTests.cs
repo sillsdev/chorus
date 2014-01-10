@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
 using Chorus.sync;
 using Chorus.UI.Review;
 using Chorus.UI.Review.RevisionsInRepository;
-using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
 using LibChorus.TestUtilities;
-using LibChorus.Tests;
 using NUnit.Framework;
 using Palaso.Progress;
 

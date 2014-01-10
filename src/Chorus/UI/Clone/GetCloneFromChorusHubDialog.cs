@@ -4,8 +4,8 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Threading;
 using System.Windows.Forms;
+using Chorus.ChorusHub;
 using Chorus.VcsDrivers;
-using ChorusHub;
 using L10NSharp;
 using Palaso.Progress;
 using Palaso.UI.WindowsForms.Progress;
@@ -230,16 +230,16 @@ namespace Chorus.UI.Clone
 #if !MONO // See https://bugzilla.xamarin.com/show_bug.cgi?id=4269. Remove #if when using mono that fixes this.
 			Thread.CurrentThread.Name = @"GetRepositoryInformation";
 #endif
-			var client = new ChorusHubClient();
-			var server = client.FindServer();
+			var chorusHubServerInfo = ChorusHubServerInfo.FindServerInformation();
 
-			if (server == null || !server.ServerIsCompatibleWithThisClient)
+			if (chorusHubServerInfo == null || !chorusHubServerInfo.ServerIsCompatibleWithThisClient)
 			{
 				e.Result = null;
 			}
 			else
 			{
 				var results = new object[2];
+				var client = new ChorusHubClient(chorusHubServerInfo);
 				results[0] = client;
 				results[1] = client.GetRepositoryInformation(_model.ProjectFilter);
 				e.Result = results;

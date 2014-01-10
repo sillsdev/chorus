@@ -8,7 +8,7 @@
     <ProjectGuid>{EB8C974D-B1C6-4CE0-BFD4-170EFE18790C}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ChorusHub</RootNamespace>
+    <RootNamespace>ChorusHubApp</RootNamespace>
     <AssemblyName>ChorusHubApp</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
@@ -30,7 +30,7 @@
     <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
   <PropertyGroup>
-    <StartupObject>ChorusHub.Program</StartupObject>
+    <StartupObject>ChorusHubApp.Program</StartupObject>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
@@ -86,7 +86,8 @@
     </TargetFrameworkProfile>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>chorusHubIcon.ico</ApplicationIcon>
+    <ApplicationIcon>
+    </ApplicationIcon>
   </PropertyGroup>
   <ItemGroup Condition="'$(Configuration)' == 'Debug'">
     <Reference Include="Palaso">
@@ -132,35 +133,25 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
-    <Reference Include="System.Runtime.Serialization" />
-    <Reference Include="System.ServiceModel" />
     <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
     <Reference Include="Vulcan.Uczniowie.HelpProvider">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\common\Vulcan.Uczniowie.HelpProvider.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Advertiser.cs" />
-    <Compile Include="ChorusHubClient.cs" />
-    <Compile Include="ChorusHubInfo.cs" />
+    <Compile Include="ArgumentAttribute.cs" />
+    <Compile Include="ArgumentTypes.cs" />
     <Compile Include="ChorusHubWindow.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="ChorusHubWindow.Designer.cs">
       <DependentUpon>ChorusHubWindow.cs</DependentUpon>
     </Compile>
-    <Compile Include="ChorusHubParameters.cs" />
     <Compile Include="CommandLineParser.cs" />
-    <Compile Include="HgServeRunner.cs" />
-    <Compile Include="ChorusHubService.cs" />
-    <Compile Include="ImitationHubJSONService.cs" />
+    <Compile Include="DefaultArgumentAttribute.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ChorusHubServiceImplementation.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
@@ -190,6 +181,10 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\ChorusHub\ChorusHub.csproj">
+      <Project>{4D3ECD8D-431D-4B53-B635-017B36B002C9}</Project>
+      <Name>ChorusHub</Name>
+    </ProjectReference>
     <ProjectReference Include="..\LibChorus\LibChorus.csproj">
       <Project>{94245366-8F1E-475C-810D-FE89BB3948E0}</Project>
       <Name>LibChorus</Name>
@@ -206,9 +201,6 @@
     <EmbeddedResource Include="ChorusHubWindow.resx">
       <DependentUpon>ChorusHubWindow.cs</DependentUpon>
     </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="chorusHubIcon.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.

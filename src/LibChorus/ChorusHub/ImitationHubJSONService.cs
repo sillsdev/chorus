@@ -2,27 +2,27 @@
 using System.Collections.Generic;
 using Chorus.VcsDrivers;
 
-namespace ChorusHub
+namespace Chorus.ChorusHub
 {
 	/// <summary>
 	/// This class serializes repository name and id into a JSON string or
 	/// deserializes such a string into a ChorusHubRepositoryInformation object.
 	/// </summary>
 	/// <example>{"name": "fooProject", "id": "123abc"}</example>
-	internal static class ImitationHubJSONService
+	public static class ImitationHubJSONService
 	{
 		private const string format1 = "{\"name\": \"";
 		private const string format2 = "\", \"id\": \"";
 		private const string format3 = "\"}";
 
 		// Serialize
-		internal static string MakeJsonString(string name, string id)
+		public static string MakeJsonString(string name, string id)
 		{
 			return format1 + name + format2 + id + format3;
 		}
 
 		// Deserialize one
-		internal static RepositoryInformation DechipherJsonString(string jsonString)
+		public static RepositoryInformation DechipherJsonString(string jsonString)
 		{
 			// Probably not the best way to do this, but...
 			// If the parse fails for any reason, will throw ArgumentException.
@@ -40,7 +40,7 @@ namespace ChorusHub
 		}
 
 		// Deserialize a bunch
-		internal static IEnumerable<RepositoryInformation> ParseJsonStringsToChorusHubRepoInfos(string jsonInput)
+		public static IEnumerable<RepositoryInformation> ParseJsonStringsToChorusHubRepoInfos(string jsonInput)
 		{
 			var jsonStrings = jsonInput.Split(new [] {'/'}, StringSplitOptions.RemoveEmptyEntries);
 			var result = new List<RepositoryInformation>();

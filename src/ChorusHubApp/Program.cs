@@ -1,11 +1,11 @@
 ﻿using System;
 using System.IO;
 using System.Windows.Forms;
-using ChorusHub.Properties;
+using Chorus.ChorusHub;
+using ChorusHubApp.Properties;
 using Palaso.Reporting;
-using CommandLine;
 
-namespace ChorusHub
+namespace ChorusHubApp
 {
 	static class Program
 	{
@@ -16,7 +16,7 @@ namespace ChorusHub
 			var parameters = new ChorusHubParameters();
 			if(Parser.ParseHelp(args))
 			{
-				MessageBox.Show(Parser.ArgumentsUsage(parameters.GetType()),"Chorus Hub Command Line Parameters");
+				MessageBox.Show(Parser.ArgumentsUsage(parameters.GetType()), "Chorus Hub Command Line Parameters");
 				return;
 			}
 			if (!Parser.ParseArguments(args, parameters, ShowCommandLineError))
@@ -33,32 +33,32 @@ namespace ChorusHub
 				parameters.RootDirectory = Path.Combine(Environment.GetEnvironmentVariable("HOME"), "ChorusHub");
 			}
 #else
-			if(!Path.IsPathRooted(parameters.RootDirectory))
+			if (!Path.IsPathRooted(ChorusHubParameters.RootDirectory))
 			{
 				ErrorReport.NotifyUserOfProblem("You supplied '{0}' for the root directory, but that doesn't have a drive letter.",
-																	parameters.RootDirectory);
+																	ChorusHubParameters.RootDirectory);
 				return;
 			}
 #endif
-			string parentOfRoot = Path.GetDirectoryName(parameters.RootDirectory);
+			string parentOfRoot = Path.GetDirectoryName(ChorusHubParameters.RootDirectory);
 			if(!Directory.Exists(parentOfRoot))
 			{
 				ErrorReport.NotifyUserOfProblem("In order to use '{0}', '{1}' must already exist",
-																	parameters.RootDirectory, parentOfRoot);
+																	ChorusHubParameters.RootDirectory, parentOfRoot);
 				return;
 			}
-			var server = new ChorusHubClient().FindServer();
-			if (server != null)
+			var chorusHubServerInfo = ChorusHubServerInfo.FindServerInformation();
+			if (chorusHubServerInfo != null)
 			{
 				ErrorReport.NotifyUserOfProblem("Only one ChorusHub can be run on a network but there is already one running on {0}",
-												server.HostName);
+												chorusHubServerInfo.HostName);
 				return;
 			}
 
-			SetupErrorHandling(parameters);
+			SetupErrorHandling();
 			SetUpReporting();
 
-			Application.Run(mainForm: new ChorusHubWindow(parameters));
+			Application.Run(new ChorusHubWindow());
 		}
 
 		private static void ShowCommandLineError(string e)
@@ -85,13 +85,13 @@ namespace ChorusHub
 //            UsageReporter.AppNameToUseInReporting = "ChorusHub";
 		}
 
-		private static void SetupErrorHandling(ChorusHubParameters chorusHubParameters)
+		private static void SetupErrorHandling()
 		{
 			ErrorReport.EmailAddress = "issues@chorus.palaso.org";
 			ErrorReport.AddProperty("Application", "ChorusHub");
-			ErrorReport.AddProperty("Directory", chorusHubParameters.RootDirectory);
-			ErrorReport.AddProperty("AdvertisingPort", ChorusHubParameters.kAdvertisingPort.ToString());
-			ErrorReport.AddProperty("MercurialPort", ChorusHubParameters.kMercurialPort.ToString());
+			ErrorReport.AddProperty("Directory", ChorusHubParameters.RootDirectory);
+			ErrorReport.AddProperty("AdvertisingPort", ChorusHubParameters.AdvertisingPort.ToString());
+			ErrorReport.AddProperty("MercurialPort", ChorusHubParameters.MercurialPort.ToString());
 			ErrorReport.AddStandardProperties();
 			ExceptionHandler.Init();
 		}

@@ -39,6 +39,8 @@
 			// 
 			// _serviceInstaller
 			// 
+			this._serviceInstaller.Description = "Service for shared Chorus server";
+			this._serviceInstaller.DisplayName = "Chorus Hub Service";
 			this._serviceInstaller.ServiceName = "ChorusHub";
 			this._serviceInstaller.StartType = System.ServiceProcess.ServiceStartMode.Automatic;
 			// 

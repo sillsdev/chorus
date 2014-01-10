@@ -1,24 +1,22 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.ServiceModel;
 using System.Text;
 using Chorus.Utilities;
+using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using Palaso.IO;
 using Palaso.Progress;
 
-namespace ChorusHub
+namespace Chorus.ChorusHub.Impl
 {
 	[ServiceBehavior(InstanceContextMode = InstanceContextMode.PerSession)]
 	internal class ChorusHubServiceImplementation : IChorusHubService
 	{
-		//this is static because at the moment, I don't know how to construct or access
-		//this class; the WCF service just does it for me.
-		public static IProgress Progress = new ConsoleProgress();
-
 		private const char OrChar = '|';
 		private const char UnderScore = '_';
 		private const char Asterisk = '*';
@@ -51,7 +49,7 @@ namespace ChorusHub
 		/// <returns></returns>
 		public string GetRepositoryInformation(string searchUrl)
 		{
-			Progress.WriteMessage("Client requested repository information.");
+			EventLog.WriteEntry("Application", "Client requested repository information.", EventLogEntryType.Information);
 
 			var allDirectoryTuples = GetAllDirectoriesWithRepos();
 			if (string.IsNullOrEmpty(searchUrl))
@@ -61,13 +59,13 @@ namespace ChorusHub
 			try
 			{
 				var searchPatternString = UrlHelper.GetValueFromQueryStringOfRef(searchUrl, FilePattern, string.Empty);
-				Progress.WriteMessage("Client requested repositories matching {0}.", searchPatternString);
+				EventLog.WriteEntry("Application", string.Format("Client requested repositories matching {0}.", searchPatternString), EventLogEntryType.Information);
 				return string.Join("/", CombRepositoriesForMatchingNames(allDirectoryTuples, searchPatternString).ToArray());
 			}
 			catch (ApplicationException e)
 			{
 				// Url parser couldn't parse the url.
-				Progress.WriteMessage("GetRepositoryInformation(): " + e.Message);
+				EventLog.WriteEntry("Application", "GetRepositoryInformation(): " + e.Message, EventLogEntryType.Warning);
 				return "";
 			}
 		}
@@ -77,7 +75,7 @@ namespace ChorusHub
 		{
 			if (string.IsNullOrEmpty(queries))
 			{
-				Progress.WriteMessage("Client search string contained only unknown keys or empty values.");
+				EventLog.WriteEntry("Application", "Client search string contained only unknown keys or empty values.", EventLogEntryType.Warning);
 				return allDirectories.Select(dir => dir.Item2); // Well THAT was a waste of time!
 			}
 
@@ -124,33 +122,20 @@ namespace ChorusHub
 			return sb.ToString().Split(OrChar);
 		}
 
-		private bool FindFileWithExtensionIn(string dirName, IEnumerable<string> fileExtensions)
+		private static bool FindFileWithExtensionIn(string dirName, IEnumerable<string> fileExtensions)
 		{
 			// Look in .hg/store/data
 			// Check that the internal directory exists first!
 			var internalDirectory = Path.Combine(dirName, HgFolder, Store, Data);
-			if (!Directory.Exists(internalDirectory))
-			{
-				return false;
-			}
-			foreach (var ext in fileExtensions)
-			{
-				var result = Directory.GetFiles(internalDirectory, ext + InternalExt,
-												SearchOption.TopDirectoryOnly);
-				if (result.Length != 0)
-				{
-					return true;
-				}
-			}
-			return false;
-			//return fileExtensions.Select(extension =>
-			//    Directory.GetFiles(internalDirectory, extension + InternalExt, SearchOption.TopDirectoryOnly))
-			//    .Any(fileList => fileList.Any());
+			return Directory.Exists(internalDirectory)
+				&& fileExtensions
+				.Select(ext => Directory.GetFiles(internalDirectory, ext + InternalExt, SearchOption.TopDirectoryOnly))
+				.Any(result => result.Length != 0);
 		}
 
 		private static IEnumerable<Tuple<string, string>> GetAllDirectoriesWithRepos()
 		{
-			var dirs = Directory.GetDirectories(ChorusHubService.Parameters.RootDirectory);
+			var dirs = Directory.GetDirectories(ChorusHubParameters.RootDirectory);
 			foreach (var fullDirName in dirs)
 			{
 				string jsonRepoInfo;
@@ -174,7 +159,7 @@ namespace ChorusHub
 			var name = Path.GetFileName(dirName);
 			if (id == null)
 			{
-				id = Chorus.VcsDrivers.RepositoryInformation.NEW_REPO;
+				id = RepositoryInformation.NEW_REPO;
 			}
 			jsonRepoInfo = ImitationHubJSONService.MakeJsonString(name, id);
 			return true;
@@ -196,13 +181,12 @@ namespace ChorusHub
 			}
 
 			// since the repository doesn't exist, create it
-			var directory = Path.Combine(ChorusHubService.Parameters.RootDirectory, name);
+			var directory = Path.Combine(ChorusHubParameters.RootDirectory, name);
 			var uniqueDir = DirectoryUtilities.GetUniqueFolderPath(directory);
-			Progress.WriteMessage(String.Format("PrepareToReceiveRepository() is preparing a place for '{0}'.", name));
+			EventLog.WriteEntry("Application", string.Format("PrepareToReceiveRepository() is preparing a place for '{0}'.", name), EventLogEntryType.Information);
 			if (uniqueDir != directory)
 			{
-				Progress.WriteWarning(String.Format(
-					"{0} already exists! Creating repository for {1} at {2}.", directory, name, uniqueDir));
+				EventLog.WriteEntry("Application", string.Format("{0} already exists! Creating repository for {1} at {2}.", directory, name, uniqueDir), EventLogEntryType.Warning);
 			}
 			Directory.CreateDirectory(uniqueDir);
 			HgRepository.CreateRepositoryInExistingDir(uniqueDir, new ConsoleProgress());
