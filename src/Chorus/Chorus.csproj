@@ -167,16 +167,13 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.ServiceModel" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="Vulcan.Uczniowie.HelpProvider">
       <HintPath>..\..\lib\common\Vulcan.Uczniowie.HelpProvider.dll</HintPath>
     </Reference>
-    <ProjectReference Include="..\ChorusHubApp\ChorusHubApp.csproj">
-      <Project>{EB8C974D-B1C6-4CE0-BFD4-170EFE18790C}</Project>
-      <Name>ChorusHubApp</Name>
-    </ProjectReference>
     <ProjectReference Include="..\LibChorus\LibChorus.csproj">
       <Project>{94245366-8F1E-475C-810D-FE89BB3948E0}</Project>
       <Name>LibChorus</Name>
@@ -185,6 +182,7 @@
   <ItemGroup>
     <Compile Include="Arguments.cs" />
     <Compile Include="Bootstrapper.cs" />
+    <Compile Include="ChorusHubClient.cs" />
     <Compile Include="ChorusSystem.cs" />
     <Compile Include="ChorusUIComponentsInjector.cs" />
     <Compile Include="NotesToRecordMapping.cs" />

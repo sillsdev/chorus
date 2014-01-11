@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.ServiceModel;
+using Chorus.ChorusHub;
 using Chorus.VcsDrivers;
+using Palaso.Code;
 
-namespace Chorus.ChorusHub
+namespace Chorus
 {
 	public class ChorusHubClient
 	{
@@ -12,26 +14,25 @@ namespace Chorus.ChorusHub
 
 		public ChorusHubClient(ChorusHubServerInfo chorusHubServerInfo)
 		{
-			_chorusHubServerInfo = chorusHubServerInfo; // May be null, which is fine.
+			Guard.AgainstNull(chorusHubServerInfo, "chorusHubServerInfo");
+
+			_chorusHubServerInfo = chorusHubServerInfo;
 		}
 
 		public string HostName
 		{
-			get { return _chorusHubServerInfo == null ? "" : _chorusHubServerInfo.HostName; }
+			get { return _chorusHubServerInfo.HostName; }
 		}
 
 		public bool ServerIsCompatibleWithThisClient
 		{
-			get { return _chorusHubServerInfo != null && _chorusHubServerInfo.ServerIsCompatibleWithThisClient; }
+			get { return _chorusHubServerInfo.ServerIsCompatibleWithThisClient; }
 		}
 
 		public IEnumerable<RepositoryInformation> GetRepositoryInformation(string queryString)
 		{
-			if(_repositoryNames!=null)
+			if(_repositoryNames != null)
 				return _repositoryNames; //for now, there's no way to get an updated list except by making a new client
-
-			if (_chorusHubServerInfo == null)
-				throw new ApplicationException("Programmer, call Find() and get a non-null response before GetRepositoryInformation");
 
 			const string genericUrl = "scheme://path?";
 			var finalUrl = string.IsNullOrEmpty(queryString)
@@ -52,7 +53,11 @@ namespace Chorus.ChorusHub
 			}
 			finally
 			{
-				(channel as ICommunicationObject).Close();
+				var comChannel = (ICommunicationObject)channel;	
+				if (comChannel.State != CommunicationState.Faulted)
+				{
+					comChannel.Close();
+				}
 			}
 			return _repositoryNames;
 		}
@@ -94,7 +99,7 @@ namespace Chorus.ChorusHub
 			finally
 			{
 				var comChannel = (ICommunicationObject)channel;
-				if (comChannel.State == CommunicationState.Opened)
+				if (comChannel.State != CommunicationState.Faulted)
 				{
 					comChannel.Close();
 				}

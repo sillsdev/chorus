@@ -18,7 +18,7 @@ namespace Chorus.UI.Clone
 	///</summary>
 	public partial class GetCloneFromChorusHubDialog : Form, ICloneSourceDialog
 	{
-		private GetCloneFromChorusHubModel _model;
+		private readonly GetCloneFromChorusHubModel _model;
 		private BackgroundWorker _backgroundCloner;
 		private MultiProgress _clonerMultiProgess;
 		private TextBox _clonerStatusLabel;
@@ -91,39 +91,45 @@ namespace Chorus.UI.Clone
 			panel.Visible = false;
 			progressBar.Visible = false;
 
-			var logBox = new LogBox();
-			logBox.Location = new Point(panel.Location.X, panel.Location.Y + 50);
-			logBox.Width = panel.Width;
-			logBox.Height = panel.Height - 50;
-			logBox.Anchor = panel.Anchor;
-			logBox.ShowCopyToClipboardMenuItem = true;
-			logBox.ShowDetailsMenuItem = true;
-			logBox.ShowDiagnosticsMenuItem = true;
-			logBox.ShowFontMenuItem = true;
+			var logBox = new LogBox
+			{
+				Location = new Point(panel.Location.X, panel.Location.Y + 50),
+				Width = panel.Width,
+				Height = panel.Height - 50,
+				Anchor = panel.Anchor,
+				ShowCopyToClipboardMenuItem = true,
+				ShowDetailsMenuItem = true,
+				ShowDiagnosticsMenuItem = true,
+				ShowFontMenuItem = true
+			};
 
-			var progressIndicator = new SimpleProgressIndicator();
-			progressIndicator.Location = new Point(panel.Location.X, panel.Location.Y + 35);
-			progressIndicator.Width = panel.Width;
-			progressIndicator.Height = 10;
-			progressIndicator.Style = ProgressBarStyle.Marquee;
-			progressIndicator.Anchor = AnchorStyles.Right | AnchorStyles.Left | AnchorStyles.Top;
+			var progressIndicator = new SimpleProgressIndicator
+			{
+				Location = new Point(panel.Location.X, panel.Location.Y + 35),
+				Width = panel.Width,
+				Height = 10,
+				Style = ProgressBarStyle.Marquee,
+				Anchor = AnchorStyles.Right | AnchorStyles.Left | AnchorStyles.Top,
+				MarqueeAnimationSpeed = 50
+			};
 #if MONO
 			progressIndicator.MarqueeAnimationSpeed = 3000;
 #else
-			progressIndicator.MarqueeAnimationSpeed = 50;
 #endif
 			progressIndicator.IndicateUnknownProgress();
 
-			_clonerStatusLabel = new TextBox();
-			_clonerStatusLabel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-			_clonerStatusLabel.BackColor = SystemColors.Control;
-			_clonerStatusLabel.BorderStyle = BorderStyle.None;
-			_clonerStatusLabel.Font = new Font("Microsoft Sans Serif", 12F, FontStyle.Regular, GraphicsUnit.Point, ((0)));
-			_clonerStatusLabel.Location = panel.Location;
-			_clonerStatusLabel.Multiline = true;
-			_clonerStatusLabel.Name = "_clonerStatusLabel";
-			_clonerStatusLabel.ReadOnly = true;
-			_clonerStatusLabel.Size = new Size(panel.Width, 25);
+			_clonerStatusLabel = new TextBox
+			{
+				Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right,
+				BackColor = SystemColors.Control,
+				BorderStyle = BorderStyle.None,
+				Font = new Font("Microsoft Sans Serif", 12F, FontStyle.Regular, GraphicsUnit.Point, ((0))),
+				Location = panel.Location,
+				Multiline = true,
+				Name = "_clonerStatusLabel",
+				ReadOnly = true,
+				Size = new Size(panel.Width, 25)
+			};
 
 			Controls.Add(logBox);
 			Controls.Add(progressIndicator);
@@ -176,7 +182,7 @@ namespace Chorus.UI.Clone
 			Text = string.Format(LocalizationManager.GetString("Messages.LookingForChorusHub","Looking for Chorus Hub..."));
 
 			_getChorusHubInfoBackgroundWorker.DoWork += OnChorusHubInfo_DoWork;
-			_getChorusHubInfoBackgroundWorker.RunWorkerCompleted += new RunWorkerCompletedEventHandler(OnGetChorusHubInfo_Completed);
+			_getChorusHubInfoBackgroundWorker.RunWorkerCompleted += OnGetChorusHubInfo_Completed;
 			_getChorusHubInfoBackgroundWorker.RunWorkerAsync();
 		}
 

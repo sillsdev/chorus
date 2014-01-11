@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.ServiceModel;
 using System.ServiceModel.Description;
 using Chorus.ChorusHub;
@@ -16,7 +15,7 @@ namespace ChorusHub
 
 		public ChorusHubService()
 		{
-			ServicePort = ChorusHubParameters.ServicePort;
+			ServicePort = ChorusHubOptions.ServicePort;
 		}
 
 		/// <summary>
@@ -30,15 +29,15 @@ namespace ChorusHub
 			{
 				if (includeMercurialServer)
 				{
-					_hgServer = new HgServeRunner(ChorusHubParameters.RootDirectory, ChorusHubParameters.MercurialPort);
+					_hgServer = new HgServeRunner(ChorusHubOptions.RootDirectory, ChorusHubOptions.MercurialPort);
 					if (!_hgServer.Start())
 						return false;
 				}
-				_advertiser = new Advertiser(ChorusHubParameters.AdvertisingPort);
+				_advertiser = new Advertiser(ChorusHubOptions.AdvertisingPort);
 				_advertiser.Start();
 
 				//gave security error _serviceHost = new ServiceHost(this);
-				_serviceHost = new ServiceHost(typeof(IChorusHubService));
+				_serviceHost = new ServiceHost(typeof(ChorusHubServiceImplementation));
 
 			   EnableSendingExceptionsToClient();
 
@@ -48,13 +47,13 @@ namespace ChorusHub
 					Security = {Mode = SecurityMode.None}
 				};
 				_serviceHost.AddServiceEndpoint(typeof(IChorusHubService), binding, address);
-				EventLog.WriteEntry("Application", string.Format("Starting extra chorus hub services on {0}", address), EventLogEntryType.Information);
+				//EventLog.WriteEntry("Application", string.Format("Starting extra chorus hub services on {0}", address), EventLogEntryType.Information);
 				_serviceHost.Open();
 				return true;
 			}
 			catch (Exception error)
 			{
-				EventLog.WriteEntry("Application", error.Message, EventLogEntryType.Error);
+				//EventLog.WriteEntry("Application", error.Message, EventLogEntryType.Error);
 				return false;
 			}
 		}
@@ -92,11 +91,11 @@ namespace ChorusHub
 				_hgServer = null;
 			}
 
-			if(_serviceHost!=null)
-			{
-				_serviceHost.Close();
-				_serviceHost = null;
-			}
+			if (_serviceHost == null)
+				return;
+
+			_serviceHost.Close();
+			_serviceHost = null;
 		}
 
 		public void Dispose()
@@ -106,7 +105,7 @@ namespace ChorusHub
 
 		public void DoOccasionalBackgroundTasks()
 		{
-			if(_hgServer!=null)
+			if(_hgServer != null)
 				_hgServer.CheckForFailedPushes();
 		}
 	}

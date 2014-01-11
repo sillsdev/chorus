@@ -192,10 +192,11 @@ namespace Chorus.UI.Sync
 			{
 				try
 				{
-					_chorusHubServerInfo = ChorusHubServerInfo.FindServerInformation();
 					if (_chorusHubClient == null)
 					{
-						_chorusHubClient = new ChorusHubClient(_chorusHubServerInfo);
+						_chorusHubServerInfo = ChorusHubServerInfo.FindServerInformation();
+						if (_chorusHubServerInfo != null)
+							_chorusHubClient = new ChorusHubClient(_chorusHubServerInfo);
 					}
 				}
 				catch (Exception)
@@ -226,7 +227,7 @@ namespace Chorus.UI.Sync
 			if (!_exiting)
 			{
 				var callback = new UpdateNetworkUICallback(UpdateNetworkUI);
-				this.Invoke(callback, new object[] { isReady, message, tooltip, diagnostics });
+				Invoke(callback, new object[] { isReady, message, tooltip, diagnostics });
 			}
 			Monitor.Exit(this);
 		}

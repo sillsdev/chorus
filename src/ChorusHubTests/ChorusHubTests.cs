@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using Chorus;
 using Chorus.ChorusHub;
 using Chorus.VcsDrivers.Mercurial;
 using ChorusHub;
@@ -16,42 +17,42 @@ namespace ChorusHubTests
 	[System.ComponentModel.Category("KnownMonoIssue")] // cross-process comms doesn't work in mono.
 	public class ChorusHubClientTests
 	{
+		private string _originalPath;
+
 		[SetUp]
 		public void Setup()
 		{
-
+			_originalPath = ChorusHubOptions.RootDirectory;
+			ChorusHubServerInfo.ClearServerInfoForTests();
 		}
 
-		[Test, Ignore("Run by hand only, after the service is stopped")]
+		[TearDown]
+		public void TestTeardown()
+		{
+			ChorusHubOptions.RootDirectory = _originalPath;
+			if (!Directory.GetDirectories(_originalPath, "*.*").Any() && !Directory.GetFiles(_originalPath, "*.*").Any())
+				Directory.Delete(_originalPath);
+		}
+
+		[Test]
 		public void FindServer_NoServerFound_Null()
 		{
 			Assert.IsNull(ChorusHubServerInfo.FindServerInformation());
 		}
 
 		[Test]
-		public void GetRepostoryNames_EmptyHubFolder_EmptyList()
+		public void NullServerInfoThrowsOnCreateChorusHubClientAttempt()
 		{
-			using (var testRoot = new TemporaryFolder("ChorusHubCloneTest"))
-			using (var chorusHubSourceFolder = new TemporaryFolder(testRoot, "ChorusHub"))
-		   {
-			   var chorusHubServerInfo = ChorusHubServerInfo.FindServerInformation();
-			   Assert.IsNull(chorusHubServerInfo);
-				//normally we shouldn't call this if none was found
-				Assert.Throws<ApplicationException>(()=>
-				{
-					var client = new ChorusHubClient(null);
-					Assert.AreEqual(0, client.GetRepositoryInformation(string.Empty).Count());
-				});
-			}
+			Assert.Throws<ArgumentNullException>(() => new ChorusHubClient(null));
 		}
 
-		[Test, Ignore("Run by hand only, after the service is running")]
+		[Test, Ignore("Run by hand.")]
 		public void GetRepostoryNames_TwoItemsInHubFolder_GetOneItemWithProjectFilter()
 		{
 			// only accept folders containing a file with the name "randomName.someExt"
 			const string queryString = "filePattern=*.someExt";
 
-			using (var testRoot = new TemporaryFolder("ChorusHubCloneTest"))
+			using (var testRoot = new TemporaryFolder("ChorusHubCloneTest_" + Guid.NewGuid()))
 			using (var chorusHubSourceFolder = new TemporaryFolder(testRoot, "ChorusHub"))
 			using (var repo1 = new TemporaryFolder(chorusHubSourceFolder, "repo1"))
 			using (var tempFile = TempFile.WithExtension("someExt"))
@@ -71,12 +72,11 @@ namespace ChorusHubTests
 				var r2 = HgRepository.CreateOrUseExisting(repo2.Path, new ConsoleProgress());
 				r2.AddAndCheckinFile(tempFile2.Path); // need this to create store/data/files
 
-				ChorusHubParameters.RootDirectory = chorusHubSourceFolder.Path;
+				ChorusHubOptions.RootDirectory = chorusHubSourceFolder.Path;
 				using (var service = new ChorusHubService())
 				{
-					service.Start(true);
+					Assert.IsTrue(service.Start(true));
 
-					ChorusHubServerInfo.ClearServerInfoForTests();
 					var chorusHubServerInfo = ChorusHubServerInfo.FindServerInformation();
 					Assert.NotNull(chorusHubServerInfo);
 					// Make sure all repos are there first
@@ -99,10 +99,10 @@ namespace ChorusHubTests
 			}
 		}
 
-		[Test, Ignore("Run by hand only, after the service is running")]
+		[Test, Ignore("Run by hand.")]
 		public void GetRepostoryNames_TwoItemsInHubFolder_GetTwoItems()
 		{
-			using (var testRoot = new TemporaryFolder("ChorusHubCloneTest"))
+			using (var testRoot = new TemporaryFolder("ChorusHubCloneTest_" + Guid.NewGuid()))
 			using (var chorusHubSourceFolder = new TemporaryFolder(testRoot, "ChorusHub"))
 			using (var repo1 = new TemporaryFolder(chorusHubSourceFolder, "repo1"))
 			using (var tempFile1 = TempFile.WithExtension("ext1"))
@@ -119,12 +119,11 @@ namespace ChorusHubTests
 				var r2 = HgRepository.CreateOrUseExisting(repo2.Path, new ConsoleProgress());
 				r2.AddAndCheckinFile(tempFile2.Path); // need this to create store/data/files
 
-				ChorusHubParameters.RootDirectory = chorusHubSourceFolder.Path;
+				ChorusHubOptions.RootDirectory = chorusHubSourceFolder.Path;
 				using (var service = new ChorusHubService())
 				{
 					// hg server side is now involved in deciding what repos are available
-					service.Start(true);
-					ChorusHubServerInfo.ClearServerInfoForTests();
+					Assert.IsTrue(service.Start(true));
 					var chorusHubServerInfo = ChorusHubServerInfo.FindServerInformation();
 					Assert.NotNull(chorusHubServerInfo);
 					var client = new ChorusHubClient(chorusHubServerInfo);
@@ -138,13 +137,13 @@ namespace ChorusHubTests
 			}
 		}
 
-		[Test, Ignore("Run by hand only, after the service is running")]
+		[Test, Ignore("Run by hand.")]
 		public void GetRepostoryNames_ThreeItemsInHubFolder_GetTwoItemsWithProjectFilter()
 		{
 			// only accept folders containing a file with the name "randomName.ext1" or "randomName.Ext2"
 			const string queryString = @"filePattern=*.ext1|*.Ext2";
 
-			using (var testRoot = new TemporaryFolder("ChorusHubCloneTest"))
+			using (var testRoot = new TemporaryFolder("ChorusHubCloneTest_" + Guid.NewGuid()))
 			using (var chorusHubSourceFolder = new TemporaryFolder(testRoot, "ChorusHub"))
 			using (var repo1 = new TemporaryFolder(chorusHubSourceFolder, "repo1"))
 			using (var tempFile1 = TempFile.WithExtension("ext1"))
@@ -170,13 +169,12 @@ namespace ChorusHubTests
 				var r3 = HgRepository.CreateOrUseExisting(repo3.Path, new ConsoleProgress());
 				r3.AddAndCheckinFile(tempFile3.Path); // need this to create store/data/files
 
-				ChorusHubParameters.RootDirectory = chorusHubSourceFolder.Path;
+				ChorusHubOptions.RootDirectory = chorusHubSourceFolder.Path;
 				using (var service = new ChorusHubService())
 				{
-					service.Start(true);
+					Assert.IsTrue(service.Start(true));
 
 					// Make sure filter works
-					ChorusHubServerInfo.ClearServerInfoForTests();
 					var chorusHubServerInfo = ChorusHubServerInfo.FindServerInformation();
 					Assert.NotNull(chorusHubServerInfo);
 					var client = new ChorusHubClient(chorusHubServerInfo);
@@ -190,14 +188,14 @@ namespace ChorusHubTests
 			}
 		}
 
-		[Test, Ignore("Run by hand only, after the service is running")]
+		[Test, Ignore("Run by hand.")]
 		public void GetRepostoryNames_TwoItemsInHubFolder_GetNoneForProjectFilter()
 		{
 			// only accept folders containing a file with the name "randomName.ext1"
 			// but there aren't any.
 			const string queryString = "filePattern=*.ext1";
 
-			using (var testRoot = new TemporaryFolder("ChorusHubCloneTest"))
+			using (var testRoot = new TemporaryFolder("ChorusHubCloneTest_" + Guid.NewGuid()))
 			using (var chorusHubSourceFolder = new TemporaryFolder(testRoot, "ChorusHub"))
 			using (var repo1 = new TemporaryFolder(chorusHubSourceFolder, "repo1"))
 			using (var tempFile1 = TempFile.WithExtension("other"))
@@ -215,13 +213,12 @@ namespace ChorusHubTests
 				r1.AddAndCheckinFile(tempFile1.Path); // need this to create store/data/files
 				var r2 = HgRepository.CreateOrUseExisting(repo2.Path, new ConsoleProgress());
 				r2.AddAndCheckinFile(tempFile2.Path); // need this to create store/data/files
-				ChorusHubParameters.RootDirectory = chorusHubSourceFolder.Path;
+				ChorusHubOptions.RootDirectory = chorusHubSourceFolder.Path;
 				using (var service = new ChorusHubService())
 				{
-					service.Start(true);
+					Assert.IsTrue(service.Start(true));
 
 					// Make sure filter works
-					ChorusHubServerInfo.ClearServerInfoForTests();
 					var chorusHubServerInfo = ChorusHubServerInfo.FindServerInformation();
 					Assert.NotNull(chorusHubServerInfo);
 					var client = new ChorusHubClient(chorusHubServerInfo);

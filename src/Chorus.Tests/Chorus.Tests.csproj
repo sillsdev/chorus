@@ -158,10 +158,6 @@
     <Compile Include="UI\Sync\SyncControlModelTests.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ChorusHubApp\ChorusHubApp.csproj">
-      <Project>{EB8C974D-B1C6-4CE0-BFD4-170EFE18790C}</Project>
-      <Name>ChorusHubApp</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Chorus\Chorus.csproj">
       <Project>{9DA5A655-1881-4BE1-81BA-256E47CF7537}</Project>
       <Name>Chorus</Name>
@@ -169,10 +165,6 @@
     <ProjectReference Include="..\LibChorus.TestUtilities\LibChorus.TestUtilities.csproj">
       <Project>{0681E722-1856-44A1-B585-220E6AEC85CB}</Project>
       <Name>LibChorus.TestUtilities</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\LibChorusTests\LibChorus.Tests.csproj">
-      <Project>{F9671F8B-8556-44EA-81A7-C236D871B471}</Project>
-      <Name>LibChorus.Tests</Name>
     </ProjectReference>
     <ProjectReference Include="..\LibChorus\LibChorus.csproj">
       <Project>{94245366-8F1E-475C-810D-FE89BB3948E0}</Project>

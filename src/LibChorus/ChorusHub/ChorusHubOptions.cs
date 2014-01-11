@@ -4,8 +4,10 @@ using Chorus.Utilities.code;
 
 namespace Chorus.ChorusHub
 {
-	public class ChorusHubParameters
+	public static class ChorusHubOptions
 	{
+		private static string _rootDirectory = LinuxUtils.IsUnix ? Path.Combine(Environment.GetEnvironmentVariable("HOME"), "ChorusHub") : @"C:\ChorusHub";
+
 		//these numbers were selected by looking at the IANA registry and intentionally *not* picking,
 		//"undefined" ones (which could become defined in the future), but rather ones already assigned to stuff
 		//that looks unlike to be running on the same subnet
@@ -16,8 +18,23 @@ namespace Chorus.ChorusHub
 		/// <summary>
 		/// Path to a folder where all the repositories will be placed.
 		/// </summary>
-		public static string RootDirectory = LinuxUtils.IsUnix ? Path.Combine(Environment.GetEnvironmentVariable("HOME"), "ChorusHub") : @"C:\ChorusHub";
+		public static string RootDirectory
+		{
+			get
+			{
+				if (!Directory.Exists(_rootDirectory))
+					Directory.CreateDirectory(_rootDirectory);
 
+				return _rootDirectory;
+			}
+			internal set
+			{
+				// Only to be used by tests.
+				_rootDirectory = value;
+				if (!Directory.Exists(_rootDirectory))
+					Directory.CreateDirectory(_rootDirectory);
+			}
+		}
 
 		//Note: Before we can make all the ports user-definable, we have to think about the client; how does the
 		//the client know which port to listen on? Once it hears from the Advertiser, the Advertiser could tell

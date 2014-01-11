@@ -6,16 +6,17 @@ using System.IO;
 using System.Linq;
 using System.ServiceModel;
 using System.Text;
+using Chorus.ChorusHub;
 using Chorus.Utilities;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using Palaso.IO;
 using Palaso.Progress;
 
-namespace Chorus.ChorusHub.Impl
+namespace ChorusHub
 {
 	[ServiceBehavior(InstanceContextMode = InstanceContextMode.PerSession)]
-	internal class ChorusHubServiceImplementation : IChorusHubService
+	public class ChorusHubServiceImplementation : IChorusHubService
 	{
 		private const char OrChar = '|';
 		private const char UnderScore = '_';
@@ -49,7 +50,7 @@ namespace Chorus.ChorusHub.Impl
 		/// <returns></returns>
 		public string GetRepositoryInformation(string searchUrl)
 		{
-			EventLog.WriteEntry("Application", "Client requested repository information.", EventLogEntryType.Information);
+			//EventLog.WriteEntry("Application", "Client requested repository information.", EventLogEntryType.Information);
 
 			var allDirectoryTuples = GetAllDirectoriesWithRepos();
 			if (string.IsNullOrEmpty(searchUrl))
@@ -59,13 +60,13 @@ namespace Chorus.ChorusHub.Impl
 			try
 			{
 				var searchPatternString = UrlHelper.GetValueFromQueryStringOfRef(searchUrl, FilePattern, string.Empty);
-				EventLog.WriteEntry("Application", string.Format("Client requested repositories matching {0}.", searchPatternString), EventLogEntryType.Information);
+				//EventLog.WriteEntry("Application", string.Format("Client requested repositories matching {0}.", searchPatternString), EventLogEntryType.Information);
 				return string.Join("/", CombRepositoriesForMatchingNames(allDirectoryTuples, searchPatternString).ToArray());
 			}
 			catch (ApplicationException e)
 			{
 				// Url parser couldn't parse the url.
-				EventLog.WriteEntry("Application", "GetRepositoryInformation(): " + e.Message, EventLogEntryType.Warning);
+				//EventLog.WriteEntry("Application", "GetRepositoryInformation(): " + e.Message, EventLogEntryType.Warning);
 				return "";
 			}
 		}
@@ -75,7 +76,7 @@ namespace Chorus.ChorusHub.Impl
 		{
 			if (string.IsNullOrEmpty(queries))
 			{
-				EventLog.WriteEntry("Application", "Client search string contained only unknown keys or empty values.", EventLogEntryType.Warning);
+				//EventLog.WriteEntry("Application", "Client search string contained only unknown keys or empty values.", EventLogEntryType.Warning);
 				return allDirectories.Select(dir => dir.Item2); // Well THAT was a waste of time!
 			}
 
@@ -135,7 +136,7 @@ namespace Chorus.ChorusHub.Impl
 
 		private static IEnumerable<Tuple<string, string>> GetAllDirectoriesWithRepos()
 		{
-			var dirs = Directory.GetDirectories(ChorusHubParameters.RootDirectory);
+			var dirs = Directory.GetDirectories(ChorusHubOptions.RootDirectory);
 			foreach (var fullDirName in dirs)
 			{
 				string jsonRepoInfo;
@@ -181,12 +182,12 @@ namespace Chorus.ChorusHub.Impl
 			}
 
 			// since the repository doesn't exist, create it
-			var directory = Path.Combine(ChorusHubParameters.RootDirectory, name);
+			var directory = Path.Combine(ChorusHubOptions.RootDirectory, name);
 			var uniqueDir = DirectoryUtilities.GetUniqueFolderPath(directory);
-			EventLog.WriteEntry("Application", string.Format("PrepareToReceiveRepository() is preparing a place for '{0}'.", name), EventLogEntryType.Information);
+			//EventLog.WriteEntry("Application", string.Format("PrepareToReceiveRepository() is preparing a place for '{0}'.", name), EventLogEntryType.Information);
 			if (uniqueDir != directory)
 			{
-				EventLog.WriteEntry("Application", string.Format("{0} already exists! Creating repository for {1} at {2}.", directory, name, uniqueDir), EventLogEntryType.Warning);
+				//EventLog.WriteEntry("Application", string.Format("{0} already exists! Creating repository for {1} at {2}.", directory, name, uniqueDir), EventLogEntryType.Warning);
 			}
 			Directory.CreateDirectory(uniqueDir);
 			HgRepository.CreateRepositoryInExistingDir(uniqueDir, new ConsoleProgress());

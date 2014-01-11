@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
+﻿using System.IO;
 using Chorus.UI.Clone;
 using Chorus.VcsDrivers.Mercurial;
 using NUnit.Framework;

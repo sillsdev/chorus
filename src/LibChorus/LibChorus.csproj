@@ -205,10 +205,8 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ChorusHub\ChorusHubClient.cs" />
-    <Compile Include="ChorusHub\ChorusHubParameters.cs" />
+    <Compile Include="ChorusHub\ChorusHubOptions.cs" />
     <Compile Include="ChorusHub\ChorusHubServerInfo.cs" />
-    <Compile Include="ChorusHub\Impl\ChorusHubServiceImplementation.cs" />
     <Compile Include="ChorusHub\IChorusHubService.cs" />
     <Compile Include="ChorusHub\ImitationHubJSONService.cs" />
     <Compile Include="FileTypeHanders\ChorusNotesAnnotationMergingStrategy.cs" />

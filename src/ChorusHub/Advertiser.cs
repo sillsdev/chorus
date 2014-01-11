@@ -56,7 +56,7 @@ namespace ChorusHub
 			}
 			catch(Exception error)
 			{
-				EventLog.WriteEntry("Application", string.Format("Error in Advertiser: {0}", error.Message), EventLogEntryType.Error);
+				//EventLog.WriteEntry("Application", string.Format("Error in Advertiser: {0}", error.Message), EventLogEntryType.Error);
 			}
 		}
 
@@ -73,10 +73,10 @@ namespace ChorusHub
 			if (_currentIpAddress != GetLocalIpAddress())
 			{
 				_currentIpAddress = GetLocalIpAddress();
-				var serverInfo = new ChorusHubServerInfo(_currentIpAddress, ChorusHubParameters.MercurialPort.ToString(CultureInfo.InvariantCulture),
+				var serverInfo = new ChorusHubServerInfo(_currentIpAddress, ChorusHubOptions.MercurialPort.ToString(CultureInfo.InvariantCulture),
 													   Environment.MachineName, ChorusHubServerInfo.VersionOfThisCode);
 				_sendBytes = Encoding.ASCII.GetBytes(serverInfo.ToString());
-				EventLog.WriteEntry("Application", "Serving at http://" + _currentIpAddress + ":" + ChorusHubParameters.MercurialPort, EventLogEntryType.Information);
+				//EventLog.WriteEntry("Application", "Serving at http://" + _currentIpAddress + ":" + ChorusHubOptions.MercurialPort, EventLogEntryType.Information);
 			}
 		}
 
@@ -91,7 +91,7 @@ namespace ChorusHub
 				{
 					if (host.AddressList.Length > 1)
 					{
-						EventLog.WriteEntry("Application", "Warning: this machine has more than one IP address", EventLogEntryType.Warning);
+						//EventLog.WriteEntry("Application", "Warning: this machine has more than one IP address", EventLogEntryType.Warning);
 					}
 				}
 				localIp = ipAddress.ToString();
@@ -104,7 +104,7 @@ namespace ChorusHub
 			if (_thread == null)
 				return;
 
-			EventLog.WriteEntry("Application", "Advertiser Stopping...", EventLogEntryType.Information);
+			//EventLog.WriteEntry("Application", "Advertiser Stopping...", EventLogEntryType.Information);
 			_thread.Abort();
 			_thread.Join(2 * 1000);
 			_thread = null;

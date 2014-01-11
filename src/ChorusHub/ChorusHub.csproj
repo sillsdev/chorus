@@ -50,6 +50,7 @@
       <DependentUpon>ChorusHub.cs</DependentUpon>
     </Compile>
     <Compile Include="ChorusHubService.cs" />
+    <Compile Include="ChorusHubServiceImplementation.cs" />
     <Compile Include="HgServeRunner.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="ProjectInstaller.cs">

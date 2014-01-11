@@ -9,7 +9,7 @@ using Palaso.Progress;
 
 namespace ChorusHub
 {
-	public class HgServeRunner :IDisposable
+	public class HgServeRunner : IDisposable
 	{
 		public readonly int Port;
 		private readonly string _rootFolder;
@@ -30,11 +30,11 @@ namespace ChorusHub
 			{
 				foreach (var hg in Process.GetProcessesByName("hg"))
 				{
-					EventLog.WriteEntry("Application", "Killing old hg...", EventLogEntryType.Information);
+					//EventLog.WriteEntry("Application", "Killing old hg...", EventLogEntryType.Information);
 					hg.Kill();
 					if (!hg.WaitForExit(10000))
 					{
-						EventLog.WriteEntry("Application", "ChorusHub was unable to stop an old hg from running. It will now give up. You should stop the server and run it again after killing whatever 'hg.exe' process is running.", EventLogEntryType.Error);
+						//EventLog.WriteEntry("Application", "ChorusHub was unable to stop an old hg from running. It will now give up. You should stop the server and run it again after killing whatever 'hg.exe' process is running.", EventLogEntryType.Error);
 						return false;
 					}
 				}
@@ -49,7 +49,7 @@ namespace ChorusHub
 				if (!Directory.Exists(_rootFolder))
 					Directory.CreateDirectory(_rootFolder);
 
-				EventLog.WriteEntry("Application", "Starting Mercurial Server", EventLogEntryType.Information);
+				//EventLog.WriteEntry("Application", "Starting Mercurial Server", EventLogEntryType.Information);
 
 				WriteConfigFile(_rootFolder);
 
@@ -85,14 +85,14 @@ namespace ChorusHub
 															Chorus.MercurialLocation.PathToHgExecutable,
 															arguments,
 															Encoding.UTF8, _rootFolder, -1,
-															progress, (s) => progress.WriteMessage(s));
+															progress, s => progress.WriteMessage(s));
 													}
 													catch (ThreadAbortException)
 													{
 														//Progress.WriteVerbose("Hg Serve command Thread Aborting (that's normal when stopping)");
 														if(!commandLineRunner.Abort(1))
 														{
-															EventLog.WriteEntry("Application", "Hg Serve might not have closed down.", EventLogEntryType.Information);
+															//EventLog.WriteEntry("Application", "Hg Serve might not have closed down.", EventLogEntryType.Information);
 														}
 													}
 												});
@@ -103,7 +103,7 @@ namespace ChorusHub
 			}
 			catch (Exception error)
 			{
-				EventLog.WriteEntry("Application", error.Message, EventLogEntryType.Error);
+				//EventLog.WriteEntry("Application", error.Message, EventLogEntryType.Error);
 				return false;
 			}
 		}
@@ -177,7 +177,7 @@ namespace ChorusHub
 			}
 			catch (Exception error)
 			{
-				EventLog.WriteEntry("Application", error.Message, EventLogEntryType.Error);
+				//EventLog.WriteEntry("Application", error.Message, EventLogEntryType.Error);
 			}
 		}
 

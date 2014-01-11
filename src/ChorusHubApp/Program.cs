@@ -13,38 +13,10 @@ namespace ChorusHubApp
 		[STAThread]
 		static void Main(string[] args)
 		{
-			var parameters = new ChorusHubParameters();
-			if(Parser.ParseHelp(args))
-			{
-				MessageBox.Show(Parser.ArgumentsUsage(parameters.GetType()), "Chorus Hub Command Line Parameters");
-				return;
-			}
-			if (!Parser.ParseArguments(args, parameters, ShowCommandLineError))
-			{
-				return;
-			}
-
-#if MONO // no paths are rooted on Mono. Not sure why Windows requires it.
-			if (parameters.RootDirectory.StartsWith("C:"))
-			{
-				// If it starts with c: on Linux, it's presumably the default.
-				// We can't supply a better default as an attribute on Linux, because the sensible
-				// default is not a constant. So supply it here. Ugly but I don't have a better answer.
-				parameters.RootDirectory = Path.Combine(Environment.GetEnvironmentVariable("HOME"), "ChorusHub");
-			}
-#else
-			if (!Path.IsPathRooted(ChorusHubParameters.RootDirectory))
-			{
-				ErrorReport.NotifyUserOfProblem("You supplied '{0}' for the root directory, but that doesn't have a drive letter.",
-																	ChorusHubParameters.RootDirectory);
-				return;
-			}
-#endif
-			string parentOfRoot = Path.GetDirectoryName(ChorusHubParameters.RootDirectory);
+			var parentOfRoot = Path.GetDirectoryName(ChorusHubOptions.RootDirectory);
 			if(!Directory.Exists(parentOfRoot))
 			{
-				ErrorReport.NotifyUserOfProblem("In order to use '{0}', '{1}' must already exist",
-																	ChorusHubParameters.RootDirectory, parentOfRoot);
+				ErrorReport.NotifyUserOfProblem("In order to use '{0}', '{1}' must already exist", ChorusHubOptions.RootDirectory, parentOfRoot);
 				return;
 			}
 			var chorusHubServerInfo = ChorusHubServerInfo.FindServerInformation();
@@ -59,11 +31,6 @@ namespace ChorusHubApp
 			SetUpReporting();
 
 			Application.Run(new ChorusHubWindow());
-		}
-
-		private static void ShowCommandLineError(string e)
-		{
-			MessageBox.Show(e + Environment.NewLine + Environment.NewLine + "Command Line Arguments are: "+ Environment.NewLine+Parser.ArgumentsUsage(typeof(ChorusHubParameters)), "Chorus Hub Command Line Problem");
 		}
 
 		private static void SetUpReporting()
@@ -89,9 +56,9 @@ namespace ChorusHubApp
 		{
 			ErrorReport.EmailAddress = "issues@chorus.palaso.org";
 			ErrorReport.AddProperty("Application", "ChorusHub");
-			ErrorReport.AddProperty("Directory", ChorusHubParameters.RootDirectory);
-			ErrorReport.AddProperty("AdvertisingPort", ChorusHubParameters.AdvertisingPort.ToString());
-			ErrorReport.AddProperty("MercurialPort", ChorusHubParameters.MercurialPort.ToString());
+			ErrorReport.AddProperty("Directory", ChorusHubOptions.RootDirectory);
+			ErrorReport.AddProperty("AdvertisingPort", ChorusHubOptions.AdvertisingPort.ToString());
+			ErrorReport.AddProperty("MercurialPort", ChorusHubOptions.MercurialPort.ToString());
 			ErrorReport.AddStandardProperties();
 			ExceptionHandler.Init();
 		}

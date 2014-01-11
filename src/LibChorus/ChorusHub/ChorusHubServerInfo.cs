@@ -86,7 +86,7 @@ namespace Chorus.ChorusHub
 
 		public string ServiceUri
 		{
-			get { return string.Format("net.tcp://{0}:{1}", _ipAddress, ChorusHubParameters.ServicePort); }
+			get { return string.Format("net.tcp://{0}:{1}", _ipAddress, ChorusHubOptions.ServicePort); }
 		}
 
 		public string GetHgHttpUri(string directoryName)
@@ -112,14 +112,17 @@ namespace Chorus.ChorusHub
 
 		public static UdpClient StartFinding()
 		{
-			var ipEndPoint = new IPEndPoint(IPAddress.Any, ChorusHubParameters.AdvertisingPort);
+			var ipEndPoint = new IPEndPoint(IPAddress.Any, ChorusHubOptions.AdvertisingPort);
 			var udpClient = new UdpClient();
 
 			//This reuse business is in hopes of avoiding the dreaded "Only one usage of each socket address is normally permitted"
 			udpClient.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
 			udpClient.Client.Bind(ipEndPoint);
 
-			udpClient.BeginReceive(ReceiveFindingCallback, udpClient);
+			udpClient.BeginReceive(ReceiveFindingCallback, new object[]
+			{
+				udpClient, ipEndPoint
+			});
 
 			return udpClient;
 		}
