@@ -3,40 +3,41 @@
 # project=Chorus
 # build=chorus-precise64-develop-continuous
 # root_dir=..
+# $Id: e762fae63d184bd9834c06d6cd2e2c4b27de3b57 $
 
 # *** Functions ***
 copy_auto() {
-  where_curl=$(type -P curl)
-  where_wget=$(type -P wget)
-  if [ "$where_curl" != "" ]
-  then
-    copy_curl $1 $2
-  elif [ "$where_wget" != "" ]
-  then
-    copy_wget $1 $2
-  else
-    echo "Missing curl or wget"
-    exit 1
-  fi
+	where_curl=$(type -P curl)
+	where_wget=$(type -P wget)
+	if [ "$where_curl" != "" ]
+	then
+		copy_curl $1 $2
+	elif [ "$where_wget" != "" ]
+	then
+		copy_wget $1 $2
+	else
+		echo "Missing curl or wget"
+		exit 1
+	fi
 }
 
 copy_curl() {
-  echo "curl: $2 <= $1"
-  if [ -e "$2" ]
-  then
-    curl -# -L -z $2 -o $2 $1
-  else
-    curl -# -L -o $2 $1
-  fi
+	echo "curl: $2 <= $1"
+	if [ -e "$2" ]
+	then
+		curl -# -L -z $2 -o $2 $1
+	else
+		curl -# -L -o $2 $1
+	fi
 }
 
 copy_wget() {
-  echo "wget: $2 <= $1"
-  f=$(basename $2)
-  d=$(dirname $2)
-  cd $d
-  wget -q -L -N $1
-  cd -
+	echo "wget: $2 <= $1"
+	f=$(basename $2)
+	d=$(dirname $2)
+	cd $d
+	wget -q -L -N $1
+	cd -
 }
 
 # *** Results ***
@@ -119,4 +120,4 @@ copy_auto http://build.palaso.org/guestAuth/repository/download/bt281/latest.las
 copy_auto http://build.palaso.org/guestAuth/repository/download/bt281/latest.lastSuccessful/icu.net.dll.config ../lib/ReleaseMono/icu.net.dll.config
 copy_auto http://build.palaso.org/guestAuth/repository/download/bt281/latest.lastSuccessful/icu.net.dll ../lib/DebugMono/icu.net.dll
 copy_auto http://build.palaso.org/guestAuth/repository/download/bt281/latest.lastSuccessful/icu.net.dll.config ../lib/DebugMono/icu.net.dll.config
-
+# End of script
