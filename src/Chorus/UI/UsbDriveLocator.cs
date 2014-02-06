@@ -31,13 +31,7 @@ namespace Chorus.UI
 		public UsbDriveLocator()
 		{
 			InitializeComponent();
-#if MONO
-			if (!_appExitSet)
-			{
-				Application.ApplicationExit += AppExit;
-				_appExitSet = true;
-			}
-#endif
+			FinishInitialization();
 		}
 
 		public UsbDriveLocator(IContainer container)
@@ -45,6 +39,18 @@ namespace Chorus.UI
 			container.Add(this);
 			this.Disposed += new EventHandler(UsbDriveLocator_Disposed);
 			InitializeComponent();
+			FinishInitialization();
+		}
+
+		private void FinishInitialization()
+		{
+#if MONO
+			if (!_appExitSet)
+			{
+				Application.ApplicationExit += AppExit;
+				_appExitSet = true;
+			}
+#endif
 		}
 
 		void UsbDriveLocator_Disposed(object sender, EventArgs e)
