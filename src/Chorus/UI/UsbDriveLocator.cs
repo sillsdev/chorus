@@ -13,17 +13,28 @@ namespace Chorus.UI
 	{
 #if MONO
 		static bool _appExitSet;
+		/// <description>
+		/// The Palaso code for finding USB drives uses NDesk.DBus.Bus.System.GetObject()
+		/// to retrieve the list of currently available drives.  This implicitly creates
+		/// a thread that opens a socket for communication which will hang the program on
+		/// exit.  We need to close NDesk.DBus.Bus.System to prevent this, but don't want
+		/// to do this until the program finishes in case we retrieve this information
+		/// multiple times.
+		/// This can't be done in Palaso because it's in an area of code that refuses to
+		/// have anything to do with System.Windows.Forms.
+		/// </description>
+		/// <remarks>
+		/// This method needs to be public in case the program is written in such a way
+		/// that the Application.ApplicationExit event is fired before this class is
+		/// actually created.  This can happen!  (WeSay.App for example)
+		/// </remarks>
+		public static void AppExit()
+		{
+			NDesk.DBus.Bus.System.Close();
+		}
 		static void AppExit(object sender, EventArgs e)
 		{
-			// The Palaso code for finding USB drives uses NDesk.DBus.Bus.System.GetObject()
-			// to retrieve the list of currently available drives.  This implicitly creates
-			// a thread that opens a socket for communication which will hang the program on
-			// exit.  We need to close NDesk.DBus.Bus.System to prevent this, but don't want
-			// to do this until the program finishes in case we retrieve this information
-			// multiple times.
-			// This can't be done in Palaso because it's in an area of code that refuses to
-			// have anything to do with System.Windows.Forms.
-			NDesk.DBus.Bus.System.Close();
+			AppExit();
 		}
 #endif
 
