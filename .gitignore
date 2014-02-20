@@ -30,3 +30,4 @@ src/LibChorusTests/test-results/LibChorus.Tests.csproj.test-cache
 **.orig
 Download/
 L10NSharp.dll
+lib/Chorus_Help.chm
