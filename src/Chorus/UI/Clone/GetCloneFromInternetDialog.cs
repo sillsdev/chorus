@@ -72,6 +72,15 @@ namespace Chorus.UI.Clone
 			_cancelButton.TabIndex = 91;
 
 			_fixSettingsButton.Left = _cancelButton.Left;
+			var fixBtnWidth = _fixSettingsButton.Width;
+			_fixSettingsButton.AutoSize = true;
+			if (_fixSettingsButton.Width > fixBtnWidth)
+			{
+				// The button was too small before autosizing, but now it may extend off the dialog...
+				var diff = _fixSettingsButton.Width - fixBtnWidth;
+				if (diff < _cancelButton.Left)
+					_fixSettingsButton.Left = _cancelButton.Left - diff;
+			}
 			 _targetFolderControl._downloadButton.Top = _okButton.Top-_targetFolderControl.Top	;
 			 _targetFolderControl._downloadButton.Left = _okButton.Left - 15;
 
