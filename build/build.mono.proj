@@ -106,6 +106,7 @@
 			<Output TaskParameter="Value" PropertyName="TarBaseDir" />
 		</CreateProperty>
 		<Message Text="Archive source to '$(SourcePackageFileName)'" />
+		<MakeDir Directories="$(OutputDir)" />
 		<Archive
 			Command="Tar"
 			InputFilePaths="@(Source)"
