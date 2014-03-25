@@ -1,90 +1,88 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <PropertyGroup>
-	<Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-	<Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-	<ProductVersion>9.0.21022</ProductVersion>
-	<SchemaVersion>2.0</SchemaVersion>
-	<ProjectGuid>{1264E294-F719-491C-863A-703CB48385D8}</ProjectGuid>
-	<OutputType>Exe</OutputType>
-	<AppDesignerFolder>Properties</AppDesignerFolder>
-	<RootNamespace>ChorusMerge</RootNamespace>
-	<AssemblyName>ChorusMerge</AssemblyName>
-	<FileUpgradeFlags>
-	</FileUpgradeFlags>
-	<OldToolsVersion>3.5</OldToolsVersion>
-	<UpgradeBackupLocation>
-	</UpgradeBackupLocation>
-	<SignAssembly>True</SignAssembly>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.21022</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{1264E294-F719-491C-863A-703CB48385D8}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>ChorusMerge</RootNamespace>
+    <AssemblyName>ChorusMerge</AssemblyName>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <SignAssembly>True</SignAssembly>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-	<DebugSymbols>True</DebugSymbols>
-	<DebugType>full</DebugType>
-	<Optimize>False</Optimize>
-	<OutputPath>..\..\output\Debug</OutputPath>
-	<DefineConstants>DEBUG;TRACE</DefineConstants>
-	<ErrorReport>prompt</ErrorReport>
-	<WarningLevel>4</WarningLevel>
-	<CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
-	<PlatformTarget>x86</PlatformTarget>
-	<TargetFrameworkProfile>Client</TargetFrameworkProfile>
+    <DebugSymbols>True</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>False</Optimize>
+    <OutputPath>..\..\output\Debug</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
+    <PlatformTarget>x86</PlatformTarget>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-	<DebugType>pdbonly</DebugType>
-	<Optimize>True</Optimize>
-	<OutputPath>..\..\output\Release</OutputPath>
-	<DefineConstants>TRACE</DefineConstants>
-	<ErrorReport>prompt</ErrorReport>
-	<WarningLevel>4</WarningLevel>
-	<DebugSymbols>True</DebugSymbols>
-	<CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
-	<PlatformTarget>x86</PlatformTarget>
-	<TargetFrameworkProfile>Client</TargetFrameworkProfile>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>True</Optimize>
+    <OutputPath>..\..\output\Release</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DebugSymbols>True</DebugSymbols>
+    <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
+    <PlatformTarget>x86</PlatformTarget>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'DebugMono|AnyCPU' ">
-	<DebugSymbols>True</DebugSymbols>
-	<OutputPath>..\..\output\DebugMono</OutputPath>
-	<DefineConstants>DEBUG;TRACE;MONO</DefineConstants>
-	<CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
-	<DebugType>full</DebugType>
-	<PlatformTarget>AnyCPU</PlatformTarget>
-	<ErrorReport>prompt</ErrorReport>
-	<TargetFrameworkProfile>
-	</TargetFrameworkProfile>
-	<WarningLevel>4</WarningLevel>
-	<Optimize>False</Optimize>
+    <DebugSymbols>True</DebugSymbols>
+    <OutputPath>..\..\output\DebugMono</OutputPath>
+    <DefineConstants>DEBUG;TRACE;MONO</DefineConstants>
+    <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
+    <WarningLevel>4</WarningLevel>
+    <Optimize>False</Optimize>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'ReleaseMono|AnyCPU' ">
-	<DebugSymbols>True</DebugSymbols>
-	<OutputPath>..\..\output\ReleaseMono</OutputPath>
-	<DefineConstants>TRACE;MONO</DefineConstants>
-	<CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
-	<Optimize>True</Optimize>
-	<DebugType>pdbonly</DebugType>
-	<PlatformTarget>AnyCPU</PlatformTarget>
-	<ErrorReport>prompt</ErrorReport>
-	<TargetFrameworkProfile>
-	</TargetFrameworkProfile>
-	<WarningLevel>4</WarningLevel>
+    <DebugSymbols>True</DebugSymbols>
+    <OutputPath>..\..\output\ReleaseMono</OutputPath>
+    <DefineConstants>TRACE;MONO</DefineConstants>
+    <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
+    <Optimize>True</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
+    <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-	<Reference Include="System" />
-	<Reference Include="System.Core" />
-	<Reference Include="System.Data" />
-	<Reference Include="System.Xml" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
-	<Compile Include="Program.cs" />
-	<Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-	<ProjectReference Include="..\LibChorus\LibChorus.csproj">
-	  <Project>{94245366-8F1E-475C-810D-FE89BB3948E0}</Project>
-	  <Name>LibChorus</Name>
-	</ProjectReference>
+    <ProjectReference Include="..\LibChorus\LibChorus.csproj">
+      <Project>{94245366-8F1E-475C-810D-FE89BB3948E0}</Project>
+      <Name>LibChorus</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-	<None Include="app.config" />
+    <None Include="app.config" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.

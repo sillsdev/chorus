@@ -2,28 +2,29 @@
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
+using ChorusHub;
 
-namespace ChorusHub
+namespace ChorusHubApp
 {
 	/// <summary>
 	/// Gives a simple logbox windows with a control to stop the server
 	/// </summary>
 	public partial class ChorusHubWindow : Form
 	{
-		private ChorusHubService _service;
+		private readonly ChorusHubServer _chorusHubServer;
 		private bool _running;
 
-		public ChorusHubWindow(ChorusHubParameters parameters)
+		public ChorusHubWindow()
 		{
 			InitializeComponent();
-			_service = new ChorusHubService(parameters) {Progress = _logBox};
+			_chorusHubServer = new ChorusHubServer();
 			_logBox.ShowDetailsMenuItem = true;
 			_logBox.ShowCopyToClipboardMenuItem = true;
 		}
 
 		private void ChorusHubWindow_Load(object sender, EventArgs e)
 		{
-		   _running = _service.Start(true);
+		   _running = _chorusHubServer.Start(true);
 			if(!_logBox.ErrorEncountered)
 			{
 				_logBox.WriteMessageWithColor(Color.Blue, "Chorus Hub Started");
@@ -45,11 +46,11 @@ namespace ChorusHub
 		private void _stopChorusHub_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
 		{
 			if (_running)
-				_service.Stop();
+				_chorusHubServer.Stop();
 			_serviceTimer.Enabled = false;
 			_running = false;
 			_stopChorusHub.Enabled = false;
-			_stopChorusHub.Text = "Stopped";
+			_stopChorusHub.Text = @"Stopped";
 			_logBox.WriteMessageWithColor(Color.Blue,"Chorus Hub Stopped");
 			_logBox.WriteMessage("Quit and run Chorus Hub to start again.");
 			//Close();
@@ -57,7 +58,7 @@ namespace ChorusHub
 
 		private void timer1_Tick(object sender, EventArgs e)
 		{
-			_service.DoOccasionalBackgroundTasks();
+			_chorusHubServer.DoOccasionalBackgroundTasks();
 		}
 	}
 }

@@ -2,13 +2,12 @@
 using System.Drawing;
 using System.Threading;
 using System.Windows.Forms;
+using Chorus.ChorusHub;
 using Chorus.Properties;
 using Chorus.UI.Misc;
 using Chorus.UI.Settings;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
-using ChorusHub;
-using L10NSharp;
 using Palaso.Code;
 using System.IO;
 
@@ -34,7 +33,7 @@ namespace Chorus.UI.Sync
 
 		private bool _exiting; // Dialog is in the process of exiting, stop the threads!
 		private LANMode _lanMode = LANMode.ChorusHub;
-		private ChorusHubInfo _chorusHubInfo;
+		private ChorusHubServerInfo _chorusHubServerInfo;
 		private ChorusHubClient _chorusHubClient;
 
 		private const int WAIT_CREATE_CH_REPO = 10000; // 10-sec wait for Chorus Hub to create a new repository
@@ -195,9 +194,10 @@ namespace Chorus.UI.Sync
 				{
 					if (_chorusHubClient == null)
 					{
-						_chorusHubClient = new ChorusHub.ChorusHubClient();
+						_chorusHubServerInfo = ChorusHubServerInfo.FindServerInformation();
+						if (_chorusHubServerInfo != null)
+							_chorusHubClient = new ChorusHubClient(_chorusHubServerInfo);
 					}
-					_chorusHubInfo = _chorusHubClient.FindServer();
 				}
 				catch (Exception)
 				{
@@ -207,19 +207,19 @@ namespace Chorus.UI.Sync
 #endif
 				}
 			}
-			if(_chorusHubInfo==null)
+			if(_chorusHubServerInfo==null)
 			{
 				message = "No Chorus Hub found on local network.";
 			}
-			else if (!_chorusHubInfo.ServerIsCompatibleWithThisClient)
+			else if (!_chorusHubServerInfo.ServerIsCompatibleWithThisClient)
 			{
 				message = "Found Chorus Hub but it is not compatible with this version of "+Application.ProductName;
 			}
 			else
 			{
 				isReady = true;
-				message = string.Format("Found Chorus Hub at {0}", _chorusHubInfo.HostName);
-				tooltip = _chorusHubInfo.GetHgHttpUri(Path.GetFileName(_repository.PathToRepo));
+				message = string.Format("Found Chorus Hub at {0}", _chorusHubServerInfo.HostName);
+				tooltip = _chorusHubServerInfo.GetHgHttpUri(Path.GetFileName(_repository.PathToRepo));
 			}
 
 			Monitor.Enter(this);
@@ -227,7 +227,7 @@ namespace Chorus.UI.Sync
 			if (!_exiting)
 			{
 				var callback = new UpdateNetworkUICallback(UpdateNetworkUI);
-				this.Invoke(callback, new object[] { isReady, message, tooltip, diagnostics });
+				Invoke(callback, new object[] { isReady, message, tooltip, diagnostics });
 			}
 			Monitor.Exit(this);
 		}
@@ -402,8 +402,8 @@ namespace Chorus.UI.Sync
 						// TODO: show indeterminate progress bar for this wait
 						Thread.Sleep(WAIT_CREATE_CH_REPO);
 					}
-					address = new ChorusHubRepositorySource(_chorusHubInfo.HostName,
-						_chorusHubInfo.GetHgHttpUri(RepositoryAddress.ProjectNameVariable), false,
+					address = new ChorusHubRepositorySource(_chorusHubServerInfo.HostName,
+						_chorusHubServerInfo.GetHgHttpUri(RepositoryAddress.ProjectNameVariable), false,
 						_chorusHubClient.GetRepositoryInformation(null));
 					Cursor.Current = Cursors.Default;
 				}

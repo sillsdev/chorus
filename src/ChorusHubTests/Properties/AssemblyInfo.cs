@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("ChorusHub")]
+[assembly: AssemblyTitle("ChorusHubTests")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("ChorusHub")]
+[assembly: AssemblyProduct("ChorusHubTests")]
 [assembly: AssemblyCopyright("Copyright ©  2014")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("9dbeb21e-3cb1-421b-9457-9ae8a922c49e")]
+[assembly: Guid("63efde68-62f8-41dc-a6d3-f4c65228ce44")]
 
 // Version information for an assembly consists of the following four values:
 //

@@ -1,9 +1,5 @@
 ﻿using System.Windows.Forms;
-using Chorus.sync;
-using Chorus.UI.Sync;
-using Chorus.VcsDrivers;
 using LibChorus.TestUtilities;
-using LibChorus.Tests;
 using NUnit.Framework;
 
 namespace Chorus.Tests.UI.Misc

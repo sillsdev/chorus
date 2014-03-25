@@ -1,13 +1,16 @@
 ﻿using System;
+using System.Diagnostics;
+using System.Globalization;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
-using Palaso.Progress;
+using Chorus.ChorusHub;
 
 namespace ChorusHub
 {
-	public class Advertiser :IDisposable
+	public class Advertiser : IDisposable
 	{
 		private Thread _thread;
 		private UdpClient _client;
@@ -15,7 +18,6 @@ namespace ChorusHub
 		private byte[] _sendBytes;
 		private string _currentIpAddress;
 		public int Port;
-		public IProgress Progress = new ConsoleProgress();
 
 		public Advertiser(int port)
 		{
@@ -23,12 +25,14 @@ namespace ChorusHub
 		}
 		public void Start()
 		{
-			_client = new UdpClient();
 			// The doc seems to indicate that EnableBroadcast is required for doing broadcasts.
 			// In practice it seems to be required on Mono but not on Windows.
 			// This may be fixed in a later version of one platform or the other, but please
 			// test both if tempted to remove it.
-			_client.EnableBroadcast = true;
+			_client = new UdpClient
+			{
+				EnableBroadcast = true
+			};
 			_endPoint = new IPEndPoint(IPAddress.Parse("255.255.255.255"), Port);
 			 _thread = new Thread(Work);
 			_thread.Start();
@@ -41,21 +45,18 @@ namespace ChorusHub
 				while (true)
 				{
 					UpdateAdvertisementBasedOnCurrentIpAddress();
-					//Progress.Write(".");
 					_client.BeginSend(_sendBytes, _sendBytes.Length, _endPoint, SendCallback, _client);
 					Thread.Sleep(1000);
 				}
 			}
 			catch(ThreadAbortException)
 			{
-				Progress.WriteVerbose("Advertiser Thread Aborting (that's normal)");
+				//Progress.WriteVerbose("Advertiser Thread Aborting (that's normal)");
 				_client.Close();
-				return;
 			}
 			catch(Exception error)
 			{
-				Progress.WriteError("Error in Advertiser");
-				Progress.WriteException(error);
+				//EventLog.WriteEntry("Application", string.Format("Error in Advertiser: {0}", error.Message), EventLogEntryType.Error);
 			}
 		}
 
@@ -72,43 +73,41 @@ namespace ChorusHub
 			if (_currentIpAddress != GetLocalIpAddress())
 			{
 				_currentIpAddress = GetLocalIpAddress();
-				ChorusHubInfo info = new ChorusHubInfo(_currentIpAddress, ChorusHubParameters.kMercurialPort.ToString(),
-													   System.Environment.MachineName, ChorusHubInfo.kVersionOfThisCode);
-				_sendBytes = Encoding.ASCII.GetBytes(info.ToString());
-				Progress.WriteMessage("Serving at http://" + _currentIpAddress + ":" + ChorusHubParameters.kMercurialPort);
+				var serverInfo = new ChorusHubServerInfo(_currentIpAddress, ChorusHubOptions.MercurialPort.ToString(CultureInfo.InvariantCulture),
+													   Environment.MachineName, ChorusHubServerInfo.VersionOfThisCode);
+				_sendBytes = Encoding.ASCII.GetBytes(serverInfo.ToString());
+				//EventLog.WriteEntry("Application", "Serving at http://" + _currentIpAddress + ":" + ChorusHubOptions.MercurialPort, EventLogEntryType.Information);
 			}
 		}
 
 		private string GetLocalIpAddress()
 		{
-			IPHostEntry host;
-			string localIP = null;
-			host = Dns.GetHostEntry(Dns.GetHostName());
+			string localIp = null;
+			var host = Dns.GetHostEntry(Dns.GetHostName());
 
-			foreach (IPAddress ip in host.AddressList)
+			foreach (var ipAddress in host.AddressList.Where(ipAddress => ipAddress.AddressFamily == AddressFamily.InterNetwork))
 			{
-				if (ip.AddressFamily == AddressFamily.InterNetwork)
+				if (localIp != null)
 				{
-					if (localIP != null)
+					if (host.AddressList.Length > 1)
 					{
-						if (host.AddressList.Length > 1)
-							Progress.WriteWarning("Warning: this machine has more than one IP address");
+						//EventLog.WriteEntry("Application", "Warning: this machine has more than one IP address", EventLogEntryType.Warning);
 					}
-					localIP = ip.ToString();
 				}
+				localIp = ipAddress.ToString();
 			}
-			return localIP ?? "Could not determine IP Address!";
+			return localIp ?? "Could not determine IP Address!";
 		}
 
 		public void Stop()
 		{
-			if (_thread != null)
-			{
-				Progress.WriteVerbose("Advertiser Stopping...");
-				_thread.Abort();
-				_thread.Join(2*1000);
-				_thread = null;
-			}
+			if (_thread == null)
+				return;
+
+			//EventLog.WriteEntry("Application", "Advertiser Stopping...", EventLogEntryType.Information);
+			_thread.Abort();
+			_thread.Join(2 * 1000);
+			_thread = null;
 		}
 
 		public void Dispose()

@@ -13,14 +13,14 @@
 	<Name>ChorusHubInstaller</Name>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
-	<OutputPath>..\..\output\$(Configuration)\</OutputPath>
-	<IntermediateOutputPath>obj\$(Configuration)\</IntermediateOutputPath>
+	<OutputPath>..\..\output\Debug\</OutputPath>
+	<IntermediateOutputPath>obj\Debug\</IntermediateOutputPath>
 	<DefineConstants>Debug</DefineConstants>
 	<SuppressPdbOutput>True</SuppressPdbOutput>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
-	<OutputPath>..\..\output\$(Configuration)\</OutputPath>
-	<IntermediateOutputPath>obj\$(Configuration)\</IntermediateOutputPath>
+	<OutputPath>..\..\output\Release\</OutputPath>
+	<IntermediateOutputPath>obj\Release\</IntermediateOutputPath>
 	<SuppressPdbOutput>True</SuppressPdbOutput>
   </PropertyGroup>
   <ItemGroup>
