@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ServiceProcess;
-using System.Text;
+﻿using System.ServiceProcess;
 
 namespace ChorusHub
 {
