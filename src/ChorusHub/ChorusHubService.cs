@@ -16,7 +16,7 @@ using Palaso.Progress;
 namespace ChorusHub
 {
 	[ServiceBehavior(InstanceContextMode = InstanceContextMode.PerSession)]
-	public class ChorusHubServiceImplementation : IChorusHubService
+	public class ChorusHubService : IChorusHubService
 	{
 		private const char OrChar = '|';
 		private const char UnderScore = '_';
