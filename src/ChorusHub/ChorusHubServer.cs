@@ -5,7 +5,7 @@ using Chorus.ChorusHub;
 
 namespace ChorusHub
 {
-	public class ChorusHubService : IDisposable
+	public class ChorusHubServer : IDisposable
 	{
 		private ServiceHost _serviceHost;
 		public int ServicePort;// = 8002;
@@ -13,7 +13,7 @@ namespace ChorusHub
 		private static HgServeRunner _hgServer;
 		private static Advertiser _advertiser;
 
-		public ChorusHubService()
+		public ChorusHubServer()
 		{
 			ServicePort = ChorusHubOptions.ServicePort;
 		}
@@ -37,7 +37,7 @@ namespace ChorusHub
 				_advertiser.Start();
 
 				//gave security error _serviceHost = new ServiceHost(this);
-				_serviceHost = new ServiceHost(typeof(ChorusHubServiceImplementation));
+				_serviceHost = new ServiceHost(typeof(ChorusHubService));
 
 			   EnableSendingExceptionsToClient();
 

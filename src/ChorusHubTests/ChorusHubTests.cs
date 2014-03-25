@@ -73,7 +73,7 @@ namespace ChorusHubTests
 				r2.AddAndCheckinFile(tempFile2.Path); // need this to create store/data/files
 
 				ChorusHubOptions.RootDirectory = chorusHubSourceFolder.Path;
-				using (var service = new ChorusHubService())
+				using (var service = new ChorusHubServer())
 				{
 					Assert.IsTrue(service.Start(true));
 
@@ -120,7 +120,7 @@ namespace ChorusHubTests
 				r2.AddAndCheckinFile(tempFile2.Path); // need this to create store/data/files
 
 				ChorusHubOptions.RootDirectory = chorusHubSourceFolder.Path;
-				using (var service = new ChorusHubService())
+				using (var service = new ChorusHubServer())
 				{
 					// hg server side is now involved in deciding what repos are available
 					Assert.IsTrue(service.Start(true));
@@ -170,7 +170,7 @@ namespace ChorusHubTests
 				r3.AddAndCheckinFile(tempFile3.Path); // need this to create store/data/files
 
 				ChorusHubOptions.RootDirectory = chorusHubSourceFolder.Path;
-				using (var service = new ChorusHubService())
+				using (var service = new ChorusHubServer())
 				{
 					Assert.IsTrue(service.Start(true));
 
@@ -214,7 +214,7 @@ namespace ChorusHubTests
 				var r2 = HgRepository.CreateOrUseExisting(repo2.Path, new ConsoleProgress());
 				r2.AddAndCheckinFile(tempFile2.Path); // need this to create store/data/files
 				ChorusHubOptions.RootDirectory = chorusHubSourceFolder.Path;
-				using (var service = new ChorusHubService())
+				using (var service = new ChorusHubServer())
 				{
 					Assert.IsTrue(service.Start(true));
 

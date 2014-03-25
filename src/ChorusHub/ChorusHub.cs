@@ -5,7 +5,7 @@ namespace ChorusHub
 {
 	public partial class ChorusHub : ServiceBase
 	{
-		private ChorusHubService _chorusHubService;
+		private ChorusHubServer _chorusHubServer;
 		private bool _running;
 		private Timer _serviceTimer;
 
@@ -18,16 +18,16 @@ namespace ChorusHub
 
 		private void ServiceTimerOnElapsed(object sender, ElapsedEventArgs elapsedEventArgs)
 		{
-			_chorusHubService.DoOccasionalBackgroundTasks();
+			_chorusHubServer.DoOccasionalBackgroundTasks();
 		}
 
 		protected override void OnStart(string[] args)
 		{
 			if (!_running)
 			{
-				_chorusHubService = new ChorusHubService();
+				_chorusHubServer = new ChorusHubServer();
 				EventLog.WriteEntry("Chorus Hub Service is starting....");
-				_running = _chorusHubService.Start(true);
+				_running = _chorusHubServer.Start(true);
 				_serviceTimer = new Timer
 				{
 					Interval = 500, Enabled = true
@@ -49,9 +49,9 @@ namespace ChorusHub
 				_serviceTimer = null;
 
 				EventLog.WriteEntry("Chorus Hub Service stopping....");
-				_chorusHubService.Stop();
-				_chorusHubService.Dispose();
-				_chorusHubService = null;
+				_chorusHubServer.Stop();
+				_chorusHubServer.Dispose();
+				_chorusHubServer = null;
 				_running = false;
 			}
 			EventLog.WriteEntry("Chorus Hub Service stopped.");

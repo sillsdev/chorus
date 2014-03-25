@@ -11,20 +11,20 @@ namespace ChorusHubApp
 	/// </summary>
 	public partial class ChorusHubWindow : Form
 	{
-		private readonly ChorusHubService _chorusHubService;
+		private readonly ChorusHubServer _chorusHubServer;
 		private bool _running;
 
 		public ChorusHubWindow()
 		{
 			InitializeComponent();
-			_chorusHubService = new ChorusHubService();
+			_chorusHubServer = new ChorusHubServer();
 			_logBox.ShowDetailsMenuItem = true;
 			_logBox.ShowCopyToClipboardMenuItem = true;
 		}
 
 		private void ChorusHubWindow_Load(object sender, EventArgs e)
 		{
-		   _running = _chorusHubService.Start(true);
+		   _running = _chorusHubServer.Start(true);
 			if(!_logBox.ErrorEncountered)
 			{
 				_logBox.WriteMessageWithColor(Color.Blue, "Chorus Hub Started");
@@ -46,7 +46,7 @@ namespace ChorusHubApp
 		private void _stopChorusHub_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
 		{
 			if (_running)
-				_chorusHubService.Stop();
+				_chorusHubServer.Stop();
 			_serviceTimer.Enabled = false;
 			_running = false;
 			_stopChorusHub.Enabled = false;
@@ -58,7 +58,7 @@ namespace ChorusHubApp
 
 		private void timer1_Tick(object sender, EventArgs e)
 		{
-			_chorusHubService.DoOccasionalBackgroundTasks();
+			_chorusHubServer.DoOccasionalBackgroundTasks();
 		}
 	}
 }
