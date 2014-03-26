@@ -31,15 +31,71 @@
     <WarningLevel>4</WarningLevel>
     <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="nunit.framework">
-      <HintPath>..\..\lib\common\nunit.framework.dll</HintPath>
-    </Reference>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'DebugMono|AnyCPU' ">
+    <DebugSymbols>True</DebugSymbols>
+    <OutputPath>..\..\output\DebugMono</OutputPath>
+    <DefineConstants>DEBUG;TRACE;MONO</DefineConstants>
+    <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Optimize>False</Optimize>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'ReleaseMono|AnyCPU' ">
+    <DebugSymbols>True</DebugSymbols>
+    <OutputPath>..\..\output\ReleaseMono</OutputPath>
+    <DefineConstants>TRACE;MONO</DefineConstants>
+    <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
+    <Optimize>True</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(Configuration)' == 'Debug'">
     <Reference Include="Palaso">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\Debug\Palaso.dll</HintPath>
+    </Reference>
+    <Reference Include="Palaso.TestUtilities">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\Debug\Palaso.TestUtilities.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup Condition="'$(Configuration)' == 'Release'">
+    <Reference Include="Palaso">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\Release\Palaso.dll</HintPath>
     </Reference>
     <Reference Include="Palaso.TestUtilities">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\Release\Palaso.TestUtilities.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup Condition="'$(Configuration)' == 'DebugMono'">
+    <Reference Include="Palaso">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\DebugMono\Palaso.dll</HintPath>
+    </Reference>
+    <Reference Include="Palaso.TestUtilities">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\DebugMono\Palaso.TestUtilities.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup Condition="'$(Configuration)' == 'ReleaseMono'">
+    <Reference Include="Palaso">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\ReleaseMono\Palaso.dll</HintPath>
+    </Reference>
+    <Reference Include="Palaso.TestUtilities">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\ReleaseMono\Palaso.TestUtilities.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="nunit.framework">
+      <HintPath>..\..\lib\common\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
