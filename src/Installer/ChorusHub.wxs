@@ -74,9 +74,6 @@ http://blogs.msdn.com/robmen/archive/2003/10/04/56479.aspx -->
 							<RegistryValue Id="ChorusHubInstallationDir" Type="string" Value="[INSTALLDIR]" Name="InstallationDir"/>
 						</RegistryKey>
 					</Component>
-					<Component Id="ChorusHub.exe.config" Guid="C1EECD53-E382-11DE-8A39-0800200C9A66">
-						<File Id="ChorusHub.exe.config" Name="ChorusHub.exe.config" KeyPath="yes" Source="..\..\output\Release\ChorusHub.exe.config"/>
-					</Component>
 					<Component Id="LibChorus.dll" Guid="C1EECD54-E382-11DE-8A39-0800200C9A66">
 						<File Id="LibChorus.dll" Name="LibChorus.dll" KeyPath="yes" Source="..\..\output\Release\LibChorus.dll" />
 					</Component>
@@ -113,7 +110,7 @@ http://blogs.msdn.com/robmen/archive/2003/10/04/56479.aspx -->
 
 					<!-- L10NSharp assembly used by chorus/palaso -->
 					<Component Id="L10NSharp.dll" Guid="C1EEF456-E382-11DE-8A39-0800200C9A66">
-						<File Id="L10NSharp.dll" Name="L10NSharp.dll" KeyPath="yes" Source="..\..\lib\common\L10NSharp.dll"/>
+						<File Id="L10NSharp.dll" Name="L10NSharp.dll" KeyPath="yes" Source="..\..\lib\Release\L10NSharp.dll"/>
 					</Component>
 				</Directory>
 			</Directory>
@@ -127,7 +124,6 @@ http://blogs.msdn.com/robmen/archive/2003/10/04/56479.aspx -->
 
 	<Feature Id="ProductFeature" Level="1" Title="Basic Stuff">
 		<ComponentRef Id="ChorusHub.exe"/>
-		<ComponentRef Id="ChorusHub.exe.config"/>
 		<ComponentRef Id="LibChorus.dll"/>
 		<ComponentRef Id="Autofac.dll"/>
 		<ComponentRef Id="chorushelp.chm"/>
