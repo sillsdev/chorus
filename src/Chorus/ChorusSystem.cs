@@ -111,9 +111,26 @@ namespace Chorus
 		/// Program Data/Company/Program.
 		/// </summary>
 		/// <param name="desiredUiLangId"></param>
-		/// <param name="rootDirectoryOfInstalledTmxFiles"></param>
-		/// <param name="rootDirectoryOfUserModifiedTmxFiles"></param>
-		public static void SetUpLocalization(string desiredUiLangId, string rootDirectoryOfInstalledTmxFiles,
+		/// <param name="rootDirectoryOfInstalledTmxFiles">The full folder path of the original TMX files
+		/// installed with the application.</param>
+		/// <param name="attemptMigrationOfLocalizationFiles">Indicates whether an attempt should
+		/// be made to delete unneeded (and outdated) copies of installed localization files
+		/// before creating the LocalizationManager. As part of this, any custom (non-installed)
+		/// TMX files will also be moved from the old location (directoryForGeneratedEnglishTmxFile)
+		/// to the new location (directoryOfUserModifiedTmxFiles). This flag is ignored if
+		/// directoryForGeneratedEnglishTmxFile and directoryOfUserModifiedTmxFiles are the same
+		/// or unspecified. Applications that did not use version 1 of L10NSharp can safely pass
+		/// false.</param>
+		/// <param name="directoryForGeneratedEnglishTmxFile">The full folder path where the default
+		/// (English) TMX file will be created (can be the same as directoryOfUserModifiedTmxFiles;
+		/// and if not specified, it will be)</param>
+		/// <param name="rootDirectoryOfUserModifiedTmxFiles">The full folder path where TMX files
+		/// created/modified by the user will be created. If the value is null, the default
+		/// location is used (which is appName combined with 
+		/// Environment.SpecialFolder.CommonApplicationData)</param>
+
+		public static void SetUpLocalization(string desiredUiLangId, string rootDirectoryOfInstalledTmxFiles, 
+			bool attemptMigrationOfLocalizationFiles, string directoryForGeneratedEnglishTmxFile,
 			string rootDirectoryOfUserModifiedTmxFiles)
 		{
 			string directoryOfInstalledTmxFiles = Path.Combine(rootDirectoryOfInstalledTmxFiles, "Chorus");
@@ -135,7 +152,7 @@ namespace Chorus
 			// We don't need to reload strings for every "revision" (that might be every time we build).
 			var version = "" + versionObj.Major + "." + versionObj.Minor + "." + versionObj.Build;
 			LocalizationManager.Create(desiredUiLangId, "Chorus", Application.ProductName,
-						   version, directoryOfInstalledTmxFiles,
+						   version, directoryOfInstalledTmxFiles, attemptMigrationOfLocalizationFiles, directoryForGeneratedEnglishTmxFile,
 						   directoryOfUserModifiedTmxFiles,
 						   Icon.FromHandle(Properties.Resources.chorus32x32.GetHicon()), // should call DestroyIcon, but when?
 						   "issues@chorus.palaso.org", "Chorus");
