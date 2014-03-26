@@ -40,7 +40,7 @@ http://blogs.msdn.com/robmen/archive/2003/10/04/56479.aspx -->
 			<Directory Id="SILDIR" Name="SIL">
 				<Directory Id="INSTALLDIR" Name="Chorus Hub">
 					<Directory Id="mercurial" Name="mercurial">
-						<Component Id="mercurial.ini" Guid="C1EECD50-E382-11DE-8A39-0800200C9A66">
+						<Component Id="mercurial.ini" Guid="C1EEF457-E382-11DE-8A39-0800200C9A66">
 							<File Id="mercurial.ini" Name="mercurial.ini" Source="..\..\mercurial\mercurial.ini" />
 							<IniFile Id="mercurial.ini_extension_fixutf8"
 								Action="addLine"
@@ -57,7 +57,7 @@ http://blogs.msdn.com/robmen/archive/2003/10/04/56479.aspx -->
 					</Directory>
 
 					<!-- Main assemblies -->
-					<Component Id="ChorusHub.exe" Guid="C1EECD50-E382-11DE-8A39-0800200C9A66">
+					<Component Id="ChorusHub.exe" Guid="C1EEF458-E382-11DE-8A39-0800200C9A66">
 						<File Id="ChorusHub.exe" Name="ChorusHub.exe" Source="..\..\output\Release\ChorusHub.exe" KeyPath="yes" />
 						<!-- http://codeblog.vurdalakov.net/2013/06/wix-how-to-install-and-start-windows-service.html -->
                         <ServiceInstall Id="ChorusHub" Type="ownProcess" Name="ChorusHub" DisplayName="Chorus Hub Sharing Service"
