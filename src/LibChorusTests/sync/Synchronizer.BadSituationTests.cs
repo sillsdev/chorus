@@ -247,6 +247,7 @@ namespace LibChorus.Tests.sync
 		}
 
 		[Test]
+		[Category("SkipOnTeamCity")] // Many random failures on Team City
 		public void Sync_FileLockedForReadingDuringMerge_LeftWithMultipleHeads()
 		{
 			HgRunner.TimeoutSecondsOverrideForUnitTests = 1;
