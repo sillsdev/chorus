@@ -77,7 +77,7 @@
   <ItemGroup Condition="'$(Configuration)' == 'DebugMono'">
     <Reference Include="Palaso" >
 	<SpecificVersion>False</SpecificVersion>
-	<HintPath>..\..\lib\DebugMono \Palaso.dll</HintPath>
+	<HintPath>..\..\lib\DebugMono\Palaso.dll</HintPath>
 	</Reference>
   </ItemGroup>
   <ItemGroup>
