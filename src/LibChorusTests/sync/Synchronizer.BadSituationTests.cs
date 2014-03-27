@@ -220,6 +220,7 @@ namespace LibChorus.Tests.sync
 #if MONO
 		[Ignore] // I (CP) can't get MONO to get an exclusive lock for write. See RepositorySetup::GetFileLockForWriting
 #endif
+		[Category("SkipOnTeamCityRandomTestFailure")]
 		public void Sync_FileLockedForWritingDuringUpdate_GetUpdatedFileOnceLockIsGone()
 		{
 			HgRunner.TimeoutSecondsOverrideForUnitTests = 1;
