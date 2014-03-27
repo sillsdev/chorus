@@ -108,27 +108,19 @@ namespace Chorus
 		/// Typically root directory of installed files is something like [application exe directory]/localizations.
 		/// root directory of user modifiable tmx files has to be outside program files, something like
 		/// GetXAppDataFolder()/localizations, where GetXAppDataFolder would typically return something like
-		/// Program Data/Company/Program.
+		/// Company/Program (e.g. SIL/SayMore)
 		/// </summary>
 		/// <param name="desiredUiLangId"></param>
-		/// <param name="rootDirectoryOfInstalledTmxFiles"></param>
-		/// <param name="rootDirectoryOfUserModifiedTmxFiles"></param>
+		/// <param name="rootDirectoryOfInstalledTmxFiles">The folder path of the original TMX files
+		/// installed with the application.  The Chorus TMX files will be in a Chorus subdirectory of this directory.</param>
+		/// <param name="relativeDirectoryOfUserModifiedTmxFiles">The path, relative to %appdata%, where your
+		/// application stores user settings (e.g., "SIL\SayMore"). A folder named "Chorus\localizations" will be created there.</param>
 		public static void SetUpLocalization(string desiredUiLangId, string rootDirectoryOfInstalledTmxFiles,
-			string rootDirectoryOfUserModifiedTmxFiles)
+			string relativeDirectoryOfUserModifiedTmxFiles)
 		{
 			string directoryOfInstalledTmxFiles = Path.Combine(rootDirectoryOfInstalledTmxFiles, "Chorus");
-			string directoryOfUserModifiedTmxFiles = Path.Combine(rootDirectoryOfUserModifiedTmxFiles, "Chorus");
-			if (!Directory.Exists(directoryOfUserModifiedTmxFiles))
-			{
-				try
-				{
-					Directory.CreateDirectory(directoryOfUserModifiedTmxFiles);
-				}
-				catch (IOException)
-				{
-					// User won't be able to localize, but we can't do much about it.
-				}
-			}
+			string directoryOfUserModifiedTmxFiles = Path.Combine(relativeDirectoryOfUserModifiedTmxFiles, "Chorus");
+
 			// This is safer than Application.ProductVersion, which might contain words like 'alpha' or 'beta',
 			// which (on the SECOND run of the program) fail when L10NSharp tries to make a Version object out of them.
 			var versionObj = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
