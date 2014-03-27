@@ -68,7 +68,7 @@
 		</CreateItem>
 		<NUnitTeamCity
 			Assemblies="@(TestAssemblies)"
-			ExcludeCategory="SkipOnTeamCity;KnownMonoIssue;SkipOnBuildServer"
+			ExcludeCategory="SkipOnTeamCity;KnownMonoIssue;SkipOnBuildServer;SkipOnTeamCityRandomTestFailure"
 			NUnitVersion="NUnit-2.5.5" />
 	</Target>
 

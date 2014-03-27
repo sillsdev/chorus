@@ -109,6 +109,7 @@ namespace LibChorus.Tests.sync
 		}
 
 		[Test]
+		[Category("SkipOnTeamCityRandomTestFailure")]
 		public void Sync_MergeTimeoutExceeded_LeavesNoChorusMergeProcessAlive()
 		{
 			HgRunner.TimeoutSecondsOverrideForUnitTests = 1;
@@ -247,7 +248,7 @@ namespace LibChorus.Tests.sync
 		}
 
 		[Test]
-		[Category("SkipOnTeamCity")] // Many random failures on Team City
+		[Category("SkipOnTeamCityRandomTestFailure")]
 		public void Sync_FileLockedForReadingDuringMerge_LeftWithMultipleHeads()
 		{
 			HgRunner.TimeoutSecondsOverrideForUnitTests = 1;
