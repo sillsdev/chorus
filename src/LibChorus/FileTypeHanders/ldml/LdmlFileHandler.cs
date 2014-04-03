@@ -277,9 +277,9 @@ namespace Chorus.FileTypeHanders.ldml
 		private static void PreMergeFile(MergeOrder mergeOrder, out bool addedCollationAttr)
 		{
 			addedCollationAttr = false;
-			var ourDoc = File.Exists(mergeOrder.pathToOurs) ? XDocument.Load(mergeOrder.pathToOurs) : null;
-			var theirDoc = File.Exists(mergeOrder.pathToTheirs) ? XDocument.Load(mergeOrder.pathToTheirs) : null;
-			var commonDoc = File.Exists(mergeOrder.pathToCommonAncestor) ? XDocument.Load(mergeOrder.pathToCommonAncestor) : null;
+			var ourDoc = File.Exists(mergeOrder.pathToOurs) && File.ReadAllText(mergeOrder.pathToOurs).Contains("<ldml>") ? XDocument.Load(mergeOrder.pathToOurs) : null;
+			var theirDoc = File.Exists(mergeOrder.pathToTheirs) && File.ReadAllText(mergeOrder.pathToTheirs).Contains("<ldml>") ? XDocument.Load(mergeOrder.pathToTheirs) : null;
+			var commonDoc = File.Exists(mergeOrder.pathToCommonAncestor) && File.ReadAllText(mergeOrder.pathToCommonAncestor).Contains("<ldml>") ? XDocument.Load(mergeOrder.pathToCommonAncestor) : null;
 
 			if (ourDoc == null || theirDoc == null)
 				return;
