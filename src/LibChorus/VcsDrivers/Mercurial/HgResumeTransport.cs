@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
+using Chorus.Properties;
 using Chorus.Utilities;
 using Palaso.Progress;
 
@@ -278,6 +279,14 @@ namespace Chorus.VcsDrivers.Mercurial
 						if (response.HttpStatus == HttpStatusCode.BadRequest && response.ResumableResponse.Status == "UNKNOWNID")
 						{
 							_progress.WriteWarning("The remote server {0} does not have repoId '{1}'", _targetLabel, _apiServer.ProjectId);
+						}
+						else if (response.HttpStatus == HttpStatusCode.Unauthorized)
+						{
+							_progress.WriteWarning(Resources.ksHgTransptUnauthorized);
+						}
+						else
+						{
+							_progress.WriteWarning("Invalid Server Response '{0}'", response.HttpStatus);
 						}
 						throw new HgResumeOperationFailed(String.Format("Failed to get remote revisions for {0}", _apiServer.ProjectId));
 					}
@@ -889,7 +898,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				}
 				if (response.HttpStatus == HttpStatusCode.Unauthorized)
 				{
-					_progress.WriteWarning("There is an authorization problem accessing this project. Check the project ID as well as your username and password. Alternatively, you may not be authorized to access this project.");
+					_progress.WriteWarning(Resources.ksHgTransptUnauthorized);
 					pullResponse.Status =  PullStatus.Unauthorized;
 				}
 				_progress.WriteWarning("Invalid Server Response '{0}'", response.HttpStatus);
