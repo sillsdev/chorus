@@ -1,15 +1,15 @@
 Overview
 ========
 
-Chorus is version control system designed to enable workflows appropriate for typical language
+Chorus is a version control system designed to enable workflows appropriate for typical language
 development teams who are geographically distributed. These teams need to edit a set of common
 files, working towards a publication. They want to share their work while, crucially, being able
 to defer dealing with conflicting edits for periods of time or until a qualified team member can
-make decisions about the conflicts. The system is implemented on top of a commonly used Open
+make decisions about the conflicts. The system is implemented on top of a commonly-used Open
 Source Distributed Version Control System. It works in scenarios in which users are connected by
 Local Area Network, Internet, or hand-carried storage devices. Chorus supports several workflow
 models, including those that maintain a “master” database separate from the incoming submissions
-of team members. Quite unlike the version control systems commonly in use, the system works
+of team members. Quite unlike the version control systems commonly in use, Chorus works
 invisibly for the common cases and is kept simple for even beginner computer users.
 
 ## Distinctive Features
@@ -24,7 +24,7 @@ These features come for free with any Distribute Version Control System:
 
 
 However, "raw" Distributed Version Controls Systems are relatively difficult to understand,
-configure and use, even for computer-savvy workers.
+configure, and use, even for computer-savvy workers.
 
 
 The following list of features should help you understand why we built this layer over a raw version control system:
@@ -53,26 +53,27 @@ The following list of features should help you understand why we built this laye
    become experts in how all the files work.
 
  * Synchronization help from application. Applications often know what points are good ones for
-   checking data in. For example, when exiting, before doing a large and possibly undesirable
+   checking data in. For example, when exiting, or before doing a large and possibly undesirable
    operation, like deleting a large number of items or importing a new data set.
 
- * In-Application conflict and change history. Rather than ask users to learn version-control
-   specific tools, the Chorus model is that Chorus provides the raw information applications
-   need to provide a smooth, integrated workflow in the same environment as the user has for
-   editing. For example, a dictionary-editing program using Chorus will allow the user to see a
-   full history of the current record, including who made what changes, and what conflicts (if
-   any) were encountered during synchronization.
+ * In-Application conflict and change history. Rather than ask users to learn
+   version-control-specific tools, the Chorus model is that Chorus provides the raw information
+   applications need to provide a smooth, integrated workflow in the same environment as the user
+   has for editing. For example, a dictionary-editing program using Chorus will allow the user to
+   see a full history of the current record, including who made what changes, and what conflicts
+   (if any) were encountered during synchronization.
 
  * A built-in "notes" system which makes it very cheap to give users the ability to add notes to
    any piece of data, and to carry on conversations about about the data until they mark the
-   issue as "resolved".
+   note as "resolved".
 
 ### Status
 
-Chorus is functional and being used in 4 applications, by 4 different development teams,
-while a 5th (FieldWorks) is building it in. However, we are not really interested in supporting
+Chorus is functional and being used in several applications with different development teams.
+However, we are not really interested in supporting
 any further uses until things mature and someone writes good develop documentation.
-Documentation, where it exists, drips out in the form of occasional blogs [here](http://chorussr.wordpress.com/).
+Documentation (what little exists) drips out in the form of occasional blogs
+[here](http://chorussr.wordpress.com/).
 
 ## Testers
 
@@ -94,10 +95,10 @@ https://trello.com/board/chorus/4f3a90277ae2b69b010988ac
 
 ### Source Code
 
-Chorus is written in C#. The UI widgets uses Windows Forms, but you could make your own using a
+Chorus is written in C#. The UI widgets use Windows Forms, but you could make your own using a
 different platform and just use the engine.
 
-After cloning the project you should now have a solution which you can build using any 2010 edition
+After cloning the project you should now have a solution which you can build using any edition
 of Visual Studio 2010, including the free Express version. We could help you do it in VS 2008,
 if necessary.
 
@@ -111,8 +112,14 @@ The source tree contains a script that downloads all necessary dependencies.
 
 Open a "git bash" window, then change into the build directory and run the `buildupdate.win.sh` script:
 
-    cd /c/dev/chorus/build
+	cd /c/dev/chorus/build
 	./buildupdate.win.sh
+
+Alternately, if you are working on libpalaso or another dependency, you can update to your local
+build using `UpdateDependencies.bat`, which is run automatically when you run `GetAndBuildThis.bat`:
+
+	cd c:\dev\chorus
+	UpdateDependencies.bat
 
 ##### Mercurial
 
@@ -122,7 +129,12 @@ If developing on windows, unzip the file `lib/Release/mercurial.zip` into `outpu
 
 Open a terminal window, change into the build directory and run the `buildupdate.mono.sh` script:
 
-    cd chorus/build
+	cd chorus/build
 	./buildupdate.mono.sh
 
+Alternately, if you are working on libpalaso or another dependency, you can update to your local
+build using `UpdateDependencies.sh`:
+
+	cd chorus
+	./UpdateDependencies.sh
 
