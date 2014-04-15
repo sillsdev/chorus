@@ -12,7 +12,7 @@ CopyToWeSayDev.bat
 lib/Palaso.TestUtilities.pdb
 *~
 *.pidb
-^[Mm]ercurial/
+[Mm]ercurial/
 *ReSharper*
 build/old
 lib/$(Configuration)
