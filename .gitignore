@@ -4,7 +4,9 @@ output/
 obj/
 _Resharper*
 Debug/
+DebugMono/
 Release/
+ReleaseMono/
 _ReSharper.Chorus VS2008/
 *.suo
 *.user
