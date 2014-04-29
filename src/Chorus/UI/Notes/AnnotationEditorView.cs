@@ -191,9 +191,9 @@ namespace Chorus.UI.Notes
 		}
 
 #if MONO
-		private void _existingMessagesHandleLinkClick(object sender, Gecko.GeckoDomEventArgs e)
+		private void _existingMessagesHandleLinkClick(object sender, Gecko.DomEventArgs e)
 		{
-			Gecko.GeckoHtmlElement clicked = e.Target;
+			Gecko.GeckoHtmlElement clicked = e.Target.CastToGeckoElement() as Gecko.GeckoHtmlElement;
 			if(clicked != null && clicked.TagName == "A")
 			{
 				e.Handled = true;

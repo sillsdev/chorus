@@ -122,18 +122,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\DebugMono\PalasoUIWindowsForms.dll</HintPath>
     </Reference>
-    <Reference Include="geckofx-core-14">
-      <HintPath>..\..\lib\DebugMono\geckofx-core-14.dll</HintPath>
-    </Reference>
-    <Reference Include="Geckofx-Winforms-14">
-      <HintPath>..\..\lib\DebugMono\Geckofx-Winforms-14.dll</HintPath>
-    </Reference>
-    <None Include="..\..\lib\DebugMono\geckofix.so">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="..\..\lib\DebugMono\geckofx-core-14.dll.config">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)' == 'ReleaseMono'">
     <Reference Include="L10NSharp">
@@ -147,18 +135,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\ReleaseMono\PalasoUIWindowsForms.dll</HintPath>
     </Reference>
-    <Reference Include="geckofx-core-14">
-      <HintPath>..\..\lib\ReleaseMono\geckofx-core-14.dll</HintPath>
-    </Reference>
-    <Reference Include="Geckofx-Winforms-14">
-      <HintPath>..\..\lib\ReleaseMono\Geckofx-Winforms-14.dll</HintPath>
-    </Reference>
-    <None Include="..\..\lib\ReleaseMono\geckofix.so">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="..\..\lib\ReleaseMono\geckofx-core-14.dll.config">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Autofac">
@@ -178,6 +154,18 @@
       <Project>{94245366-8F1E-475C-810D-FE89BB3948E0}</Project>
       <Name>LibChorus</Name>
     </ProjectReference>
+    <Reference Include="Geckofx-Core" Condition="'$(Configuration)' == 'ReleaseMono' Or '$(Configuration)' == 'DebugMono'">
+      <HintPath>..\..\lib\commonMono\Geckofx-Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Geckofx-Winforms" Condition="'$(Configuration)' == 'ReleaseMono' Or '$(Configuration)' == 'DebugMono'">
+      <HintPath>..\..\lib\commonMono\Geckofx-Winforms.dll</HintPath>
+    </Reference>
+    <None Include="..\..\lib\commonMono\libgeckofix.so" Condition="'$(Configuration)' == 'ReleaseMono' Or '$(Configuration)' == 'DebugMono'">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\lib\commonMono\Geckofx-Core.dll.config" Condition="'$(Configuration)' == 'ReleaseMono' Or '$(Configuration)' == 'DebugMono'">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Arguments.cs" />

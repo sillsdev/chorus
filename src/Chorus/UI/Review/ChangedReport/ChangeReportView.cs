@@ -126,7 +126,7 @@ namespace Chorus.UI.Review.ChangedReport
 		}
 
 #if MONO
-		private void _normalChangeDescriptionRenderer_Navigating(object sender, Gecko.GeckoNavigatingEventArgs e)
+		private void _normalChangeDescriptionRenderer_Navigating(object sender, Gecko.Events.GeckoNavigatingEventArgs e)
 		{
 			if (e.Uri.Scheme == "playaudio")
 			{
