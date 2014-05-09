@@ -71,7 +71,7 @@ namespace Chorus.ChorusHub
 
 		public static bool IsChorusHubInfo(string parameters)
 		{
-			return parameters.StartsWith("ChorusHubServerInfo");
+			return parameters.StartsWith("ChorusHubInfo");
 		}
 
 		public bool ServerIsCompatibleWithThisClient
@@ -81,7 +81,7 @@ namespace Chorus.ChorusHub
 
 		public override string ToString()
 		{
-			return string.Format("ChorusHubServerInfo?version={0}&address={1}&port={2}&hostname={3}", VersionOfThisCode, _ipAddress, _port, HostName);
+			return string.Format("ChorusHubInfo?version={0}&address={1}&port={2}&hostname={3}", VersionOfThisCode, _ipAddress, _port, HostName);
 		}
 
 		public string ServiceUri
