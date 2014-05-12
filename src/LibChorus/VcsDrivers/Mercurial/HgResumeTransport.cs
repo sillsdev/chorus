@@ -451,16 +451,15 @@ namespace Chorus.VcsDrivers.Mercurial
 			} while (req.StartOfWindow < req.BundleSize);
 		}
 
-		private static string CalculateEstimatedTimeRemaining(int bundleSize, int chunkSize, int startOfWindow)
+		internal static string CalculateEstimatedTimeRemaining(int bundleSize, int chunkSize, int startOfWindow)
 		{
 			if (startOfWindow < 80000)
 			{
 				return ""; // wait until we've transferred 80K before calculating an ETA
 			}
-			int secondsRemaining = TargetTimeInSeconds*(bundleSize - startOfWindow)/chunkSize;
+			int secondsRemaining = (bundleSize - startOfWindow)/chunkSize*TargetTimeInSeconds;
 			if (secondsRemaining < 60)
 			{
-				//secondsRemaining = (secondsRemaining/5+1)*5;
 				return "(less than 1 minute)";
 			}
 			int minutesRemaining = secondsRemaining/60;
