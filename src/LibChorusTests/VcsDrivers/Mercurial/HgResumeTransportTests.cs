@@ -769,6 +769,26 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			}
 		}
 
+        // regression test for bug http://jira.palaso.org/issues/browse/CHR-30
+	    [Test]
+	    public void CalculateEstimatedTimeRemaining_VeryLargeBundleSize_DoesNotThrow()
+	    {
+	        const int largeBundleSize = 2147000000; // 2 GB
+	        const int chunkSize = 5000;
+	        const int startOfWindow = 100000;
+            Assert.DoesNotThrow(() => HgResumeTransport.CalculateEstimatedTimeRemaining(largeBundleSize, chunkSize, startOfWindow));
+	    }
+
+        [Test]
+        public void CalculateEstimatedTimeRemaining_ExpectedTimeRemainingString()
+        {
+            const int bundleSize = 5000000;
+            const int chunkSize = 100000;
+            const int startOfWindow = 100000;
+            Assert.That(HgResumeTransport.CalculateEstimatedTimeRemaining(bundleSize, chunkSize, startOfWindow), Is.EqualTo("(about 4 minutes)"));
+        }
+
+
 
 		private class BranchTestAdjunct : ISychronizerAdjunct
 		{
