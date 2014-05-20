@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -122,18 +122,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\DebugMono\PalasoUIWindowsForms.dll</HintPath>
     </Reference>
-    <Reference Include="geckofx-core-14">
-      <HintPath>..\..\lib\DebugMono\geckofx-core-14.dll</HintPath>
-    </Reference>
-    <Reference Include="Geckofx-Winforms-14">
-      <HintPath>..\..\lib\DebugMono\Geckofx-Winforms-14.dll</HintPath>
-    </Reference>
-    <None Include="..\..\lib\DebugMono\geckofix.so">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="..\..\lib\DebugMono\geckofx-core-14.dll.config">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)' == 'ReleaseMono'">
     <Reference Include="L10NSharp">
@@ -147,16 +135,18 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\ReleaseMono\PalasoUIWindowsForms.dll</HintPath>
     </Reference>
-    <Reference Include="geckofx-core-14">
-      <HintPath>..\..\lib\ReleaseMono\geckofx-core-14.dll</HintPath>
+  </ItemGroup>
+  <ItemGroup Condition="'$(OS)' != 'Windows_NT'">
+    <Reference Include="Geckofx-Core">
+      <HintPath>..\..\lib\commonMono\Geckofx-Core.dll</HintPath>
     </Reference>
-    <Reference Include="Geckofx-Winforms-14">
-      <HintPath>..\..\lib\ReleaseMono\Geckofx-Winforms-14.dll</HintPath>
+    <Reference Include="Geckofx-Winforms">
+      <HintPath>..\..\lib\commonMono\Geckofx-Winforms.dll</HintPath>
     </Reference>
-    <None Include="..\..\lib\ReleaseMono\geckofix.so">
+    <None Include="..\..\lib\commonMono\geckofix.so">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="..\..\lib\ReleaseMono\geckofx-core-14.dll.config">
+    <None Include="..\..\lib\commonMono\Geckofx-Core.dll.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

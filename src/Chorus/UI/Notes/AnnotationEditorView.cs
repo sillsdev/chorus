@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
@@ -191,9 +191,9 @@ namespace Chorus.UI.Notes
 		}
 
 #if MONO
-		private void _existingMessagesHandleLinkClick(object sender, Gecko.GeckoDomEventArgs e)
+		private void _existingMessagesHandleLinkClick(object sender, Gecko.DomMouseEventArgs e)
 		{
-			Gecko.GeckoHtmlElement clicked = e.Target;
+			Gecko.GeckoHtmlElement clicked = e.Target.CastToGeckoElement() as Gecko.GeckoHtmlElement;
 			if(clicked != null && clicked.TagName == "A")
 			{
 				e.Handled = true;
@@ -201,7 +201,7 @@ namespace Chorus.UI.Notes
 			}
 		}
 
-		private void _existingMessagesDisplay_DocumentCompleted(object sender, EventArgs e)
+		private void _existingMessagesDisplay_DocumentCompleted(object sender, Gecko.Events.GeckoDocumentCompletedEventArgs e)
 		{
 			if (_waitingOnBrowserToBeReady)
 			{

@@ -139,8 +139,8 @@
 			this._existingMessagesDisplay.Size = new System.Drawing.Size(313, 264);
 			this._existingMessagesDisplay.TabIndex = 9;
 #if MONO
-			this._existingMessagesDisplay.DocumentCompleted += new System.EventHandler(this._existingMessagesDisplay_DocumentCompleted);
-			this._existingMessagesDisplay.DomClick += new System.EventHandler<Gecko.GeckoDomEventArgs>(this._existingMessagesHandleLinkClick);
+			this._existingMessagesDisplay.DocumentCompleted += new System.EventHandler<Gecko.Events.GeckoDocumentCompletedEventArgs>(this._existingMessagesDisplay_DocumentCompleted);
+			this._existingMessagesDisplay.DomClick += new System.EventHandler<Gecko.DomMouseEventArgs>(this._existingMessagesHandleLinkClick);
 			this._existingMessagesDisplay.NoDefaultContextMenu = true;
 #else
 			this._existingMessagesDisplay.AllowWebBrowserDrop = false;

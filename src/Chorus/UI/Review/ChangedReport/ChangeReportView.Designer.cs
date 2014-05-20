@@ -68,7 +68,7 @@
 			this._normalChangeDescriptionRenderer.Size = new System.Drawing.Size(136, 118);
 			this._normalChangeDescriptionRenderer.TabIndex = 0;
 #if MONO
-			this._normalChangeDescriptionRenderer.Navigating += new System.EventHandler<Gecko.GeckoNavigatingEventArgs>(this._normalChangeDescriptionRenderer_Navigating);
+			this._normalChangeDescriptionRenderer.Navigating += new System.EventHandler<Gecko.Events.GeckoNavigatingEventArgs>(this._normalChangeDescriptionRenderer_Navigating);
 #else
 			this._normalChangeDescriptionRenderer.AllowWebBrowserDrop = false;
 			this._normalChangeDescriptionRenderer.WebBrowserShortcutsEnabled = false;
