@@ -22,11 +22,7 @@ namespace Chorus.UI.Notes
 		{
 			this._pathLabel.Text = _annotation.AnnotationFilePath;
 			string htmlText = Render(_annotation.Element);
-#if MONO
-			webBrowser1.LoadHtml(htmlText);
-#else
 			webBrowser1.DocumentText = htmlText;
-#endif
 		}
 
 		internal static string Render(XElement element)

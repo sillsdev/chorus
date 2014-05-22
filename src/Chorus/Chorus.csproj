@@ -122,18 +122,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\DebugMono\PalasoUIWindowsForms.dll</HintPath>
     </Reference>
-    <Reference Include="geckofx-core-14">
-      <HintPath>..\..\lib\DebugMono\geckofx-core-14.dll</HintPath>
-    </Reference>
-    <Reference Include="Geckofx-Winforms-14">
-      <HintPath>..\..\lib\DebugMono\Geckofx-Winforms-14.dll</HintPath>
-    </Reference>
-    <None Include="..\..\lib\DebugMono\geckofix.so">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="..\..\lib\DebugMono\geckofx-core-14.dll.config">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)' == 'ReleaseMono'">
     <Reference Include="L10NSharp">
@@ -164,6 +152,9 @@
     <Reference Include="Autofac">
       <HintPath>..\..\lib\common\Autofac.dll</HintPath>
     </Reference>
+    <Reference Include="PalasoUIWindowsForms.GeckoBrowserAdapter">
+      <HintPath>..\..\..\Palaso\output\Debug\PalasoUIWindowsForms.GeckoBrowserAdapter.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
@@ -186,12 +177,6 @@
     <Compile Include="ChorusSystem.cs" />
     <Compile Include="ChorusUIComponentsInjector.cs" />
     <Compile Include="NotesToRecordMapping.cs" />
-    <Compile Include="UI\BetterBrowser.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="UI\BetterBrowser.Designer.cs">
-      <DependentUpon>BetterBrowser.cs</DependentUpon>
-    </Compile>
     <Compile Include="UI\BetterLabel.cs">
       <SubType>Component</SubType>
     </Compile>
