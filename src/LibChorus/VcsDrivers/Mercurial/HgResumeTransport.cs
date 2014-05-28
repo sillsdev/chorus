@@ -250,7 +250,8 @@ namespace Chorus.VcsDrivers.Mercurial
 							var msg = String.Format("Server temporarily unavailable: {0}",
 							Encoding.UTF8.GetString(response.Content));
 							_progress.WriteError(msg);
-							return new MultiMap<string, string>();
+							//Server returned unavailable - continue to retry.
+							continue;
 						}
 						if (response.HttpStatus == HttpStatusCode.OK && response.Content.Length > 0)
 						{
@@ -763,6 +764,7 @@ namespace Chorus.VcsDrivers.Mercurial
 					// rare enough that it's not worth trying to get the progress indicator working for a recursive Pull()
 					*/
 					_progress.WriteMessage("Remote repo has changed.  Initiating additional pull operation");
+					GetCommonBaseHashesWithRemoteRepo(false); //Rebuild cache with current server information
 					return Pull();
 				}
 
