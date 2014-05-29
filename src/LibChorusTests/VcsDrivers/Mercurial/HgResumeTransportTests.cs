@@ -509,26 +509,6 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		}
 
 		[Test]
-		public void Pull_GetRevisionServerResponseServerNotAvailable_NotAvailableMessageButRetriesAndSucceeds()
-		{
-			using(var e = new TestEnvironment("hgresumetest", ApiServerType.Dummy))
-			using(var provider = GetTransportProviderForTest(e))
-			{
-				e.LocalAddAndCommit();
-				var serverMessage = "The server is down for scheduled maintenance";
-				e.ApiServer.AddResponse(ApiResponses.NotAvailable(serverMessage));
-				var revisionResponse = ApiResponses.Custom(HttpStatusCode.OK);
-				revisionResponse.Content = Encoding.UTF8.GetBytes((e.Local.Repository.GetTip().Number.Hash + ":").ToArray());
-				e.ApiServer.AddResponse(revisionResponse);
-				e.ApiServer.AddResponse(ApiResponses.PullNoChange());
-				var transport = provider.Transport;
-				transport.Pull();
-				Assert.That(e.Progress.AllMessages, Contains.Item("Server temporarily unavailable: " + serverMessage));
-				Assert.That(e.Progress.AllMessages, Has.Member("No changes"));
-			}
-		}
-
-		[Test]
 		public void Pull_GetRevisionServerResponseServerNotAvailable_NotAvailableMessageAndFails()
 		{
 			using(var e = new TestEnvironment("hgresumetest", ApiServerType.Dummy))

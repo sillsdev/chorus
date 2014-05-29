@@ -250,8 +250,8 @@ namespace Chorus.VcsDrivers.Mercurial
 							var msg = String.Format("Server temporarily unavailable: {0}",
 							Encoding.UTF8.GetString(response.Content));
 							_progress.WriteError(msg);
-							//Server returned unavailable - continue to retry.
-							continue;
+							//Server returned unavailable
+							break;
 						}
 						if (response.HttpStatus == HttpStatusCode.OK && response.Content.Length > 0)
 						{
