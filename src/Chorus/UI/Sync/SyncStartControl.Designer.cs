@@ -1,4 +1,4 @@
-﻿using System.Threading;
+﻿﻿using System.Threading;
 using Palaso.UI.WindowsForms.SettingProtection;
 
 namespace Chorus.UI.Sync
@@ -135,7 +135,7 @@ namespace Chorus.UI.Sync
 			this._tableLayoutPanel.Location = new System.Drawing.Point(22, 13);
 			this._tableLayoutPanel.Name = "_tableLayoutPanel";
 			this._tableLayoutPanel.RowCount = 9;
-			this._tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+			this._tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F)); // increase V space to fix text clipping issue: WS-46
 			this._tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 35F));
 			this._tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 45F));
 			this._tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
@@ -144,7 +144,7 @@ namespace Chorus.UI.Sync
 			this._tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 45F));
 			this._tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
 			this._tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-			this._tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+			this._tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F)); // increase V space to fix text clipping issue: WS-46
 			this._tableLayoutPanel.Size = new System.Drawing.Size(342, 351);
 			this._tableLayoutPanel.TabIndex = 0;
 			//
@@ -252,7 +252,7 @@ namespace Chorus.UI.Sync
 			this._settingsButton.Margin = new System.Windows.Forms.Padding(0);
 			this._settingsButton.Name = "_settingsButton";
 			this._settingsButton.Padding = new System.Windows.Forms.Padding(3, 0, 0, 0);
-			this._settingsButton.Size = new System.Drawing.Size(110, 22);
+			this._settingsButton.Size = new System.Drawing.Size(110, 25);  // increase V space to fix text clipping issue: WS-46
 			this._settingsButton.TabIndex = 5;
 			//
 			// l10NSharpExtender1
@@ -274,7 +274,7 @@ namespace Chorus.UI.Sync
 			this.commitMessageLabel.Multiline = true;
 			this.commitMessageLabel.Name = "commitMessageLabel";
 			this.commitMessageLabel.ReadOnly = true;
-			this.commitMessageLabel.Size = new System.Drawing.Size(336, 14);
+			this.commitMessageLabel.Size = new System.Drawing.Size(336, 25);  // increase V space to fix text clipping issue: WS-46
 			this.commitMessageLabel.TabIndex = 3;
 			this.commitMessageLabel.TabStop = false;
 			this.commitMessageLabel.Text = "Label this point in the project history (Optional) :";
