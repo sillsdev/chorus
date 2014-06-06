@@ -32,11 +32,7 @@ namespace Chorus.UI.Settings
 		/// </summary>
 		private void InitializeComponent()
 		{
-#if MONO
-			this.webBrowser1 = new Gecko.GeckoWebBrowser();
-#else
-			this.webBrowser1 = new System.Windows.Forms.WebBrowser();
-#endif
+			this.webBrowser1 = new Palaso.UI.WindowsForms.HtmlBrowser.XWebBrowser();
 			this.SuspendLayout();
 			//
 			// webBrowser1
@@ -47,11 +43,9 @@ namespace Chorus.UI.Settings
 			this.webBrowser1.Name = "webBrowser1";
 			this.webBrowser1.Size = new System.Drawing.Size(522, 310);
 			this.webBrowser1.TabIndex = 1;
-#if !MONO
 			this.webBrowser1.AllowNavigation = false;
 			this.webBrowser1.AllowWebBrowserDrop = false;
 			this.webBrowser1.Url = new System.Uri("", System.UriKind.Relative);
-#endif
 			//
 			// SetupPanel
 			//
@@ -67,10 +61,6 @@ namespace Chorus.UI.Settings
 
 		#endregion
 
-#if MONO
-		private Gecko.GeckoWebBrowser webBrowser1;
-#else
-		private System.Windows.Forms.WebBrowser webBrowser1;
-#endif
+		private Palaso.UI.WindowsForms.HtmlBrowser.XWebBrowser webBrowser1;
 	}
 }

@@ -96,6 +96,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\Debug\PalasoUIWindowsForms.dll</HintPath>
     </Reference>
+    <Reference Include="GeckoBrowserAdapter">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\Debug\PalasoUIWindowsForms.GeckoBrowserAdapter.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)' == 'Release'">
     <Reference Include="L10NSharp">
@@ -108,6 +112,10 @@
     <Reference Include="PalasoUIWindowsForms">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\Release\PalasoUIWindowsForms.dll</HintPath>
+    </Reference>
+    <Reference Include="GeckoBrowserAdapter">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\Release\PalasoUIWindowsForms.GeckoBrowserAdapter.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)' == 'DebugMono'">
@@ -122,38 +130,29 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\DebugMono\PalasoUIWindowsForms.dll</HintPath>
     </Reference>
+    <Reference Include="GeckoBrowserAdapter">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\DebugMono\PalasoUIWindowsForms.GeckoBrowserAdapter.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)' == 'ReleaseMono'">
     <Reference Include="L10NSharp">
       <HintPath>..\..\lib\ReleaseMono\L10NSharp.dll</HintPath>
     </Reference>
     <Reference Include="Palaso">
-      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\ReleaseMono\Palaso.dll</HintPath>
     </Reference>
     <Reference Include="PalasoUIWindowsForms">
-      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\ReleaseMono\PalasoUIWindowsForms.dll</HintPath>
     </Reference>
-    <Reference Include="geckofx-core-14">
-      <HintPath>..\..\lib\ReleaseMono\geckofx-core-14.dll</HintPath>
+    <Reference Include="GeckoBrowserAdapter">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\ReleaseMono\PalasoUIWindowsForms.GeckoBrowserAdapter.dll</HintPath>
     </Reference>
-    <Reference Include="Geckofx-Winforms-14">
-      <HintPath>..\..\lib\ReleaseMono\Geckofx-Winforms-14.dll</HintPath>
-    </Reference>
-    <None Include="..\..\lib\ReleaseMono\geckofix.so">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="..\..\lib\ReleaseMono\geckofx-core-14.dll.config">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Autofac">
       <HintPath>..\..\lib\common\Autofac.dll</HintPath>
-    </Reference>
-    <Reference Include="PalasoUIWindowsForms.GeckoBrowserAdapter">
-      <HintPath>..\..\..\Palaso\output\Debug\PalasoUIWindowsForms.GeckoBrowserAdapter.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

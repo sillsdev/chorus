@@ -12,14 +12,9 @@ namespace Chorus.notes
 
 		public void SetDocumentText(string text)
 		{
-#if MONO
-			_conflictDisplay.LoadHtml(text);
-			// disable right click menu (it would stay up and never go away, and we don't want it)
-			_conflictDisplay.NoDefaultContextMenu = true;
-#else
+			_conflictDisplay.IsWebBrowserContextMenuEnabled = false;
 			_conflictDisplay.DocumentText = text;
 			_conflictDisplay.WebBrowserShortcutsEnabled = true;
-#endif
 		}
 
 		public string TechnicalDetails { get; set; }
@@ -35,11 +30,7 @@ namespace Chorus.notes
 
 		private void technicalDetailsToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-#if MONO
-			_conflictDisplay.LoadHtml(TechnicalDetails);
-#else
 			_conflictDisplay.DocumentText = TechnicalDetails;
-#endif
 		}
 	}
 }

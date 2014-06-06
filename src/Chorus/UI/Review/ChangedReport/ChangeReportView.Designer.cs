@@ -36,19 +36,11 @@
 		private void InitializeComponent()
 		{
 			this.components = new System.ComponentModel.Container();
-#if MONO
-			this._normalChangeDescriptionRenderer = new Gecko.GeckoWebBrowser();
-#else
-			this._normalChangeDescriptionRenderer = new System.Windows.Forms.WebBrowser();
-#endif
+			this._normalChangeDescriptionRenderer = new Palaso.UI.WindowsForms.HtmlBrowser.XWebBrowser();
 			this.tabControl1 = new System.Windows.Forms.TabControl();
 			this.tabPage1 = new System.Windows.Forms.TabPage();
 			this.tabPageRaw = new System.Windows.Forms.TabPage();
-#if MONO
-			this._rawChangeDescriptionRenderer = new Gecko.GeckoWebBrowser();
-#else
-			this._rawChangeDescriptionRenderer = new System.Windows.Forms.WebBrowser();
-#endif
+			this._rawChangeDescriptionRenderer = new Palaso.UI.WindowsForms.HtmlBrowser.XWebBrowser();
 			this.l10NSharpExtender1 = new L10NSharp.UI.L10NSharpExtender(this.components);
 			this.tabControl1.SuspendLayout();
 			this.tabPage1.SuspendLayout();
@@ -67,13 +59,9 @@
 			this._normalChangeDescriptionRenderer.Name = "_normalChangeDescriptionRenderer";
 			this._normalChangeDescriptionRenderer.Size = new System.Drawing.Size(136, 118);
 			this._normalChangeDescriptionRenderer.TabIndex = 0;
-#if MONO
-			this._normalChangeDescriptionRenderer.Navigating += new System.EventHandler<Gecko.GeckoNavigatingEventArgs>(this._normalChangeDescriptionRenderer_Navigating);
-#else
-			this._normalChangeDescriptionRenderer.AllowWebBrowserDrop = false;
-			this._normalChangeDescriptionRenderer.WebBrowserShortcutsEnabled = false;
 			this._normalChangeDescriptionRenderer.Navigating += new System.Windows.Forms.WebBrowserNavigatingEventHandler(this._normalChangeDescriptionRenderer_Navigating);
-#endif
+			this._normalChangeDescriptionRenderer.WebBrowserShortcutsEnabled = false;
+			this._normalChangeDescriptionRenderer.AllowWebBrowserDrop = false;
 			//
 			// tabControl1
 			//
@@ -125,10 +113,8 @@
 			this._rawChangeDescriptionRenderer.Name = "_rawChangeDescriptionRenderer";
 			this._rawChangeDescriptionRenderer.Size = new System.Drawing.Size(142, 124);
 			this._rawChangeDescriptionRenderer.TabIndex = 1;
-#if !MONO
 			this._rawChangeDescriptionRenderer.AllowWebBrowserDrop = false;
 			this._rawChangeDescriptionRenderer.WebBrowserShortcutsEnabled = false;
-#endif
 			//
 			// l10NSharpExtender1
 			//
@@ -154,19 +140,11 @@
 
 		#endregion
 
-#if MONO
-		private Gecko.GeckoWebBrowser _normalChangeDescriptionRenderer;
-#else
-		private System.Windows.Forms.WebBrowser _normalChangeDescriptionRenderer;
-#endif
+		private Palaso.UI.WindowsForms.HtmlBrowser.XWebBrowser _normalChangeDescriptionRenderer;
 		private System.Windows.Forms.TabControl tabControl1;
 		private System.Windows.Forms.TabPage tabPage1;
 		private System.Windows.Forms.TabPage tabPageRaw;
-#if MONO
-		private Gecko.GeckoWebBrowser _rawChangeDescriptionRenderer;
-#else
-		private System.Windows.Forms.WebBrowser _rawChangeDescriptionRenderer;
-#endif
+		private Palaso.UI.WindowsForms.HtmlBrowser.XWebBrowser _rawChangeDescriptionRenderer;
 		private L10NSharp.UI.L10NSharpExtender l10NSharpExtender1;
 
 	}

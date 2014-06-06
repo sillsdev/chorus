@@ -138,6 +138,10 @@ namespace Chorus.UI.Notes
 			this._existingMessagesDisplay.TabIndex = 9;
 			this._existingMessagesDisplay.DocumentCompleted += new System.Windows.Forms.WebBrowserDocumentCompletedEventHandler(this._existingMessagesDisplay_DocumentCompleted);
 			this._existingMessagesDisplay.Navigating += new System.Windows.Forms.WebBrowserNavigatingEventHandler(this._existingMessagesDisplay_Navigating);
+			this._existingMessagesDisplay.AllowWebBrowserDrop = false;
+			this._existingMessagesDisplay.WebBrowserShortcutsEnabled = false;
+			this._existingMessagesDisplay.IsWebBrowserContextMenuEnabled = false;
+
 			//
 			// _annotationLabel
 			//
