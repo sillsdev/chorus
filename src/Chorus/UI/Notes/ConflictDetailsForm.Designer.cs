@@ -34,11 +34,7 @@
 		{
 			this.components = new System.ComponentModel.Container();
 			this._okButton = new System.Windows.Forms.Button();
-#if MONO
-			this._conflictDisplay = new Gecko.GeckoWebBrowser();
-#else
-			this._conflictDisplay = new System.Windows.Forms.WebBrowser();
-#endif
+			this._conflictDisplay = new Palaso.UI.WindowsForms.HtmlBrowser.XWebBrowser();
 			this._helpProvider = new Vulcan.Uczniowie.HelpProvider.HelpComponent(this.components);
 			this.menuStrip1 = new System.Windows.Forms.MenuStrip();
 			this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -76,10 +72,7 @@
 			this._conflictDisplay.Name = "_conflictDisplay";
 			this._conflictDisplay.Size = new System.Drawing.Size(948, 487);
 			this._conflictDisplay.TabIndex = 10;
-#if !MONO
-			this._conflictDisplay.AllowWebBrowserDrop = false;
 			this._conflictDisplay.WebBrowserShortcutsEnabled = false;
-#endif
 			//
 			// menuStrip1
 			//
@@ -159,11 +152,10 @@
 		#endregion
 
 		private System.Windows.Forms.Button _okButton;
-#if MONO
-		private Gecko.GeckoWebBrowser _conflictDisplay;
-#else
-		private System.Windows.Forms.WebBrowser _conflictDisplay;
-#endif
+
+
+
+		private Palaso.UI.WindowsForms.HtmlBrowser.XWebBrowser _conflictDisplay;
 		private Vulcan.Uczniowie.HelpProvider.HelpComponent _helpProvider;
 		private System.Windows.Forms.MenuStrip menuStrip1;
 		private System.Windows.Forms.ToolStripMenuItem editToolStripMenuItem;

@@ -1,4 +1,5 @@
-﻿﻿using Palaso.UI.WindowsForms.SettingProtection;
+﻿using Palaso.UI.WindowsForms.HtmlBrowser;
+using Palaso.UI.WindowsForms.SettingProtection;
 
 namespace Chorus.UI.Settings
 {
@@ -42,7 +43,7 @@ namespace Chorus.UI.Settings
 			this._serverSettingsControl = new Chorus.UI.Misc.ServerSettingsControl();
 			this.chorusHubTab = new System.Windows.Forms.TabPage();
 			this._showChorusHubInSendReceive = new System.Windows.Forms.CheckBox();
-			this.chorusHubSetup = new Chorus.UI.BetterBrowser();
+			this.chorusHubSetup = new XWebBrowser();
 			this.pictureBox4 = new System.Windows.Forms.PictureBox();
 			this._helpButton = new System.Windows.Forms.Button();
 			this._cancelButton = new System.Windows.Forms.Button();
@@ -353,7 +354,7 @@ namespace Chorus.UI.Settings
 		private System.Windows.Forms.PictureBox pictureBox3;
 		private Vulcan.Uczniowie.HelpProvider.HelpComponent _helpProvider;
 		private System.Windows.Forms.TabPage chorusHubTab;
-		private BetterBrowser chorusHubSetup;
+		private Palaso.UI.WindowsForms.HtmlBrowser.XWebBrowser chorusHubSetup;
 		private System.Windows.Forms.PictureBox pictureBox4;
 		private System.Windows.Forms.CheckBox _showChorusHubInSendReceive;
 		private L10NSharp.UI.L10NSharpExtender l10NSharpExtender1;

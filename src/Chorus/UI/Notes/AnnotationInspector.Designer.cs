@@ -1,4 +1,6 @@
-﻿namespace Chorus.UI.Notes
+﻿using Palaso.UI.WindowsForms.HtmlBrowser;
+
+namespace Chorus.UI.Notes
 {
 	partial class AnnotationInspector
 	{
@@ -33,11 +35,7 @@
 		private void InitializeComponent()
 		{
 			this.components = new System.ComponentModel.Container();
-#if MONO
-			this.webBrowser1 = new Gecko.GeckoWebBrowser();
-#else
-			this.webBrowser1 = new System.Windows.Forms.WebBrowser();
-#endif
+			this.webBrowser1 = new XWebBrowser();
 			this._pathLabel = new System.Windows.Forms.Label();
 			this._helpProvider = new Vulcan.Uczniowie.HelpProvider.HelpComponent(this.components);
 			this.l10NSharpExtender1 = new L10NSharp.UI.L10NSharpExtender(this.components);
@@ -98,11 +96,7 @@
 
 		#endregion
 
-#if MONO
-		private Gecko.GeckoWebBrowser webBrowser1;
-#else
-		private System.Windows.Forms.WebBrowser webBrowser1;
-#endif
+		private XWebBrowser webBrowser1;
 		private System.Windows.Forms.Label _pathLabel;
 		private Vulcan.Uczniowie.HelpProvider.HelpComponent _helpProvider;
 		private L10NSharp.UI.L10NSharpExtender l10NSharpExtender1;

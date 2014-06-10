@@ -3,7 +3,7 @@
 # project=Chorus
 # build=chorus-win32-master Continuous
 # root_dir=..
-# $Id: 5c57bb709d99a3f7fdebc821d8c88f682a1cfb0a $
+# $Id: 0b75ca980cea444bf053cfdd852cb3e370225ffe $
 
 cd "$(dirname "$0")"
 
@@ -87,20 +87,20 @@ cd -
 #     clean: false
 #     revision: latest.lastSuccessful
 #     paths: {"L10NSharp.dll"=>"lib/Release"}
-#     VCS: https://bitbucket.org/hatton/l10nsharp []
+#     VCS: https://bitbucket.org/sillsdev/l10nsharp []
 # [3] build: L10NSharp continuous (bt196)
 #     project: L10NSharp
 #     URL: http://build.palaso.org/viewType.html?buildTypeId=bt196
 #     clean: false
 #     revision: latest.lastSuccessful
 #     paths: {"L10NSharp.dll"=>"lib/Debug"}
-#     VCS: https://bitbucket.org/hatton/l10nsharp []
+#     VCS: https://bitbucket.org/sillsdev/l10nsharp []
 # [4] build: palaso-win32-master Continuous (bt223)
 #     project: libpalaso
 #     URL: http://build.palaso.org/viewType.html?buildTypeId=bt223
 #     clean: false
 #     revision: latest.lastSuccessful
-#     paths: {"Palaso.dll"=>"lib/Release", "Palaso.TestUtilities.dll"=>"lib/Release", "PalasoUIWindowsForms.dll"=>"lib/Release", "Palaso.Lift.dll"=>"lib/Release", "debug/Palaso.dll"=>"lib/Debug", "debug/Palaso.pdb"=>"lib/Debug", "debug/Palaso.TestUtilities.dll"=>"lib/Debug", "debug/Palaso.TestUtilities.pdb"=>"lib/Debug", "debug/PalasoUIWindowsForms.dll"=>"lib/Debug", "debug/PalasoUIWindowsForms.pdb"=>"lib/Debug", "debug/Palaso.Lift.dll"=>"lib/Debug", "debug/Palaso.Lift.pdb"=>"lib/Debug"}
+#     paths: {"Palaso.dll"=>"lib/Release", "Palaso.TestUtilities.dll"=>"lib/Release", "PalasoUIWindowsForms.dll"=>"lib/Release", "Palaso.Lift.dll"=>"lib/Release", "debug/Palaso.dll"=>"lib/Debug", "debug/Palaso.pdb"=>"lib/Debug", "debug/Palaso.TestUtilities.dll"=>"lib/Debug", "debug/Palaso.TestUtilities.pdb"=>"lib/Debug", "debug/PalasoUIWindowsForms.dll"=>"lib/Debug", "debug/PalasoUIWindowsForms.pdb"=>"lib/Debug", "debug/PalasoUIWindowsForms.GeckoBrowserAdapter.dll"=>"lib/Debug", "debug/PalasoUIWindowsForms.GeckoBrowserAdapter.pdb"=>"lib/Debug", "debug/Palaso.Lift.dll"=>"lib/Debug", "debug/Palaso.Lift.pdb"=>"lib/Debug"}
 #     VCS: https://github.com/sillsdev/libpalaso.git []
 # [5] build: icucil-win32-default Continuous (bt14)
 #     project: Libraries
@@ -119,9 +119,9 @@ cd -
 
 # make sure output directories exist
 mkdir -p ../lib
-mkdir -p ../lib/common
-mkdir -p ../lib/Release
 mkdir -p ../lib/Debug
+mkdir -p ../lib/Release
+mkdir -p ../lib/common
 
 # download artifact dependencies
 copy_auto http://build.palaso.org/guestAuth/repository/download/bt216/latest.lastSuccessful/Chorus_Help.chm ../lib/Chorus_Help.chm
@@ -138,6 +138,8 @@ copy_auto http://build.palaso.org/guestAuth/repository/download/bt223/latest.las
 copy_auto http://build.palaso.org/guestAuth/repository/download/bt223/latest.lastSuccessful/debug/Palaso.TestUtilities.pdb ../lib/Debug/Palaso.TestUtilities.pdb
 copy_auto http://build.palaso.org/guestAuth/repository/download/bt223/latest.lastSuccessful/debug/PalasoUIWindowsForms.dll ../lib/Debug/PalasoUIWindowsForms.dll
 copy_auto http://build.palaso.org/guestAuth/repository/download/bt223/latest.lastSuccessful/debug/PalasoUIWindowsForms.pdb ../lib/Debug/PalasoUIWindowsForms.pdb
+copy_auto http://build.palaso.org/guestAuth/repository/download/bt223/latest.lastSuccessful/debug/PalasoUIWindowsForms.GeckoBrowserAdapter.dll ../lib/Debug/PalasoUIWindowsForms.GeckoBrowserAdapter.dll
+copy_auto http://build.palaso.org/guestAuth/repository/download/bt223/latest.lastSuccessful/debug/PalasoUIWindowsForms.GeckoBrowserAdapter.pdb ../lib/Debug/PalasoUIWindowsForms.GeckoBrowserAdapter.pdb
 copy_auto http://build.palaso.org/guestAuth/repository/download/bt223/latest.lastSuccessful/debug/Palaso.Lift.dll ../lib/Debug/Palaso.Lift.dll
 copy_auto http://build.palaso.org/guestAuth/repository/download/bt223/latest.lastSuccessful/debug/Palaso.Lift.pdb ../lib/Debug/Palaso.Lift.pdb
 copy_auto http://build.palaso.org/guestAuth/repository/download/bt14/latest.lastSuccessful/icu.net.dll ../lib/Release/icu.net.dll

@@ -43,11 +43,7 @@ namespace Chorus.UI.Notes
 
 		protected void SetDocumentText(string text)
 		{
-#if MONO
-			_existingMessagesDisplay.LoadHtml(text);
-#else
 			_existingMessagesDisplay.DocumentText = text;
-#endif
 		}
 
 		public bool ModalDialogMode
@@ -190,29 +186,6 @@ namespace Chorus.UI.Notes
 			Cursor.Current = Cursors.Default;
 		}
 
-#if MONO
-		private void _existingMessagesHandleLinkClick(object sender, Gecko.GeckoDomEventArgs e)
-		{
-			Gecko.GeckoHtmlElement clicked = e.Target;
-			if(clicked != null && clicked.TagName == "A")
-			{
-				e.Handled = true;
-				_model.HandleLinkClicked(new Uri(clicked.GetAttribute("href")));
-			}
-		}
-
-		private void _existingMessagesDisplay_DocumentCompleted(object sender, EventArgs e)
-		{
-			if (_waitingOnBrowserToBeReady)
-			{
-				_waitingOnBrowserToBeReady = false;
-				OnUpdateContent(null,null);
-			}
-			// The Windows/.Net code appears to be trying to scroll to the bottom child.
-			// This has much the same effect for Gecko.
-			_existingMessagesDisplay.Document.Body.ScrollIntoView(false);
-		}
-#else
 		private void _existingMessagesDisplay_Navigating(object sender, WebBrowserNavigatingEventArgs e)
 		{
 			if (e.Url.Scheme == "about")
@@ -229,13 +202,8 @@ namespace Chorus.UI.Notes
 				OnUpdateContent(null,null);
 			}
 
-			var c = _existingMessagesDisplay.Document.Body.Children.Count;
-			if (c > 0)
-			{
-				_existingMessagesDisplay.Document.Body.Children[c - 1].ScrollIntoView(false);
-			}
+			_existingMessagesDisplay.ScrollLastElementIntoView();
 		}
-#endif
 
 		private void _annotationLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
 		{

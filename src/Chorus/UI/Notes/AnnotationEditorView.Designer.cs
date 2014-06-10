@@ -1,4 +1,6 @@
-﻿namespace Chorus.UI.Notes
+﻿using Palaso.UI.WindowsForms.HtmlBrowser;
+
+namespace Chorus.UI.Notes
 {
 	partial class AnnotationEditorView
 	{
@@ -38,11 +40,7 @@
 			this._closeButton = new System.Windows.Forms.Button();
 			this._newMessage = new System.Windows.Forms.TextBox();
 			this._annotationLogo = new System.Windows.Forms.PictureBox();
-#if MONO
-			this._existingMessagesDisplay = new Gecko.GeckoWebBrowser();
-#else
-			this._existingMessagesDisplay = new System.Windows.Forms.WebBrowser();
-#endif
+			this._existingMessagesDisplay = new XWebBrowser();
 			this._annotationLabel = new System.Windows.Forms.LinkLabel();
 			this._addNewMessageLabel = new Chorus.UI.BetterLabel();
 			this.l10NSharpExtender1 = new L10NSharp.UI.L10NSharpExtender(this.components);
@@ -138,16 +136,12 @@
 			this._existingMessagesDisplay.Name = "_existingMessagesDisplay";
 			this._existingMessagesDisplay.Size = new System.Drawing.Size(313, 264);
 			this._existingMessagesDisplay.TabIndex = 9;
-#if MONO
-			this._existingMessagesDisplay.DocumentCompleted += new System.EventHandler(this._existingMessagesDisplay_DocumentCompleted);
-			this._existingMessagesDisplay.DomClick += new System.EventHandler<Gecko.GeckoDomEventArgs>(this._existingMessagesHandleLinkClick);
-			this._existingMessagesDisplay.NoDefaultContextMenu = true;
-#else
-			this._existingMessagesDisplay.AllowWebBrowserDrop = false;
-			this._existingMessagesDisplay.WebBrowserShortcutsEnabled = false;
 			this._existingMessagesDisplay.DocumentCompleted += new System.Windows.Forms.WebBrowserDocumentCompletedEventHandler(this._existingMessagesDisplay_DocumentCompleted);
 			this._existingMessagesDisplay.Navigating += new System.Windows.Forms.WebBrowserNavigatingEventHandler(this._existingMessagesDisplay_Navigating);
-#endif
+			this._existingMessagesDisplay.AllowWebBrowserDrop = false;
+			this._existingMessagesDisplay.WebBrowserShortcutsEnabled = false;
+			this._existingMessagesDisplay.IsWebBrowserContextMenuEnabled = false;
+
 			//
 			// _annotationLabel
 			//
@@ -222,11 +216,7 @@
 		private System.Windows.Forms.Button _resolveButton;
 		private System.Windows.Forms.Button _closeButton;
 		private System.Windows.Forms.TextBox _newMessage;
-#if MONO
-		private Gecko.GeckoWebBrowser _existingMessagesDisplay;
-#else
-		private System.Windows.Forms.WebBrowser _existingMessagesDisplay;
-#endif
+		private Palaso.UI.WindowsForms.HtmlBrowser.XWebBrowser _existingMessagesDisplay;
 		private System.Windows.Forms.LinkLabel _annotationLabel;
 		private L10NSharp.UI.L10NSharpExtender l10NSharpExtender1;
 	}
