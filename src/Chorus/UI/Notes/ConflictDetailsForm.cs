@@ -24,7 +24,7 @@ namespace Chorus.notes
 #if MONO
 			//GECKOFX: what to do?
 #else
-			_conflictDisplay.Document.ExecCommand(@"Copy", false, null);
+			((WebBrowser)_conflictDisplay.NativeBrowser).Document.ExecCommand(@"Copy", false, null);
 #endif
 		}
 
