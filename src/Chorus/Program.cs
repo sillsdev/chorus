@@ -5,9 +5,6 @@ using System.Reflection;
 using System.Windows.Forms;
 using Chorus.VcsDrivers.Mercurial;
 using L10NSharp;
-#if false
-using System.Runtime.InteropServices;
-#endif
 
 namespace Chorus
 {
