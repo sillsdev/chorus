@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
 using Chorus.sync;
 using Chorus.Utilities;
-using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using LibChorus.Tests.sync;
 using NUnit.Framework;
@@ -498,12 +496,36 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			{
 				e.LocalAddAndCommit();
 				var serverMessage = "The server is down for scheduled maintenance";
+				var revisionResponse = ApiResponses.Custom(HttpStatusCode.OK);
+				revisionResponse.Content = Encoding.UTF8.GetBytes((e.Local.Repository.GetTip().Number.Hash + ":").ToArray());
+				e.ApiServer.AddResponse(revisionResponse);
 				e.ApiServer.AddResponse(ApiResponses.NotAvailable(serverMessage));
 				e.ApiServer.AddResponse(ApiResponses.PullNoChange());
 				var transport = provider.Transport;
 				transport.Pull();
 				Assert.That(e.Progress.AllMessages, Contains.Item("Server temporarily unavailable: " + serverMessage));
 				Assert.That(e.Progress.AllMessages, Has.No.Member("The pull operation completed successfully"));
+			}
+		}
+
+		[Test]
+		public void Pull_GetRevisionServerResponseServerNotAvailable_NotAvailableMessageAndFails()
+		{
+			using(var e = new TestEnvironment("hgresumetest", ApiServerType.Dummy))
+			using(var provider = GetTransportProviderForTest(e))
+			{
+				e.LocalAddAndCommit();
+				var serverMessage = "The server is down for scheduled maintenance";
+				e.ApiServer.AddResponse(ApiResponses.NotAvailable(serverMessage));
+				e.ApiServer.AddResponse(ApiResponses.NotAvailable(serverMessage));
+				var revisionResponse = ApiResponses.Custom(HttpStatusCode.OK);
+				revisionResponse.Content = Encoding.UTF8.GetBytes((e.Local.Repository.GetTip().Number.Hash + ":").ToArray());
+				e.ApiServer.AddResponse(revisionResponse);
+				e.ApiServer.AddResponse(ApiResponses.PullNoChange());
+				var transport = provider.Transport;
+				Assert.Throws(typeof(HgResumeOperationFailed), () => transport.Pull());
+				Assert.That(e.Progress.AllMessages, Contains.Item("Server temporarily unavailable: " + serverMessage));
+				Assert.That(e.Progress.AllMessages, Has.No.Member("No changes"));
 			}
 		}
 
@@ -515,10 +537,13 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			{
 				e.LocalAddAndCommit();
 				var serverMessage = "The server is down for scheduled maintenance";
+				var revisionResponse = ApiResponses.Custom(HttpStatusCode.OK);
+				revisionResponse.Content = Encoding.UTF8.GetBytes("0:default").ToArray();
+				e.ApiServer.AddResponse(revisionResponse);
 				e.ApiServer.AddResponse(ApiResponses.NotAvailable(serverMessage));
 				e.ApiServer.AddResponse(ApiResponses.PushComplete());
 				var transport = provider.Transport;
-				Assert.Throws <HgResumeOperationFailed>(transport.Push);
+				transport.Push();
 				Assert.That(e.Progress.AllMessages, Contains.Item("Server temporarily unavailable: " + serverMessage));
 				Assert.That(e.Progress.AllMessages, Has.No.Member("The pull operation completed successfully"));
 			}

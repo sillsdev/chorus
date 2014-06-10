@@ -277,7 +277,7 @@ namespace Chorus.UI.Settings
 			this.settingsProtectionButton.Location = new System.Drawing.Point(14, 388);
 			this.settingsProtectionButton.Margin = new System.Windows.Forms.Padding(0);
 			this.settingsProtectionButton.Name = "settingsProtectionButton";
-			this.settingsProtectionButton.Size = new System.Drawing.Size(258, 37);
+			this.settingsProtectionButton.Size = new System.Drawing.Size(258, 47); // increase V space to fix text clipping issue: WS-46
 			this.settingsProtectionButton.TabIndex = 0;
 			//
 			// pictureBox3
@@ -304,7 +304,7 @@ namespace Chorus.UI.Settings
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.CancelButton = this._cancelButton;
-			this.ClientSize = new System.Drawing.Size(508, 434);
+			this.ClientSize = new System.Drawing.Size(508, 439); // increase V space to fix text clipping issue: WS-46
 			this.Controls.Add(this.pictureBox3);
 			this.Controls.Add(this._okButton);
 			this.Controls.Add(this._cancelButton);
