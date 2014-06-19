@@ -32,11 +32,11 @@
 
 	<ItemGroup>
 		<ExistingObjectFiles
-			Include="$(RootDir)/**/obj/**/*;$(RootDir)/output/$(Configuration)/**/*"
-			Exclude="$(RootDir)/.hg/**/*"
+			Include="$(RootDir)/output/$(Configuration)/**/*"
 		/>
 	</ItemGroup>
 	<Target Name="Clean">
+		<Exec Command="find $(RootDir)/. -name obj -type d -print0 | xargs -0 rm -rf" WorkingDirectory="$(RootDir)" />
 		<Delete Files="@(ExistingObjectFiles)" />
 	</Target>
 
@@ -56,8 +56,8 @@
 			<Output TaskParameter="ExitCode" PropertyName="ZeroIf32BitCpu"/>
 		</Exec>
 		<!-- Extract the appropriate zip file. -->
-		<Exec Condition="'$(ZeroIf64BitCpu)'=='0'" Command="/usr/bin/unzip -uq $(RootDir)/lib/common/Mercurial-x86_64.zip -d $(RootDir)" />
-		<Exec Condition="'$(ZeroIf32BitCpu)'=='0'" Command="/usr/bin/unzip -uq $(RootDir)/lib/common/Mercurial-i686.zip -d $(RootDir)" />
+		<Exec Condition="'$(ZeroIf64BitCpu)'=='0'" Command="/usr/bin/unzip -uqo $(RootDir)/lib/common/Mercurial-x86_64.zip -d $(RootDir)" />
+		<Exec Condition="'$(ZeroIf32BitCpu)'=='0'" Command="/usr/bin/unzip -uqo $(RootDir)/lib/common/Mercurial-i686.zip -d $(RootDir)" />
 		<!-- Zip doesn't seem to retain the permission bits we need. -->
 		<Exec Command="/bin/chmod +x $(RootDir)/Mercurial/hg*" ContinueOnError="true"/>
 	</Target>
