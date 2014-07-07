@@ -730,6 +730,25 @@ namespace Chorus.VcsDrivers.Mercurial
 			Execute(SecondsBeforeTimeoutOnLocalOperation, "update", "-r", revision, "-C");
 		}
 
+        public string Verify()
+        {
+            _progress.WriteVerbose("{0} verifying", _userName);
+            CheckAndUpdateHgrc();
+            ExecutionResult result = Execute(SecondsBeforeTimeoutOnLocalOperation, "verify");
+            
+            if (result.StandardOutput.Contains("run hg recover"))
+            {
+                // Failed to verify. Try simple recover command
+                _progress.WriteVerbose("{0} failed to verify - Attempting recovery", _userName);
+                Execute(SecondsBeforeTimeoutOnLocalOperation, "recover");
+
+                result = Execute(SecondsBeforeTimeoutOnLocalOperation, "verify");
+            }
+            if (result.ExitCode == 0)
+                return null;
+            return result.StandardOutput + result.StandardError;
+        }
+
 		//        public void GetRevisionOfFile(string fileRelativePath, string revision, string fullOutputPath)
 		//        {
 		//            //for "hg cat" (surprisingly), the relative path isn't relative to the start of the repo, but to the current

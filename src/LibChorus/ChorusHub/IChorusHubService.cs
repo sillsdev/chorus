@@ -36,5 +36,25 @@ namespace Chorus.ChorusHub
 		/// <returns>true if a new directory is created</returns>
 		[OperationContract]
 		bool PrepareToReceiveRepository(string name, string id);
+
+        /// <summary>
+        /// Gets a file's contents from a revision directly from a repository
+        /// </summary>
+        [OperationContract]
+        byte[] GetFileRevision(string repositoryName, string fileRelativePath, string revision);
+
+        /// <summary>
+        /// Verifies the integrity of the mecurial repository. If errors are found, attempts a mecurial recovery.
+        /// </summary>
+        /// <returns>The console output of the verify or null if no errors found</returns>
+        [OperationContract]
+        string Verify(string repositoryName);
+
+        /// <summary>
+        /// Renames a repository
+        /// </summary>
+        /// <returns>True if successful, false otherwise</returns>
+        [OperationContract]
+        bool Rename(string repositoryName, string newName);
 	}
 }

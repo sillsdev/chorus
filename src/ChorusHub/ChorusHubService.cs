@@ -192,5 +192,46 @@ namespace ChorusHub
 			HgRepository.CreateRepositoryInExistingDir(uniqueDir, new ConsoleProgress());
 			return true;
 		}
+
+	    public byte[] GetFileRevision(string repositoryName, string fileRelativePath, string revisionStr)
+	    {
+            string directory = Path.Combine(ChorusHubOptions.RootDirectory, repositoryName);
+            HgRepository repo = new HgRepository(directory, new NullProgress());
+            Revision revision = repo.GetRevision(revisionStr);
+            if (revision == null)
+                return null;
+
+            FileInRevision file = repo.GetFilesInRevision(revision).FirstOrDefault(
+                f => f.FullPath.Length > directory.Length + 1 && // Make path relative by removing directory and path separator character
+                    string.Equals(f.FullPath.Substring(directory.Length + 1), fileRelativePath, StringComparison.OrdinalIgnoreCase));
+
+            return file != null ? file.GetFileContentsAsBytes(repo) : null;
+	    }
+
+	    public string Verify(string repositoryName)
+	    {
+            string directory = Path.Combine(ChorusHubOptions.RootDirectory, repositoryName);
+            HgRepository repo = new HgRepository(directory, new NullProgress());
+            return repo.Verify();
+        }
+
+	    public bool Rename(string repositoryName, string newName)
+	    {
+            string directory = Path.Combine(ChorusHubOptions.RootDirectory, repositoryName);
+            string newDirectory = Path.Combine(ChorusHubOptions.RootDirectory, newName);
+
+            if (Directory.Exists(newDirectory))
+                return false;
+
+	        try
+	        {
+                Directory.Move(directory, newDirectory);
+            }
+	        catch
+	        {
+                return false;
+	        }
+            return true;
+	    }
 	}
 }

@@ -90,10 +90,15 @@ namespace ChorusHub
 													catch (ThreadAbortException)
 													{
 														//Progress.WriteVerbose("Hg Serve command Thread Aborting (that's normal when stopping)");
-														if(!commandLineRunner.Abort(1))
-														{
-															//EventLog.WriteEntry("Application", "Hg Serve might not have closed down.", EventLogEntryType.Information);
-														}
+                                                        try
+                                                        {
+                                                            if (!commandLineRunner.Abort(1))
+                                                            {
+                                                                //EventLog.WriteEntry("Application", "Hg Serve might not have closed down.", EventLogEntryType.Information);
+                                                            }
+                                                        }
+                                                        catch { }
+
 													}
 												});
 				_hgServeThread.Start();
