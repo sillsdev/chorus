@@ -24,6 +24,10 @@ namespace Chorus.UI.Review.RevisionsInRepository
 			_model = model;
 			_model.ProgressDisplay = new NullProgress();
 			InitializeComponent();
+			// Don't let double clicks try to start editing a cell in the grid -- it's
+			// supposed to be a read-only display of the history.  (Linux WeSay is prone
+			// to crash on a double click if the grid is not read-only.)
+			_historyGrid.ReadOnly = true;
 			UpdateDisplay();
 			_showAdvanced.Visible=false;
 
