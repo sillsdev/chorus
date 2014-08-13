@@ -17,6 +17,7 @@ namespace Chorus.UI.Sync
 {
 	public class SyncControlModel
 	{
+		private static Object _lockToken = new object();
 		private readonly IChorusUser _user;
 		private readonly Synchronizer _synchronizer;
 		private readonly BackgroundWorker _backgroundWorker;
@@ -237,7 +238,12 @@ namespace Chorus.UI.Sync
 		{
 			object[] args = e.Argument as object[];
 			Synchronizer synchronizer = args[0] as Synchronizer;
-			e.Result =  synchronizer.SyncNow(sender as BackgroundWorker, e, args[1] as SyncOptions);
+			// We need to make sure that only one thread at a time goes through SyncNow()
+			// to avoid race conditions accessing the repository.
+			lock (_lockToken)
+			{
+				e.Result = synchronizer.SyncNow(sender as BackgroundWorker, e, args[1] as SyncOptions);
+			}
 		}
 
 		public void PathEnabledChanged(RepositoryAddress address, CheckState state)
@@ -288,21 +294,27 @@ namespace Chorus.UI.Sync
 			}
 			_asyncLocalCheckInWorker = new BackgroundWorker();
 			_asyncLocalCheckInWorker.DoWork += new DoWorkEventHandler((o, args) =>
-														{
+			{
 
-		   var options = new SyncOptions()
-			{
-				CheckinDescription = checkinDescription,
-				DoMergeWithOthers = false,
-				DoPullFromOthers = false,
-				DoSendToOthers = false
-			};
-		   var result = _synchronizer.SyncNow(options);
-			if (callbackWhenFinished != null)
-			{
-				callbackWhenFinished(result);
-			}
-														});
+				var options = new SyncOptions()
+				{
+					CheckinDescription = checkinDescription,
+					DoMergeWithOthers = false,
+					DoPullFromOthers = false,
+					DoSendToOthers = false
+				};
+				// We need to make sure that only one thread at a time goes through SyncNow()
+				// to avoid race conditions accessing the repository.
+				SyncResults result;
+				lock (_lockToken)
+				{
+					result = _synchronizer.SyncNow(options);
+				}
+				if (callbackWhenFinished != null)
+				{
+					callbackWhenFinished(result);
+				}
+			});
 			_asyncLocalCheckInWorker.RunWorkerAsync();
 		}
 	}
