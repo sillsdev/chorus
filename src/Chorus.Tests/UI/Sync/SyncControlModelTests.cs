@@ -9,6 +9,7 @@ using LibChorus.TestUtilities;
 using NUnit.Framework;
 using Palaso.Extensions;
 using Palaso.Progress;
+using Palaso.UI.WindowsForms.Progress;
 
 namespace Chorus.Tests
 {
@@ -153,6 +154,33 @@ namespace Chorus.Tests
 				}
 			}
 			Assert.IsTrue(result.Succeeded);
+		}
+
+		/// <summary>
+		/// This test is more thorough when run in debug mode since the 'Found a lock before executing' warning is debug only.
+		/// </summary>
+		[Test]
+		public void AsyncLocalCheckIn_NoHgLockWarningWithMultipleWorkers()
+		{
+			SyncResults result1=null;
+			SyncResults result2=null;
+			SyncResults result3=null;
+			_model.AsyncLocalCheckIn("testing", (r) => result1=r);
+			_model.AsyncLocalCheckIn("testing", (r) => result2=r);
+			_model.AsyncLocalCheckIn("testing", (r) => result3=r);
+			var start = DateTime.Now;
+			while(result1 == null || result2 == null || result3 == null)
+			{
+				Thread.Sleep(100);
+				Application.DoEvents();//without this, the background worker starves 'cause their's no UI
+				if((DateTime.Now.Subtract(start).Minutes > 0))
+				{
+					Assert.Fail("Gave up waiting.");
+				}
+			}
+			Assert.IsTrue(result1.Succeeded && result2.Succeeded && result3.Succeeded);
+			Assert.IsFalse(_model.StatusProgress.WarningEncountered);
+			Assert.IsFalse(_model.StatusProgress.ErrorEncountered);
 		}
 
 
