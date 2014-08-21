@@ -69,11 +69,11 @@ namespace Chorus.UI.Notes.Browser
 			this._messageListView.FullRowSelect = true;
 			this._messageListView.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
 			this._messageListView.HideSelection = false;
-			this._messageListView.Location = new System.Drawing.Point(6, 27);
+			this._messageListView.Location = new System.Drawing.Point(6, 50);
 			this._messageListView.MultiSelect = false;
 			this._messageListView.Name = "_messageListView";
 			this._messageListView.ShowItemToolTips = true;
-			this._messageListView.Size = new System.Drawing.Size(342, 342);
+			this._messageListView.Size = new System.Drawing.Size(342, 292);
 			this._messageListView.TabIndex = 2;
 			this._messageListView.UseCompatibleStateImageBehavior = false;
 			this._messageListView.View = System.Windows.Forms.View.Details;
@@ -141,7 +141,7 @@ namespace Chorus.UI.Notes.Browser
 			this.menuStrip1.GripMargin = new System.Windows.Forms.Padding(0, 2, 0, 2);
 			this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
 			this.filterToolStripMenuItem});
-			this.menuStrip1.Location = new System.Drawing.Point(4, 0);
+			this.menuStrip1.Location = new System.Drawing.Point(4, 23);
 			this.menuStrip1.Name = "menuStrip1";
 			this.menuStrip1.Padding = new System.Windows.Forms.Padding(0, 2, 0, 2);
 			this.menuStrip1.Size = new System.Drawing.Size(30, 24);
@@ -220,19 +220,19 @@ namespace Chorus.UI.Notes.Browser
 			//
 			// searchBox1
 			//
-			this.searchBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.searchBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)));
 			this.searchBox1.BackColor = System.Drawing.Color.White;
 			this.searchBox1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-			this.searchBox1.Location = new System.Drawing.Point(199, 3);
+			this.searchBox1.Location = new System.Drawing.Point(4,0);
 			this.searchBox1.Name = "searchBox1";
-			this.searchBox1.Size = new System.Drawing.Size(151, 20);
+			this.searchBox1.Size = new System.Drawing.Size(251, 20);
 			this.searchBox1.TabIndex = 3;
 			this.searchBox1.SearchTextChanged += new System.EventHandler(this.searchBox1_SearchTextChanged);
 			//
 			// filterStateLabel
 			//
 			this.filterStateLabel.AutoSize = true;
-			this.filterStateLabel.Location = new System.Drawing.Point(34, 6);
+			this.filterStateLabel.Location = new System.Drawing.Point(34, 29);
 			this.filterStateLabel.Name = "filterStateLabel";
 			this.filterStateLabel.Size = new System.Drawing.Size(0, 13);
 			this.filterStateLabel.TabIndex = 6;
