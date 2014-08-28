@@ -7,6 +7,7 @@ using System.Xml.Linq;
 using Chorus.Utilities;
 using Palaso.Code;
 using Palaso.Xml;
+using Palaso.Lift;
 
 namespace Chorus.merge.xml.generic
 {
@@ -837,13 +838,7 @@ namespace Chorus.merge.xml.generic
 
 			if (pathname.ToLowerInvariant().EndsWith("lift") || pathname.ToLowerInvariant().EndsWith("lift-ranges"))
 			{
-				var parentElement = XElement.Parse(parent);
-				foreach (var misnamedElement in parentElement.Descendants("element"))
-				{
-					misnamedElement.Name = "text";
-					misnamedElement.Attribute("name").Remove();
-				}
-				parent = parentElement.ToString();
+				parent = LiftSorter.FixBadTextElements(parent).ToString();
 			}
 			var parentNode = XmlUtilities.GetDocumentNodeFromRawXml(parent, new XmlDocument());
 			RemoveAmbiguousChildren(
