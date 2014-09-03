@@ -23,6 +23,9 @@ namespace Chorus.UI.Notes
 					components.Dispose();
 			}
 			_existingMessagesDisplay = null;
+			if (_tempPath != null)
+				System.IO.File.Delete(_tempPath);
+			_tempPath = null;
 			base.Dispose(disposing);
 		}
 
@@ -136,8 +139,6 @@ namespace Chorus.UI.Notes
 			this._existingMessagesDisplay.Name = "_existingMessagesDisplay";
 			this._existingMessagesDisplay.Size = new System.Drawing.Size(313, 264);
 			this._existingMessagesDisplay.TabIndex = 9;
-			this._existingMessagesDisplay.DocumentCompleted += new System.Windows.Forms.WebBrowserDocumentCompletedEventHandler(this._existingMessagesDisplay_DocumentCompleted);
-			this._existingMessagesDisplay.Navigating += new System.Windows.Forms.WebBrowserNavigatingEventHandler(this._existingMessagesDisplay_Navigating);
 			this._existingMessagesDisplay.AllowWebBrowserDrop = false;
 			this._existingMessagesDisplay.WebBrowserShortcutsEnabled = false;
 			this._existingMessagesDisplay.IsWebBrowserContextMenuEnabled = false;
