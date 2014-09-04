@@ -18,6 +18,7 @@ namespace Chorus.UI.Notes
 			_model.UpdateContent += OnUpdateContent;
 			_model.UpdateStates += OnUpdateStates;
 			InitializeComponent();
+			_existingMessagesDisplay.Navigating += _existingMessagesDisplay_Navigating;
 			Visible = model.IsVisible;
 			ModalDialogMode = true;
 			_newMessage.Font = model.FontForNewMessage;
@@ -127,6 +128,14 @@ namespace Chorus.UI.Notes
 		{
 			WebBrowser x = sender as WebBrowser;
 			x.Document.BackColor = this.BackColor;
+		}
+
+		private void _existingMessagesDisplay_Navigating(object sender, WebBrowserNavigatingEventArgs e)
+		{
+			if (e.Url.Scheme == "about" || e.Url.Scheme == "file")
+				return;
+			e.Cancel = true;
+			_model.HandleLinkClicked(e.Url);
 		}
 
 		private void _closeButton_VisibleChanged(object sender, EventArgs e)
