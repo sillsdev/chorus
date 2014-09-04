@@ -21,6 +21,9 @@
 					components.Dispose();
 			}
 			_conflictDisplay = null;
+			if (_tempPath != null)
+				System.IO.File.Delete(_tempPath);
+			_tempPath = null;
 			base.Dispose(disposing);
 		}
 
