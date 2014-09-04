@@ -10,7 +10,7 @@ namespace Chorus.UI.Notes
 	public partial class AnnotationEditorView : UserControl
 	{
 		private readonly AnnotationEditorModel _model;
-		private bool _waitingOnBrowserToBeReady;
+		private string _tempPath;
 		public EventHandler OnClose;
 		public AnnotationEditorView(AnnotationEditorModel model)
 		{
@@ -20,11 +20,9 @@ namespace Chorus.UI.Notes
 			InitializeComponent();
 			Visible = model.IsVisible;
 			ModalDialogMode = true;
-			//needs to be primed this way
-			SetDocumentText(@"<html><head></head><body></body></html>");
 			_newMessage.Font = model.FontForNewMessage;
 
-			//a signal to keep palaso localiztion helper from messing with our font
+			//a signal to keep palaso localization helper from messing with our font
 			_annotationLabel.UseMnemonic = false;
 
 			_annotationLabel.Font = model.FontForLabel;
@@ -43,7 +41,16 @@ namespace Chorus.UI.Notes
 
 		protected void SetDocumentText(string text)
 		{
-			_existingMessagesDisplay.DocumentText = text;
+			// It would be nice to avoid writing a temp file and then loading it,
+			// but the Linux gecko didn't display anything with the code that sent
+			// the html text directly to the embedded browser. In the interest of
+			// keeping the code the same for all platforms, the approach below is
+			// now used.  See https://jira.sil.org/browse/WS-139 for details of
+			// what was happening.
+			if (_tempPath == null)
+				_tempPath = Palaso.IO.TempFile.WithExtension("htm").Path;
+			System.IO.File.WriteAllText(_tempPath, text);
+			_existingMessagesDisplay.Url = new Uri(_tempPath);
 		}
 
 		public bool ModalDialogMode
@@ -112,7 +119,8 @@ namespace Chorus.UI.Notes
 
 		private void AnnotationView_Load(object sender, EventArgs e)
 		{
-			_waitingOnBrowserToBeReady = true;
+			OnUpdateContent(null,null);
+			_existingMessagesDisplay.ScrollLastElementIntoView();
 		}
 
 		private void OnBrower_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e)
@@ -184,25 +192,6 @@ namespace Chorus.UI.Notes
 				dlg.ShowDialog();
 			}
 			Cursor.Current = Cursors.Default;
-		}
-
-		private void _existingMessagesDisplay_Navigating(object sender, WebBrowserNavigatingEventArgs e)
-		{
-			if (e.Url.Scheme == "about")
-				return;
-			e.Cancel = true;
-			_model.HandleLinkClicked(e.Url);
-		}
-
-		private void _existingMessagesDisplay_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e)
-		{
-			if(_waitingOnBrowserToBeReady)
-			{
-				_waitingOnBrowserToBeReady = false;
-				OnUpdateContent(null,null);
-			}
-
-			_existingMessagesDisplay.ScrollLastElementIntoView();
 		}
 
 		private void _annotationLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
