@@ -45,7 +45,7 @@ namespace Chorus.FileTypeHanders.lift
 		private void PutFilesInFixedOrder()
 		{
 			LiftSorter.SortLiftFile(_liftPathName);
-			LiftSorter.SortLiftRangesFile(Path.ChangeExtension(_liftPathName, "lift-ranges"));
+			LiftSorter.SortLiftRangesFiles(Path.ChangeExtension(_liftPathName, "lift-ranges"));
 		}
 
 		#region Implementation of ISychronizerAdjunct
