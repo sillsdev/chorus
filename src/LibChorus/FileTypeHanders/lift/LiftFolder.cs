@@ -24,10 +24,11 @@ namespace Chorus.FileTypeHanders.lift
 			config.ExcludePatterns.Add("**.log");
 			config.ExcludePatterns.Add("*-ImportLog.htm");
 			config.ExcludePatterns.Add(Path.Combine("export", "*.lift"));
-			config.ExcludePatterns.Add("*.plift");//normally in /export
-			config.ExcludePatterns.Add("*.pdf");//normally in /export
-			config.ExcludePatterns.Add("*.html");//normally in /export
-			config.ExcludePatterns.Add("*.odt");//normally in /export
+			config.ExcludePatterns.Add(Path.Combine("export", "*.plift"));
+			config.ExcludePatterns.Add(Path.Combine("export", "*.pdf"));
+			config.ExcludePatterns.Add(Path.Combine("export", "*.html"));
+			config.ExcludePatterns.Add(Path.Combine("export", "*.odt"));
+			config.ExcludePatterns.Add(Path.Combine("export", "*.xml"));
 			config.ExcludePatterns.Add("*.ldml"); // Supposed to be in 'WritingSystems' folder now.
 			config.ExcludePatterns.Add("*.orig"); // Lift Bridge creates this backup, which ought to be excluded.
 
