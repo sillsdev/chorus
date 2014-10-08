@@ -205,9 +205,10 @@ namespace Chorus.UI.Review.RevisionsInRepository
 				if (_model.GetNeedRefresh())
 				{
 					RefreshRevisions();
-					//enhance, check after app itself is reactivated, or work in background.  It  is noticeably slow.
-					timer1.Enabled = false;//don't check again so long as we're visible
 				}
+				// if it doesn't need refreshing, why keep looking every 500ms?
+				//enhance, check after app itself is reactivated, or work in background.  It  is noticeably slow.
+				timer1.Enabled = false;//don't check again so long as we're visible
 			}
 		}
 	   private void OnRefresh(object sender, EventArgs e)
