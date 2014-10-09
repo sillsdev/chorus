@@ -42,7 +42,7 @@ namespace Chorus.VcsDrivers
 		public const string DuplicateWarningMessage = "Warning: There is a project repository on the " + MediumVariable
 			+ " which has the right name ({0}), but it is not related to your project.  So, the program created a"
 			+ " separate repository for your project at {1}. This happens when the project on your computer was not"
-			+ " created from the repository on the " + MediumVariable + ".\n\nYou can continue working or your own"
+			+ " created from the repository on the " + MediumVariable + ".\n\nYou can continue working on your own"
 			+ " project, but you will need expert help so you can work together without losing your work.\n\nTo work"
 			+ " together, only one person can create the shared repository, and all other collaborators must use"
 			+ " 'Get Project from Colleague...' to receive and create the project on their computers. Then, all"
