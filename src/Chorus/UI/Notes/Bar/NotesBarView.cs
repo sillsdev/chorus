@@ -124,16 +124,30 @@ namespace Chorus.UI.Notes.Bar
 			}
 		}
 
+		Button _createNoteBtn;
+
+		/// <summary>
+		/// Create the "Create Note" button, add it to the _buttonsPanel, and save it for future use.
+		/// </summary>
+		/// <remarks>
+		/// Saving and reusing the button is needed to avoid a possible crash in WeSay on Linux.
+		/// See https://jira.sil.org/browse/WS-211.  (You could view this as an optimization to
+		/// avoid reallocating/recreating this button each time.)
+		/// </remarks>
 		private void AddNoteCreationControl()
 		{
-			Button b;
-			b = new Button {Size = new Size(ButtonHeight, ButtonHeight)};
-			b.Image = Resources.NewNote16x16;
-			b.FlatStyle = FlatStyle.Flat;
-			b.FlatAppearance.BorderSize = 0;
-			toolTip1.SetToolTip(b, LocalizationManager.GetString("Messages.AddQuestion", "Add new question"));
-			b.Click += new EventHandler(OnCreateNoteButtonClick);
-			_buttonsPanel.Controls.Add(b);
+			if (_createNoteBtn == null || _createNoteBtn.IsDisposed)
+			{
+				_createNoteBtn = new Button {Size = new Size(ButtonHeight, ButtonHeight)};
+				_createNoteBtn.Image = Resources.NewNote16x16;
+				_createNoteBtn.FlatStyle = FlatStyle.Flat;
+				_createNoteBtn.FlatAppearance.BorderSize = 0;
+				toolTip1.SetToolTip(_createNoteBtn, LocalizationManager.GetString("Messages.AddQuestion", "Add new question"));
+				_createNoteBtn.Click += new EventHandler(OnCreateNoteButtonClick);
+			}
+			// Note that _buttonsPanel.Controls.Clear() does not call Dispose() on the controls being cleared in OnUpdateContent().
+			// See http://msdn.microsoft.com/en-us/library/system.windows.forms.control.controlcollection.clear%28v=vs.100%29.aspx.
+			_buttonsPanel.Controls.Add(_createNoteBtn);
 		}
 
 		private void OnCreateNoteButtonClick(object sender, EventArgs e)
