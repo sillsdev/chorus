@@ -98,6 +98,8 @@
 			this._projectId.TabIndex = 0;
 			this.toolTip1.SetToolTip(this._projectId, "Usually the Ethnologue code, e.g. \'tpi\'");
 			this._projectId.TextChanged += new System.EventHandler(this._projectId_TextChanged);
+			this._projectId.KeyDown += new System.Windows.Forms.KeyEventHandler(this._textbox_KeyDown);
+			this._projectId.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this._textbox_KeyPress);
 			//
 			// _accountName
 			//
@@ -111,6 +113,8 @@
 			this._accountName.TabIndex = 1;
 			this.toolTip1.SetToolTip(this._accountName, "This is your account on the server, which must already be set up.");
 			this._accountName.TextChanged += new System.EventHandler(this._accountName_TextChanged);
+			this._accountName.KeyDown += new System.Windows.Forms.KeyEventHandler(this._textbox_KeyDown);
+			this._accountName.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this._textbox_KeyPress);
 			//
 			// _password
 			//
@@ -124,6 +128,8 @@
 			this._password.TabIndex = 2;
 			this.toolTip1.SetToolTip(this._password, "This is the password belonging to this account, as it was set up on the server.");
 			this._password.TextChanged += new System.EventHandler(this._password_TextChanged);
+			this._password.KeyDown += new System.Windows.Forms.KeyEventHandler(this._textbox_KeyDown);
+			this._password.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this._textbox_KeyPress);
 			//
 			// _showCharacters
 			//
