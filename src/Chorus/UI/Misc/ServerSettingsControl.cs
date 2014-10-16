@@ -76,20 +76,47 @@ namespace Chorus.UI.Misc
 
 		private void _customUrl_TextChanged(object sender, EventArgs e)
 		{
-			Model.CustomUrl = _customUrl.Text.Trim();
+			Model.CustomUrl = _customUrl.Text;
 			UpdateDisplay();
 		}
 
 		private void _projectId_TextChanged(object sender, EventArgs e)
 		{
-			Model.ProjectId = _projectId.Text.Trim();
+			Model.ProjectId = _projectId.Text;
 			UpdateDisplay();
 		}
 
 		private void _accountName_TextChanged(object sender, EventArgs e)
 		{
-			Model.AccountName = _accountName.Text.Trim();
+			Model.AccountName = _accountName.Text;
 			UpdateDisplay();
+		}
+
+		bool _spaceForTextBox;
+
+		/// <summary>
+		/// Record whether the incoming character was from the space bar key.
+		/// </summary>
+		private void _textbox_KeyDown(object sender, System.Windows.Forms.KeyEventArgs e)
+		{
+			if (e.KeyCode == Keys.Space)
+				_spaceForTextBox = true;
+		}
+
+		/// <summary>
+		/// If the incoming character is a space, ignore it.
+		/// </summary>
+		private void _textbox_KeyPress(object sender, System.Windows.Forms.KeyPressEventArgs e)
+		{
+			if (_spaceForTextBox)
+			{
+				e.Handled = true;
+				_spaceForTextBox = false;
+			}
+			else if (Char.IsWhiteSpace(e.KeyChar))
+			{
+				e.Handled = true;
+			}
 		}
 
 		private void _password_TextChanged(object sender, EventArgs e)
