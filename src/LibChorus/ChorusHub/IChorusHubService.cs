@@ -27,6 +27,7 @@ namespace Chorus.ChorusHub
 
 		/// <summary>
 		/// Returns information about the Hg repositories that the ChorusHub knows about.
+		/// The id for each repository will be an empty string.
 		///
 		/// The search can be trimmed by use of the 'searchUrl' parameter.
 		/// Everything about the searchUrl except the query string is fabricated
@@ -41,7 +42,7 @@ namespace Chorus.ChorusHub
 		/// marshal this.)
 		/// </summary>
 		/// <example>searchUrl: "scheme://path?filePattern=*.lift|*.CustomProperties"</example>
-		/// <example>returned repo info string: {"name": "someProject", "id": "123abc"}</example>
+		/// <example>returned repo info string: {"name": "someProject", "id": ""}</example>
 		[OperationContract]
 		string GetRepositoryInformationWithoutIds(string searchUrl);
 		
