@@ -27,7 +27,7 @@ namespace ChorusHub
 		private const string Data = "data";
 		private const string InternalExt = ".i";
 
-        /// <summary>
+		/// <summary>
 		/// Returns information about the Hg repositories that the ChorusHub knows about.
 		///
 		/// The search can be trimmed by use of the 'searchUrl' parameter.
@@ -47,60 +47,60 @@ namespace ChorusHub
 		/// <param name="searchUrl"></param>
 		/// <remarks>A new (empty repo) will hav the folder name as 'name', and the id as 'newRepo'</remarks>
 		/// <returns></returns>
-        public string GetRepositoryInformation(string searchUrl)
-        {
-            return GetRepositoryInformation(searchUrl, true);
-        }
+		public string GetRepositoryInformation(string searchUrl)
+		{
+			return GetRepositoryInformation(searchUrl, true);
+		}
 
-        /// <summary>
-        /// Returns information about the Hg repositories that the ChorusHub knows about.
-        ///
-        /// The search can be trimmed by use of the 'searchUrl' parameter.
-        /// Everything about the searchUrl except the query string is fabricated
-        /// by the ChorusHubClient. The query string is fed in by the application.
-        ///
-        /// The possible search values are:
-        /// filePattern -- This key can have multiple values separated by the '|' character
-        ///
-        /// Each repository generates a JSON string consisting of two name/value pairs.
-        /// The two names are "name" and "id". The JSON strings are concatenated with / between.
-        /// (An earlier version returned an enumeration of json strings. But Mono could not
-        /// marshal this.)
-        /// </summary>
-        /// <example>searchUrl: "scheme://path?filePattern=*.lift|*.CustomProperties"</example>
-        /// <example>returned repo info string: {"name": "someProject", "id": "123abc"}</example>
-        /// <param name="searchUrl"></param>
-        /// <remarks>A new (empty repo) will hav the folder name as 'name', and the id as 'newRepo'</remarks>
-        /// <returns></returns>
-        public string GetRepositoryInformationWithoutIds(string searchUrl)
-        {
-            return GetRepositoryInformation(searchUrl, false);
-        }
+		/// <summary>
+		/// Returns information about the Hg repositories that the ChorusHub knows about.
+		///
+		/// The search can be trimmed by use of the 'searchUrl' parameter.
+		/// Everything about the searchUrl except the query string is fabricated
+		/// by the ChorusHubClient. The query string is fed in by the application.
+		///
+		/// The possible search values are:
+		/// filePattern -- This key can have multiple values separated by the '|' character
+		///
+		/// Each repository generates a JSON string consisting of two name/value pairs.
+		/// The two names are "name" and "id". The JSON strings are concatenated with / between.
+		/// (An earlier version returned an enumeration of json strings. But Mono could not
+		/// marshal this.)
+		/// </summary>
+		/// <example>searchUrl: "scheme://path?filePattern=*.lift|*.CustomProperties"</example>
+		/// <example>returned repo info string: {"name": "someProject", "id": "123abc"}</example>
+		/// <param name="searchUrl"></param>
+		/// <remarks>A new (empty repo) will hav the folder name as 'name', and the id as 'newRepo'</remarks>
+		/// <returns></returns>
+		public string GetRepositoryInformationWithoutIds(string searchUrl)
+		{
+			return GetRepositoryInformation(searchUrl, false);
+		}
 
-        ///  <summary>
-	    ///  Returns information about the Hg repositories that the ChorusHub knows about.
-	    /// 
-	    ///  The search can be trimmed by use of the 'searchUrl' parameter.
-	    ///  Everything about the searchUrl except the query string is fabricated
-	    ///  by the ChorusHubClient. The query string is fed in by the application.
-	    /// 
-	    ///  The possible search values are:
-	    ///  filePattern -- This key can have multiple values separated by the '|' character
-	    /// 
-	    ///  Each repository generates a JSON string consisting of two name/value pairs.
-	    ///  The two names are "name" and "id". The JSON strings are concatenated with / between.
-	    ///  (An earlier version returned an enumeration of json strings. But Mono could not
-	    ///  marshal this.)
-	    ///  </summary>
-	    ///  <example>searchUrl: "scheme://path?filePattern=*.lift|*.CustomProperties"</example>
-	    ///  <example>returned repo info string: {"name": "someProject", "id": "123abc"}</example>
-	    /// <remarks>A new (empty repo) will hav the folder name as 'name', and the id as 'newRepo'</remarks>
-	    ///  <returns></returns>
-	    private string GetRepositoryInformation(string searchUrl, bool getIds)
+		///  <summary>
+		///  Returns information about the Hg repositories that the ChorusHub knows about.
+		/// 
+		///  The search can be trimmed by use of the 'searchUrl' parameter.
+		///  Everything about the searchUrl except the query string is fabricated
+		///  by the ChorusHubClient. The query string is fed in by the application.
+		/// 
+		///  The possible search values are:
+		///  filePattern -- This key can have multiple values separated by the '|' character
+		/// 
+		///  Each repository generates a JSON string consisting of two name/value pairs.
+		///  The two names are "name" and "id". The JSON strings are concatenated with / between.
+		///  (An earlier version returned an enumeration of json strings. But Mono could not
+		///  marshal this.)
+		///  </summary>
+		///  <example>searchUrl: "scheme://path?filePattern=*.lift|*.CustomProperties"</example>
+		///  <example>returned repo info string: {"name": "someProject", "id": "123abc"}</example>
+		/// <remarks>A new (empty repo) will hav the folder name as 'name', and the id as 'newRepo'</remarks>
+		///  <returns></returns>
+		private string GetRepositoryInformation(string searchUrl, bool getIds)
 		{
 			//EventLog.WriteEntry("Application", "Client requested repository information.", EventLogEntryType.Information);
 
-            var allDirectoryTuples = GetAllDirectoriesWithRepos(getIds);
+			var allDirectoryTuples = GetAllDirectoriesWithRepos(getIds);
 			if (string.IsNullOrEmpty(searchUrl))
 			{
 				return string.Join("/", allDirectoryTuples.Select(dirInfo => dirInfo.Item2)); // return the JSON strings
@@ -204,14 +204,14 @@ namespace ChorusHub
 				return false;
 			}
 
-            string id = "";
-            if (getId)
-            {
-                var repo = HgRepository.CreateOrUseExisting(dirName, new ConsoleProgress());
-                id = repo.Identifier ?? RepositoryInformation.NEW_REPO;
-            }
-            string name = Path.GetFileName(dirName);
-            jsonRepoInfo = ImitationHubJSONService.MakeJsonString(name, id);
+			string id = "";
+			if (getId)
+			{
+				var repo = HgRepository.CreateOrUseExisting(dirName, new ConsoleProgress());
+				id = repo.Identifier ?? RepositoryInformation.NEW_REPO;
+			}
+			string name = Path.GetFileName(dirName);
+			jsonRepoInfo = ImitationHubJSONService.MakeJsonString(name, id);
 
 			return true;
 		}
@@ -224,15 +224,15 @@ namespace ChorusHub
 		/// <returns>true if client should wait for hg to notice</returns>
 		public bool PrepareToReceiveRepository(string name, string id)
 		{
-            if (!string.IsNullOrEmpty(id))
-            {
-                var jsonStrings = GetRepositoryInformation(string.Empty);
-                var hubInfo = ImitationHubJSONService.ParseJsonStringsToChorusHubRepoInfos(jsonStrings);
-                if (hubInfo.Any(info => info.RepoID == id))
-                {
-                    return false;
-                }
-            }
+			if (!string.IsNullOrEmpty(id))
+			{
+				var jsonStrings = GetRepositoryInformation(string.Empty);
+				var hubInfo = ImitationHubJSONService.ParseJsonStringsToChorusHubRepoInfos(jsonStrings);
+				if (hubInfo.Any(info => info.RepoID == id))
+				{
+					return false;
+				}
+			}
 
 			// since the repository doesn't exist, create it
 			var directory = Path.Combine(ChorusHubOptions.RootDirectory, name);
@@ -247,55 +247,55 @@ namespace ChorusHub
 			return true;
 		}
 
-	    public byte[] GetFileRevision(string repositoryName, string fileRelativePath, string revisionStr)
-	    {
-            string directory = Path.Combine(ChorusHubOptions.RootDirectory, repositoryName);
-            HgRepository repo = new HgRepository(directory, new NullProgress());
-            Revision revision = repo.GetRevision(revisionStr);
-            if (revision == null)
-                return null;
+		public byte[] GetFileRevision(string repositoryName, string fileRelativePath, string revisionStr)
+		{
+			string directory = Path.Combine(ChorusHubOptions.RootDirectory, repositoryName);
+			HgRepository repo = new HgRepository(directory, new NullProgress());
+			Revision revision = repo.GetRevision(revisionStr);
+			if (revision == null)
+				return null;
 
-            string tempPath = null;
-            try
-            {
-                tempPath = repo.RetrieveHistoricalVersionOfFile(fileRelativePath, revisionStr);
-                return File.ReadAllBytes(tempPath);
-            }
-            catch (ApplicationException)
-            {
-                return null; // file cannot be found in revision
-            }
-            finally
-            {
-                if (!string.IsNullOrEmpty(tempPath))
-                    File.Delete(tempPath);
-            }
-	    }
+			string tempPath = null;
+			try
+			{
+				tempPath = repo.RetrieveHistoricalVersionOfFile(fileRelativePath, revisionStr);
+				return File.ReadAllBytes(tempPath);
+			}
+			catch (ApplicationException)
+			{
+				return null; // file cannot be found in revision
+			}
+			finally
+			{
+				if (!string.IsNullOrEmpty(tempPath))
+					File.Delete(tempPath);
+			}
+		}
 
-	    public string Verify(string repositoryName)
-	    {
-            string directory = Path.Combine(ChorusHubOptions.RootDirectory, repositoryName);
-            HgRepository repo = new HgRepository(directory, new NullProgress());
-            return repo.Verify();
-        }
+		public string Verify(string repositoryName)
+		{
+			string directory = Path.Combine(ChorusHubOptions.RootDirectory, repositoryName);
+			HgRepository repo = new HgRepository(directory, new NullProgress());
+			return repo.Verify();
+		}
 
-	    public bool Rename(string repositoryName, string newName)
-	    {
-            string directory = Path.Combine(ChorusHubOptions.RootDirectory, repositoryName);
-            string newDirectory = Path.Combine(ChorusHubOptions.RootDirectory, newName);
+		public bool Rename(string repositoryName, string newName)
+		{
+			string directory = Path.Combine(ChorusHubOptions.RootDirectory, repositoryName);
+			string newDirectory = Path.Combine(ChorusHubOptions.RootDirectory, newName);
 
-            if (Directory.Exists(newDirectory))
-                return false;
+			if (Directory.Exists(newDirectory))
+				return false;
 
-	        try
-	        {
-                Directory.Move(directory, newDirectory);
-            }
-	        catch
-	        {
-                return false;
-	        }
-            return true;
-	    }
+			try
+			{
+				Directory.Move(directory, newDirectory);
+			}
+			catch
+			{
+				return false;
+			}
+			return true;
+		}
 	}
 }
