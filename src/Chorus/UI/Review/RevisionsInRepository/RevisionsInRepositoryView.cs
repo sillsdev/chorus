@@ -224,7 +224,10 @@ namespace Chorus.UI.Review.RevisionsInRepository
 		   {
 			   if(_historyGrid.SelectedRows.Count==1)
 			   {
-				   Revision revision = _historyGrid.SelectedRows[0].Tag as Revision;
+					// Mono doesn't update the selection before calling this method.
+					// But using Rows[e.RowIndex] works on both Windows/.Net and Linux/Mono.
+					// (See https://jira.sil.org/browse/WS-245 for a related bug report.)
+					Revision revision = _historyGrid.Rows[e.RowIndex].Tag as Revision;
 				   _model.SelectedRevisionChanged(revision);
 				   OnRevisionSelectionChangedEvent(new RevisionEventArgs(revision));
 			   }
