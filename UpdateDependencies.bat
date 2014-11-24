@@ -10,21 +10,25 @@ IF "%1"=="" (
 )
 
 pushd .
-cd ..\palaso
+cd ..\libpalaso
 call GetAndBuildThis.bat %BUILD_CONFIG% %2
 popd
 
-copy /Y ..\palaso\output\%BUILD_CONFIG%\palaso.dll lib\%BUILD_CONFIG%
-copy /Y ..\palaso\output\%BUILD_CONFIG%\palaso.pdb lib\%BUILD_CONFIG%
+mkdir output\%BUILD_CONFIG%
 
-copy /Y ..\palaso\output\%BUILD_CONFIG%\Palaso.Lift.dll lib\%BUILD_CONFIG%
-copy /Y ..\palaso\output\%BUILD_CONFIG%\Palaso.Lift.pdb lib\%BUILD_CONFIG%
+REM Uncomment these lines if you are working on L10NSharp
+REM copy /Y ..\l10nsharp\output\%BUILD_CONFIG%\L10NSharp.dll lib\common\
+REM copy /Y ..\l10nsharp\output\%BUILD_CONFIG%\L10NSharp.* lib\%BUILD_CONFIG%\
+REM copy /Y ..\l10nsharp\output\%BUILD_CONFIG%\L10NSharp.* output\%BUILD_CONFIG%\
 
-copy /Y ..\palaso\output\%BUILD_CONFIG%\palasouiwindowsforms.dll  lib\%BUILD_CONFIG%
-copy /Y ..\palaso\output\%BUILD_CONFIG%\palasouiwindowsforms.pdb  lib\%BUILD_CONFIG%
+copy /Y ..\libpalaso\output\%BUILD_CONFIG%\palaso.dll lib\%BUILD_CONFIG%
+copy /Y ..\libpalaso\output\%BUILD_CONFIG%\palaso.pdb output\%BUILD_CONFIG%
 
+copy /Y ..\libpalaso\output\%BUILD_CONFIG%\Palaso.Lift.dll lib\%BUILD_CONFIG%
+copy /Y ..\libpalaso\output\%BUILD_CONFIG%\Palaso.Lift.pdb output\%BUILD_CONFIG%
 
-copy /Y ..\palaso\output\%BUILD_CONFIG%\palaso.testutilities.dll lib\%BUILD_CONFIG%
-copy /Y ..\palaso\output\%BUILD_CONFIG%\palaso.testutilities.pdb lib\%BUILD_CONFIG%
+copy /Y ..\libpalaso\output\%BUILD_CONFIG%\palasouiwindowsforms.dll  lib\%BUILD_CONFIG%
+copy /Y ..\libpalaso\output\%BUILD_CONFIG%\palasouiwindowsforms.pdb  output\%BUILD_CONFIG%
 
-pause
+copy /Y ..\libpalaso\output\%BUILD_CONFIG%\palaso.testutilities.dll lib\%BUILD_CONFIG%
+copy /Y ..\libpalaso\output\%BUILD_CONFIG%\palaso.testutilities.pdb output\%BUILD_CONFIG%

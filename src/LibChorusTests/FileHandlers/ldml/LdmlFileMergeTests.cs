@@ -362,6 +362,33 @@ namespace LibChorus.Tests.FileHandlers.ldml
 				2, new List<Type> { typeof(XmlAttributeBothMadeSameChangeReport), typeof(XmlAdditionChangeReport) });
 		}
 
+		[Test]
+		public void PreMergeDoesNotThrowWhenCommonIsEmptyAndBothAdded()
+		{
+			const string data =
+@"<?xml version='1.0' encoding='utf-8'?>
+<ldml>
+<identity>
+<generation date='2012-06-08T09:36:30' />
+</identity>
+<collations>
+<collation></collation>
+</collations>
+</ldml>";
+			var namespaces = new Dictionary<string, string>
+								{
+									{"palaso", "urn://palaso.org/ldmlExtensions/v1"},
+									{"fw", "urn://fieldworks.sil.org/ldmlExtensions/v1"}
+								};
+
+			Assert.DoesNotThrow( ()=> DoMerge(null, data, data,
+				namespaces,
+				new List<string> { @"ldml/identity/generation[@date='2012-06-08T09:36:31']" },
+				new List<string>(),
+				0, null,
+				1, new List<Type> {typeof (XmlBothAddedSameChangeReport)}));
+		}
+
 		private string DoMerge(string commonAncestor, string ourContent, string theirContent,
 			Dictionary<string, string> namespaces,
 			IEnumerable<string> matchesExactlyOne, IEnumerable<string> isNull,

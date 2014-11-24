@@ -223,7 +223,7 @@ namespace LibChorus.Tests.sync
 		[Category("SkipOnTeamCityRandomTestFailure")]
 		public void Sync_FileLockedForWritingDuringUpdate_GetUpdatedFileOnceLockIsGone()
 		{
-			HgRunner.TimeoutSecondsOverrideForUnitTests = 1;
+			HgRunner.TimeoutSecondsOverrideForUnitTests = 3;
 
 			using (var bob = new RepositorySetup("bob"))
 			{
@@ -252,7 +252,7 @@ namespace LibChorus.Tests.sync
 		[Category("SkipOnTeamCityRandomTestFailure")]
 		public void Sync_FileLockedForReadingDuringMerge_LeftWithMultipleHeads()
 		{
-			HgRunner.TimeoutSecondsOverrideForUnitTests = 1;
+			HgRunner.TimeoutSecondsOverrideForUnitTests = 3;
 			using (var bob = new RepositorySetup("bob"))
 			{
 				bob.ProjectFolderConfig.IncludePatterns.Add("*.txt");

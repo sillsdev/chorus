@@ -121,4 +121,7 @@
 	<value>####heartbeat####</value>
 	<comment>(do not translate) used to signal ongoing merge work</comment>
   </data>
+  <data name="ksHgTransptUnauthorized" xml:space="preserve">
+	<value>There is an authorization problem accessing this project. Check the project ID as well as your username and password. Alternatively, you may not be authorized to access this project.</value>
+  </data>
 </root>
