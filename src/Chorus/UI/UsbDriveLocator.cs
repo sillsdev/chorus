@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.ComponentModel;
 using System.IO;
 using System.Threading;
@@ -59,22 +60,11 @@ namespace Chorus.UI
 		{
 			while (_keepRunning)
 			{
-				var usbDrives = new List<DriveInfo>();
-				var info =
-					new Palaso.UsbDrive.RetrieveUsbDriveInfo();
-				var drives = info.GetDrives();
-				if (drives.Count > 0)
-				{
-					foreach (var drive in System.IO.DriveInfo.GetDrives())
-					{
-						if (drive.RootDirectory.FullName ==
-							drives[0].RootDirectory.FullName)
-						{
-							usbDrives.Add(drive);
-						}
-					}
-				}
-				lock (this)
+				var usbRoots = new Palaso.UsbDrive.RetrieveUsbDriveInfo().GetDrives()
+					.Select(u => u.RootDirectory.FullName);
+				var usbDrives = System.IO.DriveInfo.GetDrives()
+					.Where(d => usbRoots.Contains(d.RootDirectory.FullName));
+				lock (_usbDrives)
 				{
 					_usbDrives.Clear();
 					_usbDrives.AddRange(usbDrives);
