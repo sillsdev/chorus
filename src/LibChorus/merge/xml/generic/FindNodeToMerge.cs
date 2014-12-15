@@ -108,8 +108,27 @@ namespace Chorus.merge.xml.generic
 										   select childNode).ToList();
 				foreach (var nodeWithKeyAttribute in childrenWithKeyAttr)
 				{
-					childrenWithKeys.Add(nodeWithKeyAttribute.Attributes[_keyAttribute].Value, nodeWithKeyAttribute);
-			}
+					try
+					{
+
+						childrenWithKeys.Add(nodeWithKeyAttribute.Attributes[_keyAttribute].Value, nodeWithKeyAttribute);
+					}
+					catch(ArgumentException)
+					{
+						string parentAttributes = String.Empty;
+						if(parentToSearchIn.Attributes != null)
+						{
+							foreach(XmlAttribute attr in parentToSearchIn.Attributes)
+							{
+								parentAttributes += String.Format("{0}={1};", attr.Name, attr.Value);
+							}
+						}
+						var usefulMessage = String.Format("Unexpectedly found duplicate children with key attribute {0} in parent element {1} with attributes [{2}].",
+							nodeWithKeyAttribute.Attributes[_keyAttribute].Value, parentToSearchIn.Name, parentAttributes);
+
+						throw new ArgumentException(usefulMessage);
+					}
+				}
 			}
 
 			XmlNode matchingNode;
