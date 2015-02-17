@@ -4,7 +4,7 @@ using System.Threading;
 using System.Windows.Forms;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
-using Palaso.Progress;
+using SIL.Progress;
 
 namespace Chorus.UI.Sync
 {

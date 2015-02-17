@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Xml;
-using Palaso.Progress;
-using Palaso.Xml;
+using SIL.Progress;
+using SIL.Xml;
 
 namespace Chorus.Utilities
 {

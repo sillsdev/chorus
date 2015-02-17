@@ -5,8 +5,8 @@ using Chorus.notes;
 using Chorus.UI.Notes;
 using Chorus.UI.Notes.Browser;
 using NUnit.Framework;
-using Palaso.IO;
-using Palaso.Progress;
+using SIL.IO;
+using SIL.Progress;
 using Palaso.TestUtilities;
 
 namespace Chorus.Tests.notes

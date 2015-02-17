@@ -4,8 +4,8 @@ using System.Linq;
 using System.Windows.Forms;
 using Chorus.notes;
 using NUnit.Framework;
-using Palaso.IO;
-using Palaso.Progress;
+using SIL.IO;
+using SIL.Progress;
 using Palaso.TestUtilities;
 
 namespace Chorus.Tests
@@ -95,7 +95,7 @@ namespace Chorus.Tests
 						{
 							Control yourCurrentUIControl=null;
 							yourCurrentUIControl.BeginInvoke(new Action(()=>
-								Palaso.Reporting.ErrorReport.NotifyUserOfProblem(result.ErrorEncountered,
+								SIL.Reporting.ErrorReport.NotifyUserOfProblem(result.ErrorEncountered,
 										  "Error while checking in your work to the local repository")))
 							;
 						 }

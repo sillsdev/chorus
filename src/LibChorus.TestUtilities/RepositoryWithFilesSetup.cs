@@ -6,10 +6,10 @@ using Chorus.sync;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using NUnit.Framework;
-using Palaso.IO;
-using Palaso.Progress;
+using SIL.IO;
+using SIL.Progress;
 using Palaso.TestUtilities;
-using Palaso.Xml;
+using SIL.Xml;
 
 namespace LibChorus.TestUtilities
 {

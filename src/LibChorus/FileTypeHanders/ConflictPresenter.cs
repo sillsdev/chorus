@@ -5,7 +5,7 @@ using Chorus.FileTypeHanders.xml;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
 using Chorus.VcsDrivers;
-using Palaso.Xml;
+using SIL.Xml;
 
 /********************
  *

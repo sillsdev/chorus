@@ -5,7 +5,7 @@ using Chorus.VcsDrivers.Mercurial;
 using LibChorus.TestUtilities;
 using NUnit.Framework;
 using System.Linq;
-using Palaso.Progress;
+using SIL.Progress;
 
 namespace LibChorus.Tests.sync
 {

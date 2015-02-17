@@ -2,7 +2,7 @@ using System;
 using System.Windows.Forms;
 using Chorus.Utilities;
 using L10NSharp;
-using Palaso.Progress;
+using SIL.Progress;
 
 namespace Chorus.UI.Settings
 {

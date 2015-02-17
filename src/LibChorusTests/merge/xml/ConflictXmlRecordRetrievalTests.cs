@@ -3,7 +3,7 @@ using Chorus.merge;
 using Chorus.merge.xml.generic;
 using Chorus.VcsDrivers;
 using NUnit.Framework;
-using Palaso.IO;
+using SIL.IO;
 
 namespace LibChorus.Tests.merge
 {

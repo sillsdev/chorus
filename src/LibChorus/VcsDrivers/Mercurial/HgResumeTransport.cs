@@ -7,7 +7,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using Chorus.Properties;
 using Chorus.Utilities;
-using Palaso.Progress;
+using SIL.Progress;
 
 namespace Chorus.VcsDrivers.Mercurial
 {

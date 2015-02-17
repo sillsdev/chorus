@@ -8,7 +8,7 @@ using System.Text;
 using System.Web;
 using System.Xml;
 using Chorus.merge.xml.generic.xmldiff;
-using Palaso.Code;
+using SIL.Code;
 
 
 namespace Chorus.merge.xml.generic

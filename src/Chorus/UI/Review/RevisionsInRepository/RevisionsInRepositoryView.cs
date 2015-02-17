@@ -6,7 +6,7 @@ using System.Linq;
 using System.Windows.Forms;
 using Chorus.sync;
 using Chorus.VcsDrivers.Mercurial;
-using Palaso.Progress;
+using SIL.Progress;
 
 namespace Chorus.UI.Review.RevisionsInRepository
 {

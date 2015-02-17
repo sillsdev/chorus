@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ServiceModel;
 using Chorus.ChorusHub;
 using Chorus.VcsDrivers;
-using Palaso.Code;
+using SIL.Code;
 
 namespace Chorus
 {

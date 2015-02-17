@@ -60,7 +60,7 @@ namespace Chorus.UI
 		{
 			while (_keepRunning)
 			{
-				var usbRoots = new Palaso.UsbDrive.RetrieveUsbDriveInfo().GetDrives()
+				var usbRoots = new SIL.UsbDrive.RetrieveUsbDriveInfo().GetDrives()
 					.Select(u => u.RootDirectory.FullName);
 				// In Balsa, the boot device (SD Card or USB Stick) shows up as one of the
 				// drives and it shouldn't be used for S/R.  Balsa will be changed to

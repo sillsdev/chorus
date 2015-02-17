@@ -1,4 +1,4 @@
-﻿using Palaso.UI.WindowsForms.HtmlBrowser;
+﻿using SIL.Windows.Forms.HtmlBrowser;
 
 namespace Chorus.UI.Notes
 {

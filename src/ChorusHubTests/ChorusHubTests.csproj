@@ -14,6 +14,7 @@
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>x86</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -23,13 +24,13 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>x86</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>..\..\output\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'DebugMono|AnyCPU' ">
     <DebugSymbols>True</DebugSymbols>
@@ -54,9 +55,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup Condition="'$(Configuration)' == 'Debug'">
-    <Reference Include="Palaso">
+    <Reference Include="SIL.Core">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\Debug\Palaso.dll</HintPath>
+      <HintPath>..\..\lib\Debug\SIL.Core.dll</HintPath>
     </Reference>
     <Reference Include="Palaso.TestUtilities">
       <SpecificVersion>False</SpecificVersion>
@@ -64,9 +65,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)' == 'Release'">
-    <Reference Include="Palaso">
+    <Reference Include="SIL.Core">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\Release\Palaso.dll</HintPath>
+      <HintPath>..\..\lib\Release\SIL.Core.dll</HintPath>
     </Reference>
     <Reference Include="Palaso.TestUtilities">
       <SpecificVersion>False</SpecificVersion>
@@ -74,9 +75,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)' == 'DebugMono'">
-    <Reference Include="Palaso">
+    <Reference Include="SIL.Core">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\DebugMono\Palaso.dll</HintPath>
+      <HintPath>..\..\lib\DebugMono\SIL.Core.dll</HintPath>
     </Reference>
     <Reference Include="Palaso.TestUtilities">
       <SpecificVersion>False</SpecificVersion>
@@ -84,9 +85,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)' == 'ReleaseMono'">
-    <Reference Include="Palaso">
+    <Reference Include="SIL.Core">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\ReleaseMono\Palaso.dll</HintPath>
+      <HintPath>..\..\lib\ReleaseMono\SIL.Core.dll</HintPath>
     </Reference>
     <Reference Include="Palaso.TestUtilities">
       <SpecificVersion>False</SpecificVersion>

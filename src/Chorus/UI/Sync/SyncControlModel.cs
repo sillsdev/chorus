@@ -8,10 +8,10 @@ using System.Windows.Forms;
 using Chorus.sync;
 using System.Linq;
 using Chorus.VcsDrivers;
-using Palaso.Code;
-using Palaso.Extensions;
-using Palaso.Progress;
-using Palaso.UI.WindowsForms.Progress;
+using SIL.Code;
+using SIL.Extensions;
+using SIL.Progress;
+using SIL.Windows.Forms.Progress;
 
 namespace Chorus.UI.Sync
 {

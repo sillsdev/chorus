@@ -6,9 +6,9 @@ using System.Xml;
 using Autofac;
 using Chorus.VcsDrivers;
 using L10NSharp;
-using Palaso.IO;
-using Palaso.Xml;
-using Palaso.Code;
+using SIL.IO;
+using SIL.Xml;
+using SIL.Code;
 
 namespace Chorus.merge.xml.generic
 {
@@ -157,7 +157,7 @@ namespace Chorus.merge.xml.generic
 			//we embed this xml inside the CDATA section so that it pass a more generic schema without
 			//resorting to the complexities of namespaces
 			var b = new StringBuilder();
-			using (var embeddedWriter = XmlWriter.Create(b, Palaso.Xml.CanonicalXmlSettings.CreateXmlWriterSettings(ConformanceLevel.Fragment)))
+			using (var embeddedWriter = XmlWriter.Create(b, SIL.Xml.CanonicalXmlSettings.CreateXmlWriterSettings(ConformanceLevel.Fragment)))
 			{
 				embeddedWriter.WriteStartElement(@"conflict");
 				WriteAttributes(embeddedWriter);

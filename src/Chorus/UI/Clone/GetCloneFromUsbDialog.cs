@@ -5,8 +5,8 @@ using System.Media;
 using System.Windows.Forms;
 using System.Linq;
 using L10NSharp;
-using Palaso.Extensions;
-using Palaso.Progress;
+using SIL.Extensions;
+using SIL.Progress;
 
 namespace Chorus.UI.Clone
 {

@@ -10,9 +10,9 @@ using Chorus.Utilities;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using System.Linq;
-using Palaso.Progress;
-using Palaso.Reporting;
-using Palaso.Xml;
+using SIL.Progress;
+using SIL.Reporting;
+using SIL.Xml;
 
 namespace Chorus.sync
 {

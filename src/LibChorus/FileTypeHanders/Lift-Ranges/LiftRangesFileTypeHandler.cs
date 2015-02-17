@@ -5,9 +5,9 @@ using Chorus.merge;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
 using Chorus.merge.xml.generic;
-using Palaso.Code;
-using Palaso.IO;
-using Palaso.Progress;
+using SIL.Code;
+using SIL.IO;
+using SIL.Progress;
 
 namespace Chorus.FileTypeHanders
 {

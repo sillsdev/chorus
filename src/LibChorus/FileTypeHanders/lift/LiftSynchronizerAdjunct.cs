@@ -6,8 +6,8 @@ using Chorus.Properties;
 using Chorus.VcsDrivers.Mercurial;
 using Chorus.sync;
 using Palaso.Lift;
-using Palaso.Xml;
-using Palaso.Progress;
+using SIL.Xml;
+using SIL.Progress;
 
 namespace Chorus.FileTypeHanders.lift
 {

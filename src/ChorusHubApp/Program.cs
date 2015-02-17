@@ -3,7 +3,7 @@ using System.IO;
 using System.Windows.Forms;
 using Chorus.ChorusHub;
 using ChorusHubApp.Properties;
-using Palaso.Reporting;
+using SIL.Reporting;
 
 namespace ChorusHubApp
 {

@@ -5,8 +5,8 @@ using Chorus.merge;
 using Chorus.sync;
 using Chorus.VcsDrivers.Mercurial;
 using System.Linq;
-using Palaso.IO;
-using Palaso.Progress;
+using SIL.IO;
+using SIL.Progress;
 
 namespace Chorus.FileTypeHanders.audio
 {

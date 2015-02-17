@@ -6,8 +6,8 @@ using System.Xml;
 using Chorus;
 using Chorus.UI.Notes.Bar;
 using Chorus.Utilities;
-using Palaso.Progress;
-using Palaso.Xml;
+using SIL.Progress;
+using SIL.Xml;
 
 namespace SampleApp
 {

@@ -49,7 +49,7 @@ namespace Chorus.UI.Notes
 			// now used.  See https://jira.sil.org/browse/WS-139 for details of
 			// what was happening.
 			if (_tempPath == null)
-				_tempPath = Palaso.IO.TempFile.WithExtension("htm").Path;
+				_tempPath = SIL.IO.TempFile.WithExtension("htm").Path;
 			System.IO.File.WriteAllText(_tempPath, text);
 			_existingMessagesDisplay.Url = new Uri(_tempPath);
 		}

@@ -4,7 +4,7 @@ using Chorus.FileTypeHanders;
 using Chorus.FileTypeHanders.xml;
 using LibChorus.TestUtilities;
 using NUnit.Framework;
-using Palaso.IO;
+using SIL.IO;
 
 namespace LibChorus.Tests.merge.xml.lift
 {

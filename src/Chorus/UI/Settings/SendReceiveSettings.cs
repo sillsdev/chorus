@@ -3,8 +3,8 @@ using System.Windows.Forms;
 using Chorus.UI.Misc;
 using Chorus.Utilities.Help;
 using Chorus.VcsDrivers.Mercurial;
-using Palaso.Code;
-using Palaso.Progress;
+using SIL.Code;
+using SIL.Progress;
 
 namespace Chorus.UI.Settings
 {

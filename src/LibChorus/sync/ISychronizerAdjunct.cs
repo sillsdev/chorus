@@ -1,4 +1,4 @@
-using Palaso.Progress;
+using SIL.Progress;
 using System.Collections.Generic;
 using Chorus.VcsDrivers.Mercurial;
 

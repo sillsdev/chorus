@@ -1,6 +1,6 @@
 ﻿using System.IO;
 using Chorus.Utilities;
-using Palaso.Code;
+using SIL.Code;
 
 namespace Chorus// DON'T MOVE THIS! It needs to be super easy for the client to find
 {

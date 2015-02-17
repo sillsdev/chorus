@@ -62,9 +62,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup Condition="'$(Configuration)' == 'Debug'">
-    <Reference Include="Palaso">
+    <Reference Include="SIL.Core">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\Debug\Palaso.dll</HintPath>
+      <HintPath>..\..\lib\Debug\SIL.Core.dll</HintPath>
     </Reference>
     <Reference Include="Palaso.TestUtilities">
       <SpecificVersion>False</SpecificVersion>
@@ -72,9 +72,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)' == 'Release'">
-    <Reference Include="Palaso">
+    <Reference Include="SIL.Core">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\Release\Palaso.dll</HintPath>
+      <HintPath>..\..\lib\Release\SIL.Core.dll</HintPath>
     </Reference>
     <Reference Include="Palaso.TestUtilities">
       <SpecificVersion>False</SpecificVersion>
@@ -82,9 +82,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)' == 'DebugMono'">
-    <Reference Include="Palaso">
+    <Reference Include="SIL.Core">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\DebugMono\Palaso.dll</HintPath>
+      <HintPath>..\..\lib\DebugMono\SIL.Core.dll</HintPath>
     </Reference>
     <Reference Include="Palaso.TestUtilities">
       <SpecificVersion>False</SpecificVersion>
@@ -92,9 +92,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)' == 'ReleaseMono'">
-    <Reference Include="Palaso">
+    <Reference Include="SIL.Core">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\ReleaseMono\Palaso.dll</HintPath>
+      <HintPath>..\..\lib\ReleaseMono\SIL.Core.dll</HintPath>
     </Reference>
     <Reference Include="Palaso.TestUtilities">
       <SpecificVersion>False</SpecificVersion>
@@ -102,14 +102,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="Palaso, Version=1.0.0.0, Culture=neutral">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\$(Configuration)\Palaso.dll</HintPath>
-    </Reference>
-    <Reference Include="Palaso.TestUtilities, Version=1.0.0.0, Culture=neutral">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\$(Configuration)\Palaso.TestUtilities.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="nunit.framework">

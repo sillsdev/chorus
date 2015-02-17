@@ -1,4 +1,4 @@
-﻿using Palaso.UI.WindowsForms.HtmlBrowser;
+﻿using SIL.Windows.Forms.HtmlBrowser;
 
 namespace Chorus.UI.Notes
 {
@@ -217,7 +217,7 @@ namespace Chorus.UI.Notes
 		private System.Windows.Forms.Button _resolveButton;
 		private System.Windows.Forms.Button _closeButton;
 		private System.Windows.Forms.TextBox _newMessage;
-		private Palaso.UI.WindowsForms.HtmlBrowser.XWebBrowser _existingMessagesDisplay;
+		private SIL.Windows.Forms.HtmlBrowser.XWebBrowser _existingMessagesDisplay;
 		private System.Windows.Forms.LinkLabel _annotationLabel;
 		private L10NSharp.UI.L10NSharpExtender l10NSharpExtender1;
 	}

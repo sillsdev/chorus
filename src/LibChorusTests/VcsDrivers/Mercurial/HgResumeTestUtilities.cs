@@ -10,7 +10,7 @@ using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using LibChorus.TestUtilities;
 using NUnit.Framework;
-using Palaso.Progress;
+using SIL.Progress;
 using Palaso.TestUtilities;
 
 

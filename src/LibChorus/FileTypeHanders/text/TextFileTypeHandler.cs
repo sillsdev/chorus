@@ -7,8 +7,8 @@ using System.Text;
 using Chorus.merge;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
-using Palaso.IO;
-using Palaso.Progress;
+using SIL.IO;
+using SIL.Progress;
 
 namespace Chorus.FileTypeHanders.text
 {

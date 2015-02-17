@@ -1,5 +1,5 @@
-﻿using Palaso.Progress;
-using Palaso.UI.WindowsForms.Progress;
+﻿using SIL.Progress;
+using SIL.Windows.Forms.Progress;
 
 namespace Chorus.UI.Sync
 {
@@ -43,12 +43,12 @@ namespace Chorus.UI.Sync
 			this._tasksTab = new System.Windows.Forms.TabPage();
 			this._tasksListView = new System.Windows.Forms.ListView();
 			this._logTab = new System.Windows.Forms.TabPage();
-			this._logBox = new Palaso.UI.WindowsForms.Progress.LogBox();
-			this.progressBar1 = new Palaso.UI.WindowsForms.Progress.SimpleProgressIndicator();
+			this._logBox = new SIL.Windows.Forms.Progress.LogBox();
+			this.progressBar1 = new SIL.Windows.Forms.Progress.SimpleProgressIndicator();
 			this._cancelButton = new System.Windows.Forms.Button();
 			this._updateDisplayTimer = new System.Windows.Forms.Timer(this.components);
 			this._closeButton = new System.Windows.Forms.Button();
-			this._statusText = new Palaso.UI.WindowsForms.Progress.SimpleStatusProgress();
+			this._statusText = new SIL.Windows.Forms.Progress.SimpleStatusProgress();
 			this._showCancelButtonTimer = new System.Windows.Forms.Timer(this.components);
 			this._successIcon = new System.Windows.Forms.PictureBox();
 			this._warningIcon = new System.Windows.Forms.PictureBox();

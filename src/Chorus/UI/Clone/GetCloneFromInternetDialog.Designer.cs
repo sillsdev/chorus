@@ -1,5 +1,5 @@
-﻿using Palaso.Progress;
-using Palaso.UI.WindowsForms.Progress;
+﻿using SIL.Progress;
+using SIL.Windows.Forms.Progress;
 
 namespace Chorus.UI.Clone
 {
@@ -38,11 +38,11 @@ namespace Chorus.UI.Clone
 			this._statusImages = new System.Windows.Forms.ImageList(this.components);
 			this._statusImage = new System.Windows.Forms.Button();
 			this._statusLabel = new System.Windows.Forms.TextBox();
-			this._progressBar = new Palaso.UI.WindowsForms.Progress.SimpleProgressIndicator();
+			this._progressBar = new SIL.Windows.Forms.Progress.SimpleProgressIndicator();
 			this._cancelTaskButton = new System.Windows.Forms.Button();
 			this._fixSettingsButton = new System.Windows.Forms.Button();
-			this._logBox = new Palaso.UI.WindowsForms.Progress.LogBox();
-			this._statusProgress = new Palaso.UI.WindowsForms.Progress.SimpleStatusProgress();
+			this._logBox = new SIL.Windows.Forms.Progress.LogBox();
+			this._statusProgress = new SIL.Windows.Forms.Progress.SimpleStatusProgress();
 			this._helpProvider = new Vulcan.Uczniowie.HelpProvider.HelpComponent(this.components);
 			this.l10NSharpExtender1 = new L10NSharp.UI.L10NSharpExtender(this.components);
 			((System.ComponentModel.ISupportInitialize)(this.l10NSharpExtender1)).BeginInit();

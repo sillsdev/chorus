@@ -4,8 +4,8 @@ using System.IO;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
 using NUnit.Framework;
-using Palaso.IO;
-using Palaso.Progress;
+using SIL.IO;
+using SIL.Progress;
 using Palaso.TestUtilities;
 
 namespace LibChorus.Tests.VcsDrivers.Mercurial

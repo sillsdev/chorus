@@ -32,7 +32,7 @@ namespace Chorus.UI.Settings
 		/// </summary>
 		private void InitializeComponent()
 		{
-			this.webBrowser1 = new Palaso.UI.WindowsForms.HtmlBrowser.XWebBrowser();
+			this.webBrowser1 = new SIL.Windows.Forms.HtmlBrowser.XWebBrowser();
 			this.SuspendLayout();
 			//
 			// webBrowser1
@@ -61,6 +61,6 @@ namespace Chorus.UI.Settings
 
 		#endregion
 
-		private Palaso.UI.WindowsForms.HtmlBrowser.XWebBrowser webBrowser1;
+		private SIL.Windows.Forms.HtmlBrowser.XWebBrowser webBrowser1;
 	}
 }

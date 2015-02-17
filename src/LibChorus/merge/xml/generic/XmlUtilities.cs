@@ -9,7 +9,7 @@ using System.Xml;
 using System.Xml.Linq;
 using Chorus.FileTypeHanders.lift;
 using Chorus.merge.xml.generic.xmldiff;
-using Palaso.Extensions;
+using SIL.Extensions;
 
 
 namespace Chorus.merge.xml.generic

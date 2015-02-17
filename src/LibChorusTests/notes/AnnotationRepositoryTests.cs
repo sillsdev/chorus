@@ -6,9 +6,9 @@ using Chorus.VcsDrivers.Mercurial;
 using Chorus.notes;
 using LibChorus.TestUtilities;
 using NUnit.Framework;
-using Palaso.IO;
-using Palaso.Progress;
-using Palaso.Reporting;
+using SIL.IO;
+using SIL.Progress;
+using SIL.Reporting;
 
 namespace LibChorus.Tests.notes
 {

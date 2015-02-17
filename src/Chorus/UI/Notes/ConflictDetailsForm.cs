@@ -21,7 +21,7 @@ namespace Chorus.notes
 			// keeping the code the same for all platforms, the approach below is
 			// now used.
 			if (_tempPath == null)
-				_tempPath = Palaso.IO.TempFile.WithExtension("htm").Path;
+				_tempPath = SIL.IO.TempFile.WithExtension("htm").Path;
 			System.IO.File.WriteAllText(_tempPath, text);
 			_conflictDisplay.Url = new Uri(_tempPath);
 			_conflictDisplay.WebBrowserShortcutsEnabled = true;

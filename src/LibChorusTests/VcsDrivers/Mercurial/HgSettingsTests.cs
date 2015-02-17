@@ -6,7 +6,7 @@ using Chorus.VcsDrivers.Mercurial;
 using LibChorus.TestUtilities;
 using NUnit.Framework;
 using System.Linq;
-using Palaso.Progress;
+using SIL.Progress;
 using Palaso.TestUtilities;
 
 namespace LibChorus.Tests.VcsDrivers.Mercurial

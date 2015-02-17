@@ -5,8 +5,8 @@ using Chorus.merge;
 using Chorus.merge.xml.generic;
 using Chorus.VcsDrivers;
 using NUnit.Framework;
-using Palaso.IO;
-using Palaso.Xml;
+using SIL.IO;
+using SIL.Xml;
 
 namespace LibChorus.Tests.merge
 {

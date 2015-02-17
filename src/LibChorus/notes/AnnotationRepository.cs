@@ -5,9 +5,9 @@ using System.Xml;
 using System.Linq;
 using System.Xml.Linq;
 using Chorus.Utilities;
-using Palaso.Code;
-using Palaso.Progress;
-using Palaso.Xml;
+using SIL.Code;
+using SIL.Progress;
+using SIL.Xml;
 
 namespace Chorus.notes
 {
@@ -164,7 +164,7 @@ namespace Chorus.notes
 			}
 			catch(Exception e)
 			{
-				Palaso.Reporting.ErrorReport.NotifyUserOfProblem(e, "Chorus has a problem saving notes for {0}.",
+				SIL.Reporting.ErrorReport.NotifyUserOfProblem(e, "Chorus has a problem saving notes for {0}.",
 																 _annotationFilePath);
 			}
 		}

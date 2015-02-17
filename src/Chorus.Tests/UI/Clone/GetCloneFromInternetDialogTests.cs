@@ -3,7 +3,7 @@ using System.Windows.Forms;
 using Chorus.UI.Clone;
 using Chorus.VcsDrivers.Mercurial;
 using NUnit.Framework;
-using Palaso.Progress;
+using SIL.Progress;
 using Palaso.TestUtilities;
 
 namespace Chorus.Tests.UI.Clone

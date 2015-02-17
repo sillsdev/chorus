@@ -5,9 +5,9 @@ using System.Linq;
 using System.Windows.Forms;
 using Chorus.VcsDrivers.Mercurial;
 using L10NSharp;
-using Palaso.Code;
-using Palaso.Progress;
-using Palaso.Reporting;
+using SIL.Code;
+using SIL.Progress;
+using SIL.Reporting;
 
 namespace Chorus.UI.Clone
 {

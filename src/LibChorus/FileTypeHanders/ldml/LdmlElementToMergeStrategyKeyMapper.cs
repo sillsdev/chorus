@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
 using Chorus.merge.xml.generic;
-using Palaso.Code;
+using SIL.Code;
 
 namespace Chorus.FileTypeHanders.ldml
 {

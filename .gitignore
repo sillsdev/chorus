@@ -25,6 +25,7 @@ src/Chorus.Tests/bin/*
 src/ChorusMerge.Tests/bin/*
 src/SampleApp/bin/*
 CopyTo Dev WeSay.bat
+MercurialExtensions/fixutf8/*.pyc
 MercurialExtensions/fixutf8/cpmap.pyo
 MercurialExtensions/fixutf8/cpmap.py
 test-results

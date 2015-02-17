@@ -1,6 +1,6 @@
 using System;
 using System.Xml;
-using Palaso.Xml;
+using SIL.Xml;
 
 namespace Chorus.FileTypeHanders.lift
 {

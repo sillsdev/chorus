@@ -4,7 +4,7 @@ using System.Reflection;
 using Chorus.VcsDrivers.Mercurial;
 using Ionic.Zip;
 using NUnit.Framework;
-using Palaso.Progress;
+using SIL.Progress;
 using Palaso.TestUtilities;
 
 namespace LibChorus.Tests.VcsDrivers.Mercurial

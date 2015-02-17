@@ -88,47 +88,47 @@
     <Reference Include="L10NSharp">
       <HintPath>..\..\lib\Debug\L10NSharp.dll</HintPath>
     </Reference>
-    <Reference Include="Palaso">
+    <Reference Include="SIL.Core">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\Debug\Palaso.dll</HintPath>
+      <HintPath>..\..\lib\Debug\SIL.Core.dll</HintPath>
     </Reference>
-    <Reference Include="PalasoUIWindowsForms">
+    <Reference Include="SIL.Windows.Forms">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\Debug\PalasoUIWindowsForms.dll</HintPath>
+      <HintPath>..\..\lib\Debug\SIL.Windows.Forms.dll</HintPath>
     </Reference>
     <Reference Include="GeckoBrowserAdapter">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\Debug\PalasoUIWindowsForms.GeckoBrowserAdapter.dll</HintPath>
+      <HintPath>..\..\lib\Debug\SIL.Windows.Forms.GeckoBrowserAdapter.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)' == 'Release'">
     <Reference Include="L10NSharp">
       <HintPath>..\..\lib\Release\L10NSharp.dll</HintPath>
     </Reference>
-    <Reference Include="Palaso">
+    <Reference Include="SIL.Core">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\Release\Palaso.dll</HintPath>
+      <HintPath>..\..\lib\Release\SIL.Core.dll</HintPath>
     </Reference>
-    <Reference Include="PalasoUIWindowsForms">
+    <Reference Include="SIL.Windows.Forms">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\Release\PalasoUIWindowsForms.dll</HintPath>
+      <HintPath>..\..\lib\Release\SIL.Windows.Forms.dll</HintPath>
     </Reference>
     <Reference Include="GeckoBrowserAdapter">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\Release\PalasoUIWindowsForms.GeckoBrowserAdapter.dll</HintPath>
+      <HintPath>..\..\lib\Release\SIL.Windows.Forms.GeckoBrowserAdapter.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)' == 'DebugMono'">
     <Reference Include="L10NSharp">
       <HintPath>..\..\lib\DebugMono\L10NSharp.dll</HintPath>
     </Reference>
-    <Reference Include="Palaso">
+    <Reference Include="SIL.Core">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\DebugMono\Palaso.dll</HintPath>
+      <HintPath>..\..\lib\DebugMono\SIL.Core.dll</HintPath>
     </Reference>
-    <Reference Include="PalasoUIWindowsForms">
+    <Reference Include="SIL.Windows.Forms">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\DebugMono\PalasoUIWindowsForms.dll</HintPath>
+      <HintPath>..\..\lib\DebugMono\SIL.Windows.Forms.dll</HintPath>
     </Reference>
     <Reference Include="GeckoBrowserAdapter">
       <SpecificVersion>False</SpecificVersion>
@@ -139,11 +139,11 @@
     <Reference Include="L10NSharp">
       <HintPath>..\..\lib\ReleaseMono\L10NSharp.dll</HintPath>
     </Reference>
-    <Reference Include="Palaso">
-      <HintPath>..\..\lib\ReleaseMono\Palaso.dll</HintPath>
+    <Reference Include="SIL.Core">
+      <HintPath>..\..\lib\ReleaseMono\SIL.Core.dll</HintPath>
     </Reference>
-    <Reference Include="PalasoUIWindowsForms">
-      <HintPath>..\..\lib\ReleaseMono\PalasoUIWindowsForms.dll</HintPath>
+    <Reference Include="SIL.Windows.Forms">
+      <HintPath>..\..\lib\ReleaseMono\SIL.Windows.Forms.dll</HintPath>
     </Reference>
     <Reference Include="GeckoBrowserAdapter">
       <SpecificVersion>False</SpecificVersion>

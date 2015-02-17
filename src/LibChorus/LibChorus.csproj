@@ -83,18 +83,18 @@
   </PropertyGroup>
   <ItemGroup Condition="'$(Configuration)' == 'Debug'">
 	<Reference Include="L10NSharp">
-	<SpecificVersion>False</SpecificVersion>
+	  <SpecificVersion>False</SpecificVersion>
 	  <HintPath>..\..\lib\Debug\L10NSharp.dll</HintPath>
 	</Reference>
-	<Reference Include="Palaso">
+	<Reference Include="SIL.Core">
 	  <SpecificVersion>False</SpecificVersion>
-	  <HintPath>..\..\lib\Debug\Palaso.dll</HintPath>
+	  <HintPath>..\..\lib\Debug\SIL.Core.dll</HintPath>
 	</Reference>
 	<Reference Include="Palaso.Lift">
 	  <SpecificVersion>False</SpecificVersion>
 	  <HintPath>..\..\lib\Debug\Palaso.Lift.dll</HintPath>
 	</Reference>
-   <Reference Include="icu.net">
+	<Reference Include="icu.net">
 	  <SpecificVersion>False</SpecificVersion>
 	  <HintPath>..\..\lib\Debug\icu.net.dll</HintPath>
 	</Reference>
@@ -107,24 +107,21 @@
 	<None Include="..\..\lib\Debug\icuuc40.dll">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</None>
-	<None Include="..\..\lib\Debug\icu.net.dll.config">
-	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	</None>
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)' == 'Release'">
 	<Reference Include="L10NSharp">
-	<SpecificVersion>False</SpecificVersion>
+	  <SpecificVersion>False</SpecificVersion>
 	  <HintPath>..\..\lib\Release\L10NSharp.dll</HintPath>
 	</Reference>
-	<Reference Include="Palaso">
+	<Reference Include="SIL.Core">
 	  <SpecificVersion>False</SpecificVersion>
-	  <HintPath>..\..\lib\Release\Palaso.dll</HintPath>
+	  <HintPath>..\..\lib\Release\SIL.Core.dll</HintPath>
 	</Reference>
 	<Reference Include="Palaso.Lift">
 	  <SpecificVersion>False</SpecificVersion>
 	  <HintPath>..\..\lib\Release\Palaso.Lift.dll</HintPath>
 	</Reference>
-   <Reference Include="icu.net">
+	<Reference Include="icu.net">
 	  <SpecificVersion>False</SpecificVersion>
 	  <HintPath>..\..\lib\Release\icu.net.dll</HintPath>
 	</Reference>
@@ -137,18 +134,15 @@
 	<None Include="..\..\lib\Release\icuuc40.dll">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</None>
-	<None Include="..\..\lib\Release\icu.net.dll.config">
-	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	</None>
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)' == 'DebugMono'">
 	<Reference Include="L10NSharp">
-	<SpecificVersion>False</SpecificVersion>
+	  <SpecificVersion>False</SpecificVersion>
 	  <HintPath>..\..\lib\DebugMono\L10NSharp.dll</HintPath>
 	</Reference>
-	<Reference Include="Palaso">
+	<Reference Include="SIL.Core">
 	  <SpecificVersion>False</SpecificVersion>
-	  <HintPath>..\..\lib\DebugMono\Palaso.dll</HintPath>
+	  <HintPath>..\..\lib\DebugMono\SIL.Core.dll</HintPath>
 	</Reference>
 	<Reference Include="Palaso.Lift">
 	  <SpecificVersion>False</SpecificVersion>
@@ -161,7 +155,7 @@
 	<None Include="..\..\lib\DebugMono\NDesk.DBus.dll.config">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</None>
-   <Reference Include="icu.net">
+	<Reference Include="icu.net">
 	  <SpecificVersion>False</SpecificVersion>
 	  <HintPath>..\..\lib\DebugMono\icu.net.dll</HintPath>
 	</Reference>
@@ -171,12 +165,12 @@
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)' == 'ReleaseMono'">
 	<Reference Include="L10NSharp">
-	<SpecificVersion>False</SpecificVersion>
+	  <SpecificVersion>False</SpecificVersion>
 	  <HintPath>..\..\lib\ReleaseMono\L10NSharp.dll</HintPath>
 	</Reference>
-	<Reference Include="Palaso">
+	<Reference Include="SIL.Core">
 	  <SpecificVersion>False</SpecificVersion>
-	  <HintPath>..\..\lib\ReleaseMono\Palaso.dll</HintPath>
+	  <HintPath>..\..\lib\ReleaseMono\SIL.Core.dll</HintPath>
 	</Reference>
 	<Reference Include="Palaso.Lift">
 	  <SpecificVersion>False</SpecificVersion>
@@ -189,7 +183,7 @@
 	<None Include="..\..\lib\ReleaseMono\NDesk.DBus.dll.config">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</None>
-   <Reference Include="icu.net">
+	<Reference Include="icu.net">
 	  <SpecificVersion>False</SpecificVersion>
 	  <HintPath>..\..\lib\ReleaseMono\icu.net.dll</HintPath>
 	</Reference>
@@ -465,7 +459,7 @@
 	<None Include="Resources\check16x16.png" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="ChorusHub\chorusHubIcon.ico" />
+	<Content Include="ChorusHub\chorusHubIcon.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.

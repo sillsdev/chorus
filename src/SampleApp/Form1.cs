@@ -8,7 +8,7 @@ using Chorus.UI.Notes.Browser;
 using Chorus.UI.Review;
 using Chorus.Utilities;
 using Chorus.VcsDrivers;
-using Palaso.IO;
+using SIL.IO;
 using SampleApp.Properties;
 
 namespace SampleApp

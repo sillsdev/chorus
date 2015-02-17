@@ -6,11 +6,11 @@ using System.IO;
 using System.Linq;
 using System.Net.NetworkInformation;
 using Chorus.Utilities;
-using Palaso.UsbDrive;
+using SIL.UsbDrive;
 using Chorus.VcsDrivers.Mercurial;
-using Palaso.IO;
-using Palaso.Progress;
-using Palaso.Reporting;
+using SIL.IO;
+using SIL.Progress;
+using SIL.Reporting;
 
 namespace Chorus.VcsDrivers
 {

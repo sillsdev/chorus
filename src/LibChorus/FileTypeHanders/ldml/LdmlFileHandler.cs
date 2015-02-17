@@ -9,9 +9,9 @@ using Chorus.FileTypeHanders.xml;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
 using Chorus.VcsDrivers.Mercurial;
-using Palaso.IO;
-using Palaso.Progress;
-using Palaso.Xml;
+using SIL.IO;
+using SIL.Progress;
+using SIL.Xml;
 
 namespace Chorus.FileTypeHanders.ldml
 {

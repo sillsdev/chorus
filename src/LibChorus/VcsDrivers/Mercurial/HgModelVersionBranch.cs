@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using Palaso.Progress;
+using SIL.Progress;
 
 namespace Chorus.VcsDrivers.Mercurial
 {

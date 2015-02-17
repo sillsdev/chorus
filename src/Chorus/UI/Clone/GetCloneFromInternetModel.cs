@@ -7,8 +7,8 @@ using Chorus.Utilities;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using L10NSharp;
-using Palaso.Progress;
-using Palaso.Reporting;
+using SIL.Progress;
+using SIL.Reporting;
 
 namespace Chorus.UI.Clone
 {

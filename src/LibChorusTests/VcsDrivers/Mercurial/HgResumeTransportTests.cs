@@ -8,7 +8,7 @@ using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
 using LibChorus.Tests.sync;
 using NUnit.Framework;
-using Palaso.Progress;
+using SIL.Progress;
 
 namespace LibChorus.Tests.VcsDrivers.Mercurial
 {

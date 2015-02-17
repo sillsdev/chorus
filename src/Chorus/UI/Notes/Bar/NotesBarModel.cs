@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Chorus.notes;
 using Chorus.Utilities;
-using Palaso.Code;
-using Palaso.Progress;
+using SIL.Code;
+using SIL.Progress;
 
 namespace Chorus.UI.Notes.Bar
 {
