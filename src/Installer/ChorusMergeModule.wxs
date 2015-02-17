@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- These variables define the Windows Installer product version, product code and upgrade code. They   -->
 <!-- will be used later on in this file.                                                                 -->
-<?define Property_ProductVersion = ".*" ?>
+<?define Property_ProductVersion = "2.4.345.0" ?>
 
 <!-- good intro to the component vs. file thing, and why each file here is a separate component:
 http://blogs.msdn.com/robmen/archive/2003/10/04/56479.aspx -->
@@ -65,14 +65,14 @@ http://blogs.msdn.com/robmen/archive/2003/10/04/56479.aspx -->
 		<Component Id="icuuc40.dll" Guid="C1EE3116-E382-11DE-8A39-0800200C9A66">
 		  <File Id="icuuc40.dll" Name="icuuc40.dll" KeyPath="yes" Source="..\..\lib\Release\icuuc40.dll" />
 		</Component>
-		<Component Id="Palaso.dll" Guid="C1EE09F8-E382-11DE-8A39-0800200C9A66">
-		  <File Id="Palaso.dll" Name="Palaso.dll" KeyPath="yes" Source="..\..\output\release\Palaso.dll" />
+		<Component Id="SIL.Core.dll" Guid="C1EE09F8-E382-11DE-8A39-0800200C9A66">
+		  <File Id="SIL.Core.dll" Name="SIL.Core.dll" KeyPath="yes" Source="..\..\output\release\SIL.Core.dll" />
 		</Component>
 		<Component Id="Palaso.Lift.dll" Guid="C1EE09F9-E382-11DE-8A39-0800200C9A66">
 		  <File Id="Palaso.Lift.dll" Name="Palaso.Lift.dll" KeyPath="yes" Source="..\..\output\release\Palaso.Lift.dll" />
 		</Component>
-		<Component Id="PalasoUIWindowsForms.dll" Guid="c1ee09fa-e382-11de-8a39-0800200c9a66">
-		  <File Id="PalasoUIWindowsForms.dll" Name="PalasoUIWindowsForms.dll" KeyPath="yes" Source="..\..\output\release\PalasoUIWindowsForms.dll" />
+		<Component Id="SIL.Windows.Forms.dll" Guid="c1ee09fa-e382-11de-8a39-0800200c9a66">
+		  <File Id="SIL.Windows.Forms.dll" Name="SIL.Windows.Forms.dll" KeyPath="yes" Source="..\..\output\release\SIL.Windows.Forms.dll" />
 		</Component>
 	  </Directory>
 	</Directory>
@@ -85,9 +85,9 @@ http://blogs.msdn.com/robmen/archive/2003/10/04/56479.aspx -->
 	<ComponentRef Id="icudt40.dll"/>
 	<ComponentRef Id="icuin40.dll"/>
 	<ComponentRef Id="icuuc40.dll"/>
-	<ComponentRef Id="Palaso.dll"/>
+	<ComponentRef Id="SIL.Core.dll"/>
 	<ComponentRef Id="Palaso.Lift.dll"/>
-	<ComponentRef Id="PalasoUIWindowsForms.dll"/>
+	<ComponentRef Id="SIL.Windows.Forms.dll"/>
 
 	<ComponentRef Id="libchorus.dll"/>
 	<ComponentRef Id="chorus.exe"/>
