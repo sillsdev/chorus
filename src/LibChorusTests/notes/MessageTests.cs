@@ -68,6 +68,20 @@ namespace LibChorus.Tests.notes
 			+ "<data>blah</data></message>"));
 			Assert.AreEqual(string.Empty, msg.GetSimpleHtmlText());
 		}
+
+		[Test]
+		public void Message_AuthorWithXmlChars_DoesNotThrow()
+		{
+			var msg = new Message("Jack & Jill';<", "status", "contents");
+			Assert.IsNotNullOrEmpty(msg.Author);
+		}
+
+		[Test]
+		public void Message_StatusWithXmlChars_DoesNotThrow()
+		{
+			var msg = new Message("author", "status & bad things'<&;/", "contents");
+			Assert.IsNotNullOrEmpty(msg.Status);
+		}
 	}
 
 
