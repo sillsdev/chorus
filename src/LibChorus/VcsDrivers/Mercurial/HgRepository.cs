@@ -150,15 +150,27 @@ namespace Chorus.VcsDrivers.Mercurial
 		internal void CheckAndUpdateHgrc()
 		{
 			CheckMercurialIni();
-
 			if (_alreadyUpdatedHgrc)
 				return;
 
 			try
 			{
-				//TODO: some can be removed now, since we have our own mercurial.ini.  Unfortunately, we pacakge it in a 4  meg zip, so it's Expensive (in terms of our own hg repo) to modify
-				//so for now we're still using this
+				EnsureChorusMergeAddedToHgrc();
+				var extensions = HgExtensions;
+				EnsureTheseExtensionsAndFormatSet(extensions);
+				_alreadyUpdatedHgrc = true;
+			}
+			catch (Exception error)
+			{
+				throw new ApplicationException(string.Format("Failed to set up extensions for the repository: {0}", error.Message));
+			}
 
+		}
+
+		private static Dictionary<string, string> HgExtensions
+		{
+			get
+			{
 				/*
 					fixutf8 makes it possible to have unicode characters in path names. Note that it is prone to break with new versions of mercurial.
 					it works with 1.5.1, and reportedly with 1.84, but the version I got did not work with 1.9.2.
@@ -180,37 +192,20 @@ namespace Chorus.VcsDrivers.Mercurial
 				if(!string.IsNullOrEmpty(fixUtfFolder))
 					extensions.Add("fixutf8", Path.Combine(fixUtfFolder, "fixutf8.py"));
 #endif
-
-				EnsureTheseExtensionsAndFormatSet(extensions);
-				_alreadyUpdatedHgrc = true;
+				return extensions;
 			}
-			catch (Exception error)
-			{
-				throw new ApplicationException(string.Format("Failed to set up extensions for the repository: {0}", error.Message));
-			}
-
 		}
 
 		private static void CheckMercurialIni()
 		{
-			if (_alreadyCheckedMercurialIni)
+			if(_alreadyCheckedMercurialIni)
 				return;
 
 			try
 			{
-				var extensions = new Dictionary<string, string>();
-#if !MONO
-				extensions.Add("hgext.win32text", ""); //for converting line endings on windows machines
-#endif
-				extensions.Add("hgext.graphlog", ""); //for more easily readable diagnostic logs
-				extensions.Add("convert", ""); //for catastrophic repair in case of repo corruption
-#if !MONO
-				string fixUtfFolder = FileLocator.GetDirectoryDistributedWithApplication(false, "MercurialExtensions", "fixutf8");
-				if (!string.IsNullOrEmpty(fixUtfFolder))
-					extensions.Add("fixutf8", Path.Combine(fixUtfFolder, "fixutf8.py"));
-#endif
+				var extensions = HgExtensions;
 				var doc = GetMercurialConfigInMercurialFolder();
-				if (!CheckExtensions(doc, extensions))
+				if(!CheckExtensions(doc, extensions))
 				{
 					// Maybe we are running in a test environment, so attempt to write a correct
 					// mercurial.ini file for this environment.
@@ -218,29 +213,46 @@ namespace Chorus.VcsDrivers.Mercurial
 					// should have already set this correctly, so that the check above would pass.
 					// review: Is there a better way to do this, so that this test only code is not
 					// included in the main code? CP 2012-04
-					SetExtensions(doc, extensions);
+					SetExtensions(doc, HgExtensions);
 					try
 					{
 						doc.Save();
 					}
-					// ReSharper disable EmptyGeneralCatchClause
-					catch (Exception)
+						// ReSharper disable EmptyGeneralCatchClause
+					catch(Exception)
 					{
 					}
 					// ReSharper restore EmptyGeneralCatchClause
 					doc = GetMercurialConfigInMercurialFolder();
-					if (!CheckExtensions(doc, extensions))
+					if(!CheckExtensions(doc, extensions))
 					{
 						throw new ApplicationException(
 							"The mercurial.ini file shipped with this application does not have the fixutf8 extension enabled."
-						);
+							);
 					}
 				}
 				_alreadyCheckedMercurialIni = true;
 			}
-			catch (Exception error)
+			catch(Exception error)
 			{
 				throw new ApplicationException(string.Format("Failed to set up extensions: {0}", error.Message));
+			}
+		}
+
+		private void EnsureChorusMergeAddedToHgrc()
+		{
+			var mergetoolname = "chorusmerge";
+			var doc = GetMercurialConfigForRepository();
+			var chorusMergeLoc = SurroundWithQuotes(ExecutionEnvironment.ChorusMergeFilePath());
+			var uiSection = doc.Sections.GetOrCreate("ui");
+
+			if(uiSection.GetValue("merge") != mergetoolname)
+			{
+				uiSection.Set("merge", mergetoolname);
+				var mergeToolsSection = doc.Sections.GetOrCreate("merge-tools");
+				mergeToolsSection.Set(String.Format("{0}.premerge", mergetoolname), "False");
+				mergeToolsSection.Set(String.Format("{0}.executable", mergetoolname), chorusMergeLoc);
+				doc.SaveAndThrowIfCannot();
 			}
 		}
 
@@ -1420,7 +1432,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			return new List<string>(section.GetKeys());
 		}
 
-		internal void EnsureTheseExtensionsAndFormatSet(IEnumerable<KeyValuePair<string, string>> extensions)
+		internal void EnsureTheseExtensionsAndFormatSet(Dictionary<string, string> extensions)
 		{
 			var doc = GetMercurialConfigForRepository();
 
@@ -1468,6 +1480,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		private static void SetExtensions(IniDocument doc, IEnumerable<KeyValuePair<string, string>> extensionDeclarations)
 		{
+			doc.Sections.RemoveSection("extensions");
 			var section = doc.Sections.GetOrCreate("extensions");
 			foreach (var pair in extensionDeclarations)
 			{
@@ -1475,10 +1488,28 @@ namespace Chorus.VcsDrivers.Mercurial
 			}
 		}
 
-		internal static bool CheckExtensions(IniDocument doc, IEnumerable<KeyValuePair<string, string>> extensionDeclarations)
+		/// <summary/>
+		/// <returns>
+		/// Returns true if the extensions in the repo contain only the extensions declared in the given map.
+		///</returns>
+		internal static bool CheckExtensions(IniDocument doc, Dictionary<string, string> extensionDeclarations)
 		{
-			var section = doc.Sections.GetOrCreate("extensions");
-			return extensionDeclarations.All(pair => section.GetValue(pair.Key) == pair.Value);
+			var extensionSection = doc.Sections.GetOrCreate("extensions");
+			foreach(var pair in extensionDeclarations)
+			{
+				if(extensionSection.GetValue(pair.Key) != pair.Value)
+				{
+					return false;
+				}
+			}
+			foreach(var key in extensionSection.GetKeys())
+			{
+				if(!extensionDeclarations.ContainsKey(key))
+				{
+					return false;
+				}
+			}
+			return true;
 		}
 
 		// TODO Move this to Chorus.TestUtilities when we have one CP 2012-04
