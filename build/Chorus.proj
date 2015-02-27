@@ -1,0 +1,263 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+	<PropertyGroup>
+		<RootDir Condition="'$(teamcity_build_checkoutDir)' == '' And '$(RootDir)'==''">$(MSBuildProjectDirectory)/..</RootDir>
+		<RootDir Condition="'$(teamcity_build_checkoutDir)' != ''">$(teamcity_build_checkoutDir)</RootDir>
+		<BUILD_NUMBER Condition="'$(BUILD_NUMBER)'==''">1.2.3.4</BUILD_NUMBER>
+		<!-- Note, after some thought, we've decided this is the best place to keep the version number (not on TeamCity, not in the assemblies).     -->
+		<Version>2.4</Version>
+	</PropertyGroup>
+
+	<UsingTask TaskName="StampAssemblies" AssemblyFile="$(RootDir)/build/Palaso.BuildTasks.dll" />
+	<UsingTask TaskName="MakeWixForDirTree" AssemblyFile="$(RootDir)/build/Palaso.BuildTasks.dll" Condition="'$(OS)'=='Windows_NT'"/>
+	<UsingTask TaskName="Archive" AssemblyFile="$(RootDir)/build/Palaso.BuildTasks.dll" Condition="'$(OS)'!='Windows_NT'"/>
+	<UsingTask TaskName="Split" AssemblyFile="$(RootDir)/build/Palaso.BuildTasks.dll" />
+	<UsingTask TaskName="FileUpdate" AssemblyFile="$(RootDir)/build/Palaso.BuildTasks.dll" />
+	<UsingTask TaskName="DNZip" AssemblyFile="$(RootDir)/build/MSBuild.ExtensionPack.dll" />
+	<UsingTask TaskName="NUnit" AssemblyFile="$(RootDir)/build/Palaso.BuildTasks.dll" />
+	<UsingTask TaskName="NUnitTeamCity"
+		AssemblyFile="$(agent_home_dir)/plugins/dotnetPlugin/bin/JetBrains.BuildServer.MSBuildLoggers.dll"
+		Condition=" '$(teamcity_version)' != ''"/>
+
+	<Import Project="NuGet.targets"/>
+
+	<PropertyGroup>
+		<Solution>Chorus VS2010.sln</Solution>
+		<SolutionPath>$(RootDir)/$(Solution)</SolutionPath>
+		<ApplicationName Condition="'$(OS)'=='Windows_NT'">ChorusLibrary</ApplicationName>
+		<ApplicationName Condition="'$(OS)'!='Windows_NT'">Chorus</ApplicationName>
+		<ApplicationNameLC>chorus</ApplicationNameLC>
+		<Configuration Condition="'$(OS)'!='Windows_NT'">DebugMono</Configuration>
+		<Configuration Condition="'$(OS)'=='Windows_NT'">Release</Configuration>
+		<ExtraExcludeCategories Condition="'$(OS)'!='Windows_NT'">KnownMonoIssue</ExtraExcludeCategories>
+		<useNUnit-x86 Condition="'$(OS)'=='Windows_NT'">true</useNUnit-x86>
+		<useNUnit-x86 Condition="'$(OS)'!='Windows_NT'">false</useNUnit-x86>
+	</PropertyGroup>
+
+	<Target Name="VersionNumbers">
+		<Message Text="BUILD_NUMBER: $(BUILD_NUMBER)" Importance="high"/>
+
+		<Split Input="$(BUILD_NUMBER)" Delimiter="." OutputSubString="2">
+			<Output TaskParameter="ReturnValue" PropertyName="BuildCounter" />
+		</Split>
+
+		<Message Text="BuildCounter: $(BuildCounter)" Importance="high"/>
+
+		<CreateProperty Value="$(Version).$(BuildCounter).0">
+			<Output PropertyName="FileVersion" TaskParameter="Value"/>
+		</CreateProperty>
+
+		<Message Text="Version: $(FileVersion)" Importance="high"/>
+	</Target>
+
+	<ItemGroup>
+		<AssemblyInfoFiles Include="$(RootDir)/src/**/AssemblyInfo.cs"/>
+	</ItemGroup>
+
+	<Target Name="SetAssemblyVersion" DependsOnTargets="VersionNumbers">
+		<StampAssemblies Version="$(FileVersion)" InputAssemblyPaths="@(AssemblyInfoFiles)" />
+	</Target>
+
+	<PropertyGroup>
+		<OutputDir>$(RootDir)/output/$(Configuration)</OutputDir>
+	</PropertyGroup>
+
+	<Target Name="Build">
+		<CallTarget Targets="Clean"/>
+		<CallTarget Targets="SetAssemblyVersion"/>
+		<CallTarget Targets="Compile"/>
+		<Message Text="Build Complete"/>
+	</Target>
+
+	<ItemGroup>
+		<ExistingObjectFiles
+			Include="$(OutputDir)/**/*"
+			Exclude="$(RootDir)/.hg/**/*;$(RootDir)/.git/**/*"
+		/>
+	</ItemGroup>
+
+	<Target Name="Clean">
+		<Delete Files="@(ExistingObjectFiles)" />
+		<Delete Condition="'$(OS)'=='Windows_NT'"
+			 Files="$(RootDir)/**/obj/**/*" />
+		<Exec Condition="'$(OS)'!='Windows_NT'"
+			Command="find . %5c( -name obj -o -name bin -o -name test-results %5c) -type d -print0 | xargs -0 rm -rf"
+			WorkingDirectory="$(RootDir)" />
+		<CallTarget Targets="CleanInstaller" Condition="'$(OS)'=='Windows_NT'"/>
+	</Target>
+
+	<ItemGroup>
+		<ExistingInstallerFiles
+			Include="$(RootDir)/output/installer/**/*"
+			Exclude="$(RootDir)/.hg/**/*;$(RootDir)/.git/**/*"
+		/>
+	</ItemGroup>
+
+	<Target Name="CleanInstaller" Condition="'$(OS)'=='Windows_NT'">
+		<Delete Files="@(ExistingInstallerFiles)" />
+	</Target>
+
+	<Target Name="Compile" DependsOnTargets="RestorePackages;UnzipMercurial">
+		<MSBuild
+			Projects="$(SolutionPath)"
+			Targets="Build"
+			Properties="Configuration=$(Configuration)" />
+	</Target>
+
+	<ItemGroup>
+		<TestAssemblies Include="$(OutputDir)/*.Tests.dll"/>
+	</ItemGroup>
+
+	<Target Name="Test" DependsOnTargets="Build">
+		<CallTarget Targets="TestOnly"/>
+	</Target>
+
+	<Target Name="TestOnly" DependsOnTargets="RunNUnitTC;RunNUnit"/>
+
+	<Target Name="RunNUnitTC" Condition="'$(teamcity_version)' != ''">
+		<NUnitTeamCity
+			Assemblies="@(TestAssemblies)"
+			ExcludeCategory="SkipOnTeamCity;SkipOnBuildServer;SkipOnTeamCityRandomTestFailure;$(excludedCategories);$(ExtraExcludeCategories)"
+			NUnitVersion="NUnit-2.6.3" />
+	</Target>
+
+	<Target Name="RunNUnit" Condition="'$(teamcity_version)' == ''">
+		<NUnit Assemblies="@(TestAssemblies)"
+			ToolPath="$(RootDir)/packages/NUnit.Runners.Net4.2.6.4/tools"
+			TestInNewThread="false"
+			ExcludeCategory="$(excludedCategories);$(ExtraExcludeCategories)"
+			WorkingDirectory="$(OutputDir)"
+			Force32Bit="$(useNUnit-x86)"
+			Verbose="true"
+			OutputXmlFile="$(OutputDir)/TestResults.xml"/>
+	</Target>
+
+	<Target Name="UnzipMercurial" DependsOnTargets="UnzipMercurial-Windows;UnzipMercurial-Linux"/>
+
+	<Target Name="UnzipMercurial-Windows" Condition="'$(OS)'=='Windows_NT'">
+		<!-- Extract a zip file-->
+		<DNZip TaskAction="Extract" ExtractPath="$(RootDir)" ZipFileName="$(RootDir)/lib/Debug/Mercurial.zip"/>
+	</Target>
+
+	<Target Name="UnzipMercurial-Linux" Condition="'$(OS)'!='Windows_NT'">
+		<!-- Remember, Unix/Linux commands return 0 for success ("true") -->
+		<Exec Command="/usr/bin/test `arch` = x86_64" ContinueOnError="true" IgnoreExitCode="true">
+			<Output TaskParameter="ExitCode" PropertyName="ZeroIf64BitCpu"/>
+		</Exec>
+		<Exec Command="/usr/bin/test `arch` = i686" ContinueOnError="true" IgnoreExitCode="true">
+			<Output TaskParameter="ExitCode" PropertyName="ZeroIf32BitCpu"/>
+		</Exec>
+		<!-- Extract the appropriate zip file. -->
+		<Exec Condition="'$(ZeroIf64BitCpu)'=='0'" Command="/usr/bin/unzip -uqo $(RootDir)/lib/common/Mercurial-x86_64.zip -d $(RootDir)" />
+		<Exec Condition="'$(ZeroIf32BitCpu)'=='0'" Command="/usr/bin/unzip -uqo $(RootDir)/lib/common/Mercurial-i686.zip -d $(RootDir)" />
+		<!-- Zip doesn't seem to retain the permission bits we need. -->
+		<Exec Command="/bin/chmod +x $(RootDir)/Mercurial/hg*" ContinueOnError="true"/>
+	</Target>
+
+	<!-- Windows installer stuff -->
+	<Target Name="Installer" DependsOnTargets="CleanInstaller; VersionNumbers; Build" Condition="'$(OS)'=='Windows_NT'">
+
+		<!-- set the version number in the installer configuration program.  Perhaps there's a way to just send in the variables rather than this brute-force
+		changing of the script, but I haven't figured that out. -->
+
+		<FileUpdate File="$(RootDir)\src\Installer\ChorusMergeModule.wxs" Regex='Property_ProductVersion = ".*"'
+				ReplacementText ="Property_ProductVersion = &quot;$(FileVersion)&quot;" />
+		<Message Text="Making Chorus Merge Module Version: $(FileVersion)" Importance="high"  />
+
+		<MSBuild Projects="$(RootDir)\src\Installer\ChorusMergeModule.wixproj"/>
+
+	</Target>
+
+	<Target Name="ChorusHubInstaller" DependsOnTargets="CleanInstaller; VersionNumbers; Test" Condition="'$(OS)'=='Windows_NT'">
+
+		<!-- set the version number in the installer configuration program.  Perhaps there's a way to just send in the variables rather than this brute-force
+		changing of the script, but I haven't figured that out. -->
+
+		<FileUpdate File="$(RootDir)\src\Installer\ChorusHub.wxs" Regex='Property_ProductVersion = ".*"'
+				ReplacementText ="Property_ProductVersion = &quot;$(FileVersion)&quot;" />
+		<Message Text="Making Chorus Hub installer with version: $(FileVersion)" Importance="high"  />
+
+		<MSBuild Projects="$(RootDir)\src\Installer\ChorusHub.wixproj"/>
+
+	</Target>
+
+	<Target Name="MakeWixForDistFiles" Condition="'$(OS)'=='Windows_NT'">
+		<MakeWixForDirTree
+			DirectoryReferenceId="mercurial"
+			ComponentGroupId="Mercurial"
+			RootDirectory="$(RootDir)\mercurial"
+			OutputFilePath="$(RootDir)\src\Installer\GeneratedMercurial.wxs"
+			Exclude="$(RootDir)\mercurial\mercurial.ini"
+			MatchRegExPattern=".*">
+			<Output TaskParameter="OutputFilePath" ItemName="Compile" />
+		</MakeWixForDirTree>
+		<MakeWixForDirTree
+			DirectoryReferenceId="MercurialExtensions"
+			ComponentGroupId="MercurialExtensions"
+			RootDirectory="$(RootDir)\MercurialExtensions"
+			OutputFilePath="$(RootDir)\src\Installer\GeneratedMercurialExtensions.wxs"
+			MatchRegExPattern=".*">
+			<Output TaskParameter="OutputFilePath" ItemName="Compile" />
+		</MakeWixForDirTree>
+	</Target>
+
+	<!-- Linux package stuff -->
+	<!-- Source Package - used by wesay -->
+	<ItemGroup>
+		<ExistingPackageFiles Include="$(OutputDir)/$(ApplicationNameLC)*.tar.gz" />
+		<ExistingPackageFiles Include="$(OutputDir)/$(ApplicationNameLC)-*" />
+		<ExistingPackageBuildFiles Include="$(OutputDir)/Package/**/*" />
+		<ExistingPackageBuildFiles Include="$(OutputDir)/Package/**" />
+	</ItemGroup>
+
+	<Target Name="PackageClean" Condition="'$(OS)'!='Windows_NT'">
+		<Delete Files="@(ExistingPackageFiles)" />
+		<Delete Files="@(ExistingPackageBuildFiles)" />
+	</Target>
+
+	<ItemGroup>
+		<Source Include="$(RootDir)/.nuget/**"/>
+		<Source Include="$(RootDir)/src/**/*"/>
+		<Source Include="$(RootDir)/lib/DebugMono/**" Exclude="$(RootDir)/lib/DebugMono/Palaso*" />
+		<Source Include="$(RootDir)/lib/ReleaseMono/**" Exclude="$(RootDir)/lib/ReleaseMono/Palaso*" />
+		<Source Include="$(RootDir)/lib/common/**" />
+		<Source Include="$(RootDir)/artwork/**" />
+		<Source Include="$(RootDir)/design/**/*" />
+		<Source Include="$(RootDir)/build/*.proj" />
+		<Source Include="$(RootDir)/build/NuGet.targets" />
+		<Source Include="$(RootDir)/build/MonoRunnerForTest/*" />
+		<Source Include="$(RootDir)/common/**/*" />
+		<Source Include="$(RootDir)/papers*/**" />
+		<Source Include="$(RootDir)/sounds/**" />
+		<Source Include="$(RootDir)/externals/**" />
+		<Source Include="$(RootDir)/*" />
+	</ItemGroup>
+
+	<Target Name="SourcePackage" DependsOnTargets="Clean;PackageClean;SetAssemblyVersion"
+		Condition="'$(OS)'!='Windows_NT'">
+		<CreateProperty Value="$(OutputDir)/$(ApplicationNameLC)-$(FileVersion).tar.gz">
+			<Output TaskParameter="Value" PropertyName="SourcePackageFileName" />
+		</CreateProperty>
+		<CreateProperty Value="$(OutputDir)/$(ApplicationNameLC)-$(FileVersion)">
+			<Output TaskParameter="Value" PropertyName="TarBaseDir" />
+		</CreateProperty>
+		<Message Text="Archive source to '$(SourcePackageFileName)'" />
+		<MakeDir Directories="$(OutputDir)" />
+		<Archive
+			Command="Tar"
+			InputFilePaths="@(Source)"
+			OutputFileName="$(SourcePackageFileName)"
+			BasePath="$(RootDir)"
+			WorkingDir="$(RootDir)"
+		/>
+		<MakeDir Directories="$(TarBaseDir)" />
+		<Exec
+			Command="tar -xzf $(SourcePackageFileName)"
+			WorkingDirectory="$(TarBaseDir)"
+		/>
+		<Exec
+			Command="tar -czf $(SourcePackageFileName) $(ApplicationNameLC)-$(FileVersion)"
+			WorkingDirectory="$(OutputDir)"
+		/>
+	</Target>
+
+</Project>
