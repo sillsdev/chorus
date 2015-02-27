@@ -29,8 +29,8 @@
 		<ApplicationName Condition="'$(OS)'=='Windows_NT'">ChorusLibrary</ApplicationName>
 		<ApplicationName Condition="'$(OS)'!='Windows_NT'">Chorus</ApplicationName>
 		<ApplicationNameLC>chorus</ApplicationNameLC>
-		<Configuration Condition="'$(OS)'!='Windows_NT'">DebugMono</Configuration>
-		<Configuration Condition="'$(OS)'=='Windows_NT'">Release</Configuration>
+		<Configuration Condition="'$(OS)'!='Windows_NT' And '$(Configuration)'==''">DebugMono</Configuration>
+		<Configuration Condition="'$(OS)'=='Windows_NT' And '$(Configuration)'==''">Release</Configuration>
 		<ExtraExcludeCategories Condition="'$(OS)'!='Windows_NT'">KnownMonoIssue</ExtraExcludeCategories>
 		<useNUnit-x86 Condition="'$(OS)'=='Windows_NT'">true</useNUnit-x86>
 		<useNUnit-x86 Condition="'$(OS)'!='Windows_NT'">false</useNUnit-x86>
