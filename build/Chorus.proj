@@ -31,7 +31,7 @@
 		<ApplicationNameLC>chorus</ApplicationNameLC>
 		<Configuration Condition="'$(OS)'!='Windows_NT' And '$(Configuration)'==''">DebugMono</Configuration>
 		<Configuration Condition="'$(OS)'=='Windows_NT' And '$(Configuration)'==''">Release</Configuration>
-		<ExtraExcludeCategories Condition="'$(OS)'!='Windows_NT'">KnownMonoIssue</ExtraExcludeCategories>
+		<ExtraExcludeCategories Condition="'$(OS)'!='Windows_NT'">;KnownMonoIssue</ExtraExcludeCategories>
 		<useNUnit-x86 Condition="'$(OS)'=='Windows_NT'">true</useNUnit-x86>
 		<useNUnit-x86 Condition="'$(OS)'!='Windows_NT'">false</useNUnit-x86>
 	</PropertyGroup>
@@ -106,10 +106,6 @@
 			Properties="Configuration=$(Configuration)" />
 	</Target>
 
-	<ItemGroup>
-		<TestAssemblies Include="$(OutputDir)/*.Tests.dll"/>
-	</ItemGroup>
-
 	<Target Name="Test" DependsOnTargets="Build">
 		<CallTarget Targets="TestOnly"/>
 	</Target>
@@ -117,17 +113,23 @@
 	<Target Name="TestOnly" DependsOnTargets="RunNUnitTC;RunNUnit"/>
 
 	<Target Name="RunNUnitTC" Condition="'$(teamcity_version)' != ''">
+		<ItemGroup>
+			<TestAssemblies Include="$(RootDir)/output/$(Configuration)/*.Tests.dll"/>
+		</ItemGroup>
 		<NUnitTeamCity
 			Assemblies="@(TestAssemblies)"
-			ExcludeCategory="SkipOnTeamCity;SkipOnBuildServer;SkipOnTeamCityRandomTestFailure;$(excludedCategories);$(ExtraExcludeCategories)"
+			ExcludeCategory="SkipOnTeamCity;SkipOnBuildServer;SkipOnTeamCityRandomTestFailure$(ExtraExcludeCategories)"
 			NUnitVersion="NUnit-2.6.3" />
 	</Target>
 
 	<Target Name="RunNUnit" Condition="'$(teamcity_version)' == ''">
+		<ItemGroup>
+			<TestAssemblies Include="$(RootDir)/output/$(Configuration)/*.Tests.dll"/>
+		</ItemGroup>
 		<NUnit Assemblies="@(TestAssemblies)"
 			ToolPath="$(RootDir)/packages/NUnit.Runners.Net4.2.6.4/tools"
 			TestInNewThread="false"
-			ExcludeCategory="$(excludedCategories);$(ExtraExcludeCategories)"
+			ExcludeCategory="$(excludedCategories)$(ExtraExcludeCategories)"
 			WorkingDirectory="$(OutputDir)"
 			Force32Bit="$(useNUnit-x86)"
 			Verbose="true"
