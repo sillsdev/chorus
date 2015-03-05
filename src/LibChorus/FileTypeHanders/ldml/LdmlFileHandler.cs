@@ -197,6 +197,8 @@ namespace Chorus.FileTypeHanders.ldml
 			});
 			merger.MergeStrategies.SetStrategy("sil:identity", ElementStrategy.CreateSingletonElement());
 
+			merger.MergeStrategies.SetStrategy("localeDisplayNames", ElementStrategy.CreateSingletonElement());
+
 			merger.MergeStrategies.SetStrategy("layout", ElementStrategy.CreateSingletonElement());
 			// Child element of "layout".
 			merger.MergeStrategies.SetStrategy("orientation", new ElementStrategy(false)
@@ -205,11 +207,7 @@ namespace Chorus.FileTypeHanders.ldml
 				MergePartnerFinder = new FindFirstElementWithSameName()
 			});
 
-			merger.MergeStrategies.SetStrategy("numbers", new ElementStrategy(false)
-			{
-				IsAtomic = true,
-				MergePartnerFinder = new FindFirstElementWithSameName()
-			});
+			merger.MergeStrategies.SetStrategy("contextTransforms", ElementStrategy.CreateSingletonElement());
 
 			merger.MergeStrategies.SetStrategy("characters", new ElementStrategy(false)
 			{
@@ -223,6 +221,18 @@ namespace Chorus.FileTypeHanders.ldml
 				MergePartnerFinder = new FindFirstElementWithSameName()
 			});
 
+			merger.MergeStrategies.SetStrategy("dates", ElementStrategy.CreateSingletonElement());
+
+			merger.MergeStrategies.SetStrategy("numbers", new ElementStrategy(false)
+			{
+				IsAtomic = true,
+				MergePartnerFinder = new FindFirstElementWithSameName()
+			});
+
+			merger.MergeStrategies.SetStrategy("units", ElementStrategy.CreateSingletonElement());
+
+			merger.MergeStrategies.SetStrategy("listPatterns", ElementStrategy.CreateSingletonElement());
+
 			merger.MergeStrategies.SetStrategy("collations", ElementStrategy.CreateSingletonElement());
 			// Child element of collations
 			strategy = new ElementStrategy(false)
@@ -232,6 +242,15 @@ namespace Chorus.FileTypeHanders.ldml
 			};
 			merger.MergeStrategies.SetStrategy("collation", strategy);
 			// Child of 'collation' element (They exist, but we don't care what they are, as long as the parent is 'atomic'.
+
+			merger.MergeStrategies.SetStrategy("posix", ElementStrategy.CreateSingletonElement());
+
+			merger.MergeStrategies.SetStrategy("segmentations", ElementStrategy.CreateSingletonElement());
+
+			merger.MergeStrategies.SetStrategy("rbnf", ElementStrategy.CreateSingletonElement());
+
+			merger.MergeStrategies.SetStrategy("metadata", ElementStrategy.CreateSingletonElement());
+
 
 			// See: Palaso repo: SIL.WritingSystems\LdmlDataMapper.cs
 			// There currently are up to three 'special' child elements of the 'ldml' root element.

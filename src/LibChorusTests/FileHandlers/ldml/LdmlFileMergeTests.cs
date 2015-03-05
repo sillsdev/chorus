@@ -149,6 +149,113 @@ namespace LibChorus.Tests.FileHandlers.ldml
 		#region Top level LDML elements (V3)
 
 		[Test]
+		public void TopLevelElementsAreSingleton()
+		{
+			string commonAncestor =
+@"<?xml version='1.0' encoding='utf-8'?>
+<ldml>
+	<identity>
+		<version>ancestory</version>
+		<generation date='2015-03-13T22:33:45Z' />
+	</identity>
+	<localeDisplayNames />
+	<layout />
+	<contextTransforms />
+	<characters />
+	<delimiters />
+	<dates />
+	<numbers />
+	<units />
+	<listPatterns />
+	<collations />
+	<posix />
+	<segmentations />
+	<rbnf />
+	<metadata />
+</ldml>".Replace("'", "\"");
+			string ourContent =
+@"<?xml version='1.0' encoding='utf-8'?>
+<ldml>
+	<identity>
+		<version>Our version</version>
+		<generation date='2015-03-13T22:33:45Z' />
+	</identity>
+	<localeDisplayNames>Our localeDisplayNames</localeDisplayNames>
+	<layout>Our layout</layout>
+	<contextTransforms>Our contextTransforms</contextTransforms>
+	<characters>Our characters</characters>
+	<delimiters>Our delimiters</delimiters>
+	<dates>Our dates</dates>
+	<numbers>Our numbers</numbers>
+	<units>Our units</units>
+	<listPatterns>Our listPatterns</listPatterns>
+	<collations>Our collations</collations>
+	<posix>Our posix</posix>
+	<segmentations>Our segmentations</segmentations>
+	<rbnf>Our rbnf</rbnf>
+	<metadata>Our metadata</metadata>
+</ldml>".Replace("'", "\"");
+			string theirContent =
+@"<?xml version='1.0' encoding='utf-8'?>
+<ldml>
+	<identity>
+		<version>Their version</version>
+		<generation date='2015-03-13T22:33:45Z' />
+	</identity>
+	<localeDisplayNames>Their localeDisplayNames</localeDisplayNames>
+	<layout>Their layout</layout>
+	<contextTransforms>Their contextTransforms</contextTransforms>
+	<characters>Their characters</characters>
+	<delimiters>Their delimiters</delimiters>
+	<dates>Their dates</dates>
+	<numbers>Their numbers</numbers>
+	<units>Their units</units>
+	<listPatterns>Their listPatterns></listPatterns>
+	<collations>Their collations</collations>
+	<posix>Their posix</posix>
+	<segmentations>Their segmentations</segmentations>
+	<rbnf>Their rbnf</rbnf>
+	<metadata>Their metadata</metadata>
+</ldml>".Replace("'", "\"");
+			var namespaces = new Dictionary<string, string>
+								{
+									{"sil", "urn://www.sil.org/ldml/0.1"},
+								};
+			DoMerge(commonAncestor, ourContent, theirContent,
+				namespaces,
+				new List<string>
+				{
+					@"ldml/identity/version[text()='Our version']",
+					@"ldml/localeDisplayNames[text()='Our localeDisplayNames']",
+					@"ldml/layout[text()='Our layout']",
+					@"ldml/contextTransforms[text()='Our contextTransforms']",
+					@"ldml/characters[text()='Our characters']",
+					@"ldml/delimiters[text()='Our delimiters']",
+					@"ldml/dates[text()='Our dates']",
+					@"ldml/numbers[text()='Our numbers']",
+					@"ldml/units[text()='Our units']",
+					@"ldml/listPatterns[text()='Our listPatterns']",
+					@"ldml/collations[text()='Our collations']",
+					@"ldml/posix[text()='Our posix']",
+					@"ldml/segmentations[text()='Our segmentations']",
+					@"ldml/rbnf[text()='Our rbnf']",
+					@"ldml/metadata[text()='Our metadata']"
+				},
+				new List<string>(0),
+				4, new List<Type>
+				{
+					typeof (XmlTextBothEditedTextConflict),
+					typeof (BothEditedTheSameAtomicElement),
+					typeof (BothEditedTheSameAtomicElement),
+					typeof (BothEditedTheSameAtomicElement)
+				},
+				1, new List<Type>
+				{
+					typeof(XmlAttributeBothMadeSameChangeReport)
+				});
+		}
+
+		[Test]
 		public void IdentityIsMerged()
 		{
 			string commonAncestor =
