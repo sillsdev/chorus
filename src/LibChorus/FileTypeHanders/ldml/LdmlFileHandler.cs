@@ -9,6 +9,7 @@ using Chorus.FileTypeHanders.xml;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
 using Chorus.VcsDrivers.Mercurial;
+using SIL.Extensions;
 using SIL.IO;
 using SIL.Progress;
 using SIL.Xml;
@@ -72,6 +73,7 @@ namespace Chorus.FileTypeHanders.ldml
 				nameSpaceManager.AddNamespace("palaso", "urn://palaso.org/ldmlExtensions/v1");
 				nameSpaceManager.AddNamespace("palaso2", "urn://palaso.org/ldmlExtensions/v2");
 				nameSpaceManager.AddNamespace("fw", "urn://fieldworks.sil.org/ldmlExtensions/v1");
+				nameSpaceManager.AddNamespace("sil", "urn://www.sil.org/ldml/0.1");
 
 				var readerSettings = CanonicalXmlSettings.CreateXmlReaderSettings(ConformanceLevel.Auto);
 				readerSettings.NameTable = nameSpaceManager.NameTable;
@@ -173,11 +175,12 @@ namespace Chorus.FileTypeHanders.ldml
 		{
 			merger.MergeStrategies.ElementToMergeStrategyKeyMapper = new LdmlElementToMergeStrategyKeyMapper();
 
-			// See: Palaso repo: palaso\Palaso\WritingSystems\LdmlDataMapper.cs
+			// See: Palaso repo: SIL.WritingSystems\LdmlDataMapper.cs
 			var strategy = ElementStrategy.CreateSingletonElement();
 			strategy.ContextDescriptorGenerator = new LdmlContextGenerator();
 			merger.MergeStrategies.SetStrategy("ldml", strategy);
 			// Child elements of ldml root.
+
 			merger.MergeStrategies.SetStrategy("identity", ElementStrategy.CreateSingletonElement());
 			// Child elements of "identity".
 			merger.MergeStrategies.SetStrategy("version", ElementStrategy.CreateSingletonElement());
@@ -186,9 +189,40 @@ namespace Chorus.FileTypeHanders.ldml
 			merger.MergeStrategies.SetStrategy("script", ElementStrategy.CreateSingletonElement());
 			merger.MergeStrategies.SetStrategy("territory", ElementStrategy.CreateSingletonElement());
 			merger.MergeStrategies.SetStrategy("variant", ElementStrategy.CreateSingletonElement());
+
+			// sil:special can occur several times throughout the file
+			merger.MergeStrategies.SetStrategy("special_xmlns:sil", new ElementStrategy(false)
+			{
+				MergePartnerFinder = new FindByMatchingAttributeNames(new HashSet<string> { "xmlns:sil" })
+			});
+			merger.MergeStrategies.SetStrategy("sil:identity", ElementStrategy.CreateSingletonElement());
+
 			merger.MergeStrategies.SetStrategy("layout", ElementStrategy.CreateSingletonElement());
 			// Child element of "layout".
-			merger.MergeStrategies.SetStrategy("orientation", ElementStrategy.CreateSingletonElement());
+			merger.MergeStrategies.SetStrategy("orientation", new ElementStrategy(false)
+			{
+				IsAtomic = true,
+				MergePartnerFinder = new FindFirstElementWithSameName()
+			});
+
+			merger.MergeStrategies.SetStrategy("numbers", new ElementStrategy(false)
+			{
+				IsAtomic = true,
+				MergePartnerFinder = new FindFirstElementWithSameName()
+			});
+
+			merger.MergeStrategies.SetStrategy("characters", new ElementStrategy(false)
+			{
+				IsAtomic = true,
+				MergePartnerFinder = new FindFirstElementWithSameName()
+			});
+
+			merger.MergeStrategies.SetStrategy("delimiters", new ElementStrategy(false)
+			{
+				IsAtomic = true,
+				MergePartnerFinder = new FindFirstElementWithSameName()
+			});
+
 			merger.MergeStrategies.SetStrategy("collations", ElementStrategy.CreateSingletonElement());
 			// Child element of collations
 			strategy = new ElementStrategy(false)
@@ -199,7 +233,7 @@ namespace Chorus.FileTypeHanders.ldml
 			merger.MergeStrategies.SetStrategy("collation", strategy);
 			// Child of 'collation' element (They exist, but we don't care what they are, as long as the parent is 'atomic'.
 
-			// See: Palaso repo: palaso\Palaso\WritingSystems\LdmlDataMapper.cs
+			// See: Palaso repo: SIL.WritingSystems\LdmlDataMapper.cs
 			// There currently are up to three 'special' child elements of the 'ldml' root element.
 			// Special "xmlns:palaso" attr
 			strategy = new ElementStrategy(false)
@@ -228,7 +262,7 @@ namespace Chorus.FileTypeHanders.ldml
 			merger.MergeStrategies.SetStrategy("palaso:version", ElementStrategy.CreateSingletonElement());
 			*/
 
-			// See: Palaso repo: palaso\Palaso\WritingSystems\LdmlDataMapper.cs
+			// See: Palaso repo: SIL.WritingSystems\LdmlDataMapper.cs
 			// special "xmlns:palaso2" attr: want to merge knownKeyboards child. So the root element is not atomic.
 			strategy = new ElementStrategy(false)
 			{
@@ -267,6 +301,33 @@ namespace Chorus.FileTypeHanders.ldml
 			merger.MergeStrategies.SetStrategy("fw:variantName", ElementStrategy.CreateSingletonElement());
 			merger.MergeStrategies.SetStrategy("fw:windowsLCID", ElementStrategy.CreateSingletonElement());
 			*/
+
+			// Children for top level 'special' xmlns:sil
+			merger.MergeStrategies.SetStrategy("sil:external-resources", ElementStrategy.CreateSingletonElement());
+			merger.MergeStrategies.SetStrategy("sil:kbd", new ElementStrategy(false)
+				{
+					IsAtomic = true,
+					MergePartnerFinder = new FindByKeyAttribute( "id")
+				}
+			);
+			merger.MergeStrategies.SetStrategy("sil:font", new ElementStrategy(false)
+				{
+					IsAtomic = true,
+					MergePartnerFinder = new FindByKeyAttribute( "name" )
+				}
+			);
+			merger.MergeStrategies.SetStrategy("sil:spellcheck", new ElementStrategy(false)
+				{
+					IsAtomic = true,
+					MergePartnerFinder = new FindByKeyAttribute("type")
+				}
+			);
+			merger.MergeStrategies.SetStrategy("sil:transform", new ElementStrategy(false)
+				{
+					IsAtomic = true,
+					MergePartnerFinder = new FindByMultipleKeyAttributes(new List<string> { "from", "to", "type", "direction" })
+				}
+			);
 		}
 
 		/// <summary>
@@ -322,7 +383,7 @@ namespace Chorus.FileTypeHanders.ldml
 				: ((ourGenDate > theirGenDate) ? ourGenDate : theirGenDate);
 			newestGenDatePlusOneSecond = newestGenDatePlusOneSecond.AddSeconds(1);
 			// date="2012-06-08T09:36:30"
-			var newestRawGenDatePlusOneSecond = String.Format("{0:s}", newestGenDatePlusOneSecond);
+			var newestRawGenDatePlusOneSecond = newestGenDatePlusOneSecond.ToISO8601TimeFormatWithUTCString();
 
 			// Write it out as one second newer than newest of the two, since merging does change it.
 			var ourData = File.ReadAllText(mergeOrder.pathToOurs).Replace(ourRawGenDate, newestRawGenDatePlusOneSecond);
@@ -348,15 +409,8 @@ namespace Chorus.FileTypeHanders.ldml
 		private static DateTime GetGenDate(XDocument doc, out string rawGenDate)
 		{
 			rawGenDate = doc.Root.Element("identity").Element("generation").Attribute("date").Value;
-			var splitData = GetDateTimeInts(rawGenDate);
-			return new DateTime(splitData[0], splitData[1], splitData[2], splitData[3], splitData[4], splitData[5]);
-		}
 
-		private static int[] GetDateTimeInts(string ldmlDate)
-		{
-			// date="2012-06-08T09:36:30"
-			var splitData = ldmlDate.Split(new[] {"-", "T", ":"}, StringSplitOptions.RemoveEmptyEntries);
-			return new[] { Int32.Parse(splitData[0]), Int32.Parse(splitData[1]), Int32.Parse(splitData[2]), Int32.Parse(splitData[3]), Int32.Parse(splitData[4]), Int32.Parse(splitData[5]) };
+			return DateTimeExtensions.ParseISO8601DateTime(rawGenDate);
 		}
 	}
 }

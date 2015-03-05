@@ -37,6 +37,7 @@ namespace Chorus.FileTypeHanders.ldml
 						case "xmlns:palaso2":
 						case "xmlns:palaso":
 						case "xmlns:fw":
+						case "xmlns:sil":
 							key += "_" + attrName;
 							return key;
 					}
