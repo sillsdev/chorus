@@ -1,6 +1,7 @@
 #define USEOPTIMIZEDVERSION
 using System;
 using System.Collections.Generic;
+using SIL.Extensions;
 #if USEOPTIMIZEDVERSION
 using System.Linq;
 #endif
@@ -461,7 +462,7 @@ namespace Chorus.merge.xml.generic
 			if (parentToSearchIn == null)
 				return new List<XmlNode>();
 
-			var extantValues = _keyAttributes.ToDictionary(keyAttribute => keyAttribute, keyAttribute => nodeToMatch.Attributes[keyAttribute].Value);
+			Dictionary<string, string> extantValues = _keyAttributes.ToDictionary(keyAttribute => keyAttribute, keyAttribute => (nodeToMatch.Attributes[keyAttribute] != null) ? nodeToMatch.Attributes[keyAttribute].Value : null);
 			var matches = new List<XmlNode>();
 			foreach (XmlNode childNode in parentToSearchIn.ChildNodes)
 			{
@@ -476,7 +477,7 @@ namespace Chorus.merge.xml.generic
 				foreach (var kvp in extantValues)
 				{
 					var keyAttr = childNode.Attributes[kvp.Key];
-					if (keyAttr == null || keyAttr.Value != kvp.Value)
+					if ((keyAttr == null ? null : keyAttr.Value) != kvp.Value)
 					{
 						isMatch = false;
 						break;

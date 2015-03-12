@@ -656,6 +656,10 @@ namespace LibChorus.Tests.FileHandlers.ldml
 				<sil:url>http://wirl.scripts.sil.org/ourKeyman9</sil:url>
 				<sil:url>http://scripts.sil.org/cms/scripts/page.php?item_id=ourKeyman9</sil:url>
 			</sil:kbd>
+			<sil:kbd id='Compiled Keyman9' alt='draft'>
+				<sil:url>http://wirl.scripts.sil.org/ourKeyman9Draft</sil:url>
+				<sil:url>http://scripts.sil.org/cms/scripts/page.php?item_id=ourKeyman9Draft</sil:url>
+			</sil:kbd>
 			<sil:kbd id='Compiled Keyman10'>
 				<sil:url>http://wirl.scripts.sil.org/ourKeyman10</sil:url>
 				<sil:url>http://scripts.sil.org/cms/scripts/page.php?item_id=ourKeyman10</sil:url>
@@ -694,8 +698,10 @@ namespace LibChorus.Tests.FileHandlers.ldml
 				namespaces,
 				new List<string>
 				{
-					@"ldml/special/sil:external-resources/sil:kbd[@id='Compiled Keyman9']/sil:url[text()='http://wirl.scripts.sil.org/ourKeyman9']",
-					@"ldml/special/sil:external-resources/sil:kbd[@id='Compiled Keyman9']/sil:url[text()='http://scripts.sil.org/cms/scripts/page.php?item_id=ourKeyman9']",
+					@"ldml/special/sil:external-resources/sil:kbd[@id='Compiled Keyman9' and not(@alt)]/sil:url[text()='http://wirl.scripts.sil.org/ourKeyman9']",
+					@"ldml/special/sil:external-resources/sil:kbd[@id='Compiled Keyman9' and not(@alt)]/sil:url[text()='http://scripts.sil.org/cms/scripts/page.php?item_id=ourKeyman9']",
+					@"ldml/special/sil:external-resources/sil:kbd[@id='Compiled Keyman9' and @alt='draft']/sil:url[text()='http://wirl.scripts.sil.org/ourKeyman9Draft']",
+					@"ldml/special/sil:external-resources/sil:kbd[@id='Compiled Keyman9' and @alt='draft']/sil:url[text()='http://scripts.sil.org/cms/scripts/page.php?item_id=ourKeyman9Draft']",
 					@"ldml/special/sil:external-resources/sil:kbd[@id='Compiled Keyman10']/sil:url[text()='http://wirl.scripts.sil.org/ourKeyman10']",
 					@"ldml/special/sil:external-resources/sil:kbd[@id='Compiled Keyman10']/sil:url[text()='http://scripts.sil.org/cms/scripts/page.php?item_id=ourKeyman10']",
 					@"ldml/special/sil:external-resources/sil:kbd[@id='Compiled Keyman11']/sil:url[text()='http://wirl.scripts.sil.org/theirKeyman11']",
@@ -707,10 +713,11 @@ namespace LibChorus.Tests.FileHandlers.ldml
 					typeof(AmbiguousInsertConflict),
 					typeof(BothEditedTheSameAtomicElement)
 				},
-				5, new List<Type> 
+				6, new List<Type> 
 				{ 
 					typeof(XmlAttributeBothMadeSameChangeReport), 
 					typeof(XmlBothDeletionChangeReport),
+					typeof(XmlAdditionChangeReport),
 					typeof(XmlAdditionChangeReport),
 					typeof(XmlAdditionChangeReport),
 					typeof(XmlAdditionChangeReport)
@@ -765,6 +772,10 @@ namespace LibChorus.Tests.FileHandlers.ldml
 				<sil:url>http://wirl.scripts.sil.org/theirPadauk</sil:url>
 				<sil:url>http://scripts.sil.org/cms/scripts/page.php?item_id=theirPadauk</sil:url>
 			</sil:font>
+			<sil:font name='Padauk' types='emphasis' size='34.0' alt='draft'>
+				<sil:url>http://wirl.scripts.sil.org/theirPadaukDraft</sil:url>
+				<sil:url>http://scripts.sil.org/cms/scripts/page.php?item_id=theirPadaukDraft</sil:url>
+			</sil:font>
 			<sil:font name='Doulos' types='heading' size='4.0'>
 				<sil:url>http://wirl.scripts.sil.org/theirDoulos</sil:url>
 				<sil:url>http://scripts.sil.org/cms/scripts/page.php?item_id=theirDoulos</sil:url>
@@ -781,20 +792,23 @@ namespace LibChorus.Tests.FileHandlers.ldml
 				namespaces,
 				new List<string>
 				{
-					@"/ldml/special/sil:external-resources/sil:font[@name='Padauk' and @types='default emphasis' and @size='2.0']/sil:url[text()='http://wirl.scripts.sil.org/ourPadauk']",
-					@"/ldml/special/sil:external-resources/sil:font[@name='Padauk' and @types='default emphasis' and @size='2.0']/sil:url[text()='http://scripts.sil.org/cms/scripts/page.php?item_id=ourPadauk']",
-					@"/ldml/special/sil:external-resources/sil:font[@name='Doulos' and @types='heading' and @size='4.0']/sil:url[text()='http://wirl.scripts.sil.org/theirDoulos']",
-					@"/ldml/special/sil:external-resources/sil:font[@name='Doulos' and @types='heading' and @size='4.0']/sil:url[text()='http://scripts.sil.org/cms/scripts/page.php?item_id=theirDoulos']"
+					@"/ldml/special/sil:external-resources/sil:font[@name='Padauk' and @types='default emphasis' and @size='2.0' and not(@alt)]/sil:url[text()='http://wirl.scripts.sil.org/ourPadauk']",
+					@"/ldml/special/sil:external-resources/sil:font[@name='Padauk' and @types='default emphasis' and @size='2.0' and not(@alt)]/sil:url[text()='http://scripts.sil.org/cms/scripts/page.php?item_id=ourPadauk']",
+					@"/ldml/special/sil:external-resources/sil:font[@name='Padauk' and @types='emphasis' and @size='34.0' and @alt='draft']/sil:url[text()='http://wirl.scripts.sil.org/theirPadaukDraft']",
+					@"/ldml/special/sil:external-resources/sil:font[@name='Padauk' and @types='emphasis' and @size='34.0' and @alt='draft']/sil:url[text()='http://scripts.sil.org/cms/scripts/page.php?item_id=theirPadaukDraft']",
+					@"/ldml/special/sil:external-resources/sil:font[@name='Doulos' and @types='heading' and @size='4.0' and not(@alt)]/sil:url[text()='http://wirl.scripts.sil.org/theirDoulos']",
+					@"/ldml/special/sil:external-resources/sil:font[@name='Doulos' and @types='heading' and @size='4.0' and not(@alt)]/sil:url[text()='http://scripts.sil.org/cms/scripts/page.php?item_id=theirDoulos']"
 				},
 				new List<string>(0),
 				1, new List<Type>
 				{
 					typeof(BothEditedTheSameAtomicElement),
 				},
-				3, new List<Type> 
+				4, new List<Type> 
 				{ 
 					typeof(XmlAttributeBothMadeSameChangeReport), 
 					typeof(XmlBothDeletionChangeReport),
+					typeof(XmlAdditionChangeReport),
 					typeof(XmlAdditionChangeReport) 
 				});
 		}
@@ -847,6 +861,10 @@ namespace LibChorus.Tests.FileHandlers.ldml
 				<sil:url>http://wirl.scripts.sil.org/theirHunspell</sil:url>
 				<sil:url>http://scripts.sil.org/cms/scripts/page.php?item_id=theirHunspell</sil:url>
 			</sil:spellcheck>
+			<sil:spellcheck type='hunspell' alt='draft'>
+				<sil:url>http://wirl.scripts.sil.org/theirHunspellDraft</sil:url>
+				<sil:url>http://scripts.sil.org/cms/scripts/page.php?item_id=theirHunspellDraft</sil:url>
+			</sil:spellcheck>
 			<sil:spellcheck type='wordlist'>
 				<sil:url>http://wirl.scripts.sil.org/theirWordlist</sil:url>
 				<sil:url>http://scripts.sil.org/cms/scripts/page.php?item_id=theirWordlist</sil:url>
@@ -863,20 +881,23 @@ namespace LibChorus.Tests.FileHandlers.ldml
 				namespaces,
 				new List<string>
 				{
-					@"/ldml/special/sil:external-resources/sil:spellcheck[@type='hunspell']/sil:url[text()='http://wirl.scripts.sil.org/ourHunspell']",
-					@"/ldml/special/sil:external-resources/sil:spellcheck[@type='hunspell']/sil:url[text()='http://scripts.sil.org/cms/scripts/page.php?item_id=ourHunspell']",
-					@"/ldml/special/sil:external-resources/sil:spellcheck[@type='wordlist']/sil:url[text()='http://wirl.scripts.sil.org/theirWordlist']",
-					@"/ldml/special/sil:external-resources/sil:spellcheck[@type='wordlist']/sil:url[text()='http://scripts.sil.org/cms/scripts/page.php?item_id=theirWordlist']"
+					@"/ldml/special/sil:external-resources/sil:spellcheck[@type='hunspell' and not(@alt)]/sil:url[text()='http://wirl.scripts.sil.org/ourHunspell']",
+					@"/ldml/special/sil:external-resources/sil:spellcheck[@type='hunspell' and not(@alt)]/sil:url[text()='http://scripts.sil.org/cms/scripts/page.php?item_id=ourHunspell']",
+					@"/ldml/special/sil:external-resources/sil:spellcheck[@type='hunspell' and @alt='draft']/sil:url[text()='http://wirl.scripts.sil.org/theirHunspellDraft']",
+					@"/ldml/special/sil:external-resources/sil:spellcheck[@type='hunspell' and @alt='draft']/sil:url[text()='http://scripts.sil.org/cms/scripts/page.php?item_id=theirHunspellDraft']",
+					@"/ldml/special/sil:external-resources/sil:spellcheck[@type='wordlist' and not(@alt)]/sil:url[text()='http://wirl.scripts.sil.org/theirWordlist']",
+					@"/ldml/special/sil:external-resources/sil:spellcheck[@type='wordlist' and not(@alt)]/sil:url[text()='http://scripts.sil.org/cms/scripts/page.php?item_id=theirWordlist']"
 				},
 				new List<string>(0),
 				1, new List<Type>
 				{
 					typeof(BothEditedTheSameAtomicElement),
 				},
-				3, new List<Type> 
+				4, new List<Type> 
 				{ 
 					typeof(XmlAttributeBothMadeSameChangeReport), 
 					typeof(XmlBothDeletionChangeReport),
+					typeof(XmlAdditionChangeReport),
 					typeof(XmlAdditionChangeReport) 
 				});
 		}
@@ -909,6 +930,7 @@ namespace LibChorus.Tests.FileHandlers.ldml
 	<special xmlns:sil='urn://www.sil.org/ldml/0.1'>
 		<sil:external-resources>
 			<sil:transform from='ourFrom' to='ourTo' type='python' direction='forward' function='ourFunction' />
+			<sil:transform from='ourFrom' to='ourTo' type='python' direction='forward' function='ourFunction' alt='ourAlt'/>
 		</sil:external-resources>
 	</special>
 </ldml>".Replace("'", "\"");
@@ -922,7 +944,9 @@ namespace LibChorus.Tests.FileHandlers.ldml
 	</identity>
 	<special xmlns:sil='urn://www.sil.org/ldml/0.1'>
 		<sil:external-resources>
-			<sil:transform from='ourFrom' to='ourTo' type='python' direction='forward' function='theirFunction' />
+			<sil:transform from='ourFrom' to='ourTo' type='python' direction='forward' function='ourFunction' />
+			<sil:transform from='ourFrom' to='ourTo' type='python' direction='forward' function='ourFunction' alt='theirAlt' />
+			<sil:transform from='ourFrom' to='ourTo' type='python' direction='forward' function='theirFunction' alt='theirAlt'/>
 			<sil:transform from='theirFrom' to='theirTo' type='perl' direction='backward' function='theirFunction' />
 		</sil:external-resources>
 	</special>
@@ -936,18 +960,20 @@ namespace LibChorus.Tests.FileHandlers.ldml
 				namespaces,
 				new List<string>
 				{
-					@"/ldml/special/sil:external-resources/sil:transform[@from='ourFrom' and @to='ourTo' and @type='python' and @direction='forward' and @function='ourFunction']",
+					@"/ldml/special/sil:external-resources/sil:transform[@from='ourFrom' and @to='ourTo' and @type='python' and @direction='forward' and @function='ourFunction' and not(@alt)]",
+					@"/ldml/special/sil:external-resources/sil:transform[@from='ourFrom' and @to='ourTo' and @type='python' and @direction='forward' and @function='ourFunction' and @alt='ourAlt']",
 					@"/ldml/special/sil:external-resources/sil:transform[@from='theirFrom' and @to='theirTo' and @type='perl' and @direction='backward' and @function='theirFunction']"
 				},
 				new List<string>(0),
-				1, new List<Type>
-				{
-					typeof(BothEditedTheSameAtomicElement),
-				},
-				3, new List<Type> 
+				0, new List<Type>(0),
+				7, new List<Type> 
 				{ 
 					typeof(XmlAttributeBothMadeSameChangeReport), 
 					typeof(XmlBothDeletionChangeReport),
+					typeof(XmlBothAddedSameChangeReport),
+					typeof(XmlAdditionChangeReport),
+					typeof(XmlAdditionChangeReport),
+					typeof(XmlAdditionChangeReport),
 					typeof(XmlAdditionChangeReport) 
 				});
 		}

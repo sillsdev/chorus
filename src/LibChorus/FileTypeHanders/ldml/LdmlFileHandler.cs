@@ -326,25 +326,25 @@ namespace Chorus.FileTypeHanders.ldml
 			merger.MergeStrategies.SetStrategy("sil:kbd", new ElementStrategy(false)
 				{
 					IsAtomic = true,
-					MergePartnerFinder = new FindByKeyAttribute( "id")
+					MergePartnerFinder = new FindByMultipleKeyAttributes(new List<string>{"id", "alt"})
 				}
 			);
 			merger.MergeStrategies.SetStrategy("sil:font", new ElementStrategy(false)
 				{
 					IsAtomic = true,
-					MergePartnerFinder = new FindByKeyAttribute( "name" )
+					MergePartnerFinder = new FindByMultipleKeyAttributes(new List<string>{"name", "alt"})
 				}
 			);
 			merger.MergeStrategies.SetStrategy("sil:spellcheck", new ElementStrategy(false)
 				{
 					IsAtomic = true,
-					MergePartnerFinder = new FindByKeyAttribute("type")
+					MergePartnerFinder = new FindByMultipleKeyAttributes(new List<string>{"type", "alt"})
 				}
 			);
 			merger.MergeStrategies.SetStrategy("sil:transform", new ElementStrategy(false)
 				{
 					IsAtomic = true,
-					MergePartnerFinder = new FindByMultipleKeyAttributes(new List<string> { "from", "to", "type", "direction" })
+					MergePartnerFinder = new FindByMultipleKeyAttributes(new List<string> { "from", "to", "type", "direction", "function", "alt" })
 				}
 			);
 		}
