@@ -127,5 +127,45 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				Assert.IsFalse(result, "The only branch should be default.");
 			}
 		}
+
+		[Test]
+		public void CanCreateVersionNumberBranch_BackwardCompatibilityTest()
+		{
+			// Setup
+			using(var repoWithFiles = RepositoryWithFilesSetup.CreateWithLiftFile(stestUser))
+			{
+				var integerBranchName = "70000068";
+				repoWithFiles.Synchronizer.SynchronizerAdjunct = new ProgrammableSynchronizerAdjunct(integerBranchName);
+				var branchingHelper = repoWithFiles.Repository.BranchingHelper;
+				Assert.AreEqual(1, branchingHelper.GetBranches().Count(),
+								"Setup problem in test, should be starting with one branch.");
+				// Make a new branch (should technically be on the remote with a different user...)
+				repoWithFiles.ReplaceSomething("nottheoriginal");
+				repoWithFiles.SyncWithOptions(new SyncOptions
+				{
+					DoPullFromOthers = false,
+					CheckinDescription = "version number branch",
+					DoSendToOthers = false
+				});
+
+				const string myVersion = ""; // Hg default branch name
+
+				// SUT
+				string revNum;
+				bool result = branchingHelper.IsLatestBranchDifferent(myVersion, out revNum);
+
+				// Verification
+				Assert.IsTrue(result, "The only branch should be default.");
+				var revision = repoWithFiles.Repository.GetRevision(revNum);
+				Assert.AreEqual(integerBranchName, revision.Branch, "Wrong branch name in new branch.");
+				var revisions = repoWithFiles.Repository.GetAllRevisions();
+				var branches = new HashSet<string>();
+				foreach(var rev in revisions)
+				{
+					branches.Add(rev.Branch);
+				}
+				Assert.AreEqual(branches.Count, 2, "Branches not properly reported in revisions.");
+			}
+		}
 	}
 }

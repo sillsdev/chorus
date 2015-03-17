@@ -144,7 +144,7 @@ namespace LibChorus.TestUtilities
 		{
 			var p = ProjectFolder.Combine(fileName);
 			File.WriteAllText(p, contents);
-			Repository.Commit(false,message);
+			Repository.Commit(true, message);
 		}
 
 		public SyncResults SyncWithOptions(SyncOptions options)
@@ -279,15 +279,14 @@ namespace LibChorus.TestUtilities
 			System.Diagnostics.Process.Start(start);
 		}
 
-				   /// <summary>
+		/// <summary>
 		/// not called "CreateReject*Branch* because we're not naming it (but it is, technically, a branch)
 		/// </summary>
 		public void CreateRejectForkAndComeBack()
 		{
 			var originalTip = Repository.GetTip();
 			ChangeFile("test.txt", "bad");
-			var options = new SyncOptions()
-							  {DoMergeWithOthers = true, DoPullFromOthers = true, DoSendToOthers = true};
+			var options = new SyncOptions {DoMergeWithOthers = true, DoPullFromOthers = true, DoSendToOthers = true};
 			Synchronizer = CreateSynchronizer();
 			Synchronizer.SyncNow(options);
 			var badRev = Repository.GetTip();
@@ -299,7 +298,7 @@ namespace LibChorus.TestUtilities
 
 			Revision revision = Repository.GetRevisionWorkingSetIsBasedOn();
 			revision.EnsureParentRevisionInfo();
-			 Assert.AreEqual(originalTip.Number.LocalRevisionNumber, revision.Parents[0].LocalRevisionNumber, "Should have moved back to original tip.");
+			Assert.AreEqual(originalTip.Number.LocalRevisionNumber, revision.Parents[0].LocalRevisionNumber, "Should have moved back to original tip.");
 		}
 
 		public void AssertLocalRevisionNumber(int localNumber)

@@ -830,8 +830,8 @@ namespace Chorus.sync
 			 *
 			 */
 
-			//todo: push down to hgrepository
-			var files = Repository.GetFilesInRevisionFromQuery(rev1 /*this param is bogus*/, "status -ru --rev " + rev2.Number.LocalRevisionNumber);
+			var files = Repository.GetFilesInRevisionFromQuery(rev1, "status -u");
+			files.AddRange(Repository.GetFilesInRevisionFromQuery(rev1 /*this param is bogus*/, "status -ru --rev " + rev2.Number.LocalRevisionNumber));
 
 			foreach (var file in files)
 			{
