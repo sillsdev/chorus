@@ -370,8 +370,9 @@ if sys.platform == "win32" and windll:
 			"""Runs the process, using the provided functions for I/O.
 			The functions stdout_func and stderr_func are called whenever
 			something is printed to stdout or stderr, respectively.
-			These functions are called from different threads (but not
-			concurrently, because of the GIL).
+			These functions are called from different threads but because
+			they contain code that must be interpreted they will not run
+			concurrently because of the GIL.
 			"""
 			if stdout_func is None and stderr_func is None:
 				return self._run_stdio()

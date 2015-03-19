@@ -14,3 +14,7 @@ cp -rL /usr/share/mercurial Mercurial/mercurial
 * Add an appropriate mercurial.ini file at the root
 
 * Zip up the folder and name it correctly for the platform and replace the old zip in source control.
+
+To update Mercurial on windows you will need to do the following:
+Install the desired mercurial, delete the localization files as well as anything else that looks to be large and irrelevant.
+Zip up the folder and copy it over MercurialWindows.zip

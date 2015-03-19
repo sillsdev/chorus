@@ -4,264 +4,264 @@
         <DirectoryRef Id="mercurial">
             <Component Id="mercurial.add_path.exe" Guid="D63A8C10-90B6-4843-9BCB-187366FEFED0">
                 <File Id="mercurial.add_path.exe" Name="add_path.exe" KeyPath="yes" Source="..\..\mercurial\add_path.exe" />
-                <RemoveFile Id="_aa0e2a59f09b40d7848d07ef0775a394" On="both" Name="*.*" />
+                <RemoveFile Id="_7d2d52a5769947aba0b64914872e0a38" On="both" Name="*.*" />
             </Component>
             <Component Id="mercurial.cacert.pem" Guid="6DF15B8B-194E-4322-936D-29AA8E693B89">
                 <File Id="mercurial.cacert.pem" Name="cacert.pem" Source="..\..\mercurial\cacert.pem" />
-                <RemoveFile Id="_b94f4221199b44a38f9e74a298d5df42" On="both" Name="*.*" />
+                <RemoveFile Id="_e8df2d792a9d44f2aed836cace7c6115" On="both" Name="*.*" />
             </Component>
             <Component Id="mercurial.Contributors.txt" Guid="7464E619-428E-4BC3-9637-8E2DFDA3133C">
                 <File Id="mercurial.Contributors.txt" Name="Contributors.txt" Source="..\..\mercurial\Contributors.txt" />
-                <RemoveFile Id="_a3abbbf7be704b3a8cfa0ca39738a079" On="both" Name="*.*" />
+                <RemoveFile Id="_51feb13a22bb4fe3b5d711c1ed1a0c6a" On="both" Name="*.*" />
             </Component>
             <Component Id="mercurial.Copying.txt" Guid="5F28F762-70C8-4C22-B593-E89F25AC481D">
                 <File Id="mercurial.Copying.txt" Name="Copying.txt" Source="..\..\mercurial\Copying.txt" />
-                <RemoveFile Id="_abb632f1ae954a8883f5b9c9c824834b" On="both" Name="*.*" />
+                <RemoveFile Id="_9b074800c7664e7da5d62cbf2c0045d9" On="both" Name="*.*" />
             </Component>
             <Component Id="mercurial.hg.exe" Guid="C65B2D2E-3705-4BA7-99D8-6B87FFB6CE81">
                 <File Id="mercurial.hg.exe" Name="hg.exe" Source="..\..\mercurial\hg.exe" />
-                <RemoveFile Id="_5c399b03926f42dfb9415e7c23935929" On="both" Name="*.*" />
+                <RemoveFile Id="_c2ff2f1c084d4fc18cdb173e0546daba" On="both" Name="*.*" />
             </Component>
             <Component Id="mercurial.hg.exe.local" Guid="EE1D96EC-14B4-467F-BA2D-849962E49C73">
                 <File Id="mercurial.hg.exe.local" Name="hg.exe.local" Source="..\..\mercurial\hg.exe.local" />
-                <RemoveFile Id="_15a36118a9114142992ff806586b6348" On="both" Name="*.*" />
+                <RemoveFile Id="_99cee48bfde24136811a1e467aebaacf" On="both" Name="*.*" />
             </Component>
             <Component Id="mercurial.library.zip" Guid="30C62CEF-C4BB-4C02-A162-12A0649F790C">
                 <File Id="mercurial.library.zip" Name="library.zip" Source="..\..\mercurial\library.zip" />
-                <RemoveFile Id="_8a69da6683b94107a2aac4b1b42e5480" On="both" Name="*.*" />
+                <RemoveFile Id="_e67732e3f91e48febf44dd05ab7babe2" On="both" Name="*.*" />
             </Component>
             <Component Id="mercurial.Mercurial.url" Guid="FC11F10A-E025-4DB8-BB84-A28B4B06606D">
                 <File Id="mercurial.Mercurial.url" Name="Mercurial.url" Source="..\..\mercurial\Mercurial.url" />
-                <RemoveFile Id="_dd91045e0691456f97ce7e1e234b6352" On="both" Name="*.*" />
+                <RemoveFile Id="_36635aee6b634ba3b2c5f024de199f92" On="both" Name="*.*" />
             </Component>
             <Component Id="mercurial.Microsoft.VC90.CRT.manifest" Guid="E296637A-0C13-4FBA-A514-EA2A141FABEE">
                 <File Id="mercurial.Microsoft.VC90.CRT.manifest" Name="Microsoft.VC90.CRT.manifest" Source="..\..\mercurial\Microsoft.VC90.CRT.manifest" />
-                <RemoveFile Id="_f12b444510c74251b19239370b24db9e" On="both" Name="*.*" />
+                <RemoveFile Id="_1724f81820294d64bfa043d47b5b26b5" On="both" Name="*.*" />
             </Component>
             <Component Id="mercurial.msvcm90.dll" Guid="A1887C96-D3C6-4833-8446-8CCC038F4F02">
                 <File Id="mercurial.msvcm90.dll" Name="msvcm90.dll" Source="..\..\mercurial\msvcm90.dll" />
-                <RemoveFile Id="_06f829efb8634a848b3cf922d4de20db" On="both" Name="*.*" />
+                <RemoveFile Id="_4b0632bdf7da4e2eb3df45a1c44888b8" On="both" Name="*.*" />
             </Component>
             <Component Id="mercurial.msvcp90.dll" Guid="60EC2A57-8A66-4663-929A-2F9B4FF8A878">
                 <File Id="mercurial.msvcp90.dll" Name="msvcp90.dll" Source="..\..\mercurial\msvcp90.dll" />
-                <RemoveFile Id="_4b49e325b60e47f2b854ddca9cc8ac06" On="both" Name="*.*" />
+                <RemoveFile Id="_2f7198f39fdd417d9a3a9f51f87c1693" On="both" Name="*.*" />
             </Component>
             <Component Id="mercurial.msvcr90.dll" Guid="58201B58-B52B-4F05-9B4D-315BF9DE4CDD">
                 <File Id="mercurial.msvcr90.dll" Name="msvcr90.dll" Source="..\..\mercurial\msvcr90.dll" />
-                <RemoveFile Id="_e4e501e3d7a246a69ce3452c9e3b5f81" On="both" Name="*.*" />
+                <RemoveFile Id="_f530fa355d144c658c85f75c2b24609b" On="both" Name="*.*" />
             </Component>
             <Component Id="mercurial.python27.dll" Guid="5951AD1A-1ACF-41CA-8B5C-6C9048141C9A">
                 <File Id="mercurial.python27.dll" Name="python27.dll" Source="..\..\mercurial\python27.dll" />
-                <RemoveFile Id="_f5fd362fc50e4e27bfefe293c611720b" On="both" Name="*.*" />
+                <RemoveFile Id="_f6bc6024d48b43a1b50e294ff7232b0c" On="both" Name="*.*" />
             </Component>
             <Component Id="mercurial.ReadMe.html" Guid="4CAFA07C-5C74-4D18-A6D6-D7AD07CB5E16">
                 <File Id="mercurial.ReadMe.html" Name="ReadMe.html" Source="..\..\mercurial\ReadMe.html" />
-                <RemoveFile Id="_fcf66780ffe74cb5a750a9616fe4c2c5" On="both" Name="*.*" />
+                <RemoveFile Id="_db68678b89464b36b01eed443e9446b5" On="both" Name="*.*" />
             </Component>
             <Component Id="mercurial.ReleaseNotes.txt" Guid="51BEB74D-28F5-486A-8997-5CB317AC1254">
                 <File Id="mercurial.ReleaseNotes.txt" Name="ReleaseNotes.txt" Source="..\..\mercurial\ReleaseNotes.txt" />
-                <RemoveFile Id="_64ccec41e9ec474f81275310ebe3d6de" On="both" Name="*.*" />
+                <RemoveFile Id="_3e63e18b160e4e2db06d593e8814a773" On="both" Name="*.*" />
             </Component>
             <Component Id="mercurial.unins000.dat" Guid="E2B9A683-0CCD-41EA-9F62-5BBA6CCD0A90">
                 <File Id="mercurial.unins000.dat" Name="unins000.dat" Source="..\..\mercurial\unins000.dat" />
-                <RemoveFile Id="_4b783a712b724aef915edd699814532e" On="both" Name="*.*" />
+                <RemoveFile Id="_3b886a8ae2c64e04b49cd517c3ade705" On="both" Name="*.*" />
             </Component>
             <Component Id="mercurial.unins000.exe" Guid="E641CBE9-18B6-4BA7-AB9E-B05EDC9963D2">
                 <File Id="mercurial.unins000.exe" Name="unins000.exe" Source="..\..\mercurial\unins000.exe" />
-                <RemoveFile Id="_eddc4399265449379328d6a74b970e3e" On="both" Name="*.*" />
+                <RemoveFile Id="_c34e2f8d11604c4f9bd2484570e0d362" On="both" Name="*.*" />
             </Component>
             <Component Id="mercurial.w9xpopen.exe" Guid="E10BB6A7-1325-4AD3-B6A1-3F8869125D8F">
                 <File Id="mercurial.w9xpopen.exe" Name="w9xpopen.exe" Source="..\..\mercurial\w9xpopen.exe" />
-                <RemoveFile Id="_5f13a20f537d445fad6b4a3e29ec8131" On="both" Name="*.*" />
+                <RemoveFile Id="_c03ce43bb34246f6b5f7b52dde66d530" On="both" Name="*.*" />
             </Component>
             <Directory Id="mercurial.Contrib" Name="Contrib">
                 <Component Id="mercurial.Contrib.bash_completion" Guid="D560E908-33AA-4029-935E-6FE08C9778DC">
                     <File Id="mercurial.Contrib.bash_completion" Name="bash_completion" KeyPath="yes" Source="..\..\mercurial\Contrib\bash_completion" />
-                    <RemoveFile Id="_b5a1715206b84d2ba0694e47288e3461" On="both" Name="*.*" />
+                    <RemoveFile Id="_6a060c3f9fee4cf081e6a2bb9a838ea8" On="both" Name="*.*" />
                 </Component>
                 <Component Id="mercurial.Contrib.hgk.tcl" Guid="F92713AA-98D3-41BA-9783-AE54D396ED24">
                     <File Id="mercurial.Contrib.hgk.tcl" Name="hgk.tcl" Source="..\..\mercurial\Contrib\hgk.tcl" />
-                    <RemoveFile Id="_ce190da881064fdc9aedaa1f7408ec3d" On="both" Name="*.*" />
+                    <RemoveFile Id="_78d320f9589242a59269c1a17859ca00" On="both" Name="*.*" />
                 </Component>
                 <Component Id="mercurial.Contrib.hgweb.fcgi" Guid="025233E4-0336-4E65-84D3-F3A21BC749B4">
                     <File Id="mercurial.Contrib.hgweb.fcgi" Name="hgweb.fcgi" Source="..\..\mercurial\Contrib\hgweb.fcgi" />
-                    <RemoveFile Id="_f081cd2bbf334124be3510307678f74d" On="both" Name="*.*" />
+                    <RemoveFile Id="_c68d69bc203045a292a722595e9a5d5d" On="both" Name="*.*" />
                 </Component>
                 <Component Id="mercurial.Contrib.hgweb.wsgi" Guid="48953CEA-4772-4D5B-BA2F-85637685C52B">
                     <File Id="mercurial.Contrib.hgweb.wsgi" Name="hgweb.wsgi" Source="..\..\mercurial\Contrib\hgweb.wsgi" />
-                    <RemoveFile Id="_b7747254225f4e27b537f9d11be2dd74" On="both" Name="*.*" />
+                    <RemoveFile Id="_a73db7c4c26d452d846b71a023a2aa3c" On="both" Name="*.*" />
                 </Component>
                 <Component Id="mercurial.Contrib.mercurial.el" Guid="71E613B1-D53A-455D-A16E-E2410ABC5E8D">
                     <File Id="mercurial.Contrib.mercurial.el" Name="mercurial.el" Source="..\..\mercurial\Contrib\mercurial.el" />
-                    <RemoveFile Id="_3dbea3e75a6e4bec9efb893790f5d0b5" On="both" Name="*.*" />
+                    <RemoveFile Id="_0ecb190bfff0476cbfc3ee4ee6874794" On="both" Name="*.*" />
                 </Component>
                 <Component Id="mercurial.Contrib.mq.el" Guid="FC3AB9F0-32BD-4838-B254-04243D517065">
                     <File Id="mercurial.Contrib.mq.el" Name="mq.el" Source="..\..\mercurial\Contrib\mq.el" />
-                    <RemoveFile Id="_ce8ddef3335649b2a2b4d981997db301" On="both" Name="*.*" />
+                    <RemoveFile Id="_4fb6dcc339ef48a0944835e8786e97f4" On="both" Name="*.*" />
                 </Component>
                 <Component Id="mercurial.Contrib.tcsh_completion" Guid="B9BB5D57-220B-4EE6-885C-920C238B3CFA">
                     <File Id="mercurial.Contrib.tcsh_completion" Name="tcsh_completion" Source="..\..\mercurial\Contrib\tcsh_completion" />
-                    <RemoveFile Id="_2e68f7af1170451786fe5b4fcc0ce248" On="both" Name="*.*" />
+                    <RemoveFile Id="_5dfa6a24e23844c189d714393f89ad00" On="both" Name="*.*" />
                 </Component>
                 <Component Id="mercurial.Contrib.tcsh_completion_build.sh" Guid="0D1FE716-B199-464B-BD0F-F3A85DBF96F1">
                     <File Id="mercurial.Contrib.tcsh_completion_build.sh" Name="tcsh_completion_build.sh" Source="..\..\mercurial\Contrib\tcsh_completion_build.sh" />
-                    <RemoveFile Id="_3c45325f911540f489b7f45a5b36b94e" On="both" Name="*.*" />
+                    <RemoveFile Id="_195fd9af0c164f2a910b246fa51aeadd" On="both" Name="*.*" />
                 </Component>
                 <Component Id="mercurial.Contrib.xml.rnc" Guid="E85F2F40-9F86-4578-8D5C-303032CC66FF">
                     <File Id="mercurial.Contrib.xml.rnc" Name="xml.rnc" Source="..\..\mercurial\Contrib\xml.rnc" />
-                    <RemoveFile Id="_be4ac9a39c154656bcf0cbbf29e714c8" On="both" Name="*.*" />
+                    <RemoveFile Id="_7d0c7755ece0430286dafa8d4ed8687d" On="both" Name="*.*" />
                 </Component>
                 <Component Id="mercurial.Contrib.zsh_completion" Guid="D45098EE-1515-4917-91D5-F62DD07AD301">
                     <File Id="mercurial.Contrib.zsh_completion" Name="zsh_completion" Source="..\..\mercurial\Contrib\zsh_completion" />
-                    <RemoveFile Id="_9eee10fb2d2843a4a3eb03576febeeb0" On="both" Name="*.*" />
+                    <RemoveFile Id="_7c59f7933e7b4cc986948f81490d5c34" On="both" Name="*.*" />
                 </Component>
                 <Directory Id="mercurial.Contrib.Vim" Name="Vim">
                     <Component Id="mercurial.Contrib.Vim.hg_menu.vim" Guid="4D494BDB-97A8-4436-AC7D-39FB95BADC7F">
                         <File Id="mercurial.Contrib.Vim.hg_menu.vim" Name="hg-menu.vim" KeyPath="yes" Source="..\..\mercurial\Contrib\Vim\hg-menu.vim" />
-                        <RemoveFile Id="_4c4e7a0d939c4b39bff2dad464287451" On="both" Name="*.*" />
+                        <RemoveFile Id="_d244e3fbab73457baca3c2ba3c2728e8" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Contrib.Vim.HGAnnotate.vim" Guid="B386FB78-CD89-4665-8C23-22190B75A2B3">
                         <File Id="mercurial.Contrib.Vim.HGAnnotate.vim" Name="HGAnnotate.vim" Source="..\..\mercurial\Contrib\Vim\HGAnnotate.vim" />
-                        <RemoveFile Id="_e8ce95169446407bb98ee08815900516" On="both" Name="*.*" />
+                        <RemoveFile Id="_596dac2a11de4ddb82331965a16c3359" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Contrib.Vim.hgcommand.vim" Guid="856172DB-A2CA-4908-B468-817F3C67BCEC">
                         <File Id="mercurial.Contrib.Vim.hgcommand.vim" Name="hgcommand.vim" Source="..\..\mercurial\Contrib\Vim\hgcommand.vim" />
-                        <RemoveFile Id="_c88bbb8cfa1c49298f58d02b77f6230b" On="both" Name="*.*" />
+                        <RemoveFile Id="_833cabb912284125a08fc2dfaa3ffdb4" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Contrib.Vim.hgtest.vim" Guid="7B2EEF77-F580-493D-B611-CA24AA019F69">
                         <File Id="mercurial.Contrib.Vim.hgtest.vim" Name="hgtest.vim" Source="..\..\mercurial\Contrib\Vim\hgtest.vim" />
-                        <RemoveFile Id="_0b81954030d6449082e822e031caa30e" On="both" Name="*.*" />
+                        <RemoveFile Id="_8f3ff6e694724f5290649c780a8db925" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Contrib.Vim.patchreview.txt" Guid="5E461A59-65BC-437F-AB75-03BC7A3FBDCA">
                         <File Id="mercurial.Contrib.Vim.patchreview.txt" Name="patchreview.txt" Source="..\..\mercurial\Contrib\Vim\patchreview.txt" />
-                        <RemoveFile Id="_5f6fa4034583442289429a2f0aef1009" On="both" Name="*.*" />
+                        <RemoveFile Id="_a3194a7e00d6497a880c9f1f7555a299" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Contrib.Vim.patchreview.vim" Guid="DF8C3C0B-209A-42E9-8BF8-3116D1B0D192">
                         <File Id="mercurial.Contrib.Vim.patchreview.vim" Name="patchreview.vim" Source="..\..\mercurial\Contrib\Vim\patchreview.vim" />
-                        <RemoveFile Id="_4535438766e74615a64cd19f8eaeab2a" On="both" Name="*.*" />
+                        <RemoveFile Id="_7c62431c525a4a818f42d0f73b93fcee" On="both" Name="*.*" />
                     </Component>
                 </Directory>
             </Directory>
             <Directory Id="mercurial.default.d" Name="default.d">
                 <Component Id="mercurial.default.d.cacerts.rc" Guid="EBBE1FE8-F005-4582-A41C-24643CDA442C">
                     <File Id="mercurial.default.d.cacerts.rc" Name="cacerts.rc" KeyPath="yes" Source="..\..\mercurial\default.d\cacerts.rc" />
-                    <RemoveFile Id="_7f1c91b286c048998c387425db5b1b95" On="both" Name="*.*" />
+                    <RemoveFile Id="_fbe772a1f9174628bcca3f7aadfd9222" On="both" Name="*.*" />
                 </Component>
                 <Component Id="mercurial.default.d.editor.rc" Guid="5CE11261-3D90-447A-B240-E57394090508">
                     <File Id="mercurial.default.d.editor.rc" Name="editor.rc" Source="..\..\mercurial\default.d\editor.rc" />
-                    <RemoveFile Id="_7b247100bc4c44d2b777ee0e514a97ed" On="both" Name="*.*" />
+                    <RemoveFile Id="_e276e777a4a345148daa89e583193efa" On="both" Name="*.*" />
                 </Component>
                 <Component Id="mercurial.default.d.mergetools.rc" Guid="DB7B8034-ABA8-4DB1-A388-94C9C1A4A462">
                     <File Id="mercurial.default.d.mergetools.rc" Name="mergetools.rc" Source="..\..\mercurial\default.d\mergetools.rc" />
-                    <RemoveFile Id="_49db065f37e24ca1ac3624ce7ac93263" On="both" Name="*.*" />
+                    <RemoveFile Id="_da482f8b2d1e4019a349ea3e6959aa82" On="both" Name="*.*" />
                 </Component>
             </Directory>
             <Directory Id="mercurial.Docs" Name="Docs">
                 <Component Id="mercurial.Docs.hg.1.html" Guid="84D68CFC-6A8F-4FA0-9810-DC1256D2E90E">
                     <File Id="mercurial.Docs.hg.1.html" Name="hg.1.html" KeyPath="yes" Source="..\..\mercurial\Docs\hg.1.html" />
-                    <RemoveFile Id="_0a86838833034b44938f2ddcd7afff88" On="both" Name="*.*" />
+                    <RemoveFile Id="_45c387d4768f47c9aa938011d8ec9255" On="both" Name="*.*" />
                 </Component>
                 <Component Id="mercurial.Docs.hgignore.5.html" Guid="A0A00B14-0192-49B9-A375-226D4B25024E">
                     <File Id="mercurial.Docs.hgignore.5.html" Name="hgignore.5.html" Source="..\..\mercurial\Docs\hgignore.5.html" />
-                    <RemoveFile Id="_7f02786c21514e0d8b0ff3d78d5f2a6e" On="both" Name="*.*" />
+                    <RemoveFile Id="_9a4deabccc364d31b16da2aa5007442b" On="both" Name="*.*" />
                 </Component>
                 <Component Id="mercurial.Docs.hgrc.5.html" Guid="C4F2D085-635D-47A7-80F5-0435E17EBFD2">
                     <File Id="mercurial.Docs.hgrc.5.html" Name="hgrc.5.html" Source="..\..\mercurial\Docs\hgrc.5.html" />
-                    <RemoveFile Id="_1720123805e74455bf8680966aff1e2f" On="both" Name="*.*" />
+                    <RemoveFile Id="_845f96e1720e4a5789771cad8160bf8c" On="both" Name="*.*" />
                 </Component>
                 <Component Id="mercurial.Docs.style.css" Guid="92EBE38B-11EA-46F8-B006-042EE634932F">
                     <File Id="mercurial.Docs.style.css" Name="style.css" Source="..\..\mercurial\Docs\style.css" />
-                    <RemoveFile Id="_3472e0284afc49b788ab43afd12160cc" On="both" Name="*.*" />
+                    <RemoveFile Id="_337ad8c28ce04fba8f4b7966b6023052" On="both" Name="*.*" />
                 </Component>
             </Directory>
             <Directory Id="mercurial.help" Name="help">
                 <Component Id="mercurial.help.common.txt" Guid="DA0B58B1-3E03-4C70-90EE-DA4D4C9174A1">
                     <File Id="mercurial.help.common.txt" Name="common.txt" KeyPath="yes" Source="..\..\mercurial\help\common.txt" />
-                    <RemoveFile Id="_693a8704f8b1482ea13682059284107e" On="both" Name="*.*" />
+                    <RemoveFile Id="_762f7f4b027d4e6093b9d9ce581bd400" On="both" Name="*.*" />
                 </Component>
                 <Component Id="mercurial.help.config.txt" Guid="9FBBEA03-F40E-4CC6-984A-D081D1BB67FB">
                     <File Id="mercurial.help.config.txt" Name="config.txt" Source="..\..\mercurial\help\config.txt" />
-                    <RemoveFile Id="_594a394f247048b6ab9f088d5d7715ad" On="both" Name="*.*" />
+                    <RemoveFile Id="_e4f9b9826be648daa77accb8c06962dd" On="both" Name="*.*" />
                 </Component>
                 <Component Id="mercurial.help.dates.txt" Guid="524AA87F-426C-47DA-B67A-911FD9201745">
                     <File Id="mercurial.help.dates.txt" Name="dates.txt" Source="..\..\mercurial\help\dates.txt" />
-                    <RemoveFile Id="_973a27e1960e4fe280cbae1c157f1745" On="both" Name="*.*" />
+                    <RemoveFile Id="_abe558311f9645188dac93cd0db8740f" On="both" Name="*.*" />
                 </Component>
                 <Component Id="mercurial.help.diffs.txt" Guid="630F2710-3118-4A48-9874-FD1012217B66">
                     <File Id="mercurial.help.diffs.txt" Name="diffs.txt" Source="..\..\mercurial\help\diffs.txt" />
-                    <RemoveFile Id="_81bffa2ed96a4fd0ac5ccb5f6225ee53" On="both" Name="*.*" />
+                    <RemoveFile Id="_a830169493af4ac4adad049c238a6309" On="both" Name="*.*" />
                 </Component>
                 <Component Id="mercurial.help.environment.txt" Guid="7B08432B-ABEF-4396-B461-D935181627D9">
                     <File Id="mercurial.help.environment.txt" Name="environment.txt" Source="..\..\mercurial\help\environment.txt" />
-                    <RemoveFile Id="_be669da0de5e49d0b59b16f5de484cf8" On="both" Name="*.*" />
+                    <RemoveFile Id="_58fe041c64d841898af30e407742e57d" On="both" Name="*.*" />
                 </Component>
                 <Component Id="mercurial.help.extensions.txt" Guid="B0753347-9947-4FBD-BF5C-6ADBA1B66F82">
                     <File Id="mercurial.help.extensions.txt" Name="extensions.txt" Source="..\..\mercurial\help\extensions.txt" />
-                    <RemoveFile Id="_4b2160ed7da946fb9d1270096f96ac8c" On="both" Name="*.*" />
+                    <RemoveFile Id="_fb9ce047e86e44a0b122ac70ad4de4cf" On="both" Name="*.*" />
                 </Component>
                 <Component Id="mercurial.help.filesets.txt" Guid="0EA1D7CD-15D8-4BCE-A47F-F80A9699ADD6">
                     <File Id="mercurial.help.filesets.txt" Name="filesets.txt" Source="..\..\mercurial\help\filesets.txt" />
-                    <RemoveFile Id="_621614b3f08e44f98eeae7433c93fe5e" On="both" Name="*.*" />
+                    <RemoveFile Id="_b0f7d024e2314262b1403fd367fc0054" On="both" Name="*.*" />
                 </Component>
                 <Component Id="mercurial.help.glossary.txt" Guid="F78ABFD2-3837-4EF1-AB66-A42DE63233C8">
                     <File Id="mercurial.help.glossary.txt" Name="glossary.txt" Source="..\..\mercurial\help\glossary.txt" />
-                    <RemoveFile Id="_c0d6ff87662c4942bb25bd7a42d6b551" On="both" Name="*.*" />
+                    <RemoveFile Id="_fc971c84cb6745088be90499926e83be" On="both" Name="*.*" />
                 </Component>
                 <Component Id="mercurial.help.hg.1.txt" Guid="63BE3412-D411-4AC5-989E-020896022ED7">
                     <File Id="mercurial.help.hg.1.txt" Name="hg.1.txt" Source="..\..\mercurial\help\hg.1.txt" />
-                    <RemoveFile Id="_7760004d2493488fa768bd3388ffec2b" On="both" Name="*.*" />
+                    <RemoveFile Id="_af2e66dfae404d1fa695597882bf6691" On="both" Name="*.*" />
                 </Component>
                 <Component Id="mercurial.help.hgignore.5.txt" Guid="F6194F62-054A-462C-A5B6-0F44115C4F0E">
                     <File Id="mercurial.help.hgignore.5.txt" Name="hgignore.5.txt" Source="..\..\mercurial\help\hgignore.5.txt" />
-                    <RemoveFile Id="_24ab6891f18c4d3483971d81cdbb7866" On="both" Name="*.*" />
+                    <RemoveFile Id="_4d7866e4e08b4d7a9b0ed29811ee68a1" On="both" Name="*.*" />
                 </Component>
                 <Component Id="mercurial.help.hgignore.txt" Guid="9D8B6F91-2A9A-4E0B-88C1-B3143AD0A3F3">
                     <File Id="mercurial.help.hgignore.txt" Name="hgignore.txt" Source="..\..\mercurial\help\hgignore.txt" />
-                    <RemoveFile Id="_9b9c36b36299428f94d856bd7f8a85c5" On="both" Name="*.*" />
+                    <RemoveFile Id="_05166e4b1a294acd9566e96b52f94b63" On="both" Name="*.*" />
                 </Component>
                 <Component Id="mercurial.help.hgrc.5.txt" Guid="DC562306-9660-417F-A4D0-53F6661FA2EA">
                     <File Id="mercurial.help.hgrc.5.txt" Name="hgrc.5.txt" Source="..\..\mercurial\help\hgrc.5.txt" />
-                    <RemoveFile Id="_d39f2e9471a74da7b0bf338baf95c0db" On="both" Name="*.*" />
+                    <RemoveFile Id="_e8efe87448f74ea392c12334f8977798" On="both" Name="*.*" />
                 </Component>
                 <Component Id="mercurial.help.hgweb.txt" Guid="589074B4-FC13-456D-A392-723E7AC7A318">
                     <File Id="mercurial.help.hgweb.txt" Name="hgweb.txt" Source="..\..\mercurial\help\hgweb.txt" />
-                    <RemoveFile Id="_44787feef5b841829f1813d001881366" On="both" Name="*.*" />
+                    <RemoveFile Id="_9c8c935138cb4b398fd1fa96c01d2354" On="both" Name="*.*" />
                 </Component>
                 <Component Id="mercurial.help.merge_tools.txt" Guid="237468D3-EF61-4B28-93A4-6E5491EBFA34">
                     <File Id="mercurial.help.merge_tools.txt" Name="merge-tools.txt" Source="..\..\mercurial\help\merge-tools.txt" />
-                    <RemoveFile Id="_c60496721f034c60881c103412e6c9ac" On="both" Name="*.*" />
+                    <RemoveFile Id="_4775bf1639b84fc29f6a6ce198e74d6a" On="both" Name="*.*" />
                 </Component>
                 <Component Id="mercurial.help.multirevs.txt" Guid="A283A488-D111-439D-AAC9-5B2A423A53A3">
                     <File Id="mercurial.help.multirevs.txt" Name="multirevs.txt" Source="..\..\mercurial\help\multirevs.txt" />
-                    <RemoveFile Id="_835bcc76b85d41bab6881533ad1f0510" On="both" Name="*.*" />
+                    <RemoveFile Id="_d0a3491a88944b079ff86bead36b3a0b" On="both" Name="*.*" />
                 </Component>
                 <Component Id="mercurial.help.patterns.txt" Guid="E24A6040-DD91-412E-BEB7-C6C95E71A198">
                     <File Id="mercurial.help.patterns.txt" Name="patterns.txt" Source="..\..\mercurial\help\patterns.txt" />
-                    <RemoveFile Id="_d76dca9715944b82b684403ce325f8f9" On="both" Name="*.*" />
+                    <RemoveFile Id="_2f5ad15c88e34c868e4e21f679634bae" On="both" Name="*.*" />
                 </Component>
                 <Component Id="mercurial.help.phases.txt" Guid="B8003070-62B4-4393-AA38-FE2E851083F8">
                     <File Id="mercurial.help.phases.txt" Name="phases.txt" Source="..\..\mercurial\help\phases.txt" />
-                    <RemoveFile Id="_62f3111888634e78bee14b0847309cd8" On="both" Name="*.*" />
+                    <RemoveFile Id="_f1240cad397a4079adfb7226edded0b8" On="both" Name="*.*" />
                 </Component>
                 <Component Id="mercurial.help.revisions.txt" Guid="C9B650C7-B033-4472-A027-84E138DFDD9E">
                     <File Id="mercurial.help.revisions.txt" Name="revisions.txt" Source="..\..\mercurial\help\revisions.txt" />
-                    <RemoveFile Id="_2d686b871e694feb8dd35e2a5dea852e" On="both" Name="*.*" />
+                    <RemoveFile Id="_d815e548abc44b15a6d1158df79e605a" On="both" Name="*.*" />
                 </Component>
                 <Component Id="mercurial.help.revsets.txt" Guid="FDFEED78-E667-44FF-88C0-AB047319C271">
                     <File Id="mercurial.help.revsets.txt" Name="revsets.txt" Source="..\..\mercurial\help\revsets.txt" />
-                    <RemoveFile Id="_291cd1f0e06e4e1f92a64b36fca8e354" On="both" Name="*.*" />
+                    <RemoveFile Id="_9202f7107a0746378832ae9507f60d65" On="both" Name="*.*" />
                 </Component>
                 <Component Id="mercurial.help.subrepos.txt" Guid="9A51769C-E91C-4442-91DA-09FE2814765E">
                     <File Id="mercurial.help.subrepos.txt" Name="subrepos.txt" Source="..\..\mercurial\help\subrepos.txt" />
-                    <RemoveFile Id="_40ebb57807244819a731cc5c6fd51113" On="both" Name="*.*" />
+                    <RemoveFile Id="_fab0831114734f7087693fa31fc4822a" On="both" Name="*.*" />
                 </Component>
                 <Component Id="mercurial.help.templates.txt" Guid="D43064CB-9966-4939-84E2-2C3DF738B539">
                     <File Id="mercurial.help.templates.txt" Name="templates.txt" Source="..\..\mercurial\help\templates.txt" />
-                    <RemoveFile Id="_2f939472a0e743ca8a8cd96c9b8591a0" On="both" Name="*.*" />
+                    <RemoveFile Id="_05fff703f5d446a7868a4daac5544823" On="both" Name="*.*" />
                 </Component>
                 <Component Id="mercurial.help.urls.txt" Guid="4451BDFF-B20C-4520-837E-F847748E6E5F">
                     <File Id="mercurial.help.urls.txt" Name="urls.txt" Source="..\..\mercurial\help\urls.txt" />
-                    <RemoveFile Id="_4ed86732f64240f1a3f70333961d3912" On="both" Name="*.*" />
+                    <RemoveFile Id="_1a4d871d9aef45dbb5d898952f1cefc5" On="both" Name="*.*" />
                 </Component>
             </Directory>
             <Directory Id="mercurial.locale" Name="locale">
@@ -269,7 +269,7 @@
                     <Directory Id="mercurial.locale.fr.LC_MESSAGES" Name="LC_MESSAGES">
                         <Component Id="mercurial.locale.fr.LC_MESSAGES.hg.mo" Guid="AD19CCE4-68A2-41BC-A46A-6BAC1D232B18">
                             <File Id="mercurial.locale.fr.LC_MESSAGES.hg.mo" Name="hg.mo" KeyPath="yes" Source="..\..\mercurial\locale\fr\LC_MESSAGES\hg.mo" />
-                            <RemoveFile Id="_6811cb189f154912b4807d61957d81be" On="both" Name="*.*" />
+                            <RemoveFile Id="_ca61225f1c1640d48644e33a413ebf1f" On="both" Name="*.*" />
                         </Component>
                     </Directory>
                 </Directory>
@@ -277,632 +277,632 @@
             <Directory Id="mercurial.Templates" Name="Templates">
                 <Component Id="mercurial.Templates.map_cmdline.bisect" Guid="F348BEF0-A526-4E5D-8860-AEA288C74CE1">
                     <File Id="mercurial.Templates.map_cmdline.bisect" Name="map-cmdline.bisect" KeyPath="yes" Source="..\..\mercurial\Templates\map-cmdline.bisect" />
-                    <RemoveFile Id="_309366807f3b4680b817f3951d8aef38" On="both" Name="*.*" />
+                    <RemoveFile Id="_8894cf24f8504307a594ce9c52b3a6f7" On="both" Name="*.*" />
                 </Component>
                 <Component Id="mercurial.Templates.map_cmdline.changelog" Guid="58152D15-F189-4D7A-A232-08407818E74B">
                     <File Id="mercurial.Templates.map_cmdline.changelog" Name="map-cmdline.changelog" Source="..\..\mercurial\Templates\map-cmdline.changelog" />
-                    <RemoveFile Id="_1244f2463cf944ceafbdae1e2da8e316" On="both" Name="*.*" />
+                    <RemoveFile Id="_654f3950dfee4b39b498887ce62b08af" On="both" Name="*.*" />
                 </Component>
                 <Component Id="mercurial.Templates.map_cmdline.compact" Guid="C9ABDFF2-FCE7-46C1-A4E3-CDCA321AF112">
                     <File Id="mercurial.Templates.map_cmdline.compact" Name="map-cmdline.compact" Source="..\..\mercurial\Templates\map-cmdline.compact" />
-                    <RemoveFile Id="_a007d4f4f918459dacdac559c777290c" On="both" Name="*.*" />
+                    <RemoveFile Id="_a784aed47b884842a3ac82ede46976c2" On="both" Name="*.*" />
                 </Component>
                 <Component Id="mercurial.Templates.map_cmdline.default" Guid="7CB4042F-6CFC-4336-9DD4-9D424CC5BE97">
                     <File Id="mercurial.Templates.map_cmdline.default" Name="map-cmdline.default" Source="..\..\mercurial\Templates\map-cmdline.default" />
-                    <RemoveFile Id="_fb7922e166d642779d0894b6722fddf6" On="both" Name="*.*" />
+                    <RemoveFile Id="_4f4f9f763f06437bacb16d8565b55693" On="both" Name="*.*" />
                 </Component>
                 <Component Id="mercurial.Templates.map_cmdline.phases" Guid="A16982B2-85F4-4BC9-B01E-F350F06EBD71">
                     <File Id="mercurial.Templates.map_cmdline.phases" Name="map-cmdline.phases" Source="..\..\mercurial\Templates\map-cmdline.phases" />
-                    <RemoveFile Id="_0f180bfff4fd4b5bbd719388fd08ad8a" On="both" Name="*.*" />
+                    <RemoveFile Id="_64e4d83dcdd94419ba09d05f82d4232c" On="both" Name="*.*" />
                 </Component>
                 <Component Id="mercurial.Templates.map_cmdline.xml" Guid="3001B67A-F294-4B35-A100-A9E873DFAF64">
                     <File Id="mercurial.Templates.map_cmdline.xml" Name="map-cmdline.xml" Source="..\..\mercurial\Templates\map-cmdline.xml" />
-                    <RemoveFile Id="_e71640d497694ad283de2e086b5637db" On="both" Name="*.*" />
+                    <RemoveFile Id="_0bb45f328c324d60a7deadb51224fc67" On="both" Name="*.*" />
                 </Component>
                 <Directory Id="mercurial.Templates.atom" Name="atom">
                     <Component Id="mercurial.Templates.atom.bookmarkentry.tmpl" Guid="57EC2C3A-DB4E-4490-A2B0-983178F6CCD8">
                         <File Id="mercurial.Templates.atom.bookmarkentry.tmpl" Name="bookmarkentry.tmpl" KeyPath="yes" Source="..\..\mercurial\Templates\atom\bookmarkentry.tmpl" />
-                        <RemoveFile Id="_e13bc90c1b06467b85ac6e25625518e5" On="both" Name="*.*" />
+                        <RemoveFile Id="_f0a14ca17b76427985d3020260b33c37" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.atom.bookmarks.tmpl" Guid="430C413C-0756-431E-845F-DF45EBE056F9">
                         <File Id="mercurial.Templates.atom.bookmarks.tmpl" Name="bookmarks.tmpl" Source="..\..\mercurial\Templates\atom\bookmarks.tmpl" />
-                        <RemoveFile Id="_8a4cc0e1295d4bceaf19dcaf8d01303f" On="both" Name="*.*" />
+                        <RemoveFile Id="_7a172717c34e47159a2ca76d019b9f44" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.atom.branchentry.tmpl" Guid="421D1C9C-D99D-4359-98BF-A434D762AC4B">
                         <File Id="mercurial.Templates.atom.branchentry.tmpl" Name="branchentry.tmpl" Source="..\..\mercurial\Templates\atom\branchentry.tmpl" />
-                        <RemoveFile Id="_852048403b834ec99ca3d4c3e304c3be" On="both" Name="*.*" />
+                        <RemoveFile Id="_b30a12e7c1b94f938cd310423143dfe6" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.atom.branches.tmpl" Guid="59D8CABF-02D2-4E34-A5E9-D09A62096954">
                         <File Id="mercurial.Templates.atom.branches.tmpl" Name="branches.tmpl" Source="..\..\mercurial\Templates\atom\branches.tmpl" />
-                        <RemoveFile Id="_bfa35c8e3d2a4ac6b50d75a4b5396bdb" On="both" Name="*.*" />
+                        <RemoveFile Id="_5950fe6a31ed4e7c86c73bc42c19e13f" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.atom.changelog.tmpl" Guid="54C8E3A4-DB1E-464A-9946-8B1E08437D5C">
                         <File Id="mercurial.Templates.atom.changelog.tmpl" Name="changelog.tmpl" Source="..\..\mercurial\Templates\atom\changelog.tmpl" />
-                        <RemoveFile Id="_145da6c69edd47609d2c3c87f548e1cf" On="both" Name="*.*" />
+                        <RemoveFile Id="_2c0f8eb87550433d910baad6ec395d47" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.atom.changelogentry.tmpl" Guid="5D53E0BB-1693-43AB-8A56-AE63CCE0FC9D">
                         <File Id="mercurial.Templates.atom.changelogentry.tmpl" Name="changelogentry.tmpl" Source="..\..\mercurial\Templates\atom\changelogentry.tmpl" />
-                        <RemoveFile Id="_bfb601c63f3348849ca727f3bd7e7d95" On="both" Name="*.*" />
+                        <RemoveFile Id="_3f510b103fc04017aee7f02b72a84d74" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.atom.error.tmpl" Guid="2A7F3245-D27D-47B1-A779-7918C9356C6F">
                         <File Id="mercurial.Templates.atom.error.tmpl" Name="error.tmpl" Source="..\..\mercurial\Templates\atom\error.tmpl" />
-                        <RemoveFile Id="_a724df00dc40439c9c89f270a1482bd6" On="both" Name="*.*" />
+                        <RemoveFile Id="_5aa46d6f36814448862b74e8f83c8602" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.atom.filelog.tmpl" Guid="6351754B-BEDE-47DF-B949-864A0423051A">
                         <File Id="mercurial.Templates.atom.filelog.tmpl" Name="filelog.tmpl" Source="..\..\mercurial\Templates\atom\filelog.tmpl" />
-                        <RemoveFile Id="_c8a397783e774ae093a20b31a6a02d3b" On="both" Name="*.*" />
+                        <RemoveFile Id="_af3835fbbcb84897a4a7cb72b616cb0a" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.atom.header.tmpl" Guid="C336B0C1-35A9-4B2F-B071-110F8DFC2D01">
                         <File Id="mercurial.Templates.atom.header.tmpl" Name="header.tmpl" Source="..\..\mercurial\Templates\atom\header.tmpl" />
-                        <RemoveFile Id="_04c1c441aef5453fb916133fdfef16f5" On="both" Name="*.*" />
+                        <RemoveFile Id="_8ca9735cac7244b1991268a03545c121" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.atom.map" Guid="F946BBA7-94E3-4AF0-98FC-512B4EAFB839">
                         <File Id="mercurial.Templates.atom.map" Name="map" Source="..\..\mercurial\Templates\atom\map" />
-                        <RemoveFile Id="_a88fbb2e73574d0d8cf36b9cff0269db" On="both" Name="*.*" />
+                        <RemoveFile Id="_20c355e016844a1cb3a4bcc8b8c59cbc" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.atom.tagentry.tmpl" Guid="48FED422-B446-4EEC-A2D6-C26379D2B502">
                         <File Id="mercurial.Templates.atom.tagentry.tmpl" Name="tagentry.tmpl" Source="..\..\mercurial\Templates\atom\tagentry.tmpl" />
-                        <RemoveFile Id="_ad0ace850b3c4e1a95fac595ca6e41f0" On="both" Name="*.*" />
+                        <RemoveFile Id="_a304fbfe16a647f5a1a6469cc82107cc" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.atom.tags.tmpl" Guid="54251E10-3325-4FAC-967F-6599E41477A0">
                         <File Id="mercurial.Templates.atom.tags.tmpl" Name="tags.tmpl" Source="..\..\mercurial\Templates\atom\tags.tmpl" />
-                        <RemoveFile Id="_bb75a9ab3e4e4b8fb821bab5949b2389" On="both" Name="*.*" />
+                        <RemoveFile Id="_9e44fca2f0454d11a9742d661743dd37" On="both" Name="*.*" />
                     </Component>
                 </Directory>
                 <Directory Id="mercurial.Templates.coal" Name="coal">
                     <Component Id="mercurial.Templates.coal.header.tmpl" Guid="15E53E5C-8BA2-4A3F-9836-5E7EB9FD7264">
                         <File Id="mercurial.Templates.coal.header.tmpl" Name="header.tmpl" KeyPath="yes" Source="..\..\mercurial\Templates\coal\header.tmpl" />
-                        <RemoveFile Id="_d43d706c8b8b47dc9a195d2615cd5a4b" On="both" Name="*.*" />
+                        <RemoveFile Id="_99b4fe9c898a47b1b482bdf1784f8557" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.coal.map" Guid="71B21F45-6493-4ED2-AE06-5492639785C4">
                         <File Id="mercurial.Templates.coal.map" Name="map" Source="..\..\mercurial\Templates\coal\map" />
-                        <RemoveFile Id="_4964bb85d04a45cd82b180155bb467e1" On="both" Name="*.*" />
+                        <RemoveFile Id="_91adc98d0e9e4784bf2b7ce8efdfe1f8" On="both" Name="*.*" />
                     </Component>
                 </Directory>
                 <Directory Id="mercurial.Templates.gitweb" Name="gitweb">
                     <Component Id="mercurial.Templates.gitweb.bookmarks.tmpl" Guid="82BEDF2D-7B2D-4889-A317-A7AD7C7D7A53">
                         <File Id="mercurial.Templates.gitweb.bookmarks.tmpl" Name="bookmarks.tmpl" KeyPath="yes" Source="..\..\mercurial\Templates\gitweb\bookmarks.tmpl" />
-                        <RemoveFile Id="_b99d41d81c6344dfa712d956f2f91775" On="both" Name="*.*" />
+                        <RemoveFile Id="_b310f44b07a14ccab7e6915987233d9e" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.gitweb.branches.tmpl" Guid="A35AC3BC-000F-4173-BBD1-59AF151A7727">
                         <File Id="mercurial.Templates.gitweb.branches.tmpl" Name="branches.tmpl" Source="..\..\mercurial\Templates\gitweb\branches.tmpl" />
-                        <RemoveFile Id="_c5683c9dcc89405dbd27fb821ee1ff54" On="both" Name="*.*" />
+                        <RemoveFile Id="_801e0c0a17264eea9ead3abc422d517d" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.gitweb.changelog.tmpl" Guid="7C87AC65-D636-4C44-BD10-69C80C361FA3">
                         <File Id="mercurial.Templates.gitweb.changelog.tmpl" Name="changelog.tmpl" Source="..\..\mercurial\Templates\gitweb\changelog.tmpl" />
-                        <RemoveFile Id="_549b760fe5c740f5972a8504a590ee64" On="both" Name="*.*" />
+                        <RemoveFile Id="_63f0f07612784b74ada0d6790d7584cc" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.gitweb.changelogentry.tmpl" Guid="7699D07F-F0BA-4E3B-9DE7-0A082C254760">
                         <File Id="mercurial.Templates.gitweb.changelogentry.tmpl" Name="changelogentry.tmpl" Source="..\..\mercurial\Templates\gitweb\changelogentry.tmpl" />
-                        <RemoveFile Id="_8ab88a85c8c14472ad0931fcf40104e9" On="both" Name="*.*" />
+                        <RemoveFile Id="_2edf9d9fef6544b793e9e6b9de60dabe" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.gitweb.changeset.tmpl" Guid="6305F56F-742D-4156-A686-C44FABC0D834">
                         <File Id="mercurial.Templates.gitweb.changeset.tmpl" Name="changeset.tmpl" Source="..\..\mercurial\Templates\gitweb\changeset.tmpl" />
-                        <RemoveFile Id="_f82e8becda714329b075f2699785d436" On="both" Name="*.*" />
+                        <RemoveFile Id="_8bc5011563e54b1b8a7b16435e8ea232" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.gitweb.error.tmpl" Guid="1765A865-36EC-484F-B0E4-3AC6C711A58F">
                         <File Id="mercurial.Templates.gitweb.error.tmpl" Name="error.tmpl" Source="..\..\mercurial\Templates\gitweb\error.tmpl" />
-                        <RemoveFile Id="_3b81184b44b744c7916cbbdc4e2ddf40" On="both" Name="*.*" />
+                        <RemoveFile Id="_c320379e916044c4bf8c0e19cd23f7c1" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.gitweb.fileannotate.tmpl" Guid="6F0FF594-6B07-402D-BC3F-7DE905225257">
                         <File Id="mercurial.Templates.gitweb.fileannotate.tmpl" Name="fileannotate.tmpl" Source="..\..\mercurial\Templates\gitweb\fileannotate.tmpl" />
-                        <RemoveFile Id="_a74641d52da242d48b1966309041afbd" On="both" Name="*.*" />
+                        <RemoveFile Id="_96c58245485a40db8d1fa79e037c3159" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.gitweb.filecomparison.tmpl" Guid="DCAB8849-09BA-43CB-9769-5020E8B3FAE0">
                         <File Id="mercurial.Templates.gitweb.filecomparison.tmpl" Name="filecomparison.tmpl" Source="..\..\mercurial\Templates\gitweb\filecomparison.tmpl" />
-                        <RemoveFile Id="_caa146a04dda4d2cb27557eba70e548a" On="both" Name="*.*" />
+                        <RemoveFile Id="_90996238753f4f3b8ef261870a6080d6" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.gitweb.filediff.tmpl" Guid="027F9377-D493-4F23-8BC8-FB32D3B0DDEA">
                         <File Id="mercurial.Templates.gitweb.filediff.tmpl" Name="filediff.tmpl" Source="..\..\mercurial\Templates\gitweb\filediff.tmpl" />
-                        <RemoveFile Id="_466a0636c99345bdbd3dee79e562b64d" On="both" Name="*.*" />
+                        <RemoveFile Id="_78f52d922c2b496397ed32fd3e8d6139" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.gitweb.filelog.tmpl" Guid="D11484BD-34D0-41D5-9336-A897A8A168D3">
                         <File Id="mercurial.Templates.gitweb.filelog.tmpl" Name="filelog.tmpl" Source="..\..\mercurial\Templates\gitweb\filelog.tmpl" />
-                        <RemoveFile Id="_15873d098ea341eaa5f7430f952bbc7b" On="both" Name="*.*" />
+                        <RemoveFile Id="_35ee53b5b742400382f7c86ea646bf55" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.gitweb.filerevision.tmpl" Guid="84ED4E1A-0055-4BAB-BCCE-D851924804A5">
                         <File Id="mercurial.Templates.gitweb.filerevision.tmpl" Name="filerevision.tmpl" Source="..\..\mercurial\Templates\gitweb\filerevision.tmpl" />
-                        <RemoveFile Id="_1b3e64d144a341dba2e1fbe00e4062ad" On="both" Name="*.*" />
+                        <RemoveFile Id="_83d5de84eef84ee1ae5e0435e6732e37" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.gitweb.footer.tmpl" Guid="40AC2BCB-D7DC-41EB-ABA6-935746E96681">
                         <File Id="mercurial.Templates.gitweb.footer.tmpl" Name="footer.tmpl" Source="..\..\mercurial\Templates\gitweb\footer.tmpl" />
-                        <RemoveFile Id="_b9e479a2bc2e41fb89bbc35170a325cb" On="both" Name="*.*" />
+                        <RemoveFile Id="_13a675366aaf41828a8857ce322e6cb0" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.gitweb.graph.tmpl" Guid="3DA4A576-86C9-4BDE-8290-684668B820E0">
                         <File Id="mercurial.Templates.gitweb.graph.tmpl" Name="graph.tmpl" Source="..\..\mercurial\Templates\gitweb\graph.tmpl" />
-                        <RemoveFile Id="_c1f4f8fae10e471f86517f690bb7e841" On="both" Name="*.*" />
+                        <RemoveFile Id="_46d09270ec274813aa5cc6bdeea4e784" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.gitweb.header.tmpl" Guid="53C6CBDA-CD08-48F9-A3EC-72A2A839DC01">
                         <File Id="mercurial.Templates.gitweb.header.tmpl" Name="header.tmpl" Source="..\..\mercurial\Templates\gitweb\header.tmpl" />
-                        <RemoveFile Id="_391629293d95438b9731a96e616458cf" On="both" Name="*.*" />
+                        <RemoveFile Id="_2341df2c644c4e5ca4cf8e2ff8d41791" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.gitweb.help.tmpl" Guid="52B24684-5EFF-49AF-934C-3DAB8796C263">
                         <File Id="mercurial.Templates.gitweb.help.tmpl" Name="help.tmpl" Source="..\..\mercurial\Templates\gitweb\help.tmpl" />
-                        <RemoveFile Id="_27494927798c40d1979bf3f0e69d4781" On="both" Name="*.*" />
+                        <RemoveFile Id="_74c655fa6c054fabaace871da810d9f0" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.gitweb.helptopics.tmpl" Guid="B4AEA8E6-FD2A-4D29-9E31-92076AC72A0B">
                         <File Id="mercurial.Templates.gitweb.helptopics.tmpl" Name="helptopics.tmpl" Source="..\..\mercurial\Templates\gitweb\helptopics.tmpl" />
-                        <RemoveFile Id="_05d851a85acb4a49bf4c4a5b1c208a14" On="both" Name="*.*" />
+                        <RemoveFile Id="_a64ab5ca00084e86819837e5799b3ea7" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.gitweb.index.tmpl" Guid="548C8C58-0EB6-4078-B302-CD440A9A49DE">
                         <File Id="mercurial.Templates.gitweb.index.tmpl" Name="index.tmpl" Source="..\..\mercurial\Templates\gitweb\index.tmpl" />
-                        <RemoveFile Id="_b391632276f94cc6a86323aac6370692" On="both" Name="*.*" />
+                        <RemoveFile Id="_1e25f937be9b4939a9e190a310c0fe30" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.gitweb.manifest.tmpl" Guid="C9E95C0A-4022-4C77-B467-9B40C47B3130">
                         <File Id="mercurial.Templates.gitweb.manifest.tmpl" Name="manifest.tmpl" Source="..\..\mercurial\Templates\gitweb\manifest.tmpl" />
-                        <RemoveFile Id="_95a07776dfae443c9e407dfecdce398f" On="both" Name="*.*" />
+                        <RemoveFile Id="_176565b7dbe849e0adf65f5723376791" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.gitweb.map" Guid="0951A0DF-81D6-4744-8D12-06EE81DC339C">
                         <File Id="mercurial.Templates.gitweb.map" Name="map" Source="..\..\mercurial\Templates\gitweb\map" />
-                        <RemoveFile Id="_525a207319f44bd4a3d3400434bbd968" On="both" Name="*.*" />
+                        <RemoveFile Id="_4d97005ea785452fa1613dc13a58a146" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.gitweb.notfound.tmpl" Guid="4908A35A-A0D3-46C1-8FA8-7DABEB9D76F8">
                         <File Id="mercurial.Templates.gitweb.notfound.tmpl" Name="notfound.tmpl" Source="..\..\mercurial\Templates\gitweb\notfound.tmpl" />
-                        <RemoveFile Id="_c2df17490f1746ada18bee82b89e969c" On="both" Name="*.*" />
+                        <RemoveFile Id="_7e634161079649d8b90529ed7e3423ec" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.gitweb.search.tmpl" Guid="570817A4-7D6F-4ED3-818B-15B408F7562D">
                         <File Id="mercurial.Templates.gitweb.search.tmpl" Name="search.tmpl" Source="..\..\mercurial\Templates\gitweb\search.tmpl" />
-                        <RemoveFile Id="_fc9e3fb6cb7c4ea194809972ab460df1" On="both" Name="*.*" />
+                        <RemoveFile Id="_6acf94cc124549ebafb1cf6ee3967a73" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.gitweb.shortlog.tmpl" Guid="9B35AD9A-2954-4B3F-8F70-988288D2A340">
                         <File Id="mercurial.Templates.gitweb.shortlog.tmpl" Name="shortlog.tmpl" Source="..\..\mercurial\Templates\gitweb\shortlog.tmpl" />
-                        <RemoveFile Id="_9cfe0086116940de8a75873146218b65" On="both" Name="*.*" />
+                        <RemoveFile Id="_a95cf379f1524ee5862cb691f66cd257" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.gitweb.summary.tmpl" Guid="60C4A1B3-2E1C-4283-86A2-41C7876AE990">
                         <File Id="mercurial.Templates.gitweb.summary.tmpl" Name="summary.tmpl" Source="..\..\mercurial\Templates\gitweb\summary.tmpl" />
-                        <RemoveFile Id="_9c79f9a08f9d4200ad32f85930737bad" On="both" Name="*.*" />
+                        <RemoveFile Id="_19dbc809e9174b858306ba64e0ce9b75" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.gitweb.tags.tmpl" Guid="28263368-9C31-4E88-9EB8-128396F61B22">
                         <File Id="mercurial.Templates.gitweb.tags.tmpl" Name="tags.tmpl" Source="..\..\mercurial\Templates\gitweb\tags.tmpl" />
-                        <RemoveFile Id="_9f3437bbf4ef4d4592ba982e20704736" On="both" Name="*.*" />
+                        <RemoveFile Id="_19ba06555fae4f8aa01181aa9d6cdb52" On="both" Name="*.*" />
                     </Component>
                 </Directory>
                 <Directory Id="mercurial.Templates.monoblue" Name="monoblue">
                     <Component Id="mercurial.Templates.monoblue.bookmarks.tmpl" Guid="3CD19949-E7E3-4AA3-B699-32B2A501DA72">
                         <File Id="mercurial.Templates.monoblue.bookmarks.tmpl" Name="bookmarks.tmpl" KeyPath="yes" Source="..\..\mercurial\Templates\monoblue\bookmarks.tmpl" />
-                        <RemoveFile Id="_6f830e4d401d481aaedeffc75727e0a4" On="both" Name="*.*" />
+                        <RemoveFile Id="_e7c3d670f3314d8ead3a94194fcdf625" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.monoblue.branches.tmpl" Guid="BE06DB15-051D-4BFD-A052-5B85F9D794F2">
                         <File Id="mercurial.Templates.monoblue.branches.tmpl" Name="branches.tmpl" Source="..\..\mercurial\Templates\monoblue\branches.tmpl" />
-                        <RemoveFile Id="_027ba0a1bb61472a86130543782f39ef" On="both" Name="*.*" />
+                        <RemoveFile Id="_9bcf072c2adf4a1c88ab9c05905a7a65" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.monoblue.changelog.tmpl" Guid="EBBE0416-6AE7-4B57-980F-3E0B9B529D8E">
                         <File Id="mercurial.Templates.monoblue.changelog.tmpl" Name="changelog.tmpl" Source="..\..\mercurial\Templates\monoblue\changelog.tmpl" />
-                        <RemoveFile Id="_8d053fcaca494de98f682c4f211966b3" On="both" Name="*.*" />
+                        <RemoveFile Id="_65e108a6bb734b9585aa9eb1bbdc5341" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.monoblue.changelogentry.tmpl" Guid="97AB88BE-B317-4547-B3B3-CE16CE17A11E">
                         <File Id="mercurial.Templates.monoblue.changelogentry.tmpl" Name="changelogentry.tmpl" Source="..\..\mercurial\Templates\monoblue\changelogentry.tmpl" />
-                        <RemoveFile Id="_08e313acbc934be9a4dc689724e0fd5d" On="both" Name="*.*" />
+                        <RemoveFile Id="_924f8712405545128fae4072c615373d" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.monoblue.changeset.tmpl" Guid="29BB87CE-134C-4790-8223-42FE2FC25334">
                         <File Id="mercurial.Templates.monoblue.changeset.tmpl" Name="changeset.tmpl" Source="..\..\mercurial\Templates\monoblue\changeset.tmpl" />
-                        <RemoveFile Id="_f974e49b5d894633be63ee9864397fdb" On="both" Name="*.*" />
+                        <RemoveFile Id="_1b0a354963294772827fdd6ec8c2b36f" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.monoblue.error.tmpl" Guid="30B179F6-24B9-44C5-94DD-3D5C46E8A74A">
                         <File Id="mercurial.Templates.monoblue.error.tmpl" Name="error.tmpl" Source="..\..\mercurial\Templates\monoblue\error.tmpl" />
-                        <RemoveFile Id="_437c74e82cf14adcb92897e71dc17b62" On="both" Name="*.*" />
+                        <RemoveFile Id="_0d7ad2d899f149fb9a29bfd4b607b5d6" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.monoblue.fileannotate.tmpl" Guid="CB5C83AD-9DA5-4B87-A763-0A0E4CBBB278">
                         <File Id="mercurial.Templates.monoblue.fileannotate.tmpl" Name="fileannotate.tmpl" Source="..\..\mercurial\Templates\monoblue\fileannotate.tmpl" />
-                        <RemoveFile Id="_7210d4dc1de24920ba34fa3292db6238" On="both" Name="*.*" />
+                        <RemoveFile Id="_a3307a8209c64a109e8447a041d27406" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.monoblue.filecomparison.tmpl" Guid="9DEBE68E-D738-4C92-92A6-78FFB81947A0">
                         <File Id="mercurial.Templates.monoblue.filecomparison.tmpl" Name="filecomparison.tmpl" Source="..\..\mercurial\Templates\monoblue\filecomparison.tmpl" />
-                        <RemoveFile Id="_76537ac952074606950dc710adfc6b68" On="both" Name="*.*" />
+                        <RemoveFile Id="_65ff31443eac449ea8199cc02a269ad3" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.monoblue.filediff.tmpl" Guid="2678B85F-1552-4CD9-947E-5E53DE266DC8">
                         <File Id="mercurial.Templates.monoblue.filediff.tmpl" Name="filediff.tmpl" Source="..\..\mercurial\Templates\monoblue\filediff.tmpl" />
-                        <RemoveFile Id="_9343cb480baa4b4396bd3dabbb445c10" On="both" Name="*.*" />
+                        <RemoveFile Id="_32e4f141db0540ef82a746dc345be864" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.monoblue.filelog.tmpl" Guid="2FB658FF-3501-4A13-9D9B-DB1E875E5CCA">
                         <File Id="mercurial.Templates.monoblue.filelog.tmpl" Name="filelog.tmpl" Source="..\..\mercurial\Templates\monoblue\filelog.tmpl" />
-                        <RemoveFile Id="_65376ee5a32745f5aa1e3f551a9d7568" On="both" Name="*.*" />
+                        <RemoveFile Id="_3889c68d225948ee94026bd322107dde" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.monoblue.filerevision.tmpl" Guid="0B36CC6A-EB9C-40AF-AC2D-12D7AF4630CC">
                         <File Id="mercurial.Templates.monoblue.filerevision.tmpl" Name="filerevision.tmpl" Source="..\..\mercurial\Templates\monoblue\filerevision.tmpl" />
-                        <RemoveFile Id="_fbc568302b634960b50f9a8c48e81c4b" On="both" Name="*.*" />
+                        <RemoveFile Id="_cd9dfc9672ce492f8230067224485069" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.monoblue.footer.tmpl" Guid="1B1B98DD-9843-406B-A81E-3B1778A27E21">
                         <File Id="mercurial.Templates.monoblue.footer.tmpl" Name="footer.tmpl" Source="..\..\mercurial\Templates\monoblue\footer.tmpl" />
-                        <RemoveFile Id="_e98a97ae3b674aaa820700990d9078b1" On="both" Name="*.*" />
+                        <RemoveFile Id="_dfca5d70b6a64c8e8be16a75d6d2963a" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.monoblue.graph.tmpl" Guid="2A08395B-06C3-4F6F-BF9F-DC4DC9C0A055">
                         <File Id="mercurial.Templates.monoblue.graph.tmpl" Name="graph.tmpl" Source="..\..\mercurial\Templates\monoblue\graph.tmpl" />
-                        <RemoveFile Id="_8cfd986105824142bd6a24df3c0b7496" On="both" Name="*.*" />
+                        <RemoveFile Id="_8f14b00c75ba49cab92e42510c136de8" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.monoblue.header.tmpl" Guid="CA4631AC-21E1-49E6-BC24-F1BFDA5A66AD">
                         <File Id="mercurial.Templates.monoblue.header.tmpl" Name="header.tmpl" Source="..\..\mercurial\Templates\monoblue\header.tmpl" />
-                        <RemoveFile Id="_11db4c99fac14a5baaa54e656041bf32" On="both" Name="*.*" />
+                        <RemoveFile Id="_51fdae90cd8145eca76c466c7b28594b" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.monoblue.help.tmpl" Guid="4201A91F-77D2-426A-90C8-A47AB2BB714E">
                         <File Id="mercurial.Templates.monoblue.help.tmpl" Name="help.tmpl" Source="..\..\mercurial\Templates\monoblue\help.tmpl" />
-                        <RemoveFile Id="_d0e8f25956dd4d719889b39c385a6405" On="both" Name="*.*" />
+                        <RemoveFile Id="_6f5c65f4de194a46b9758510eb237fb5" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.monoblue.helptopics.tmpl" Guid="62DBCA87-13F4-462C-B49E-C9501A33B8EC">
                         <File Id="mercurial.Templates.monoblue.helptopics.tmpl" Name="helptopics.tmpl" Source="..\..\mercurial\Templates\monoblue\helptopics.tmpl" />
-                        <RemoveFile Id="_620bf7fb78c543c4a7a59360efc7e39f" On="both" Name="*.*" />
+                        <RemoveFile Id="_6c17301205944ec0b8f1c4f8b14706a2" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.monoblue.index.tmpl" Guid="A7BCAA75-4083-49AD-8F40-E455167FBF61">
                         <File Id="mercurial.Templates.monoblue.index.tmpl" Name="index.tmpl" Source="..\..\mercurial\Templates\monoblue\index.tmpl" />
-                        <RemoveFile Id="_64c453c395f1467691296d1aa523da54" On="both" Name="*.*" />
+                        <RemoveFile Id="_01aa235821aa4d2baa6ce6856289b9c3" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.monoblue.manifest.tmpl" Guid="55C7B16E-8D84-416F-BDE3-2952C35423DA">
                         <File Id="mercurial.Templates.monoblue.manifest.tmpl" Name="manifest.tmpl" Source="..\..\mercurial\Templates\monoblue\manifest.tmpl" />
-                        <RemoveFile Id="_7319003552e44bfd8c2b2a1da1587232" On="both" Name="*.*" />
+                        <RemoveFile Id="_1011ab3e51554d2a8502badb95780359" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.monoblue.map" Guid="EC425897-B7C2-441F-8F95-7DE7FFE9A2A6">
                         <File Id="mercurial.Templates.monoblue.map" Name="map" Source="..\..\mercurial\Templates\monoblue\map" />
-                        <RemoveFile Id="_d338ec87bdae46f7a1d2ef7652edc060" On="both" Name="*.*" />
+                        <RemoveFile Id="_d9fc1afc6e444546bac30406e284e2e1" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.monoblue.notfound.tmpl" Guid="B93162E7-2E3F-4739-9A72-D08075764BB6">
                         <File Id="mercurial.Templates.monoblue.notfound.tmpl" Name="notfound.tmpl" Source="..\..\mercurial\Templates\monoblue\notfound.tmpl" />
-                        <RemoveFile Id="_7c1d3a0edaa841c3803f05e29bbc99ab" On="both" Name="*.*" />
+                        <RemoveFile Id="_3b3e827e05a24449ae63aa97cf14a3db" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.monoblue.search.tmpl" Guid="13719CA0-8A64-4499-882B-65B50D9AF80C">
                         <File Id="mercurial.Templates.monoblue.search.tmpl" Name="search.tmpl" Source="..\..\mercurial\Templates\monoblue\search.tmpl" />
-                        <RemoveFile Id="_b7917036ed6147f3b9895ab00f624e93" On="both" Name="*.*" />
+                        <RemoveFile Id="_28f803025b5c4bb2b7e48827ad178bf1" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.monoblue.shortlog.tmpl" Guid="27F9A69B-6AA9-45E3-B6E6-0C27E301ECDC">
                         <File Id="mercurial.Templates.monoblue.shortlog.tmpl" Name="shortlog.tmpl" Source="..\..\mercurial\Templates\monoblue\shortlog.tmpl" />
-                        <RemoveFile Id="_2bdabd06c47a4c52bb37e489cc567419" On="both" Name="*.*" />
+                        <RemoveFile Id="_6e37c54f7b424f71b2648150db7327ea" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.monoblue.summary.tmpl" Guid="DCA38885-EDD2-4DF8-A552-E5949552F772">
                         <File Id="mercurial.Templates.monoblue.summary.tmpl" Name="summary.tmpl" Source="..\..\mercurial\Templates\monoblue\summary.tmpl" />
-                        <RemoveFile Id="_9f4cdcf615dd447c92a4a714210ed477" On="both" Name="*.*" />
+                        <RemoveFile Id="_14301f14df724331b006404f40d8def4" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.monoblue.tags.tmpl" Guid="DB507D6C-339F-46F8-B1B7-A5EDE0ECBF86">
                         <File Id="mercurial.Templates.monoblue.tags.tmpl" Name="tags.tmpl" Source="..\..\mercurial\Templates\monoblue\tags.tmpl" />
-                        <RemoveFile Id="_bb9cbb69a778497d8e61ae820c7f0c9c" On="both" Name="*.*" />
+                        <RemoveFile Id="_cc9cf2615a0b4563a42197c1bd5f1e00" On="both" Name="*.*" />
                     </Component>
                 </Directory>
                 <Directory Id="mercurial.Templates.paper" Name="paper">
                     <Component Id="mercurial.Templates.paper.bookmarks.tmpl" Guid="6D993E49-349B-418B-BB7B-648B71E461D4">
                         <File Id="mercurial.Templates.paper.bookmarks.tmpl" Name="bookmarks.tmpl" KeyPath="yes" Source="..\..\mercurial\Templates\paper\bookmarks.tmpl" />
-                        <RemoveFile Id="_262de96fc7ec4244b0a4ca2da43c5a88" On="both" Name="*.*" />
+                        <RemoveFile Id="_a4378a93f0534ef585a0a97bcae8ea31" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.paper.branches.tmpl" Guid="1912D672-DA2D-413B-8C3C-BE1059704261">
                         <File Id="mercurial.Templates.paper.branches.tmpl" Name="branches.tmpl" Source="..\..\mercurial\Templates\paper\branches.tmpl" />
-                        <RemoveFile Id="_bd406fdded5846d1ad59789432be156d" On="both" Name="*.*" />
+                        <RemoveFile Id="_82980b3179c74f6293ae4f9b38df7922" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.paper.changeset.tmpl" Guid="B7F5591B-7939-4158-B69C-A0C49AB36467">
                         <File Id="mercurial.Templates.paper.changeset.tmpl" Name="changeset.tmpl" Source="..\..\mercurial\Templates\paper\changeset.tmpl" />
-                        <RemoveFile Id="_46b777a4ac024768b8050150698a5c9d" On="both" Name="*.*" />
+                        <RemoveFile Id="_480d69c68bc14086ac4a5834f9a91803" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.paper.diffstat.tmpl" Guid="2FB0FB3F-E871-4107-850C-CCACD92BD1FB">
                         <File Id="mercurial.Templates.paper.diffstat.tmpl" Name="diffstat.tmpl" Source="..\..\mercurial\Templates\paper\diffstat.tmpl" />
-                        <RemoveFile Id="_0487ca770f3544c19f0b5692209c7cc6" On="both" Name="*.*" />
+                        <RemoveFile Id="_682e7f248c404ac8aa360663437ee203" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.paper.error.tmpl" Guid="72CBF0F0-7C1A-4E63-99A5-6C58E6E83085">
                         <File Id="mercurial.Templates.paper.error.tmpl" Name="error.tmpl" Source="..\..\mercurial\Templates\paper\error.tmpl" />
-                        <RemoveFile Id="_dd2570b1e54d416c92973589e89fc0b9" On="both" Name="*.*" />
+                        <RemoveFile Id="_57b9b3f5723b48ddab7286fed0672c7b" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.paper.fileannotate.tmpl" Guid="B73CBAE7-B312-427C-A34F-42F7133BB057">
                         <File Id="mercurial.Templates.paper.fileannotate.tmpl" Name="fileannotate.tmpl" Source="..\..\mercurial\Templates\paper\fileannotate.tmpl" />
-                        <RemoveFile Id="_59898af6c4c9497897130f4db08abcc0" On="both" Name="*.*" />
+                        <RemoveFile Id="_806bfd8ab5264f3baba171a7d0a347b5" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.paper.filecomparison.tmpl" Guid="71338D92-2AFE-46F0-ACF5-8FE99C0366FF">
                         <File Id="mercurial.Templates.paper.filecomparison.tmpl" Name="filecomparison.tmpl" Source="..\..\mercurial\Templates\paper\filecomparison.tmpl" />
-                        <RemoveFile Id="_d793f53d709e4fd3b71275d1be662a5d" On="both" Name="*.*" />
+                        <RemoveFile Id="_85b2249d43a64161b0bac8674a2650c9" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.paper.filediff.tmpl" Guid="BC59C51E-9657-4761-ADB9-B3C9C1EDF002">
                         <File Id="mercurial.Templates.paper.filediff.tmpl" Name="filediff.tmpl" Source="..\..\mercurial\Templates\paper\filediff.tmpl" />
-                        <RemoveFile Id="_1f7de3faec764526a7c6c3470537945c" On="both" Name="*.*" />
+                        <RemoveFile Id="_420434800edf4087a2847fe6dd42913b" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.paper.filelog.tmpl" Guid="99EE6093-D320-4696-9742-5C7BED96C2A0">
                         <File Id="mercurial.Templates.paper.filelog.tmpl" Name="filelog.tmpl" Source="..\..\mercurial\Templates\paper\filelog.tmpl" />
-                        <RemoveFile Id="_d534ca2b848c4959822a08f18b1d41fa" On="both" Name="*.*" />
+                        <RemoveFile Id="_5eb57291fcb04a619135ca8fd7bc73b1" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.paper.filelogentry.tmpl" Guid="3D138007-3459-4D3E-AF81-E28E52EA0992">
                         <File Id="mercurial.Templates.paper.filelogentry.tmpl" Name="filelogentry.tmpl" Source="..\..\mercurial\Templates\paper\filelogentry.tmpl" />
-                        <RemoveFile Id="_9286764e8a8148b9ab81a64201bb3531" On="both" Name="*.*" />
+                        <RemoveFile Id="_edd808d76d024fe3b3fbf02424fc4f6b" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.paper.filerevision.tmpl" Guid="08AD0416-1B63-4B8A-B91A-837F7DBE7A66">
                         <File Id="mercurial.Templates.paper.filerevision.tmpl" Name="filerevision.tmpl" Source="..\..\mercurial\Templates\paper\filerevision.tmpl" />
-                        <RemoveFile Id="_06ef3592ce504bafa32c07c9f1a0b2b3" On="both" Name="*.*" />
+                        <RemoveFile Id="_e2944a9e4af149399a1b945b951ed215" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.paper.footer.tmpl" Guid="F9770441-6A20-43EE-87B2-320ED538BA68">
                         <File Id="mercurial.Templates.paper.footer.tmpl" Name="footer.tmpl" Source="..\..\mercurial\Templates\paper\footer.tmpl" />
-                        <RemoveFile Id="_67cb694e25ef4c878bd92375bad0fa14" On="both" Name="*.*" />
+                        <RemoveFile Id="_e746e1f989764aa5a241fe62bbb8ddde" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.paper.graph.tmpl" Guid="D1D26B9B-A134-46CA-A455-A17DA323BEC7">
                         <File Id="mercurial.Templates.paper.graph.tmpl" Name="graph.tmpl" Source="..\..\mercurial\Templates\paper\graph.tmpl" />
-                        <RemoveFile Id="_4e82e93e448944078e439701205cc85d" On="both" Name="*.*" />
+                        <RemoveFile Id="_13a98e1751ed4121b0d7a528365ee468" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.paper.header.tmpl" Guid="877C1D2F-7DC0-4719-BAF0-BAA262F5169F">
                         <File Id="mercurial.Templates.paper.header.tmpl" Name="header.tmpl" Source="..\..\mercurial\Templates\paper\header.tmpl" />
-                        <RemoveFile Id="_e8a651d28e334ed4baf0237155685e92" On="both" Name="*.*" />
+                        <RemoveFile Id="_ea50798d054540c3933b8f4fe753a50e" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.paper.help.tmpl" Guid="1689E897-237D-4FE3-B3D0-2F62822336E9">
                         <File Id="mercurial.Templates.paper.help.tmpl" Name="help.tmpl" Source="..\..\mercurial\Templates\paper\help.tmpl" />
-                        <RemoveFile Id="_54bc09fd6bc74fba8c16e8f33548beb0" On="both" Name="*.*" />
+                        <RemoveFile Id="_674c0c60d5c2429fbae835fe7000f3f9" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.paper.helptopics.tmpl" Guid="C0021312-AFB3-4BC9-BB7F-D4F3CFC119E8">
                         <File Id="mercurial.Templates.paper.helptopics.tmpl" Name="helptopics.tmpl" Source="..\..\mercurial\Templates\paper\helptopics.tmpl" />
-                        <RemoveFile Id="_3c96f573309847eeb675d6d22651a119" On="both" Name="*.*" />
+                        <RemoveFile Id="_1e3a53d69e8f4483a3824c21270a5184" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.paper.index.tmpl" Guid="82A628EB-11B8-4E5A-AEE9-56AC10A8E4AF">
                         <File Id="mercurial.Templates.paper.index.tmpl" Name="index.tmpl" Source="..\..\mercurial\Templates\paper\index.tmpl" />
-                        <RemoveFile Id="_072e02317a51470ba7cf292f6dcbcf2b" On="both" Name="*.*" />
+                        <RemoveFile Id="_e5b0ffb130ce4cc2a581502ad4e8ecf7" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.paper.manifest.tmpl" Guid="780F16D2-72B5-41AD-A761-BD47CBAADB25">
                         <File Id="mercurial.Templates.paper.manifest.tmpl" Name="manifest.tmpl" Source="..\..\mercurial\Templates\paper\manifest.tmpl" />
-                        <RemoveFile Id="_8ea99fb74715475b87027cc78a498f2b" On="both" Name="*.*" />
+                        <RemoveFile Id="_744baa5707604fdb999abc42f9b987d7" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.paper.map" Guid="D121849A-A0BD-42D3-B410-A995CB3E91FC">
                         <File Id="mercurial.Templates.paper.map" Name="map" Source="..\..\mercurial\Templates\paper\map" />
-                        <RemoveFile Id="_1bbaf7c7e2394b3fab8ec9cce62f6adf" On="both" Name="*.*" />
+                        <RemoveFile Id="_f60f6282ad6143ec829b5e9dc536df7c" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.paper.notfound.tmpl" Guid="B353347E-870E-4AE3-BC1F-A6E9875532DC">
                         <File Id="mercurial.Templates.paper.notfound.tmpl" Name="notfound.tmpl" Source="..\..\mercurial\Templates\paper\notfound.tmpl" />
-                        <RemoveFile Id="_4741aa1b515b4cc49ea681182c5b32af" On="both" Name="*.*" />
+                        <RemoveFile Id="_6d1e11f16c3c4cf58070b20ab0e41de3" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.paper.search.tmpl" Guid="5B6C6C4C-6AC4-470A-93A8-12D41C195100">
                         <File Id="mercurial.Templates.paper.search.tmpl" Name="search.tmpl" Source="..\..\mercurial\Templates\paper\search.tmpl" />
-                        <RemoveFile Id="_d0f0e6e32549428590ff35b9fe3d8a50" On="both" Name="*.*" />
+                        <RemoveFile Id="_fc459bff5ac243f5be50be74cb93c32f" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.paper.shortlog.tmpl" Guid="DDE723FA-EFF6-42E2-ACCF-F726B324C05F">
                         <File Id="mercurial.Templates.paper.shortlog.tmpl" Name="shortlog.tmpl" Source="..\..\mercurial\Templates\paper\shortlog.tmpl" />
-                        <RemoveFile Id="_b3625df66ad242999dce37ed6bd6a025" On="both" Name="*.*" />
+                        <RemoveFile Id="_9a4d898a3e4049748711dc2300e441c3" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.paper.shortlogentry.tmpl" Guid="E8902163-9120-41E2-B121-86FC80F57C31">
                         <File Id="mercurial.Templates.paper.shortlogentry.tmpl" Name="shortlogentry.tmpl" Source="..\..\mercurial\Templates\paper\shortlogentry.tmpl" />
-                        <RemoveFile Id="_3aef762e51814478840464e02819936d" On="both" Name="*.*" />
+                        <RemoveFile Id="_1d14e13da02f4897be25cc66e4f842a8" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.paper.tags.tmpl" Guid="5697BE74-81F1-4BC7-BCCD-7137AF9435CD">
                         <File Id="mercurial.Templates.paper.tags.tmpl" Name="tags.tmpl" Source="..\..\mercurial\Templates\paper\tags.tmpl" />
-                        <RemoveFile Id="_0ae0972967a34bb6ad99006b1eeb867d" On="both" Name="*.*" />
+                        <RemoveFile Id="_3f52692703d84fb98ce30905e7fb42ec" On="both" Name="*.*" />
                     </Component>
                 </Directory>
                 <Directory Id="mercurial.Templates.raw" Name="raw">
                     <Component Id="mercurial.Templates.raw.changelog.tmpl" Guid="71ACEAE4-0C2C-4EF5-994C-0D8444E75125">
                         <File Id="mercurial.Templates.raw.changelog.tmpl" Name="changelog.tmpl" KeyPath="yes" Source="..\..\mercurial\Templates\raw\changelog.tmpl" />
-                        <RemoveFile Id="_5828afa251c34bfab3b5cd2b09a0003e" On="both" Name="*.*" />
+                        <RemoveFile Id="_287139c3d08246f9b91ffc2244b67614" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.raw.changeset.tmpl" Guid="45A6A7DB-7A4C-4CEF-A455-4AB3B0447749">
                         <File Id="mercurial.Templates.raw.changeset.tmpl" Name="changeset.tmpl" Source="..\..\mercurial\Templates\raw\changeset.tmpl" />
-                        <RemoveFile Id="_c596254dea8b43b4a423f12ae2da9960" On="both" Name="*.*" />
+                        <RemoveFile Id="_fabcdac2851f4dff8571b4e3fe4ff930" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.raw.error.tmpl" Guid="7E64A310-AA85-4CDB-8FB0-98E50DB613C0">
                         <File Id="mercurial.Templates.raw.error.tmpl" Name="error.tmpl" Source="..\..\mercurial\Templates\raw\error.tmpl" />
-                        <RemoveFile Id="_deded467b6a24a49a84481ae0e989e7a" On="both" Name="*.*" />
+                        <RemoveFile Id="_2e6efe344bc04d048d843f47e7d17f07" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.raw.fileannotate.tmpl" Guid="D2EB5E5E-75AA-42E8-BAAB-05E3FB92AD64">
                         <File Id="mercurial.Templates.raw.fileannotate.tmpl" Name="fileannotate.tmpl" Source="..\..\mercurial\Templates\raw\fileannotate.tmpl" />
-                        <RemoveFile Id="_99116149377d49ef8d45636722af1c68" On="both" Name="*.*" />
+                        <RemoveFile Id="_f1b84cb4bdde4c658622d192d4f288fa" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.raw.filediff.tmpl" Guid="F733F0F9-DD71-4EF4-883B-5FAA710CF65D">
                         <File Id="mercurial.Templates.raw.filediff.tmpl" Name="filediff.tmpl" Source="..\..\mercurial\Templates\raw\filediff.tmpl" />
-                        <RemoveFile Id="_6f73cb0c8eb54f20b8075efd05165a84" On="both" Name="*.*" />
+                        <RemoveFile Id="_18f1ddda749a4eb596fddd0fbbe64b57" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.raw.graph.tmpl" Guid="316F22F9-BC79-467E-8DF6-EE4621C87EDE">
                         <File Id="mercurial.Templates.raw.graph.tmpl" Name="graph.tmpl" Source="..\..\mercurial\Templates\raw\graph.tmpl" />
-                        <RemoveFile Id="_3803a13c08d1496da70504d67575719a" On="both" Name="*.*" />
+                        <RemoveFile Id="_26b87544b0be45989221909ceac18429" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.raw.graphedge.tmpl" Guid="8A4BB177-CF21-449E-ACE4-C38C737AB385">
                         <File Id="mercurial.Templates.raw.graphedge.tmpl" Name="graphedge.tmpl" Source="..\..\mercurial\Templates\raw\graphedge.tmpl" />
-                        <RemoveFile Id="_89943a890ec247ad8ed079432bc5f1a3" On="both" Name="*.*" />
+                        <RemoveFile Id="_8c644077036346bb9627302b3e7d9b51" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.raw.graphnode.tmpl" Guid="3C607832-57C4-40FC-AB00-D898D6495016">
                         <File Id="mercurial.Templates.raw.graphnode.tmpl" Name="graphnode.tmpl" Source="..\..\mercurial\Templates\raw\graphnode.tmpl" />
-                        <RemoveFile Id="_89d1327fa1214b818663d09cff057820" On="both" Name="*.*" />
+                        <RemoveFile Id="_51d327a4313b4110a9abd7028b7eeee1" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.raw.index.tmpl" Guid="484182DB-2E30-430E-93A4-1DDC44442DCE">
                         <File Id="mercurial.Templates.raw.index.tmpl" Name="index.tmpl" Source="..\..\mercurial\Templates\raw\index.tmpl" />
-                        <RemoveFile Id="_4997531bb81a4214a52a17d786f25127" On="both" Name="*.*" />
+                        <RemoveFile Id="_d43e4d8265cc4088839bf00b13abc768" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.raw.logentry.tmpl" Guid="0F95997D-F923-4B9C-997B-96CBC6FD68D0">
                         <File Id="mercurial.Templates.raw.logentry.tmpl" Name="logentry.tmpl" Source="..\..\mercurial\Templates\raw\logentry.tmpl" />
-                        <RemoveFile Id="_ca4985c321ff4e39a266216ee68ca746" On="both" Name="*.*" />
+                        <RemoveFile Id="_56a7768c0c0b4beaa9ae1c8b35641056" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.raw.manifest.tmpl" Guid="5E766FC5-790E-4451-A5E5-69887F045D48">
                         <File Id="mercurial.Templates.raw.manifest.tmpl" Name="manifest.tmpl" Source="..\..\mercurial\Templates\raw\manifest.tmpl" />
-                        <RemoveFile Id="_1b053941a4754cc7a74a94b002d57fff" On="both" Name="*.*" />
+                        <RemoveFile Id="_75f0d134109b4811ad618b81a2a54e45" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.raw.map" Guid="513DE610-C10D-4029-B633-56F21F464D2E">
                         <File Id="mercurial.Templates.raw.map" Name="map" Source="..\..\mercurial\Templates\raw\map" />
-                        <RemoveFile Id="_59914ba929344f2b880aed65729c9cf9" On="both" Name="*.*" />
+                        <RemoveFile Id="_af78394a79ce4560a75f9843eee5a46e" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.raw.notfound.tmpl" Guid="18B69E91-C17B-4941-8908-E3706767D674">
                         <File Id="mercurial.Templates.raw.notfound.tmpl" Name="notfound.tmpl" Source="..\..\mercurial\Templates\raw\notfound.tmpl" />
-                        <RemoveFile Id="_0ff6dee660b641cd88f834cc12aba7f8" On="both" Name="*.*" />
+                        <RemoveFile Id="_a1ad8b58af43451c9762f713956d7774" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.raw.search.tmpl" Guid="54180984-0152-4314-9244-B22C4BA10D33">
                         <File Id="mercurial.Templates.raw.search.tmpl" Name="search.tmpl" Source="..\..\mercurial\Templates\raw\search.tmpl" />
-                        <RemoveFile Id="_869918f3d3994779817e7936f1176d54" On="both" Name="*.*" />
+                        <RemoveFile Id="_ec8d550699224c8f8e67df121b86df53" On="both" Name="*.*" />
                     </Component>
                 </Directory>
                 <Directory Id="mercurial.Templates.rss" Name="rss">
                     <Component Id="mercurial.Templates.rss.bookmarkentry.tmpl" Guid="15DFCA18-0766-49E3-BE79-5EE4588EB8AD">
                         <File Id="mercurial.Templates.rss.bookmarkentry.tmpl" Name="bookmarkentry.tmpl" KeyPath="yes" Source="..\..\mercurial\Templates\rss\bookmarkentry.tmpl" />
-                        <RemoveFile Id="_da26c1e61a4a40609989ed9fd556af10" On="both" Name="*.*" />
+                        <RemoveFile Id="_2e0bf914a65a4518985dceed14e61200" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.rss.bookmarks.tmpl" Guid="AB066891-54A5-45FE-893F-9704F2DA3A7D">
                         <File Id="mercurial.Templates.rss.bookmarks.tmpl" Name="bookmarks.tmpl" Source="..\..\mercurial\Templates\rss\bookmarks.tmpl" />
-                        <RemoveFile Id="_cc23c72ee0ad463cba3d2dacfd2ba13f" On="both" Name="*.*" />
+                        <RemoveFile Id="_0ebe6a9dd70b4e38a303eeb1069589f1" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.rss.branchentry.tmpl" Guid="3E1A63AB-3A66-433F-B0F0-1E635471761B">
                         <File Id="mercurial.Templates.rss.branchentry.tmpl" Name="branchentry.tmpl" Source="..\..\mercurial\Templates\rss\branchentry.tmpl" />
-                        <RemoveFile Id="_893b937c9186468bb0e0fd4e703f6e16" On="both" Name="*.*" />
+                        <RemoveFile Id="_a28100dd8583460eaa5305c334ab2efa" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.rss.branches.tmpl" Guid="BB174E63-54E7-418F-81FF-BACFE12931C3">
                         <File Id="mercurial.Templates.rss.branches.tmpl" Name="branches.tmpl" Source="..\..\mercurial\Templates\rss\branches.tmpl" />
-                        <RemoveFile Id="_18b110f768d44b0aa53eccda72dfac7d" On="both" Name="*.*" />
+                        <RemoveFile Id="_eacee8357d0e4db68d155f6e93697bfa" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.rss.changelog.tmpl" Guid="F52EBF37-D8BA-49BD-B9CD-9BCBCDA56DAF">
                         <File Id="mercurial.Templates.rss.changelog.tmpl" Name="changelog.tmpl" Source="..\..\mercurial\Templates\rss\changelog.tmpl" />
-                        <RemoveFile Id="_11b2c932ffca4639a3a952288c1f6778" On="both" Name="*.*" />
+                        <RemoveFile Id="_da7d1b8f4073498ba91b0ed59d8e93ad" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.rss.changelogentry.tmpl" Guid="DC7D81B1-152E-4F40-AA04-5CFCAD4BC91B">
                         <File Id="mercurial.Templates.rss.changelogentry.tmpl" Name="changelogentry.tmpl" Source="..\..\mercurial\Templates\rss\changelogentry.tmpl" />
-                        <RemoveFile Id="_4317d0b93c1f4f03868fec05914b1930" On="both" Name="*.*" />
+                        <RemoveFile Id="_06a2d65e8bc3466f8e7496b9585b1fc8" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.rss.error.tmpl" Guid="6B8AC0C0-666C-429A-A71E-6058FA059F21">
                         <File Id="mercurial.Templates.rss.error.tmpl" Name="error.tmpl" Source="..\..\mercurial\Templates\rss\error.tmpl" />
-                        <RemoveFile Id="_3d02a498466e4d7b9f264e6e1694583d" On="both" Name="*.*" />
+                        <RemoveFile Id="_661796d1b2624a1ba701baf94331949f" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.rss.filelog.tmpl" Guid="602CBA0A-9443-4847-80AA-73C8D3B8C75E">
                         <File Id="mercurial.Templates.rss.filelog.tmpl" Name="filelog.tmpl" Source="..\..\mercurial\Templates\rss\filelog.tmpl" />
-                        <RemoveFile Id="_dfeff5703f3349f5aa663a49392b76f5" On="both" Name="*.*" />
+                        <RemoveFile Id="_6af49fd0c95f40418679480d4b76b7fd" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.rss.filelogentry.tmpl" Guid="B8134444-886F-4C03-80DB-ADEFD20668AD">
                         <File Id="mercurial.Templates.rss.filelogentry.tmpl" Name="filelogentry.tmpl" Source="..\..\mercurial\Templates\rss\filelogentry.tmpl" />
-                        <RemoveFile Id="_e417797f42b34e98a5ae4cc44685ba31" On="both" Name="*.*" />
+                        <RemoveFile Id="_1b8958f25b044ade9edf44b66753974f" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.rss.header.tmpl" Guid="06421582-BF87-420B-BC8E-C453D2852324">
                         <File Id="mercurial.Templates.rss.header.tmpl" Name="header.tmpl" Source="..\..\mercurial\Templates\rss\header.tmpl" />
-                        <RemoveFile Id="_6fe41b5deb264e27876729c75392b5ff" On="both" Name="*.*" />
+                        <RemoveFile Id="_d9e97a3dfa51425196adb4c4b5d0c192" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.rss.map" Guid="3F1369D6-69CC-4574-A601-E58E0AE50619">
                         <File Id="mercurial.Templates.rss.map" Name="map" Source="..\..\mercurial\Templates\rss\map" />
-                        <RemoveFile Id="_ba730699ea97412b948cd11983d25494" On="both" Name="*.*" />
+                        <RemoveFile Id="_e91a72ac0ef346918adacf0440dc4275" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.rss.tagentry.tmpl" Guid="F2519262-1B46-471C-973A-07F176686E1A">
                         <File Id="mercurial.Templates.rss.tagentry.tmpl" Name="tagentry.tmpl" Source="..\..\mercurial\Templates\rss\tagentry.tmpl" />
-                        <RemoveFile Id="_913956880c16435da464b9a245c04387" On="both" Name="*.*" />
+                        <RemoveFile Id="_cd744c72b0ca4f1fb0ca353ea7ace70e" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.rss.tags.tmpl" Guid="E12E8B69-A5A9-49F3-96BC-0B4FC5B8FCE4">
                         <File Id="mercurial.Templates.rss.tags.tmpl" Name="tags.tmpl" Source="..\..\mercurial\Templates\rss\tags.tmpl" />
-                        <RemoveFile Id="_9fc537b61b4642c1a691152b41b969cc" On="both" Name="*.*" />
+                        <RemoveFile Id="_d50aaf8a7a2144c298017f01504e87f7" On="both" Name="*.*" />
                     </Component>
                 </Directory>
                 <Directory Id="mercurial.Templates.spartan" Name="spartan">
                     <Component Id="mercurial.Templates.spartan.branches.tmpl" Guid="97D81B7D-0DC2-4170-8236-82034A2EBDA6">
                         <File Id="mercurial.Templates.spartan.branches.tmpl" Name="branches.tmpl" KeyPath="yes" Source="..\..\mercurial\Templates\spartan\branches.tmpl" />
-                        <RemoveFile Id="_f921e6bfd0394bb2a40700c73fe0a641" On="both" Name="*.*" />
+                        <RemoveFile Id="_a60b81670f23476386c44a43b1bb76c1" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.spartan.changelog.tmpl" Guid="5472A5AA-2032-484C-BAED-592B82C88358">
                         <File Id="mercurial.Templates.spartan.changelog.tmpl" Name="changelog.tmpl" Source="..\..\mercurial\Templates\spartan\changelog.tmpl" />
-                        <RemoveFile Id="_35fed104b4404173a6dea096a2f63a57" On="both" Name="*.*" />
+                        <RemoveFile Id="_bcecea1323fa4833b3ddd44f529bae8e" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.spartan.changelogentry.tmpl" Guid="1135BD1C-6D62-4DCD-82F7-995B6E1BA665">
                         <File Id="mercurial.Templates.spartan.changelogentry.tmpl" Name="changelogentry.tmpl" Source="..\..\mercurial\Templates\spartan\changelogentry.tmpl" />
-                        <RemoveFile Id="_9169eae608e1472a8690b21e8e1ee6db" On="both" Name="*.*" />
+                        <RemoveFile Id="_31bf5a5bbf6c4666ae3b0eba57a50f0d" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.spartan.changeset.tmpl" Guid="B2165AD6-E140-48AD-96C7-3C7AB280FFAE">
                         <File Id="mercurial.Templates.spartan.changeset.tmpl" Name="changeset.tmpl" Source="..\..\mercurial\Templates\spartan\changeset.tmpl" />
-                        <RemoveFile Id="_eacdb94509a0451281af837443cac549" On="both" Name="*.*" />
+                        <RemoveFile Id="_a860aeeba38f41bc8749a01db25816e5" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.spartan.error.tmpl" Guid="1F54884F-F245-4730-930F-1DF5A3893DC1">
                         <File Id="mercurial.Templates.spartan.error.tmpl" Name="error.tmpl" Source="..\..\mercurial\Templates\spartan\error.tmpl" />
-                        <RemoveFile Id="_5bfa6800af554cc2babacae694c68851" On="both" Name="*.*" />
+                        <RemoveFile Id="_4e26fc73fb7c4da5b2ba9f6c26d69faa" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.spartan.fileannotate.tmpl" Guid="96D7F8AA-D6C3-4CF4-B43B-6440AE36F74D">
                         <File Id="mercurial.Templates.spartan.fileannotate.tmpl" Name="fileannotate.tmpl" Source="..\..\mercurial\Templates\spartan\fileannotate.tmpl" />
-                        <RemoveFile Id="_7f0667ff90bf4238be80a5eb35016da3" On="both" Name="*.*" />
+                        <RemoveFile Id="_a708a221e29c424aaae84ce843df468c" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.spartan.filediff.tmpl" Guid="DF8551B6-FFA5-4889-AC53-810AD20FBA0A">
                         <File Id="mercurial.Templates.spartan.filediff.tmpl" Name="filediff.tmpl" Source="..\..\mercurial\Templates\spartan\filediff.tmpl" />
-                        <RemoveFile Id="_048899ffb729462cb140ebb9af177621" On="both" Name="*.*" />
+                        <RemoveFile Id="_739e1e7231ac4606af9e6130e9d983eb" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.spartan.filelog.tmpl" Guid="EEA440AF-7B5B-4346-B519-697B5DAE1042">
                         <File Id="mercurial.Templates.spartan.filelog.tmpl" Name="filelog.tmpl" Source="..\..\mercurial\Templates\spartan\filelog.tmpl" />
-                        <RemoveFile Id="_46cb56ac9b0541edbe8795af93a4881d" On="both" Name="*.*" />
+                        <RemoveFile Id="_110ac8435e0e4be2ab2a7cf5aeaf9687" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.spartan.filelogentry.tmpl" Guid="D3025947-85C5-41A3-9135-060FC4EC65A5">
                         <File Id="mercurial.Templates.spartan.filelogentry.tmpl" Name="filelogentry.tmpl" Source="..\..\mercurial\Templates\spartan\filelogentry.tmpl" />
-                        <RemoveFile Id="_d6cc11f54d1e44b98b2714171e576e69" On="both" Name="*.*" />
+                        <RemoveFile Id="_f69a5d903ef54e6fbc85cb230c042524" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.spartan.filerevision.tmpl" Guid="823DC4DC-36F8-4C1F-B71E-C41D68B204DB">
                         <File Id="mercurial.Templates.spartan.filerevision.tmpl" Name="filerevision.tmpl" Source="..\..\mercurial\Templates\spartan\filerevision.tmpl" />
-                        <RemoveFile Id="_9bfa88cc09de4fa9a2e823fbca6ceed6" On="both" Name="*.*" />
+                        <RemoveFile Id="_5b13bafa79ca4717b2bde7bfd163385b" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.spartan.footer.tmpl" Guid="C655E472-F2C2-48AA-A766-D560BCE6D0BD">
                         <File Id="mercurial.Templates.spartan.footer.tmpl" Name="footer.tmpl" Source="..\..\mercurial\Templates\spartan\footer.tmpl" />
-                        <RemoveFile Id="_4712368e6da5468ea2906cddd8d4fbb3" On="both" Name="*.*" />
+                        <RemoveFile Id="_67a6e4cb8fe24f62a0ae4f767f1cce80" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.spartan.graph.tmpl" Guid="2A15E053-3669-41B5-B512-06766B221233">
                         <File Id="mercurial.Templates.spartan.graph.tmpl" Name="graph.tmpl" Source="..\..\mercurial\Templates\spartan\graph.tmpl" />
-                        <RemoveFile Id="_ace643546d8347a980f869c4915dddb5" On="both" Name="*.*" />
+                        <RemoveFile Id="_d3f9d4b9d423466bbaa4eefe3153fcc2" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.spartan.header.tmpl" Guid="3A762636-E212-494C-8574-A71E593D6991">
                         <File Id="mercurial.Templates.spartan.header.tmpl" Name="header.tmpl" Source="..\..\mercurial\Templates\spartan\header.tmpl" />
-                        <RemoveFile Id="_bb33eac1243a4b19b0b5b4d37d07f599" On="both" Name="*.*" />
+                        <RemoveFile Id="_a3f6fa2d901a4607908e1a1d1e5b1121" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.spartan.index.tmpl" Guid="666B4867-FE61-429F-995C-B182CC5F4542">
                         <File Id="mercurial.Templates.spartan.index.tmpl" Name="index.tmpl" Source="..\..\mercurial\Templates\spartan\index.tmpl" />
-                        <RemoveFile Id="_81aec2d521da4e288aae39ea6f14195c" On="both" Name="*.*" />
+                        <RemoveFile Id="_4632f559599343f0aead3e039c174b5b" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.spartan.manifest.tmpl" Guid="B04B5448-0C79-4103-B379-3C7BE24C6040">
                         <File Id="mercurial.Templates.spartan.manifest.tmpl" Name="manifest.tmpl" Source="..\..\mercurial\Templates\spartan\manifest.tmpl" />
-                        <RemoveFile Id="_b46a1b374bd9430e9c7b03cd98774607" On="both" Name="*.*" />
+                        <RemoveFile Id="_9601c38257994ff08d6401728effc10e" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.spartan.map" Guid="D06D0F1F-4D47-4877-A5F7-9815644E1D4D">
                         <File Id="mercurial.Templates.spartan.map" Name="map" Source="..\..\mercurial\Templates\spartan\map" />
-                        <RemoveFile Id="_9b06e88a578b49f1bddfefba248caa3d" On="both" Name="*.*" />
+                        <RemoveFile Id="_a519eb759e6b4f75afc59726a7a5a4ef" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.spartan.notfound.tmpl" Guid="584C39CB-8AFA-4C9D-A38F-1BA8C62206D0">
                         <File Id="mercurial.Templates.spartan.notfound.tmpl" Name="notfound.tmpl" Source="..\..\mercurial\Templates\spartan\notfound.tmpl" />
-                        <RemoveFile Id="_748852eb6e804f99862f68283fa184b9" On="both" Name="*.*" />
+                        <RemoveFile Id="_f092863353734eacb450721a3db53a4a" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.spartan.search.tmpl" Guid="B01E70AB-601D-4E4A-A9F5-C96119C60BA2">
                         <File Id="mercurial.Templates.spartan.search.tmpl" Name="search.tmpl" Source="..\..\mercurial\Templates\spartan\search.tmpl" />
-                        <RemoveFile Id="_b3d088a5b7bf47b4ab934c96462c5225" On="both" Name="*.*" />
+                        <RemoveFile Id="_0c483f977b4f437397f4ef01cfa516d3" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.spartan.shortlog.tmpl" Guid="BDFD6439-0B9B-4BED-A4CC-CE4C232F05CF">
                         <File Id="mercurial.Templates.spartan.shortlog.tmpl" Name="shortlog.tmpl" Source="..\..\mercurial\Templates\spartan\shortlog.tmpl" />
-                        <RemoveFile Id="_3e0b33745208499b88210c1c03dbe320" On="both" Name="*.*" />
+                        <RemoveFile Id="_0e28fe8fa9f546a99f532c72e84fe55f" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.spartan.shortlogentry.tmpl" Guid="AEC1F9C6-33EE-49AD-BDC9-F20D0846DE7B">
                         <File Id="mercurial.Templates.spartan.shortlogentry.tmpl" Name="shortlogentry.tmpl" Source="..\..\mercurial\Templates\spartan\shortlogentry.tmpl" />
-                        <RemoveFile Id="_2a35a7fea0684846a73e22f6788fe33f" On="both" Name="*.*" />
+                        <RemoveFile Id="_1fe7d50bfe1d4771aa4a2fa410e58798" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.spartan.tags.tmpl" Guid="838B9935-BCA9-409A-A682-3F859D996F8E">
                         <File Id="mercurial.Templates.spartan.tags.tmpl" Name="tags.tmpl" Source="..\..\mercurial\Templates\spartan\tags.tmpl" />
-                        <RemoveFile Id="_939f08c161204f2d95106b9ffba78dca" On="both" Name="*.*" />
+                        <RemoveFile Id="_fdefe76893784bf099ba7223dcf61897" On="both" Name="*.*" />
                     </Component>
                 </Directory>
                 <Directory Id="mercurial.Templates.static" Name="static">
                     <Component Id="mercurial.Templates.static.background.png" Guid="F7862F80-3F69-409B-99E7-FD2172D2C71F">
                         <File Id="mercurial.Templates.static.background.png" Name="background.png" KeyPath="yes" Source="..\..\mercurial\Templates\static\background.png" />
-                        <RemoveFile Id="_2761d86760b34eafba6c83c674eefb35" On="both" Name="*.*" />
+                        <RemoveFile Id="_1d1e029df6e04c408acb63ade7a7902d" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.static.coal_file.png" Guid="591B19BB-A57B-48DD-B073-B4865BBCBCC8">
                         <File Id="mercurial.Templates.static.coal_file.png" Name="coal-file.png" Source="..\..\mercurial\Templates\static\coal-file.png" />
-                        <RemoveFile Id="_a30ce29352944e32b7b5a54bc93020f3" On="both" Name="*.*" />
+                        <RemoveFile Id="_da86cc384c4744ed810f00a3fdd87665" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.static.coal_folder.png" Guid="4BD783CD-FFE1-4253-B3A6-AADEEEB1B5E8">
                         <File Id="mercurial.Templates.static.coal_folder.png" Name="coal-folder.png" Source="..\..\mercurial\Templates\static\coal-folder.png" />
-                        <RemoveFile Id="_cd71e3067c4a46a89f7efc17fe707685" On="both" Name="*.*" />
+                        <RemoveFile Id="_bffd8a1c94cb4a438614a5b86888e8d9" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.static.excanvas.js" Guid="C19727B0-8C8B-4A74-961D-BB63132C51EF">
                         <File Id="mercurial.Templates.static.excanvas.js" Name="excanvas.js" Source="..\..\mercurial\Templates\static\excanvas.js" />
-                        <RemoveFile Id="_a5af305069c44c3fad4669112ba695e2" On="both" Name="*.*" />
+                        <RemoveFile Id="_18952cfa3cf844828eee7c301cdacb3d" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.static.feed_icon_14x14.png" Guid="101AD1EA-ED31-49A1-8461-AFF161BA4386">
                         <File Id="mercurial.Templates.static.feed_icon_14x14.png" Name="feed-icon-14x14.png" Source="..\..\mercurial\Templates\static\feed-icon-14x14.png" />
-                        <RemoveFile Id="_f5062a24ba4b43c29377b2e5ccde5392" On="both" Name="*.*" />
+                        <RemoveFile Id="_02821b148d394c94a0f594ba362560a3" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.static.hgicon.png" Guid="EC3CE99A-865F-41D8-B122-BF1B807FB661">
                         <File Id="mercurial.Templates.static.hgicon.png" Name="hgicon.png" Source="..\..\mercurial\Templates\static\hgicon.png" />
-                        <RemoveFile Id="_ad63ec2ffdd440b0b6c5781520af8dfa" On="both" Name="*.*" />
+                        <RemoveFile Id="_d3c8477abf2f402b9300583e2036e35f" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.static.hglogo.png" Guid="BB6FD5DE-3C27-48F6-AC51-593A955E7535">
                         <File Id="mercurial.Templates.static.hglogo.png" Name="hglogo.png" Source="..\..\mercurial\Templates\static\hglogo.png" />
-                        <RemoveFile Id="_f2cc02e52ea54dab92eaefe242967fc0" On="both" Name="*.*" />
+                        <RemoveFile Id="_099ab028462e4f01b9f5bf0242110c55" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.static.mercurial.js" Guid="1B65B34E-14E9-4DA5-BFEE-46E41315FA6A">
                         <File Id="mercurial.Templates.static.mercurial.js" Name="mercurial.js" Source="..\..\mercurial\Templates\static\mercurial.js" />
-                        <RemoveFile Id="_50298c24cd064e89a60adb9f208c70a7" On="both" Name="*.*" />
+                        <RemoveFile Id="_4962e9993afa41d2a02c96adbbd837e5" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.static.style_coal.css" Guid="F946B0D9-6C63-4E04-86AA-7CA5F8D24F84">
                         <File Id="mercurial.Templates.static.style_coal.css" Name="style-coal.css" Source="..\..\mercurial\Templates\static\style-coal.css" />
-                        <RemoveFile Id="_4889067e1d944662ac9551d7ab296b61" On="both" Name="*.*" />
+                        <RemoveFile Id="_5a68b4ed122b4ad5b14de6593a1e115c" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.static.style_gitweb.css" Guid="C40DF140-2C87-41E9-BFE3-14FABA4EB2F5">
                         <File Id="mercurial.Templates.static.style_gitweb.css" Name="style-gitweb.css" Source="..\..\mercurial\Templates\static\style-gitweb.css" />
-                        <RemoveFile Id="_a84bdb15a7f241c3bd9263014724b7e7" On="both" Name="*.*" />
+                        <RemoveFile Id="_edbb3ec2928e4b1ba0c6d0db5134eab6" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.static.style_monoblue.css" Guid="31F5D790-5F0C-4B89-AEF5-3AB8D2A1AD00">
                         <File Id="mercurial.Templates.static.style_monoblue.css" Name="style-monoblue.css" Source="..\..\mercurial\Templates\static\style-monoblue.css" />
-                        <RemoveFile Id="_7cc9f19f81cb487f9f17405558537b01" On="both" Name="*.*" />
+                        <RemoveFile Id="_c10335995fb5495d9228dcf926985257" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.static.style_paper.css" Guid="B60089F1-AA06-42D1-A561-CD36CABA727A">
                         <File Id="mercurial.Templates.static.style_paper.css" Name="style-paper.css" Source="..\..\mercurial\Templates\static\style-paper.css" />
-                        <RemoveFile Id="_da1bc11c83674f439cfa02e125371d59" On="both" Name="*.*" />
+                        <RemoveFile Id="_8b7be867e9604baeb5f18d9a8b338548" On="both" Name="*.*" />
                     </Component>
                     <Component Id="mercurial.Templates.static.style.css" Guid="378CEB84-6089-40FF-B671-B0BCA7DB42C2">
                         <File Id="mercurial.Templates.static.style.css" Name="style.css" Source="..\..\mercurial\Templates\static\style.css" />
-                        <RemoveFile Id="_491f7609ff4343a996e7adfdc06ed1bd" On="both" Name="*.*" />
+                        <RemoveFile Id="_87a486f572ce4800824d05e81811a36a" On="both" Name="*.*" />
                     </Component>
                 </Directory>
             </Directory>

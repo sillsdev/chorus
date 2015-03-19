@@ -193,6 +193,10 @@ namespace Chorus.VcsDrivers.Mercurial
 				if(!string.IsNullOrEmpty(fixUtfFolder))
 					extensions.Add("fixutf8", Path.Combine(fixUtfFolder, "fixutf8.py"));
 #endif
+				// Add extension to allow creation of number only branches
+				var allownumberext = FileLocator.GetDirectoryDistributedWithApplication(false, "MercurialExtensions", "allownumberbranch");
+				if(!string.IsNullOrEmpty(allownumberext))
+					extensions.Add("allownumberbranch", Path.Combine(allownumberext, "allownumberbranch.py"));
 				return extensions;
 			}
 		}
@@ -251,6 +255,8 @@ namespace Chorus.VcsDrivers.Mercurial
 			{
 				uiSection.Set("merge", mergetoolname);
 				var mergeToolsSection = doc.Sections.GetOrCreate("merge-tools");
+				// If the premerge is allowed to happen Mercurial will occasionally think it did a good enough job and not
+				// call our mergetool. This has data corrupting results for us so we tell mercurial to skip it.
 				mergeToolsSection.Set(String.Format("{0}.premerge", mergetoolname), "False");
 				mergeToolsSection.Set(String.Format("{0}.executable", mergetoolname), chorusMergeLoc);
 				doc.SaveAndThrowIfCannot();
@@ -610,6 +616,15 @@ namespace Chorus.VcsDrivers.Mercurial
 			return Execute(failureIsOk, secondsBeforeTimeout, cmd, rest);
 		}
 
+		/// <summary>
+		/// Attempt to recover from a failed merge by asking mercurial to try again.
+		/// </summary>
+		/// <remarks>
+		/// A failed merge means that not all of the files with conflicts were successfully resolved for some reason.
+		/// Candidates include power failure during the merge, system crash during the merge, impatient user killing processes during the merge.
+		/// Another likely cause is a crash in client code run by chorus merge and trying to recover will not succeed until a new version of
+		/// the client is shipped.
+		///</remarks>
 		private ExecutionResult RecoverFromFailedMerge(bool failureIsOk, int secondsBeforeTimeout, string cmd, string[] rest)
 		{
 			var heads = GetHeads();
@@ -617,6 +632,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			{
 				throw new ApplicationException(String.Format("Unable to recover from failed merge: [Too many heads in the repository]"));
 			}
+			// set the environment variables necessary for ChorusMerge to retry the merge
 			MergeSituation.PushRevisionsToEnvironmentVariables(heads[0].UserId, heads[0].Number.Hash,
 																heads[1].UserId, heads[1].Number.Hash);
 
@@ -1472,27 +1488,21 @@ namespace Chorus.VcsDrivers.Mercurial
 		}
 
 		/// <summary/>
+		/// <remarks>
+		/// Older versions of Chorus wrote out extensions that are incompatible with new hg versions
+		/// so we now remove extensions that aren't specified.
+		/// </remarks>
 		/// <returns>
 		/// Returns true if the extensions in the repo contain only the extensions declared in the given map.
 		///</returns>
 		internal static bool CheckExtensions(IniDocument doc, Dictionary<string, string> extensionDeclarations)
 		{
 			var extensionSection = doc.Sections.GetOrCreate("extensions");
-			foreach(var pair in extensionDeclarations)
+			if(extensionDeclarations.Any(pair => extensionSection.GetValue(pair.Key) != pair.Value))
 			{
-				if(extensionSection.GetValue(pair.Key) != pair.Value)
-				{
-					return false;
-				}
+				return false;
 			}
-			foreach(var key in extensionSection.GetKeys())
-			{
-				if(!extensionDeclarations.ContainsKey(key))
-				{
-					return false;
-				}
-			}
-			return true;
+			return extensionSection.GetKeys().All(key => extensionDeclarations.ContainsKey(key));
 		}
 
 		// TODO Move this to Chorus.TestUtilities when we have one CP 2012-04

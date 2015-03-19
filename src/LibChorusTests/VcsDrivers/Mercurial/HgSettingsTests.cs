@@ -354,7 +354,7 @@ username = Joe Schmoe
 		}
 
 		[Test]
-		public void EnsureTheseExtensionAreEnabled_ExtraExtension_RemovesThem()
+		public void EnsureTheseExtensionAreEnabled_ExtraExtensions_RemovesThem()
 		{
 			using(new MercurialIniForTests())
 			using(var testRoot = new TemporaryFolder("ChorusHgSettingsTest"))
@@ -371,14 +371,14 @@ x =
 				extensions.Add("b", "");
 				repository.EnsureTheseExtensionsAndFormatSet(extensions);
 
-				Assert.AreEqual(2, repository.GetEnabledExtension().Count());
-				Assert.AreEqual("a", repository.GetEnabledExtension().ToArray()[0]);
-				Assert.AreEqual("b", repository.GetEnabledExtension().ToArray()[1]);
+				Assert.AreEqual(2, repository.GetEnabledExtension().Count(), "Result should have 'a' and 'b' but no 'x'");
+				Assert.AreEqual("a", repository.GetEnabledExtension().ToArray()[0], "'a' was not kept.");
+				Assert.AreEqual("b", repository.GetEnabledExtension().ToArray()[1], "'b' did not replace 'x'");
 			}
 		}
 
 		[Test]
-		public void EnsureTheseExtensionAreEnabled_someOthersEnabledAlready_StayEnabled()
+		public void EnsureTheseExtensionAreEnabled_AddingToExistingExtensions_NewAddedAndExistingNotDuplicated()
 		{
 			using (new MercurialIniForTests())
 			using (var testRoot = new TemporaryFolder("ChorusHgSettingsTest"))
@@ -394,9 +394,9 @@ a =
 				extensions.Add("b", "");
 				repository.EnsureTheseExtensionsAndFormatSet(extensions);
 
-				Assert.AreEqual(2, repository.GetEnabledExtension().Count());
-				Assert.AreEqual("a", repository.GetEnabledExtension().ToArray()[0]);
-				Assert.AreEqual("b", repository.GetEnabledExtension().ToArray()[1]);
+				Assert.AreEqual(2, repository.GetEnabledExtension().Count(), "Extensions should contain just one 'a' and 'b'");
+				Assert.AreEqual("a", repository.GetEnabledExtension().ToArray()[0], "'a' extension was not retained.");
+				Assert.AreEqual("b", repository.GetEnabledExtension().ToArray()[1], "'b' extension should have been appended.");
 			}
 		}
 

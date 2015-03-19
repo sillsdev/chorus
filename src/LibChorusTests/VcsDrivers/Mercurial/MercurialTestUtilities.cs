@@ -39,6 +39,11 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			if (!string.IsNullOrEmpty(fixUtfFolder))
 				extensions.Add("fixutf8", Path.Combine(fixUtfFolder, "fixutf8.py"));
 #endif
+			// Add extension to allow creation of number only branches
+			var allownumberext = FileLocator.GetDirectoryDistributedWithApplication(false, "MercurialExtensions", "allownumberbranch");
+			if(!string.IsNullOrEmpty(allownumberext))
+				extensions.Add("allownumberbranch", Path.Combine(allownumberext, "allownumberbranch.py"));
+
 			var doc = HgRepository.GetMercurialConfigInMercurialFolder();
 			SetExtensions(doc, extensions);
 			doc.SaveAndThrowIfCannot();

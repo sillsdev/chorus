@@ -1,7 +1,7 @@
 # fixutf8.py - Make Mercurial compatible with non-utf8 locales
 #
 # Copyright 2009 Stefan Rusek
-# Copyright 2015 Jason Naylor
+# Copyright 2015 SIL International
 #
 # This software may be used and distributed according to the terms
 # of the GNU General Public License, incorporated herein by reference.
@@ -154,25 +154,6 @@ def uisetup(ui):
 
 	extensions.wrapfunction(_ui.ui, "write", localize(win32helper.hStdOut))
 	extensions.wrapfunction(_ui.ui, "write_err", localize(win32helper.hStdErr))
-
-	'''
-	The following function has nothing to do with utf8 and could potentially belong
-	in a separate extension. The old versions of mercurial allowed branch names that
-	were only integers. Starting in version 3 integer branch names were disallowed.
-	Chorus uses branch names to handle model upgrades. This change would force us to
-	simulate a model upgrade with Chorus clients that used only the model version number
-	as a branch name. Alternatively we can wrap the function and skip the integer name
-	test.
-	'''
-	extensions.wrapfunction(scmutil, "checknewlabel", checklabelwrapper)
-
-
-def checklabelwrapper(orig, repo, lbl, kind):
-	try:
-		int(lbl)
-		pass
-	except ValueError:
-		return orig(repo, lbl, kind)
 
 
 def extsetup():
