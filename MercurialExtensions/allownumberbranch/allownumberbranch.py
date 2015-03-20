@@ -18,10 +18,9 @@ import mercurial.ui as _ui
 def uisetup(ui):
 	extensions.wrapfunction(scmutil, "checknewlabel", checklabelwrapper)
 
-
 def checklabelwrapper(orig, repo, lbl, kind):
 	try:
 		int(lbl)
-		pass
+		pass #let number only branches through without complaint
 	except ValueError:
-		return orig(repo, lbl, kind)
+		orig(repo, lbl, kind) #let Mercurial test all other branch names
