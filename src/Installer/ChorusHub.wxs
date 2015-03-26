@@ -48,7 +48,7 @@ http://blogs.msdn.com/robmen/archive/2003/10/04/56479.aspx -->
 								Section="extensions"
 								Name="mercurial.ini"
 								Key="fixutf8"
-								Value="[#fixutf8.py]" />
+								Value="[#MercurialExtensions.fixutf8.fixutf8.py]" />
 						</Component>
 						<!-- This will be filled in by the generated fragment GeneratedMercurial.wxs -->
 					</Directory>

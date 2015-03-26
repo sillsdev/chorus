@@ -34,18 +34,9 @@ namespace Chorus.merge.xml.generic
 		public ChorusNotesMergeEventListener(string path)
 		{
 			_path = path;
-
 			try
 			{
-				if (!File.Exists(path))
-				{
-					var doc = new XmlDocument();
-					doc.LoadXml(string.Format("<notes version='{0}'/>", FormatVersionNumber.ToString()));
-					using (var fileWriter = XmlWriter.Create(path, CanonicalXmlSettings.CreateXmlWriterSettings()))
-					{
-						doc.Save(fileWriter);
-					}
-				}
+				CreateEmptyChorusNotesFile(path);
 			}
 			catch (Exception error)
 			{
@@ -58,6 +49,19 @@ namespace Chorus.merge.xml.generic
 			_reader = XmlReader.Create(_readerStream, CanonicalXmlSettings.CreateXmlReaderSettings());
 			_writer = XmlWriter.Create(_tempFile.Path, CanonicalXmlSettings.CreateXmlWriterSettings());
 			StreamToInsertionPoint(_reader, _writer);
+		}
+
+		private static void CreateEmptyChorusNotesFile(string path)
+		{
+			if(!File.Exists(path))
+			{
+				var doc = new XmlDocument();
+				doc.LoadXml(string.Format("<notes version='{0}'/>", FormatVersionNumber.ToString()));
+				using(var fileWriter = XmlWriter.Create(path, CanonicalXmlSettings.CreateXmlWriterSettings()))
+				{
+					doc.Save(fileWriter);
+				}
+			}
 		}
 
 		private void StreamToInsertionPoint(XmlReader reader, XmlWriter writer)

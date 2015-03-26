@@ -144,6 +144,7 @@ namespace LibChorus.Tests.merge.xml.generic
 
 			TestMerge<XmlTextBothEditedTextConflict>(merger, ours, theirs, ancestor, "//sense");
 		}
+
 		[Test]
 		public void Run_BothAddedDifferentKeyedNodes_OrderIrrelevant_NoConflict()
 		{
@@ -163,6 +164,23 @@ namespace LibChorus.Tests.merge.xml.generic
 
 			TestMergeWithoutConflicts(merger, ours, theirs, ancestor, "//foo");
 		}
+
+		[Test]
+		public void Run_BothMovedDifferentKeyedNodes_OrderIrrelevant_NoDuplicatesCreated()
+		{
+			string ours = @"<foo><gloss lang='c'/><gloss lang='b'/><gloss lang='a'/></foo>";
+
+			string theirs = @"<foo><gloss lang='a'/><gloss lang='c'/><gloss lang='b'/></foo>";
+			string ancestor = @"<foo><gloss lang='a'/><gloss lang='b'/><gloss lang='c'/></foo>";
+
+			XmlMerger merger = new XmlMerger(new NullMergeSituation());
+
+			merger.MergeStrategies.SetStrategy("foo", ElementStrategy.CreateSingletonElement());
+			merger.MergeStrategies.SetStrategy("gloss", ElementStrategy.CreateForKeyedElement("lang", false));
+
+			TestMergeWithoutConflicts(merger, ours, theirs, ancestor, "//foo");
+		}
+
 		[Test]
 		public void Run_BothAddedDifferentKeyedNodes_OrderIsRelevant_OrderAmbiguityConflict()
 		{

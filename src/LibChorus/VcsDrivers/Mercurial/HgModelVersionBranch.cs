@@ -63,12 +63,10 @@ namespace Chorus.VcsDrivers.Mercurial
 		/// For use when updating a model version for the repository,
 		/// sets the current branch on the repo and the ClientVersion property to the given branch name
 		/// </summary>
-		/// <param name="progress"></param>
-		/// <param name="branchName"></param>
 		public void Branch(IProgress progress, string branchName)
 		{
 			progress.WriteVerbose("{0} changing working dir to branch: {1}", UserId, branchName);
-			_repo.Execute(_repo.SecondsBeforeTimeoutOnLocalOperation, "branch -f ", HgRepository.SurroundWithQuotes(branchName));
+			_repo.Execute(_repo.SecondsBeforeTimeoutOnLocalOperation, "branch -f", HgRepository.SurroundWithQuotes(branchName));
 			ClientVersion = branchName;
 		}
 

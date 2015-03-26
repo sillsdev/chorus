@@ -30,7 +30,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		{
 			var extensions = new Dictionary<string, string>();
 #if !MONO
-			extensions.Add("hgext.win32text", ""); //for converting line endings on windows machines
+			extensions.Add("eol", ""); //for converting line endings on windows machines
 #endif
 			extensions.Add("hgext.graphlog", ""); //for more easily readable diagnostic logs
 			extensions.Add("convert", ""); //for catastrophic repair in case of repo corruption
@@ -39,6 +39,11 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			if (!string.IsNullOrEmpty(fixUtfFolder))
 				extensions.Add("fixutf8", Path.Combine(fixUtfFolder, "fixutf8.py"));
 #endif
+			// Add extension to allow creation of number only branches
+			var allownumberext = FileLocator.GetDirectoryDistributedWithApplication(false, "MercurialExtensions", "allownumberbranch");
+			if(!string.IsNullOrEmpty(allownumberext))
+				extensions.Add("allownumberbranch", Path.Combine(allownumberext, "allownumberbranch.py"));
+
 			var doc = HgRepository.GetMercurialConfigInMercurialFolder();
 			SetExtensions(doc, extensions);
 			doc.SaveAndThrowIfCannot();

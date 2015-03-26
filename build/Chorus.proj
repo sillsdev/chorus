@@ -140,7 +140,7 @@
 
 	<Target Name="UnzipMercurial-Windows" Condition="'$(OS)'=='Windows_NT'">
 		<!-- Extract a zip file-->
-		<DNZip TaskAction="Extract" ExtractPath="$(RootDir)" ZipFileName="$(RootDir)/lib/Debug/Mercurial.zip"/>
+		<DNZip TaskAction="Extract" ExtractPath="$(RootDir)" ZipFileName="$(RootDir)/lib/common/Mercurial.zip"/>
 	</Target>
 
 	<Target Name="UnzipMercurial-Linux" Condition="'$(OS)'!='Windows_NT'">

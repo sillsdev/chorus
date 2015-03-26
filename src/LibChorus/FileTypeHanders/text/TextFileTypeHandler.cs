@@ -53,7 +53,7 @@ namespace Chorus.FileTypeHanders.text
 			// FailureSimulator is only used by tests to force a failure.
 			FailureSimulator.IfTestRequestsItThrowNow("TextMerger-"+Path.GetFileName(order.pathToOurs));
 
-			//TODO: this is not yet going to deal with conflicts at all!
+			//Throws on conflict
 			var contents = GetRawMerge(order.pathToOurs, order.pathToCommonAncestor, order.pathToTheirs);
 			File.WriteAllText(order.pathToOurs, contents);
 		}
@@ -90,6 +90,10 @@ namespace Chorus.FileTypeHanders.text
 			if (result.ExitCode == 2)//0 and 1 are ok
 			{
 				throw new ApplicationException("Got error " + result.ExitCode + " " + result.StandardOutput + " " + result.StandardError);
+			}
+			if(result.ExitCode == 1)//0 and 1 are ok
+			{
+				throw new ApplicationException("Could not merge text files without conflict: " + result.StandardOutput);
 			}
 			Debug.WriteLine(result.StandardOutput);
 			return result.StandardOutput;
