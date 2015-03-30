@@ -150,7 +150,6 @@ namespace Chorus.VcsDrivers.Mercurial
 		/// </summary>
 		internal void CheckAndUpdateHgrc()
 		{
-			CheckMercurialIni();
 			if (_alreadyUpdatedHgrc)
 				return;
 
@@ -200,50 +199,6 @@ namespace Chorus.VcsDrivers.Mercurial
 				return extensions;
 			}
 		}
-
-		private static void CheckMercurialIni()
-		{
-			if(_alreadyCheckedMercurialIni)
-				return;
-
-			try
-			{
-				var extensions = HgExtensions;
-				var doc = GetMercurialConfigInMercurialFolder();
-				if(!CheckExtensions(doc, extensions))
-				{
-					// Maybe we are running in a test environment, so attempt to write a correct
-					// mercurial.ini file for this environment.
-					// Note that we would not succeed in a installed environment, the installer
-					// should have already set this correctly, so that the check above would pass.
-					// review: Is there a better way to do this, so that this test only code is not
-					// included in the main code? CP 2012-04
-					SetExtensions(doc, HgExtensions);
-					try
-					{
-						doc.Save();
-					}
-						// ReSharper disable EmptyGeneralCatchClause
-					catch(Exception)
-					{
-					}
-					// ReSharper restore EmptyGeneralCatchClause
-					doc = GetMercurialConfigInMercurialFolder();
-					if(!CheckExtensions(doc, extensions))
-					{
-						throw new ApplicationException(
-							"The mercurial.ini file shipped with this application does not have the fixutf8 extension enabled."
-							);
-					}
-				}
-				_alreadyCheckedMercurialIni = true;
-			}
-			catch(Exception error)
-			{
-				throw new ApplicationException(string.Format("Failed to set up extensions: {0}", error.Message));
-			}
-		}
-
 		private void EnsureChorusMergeAddedToHgrc()
 		{
 			var mergetoolname = "chorusmerge";
@@ -802,7 +757,6 @@ namespace Chorus.VcsDrivers.Mercurial
 		/// </summary>
 		public static HgRepository CreateRepositoryInExistingDir(string path, IProgress progress)
 		{
-			CheckMercurialIni();
 			var repo = new HgRepository(path, progress);
 			repo.Init();
 
@@ -814,7 +768,6 @@ namespace Chorus.VcsDrivers.Mercurial
 		/// </summary>
 		public void Init()
 		{
-			CheckMercurialIni();
 			var formatLimitation = AllowDotEncodeRepositoryFormat ? "" : "--config format.dotencode=False ";
 			Execute(20, "init", formatLimitation + SurroundWithQuotes(_pathToRepository));
 			CheckAndUpdateHgrc();
@@ -1324,43 +1277,13 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		internal static IniDocument GetMercurialConfigInMercurialFolder()
 		{
-//#if MONO
-//            return GetMercurialConfigForUser();
-//#else
 			var mercurialIniFilePath = Path.Combine(MercurialLocation.PathToMercurialFolder, "mercurial.ini");
 			if (!File.Exists(mercurialIniFilePath))
 			{
 				File.WriteAllText(mercurialIniFilePath, "");
 			}
 			return new IniDocument(mercurialIniFilePath, IniFileType.MercurialStyle);
-//#endif
 		}
-
-//        private static IniDocument GetMercurialConfigForUser()
-//        {
-//#if MONO
-//            var home = Environment.GetEnvironmentVariable("HOME");
-//            if (home == null)
-//            {
-//                throw new ApplicationException("The HOME environment variable is not set.");
-//            }
-//            var p = Path.Combine(home, ".hgrc");
-//#else
-//            //NB: they're talking about moving this (but to WORSE place, my documents/mercurial)
-//            var profile = Environment.GetEnvironmentVariable("USERPROFILE");
-//            if (profile == null)
-//            {
-//                throw new ApplicationException("The %USERPROFILE% environment variable on this machine is not set.");
-//            }
-//            var p = Path.Combine(profile, "mercurial.ini");
-//#endif
-//            if (!File.Exists(p))
-//            {
-//                File.WriteAllText(p, "");
-//            }
-//            return new IniDocument(p, IniFileType.MercurialStyle);
-//        }
-
 		public void SetUserNameInIni(string name, IProgress progress)
 		{
 			try
