@@ -354,10 +354,10 @@ username = Joe Schmoe
 		}
 
 		[Test]
-		public void EnsureTheseExtensionAreEnabled_someOthersEnabledAlready_StayEnabled()
+		public void EnsureTheseExtensionAreEnabled_ExtraExtensions_RemovesThem()
 		{
-			using (new MercurialIniForTests())
-			using (var testRoot = new TemporaryFolder("ChorusHgSettingsTest"))
+			using(new MercurialIniForTests())
+			using(var testRoot = new TemporaryFolder("ChorusHgSettingsTest"))
 			{
 				HgRepository.CreateRepositoryInExistingDir(testRoot.Path, _progress);
 				var repository = new HgRepository(testRoot.Path, new ConsoleProgress());
@@ -371,10 +371,32 @@ x =
 				extensions.Add("b", "");
 				repository.EnsureTheseExtensionsAndFormatSet(extensions);
 
-				Assert.AreEqual(3, repository.GetEnabledExtension().Count());
-				Assert.AreEqual("a", repository.GetEnabledExtension().ToArray()[0]);
-				Assert.AreEqual("x", repository.GetEnabledExtension().ToArray()[1]);
-				Assert.AreEqual("b", repository.GetEnabledExtension().ToArray()[2]);
+				Assert.AreEqual(2, repository.GetEnabledExtension().Count(), "Result should have 'a' and 'b' but no 'x'");
+				Assert.AreEqual("a", repository.GetEnabledExtension().ToArray()[0], "'a' was not kept.");
+				Assert.AreEqual("b", repository.GetEnabledExtension().ToArray()[1], "'b' did not replace 'x'");
+			}
+		}
+
+		[Test]
+		public void EnsureTheseExtensionAreEnabled_AddingToExistingExtensions_NewAddedAndExistingNotDuplicated()
+		{
+			using (new MercurialIniForTests())
+			using (var testRoot = new TemporaryFolder("ChorusHgSettingsTest"))
+			{
+				HgRepository.CreateRepositoryInExistingDir(testRoot.Path, _progress);
+				var repository = new HgRepository(testRoot.Path, new ConsoleProgress());
+				File.WriteAllText(testRoot.Combine(Path.Combine(".hg", "hgrc")), @"
+[extensions]
+a =
+");
+				var extensions = new Dictionary<string, string>();
+				extensions.Add("a", "");
+				extensions.Add("b", "");
+				repository.EnsureTheseExtensionsAndFormatSet(extensions);
+
+				Assert.AreEqual(2, repository.GetEnabledExtension().Count(), "Extensions should contain just one 'a' and 'b'");
+				Assert.AreEqual("a", repository.GetEnabledExtension().ToArray()[0], "'a' extension was not retained.");
+				Assert.AreEqual("b", repository.GetEnabledExtension().ToArray()[1], "'b' extension should have been appended.");
 			}
 		}
 

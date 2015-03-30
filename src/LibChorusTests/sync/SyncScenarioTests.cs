@@ -22,7 +22,7 @@ namespace LibChorus.Tests.sync
 		{
 			_pathToTestRootBase = Path.Combine(Path.GetTempPath(), "ChorusSyncScenarioTests");
 			if (Directory.Exists(_pathToTestRootBase))
-				Directory.Delete(_pathToTestRoot, true); // Just in case is has lingered from the last test run.
+				Directory.Delete(_pathToTestRootBase, true); // Just in case is has lingered from the last test run.
 			Directory.CreateDirectory(_pathToTestRootBase);
 		}
 

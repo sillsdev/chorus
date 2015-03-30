@@ -127,5 +127,36 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				Assert.IsFalse(result, "The only branch should be default.");
 			}
 		}
+
+		[Test]
+		public void CanCreateVersionNumberBranch_BackwardCompatibilityTest()
+		{
+			// Setup (creates repo with default branch)
+			using(var repoWithFiles = RepositoryWithFilesSetup.CreateWithLiftFile(stestUser))
+			{
+				var branchingHelper = repoWithFiles.Repository.BranchingHelper;
+				Assert.AreEqual(1, branchingHelper.GetBranches().Count(),
+								"Setup problem in test, should be starting with one branch.");
+				// Make a new branch with an integer name
+				var integerBranchName = "70000068";
+				repoWithFiles.Synchronizer.SynchronizerAdjunct = new ProgrammableSynchronizerAdjunct(integerBranchName);
+				repoWithFiles.ReplaceSomething("nottheoriginal");
+				repoWithFiles.SyncWithOptions(new SyncOptions
+				{
+					DoPullFromOthers = false,
+					CheckinDescription = "version number branch",
+					DoSendToOthers = false
+				});
+
+				var revisions = repoWithFiles.Repository.GetAllRevisions();
+				var branches = new HashSet<string>();
+				foreach(var rev in revisions)
+				{
+					branches.Add(rev.Branch);
+				}
+				Assert.AreEqual(branches.Count, 2, "Should be 2 branches, default and " + integerBranchName);
+				CollectionAssert.Contains(branches, integerBranchName, "The integer branch name was not created.");
+			}
+		}
 	}
 }

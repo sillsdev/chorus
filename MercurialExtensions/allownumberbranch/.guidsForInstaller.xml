@@ -1,0 +1,6 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--This file is generated and then updated by an MSBuild task.  It preserves the automatically-generated guids assigned files that will be installed on user machines. So it should be held in source control.-->
+<InstallerMetadata>
+  <File Id="lExtensions.allownumberbranch.allownumberbranch.py" Guid="683506c7-4607-489a-a9f6-215542560276" />
+  <File Id="Extensions.allownumberbranch.allownumberbranch.pyc" Guid="2d8d8d79-dffe-4cfe-91c4-ca0ef843a2bf" />
+</InstallerMetadata>

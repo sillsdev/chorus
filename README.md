@@ -127,6 +127,10 @@ If developing on windows, unzip the file `lib/Release/mercurial.zip` into `outpu
 
 #### Linux
 
+In order to build and run all the tests on Linux the SIL mono package will need to be installed.
+It can be found at http://packages.sil.org/
+That version of mono will be used when you run `build/TestBuild.sh`
+
 Open a terminal window, change into the build directory and run the `buildupdate.mono.sh` script:
 
 	cd chorus/build

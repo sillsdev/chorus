@@ -13,6 +13,7 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using Chorus.Utilities;
+using Chorus.merge;
 using Nini.Ini;
 using SIL.Code;
 using SIL.IO;
@@ -34,6 +35,11 @@ namespace Chorus.VcsDrivers.Mercurial
 		private string _proxyCongfigParameterString = string.Empty;
 		private bool _alreadyUpdatedHgrc;
 		private static bool _alreadyCheckedMercurialIni;
+		private const string EmptyRepoIdentifier = "0000000000000000000000000000000000000000";
+		/// <summary>
+		/// Template to produce a consistant and parsable revision log entry
+		/// </summary>
+		private const string DetailedRevisionTemplate = "--template \"changeset:{rev}:{node|short}\nbranch:{branches}\nuser:{author}\ndate:{date|rfc822date}\ntag:{tags}\nsummary:{desc}\n\"";
 		private bool _mercurialTwoCompatible;
 		private HgModelVersionBranch _branchHelper;
 
@@ -133,12 +139,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 			_userName = GetUserIdInUse();
 
-
-#if MERCURIAL2
 			_mercurialTwoCompatible = true;
-#else
-			_mercurialTwoCompatible = false;
-#endif
 
 		}
 
@@ -150,15 +151,27 @@ namespace Chorus.VcsDrivers.Mercurial
 		internal void CheckAndUpdateHgrc()
 		{
 			CheckMercurialIni();
-
 			if (_alreadyUpdatedHgrc)
 				return;
 
 			try
 			{
-				//TODO: some can be removed now, since we have our own mercurial.ini.  Unfortunately, we pacakge it in a 4  meg zip, so it's Expensive (in terms of our own hg repo) to modify
-				//so for now we're still using this
+				EnsureChorusMergeAddedToHgrc();
+				var extensions = HgExtensions;
+				EnsureTheseExtensionsAndFormatSet(extensions);
+				_alreadyUpdatedHgrc = true;
+			}
+			catch (Exception error)
+			{
+				throw new ApplicationException(string.Format("Failed to set up extensions for the repository: {0}", error.Message));
+			}
 
+		}
+
+		private static Dictionary<string, string> HgExtensions
+		{
+			get
+			{
 				/*
 					fixutf8 makes it possible to have unicode characters in path names. Note that it is prone to break with new versions of mercurial.
 					it works with 1.5.1, and reportedly with 1.84, but the version I got did not work with 1.9.2.
@@ -171,46 +184,33 @@ namespace Chorus.VcsDrivers.Mercurial
 
 				var extensions = new Dictionary<string, string>();
 #if !MONO
-				extensions.Add("hgext.win32text", ""); //for converting line endings on windows machines
-#endif
-				extensions.Add("hgext.graphlog",""); //for more easily readable diagnostic logs
-				extensions.Add("convert",""); //for catastrophic repair in case of repo corruption
-#if !MONO
-				string fixUtfFolder = FileLocator.GetDirectoryDistributedWithApplication(false, "MercurialExtensions", "fixutf8");
-				if(!string.IsNullOrEmpty(fixUtfFolder))
-					extensions.Add("fixutf8", Path.Combine(fixUtfFolder, "fixutf8.py"));
-#endif
-
-				EnsureTheseExtensionsAndFormatSet(extensions);
-				_alreadyUpdatedHgrc = true;
-			}
-			catch (Exception error)
-			{
-				throw new ApplicationException(string.Format("Failed to set up extensions for the repository: {0}", error.Message));
-			}
-
-		}
-
-		private static void CheckMercurialIni()
-		{
-			if (_alreadyCheckedMercurialIni)
-				return;
-
-			try
-			{
-				var extensions = new Dictionary<string, string>();
-#if !MONO
-				extensions.Add("hgext.win32text", ""); //for converting line endings on windows machines
+				extensions.Add("eol", ""); //for converting line endings on windows machines
 #endif
 				extensions.Add("hgext.graphlog", ""); //for more easily readable diagnostic logs
 				extensions.Add("convert", ""); //for catastrophic repair in case of repo corruption
 #if !MONO
 				string fixUtfFolder = FileLocator.GetDirectoryDistributedWithApplication(false, "MercurialExtensions", "fixutf8");
-				if (!string.IsNullOrEmpty(fixUtfFolder))
+				if(!string.IsNullOrEmpty(fixUtfFolder))
 					extensions.Add("fixutf8", Path.Combine(fixUtfFolder, "fixutf8.py"));
 #endif
+				// Add extension to allow creation of number only branches
+				var allownumberext = FileLocator.GetDirectoryDistributedWithApplication(false, "MercurialExtensions", "allownumberbranch");
+				if(!string.IsNullOrEmpty(allownumberext))
+					extensions.Add("allownumberbranch", Path.Combine(allownumberext, "allownumberbranch.py"));
+				return extensions;
+			}
+		}
+
+		private static void CheckMercurialIni()
+		{
+			if(_alreadyCheckedMercurialIni)
+				return;
+
+			try
+			{
+				var extensions = HgExtensions;
 				var doc = GetMercurialConfigInMercurialFolder();
-				if (!CheckExtensions(doc, extensions))
+				if(!CheckExtensions(doc, extensions))
 				{
 					// Maybe we are running in a test environment, so attempt to write a correct
 					// mercurial.ini file for this environment.
@@ -218,29 +218,48 @@ namespace Chorus.VcsDrivers.Mercurial
 					// should have already set this correctly, so that the check above would pass.
 					// review: Is there a better way to do this, so that this test only code is not
 					// included in the main code? CP 2012-04
-					SetExtensions(doc, extensions);
+					SetExtensions(doc, HgExtensions);
 					try
 					{
 						doc.Save();
 					}
-					// ReSharper disable EmptyGeneralCatchClause
-					catch (Exception)
+						// ReSharper disable EmptyGeneralCatchClause
+					catch(Exception)
 					{
 					}
 					// ReSharper restore EmptyGeneralCatchClause
 					doc = GetMercurialConfigInMercurialFolder();
-					if (!CheckExtensions(doc, extensions))
+					if(!CheckExtensions(doc, extensions))
 					{
 						throw new ApplicationException(
 							"The mercurial.ini file shipped with this application does not have the fixutf8 extension enabled."
-						);
+							);
 					}
 				}
 				_alreadyCheckedMercurialIni = true;
 			}
-			catch (Exception error)
+			catch(Exception error)
 			{
 				throw new ApplicationException(string.Format("Failed to set up extensions: {0}", error.Message));
+			}
+		}
+
+		private void EnsureChorusMergeAddedToHgrc()
+		{
+			var mergetoolname = "chorusmerge";
+			var doc = GetMercurialConfigForRepository();
+			var chorusMergeLoc = SurroundWithQuotes(ExecutionEnvironment.ChorusMergeFilePath());
+			var uiSection = doc.Sections.GetOrCreate("ui");
+
+			if(uiSection.GetValue("merge") != mergetoolname)
+			{
+				uiSection.Set("merge", mergetoolname);
+				var mergeToolsSection = doc.Sections.GetOrCreate("merge-tools");
+				// If the premerge is allowed to happen Mercurial will occasionally think it did a good enough job and not
+				// call our mergetool. This has data corrupting results for us so we tell mercurial to skip it.
+				mergeToolsSection.Set(String.Format("{0}.premerge", mergetoolname), "False");
+				mergeToolsSection.Set(String.Format("{0}.executable", mergetoolname), chorusMergeLoc);
+				doc.SaveAndThrowIfCannot();
 			}
 		}
 
@@ -262,16 +281,6 @@ namespace Chorus.VcsDrivers.Mercurial
 			return GetFileExistsInRepo(subPath);
 		}
 
-		private void SetupPerson(string pathToRepository, string userName)
-		{
-			_progress.WriteVerbose("setting name and branch");
-			CheckAndUpdateHgrc();
-			using (new ShortTermEnvironmentalVariable("HGUSER", userName))
-			{
-				Execute(SecondsBeforeTimeoutOnLocalOperation, "branch", userName);
-			}
-		}
-
 		/// <returns>true if changes were received</returns>
 		public bool Pull(RepositoryAddress source, string targetUri)
 		{
@@ -290,7 +299,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			try
 			{
 				CheckAndUpdateHgrc();
-				Execute(false, _mercurialTwoCompatible,SecondsBeforeTimeoutOnRemoteOperation, "push -f --debug " + GetProxyConfigParameterString(targetUri), SurroundWithQuotes(targetUri));
+				Execute(false, _mercurialTwoCompatible,SecondsBeforeTimeoutOnRemoteOperation, "push --new-branch " + GetProxyConfigParameterString(targetUri), SurroundWithQuotes(targetUri));
 			}
 			catch (Exception err)
 			{
@@ -317,7 +326,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			try
 			{
 				var tip = GetTip();
-				Execute(SecondsBeforeTimeoutOnRemoteOperation, "pull --debug" + GetProxyConfigParameterString(targetUri), SurroundWithQuotes(targetUri));
+				Execute(SecondsBeforeTimeoutOnRemoteOperation, "pull" + GetProxyConfigParameterString(targetUri), SurroundWithQuotes(targetUri));
 
 				var newTip = GetTip();
 				if (tip == null)
@@ -386,7 +395,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				// It could possibly have multiple lines, in which case, we want the last one.
 				// Earlier ones may be coming from some other version of Hg that complains about deprecated extensions Chorus uses.
 				var id = results.StandardOutput;
-				if (string.IsNullOrEmpty(id))
+				if (string.IsNullOrEmpty(id) || id.Trim().Equals(EmptyRepoIdentifier))
 					return null;
 				var split = id.Split(new[] { "\n", "\r" }, StringSplitOptions.RemoveEmptyEntries);
 				id = split.Length == 0 ? null : split[split.Length - 1]; // Get last one.
@@ -412,7 +421,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		public Revision GetTip()
 		{
-			var rev = GetRevisionsFromQuery("tip").FirstOrDefault();
+			var rev = GetRevisionsFromQuery("tip " + DetailedRevisionTemplate).FirstOrDefault();
 			if (rev == null || rev.Number.LocalRevisionNumber == "-1")
 				return null;
 			return rev;
@@ -421,7 +430,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		public List<Revision> GetHeads()
 		{
 			_progress.WriteVerbose("Getting heads of {0}", _userName);
-			return GetRevisionsFromQuery("heads");
+			return GetRevisionsFromQuery("heads " + DetailedRevisionTemplate);
 		}
 
 		public bool MakeBundle(string[] baseRevisions, string filePath)
@@ -489,7 +498,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		public void AddAndCheckinFile(string filePath)
 		{
 			TrackFile(filePath);
-			Commit(false, " Add " + Path.GetFileName(filePath));
+			Commit(_mercurialTwoCompatible, " Add " + Path.GetFileName(filePath));
 		}
 
 		private void TrackFile(string filePath)
@@ -525,12 +534,12 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		public ExecutionResult Execute(int secondsBeforeTimeout, string cmd, params string[] rest)
 		{
-			return Execute(false, false, secondsBeforeTimeout, cmd, rest);
+			return Execute(false, _mercurialTwoCompatible, secondsBeforeTimeout, cmd, rest);
 		}
 
 		protected ExecutionResult Execute(bool failureIsOk, int secondsBeforeTimeout, string cmd, params string[] rest)
 		{
-			return Execute(failureIsOk, false, secondsBeforeTimeout, cmd, rest);
+			return Execute(failureIsOk, _mercurialTwoCompatible, secondsBeforeTimeout, cmd, rest);
 		}
 
 		/// <summary>
@@ -544,14 +553,8 @@ namespace Chorus.VcsDrivers.Mercurial
 			{
 				throw new UserCancelledException();
 			}
-			StringBuilder b = new StringBuilder();
+			var b = new StringBuilder();
 			b.Append(cmd + " ");
-//            we used to explicitly specify the repo. This triggered a bug in fixutf8 (with "init" and "add", at least). Since the runner already puts us in the directory, we can safely just
-//              stop specifying it.
-//            if (!string.IsNullOrEmpty(_pathToRepository))
-//            {
-//                b.Append("-R " + SurroundWithQuotes(_pathToRepository) + " ");
-//            }
 			foreach (string s in rest)
 			{
 				b.Append(s + " ");
@@ -586,6 +589,10 @@ namespace Chorus.VcsDrivers.Mercurial
 					{
 						return RecoverFromFailedMerge(failureIsOk, secondsBeforeTimeout, cmd, rest);
 					}
+					if(result.StandardError.Contains(@"interrupted"))
+					{
+						return RecoverFromInterruptedUpdate(failureIsOk, secondsBeforeTimeout, cmd, rest);
+					}
 					if (result.StandardError.Contains("No such file or directory"))// trying to track down http://jira.palaso.org/issues/browse/BL-284
 					{
 						details += SafeGetStatus();
@@ -600,13 +607,45 @@ namespace Chorus.VcsDrivers.Mercurial
 			return result;
 		}
 
+		/// <summary>
+		/// The procedure for recoverring from an interrupted update, is to update again.
+		/// </summary>
+		private ExecutionResult RecoverFromInterruptedUpdate(bool failureIsOk, int secondsBeforeTimeout, string cmd, string[] rest)
+		{
+			Update();
+			return Execute(failureIsOk, secondsBeforeTimeout, cmd, rest);
+		}
+
+		/// <summary>
+		/// Attempt to recover from a failed merge by asking mercurial to try again.
+		/// </summary>
+		/// <remarks>
+		/// A failed merge means that not all of the files with conflicts were successfully resolved for some reason.
+		/// Candidates include power failure during the merge, system crash during the merge, impatient user killing processes during the merge.
+		/// Another likely cause is a crash in client code run by chorus merge and trying to recover will not succeed until a new version of
+		/// the client is shipped.
+		///</remarks>
 		private ExecutionResult RecoverFromFailedMerge(bool failureIsOk, int secondsBeforeTimeout, string cmd, string[] rest)
 		{
-			_progress.WriteMessageWithColor(@"Blue", "Attempting to recover from failed merge.");
-			var result = Execute(false, SecondsBeforeTimeoutOnMergeOperation, "resolve", "--all");
-			if (!String.IsNullOrEmpty(result.StandardError))
+			var heads = GetHeads();
+			if(heads.Count() > 2)
 			{
-				throw new ApplicationException(String.Format("Unable to recover from failed merge: [{0}]", result.StandardError));
+				throw new ApplicationException(String.Format("Unable to recover from failed merge: [Too many heads in the repository]"));
+			}
+			// set the environment variables necessary for ChorusMerge to retry the merge
+			MergeSituation.PushRevisionsToEnvironmentVariables(heads[0].UserId, heads[0].Number.Hash,
+																heads[1].UserId, heads[1].Number.Hash);
+
+			MergeOrder.PushToEnvironmentVariables(_pathToRepository);
+			using(new ShortTermEnvironmentalVariable(MergeOrder.kConflictHandlingModeEnvVarName,
+				MergeOrder.ConflictHandlingModeChoices.WeWin.ToString()))
+			{
+				_progress.WriteMessageWithColor(@"Blue", "Attempting to recover from failed merge.");
+				var result = Execute(true, SecondsBeforeTimeoutOnMergeOperation, "resolve", "--all");
+				if(!String.IsNullOrEmpty(result.StandardError))
+				{
+					throw new ApplicationException(String.Format("Unable to recover from failed merge: [{0}]", result.StandardError));
+				}
 			}
 			_progress.WriteMessageWithColor(@"Green", "Successfully recovered from failed merge.");
 			return Execute(failureIsOk, secondsBeforeTimeout, cmd, rest);
@@ -814,7 +853,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			Execute(SecondsBeforeTimeoutOnLocalOperation, "add", args.ToString());
 
 			_progress.WriteVerbose("Committing \"{0}\"", message);
-			Commit(false, message);
+			Commit(_mercurialTwoCompatible, message);
 		}
 
 		public static string GetRepositoryRoot(string directoryPath, ExecutionResult secondsBeforeTimeout)
@@ -964,7 +1003,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				summary:base checkin
 			*/
 
-			string result = GetTextFromQuery("log --template \"changeset:{rev}:{node|short}\nbranch:{branches}\nuser:{author}\ndate:{date|rfc822date}\ntag:{tags}\nsummary:{desc}\n\"");
+			string result = GetTextFromQuery("log " + DetailedRevisionTemplate);
 			return GetRevisionsFromQueryResultText(result);
 		}
 
@@ -1049,7 +1088,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		/// </summary>
 		public Revision GetRevisionWorkingSetIsBasedOn()
 		{
-			return GetRevisionsFromQuery("parents").FirstOrDefault();
+			return GetRevisionsFromQuery("parents --template \"changeset:{rev}:{node|short}\nbranch:{branches}\nuser:{author}\ndate:{date|rfc822date}\ntag:{tags}\nsummary:{desc}\nparent:{p1rev}:{p1node}\"").FirstOrDefault();
 		}
 
 		[Obsolete("Use the non-static member instead... this is just here for the old partial merger")]
@@ -1369,7 +1408,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		public Revision GetRevision(string numberOrHash)
 		{
-			return GetRevisionsFromQuery("log --rev " + numberOrHash).FirstOrDefault();
+			return GetRevisionsFromQuery(string.Format("log --rev {0} {1}", numberOrHash, DetailedRevisionTemplate)).FirstOrDefault();
 		}
 
 		/// <summary>
@@ -1395,22 +1434,6 @@ namespace Chorus.VcsDrivers.Mercurial
 			section.Comment = "Used by chorus to track which repositories should always be checked.  To enable a path, enter it in the [paths] section, e.g. fiz='http://fis.com/fooproject', then in this section, just add 'fiz='";
 			return section;
 		}
-		//
-		//        public List<RepositoryAddress> GetDefaultSyncAddresses()
-		//        {
-		//            var list = new List<RepositoryAddress>();
-		//            var doc = GetHgrcForRepository();
-		//            var section = GetDefaultRepositoriesSection(doc);
-		//            var aliases = section.GetKeys();
-		//            foreach (var path in GetRepositoryPathsInHgrc())
-		//            {
-		//                if (aliases.Contains<string>(path.Name))
-		//                {
-		//                    list.Add(path);
-		//                }
-		//            }
-		//            return list;
-		//        }
 
 		public List<string> GetDefaultSyncAliases()
 		{
@@ -1420,14 +1443,13 @@ namespace Chorus.VcsDrivers.Mercurial
 			return new List<string>(section.GetKeys());
 		}
 
-		internal void EnsureTheseExtensionsAndFormatSet(IEnumerable<KeyValuePair<string, string>> extensions)
+		internal void EnsureTheseExtensionsAndFormatSet(Dictionary<string, string> extensions)
 		{
 			var doc = GetMercurialConfigForRepository();
 
 			IniSection section = doc.Sections.GetOrCreate("format");
-			IniSection section_w32text = doc.Sections.GetOrCreate("win32text");
 
-			if (CheckExtensions(doc, extensions) && section.GetValue("dotencode") == AllowDotEncodeRepositoryFormatStringValue && section_w32text.GetValue("warn") == "False")
+			if (CheckExtensions(doc, extensions) && section.GetValue("dotencode") == AllowDotEncodeRepositoryFormatStringValue)
 			{
 				return;
 			}
@@ -1438,17 +1460,6 @@ namespace Chorus.VcsDrivers.Mercurial
 
 			//review: could we have a comment explaining why we are putting this in the .ini if we're also putting it on the command line?
 			section.Set("dotencode", AllowDotEncodeRepositoryFormatStringValue);
-
-			//see http://mercurial.selenic.com/wiki/Win32TextExtension
-			//Deprecation: The win32text extension requires each user to configure the extension again and again for each clone
-			//since the configuration is not copied when cloning.
-			//We have therefore made the EolExtension as an alternative. The EolExtension uses a version controlled file for
-			//its configuration and each clone will therefore use the right settings from the start. Mercurial 1.5.4+
-			//This extension may be removed in a future release of Mercurial.
-			//To disable deprecation warnings from this extension (until you get get around to replacing win32text with eol), add
-			// these two lines to your configuration file:
-
-			section_w32text.Set("warn", "False");
 
 			doc.SaveAndThrowIfCannot();
 		}
@@ -1468,6 +1479,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		private static void SetExtensions(IniDocument doc, IEnumerable<KeyValuePair<string, string>> extensionDeclarations)
 		{
+			doc.Sections.RemoveSection("extensions");
 			var section = doc.Sections.GetOrCreate("extensions");
 			foreach (var pair in extensionDeclarations)
 			{
@@ -1475,10 +1487,22 @@ namespace Chorus.VcsDrivers.Mercurial
 			}
 		}
 
-		internal static bool CheckExtensions(IniDocument doc, IEnumerable<KeyValuePair<string, string>> extensionDeclarations)
+		/// <summary/>
+		/// <remarks>
+		/// Older versions of Chorus wrote out extensions that are incompatible with new hg versions
+		/// so we now remove extensions that aren't specified.
+		/// </remarks>
+		/// <returns>
+		/// Returns true if the extensions in the repo contain only the extensions declared in the given map.
+		///</returns>
+		internal static bool CheckExtensions(IniDocument doc, Dictionary<string, string> extensionDeclarations)
 		{
-			var section = doc.Sections.GetOrCreate("extensions");
-			return extensionDeclarations.All(pair => section.GetValue(pair.Key) == pair.Value);
+			var extensionSection = doc.Sections.GetOrCreate("extensions");
+			if(extensionDeclarations.Any(pair => extensionSection.GetValue(pair.Key) != pair.Value))
+			{
+				return false;
+			}
+			return extensionSection.GetKeys().All(key => extensionDeclarations.ContainsKey(key));
 		}
 
 		// TODO Move this to Chorus.TestUtilities when we have one CP 2012-04
@@ -1948,11 +1972,8 @@ namespace Chorus.VcsDrivers.Mercurial
 
 				Update(revisionNumber);//move over to this branch, if necessary
 
-				using (var messageFile = new TempFile(changeSetSummary, Encoding.UTF8))
-				{
-					Execute(false, SecondsBeforeTimeoutOnLocalOperation,
-							string.Format("backout -r {0} --logfile \"{1}\"", revisionNumber, messageFile.Path));
-				}
+				Execute(false, SecondsBeforeTimeoutOnLocalOperation,
+							string.Format("backout -r {0} -m \"{1}\"", revisionNumber, changeSetSummary));
 				//if we were not backing out the "current" revision, move back over to it.
 				if (!previousRevisionOfWorkingDir.GetMatchesLocalOrHash(revisionNumber))
 				{

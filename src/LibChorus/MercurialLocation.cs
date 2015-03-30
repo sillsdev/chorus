@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using Chorus.Utilities;
 using SIL.Code;
+using SIL.PlatformUtilities;
 
 namespace Chorus// DON'T MOVE THIS! It needs to be super easy for the client to find
 {
@@ -30,7 +31,7 @@ namespace Chorus// DON'T MOVE THIS! It needs to be super easy for the client to 
 					return;
 				}
 				RequireThat.Directory(value).Exists();
-				string expectedHgLocation=Path.Combine(value, "hg.exe");
+				string expectedHgLocation=Path.Combine(value, Platform.IsWindows ? "hg.exe" : "hg");
 				if (!File.Exists(expectedHgLocation))
 				{
 					throw new FileNotFoundException(expectedHgLocation);

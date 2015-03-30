@@ -60,7 +60,9 @@ namespace Chorus.VcsDrivers.Mercurial
 			process.StartInfo.CreateNoWindow = true;
 			process.StartInfo.WorkingDirectory = fromDirectory;
 			process.StartInfo.FileName = MercurialLocation.PathToHgExecutable;
-			process.StartInfo.Arguments = commandLine.Replace("hg ", ""); //we don't want the whole command line, just the args portion
+
+			var debug = Environment.GetEnvironmentVariable(@"CHORUSDEBUGGING") == null ? String.Empty : @"--debug ";
+			process.StartInfo.Arguments = commandLine.Replace("hg ", debug); //we don't want the whole command line, just the args portion
 
 			//The fixutf8 extension's job is to get hg to talk in this encoding
 			process.StartInfo.StandardOutputEncoding = System.Text.Encoding.UTF8;

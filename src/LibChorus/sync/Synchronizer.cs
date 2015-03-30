@@ -791,34 +791,20 @@ namespace Chorus.sync
 		/// <returns>false if nothing needed to be merged, true if the merge was done. Throws exception if there is an error.</returns>
 		private bool MergeTwoChangeSets(Revision head, Revision theirHead)
 		{
-#if MONO
-			// We need to use a shell script wrapper on Linux to ensure the correct mono is called.
-			string chorusMergeFilePath = Path.Combine(ExecutionEnvironment.DirectoryOfExecutingAssembly, "chorusmerge");
-			// The replace is only useful for use with the MonoDevelop environment whcih doesn't honor $(Configuration) in the csproj files.
-			// When this is exported as an environment var it needs escaping to prevent the shell from replacing it with an empty string.
-			// When MonoDevelop is fixed this can be removed.
-			chorusMergeFilePath = chorusMergeFilePath.Replace("$(Configuration)", "\\$(Configuration)");
-#else
-			string chorusMergeFilePath = Path.Combine(ExecutionEnvironment.DirectoryOfExecutingAssembly, "ChorusMerge.exe");
-#endif
-			using (new ShortTermEnvironmentalVariable("HGMERGE", '"' + chorusMergeFilePath + '"'))
+			// Theory has it that is a tossup on who ought to win, unless there is some more principled way to decide.
+			// If 'they' end up being the right answer, or if it ends up being more exotic,
+			// then be sure to change the alpha and beta info in the MergeSituation class.
+			//using (new ShortTermEnvironmentalVariable(MergeOrder.kConflictHandlingModeEnvVarName, MergeOrder.ConflictHandlingModeChoices.TheyWin.ToString()))
+			// Go with 'WeWin', since that is the default and that is how the alpha and beta data of MergeSituation is set, right before this method is called.
+			using (new ShortTermEnvironmentalVariable(MergeOrder.kConflictHandlingModeEnvVarName, MergeOrder.ConflictHandlingModeChoices.WeWin.ToString()))
 			{
-				// Theory has it that is a tossup on who ought to win, unless there is some more principled way to decide.
-				// If 'they' end up being the right answer, or if it ends up being more exotic,
-				// then be sure to change the alpha and beta info in the MergeSituation class.
-				//using (new ShortTermEnvironmentalVariable(MergeOrder.kConflictHandlingModeEnvVarName, MergeOrder.ConflictHandlingModeChoices.TheyWin.ToString()))
-				// Go with 'WeWin', since that is the default and that is how the alpha and beta data of MergeSituation is set, right before this method is called.
-				using (new ShortTermEnvironmentalVariable(MergeOrder.kConflictHandlingModeEnvVarName, MergeOrder.ConflictHandlingModeChoices.WeWin.ToString()))
-				{
-					var didMerge = Repository.Merge(_localRepositoryPath, theirHead.Number.LocalRevisionNumber);
-					FailureSimulator.IfTestRequestsItThrowNow("SychronizerAdjunct");
-					return didMerge;
-				}
+				var didMerge = Repository.Merge(_localRepositoryPath, theirHead.Number.LocalRevisionNumber);
+				FailureSimulator.IfTestRequestsItThrowNow("SychronizerAdjunct");
+				return didMerge;
 			}
 		}
 
-
-#endregion
+		#endregion
 
 		private void AddAndCommitFiles(string summary)
 		{
@@ -844,8 +830,8 @@ namespace Chorus.sync
 			 *
 			 */
 
-			//todo: push down to hgrepository
-			var files = Repository.GetFilesInRevisionFromQuery(rev1 /*this param is bogus*/, "status -ru --rev " + rev2.Number.LocalRevisionNumber);
+			var files = Repository.GetFilesInRevisionFromQuery(rev1, "status -u");
+			files.AddRange(Repository.GetFilesInRevisionFromQuery(rev1 /*this param is bogus*/, "status -ru --rev " + rev2.Number.LocalRevisionNumber));
 
 			foreach (var file in files)
 			{

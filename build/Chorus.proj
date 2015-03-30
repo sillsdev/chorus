@@ -185,6 +185,11 @@
 
 	</Target>
 
+	<Target Name="SignChorusHub" DependsOnTargets="ChorusHubInstaller">
+		<Message Text="Attempting to sign ChorusHubInstaller.msi" Importance="high" />
+		<Exec Command='sign "$(RootDir)\output\Release\ChorusHubInstaller.msi" ' />
+	</Target>
+
 	<Target Name="MakeWixForDistFiles" Condition="'$(OS)'=='Windows_NT'">
 		<MakeWixForDirTree
 			DirectoryReferenceId="mercurial"

@@ -57,6 +57,16 @@ namespace Chorus.merge.xml.generic
 			var parentNode = _ours ?? _theirs ?? _ancestor;
 			var parentStrategy = _merger.MergeStrategies.GetElementStrategy(parentNode);
 			var parentOrder = parentStrategy == null ? ChildOrder.AskChildren : parentStrategy.ChildOrderPolicy.OrderSignificance(parentNode);
+			// Determine if child order is important, we shouldn't create reordering conflicts if the order of children is unimportant
+			var childOrderMatters = parentOrder == ChildOrder.Significant;
+			if(parentOrder == ChildOrder.AskChildren && parentNode.HasChildNodes)
+			{
+				var childStrategy = _merger.MergeStrategies.GetElementStrategy(parentNode.FirstChild);
+				if(childStrategy != null && childStrategy.OrderIsRelevant)
+				{
+					childOrderMatters = true;
+				}
+			}
 
 			ChildOrderer oursOrderer = new ChildOrderer(_childrenOfOurKeepers, _childrenOfTheirKeepers,
 				MakeCorrespondences(_childrenOfOurKeepers, _childrenOfTheirKeepers, _theirs), _merger, parentOrder);
@@ -74,7 +84,7 @@ namespace Chorus.merge.xml.generic
 
 				if (ancestorTheirsOrderer.OrderIsDifferent)
 				{
-					if (ancestorOursOrderer.OrderIsDifferent)
+					if (ancestorOursOrderer.OrderIsDifferent && childOrderMatters)
 					{
 						// stick with our orderer (we win), but report conflict.
 						// Route tested (XmlMergerTests).

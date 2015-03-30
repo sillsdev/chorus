@@ -132,7 +132,8 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				var parentFile = tempRepo.GetNewTempFile(true);
 				File.WriteAllText(parentFile.Path, "New Content");
 				var exception = Assert.Throws<ApplicationException>(() => hgRepo.AddAndCheckinFile(parentFile.Path));
-				Assert.That(exception.Message.Contains("Unable to recover") && !exception.Message.Contains("unresolved merge"), "Repository should have conflict in retrying the merge, but not have an incomplete merge");
+				Assert.That(exception.Message.Contains("Unable to recover") && !exception.Message.Contains("unresolved merge"),
+					String.Format("Repository should have conflict in retrying the merge, but not have an incomplete merge: {0}", exception.Message));
 			}
 		}
 	}
