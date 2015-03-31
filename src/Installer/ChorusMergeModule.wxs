@@ -20,8 +20,9 @@ http://blogs.msdn.com/robmen/archive/2003/10/04/56479.aspx -->
 			<Component Id="mercurial.ini" Guid="FA715224-9B87-44a4-B6D3-18EC40712266">
 				<!-- Non-admin users do not have access to files installed in Program Files so the mercurial.ini
 					needs to be primed so that init can be run on a repository with non-utf8 filenames. 
-					the allownumberbranches is just added so that the ini contains all the extensions which some
-					chorus code validates. -->
+					The allownumberbranches is added so that the ini contains all the extensions which some
+					chorus code validates. Using the Id of the generated file element as the value tells Wix to
+					use the installed path. -->
 				<File Id="mercurial.ini" Name="mercurial.ini" Source="..\..\mercurial\mercurial.ini" />
 				<IniFile Id="mercurial.ini_extension_fixutf8"
 				   Action="addLine"
@@ -29,14 +30,14 @@ http://blogs.msdn.com/robmen/archive/2003/10/04/56479.aspx -->
 				   Section="extensions"
 				   Name="mercurial.ini"
 				   Key="fixutf8"
-				   Value="[#fixutf8.py]" />
+				   Value="[#MercurialExtensions.fixutf8.fixutf8.py]" />
 				<IniFile Id="mercurial.ini_extension_allownumberbranch"
 				   Action="addLine"
 				   Directory="mercurial"
 				   Section="extensions"
 				   Name="mercurial.ini"
 				   Key="allownumberbranch"
-				   Value="[#allownumberbranch.py]" />
+				   Value="[#lExtensions.allownumberbranch.allownumberbranch.py]" />
 			</Component>
 			<!-- This will be filled in by the generated fragment GeneratedMercurialExtensions.wxs -->
 		</Directory>
