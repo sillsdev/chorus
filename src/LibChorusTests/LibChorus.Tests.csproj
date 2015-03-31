@@ -127,6 +127,9 @@
     <Compile Include="FileHandlers\ldml\LdmlFileHandlerTests.cs" />
     <Compile Include="FileHandlers\LiftRanges\LiftRangesFileHandlerTests.cs" />
     <Compile Include="FileHandlers\Lift\LiftSynchronizerAdjunctTests.cs" />
+    <Compile Include="FileHandlers\LexiconSettings\LexiconProjectSettingsFileHandlerTests.cs" />
+    <Compile Include="FileHandlers\LexiconSettings\LexiconProjectSettingsFileMergeTests.cs" />
+    <Compile Include="FileHandlers\LexiconSettings\LexiconProjectSettingsFileValidationTests.cs" />
     <Compile Include="MercurialPathHelp.cs" />
     <Compile Include="merge\xml\generic\ConflictTests.cs" />
     <Compile Include="merge\xml\ConflictXmlRecordRetrievalTests.cs" />

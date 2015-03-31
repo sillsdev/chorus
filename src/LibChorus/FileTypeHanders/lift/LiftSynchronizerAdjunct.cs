@@ -2,7 +2,6 @@
 using System.IO;
 using System.Text;
 using System.Xml;
-using Chorus.Properties;
 using Chorus.VcsDrivers.Mercurial;
 using Chorus.sync;
 using Palaso.Lift;
@@ -105,12 +104,12 @@ namespace Chorus.FileTypeHanders.lift
 		/// <param name="progress">Where we will write a warning if changes in other branches</param>
 		public void CheckRepositoryBranches(IEnumerable<Revision> branches, IProgress progress)
 		{
-			string savedSettings = Settings.Default.OtherBranchRevisions;
+			string savedSettings = Properties.Settings.Default.OtherBranchRevisions;
 			string conflictingUser = GetRepositoryBranchCheckData(branches, BranchName, ref savedSettings);
 			if (!string.IsNullOrEmpty(conflictingUser))
 				progress.WriteWarning(string.Format("Other users of this LIFT repository (most recently {0}) are using a different version of FieldWorks or WeSay. Changes from users with more recent versions will not be merged into projects using older versions. We strongly recommend that all users upgrade to the same version as soon as possible.", conflictingUser));
-			Settings.Default.OtherBranchRevisions = savedSettings;
-			Settings.Default.Save();
+			Properties.Settings.Default.OtherBranchRevisions = savedSettings;
+			Properties.Settings.Default.Save();
 		}
 
 
