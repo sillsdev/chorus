@@ -43,28 +43,105 @@ No special configuration is needed.
 # the time, and never explicitly converted to anything
 # else.
 #
-
-import sys, os, shutil
-
-from mercurial import demandimport
-
-demandimport.ignore.extend(["win32helper", "osutil"])
-
-try:
-	import win32helper
-	import osutil as pureosutil
-except ImportError:
-	sys.path.append(os.path.dirname(__file__))
-	import win32helper
-	import osutil as pureosutil
-
-stdout = sys.stdout
-
-from mercurial import windows, util, osutil, dispatch, extensions, i18n, scmutil
+import sys
+from mercurial import extensions, scmutil
 import mercurial.ui as _ui
 
+# The version of Mercurial first released with chorus allowed branches to
+# be named with just a number. We used branch names to handle non-simultaneous
+# upgrades to new model versions. Some chorus clients handled this by using
+# the model version as the branch name. Changing the branch name triggers our
+# model version upgrade logic. To avoid unnecessarily simulating an upgrade
+# we will wrap and disable the check which forbids creating number only branches
+# since Mercurial has to support them for backward compatibility in any case.
+# This number only branching needs to happen on all platforms so we execute it first.
+# The remainder of this plug-in is needed only on windows and is not executed on Linux.
+# We can't add an extension without breaking backward compatability so we have added the number branch here.
+def allownumberbranches_uisetup():
+	extensions.wrapfunction(scmutil, "checknewlabel", checklabelwrapper)
+
+def checklabelwrapper(orig, repo, lbl, kind):
+	try:
+		int(lbl)
+		pass #let number only branches through without complaint
+	except ValueError:
+		orig(repo, lbl, kind) #let Mercurial test all other branch names
+
+# extsetup is only required on windows
+def extsetup():
+	if sys.platform == 'win32':
+		winextsetup()
+
+# uisetup on linux needs only to enable number only branches
+def uisetup(ui):
+	allownumberbranches_uisetup()
+	# Handle the actual fixutf8 part of the extension if on windows
+	if sys.platform == 'win32':
+		winuisetup(ui)
+
+if sys.platform == 'win32':
+	import os, shutil
+
+	from mercurial import demandimport
+
+	demandimport.ignore.extend(["win32helper", "osutil"])
+
+	try:
+		import win32helper
+		import osutil as pureosutil
+	except ImportError:
+		sys.path.append(os.path.dirname(__file__))
+		import win32helper
+		import osutil as pureosutil
+
+	stdout = sys.stdout
+
+	from mercurial import windows, util, osutil, dispatch, extensions, i18n, scmutil
+	import mercurial.ui as _ui
+
+	def mapconvert(convert, canconvert, doc):
+		'''
+		mapconvert(convert, canconvert, doc) ->
+			(a -> a)
+
+		Returns a function that converts arbitrary arguments
+		using the specified conversion function.
+
+		convert is a function to do actual convertions.
+		canconvert returns true if the arg can be converted.
+		doc is the doc string to attach to created function.
+
+		The resulting function will return a converted list or
+		tuple if passed a list or tuple.
+		'''
+
+		def _convert(arg):
+			if canconvert(arg):
+				return convert(arg)
+			elif isinstance(arg, tuple):
+				return tuple(map(_convert, arg))
+			elif isinstance(arg, list):
+				return map(_convert, arg)
+			return arg
+
+		_convert.__doc__ = doc
+		return _convert
+
+	tounicode = mapconvert(
+		lambda s: s.decode('utf-8', 'ignore'),
+		lambda s: isinstance(s, str),
+		"Convert a UTF-8 byte string to Unicode")
+
+	fromunicode = mapconvert(
+		lambda s: s.encode('utf-8', 'ignore'),
+		lambda s: isinstance(s, unicode),
+		"Convert a Unicode string to a UTF-8 byte string")
+
+	win32helper.fromunicode = fromunicode
 
 def test():
+	if sys.platform != 'win32':
+		return
 	print win32helper.getargs()
 	print sys.argv
 
@@ -72,50 +149,6 @@ def test():
 			 '\xc4\x85', 't\xc4\x99\xc5\x9bt']
 	for s in uargs:
 		win32helper.rawprint(win32helper.hStdOut, s + "\n")
-
-
-def mapconvert(convert, canconvert, doc):
-	'''
-	mapconvert(convert, canconvert, doc) ->
-		(a -> a)
-
-	Returns a function that converts arbitrary arguments
-	using the specified conversion function.
-
-	convert is a function to do actual convertions.
-	canconvert returns true if the arg can be converted.
-	doc is the doc string to attach to created function.
-
-	The resulting function will return a converted list or
-	tuple if passed a list or tuple.
-
-	'''
-
-	def _convert(arg):
-		if canconvert(arg):
-			return convert(arg)
-		elif isinstance(arg, tuple):
-			return tuple(map(_convert, arg))
-		elif isinstance(arg, list):
-			return map(_convert, arg)
-		return arg
-
-	_convert.__doc__ = doc
-	return _convert
-
-
-tounicode = mapconvert(
-	lambda s: s.decode('utf-8', 'ignore'),
-	lambda s: isinstance(s, str),
-	"Convert a UTF-8 byte string to Unicode")
-
-fromunicode = mapconvert(
-	lambda s: s.encode('utf-8', 'ignore'),
-	lambda s: isinstance(s, unicode),
-	"Convert a Unicode string to a UTF-8 byte string")
-
-win32helper.fromunicode = fromunicode
-
 
 def utf8wrapper(orig, *args, **kargs):
 	try:
@@ -125,7 +158,7 @@ def utf8wrapper(orig, *args, **kargs):
 		raise
 
 
-def uisetup(ui):
+def winuisetup(ui):
 	if sys.platform != 'win32' or not win32helper.consolehascp():
 		return
 
@@ -155,11 +188,7 @@ def uisetup(ui):
 	extensions.wrapfunction(_ui.ui, "write", localize(win32helper.hStdOut))
 	extensions.wrapfunction(_ui.ui, "write_err", localize(win32helper.hStdErr))
 
-
-def extsetup():
-	if sys.platform != 'win32':
-		return
-
+def winextsetup():
 	oldlistdir = osutil.listdir
 
 	osutil.listdir = pureosutil.listdir # force pure listdir
@@ -233,7 +262,6 @@ def extsetup():
 		return win32helper.system(cmd)
 
 	extensions.wrapfunction(util, 'system', system_call)
-
 
 if __name__ == "__main__":
 	test()

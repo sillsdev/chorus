@@ -174,8 +174,8 @@ namespace Chorus.VcsDrivers.Mercurial
 			{
 				/*
 					fixutf8 makes it possible to have unicode characters in path names. Note that it is prone to break with new versions of mercurial.
-					it works with 1.5.1, and reportedly with 1.84, but the version I got did not work with 1.9.2.
-					When updating, notice that there are several forks available
+					We currently have one tweaked to work with all tested versions of Mercurial 3
+					When updating you will likely have to modify our version since people who need this use git now.
 					Note too that to make use of this in a cmd window, first set font to consolas (more characters)
 					and change the codepage to utf with "chcp 65001"
 				*/
@@ -188,15 +188,9 @@ namespace Chorus.VcsDrivers.Mercurial
 #endif
 				extensions.Add("hgext.graphlog", ""); //for more easily readable diagnostic logs
 				extensions.Add("convert", ""); //for catastrophic repair in case of repo corruption
-#if !MONO
 				string fixUtfFolder = FileLocator.GetDirectoryDistributedWithApplication(false, "MercurialExtensions", "fixutf8");
 				if(!string.IsNullOrEmpty(fixUtfFolder))
 					extensions.Add("fixutf8", Path.Combine(fixUtfFolder, "fixutf8.py"));
-#endif
-				// Add extension to allow creation of number only branches
-				var allownumberext = FileLocator.GetDirectoryDistributedWithApplication(false, "MercurialExtensions", "allownumberbranch");
-				if(!string.IsNullOrEmpty(allownumberext))
-					extensions.Add("allownumberbranch", Path.Combine(allownumberext, "allownumberbranch.py"));
 				return extensions;
 			}
 		}
