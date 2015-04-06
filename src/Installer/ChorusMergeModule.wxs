@@ -28,13 +28,6 @@ http://blogs.msdn.com/robmen/archive/2003/10/04/56479.aspx -->
 				   Name="mercurial.ini"
 				   Key="fixutf8"
 				   Value="[#MercurialExtensions.fixutf8.fixutf8.py]" />
-				<IniFile Id="mercurial.ini_extension_allownumberbranch"
-				   Action="addLine"
-				   Directory="mercurial"
-				   Section="extensions"
-				   Name="mercurial.ini"
-				   Key="allownumberbranch"
-				   Value="[#lExtensions.allownumberbranch.allownumberbranch.py]" />
 			</Component>
 			<!-- This will be filled in by the generated fragment GeneratedMercurial.wxs -->
 		</Directory>
