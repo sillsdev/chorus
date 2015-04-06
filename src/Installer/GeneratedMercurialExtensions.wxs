@@ -6,18 +6,8 @@
                 <File Id="MercurialExtensions.Dummy.txt" Name="Dummy.txt" KeyPath="yes" Source="..\..\MercurialExtensions\Dummy.txt" />
                 <RemoveFile Id="_58d7e7a3f88a462591ebae8a31c1fdc0" On="both" Name="*.*" />
             </Component>
-            <Directory Id="MercurialExtensions.allownumberbranch" Name="allownumberbranch">
-                <Component Id="lExtensions.allownumberbranch.allownumberbranch.py" Guid="683506C7-4607-489A-A9F6-215542560276">
-                    <File Id="lExtensions.allownumberbranch.allownumberbranch.py" Name="allownumberbranch.py" KeyPath="yes" Source="..\..\MercurialExtensions\allownumberbranch\allownumberbranch.py" />
-                    <RemoveFile Id="_0c26284356e6402fab54b78a39190139" On="both" Name="*.*" />
-                </Component>
-                <Component Id="Extensions.allownumberbranch.allownumberbranch.pyc" Guid="2D8D8D79-DFFE-4CFE-91C4-CA0EF843A2BF">
-                    <File Id="Extensions.allownumberbranch.allownumberbranch.pyc" Name="allownumberbranch.pyc" Source="..\..\MercurialExtensions\allownumberbranch\allownumberbranch.pyc" />
-                    <RemoveFile Id="_661151994827498b87b21fed511fac9d" On="both" Name="*.*" />
-                </Component>
-            </Directory>
             <Directory Id="MercurialExtensions.fixutf8" Name="fixutf8">
-                <Component Id="MercurialExtensions.fixutf8..gitignore" Guid="A1C9937A-8A76-4CB6-8F74-0EDC59F745BF">
+					<Component Id="MercurialExtensions.fixutf8..gitignore" Guid="A1C9937A-8A76-4CB6-8F74-0EDC59F745BF">
                     <File Id="MercurialExtensions.fixutf8..gitignore" Name=".gitignore" KeyPath="yes" Source="..\..\MercurialExtensions\fixutf8\.gitignore" />
                     <RemoveFile Id="_7c2e70a0b24c461abaf230aea1c01e08" On="both" Name="*.*" />
                 </Component>
@@ -81,8 +71,6 @@
         </DirectoryRef>
         <ComponentGroup Id="MercurialExtensions">
             <ComponentRef Id="MercurialExtensions.Dummy.txt" />
-            <ComponentRef Id="lExtensions.allownumberbranch.allownumberbranch.py" />
-            <ComponentRef Id="Extensions.allownumberbranch.allownumberbranch.pyc" />
             <ComponentRef Id="MercurialExtensions.fixutf8..gitignore" />
             <ComponentRef Id="MercurialExtensions.fixutf8..hgignore" />
             <ComponentRef Id="MercurialExtensions.fixutf8..hg_archival.txt" />
