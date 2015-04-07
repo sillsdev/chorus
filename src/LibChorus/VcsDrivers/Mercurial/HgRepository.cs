@@ -186,6 +186,7 @@ namespace Chorus.VcsDrivers.Mercurial
 #if !MONO
 				extensions.Add("eol", ""); //for converting line endings on windows machines
 #endif
+				extensions.Add("dotencode", ""); // handle filenames starting with . (built into Hg 3, here for backward compatibility)
 				extensions.Add("hgext.graphlog", ""); //for more easily readable diagnostic logs
 				extensions.Add("convert", ""); //for catastrophic repair in case of repo corruption
 				string fixUtfFolder = FileLocator.GetDirectoryDistributedWithApplication(false, "MercurialExtensions", "fixutf8");

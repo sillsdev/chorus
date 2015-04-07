@@ -23,6 +23,11 @@ namespace Chorus.Utilities
 		private string _standardError = "";
 		public const int kCancelled = 98;
 		public const int kTimedOut = 99;
+		/// <summary>
+		/// For backward compatibility we need to enable the dotencode extension even though it no longer exists in Mercurial 3.
+		/// We will swallow all warnings about having it enabled in the current version to avoid test failures and user alarm.
+		/// </summary>
+		private const string DotEncodeWarning = @"*** failed to import extension dotencode: No module named dotencode";
 
 		public string StandardError
 		{
@@ -98,8 +103,8 @@ namespace Chorus.Utilities
 			   var s = reader.ReadLine();
 			   if (s != null)
 			   {
-				   // Eat up any heartbeat lines from the stream
-				   if (s != Properties.Resources.MergeHeartbeat)
+				   // Eat up any heartbeat lines from the stream, also remove warnings about dotencode
+				   if (s != Properties.Resources.MergeHeartbeat && s != DotEncodeWarning)
 				   {
 					   result.AppendLine(s.Trim());
 				   }
