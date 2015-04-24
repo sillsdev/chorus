@@ -8,6 +8,7 @@ using System.Net.Mime;
 using System.Threading;
 using Chorus.Utilities;
 using Palaso.Progress;
+using Palaso.Reporting;
 
 namespace Chorus.VcsDrivers.Mercurial
 {
@@ -56,6 +57,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			process.StartInfo.EnvironmentVariables["HGENCODINGMODE"] = "strict";
 			process.StartInfo.RedirectStandardError = true;
 			process.StartInfo.RedirectStandardOutput = true;
+			process.StartInfo.RedirectStandardInput = true;
 			process.StartInfo.UseShellExecute = false;
 			process.StartInfo.CreateNoWindow = true;
 			process.StartInfo.WorkingDirectory = fromDirectory;
@@ -67,6 +69,10 @@ namespace Chorus.VcsDrivers.Mercurial
 			//The fixutf8 extension's job is to get hg to talk in this encoding
 			process.StartInfo.StandardOutputEncoding = System.Text.Encoding.UTF8;
 			process.StartInfo.StandardErrorEncoding = System.Text.Encoding.UTF8;
+			if(!String.IsNullOrEmpty(debug))
+			{
+				Logger.WriteEvent("Running hg command: hg --debug {0}", commandLine);
+			}
 			try
 			{
 				process.Start();
@@ -91,7 +97,7 @@ namespace Chorus.VcsDrivers.Mercurial
 					throw error;
 				}
 			}
-			var processReader = new ProcessOutputReader();
+			var processReader = new HgProcessOutputReader(fromDirectory);
 			if(secondsBeforeTimeOut > TimeoutSecondsOverrideForUnitTests)
 				secondsBeforeTimeOut = TimeoutSecondsOverrideForUnitTests;
 

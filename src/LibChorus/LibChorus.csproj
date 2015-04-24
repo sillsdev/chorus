@@ -319,7 +319,6 @@
 	<Compile Include="VcsDrivers\Mercurial\HgExceptions.cs" />
 	<Compile Include="VcsDrivers\Mercurial\HgHighLevel.cs" />
 	<Compile Include="sync\CommitCop.cs" />
-	<Compile Include="Utilities\ProcessOutputReader.cs" />
 	<Compile Include="Utilities\FailureSimulator.cs" />
 	<Compile Include="merge\IChangeReport.cs" />
 	<Compile Include="merge\MergeOrder.cs" />
@@ -381,6 +380,7 @@
 	<Compile Include="Properties\AssemblyInfo.cs" />
 	<Compile Include="VcsDrivers\Mercurial\Revision.cs" />
 	<Compile Include="VcsDrivers\Mercurial\HgRunner.cs" />
+    <Compile Include="Utilities\HgProcessOutputReader.cs" />
   </ItemGroup>
   <ItemGroup>
 	<BootstrapperPackage Include="Microsoft.Net.Framework.2.0">
