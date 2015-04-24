@@ -556,7 +556,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			}
 
 			ExecutionResult result = ExecuteErrorsOk(b.ToString(), _pathToRepository, secondsBeforeTimeout, _progress);
-			if (ProcessOutputReader.kCancelled == result.ExitCode)
+			if (HgProcessOutputReader.kCancelled == result.ExitCode)
 			{
 				_progress.WriteWarning("User Cancelled");
 				return result;
