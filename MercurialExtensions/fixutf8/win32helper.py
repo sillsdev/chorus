@@ -233,15 +233,25 @@ if sys.platform == "win32" and windll:
 	def rawprint(h, s):
 		InternalWriteFile(h, s)
 
-	def getargs():
+	def getUtf8NonConfigArgs():
 		'''
 		getargs() -> [args]
 
 		Returns an array of utf8 encoded arguments passed on the command line.
+		
+		Skips any --config and following arguments since this is used in a method where
+		those arguments are already removed
 		'''
 		c = INT(0)
 		pargv = CommandLineToArgv(GetCommandLine(), byref(c))
-		return [fromunicode(pargv[i]) for i in xrange(1, c.value)]
+		cleanArguments = []
+		iterator = iter(xrange(1, c.value))
+		for i in iterator:
+			if pargv[i] != "--config":
+				cleanArguments.append(fromunicode(pargv[i]))
+			else:
+				iterator.next()
+		return cleanArguments
 
 	def system_call(orig, cmd, environ={}, cwd=None, onerr=None, errprefix=None, out=None):
 		# Overridden to handle the call out to the system merge program, all other parameters
