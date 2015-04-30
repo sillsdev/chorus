@@ -239,7 +239,7 @@ if sys.platform == "win32" and windll:
 
 		Returns an array of utf8 encoded arguments passed on the command line.
 		
-		Skips any --config and following arguments since this is used in a method where
+		Skips any --config argument pairs since this is used in a method where
 		those arguments are already removed
 		'''
 		c = INT(0)
@@ -250,7 +250,7 @@ if sys.platform == "win32" and windll:
 			if pargv[i] != "--config":
 				cleanArguments.append(fromunicode(pargv[i]))
 			else:
-				iterator.next()
+				iterator.next() # skip appending the --config and whatever argument followed it
 		return cleanArguments
 
 	def system_call(orig, cmd, environ={}, cwd=None, onerr=None, errprefix=None, out=None):
