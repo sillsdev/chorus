@@ -140,18 +140,22 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		}
 
 		[Test]
-		public void CloneToUsbWithoutUpdate_CreatesExtensionSectionInHgrc()
+		public void CloneToUsbWithoutUpdateFollowedByIdentifierDoesNotAffectHgrc()
 		{
 			using(var repo = new RepositorySetup("source"))
 			using(var f = new TemporaryFolder("clonetest"))
 			{
 				// The MakeCloneFromLocalToLocal with false on alsoDoCheckout is the core of the usb clone operation.
-				// We need to make sure that the extensions are used in the clone
-				HgHighLevel.MakeCloneFromLocalToLocal(repo.ProjectFolder.Path, f.Path, false, new NullProgress());
+				// We need to make sure that this clone is bare of extensions, and remains so after the identifier is checked.
+				HgHighLevel.MakeCloneFromLocalToUsb(repo.ProjectFolder.Path, f.Path, new NullProgress());
+				var cloneRepo = new HgRepository(f.Path, new NullProgress());
 				var hgFolderPath = Path.Combine(f.Path, ".hg");
 				Assert.IsTrue(Directory.Exists(hgFolderPath));
 				var hgrcLines = File.ReadAllLines(Path.Combine(hgFolderPath, "hgrc"));
-				CollectionAssert.Contains(hgrcLines, "[extensions]", "no extensions in bare clone");
+				//SUT
+				CollectionAssert.DoesNotContain(hgrcLines, "[extensions]", "extensions section created in bare clone");
+				var id = cloneRepo.Identifier;
+				CollectionAssert.DoesNotContain(hgrcLines, "[extensions]", "extensions section created after Identifier property read");
 			}
 		}
 	}

@@ -6,9 +6,19 @@ namespace Chorus.VcsDrivers.Mercurial
 {
 	public class HgHighLevel
 	{
+		public static string MakeCloneFromUsbToLocal(string sourcePath, string targetDirectory, IProgress progress)
+		{
+			return MakeCloneFromLocalToLocal(sourcePath, targetDirectory, true, progress);
+		}
+
+		public static string MakeCloneFromLocalToUsb(string sourcePath, string targetDirectory, IProgress progress)
+		{
+			return MakeCloneFromLocalToLocal(sourcePath, targetDirectory, false, progress);
+		}
+
 		//TODO: get rid of this, or somehow combine it with the other Clone() options out there
 		/// <returns>path to clone, or empty if it failed</returns>
-		public static string MakeCloneFromLocalToLocal(string sourcePath, string targetDirectory, bool alsoDoCheckout, IProgress progress)
+		private static string MakeCloneFromLocalToLocal(string sourcePath, string targetDirectory, bool cloningFromUsb, IProgress progress)
 		{
 			RequireThat.Directory(sourcePath).Exists();
 			//Handled by GetUniqueFolderPath call now down in CloneLocal call. RequireThat.Directory(targetDirectory).DoesNotExist();
@@ -24,14 +34,11 @@ namespace Chorus.VcsDrivers.Mercurial
 
 			using (new ConsoleProgress("Trying to Create repository clone at {0}", targetDirectory))
 			{
-				targetDirectory = local.CloneLocalWithoutUpdate(targetDirectory);
+				targetDirectory = local.CloneLocalWithoutUpdate(targetDirectory, cloningFromUsb ? null : "--config format.dotencode=False");
 				File.WriteAllText(Path.Combine(targetDirectory, "~~Folder has an invisible repository.txt"), "In this folder, there is a (possibly hidden) folder named '.hg' that contains the actual data of this Chorus repository. Depending on your Operating System settings, that leading '.' might make the folder invisible to you. But Chorus clients (WeSay, FLEx, OneStory, etc.) can see it and can use this folder to perform Send/Receive operations.");
 
-				var cloneRepo = new HgRepository(targetDirectory, progress);
-				cloneRepo.CheckAndUpdateHgrc();
-				if (alsoDoCheckout)
+				if (cloningFromUsb)
 				{
-					// string userIdForCLone = string.Empty; /* don't assume it's this user... a repo on a usb key probably shouldn't have a user default */
 					var clone = new HgRepository(targetDirectory, progress);
 					clone.Update();
 				}

@@ -203,7 +203,7 @@ def winextsetup():
 	# only get the real command line args if we are passed a real ui object
 	def disp_parse(orig, ui, args):
 		if type(ui) == _ui.ui:
-			args = win32helper.getargs()[-len(args):]
+			args = win32helper.getUtf8NonConfigArgs()[-len(args):]
 		return orig(ui, args)
 
 	extensions.wrapfunction(dispatch, "_parse", disp_parse)

@@ -87,7 +87,7 @@ namespace LibChorus.TestUtilities
 			Console.WriteLine("TestRepository Cloned: {0}", RootFolder.Path);
 			string pathToProject = RootFolder.Combine(Path.GetFileName(cloneFromUser.ProjectFolder.Path));
 			//cloneFromUser.Synchronizer.MakeClone(pathToProject, true);
-			HgHighLevel.MakeCloneFromLocalToLocal(cloneFromUser.Repository.PathToRepo, pathToProject, true, Progress);
+			HgHighLevel.MakeCloneFromUsbToLocal(cloneFromUser.Repository.PathToRepo, pathToProject, Progress);
 
 			ProjectFolder = TemporaryFolder.TrackExisting(RootFolder.Combine("foo project"));
 			string pathToOurLiftFile = ProjectFolder.Combine(Path.GetFileName(cloneFromUser.UserFile.Path));

@@ -100,7 +100,7 @@ namespace LibChorus.Tests.sync
 			options.RepositorySourcesToTry.Add(synchronizer.UsbPath);
 			string usbDirectory = Path.Combine(UsbKeyRepositorySource.RootDirForUsbSourceDuringUnitTest, "foo project");
 			// synchronizer.MakeClone(usbDirectory, true);
-			HgHighLevel.MakeCloneFromLocalToLocal(synchronizer.Repository.PathToRepo, usbDirectory, true, _progress);
+			HgHighLevel.MakeCloneFromUsbToLocal(synchronizer.Repository.PathToRepo, usbDirectory, _progress);
 
 			string contents = File.ReadAllText(Path.Combine(usbDirectory, "foo.txt"));
 			Assert.AreEqual("version one", contents);
