@@ -1,467 +1,467 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <PropertyGroup>
-	<Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-	<Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-	<ProductVersion>9.0.21022</ProductVersion>
-	<SchemaVersion>2.0</SchemaVersion>
-	<ProjectGuid>{94245366-8F1E-475C-810D-FE89BB3948E0}</ProjectGuid>
-	<OutputType>Library</OutputType>
-	<AppDesignerFolder>Properties</AppDesignerFolder>
-	<RootNamespace>Chorus</RootNamespace>
-	<AssemblyName>LibChorus</AssemblyName>
-	<FileUpgradeFlags>
-	</FileUpgradeFlags>
-	<OldToolsVersion>3.5</OldToolsVersion>
-	<UpgradeBackupLocation>
-	</UpgradeBackupLocation>
-	<PublishUrl>publish\</PublishUrl>
-	<Install>true</Install>
-	<InstallFrom>Disk</InstallFrom>
-	<UpdateEnabled>false</UpdateEnabled>
-	<UpdateMode>Foreground</UpdateMode>
-	<UpdateInterval>7</UpdateInterval>
-	<UpdateIntervalUnits>Days</UpdateIntervalUnits>
-	<UpdatePeriodically>false</UpdatePeriodically>
-	<UpdateRequired>false</UpdateRequired>
-	<MapFileExtensions>true</MapFileExtensions>
-	<ApplicationRevision>0</ApplicationRevision>
-	<ApplicationVersion>1.0.0.%2a</ApplicationVersion>
-	<IsWebBootstrapper>false</IsWebBootstrapper>
-	<UseApplicationTrust>false</UseApplicationTrust>
-	<BootstrapperEnabled>true</BootstrapperEnabled>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.21022</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{94245366-8F1E-475C-810D-FE89BB3948E0}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Chorus</RootNamespace>
+    <AssemblyName>LibChorus</AssemblyName>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-	<DebugSymbols>True</DebugSymbols>
-	<DebugType>full</DebugType>
-	<Optimize>False</Optimize>
-	<OutputPath>..\..\output\Debug</OutputPath>
-	<DefineConstants>DEBUG;TRACE</DefineConstants>
-	<ErrorReport>prompt</ErrorReport>
-	<WarningLevel>4</WarningLevel>
-	<CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
-	<PlatformTarget>x86</PlatformTarget>
-	<DocumentationFile>..\..\output\Debug\LibChorus.XML</DocumentationFile>
-	<TargetFrameworkProfile>Client</TargetFrameworkProfile>
+    <DebugSymbols>True</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>False</Optimize>
+    <OutputPath>..\..\output\Debug</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
+    <PlatformTarget>x86</PlatformTarget>
+    <DocumentationFile>..\..\output\Debug\LibChorus.XML</DocumentationFile>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-	<DebugType>pdbonly</DebugType>
-	<Optimize>True</Optimize>
-	<OutputPath>..\..\output\Release</OutputPath>
-	<DefineConstants>TRACE</DefineConstants>
-	<ErrorReport>prompt</ErrorReport>
-	<WarningLevel>4</WarningLevel>
-	<DebugSymbols>True</DebugSymbols>
-	<CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
-	<PlatformTarget>x86</PlatformTarget>
-	<TargetFrameworkProfile>Client</TargetFrameworkProfile>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>True</Optimize>
+    <OutputPath>..\..\output\Release</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DebugSymbols>True</DebugSymbols>
+    <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
+    <PlatformTarget>x86</PlatformTarget>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'DebugMono|AnyCPU' ">
-	<DebugSymbols>True</DebugSymbols>
-	<OutputPath>..\..\output\DebugMono</OutputPath>
-	<DefineConstants>DEBUG;TRACE;MONO</DefineConstants>
-	<CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
-	<DocumentationFile>..\..\output\DebugMono\LibChorus.XML</DocumentationFile>
-	<DebugType>full</DebugType>
-	<PlatformTarget>AnyCPU</PlatformTarget>
-	<ErrorReport>prompt</ErrorReport>
-	<TargetFrameworkProfile>
-	</TargetFrameworkProfile>
-	<WarningLevel>4</WarningLevel>
-	<Optimize>False</Optimize>
+    <DebugSymbols>True</DebugSymbols>
+    <OutputPath>..\..\output\DebugMono</OutputPath>
+    <DefineConstants>DEBUG;TRACE;MONO</DefineConstants>
+    <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
+    <DocumentationFile>..\..\output\DebugMono\LibChorus.XML</DocumentationFile>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
+    <WarningLevel>4</WarningLevel>
+    <Optimize>False</Optimize>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'ReleaseMono|AnyCPU' ">
-	<DebugSymbols>True</DebugSymbols>
-	<OutputPath>..\..\output\ReleaseMono</OutputPath>
-	<DefineConstants>TRACE;MONO</DefineConstants>
-	<CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
-	<Optimize>True</Optimize>
-	<DebugType>pdbonly</DebugType>
-	<PlatformTarget>AnyCPU</PlatformTarget>
-	<ErrorReport>prompt</ErrorReport>
-	<WarningLevel>4</WarningLevel>
+    <DebugSymbols>True</DebugSymbols>
+    <OutputPath>..\..\output\ReleaseMono</OutputPath>
+    <DefineConstants>TRACE;MONO</DefineConstants>
+    <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
+    <Optimize>True</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup Condition="'$(Configuration)' == 'Debug'">
-	<Reference Include="L10NSharp">
-	  <SpecificVersion>False</SpecificVersion>
-	  <HintPath>..\..\lib\Debug\L10NSharp.dll</HintPath>
-	</Reference>
-	<Reference Include="SIL.Core">
-	  <SpecificVersion>False</SpecificVersion>
-	  <HintPath>..\..\lib\Debug\SIL.Core.dll</HintPath>
-	</Reference>
-	<Reference Include="Palaso.Lift">
-	  <SpecificVersion>False</SpecificVersion>
-	  <HintPath>..\..\lib\Debug\Palaso.Lift.dll</HintPath>
-	</Reference>
-	<Reference Include="icu.net">
-	  <SpecificVersion>False</SpecificVersion>
-	  <HintPath>..\..\lib\Debug\icu.net.dll</HintPath>
-	</Reference>
-	<None Include="..\..\lib\Debug\icudt54.dll">
-	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	</None>
-	<None Include="..\..\lib\Debug\icuin54.dll">
-	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	</None>
-	<None Include="..\..\lib\Debug\icuuc54.dll">
-	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	</None>
+    <Reference Include="L10NSharp">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\Debug\L10NSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="SIL.Core">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\Debug\SIL.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Palaso.Lift">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\Debug\Palaso.Lift.dll</HintPath>
+    </Reference>
+    <Reference Include="icu.net">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\Debug\icu.net.dll</HintPath>
+    </Reference>
+    <None Include="..\..\lib\Debug\icudt54.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\lib\Debug\icuin54.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\lib\Debug\icuuc54.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)' == 'Release'">
-	<Reference Include="L10NSharp">
-	  <SpecificVersion>False</SpecificVersion>
-	  <HintPath>..\..\lib\Release\L10NSharp.dll</HintPath>
-	</Reference>
-	<Reference Include="SIL.Core">
-	  <SpecificVersion>False</SpecificVersion>
-	  <HintPath>..\..\lib\Release\SIL.Core.dll</HintPath>
-	</Reference>
-	<Reference Include="Palaso.Lift">
-	  <SpecificVersion>False</SpecificVersion>
-	  <HintPath>..\..\lib\Release\Palaso.Lift.dll</HintPath>
-	</Reference>
-	<Reference Include="icu.net">
-	  <SpecificVersion>False</SpecificVersion>
-	  <HintPath>..\..\lib\Release\icu.net.dll</HintPath>
-	</Reference>
-	<None Include="..\..\lib\Release\icudt54.dll">
-	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	</None>
-	<None Include="..\..\lib\Release\icuin54.dll">
-	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	</None>
-	<None Include="..\..\lib\Release\icuuc54.dll">
-	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	</None>
+    <Reference Include="L10NSharp">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\Release\L10NSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="SIL.Core">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\Release\SIL.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Palaso.Lift">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\Release\Palaso.Lift.dll</HintPath>
+    </Reference>
+    <Reference Include="icu.net">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\Release\icu.net.dll</HintPath>
+    </Reference>
+    <None Include="..\..\lib\Release\icudt54.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\lib\Release\icuin54.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\lib\Release\icuuc54.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)' == 'DebugMono'">
-	<Reference Include="L10NSharp">
-	  <SpecificVersion>False</SpecificVersion>
-	  <HintPath>..\..\lib\DebugMono\L10NSharp.dll</HintPath>
-	</Reference>
-	<Reference Include="SIL.Core">
-	  <SpecificVersion>False</SpecificVersion>
-	  <HintPath>..\..\lib\DebugMono\SIL.Core.dll</HintPath>
-	</Reference>
-	<Reference Include="Palaso.Lift">
-	  <SpecificVersion>False</SpecificVersion>
-	  <HintPath>..\..\lib\DebugMono\Palaso.Lift.dll</HintPath>
-	</Reference>
-	<Reference Include="NDesk.DBus">
-	  <SpecificVersion>False</SpecificVersion>
-	  <HintPath>..\..\lib\DebugMono\NDesk.DBus.dll</HintPath>
-	</Reference>
-	<None Include="..\..\lib\DebugMono\NDesk.DBus.dll.config">
-	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	</None>
-	<Reference Include="icu.net">
-	  <SpecificVersion>False</SpecificVersion>
-	  <HintPath>..\..\lib\DebugMono\icu.net.dll</HintPath>
-	</Reference>
-	<None Include="..\..\lib\DebugMono\icu.net.dll.config">
-	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	</None>
+    <Reference Include="L10NSharp">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\DebugMono\L10NSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="SIL.Core">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\DebugMono\SIL.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Palaso.Lift">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\DebugMono\Palaso.Lift.dll</HintPath>
+    </Reference>
+    <Reference Include="NDesk.DBus">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\DebugMono\NDesk.DBus.dll</HintPath>
+    </Reference>
+    <None Include="..\..\lib\DebugMono\NDesk.DBus.dll.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <Reference Include="icu.net">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\DebugMono\icu.net.dll</HintPath>
+    </Reference>
+    <None Include="..\..\lib\DebugMono\icu.net.dll.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)' == 'ReleaseMono'">
-	<Reference Include="L10NSharp">
-	  <SpecificVersion>False</SpecificVersion>
-	  <HintPath>..\..\lib\ReleaseMono\L10NSharp.dll</HintPath>
-	</Reference>
-	<Reference Include="SIL.Core">
-	  <SpecificVersion>False</SpecificVersion>
-	  <HintPath>..\..\lib\ReleaseMono\SIL.Core.dll</HintPath>
-	</Reference>
-	<Reference Include="Palaso.Lift">
-	  <SpecificVersion>False</SpecificVersion>
-	  <HintPath>..\..\lib\ReleaseMono\Palaso.Lift.dll</HintPath>
-	</Reference>
-	<Reference Include="NDesk.DBus">
-	  <SpecificVersion>False</SpecificVersion>
-	  <HintPath>..\..\lib\ReleaseMono\NDesk.DBus.dll</HintPath>
-	</Reference>
-	<None Include="..\..\lib\ReleaseMono\NDesk.DBus.dll.config">
-	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	</None>
-	<Reference Include="icu.net">
-	  <SpecificVersion>False</SpecificVersion>
-	  <HintPath>..\..\lib\ReleaseMono\icu.net.dll</HintPath>
-	</Reference>
-	<None Include="..\..\lib\ReleaseMono\icu.net.dll.config">
-	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	</None>
+    <Reference Include="L10NSharp">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\ReleaseMono\L10NSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="SIL.Core">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\ReleaseMono\SIL.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Palaso.Lift">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\ReleaseMono\Palaso.Lift.dll</HintPath>
+    </Reference>
+    <Reference Include="NDesk.DBus">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\ReleaseMono\NDesk.DBus.dll</HintPath>
+    </Reference>
+    <None Include="..\..\lib\ReleaseMono\NDesk.DBus.dll.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <Reference Include="icu.net">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\ReleaseMono\icu.net.dll</HintPath>
+    </Reference>
+    <None Include="..\..\lib\ReleaseMono\icu.net.dll.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
-	<Reference Include="Autofac">
-	  <HintPath>..\..\lib\common\Autofac.dll</HintPath>
-	</Reference>
-	<Reference Include="System" />
-	<Reference Include="System.Core" />
-	<Reference Include="System.Drawing" />
-	<Reference Include="System.ServiceModel" />
-	<Reference Include="System.Xml" />
-	<Reference Include="System.Xml.Linq" />
+    <Reference Include="Autofac">
+      <HintPath>..\..\lib\common\Autofac.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
-	<Compile Include="ChorusHub\ChorusHubOptions.cs" />
-	<Compile Include="ChorusHub\ChorusHubServerInfo.cs" />
-	<Compile Include="ChorusHub\IChorusHubService.cs" />
-	<Compile Include="ChorusHub\ImitationHubJSONService.cs" />
-	<Compile Include="FileTypeHanders\ChorusNotesAnnotationMergingStrategy.cs" />
-	<Compile Include="FileTypeHanders\ldml\LdmlContextGenerators.cs" />
-	<Compile Include="FileTypeHanders\ldml\LdmlFileHandler.cs" />
-	<Compile Include="FileTypeHanders\ldml\LdmlElementToMergeStrategyKeyMapper.cs" />
-	<Compile Include="FileTypeHanders\Lift-Ranges\LiftRangesMergingStrategy.cs" />
-	<Compile Include="FileTypeHanders\lift\LiftHeaderContextGenerator.cs" />
-	<Compile Include="FileTypeHanders\Lift-Ranges\LiftRangeContextGenerator.cs" />
-	<Compile Include="FileTypeHanders\lift\LiftSynchronizerAdjunct.cs" />
-	<Compile Include="FileTypeHanders\LexiconSettings\LexiconProjectSettingsContextGenerators.cs" />
-	<Compile Include="FileTypeHanders\LexiconSettings\LexiconProjectSettingsFileHandler.cs" />
-	<Compile Include="merge\xml\generic\FormMatchingFinder.cs" />
-	<Compile Include="FileTypeHanders\lift\LiftBasicElementStrategiesMethod.cs" />
-	<Compile Include="FileTypeHanders\Lift-Ranges\LiftRangesElementStrategiesMethod.cs" />
-	<Compile Include="FileTypeHanders\Lift-Ranges\LiftRangesFileTypeHandler.cs" />
-	<Compile Include="FileTypeHanders\Lift-Ranges\LiftRangesElementToMergeStrategyKeyMapper.cs" />
-	<Compile Include="FileTypeHanders\lift\LiftElementStrategiesMethod.cs" />
-	<Compile Include="FileTypeHanders\lift\LiftFolder.cs" />
-	<Compile Include="FileTypeHanders\lift\LiftElementToMergeStrategyKeyMapper.cs" />
-	<Compile Include="merge\xml\generic\ImmutableElementMergeService.cs" />
-	<Compile Include="merge\xml\generic\MergeLimitedChildrenService.cs" />
-	<Compile Include="merge\xml\generic\OptionalKeyAttrFinder.cs" />
-	<Compile Include="FileTypeHanders\Xml2WayDiffer.cs" />
-	<Compile Include="FileTypeHanders\Xml2WayDiffService.cs" />
-	<Compile Include="FileTypeHanders\xml\BothChangedAtomicElementReport.cs" />
-	<Compile Include="FileTypeHanders\xml\XmlAttributeChange.cs" />
-	<Compile Include="FileTypeHanders\xml\XmlBothAddedSameChangeReport.cs" />
-	<Compile Include="FileTypeHanders\xml\XmlTextChange.cs" />
-	<Compile Include="merge\xml\generic\DefaultElementToMergeStrategyKeyMapper.cs" />
-	<Compile Include="merge\xml\generic\IElementToMergeStrategyKeyMapper.cs" />
-	<Compile Include="merge\xml\generic\MergeAtomicElementService.cs" />
-	<Compile Include="merge\xml\generic\MergeTextNodesMethod.cs" />
-	<Compile Include="merge\xml\generic\MergeXmlAttributesService.cs" />
-	<Compile Include="merge\xml\generic\SimpleHtmlGenerator.cs" />
-	<Compile Include="merge\xml\generic\XmlMergeService.cs" />
-	<Compile Include="notes\IAnnotationRepository.cs" />
-	<Compile Include="notes\MultiSourceAnnotationRepository.cs" />
-	<Compile Include="Properties\Resources.Designer.cs">
-	  <AutoGen>True</AutoGen>
-	  <DesignTime>True</DesignTime>
-	  <DependentUpon>Resources.resx</DependentUpon>
-	</Compile>
-	<Compile Include="Properties\Settings.Designer.cs">
-	  <AutoGen>True</AutoGen>
-	  <DesignTimeSharedInput>True</DesignTimeSharedInput>
-	  <DependentUpon>Settings.settings</DependentUpon>
-	</Compile>
-	<Compile Include="sync\DefaultSychronizerAdjunct.cs" />
-	<Compile Include="sync\ISychronizerAdjunct.cs" />
-	<Compile Include="sync\LargeFileFilter.cs" />
-	<Compile Include="Utilities\code\LinuxUtils.cs" />
-	<Compile Include="Utilities\Help\HelpUtils.cs" />
-	<Compile Include="Utilities\MakeRecordDictionary.cs" />
-	<Compile Include="FileTypeHanders\NotePresenter.cs" />
-	<Compile Include="IWritingSystem.cs" />
-	<Compile Include="MercurialLocation.cs" />
-	<Compile Include="notes\IndexOfAllAnnotationsByKey.cs" />
-	<Compile Include="notes\AnnotationIndex.cs" />
-	<Compile Include="notes\IAnnotationRepositoryObserver.cs" />
-	<Compile Include="notes\IEmbeddedMessageContentHandler.cs" />
-	<Compile Include="notes\IndexOfAllOpenConflicts.cs" />
-	<Compile Include="notes\Message.cs" />
-	<Compile Include="FileTypeHanders\audio\AudioChangePresenter.cs" />
-	<Compile Include="FileTypeHanders\ChorusNotesFileHandler.cs" />
-	<Compile Include="FileTypeHanders\audio\AudioFileTypeHandler.cs" />
-	<Compile Include="FileTypeHanders\ConflictPresenter.cs" />
-	<Compile Include="FileTypeHanders\image\ImageChangePresenter.cs" />
-	<Compile Include="FileTypeHanders\image\ImageFileTypeHandler.cs" />
-	<Compile Include="FileTypeHanders\lift\WeSayConfigFileHandler.cs" />
-	<Compile Include="FileTypeHanders\OurWord\OurWordFileHandler.cs" />
-	<Compile Include="FileTypeHanders\test\ChorusTestFileHandler.cs" />
-	<Compile Include="FileTypeHanders\text\TextEditChangePresenter.cs" />
-	<Compile Include="FileTypeHanders\text\TextEditChangeReport.cs" />
-	<Compile Include="FileTypeHanders\text\TextFileTypeHandler.cs" />
-	<Compile Include="FileTypeHanders\DefaultFileTypeHandler.cs" />
-	<Compile Include="FileTypeHanders\IChangePresenter.cs" />
-	<Compile Include="FileTypeHanders\IChorusFileTypeHandler.cs" />
-	<Compile Include="FileTypeHanders\xml\ErrorDeterminingChangeReport.cs" />
-	<Compile Include="merge\ChangeAndConflictAccumulator.cs" />
-	<Compile Include="FileTypeHanders\lift\LexEntryContextGenerator.cs" />
-	<Compile Include="FileTypeHanders\lift\LiftChangePresenter.cs" />
-	<Compile Include="FileTypeHanders\lift\LiftFileHandler.cs" />
-	<Compile Include="FileTypeHanders\lift\LiftUtils.cs" />
-	<Compile Include="FileTypeHanders\xml\IXmlChangeReport.cs" />
-	<Compile Include="FileTypeHanders\xml\XmlAdditionChangeReport.cs" />
-	<Compile Include="FileTypeHanders\xml\XmlChangedRecordReport.cs" />
-	<Compile Include="FileTypeHanders\xml\XmlDeletionChangeReport.cs" />
-	<Compile Include="merge\UnmergableFileTypeConflict.cs" />
-	<Compile Include="merge\xml\generic\HumanLogMergeEventListener.cs" />
-	<Compile Include="merge\xml\generic\ChorusNotesMergeEventListener.cs" />
-	<Compile Include="notes\Annotation.cs" />
-	<Compile Include="notes\AnnotationClassFactory.cs" />
-	<Compile Include="ChorusUser.cs" />
-	<Compile Include="notes\AnnotationRepository.cs" />
-	<Compile Include="Properties\AnnotationImages.Designer.cs">
-	  <AutoGen>True</AutoGen>
-	  <DesignTime>True</DesignTime>
-	  <DependentUpon>AnnotationImages.resx</DependentUpon>
-	</Compile>
-	<Compile Include="notes\AnnotationClass.cs" />
-	<Compile Include="Utilities\code\DelegateDefinitions.cs" />
-	<Compile Include="Utilities\MultiMap.cs" />
-	<Compile Include="Utilities\UrlHelper.cs" />
-	<Compile Include="Utilities\XmlElementExtensions.cs" />
-	<Compile Include="VcsDrivers\RepositoryInformation.cs" />
-	<Compile Include="VcsDrivers\Mercurial\BundleStorageManager.cs" />
-	<Compile Include="VcsDrivers\Mercurial\HgExceptions.cs" />
-	<Compile Include="VcsDrivers\Mercurial\HgHighLevel.cs" />
-	<Compile Include="sync\CommitCop.cs" />
-	<Compile Include="Utilities\ProcessOutputReader.cs" />
-	<Compile Include="Utilities\FailureSimulator.cs" />
-	<Compile Include="merge\IChangeReport.cs" />
-	<Compile Include="merge\MergeOrder.cs" />
-	<Compile Include="merge\xml\generic\DropTheirsMergeStrategy.cs" />
-	<Compile Include="merge\IConflict.cs" />
-	<Compile Include="merge\xml\generic\MergeChildrenMethod.cs" />
-	<Compile Include="merge\MergeSituation.cs" />
-	<Compile Include="merge\xml\generic\MergeSort.cs" />
-	<Compile Include="merge\xml\generic\PoorMansMergeStrategy.cs" />
-	<Compile Include="Utilities\XmlValidation.cs" />
-	<Compile Include="VcsDrivers\IRetrieveFileVersionsFromRepository.cs" />
-	<Compile Include="retrieval\RevisionInspector.cs" />
-	<Compile Include="sync\ProjectFolderConfiguration.cs" />
-	<Compile Include="sync\Synchronizer.cs" />
-	<Compile Include="VcsDrivers\Mercurial\HgNormalTransport.cs" />
-	<Compile Include="VcsDrivers\Mercurial\HgModelVersionBranch.cs" />
-	<Compile Include="VcsDrivers\Mercurial\HgResumeRestApiServer.cs" />
-	<Compile Include="VcsDrivers\Mercurial\HgResumeTransport.cs" />
-	<Compile Include="VcsDrivers\Mercurial\IApiServer.cs" />
-	<Compile Include="VcsDrivers\Mercurial\IHgTransport.cs" />
-	<Compile Include="VcsDrivers\Mercurial\PullStorageManager.cs" />
-	<Compile Include="VcsDrivers\Mercurial\PushStorageManager.cs" />
-	<Compile Include="VcsDrivers\RepositoryAddress.cs" />
-	<Compile Include="sync\SyncOptions.cs" />
-	<Compile Include="Utilities\ExecutionResult.cs" />
-	<Compile Include="Utilities\HtmlDiffEngine.cs" />
-	<Compile Include="Utilities\ini\IniDocument.cs" />
-	<Compile Include="Utilities\ini\IniException.cs" />
-	<Compile Include="Utilities\ini\IniItem.cs" />
-	<Compile Include="Utilities\ini\IniReader.cs" />
-	<Compile Include="Utilities\ini\IniSection.cs" />
-	<Compile Include="Utilities\ini\IniSectionCollection.cs" />
-	<Compile Include="Utilities\ini\IniWriter.cs" />
-	<Compile Include="Utilities\ini\OrderedList.cs" />
-	<Compile Include="Utilities\ini\OrderedListEnumerator.cs" />
-	<Compile Include="Utilities\ExecutionEnvironment.cs" />
-	<Compile Include="Utilities\ProcessStream.cs" />
-	<Compile Include="Utilities\ShortTermEnvironmentalVariable.cs" />
-	<Compile Include="VcsDrivers\Git\GitRepository.cs" />
-	<Compile Include="VcsDrivers\Mercurial\FileInRevision.cs" />
-	<Compile Include="VcsDrivers\Mercurial\HgMissingSimulation .cs" />
-	<Compile Include="VcsDrivers\Mercurial\HgRepository.cs" />
-	<Compile Include="merge\text\PartialTextMerger.cs" />
-	<Compile Include="merge\xml\generic\Conflict.cs" />
-	<Compile Include="merge\xml\generic\MergeLogging.cs" />
-	<Compile Include="merge\xml\generic\ElementStrategy.cs" />
-	<Compile Include="merge\xml\generic\FindNodeToMerge.cs" />
-	<Compile Include="merge\xml\generic\IMergeStrategy.cs" />
-	<Compile Include="FileTypeHanders\lift\LiftEntryMergingStrategy.cs" />
-	<Compile Include="merge\xml\generic\XmlUtilities.cs" />
-	<Compile Include="merge\xml\generic\xmldiff\DiffConfiguration.cs" />
-	<Compile Include="merge\xml\generic\xmldiff\Difference.cs" />
-	<Compile Include="merge\xml\generic\xmldiff\Differences.cs" />
-	<Compile Include="merge\xml\generic\xmldiff\DifferenceType.cs" />
-	<Compile Include="merge\xml\generic\xmldiff\DiffResult.cs" />
-	<Compile Include="merge\xml\generic\xmldiff\XmlDiff.cs" />
-	<Compile Include="merge\xml\generic\xmldiff\XmlInput.cs" />
-	<Compile Include="merge\xml\generic\XmlMerger.cs" />
-	<Compile Include="Properties\AssemblyInfo.cs" />
-	<Compile Include="VcsDrivers\Mercurial\Revision.cs" />
-	<Compile Include="VcsDrivers\Mercurial\HgRunner.cs" />
+    <Compile Include="ChorusHub\ChorusHubOptions.cs" />
+    <Compile Include="ChorusHub\ChorusHubServerInfo.cs" />
+    <Compile Include="ChorusHub\IChorusHubService.cs" />
+    <Compile Include="ChorusHub\ImitationHubJSONService.cs" />
+    <Compile Include="FileTypeHanders\ChorusNotesAnnotationMergingStrategy.cs" />
+    <Compile Include="FileTypeHanders\ldml\LdmlContextGenerators.cs" />
+    <Compile Include="FileTypeHanders\ldml\LdmlFileHandler.cs" />
+    <Compile Include="FileTypeHanders\ldml\LdmlElementToMergeStrategyKeyMapper.cs" />
+    <Compile Include="FileTypeHanders\Lift-Ranges\LiftRangesMergingStrategy.cs" />
+    <Compile Include="FileTypeHanders\lift\LiftHeaderContextGenerator.cs" />
+    <Compile Include="FileTypeHanders\Lift-Ranges\LiftRangeContextGenerator.cs" />
+    <Compile Include="FileTypeHanders\lift\LiftSynchronizerAdjunct.cs" />
+    <Compile Include="FileTypeHanders\LexiconSettings\ProjectLexiconSettingsContextGenerators.cs" />
+    <Compile Include="FileTypeHanders\LexiconSettings\ProjectLexiconSettingsFileHandler.cs" />
+    <Compile Include="merge\xml\generic\FormMatchingFinder.cs" />
+    <Compile Include="FileTypeHanders\lift\LiftBasicElementStrategiesMethod.cs" />
+    <Compile Include="FileTypeHanders\Lift-Ranges\LiftRangesElementStrategiesMethod.cs" />
+    <Compile Include="FileTypeHanders\Lift-Ranges\LiftRangesFileTypeHandler.cs" />
+    <Compile Include="FileTypeHanders\Lift-Ranges\LiftRangesElementToMergeStrategyKeyMapper.cs" />
+    <Compile Include="FileTypeHanders\lift\LiftElementStrategiesMethod.cs" />
+    <Compile Include="FileTypeHanders\lift\LiftFolder.cs" />
+    <Compile Include="FileTypeHanders\lift\LiftElementToMergeStrategyKeyMapper.cs" />
+    <Compile Include="merge\xml\generic\ImmutableElementMergeService.cs" />
+    <Compile Include="merge\xml\generic\MergeLimitedChildrenService.cs" />
+    <Compile Include="merge\xml\generic\OptionalKeyAttrFinder.cs" />
+    <Compile Include="FileTypeHanders\Xml2WayDiffer.cs" />
+    <Compile Include="FileTypeHanders\Xml2WayDiffService.cs" />
+    <Compile Include="FileTypeHanders\xml\BothChangedAtomicElementReport.cs" />
+    <Compile Include="FileTypeHanders\xml\XmlAttributeChange.cs" />
+    <Compile Include="FileTypeHanders\xml\XmlBothAddedSameChangeReport.cs" />
+    <Compile Include="FileTypeHanders\xml\XmlTextChange.cs" />
+    <Compile Include="merge\xml\generic\DefaultElementToMergeStrategyKeyMapper.cs" />
+    <Compile Include="merge\xml\generic\IElementToMergeStrategyKeyMapper.cs" />
+    <Compile Include="merge\xml\generic\MergeAtomicElementService.cs" />
+    <Compile Include="merge\xml\generic\MergeTextNodesMethod.cs" />
+    <Compile Include="merge\xml\generic\MergeXmlAttributesService.cs" />
+    <Compile Include="merge\xml\generic\SimpleHtmlGenerator.cs" />
+    <Compile Include="merge\xml\generic\XmlMergeService.cs" />
+    <Compile Include="notes\IAnnotationRepository.cs" />
+    <Compile Include="notes\MultiSourceAnnotationRepository.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+    <Compile Include="sync\DefaultSychronizerAdjunct.cs" />
+    <Compile Include="sync\ISychronizerAdjunct.cs" />
+    <Compile Include="sync\LargeFileFilter.cs" />
+    <Compile Include="Utilities\code\LinuxUtils.cs" />
+    <Compile Include="Utilities\Help\HelpUtils.cs" />
+    <Compile Include="Utilities\MakeRecordDictionary.cs" />
+    <Compile Include="FileTypeHanders\NotePresenter.cs" />
+    <Compile Include="IWritingSystem.cs" />
+    <Compile Include="MercurialLocation.cs" />
+    <Compile Include="notes\IndexOfAllAnnotationsByKey.cs" />
+    <Compile Include="notes\AnnotationIndex.cs" />
+    <Compile Include="notes\IAnnotationRepositoryObserver.cs" />
+    <Compile Include="notes\IEmbeddedMessageContentHandler.cs" />
+    <Compile Include="notes\IndexOfAllOpenConflicts.cs" />
+    <Compile Include="notes\Message.cs" />
+    <Compile Include="FileTypeHanders\audio\AudioChangePresenter.cs" />
+    <Compile Include="FileTypeHanders\ChorusNotesFileHandler.cs" />
+    <Compile Include="FileTypeHanders\audio\AudioFileTypeHandler.cs" />
+    <Compile Include="FileTypeHanders\ConflictPresenter.cs" />
+    <Compile Include="FileTypeHanders\image\ImageChangePresenter.cs" />
+    <Compile Include="FileTypeHanders\image\ImageFileTypeHandler.cs" />
+    <Compile Include="FileTypeHanders\lift\WeSayConfigFileHandler.cs" />
+    <Compile Include="FileTypeHanders\OurWord\OurWordFileHandler.cs" />
+    <Compile Include="FileTypeHanders\test\ChorusTestFileHandler.cs" />
+    <Compile Include="FileTypeHanders\text\TextEditChangePresenter.cs" />
+    <Compile Include="FileTypeHanders\text\TextEditChangeReport.cs" />
+    <Compile Include="FileTypeHanders\text\TextFileTypeHandler.cs" />
+    <Compile Include="FileTypeHanders\DefaultFileTypeHandler.cs" />
+    <Compile Include="FileTypeHanders\IChangePresenter.cs" />
+    <Compile Include="FileTypeHanders\IChorusFileTypeHandler.cs" />
+    <Compile Include="FileTypeHanders\xml\ErrorDeterminingChangeReport.cs" />
+    <Compile Include="merge\ChangeAndConflictAccumulator.cs" />
+    <Compile Include="FileTypeHanders\lift\LexEntryContextGenerator.cs" />
+    <Compile Include="FileTypeHanders\lift\LiftChangePresenter.cs" />
+    <Compile Include="FileTypeHanders\lift\LiftFileHandler.cs" />
+    <Compile Include="FileTypeHanders\lift\LiftUtils.cs" />
+    <Compile Include="FileTypeHanders\xml\IXmlChangeReport.cs" />
+    <Compile Include="FileTypeHanders\xml\XmlAdditionChangeReport.cs" />
+    <Compile Include="FileTypeHanders\xml\XmlChangedRecordReport.cs" />
+    <Compile Include="FileTypeHanders\xml\XmlDeletionChangeReport.cs" />
+    <Compile Include="merge\UnmergableFileTypeConflict.cs" />
+    <Compile Include="merge\xml\generic\HumanLogMergeEventListener.cs" />
+    <Compile Include="merge\xml\generic\ChorusNotesMergeEventListener.cs" />
+    <Compile Include="notes\Annotation.cs" />
+    <Compile Include="notes\AnnotationClassFactory.cs" />
+    <Compile Include="ChorusUser.cs" />
+    <Compile Include="notes\AnnotationRepository.cs" />
+    <Compile Include="Properties\AnnotationImages.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>AnnotationImages.resx</DependentUpon>
+    </Compile>
+    <Compile Include="notes\AnnotationClass.cs" />
+    <Compile Include="Utilities\code\DelegateDefinitions.cs" />
+    <Compile Include="Utilities\MultiMap.cs" />
+    <Compile Include="Utilities\UrlHelper.cs" />
+    <Compile Include="Utilities\XmlElementExtensions.cs" />
+    <Compile Include="VcsDrivers\RepositoryInformation.cs" />
+    <Compile Include="VcsDrivers\Mercurial\BundleStorageManager.cs" />
+    <Compile Include="VcsDrivers\Mercurial\HgExceptions.cs" />
+    <Compile Include="VcsDrivers\Mercurial\HgHighLevel.cs" />
+    <Compile Include="sync\CommitCop.cs" />
+    <Compile Include="Utilities\ProcessOutputReader.cs" />
+    <Compile Include="Utilities\FailureSimulator.cs" />
+    <Compile Include="merge\IChangeReport.cs" />
+    <Compile Include="merge\MergeOrder.cs" />
+    <Compile Include="merge\xml\generic\DropTheirsMergeStrategy.cs" />
+    <Compile Include="merge\IConflict.cs" />
+    <Compile Include="merge\xml\generic\MergeChildrenMethod.cs" />
+    <Compile Include="merge\MergeSituation.cs" />
+    <Compile Include="merge\xml\generic\MergeSort.cs" />
+    <Compile Include="merge\xml\generic\PoorMansMergeStrategy.cs" />
+    <Compile Include="Utilities\XmlValidation.cs" />
+    <Compile Include="VcsDrivers\IRetrieveFileVersionsFromRepository.cs" />
+    <Compile Include="retrieval\RevisionInspector.cs" />
+    <Compile Include="sync\ProjectFolderConfiguration.cs" />
+    <Compile Include="sync\Synchronizer.cs" />
+    <Compile Include="VcsDrivers\Mercurial\HgNormalTransport.cs" />
+    <Compile Include="VcsDrivers\Mercurial\HgModelVersionBranch.cs" />
+    <Compile Include="VcsDrivers\Mercurial\HgResumeRestApiServer.cs" />
+    <Compile Include="VcsDrivers\Mercurial\HgResumeTransport.cs" />
+    <Compile Include="VcsDrivers\Mercurial\IApiServer.cs" />
+    <Compile Include="VcsDrivers\Mercurial\IHgTransport.cs" />
+    <Compile Include="VcsDrivers\Mercurial\PullStorageManager.cs" />
+    <Compile Include="VcsDrivers\Mercurial\PushStorageManager.cs" />
+    <Compile Include="VcsDrivers\RepositoryAddress.cs" />
+    <Compile Include="sync\SyncOptions.cs" />
+    <Compile Include="Utilities\ExecutionResult.cs" />
+    <Compile Include="Utilities\HtmlDiffEngine.cs" />
+    <Compile Include="Utilities\ini\IniDocument.cs" />
+    <Compile Include="Utilities\ini\IniException.cs" />
+    <Compile Include="Utilities\ini\IniItem.cs" />
+    <Compile Include="Utilities\ini\IniReader.cs" />
+    <Compile Include="Utilities\ini\IniSection.cs" />
+    <Compile Include="Utilities\ini\IniSectionCollection.cs" />
+    <Compile Include="Utilities\ini\IniWriter.cs" />
+    <Compile Include="Utilities\ini\OrderedList.cs" />
+    <Compile Include="Utilities\ini\OrderedListEnumerator.cs" />
+    <Compile Include="Utilities\ExecutionEnvironment.cs" />
+    <Compile Include="Utilities\ProcessStream.cs" />
+    <Compile Include="Utilities\ShortTermEnvironmentalVariable.cs" />
+    <Compile Include="VcsDrivers\Git\GitRepository.cs" />
+    <Compile Include="VcsDrivers\Mercurial\FileInRevision.cs" />
+    <Compile Include="VcsDrivers\Mercurial\HgMissingSimulation .cs" />
+    <Compile Include="VcsDrivers\Mercurial\HgRepository.cs" />
+    <Compile Include="merge\text\PartialTextMerger.cs" />
+    <Compile Include="merge\xml\generic\Conflict.cs" />
+    <Compile Include="merge\xml\generic\MergeLogging.cs" />
+    <Compile Include="merge\xml\generic\ElementStrategy.cs" />
+    <Compile Include="merge\xml\generic\FindNodeToMerge.cs" />
+    <Compile Include="merge\xml\generic\IMergeStrategy.cs" />
+    <Compile Include="FileTypeHanders\lift\LiftEntryMergingStrategy.cs" />
+    <Compile Include="merge\xml\generic\XmlUtilities.cs" />
+    <Compile Include="merge\xml\generic\xmldiff\DiffConfiguration.cs" />
+    <Compile Include="merge\xml\generic\xmldiff\Difference.cs" />
+    <Compile Include="merge\xml\generic\xmldiff\Differences.cs" />
+    <Compile Include="merge\xml\generic\xmldiff\DifferenceType.cs" />
+    <Compile Include="merge\xml\generic\xmldiff\DiffResult.cs" />
+    <Compile Include="merge\xml\generic\xmldiff\XmlDiff.cs" />
+    <Compile Include="merge\xml\generic\xmldiff\XmlInput.cs" />
+    <Compile Include="merge\xml\generic\XmlMerger.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="VcsDrivers\Mercurial\Revision.cs" />
+    <Compile Include="VcsDrivers\Mercurial\HgRunner.cs" />
   </ItemGroup>
   <ItemGroup>
-	<BootstrapperPackage Include="Microsoft.Net.Framework.2.0">
-	  <Visible>False</Visible>
-	  <ProductName>.NET Framework 2.0 %28x86%29</ProductName>
-	  <Install>true</Install>
-	</BootstrapperPackage>
-	<BootstrapperPackage Include="Microsoft.Net.Framework.3.0">
-	  <Visible>False</Visible>
-	  <ProductName>.NET Framework 3.0 %28x86%29</ProductName>
-	  <Install>false</Install>
-	</BootstrapperPackage>
-	<BootstrapperPackage Include="Microsoft.Net.Framework.3.5">
-	  <Visible>False</Visible>
-	  <ProductName>.NET Framework 3.5</ProductName>
-	  <Install>false</Install>
-	</BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.2.0">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 2.0 %28x86%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.0">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.0 %28x86%29</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-	<EmbeddedResource Include="Properties\AnnotationImages.resx">
-	  <Generator>PublicResXFileCodeGenerator</Generator>
-	  <LastGenOutput>AnnotationImages.Designer.cs</LastGenOutput>
-	  <SubType>Designer</SubType>
-	</EmbeddedResource>
-	<EmbeddedResource Include="Properties\Resources.resx">
-	  <Generator>ResXFileCodeGenerator</Generator>
-	  <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-	  <SubType>Designer</SubType>
-	</EmbeddedResource>
+    <EmbeddedResource Include="Properties\AnnotationImages.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>AnnotationImages.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-	<None Include="app.config" />
-	<None Include="Properties\Settings.settings">
-	  <Generator>SettingsSingleFileGenerator</Generator>
-	  <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-	</None>
-	<None Include="Resources\approve16x16.png" />
+    <None Include="app.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="Resources\approve16x16.png" />
   </ItemGroup>
   <ItemGroup>
-	<None Include="Resources\approve32x32.png" />
+    <None Include="Resources\approve32x32.png" />
   </ItemGroup>
   <ItemGroup>
-	<None Include="Resources\note16x16.png" />
+    <None Include="Resources\note16x16.png" />
   </ItemGroup>
   <ItemGroup>
-	<None Include="Resources\note32x32.png" />
+    <None Include="Resources\note32x32.png" />
   </ItemGroup>
   <ItemGroup>
-	<None Include="Resources\generic16x16.png" />
+    <None Include="Resources\generic16x16.png" />
   </ItemGroup>
   <ItemGroup>
-	<None Include="Resources\generic32x32.png" />
+    <None Include="Resources\generic32x32.png" />
   </ItemGroup>
   <ItemGroup>
-	<None Include="Resources\question16x16.png" />
+    <None Include="Resources\question16x16.png" />
   </ItemGroup>
   <ItemGroup>
-	<None Include="Resources\question32x32.png" />
+    <None Include="Resources\question32x32.png" />
   </ItemGroup>
   <ItemGroup>
-	<None Include="Resources\mergeConflict32x32.png" />
+    <None Include="Resources\mergeConflict32x32.png" />
   </ItemGroup>
   <ItemGroup>
-	<None Include="Resources\MergeConflict16x16.png" />
+    <None Include="Resources\MergeConflict16x16.png" />
   </ItemGroup>
   <ItemGroup>
-	<None Include="Resources\MergeConflict16x16Closed.png" />
+    <None Include="Resources\MergeConflict16x16Closed.png" />
   </ItemGroup>
   <ItemGroup>
-	<None Include="Resources\DataLossMerge16x16.png" />
+    <None Include="Resources\DataLossMerge16x16.png" />
   </ItemGroup>
   <ItemGroup>
-	<None Include="Resources\DataLossMerge32x32.png" />
+    <None Include="Resources\DataLossMerge32x32.png" />
   </ItemGroup>
   <ItemGroup>
-	<None Include="Resources\DataLossMerge16x16Closed.png" />
+    <None Include="Resources\DataLossMerge16x16Closed.png" />
   </ItemGroup>
   <ItemGroup>
-	<None Include="Resources\question16x16Closed.png" />
+    <None Include="Resources\question16x16Closed.png" />
   </ItemGroup>
   <ItemGroup>
-	<None Include="Resources\check16x16.png" />
+    <None Include="Resources\check16x16.png" />
   </ItemGroup>
   <ItemGroup>
-	<Content Include="ChorusHub\chorusHubIcon.ico" />
+    <Content Include="ChorusHub\chorusHubIcon.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
@@ -472,11 +472,11 @@
   </Target>
   -->
   <PropertyGroup>
-	<PostBuildEvent>
-	</PostBuildEvent>
-	<ProjectGuid>{94245366-8F1E-475C-810D-FE89BB3948E0}</ProjectGuid>
-	<RootNamespace>Chorus</RootNamespace>
-	<PreBuildEvent>
-	</PreBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
+    <ProjectGuid>{94245366-8F1E-475C-810D-FE89BB3948E0}</ProjectGuid>
+    <RootNamespace>Chorus</RootNamespace>
+    <PreBuildEvent>
+    </PreBuildEvent>
   </PropertyGroup>
 </Project>

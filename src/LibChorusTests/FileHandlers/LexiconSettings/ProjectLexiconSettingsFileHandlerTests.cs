@@ -7,44 +7,44 @@ using NUnit.Framework;
 namespace LibChorus.Tests.FileHandlers.LexiconSettings
 {
 	/// <summary>
-	/// Test class for LexiconProjectSettingsFileHandler.
+	/// Test class for ProjectLexiconSettingsFileHandler.
 	/// </summary>
 	[TestFixture]
-	public class LexiconProjectSettingsFileHandlerTests
+	public class ProjectLexiconSettingsFileHandlerTests
 	{
-		private IChorusFileTypeHandler _lexiconProjectSettingsFileHandler;
+		private IChorusFileTypeHandler _projectLexiconSettingsFileHandler;
 
 		[TestFixtureSetUp]
 		public void FixtureSetup()
 		{
-			_lexiconProjectSettingsFileHandler = (ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers().Handlers.Where(
-				handler => handler.GetType().Name == "LexiconProjectSettingsFileHandler")).First();
+			_projectLexiconSettingsFileHandler = (ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers().Handlers.Where(
+				handler => handler.GetType().Name == "ProjectLexiconSettingsFileHandler")).First();
 		}
 
 		[TestFixtureTearDown]
 		public void FixtureTearDown()
 		{
-			_lexiconProjectSettingsFileHandler = null;
+			_projectLexiconSettingsFileHandler = null;
 		}
 
 		[Test]
 		public void HandlerShouldProcessMaximumFileSize()
 		{
-			Assert.AreEqual(UInt32.MaxValue, _lexiconProjectSettingsFileHandler.MaximumFileSize);
+			Assert.AreEqual(UInt32.MaxValue, _projectLexiconSettingsFileHandler.MaximumFileSize);
 		}
 
 		[Test]
-		public void HandlerOnlySupportsLexiconProjectSettingsExtension()
+		public void HandlerOnlySupportsProjectLexiconSettingsExtension()
 		{
-			var extensions = _lexiconProjectSettingsFileHandler.GetExtensionsOfKnownTextFileTypes();
+			var extensions = _projectLexiconSettingsFileHandler.GetExtensionsOfKnownTextFileTypes();
 			Assert.IsTrue(extensions.Count() == 1);
-			Assert.AreEqual("lpsx", extensions.First());
+			Assert.AreEqual("plsx", extensions.First());
 		}
 
 		[Test]
 		public void DescribeInitialContentsShouldHaveAddedForLabel()
 		{
-			var initialContents = _lexiconProjectSettingsFileHandler.DescribeInitialContents(null, null);
+			var initialContents = _projectLexiconSettingsFileHandler.DescribeInitialContents(null, null);
 			Assert.AreEqual(1, initialContents.Count());
 			var onlyOne = initialContents.First();
 			Assert.AreEqual("Added", onlyOne.ActionLabel);
@@ -56,17 +56,17 @@ namespace LibChorus.Tests.FileHandlers.LexiconSettings
 			// There are actually more than one change, but we don't fret about that at this point.
 			const string parent =
 @"<?xml version='1.0' encoding='utf-8'?>
-<LexiconProjectSettings>
-</LexiconProjectSettings>";
+<ProjectLexiconSettings>
+</ProjectLexiconSettings>";
 			const string child =
 @"<?xml version='1.0' encoding='utf-8'?>
-<LexiconProjectSettings>
+<ProjectLexiconSettings>
 <WritingSystems addToSldr='true' />
-</LexiconProjectSettings>";
+</ProjectLexiconSettings>";
 			using (var repositorySetup = new RepositorySetup("randy-" + Guid.NewGuid()))
 			{
-				repositorySetup.AddAndCheckinFile("some.lpsx", parent);
-				repositorySetup.ChangeFileAndCommit("some.lpsx", child, "change it");
+				repositorySetup.AddAndCheckinFile("some.plsx", parent);
+				repositorySetup.ChangeFileAndCommit("some.plsx", child, "change it");
 				var hgRepository = repositorySetup.Repository;
 				var allRevisions = (from rev in hgRepository.GetAllRevisions()
 									orderby rev.Number.LocalRevisionNumber
@@ -75,7 +75,7 @@ namespace LibChorus.Tests.FileHandlers.LexiconSettings
 				var second = allRevisions[1];
 				var firstFiR = hgRepository.GetFilesInRevision(first).First();
 				var secondFiR = hgRepository.GetFilesInRevision(second).First();
-				var result = _lexiconProjectSettingsFileHandler.Find2WayDifferences(firstFiR, secondFiR, hgRepository);
+				var result = _projectLexiconSettingsFileHandler.Find2WayDifferences(firstFiR, secondFiR, hgRepository);
 				Assert.AreEqual(1, result.Count());
 				Assert.AreEqual("Edited", result.First().ActionLabel);
 			}
@@ -87,19 +87,19 @@ namespace LibChorus.Tests.FileHandlers.LexiconSettings
 			// One 'change' reported, even for the exact same file.
 			const string parent =
 @"<?xml version='1.0' encoding='utf-8'?>
-<LexiconProjectSettings>
-</LexiconProjectSettings>";
+<ProjectLexiconSettings>
+</ProjectLexiconSettings>";
 			using (var repositorySetup = new RepositorySetup("randy-" + Guid.NewGuid()))
 			{
-				repositorySetup.AddAndCheckinFile("some.lpsx", parent);
-				repositorySetup.ChangeFileAndCommit("some.lpsx", parent, "change it");
+				repositorySetup.AddAndCheckinFile("some.plsx", parent);
+				repositorySetup.ChangeFileAndCommit("some.plsx", parent, "change it");
 				var hgRepository = repositorySetup.Repository;
 				var allRevisions = (from rev in hgRepository.GetAllRevisions()
 									orderby rev.Number.LocalRevisionNumber
 									select rev).ToList();
 				var first = allRevisions[0];
 				var firstFiR = hgRepository.GetFilesInRevision(first).First();
-				var result = _lexiconProjectSettingsFileHandler.Find2WayDifferences(firstFiR, firstFiR, hgRepository);
+				var result = _projectLexiconSettingsFileHandler.Find2WayDifferences(firstFiR, firstFiR, hgRepository);
 				Assert.AreEqual(1, result.Count());
 				Assert.AreEqual("Edited", result.First().ActionLabel);
 			}

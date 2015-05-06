@@ -18,12 +18,12 @@ namespace Chorus.FileTypeHanders.Settings
 	///<summary>
 	/// Implementation of the IChorusFileTypeHandler interface to handle project settings files
 	///</summary>
-	public class LexiconProjectSettingsFileHandler : IChorusFileTypeHandler
+	public class ProjectLexiconSettingsFileHandler : IChorusFileTypeHandler
 	{
-		internal LexiconProjectSettingsFileHandler()
+		internal ProjectLexiconSettingsFileHandler()
 		{ }
 
-		private const string Extension = "lpsx";
+		private const string Extension = "plsx";
 
 		#region Implementation of IChorusFileTypeHandler
 
@@ -101,7 +101,7 @@ namespace Chorus.FileTypeHanders.Settings
 				using (var reader = XmlReader.Create(pathToFile, CanonicalXmlSettings.CreateXmlReaderSettings()))
 				{
 					reader.MoveToContent();
-					if (reader.LocalName == "LexiconProjectSettings")
+					if (reader.LocalName == "ProjectLexiconSettings")
 					{
 						// It would be nice, if it could really validate it.
 						while (reader.Read())
@@ -154,10 +154,10 @@ namespace Chorus.FileTypeHanders.Settings
 
 		internal static void SetupElementStrategies(XmlMerger merger)
 		{
-			// See: Palaso repo: SIL.LexiconUtils\LexiconProjectSettingsDataMapper.cs
+			// See: Palaso repo: SIL.LexiconUtils\ProjectLexiconSettingsDataMapper.cs
 			var strategy = ElementStrategy.CreateSingletonElement();
-			strategy.ContextDescriptorGenerator = new LexiconProjectSettingsContextGenerator();
-			merger.MergeStrategies.SetStrategy("LexiconProjectSettings", strategy);
+			strategy.ContextDescriptorGenerator = new ProjectLexiconSettingsContextGenerator();
+			merger.MergeStrategies.SetStrategy("ProjectLexiconSettings", strategy);
 			// Child elements of lexicon project settings root.
 
 			merger.MergeStrategies.SetStrategy("WritingSystems", ElementStrategy.CreateSingletonElement());
@@ -226,9 +226,8 @@ namespace Chorus.FileTypeHanders.Settings
 		private static void PreMergeFile(MergeOrder mergeOrder, out bool addedCollationAttr)
 		{
 			addedCollationAttr = false;
-			var ourDoc = File.Exists(mergeOrder.pathToOurs) && File.ReadAllText(mergeOrder.pathToOurs).Contains("<LexiconProjectSettings>") ? XDocument.Load(mergeOrder.pathToOurs) : null;
-			var theirDoc = File.Exists(mergeOrder.pathToTheirs) && File.ReadAllText(mergeOrder.pathToTheirs).Contains("<LexiconProjectSettings>") ? XDocument.Load(mergeOrder.pathToTheirs) : null;
-			var commonDoc = File.Exists(mergeOrder.pathToCommonAncestor) && File.ReadAllText(mergeOrder.pathToCommonAncestor).Contains("<LexiconProjectSettings>") ? XDocument.Load(mergeOrder.pathToCommonAncestor) : null;
+			XDocument ourDoc = File.Exists(mergeOrder.pathToOurs) && File.ReadAllText(mergeOrder.pathToOurs).Contains("<ProjectLexiconSettings>") ? XDocument.Load(mergeOrder.pathToOurs) : null;
+			XDocument theirDoc = File.Exists(mergeOrder.pathToTheirs) && File.ReadAllText(mergeOrder.pathToTheirs).Contains("<ProjectLexiconSettings>") ? XDocument.Load(mergeOrder.pathToTheirs) : null;
 
 			if (ourDoc == null || theirDoc == null)
 				return;

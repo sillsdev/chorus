@@ -15,10 +15,10 @@ using SIL.IO;
 namespace LibChorus.Tests.FileHandlers.LexiconSettings
 {
 	/// <summary>
-	/// Test the merge capabilities of the LexiconProjectSettingsFileHandler implementation of the IChorusFileTypeHandler interface.
+	/// Test the merge capabilities of the ProjectLexiconSettingsFileHandler implementation of the IChorusFileTypeHandler interface.
 	/// </summary>
 	[TestFixture]
-	public class LexiconProjectSettingsFileMergeTests
+	public class ProjectLexiconSettingsFileMergeTests
 	{
 		private IChorusFileTypeHandler _lexiconProjectSettingsFileHandler;
 		private ListenerForUnitTests _eventListener;
@@ -27,7 +27,7 @@ namespace LibChorus.Tests.FileHandlers.LexiconSettings
 		{
 			return string.Format(
 @"<?xml version='1.0' encoding='utf-8'?>
-<LexiconProjectSettings>
+<ProjectLexiconSettings>
 	<WritingSystems addToSldr='true'>
 		<WritingSystem id='grc'>
 			<{0}>grc</{0}>
@@ -36,14 +36,14 @@ namespace LibChorus.Tests.FileHandlers.LexiconSettings
 			<{0}>Sen</{0}>
 		</WritingSystem>
 	</WritingSystems>
-</LexiconProjectSettings>".Replace("'", "\""), element);
+</ProjectLexiconSettings>".Replace("'", "\""), element);
 		}
 
 		private static string OurContentTemplate(string element)
 		{
 			return string.Format(
 @"<?xml version='1.0' encoding='utf-8'?>
-<LexiconProjectSettings>
+<ProjectLexiconSettings>
 	<WritingSystems addToSldr='true'>
 		<WritingSystem id='grc'>
 			<{0}>grc</{0}>
@@ -55,14 +55,14 @@ namespace LibChorus.Tests.FileHandlers.LexiconSettings
 			<{0}>our-Sen</{0}>
 		</WritingSystem>
 	</WritingSystems>
-</LexiconProjectSettings>".Replace("'", "\""), element);
+</ProjectLexiconSettings>".Replace("'", "\""), element);
 		}
 
 		private static string TheirContentTemplate(string element)
 		{
 			return string.Format(
 @"<?xml version='1.0' encoding='utf-8'?>
-<LexiconProjectSettings>
+<ProjectLexiconSettings>
 	<WritingSystems addToSldr='true'>
 		<WritingSystem id='grc'>
 			<{0}>grc</{0}>
@@ -74,7 +74,7 @@ namespace LibChorus.Tests.FileHandlers.LexiconSettings
 			<{0}>Sen</{0}>
 		</WritingSystem>
 	</WritingSystems>
-</LexiconProjectSettings>".Replace("'", "\""), element);
+</ProjectLexiconSettings>".Replace("'", "\""), element);
 		}
 
 		[TestFixtureSetUp]
@@ -82,7 +82,7 @@ namespace LibChorus.Tests.FileHandlers.LexiconSettings
 		{
 			_lexiconProjectSettingsFileHandler =
 				(from handler in ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers().Handlers
-					where handler.GetType().Name == "LexiconProjectSettingsFileHandler"
+					where handler.GetType().Name == "ProjectLexiconSettingsFileHandler"
 					select handler).First();
 		}
 
@@ -100,11 +100,11 @@ namespace LibChorus.Tests.FileHandlers.LexiconSettings
 		}
 
 		[Test]
-		public void CanMergeGoodLexiconProjectSettingsFile()
+		public void CanMergeGoodProjectLexiconSettingsFile()
 		{
-			using (var tempFile = TempFile.WithExtension(".lpsx"))
+			using (var tempFile = TempFile.WithExtension(".plsx"))
 			{
-				File.WriteAllText(tempFile.Path, "<?xml version='1.0' encoding='utf-8'?>" + Environment.NewLine + "<LexiconProjectSettings />");
+				File.WriteAllText(tempFile.Path, "<?xml version='1.0' encoding='utf-8'?>" + Environment.NewLine + "<ProjectLexiconSettings />");
 				Assert.IsTrue(_lexiconProjectSettingsFileHandler.CanMergeFile(tempFile.Path));
 			}
 		}
@@ -131,15 +131,15 @@ namespace LibChorus.Tests.FileHandlers.LexiconSettings
 		public void DuplicateWritingSystemsElementsAreRemoved()
 		{
 			const string badData =
-@"<LexiconProjectSettings>
+@"<ProjectLexiconSettings>
 <WritingSystems addToSldr='true' />
 <WritingSystems addToSldr='true' goner='true' />
-</LexiconProjectSettings>";
+</ProjectLexiconSettings>";
 			var doc = new XmlDocument();
 			var badRootNode = XmlUtilities.GetDocumentNodeFromRawXml(badData, doc);
 			var merger = new XmlMerger(new NullMergeSituation());
 			merger.EventListener = new ListenerForUnitTests();
-			LexiconProjectSettingsFileHandler.SetupElementStrategies(merger);
+			ProjectLexiconSettingsFileHandler.SetupElementStrategies(merger);
 			var oldValue = XmlMergeService.RemoveAmbiguousChildNodes;
 			XmlMergeService.RemoveAmbiguousChildNodes = true;
 			XmlMergeService.RemoveAmbiguousChildren(merger.EventListener, merger.MergeStrategies, badRootNode);
@@ -163,10 +163,10 @@ namespace LibChorus.Tests.FileHandlers.LexiconSettings
 				namespaces,
 				new List<string>
 				{
-					@"LexiconProjectSettings/WritingSystems/WritingSystem[@id='grc']/Abbreviation['grc']",
-					@"LexiconProjectSettings/WritingSystems/WritingSystem[@id='hbo']/Abbreviation['hbo']",
-					@"LexiconProjectSettings/WritingSystems/WritingSystem[@id='seh-fonipa-x-etic']/Abbreviation['our-Sen']",
-					@"LexiconProjectSettings/WritingSystems/WritingSystem[@id='seh']/Abbreviation['Sen']"
+					@"ProjectLexiconSettings/WritingSystems/WritingSystem[@id='grc']/Abbreviation['grc']",
+					@"ProjectLexiconSettings/WritingSystems/WritingSystem[@id='hbo']/Abbreviation['hbo']",
+					@"ProjectLexiconSettings/WritingSystems/WritingSystem[@id='seh-fonipa-x-etic']/Abbreviation['our-Sen']",
+					@"ProjectLexiconSettings/WritingSystems/WritingSystem[@id='seh']/Abbreviation['Sen']"
 				},
 				new List<string>(0),
 				1, new List<Type>
@@ -194,10 +194,10 @@ namespace LibChorus.Tests.FileHandlers.LexiconSettings
 				namespaces,
 				new List<string>
 				{
-					@"LexiconProjectSettings/WritingSystems/WritingSystem[@id='grc']/LanguageName['grc']",
-					@"LexiconProjectSettings/WritingSystems/WritingSystem[@id='hbo']/LanguageName['hbo']",
-					@"LexiconProjectSettings/WritingSystems/WritingSystem[@id='seh-fonipa-x-etic']/LanguageName['our-Sen']",
-					@"LexiconProjectSettings/WritingSystems/WritingSystem[@id='seh']/LanguageName['Sen']"
+					@"ProjectLexiconSettings/WritingSystems/WritingSystem[@id='grc']/LanguageName['grc']",
+					@"ProjectLexiconSettings/WritingSystems/WritingSystem[@id='hbo']/LanguageName['hbo']",
+					@"ProjectLexiconSettings/WritingSystems/WritingSystem[@id='seh-fonipa-x-etic']/LanguageName['our-Sen']",
+					@"ProjectLexiconSettings/WritingSystems/WritingSystem[@id='seh']/LanguageName['Sen']"
 				},
 				new List<string>(0),
 				1, new List<Type>
@@ -225,10 +225,10 @@ namespace LibChorus.Tests.FileHandlers.LexiconSettings
 				namespaces,
 				new List<string>
 				{
-					@"LexiconProjectSettings/WritingSystems/WritingSystem[@id='grc']/ScriptName['grc']",
-					@"LexiconProjectSettings/WritingSystems/WritingSystem[@id='hbo']/ScriptName['hbo']",
-					@"LexiconProjectSettings/WritingSystems/WritingSystem[@id='seh-fonipa-x-etic']/ScriptName['our-Sen']",
-					@"LexiconProjectSettings/WritingSystems/WritingSystem[@id='seh']/ScriptName['Sen']"
+					@"ProjectLexiconSettings/WritingSystems/WritingSystem[@id='grc']/ScriptName['grc']",
+					@"ProjectLexiconSettings/WritingSystems/WritingSystem[@id='hbo']/ScriptName['hbo']",
+					@"ProjectLexiconSettings/WritingSystems/WritingSystem[@id='seh-fonipa-x-etic']/ScriptName['our-Sen']",
+					@"ProjectLexiconSettings/WritingSystems/WritingSystem[@id='seh']/ScriptName['Sen']"
 				},
 				new List<string>(0),
 				1, new List<Type>
@@ -256,10 +256,10 @@ namespace LibChorus.Tests.FileHandlers.LexiconSettings
 				namespaces,
 				new List<string>
 				{
-					@"LexiconProjectSettings/WritingSystems/WritingSystem[@id='grc']/RegionName['grc']",
-					@"LexiconProjectSettings/WritingSystems/WritingSystem[@id='hbo']/RegionName['hbo']",
-					@"LexiconProjectSettings/WritingSystems/WritingSystem[@id='seh-fonipa-x-etic']/RegionName['our-Sen']",
-					@"LexiconProjectSettings/WritingSystems/WritingSystem[@id='seh']/RegionName['Sen']"
+					@"ProjectLexiconSettings/WritingSystems/WritingSystem[@id='grc']/RegionName['grc']",
+					@"ProjectLexiconSettings/WritingSystems/WritingSystem[@id='hbo']/RegionName['hbo']",
+					@"ProjectLexiconSettings/WritingSystems/WritingSystem[@id='seh-fonipa-x-etic']/RegionName['our-Sen']",
+					@"ProjectLexiconSettings/WritingSystems/WritingSystem[@id='seh']/RegionName['Sen']"
 				},
 				new List<string>(0),
 				1, new List<Type>
@@ -287,10 +287,10 @@ namespace LibChorus.Tests.FileHandlers.LexiconSettings
 				namespaces,
 				new List<string>
 				{
-					@"LexiconProjectSettings/WritingSystems/WritingSystem[@id='grc']/SpellCheckingId['grc']",
-					@"LexiconProjectSettings/WritingSystems/WritingSystem[@id='hbo']/SpellCheckingId['hbo']",
-					@"LexiconProjectSettings/WritingSystems/WritingSystem[@id='seh-fonipa-x-etic']/SpellCheckingId['our_Sen']",
-					@"LexiconProjectSettings/WritingSystems/WritingSystem[@id='seh']/SpellCheckingId['Sen']"
+					@"ProjectLexiconSettings/WritingSystems/WritingSystem[@id='grc']/SpellCheckingId['grc']",
+					@"ProjectLexiconSettings/WritingSystems/WritingSystem[@id='hbo']/SpellCheckingId['hbo']",
+					@"ProjectLexiconSettings/WritingSystems/WritingSystem[@id='seh-fonipa-x-etic']/SpellCheckingId['our_Sen']",
+					@"ProjectLexiconSettings/WritingSystems/WritingSystem[@id='seh']/SpellCheckingId['Sen']"
 				},
 				new List<string>(0),
 				1, new List<Type>
@@ -318,10 +318,10 @@ namespace LibChorus.Tests.FileHandlers.LexiconSettings
 				namespaces,
 				new List<string>
 				{
-					@"LexiconProjectSettings/WritingSystems/WritingSystem[@id='grc']/LegacyMapping['grc']",
-					@"LexiconProjectSettings/WritingSystems/WritingSystem[@id='hbo']/LegacyMapping['hbo']",
-					@"LexiconProjectSettings/WritingSystems/WritingSystem[@id='seh-fonipa-x-etic']/LegacyMapping['our_Sen']",
-					@"LexiconProjectSettings/WritingSystems/WritingSystem[@id='seh']/LegacyMapping['Sen']"
+					@"ProjectLexiconSettings/WritingSystems/WritingSystem[@id='grc']/LegacyMapping['grc']",
+					@"ProjectLexiconSettings/WritingSystems/WritingSystem[@id='hbo']/LegacyMapping['hbo']",
+					@"ProjectLexiconSettings/WritingSystems/WritingSystem[@id='seh-fonipa-x-etic']/LegacyMapping['our_Sen']",
+					@"ProjectLexiconSettings/WritingSystems/WritingSystem[@id='seh']/LegacyMapping['Sen']"
 				},
 				new List<string>(0),
 				1, new List<Type>
@@ -349,10 +349,10 @@ namespace LibChorus.Tests.FileHandlers.LexiconSettings
 				namespaces,
 				new List<string>
 				{
-					@"LexiconProjectSettings/WritingSystems/WritingSystem[@id='grc']/Keyboard['grc']",
-					@"LexiconProjectSettings/WritingSystems/WritingSystem[@id='hbo']/Keyboard['hbo']",
-					@"LexiconProjectSettings/WritingSystems/WritingSystem[@id='seh-fonipa-x-etic']/Keyboard['our_Sen']",
-					@"LexiconProjectSettings/WritingSystems/WritingSystem[@id='seh']/Keyboard['Sen']"
+					@"ProjectLexiconSettings/WritingSystems/WritingSystem[@id='grc']/Keyboard['grc']",
+					@"ProjectLexiconSettings/WritingSystems/WritingSystem[@id='hbo']/Keyboard['hbo']",
+					@"ProjectLexiconSettings/WritingSystems/WritingSystem[@id='seh-fonipa-x-etic']/Keyboard['our_Sen']",
+					@"ProjectLexiconSettings/WritingSystems/WritingSystem[@id='seh']/Keyboard['Sen']"
 				},
 				new List<string>(0),
 				1, new List<Type>
@@ -380,10 +380,10 @@ namespace LibChorus.Tests.FileHandlers.LexiconSettings
 				namespaces,
 				new List<string>
 				{
-					@"LexiconProjectSettings/WritingSystems/WritingSystem[@id='grc']/SystemCollation['grc']",
-					@"LexiconProjectSettings/WritingSystems/WritingSystem[@id='hbo']/SystemCollation['hbo']",
-					@"LexiconProjectSettings/WritingSystems/WritingSystem[@id='seh-fonipa-x-etic']/SystemCollation['our_Sen']",
-					@"LexiconProjectSettings/WritingSystems/WritingSystem[@id='seh']/SystemCollation['Sen']"
+					@"ProjectLexiconSettings/WritingSystems/WritingSystem[@id='grc']/SystemCollation['grc']",
+					@"ProjectLexiconSettings/WritingSystems/WritingSystem[@id='hbo']/SystemCollation['hbo']",
+					@"ProjectLexiconSettings/WritingSystems/WritingSystem[@id='seh-fonipa-x-etic']/SystemCollation['our_Sen']",
+					@"ProjectLexiconSettings/WritingSystems/WritingSystem[@id='seh']/SystemCollation['Sen']"
 				},
 				new List<string>(0),
 				1, new List<Type>

@@ -8,34 +8,34 @@ using SIL.IO;
 namespace LibChorus.Tests.FileHandlers.LexiconSettings
 {
 	/// <summary>
-	/// Make sure only a lexicon project settings xml file can be validated by the LexiconProjectSettingsFileHandler class.
+	/// Make sure only a lexicon project settings xml file can be validated by the ProjectLexiconSettingsFileHandler class.
 	/// </summary>
 	[TestFixture]
-	public class LexiconProjectSettingsFileValidationTests
+	public class ProjectLexiconSettingsFileValidationTests
 	{
 		private IChorusFileTypeHandler _handler;
 		private TempFile _goodXmlTempFile;
 		private TempFile _illformedXmlTempFile;
-		private TempFile _goodXmlButNotLexiconProjectSettingsTempFile;
+		private TempFile _goodXmlButNotProjectLexiconSettingsTempFile;
 		private TempFile _nonXmlTempFile;
 
 		[TestFixtureSetUp]
 		public void FixtureSetup()
 		{
 			_handler = (ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers().Handlers.Where(
-				handler => handler.GetType().Name == "LexiconProjectSettingsFileHandler")).First();
+				handler => handler.GetType().Name == "ProjectLexiconSettingsFileHandler")).First();
 
-			_goodXmlTempFile = TempFile.WithExtension(".lpsx");
+			_goodXmlTempFile = TempFile.WithExtension(".plsx");
 #if MONO
-			File.WriteAllText(_goodXmlTempFile.Path, "<?xml version='1.0' encoding='utf-8'?>" + Environment.NewLine + "<LexiconProjectSettings>" + Environment.NewLine + "</LexiconProjectSettings>");
+			File.WriteAllText(_goodXmlTempFile.Path, "<?xml version='1.0' encoding='utf-8'?>" + Environment.NewLine + "<ProjectLexiconSettings>" + Environment.NewLine + "</ProjectLexiconSettings>");
 #else
-			File.WriteAllText(_goodXmlTempFile.Path, "<?xml version='1.0' encoding='utf-8'?>" + Environment.NewLine + "<LexiconProjectSettings />");
+			File.WriteAllText(_goodXmlTempFile.Path, "<?xml version='1.0' encoding='utf-8'?>" + Environment.NewLine + "<ProjectLexiconSettings />");
 #endif
-			_illformedXmlTempFile = TempFile.WithExtension(".lpsx");
-			File.WriteAllText(_illformedXmlTempFile.Path, "<?xml version='1.0' encoding='utf-8'?>" + Environment.NewLine + "<LexiconProjectSettings>");
+			_illformedXmlTempFile = TempFile.WithExtension(".plsx");
+			File.WriteAllText(_illformedXmlTempFile.Path, "<?xml version='1.0' encoding='utf-8'?>" + Environment.NewLine + "<ProjectLexiconSettings>");
 
-			_goodXmlButNotLexiconProjectSettingsTempFile = TempFile.WithExtension(".lpsx");
-			File.WriteAllText(_goodXmlButNotLexiconProjectSettingsTempFile.Path, "<?xml version='1.0' encoding='utf-8'?>" + Environment.NewLine + "<nonLexiconProjectSettingsstuff />");
+			_goodXmlButNotProjectLexiconSettingsTempFile = TempFile.WithExtension(".plsx");
+			File.WriteAllText(_goodXmlButNotProjectLexiconSettingsTempFile.Path, "<?xml version='1.0' encoding='utf-8'?>" + Environment.NewLine + "<nonProjectLexiconSettingsstuff />");
 
 			_nonXmlTempFile = TempFile.WithExtension(".txt");
 			File.WriteAllText(_nonXmlTempFile.Path, "This is not a lexicon project settings file." + Environment.NewLine);
@@ -51,8 +51,8 @@ namespace LibChorus.Tests.FileHandlers.LexiconSettings
 			_illformedXmlTempFile.Dispose();
 			_illformedXmlTempFile = null;
 
-			_goodXmlButNotLexiconProjectSettingsTempFile.Dispose();
-			_goodXmlButNotLexiconProjectSettingsTempFile = null;
+			_goodXmlButNotProjectLexiconSettingsTempFile.Dispose();
+			_goodXmlButNotProjectLexiconSettingsTempFile = null;
 
 			_nonXmlTempFile.Dispose();
 			_nonXmlTempFile = null;
@@ -107,15 +107,15 @@ namespace LibChorus.Tests.FileHandlers.LexiconSettings
 		}
 
 		[Test]
-		public void ValidateFile_Returns_Message_For_Crummy_LexiconProjectSettings_File()
+		public void ValidateFile_Returns_Message_For_Crummy_ProjectLexiconSettings_File()
 		{
 			Assert.IsNotNull(_handler.ValidateFile(_illformedXmlTempFile.Path, null));
 		}
 
 		[Test]
-		public void ValidateFile_Returns_Message_For_Good_But_Not_LexiconProjectSettings_File()
+		public void ValidateFile_Returns_Message_For_Good_But_Not_ProjectLexiconSettings_File()
 		{
-			Assert.IsNotNull(_handler.ValidateFile(_goodXmlButNotLexiconProjectSettingsTempFile.Path, null));
+			Assert.IsNotNull(_handler.ValidateFile(_goodXmlButNotProjectLexiconSettingsTempFile.Path, null));
 		}
 	}
 }

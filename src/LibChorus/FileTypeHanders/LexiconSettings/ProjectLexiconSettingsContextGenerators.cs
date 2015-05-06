@@ -3,7 +3,7 @@ using Chorus.merge.xml.generic;
 
 namespace Chorus.FileTypeHanders.LexiconSettings
 {
-	// LexiconProjectSettings
+	// ProjectLexiconSettings
 	// WritingSystems
 	//		WritingSystem
 	//			Abbreviation
@@ -20,7 +20,7 @@ namespace Chorus.FileTypeHanders.LexiconSettings
 	/// Class responsible for generating (and including as a label in the descriptor) a human-readable description of the context element,
 	/// and (through the HtmlDetails method) an HTML representation of a conflicting node that can be diff'd to show the differences.
 	/// </summary>
-	internal sealed class LexiconProjectSettingsContextGenerator : IGenerateContextDescriptor, IGenerateContextDescriptorFromNode
+	internal sealed class ProjectLexiconSettingsContextGenerator : IGenerateContextDescriptor, IGenerateContextDescriptorFromNode
 	{
 		#region Implementation of IGenerateContextDescriptor
 
@@ -41,7 +41,7 @@ namespace Chorus.FileTypeHanders.LexiconSettings
 			var label = "unknown";
 			switch (name)
 			{
-				case "LexiconProjectSettings":
+				case "ProjectLexiconSettings":
 					label = "Lexicon project settings file";
 					break;
 				case "WritingSystems":
