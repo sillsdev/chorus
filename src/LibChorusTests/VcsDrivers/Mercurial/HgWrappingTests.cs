@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using Chorus.VcsDrivers.Mercurial;
+using Chorus.sync;
 using LibChorus.TestUtilities;
 using NUnit.Framework;
 using SIL.Progress;
@@ -463,6 +464,54 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				var bundleFilePath = setup.RootFolder.GetNewTempFile(false).Path;
 				File.WriteAllText(bundleFilePath, "bogus bundle file contents");
 				Assert.That(setup.Repository.Unbundle(bundleFilePath), Is.False);
+			}
+		}
+
+		[Test]
+		public void FileDeletedLocallyAndChangedRemotelyKeepsChanged()
+		{
+			using(var localRepo = new RepositorySetup("unbundleTests"))
+			{
+				var localFilePath = localRepo.ProjectFolder.GetNewTempFile(true).Path;
+				localRepo.AddAndCheckinFile(localFilePath, "file to change and delete");
+				using(var remoteRepo = new RepositorySetup("remote", localRepo))
+				{
+					remoteRepo.CheckinAndPullAndMerge();
+					var remoteFilePath = Path.Combine(remoteRepo.ProjectFolder.Path, Path.GetFileName(localFilePath));
+					Assert.That(File.Exists(remoteFilePath)); // Make sure that we have a file to delete.
+					File.Delete(remoteFilePath);
+					remoteRepo.SyncWithOptions( new SyncOptions { CheckinDescription = "delete file", DoMergeWithOthers = false, DoPullFromOthers = false, DoSendToOthers = false});
+					Assert.That(!File.Exists(remoteFilePath)); // Make sure we actually got rid of it.
+					localRepo.ChangeFileAndCommit(localFilePath, "new file contents", "changed the file");
+					localRepo.CheckinAndPullAndMerge(remoteRepo);
+					Assert.That(File.Exists(localFilePath), Is.True, "Did not keep changed file.");
+					var chorusNotesPath = localFilePath + ".ChorusNotes";
+					Assert.That(File.Exists(chorusNotesPath), "Did not record conflict");
+					AssertThatXmlIn.File(chorusNotesPath).HasAtLeastOneMatchForXpath("//annotation[@class='mergeconflict']");
+				}
+			}
+		}
+
+		[Test]
+		public void FileDeletedRemotelyAndChangedLocallyKeepsChanged()
+		{
+			using(var localRepo = new RepositorySetup("unbundleTests"))
+			{
+				var localFilePath = localRepo.ProjectFolder.GetNewTempFile(true).Path;
+				localRepo.AddAndCheckinFile(localFilePath, "file to change and delete");
+				using(var remoteRepo = new RepositorySetup("remote", localRepo))
+				{
+					remoteRepo.CheckinAndPullAndMerge();
+					var remoteFilePath = Path.Combine(remoteRepo.ProjectFolder.Path, Path.GetFileName(localFilePath));
+					remoteRepo.ChangeFileAndCommit(remoteFilePath, "new contents", "changed file");
+					File.Delete(localFilePath);
+					localRepo.SyncWithOptions(new SyncOptions { CheckinDescription = "delete file", DoMergeWithOthers = false, DoPullFromOthers = false, DoSendToOthers = false });
+					localRepo.CheckinAndPullAndMerge(remoteRepo);
+					Assert.That(File.Exists(localFilePath), Is.True, "Did not keep changed file.");
+					var chorusNotesPath = localFilePath + ".ChorusNotes";
+					Assert.That(File.Exists(chorusNotesPath), "Did not record conflict");
+					AssertThatXmlIn.File(chorusNotesPath).HasAtLeastOneMatchForXpath("//annotation[@class='mergeconflict']");
+				}
 			}
 		}
 	}

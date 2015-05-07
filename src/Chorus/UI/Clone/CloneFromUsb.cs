@@ -40,9 +40,9 @@ namespace Chorus.UI.Clone
 		}
 
 		///<summary>
-		/// Retrieves from all USB drives all the Mercurial Repositories
+		/// Retrieves from all USB drives all the Mercurial Repositories at the root level
 		///</summary>
-		///<returns></returns>
+		///<note>repositories in sub folders are not returned (There were issues writing synchronizing code for that case)</note>
 		public IEnumerable<string> GetDirectoriesWithMecurialRepos()
 		{
 			foreach (var drive in DriveInfoRetriever.GetDrives())
@@ -65,28 +65,6 @@ namespace Chorus.UI.Clone
 					{
 						yield return dir;
 					}
-					// As of 12 December, 2011, JohnH and I decided to remove the search at the second level.
-					// Seems that will work, but then the next attempt to sync, will not be able to find the second level repo.
-					//else //we'll look just at the next level down
-					//{
-					//    string[] subdirs = new string[0];
-					//    try
-					//    {    // this is all complicated because the yield can't be inside the try/catch
-					//        subdirs = DirectoryUtilities.GetSafeDirectories(dir);
-					//    }
-					//    catch (Exception /*error*/) // Mono: The unused variable 'error' causes a compiler crash under mono 2.4, 2.10 CP 2011-10
-					//    {
-					//        //turns out that WIndows Backup directories can trigger this, so I'm going to just skip it. Wish we had some unobtrusive log to write to.
-					//        //ErrorReport.NotifyUserOfProblem(error,"Error while looking at usb drive.  The drive root was {0}, the directory was {1}.",  drive.RootDirectory.FullName, dir );
-					//    }
-					//    foreach (var subdir in subdirs)
-					//    {
-					//        if (Directory.Exists(Path.Combine(subdir, ".hg")) && ProjectFilter(subdir))
-					//        {
-					//            yield return subdir;
-					//        }
-					//    }
-					//}
 				}
 			}
 		}
@@ -100,10 +78,8 @@ namespace Chorus.UI.Clone
 		///<returns>Directory that clone was actually placed in (allows for renaming to avoid duplicates)</returns>
 		public string MakeClone(string sourcePath, string parentDirectoryToPutCloneIn, IProgress progress)
 		{
-			return HgHighLevel.MakeCloneFromLocalToLocal(sourcePath,
-														 Path.Combine(parentDirectoryToPutCloneIn, Path.GetFileName(sourcePath)),
-														 true,
-														 progress);
+			return HgHighLevel.MakeCloneFromUsbToLocal(sourcePath,
+				Path.Combine(parentDirectoryToPutCloneIn, Path.GetFileName(sourcePath)), progress);
 		}
 
 		public ListViewItem CreateListItemFor(string path)

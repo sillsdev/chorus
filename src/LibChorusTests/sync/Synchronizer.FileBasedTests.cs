@@ -75,7 +75,7 @@ namespace LibChorus.Tests.sync
 			_synchronizer.SyncNow(options);
 			string projectDirOnBackup = Path.Combine(_pathToBackupFolder, "foo project.2");
 			//_synchronizer.MakeClone(projectDirOnBackup, true);
-			HgHighLevel.MakeCloneFromLocalToLocal(_synchronizer.Repository.PathToRepo, projectDirOnBackup, true, _progress);
+			HgHighLevel.MakeCloneFromUsbToLocal(_synchronizer.Repository.PathToRepo, projectDirOnBackup, _progress);
 
 			string contents = File.ReadAllText(Path.Combine(projectDirOnBackup, "foo.txt"));
 			Assert.AreEqual("version one", contents);

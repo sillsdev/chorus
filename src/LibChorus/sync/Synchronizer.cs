@@ -302,7 +302,8 @@ namespace Chorus.sync
 					if (address is UsbKeyRepositorySource  ||
 						(address is DirectoryRepositorySource && ((DirectoryRepositorySource)address).LooksLikeLocalDirectory))
 					{
-						var otherRepo = new HgRepository(resolvedUri, _progress);
+						// passes false to avoid updating the hgrc on a usb send to preserve backward compatibility
+						var otherRepo = new HgRepository(resolvedUri, false, _progress);
 						otherRepo.Update();
 					}
 				}
@@ -621,9 +622,7 @@ namespace Chorus.sync
 					{
 						_progress.WriteMessage("Copying repository to {0}...", repoDescriptor.GetFullName(target));
 						_progress.WriteVerbose("({0})", target);
-						return HgHighLevel.MakeCloneFromLocalToLocal(_localRepositoryPath, target,
-							false, // No update on USB or shared network clones as of 16 Jan 2012.
-							_progress);
+						return HgHighLevel.MakeCloneFromLocalToUsb(_localRepositoryPath, target, _progress);
 					}
 					catch (Exception error)
 					{

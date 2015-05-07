@@ -33,7 +33,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		public const int SecondsBeforeTimeoutOnRemoteOperation = 40 * 60;
 		private bool _haveLookedIntoProxySituation;
 		private string _proxyCongfigParameterString = string.Empty;
-		private bool _alreadyUpdatedHgrc;
+		private bool _hgrcUpdateNeeded;
 		private static bool _alreadyCheckedMercurialIni;
 		private const string EmptyRepoIdentifier = "0000000000000000000000000000000000000000";
 		/// <summary>
@@ -125,8 +125,11 @@ namespace Chorus.VcsDrivers.Mercurial
 			return hg;
 		}
 
+		public HgRepository(string pathToRepository, IProgress progress) : this(pathToRepository, true, progress)
+		{
+		}
 
-		public HgRepository(string pathToRepository, IProgress progress)
+		public HgRepository(string pathToRepository, bool updateHgrc, IProgress progress)
 		{
 			Guard.AgainstNull(progress, "progress");
 			_pathToRepository = pathToRepository;
@@ -140,7 +143,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			_userName = GetUserIdInUse();
 
 			_mercurialTwoCompatible = true;
-
+			_hgrcUpdateNeeded = updateHgrc;
 		}
 
 		/// <summary>
@@ -151,7 +154,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		internal void CheckAndUpdateHgrc()
 		{
 			CheckMercurialIni();
-			if (_alreadyUpdatedHgrc)
+			if (!_hgrcUpdateNeeded)
 				return;
 
 			try
@@ -159,7 +162,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				EnsureChorusMergeAddedToHgrc();
 				var extensions = HgExtensions;
 				EnsureTheseExtensionsAndFormatSet(extensions);
-				_alreadyUpdatedHgrc = true;
+				_hgrcUpdateNeeded = false;
 			}
 			catch (Exception error)
 			{
@@ -174,8 +177,8 @@ namespace Chorus.VcsDrivers.Mercurial
 			{
 				/*
 					fixutf8 makes it possible to have unicode characters in path names. Note that it is prone to break with new versions of mercurial.
-					it works with 1.5.1, and reportedly with 1.84, but the version I got did not work with 1.9.2.
-					When updating, notice that there are several forks available
+					We currently have one tweaked to work with all tested versions of Mercurial 3
+					When updating you will likely have to modify our version since people who need this use git now.
 					Note too that to make use of this in a cmd window, first set font to consolas (more characters)
 					and change the codepage to utf with "chcp 65001"
 				*/
@@ -188,15 +191,9 @@ namespace Chorus.VcsDrivers.Mercurial
 #endif
 				extensions.Add("hgext.graphlog", ""); //for more easily readable diagnostic logs
 				extensions.Add("convert", ""); //for catastrophic repair in case of repo corruption
-#if !MONO
 				string fixUtfFolder = FileLocator.GetDirectoryDistributedWithApplication(false, "MercurialExtensions", "fixutf8");
 				if(!string.IsNullOrEmpty(fixUtfFolder))
 					extensions.Add("fixutf8", Path.Combine(fixUtfFolder, "fixutf8.py"));
-#endif
-				// Add extension to allow creation of number only branches
-				var allownumberext = FileLocator.GetDirectoryDistributedWithApplication(false, "MercurialExtensions", "allownumberbranch");
-				if(!string.IsNullOrEmpty(allownumberext))
-					extensions.Add("allownumberbranch", Path.Combine(allownumberext, "allownumberbranch.py"));
 				return extensions;
 			}
 		}
@@ -388,7 +385,6 @@ namespace Chorus.VcsDrivers.Mercurial
 		{
 			get
 			{
-				CheckAndUpdateHgrc();
 				// Or: id -i -r0 for short id
 				var results = Execute(SecondsBeforeTimeoutOnLocalOperation, "log -r0 --template " + SurroundWithQuotes("{node}"));
 				// NB: This may end with a new line (&#xA; entity in xml).
@@ -561,7 +557,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			}
 
 			ExecutionResult result = ExecuteErrorsOk(b.ToString(), _pathToRepository, secondsBeforeTimeout, _progress);
-			if (ProcessOutputReader.kCancelled == result.ExitCode)
+			if (HgProcessOutputReader.kCancelled == result.ExitCode)
 			{
 				_progress.WriteWarning("User Cancelled");
 				return result;
@@ -815,8 +811,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		public void Init()
 		{
 			CheckMercurialIni();
-			var formatLimitation = AllowDotEncodeRepositoryFormat ? "" : "--config format.dotencode=False ";
-			Execute(20, "init", formatLimitation + SurroundWithQuotes(_pathToRepository));
+			Execute(20, "init", SurroundWithQuotes(_pathToRepository));
 			CheckAndUpdateHgrc();
 		}
 
@@ -975,12 +970,12 @@ namespace Chorus.VcsDrivers.Mercurial
 		/// say when the clone is from a USB or shared network folder TO a local working folder,
 		/// and the caller plans to use the actual data files in the repository.
 		/// </summary>
-		public string CloneLocalWithoutUpdate(string proposedTargetPath)
+		public string CloneLocalWithoutUpdate(string proposedTargetPath, string additionalOptions = null)
 		{
-			CheckAndUpdateHgrc();
+			CheckMercurialIni();
 			var actualTarget = GetUniqueFolderPath(_progress, proposedTargetPath);
 
-			Execute(SecondsBeforeTimeoutOnLocalOperation, "clone -U --uncompressed", PathWithQuotes + " " + SurroundWithQuotes(actualTarget));
+			Execute(SecondsBeforeTimeoutOnLocalOperation, "clone", "-U", "--uncompressed", additionalOptions, PathWithQuotes, SurroundWithQuotes(actualTarget));
 
 			return actualTarget;
 		}
@@ -1449,34 +1444,11 @@ namespace Chorus.VcsDrivers.Mercurial
 
 			IniSection section = doc.Sections.GetOrCreate("format");
 
-			if (CheckExtensions(doc, extensions) && section.GetValue("dotencode") == AllowDotEncodeRepositoryFormatStringValue)
-			{
-				return;
-			}
-
 			SetExtensions(doc, extensions);
-
-			//see also: CreateRepositoryInExistingDir
-
-			//review: could we have a comment explaining why we are putting this in the .ini if we're also putting it on the command line?
-			section.Set("dotencode", AllowDotEncodeRepositoryFormatStringValue);
 
 			doc.SaveAndThrowIfCannot();
 		}
-
-		/// <summary>
-		/// HG 1.7 introduced the "dotencode" repository format, which "avoids issues with filenames starting with ._ on
-		/// Mac OS X and spaces on Windows." We have this option so as not to require people to have
-		/// the newest version of their app in order to get a new repository.
-		/// Note: Regardless of this setting, no change is made to existing projects.
-		/// Note: This only effects USB file sharing (or LAN without a server)).
-		/// See http://mercurial.selenic.com/wiki/UpgradingMercurial
-		/// Default for this value is True, so new apps will get this improved format.
-		/// </summary>
-		public static bool AllowDotEncodeRepositoryFormat = true;
-
-		private string AllowDotEncodeRepositoryFormatStringValue { get { return AllowDotEncodeRepositoryFormat ? "True":"False"; } }
-
+		
 		private static void SetExtensions(IniDocument doc, IEnumerable<KeyValuePair<string, string>> extensionDeclarations)
 		{
 			doc.Sections.RemoveSection("extensions");
@@ -2186,5 +2158,4 @@ namespace Chorus.VcsDrivers.Mercurial
 			}
 		}
 	}
-
 }

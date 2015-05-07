@@ -1,8 +1,10 @@
 using System;
 using System.IO;
 using System.Reflection;
+using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using Ionic.Zip;
+using LibChorus.TestUtilities;
 using NUnit.Framework;
 using SIL.Progress;
 using Palaso.TestUtilities;
@@ -134,6 +136,26 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				var exception = Assert.Throws<ApplicationException>(() => hgRepo.AddAndCheckinFile(parentFile.Path));
 				Assert.That(exception.Message.Contains("Unable to recover") && !exception.Message.Contains("unresolved merge"),
 					String.Format("Repository should have conflict in retrying the merge, but not have an incomplete merge: {0}", exception.Message));
+			}
+		}
+
+		[Test]
+		public void CloneToUsbWithoutUpdateFollowedByIdentifierDoesNotAffectHgrc()
+		{
+			using(var repo = new RepositorySetup("source"))
+			using(var f = new TemporaryFolder("clonetest"))
+			{
+				// The MakeCloneFromLocalToLocal with false on alsoDoCheckout is the core of the usb clone operation.
+				// We need to make sure that this clone is bare of extensions, and remains so after the identifier is checked.
+				HgHighLevel.MakeCloneFromLocalToUsb(repo.ProjectFolder.Path, f.Path, new NullProgress());
+				var cloneRepo = new HgRepository(f.Path, new NullProgress());
+				var hgFolderPath = Path.Combine(f.Path, ".hg");
+				Assert.IsTrue(Directory.Exists(hgFolderPath));
+				var hgrcLines = File.ReadAllLines(Path.Combine(hgFolderPath, "hgrc"));
+				//SUT
+				CollectionAssert.DoesNotContain(hgrcLines, "[extensions]", "extensions section created in bare clone");
+				var id = cloneRepo.Identifier;
+				CollectionAssert.DoesNotContain(hgrcLines, "[extensions]", "extensions section created after Identifier property read");
 			}
 		}
 	}

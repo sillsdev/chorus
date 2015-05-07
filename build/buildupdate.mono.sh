@@ -66,7 +66,7 @@ cd -
 # build: chorus-precise64-SILWritingSystems Continuous (bt454)
 # project: Chorus
 # URL: http://build.palaso.org/viewType.html?buildTypeId=bt454
-# VCS: https://github.com/sillsdev/chorus.git [master]
+# VCS: https://github.com/sillsdev/chorus.git [SILWritingSystems]
 # dependencies:
 # [0] build: Helpprovider (bt225)
 #     project: Helpprovider

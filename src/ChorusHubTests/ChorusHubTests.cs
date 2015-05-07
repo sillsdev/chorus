@@ -34,7 +34,7 @@ namespace ChorusHubTests
 				Directory.Delete(_originalPath);
 		}
 
-		[Test]
+		[Test, Ignore("Run by hand.")]
 		public void FindServer_NoServerFound_Null()
 		{
 			Assert.IsNull(ChorusHubServerInfo.FindServerInformation());

@@ -8,8 +8,8 @@ namespace Chorus.Utilities
 		public int ExitCode;
 		public string StandardError;
 		public string StandardOutput;
-		public bool DidTimeOut { get { return ExitCode == ProcessOutputReader.kTimedOut; } }
-		public bool UserCancelled { get { return ExitCode == ProcessOutputReader.kCancelled; } }
+		public bool DidTimeOut { get { return ExitCode == HgProcessOutputReader.kTimedOut; } }
+		public bool UserCancelled { get { return ExitCode == HgProcessOutputReader.kCancelled; } }
 
 		public ExecutionResult()
 		{

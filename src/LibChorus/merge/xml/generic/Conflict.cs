@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Xml;
@@ -569,6 +570,92 @@ namespace Chorus.merge.xml.generic
 		public bool IsNotification { get { return false; } }
 	}
 
+	/// <summary>
+	/// This conflict indicates that one user made a change to a file and another user deleted that whole file.
+	/// The default behavior of Chorus is to keep the modified file and report that we did so.
+	/// <note>At the time we are detecting this we do not have the same version information as we do for conflicts that
+	/// are internal to a file.</note>
+	/// </summary>
+	public class FileChangedVsFileDeletedConflict : IConflict
+	{
+		private ContextDescriptor _contextDescriptor = new ContextDescriptor("File Deleted", "unknown");
+
+		public FileChangedVsFileDeletedConflict(string changedVsDeletedFile)
+		{
+			RelativeFilePath = changedVsDeletedFile;
+		}
+
+		public string RelativeFilePath { get; private set; }
+		public ContextDescriptor Context
+		{
+			get { return _contextDescriptor; }
+			set { _contextDescriptor = value; }
+		}
+
+		public string GetFullHumanReadableDescription()
+		{
+			return HtmlDetails;
+		}
+
+		public string Description
+		{
+			get { return LocalizationManager.GetString(@"Conflict.FileChangedVsFileDeleted", "File Deleted vs File Edited Conflict"); }
+		}
+		public string HtmlDetails { get { return String.Format("One user deleted {0} when the other changed it, the file was kept with its changes.", RelativeFilePath); } }
+		public void MakeHtmlDetails(XmlNode oursContext, XmlNode theirsContext, XmlNode ancestorContext, IGenerateHtmlContext htmlMaker)
+		{
+			throw new NotImplementedException("The FileChangedVsFileDeletedConflict is created before ChorusMerge, this method is not needed.");
+		}
+
+		public string WinnerId { get; private set; }
+		public Guid Guid { get; private set; }
+		public MergeSituation Situation { get; set; }
+		public string RevisionWhereMergeWasCheckedIn { get; private set; }
+		public string GetConflictingRecordOutOfSourceControl(IRetrieveFileVersionsFromRepository fileRetriever, ThreeWayMergeSources.Source mergeSource)
+		{
+			throw new NotImplementedException();
+		}
+
+		public void WriteAsChorusNotesAnnotation(XmlWriter writer)
+		{
+			Guard.AgainstNull(writer, @"writer");
+			writer.WriteStartElement(@"annotation");
+			writer.WriteAttributeString(@"class", "mergeconflict");
+			writer.WriteAttributeString(@"guid", Guid.NewGuid().ToString());
+			writer.WriteAttributeString(@"ref", String.Format("sil://localhost?&label=File {0} deleted and changed", Path.GetFileName(RelativeFilePath)));
+			writer.WriteStartElement(@"message");
+			writer.WriteAttributeString(@"author", string.Empty, "merger");
+			writer.WriteAttributeString(@"status", string.Empty, @"open");
+			writer.WriteAttributeString(@"guid", string.Empty, Guid.ToString());
+			writer.WriteAttributeString(@"date", string.Empty, DateTime.UtcNow.ToString(Conflict.TimeFormatNoTimeZone));
+			writer.WriteString(GetFullHumanReadableDescription());
+
+			//we embed the conflict xml inside the CDATA section so that it pass a more generic schema without
+			//resorting to the complexities of namespaces
+			var b = new StringBuilder();
+			using(var embeddedWriter = XmlWriter.Create(b, CanonicalXmlSettings.CreateXmlWriterSettings(ConformanceLevel.Fragment)))
+			{
+				embeddedWriter.WriteStartElement(@"conflict");
+				embeddedWriter.WriteAttributeString(@"class", string.Empty, this.GetType().FullName);
+				embeddedWriter.WriteAttributeString(@"relativeFilePath", string.Empty, RelativeFilePath);
+				embeddedWriter.WriteAttributeString(@"type", string.Empty, Description);
+				embeddedWriter.WriteAttributeString(@"guid", string.Empty, Guid.ToString());
+				embeddedWriter.WriteAttributeString(@"date", string.Empty, DateTime.UtcNow.ToString(Conflict.TimeFormatNoTimeZone));
+
+				if(Context != null)
+				{
+					Context.WriteAttributes(embeddedWriter);
+				}
+				embeddedWriter.WriteEndElement();
+			}
+			writer.WriteCData(b.ToString());
+			writer.WriteEndElement(); // </message>
+			writer.WriteEndElement();// </annotation>
+		}
+
+		public bool IsNotification { get; private set; }
+	}
+
 	#region  TextConflicts
 
 	public abstract class TextConflict : Conflict // NB: Be sure to register any new concrete subclasses in CreateFromConflictElement method.
@@ -651,12 +738,6 @@ namespace Chorus.merge.xml.generic
 			return string.Format(ConflictDesciptionPattern,
 				Description, ElementDescription, WhatHappened);
 		}
-
-		// I don't think it matches, and it won't in the type attr, anyway
-		//public virtual string GetXmlOfConflict()
-		//{
-		//    return string.Format("<annotation type='{0}'/>", GetType().Name);
-		//}
 
 		public override string GetConflictingRecordOutOfSourceControl(IRetrieveFileVersionsFromRepository fileRetriever, ThreeWayMergeSources.Source mergeSource)
 		{

@@ -108,20 +108,20 @@ cd -
 #     clean: false
 #     revision: latest.lastSuccessful
 #     paths: {"*.dll"=>"lib/Release"}
-# [6] build: icucil-win32-SILWritingSystems Continuous (bt469)
+# [6] build: icucil-win32-default Continuous (bt14)
 #     project: Libraries
-#     URL: http://build.palaso.org/viewType.html?buildTypeId=bt469
+#     URL: http://build.palaso.org/viewType.html?buildTypeId=bt14
 #     clean: false
 #     revision: latest.lastSuccessful
 #     paths: {"icu.net.dll"=>"lib/Debug", "icu.net.dll.config"=>"lib/Debug"}
-#     VCS: https://github.com/sillsdev/icu-dotnet [icu54]
-# [7] build: icucil-win32-SILWritingSystems Continuous (bt469)
+#     VCS: https://github.com/sillsdev/icu-dotnet [master]
+# [7] build: icucil-win32-default Continuous (bt14)
 #     project: Libraries
-#     URL: http://build.palaso.org/viewType.html?buildTypeId=bt469
+#     URL: http://build.palaso.org/viewType.html?buildTypeId=bt14
 #     clean: false
 #     revision: latest.lastSuccessful
 #     paths: {"icu.net.dll"=>"lib/Release", "icu.net.dll.config"=>"lib/Release"}
-#     VCS: https://github.com/sillsdev/icu-dotnet [icu54]
+#     VCS: https://github.com/sillsdev/icu-dotnet [master]
 # [8] build: palaso-win32-SILWritingSystems Continuous (bt440)
 #     project: libpalaso
 #     URL: http://build.palaso.org/viewType.html?buildTypeId=bt440
@@ -147,10 +147,10 @@ copy_auto http://build.palaso.org/guestAuth/repository/download/bt471/latest.las
 copy_auto http://build.palaso.org/guestAuth/repository/download/bt471/latest.lastSuccessful/icudt54.dll ../lib/Release/icudt54.dll
 copy_auto http://build.palaso.org/guestAuth/repository/download/bt471/latest.lastSuccessful/icuin54.dll ../lib/Release/icuin54.dll
 copy_auto http://build.palaso.org/guestAuth/repository/download/bt471/latest.lastSuccessful/icuuc54.dll ../lib/Release/icuuc54.dll
-copy_auto http://build.palaso.org/guestAuth/repository/download/bt469/latest.lastSuccessful/icu.net.dll ../lib/Debug/icu.net.dll
-copy_auto http://build.palaso.org/guestAuth/repository/download/bt469/latest.lastSuccessful/icu.net.dll.config ../lib/Debug/icu.net.dll.config
-copy_auto http://build.palaso.org/guestAuth/repository/download/bt469/latest.lastSuccessful/icu.net.dll ../lib/Release/icu.net.dll
-copy_auto http://build.palaso.org/guestAuth/repository/download/bt469/latest.lastSuccessful/icu.net.dll.config ../lib/Release/icu.net.dll.config
+copy_auto http://build.palaso.org/guestAuth/repository/download/bt14/latest.lastSuccessful/icu.net.dll ../lib/Debug/icu.net.dll
+copy_auto http://build.palaso.org/guestAuth/repository/download/bt14/latest.lastSuccessful/icu.net.dll.config ../lib/Debug/icu.net.dll.config
+copy_auto http://build.palaso.org/guestAuth/repository/download/bt14/latest.lastSuccessful/icu.net.dll ../lib/Release/icu.net.dll
+copy_auto http://build.palaso.org/guestAuth/repository/download/bt14/latest.lastSuccessful/icu.net.dll.config ../lib/Release/icu.net.dll.config
 copy_auto http://build.palaso.org/guestAuth/repository/download/bt440/latest.lastSuccessful/SIL.Core.dll ../lib/Release/SIL.Core.dll
 copy_auto http://build.palaso.org/guestAuth/repository/download/bt440/latest.lastSuccessful/Palaso.TestUtilities.dll ../lib/Release/Palaso.TestUtilities.dll
 copy_auto http://build.palaso.org/guestAuth/repository/download/bt440/latest.lastSuccessful/SIL.Windows.Forms.dll ../lib/Release/SIL.Windows.Forms.dll

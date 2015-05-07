@@ -76,7 +76,7 @@ namespace LibChorus.TestUtilities
 
 		private void MakeClone(string pathToNewRepo)
 		{
-			HgHighLevel.MakeCloneFromLocalToLocal(ProjectFolder.Path, pathToNewRepo, true, Progress);
+			HgHighLevel.MakeCloneFromUsbToLocal(ProjectFolder.Path, pathToNewRepo, Progress);
 		}
 
 		public string GetProgressString()

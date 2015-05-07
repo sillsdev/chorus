@@ -53,7 +53,8 @@ namespace ChorusMerge.Tests
 			return Program.Main(new[] {group.BobFile.Path, group.AncestorFile.Path, group.SallyFile.Path});
 		}
 
-		[Test, Ignore("re-enable, after ini file fix is in.")]
+		[Test]
+		[Platform(Exclude = "Linux", Reason = "This test assumes Windows file system behavior.")]
 		public void Main_Utf8FilePaths_FileNamesOk()
 		{
 			using (var e = new TemporaryFolder("ChorusMergeTest"))
