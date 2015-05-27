@@ -132,7 +132,7 @@
     </Reference>
     <Reference Include="GeckoBrowserAdapter">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\DebugMono\PalasoUIWindowsForms.GeckoBrowserAdapter.dll</HintPath>
+      <HintPath>..\..\lib\DebugMono\SIL.Windows.Forms.GeckoBrowserAdapter.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)' == 'ReleaseMono'">
@@ -147,7 +147,7 @@
     </Reference>
     <Reference Include="GeckoBrowserAdapter">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\ReleaseMono\PalasoUIWindowsForms.GeckoBrowserAdapter.dll</HintPath>
+      <HintPath>..\..\lib\ReleaseMono\SIL.Windows.Forms.GeckoBrowserAdapter.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
