@@ -70,19 +70,19 @@ namespace Chorus
 		{
 			try
 			{
-//				Palaso.Reporting.ErrorReport.AddProperty("EmailAddress", "issues@wesay.org");
-//				Palaso.Reporting.ErrorReport.AddStandardProperties();
-//				Palaso.Reporting.ExceptionHandler.Init();
+//				SIL.Reporting.ErrorReport.AddProperty("EmailAddress", "issues@wesay.org");
+//				SIL.Reporting.ErrorReport.AddStandardProperties();
+//				SIL.Reporting.ExceptionHandler.Init();
 
-			/* until we decide to require palaso.dll, we can at least make use of it if it happens
+			/* until we decide to require SIL.Core.dll, we can at least make use of it if it happens
 			 * to be there (as it is with WeSay)
 			 */
-				Assembly asm = Assembly.LoadFrom("Palaso.dll");
-				Type errorReportType = asm.GetType("Palaso.Reporting.ErrorReport");
+				Assembly asm = Assembly.LoadFrom("SIL.Core.dll");
+				Type errorReportType = asm.GetType("SIL.Reporting.ErrorReport");
 				PropertyInfo emailAddress = errorReportType.GetProperty("EmailAddress");
 				emailAddress.SetValue(null,"issues@wesay.org",null);
 				errorReportType.GetMethod("AddStandardProperties").Invoke(null, null);
-				asm.GetType("Palaso.Reporting.ExceptionHandler").GetMethod("Init").Invoke(null, null);
+				asm.GetType("SIL.Reporting.ExceptionHandler").GetMethod("Init").Invoke(null, null);
 			}
 			catch(Exception)
 			{
