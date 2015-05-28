@@ -8,37 +8,37 @@ using SIL.IO;
 namespace LibChorus.Tests.FileHandlers.LexiconSettings
 {
 	/// <summary>
-	/// Make sure only a project lexicon settings xml file can be validated by the ProjectLexiconSettingsFileHandler class.
+	/// Make sure only a user lexicon settings xml file can be validated by the UserLexiconSettingsFileHandler class.
 	/// </summary>
 	[TestFixture]
-	public class ProjectLexiconSettingsFileValidationTests
+	public class UserLexiconSettingsFileValidationTests
 	{
 		private IChorusFileTypeHandler _handler;
 		private TempFile _goodXmlTempFile;
 		private TempFile _illformedXmlTempFile;
-		private TempFile _goodXmlButNotProjectLexiconSettingsTempFile;
+		private TempFile _goodXmlButNotUserLexiconSettingsTempFile;
 		private TempFile _nonXmlTempFile;
 
 		[TestFixtureSetUp]
 		public void FixtureSetup()
 		{
 			_handler = (ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers().Handlers.Where(
-				handler => handler.GetType().Name == "ProjectLexiconSettingsFileHandler")).First();
+				handler => handler.GetType().Name == "UserLexiconSettingsFileHandler")).First();
 
-			_goodXmlTempFile = TempFile.WithExtension(".plsx");
+			_goodXmlTempFile = TempFile.WithExtension(".ulsx");
 #if MONO
-			File.WriteAllText(_goodXmlTempFile.Path, "<?xml version='1.0' encoding='utf-8'?>" + Environment.NewLine + "<ProjectLexiconSettings>" + Environment.NewLine + "</ProjectLexiconSettings>");
+			File.WriteAllText(_goodXmlTempFile.Path, "<?xml version='1.0' encoding='utf-8'?>" + Environment.NewLine + "<UserLexiconSettings>" + Environment.NewLine + "</UserLexiconSettings>");
 #else
-			File.WriteAllText(_goodXmlTempFile.Path, "<?xml version='1.0' encoding='utf-8'?>" + Environment.NewLine + "<ProjectLexiconSettings />");
+			File.WriteAllText(_goodXmlTempFile.Path, "<?xml version='1.0' encoding='utf-8'?>" + Environment.NewLine + "<UserLexiconSettings />");
 #endif
-			_illformedXmlTempFile = TempFile.WithExtension(".plsx");
-			File.WriteAllText(_illformedXmlTempFile.Path, "<?xml version='1.0' encoding='utf-8'?>" + Environment.NewLine + "<ProjectLexiconSettings>");
+			_illformedXmlTempFile = TempFile.WithExtension(".ulsx");
+			File.WriteAllText(_illformedXmlTempFile.Path, "<?xml version='1.0' encoding='utf-8'?>" + Environment.NewLine + "<UserLexiconSettings>");
 
-			_goodXmlButNotProjectLexiconSettingsTempFile = TempFile.WithExtension(".plsx");
-			File.WriteAllText(_goodXmlButNotProjectLexiconSettingsTempFile.Path, "<?xml version='1.0' encoding='utf-8'?>" + Environment.NewLine + "<nonProjectLexiconSettingsstuff />");
+			_goodXmlButNotUserLexiconSettingsTempFile = TempFile.WithExtension(".ulsx");
+			File.WriteAllText(_goodXmlButNotUserLexiconSettingsTempFile.Path, "<?xml version='1.0' encoding='utf-8'?>" + Environment.NewLine + "<nonUserLexiconSettingsstuff />");
 
 			_nonXmlTempFile = TempFile.WithExtension(".txt");
-			File.WriteAllText(_nonXmlTempFile.Path, "This is not a project lexicon settings file." + Environment.NewLine);
+			File.WriteAllText(_nonXmlTempFile.Path, "This is not a user lexicon settings file." + Environment.NewLine);
 		}
 
 		[TestFixtureTearDown]
@@ -51,8 +51,8 @@ namespace LibChorus.Tests.FileHandlers.LexiconSettings
 			_illformedXmlTempFile.Dispose();
 			_illformedXmlTempFile = null;
 
-			_goodXmlButNotProjectLexiconSettingsTempFile.Dispose();
-			_goodXmlButNotProjectLexiconSettingsTempFile = null;
+			_goodXmlButNotUserLexiconSettingsTempFile.Dispose();
+			_goodXmlButNotUserLexiconSettingsTempFile = null;
 
 			_nonXmlTempFile.Dispose();
 			_nonXmlTempFile = null;
@@ -115,7 +115,7 @@ namespace LibChorus.Tests.FileHandlers.LexiconSettings
 		[Test]
 		public void ValidateFile_Returns_Message_For_Good_But_Not_ProjectLexiconSettings_File()
 		{
-			Assert.IsNotNull(_handler.ValidateFile(_goodXmlButNotProjectLexiconSettingsTempFile.Path, null));
+			Assert.IsNotNull(_handler.ValidateFile(_goodXmlButNotUserLexiconSettingsTempFile.Path, null));
 		}
 	}
 }

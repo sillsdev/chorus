@@ -211,6 +211,8 @@
     <Compile Include="FileTypeHanders\ldml\LdmlContextGenerators.cs" />
     <Compile Include="FileTypeHanders\ldml\LdmlFileHandler.cs" />
     <Compile Include="FileTypeHanders\ldml\LdmlElementToMergeStrategyKeyMapper.cs" />
+    <Compile Include="FileTypeHanders\LexiconSettings\UserLexiconSettingsContextGenerators.cs" />
+    <Compile Include="FileTypeHanders\LexiconSettings\UserLexiconSettingsFileHandler.cs" />
     <Compile Include="FileTypeHanders\Lift-Ranges\LiftRangesMergingStrategy.cs" />
     <Compile Include="FileTypeHanders\lift\LiftHeaderContextGenerator.cs" />
     <Compile Include="FileTypeHanders\Lift-Ranges\LiftRangeContextGenerator.cs" />

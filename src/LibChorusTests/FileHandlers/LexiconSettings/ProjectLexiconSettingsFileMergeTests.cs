@@ -20,7 +20,7 @@ namespace LibChorus.Tests.FileHandlers.LexiconSettings
 	[TestFixture]
 	public class ProjectLexiconSettingsFileMergeTests
 	{
-		private IChorusFileTypeHandler _lexiconProjectSettingsFileHandler;
+		private IChorusFileTypeHandler _projectLexiconSettingsFileHandler;
 		private ListenerForUnitTests _eventListener;
 
 		private static string CommonAncestorTemplate(string element)
@@ -80,7 +80,7 @@ namespace LibChorus.Tests.FileHandlers.LexiconSettings
 		[TestFixtureSetUp]
 		public void FixtureSetup()
 		{
-			_lexiconProjectSettingsFileHandler =
+			_projectLexiconSettingsFileHandler =
 				(from handler in ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers().Handlers
 					where handler.GetType().Name == "ProjectLexiconSettingsFileHandler"
 					select handler).First();
@@ -89,14 +89,14 @@ namespace LibChorus.Tests.FileHandlers.LexiconSettings
 		[TestFixtureTearDown]
 		public void FixtureTearDown()
 		{
-			_lexiconProjectSettingsFileHandler = null;
+			_projectLexiconSettingsFileHandler = null;
 			_eventListener = null;
 		}
 
 		[Test]
 		public void CannotMergeNonexistantFile()
 		{
-			Assert.IsFalse(_lexiconProjectSettingsFileHandler.CanMergeFile("bogusPathname"));
+			Assert.IsFalse(_projectLexiconSettingsFileHandler.CanMergeFile("bogusPathname"));
 		}
 
 		[Test]
@@ -105,26 +105,26 @@ namespace LibChorus.Tests.FileHandlers.LexiconSettings
 			using (var tempFile = TempFile.WithExtension(".plsx"))
 			{
 				File.WriteAllText(tempFile.Path, "<?xml version='1.0' encoding='utf-8'?>" + Environment.NewLine + "<ProjectLexiconSettings />");
-				Assert.IsTrue(_lexiconProjectSettingsFileHandler.CanMergeFile(tempFile.Path));
+				Assert.IsTrue(_projectLexiconSettingsFileHandler.CanMergeFile(tempFile.Path));
 			}
 		}
 
 		[Test]
 		public void CannotMergeEmptyStringFile()
 		{
-			Assert.IsFalse(_lexiconProjectSettingsFileHandler.CanMergeFile(String.Empty));
+			Assert.IsFalse(_projectLexiconSettingsFileHandler.CanMergeFile(String.Empty));
 		}
 
 		[Test]
 		public void CannotMergeNullFile()
 		{
-			Assert.IsFalse(_lexiconProjectSettingsFileHandler.CanMergeFile(null));
+			Assert.IsFalse(_projectLexiconSettingsFileHandler.CanMergeFile(null));
 		}
 
 		[Test]
 		public void Do3WayMerge_NullInput_Throws()
 		{
-			Assert.Throws<ArgumentNullException>(() => _lexiconProjectSettingsFileHandler.Do3WayMerge(null));
+			Assert.Throws<ArgumentNullException>(() => _projectLexiconSettingsFileHandler.Do3WayMerge(null));
 		}
 
 		[Test]
@@ -412,7 +412,7 @@ namespace LibChorus.Tests.FileHandlers.LexiconSettings
 				_eventListener = new ListenerForUnitTests();
 				mergeOrder.EventListener = _eventListener;
 
-				_lexiconProjectSettingsFileHandler.Do3WayMerge(mergeOrder);
+				_projectLexiconSettingsFileHandler.Do3WayMerge(mergeOrder);
 				string result = File.ReadAllText(ours.Path);
 				foreach (var query in matchesExactlyOne)
 					XmlTestHelper.AssertXPathMatchesExactlyOne(result, query, namespaces);

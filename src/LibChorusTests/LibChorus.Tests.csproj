@@ -125,6 +125,9 @@
     <Compile Include="FileHandlers\ldml\LdmlFileMergeTests.cs" />
     <Compile Include="FileHandlers\ldml\LdmlFileValidationTests.cs" />
     <Compile Include="FileHandlers\ldml\LdmlFileHandlerTests.cs" />
+    <Compile Include="FileHandlers\LexiconSettings\UserLexiconSettingsFileHandlerTests.cs" />
+    <Compile Include="FileHandlers\LexiconSettings\UserLexiconSettingsFileMergeTests.cs" />
+    <Compile Include="FileHandlers\LexiconSettings\UserLexiconSettingsFileValidationTests.cs" />
     <Compile Include="FileHandlers\LiftRanges\LiftRangesFileHandlerTests.cs" />
     <Compile Include="FileHandlers\Lift\LiftSynchronizerAdjunctTests.cs" />
     <Compile Include="FileHandlers\LexiconSettings\ProjectLexiconSettingsFileHandlerTests.cs" />

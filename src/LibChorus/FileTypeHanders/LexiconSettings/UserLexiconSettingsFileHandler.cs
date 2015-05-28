@@ -4,7 +4,6 @@ using System.IO;
 using System.Text;
 using System.Xml;
 using System.Xml.Linq;
-using Chorus.FileTypeHanders.LexiconSettings;
 using Chorus.FileTypeHanders.xml;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
@@ -13,17 +12,17 @@ using SIL.IO;
 using SIL.Progress;
 using SIL.Xml;
 
-namespace Chorus.FileTypeHanders.Settings
+namespace Chorus.FileTypeHanders.LexiconSettings
 {
 	///<summary>
-	/// Implementation of the IChorusFileTypeHandler interface to handle project settings files
+	/// Implementation of the IChorusFileTypeHandler interface to handle user settings files
 	///</summary>
-	public class ProjectLexiconSettingsFileHandler : IChorusFileTypeHandler
+	public class UserLexiconSettingsFileHandler : IChorusFileTypeHandler
 	{
-		internal ProjectLexiconSettingsFileHandler()
+		internal UserLexiconSettingsFileHandler()
 		{ }
 
-		private const string Extension = "plsx";
+		private const string Extension = "ulsx";
 
 		#region Implementation of IChorusFileTypeHandler
 
@@ -101,7 +100,7 @@ namespace Chorus.FileTypeHanders.Settings
 				using (var reader = XmlReader.Create(pathToFile, CanonicalXmlSettings.CreateXmlReaderSettings()))
 				{
 					reader.MoveToContent();
-					if (reader.LocalName == "ProjectLexiconSettings")
+					if (reader.LocalName == "UserLexiconSettings")
 					{
 						// It would be nice, if it could really validate it.
 						while (reader.Read())
@@ -110,7 +109,7 @@ namespace Chorus.FileTypeHanders.Settings
 					}
 					else
 					{
-						throw new InvalidOperationException("Not a project lexicon settings file.");
+						throw new InvalidOperationException("Not a user lexicon settings file.");
 					}
 				}
 			}
@@ -154,10 +153,10 @@ namespace Chorus.FileTypeHanders.Settings
 
 		internal static void SetupElementStrategies(XmlMerger merger)
 		{
-			// See: Palaso repo: SIL.LexiconUtils\ProjectLexiconSettingsDataMapper.cs
+			// See: Palaso repo: SIL.LexiconUtils\UserLexiconSettingsDataMapper.cs
 			var strategy = ElementStrategy.CreateSingletonElement();
-			strategy.ContextDescriptorGenerator = new ProjectLexiconSettingsContextGenerator();
-			merger.MergeStrategies.SetStrategy("ProjectLexiconSettings", strategy);
+			strategy.ContextDescriptorGenerator = new UserLexiconSettingsContextGenerator();
+			merger.MergeStrategies.SetStrategy("UserLexiconSettings", strategy);
 			// Child elements of lexicon project settings root.
 
 			merger.MergeStrategies.SetStrategy("WritingSystems", ElementStrategy.CreateSingletonElement());
@@ -168,49 +167,31 @@ namespace Chorus.FileTypeHanders.Settings
 				MergePartnerFinder = new FindByKeyAttribute("id")
 			}
 			);
-			merger.MergeStrategies.SetStrategy("Abbreviation", new ElementStrategy(false)
+			merger.MergeStrategies.SetStrategy("LocalKeyboard", new ElementStrategy(false)
 			{
 				IsAtomic = true,
 				MergePartnerFinder = new FindFirstElementWithSameName()
 			}
 			);
-			merger.MergeStrategies.SetStrategy("LanguageName", new ElementStrategy(false)
+			merger.MergeStrategies.SetStrategy("KnownKeyboards", new ElementStrategy(false)
 			{
 				IsAtomic = true,
 				MergePartnerFinder = new FindFirstElementWithSameName()
 			}
 			);
-			merger.MergeStrategies.SetStrategy("ScriptName", new ElementStrategy(false)
+			merger.MergeStrategies.SetStrategy("DefaultFontName", new ElementStrategy(false)
 			{
 				IsAtomic = true,
 				MergePartnerFinder = new FindFirstElementWithSameName()
 			}
 			);
-			merger.MergeStrategies.SetStrategy("RegionName", new ElementStrategy(false)
+			merger.MergeStrategies.SetStrategy("DefaultFontSize", new ElementStrategy(false)
 			{
 				IsAtomic = true,
 				MergePartnerFinder = new FindFirstElementWithSameName()
 			}
 			);
-			merger.MergeStrategies.SetStrategy("SpellCheckingId", new ElementStrategy(false)
-			{
-				IsAtomic = true,
-				MergePartnerFinder = new FindFirstElementWithSameName()
-			}
-			);
-			merger.MergeStrategies.SetStrategy("LegacyMapping", new ElementStrategy(false)
-			{
-				IsAtomic = true,
-				MergePartnerFinder = new FindFirstElementWithSameName()
-			}
-			);
-			merger.MergeStrategies.SetStrategy("Keyboard", new ElementStrategy(false)
-			{
-				IsAtomic = true,
-				MergePartnerFinder = new FindFirstElementWithSameName()
-			}
-			);
-			merger.MergeStrategies.SetStrategy("SystemCollation", new ElementStrategy(false)
+			merger.MergeStrategies.SetStrategy("IsGraphiteEnabled", new ElementStrategy(false)
 			{
 				IsAtomic = true,
 				MergePartnerFinder = new FindFirstElementWithSameName()
@@ -226,8 +207,8 @@ namespace Chorus.FileTypeHanders.Settings
 		private static void PreMergeFile(MergeOrder mergeOrder, out bool addedCollationAttr)
 		{
 			addedCollationAttr = false;
-			XDocument ourDoc = File.Exists(mergeOrder.pathToOurs) && File.ReadAllText(mergeOrder.pathToOurs).Contains("<ProjectLexiconSettings>") ? XDocument.Load(mergeOrder.pathToOurs) : null;
-			XDocument theirDoc = File.Exists(mergeOrder.pathToTheirs) && File.ReadAllText(mergeOrder.pathToTheirs).Contains("<ProjectLexiconSettings>") ? XDocument.Load(mergeOrder.pathToTheirs) : null;
+			XDocument ourDoc = File.Exists(mergeOrder.pathToOurs) && File.ReadAllText(mergeOrder.pathToOurs).Contains("<UserLexiconSettings>") ? XDocument.Load(mergeOrder.pathToOurs) : null;
+			XDocument theirDoc = File.Exists(mergeOrder.pathToTheirs) && File.ReadAllText(mergeOrder.pathToTheirs).Contains("<UserLexiconSettings>") ? XDocument.Load(mergeOrder.pathToTheirs) : null;
 
 			if (ourDoc == null || theirDoc == null)
 				return;
