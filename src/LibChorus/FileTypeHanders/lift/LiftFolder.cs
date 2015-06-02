@@ -39,6 +39,8 @@ namespace Chorus.FileTypeHanders.lift
 			config.IncludePatterns.Add(Path.Combine("audio", "**.*")); // Including nested folders/files
 			config.IncludePatterns.Add(Path.Combine("pictures", "**.*")); // Including nested folders/files
 			config.IncludePatterns.Add(Path.Combine("others", "**.*")); // Including nested folders/files
+			config.IncludePatterns.Add(Path.Combine("SharedSettings", "*.ulsx")); // Including user lexion settings
+			config.IncludePatterns.Add(Path.Combine("SharedSettings", "*.plsx")); // Including project lexicon settings
 			config.IncludePatterns.Add(Path.Combine("WritingSystems", "*.ldml"));
 			config.IncludePatterns.Add("**.xml"); //hopefully the days of files ending in "xml" are numbered
 			config.IncludePatterns.Add(".hgIgnore");
