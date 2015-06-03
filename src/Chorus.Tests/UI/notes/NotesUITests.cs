@@ -10,7 +10,7 @@ using Chorus.UI.Review;
 using NUnit.Framework;
 using SIL.IO;
 using SIL.Progress;
-using Palaso.TestUtilities;
+using SIL.TestUtilities;
 
 namespace Chorus.Tests.notes
 {

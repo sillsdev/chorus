@@ -6,7 +6,7 @@ using Chorus.VcsDrivers.Mercurial;
 using NUnit.Framework;
 using SIL.Progress;
 using SIL.UsbDrive;
-using Palaso.TestUtilities;
+using SIL.TestUtilities;
 
 namespace Chorus.Tests.UI.Clone
 {

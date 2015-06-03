@@ -4,7 +4,7 @@ using Chorus.UI.Clone;
 using Chorus.VcsDrivers.Mercurial;
 using NUnit.Framework;
 using SIL.Progress;
-using Palaso.TestUtilities;
+using SIL.TestUtilities;
 
 namespace Chorus.Tests.UI.Clone
 {

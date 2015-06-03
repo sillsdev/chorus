@@ -65,9 +65,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\Debug\SIL.Core.dll</HintPath>
     </Reference>
-    <Reference Include="Palaso.TestUtilities">
+    <Reference Include="SIL.TestUtilities">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\Debug\Palaso.TestUtilities.dll</HintPath>
+      <HintPath>..\..\lib\Debug\SIL.TestUtilities.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)' == 'Release'">
@@ -75,9 +75,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\Release\SIL.Core.dll</HintPath>
     </Reference>
-    <Reference Include="Palaso.TestUtilities">
+    <Reference Include="SIL.TestUtilities">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\Release\Palaso.TestUtilities.dll</HintPath>
+      <HintPath>..\..\lib\Release\SIL.TestUtilities.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)' == 'DebugMono'">
@@ -85,9 +85,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\DebugMono\SIL.Core.dll</HintPath>
     </Reference>
-    <Reference Include="Palaso.TestUtilities">
+    <Reference Include="SIL.TestUtilities">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\DebugMono\Palaso.TestUtilities.dll</HintPath>
+      <HintPath>..\..\lib\DebugMono\SIL.TestUtilities.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)' == 'ReleaseMono'">
@@ -95,9 +95,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\ReleaseMono\SIL.Core.dll</HintPath>
     </Reference>
-    <Reference Include="Palaso.TestUtilities">
+    <Reference Include="SIL.TestUtilities">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\ReleaseMono\Palaso.TestUtilities.dll</HintPath>
+      <HintPath>..\..\lib\ReleaseMono\SIL.TestUtilities.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

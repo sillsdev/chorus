@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using Chorus.UI.Clone;
 using NUnit.Framework;
-using Palaso.TestUtilities;
+using SIL.TestUtilities;
 
 namespace Chorus.Tests.UI.Clone
 {

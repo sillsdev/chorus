@@ -1,5 +1,5 @@
 ﻿using System;
-using Palaso.TestUtilities;
+using SIL.TestUtilities;
 
 namespace LibChorus.Tests.merge
 {

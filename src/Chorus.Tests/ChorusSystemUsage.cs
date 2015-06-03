@@ -6,7 +6,7 @@ using Chorus.notes;
 using NUnit.Framework;
 using SIL.IO;
 using SIL.Progress;
-using Palaso.TestUtilities;
+using SIL.TestUtilities;
 
 namespace Chorus.Tests
 {

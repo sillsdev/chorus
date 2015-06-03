@@ -9,7 +9,7 @@ using LibChorus.TestUtilities;
 using NUnit.Framework;
 using SIL.IO;
 using SIL.Progress;
-using Palaso.TestUtilities;
+using SIL.TestUtilities;
 
 namespace ChorusHubTests
 {

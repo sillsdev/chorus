@@ -7,7 +7,7 @@ using Chorus.UI.Notes.Browser;
 using NUnit.Framework;
 using SIL.IO;
 using SIL.Progress;
-using Palaso.TestUtilities;
+using SIL.TestUtilities;
 
 namespace Chorus.Tests.notes
 { // TODO pH 2013.08: look for new, untested methods

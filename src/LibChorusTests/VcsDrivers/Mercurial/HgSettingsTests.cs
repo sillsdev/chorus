@@ -7,7 +7,7 @@ using LibChorus.TestUtilities;
 using NUnit.Framework;
 using System.Linq;
 using SIL.Progress;
-using Palaso.TestUtilities;
+using SIL.TestUtilities;
 
 namespace LibChorus.Tests.VcsDrivers.Mercurial
 {

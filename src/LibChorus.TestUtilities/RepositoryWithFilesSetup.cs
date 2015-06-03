@@ -8,7 +8,7 @@ using Chorus.VcsDrivers.Mercurial;
 using NUnit.Framework;
 using SIL.IO;
 using SIL.Progress;
-using Palaso.TestUtilities;
+using SIL.TestUtilities;
 using SIL.Xml;
 
 namespace LibChorus.TestUtilities

@@ -6,7 +6,7 @@ using LibChorus.TestUtilities;
 using NUnit.Framework;
 using SIL.IO;
 using SIL.Progress;
-using Palaso.TestUtilities;
+using SIL.TestUtilities;
 
 namespace LibChorus.Tests.VcsDrivers.Mercurial
 {
@@ -199,11 +199,18 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 
 
 
-		[Test]        public void CreateOrLocate_FolderHasThaiAndAccentedLetter2_FindsIt()        {            using (var testRoot = new TemporaryFolder("chorus utf8 folder test"))            {
+		[Test]
+        public void CreateOrLocate_FolderHasThaiAndAccentedLetter2_FindsIt()
+        {
+            using (var testRoot = new TemporaryFolder("chorus utf8 folder test"))
+            {
 				//string path = Path.Combine(testRoot.Path, "Abé Books");
 				string path = Path.Combine(testRoot.Path, "ไก่ projéct");
-				Directory.CreateDirectory(path);                Assert.NotNull(HgRepository.CreateOrUseExisting(path, new ConsoleProgress()));
-				Assert.NotNull(HgRepository.CreateOrUseExisting(path, new ConsoleProgress()));            }
+				Directory.CreateDirectory(path);
+
+                Assert.NotNull(HgRepository.CreateOrUseExisting(path, new ConsoleProgress()));
+				Assert.NotNull(HgRepository.CreateOrUseExisting(path, new ConsoleProgress()));
+            }
 		}
 
 		[Test]

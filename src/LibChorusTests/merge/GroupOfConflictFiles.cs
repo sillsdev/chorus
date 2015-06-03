@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 using SIL.IO;
-using Palaso.TestUtilities;
+using SIL.TestUtilities;
 
 namespace LibChorus.Tests.merge
 {
