@@ -126,7 +126,7 @@ cd -
 #     URL: http://build.palaso.org/viewType.html?buildTypeId=bt440
 #     clean: false
 #     revision: latest.lastSuccessful
-#     paths: {"SIL.Core.dll"=>"lib/Release", "Palaso.TestUtilities.dll"=>"lib/Release", "SIL.Windows.Forms.dll"=>"lib/Release", "SIL.Windows.Forms.GeckoBrowserAdapter.dll"=>"lib/Release", "Palaso.Lift.dll"=>"lib/Release", "debug/SIL.Core.dll"=>"lib/Debug", "debug/SIL.Core.pdb"=>"lib/Debug", "debug/Palaso.TestUtilities.dll"=>"lib/Debug", "debug/Palaso.TestUtilities.pdb"=>"lib/Debug", "debug/SIL.Windows.Forms.dll"=>"lib/Debug", "debug/SIL.Windows.Forms.pdb"=>"lib/Debug", "debug/SIL.Windows.Forms.GeckoBrowserAdapter.dll"=>"lib/Debug", "debug/SIL.Windows.Forms.GeckoBrowserAdapter.pdb"=>"lib/Debug", "debug/Palaso.Lift.dll"=>"lib/Debug", "debug/Palaso.Lift.pdb"=>"lib/Debug"}
+#     paths: {"SIL.Core.dll"=>"lib/Release", "Palaso.TestUtilities.dll"=>"lib/Release", "SIL.Windows.Forms.dll"=>"lib/Release", "SIL.Windows.Forms.GeckoBrowserAdapter.dll"=>"lib/Release", "SIL.Lift.dll"=>"lib/Release", "debug/SIL.Core.dll"=>"lib/Debug", "debug/SIL.Core.pdb"=>"lib/Debug", "debug/Palaso.TestUtilities.dll"=>"lib/Debug", "debug/Palaso.TestUtilities.pdb"=>"lib/Debug", "debug/SIL.Windows.Forms.dll"=>"lib/Debug", "debug/SIL.Windows.Forms.pdb"=>"lib/Debug", "debug/SIL.Windows.Forms.GeckoBrowserAdapter.dll"=>"lib/Debug", "debug/SIL.Windows.Forms.GeckoBrowserAdapter.pdb"=>"lib/Debug", "debug/SIL.Lift.dll"=>"lib/Debug", "debug/SIL.Lift.pdb"=>"lib/Debug"}
 #     VCS: https://github.com/sillsdev/libpalaso.git [SILWritingSystems]
 
 # make sure output directories exist
@@ -154,7 +154,7 @@ copy_auto http://build.palaso.org/guestAuth/repository/download/bt440/latest.las
 copy_auto http://build.palaso.org/guestAuth/repository/download/bt440/latest.lastSuccessful/Palaso.TestUtilities.dll ../lib/Release/Palaso.TestUtilities.dll
 copy_auto http://build.palaso.org/guestAuth/repository/download/bt440/latest.lastSuccessful/SIL.Windows.Forms.dll ../lib/Release/SIL.Windows.Forms.dll
 copy_auto http://build.palaso.org/guestAuth/repository/download/bt440/latest.lastSuccessful/SIL.Windows.Forms.GeckoBrowserAdapter.dll ../lib/Release/SIL.Windows.Forms.GeckoBrowserAdapter.dll
-copy_auto http://build.palaso.org/guestAuth/repository/download/bt440/latest.lastSuccessful/Palaso.Lift.dll ../lib/Release/Palaso.Lift.dll
+copy_auto http://build.palaso.org/guestAuth/repository/download/bt440/latest.lastSuccessful/SIL.Lift.dll ../lib/Release/SIL.Lift.dll
 copy_auto http://build.palaso.org/guestAuth/repository/download/bt440/latest.lastSuccessful/debug/SIL.Core.dll ../lib/Debug/SIL.Core.dll
 copy_auto http://build.palaso.org/guestAuth/repository/download/bt440/latest.lastSuccessful/debug/SIL.Core.pdb ../lib/Debug/SIL.Core.pdb
 copy_auto http://build.palaso.org/guestAuth/repository/download/bt440/latest.lastSuccessful/debug/Palaso.TestUtilities.dll ../lib/Debug/Palaso.TestUtilities.dll
@@ -163,6 +163,6 @@ copy_auto http://build.palaso.org/guestAuth/repository/download/bt440/latest.las
 copy_auto http://build.palaso.org/guestAuth/repository/download/bt440/latest.lastSuccessful/debug/SIL.Windows.Forms.pdb ../lib/Debug/SIL.Windows.Forms.pdb
 copy_auto http://build.palaso.org/guestAuth/repository/download/bt440/latest.lastSuccessful/debug/SIL.Windows.Forms.GeckoBrowserAdapter.dll ../lib/Debug/SIL.Windows.Forms.GeckoBrowserAdapter.dll
 copy_auto http://build.palaso.org/guestAuth/repository/download/bt440/latest.lastSuccessful/debug/SIL.Windows.Forms.GeckoBrowserAdapter.pdb ../lib/Debug/SIL.Windows.Forms.GeckoBrowserAdapter.pdb
-copy_auto http://build.palaso.org/guestAuth/repository/download/bt440/latest.lastSuccessful/debug/Palaso.Lift.dll ../lib/Debug/Palaso.Lift.dll
-copy_auto http://build.palaso.org/guestAuth/repository/download/bt440/latest.lastSuccessful/debug/Palaso.Lift.pdb ../lib/Debug/Palaso.Lift.pdb
+copy_auto http://build.palaso.org/guestAuth/repository/download/bt440/latest.lastSuccessful/debug/SIL.Lift.dll ../lib/Debug/SIL.Lift.dll
+copy_auto http://build.palaso.org/guestAuth/repository/download/bt440/latest.lastSuccessful/debug/SIL.Lift.pdb ../lib/Debug/SIL.Lift.pdb
 # End of script

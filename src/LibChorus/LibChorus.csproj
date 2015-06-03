@@ -90,9 +90,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\Debug\SIL.Core.dll</HintPath>
     </Reference>
-    <Reference Include="Palaso.Lift">
+    <Reference Include="SIL.Lift">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\Debug\Palaso.Lift.dll</HintPath>
+      <HintPath>..\..\lib\Debug\SIL.Lift.dll</HintPath>
     </Reference>
     <Reference Include="icu.net">
       <SpecificVersion>False</SpecificVersion>
@@ -117,9 +117,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\Release\SIL.Core.dll</HintPath>
     </Reference>
-    <Reference Include="Palaso.Lift">
+    <Reference Include="SIL.Lift">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\Release\Palaso.Lift.dll</HintPath>
+      <HintPath>..\..\lib\Release\SIL.Lift.dll</HintPath>
     </Reference>
     <Reference Include="icu.net">
       <SpecificVersion>False</SpecificVersion>
@@ -144,9 +144,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\DebugMono\SIL.Core.dll</HintPath>
     </Reference>
-    <Reference Include="Palaso.Lift">
+    <Reference Include="SIL.Lift">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\DebugMono\Palaso.Lift.dll</HintPath>
+      <HintPath>..\..\lib\DebugMono\SIL.Lift.dll</HintPath>
     </Reference>
     <Reference Include="NDesk.DBus">
       <SpecificVersion>False</SpecificVersion>
@@ -172,9 +172,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\ReleaseMono\SIL.Core.dll</HintPath>
     </Reference>
-    <Reference Include="Palaso.Lift">
+    <Reference Include="SIL.Lift">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\ReleaseMono\Palaso.Lift.dll</HintPath>
+      <HintPath>..\..\lib\ReleaseMono\SIL.Lift.dll</HintPath>
     </Reference>
     <Reference Include="NDesk.DBus">
       <SpecificVersion>False</SpecificVersion>

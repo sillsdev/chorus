@@ -3,11 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Xml;
-using System.Xml.Linq;
 using Chorus.Utilities;
 using SIL.Code;
 using SIL.Xml;
-using Palaso.Lift;
+using SIL.Lift;
 
 namespace Chorus.merge.xml.generic
 {

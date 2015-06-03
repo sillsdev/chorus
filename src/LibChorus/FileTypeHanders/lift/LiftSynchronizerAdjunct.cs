@@ -4,7 +4,7 @@ using System.Text;
 using System.Xml;
 using Chorus.VcsDrivers.Mercurial;
 using Chorus.sync;
-using Palaso.Lift;
+using SIL.Lift;
 using SIL.Xml;
 using SIL.Progress;
 
