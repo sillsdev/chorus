@@ -3,7 +3,7 @@ using Chorus.merge.xml.generic;
 
 namespace Chorus.FileTypeHanders.LexiconSettings
 {
-	// ProjectLexiconSettings
+	// UserLexiconSettings
 	// WritingSystems
 	//		WritingSystem
 	//			LocalKeyboard
