@@ -73,8 +73,8 @@ http://blogs.msdn.com/robmen/archive/2003/10/04/56479.aspx -->
 		<Component Id="SIL.Core.dll" Guid="C1EE09F8-E382-11DE-8A39-0800200C9A66">
 		  <File Id="SIL.Core.dll" Name="SIL.Core.dll" KeyPath="yes" Source="..\..\output\release\SIL.Core.dll" />
 		</Component>
-		<Component Id="Palaso.Lift.dll" Guid="C1EE09F9-E382-11DE-8A39-0800200C9A66">
-		  <File Id="Palaso.Lift.dll" Name="Palaso.Lift.dll" KeyPath="yes" Source="..\..\output\release\Palaso.Lift.dll" />
+		<Component Id="SIL.Lift.dll" Guid="C1EE09F9-E382-11DE-8A39-0800200C9A66">
+		  <File Id="SIL.Lift.dll" Name="SIL.Lift.dll" KeyPath="yes" Source="..\..\output\release\SIL.Lift.dll" />
 		</Component>
 		<Component Id="SIL.Windows.Forms.dll" Guid="c1ee09fa-e382-11de-8a39-0800200c9a66">
 		  <File Id="SIL.Windows.Forms.dll" Name="SIL.Windows.Forms.dll" KeyPath="yes" Source="..\..\output\release\SIL.Windows.Forms.dll" />
@@ -91,7 +91,7 @@ http://blogs.msdn.com/robmen/archive/2003/10/04/56479.aspx -->
 	<ComponentRef Id="icuin54.dll"/>
 	<ComponentRef Id="icuuc54.dll"/>
 	<ComponentRef Id="SIL.Core.dll"/>
-	<ComponentRef Id="Palaso.Lift.dll"/>
+	<ComponentRef Id="SIL.Lift.dll"/>
 	<ComponentRef Id="SIL.Windows.Forms.dll"/>
 
 	<ComponentRef Id="libchorus.dll"/>
