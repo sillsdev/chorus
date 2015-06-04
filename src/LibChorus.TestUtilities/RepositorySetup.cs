@@ -4,6 +4,7 @@ using Chorus.sync;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using NUnit.Framework;
+using NUnit.Framework.Constraints;
 using Palaso.Progress;
 using Palaso.TestUtilities;
 
@@ -32,17 +33,15 @@ namespace LibChorus.TestUtilities
 		{
 		}
 
-		public RepositorySetup(string userName, string projectfolder)
+		public RepositorySetup(string userName, bool makeRepository) :
+			this(userName, ProjectNameForTest, makeRepository)
 		{
-			Progress = new NullProgress();
-			ProjectFolder = new TemporaryFolder(projectfolder + "-" + Guid.NewGuid());
-			MakeRepositoryForTest(ProjectFolder.Path, userName, Progress);
-			ProjectFolderConfig = new ProjectFolderConfiguration(ProjectFolder.Path);
 		}
 
-		public RepositorySetup(string userName, bool makeRepository)
+		public RepositorySetup(string userName, string projectName, bool makeRepository)
 		{
 			Init(userName);
+			ProjectName = projectName;
 
 			ProjectFolder = new TemporaryFolder(RootFolder, ProjectName);
 
@@ -62,12 +61,12 @@ namespace LibChorus.TestUtilities
 		public RepositorySetup(string cloneName, RepositorySetup sourceToClone)
 		{
 			Init(cloneName);
-			string pathToProject = RootFolder.Combine(ProjectName);
+			string pathToProject = RootFolder.Combine(ProjectNameForTest);
 			ProjectFolderConfig = sourceToClone.ProjectFolderConfig.Clone();
 			ProjectFolderConfig.FolderPath = pathToProject;
 
 			sourceToClone.MakeClone(pathToProject);
-			ProjectFolder = TemporaryFolder.TrackExisting(RootFolder.Combine(ProjectName));
+			ProjectFolder = TemporaryFolder.TrackExisting(RootFolder.Combine(ProjectNameForTest));
 
 			var hg = new HgRepository(pathToProject, Progress);
 			hg.SetUserNameInIni(cloneName, Progress);
@@ -88,7 +87,6 @@ namespace LibChorus.TestUtilities
 		{
 			return Synchronizer.FromProjectConfiguration(ProjectFolderConfig, Progress);
 		}
-
 
 		public HgRepository Repository
 		{
@@ -116,7 +114,7 @@ namespace LibChorus.TestUtilities
 			File.WriteAllText(PathToHgrc, s);
 		}
 
-		private string PathToHgrc
+		public string PathToHgrc
 		{
 			get { return Path.Combine(Path.Combine(ProjectFolder.Path, ".hg"), "hgrc"); }
 		}
@@ -219,9 +217,11 @@ namespace LibChorus.TestUtilities
 			hg.SetUserNameInIni(userId,  progress);
 		}
 
-		public static string ProjectName
+		public string ProjectName { get; private set; }
+
+		public static string ProjectNameForTest
 		{
-			get { return "ไก่ projéct"; } //nb: important that it have a space, as this helps catch failure to enclose in quotes
+			get { return "test projéct"; } //nb: important that it have a space, as this helps catch failure to enclose in quotes
 		}
 
 		public IProgress Progress { get; set; }

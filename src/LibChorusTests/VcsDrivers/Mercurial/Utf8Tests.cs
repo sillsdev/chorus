@@ -199,11 +199,18 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 
 
 
-		[Test]        public void CreateOrLocate_FolderHasThaiAndAccentedLetter2_FindsIt()        {            using (var testRoot = new TemporaryFolder("chorus utf8 folder test"))            {
+		[Test]
+		public void CreateOrLocate_FolderHasThaiAndAccentedLetter2_FindsIt()
+		{
+			using (var testRoot = new TemporaryFolder("chorus utf8 folder test"))
+			{
 				//string path = Path.Combine(testRoot.Path, "Abé Books");
 				string path = Path.Combine(testRoot.Path, "ไก่ projéct");
-				Directory.CreateDirectory(path);                Assert.NotNull(HgRepository.CreateOrUseExisting(path, new ConsoleProgress()));
-				Assert.NotNull(HgRepository.CreateOrUseExisting(path, new ConsoleProgress()));            }
+				Directory.CreateDirectory(path);
+
+				Assert.NotNull(HgRepository.CreateOrUseExisting(path, new ConsoleProgress()));
+				Assert.NotNull(HgRepository.CreateOrUseExisting(path, new ConsoleProgress()));
+			}
 		}
 
 		[Test]
@@ -235,6 +242,35 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			}
 
 		}
+
+		// Regression: http://jira.palaso.org/issues/browse/CHR-32
+		/* When applications are passed to windows console apps they are passed as CP1252 strings if at all possible,
+		 * failing that they are passed as UCS2. e.g. projéct would be CP1252 and ไก่ would be UCS2.
+		 * 
+		 * The CreateOrLocate tests did not capture this distinction, so these 'Recover' tests have been added.
+		 */
+		[Test]
+		public void Recover_UnicodeProject_NoThrow()
+		{
+			using (var repo = new RepositorySetup("Dan", "ไก่", true))
+			{
+				repo.Repository.RecoverFromInterruptedTransactionIfNeeded();
+				Assert.True(File.Exists(repo.PathToHgrc));
+			}
+			
+		}
+
+		// Regression: http://jira.palaso.org/issues/browse/CHR-32
+		[Test]
+		public void Recover_Cp1252ProjectPath_NoThrow()
+		{
+			using (var repo = new RepositorySetup("Dan", "projéct", true))
+			{
+				repo.Repository.RecoverFromInterruptedTransactionIfNeeded();
+				Assert.True(File.Exists(repo.PathToHgrc));
+			}
+		}
+
 	}
 
 
