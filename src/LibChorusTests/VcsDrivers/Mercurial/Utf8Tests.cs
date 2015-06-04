@@ -108,7 +108,10 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 					var exception = Assert.Throws<ApplicationException>(
 						() => setup.Repository.CloneLocalWithoutUpdate(other.ProjectFolder.Path)
 					);
-					Assert.That(exception.Message.Contains("fixutf8"));
+#if !MONO
+					// On mono a different exception is thrown, which is fine, the rest of this test is still useful
+					Assert.That(exception.Message.Contains("fixutf8"), "Expected fixutf8 in:" + exception.Message);
+#endif
 				}
 			}
 		}
