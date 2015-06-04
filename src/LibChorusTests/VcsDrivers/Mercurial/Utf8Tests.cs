@@ -95,31 +95,23 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		}
 #endif
 
-#if !MONO
 		[Test]
 		public void Utf8ExtensionNotPresent_CloneLocalWithoutUpdateThrows()
 		{
-			using (var setup = new RepositorySetup("Dan"))
+			// The mercurial ini is only checked once by use of a static variable.
+			// Passing false to the makeRepository in RepositorySetup avoids any checking before we run the CloneWithoutLocalUpdate
+			using(var setup = new RepositorySetup("Dan", false))
 			{
-				const string utf8FilePath = "açesbsun.wav";
-				setup.ChangeFile(utf8FilePath, "hello1");
-				setup.ProjectFolderConfig.IncludePatterns.Add("*.wav");
-				setup.AddAndCheckIn();
-
-				using (new MercurialExtensionHider())
-				using (var other = new RepositorySetup("Bob", false))
+				using(new MercurialExtensionHider())
+				using(var other = new RepositorySetup("Bob", false))
 				{
-					Assert.Throws<ApplicationException>(
+					var exception = Assert.Throws<ApplicationException>(
 						() => setup.Repository.CloneLocalWithoutUpdate(other.ProjectFolder.Path)
 					);
-					//string log = setup.GetProgressString();
-					//Assert.That(log, Contains.Substring("Failed to set up extensions"));
-					//Assert.IsTrue(setup.GetProgressString().Contains());
+					Assert.That(exception.Message.Contains("fixutf8"));
 				}
-
 			}
 		}
-#endif
 
 		/// <summary>
 		/// The local clone works as it uses the settings of the source repo. i.e. It is a clone to not a clone from.
