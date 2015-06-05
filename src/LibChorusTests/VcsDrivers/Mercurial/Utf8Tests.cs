@@ -95,31 +95,26 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		}
 #endif
 
-#if !MONO
 		[Test]
 		public void Utf8ExtensionNotPresent_CloneLocalWithoutUpdateThrows()
 		{
-			using (var setup = new RepositorySetup("Dan"))
+			// The mercurial ini is only checked once by use of a static variable.
+			// Passing false to the makeRepository in RepositorySetup avoids any checking before we run the CloneWithoutLocalUpdate
+			using(var setup = new RepositorySetup("Dan", false))
 			{
-				const string utf8FilePath = "açesbsun.wav";
-				setup.ChangeFile(utf8FilePath, "hello1");
-				setup.ProjectFolderConfig.IncludePatterns.Add("*.wav");
-				setup.AddAndCheckIn();
-
-				using (new MercurialExtensionHider())
-				using (var other = new RepositorySetup("Bob", false))
+				using(new MercurialExtensionHider())
+				using(var other = new RepositorySetup("Bob", false))
 				{
-					Assert.Throws<ApplicationException>(
+					var exception = Assert.Throws<ApplicationException>(
 						() => setup.Repository.CloneLocalWithoutUpdate(other.ProjectFolder.Path)
 					);
-					//string log = setup.GetProgressString();
-					//Assert.That(log, Contains.Substring("Failed to set up extensions"));
-					//Assert.IsTrue(setup.GetProgressString().Contains());
+#if !MONO
+					// On mono a different exception is thrown, which is fine, the rest of this test is still useful
+					Assert.That(exception.Message.Contains("fixutf8"), "Expected fixutf8 in:" + exception.Message);
+#endif
 				}
-
 			}
 		}
-#endif
 
 		/// <summary>
 		/// The local clone works as it uses the settings of the source repo. i.e. It is a clone to not a clone from.
@@ -200,17 +195,17 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 
 
 		[Test]
-        public void CreateOrLocate_FolderHasThaiAndAccentedLetter2_FindsIt()
-        {
-            using (var testRoot = new TemporaryFolder("chorus utf8 folder test"))
-            {
+		public void CreateOrLocate_FolderHasThaiAndAccentedLetter2_FindsIt()
+		{
+			using (var testRoot = new TemporaryFolder("chorus utf8 folder test"))
+			{
 				//string path = Path.Combine(testRoot.Path, "Abé Books");
 				string path = Path.Combine(testRoot.Path, "ไก่ projéct");
 				Directory.CreateDirectory(path);
 
-                Assert.NotNull(HgRepository.CreateOrUseExisting(path, new ConsoleProgress()));
 				Assert.NotNull(HgRepository.CreateOrUseExisting(path, new ConsoleProgress()));
-            }
+				Assert.NotNull(HgRepository.CreateOrUseExisting(path, new ConsoleProgress()));
+			}
 		}
 
 		[Test]
@@ -242,6 +237,35 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			}
 
 		}
+
+		// Regression: http://jira.palaso.org/issues/browse/CHR-32
+		/* When applications are passed to windows console apps they are passed as CP1252 strings if at all possible,
+		 * failing that they are passed as UCS2. e.g. projéct would be CP1252 and ไก่ would be UCS2.
+		 * 
+		 * The CreateOrLocate tests did not capture this distinction, so these 'Recover' tests have been added.
+		 */
+		[Test]
+		public void Recover_UnicodeProject_NoThrow()
+		{
+			using (var repo = new RepositorySetup("Dan", "ไก่", true))
+			{
+				repo.Repository.RecoverFromInterruptedTransactionIfNeeded();
+				Assert.True(File.Exists(repo.PathToHgrc));
+			}
+			
+		}
+
+		// Regression: http://jira.palaso.org/issues/browse/CHR-32
+		[Test]
+		public void Recover_Cp1252ProjectPath_NoThrow()
+		{
+			using (var repo = new RepositorySetup("Dan", "projéct", true))
+			{
+				repo.Repository.RecoverFromInterruptedTransactionIfNeeded();
+				Assert.True(File.Exists(repo.PathToHgrc));
+			}
+		}
+
 	}
 
 

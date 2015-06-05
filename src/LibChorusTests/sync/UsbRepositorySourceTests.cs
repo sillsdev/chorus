@@ -74,7 +74,7 @@ namespace LibChorus.Tests.sync
 		}
 
 		[Test]
-		public void SyncNow_UsbGetsBareCloneWithReadme()
+		public void SyncNow_UsbGetsBackwardCompatibleBareCloneWithReadme()
 		{
 			Synchronizer synchronizer = Synchronizer.FromProjectConfiguration(_project, _progress);
 			SyncOptions options = new SyncOptions();
@@ -85,11 +85,15 @@ namespace LibChorus.Tests.sync
 			WriteTestFile("version two");
 
 			synchronizer.SyncNow(options);
-			string dir = Path.Combine(UsbKeyRepositorySource.RootDirForUsbSourceDuringUnitTest, "foo project");
-			Assert.IsTrue(Directory.Exists(dir));
-			Assert.IsTrue(File.Exists(dir.CombineForPath(dir, "~~Folder has an invisible repository.txt")));
-
+			var projectDir = Path.Combine(UsbKeyRepositorySource.RootDirForUsbSourceDuringUnitTest, "foo project");
+			Assert.IsTrue(Directory.Exists(projectDir));
+			// SUT backward compatible clone has no dotencode in the requires file
+			var requiresLines = File.ReadAllLines(Path.Combine(projectDir, ".hg", "requires"));
+			CollectionAssert.DoesNotContain(requiresLines, "dotencode");
+			// SUT bare clone should get this text file
+			Assert.IsTrue(File.Exists(projectDir.CombineForPath(projectDir, "~~Folder has an invisible repository.txt")));
 		}
+
 		[Test]
 		public void SyncNow_AlreadySetupFauxUsbAvailable_UsbGetsSync()
 		{

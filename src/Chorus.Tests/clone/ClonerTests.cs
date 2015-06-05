@@ -25,7 +25,7 @@ namespace Chorus.Tests.clone
 				var progress = new ConsoleProgress();
 				progress.ShowVerbose = true;
 				model.MakeClone(repo.ProjectFolder.Path, f.Path, progress);
-				Assert.IsTrue(Directory.Exists(f.Combine(RepositorySetup.ProjectName, ".hg")));
+				Assert.IsTrue(Directory.Exists(f.Combine(RepositorySetup.ProjectNameForTest, ".hg")));
 			}
 		}
 
@@ -39,7 +39,7 @@ namespace Chorus.Tests.clone
 				var model = new CloneFromUsb();
 				var progress = new ConsoleProgress();
 				progress.ShowVerbose = true;
-				var extantFolder = f.Combine(RepositorySetup.ProjectName);
+				var extantFolder = f.Combine(RepositorySetup.ProjectNameForTest);
 				Directory.CreateDirectory(extantFolder);
 				// Make a subfolder, which will force it to make a new folder, since an empty folder is deleted.
 				var extantSubfolderPath = Path.Combine(extantFolder, "ChildFolder");
@@ -61,7 +61,7 @@ namespace Chorus.Tests.clone
 				var model = new CloneFromUsb();
 				var progress = new ConsoleProgress();
 				progress.ShowVerbose = true;
-				var extantFolder = f.Combine(RepositorySetup.ProjectName);
+				var extantFolder = f.Combine(RepositorySetup.ProjectNameForTest);
 				Directory.CreateDirectory(extantFolder);
 
 				var cloneFolder = model.MakeClone(repo.ProjectFolder.Path, f.Path, progress);

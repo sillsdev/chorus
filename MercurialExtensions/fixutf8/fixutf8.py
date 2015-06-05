@@ -127,8 +127,13 @@ if sys.platform == 'win32':
 		_convert.__doc__ = doc
 		return _convert
 
+	tounicode1252 = mapconvert(
+		lambda s: s.decode('cp1252', 'strict'),
+		lambda s: isinstance(s, str),
+		"Convert a CP1252 byte string to Unicode")
+
 	tounicode = mapconvert(
-		lambda s: s.decode('utf-8', 'ignore'),
+		lambda s: s.decode('utf-8', 'strict'),
 		lambda s: isinstance(s, str),
 		"Convert a UTF-8 byte string to Unicode")
 
@@ -154,9 +159,14 @@ def utf8wrapper(orig, *args, **kargs):
 	try:
 		return fromunicode(orig(*tounicode(args), **kargs))
 	except UnicodeDecodeError:
-		print "While calling %s" % orig.__name__
+		try:
+			return fromunicode(orig(*tounicode1252(args), **tounicode1252(kargs)))
+		except Exception, e:
+			# print "utf8wrapper 1252 decode error: Exception: ", repr(e)
+			raise
+	except Exception, e:
+		# print "utf8wrapper exception while calling %s" % orig.__name__
 		raise
-
 
 def winuisetup(ui):
 	if sys.platform != 'win32' or not win32helper.consolehascp():
@@ -195,7 +205,17 @@ def winextsetup():
 	extensions.wrapfunction(osutil, "listdir", utf8wrapper)
 
 	def normcase_utf8(path):
-		return fromunicode(tounicode(path).upper())
+		try:
+			return fromunicode(tounicode(path)).upper()
+		except UnicodeDecodeError:
+			try:
+				return fromunicode(tounicode1252(path)).upper()
+			except Exception, e:
+				print "utf8wrapper 1252 decode error: Exception: ", repr(e)
+				raise
+		except Exception, e:
+			print "utf8wrapper exception while calling %s" % orig.__name__
+			raise
 
 	windows.normcase = normcase_utf8
 	util.normcase = normcase_utf8
