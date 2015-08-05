@@ -11,6 +11,7 @@ IF "%1"=="" (
 
 pushd .
 cd ..\libpalaso
+REM Presence of a second argument indicates that the caller has already run vsvars32.bat
 call GetAndBuildThis.bat %BUILD_CONFIG% %2
 popd
 
