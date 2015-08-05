@@ -11,6 +11,7 @@ IF "%1"=="" (
 
 pushd .
 cd ..\libpalaso
+REM Presence of a second argument indicates that the caller has already run vsvars32.bat
 call GetAndBuildThis.bat %BUILD_CONFIG% %2
 popd
 
@@ -21,14 +22,8 @@ REM copy /Y ..\l10nsharp\output\%BUILD_CONFIG%\L10NSharp.dll lib\common\
 REM copy /Y ..\l10nsharp\output\%BUILD_CONFIG%\L10NSharp.* lib\%BUILD_CONFIG%\
 REM copy /Y ..\l10nsharp\output\%BUILD_CONFIG%\L10NSharp.* output\%BUILD_CONFIG%\
 
-copy /Y ..\libpalaso\output\%BUILD_CONFIG%\palaso.dll lib\%BUILD_CONFIG%
-copy /Y ..\libpalaso\output\%BUILD_CONFIG%\palaso.pdb output\%BUILD_CONFIG%
+copy /Y ..\libpalaso\output\%BUILD_CONFIG%\Palaso*.dll lib\%BUILD_CONFIG%\
+copy /Y ..\libpalaso\output\%BUILD_CONFIG%\Palaso*.pdb output\%BUILD_CONFIG%\
 
-copy /Y ..\libpalaso\output\%BUILD_CONFIG%\Palaso.Lift.dll lib\%BUILD_CONFIG%
-copy /Y ..\libpalaso\output\%BUILD_CONFIG%\Palaso.Lift.pdb output\%BUILD_CONFIG%
-
-copy /Y ..\libpalaso\output\%BUILD_CONFIG%\palasouiwindowsforms.dll  lib\%BUILD_CONFIG%
-copy /Y ..\libpalaso\output\%BUILD_CONFIG%\palasouiwindowsforms.pdb  output\%BUILD_CONFIG%
-
-copy /Y ..\libpalaso\output\%BUILD_CONFIG%\palaso.testutilities.dll lib\%BUILD_CONFIG%
-copy /Y ..\libpalaso\output\%BUILD_CONFIG%\palaso.testutilities.pdb output\%BUILD_CONFIG%
+copy /Y ..\libpalaso\output\%BUILD_CONFIG%\SIL.*.dll lib\%BUILD_CONFIG%\
+copy /Y ..\libpalaso\output\%BUILD_CONFIG%\SIL.*.pdb output\%BUILD_CONFIG%\
