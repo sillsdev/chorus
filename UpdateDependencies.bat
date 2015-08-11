@@ -23,7 +23,9 @@ REM copy /Y ..\l10nsharp\output\%BUILD_CONFIG%\L10NSharp.* lib\%BUILD_CONFIG%\
 REM copy /Y ..\l10nsharp\output\%BUILD_CONFIG%\L10NSharp.* output\%BUILD_CONFIG%\
 
 copy /Y ..\libpalaso\output\%BUILD_CONFIG%\Palaso*.dll lib\%BUILD_CONFIG%\
+copy /Y ..\libpalaso\output\%BUILD_CONFIG%\Palaso*.dll output\%BUILD_CONFIG%\
 copy /Y ..\libpalaso\output\%BUILD_CONFIG%\Palaso*.pdb output\%BUILD_CONFIG%\
 
 copy /Y ..\libpalaso\output\%BUILD_CONFIG%\SIL.*.dll lib\%BUILD_CONFIG%\
+copy /Y ..\libpalaso\output\%BUILD_CONFIG%\SIL.*.dll output\%BUILD_CONFIG%\
 copy /Y ..\libpalaso\output\%BUILD_CONFIG%\SIL.*.pdb output\%BUILD_CONFIG%\
