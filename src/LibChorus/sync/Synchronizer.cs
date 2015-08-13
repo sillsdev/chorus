@@ -370,10 +370,8 @@ namespace Chorus.sync
 			var commitCopValidationResult = "";
 			using (var commitCop = new CommitCop(Repository, _handlers, _progress))
 			{
-				// NB: The commit must take place in order for CommitCop to work properly.
-				// Ergo, don't even think of moving this after the commitCop.ValidationResult check.
-				// Too bad I (RBR) already thought of it, and asked, and found out it ought not be moved. :-)
 				AddAndCommitFiles(options.CheckinDescription);
+				// The validation checking must come after the commit, otherwise files being added to the repository will not be validated
 				commitCopValidationResult = commitCop.ValidationResult;
 			}
 			if (string.IsNullOrEmpty(commitCopValidationResult))
