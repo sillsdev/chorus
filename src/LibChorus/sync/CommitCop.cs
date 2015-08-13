@@ -1,8 +1,6 @@
 using System;
-using System.Collections.Generic;
 using System.Text;
 using Chorus.FileTypeHanders;
-using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
 using Palaso.Progress;
 
@@ -27,6 +25,7 @@ namespace Chorus.sync
 	///   using(var commitCop = new CommitCop(_repository, _progress))
 	///    {
 	///          Repository.AddAndCheckinFiles(...);
+	///          validationResult = commitCop.ValidationResult;
 	///    }
 	/// </example>
 	public class CommitCop:IDisposable
@@ -41,14 +40,13 @@ namespace Chorus.sync
 			_repository = repository;
 			_handlerCollection = handlers;
 			_progress = progress;
-			ValidateModifiedFiles();
 		}
 
-		public string ValidationResult { get { return _validationResult; } }
+		public string ValidationResult { get { ValidateModifiedFiles(); return _validationResult; } }
 
 		private void ValidateModifiedFiles()
 		{
-			var files = _repository.GetFilesInRevisionFromQuery(null, "status");
+			var files = _repository.GetFilesInRevisionFromQuery(null, "status --change tip");
 			var builder = new StringBuilder();
 
 			foreach (var file in files)
@@ -61,7 +59,7 @@ namespace Chorus.sync
 						if (handler.CanValidateFile(file.FullPath))
 						{
 							_progress.WriteVerbose("Validating {0}", file);
-							var result =handler.ValidateFile(file.FullPath, _progress);
+							var result = handler.ValidateFile(file.FullPath, _progress);
 							if (!string.IsNullOrEmpty(result))
 							{
 								_progress.WriteVerbose("Validation Failed: {0}", result);
@@ -78,7 +76,7 @@ namespace Chorus.sync
 
 		public void Dispose()
 		{
-			if (_validationResult.Length == 0)
+			if (String.IsNullOrEmpty(_validationResult))
 				return;
 			_repository.BackoutHead(_repository.GetRevisionWorkingSetIsBasedOn().Number.LocalRevisionNumber, "[Backout due to validation failure]\r\n"+_validationResult);
 		}
