@@ -16,9 +16,18 @@ else
 	BUILD_CONFIG=$1
 fi
 
+if [ ! -d output/${BUILD_CONFIG}Mono ]
+then
+	if [ ! -d output ]
+	then
+		mkdir output
+	fi
+	mkdir output/${BUILD_CONFIG}Mono
+fi
 
-cp ../palaso/output/${BUILD_CONFIG}Mono/Palaso.*  lib/${BUILD_CONFIG}Mono
-cp ../palaso/output/${BUILD_CONFIG}Mono/PalasoUIWindowsForms.*  lib/${BUILD_CONFIG}Mono
 
-cp ../palaso/output/${BUILD_CONFIG}Mono/Palaso.*  output/${BUILD_CONFIG}Mono
-cp ../palaso/output/${BUILD_CONFIG}Mono/PalasoUIWindowsForms.*  output/${BUILD_CONFIG}Mono
+cp ../libpalaso/output/${BUILD_CONFIG}Mono/Palaso*.*  lib/${BUILD_CONFIG}Mono
+cp ../libpalaso/output/${BUILD_CONFIG}Mono/SIL.*.*  lib/${BUILD_CONFIG}Mono
+
+cp ../libpalaso/output/${BUILD_CONFIG}Mono/Palaso*.*  output/${BUILD_CONFIG}Mono
+cp ../libpalaso/output/${BUILD_CONFIG}Mono/SIL.*.*  output/${BUILD_CONFIG}Mono
