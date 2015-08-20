@@ -33,7 +33,7 @@ namespace ChorusHub
 					_hgServer = new HgServeRunner(ChorusHubOptions.RootDirectory, ChorusHubOptions.MercurialPort);
 					if(!_hgServer.Start())
 					{
-						EventLog.WriteEntry("Application", "ChorusHub: Failed to start Hg Server", EventLogEntryType.Error);
+						EventLog.WriteEntry("ChorusHub", "Failed to start Hg Server", EventLogEntryType.Error);
 						return false;
 					}
 				}
@@ -59,7 +59,7 @@ namespace ChorusHub
 			{
 				var logEntryMessage = string.Format("ChorusHub failed to start: {0}{1}{2}{1}{3}", error.Message, Environment.NewLine,
 					error.StackTrace, error.InnerException);
-				EventLog.WriteEntry("Application", logEntryMessage, EventLogEntryType.Error);
+				EventLog.WriteEntry("ChorusHub", logEntryMessage, EventLogEntryType.Error);
 				return false;
 			}
 		}

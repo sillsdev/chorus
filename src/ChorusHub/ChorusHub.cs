@@ -1,5 +1,7 @@
-﻿using System.ServiceProcess;
+﻿using System.Diagnostics;
+using System.ServiceProcess;
 using System.Timers;
+using Chorus.ChorusHub;
 
 namespace ChorusHub
 {
@@ -25,8 +27,15 @@ namespace ChorusHub
 		{
 			if (!_running)
 			{
+				var chorusHubServerInfo = ChorusHubServerInfo.FindServerInformation();
+				if(chorusHubServerInfo != null)
+				{
+					EventLog.WriteEntry(string.Format("Only one ChorusHub can be run on a network but there is already one running on {0}", chorusHubServerInfo.HostName), EventLogEntryType.Error);
+					Stop();
+					return;
+				}
 				_chorusHubServer = new ChorusHubServer();
-				EventLog.WriteEntry("Chorus Hub Service is starting....");
+				EventLog.WriteEntry("Chorus Hub Service is starting....", EventLogEntryType.Information);
 				_running = _chorusHubServer.Start(true);
 				_serviceTimer = new Timer
 				{
@@ -35,7 +44,7 @@ namespace ChorusHub
 				_serviceTimer.Elapsed += ServiceTimerOnElapsed;
 				_serviceTimer.Start();
 			}
-			EventLog.WriteEntry("Chorus Hub Service started.");
+			EventLog.WriteEntry("Chorus Hub Service started.", EventLogEntryType.Information);
 		}
 
 		protected override void OnStop()
