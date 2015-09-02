@@ -484,6 +484,15 @@ namespace Chorus.VcsDrivers.Mercurial
 		}
 
 		/// <summary>
+		/// <see cref="Palaso.UI.WindowsForms.Progress.LogBox.WriteMessage"/> passes the message and any args to String.Format.
+		/// The output of <c>hg showconfig</c> may include braces, which cause String.Format to crash; escape them with double braces.
+		/// </summary>
+		private string EscapeBracesForStringFormat(string toEscape)
+		{
+			return toEscape.Replace("{", "{{").Replace("}", "}}");
+		}
+
+		/// <summary>
 		/// Method only for testing.
 		/// </summary>
 		/// <param name="filePath"></param>
@@ -1779,7 +1788,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			progress.WriteMessage("---------------------------------------------------");
 
 			progress.WriteMessage("config:");
-			progress.WriteMessage(GetTextFromQuery("showconfig", 30, _progress));
+			progress.WriteMessage(EscapeBracesForStringFormat(GetTextFromQuery("showconfig", 30, _progress)));
 			progress.WriteMessage("---------------------------------------------------");
 
 			progress.WriteMessage("Done.");
@@ -1822,7 +1831,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 			progress.WriteMessage("Log of last 100 changesets:");
 			try
-			{   //use glog if it is installd and enabled
+			{   //use glog if it is installed and enabled
 				progress.WriteMessage(GetTextFromQuery("glog -l 100", 30, _progress));
 			}
 			catch (Exception)
@@ -1832,7 +1841,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			progress.WriteMessage("---------------------------------------------------");
 
 			progress.WriteMessage("config:");
-			progress.WriteMessage(GetTextFromQuery("showconfig", 30, _progress));
+			progress.WriteMessage(EscapeBracesForStringFormat(GetTextFromQuery("showconfig", 30, _progress)));
 			progress.WriteMessage("---------------------------------------------------");
 
 			progress.WriteMessage("manifest:");
