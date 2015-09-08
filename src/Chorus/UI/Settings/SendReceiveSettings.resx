@@ -122,16 +122,17 @@
   </metadata>
   <data name="chorusHubSetup.DocumentText" xml:space="preserve">
 	<value>&lt;!DOCTYPE html&gt;&lt;html&gt;&lt;body style='font-family:&quot;Microsoft Sans Serif&quot;,&quot;sans-serif&quot;;font-size:9pt'&gt;
-&lt;p style='margin:0in;'&gt;Chorus Hub is a simple way to Send/Receive on a local network, like an office or home. Better instructions will follow in a future version, but for now, this should get you started:&lt;/p&gt;
+&lt;p style='margin:0in;'&gt;Chorus Hub is a simple way to Send/Receive on a local network, like in an office or home. These instructions are basic, but they should be enough to get you started.&lt;/p&gt;
 &lt;ol&gt;
-&lt;li style='margin-left:-10pt'&gt;Designate one computer on your network as &quot;the server,&quot; and make sure this product is installed on it.&lt;/li&gt;
-&lt;li style='margin-left:-10pt'&gt;On Windows, look in the directory where this product is installed, and run the program labelled &quot;ChorusHub.exe&quot;. On Linux, launch &quot;ChorusHub&quot;.&lt;/li&gt;
+&lt;li style='margin-left:-10pt'&gt;Designate one computer on your network as &quot;the server&quot;, and use the following instructions to make sure this product is installed and running on it.&lt;/li&gt;
+&lt;li style='margin-left:-10pt'&gt;
+&lt;ol&gt;&lt;li style='list-style-type:lower-alpha;margin-left:-10pt'&gt; On Windows, locate the file ChorusHubInstaller.msi (normally in C:\Program Files (x86)\SIL\FieldWorks 8\Installers). Double-click it to install Chorus Hub. This will install the program and start the Chorus Hub Sharing Service. By default it is set to restart whenever the machine is rebooted. More details are available at &lt;a target='_blank' href='http://fieldworks.sil.org/wp-content/TechnicalDocs/Technical%20Notes%20on%20FieldWorks%20Send-Receive.pdf'&gt;http://fieldworks.sil.org/wp-content/TechnicalDocs/Technical%20Notes%20on%20FieldWorks%20Send-Receive.pdf&lt;/a&gt;.&lt;/li&gt;
+&lt;li style='list-style-type:lower-alpha;margin-left:-10pt'&gt;On Linux, Chorus Hub is automatically installed when you install FLEx. Use the Dash or Main Menu to find and launch Chorus Hub.&lt;/li&gt;
+&lt;/ol&gt;&lt;/li&gt;
+&lt;li style='margin-left:-10pt'&gt;Above these instructions, there is a checkbox labeled &quot;Show Chorus Hub as a Send/Receive option&quot;. Make sure this checkbox is selected.&lt;/li&gt;
 &lt;/ol&gt;
-&lt;p style='margin:0in;'&gt;If all goes well, there's nothing more to do! Now from any computer on the network, you can click &quot;ChorusHub&quot; to Send/Receive to your server.&lt;/p&gt;
-&lt;ul&gt;&lt;p style='margin:0in;margin-left:-30pt;'&gt;ChorusHub does everything it can to be &quot;Plug &amp;amp; Play.&quot; However, some things may need your attention:&lt;/p&gt;
-&lt;li style='list-style-type:bullet;margin-left:-10pt'&gt;ChorusHub will attempt to create a folder at &quot;C:\ChorusHub&quot; on Windows, or &quot;/home/&amp;lt;username&amp;gt;/ChorusHub&quot; on Linux. It may need administrator permissions to do that. Any technical support person can help you run ChorusHub.exe with the necessary permissions.&lt;/li&gt;
-&lt;li style='list-style-type:bullet;margin-left:-10pt'&gt;Your firewall may need to give permission for the server and client computers to talk to each other on this &quot;port.&quot;&lt;/li&gt;
-&lt;ul&gt;&lt;/body&gt;&lt;/html&gt;</value>
+&lt;p style='margin:0in;'&gt;If all goes well, there is nothing more to do! Now from any other computer on the network, when you do Send/Receive, there should be a button labeled &quot;Chorus Hub&quot;, and under it should be a message telling you it has found Chorus Hub on the machine it is running on. If you click that button, your project will be Sent/Received.&lt;/p&gt;
+&lt;/body&gt;&lt;/html&gt;</value>
 	<comment>Instructions shown before first Send/Receive. Please keep HTML tags as-is to preserve formatting, and use HTML escapes (&amp;quot; for &quot;, etc.). If using PoEdit, you will also need to keep all &quot;\n&quot; (line breaks) as-is.</comment>
   </data>
   <metadata name="_helpProvider.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
