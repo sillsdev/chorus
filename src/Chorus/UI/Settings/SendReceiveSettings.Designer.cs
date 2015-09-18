@@ -32,7 +32,6 @@ namespace Chorus.UI.Settings
 		private void InitializeComponent()
 		{
 			this.components = new System.ComponentModel.Container();
-			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SendReceiveSettings));
 			this.nameLabel = new System.Windows.Forms.Label();
 			this.userNameTextBox = new System.Windows.Forms.TextBox();
 			this.settingsTabs = new System.Windows.Forms.TabControl();
@@ -192,14 +191,16 @@ namespace Chorus.UI.Settings
 			this._showChorusHubInSendReceive.TabIndex = 5;
 			this._showChorusHubInSendReceive.Text = "Show Chorus Hub as a Send/Receive option";
 			this._showChorusHubInSendReceive.UseVisualStyleBackColor = true;
-			//
+			// 
 			// chorusHubSetup
-			//
-			this.chorusHubSetup.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-			| System.Windows.Forms.AnchorStyles.Left)
-			| System.Windows.Forms.AnchorStyles.Right)));
+			// 
+			this.chorusHubSetup.AllowWebBrowserDrop = false;
+			this.chorusHubSetup.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
 			this.chorusHubSetup.BackColor = System.Drawing.Color.White;
 			this.chorusHubSetup.Font = new System.Drawing.Font("Segoe UI", 9F);
+			this.chorusHubSetup.IsWebBrowserContextMenuEnabled = false;
 			this.l10NSharpExtender1.SetLocalizableToolTip(this.chorusHubSetup, null);
 			this.l10NSharpExtender1.SetLocalizationComment(this.chorusHubSetup, null);
 			this.l10NSharpExtender1.SetLocalizationPriority(this.chorusHubSetup, L10NSharp.LocalizationPriority.MediumLow);
@@ -209,10 +210,10 @@ namespace Chorus.UI.Settings
 			this.chorusHubSetup.Size = new System.Drawing.Size(365, 201);
 			this.chorusHubSetup.TabIndex = 4;
 			this.chorusHubSetup.TabStop = false;
-			this.chorusHubSetup.DocumentText = resources.GetString("chorusHubSetup.DocumentText");
-			//
+			this.chorusHubSetup.WebBrowserShortcutsEnabled = false;
+			// 
 			// pictureBox4
-			//
+			// 
 			this.pictureBox4.Image = global::Chorus.Properties.Resources.chorusHubLarge;
 			this.l10NSharpExtender1.SetLocalizableToolTip(this.pictureBox4, null);
 			this.l10NSharpExtender1.SetLocalizationComment(this.pictureBox4, null);
@@ -222,9 +223,9 @@ namespace Chorus.UI.Settings
 			this.pictureBox4.Size = new System.Drawing.Size(64, 66);
 			this.pictureBox4.TabIndex = 3;
 			this.pictureBox4.TabStop = false;
-			//
+			// 
 			// _helpButton
-			//
+			// 
 			this._helpButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
 			this.l10NSharpExtender1.SetLocalizableToolTip(this._helpButton, null);
 			this.l10NSharpExtender1.SetLocalizationComment(this._helpButton, null);
