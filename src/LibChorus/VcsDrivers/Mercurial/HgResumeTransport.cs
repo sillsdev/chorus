@@ -710,14 +710,10 @@ namespace Chorus.VcsDrivers.Mercurial
 				}
 				if (response.Status == PullStatus.Fail)
 				{
-					// Not sure that we need to abort the attempts just because .Net web request says so.  See Push also. CP 2012-06
-					errorMessage = "Pull data chunk failed";
-					_progress.WriteError(errorMessage);
+					// No need to abort the attempts just because .Net web request says so. See Push also. CP 2012-06
+					_progress.WriteWarning("Pull data chunk failed");
 					retryLoop = true;
 					req.StartOfWindow = bundleHelper.StartOfWindow;
-					//_progress.ProgressIndicator.Initialize();
-					//_progress.ProgressIndicator.Finish();
-					//throw new HgResumeOperationFailed(errorMessage);
 					continue;
 				}
 				if (response.Status == PullStatus.Reset)
