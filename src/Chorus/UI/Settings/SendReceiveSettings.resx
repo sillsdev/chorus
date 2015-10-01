@@ -128,8 +128,8 @@
     <value>&lt;!DOCTYPE html&gt;&lt;html&gt;&lt;body style='font-family:"Microsoft Sans Serif","sans-serif";font-size:9pt'&gt;
 &lt;p style='margin:0in;'&gt;Chorus Hub is a simple way to Send/Receive on a local network, like in an office or home. These instructions are basic, but they should be enough to get you started.&lt;/p&gt;
 &lt;ol&gt;
-&lt;li style='margin-left:-10pt'&gt;Designate one computer on your network as "the server", and use the following instructions to make sure this product is installed and running on it.&lt;/li&gt;
-&lt;li style='margin-left:-10pt'&gt;
+&lt;li style='margin-left:-10pt'&gt;Designate one computer on your network as "the server".&lt;/li&gt;
+&lt;li style='margin-left:-10pt'&gt;Install and run Chorus Hub on "the server".
 &lt;ol&gt;&lt;li style='list-style-type:lower-alpha;margin-left:-10pt'&gt; On Windows, locate the file ChorusHubInstaller.msi (normally in C:\Program Files (x86)\SIL\FieldWorks 8\Installers). Double-click it to install Chorus Hub. This will install the program and start the Chorus Hub Sharing Service. By default it is set to restart whenever the machine is rebooted. More details are available at &lt;a target='_blank' href='http://fieldworks.sil.org/wp-content/TechnicalDocs/Technical%20Notes%20on%20FieldWorks%20Send-Receive.pdf'&gt;http://fieldworks.sil.org/wp-content/TechnicalDocs/Technical%20Notes%20on%20FieldWorks%20Send-Receive.pdf&lt;/a&gt;.&lt;/li&gt;
 &lt;li style='list-style-type:lower-alpha;margin-left:-10pt'&gt;On Linux, Chorus Hub is automatically installed when you install FLEx. Use the Dash or Main Menu to find and launch Chorus Hub.&lt;/li&gt;
 &lt;/ol&gt;&lt;/li&gt;
