@@ -123,7 +123,7 @@ build using `UpdateDependencies.bat`, which is run automatically when you run `G
 
 ##### Mercurial
 
-If developing on windows, unzip the file `lib/common/Mercurial.zip` into `output/Debug` (or `output/Release`), so that you'll end up with a subdirectory `output/Debug/Mercurial`. That way, you know the tests are running against the approved version of Mercurial, not whatever you happen to have on your machine.
+If developing on windows, unzip the file `lib/common/mercurial.zip` into `output/Debug` (or `output/Release`), so that you'll end up with a subdirectory `output/Debug/Mercurial`. That way, you know the tests are running against the approved version of Mercurial, not whatever you happen to have on your machine.
 
 #### Linux
 

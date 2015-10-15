@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using Chorus.FileTypeHanders;
 using Chorus.FileTypeHanders.test;
 using Chorus.sync;
@@ -18,6 +19,7 @@ namespace LibChorus.Tests.sync
 				using(var cop = new CommitCop(bob.Repository , ChorusFileTypeHandlerCollection.CreateWithTestHandlerOnly(), bob.Progress))
 				{
 					bob.AddAndCheckinFile("test.abc", "hello");
+					Assert.IsNullOrEmpty(cop.ValidationResult);
 				}
 				bob.AssertLocalRevisionNumber(0);
 			}
@@ -31,11 +33,12 @@ namespace LibChorus.Tests.sync
 				using (var cop = new CommitCop(bob.Repository, ChorusFileTypeHandlerCollection.CreateWithTestHandlerOnly(), bob.Progress))
 				{
 					bob.AddAndCheckinFile("test.chorusTest", "hello");
+					// SUT
+					Assert.IsNullOrEmpty(cop.ValidationResult);
 				}
 				bob.AssertLocalRevisionNumber(0);
 			}
 		}
-
 
 		[Test]
 		public void SecondCheckin_Invalid_BacksOut()
@@ -54,6 +57,66 @@ namespace LibChorus.Tests.sync
 				bob.AssertLocalRevisionNumber(2);
 				bob.AssertFileContents("test.chorusTest", "hello");
 			}
+		}
+
+		[Test]
+		public void HasFileHandlers_ValidCommit_Validates_DoesNothing()
+		{
+			using(var bob = new RepositorySetup("bob"))
+			{
+				bob.AddAndCheckinFile("test.chorusTest", "hello");
+				using(var cop = new CommitCop(bob.Repository, ChorusFileTypeHandlerCollection.CreateWithTestHandlerOnly(), bob.Progress))
+				{
+					bob.ChangeFile("test.chorusTest", "aloha");
+					bob.AddAndCheckinFile("test2.chorusTest", "hi");
+					Assert.IsNullOrEmpty(cop.ValidationResult);
+				}
+				bob.AssertHeadCount(1);
+				bob.AssertLocalRevisionNumber(1);
+				bob.AssertFileExistsInRepository("test2.chorusTest");
+				bob.AssertFileContents("test.chorusTest", "aloha");
+				bob.AssertFileContents("test2.chorusTest", "hi");
+			}
+		}
+
+		[Test]
+		public void InitialFileCommit_Invalid_BacksOut()
+		{
+			using(var bob = new RepositorySetup("bob"))
+			{
+				bob.AddAndCheckinFile("validfile.chorustest", "valid contents");
+				bob.ChangeFile("test.chorusTest", ChorusTestFileHandler.GetInvalidContents());
+				using(var cop = new CommitCop(bob.Repository, ChorusFileTypeHandlerCollection.CreateWithTestHandlerOnly(), bob.Progress))
+				{
+					bob.Repository.AddAndCheckinFile("test.chorusTest");
+					Assert.That(cop.ValidationResult, Is.StringContaining("Failed"));
+				}
+				Debug.WriteLine(bob.Repository.GetLog(-1));
+				bob.AssertHeadCount(1);
+				bob.AssertLocalRevisionNumber(2);
+				bob.AssertFileDoesNotExistInRepository("test.chorusTest");
+				bob.AssertFileExistsInRepository("validfile.chorustest");
+			}
+		}
+
+		[Test]
+		public void VeryFirstCommit_Invalid_Throws()
+		{
+			string validationResult = null;
+			Assert.Throws<ApplicationException>(() =>
+			{
+				using(var bob = new RepositorySetup("bob"))
+				{
+					bob.ChangeFile("test.chorusTest", ChorusTestFileHandler.GetInvalidContents());
+					using(var cop = new CommitCop(bob.Repository, ChorusFileTypeHandlerCollection.CreateWithTestHandlerOnly(), bob.Progress))
+					{
+						bob.Repository.AddAndCheckinFile("test.chorusTest");
+						// ReSharper disable once ReturnValueOfPureMethodIsNotUsed - SUT
+						validationResult = cop.ValidationResult;
+					}
+				}
+			});
+			Assert.That(validationResult, Is.StringContaining("Failed"));
 		}
 	}
 }

@@ -237,7 +237,8 @@ namespace Chorus.VcsDrivers.Mercurial
 			}
 			catch(Exception error)
 			{
-				throw new ApplicationException(string.Format("Failed to set up extensions: {0}", error.Message));
+				throw new ApplicationException(string.Format("Failed to set up extensions: {0}", error.Message),
+					error);
 			}
 		}
 

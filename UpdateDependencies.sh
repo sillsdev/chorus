@@ -5,20 +5,36 @@
 # This script assumes that the libraries project are on the same level as this project.
 # It copies the needed libraries both into the lib folder and the ${BUILD_CONFIG}Mono folder.
 
-# pushd Palaso
-# call GetAndBuildThis.bat
-# popd
+PALASO_DIR=../libpalaso
 
-if [ "$1" == "" ]
+if [ ! -d ${PALASO_DIR} ]
+then
+	exit
+fi
+
+if [ "$1"=="" ]
 then
 	BUILD_CONFIG=Debug
 else
 	BUILD_CONFIG=$1
 fi
 
+pushd ${PALASO_DIR}
+build/TestBuild.sh ${BUILD_CONFIG}
+popd
 
-cp ../palaso/output/${BUILD_CONFIG}Mono/Palaso.*  lib/${BUILD_CONFIG}Mono
-cp ../palaso/output/${BUILD_CONFIG}Mono/PalasoUIWindowsForms.*  lib/${BUILD_CONFIG}Mono
+if [ ! -d output/${BUILD_CONFIG}Mono ]
+then
+	if [ ! -d output ]
+	then
+		mkdir output
+	fi
+	mkdir output/${BUILD_CONFIG}Mono
+fi
 
-cp ../palaso/output/${BUILD_CONFIG}Mono/Palaso.*  output/${BUILD_CONFIG}Mono
-cp ../palaso/output/${BUILD_CONFIG}Mono/PalasoUIWindowsForms.*  output/${BUILD_CONFIG}Mono
+
+cp ${PALASO_DIR}/output/${BUILD_CONFIG}Mono/Palaso*.*  lib/${BUILD_CONFIG}Mono
+cp ${PALASO_DIR}/output/${BUILD_CONFIG}Mono/SIL.*.*  lib/${BUILD_CONFIG}Mono
+
+cp ${PALASO_DIR}/output/${BUILD_CONFIG}Mono/Palaso*.*  output/${BUILD_CONFIG}Mono
+cp ${PALASO_DIR}/output/${BUILD_CONFIG}Mono/SIL.*.*  output/${BUILD_CONFIG}Mono
