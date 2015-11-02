@@ -6,9 +6,9 @@ using Chorus.Utilities;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using L10NSharp;
-using Palaso.Code;
-using Palaso.Network;
-using Palaso.Progress;
+using SIL.Code;
+using SIL.Network;
+using SIL.Progress;
 
 namespace Chorus.UI.Misc
 {

@@ -6,7 +6,7 @@ using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using System.Linq;
 using L10NSharp;
-using Palaso.Progress;
+using SIL.Progress;
 
 namespace Chorus.UI.Settings
 {

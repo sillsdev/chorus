@@ -5,8 +5,8 @@ using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using NUnit.Framework;
 using NUnit.Framework.Constraints;
-using Palaso.Progress;
-using Palaso.TestUtilities;
+using SIL.Progress;
+using SIL.TestUtilities;
 
 namespace LibChorus.TestUtilities
 {

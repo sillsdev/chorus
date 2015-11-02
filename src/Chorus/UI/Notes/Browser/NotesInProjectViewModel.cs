@@ -4,8 +4,8 @@ using System.ComponentModel;
 using System.Linq;
 using Chorus.notes;
 using L10NSharp;
-using Palaso.Progress;
-using Palaso.Reporting;
+using SIL.Progress;
+using SIL.Reporting;
 
 namespace Chorus.UI.Notes.Browser
 {

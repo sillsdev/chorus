@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
 using Chorus.merge.xml.generic;
-using Palaso.Code;
+using SIL.Code;
 
 namespace Chorus.FileTypeHanders.ldml
 {
@@ -37,6 +37,7 @@ namespace Chorus.FileTypeHanders.ldml
 						case "xmlns:palaso2":
 						case "xmlns:palaso":
 						case "xmlns:fw":
+						case "xmlns:sil":
 							key += "_" + attrName;
 							return key;
 					}

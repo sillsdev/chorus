@@ -5,7 +5,7 @@ using Chorus.ChorusHub;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using L10NSharp;
-using Palaso.Progress;
+using SIL.Progress;
 
 namespace Chorus.UI.Clone
 {

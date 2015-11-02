@@ -7,8 +7,8 @@ using System.IO;
 using System.Net.Mime;
 using System.Threading;
 using Chorus.Utilities;
-using Palaso.Progress;
-using Palaso.Reporting;
+using SIL.Progress;
+using SIL.Reporting;
 
 namespace Chorus.VcsDrivers.Mercurial
 {

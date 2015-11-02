@@ -37,7 +37,7 @@
 		{
 			this.components = new System.ComponentModel.Container();
 			this._okButton = new System.Windows.Forms.Button();
-			this._conflictDisplay = new Palaso.UI.WindowsForms.HtmlBrowser.XWebBrowser();
+			this._conflictDisplay = new SIL.Windows.Forms.HtmlBrowser.XWebBrowser();
 			this._helpProvider = new Vulcan.Uczniowie.HelpProvider.HelpComponent(this.components);
 			this.menuStrip1 = new System.Windows.Forms.MenuStrip();
 			this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -158,7 +158,7 @@
 
 
 
-		private Palaso.UI.WindowsForms.HtmlBrowser.XWebBrowser _conflictDisplay;
+		private SIL.Windows.Forms.HtmlBrowser.XWebBrowser _conflictDisplay;
 		private Vulcan.Uczniowie.HelpProvider.HelpComponent _helpProvider;
 		private System.Windows.Forms.MenuStrip menuStrip1;
 		private System.Windows.Forms.ToolStripMenuItem editToolStripMenuItem;

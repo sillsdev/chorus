@@ -2,7 +2,7 @@ using System.Xml.Linq;
 using Chorus.FileTypeHanders.xml;
 using Chorus.notes;
 using Chorus.VcsDrivers;
-using Palaso.Code;
+using SIL.Code;
 
 
 namespace Chorus.FileTypeHanders

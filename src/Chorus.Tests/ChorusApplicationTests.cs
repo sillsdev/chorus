@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Windows.Forms;
 using NUnit.Framework;
-using Palaso.TestUtilities;
+using SIL.TestUtilities;
 
 namespace Chorus.Tests
 {

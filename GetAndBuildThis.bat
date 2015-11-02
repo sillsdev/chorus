@@ -30,4 +30,4 @@ IF "%2"=="" (
 :build
 git pull --rebase
 call UpdateDependencies.bat %BUILD_CONFIG% called-vsvars-already
-msbuild "Chorus VS2010.sln" /verbosity:quiet /maxcpucount /p:Configuration=%BUILD_CONFIG%
+msbuild "Chorus.sln" /verbosity:quiet /maxcpucount /p:Configuration=%BUILD_CONFIG%

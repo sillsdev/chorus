@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using Palaso.Reporting;
+using SIL.Reporting;
 
 namespace Chorus.Utilities
 {
@@ -64,7 +64,7 @@ namespace Chorus.Utilities
 				}
 				//Could not parse the url lift://FTeam.lift?type=entry&label=نویس&id=e824f0ae-6d36-4c52-b30b-eb845d6c120a
 
-				var parse = Palaso.Network.HttpUtilityFromMono.ParseQueryString(uri.Query);
+				var parse = SIL.Network.HttpUtilityFromMono.ParseQueryString(uri.Query);
 
 				var r = parse.GetValues(name);
 				var label = r == null ? defaultIfCannotGetIt : r.First();
@@ -74,7 +74,7 @@ namespace Chorus.Utilities
 			{
 #if DEBUG
 				var message = String.Format("Debug mode only: GetValueFromQueryStringOfRef({0},{1}) {2}", originalUrl, name, e.Message);
-				ErrorReport.NotifyUserOfProblem(new Palaso.Reporting.ShowOncePerSessionBasedOnExactMessagePolicy(), message);
+				ErrorReport.NotifyUserOfProblem(new SIL.Reporting.ShowOncePerSessionBasedOnExactMessagePolicy(), message);
 #endif
 				return defaultIfCannotGetIt;
 			}

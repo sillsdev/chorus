@@ -7,8 +7,8 @@ using System.Windows.Forms;
 using Chorus.ChorusHub;
 using Chorus.VcsDrivers;
 using L10NSharp;
-using Palaso.Progress;
-using Palaso.UI.WindowsForms.Progress;
+using SIL.Progress;
+using SIL.Windows.Forms.Progress;
 
 
 namespace Chorus.UI.Clone

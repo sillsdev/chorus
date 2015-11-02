@@ -5,7 +5,7 @@ using System.Text;
 using System.Xml.Linq;
 using Chorus.notes;
 using NUnit.Framework;
-using Palaso.Progress;
+using SIL.Progress;
 
 namespace LibChorus.Tests.notes
 {

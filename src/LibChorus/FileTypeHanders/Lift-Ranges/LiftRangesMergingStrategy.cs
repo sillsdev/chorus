@@ -3,7 +3,7 @@ using System.Xml;
 using Chorus.FileTypeHanders.lift;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
-using Palaso.Lift;
+using SIL.Lift;
 
 namespace Chorus.FileTypeHanders
 {

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
-using Palaso.Progress;
+using SIL.Progress;
 
 namespace Chorus.UI.Notes.Browser
 {

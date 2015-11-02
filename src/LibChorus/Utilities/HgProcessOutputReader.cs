@@ -5,7 +5,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using Chorus.merge.xml.generic;
-using Palaso.Progress;
+using SIL.Progress;
 using ThreadState=System.Threading.ThreadState;
 
 namespace Chorus.Utilities

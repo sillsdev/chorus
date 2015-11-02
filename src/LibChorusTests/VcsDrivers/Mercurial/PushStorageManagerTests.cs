@@ -3,7 +3,7 @@ using System.IO;
 using System.Text;
 using Chorus.VcsDrivers.Mercurial;
 using NUnit.Framework;
-using Palaso.TestUtilities;
+using SIL.TestUtilities;
 
 namespace LibChorus.Tests.VcsDrivers.Mercurial
 {

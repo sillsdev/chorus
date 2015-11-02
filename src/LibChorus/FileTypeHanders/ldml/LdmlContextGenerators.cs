@@ -12,6 +12,9 @@ namespace Chorus.FileTypeHanders.ldml
 	//			palaso2:keyboard
 	//		palaso2:version
 	// special_xmlns:fw
+	// special_xmlns:sil
+	//		sil:kbd
+	//		sil:font
 
 
 	/// <summary>
@@ -66,6 +69,9 @@ namespace Chorus.FileTypeHanders.ldml
 					break;
 				case "special_xmlns:fw":
 					label = "LDML FieldWorks 'special' element";
+					break;
+				case "special_xmlns:sil":
+					label = "LDML SIL 'special' element";
 					break;
 			}
 

@@ -1,7 +1,7 @@
 ﻿using Chorus.FileTypeHanders.lift;
 using NUnit.Framework;
-using Palaso.IO;
-using Palaso.Progress;
+using SIL.IO;
+using SIL.Progress;
 
 namespace LibChorus.Tests.merge.xml.lift
 {

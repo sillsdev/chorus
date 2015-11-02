@@ -1,5 +1,5 @@
 using System.IO;
-using Palaso.IO;
+using SIL.IO;
 
 namespace Chorus.VcsDrivers.Mercurial
 {

@@ -10,7 +10,7 @@ using Chorus.merge;
 using Chorus.merge.xml.generic;
 using LibChorus.TestUtilities;
 using NUnit.Framework;
-using Palaso.IO;
+using SIL.IO;
 
 namespace LibChorus.Tests.FileHandlers.ldml
 {
@@ -83,6 +83,8 @@ namespace LibChorus.Tests.FileHandlers.ldml
 <special xmlns:palaso2='urn://palaso.org/ldmlExtensions/v2' goner='true' />
 <special xmlns:fw='urn://fieldworks.sil.org/ldmlExtensions/v1' />
 <special xmlns:fw='urn://fieldworks.sil.org/ldmlExtensions/v1' goner='true' />
+<special xmlns:sil='urn://www.sil.org/ldml/0.1' />
+<special xmlns:sil='urn://www.sil.org/ldml/0.1' goner='true' />
 </ldml>";
 			var doc = new XmlDocument();
 			var badRootNode = XmlUtilities.GetDocumentNodeFromRawXml(badData, doc);
@@ -94,8 +96,8 @@ namespace LibChorus.Tests.FileHandlers.ldml
 			XmlMergeService.RemoveAmbiguousChildren(merger.EventListener, merger.MergeStrategies, badRootNode);
 			XmlMergeService.RemoveAmbiguousChildNodes = oldValue;
 			var childNodes = badRootNode.SelectNodes("special");
-			Assert.IsTrue(childNodes.Count == 3);
-			for (var idx = 0; idx < 3; ++idx)
+			Assert.IsTrue(childNodes.Count == 4);
+			for (var idx = 0; idx < 4; ++idx)
 			{
 				XmlNode currentNode = childNodes[idx];
 				switch (idx)
@@ -108,6 +110,9 @@ namespace LibChorus.Tests.FileHandlers.ldml
 						break;
 					case 2:
 						Assert.IsNotNull(currentNode.Attributes["xmlns:fw"]);
+						break;
+					case 3:
+						Assert.IsNotNull(currentNode.Attributes["xmlns:sil"]);
 						break;
 				}
 				Assert.IsNull(currentNode.Attributes["goner"]);
@@ -140,6 +145,840 @@ namespace LibChorus.Tests.FileHandlers.ldml
 				0, null,
 				1, new List<Type> { typeof(XmlAttributeBothMadeSameChangeReport) });
 		}
+
+		#region Top level LDML elements (V3)
+
+		[Test]
+		public void TopLevelElementsAreSingleton()
+		{
+			string commonAncestor =
+@"<?xml version='1.0' encoding='utf-8'?>
+<ldml>
+	<identity>
+		<version>ancestory</version>
+		<generation date='2015-03-13T22:33:45Z' />
+	</identity>
+	<localeDisplayNames />
+	<layout />
+	<contextTransforms />
+	<characters />
+	<delimiters />
+	<dates />
+	<numbers />
+	<units />
+	<listPatterns />
+	<collations />
+	<posix />
+	<segmentations />
+	<rbnf />
+	<metadata />
+</ldml>".Replace("'", "\"");
+			string ourContent =
+@"<?xml version='1.0' encoding='utf-8'?>
+<ldml>
+	<identity>
+		<version>Our version</version>
+		<generation date='2015-03-13T22:33:45Z' />
+	</identity>
+	<localeDisplayNames>Our localeDisplayNames</localeDisplayNames>
+	<layout>Our layout</layout>
+	<contextTransforms>Our contextTransforms</contextTransforms>
+	<characters>Our characters</characters>
+	<delimiters>Our delimiters</delimiters>
+	<dates>Our dates</dates>
+	<numbers>Our numbers</numbers>
+	<units>Our units</units>
+	<listPatterns>Our listPatterns</listPatterns>
+	<collations>Our collations</collations>
+	<posix>Our posix</posix>
+	<segmentations>Our segmentations</segmentations>
+	<rbnf>Our rbnf</rbnf>
+	<metadata>Our metadata</metadata>
+</ldml>".Replace("'", "\"");
+			string theirContent =
+@"<?xml version='1.0' encoding='utf-8'?>
+<ldml>
+	<identity>
+		<version>Their version</version>
+		<generation date='2015-03-13T22:33:45Z' />
+	</identity>
+	<localeDisplayNames>Their localeDisplayNames</localeDisplayNames>
+	<layout>Their layout</layout>
+	<contextTransforms>Their contextTransforms</contextTransforms>
+	<characters>Their characters</characters>
+	<delimiters>Their delimiters</delimiters>
+	<dates>Their dates</dates>
+	<numbers>Their numbers</numbers>
+	<units>Their units</units>
+	<listPatterns>Their listPatterns></listPatterns>
+	<collations>Their collations</collations>
+	<posix>Their posix</posix>
+	<segmentations>Their segmentations</segmentations>
+	<rbnf>Their rbnf</rbnf>
+	<metadata>Their metadata</metadata>
+</ldml>".Replace("'", "\"");
+			var namespaces = new Dictionary<string, string>
+								{
+									{"sil", "urn://www.sil.org/ldml/0.1"},
+								};
+			DoMerge(commonAncestor, ourContent, theirContent,
+				namespaces,
+				new List<string>
+				{
+					@"ldml/identity/version[text()='Our version']",
+					@"ldml/localeDisplayNames[text()='Our localeDisplayNames']",
+					@"ldml/layout[text()='Our layout']",
+					@"ldml/contextTransforms[text()='Our contextTransforms']",
+					@"ldml/characters[text()='Our characters']",
+					@"ldml/delimiters[text()='Our delimiters']",
+					@"ldml/dates[text()='Our dates']",
+					@"ldml/numbers[text()='Our numbers']",
+					@"ldml/units[text()='Our units']",
+					@"ldml/listPatterns[text()='Our listPatterns']",
+					@"ldml/collations[text()='Our collations']",
+					@"ldml/posix[text()='Our posix']",
+					@"ldml/segmentations[text()='Our segmentations']",
+					@"ldml/rbnf[text()='Our rbnf']",
+					@"ldml/metadata[text()='Our metadata']"
+				},
+				new List<string>(0),
+				4, new List<Type>
+				{
+					typeof (XmlTextBothEditedTextConflict),
+					typeof (BothEditedTheSameAtomicElement),
+					typeof (BothEditedTheSameAtomicElement),
+					typeof (BothEditedTheSameAtomicElement)
+				},
+				1, new List<Type>
+				{
+					typeof(XmlAttributeBothMadeSameChangeReport)
+				});
+		}
+
+		[Test]
+		public void IdentityIsMerged()
+		{
+			string commonAncestor =
+@"<?xml version='1.0' encoding='utf-8'?>
+<ldml>
+	<identity>
+		<version number='$Revision: 11161 $'>Ancestor Identity version description</version>
+		<generation date='2012-06-06T09:36:30Z' />
+		<language type='en' />
+		<script type='Latn' />
+		<special xmlns:sil='urn://www.sil.org/ldml/0.1'>
+			<sil:identity uid='ancestor' windowsLCID='anc123' defaultRegion='ANC' variantName='2008' />
+		</special>
+	</identity>
+</ldml>".Replace("'", "\"");
+			string ourContent =
+@"<?xml version='1.0' encoding='utf-8'?>
+<ldml>
+	<identity>
+		<version number='$Revision: 11161 $'>Our Identity version description</version>
+		<generation date='2012-06-07T09:36:30Z' />
+		<language type='es' />
+		<script type='Spanish' />
+		<special xmlns:sil='urn://www.sil.org/ldml/0.1'>
+			<sil:identity uid='ourabc' windowsLCID='our555' defaultRegion='OUR' variantName='2014' />
+			<sil:identity newAttribute='thisWillNotBePreserved' />
+		</special>
+		<special xmlns:sil='urn://www.sil.org/ldml/0.1'>
+			<someNew />
+		</special>
+	</identity>
+</ldml>".Replace("'", "\"");
+			string theirContent =
+@"<?xml version='1.0' encoding='utf-8'?>
+<ldml>
+	<identity>
+		<version number='$Revision: 11161 $'>Their Identity version description</version>
+		<generation date='2012-06-08T09:36:30Z' />
+		<language type='th' />
+		<script type='Thai' />
+		<special xmlns:sil='urn://www.sil.org/ldml/0.1'>
+			<sil:identity uid='theirabc' windowsLCID='their123' defaultRegion='THEIR' variantName='2558' />
+		</special>
+	</identity>
+</ldml>".Replace("'", "\"");
+			var namespaces = new Dictionary<string, string>
+								{
+									{"sil", "urn://www.sil.org/ldml/0.1"},
+								};
+
+			DoMerge(commonAncestor, ourContent, theirContent,
+				namespaces,
+				new List<string>
+				{
+					@"ldml/identity/language[@type='es']",
+					@"ldml/identity/script[@type='Spanish']",
+					@"ldml/identity/special/sil:identity[@uid='ourabc' and @windowsLCID='our555' and @defaultRegion='OUR' and @variantName='2014']"
+				},
+				new List<string>(0),
+				7, new List<Type>
+				{
+					typeof (XmlTextBothEditedTextConflict),
+					typeof (BothEditedAttributeConflict),
+					typeof (BothEditedAttributeConflict),
+					typeof (BothEditedAttributeConflict),
+					typeof (BothEditedAttributeConflict),
+					typeof (BothEditedAttributeConflict),
+					typeof (BothEditedAttributeConflict)
+				},
+				1, new List<Type>
+				{
+					typeof(XmlAttributeBothMadeSameChangeReport)
+				});
+		}
+
+		[Test]
+		public void CharactersAreMerged()
+		{
+			string commonAncestor =
+@"<?xml version='1.0' encoding='utf-8'?>
+<ldml>
+	<identity>
+		<version number='$Revision: 11161 $' />
+		<generation date='2012-06-06T09:36:30Z' />
+		<language type='en' />
+		<script type='Latn' />
+	</identity>
+	<characters>
+		<exemplarCharacters>[1 2 3 4 5 6 7 8 9 0]</exemplarCharacters>
+	</characters>
+</ldml>".Replace("'", "\"");
+			string ourContent =
+@"<?xml version='1.0' encoding='utf-8'?>
+<ldml>
+	<identity>
+		<version number='$Revision: 11161 $' />
+		<generation date='2012-06-06T09:36:30Z' />
+		<language type='en' />
+		<script type='Latn' />
+	</identity>
+	<characters>
+		<exemplarCharacters type='auxiliary'>[á à ă â å ä ã ā æ ç é è ĕ ê ë ē í ì ĭ î ï ī ñ ó ò ŏ ô ö ø ō œ ú ù ŭ û ü ū ÿ]</exemplarCharacters>
+		<exemplarCharacters type='punctuation'>[\- ‐ – — ]</exemplarCharacters>
+		<exemplarCharacters>[a b c d e f g h i j k l m n o p q r s t u v w x y z]</exemplarCharacters>
+		<special xmlns:sil='urn://www.sil.org/ldml/0.1'>
+			<sil:exemplarCharacters type='ourCharacters'>[! @ # $ % ^]</sil:exemplarCharacters>
+		</special>
+	</characters>
+</ldml>".Replace("'", "\"");
+			string theirContent =
+@"<?xml version='1.0' encoding='utf-8'?>
+<ldml>
+	<identity>
+		<version number='$Revision: 11161 $' />
+		<generation date='2012-06-06T09:36:30Z' />
+		<language type='en' />
+		<script type='Latn' />
+	</identity>
+	<characters>
+		<exemplarCharacters type='index'>[A B C D E F G H I J K L M N O P Q R S T U V W X Y Z]</exemplarCharacters>
+		<exemplarCharacters>[a b c d e f g h i j k l m n o p q r s t u v w x y z]</exemplarCharacters>
+		<special xmlns:sil='urn://www.sil.org/ldml/0.1'>
+			<sil:exemplarCharacters type='theirCharacters'>[) ( * \&amp; ^]</sil:exemplarCharacters>
+		</special>
+	</characters>
+</ldml>".Replace("'", "\"");
+			var namespaces = new Dictionary<string, string>
+								{
+									{"sil", "urn://www.sil.org/ldml/0.1"},
+								};
+
+			DoMerge(commonAncestor, ourContent, theirContent,
+				namespaces,
+				new List<string>
+				{
+					@"ldml/characters/exemplarCharacters[@type='auxiliary' and text()='[á à ă â å ä ã ā æ ç é è ĕ ê ë ē í ì ĭ î ï ī ñ ó ò ŏ ô ö ø ō œ ú ù ŭ û ü ū ÿ]']",
+					@"ldml/characters/exemplarCharacters[@type='punctuation' and text()='[\- ‐ – — ]']",
+					@"ldml/characters/exemplarCharacters[text()='[a b c d e f g h i j k l m n o p q r s t u v w x y z]']",
+					@"ldml/characters/special/sil:exemplarCharacters[text()='[! @ # $ % ^]']"
+				},
+				new List<string>(0),
+				1, new List<Type>
+				{
+					typeof (BothEditedTheSameAtomicElement),
+				},
+				1, new List<Type>
+				{
+					typeof(XmlAttributeBothMadeSameChangeReport)
+				});
+		}
+
+		[Test]
+		public void DelimitersAreMerged()
+		{
+			string commonAncestor =
+@"<?xml version='1.0' encoding='utf-8'?>
+<ldml>
+	<identity>
+		<version number='$Revision: 11161 $' />
+		<generation date='2012-06-06T09:36:30Z' />
+		<language type='en' />
+		<script type='Latn' />
+	</identity>
+</ldml>".Replace("'", "\"");
+			string ourContent =
+@"<?xml version='1.0' encoding='utf-8'?>
+<ldml>
+	<identity>
+		<version number='$Revision: 11161 $' />
+		<generation date='2012-06-06T09:36:30Z' />
+		<language type='en' />
+		<script type='Latn' />
+	</identity>
+	<delimiters>
+		<quotationStart>«</quotationStart>
+		<alternateQuotationStart>“</alternateQuotationStart>
+		<special xmlns:sil='urn://www.sil.org/ldml/0.1'>
+			<sil:quotation-marks paraContinueType='all'>
+				<sil:quotationContinue>»</sil:quotationContinue>
+				<sil:quotation level='3' open='‘' close='’' continue='’'/>
+				<sil:quotation type='narrative' level='1' open='—'/>
+			</sil:quotation-marks>
+		</special>
+	</delimiters>
+</ldml>".Replace("'", "\"");
+			string theirContent =
+@"<?xml version='1.0' encoding='utf-8'?>
+<ldml>
+	<identity>
+		<version number='$Revision: 11161 $' />
+		<generation date='2012-06-06T09:36:30Z' />
+		<language type='en' />
+		<script type='Latn' />
+	</identity>
+	<delimiters>
+		<quotationEnd>»</quotationEnd>
+		<alternateQuotationEnd>»</alternateQuotationEnd>
+		<special xmlns:sil='urn://www.sil.org/ldml/0.1'>
+			<sil:quotation-marks paraContinueType='all'>
+				<sil:alternateQuotationContinue>”</sil:alternateQuotationContinue>
+			</sil:quotation-marks>
+		</special>
+	</delimiters>
+</ldml>".Replace("'", "\"");
+			var namespaces = new Dictionary<string, string>
+								{
+									{"sil", "urn://www.sil.org/ldml/0.1"},
+								};
+
+			DoMerge(commonAncestor, ourContent, theirContent,
+				namespaces,
+				new List<string>
+				{
+					@"ldml/delimiters/quotationStart[text()='«']",
+					@"ldml/delimiters/alternateQuotationStart[text()='“']",
+					@"ldml/delimiters/special/sil:quotation-marks[@paraContinueType = 'all']/sil:quotationContinue[text()='»']",
+					@"ldml/delimiters/special/sil:quotation-marks[@paraContinueType = 'all']/sil:quotation[@level='3' and @open='‘' and @close='’' and @continue='’']",
+					@"ldml/delimiters/special/sil:quotation-marks[@paraContinueType = 'all']/sil:quotation[@type='narrative' and @level='1' and @open='—']"
+				},
+				new List<string>(0),
+				1, new List<Type>
+				{
+					typeof (BothEditedTheSameAtomicElement),
+				},
+				1, new List<Type>
+				{
+					typeof(XmlAttributeBothMadeSameChangeReport)
+				});
+		}
+
+		[Test]
+		public void LayoutIsMerged()
+		{
+			string commonAncestor = 
+@"<?xml version='1.0' encoding='utf-8'?>
+<ldml>
+	<identity>
+		<version number='$Revision: 11161 $' />
+		<generation date='2012-06-06T09:36:30Z' />
+		<language type='en' />
+		<script type='Latn' />
+	</identity>
+	<layout>
+		<orientation>
+			<characterOrder>left-to-right</characterOrder>
+			<lineOrder>top-to-bottom</lineOrder>
+		</orientation>
+	</layout>
+</ldml>".Replace("'", "\"");
+			string ourContent =
+@"<?xml version='1.0' encoding='utf-8'?>
+<ldml>
+	<identity>
+		<version number='$Revision: 11161 $' />
+		<generation date='2012-06-06T09:36:30Z' />
+		<language type='en' />
+		<script type='Latn' />
+	</identity>
+	<layout>
+		<orientation>
+			<characterOrder>right-to-left</characterOrder>
+		</orientation>
+	</layout>
+</ldml>".Replace("'", "\"");
+			string theirContent =
+@"<?xml version='1.0' encoding='utf-8'?>
+<ldml>
+	<identity>
+		<version number='$Revision: 11161 $' />
+		<generation date='2012-06-06T09:36:30Z' />
+		<language type='en' />
+		<script type='Latn' />
+	</identity>
+	<layout>
+		<orientation>
+			<characterOrder>left-to-right</characterOrder>
+			<lineOrder>bottom-to-top</lineOrder>
+		</orientation>
+	</layout>
+</ldml>".Replace("'", "\"");
+
+			var namespaces = new Dictionary<string, string>
+								{
+									{"sil", "urn://www.sil.org/ldml/0.1"},
+								};
+			DoMerge(commonAncestor, ourContent, theirContent,
+				namespaces,
+				new List<string>
+				{
+					@"ldml/layout/orientation/characterOrder[text()='right-to-left']",
+				},
+				new List<string>(0),
+				1, new List<Type>
+				{
+					typeof (BothEditedTheSameAtomicElement),
+				},
+				1, new List<Type>
+				{
+					typeof(XmlAttributeBothMadeSameChangeReport),
+				});
+		}
+
+		[Test]
+		public void NumbersIsMerged()
+		{
+			string commonAncestor =
+@"<?xml version='1.0' encoding='utf-8'?>
+<ldml>
+	<identity>
+		<version number='$Revision: 11161 $' />
+		<generation date='2012-06-06T09:36:30Z' />
+		<language type='en' />
+	</identity>
+	<numbers>
+	</numbers>
+</ldml>".Replace("'", "\"");
+			string ourContent =
+@"<?xml version='1.0' encoding='utf-8'?>
+<ldml>
+	<identity>
+		<version number='$Revision: 11161 $' />
+		<generation date='2012-06-06T09:36:30Z' />
+		<language type='en' />
+	</identity>
+	<numbers>
+		<defaultNumberingSystem>standard</defaultNumberingSystem>
+		<numberingSystem id='standard' type='numeric'>Latn</numberingSystem>
+	</numbers>
+</ldml>".Replace("'", "\"");
+			string theirContent =
+@"<?xml version='1.0' encoding='utf-8'?>
+<ldml>
+	<identity>
+		<version number='$Revision: 11161 $' />
+		<generation date='2012-06-06T09:36:30Z' />
+		<language type='en' />
+	</identity>
+	<numbers>
+		<defaultNumberingSystem>nonStandard</defaultNumberingSystem>
+		<numberingSystem id='nonStandard' type='numeric'>Thai</numberingSystem>
+	</numbers>
+</ldml>".Replace("'", "\"");
+
+			var namespaces = new Dictionary<string, string>
+								{
+									{"sil", "urn://www.sil.org/ldml/0.1"},
+								};
+			DoMerge(commonAncestor, ourContent, theirContent,
+				namespaces,
+				new List<string>
+				{
+					@"ldml/numbers/defaultNumberingSystem[text()='standard']",
+					@"ldml/numbers/numberingSystem[@id='standard' and @type='numeric' and text()='Latn']"
+				},
+				new List<string>(0),
+				1, new List<Type>
+				{
+					typeof (BothEditedTheSameAtomicElement),
+				},
+				1, new List<Type>
+				{
+					typeof(XmlAttributeBothMadeSameChangeReport),
+				});
+		}
+
+		#endregion
+
+		#region Top level SIL:Special Elements
+
+		[Test]
+		public void KnownKeyboards_AreMergedV3()
+		{
+			string commonAncestor =
+@"<?xml version='1.0' encoding='utf-8'?>
+<ldml>
+	<identity>
+		<version number='$Revision: 11161 $' />
+		<generation date='2012-06-06T09:36:30Z' />
+		<language type='en' />
+	</identity>
+	<special xmlns:sil='urn://www.sil.org/ldml/0.1'>
+		<sil:external-resources>
+			<somethingHere />
+		</sil:external-resources>
+	</special>
+</ldml>".Replace("'", "\"");
+			string ourContent =
+@"<?xml version='1.0' encoding='utf-8'?>
+<ldml>
+	<identity>
+		<version number='$Revision: 11161 $' />
+		<generation date='2012-06-06T09:36:30Z' />
+		<language type='en' />
+	</identity>
+	<special xmlns:sil='urn://www.sil.org/ldml/0.1'>
+		<sil:external-resources>
+			<sil:kbd id='Compiled Keyman9'>
+				<sil:url>http://wirl.scripts.sil.org/ourKeyman9</sil:url>
+				<sil:url>http://scripts.sil.org/cms/scripts/page.php?item_id=ourKeyman9</sil:url>
+			</sil:kbd>
+			<sil:kbd id='Compiled Keyman9' alt='draft'>
+				<sil:url>http://wirl.scripts.sil.org/ourKeyman9Draft</sil:url>
+				<sil:url>http://scripts.sil.org/cms/scripts/page.php?item_id=ourKeyman9Draft</sil:url>
+			</sil:kbd>
+			<sil:kbd id='Compiled Keyman10'>
+				<sil:url>http://wirl.scripts.sil.org/ourKeyman10</sil:url>
+				<sil:url>http://scripts.sil.org/cms/scripts/page.php?item_id=ourKeyman10</sil:url>
+			</sil:kbd>
+		</sil:external-resources>
+	</special>
+</ldml>".Replace("'", "\"");
+				string theirContent =
+@"<?xml version='1.0' encoding='utf-8'?>
+<ldml>
+	<identity>
+		<version number='$Revision: 11161 $' />
+		<generation date='2012-06-06T09:36:30Z' />
+		<language type='en' />
+	</identity>
+	<special xmlns:sil='urn://www.sil.org/ldml/0.1'>
+		<sil:external-resources>
+			<sil:kbd id='Compiled Keyman9' type='kmx'>
+				<sil:url>https://not.included.org</sil:url>
+				<sil:url>http://also.not.included.org</sil:url>
+			</sil:kbd>
+			<sil:kbd id='Compiled Keyman11' type='kmx'>
+				<sil:url>http://wirl.scripts.sil.org/theirKeyman11</sil:url>
+				<sil:url>http://scripts.sil.org/cms/scripts/page.php?item_id=theirKeyman11</sil:url>
+			</sil:kbd>
+			<somethingElse />
+		</sil:external-resources>
+	</special>
+</ldml>".Replace("'", "\"");
+			var namespaces = new Dictionary<string, string>
+								{
+									{"sil", "urn://www.sil.org/ldml/0.1"},
+								};
+
+			DoMerge(commonAncestor, ourContent, theirContent,
+				namespaces,
+				new List<string>
+				{
+					@"ldml/special/sil:external-resources/sil:kbd[@id='Compiled Keyman9' and not(@alt)]/sil:url[text()='http://wirl.scripts.sil.org/ourKeyman9']",
+					@"ldml/special/sil:external-resources/sil:kbd[@id='Compiled Keyman9' and not(@alt)]/sil:url[text()='http://scripts.sil.org/cms/scripts/page.php?item_id=ourKeyman9']",
+					@"ldml/special/sil:external-resources/sil:kbd[@id='Compiled Keyman9' and @alt='draft']/sil:url[text()='http://wirl.scripts.sil.org/ourKeyman9Draft']",
+					@"ldml/special/sil:external-resources/sil:kbd[@id='Compiled Keyman9' and @alt='draft']/sil:url[text()='http://scripts.sil.org/cms/scripts/page.php?item_id=ourKeyman9Draft']",
+					@"ldml/special/sil:external-resources/sil:kbd[@id='Compiled Keyman10']/sil:url[text()='http://wirl.scripts.sil.org/ourKeyman10']",
+					@"ldml/special/sil:external-resources/sil:kbd[@id='Compiled Keyman10']/sil:url[text()='http://scripts.sil.org/cms/scripts/page.php?item_id=ourKeyman10']",
+					@"ldml/special/sil:external-resources/sil:kbd[@id='Compiled Keyman11']/sil:url[text()='http://wirl.scripts.sil.org/theirKeyman11']",
+					@"ldml/special/sil:external-resources/sil:kbd[@id='Compiled Keyman11']/sil:url[text()='http://scripts.sil.org/cms/scripts/page.php?item_id=theirKeyman11']"
+				},
+				new List<string>(0),
+				2, new List<Type>
+				{
+					typeof(AmbiguousInsertConflict),
+					typeof(BothEditedTheSameAtomicElement)
+				},
+				6, new List<Type> 
+				{ 
+					typeof(XmlAttributeBothMadeSameChangeReport), 
+					typeof(XmlBothDeletionChangeReport),
+					typeof(XmlAdditionChangeReport),
+					typeof(XmlAdditionChangeReport),
+					typeof(XmlAdditionChangeReport),
+					typeof(XmlAdditionChangeReport)
+				});
+		}
+
+		[Test]
+		public void FontsAreMerged()
+		{
+			string commonAncestor =
+@"<?xml version='1.0' encoding='utf-8'?>
+<ldml>
+	<identity>
+		<version number='$Revision: 11161 $' />
+		<generation date='2012-06-06T09:36:30Z' />
+		<language type='en' />
+	</identity>
+	<special xmlns:sil='urn://www.sil.org/ldml/0.1'>
+		<sil:external-resources>
+			<somethingHere />
+		</sil:external-resources>
+	</special>
+</ldml>".Replace("'", "\"");
+			string ourContent =
+@"<?xml version='1.0' encoding='utf-8'?>
+<ldml>
+	<identity>
+		<version number='$Revision: 11161 $' />
+		<generation date='2012-06-06T09:36:31Z' />
+		<language type='en' />
+	</identity>
+	<special xmlns:sil='urn://www.sil.org/ldml/0.1'>
+		<sil:external-resources>
+			<sil:font name='Padauk' types='default emphasis' size='2.0'>
+				<sil:url>http://wirl.scripts.sil.org/ourPadauk</sil:url>
+				<sil:url>http://scripts.sil.org/cms/scripts/page.php?item_id=ourPadauk</sil:url>
+			</sil:font>
+		</sil:external-resources>
+	</special>
+</ldml>".Replace("'", "\"");
+			string theirContent =
+@"<?xml version='1.0' encoding='utf-8'?>
+<ldml>
+	<identity>
+		<version number='$Revision: 11161 $' />
+		<generation date='2012-06-06T09:36:32Z' />
+		<language type='en' />
+	</identity>
+	<special xmlns:sil='urn://www.sil.org/ldml/0.1'>
+		<sil:external-resources>
+			<sil:font name='Padauk' types='emphasis' size='3.0'>
+				<sil:url>http://wirl.scripts.sil.org/theirPadauk</sil:url>
+				<sil:url>http://scripts.sil.org/cms/scripts/page.php?item_id=theirPadauk</sil:url>
+			</sil:font>
+			<sil:font name='Padauk' types='emphasis' size='34.0' alt='draft'>
+				<sil:url>http://wirl.scripts.sil.org/theirPadaukDraft</sil:url>
+				<sil:url>http://scripts.sil.org/cms/scripts/page.php?item_id=theirPadaukDraft</sil:url>
+			</sil:font>
+			<sil:font name='Doulos' types='heading' size='4.0'>
+				<sil:url>http://wirl.scripts.sil.org/theirDoulos</sil:url>
+				<sil:url>http://scripts.sil.org/cms/scripts/page.php?item_id=theirDoulos</sil:url>
+			</sil:font>
+		</sil:external-resources>
+	</special>
+</ldml>".Replace("'", "\"");
+			var namespaces = new Dictionary<string, string>
+								{
+									{"sil", "urn://www.sil.org/ldml/0.1"},
+								};
+
+			DoMerge(commonAncestor, ourContent, theirContent,
+				namespaces,
+				new List<string>
+				{
+					@"/ldml/special/sil:external-resources/sil:font[@name='Padauk' and @types='default emphasis' and @size='2.0' and not(@alt)]/sil:url[text()='http://wirl.scripts.sil.org/ourPadauk']",
+					@"/ldml/special/sil:external-resources/sil:font[@name='Padauk' and @types='default emphasis' and @size='2.0' and not(@alt)]/sil:url[text()='http://scripts.sil.org/cms/scripts/page.php?item_id=ourPadauk']",
+					@"/ldml/special/sil:external-resources/sil:font[@name='Padauk' and @types='emphasis' and @size='34.0' and @alt='draft']/sil:url[text()='http://wirl.scripts.sil.org/theirPadaukDraft']",
+					@"/ldml/special/sil:external-resources/sil:font[@name='Padauk' and @types='emphasis' and @size='34.0' and @alt='draft']/sil:url[text()='http://scripts.sil.org/cms/scripts/page.php?item_id=theirPadaukDraft']",
+					@"/ldml/special/sil:external-resources/sil:font[@name='Doulos' and @types='heading' and @size='4.0' and not(@alt)]/sil:url[text()='http://wirl.scripts.sil.org/theirDoulos']",
+					@"/ldml/special/sil:external-resources/sil:font[@name='Doulos' and @types='heading' and @size='4.0' and not(@alt)]/sil:url[text()='http://scripts.sil.org/cms/scripts/page.php?item_id=theirDoulos']"
+				},
+				new List<string>(0),
+				1, new List<Type>
+				{
+					typeof(BothEditedTheSameAtomicElement),
+				},
+				4, new List<Type> 
+				{ 
+					typeof(XmlAttributeBothMadeSameChangeReport), 
+					typeof(XmlBothDeletionChangeReport),
+					typeof(XmlAdditionChangeReport),
+					typeof(XmlAdditionChangeReport) 
+				});
+		}
+
+		[Test]
+		public void SpellchecksAreMerged()
+		{
+			string commonAncestor =
+@"<?xml version='1.0' encoding='utf-8'?>
+<ldml>
+	<identity>
+		<version number='$Revision: 11161 $' />
+		<generation date='2012-06-06T09:36:30Z' />
+		<language type='en' />
+	</identity>
+	<special xmlns:sil='urn://www.sil.org/ldml/0.1'>
+		<sil:external-resources>
+			<somethingHere />
+		</sil:external-resources>
+	</special>
+</ldml>".Replace("'", "\"");
+			string ourContent =
+@"<?xml version='1.0' encoding='utf-8'?>
+<ldml>
+	<identity>
+		<version number='$Revision: 11161 $' />
+		<generation date='2012-06-06T09:36:30Z' />
+		<language type='en' />
+	</identity>
+	<special xmlns:sil='urn://www.sil.org/ldml/0.1'>
+		<sil:external-resources>
+			<sil:spellcheck type='hunspell'>
+				<sil:url>http://wirl.scripts.sil.org/ourHunspell</sil:url>
+				<sil:url>http://scripts.sil.org/cms/scripts/page.php?item_id=ourHunspell</sil:url>
+			</sil:spellcheck>
+		</sil:external-resources>
+	</special>
+</ldml>".Replace("'", "\"");
+			string theirContent =
+@"<?xml version='1.0' encoding='utf-8'?>
+<ldml>
+	<identity>
+		<version number='$Revision: 11161 $' />
+		<generation date='2012-06-06T09:36:30Z' />
+		<language type='en' />
+	</identity>
+	<special xmlns:sil='urn://www.sil.org/ldml/0.1'>
+		<sil:external-resources>
+			<sil:spellcheck type='hunspell'>
+				<sil:url>http://wirl.scripts.sil.org/theirHunspell</sil:url>
+				<sil:url>http://scripts.sil.org/cms/scripts/page.php?item_id=theirHunspell</sil:url>
+			</sil:spellcheck>
+			<sil:spellcheck type='hunspell' alt='draft'>
+				<sil:url>http://wirl.scripts.sil.org/theirHunspellDraft</sil:url>
+				<sil:url>http://scripts.sil.org/cms/scripts/page.php?item_id=theirHunspellDraft</sil:url>
+			</sil:spellcheck>
+			<sil:spellcheck type='wordlist'>
+				<sil:url>http://wirl.scripts.sil.org/theirWordlist</sil:url>
+				<sil:url>http://scripts.sil.org/cms/scripts/page.php?item_id=theirWordlist</sil:url>
+			</sil:spellcheck>
+		</sil:external-resources>
+	</special>
+</ldml>".Replace("'", "\"");
+			var namespaces = new Dictionary<string, string>
+								{
+									{"sil", "urn://www.sil.org/ldml/0.1"},
+								};
+
+			DoMerge(commonAncestor, ourContent, theirContent,
+				namespaces,
+				new List<string>
+				{
+					@"/ldml/special/sil:external-resources/sil:spellcheck[@type='hunspell' and not(@alt)]/sil:url[text()='http://wirl.scripts.sil.org/ourHunspell']",
+					@"/ldml/special/sil:external-resources/sil:spellcheck[@type='hunspell' and not(@alt)]/sil:url[text()='http://scripts.sil.org/cms/scripts/page.php?item_id=ourHunspell']",
+					@"/ldml/special/sil:external-resources/sil:spellcheck[@type='hunspell' and @alt='draft']/sil:url[text()='http://wirl.scripts.sil.org/theirHunspellDraft']",
+					@"/ldml/special/sil:external-resources/sil:spellcheck[@type='hunspell' and @alt='draft']/sil:url[text()='http://scripts.sil.org/cms/scripts/page.php?item_id=theirHunspellDraft']",
+					@"/ldml/special/sil:external-resources/sil:spellcheck[@type='wordlist' and not(@alt)]/sil:url[text()='http://wirl.scripts.sil.org/theirWordlist']",
+					@"/ldml/special/sil:external-resources/sil:spellcheck[@type='wordlist' and not(@alt)]/sil:url[text()='http://scripts.sil.org/cms/scripts/page.php?item_id=theirWordlist']"
+				},
+				new List<string>(0),
+				1, new List<Type>
+				{
+					typeof(BothEditedTheSameAtomicElement),
+				},
+				4, new List<Type> 
+				{ 
+					typeof(XmlAttributeBothMadeSameChangeReport), 
+					typeof(XmlBothDeletionChangeReport),
+					typeof(XmlAdditionChangeReport),
+					typeof(XmlAdditionChangeReport) 
+				});
+		}
+
+		[Test]
+		public void TransformsAreMerged()
+		{
+			string commonAncestor =
+@"<?xml version='1.0' encoding='utf-8'?>
+<ldml>
+	<identity>
+		<version number='$Revision: 11161 $' />
+		<generation date='2012-06-06T09:36:30Z' />
+		<language type='en' />
+	</identity>
+	<special xmlns:sil='urn://www.sil.org/ldml/0.1'>
+		<sil:external-resources>
+			<somethingHere />
+		</sil:external-resources>
+	</special>
+</ldml>".Replace("'", "\"");
+			string ourContent =
+@"<?xml version='1.0' encoding='utf-8'?>
+<ldml>
+	<identity>
+		<version number='$Revision: 11161 $' />
+		<generation date='2012-06-06T09:36:30Z' />
+		<language type='en' />
+	</identity>
+	<special xmlns:sil='urn://www.sil.org/ldml/0.1'>
+		<sil:external-resources>
+			<sil:transform from='ourFrom' to='ourTo' type='python' direction='forward' function='ourFunction' />
+			<sil:transform from='ourFrom' to='ourTo' type='python' direction='forward' function='ourFunction' alt='ourAlt'/>
+		</sil:external-resources>
+	</special>
+</ldml>".Replace("'", "\"");
+			string theirContent =
+@"<?xml version='1.0' encoding='utf-8'?>
+<ldml>
+	<identity>
+		<version number='$Revision: 11161 $' />
+		<generation date='2012-06-06T09:36:30Z' />
+		<language type='en' />
+	</identity>
+	<special xmlns:sil='urn://www.sil.org/ldml/0.1'>
+		<sil:external-resources>
+			<sil:transform from='ourFrom' to='ourTo' type='python' direction='forward' function='ourFunction' />
+			<sil:transform from='ourFrom' to='ourTo' type='python' direction='forward' function='ourFunction' alt='theirAlt' />
+			<sil:transform from='ourFrom' to='ourTo' type='python' direction='forward' function='theirFunction' alt='theirAlt'/>
+			<sil:transform from='theirFrom' to='theirTo' type='perl' direction='backward' function='theirFunction' />
+		</sil:external-resources>
+	</special>
+</ldml>".Replace("'", "\"");
+			var namespaces = new Dictionary<string, string>
+								{
+									{"sil", "urn://www.sil.org/ldml/0.1"},
+								};
+
+			DoMerge(commonAncestor, ourContent, theirContent,
+				namespaces,
+				new List<string>
+				{
+					@"/ldml/special/sil:external-resources/sil:transform[@from='ourFrom' and @to='ourTo' and @type='python' and @direction='forward' and @function='ourFunction' and not(@alt)]",
+					@"/ldml/special/sil:external-resources/sil:transform[@from='ourFrom' and @to='ourTo' and @type='python' and @direction='forward' and @function='ourFunction' and @alt='ourAlt']",
+					@"/ldml/special/sil:external-resources/sil:transform[@from='theirFrom' and @to='theirTo' and @type='perl' and @direction='backward' and @function='theirFunction']"
+				},
+				new List<string>(0),
+				0, new List<Type>(0),
+				7, new List<Type> 
+				{ 
+					typeof(XmlAttributeBothMadeSameChangeReport), 
+					typeof(XmlBothDeletionChangeReport),
+					typeof(XmlBothAddedSameChangeReport),
+					typeof(XmlAdditionChangeReport),
+					typeof(XmlAdditionChangeReport),
+					typeof(XmlAdditionChangeReport),
+					typeof(XmlAdditionChangeReport) 
+				});
+		}
+
+		#endregion
 
 		[Test]
 		public void NonConflictingEditsInAtomicSpecialHasConflictReport()
@@ -176,7 +1015,7 @@ namespace LibChorus.Tests.FileHandlers.ldml
 		}
 
 		[Test]
-		public void KnownKeyboards_AreMerged()
+		public void KnownKeyboards_AreMergedV2()
 		{
 			const string pattern =
 @"<?xml version='1.0' encoding='utf-8'?>
@@ -294,7 +1133,7 @@ namespace LibChorus.Tests.FileHandlers.ldml
 @"<?xml version='1.0' encoding='utf-8'?>
 <ldml>
 <identity>
-<generation date='2012-06-08T09:36:30' />
+<generation date='2012-06-08T09:36:30Z' />
 </identity>
 </ldml>";
 
@@ -309,16 +1148,16 @@ namespace LibChorus.Tests.FileHandlers.ldml
 			// We made the change
 			DoMerge(commonAncestor, ourContent, theirContent,
 				namespaces,
-				new List<string> { @"ldml/identity/generation[@date='2012-06-08T09:38:31']" },
-				new List<string> { @"ldml/identity/generation[@date='2012-06-08T09:36:30']", @"ldml/identity/generation[@date='2012-06-08T09:37:30']" },
+				new List<string> { @"ldml/identity/generation[@date='2012-06-08T09:38:31Z']" },
+				new List<string> { @"ldml/identity/generation[@date='2012-06-08T09:36:30Z']", @"ldml/identity/generation[@date='2012-06-08T09:37:30Z']" },
 				0, null,
 				1, new List<Type> { typeof(XmlAttributeBothMadeSameChangeReport) });
 
 			// They made the change
 			DoMerge(commonAncestor, theirContent, ourContent,
 				namespaces,
-				new List<string> { @"ldml/identity/generation[@date='2012-06-08T09:38:31']" },
-				new List<string> { @"ldml/identity/generation[@date='2012-06-08T09:36:30']", @"ldml/identity/generation[@date='2012-06-08T09:37:30']" },
+				new List<string> { @"ldml/identity/generation[@date='2012-06-08T09:38:31Z']" },
+				new List<string> { @"ldml/identity/generation[@date='2012-06-08T09:36:30Z']", @"ldml/identity/generation[@date='2012-06-08T09:37:30Z']" },
 				0, null,
 				1, new List<Type> { typeof(XmlAttributeBothMadeSameChangeReport) });
 		}
@@ -330,7 +1169,7 @@ namespace LibChorus.Tests.FileHandlers.ldml
 @"<?xml version='1.0' encoding='utf-8'?>
 <ldml>
 <identity>
-<generation date='2012-06-08T09:36:30' />
+<generation date='2012-06-08T09:36:30Z' />
 </identity>
 <collations>
 <collation></collation>
@@ -348,16 +1187,16 @@ namespace LibChorus.Tests.FileHandlers.ldml
 			// We made the change
 			DoMerge(commonAncestor, ourContent, theirContent,
 				namespaces,
-				new List<string> { @"ldml/identity/generation[@date='2012-06-08T09:38:31']", @"ldml/special" },
-				new List<string> { @"ldml/identity/generation[@date='2012-06-08T09:36:30']", @"ldml/identity/generation[@date='2012-06-08T09:37:30']" },
+				new List<string> { @"ldml/identity/generation[@date='2012-06-08T09:38:31Z']", @"ldml/special" },
+				new List<string> { @"ldml/identity/generation[@date='2012-06-08T09:36:30Z']", @"ldml/identity/generation[@date='2012-06-08T09:37:30Z']" },
 				0, null,
 				2, new List<Type> { typeof(XmlAttributeBothMadeSameChangeReport), typeof(XmlAdditionChangeReport) });
 
 			// They made the change
 			DoMerge(commonAncestor, theirContent, ourContent,
 				namespaces,
-				new List<string> { @"ldml/identity/generation[@date='2012-06-08T09:38:31']", @"ldml/special" },
-				new List<string> { @"ldml/identity/generation[@date='2012-06-08T09:36:30']", @"ldml/identity/generation[@date='2012-06-08T09:37:30']" },
+				new List<string> { @"ldml/identity/generation[@date='2012-06-08T09:38:31Z']", @"ldml/special" },
+				new List<string> { @"ldml/identity/generation[@date='2012-06-08T09:36:30Z']", @"ldml/identity/generation[@date='2012-06-08T09:37:30Z']" },
 				0, null,
 				2, new List<Type> { typeof(XmlAttributeBothMadeSameChangeReport), typeof(XmlAdditionChangeReport) });
 		}
@@ -369,7 +1208,7 @@ namespace LibChorus.Tests.FileHandlers.ldml
 @"<?xml version='1.0' encoding='utf-8'?>
 <ldml>
 <identity>
-<generation date='2012-06-08T09:36:30' />
+<generation date='2012-06-08T09:36:30Z' />
 </identity>
 <collations>
 <collation></collation>
@@ -383,7 +1222,7 @@ namespace LibChorus.Tests.FileHandlers.ldml
 
 			Assert.DoesNotThrow( ()=> DoMerge(null, data, data,
 				namespaces,
-				new List<string> { @"ldml/identity/generation[@date='2012-06-08T09:36:31']" },
+				new List<string> { @"ldml/identity/generation[@date='2012-06-08T09:36:31Z']" },
 				new List<string>(),
 				0, null,
 				1, new List<Type> {typeof (XmlBothAddedSameChangeReport)}));

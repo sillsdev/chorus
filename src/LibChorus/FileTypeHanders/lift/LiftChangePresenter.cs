@@ -4,7 +4,7 @@ using System.Xml;
 using Chorus.FileTypeHanders.xml;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
-using Palaso.Xml;
+using SIL.Xml;
 
 namespace Chorus.FileTypeHanders.lift
 {

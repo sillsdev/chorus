@@ -36,11 +36,11 @@
 		private void InitializeComponent()
 		{
 			this.components = new System.ComponentModel.Container();
-			this._normalChangeDescriptionRenderer = new Palaso.UI.WindowsForms.HtmlBrowser.XWebBrowser();
+			this._normalChangeDescriptionRenderer = new SIL.Windows.Forms.HtmlBrowser.XWebBrowser();
 			this.tabControl1 = new System.Windows.Forms.TabControl();
 			this.tabPage1 = new System.Windows.Forms.TabPage();
 			this.tabPageRaw = new System.Windows.Forms.TabPage();
-			this._rawChangeDescriptionRenderer = new Palaso.UI.WindowsForms.HtmlBrowser.XWebBrowser();
+			this._rawChangeDescriptionRenderer = new SIL.Windows.Forms.HtmlBrowser.XWebBrowser();
 			this.l10NSharpExtender1 = new L10NSharp.UI.L10NSharpExtender(this.components);
 			this.tabControl1.SuspendLayout();
 			this.tabPage1.SuspendLayout();
@@ -140,11 +140,11 @@
 
 		#endregion
 
-		private Palaso.UI.WindowsForms.HtmlBrowser.XWebBrowser _normalChangeDescriptionRenderer;
+		private SIL.Windows.Forms.HtmlBrowser.XWebBrowser _normalChangeDescriptionRenderer;
 		private System.Windows.Forms.TabControl tabControl1;
 		private System.Windows.Forms.TabPage tabPage1;
 		private System.Windows.Forms.TabPage tabPageRaw;
-		private Palaso.UI.WindowsForms.HtmlBrowser.XWebBrowser _rawChangeDescriptionRenderer;
+		private SIL.Windows.Forms.HtmlBrowser.XWebBrowser _rawChangeDescriptionRenderer;
 		private L10NSharp.UI.L10NSharpExtender l10NSharpExtender1;
 
 	}

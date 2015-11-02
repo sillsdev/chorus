@@ -4,7 +4,7 @@ using Chorus.merge;
 using LibChorus.Tests.merge;
 using Chorus.Utilities;
 using NUnit.Framework;
-using Palaso.TestUtilities;
+using SIL.TestUtilities;
 
 namespace ChorusMerge.Tests
 {

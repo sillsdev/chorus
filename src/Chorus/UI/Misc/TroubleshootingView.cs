@@ -3,8 +3,8 @@ using System.ComponentModel;
 using System.Media;
 using System.Windows.Forms;
 using Chorus.VcsDrivers.Mercurial;
-using Palaso.Progress;
-using Palaso.UI.WindowsForms.Progress;
+using SIL.Progress;
+using SIL.Windows.Forms.Progress;
 
 namespace Chorus.UI.Misc
 {

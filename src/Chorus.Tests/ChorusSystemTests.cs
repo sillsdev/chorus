@@ -6,9 +6,9 @@ using System.Threading;
 using System.Windows.Forms;
 using Chorus.notes;
 using NUnit.Framework;
-using Palaso.IO;
-using Palaso.Progress;
-using Palaso.TestUtilities;
+using SIL.IO;
+using SIL.Progress;
+using SIL.TestUtilities;
 
 namespace Chorus.Tests
 {

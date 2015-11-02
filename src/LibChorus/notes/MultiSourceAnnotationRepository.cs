@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Palaso.Progress;
+using SIL.Progress;
 
 namespace Chorus.notes
 {

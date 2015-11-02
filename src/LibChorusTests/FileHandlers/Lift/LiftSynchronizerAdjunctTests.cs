@@ -1,6 +1,6 @@
 ﻿using Chorus.FileTypeHanders.lift;
 using NUnit.Framework;
-using Palaso.IO;
+using SIL.IO;
 
 namespace LibChorus.Tests.FileHandlers.Lift
 {

@@ -91,8 +91,8 @@ http://blogs.msdn.com/robmen/archive/2003/10/04/56479.aspx -->
 						<File Id="Vulcan.Uczniowie.HelpProvider.dll" Name="Vulcan.Uczniowie.HelpProvider.dll" KeyPath="yes" Source="..\..\output\Release\Vulcan.Uczniowie.HelpProvider.dll" />
 					</Component>
 
-					<Component Id="Palaso.dll" Guid="C1EEF451-E382-11DE-8A39-0800200C9A66">
-						<File Id="Palaso.dll" Name="Palaso.dll" KeyPath="yes" Source="..\..\output\Release\Palaso.dll" />
+					<Component Id="SIL.Core.dll" Guid="C1EEF451-E382-11DE-8A39-0800200C9A66">
+						<File Id="SIL.Core.dll" Name="SIL.Core.dll" KeyPath="yes" Source="..\..\output\Release\SIL.Core.dll" />
 					</Component>
 
 					<!-- ICU assemblies used by chorus/palaso -->
@@ -133,7 +133,7 @@ http://blogs.msdn.com/robmen/archive/2003/10/04/56479.aspx -->
 		<ComponentRef Id="mercurial.ini"/>
 		<ComponentRef Id="Vulcan.Uczniowie.HelpProvider.dll"/>
 
-		<ComponentRef Id="Palaso.dll"/>
+		<ComponentRef Id="SIL.Core.dll"/>
 
 		<ComponentRef Id="icu.net.dll"/>
 		<ComponentRef Id="icudt54.dll"/>

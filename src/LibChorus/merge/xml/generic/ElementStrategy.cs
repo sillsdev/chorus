@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.Xml;
-using Palaso.Xml;
+using SIL.Xml;
 
 namespace Chorus.merge.xml.generic
 {

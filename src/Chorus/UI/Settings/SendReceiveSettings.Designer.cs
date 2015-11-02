@@ -1,5 +1,5 @@
-﻿using Palaso.UI.WindowsForms.HtmlBrowser;
-using Palaso.UI.WindowsForms.SettingProtection;
+﻿using SIL.Windows.Forms.HtmlBrowser;
+using SIL.Windows.Forms.SettingProtection;
 
 namespace Chorus.UI.Settings
 {
@@ -47,7 +47,7 @@ namespace Chorus.UI.Settings
 			this._helpButton = new System.Windows.Forms.Button();
 			this._cancelButton = new System.Windows.Forms.Button();
 			this._okButton = new System.Windows.Forms.Button();
-			this.settingsProtectionButton = new Palaso.UI.WindowsForms.SettingProtection.SettingsProtectionLauncherButton();
+			this.settingsProtectionButton = new SIL.Windows.Forms.SettingProtection.SettingsProtectionLauncherButton();
 			this.pictureBox3 = new System.Windows.Forms.PictureBox();
 			this._helpProvider = new Vulcan.Uczniowie.HelpProvider.HelpComponent(this.components);
 			this.l10NSharpExtender1 = new L10NSharp.UI.L10NSharpExtender(this.components);
@@ -347,7 +347,7 @@ namespace Chorus.UI.Settings
 		private System.Windows.Forms.Button _helpButton;
 		private System.Windows.Forms.Button _cancelButton;
 		private System.Windows.Forms.Button _okButton;
-		private Palaso.UI.WindowsForms.SettingProtection.SettingsProtectionLauncherButton settingsProtectionButton;
+		private SIL.Windows.Forms.SettingProtection.SettingsProtectionLauncherButton settingsProtectionButton;
 		private System.Windows.Forms.FlowLayoutPanel _internetSettingsFlow;
 		private System.Windows.Forms.CheckBox _internetButtonEnabledCheckBox;
 		private Misc.ServerSettingsControl _serverSettingsControl;
@@ -355,7 +355,7 @@ namespace Chorus.UI.Settings
 		private System.Windows.Forms.PictureBox pictureBox3;
 		private Vulcan.Uczniowie.HelpProvider.HelpComponent _helpProvider;
 		private System.Windows.Forms.TabPage chorusHubTab;
-		private Palaso.UI.WindowsForms.HtmlBrowser.XWebBrowser chorusHubSetup;
+		private SIL.Windows.Forms.HtmlBrowser.XWebBrowser chorusHubSetup;
 		private System.Windows.Forms.PictureBox pictureBox4;
 		private System.Windows.Forms.CheckBox _showChorusHubInSendReceive;
 		private L10NSharp.UI.L10NSharpExtender l10NSharpExtender1;

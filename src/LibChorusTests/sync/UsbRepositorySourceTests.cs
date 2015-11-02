@@ -4,8 +4,8 @@ using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using LibChorus.TestUtilities;
 using NUnit.Framework;
-using Palaso.Progress;
-using Palaso.Extensions;
+using SIL.Progress;
+using SIL.Extensions;
 
 namespace LibChorus.Tests.sync
 {

@@ -8,8 +8,8 @@ using Chorus.VcsDrivers.Mercurial;
 using Chorus.sync;
 using LibChorus.TestUtilities;
 using NUnit.Framework;
-using Palaso.IO;
-using Palaso.Progress;
+using SIL.IO;
+using SIL.Progress;
 
 namespace LibChorus.Tests.FileHandlers
 {

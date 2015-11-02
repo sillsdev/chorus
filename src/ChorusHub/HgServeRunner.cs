@@ -4,8 +4,8 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using Chorus.VcsDrivers.Mercurial;
-using Palaso.CommandLineProcessing;
-using Palaso.Progress;
+using SIL.CommandLineProcessing;
+using SIL.Progress;
 
 namespace ChorusHub
 {
@@ -159,7 +159,7 @@ namespace ChorusHub
 								var name = line.Substring(start, end - start);
 								string directory = Path.Combine(_rootFolder, name);
 
-								directory = Palaso.Network.HttpUtilityFromMono.UrlDecode(directory); // convert %20 --> space
+								directory = SIL.Network.HttpUtilityFromMono.UrlDecode(directory); // convert %20 --> space
 								if (!Directory.Exists(directory))
 								{
 									//Progress.WriteMessage("Creating new folder '" + name + "'");

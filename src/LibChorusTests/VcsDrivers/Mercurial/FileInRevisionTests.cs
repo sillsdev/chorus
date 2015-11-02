@@ -2,9 +2,9 @@ using System.IO;
 using Chorus.VcsDrivers.Mercurial;
 using NUnit.Framework;
 using System.Linq;
-using Palaso.IO;
-using Palaso.Progress;
-using Palaso.TestUtilities;
+using SIL.IO;
+using SIL.Progress;
+using SIL.TestUtilities;
 
 namespace LibChorus.Tests.VcsDrivers.Mercurial
 {

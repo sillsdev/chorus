@@ -3,8 +3,8 @@ using System.Drawing;
 using System.Windows.Forms;
 using Chorus.sync;
 using Chorus.VcsDrivers.Mercurial;
-using Palaso.Progress;
-using Palaso.UI.WindowsForms.Progress;
+using SIL.Progress;
+using SIL.Windows.Forms.Progress;
 
 namespace Chorus.UI.Sync
 {

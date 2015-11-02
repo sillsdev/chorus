@@ -15,10 +15,10 @@ using System.Text.RegularExpressions;
 using Chorus.Utilities;
 using Chorus.merge;
 using Nini.Ini;
-using Palaso.Code;
-using Palaso.IO;
-using Palaso.Network;
-using Palaso.Progress;
+using SIL.Code;
+using SIL.IO;
+using SIL.Network;
+using SIL.Progress;
 
 namespace Chorus.VcsDrivers.Mercurial
 {

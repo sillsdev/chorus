@@ -3,7 +3,7 @@ using System.IO;
 using System.Linq;
 using Chorus.FileTypeHanders;
 using NUnit.Framework;
-using Palaso.IO;
+using SIL.IO;
 
 namespace LibChorus.Tests.FileHandlers.ldml
 {

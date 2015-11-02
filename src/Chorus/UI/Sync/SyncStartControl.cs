@@ -8,7 +8,7 @@ using Chorus.UI.Misc;
 using Chorus.UI.Settings;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
-using Palaso.Code;
+using SIL.Code;
 using System.IO;
 
 namespace Chorus.UI.Sync
@@ -440,13 +440,13 @@ namespace Chorus.UI.Sync
 
 		private void _internetDiagnosticsLink_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
 		{
-			Palaso.Reporting.ErrorReport.NotifyUserOfProblem(_connectionDiagnostics,
+			SIL.Reporting.ErrorReport.NotifyUserOfProblem(_connectionDiagnostics,
 				"Internet", (string)_internetDiagnosticsLink.Tag);
 		}
 
 		private void _sharedNetworkDiagnosticsLink_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
 		{
-			Palaso.Reporting.ErrorReport.NotifyUserOfProblem(_connectionDiagnostics,
+			SIL.Reporting.ErrorReport.NotifyUserOfProblem(_connectionDiagnostics,
 				"Shared Network Folder", (string)_sharedNetworkDiagnosticsLink.Tag);
 		}
 

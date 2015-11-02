@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
 using Chorus.FileTypeHanders.xml;
-using Palaso.Code;
+using SIL.Code;
 
 namespace Chorus.merge.xml.generic
 {

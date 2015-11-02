@@ -1,6 +1,6 @@
 ﻿using System;
-using Palaso.Progress;
-using Palaso.UI.WindowsForms.Progress;
+using SIL.Progress;
+using SIL.Windows.Forms.Progress;
 
 
 namespace Chorus.UI.Clone
@@ -46,7 +46,7 @@ namespace Chorus.UI.Clone
 			this._statusImage = new System.Windows.Forms.Button();
 			this._lookingForUsbTimer = new System.Windows.Forms.Timer(this.components);
 			this._statusLabel = new System.Windows.Forms.TextBox();
-			this._logBox = new Palaso.UI.WindowsForms.Progress.LogBox();
+			this._logBox = new SIL.Windows.Forms.Progress.LogBox();
 			this._helpProvider = new Vulcan.Uczniowie.HelpProvider.HelpComponent(this.components);
 			this.l10NSharpExtender1 = new L10NSharp.UI.L10NSharpExtender(this.components);
 			((System.ComponentModel.ISupportInitialize)(this.l10NSharpExtender1)).BeginInit();

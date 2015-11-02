@@ -7,9 +7,8 @@ using Chorus.UI.Sync;
 using Chorus.VcsDrivers;
 using LibChorus.TestUtilities;
 using NUnit.Framework;
-using Palaso.Extensions;
-using Palaso.Progress;
-using Palaso.UI.WindowsForms.Progress;
+using SIL.Extensions;
+using SIL.Progress;
 
 namespace Chorus.Tests
 {
@@ -190,7 +189,7 @@ namespace Chorus.Tests
 			Assert.Throws<InvalidOperationException>(() =>
 										 {
 											 //simulate not having previously created a repository
-											 Palaso.IO.DirectoryUtilities.DeleteDirectoryRobust(
+											 SIL.IO.DirectoryUtilities.DeleteDirectoryRobust(
 												 _pathToTestRoot.CombineForPath(".hg"));
 											 _model.AsyncLocalCheckIn("testing", null);
 										 });

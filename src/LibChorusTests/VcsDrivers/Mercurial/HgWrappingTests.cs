@@ -1,13 +1,12 @@
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using Chorus.VcsDrivers.Mercurial;
 using Chorus.sync;
 using LibChorus.TestUtilities;
 using NUnit.Framework;
-using Palaso.Progress;
-using Palaso.TestUtilities;
+using SIL.Progress;
+using SIL.TestUtilities;
 
 namespace LibChorus.Tests.VcsDrivers.Mercurial
 {

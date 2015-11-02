@@ -4,8 +4,8 @@ using System.ComponentModel;
 using System.Windows.Forms;
 using Chorus.VcsDrivers.Mercurial;
 using L10NSharp;
-using Palaso.Code;
-using Palaso.Progress;
+using SIL.Code;
+using SIL.Progress;
 
 namespace Chorus.UI.Review.RevisionsInRepository
 {
@@ -156,7 +156,7 @@ namespace Chorus.UI.Review.RevisionsInRepository
 			var msg = HgRepository.GetEnvironmentReadinessMessage("en");
 			if (!string.IsNullOrEmpty(msg))
 			{
-				Palaso.Reporting.ErrorReport.NotifyUserOfProblem(msg);
+				SIL.Reporting.ErrorReport.NotifyUserOfProblem(msg);
 				return;
 			}
 		}

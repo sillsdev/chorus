@@ -1,7 +1,7 @@
 ﻿using Chorus.sync;
 using LibChorus.TestUtilities;
 using NUnit.Framework;
-using Palaso.Progress;
+using SIL.Progress;
 
 namespace LibChorus.Tests.sync
 {

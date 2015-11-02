@@ -7,8 +7,8 @@ using Chorus.FileTypeHanders.test;
 using Chorus.Utilities.code;
 using Chorus.merge;
 using Chorus.VcsDrivers.Mercurial;
-using Palaso.IO;
-using Palaso.Progress;
+using SIL.IO;
+using SIL.Progress;
 
 namespace Chorus.FileTypeHanders
 {

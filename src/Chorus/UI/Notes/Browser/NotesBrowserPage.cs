@@ -6,7 +6,7 @@ using System.Linq;
 using System.Windows.Forms;
 using Chorus.notes;
 using L10NSharp;
-using Palaso.Progress;
+using SIL.Progress;
 
 
 namespace Chorus.UI.Notes.Browser

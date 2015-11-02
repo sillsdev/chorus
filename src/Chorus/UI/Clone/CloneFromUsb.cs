@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
-using Palaso.UsbDrive;
+using SIL.UsbDrive;
 using Chorus.VcsDrivers.Mercurial;
 using L10NSharp;
-using Palaso.IO;
-using Palaso.Progress;
+using SIL.IO;
+using SIL.Progress;
 
 namespace Chorus.UI.Clone
 {

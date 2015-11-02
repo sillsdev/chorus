@@ -1,13 +1,12 @@
 using System;
 using System.IO;
 using System.Reflection;
-using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using Ionic.Zip;
 using LibChorus.TestUtilities;
 using NUnit.Framework;
-using Palaso.Progress;
-using Palaso.TestUtilities;
+using SIL.Progress;
+using SIL.TestUtilities;
 
 namespace LibChorus.Tests.VcsDrivers.Mercurial
 {

@@ -15,9 +15,9 @@ using Chorus.UI.Review;
 using Chorus.UI.Sync;
 using Chorus.VcsDrivers.Mercurial;
 using L10NSharp;
-using Palaso.Code;
-using Palaso.Extensions;
-using Palaso.Progress;
+using SIL.Code;
+using SIL.Extensions;
+using SIL.Progress;
 using IContainer = Autofac.IContainer;
 
 namespace Chorus

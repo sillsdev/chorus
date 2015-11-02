@@ -5,7 +5,7 @@ using System.Windows.Forms;
 using Chorus.notes;
 using Chorus.Properties;
 using L10NSharp;
-using Palaso.Progress;
+using SIL.Progress;
 
 namespace Chorus.UI.Notes.Bar
 {

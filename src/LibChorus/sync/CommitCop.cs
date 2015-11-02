@@ -2,7 +2,7 @@ using System;
 using System.Text;
 using Chorus.FileTypeHanders;
 using Chorus.VcsDrivers.Mercurial;
-using Palaso.Progress;
+using SIL.Progress;
 
 namespace Chorus.sync
 {

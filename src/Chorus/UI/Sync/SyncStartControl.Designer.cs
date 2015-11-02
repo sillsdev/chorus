@@ -1,5 +1,5 @@
 ﻿﻿using System.Threading;
-using Palaso.UI.WindowsForms.SettingProtection;
+using SIL.Windows.Forms.SettingProtection;
 
 namespace Chorus.UI.Sync
 {
@@ -46,7 +46,7 @@ namespace Chorus.UI.Sync
 			this._useSharedFolderStatusLabel = new System.Windows.Forms.LinkLabel();
 			this._internetDiagnosticsLink = new System.Windows.Forms.LinkLabel();
 			this._sharedNetworkDiagnosticsLink = new System.Windows.Forms.LinkLabel();
-			this._settingsButton = new Palaso.UI.WindowsForms.SettingProtection.SettingsLauncherButton();
+			this._settingsButton = new SIL.Windows.Forms.SettingProtection.SettingsLauncherButton();
 			this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
 			this.l10NSharpExtender1 = new L10NSharp.UI.L10NSharpExtender(this.components);
 			this.commitMessageLabel = new Chorus.UI.BetterLabel();

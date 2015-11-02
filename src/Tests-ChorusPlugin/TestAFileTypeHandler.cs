@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using Chorus.FileTypeHanders;
 using Chorus.merge;
 using Chorus.VcsDrivers.Mercurial;
-using Palaso.IO;
-using Palaso.Progress;
+using SIL.IO;
+using SIL.Progress;
 
 namespace Tests_ChorusPlugin
 {

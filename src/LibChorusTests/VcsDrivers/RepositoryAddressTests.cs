@@ -3,7 +3,7 @@ using System.Reflection;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using NUnit.Framework;
-using Palaso.Progress;
+using SIL.Progress;
 
 namespace LibChorus.Tests.VcsDrivers
 {

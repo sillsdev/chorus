@@ -8,9 +8,9 @@ using Chorus.UI.Notes.Browser;
 using Chorus.UI.Notes.Html;
 using Chorus.UI.Review;
 using NUnit.Framework;
-using Palaso.IO;
-using Palaso.Progress;
-using Palaso.TestUtilities;
+using SIL.IO;
+using SIL.Progress;
+using SIL.TestUtilities;
 
 namespace Chorus.Tests.notes
 {

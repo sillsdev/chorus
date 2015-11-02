@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using Chorus.VcsDrivers.Mercurial;
 using Nini.Ini;
-using Palaso.IO;
+using SIL.IO;
 
 namespace LibChorus.Tests.VcsDrivers.Mercurial
 {

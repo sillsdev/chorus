@@ -30,7 +30,7 @@
 		{
 			this.components = new System.ComponentModel.Container();
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ChorusHubWindow));
-			this._logBox = new Palaso.UI.WindowsForms.Progress.LogBox();
+			this._logBox = new SIL.Windows.Forms.Progress.LogBox();
 			this._stopChorusHub = new System.Windows.Forms.LinkLabel();
 			this._serviceTimer = new System.Windows.Forms.Timer(this.components);
 			this._helpProvider = new Vulcan.Uczniowie.HelpProvider.HelpComponent(this.components);
@@ -94,7 +94,7 @@
 
 		#endregion
 
-		private Palaso.UI.WindowsForms.Progress.LogBox _logBox;
+		private SIL.Windows.Forms.Progress.LogBox _logBox;
 		private System.Windows.Forms.LinkLabel _stopChorusHub;
 		private System.Windows.Forms.Timer _serviceTimer;
 		private Vulcan.Uczniowie.HelpProvider.HelpComponent _helpProvider;

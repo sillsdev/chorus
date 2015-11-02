@@ -4,8 +4,8 @@ using System.IO;
 using System.Windows.Forms;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
-using Palaso.Code;
-using Palaso.Progress;
+using SIL.Code;
+using SIL.Progress;
 
 namespace Chorus.UI.Misc
 {

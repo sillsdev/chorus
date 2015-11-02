@@ -8,8 +8,8 @@ using Chorus.merge.xml.generic;
 using Chorus.notes;
 using LibChorus.TestUtilities;
 using NUnit.Framework;
-using Palaso.IO;
-using Palaso.Xml;
+using SIL.IO;
+using SIL.Xml;
 
 namespace LibChorus.Tests.FileHandlers
 {
