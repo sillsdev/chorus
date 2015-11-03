@@ -1,11 +1,13 @@
 ﻿using System;
 using System.IO;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using Chorus.UI.Misc;
 using Chorus.Utilities.Help;
 using Chorus.VcsDrivers.Mercurial;
 using L10NSharp;
 using SIL.Code;
+using SIL.PlatformUtilities;
 using SIL.Progress;
 
 namespace Chorus.UI.Settings
@@ -27,13 +29,20 @@ namespace Chorus.UI.Settings
 		/// </summary>
 		private void SendReceiveSettingsShown(object sender, EventArgs e)
 		{
-			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SendReceiveSettings));
+			var resources = new System.ComponentModel.ComponentResourceManager(typeof(SendReceiveSettings));
 			var hubSetupText = LocalizationManager.GetString(@"Chorus_ChorusHubSetupInstructionsHtml", resources.GetString(@"ChorusHubSetupInstructionsHTML"),
 				@"Instructions shown before first Send/Receive. Please keep HTML tags as-is to preserve formatting, and use HTML escapes");
+			if (Platform.IsUnix)
+				hubSetupText = RemoveLinks(hubSetupText);
 			var tempFile = Path.Combine(Path.GetTempPath(), Path.ChangeExtension(Path.GetRandomFileName(), ".html"));
 			File.WriteAllText(tempFile, hubSetupText);
 			var uri = new Uri(tempFile);
 			chorusHubSetup.Navigate(uri.AbsoluteUri);
+		}
+
+		private string RemoveLinks(string html)
+		{
+			return Regex.Replace(html, @"href\s*=\s*(""|').*(""|')", @"");
 		}
 
 		public SendReceiveSettings(string repositoryLocation)
