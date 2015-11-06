@@ -6,6 +6,8 @@ using Chorus.Utilities.Help;
 using Chorus.VcsDrivers.Mercurial;
 using L10NSharp;
 using SIL.Code;
+using SIL.Extensions;
+using SIL.PlatformUtilities;
 using SIL.Progress;
 
 namespace Chorus.UI.Settings
@@ -27,9 +29,16 @@ namespace Chorus.UI.Settings
 		/// </summary>
 		private void SendReceiveSettingsShown(object sender, EventArgs e)
 		{
-			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SendReceiveSettings));
-			var hubSetupText = LocalizationManager.GetString(@"Chorus_ChorusHubSetupInstructionsHtml", resources.GetString(@"ChorusHubSetupInstructionsHTML"),
+			var resources = new System.ComponentModel.ComponentResourceManager(typeof(SendReceiveSettings));
+			var hubSetupText = LocalizationManager.GetString(@"SendReceiveSettings.ChorusHubSetupInstructionsHtml",
+				resources.GetString(@"ChorusHubSetupInstructionsHTML"),
 				@"Instructions shown before first Send/Receive. Please keep HTML tags as-is to preserve formatting, and use HTML escapes");
+			// Inject the actual link.
+			// Different for Linux because XULRunner crashes trying to download file. https://bugzilla.mozilla.org/show_bug.cgi?id=851217 says this
+			// was fixed in Firefox 27 (but it is obviously broken in XULRunner 29). A quick google reveals that others have been able to get around
+			// this problem by including a branding .dtd file (this may be a Linux packaging problem?), but I'm too lazy to try that approach.
+			hubSetupText = hubSetupText.FormatWithErrorStringInsteadOfException(
+				resources.GetString(Platform.IsUnix ? @"ChorusHubEtcTechnicalDocsLink" : @"ChorusHubTechnicalNotesPdfLink"));
 			var tempFile = Path.Combine(Path.GetTempPath(), Path.ChangeExtension(Path.GetRandomFileName(), ".html"));
 			File.WriteAllText(tempFile, hubSetupText);
 			var uri = new Uri(tempFile);
