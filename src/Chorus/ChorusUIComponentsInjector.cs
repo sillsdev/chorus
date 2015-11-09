@@ -2,7 +2,7 @@ using System;
 using Autofac;
 using Autofac.Builder;
 using Chorus.notes;
-using Chorus.FileTypeHanders;
+using Chorus.FileTypeHandlers;
 using Chorus.retrieval;
 using Chorus.sync;
 using Chorus.UI;

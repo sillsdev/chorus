@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 using System.Xml;
-using Chorus.FileTypeHanders;
+using Chorus.FileTypeHandlers;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
 using LibChorus.TestUtilities;

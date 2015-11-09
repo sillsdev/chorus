@@ -2,7 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using Chorus.FileTypeHanders;
+using Chorus.FileTypeHandlers;
 using NUnit.Framework;
 
 namespace LibChorus.Tests.FileHandlers

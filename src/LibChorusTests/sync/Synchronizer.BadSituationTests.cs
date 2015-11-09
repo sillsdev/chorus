@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 using System.IO;
-using Chorus.FileTypeHanders.test;
+using Chorus.FileTypeHandlers.test;
 using Chorus.merge;
 using Chorus.sync;
 using Chorus.Utilities;

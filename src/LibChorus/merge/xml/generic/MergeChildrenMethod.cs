@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Xml;
 using System.Collections;
-using Chorus.FileTypeHanders.xml;
+using Chorus.FileTypeHandlers.xml;
 
 namespace Chorus.merge.xml.generic
 {
