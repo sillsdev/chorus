@@ -1,4 +1,4 @@
-﻿using Chorus.FileTypeHanders.lift;
+﻿using Chorus.FileTypeHandlers.lift;
 using NUnit.Framework;
 using SIL.IO;
 

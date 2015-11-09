@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
-using Chorus.FileTypeHanders.xml;
+using Chorus.FileTypeHandlers.xml;
 using SIL.Code;
 
 namespace Chorus.merge.xml.generic

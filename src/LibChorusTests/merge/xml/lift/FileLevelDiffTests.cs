@@ -1,7 +1,7 @@
 using System;
 using System.Linq;
-using Chorus.FileTypeHanders;
-using Chorus.FileTypeHanders.xml;
+using Chorus.FileTypeHandlers;
+using Chorus.FileTypeHandlers.xml;
 using LibChorus.TestUtilities;
 using NUnit.Framework;
 using SIL.IO;

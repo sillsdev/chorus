@@ -1,5 +1,5 @@
 ﻿using System.Xml;
-using Chorus.FileTypeHanders.xml;
+using Chorus.FileTypeHandlers.xml;
 
 namespace Chorus.merge.xml.generic
 {
