@@ -72,7 +72,7 @@ namespace Chorus.UI.Notes
 			this._resolveButton.Image = global::Chorus.Properties.Resources.check12x12;
 			this.l10NSharpExtender1.SetLocalizableToolTip(this._resolveButton, null);
 			this.l10NSharpExtender1.SetLocalizationComment(this._resolveButton, null);
-			this.l10NSharpExtender1.SetLocalizingId(this._resolveButton, "AnnotationEditorView.button1");
+			this.l10NSharpExtender1.SetLocalizingId(this._resolveButton, "AnnotationEditorView.ResolveNote");
 			this._resolveButton.Location = new System.Drawing.Point(5, 389);
 			this._resolveButton.Name = "_resolveButton";
 			this._resolveButton.Size = new System.Drawing.Size(106, 23);
