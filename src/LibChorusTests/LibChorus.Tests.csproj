@@ -118,7 +118,6 @@
   <ItemGroup>
     <Compile Include="FileHandlers\audio\AudioFileTypeHandlerTests.cs" />
     <Compile Include="FileHandlers\ChorusNotesFileHandlerTests.cs" />
-    <Compile Include="FileHandlers\ChorusTestFileHanderTests.cs" />
     <Compile Include="FileHandlers\default\DefaultFileTypeHandlerTests.cs" />
     <Compile Include="FileHandlers\LargeFileIntegrationTestService.cs" />
     <Compile Include="FileHandlers\image\ImageFileTypeHandlerTests.cs" />
@@ -206,6 +205,7 @@
     <Compile Include="VcsDrivers\RepositoryAddressTests.cs" />
     <Compile Include="Model\ServerSettingsModelTests.cs" />
     <Compile Include="Model\InternetCloneSettingsModelTests.cs" />
+    <Compile Include="FileHandlers\ChorusFileTypeHandlerCollectionTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\LibChorus.TestUtilities\LibChorus.TestUtilities.csproj">
