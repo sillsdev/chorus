@@ -14,6 +14,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Chorus.Utilities;
 using Chorus.merge;
+using L10NSharp;
 using Nini.Ini;
 using SIL.Code;
 using SIL.IO;
@@ -2056,38 +2057,40 @@ namespace Chorus.VcsDrivers.Mercurial
 
 			if (address==null || string.IsNullOrEmpty(address.URI))
 			{
-				message = "The address of the server is empty.";
+				message = LocalizationManager.GetString("GetInternetStatus.AddressIsEmpty", "The address of the server is empty.");
 				return false;
 			}
 
 			Uri uri;
 			if (!Uri.TryCreate(address.URI, UriKind.Absolute, out uri))
 			{
-				message = "The address of the server has problems.";
+				message = LocalizationManager.GetString("GetInternetStatus.AddressHasProblems", "The address of the server has problems.");
 				return false;
 			}
 
 			if (string.IsNullOrEmpty(uri.PathAndQuery))
 			{
-				message = string.Format("The project name at {0} is missing.", uri.Host);
+				message = string.Format(
+					LocalizationManager.GetString("GetInternetStatus.ProjectNameIsMissing", "The project name at {0} is missing."), uri.Host);
 				return false;
 			}
 
 			if (string.IsNullOrEmpty(address.UserName))
 			{
-				message = "The account name is missing.";
+				message = LocalizationManager.GetString("GetInternetStatus.AccountNameIsMissing", "The account name is missing.");
 				return false;
 			}
 
 			if (string.IsNullOrEmpty(address.Password))
 			{
-				message = string.Format("The password for {0} is missing.", uri.Host);
+				message = string.Format(
+					LocalizationManager.GetString("GetInternetStatus.PasswordIsMissing", "The password for {0} is missing."), uri.Host);
 				return false;
 			}
 
-			message = string.Format("Ready to send/receive to {0} with project '{1}' and user '{2}'",
+			message = string.Format(
+				LocalizationManager.GetString("GetInternetStatus.ReadyToSR", "Ready to send/receive to {0} with project '{1}' and user '{2}'"),
 				uri.Host, uri.PathAndQuery.Trim(new char[]{'/'}), address.UserName);
-
 
 			return true;
 		}

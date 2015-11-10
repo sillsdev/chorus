@@ -1,10 +1,8 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
-using System.Windows.Forms;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
-using SIL.IO;
+using L10NSharp;
 using SIL.Progress;
 
 namespace Chorus.UI.Sync
@@ -99,7 +97,7 @@ namespace Chorus.UI.Sync
 				return false;
 			}
 			if (address == null)
-				message = "No Chorus Hub found on this network.";//" and this project is not yet associated with a shared folder.";
+				message = LocalizationManager.GetString("GetChorusHubStatus.NoChorusHubFound", "No Chorus Hub found on local network.");
 			else
 			{
 				ready = IsSharedFolderRepositoryReachable(address, out diagnosticNotes);
@@ -153,11 +151,11 @@ namespace Chorus.UI.Sync
 			var usbDrives = usbDriveLocator.UsbDrives.ToList();
 			if (usbDrives.Count == 0)
 			{
-				message = "First insert a USB flash drive.";
+				message = LocalizationManager.GetString("GetUsbStatus.InsertAUsbFlashDrive", "First insert a USB flash drive.");
 			}
 			else if (usbDrives.Count > 1)
 			{
-				message = "More than one USB drive detected. Please remove one.";
+				message = LocalizationManager.GetString("GetUsbStatus.MoreThanOneDrive", "More than one USB drive detected. Please remove one.");
 			}
 			else
 			{
@@ -165,8 +163,10 @@ namespace Chorus.UI.Sync
 				{
 					var first = usbDrives[0];
 #if !MONO
-					message = first.RootDirectory + " " + first.VolumeLabel + " (" +
-										   Math.Floor(first.TotalFreeSpace / 1024000.0) + " Megs Free Space)";
+					message = string.Format(LocalizationManager.GetString("GetUsbStatus.DriveInfoAndFreeSpace", "{0} {1} ({2} Megs Free Space)",
+							"{x} tags are replaced as follows: <root directory of the USB drive> <drive label> (<number> Megs Free Space), "
+							+ "for example: F:\\ MyDrive (640 Megs Free Space)"),
+						first.RootDirectory, first.VolumeLabel, Math.Floor(first.TotalFreeSpace / 1048576.0));
 #else
 					message = first.VolumeLabel;
 					//RootDir & volume label are the same on linux.  TotalFreeSpace is, like, maxint or something in mono 2.0

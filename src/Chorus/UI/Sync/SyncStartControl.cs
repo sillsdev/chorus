@@ -10,6 +10,7 @@ using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using SIL.Code;
 using System.IO;
+using L10NSharp;
 
 namespace Chorus.UI.Sync
 {
@@ -209,16 +210,18 @@ namespace Chorus.UI.Sync
 			}
 			if(_chorusHubServerInfo==null)
 			{
-				message = "No Chorus Hub found on local network.";
+				message = LocalizationManager.GetString("GetChorusHubStatus.NoChorusHubFound", "No Chorus Hub found on local network.");
 			}
 			else if (!_chorusHubServerInfo.ServerIsCompatibleWithThisClient)
 			{
-				message = "Found Chorus Hub but it is not compatible with this version of "+Application.ProductName;
+				message = string.Format(LocalizationManager.GetString("GetChorusHubStatus.FoundButNotCompatible",
+					"Found Chorus Hub, but it is not compatible with this version of {0}."), Application.ProductName);
 			}
 			else
 			{
 				isReady = true;
-				message = string.Format("Found Chorus Hub at {0}", _chorusHubServerInfo.HostName);
+				message = string.Format(LocalizationManager.GetString("GetChorusHubStatus.FoundChorusHubAt", "Found Chorus Hub at {0}"),
+					_chorusHubServerInfo.HostName);
 				tooltip = _chorusHubServerInfo.GetHgHttpUri(Path.GetFileName(_repository.PathToRepo));
 			}
 
