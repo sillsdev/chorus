@@ -4,14 +4,15 @@ using System.Linq;
 using System.Reflection;
 using Chorus.FileTypeHandlers;
 using NUnit.Framework;
+using Chorus.FileTypeHandlers.test;
 
 namespace LibChorus.Tests.FileHandlers
 {
 	[TestFixture]
-	public class ChorusTestFileHanderTests
+	public class ChorusFileTypeHandlerCollectionTests
 	{
 		[Test, Ignore("Run by hand only, since the dll can't be deleted, once it has been loaded.")]
-		public void ChorusFileTypeHandlerCollectionContainsTestAFileTypeHandler()
+		public void CreateWithInstalledHandlers_ContainsTestAFileTypeHandler()
 		{
 			string samplePluginPathname = null;
 			//try
@@ -47,29 +48,25 @@ namespace LibChorus.Tests.FileHandlers
 		}
 
 		[Test]
-		public void MakeSureDefaulthandlerIsNotInMainCollection()
+		public void CreateWithInstalledHandlers_DefaulthandlerIsNotInMainCollection()
 		{
-			Assert.IsNull((from handler in ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers().Handlers
-						   where handler.GetType().Name == "DefaultFileTypeHandler"
-						   select handler).FirstOrDefault());
+			Assert.That(ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers().Handlers
+				.Select(x => x.GetType()), Has.No.Member(typeof(DefaultFileTypeHandler)));
 		}
 
 		[Test]
-		public void MakeSureDefaulthandlerIsNotInTestCollection()
+		public void CreateWithTestHandlerOnly_DefaulthandlerIsNotInTestCollection()
 		{
-			Assert.IsNull((from handler in ChorusFileTypeHandlerCollection.CreateWithTestHandlerOnly().Handlers
-						   where handler.GetType().Name == "DefaultFileTypeHandler"
-						   select handler).FirstOrDefault());
+			Assert.That(ChorusFileTypeHandlerCollection.CreateWithTestHandlerOnly().Handlers
+				.Select(x => x.GetType()), Has.No.Member(typeof(DefaultFileTypeHandler)));
 		}
 
 		[Test]
-		public void MakeSureOnlyOneHandlerIsInTestCollection()
+		public void CreateWithTestHandlerOnly_OnlyOneHandlerIsInTestCollection()
 		{
 			var handlers = ChorusFileTypeHandlerCollection.CreateWithTestHandlerOnly().Handlers;
-			Assert.AreEqual(1, handlers.Count());
-			Assert.IsNotNull((from handler in handlers
-						   where handler.GetType().Name == "ChorusTestFileHandler"
-						   select handler).FirstOrDefault());
+			Assert.That(handlers, Has.Count.EqualTo(1));
+			Assert.That(handlers.Select(x => x.GetType()), Has.Member(typeof(ChorusTestFileHandler)));
 		}
 	}
 }
