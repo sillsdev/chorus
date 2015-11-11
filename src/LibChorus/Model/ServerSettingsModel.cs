@@ -10,7 +10,7 @@ using SIL.Code;
 using SIL.Network;
 using SIL.Progress;
 
-namespace Chorus.UI.Misc
+namespace Chorus.Model
 {
 	public class ServerSettingsModel
 	{
@@ -95,13 +95,10 @@ namespace Chorus.UI.Misc
 				{
 					return CustomUrl;
 				}
-				else
-				{
-					return "http://" +
-						   HttpUtilityFromMono.UrlEncode((string)AccountName) + ":" +
-						   HttpUtilityFromMono.UrlEncode((string)Password) + "@" + SelectedServerPath + "/" +
-						   HttpUtilityFromMono.UrlEncode(ProjectId);
-				}
+				return "http://" +
+					HttpUtilityFromMono.UrlEncode((string)AccountName) + ":" +
+					HttpUtilityFromMono.UrlEncode((string)Password) + "@" + SelectedServerPath + "/" +
+					HttpUtilityFromMono.UrlEncode(ProjectId);
 			}
 		}
 
@@ -112,21 +109,17 @@ namespace Chorus.UI.Misc
 			get
 			{
 				if (!NeedProjectDetails)
-				{
 					return true;
-				}
-				else
+
+				try
 				{
-					try
-					{
-						return !string.IsNullOrEmpty(ProjectId) &&
-							   !string.IsNullOrEmpty(AccountName) &&
-							   !string.IsNullOrEmpty(Password);
-					}
-					catch (Exception)
-					{
-						return false;
-					}
+					return !string.IsNullOrEmpty(ProjectId) &&
+						!string.IsNullOrEmpty(AccountName) &&
+						!string.IsNullOrEmpty(Password);
+				}
+				catch (Exception)
+				{
+					return false;
 				}
 			}
 		}
@@ -201,18 +194,11 @@ namespace Chorus.UI.Misc
 				{
 					Uri uri;
 					if (Uri.TryCreate(URL, UriKind.Absolute, out uri) && !String.IsNullOrEmpty(uri.Host))
-					{
 						return uri.Host;
-					}
-					else
-					{
-						return "custom";
-					}
+					return "custom";
 				}
-				else
-				{
-					return SelectedServerLabel.Replace(" ","");
-				}
+
+				return SelectedServerLabel.Replace(" ","");
 			}
 		}
 

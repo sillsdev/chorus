@@ -1,6 +1,7 @@
 ﻿using System.Windows.Forms;
 using Chorus.UI.Misc;
 using NUnit.Framework;
+using Chorus.Model;
 
 namespace Chorus.Tests.UI.Clone
 {

@@ -1,12 +1,12 @@
 ﻿using System.IO;
-using Chorus.UI.Misc;
-using Chorus.VcsDrivers;
-using Chorus.VcsDrivers.Mercurial;
 using NUnit.Framework;
 using SIL.Progress;
 using SIL.TestUtilities;
+using Chorus.Model;
+using Chorus.VcsDrivers;
+using Chorus.VcsDrivers.Mercurial;
 
-namespace Chorus.Tests.UI.Misc
+namespace LibChorus.Tests.Model
 {
 	[TestFixture]
 	public class ServerSettingsModelTests

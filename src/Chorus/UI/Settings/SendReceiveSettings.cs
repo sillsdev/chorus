@@ -7,6 +7,7 @@ using Chorus.VcsDrivers.Mercurial;
 using L10NSharp;
 using SIL.Code;
 using SIL.Progress;
+using Chorus.Model;
 
 namespace Chorus.UI.Settings
 {

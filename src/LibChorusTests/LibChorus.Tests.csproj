@@ -210,6 +210,8 @@
     <Compile Include="VcsDrivers\Mercurial\RetrieveVersionTests.cs" />
     <Compile Include="VcsDrivers\Mercurial\Utf8Tests.cs" />
     <Compile Include="VcsDrivers\RepositoryAddressTests.cs" />
+    <Compile Include="Model\ServerSettingsModelTests.cs" />
+    <Compile Include="Model\InternetCloneSettingsModelTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\LibChorus.TestUtilities\LibChorus.TestUtilities.csproj">
@@ -236,6 +238,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="merge\text\" />
+    <Folder Include="Model\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
