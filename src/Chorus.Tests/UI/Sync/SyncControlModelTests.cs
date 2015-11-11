@@ -51,7 +51,8 @@ namespace Chorus.Tests
 			Directory.Delete(_pathToTestRoot, true);
 		}
 
-		[Test, Category("KnownMonoIssue")]
+		[Test]
+		[Platform(Exclude="Linux", Reason = "Known mono issue")]
 		public void AfterSyncLogNotEmpty()
 		{
 			_model.Sync(false);
@@ -65,7 +66,7 @@ namespace Chorus.Tests
 					Assert.Fail("Gave up waiting.");
 				}
 			}
-				 Assert.IsNotEmpty(_progress.Text);
+			Assert.IsNotEmpty(_progress.Text);
 		}
 
 		[Test]
@@ -111,7 +112,8 @@ namespace Chorus.Tests
 			Assert.IsNotNull(results.ErrorEncountered);
 		}
 
-		[Test, Category("KnownMonoIssue")]
+		[Test]
+		[Platform(Exclude="Linux", Reason = "Known mono issue")]
 		public void Sync_Cancelled_ResultsHaveCancelledEqualsTrue()
 		{
 			_model = new SyncControlModel(_project, SyncUIFeatures.Minimal, null);
