@@ -6,6 +6,7 @@ using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
 using Palaso.Code;
 using Palaso.Progress;
+using Chorus.Model;
 
 namespace Chorus.UI.Misc
 {

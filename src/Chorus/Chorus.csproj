@@ -230,7 +230,6 @@
     <Compile Include="UI\Clone\GetCloneFromUsbDialog.Designer.cs">
       <DependentUpon>GetCloneFromUsbDialog.cs</DependentUpon>
     </Compile>
-    <Compile Include="UI\Misc\ServerSettingsModel.cs" />
     <Compile Include="UI\Misc\TroubleshootingView.cs">
       <SubType>UserControl</SubType>
     </Compile>

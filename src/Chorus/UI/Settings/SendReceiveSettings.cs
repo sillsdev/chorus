@@ -6,9 +6,8 @@ using Chorus.Utilities.Help;
 using Chorus.VcsDrivers.Mercurial;
 using L10NSharp;
 using Palaso.Code;
-using Palaso.IO;
 using Palaso.Progress;
-using Palaso.PlatformUtilities;
+using Chorus.Model;
 
 namespace Chorus.UI.Settings
 {

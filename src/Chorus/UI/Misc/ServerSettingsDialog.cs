@@ -1,4 +1,5 @@
 ﻿using System.Windows.Forms;
+using Chorus.Model;
 
 namespace Chorus.UI.Misc
 {

@@ -381,6 +381,8 @@
 	<Compile Include="VcsDrivers\Mercurial\Revision.cs" />
 	<Compile Include="VcsDrivers\Mercurial\HgRunner.cs" />
     <Compile Include="Utilities\HgProcessOutputReader.cs" />
+    <Compile Include="Model\ServerSettingsModel.cs" />
+    <Compile Include="Model\InternetCloneSettingsModel.cs" />
   </ItemGroup>
   <ItemGroup>
 	<BootstrapperPackage Include="Microsoft.Net.Framework.2.0">
@@ -483,4 +485,7 @@
 	<PreBuildEvent>
 	</PreBuildEvent>
   </PropertyGroup>
+  <ItemGroup>
+    <Folder Include="Model\" />
+  </ItemGroup>
 </Project>
