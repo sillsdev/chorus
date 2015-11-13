@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using Chorus.FileTypeHandlers;
 using Chorus.merge;
 using Chorus.VcsDrivers.Mercurial;
@@ -8,6 +9,7 @@ using SIL.Progress;
 
 namespace Tests_ChorusPlugin
 {
+	[Export(typeof(IChorusFileTypeHandler))]
 	internal class TestAFileTypeHandler : IChorusFileTypeHandler
 	{
 		#region Implementation of IChorusFileTypeHandler

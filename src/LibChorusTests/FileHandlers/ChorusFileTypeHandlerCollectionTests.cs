@@ -2,49 +2,56 @@
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using Chorus.FileTypeHandlers;
 using NUnit.Framework;
+using Chorus.FileTypeHandlers;
+using Chorus.FileTypeHandlers.audio;
 using Chorus.FileTypeHandlers.test;
+using Chorus.Utilities.code;
 
 namespace LibChorus.Tests.FileHandlers
 {
 	[TestFixture]
 	public class ChorusFileTypeHandlerCollectionTests
 	{
-		[Test, Ignore("Run by hand only, since the dll can't be deleted, once it has been loaded.")]
-		public void CreateWithInstalledHandlers_ContainsTestAFileTypeHandler()
+		private static string BaseDir
 		{
-			string samplePluginPathname = null;
-			//try
-			//{
+			get
+		{
 				var assem = Assembly.GetExecutingAssembly();
-#if MONO
-			var codeBase = assem.CodeBase.Substring(7);
-#else
-				var codeBase = assem.CodeBase.Substring(8);
-#endif
-				//Debug.WriteLine("codeBase: " + codeBase);
-				var dirname = Path.GetDirectoryName(codeBase);
-				//Debug.WriteLine("dirname: " + dirname);
-				//var baseDir = new Uri(dirname).AbsolutePath; // NB: The Uri class in Windows and Mono are not the same.
-				var baseDir = dirname;
-				//var baseDir = new Uri(Path.GetDirectoryName(assem.CodeBase)).AbsolutePath;
-				var outputDir = Directory.GetParent(baseDir).FullName;
+				return Path.GetDirectoryName(assem.CodeBase.Substring(LinuxUtils.IsUnix ? 7 : 8));
+			}
+		}
+
+		private static string SamplePluginPath
+		{
+			get
+			{
+				var outputDir = Directory.GetParent(BaseDir).FullName;
 				var samplePluginDir = Path.Combine(outputDir, "SamplePlugin");
 				var samplePluginDllPath = Path.Combine(samplePluginDir, "Tests-ChorusPlugin.dll");
-				samplePluginPathname = Path.Combine(baseDir, "Tests-ChorusPlugin.dll");
+				return samplePluginDllPath;
+			}
+		}
+
+		[Test]
+		[Ignore("Run by hand only, since the dll can't be deleted, once it has been loaded.")]
+		public void CreateWithInstalledHandlers_ContainsTestAFileTypeHandler()
+		{
+			string samplePluginDllPath = SamplePluginPath;
+			var samplePluginPathname = Path.Combine(BaseDir, "Tests-ChorusPlugin.dll");
 				if (File.Exists(samplePluginDllPath))
 					File.Copy(samplePluginDllPath, samplePluginPathname, true);
 
-				Assert.IsNotNull((from handler in ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers().Handlers
-								  where handler.GetType().Name == "TestAFileTypeHandler"
-								  select handler).FirstOrDefault());
-			//}
-			//finally
-			//{
-			//	//if (!string.IsNullOrEmpty(samplePluginPathname) && File.Exists(samplePluginPathname))
-			//	//	File.Delete(samplePluginPathname);
-			//}
+			var handlers = ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers().Handlers;
+			Assert.That(handlers.Select(x => x.GetType().Name), Has.Member("TestAFileTypeHandler"));
+		}
+
+		[Test]
+		public void CreateWithInstalledHandlers_HandlersFromAdditionalAssembly()
+		{
+			var handlers = ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers(
+				new[] { SamplePluginPath }).Handlers;
+			Assert.That(handlers.Select(x => x.GetType().Name), Has.Member("TestAFileTypeHandler"));
 		}
 
 		[Test]
@@ -55,6 +62,13 @@ namespace LibChorus.Tests.FileHandlers
 		}
 
 		[Test]
+		public void CreateWithInstalledHandlers_ContainsHandlers()
+		{
+			Assert.That(ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers().Handlers
+				.Select(x => x.GetType()), Has.Member(typeof(AudioFileTypeHandler)));
+		}
+
+		[Test]
 		public void CreateWithTestHandlerOnly_DefaulthandlerIsNotInTestCollection()
 		{
 			Assert.That(ChorusFileTypeHandlerCollection.CreateWithTestHandlerOnly().Handlers
@@ -62,10 +76,10 @@ namespace LibChorus.Tests.FileHandlers
 		}
 
 		[Test]
-		public void CreateWithTestHandlerOnly_OnlyOneHandlerIsInTestCollection()
+		public void CreateWithTestHandlerOnly_TestHandlerIsInTestCollection()
 		{
 			var handlers = ChorusFileTypeHandlerCollection.CreateWithTestHandlerOnly().Handlers;
-			Assert.That(handlers, Has.Count.EqualTo(1));
+			Assert.That(handlers.Count(), Is.EqualTo(1));
 			Assert.That(handlers.Select(x => x.GetType()), Has.Member(typeof(ChorusTestFileHandler)));
 		}
 	}

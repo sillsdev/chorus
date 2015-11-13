@@ -5,7 +5,7 @@ namespace Chorus.Utilities.code
 	/// <summary>
 	/// Utility class for dealing with Linux specific issues.
 	/// </summary>
-	class LinuxUtils
+	static class LinuxUtils
 	{
 		/// ------------------------------------------------------------------------------------
 		/// <summary>

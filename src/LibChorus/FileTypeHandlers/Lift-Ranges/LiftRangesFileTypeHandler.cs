@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using System.IO;
 using Chorus.merge;
 using Chorus.Utilities;
@@ -14,6 +15,7 @@ namespace Chorus.FileTypeHandlers
 	/// <summary>
 	/// Handler for files with extension of ".lift-ranges".
 	/// </summary>
+	[Export(typeof(IChorusFileTypeHandler))]
 	public class LiftRangesFileTypeHandler : IChorusFileTypeHandler
 	{
 		internal LiftRangesFileTypeHandler()

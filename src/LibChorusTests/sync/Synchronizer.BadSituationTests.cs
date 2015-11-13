@@ -451,7 +451,7 @@ namespace LibChorus.Tests.sync
 		/// the diff here with the previous test is that while sally is still the one who is the driver
 		/// (she dose the merge and push to bob), this time we follow up with bob doing a sync, which
 		/// is essentially just a pull and update, to make sure that at that point the system renames
-		/// his offending file (which Sally's chorus would have know way of knowing about, since it's
+		/// his offending file (which Sally's chorus would have no way of knowing about, since it's
 		/// not in his repository).
 		/// </summary>
 		[Test]
