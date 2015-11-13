@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using System.IO;
 using Chorus.merge;
 using Chorus.sync;
@@ -9,6 +10,8 @@ using Palaso.Progress;
 
 namespace Chorus.FileTypeHandlers.test
 {
+	[Export(typeof(IChorusFileTypeHandler))]
+	[PartMetadata("Scope", "UnitTest")]
 	public class ChorusTestFileHandler : IChorusFileTypeHandler
 	{
 		internal ChorusTestFileHandler()

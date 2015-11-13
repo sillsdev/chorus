@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using System.IO;
 using Chorus.merge;
 using Chorus.sync;
@@ -10,6 +11,7 @@ using Palaso.Progress;
 
 namespace Chorus.FileTypeHandlers.image
 {
+	[Export(typeof(IChorusFileTypeHandler))]
 	public class ImageFileTypeHandler : IChorusFileTypeHandler
 	{
 		internal ImageFileTypeHandler()

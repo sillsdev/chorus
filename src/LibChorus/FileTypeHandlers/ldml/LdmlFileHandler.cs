@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -18,6 +19,7 @@ namespace Chorus.FileTypeHandlers.ldml
 	///<summary>
 	/// Implementation of the IChorusFileTypeHandler interface to handle LDML files
 	///</summary>
+	[Export(typeof(IChorusFileTypeHandler))]
 	public class LdmlFileHandler : IChorusFileTypeHandler
 	{
 		internal LdmlFileHandler()
@@ -267,7 +269,7 @@ namespace Chorus.FileTypeHandlers.ldml
 			merger.MergeStrategies.SetStrategy("fw:variantName", ElementStrategy.CreateSingletonElement());
 			merger.MergeStrategies.SetStrategy("fw:windowsLCID", ElementStrategy.CreateSingletonElement());
 			*/
-		}
+				}
 
 		/// <summary>
 		/// handles that date business, so it doesn't overwhelm the poor user with conflict reports

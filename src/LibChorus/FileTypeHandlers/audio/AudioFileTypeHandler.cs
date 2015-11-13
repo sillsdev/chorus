@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using System.IO;
 using Chorus.merge;
 using Chorus.sync;
@@ -10,6 +11,7 @@ using Palaso.Progress;
 
 namespace Chorus.FileTypeHandlers.audio
 {
+	[Export(typeof(IChorusFileTypeHandler))]
 	public class AudioFileTypeHandler : IChorusFileTypeHandler
 	{
 		internal AudioFileTypeHandler()
