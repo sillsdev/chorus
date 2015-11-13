@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Linq;
-using Chorus.FileTypeHanders;
+using Chorus.FileTypeHandlers;
 using LibChorus.TestUtilities;
 using NUnit.Framework;
 

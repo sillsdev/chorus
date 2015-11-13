@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using Chorus.FileTypeHanders;
+using Chorus.FileTypeHandlers;
 using Chorus.VcsDrivers.Mercurial;
 
 namespace Chorus.sync

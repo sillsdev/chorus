@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Xml;
 using System.Xml.Linq;
-using Chorus.FileTypeHanders.lift;
+using Chorus.FileTypeHandlers.lift;
 using Chorus.merge.xml.generic.xmldiff;
 using SIL.Extensions;
 

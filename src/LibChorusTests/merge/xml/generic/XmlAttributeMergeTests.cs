@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using Chorus.FileTypeHanders.xml;
+using Chorus.FileTypeHandlers.xml;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
 using LibChorus.TestUtilities;

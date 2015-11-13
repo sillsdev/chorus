@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
-using Chorus.FileTypeHanders;
-using Chorus.FileTypeHanders.test;
+using Chorus.FileTypeHandlers;
+using Chorus.FileTypeHandlers.test;
 using Chorus.sync;
 using LibChorus.TestUtilities;
 using NUnit.Framework;

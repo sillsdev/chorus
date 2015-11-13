@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Xml;
-using Chorus.FileTypeHanders;
+using Chorus.FileTypeHandlers;
 using Chorus.merge.xml.generic;
 
 namespace Chorus.notes

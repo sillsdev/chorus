@@ -5,7 +5,7 @@ using System.IO;
 using System.Media;
 using System.Text;
 using System.Windows.Forms;
-using Chorus.FileTypeHanders;
+using Chorus.FileTypeHandlers;
 using Chorus.merge;
 using Chorus.retrieval;
 using Chorus.VcsDrivers.Mercurial;

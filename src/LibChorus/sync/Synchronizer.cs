@@ -4,7 +4,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Xml;
-using Chorus.FileTypeHanders;
+using Chorus.FileTypeHandlers;
 using Chorus.merge;
 using Chorus.Utilities;
 using Chorus.VcsDrivers;
