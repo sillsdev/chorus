@@ -9,6 +9,7 @@ using SIL.Code;
 using SIL.Extensions;
 using SIL.PlatformUtilities;
 using SIL.Progress;
+using Chorus.Model;
 
 namespace Chorus.UI.Settings
 {

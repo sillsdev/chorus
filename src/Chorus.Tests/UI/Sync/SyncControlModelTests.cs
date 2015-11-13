@@ -50,7 +50,8 @@ namespace Chorus.Tests
 			Directory.Delete(_pathToTestRoot, true);
 		}
 
-		[Test, Category("KnownMonoIssue")]
+		[Test]
+		[Platform(Exclude="Linux", Reason = "Known mono issue")]
 		public void AfterSyncLogNotEmpty()
 		{
 			_model.Sync(false);
@@ -64,7 +65,7 @@ namespace Chorus.Tests
 					Assert.Fail("Gave up waiting.");
 				}
 			}
-				 Assert.IsNotEmpty(_progress.Text);
+			Assert.IsNotEmpty(_progress.Text);
 		}
 
 		[Test]
@@ -95,22 +96,23 @@ namespace Chorus.Tests
 			_model.AddMessagesDisplay(progress);
 			SyncResults results = null;
 			_model.SynchronizeOver += new EventHandler((sender, e) => results = (sender as SyncResults));
-		   _model.Sync(true);
-		   var start = DateTime.Now;
-		   while (results == null)
-		   {
-			   Thread.Sleep(100);
-			   Application.DoEvents(); //else the background worker may starve
-			   if ((DateTime.Now.Subtract(start).Minutes > 1))
-			   {
-				   Assert.Fail("Gave up waiting.");
-			   }
-		   }
+			_model.Sync(true);
+			var start = DateTime.Now;
+			while (results == null)
+			{
+				Thread.Sleep(100);
+				Application.DoEvents(); //else the background worker may starve
+				if ((DateTime.Now.Subtract(start).Minutes > 1))
+				{
+					Assert.Fail("Gave up waiting.");
+				}
+			}
 			Assert.IsFalse(results.Succeeded);
 			Assert.IsNotNull(results.ErrorEncountered);
 		}
 
-		[Test, Category("KnownMonoIssue")]
+		[Test]
+		[Platform(Exclude="Linux", Reason = "Known mono issue")]
 		public void Sync_Cancelled_ResultsHaveCancelledEqualsTrue()
 		{
 			_model = new SyncControlModel(_project, SyncUIFeatures.Minimal, null);
@@ -193,11 +195,6 @@ namespace Chorus.Tests
 												 _pathToTestRoot.CombineForPath(".hg"));
 											 _model.AsyncLocalCheckIn("testing", null);
 										 });
-		}
-
-		private void _model_SynchronizeOver(object sender, EventArgs e)
-		{
-			throw new NotImplementedException();
 		}
 	}
 }
