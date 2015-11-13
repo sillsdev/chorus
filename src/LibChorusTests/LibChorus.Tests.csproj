@@ -206,6 +206,7 @@
     <Compile Include="Model\ServerSettingsModelTests.cs" />
     <Compile Include="Model\InternetCloneSettingsModelTests.cs" />
     <Compile Include="FileHandlers\ChorusFileTypeHandlerCollectionTests.cs" />
+    <Compile Include="notes\EmbeddedMessageContentHandlerRepositoryTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\LibChorus.TestUtilities\LibChorus.TestUtilities.csproj">

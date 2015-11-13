@@ -390,6 +390,7 @@
     <Compile Include="Model\InternetCloneSettingsModel.cs" />
     <Compile Include="Utilities\FilteredCatalog.cs" />
     <Compile Include="FileTypeHandlers\ChorusFileTypeHandlerCollection.cs" />
+    <Compile Include="notes\EmbeddedMessageContentHandlerRepository.cs" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Framework.2.0">

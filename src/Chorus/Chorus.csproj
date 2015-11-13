@@ -161,6 +161,7 @@
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="Vulcan.Uczniowie.HelpProvider">
       <HintPath>..\..\lib\common\Vulcan.Uczniowie.HelpProvider.dll</HintPath>
     </Reference>
