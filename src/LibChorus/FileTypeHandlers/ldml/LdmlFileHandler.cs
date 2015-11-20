@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -19,6 +20,7 @@ namespace Chorus.FileTypeHandlers.ldml
 	///<summary>
 	/// Implementation of the IChorusFileTypeHandler interface to handle LDML files
 	///</summary>
+	[Export(typeof(IChorusFileTypeHandler))]
 	public class LdmlFileHandler : IChorusFileTypeHandler
 	{
 		internal LdmlFileHandler()
@@ -327,7 +329,7 @@ namespace Chorus.FileTypeHandlers.ldml
 				{
 					IsAtomic = true,
 					MergePartnerFinder = new FindByMultipleKeyAttributes(new List<string>{"id", "alt"})
-				}
+		}
 			);
 			merger.MergeStrategies.SetStrategy("sil:font", new ElementStrategy(false)
 				{

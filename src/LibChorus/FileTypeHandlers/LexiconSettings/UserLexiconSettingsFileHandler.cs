@@ -1,22 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using System.IO;
 using System.Text;
 using System.Xml;
 using System.Xml.Linq;
+using SIL.IO;
+using SIL.Progress;
+using SIL.Xml;
 using Chorus.FileTypeHandlers.xml;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
 using Chorus.VcsDrivers.Mercurial;
-using SIL.IO;
-using SIL.Progress;
-using SIL.Xml;
 
 namespace Chorus.FileTypeHandlers.LexiconSettings
 {
 	///<summary>
 	/// Implementation of the IChorusFileTypeHandler interface to handle user settings files
 	///</summary>
+	[Export(typeof(IChorusFileTypeHandler))]
 	public class UserLexiconSettingsFileHandler : IChorusFileTypeHandler
 	{
 		internal UserLexiconSettingsFileHandler()

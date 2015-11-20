@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using System.Linq;
 using System.Xml;
 using Chorus.FileTypeHandlers.xml;
@@ -21,6 +22,7 @@ namespace Chorus.FileTypeHandlers
 	/// marke the status of things.  In addition, the chorus merger adds annotations when
 	/// it encounters a conflict, so that the team can later review what was done by the merger and make changes.
 	/// </summary>
+	[Export(typeof(IChorusFileTypeHandler))]
 	public class ChorusNotesFileHandler : IChorusFileTypeHandler
 	{
 		internal ChorusNotesFileHandler()

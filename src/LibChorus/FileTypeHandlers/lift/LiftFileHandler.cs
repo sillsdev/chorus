@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using System.IO;
 using Chorus.FileTypeHandlers.xml;
 using Chorus.merge;
@@ -11,6 +12,7 @@ using SIL.Progress;
 
 namespace Chorus.FileTypeHandlers.lift
 {
+	[Export(typeof(IChorusFileTypeHandler))]
 	public class LiftFileHandler : IChorusFileTypeHandler
 	{
 		internal LiftFileHandler()

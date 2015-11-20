@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -15,6 +16,7 @@ namespace Chorus.UI.Notes
 	/// <summary>
 	///
 	/// </summary>
+	[Export(typeof(IEmbeddedMessageContentHandler))]
 	public class MergeConflictEmbeddedMessageContentHandler : IEmbeddedMessageContentHandler
 	{
 		/// <summary>

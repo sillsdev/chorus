@@ -201,6 +201,7 @@
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.ComponentModel.Composition" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ChorusHub\ChorusHubOptions.cs" />
@@ -381,6 +382,10 @@
     <Compile Include="Utilities\HgProcessOutputReader.cs" />
     <Compile Include="Model\ServerSettingsModel.cs" />
     <Compile Include="Model\InternetCloneSettingsModel.cs" />
+    <Compile Include="Utilities\FilteredCatalog.cs" />
+    <Compile Include="FileTypeHandlers\ChorusFileTypeHandlerCollection.cs" />
+    <Compile Include="notes\EmbeddedMessageContentHandlerRepository.cs" />
+    <Compile Include="CloneResult.cs" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Framework.2.0">

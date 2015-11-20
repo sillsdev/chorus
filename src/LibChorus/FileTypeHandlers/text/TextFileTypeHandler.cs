@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -12,8 +13,7 @@ using SIL.Progress;
 
 namespace Chorus.FileTypeHandlers.text
 {
-
-
+	[Export(typeof(IChorusFileTypeHandler))]
 	public class TextFileTypeHandler : IChorusFileTypeHandler
 	{
 		internal TextFileTypeHandler()

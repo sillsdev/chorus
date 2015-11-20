@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
@@ -11,6 +12,7 @@ using SIL.Progress;
 
 namespace Chorus.FileTypeHandlers.OurWord
 {
+	[Export(typeof(IChorusFileTypeHandler))]
 	public class OurWordFileHandler : IChorusFileTypeHandler
 	{
 		internal OurWordFileHandler()
