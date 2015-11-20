@@ -74,7 +74,7 @@ namespace LibChorus.Tests.sync
 		}
 
 		[Test]
-		public void SyncNow_UsbGetsBackwardCompatibleBareCloneWithReadme()
+		public void SyncNow_UsbGetsBackwardCompatibleClone()
 		{
 			Synchronizer synchronizer = Synchronizer.FromProjectConfiguration(_project, _progress);
 			SyncOptions options = new SyncOptions();
@@ -90,8 +90,6 @@ namespace LibChorus.Tests.sync
 			// SUT backward compatible clone has no dotencode in the requires file
 			var requiresLines = File.ReadAllLines(Path.Combine(projectDir, ".hg", "requires"));
 			CollectionAssert.DoesNotContain(requiresLines, "dotencode");
-			// SUT bare clone should get this text file
-			Assert.IsTrue(File.Exists(projectDir.CombineForPath(projectDir, "~~Folder has an invisible repository.txt")));
 		}
 
 		[Test]
