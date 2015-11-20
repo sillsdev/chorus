@@ -1,5 +1,4 @@
-﻿using System.IO;
-using SIL.Code;
+﻿using SIL.Code;
 using SIL.Progress;
 
 namespace Chorus.VcsDrivers.Mercurial
@@ -36,13 +35,10 @@ namespace Chorus.VcsDrivers.Mercurial
 			{
 				// Make a backward compatibile clone if cloning to USB (http://mercurial.selenic.com/wiki/UpgradingMercurial) 
 				targetDirectory = local.CloneLocalWithoutUpdate(targetDirectory, cloningFromUsb ? null : "--config format.dotencode=false --pull");
-				File.WriteAllText(Path.Combine(targetDirectory, "~~Folder has an invisible repository.txt"), "In this folder, there is a (possibly hidden) folder named '.hg' that contains the actual data of this Chorus repository. Depending on your Operating System settings, that leading '.' might make the folder invisible to you. But Chorus clients (WeSay, FLEx, OneStory, etc.) can see it and can use this folder to perform Send/Receive operations.");
 
-				if (cloningFromUsb)
-				{
-					var clone = new HgRepository(targetDirectory, progress);
-					clone.Update();
-				}
+				var clone = new HgRepository(targetDirectory, cloningFromUsb, progress);
+				clone.Update();
+
 				return targetDirectory;
 			}
 		}
