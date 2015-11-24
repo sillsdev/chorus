@@ -97,28 +97,26 @@ namespace LibChorus.Tests.sync
 		[Test]
 		public void SyncNow_AlreadySetupFauxUsbAvailable_UsbGetsSync()
 		{
+			// setup main repo
 			SyncOptions options = new SyncOptions();
 			Synchronizer synchronizer = Synchronizer.FromProjectConfiguration(_project, _progress);
 			synchronizer.SyncNow(options);
 
+			// setup faux USB repo
 			options.RepositorySourcesToTry.Add(synchronizer.UsbPath);
 			string usbDirectory = Path.Combine(UsbKeyRepositorySource.RootDirForUsbSourceDuringUnitTest, "foo project");
-			// synchronizer.MakeClone(usbDirectory, true);
-			HgHighLevel.MakeCloneFromUsbToLocal(synchronizer.Repository.PathToRepo, usbDirectory, _progress);
+			HgHighLevel.MakeCloneFromLocalToUsb(synchronizer.Repository.PathToRepo, usbDirectory, _progress);
 
-			string contents = File.ReadAllText(Path.Combine(usbDirectory, "foo.txt"));
-			Assert.AreEqual("version one", contents);
+			// make a change to the main repo and sync
 			WriteTestFile("version two");
-			//_progress.ShowVerbose = true;
 			options.CheckinDescription = "Changing to two";
 			synchronizer.SyncNow(options);
+
+			// check if USB repo received the change
 			var usb = new HgRepository(usbDirectory, _progress);
 			Assert.AreEqual("Changing to two", usb.GetTip().Summary);
-
-			//did it update too (which we should do with usb, unless we switch to leave them as "bare" .hgs)?
-			contents = File.ReadAllText(Path.Combine(usbDirectory, "foo.txt"));
-			Assert.AreEqual("version two", contents);
-
+			// ensure that the USB repo is still bare
+			Assert.That(File.Exists(Path.Combine(usbDirectory, "foo.txt")), Is.False);
 		}
 	}
 }
