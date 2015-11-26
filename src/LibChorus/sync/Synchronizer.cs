@@ -291,18 +291,12 @@ namespace Chorus.sync
 						repo.Push(address, resolvedUri);
 					}
 
-					// For LAN, it could be safe and desirable to do an update... for now we assume it is.
-					// For me (RandyR) including the shared network folder
-					// failed to do the update and killed the process, which left a 'wlock' file
-					// in the shared folder's '.hg' folder. No more S/Rs could then be done,
-					// because the repo was locked.
-					// For now, at least, it is not a requirement to do the update on the shared folder.
-					// JDH Oct 2010: added this back in if it doesn't look like a shared folder
 					// For USB, we do not wish to do an update, since it can cause problems if the working
-					// files are available to the user
+					// files are available to the user.
+					// The update is only done for tests, since only tests now use "DirectoryRepositorySource".
 					if (address is DirectoryRepositorySource && ((DirectoryRepositorySource) address).LooksLikeLocalDirectory)
 					{
-						// passes false to avoid updating the hgrc on a usb send to preserve backward compatibility
+						// passes false to avoid updating the hgrc on a send to preserve backward compatibility
 						var otherRepo = new HgRepository(resolvedUri, false, _progress);
 						otherRepo.Update();
 					}
