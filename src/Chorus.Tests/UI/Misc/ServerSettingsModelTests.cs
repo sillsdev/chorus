@@ -18,25 +18,25 @@ namespace Chorus.Tests.UI.Misc
 			m.InitFromUri("http://joe:pass@hg-public.languagedepot.org/tpi");
 			Assert.AreEqual("joe",m.AccountName);
 		}
-        [Test]
-        public void InitFromUri_CredentialsOriginallySetFromModelWithSpecialCharacters_AbleToRoundTripCredentialsBackFromURIOK()
-        {
-            var model = new ServerSettingsModel();
-            const string accountName = "joe@user.com";
-            const string password = "pass@with%specials&";
-            const string projectId = "projectId";
-            model.AccountName = accountName;
-            model.Password = password;
-            model.ProjectId = projectId;
-            var urlWithEncodedChars = model.URL;
+		[Test]
+		public void InitFromUri_CredentialsOriginallySetFromModelWithSpecialCharacters_AbleToRoundTripCredentialsBackFromURIOK()
+		{
+			var model = new ServerSettingsModel();
+			const string accountName = "joe@user.com";
+			const string password = "pass@with%specials&";
+			const string projectId = "projectId";
+			model.AccountName = accountName;
+			model.Password = password;
+			model.ProjectId = projectId;
+			var urlWithEncodedChars = model.URL;
 
-            var newModel = new ServerSettingsModel();
-            newModel.InitFromUri(urlWithEncodedChars);
-            Assert.AreEqual(accountName, newModel.AccountName);
-            Assert.AreEqual(password, newModel.Password);
-            Assert.AreEqual(projectId, newModel.ProjectId);
-        }
-        [Test]
+			var newModel = new ServerSettingsModel();
+			newModel.InitFromUri(urlWithEncodedChars);
+			Assert.AreEqual(accountName, newModel.AccountName);
+			Assert.AreEqual(password, newModel.Password);
+			Assert.AreEqual(projectId, newModel.ProjectId);
+		}
+		[Test]
 		public void InitFromUri_FullTypicalLangDepot_PasswordCorrect()
 		{
 			var m = new ServerSettingsModel();
