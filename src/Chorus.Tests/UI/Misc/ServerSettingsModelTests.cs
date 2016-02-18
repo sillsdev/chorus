@@ -18,7 +18,23 @@ namespace Chorus.Tests.UI.Misc
 			m.InitFromUri("http://joe:pass@hg-public.languagedepot.org/tpi");
 			Assert.AreEqual("joe",m.AccountName);
 		}
-		[Test]
+        [Test]
+        public void InitFromUri_CredentialsOriginallySetFromModelWithSpecialCharacters_AbleToRoundTripCredentialsBackFromURIOK()
+        {
+            var m = new ServerSettingsModel();
+            const string accountName = "joe@user.com";
+            const string password = "pass@with%specials&";
+            const string projectId = "projectId";
+            m.AccountName = accountName;
+            m.Password = password;
+            m.ProjectId = projectId;
+            var urlWithEncodedChars = m.URL;
+            m.InitFromUri(urlWithEncodedChars);
+            Assert.AreEqual(accountName, m.AccountName);
+            Assert.AreEqual(password, m.Password);
+            Assert.AreEqual(projectId, m.ProjectId);
+        }
+        [Test]
 		public void InitFromUri_FullTypicalLangDepot_PasswordCorrect()
 		{
 			var m = new ServerSettingsModel();
