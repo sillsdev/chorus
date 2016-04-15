@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Windows.Forms;
+using Chorus.Review;
 using Chorus.UI.Review.ChangedReport;
 using Chorus.UI.Review.ChangesInRevision;
 using Chorus.UI.Review.RevisionsInRepository;

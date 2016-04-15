@@ -1,17 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.IO;
 using System.Linq;
-using System.Windows.Forms;
 using System.Xml.Linq;
 using Chorus.notes;
-using Chorus.sync;
-using Chorus.UI;
+using Chorus.Review;
 using Chorus.UI.Notes;
 using Chorus.UI.Notes.Html;
-using Chorus.UI.Review;
-using Chorus.Utilities;
 using NUnit.Framework;
 
 namespace Chorus.Tests.notes
@@ -71,8 +64,10 @@ namespace Chorus.Tests.notes
 
 		private AnnotationEditorModel CreateAnnotationModel(MessageSelectedEvent messageSelected)
 		{
-			return new AnnotationEditorModel(new ChorusUser("bob"), messageSelected, StyleSheet.CreateFromDisk(), new EmbeddedMessageContentHandlerRepository(), new NavigateToRecordEvent(),
-				new ChorusNotesDisplaySettings());
+			return new AnnotationEditorModel(new ChorusUser("bob"), messageSelected,
+				StyleSheet.CreateFromDisk(), new EmbeddedMessageContentHandlerRepository(),
+				new NavigateToRecordEvent(),
+				new ChorusNotesSettings());
 		}
 
 		private Annotation CreateAnnotation()

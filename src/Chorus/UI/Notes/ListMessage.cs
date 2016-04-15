@@ -48,7 +48,7 @@ namespace Chorus.UI.Notes
 			}
 		}
 
-		public ListViewItem GetListViewItem(ChorusNotesDisplaySettings displaySettings)
+		public ListViewItem GetListViewItem(ChorusNotesSettings displaySettings)
 		{
 			var i = new ListViewItem(ParentAnnotation.GetLabelFromRef(""));
 			i.Tag = this;

@@ -1,12 +1,10 @@
-using System;
 using Autofac;
 using Autofac.Builder;
-using Chorus.notes;
 using Chorus.FileTypeHandlers;
+using Chorus.notes;
 using Chorus.retrieval;
+using Chorus.Review;
 using Chorus.sync;
-using Chorus.UI;
-using Chorus.UI.Misc;
 using Chorus.UI.Notes;
 using Chorus.UI.Notes.Bar;
 using Chorus.UI.Notes.Browser;
@@ -17,7 +15,6 @@ using Chorus.UI.Review.ChangesInRevision;
 using Chorus.UI.Review.RevisionsInRepository;
 using Chorus.UI.Settings;
 using Chorus.UI.Sync;
-using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
 using Palaso.Progress;
 
@@ -35,7 +32,7 @@ namespace Chorus
 			//below, with SyncUIFeatures
 
 			builder.Register<ProjectFolderConfiguration>(
-			   c => new ProjectFolderConfiguration(projectPath)).InstancePerLifetimeScope();
+				c => new ProjectFolderConfiguration(projectPath)).InstancePerLifetimeScope();
 
 			builder.RegisterType<NavigateToRecordEvent>().InstancePerLifetimeScope();
 
@@ -54,7 +51,8 @@ namespace Chorus
 			builder.RegisterInstance(ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers()).SingleInstance();
 
 			builder.RegisterType<SyncPanel>().InstancePerLifetimeScope();
-			builder.RegisterType<SyncControlModel>().InstancePerLifetimeScope();
+			builder.RegisterType<SyncControlModel>().InstancePerLifetimeScope()
+				.As<SyncControlModelSimple>().As<SyncControlModel>();
 			builder.RegisterType<SyncDialog>().InstancePerDependency();//NB: was FactoryScoped() before switch to autofac 2, which corresponds to this InstancePerDependency
 			builder.RegisterGeneratedFactory<SyncDialog.Factory>().InstancePerLifetimeScope();
 			builder.RegisterType<Chorus.UI.Misc.TroubleshootingView>().InstancePerLifetimeScope();
@@ -73,11 +71,11 @@ namespace Chorus
 		public static void InjectNotesUI(ContainerBuilder builder)
 		{
 			builder.RegisterType<MessageSelectedEvent>().InstancePerLifetimeScope();
-			builder.RegisterType<Chorus.notes.EmbeddedMessageContentHandlerRepository>().InstancePerLifetimeScope();
+			builder.RegisterType<EmbeddedMessageContentHandlerRepository>().InstancePerLifetimeScope();
 			builder.RegisterType<NotesInProjectViewModel>().InstancePerLifetimeScope();
 			builder.RegisterType<NotesInProjectView>().InstancePerLifetimeScope();
-			builder.RegisterType<Chorus.UI.Notes.AnnotationEditorView>().InstancePerLifetimeScope();
-			builder.RegisterType<Chorus.UI.Notes.AnnotationEditorModel>().InstancePerDependency();
+			builder.RegisterType<AnnotationEditorView>().InstancePerLifetimeScope();
+			builder.RegisterType<AnnotationEditorModel>().InstancePerDependency();
 			builder.RegisterType<NotesBrowserPage>().InstancePerLifetimeScope();
 			builder.Register<StyleSheet>(c => StyleSheet.CreateFromDisk()).InstancePerLifetimeScope();
 			builder.RegisterGeneratedFactory<AnnotationEditorModel.Factory>().InstancePerLifetimeScope();
@@ -106,7 +104,8 @@ namespace Chorus
 
 		private static void RegisterSyncStuff(ContainerBuilder builder)
 		{
-			builder.RegisterType<SyncControlModel>().InstancePerLifetimeScope();
+			builder.RegisterType<SyncControlModel>().InstancePerLifetimeScope()
+				.As<SyncControlModelSimple>().As<SyncControlModel>();
 		}
 
 		internal static void RegisterReviewStuff(ContainerBuilder builder)

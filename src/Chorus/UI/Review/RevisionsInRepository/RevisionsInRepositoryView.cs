@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Globalization;
 using System.Linq;
 using System.Windows.Forms;
+using Chorus.Review;
 using Chorus.sync;
 using Chorus.VcsDrivers.Mercurial;
 using Palaso.Progress;

@@ -1,227 +1,171 @@
-﻿using System;
-using System.Collections.Generic;
+﻿// Copyright (c) 2016 SIL International
+// This software is licensed under the MIT License (http://opensource.org/licenses/MIT)
+using System;
 using System.ComponentModel;
 using System.IO;
 using System.Media;
-using System.Threading;
 using System.Windows.Forms;
 using Chorus.sync;
-using System.Linq;
-using Chorus.VcsDrivers;
-using Palaso.Code;
-using Palaso.Extensions;
-using Palaso.Progress;
 using Palaso.UI.WindowsForms.Progress;
+using Chorus.VcsDrivers;
+using Palaso.Progress;
+using System.Threading;
 
 namespace Chorus.UI.Sync
 {
-	public class SyncControlModel
+	public class SyncControlModel: SyncControlModelSimple
 	{
-		private static Object _lockToken = new object();
-		private readonly IChorusUser _user;
-		private readonly Synchronizer _synchronizer;
-		private readonly BackgroundWorker _backgroundWorker;
-		public event EventHandler SynchronizeOver;
-		private readonly MultiProgress _progress;
-		private SyncOptions _syncOptions;
-		private BackgroundWorker _asyncLocalCheckInWorker;
-
-		public SimpleStatusProgress StatusProgress { get; set; }
-
 		public SyncControlModel(ProjectFolderConfiguration projectFolderConfiguration,
-			SyncUIFeatures uiFeatureFlags,
-			IChorusUser user)
+			SyncUIFeatures uiFeatureFlags, IChorusUser user): base(projectFolderConfiguration,
+				user, new SimpleStatusProgress())
 		{
-			_user = user;
-			_progress = new MultiProgress();
-			StatusProgress = new SimpleStatusProgress();
-			_progress.Add(StatusProgress);
 			Features = uiFeatureFlags;
-			_synchronizer = Synchronizer.FromProjectConfiguration(projectFolderConfiguration, _progress);
-			_backgroundWorker = new BackgroundWorker();
-			_backgroundWorker.WorkerSupportsCancellation = true;
-			_backgroundWorker.RunWorkerCompleted += new RunWorkerCompletedEventHandler(_backgroundWorker_RunWorkerCompleted);
-			_backgroundWorker.DoWork += worker_DoWork;
-
-			//clients will normally change these
-			SyncOptions = new SyncOptions();
-			SyncOptions.CheckinDescription = "[" + Application.ProductName + ": " + Application.ProductVersion + "] sync";
-			SyncOptions.DoPullFromOthers = true;
-			SyncOptions.DoMergeWithOthers = true;
-			SyncOptions.RepositorySourcesToTry.AddRange(GetRepositoriesToList().Where(r => r.Enabled));
+			SyncOptions.CheckinDescription = string.Format("[{0}: {1}] sync",
+				Application.ProductName, Application.ProductVersion);
 		}
 
-		void _backgroundWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+		protected override void OnBackgroundWorkerRunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
 		{
-			if (SynchronizeOver != null)
+			UnmanagedMemoryStream stream = null;
+
+			if (_progress.ErrorEncountered)
 			{
-				UnmanagedMemoryStream stream=null;
-
-				if (_progress.ErrorEncountered)
-				{
-					stream = Properties.Resources.errorSound;
-				}
-				else if (_progress.WarningsEncountered)
-				{
-					stream = Properties.Resources.warningSound;
-				}
-				else
-				{
-					if (HasFeature(SyncUIFeatures.PlaySoundIfSuccessful))
-						stream = Properties.Resources.finishedSound;
-				}
-
-				if (stream != null)
-				{
-					using (SoundPlayer player = new SoundPlayer(stream))
-					{
-						player.PlaySync();
-					}
-					stream.Dispose();
-				}
-
-				if (e.Cancelled)
-				{
-					var r = new SyncResults();
-					r.Succeeded = false;
-					r.Cancelled = true;
-					SynchronizeOver.Invoke(r, null);
-				}
-				else //checking e.Result if there was a cancellation causes an InvalidOperationException
-				{
-					SynchronizeOver.Invoke(e.Result as SyncResults, null);
-				}
+				stream = Properties.Resources.errorSound;
 			}
+			else if (_progress.WarningsEncountered)
+			{
+				stream = Properties.Resources.warningSound;
+			}
+			else
+			{
+				if (HasFeature(SyncUIFeatures.PlaySoundIfSuccessful))
+					stream = Properties.Resources.finishedSound;
+			}
+
+			if (stream != null)
+			{
+				using (SoundPlayer player = new SoundPlayer(stream))
+				{
+					player.PlaySync();
+				}
+				stream.Dispose();
+			}
+
+			base.OnBackgroundWorkerRunWorkerCompleted(sender, e);
 		}
 
-		public string UserName
+		public void PathEnabledChanged(RepositoryAddress address, CheckState state)
 		{
-			get
-			{
-				if(_user==null)
-				{
-					return "anonymous";
-				}
-
-				return _user.Name;
-			}
+			base.PathEnabledChanged(address, state == CheckState.Checked);
 		}
 
-		public SyncUIFeatures Features
-		{ get; set; }
-
+		/// <summary>
+		/// Gets a value indicating whether to enable send receive.
+		/// </summary>
 		public bool EnableSendReceive
 		{
 			get { return !EnableClose && HasFeature(SyncUIFeatures.SendReceiveButton) && !_backgroundWorker.IsBusy; }
 		}
 
+		/// <summary>
+		/// Gets a value indicating whether to enable cancel.
+		/// </summary>
 		public bool EnableCancel
 		{
 			get
 			{
-				if (_backgroundWorker.IsBusy)
-					return true;
-				else
-					return false;
+				return _backgroundWorker.IsBusy;
 			}
 		}
 
+		/// <summary>
+		/// Gets a value indicating whether to show tabs.
+		/// </summary>
 		public bool ShowTabs
 		{
-			get {
+			get
+			{
 				return HasFeature(SyncUIFeatures.Log) ||
 					ShowAdvancedSelector ||
-					HasFeature(SyncUIFeatures.TaskList); }
+					HasFeature(SyncUIFeatures.TaskList);
+			}
 		}
+
 		private bool ShowAdvancedSelector
 		{
 			get
 			{
 				return !HasFeature(SyncUIFeatures.SimpleRepositoryChooserInsteadOfAdvanced)
-					   && !HasFeature(SyncUIFeatures.Minimal);
+					&& !HasFeature(SyncUIFeatures.Minimal);
 			}
 		}
 
+		/// <summary>
+		/// Gets a value indicating whether to show sync button.
+		/// </summary>
 		public bool ShowSyncButton
 		{
 			get { return !EnableClose && HasFeature(SyncUIFeatures.SendReceiveButton); }
 		}
 
-		public bool EnableClose{get;set;}
+		/// <summary>
+		/// Gets or sets a value indicating whether to enable close.
+		/// </summary>
+		public bool EnableClose { get; set; }
 
-		public bool SynchronizingNow
-		{
-			get { return _backgroundWorker.IsBusy; }
-		}
-
-		public SyncOptions SyncOptions
-		{
-			get { return _syncOptions; }
-			set { _syncOptions = value; }
-		}
-
-		public bool CancellationPending
-		{
-			get { return _backgroundWorker.CancellationPending;  }
-		}
-
+		/// <summary>
+		/// Gets or sets the progress indicator.
+		/// </summary>
 		public IProgressIndicator ProgressIndicator
 		{
 			get { return _progress.ProgressIndicator; }
 			set { _progress.ProgressIndicator = value; }
 		}
 
+		/// <summary>
+		/// Sets the user interface context.
+		/// </summary>
 		public SynchronizationContext UIContext
 		{
 			set { _progress.SyncContext = value; }
 		}
 
-		public bool ErrorsOrWarningsEncountered
+		/// <summary>
+		/// Adds the messages display.
+		/// </summary>
+		public void AddMessagesDisplay(IProgress progress)
 		{
-			get { return _progress.ErrorEncountered || _progress.WarningsEncountered; }
-		}
-
-		public bool HasFeature(SyncUIFeatures feature)
-		{
-			return (Features & feature) == feature;
-		}
-
-		public List<RepositoryAddress> GetRepositoriesToList()
-		{
-			//nb: at the moment, we can't just get it new each time, because it stores the
-			//enabled state of the check boxes
-			return _synchronizer.GetPotentialSynchronizationSources();
+			_progress.AddMessageProgress(progress);
 		}
 
 		/// <summary>
-		/// Sync
+		/// Adds the status display.
 		/// </summary>
-		/// <param name="useTargetsAsSpecifiedInSyncOptions">This is a bit of a hack
-		/// until I figure out something better... it will be true for cases where
-		/// the app is just doing a backup..., false were we want to sync to whatever
-		/// sites the user has indicated</param>
-		public void Sync(bool useTargetsAsSpecifiedInSyncOptions)
+		public void AddStatusDisplay(IProgress progress)
 		{
-			_progress.WriteStatus("Syncing...");
-			lock (this)
-			{
-				if(_backgroundWorker.IsBusy)
-					return;
-				if (!useTargetsAsSpecifiedInSyncOptions)
-				{
-//                    foreach (var address in GetRepositoriesToList().Where(r => !r.Enabled))
-//                    {
-//                        SyncOptions.RepositorySourcesToTry.RemoveAll(x => x.URI == address.URI);
-//                    }
-				   // SyncOptions.RepositorySourcesToTry.AddRange(GetRepositoriesToList().Where(r => r.Enabled && !SyncOptions.RepositorySourcesToTry.Any(x=>x.URI ==r.URI)));
-					SyncOptions.RepositorySourcesToTry.Clear();
-					SyncOptions.RepositorySourcesToTry.AddRange(GetRepositoriesToList().Where(r => r.Enabled ));
-
-				}
-				_backgroundWorker.RunWorkerAsync(new object[] {_synchronizer, SyncOptions, _progress});
-			}
+			_progress.AddStatusProgress(progress);
 		}
 
+		/// <summary>
+		/// Gets the diagnostics.
+		/// </summary>
+		/// <param name="progress">Progress.</param>
+		public void GetDiagnostics(IProgress progress)
+		{
+			_synchronizer.Repository.GetDiagnosticInformation(progress);
+		}
+
+		/// <summary>
+		/// Sets the synchronizer adjunct.
+		/// </summary>
+		public void SetSynchronizerAdjunct(ISychronizerAdjunct adjunct)
+		{
+			_synchronizer.SynchronizerAdjunct = adjunct;
+		}
+
+		/// <summary>
+		/// Cancel the current operation
+		/// </summary>
 		public void Cancel()
 		{
 			lock (this)
@@ -234,101 +178,18 @@ namespace Chorus.UI.Sync
 			}
 		}
 
-		static void worker_DoWork(object sender, DoWorkEventArgs e)
-		{
-			object[] args = e.Argument as object[];
-			Synchronizer synchronizer = args[0] as Synchronizer;
-			// We need to make sure that only one thread at a time goes through SyncNow()
-			// to avoid race conditions accessing the repository.
-			lock (_lockToken)
-			{
-				e.Result = synchronizer.SyncNow(sender as BackgroundWorker, e, args[1] as SyncOptions);
-			}
-		}
-
-		public void PathEnabledChanged(RepositoryAddress address, CheckState state)
-		{
-			address.Enabled = (state == CheckState.Checked);
-
-			//NB: we may someday decide to distinguish between this chorus-app context of "what
-			//repos I used last time" and the hgrc default which effect applications (e.g. wesay)
-			_synchronizer.SetIsOneOfDefaultSyncAddresses(address, address.Enabled);
-		}
-
-		public void AddMessagesDisplay(IProgress progress)
-		{
-			_progress.AddMessageProgress(progress);
-		}
-
-		public void AddStatusDisplay(IProgress progress)
-		{
-			_progress.AddStatusProgress(progress);
-		}
-
-		public void GetDiagnostics(IProgress progress)
-		{
-			_synchronizer.Repository.GetDiagnosticInformation(progress);
-		}
-
-		public void SetSynchronizerAdjunct(ISychronizerAdjunct adjunct)
-		{
-			_synchronizer.SynchronizerAdjunct = adjunct;
-		}
-
+		/// <summary>
+		/// Gets or sets the features.
+		/// </summary>
+		public SyncUIFeatures Features { get; set; }
 
 		/// <summary>
-		/// Check in, to the local disk repository, any changes to this point.
+		/// Determines whether this instance has the specified feature.
 		/// </summary>
-		/// <param name="checkinDescription">A description of what work was done that you're wanting to checkin. E.g. "Delete a Book"</param>
-		/// <param name="progress">Can be null if you don't want any progress report</param>
-		public void AsyncLocalCheckIn(string checkinDescription, Action<SyncResults> callbackWhenFinished)
+		public bool HasFeature(SyncUIFeatures feature)
 		{
-			var repoPath = this._synchronizer.Repository.PathToRepo.CombineForPath(".hg");
-			Require.That(Directory.Exists(repoPath), "The repository should already exist before calling AsyncLocalCheckIn(). Expected to find the hg folder at " + repoPath);
-
-			//NB: if someone were to call this fast and repeatedly, I won't vouch for any kind of safety here.
-			//This is just designed for checking in occasionally, like as users do some major new thing, or finish some task.
-			if (_asyncLocalCheckInWorker != null && !_asyncLocalCheckInWorker.IsBusy)
-			{
-				_asyncLocalCheckInWorker.Dispose(); //timidly avoid a leak
-			}
-			_asyncLocalCheckInWorker = new BackgroundWorker();
-			_asyncLocalCheckInWorker.DoWork += new DoWorkEventHandler((o, args) =>
-			{
-
-				var options = new SyncOptions()
-				{
-					CheckinDescription = checkinDescription,
-					DoMergeWithOthers = false,
-					DoPullFromOthers = false,
-					DoSendToOthers = false
-				};
-				// We need to make sure that only one thread at a time goes through SyncNow()
-				// to avoid race conditions accessing the repository.
-				SyncResults result;
-				lock (_lockToken)
-				{
-					result = _synchronizer.SyncNow(options);
-				}
-				if (callbackWhenFinished != null)
-				{
-					callbackWhenFinished(result);
-				}
-			});
-			_asyncLocalCheckInWorker.RunWorkerAsync();
+			return (Features & feature) == feature;
 		}
-	}
 
-	[Flags]
-	public enum SyncUIFeatures
-	{
-		Minimal =0,
-		SendReceiveButton=2,
-		TaskList=4,
-		Log = 8,
-		SimpleRepositoryChooserInsteadOfAdvanced = 16,
-		PlaySoundIfSuccessful = 32,
-		NormalRecommended = 0xFFFF - (SendReceiveButton),
-		Advanced = 0xFFFF - (SimpleRepositoryChooserInsteadOfAdvanced)
 	}
 }

@@ -1,13 +1,19 @@
-﻿using System.Collections.Generic;
+﻿// Copyright (c) 2016 SIL International
+// This software is licensed under the MIT License (http://opensource.org/licenses/MIT)
 
-namespace Chorus.UI.Notes
+using System.Collections.Generic;
+
+namespace Chorus.notes
 {
 	/// <summary>
-	/// Used to pass stuff like fonts & keyboards from the client to the ChorusNotesSystem
+	/// Used to pass stuff like fonts &amp; keyboards from the client to the ChorusNotesSystem
 	/// </summary>
-	public class ChorusNotesDisplaySettings
+	public class ChorusNotesSettings
 	{
-		public ChorusNotesDisplaySettings()
+		/// <summary>
+		/// Initializes a new instance of the <see cref="Chorus.notes.ChorusNotesSettings"/> class.
+		/// </summary>
+		public ChorusNotesSettings()
 		{
 			var defaultWritingSystem = new EnglishWritingSystem();
 			WritingSystems = new List<IWritingSystem> {defaultWritingSystem};
