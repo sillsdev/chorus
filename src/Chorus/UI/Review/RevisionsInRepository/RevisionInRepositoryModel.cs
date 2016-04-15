@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows.Forms;
+using Chorus.Review;
 using Chorus.VcsDrivers.Mercurial;
 using L10NSharp;
 using Palaso.Code;

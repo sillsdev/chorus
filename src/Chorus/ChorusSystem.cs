@@ -1,22 +1,19 @@
+// Copyright (c) 2016 SIL International
+// This software is licensed under the MIT License (http://opensource.org/licenses/MIT)
+
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 using Autofac;
-using Chorus.UI;
 using Chorus.notes;
-using Chorus.sync;
 using Chorus.UI.Notes;
 using Chorus.UI.Notes.Bar;
 using Chorus.UI.Notes.Browser;
 using Chorus.UI.Review;
 using Chorus.UI.Sync;
-using Chorus.VcsDrivers.Mercurial;
 using L10NSharp;
-using Palaso.Code;
-using Palaso.Extensions;
 using Palaso.Progress;
 using IContainer = Autofac.IContainer;
 
@@ -26,79 +23,29 @@ namespace Chorus
 	/// A ChorusSystem object hides a lot of the complexity of Chorus from the client programmer.  It offers
 	/// up the most common controls and services of Chorus. See the SampleApp for examples of using it.
 	/// </summary>
-	public class ChorusSystem :IDisposable
+	public class ChorusSystem: ChorusSystemSimple
 	{
-		private readonly string _dataFolderPath;
-		private IChorusUser _user;
-		private IContainer _container;
-		internal readonly Dictionary<string, AnnotationRepository> _annotationRepositories = new Dictionary<string, AnnotationRepository>();
-		private bool _searchedForAllExistingNotesFiles;
+		/// <summary>
+		/// Constructor. Need to Init after this
+		/// </summary>
+		public ChorusSystem()
+		{
+		}
 
 		/// <summary>
 		/// Constructor. Need to Init after this
 		/// </summary>
 		/// <param name="dataFolderPath">The root of the project</param>
-		public ChorusSystem(string dataFolderPath)
+		public ChorusSystem(string dataFolderPath): base(dataFolderPath)
 		{
-			DisplaySettings = new ChorusNotesDisplaySettings();
-			_dataFolderPath = dataFolderPath;
 		}
 
 		/// <summary>
-		/// This is a special init used for functions (such as setting up a NotesBar) which do not actually require
-		/// Mercurial. Crashes are likely if you use this and then try functions like Send/Receive which DO need Hg.
-		/// This version must be passed a reasonable userNameForHistoryAndNotes, since there is no way to obtain
-		/// a default one.
+		/// Inits the container builder.
 		/// </summary>
-		/// <param name="userNameForHistoryAndNotes"></param>
-		public void InitWithoutHg(string userNameForHistoryAndNotes)
+		protected override ContainerBuilder InitContainerBuilder()
 		{
-			Require.That(!string.IsNullOrWhiteSpace(userNameForHistoryAndNotes), "Must have a user name to init Chorus without a repo");
-			var builder = InitContainerBuilder();
-			FinishInit(userNameForHistoryAndNotes, builder);
-		}
-
-		/// <summary>
-		/// Initialize system with user's name.
-		/// </summary>
-		/// <param name="userNameForHistoryAndNotes">This is not the same name as that used for any given network
-		/// repository credentials. Rather, it's the name which will show in the history, and besides Notes that this user makes.
-		///</param>
-		  public void Init(string userNameForHistoryAndNotes)
-		{
-			Repository = HgRepository.CreateOrUseExisting(_dataFolderPath, new NullProgress());
-			var builder = InitContainerBuilder();
-
-			if (String.IsNullOrEmpty(userNameForHistoryAndNotes))
-			{
-				userNameForHistoryAndNotes = Repository.GetUserIdInUse();
-			}
-			FinishInit(userNameForHistoryAndNotes, builder);
-		}
-
-		private void FinishInit(string userNameForHistoryAndNotes, ContainerBuilder builder)
-		{
-			_user = new ChorusUser(userNameForHistoryAndNotes);
-			builder.RegisterInstance(_user).As<IChorusUser>();
-//            builder.RegisterGeneratedFactory<NotesInProjectView.Factory>().ContainerScoped();
-//            builder.RegisterGeneratedFactory<NotesInProjectViewModel.Factory>().ContainerScoped();
-//            builder.RegisterGeneratedFactory<NotesBrowserPage.Factory>().ContainerScoped();
-
-			// builder.Register(new NullProgress());//TODO
-			_container = builder.Build();
-
-			//add the container itself
-			var builder2 = new Autofac.ContainerBuilder();
-			builder2.RegisterInstance(_container).As<IContainer>();
-			builder2.Update(_container);
-			DidLoadUpCorrectly = true;
-		}
-
-		private ContainerBuilder InitContainerBuilder()
-		{
-			var builder = new Autofac.ContainerBuilder();
-
-			builder.Register<ChorusNotesDisplaySettings>(c => DisplaySettings);
+			var builder = base.InitContainerBuilder();
 
 			ChorusUIComponentsInjector.Inject(builder, _dataFolderPath);
 			return builder;
@@ -133,47 +80,12 @@ namespace Chorus
 						   "issues@chorus.palaso.org", "Chorus");
 		}
 
-		public bool DidLoadUpCorrectly;
-
-		public ChorusNotesDisplaySettings DisplaySettings;
-
-		public NavigateToRecordEvent NavigateToRecordEvent
-		{
-			get { return _container.Resolve<NavigateToRecordEvent>(); }
-		}
-
-		/// <summary>
-		/// Use this to set things like what file types to include/exclude
-		/// </summary>
-		public ProjectFolderConfiguration ProjectFolderConfiguration
-		{
-			get { return _container.Resolve<ProjectFolderConfiguration>(); }
-		}
-
 		/// <summary>
 		/// Various factories for creating WinForms controls, already wired to the other parts of Chorus
 		/// </summary>
 		public WinFormsFactory WinForms
 		{
 			get { return new WinFormsFactory(this, _container); }
-		}
-
-		public HgRepository Repository
-		{
-			get; private set;
-		}
-
-		public string UserNameForHistoryAndNotes
-		{
-			get
-			{
-				return _user.Name;
-			}
-//  it's too late to set it, the name is already in the DI container
-//            set
-//            {
-//                Repository.SetUserNameInIni(value, new NullProgress());
-//            }
 		}
 
 		/// <summary>
@@ -296,96 +208,5 @@ namespace Chorus
 
 
 		}
-
-		public void EnsureAllNotesRepositoriesLoaded()
-		{
-			if(!_searchedForAllExistingNotesFiles)
-			{
-				var progress = new NullProgress();
-				foreach (var repo in AnnotationRepository.CreateRepositoriesFromFolder(_dataFolderPath, progress))
-				{
-					if (!_annotationRepositories.ContainsKey(repo.AnnotationFilePath))
-					{
-						_annotationRepositories.Add(repo.AnnotationFilePath, repo);
-					}
-				}
-				_searchedForAllExistingNotesFiles=true;
-			}
-		}
-
-		public AnnotationRepository GetNotesRepository(string pathToFileBeingAnnotated, IProgress progress)
-		{
-			Require.That(File.Exists(pathToFileBeingAnnotated));
-			var pathToAnnotationFile = pathToFileBeingAnnotated + "."+AnnotationRepository.FileExtension;
-			AnnotationRepository repo;
-			if (!_annotationRepositories.TryGetValue(pathToAnnotationFile, out repo))
-			{
-				repo = AddAnnotationRepository(pathToAnnotationFile, progress);
-			}
-			return repo;
-		}
-
-		public IAnnotationRepository GetNotesRepository(string pathToPrimaryFile, IEnumerable<string> pathsToOtherFiles, string idAttrForOtherFiles, IProgress progress)
-		{
-			Require.That(File.Exists(pathToPrimaryFile));
-			foreach (var path in pathsToOtherFiles)
-				Require.That(File.Exists(path));
-
-			var pathToPrimaryAnnotationFile = pathToPrimaryFile + "."+AnnotationRepository.FileExtension;
-			AnnotationRepository primary;
-			if (!_annotationRepositories.TryGetValue(pathToPrimaryAnnotationFile, out primary))
-			{
-				primary = AddAnnotationRepository(pathToPrimaryAnnotationFile, progress);
-			}
-			var others = new List<IAnnotationRepository>();
-			foreach (var otherPath in pathsToOtherFiles)
-			{
-				var pathToOtherAnnotationFile = otherPath + "." + AnnotationRepository.FileExtension;
-				AnnotationRepository otherRepo;
-				if (!_annotationRepositories.TryGetValue(pathToOtherAnnotationFile, out otherRepo))
-				{
-					otherRepo = AddAnnotationRepository(pathToOtherAnnotationFile, progress, idAttrForOtherFiles);
-				}
-				others.Add(otherRepo);
-			}
-			return new MultiSourceAnnotationRepository(primary, others);
-		}
-
-		private AnnotationRepository AddAnnotationRepository(string pathToFileBeingAnnotated, IProgress progress, string idAttr = "id")
-		{
-			AnnotationRepository repo;
-			repo = AnnotationRepository.FromFile(idAttr, pathToFileBeingAnnotated, progress);
-			_annotationRepositories.Add(pathToFileBeingAnnotated, repo);
-			return repo;
-		}
-
-		/// <summary>
-		/// Check in, to the local disk repository, any changes to this point.
-		/// </summary>
-		/// <param name="checkinDescription">A description of what work was done that you're wanting to checkin. E.g. "Delete a Book"</param>
-		public void AsyncLocalCheckIn(string checkinDescription,  Action<SyncResults> callbackWhenFinished)
-		{
-			var model = _container.Resolve<SyncControlModel>();
-			model.AsyncLocalCheckIn(checkinDescription,callbackWhenFinished);
-		}
-
-		#region Implementation of IDisposable
-
-		public void Dispose()
-		{
-			if (!DidLoadUpCorrectly)
-				return;
-
-			foreach (AnnotationRepository repository in _annotationRepositories.Values)
-			{
-				repository.Dispose();
-			}
-			_annotationRepositories.Clear();
-			_container.Dispose();
-		}
-
-		#endregion
-
-
 	}
 }

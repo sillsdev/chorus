@@ -11,7 +11,7 @@ namespace Chorus.UI.Notes.Browser
 {
 	public class NotesInProjectViewModel : IDisposable, IAnnotationRepositoryObserver
 	{
-		public ChorusNotesDisplaySettings DisplaySettings { get; set; }
+		public ChorusNotesSettings DisplaySettings { get; set; }
 
 		public delegate NotesInProjectViewModel Factory(IEnumerable<AnnotationRepository> repositories, IProgress progress);//autofac uses this
 		internal event EventHandler ReloadMessages;
@@ -30,7 +30,7 @@ namespace Chorus.UI.Notes.Browser
 		}
 
 		public NotesInProjectViewModel( IChorusUser user, IEnumerable<AnnotationRepository> repositories,
-										ChorusNotesDisplaySettings displaySettings, IProgress progress)
+										ChorusNotesSettings displaySettings, IProgress progress)
 		{
 			DisplaySettings = displaySettings;
 			_user = user;

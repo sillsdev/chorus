@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
 using System.Text;
 using Chorus.notes;
+using Chorus.Review;
 using Chorus.UI.Notes.Html;
-using Chorus.UI.Review;
 using L10NSharp;
-using Message=Chorus.notes.Message;
+using Message = Chorus.notes.Message;
 
 namespace Chorus.UI.Notes
 {
@@ -21,7 +20,7 @@ namespace Chorus.UI.Notes
 		private readonly StyleSheet _styleSheet;
 		private Annotation _annotation;
 		private readonly NavigateToRecordEvent _navigateToRecordEventToRaise;
-		private readonly ChorusNotesDisplaySettings _displaySettings;
+		private readonly ChorusNotesSettings _displaySettings;
 		private Message _currentFocussedMessage; //this is the part of the annotation in focus
 		private string _newMessageText;
 		private EmbeddedMessageContentHandlerRepository m_embeddedMessageContentHandlerRepository;
@@ -40,7 +39,7 @@ namespace Chorus.UI.Notes
 		   EmbeddedMessageContentHandlerRepository embeddedMessageContentHandlerRepository,
 			Annotation annotation,
 			NavigateToRecordEvent navigateToRecordEventToRaise,
-			ChorusNotesDisplaySettings displaySettings,
+			ChorusNotesSettings displaySettings,
 			bool showLabelAsHyperlink)
 		{
 			_user = user;
@@ -57,7 +56,7 @@ namespace Chorus.UI.Notes
 							StyleSheet styleSheet,
 							EmbeddedMessageContentHandlerRepository embeddedMessageContentHandlerRepository,
 							NavigateToRecordEvent navigateToRecordEventToRaise,
-						ChorusNotesDisplaySettings displaySettings)
+						ChorusNotesSettings displaySettings)
 		{
 			_user = user;
 			m_embeddedMessageContentHandlerRepository = embeddedMessageContentHandlerRepository;

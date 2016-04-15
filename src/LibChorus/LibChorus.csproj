@@ -393,6 +393,13 @@
     <Compile Include="notes\EmbeddedMessageContentHandlerRepository.cs" />
     <Compile Include="CloneResult.cs" />
     <None Include="packages.config" />
+    <Compile Include="Event.cs" />
+    <Compile Include="ChorusSystemSimple.cs" />
+    <Compile Include="sync\SyncResults.cs" />
+    <Compile Include="IChorusSystem.cs" />
+    <Compile Include="sync\SyncControlModelSimple.cs" />
+    <Compile Include="notes\ChorusNotesSettings.cs" />
+    <Compile Include="Review\Events.cs" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Framework.2.0">
@@ -497,5 +504,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Folder Include="Model\" />
+    <Folder Include="Review\" />
   </ItemGroup>
 </Project>

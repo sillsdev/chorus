@@ -1528,7 +1528,7 @@ namespace Chorus.VcsDrivers.Mercurial
 					return false;
 				}
 
-			   progress.WriteVerbose("Pinging {0}...", uriObject.Host);
+				progress.WriteVerbose("Pinging {0}...", uriObject.Host);
 				using (var ping = new Ping())
 				{
 					var result = ping.Send(uriObject.Host, 3000);//arbitrary... what's a reasonable wait?

@@ -7,7 +7,7 @@ using System.Text;
 using System.Windows.Forms;
 using Chorus.FileTypeHandlers;
 using Chorus.merge;
-using Chorus.retrieval;
+using Chorus.Review;
 using Chorus.VcsDrivers.Mercurial;
 
 namespace Chorus.UI.Review.ChangedReport
@@ -18,7 +18,9 @@ namespace Chorus.UI.Review.ChangedReport
 		private readonly HgRepository _repository;
 		private string _styleSheet;
 
-		public ChangeReportView(ChorusFileTypeHandlerCollection handlers, ChangedRecordSelectedEvent changedRecordSelectedEvent, HgRepository repository, IEnumerable<IWritingSystem> writingSystems)
+		public ChangeReportView(ChorusFileTypeHandlerCollection handlers,
+			ChangedRecordSelectedEvent changedRecordSelectedEvent, HgRepository repository,
+			IEnumerable<IWritingSystem> writingSystems)
 		{
 			this.Font = SystemFonts.MessageBoxFont;
 			_handlers = handlers;

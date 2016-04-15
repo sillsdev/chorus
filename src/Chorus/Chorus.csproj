@@ -195,7 +195,6 @@
     <Compile Include="UI\Clone\GetSharedProjectDlg.Designer.cs">
       <DependentUpon>GetSharedProjectDlg.cs</DependentUpon>
     </Compile>
-    <Compile Include="UI\Notes\ChorusNotesDisplaySettings.cs" />
     <Compile Include="UI\Clone\CloneFromUsb.cs" />
     <Compile Include="UI\Clone\GetCloneFromChorusHubModel.cs" />
     <Compile Include="UI\Clone\GetCloneFromChorusHubDialog.cs">
@@ -299,7 +298,6 @@
       <DependentUpon>ChangesInRevisionView.cs</DependentUpon>
     </Compile>
     <Compile Include="UI\Review\ChangesInRevision\ChangesInRevisionModel.cs" />
-    <Compile Include="Event.cs" />
     <Compile Include="UI\Notes\AnnotationEditorView.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -404,7 +402,6 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="UI\Review\Events.cs" />
     <Compile Include="UI\Settings\SendReceiveSettings.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -455,7 +452,6 @@
     <Compile Include="UI\Sync\SyncPanel.Designer.cs">
       <DependentUpon>SyncPanel.cs</DependentUpon>
     </Compile>
-    <Compile Include="UI\Sync\SyncControlModel.cs" />
     <Compile Include="UI\Sync\SyncStartControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -470,6 +466,8 @@
       <DependentUpon>UsbDriveLocator.cs</DependentUpon>
     </Compile>
     <None Include="packages.config" />
+    <Compile Include="UI\Sync\SyncControlModel.cs" />
+    <Compile Include="UI\Sync\SyncUIFeatures.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="chorus.ico" />

@@ -180,9 +180,12 @@ namespace Chorus.Tests
 					Assert.Fail("Gave up waiting.");
 				}
 			}
-			Assert.IsTrue(result1.Succeeded && result2.Succeeded && result3.Succeeded);
-			Assert.IsFalse(_model.StatusProgress.WarningEncountered);
-			Assert.IsFalse(_model.StatusProgress.ErrorEncountered);
+			Assert.That(result1.Succeeded, Is.True);
+			Assert.That(result2.Succeeded, Is.True);
+			Assert.That(result3.Succeeded, Is.True);
+			Assert.That(_model.StatusProgress, Is.TypeOf(typeof(SimpleStatusProgress)));
+			Assert.That(((SimpleStatusProgress)_model.StatusProgress).WarningEncountered, Is.False);
+			Assert.That(_model.StatusProgress.ErrorEncountered, Is.False);
 		}
 
 

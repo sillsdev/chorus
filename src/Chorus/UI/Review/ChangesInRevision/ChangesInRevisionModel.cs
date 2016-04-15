@@ -1,13 +1,11 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Text;
 using System.Windows.Forms;
 using Chorus.FileTypeHandlers;
 using Chorus.merge;
 using Chorus.retrieval;
-using Chorus.UI.Review;
+using Chorus.Review;
 using Chorus.VcsDrivers.Mercurial;
 
 namespace Chorus.UI.Review.ChangesInRevision

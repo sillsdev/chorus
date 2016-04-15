@@ -178,7 +178,7 @@ namespace Chorus.Tests
 		[Test]
 		public void GetNotesRepository()
 		{
-			var notes = _chorusSystem.GetNotesRepository(_someDataFilePath, _progress);
+			var notes = _chorusSystem.GetNotesRepository(_someDataFilePath, _progress) as AnnotationRepository;
 
 			//We can add
 			var annotation = new Annotation("question", "blah://blah", _someDataFilePath);

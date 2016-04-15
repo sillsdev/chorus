@@ -26,7 +26,7 @@ namespace Chorus.UI.Sync
 				_syncControl.Model.SynchronizeOver += new EventHandler(_syncControl_SynchronizeOver);
 
 				//we don't want clients digging down this deeply, so we present it as one of our properties
-				FinalStatus = _syncControl.Model.StatusProgress;
+				FinalStatus = _syncControl.Model.StatusProgress as SimpleStatusProgress;
 
 				//set the default based on whether this looks like a backup or local commit operation
 				UseTargetsAsSpecifiedInSyncOptions = (Behavior == SyncUIDialogBehaviors.StartImmediately ||

@@ -1,3 +1,6 @@
+// Copyright (c) 2016 SIL International
+// This software is licensed under the MIT License (http://opensource.org/licenses/MIT)
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -79,7 +82,7 @@ namespace Chorus.sync
 		#endregion
 
 		#region Construction
-	   public Synchronizer(string localRepositoryPath, ProjectFolderConfiguration project, IProgress progress)
+		public Synchronizer(string localRepositoryPath, ProjectFolderConfiguration project, IProgress progress)
 		{
 			_progress = progress;
 			_project = project;
@@ -150,7 +153,7 @@ namespace Chorus.sync
 				_sychronizerAdjunct.CheckRepositoryBranches(repo.BranchingHelper.GetBranches(), _progress);
 
 				results.Succeeded = true;
-			   _progress.WriteMessage("Done");
+				_progress.WriteMessage("Done");
 			}
 			catch (SynchronizationException error)
 			{
@@ -863,32 +866,7 @@ namespace Chorus.sync
 			}
 		}
 
-	   #endregion
+	#endregion
 
-	}
-
-
-
-	public class SyncResults
-	{
-		public bool Succeeded { get; set; }
-
-		/// <summary>
-		/// If if this is true, the client app needs to restart or read in the new stuff
-		/// </summary>
-		public bool DidGetChangesFromOthers { get; set; }
-
-		public Exception ErrorEncountered
-		{
-			get; set;
-		}
-
-		public bool Cancelled { get; set; }
-
-		public SyncResults()
-		{
-			Succeeded = true;
-			DidGetChangesFromOthers = false;
-		}
 	}
 }

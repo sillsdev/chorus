@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 using Chorus.notes;
+using Chorus.Review;
 using Chorus.UI.Notes;
 using Chorus.UI.Notes.Browser;
 using Chorus.UI.Notes.Html;
-using Chorus.UI.Review;
 using NUnit.Framework;
 using Palaso.IO;
 using Palaso.Progress;
@@ -18,7 +18,6 @@ namespace Chorus.Tests.notes
 	public class NotesUITests
 	{
 		private IProgress _progress= new ConsoleProgress();
-
 
 		[Test, Ignore("By Hand only")]
 		public void ShowNotesBar()
@@ -132,7 +131,7 @@ namespace Chorus.Tests.notes
 			//TODO (jh/jh): something here seems screwed up... we create a NotesInProjectViewModel here, and yet so does the NotesBrowserPage
 
 			var messageSelected = new MessageSelectedEvent();
-			var chorusNotesDisplaySettings = new ChorusNotesDisplaySettings()
+			var chorusNotesDisplaySettings = new ChorusNotesSettings()
 			{
 				WritingSystemForNoteLabel = new TestWritingSystem("Algerian"),
 				WritingSystemForNoteContent = new TestWritingSystem("Bradley Hand ITC")
@@ -140,8 +139,9 @@ namespace Chorus.Tests.notes
 
 			NotesInProjectViewModel notesInProjectModel = new NotesInProjectViewModel(new ChorusUser("Bob"), repositories, chorusNotesDisplaySettings, new ConsoleProgress());
 
-			var annotationModel = new AnnotationEditorModel(new ChorusUser("bob"), messageSelected, StyleSheet.CreateFromDisk(),
-				new EmbeddedMessageContentHandlerRepository(), new NavigateToRecordEvent(), chorusNotesDisplaySettings);
+			var annotationModel = new AnnotationEditorModel(new ChorusUser("bob"), messageSelected,
+				StyleSheet.CreateFromDisk(), new EmbeddedMessageContentHandlerRepository(),
+				new NavigateToRecordEvent(), chorusNotesDisplaySettings);
 			AnnotationEditorView annotationView = new AnnotationEditorView(annotationModel);
 			annotationView.ModalDialogMode=false;
 			var page = new NotesBrowserPage((unusedRepos,progress)=>notesInProjectModel, repositories, annotationView);
