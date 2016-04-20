@@ -201,15 +201,6 @@
                     <File Id="mercurial.help.urls.txt" Name="urls.txt" Source="..\..\mercurial\help\urls.txt" />
                 </Component>
             </Directory>
-            <Directory Id="mercurial.locale" Name="locale">
-                <Directory Id="mercurial.locale.fr" Name="fr">
-                    <Directory Id="mercurial.locale.fr.LC_MESSAGES" Name="LC_MESSAGES">
-                        <Component Id="mercurial.locale.fr.LC_MESSAGES.hg.mo" Guid="AD19CCE4-68A2-41BC-A46A-6BAC1D232B18">
-                            <File Id="mercurial.locale.fr.LC_MESSAGES.hg.mo" Name="hg.mo" KeyPath="yes" Source="..\..\mercurial\locale\fr\LC_MESSAGES\hg.mo" />
-                        </Component>
-                    </Directory>
-                </Directory>
-            </Directory>
             <Directory Id="mercurial.Templates" Name="Templates">
                 <Component Id="mercurial.Templates.map_cmdline.bisect" Guid="F348BEF0-A526-4E5D-8860-AEA288C74CE1">
                     <File Id="mercurial.Templates.map_cmdline.bisect" Name="map-cmdline.bisect" KeyPath="yes" Source="..\..\mercurial\Templates\map-cmdline.bisect" />
@@ -754,7 +745,6 @@
             <ComponentRef Id="mercurial.help.subrepos.txt" />
             <ComponentRef Id="mercurial.help.templates.txt" />
             <ComponentRef Id="mercurial.help.urls.txt" />
-            <ComponentRef Id="mercurial.locale.fr.LC_MESSAGES.hg.mo" />
             <ComponentRef Id="mercurial.Templates.map_cmdline.bisect" />
             <ComponentRef Id="mercurial.Templates.map_cmdline.changelog" />
             <ComponentRef Id="mercurial.Templates.map_cmdline.compact" />
