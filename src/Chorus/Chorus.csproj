@@ -151,9 +151,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="Autofac">
-      <HintPath>..\..\lib\common\Autofac.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
@@ -164,6 +161,9 @@
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="Vulcan.Uczniowie.HelpProvider">
       <HintPath>..\..\lib\common\Vulcan.Uczniowie.HelpProvider.dll</HintPath>
+    </Reference>
+    <Reference Include="Autofac">
+      <HintPath>..\..\packages\Autofac.3.5.2\lib\net40\Autofac.dll</HintPath>
     </Reference>
     <ProjectReference Include="..\LibChorus\LibChorus.csproj">
       <Project>{94245366-8F1E-475C-810D-FE89BB3948E0}</Project>
@@ -469,6 +469,7 @@
     <Compile Include="UI\UsbDriveLocator.Designer.cs">
       <DependentUpon>UsbDriveLocator.cs</DependentUpon>
     </Compile>
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="chorus.ico" />
