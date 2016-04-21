@@ -198,9 +198,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="Autofac">
-      <HintPath>..\..\lib\common\Autofac.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
@@ -208,6 +205,9 @@
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.ComponentModel.Composition" />
+    <Reference Include="Autofac">
+      <HintPath>..\..\packages\Autofac.3.5.2\lib\net40\Autofac.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ChorusHub\ChorusHubOptions.cs" />
@@ -392,6 +392,7 @@
     <Compile Include="FileTypeHandlers\ChorusFileTypeHandlerCollection.cs" />
     <Compile Include="notes\EmbeddedMessageContentHandlerRepository.cs" />
     <Compile Include="CloneResult.cs" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Framework.2.0">
