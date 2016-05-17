@@ -130,8 +130,8 @@ namespace Chorus.merge.xml.generic
 				}
 				var oursInnerTrimmed = ours.InnerText.Trim();
 				var theirsInnerTrimmed = theirs.InnerText.Trim();
-				var oursIsEmpty = string.IsNullOrEmpty(oursInnerTrimmed);
-				var theirsIsEmpty = string.IsNullOrEmpty(theirsInnerTrimmed);
+				var oursIsEmpty = String.IsNullOrEmpty(oursInnerTrimmed);
+				var theirsIsEmpty = String.IsNullOrEmpty(theirsInnerTrimmed);
 				if (oursIsEmpty != theirsIsEmpty)
 				{
 					return false;
@@ -307,7 +307,7 @@ namespace Chorus.merge.xml.generic
 				return TextNodeStatus.IsAmbiguous;
 
 			var badNodeTypes = new HashSet<XmlNodeType>
-								{
+			{
 									XmlNodeType.None,
 									XmlNodeType.Element,
 									XmlNodeType.Attribute,
@@ -334,7 +334,7 @@ namespace Chorus.merge.xml.generic
 				return TextNodeStatus.IsAmbiguous;
 
 			var goodNodeTypes = new HashSet<XmlNodeType>
-									{
+			{
 										XmlNodeType.SignificantWhitespace,
 										XmlNodeType.Whitespace,
 										XmlNodeType.Text
@@ -349,7 +349,7 @@ namespace Chorus.merge.xml.generic
 			//    : TextNodeStatus.IsTextNodeContainer;
 
 			// It should have at least one XmlNodeType.Text
-			if (node.InnerXml.Trim() == string.Empty)
+			if (node.InnerXml.Trim() == String.Empty)
 				return TextNodeStatus.IsAmbiguous;
 			return node.ChildNodes.Cast<XmlNode>().Any(childNode => !goodNodeTypes.Contains(childNode.NodeType))
 				? TextNodeStatus.IsNotTextNodeContainer
@@ -378,6 +378,37 @@ namespace Chorus.merge.xml.generic
 		internal static XmlAttribute GetAttributeOrNull(XmlNode node, string name)
 		{
 			return node == null ? null : node.Attributes.GetNamedItem(name) as XmlAttribute;
+		}
+
+		/// <summary>
+		/// This should be used when we want to replace a child element in our document with the contents
+		/// found in their equivalent child.
+		/// </summary>
+		internal static void ReplaceOursWithTheirs(XmlNode ourParent, ref XmlNode ours, XmlNode theirs)
+		{
+			if (ourParent == null)
+				throw new ArgumentNullException("ourParent");
+			var ourOwnerDocument = ourParent.OwnerDocument;
+			if (ourOwnerDocument == null)
+				throw new ArgumentException("This method can not be used to replace root nodes.");
+			if (theirs == null)
+			{
+				if (ours != null) // If both are null there is nothing to do, but if theirs is null delete ours
+				{
+					ourParent.RemoveChild(ours);
+					ours = null;
+				}
+			}
+			else
+			{
+				var theirData = theirs.Clone();
+				theirData = ourOwnerDocument.ImportNode(theirData, true);
+				if (ours == null)
+					ourParent.AppendChild(theirData);
+				else
+					ourParent.ReplaceChild(theirData, ours);
+				ours = theirData;
+			}
 		}
 	}
 
