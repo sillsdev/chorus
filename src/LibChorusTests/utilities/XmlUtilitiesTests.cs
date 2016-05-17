@@ -1,5 +1,7 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using System.Xml;
 using Chorus.merge.xml.generic;
@@ -253,5 +255,69 @@ namespace LibChorus.Tests.utilities
 		}
 
 		#endregion IsTextLevel
+
+#region ReplaceOursWithTheirsTests
+
+		[Test]
+		public void ReplaceOursWithTheirs_OursNullTheirsNot()
+		{
+			var ourDoc = CreateTestNode(@"<parent></parent>");
+			var theirDoc = CreateTestNode(@"<parent><child>theirs</child></parent>");
+			XmlNode ours = null;
+			XmlNode theirs = theirDoc.FirstChild;
+			XmlUtilities.ReplaceOursWithTheirs(ourDoc, ref ours, theirs);
+			Assert.AreSame(ourDoc.OwnerDocument, ours.OwnerDocument);
+			Assert.IsTrue(XmlUtilities.AreXmlElementsEqual(theirs, ours), "theirs != ours");
+		}
+
+		[Test]
+		public void ReplaceOursWithTheirs_OursNotNullTheirsNotNull()
+		{
+			var ourDoc = CreateTestNode(@"<parent><child>mine</child></parent>");
+			var theirDoc = CreateTestNode(@"<parent><child>theirs</child></parent>");
+			XmlNode ours = ourDoc.FirstChild;
+			XmlNode theirs = theirDoc.FirstChild;
+			XmlUtilities.ReplaceOursWithTheirs(ourDoc, ref ours, theirs);
+			Assert.AreSame(ourDoc.OwnerDocument, ours.OwnerDocument, "Returned node not in inserted into our parent document");
+			Assert.IsTrue(XmlUtilities.AreXmlElementsEqual(theirs, ours), "theirs != ours");
+		}
+
+		[Test]
+		public void ReplaceOursWithTheirs_OursNotNullTheirsNull()
+		{
+			var ourDoc = CreateTestNode(@"<parent><child>mine</child></parent>");
+			XmlNode ours = ourDoc.FirstChild;
+			XmlUtilities.ReplaceOursWithTheirs(ourDoc, ref ours, null);
+			Assert.Null(ours, "Our node not replaced with null");
+			Assert.Null(ourDoc.FirstChild, "Our node was left in the document");
+		}
+
+		[Test]
+		public void ReplaceOursWithTheirs_NullParentNodeThrows()
+		{
+			XmlNode ours = null;
+			Assert.Throws<ArgumentNullException>(() => XmlUtilities.ReplaceOursWithTheirs(null, ref ours, null));
+		}
+
+		[Test]
+		public void ReplaceOursWithTheirs_DocumentNodeAsParentThrows()
+		{
+			var ourDoc = CreateTestNode(@"<parent><child>mine</child></parent>");
+			var theirDoc = CreateTestNode(@"<parent><child>theirs</child></parent>");
+
+			Assert.Throws<ArgumentException>(() => XmlUtilities.ReplaceOursWithTheirs(ourDoc.OwnerDocument, ref ourDoc, theirDoc));
+		}
+
+		private XmlNode CreateTestNode(string xml)
+		{
+			using (var stringReader = new StringReader(xml))
+			using (var xmlReader = XmlReader.Create(stringReader))
+			{
+				var xmlDocument = new XmlDocument();
+				var xmlNode = xmlDocument.ReadNode(xmlReader);
+				return xmlNode;
+			}
+		}
+#endregion
 	}
 }

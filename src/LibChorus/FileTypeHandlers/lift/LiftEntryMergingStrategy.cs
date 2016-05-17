@@ -26,7 +26,7 @@ namespace Chorus.FileTypeHandlers.lift
 
 		public string MakeMergedEntry(IMergeEventListener listener, XmlNode ourEntry, XmlNode theirEntry, XmlNode commonEntry)
 		{
-			return _entryMerger.Merge(listener, ourEntry, theirEntry, commonEntry).OuterXml;
+			return _entryMerger.Merge(listener, ourEntry.ParentNode, ourEntry, theirEntry, commonEntry).OuterXml;
 		}
 
 		/// <summary>
