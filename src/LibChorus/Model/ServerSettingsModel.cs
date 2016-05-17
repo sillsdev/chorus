@@ -54,9 +54,9 @@ namespace Chorus.Model
 		public virtual void InitFromUri(string url)
 		{
 			SetServerLabelFromUrl(url);
-			Password = UrlHelper.GetPassword(url);
-			AccountName = UrlHelper.GetUserName(url);
-			ProjectId = UrlHelper.GetPathAfterHost(url);
+			Password = HttpUtilityFromMono.UrlDecode(UrlHelper.GetPassword(url));
+			AccountName = HttpUtilityFromMono.UrlDecode(UrlHelper.GetUserName(url));
+			ProjectId = HttpUtilityFromMono.UrlDecode(UrlHelper.GetPathAfterHost(url));
 			CustomUrl = UrlHelper.GetPathOnly(url);
 			//CustomUrlSelected = true;
 		}
