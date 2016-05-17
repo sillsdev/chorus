@@ -33,7 +33,7 @@ namespace Chorus.merge.xml.generic
 			MergeStrategies = new MergeStrategies();
 		}
 
-		public NodeMergeResult Merge(XmlNode ours, XmlNode theirs, XmlNode ancestor)
+		public NodeMergeResult Merge(XmlNode ourParent, XmlNode ours, XmlNode theirs, XmlNode ancestor)
 		{
 			SendMergeHeartbeat();
 			if (ours == null && theirs == null && ancestor == null)
@@ -150,17 +150,17 @@ namespace Chorus.merge.xml.generic
 			}
 
 			// All three nodes exist.
-			MergeInner(ref ours, theirs, ancestor);
+			MergeInner(ourParent, ref ours, theirs, ancestor);
 			result.MergedNode = ours;
 
 			return result;
 		}
 
-		public XmlNode Merge(IMergeEventListener eventListener, XmlNode ours, XmlNode theirs, XmlNode ancestor)
+		public XmlNode Merge(IMergeEventListener eventListener, XmlNode ourParent, XmlNode ours, XmlNode theirs, XmlNode ancestor)
 		{
 			SendMergeHeartbeat();
 			EventListener = eventListener;
-			MergeInner(ref ours, theirs, ancestor);
+			MergeInner(ourParent, ref ours, theirs, ancestor);
 			return ours;
 		}
 
@@ -236,7 +236,7 @@ namespace Chorus.merge.xml.generic
 		/// This method does the actual work for the various public entry points of XmlMerge
 		/// and from the various Method-type classes, as it processes child nodes, if any.
 		/// </summary>
-		internal void MergeInner(ref XmlNode ours, XmlNode theirs, XmlNode ancestor)
+		internal void MergeInner(XmlNode ourParent, ref XmlNode ours, XmlNode theirs, XmlNode ancestor)
 		{
 			SendMergeHeartbeat();
 			_oursContext = ours;
@@ -262,7 +262,7 @@ namespace Chorus.merge.xml.generic
 			// then make sure no changes took place (among a few other things).
 			if (elementStrat.IsImmutable)
 			{
-				ImmutableElementMergeService.DoMerge(this, ref ours, theirs, ancestor);
+				ImmutableElementMergeService.DoMerge(this, ourParent, ref ours, theirs, ancestor);
 				return; // Don't go any further, since it is immutable.
 			}
 
@@ -276,7 +276,7 @@ namespace Chorus.merge.xml.generic
 					DoTextMerge(ref ours, theirs, ancestor, elementStrat);
 					return;
 				}
-				MergeAtomicElementService.Run(this, ref ours, theirs, ancestor);
+				MergeAtomicElementService.Run(this, ourParent, ref ours, theirs, ancestor);
 				return;
 			}
 
@@ -350,7 +350,7 @@ namespace Chorus.merge.xml.generic
 			XmlNode theirNode = XmlUtilities.GetDocumentNodeFromRawXml(theirXml, doc);
 			XmlNode ancestorNode = XmlUtilities.GetDocumentNodeFromRawXml(ancestorXml, doc);
 
-			return Merge(ourNode, theirNode, ancestorNode);
+			return Merge(ourNode.ParentNode, ourNode, theirNode, ancestorNode);
 		}
 
 		public NodeMergeResult MergeFiles(string ourPath, string theirPath, string ancestorPath)
@@ -360,7 +360,7 @@ namespace Chorus.merge.xml.generic
 			var ourNode = LoadXmlDocumentAndGetRootNode(ourPath);
 			var theirNode = LoadXmlDocumentAndGetRootNode(theirPath);
 
-			return Merge(ourNode, theirNode, ancestorNode);
+			return Merge(ourNode != null ? ourNode.ParentNode : null, ourNode, theirNode, ancestorNode);
 		}
 
 		private static XmlNode LoadXmlDocumentAndGetRootNode(string pathname)

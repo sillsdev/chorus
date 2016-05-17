@@ -144,7 +144,7 @@ namespace Chorus.merge.xml.generic
 				merger.ConflictOccurred(new RemovedVsEditedElementConflict(theirChild.Name, theirChild, null, ancestorChild,
 																		   mergeSituation, mergeStrategyForChild,
 																		   mergeSituation.BetaUserId));
-				ours.ReplaceChild(ours.OwnerDocument.ImportNode(theirChild, true), ourChild);
+				XmlUtilities.ReplaceOursWithTheirs(ours, ref ourChild, theirChild);
 				return ours;
 			}
 			match = mergeStrategyForChild.MergePartnerFinder.GetNodeToMerge(theirChild, ancestor, SetFromChildren.Get(ancestor));
@@ -156,7 +156,7 @@ namespace Chorus.merge.xml.generic
 					// Their delete+add wins, since we did nothing.
 					merger.EventListener.ChangeOccurred(new XmlDeletionChangeReport(pathToFileInRepository, ancestor, ancestorChild));
 					merger.EventListener.ChangeOccurred(new XmlAdditionChangeReport(pathToFileInRepository, theirChild));
-					ours.ReplaceChild(ours.OwnerDocument.ImportNode(theirChild, true), ourChild);
+					XmlUtilities.ReplaceOursWithTheirs(ours, ref ourChild, theirChild);
 					return ours;
 				}
 
@@ -166,9 +166,7 @@ namespace Chorus.merge.xml.generic
 																		   mergeSituation.AlphaUserId));
 				return ours;
 			}
-
-			merger.MergeInner(ref ourChild, theirChild, ancestorChild);
-
+			merger.MergeInner(ours, ref ourChild, theirChild, ancestorChild);
 // Route tested. (UsingWith_NumberOfChildrenAllowed_ZeroOrOne_DoesNotThrowWhenParentHasOneChildNode)
 			return ours;
 		}
@@ -257,7 +255,7 @@ namespace Chorus.merge.xml.generic
 				{
 					merger.ConflictOccurred(new XmlTextBothAddedTextConflict(theirChild.Name, theirChild, ourChild, mergeSituation,
 																			 mergeStrategyForChild, mergeSituation.BetaUserId));
-					ours.ReplaceChild(ours.OwnerDocument.ImportNode(theirChild, true), ourChild);
+					XmlUtilities.ReplaceOursWithTheirs(ours, ref ourChild, theirChild);
 				}
 			}
 			else
@@ -270,10 +268,10 @@ namespace Chorus.merge.xml.generic
 					{
 						merger.EventListener.ChangeOccurred(new XmlAdditionChangeReport(pathToFileInRepository, ourChild));
 						var ourChildReplacement = ourChild;
-						merger.MergeInner(ref ourChildReplacement, theirChild, null);
+						merger.MergeInner(ours, ref ourChildReplacement, theirChild, null);
 						if (!ReferenceEquals(ourChild, ourChildReplacement))
 						{
-							ours.ReplaceChild(ours.OwnerDocument.ImportNode(ourChildReplacement, true), ourChild);
+							XmlUtilities.ReplaceOursWithTheirs(ours, ref ourChild, ourChildReplacement);
 						}
 					}
 					else
@@ -291,10 +289,10 @@ namespace Chorus.merge.xml.generic
 					{
 						merger.EventListener.ChangeOccurred(new XmlAdditionChangeReport(pathToFileInRepository, theirChild));
 						var ourChildReplacement = ourChild;
-						merger.MergeInner(ref ourChildReplacement, theirChild, null);
+						merger.MergeInner(ours, ref ourChildReplacement, theirChild, null);
 						if (!ReferenceEquals(ourChild, ourChildReplacement))
 						{
-							ours.ReplaceChild(ours.OwnerDocument.ImportNode(ourChildReplacement, true), ourChild);
+							XmlUtilities.ReplaceOursWithTheirs(ours, ref ourChild, ourChildReplacement);
 						}
 					}
 					else
@@ -302,7 +300,7 @@ namespace Chorus.merge.xml.generic
 						merger.ConflictOccurred(new BothAddedMainElementButWithDifferentContentConflict(theirChild.Name, theirChild, ourChild,
 																										mergeSituation, mergeStrategyForChild,
 																										mergeSituation.BetaUserId));
-						ours.ReplaceChild(ours.OwnerDocument.ImportNode(theirChild, true), ourChild);
+						XmlUtilities.ReplaceOursWithTheirs(ours, ref ourChild, theirChild);
 					}
 				}
 			}
@@ -409,10 +407,10 @@ namespace Chorus.merge.xml.generic
 						if (XmlUtilities.AreXmlElementsEqual(ourChildClone, theirChildClone))
 						{
 							var ourChildReplacement = ourChild;
-							merger.MergeInner(ref ourChildReplacement, theirChild, null);
+							merger.MergeInner(ours, ref ourChildReplacement, theirChild, null);
 							if (!ReferenceEquals(ourChild, ourChildReplacement))
 							{
-								ours.ReplaceChild(ours.OwnerDocument.ImportNode(ourChildReplacement, true), ourChild);
+								XmlUtilities.ReplaceOursWithTheirs(ours, ref ourChild, ourChildReplacement);
 							}
 						}
 						else
@@ -430,10 +428,10 @@ namespace Chorus.merge.xml.generic
 						if (XmlUtilities.AreXmlElementsEqual(ourChildClone, theirChildClone))
 						{
 							var ourChildReplacement = ourChild;
-							merger.MergeInner(ref ourChildReplacement, theirChild, null);
+							merger.MergeInner(ours, ref ourChildReplacement, theirChild, null);
 							if (!ReferenceEquals(ourChild, ourChildReplacement))
 							{
-								ours.ReplaceChild(ours.OwnerDocument.ImportNode(ourChildReplacement, true), ourChild);
+								XmlUtilities.ReplaceOursWithTheirs(ours, ref ourChild, ourChildReplacement);
 							}
 						}
 						else
@@ -441,7 +439,7 @@ namespace Chorus.merge.xml.generic
 							merger.ConflictOccurred(new BothAddedMainElementButWithDifferentContentConflict(ourChild.Name, ourChild, theirChild,
 																											mergeSituation, mergeStrategyForChild,
 																											mergeSituation.AlphaUserId));
-							ours.ReplaceChild(ours.OwnerDocument.ImportNode(theirChild, true), ourChild);
+							XmlUtilities.ReplaceOursWithTheirs(ours, ref ourChild, theirChild);
 						}
 					}
 					return ours;
@@ -458,7 +456,7 @@ namespace Chorus.merge.xml.generic
 				{
 					merger.ConflictOccurred(new XmlTextBothAddedTextConflict(theirs.Name, theirs, ours, mergeSituation,
 																			 mainNodeStrategy, mergeSituation.BetaUserId));
-					ours = theirs;
+					XmlUtilities.ReplaceOursWithTheirs(ours.ParentNode, ref ours, theirs);
 				}
 			}
 			return ours;

@@ -68,25 +68,16 @@ namespace LibChorus.Tests.merge.xml.generic
 			MergeSituation mergeSituation, out XmlNode returnAncestorNode, out ListenerForUnitTests listener)
 		{
 			XmlNode ourNode;
+			XmlNode ourParent;
 			XmlNode theirNode;
 			XmlNode ancestorNode;
-			CreateThreeNodes(ours, out ourNode,
-							 theirs, out theirNode,
-							 common, out ancestorNode);
+			XmlTestHelper.CreateThreeNodes(ours, theirs, common, out ourNode, out ourParent, out theirNode, out ancestorNode);
 			returnAncestorNode = ancestorNode;
 
 			var merger = GetMerger(mergeSituation, out listener);
-			Assert.DoesNotThrow(() => MergeAtomicElementService.Run(merger, ref ourNode, theirNode, ancestorNode));
+			Assert.DoesNotThrow(() => MergeAtomicElementService.Run(merger, ourParent, ref ourNode, theirNode, ancestorNode));
 
 			return ourNode;
-		}
-
-		private static void CreateThreeNodes(string ourXml, out XmlNode ourNode, string theirXml, out XmlNode theirNode, string ancestorXml, out XmlNode ancestorNode)
-		{
-			var doc = new XmlDocument();
-			ourNode = ourXml == null ? null : XmlUtilities.GetDocumentNodeFromRawXml(ourXml, doc);
-			theirNode = theirXml == null ? null : XmlUtilities.GetDocumentNodeFromRawXml(theirXml, doc);
-			ancestorNode = ancestorXml == null ? null : XmlUtilities.GetDocumentNodeFromRawXml(ancestorXml, doc);
 		}
 
 		private static void CreateThreeNodes(XmlDocument doc, XmlNode rootNode,
@@ -178,14 +169,14 @@ namespace LibChorus.Tests.merge.xml.generic
 		{
 			var doc = new XmlDocument();
 			var node = doc.CreateNode(XmlNodeType.Element, "somenode", null);
-			Assert.Throws<ArgumentNullException>(() => MergeAtomicElementService.Run(null, ref node, node, node));
+			Assert.Throws<ArgumentNullException>(() => MergeAtomicElementService.Run(null, node.ParentNode, ref node, node, node));
 		}
 
 		[Test]
 		public void AllNullNodesThrows()
 		{
 			XmlNode node = null;
-			Assert.Throws<ArgumentNullException>(() => MergeAtomicElementService.Run(new XmlMerger(new NullMergeSituation()), ref node, node, node));
+			Assert.Throws<ArgumentNullException>(() => MergeAtomicElementService.Run(new XmlMerger(new NullMergeSituation()), null, ref node, node, node));
 		}
 
 		[Test]
@@ -203,7 +194,7 @@ namespace LibChorus.Tests.merge.xml.generic
 
 			ListenerForUnitTests listener;
 			var merger = GetMerger(out listener, false);
-			Assert.Throws<InvalidOperationException>(() => MergeAtomicElementService.Run(merger, ref ourNode, theirNode, ancestorNode));
+			Assert.Throws<InvalidOperationException>(() => MergeAtomicElementService.Run(merger, ourNode.ParentNode, ref ourNode, theirNode, ancestorNode));
 		}
 
 		#endregion Basic tests

@@ -12,7 +12,7 @@ namespace Chorus.merge.xml.generic
 	/// </summary>
 	internal static class ImmutableElementMergeService
 	{
-		internal static void DoMerge(XmlMerger merger, ref XmlNode ours, XmlNode theirs, XmlNode ancestor)
+		internal static void DoMerge(XmlMerger merger, XmlNode ourParent, ref XmlNode ours, XmlNode theirs, XmlNode ancestor)
 		{
 			if (ours == null && theirs == null && ancestor == null)
 				return; // I don't think this is possible, but....
@@ -22,10 +22,10 @@ namespace Chorus.merge.xml.generic
 				// Somebody added it.
 				if (ours == null && theirs != null)
 				{
-						// They added it.
-						merger.EventListener.ChangeOccurred(new XmlAdditionChangeReport(merger.MergeSituation.PathToFileInRepository, theirs));
-						ours = theirs;
-						return;
+					// They added it.
+					merger.EventListener.ChangeOccurred(new XmlAdditionChangeReport(merger.MergeSituation.PathToFileInRepository, theirs));
+					XmlUtilities.ReplaceOursWithTheirs(ourParent, ref ours, theirs);
+					return;
 				}
 				if (theirs == null && ours != null)
 				{
@@ -52,7 +52,7 @@ namespace Chorus.merge.xml.generic
 				{
 					// They win.
 					merger.ConflictOccurred(new BothAddedMainElementButWithDifferentContentConflict(ours.Name, theirs, ours, merger.MergeSituation, merger.MergeStrategies.GetElementStrategy(theirs), merger.MergeSituation.BetaUserId));
-					ours = theirs;
+					XmlUtilities.ReplaceOursWithTheirs(ourParent, ref ours, theirs);
 					return;
 				}
 				return;

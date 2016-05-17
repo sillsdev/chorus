@@ -46,6 +46,15 @@ namespace LibChorus.TestUtilities
 			}
 		}
 
+		public static void CreateThreeNodes(string ourXml, string theirXml, string ancestorXml, out XmlNode ourNode, out XmlNode ourParent, out XmlNode theirNode, out XmlNode ancestorNode)
+		{
+			var doc = new XmlDocument();
+			ourParent = XmlUtilities.GetDocumentNodeFromRawXml("<ParentNode>" + ourXml + "</ParentNode>", doc);
+			ourNode = ourParent.FirstChild;
+			theirNode = XmlUtilities.GetDocumentNodeFromRawXml("<ParentNode>" + theirXml + "</ParentNode>", doc).FirstChild;
+			ancestorNode = XmlUtilities.GetDocumentNodeFromRawXml("<ParentNode>" + ancestorXml + "</ParentNode>", doc).FirstChild;
+		}
+
 		public static void AssertXPathNotNull(string documentPath, string xpath)
 		{
 			XmlDocument doc = new XmlDocument();
@@ -149,7 +158,7 @@ namespace LibChorus.TestUtilities
 							{
 								MergeStrategies = mergeStrategies
 							};
-			var retval = merger.Merge(eventListener, ourNode, theirNode, ancestorNode).OuterXml;
+			var retval = merger.Merge(eventListener, ourNode.ParentNode, ourNode, theirNode, ancestorNode).OuterXml;
 			Assert.AreSame(eventListener, merger.EventListener); // Make sure it never changes it, while we aren't looking, since at least one Merge method does that very thing.
 
 			CheckMergeResults(retval, eventListener,
