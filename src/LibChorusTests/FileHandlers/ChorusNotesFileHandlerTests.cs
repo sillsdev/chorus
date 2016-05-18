@@ -230,8 +230,9 @@ namespace LibChorus.Tests.FileHandlers
 				messageStrategy.IsImmutable = true;
 				merger.MergeStrategies.SetStrategy("message", messageStrategy);
 				merger.EventListener = listener;
+				var ourDataNode = XmlUtilities.GetDocumentNodeFromRawXml(ourData.Replace("<?xml version='1.0' encoding='utf-8'?>", null).Trim(), new XmlDocument());
 				var mergeResult = merger.Merge(
-					XmlUtilities.GetDocumentNodeFromRawXml(ourData.Replace("<?xml version='1.0' encoding='utf-8'?>", null).Trim(), new XmlDocument()),
+					ourDataNode.ParentNode, ourDataNode,
 					XmlUtilities.GetDocumentNodeFromRawXml(theirData.Replace("<?xml version='1.0' encoding='utf-8'?>", null).Trim(), new XmlDocument()),
 					XmlUtilities.GetDocumentNodeFromRawXml(commonData.Replace("<?xml version='1.0' encoding='utf-8'?>", null).Trim(), new XmlDocument()));
 				var oldWayResult = mergeResult.MergedNode.OuterXml;

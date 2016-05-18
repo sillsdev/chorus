@@ -151,7 +151,7 @@ namespace Chorus.merge.xml.generic
 					// Both 'ourChild' and 'theirChild exist. 'ancestorChild' may, or, may not, exist.
 					// There's a corresponding node and it isn't the same as ours...
 					// Route tested: MergeChildrenMethod_DiffOnlyTests.
-					_merger.MergeInner(ref ourChild, theirChild, ancestorChild);
+					_merger.MergeInner(_ours, ref ourChild, theirChild, ancestorChild);
 					resultsChildren[i] = ourChild;
 				}
 				else
@@ -192,7 +192,7 @@ namespace Chorus.merge.xml.generic
 						}
 						else
 						{
-							_merger.MergeInner(ref ourChild, theirChild, ancestorChild);
+							_merger.MergeInner(_ours, ref ourChild, theirChild, ancestorChild);
 							resultsChildren[i] = ourChild;
 						}
 					}

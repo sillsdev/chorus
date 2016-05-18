@@ -37,7 +37,7 @@ namespace Chorus.FileTypeHandlers
 		/// </summary>
 		public string MakeMergedEntry(IMergeEventListener eventListener, XmlNode ourEntry, XmlNode theirEntry, XmlNode commonEntry)
 		{
-			return _annotationMerger.Merge(eventListener, ourEntry, theirEntry, commonEntry).OuterXml;
+			return _annotationMerger.Merge(eventListener, ourEntry.ParentNode, ourEntry, theirEntry, commonEntry).OuterXml;
 		}
 
 		/// <summary>
