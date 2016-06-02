@@ -30,7 +30,6 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		}
 
 		[Test]
-		[Category("KnownMonoIssue")] // Actually, it is an unknown mono issue.
 		public void CreateBranchesTest()
 		{
 			// Setup
