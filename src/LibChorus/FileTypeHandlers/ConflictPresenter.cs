@@ -79,7 +79,7 @@ namespace Chorus.FileTypeHandlers
 		public string GetHtml(string style, string styleSheet)
 		{
 			var builder = new StringBuilder();
-			builder.Append("<html><head>"+styleSheet +"</head>");
+			builder.Append("<html><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">"+styleSheet +"</head>");
 			if (style == "normal")
 			{
 				if (_conflict is UnreadableConflict)
