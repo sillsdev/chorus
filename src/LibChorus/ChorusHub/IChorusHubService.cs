@@ -45,6 +45,18 @@ namespace Chorus.ChorusHub
 		/// <example>returned repo info string: {"name": "someProject", "id": ""}</example>
 		[OperationContract]
 		string GetRepositoryInformationWithoutIds(string searchUrl);
+
+		/// <summary>
+		/// Returns information about the Hg repositories that the ChorusHub knows about.
+		/// 
+		/// Similar to GetRepositoryInformation except the value of the id field is the id
+		/// of the tip revision of the repository.
+		/// 
+		/// For the returned tip to be accurate, clients using this method have to call
+		/// PutFile("tipIds", projectName, tipId) after doing a push.
+		/// </summary>
+		[OperationContract]
+		string GetRepositoryInformationWithTipIds(string searchUrl);
 		
 		/// <summary>
 		/// Prepares to receive a repository by checking that it exists on the server, and if not,
@@ -75,5 +87,40 @@ namespace Chorus.ChorusHub
 		/// <returns>True if successful, false otherwise</returns>
 		[OperationContract]
 		bool Rename(string repositoryName, string newName);
+
+		/// <summary>
+		/// Writes the given contents to the specified file - the folder will be created if it doesn't
+		/// exist.
+		///
+		/// Used for sharing files that are not part of a project. One example is a per user file that
+		/// contains restrictions an administrator has put on menu items for a user.
+		/// </summary>
+		[OperationContract]
+		void PutFileFromText(string folder, string fileName, string contents);
+
+		/// <summary>
+		/// Writes the given contents to the specified file - the folder will be created if it doesn't
+		/// exist.
+		///
+		/// Used for sharing files that are not part of a project and contain binary data. One example
+		/// is a backup of user settings for an application so a user can restore the settings when
+		/// setting up a new machine.
+		/// </summary>
+		[OperationContract]
+		void PutFileFromBytes(string folder, string fileName, byte[] contents);
+
+		/// <summary>
+		/// Gets the contents of the specified file as a string. 
+		/// </summary>
+		/// <returns>contents of file or null if file doesn't exist. File is created using PutFileFromText</returns>
+		[OperationContract]
+		string GetFileAsText(string folder, string fileName);
+
+		/// <summary>
+		/// Gets the contents of the specified file as a byte array.
+		/// </summary>
+		/// <returns>contents of file or null if file doesn't exist. File is created using PutFileFromBytes</returns>
+		[OperationContract]
+		byte[] GetFileAsBytes(string folder, string fileName);
 	}
 }
