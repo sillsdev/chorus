@@ -250,16 +250,13 @@ namespace Chorus.VcsDrivers.Mercurial
 			var chorusMergeLoc = SurroundWithQuotes(ExecutionEnvironment.ChorusMergeFilePath());
 			var uiSection = doc.Sections.GetOrCreate("ui");
 
-			if(uiSection.GetValue("merge") != mergetoolname)
-			{
-				uiSection.Set("merge", mergetoolname);
-				var mergeToolsSection = doc.Sections.GetOrCreate("merge-tools");
-				// If the premerge is allowed to happen Mercurial will occasionally think it did a good enough job and not
-				// call our mergetool. This has data corrupting results for us so we tell mercurial to skip it.
-				mergeToolsSection.Set(String.Format("{0}.premerge", mergetoolname), "False");
-				mergeToolsSection.Set(String.Format("{0}.executable", mergetoolname), chorusMergeLoc);
-				doc.SaveAndThrowIfCannot();
-			}
+			uiSection.Set("merge", mergetoolname);
+			var mergeToolsSection = doc.Sections.GetOrCreate("merge-tools");
+			// If the premerge is allowed to happen Mercurial will occasionally think it did a good enough job and not
+			// call our mergetool. This has data corrupting results for us so we tell mercurial to skip it.
+			mergeToolsSection.Set(string.Format("{0}.premerge", mergetoolname), "False");
+			mergeToolsSection.Set(string.Format("{0}.executable", mergetoolname), chorusMergeLoc);
+			doc.SaveAndThrowIfCannot();
 		}
 
 		public bool GetFileIsInRepositoryFromFullPath(string fullPath)
