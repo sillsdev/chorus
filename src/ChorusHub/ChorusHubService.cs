@@ -26,6 +26,7 @@ namespace ChorusHub
 		private const string Store = "store";
 		private const string Data = "data";
 		private const string InternalExt = ".i";
+		private const string TipIdFolder = "tipIds";
 
 		/// <summary>
 		/// Returns information about the Hg repositories that the ChorusHub knows about.
@@ -75,6 +76,33 @@ namespace ChorusHub
 		public string GetRepositoryInformationWithoutIds(string searchUrl)
 		{
 			return GetRepositoryInformation(searchUrl, false);
+		}
+
+		/// <summary>
+		/// Returns information about the Hg repositories that the ChorusHub knows about.
+		/// 
+		/// Similar to GetRepositoryInformation except the value of the id field is the id
+		/// of the tip revision of the repository.
+		/// 
+		/// For the returned tip to be accurate, clients using this method have to call
+		/// PutFile(IChorusHubService.tipIdFolder, projectName, tipId) after doing a push.
+		/// </summary>
+		public string GetRepositoryInformationWithTipIds(string searchUrl)
+		{
+			List<RepositoryInformation> results = new List<RepositoryInformation>();
+			foreach (RepositoryInformation repoInfo in
+				ImitationHubJSONService.ParseJsonStringsToChorusHubRepoInfos(GetRepositoryInformation(searchUrl, false)))
+			{
+				string tipId = GetFileAsText(TipIdFolder, repoInfo.RepoName);
+				if (tipId == null)
+				{
+					tipId = GetTipId(repoInfo.RepoName);
+					PutFileFromText(TipIdFolder, repoInfo.RepoName, tipId);
+				}
+				results.Add(new RepositoryInformation(repoInfo.RepoName, tipId));
+			}
+
+			return string.Join("/", results.Select(r => ImitationHubJSONService.MakeJsonString(r.RepoName, r.RepoID)));
 		}
 
 		///  <summary>
@@ -296,6 +324,60 @@ namespace ChorusHub
 				return false;
 			}
 			return true;
+		}
+
+		/// <summary>
+		/// Writes the given contents to the specified file - the folder will be created if it doesn't
+		/// exist.
+		/// </summary>
+		public void PutFileFromText(string folder, string fileName, string contents)
+		{
+			string folderPath = Path.Combine(ChorusHubOptions.RootDirectory, folder);
+			if (!Directory.Exists(folderPath))
+				Directory.CreateDirectory(folderPath);
+			string filePath = Path.Combine(folderPath, fileName);
+			File.WriteAllText(filePath, contents);
+		}
+
+		/// <summary>
+		/// Writes the given contents to the specified file - the folder will be created if it doesn't
+		/// exist.
+		/// </summary>
+		public void PutFileFromBytes(string folder, string fileName, byte[] contents)
+		{
+			string folderPath = Path.Combine(ChorusHubOptions.RootDirectory, folder);
+			if (!Directory.Exists(folderPath))
+				Directory.CreateDirectory(folderPath);
+			string filePath = Path.Combine(folderPath, fileName);
+			File.WriteAllBytes(filePath, contents);
+		}
+
+		/// <summary>
+		/// Gets the contents of the specified file as a string.
+		/// </summary>
+		/// <returns>contents of file or null if file doesn't exist</returns>
+		public string GetFileAsText(string folder, string fileName)
+		{
+			string filePath = Path.Combine(ChorusHubOptions.RootDirectory, folder, fileName);
+			return File.Exists(filePath) ? File.ReadAllText(filePath) : null;
+		}
+
+		/// <summary>
+		/// Gets the contents of the specified file as a byte array.
+		/// </summary>
+		/// <returns>contents of file or null if file doesn't exist</returns>
+		public byte[] GetFileAsBytes(string folder, string fileName)
+		{
+			string filePath = Path.Combine(ChorusHubOptions.RootDirectory, folder, fileName);
+			return File.Exists(filePath) ? File.ReadAllBytes(filePath) : null;
+		}
+
+		private string GetTipId(string repositoryName)
+		{
+			string directory = Path.Combine(ChorusHubOptions.RootDirectory, repositoryName);
+			HgRepository repo = new HgRepository(directory, new NullProgress());
+			Revision tip = repo.GetTip();
+			return tip != null ? tip.Number.Hash : "";
 		}
 	}
 }
