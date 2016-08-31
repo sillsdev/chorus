@@ -23,7 +23,7 @@ namespace Chorus.Model
 			Servers.Add(languageDepotLabel, "resumable.languagedepot.org");
 			Servers.Add("LanguageDepot.org [Safe Mode]", "hg-public.languagedepot.org");
 			Servers.Add("LanguageDepot.org [private]", "hg-private.languagedepot.org");
-			Servers.Add("LanguageForge", "hg.languageforge.org");
+			Servers.Add("LanguageDepot.org [test server]", "hg.languageforge.org");
 
 			Servers.Add(LocalizationManager.GetString("Messages.CustomLocation", "Custom Location..."), "");
 			SelectedServerLabel = languageDepotLabel;
