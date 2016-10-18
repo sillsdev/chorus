@@ -53,14 +53,10 @@ fi
 
 copy_wget() {
 echo "wget: $2 <= $1"
-f1=$(basename $1)
-f2=$(basename $2)
-cd $(dirname $2)
+f=$(basename $2)
+d=$(dirname $2)
+cd $d
 wget -q -L -N $1
-# wget has no true equivalent of curl's -o option.
-# Different versions of wget handle (or not) % escaping differently.
-# A URL query is the only reason why $f1 and $f2 should differ.
-if [ "$f1" != "$f2" ]; then mv $f2\?* $f2; fi
 cd -
 }
 
@@ -78,40 +74,26 @@ cd -
 #     revision: latest.lastSuccessful
 #     paths: {"Vulcan.Uczniowie.HelpProvider.dll"=>"lib/common"}
 #     VCS: http://hg.palaso.org/helpprovider []
-# [1] build: L10NSharp Mono continuous (bt271)
-#     project: L10NSharp
-#     URL: http://build.palaso.org/viewType.html?buildTypeId=bt271
-#     clean: false
-#     revision: latest.lastSuccessful
-#     paths: {"L10NSharp.dll"=>"lib/ReleaseMono"}
-#     VCS: https://bitbucket.org/sillsdev/l10nsharp []
-# [2] build: L10NSharp Mono continuous (bt271)
-#     project: L10NSharp
-#     URL: http://build.palaso.org/viewType.html?buildTypeId=bt271
-#     clean: false
-#     revision: latest.lastSuccessful
-#     paths: {"L10NSharp.dll"=>"lib/DebugMono"}
-#     VCS: https://bitbucket.org/sillsdev/l10nsharp []
-# [3] build: icucil-precise64-Continuous (bt281)
+# [1] build: icucil-precise64-Continuous (bt281)
 #     project: Libraries
 #     URL: http://build.palaso.org/viewType.html?buildTypeId=bt281
 #     clean: false
 #     revision: latest.lastSuccessful
 #     paths: {"*.dll"=>"lib/ReleaseMono", "*.config"=>"lib/ReleaseMono"}
 #     VCS: https://github.com/sillsdev/icu-dotnet [master]
-# [4] build: icucil-precise64-Continuous (bt281)
+# [2] build: icucil-precise64-Continuous (bt281)
 #     project: Libraries
 #     URL: http://build.palaso.org/viewType.html?buildTypeId=bt281
 #     clean: false
 #     revision: latest.lastSuccessful
 #     paths: {"*.dll"=>"lib/DebugMono", "*.config"=>"lib/DebugMono"}
 #     VCS: https://github.com/sillsdev/icu-dotnet [master]
-# [5] build: palaso-precise64-master Continuous (bt322)
+# [3] build: palaso-precise64-master Continuous (bt322)
 #     project: libpalaso
 #     URL: http://build.palaso.org/viewType.html?buildTypeId=bt322
 #     clean: false
 #     revision: latest.lastSuccessful
-#     paths: {"NDesk.DBus.dll*"=>"lib/ReleaseMono", "SIL.Core.dll"=>"lib/ReleaseMono", "SIL.TestUtilities.dll"=>"lib/ReleaseMono", "SIL.Windows.Forms.dll"=>"lib/ReleaseMono", "SIL.Windows.Forms.GeckoBrowserAdapter.dll"=>"lib/ReleaseMono", "SIL.Lift.dll"=>"lib/ReleaseMono", "debug/NDesk.DBus.dll*"=>"lib/DebugMono", "debug/SIL.Core.dll"=>"lib/DebugMono", "debug/SIL.Core.dll.mdb"=>"lib/DebugMono", "debug/SIL.TestUtilities.dll"=>"lib/DebugMono", "debug/SIL.TestUtilities.dll.mdb"=>"lib/DebugMono", "debug/SIL.Windows.Forms.dll"=>"lib/DebugMono", "debug/SIL.Windows.Forms.dll.mdb"=>"lib/DebugMono", "debug/SIL.Windows.Forms.GeckoBrowserAdapter.dll"=>"lib/DebugMono", "debug/SIL.Windows.Forms.GeckoBrowserAdapter.dll.mdb"=>"lib/DebugMono", "debug/SIL.Lift.dll"=>"lib/DebugMono", "debug/SIL.Lift.dll.mdb"=>"lib/DebugMono"}
+#     paths: {"NDesk.DBus.dll*"=>"lib/ReleaseMono", "SIL.Core.dll"=>"lib/ReleaseMono", "SIL.TestUtilities.dll"=>"lib/ReleaseMono", "SIL.Windows.Forms.dll"=>"lib/ReleaseMono", "SIL.Windows.Forms.GeckoBrowserAdapter.dll"=>"lib/ReleaseMono", "SIL.Lift.dll"=>"lib/ReleaseMono", "L10NSharp.dll"=>"lib/ReleaseMono", "debug/NDesk.DBus.dll*"=>"lib/DebugMono", "debug/SIL.Core.dll"=>"lib/DebugMono", "debug/SIL.Core.dll.mdb"=>"lib/DebugMono", "debug/SIL.TestUtilities.dll"=>"lib/DebugMono", "debug/SIL.TestUtilities.dll.mdb"=>"lib/DebugMono", "debug/SIL.Windows.Forms.dll"=>"lib/DebugMono", "debug/SIL.Windows.Forms.dll.mdb"=>"lib/DebugMono", "debug/SIL.Windows.Forms.GeckoBrowserAdapter.dll"=>"lib/DebugMono", "debug/SIL.Windows.Forms.GeckoBrowserAdapter.dll.mdb"=>"lib/DebugMono", "debug/SIL.Lift.dll"=>"lib/DebugMono", "debug/SIL.Lift.dll.mdb"=>"lib/DebugMono", "debug/L10NSharp.dll"=>"lib/DebugMono"}
 #     VCS: https://github.com/sillsdev/libpalaso.git [master]
 
 # make sure output directories exist
@@ -121,8 +103,6 @@ mkdir -p ../lib/common
 
 # download artifact dependencies
 copy_auto http://build.palaso.org/guestAuth/repository/download/bt225/latest.lastSuccessful/Vulcan.Uczniowie.HelpProvider.dll ../lib/common/Vulcan.Uczniowie.HelpProvider.dll
-copy_auto http://build.palaso.org/guestAuth/repository/download/bt271/latest.lastSuccessful/L10NSharp.dll ../lib/ReleaseMono/L10NSharp.dll
-copy_auto http://build.palaso.org/guestAuth/repository/download/bt271/latest.lastSuccessful/L10NSharp.dll ../lib/DebugMono/L10NSharp.dll
 copy_auto http://build.palaso.org/guestAuth/repository/download/bt281/latest.lastSuccessful/icu.net.dll ../lib/ReleaseMono/icu.net.dll
 copy_auto http://build.palaso.org/guestAuth/repository/download/bt281/latest.lastSuccessful/icu.net.dll.config ../lib/ReleaseMono/icu.net.dll.config
 copy_auto http://build.palaso.org/guestAuth/repository/download/bt281/latest.lastSuccessful/icu.net.dll ../lib/DebugMono/icu.net.dll
@@ -134,6 +114,7 @@ copy_auto http://build.palaso.org/guestAuth/repository/download/bt322/latest.las
 copy_auto http://build.palaso.org/guestAuth/repository/download/bt322/latest.lastSuccessful/SIL.Windows.Forms.dll?branch=%3Cdefault%3E ../lib/ReleaseMono/SIL.Windows.Forms.dll
 copy_auto http://build.palaso.org/guestAuth/repository/download/bt322/latest.lastSuccessful/SIL.Windows.Forms.GeckoBrowserAdapter.dll?branch=%3Cdefault%3E ../lib/ReleaseMono/SIL.Windows.Forms.GeckoBrowserAdapter.dll
 copy_auto http://build.palaso.org/guestAuth/repository/download/bt322/latest.lastSuccessful/SIL.Lift.dll?branch=%3Cdefault%3E ../lib/ReleaseMono/SIL.Lift.dll
+copy_auto http://build.palaso.org/guestAuth/repository/download/bt322/latest.lastSuccessful/L10NSharp.dll?branch=%3Cdefault%3E ../lib/ReleaseMono/L10NSharp.dll
 copy_auto http://build.palaso.org/guestAuth/repository/download/bt322/latest.lastSuccessful/debug/NDesk.DBus.dll?branch=%3Cdefault%3E ../lib/DebugMono/NDesk.DBus.dll
 copy_auto http://build.palaso.org/guestAuth/repository/download/bt322/latest.lastSuccessful/debug/NDesk.DBus.dll.config?branch=%3Cdefault%3E ../lib/DebugMono/NDesk.DBus.dll.config
 copy_auto http://build.palaso.org/guestAuth/repository/download/bt322/latest.lastSuccessful/debug/SIL.Core.dll?branch=%3Cdefault%3E ../lib/DebugMono/SIL.Core.dll
@@ -146,4 +127,5 @@ copy_auto http://build.palaso.org/guestAuth/repository/download/bt322/latest.las
 copy_auto http://build.palaso.org/guestAuth/repository/download/bt322/latest.lastSuccessful/debug/SIL.Windows.Forms.GeckoBrowserAdapter.dll.mdb?branch=%3Cdefault%3E ../lib/DebugMono/SIL.Windows.Forms.GeckoBrowserAdapter.dll.mdb
 copy_auto http://build.palaso.org/guestAuth/repository/download/bt322/latest.lastSuccessful/debug/SIL.Lift.dll?branch=%3Cdefault%3E ../lib/DebugMono/SIL.Lift.dll
 copy_auto http://build.palaso.org/guestAuth/repository/download/bt322/latest.lastSuccessful/debug/SIL.Lift.dll.mdb?branch=%3Cdefault%3E ../lib/DebugMono/SIL.Lift.dll.mdb
+copy_auto http://build.palaso.org/guestAuth/repository/download/bt322/latest.lastSuccessful/debug/L10NSharp.dll?branch=%3Cdefault%3E ../lib/DebugMono/L10NSharp.dll
 # End of script
