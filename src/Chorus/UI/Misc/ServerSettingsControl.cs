@@ -32,7 +32,7 @@ namespace Chorus.UI.Misc
 				_model = value;
 				if (value == null)
 					return;
-				foreach (KeyValuePair<string, string> pair in Model.Servers)
+				foreach (KeyValuePair<string, ServerModel> pair in Model.Servers)
 				{
 					_serverCombo.Items.Add(pair.Key);
 				}

@@ -81,9 +81,9 @@ namespace Chorus.UI.Clone
 				}
 				if (error is RepositoryAuthorizationException)
 				{
-					_progress.WriteError(LocalizationManager.GetString("Messages.ServerRejectedLogon", "The server {0} did not accept the reqest of {1} to clone from {2} using password {3}."), SelectedServerPath, AccountName, ProjectId, Password);
+					_progress.WriteError(LocalizationManager.GetString("Messages.ServerRejectedLogon", "The server {0} did not accept the reqest of {1} to clone from {2} using password {3}."), SelectedServerModel.DomainName, AccountName, ProjectId, Password);
 					ErrorReport.NotifyUserOfProblem(LocalizationManager.GetString("Messages.RejectedLogonDetails", "The server ({0}) rejected the project name ({1}), user name ({2}), or password ({3}) (sorry, it didn't tell us which one). Make sure that each of these is correct, and that '{2}' is a member of the '{1}' project, with permission to read data."),
-						SelectedServerPath, ProjectId, AccountName, Password);
+						SelectedServerModel.DomainName, ProjectId, AccountName, Password);
 				}
 
 				else if (error is HgCommonException)
