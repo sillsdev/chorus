@@ -599,8 +599,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			{
 				responseTimeInMilliseconds = 1;
 			}
-
-			long newChunkSize = TargetTimeInSeconds*1000*chunkSize/responseTimeInMilliseconds;
+			long newChunkSize = (long) ((float) chunkSize / responseTimeInMilliseconds * TargetTimeInSeconds * 1000);
 
 			if (newChunkSize > MaximumChunkSize)
 			{
