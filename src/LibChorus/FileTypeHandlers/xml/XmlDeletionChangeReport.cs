@@ -29,7 +29,7 @@ namespace Chorus.FileTypeHandlers.xml
 		}
 		public override string GetFullHumanReadableDescription()
 		{
-			return string.Format("Deleted a <{0}>", _parentNode.Name);
+			return string.Format("Deleted a <{0}>", ParentNode.Name);
 		}
 
 		public XmlNode ParentNode
@@ -48,7 +48,6 @@ namespace Chorus.FileTypeHandlers.xml
 
 	public class XmlBothDeletionChangeReport : ChangeReport, IXmlChangeReport
 	{
-		private readonly XmlNode _parentNode;
 		private readonly XmlNode _childNode;
 		//  private readonly XmlNode _deletedNode;
 
@@ -70,7 +69,7 @@ namespace Chorus.FileTypeHandlers.xml
 		}
 		public override string GetFullHumanReadableDescription()
 		{
-			return string.Format("Both deleted the <{0}>", _parentNode.Name);
+			return string.Format("Both deleted the <{0}>", ChildNode.Name);
 		}
 
 		public XmlNode ParentNode

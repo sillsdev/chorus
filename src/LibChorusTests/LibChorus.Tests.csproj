@@ -207,6 +207,7 @@
     <Compile Include="Model\InternetCloneSettingsModelTests.cs" />
     <Compile Include="FileHandlers\ChorusFileTypeHandlerCollectionTests.cs" />
     <Compile Include="notes\EmbeddedMessageContentHandlerRepositoryTests.cs" />
+    <Compile Include="FileHandlers\xml\XmlDeletionChangeReportTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\LibChorus.TestUtilities\LibChorus.TestUtilities.csproj">
@@ -234,6 +235,7 @@
   <ItemGroup>
     <Folder Include="merge\text\" />
     <Folder Include="Model\" />
+    <Folder Include="FileHandlers\xml\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
