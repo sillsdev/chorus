@@ -78,21 +78,7 @@ cd -
 #     revision: latest.lastSuccessful
 #     paths: {"Vulcan.Uczniowie.HelpProvider.dll"=>"lib/common"}
 #     VCS: http://hg.palaso.org/helpprovider []
-# [1] build: icucil-precise64-Continuous (bt281)
-#     project: Libraries
-#     URL: http://build.palaso.org/viewType.html?buildTypeId=bt281
-#     clean: false
-#     revision: latest.lastSuccessful
-#     paths: {"*.dll"=>"lib/ReleaseMono", "*.config"=>"lib/ReleaseMono"}
-#     VCS: https://github.com/sillsdev/icu-dotnet [master]
-# [2] build: icucil-precise64-Continuous (bt281)
-#     project: Libraries
-#     URL: http://build.palaso.org/viewType.html?buildTypeId=bt281
-#     clean: false
-#     revision: latest.lastSuccessful
-#     paths: {"*.dll"=>"lib/DebugMono", "*.config"=>"lib/DebugMono"}
-#     VCS: https://github.com/sillsdev/icu-dotnet [master]
-# [3] build: palaso-trusty64-lfmerge Continuous (PalasoTrusty64lfmergeContinuous)
+# [1] build: palaso-trusty64-lfmerge Continuous (PalasoTrusty64lfmergeContinuous)
 #     project: libpalaso
 #     URL: http://build.palaso.org/viewType.html?buildTypeId=PalasoTrusty64lfmergeContinuous
 #     clean: false
@@ -107,10 +93,6 @@ mkdir -p ../lib/common
 
 # download artifact dependencies
 copy_auto http://build.palaso.org/guestAuth/repository/download/bt225/latest.lastSuccessful/Vulcan.Uczniowie.HelpProvider.dll ../lib/common/Vulcan.Uczniowie.HelpProvider.dll
-copy_auto http://build.palaso.org/guestAuth/repository/download/bt281/latest.lastSuccessful/icu.net.dll ../lib/ReleaseMono/icu.net.dll
-copy_auto http://build.palaso.org/guestAuth/repository/download/bt281/latest.lastSuccessful/icu.net.dll.config ../lib/ReleaseMono/icu.net.dll.config
-copy_auto http://build.palaso.org/guestAuth/repository/download/bt281/latest.lastSuccessful/icu.net.dll ../lib/DebugMono/icu.net.dll
-copy_auto http://build.palaso.org/guestAuth/repository/download/bt281/latest.lastSuccessful/icu.net.dll.config ../lib/DebugMono/icu.net.dll.config
 copy_auto http://build.palaso.org/guestAuth/repository/download/PalasoTrusty64lfmergeContinuous/latest.lastSuccessful/NDesk.DBus.dll?branch=%3Cdefault%3E ../lib/ReleaseMono/NDesk.DBus.dll
 copy_auto http://build.palaso.org/guestAuth/repository/download/PalasoTrusty64lfmergeContinuous/latest.lastSuccessful/NDesk.DBus.dll.config?branch=%3Cdefault%3E ../lib/ReleaseMono/NDesk.DBus.dll.config
 copy_auto http://build.palaso.org/guestAuth/repository/download/PalasoTrusty64lfmergeContinuous/latest.lastSuccessful/Palaso.dll?branch=%3Cdefault%3E ../lib/ReleaseMono/Palaso.dll

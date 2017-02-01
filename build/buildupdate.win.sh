@@ -85,21 +85,7 @@ cd -
 #     revision: latest.lastSuccessful
 #     paths: {"Vulcan.Uczniowie.HelpProvider.dll"=>"lib/common"}
 #     VCS: http://hg.palaso.org/helpprovider []
-# [2] build: icucil-win32-default Continuous (bt14)
-#     project: Libraries
-#     URL: http://build.palaso.org/viewType.html?buildTypeId=bt14
-#     clean: false
-#     revision: latest.lastSuccessful
-#     paths: {"icu*.dll"=>"lib/Release"}
-#     VCS: https://github.com/sillsdev/icu-dotnet [master]
-# [3] build: icucil-win32-default Continuous (bt14)
-#     project: Libraries
-#     URL: http://build.palaso.org/viewType.html?buildTypeId=bt14
-#     clean: false
-#     revision: latest.lastSuccessful
-#     paths: {"icu*.dll"=>"lib/Debug"}
-#     VCS: https://github.com/sillsdev/icu-dotnet [master]
-# [4] build: palaso-win32-lfmerge Continuous (PalasoWin32lfmergeContinuous)
+# [2] build: palaso-win32-lfmerge Continuous (PalasoWin32lfmergeContinuous)
 #     project: libpalaso
 #     URL: http://build.palaso.org/viewType.html?buildTypeId=PalasoWin32lfmergeContinuous
 #     clean: false
@@ -116,14 +102,6 @@ mkdir -p ../lib/common
 # download artifact dependencies
 copy_auto http://build.palaso.org/guestAuth/repository/download/bt216/latest.lastSuccessful/Chorus_Help.chm ../lib/Chorus_Help.chm
 copy_auto http://build.palaso.org/guestAuth/repository/download/bt225/latest.lastSuccessful/Vulcan.Uczniowie.HelpProvider.dll ../lib/common/Vulcan.Uczniowie.HelpProvider.dll
-copy_auto http://build.palaso.org/guestAuth/repository/download/bt14/latest.lastSuccessful/icu.net.dll ../lib/Release/icu.net.dll
-copy_auto http://build.palaso.org/guestAuth/repository/download/bt14/latest.lastSuccessful/icudt54.dll ../lib/Release/icudt54.dll
-copy_auto http://build.palaso.org/guestAuth/repository/download/bt14/latest.lastSuccessful/icuin54.dll ../lib/Release/icuin54.dll
-copy_auto http://build.palaso.org/guestAuth/repository/download/bt14/latest.lastSuccessful/icuuc54.dll ../lib/Release/icuuc54.dll
-copy_auto http://build.palaso.org/guestAuth/repository/download/bt14/latest.lastSuccessful/icu.net.dll ../lib/Debug/icu.net.dll
-copy_auto http://build.palaso.org/guestAuth/repository/download/bt14/latest.lastSuccessful/icudt54.dll ../lib/Debug/icudt54.dll
-copy_auto http://build.palaso.org/guestAuth/repository/download/bt14/latest.lastSuccessful/icuin54.dll ../lib/Debug/icuin54.dll
-copy_auto http://build.palaso.org/guestAuth/repository/download/bt14/latest.lastSuccessful/icuuc54.dll ../lib/Debug/icuuc54.dll
 copy_auto http://build.palaso.org/guestAuth/repository/download/PalasoWin32lfmergeContinuous/latest.lastSuccessful/Palaso.dll ../lib/Release/Palaso.dll
 copy_auto http://build.palaso.org/guestAuth/repository/download/PalasoWin32lfmergeContinuous/latest.lastSuccessful/Palaso.Lift.dll ../lib/Release/Palaso.Lift.dll
 copy_auto http://build.palaso.org/guestAuth/repository/download/PalasoWin32lfmergeContinuous/latest.lastSuccessful/Palaso.TestUtilities.dll ../lib/Release/Palaso.TestUtilities.dll
