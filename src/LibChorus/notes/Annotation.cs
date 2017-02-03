@@ -29,10 +29,15 @@ namespace Chorus.notes
         }
 
 		public Annotation(string annotationClass, string refUrl, string path)
+			: this(annotationClass, refUrl, System.Guid.NewGuid(), path)
+		{
+		}
+
+		public Annotation(string annotationClass, string refUrl, Guid guid, string path)
         {
 			refUrl = UrlHelper.GetEscapedUrl(refUrl);
 			_element = XElement.Parse(String.Format("<annotation class='{0}' ref='{1}' guid='{2}'/>",
-				annotationClass, refUrl, System.Guid.NewGuid().ToString()));
+				annotationClass, refUrl, guid.ToString()));
 
 			_class = GetAnnotationClass();
 			AnnotationFilePath = path; //TODO: this awkward, and not avail in the XElement constructor
