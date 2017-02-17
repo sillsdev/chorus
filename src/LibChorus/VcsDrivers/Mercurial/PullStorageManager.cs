@@ -1,16 +1,10 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 
 namespace Chorus.VcsDrivers.Mercurial
 {
 	internal class PullStorageManager : BundleStorageManager
 	{
-		public PullStorageManager(string storagePath, string bundleId) : base(storagePath, bundleId) { }
-
-		public override string StorageFolderName
-		{
-			get { return "pullData"; }
-		}
+		public PullStorageManager(string storagePath, string bundleIdFilename) : base(storagePath, "pullData", bundleIdFilename) { }
 
 		public void AppendChunk(byte[] data)
 		{
