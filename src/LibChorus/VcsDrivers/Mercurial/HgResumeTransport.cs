@@ -320,12 +320,8 @@ namespace Chorus.VcsDrivers.Mercurial
 			}
 
 			// create a bundle to push
-			string tip = _repo.GetTip().Number.Hash;
-			string bundleId = "";
-			foreach (var revision in baseRevisions)
-			{
-				bundleId += String.Format("{0}-{1}", revision.Number.Hash, tip);
-			}
+			var tip = _repo.GetTip().Number.Hash;
+			var bundleId = string.Join("_", baseRevisions.Select(rev => rev.Number.Hash)) + '-' +  tip; // REVIEW (Hasso) 2017.02: how much of this is necessary? It's too long when used as a filename. (see also line 639)
 			var bundleHelper = new PushStorageManager(PathToLocalStorage, bundleId);
 			var bundleFileInfo = new FileInfo(bundleHelper.BundlePath);
 			if (bundleFileInfo.Length == 0)
@@ -626,7 +622,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		public bool Pull(string[] baseRevisions)
 		{
 			var tipRevision = _repo.GetTip();
-			string localTip = "0";
+			var localTip = "0";
 			string errorMessage;
 			if (tipRevision != null)
 			{
@@ -640,12 +636,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				throw new HgResumeOperationFailed(errorMessage);
 			}
 
-			string bundleId = "";
-			foreach (var revision in baseRevisions)
-			{
-				bundleId += revision + "_" + localTip + '-';
-			}
-			bundleId = bundleId.TrimEnd('-');
+			var bundleId = string.Join("_", baseRevisions) + '-' + localTip;
 			var bundleHelper = new PullStorageManager(PathToLocalStorage, bundleId);
 			var req = new HgResumeApiParameters
 					  {
