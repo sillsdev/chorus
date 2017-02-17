@@ -319,7 +319,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		/// </summary>
 		private static string GetBundleIdFilenameBase(IEnumerable<string> baseRevisions, string tip)
 		{
-			return string.Join("_", baseRevisions.Select(rev => rev.Substring(0, 8))) + '-' + tip;
+			return string.Join("_", baseRevisions.Select(rev => rev.Length <= 8 ? rev : rev.Substring(0, 8))) + '-' + tip;
 		}
 
 		public void Push()
