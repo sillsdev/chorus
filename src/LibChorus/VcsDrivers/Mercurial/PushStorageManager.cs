@@ -4,12 +4,7 @@ namespace Chorus.VcsDrivers.Mercurial
 {
 	internal class PushStorageManager : BundleStorageManager
 	{
-		public PushStorageManager(string storagePath, string bundleId) : base(storagePath, bundleId) {}
-
-		public override string StorageFolderName
-		{
-			get { return "pushData"; }
-		}
+		public PushStorageManager(string storagePath, string bundleIdFilename) : base(storagePath, "pushData", bundleIdFilename) {}
 
 		public byte[] GetChunk(int offset, int length)
 		{

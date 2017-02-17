@@ -308,20 +308,6 @@ namespace Chorus.VcsDrivers.Mercurial
 			throw new HgResumeOperationFailed(String.Format("Failed to get remote revisions for {0}", _apiServer.ProjectId));
 		}
 
-		/// <summary>
-		/// Gets a Bundle ID based on the hashes of the available base revisions (branches) and the Tip.
-		/// This Bundle ID is presently used exclusively for the name of a file in which BundleStorageManager stores the Transaction ID (GUID)
-		/// REVIEW (Hasso) 2017.02: are all these revisions necessary? The ID file is deleted immediately following a successful pull (I have not
-		/// investigated pushes). In testing with FLExBridge, the last Revision is included in the folder path (probably similar for other clients).
-		/// Therefore, we could probably get away with using only tip, or perhaps tip and a single revision.
-		/// LT-18093: After users have synced a given project over the internet with a certain number of versions of the FLEx model, we will have
-		/// more base revisions than we can list in a filepath under 260 characters.
-		/// </summary>
-		private static string GetBundleIdFilenameBase(IEnumerable<string> baseRevisions, string tip)
-		{
-			return string.Join("_", baseRevisions.Select(rev => rev.Length <= 8 ? rev : rev.Substring(0, 8))) + '-' + tip;
-		}
-
 		public void Push()
 		{
 			var baseRevisions = GetCommonBaseHashesWithRemoteRepo();
@@ -333,8 +319,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			}
 
 			// create a bundle to push
-			var bundleHelper = new PushStorageManager(PathToLocalStorage,
-				GetBundleIdFilenameBase(baseRevisions.Select(rev => rev.Number.Hash), _repo.GetTip().Number.Hash));
+			var bundleHelper = new PushStorageManager(PathToLocalStorage, "push" + _repo.GetTip().Number.Hash);
 			var bundleFileInfo = new FileInfo(bundleHelper.BundlePath);
 			if (bundleFileInfo.Length == 0)
 			{
@@ -648,7 +633,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				throw new HgResumeOperationFailed(errorMessage);
 			}
 
-			var bundleHelper = new PullStorageManager(PathToLocalStorage, GetBundleIdFilenameBase(baseRevisions, localTip));
+			var bundleHelper = new PullStorageManager(PathToLocalStorage, "pull" +  localTip);
 			var req = new HgResumeApiParameters
 					  {
 						  RepoId = _apiServer.ProjectId,
