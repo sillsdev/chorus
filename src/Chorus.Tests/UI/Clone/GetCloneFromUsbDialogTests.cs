@@ -52,5 +52,36 @@ namespace Chorus.Tests.UI.Clone
 				}
 			}
 		}
+
+		[Test, Ignore("Run by hand only")]
+		public void LaunchDialog_SimulatedUsb_USBHasInvalidRepo()
+		{
+			using (var targetComputer = new TemporaryFolder("clonetest-targetComputer"))
+			using (var usb = new TemporaryFolder("clonetest-Usb"))
+			{
+				var badRepoDir = usb.Combine("badrepo");
+				CreateInvalidRepoInDir(badRepoDir);
+				//ok, the point here is that we already haved something called "repo1"
+				Directory.CreateDirectory(targetComputer.Combine("repo1"));
+
+				using (var dlg = new GetCloneFromUsbDialog(targetComputer.Path))
+				{
+					var drives = new List<IUsbDriveInfo>();
+					drives.Add(new UsbDriveInfoForTests(usb.Path));
+
+					//don't look at the actual drives, look at our simulations
+					dlg.Model.DriveInfoRetriever = new RetrieveUsbDriveInfoForTests(drives);
+
+					if (DialogResult.OK != dlg.ShowDialog())
+						return;
+				}
+			}
+		}
+
+		private void CreateInvalidRepoInDir(string badRepoDir)
+		{
+			Directory.CreateDirectory(badRepoDir);
+			Directory.CreateDirectory(Path.Combine(badRepoDir, ".hg"));
+		}
 	}
 }

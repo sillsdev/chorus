@@ -4,6 +4,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using Chorus.UI.Clone;
+using Chorus.VcsDrivers.Mercurial;
 using SIL.UsbDrive;
 using LibChorus.TestUtilities;
 using NUnit.Framework;
@@ -172,7 +173,10 @@ namespace Chorus.Tests.clone
 			{
 				var path = usb.Combine("test1");
 				Directory.CreateDirectory(path);
-				Directory.CreateDirectory(usb.Combine("test1", ".hg"));
+				var testFile = Path.Combine(path, "test.file");
+				File.WriteAllText(testFile, @"exist");
+				var repo = HgRepository.CreateRepositoryInExistingDir(path, new NullProgress());
+				repo.AddAndCheckinFile(testFile);
 				var model = new CloneFromUsb();
 				var item = model.CreateListItemFor(path);
 				Assert.That(item, Is.Not.Null, "model should have made a list item");
@@ -189,7 +193,7 @@ namespace Chorus.Tests.clone
 		}
 
 		[Test]
-		public void MakeListItemWhenAlreadyHaveProjectName_MakesDisabledItem()
+		public void MakeListItem_InvalidRepositoryProducesDisabledItem()
 		{
 			using (var usb = new TemporaryFolder("clonetestUsb"))
 			{
@@ -197,13 +201,38 @@ namespace Chorus.Tests.clone
 				Directory.CreateDirectory(path);
 				Directory.CreateDirectory(usb.Combine("test1", ".hg"));
 				var model = new CloneFromUsb();
-				model.ExistingProjects = new HashSet<string> {"test1"};
 				var item = model.CreateListItemFor(path);
 				Assert.That(item, Is.Not.Null, "model should have made a list item");
 				Assert.That(item.Text, Is.EqualTo("test1"));
 				Assert.That(item.Tag, Is.EqualTo(path));
 				var last = File.GetLastWriteTime(path);
-				string expectedSubitem = last.ToShortDateString() + " " + last.ToShortTimeString();
+				var expectedSubitem = last.ToShortDateString() + " " + last.ToShortTimeString();
+				// Not a great test, basically duplicates the impl
+				Assert.That(item.SubItems[1].Text, Is.EqualTo(expectedSubitem));
+				Assert.That(item.ToolTipText, Is.EqualTo(string.Format(CloneFromUsb.InvalidRepositoryTemplate, "test1")));
+				Assert.That(item.ImageIndex, Is.EqualTo(1));
+				Assert.That(item.ForeColor, Is.EqualTo(CloneFromUsb.DisabledItemForeColor));
+			}
+		}
+
+		[Test]
+		public void MakeListItemWhenAlreadyHaveProjectName_MakesDisabledItem()
+		{
+			using (var usb = new TemporaryFolder("clonetestUsb"))
+			{
+				var path = usb.Combine("test1");
+				Directory.CreateDirectory(path);
+				var testFile = Path.Combine(path, "test.file");
+				File.WriteAllText(testFile, @"exist");
+				var repo = HgRepository.CreateRepositoryInExistingDir(path, new NullProgress());
+				repo.AddAndCheckinFile(testFile);
+				var model = new CloneFromUsb { ExistingProjects = new HashSet<string> {"test1"} };
+				var item = model.CreateListItemFor(path);
+				Assert.That(item, Is.Not.Null, "model should have made a list item");
+				Assert.That(item.Text, Is.EqualTo("test1"));
+				Assert.That(item.Tag, Is.EqualTo(path));
+				var last = File.GetLastWriteTime(path);
+				var expectedSubitem = last.ToShortDateString() + " " + last.ToShortTimeString();
 					// Not a great test, basically duplicates the impl
 				Assert.That(item.SubItems[1].Text, Is.EqualTo(expectedSubitem));
 				Assert.That(item.ToolTipText, Is.EqualTo(CloneFromUsb.ProjectWithSameNameExists));

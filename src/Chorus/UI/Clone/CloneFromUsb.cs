@@ -90,24 +90,39 @@ namespace Chorus.UI.Clone
 			var last = File.GetLastWriteTime(path);
 			item.SubItems.Add(last.ToShortDateString() + " " + last.ToShortTimeString());
 			item.ImageIndex = 0;
-			string projectWithExistingRepo = GetProjectWithExistingRepo(path);
-			if (projectWithExistingRepo != null)
+			if (!IsValidRepository(path))
 			{
-				item.ToolTipText = string.Format(ProjectInUseTemplate, projectWithExistingRepo);
+				item.ToolTipText = string.Format(InvalidRepositoryTemplate, projectName);
 				item.ForeColor = DisabledItemForeColor;
 				item.ImageIndex = 1;
 			}
-			else if (ExistingProjects != null && ExistingProjects.Contains(projectName))
-			{
-				item.ToolTipText = ProjectWithSameNameExists;
-				item.ForeColor = DisabledItemForeColor;
-				item.ImageIndex = 2;
-			}
 			else
 			{
-				item.ToolTipText = path;
+				var projectWithExistingRepo = GetProjectWithExistingRepo(path);
+				if (projectWithExistingRepo != null)
+				{
+					item.ToolTipText = string.Format(ProjectInUseTemplate, projectWithExistingRepo);
+					item.ForeColor = DisabledItemForeColor;
+					item.ImageIndex = 1;
+				}
+				else if (ExistingProjects != null && ExistingProjects.Contains(projectName))
+				{
+					item.ToolTipText = ProjectWithSameNameExists;
+					item.ForeColor = DisabledItemForeColor;
+					item.ImageIndex = 2;
+				}
+				else
+				{
+					item.ToolTipText = path;
+				}
 			}
 			return item;
+		}
+
+		private bool IsValidRepository(string path)
+		{
+			var repo = new HgRepository(path, new NullProgress());
+			return !string.IsNullOrEmpty(repo.Identifier);
 		}
 
 		private string GetProjectWithExistingRepo(string path)
@@ -146,6 +161,15 @@ namespace Chorus.UI.Clone
 		public static string ProjectInUseTemplate
 		{
 			get { return LocalizationManager.GetString("Messages.RepositoryInUse","The project {0} is already using this repository."); }
+		}
+
+		/// <summary>
+		/// This is a property rather than a constant string to facilitate eventual localization.
+		/// It is the tooltip that shows when a repo is disabled because it is already in use.
+		/// </summary>
+		public static string InvalidRepositoryTemplate
+		{
+			get { return LocalizationManager.GetString("Messages.InvalidRepository", "The folder {0} can not be used for Send/Receive. It may be corrupt."); }
 		}
 
 		/// <summary>
