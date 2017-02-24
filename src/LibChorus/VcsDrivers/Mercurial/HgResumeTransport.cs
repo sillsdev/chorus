@@ -308,6 +308,16 @@ namespace Chorus.VcsDrivers.Mercurial
 			throw new HgResumeOperationFailed(String.Format("Failed to get remote revisions for {0}", _apiServer.ProjectId));
 		}
 
+		/// <summary>
+		/// Gets a Bundle ID based on the hashes of the available base revisions (branches) and the Tip.
+		/// This Bundle ID is presently used exclusively for the name of a file in which BundleStorageManager stores the Transaction ID (GUID)
+		/// LT-18093: Because this is a filename, it should maintain a fixed length.
+		/// </summary>
+		private static string GetBundleIdFilenameBase(string direction, IEnumerable<string> baseRevisions, string tip)
+		{
+			return string.Format("{0}{1}{2}{3}", direction, string.Join(string.Empty, baseRevisions).GetHashCode(), '-', tip);
+		}
+
 		public void Push()
 		{
 			var baseRevisions = GetCommonBaseHashesWithRemoteRepo();
@@ -319,7 +329,8 @@ namespace Chorus.VcsDrivers.Mercurial
 			}
 
 			// create a bundle to push
-			var bundleHelper = new PushStorageManager(PathToLocalStorage, "push" + _repo.GetTip().Number.Hash);
+			var bundleHelper = new PushStorageManager(PathToLocalStorage,
+				GetBundleIdFilenameBase("push", baseRevisions.Select(rev => rev.Number.Hash), _repo.GetTip().Number.Hash));
 			var bundleFileInfo = new FileInfo(bundleHelper.BundlePath);
 			if (bundleFileInfo.Length == 0)
 			{
@@ -633,7 +644,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				throw new HgResumeOperationFailed(errorMessage);
 			}
 
-			var bundleHelper = new PullStorageManager(PathToLocalStorage, "pull" +  localTip);
+			var bundleHelper = new PullStorageManager(PathToLocalStorage, GetBundleIdFilenameBase("pull", baseRevisions, localTip));
 			var req = new HgResumeApiParameters
 					  {
 						  RepoId = _apiServer.ProjectId,
