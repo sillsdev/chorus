@@ -135,10 +135,8 @@
     <Compile Include="ChorusSystemTests.cs" />
     <Compile Include="ChorusSystemUsage.cs" />
     <Compile Include="clone\ClonerTests.cs" />
-    <Compile Include="UI\Clone\GetCloneFromInternetModelTest.cs" />
     <Compile Include="UI\Clone\GetSharedProjectModelTests.cs" />
     <Compile Include="UI\Clone\TargetFolderControlTests.cs" />
-    <Compile Include="UI\Misc\ServerSettingsModelTests.cs" />
     <Compile Include="UI\Misc\ServerSettingsDialogTests.cs" />
     <Compile Include="UI\Misc\ReadinessPanelTests.cs" />
     <Compile Include="UI\notes\AnnotationModelTests.cs" />

@@ -1,8 +1,8 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using Chorus.FileTypeHanders;
-using Chorus.FileTypeHanders.lift;
+using Chorus.FileTypeHandlers;
+using Chorus.FileTypeHandlers.lift;
 using Chorus.sync;
 using LibChorus.TestUtilities;
 using NUnit.Framework;

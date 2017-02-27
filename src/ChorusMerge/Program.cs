@@ -1,7 +1,7 @@
 //#define RUNINDEBUGGER
 using System;
 using System.Text;
-using Chorus.FileTypeHanders;
+using Chorus.FileTypeHandlers;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
 

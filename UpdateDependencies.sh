@@ -20,7 +20,7 @@ else
 fi
 
 pushd ${PALASO_DIR}
-build/TestBuild.sh ${BUILD_CONFIG}
+build/TestBuild.sh ${BUILD_CONFIG}Mono
 popd
 
 if [ ! -d output/${BUILD_CONFIG}Mono ]

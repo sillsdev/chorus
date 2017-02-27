@@ -35,7 +35,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		private string _proxyCongfigParameterString = string.Empty;
 		private bool _hgrcUpdateNeeded;
 		private static bool _alreadyCheckedMercurialIni;
-		private const string EmptyRepoIdentifier = "0000000000000000000000000000000000000000";
+		internal const string EmptyRepoIdentifier = "0000000000000000000000000000000000000000";
 		/// <summary>
 		/// Template to produce a consistant and parsable revision log entry
 		/// </summary>
@@ -766,6 +766,72 @@ namespace Chorus.VcsDrivers.Mercurial
 			Execute(SecondsBeforeTimeoutOnLocalOperation, "update", "-r", revision, "-C");
 		}
 
+		public UpdateResults UpdateToLongHash(string desiredLongHash)
+		{
+			if (string.IsNullOrWhiteSpace(Identifier))
+			{
+				return UpdateResults.NoCommitsInRepository;
+			}
+			var workingSetRevision = GetRevisionWorkingSetIsBasedOn();
+			if (desiredLongHash == workingSetRevision.Number.LongHash)
+			{
+				// Already on it.
+				return UpdateResults.AlreadyOnIt;
+			}
+			// Find it the hard way.
+			foreach (var currentRevision in GetAllRevisions())
+			{
+				var currentLongHash = currentRevision.Number.LongHash;
+				if (currentLongHash != desiredLongHash)
+				{
+					continue;
+				}
+				// Update to it.
+				Update(currentRevision.Number.Hash);
+				return UpdateResults.Success;
+			}
+
+			// No such commit!
+			return UpdateResults.NoSuchRevision;
+		}
+
+		public UpdateResults UpdateToBranchHead(string desiredBranchName)
+		{
+			if (string.IsNullOrWhiteSpace(Identifier))
+			{
+				return UpdateResults.NoCommitsInRepository;
+			}
+			Revision highestHead = null;
+			foreach (var head in GetHeads().Where(head => head.Branch == desiredBranchName))
+			{
+				if (highestHead == null)
+				{
+					highestHead = head;
+				}
+				else
+				{
+					// Ugh! more than one head in branch, so use the one with the highest local revision number.
+					// The extra head(s) will be merged in the next S/R that does merges.
+					if (int.Parse(highestHead.Number.LocalRevisionNumber) < int.Parse(head.Number.LocalRevisionNumber))
+					{
+						highestHead = head;
+					}
+				}
+			}
+			if (highestHead == null)
+			{
+				// No such branch.
+				return UpdateResults.NoSuchBranch;
+			}
+			if (GetRevisionWorkingSetIsBasedOn().Number.LongHash == highestHead.Number.LongHash)
+			{
+				return UpdateResults.AlreadyOnIt;
+			}
+
+			Update(highestHead.Number.Hash);
+			return UpdateResults.Success;
+		}
+
         public string Verify()
         {
             _progress.WriteVerbose("{0} verifying", _userName);
@@ -1155,7 +1221,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			var result = GetTextFromQuery("debugancestor " + rev1 + " " + rev2);
 			if (result.StartsWith("-1"))
 				return null;
-			return new RevisionNumber(result).LocalRevisionNumber;
+			return new RevisionNumber(this, result).LocalRevisionNumber;
 		}
 
 		public IEnumerable<FileInRevision> GetFilesInRevision(Revision revision)
@@ -1867,6 +1933,8 @@ namespace Chorus.VcsDrivers.Mercurial
 		}
 
 		public enum IntegrityResults { Good, Bad }
+
+		public enum UpdateResults { Success, AlreadyOnIt, NoSuchBranch, NoSuchRevision, NoCommitsInRepository }
 
 		public IntegrityResults CheckIntegrity(IProgress progress)
 		{

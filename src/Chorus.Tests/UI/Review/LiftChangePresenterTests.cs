@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Xml;
-using Chorus.FileTypeHanders.lift;
+using Chorus.FileTypeHandlers.lift;
 using NUnit.Framework;
 
 namespace Chorus.Tests.UI.Review

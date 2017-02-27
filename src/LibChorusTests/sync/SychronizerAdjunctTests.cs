@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Chorus.FileTypeHanders.lift;
+using Chorus.FileTypeHandlers.lift;
 using Chorus.Utilities;
 using Chorus.sync;
 using Chorus.VcsDrivers.Mercurial;
