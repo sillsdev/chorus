@@ -253,20 +253,6 @@ namespace Chorus.FileTypeHanders.ldml
 				MergePartnerFinder = new FindByMatchingAttributeNames(new HashSet<string> { "xmlns:fw" })
 			};
 			merger.MergeStrategies.SetStrategy("special_xmlns:fw", strategy);
-			/* Not needed, as long as the parent is 'atomic'.
-			// Children for 'special' xmlns:fw
-			merger.MergeStrategies.SetStrategy("fw:defaultFontFeatures", ElementStrategy.CreateSingletonElement());
-			merger.MergeStrategies.SetStrategy("fw:graphiteEnabled", ElementStrategy.CreateSingletonElement());
-			merger.MergeStrategies.SetStrategy("fw:legacyMapping", ElementStrategy.CreateSingletonElement());
-			merger.MergeStrategies.SetStrategy("fw:matchedPairs", ElementStrategy.CreateSingletonElement());
-			merger.MergeStrategies.SetStrategy("fw:punctuationPatterns", ElementStrategy.CreateSingletonElement());
-			merger.MergeStrategies.SetStrategy("fw:quotationMarks", ElementStrategy.CreateSingletonElement());
-			merger.MergeStrategies.SetStrategy("fw:regionName", ElementStrategy.CreateSingletonElement());
-			merger.MergeStrategies.SetStrategy("fw:scriptName", ElementStrategy.CreateSingletonElement());
-			merger.MergeStrategies.SetStrategy("fw:validChars", ElementStrategy.CreateSingletonElement());
-			merger.MergeStrategies.SetStrategy("fw:variantName", ElementStrategy.CreateSingletonElement());
-			merger.MergeStrategies.SetStrategy("fw:windowsLCID", ElementStrategy.CreateSingletonElement());
-			*/
 		}
 
 		/// <summary>
@@ -354,9 +340,9 @@ namespace Chorus.FileTypeHanders.ldml
 
 		private static int[] GetDateTimeInts(string ldmlDate)
 		{
-			// date="2012-06-08T09:36:30"
-			var splitData = ldmlDate.Split(new[] {"-", "T", ":"}, StringSplitOptions.RemoveEmptyEntries);
-			return new[] { Int32.Parse(splitData[0]), Int32.Parse(splitData[1]), Int32.Parse(splitData[2]), Int32.Parse(splitData[3]), Int32.Parse(splitData[4]), Int32.Parse(splitData[5]) };
+			// date="2012-06-08T09:36:30Z" (optional terminal Z denotes UTC)
+			var splitData = ldmlDate.Split(new[] {"-", "T", ":", "Z"}, StringSplitOptions.RemoveEmptyEntries);
+			return new[] { int.Parse(splitData[0]), int.Parse(splitData[1]), int.Parse(splitData[2]), int.Parse(splitData[3]), int.Parse(splitData[4]), int.Parse(splitData[5]) };
 		}
 	}
 }
