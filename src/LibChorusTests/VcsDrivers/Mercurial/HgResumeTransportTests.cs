@@ -462,7 +462,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				e.CloneRemoteFromLocal();
 				e.LocalAddAndCommitLargeFile();
 				var serverMessage = "The server is down for scheduled maintenance";
-				e.ApiServer.AddServerUnavailableResponse(4, serverMessage);
+				e.ApiServer.AddServerUnavailableResponse(2, serverMessage);
 				var transport = provider.Transport;
 				transport.Push();
 				Assert.That(e.Progress.AllMessages, Contains.Item("Server temporarily unavailable: " + serverMessage));
