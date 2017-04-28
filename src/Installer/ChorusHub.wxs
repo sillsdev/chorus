@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- These variables define the Windows Installer product version, product code and upgrade code. They   -->
 <!-- will be used later on in this file.                                                                 -->
-<?define Property_ProductVersion = ".*" ?>
+<?define Property_ProductVersion = "2.6.3.0" ?>
 <!-- Generate a new one for each installer, since it only uses the major upgrade approach for msi installers.
 cf: http://wix.sourceforge.net/manual-wix3/major_upgrade.htm
 and http://www.joyofsetup.com/2010/01/16/major-upgrades-now-easier-than-ever/
@@ -25,9 +25,9 @@ http://blogs.msdn.com/robmen/archive/2003/10/04/56479.aspx -->
 	<!--  -->
 	<MajorUpgrade AllowDowngrades="no" DowngradeErrorMessage="A newer version of Chorus Hub is already installed. Setup will now exit." Schedule="afterInstallValidate"/>
 
-	<PropertyRef Id="NETFRAMEWORK40CLIENT"/>
-	<Condition Message="Before [ProductName] can install, you need to install Microsoft's free .NET Framework 4 (Client).">
-	  <![CDATA[Installed OR NETFRAMEWORK40CLIENT]]>
+	<PropertyRef Id="WIX_IS_NETFRAMEWORK_461_OR_LATER_INSTALLED"/>
+	<Condition Message="Before [ProductName] can install, you need to install Microsoft's free .NET Framework 4.6.1 or later.">
+	  <![CDATA[Installed OR WIX_IS_NETFRAMEWORK_461_OR_LATER_INSTALLED]]>
 	</Condition>
 
 	<!--because of bug, this needs to be 1 (now set with "'InstallScope="perMachine"' in Package element, above.

@@ -1,99 +1,102 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-	<Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-	<Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-	<ProductVersion>9.0.21022</ProductVersion>
-	<SchemaVersion>2.0</SchemaVersion>
-	<ProjectGuid>{1E6F4881-AA72-4AC7-B411-7B7E00C30C25}</ProjectGuid>
-	<OutputType>Library</OutputType>
-	<AppDesignerFolder>Properties</AppDesignerFolder>
-	<RootNamespace>Tests_ChorusPlugin</RootNamespace>
-	<AssemblyName>Tests-ChorusPlugin</AssemblyName>
-	<FileAlignment>512</FileAlignment>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.21022</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{1E6F4881-AA72-4AC7-B411-7B7E00C30C25}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Tests_ChorusPlugin</RootNamespace>
+    <AssemblyName>Tests-ChorusPlugin</AssemblyName>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-	<DebugSymbols>True</DebugSymbols>
-	<DebugType>full</DebugType>
-	<Optimize>False</Optimize>
-	<OutputPath>..\..\output\SamplePlugin\</OutputPath>
-	<DefineConstants>DEBUG;TRACE</DefineConstants>
-	<ErrorReport>prompt</ErrorReport>
-	<WarningLevel>4</WarningLevel>
-	<PlatformTarget>x86</PlatformTarget>
-	<TargetFrameworkProfile>Client</TargetFrameworkProfile>
+    <DebugSymbols>True</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>False</Optimize>
+    <OutputPath>..\..\output\SamplePlugin\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x86</PlatformTarget>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-	<DebugType>pdbonly</DebugType>
-	<Optimize>True</Optimize>
-	<OutputPath>..\..\output\SamplePlugin\</OutputPath>
-	<DefineConstants>TRACE</DefineConstants>
-	<ErrorReport>prompt</ErrorReport>
-	<WarningLevel>4</WarningLevel>
-	<PlatformTarget>x86</PlatformTarget>
-	<TargetFrameworkProfile>Client</TargetFrameworkProfile>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>True</Optimize>
+    <OutputPath>..\..\output\SamplePlugin\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x86</PlatformTarget>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DebugMono|AnyCPU'">
-	<DebugSymbols>True</DebugSymbols>
-	<OutputPath>..\..\output\SamplePlugin\</OutputPath>
-	<DefineConstants>TRACE;DEBUG;MONO</DefineConstants>
-	<ErrorReport>prompt</ErrorReport>
-	<DebugType>full</DebugType>
-	<PlatformTarget>AnyCPU</PlatformTarget>
-	<TargetFrameworkProfile>
-	</TargetFrameworkProfile>
-	<WarningLevel>4</WarningLevel>
-	<Optimize>False</Optimize>
+    <DebugSymbols>True</DebugSymbols>
+    <OutputPath>..\..\output\SamplePlugin\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;MONO</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
+    <WarningLevel>4</WarningLevel>
+    <Optimize>False</Optimize>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'ReleaseMono|AnyCPU'">
-	<OutputPath>..\..\output\SamplePlugin\</OutputPath>
-	<DefineConstants>TRACE;MONO</DefineConstants>
-	<ErrorReport>prompt</ErrorReport>
-	<Optimize>True</Optimize>
-	<DebugType>pdbonly</DebugType>
-	<PlatformTarget>AnyCPU</PlatformTarget>
-	<TargetFrameworkProfile>
-	</TargetFrameworkProfile>
-	<WarningLevel>4</WarningLevel>
+    <OutputPath>..\..\output\SamplePlugin\</OutputPath>
+    <DefineConstants>TRACE;MONO</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <Optimize>True</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup Condition="'$(Configuration)' == 'Debug'">
-	<Reference Include="SIL.Core">
-	  <SpecificVersion>False</SpecificVersion>
-	  <HintPath>..\..\lib\Debug\SIL.Core.dll</HintPath>
-	</Reference>
+    <Reference Include="SIL.Core">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\Debug\SIL.Core.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)' == 'Release'">
-	<Reference Include="SIL.Core">
-	  <SpecificVersion>False</SpecificVersion>
-	  <HintPath>..\..\lib\Release\SIL.Core.dll</HintPath>
-	</Reference>
+    <Reference Include="SIL.Core">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\Release\SIL.Core.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)' == 'DebugMono'">
-	<Reference Include="SIL.Core">
-	  <SpecificVersion>False</SpecificVersion>
-	  <HintPath>..\..\lib\DebugMono\SIL.Core.dll</HintPath>
-	</Reference>
+    <Reference Include="SIL.Core">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\DebugMono\SIL.Core.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)' == 'ReleaseMono'">
-	<Reference Include="SIL.Core">
-	  <SpecificVersion>False</SpecificVersion>
-	  <HintPath>..\..\lib\ReleaseMono\SIL.Core.dll</HintPath>
-	</Reference>
+    <Reference Include="SIL.Core">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\ReleaseMono\SIL.Core.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
-	<Reference Include="System" />
-	<Reference Include="System.Core" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
     <Reference Include="System.ComponentModel.Composition" />
   </ItemGroup>
   <ItemGroup>
-	<Compile Include="TestAFileTypeHandler.cs" />
-	<Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TestAFileTypeHandler.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-	<ProjectReference Include="..\LibChorus\LibChorus.csproj">
-	  <Project>{94245366-8F1E-475C-810D-FE89BB3948E0}</Project>
-	  <Name>LibChorus</Name>
-	</ProjectReference>
+    <ProjectReference Include="..\LibChorus\LibChorus.csproj">
+      <Project>{94245366-8F1E-475C-810D-FE89BB3948E0}</Project>
+      <Name>LibChorus</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
