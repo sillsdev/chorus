@@ -59,7 +59,7 @@ namespace LibChorus.Tests.Model
 		{
 			var m = new ServerSettingsModel();
 			m.InitFromUri("http://joe:pass@hg-public.languagedepot.org/tpi");
-			Assert.AreEqual("hg-public.languagedepot.org", m.SelectedServerPath);
+			Assert.AreEqual("hg-public.languagedepot.org", m.SelectedServerModel.DomainName);
 		}
 		[Test]
 		public void InitFromUri_FullTypicalLangDepot_SelectedServerLabel()
@@ -73,7 +73,7 @@ namespace LibChorus.Tests.Model
 		{
 			var m = new ServerSettingsModel();
 			m.InitFromUri("http://joe:pass@hg-private.languagedepot.org/tpi");
-			Assert.AreEqual("LanguageDepot.org [private]".ToLower(), m.SelectedServerLabel.ToLower());
+			Assert.AreEqual("languagedepot.org [private safe mode]", m.SelectedServerLabel.ToLower());
 		}
 
 		[Test]
@@ -201,7 +201,7 @@ namespace LibChorus.Tests.Model
 		public void DefaultIsResumable()
 		{
 			var m = new ServerSettingsModel();
-			Assert.AreEqual("resumable.languagedepot.org", m.Servers[m.SelectedServerLabel]);
+			Assert.AreEqual("resumable.languagedepot.org", m.Servers[m.SelectedServerLabel].DomainName);
 		}
 	}
 }

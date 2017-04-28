@@ -161,6 +161,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			try
 			{
 				EnsureChorusMergeAddedToHgrc();
+				EnsureCacertsIsSet();
 				var extensions = HgExtensions;
 				EnsureTheseExtensionsAndFormatSet(extensions);
 				_hgrcUpdateNeeded = false;
@@ -1385,6 +1386,16 @@ namespace Chorus.VcsDrivers.Mercurial
 			{
 				section.Set(address.Name, address.URI);
 			}
+			doc.SaveAndGiveMessageIfCannot();
+		}
+
+		public void EnsureCacertsIsSet()
+		{
+			var doc = GetMercurialConfigForRepository();
+			var section = doc.Sections.GetOrCreate("web");
+			var pathToCacerts = Path.Combine(MercurialLocation.PathToMercurialFolder, "cacert.pem");
+			section.Set("cacerts", pathToCacerts);
+
 			doc.SaveAndGiveMessageIfCannot();
 		}
 

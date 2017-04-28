@@ -12,20 +12,36 @@ using SIL.Progress;
 
 namespace Chorus.Model
 {
+	public class ServerModel
+	{
+		public string DomainName { get; set; }
+		public string Protocol { get; set; }
+
+		public ServerModel(string domainName, bool isSecureProtocol = true)
+		{
+			DomainName = domainName;
+			Protocol = isSecureProtocol ? "https" : "http";
+		}
+	}
+
 	public class ServerSettingsModel
 	{
-		public readonly Dictionary<string, string> Servers = new Dictionary<string, string>();
+		public readonly Dictionary<string, ServerModel> Servers = new Dictionary<string, ServerModel>();
 		private string _pathToRepo;
+
 
 		public ServerSettingsModel()
 		{
 			const string languageDepotLabel = "LanguageDepot.org";
-			Servers.Add(languageDepotLabel, "resumable.languagedepot.org");
-			Servers.Add("LanguageDepot.org [Safe Mode]", "hg-public.languagedepot.org");
-			Servers.Add("LanguageDepot.org [private]", "hg-private.languagedepot.org");
-			Servers.Add("LanguageDepot.org [test server]", "hg.languageforge.org");
+			Servers.Add(languageDepotLabel, new ServerModel("resumable.languagedepot.org", false));
+			Servers.Add(languageDepotLabel + " [Secure]", new ServerModel("resumable.languagedepot.org"));
+			Servers.Add("LanguageDepot.org [Safe Mode]", new ServerModel("hg-public.languagedepot.org", false));
+			Servers.Add("LanguageDepot.org [Secure + Safe Mode]", new ServerModel("hg-public.languagedepot.org"));
+			Servers.Add("LanguageDepot.org [Private Safe Mode]", new ServerModel("hg-private.languagedepot.org", false));
+			Servers.Add("LanguageDepot.org [Private Secure + Safe Mode]", new ServerModel("hg-private.languagedepot.org"));
+			Servers.Add("LanguageDepot.org [test server]", new ServerModel("hg.languageforge.org"));
 
-			Servers.Add(LocalizationManager.GetString("Messages.CustomLocation", "Custom Location..."), "");
+			Servers.Add(LocalizationManager.GetString("Messages.CustomLocation", "Custom Location..."), new ServerModel(""));
 			SelectedServerLabel = languageDepotLabel;
 		}
 
@@ -64,7 +80,7 @@ namespace Chorus.Model
 		private void SetServerLabelFromUrl(string url)
 		{
 			var host = UrlHelper.GetHost(url).ToLower();
-			var pair = Servers.FirstOrDefault((p) => p.Value.ToLower() == host);
+			var pair = Servers.FirstOrDefault((p) => p.Value.DomainName.ToLower() == host);
 			if (pair.Key == null)
 			{
 				SelectedServerLabel = Servers.Last().Key;
@@ -95,9 +111,10 @@ namespace Chorus.Model
 				{
 					return CustomUrl;
 				}
-				return "http://" +
+
+				return SelectedServerModel.Protocol + "://" +
 					HttpUtilityFromMono.UrlEncode((string)AccountName) + ":" +
-					HttpUtilityFromMono.UrlEncode((string)Password) + "@" + SelectedServerPath + "/" +
+					HttpUtilityFromMono.UrlEncode((string)Password) + "@" + SelectedServerModel.DomainName + "/" +
 					HttpUtilityFromMono.UrlEncode(ProjectId);
 			}
 		}
@@ -132,16 +149,16 @@ namespace Chorus.Model
 			get { return HaveNeededAccountInfo; }
 		}
 
-		public string SelectedServerPath
+		public ServerModel SelectedServerModel
 		{
 			get
 			{
-				string path;
-				if(Servers.TryGetValue(SelectedServerLabel, out path))
+				ServerModel serverModel;
+				if (Servers.TryGetValue(SelectedServerLabel, out serverModel))
 				{
-					return path;
+					return serverModel;
 				}
-				throw new ApplicationException("Somehow SelectedServerLabel was empty, when called from SelectedServerPath.");
+				throw new ApplicationException("Somehow SelectedServerLabel was empty, when called from SelectedServerModel.");
 			}
 		}
 
@@ -159,12 +176,12 @@ namespace Chorus.Model
 		{
 			get
 			{
-				string server;
+				ServerModel server;
 				if (!Servers.TryGetValue(SelectedServerLabel, out server))
 				{
 					SelectedServerLabel = Servers.Keys.First();
 				}
-				return Servers[SelectedServerLabel] == string.Empty;
+				return Servers[SelectedServerLabel].DomainName == string.Empty;
 			}
 		}
 
