@@ -29,9 +29,9 @@ namespace Chorus.VcsDrivers.Mercurial
 		private readonly IApiServer _apiServer;
 
 		private const int InitialChunkSize = 5000;
-		private const int MaximumChunkSize = 250000;
-		private const int TimeoutInSeconds = 15;
-		private const int TargetTimeInSeconds = TimeoutInSeconds / 3;
+		private const int MaximumChunkSize = 20000000; // 20MB
+		private const int TimeoutInSeconds = 30;
+		private const int TargetTimeInSeconds = 7;
 		internal const string RevisionCacheFilename = "revisioncache.db";
 		internal int RevisionRequestQuantity = 200;
 
@@ -220,6 +220,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			LastKnownCommonBases = commonBases;
 			return commonBases;
 		}
+
 
 		private MultiMap<string, string> GetRemoteRevisions(int offset, int quantity)
 		{
