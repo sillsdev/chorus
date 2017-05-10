@@ -29,7 +29,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		private readonly IApiServer _apiServer;
 
 		private const int InitialChunkSize = 5000;
-		private const int MaximumChunkSize = 20000000;
+		private const int MaximumChunkSize = 20000000; // 20MB
 		private const int TimeoutInSeconds = 30;
 		private const int TargetTimeInSeconds = 7;
 		internal const string RevisionCacheFilename = "revisioncache.db";
