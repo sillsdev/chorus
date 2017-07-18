@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- These variables define the Windows Installer product version, product code and upgrade code. They   -->
 <!-- will be used later on in this file.                                                                 -->
-<?define Property_ProductVersion = ".*" ?>
+<?define Property_ProductVersion = "2.6.3.0" ?>
 <!-- Generate a new one for each installer, since it only uses the major upgrade approach for msi installers.
 cf: http://wix.sourceforge.net/manual-wix3/major_upgrade.htm
 and http://www.joyofsetup.com/2010/01/16/major-upgrades-now-easier-than-ever/
