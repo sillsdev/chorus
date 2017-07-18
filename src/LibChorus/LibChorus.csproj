@@ -98,6 +98,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\Debug\SIL.Core.dll</HintPath>
     </Reference>
+    <Reference Include="SIL.Core.Desktop">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\Debug\SIL.Core.Desktop.dll</HintPath>
+    </Reference>
     <Reference Include="SIL.Lift">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\Debug\SIL.Lift.dll</HintPath>
@@ -124,6 +128,10 @@
     <Reference Include="SIL.Core">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\Release\SIL.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="SIL.Core.Desktop">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\Release\SIL.Core.Desktop.dll</HintPath>
     </Reference>
     <Reference Include="SIL.Lift">
       <SpecificVersion>False</SpecificVersion>
@@ -152,6 +160,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\DebugMono\SIL.Core.dll</HintPath>
     </Reference>
+    <Reference Include="SIL.Core.Desktop">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\DebugMono\SIL.Core.Desktop.dll</HintPath>
+    </Reference>
     <Reference Include="SIL.Lift">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\DebugMono\SIL.Lift.dll</HintPath>
@@ -179,6 +191,10 @@
     <Reference Include="SIL.Core">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\ReleaseMono\SIL.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="SIL.Core.Desktop">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\ReleaseMono\SIL.Core.Desktop.dll</HintPath>
     </Reference>
     <Reference Include="SIL.Lift">
       <SpecificVersion>False</SpecificVersion>
