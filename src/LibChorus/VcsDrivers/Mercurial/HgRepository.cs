@@ -171,7 +171,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		}
 
-		private static Dictionary<string, string> HgExtensions
+		internal static Dictionary<string, string> HgExtensions
 		{
 			get
 			{

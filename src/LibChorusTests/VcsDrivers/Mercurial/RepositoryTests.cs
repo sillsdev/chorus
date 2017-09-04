@@ -1,11 +1,13 @@
 using System;
 using System.IO;
 using System.Reflection;
+using Chorus;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using Ionic.Zip;
 using LibChorus.TestUtilities;
 using NUnit.Framework;
+using Palaso.IO;
 using Palaso.Progress;
 using Palaso.TestUtilities;
 
@@ -14,6 +16,12 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 	[TestFixture]
 	public class RepositoryTests
 	{
+		[TearDown]
+		public void TearDown()
+		{
+			MercurialLocation.PathToMercurialFolder = null;
+		}
+
 		[Test]
 		public void AddingRepositoryWithinAnotherRepositoryFromDirectoryNameIsDifferentRepository()
 		{
@@ -154,5 +162,110 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				CollectionAssert.DoesNotContain(hgrcLines, "[extensions]", "extensions section created after Identifier property read");
 			}
 		}
+
+		private static string GetExtensionsSection(string pathToMercurialFolder)
+		{
+			return string.Format(@"[extensions]
+hgext.graphlog=
+convert=
+fixutf8={0}/MercurialExtensions/fixutf8/fixutf8.py", Path.GetDirectoryName(pathToMercurialFolder));
+		}
+
+		[Test]
+		public void CheckExtensions_IniFileMissing()
+		{
+			using (var tempRepo = new TemporaryFolder("CheckExtensions_IniFileMissing"))
+			{
+				// remember original value of Mercurial directory
+				var pathToMercurialFolder = MercurialLocation.PathToMercurialFolder;
+				// then set a dummy location that we can modify
+				File.WriteAllText(Path.Combine(tempRepo.Path, "hg"), string.Empty);
+				MercurialLocation.PathToMercurialFolder = tempRepo.Path;
+
+				var doc = HgRepository.GetMercurialConfigInMercurialFolder();
+				var extensionsRequiredInIni = HgRepository.HgExtensions;
+
+				Assert.That(HgRepository.CheckExtensions(doc, extensionsRequiredInIni), Is.False);
+			}
+		}
+
+		[Test]
+		public void CheckExtensions_ExtensionsSectionMissing()
+		{
+			using (var tempRepo = new TemporaryFolder("CheckExtensions_ExtensionsSectionMissing"))
+			{
+				// remember original value of Mercurial directory
+				var pathToMercurialFolder = MercurialLocation.PathToMercurialFolder;
+				// then set a dummy location that we can modify
+				File.WriteAllText(Path.Combine(tempRepo.Path, "hg"), string.Empty);
+				MercurialLocation.PathToMercurialFolder = tempRepo.Path;
+				File.WriteAllText(Path.Combine(tempRepo.Path, "mercurial.ini"), string.Empty);
+
+				var doc = HgRepository.GetMercurialConfigInMercurialFolder();
+				var extensionsRequiredInIni = HgRepository.HgExtensions;
+
+				Assert.That(HgRepository.CheckExtensions(doc, extensionsRequiredInIni), Is.False);
+			}
+		}
+
+		[Test]
+		public void CheckExtensions_ExtensionsAreMissing()
+		{
+			using (var tempRepo = new TemporaryFolder("CheckExtensions_ExtensionsAreMissing"))
+			{
+				// remember original value of Mercurial directory
+				var pathToMercurialFolder = MercurialLocation.PathToMercurialFolder;
+				// then set a dummy location that we can modify
+				File.WriteAllText(Path.Combine(tempRepo.Path, "hg"), string.Empty);
+				MercurialLocation.PathToMercurialFolder = tempRepo.Path;
+				File.WriteAllText(Path.Combine(tempRepo.Path, "mercurial.ini"), "[extensions]");
+
+				var doc = HgRepository.GetMercurialConfigInMercurialFolder();
+				var extensionsRequiredInIni = HgRepository.HgExtensions;
+
+				Assert.That(HgRepository.CheckExtensions(doc, extensionsRequiredInIni), Is.False);
+			}
+		}
+
+		[Test]
+		public void CheckExtensions_AllExtensionsListedInIni()
+		{
+			using (var tempRepo = new TemporaryFolder("CheckExtensions_AllExtensionsListedInIni"))
+			{
+				// remember original value of Mercurial directory
+				var pathToMercurialFolder = MercurialLocation.PathToMercurialFolder;
+				// then set a dummy location that we can modify
+				File.WriteAllText(Path.Combine(tempRepo.Path, "hg"), string.Empty);
+				MercurialLocation.PathToMercurialFolder = tempRepo.Path;
+				File.WriteAllText(Path.Combine(tempRepo.Path, "mercurial.ini"),
+					GetExtensionsSection(pathToMercurialFolder));
+
+				var doc = HgRepository.GetMercurialConfigInMercurialFolder();
+				var extensionsRequiredInIni = HgRepository.HgExtensions;
+
+				Assert.That(HgRepository.CheckExtensions(doc, extensionsRequiredInIni), Is.True);
+			}
+		}
+
+		[Test]
+		public void CheckExtensions_DisallowsAdditionalExtensions()
+		{
+			using (var tempRepo = new TemporaryFolder("CheckExtensions_DisallowsAdditionalExtensions"))
+			{
+				// remember original value of Mercurial directory
+				var pathToMercurialFolder = MercurialLocation.PathToMercurialFolder;
+				// then set a dummy location that we can modify
+				File.WriteAllText(Path.Combine(tempRepo.Path, "hg"), string.Empty);
+				MercurialLocation.PathToMercurialFolder = tempRepo.Path;
+				File.WriteAllText(Path.Combine(tempRepo.Path, "mercurial.ini"),
+					GetExtensionsSection(pathToMercurialFolder) + "\nfoo=");
+
+				var doc = HgRepository.GetMercurialConfigInMercurialFolder();
+				var extensionsRequiredInIni = HgRepository.HgExtensions;
+
+				Assert.That(HgRepository.CheckExtensions(doc, extensionsRequiredInIni), Is.False);
+			}
+		}
+
 	}
 }
