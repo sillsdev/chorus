@@ -1431,22 +1431,15 @@ namespace Chorus.VcsDrivers.Mercurial
 			}
 		}
 
-		/// <summary/>
-		/// <remarks>
-		/// Older versions of Chorus wrote out extensions that are incompatible with new hg versions
-		/// so we now remove extensions that aren't specified.
-		/// </remarks>
+		/// <summary>Verify that the mercurial.ini file contains all the extensions listed
+		/// in <paramref name="extensionDeclarations"/>.</summary>
 		/// <returns>
-		/// Returns true if the extensions in the repo contain only the extensions declared in the given map.
+		/// Returns true if the extensions in the repo contain all the extensions declared in the given map.
 		///</returns>
 		internal static bool CheckExtensions(IniDocument doc, Dictionary<string, string> extensionDeclarations)
 		{
 			var extensionSection = doc.Sections.GetOrCreate("extensions");
-			if(extensionDeclarations.Any(pair => extensionSection.GetValue(pair.Key) != pair.Value))
-			{
-				return false;
-			}
-			return extensionSection.GetKeys().All(key => extensionDeclarations.ContainsKey(key));
+			return extensionDeclarations.All(pair => extensionSection.GetValue(pair.Key) == pair.Value);
 		}
 
 		// TODO Move this to Chorus.TestUtilities when we have one CP 2012-04
