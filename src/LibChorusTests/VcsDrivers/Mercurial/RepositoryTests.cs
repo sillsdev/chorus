@@ -248,9 +248,9 @@ fixutf8={0}/MercurialExtensions/fixutf8/fixutf8.py", Path.GetDirectoryName(pathT
 		}
 
 		[Test]
-		public void CheckExtensions_DisallowsAdditionalExtensions()
+		public void CheckExtensions_AllowsAdditionalExtensions()
 		{
-			using (var tempRepo = new TemporaryFolder("CheckExtensions_DisallowsAdditionalExtensions"))
+			using (var tempRepo = new TemporaryFolder("CheckExtensions_AllowsAdditionalExtensions"))
 			{
 				// remember original value of Mercurial directory
 				var pathToMercurialFolder = MercurialLocation.PathToMercurialFolder;
@@ -263,7 +263,7 @@ fixutf8={0}/MercurialExtensions/fixutf8/fixutf8.py", Path.GetDirectoryName(pathT
 				var doc = HgRepository.GetMercurialConfigInMercurialFolder();
 				var extensionsRequiredInIni = HgRepository.HgExtensions;
 
-				Assert.That(HgRepository.CheckExtensions(doc, extensionsRequiredInIni), Is.False);
+				Assert.That(HgRepository.CheckExtensions(doc, extensionsRequiredInIni), Is.True);
 			}
 		}
 
