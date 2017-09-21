@@ -95,7 +95,7 @@
 	  <HintPath>..\..\lib\Debug\Palaso.Lift.dll</HintPath>
 	</Reference>
    <Reference Include="icu.net">
-	  <HintPath>..\packages\icu.net.2.0.1\lib\net40\icu.net.dll</HintPath>
+	  <HintPath>..\..\packages\icu.net.2.0.1\lib\net40\icu.net.dll</HintPath>
 	</Reference>
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)' == 'Release'">
@@ -112,19 +112,9 @@
 	  <HintPath>..\..\lib\Release\Palaso.Lift.dll</HintPath>
 	</Reference>
    <Reference Include="icu.net">
-	  <SpecificVersion>False</SpecificVersion>
-	  <HintPath>..\..\lib\Release\icu.net.dll</HintPath>
+	  <HintPath>..\..\packages\icu.net.2.0.1\lib\net40\icu.net.dll</HintPath>
 	</Reference>
-	<None Include="..\..\lib\Release\icudt54.dll">
-	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	</None>
-	<None Include="..\..\lib\Release\icuin54.dll">
-	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	</None>
-	<None Include="..\..\lib\Release\icuuc54.dll">
-	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	</None>
-	<None Include="..\..\lib\Release\icu.net.dll.config">
+	<None Include="..\..\packages\icu.net.2.0.1\lib\net40\icu.net.dll.config">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</None>
   </ItemGroup>
@@ -149,10 +139,9 @@
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</None>
    <Reference Include="icu.net">
-	  <SpecificVersion>False</SpecificVersion>
-	  <HintPath>..\..\lib\DebugMono\icu.net.dll</HintPath>
+	  <HintPath>..\..\packages\icu.net.2.0.1\lib\net40\icu.net.dll</HintPath>
 	</Reference>
-	<None Include="..\..\lib\DebugMono\icu.net.dll.config">
+	<None Include="..\..\packages\icu.net.2.0.1\lib\net40\icu.net.dll.config">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</None>
   </ItemGroup>
@@ -178,9 +167,9 @@
 	</None>
    <Reference Include="icu.net">
 	  <SpecificVersion>False</SpecificVersion>
-	  <HintPath>..\..\lib\ReleaseMono\icu.net.dll</HintPath>
+	  <HintPath>..\..\packages\icu.net.2.0.1\lib\net40\icu.net.dll</HintPath>
 	</Reference>
-	<None Include="..\..\lib\ReleaseMono\icu.net.dll.config">
+	<None Include="..\..\packages\icu.net.2.0.1\lib\net40\icu.net.dll.config">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</None>
   </ItemGroup>
@@ -455,6 +444,13 @@
     <Content Include="ChorusHub\chorusHubIcon.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Import Project="..\..\packages\Icu4c.Win.Min.54.1.31\build\Icu4c.Win.Min.targets" Condition="Exists('..\..\packages\Icu4c.Win.Min.54.1.31\build\Icu4c.Win.Min.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\..\packages\Icu4c.Win.Min.54.1.31\build\Icu4c.Win.Min.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Icu4c.Win.Min.54.1.31\build\Icu4c.Win.Min.targets'))" />
+  </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
 	   Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
