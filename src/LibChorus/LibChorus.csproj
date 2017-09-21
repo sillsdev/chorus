@@ -95,21 +95,8 @@
 	  <HintPath>..\..\lib\Debug\Palaso.Lift.dll</HintPath>
 	</Reference>
    <Reference Include="icu.net">
-	  <SpecificVersion>False</SpecificVersion>
-	  <HintPath>..\..\lib\Debug\icu.net.dll</HintPath>
+	  <HintPath>..\packages\icu.net.2.0.1\lib\net40\icu.net.dll</HintPath>
 	</Reference>
-	<None Include="..\..\lib\Debug\icudt54.dll">
-	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	</None>
-	<None Include="..\..\lib\Debug\icuin54.dll">
-	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	</None>
-	<None Include="..\..\lib\Debug\icuuc54.dll">
-	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	</None>
-	<None Include="..\..\lib\Debug\icu.net.dll.config">
-	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	</None>
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)' == 'Release'">
 	<Reference Include="L10NSharp">
