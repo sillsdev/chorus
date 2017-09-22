@@ -94,9 +94,6 @@
 	  <SpecificVersion>False</SpecificVersion>
 	  <HintPath>..\..\lib\Debug\Palaso.Lift.dll</HintPath>
 	</Reference>
-   <Reference Include="icu.net">
-	  <HintPath>..\..\packages\icu.net.2.0.1\lib\net40\icu.net.dll</HintPath>
-	</Reference>
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)' == 'Release'">
 	<Reference Include="L10NSharp">
@@ -111,12 +108,6 @@
 	  <SpecificVersion>False</SpecificVersion>
 	  <HintPath>..\..\lib\Release\Palaso.Lift.dll</HintPath>
 	</Reference>
-   <Reference Include="icu.net">
-	  <HintPath>..\..\packages\icu.net.2.0.1\lib\net40\icu.net.dll</HintPath>
-	</Reference>
-	<None Include="..\..\packages\icu.net.2.0.1\lib\net40\icu.net.dll.config">
-	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	</None>
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)' == 'DebugMono'">
 	<Reference Include="L10NSharp">
@@ -136,12 +127,6 @@
 	  <HintPath>..\..\lib\DebugMono\NDesk.DBus.dll</HintPath>
 	</Reference>
 	<None Include="..\..\lib\DebugMono\NDesk.DBus.dll.config">
-	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	</None>
-   <Reference Include="icu.net">
-	  <HintPath>..\..\packages\icu.net.2.0.1\lib\net40\icu.net.dll</HintPath>
-	</Reference>
-	<None Include="..\..\packages\icu.net.2.0.1\lib\net40\icu.net.dll.config">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</None>
   </ItemGroup>
@@ -165,13 +150,6 @@
 	<None Include="..\..\lib\ReleaseMono\NDesk.DBus.dll.config">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</None>
-   <Reference Include="icu.net">
-	  <SpecificVersion>False</SpecificVersion>
-	  <HintPath>..\..\packages\icu.net.2.0.1\lib\net40\icu.net.dll</HintPath>
-	</Reference>
-	<None Include="..\..\packages\icu.net.2.0.1\lib\net40\icu.net.dll.config">
-	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	</None>
   </ItemGroup>
   <ItemGroup>
 	<Reference Include="Autofac">
@@ -183,6 +161,9 @@
 	<Reference Include="System.ServiceModel" />
 	<Reference Include="System.Xml" />
 	<Reference Include="System.Xml.Linq" />
+	<Reference Include="icu.net">
+	  <HintPath>..\..\packages\icu.net.2.0.1\lib\net40\icu.net.dll</HintPath>
+	</Reference>
   </ItemGroup>
   <ItemGroup>
 	<Compile Include="ChorusHub\ChorusHubOptions.cs" />
