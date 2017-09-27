@@ -2,12 +2,12 @@ using System;
 using System.IO;
 using System.Reflection;
 using Chorus;
-using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using Ionic.Zip;
 using LibChorus.TestUtilities;
 using NUnit.Framework;
 using Palaso.IO;
+using Palaso.PlatformUtilities;
 using Palaso.Progress;
 using Palaso.TestUtilities;
 
@@ -129,7 +129,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		{
 			using (var tempRepo = new TemporaryFolder("ChorusIncompleteMerge"))
 			{
-				var baseDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().CodeBase);
+				var baseDir = FileUtils.NormalizePath(Path.GetDirectoryName(Assembly.GetExecutingAssembly().CodeBase));
 				baseDir = FileUtils.StripFilePrefix(baseDir);
 				var zipFile = new ZipFile(Path.Combine(baseDir, Path.Combine("VcsDrivers", Path.Combine("TestData", "incompletemergerepo.zip"))));
 				zipFile.ExtractAll(tempRepo.Path);
@@ -165,10 +165,18 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 
 		private static string GetExtensionsSection(string pathToMercurialFolder)
 		{
+#if !MONO
+			return string.Format(@"[extensions]
+eol=
+hgext.graphlog=
+convert=
+fixutf8={0}\MercurialExtensions\fixutf8\fixutf8.py", Path.GetDirectoryName(pathToMercurialFolder));
+#else
 			return string.Format(@"[extensions]
 hgext.graphlog=
 convert=
 fixutf8={0}/MercurialExtensions/fixutf8/fixutf8.py", Path.GetDirectoryName(pathToMercurialFolder));
+#endif
 		}
 
 		[Test]
@@ -179,7 +187,7 @@ fixutf8={0}/MercurialExtensions/fixutf8/fixutf8.py", Path.GetDirectoryName(pathT
 				// remember original value of Mercurial directory
 				var pathToMercurialFolder = MercurialLocation.PathToMercurialFolder;
 				// then set a dummy location that we can modify
-				File.WriteAllText(Path.Combine(tempRepo.Path, "hg"), string.Empty);
+				File.WriteAllText(Path.Combine(tempRepo.Path, Platform.IsWindows ? "hg.exe" : "hg"), string.Empty);
 				MercurialLocation.PathToMercurialFolder = tempRepo.Path;
 
 				var doc = HgRepository.GetMercurialConfigInMercurialFolder();
@@ -197,7 +205,7 @@ fixutf8={0}/MercurialExtensions/fixutf8/fixutf8.py", Path.GetDirectoryName(pathT
 				// remember original value of Mercurial directory
 				var pathToMercurialFolder = MercurialLocation.PathToMercurialFolder;
 				// then set a dummy location that we can modify
-				File.WriteAllText(Path.Combine(tempRepo.Path, "hg"), string.Empty);
+				File.WriteAllText(Path.Combine(tempRepo.Path, Platform.IsWindows ? "hg.exe" : "hg"), string.Empty);
 				MercurialLocation.PathToMercurialFolder = tempRepo.Path;
 				File.WriteAllText(Path.Combine(tempRepo.Path, "mercurial.ini"), string.Empty);
 
@@ -216,7 +224,7 @@ fixutf8={0}/MercurialExtensions/fixutf8/fixutf8.py", Path.GetDirectoryName(pathT
 				// remember original value of Mercurial directory
 				var pathToMercurialFolder = MercurialLocation.PathToMercurialFolder;
 				// then set a dummy location that we can modify
-				File.WriteAllText(Path.Combine(tempRepo.Path, "hg"), string.Empty);
+				File.WriteAllText(Path.Combine(tempRepo.Path, Platform.IsWindows ? "hg.exe" : "hg"), string.Empty);
 				MercurialLocation.PathToMercurialFolder = tempRepo.Path;
 				File.WriteAllText(Path.Combine(tempRepo.Path, "mercurial.ini"), "[extensions]");
 
@@ -235,7 +243,7 @@ fixutf8={0}/MercurialExtensions/fixutf8/fixutf8.py", Path.GetDirectoryName(pathT
 				// remember original value of Mercurial directory
 				var pathToMercurialFolder = MercurialLocation.PathToMercurialFolder;
 				// then set a dummy location that we can modify
-				File.WriteAllText(Path.Combine(tempRepo.Path, "hg"), string.Empty);
+				File.WriteAllText(Path.Combine(tempRepo.Path, Platform.IsWindows ? "hg.exe" : "hg"), string.Empty);
 				MercurialLocation.PathToMercurialFolder = tempRepo.Path;
 				File.WriteAllText(Path.Combine(tempRepo.Path, "mercurial.ini"),
 					GetExtensionsSection(pathToMercurialFolder));
@@ -255,7 +263,7 @@ fixutf8={0}/MercurialExtensions/fixutf8/fixutf8.py", Path.GetDirectoryName(pathT
 				// remember original value of Mercurial directory
 				var pathToMercurialFolder = MercurialLocation.PathToMercurialFolder;
 				// then set a dummy location that we can modify
-				File.WriteAllText(Path.Combine(tempRepo.Path, "hg"), string.Empty);
+				File.WriteAllText(Path.Combine(tempRepo.Path, Platform.IsWindows ? "hg.exe" : "hg"), string.Empty);
 				MercurialLocation.PathToMercurialFolder = tempRepo.Path;
 				File.WriteAllText(Path.Combine(tempRepo.Path, "mercurial.ini"),
 					GetExtensionsSection(pathToMercurialFolder) + "\nfoo=");
