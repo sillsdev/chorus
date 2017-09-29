@@ -122,13 +122,9 @@
 	  <SpecificVersion>False</SpecificVersion>
 	  <HintPath>..\..\lib\DebugMono\Palaso.Lift.dll</HintPath>
 	</Reference>
-	<Reference Include="NDesk.DBus">
-	  <SpecificVersion>False</SpecificVersion>
-	  <HintPath>..\..\lib\DebugMono\NDesk.DBus.dll</HintPath>
+	<Reference Include="NDesk.DBus, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f6716e4f9b2ed099, processorArchitecture=MSIL">
+	  <HintPath>..\packages\NDesk.DBus.0.15.0\lib\NDesk.DBus.dll</HintPath>
 	</Reference>
-	<None Include="..\..\lib\DebugMono\NDesk.DBus.dll.config">
-	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	</None>
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)' == 'ReleaseMono'">
 	<Reference Include="L10NSharp">
@@ -143,13 +139,9 @@
 	  <SpecificVersion>False</SpecificVersion>
 	  <HintPath>..\..\lib\ReleaseMono\Palaso.Lift.dll</HintPath>
 	</Reference>
-	<Reference Include="NDesk.DBus">
-	  <SpecificVersion>False</SpecificVersion>
-	  <HintPath>..\..\lib\ReleaseMono\NDesk.DBus.dll</HintPath>
+	<Reference Include="NDesk.DBus, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f6716e4f9b2ed099, processorArchitecture=MSIL">
+	  <HintPath>..\packages\NDesk.DBus.0.15.0\lib\NDesk.DBus.dll</HintPath>
 	</Reference>
-	<None Include="..\..\lib\ReleaseMono\NDesk.DBus.dll.config">
-	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	</None>
   </ItemGroup>
   <ItemGroup>
 	<Reference Include="Autofac">
@@ -431,6 +423,13 @@
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
     <Error Condition="!Exists('..\..\packages\Icu4c.Win.Min.54.1.31\build\Icu4c.Win.Min.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Icu4c.Win.Min.54.1.31\build\Icu4c.Win.Min.targets'))" />
+  </Target>
+  <Import Project="..\packages\NDesk.DBus.0.15.0\build\NDesk.DBus.targets" Condition="Exists('..\packages\NDesk.DBus.0.15.0\build\NDesk.DBus.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\NDesk.DBus.0.15.0\build\NDesk.DBus.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\NDesk.DBus.0.15.0\build\NDesk.DBus.targets'))" />
   </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
 	   Other similar extension points exist, see Microsoft.Common.targets.
