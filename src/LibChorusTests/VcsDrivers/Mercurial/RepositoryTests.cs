@@ -3,7 +3,7 @@ using System.IO;
 using System.Reflection;
 using Chorus;
 using Chorus.VcsDrivers.Mercurial;
-using Ionic.Zip;
+using ICSharpCode.SharpZipLib.Zip;
 using LibChorus.TestUtilities;
 using NUnit.Framework;
 using Palaso.IO;

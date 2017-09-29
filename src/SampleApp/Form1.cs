@@ -90,7 +90,7 @@ namespace SampleApp
 			using (var tempZipFile = new TempFile())
 			{
 				File.WriteAllBytes(tempZipFile.Path, Resources.ShoppingList);
-				using (var zip = new Ionic.Zip.ZipFile(tempZipFile.Path))
+				using (var zip = new ICSharpCode.SharpZipLib.Zip.ZipFile(tempZipFile.Path))
 				{
 					Directory.CreateDirectory(dir);
 					zip.ExtractAll(dir);
