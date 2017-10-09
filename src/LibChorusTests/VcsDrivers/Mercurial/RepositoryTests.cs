@@ -3,7 +3,7 @@ using System.IO;
 using System.Reflection;
 using Chorus;
 using Chorus.VcsDrivers.Mercurial;
-using Ionic.Zip;
+using ICSharpCode.SharpZipLib.Zip;
 using LibChorus.TestUtilities;
 using NUnit.Framework;
 using Palaso.IO;
@@ -131,8 +131,9 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			{
 				var baseDir = FileUtils.NormalizePath(Path.GetDirectoryName(Assembly.GetExecutingAssembly().CodeBase));
 				baseDir = FileUtils.StripFilePrefix(baseDir);
-				var zipFile = new ZipFile(Path.Combine(baseDir, Path.Combine("VcsDrivers", Path.Combine("TestData", "incompletemergerepo.zip"))));
-				zipFile.ExtractAll(tempRepo.Path);
+				string zipPath = Path.Combine(baseDir, Path.Combine("VcsDrivers", Path.Combine("TestData", "incompletemergerepo.zip")));
+				FastZip zipFile = new FastZip();
+				zipFile.ExtractZip(zipPath, tempRepo.Path, null);
 				var hgRepo = new HgRepository(tempRepo.Path, new NullProgress());
 				hgRepo.CheckAndUpdateHgrc();
 				var parentFile = tempRepo.GetNewTempFile(true);
