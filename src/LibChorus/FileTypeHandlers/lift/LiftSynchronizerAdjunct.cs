@@ -7,6 +7,7 @@ using Chorus.sync;
 using SIL.Lift;
 using SIL.Xml;
 using SIL.Progress;
+using SIL.WritingSystems.Migration;
 
 namespace Chorus.FileTypeHandlers.lift
 {
@@ -28,6 +29,7 @@ namespace Chorus.FileTypeHandlers.lift
 		private string GetBranchNameFromLiftFile()
 		{
 			const string LIFT = @"LIFT";
+			const string LDML = @"_ldml";
 			using (var reader = XmlReader.Create(_liftPathName, CanonicalXmlSettings.CreateXmlReaderSettings()))
 			{
 				reader.MoveToContent();
@@ -35,10 +37,25 @@ namespace Chorus.FileTypeHandlers.lift
 				var liftVersionString = reader.Value;
 				if (liftVersionString == @"0.13")
 				{
+					int ldmlVersion = GetLdmlFileVersion();
+					if (ldmlVersion > 2)
+						return LIFT + liftVersionString + LDML + ldmlVersion;
 					return @"default";
 				}
 				return LIFT + reader.Value;
 			}
+		}
+
+		private int GetLdmlFileVersion()
+		{
+			var ldmlFiles = Directory.GetFiles(Path.GetDirectoryName(_liftPathName), "*.ldml", SearchOption.AllDirectories);
+			string firstLdmlFile = ldmlFiles.Length > 0 ? ldmlFiles[0] : "";
+			if (File.Exists(firstLdmlFile))
+			{
+				var ldmlVersionGetter = new WritingSystemLdmlVersionGetter();
+				return ldmlVersionGetter.GetFileVersion(firstLdmlFile);
+			}
+			return 0;
 		}
 
 		private void PutFilesInFixedOrder()

@@ -112,7 +112,7 @@
     <LangVersion>6</LangVersion>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>  
+  </PropertyGroup>
   <ItemGroup Condition="'$(Configuration)' == 'Debug'">
     <Reference Include="L10NSharp">
       <SpecificVersion>False</SpecificVersion>
@@ -130,6 +130,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\Debug\SIL.Lift.dll</HintPath>
     </Reference>
+    <Reference Include="SIL.WritingSystems">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\Debug\SIL.WritingSystems.dll</HintPath>
+      </Reference>
     <Reference Include="icu.net">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\Debug\icu.net.dll</HintPath>
@@ -160,6 +164,10 @@
     <Reference Include="SIL.Lift">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\Release\SIL.Lift.dll</HintPath>
+    </Reference>
+    <Reference Include="SIL.WritingSystems">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\Release\SIL.WritingSystems.dll</HintPath>
     </Reference>
     <Reference Include="icu.net">
       <SpecificVersion>False</SpecificVersion>
@@ -192,6 +200,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\DebugMono\SIL.Lift.dll</HintPath>
     </Reference>
+    <Reference Include="SIL.WritingSystems">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\DebugMono\SIL.WritingSystems.dll</HintPath>
+    </Reference>
     <Reference Include="NDesk.DBus">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\DebugMono\NDesk.DBus.dll</HintPath>
@@ -223,6 +235,10 @@
     <Reference Include="SIL.Lift">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\ReleaseMono\SIL.Lift.dll</HintPath>
+    </Reference>
+    <Reference Include="SIL.WritingSystems">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\ReleaseMono\SIL.WritingSystems.dll</HintPath>
     </Reference>
     <Reference Include="NDesk.DBus">
       <SpecificVersion>False</SpecificVersion>
