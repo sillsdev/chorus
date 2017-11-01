@@ -92,7 +92,7 @@
     <LangVersion>6</LangVersion>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>  
+  </PropertyGroup>
   <ItemGroup Condition="'$(Configuration)' == 'Debug'">
     <Reference Include="SIL.Core">
       <SpecificVersion>False</SpecificVersion>
@@ -101,6 +101,14 @@
     <Reference Include="SIL.TestUtilities">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\Debug\SIL.TestUtilities.dll</HintPath>
+    </Reference>
+    <Reference Include="SIL.WritingSystems">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\Debug\SIL.WritingSystems.dll</HintPath>
+    </Reference>
+    <Reference Include="SIL.WritingSystems.Tests">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\Debug\SIL.WritingSystems.Tests.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)' == 'Release'">
@@ -112,6 +120,14 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\Release\SIL.TestUtilities.dll</HintPath>
     </Reference>
+    <Reference Include="SIL.WritingSystems">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\Release\SIL.WritingSystems.dll</HintPath>
+    </Reference>
+    <Reference Include="SIL.WritingSystems.Tests">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\Release\SIL.WritingSystems.Tests.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)' == 'DebugMono'">
     <Reference Include="SIL.Core">
@@ -122,6 +138,14 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\DebugMono\SIL.TestUtilities.dll</HintPath>
     </Reference>
+    <Reference Include="SIL.WritingSystems">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\DebugMono\SIL.WritingSystems.dll</HintPath>
+    </Reference>
+    <Reference Include="SIL.WritingSystems.Tests">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\DebugMono\SIL.WritingSystems.Tests.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)' == 'ReleaseMono'">
     <Reference Include="SIL.Core">
@@ -131,6 +155,14 @@
     <Reference Include="SIL.TestUtilities">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\ReleaseMono\SIL.TestUtilities.dll</HintPath>
+    </Reference>
+    <Reference Include="SIL.WritingSystems">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\ReleaseMono\SIL.WritingSystems.dll</HintPath>
+    </Reference>
+    <Reference Include="SIL.WritingSystems.Tests">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\ReleaseMono\SIL.WritingSystems.Tests.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
