@@ -31,7 +31,7 @@
 		<ApplicationNameLC>chorus</ApplicationNameLC>
 		<Configuration Condition="'$(OS)'!='Windows_NT' And '$(Configuration)'==''">DebugMono</Configuration>
 		<Configuration Condition="'$(OS)'=='Windows_NT' And '$(Configuration)'==''">Release</Configuration>
-		<ExtraExcludeCategories Condition="'$(OS)'!='Windows_NT'">;KnownMonoIssue</ExtraExcludeCategories>
+		<ExtraExcludeCategories Condition="'$(OS)'!='Windows_NT'">KnownMonoIssue;</ExtraExcludeCategories>
 		<useNUnit-x86 Condition="'$(OS)'=='Windows_NT'">true</useNUnit-x86>
 		<useNUnit-x86 Condition="'$(OS)'!='Windows_NT'">false</useNUnit-x86>
 	</PropertyGroup>
@@ -118,7 +118,7 @@
 		</ItemGroup>
 		<NUnitTeamCity
 			Assemblies="@(TestAssemblies)"
-			ExcludeCategory="SkipOnTeamCity;SkipOnBuildServer;SkipOnTeamCityRandomTestFailure$(ExtraExcludeCategories)"
+			ExcludeCategory="$(ExtraExcludeCategories)SkipOnTeamCity;SkipOnBuildServer;SkipOnTeamCityRandomTestFailure"
 			NUnitVersion="NUnit-2.6.3" />
 	</Target>
 
@@ -126,10 +126,11 @@
 		<ItemGroup>
 			<TestAssemblies Include="$(RootDir)/output/$(Configuration)/*.Tests.dll"/>
 		</ItemGroup>
+		<Message Text="ExtraExcludeCategories=$(ExtraExcludeCategories)"/>
 		<NUnit Assemblies="@(TestAssemblies)"
 			ToolPath="$(RootDir)/packages/NUnit.Runners.Net4.2.6.4/tools"
 			TestInNewThread="false"
-			ExcludeCategory="$(excludedCategories)$(ExtraExcludeCategories)"
+			ExcludeCategory="$(ExtraExcludeCategories)$(excludedCategories)"
 			WorkingDirectory="$(OutputDir)"
 			Force32Bit="$(useNUnit-x86)"
 			Verbose="true"
