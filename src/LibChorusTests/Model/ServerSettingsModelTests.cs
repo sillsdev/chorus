@@ -4,6 +4,7 @@ using NUnit.Framework;
 using SIL.Progress;
 using SIL.TestUtilities;
 using Chorus.Model;
+using Chorus.Model;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 

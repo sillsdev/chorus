@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.Windows.Forms;
+using ICSharpCode.SharpZipLib.Zip;
 using Chorus;
 using Chorus.UI.Notes;
 using Chorus.UI.Notes.Browser;
@@ -90,11 +91,9 @@ namespace SampleApp
 			using (var tempZipFile = new TempFile())
 			{
 				File.WriteAllBytes(tempZipFile.Path, Resources.ShoppingList);
-				using (var zip = new Ionic.Zip.ZipFile(tempZipFile.Path))
-				{
-					Directory.CreateDirectory(dir);
-					zip.ExtractAll(dir);
-				}
+				FastZip zip = new FastZip();
+				Directory.CreateDirectory(dir);
+				zip.ExtractZip(tempZipFile.Path, dir, null);
 			}
 		}
 

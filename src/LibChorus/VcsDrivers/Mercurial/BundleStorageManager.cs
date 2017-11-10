@@ -3,34 +3,24 @@ using System.IO;
 
 namespace Chorus.VcsDrivers.Mercurial
 {
-	abstract class BundleStorageManager
+	internal abstract class BundleStorageManager
 	{
 		public string BundlePath;
-		private const int _numberOfHoursToKeepIncompleteData = 24;
-		private string _dataFolderPath;
-		private string _storagePath;
-		private string _bundleId;
+		private const int NumberOfHoursToKeepIncompleteData = 24;
 		private string _idFilePath;
 		public readonly string TransactionId;
 
-		public virtual string StorageFolderName
+		protected BundleStorageManager(string storagePath, string storageFolderName, string bundleIdFilename)
 		{
-			get { return "overrideme"; }
-		}
+			var dataFolderPath = Path.Combine(storagePath, storageFolderName);
 
-		public BundleStorageManager(string storagePath, string bundleId)
-		{
-			_storagePath = storagePath;
-			_bundleId = bundleId;
-			_dataFolderPath = Path.Combine(storagePath, StorageFolderName);
+			Directory.CreateDirectory(storagePath); // create if necessary
+			Directory.CreateDirectory(dataFolderPath); // create if necessary
 
-			Directory.CreateDirectory(_storagePath); // create if necessary
-			Directory.CreateDirectory(_dataFolderPath); // create if necessary
+			CleanUpExpiredData(dataFolderPath);
 
-			CleanUpExpiredData();
-
-			TransactionId = GetTransactionId();
-			BundlePath = Path.Combine(_dataFolderPath, String.Format("{0}.bundle", TransactionId));
+			TransactionId = GetTransactionId(dataFolderPath, bundleIdFilename);
+			BundlePath = Path.Combine(dataFolderPath, String.Format("{0}.bundle", TransactionId));
 			if (!File.Exists(BundlePath))
 			{
 				var fs = new FileInfo(BundlePath).Create();
@@ -38,13 +28,13 @@ namespace Chorus.VcsDrivers.Mercurial
 			}
 		}
 
-		private void CleanUpExpiredData()
+		private static void CleanUpExpiredData(string dataFolderPath)
 		{
-			DateTime currentTime = DateTime.Now;
-			var fileList = Directory.GetFiles(_dataFolderPath);
-			foreach (string filePath in fileList)
+			var currentTime = DateTime.Now;
+			var fileList = Directory.GetFiles(dataFolderPath);
+			foreach (var filePath in fileList)
 			{
-				DateTime fileLastWriteTime = (new FileInfo(filePath)).LastWriteTime.AddHours(_numberOfHoursToKeepIncompleteData);
+				var fileLastWriteTime = new FileInfo(filePath).LastWriteTime.AddHours(NumberOfHoursToKeepIncompleteData);
 				if (currentTime.CompareTo(fileLastWriteTime) > 0)
 				{
 					File.Delete(filePath);
@@ -52,14 +42,14 @@ namespace Chorus.VcsDrivers.Mercurial
 			}
 		}
 
-		private string GetTransactionId()
+		private string GetTransactionId(string dataFolderPath, string bundleIdFilename)
 		{
-			_idFilePath = Path.Combine(_dataFolderPath, string.Format("{0}.transid", _bundleId));
+			_idFilePath = Path.Combine(dataFolderPath, string.Format("{0}.transid", bundleIdFilename));
 			if (File.Exists(_idFilePath))
 			{
 				return File.ReadAllText(_idFilePath).Trim();
 			}
-			string id = Guid.NewGuid().ToString();
+			var id = Guid.NewGuid().ToString();
 			File.WriteAllText(_idFilePath, id);
 			return id;
 		}

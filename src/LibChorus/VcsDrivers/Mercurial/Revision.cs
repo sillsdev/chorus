@@ -41,7 +41,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			:this(repository)
 		{
 			UserId = name;
-			Number = new RevisionNumber(localRevisionNumber, hash);
+			Number = new RevisionNumber(repository, localRevisionNumber, hash);
 			Summary = comment;
 		}
 
@@ -53,7 +53,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		public void SetRevisionAndHashFromCombinedDescriptor(string descriptor)
 		{
-			Number = new RevisionNumber(descriptor);
+			Number = new RevisionNumber(_repository, descriptor);
 		}
 		public bool IsMatchingStub(Revision stub)
 		{
@@ -68,7 +68,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		public void AddParentFromCombinedNumberAndHash(string descriptor)
 		{
-		  Parents.Add(new RevisionNumber(descriptor));
+			Parents.Add(new RevisionNumber(_repository, descriptor));
 
 		}
 
@@ -102,21 +102,51 @@ namespace Chorus.VcsDrivers.Mercurial
 	[Serializable]
 	public class RevisionNumber
 	{
-		public RevisionNumber(string local, string hash)
+		internal RevisionNumber()
+		{
+			LocalRevisionNumber = "-1";
+			LongHash = HgRepository.EmptyRepoIdentifier;
+			Hash = LongHash.Substring(0, 12);
+		}
+
+		public RevisionNumber(HgRepository repository, string local, string hash)
+			: this()
 		{
 			LocalRevisionNumber = local;
 			Hash = hash;
+
+			SetLongHash(repository);
 		}
-		public RevisionNumber(string combinedNumberAndHash)
+		public RevisionNumber(HgRepository repository, string combinedNumberAndHash)
+			: this()
 		{
 			string[] parts = combinedNumberAndHash.Split(new char[] { ':' });
 			Debug.Assert(parts.Length == 2);
 			Hash = parts[1].Trim();
 			LocalRevisionNumber = parts[0];
 
+			SetLongHash(repository);
 		}
 
+		public string LongHash { get; set; }
 		public string Hash { get; set; }
 		public string LocalRevisionNumber { get; set; }
+
+		private void SetLongHash(HgRepository repository)
+		{
+			if (repository == null)
+			{
+				return;
+			}
+			if (string.IsNullOrWhiteSpace(repository.Identifier))
+			{
+				// No commits yet.
+				return;
+			}
+
+			var result = repository.Execute(repository.SecondsBeforeTimeoutOnLocalOperation, string.Format("log -r{0} --template {1}", LocalRevisionNumber, HgRepository.SurroundWithQuotes("{node}"))).StandardOutput.Trim();
+			var strArray = result.Split(new[] { "\n", "\r" }, StringSplitOptions.RemoveEmptyEntries);
+			LongHash = strArray[checked(strArray.Length - 1)];
+		}
 	}
 }

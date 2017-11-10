@@ -323,7 +323,7 @@ namespace Chorus.sync
 		private bool PullFromOthers(HgRepository repo,  List<RepositoryAddress> sourcesToTry, Dictionary<RepositoryAddress, bool> connectionAttempt)
 		{
 			bool didGetFromAtLeastOneSource = false;
-			foreach (RepositoryAddress source in sourcesToTry)
+			foreach (RepositoryAddress source in new List<RepositoryAddress>(sourcesToTry)) // LT-18276: apparently possible to modify sourcesToTry
 			{
 				ThrowIfCancelPending();
 

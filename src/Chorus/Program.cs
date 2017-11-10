@@ -99,8 +99,9 @@ namespace Chorus
 				BrowseForRepositoryEvent browseForRepositoryEvent = new BrowseForRepositoryEvent();
 				browseForRepositoryEvent.Subscribe(BrowseForRepository);
 				using (var bootStrapper = new BootStrapper(pathToRepository))
+				using (var shell = bootStrapper.CreateShell(browseForRepositoryEvent, arguments))
 				{
-					Application.Run(bootStrapper.CreateShell(browseForRepositoryEvent, arguments));
+					Application.Run(shell);
 				}
 			}
 
@@ -122,12 +123,15 @@ namespace Chorus
 
 			public static string BrowseForRepository()
 			{
-				var dlg = new FolderBrowserDialog();
-				dlg.Description = LocalizationManager.GetString("Messages.SelectChorusProject", "Select a chorus-enabled project to open:");
-				dlg.ShowNewFolderButton = false;
-				if (DialogResult.OK != dlg.ShowDialog())
-					return null;
-				return dlg.SelectedPath;
+				using (var dlg = new FolderBrowserDialog())
+				{
+					dlg.Description = LocalizationManager.GetString("Messages.SelectChorusProject",
+						"Select a chorus-enabled project to open:");
+					dlg.ShowNewFolderButton = false;
+					if (DialogResult.OK != dlg.ShowDialog())
+						return null;
+					return dlg.SelectedPath;
+				}
 			}
 		}
 	}

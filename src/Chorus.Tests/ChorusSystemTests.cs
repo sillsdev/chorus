@@ -58,8 +58,10 @@ namespace Chorus.Tests
 		[Platform(Exclude="Mono")] //running CreateNotesBrowser twice in a mono test session causes a crash
 		public void CanShowNotesBrowserPage()
 		{
-			var page = _system.WinForms.CreateNotesBrowser();
-			ShowWindowWithControlThenClose(page);
+			using (var page = _system.WinForms.CreateNotesBrowser())
+			{
+				ShowWindowWithControlThenClose(page);
+			}
 		}
 
 		/// <summary>
@@ -69,31 +71,40 @@ namespace Chorus.Tests
 		[Test]
 		public void CanShowNotesBar()
 		{
-			var view = _system.WinForms.CreateNotesBar(_targetFile1.Path, new NotesToRecordMapping(), _progress);
-			ShowWindowWithControlThenClose(view);
+			using (var view =
+				_system.WinForms.CreateNotesBar(_targetFile1.Path, new NotesToRecordMapping(), _progress))
+			{
+				ShowWindowWithControlThenClose(view);
+			}
 		}
 
 		[Test]
 		public void CanMakeNotesBarWithOtherFiles()
 		{
-			var otherFile = new TempFileFromFolder(_folder, "two.txt", "just a pretend file");
-			var otherNotesFile = new TempFileFromFolder(_folder, "two.txt." + AnnotationRepository.FileExtension,
-						@"<notes version='0'>
+			using (var otherFile = new TempFileFromFolder(_folder, "two.txt", "just a pretend file"))
+			using (var otherNotesFile = new TempFileFromFolder(_folder,
+				"two.txt." + AnnotationRepository.FileExtension,
+				@"<notes version='0'>
 					<annotation ref='somwhere://foo?guid=x' class='mergeConflict'>
 						<message guid='123' author='merger' status='open' date='2009-07-18T23:53:04Z'>
 							some description of the conflict
 						</message>
 					</annotation>
-				</notes>");
-			var mapping = new NotesToRecordMapping();
-			mapping.FunctionToGoFromObjectToItsId = obj => "x"; // means it looks for "x" as the id in the one.txt urls and the guid in the two.txt urls.
-			var view = _system.WinForms.CreateNotesBar(_targetFile1.Path, (new List<String> {otherFile.Path}), "guid", mapping, _progress);
-			view._model.SetTargetObject("myobj");
-			var annotations = view._model.GetAnnotationsToShow().ToList();
-			Assert.That(annotations, Has.Count.EqualTo(2), "should have obtained annotations from both files");
-			ShowWindowWithControlThenClose(view);
-			otherFile.Dispose();
-			otherNotesFile.Dispose();
+				</notes>"))
+			{
+				var mapping = new NotesToRecordMapping();
+				mapping.FunctionToGoFromObjectToItsId =
+					obj => "x"; // means it looks for "x" as the id in the one.txt urls and the guid in the two.txt urls.
+				using (var view = _system.WinForms.CreateNotesBar(_targetFile1.Path,
+					(new List<String> {otherFile.Path}), "guid", mapping, _progress))
+				{
+					view._model.SetTargetObject("myobj");
+					var annotations = view._model.GetAnnotationsToShow().ToList();
+					Assert.That(annotations, Has.Count.EqualTo(2),
+						"should have obtained annotations from both files");
+					ShowWindowWithControlThenClose(view);
+				}
+			}
 		}
 
 		/// <summary>
@@ -111,20 +122,22 @@ namespace Chorus.Tests
 		private static void ShowWindowWithControlThenClose(Control control)
 		{
 			control.Dock = DockStyle.Fill;
-			var form = new Form();
-			form.Size = new Size(700, 600);
-			form.Controls.Add(control);
-			Application.Idle += new EventHandler(Application_Idle);
-			Application.EnableVisualStyles();
-			Application.Run(form);
+			using (var form = new Form())
+			{
+				form.Size = new Size(700, 600);
+				form.Controls.Add(control);
+				Application.Idle += Application_Idle;
+				Application.EnableVisualStyles();
+				Application.Run(form);
+			}
 		}
-
 
 		static void Application_Idle(object sender, EventArgs e)
 		{
 			Thread.Sleep(100);
 			Application.Exit();
 		}
+
 		/// <summary>
 		/// This tests that we're using the same repositories for all instances of Notes UI components
 		/// </summary>
@@ -134,15 +147,17 @@ namespace Chorus.Tests
 		public void GetNotesBarAndBrowser_MakeNewAnnotationWithBar_BrowserSeesIt()
 		{
 			NotesToRecordMapping mapping =  NotesToRecordMapping.SimpleForTest();
-			var bar = _system.WinForms.CreateNotesBar(_targetFile1.Path, mapping, _progress);
-			var browser = _system.WinForms.CreateNotesBrowser();
-			Assert.AreEqual(1, browser._notesInProjectModel.GetMessages().Count());
+			using (var bar = _system.WinForms.CreateNotesBar(_targetFile1.Path, mapping, _progress))
+			using (var browser = _system.WinForms.CreateNotesBrowser())
+			{
+				Assert.AreEqual(1, browser._notesInProjectModel.GetMessages().Count());
 
-			bar.SetTargetObject(this);
-			var a = bar._model.CreateAnnotation();
-			bar._model.AddAnnotation(a);
-			a.AddMessage("test", "open", "hello");
-			Assert.AreEqual(2, browser._notesInProjectModel.GetMessages().Count());
+				bar.SetTargetObject(this);
+				var a = bar._model.CreateAnnotation();
+				bar._model.AddAnnotation(a);
+				a.AddMessage("test", "open", "hello");
+				Assert.AreEqual(2, browser._notesInProjectModel.GetMessages().Count());
+			}
 		}
 
 	}
