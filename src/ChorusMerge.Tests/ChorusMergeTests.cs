@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Text;
 using Chorus.merge;
 using LibChorus.Tests.merge;
@@ -50,7 +51,16 @@ namespace ChorusMerge.Tests
 		{
 			MergeSituation.PushRevisionsToEnvironmentVariables("bob", "-123", "sally", "-456");
 			MergeOrder.PushToEnvironmentVariables(group.Folder.Path);
-			return Program.Main(new[] {group.BobFile.Path, group.AncestorFile.Path, group.SallyFile.Path});
+			// Change error logging to standard out so that tests which simulate errors don't fail the build
+			Program.ErrorWriter = Console.Out;
+			try
+			{
+				return Program.Main(new[] { group.BobFile.Path, group.AncestorFile.Path, group.SallyFile.Path });
+			}
+			finally
+			{
+				Program.ErrorWriter = Console.Error;
+			}
 		}
 
 		[Test]
@@ -80,7 +90,5 @@ namespace ChorusMerge.Tests
 			}
 
 		}
-
-
 	}
 }
