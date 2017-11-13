@@ -1,9 +1,14 @@
 //#define RUNINDEBUGGER
 using System;
+using System.IO;
+using System.Runtime.CompilerServices;
 using System.Text;
 using Chorus.FileTypeHandlers;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
+
+// Allow redirecting Console.Error for unit tests (Avoid spurious build failures)
+[assembly: InternalsVisibleTo("ChorusMerge.Tests")]
 
 namespace ChorusMerge
 {
@@ -23,6 +28,8 @@ namespace ChorusMerge
 	/// </remarks>
 	public class Program
 	{
+		internal static TextWriter ErrorWriter = Console.Error;
+
 		public static int Main(string[] args)
 		{
 			try
@@ -66,8 +73,8 @@ namespace ChorusMerge
 			}
 			catch (Exception e)
 			{
-				Console.Error.WriteLine("ChorusMerge Error: " + e.Message);
-				Console.Error.WriteLine(e.StackTrace);
+				ErrorWriter.WriteLine("ChorusMerge Error: " + e.Message);
+				ErrorWriter.WriteLine(e.StackTrace);
 				return 1;
 			}
 			return 0;//no error
