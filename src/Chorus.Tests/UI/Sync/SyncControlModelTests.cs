@@ -174,14 +174,14 @@ namespace Chorus.Tests
 			{
 				Thread.Sleep(100);
 				Application.DoEvents();//without this, the background worker starves 'cause their's no UI
-				if((DateTime.Now.Subtract(start).Minutes > 0))
+				if(DateTime.Now.Subtract(start).Minutes > 0)
 				{
 					Assert.Fail("Gave up waiting.");
 				}
 			}
-			Assert.IsTrue(result1.Succeeded && result2.Succeeded && result3.Succeeded);
-			Assert.IsFalse(_model.StatusProgress.WarningEncountered);
-			Assert.IsFalse(_model.StatusProgress.ErrorEncountered);
+			Assert.IsFalse(_model.StatusProgress.WarningEncountered, "There was a warning encountered during the sync: {0}", _model.StatusProgress.LastWarning);
+			Assert.IsFalse(_model.StatusProgress.ErrorEncountered, "There was an error encountered during the sync: {0}", _model.StatusProgress.LastError);
+			Assert.IsTrue(result1.Succeeded && result2.Succeeded && result3.Succeeded, "One of the CheckIn attempts did not succeed.");
 		}
 
 
