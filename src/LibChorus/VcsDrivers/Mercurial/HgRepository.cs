@@ -160,17 +160,19 @@ namespace Chorus.VcsDrivers.Mercurial
 
 			try
 			{
-				EnsureChorusMergeAddedToHgrc();
-				EnsureCacertsIsSet();
-				var extensions = HgExtensions;
-				EnsureTheseExtensionsAndFormatSet(extensions);
-				_hgrcUpdateNeeded = false;
+				lock(_pathToRepository) // Avoid crash if two threads try to Sync simultaneously
+				{
+					EnsureChorusMergeAddedToHgrc();
+					EnsureCacertsIsSet();
+					var extensions = HgExtensions;
+					EnsureTheseExtensionsAndFormatSet(extensions);
+					_hgrcUpdateNeeded = false;
+				}
 			}
 			catch (Exception error)
 			{
 				throw new ApplicationException(string.Format("Failed to set up extensions for the repository: {0}", error.Message));
 			}
-
 		}
 
 		private static Dictionary<string, string> HgExtensions
