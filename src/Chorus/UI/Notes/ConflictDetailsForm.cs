@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 using System.Windows.Forms;
 
 namespace Chorus.notes
@@ -6,7 +7,7 @@ namespace Chorus.notes
 	public partial class ConflictDetailsForm : Form
 	{
 		string _tempPath;
-
+		private string _documentText;
 		public ConflictDetailsForm()
 		{
 			InitializeComponent();
@@ -23,6 +24,7 @@ namespace Chorus.notes
 			if (_tempPath == null)
 				_tempPath = SIL.IO.TempFile.WithExtension("htm").Path;
 			System.IO.File.WriteAllText(_tempPath, text);
+			_documentText = text;
 			_conflictDisplay.Url = new Uri(_tempPath);
 			_conflictDisplay.WebBrowserShortcutsEnabled = true;
 		}
@@ -31,11 +33,8 @@ namespace Chorus.notes
 
 		private void copyToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-#if MONO
-			//GECKOFX: what to do?
-#else
-			((WebBrowser)_conflictDisplay.NativeBrowser).Document.ExecCommand(@"Copy", false, null);
-#endif
+			Clipboard.Clear();    //Clear if any old value is there in Clipboard        
+			Clipboard.SetText(_documentText); //Copy text to Clipboard
 		}
 
 		private void technicalDetailsToolStripMenuItem_Click(object sender, EventArgs e)

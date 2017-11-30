@@ -116,8 +116,8 @@ namespace Chorus.Model
 					HttpUtilityFromMono.UrlEncode((string)AccountName) + ":" +
 					HttpUtilityFromMono.UrlEncode((string)Password) + "@" + SelectedServerModel.DomainName + "/" +
 					HttpUtilityFromMono.UrlEncode(ProjectId);
+				}
 			}
-		}
 
 		public string CustomUrl { get; set; }
 
@@ -128,18 +128,18 @@ namespace Chorus.Model
 				if (!NeedProjectDetails)
 					return true;
 
-				try
-				{
-					return !string.IsNullOrEmpty(ProjectId) &&
-						!string.IsNullOrEmpty(AccountName) &&
-						!string.IsNullOrEmpty(Password);
-				}
-				catch (Exception)
-				{
-					return false;
+					try
+					{
+						return !string.IsNullOrEmpty(ProjectId) &&
+							   !string.IsNullOrEmpty(AccountName) &&
+							   !string.IsNullOrEmpty(Password);
+					}
+					catch (Exception)
+					{
+						return false;
+					}
 				}
 			}
-		}
 
 		public string Password { get; set; }
 		public string AccountName { get; set; }
@@ -212,12 +212,12 @@ namespace Chorus.Model
 					Uri uri;
 					if (Uri.TryCreate(URL, UriKind.Absolute, out uri) && !String.IsNullOrEmpty(uri.Host))
 						return uri.Host;
-					return "custom";
-				}
+						return "custom";
+					}
 
-				return SelectedServerLabel.Replace(" ","");
+					return SelectedServerLabel.Replace(" ","");
+				}
 			}
-		}
 
 		/// <summary>
 		/// Use this to make use of, say, the contents of the clipboard (if it looks like a url)

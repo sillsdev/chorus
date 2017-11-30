@@ -36,7 +36,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		private string _proxyCongfigParameterString = string.Empty;
 		private bool _hgrcUpdateNeeded;
 		private static bool _alreadyCheckedMercurialIni;
-		private const string EmptyRepoIdentifier = "0000000000000000000000000000000000000000";
+		internal const string EmptyRepoIdentifier = "0000000000000000000000000000000000000000";
 		/// <summary>
 		/// Template to produce a consistant and parsable revision log entry
 		/// </summary>
@@ -175,7 +175,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			}
 		}
 
-		private static Dictionary<string, string> HgExtensions
+		internal static Dictionary<string, string> HgExtensions
 		{
 			get
 			{
@@ -190,9 +190,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				//NB: this is REQUIRED because we are now, in the hgrunner, saying that we will be getting utf8 output. If we made this extension optional, we'd have to know to not say that.
 
 				var extensions = new Dictionary<string, string>();
-#if !MONO
-				extensions.Add("eol", ""); //for converting line endings on windows machines
-#endif
+				extensions.Add("eol", ""); //for converting line endings
 				extensions.Add("hgext.graphlog", ""); //for more easily readable diagnostic logs
 				extensions.Add("convert", ""); //for catastrophic repair in case of repo corruption
 				string fixUtfFolder = FileLocator.GetDirectoryDistributedWithApplication(false, "MercurialExtensions", "fixutf8");
@@ -767,6 +765,72 @@ namespace Chorus.VcsDrivers.Mercurial
 			Execute(SecondsBeforeTimeoutOnLocalOperation, "update", "-r", revision, "-C");
 		}
 
+		public UpdateResults UpdateToLongHash(string desiredLongHash)
+		{
+			if (string.IsNullOrWhiteSpace(Identifier))
+			{
+				return UpdateResults.NoCommitsInRepository;
+			}
+			var workingSetRevision = GetRevisionWorkingSetIsBasedOn();
+			if (desiredLongHash == workingSetRevision.Number.LongHash)
+			{
+				// Already on it.
+				return UpdateResults.AlreadyOnIt;
+			}
+			// Find it the hard way.
+			foreach (var currentRevision in GetAllRevisions())
+			{
+				var currentLongHash = currentRevision.Number.LongHash;
+				if (currentLongHash != desiredLongHash)
+				{
+					continue;
+				}
+				// Update to it.
+				Update(currentRevision.Number.Hash);
+				return UpdateResults.Success;
+			}
+
+			// No such commit!
+			return UpdateResults.NoSuchRevision;
+		}
+
+		public UpdateResults UpdateToBranchHead(string desiredBranchName)
+		{
+			if (string.IsNullOrWhiteSpace(Identifier))
+			{
+				return UpdateResults.NoCommitsInRepository;
+			}
+			Revision highestHead = null;
+			foreach (var head in GetHeads().Where(head => head.Branch == desiredBranchName))
+			{
+				if (highestHead == null)
+				{
+					highestHead = head;
+				}
+				else
+				{
+					// Ugh! more than one head in branch, so use the one with the highest local revision number.
+					// The extra head(s) will be merged in the next S/R that does merges.
+					if (int.Parse(highestHead.Number.LocalRevisionNumber) < int.Parse(head.Number.LocalRevisionNumber))
+					{
+						highestHead = head;
+					}
+				}
+			}
+			if (highestHead == null)
+			{
+				// No such branch.
+				return UpdateResults.NoSuchBranch;
+			}
+			if (GetRevisionWorkingSetIsBasedOn().Number.LongHash == highestHead.Number.LongHash)
+			{
+				return UpdateResults.AlreadyOnIt;
+			}
+
+			Update(highestHead.Number.Hash);
+			return UpdateResults.Success;
+		}
+
         public string Verify()
         {
             _progress.WriteVerbose("{0} verifying", _userName);
@@ -1156,7 +1220,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			var result = GetTextFromQuery("debugancestor " + rev1 + " " + rev2);
 			if (result.StartsWith("-1"))
 				return null;
-			return new RevisionNumber(result).LocalRevisionNumber;
+			return new RevisionNumber(this, result).LocalRevisionNumber;
 		}
 
 		public IEnumerable<FileInRevision> GetFilesInRevision(Revision revision)
@@ -1321,42 +1385,13 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		internal static IniDocument GetMercurialConfigInMercurialFolder()
 		{
-//#if MONO
-//            return GetMercurialConfigForUser();
-//#else
 			var mercurialIniFilePath = Path.Combine(MercurialLocation.PathToMercurialFolder, "mercurial.ini");
 			if (!File.Exists(mercurialIniFilePath))
 			{
 				File.WriteAllText(mercurialIniFilePath, "");
 			}
 			return new IniDocument(mercurialIniFilePath, IniFileType.MercurialStyle);
-//#endif
 		}
-
-//        private static IniDocument GetMercurialConfigForUser()
-//        {
-//#if MONO
-//            var home = Environment.GetEnvironmentVariable("HOME");
-//            if (home == null)
-//            {
-//                throw new ApplicationException("The HOME environment variable is not set.");
-//            }
-//            var p = Path.Combine(home, ".hgrc");
-//#else
-//            //NB: they're talking about moving this (but to WORSE place, my documents/mercurial)
-//            var profile = Environment.GetEnvironmentVariable("USERPROFILE");
-//            if (profile == null)
-//            {
-//                throw new ApplicationException("The %USERPROFILE% environment variable on this machine is not set.");
-//            }
-//            var p = Path.Combine(profile, "mercurial.ini");
-//#endif
-//            if (!File.Exists(p))
-//            {
-//                File.WriteAllText(p, "");
-//            }
-//            return new IniDocument(p, IniFileType.MercurialStyle);
-//        }
 
 		public void SetUserNameInIni(string name, IProgress progress)
 		{
@@ -1878,6 +1913,8 @@ namespace Chorus.VcsDrivers.Mercurial
 		}
 
 		public enum IntegrityResults { Good, Bad }
+
+		public enum UpdateResults { Success, AlreadyOnIt, NoSuchBranch, NoSuchRevision, NoCommitsInRepository }
 
 		public IntegrityResults CheckIntegrity(IProgress progress)
 		{

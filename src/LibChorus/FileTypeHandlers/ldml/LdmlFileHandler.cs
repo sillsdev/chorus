@@ -308,20 +308,6 @@ namespace Chorus.FileTypeHandlers.ldml
 				MergePartnerFinder = new FindByMatchingAttributeNames(new HashSet<string> { "xmlns:fw" })
 			};
 			merger.MergeStrategies.SetStrategy("special_xmlns:fw", strategy);
-			/* Not needed, as long as the parent is 'atomic'.
-			// Children for 'special' xmlns:fw
-			merger.MergeStrategies.SetStrategy("fw:defaultFontFeatures", ElementStrategy.CreateSingletonElement());
-			merger.MergeStrategies.SetStrategy("fw:graphiteEnabled", ElementStrategy.CreateSingletonElement());
-			merger.MergeStrategies.SetStrategy("fw:legacyMapping", ElementStrategy.CreateSingletonElement());
-			merger.MergeStrategies.SetStrategy("fw:matchedPairs", ElementStrategy.CreateSingletonElement());
-			merger.MergeStrategies.SetStrategy("fw:punctuationPatterns", ElementStrategy.CreateSingletonElement());
-			merger.MergeStrategies.SetStrategy("fw:quotationMarks", ElementStrategy.CreateSingletonElement());
-			merger.MergeStrategies.SetStrategy("fw:regionName", ElementStrategy.CreateSingletonElement());
-			merger.MergeStrategies.SetStrategy("fw:scriptName", ElementStrategy.CreateSingletonElement());
-			merger.MergeStrategies.SetStrategy("fw:validChars", ElementStrategy.CreateSingletonElement());
-			merger.MergeStrategies.SetStrategy("fw:variantName", ElementStrategy.CreateSingletonElement());
-			merger.MergeStrategies.SetStrategy("fw:windowsLCID", ElementStrategy.CreateSingletonElement());
-			*/
 
 			// Children for top level 'special' xmlns:sil
 			merger.MergeStrategies.SetStrategy("sil:external-resources", ElementStrategy.CreateSingletonElement());
