@@ -37,3 +37,5 @@ L10NSharp.dll
 lib/Chorus_Help.chm
 packages/
 .idea/
+riderModule.iml
+src/LibChorus/icu4c.readme.txt

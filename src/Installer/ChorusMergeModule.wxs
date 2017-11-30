@@ -62,13 +62,13 @@ http://blogs.msdn.com/robmen/archive/2003/10/04/56479.aspx -->
 		  <File Id="icu.net.dll" Name="icu.net.dll" KeyPath="yes" Source="..\..\output\release\icu.net.dll" />
 		</Component>
 		<Component Id="icudt54.dll" Guid="C1EE3118-E382-11DE-8A39-0800200C9A66">
-		  <File Id="icudt54.dll" Name="icudt54.dll" KeyPath="yes" Source="..\..\lib\Release\icudt54.dll" />
+		  <File Id="icudt54.dll" Name="icudt54.dll" KeyPath="yes" Source="..\..\output\Release\icudt54.dll" />
 		</Component>
 		<Component Id="icuin54.dll" Guid="C1EE3117-E382-11DE-8A39-0800200C9A66">
-		  <File Id="icuin54.dll" Name="icuin54.dll" KeyPath="yes" Source="..\..\lib\Release\icuin54.dll" />
+		  <File Id="icuin54.dll" Name="icuin54.dll" KeyPath="yes" Source="..\..\output\Release\icuin54.dll" />
 		</Component>
 		<Component Id="icuuc54.dll" Guid="C1EE3116-E382-11DE-8A39-0800200C9A66">
-		  <File Id="icuuc54.dll" Name="icuuc54.dll" KeyPath="yes" Source="..\..\lib\Release\icuuc54.dll" />
+		  <File Id="icuuc54.dll" Name="icuuc54.dll" KeyPath="yes" Source="..\..\output\Release\icuuc54.dll" />
 		</Component>
 		<Component Id="SIL.Core.dll" Guid="C1EE09F8-E382-11DE-8A39-0800200C9A66">
 		  <File Id="SIL.Core.dll" Name="SIL.Core.dll" KeyPath="yes" Source="..\..\output\release\SIL.Core.dll" />

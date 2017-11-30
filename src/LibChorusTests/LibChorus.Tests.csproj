@@ -167,7 +167,7 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Autofac">
-      <HintPath>..\..\lib\common\Autofac.dll</HintPath>
+      <HintPath>..\..\packages\Autofac.2.6.3.862\lib\NET40\Autofac.dll</HintPath>
     </Reference>
     <Reference Include="nunit.framework">
       <HintPath>..\..\packages\NUnit.2.6.4\lib\nunit.framework.dll</HintPath>
@@ -176,8 +176,9 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
-    <Reference Include="Ionic.Zip.Reduced">
-      <HintPath>..\..\lib\common\Ionic.Zip.Reduced.dll</HintPath>
+    <Reference Include="ICSharpCode.SharpZipLib, Version=0.86.5.0, Culture=neutral">
+	  <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\packages\ICSharpCode.SharpZipLib.Patched.0.86.5\lib\net20\ICSharpCode.SharpZipLib.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -278,6 +279,7 @@
     <Compile Include="Model\InternetCloneSettingsModelTests.cs" />
     <Compile Include="FileHandlers\ChorusFileTypeHandlerCollectionTests.cs" />
     <Compile Include="notes\EmbeddedMessageContentHandlerRepositoryTests.cs" />
+    <Compile Include="FileHandlers\xml\XmlDeletionChangeReportTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\LibChorus.TestUtilities\LibChorus.TestUtilities.csproj">
@@ -304,6 +306,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="merge\text\" />
+    <Folder Include="FileHandlers\xml\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.

@@ -14,7 +14,7 @@ using SIL.TestUtilities;
 namespace ChorusHubTests
 {
 	[TestFixture]
-	[NUnit.Framework.Category("KnownMonoIssue")] // cross-process comms doesn't work in mono.
+	[Category("KnownMonoIssue")] // cross-process comms doesn't work in mono.
 	public class ChorusHubClientTests
 	{
 		private string _originalPath;

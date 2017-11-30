@@ -135,16 +135,6 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 
 	internal class SimpleStorageManager : BundleStorageManager
 	{
-		public SimpleStorageManager(string storagePath, string baseHash ) : base(storagePath, baseHash)
-		{
-		}
-
-		public override string StorageFolderName
-		{
-			get
-			{
-				return "data";
-			}
-		}
+		public SimpleStorageManager(string storagePath, string baseHash) : base(storagePath, "data", baseHash) {}
 	}
 }

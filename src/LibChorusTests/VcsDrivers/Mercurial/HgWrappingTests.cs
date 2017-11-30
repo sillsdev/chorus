@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using Chorus.VcsDrivers.Mercurial;
 using Chorus.sync;
 using LibChorus.TestUtilities;
@@ -128,7 +129,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				var path = setup.Root.GetNewTempFile(true).Path;
 				setup.Repository.AddAndCheckinFile(path);
 				var rev = setup.Repository.GetAllRevisions()[0];
-				Assert.AreEqual(Environment.UserName, rev.UserId);
+				Assert.AreEqual(Environment.UserName.Replace(" ", string.Empty), rev.UserId);
 			}
 		}
 
@@ -141,6 +142,67 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				var repo = new HgRepository(testRoot.Path, new NullProgress());
 				var rev = repo.GetRevisionWorkingSetIsBasedOn();
 				Assert.IsNull(rev);
+			}
+		}
+
+		[Test]
+		public void ManMadeRevisionNumber_HasExpectedStartingValues()
+		{
+			var revisionNumber = new RevisionNumber();
+			Assert.That(revisionNumber.LocalRevisionNumber, Is.EqualTo("-1"));
+			Assert.That(revisionNumber.LongHash, Is.EqualTo(HgRepository.EmptyRepoIdentifier));
+			Assert.That(revisionNumber.Hash.Length, Is.EqualTo(12));
+			Assert.That(revisionNumber.Hash, Is.EqualTo(revisionNumber.LongHash.Substring(0, 12)));
+		}
+
+		[Test]
+		public void GetRevision_WithOneCommit_HasExpectedRevisionValues()
+		{
+			using (var testRoot = new TemporaryFolder("RepositoryTests"))
+			{
+				HgRepository.CreateRepositoryInExistingDir(testRoot.Path, _progress);
+				var repo = new HgRepository(testRoot.Path, new NullProgress());
+				Assert.That(repo.Identifier, Is.Null);
+				var rev = repo.GetAllRevisions().FirstOrDefault();
+				Assert.That(rev, Is.Null);
+				using (var f = testRoot.GetNewTempFile(true))
+				{
+					repo.AddAndCheckinFile(f.Path);
+					rev = repo.GetRevisionWorkingSetIsBasedOn();
+					Assert.That(rev.Number.LocalRevisionNumber, Is.EqualTo("0"));
+					Assert.That(rev.Number.LongHash, Is.EqualTo(repo.Identifier));
+					Assert.That(rev.Number.Hash.Length, Is.EqualTo(12));
+					Assert.That(rev.Number.Hash, Is.EqualTo(repo.Identifier.Substring(0, 12)));
+					Assert.That(rev.Number.Hash, Is.EqualTo(rev.Number.LongHash.Substring(0, 12)));
+				}
+			}
+		}
+
+		[Test]
+		public void GetRevision_WithTwoCommits_HasExpectedRevisionValuesForSecondCommit()
+		{
+			using (var testRoot = new TemporaryFolder("RepositoryTests"))
+			{
+				HgRepository.CreateRepositoryInExistingDir(testRoot.Path, _progress);
+				var repo = new HgRepository(testRoot.Path, new NullProgress());
+				Assert.That(repo.Identifier, Is.Null);
+				var rev = repo.GetAllRevisions().FirstOrDefault();
+				Assert.That(rev, Is.Null);
+				using (var file1 = testRoot.GetNewTempFile(true))
+				{
+					repo.AddAndCheckinFile(file1.Path);
+					using (var file2 = testRoot.GetNewTempFile(true))
+					{
+						repo.AddAndCheckinFile(file2.Path);
+						rev = repo.GetRevisionWorkingSetIsBasedOn();
+						Assert.That(rev.Number.LocalRevisionNumber, Is.EqualTo("1"));
+						Assert.That(rev.Number.Hash.Length, Is.EqualTo(12));
+						Assert.That(rev.Number.Hash, Is.EqualTo(rev.Number.LongHash.Substring(0, 12)));
+						// We can't test for the value of rev.Number.LongHash,
+						// since Mercurial makes up a unique hash,
+						// that is not knowable ahead of time.
+					}
+				}
 			}
 		}
 
