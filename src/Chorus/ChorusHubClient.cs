@@ -48,6 +48,7 @@ namespace Chorus
 			var channel = factory.CreateChannel();
 			try
 			{
+				((IContextChannel)channel).OperationTimeout = TimeSpan.FromMinutes(15);
 				var jsonStrings = channel.GetRepositoryInformation(finalUrl);
 				_repositoryNames = ImitationHubJSONService.ParseJsonStringsToChorusHubRepoInfos(jsonStrings);
 			}
@@ -89,6 +90,7 @@ namespace Chorus
 			var channel = factory.CreateChannel();
 			try
 			{
+				((IContextChannel)channel).OperationTimeout = TimeSpan.FromMinutes(15);
 				var doWait = channel.PrepareToReceiveRepository(directoryName, repositoryId);
 				return doWait;
 			}
