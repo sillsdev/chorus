@@ -236,8 +236,9 @@ namespace Chorus.UI.Clone
 #if !MONO // See https://bugzilla.xamarin.com/show_bug.cgi?id=4269. Remove #if when using mono that fixes this.
 			Thread.CurrentThread.Name = @"GetRepositoryInformation";
 #endif
+			Application.UseWaitCursor = true;
+			Cursor.Current = Cursors.WaitCursor;
 			var chorusHubServerInfo = ChorusHubServerInfo.FindServerInformation();
-
 			if (chorusHubServerInfo == null || !chorusHubServerInfo.ServerIsCompatibleWithThisClient)
 			{
 				e.Result = null;
@@ -250,6 +251,8 @@ namespace Chorus.UI.Clone
 				results[1] = client.GetRepositoryInformation(_model.ProjectFilter);
 				e.Result = results;
 			}
+			Application.UseWaitCursor = false;
+			Cursor.Current = Cursors.Default;
 		}
 
 		public string PathToNewlyClonedFolder
