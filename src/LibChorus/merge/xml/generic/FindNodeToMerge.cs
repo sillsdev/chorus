@@ -76,7 +76,11 @@ namespace Chorus.merge.xml.generic
 		private readonly string _keyAttribute;
 #if USEOPTIMIZEDVERSION
 		private readonly List<XmlNode> _parentsToSearchIn = new List<XmlNode>();
-		private readonly Dictionary<int, Dictionary<string, XmlNode>> _indexedSoughtAfterNodes = new Dictionary<int, Dictionary<string, XmlNode>>();
+
+		/// <summary>
+		/// Stores nodes from the xml object that have child nodes which need to be identified by both their key attribute and name
+		/// </summary>
+		private readonly Dictionary<int, Dictionary<Tuple<string,string>, XmlNode>> _indexedSoughtAfterNodes = new Dictionary<int, Dictionary<Tuple<string,string>, XmlNode>>();
 #endif
 
 		public FindByKeyAttribute(string keyAttribute)
@@ -101,18 +105,18 @@ namespace Chorus.merge.xml.generic
 			{
 				_parentsToSearchIn.Add(parentToSearchIn);
 				parentIdx = _parentsToSearchIn.IndexOf(parentToSearchIn);
-				var childrenWithKeys = new Dictionary<string, XmlNode>(); // StringComparer.OrdinalIgnoreCase NO: Bad idea, since I (RBR) saw a case in a data file that had both upper and lower-cased variations.
+				// The child node we want is identified by a combination of it's key attribute and name.
+				var childrenWithKeys = new Dictionary<Tuple<string,string>, XmlNode>(); // StringComparer.OrdinalIgnoreCase NO: Bad idea, since I (RBR) saw a case in a data file that had both upper and lower-cased variations.
 				_indexedSoughtAfterNodes.Add(parentIdx, childrenWithKeys);
-				var matchingName = nodeToMatch.Name;
 				var childrenWithKeyAttr = (from XmlNode childNode in parentToSearchIn.ChildNodes
-										   where childNode.Name == matchingName && childNode.Attributes[_keyAttribute] != null
+										   where childNode.Attributes != null && childNode.Attributes[_keyAttribute] != null
 										   select childNode).ToList();
 				foreach (var nodeWithKeyAttribute in childrenWithKeyAttr)
 				{
 					try
 					{
 
-						childrenWithKeys.Add(nodeWithKeyAttribute.Attributes[_keyAttribute].Value, nodeWithKeyAttribute);
+						childrenWithKeys.Add(new Tuple<string, string>(nodeWithKeyAttribute.Name, nodeWithKeyAttribute.Attributes[_keyAttribute].Value), nodeWithKeyAttribute);
 					}
 					catch(ArgumentException)
 					{
@@ -133,7 +137,7 @@ namespace Chorus.merge.xml.generic
 			}
 
 			XmlNode matchingNode;
-			_indexedSoughtAfterNodes[parentIdx].TryGetValue(key, out matchingNode);
+			_indexedSoughtAfterNodes[parentIdx].TryGetValue(new Tuple<string, string>(nodeToMatch.Name, key), out matchingNode);
 			// JohnT: consider replacing the line above with this if we decide to deal with duplicate keys. This branch currently won't cope with this,
 			// because the Add above will fail on any duplicate key.
 			//if (_indexedSoughtAfterNodes[parentIdx].TryGetValue(key, out matchingNode) && !acceptableTargets.Contains(matchingNode))
