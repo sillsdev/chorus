@@ -566,6 +566,7 @@ namespace Chorus.VcsDrivers.Mercurial
 					if (response.ResumableResponse.Status == "RESET")
 					{
 						_progress.WriteError("Push failed: All chunks were pushed to the server, but the unbundle operation failed.  Try again later.");
+						_progress.WriteVerbose(string.Format("Additional error info: {0}", response.ResumableResponse.Error));
 						pushResponse.Status = PushStatus.Reset;
 						return pushResponse;
 					}
