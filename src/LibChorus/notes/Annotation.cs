@@ -18,7 +18,9 @@ namespace Chorus.notes
     {
 		public static readonly string Open = "open";
 		public static readonly string Closed = "closed";
+		[Obsolete("Use TimeFormatWithTimeZone instead, as TimeFormatNoTimeZone produces incorrect results when used with DateTime.Now")]
 		public static string TimeFormatNoTimeZone = "yyyy-MM-ddTHH:mm:ssZ";
+		public static string TimeFormatWithTimeZone = "yyyy-MM-ddTHH:mm:ssK";
         internal readonly XElement _element;
         private AnnotationClass _class;
 
