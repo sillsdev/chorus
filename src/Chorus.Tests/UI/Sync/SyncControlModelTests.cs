@@ -21,6 +21,13 @@ namespace Chorus.Tests
 		private ProjectFolderConfiguration _project;
 		private Synchronizer _synchronizer;
 
+		private void WaitForTasksToFinish(int timeoutMinutes, params WaitHandle[] waitHandles)
+		{
+			var timeout = new TimeSpan(0, timeoutMinutes, 0);
+			Assert.That(WaitHandle.WaitAll(waitHandles, (int)timeout.TotalMilliseconds), Is.True,
+				string.Format("Tasks timed out after {0} min.", timeout.TotalMinutes));
+		}
+
 		[SetUp]
 		public void Setup()
 		{
@@ -51,24 +58,6 @@ namespace Chorus.Tests
 		}
 
 		[Test]
-		[Platform(Exclude="Linux", Reason = "Known mono issue")]
-		public void AfterSyncLogNotEmpty()
-		{
-			_model.Sync(false);
-			var start = DateTime.Now;
-			while(!_model.EnableSendReceive)
-			{
-				Thread.Sleep(100);
-				Application.DoEvents();//without this, the background worker starves 'cause their's no UI
-				if ((DateTime.Now.Subtract(start).Minutes > 0))
-				{
-					Assert.Fail("Gave up waiting.");
-				}
-			}
-			Assert.IsNotEmpty(_progress.Text);
-		}
-
-		[Test]
 		public void InitiallyHasUsbTarget()
 		{
 			Assert.IsNotNull(_model.GetRepositoriesToList()[0].URI == "UsbKey");
@@ -84,10 +73,30 @@ namespace Chorus.Tests
 			Assert.AreEqual(1, _model.GetRepositoriesToList().Count);
 		}
 
+		[Test]
+		[Platform(Exclude = "Linux", Reason = "Known mono issue")]
+		public void Sync_AfterSyncLogNotEmpty()
+		{
+			_model.Sync(false);
+			// NOTE: we can't use AutoResetEvent with Sync() - for some reason this doesn't work
+			var start = DateTime.Now;
+			while (!_model.EnableSendReceive)
+			{
+				Thread.Sleep(100);
+				Application.DoEvents();//without this, the background worker starves 'cause their's no UI
+				if ((DateTime.Now.Subtract(start).Minutes > 0))
+				{
+					Assert.Fail("Gave up waiting.");
+				}
+			}
+			Assert.IsNotEmpty(_progress.Text);
+		}
+
 		/// <summary>
 		/// when r# allows categories, change this to just Catgory["SkipBehindProxy"]
 		/// </summary>
-		[Test, Ignore("fails behind hatton's proxy, because it requires intervention")]
+		[Test]
+		[Ignore("fails behind hatton's proxy, because it requires intervention")]
 		public void Sync_NonExistantLangDepotProject_ExitsGracefullyWithCorrectErrorResult()
 		{
 			_model = new SyncControlModel(_project, SyncUIFeatures.Minimal, null);
@@ -95,8 +104,9 @@ namespace Chorus.Tests
 			var progress = new ConsoleProgress() {ShowVerbose = true};
 			_model.AddMessagesDisplay(progress);
 			SyncResults results = null;
-			_model.SynchronizeOver += new EventHandler((sender, e) => results = (sender as SyncResults));
+			_model.SynchronizeOver += (sender, e) => results = sender as SyncResults;
 			_model.Sync(true);
+			// NOTE: we can't use AutoResetEvent with Sync() - for some reason this doesn't work
 			var start = DateTime.Now;
 			while (results == null)
 			{
@@ -120,10 +130,11 @@ namespace Chorus.Tests
 			var progress = new ConsoleProgress();
 			_model.AddMessagesDisplay(progress);
 			SyncResults results = null;
-			_model.SynchronizeOver += new EventHandler((sender, e) => results = (sender as SyncResults));
+			_model.SynchronizeOver += (sender, e) => results = sender as SyncResults;
 			_model.Sync(true);
 			Thread.Sleep(100);
 			_model.Cancel();
+			// NOTE: we can't use AutoResetEvent with Sync() - for some reason this doesn't work
 			var start = DateTime.Now;
 			while (results == null)
 			{
@@ -143,17 +154,9 @@ namespace Chorus.Tests
 		public void AsyncLocalCheckIn_GivesGoodResult()
 		{
 			SyncResults result=null;
-			_model.AsyncLocalCheckIn("testing", (r)=>result=r);
-			var start = DateTime.Now;
-			while (result == null)
-			{
-				Thread.Sleep(100);
-				Application.DoEvents();//without this, the background worker starves 'cause their's no UI
-				if ((DateTime.Now.Subtract(start).Minutes > 0))
-				{
-					Assert.Fail("Gave up waiting.");
-				}
-			}
+			var waitHandle = new AutoResetEvent(false);
+			_model.AsyncLocalCheckIn("testing", r => { result=r; waitHandle.Set();});
+			WaitForTasksToFinish(1, waitHandle);
 			Assert.IsTrue(result.Succeeded);
 		}
 
@@ -166,35 +169,29 @@ namespace Chorus.Tests
 			SyncResults result1=null;
 			SyncResults result2=null;
 			SyncResults result3=null;
-			_model.AsyncLocalCheckIn("testing", (r) => result1=r);
-			_model.AsyncLocalCheckIn("testing", (r) => result2=r);
-			_model.AsyncLocalCheckIn("testing", (r) => result3=r);
-			var start = DateTime.Now;
-			while(result1 == null || result2 == null || result3 == null)
-			{
-				Thread.Sleep(100);
-				Application.DoEvents();//without this, the background worker starves 'cause their's no UI
-				if((DateTime.Now.Subtract(start).Minutes > 0))
-				{
-					Assert.Fail("Gave up waiting.");
-				}
-			}
+			var waitHandle1 = new AutoResetEvent(false);
+			var waitHandle2 = new AutoResetEvent(false);
+			var waitHandle3 = new AutoResetEvent(false);
+			_model.AsyncLocalCheckIn("testing", r => { result1=r; waitHandle1.Set(); });
+			_model.AsyncLocalCheckIn("testing", r => { result2=r; waitHandle2.Set(); });
+			_model.AsyncLocalCheckIn("testing", r => { result3=r; waitHandle3.Set(); });
+			WaitForTasksToFinish(3, waitHandle1, waitHandle2, waitHandle3);
+
 			Assert.IsTrue(result1.Succeeded && result2.Succeeded && result3.Succeeded);
 			Assert.IsFalse(_model.StatusProgress.WarningEncountered);
 			Assert.IsFalse(_model.StatusProgress.ErrorEncountered);
 		}
 
-
 		[Test]
 		public void AsyncLocalCheckIn_NoPreviousRepoCreation_Throws()
 		{
 			Assert.Throws<InvalidOperationException>(() =>
-										 {
-											 //simulate not having previously created a repository
-											 SIL.IO.DirectoryUtilities.DeleteDirectoryRobust(
-												 _pathToTestRoot.CombineForPath(".hg"));
-											 _model.AsyncLocalCheckIn("testing", null);
-										 });
+										{
+											//simulate not having previously created a repository
+											SIL.IO.DirectoryUtilities.DeleteDirectoryRobust(
+												_pathToTestRoot.CombineForPath(".hg"));
+											_model.AsyncLocalCheckIn("testing", null);
+										});
 		}
 	}
 }
