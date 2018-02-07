@@ -44,9 +44,7 @@ namespace Chorus.merge.xml.generic
 	/// </summary>
 	public abstract class Conflict : IConflict, IEquatable<Conflict>
 	{
-		[Obsolete("Use TimeFormatWithTimeZone instead, as TimeFormatNoTimeZone produces incorrect results when used with DateTime.Now")]
-		static public string TimeFormatNoTimeZone = @"yyyy-MM-ddTHH:mm:ssZ";
-		static public string TimeFormatWithTimeZone = @"yyyy-MM-ddTHH:mm:ssK";
+		public static string TimeFormatWithTimeZone = @"yyyy-MM-ddTHH:mm:ssK";
 
 		private ContextDescriptor _context = new NullContextDescriptor();
 	   // protected string _shortDataDescription;
