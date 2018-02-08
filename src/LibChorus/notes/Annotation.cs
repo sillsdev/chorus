@@ -181,6 +181,15 @@ namespace Chorus.notes
             }
         }
 
+		public string StatusGuid
+		{
+			get
+			{
+				var last = LastMessage();
+				return last == null ? string.Empty : last.GetAttributeValue("guid");
+			}
+		}
+
         public bool CanResolve  
         {
             get { return _class.UserCanResolve; }
