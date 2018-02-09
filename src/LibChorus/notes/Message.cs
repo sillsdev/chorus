@@ -4,6 +4,7 @@ using System.Security;
 using System.Text;
 using System.Xml.Linq;
 using Chorus.Utilities;
+using Palaso.Providers;
 
 namespace Chorus.notes
 {
@@ -19,8 +20,8 @@ namespace Chorus.notes
 		public Message(string author, string status, string contents)
 		{
 			var s = String.Format("<message author='{0}' status ='{1}' date='{2}' guid='{3}'>{4}</message>",
-								  SecurityElement.Escape(author), SecurityElement.Escape(status), DateTime.Now.ToString(Annotation.TimeFormatNoTimeZone),
-								  System.Guid.NewGuid(), SecurityElement.Escape(contents));
+				SecurityElement.Escape(author), SecurityElement.Escape(status), DateTimeProvider.Current.Now.ToString(Annotation.TimeFormatNoTimeZone),
+				GuidProvider.Current.NewGuid(), SecurityElement.Escape(contents));
 			_element = XElement.Parse(s);
 		}
 

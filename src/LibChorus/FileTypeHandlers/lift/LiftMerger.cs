@@ -8,6 +8,9 @@ using Chorus.merge;
 using Chorus.merge.xml.generic;
 using Chorus.Utilities;
 using Palaso.Xml;
+using Palaso.Providers;
+using Chorus.FileTypeHandlers.lift;
+using Chorus.FileTypeHandlers.xml;
 
 namespace Chorus.FileTypeHanders.lift
 {
@@ -234,7 +237,7 @@ namespace Chorus.FileTypeHanders.lift
 
 		internal static void AddDateCreatedAttribute(XmlNode elementNode)
 		{
-			AddAttribute(elementNode, "dateCreated", DateTime.Now.ToString(LiftUtils.LiftTimeFormatNoTimeZone));
+			AddAttribute(elementNode, "dateCreated", DateTimeProvider.Current.Now.ToString(LiftUtils.LiftTimeFormatNoTimeZone));
 		}
 
 		internal static void AddAttribute(XmlNode element, string name, string value)
@@ -248,7 +251,7 @@ namespace Chorus.FileTypeHanders.lift
 		{
 			//review: why do we need to actually parse these dates?  Could we just do a string comparison?
 			if (LiftUtils.GetModifiedDate(betaEntry) == LiftUtils.GetModifiedDate(alphaEntry)
-				&& !(LiftUtils.GetModifiedDate(betaEntry) == default(DateTime)))
+				&& LiftUtils.GetModifiedDate(betaEntry) != default(DateTime))
 				return true;
 
 			return XmlUtilities.AreXmlElementsEqual(alphaEntry.OuterXml, betaEntry.OuterXml);

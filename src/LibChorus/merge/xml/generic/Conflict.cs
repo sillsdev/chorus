@@ -10,6 +10,7 @@ using L10NSharp;
 using Palaso.IO;
 using Palaso.Xml;
 using Palaso.Code;
+using Palaso.Providers;
 
 namespace Chorus.merge.xml.generic
 {
@@ -17,25 +18,6 @@ namespace Chorus.merge.xml.generic
 	 * file.  Later, a history UI can retrieve these records to show the user what happened and allow
 	 * them to change the automatic decision.
 	 */
-
-//
-//    public class ConflictFactory
-//    {
-//        private readonly MergeSituation _mergeSituation;
-//
-//        public ConflictFactory(MergeSituation mergeSituation)
-//        {
-//            _mergeSituation = mergeSituation;
-//        }
-//
-//        public T Create<T>()
-//            where T:IConflict, new()
-//        {
-//            T conflict = new T();
-//            conflict.MergeSituation = _mergeSituation;
-//            return conflict;
-//        }
-//    }
 
 	/// <summary>
 	/// Base class for Conflicts detected in merging changes made by different users.
@@ -47,12 +29,13 @@ namespace Chorus.merge.xml.generic
 		static public string TimeFormatNoTimeZone = @"yyyy-MM-ddTHH:mm:ssZ";
 
 		private ContextDescriptor _context = new NullContextDescriptor();
-	   // protected string _shortDataDescription;
-		protected Guid _guid = Guid.NewGuid();
+
+		protected Guid _guid = GuidProvider.Current.NewGuid();
 		// The value used for the "class" attribute in Annotation XML created to wrap conflicts other than notifications.
 		public  const string ConflictAnnotationClassName=@"mergeConflict";
 		// The value used for the "class" attribute in Annotation XML created to wrap conflicts that are notifications.
 		public const string NotificationAnnotationClassName = @"notification";
+
 		/// <summary>
 		/// The value that should be used for the "class" attribute in Annotation XML created to wrap this conflict.
 		/// </summary>
@@ -60,7 +43,7 @@ namespace Chorus.merge.xml.generic
 		{
 			get { return IsNotification ? NotificationAnnotationClassName : ConflictAnnotationClassName; }
 		}
-		// public string PathToUnitOfConflict { get; set; }
+
 		public string RelativeFilePath { get { return Situation.PathToFileInRepository; } }
 
 		public abstract string GetFullHumanReadableDescription();
@@ -146,13 +129,13 @@ namespace Chorus.merge.xml.generic
 			writer.WriteStartElement(@"annotation");
 			writer.WriteAttributeString(@"class", string.Empty, AnnotationClassName);
 			writer.WriteAttributeString(@"ref", Context.PathToUserUnderstandableElement);
-			writer.WriteAttributeString(@"guid", Guid.NewGuid().ToString()); //nb: this is the guid of the enclosing annotation, not the conflict;
+			writer.WriteAttributeString(@"guid", GuidProvider.Current.NewGuid().ToString()); //nb: this is the guid of the enclosing annotation, not the conflict;
 
 			writer.WriteStartElement(@"message");
 			writer.WriteAttributeString(@"author", string.Empty, Author);
 			writer.WriteAttributeString(@"status", string.Empty, @"open");
 			writer.WriteAttributeString(@"guid", string.Empty, Guid.ToString());//nb: ok to have the same guid with the conflict, as they are in 1-1 relation and eventually we'll remove the one on conflict
-			writer.WriteAttributeString(@"date", string.Empty, DateTime.UtcNow.ToString(TimeFormatNoTimeZone));
+			writer.WriteAttributeString(@"date", string.Empty, DateTimeProvider.Current.UtcNow.ToString(TimeFormatNoTimeZone));
 			writer.WriteString(GetFullHumanReadableDescription());
 
 			//we embed this xml inside the CDATA section so that it pass a more generic schema without
@@ -189,11 +172,9 @@ namespace Chorus.merge.xml.generic
 			writer.WriteAttributeString(@"typeGuid", string.Empty, GetTypeGuid());
 			writer.WriteAttributeString(@"class", string.Empty, this.GetType().FullName);
 			writer.WriteAttributeString(@"relativeFilePath", string.Empty, RelativeFilePath);
-			//writer.WriteAttributeString("pathToUnitOfConflict", string.Empty, PathToUnitOfConflict);
 			writer.WriteAttributeString(@"type", string.Empty, Description);
 			writer.WriteAttributeString(@"guid", string.Empty, Guid.ToString());
-			writer.WriteAttributeString(@"date", string.Empty, DateTime.UtcNow.ToString(TimeFormatNoTimeZone));
-		  //  writer.WriteAttributeString("shortDataDescription", _shortDataDescription);
+			writer.WriteAttributeString(@"date", string.Empty, DateTimeProvider.Current.UtcNow.ToString(TimeFormatNoTimeZone));
 			writer.WriteAttributeString(@"whoWon", _whoWon);
 			writer.WriteAttributeString(@"htmlDetails", HtmlDetails);
 
@@ -229,13 +210,7 @@ namespace Chorus.merge.xml.generic
 			var ancestorHtml = @"";
 			if (ancestorContext != null)
 			{
-				//sb.Append("<div class='altheader'>");
-				//sb.Append(string.Format("{0} was originally", ContextDataLabel));
-				//sb.Append("</div>");
-				//sb.Append("<div class='alternative'>");
 				ancestorHtml = htmlMaker.HtmlContext(ancestorContext);
-				//sb.Append(ancestorHtml);
-				//sb.Append("</div>");
 			}
 			AppendAlternative(sb, oursContext, ancestorContext, ancestorHtml, htmlMaker, OursLabel);
 			AppendAlternative(sb, theirsContext, ancestorContext, ancestorHtml, htmlMaker, TheirsLabel);
@@ -429,7 +404,6 @@ namespace Chorus.merge.xml.generic
 			try
 			{
 				var typeGuid = conflictNode.GetStringAttribute(@"typeGuid");
-			//	return ConflictFactory.Resolve<IConflict>(typeGuid, new Parameter[] {new TypedParameter(typeof (XmlNode), conflictNode)});
 				return ConflictFactory.ResolveNamed<IConflict>(typeGuid, new TypedParameter(typeof(XmlNode), conflictNode));
 			}
 			catch (Exception error)
@@ -440,7 +414,6 @@ namespace Chorus.merge.xml.generic
 
 		private static void Register<T>(Autofac.ContainerBuilder builder)
 		{
-			//Register(builder, typeof(T));
 			builder.RegisterType<T>().As<IConflict>().Named<IConflict>(GetTypeGuid(typeof(T))).InstancePerDependency();
 		}
 
@@ -621,13 +594,13 @@ namespace Chorus.merge.xml.generic
 			Guard.AgainstNull(writer, @"writer");
 			writer.WriteStartElement(@"annotation");
 			writer.WriteAttributeString(@"class", "mergeconflict");
-			writer.WriteAttributeString(@"guid", Guid.NewGuid().ToString());
+			writer.WriteAttributeString(@"guid", GuidProvider.Current.NewGuid().ToString());
 			writer.WriteAttributeString(@"ref", String.Format("sil://localhost?&label=File {0} deleted and changed", Path.GetFileName(RelativeFilePath)));
 			writer.WriteStartElement(@"message");
 			writer.WriteAttributeString(@"author", string.Empty, "merger");
 			writer.WriteAttributeString(@"status", string.Empty, @"open");
 			writer.WriteAttributeString(@"guid", string.Empty, Guid.ToString());
-			writer.WriteAttributeString(@"date", string.Empty, DateTime.UtcNow.ToString(Conflict.TimeFormatNoTimeZone));
+			writer.WriteAttributeString(@"date", string.Empty, DateTimeProvider.Current.UtcNow.ToString(Conflict.TimeFormatNoTimeZone));
 			writer.WriteString(GetFullHumanReadableDescription());
 
 			//we embed the conflict xml inside the CDATA section so that it pass a more generic schema without
@@ -640,7 +613,7 @@ namespace Chorus.merge.xml.generic
 				embeddedWriter.WriteAttributeString(@"relativeFilePath", string.Empty, RelativeFilePath);
 				embeddedWriter.WriteAttributeString(@"type", string.Empty, Description);
 				embeddedWriter.WriteAttributeString(@"guid", string.Empty, Guid.ToString());
-				embeddedWriter.WriteAttributeString(@"date", string.Empty, DateTime.UtcNow.ToString(Conflict.TimeFormatNoTimeZone));
+				embeddedWriter.WriteAttributeString(@"date", string.Empty, DateTimeProvider.Current.UtcNow.ToString(Conflict.TimeFormatNoTimeZone));
 
 				if(Context != null)
 				{
