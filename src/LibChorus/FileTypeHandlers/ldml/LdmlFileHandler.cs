@@ -353,28 +353,30 @@ namespace Chorus.FileTypeHandlers.ldml
 				return;
 
 			// Add optional key attr and default value on 'collation' element that has no 'type' attr.
-			XElement defaultCollation;
+			XElement ourDocDefaultCollation = GetDefaultCollationNode(ourDoc);
+			XElement theirDocDefaultCollation = GetDefaultCollationNode(theirDoc);
 			if (commonDoc != null)
 			{
-				defaultCollation = GetDefaultCollationNode(commonDoc);
-				if (defaultCollation != null)
+				XElement commonDocDefaultCollation = GetDefaultCollationNode(commonDoc);
+				if (commonDocDefaultCollation != null)
 				{
-					defaultCollation.Add(new XAttribute("type", "standard"));
-					commonDoc.Save(mergeOrder.pathToCommonAncestor);
-					addedCollationAttr = true;
+					if (ourDocDefaultCollation != null || theirDocDefaultCollation != null)
+					{
+						// add type attribute to the commonDoc only when we are certain it will also be added to at least one modified document
+						commonDocDefaultCollation.Add(new XAttribute("type", "standard"));
+						commonDoc.Save(mergeOrder.pathToCommonAncestor);
+					}
 				}
 			}
-			defaultCollation = GetDefaultCollationNode(ourDoc);
-			if (defaultCollation != null)
+			if (ourDocDefaultCollation != null)
 			{
-				defaultCollation.Add(new XAttribute("type", "standard"));
+				ourDocDefaultCollation.Add(new XAttribute("type", "standard"));
 				ourDoc.Save(mergeOrder.pathToOurs);
 				addedCollationAttr = true;
 			}
-			defaultCollation = GetDefaultCollationNode(theirDoc);
-			if (defaultCollation != null)
+			if (theirDocDefaultCollation != null)
 			{
-				defaultCollation.Add(new XAttribute("type", "standard"));
+				theirDocDefaultCollation.Add(new XAttribute("type", "standard"));
 				theirDoc.Save(mergeOrder.pathToTheirs);
 				addedCollationAttr = true;
 			}
