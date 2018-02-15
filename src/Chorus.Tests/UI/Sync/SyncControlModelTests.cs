@@ -109,6 +109,7 @@ namespace Chorus.Tests
 
 		[Test]
 		[Category("SkipBehindProxy")]
+		[Category("SkipOnTeamCity")]
 		public void Sync_NonExistantLangDepotProject_ExitsGracefullyWithCorrectErrorResult()
 		{
 			_model = new SyncControlModel(_project, SyncUIFeatures.Minimal, null);
