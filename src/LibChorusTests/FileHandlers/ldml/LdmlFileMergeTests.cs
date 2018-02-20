@@ -1228,6 +1228,74 @@ namespace LibChorus.Tests.FileHandlers.ldml
 				1, new List<Type> {typeof (XmlBothAddedSameChangeReport)}));
 		}
 
+		[Test]
+		public void PreMerge_DoesNotCrashIfChangesAreMissingCollation()
+		{
+			const string baseHasCollationMissingDefaultAttr =
+				@"<?xml version='1.0' encoding='utf-8'?>
+<ldml>
+	<identity>
+		<version
+			number='' />
+		<generation
+			date='2018-02-19T18:03:34' />
+		<language
+			type='fr' />
+	</identity>
+	<collations>
+		<collation>
+			<base>
+				<alias
+					source='fr' />
+			</base>
+			<special xmlns:palaso='urn://palaso.org/ldmlExtensions/v1'>
+				<palaso:sortRulesType
+					value='OtherLanguage' />
+			</special>
+		</collation>
+	</collations>
+</ldml>";
+
+			const string oursMissingCollation =
+				@"<?xml version='1.0' encoding='utf-8'?>
+<ldml>
+	<identity>
+		<version number='' />
+		<generation date='2018-02-19T19:48:02Z' />
+		<language type='fr' />
+		<special xmlns:sil='urn://www.sil.org/ldml/0.1'>
+			<sil:identity windowsLCID='4108' />
+		</special>
+	</identity>
+</ldml>";
+			const string theirsMissingCollations =
+				@"<?xml version='1.0' encoding='utf-8'?>
+<ldml>
+	<identity>
+		<version number='' />
+		<generation date='2018-02-19T19:21:59Z' />
+		<language type='fr' />
+		<special xmlns:sil='urn://www.sil.org/ldml/0.1'>
+			<sil:identity windowsLCID='4108' />
+		</special>
+	</identity>
+</ldml>";
+			var namespaces = new Dictionary<string, string>
+			{
+				{"palaso", "urn://palaso.org/ldmlExtensions/v1"},
+				{"fw", "urn://fieldworks.sil.org/ldmlExtensions/v1"},
+				{"sil", "urn://www.sil.org/ldml/0.1" }
+			};
+
+			Assert.DoesNotThrow(() => DoMerge(baseHasCollationMissingDefaultAttr, oursMissingCollation, theirsMissingCollations,
+				namespaces,
+				new List<string>(),
+				new List<string>(),
+				0, null, 
+				3, new List<Type> { typeof(XmlBothDeletionChangeReport), typeof(XmlAttributeBothMadeSameChangeReport) , typeof(XmlBothAddedSameChangeReport) }));
+
+		}
+
 		private string DoMerge(string commonAncestor, string ourContent, string theirContent,
 			Dictionary<string, string> namespaces,
 			IEnumerable<string> matchesExactlyOne, IEnumerable<string> isNull,
