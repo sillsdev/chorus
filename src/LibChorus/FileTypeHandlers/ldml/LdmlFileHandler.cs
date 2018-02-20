@@ -353,11 +353,11 @@ namespace Chorus.FileTypeHandlers.ldml
 				return;
 
 			// Add optional key attr and default value on 'collation' element that has no 'type' attr.
-			XElement ourDocDefaultCollation = GetDefaultCollationNode(ourDoc);
-			XElement theirDocDefaultCollation = GetDefaultCollationNode(theirDoc);
+			var ourDocDefaultCollation = GetDefaultCollationNode(ourDoc);
+			var theirDocDefaultCollation = GetDefaultCollationNode(theirDoc);
 			if (commonDoc != null)
 			{
-				XElement commonDocDefaultCollation = GetDefaultCollationNode(commonDoc);
+				var commonDocDefaultCollation = GetDefaultCollationNode(commonDoc);
 				if (commonDocDefaultCollation != null)
 				{
 					if (ourDocDefaultCollation != null || theirDocDefaultCollation != null)

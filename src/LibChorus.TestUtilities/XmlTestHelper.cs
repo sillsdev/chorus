@@ -137,7 +137,7 @@ namespace LibChorus.TestUtilities
 				doc.WriteContentTo(writer);
 				writer.Flush();
 			}
-			Assert.IsNull(node);
+			Assert.IsNull(node, "Unexpectedly found a match for: " + xpath);
 		}
 
 		public static string DoMerge(
