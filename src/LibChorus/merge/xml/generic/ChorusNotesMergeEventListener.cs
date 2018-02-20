@@ -18,7 +18,7 @@ namespace Chorus.merge.xml.generic
 		private FileStream _readerStream;
 		private TempFile _tempFile;
 		private string _path;
-		static public string TimeFormatNoTimeZone = "yyyy-MM-ddTHH:mm:ssZ";
+		public static string TimeFormatWithTimeZone = "yyyy-MM-ddTHH:mm:ssK";
 		private const int FormatVersionNumber = 0;
 
 		/// <summary>

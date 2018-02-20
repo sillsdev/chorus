@@ -214,10 +214,14 @@ Global
 		{EB8C974D-B1C6-4CE0-BFD4-170EFE18790C}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{EB8C974D-B1C6-4CE0-BFD4-170EFE18790C}.Release|x86.ActiveCfg = Release|Any CPU
 		{EB8C974D-B1C6-4CE0-BFD4-170EFE18790C}.DebugMono|Any CPU.ActiveCfg = DebugMono|Any CPU
+		{EB8C974D-B1C6-4CE0-BFD4-170EFE18790C}.DebugMono|Any CPU.Build.0 = DebugMono|Any CPU
 		{EB8C974D-B1C6-4CE0-BFD4-170EFE18790C}.DebugMono|Mixed Platforms.ActiveCfg = DebugMono|Any CPU
+		{EB8C974D-B1C6-4CE0-BFD4-170EFE18790C}.DebugMono|Mixed Platforms.Build.0 = DebugMono|Any CPU
 		{EB8C974D-B1C6-4CE0-BFD4-170EFE18790C}.DebugMono|x86.ActiveCfg = DebugMono|Any CPU
 		{EB8C974D-B1C6-4CE0-BFD4-170EFE18790C}.ReleaseMono|Any CPU.ActiveCfg = ReleaseMono|Any CPU
+		{EB8C974D-B1C6-4CE0-BFD4-170EFE18790C}.ReleaseMono|Any CPU.Build.0 = ReleaseMono|Any CPU
 		{EB8C974D-B1C6-4CE0-BFD4-170EFE18790C}.ReleaseMono|Mixed Platforms.ActiveCfg = ReleaseMono|Any CPU
+		{EB8C974D-B1C6-4CE0-BFD4-170EFE18790C}.ReleaseMono|Mixed Platforms.Build.0 = ReleaseMono|Any CPU
 		{EB8C974D-B1C6-4CE0-BFD4-170EFE18790C}.ReleaseMono|x86.ActiveCfg = ReleaseMono|Any CPU
 		{4D3ECD8D-431D-4B53-B635-017B36B002C9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{4D3ECD8D-431D-4B53-B635-017B36B002C9}.Debug|Any CPU.Build.0 = Debug|Any CPU

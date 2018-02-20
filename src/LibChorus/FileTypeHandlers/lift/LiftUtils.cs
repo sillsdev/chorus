@@ -6,7 +6,7 @@ namespace Chorus.FileTypeHandlers.lift
 {
 	public static class LiftUtils
 	{
-		static public string LiftTimeFormatNoTimeZone = "yyyy-MM-ddTHH:mm:ssZ";
+		public static string LiftTimeFormatWithTimeZone = "yyyy-MM-ddTHH:mm:ssK";
 
 		public static string GetId(XmlNode e)
 		{
