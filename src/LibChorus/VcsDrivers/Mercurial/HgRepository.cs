@@ -458,13 +458,20 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		internal string GetTextFromQuery(string query)
 		{
-			ExecutionResult result = ExecuteErrorsOk(query, _pathToRepository, SecondsBeforeTimeoutOnLocalOperation, _progress);
-			// Debug.Assert(string.IsNullOrEmpty(result.StandardError), result.StandardError);
+			var result = ExecuteErrorsOk(query, _pathToRepository, SecondsBeforeTimeoutOnLocalOperation, _progress);
 
-			if (!string.IsNullOrEmpty(result.StandardOutput))
-				_progress.WriteVerbose(result.StandardOutput.Trim());
-			if (!string.IsNullOrEmpty(result.StandardError))
-				_progress.WriteVerbose(result.StandardError.Trim());
+			var standardOutputText = result.StandardOutput.Trim();
+			if (!string.IsNullOrEmpty(standardOutputText))
+			{
+				_progress.WriteVerbose(standardOutputText);
+			}
+
+			var standardErrorText = result.StandardError.Trim();
+			if (!string.IsNullOrEmpty(standardErrorText))
+			{
+				_progress.WriteVerbose(standardErrorText);
+			}
+
 			if (GetHasLocks())
 			{
 				_progress.WriteWarning("Hg Command {0} left lock", query);
@@ -474,10 +481,19 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		private string GetTextFromQuery(string query, int secondsBeforeTimeoutOnLocalOperation, IProgress progress)
 		{
-			ExecutionResult result = ExecuteErrorsOk(query, _pathToRepository, secondsBeforeTimeoutOnLocalOperation, _progress);
-			progress.WriteVerbose(result.StandardOutput);
-			if(!string.IsNullOrEmpty(result.StandardError))
-				progress.WriteError(result.StandardError);
+			var result = ExecuteErrorsOk(query, _pathToRepository, secondsBeforeTimeoutOnLocalOperation, _progress);
+
+			var standardOutputText = result.StandardOutput.Trim();
+			if (!string.IsNullOrEmpty(standardOutputText))
+			{
+				_progress.WriteVerbose(standardOutputText);
+			}
+
+			var standardErrorText = result.StandardError.Trim();
+			if (!string.IsNullOrEmpty(standardErrorText))
+			{
+				_progress.WriteError(standardErrorText);
+			}
 
 			return result.StandardOutput;
 		}
@@ -904,8 +920,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 			if (GetIsAtLeastOneMissingFileInWorkingDir())
 			{
-				_progress.WriteVerbose(
-					"At least one file was removed from the working directory.  Telling Hg to record the deletion.");
+				_progress.WriteVerbose("At least one file was removed from the working directory.  Telling Hg to record the deletion.");
 
 				Execute(SecondsBeforeTimeoutOnLocalOperation, "rm -A");
 			}
