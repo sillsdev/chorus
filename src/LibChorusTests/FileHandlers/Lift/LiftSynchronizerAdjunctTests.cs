@@ -19,10 +19,11 @@ namespace LibChorus.Tests.FileHandlers.Lift
 		public void LiftSynchronizerReadsLift13VersionCorrectly()
 		{
 			// Setup
-			using (var myfile = new TempFile(TestLift13File))
+			using (var liftProject = new TemporaryFolder("TempProj_LIFT_NOLDML"))
+			using (var liftFile = new TempFileFromFolder(liftProject, "proj.lift", TestLift13File))
 			{
 				// SUT
-				var syncAdjunct = new LiftSynchronizerAdjunct(myfile.Path);
+				var syncAdjunct = new LiftSynchronizerAdjunct(liftFile.Path);
 
 				// Verification
 				Assert.AreEqual("default", syncAdjunct.BranchName, "BranchName should be 'default' for LIFT0.13");
