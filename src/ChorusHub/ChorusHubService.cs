@@ -264,7 +264,7 @@ namespace ChorusHub
 
 			// since the repository doesn't exist, create it
 			var directory = Path.Combine(ChorusHubOptions.RootDirectory, name);
-			var uniqueDir = DirectoryUtilities.GetUniqueFolderPath(directory);
+			var uniqueDir = PathHelper.GetUniqueFolderPath(directory);
 			//EventLog.WriteEntry("Application", string.Format("PrepareToReceiveRepository() is preparing a place for '{0}'.", name), EventLogEntryType.Information);
 			if (uniqueDir != directory)
 			{
