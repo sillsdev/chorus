@@ -215,7 +215,7 @@
 	<Reference Include="System.Xml.Linq" />
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="icu.net">
-      <HintPath>..\..\packages\icu.net.2.3.0\lib\net40\icu.net.dll</HintPath>
+      <HintPath>..\..\packages\icu.net.2.3.2\lib\net40\icu.net.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
