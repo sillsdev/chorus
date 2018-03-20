@@ -61,14 +61,14 @@ http://blogs.msdn.com/robmen/archive/2003/10/04/56479.aspx -->
 		<Component Id="icu.net.dll" Guid="C1EE09F7-E382-11DE-8A39-0800200C9A66">
 		  <File Id="icu.net.dll" Name="icu.net.dll" KeyPath="yes" Source="..\..\output\release\icu.net.dll" />
 		</Component>
-		<Component Id="icudt54.dll" Guid="C1EE3118-E382-11DE-8A39-0800200C9A66">
-		  <File Id="icudt54.dll" Name="icudt54.dll" KeyPath="yes" Source="..\..\output\Release\icudt54.dll" />
+		<Component Id="icudt56.dll" Guid="C1EE3118-E382-11DE-8A39-0800200C9A66">
+		  <File Id="icudt56.dll" Name="icudt56.dll" KeyPath="yes" Source="..\..\output\Release\lib\win-x86\icudt56.dll" />
 		</Component>
-		<Component Id="icuin54.dll" Guid="C1EE3117-E382-11DE-8A39-0800200C9A66">
-		  <File Id="icuin54.dll" Name="icuin54.dll" KeyPath="yes" Source="..\..\output\Release\icuin54.dll" />
+		<Component Id="icuin56.dll" Guid="C1EE3117-E382-11DE-8A39-0800200C9A66">
+		  <File Id="icuin56.dll" Name="icuin56.dll" KeyPath="yes" Source="..\..\output\Release\lib\win-x86\icuin56.dll" />
 		</Component>
-		<Component Id="icuuc54.dll" Guid="C1EE3116-E382-11DE-8A39-0800200C9A66">
-		  <File Id="icuuc54.dll" Name="icuuc54.dll" KeyPath="yes" Source="..\..\output\Release\icuuc54.dll" />
+		<Component Id="icuuc56.dll" Guid="C1EE3116-E382-11DE-8A39-0800200C9A66">
+		  <File Id="icuuc56.dll" Name="icuuc56.dll" KeyPath="yes" Source="..\..\output\Release\lib\win-x86\icuuc56.dll" />
 		</Component>
 		<Component Id="SIL.Core.dll" Guid="C1EE09F8-E382-11DE-8A39-0800200C9A66">
 		  <File Id="SIL.Core.dll" Name="SIL.Core.dll" KeyPath="yes" Source="..\..\output\release\SIL.Core.dll" />
@@ -87,9 +87,9 @@ http://blogs.msdn.com/robmen/archive/2003/10/04/56479.aspx -->
 	<ComponentRef Id="Vulcan.Uczniowie.HelpProvider.dll"/>
 	<ComponentRef Id="Autofac.dll"/>
 	<ComponentRef Id="icu.net.dll"/>
-	<ComponentRef Id="icudt54.dll"/>
-	<ComponentRef Id="icuin54.dll"/>
-	<ComponentRef Id="icuuc54.dll"/>
+	<ComponentRef Id="icudt56.dll"/>
+	<ComponentRef Id="icuin56.dll"/>
+	<ComponentRef Id="icuuc56.dll"/>
 	<ComponentRef Id="SIL.Core.dll"/>
 	<ComponentRef Id="SIL.Lift.dll"/>
 	<ComponentRef Id="SIL.Windows.Forms.dll"/>
