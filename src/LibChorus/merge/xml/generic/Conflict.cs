@@ -26,7 +26,9 @@ namespace Chorus.merge.xml.generic
 	/// </summary>
 	public abstract class Conflict : IConflict, IEquatable<Conflict>
 	{
+		[Obsolete("Use TimeFormatWithTimeZone instead, as TimeFormatNoTimeZone produces incorrect results when used with DateTime.Now")]
 		static public string TimeFormatNoTimeZone = @"yyyy-MM-ddTHH:mm:ssZ";
+		static public string TimeFormatWithTimeZone = @"yyyy-MM-ddTHH:mm:ssK";
 
 		private ContextDescriptor _context = new NullContextDescriptor();
 
@@ -135,7 +137,7 @@ namespace Chorus.merge.xml.generic
 			writer.WriteAttributeString(@"author", string.Empty, Author);
 			writer.WriteAttributeString(@"status", string.Empty, @"open");
 			writer.WriteAttributeString(@"guid", string.Empty, Guid.ToString());//nb: ok to have the same guid with the conflict, as they are in 1-1 relation and eventually we'll remove the one on conflict
-			writer.WriteAttributeString(@"date", string.Empty, DateTimeProvider.Current.UtcNow.ToString(TimeFormatNoTimeZone));
+			writer.WriteAttributeString(@"date", string.Empty, DateTimeProvider.Current.UtcNow.ToString(TimeFormatWithTimeZone));
 			writer.WriteString(GetFullHumanReadableDescription());
 
 			//we embed this xml inside the CDATA section so that it pass a more generic schema without
@@ -174,7 +176,7 @@ namespace Chorus.merge.xml.generic
 			writer.WriteAttributeString(@"relativeFilePath", string.Empty, RelativeFilePath);
 			writer.WriteAttributeString(@"type", string.Empty, Description);
 			writer.WriteAttributeString(@"guid", string.Empty, Guid.ToString());
-			writer.WriteAttributeString(@"date", string.Empty, DateTimeProvider.Current.UtcNow.ToString(TimeFormatNoTimeZone));
+			writer.WriteAttributeString(@"date", string.Empty, DateTimeProvider.Current.UtcNow.ToString(TimeFormatWithTimeZone));
 			writer.WriteAttributeString(@"whoWon", _whoWon);
 			writer.WriteAttributeString(@"htmlDetails", HtmlDetails);
 
@@ -600,7 +602,7 @@ namespace Chorus.merge.xml.generic
 			writer.WriteAttributeString(@"author", string.Empty, "merger");
 			writer.WriteAttributeString(@"status", string.Empty, @"open");
 			writer.WriteAttributeString(@"guid", string.Empty, Guid.ToString());
-			writer.WriteAttributeString(@"date", string.Empty, DateTimeProvider.Current.UtcNow.ToString(Conflict.TimeFormatNoTimeZone));
+			writer.WriteAttributeString(@"date", string.Empty, DateTimeProvider.Current.UtcNow.ToString(Conflict.TimeFormatWithTimeZone));
 			writer.WriteString(GetFullHumanReadableDescription());
 
 			//we embed the conflict xml inside the CDATA section so that it pass a more generic schema without
@@ -613,7 +615,7 @@ namespace Chorus.merge.xml.generic
 				embeddedWriter.WriteAttributeString(@"relativeFilePath", string.Empty, RelativeFilePath);
 				embeddedWriter.WriteAttributeString(@"type", string.Empty, Description);
 				embeddedWriter.WriteAttributeString(@"guid", string.Empty, Guid.ToString());
-				embeddedWriter.WriteAttributeString(@"date", string.Empty, DateTimeProvider.Current.UtcNow.ToString(Conflict.TimeFormatNoTimeZone));
+				embeddedWriter.WriteAttributeString(@"date", string.Empty, DateTimeProvider.Current.UtcNow.ToString(Conflict.TimeFormatWithTimeZone));
 
 				if(Context != null)
 				{

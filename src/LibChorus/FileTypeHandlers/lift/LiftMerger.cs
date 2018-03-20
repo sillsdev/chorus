@@ -237,7 +237,7 @@ namespace Chorus.FileTypeHanders.lift
 
 		internal static void AddDateCreatedAttribute(XmlNode elementNode)
 		{
-			AddAttribute(elementNode, "dateCreated", DateTimeProvider.Current.Now.ToString(LiftUtils.LiftTimeFormatNoTimeZone));
+			AddAttribute(elementNode, "dateCreated", DateTimeProvider.Current.Now.ToString(LiftUtils.LiftTimeFormatWithTimeZone));
 		}
 
 		internal static void AddAttribute(XmlNode element, string name, string value)

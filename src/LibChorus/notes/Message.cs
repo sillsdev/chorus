@@ -20,7 +20,7 @@ namespace Chorus.notes
 		public Message(string author, string status, string contents)
 		{
 			var s = String.Format("<message author='{0}' status ='{1}' date='{2}' guid='{3}'>{4}</message>",
-				SecurityElement.Escape(author), SecurityElement.Escape(status), DateTimeProvider.Current.Now.ToString(Annotation.TimeFormatNoTimeZone),
+				SecurityElement.Escape(author), SecurityElement.Escape(status), DateTimeProvider.Current.Now.ToString(Annotation.TimeFormatWithTimeZone),
 				GuidProvider.Current.NewGuid(), SecurityElement.Escape(contents));
 			_element = XElement.Parse(s);
 		}
