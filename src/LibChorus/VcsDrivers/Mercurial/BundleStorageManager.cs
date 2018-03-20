@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using Palaso.Providers;
 
 namespace Chorus.VcsDrivers.Mercurial
 {
@@ -30,7 +31,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		private static void CleanUpExpiredData(string dataFolderPath)
 		{
-			var currentTime = DateTime.Now;
+			var currentTime = DateTimeProvider.Current.Now;
 			var fileList = Directory.GetFiles(dataFolderPath);
 			foreach (var filePath in fileList)
 			{
@@ -49,7 +50,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			{
 				return File.ReadAllText(_idFilePath).Trim();
 			}
-			var id = Guid.NewGuid().ToString();
+			var id = GuidProvider.Current.NewGuid().ToString();
 			File.WriteAllText(_idFilePath, id);
 			return id;
 		}

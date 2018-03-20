@@ -11,6 +11,7 @@ using System.Xml.XPath;
 using Chorus.Properties;
 using Chorus.Utilities;
 using Chorus.merge.xml.generic;
+using Palaso.Providers;
 
 namespace Chorus.notes
 {
@@ -31,7 +32,7 @@ namespace Chorus.notes
         }
 
 		public Annotation(string annotationClass, string refUrl, string path)
-			: this(annotationClass, refUrl, System.Guid.NewGuid(), path)
+			: this(annotationClass, refUrl, GuidProvider.Current.NewGuid(), path)
 		{
 		}
 
@@ -182,6 +183,15 @@ namespace Chorus.notes
 				AddMessage(author, status, String.Empty);
             }
         }
+
+		public string StatusGuid
+		{
+			get
+			{
+				var last = LastMessage();
+				return last == null ? string.Empty : last.GetAttributeValue("guid");
+			}
+		}
 
         public bool CanResolve  
         {
