@@ -44,8 +44,21 @@ namespace Chorus.FileTypeHandlers
 
 				using (var container = new CompositionContainer(catalog))
 				{
-					container.ComposeParts(this);
-				}
+                    try
+                    {
+                        container.ComposeParts(this);
+                    }
+                    catch (Exception ex)
+                    {
+                        if (ex is ReflectionTypeLoadException)
+                        {
+                            var typeLoadException = ex as ReflectionTypeLoadException;
+                            var loaderExceptions = typeLoadException.LoaderExceptions;
+                            System.Diagnostics.Debug.Fail("Loading exception!");
+                            throw new AggregateException(ex.Message, loaderExceptions);
+                        }
+                    }
+                }
 			}
 		}
 

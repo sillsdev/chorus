@@ -187,7 +187,8 @@ namespace Nini.Ini
 				Save(writer);
 				writer.Close();
 			}
-			File.Replace(tempPath, filePath, null);
+            // File.Replace(tempPath, filePath, null);
+            SIL.IO.RobustFile.Replace(tempPath, filePath, null);
 		}
 
 		//added by hatton for Chorus
