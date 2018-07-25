@@ -19,8 +19,8 @@ namespace Chorus.merge.xml.generic
 		private TempFile _tempFile;
 		private string _path;
 		[Obsolete("Use TimeFormatWithTimeZone instead, as TimeFormatNoTimeZone produces incorrect results when used with DateTime.Now")]
-		static public string TimeFormatNoTimeZone = "yyyy-MM-ddTHH:mm:ssZ";
-		static public string TimeFormatWithTimeZone = "yyyy-MM-ddTHH:mm:ssK";
+		public static string TimeFormatNoTimeZone = "yyyy-MM-ddTHH:mm:ssZ";
+		public static string TimeFormatWithTimeZone = "yyyy-MM-ddTHH:mm:ssK";
 		private const int FormatVersionNumber = 0;
 
 		/// <summary>
@@ -42,7 +42,7 @@ namespace Chorus.merge.xml.generic
 			}
 			catch (Exception error)
 			{
-				Debug.Fail("Something went wrong trying to create a blank ChorusNotes file :"+error.Message);
+				Debug.Fail("Something went wrong trying to create a blank ChorusNotes file :" + error.Message);
 				//todo log that the xml was the wrong format
 			}
 
@@ -55,11 +55,11 @@ namespace Chorus.merge.xml.generic
 
 		private static void CreateEmptyChorusNotesFile(string path)
 		{
-			if(!File.Exists(path))
+			if (!File.Exists(path))
 			{
 				var doc = new XmlDocument();
 				doc.LoadXml(string.Format("<notes version='{0}'/>", FormatVersionNumber.ToString()));
-				using(var fileWriter = XmlWriter.Create(path, CanonicalXmlSettings.CreateXmlWriterSettings()))
+				using (var fileWriter = XmlWriter.Create(path, CanonicalXmlSettings.CreateXmlWriterSettings()))
 				{
 					doc.Save(fileWriter);
 				}
@@ -68,24 +68,24 @@ namespace Chorus.merge.xml.generic
 
 		private void StreamToInsertionPoint(XmlReader reader, XmlWriter writer)
 		{
-			if ( reader == null )
+			if (reader == null)
 			{
 				throw new ArgumentNullException("reader");
 			}
-			if ( writer == null )
+			if (writer == null)
 			{
 				throw new ArgumentNullException("writer");
 			}
 
 			while (reader.Read())
 			{
-				if(reader.LocalName == "notes" && reader.IsEmptyElement)
+				if (reader.LocalName == "notes" && reader.IsEmptyElement)
 				{
 					writer.WriteStartElement("notes");
 					writer.WriteAttributes(reader, false);
 					return;
 				}
-				if(reader.LocalName == "notes" && !reader.IsStartElement())
+				if (reader.LocalName == "notes" && !reader.IsStartElement())
 				{
 					return;
 				}
@@ -189,7 +189,7 @@ namespace Chorus.merge.xml.generic
 		private void StreamClosingData(XmlReader xmlDoc, XmlWriter writer)
 		{
 			writer.WriteEndElement();
-			while(xmlDoc.Read())
+			while (xmlDoc.Read())
 			{
 				StreamNode(xmlDoc, writer);
 			}

@@ -8,9 +8,10 @@ using Chorus.VcsDrivers;
 using LibChorus.TestUtilities;
 using NUnit.Framework;
 using SIL.Extensions;
+using SIL.IO;
 using SIL.Progress;
 
-namespace Chorus.Tests
+namespace Chorus.Tests.UI.Sync
 {
 	[TestFixture]
 	public class SyncControlModelTests
@@ -51,6 +52,7 @@ namespace Chorus.Tests
 
 
 			string pathToText = Path.Combine(_pathToTestRoot, "foo.txt");
+			// ReSharper disable once LocalizableElement
 			File.WriteAllText(pathToText, "version one of my pretend txt");
 
 			RepositorySetup.MakeRepositoryForTest(_pathToTestRoot, "bob",_progress);
@@ -182,12 +184,11 @@ namespace Chorus.Tests
 		public void AsyncLocalCheckIn_NoPreviousRepoCreation_Throws()
 		{
 			Assert.Throws<InvalidOperationException>(() =>
-										 {
-											 //simulate not having previously created a repository
-											 SIL.IO.DirectoryUtilities.DeleteDirectoryRobust(
-												 _pathToTestRoot.CombineForPath(".hg"));
-											 _model.AsyncLocalCheckIn("testing", null);
-										 });
+			{
+				//simulate not having previously created a repository
+				RobustIO.DeleteDirectoryAndContents(_pathToTestRoot.CombineForPath(".hg"));
+				_model.AsyncLocalCheckIn("testing", null);
+			});
 		}
 	}
 }
