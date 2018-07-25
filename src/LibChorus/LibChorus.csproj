@@ -401,6 +401,8 @@
     <Compile Include="FileTypeHandlers\ChorusFileTypeHandlerCollection.cs" />
     <Compile Include="notes\EmbeddedMessageContentHandlerRepository.cs" />
     <Compile Include="CloneResult.cs" />
+    <Compile Include="merge\ChangeReport.cs" />
+    <Compile Include="merge\DefaultChangeReport.cs" />
   </ItemGroup>
   <ItemGroup>
 	<BootstrapperPackage Include="Microsoft.Net.Framework.2.0">

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
+using SIL.Providers;
 
 #if notyet
 namespace Chorus
@@ -47,7 +48,7 @@ namespace Chorus
 				//hack to force a changeset
 				string fake = Path.Combine(_pathToRepository, _userName + "_fake");
 				//hack
-				File.WriteAllText(fake, DateTime.Now.Ticks.ToString().Substring(14));
+				File.WriteAllText(fake, DateTimeProvider.Current.Now.Ticks.ToString().Substring(14));
 				AddAndCheckinFile(fake);
 		}
 
@@ -56,7 +57,7 @@ namespace Chorus
 			//hack to force a changeset
 			string fake = Path.Combine(_pathToRepository, _userName + "_fake");
 			//hack
-			File.WriteAllText(fake, DateTime.Now.Ticks.ToString().Substring(14));
+			File.WriteAllText(fake, DateTimeProvider.Current.Now.Ticks.ToString().Substring(14));
 		}
 
 		public static GitRepository CreateNewByCloning(GitRepository sourceRepo, string parentDirOfNewRepository, string newPersonName)

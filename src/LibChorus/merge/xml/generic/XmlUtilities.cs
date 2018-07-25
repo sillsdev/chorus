@@ -10,6 +10,7 @@ using System.Xml.Linq;
 using Chorus.FileTypeHandlers.lift;
 using Chorus.merge.xml.generic.xmldiff;
 using SIL.Extensions;
+using SIL.Providers;
 
 
 namespace Chorus.merge.xml.generic
@@ -358,7 +359,7 @@ namespace Chorus.merge.xml.generic
 
 		internal static void AddDateCreatedAttribute(XmlNode elementNode)
 		{
-			AddAttribute(elementNode, "dateCreated", DateTime.Now.ToString(LiftUtils.LiftTimeFormatWithTimeZone));
+			AddAttribute(elementNode, "dateCreated", DateTimeProvider.Current.Now.ToString(LiftUtils.LiftTimeFormatWithTimeZone));
 		}
 
 		internal static void AddAttribute(XmlNode element, string name, string value)

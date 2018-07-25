@@ -18,7 +18,9 @@ namespace Chorus.merge.xml.generic
 		private FileStream _readerStream;
 		private TempFile _tempFile;
 		private string _path;
-		public static string TimeFormatWithTimeZone = "yyyy-MM-ddTHH:mm:ssK";
+		[Obsolete("Use TimeFormatWithTimeZone instead, as TimeFormatNoTimeZone produces incorrect results when used with DateTime.Now")]
+		static public string TimeFormatNoTimeZone = "yyyy-MM-ddTHH:mm:ssZ";
+		static public string TimeFormatWithTimeZone = "yyyy-MM-ddTHH:mm:ssK";
 		private const int FormatVersionNumber = 0;
 
 		/// <summary>
