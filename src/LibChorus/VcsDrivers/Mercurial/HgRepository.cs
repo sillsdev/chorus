@@ -160,6 +160,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			try
 			{
 				EnsureChorusMergeAddedToHgrc();
+				EnsureCacertsIsSet();
 				var extensions = HgExtensions;
 				EnsureTheseExtensionsAndFormatSet(extensions);
 				_hgrcUpdateNeeded = false;
@@ -1423,6 +1424,48 @@ namespace Chorus.VcsDrivers.Mercurial
 				section.Set(address.Name, address.URI);
 			}
 			doc.SaveAndGiveMessageIfCannot();
+		}
+
+		private void EnsureCacertsIsSet()
+		{
+			var doc = GetMercurialConfigForRepository();
+			var section = doc.Sections.GetOrCreate("web");
+
+			section.Set("cacerts", PathToCertificateFile);
+
+			doc.SaveAndGiveMessageIfCannot();
+		}
+
+		private static string PathToCertificateFile
+		{
+			get
+			{
+				if (Palaso.PlatformUtilities.Platform.IsLinux)
+				{
+					// Linux comes with a set of root certificates installed on the system.
+					// Unfortunately there is no fixed location or a defined way how to get that
+					// location, so we have to try the locations we know.
+					// See https://www.mercurial-scm.org/wiki/CACertificates and https://serverfault.com/a/722646
+					var certFiles = new[] {
+						"/etc/ssl/certs/ca-certificates.crt",               // Debian/Ubuntu/Gentoo etc.
+						"/etc/pki/tls/certs/ca-bundle.crt",                 // Fedora/RHEL 6
+						"/etc/ssl/ca-bundle.pem",                           // OpenSUSE
+						"/etc/pki/tls/cacert.pem",                          // OpenELEC
+						"/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem" // CentOS/RHEL 7
+					};
+
+					foreach (var file in certFiles)
+					{
+						if (File.Exists(file))
+							return file;
+					}
+				}
+
+				// On Windows Mercurial comes with it's own certificate file.
+				// On Linux, if we didn't a file at any of the predefined locations we return
+				// the same file as on Windows and hope that it exists...
+				return Path.Combine(MercurialLocation.PathToMercurialFolder, "cacert.pem");
+			}
 		}
 
 		public void SetTheOnlyAddressOfThisType(RepositoryAddress address)
