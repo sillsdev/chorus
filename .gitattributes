@@ -18,4 +18,5 @@
 *.patch -whitespace
 *.svg -whitespace
 *.xml -whitespace
-changelog -whitespace
+*.yml -whitespace
+CHANGELOG.md -whitespace
