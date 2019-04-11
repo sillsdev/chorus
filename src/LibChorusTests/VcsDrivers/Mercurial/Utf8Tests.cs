@@ -5,6 +5,7 @@ using Chorus.VcsDrivers.Mercurial;
 using LibChorus.TestUtilities;
 using NUnit.Framework;
 using SIL.IO;
+using SIL.PlatformUtilities;
 using SIL.Progress;
 using SIL.TestUtilities;
 
@@ -72,8 +73,8 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			}
 		}
 
-#if !MONO
 		[Test]
+		[Platform(Exclude = "Linux")]
 		public void Utf8ExtensionNotPresent_MercurialOperationReportsError()
 		{
 			using (new MercurialExtensionHider())
@@ -93,7 +94,6 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				//Assert.IsTrue(setup.GetProgressString().Contains("Failed to set up extensions"));
 			}
 		}
-#endif
 
 		[Test]
 		public void Utf8ExtensionNotPresent_CloneLocalWithoutUpdateThrows()
@@ -108,10 +108,13 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 					var exception = Assert.Throws<ApplicationException>(
 						() => setup.Repository.CloneLocalWithoutUpdate(other.ProjectFolder.Path)
 					);
-#if !MONO
-					// On mono a different exception is thrown, which is fine, the rest of this test is still useful
-					Assert.That(exception.Message.Contains("fixutf8"), "Expected fixutf8 in:" + exception.Message);
-#endif
+
+					if (!Platform.IsMono)
+					{
+						// On mono a different exception is thrown, which is fine, the rest of this test is still useful
+						Assert.That(exception.Message.Contains("fixutf8"),
+							"Expected fixutf8 in:" + exception.Message);
+					}
 				}
 			}
 		}
@@ -241,7 +244,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		// Regression: http://jira.palaso.org/issues/browse/CHR-32
 		/* When applications are passed to windows console apps they are passed as CP1252 strings if at all possible,
 		 * failing that they are passed as UCS2. e.g. projéct would be CP1252 and ไก่ would be UCS2.
-		 * 
+		 *
 		 * The CreateOrLocate tests did not capture this distinction, so these 'Recover' tests have been added.
 		 */
 		[Test]
@@ -252,7 +255,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				repo.Repository.RecoverFromInterruptedTransactionIfNeeded();
 				Assert.True(File.Exists(repo.PathToHgrc));
 			}
-			
+
 		}
 
 		// Regression: http://jira.palaso.org/issues/browse/CHR-32

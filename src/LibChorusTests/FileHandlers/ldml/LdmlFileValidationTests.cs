@@ -4,6 +4,7 @@ using System.Linq;
 using Chorus.FileTypeHandlers;
 using NUnit.Framework;
 using SIL.IO;
+using SIL.PlatformUtilities;
 
 namespace LibChorus.Tests.FileHandlers.ldml
 {
@@ -26,19 +27,21 @@ namespace LibChorus.Tests.FileHandlers.ldml
 				handler => handler.GetType().Name == "LdmlFileHandler")).First();
 
 			_goodXmlTempFile = TempFile.WithExtension(".ldml");
-#if MONO
-			File.WriteAllText(_goodXmlTempFile.Path, "<?xml version='1.0' encoding='utf-8'?>" + Environment.NewLine + "<ldml>" + Environment.NewLine + "</ldml>");
-#else
-			File.WriteAllText(_goodXmlTempFile.Path, "<?xml version='1.0' encoding='utf-8'?>" + Environment.NewLine + "<ldml />");
-#endif
+			var nl = Environment.NewLine;
+			File.WriteAllText(_goodXmlTempFile.Path, Platform.IsMono ?
+				$"<?xml version='1.0' encoding='utf-8'?>{nl}<ldml>{nl}</ldml>" :
+				$"<?xml version='1.0' encoding='utf-8'?>{nl}<ldml />");
 			_illformedXmlTempFile = TempFile.WithExtension(".ldml");
-			File.WriteAllText(_illformedXmlTempFile.Path, "<?xml version='1.0' encoding='utf-8'?>" + Environment.NewLine + "<ldml>");
+			File.WriteAllText(_illformedXmlTempFile.Path,
+				$"<?xml version='1.0' encoding='utf-8'?>{nl}<ldml>");
 
 			_goodXmlButNotLdmlTempFile = TempFile.WithExtension(".ldml");
-			File.WriteAllText(_goodXmlButNotLdmlTempFile.Path, "<?xml version='1.0' encoding='utf-8'?>" + Environment.NewLine + "<nonldmlstuff />");
+			File.WriteAllText(_goodXmlButNotLdmlTempFile.Path,
+				$"<?xml version='1.0' encoding='utf-8'?>{nl}<nonldmlstuff />");
 
 			_nonXmlTempFile = TempFile.WithExtension(".txt");
-			File.WriteAllText(_nonXmlTempFile.Path, "This is not an ldml file." + Environment.NewLine);
+			File.WriteAllText(_nonXmlTempFile.Path,
+				$"This is not an ldml file.{nl}");
 		}
 
 		[TestFixtureTearDown]

@@ -4,6 +4,7 @@ using System.Linq;
 using Chorus.FileTypeHandlers;
 using NUnit.Framework;
 using SIL.IO;
+using SIL.PlatformUtilities;
 
 namespace LibChorus.Tests.FileHandlers.LexiconSettings
 {
@@ -26,19 +27,21 @@ namespace LibChorus.Tests.FileHandlers.LexiconSettings
 				handler => handler.GetType().Name == "UserLexiconSettingsFileHandler")).First();
 
 			_goodXmlTempFile = TempFile.WithExtension(".ulsx");
-#if MONO
-			File.WriteAllText(_goodXmlTempFile.Path, "<?xml version='1.0' encoding='utf-8'?>" + Environment.NewLine + "<UserLexiconSettings>" + Environment.NewLine + "</UserLexiconSettings>");
-#else
-			File.WriteAllText(_goodXmlTempFile.Path, "<?xml version='1.0' encoding='utf-8'?>" + Environment.NewLine + "<UserLexiconSettings />");
-#endif
+			var nl = Environment.NewLine;
+			File.WriteAllText(_goodXmlTempFile.Path, Platform.IsMono ?
+				$"<?xml version='1.0' encoding='utf-8'?>{nl}<UserLexiconSettings>{nl}</UserLexiconSettings>" :
+				$"<?xml version='1.0' encoding='utf-8'?>{nl}<UserLexiconSettings />");
 			_illformedXmlTempFile = TempFile.WithExtension(".ulsx");
-			File.WriteAllText(_illformedXmlTempFile.Path, "<?xml version='1.0' encoding='utf-8'?>" + Environment.NewLine + "<UserLexiconSettings>");
+			File.WriteAllText(_illformedXmlTempFile.Path,
+				$"<?xml version='1.0' encoding='utf-8'?>{nl}<UserLexiconSettings>");
 
 			_goodXmlButNotUserLexiconSettingsTempFile = TempFile.WithExtension(".ulsx");
-			File.WriteAllText(_goodXmlButNotUserLexiconSettingsTempFile.Path, "<?xml version='1.0' encoding='utf-8'?>" + Environment.NewLine + "<nonUserLexiconSettingsstuff />");
+			File.WriteAllText(_goodXmlButNotUserLexiconSettingsTempFile.Path,
+				$"<?xml version='1.0' encoding='utf-8'?>{nl}<nonUserLexiconSettingsstuff />");
 
 			_nonXmlTempFile = TempFile.WithExtension(".txt");
-			File.WriteAllText(_nonXmlTempFile.Path, "This is not a user lexicon settings file." + Environment.NewLine);
+			File.WriteAllText(_nonXmlTempFile.Path,
+				$"This is not a user lexicon settings file.{nl}");
 		}
 
 		[TestFixtureTearDown]

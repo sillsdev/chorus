@@ -217,9 +217,8 @@ namespace LibChorus.Tests.sync
 		}
 
 		[Test]
-#if MONO
-		[Ignore] // I (CP) can't get MONO to get an exclusive lock for write. See RepositorySetup::GetFileLockForWriting
-#endif
+		[Platform(Exclude = "Linux",
+			Reason = "I (CP) can't get MONO to get an exclusive lock for write. See RepositorySetup::GetFileLockForWriting")]
 		[Category("SkipOnTeamCityRandomTestFailure")]
 		public void Sync_FileLockedForWritingDuringUpdate_GetUpdatedFileOnceLockIsGone()
 		{

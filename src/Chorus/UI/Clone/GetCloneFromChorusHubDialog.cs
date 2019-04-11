@@ -7,6 +7,7 @@ using System.Windows.Forms;
 using Chorus.ChorusHub;
 using Chorus.VcsDrivers;
 using L10NSharp;
+using SIL.PlatformUtilities;
 using SIL.Progress;
 using SIL.Windows.Forms.Progress;
 
@@ -110,12 +111,9 @@ namespace Chorus.UI.Clone
 				Height = 10,
 				Style = ProgressBarStyle.Marquee,
 				Anchor = AnchorStyles.Right | AnchorStyles.Left | AnchorStyles.Top,
-				MarqueeAnimationSpeed = 50
+				MarqueeAnimationSpeed = Platform.IsMono ? 3000 : 50
 			};
-#if MONO
-			progressIndicator.MarqueeAnimationSpeed = 3000;
-#else
-#endif
+
 			progressIndicator.IndicateUnknownProgress();
 
 			_clonerStatusLabel = new TextBox
@@ -233,9 +231,12 @@ namespace Chorus.UI.Clone
 
 		void OnChorusHubInfo_DoWork(object sender, DoWorkEventArgs e)
 		{
-#if !MONO // See https://bugzilla.xamarin.com/show_bug.cgi?id=4269. Remove #if when using mono that fixes this.
-			Thread.CurrentThread.Name = @"GetRepositoryInformation";
-#endif
+			if (Platform.IsWindows)
+			{
+				// See https://bugzilla.xamarin.com/show_bug.cgi?id=4269. Remove if when using mono that fixes this.
+				Thread.CurrentThread.Name = @"GetRepositoryInformation";
+			}
+
 			var chorusHubServerInfo = ChorusHubServerInfo.FindServerInformation();
 
 			if (chorusHubServerInfo == null || !chorusHubServerInfo.ServerIsCompatibleWithThisClient)

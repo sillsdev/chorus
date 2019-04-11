@@ -1,7 +1,3 @@
-//#if MONO
-//#define MERCURIAL2
-//#endif
-
 using System;
 using System.Linq;
 using System.Collections.Generic;
@@ -223,7 +219,7 @@ namespace Chorus.VcsDrivers.Mercurial
 					{
 						doc.Save();
 					}
-						// ReSharper disable EmptyGeneralCatchClause
+					// ReSharper disable EmptyGeneralCatchClause
 					catch(Exception)
 					{
 					}
@@ -1092,11 +1088,8 @@ namespace Chorus.VcsDrivers.Mercurial
 
 			List<Revision> items = new List<Revision>();
 			Revision item = null;
-#if MONO
-			int infiniteLoopChecker = 0;//trying to pin down WS-14981 send/receive hangs
-			while(line !=null && infiniteLoopChecker<100)
-#endif
-			while (line != null)
+			int infiniteLoopChecker = 0; //trying to pin down WS-14981 send/receive hangs
+			while (line != null && infiniteLoopChecker < 100)
 			{
 				int colonIndex = line.IndexOf(":");
 				if (colonIndex > 0)
@@ -1107,22 +1100,19 @@ namespace Chorus.VcsDrivers.Mercurial
 					//With .net 3.5, this is removed by Trim(). With .net 4, it is not(!!!).
 					//This lead to a failing test. We have no idea where it comes from, nor the cause.
 					//The only thing that should be different on the server is that it is Windows XP.
-					string value = line.Substring(colonIndex + 1).Trim().Trim(new char[] { '\uFEFF', '\u200B' }).Trim();
+					string value = line.Substring(colonIndex + 1).Trim()
+						.Trim(new char[] { '\uFEFF', '\u200B' }).Trim();
 					switch (label)
 					{
 						default:
-#if MONO
-							infiniteLoopChecker++;
-#endif
+							if (Platform.IsMono)
+								infiniteLoopChecker++;
 							break;
 						case "changeset":
 							item = new Revision(this);
 							items.Add(item);
 							item.SetRevisionAndHashFromCombinedDescriptor(value);
 							break;
-#if MONO
-							infiniteLoopChecker=0;
-#endif
 						case "parent":
 							item.AddParentFromCombinedNumberAndHash(value);
 							break;
@@ -1148,15 +1138,16 @@ namespace Chorus.VcsDrivers.Mercurial
 							break;
 					}
 				}
+
 				line = reader.ReadLine();
 			}
 
-#if MONO
-	if(infiniteLoopChecker >99)
-	{
-	   _progress.WriteWarning("Had to break out of infinite loop in GetRevisionsFromQueryResultText(). See WS-14981: 'send/receive hangs'.");
-	}
-#endif
+			if (infiniteLoopChecker > 99)
+			{
+				_progress.WriteWarning(
+					"Had to break out of infinite loop in GetRevisionsFromQueryResultText(). See WS-14981: 'send/receive hangs'.");
+			}
+
 			return items;
 		}
 

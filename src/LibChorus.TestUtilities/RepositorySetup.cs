@@ -5,6 +5,7 @@ using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using NUnit.Framework;
 using NUnit.Framework.Constraints;
+using SIL.PlatformUtilities;
 using SIL.Progress;
 using SIL.TestUtilities;
 
@@ -232,18 +233,18 @@ namespace LibChorus.TestUtilities
 		}
 		public IDisposable GetFileLockForWriting(string localPath)
 		{
-#if MONO
+			if (!Platform.IsMono)
+				return new StreamReader(ProjectFolder.Combine(localPath));
+
 			// This doesn't work.  A mono bug perhaps? (CP)
-			FileStream f = new FileStream(ProjectFolder.Combine(localPath), FileMode.Open, FileAccess.ReadWrite, FileShare.Read);
+			FileStream f = new FileStream(ProjectFolder.Combine(localPath), FileMode.Open,
+				FileAccess.ReadWrite, FileShare.Read);
 			// This didn't work either
 			//f.Lock(0, f.Length - 1);
 			//FileStream f = new FileStream(ProjectFolder.Combine(localPath), FileMode.Open, FileAccess.Write, FileShare.None);
 			// This locked the file, but also deleted it (as expected) which isn't what the test expects
 			//FileStream f = new FileStream(ProjectFolder.Combine(localPath), FileMode.Create, FileAccess.Write, FileShare.None);
 			return f;
-#else
-			return new StreamReader(ProjectFolder.Combine(localPath));
-#endif
 		}
 
 

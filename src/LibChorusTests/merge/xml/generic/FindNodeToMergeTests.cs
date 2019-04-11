@@ -2,6 +2,7 @@
 using System.Xml;
 using Chorus.merge.xml.generic;
 using NUnit.Framework;
+using SIL.PlatformUtilities;
 
 namespace LibChorus.Tests.merge.xml.generic
 {
@@ -55,16 +56,14 @@ namespace LibChorus.Tests.merge.xml.generic
 			otherDoc.LoadXml(otherXml);
 
 			var nodeMatcher = new FindByMultipleKeyAttributes(new List<string> { "name", "class" });
-#if !MONO
-			if (otherDoc.DocumentElement != null)
-			{
-				var acceptableTargets = new HashSet<XmlNode>();
-				foreach (XmlNode node in otherDoc.DocumentElement.ChildNodes)
-					acceptableTargets.Add(node);
-				var result = nodeMatcher.GetNodeToMerge(nodeToMatch, otherDoc.DocumentElement, acceptableTargets);
-				Assert.AreSame(otherDoc.DocumentElement.ChildNodes[1], result);
-			}
-#endif
+			if (Platform.IsMono || otherDoc.DocumentElement == null)
+				return;
+
+			var acceptableTargets = new HashSet<XmlNode>();
+			foreach (XmlNode node in otherDoc.DocumentElement.ChildNodes)
+				acceptableTargets.Add(node);
+			var result = nodeMatcher.GetNodeToMerge(nodeToMatch, otherDoc.DocumentElement, acceptableTargets);
+			Assert.AreSame(otherDoc.DocumentElement.ChildNodes[1], result);
 		}
 
 		[Test]
@@ -91,7 +90,8 @@ namespace LibChorus.Tests.merge.xml.generic
 
 			var nodeMatcher = new FindByMatchingAttributeNames(new HashSet<string> { "xmlns:palaso" });
 			Assert.AreSame(otherDoc.DocumentElement.ChildNodes[1],
-				nodeMatcher.GetNodeToMerge(nodeToMatch, otherDoc.DocumentElement, SetFromChildren.Get(otherDoc.DocumentElement)));
+				nodeMatcher.GetNodeToMerge(nodeToMatch, otherDoc.DocumentElement,
+					SetFromChildren.Get(otherDoc.DocumentElement)));
 		}
 
 		[Test]

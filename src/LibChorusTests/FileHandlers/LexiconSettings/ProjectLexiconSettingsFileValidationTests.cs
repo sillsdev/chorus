@@ -4,6 +4,7 @@ using System.Linq;
 using Chorus.FileTypeHandlers;
 using NUnit.Framework;
 using SIL.IO;
+using SIL.PlatformUtilities;
 
 namespace LibChorus.Tests.FileHandlers.LexiconSettings
 {
@@ -26,19 +27,21 @@ namespace LibChorus.Tests.FileHandlers.LexiconSettings
 				handler => handler.GetType().Name == "ProjectLexiconSettingsFileHandler")).First();
 
 			_goodXmlTempFile = TempFile.WithExtension(".plsx");
-#if MONO
-			File.WriteAllText(_goodXmlTempFile.Path, "<?xml version='1.0' encoding='utf-8'?>" + Environment.NewLine + "<ProjectLexiconSettings>" + Environment.NewLine + "</ProjectLexiconSettings>");
-#else
-			File.WriteAllText(_goodXmlTempFile.Path, "<?xml version='1.0' encoding='utf-8'?>" + Environment.NewLine + "<ProjectLexiconSettings />");
-#endif
+			var nl = Environment.NewLine;
+			File.WriteAllText(_goodXmlTempFile.Path, Platform.IsMono ?
+				$"<?xml version='1.0' encoding='utf-8'?>{nl}<ProjectLexiconSettings>{nl}</ProjectLexiconSettings>" :
+				$"<?xml version='1.0' encoding='utf-8'?>{nl}<ProjectLexiconSettings />");
 			_illformedXmlTempFile = TempFile.WithExtension(".plsx");
-			File.WriteAllText(_illformedXmlTempFile.Path, "<?xml version='1.0' encoding='utf-8'?>" + Environment.NewLine + "<ProjectLexiconSettings>");
+			File.WriteAllText(_illformedXmlTempFile.Path,
+				$"<?xml version='1.0' encoding='utf-8'?>{nl}<ProjectLexiconSettings>");
 
 			_goodXmlButNotProjectLexiconSettingsTempFile = TempFile.WithExtension(".plsx");
-			File.WriteAllText(_goodXmlButNotProjectLexiconSettingsTempFile.Path, "<?xml version='1.0' encoding='utf-8'?>" + Environment.NewLine + "<nonProjectLexiconSettingsstuff />");
+			File.WriteAllText(_goodXmlButNotProjectLexiconSettingsTempFile.Path,
+				$"<?xml version='1.0' encoding='utf-8'?>{nl}<nonProjectLexiconSettingsstuff />");
 
 			_nonXmlTempFile = TempFile.WithExtension(".txt");
-			File.WriteAllText(_nonXmlTempFile.Path, "This is not a project lexicon settings file." + Environment.NewLine);
+			File.WriteAllText(_nonXmlTempFile.Path,
+				$"This is not a project lexicon settings file.{nl}");
 		}
 
 		[TestFixtureTearDown]
