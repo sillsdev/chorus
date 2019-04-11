@@ -1,4 +1,5 @@
 build/NuGet.exe
+build/nuget.exe
 CopyToWeSay.bat
 output/
 obj/
