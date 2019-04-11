@@ -83,9 +83,7 @@ namespace LibChorus.Tests.sync
 		/// The presence or absence of the two files tells us whether the Synchronizer class called the new interface methods.
 		/// </summary>
 		[Test]
-#if MONO
-		[Ignore]
-#endif
+		[Platform(Exclude = "Linux")]
 		public void BasicCommitHasCommitFileButNotMergeFile()
 		{
 			using (var bob = new RepositorySetup("bob", true))
@@ -113,9 +111,7 @@ namespace LibChorus.Tests.sync
 		/// Then it does a Sync which should find no changes and result in no pull (or pull file)
 		/// </summary>
 		[Test]
-#if MONO
-		[Ignore]
-#endif
+		[Platform(Exclude = "Linux")]
 		public void SendReceiveWithNoRemoteChangesGetsNoFiles()
 		{
 			using (var bob = RepositoryWithFilesSetup.CreateWithLiftFile("bob"))
@@ -141,9 +137,7 @@ namespace LibChorus.Tests.sync
 		/// This should result in a SimpleUpdate call, sally made a change so it should have a commmit file and a pull file and a merge file
 		/// </summary>
 		[Test]
-#if MONO
-		[Ignore]
-#endif
+		[Platform(Exclude = "Linux")]
 		public void SendReceiveWithTrivialMergeCallsSimpleUpdate()
 		{
 			using (var alistair = RepositoryWithFilesSetup.CreateWithLiftFile("alistair"))

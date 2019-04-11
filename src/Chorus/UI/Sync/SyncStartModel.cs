@@ -3,6 +3,7 @@ using System.Linq;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using L10NSharp;
+using SIL.PlatformUtilities;
 using SIL.Progress;
 
 namespace Chorus.UI.Sync
@@ -162,15 +163,22 @@ namespace Chorus.UI.Sync
 				try
 				{
 					var first = usbDrives[0];
-#if !MONO
-					message = string.Format(LocalizationManager.GetString("GetUsbStatus.DriveInfoAndFreeSpace", "{0} {1} ({2} Megs Free Space)",
-							"{x} tags are replaced as follows: <root directory of the USB drive> <drive label> (<number> Megs Free Space), "
-							+ "for example: F:\\ MyDrive (640 Megs Free Space)"),
-						first.RootDirectory, first.VolumeLabel, Math.Floor(first.TotalFreeSpace / 1048576.0));
-#else
-					message = first.VolumeLabel;
-					//RootDir & volume label are the same on linux.  TotalFreeSpace is, like, maxint or something in mono 2.0
-#endif
+					if (!Platform.IsMono)
+					{
+						message = string.Format(LocalizationManager.GetString(
+								"GetUsbStatus.DriveInfoAndFreeSpace",
+								"{0} {1} ({2} Megs Free Space)",
+								"{x} tags are replaced as follows: <root directory of the USB drive> <drive label> (<number> Megs Free Space), "
+								+ "for example: F:\\ MyDrive (640 Megs Free Space)"),
+							first.RootDirectory, first.VolumeLabel,
+							Math.Floor(first.TotalFreeSpace / 1048576.0));
+					}
+					else
+					{
+						message = first.VolumeLabel;
+						//RootDir & volume label are the same on linux.  TotalFreeSpace is, like, maxint or something in mono 2.0
+					}
+
 					ready = true;
 				}
 				catch (Exception error)
