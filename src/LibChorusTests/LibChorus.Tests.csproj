@@ -1,323 +1,41 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="12.0">
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.21022</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{F9671F8B-8556-44EA-81A7-C236D871B471}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <TargetFrameworks>net461</TargetFrameworks>
     <RootNamespace>LibChorus.Tests</RootNamespace>
-    <AssemblyName>LibChorus.Tests</AssemblyName>
-    <FileUpgradeFlags>
-    </FileUpgradeFlags>
-    <OldToolsVersion>3.5</OldToolsVersion>
-    <UpgradeBackupLocation>
-    </UpgradeBackupLocation>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
-    <TargetFrameworkProfile />
+    <AssemblyTitle>LibChorus.Tests</AssemblyTitle>
+    <Configurations>Debug;Release</Configurations>
+    <Description>Unit tests for LibChorus.dll</Description>
+    <Company>SIL International</Company>
+    <Authors>SIL International</Authors>
+    <Product>chorus</Product>
+    <Copyright>Copyright © 2010-2019 SIL International</Copyright>
+    <OutputPath>../../output/$(Configuration)</OutputPath>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>../FieldWorks.snk</AssemblyOriginatorKeyFile>
+    <IsTestProject>true</IsTestProject>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>True</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>False</Optimize>
-    <OutputPath>..\..\output\Debug</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <Prefer32Bit>false</Prefer32Bit>
-    <LangVersion>6</LangVersion>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>True</Optimize>
-    <OutputPath>..\..\output\Release</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <DebugSymbols>True</DebugSymbols>
-    <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <Prefer32Bit>false</Prefer32Bit>
-    <LangVersion>6</LangVersion>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'DebugMono|AnyCPU' ">
-    <DebugSymbols>True</DebugSymbols>
-    <OutputPath>..\..\output\DebugMono</OutputPath>
-    <DefineConstants>DEBUG;TRACE;MONO</DefineConstants>
-    <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
-    <DebugType>full</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Optimize>False</Optimize>
-    <Prefer32Bit>false</Prefer32Bit>
-    <LangVersion>6</LangVersion>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'ReleaseMono|AnyCPU' ">
-    <DebugSymbols>True</DebugSymbols>
-    <OutputPath>..\..\output\ReleaseMono</OutputPath>
-    <DefineConstants>TRACE;MONO</DefineConstants>
-    <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
-    <Optimize>True</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
-    <LangVersion>6</LangVersion>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>..\..\output\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
-    <DebugType>full</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <LangVersion>6</LangVersion>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>..\..\output\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <LangVersion>6</LangVersion>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <ItemGroup Condition="'$(Configuration)' == 'Debug'">
-    <Reference Include="SIL.Core">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\Debug\SIL.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="SIL.TestUtilities">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\Debug\SIL.TestUtilities.dll</HintPath>
-    </Reference>
-    <Reference Include="SIL.WritingSystems">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\Debug\SIL.WritingSystems.dll</HintPath>
-    </Reference>
-    <Reference Include="SIL.WritingSystems.Tests">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\Debug\SIL.WritingSystems.Tests.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup Condition="'$(Configuration)' == 'Release'">
-    <Reference Include="SIL.Core">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\Release\SIL.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="SIL.TestUtilities">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\Release\SIL.TestUtilities.dll</HintPath>
-    </Reference>
-    <Reference Include="SIL.WritingSystems">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\Release\SIL.WritingSystems.dll</HintPath>
-    </Reference>
-    <Reference Include="SIL.WritingSystems.Tests">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\Release\SIL.WritingSystems.Tests.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup Condition="'$(Configuration)' == 'DebugMono'">
-    <Reference Include="SIL.Core">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\DebugMono\SIL.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="SIL.TestUtilities">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\DebugMono\SIL.TestUtilities.dll</HintPath>
-    </Reference>
-    <Reference Include="SIL.WritingSystems">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\DebugMono\SIL.WritingSystems.dll</HintPath>
-    </Reference>
-    <Reference Include="SIL.WritingSystems.Tests">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\DebugMono\SIL.WritingSystems.Tests.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup Condition="'$(Configuration)' == 'ReleaseMono'">
-    <Reference Include="SIL.Core">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\ReleaseMono\SIL.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="SIL.TestUtilities">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\ReleaseMono\SIL.TestUtilities.dll</HintPath>
-    </Reference>
-    <Reference Include="SIL.WritingSystems">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\ReleaseMono\SIL.WritingSystems.dll</HintPath>
-    </Reference>
-    <Reference Include="SIL.WritingSystems.Tests">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\ReleaseMono\SIL.WritingSystems.Tests.dll</HintPath>
-    </Reference>
-  </ItemGroup>
+
   <ItemGroup>
-    <Reference Include="Autofac">
-      <HintPath>..\..\packages\Autofac.2.6.3.862\lib\NET40\Autofac.dll</HintPath>
-    </Reference>
-    <Reference Include="nunit.framework">
-      <HintPath>..\..\packages\NUnit.2.6.4\lib\nunit.framework.dll</HintPath>
-    </Reference>
-    <Reference Include="SIL.Core.Desktop, Version=4.1.0.0, Culture=neutral, PublicKeyToken=cab3c8c5232dfcf2, processorArchitecture=x86">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\Debug\SIL.Core.Desktop.dll</HintPath>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="ICSharpCode.SharpZipLib, Version=0.86.5.0, Culture=neutral">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\ICSharpCode.SharpZipLib.Patched.0.86.5\lib\net20\ICSharpCode.SharpZipLib.dll</HintPath>
-    </Reference>
+    <PackageReference Include="GitVersionTask.alt" Version="4.0.2-alpha-0006">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="ICSharpCode.SharpZipLib.Patched" Version="0.86.5.1" />
+    <PackageReference Include="NUnit" Version="2.6.4" />
+    <PackageReference Include="SIL.Core" Version="7.0.0-alpha0825" />
+    <PackageReference Include="SIL.TestUtilities" Version="7.0.0-alpha0825" />
+    <PackageReference Include="SIL.WritingSystems.Tests" Version="7.0.0-alpha0825" />
   </ItemGroup>
+
   <ItemGroup>
-    <Compile Include="FileHandlers\audio\AudioFileTypeHandlerTests.cs" />
-    <Compile Include="FileHandlers\ChorusNotesFileHandlerTests.cs" />
-    <Compile Include="FileHandlers\default\DefaultFileTypeHandlerTests.cs" />
-    <Compile Include="FileHandlers\LargeFileIntegrationTestService.cs" />
-    <Compile Include="FileHandlers\image\ImageFileTypeHandlerTests.cs" />
-    <Compile Include="FileHandlers\ldml\LdmlFileMergeTests.cs" />
-    <Compile Include="FileHandlers\ldml\LdmlFileValidationTests.cs" />
-    <Compile Include="FileHandlers\ldml\LdmlFileHandlerTests.cs" />
-    <Compile Include="FileHandlers\LexiconSettings\UserLexiconSettingsFileHandlerTests.cs" />
-    <Compile Include="FileHandlers\LexiconSettings\UserLexiconSettingsFileMergeTests.cs" />
-    <Compile Include="FileHandlers\LexiconSettings\UserLexiconSettingsFileValidationTests.cs" />
-    <Compile Include="FileHandlers\LiftRanges\LiftRangesFileHandlerTests.cs" />
-    <Compile Include="FileHandlers\Lift\LiftSynchronizerAdjunctTests.cs" />
-    <Compile Include="FileHandlers\LexiconSettings\ProjectLexiconSettingsFileHandlerTests.cs" />
-    <Compile Include="FileHandlers\LexiconSettings\ProjectLexiconSettingsFileMergeTests.cs" />
-    <Compile Include="FileHandlers\LexiconSettings\ProjectLexiconSettingsFileValidationTests.cs" />
-    <Compile Include="MercurialPathHelp.cs" />
-    <Compile Include="merge\xml\generic\ConflictTests.cs" />
-    <Compile Include="merge\xml\ConflictXmlRecordRetrievalTests.cs" />
-    <Compile Include="merge\GroupOfConflictFiles.cs" />
-    <Compile Include="merge\XmlLogMergeEventListenerTests.cs" />
-    <Compile Include="merge\GroupOfConflictingLiftFiles.cs" />
-    <Compile Include="merge\xml\FindByKeyAttributeTests.cs" />
-    <Compile Include="merge\xml\FindByEqualityOfTreeTests.cs" />
-    <Compile Include="merge\xml\generic\ElementStrategyTests.cs" />
-    <Compile Include="merge\xml\generic\FindByKeyAttributeInListTests.cs" />
-    <Compile Include="merge\xml\generic\FindNodeToMergeTests.cs" />
-    <Compile Include="merge\xml\generic\ImmutableElementMergeServiceTests.cs" />
-    <Compile Include="merge\xml\generic\MergeAtomicElementServiceTests.cs" />
-    <Compile Include="merge\xml\generic\ConflictIOTest.cs" />
-    <Compile Include="merge\xml\generic\MergeChildrenMethodTests.cs" />
-    <Compile Include="merge\xml\generic\MergeChildrenMethod_DiffOnlyTests.cs" />
-    <Compile Include="merge\xml\generic\MergeLimitedChildrenServiceTests.cs" />
-    <Compile Include="merge\xml\generic\NullMergeStrategy.cs" />
-    <Compile Include="merge\xml\generic\TextElementMergeTests.cs" />
-    <Compile Include="merge\xml\generic\XmlAttributeMergeTests.cs" />
-    <Compile Include="merge\xml\generic\xmldiff\Xml2WayDifferTests.cs" />
-    <Compile Include="merge\xml\generic\xmldiff\XmlDiffTests.cs" />
-    <Compile Include="merge\xml\generic\XmlListMergerTests.cs" />
-    <Compile Include="merge\xml\generic\XmlMergerTests.cs" />
-    <Compile Include="merge\xml\generic\XmlMergeServiceTests.cs" />
-    <Compile Include="merge\xml\lift\LiftHeaderMergingTests.cs" />
-    <Compile Include="merge\xml\lift\ExampleSentenceFinderTests.cs" />
-    <Compile Include="merge\xml\lift\ExampleSentenceMergingTests.cs" />
-    <Compile Include="merge\xml\lift\FileLevelDiffTests.cs" />
-    <Compile Include="merge\xml\lift\FileLevelMergeTests.cs" />
-    <Compile Include="merge\xml\lift\LexEntryContextGeneratorTests.cs" />
-    <Compile Include="merge\xml\lift\LexEntryMergingTests.cs" />
-    <Compile Include="merge\xml\lift\MultiTextMergingTests.cs" />
-    <Compile Include="merge\xml\lift\PoorMansMergingStrategyTests.cs" />
-    <Compile Include="merge\xml\lift\SenseMergingTests.cs" />
-    <Compile Include="merge\xml\lift\ValidationTests.cs" />
-    <Compile Include="notes\AnnotationTests.cs" />
-    <Compile Include="notes\AnnotationIndexTests.cs" />
-    <Compile Include="notes\IndexOfAllAnnotationsByKeyTests.cs" />
-    <Compile Include="notes\IndexOfOpenConflictsTests.cs" />
-    <Compile Include="notes\MessageTests.cs" />
-    <Compile Include="notes\AnnotationRepositoryTests.cs" />
-    <Compile Include="notes\MultiSourceAnnotationRepositoryTests.cs" />
-    <Compile Include="sync\CommitCopTests.cs" />
-    <Compile Include="sync\LargeFileFilterTests.cs" />
-    <Compile Include="sync\ProgrammableSynchronizerAdjunct.cs" />
-    <Compile Include="sync\ProxyTests.cs" />
-    <Compile Include="sync\RevisionMergeBehaviorTests.cs" />
-    <Compile Include="sync\SychronizerAdjunctTests.cs" />
-    <Compile Include="sync\Synchronizer.FileBasedTests.cs" />
-    <Compile Include="sync\ChorusMLFileSyncTests.cs" />
-    <Compile Include="sync\Synchronizer.BadSituationTests.cs" />
-    <Compile Include="sync\SyncScenarioTests.cs" />
-    <Compile Include="sync\UsbRepositorySourceTests.cs" />
-    <Compile Include="utilities\UrlHelperTests.cs" />
-    <Compile Include="utilities\MultiMapTests.cs" />
-    <Compile Include="utilities\XmlUtilitiesTests.cs" />
-    <Compile Include="VcsDrivers\Mercurial\BundleStorageManagerTests.cs" />
-    <Compile Include="VcsDrivers\Mercurial\HgResumeRestApiServerTests.cs" />
-    <Compile Include="VcsDrivers\Mercurial\HgResumeTestUtilities.cs" />
-    <Compile Include="VcsDrivers\Mercurial\HgResumeTransportTests.cs" />
-    <Compile Include="VcsDrivers\Mercurial\HgVersionBranchingTests.cs" />
-    <Compile Include="VcsDrivers\Mercurial\PullStorageManagerTests.cs" />
-    <Compile Include="VcsDrivers\Mercurial\HgTestSetup.cs" />
-    <Compile Include="VcsDrivers\Mercurial\IncludeExcludeTests.cs" />
-    <Compile Include="VcsDrivers\Mercurial\HgWrappingTests.cs" />
-    <Compile Include="VcsDrivers\Mercurial\HgSettingsTests.cs" />
-    <Compile Include="VcsDrivers\Mercurial\FileInRevisionTests.cs" />
-    <Compile Include="VcsDrivers\Mercurial\HistoryTests.cs" />
-    <Compile Include="utilities\ChorusDiff3Tests.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="VcsDrivers\Mercurial\PushStorageManagerTests.cs" />
-    <Compile Include="VcsDrivers\Mercurial\MercurialTestUtilities.cs" />
-    <Compile Include="VcsDrivers\Mercurial\RepositoryTests.cs" />
-    <Compile Include="VcsDrivers\Mercurial\RetrieveVersionTests.cs" />
-    <Compile Include="VcsDrivers\Mercurial\Utf8Tests.cs" />
-    <Compile Include="VcsDrivers\RepositoryAddressTests.cs" />
-    <Compile Include="Model\ServerSettingsModelTests.cs" />
-    <Compile Include="Model\InternetCloneSettingsModelTests.cs" />
-    <Compile Include="FileHandlers\ChorusFileTypeHandlerCollectionTests.cs" />
-    <Compile Include="notes\EmbeddedMessageContentHandlerRepositoryTests.cs" />
-    <Compile Include="FileHandlers\xml\XmlDeletionChangeReportTests.cs" />
+    <ProjectReference Include="..\ChorusMerge\ChorusMerge.csproj" />
+    <ProjectReference Include="..\LibChorus.TestUtilities\LibChorus.TestUtilities.csproj" />
+    <ProjectReference Include="..\LibChorus\LibChorus.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\LibChorus.TestUtilities\LibChorus.TestUtilities.csproj">
-      <Project>{0681E722-1856-44A1-B585-220E6AEC85CB}</Project>
-      <Name>LibChorus.TestUtilities</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\LibChorus\LibChorus.csproj">
-      <Project>{94245366-8F1E-475C-810D-FE89BB3948E0}</Project>
-      <Name>LibChorus</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\ChorusMerge\ChorusMerge.csproj">
-      <Project>{1264E294-F719-491C-863A-703CB48385D8}</Project>
-      <Name>ChorusMerge</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\build\MonoRunnerForTest\chorusmerge">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="VcsDrivers\TestData\incompletemergerepo.zip">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="merge\text\" />
-    <Folder Include="FileHandlers\xml\" />
-  </ItemGroup>
-  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
-	   Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+
+  <PropertyGroup>
+    <!-- See https://github.com/dotnet/sdk/issues/987#issuecomment-286307697 why that is needed -->
+    <AssemblySearchPaths>$(AssemblySearchPaths);{GAC}</AssemblySearchPaths>
+  </PropertyGroup>
+
 </Project>
