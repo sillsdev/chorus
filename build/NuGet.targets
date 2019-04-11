@@ -25,12 +25,13 @@
 		<PackagesConfig>$(ProjectDir)packages.config</PackagesConfig>
 
 		<!-- NuGet command -->
-		<NuGetExePath Condition=" '$(NuGetExePath)' == '' ">$(NuGetToolsPath)/NuGet.exe</NuGetExePath>
+		<NuGetExePath Condition=" '$(NuGetExePath)' == '' ">$(NuGetToolsPath)/nuget.exe</NuGetExePath>
 
 		<PackageSources Condition=" $(PackageSources) == '' ">@(PackageSource)</PackageSources>
 
 		<NuGetCommand Condition=" '$(OS)' == 'Windows_NT'">"$(NuGetExePath)"</NuGetCommand>
 		<NuGetCommand Condition=" '$(OS)' != 'Windows_NT' ">mono --runtime=v4.0.30319 $(NuGetExePath)</NuGetCommand>
+		<NuGetDownloadUrl>https://dist.nuget.org/win-x86-commandline/latest/nuget.exe</NuGetDownloadUrl>
 	</PropertyGroup>
 
 	<Target Name="CheckPrerequisites">
@@ -49,7 +50,7 @@
 	<Target Name="_DownloadNuGet" Condition=" '$(DownloadNuGetExe)' == 'true' AND !Exists('$(NuGetExePath)')">
 		<DownloadNuGet OutputFilename="$(NuGetExePath)"
 			Condition="'$(OS)' == 'Windows_NT'" />
-		<Exec Command="wget https://nuget.org/NuGet.exe || curl -O -L https://nuget.org/NuGet.exe"
+		<Exec Command="wget $(NuGetDownloadUrl) || curl -O -L $(NuGetDownloadUrl)"
 			WorkingDirectory="$(NuGetToolsPath)"
 			Condition="'$(OS)' != 'Windows_NT'" />
 	</Target>
@@ -79,9 +80,9 @@
 				try {
 					OutputFilename = Path.GetFullPath(OutputFilename);
 
-					Log.LogMessage("Downloading latest version of NuGet.exe...");
+					Log.LogMessage("Downloading latest version of nuget.exe...");
 					WebClient webClient = new WebClient();
-					webClient.DownloadFile("https://nuget.org/NuGet.exe", OutputFilename);
+					webClient.DownloadFile("https://dist.nuget.org/win-x86-commandline/latest/nuget.exe", OutputFilename);
 
 					return true;
 				}
