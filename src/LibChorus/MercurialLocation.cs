@@ -65,29 +65,33 @@ namespace Chorus// DON'T MOVE THIS! It needs to be super easy for the client to 
 			// We now try to use the same (antique) version of Mercurial on
 			// both Windows and Linux, to maintain bug-for-bug compatibility.
 			var executingAssemblyPath = ExecutionEnvironment.DirectoryOfExecutingAssembly;
-			var guess = Path.Combine(executingAssemblyPath, "Mercurial");
-			if(Directory.Exists(guess))
+			var guess = CheckForMercurialSubdirectory(executingAssemblyPath);
+			if (guess == null)
 			{
-				PathToMercurialFolder = guess;
-				return;
+				var grandparentPath = Directory.GetParent(executingAssemblyPath).Parent.FullName;
+				guess = CheckForMercurialSubdirectory(grandparentPath);
+				if (guess == null)
+				{
+					var greatGrandParentPath = Directory.GetParent(grandparentPath).FullName;
+					guess = CheckForMercurialSubdirectory(greatGrandParentPath);
+				}
 			}
 
+			PathToMercurialFolder = guess;
+		}
+
+		private static string CheckForMercurialSubdirectory(string directory)
+		{
 			//in case we're running off the wesay source code directory
-			var grandparentPath = Directory.GetParent(executingAssemblyPath).Parent.FullName;
-			guess = Path.Combine(grandparentPath, "common", "Mercurial");
+			var guess = Path.Combine(directory, "common", "Mercurial");
 			if (Directory.Exists(guess))
 			{
-				PathToMercurialFolder = guess;
-				return;
+				return guess;
 			}
 
 			//in case we're running in chorus's solution directory
-			guess = Path.Combine(grandparentPath, "Mercurial");
-			if (Directory.Exists(guess))
-			{
-				PathToMercurialFolder = guess;
-				return;
-			}
+			guess = Path.Combine(directory, "Mercurial");
+			return Directory.Exists(guess) ? guess : null;
 		}
 	}
 }

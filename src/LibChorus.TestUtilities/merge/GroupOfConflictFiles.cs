@@ -5,7 +5,7 @@ using SIL.TestUtilities;
 
 namespace LibChorus.Tests.merge
 {
-	internal class GroupOfConflictFiles : IDisposable
+	public class GroupOfConflictFiles : IDisposable
 	{
 		public TempFile BobFile;
 		public TempFile SallyFile;
