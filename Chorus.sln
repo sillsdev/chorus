@@ -32,6 +32,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChorusHubTests", "src\Choru
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DesignerProjects", "DesignerProjects", "{F8333CC5-791D-499C-B50D-EDA6473B5566}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chorus-Designer", "src\Chorus\Chorus-Designer.csproj", "{3A2EBDDF-8D57-4C9A-9A9D-EFA33BF71CBF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChorusHubApp-Designer", "src\ChorusHubApp\ChorusHubApp-Designer.csproj", "{F4231A67-C849-4729-865B-CE35AD195AED}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleApp-Designer", "src\SampleApp\SampleApp-Designer.csproj", "{80804E11-DF9B-41C5-96F2-36B8A3B9F873}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -84,11 +90,22 @@ Global
 		{1E6F4881-AA72-4AC7-B411-7B7E00C30C25}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1E6F4881-AA72-4AC7-B411-7B7E00C30C25}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1E6F4881-AA72-4AC7-B411-7B7E00C30C25}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3A2EBDDF-8D57-4C9A-9A9D-EFA33BF71CBF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3A2EBDDF-8D57-4C9A-9A9D-EFA33BF71CBF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F4231A67-C849-4729-865B-CE35AD195AED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F4231A67-C849-4729-865B-CE35AD195AED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{80804E11-DF9B-41C5-96F2-36B8A3B9F873}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{80804E11-DF9B-41C5-96F2-36B8A3B9F873}.Release|Any CPU.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = src\ChorusHub\ChorusHub.csproj
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{3A2EBDDF-8D57-4C9A-9A9D-EFA33BF71CBF} = {F8333CC5-791D-499C-B50D-EDA6473B5566}
+		{F4231A67-C849-4729-865B-CE35AD195AED} = {F8333CC5-791D-499C-B50D-EDA6473B5566}
+		{80804E11-DF9B-41C5-96F2-36B8A3B9F873} = {F8333CC5-791D-499C-B50D-EDA6473B5566}
 	EndGlobalSection
 EndGlobal
