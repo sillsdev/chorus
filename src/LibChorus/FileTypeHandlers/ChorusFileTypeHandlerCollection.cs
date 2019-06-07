@@ -50,8 +50,7 @@ namespace Chorus.FileTypeHandlers
                     }
                     catch (ReflectionTypeLoadException ex)
                     {
-                        var typeLoadException = ex as ReflectionTypeLoadException;
-                        var loaderExceptions = typeLoadException.LoaderExceptions;
+                        var loaderExceptions = ex.LoaderExceptions;
                         System.Diagnostics.Debug.Fail("Loading exception!");
                         throw new AggregateException(ex.Message, loaderExceptions);
                     }
