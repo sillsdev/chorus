@@ -111,26 +111,34 @@ namespace Chorus
 		/// Company/Program (e.g. SIL/SayMore)
 		/// </summary>
 		/// <param name="desiredUiLangId"></param>
-		/// <param name="rootDirectoryOfInstalledTmxFiles">The folder path of the original TMX files
+		/// <param name="rootDirectoryOfInstalledTranslationFiles">The folder path of the original TMX files
 		/// installed with the application.  The Chorus TMX files will be in a Chorus subdirectory of this directory.</param>
-		/// <param name="relativeDirectoryOfUserModifiedTmxFiles">The path, relative to %appdata%, where your
+		/// <param name="relativeDirectoryOfUserModifiedTranslationFiles">The path, relative to %appdata%, where your
 		/// application stores user settings (e.g., "SIL\SayMore"). A folder named "Chorus\localizations" will be created there.</param>
-		public static void SetUpLocalization(string desiredUiLangId, string rootDirectoryOfInstalledTmxFiles,
-			string relativeDirectoryOfUserModifiedTmxFiles)
+		public static void SetUpLocalization(TranslationMemory kind, string desiredUiLangId,
+			string rootDirectoryOfInstalledTranslationFiles, string relativeDirectoryOfUserModifiedTranslationFiles)
+
 		{
-			string directoryOfInstalledTmxFiles = Path.Combine(rootDirectoryOfInstalledTmxFiles, "Chorus");
-			string directoryOfUserModifiedTmxFiles = Path.Combine(relativeDirectoryOfUserModifiedTmxFiles, "Chorus");
+			string directoryOfInstalledTmxFiles = Path.Combine(rootDirectoryOfInstalledTranslationFiles, "Chorus");
+			string directoryOfUserModifiedTmxFiles = Path.Combine(relativeDirectoryOfUserModifiedTranslationFiles, "Chorus");
 
 			// This is safer than Application.ProductVersion, which might contain words like 'alpha' or 'beta',
 			// which (on the SECOND run of the program) fail when L10NSharp tries to make a Version object out of them.
 			var versionObj = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
 			// We don't need to reload strings for every "revision" (that might be every time we build).
 			var version = "" + versionObj.Major + "." + versionObj.Minor + "." + versionObj.Build;
-			LocalizationManager.Create(desiredUiLangId, "Chorus", Application.ProductName,
-						   version, directoryOfInstalledTmxFiles,
-						   directoryOfUserModifiedTmxFiles,
-						   Icon.FromHandle(Properties.Resources.chorus32x32.GetHicon()), // should call DestroyIcon, but when?
-						   "issues@chorus.palaso.org", "Chorus");
+			LocalizationManager.Create(kind, desiredUiLangId, "Chorus",
+				Application.ProductName, version, directoryOfInstalledTmxFiles,
+				directoryOfUserModifiedTmxFiles,
+				Icon.FromHandle(Properties.Resources.chorus32x32.GetHicon()), // should call DestroyIcon, but when?
+				"issues@chorus.palaso.org", "Chorus");
+		}
+
+		public static void SetUpLocalization(string desiredUiLangId, string rootDirectoryOfInstalledTmxFiles,
+			string relativeDirectoryOfUserModifiedTmxFiles)
+		{
+			SetUpLocalization(TranslationMemory.Tmx, desiredUiLangId, rootDirectoryOfInstalledTmxFiles,
+				relativeDirectoryOfUserModifiedTmxFiles);
 		}
 
 		public bool DidLoadUpCorrectly;
