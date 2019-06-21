@@ -346,7 +346,7 @@ namespace Chorus.merge.xml.generic
 	}
 
 	///<summary>
-	/// Search for a matching elment where multiple attribute names (not values) combine
+	/// Search for a matching element where multiple attribute names (not values) combine
 	/// to make a single "key" to identify a matching elment.
 	///</summary>
 	public class FindByMatchingAttributeNames : IFindMatchingNodesToMerge
@@ -574,6 +574,63 @@ namespace Chorus.merge.xml.generic
 					continue;
 				}
 				if (nodeToMatch.Name != childNode.Name)
+					continue;
+				matches.Add(childNode);
+			}
+			return matches;
+		}
+
+		/// <summary>
+		/// Get a basic message that is suitable for use in a warning report where ambiguous nodes are found in the same parent node.
+		/// </summary>
+		/// <returns>A message string or null/empty string, if no message is needed for ambiguous nodes.</returns>
+		public string GetWarningMessageForAmbiguousNodes(XmlNode nodeForMessage)
+		{
+			Guard.AgainstNull(nodeForMessage, "nodeForMessage");
+
+			return string.Format("The elements are named: '{0}'", nodeForMessage.Name);
+		}
+	}
+
+	/// <summary>
+	/// e.g. <exemplarCharacters></exemplarCharacters> as different from <exemplarCharacters type="foo"></exemplarCharacters>
+	/// </summary>
+	public class FindFirstElementWithZeroAttributes : IFindMatchingNodesToMerge
+	{
+		public XmlNode GetNodeToMerge(XmlNode nodeToMatch, XmlNode parentToSearchIn, HashSet<XmlNode> acceptableTargets)
+		{
+			if (parentToSearchIn == null)
+				return null;
+
+			var matches = GetMatchingNodes(nodeToMatch, parentToSearchIn).Where(acceptableTargets.Contains).ToList();
+			return (matches.Count > 0)
+				? matches[0]
+				: null;
+		}
+
+		/// <summary>
+		/// Get all matching nodes, or an empty collection, if there are no matches.
+		/// </summary>
+		/// <returns>A collection of zero, or more, matching nodes.</returns>
+		/// <remarks><paramref name="nodeToMatch" /> may, or may not, be a child of <paramref name="parentToSearchIn"/>.</remarks>
+		public IEnumerable<XmlNode> GetMatchingNodes(XmlNode nodeToMatch, XmlNode parentToSearchIn)
+		{
+			if (parentToSearchIn == null)
+				return new List<XmlNode>();
+
+			var matches = new List<XmlNode>();
+			foreach (XmlNode childNode in parentToSearchIn.ChildNodes)
+			{
+				if (childNode.NodeType != XmlNodeType.Element)
+					continue;
+				if (nodeToMatch == childNode)
+				{
+					matches.Add(childNode);
+					continue;
+				}
+				if (nodeToMatch.Name != childNode.Name)
+					continue;
+				if (childNode.Attributes?.Count > 0)
 					continue;
 				matches.Add(childNode);
 			}
